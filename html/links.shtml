@@ -14,7 +14,7 @@
         <li><b><a href="http://www.digikam.org/">Digikam</a></b>, an advanced digital photo management application.</li>
         <li><b><a href="http://enas.gforge.inria.fr/">Event Neural Assembly Simulation</a></b> is an open-source C++ library to simulate so called event neural unit. Done by the INRIA lab, in France.</li>
         <li><b><a href="https://github.com/matthewhanson/gippy">GIPS</a></b> and <b><a href="https://github.com/matthewhanson/gippy/">GIPPY</a></b> are two new, related, open-source projects for processing of remote sensing data.</li>
-        <li><b><a href="http://gmic.sourceforge.net/">G'MIC</a></b> is an open and full-featured framework for image processing, providing several different user interfaces to convert/manipulate/filter/visualize generic image datasets, from 1d scalar signals to 3d+t sequences of multi-spectral volumetric images.</li>
+        <li><b><a href="http://gmic.eu/">G'MIC</a></b> is an open and full-featured framework for image processing, providing several different user interfaces to convert/manipulate/filter/visualize generic image datasets, from 1d scalar signals to 3d+t sequences of multi-spectral volumetric images.</li>
         <li><b><a href="http://koti.kapsi.fi/thirsima/gocam/">GoCam</a></b>, an open source project for developing a computer vision system that analyses video capture of a go game.</li>
         <li><b><a href="http://www.eng.cam.ac.uk/~ajk61/IDIL/">IDIL</a></b> (Integrated Data &amp; Image Library), a cross-platform library for computing, plotting and image analysis.</li>
         <li><b><a href="https://github.com/dahtah/imager">Imager</a></b> is an image/video processing package for R, based on CImg.</li>

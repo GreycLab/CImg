@@ -5,7 +5,7 @@
  #
  #  Description : Example of use for the CImg plugin 'plugins/jpeg_buffer.h'.
  #                This file is a part of the CImg Library project.
- #                ( http://cimg.sourceforge.net )
+ #                ( http://cimg.eu )
  #
  #  Copyright   : Wolf Blecher
  #                ( Wolf.Blecher(at)sirona.com )

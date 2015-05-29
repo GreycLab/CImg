@@ -9,7 +9,7 @@
  #                This file has been automatically generated using the loop
  #                macro generator available in 'examples/generate_loop_macros.cpp'
  #                This file is a part of the CImg Library project.
- #                ( http://cimg.sourceforge.net )
+ #                ( http://cimg.eu )
  #
  #  Copyright   : David Tschumperle
  #                ( http://tschumperle.users.greyc.fr/ )

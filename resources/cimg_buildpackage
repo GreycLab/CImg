@@ -6,7 +6,7 @@
 #  Description : Build .zip package file of the CImg Library, from the current CImg/
 #                directory. Must be run from ../CImg
 #                This file is a part of the CImg Library project.
-#                ( http://cimg.sourceforge.net )
+#                ( http://gmic.eu/CImg )
 #
 #  Usage       : ./cimg_buildpackage [final]
 #
@@ -145,17 +145,13 @@ echo " - Clean temporary files and directories."
 cd $DEST_DIR/..
 mv $ZIP_FILE $BASE_DIR
 
-# Copy files to sourceforge server.
+# Copy files to CImg server.
 cd $BASE_DIR
-FORGE=ronounours,cimg@frs.sourceforge.net:/home/frs/project/c/ci/cimg
-scp ${ZIP_FILE} $FORGE/;
-scp ${ZIP_FILE} $FORGE/CImg_latest.zip;
-if [ "$1" == "final" ]; then
-    scp ${ZIP_FILE} $DEST_DIR/README.txt $FORGE/;
-    scp ${ZIP_FILE} $FORGE/older/;
-fi
+lftp ftp://$GMIC_LOGIN:$GMIC_PASSWD@ftp.gmic.eu -e "put -O /www/CImg/files/ ${ZIP_FILE}; quit"
+lftp ftp://$GMIC_LOGIN:$GMIC_PASSWD@ftp.gmic.eu -e "put -O /www/CImg/files/ ${ZIP_FILE} -o CImg_latest.zip; quit"
+
 cd $SRC_DIR/html/
-rsync -rav * ronounours,cimg@frs.sourceforge.net:htdocs/
+lftp ftp://$GMIC_LOGIN:$GMIC_PASSWD@ftp.gmic.eu -e "mirror -RL . /www/CImg/ ; quit"
 
 # End of build script
 echo -e " - All done, you should look at the LOG file '$LOG_FILE'.\n"

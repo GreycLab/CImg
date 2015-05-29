@@ -37,7 +37,7 @@
   <tr><td><img src="img/item_simplicity.jpg" alt="Simplicity"></img></td>
     <td><hr noshade="noshade" size="1" width="100%"></hr>
       <font color="#000066"><b>CImg</b></font> is <i>lightweight</i>. It is made of a single header file
-      <a href="https://sourceforge.net/p/cimg/source/ci/master/tree/CImg.h"><tt style="font-family:monospace;">CImg.h</tt></a>
+      <a href="https://raw.githubusercontent.com/dtschump/CImg/master/CImg.h"><tt style="font-family:monospace;">CImg.h</tt></a>
       that must be included in your C++ source. It defines only <i>four</i> different classes, encapsulated
       in the namespace <tt style="font-family:monospace;">cimg_library</tt>.
       It can be compiled using a minimal set of standard C++ and system libraries only.<br/>
@@ -189,8 +189,7 @@
   <li>You can look at the quite complete <a href="CImg_slides.pdf"><font color="#000066"><b>CImg Library</b></font> presentation slides</a> (.pdf format) which gives
     more insights on the different library concepts.</li>
   <li>Online web statistics on the <font color="#000066"><b>CImg</b></font> website activity are available
-    <a href="http://my.statcounter.com/project/standard/stats.php?project_id=895001&guest=1">here</a>,
-    <a href="https://sourceforge.net/projects/cimg/files/stats/timeline">here</a> and below :</li>
+    <a href="http://my.statcounter.com/project/standard/stats.php?project_id=895001&guest=1">here</a> and below:</li>
 </ul>
 <table align="center" border="0" cellpadding="10" cellspacing="0" width="500">
   <tbody><tr>
@@ -235,8 +234,7 @@
       <a href="CImg_flyer.pdf">CImg Flyer</a> at work, in your lab or school
       (available in <a href="CImg_flyer.pdf">.PDF</a> or <a href="img/CImg_flyer.jpg">.JPEG</a> formats).</li>
     <li>You can report bugs, propose patches or new functionalities, using the <font color="#000066"><b>CImg</b></font>
-      <a href="https://sourceforge.net/p/cimg/discussion/334630/">forums</a> or
-      <a href="https://sourceforge.net/p/cimg/_list/tickets">trackers</a>.</li>
+      <a href="https://github.com/dtschump/CImg/issues">forum</a>.</li>
     <li>You can write
       <a href="reference/group__cimg__tutorial.html">tutorials</a>
       or parts of the <a href="reference/index.html">documentation</a>.</li>

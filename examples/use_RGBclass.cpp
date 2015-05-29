@@ -8,7 +8,7 @@
  #                class, instead of using classical pixel access of CImg<T>
  #                with operator().
  #                This file is a part of the CImg Library project.
- #                ( http://cimg.sourceforge.net )
+ #                ( http://cimg.eu )
  #
  #  Copyright   : David Tschumperle
  #                ( http://tschumperle.users.greyc.fr/ )

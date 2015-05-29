@@ -5,7 +5,7 @@
  #
  #  Description : A viewer of Diffusion-Tensor MRI volumes (medical imaging).
  #                This file is a part of the CImg Library project.
- #                ( http://cimg.sourceforge.net )
+ #                ( http://cimg.eu )
  #
  #  Copyright   : David Tschumperle
  #                ( http://tschumperle.users.greyc.fr/ )

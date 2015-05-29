@@ -6,7 +6,7 @@
  #  Description : Compute a motion field between two images,
  #                with a multiscale and variational algorithm.
  #                This file is a part of the CImg Library project.
- #                ( http://cimg.sourceforge.net )
+ #                ( http://cimg.eu )
  #
  #  Copyright   : David Tschumperle
  #                ( http://tschumperle.users.greyc.fr/ )

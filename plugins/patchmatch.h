@@ -5,7 +5,7 @@
  #
  #  Description : Plugin implementing the Patch Match algorithm to use
  #                with the CImg library.
- #                ( http://cimg.sourceforge.net )
+ #                ( http://cimg.eu )
  #
  #  Copyright   : Olivier D'Hondt
  #                (https://sites.google.com/site/dhondtolivier/)

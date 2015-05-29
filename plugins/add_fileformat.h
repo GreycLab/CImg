@@ -6,7 +6,7 @@
  #  Description : CImg plug-in that adds loading/saving support for a personalized
  #                file format (determined by its extension, here ".foo").
  #                This file is a part of the CImg Library project.
- #                ( http://cimg.sourceforge.net )
+ #                ( http://cimg.eu )
  #
  #  Copyright   : David Tschumperle
  #                ( http://tschumperle.users.greyc.fr/ )

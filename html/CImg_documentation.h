@@ -4,7 +4,7 @@
 #
 #  Description : Extra documentation file for the CImg Library.
 #		 Used by doxygen to generate the reference documentation.
-#		 ( http://cimg.sourceforge.net )
+#		 ( http://cimg.eu )
 #
 #  Copyright   : David Tschumperle
 #		 ( http://tschumperle.users.greyc.fr/ )
@@ -21,7 +21,7 @@
 /**
    \mainpage
 
-   This is the reference documentation of <a href="http://cimg.sourceforge.net">the CImg Library</a>,
+   This is the reference documentation of <a href="http://cimg.eu">the CImg Library</a>,
    the C++ template image processing library.
    This documentation have been generated using the tool <a href="http://www.doxygen.org">doxygen</a>.
    It contains a detailed description of all classes and functions of the %CImg Library.
@@ -213,7 +213,7 @@
   The CImg Library is an <i>open-source C++ toolkit for image processing</i>.\n
 
   It mainly consists in a (big) single header file
-  <a href="http://cimg.cvs.sourceforge.net/cimg/CImg/CImg.h?view=markup">CImg.h</a>
+  <a href="https://raw.githubusercontent.com/dtschump/CImg/master/CImg.h">CImg.h</a>
   providing a set of C++ classes and functions that can be used in your own sources,
   to load/save, manage/process and display generic images.
   It's actually a very simple and pleasant toolkit for coding image processing stuffs in C++ :
@@ -238,14 +238,14 @@
   \subsection ssf13 1.3. How is CImg distributed ?
 
   The CImg Library is freely distributed as a complete .zip compressed package, hosted at the
-  <a href="http://sourceforge.net/project/showfiles.php?group_id=96492">Sourceforge servers</a>.\n
+  <a href="http://cimg.eu/files">CImg server</a>.\n
   The package is distributed under the <a href="http://www.cecill.info">CeCILL license</a>.
 
   This package contains :
-  - The main library file <a href="http://cimg.cvs.sourceforge.net/cimg/CImg/CImg.h?view=markup">CImg.h</a> (C++ header file).
-  - Several C++ source code showing <a href="http://cimg.cvs.sourceforge.net/cimg/CImg/examples/">examples of using CImg</a>.
+  - The main library file <a href="https://raw.githubusercontent.com/dtschump/CImg/master/CImg.h">CImg.h</a> (C++ header file).
+  - Several C++ source code showing <a href="https://github.com/dtschump/CImg/tree/master/examples">examples of using CImg</a>.
   - A complete library documentation, in <a href="index.html">HTML</a> and <a href="../CImg_reference.pdf">PDF</a> formats.
-  - Additional <a href="http://cimg.cvs.sourceforge.net/cimg/CImg/plugins/">library plug-ins</a> that can be used to extend
+  - Additional <a href="https://github.com/dtschump/CImg/tree/master/plugins/">library plug-ins</a> that can be used to extend
   library capabilities for specific uses.
 
   The CImg Library is a quite lightweight library which is easy to maintain (due to its particular structure), and thus
@@ -271,10 +271,10 @@
   corresponding to different constraints on the source files :
   - The <a href="http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html">CeCILL-C</a> license is the most permissive one, close to
   the <i>GNU LGPL license</i>, and <i>applies <b>only</b> on the main library file
-  <a href="http://cimg.cvs.sourceforge.net/cimg/CImg/CImg.h?view=markup">CImg.h</a></i>.
-  Basically, this license allows to use <a href="http://cimg.cvs.sourceforge.net/cimg/CImg/CImg.h?view=markup">CImg.h</a>
+  <a href="https://raw.githubusercontent.com/dtschump/CImg/master/CImg.h">CImg.h</a></i>.
+  Basically, this license allows to use <a href="https://raw.githubusercontent.com/dtschump/CImg/master/CImg.h">CImg.h</a>
   in a closed-source product without forcing you to redistribute the entire software source code. Anyway,
-  if one modifies the <a href="http://cimg.cvs.sourceforge.net/cimg/CImg/CImg.h?view=markup">CImg.h</a> source file, one has to redistribute
+  if one modifies the <a href="https://raw.githubusercontent.com/dtschump/CImg/master/CImg.h">CImg.h</a> source file, one has to redistribute
   the modified version of the file that must be governed by the same <a href="http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html">CeCILL-C</a> license.
 
   - The <a href="http://www.cecill.info/licences/Licence_CeCILL_V2-en.html">CeCILL</a> license applies to all other files
@@ -291,7 +291,7 @@
   CImg has been started by
   <a href="http://tschumperle.users.greyc.fr/">David Tschumperle</a> at the beginning of his PhD thesis, in October 1999.
   He is still the main coordinator of the project.
-  Since the first release at Sourceforge, a growing number of contributors has appeared.
+  Since the first release, a growing number of contributors has appeared.
   Due to the very simple and compact form of the library, submitting a contribution is quite easy and can be
   fastly integrated into the supported releases.
   List of contributors can be found on the front page.
@@ -319,7 +319,7 @@
   \subsection ssf23 2.3 Why is CImg entirely contained in a single header file ?
 
   People are often surprised to see that the complete code of the library is contained in a single (big) C++ header file
-  <a href="http://cimg.cvs.sourceforge.net/cimg/CImg/CImg.h?view=markup">CImg.h</a>.
+  <a href="https://raw.githubusercontent.com/dtschump/CImg/master/CImg.h">CImg.h</a>.
   There are good practical and technical reasons to do that. Some arguments are listed below to justify this approach,
   so (I hope) you won't think this is a awkwardly C++ design of the CImg library :\n
 
@@ -1053,4 +1053,3 @@
    macros to retrieve command line parameters.
 **/
 /*@}*/
-

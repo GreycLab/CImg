@@ -4,7 +4,7 @@
 #
 #  Description : CMakeLists.txt configuration file for compiling CImg-based code.
 #                This file is a part of the CImg Library project.
-#                ( http://cimg.sourceforge.net )
+#                ( http://cimg.eu )
 #
 #  Copyright   : Antonio Albiol
 #                ( http://personales.upv.es/~aalbiol/ )
@@ -56,7 +56,7 @@ endif()
 # To use PKG_CHECK_MODULES to find some optional packages
 find_package(PkgConfig)
 
-#    Tell CMake where to leave executables 
+#    Tell CMake where to leave executables
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR})
 
 #Path of CImg.h file relative to this file path
@@ -308,5 +308,3 @@ foreach(program ${CIMG_FILES})
   add_executable(${program} ${program}.cpp)
   target_link_libraries(${program} ${SYSTEM_LIBS} )
 endforeach(program)
-
-

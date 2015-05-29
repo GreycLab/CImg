@@ -6,7 +6,7 @@
  #  Description : A simple program that demonstrates the use of the
  #                3D functions of CImg, in conjonction with the Board library.
  #                This file is a part of the CImg Library project.
- #                ( http://cimg.sourceforge.net )
+ #                ( http://cimg.eu )
  #
  #  Copyright   : David Tschumperle
  #                ( http://tschumperle.users.greyc.fr/ )

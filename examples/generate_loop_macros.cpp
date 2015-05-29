@@ -6,7 +6,7 @@
  #  Description : Generate C++ macros to deal with MxN[xP] neighborhood
  #                loops within the CImg Library.
  #                This file is a part of the CImg Library project.
- #                ( http://cimg.sourceforge.net )
+ #                ( http://cimg.eu )
  #
  #  Copyright   : David Tschumperle
  #                ( http://tschumperle.users.greyc.fr/ )

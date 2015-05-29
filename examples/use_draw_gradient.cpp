@@ -5,7 +5,7 @@
  #
  #  Description : Example of use for the CImg plugin 'plugins/draw_gradient.h'.
  #                This file is a part of the CImg Library project.
- #                ( http://cimg.sourceforge.net )
+ #                ( http://cimg.eu )
  #
  #  Copyright  : Jerome Boulanger
  #                ( http://www.ricam.oeaw.ac.at/people/page.cgi?firstn=Jerome;lastn=Boulanger )

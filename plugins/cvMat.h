@@ -7,7 +7,7 @@
 #                conversions for generic image types
 #                ( IPL = Intel Performance Library )
 #                This file is a part of the CImg Library project.
-#                ( http://cimg.sourceforge.net )
+#                ( http://cimg.eu )
 #
 #  Copyright   : Alberto Albiol
 #                alalbiol@iteam.upv.es

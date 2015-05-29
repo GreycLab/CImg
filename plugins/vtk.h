@@ -5,7 +5,7 @@
  #
  #  Description : CImg plugin that implements a way to save 3d scene as TK legacy file format.
  #                This file is a part of the CImg Library project.
- #                ( http://cimg.sourceforge.net )
+ #                ( http://cimg.eu )
  #
  #  Copyright   : Haz-Edine Assemlal
  #                ( http://www.cim.mcgill.ca/~assemlal/ )

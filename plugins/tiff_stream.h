@@ -6,7 +6,7 @@
 #  Description : This CImg plug-in provide functions to load and save tiff images
 #                from std::istream/ to std::ostream
 #                This file is a part of the CImg Library project.
-#                ( http://cimg.sourceforge.net )
+#                ( http://cimg.eu )
 #
 #  Copyright   : Wolf Blecher
 #                ( Wolf.Blecher(at)sirona.com )

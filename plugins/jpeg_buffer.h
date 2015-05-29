@@ -7,7 +7,7 @@
  #                directly from/to memory buffers of JOCTET buffers, using the
  #                JPEG library (required to compile !)
  #                This file is a part of the CImg Library project.
- #                ( http://cimg.sourceforge.net )
+ #                ( http://cimg.eu )
  #
  #  Copyright   : Paolo Prete
  #                ( p4olo_prete@yahoo.it )

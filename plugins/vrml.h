@@ -5,7 +5,7 @@
  #
  #  Description : CImg plugin that provide functions to load/save VRML files.
  #                This file is a part of the CImg Library project.
- #                ( http://cimg.sourceforge.net )
+ #                ( http://cimg.eu )
  #
  #  Copyright   : Greg Rami
  #                ( greg.rami36 (at) gmail.com )

@@ -6,7 +6,7 @@
  #  Description : Performs a 2D or 3D 'a trous' wavelet transform
  #                (using a cubic spline) on an image or a video sequence.
  #                This file is a part of the CImg Library project.
- #                ( http://cimg.sourceforge.net )
+ #                ( http://cimg.eu )
  #
  #  Author      : Renaud Peteri
  #                ( Renaud.Peteri(at)mines-paris.org )

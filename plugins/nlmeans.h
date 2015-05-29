@@ -5,7 +5,7 @@
  #
  #  Description : CImg plugin that implements the non-local mean filter.
  #                This file is a part of the CImg Library project.
- #                ( http://cimg.sourceforge.net )
+ #                ( http://cimg.eu )
  #
  #  [1] Buades, A.; Coll, B.; Morel, J.-M.: A non-local algorithm for image denoising
  #      IEEE Computer Society Conference on Computer Vision and Pattern Recognition, 2005. CVPR 2005.

@@ -6,7 +6,7 @@
  #  Description : Implementation of the Tschumperle-Deriche's Regularization
  #                PDE, for 2D multivalued images, as described in the articles below.
  #                This file is a part of the CImg Library project.
- #                ( http://cimg.sourceforge.net )
+ #                ( http://cimg.eu )
  #
  #  (1) PDE-Based Regularization of Multivalued Images and Applications.
  #               (D. Tschumperle). PhD Thesis. University of Nice-Sophia Antipolis, December 2002.

@@ -6,7 +6,7 @@
  #  Description : Real time edge detection while moving a ROI
  #                (rectangle of interest) over the original image.
  #                This file is a part of the CImg Library project.
- #                ( http://cimg.sourceforge.net )
+ #                ( http://cimg.eu )
  #
  #  Copyright   : Orges Leka
  #                ( oleka(at)students.uni-mainz.de )

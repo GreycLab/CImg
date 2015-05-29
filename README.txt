@@ -12,7 +12,7 @@
 
                     C++ Template Image Processing Toolkit
 
-                       ( http://cimg.sourceforge.net )
+                             ( http://cimg.eu )
 
                                    _cimg_version
 

@@ -5,7 +5,7 @@
  #
  #  Description : An implementation of the Radon Transform.
  #                This file is a part of the CImg Library project.
- #                ( http://cimg.sourceforge.net )
+ #                ( http://cimg.eu )
  #
  #  Copyright   : David G. Starkweather
  #                ( starkdg@sourceforge.net - starkweatherd@cox.net )

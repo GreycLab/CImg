@@ -147,7 +147,9 @@ mv $ZIP_FILE $BASE_DIR
 
 # Copy files to CImg server.
 cd $BASE_DIR
-lftp ftp://$GMIC_LOGIN:$GMIC_PASSWD@ftp.gmic.eu -e "put -O /www/CImg/files/ ${ZIP_FILE}; quit"
+if [ "$1" == "final" ]; then
+    lftp ftp://$GMIC_LOGIN:$GMIC_PASSWD@ftp.gmic.eu -e "put -O /www/CImg/files/ ${ZIP_FILE}; quit";
+fi
 lftp ftp://$GMIC_LOGIN:$GMIC_PASSWD@ftp.gmic.eu -e "put -O /www/CImg/files/ ${ZIP_FILE} -o CImg_latest.zip; quit"
 
 cd $SRC_DIR/html/

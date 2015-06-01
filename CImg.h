@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 164
+#define cimg_version 163
 
 /*-----------------------------------------------------------
  #
@@ -13949,7 +13949,7 @@ namespace cimg_library_suffixed {
                                       expr._data);
         }
         char
-          *const se1 = se - 1, *const se2 = se - 2, *const se3 = se - 3, *const se4 = se - 4, *const se5 = se - 5,
+          *const se1 = se - 1, *const se2 = se - 2, *const se3 = se - 3, *const se4 = se - 4,
           *const ss1 = ss + 1, *const ss2 = ss + 2, *const ss3 = ss + 3, *const ss4 = ss + 4,
           *const ss5 = ss + 5, *const ss6 = ss + 6, *const ss7 = ss + 7;
         const char saved_char = *se; *se = 0;
@@ -14119,13 +14119,6 @@ namespace cimg_library_suffixed {
             const unsigned int pos = mempos++;
             CImg<longT>::vector(_cimg_mp_enfunc(mp_logical_and),pos,mem_A,mem_B,code._width - bp1).move_to(code,bp1);
             _cimg_mp_return(pos);
-          }
-        for (char *s = se5, *ns = se4, *as = se3, *fs = se2; s>ss; --s, --ns, --as, --fs) // String comparisons.
-          if (*s=='\'' && (*ns=='=' || *ns=='!') && *as=='=' && *fs=='\'' && level[s - expr._data]==clevel) {
-            char os = *s; *s = 0;
-            const bool _res = (bool)std::strcmp(ss,s+4), res = *ns=='='?!_res:_res;
-            *s = os;
-            _cimg_mp_return(res?1:0);
           }
         for (char *s = se2; s>ss; --s)
           if (*s=='|' && level[s - expr._data]==clevel)

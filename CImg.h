@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 163
+#define cimg_version 164
 
 /*-----------------------------------------------------------
  #
@@ -49450,7 +49450,7 @@ namespace cimg_library_suffixed {
             }
           } else {
             CImg<unsigned char> _src(src,false);
-            _src.channels(0,cimg::min(_src._spectrum - 1,2U)).resize(W,H);
+            _src.channels(0,cimg::min(_src._spectrum - 1,2U)).resize(W,H,1,3);
             const unsigned char *ptr_r = _src.data(0,0,0,0), *ptr_g = _src.data(0,0,0,1), *ptr_b = _src.data(0,0,0,2);
             char *ptrd = ipl->imageData;
             cimg_forXY(_src,x,y) {

@@ -35629,18 +35629,20 @@ namespace cimg_library_suffixed {
       switch (plot_type%4) {
       case 1 : { // Segments
         int oX = 0, oY = (int)((data[0] - m)/ca);
-        const float fx = (float)_width1/siz1;
         if (siz==1) {
           const int Y = (int)((*data - m)/ca);
           draw_line(0,Y,width() - 1,Y,color,opacity,pattern);
-        } else for (unsigned long off = 1; off<siz; ++off) {
+        } else {
+          const float fx = (float)_width/siz1;
+          for (unsigned long off = 1; off<siz; ++off) {
             const int
-              X = (int)(off*fx),
+              X = (int)(off*fx) - 1,
               Y = (int)((data[off]-m)/ca);
             draw_line(oX,oY,X,Y,color,opacity,pattern,init_hatch);
             oX = X; oY = Y;
             init_hatch = false;
           }
+        }
       } break;
       case 2 : { // Spline
         const CImg<t> ndata(data._data,siz,1,1,1,true);
@@ -35658,7 +35660,7 @@ namespace cimg_library_suffixed {
         int oX = 0;
         cimg_foroff(data,off) {
           const int
-            X = (int)((off + 1)*fx),
+            X = (int)((off + 1)*fx) - 1,
             Y = (int)((data[off] - m)/ca);
           draw_rectangle(oX,Y0,X,Y,color,opacity).
             draw_line(oX,Y,oX,Y0,color2.data(),opacity).

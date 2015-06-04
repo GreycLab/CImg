@@ -35654,7 +35654,7 @@ namespace cimg_library_suffixed {
       } break;
       case 3 : { // Bars
         const int Y0 = (int)(-m/ca);
-        const float fx = (float)_width/(siz - 1);
+        const float fx = (float)_width/siz1;
         int oX = 0;
         cimg_foroff(data,off) {
           const int
@@ -37677,6 +37677,7 @@ namespace cimg_library_suffixed {
       bool old_is_resized = disp.is_resized();
       disp._normalization = 0;
       disp.show().set_key(0).set_wheel().show_mouse();
+      disp._mouse_x = disp._mouse_y = -1;
 
       unsigned char foreground_color[] = { 255,255,255 }, background_color[] = { 0,0,0 };
 
@@ -37699,7 +37700,7 @@ namespace cimg_library_suffixed {
       CImgList<uintT> primitives3d, sel_primitives3d;
       CImgList<ucharT> colors3d, sel_colors3d;
       CImg<ucharT> visu, visu0, view3d;
-      CImg<charT> text(1024);
+      CImg<charT> text(1024); *text = 0;
 
       while (!key && !disp.is_closed() && !shape_selected) {
 

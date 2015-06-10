@@ -14235,6 +14235,7 @@ namespace cimg_library_suffixed {
           if (!std::strncmp(ss,"exp(",4)) _cimg_mp_opcode1(mp_exp,compile(ss4,se1));
           if (!std::strncmp(ss,"abs(",4)) _cimg_mp_opcode1(mp_abs,compile(ss4,se1));
           if (!std::strncmp(ss,"int(",4)) _cimg_mp_opcode1(mp_int,compile(ss4,se1));
+          if (!std::strncmp(ss,"sqr(",4)) _cimg_mp_opcode1(mp_sqr,compile(ss4,se1));
           if (!std::strncmp(ss,"asin(",5)) _cimg_mp_opcode1(mp_asin,compile(ss5,se1));
           if (!std::strncmp(ss,"acos(",5)) _cimg_mp_opcode1(mp_acos,compile(ss5,se1));
           if (!std::strncmp(ss,"atan(",5)) _cimg_mp_opcode1(mp_atan,compile(ss5,se1));
@@ -14542,6 +14543,9 @@ namespace cimg_library_suffixed {
       }
       static double mp_exp(_cimg_math_parser& mp) {
         return std::exp(mp.mem[mp.opcode(2)]);
+      }
+      static double mp_sqr(_cimg_math_parser& mp) {
+        return cimg::sqr(mp.mem[mp.opcode(2)]);
       }
       static double mp_sqrt(_cimg_math_parser& mp) {
         return std::sqrt(mp.mem[mp.opcode(2)]);

@@ -36585,7 +36585,7 @@ namespace cimg_library_suffixed {
       CImg<uintT> visibles(primitives._width,1,1,1,~0U);
       CImg<tpfloat> zrange(primitives._width);
       const tpfloat zmin = absfocale?(tpfloat)(1.5f - absfocale):cimg::type<tpfloat>::min();
-      bool is_forward = true;
+      bool is_forward = zbuffer?true:false;
 
 #ifdef cimg_use_openmp
 #pragma omp parallel for if (primitives.size()>4096)
@@ -36706,9 +36706,13 @@ namespace cimg_library_suffixed {
                                       cimg_instance,
                                       l,primitive.size());
         }
-        // Force transparent primitives to be drawn last when zbuffer is activated.
-        if (zbuffer && ___draw_object3d(opacities,l)!=1) zrange(l) = 2*zmax - zrange(l);
       }
+
+      // Force transparent primitives to be drawn last when zbuffer is activated
+      // (and if object contains no spheres or sprites).
+      if (is_forward)
+        cimglist_for(primitives,l)
+          if (___draw_object3d(opacities,l)!=1) zrange(l) = 2*zmax - zrange(l);
 
       // Sort only visibles primitives.
       unsigned int *p_visibles = visibles._data;
@@ -36721,7 +36725,7 @@ namespace cimg_library_suffixed {
       const unsigned int nb_visibles = (unsigned int)(p_zrange - zrange._data);
       if (!nb_visibles) return *this;
       CImg<uintT> permutations;
-      CImg<tpfloat>(zrange._data,nb_visibles,1,1,1,true).sort(permutations,zbuffer && is_forward?true:false);
+      CImg<tpfloat>(zrange._data,nb_visibles,1,1,1,true).sort(permutations,is_forward);
 
       // Compute light properties
       CImg<floatT> lightprops;

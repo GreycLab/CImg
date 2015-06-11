@@ -27890,6 +27890,7 @@ namespace cimg_library_suffixed {
                                     constraints._width,constraints._height,constraints._depth,constraints._spectrum,
                                     constraints._data);
       CImg<floatT> U;
+      floatT bound = 0;
       for (int scale = (int)_nb_scales - 1; scale>=0; --scale) {
         const float factor = (float)std::pow(1.5,(double)scale);
         const unsigned int
@@ -27903,7 +27904,7 @@ namespace cimg_library_suffixed {
         if (U) (U*=1.5f).resize(I2._width,I2._height,I2._depth,-100,3);
         else U.assign(I2._width,I2._height,I2._depth,is_3d?3:2,0);
         if (constraints) {
-          if (is_3d)  cimg_forX(constraints,k) {
+          if (is_3d) cimg_forX(constraints,k) {
               const int
                 cx = (int)(constraints(k,0)*U.width()/width()),
                 cy = (int)(constraints(k,1)*U.height()/height()),
@@ -27959,6 +27960,21 @@ namespace cimg_library_suffixed {
                                                           smoothness* ( Uxx + Uyy + Uzz)))/(1 + 6*smoothness*dt);
                     _energy_regul+=Ux*Ux + Uy*Uy + Uz*Uz;
                   }
+                  if (is_backward) { // Constraint displacement vectors to stay in image.
+                    if (U(x,y,z,0)>x) U(x,y,z,0) = x;
+                    if (U(x,y,z,1)>y) U(x,y,z,1) = y;
+                    if (U(x,y,z,2)>z) U(x,y,z,2) = z;
+                    bound = (float)x - _width; if (U(x,y,z,0)<=bound) U(x,y,z,0) = bound;
+                    bound = (float)y - _height; if (U(x,y,z,1)<=bound) U(x,y,z,1) = bound;
+                    bound = (float)z - _depth; if (U(x,y,z,2)<=bound) U(x,y,z,2) = bound;
+                  } else {
+                    if (U(x,y,z,0)<-x) U(x,y,z,0) = -x;
+                    if (U(x,y,z,1)<-y) U(x,y,z,1) = -y;
+                    if (U(x,y,z,2)<-z) U(x,y,z,2) = -z;
+                    bound = (float)_width - x; if (U(x,y,z,0)>=bound) U(x,y,z,0) = bound;
+                    bound = (float)_height - y; if (U(x,y,z,1)>=bound) U(x,y,z,1) = bound;
+                    bound = (float)_depth - z; if (U(x,y,z,2)>=bound) U(x,y,z,2) = bound;
+                  }
                   _energy+=delta_I*delta_I + smoothness*_energy_regul;
                 }
               } else { // Anisotropic regularization.
@@ -28005,6 +28021,21 @@ namespace cimg_library_suffixed {
                                          )/(1 + 2*(coef_a + coef_d + coef_f)*nsmoothness*dt);
                     _energy_regul+=N;
                   }
+                  if (is_backward) { // Constraint displacement vectors to stay in image.
+                    if (U(x,y,z,0)>x) U(x,y,z,0) = x;
+                    if (U(x,y,z,1)>y) U(x,y,z,1) = y;
+                    if (U(x,y,z,2)>z) U(x,y,z,2) = z;
+                    bound = (float)x - _width; if (U(x,y,z,0)<=bound) U(x,y,z,0) = bound;
+                    bound = (float)y - _height; if (U(x,y,z,1)<=bound) U(x,y,z,1) = bound;
+                    bound = (float)z - _depth; if (U(x,y,z,2)<=bound) U(x,y,z,2) = bound;
+                  } else {
+                    if (U(x,y,z,0)<-x) U(x,y,z,0) = -x;
+                    if (U(x,y,z,1)<-y) U(x,y,z,1) = -y;
+                    if (U(x,y,z,2)<-z) U(x,y,z,2) = -z;
+                    bound = (float)_width - x; if (U(x,y,z,0)>=bound) U(x,y,z,0) = bound;
+                    bound = (float)_height - y; if (U(x,y,z,1)>=bound) U(x,y,z,1) = bound;
+                    bound = (float)_depth - z; if (U(x,y,z,2)>=bound) U(x,y,z,2) = bound;
+                  }
                   _energy+=delta_I*delta_I + nsmoothness*_energy_regul;
                 }
               }
@@ -28044,6 +28075,17 @@ namespace cimg_library_suffixed {
                                                       smoothness*( Uxx + Uyy )))/(1 + 4*smoothness*dt);
                     _energy_regul+=Ux*Ux + Uy*Uy;
                   }
+                  if (is_backward) { // Constraint displacement vectors to stay in image.
+                    if (U(x,y,0)>x) U(x,y,0) = x;
+                    if (U(x,y,1)>y) U(x,y,1) = y;
+                    bound = (float)x - _width; if (U(x,y,0)<=bound) U(x,y,0) = bound;
+                    bound = (float)y - _height; if (U(x,y,1)<=bound) U(x,y,1) = bound;
+                  } else {
+                    if (U(x,y,0)<-x) U(x,y,0) = -x;
+                    if (U(x,y,1)<-y) U(x,y,1) = -y;
+                    bound = (float)_width - x; if (U(x,y,0)>=bound) U(x,y,0) = bound;
+                    bound = (float)_height - y; if (U(x,y,1)>=bound) U(x,y,1) = bound;
+                  }
                   _energy+=delta_I*delta_I + smoothness*_energy_regul;
                 }
               } else { // Anisotropic regularization.
@@ -28077,6 +28119,17 @@ namespace cimg_library_suffixed {
                                                       nsmoothness*( coef_a*Uxx + coef_b*Uxy + coef_c*Uyy )))/
                       (1 + 2*(coef_a + coef_c)*nsmoothness*dt);
                     _energy_regul+=N;
+                  }
+                  if (is_backward) { // Constraint displacement vectors to stay in image.
+                    if (U(x,y,0)>x) U(x,y,0) = x;
+                    if (U(x,y,1)>y) U(x,y,1) = y;
+                    bound = (float)x - _width; if (U(x,y,0)<=bound) U(x,y,0) = bound;
+                    bound = (float)y - _height; if (U(x,y,1)<=bound) U(x,y,1) = bound;
+                  } else {
+                    if (U(x,y,0)<-x) U(x,y,0) = -x;
+                    if (U(x,y,1)<-y) U(x,y,1) = -y;
+                    bound = (float)_width - x; if (U(x,y,0)>=bound) U(x,y,0) = bound;
+                    bound = (float)_height - y; if (U(x,y,1)>=bound) U(x,y,1) = bound;
                   }
                   _energy+=delta_I*delta_I + nsmoothness*_energy_regul;
                 }

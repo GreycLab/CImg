@@ -16027,14 +16027,20 @@ namespace cimg_library_suffixed {
       return (s%2)?res:((res + kth_smallest((s>>1) - 1))/2);
     }
 
+    //! Return the product of all the pixel values.
+    /**
+     **/
+    double product() const {
+      if (is_empty()) return 0;
+      double res = 1;
+      cimg_for(*this,ptrs,T) res*=(double)*ptrs;
+      return res;
+    }
+
     //! Return the sum of all the pixel values.
     /**
      **/
     double sum() const {
-      if (is_empty())
-        throw CImgInstanceException(_cimg_instance
-                                    "sum(): Empty instance.",
-                                    cimg_instance);
       double res = 0;
       cimg_for(*this,ptrs,T) res+=(double)*ptrs;
       return res;
@@ -16044,10 +16050,6 @@ namespace cimg_library_suffixed {
     /**
      **/
     double mean() const {
-      if (is_empty())
-        throw CImgInstanceException(_cimg_instance
-                                    "mean(): Empty instance.",
-                                    cimg_instance);
       double res = 0;
       cimg_for(*this,ptrs,T) res+=(double)*ptrs;
       return res/size();

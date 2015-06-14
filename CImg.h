@@ -16285,14 +16285,14 @@ namespace cimg_library_suffixed {
     //! Compute statistics vector from the pixel values.
     /*
        \param variance_method Method used to compute the variance (see variance(const unsigned int) const).
-       \return Statistics vector as <tt>[min; max; mean; variance; xmin; ymin; zmin; cmin; xmax; ymax; zmax; cmax]</tt>.
+       \return Statistics vector as <tt>[min; max; mean; variance; xmin; ymin; zmin; cmin; xmax; ymax; zmax; cmax; sum; product]</tt>.
     **/
     CImg<Tdouble> get_stats(const unsigned int variance_method=1) const {
       if (is_empty()) return CImg<doubleT>();
       const unsigned long siz = size();
       const T *const odata = _data;
       const T *pm = odata, *pM = odata;
-      double S = 0, S2 = 0;
+      double S = 0, S2 = 0, P = _data?1:0;
       T m = *pm, M = m;
       cimg_for(*this,ptrs,T) {
         const T val = *ptrs;
@@ -16301,6 +16301,7 @@ namespace cimg_library_suffixed {
         if (val>M) { M = val; pM = ptrs; }
         S+=_val;
         S2+=_val*_val;
+        P*=_val;
       }
       const double
         mean_value = S/siz,
@@ -16313,9 +16314,10 @@ namespace cimg_library_suffixed {
         xM = 0, yM = 0, zM = 0, cM = 0;
       contains(*pm,xm,ym,zm,cm);
       contains(*pM,xM,yM,zM,cM);
-      return CImg<Tdouble>(1,12).fill((double)m,(double)M,mean_value,variance_value,
+      return CImg<Tdouble>(1,14).fill((double)m,(double)M,mean_value,variance_value,
                                       (double)xm,(double)ym,(double)zm,(double)cm,
-                                      (double)xM,(double)yM,(double)zM,(double)cM);
+                                      (double)xM,(double)yM,(double)zM,(double)cM,
+                                      S,P);
     }
 
     //! Compute statistics vector from the pixel values \inplace.

@@ -14420,7 +14420,7 @@ namespace cimg_library_suffixed {
         return cimg::grand();
       }
       static double mp_i(_cimg_math_parser& mp) {
-        return (double)mp.reference.atXYZC((int)mp.mem[9],(int)mp.mem[10],(int)mp.mem[11],(int)mp.mem[12],0);
+        return (double)mp.reference.atXYZC((int)mp.mem[12],(int)mp.mem[13],(int)mp.mem[14],(int)mp.mem[15],0);
       }
       static double mp_logical_and(_cimg_math_parser& mp) {
         const bool is_A = (bool)mp.mem[mp.opcode(2)];
@@ -14640,7 +14640,7 @@ namespace cimg_library_suffixed {
         }
       }
       static double mp_jxyzc(_cimg_math_parser& mp) {
-        const double x = mp.mem[9], y = mp.mem[10], z = mp.mem[11], c = mp.mem[12];
+        const double x = mp.mem[12], y = mp.mem[13], z = mp.mem[14], c = mp.mem[15];
         const int i = (int)mp.mem[mp.opcode(6)], b = (int)mp.mem[mp.opcode(7)];
         if (i==0) { // Nearest neighbor interpolation.
           if (b==2) return (double)mp.reference.atXYZC(cimg::mod((int)(x + mp.mem[mp.opcode(2)]),
@@ -14800,7 +14800,7 @@ namespace cimg_library_suffixed {
         return (double)mp.reference[off];
       }
       static double mp_joff(_cimg_math_parser& mp) {
-        const int x = (int)mp.mem[9], y = (int)mp.mem[10], z = (int)mp.mem[11], c = (int)mp.mem[12];
+        const int x = (int)mp.mem[12], y = (int)mp.mem[13], z = (int)mp.mem[14], c = (int)mp.mem[15];
         const unsigned long off = mp.reference.offset(x,y,z,c) + (unsigned long)(mp.mem[mp.opcode(2)]);
         if (off>=mp.reference.size()) return 0;
         return (double)mp.reference[off];

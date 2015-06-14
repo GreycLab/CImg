@@ -13874,6 +13874,7 @@ namespace cimg_library_suffixed {
                                       pixel_type(),calling_function,
                                       expr._data);
         }
+
         // Init constant values.
         mem.assign(512);
         mem[0] = 0.0;
@@ -13881,27 +13882,34 @@ namespace cimg_library_suffixed {
         mem[2] = 2.0;
         mem[3] = 3.0;
         mem[4] = 4.0;
-        mem[5] = (double)reference._width;
-        mem[6] = (double)reference._height;
-        mem[7] = (double)reference._depth;
-        mem[8] = (double)reference._spectrum;
-        mem[9] = (double)reference._is_shared;
-        mem[10] = cimg::PI;
-        mem[11] = std::exp(1.0); // Then [12] = x, [13] = y, [14] = z and [15] = c.
-        mempos = 16;
+        mem[5] = 5.0;
+        mem[6] = (double)reference._width;
+        mem[7] = (double)reference._height;
+        mem[8] = (double)reference._depth;
+        mem[9] = (double)reference._spectrum;
+        mem[10] = (double)reference._is_shared;
+        mem[11] = (double)reference._width*reference._height;
+        mem[12] = (double)reference._width*reference._height*reference._depth;
+        mem[13] = (double)reference._width*reference._height*reference._depth*reference._spectrum;
+        mem[14] = cimg::PI;
+        mem[15] = std::exp(1.0); // Then [16] = x, [17] = y, [18] = z and [19] = c.
+        mempos = 20;
         labelMpos.assign(8);
         label1pos.assign(128,1,1,1,~0U);
-        label1pos['w'] = 5;
-        label1pos['h'] = 6;
-        label1pos['d'] = 7;
-        label1pos['s'] = 8;
-        label1pos['r'] = 9;
-        label1pos[0] = 10; // pi
-        label1pos['e'] = 11;
-        label1pos['x'] = 12;
-        label1pos['y'] = 13;
-        label1pos['z'] = 14;
-        label1pos['c'] = 15;
+        label1pos['w'] = 6;
+        label1pos['h'] = 7;
+        label1pos['d'] = 8;
+        label1pos['s'] = 9;
+        label1pos['r'] = 10;
+        label1pos[0] = 11; // wh
+        label1pos[1] = 12; // whd
+        label1pos[2] = 13; // whds
+        label1pos[3] = 14; // pi
+        label1pos['e'] = 15;
+        label1pos['x'] = 16;
+        label1pos['y'] = 17;
+        label1pos['z'] = 18;
+        label1pos['c'] = 19;
         result = compile(expr._data,expr._data + l); // Compile formula into a serie of opcodes.
       }
 
@@ -13964,20 +13972,22 @@ namespace cimg_library_suffixed {
         char end = 0, sep = 0; double val = 0;
         const int nb = std::sscanf(ss,"%lf%c%c",&val,&sep,&end);
         if (nb==1) {
-          if (val==0 || val==1 || val==2 || val==3 || val==4) _cimg_mp_return((unsigned int)val);
+          if (val==0 || val==1 || val==2 || val==3 || val==4 || val==5)
+            _cimg_mp_return((unsigned int)val);
           if (mempos>=mem._width) mem.resize(-200,1,1,1,0);
           const unsigned int pos = mempos++;
           mem[pos] = val;
           _cimg_mp_return(pos);
         }
         if (nb==2 && sep=='%') {
-          if (val==0 || val==100 || val==200 || val==300 || val==400) _cimg_mp_return((unsigned int)(val/100));
+          if (val==0 || val==100 || val==200 || val==300 || val==400 || val==500)
+            _cimg_mp_return((unsigned int)val/100);
           if (mempos>=mem._width) mem.resize(-200,1,1,1,0);
           const unsigned int pos = mempos++;
           mem[pos] = val/100;
           _cimg_mp_return(pos);
         }
-        if (ss1==se) switch (*ss) {
+        if (ss1==se) switch (*ss) { // One-char variable.
           case 'w' : case 'h' : case 'd' : case 's' : case 'r' :
           case 'x' : case 'y' : case 'z' : case 'c' : case 'e' : _cimg_mp_return(label1pos[*ss]);
           case 'u' : if (label1pos['u']!=~0U) _cimg_mp_return(label1pos['u']); _cimg_mp_opcode2(mp_u,0,1);
@@ -13985,74 +13995,79 @@ namespace cimg_library_suffixed {
           case 'i' : if (label1pos['i']!=~0U) _cimg_mp_return(label1pos['i']); _cimg_mp_opcode0(mp_i);
           case '?' : _cimg_mp_opcode2(mp_u,0,1);
           }
-        if (ss1==se1) {
-          if (*ss=='p' && *ss1=='i') _cimg_mp_return(label1pos[0]); // pi
+        else if (ss2==se) { // Two-chars variable.
+          if (*ss=='w' && *ss1=='h') _cimg_mp_return(label1pos[0]); // wh
+          if (*ss=='p' && *ss1=='i') _cimg_mp_return(label1pos[3]); // pi
           if (*ss=='i') { // im
             if (*ss1=='m') {
               if (!reference_stats) reference.get_stats().move_to(reference_stats);
-              if (label1pos[1]!=~0U) _cimg_mp_return(label1pos[1]); _cimg_mp_opcode0(mp_im);
+              if (label1pos[4]!=~0U) _cimg_mp_return(label1pos[4]); _cimg_mp_opcode0(mp_im);
             }
             if (*ss1=='M') { // iM
               if (!reference_stats) reference.get_stats().move_to(reference_stats);
-              if (label1pos[2]!=~0U) _cimg_mp_return(label1pos[2]); _cimg_mp_opcode0(mp_iM);
+              if (label1pos[5]!=~0U) _cimg_mp_return(label1pos[5]); _cimg_mp_opcode0(mp_iM);
             }
             if (*ss1=='a') { // ia
               if (!reference_stats) reference.get_stats().move_to(reference_stats);
-              if (label1pos[3]!=~0U) _cimg_mp_return(label1pos[3]); _cimg_mp_opcode0(mp_ia);
+              if (label1pos[6]!=~0U) _cimg_mp_return(label1pos[6]); _cimg_mp_opcode0(mp_ia);
             }
             if (*ss1=='v') { // iv
               if (!reference_stats) reference.get_stats().move_to(reference_stats);
-              if (label1pos[4]!=~0U) _cimg_mp_return(label1pos[4]); _cimg_mp_opcode0(mp_iv);
+              if (label1pos[7]!=~0U) _cimg_mp_return(label1pos[7]); _cimg_mp_opcode0(mp_iv);
             }
             if (*ss1=='s') { // is
               if (!reference_stats) reference.get_stats().move_to(reference_stats);
-              if (label1pos[5]!=~0U) _cimg_mp_return(label1pos[5]); _cimg_mp_opcode0(mp_is);
+              if (label1pos[8]!=~0U) _cimg_mp_return(label1pos[8]); _cimg_mp_opcode0(mp_is);
             }
             if (*ss1=='p') { // ip
               if (!reference_stats) reference.get_stats().move_to(reference_stats);
-              if (label1pos[6]!=~0U) _cimg_mp_return(label1pos[6]); _cimg_mp_opcode0(mp_ip);
+              if (label1pos[9]!=~0U) _cimg_mp_return(label1pos[9]); _cimg_mp_opcode0(mp_ip);
             }
             if (*ss1=='c') { // ic
               if (!is_median_value && reference) { median_value = reference.median(); is_median_value = true; }
-              if (label1pos[7]!=~0U) _cimg_mp_return(label1pos[7]); _cimg_mp_opcode0(mp_ic);
+              if (label1pos[10]!=~0U) _cimg_mp_return(label1pos[10]); _cimg_mp_opcode0(mp_ic);
             }
           }
           if (*ss1=='m') {
             if (*ss=='x') { // xm
               if (!reference_stats) reference.get_stats().move_to(reference_stats);
-              if (label1pos[8]!=~0U) _cimg_mp_return(label1pos[8]); _cimg_mp_opcode0(mp_xm);
+              if (label1pos[11]!=~0U) _cimg_mp_return(label1pos[11]); _cimg_mp_opcode0(mp_xm);
             }
             if (*ss=='y') { // ym
               if (!reference_stats) reference.get_stats().move_to(reference_stats);
-              if (label1pos[9]!=~0U) _cimg_mp_return(label1pos[9]); _cimg_mp_opcode0(mp_ym);
+              if (label1pos[12]!=~0U) _cimg_mp_return(label1pos[12]); _cimg_mp_opcode0(mp_ym);
             }
             if (*ss=='z') { // zm
               if (!reference_stats) reference.get_stats().move_to(reference_stats);
-              if (label1pos[10]!=~0U) _cimg_mp_return(label1pos[10]); _cimg_mp_opcode0(mp_zm);
+              if (label1pos[13]!=~0U) _cimg_mp_return(label1pos[13]); _cimg_mp_opcode0(mp_zm);
             }
             if (*ss=='c') { // cm
               if (!reference_stats) reference.get_stats().move_to(reference_stats);
-              if (label1pos[11]!=~0U) _cimg_mp_return(label1pos[11]); _cimg_mp_opcode0(mp_cm);
+              if (label1pos[14]!=~0U) _cimg_mp_return(label1pos[14]); _cimg_mp_opcode0(mp_cm);
             }
           }
           if (*ss1=='M') {
             if (*ss=='x') { // xM
               if (!reference_stats) reference.get_stats().move_to(reference_stats);
-              if (label1pos[12]!=~0U) _cimg_mp_return(label1pos[12]); _cimg_mp_opcode0(mp_xM);
+              if (label1pos[15]!=~0U) _cimg_mp_return(label1pos[15]); _cimg_mp_opcode0(mp_xM);
             }
             if (*ss=='y') { // yM
               if (!reference_stats) reference.get_stats().move_to(reference_stats);
-              if (label1pos[13]!=~0U) _cimg_mp_return(label1pos[13]); _cimg_mp_opcode0(mp_yM);
+              if (label1pos[16]!=~0U) _cimg_mp_return(label1pos[16]); _cimg_mp_opcode0(mp_yM);
             }
             if (*ss=='z') { // zM
               if (!reference_stats) reference.get_stats().move_to(reference_stats);
-              if (label1pos[14]!=~0U) _cimg_mp_return(label1pos[14]); _cimg_mp_opcode0(mp_zM);
+              if (label1pos[17]!=~0U) _cimg_mp_return(label1pos[17]); _cimg_mp_opcode0(mp_zM);
             }
             if (*ss=='c') { // cM
               if (!reference_stats) reference.get_stats().move_to(reference_stats);
-              if (label1pos[15]!=~0U) _cimg_mp_return(label1pos[15]); _cimg_mp_opcode0(mp_cM);
+              if (label1pos[18]!=~0U) _cimg_mp_return(label1pos[18]); _cimg_mp_opcode0(mp_cM);
             }
           }
+        } else if (ss3==se) { // Three-chars variable.
+          if (*ss=='w' && *ss1=='h' && *ss2=='d') _cimg_mp_return(label1pos[1]); // whd
+        } else if (ss4==se) { // Four-chars variable.
+          if (*ss=='w' && *ss1=='h' && *ss2=='d' && *ss3=='s') _cimg_mp_return(label1pos[2]); // whds
         }
 
         // Look for variable declarations.
@@ -14082,30 +14097,42 @@ namespace cimg_library_suffixed {
             const unsigned int pos = compile(s + 1,se);
 
             // Check for particular case of a reserved variable.
-            if (variable_name[0] && variable_name[1] && !variable_name[2]) {
+            if (variable_name[1] && !variable_name[2]) { // Two-chars variable.
               const char c1 = variable_name[0], c2 = variable_name[1];
-              if (c1=='p' && c2=='i') variable_name.fill((char)0,(char)0); // pi
+              if (c1=='w' && c2=='h') variable_name.fill((char)0,(char)0); // wh
+              else if (c1=='p' && c2=='i') variable_name.fill(3,0); // pi
               else if (c1=='i') {
-                if (c2=='m') variable_name.fill(1,0); // im
-                else if (c2=='M') variable_name.fill(2,0); // iM
-                else if (c2=='a') variable_name.fill(3,0); // ia
-                else if (c2=='v') variable_name.fill(4,0); // iv
-                else if (c2=='s') variable_name.fill(5,0); // is
-                else if (c2=='p') variable_name.fill(6,0); // ip
-                else if (c2=='c') variable_name.fill(7,0); // ic
+                if (c2=='m') variable_name.fill(4,0); // im
+                else if (c2=='M') variable_name.fill(5,0); // iM
+                else if (c2=='a') variable_name.fill(6,0); // ia
+                else if (c2=='v') variable_name.fill(7,0); // iv
+                else if (c2=='s') variable_name.fill(8,0); // is
+                else if (c2=='p') variable_name.fill(9,0); // ip
+                else if (c2=='c') variable_name.fill(10,0); // ic
               } else if (c2=='m') {
-                if (c1=='x') variable_name.fill(8,0); // xm
-                else if (c1=='y') variable_name.fill(9,0); // ym
-                else if (c1=='z') variable_name.fill(10,0); // zm
-                else if (c1=='c') variable_name.fill(11,0); // cm
+                if (c1=='x') variable_name.fill(11,0); // xm
+                else if (c1=='y') variable_name.fill(12,0); // ym
+                else if (c1=='z') variable_name.fill(13,0); // zm
+                else if (c1=='c') variable_name.fill(14,0); // cm
               } else if (c2=='M') {
-                if (c1=='x') variable_name.fill(12,0); // xM
-                else if (c1=='y') variable_name.fill(13,0); // yM
-                else if (c1=='z') variable_name.fill(14,0); // zM
-                else if (c1=='c') variable_name.fill(15,0); // cM
+                if (c1=='x') variable_name.fill(15,0); // xM
+                else if (c1=='y') variable_name.fill(16,0); // yM
+                else if (c1=='z') variable_name.fill(17,0); // zM
+                else if (c1=='c') variable_name.fill(18,0); // cM
               }
+            } else if (variable_name[1] && variable_name[2] && !variable_name[3]) { // Three-chars variable.
+              const char c1 = variable_name[0], c2 = variable_name[1], c3 = variable_name[2];
+              if (c1=='w' && c2=='h' && c3=='d') variable_name.fill(1,0,0); // whd
+            } else if (variable_name[1] && variable_name[2] && variable_name[3] &&
+                       !variable_name[4]) { // Four-chars variable.
+              const char c1 = variable_name[0], c2 = variable_name[1], c3 = variable_name[2],
+                c4 = variable_name[3];
+              if (c1=='w' && c2=='h' && c3=='d' && c4=='s') variable_name.fill(2,0,0,0); // whds
             }
-            if (variable_name[1]) { // Multi-char variable.
+
+            // Set new variable value.
+            if (!variable_name[1]) label1pos[*variable_name] = pos;
+            else {
               int label_pos = -1;
               cimglist_for(labelM,i) // Check for existing variable with same name.
                 if (!std::strcmp(variable_name,labelM[i])) { label_pos = i; break; }
@@ -14115,7 +14142,7 @@ namespace cimg_library_suffixed {
                 variable_name.move_to(labelM);
               }
               labelMpos[label_pos] = pos;
-            } else label1pos[*variable_name] = pos; // Single-char variable.
+            }
             _cimg_mp_return(pos);
           }
 
@@ -14420,7 +14447,7 @@ namespace cimg_library_suffixed {
         return cimg::grand();
       }
       static double mp_i(_cimg_math_parser& mp) {
-        return (double)mp.reference.atXYZC((int)mp.mem[12],(int)mp.mem[13],(int)mp.mem[14],(int)mp.mem[15],0);
+        return (double)mp.reference.atXYZC((int)mp.mem[16],(int)mp.mem[17],(int)mp.mem[18],(int)mp.mem[19],0);
       }
       static double mp_logical_and(_cimg_math_parser& mp) {
         const bool is_A = (bool)mp.mem[mp.opcode(2)];
@@ -14640,7 +14667,7 @@ namespace cimg_library_suffixed {
         }
       }
       static double mp_jxyzc(_cimg_math_parser& mp) {
-        const double x = mp.mem[12], y = mp.mem[13], z = mp.mem[14], c = mp.mem[15];
+        const double x = mp.mem[16], y = mp.mem[17], z = mp.mem[18], c = mp.mem[19];
         const int i = (int)mp.mem[mp.opcode(6)], b = (int)mp.mem[mp.opcode(7)];
         if (i==0) { // Nearest neighbor interpolation.
           if (b==2) return (double)mp.reference.atXYZC(cimg::mod((int)(x + mp.mem[mp.opcode(2)]),
@@ -14800,7 +14827,7 @@ namespace cimg_library_suffixed {
         return (double)mp.reference[off];
       }
       static double mp_joff(_cimg_math_parser& mp) {
-        const int x = (int)mp.mem[12], y = (int)mp.mem[13], z = (int)mp.mem[14], c = (int)mp.mem[15];
+        const int x = (int)mp.mem[16], y = (int)mp.mem[17], z = (int)mp.mem[18], c = (int)mp.mem[19];
         const unsigned long off = mp.reference.offset(x,y,z,c) + (unsigned long)(mp.mem[mp.opcode(2)]);
         if (off>=mp.reference.size()) return 0;
         return (double)mp.reference[off];
@@ -14809,7 +14836,7 @@ namespace cimg_library_suffixed {
       // Evaluation procedure, with image data.
       double operator()(const double x, const double y, const double z, const double c) {
         if (!mem) return 0;
-        mem[12] = x; mem[13] = y; mem[14] = z; mem[15] = c;
+        mem[16] = x; mem[17] = y; mem[18] = z; mem[19] = c;
         opcode._is_shared = true; opcode._width = opcode._depth = opcode._spectrum = 1;
 
         for (p_code = code._data; p_code<code.end(); ++p_code) {

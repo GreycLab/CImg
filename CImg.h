@@ -4757,7 +4757,8 @@ namespace cimg_library_suffixed {
     //! Get last write time of a given file or directory.
     /**
        \param path Specified path to get attributes from.
-       \param attr Type of requested time attribute. Can be { 0=year | 1=month | 2=day | 3=day of week | 4=hour | 5=minute | 6=second }
+       \param attr Type of requested time attribute.
+                   Can be { 0=year | 1=month | 2=day | 3=day of week | 4=hour | 5=minute | 6=second }
        \return -1 if requested attribute could not be read.
     **/
     inline int fdate(const char *const path, const unsigned int attr) {
@@ -13814,7 +13815,7 @@ namespace cimg_library_suffixed {
       CImg<longT> opcode;
       const CImg<longT>* p_code;
       CImgList<charT> labelM;
-      CImg<uintT> level, labelMpos, label1pos;
+      CImg<uintT> level, labelMpos, reserved_label;
       CImg<doubleT> mem;
       CImg<charT> expr;
       const CImg<T>& reference;
@@ -13895,21 +13896,21 @@ namespace cimg_library_suffixed {
         mem[15] = std::exp(1.0); // Then [16] = x, [17] = y, [18] = z and [19] = c.
         mempos = 20;
         labelMpos.assign(8);
-        label1pos.assign(128,1,1,1,~0U);
-        label1pos['w'] = 6;
-        label1pos['h'] = 7;
-        label1pos['d'] = 8;
-        label1pos['s'] = 9;
-        label1pos['r'] = 10;
-        label1pos[0] = 11; // wh
-        label1pos[1] = 12; // whd
-        label1pos[2] = 13; // whds
-        label1pos[3] = 14; // pi
-        label1pos['e'] = 15;
-        label1pos['x'] = 16;
-        label1pos['y'] = 17;
-        label1pos['z'] = 18;
-        label1pos['c'] = 19;
+        reserved_label.assign(128,1,1,1,~0U);
+        reserved_label['w'] = 6;
+        reserved_label['h'] = 7;
+        reserved_label['d'] = 8;
+        reserved_label['s'] = 9;
+        reserved_label['r'] = 10;
+        reserved_label[0] = 11; // wh
+        reserved_label[1] = 12; // whd
+        reserved_label[2] = 13; // whds
+        reserved_label[3] = 14; // pi
+        reserved_label['e'] = 15;
+        reserved_label['x'] = 16;
+        reserved_label['y'] = 17;
+        reserved_label['z'] = 18;
+        reserved_label['c'] = 19;
         result = compile(expr._data,expr._data + l); // Compile formula into a serie of opcodes.
       }
 
@@ -13989,85 +13990,85 @@ namespace cimg_library_suffixed {
         }
         if (ss1==se) switch (*ss) { // One-char variable.
           case 'w' : case 'h' : case 'd' : case 's' : case 'r' :
-          case 'x' : case 'y' : case 'z' : case 'c' : case 'e' : _cimg_mp_return(label1pos[*ss]);
-          case 'u' : if (label1pos['u']!=~0U) _cimg_mp_return(label1pos['u']); _cimg_mp_opcode2(mp_u,0,1);
-          case 'g' : if (label1pos['g']!=~0U) _cimg_mp_return(label1pos['g']); _cimg_mp_opcode0(mp_g);
-          case 'i' : if (label1pos['i']!=~0U) _cimg_mp_return(label1pos['i']); _cimg_mp_opcode0(mp_i);
+          case 'x' : case 'y' : case 'z' : case 'c' : case 'e' : _cimg_mp_return(reserved_label[*ss]);
+          case 'u' : if (reserved_label['u']!=~0U) _cimg_mp_return(reserved_label['u']); _cimg_mp_opcode2(mp_u,0,1);
+          case 'g' : if (reserved_label['g']!=~0U) _cimg_mp_return(reserved_label['g']); _cimg_mp_opcode0(mp_g);
+          case 'i' : if (reserved_label['i']!=~0U) _cimg_mp_return(reserved_label['i']); _cimg_mp_opcode0(mp_i);
           case '?' : _cimg_mp_opcode2(mp_u,0,1);
           }
         else if (ss2==se) { // Two-chars variable.
-          if (*ss=='w' && *ss1=='h') _cimg_mp_return(label1pos[0]); // wh
-          if (*ss=='p' && *ss1=='i') _cimg_mp_return(label1pos[3]); // pi
+          if (*ss=='w' && *ss1=='h') _cimg_mp_return(reserved_label[0]); // wh
+          if (*ss=='p' && *ss1=='i') _cimg_mp_return(reserved_label[3]); // pi
           if (*ss=='i') { // im
             if (*ss1=='m') {
               if (!reference_stats) reference.get_stats().move_to(reference_stats);
-              if (label1pos[4]!=~0U) _cimg_mp_return(label1pos[4]); _cimg_mp_opcode0(mp_im);
+              if (reserved_label[4]!=~0U) _cimg_mp_return(reserved_label[4]); _cimg_mp_opcode0(mp_im);
             }
             if (*ss1=='M') { // iM
               if (!reference_stats) reference.get_stats().move_to(reference_stats);
-              if (label1pos[5]!=~0U) _cimg_mp_return(label1pos[5]); _cimg_mp_opcode0(mp_iM);
+              if (reserved_label[5]!=~0U) _cimg_mp_return(reserved_label[5]); _cimg_mp_opcode0(mp_iM);
             }
             if (*ss1=='a') { // ia
               if (!reference_stats) reference.get_stats().move_to(reference_stats);
-              if (label1pos[6]!=~0U) _cimg_mp_return(label1pos[6]); _cimg_mp_opcode0(mp_ia);
+              if (reserved_label[6]!=~0U) _cimg_mp_return(reserved_label[6]); _cimg_mp_opcode0(mp_ia);
             }
             if (*ss1=='v') { // iv
               if (!reference_stats) reference.get_stats().move_to(reference_stats);
-              if (label1pos[7]!=~0U) _cimg_mp_return(label1pos[7]); _cimg_mp_opcode0(mp_iv);
+              if (reserved_label[7]!=~0U) _cimg_mp_return(reserved_label[7]); _cimg_mp_opcode0(mp_iv);
             }
             if (*ss1=='s') { // is
               if (!reference_stats) reference.get_stats().move_to(reference_stats);
-              if (label1pos[8]!=~0U) _cimg_mp_return(label1pos[8]); _cimg_mp_opcode0(mp_is);
+              if (reserved_label[8]!=~0U) _cimg_mp_return(reserved_label[8]); _cimg_mp_opcode0(mp_is);
             }
             if (*ss1=='p') { // ip
               if (!reference_stats) reference.get_stats().move_to(reference_stats);
-              if (label1pos[9]!=~0U) _cimg_mp_return(label1pos[9]); _cimg_mp_opcode0(mp_ip);
+              if (reserved_label[9]!=~0U) _cimg_mp_return(reserved_label[9]); _cimg_mp_opcode0(mp_ip);
             }
             if (*ss1=='c') { // ic
               if (!is_median_value && reference) { median_value = reference.median(); is_median_value = true; }
-              if (label1pos[10]!=~0U) _cimg_mp_return(label1pos[10]); _cimg_mp_opcode0(mp_ic);
+              if (reserved_label[10]!=~0U) _cimg_mp_return(reserved_label[10]); _cimg_mp_opcode0(mp_ic);
             }
           }
           if (*ss1=='m') {
             if (*ss=='x') { // xm
               if (!reference_stats) reference.get_stats().move_to(reference_stats);
-              if (label1pos[11]!=~0U) _cimg_mp_return(label1pos[11]); _cimg_mp_opcode0(mp_xm);
+              if (reserved_label[11]!=~0U) _cimg_mp_return(reserved_label[11]); _cimg_mp_opcode0(mp_xm);
             }
             if (*ss=='y') { // ym
               if (!reference_stats) reference.get_stats().move_to(reference_stats);
-              if (label1pos[12]!=~0U) _cimg_mp_return(label1pos[12]); _cimg_mp_opcode0(mp_ym);
+              if (reserved_label[12]!=~0U) _cimg_mp_return(reserved_label[12]); _cimg_mp_opcode0(mp_ym);
             }
             if (*ss=='z') { // zm
               if (!reference_stats) reference.get_stats().move_to(reference_stats);
-              if (label1pos[13]!=~0U) _cimg_mp_return(label1pos[13]); _cimg_mp_opcode0(mp_zm);
+              if (reserved_label[13]!=~0U) _cimg_mp_return(reserved_label[13]); _cimg_mp_opcode0(mp_zm);
             }
             if (*ss=='c') { // cm
               if (!reference_stats) reference.get_stats().move_to(reference_stats);
-              if (label1pos[14]!=~0U) _cimg_mp_return(label1pos[14]); _cimg_mp_opcode0(mp_cm);
+              if (reserved_label[14]!=~0U) _cimg_mp_return(reserved_label[14]); _cimg_mp_opcode0(mp_cm);
             }
           }
           if (*ss1=='M') {
             if (*ss=='x') { // xM
               if (!reference_stats) reference.get_stats().move_to(reference_stats);
-              if (label1pos[15]!=~0U) _cimg_mp_return(label1pos[15]); _cimg_mp_opcode0(mp_xM);
+              if (reserved_label[15]!=~0U) _cimg_mp_return(reserved_label[15]); _cimg_mp_opcode0(mp_xM);
             }
             if (*ss=='y') { // yM
               if (!reference_stats) reference.get_stats().move_to(reference_stats);
-              if (label1pos[16]!=~0U) _cimg_mp_return(label1pos[16]); _cimg_mp_opcode0(mp_yM);
+              if (reserved_label[16]!=~0U) _cimg_mp_return(reserved_label[16]); _cimg_mp_opcode0(mp_yM);
             }
             if (*ss=='z') { // zM
               if (!reference_stats) reference.get_stats().move_to(reference_stats);
-              if (label1pos[17]!=~0U) _cimg_mp_return(label1pos[17]); _cimg_mp_opcode0(mp_zM);
+              if (reserved_label[17]!=~0U) _cimg_mp_return(reserved_label[17]); _cimg_mp_opcode0(mp_zM);
             }
             if (*ss=='c') { // cM
               if (!reference_stats) reference.get_stats().move_to(reference_stats);
-              if (label1pos[18]!=~0U) _cimg_mp_return(label1pos[18]); _cimg_mp_opcode0(mp_cM);
+              if (reserved_label[18]!=~0U) _cimg_mp_return(reserved_label[18]); _cimg_mp_opcode0(mp_cM);
             }
           }
         } else if (ss3==se) { // Three-chars variable.
-          if (*ss=='w' && *ss1=='h' && *ss2=='d') _cimg_mp_return(label1pos[1]); // whd
+          if (*ss=='w' && *ss1=='h' && *ss2=='d') _cimg_mp_return(reserved_label[1]); // whd
         } else if (ss4==se) { // Four-chars variable.
-          if (*ss=='w' && *ss1=='h' && *ss2=='d' && *ss3=='s') _cimg_mp_return(label1pos[2]); // whds
+          if (*ss=='w' && *ss1=='h' && *ss2=='d' && *ss3=='s') _cimg_mp_return(reserved_label[2]); // whds
         }
 
         // Look for variable declarations.
@@ -14131,7 +14132,7 @@ namespace cimg_library_suffixed {
             }
 
             // Set new variable value.
-            if (!variable_name[1]) label1pos[*variable_name] = pos;
+            if (!variable_name[1]) reserved_label[*variable_name] = pos;
             else {
               int label_pos = -1;
               cimglist_for(labelM,i) // Check for existing variable with same name.
@@ -14425,7 +14426,8 @@ namespace cimg_library_suffixed {
         variable_name.back() = 0;
         if (variable_name[1]) { // Multi-char variable.
           cimglist_for(labelM,i) if (!std::strcmp(variable_name,labelM[i])) _cimg_mp_return(labelMpos[i]);
-        } else if (label1pos[*variable_name]!=~0U) _cimg_mp_return(label1pos[*variable_name]); // Single-char variable.
+        } else if (reserved_label[*variable_name]!=~0U) // Single-char variable.
+          _cimg_mp_return(reserved_label[*variable_name]);
         *se = saved_char;
         throw CImgArgumentException("[_cimg_math_parser] "
                                     "CImg<%s>::%s(): Invalid item '%s' in specified expression '%s%s%s'.\n",
@@ -16332,7 +16334,8 @@ namespace cimg_library_suffixed {
     //! Compute statistics vector from the pixel values.
     /*
        \param variance_method Method used to compute the variance (see variance(const unsigned int) const).
-       \return Statistics vector as <tt>[min; max; mean; variance; xmin; ymin; zmin; cmin; xmax; ymax; zmax; cmax; sum; product]</tt>.
+       \return Statistics vector as
+         <tt>[min; max; mean; variance; xmin; ymin; zmin; cmin; xmax; ymax; zmax; cmax; sum; product]</tt>.
     **/
     CImg<Tdouble> get_stats(const unsigned int variance_method=1) const {
       if (is_empty()) return CImg<doubleT>();

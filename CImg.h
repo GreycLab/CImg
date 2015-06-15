@@ -16295,6 +16295,13 @@ namespace cimg_library_suffixed {
     double eval(const char *const expression,
                 const double x=0, const double y=0, const double z=0, const double c=0) const {
       if (!expression) return 0;
+      if (!expression[1]) switch (*expression) { // Single-char optimization.
+        case 'w' : return (double)_width;
+        case 'h' : return (double)_height;
+        case 'd' : return (double)_depth;
+        case 's' : return (double)_spectrum;
+        case 'r' : return (double)_is_shared;
+        }
       return _cimg_math_parser(*this,expression,"eval")(x,y,z,c);
     }
 

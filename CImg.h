@@ -14244,8 +14244,8 @@ namespace cimg_library_suffixed {
           if ((*ss=='i' || is_relative) && *ss1=='(') {
             if (*ss2==')') _cimg_mp_opcode0(mp_i);
             unsigned int
-              indx = is_relative?0U:9U, indy = is_relative?0U:10U,
-              indz = is_relative?0U:11U, indc = is_relative?0U:12U,
+              indx = is_relative?0U:16U, indy = is_relative?0U:17U,
+              indz = is_relative?0U:18U, indc = is_relative?0U:19U,
               borders = 0, interpolation = 0;
             if (ss2!=se1) {
               char *s1 = ss2; while (s1<se2 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -14635,76 +14635,44 @@ namespace cimg_library_suffixed {
         return cimg::round(mp.mem[mp.opcode(2)],mp.mem[mp.opcode(3)],(int)mp.mem[mp.opcode(4)]);
       }
       static double mp_ixyzc(_cimg_math_parser& mp) {
+        const double
+          x = mp.mem[mp.opcode(2)], y = mp.mem[mp.opcode(3)], z = mp.mem[mp.opcode(4)], c = mp.mem[mp.opcode(5)];
         const int i = (int)mp.mem[mp.opcode(6)], b = (int)mp.mem[mp.opcode(7)];
         if (i==0) { // Nearest neighbor interpolation.
-          if (b==2) return (double)mp.reference.atXYZC(cimg::mod((int)mp.mem[mp.opcode(2)],mp.reference.width()),
-                                                       cimg::mod((int)mp.mem[mp.opcode(3)],mp.reference.height()),
-                                                       cimg::mod((int)mp.mem[mp.opcode(4)],mp.reference.depth()),
-                                                       cimg::mod((int)mp.mem[mp.opcode(5)],mp.reference.spectrum()));
-          if (b==1) return (double)mp.reference.atXYZC((int)mp.mem[mp.opcode(2)],
-                                                       (int)mp.mem[mp.opcode(3)],
-                                                       (int)mp.mem[mp.opcode(4)],
-                                                       (int)mp.mem[mp.opcode(5)]);
-          return (double)mp.reference.atXYZC((int)mp.mem[mp.opcode(2)],
-                                             (int)mp.mem[mp.opcode(3)],
-                                             (int)mp.mem[mp.opcode(4)],
-                                             (int)mp.mem[mp.opcode(5)],0);
+          if (b==2) return (double)mp.reference.atXYZC(cimg::mod((int)x,mp.reference.width()),
+                                                       cimg::mod((int)y,mp.reference.height()),
+                                                       cimg::mod((int)z,mp.reference.depth()),
+                                                       cimg::mod((int)c,mp.reference.spectrum()));
+          if (b==1) return (double)mp.reference.atXYZC((int)x,(int)y,(int)z,(int)c);
+          return (double)mp.reference.atXYZC((int)x,(int)y,(int)z,(int)c,0);
         } else { // Linear interpolation.
-          if (b==2) return (double)mp.reference.linear_atXYZC(cimg::mod((float)mp.mem[mp.opcode(2)],
-                                                                        (float)mp.reference.width()),
-                                                              cimg::mod((float)mp.mem[mp.opcode(3)],
-                                                                        (float)mp.reference.height()),
-                                                              cimg::mod((float)mp.mem[mp.opcode(4)],
-                                                                        (float)mp.reference.depth()),
-                                                              cimg::mod((float)mp.mem[mp.opcode(5)],
-                                                                        (float)mp.reference.spectrum()));
-          if (b==1) return (double)mp.reference.linear_atXYZC((float)mp.mem[mp.opcode(2)],
-                                                              (float)mp.mem[mp.opcode(3)],
-                                                              (float)mp.mem[mp.opcode(4)],
-                                                              (float)mp.mem[mp.opcode(5)]);
-          return (double)mp.reference.linear_atXYZC((float)mp.mem[mp.opcode(2)],
-                                                    (float)mp.mem[mp.opcode(3)],
-                                                    (float)mp.mem[mp.opcode(4)],
-                                                    (float)mp.mem[mp.opcode(5)],0);
+          if (b==2) return (double)mp.reference.linear_atXYZC(cimg::mod((float)x,(float)mp.reference.width()),
+                                                              cimg::mod((float)y,(float)mp.reference.height()),
+                                                              cimg::mod((float)z,(float)mp.reference.depth()),
+                                                              cimg::mod((float)c,(float)mp.reference.spectrum()));
+          if (b==1) return (double)mp.reference.linear_atXYZC((float)x,(float)y,(float)z,(float)c);
+          return (double)mp.reference.linear_atXYZC((float)x,(float)y,(float)z,(float)c,0);
         }
       }
       static double mp_jxyzc(_cimg_math_parser& mp) {
         const double x = mp.mem[16], y = mp.mem[17], z = mp.mem[18], c = mp.mem[19];
+        const double
+          dx = mp.mem[mp.opcode(2)], dy = mp.mem[mp.opcode(3)], dz = mp.mem[mp.opcode(4)], dc = mp.mem[mp.opcode(5)];
         const int i = (int)mp.mem[mp.opcode(6)], b = (int)mp.mem[mp.opcode(7)];
         if (i==0) { // Nearest neighbor interpolation.
-          if (b==2) return (double)mp.reference.atXYZC(cimg::mod((int)(x + mp.mem[mp.opcode(2)]),
-                                                                 mp.reference.width()),
-                                                       cimg::mod((int)(y + mp.mem[mp.opcode(3)]),
-                                                                 mp.reference.height()),
-                                                       cimg::mod((int)(z + mp.mem[mp.opcode(4)]),
-                                                                 mp.reference.depth()),
-                                                       cimg::mod((int)(c + mp.mem[mp.opcode(5)]),
-                                                                 mp.reference.spectrum()));
-          if (b==1) return (double)mp.reference.atXYZC((int)(x + mp.mem[mp.opcode(2)]),
-                                                       (int)(y + mp.mem[mp.opcode(3)]),
-                                                       (int)(z + mp.mem[mp.opcode(4)]),
-                                                       (int)(c + mp.mem[mp.opcode(5)]));
-          return (double)mp.reference.atXYZC((int)(x + mp.mem[mp.opcode(2)]),
-                                             (int)(y + mp.mem[mp.opcode(3)]),
-                                             (int)(z + mp.mem[mp.opcode(4)]),
-                                             (int)(c + mp.mem[mp.opcode(5)]),0);
+          if (b==2) return (double)mp.reference.atXYZC(cimg::mod((int)(x + dx),mp.reference.width()),
+                                                       cimg::mod((int)(y + dy),mp.reference.height()),
+                                                       cimg::mod((int)(z + dz),mp.reference.depth()),
+                                                       cimg::mod((int)(c + dc),mp.reference.spectrum()));
+          if (b==1) return (double)mp.reference.atXYZC((int)(x + dx),(int)(y + dy),(int)(z + dz),(int)(c + dc));
+          return (double)mp.reference.atXYZC((int)(x + dx),(int)(y + dy),(int)(z + dz),(int)(c + dc),0);
         } else { // Linear interpolation.
-          if (b==2) return (double)mp.reference.linear_atXYZC(cimg::mod((float)(x + mp.mem[mp.opcode(2)]),
-                                                                        (float)mp.reference.width()),
-                                                              cimg::mod((float)(y + mp.mem[mp.opcode(3)]),
-                                                                        (float)mp.reference.height()),
-                                                              cimg::mod((float)(z + mp.mem[mp.opcode(4)]),
-                                                                        (float)mp.reference.depth()),
-                                                              cimg::mod((float)(c + mp.mem[mp.opcode(5)]),
-                                                                        (float)mp.reference.spectrum()));
-          if (b==1) return (double)mp.reference.linear_atXYZC((float)(x + mp.mem[mp.opcode(2)]),
-                                                              (float)(y + mp.mem[mp.opcode(3)]),
-                                                              (float)(z + mp.mem[mp.opcode(4)]),
-                                                              (float)(c + mp.mem[mp.opcode(5)]));
-          return (double)mp.reference.linear_atXYZC((float)(x + mp.mem[mp.opcode(2)]),
-                                                    (float)(y + mp.mem[mp.opcode(3)]),
-                                                    (float)(z + mp.mem[mp.opcode(4)]),
-                                                    (float)(c + mp.mem[mp.opcode(5)]),0);
+          if (b==2) return (double)mp.reference.linear_atXYZC(cimg::mod((float)(x + dx),(float)mp.reference.width()),
+                                                              cimg::mod((float)(y + dy),(float)mp.reference.height()),
+                                                              cimg::mod((float)(z + dz),(float)mp.reference.depth()),
+                                                              cimg::mod((float)(c + dc),(float)mp.reference.spectrum()));
+          if (b==1) return (double)mp.reference.linear_atXYZC((float)(x + dx),(float)(y + dy),(float)(z + dz),(float)(c + dc));
+          return (double)mp.reference.linear_atXYZC((float)(x + dx),(float)(y + dy),(float)(z + dz),(float)(c + dc),0);
         }
       }
       static double mp_min(_cimg_math_parser& mp) {

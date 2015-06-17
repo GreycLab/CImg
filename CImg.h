@@ -4771,8 +4771,8 @@ namespace cimg_library_suffixed {
         FILETIME _ft;
         SYSTEMTIME ft;
         if (GetFileTime(file,0,0,&_ft) && FileTimeToSystemTime(&_ft,&ft))
-          res = (int)(attr==0?ft.wYear:attr==1?ft.wMonth:attr==2?ft.wDay:attr==3?ft.wDayOfWeek:attr==4?ft.wHour:
-                      attr==5?ft.wMinute:ft.wSecond);
+          res = (int)(attr==0?ft.wYear:attr==1?ft.wMonth:attr==2?ft.wDay:attr==3?ft.wDayOfWeek:
+                      attr==4?ft.wHour:attr==5?ft.wMinute:ft.wSecond);
         CloseHandle(file);
       }
 #else
@@ -4780,8 +4780,8 @@ namespace cimg_library_suffixed {
       if (!stat(path,&st_buf)) {
         const time_t _ft = st_buf.st_mtime;
         const struct tm& ft = *std::localtime(&_ft);
-        res = (int)(attr==0?ft.tm_year + 1900:attr==1?ft.tm_mon + 1:attr==2?ft.tm_mday:attr==3?ft.tm_wday:attr==4?ft.tm_hour:
-                    attr==5?ft.tm_min:ft.tm_sec);
+        res = (int)(attr==0?ft.tm_year + 1900:attr==1?ft.tm_mon + 1:attr==2?ft.tm_mday:attr==3?ft.tm_wday:
+                    attr==4?ft.tm_hour:attr==5?ft.tm_min:ft.tm_sec);
       }
 #endif
       cimg::mutex(6,0);

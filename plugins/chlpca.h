@@ -183,13 +183,13 @@ CImg<T> get_chlpca(const int px, const int py, const int pz,
 		       const float noise_std,  const bool pca_use_svd) const {
   const int
     nd = (2*px + 1) * (2*py + 1) * (depth()==1?1:2*pz + 1) * spectrum(),
-    K = nsim * nd;
+    K = (int)(nsim * nd);
 #ifdef DEBUG
   fprintf(stderr,"chlpca: p:%dx%dx%d,w:%dx%dx%d,nd:%d,K:%d\n",
 	  2*px + 1,2*py + 1,2*pz + 1,2*wx + 1,2*wy + 1,2*wz + 1,nd,K);
 #endif
   float sigma;
-  if (noise_std < 0) sigma = std::sqrt(variance_noise());
+  if (noise_std<0) sigma = (float)std::sqrt(variance_noise());
   else sigma = noise_std;
   CImg<T> dest(*this), count(*this);
   dest.fill(0);
@@ -208,7 +208,7 @@ CImg<T> get_chlpca(const int px, const int py, const int pz,
       if (K < Sk.width() - 1){
 	CImg<T> mse(S.width());
 	CImg<unsigned int> perms;
-	cimg_forX(S,x){mse(x) = S.get_column(idc).MSE(S.get_column(x)); }
+	cimg_forX(S,x) { mse(x) = (T)S.get_column(idc).MSE(S.get_column(x)); }
 	mse.sort(perms,true);
 	cimg_foroff(perms,i) {
 	  cimg_forY(S,j) Sk(i,j) = S(perms(i),j);
@@ -228,14 +228,14 @@ CImg<T> get_chlpca(const int px, const int py, const int pz,
       CImg<T> P, lambda;
       if (pca_use_svd) {
 	CImg<T> V;
-	Sk.get_transpose().SVD(V,lambda,P,100);
+	Sk.get_transpose().SVD(V,lambda,P,true,100);
       } else {
 	(Sk * Sk.get_transpose()).symmetric_eigen(lambda, P);
 	lambda.sqrt();
       }
       // dimension reduction
       int s = 0;
-      const T tx = std::sqrt((double)Sk.width()-1.0) * lambda_min * sigma;
+      const T tx = (T)(std::sqrt((double)Sk.width()-1.0) * lambda_min * sigma);
       while((lambda(s) > tx) && (s < ((int)lambda.size() - 1))) { s++; }
       P.columns(0,s);
       // project all the patches on the basis (compute scalar product)

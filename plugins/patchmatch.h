@@ -56,8 +56,8 @@ CImg<float> get_vizFlow(const float cutVal = 0) const {
   // Filling HSV values
   cimg_forXY(*this,x,y) {
     const float
-      xx = -(*this)(x,y,0),
-      yy = -(*this)(x,y,1),
+      xx = (float)(-(*this)(x,y,0)),
+      yy = (float)(-(*this)(x,y,1)),
       H = cimg::max(180*((std::atan2(yy,xx)/cimg::PI) + 1.0),0.0),
       S = mag(x,y),
       V = 1.0f;
@@ -126,8 +126,8 @@ CImg<T>& patchMatch(const CImg<Tt> &img0, const CImg<Tt> &img1,
 
   // Initialize with random offsets
   cimg_forXY(off, x0, y0){
-    int x1 = ((w1 - 1) * cimg::rand());
-    int y1 = ((h1 - 1) * cimg::rand());
+    int x1 = (int)((w1 - 1) * cimg::rand());
+    int y1 = (int)((h1 - 1) * cimg::rand());
     off(x0, y0, 0) = x1 - x0;
     off(x0, y0, 1) = y1 - y0;
     minDist(x0, y0) = distPatch(img0big, img1big, x0, y0, x1, y1, P);
@@ -144,7 +144,7 @@ CImg<T>& patchMatch(const CImg<Tt> &img0, const CImg<Tt> &img1,
     for (int y = yStart; y != yFinish; y=y+inc)
       for (int x = xStart; x != xFinish; x=x+inc) {
         // Propagation
-        Tt d2 = 0.0;
+        Tt d2 = (Tt)0;
         int x1 = x + off(x - inc,y,0), y1 = y + off(x - inc,y,1);
         if(x1 >= 0 && x1 < w1 && y1 >= 0 && y1 < h1){ // propagate only if inside img1 bounds
           d2 = distPatch(img0big, img1big, x, y, x1, y1, P);
@@ -172,12 +172,12 @@ CImg<T>& patchMatch(const CImg<Tt> &img0, const CImg<Tt> &img1,
           const int
             wMinX = cimg::max(0, x + offXCurr - wSizX/2),
             wMaxX = cimg::min(w1 - 1, x + offXCurr + wSizX/2);
-          x1 = (wMaxX - wMinX) * cimg::rand() + wMinX;
+          x1 = (int)((wMaxX - wMinX) * cimg::rand() + wMinX);
 
           const int
             wMinY = cimg::max(0, y + offYCurr - wSizY/2),
             wMaxY = cimg::min(h1 - 1, y + offYCurr + wSizY/2);
-          y1 = (wMaxY - wMinY) * cimg::rand() + wMinY;
+          y1 = (int)((wMaxY - wMinY) * cimg::rand() + wMinY);
           d2 = distPatch(img0big, img1big, x, y, x1, y1, P);
 
           if (d2 < minDist(x, y)) {

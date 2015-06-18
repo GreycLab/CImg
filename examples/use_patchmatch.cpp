@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
     exit(0);
   }
 
-  srand (time(NULL));
+  srand((unsigned int)time(NULL));
 
 
   CImg<int> img0(file0);

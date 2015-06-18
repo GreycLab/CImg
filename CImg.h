@@ -2161,11 +2161,13 @@ namespace cimg_library_suffixed {
       return _exception_mode(0,false);
     }
 
+    // Display a simple dialog box, and wait for the user's response.
     inline int dialog(const char *const title, const char *const msg, const char *const button1_label="OK",
                       const char *const button2_label=0, const char *const button3_label=0,
                       const char *const button4_label=0, const char *const button5_label=0,
                       const char *const button6_label=0, const bool centering=false);
 
+    // Evaluate math expression.
     inline double eval(const char *const expression,
                        const double x=0, const double y=0, const double z=0, const double c=0);
   }
@@ -4788,39 +4790,39 @@ namespace cimg_library_suffixed {
       return res;
     }
 
-    //! Get/set path to store temporary files.
+    // Get/set path to store temporary files.
     inline const char* temporary_path(const char *const user_path=0, const bool reinit_path=false);
 
-    //! Get/set path to the <i>Program Files/</i> directory (Windows only).
+    // Get/set path to the <i>Program Files/</i> directory (Windows only).
 #if cimg_OS==2
     inline const char* programfiles_path(const char *const user_path=0, const bool reinit_path=false);
 #endif
 
-    //! Get/set path to the ImageMagick's \c convert binary.
+    // Get/set path to the ImageMagick's \c convert binary.
     inline const char* imagemagick_path(const char *const user_path=0, const bool reinit_path=false);
 
-    //! Get/set path to the GraphicsMagick's \c gm binary.
+    // Get/set path to the GraphicsMagick's \c gm binary.
     inline const char* graphicsmagick_path(const char *const user_path=0, const bool reinit_path=false);
 
-    //! Get/set path to the XMedcon's \c medcon binary.
+    // Get/set path to the XMedcon's \c medcon binary.
     inline const char* medcon_path(const char *const user_path=0, const bool reinit_path=false);
 
-    //! Get/set path to the FFMPEG's \c ffmpeg binary.
+    // Get/set path to the FFMPEG's \c ffmpeg binary.
     inline const char *ffmpeg_path(const char *const user_path=0, const bool reinit_path=false);
 
-    //! Get/set path to the \c gzip binary.
+    // Get/set path to the \c gzip binary.
     inline const char *gzip_path(const char *const user_path=0, const bool reinit_path=false);
 
-    //! Get/set path to the \c gunzip binary.
+    // Get/set path to the \c gunzip binary.
     inline const char *gunzip_path(const char *const user_path=0, const bool reinit_path=false);
 
-    //! Get/set path to the \c dcraw binary.
+    // Get/set path to the \c dcraw binary.
     inline const char *dcraw_path(const char *const user_path=0, const bool reinit_path=false);
 
-    //! Get/set path to the \c wget binary.
+    // Get/set path to the \c wget binary.
     inline const char *wget_path(const char *const user_path=0, const bool reinit_path=false);
 
-    //! Get/set path to the \c curl binary.
+    // Get/set path to the \c curl binary.
     inline const char *curl_path(const char *const user_path=0, const bool reinit_path=false);
 
     //! Split filename into two C-strings \c body and \c extension.
@@ -4850,59 +4852,6 @@ namespace cimg_library_suffixed {
       std::sprintf(str,format,body,number,ext);
       delete[] format; delete[] body;
       return str;
-    }
-
-    //! Try to guess format from an image file.
-    /**
-       \param file Input file (can be \c 0 if \c filename is set).
-       \param filename Filename, as a C-string (can be \c 0 if \c file is set).
-       \return C-string containing the guessed file format, or \c 0 if nothing has been guessed.
-     **/
-    inline const char *file_type(std::FILE *const file, const char *const filename) {
-      if (!file && !filename)
-        throw CImgArgumentException("cimg::file_type(): Specified filename is (null).");
-      static const char
-        *const _pnm = "pnm",
-        *const _pfm = "pfm",
-        *const _bmp = "bmp",
-        *const _gif = "gif",
-        *const _jpg = "jpg",
-        *const _off = "off",
-        *const _pan = "pan",
-        *const _png = "png",
-        *const _tif = "tif",
-        *const _inr = "inr",
-        *const _dcm = "dcm";
-      std::FILE *const nfile = file?file:cimg::fopen(filename,"rb");
-      const char *f_type = 0, *head;
-      char *const header = new char[2048]; *header = 0;
-      const unsigned char *const uheader = (unsigned char*)header;
-      int err; char cerr;
-      const unsigned int siz = (unsigned int)std::fread(header,2048,1,nfile);   // Read first 2048 bytes.
-      if (!file) cimg::fclose(nfile);
-
-      if (!std::strncmp(header,"OFF\n",4)) f_type = _off; // OFF.
-      else if (!std::strncmp(header,"#INRIMAGE",9)) f_type = _inr; // INRIMAGE.
-      else if (!std::strncmp(header,"PANDORE",7)) f_type = _pan; // PANDORE.
-      else if (!std::strncmp(header + 128,"DICM",4)) f_type = _dcm; // DICOM.
-      else if (uheader[0]==0xFF && uheader[1]==0xD8 && uheader[2]==0xFF) f_type = _jpg;  // JPEG.
-      else if (header[0]=='B' && header[1]=='M') f_type = _bmp;  // BMP.
-      else if (header[0]=='G' && header[1]=='I' && header[2]=='F' && header[3]=='8' && header[5]=='a' && // GIF.
-               (header[4]=='7' || header[4]=='9')) f_type = _gif;
-      else if (uheader[0]==0x89 && uheader[1]==0x50 && uheader[2]==0x4E && uheader[3]==0x47 &&  // PNG.
-               uheader[4]==0x0D && uheader[5]==0x0A && uheader[6]==0x1A && uheader[7]==0x0A) f_type = _png;
-      else if ((uheader[0]==0x49 && uheader[1]==0x49) || (uheader[0]==0x4D && uheader[1]==0x4D)) f_type = _tif; // TIFF.
-      else { // PNM or PFM.
-        char *const item = new char[1024]; *item = 0;
-        head = header;
-        while (head<header + siz && (err=std::sscanf(head,"%1023[^\n]",item))!=EOF && (*item=='#' || !err))
-          head+=1 + (err?std::strlen(item):0);
-        if (std::sscanf(item," P%d",&err)==1) f_type = _pnm;
-        else if (std::sscanf(item," P%c",&cerr)==1 && (cerr=='f' || cerr=='F')) f_type = _pfm;
-        delete[] item;
-      }
-      delete[] header;
-      return f_type;
     }
 
     //! Read data from file.
@@ -4968,12 +4917,15 @@ namespace cimg_library_suffixed {
     **/
     inline void fempty(std::FILE *const file, const char *const filename) {
       if (!file && !filename)
-        throw CImgArgumentException("cimg::file_type(): Specified filename is (null).");
+        throw CImgArgumentException("cimg::fempty(): Specified filename is (null).");
       std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
       if (!file) cimg::fclose(nfile);
     }
 
-    //! Load file from network as a local temporary file.
+    // Try to guess format from an image file.
+    inline const char *ftype(std::FILE *const file, const char *const filename);
+
+    // Load file from network as a local temporary file.
     inline char *load_network(const char *const url, char *const filename_local,
                               const unsigned int timeout=0, const bool try_fallback=false);
 
@@ -38747,7 +38699,7 @@ namespace cimg_library_suffixed {
         }
 
         try {
-          const char *const f_type = cimg::file_type(file,filename);
+          const char *const f_type = cimg::ftype(file,filename);
           std::fclose(file);
           if (!cimg::strcasecmp(f_type,"pnm")) load_pnm(filename);
           else if (!cimg::strcasecmp(f_type,"pfm")) load_pfm(filename);
@@ -47681,7 +47633,7 @@ namespace cimg_library_suffixed {
         }
 
         try {
-          const char *const f_type = cimg::file_type(file,filename);
+          const char *const f_type = cimg::ftype(file,filename);
           std::fclose(file);
           if (!cimg::strcasecmp(f_type,"gif")) load_gif_external(filename);
           else if (!cimg::strcasecmp(f_type,"tif")) load_tiff(filename);
@@ -50546,6 +50498,62 @@ namespace cimg {
       return s_path;
     }
 
+    //! Try to guess format from an image file.
+    /**
+       \param file Input file (can be \c 0 if \c filename is set).
+       \param filename Filename, as a C-string (can be \c 0 if \c file is set).
+       \return C-string containing the guessed file format, or \c 0 if nothing has been guessed.
+    **/
+    inline const char *ftype(std::FILE *const file, const char *const filename) {
+      if (!file && !filename)
+        throw CImgArgumentException("cimg::ftype(): Specified filename is (null).");
+      static const char
+        *const _pnm = "pnm",
+        *const _pfm = "pfm",
+        *const _bmp = "bmp",
+        *const _gif = "gif",
+        *const _jpg = "jpg",
+        *const _off = "off",
+        *const _pan = "pan",
+        *const _png = "png",
+        *const _tif = "tif",
+        *const _inr = "inr",
+        *const _dcm = "dcm";
+      const char *f_type = 0;
+      CImg<char> header;
+      const unsigned int omode = cimg::exception_mode();
+      cimg::exception_mode(0);
+      try {
+        header._load_raw(file,filename,512,1,1,1,false,false,0);
+        const unsigned char *const uheader = (unsigned char*)header._data;
+        if (!std::strncmp(header,"OFF\n",4)) f_type = _off; // OFF.
+        else if (!std::strncmp(header,"#INRIMAGE",9)) f_type = _inr; // INRIMAGE.
+        else if (!std::strncmp(header,"PANDORE",7)) f_type = _pan; // PANDORE.
+        else if (!std::strncmp(header.data() + 128,"DICM",4)) f_type = _dcm; // DICOM.
+        else if (uheader[0]==0xFF && uheader[1]==0xD8 && uheader[2]==0xFF) f_type = _jpg;  // JPEG.
+        else if (header[0]=='B' && header[1]=='M') f_type = _bmp;  // BMP.
+        else if (header[0]=='G' && header[1]=='I' && header[2]=='F' && header[3]=='8' && header[5]=='a' && // GIF.
+                 (header[4]=='7' || header[4]=='9')) f_type = _gif;
+        else if (uheader[0]==0x89 && uheader[1]==0x50 && uheader[2]==0x4E && uheader[3]==0x47 &&  // PNG.
+                 uheader[4]==0x0D && uheader[5]==0x0A && uheader[6]==0x1A && uheader[7]==0x0A) f_type = _png;
+        else if ((uheader[0]==0x49 && uheader[1]==0x49) || (uheader[0]==0x4D && uheader[1]==0x4D)) f_type = _tif; // TIFF.
+        else { // PNM or PFM.
+          CImgList<uchar> _header = header.get_split(CImg<char>::vector('\n'),0,false);
+          cimglist_for(_header,l) {
+            if (_header(l,0)=='#') continue;
+            if (_header[l]._height==2 && _header(l,0)=='P') {
+              const char c = _header(l,1);
+              if (c=='f' || c=='F') { f_type = _pfm; break; }
+              if (c>='1' && c<='9') { f_type = _pnm; break; }
+            }
+            f_type = 0; break;
+          }
+        }
+      } catch (CImgIOException&) { }
+      cimg::exception_mode(omode);
+      return f_type;
+    }
+
     //! Load file from network as a local temporary file.
     /**
        \param filename Filename, as a C-string.
@@ -50736,7 +50744,7 @@ namespace cimg {
      - Up to 6 buttons can be defined in the dialog window.
      - The function returns when a user clicked one of the button or closed the dialog window.
      - If a button text is set to 0, the corresponding button (and the followings) will not appear in the dialog box.
-       At least one button must be specified.
+     At least one button must be specified.
   **/
   template<typename t>
   inline int dialog(const char *const title, const char *const msg,
@@ -50909,8 +50917,8 @@ namespace cimg {
      \par Example
      \code
      const double
-       res1 = cimg::eval("cos(x)^2 + sin(y)^2",2,2),  // will return '1'.
-       res2 = cimg::eval(0,1,1);                    // will return '1' too.
+     res1 = cimg::eval("cos(x)^2 + sin(y)^2",2,2),  // will return '1'.
+     res2 = cimg::eval(0,1,1);                    // will return '1' too.
      \endcode
   **/
   inline double eval(const char *const expression, const double x, const double y, const double z, const double c) {

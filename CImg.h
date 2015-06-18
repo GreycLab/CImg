@@ -50538,7 +50538,7 @@ namespace cimg {
                  uheader[4]==0x0D && uheader[5]==0x0A && uheader[6]==0x1A && uheader[7]==0x0A) f_type = _png;
         else if ((uheader[0]==0x49 && uheader[1]==0x49) || (uheader[0]==0x4D && uheader[1]==0x4D)) f_type = _tif; // TIFF.
         else { // PNM or PFM.
-          CImgList<uchar> _header = header.get_split(CImg<char>::vector('\n'),0,false);
+          CImgList<unsigned char> _header = header.get_split(CImg<char>::vector('\n'),0,false);
           cimglist_for(_header,l) {
             if (_header(l,0)=='#') continue;
             if (_header[l]._height==2 && _header(l,0)=='P') {

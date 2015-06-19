@@ -58,7 +58,7 @@ CImg<float> get_vizFlow(const float cutVal = 0) const {
     const float
       xx = (float)(-(*this)(x,y,0)),
       yy = (float)(-(*this)(x,y,1)),
-      H = cimg::max(180*((std::atan2(yy,xx)/cimg::PI) + 1.0),0.0),
+      H = (float)cimg::max(180*((std::atan2(yy,xx)/cimg::PI) + 1.0),0.0),
       S = mag(x,y),
       V = 1.0f;
     res(x,y,0) = H;

@@ -50501,12 +50501,14 @@ namespace cimg {
   //! Return list of files/directories in specified directory.
   /**
      \param path Directory name. Set to 0 for current directory.
-     \param mode Output type, can be { 0=files only | 1=folders only | 2=files + folders }.
+     \param mode Output type, can be primary { 0=files only | 1=folders only | 2=files + folders }.
+                 Add 3 to the primary mode to get only the basenames.
      \return A list of filenames.
   **/
   inline CImgList<char> files(const char *const path, const unsigned int mode=2) {
-    CImgList<char> res;
     if (!path || !*path) return files(".",mode);
+    CImgList<char> res;
+    const unsigned int _mode = mode%3;
 #if cimg_OS==2
     const unsigned int l = std::strlen(path);
     CImg<char> pattern(l + 3);
@@ -50521,8 +50523,16 @@ namespace cimg {
       const char *const filename = file_data.cFileName;
       if (*file_name!='.') {
         const bool is_directory = (file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)!=0;
-        if ((!mode && !is_directory) || (mode==1 && is_directory) || mode>=2)
-          CImg<char>::string(filename).move_to(res);
+        if ((!_mode && !is_directory) || (_mode==1 && is_directory) || _mode==2) {
+          if (mode>=3) {
+            CImg<char> full_filename(lp + lf + 2);
+            std::memcpy(full_filename,path,lp);
+            if (path[lp-1]=='/' || path[lp-1]=='\\') {
+              std::memcpy(full_filename._data + lp,filename,lf + 1); --full_filename._width;
+            } else { full_filename[lp] = '\\'; std::memcpy(full_filename._data + lp + 1,filename,lf + 1); }
+            full_filename.move_to(res);
+          } else CImg<char>::string(filename).move_to(res);
+        }
       }
     } while (FindNextFile(dir,&file_data));
     FindClose(dir);
@@ -50537,16 +50547,17 @@ namespace cimg {
     while ((ent=readdir(dir))!=0) {
       const char *const filename = ent->d_name;
       const unsigned int lf = std::strlen(filename);
-      CImg<char> full_filename(lp + lf + 2);
-      std::memcpy(full_filename,path,lp);
-      full_filename[lp] = '/';
-      std::memcpy(full_filename._data + lp + 1,filename,lf);
-      full_filename[lp + lf + 1] = 0;
       if (*filename!='.') {
+        CImg<char> full_filename(lp + lf + 2);
+        std::memcpy(full_filename,path,lp);
+        if (path[lp-1]=='/') { std::memcpy(full_filename._data + lp,filename,lf + 1); --full_filename._width; }
+        else { full_filename[lp] = '/'; std::memcpy(full_filename._data + lp + 1,filename,lf + 1); }
         if (stat(full_filename,&st)==-1) continue;
         const bool is_directory = (st.st_mode & S_IFDIR)!=0;
-        if ((!mode && !is_directory) || (mode==1 && is_directory) || mode>=2)
-          CImg<char>::string(filename).move_to(res);
+        if ((!_mode && !is_directory) || (_mode==1 && is_directory) || _mode==2) {
+          if (mode>=3) full_filename.move_to(res);
+          else CImg<char>::string(filename).move_to(res);
+        }
       }
     }
     closedir(dir);

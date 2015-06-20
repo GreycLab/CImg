@@ -50498,17 +50498,18 @@ namespace cimg {
     return s_path;
   }
 
-  //! Return list of files in specified directory.
+  //! Return list of files/directories in specified directory.
   /**
      \param path Directory name.
+     \param mode Output type, can be { 0=files only | 1=folders only | 2=files + folders }.
      \return A list of filenames.
   **/
-  CImgList<char> list_files(const char *const path) {
+  CImgList<char> list_files(const char *const path, const unsigned int mode=2) {
     CImgList<char> res;
     if (!path || !*path) return res;
 
 #if cimg_OS==2
-    /*    const unsigned int l = std::strlen(path);
+    const unsigned int l = std::strlen(path);
     CImg<char> pattern(l + 3);
     std::memcpy(pattern,path,l);
     pattern[l] = '/'; pattern[l+1] = '*'; pattern[l+2] = 0;
@@ -50517,16 +50518,32 @@ namespace cimg {
     if (dir==INVALID_HANDLE_VALUE) return res;
     do {
       const char *const filename = file_data.cFileName;
-      if (*file_name!='.') CImg<char>::string(filename).move_to(res);
+      if (*file_name!='.') {
+        const bool is_directory = (file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)!=0;
+        if ((!mode && !is_directory) || (mode==1 && is_directory) || mode>=2)
+          CImg<char>::string(filename).move_to(res);
+      }
     } while (FindNextFile(dir,&file_data));
     FindClose(dir);
-    */
 #else
     struct dirent *ent;
+    struct stat st;
     DIR *const dir = opendir(path);
+    const unsigned int lp = std::strlen(path);
     while ((ent=readdir(dir))!=0) {
       const char *const filename = ent->d_name;
-      if (*filename!='.') CImg<char>::string(filename).move_to(res);
+      const unsigned int lf = std::strlen(filename);
+      CImg<char> full_filename(lp + lf + 2);
+      std::memcpy(full_filename,path,lp);
+      full_filename[lp] = '/';
+      std::memcpy(full_filename._data + lp + 1,filename,lf);
+      full_filename[lp + lf + 1] = 0;
+      if (*filename!='.') {
+        if (stat(full_filename,&st)==-1) continue;
+        const bool is_directory = (st.st_mode & S_IFDIR)!=0;
+        if ((!mode && !is_directory) || (mode==1 && is_directory) || mode>=2)
+          CImg<char>::string(filename).move_to(res);
+      }
     }
     closedir(dir);
 #endif

@@ -50500,7 +50500,7 @@ namespace cimg {
 
   //! Return list of files/directories in specified directory.
   /**
-     \param path Directory name.
+     \param path Directory name. Set to 0 for current directory.
      \param mode Output type, can be { 0=files only | 1=folders only | 2=files + folders }.
      \return A list of filenames.
   **/

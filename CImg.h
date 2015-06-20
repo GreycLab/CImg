@@ -50504,7 +50504,7 @@ namespace cimg {
      \param mode Output type, can be { 0=files only | 1=folders only | 2=files + folders }.
      \return A list of filenames.
   **/
-  CImgList<char> files(const char *const path, const unsigned int mode=2) {
+  inline CImgList<char> files(const char *const path, const unsigned int mode=2) {
     CImgList<char> res;
     if (!path) return res;
 #if cimg_OS==2

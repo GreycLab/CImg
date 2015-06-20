@@ -50507,7 +50507,6 @@ namespace cimg {
   CImgList<char> list_files(const char *const path, const unsigned int mode=2) {
     CImgList<char> res;
     if (!path || !*path) return res;
-
 #if cimg_OS==2
     const unsigned int l = std::strlen(path);
     CImg<char> pattern(l + 3);

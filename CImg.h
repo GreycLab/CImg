@@ -50504,9 +50504,9 @@ namespace cimg {
      \param mode Output type, can be { 0=files only | 1=folders only | 2=files + folders }.
      \return A list of filenames.
   **/
-  CImgList<char> list_files(const char *const path, const unsigned int mode=2) {
+  CImgList<char> files(const char *const path, const unsigned int mode=2) {
     CImgList<char> res;
-    if (!path || !*path) return res;
+    if (!path) return res;
 #if cimg_OS==2
     const unsigned int l = std::strlen(path);
     CImg<char> pattern(l + 3);
@@ -50514,7 +50514,9 @@ namespace cimg {
     pattern[l] = '/'; pattern[l+1] = '*'; pattern[l+2] = 0;
     WIN32_FIND_DATA file_data;
     const HANDLE dir = FindFirstFile(pattern,&file_data);
-    if (dir==INVALID_HANDLE_VALUE) return res;
+    if (dir==INVALID_HANDLE_VALUE)
+      throw CImgArgumentException("cimg::files() : Unable to open directory '%s'.",
+                                  path);
     do {
       const char *const filename = file_data.cFileName;
       if (*file_name!='.') {
@@ -50528,6 +50530,9 @@ namespace cimg {
     struct dirent *ent;
     struct stat st;
     DIR *const dir = opendir(path);
+    if (!dir)
+      throw CImgArgumentException("cimg::files() : Unable to open directory '%s'.",
+                                  path);
     const unsigned int lp = std::strlen(path);
     while ((ent=readdir(dir))!=0) {
       const char *const filename = ent->d_name;

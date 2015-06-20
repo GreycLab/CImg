@@ -50508,7 +50508,7 @@ namespace cimg {
   inline CImgList<char> files(const char *const path, const unsigned int mode=2) {
     if (!path || !*path) return files(".",mode);
     CImgList<char> res;
-    const unsigned int _mode = mode%3;
+    const unsigned int _mode = mode%3, lp = std::strlen(path);
 #if cimg_OS==2
     const unsigned int l = std::strlen(path);
     CImg<char> pattern(l + 3);
@@ -50521,7 +50521,8 @@ namespace cimg {
                                   path);
     do {
       const char *const filename = file_data.cFileName;
-      if (*file_name!='.') {
+      if (*filename!='.' || (filename[1] && (filename[1]!='.' || filename[2]))) {
+        const unsigned int lf = std::strlen(filename);
         const bool is_directory = (file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)!=0;
         if ((!_mode && !is_directory) || (_mode==1 && is_directory) || _mode==2) {
           if (mode>=3) {
@@ -50543,11 +50544,10 @@ namespace cimg {
     if (!dir)
       throw CImgArgumentException("cimg::files() : Unable to open directory '%s'.",
                                   path);
-    const unsigned int lp = std::strlen(path);
     while ((ent=readdir(dir))!=0) {
       const char *const filename = ent->d_name;
-      const unsigned int lf = std::strlen(filename);
-      if (*filename!='.') {
+      if (*filename!='.' || (filename[1] && (filename[1]!='.' || filename[2]))) {
+        const unsigned int lf = std::strlen(filename);
         CImg<char> full_filename(lp + lf + 2);
         std::memcpy(full_filename,path,lp);
         if (path[lp-1]=='/') { std::memcpy(full_filename._data + lp,filename,lf + 1); --full_filename._width; }

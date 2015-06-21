@@ -50502,7 +50502,7 @@ namespace cimg {
   /**
      \param path Directory name. Set to 0 for current directory.
      \param mode Output type, can be primary { 0=files only | 1=folders only | 2=files + folders }.
-                 Add \c 3 to the primary mode to get results with relative paths instead of full path.
+                 Add \c 3 to the primary mode to get results with full paths instead of relative paths.
      \return A list of filenames.
   **/
   inline CImgList<char> files(const char *const path, const unsigned int mode=2) {
@@ -50525,7 +50525,7 @@ namespace cimg {
         const unsigned int lf = std::strlen(filename);
         const bool is_directory = (file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)!=0;
         if ((!_mode && !is_directory) || (_mode==1 && is_directory) || _mode==2) {
-          if (mode<=2) {
+          if (mode>=3) {
             CImg<char> full_filename(lp + lf + 2);
             std::memcpy(full_filename,path,lp);
             if (path[lp-1]=='/' || path[lp-1]=='\\') {
@@ -50555,7 +50555,7 @@ namespace cimg {
         if (stat(full_filename,&st)==-1) continue;
         const bool is_directory = (st.st_mode & S_IFDIR)!=0;
         if ((!_mode && !is_directory) || (_mode==1 && is_directory) || _mode==2) {
-          if (mode<=2) full_filename.move_to(res);
+          if (mode>=3) full_filename.move_to(res);
           else CImg<char>::string(filename).move_to(res);
         }
       }

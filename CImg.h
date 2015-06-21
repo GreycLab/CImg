@@ -140,6 +140,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <fnmatch.h>
 #elif cimg_OS==2
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -50503,19 +50504,24 @@ namespace cimg {
      \param path Directory name. Set to 0 for current directory.
      \param mode Output type, can be primary { 0=files only | 1=folders only | 2=files + folders }.
                  Add \c 3 to the primary mode to get results with full paths instead of relative paths.
+     \param is_pattern Tell if specified path is a matching pattern instead of a regular path.
      \return A list of filenames.
   **/
-  inline CImgList<char> files(const char *const path, const unsigned int mode=2) {
+  inline CImgList<char> files(const char *const path, const unsigned int mode=2,
+                              const bool is_pattern=false) {
     if (!path || !*path) return files(".",mode);
     CImgList<char> res;
-    const unsigned int _mode = mode%3, lp = std::strlen(path);
+    const unsigned int _mode = mode%3;
 #if cimg_OS==2
     const unsigned int l = std::strlen(path);
-    CImg<char> pattern(l + 3);
-    std::memcpy(pattern,path,l);
-    pattern[l] = '/'; pattern[l+1] = '*'; pattern[l+2] = 0;
+    CImg<char> pattern;
+    if (!is_pattern) {
+      pattern.assign(l + 3);
+      std::memcpy(pattern,path,l);
+      pattern[l] = '/'; pattern[l+1] = '*'; pattern[l+2] = 0;
+    }
     WIN32_FIND_DATA file_data;
-    const HANDLE dir = FindFirstFile(pattern,&file_data);
+    const HANDLE dir = FindFirstFile(is_pattern?path:pattern.data(),&file_data);
     if (dir==INVALID_HANDLE_VALUE)
       throw CImgArgumentException("cimg::files() : Unable to open directory '%s'.",
                                   path);
@@ -50538,25 +50544,37 @@ namespace cimg {
     } while (FindNextFile(dir,&file_data));
     FindClose(dir);
 #else
-    struct dirent *ent;
-    struct stat st;
-    DIR *const dir = opendir(path);
+    CImg<char> _path = CImg<char>::string(path);
+    if (is_pattern) _path[cimg::basename(path) - path] = 0;
+    unsigned int lp = std::strlen(_path);
+    if (_path[lp - 1]=='/') { _path[lp - 1] = 0; --lp; }
+
+    DIR *const dir = opendir(_path);
     if (!dir)
       throw CImgArgumentException("cimg::files() : Unable to open directory '%s'.",
-                                  path);
+                                  _path.data());
+    struct dirent *ent;
     while ((ent=readdir(dir))!=0) {
       const char *const filename = ent->d_name;
       if (*filename!='.' || (filename[1] && (filename[1]!='.' || filename[2]))) {
         const unsigned int lf = std::strlen(filename);
+
         CImg<char> full_filename(lp + lf + 2);
-        std::memcpy(full_filename,path,lp);
-        if (path[lp-1]=='/') { std::memcpy(full_filename._data + lp,filename,lf + 1); --full_filename._width; }
-        else { full_filename[lp] = '/'; std::memcpy(full_filename._data + lp + 1,filename,lf + 1); }
+        std::memcpy(full_filename,_path,lp);
+        full_filename[lp] = '/';
+        std::memcpy(full_filename._data + lp + 1,filename,lf + 1);
+
+        struct stat st;
         if (stat(full_filename,&st)==-1) continue;
         const bool is_directory = (st.st_mode & S_IFDIR)!=0;
         if ((!_mode && !is_directory) || (_mode==1 && is_directory) || _mode==2) {
-          if (mode>=3) full_filename.move_to(res);
-          else CImg<char>::string(filename).move_to(res);
+          if (mode>=3) {
+            if (!is_pattern || (is_pattern && !fnmatch(path,full_filename,0)))
+              full_filename.move_to(res);
+          } else {
+            if (!is_pattern || (is_pattern && !fnmatch(path,full_filename,0)))
+              CImg<char>::string(filename).move_to(res);
+          }
         }
       }
     }

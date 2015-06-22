@@ -14620,11 +14620,13 @@ namespace cimg_library_suffixed {
           if (b==1) return (double)mp.reference.atXYZC((int)(x + dx),(int)(y + dy),(int)(z + dz),(int)(c + dc));
           return (double)mp.reference.atXYZC((int)(x + dx),(int)(y + dy),(int)(z + dz),(int)(c + dc),0);
         } else { // Linear interpolation.
-          if (b==2) return (double)mp.reference.linear_atXYZC(cimg::mod((float)(x + dx),(float)mp.reference.width()),
-                                                              cimg::mod((float)(y + dy),(float)mp.reference.height()),
-                                                              cimg::mod((float)(z + dz),(float)mp.reference.depth()),
-                                                              cimg::mod((float)(c + dc),(float)mp.reference.spectrum()));
-          if (b==1) return (double)mp.reference.linear_atXYZC((float)(x + dx),(float)(y + dy),(float)(z + dz),(float)(c + dc));
+          if (b==2)
+            return (double)mp.reference.linear_atXYZC(cimg::mod((float)(x + dx),(float)mp.reference.width()),
+                                                      cimg::mod((float)(y + dy),(float)mp.reference.height()),
+                                                      cimg::mod((float)(z + dz),(float)mp.reference.depth()),
+                                                      cimg::mod((float)(c + dc),(float)mp.reference.spectrum()));
+          if (b==1) return (double)mp.reference.linear_atXYZC((float)(x + dx),(float)(y + dy),
+                                                              (float)(z + dz),(float)(c + dc));
           return (double)mp.reference.linear_atXYZC((float)(x + dx),(float)(y + dy),(float)(z + dz),(float)(c + dc),0);
         }
       }
@@ -50499,53 +50501,69 @@ namespace cimg {
     return s_path;
   }
 
+  int _sort_files(const void* a, const void* b) {
+    const CImg<char> &sa = *(CImg<char>*)a, &sb = *(CImg<char>*)b;
+    return std::strcmp(sa._data,sb._data);
+  }
+
   //! Return list of files/directories in specified directory.
   /**
      \param path Path to the directory. Set to 0 for current directory.
+     \param is_pattern Tell if specified path has a matching pattern in it.
      \param mode Output type, can be primary { 0=files only | 1=folders only | 2=files + folders }.
      \param include_path Tell if \c path must be included in resulting filenames.
-     \param is_pattern Tell if specified path has a matching pattern in it.
      \return A list of filenames.
   **/
-  inline CImgList<char> files(const char *const path, const unsigned int mode=2,
-                              const bool include_path=false, const bool is_pattern=true) {
-    if (!path || !*path) return files(".",mode);
+  inline CImgList<char> files(const char *const path, const bool is_pattern=false,
+                              const unsigned int mode=2, const bool include_path=false) {
+    if (!path || !*path) return files("*",true,mode,include_path);
     CImgList<char> res;
 
     // If path is a valid folder name, ignore argument 'is_pattern'.
     const bool _is_pattern = is_pattern && !cimg::is_directory(path);
+    bool is_root = false, is_current = false;
 
     // Clean format of input path.
     CImg<char> pattern, _path = CImg<char>::string(path);
+#if cimg_OS==2
+    for (char *ps = _path; *ps; ++ps) if (*ps=='\\') *ps='/';
+#endif
     char *pd = _path;
     for (char *ps = pd; *ps; ++ps) { if (*ps!='/' || *ps!=*(ps+1)) *(pd++) = *ps; }
     *pd = 0;
-#if cimg_OS==2
-    pd = _path;
-    for (char *ps = pd; *ps; ++ps) { if (*ps!='\\' || *ps!=*(ps+1)) *(pd++) = *ps; }
-    *pd = 0;
-#endif
-    if (!_is_pattern) {
-      if (*pd=='/') *pd = 0;
-#if cimg_OS==2
-      if (*pd=='\\') *pd = 0;
+    unsigned int lp = std::strlen(_path);
+    if (!_is_pattern && lp && _path[lp - 1]=='/') {
+      _path[lp - 1] = 0; --lp;
+#if cimg_OS!=2
+      is_root = !*_path;
 #endif
     }
-    unsigned int lp = std::strlen(_path);
+
+    // Separate folder path and matching pattern.
+    if (_is_pattern) {
+      const unsigned int bpos = cimg::basename(_path) - _path.data();
+      CImg<char>::string(_path).move_to(pattern);
+      if (bpos) {
+        _path[bpos - 1] = 0; // End 'path' at last slash.
+#if cimg_OS!=2
+        is_root = !*_path;
+#endif
+      } else { // No path to folder specified, assuming current folder.
+        is_current = true; *_path = 0;
+      }
+      lp = std::strlen(_path);
+    }
 
     // Windows version.
 #if cimg_OS==2
     if (!_is_pattern) {
       pattern.assign(lp + 3);
       std::memcpy(pattern,_path,lp);
-      pattern[lp] = '\\'; pattern[lp + 1] = '*'; pattern[lp + 2] = 0;
-    } else CImg<char>::string(_path).move_to(pattern);
-
+      pattern[lp] = '/'; pattern[lp + 1] = '*'; pattern[lp + 2] = 0;
+    }
     WIN32_FIND_DATA file_data;
     const HANDLE dir = FindFirstFile(pattern.data(),&file_data);
-    if (dir==INVALID_HANDLE_VALUE)
-      throw CImgArgumentException("cimg::files() : Unable to open directory '%s'.",
-                                  path);
+    if (dir==INVALID_HANDLE_VALUE) return CImgList<char>::empty();
     do {
       const char *const filename = file_data.cFileName;
       if (*filename!='.' || (filename[1] && (filename[1]!='.' || filename[2]))) {
@@ -50555,7 +50573,7 @@ namespace cimg {
           if (include_path) {
             CImg<char> full_filename(lp + lf + 2);
             std::memcpy(full_filename,_path,lp);
-            full_filename[lp] = '\\';
+            full_filename[lp] = '/';
             std::memcpy(full_filename._data + lp + 1,filename,lf + 1);
             full_filename.move_to(res);
           } else CImg<char>(filename,lf + 1).move_to(res);
@@ -50566,31 +50584,22 @@ namespace cimg {
 
     // Unix version (posix).
 #else
-    if (_is_pattern) { // Separate folder path and matching pattern.
-      const unsigned int bpos = cimg::basename(_path) - _path.data();
-      pattern.assign(_path);
-      if (bpos) _path[bpos - 1] = 0; // End 'path' at last slash.
-      else { // No path to folder specified, force it to be './'.
-        pattern.resize(pattern._width + 2,1,1,1,0,0,1);
-        *_path = *pattern = '.';
-        _path[1] = 0; pattern[1] = '/';
-      }
-      lp = std::strlen(_path);
-    }
-
-    DIR *const dir = opendir(*_path?_path.data():"/");
-    if (!dir)
-      throw CImgArgumentException("cimg::files() : Unable to open directory '%s'.",
-                                  _path.data());
+    DIR *const dir = opendir(is_root?"/":is_current?".":_path.data());
+    if (!dir) return CImgList<char>::empty();
     struct dirent *ent;
     while ((ent=readdir(dir))!=0) {
       const char *const filename = ent->d_name;
       if (*filename!='.' || (filename[1] && (filename[1]!='.' || filename[2]))) {
         const unsigned int lf = std::strlen(filename);
         CImg<char> full_filename(lp + lf + 2);
-        std::memcpy(full_filename,_path,lp);
-        full_filename[lp] = '/';
-        std::memcpy(full_filename._data + lp + 1,filename,lf + 1);
+
+        if (!is_current) {
+          full_filename.assign(lp + lf + 2);
+          if (lp) std::memcpy(full_filename,_path,lp);
+          full_filename[lp] = '/';
+          std::memcpy(full_filename._data + lp + 1,filename,lf + 1);
+        } else full_filename.assign(filename,lf + 1);
+
         struct stat st;
         if (stat(full_filename,&st)==-1) continue;
         const bool is_directory = (st.st_mode & S_IFDIR)!=0;
@@ -50607,6 +50616,10 @@ namespace cimg {
     }
     closedir(dir);
 #endif
+
+    // Sort resulting list by lexicographic order.
+  if (res._width>=2) std::qsort(res._data,res._width,sizeof(CImg<char>),_sort_files);
+
     return res;
   }
 

@@ -50523,6 +50523,7 @@ namespace cimg {
     // If path is a valid folder name, ignore argument 'is_pattern'.
     const bool _is_pattern = is_pattern && !cimg::is_directory(path);
     bool is_root = false, is_current = false;
+    cimg::unused(is_root);
 
     // Clean format of input path.
     CImg<char> pattern, _path = CImg<char>::string(path);

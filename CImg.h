@@ -49623,7 +49623,6 @@ namespace cimg_library_suffixed {
           if (is_compressed) {
 #ifdef cimg_use_zlib
             const unsigned long siz = sizeof(T)*ref.size();
-            //            unsigned long csiz = siz + siz/100 + 16;
             unsigned long csiz = compressBound(siz);
             Bytef *const cbuf = new Bytef[csiz];
             if (compress(cbuf,&csiz,(Bytef*)ref._data,siz))

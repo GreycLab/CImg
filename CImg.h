@@ -50512,22 +50512,26 @@ namespace cimg {
     if (!path || !*path) return files(".",mode);
     CImgList<char> res;
 
-    // If path is a valid directory name, ignore 'is_pattern' argument.
+    // If path is a valid folder name, ignore argument 'is_pattern'.
     const bool _is_pattern = is_pattern && !cimg::is_directory(path);
 
-    // Remove trailing '/' (and '\\' on Windows) if no matching pattern specified.
-    unsigned int lp = std::strlen(path);
-    CImg<char> pattern, _path = CImg<char>(path,lp + 1);
-    if (!_is_pattern) { // Remove trailing '/' or '\\'.
-      bool is_trailing;
-      do {
-        is_trailing = false;
-        if (lp && _path[lp - 1]=='/') { _path[lp - 1] = 0; --lp; is_trailing = true; }
+    // Clean format of input path.
+    CImg<char> pattern, _path = CImg<char>::string(path);
+    char *pd = _path;
+    for (char *ps = pd; *ps; ++ps) { if (*ps!='/' || *ps!=*(ps+1)) *(pd++) = *ps; }
+    *pd = 0;
 #if cimg_OS==2
-        if (lp && _path[lp - 1]=='\\') { _path[lp - 1] = 0; --lp; is_trailing = true; }
+    pd = _path;
+    for (char *ps = pd; *ps; ++ps) { if (*ps!='\\' || *ps!=*(ps+1)) *(pd++) = *ps; }
+    *pd = 0;
 #endif
-      } while (is_trailing);
+    if (!_is_pattern) {
+      if (*pd=='/') *pd = 0;
+#if cimg_OS==2
+      if (*pd=='\\') *pd = 0;
+#endif
     }
+    unsigned int lp = std::strlen(_path);
 
     // Windows version.
 #if cimg_OS==2
@@ -50535,7 +50539,7 @@ namespace cimg {
       pattern.assign(lp + 3);
       std::memcpy(pattern,_path,lp);
       pattern[lp] = '\\'; pattern[lp + 1] = '*'; pattern[lp + 2] = 0;
-    } else _path.move_to(pattern);
+    } else CImg<char>::string(_path).move_to(pattern);
 
     WIN32_FIND_DATA file_data;
     const HANDLE dir = FindFirstFile(pattern.data(),&file_data);
@@ -50562,11 +50566,11 @@ namespace cimg {
 
     // Unix version (posix).
 #else
-    if (_is_pattern) {
+    if (_is_pattern) { // Separate folder path and matching pattern.
       const unsigned int bpos = cimg::basename(_path) - _path.data();
       pattern.assign(_path);
-      if (bpos) _path[bpos - 1] = 0;
-      else {
+      if (bpos) _path[bpos - 1] = 0; // End 'path' at last slash.
+      else { // No path to folder specified, force it to be './'.
         pattern.resize(pattern._width + 2,1,1,1,0,0,1);
         *_path = *pattern = '.';
         _path[1] = 0; pattern[1] = '/';

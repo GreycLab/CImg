@@ -4656,9 +4656,9 @@ namespace cimg_library_suffixed {
     }
 
     //! Return the basename of a filename.
-    inline const char* basename(const char *const s)  {
+    inline const char* basename(const char *const s, const char separator=cimg_file_separator)  {
       const char *p = 0, *np = s;
-      while (np>=s && (p=np)) np = std::strchr(np,cimg_file_separator) + 1;
+      while (np>=s && (p=np)) np = std::strchr(np,separator) + 1;
       return p;
     }
 
@@ -50501,7 +50501,8 @@ namespace cimg {
     return s_path;
   }
 
-  int _sort_files(const void* a, const void* b) {
+  // [internal] Sorting function, used by cimg::files().
+  inline int _sort_files(const void* a, const void* b) {
     const CImg<char> &sa = *(CImg<char>*)a, &sb = *(CImg<char>*)b;
     return std::strcmp(sa._data,sb._data);
   }
@@ -50541,7 +50542,7 @@ namespace cimg {
 
     // Separate folder path and matching pattern.
     if (_is_pattern) {
-      const unsigned int bpos = cimg::basename(_path) - _path.data();
+      const unsigned int bpos = cimg::basename(_path,'/') - _path.data();
       CImg<char>::string(_path).move_to(pattern);
       if (bpos) {
         _path[bpos - 1] = 0; // End 'path' at last slash.
@@ -50561,6 +50562,7 @@ namespace cimg {
       std::memcpy(pattern,_path,lp);
       pattern[lp] = '/'; pattern[lp + 1] = '*'; pattern[lp + 2] = 0;
     }
+
     WIN32_FIND_DATA file_data;
     const HANDLE dir = FindFirstFile(pattern.data(),&file_data);
     if (dir==INVALID_HANDLE_VALUE) return CImgList<char>::empty();

@@ -50515,14 +50515,18 @@ namespace cimg {
     // If path is a valid directory name, ignore 'is_pattern' argument.
     const bool _is_pattern = is_pattern && !cimg::is_directory(path);
 
-    // Remove trailing '/' or '\\' if no matching pattern.
+    // Remove trailing '/' (and '\\' on Windows) if no matching pattern specified.
     unsigned int lp = std::strlen(path);
     CImg<char> pattern, _path = CImg<char>(path,lp + 1);
     if (!_is_pattern) { // Remove trailing '/' or '\\'.
-      if (path[lp - 1]=='/') { _path[lp - 1] = 0; --lp; }
+      bool is_trailing;
+      do {
+        is_trailing = false;
+        if (lp && _path[lp - 1]=='/') { _path[lp - 1] = 0; --lp; is_trailing = true; }
 #if cimg_OS==2
-      if (path[lp - 1]=='\\') { _path[lp - 1] = 0; --lp; }
+        if (lp && _path[lp - 1]=='\\') { _path[lp - 1] = 0; --lp; is_trailing = true; }
 #endif
+      } while (is_trailing);
     }
 
     // Windows version.
@@ -50561,11 +50565,16 @@ namespace cimg {
     if (_is_pattern) {
       const unsigned int bpos = cimg::basename(_path) - _path.data();
       pattern.assign(_path);
-      if (bpos) _path[bpos] = 0; else { *_path = '.'; _path[1] = 0; }
+      if (bpos) _path[bpos - 1] = 0;
+      else {
+        pattern.resize(pattern._width + 2,1,1,1,0,0,1);
+        *_path = *pattern = '.';
+        _path[1] = 0; pattern[1] = '/';
+      }
       lp = std::strlen(_path);
     }
 
-    DIR *const dir = opendir(_path);
+    DIR *const dir = opendir(*_path?_path.data():"/");
     if (!dir)
       throw CImgArgumentException("cimg::files() : Unable to open directory '%s'.",
                                   _path.data());

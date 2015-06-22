@@ -14327,7 +14327,7 @@ namespace cimg_library_suffixed {
               d = cimg::fdate(s1+1,attr);
               *se1 = ')';
             }
-            if (d==0 || d==1) _cimg_mp_return(d);
+            if (d==0 || d==1) _cimg_mp_return((unsigned int)d);
             if (mempos>=mem.size()) mem.resize(-200,1,1,1,0);
             const unsigned int pos = mempos++;
             mem[pos] = d;
@@ -14359,13 +14359,13 @@ namespace cimg_library_suffixed {
               *se1 = 0;
               const bool is_dir = cimg::is_directory(ss6);
               *se1 = ')';
-              _cimg_mp_return(is_dir?1:0);
+              _cimg_mp_return(is_dir?1U:0U);
             }
             if (!std::strncmp(ss,"isfile(",7)) {
               *se1 = 0;
               const bool is_file = cimg::is_file(ss7);
               *se1 = ')';
-              _cimg_mp_return(is_file?1:0);
+              _cimg_mp_return(is_file?1U:0U);
             }
             if (!std::strncmp(ss,"isnan(",6)) _cimg_mp_opcode1(mp_isnan,compile(ss6,se1));
             if (!std::strncmp(ss,"isinf(",6)) _cimg_mp_opcode1(mp_isinf,compile(ss6,se1));
@@ -27945,16 +27945,16 @@ namespace cimg_library_suffixed {
                     _energy_regul+=Ux*Ux + Uy*Uy + Uz*Uz;
                   }
                   if (is_backward) { // Constraint displacement vectors to stay in image.
-                    if (U(x,y,z,0)>x) U(x,y,z,0) = x;
-                    if (U(x,y,z,1)>y) U(x,y,z,1) = y;
-                    if (U(x,y,z,2)>z) U(x,y,z,2) = z;
+                    if (U(x,y,z,0)>x) U(x,y,z,0) = (float)x;
+                    if (U(x,y,z,1)>y) U(x,y,z,1) = (float)y;
+                    if (U(x,y,z,2)>z) U(x,y,z,2) = (float)z;
                     bound = (float)x - _width; if (U(x,y,z,0)<=bound) U(x,y,z,0) = bound;
                     bound = (float)y - _height; if (U(x,y,z,1)<=bound) U(x,y,z,1) = bound;
                     bound = (float)z - _depth; if (U(x,y,z,2)<=bound) U(x,y,z,2) = bound;
                   } else {
-                    if (U(x,y,z,0)<-x) U(x,y,z,0) = -x;
-                    if (U(x,y,z,1)<-y) U(x,y,z,1) = -y;
-                    if (U(x,y,z,2)<-z) U(x,y,z,2) = -z;
+                    if (U(x,y,z,0)<-x) U(x,y,z,0) = -(float)x;
+                    if (U(x,y,z,1)<-y) U(x,y,z,1) = -(float)y;
+                    if (U(x,y,z,2)<-z) U(x,y,z,2) = -(float)z;
                     bound = (float)_width - x; if (U(x,y,z,0)>=bound) U(x,y,z,0) = bound;
                     bound = (float)_height - y; if (U(x,y,z,1)>=bound) U(x,y,z,1) = bound;
                     bound = (float)_depth - z; if (U(x,y,z,2)>=bound) U(x,y,z,2) = bound;
@@ -28006,16 +28006,16 @@ namespace cimg_library_suffixed {
                     _energy_regul+=N;
                   }
                   if (is_backward) { // Constraint displacement vectors to stay in image.
-                    if (U(x,y,z,0)>x) U(x,y,z,0) = x;
-                    if (U(x,y,z,1)>y) U(x,y,z,1) = y;
-                    if (U(x,y,z,2)>z) U(x,y,z,2) = z;
+                    if (U(x,y,z,0)>x) U(x,y,z,0) = (float)x;
+                    if (U(x,y,z,1)>y) U(x,y,z,1) = (float)y;
+                    if (U(x,y,z,2)>z) U(x,y,z,2) = (float)z;
                     bound = (float)x - _width; if (U(x,y,z,0)<=bound) U(x,y,z,0) = bound;
                     bound = (float)y - _height; if (U(x,y,z,1)<=bound) U(x,y,z,1) = bound;
                     bound = (float)z - _depth; if (U(x,y,z,2)<=bound) U(x,y,z,2) = bound;
                   } else {
-                    if (U(x,y,z,0)<-x) U(x,y,z,0) = -x;
-                    if (U(x,y,z,1)<-y) U(x,y,z,1) = -y;
-                    if (U(x,y,z,2)<-z) U(x,y,z,2) = -z;
+                    if (U(x,y,z,0)<-x) U(x,y,z,0) = -(float)x;
+                    if (U(x,y,z,1)<-y) U(x,y,z,1) = -(float)y;
+                    if (U(x,y,z,2)<-z) U(x,y,z,2) = -(float)z;
                     bound = (float)_width - x; if (U(x,y,z,0)>=bound) U(x,y,z,0) = bound;
                     bound = (float)_height - y; if (U(x,y,z,1)>=bound) U(x,y,z,1) = bound;
                     bound = (float)_depth - z; if (U(x,y,z,2)>=bound) U(x,y,z,2) = bound;
@@ -28060,13 +28060,13 @@ namespace cimg_library_suffixed {
                     _energy_regul+=Ux*Ux + Uy*Uy;
                   }
                   if (is_backward) { // Constraint displacement vectors to stay in image.
-                    if (U(x,y,0)>x) U(x,y,0) = x;
-                    if (U(x,y,1)>y) U(x,y,1) = y;
+                    if (U(x,y,0)>x) U(x,y,0) = (float)x;
+                    if (U(x,y,1)>y) U(x,y,1) = (float)y;
                     bound = (float)x - _width; if (U(x,y,0)<=bound) U(x,y,0) = bound;
                     bound = (float)y - _height; if (U(x,y,1)<=bound) U(x,y,1) = bound;
                   } else {
-                    if (U(x,y,0)<-x) U(x,y,0) = -x;
-                    if (U(x,y,1)<-y) U(x,y,1) = -y;
+                    if (U(x,y,0)<-x) U(x,y,0) = -(float)x;
+                    if (U(x,y,1)<-y) U(x,y,1) = -(float)y;
                     bound = (float)_width - x; if (U(x,y,0)>=bound) U(x,y,0) = bound;
                     bound = (float)_height - y; if (U(x,y,1)>=bound) U(x,y,1) = bound;
                   }
@@ -28105,13 +28105,13 @@ namespace cimg_library_suffixed {
                     _energy_regul+=N;
                   }
                   if (is_backward) { // Constraint displacement vectors to stay in image.
-                    if (U(x,y,0)>x) U(x,y,0) = x;
-                    if (U(x,y,1)>y) U(x,y,1) = y;
+                    if (U(x,y,0)>x) U(x,y,0) = (float)x;
+                    if (U(x,y,1)>y) U(x,y,1) = (float)y;
                     bound = (float)x - _width; if (U(x,y,0)<=bound) U(x,y,0) = bound;
                     bound = (float)y - _height; if (U(x,y,1)<=bound) U(x,y,1) = bound;
                   } else {
-                    if (U(x,y,0)<-x) U(x,y,0) = -x;
-                    if (U(x,y,1)<-y) U(x,y,1) = -y;
+                    if (U(x,y,0)<-x) U(x,y,0) = -(float)x;
+                    if (U(x,y,1)<-y) U(x,y,1) = -(float)y;
                     bound = (float)_width - x; if (U(x,y,0)>=bound) U(x,y,0) = bound;
                     bound = (float)_height - y; if (U(x,y,1)>=bound) U(x,y,1) = bound;
                   }
@@ -50543,7 +50543,7 @@ namespace cimg {
 
     // Separate folder path and matching pattern.
     if (_is_pattern) {
-      const unsigned int bpos = cimg::basename(_path,'/') - _path.data();
+      const unsigned int bpos = (unsigned int)(cimg::basename(_path,'/') - _path.data());
       CImg<char>::string(_path).move_to(pattern);
       if (bpos) {
         _path[bpos - 1] = 0; // End 'path' at last slash.
@@ -50564,8 +50564,8 @@ namespace cimg {
       pattern[lp] = '/'; pattern[lp + 1] = '*'; pattern[lp + 2] = 0;
     }
 
-    WIN32_FIND_DATA file_data;
-    const HANDLE dir = FindFirstFile(pattern.data(),&file_data);
+    WIN32_FIND_DATAA file_data;
+    const HANDLE dir = FindFirstFileA(pattern.data(),&file_data);
     if (dir==INVALID_HANDLE_VALUE) return CImgList<char>::empty();
     do {
       const char *const filename = file_data.cFileName;
@@ -50582,7 +50582,7 @@ namespace cimg {
           } else CImg<char>(filename,lf + 1).move_to(res);
         }
       }
-    } while (FindNextFile(dir,&file_data));
+    } while (FindNextFileA(dir,&file_data));
     FindClose(dir);
 
     // Unix version (posix).
@@ -50666,7 +50666,7 @@ namespace cimg {
                uheader[4]==0x0D && uheader[5]==0x0A && uheader[6]==0x1A && uheader[7]==0x0A) f_type = _png;
       else if ((uheader[0]==0x49 && uheader[1]==0x49) || (uheader[0]==0x4D && uheader[1]==0x4D)) f_type = _tif; // TIFF.
       else { // PNM or PFM.
-        CImgList<unsigned char> _header = header.get_split(CImg<char>::vector('\n'),0,false);
+        CImgList<char> _header = header.get_split(CImg<char>::vector('\n'),0,false);
         cimglist_for(_header,l) {
           if (_header(l,0)=='#') continue;
           if (_header[l]._height==2 && _header(l,0)=='P') {

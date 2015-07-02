@@ -36624,6 +36624,9 @@ namespace cimg_library_suffixed {
       const tpfloat zmin = absfocale?(tpfloat)(1.5f - absfocale):cimg::type<tpfloat>::min();
       bool is_forward = zbuffer?true:false;
 
+      typedef typename to::value_type _to;
+      CImg<_to> _opacity;
+
 #ifdef cimg_use_openmp
 #pragma omp parallel for if (primitives.size()>4096)
 #endif
@@ -36631,7 +36634,8 @@ namespace cimg_library_suffixed {
         const CImg<tf>& primitive = primitives[l];
         switch (primitive.size()) {
         case 1 : { // Point
-          if (l<=colors.width() && colors[l].size()!=_spectrum) is_forward = false;
+          __draw_object3d(opacities,l,_opacity);
+          if (l<=colors.width() && (colors[l].size()!=_spectrum || _opacity)) is_forward = false;
           const unsigned int i0 = (unsigned int)primitive(0);
           const tpfloat z0 = Z + vertices(i0,2);
           if (z0>zmin) {
@@ -36897,8 +36901,6 @@ namespace cimg_library_suffixed {
 
       // Draw visible primitives
       const CImg<tc> default_color(1,_spectrum,1,1,(tc)200);
-      typedef typename to::value_type _to;
-      CImg<_to> _opacity;
 
       for (unsigned int l = 0; l<nb_visibles; ++l) {
         const unsigned int n_primitive = visibles(permutations(l));

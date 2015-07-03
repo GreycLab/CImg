@@ -106,7 +106,7 @@
  Antipolis/France ( http://www-sop.inria.fr/ ), in the ROBOTVIS / ODYSSEE Team.
  Since October 2004, it is maintained and developed in the Image team of
  the GREYC Lab (CNRS, UMR 6072), in Caen/France.
- Team web page : http://www.greyc.ensicaen.fr/EquipeImage/
+ Team web page : http://www.greyc.fr/image
 
 # Licenses
 #----------

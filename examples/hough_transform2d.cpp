@@ -51,7 +51,7 @@ using namespace cimg_library;
 //----------------
 int main(int argc,char **argv) {
   cimg_usage("Illustration of the Hough transform");
-  CImg<unsigned char> src(cimg_option("-i",cimg_imagepath "parrot_original.ppm","Input image"));
+  CImg<unsigned char> src(cimg_option("-i",cimg_imagepath "parrot.ppm","Input image"));
   CImg<> vote(500,400,1,1,0), img = src.get_norm().normalize(0,255).resize(-100,-100,1,2,2);
 
   CImgDisplay disp(src,"Image"), dispvote(vote,"Hough Transform");

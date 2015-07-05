@@ -58,7 +58,7 @@ int main() {
 
   // Load images.
   CImg<short> img1(cimg_imagepath "milla.bmp");
-  const CImg<float> img2 = CImg<float>(cimg_imagepath "lena.pgm").resize(img1,3);
+  const CImg<float> img2 = CImg<float>(cimg_imagepath "parrot.ppm").resize(img1,3);
   const float default_color[] = { 30,30,80 };
 
   // Modify 'img1' using the RGB pixel accessor.

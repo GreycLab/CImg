@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
 
   // Read command line arguments
   // With cimg_option we can get a new name for the image which is to be loaded from the command line.
-  const char* img_name = cimg_option("-i", cimg_imagepath "lena.pgm","Input image.");
+  const char* img_name = cimg_option("-i", cimg_imagepath "parrot.ppm","Input image.");
   double
     alpha = cimg_option("-a",1.0,"Blurring the gradient image."),
     thresL = cimg_option("-tl",13.5,"Lower thresholding used in Hysteresis."),
@@ -77,7 +77,7 @@ int main(int argc, char** argv) {
 
   // Load the image with the name 'img_name' into the CImg 'img'.
   // and create a display window 'disp' for the image 'img'.
-  const CImg<unsigned char> img(img_name);
+  const CImg<unsigned char> img = CImg<float>::get_load(img_name).norm().normalize(0,255);
   CImgDisplay disp(img,"Original Image");
 
   // Begin main interaction loop.

@@ -61,7 +61,7 @@ CImg<> RadonTransform(CImg<unsigned char> im,int N);
 int main(int argc,char **argv) {
   cimg_usage("Illustration of the Radon Transform");
 
-  const char *file = cimg_option("-f",cimg_imagepath "parrot_original.ppm","path and file name");
+  const char *file = cimg_option("-f",cimg_imagepath "parrot.ppm","path and file name");
   const double sigma = cimg_option("-r",1.0,"blur coefficient for gaussian low pass filter (lpf)"),
     thresh1 = cimg_option("-t1",0.50,"lower threshold for canny edge detector"),
     thresh2 = cimg_option("-t2",1.25,"upper threshold for canny edge detector");;

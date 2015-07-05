@@ -111,7 +111,7 @@ int main(int argc,char **argv) {
 
   // Read command line parameters
   const char
-    *name_i  = cimg_option("-i",cimg_imagepath "lena.pgm","Input image or video"),
+    *name_i  = cimg_option("-i",cimg_imagepath "parrot.ppm","Input image or video"),
     *name_o  = cimg_option("-o","","Name of the multiscale analysis output"),
     *axe_dec = cimg_option("-axe",(char*)0,
                            "Perform the multiscale decomposition in just one direction ('x', 'y' or 't')");
@@ -176,10 +176,10 @@ int main(int argc,char **argv) {
   }
 
   // Result visualization
-  const float value = 255;
+  const float col[] = { 255, 255, 255 };
   for(i=0;i<s;i++) {
-    res[i].normalize(0,255).draw_text(2,2,"Scale %d",&value,0,1,13,i);
-    wav[i].normalize(0,255).draw_text(2,2,"Scale %d",&value,0,1,13,i);
+    res[i].normalize(0,255).draw_text(2,2,"Scale %d",col,0,1,13,i);
+    wav[i].normalize(0,255).draw_text(2,2,"Scale %d",col,0,1,13,i);
   }
 
   CImgDisplay disp(res,"Approximations levels by increasing scale",0);

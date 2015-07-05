@@ -59,8 +59,8 @@ int main(int argc,char **argv) {
   // Display program usage, when invoked from the command line with option '-h'.
   cimg_usage("View the color profile of an image along the X axis");
 
-  // Read image filename from the command line (or set it to "img/parrot_original.ppm" if option '-i' is not provided).
-  const char* file_i = cimg_option("-i",cimg_imagepath "parrot_original.ppm","Input image");
+  // Read image filename from the command line (or set it to "img/parrot.ppm" if option '-i' is not provided).
+  const char* file_i = cimg_option("-i",cimg_imagepath "parrot.ppm","Input image");
 
   // Read pre-blurring variance from the command line (or set it to 1.0 if option '-blur' is not provided).
   const double sigma = cimg_option("-blur",1.0,"Variance of gaussian pre-blurring");

@@ -4791,6 +4791,28 @@ namespace cimg_library_suffixed {
       return res;
     }
 
+    //! Get current local time.
+    /**
+       \param attr Type of requested time attribute.
+                   Can be { 0=year | 1=month | 2=day | 3=day of week | 4=hour | 5=minute | 6=second }
+    **/
+    inline int date(const unsigned int attr) {
+      cimg::mutex(6);
+#if cimg_OS==2
+      SYSTEMTIME st;
+      GetSystemTime(&st);
+      return (int)(attr==0?st.wYear:attr==1?st.wMonth:attr==2?st.wDay:attr==3?st.wDayOfWeek:
+                   attr==4?st.wHour:attr==5?st.wMinute:st.wSecond);
+#else
+      time_t _st;
+      std::time(&_st);
+      struct tm *st = std::localtime(&_st);
+      return (int)(attr==0?st->tm_year + 1900:attr==1?st->tm_mon + 1:attr==2?st->tm_mday:attr==3?st->tm_wday:
+                   attr==4?st->tm_hour:attr==5?st->tm_min:st->tm_sec);
+#endif
+      cimg::mutex(6,0);
+    }
+
     // Get/set path to store temporary files.
     inline const char* temporary_path(const char *const user_path=0, const bool reinit_path=false);
 
@@ -14318,11 +14340,27 @@ namespace cimg_library_suffixed {
             _cimg_mp_opcode3(mp_round,value,round,direction);
           }
 
-          if (!std::strncmp(ss,"fdate(",6)) {
+          if (!std::strncmp(ss,"date(",5)) {
+            char *s1 = ss5; while (s1<se2 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+            unsigned int attr;
+            int d = -1;
+            if (std::sscanf(ss5,"%u%c",&attr,&sep)==2 && sep==')') {
+              *se1 = 0;
+              d = cimg::date(attr);
+              *se1 = ')';
+            }
+            if (d==0 || d==1) _cimg_mp_return((unsigned int)d);
+            if (mempos>=mem.size()) mem.resize(-200,1,1,1,0);
+            const unsigned int pos = mempos++;
+            mem[pos] = d;
+            _cimg_mp_return(pos);
+          }
+
+          if (!std::strncmp(ss,"date(",6)) {
             char *s1 = ss6; while (s1<se2 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
             unsigned int attr;
             int d = -1;
-            if (std::sscanf(ss6,"%u,%c",&attr,&(sep=0))==2 && sep) {
+            if (std::sscanf(ss6,"%u%c",&attr,&(sep=0))==2 && sep) {
               *se1 = 0;
               d = cimg::fdate(s1+1,attr);
               *se1 = ')';

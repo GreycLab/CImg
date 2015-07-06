@@ -4125,7 +4125,7 @@ namespace cimg_library_suffixed {
       return (unsigned long)(st_time.tv_usec/1000 + st_time.tv_sec*1000);
 #elif cimg_OS==2
       SYSTEMTIME st_time;
-      GetSystemTime(&st_time);
+      GetLocalTime(&st_time);
       return (unsigned long)(st_time.wMilliseconds + 1000*(st_time.wSecond + 60*(st_time.wMinute + 60*st_time.wHour)));
 #else
       return 0;
@@ -4800,7 +4800,7 @@ namespace cimg_library_suffixed {
       cimg::mutex(6);
 #if cimg_OS==2
       SYSTEMTIME st;
-      GetSystemTime(&st);
+      GetLocalTime(&st);
       return (int)(attr==0?st.wYear:attr==1?st.wMonth:attr==2?st.wDay:attr==3?st.wDayOfWeek:
                    attr==4?st.wHour:attr==5?st.wMinute:st.wSecond);
 #else

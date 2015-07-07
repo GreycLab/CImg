@@ -13825,22 +13825,13 @@ namespace cimg_library_suffixed {
 
       _cimg_math_parser(const CImg<T>& img, const char *const expression, const char *const funcname=0):
         reference(img),median_value(0),is_median_value(false),calling_function(funcname?funcname:"cimg_math_parser") {
-        unsigned int l = 0;
-        if (expression) {
-          l = (unsigned int)std::strlen(expression);
-          expr.assign(expression,l + 1);
-          if (*expr._data) {
-            char *d = expr._data;
-            for (const char *s = expr._data; *s || (bool)(*d=0); ++s) if (*s!=' ') *(d++) = *s;
-            l = (unsigned int)(d - expr._data);
-          }
-        }
-        if (!l) throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s(): Empty specified expression.",
-                                            pixel_type(),calling_function);
-
+        if (!expression || !*expression)
+          throw CImgArgumentException("[_cimg_math_parser] "
+                                      "CImg<%s>::%s(): Empty specified expression.",
+                                      pixel_type(),calling_function);
+        CImg<charT>::string(expression).move_to(expr);
+        level.assign(expr._width - 1);
         int lv = 0; // Count parentheses/brackets level of expression.
-        level.assign(l);
         unsigned int *pd = level._data;
         for (const char *ps = expr._data; *ps && lv>=0; ++ps)
           *(pd++) = (unsigned int)(*ps=='('||*ps=='['?lv++:*ps==')'||*ps==']'?--lv:lv);
@@ -13886,7 +13877,7 @@ namespace cimg_library_suffixed {
         reserved_label['y'] = 17;
         reserved_label['z'] = 18;
         reserved_label['c'] = 19;
-        result = compile(expr._data,expr._data + l); // Compile formula into a serie of opcodes.
+        result = compile(expr._data,expr._data + expr._width - 1); // Compile formula into a serie of opcodes.
       }
 
       // Insert code instructions.
@@ -13929,8 +13920,10 @@ namespace cimg_library_suffixed {
       }
 
       // Compilation procedure.
-      unsigned int compile(char *const ss, char *const se) {
-        if (!ss || se<=ss || !*ss) {
+      unsigned int compile(char *ss, char *se) {
+        while (*ss==' ') ++ss;
+        while (se>ss && *(se-1)==' ') --se;
+        if (se<=ss || !*ss) {
           throw CImgArgumentException("[_cimg_math_parser] "
                                       "CImg<%s>::%s(): Missing item in specified expression '%s'.",
                                       pixel_type(),calling_function,
@@ -14053,9 +14046,10 @@ namespace cimg_library_suffixed {
           if (*s=='=' && *ns!='=' && *ps!='=' && *ps!='>' && *ps!='<' && *ps!='!' && level[s - expr._data]==clevel) {
             CImg<charT> variable_name(ss,(unsigned int)(s - ss + 1));
             variable_name.back() = 0;
+            cimg::strpare(variable_name);
             bool is_valid_name = true;
-            if (*ss>='0' && *ss<='9') is_valid_name = false;
-            else for (const char *ns = ss + 1; ns<s; ++ns)
+            if (*variable_name>='0' && *variable_name<='9') is_valid_name = false;
+            else for (const char *ns = variable_name._data + 1; *ns; ++ns)
                    if ((*ns<'a' || *ns>'z') && (*ns<'A' || *ns>'Z') && (*ns<'0' || *ns>'9') && *ns!='_') {
                      is_valid_name = false; break;
                    }
@@ -14356,7 +14350,7 @@ namespace cimg_library_suffixed {
             _cimg_mp_return(pos);
           }
 
-          if (!std::strncmp(ss,"date(",6)) {
+          if (!std::strncmp(ss,"fdate(",6)) {
             char *s1 = ss6; while (s1<se2 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
             unsigned int attr;
             int d = -1;

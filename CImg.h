@@ -4797,20 +4797,22 @@ namespace cimg_library_suffixed {
                    Can be { 0=year | 1=month | 2=day | 3=day of week | 4=hour | 5=minute | 6=second }
     **/
     inline int date(const unsigned int attr) {
+      int res = -1;
       cimg::mutex(6);
 #if cimg_OS==2
       SYSTEMTIME st;
       GetLocalTime(&st);
-      return (int)(attr==0?st.wYear:attr==1?st.wMonth:attr==2?st.wDay:attr==3?st.wDayOfWeek:
-                   attr==4?st.wHour:attr==5?st.wMinute:st.wSecond);
+      res = (int)(attr==0?st.wYear:attr==1?st.wMonth:attr==2?st.wDay:attr==3?st.wDayOfWeek:
+                  attr==4?st.wHour:attr==5?st.wMinute:st.wSecond);
 #else
       time_t _st;
       std::time(&_st);
       struct tm *st = std::localtime(&_st);
-      return (int)(attr==0?st->tm_year + 1900:attr==1?st->tm_mon + 1:attr==2?st->tm_mday:attr==3?st->tm_wday:
-                   attr==4?st->tm_hour:attr==5?st->tm_min:st->tm_sec);
+      res = (int)(attr==0?st->tm_year + 1900:attr==1?st->tm_mon + 1:attr==2?st->tm_mday:attr==3?st->tm_wday:
+                  attr==4?st->tm_hour:attr==5?st->tm_min:st->tm_sec);
 #endif
       cimg::mutex(6,0);
+      return res;
     }
 
     // Get/set path to store temporary files.

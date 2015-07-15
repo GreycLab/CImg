@@ -13961,7 +13961,7 @@ namespace cimg_library_suffixed {
         int nb = cimg_sscanf(ss,"%lf%c%c",&val,&sep,&end);
 
 #if cimg_OS==2
-        // Check for +/-NaN and +/-inf as sscanf() on Windows is not able
+        // Check for +/-NaN and +/-inf as Microsoft's sscanf() version is not able
         // to read those particular values.
         nb = 0;
         if (!nb && (*ss=='+' || *ss=='-' || *ss=='i' || *ss=='I' || *ss=='n' || *ss=='N')) {

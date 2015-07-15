@@ -13960,7 +13960,7 @@ namespace cimg_library_suffixed {
         char end = 0, sep = 0; double val = 0;
         int nb = cimg_sscanf(ss,"%lf%c%c",&val,&sep,&end);
 
-#if cimg_OS!=2
+#if cimg_OS==2
         // Check for +/-NaN and +/-inf as sscanf() on Windows is not able
         // to read those particular values.
         nb = 0;

@@ -13958,7 +13958,22 @@ namespace cimg_library_suffixed {
 
         // Look for a single value, variable or variable assignment.
         char end = 0, sep = 0; double val = 0;
-        const int nb = cimg_sscanf(ss,"%lf%c%c",&val,&sep,&end);
+        int nb = cimg_sscanf(ss,"%lf%c%c",&val,&sep,&end);
+
+#if cimg_OS!=2
+        // Check for +/-NaN and +/-inf as sscanf() on Windows is not able
+        // to read those particular values.
+        nb = 0;
+        if (!nb && (*ss=='+' || *ss=='-' || *ss=='i' || *ss=='I' || *ss=='n' || *ss=='N')) {
+          bool is_positive = true;
+          const char *_ss = ss;
+          if (*_ss=='+') ++_ss; else if (*_ss=='-') { ++_ss; is_positive = false; }
+          if (!cimg::strcasecmp(_ss,"inf")) { val = cimg::type<double>::inf(); nb = 1; }
+          else if (!cimg::strcasecmp(_ss,"nan")) { val = cimg::type<double>::nan(); nb = 1; }
+          if (nb==1 && !is_positive) val = -val;
+        }
+#endif
+
         if (nb==1) {
           if (val==0 || val==1 || val==2 || val==3 || val==4 || val==5)
             _cimg_mp_return((unsigned int)val);

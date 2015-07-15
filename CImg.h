@@ -13963,7 +13963,6 @@ namespace cimg_library_suffixed {
 #if cimg_OS==2
         // Check for +/-NaN and +/-inf as Microsoft's sscanf() version is not able
         // to read those particular values.
-        nb = 0;
         if (!nb && (*ss=='+' || *ss=='-' || *ss=='i' || *ss=='I' || *ss=='n' || *ss=='N')) {
           bool is_positive = true;
           const char *_ss = ss;

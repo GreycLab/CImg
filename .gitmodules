@@ -1,0 +1,7 @@
+
+[submodule "examples/jank_plugins/TinyTIFF"]
+	path = examples/jank_plugins/TinyTIFF
+	url = https://github.com/jkriege2/TinyTIFF.git
+[submodule "examples/jank_plugins/TinyMAT"]
+	path = examples/jank_plugins/TinyMAT
+	url = https://github.com/jkriege2/TinyMAT.git

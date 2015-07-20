@@ -14288,6 +14288,7 @@ namespace cimg_library_suffixed {
           if (!std::strncmp(ss,"tanh(",5)) _cimg_mp_opcode1(mp_tanh,compile(ss5,se1));
           if (!std::strncmp(ss,"log2(",5)) _cimg_mp_opcode1(mp_log2,compile(ss5,se1));
           if (!std::strncmp(ss,"sqrt(",5)) _cimg_mp_opcode1(mp_sqrt,compile(ss5,se1));
+          if (!std::strncmp(ss,"cbrt(",5)) _cimg_mp_opcode1(mp_cbrt,compile(ss5,se1));
           if (!std::strncmp(ss,"sign(",5)) _cimg_mp_opcode1(mp_sign,compile(ss5,se1));
           if (!std::strncmp(ss,"sinc(",5)) _cimg_mp_opcode1(mp_sinc,compile(ss5,se1));
           if (!std::strncmp(ss,"log10(",6)) _cimg_mp_opcode1(mp_log10,compile(ss6,se1));
@@ -14354,6 +14355,10 @@ namespace cimg_library_suffixed {
           if (!std::strncmp(ss,"atan2(",6)) {
             char *s1 = ss6; while (s1<se2 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
             _cimg_mp_opcode2(mp_atan2,compile(ss6,s1),compile(s1 + 1,se1));
+          }
+          if (!std::strncmp(ss,"hypot(",6)) {
+            char *s1 = ss6; while (s1<se2 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+            _cimg_mp_opcode2(mp_hypot,compile(ss6,s1),compile(s1 + 1,se1));
           }
           if (!std::strncmp(ss,"round(",6)) {
             unsigned int value = 0, round = 1, direction = 0;
@@ -14610,6 +14615,18 @@ namespace cimg_library_suffixed {
       }
       static double mp_sqrt(_cimg_math_parser& mp) {
         return std::sqrt(mp.mem[mp.opcode(2)]);
+      }
+      static double mp_cbrt(_cimg_math_parser& mp) {
+        return std::pow(mp.mem[mp.opcode(2)],1.0/3);
+      }
+      static double mp_hypot(_cimg_math_parser& mp) {
+        double
+          x = std::fabs(mp.mem[mp.opcode(2)]),
+          y = std::fabs(mp.mem[mp.opcode(3)]),
+          t;
+        if (x<y) { t = x; x = y; } else t = y;
+        t/=x;
+        return x*std::sqrt(1+t*t);
       }
       static double mp_sign(_cimg_math_parser& mp) {
         return cimg::sign(mp.mem[mp.opcode(2)]);

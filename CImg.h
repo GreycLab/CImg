@@ -14371,7 +14371,23 @@ namespace cimg_library_suffixed {
             }
             _cimg_mp_opcode3(mp_round,value,round,direction);
           }
-
+          unsigned int norm_type = ~0U;
+          if ((std::sscanf(ss,"norm%u%c",&norm_type,&sep)==2 && sep=='(') ||
+              !std::strncmp(ss,"norminf(",8)) {
+            CImgList<longT> opcode;
+            if (mempos>=mem.size()) mem.resize(-200,1,1,1,0);
+            const unsigned int pos = mempos++;
+            CImg<longT>::vector(_cimg_mp_enfunc(mp_norm),pos,(longT)(norm_type==~0U?-1:(int)norm_type)).
+              move_to(opcode);
+            for (char *s = std::strchr(ss5,'(') + 1; s<se; ++s) {
+              char *ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                                   (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+              CImg<longT>::vector(compile(s,ns)).move_to(opcode);
+              s = ns;
+            }
+            (opcode>'y').move_to(code);
+            _cimg_mp_return(pos);
+          }
           if (!std::strncmp(ss,"date(",5)) {
             char *s1 = ss5; while (s1<se2 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
             unsigned int attr;
@@ -14387,7 +14403,6 @@ namespace cimg_library_suffixed {
             mem[pos] = d;
             _cimg_mp_return(pos);
           }
-
           if (!std::strncmp(ss,"fdate(",6)) {
             char *s1 = ss6; while (s1<se2 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
             unsigned int attr;
@@ -14621,12 +14636,44 @@ namespace cimg_library_suffixed {
       }
       static double mp_hypot(_cimg_math_parser& mp) {
         double
-          x = std::fabs(mp.mem[mp.opcode(2)]),
-          y = std::fabs(mp.mem[mp.opcode(3)]),
+          x = cimg::abs(mp.mem[mp.opcode(2)]),
+          y = cimg::abs(mp.mem[mp.opcode(3)]),
           t;
         if (x<y) { t = x; x = y; } else t = y;
         t/=x;
         return x*std::sqrt(1+t*t);
+      }
+      static double mp_norm(_cimg_math_parser& mp) {
+        const unsigned int norm_type = (unsigned int)mp.opcode(2);
+        double res = 0;
+        switch (norm_type) {
+        case 0 : // L0-norm.
+          for (unsigned int i = 3; i<mp.opcode._height; ++i)
+            res+=mp.mem[mp.opcode(i)]==0?0:1;
+          break;
+        case 1 : // L1-norm.
+          for (unsigned int i = 3; i<mp.opcode._height; ++i)
+            res+=cimg::abs(mp.mem[mp.opcode(i)]);
+          break;
+        case 2 : // L2-norm.
+          for (unsigned int i = 3; i<mp.opcode._height; ++i) {
+            const double val = mp.mem[mp.opcode(i)];
+            res+=val*val;
+          }
+          res = std::sqrt(res);
+          break;
+        case ~0U : // Linf-norm.
+          for (unsigned int i = 3; i<mp.opcode._height; ++i) {
+            const double val = cimg::abs(mp.mem[mp.opcode(i)]);
+            if (val>res) res = val;
+          }
+          break;
+        default: // Lp-norm.
+          for (unsigned int i = 3; i<mp.opcode._height; ++i)
+            res+=std::pow(cimg::abs(mp.mem[mp.opcode(i)]),(double)norm_type);
+          res = std::pow(res,1.0/norm_type);
+        }
+        return res>0?res:0.0;
       }
       static double mp_sign(_cimg_math_parser& mp) {
         return cimg::sign(mp.mem[mp.opcode(2)]);
@@ -18939,9 +18986,9 @@ namespace cimg_library_suffixed {
       return CImg<Tfloat>(*this,false).normalize();
     }
 
-    //! Compute L2-norm of each multi-valued pixel of the image instance.
+    //! Compute Lp-norm of each multi-valued pixel of the image instance.
     /**
-       \param norm_type Type of computed vector norm (can be \p 0=Linf, \p 1=L1 or \p 2=L2).
+       \param norm_type Type of computed vector norm (can be \p -1=Linf, or \p>=0).
        \par Example
        \code
        const CImg<float> img("reference.jpg"), res = img.get_norm();
@@ -18950,18 +18997,18 @@ namespace cimg_library_suffixed {
        \image html ref_norm.jpg
     **/
     CImg<T>& norm(const int norm_type=2) {
-      if (_spectrum==1) return abs();
+      if (_spectrum==1 && norm_type) return abs();
       return get_norm(norm_type).move_to(*this);
     }
 
     //! Compute L2-norm of each multi-valued pixel of the image instance \newinstance.
     CImg<Tfloat> get_norm(const int norm_type=2) const {
       if (is_empty()) return *this;
-      if (_spectrum==1) return get_abs();
+      if (_spectrum==1 && norm_type) return get_abs();
       const unsigned long whd = (unsigned long)_width*_height*_depth;
       CImg<Tfloat> res(_width,_height,_depth);
       switch (norm_type) {
-      case -1 : {             // Linf norm
+      case -1 : { // Linf-norm.
 #ifdef cimg_use_openmp
 #pragma omp parallel for collapse(2) if (_width>=512 && _height*_depth>=16)
 #endif
@@ -18977,7 +19024,23 @@ namespace cimg_library_suffixed {
           }
         }
       } break;
-      case 1 : {              // L1 norm
+      case 0 : { // L0-norm.
+#ifdef cimg_use_openmp
+#pragma omp parallel for collapse(2) if (_width>=512 && _height*_depth>=16)
+#endif
+        cimg_forYZ(*this,y,z) {
+          const unsigned long off = (unsigned long)offset(0,y,z);
+          const T *ptrs = _data + off;
+          Tfloat *ptrd = res._data + off;
+          cimg_forX(*this,x) {
+            unsigned int n = 0;
+            const T *_ptrs = ptrs++;
+            cimg_forC(*this,c) { n+=*_ptrs==0?0:1; _ptrs+=whd; }
+            *(ptrd++) = n;
+          }
+        }
+      } break;
+      case 1 : { // L1-norm.
 #ifdef cimg_use_openmp
 #pragma omp parallel for collapse(2) if (_width>=512 && _height*_depth>=16)
 #endif
@@ -18993,7 +19056,7 @@ namespace cimg_library_suffixed {
           }
         }
       } break;
-      default : {             // L2 norm
+      case 2 : { // L2-norm.
 #ifdef cimg_use_openmp
 #pragma omp parallel for collapse(2) if (_width>=512 && _height*_depth>=16)
 #endif
@@ -19006,6 +19069,22 @@ namespace cimg_library_suffixed {
             const T *_ptrs = ptrs++;
             cimg_forC(*this,c) { n+=cimg::sqr((Tfloat)*_ptrs); _ptrs+=whd; }
             *(ptrd++) = (Tfloat)std::sqrt((Tfloat)n);
+          }
+        }
+      } break;
+      default : { // Linf-norm.
+#ifdef cimg_use_openmp
+#pragma omp parallel for collapse(2) if (_width>=512 && _height*_depth>=16)
+#endif
+        cimg_forYZ(*this,y,z) {
+          const unsigned long off = (unsigned long)offset(0,y,z);
+          const T *ptrs = _data + off;
+          Tfloat *ptrd = res._data + off;
+          cimg_forX(*this,x) {
+            Tfloat n = 0;
+            const T *_ptrs = ptrs++;
+            cimg_forC(*this,c) { n+=std::pow(cimg::abs((Tfloat)*_ptrs),(Tfloat)norm_type); _ptrs+=whd; }
+            *(ptrd++) = (Tfloat)std::pow((Tfloat)n,1/(Tfloat)norm_type);
           }
         }
       }

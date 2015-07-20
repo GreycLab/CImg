@@ -14640,8 +14640,8 @@ namespace cimg_library_suffixed {
           y = cimg::abs(mp.mem[mp.opcode(3)]),
           t;
         if (x<y) { t = x; x = y; } else t = y;
-        t/=x;
-        return x*std::sqrt(1+t*t);
+        if (x>0) { t/=x; return x*std::sqrt(1+t*t); }
+        return 0;
       }
       static double mp_norm(_cimg_math_parser& mp) {
         const unsigned int norm_type = (unsigned int)mp.opcode(2);

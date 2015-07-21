@@ -19036,7 +19036,7 @@ namespace cimg_library_suffixed {
             unsigned int n = 0;
             const T *_ptrs = ptrs++;
             cimg_forC(*this,c) { n+=*_ptrs==0?0:1; _ptrs+=whd; }
-            *(ptrd++) = n;
+            *(ptrd++) = (Tfloat)n;
           }
         }
       } break;

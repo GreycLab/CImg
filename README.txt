@@ -64,6 +64,7 @@
   - Werner Jainek
   - Daniel Kondermann
   - Pierre Kornprobst
+  - Jan W. Krieger
   - Orges Leka
   - Francois Lauze
   - Xie Long

@@ -47731,6 +47731,7 @@ namespace cimg_library_suffixed {
         return *this;
       }
 
+      const bool is_stdin = *filename=='-' && (!filename[1] || filename[1]=='.');
       const char *const ext = cimg::split_filename(filename);
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
@@ -47798,23 +47799,26 @@ namespace cimg_library_suffixed {
                                    pixel_type());
       } catch (CImgIOException&) {
         std::FILE *file = 0;
-        try {
-          file = cimg::fopen(filename,"rb");
-        } catch (CImgIOException&) {
-          cimg::exception_mode(omode);
-          throw CImgIOException(_cimglist_instance
-                                "load(): Failed to open file '%s'.",
-                                cimglist_instance,
-                                filename);
-        }
+        if (!is_stdin) try {
+            file = cimg::fopen(filename,"rb");
+          } catch (CImgIOException&) {
+            cimg::exception_mode(omode);
+            throw CImgIOException(_cimglist_instance
+                                  "load(): Failed to open file '%s'.",
+                                  cimglist_instance,
+                                  filename);
+          }
 
         try {
-          const char *const f_type = cimg::ftype(file,filename);
-          std::fclose(file);
-          if (!cimg::strcasecmp(f_type,"gif")) load_gif_external(filename);
-          else if (!cimg::strcasecmp(f_type,"tif")) load_tiff(filename);
-          else throw CImgIOException("CImgList<%s>::load()",
-                                     pixel_type());
+          if (!is_stdin) {
+            const char *const f_type = cimg::ftype(file,filename);
+            std::fclose(file);
+            if (!cimg::strcasecmp(f_type,"gif")) load_gif_external(filename);
+            else if (!cimg::strcasecmp(f_type,"tif")) load_tiff(filename);
+            else throw CImgIOException("CImgList<%s>::load()",
+                                       pixel_type());
+          } else throw CImgIOException("CImgList<%s>::load()",
+                                       pixel_type());
         } catch (CImgIOException&) {
           assign(1);
           try {

@@ -36676,6 +36676,7 @@ namespace cimg_library_suffixed {
                             const float specular_lightness, const float specular_shininess,
                             const float sprite_scale) {
       typedef typename cimg::superset2<tp,tz,float>::type tpfloat;
+      typedef typename to::value_type _to;
       if (is_empty() || !vertices || !primitives) return *this;
       CImg<char> error_message(1024);
       if (!vertices.is_object3d(primitives,colors,opacities,false,error_message))
@@ -36786,9 +36787,6 @@ namespace cimg_library_suffixed {
       const tpfloat zmin = absfocale?(tpfloat)(1.5f - absfocale):cimg::type<tpfloat>::min();
       bool is_forward = zbuffer?true:false;
 
-      typedef typename to::value_type _to;
-      CImg<_to> _opacity;
-
 #ifdef cimg_use_openmp
 #pragma omp parallel for if (primitives.size()>4096)
 #endif
@@ -36796,6 +36794,7 @@ namespace cimg_library_suffixed {
         const CImg<tf>& primitive = primitives[l];
         switch (primitive.size()) {
         case 1 : { // Point
+          CImg<_to> _opacity;
           __draw_object3d(opacities,l,_opacity);
           if (l<=colors.width() && (colors[l].size()!=_spectrum || _opacity)) is_forward = false;
           const unsigned int i0 = (unsigned int)primitive(0);
@@ -37063,6 +37062,7 @@ namespace cimg_library_suffixed {
 
       // Draw visible primitives
       const CImg<tc> default_color(1,_spectrum,1,1,(tc)200);
+      CImg<_to> _opacity;
 
       for (unsigned int l = 0; l<nb_visibles; ++l) {
         const unsigned int n_primitive = visibles(permutations(l));

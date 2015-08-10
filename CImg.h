@@ -36683,11 +36683,11 @@ namespace cimg_library_suffixed {
         throw CImgArgumentException(_cimg_instance
                                     "draw_object3d(): Invalid specified 3d object (%u,%u) (%s).",
                                     cimg_instance,vertices._width,primitives._width,error_message.data());
-      if (render_type==5) cimg::mutex(10);  // Static variable used in this case, breaks thread-safety.
-
 #ifndef cimg_use_board
       if (pboard) return *this;
 #endif
+      if (render_type==5) cimg::mutex(10);  // Static variable used in this case, breaks thread-safety.
+
       const float
         nspec = 1 - (specular_lightness<0.0f?0.0f:(specular_lightness>1.0f?1.0f:specular_lightness)),
         nspec2 = 1 + (specular_shininess<0.0f?0.0f:specular_shininess),
@@ -36902,6 +36902,7 @@ namespace cimg_library_suffixed {
           }
         } break;
         default :
+          if (render_type==5) cimg::mutex(10,0);
           throw CImgArgumentException(_cimg_instance
                                       "draw_object3d(): Invalid primitive[%u] with size %u "
                                       "(should have size 1,2,3,4,5,6,9 or 12).",
@@ -36925,7 +36926,10 @@ namespace cimg_library_suffixed {
         ++ptrz;
       }
       const unsigned int nb_visibles = (unsigned int)(p_zrange - zrange._data);
-      if (!nb_visibles) return *this;
+      if (!nb_visibles) {
+        if (render_type==5) cimg::mutex(10,0);
+        return *this;
+      }
       CImg<uintT> permutations;
       CImg<tpfloat>(zrange._data,nb_visibles,1,1,1,true).sort(permutations,is_forward);
 
@@ -37229,10 +37233,12 @@ namespace cimg_library_suffixed {
           }
         } break;
         case 6 : { // Textured line
-          if (!__color)
+          if (!__color) {
+            if (render_type==5) cimg::mutex(10,0);
             throw CImgArgumentException(_cimg_instance
                                         "draw_object3d(): Undefined texture for line primitive [%u].",
                                         cimg_instance,n_primitive);
+          }
           const unsigned int
             n0 = (unsigned int)primitive[0],
             n1 = (unsigned int)primitive[1];
@@ -37530,10 +37536,12 @@ namespace cimg_library_suffixed {
           }
         } break;
         case 9 : { // Textured triangle
-          if (!__color)
+          if (!__color) {
+            if (render_type==5) cimg::mutex(10,0);
             throw CImgArgumentException(_cimg_instance
                                         "draw_object3d(): Undefined texture for triangle primitive [%u].",
                                         cimg_instance,n_primitive);
+          }
           const unsigned int
             n0 = (unsigned int)primitive[0],
             n1 = (unsigned int)primitive[1],
@@ -37661,10 +37669,12 @@ namespace cimg_library_suffixed {
           }
         } break;
         case 12 : { // Textured quadrangle
-          if (!__color)
+          if (!__color) {
+            if (render_type==5) cimg::mutex(10,0);
             throw CImgArgumentException(_cimg_instance
                                         "draw_object3d(): Undefined texture for quadrangle primitive [%u].",
                                         cimg_instance,n_primitive);
+          }
           const unsigned int
             n0 = (unsigned int)primitive[0],
             n1 = (unsigned int)primitive[1],

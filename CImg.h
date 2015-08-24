@@ -14437,9 +14437,14 @@ namespace cimg_library_suffixed {
             mem[pos] = d;
             _cimg_mp_return(pos);
           }
-          if (!std::strncmp(ss,"repeat(",7)) {
-            const unsigned int bp = code._width, pos = compile(ss7,se1);
-            CImg<longT>::vector(_cimg_mp_enfunc(mp_repeat),pos,code._width - bp).move_to(code,bp);
+          if (!std::strncmp(ss,"do(",3)) {
+            const unsigned int bp = code._width, pos = compile(ss3,se1);
+            CImg<longT>::vector(_cimg_mp_enfunc(mp_do),pos,code._width - bp).move_to(code,bp);
+            _cimg_mp_return(pos);
+          }
+          if (!std::strncmp(ss,"while(",6)) {
+            const unsigned int bp = code._width, pos = compile(ss6,se1);
+            CImg<longT>::vector(_cimg_mp_enfunc(mp_while),pos,code._width - bp).move_to(code,bp);
             _cimg_mp_return(pos);
           }
 
@@ -14928,7 +14933,21 @@ namespace cimg_library_suffixed {
         if (off>=mp.reference.size()) return 0;
         return (double)mp.reference[off];
       }
-      static double mp_repeat(_cimg_math_parser& mp) {
+      static double mp_do(_cimg_math_parser& mp) {
+        const CImg<longT> *const pS = ++mp.p_code, *const pE = pS + mp.opcode(2);
+        const unsigned int pos = mp.opcode(1);
+        do {
+          for (mp.p_code = pS; mp.p_code<pE; ++mp.p_code) {
+            const CImg<longT> &op = *mp.p_code;
+            mp.opcode._data = op._data; mp.opcode._height = op._height;
+            const unsigned int target = (unsigned int)mp.opcode[1];
+            mp.mem[target] = _cimg_mp_defunc(mp);
+          }
+        } while (mp.mem[pos]);
+        --mp.p_code;
+        return mp.mem[pos];
+      }
+      static double mp_while(_cimg_math_parser& mp) {
         const CImg<longT> *const pS = ++mp.p_code, *const pE = pS + mp.opcode(2);
         const unsigned int pos = mp.opcode(1);
         while (mp.mem[pos]) {
@@ -14939,7 +14958,7 @@ namespace cimg_library_suffixed {
             mp.mem[target] = _cimg_mp_defunc(mp);
           }
         }
-        --mp.p_code;
+        mp.p_code = pE - 1;
         return mp.mem[pos];
       }
       static double mp_replace(_cimg_math_parser& mp) {

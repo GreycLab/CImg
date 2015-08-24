@@ -14102,7 +14102,8 @@ namespace cimg_library_suffixed {
                                           (ss - 8)>expr._data?ss - 8:expr._data,
                                           se<&expr.back()?"...":"");
             }
-            const unsigned int pos = compile(s + 1,se);
+            unsigned int pos = compile(s + 1,se);
+            if (pos<20) pos = opcode1(mp_replace,pos); // Avoid the variable slot to link to a 'reserved' variable.
 
             // Check for particular case of a reserved variable.
             if (variable_name[1] && !variable_name[2]) { // Two-chars variable.
@@ -14139,17 +14140,37 @@ namespace cimg_library_suffixed {
             }
 
             // Set new variable value.
-            if (!variable_name[1]) reserved_label[*variable_name] = pos;
+            if (!variable_name[1]) {
+              const unsigned int var_pos = reserved_label[*variable_name];
+              if (var_pos==~0U) reserved_label[*variable_name] = pos;
+              else {
+                CImg<longT>::vector(_cimg_mp_enfunc(mp_replace),var_pos,pos).move_to(code);
+                _cimg_mp_return(var_pos);
+              }
+            }
             else {
               int label_pos = -1;
               cimglist_for(labelM,i) // Check for existing variable with same name.
                 if (!std::strcmp(variable_name,labelM[i])) { label_pos = i; break; }
               if (label_pos<0) { // If new variable.
+
+                //                std::fprintf(stderr,"\nDEBUG : New variable '%s' -> [%u].",variable_name.data(),pos);
+
                 if (labelM._width>=labelMpos._width) labelMpos.resize(-200,1,1,1,0);
                 label_pos = labelM.width();
                 variable_name.move_to(labelM);
+                labelMpos[label_pos] = pos;
+
+
+
+              } else { // Existing variable.
+                const unsigned int var_pos = labelMpos[label_pos];
+
+                //                std::fprintf(stderr,"\nDEBUG : Overwrite variable '%s' : [%u] -> [%u].",variable_name.data(),pos,var_pos);
+
+                CImg<longT>::vector(_cimg_mp_enfunc(mp_replace),var_pos,pos).move_to(code);
+                _cimg_mp_return(var_pos);
               }
-              labelMpos[label_pos] = pos;
             }
             _cimg_mp_return(pos);
           }
@@ -14336,45 +14357,6 @@ namespace cimg_library_suffixed {
             (opcode>'y').move_to(code);
             _cimg_mp_return(pos);
           }
-
-          // ss6, s1, s2, s3
-          if (!std::strncmp(ss,"merge(",6)) {
-            bool is_valid_args = false;
-            char *s1 = ss6; while (s1<se2 && (*s1!=',' || level[s1-expr._data]!=clevel1)) ++s1;
-            if (s1<se1) {
-              char *s2 = ++s1; while (s2<se2 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-              if (s2<se1) {
-                char *s3 = ++s2; while (s3<se2 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
-                if (s3<se1) {
-                  const unsigned int iterations = compile(s2,s3++);
-                  is_valid_args = true;
-
-                  if (*ss6=='+') { // Sum.
-
-                  } else if (*ss6=='*') { // Product.
-
-                  } else if (!cimg::strncasecmp(ss6,"min",3)) { // Min.
-
-                  } else if (!cimg::strncasecmp(ss6,"max",3)) { // Max.
-
-                  } else if (!cimg::strncasecmp(ss6,"med",3)) { // Med.
-
-                  } else throw CImgArgumentException("[_cimg_math_parser] "
-                                                     "CImg<%s>::%s(): Invalid arguments in expression 'merge(%s'.\n",
-                                                     pixel_type(),calling_function,
-                                                     ss6);
-
-                  std::fprintf(stderr,"\nDEBUG : ss6='%s' s1='%s' s2='%s' s3='%s'\n",ss6,s1,s2,s3);
-
-
-
-                  std::exit(0);
-
-                }
-              }
-            }
-          }
-
           if (!std::strncmp(ss,"rol(",4) || !std::strncmp(ss,"ror(",4)) {
             unsigned int value = 0, nb = 1;
             char *s1 = ss4; while (s1<se2 && (*s1!=',' || level[s1-expr._data]!=clevel1)) ++s1;
@@ -14463,6 +14445,12 @@ namespace cimg_library_suffixed {
             if (mempos>=mem.size()) mem.resize(-200,1,1,1,0);
             const unsigned int pos = mempos++;
             mem[pos] = d;
+            _cimg_mp_return(pos);
+          }
+          if (!std::strncmp(ss,"repeat(",7)) {
+            char *s1 = ss7; while (s1<se2 && (*s1!=',' || level[s1-expr._data]!=clevel1)) ++s1;
+            const unsigned int nb_iter = compile(ss7,s1), bp = code._width, pos = compile(++s1,se1);
+            CImg<longT>::vector(_cimg_mp_enfunc(mp_repeat),pos,nb_iter,code._width - bp).move_to(code,bp);
             _cimg_mp_return(pos);
           }
 
@@ -14950,6 +14938,24 @@ namespace cimg_library_suffixed {
         const unsigned long off = mp.reference.offset(x,y,z,c) + (unsigned long)(mp.mem[mp.opcode(2)]);
         if (off>=mp.reference.size()) return 0;
         return (double)mp.reference[off];
+      }
+      static double mp_repeat(_cimg_math_parser& mp) {
+        unsigned int nb_iter = (unsigned int)cimg::max(0,cimg::round(mp.mem[mp.opcode(2)]));
+        const CImg<longT> *const pS = ++mp.p_code, *const pE = pS + mp.opcode(3);
+        const unsigned int pos = mp.opcode(1);
+        while (nb_iter--) {
+          for (mp.p_code = pS; mp.p_code<pE; ++mp.p_code) {
+            const CImg<longT> &op = *mp.p_code;
+            mp.opcode._data = op._data; mp.opcode._height = op._height;
+            const unsigned int target = (unsigned int)mp.opcode[1];
+            mp.mem[target] = _cimg_mp_defunc(mp);
+          }
+        }
+        --mp.p_code;
+        return mp.mem[pos];
+      }
+      static double mp_replace(_cimg_math_parser& mp) {
+        return mp.mem[mp.opcode(2)];
       }
 
       // Evaluation procedure, with image data.

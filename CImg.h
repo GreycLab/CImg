@@ -14102,8 +14102,7 @@ namespace cimg_library_suffixed {
                                           (ss - 8)>expr._data?ss - 8:expr._data,
                                           se<&expr.back()?"...":"");
             }
-            unsigned int pos = compile(s + 1,se);
-            if (pos<20) pos = opcode1(mp_replace,pos); // Avoid the variable slot to link to a 'reserved' variable.
+            const unsigned int pos = opcode1(mp_replace,compile(s + 1,se)); // Ensure variable gets a new memory slot (makes it updatable).
 
             // Check for particular case of a reserved variable.
             if (variable_name[1] && !variable_name[2]) { // Two-chars variable.
@@ -14153,21 +14152,12 @@ namespace cimg_library_suffixed {
               cimglist_for(labelM,i) // Check for existing variable with same name.
                 if (!std::strcmp(variable_name,labelM[i])) { label_pos = i; break; }
               if (label_pos<0) { // If new variable.
-
-                //                std::fprintf(stderr,"\nDEBUG : New variable '%s' -> [%u].",variable_name.data(),pos);
-
                 if (labelM._width>=labelMpos._width) labelMpos.resize(-200,1,1,1,0);
                 label_pos = labelM.width();
                 variable_name.move_to(labelM);
                 labelMpos[label_pos] = pos;
-
-
-
               } else { // Existing variable.
                 const unsigned int var_pos = labelMpos[label_pos];
-
-                //                std::fprintf(stderr,"\nDEBUG : Overwrite variable '%s' : [%u] -> [%u].",variable_name.data(),pos,var_pos);
-
                 CImg<longT>::vector(_cimg_mp_enfunc(mp_replace),var_pos,pos).move_to(code);
                 _cimg_mp_return(var_pos);
               }

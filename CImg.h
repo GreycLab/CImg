@@ -14443,7 +14443,14 @@ namespace cimg_library_suffixed {
             _cimg_mp_return(pos);
           }
           if (!std::strncmp(ss,"whiledo(",8)) {
-            const unsigned int bp = code._width, pos = compile(ss8,se1);
+            const unsigned int bp = code._width, mpos = mempos, pos = compile(ss8,se1);
+            if (pos<20 || pos>=mpos)
+              throw CImgArgumentException("[_cimg_math_parser] "
+                                          "CImg<%s>::%s(): Nullity condition cannot be evaluated "
+                                          "(not bound to a variable) when entering expression "
+                                          "'whiledo(%s'.",
+                                          pixel_type(),calling_function,
+                                          ss8);
             CImg<longT>::vector(_cimg_mp_enfunc(mp_whiledo),pos,code._width - bp).move_to(code,bp);
             _cimg_mp_return(pos);
           }
@@ -14497,7 +14504,7 @@ namespace cimg_library_suffixed {
           _cimg_mp_return(reserved_label[*variable_name]);
         *se = saved_char;
         throw CImgArgumentException("[_cimg_math_parser] "
-                                    "CImg<%s>::%s(): Invalid item '%s' in expression '%s%s%s'.\n",
+                                    "CImg<%s>::%s(): Invalid item '%s' in expression '%s%s%s'.",
                                     pixel_type(),calling_function,
                                     variable_name._data,
                                     (ss - 8)>expr._data?"...":"",

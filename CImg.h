@@ -14438,9 +14438,8 @@ namespace cimg_library_suffixed {
             _cimg_mp_return(pos);
           }
           if (!std::strncmp(ss,"repeat(",7)) {
-            char *s1 = ss7; while (s1<se2 && (*s1!=',' || level[s1-expr._data]!=clevel1)) ++s1;
-            const unsigned int nb_iter = compile(ss7,s1), bp = code._width, pos = compile(++s1,se1);
-            CImg<longT>::vector(_cimg_mp_enfunc(mp_repeat),pos,nb_iter,code._width - bp).move_to(code,bp);
+            const unsigned int bp = code._width, pos = compile(ss7,se1);
+            CImg<longT>::vector(_cimg_mp_enfunc(mp_repeat),pos,code._width - bp).move_to(code,bp);
             _cimg_mp_return(pos);
           }
 
@@ -14930,10 +14929,9 @@ namespace cimg_library_suffixed {
         return (double)mp.reference[off];
       }
       static double mp_repeat(_cimg_math_parser& mp) {
-        unsigned int nb_iter = (unsigned int)cimg::max(0,cimg::round(mp.mem[mp.opcode(2)]));
-        const CImg<longT> *const pS = ++mp.p_code, *const pE = pS + mp.opcode(3);
+        const CImg<longT> *const pS = ++mp.p_code, *const pE = pS + mp.opcode(2);
         const unsigned int pos = mp.opcode(1);
-        while (nb_iter--) {
+        while (mp.mem[pos]) {
           for (mp.p_code = pS; mp.p_code<pE; ++mp.p_code) {
             const CImg<longT> &op = *mp.p_code;
             mp.opcode._data = op._data; mp.opcode._height = op._height;

@@ -13956,7 +13956,7 @@ namespace cimg_library_suffixed {
         char
           *const se1 = se - 1, *const se2 = se - 2, *const se3 = se - 3, *const se4 = se - 4,
           *const ss1 = ss + 1, *const ss2 = ss + 2, *const ss3 = ss + 3, *const ss4 = ss + 4,
-          *const ss5 = ss + 5, *const ss6 = ss + 6, *const ss7 = ss + 7;
+          *const ss5 = ss + 5, *const ss6 = ss + 6, *const ss7 = ss + 7, *const ss8 = ss + 8;
         const char saved_char = *se; *se = 0;
         const unsigned int clevel = level[ss - expr._data], clevel1 = clevel + 1;
         if (*se1==';') return compile(ss,se1);
@@ -14437,14 +14437,14 @@ namespace cimg_library_suffixed {
             mem[pos] = d;
             _cimg_mp_return(pos);
           }
-          if (!std::strncmp(ss,"do(",3)) {
-            const unsigned int bp = code._width, pos = compile(ss3,se1);
-            CImg<longT>::vector(_cimg_mp_enfunc(mp_do),pos,code._width - bp).move_to(code,bp);
+          if (!std::strncmp(ss,"dowhile(",8)) {
+            const unsigned int bp = code._width, pos = compile(ss8,se1);
+            CImg<longT>::vector(_cimg_mp_enfunc(mp_dowhile),pos,code._width - bp).move_to(code,bp);
             _cimg_mp_return(pos);
           }
-          if (!std::strncmp(ss,"while(",6)) {
-            const unsigned int bp = code._width, pos = compile(ss6,se1);
-            CImg<longT>::vector(_cimg_mp_enfunc(mp_while),pos,code._width - bp).move_to(code,bp);
+          if (!std::strncmp(ss,"whiledo(",8)) {
+            const unsigned int bp = code._width, pos = compile(ss8,se1);
+            CImg<longT>::vector(_cimg_mp_enfunc(mp_whiledo),pos,code._width - bp).move_to(code,bp);
             _cimg_mp_return(pos);
           }
 
@@ -14933,7 +14933,7 @@ namespace cimg_library_suffixed {
         if (off>=mp.reference.size()) return 0;
         return (double)mp.reference[off];
       }
-      static double mp_do(_cimg_math_parser& mp) {
+      static double mp_dowhile(_cimg_math_parser& mp) {
         const CImg<longT> *const pS = ++mp.p_code, *const pE = pS + mp.opcode(2);
         const unsigned int pos = mp.opcode(1);
         do {
@@ -14945,9 +14945,9 @@ namespace cimg_library_suffixed {
           }
         } while (mp.mem[pos]);
         --mp.p_code;
-        return mp.mem[pos];
+        return 0;
       }
-      static double mp_while(_cimg_math_parser& mp) {
+      static double mp_whiledo(_cimg_math_parser& mp) {
         const CImg<longT> *const pS = ++mp.p_code, *const pE = pS + mp.opcode(2);
         const unsigned int pos = mp.opcode(1);
         while (mp.mem[pos]) {
@@ -14959,7 +14959,7 @@ namespace cimg_library_suffixed {
           }
         }
         mp.p_code = pE - 1;
-        return mp.mem[pos];
+        return 0;
       }
       static double mp_replace(_cimg_math_parser& mp) {
         return mp.mem[mp.opcode(2)];

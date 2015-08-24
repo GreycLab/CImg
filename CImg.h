@@ -13861,7 +13861,7 @@ namespace cimg_library_suffixed {
           *(pd++) = (unsigned int)(*ps=='('||*ps=='['?lv++:*ps==')'||*ps==']'?--lv:lv);
         if (lv!=0) {
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s(): Unbalanced parentheses/brackets in specified expression '%s'.",
+                                      "CImg<%s>::%s(): Unbalanced parentheses/brackets in expression '%s'.",
                                       pixel_type(),calling_function,
                                       expr._data);
         }
@@ -13949,7 +13949,7 @@ namespace cimg_library_suffixed {
         while (se>ss && *(se-1)==' ') --se;
         if (se<=ss || !*ss) {
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s(): Missing item in specified expression '%s'.",
+                                      "CImg<%s>::%s(): Missing item in expression '%s'.",
                                       pixel_type(),calling_function,
                                       expr._data);
         }
@@ -14094,7 +14094,7 @@ namespace cimg_library_suffixed {
             if (!is_valid_name) {
               *se = saved_char;
               throw CImgArgumentException("[_cimg_math_parser] "
-                                          "CImg<%s>::%s(): Invalid variable name '%s' in specified expression "
+                                          "CImg<%s>::%s(): Invalid variable name '%s' in expression "
                                           "'%s%s%s'.",
                                           pixel_type(),calling_function,
                                           variable_name._data,
@@ -14336,6 +14336,45 @@ namespace cimg_library_suffixed {
             (opcode>'y').move_to(code);
             _cimg_mp_return(pos);
           }
+
+          // ss6, s1, s2, s3
+          if (!std::strncmp(ss,"merge(",6)) {
+            bool is_valid_args = false;
+            char *s1 = ss6; while (s1<se2 && (*s1!=',' || level[s1-expr._data]!=clevel1)) ++s1;
+            if (s1<se1) {
+              char *s2 = ++s1; while (s2<se2 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              if (s2<se1) {
+                char *s3 = ++s2; while (s3<se2 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
+                if (s3<se1) {
+                  const unsigned int iterations = compile(s2,s3++);
+                  is_valid_args = true;
+
+                  if (*ss6=='+') { // Sum.
+
+                  } else if (*ss6=='*') { // Product.
+
+                  } else if (!cimg::strncasecmp(ss6,"min",3)) { // Min.
+
+                  } else if (!cimg::strncasecmp(ss6,"max",3)) { // Max.
+
+                  } else if (!cimg::strncasecmp(ss6,"med",3)) { // Med.
+
+                  } else throw CImgArgumentException("[_cimg_math_parser] "
+                                                     "CImg<%s>::%s(): Invalid arguments in expression 'merge(%s'.\n",
+                                                     pixel_type(),calling_function,
+                                                     ss6);
+
+                  std::fprintf(stderr,"\nDEBUG : ss6='%s' s1='%s' s2='%s' s3='%s'\n",ss6,s1,s2,s3);
+
+
+
+                  std::exit(0);
+
+                }
+              }
+            }
+          }
+
           if (!std::strncmp(ss,"rol(",4) || !std::strncmp(ss,"ror(",4)) {
             unsigned int value = 0, nb = 1;
             char *s1 = ss4; while (s1<se2 && (*s1!=',' || level[s1-expr._data]!=clevel1)) ++s1;
@@ -14476,7 +14515,7 @@ namespace cimg_library_suffixed {
           _cimg_mp_return(reserved_label[*variable_name]);
         *se = saved_char;
         throw CImgArgumentException("[_cimg_math_parser] "
-                                    "CImg<%s>::%s(): Invalid item '%s' in specified expression '%s%s%s'.\n",
+                                    "CImg<%s>::%s(): Invalid item '%s' in expression '%s%s%s'.\n",
                                     pixel_type(),calling_function,
                                     variable_name._data,
                                     (ss - 8)>expr._data?"...":"",

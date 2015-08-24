@@ -14317,14 +14317,17 @@ namespace cimg_library_suffixed {
           }
           if (!std::strncmp(ss,"min(",4) || !std::strncmp(ss,"max(",4) ||
               !std::strncmp(ss,"med(",4) || !std::strncmp(ss,"kth(",4) ||
-              !std::strncmp(ss,"arg(",4)) {
+              !std::strncmp(ss,"arg(",4) ||
+              !std::strncmp(ss,"argmin(",7) || !std::strncmp(ss,"argmax(",7)) {
             CImgList<longT> opcode;
             if (mempos>=mem.size()) mem.resize(-200,1,1,1,0);
             const unsigned int pos = mempos++;
-            CImg<longT>::vector(_cimg_mp_enfunc(*ss=='a'?mp_arg:*ss=='k'?mp_kth:ss[1]=='i'?mp_min:
+            const bool is_argm = *ss=='a' && ss[3]!='(';
+            CImg<longT>::vector(_cimg_mp_enfunc(*ss=='a'?(ss[3]=='('?mp_arg:ss[4]=='i'?mp_argmin:mp_argmax):
+                                                *ss=='k'?mp_kth:ss[1]=='i'?mp_min:
                                                 ss[1]=='a'?mp_max:mp_med),pos).
               move_to(opcode);
-            for (char *s = ss4; s<se; ++s) {
+            for (char *s = is_argm?ss7:ss4; s<se; ++s) {
               char *ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                    (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
               CImg<longT>::vector(compile(s,ns)).move_to(opcode);
@@ -14788,6 +14791,24 @@ namespace cimg_library_suffixed {
         if (ind<0) ind+=values.width() + 1;
         ind = cimg::max(1,cimg::min(values.width(),ind));
         return values.kth_smallest(ind - 1);
+      }
+      static double mp_argmin(_cimg_math_parser& mp) {
+        double val = mp.mem[mp.opcode(2)];
+        unsigned int argval = 0;
+        for (unsigned int i = 3; i<mp.opcode._height; ++i) {
+          const double _val = mp.mem[mp.opcode(i)];
+          if (_val<val) { val = _val; argval = i - 2; }
+        }
+        return (double)argval;
+      }
+      static double mp_argmax(_cimg_math_parser& mp) {
+        double val = mp.mem[mp.opcode(2)];
+        unsigned int argval = 0;
+        for (unsigned int i = 3; i<mp.opcode._height; ++i) {
+          const double _val = mp.mem[mp.opcode(i)];
+          if (_val>val) { val = _val; argval = i - 2; }
+        }
+        return (double)argval;
       }
       static double mp_isin(_cimg_math_parser& mp) {
         double value = mp.mem[mp.opcode(2)];

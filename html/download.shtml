@@ -17,7 +17,7 @@
       The <font color="#000066"><b>CImg Library</b></font> is mainly provided as
       <a href="http://cimg.eu/files/CImg_latest.zip">
         <i>.zip</i> package</a>
-    which is <b>plateform-independent</b>.
+    which is <b>platform-independent</b>.
     It contains all the required files, as well as various examples (which must be compiled),
     illustrating the use of the library functions and classes.<br/>
 </td></tr>

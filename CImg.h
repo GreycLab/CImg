@@ -14761,7 +14761,7 @@ namespace cimg_library_suffixed {
           *const p_proc = p_cond + mp.opcode(3),
           *const p_end = p_proc + mp.opcode(4);
 
-        bool is_cond = false;
+        bool is_first_iter = true, is_cond = false;
         do {
 
           // Evaluate loop condition.
@@ -14781,7 +14781,8 @@ namespace cimg_library_suffixed {
               const unsigned int target = (unsigned int)mp.opcode[1];
               mp.mem[target] = _cimg_mp_defunc(mp);
             }
-          }
+          } else if (is_first_iter) return 0;
+          is_first_iter = false;
         } while (is_cond);
         mp.p_code = p_end - 1;
         return mp.mem[mem_proc];

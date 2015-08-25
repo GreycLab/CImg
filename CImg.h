@@ -14781,11 +14781,11 @@ namespace cimg_library_suffixed {
               const unsigned int target = (unsigned int)mp.opcode[1];
               mp.mem[target] = _cimg_mp_defunc(mp);
             }
-          } else if (is_first_iter) return 0;
-          is_first_iter = false;
+            is_first_iter = false;
+          }
         } while (is_cond);
         mp.p_code = p_end - 1;
-        return mp.mem[mem_proc];
+        return is_first_iter?0:mp.mem[mem_proc];
       }
       static double mp_round(_cimg_math_parser& mp) {
         return cimg::round(mp.mem[mp.opcode(2)],mp.mem[mp.opcode(3)],(int)mp.mem[mp.opcode(4)]);

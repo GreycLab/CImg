@@ -14102,7 +14102,9 @@ namespace cimg_library_suffixed {
                                           (ss - 8)>expr._data?ss - 8:expr._data,
                                           se<&expr.back()?"...":"");
             }
-            const unsigned int pos = opcode1(mp_replace,compile(s + 1,se)); // Ensure variable gets a new memory slot (makes it updatable).
+
+            // Ensure variable gets a new memory slot (makes it updatable).
+            const unsigned int pos = opcode1(mp_replace,compile(s + 1,se));
 
             // Check for particular case of a reserved variable.
             if (variable_name[1] && !variable_name[2]) { // Two-chars variable.
@@ -14170,14 +14172,16 @@ namespace cimg_library_suffixed {
             const unsigned int mem_left = compile(ss,s), p_right = code._width, mem_right = compile(s + 2,se);
             if (mempos>=mem._width) mem.resize(-200,1,1,1,0);
             const unsigned int pos = mempos++;
-            CImg<longT>::vector(_cimg_mp_enfunc(mp_logical_or),pos,mem_left,mem_right,code._width - p_right).move_to(code,p_right);
+            CImg<longT>::vector(_cimg_mp_enfunc(mp_logical_or),pos,mem_left,mem_right,code._width - p_right).
+              move_to(code,p_right);
             _cimg_mp_return(pos);
           }
         for (char *s = se3, *ns = se2; s>ss; --s, --ns) if (*s=='&' && *ns=='&' && level[s - expr._data]==clevel) {
             const unsigned int mem_left = compile(ss,s), p_right = code._width, mem_right = compile(s + 2,se);
             if (mempos>=mem._width) mem.resize(-200,1,1,1,0);
             const unsigned int pos = mempos++;
-            CImg<longT>::vector(_cimg_mp_enfunc(mp_logical_and),pos,mem_left,mem_right,code._width - p_right).move_to(code,p_right);
+            CImg<longT>::vector(_cimg_mp_enfunc(mp_logical_and),pos,mem_left,mem_right,code._width - p_right).
+              move_to(code,p_right);
             _cimg_mp_return(pos);
           }
         for (char *s = se2; s>ss; --s)
@@ -14226,7 +14230,8 @@ namespace cimg_library_suffixed {
             const unsigned int mem_left = compile(ss,s), p_right = code._width, mem_right = compile(s + 1,se);
             if (mempos>=mem._width) mem.resize(-200,1,1,1,0);
             const unsigned int pos = mempos++;
-            CImg<longT>::vector(_cimg_mp_enfunc(mp_mul),pos,mem_left,mem_right,code._width - p_right).move_to(code,p_right);
+            CImg<longT>::vector(_cimg_mp_enfunc(mp_mul),pos,mem_left,mem_right,code._width - p_right).
+              move_to(code,p_right);
             _cimg_mp_return(pos);
           }
         for (char *s = se2; s>ss; --s)
@@ -14324,8 +14329,8 @@ namespace cimg_library_suffixed {
               p_right = code._width, mem_right = compile(s2 + 1,se1);
             if (mempos>=mem._width) mem.resize(-200,1,1,1,0);
             const unsigned int pos = mempos++;
-            CImg<longT>::vector(_cimg_mp_enfunc(mp_if),pos,mem_cond,mem_left,mem_right,p_right - p_left,code._width - p_right).
-              move_to(code,p_left);
+            CImg<longT>::vector(_cimg_mp_enfunc(mp_if),pos,mem_cond,mem_left,mem_right,
+                                p_right - p_left,code._width - p_right).move_to(code,p_left);
             _cimg_mp_return(pos);
           }
           if (*ss=='f' && *ss1=='o' && *ss2=='r' && *ss3=='(') {

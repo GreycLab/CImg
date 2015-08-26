@@ -1,3 +1,5 @@
+![alt tag](http://cimg.eu/img/CImgLogo2.jpg)
+
 The <font color="#000066"><b>CImg Library</b></font> is a <b>small</b>, <b>open source</b>, and modern C++ toolkit</b> for <b>image processing</b>, designed with these properties in mind:
 
 - <font color="#000066"><b>CImg</b></font> defines <i>classes</i> and <i>methods</i> to manage images in your own C++ code. You can use <font color="#000066"><b>CImg</b></font> to load/save various file formats, access pixel values, display/transform/filter images, draw primitives (text, faces, curves, 3d objects, ...), compute statistics, manage user interactions on images, and so on...

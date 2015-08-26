@@ -14314,13 +14314,13 @@ namespace cimg_library_suffixed {
           if (!std::strncmp(ss,"sinc(",5)) _cimg_mp_opcode1(mp_sinc,compile(ss5,se1));
           if (!std::strncmp(ss,"log10(",6)) _cimg_mp_opcode1(mp_log10,compile(ss6,se1));
 
-          if ((*ss=='?' || *ss=='u') && *ss1=='(') {
+          if ((*ss=='?' || *ss=='u') && *ss1=='(') { // ?() and u().
             if (*ss2==')') _cimg_mp_opcode2(mp_u,0,1);
             char *s1 = ss2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
             if (s1<se1) _cimg_mp_opcode2(mp_u,compile(ss2,s1),compile(s1 + 1,se1));
             _cimg_mp_opcode2(mp_u,0,compile(ss2,s1));
           }
-          if (*ss=='i' && *ss1=='f' && *ss2=='(') {
+          if (*ss=='i' && *ss1=='f' && *ss2=='(') { // if().
             char *s1 = ss3; while (s1<se4 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
             char *s2 = s1 + 1; while (s2<se2 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
             const unsigned int
@@ -14333,21 +14333,32 @@ namespace cimg_library_suffixed {
                                 p_right - p_left,code._width - p_right).move_to(code,p_left);
             _cimg_mp_return(pos);
           }
-          if (*ss=='f' && *ss1=='o' && *ss2=='r' && *ss3=='(') {
+          if (*ss=='f' && *ss1=='o' && *ss2=='r' && *ss3=='(') { // for().
             char *s1 = ss4; while (s1<se4 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
             char *s2 = s1 + 1; while (s2<se2 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
             compile(ss4,s1);
             const unsigned int
               p_cond = code._width, mem_cond = compile(s1 + 1,s2),
               p_proc = code._width, mem_proc = compile(s2 + 1,se1);
-            CImg<longT>::vector(_cimg_mp_enfunc(mp_for),mem_proc,mem_cond,p_proc - p_cond,code._width - p_proc).
+            CImg<longT>::vector(_cimg_mp_enfunc(mp_whiledo),mem_proc,mem_cond,p_proc - p_cond,code._width - p_proc).
               move_to(code,p_cond);
             _cimg_mp_return(mem_proc);
           }
           if (!std::strncmp(ss,"dowhile(",8)) {
-            const unsigned int p_proc = code._width, mem_proc = compile(ss8,se1);
-            CImg<longT>::vector(_cimg_mp_enfunc(mp_dowhile),mem_proc,code._width - p_proc).move_to(code,p_proc);
-            _cimg_mp_return(0);
+            char *s1 = ss8; while (s1<se3 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+            const unsigned int
+              p_proc = code._width, mem_proc = compile(ss8,s1), mem_cond = compile(s1 + 1,se1);
+            CImg<longT>::vector(_cimg_mp_enfunc(mp_dowhile),mem_proc,mem_cond,code._width - p_proc).move_to(code,p_proc);
+            _cimg_mp_return(mem_proc);
+          }
+          if (!std::strncmp(ss,"whiledo(",8)) {
+            char *s1 = ss8; while (s1<se3 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+            const unsigned int
+              p_cond = code._width, mem_cond = compile(ss8,s1),
+              p_proc = code._width, mem_proc = compile(s1 + 1,se1);
+            CImg<longT>::vector(_cimg_mp_enfunc(mp_whiledo),mem_proc,mem_cond,p_proc - p_cond,code._width - p_proc).
+              move_to(code,p_cond);
+            _cimg_mp_return(mem_proc);
           }
           if (!std::strncmp(ss,"min(",4) || !std::strncmp(ss,"max(",4) ||
               !std::strncmp(ss,"med(",4) || !std::strncmp(ss,"kth(",4) ||
@@ -14738,7 +14749,7 @@ namespace cimg_library_suffixed {
         const CImg<longT>
           *const p_right = ++mp.p_code + mp.opcode(5),
           *const p_end = p_right + mp.opcode(6);
-        if (is_cond) { // Evaluate on-the-fly only the correct argument.
+        if (is_cond) {
           for ( ; mp.p_code<p_right; ++mp.p_code) {
             const CImg<longT> &op = *mp.p_code;
             mp.opcode._data = op._data; mp.opcode._height = op._height;
@@ -14757,7 +14768,25 @@ namespace cimg_library_suffixed {
         --mp.p_code;
         return mp.mem[mem_right];
       }
-      static double mp_for(_cimg_math_parser& mp) {
+      static double mp_dowhile(_cimg_math_parser& mp) {
+        const unsigned int
+          mem_proc = (unsigned int)mp.opcode(1),
+          mem_cond = (unsigned int)mp.opcode(2);
+        const CImg<longT>
+          *const p_proc = ++mp.p_code,
+          *const p_end = p_proc + mp.opcode(3);
+        do {
+          for (mp.p_code = p_proc; mp.p_code<p_end; ++mp.p_code) { // Evaluate loop iteration + condition.
+            const CImg<longT> &op = *mp.p_code;
+            mp.opcode._data = op._data; mp.opcode._height = op._height;
+            const unsigned int target = (unsigned int)mp.opcode[1];
+            mp.mem[target] = _cimg_mp_defunc(mp);
+          }
+        } while (mp.mem[mem_cond]);
+        --mp.p_code;
+        return mp.mem[mem_proc];
+      }
+      static double mp_whiledo(_cimg_math_parser& mp) { // Used also by 'for()'.
         const unsigned int
           mem_cond = (unsigned int)mp.opcode(2),
           mem_proc = (unsigned int)mp.opcode(1);
@@ -14765,21 +14794,16 @@ namespace cimg_library_suffixed {
           *const p_cond = ++mp.p_code,
           *const p_proc = p_cond + mp.opcode(3),
           *const p_end = p_proc + mp.opcode(4);
-
         bool is_first_iter = true, is_cond = false;
         do {
-
-          // Evaluate loop condition.
-          for (mp.p_code = p_cond; mp.p_code<p_proc; ++mp.p_code) {
+          for (mp.p_code = p_cond; mp.p_code<p_proc; ++mp.p_code) { // Evaluate loop condition.
             const CImg<longT> &op = *mp.p_code;
             mp.opcode._data = op._data; mp.opcode._height = op._height;
             const unsigned target = (unsigned int)mp.opcode[1];
             mp.mem[target] = _cimg_mp_defunc(mp);
           }
           is_cond = (bool)mp.mem[mem_cond];
-
-          if (is_cond) {
-            // Evaluate loop iteration.
+          if (is_cond) { // Evaluate loop iteration.
             for ( ; mp.p_code<p_end; ++mp.p_code) {
               const CImg<longT> &op = *mp.p_code;
               mp.opcode._data = op._data; mp.opcode._height = op._height;
@@ -14791,22 +14815,6 @@ namespace cimg_library_suffixed {
         } while (is_cond);
         mp.p_code = p_end - 1;
         return is_first_iter?0:mp.mem[mem_proc];
-      }
-      static double mp_dowhile(_cimg_math_parser& mp) {
-        const CImg<longT>
-          *const p_proc = ++mp.p_code,
-          *const p_end = p_proc + mp.opcode(2);
-        const unsigned int pos = mp.opcode(1);
-        do {
-          for (mp.p_code = p_proc; mp.p_code<p_end; ++mp.p_code) {
-            const CImg<longT> &op = *mp.p_code;
-            mp.opcode._data = op._data; mp.opcode._height = op._height;
-            const unsigned int target = (unsigned int)mp.opcode[1];
-            mp.mem[target] = _cimg_mp_defunc(mp);
-          }
-        } while (mp.mem[pos]);
-        --mp.p_code;
-        return 0;
       }
       static double mp_round(_cimg_math_parser& mp) {
         return cimg::round(mp.mem[mp.opcode(2)],mp.mem[mp.opcode(3)],(int)mp.mem[mp.opcode(4)]);

@@ -1,4 +1,4 @@
-![Logo](http://cimg.eu/img/CImgLogo2.jpg)
+<a href="http://cimg.eu">![Logo](http://cimg.eu/img/CImgLogo2.jpg)</a>
 
 The <font color="#000066"><b>CImg Library</b></font> is a <b>small</b>, <b>open source</b>, and modern C++ toolkit</b> for <b>image processing</b>, designed with these properties in mind:
 

@@ -16,5 +16,5 @@ The <font color="#000066">**CImg Library**</font> is a **small**, **open source*
 ![Freedom](http://cimg.eu/img/item_freedom.jpg) <font color="#000066">**CImg**</font> is a *free, open-source library* distributed under the <a href="http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.txt">*CeCILL-C*</a> (close to the GNU LGPL) or <a href="http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt">*CeCILL*</a> (compatible with the GNU GPL) licenses. It can be used in commercial applications.
 
 <blockquote>
-  <font color="#000066">**CImg**</font> stands for <font color="#000066">**Cool Image**</font> : It is *easy to use*, *efficient* and is intended to be a very pleasant toolbox to design image processing algorithms in C++. Due to its generic conception, it can cover a wide range of image processing applications.
+  <font color="#000066"><b>CImg</b></font> stands for <font color="#000066"><b>Cool Image</b></font> : It is <i>easy to use</i>, <i>efficient</i> and is intended to be a very pleasant toolbox to design image processing algorithms in C++. Due to its generic conception, it can cover a wide range of image processing applications.
 </blockquote>

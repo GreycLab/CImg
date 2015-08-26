@@ -1,6 +1,8 @@
 <a href="http://cimg.eu">![Logo](http://cimg.eu/img/CImgLogo2.jpg)</a>
 ##### http://cimg.eu
 
+------------------
+
 The **CImg Library** is a **small**, **open source**, and **modern C++ toolkit** for **image processing**, designed with these properties in mind:
 
 ![Usefulness](http://cimg.eu/img/item_usefulness.jpg) **CImg** defines *classes* and *methods* to manage images in your own C++ code. You can use **CImg** to load/save various file formats, access pixel values, display/transform/filter images, draw primitives (text, faces, curves, 3d objects, ...), compute statistics, manage user interactions on images, and so on...
@@ -15,4 +17,8 @@ The **CImg Library** is a **small**, **open source**, and **modern C++ toolkit**
 
 ![Freedom](http://cimg.eu/img/item_freedom.jpg) **CImg** is a *free, open-source library* distributed under the [*CeCILL-C*](http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.txt) (close to the GNU LGPL) or [CeCILL](http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt) (compatible with the GNU GPL) licenses. It can be used in commercial applications.
 
+------------------
+
 > **CImg** stands for **Cool Image** : It is _easy to use_, _efficient_ and is intended to be a very pleasant toolbox to design image processing algorithms in C++. Due to its generic conception, it can cover a wide range of image processing applications.
+
+------------------

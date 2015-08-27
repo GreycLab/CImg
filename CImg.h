@@ -13832,7 +13832,8 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_opcode3(op,i1,i2,i3) \
   { const unsigned int _i1 = i1, _i2 = i2, _i3 = i3; _cimg_mp_return(opcode3(op,_i1,_i2,_i3)); }
 #define _cimg_mp_opcode5(op,i1,i2,i3,i4,i5) \
-  { const unsigned int _i1 = i1, _i2 = i2, _i3 = i3, _i4 = i4, _i5 = i5; _cimg_mp_return(opcode5(op,_i1,_i2,_i3,_i4,_i5)); }
+  { const unsigned int _i1 = i1, _i2 = i2, _i3 = i3, _i4 = i4, _i5 = i5; \
+        _cimg_mp_return(opcode5(op,_i1,_i2,_i3,_i4,_i5)); }
 #define _cimg_mp_opcode6(op,i1,i2,i3,i4,i5,i6) \
   { const unsigned int _i1 = i1, _i2 = i2, _i3 = i3, _i4 = i4, _i5 = i5, _i6 = i6; \
         _cimg_mp_return(opcode6(op,_i1,_i2,_i3,_i4,_i5,_i6)); }
@@ -14392,7 +14393,8 @@ namespace cimg_library_suffixed {
             char *s1 = ss8; while (s1<se3 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
             const unsigned int
               p_proc = code._width, mem_proc = compile(ss8,s1), mem_cond = compile(s1 + 1,se1);
-            CImg<longT>::vector(_cimg_mp_enfunc(mp_dowhile),mem_proc,mem_cond,code._width - p_proc).move_to(code,p_proc);
+            CImg<longT>::vector(_cimg_mp_enfunc(mp_dowhile),mem_proc,mem_cond,code._width - p_proc).
+              move_to(code,p_proc);
             _cimg_mp_return(mem_proc);
           }
           if (!std::strncmp(ss,"whiledo(",8)) {
@@ -15084,7 +15086,8 @@ namespace cimg_library_suffixed {
 
       static double mp_set_ixyzc(_cimg_math_parser& mp) {
         const int
-          x = (int)mp.mem[mp.opcode(2)], y = (int)mp.mem[mp.opcode(3)], z = (int)mp.mem[mp.opcode(4)], c = (int)mp.mem[mp.opcode(5)];
+          x = (int)mp.mem[mp.opcode(2)], y = (int)mp.mem[mp.opcode(3)],
+          z = (int)mp.mem[mp.opcode(4)], c = (int)mp.mem[mp.opcode(5)];
         const double value = mp.mem[mp.opcode(6)];
         if (x>=0 && x<mp.reference.width() && y>=0 && y<mp.reference.height() &&
             z>=0 && z<mp.reference.depth() && c>=0 && c<mp.reference.spectrum()) {

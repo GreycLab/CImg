@@ -14086,6 +14086,17 @@ namespace cimg_library_suffixed {
             CImg<charT> variable_name(ss,(unsigned int)(s - ss + 1));
             variable_name.back() = 0;
             cimg::strpare(variable_name);
+
+            if (variable_name._width>2 && (*variable_name=='i' || *variable_name=='j')) {
+              if (variable_name[1]=='(' && variable_name[variable_name._width-2]==')') { // i/j(x,y,z,c)=value.
+
+                std::exit(0);
+              } else if (variable_name[1]=='[' && variable_name[variable_name._width-2]==']') { // i/j[off]=value.
+
+                std::exit(0);
+              }
+            }
+
             bool is_valid_name = true;
             if (*variable_name>='0' && *variable_name<='9') is_valid_name = false;
             else for (const char *ns = variable_name._data + 1; *ns; ++ns)

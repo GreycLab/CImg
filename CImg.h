@@ -14097,25 +14097,20 @@ namespace cimg_library_suffixed {
             CImg<charT> variable_name(ss,(unsigned int)(s - ss + 1));
             variable_name.back() = 0;
             cimg::strpare(variable_name);
-            char
-              *const vs = variable_name._data, *const vs1 = vs + 1, *const vs2 = vs1 + 1,
-              *const ve1 = variable_name.end() - 2, *const ve2 = ve1 - 1;
+            const unsigned int l_variable_name = std::strlen(variable_name);
+            char *const ve1 = ss + l_variable_name - 1, *const ve2 = ve1 - 1;
 
-            std::fprintf(stderr,"\nDEBUG : *vs='%c' *vs1='%c' *vs2='%c' ve2='%c' ve1='%c'\n",
-                         *vs,vs[1],*vs2,*ve2,*ve1);
-
-            const bool is_relative = *vs=='j';
-            if (variable_name._width>2 && (*vs=='i' || *vs=='j')) {
-              if (*vs1=='(' && *ve1==')') { // i/j(_x,_y,_z,_c)=value.
-                const unsigned int value = 3;
+            const bool is_relative = *ss=='j';
+            if (l_variable_name>2 && (*ss=='i' || *ss=='j')) {
+              if (*ss1=='(' && *ve1==')') { // i/j(_x,_y,_z,_c)=value.
                 unsigned int
                   indx = is_relative?0U:16U, indy = is_relative?0U:17U,
                   indz = is_relative?0U:18U, indc = is_relative?0U:19U;
-                if (vs2!=ve1) {
-                  char *s1 = vs2; while (s1<ve2 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                  indx = compile(vs2,s1==ve2?++s1:s1);
+                if (ss2!=ve1) {
+                  char *s1 = ss2; while (s1<ve2 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                  indx = compile(ss2,s1==ve2?++s1:s1);
                   if (s1<ve1) {
-                    char *s2 = s1 + 1; while (s2<se2 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                    char *s2 = s1 + 1; while (s2<ve2 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
                     indy = compile(s1 + 1,s2==ve2?++s2:s2);
                     if (s2<ve1) {
                       char *s3 = s2 + 1; while (s3<ve2 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
@@ -14124,11 +14119,12 @@ namespace cimg_library_suffixed {
                     }
                   }
                 }
+                const unsigned int value = opcode1(mp_replace,compile(s + 1,se));
                 _cimg_mp_opcode5(is_relative?mp_set_jxyzc:mp_set_ixyzc,indx,indy,indz,indc,value);
-              } else if (*vs1=='[' && *ve1==']') { // i/j[off]=value.
-                const unsigned int value = 3;
+              } else if (*ss1=='[' && *ve1==']') { // i/j[off]=value.
                 unsigned int off = 0;
-                if (vs2!=ve1) off = compile(vs2,ve1);
+                if (ss2!=ve1) off = compile(ss2,ve1);
+                const unsigned int value = opcode1(mp_replace,compile(s + 1,se));
                 _cimg_mp_opcode2(is_relative?mp_set_joff:mp_set_ioff,off,value);
               }
             }
@@ -15089,19 +15085,28 @@ namespace cimg_library_suffixed {
       static double mp_set_ixyzc(_cimg_math_parser& mp) {
         const int
           x = (int)mp.mem[mp.opcode(2)], y = (int)mp.mem[mp.opcode(3)], z = (int)mp.mem[mp.opcode(4)], c = (int)mp.mem[mp.opcode(5)];
-        const long off = mp.reference.offset(x,y,z,c);
         const double value = mp.mem[mp.opcode(6)];
-        if (off>=0 && off<(long)mp.reference.size()) mp.reference._data[off] = (T)value;
+        if (x>=0 && x<mp.reference.width() && y>=0 && y<mp.reference.height() &&
+            z>=0 && z<mp.reference.depth() && c>=0 && c<mp.reference.spectrum()) {
+          const long off = mp.reference.offset(x,y,z,c);
+          mp.reference._data[off] = (T)value;
+        }
         return value;
       }
 
       static double mp_set_jxyzc(_cimg_math_parser& mp) {
-        const int x = (int)mp.mem[16], y = (int)mp.mem[17], z = (int)mp.mem[18], c = (int)mp.mem[19];
         const double
-          dx = mp.mem[mp.opcode(2)], dy = mp.mem[mp.opcode(3)], dz = mp.mem[mp.opcode(4)], dc = mp.mem[mp.opcode(5)];
-        const long off = mp.reference.offset((int)(x + dx),(int)(y + dy),(int)(z + dz),(int)(c + dc));
+          dx = mp.mem[mp.opcode(2)], dy = mp.mem[mp.opcode(3)],
+          dz = mp.mem[mp.opcode(4)], dc = mp.mem[mp.opcode(5)];
+        const int
+          x = (int)(dx + mp.mem[16]), y = (int)(dy + mp.mem[17]),
+          z = (int)(dz + mp.mem[18]), c = (int)(dc + mp.mem[19]);
         const double value = mp.mem[mp.opcode(6)];
-        if (off>=0 && off<(long)mp.reference.size()) mp.reference._data[off] = (T)value;
+        if (x>=0 && x<mp.reference.width() && y>=0 && y<mp.reference.height() &&
+            z>=0 && z<mp.reference.depth() && c>=0 && c<mp.reference.spectrum()) {
+          const long off = mp.reference.offset(x,y,z,c);
+          mp.reference._data[off] = (T)value;
+        }
         return value;
       }
 

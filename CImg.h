@@ -16661,7 +16661,7 @@ namespace cimg_library_suffixed {
        \param c Value of the pre-defined variable \c c.
     **/
     double eval(const char *const expression,
-                const double x=0, const double y=0, const double z=0, const double c=0) {
+                const double x=0, const double y=0, const double z=0, const double c=0) const {
       if (!expression) return 0;
       if (!expression[1]) switch (*expression) { // Single-char optimization.
         case 'w' : return (double)_width;
@@ -16670,7 +16670,7 @@ namespace cimg_library_suffixed {
         case 's' : return (double)_spectrum;
         case 'r' : return (double)_is_shared;
         }
-      return _cimg_math_parser(*this,*this,expression,"eval")(x,y,z,c);
+      return _cimg_math_parser(*this,CImg<T>::empty(),expression,"eval")(x,y,z,c);
     }
 
     //! Evaluate math formula on a set of variables.
@@ -16679,10 +16679,10 @@ namespace cimg_library_suffixed {
        \param xyzc Set of values (x,y,z,c) used for the evaluation.
     **/
     template<typename t>
-    CImg<doubleT> eval(const char *const expression, const CImg<t>& xyzc) {
+    CImg<doubleT> eval(const char *const expression, const CImg<t>& xyzc) const {
       CImg<doubleT> res(1,xyzc.size()/4);
       if (!expression) return res.fill(0);
-      _cimg_math_parser mp(*this,*this,expression,"eval");
+      _cimg_math_parser mp(*this,CImg<T>::empty(),expression,"eval");
 #ifdef cimg_use_openmp
 #pragma omp parallel if (res._height>=512 && std::strlen(expression)>=6)
       {
@@ -51559,13 +51559,13 @@ namespace cimg {
      \endcode
   **/
   inline double eval(const char *const expression, const double x, const double y, const double z, const double c) {
-    static CImg<float> empty;
+    static const CImg<float> empty;
     return empty.eval(expression,x,y,z,c);
   }
 
   template<typename t>
   inline CImg<typename cimg::superset<double,t>::type> eval(const char *const expression, const CImg<t>& xyzc) {
-    static CImg<float> empty;
+    static const CImg<float> empty;
     return empty.eval(expression,xyzc);
   }
 

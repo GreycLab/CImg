@@ -14100,8 +14100,8 @@ namespace cimg_library_suffixed {
             const unsigned int l_variable_name = std::strlen(variable_name);
             char *const ve1 = ss + l_variable_name - 1, *const ve2 = ve1 - 1;
 
-            const bool is_relative = *ss=='j';
             if (l_variable_name>2 && (*ss=='i' || *ss=='j')) {
+              const bool is_relative = *ss=='j';
               if (*ss1=='(' && *ve1==')') { // i/j(_x,_y,_z,_c)=value.
                 unsigned int
                   indx = is_relative?0U:16U, indy = is_relative?0U:17U,

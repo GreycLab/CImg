@@ -2256,17 +2256,15 @@ namespace cimg_library_suffixed {
     CImgException(const char *const format, ...) {
       _message = new char[16384]; *_message = 0; _cimg_exception_err("CImgException",true);
     }
-    CImgException(const CImgException& exception) {
-        _message = new char[16384]; 
-        strncpy(_message, exception._message, 16383);
-        _message[16383] = '\0';
+    CImgException(const CImgException& e) {
+      _message = new char[16384]; strncpy(_message,e._message,16383); _message[16383] = 0;
     }
     ~CImgException() throw() { delete[] _message; }
+    CImgException& operator=(const CImgException& e) {
+      strncpy(_message,e._message,16383); _message[16383] = 0;
+    }
     //! Return a C-string containing the error message associated to the thrown exception.
     const char *what() const throw() { return _message; }
-
-  private:
-    void operator=(const CImgException& exception);
   };
 
   // The CImgInstanceException class is used to throw an exception related

@@ -2262,6 +2262,7 @@ namespace cimg_library_suffixed {
     ~CImgException() throw() { delete[] _message; }
     CImgException& operator=(const CImgException& e) {
       strncpy(_message,e._message,16383); _message[16383] = 0;
+      return *this;
     }
     //! Return a C-string containing the error message associated to the thrown exception.
     const char *what() const throw() { return _message; }
@@ -14389,15 +14390,21 @@ namespace cimg_library_suffixed {
             _cimg_mp_return(pos);
           }
           if (*ss=='f' && *ss1=='o' && *ss2=='r' && *ss3=='(') { // for().
-            char *s1 = ss4; while (s1<se4 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+            char *s1 = ss4; while (s1<se2 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
             char *s2 = s1 + 1; while (s2<se2 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+            char *s3 = s2 + 1; while (s3<se2 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
             compile(ss4,s1);
-            const unsigned int
-              p_cond = code._width, mem_cond = compile(s1 + 1,s2),
-              p_proc = code._width, mem_proc = compile(s2 + 1,se1);
-            CImg<longT>::vector(_cimg_mp_enfunc(mp_whiledo),mem_proc,mem_cond,p_proc - p_cond,code._width - p_proc).
+            const unsigned int p_cond = code._width, mem_cond = compile(s1 + 1,s2), p_proc = code._width;
+            unsigned int mem_return;
+            if (*s3==',') { // Body + proc.
+              mem_return = compile(s3 + 1,se1);
+              compile(s2 + 1,s3);
+            } else { // Proc only.
+              mem_return = compile(s2 + 1,se1);
+            }
+            CImg<longT>::vector(_cimg_mp_enfunc(mp_whiledo),mem_return,mem_cond,p_proc - p_cond,code._width - p_proc).
               move_to(code,p_cond);
-            _cimg_mp_return(mem_proc);
+            _cimg_mp_return(mem_return);
           }
           if (!std::strncmp(ss,"dowhile(",8)) {
             char *s1 = ss8; while (s1<se3 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;

@@ -51114,10 +51114,7 @@ namespace cimg {
         if ((!mode && !is_directory) || (mode==1 && is_directory) || mode>=2) {
           if (include_path) {
             CImg<char> full_filename((lp?lp+1:0) + lf + 1);
-            if (lp) {
-              std::memcpy(full_filename,_path,lp);
-              full_filename[lp] = '/';
-            }
+            if (lp) { std::memcpy(full_filename,_path,lp); full_filename[lp] = '/'; }
             std::memcpy(full_filename._data + (lp?lp + 1:0),filename,lf + 1);
             full_filename.move_to(res);
           } else CImg<char>(filename,lf + 1).move_to(res);

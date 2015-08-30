@@ -15095,8 +15095,7 @@ namespace cimg_library_suffixed {
         const double value = mp.mem[mp.opcode(6)];
         if (x>=0 && x<mp.output.width() && y>=0 && y<mp.output.height() &&
             z>=0 && z<mp.output.depth() && c>=0 && c<mp.output.spectrum()) {
-          const long off = mp.output.offset(x,y,z,c);
-          mp.output._data[off] = (T)value;
+          mp.output(x,y,z,c) = (T)value;
         }
         return value;
       }
@@ -15111,8 +15110,7 @@ namespace cimg_library_suffixed {
         const double value = mp.mem[mp.opcode(6)];
         if (x>=0 && x<mp.output.width() && y>=0 && y<mp.output.height() &&
             z>=0 && z<mp.output.depth() && c>=0 && c<mp.output.spectrum()) {
-          const long off = mp.output.offset(x,y,z,c);
-          mp.output._data[off] = (T)value;
+          mp.output(x,y,z,c) = (T)value;
         }
         return value;
       }

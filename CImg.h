@@ -8276,7 +8276,9 @@ namespace cimg_library_suffixed {
       } break;
       case WM_PAINT :
         disp->paint();
-	if (disp->_is_cursor_visible) while (ShowCursor(TRUE)<0); else while (ShowCursor(FALSE)>=0);
+        cimg_lock_display();
+        if (disp->_is_cursor_visible) while (ShowCursor(TRUE)<0); else while (ShowCursor(FALSE)>=0);
+        cimg_unlock_display();
         break;
       case WM_ERASEBKGND :
         //        return 0;
@@ -8306,12 +8308,16 @@ namespace cimg_library_suffixed {
           disp->_mouse_x = disp->_mouse_y = -1;
         disp->_is_event = true;
         SetEvent(cimg::Win32_attr().wait_event);
+        cimg_lock_display();
 	if (disp->_is_cursor_visible) while (ShowCursor(TRUE)<0); else while (ShowCursor(FALSE)>=0);
+        cimg_unlock_display();
       }	break;
       case WM_MOUSELEAVE : {
         disp->_mouse_x = disp->_mouse_y = -1;
         disp->_is_mouse_tracked = false;
+        cimg_lock_display();
 	while (ShowCursor(TRUE)<0);
+        cimg_unlock_display();
       } break;
       case WM_LBUTTONDOWN :
         disp->set_button(1);

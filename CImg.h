@@ -51103,7 +51103,6 @@ namespace cimg {
       std::memcpy(pattern,_path,lp);
       pattern[lp] = '/'; pattern[lp + 1] = '*'; pattern[lp + 2] = 0;
     }
-
     WIN32_FIND_DATAA file_data;
     const HANDLE dir = FindFirstFileA(pattern.data(),&file_data);
     if (dir==INVALID_HANDLE_VALUE) return CImgList<char>::empty();
@@ -51114,10 +51113,12 @@ namespace cimg {
         const bool is_directory = (file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)!=0;
         if ((!mode && !is_directory) || (mode==1 && is_directory) || mode>=2) {
           if (include_path) {
-            CImg<char> full_filename(lp + lf + 2);
-            std::memcpy(full_filename,_path,lp);
-            full_filename[lp] = '/';
-            std::memcpy(full_filename._data + lp + 1,filename,lf + 1);
+            CImg<char> full_filename((lp?lp+1:0) + lf + 1);
+            if (lp) {
+              std::memcpy(full_filename,_path,lp);
+              full_filename[lp] = '/';
+            }
+            std::memcpy(full_filename._data + (lp?lp + 1:0),filename,lf + 1);
             full_filename.move_to(res);
           } else CImg<char>(filename,lf + 1).move_to(res);
         }

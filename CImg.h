@@ -8315,9 +8315,9 @@ namespace cimg_library_suffixed {
       case WM_MOUSELEAVE : {
         disp->_mouse_x = disp->_mouse_y = -1;
         disp->_is_mouse_tracked = false;
-        cimg_lock_display();
+        cimg::mutex(15);
 	while (ShowCursor(TRUE)<0);
-        cimg_unlock_display();
+        cimg::mutex(15,0);
       } break;
       case WM_LBUTTONDOWN :
         disp->set_button(1);

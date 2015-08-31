@@ -241,7 +241,7 @@
       or parts of the <a href="reference/index.html">documentation</a>.</li>
     <li>If you just want to say you've been happy with the library, you can send me a postcard from your place, to the following address : <br/>
       <i>David Tschumperl&eacute;, GREYC (UMR CNRS 6072), Equipe IMAGE, 6 Bd du Mar&eacute;chal Juin, 14050 Caen Cedex, FRANCE.</i><br/><br/>
-      51 postcards received yet (I still have empty space on my wall ! :) ), from :<br/><br/>
+      53 postcards received yet (I still have empty space on my wall ! :) ), from :<br/><br/>
       <ul>
         <li><a href="img/postcard1.jpg" onclick="NewWindow(this.href,'name','420','320','yes');return false;">
             Comissao Nacional de Energia Nuclear, Rio de Janeiro, Brazil.</a></li>
@@ -342,9 +342,11 @@
         <li><a href="img/postcard50.jpg" onclick="NewWindow(this.href,'name','420','320','yes');return false;">
             USA, from Bill C.</a></li>
         <li><a href="img/postcard51.jpg" onclick="NewWindow(this.href,'name','420','320','yes');return false;">
-            EDF / France, from ZondeR.</a></li>
+            EDF/France, from ZondeR.</a></li>
         <li><a href="img/postcard52.jpg" onclick="NewWindow(this.href,'name','300','460','yes');return false;">
             Belgium, from Marc Lis.</a><br/><br/></li>
+        <li><a href="img/postcard53.jpg" onclick="NewWindow(this.href,'name','420','320','yes');return false;">
+            Roma/Italy, from Patrick Wauters.</a><br/><br/></li>
         <li>If you have too much money, you can also <a href="https://sourceforge.net/p/cimg/donate/">
             <img src="img/project-support.jpg" alt=""></img></a></li>
     </ul></li>

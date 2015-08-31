@@ -163,6 +163,19 @@
 #include <utility>
 #endif
 
+// Configure abort signal handler (empty by default).
+// A typical signal handler can be defined in your own source like this:
+// Without OpenMP support: #define cimg_test_abort() if (is_abort) throw CImgAbortException("")
+//
+// or
+//
+// With OpenMP support: #define cimg_test_abort() if (is_abort && !omp_get_thread_num()) throw CImgAbortException("")
+//
+// where 'is_abort' is a boolean variable.
+#ifndef cimg_test_abort
+#define cimg_test_abort()
+#endif
+
 // Configure filename separator.
 //
 // Filename separator is set by default to '/', except for Windows where it is '\'.
@@ -2187,6 +2200,8 @@ namespace cimg_library_suffixed {
       CImgException is never thrown itself. Derived classes that specify the type of errord are thrown instead.
       These derived classes can be:
 
+      - \b CImgAbortException: Thrown when a computationally-intensive function is aborted by an external signal.
+
       - \b CImgArgumentException: Thrown when one argument of a called \CImg function is invalid.
       This is probably one of the most thrown exception by \CImg.
       For instance, the following example throws a \c CImgArgumentException:
@@ -2296,6 +2311,12 @@ namespace cimg_library_suffixed {
   // encountered in a library function call.
   struct CImgWarningException : public CImgException {
     CImgWarningException(const char *const format, ...) { _cimg_exception_err("CImgWarningException",false); }
+  };
+
+  // The CImgAbortException class is used to throw an exception when
+  // a computationally-intensive function has been aborted by an external signal.
+  struct CImgAbortException : public CImgException {
+    CImgAbortException(const char *const format, ...) { _cimg_exception_err("CImgAbortException",false); }
   };
 
   /*-------------------------------------
@@ -14623,6 +14644,7 @@ namespace cimg_library_suffixed {
         if (!value_left) { mp.p_code = p_end - 1; return 0; }
         const unsigned int mem_right = (unsigned int)mp.opcode(3);
         for ( ; mp.p_code<p_end; ++mp.p_code) {
+          cimg_test_abort();
           const CImg<longT> &op = *mp.p_code;
           mp.opcode._data = op._data; mp.opcode._height = op._height;
           const unsigned int target = (unsigned int)mp.opcode[1];
@@ -14638,6 +14660,7 @@ namespace cimg_library_suffixed {
         if (value_left) { mp.p_code = p_end - 1; return 1; }
         const unsigned int mem_right = (unsigned int)mp.opcode(3);
         for ( ; mp.p_code<p_end; ++mp.p_code) {
+          cimg_test_abort();
           const CImg<longT> &op = *mp.p_code;
           mp.opcode._data = op._data; mp.opcode._height = op._height;
           const unsigned int target = (unsigned int)mp.opcode[1];
@@ -14685,6 +14708,7 @@ namespace cimg_library_suffixed {
         if (!value_left) { mp.p_code = p_end - 1; return 0; }
         const unsigned int mem_right = (unsigned int)mp.opcode(3);
         for ( ; mp.p_code<p_end; ++mp.p_code) {
+          cimg_test_abort();
           const CImg<longT> &op = *mp.p_code;
           mp.opcode._data = op._data; mp.opcode._height = op._height;
           const unsigned int target = (unsigned int)mp.opcode[1];
@@ -15142,6 +15166,7 @@ namespace cimg_library_suffixed {
           *const p_end = p_right + mp.opcode(6);
         if (is_cond) {
           for ( ; mp.p_code<p_right; ++mp.p_code) {
+            cimg_test_abort();
             const CImg<longT> &op = *mp.p_code;
             mp.opcode._data = op._data; mp.opcode._height = op._height;
             const unsigned int target = (unsigned int)mp.opcode[1];
@@ -15151,6 +15176,7 @@ namespace cimg_library_suffixed {
           return mp.mem[mem_left];
         }
         for (mp.p_code = p_right; mp.p_code<p_end; ++mp.p_code) {
+          cimg_test_abort();
           const CImg<longT> &op = *mp.p_code;
           mp.opcode._data = op._data; mp.opcode._height = op._height;
           const unsigned int target = (unsigned int)mp.opcode[1];
@@ -15168,7 +15194,9 @@ namespace cimg_library_suffixed {
           *const p_proc = ++mp.p_code,
           *const p_end = p_proc + mp.opcode(3);
         do {
+          cimg_test_abort();
           for (mp.p_code = p_proc; mp.p_code<p_end; ++mp.p_code) { // Evaluate loop iteration + condition.
+            cimg_test_abort();
             const CImg<longT> &op = *mp.p_code;
             mp.opcode._data = op._data; mp.opcode._height = op._height;
             const unsigned int target = (unsigned int)mp.opcode[1];
@@ -15189,7 +15217,9 @@ namespace cimg_library_suffixed {
           *const p_end = p_proc + mp.opcode(4);
         bool is_first_iter = true, is_cond = false;
         do {
+          cimg_test_abort();
           for (mp.p_code = p_cond; mp.p_code<p_proc; ++mp.p_code) { // Evaluate loop condition.
+            cimg_test_abort();
             const CImg<longT> &op = *mp.p_code;
             mp.opcode._data = op._data; mp.opcode._height = op._height;
             const unsigned target = (unsigned int)mp.opcode[1];
@@ -15198,6 +15228,7 @@ namespace cimg_library_suffixed {
           is_cond = (bool)mp.mem[mem_cond];
           if (is_cond) { // Evaluate loop iteration.
             for ( ; mp.p_code<p_end; ++mp.p_code) {
+              cimg_test_abort();
               const CImg<longT> &op = *mp.p_code;
               mp.opcode._data = op._data; mp.opcode._height = op._height;
               const unsigned int target = (unsigned int)mp.opcode[1];
@@ -15224,6 +15255,7 @@ namespace cimg_library_suffixed {
         opcode._is_shared = true; opcode._width = opcode._depth = opcode._spectrum = 1;
 
         for (p_code = code._data; p_code<code.end(); ++p_code) {
+          cimg_test_abort();
           const CImg<longT> &op = *p_code;
           // Allows to avoid parameter passing to evaluation functions.
           opcode._data = op._data; opcode._height = op._height;
@@ -26529,6 +26561,7 @@ namespace cimg_library_suffixed {
           Tfloat *ptrd = velocity._data, veloc_max = 0;
           if (is_3d) // 3d version
             cimg_forC(*this,c) {
+              cimg_test_abort();
               CImg_3x3x3(I,Tfloat);
               cimg_for3x3x3(*this,x,y,z,c,I,Tfloat) {
                 const Tfloat
@@ -26546,6 +26579,7 @@ namespace cimg_library_suffixed {
             }
           else // 2d version
             cimg_forZC(*this,z,c) {
+              cimg_test_abort();
               CImg_3x3(I,Tfloat);
               cimg_for3x3(*this,x,y,z,c,I,Tfloat) {
                 const Tfloat
@@ -26593,6 +26627,7 @@ namespace cimg_library_suffixed {
                 *(pd3++) = (Tfloat)n;
               }
 
+              cimg_test_abort();
 #ifdef cimg_use_openmp
 #pragma omp parallel for collapse(2) if (_width>=256 && _height*_depth>=2) firstprivate(val)
 #endif
@@ -26686,6 +26721,7 @@ namespace cimg_library_suffixed {
               *(pd2++) = (Tfloat)n;
             }
 
+            cimg_test_abort();
 #ifdef cimg_use_openmp
 #pragma omp parallel for if (_width>=256 && _height>=2) firstprivate(val)
 #endif

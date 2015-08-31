@@ -163,7 +163,7 @@
 #include <utility>
 #endif
 
-// Configure abort signal handler (empty by default).
+// Configure the 'abort' signal handler (does nothing by default).
 // A typical signal handler can be defined in your own source like this:
 // Without OpenMP support: #define cimg_test_abort() if (is_abort) throw CImgAbortException("")
 //

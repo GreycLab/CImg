@@ -3912,7 +3912,7 @@ namespace cimg_library_suffixed {
 
     // Mutex-protected version of sscanf.
     // Used only MacOSX, as it seems std::sscanf() is not re-entrant on MacOSX.
-#if (__MACOSX__)  || defined(__APPLE__)
+#if defined(__MACOSX__) || defined(__APPLE__)
 #define cimg_sscanf cimg::_sscanf
     inline int _sscanf(const char *s, const char *format, ...) {
       cimg::mutex(13);

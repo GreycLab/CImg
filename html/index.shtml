@@ -7,7 +7,7 @@
 <div id="center"><div id="text_centre_intro">
 
 <p>
-  The <font color="#000066"><b>CImg Library</b></font> is a <b>small</b>, <b>open source</b>, and
+  The <font color="#000066"><b>CImg Library</b></font> is a <b>small</b>, <b>open-source</b>, and
   <b>modern C++ toolkit</b> for <b>image processing</b>,
   designed with these properties in mind :
 </p>
@@ -171,7 +171,7 @@
   <a href="http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt"><b>CeCILL</b> License</a> (GPL-compatible).
   Most of the other package files are distributed under the
   <a href="http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt"><b>CeCILL</b> License</a>.
-  Both are <b>open source licenses</b>, the CeCILL-C being less restrictive than the CeCILL.<br/><br/>
+  Both are <b>open-source licenses</b>, the CeCILL-C being less restrictive than the CeCILL.<br/><br/>
   The <font color="#000066"><b>CImg Library</b></font> source code has been registered to the <a href="http://app.legalis.net/paris/">APP</a>
   (French Agency for the Protection of Programs) by the <a href="http://www.inria.fr/index.en.html">INRIA</a>,
   under registration number <i>IDDN.FR.001.040004.000.S.P.2004.000.21000.</i>
@@ -227,7 +227,7 @@
 <div id="center"><div id="text_centre_intro">
 
 <blockquote>
-  The <font color="#000066"><b>CImg Library</b></font> is an open source C++ library which is mainly developped during
+  The <font color="#000066"><b>CImg Library</b></font> is an open-source C++ library which is mainly developped during
   free time. If you enjoy using <font color="#000066"><b>CImg</b></font>, you may contribute to the project
   in different ways. This will motivate me to continue the work.
   <ul>

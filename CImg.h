@@ -9457,7 +9457,8 @@ namespace cimg_library_suffixed {
                                         cimg::strbuffersize(sizeof(T)*size_x*size_y*size_z*size_c),
                                         size_x,size_y,size_z,size_c);
           }
-          std::memcpy(_data,values,siz*sizeof(T)); }
+          std::memcpy(_data,values,siz*sizeof(T));
+        }
       } else { _width = _height = _depth = _spectrum = 0; _is_shared = false; _data = 0; }
     }
 

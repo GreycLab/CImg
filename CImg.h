@@ -2196,11 +2196,12 @@ namespace cimg_library_suffixed {
   /**
      \par Overview
 
-      CImgException is the base class of all exceptions thrown by \CImg.
+      CImgException is the base class of all exceptions thrown by \CImg (except \b CImgAbortException).
       CImgException is never thrown itself. Derived classes that specify the type of errord are thrown instead.
-      These derived classes can be:
+      These classes can be:
 
       - \b CImgAbortException: Thrown when a computationally-intensive function is aborted by an external signal.
+        This is the only \c non-derived exception class.
 
       - \b CImgArgumentException: Thrown when one argument of a called \CImg function is invalid.
       This is probably one of the most thrown exception by \CImg.
@@ -2283,10 +2284,24 @@ namespace cimg_library_suffixed {
     const char *what() const throw() { return _message; }
   };
 
-  // The CImgInstanceException class is used to throw an exception related
-  // to an invalid instance encountered in a library function call.
-  struct CImgInstanceException : public CImgException {
-    CImgInstanceException(const char *const format, ...) { _cimg_exception_err("CImgInstanceException",true); }
+  // The CImgAbortException class is used to throw an exception when
+  // a computationally-intensive function has been aborted by an external signal.
+  struct CImgAbortException : public std::exception {
+    char *_message;
+    CImgAbortException() { _message = new char[16384]; *_message = 0; }
+    CImgAbortException(const char *const format, ...) {
+      _message = new char[16384]; *_message = 0; _cimg_exception_err("CImgAbortException",true);
+    }
+    CImgAbortException(const CImgAbortException& e) {
+      _message = new char[16384]; strncpy(_message,e._message,16383); _message[16383] = 0;
+    }
+    ~CImgAbortException() throw() { delete[] _message; }
+    CImgAbortException& operator=(const CImgAbortException& e) {
+      strncpy(_message,e._message,16383); _message[16383] = 0;
+      return *this;
+    }
+    //! Return a C-string containing the error message associated to the thrown exception.
+    const char *what() const throw() { return _message; }
   };
 
   // The CImgArgumentException class is used to throw an exception related
@@ -2295,28 +2310,28 @@ namespace cimg_library_suffixed {
     CImgArgumentException(const char *const format, ...) { _cimg_exception_err("CImgArgumentException",true); }
   };
 
-  // The CImgIOException class is used to throw an exception related
-  // to input/output file problems encountered in a library function call.
-  struct CImgIOException : public CImgException {
-    CImgIOException(const char *const format, ...) { _cimg_exception_err("CImgIOException",true); }
-  };
-
   // The CImgDisplayException class is used to throw an exception related
   // to display problems encountered in a library function call.
   struct CImgDisplayException : public CImgException {
     CImgDisplayException(const char *const format, ...) { _cimg_exception_err("CImgDisplayException",false); }
   };
 
+  // The CImgInstanceException class is used to throw an exception related
+  // to an invalid instance encountered in a library function call.
+  struct CImgInstanceException : public CImgException {
+    CImgInstanceException(const char *const format, ...) { _cimg_exception_err("CImgInstanceException",true); }
+  };
+
+  // The CImgIOException class is used to throw an exception related
+  // to input/output file problems encountered in a library function call.
+  struct CImgIOException : public CImgException {
+    CImgIOException(const char *const format, ...) { _cimg_exception_err("CImgIOException",true); }
+  };
+
   // The CImgWarningException class is used to throw an exception for warnings
   // encountered in a library function call.
   struct CImgWarningException : public CImgException {
     CImgWarningException(const char *const format, ...) { _cimg_exception_err("CImgWarningException",false); }
-  };
-
-  // The CImgAbortException class is used to throw an exception when
-  // a computationally-intensive function has been aborted by an external signal.
-  struct CImgAbortException : public CImgException {
-    CImgAbortException(const char *const format, ...) { _cimg_exception_err("CImgAbortException",false); }
   };
 
   /*-------------------------------------

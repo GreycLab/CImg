@@ -15269,7 +15269,6 @@ namespace cimg_library_suffixed {
         if (!mem) return 0;
         mem[16] = x; mem[17] = y; mem[18] = z; mem[19] = c;
         opcode._is_shared = true; opcode._width = opcode._depth = opcode._spectrum = 1;
-
         for (p_code = code._data; p_code<code.end(); ++p_code) {
           cimg_test_abort();
           const CImg<longT> &op = *p_code;
@@ -24958,6 +24957,7 @@ namespace cimg_library_suffixed {
         case 3 : {
           T I[27] = { 0 };
           cimg_forC(res,c) {
+            cimg_test_abort();
             const CImg<T> _img = get_shared_channel(c%_spectrum);
             const CImg<t> _mask = mask.get_shared_channel(c%mask._spectrum);
             if (is_normalized) {
@@ -24997,6 +24997,7 @@ namespace cimg_library_suffixed {
         case 2 : {
           T I[8] = { 0 };
           cimg_forC(res,c) {
+            cimg_test_abort();
             const CImg<T> _img = get_shared_channel(c%_spectrum);
             const CImg<t> _mask = mask.get_shared_channel(c%mask._spectrum);
             if (is_normalized) {
@@ -25024,6 +25025,7 @@ namespace cimg_library_suffixed {
           case 6 : {
             T I[36] = { 0 };
             cimg_forC(res,c) {
+              cimg_test_abort();
               const CImg<T> _img = get_shared_channel(c%_spectrum);
               const CImg<t> _mask = mask.get_shared_channel(c%mask._spectrum);
               if (is_normalized) {
@@ -25063,6 +25065,7 @@ namespace cimg_library_suffixed {
           case 5 : {
             T I[25] = { 0 };
             cimg_forC(res,c) {
+              cimg_test_abort();
               const CImg<T> _img = get_shared_channel(c%_spectrum);
               const CImg<t> _mask = mask.get_shared_channel(c%mask._spectrum);
               if (is_normalized) {
@@ -25094,6 +25097,7 @@ namespace cimg_library_suffixed {
           case 4 : {
             T I[16] = { 0 };
             cimg_forC(res,c) {
+              cimg_test_abort();
               const CImg<T> _img = get_shared_channel(c%_spectrum);
               const CImg<t> _mask = mask.get_shared_channel(c%mask._spectrum);
               if (is_normalized) {
@@ -25119,6 +25123,7 @@ namespace cimg_library_suffixed {
           case 3 : {
             T I[9] = { 0 };
             cimg_forC(res,c) {
+              cimg_test_abort();
               const CImg<T> _img = get_shared_channel(c%_spectrum);
               const CImg<t> _mask = mask.get_shared_channel(c%mask._spectrum);
               if (is_normalized) {
@@ -25140,6 +25145,7 @@ namespace cimg_library_suffixed {
           case 2 : {
             T I[4] = { 0 };
             cimg_forC(res,c) {
+              cimg_test_abort();
               const CImg<T> _img = get_shared_channel(c%_spectrum);
               const CImg<t> _mask = mask.get_shared_channel(c%mask._spectrum);
               if (is_normalized) {
@@ -25158,6 +25164,7 @@ namespace cimg_library_suffixed {
           case 1 :
             if (is_normalized) res.fill(1);
             else cimg_forC(res,c) {
+                cimg_test_abort();
                 const CImg<T> _img = get_shared_channel(c%_spectrum);
                 const CImg<t> _mask = mask.get_shared_channel(c%mask._spectrum);
                 res.get_shared_channel(c).assign(_img)*=_mask[0];
@@ -25174,6 +25181,7 @@ namespace cimg_library_suffixed {
 #pragma omp parallel for if (res._spectrum>=2)
 #endif
         cimg_forC(res,c) {
+          cimg_test_abort();
           const CImg<T> _img = get_shared_channel(c%_spectrum);
           const CImg<t> _mask = mask.get_shared_channel(c%mask._spectrum);
           if (is_normalized) { // Normalized correlation.
@@ -25408,6 +25416,7 @@ namespace cimg_library_suffixed {
 #pragma omp parallel for if (_spectrum>=2)
 #endif
       cimg_forC(*this,c) {
+        cimg_test_abort();
         const CImg<T> _img = get_shared_channel(c%_spectrum);
         const CImg<t> _mask = mask.get_shared_channel(c%mask._spectrum);
         if (is_normalized) { // Normalized erosion.
@@ -25697,6 +25706,7 @@ namespace cimg_library_suffixed {
 #pragma omp parallel for if (_spectrum>=2)
 #endif
       cimg_forC(*this,c) {
+        cimg_test_abort();
         const CImg<T> _img = get_shared_channel(c%_spectrum);
         const CImg<t> _mask = mask.get_shared_channel(c%mask._spectrum);
         if (is_normalized) { // Normalized dilation.
@@ -28480,6 +28490,7 @@ namespace cimg_library_suffixed {
         const CImgList<Tfloat> dI = is_backward?I1.get_gradient():I2.get_gradient();
 
         for (unsigned int iteration = 0; iteration<iteration_max; ++iteration) {
+          cimg_test_abort();
           float _energy = 0;
           if (is_3d) { // 3d version.
             if (smoothness>=0) // Isotropic regularization.

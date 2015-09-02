@@ -126,7 +126,7 @@
 #endif
 
 // Define correct string functions for each compiler and OS.
-#if cimg_OS==2 && defined(_MSC_VER_)
+#if cimg_OS==2 && defined(_MSC_VER)
 #define cimg_sscanf std::sscanf
 #define cimg_sprintf std::sprintf
 #define cimg_snprintf cimg::_snprintf
@@ -2160,8 +2160,8 @@ namespace cimg_library_suffixed {
     inline int _vsnprintf(char *const s, const size_t size, const char *const format, va_list ap) {
       int result = -1;
       cimg::mutex(6);
-      if (size) result = _vsnprintf_s(str,size,_TRUNCATE,format,ap);
-      if (count==-1) result = _vscprintf(format,ap);
+      if (size) result = _vsnprintf_s(s,size,_TRUNCATE,format,ap);
+      if (result==-1) result = _vscprintf(format,ap);
       cimg::mutex(6,0);
       return result;
     }

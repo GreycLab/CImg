@@ -127,9 +127,8 @@
 #define cimg_vsnprintf cimg::c99_vsnprintf
 #endif
 
-#ifndef cimg_snprintf
+#ifndef cimg_vsnprintf
 #include <stdio.h>
-#define cimg_snprintf snprintf
 #define cimg_vsnprintf vsnprintf
 #endif
 

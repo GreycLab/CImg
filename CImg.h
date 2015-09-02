@@ -4561,7 +4561,16 @@ namespace cimg_library_suffixed {
     inline bool _is_self_expr(const char *expression) {
       if (!expression || *expression=='>' || *expression=='<') return false;
       for (const char *s = expression; *s; ++s)
-        if ((*s=='i' || *s=='j') && (s[1]=='(' || s[1]=='[')) return true;
+        if ((*s=='i' || *s=='j') && (s[1]=='(' || s[1]=='[')) {
+          const char opening = s[1], ending = opening=='('?')':']';
+          const char *ns;
+          int level = 0;
+          for (ns = s + 2; *ns; ++ns) { // Find ending ')' or ']'.
+            if (*ns==ending && !level) break;
+            if (*ns==opening) ++level; else if (*ns==ending) --level;
+          }
+          if (*ns && (ns[1]!='=' || ns[2]=='=')) return true;
+        }
       return false;
     }
 

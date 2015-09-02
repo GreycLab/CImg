@@ -2203,7 +2203,7 @@ namespace cimg_library_suffixed {
       cimg::mutex(6);
       const int result = std::vsnprintf(s,size,format,ap);
       cimg::mutex(6,0);
-      return count;
+      return result;
     }
 #endif
 

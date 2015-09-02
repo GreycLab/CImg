@@ -123,13 +123,27 @@
 #pragma warning(disable:4996)
 #define _CRT_SECURE_NO_DEPRECATE 1
 #define _CRT_NONSTDC_NO_DEPRECATE 1
-#define cimg_snprintf cimg::c99_snprintf
-#define cimg_vsnprintf cimg::c99_vsnprintf
 #endif
 
-#ifndef cimg_vsnprintf
+// Define correct string functions for each compiler and OS.
+#if cimg_OS==2 && defined(_MSC_VER_)
+#define cimg_sscanf std::sscanf
+#define cimg_sprintf std::sprintf
+#define cimg_snprintf cimg::_snprintf
+#define cimg_vsnprintf cimg::_vsnprintf
+#else
 #include <stdio.h>
+#if defined(__MACOSX__) || defined(__APPLE__)
+#define cimg_sscanf cimg::_sscanf
+#define cimg_sprintf cimg::_sprintf
+#define cimg_snprintf cimg::_snprintf
+#define cimg_vsnprintf cimg::_vsnprintf
+#else
+#define cimg_sscanf std::sscanf
+#define cimg_sprintf std::sprintf
+#define cimg_snprintf std::snprintf
 #define cimg_vsnprintf vsnprintf
+#endif
 #endif
 
 // Include OS-specific headers.
@@ -2135,63 +2149,62 @@ namespace cimg_library_suffixed {
     // Mandatory because Microsoft's _snprintf() and _vsnprintf() do not add the '\0' character
     // at the end of the string.
 #if cimg_OS==2 && defined(_MSC_VER)
-    inline int c99_vsnprintf(char* str, size_t size, const char* format, va_list ap) {
-      int count = -1;
-      cimg::mutex(6);
-      if (size) count = _vsnprintf_s(str,size,_TRUNCATE,format,ap);
-      if (count==-1) count = _vscprintf(format,ap);
-      cimg::mutex(6,0);
-      return count;
-    }
-    inline int c99_snprintf(char* str, size_t size, const char* format, ...) {
-      int count;
+    inline int _snprintf(char *const s, const size_t size, const char *const format, ...) {
       va_list ap;
-      va_start(ap, format);
-      count = c99_vsnprintf(str,size,format,ap);
+      va_start(ap,format);
+      const int result = _vsnprintf(s,size,format,ap);
       va_end(ap);
       return count;
     }
-#endif
+
+    inline int _vsnprintf(char *const s, const size_t size, const char *const format, va_list ap) {
+      int result = -1;
+      cimg::mutex(6);
+      if (size) result = _vsnprintf_s(str,size,_TRUNCATE,format,ap);
+      if (count==-1) result = _vscprintf(format,ap);
+      cimg::mutex(6,0);
+      return result;
+    }
 
     // Mutex-protected version of sscanf, sprintf and snprintf.
     // Used only MacOSX, as it seems those functions are not re-entrant on MacOSX.
-#if defined(__MACOSX__) || defined(__APPLE__)
-#define cimg_sscanf cimg::_sscanf
-    inline int _sscanf(const char *s, const char *format, ...) {
-      cimg::mutex(13);
+#elif defined(__MACOSX__) || defined(__APPLE__)
+    inline int _sscanf(const char *const s, const char *const format, ...) {
+      cimg::mutex(6);
       va_list args;
-      va_start(args, format);
+      va_start(args,format);
       const int result = std::vsscanf(s,format,args);
       va_end(args);
-      cimg::mutex(13,0);
+      cimg::mutex(6,0);
       return result;
     }
 
-#define cimg_sprintf cimg::_sprintf
-    inline int _sprintf(char *s, const char *format, ...) {
-      cimg::mutex(13);
+    inline int _sprintf(char *const s, const char *const format, ...) {
+      cimg::mutex(6);
       va_list args;
-      va_start(args, format);
+      va_start(args,format);
       const int result = std::vsprintf(s,format,args);
       va_end(args);
-      cimg::mutex(13,0);
+      cimg::mutex(6,0);
       return result;
     }
 
-#define cimg_snprintf cimg::_snprintf
-    inline int _snprintf(char *s, size_t n, const char *format, ...) {
-      cimg::mutex(13);
+    inline int _snprintf(char *const s, const size_t n, const char *const format, ...) {
+      cimg::mutex(6);
       va_list args;
-      va_start(args, format);
+      va_start(args,format);
       const int result = std::vsnprintf(s,n,format,args);
       va_end(args);
-      cimg::mutex(13,0);
+      cimg::mutex(6,0);
       return result;
     }
-#else
-#define cimg_sscanf std::sscanf
-#define cimg_sprintf std::sprintf
-#define cimg_snprintf std::snprintf
+
+    inline int _vsnprintf(char *const s, const size_t size, const char* format, va_list ap) {
+      cimg::mutex(6);
+      const int result = std::vsnprintf(s,size,format,ap);
+      cimg::mutex(6,0);
+      return count;
+    }
 #endif
 
     //! Set current \CImg exception mode.
@@ -14560,7 +14573,7 @@ namespace cimg_library_suffixed {
             _cimg_mp_opcode3(mp_round,value,round,direction);
           }
           unsigned int norm_type = ~0U;
-          if ((std::sscanf(ss,"norm%u%c",&norm_type,&sep)==2 && sep=='(') ||
+          if ((cimg_sscanf(ss,"norm%u%c",&norm_type,&sep)==2 && sep=='(') ||
               !std::strncmp(ss,"norminf(",8)) {
             if (mempos>=mem.size()) mem.resize(-200,1,1,1,0);
             const unsigned int pos = mempos++;

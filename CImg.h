@@ -2154,7 +2154,7 @@ namespace cimg_library_suffixed {
       va_start(ap,format);
       const int result = _vsnprintf(s,size,format,ap);
       va_end(ap);
-      return count;
+      return result;
     }
 
     inline int _vsnprintf(char *const s, const size_t size, const char *const format, va_list ap) {

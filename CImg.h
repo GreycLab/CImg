@@ -2168,7 +2168,7 @@ namespace cimg_library_suffixed {
     }
 
 #define cimg_sprintf cimg::_sprintf
-    inline int _sprintf(const char *s, const char *format, ...) {
+    inline int _sprintf(char *s, const char *format, ...) {
       cimg::mutex(13);
       va_list args;
       va_start(args, format);
@@ -2179,7 +2179,7 @@ namespace cimg_library_suffixed {
     }
 
 #define cimg_snprintf cimg::_snprintf
-    inline int _snprintf(const char *s, size_t n, const char *format, ...) {
+    inline int _snprintf(char *s, size_t n, const char *format, ...) {
       cimg::mutex(13);
       va_list args;
       va_start(args, format);

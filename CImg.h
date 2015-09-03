@@ -41278,7 +41278,7 @@ namespace cimg_library_suffixed {
       }
       unsigned int imageid, dims[8] = { 0 };
       cimg::fread(&imageid,1,nfile);
-      const bool endian = (imageid>255);
+      const bool endian = imageid>255;
       if (endian) cimg::invert_endianness(imageid);
       cimg::fread(header,20,nfile);
 
@@ -44973,28 +44973,28 @@ namespace cimg_library_suffixed {
     unsigned int _save_pandore_header_length(unsigned int id, unsigned int *dims, const unsigned int colorspace) const {
       unsigned int nbdims = 0;
       if (id==2 || id==3 || id==4) {
-        dims[0] = 1; dims[1] = _width;  nbdims = 2;
+        dims[0] = 1; dims[1] = _width; nbdims = 2;
       }
       if (id==5 || id==6 || id==7) {
-        dims[0] = 1; dims[1] = _height; dims[2] = _width;  nbdims=3;
+        dims[0] = 1; dims[1] = _height; dims[2] = _width; nbdims=3;
       }
       if (id==8 || id==9 || id==10) {
-        dims[0] = _spectrum; dims[1] = _depth;  dims[2] = _height; dims[3] = _width; nbdims = 4;
+        dims[0] = _spectrum; dims[1] = _depth; dims[2] = _height; dims[3] = _width; nbdims = 4;
       }
       if (id==16 || id==17 || id==18) {
-        dims[0] = 3; dims[1] = _height; dims[2] = _width;  dims[3] = colorspace; nbdims = 4;
+        dims[0] = 3; dims[1] = _height; dims[2] = _width; dims[3] = colorspace; nbdims = 4;
       }
       if (id==19 || id==20 || id==21) {
-        dims[0] = 3; dims[1] = _depth;  dims[2] = _height; dims[3] = _width; dims[4] = colorspace; nbdims = 5;
+        dims[0] = 3; dims[1] = _depth; dims[2] = _height; dims[3] = _width; dims[4] = colorspace; nbdims = 5;
       }
       if (id==22 || id==23 || id==25) {
-        dims[0] = _spectrum; dims[1] = _width;  nbdims = 2;
+        dims[0] = _spectrum; dims[1] = _width; nbdims = 2;
       }
       if (id==26 || id==27 || id==29) {
-        dims[0] = _spectrum; dims[1] = _height; dims[2] = _width;  nbdims=3;
+        dims[0] = _spectrum; dims[1] = _height; dims[2] = _width; nbdims=3;
       }
       if (id==30 || id==31 || id==33) {
-        dims[0] = _spectrum; dims[1] = _depth;  dims[2] = _height; dims[3] = _width; nbdims = 4;
+        dims[0] = _spectrum; dims[1] = _depth; dims[2] = _height; dims[3] = _width; nbdims = 4;
       }
       return nbdims;
     }
@@ -45018,9 +45018,9 @@ namespace cimg_library_suffixed {
 	cimg::fwrite(header,36,nfile); \
         if (sizeof(unsigned long)==4) { CImg<ulongT> ndims(5); \
           for (int d = 0; d<5; ++d) ndims[d] = (unsigned long)dims[d]; cimg::fwrite(ndims._data,nbdims,nfile); } \
-        else if (sizeof(unsigned int)==4) { CImg<ulongT> ndims(5); \
+        else if (sizeof(unsigned int)==4) { CImg<uintT> ndims(5); \
           for (int d = 0; d<5; ++d) ndims[d] = (unsigned int)dims[d]; cimg::fwrite(ndims._data,nbdims,nfile); } \
-        else if (sizeof(unsigned short)==4) { CImg<ulongT> ndims(5); \
+        else if (sizeof(unsigned short)==4) { CImg<ushortT> ndims(5); \
           for (int d = 0; d<5; ++d) ndims[d] = (unsigned short)dims[d]; cimg::fwrite(ndims._data,nbdims,nfile); } \
         else throw CImgIOException(_cimg_instance \
                                    "save_pandore(): Unsupported datatype for file '%s'.",\
@@ -45055,7 +45055,8 @@ namespace cimg_library_suffixed {
 
       std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
       unsigned char header[36] = { 'P','A','N','D','O','R','E','0','4',0,0,0,
-                                   0,0,0,0,'C','I','m','g',0,0,0,0,0,'N','o',' ','d','a','t','e',0,0,0,0 };
+                                   0,0,0,0,'C','I','m','g',0,0,0,0,0,
+                                   'N','o',' ','d','a','t','e',0,0,0,0 };
       unsigned int nbdims, dims[5] = { 0 };
       bool saved = false;
       _cimg_save_pandore_case(1,1,1,"unsigned char",2);

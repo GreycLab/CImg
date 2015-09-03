@@ -56,13 +56,14 @@ int main(int argc,char **argv) {
   cimg_usage("A simple image to ASCII-art converter.\n\nUsage : image2ascii [options] image");
 
   // Read command line parameters
-  const char *geom    = cimg_option("-g","79x40","Output size");
-  const int alphabet  = cimg_option("-a",0,"Alphabet type (0=full, 1=numbers, 2=letters, 3=signs, 4=minimal");
-  const bool invert   = cimg_option("-invert",false,"Invert image intensities");
+  const char *const file_i = cimg_option("-i",(char*)0,"Input image");
+  const char *const geom = cimg_option("-g","79x40","Output size");
+  const int alphabet = cimg_option("-a",0,"Alphabet type (0=full, 1=numbers, 2=letters, 3=signs, 4=minimal");
+  const bool invert = cimg_option("-invert",false,"Invert image intensities");
   const float contour = (float)cimg_option("-contour",0.0f,"Use image contours higher than specified threshold");
-  const float blur    = (float)cimg_option("-blur",0.8f,"Image pre-blur");
-  const float sigma   = (float)cimg_option("-sigma",10.0f,"Font pre-blur");
-  const char *file_i  = cimg_argument1(0,"-invert");
+  const float blur = (float)cimg_option("-blur",0.8f,"Image pre-blur");
+  const float sigma = (float)cimg_option("-sigma",10.0f,"Font pre-blur");
+
   int w = 79, h = 40;
   std::sscanf(geom,"%d%*c%d",&w,&h);
   if (cimg_option("-h",false,0)) std::exit(0);

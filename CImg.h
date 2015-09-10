@@ -7679,8 +7679,8 @@ namespace cimg_library_suffixed {
         tmpdimy = (nheight>0)?nheight:(-nheight*height()/100),
         dimx = tmpdimx?tmpdimx:1,
         dimy = tmpdimy?tmpdimy:1;
-      show();
       if (_width!=dimx || _height!=dimy || _window_width!=dimx || _window_height!=dimy) {
+        show();
         cimg_lock_display();
         if (_window_width!=dimx || _window_height!=dimy) {
           XWindowAttributes attr;
@@ -7744,8 +7744,8 @@ namespace cimg_library_suffixed {
 
     CImgDisplay& move(const int posx, const int posy) {
       if (is_empty()) return *this;
-      show();
       if (_window_x!=posx || _window_y!=posy) {
+        show();
         Display *const dpy = cimg::X11_attr().display;
         cimg_lock_display();
         XMoveWindow(dpy,_window,posx,posy);
@@ -8623,7 +8623,6 @@ namespace cimg_library_suffixed {
         tmpdimy = (nheight>0)?nheight:(-nheight*_height/100),
         dimx = tmpdimx?tmpdimx:1,
         dimy = tmpdimy?tmpdimy:1;
-      show();
       if (_width!=dimx || _height!=dimy || _window_width!=dimx || _window_height!=dimy) {
         if (_window_width!=dimx || _window_height!=dimy) {
           RECT rect; rect.left = rect.top = 0; rect.right = (LONG)dimx - 1; rect.bottom = (LONG)dimy - 1;
@@ -8643,6 +8642,7 @@ namespace cimg_library_suffixed {
           _height = dimy;
         }
         _window_width = dimx; _window_height = dimy;
+        show();
       }
       _is_resized = false;
       if (_is_fullscreen) move((screen_width() - width())/2,(screen_height() - height())/2);
@@ -8698,9 +8698,10 @@ namespace cimg_library_suffixed {
         } else SetWindowPos(_window,0,posx,posy,0,0,SWP_NOSIZE | SWP_NOZORDER);
         _window_x = posx;
         _window_y = posy;
+        show();
       }
       _is_moved = false;
-      return show();
+      return *this;
     }
 
     CImgDisplay& show_mouse() {

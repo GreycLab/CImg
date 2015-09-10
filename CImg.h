@@ -14620,10 +14620,22 @@ namespace cimg_library_suffixed {
               *se1 = ')';
               _cimg_mp_return(is_file?1U:0U);
             }
-            if (!std::strncmp(ss,"isnan(",6)) _cimg_mp_opcode1(mp_isnan,compile(ss6,se1));
-            if (!std::strncmp(ss,"isinf(",6)) _cimg_mp_opcode1(mp_isinf,compile(ss6,se1));
-            if (!std::strncmp(ss,"isint(",6)) _cimg_mp_opcode1(mp_isint,compile(ss6,se1));
-            if (!std::strncmp(ss,"isbool(",7)) _cimg_mp_opcode1(mp_isbool,compile(ss7,se1));
+            if (!std::strncmp(ss,"isnan(",6)) {
+              if (ss6==se1) _cimg_mp_return(0);
+              _cimg_mp_opcode1(mp_isnan,compile(ss6,se1));
+            }
+            if (!std::strncmp(ss,"isinf(",6)) {
+              if (ss6==se1) _cimg_mp_return(0);
+              _cimg_mp_opcode1(mp_isinf,compile(ss6,se1));
+            }
+            if (!std::strncmp(ss,"isint(",6)) {
+              if (ss6==se1) _cimg_mp_return(0);
+              _cimg_mp_opcode1(mp_isint,compile(ss6,se1));
+            }
+            if (!std::strncmp(ss,"isbool(",7)) {
+              if (ss7==se1) _cimg_mp_return(0);
+              _cimg_mp_opcode1(mp_isbool,compile(ss7,se1));
+            }
           }
         }
 

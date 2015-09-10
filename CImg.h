@@ -6240,7 +6240,7 @@ namespace cimg_library_suffixed {
        in fullscreen mode.
     **/
     const char *title() const {
-      return _title;
+      return _title?_title:"";
     }
 
     //! Return width of the associated window.
@@ -7679,24 +7679,27 @@ namespace cimg_library_suffixed {
         tmpdimy = (nheight>0)?nheight:(-nheight*height()/100),
         dimx = tmpdimx?tmpdimx:1,
         dimy = tmpdimy?tmpdimy:1;
-      cimg_lock_display();
-      if (_window_width!=dimx || _window_height!=dimy) {
-        XWindowAttributes attr;
-        for (unsigned int i = 0; i<10; ++i) {
-          XResizeWindow(dpy,_window,dimx,dimy);
-          XGetWindowAttributes(dpy,_window,&attr);
-          if (attr.width==(int)dimx && attr.height==(int)dimy) break;
-          cimg::wait(5);
+      show();
+      if (_width!=dimx || _height!=dimy || _window_width!=dimx || _window_height!=dimy) {
+        cimg_lock_display();
+        if (_window_width!=dimx || _window_height!=dimy) {
+          XWindowAttributes attr;
+          for (unsigned int i = 0; i<10; ++i) {
+            XResizeWindow(dpy,_window,dimx,dimy);
+            XGetWindowAttributes(dpy,_window,&attr);
+            if (attr.width==(int)dimx && attr.height==(int)dimy) break;
+            cimg::wait(5);
+          }
         }
+        if (_width!=dimx || _height!=dimy) switch (cimg::X11_attr().nb_bits) {
+          case 8 :  { unsigned char pixel_type = 0; _resize(pixel_type,dimx,dimy,force_redraw); } break;
+          case 16 : { unsigned short pixel_type = 0; _resize(pixel_type,dimx,dimy,force_redraw); } break;
+          default : { unsigned int pixel_type = 0; _resize(pixel_type,dimx,dimy,force_redraw); }
+          }
+        _window_width = _width = dimx; _window_height = _height = dimy;
+        cimg_unlock_display();
       }
-      if (_width!=dimx || _height!=dimy) switch (cimg::X11_attr().nb_bits) {
-        case 8 :  { unsigned char pixel_type = 0; _resize(pixel_type,dimx,dimy,force_redraw); } break;
-        case 16 : { unsigned short pixel_type = 0; _resize(pixel_type,dimx,dimy,force_redraw); } break;
-        default : { unsigned int pixel_type = 0; _resize(pixel_type,dimx,dimy,force_redraw); }
-        }
-      _window_width = _width = dimx; _window_height = _height = dimy;
       _is_resized = false;
-      cimg_unlock_display();
       if (_is_fullscreen) move((screen_width() - _width)/2,(screen_height() - _height)/2);
       if (force_redraw) return paint();
       return *this;
@@ -7742,12 +7745,14 @@ namespace cimg_library_suffixed {
     CImgDisplay& move(const int posx, const int posy) {
       if (is_empty()) return *this;
       show();
-      Display *const dpy = cimg::X11_attr().display;
-      cimg_lock_display();
-      XMoveWindow(dpy,_window,posx,posy);
-      _window_x = posx; _window_y = posy;
+      if (_window_x!=posx || _window_y!=posy) {
+        Display *const dpy = cimg::X11_attr().display;
+        cimg_lock_display();
+        XMoveWindow(dpy,_window,posx,posy);
+        _window_x = posx; _window_y = posy;
+        cimg_unlock_display();
+      }
       _is_moved = false;
-      cimg_unlock_display();
       return paint();
     }
 
@@ -8618,24 +8623,27 @@ namespace cimg_library_suffixed {
         tmpdimy = (nheight>0)?nheight:(-nheight*_height/100),
         dimx = tmpdimx?tmpdimx:1,
         dimy = tmpdimy?tmpdimy:1;
-      if (_window_width!=dimx || _window_height!=dimy) {
-        RECT rect; rect.left = rect.top = 0; rect.right = (LONG)dimx - 1; rect.bottom = (LONG)dimy - 1;
-        AdjustWindowRect(&rect,WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,false);
-        const int cwidth = rect.right - rect.left + 1, cheight = rect.bottom - rect.top + 1;
-        SetWindowPos(_window,0,0,0,cwidth,cheight,SWP_NOMOVE | SWP_NOZORDER | SWP_NOCOPYBITS);
+      show();
+      if (_width!=dimx || _height!=dimy || _window_width!=dimx || _window_height!=dimy) {
+        if (_window_width!=dimx || _window_height!=dimy) {
+          RECT rect; rect.left = rect.top = 0; rect.right = (LONG)dimx - 1; rect.bottom = (LONG)dimy - 1;
+          AdjustWindowRect(&rect,WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,false);
+          const int cwidth = rect.right - rect.left + 1, cheight = rect.bottom - rect.top + 1;
+          SetWindowPos(_window,0,0,0,cwidth,cheight,SWP_NOMOVE | SWP_NOZORDER | SWP_NOCOPYBITS);
+        }
+        if (_width!=dimx || _height!=dimy) {
+          unsigned int *const ndata = new unsigned int[dimx*dimy];
+          if (force_redraw) _render_resize(_data,_width,_height,ndata,dimx,dimy);
+          else std::memset(ndata,0x80,sizeof(unsigned int)*dimx*dimy);
+          delete[] _data;
+          _data = ndata;
+          _bmi.bmiHeader.biWidth = (LONG)dimx;
+          _bmi.bmiHeader.biHeight = -(int)dimy;
+          _width = dimx;
+          _height = dimy;
+        }
+        _window_width = dimx; _window_height = dimy;
       }
-      if (_width!=dimx || _height!=dimy) {
-        unsigned int *const ndata = new unsigned int[dimx*dimy];
-        if (force_redraw) _render_resize(_data,_width,_height,ndata,dimx,dimy);
-        else std::memset(ndata,0x80,sizeof(unsigned int)*dimx*dimy);
-        delete[] _data;
-        _data = ndata;
-        _bmi.bmiHeader.biWidth = (LONG)dimx;
-        _bmi.bmiHeader.biHeight = -(int)dimy;
-        _width = dimx;
-        _height = dimy;
-      }
-      _window_width = dimx; _window_height = dimy;
       _is_resized = false;
       if (_is_fullscreen) move((screen_width() - width())/2,(screen_height() - height())/2);
       if (force_redraw) return paint();
@@ -8678,17 +8686,19 @@ namespace cimg_library_suffixed {
 
     CImgDisplay& move(const int posx, const int posy) {
       if (is_empty()) return *this;
-      if (!_is_fullscreen) {
-        RECT rect;
-        rect.left = rect.top = 0; rect.right = (LONG)_window_width - 1; rect.bottom = (LONG)_window_height - 1;
-        AdjustWindowRect(&rect,WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,false);
-        const int
-          border1 = (int)((rect.right - rect.left + 1 -_width)/2),
-          border2 = (int)(rect.bottom - rect.top + 1 - _height - border1);
-        SetWindowPos(_window,0,posx - border1,posy - border2,0,0,SWP_NOSIZE | SWP_NOZORDER);
-      } else SetWindowPos(_window,0,posx,posy,0,0,SWP_NOSIZE | SWP_NOZORDER);
-      _window_x = posx;
-      _window_y = posy;
+      if (_window_x!=posx || _window_y!=posy) {
+        if (!_is_fullscreen) {
+          RECT rect;
+          rect.left = rect.top = 0; rect.right = (LONG)_window_width - 1; rect.bottom = (LONG)_window_height - 1;
+          AdjustWindowRect(&rect,WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,false);
+          const int
+            border1 = (int)((rect.right - rect.left + 1 -_width)/2),
+            border2 = (int)(rect.bottom - rect.top + 1 - _height - border1);
+          SetWindowPos(_window,0,posx - border1,posy - border2,0,0,SWP_NOSIZE | SWP_NOZORDER);
+        } else SetWindowPos(_window,0,posx,posy,0,0,SWP_NOSIZE | SWP_NOZORDER);
+        _window_x = posx;
+        _window_y = posy;
+      }
       _is_moved = false;
       return show();
     }

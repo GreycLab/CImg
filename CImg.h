@@ -141,7 +141,7 @@
 #else
 #define cimg_sscanf std::sscanf
 #define cimg_sprintf std::sprintf
-#define cimg_snprintf std::snprintf
+#define cimg_snprintf snprintf
 #define cimg_vsnprintf vsnprintf
 #endif
 #endif

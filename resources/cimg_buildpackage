@@ -130,7 +130,12 @@ rm -rf ../latex
 # Commit changes on GIT repository
 echo " - Commit on GIT repository."
 cd $SRC_DIR
-git commit -m "Auto-commit for release "${RELEASE}${SUFFIX} >>$LOG_FILE 2>&1
+if [ "$1" == "final" ]; then
+    git tag v.$RELEASE1$RELEASE2$RELEASE3
+    git commit -m "Final release "${RELEASE} >>$LOG_FILE 2>&1
+else
+    git commit -m "Auto-commit for release "${RELEASE}${SUFFIX} >>$LOG_FILE 2>&1
+fi
 git push
 
 # Create ZIP archive

@@ -13950,7 +13950,7 @@ namespace cimg_library_suffixed {
         mem[17] = (double)input._width*input._height*input._depth*input._spectrum;
         mem[18] = cimg::PI;
         mem[19] = std::exp(1.0);
-        // Then [20] = x, [21] = y, [22] = z and [23] = c.
+        // Then, [20] = x, [21] = y, [22] = z and [23] = c.
 #define _cimg_mp_x 20
 #define _cimg_mp_y 21
 #define _cimg_mp_z 22
@@ -14234,6 +14234,7 @@ namespace cimg_library_suffixed {
                                             (ss - 8)>expr._data?ss - 8:expr._data,
                                             se<&expr.back()?"...":"");
               // Else, variable name contains a '?' : do nothing and wait for the ternary operator.
+              break;
             } else {
 
               // Ensure variable gets a new memory slot (makes it updatable).

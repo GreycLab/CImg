@@ -14055,14 +14055,15 @@ namespace cimg_library_suffixed {
           *const se1 = se - 1, *const se2 = se - 2, *const se3 = se - 3,
           *const ss1 = ss + 1, *const ss2 = ss + 2, *const ss3 = ss + 3, *const ss4 = ss + 4,
           *const ss5 = ss + 5, *const ss6 = ss + 6, *const ss7 = ss + 7, *const ss8 = ss + 8,
-          *s, *ps, *ns, *s1, *s2, *s3, *s4, *s5, c1, c2, c3, c4;
+          *s, *ps, *ns, *s1, *s2, *s3, *s4, *s5, c1, c2, c3, c4, sep, end;
         const char saved_char = *se; *se = 0;
         const unsigned int clevel = level[ss - expr._data], clevel1 = clevel + 1;
         bool is_sth;
         if (*se1==';') return compile(ss,se1);
 
         // Look for a single value, variable or variable assignment.
-        char end = 0, sep = 0; double val = 0;
+        double val = 0;
+        sep = end = 0;
         int nb = cimg_sscanf(ss,"%lf%c%c",&val,&sep,&end);
         CImgList<longT> _opcode;
 

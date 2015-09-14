@@ -13936,6 +13936,8 @@ namespace cimg_library_suffixed {
                                       pixel_type(),calling_function,
                                       expr._data);
         }
+        opcode._width = opcode._depth = opcode._spectrum = 1;
+        opcode._is_shared = true;
 
         // Init constant values.
         mem.assign(512);
@@ -15391,7 +15393,6 @@ namespace cimg_library_suffixed {
       double operator()(const double x, const double y, const double z, const double c) {
         if (!mem) return 0;
         mem[_cimg_mp_x] = x; mem[_cimg_mp_y] = y; mem[_cimg_mp_z] = z; mem[_cimg_mp_c] = c;
-        opcode._is_shared = true; opcode._width = opcode._depth = opcode._spectrum = 1;
         for (p_code = code._data; p_code<code.end(); ++p_code) {
           cimg_test_abort();
           const CImg<longT> &op = *p_code;

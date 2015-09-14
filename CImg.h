@@ -4570,6 +4570,7 @@ namespace cimg_library_suffixed {
       else { const double tmp = absa/absb; return absb==0?0:absb*std::sqrt(1.0 + tmp*tmp); }
     }
 
+    // Return 'true' is specified mathematical expression is self-referencing.
     inline bool _is_self_expr(const char *expression) {
       if (!expression || *expression=='>' || *expression=='<') return false;
       for (const char *s = expression; *s; ++s)
@@ -4582,7 +4583,7 @@ namespace cimg_library_suffixed {
             if (*ns==opening) ++level; else if (*ns==ending) --level;
           }
           if (*ns && (ns[1]!='=' || ns[2]=='=')) return true;
-        }
+        } else if (*s=='R' || *s=='G' || *s=='B') return true;
       return false;
     }
 
@@ -14082,6 +14083,10 @@ namespace cimg_library_suffixed {
           case 'u' : if (reserved_label['u']!=~0U) _cimg_mp_return(reserved_label['u']); _cimg_mp_opcode2(mp_u,0,1);
           case 'g' : if (reserved_label['g']!=~0U) _cimg_mp_return(reserved_label['g']); _cimg_mp_opcode0(mp_g);
           case 'i' : if (reserved_label['i']!=~0U) _cimg_mp_return(reserved_label['i']); _cimg_mp_opcode0(mp_i);
+          case 'R' : if (reserved_label['R']!=~0U) _cimg_mp_return(reserved_label['R']); _cimg_mp_opcode6(mp_ixyzc,16,17,18,0,0,0);
+          case 'G' : if (reserved_label['G']!=~0U) _cimg_mp_return(reserved_label['G']); _cimg_mp_opcode6(mp_ixyzc,16,17,18,1,0,0);
+          case 'B' : if (reserved_label['B']!=~0U) _cimg_mp_return(reserved_label['B']); _cimg_mp_opcode6(mp_ixyzc,16,17,18,2,0,0);
+          case 'A' : if (reserved_label['A']!=~0U) _cimg_mp_return(reserved_label['A']); _cimg_mp_opcode6(mp_ixyzc,16,17,18,3,0,0);
           case '?' : _cimg_mp_opcode2(mp_u,0,1);
           }
         else if (ss2==se) { // Two-chars variable.
@@ -14538,6 +14543,16 @@ namespace cimg_library_suffixed {
             char *s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
             _cimg_mp_opcode2(mp_hypot,compile(ss6,s1),compile(s1 + 1,se1));
           }
+          if (!std::strncmp(ss,"gauss(",6)) {
+            unsigned int value, sigma = 1;
+            char *s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+            value = compile(ss6,s1);
+            if (s1<se1) {
+              char *s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              sigma = compile(s1 + 1,s2==se2?++s2:s2);
+            }
+            _cimg_mp_opcode2(mp_gauss,value,sigma);
+          }
           if (!std::strncmp(ss,"round(",6)) {
             unsigned int value = 0, round = 1, direction = 0;
             char *s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -14879,6 +14894,13 @@ namespace cimg_library_suffixed {
         if (x<y) { t = x; x = y; } else t = y;
         if (x>0) { t/=x; return x*std::sqrt(1+t*t); }
         return 0;
+      }
+
+      static double mp_gauss(_cimg_math_parser& mp) {
+        double
+          x = cimg::abs(mp.mem[mp.opcode(2)]),
+          s = cimg::abs(mp.mem[mp.opcode(3)]);
+        return std::exp(-x*x/(2*s*s))/std::sqrt(2*s*s*cimg::PI);
       }
 
       static double mp_norm(_cimg_math_parser& mp) {

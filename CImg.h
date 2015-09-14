@@ -14042,19 +14042,23 @@ namespace cimg_library_suffixed {
           while (*ss==' ') ++ss;
           while (se>ss && *(se-1)==' ') --se;
         }
-        if (se<=ss || !*ss) {
+        if (se<=ss || !*ss)
           throw CImgArgumentException("[_cimg_math_parser] "
                                       "CImg<%s>::%s(): Missing item in expression '%s'.",
                                       pixel_type(),calling_function,
                                       expr._data);
-        }
+
+        unsigned int
+          p_left, p_right, p_cond, p_proc, mem_left, mem_right, mem_cond, mem_proc,
+          pos, var_pos, value, arg1, arg2, arg3, arg4, arg5, arg6;
         char
           *const se1 = se - 1, *const se2 = se - 2, *const se3 = se - 3,
           *const ss1 = ss + 1, *const ss2 = ss + 2, *const ss3 = ss + 3, *const ss4 = ss + 4,
           *const ss5 = ss + 5, *const ss6 = ss + 6, *const ss7 = ss + 7, *const ss8 = ss + 8,
-          *s = 0, *ps = 0, *ns = 0, *s1 = 0, *s2 = 0, *s3 = 0, *s4 = 0, *s5 = 0;
+          *s, *ps, *ns, *s1, *s2, *s3, *s4, *s5, c1, c2, c3, c4;
         const char saved_char = *se; *se = 0;
         const unsigned int clevel = level[ss - expr._data], clevel1 = clevel + 1;
+        bool is_sth;
         if (*se1==';') return compile(ss,se1);
 
         // Look for a single value, variable or variable assignment.
@@ -14066,19 +14070,19 @@ namespace cimg_library_suffixed {
         // Check for +/-NaN and +/-inf as Microsoft's sscanf() version is not able
         // to read those particular values.
         if (!nb && (*ss=='+' || *ss=='-' || *ss=='i' || *ss=='I' || *ss=='n' || *ss=='N')) {
-          bool is_positive = true;
+          is_sth = true;
           s = ss;
-          if (*s=='+') ++s; else if (*s=='-') { ++s; is_positive = false; }
+          if (*s=='+') ++s; else if (*s=='-') { ++s; is_sth = false; }
           if (!cimg::strcasecmp(s,"inf")) { val = cimg::type<double>::inf(); nb = 1; }
           else if (!cimg::strcasecmp(s,"nan")) { val = cimg::type<double>::nan(); nb = 1; }
-          if (nb==1 && !is_positive) val = -val;
+          if (nb==1 && !is_sth) val = -val;
         }
 #endif
 
         if (nb==1) {
           if (val==(double)(int)val && val>=0 && val<=9) _cimg_mp_return((unsigned int)val);
           if (mempos>=mem._width) mem.resize(-200,1,1,1,0);
-          const unsigned int pos = mempos++;
+          pos = mempos++;
           mem[pos] = val;
           _cimg_mp_return(pos);
         }
@@ -14086,7 +14090,7 @@ namespace cimg_library_suffixed {
           if (val==(double)(int)val && !(((int)val)%100) && val>=0 && val<=900)
             _cimg_mp_return((unsigned int)val/100);
           if (mempos>=mem._width) mem.resize(-200,1,1,1,0);
-          const unsigned int pos = mempos++;
+          pos = mempos++;
           mem[pos] = val/100;
           _cimg_mp_return(pos);
         }
@@ -14110,9 +14114,9 @@ namespace cimg_library_suffixed {
           if (*ss=='p' && *ss1=='i') _cimg_mp_return(reserved_label[3]); // pi
           if (*ss=='i') {
             if (*ss1>='0' && *ss1<='9') { // i0...i9
-              const unsigned int ind = 19 + *ss1 - '0';
-              if (reserved_label[ind]!=~0U) _cimg_mp_return(reserved_label[ind]);
-              _cimg_mp_opcode6(mp_ixyzc,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,ind - 19,0,0);
+              pos = 19 + *ss1 - '0';
+              if (reserved_label[pos]!=~0U) _cimg_mp_return(reserved_label[pos]);
+              _cimg_mp_opcode6(mp_ixyzc,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,pos - 19,0,0);
             }
             if (*ss1=='m') { // im
               if (!input_stats) input.get_stats().move_to(input_stats);
@@ -14198,41 +14202,42 @@ namespace cimg_library_suffixed {
             char *const ve1 = ss + l_variable_name - 1;
 
             if (l_variable_name>2 && (*ss=='i' || *ss=='j')) {
-              const bool is_relative = *ss=='j';
+              is_sth = *ss=='j';
               if (*ss1=='(' && *ve1==')') { // i/j(_x,_y,_z,_c)=value.
-                unsigned int
-                  indx = is_relative?0U:(unsigned int)_cimg_mp_x, indy = is_relative?0U:(unsigned int)_cimg_mp_y,
-                  indz = is_relative?0U:(unsigned int)_cimg_mp_z, indc = is_relative?0U:(unsigned int)_cimg_mp_c;
+                arg1 = is_sth?0U:(unsigned int)_cimg_mp_x;
+                arg2 = is_sth?0U:(unsigned int)_cimg_mp_y;
+                arg3 = is_sth?0U:(unsigned int)_cimg_mp_z;
+                arg4 = is_sth?0U:(unsigned int)_cimg_mp_c;
                 if (ss2!=ve1) {
                   s1 = ss2; while (s1<ve1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                  indx = compile(ss2,s1);
+                  arg1 = compile(ss2,s1);
                   if (s1<ve1) {
                     s2 = ++s1; while (s2<ve1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-                    indy = compile(s1,s2);
+                    arg2 = compile(s1,s2);
                     if (s2<ve1) {
                       s3 = ++s2; while (s3<ve1 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
-                      indz = compile(s2,s3);
-                      if (s3<ve1) indc = compile(++s3,ve1);
+                      arg3 = compile(s2,s3);
+                      if (s3<ve1) arg4 = compile(++s3,ve1);
                     }
                   }
                 }
-                const unsigned int value = opcode1(mp_replace,compile(s + 1,se));
-                _cimg_mp_opcode5(is_relative?mp_set_jxyzc:mp_set_ixyzc,indx,indy,indz,indc,value);
+                value = opcode1(mp_replace,compile(s + 1,se));
+                _cimg_mp_opcode5(is_sth?mp_set_jxyzc:mp_set_ixyzc,arg1,arg2,arg3,arg4,value);
               } else if (*ss1=='[' && *ve1==']') { // i/j[off]=value.
-                unsigned int off = 0;
-                if (ss2!=ve1) off = compile(ss2,ve1);
-                const unsigned int value = opcode1(mp_replace,compile(s + 1,se));
-                _cimg_mp_opcode2(is_relative?mp_set_joff:mp_set_ioff,off,value);
+                pos = 0;
+                if (ss2!=ve1) pos = compile(ss2,ve1);
+                value = opcode1(mp_replace,compile(s + 1,se));
+                _cimg_mp_opcode2(is_sth?mp_set_joff:mp_set_ioff,pos,value);
               }
             }
 
-            bool is_valid_name = true;
-            if (*variable_name>='0' && *variable_name<='9') is_valid_name = false;
+            is_sth = true; // is_valid_variable_name.
+            if (*variable_name>='0' && *variable_name<='9') is_sth = false;
             else for (ns = variable_name._data + 1; *ns; ++ns)
                    if ((*ns<'a' || *ns>'z') && (*ns<'A' || *ns>'Z') && (*ns<'0' || *ns>'9') && *ns!='_') {
-                     is_valid_name = false; break;
+                     is_sth = false; break;
                    }
-            if (!is_valid_name) {
+            if (!is_sth) {
               *se = saved_char;
               if (!std::strchr(variable_name,'?'))
                 throw CImgArgumentException("[_cimg_math_parser] "
@@ -14248,11 +14253,12 @@ namespace cimg_library_suffixed {
             } else {
 
               // Ensure variable gets a new memory slot (makes it updatable).
-              const unsigned int pos = opcode1(mp_replace,compile(s + 1,se));
+              pos = opcode1(mp_replace,compile(s + 1,se));
 
               // Check for particular case of a reserved variable.
               if (variable_name[1] && !variable_name[2]) { // Two-chars variable.
-                const char c1 = variable_name[0], c2 = variable_name[1];
+                c1 = variable_name[0];
+                c2 = variable_name[1];
                 if (c1=='w' && c2=='h') variable_name.fill((char)0,(char)0); // wh
                 else if (c1=='p' && c2=='i') variable_name.fill(3,0); // pi
                 else if (c1=='i') {
@@ -14276,18 +14282,22 @@ namespace cimg_library_suffixed {
                   else if (c1=='c') variable_name.fill(18,0); // cM
                 }
               } else if (variable_name[1] && variable_name[2] && !variable_name[3]) { // Three-chars variable.
-                const char c1 = variable_name[0], c2 = variable_name[1], c3 = variable_name[2];
+                c1 = variable_name[0];
+                c2 = variable_name[1];
+                c3 = variable_name[2];
                 if (c1=='w' && c2=='h' && c3=='d') variable_name.fill(1,0,0); // whd
               } else if (variable_name[1] && variable_name[2] && variable_name[3] &&
                          !variable_name[4]) { // Four-chars variable.
-                const char c1 = variable_name[0], c2 = variable_name[1], c3 = variable_name[2],
-                  c4 = variable_name[3];
+                c1 = variable_name[0];
+                c2 = variable_name[1];
+                c3 = variable_name[2];
+                c4 = variable_name[3];
                 if (c1=='w' && c2=='h' && c3=='d' && c4=='s') variable_name.fill(2,0,0,0); // whds
               }
 
               // Set new variable value.
               if (!variable_name[1]) { // One-char variable, or variable in reserved_labels.
-                const unsigned int var_pos = reserved_label[*variable_name];
+                var_pos = reserved_label[*variable_name];
                 if (var_pos==~0U) reserved_label[*variable_name] = pos;
                 else {
                   CImg<longT>::vector(_cimg_mp_enfunc(mp_replace),var_pos,pos).move_to(code);
@@ -14303,7 +14313,7 @@ namespace cimg_library_suffixed {
                   variable_name.move_to(labelM);
                   labelMpos[label_pos] = pos;
                 } else { // Existing variable.
-                  const unsigned int var_pos = labelMpos[label_pos];
+                  var_pos = labelMpos[label_pos];
                   CImg<longT>::vector(_cimg_mp_enfunc(mp_replace),var_pos,pos).move_to(code);
                   _cimg_mp_return(var_pos);
                 }
@@ -14316,29 +14326,29 @@ namespace cimg_library_suffixed {
         for (s = ss; s<se; ++s) // Ternary operator 'cond?expr1:expr2'.
           if (*s=='?' && level[s - expr._data]==clevel) {
             s1 = s + 1; while (s1<se1 && (*s1!=':' || level[s1 - expr._data]!=clevel)) ++s1;
-            const unsigned int
-              mem_cond = compile(ss,s),
-              p_left = code._width, mem_left = compile(s + 1,s1),
-              p_right = code._width, mem_right = compile(s1 + 1,se);
+            mem_cond = compile(ss,s);
+            p_left = code._width; mem_left = compile(s + 1,s1);
+            p_right = code._width; mem_right = compile(s1 + 1,se);
             if (mempos>=mem._width) mem.resize(-200,1,1,1,0);
-            const unsigned int pos = mempos++;
+            pos = mempos++;
             CImg<longT>::vector(_cimg_mp_enfunc(mp_if),pos,mem_cond,mem_left,mem_right,
                                 p_right - p_left,code._width - p_right).move_to(code,p_left);
             _cimg_mp_return(pos);
           }
-
         for (s = se3, ns = se2; s>ss; --s, --ns) if (*s=='|' && *ns=='|' && level[s - expr._data]==clevel) {
-            const unsigned int mem_left = compile(ss,s), p_right = code._width, mem_right = compile(s + 2,se);
+            mem_left = compile(ss,s);
+            p_right = code._width; mem_right = compile(s + 2,se);
             if (mempos>=mem._width) mem.resize(-200,1,1,1,0);
-            const unsigned int pos = mempos++;
+            pos = mempos++;
             CImg<longT>::vector(_cimg_mp_enfunc(mp_logical_or),pos,mem_left,mem_right,code._width - p_right).
               move_to(code,p_right);
             _cimg_mp_return(pos);
           }
         for (s = se3, ns = se2; s>ss; --s, --ns) if (*s=='&' && *ns=='&' && level[s - expr._data]==clevel) {
-            const unsigned int mem_left = compile(ss,s), p_right = code._width, mem_right = compile(s + 2,se);
+            mem_left = compile(ss,s);
+            p_right = code._width; mem_right = compile(s + 2,se);
             if (mempos>=mem._width) mem.resize(-200,1,1,1,0);
-            const unsigned int pos = mempos++;
+            pos = mempos++;
             CImg<longT>::vector(_cimg_mp_enfunc(mp_logical_and),pos,mem_left,mem_right,code._width - p_right).
               move_to(code,p_right);
             _cimg_mp_return(pos);
@@ -14386,9 +14396,10 @@ namespace cimg_library_suffixed {
               level[s - expr._data]==clevel)
             _cimg_mp_opcode2(mp_sub,compile(ss,s),compile(s + 1,se));
         for (s = se2; s>ss; --s) if (*s=='*' && level[s - expr._data]==clevel) {
-            const unsigned int mem_left = compile(ss,s), p_right = code._width, mem_right = compile(s + 1,se);
+            mem_left = compile(ss,s);
+            p_right = code._width; mem_right = compile(s + 1,se);
             if (mempos>=mem._width) mem.resize(-200,1,1,1,0);
-            const unsigned int pos = mempos++;
+            pos = mempos++;
             CImg<longT>::vector(_cimg_mp_enfunc(mp_mul),pos,mem_left,mem_right,code._width - p_right).
               move_to(code,p_right);
             _cimg_mp_return(pos);
@@ -14411,51 +14422,50 @@ namespace cimg_library_suffixed {
 
         // Array-like access to image values 'i[offset,_boundary]' and 'j[offset,_boundary]'.
         if (*se1==']') {
-          const bool is_relative = *ss=='j';
-          if ((*ss=='i' || is_relative) && *ss1=='[') {
+          is_sth = *ss=='j';
+          if ((*ss=='i' || is_sth) && *ss1=='[') {
             if (*ss2==']') _cimg_mp_opcode0(mp_i);
             s1 = ss2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-            unsigned int
-              boundary = 0,
-              offset = compile(ss2,s1);
-            if (s1<se1) boundary = compile(s1 + 1,se1);
-            _cimg_mp_opcode2(is_relative?mp_joff:mp_ioff,offset,boundary);
+            arg2 = 0;
+            arg1 = compile(ss2,s1);
+            if (s1<se1) arg2 = compile(s1 + 1,se1);
+            _cimg_mp_opcode2(is_sth?mp_joff:mp_ioff,arg1,arg2);
           }
         }
 
         // Look for a function call or a parenthesis.
         if (*se1==')') {
           if (*ss=='(') _cimg_mp_return(compile(ss1,se1));
-
-          const bool is_relative = *ss=='j';
-          if ((*ss=='i' || is_relative) && *ss1=='(') {
+          is_sth = *ss=='j';
+          if ((*ss=='i' || is_sth) && *ss1=='(') {
             if (*ss2==')') _cimg_mp_opcode0(mp_i);
-            unsigned int
-              indx = is_relative?0U:(unsigned int)_cimg_mp_x, indy = is_relative?0U:(unsigned int)_cimg_mp_y,
-              indz = is_relative?0U:(unsigned int)_cimg_mp_z, indc = is_relative?0U:(unsigned int)_cimg_mp_c,
-              boundary = 0, interpolation = 0;
+            arg1 = is_sth?0U:(unsigned int)_cimg_mp_x;
+            arg2 = is_sth?0U:(unsigned int)_cimg_mp_y;
+            arg3 = is_sth?0U:(unsigned int)_cimg_mp_z;
+            arg4 = is_sth?0U:(unsigned int)_cimg_mp_c;
+            arg5 = arg6 = 0;
             if (ss2!=se1) {
               s1 = ss2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              indx = compile(ss2,s1);
+              arg1 = compile(ss2,s1);
               if (s1<se1) {
                 s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-                indy = compile(s1,s2);
+                arg2 = compile(s1,s2);
                 if (s2<se1) {
                   s3 = ++s2; while (s3<se1 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
-                  indz = compile(s2,s3);
+                  arg3 = compile(s2,s3);
                   if (s3<se1) {
                     s4 = ++s3; while (s4<se1 && (*s4!=',' || level[s4 - expr._data]!=clevel1)) ++s4;
-                    indc = compile(s3,s4);
+                    arg4 = compile(s3,s4);
                     if (s4<se1) {
                       s5 = ++s4; while (s5<se1 && (*s5!=',' || level[s5 - expr._data]!=clevel1)) ++s5;
-                      interpolation = compile(s4,s5);
-                      if (s5<se1) boundary = compile(++s5,se1);
+                      arg5 = compile(s4,s5);
+                      if (s5<se1) arg6 = compile(++s5,se1);
                     }
                   }
                 }
               }
             }
-            _cimg_mp_opcode6(is_relative?mp_jxyzc:mp_ixyzc,indx,indy,indz,indc,interpolation,boundary);
+            _cimg_mp_opcode6(is_sth?mp_jxyzc:mp_ixyzc,arg1,arg2,arg3,arg4,arg5,arg6);
           }
           if (!std::strncmp(ss,"sin(",4)) _cimg_mp_opcode1(mp_sin,compile(ss4,se1));
           if (!std::strncmp(ss,"cos(",4)) _cimg_mp_opcode1(mp_cos,compile(ss4,se1));
@@ -14487,12 +14497,11 @@ namespace cimg_library_suffixed {
           if (*ss=='i' && *ss1=='f' && *ss2=='(') { // if().
             s1 = ss3; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
             s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-            const unsigned int
-              mem_cond = compile(ss3,s1),
-              p_left = code._width, mem_left = compile(s1 + 1,s2),
-              p_right = code._width, mem_right = compile(s2 + 1,se1);
+            mem_cond = compile(ss3,s1);
+            p_left = code._width; mem_left = compile(s1 + 1,s2);
+            p_right = code._width; mem_right = compile(s2 + 1,se1);
             if (mempos>=mem._width) mem.resize(-200,1,1,1,0);
-            const unsigned int pos = mempos++;
+            pos = mempos++;
             CImg<longT>::vector(_cimg_mp_enfunc(mp_if),pos,mem_cond,mem_left,mem_right,
                                 p_right - p_left,code._width - p_right).move_to(code,p_left);
             _cimg_mp_return(pos);
@@ -14502,27 +14511,26 @@ namespace cimg_library_suffixed {
             s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
             s3 = s2 + 1; while (s3<se1 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
             compile(ss4,s1);
-            const unsigned int p_cond = code._width, mem_cond = compile(s1 + 1,s2), p_proc = code._width;
-            unsigned int mem_return;
-            if (s3<se1) { mem_return = compile(s3 + 1,se1); compile(s2 + 1,s3); } // Body + proc.
-            else mem_return = compile(s2 + 1,se1); // Proc only.
-            CImg<longT>::vector(_cimg_mp_enfunc(mp_whiledo),mem_return,mem_cond,p_proc - p_cond,code._width - p_proc).
+            p_cond = code._width; mem_cond = compile(s1 + 1,s2);
+            p_proc = code._width;
+            if (s3<se1) { value = compile(s3 + 1,se1); compile(s2 + 1,s3); } // Body + proc.
+            else value = compile(s2 + 1,se1); // Proc only.
+            CImg<longT>::vector(_cimg_mp_enfunc(mp_whiledo),value,mem_cond,p_proc - p_cond,code._width - p_proc).
               move_to(code,p_cond);
-            _cimg_mp_return(mem_return);
+            _cimg_mp_return(value);
           }
           if (!std::strncmp(ss,"dowhile(",8)) {
             s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-            const unsigned int
-              p_proc = code._width, mem_proc = compile(ss8,s1), mem_cond = compile(s1 + 1,se1);
+            p_proc = code._width; mem_proc = compile(ss8,s1);
+            mem_cond = compile(s1 + 1,se1);
             CImg<longT>::vector(_cimg_mp_enfunc(mp_dowhile),mem_proc,mem_cond,code._width - p_proc).
               move_to(code,p_proc);
             _cimg_mp_return(mem_proc);
           }
           if (!std::strncmp(ss,"whiledo(",8)) {
             s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-            const unsigned int
-              p_cond = code._width, mem_cond = compile(ss8,s1),
-              p_proc = code._width, mem_proc = compile(s1 + 1,se1);
+            p_cond = code._width; mem_cond = compile(ss8,s1);
+            p_proc = code._width; mem_proc = compile(s1 + 1,se1);
             CImg<longT>::vector(_cimg_mp_enfunc(mp_whiledo),mem_proc,mem_cond,p_proc - p_cond,code._width - p_proc).
               move_to(code,p_cond);
             _cimg_mp_return(mem_proc);
@@ -14532,13 +14540,13 @@ namespace cimg_library_suffixed {
               !std::strncmp(ss,"arg(",4) ||
               !std::strncmp(ss,"argmin(",7) || !std::strncmp(ss,"argmax(",7)) {
             if (mempos>=mem.size()) mem.resize(-200,1,1,1,0);
-            const unsigned int pos = mempos++;
-            const bool is_argm = *ss=='a' && ss[3]!='(';
+            pos = mempos++;
+            is_sth = *ss=='a' && ss[3]!='(';
             CImg<longT>::vector(_cimg_mp_enfunc(*ss=='a'?(ss[3]=='('?mp_arg:ss[4]=='i'?mp_argmin:mp_argmax):
                                                 *ss=='k'?mp_kth:ss[1]=='i'?mp_min:
                                                 ss[1]=='a'?mp_max:mp_med),pos).
               move_to(_opcode);
-            for (s = is_argm?ss7:ss4; s<se; ++s) {
+            for (s = is_sth?ss7:ss4; s<se; ++s) {
               ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                              (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
               CImg<longT>::vector(compile(s,ns)).move_to(_opcode);
@@ -14548,36 +14556,35 @@ namespace cimg_library_suffixed {
             _cimg_mp_return(pos);
           }
           if (!std::strncmp(ss,"rol(",4) || !std::strncmp(ss,"ror(",4)) {
-            unsigned int value = 0, nb = 1;
+            arg1 = 1;
             s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1-expr._data]!=clevel1)) ++s1;
             value = compile(ss4,s1==se2?++s1:s1);
             if (s1<se1) {
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2-expr._data]!=clevel1)) ++s2;
-              nb = compile(s1 + 1,se1);
+              arg1 = compile(s1 + 1,se1);
             }
-            _cimg_mp_opcode2(*ss2=='l'?mp_rol:mp_ror,value,nb);
+            _cimg_mp_opcode2(*ss2=='l'?mp_rol:mp_ror,value,arg1);
           }
           if (!std::strncmp(ss,"cut(",4)) {
-            unsigned int value = 0, cmin = 0, cmax = 1;
             s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
             value = compile(ss4,s1==se2?++s1:s1);
             s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-            cmin = compile(s1 + 1,s2==se2?++s2:s2);
-            cmax = compile(s2 + 1,se1);
-            _cimg_mp_opcode3(mp_cut,value,cmin,cmax);
+            arg1 = compile(s1 + 1,s2==se2?++s2:s2);
+            arg2 = compile(s2 + 1,se1);
+            _cimg_mp_opcode3(mp_cut,value,arg1,arg2);
           }
           if (!std::strncmp(ss,"narg(",5)) {
             if (*ss5==')') _cimg_mp_return(0);
-            unsigned int nb_args = 0;
+            value = 0;
             for (s = ss5; s<se; ++s) {
               ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                              (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
-              ++nb_args; s = ns;
+              ++value; s = ns;
             }
-            if (nb_args<=9) _cimg_mp_return(nb_args);
+            if (value<=9) _cimg_mp_return(value);
             if (mempos>=mem.size()) mem.resize(-200,1,1,1,0);
-            const unsigned int pos = mempos++;
-            mem[pos] = nb_args;
+            pos = mempos++;
+            mem[pos] = value;
             _cimg_mp_return(pos);
           }
           if (!std::strncmp(ss,"atan2(",6)) {
@@ -14589,32 +14596,32 @@ namespace cimg_library_suffixed {
             _cimg_mp_opcode2(mp_hypot,compile(ss6,s1),compile(s1 + 1,se1));
           }
           if (!std::strncmp(ss,"gauss(",6)) {
-            unsigned int value, sigma = 1;
+            arg1 = 1;
             s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
             value = compile(ss6,s1);
             if (s1<se1) {
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-              sigma = compile(s1 + 1,s2==se2?++s2:s2);
+              arg1 = compile(s1 + 1,s2==se2?++s2:s2);
             }
-            _cimg_mp_opcode2(mp_gauss,value,sigma);
+            _cimg_mp_opcode2(mp_gauss,value,arg1);
           }
           if (!std::strncmp(ss,"round(",6)) {
-            unsigned int value = 0, round = 1, direction = 0;
+            arg1 = 1; arg2 = 0;
             s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
             value = compile(ss6,s1==se2?++s1:s1);
             if (s1<se1) {
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-              round = compile(s1 + 1,s2==se2?++s2:s2);
-              if (s2<se1) direction = compile(s2 + 1,se1);
+              arg1 = compile(s1 + 1,s2==se2?++s2:s2);
+              if (s2<se1) arg2 = compile(s2 + 1,se1);
             }
-            _cimg_mp_opcode3(mp_round,value,round,direction);
+            _cimg_mp_opcode3(mp_round,value,arg1,arg2);
           }
-          unsigned int norm_type = ~0U;
-          if ((cimg_sscanf(ss,"norm%u%c",&norm_type,&sep)==2 && sep=='(') ||
+
+          if ((cimg_sscanf(ss,"norm%u%c",&(value=~0U),&sep)==2 && sep=='(') ||
               !std::strncmp(ss,"norminf(",8)) {
             if (mempos>=mem.size()) mem.resize(-200,1,1,1,0);
-            const unsigned int pos = mempos++;
-            CImg<longT>::vector(_cimg_mp_enfunc(mp_norm),pos,(longT)(norm_type==~0U?-1:(int)norm_type)).
+            pos = mempos++;
+            CImg<longT>::vector(_cimg_mp_enfunc(mp_norm),pos,(longT)(value==~0U?-1:(int)value)).
               move_to(_opcode);
             for (s = std::strchr(ss5,'(') + 1; s<se; ++s) {
               ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
@@ -14627,36 +14634,30 @@ namespace cimg_library_suffixed {
           }
           if (!std::strncmp(ss,"date(",5)) {
             s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-            unsigned int attr;
-            int d = -1;
-            if (cimg_sscanf(ss5,"%u%c",&attr,&sep)==2 && sep==')') {
-              *se1 = 0;
-              d = cimg::date(attr);
-              *se1 = ')';
+            value = -1;
+            if (cimg_sscanf(ss5,"%u%c",&arg1,&sep)==2 && sep==')') {
+              *se1 = 0; value = cimg::date(arg1); *se1 = ')';
             }
-            if (d>=0 && d<=9) _cimg_mp_return((unsigned int)d);
+            if (value>=0 && value<=9) _cimg_mp_return((unsigned int)value);
             if (mempos>=mem.size()) mem.resize(-200,1,1,1,0);
-            const unsigned int pos = mempos++;
-            mem[pos] = d;
+            pos = mempos++;
+            mem[pos] = value;
             _cimg_mp_return(pos);
           }
           if (!std::strncmp(ss,"fdate(",6)) {
             s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-            unsigned int attr;
-            int d = -1;
-            if (cimg_sscanf(ss6,"%u%c",&attr,&(sep=0))==2 && sep) {
-              *se1 = 0;
-              d = cimg::fdate(s1+1,attr);
-              *se1 = ')';
+            value = -1;
+            if (cimg_sscanf(ss6,"%u%c",&arg1,&(sep=0))==2 && sep) {
+              *se1 = 0; value = cimg::fdate(s1+1,arg1); *se1 = ')';
             }
-            if (d>=0 || d<=9) _cimg_mp_return((unsigned int)d);
+            if (value>=0 || value<=9) _cimg_mp_return((unsigned int)value);
             if (mempos>=mem.size()) mem.resize(-200,1,1,1,0);
-            const unsigned int pos = mempos++;
-            mem[pos] = d;
+            pos = mempos++;
+            mem[pos] = value;
             _cimg_mp_return(pos);
           }
           if (!std::strncmp(ss,"print(",6)) {
-            const unsigned int pos = compile(ss6,se1);
+            pos = compile(ss6,se1);
             *se1 = 0;
             ((CImg<longT>::vector(_cimg_mp_enfunc(mp_print),pos),CImg<longT>::string(ss6).unroll('y'))>'y').
               move_to(code);
@@ -14668,7 +14669,7 @@ namespace cimg_library_suffixed {
           if (*ss=='i' && *ss1=='s') {
             if (!std::strncmp(ss,"isin(",5)) {
               if (mempos>=mem.size()) mem.resize(-200,1,1,1,0);
-              const unsigned int pos = mempos++;
+              pos = mempos++;
               CImg<longT>::vector(_cimg_mp_enfunc(mp_isin),pos).move_to(_opcode);
               for (s = ss5; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
@@ -14680,21 +14681,21 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
             if (!std::strncmp(ss,"isval(",6)) {
-              double val = 0;
+              val = 0;
               if (cimg_sscanf(ss6,"%lf%c%c",&val,&sep,&end)==2 && sep==')') _cimg_mp_return(1);
               _cimg_mp_return(0);
             }
             if (!std::strncmp(ss,"isdir(",6)) {
               *se1 = 0;
-              const bool is_dir = cimg::is_directory(ss6);
+              is_sth = cimg::is_directory(ss6);
               *se1 = ')';
-              _cimg_mp_return(is_dir?1U:0U);
+              _cimg_mp_return(is_sth?1U:0U);
             }
             if (!std::strncmp(ss,"isfile(",7)) {
               *se1 = 0;
-              const bool is_file = cimg::is_file(ss7);
+              is_sth = cimg::is_file(ss7);
               *se1 = ')';
-              _cimg_mp_return(is_file?1U:0U);
+              _cimg_mp_return(is_sth?1U:0U);
             }
             if (!std::strncmp(ss,"isnan(",6)) {
               if (ss6==se1) _cimg_mp_return(0);
@@ -14952,30 +14953,31 @@ namespace cimg_library_suffixed {
       static double mp_norm(_cimg_math_parser& mp) {
         const unsigned int norm_type = (unsigned int)mp.opcode(2);
         double res = 0;
+        unsigned int i;
         switch (norm_type) {
         case 0 : // L0-norm.
-          for (unsigned int i = 3; i<mp.opcode._height; ++i)
+          for (i = 3; i<mp.opcode._height; ++i)
             res+=mp.mem[mp.opcode(i)]==0?0:1;
           break;
         case 1 : // L1-norm.
-          for (unsigned int i = 3; i<mp.opcode._height; ++i)
+          for (i = 3; i<mp.opcode._height; ++i)
             res+=cimg::abs(mp.mem[mp.opcode(i)]);
           break;
         case 2 : // L2-norm.
-          for (unsigned int i = 3; i<mp.opcode._height; ++i) {
+          for (i = 3; i<mp.opcode._height; ++i) {
             const double val = mp.mem[mp.opcode(i)];
             res+=val*val;
           }
           res = std::sqrt(res);
           break;
         case ~0U : // Linf-norm.
-          for (unsigned int i = 3; i<mp.opcode._height; ++i) {
+          for (i = 3; i<mp.opcode._height; ++i) {
             const double val = cimg::abs(mp.mem[mp.opcode(i)]);
             if (val>res) res = val;
           }
           break;
         default: // Lp-norm.
-          for (unsigned int i = 3; i<mp.opcode._height; ++i)
+          for (i = 3; i<mp.opcode._height; ++i)
             res+=std::pow(cimg::abs(mp.mem[mp.opcode(i)]),(double)norm_type);
           res = std::pow(res,1.0/norm_type);
         }

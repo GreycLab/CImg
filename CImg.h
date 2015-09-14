@@ -14087,7 +14087,7 @@ namespace cimg_library_suffixed {
           case 'G' : if (reserved_label['G']!=~0U) _cimg_mp_return(reserved_label['G']); _cimg_mp_opcode6(mp_ixyzc,16,17,18,1,0,0);
           case 'B' : if (reserved_label['B']!=~0U) _cimg_mp_return(reserved_label['B']); _cimg_mp_opcode6(mp_ixyzc,16,17,18,2,0,0);
           case 'A' : if (reserved_label['A']!=~0U) _cimg_mp_return(reserved_label['A']); _cimg_mp_opcode6(mp_ixyzc,16,17,18,3,0,0);
-          case '?' : _cimg_mp_opcode2(mp_u,0,1);
+            //          case '?' : _cimg_mp_opcode2(mp_u,0,1);
           }
         else if (ss2==se) { // Two-chars variable.
           if (*ss=='w' && *ss1=='h') _cimg_mp_return(reserved_label[0]); // wh
@@ -14164,9 +14164,10 @@ namespace cimg_library_suffixed {
           if (*ss=='w' && *ss1=='h' && *ss2=='d' && *ss3=='s') _cimg_mp_return(reserved_label[2]); // whds
         }
 
-        // Look for variable declarations.
-        for (char *s = se2; s>ss; --s)
+        for (char *s = se2; s>ss; --s) // Separator ';'.
           if (*s==';' && level[s - expr._data]==clevel) { compile(ss,s); _cimg_mp_return(compile(s + 1,se)); }
+
+        // Variable declaration/assignment or pixel assignment.
         for (char *s = ss1, *ps = ss, *ns = ss2; s<se1; ++s, ++ps, ++ns)
           if (*s=='=' && *ns!='=' && *ps!='=' && *ps!='>' && *ps!='<' && *ps!='!' && level[s - expr._data]==clevel) {
             CImg<charT> variable_name(ss,(unsigned int)(s - ss + 1));
@@ -14433,7 +14434,8 @@ namespace cimg_library_suffixed {
           if (!std::strncmp(ss,"sinc(",5)) _cimg_mp_opcode1(mp_sinc,compile(ss5,se1));
           if (!std::strncmp(ss,"log10(",6)) _cimg_mp_opcode1(mp_log10,compile(ss6,se1));
 
-          if ((*ss=='?' || *ss=='u') && *ss1=='(') { // ?() and u().
+          //          if ((*ss=='?' || *ss=='u') && *ss1=='(') { // ?() and u().
+          if (*ss=='u' && *ss1=='(') { // ?() and u().
             if (*ss2==')') _cimg_mp_opcode2(mp_u,0,1);
             char *s1 = ss2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
             if (s1<se1) _cimg_mp_opcode2(mp_u,compile(ss2,s1),compile(s1 + 1,se1));

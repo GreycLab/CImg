@@ -14212,82 +14212,85 @@ namespace cimg_library_suffixed {
                    }
             if (!is_valid_name) {
               *se = saved_char;
-              throw CImgArgumentException("[_cimg_math_parser] "
-                                          "CImg<%s>::%s(): Invalid variable name '%s' in expression "
-                                          "'%s%s%s'.",
-                                          pixel_type(),calling_function,
-                                          variable_name._data,
-                                          (ss - 8)>expr._data?"...":"",
-                                          (ss - 8)>expr._data?ss - 8:expr._data,
-                                          se<&expr.back()?"...":"");
-            }
+              if (!std::strchr(variable_name,'?'))
+                throw CImgArgumentException("[_cimg_math_parser] "
+                                            "CImg<%s>::%s(): Invalid variable name '%s' in expression "
+                                            "'%s%s%s'.",
+                                            pixel_type(),calling_function,
+                                            variable_name._data,
+                                            (ss - 8)>expr._data?"...":"",
+                                            (ss - 8)>expr._data?ss - 8:expr._data,
+                                            se<&expr.back()?"...":"");
+              // Else, variable name contains a '?' : do nothing and wait for the ternary operator.
+            } else {
 
-            // Ensure variable gets a new memory slot (makes it updatable).
-            const unsigned int pos = opcode1(mp_replace,compile(s + 1,se));
+              // Ensure variable gets a new memory slot (makes it updatable).
+              const unsigned int pos = opcode1(mp_replace,compile(s + 1,se));
 
-            // Check for particular case of a reserved variable.
-            if (variable_name[1] && !variable_name[2]) { // Two-chars variable.
-              const char c1 = variable_name[0], c2 = variable_name[1];
-              if (c1=='w' && c2=='h') variable_name.fill((char)0,(char)0); // wh
-              else if (c1=='p' && c2=='i') variable_name.fill(3,0); // pi
-              else if (c1=='i') {
-                if (c2=='m') variable_name.fill(4,0); // im
-                else if (c2=='M') variable_name.fill(5,0); // iM
-                else if (c2=='a') variable_name.fill(6,0); // ia
-                else if (c2=='v') variable_name.fill(7,0); // iv
-                else if (c2=='s') variable_name.fill(8,0); // is
-                else if (c2=='p') variable_name.fill(9,0); // ip
-                else if (c2=='c') variable_name.fill(10,0); // ic
-              } else if (c2=='m') {
-                if (c1=='x') variable_name.fill(11,0); // xm
-                else if (c1=='y') variable_name.fill(12,0); // ym
-                else if (c1=='z') variable_name.fill(13,0); // zm
-                else if (c1=='c') variable_name.fill(14,0); // cm
-              } else if (c2=='M') {
-                if (c1=='x') variable_name.fill(15,0); // xM
-                else if (c1=='y') variable_name.fill(16,0); // yM
-                else if (c1=='z') variable_name.fill(17,0); // zM
-                else if (c1=='c') variable_name.fill(18,0); // cM
+              // Check for particular case of a reserved variable.
+              if (variable_name[1] && !variable_name[2]) { // Two-chars variable.
+                const char c1 = variable_name[0], c2 = variable_name[1];
+                if (c1=='w' && c2=='h') variable_name.fill((char)0,(char)0); // wh
+                else if (c1=='p' && c2=='i') variable_name.fill(3,0); // pi
+                else if (c1=='i') {
+                  if (c2=='m') variable_name.fill(4,0); // im
+                  else if (c2=='M') variable_name.fill(5,0); // iM
+                  else if (c2=='a') variable_name.fill(6,0); // ia
+                  else if (c2=='v') variable_name.fill(7,0); // iv
+                  else if (c2=='s') variable_name.fill(8,0); // is
+                  else if (c2=='p') variable_name.fill(9,0); // ip
+                  else if (c2=='c') variable_name.fill(10,0); // ic
+                } else if (c2=='m') {
+                  if (c1=='x') variable_name.fill(11,0); // xm
+                  else if (c1=='y') variable_name.fill(12,0); // ym
+                  else if (c1=='z') variable_name.fill(13,0); // zm
+                  else if (c1=='c') variable_name.fill(14,0); // cm
+                } else if (c2=='M') {
+                  if (c1=='x') variable_name.fill(15,0); // xM
+                  else if (c1=='y') variable_name.fill(16,0); // yM
+                  else if (c1=='z') variable_name.fill(17,0); // zM
+                  else if (c1=='c') variable_name.fill(18,0); // cM
+                }
+              } else if (variable_name[1] && variable_name[2] && !variable_name[3]) { // Three-chars variable.
+                const char c1 = variable_name[0], c2 = variable_name[1], c3 = variable_name[2];
+                if (c1=='w' && c2=='h' && c3=='d') variable_name.fill(1,0,0); // whd
+              } else if (variable_name[1] && variable_name[2] && variable_name[3] &&
+                         !variable_name[4]) { // Four-chars variable.
+                const char c1 = variable_name[0], c2 = variable_name[1], c3 = variable_name[2],
+                  c4 = variable_name[3];
+                if (c1=='w' && c2=='h' && c3=='d' && c4=='s') variable_name.fill(2,0,0,0); // whds
               }
-            } else if (variable_name[1] && variable_name[2] && !variable_name[3]) { // Three-chars variable.
-              const char c1 = variable_name[0], c2 = variable_name[1], c3 = variable_name[2];
-              if (c1=='w' && c2=='h' && c3=='d') variable_name.fill(1,0,0); // whd
-            } else if (variable_name[1] && variable_name[2] && variable_name[3] &&
-                       !variable_name[4]) { // Four-chars variable.
-              const char c1 = variable_name[0], c2 = variable_name[1], c3 = variable_name[2],
-                c4 = variable_name[3];
-              if (c1=='w' && c2=='h' && c3=='d' && c4=='s') variable_name.fill(2,0,0,0); // whds
-            }
 
-            // Set new variable value.
-            if (!variable_name[1]) {
-              const unsigned int var_pos = reserved_label[*variable_name];
-              if (var_pos==~0U) reserved_label[*variable_name] = pos;
+              // Set new variable value.
+              if (!variable_name[1]) {
+                const unsigned int var_pos = reserved_label[*variable_name];
+                if (var_pos==~0U) reserved_label[*variable_name] = pos;
+                else {
+                  CImg<longT>::vector(_cimg_mp_enfunc(mp_replace),var_pos,pos).move_to(code);
+                  _cimg_mp_return(var_pos);
+                }
+              }
               else {
-                CImg<longT>::vector(_cimg_mp_enfunc(mp_replace),var_pos,pos).move_to(code);
-                _cimg_mp_return(var_pos);
+                int label_pos = -1;
+                cimglist_for(labelM,i) // Check for existing variable with same name.
+                  if (!std::strcmp(variable_name,labelM[i])) { label_pos = i; break; }
+                if (label_pos<0) { // If new variable.
+                  if (labelM._width>=labelMpos._width) labelMpos.resize(-200,1,1,1,0);
+                  label_pos = labelM.width();
+                  variable_name.move_to(labelM);
+                  labelMpos[label_pos] = pos;
+                } else { // Existing variable.
+                  const unsigned int var_pos = labelMpos[label_pos];
+                  CImg<longT>::vector(_cimg_mp_enfunc(mp_replace),var_pos,pos).move_to(code);
+                  _cimg_mp_return(var_pos);
+                }
               }
+              _cimg_mp_return(pos);
             }
-            else {
-              int label_pos = -1;
-              cimglist_for(labelM,i) // Check for existing variable with same name.
-                if (!std::strcmp(variable_name,labelM[i])) { label_pos = i; break; }
-              if (label_pos<0) { // If new variable.
-                if (labelM._width>=labelMpos._width) labelMpos.resize(-200,1,1,1,0);
-                label_pos = labelM.width();
-                variable_name.move_to(labelM);
-                labelMpos[label_pos] = pos;
-              } else { // Existing variable.
-                const unsigned int var_pos = labelMpos[label_pos];
-                CImg<longT>::vector(_cimg_mp_enfunc(mp_replace),var_pos,pos).move_to(code);
-                _cimg_mp_return(var_pos);
-              }
-            }
-            _cimg_mp_return(pos);
           }
 
         // Look for unary/binary/ternary operators. The operator precedences is the same as in C++.
-        for (char *s = ss; s<se; ++s) // Ternary operator '?..:..'.
+        for (char *s = ss; s<se; ++s) // Ternary operator 'cond?expr1:expr2'.
           if (*s=='?' && level[s - expr._data]==clevel) {
             char *s1 = s + 1; while (s1<se1 && (*s1!=':' || level[s1 - expr._data]!=clevel)) ++s1;
             const unsigned int

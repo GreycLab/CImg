@@ -13936,8 +13936,6 @@ namespace cimg_library_suffixed {
                                       pixel_type(),calling_function,
                                       expr._data);
         }
-        opcode._width = opcode._depth = opcode._spectrum = 1;
-        opcode._is_shared = true;
 
         // Init constant values.
         mem.assign(512);
@@ -13979,6 +13977,15 @@ namespace cimg_library_suffixed {
         // [4] = im, [5] = iM, [6] = ia, [7] = iv, [8] = is, [9] = ip, [10] = ic,
         // [11] = xm, [12] = ym, [13] = zm, [14] = cm, [15] = xM, [16] = yM, [17] = zM, [18]=cM, [19]=i0...[28]=i9.
         result = compile(expr._data,expr._data + expr._width - 1); // Compile formula into a serie of opcodes.
+
+        // Free resources used for parsing and prepare for evaluation.
+        mem.resize(mempos,1,1,1,-1);
+        level.assign();
+        labelMpos.assign();
+        reserved_label.assign();
+        expr.assign();
+        opcode._width = opcode._depth = opcode._spectrum = 1;
+        opcode._is_shared = true;
       }
 
       // Insert code instructions.
@@ -15391,7 +15398,7 @@ namespace cimg_library_suffixed {
 
       // Evaluation procedure, with image data.
       double operator()(const double x, const double y, const double z, const double c) {
-        if (!mem) return 0;
+        if (!mem) return 0;  // Case of empty constructor.
         mem[_cimg_mp_x] = x; mem[_cimg_mp_y] = y; mem[_cimg_mp_z] = z; mem[_cimg_mp_c] = c;
         for (p_code = code._data; p_code<code.end(); ++p_code) {
           cimg_test_abort();

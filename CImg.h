@@ -14507,6 +14507,15 @@ namespace cimg_library_suffixed {
             }
             _cimg_mp_opcode2(*ss2=='l'?mp_rol:mp_ror,value,nb);
           }
+          if (!std::strncmp(ss,"cut(",4)) {
+            unsigned int value = 0, cmin = 0, cmax = 1;
+            char *s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+            value = compile(ss4,s1==se2?++s1:s1);
+            char *s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+            cmin = compile(s1 + 1,s2==se2?++s2:s2);
+            cmax = compile(s2 + 1,se1);
+            _cimg_mp_opcode3(mp_cut,value,cmin,cmax);
+          }
           if (!std::strncmp(ss,"narg(",5)) {
             if (*ss5==')') _cimg_mp_return(0);
             unsigned int nb_args = 0;
@@ -14924,6 +14933,11 @@ namespace cimg_library_suffixed {
 
       static double mp_round(_cimg_math_parser& mp) {
         return cimg::round(mp.mem[mp.opcode(2)],mp.mem[mp.opcode(3)],(int)mp.mem[mp.opcode(4)]);
+      }
+
+      static double mp_cut(_cimg_math_parser& mp) {
+        double val = mp.mem[mp.opcode(2)], cmin = mp.mem[mp.opcode(3)], cmax = mp.mem[mp.opcode(4)];
+        return val<cmin?cmin:val>cmax?cmax:val;
       }
 
       static double mp_min(_cimg_math_parser& mp) {

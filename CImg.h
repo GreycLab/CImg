@@ -14383,12 +14383,17 @@ namespace cimg_library_suffixed {
           if (*s=='^' && level[s - expr._data]==clevel)
             _cimg_mp_opcode2(mp_pow,compile(ss,s),compile(s + 1,se));
 
-        // Array-like access to image values 'i[offset]' and 'j[offset]'.
+        // Array-like access to image values 'i[offset,_boundary]' and 'j[offset,_boundary]'.
         if (*se1==']') {
           const bool is_relative = *ss=='j';
           if ((*ss=='i' || is_relative) && *ss1=='[') {
             if (*ss2==']') _cimg_mp_opcode0(mp_i);
-            _cimg_mp_opcode1(is_relative?mp_joff:mp_ioff,compile(ss2,se1));
+            char *s1 = ss2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+            unsigned int
+              boundary = 0,
+              offset = compile(ss2,s1);
+            if (s1<se1) boundary = compile(s1 + 1,se1);
+            _cimg_mp_opcode2(is_relative?mp_joff:mp_ioff,offset,boundary);
           }
         }
 
@@ -14402,7 +14407,7 @@ namespace cimg_library_suffixed {
             unsigned int
               indx = is_relative?0U:16U, indy = is_relative?0U:17U,
               indz = is_relative?0U:18U, indc = is_relative?0U:19U,
-              borders = 0, interpolation = 0;
+              boundary = 0, interpolation = 0;
             if (ss2!=se1) {
               char *s1 = ss2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               indx = compile(ss2,s1);
@@ -14418,13 +14423,13 @@ namespace cimg_library_suffixed {
                     if (s4<se1) {
                       char *s5 = ++s4; while (s5<se1 && (*s5!=',' || level[s5 - expr._data]!=clevel1)) ++s5;
                       interpolation = compile(s4,s5);
-                      if (s5<se1) borders = compile(++s5,se1);
+                      if (s5<se1) boundary = compile(++s5,se1);
                     }
                   }
                 }
               }
             }
-            _cimg_mp_opcode6(is_relative?mp_jxyzc:mp_ixyzc,indx,indy,indz,indc,interpolation,borders);
+            _cimg_mp_opcode6(is_relative?mp_jxyzc:mp_ixyzc,indx,indy,indz,indc,interpolation,boundary);
           }
           if (!std::strncmp(ss,"sin(",4)) _cimg_mp_opcode1(mp_sin,compile(ss4,se1));
           if (!std::strncmp(ss,"cos(",4)) _cimg_mp_opcode1(mp_cos,compile(ss4,se1));
@@ -15149,14 +15154,36 @@ namespace cimg_library_suffixed {
 
       static double mp_ioff(_cimg_math_parser& mp) {
         const long off = (long)mp.mem[mp.opcode(2)];
-        if (off<0 || off>=(long)mp.input.size()) return 0;
+        const unsigned int boundary = (unsigned int)mp.mem[mp.opcode(3)];
+        if (off<0 || off>=(long)mp.input.size())
+          switch (boundary) {
+          case 2 : // Periodic boundary.
+            if (mp.input) return (double)mp.input[cimg::mod(off,(long)mp.input.size())];
+            return 0;
+          case 1 : // Neumann boundary.
+            if (mp.input) return (double)(off<0?*mp.input:mp.input.back());
+            return 0;
+          default : // Dirichet boundary.
+            return 0;
+          }
         return (double)mp.input[off];
       }
 
       static double mp_joff(_cimg_math_parser& mp) {
         const int x = (int)mp.mem[16], y = (int)mp.mem[17], z = (int)mp.mem[18], c = (int)mp.mem[19];
         const long off = mp.input.offset(x,y,z,c) + (long)(mp.mem[mp.opcode(2)]);
-        if (off<0 || off>=(long)mp.input.size()) return 0;
+        const unsigned int boundary = (unsigned int)mp.mem[mp.opcode(3)];
+        if (off<0 || off>=(long)mp.input.size())
+          switch (boundary) {
+          case 2 : // Periodic boundary.
+            if (mp.input) return (double)mp.input[cimg::mod(off,(long)mp.input.size())];
+            return 0;
+          case 1 : // Neumann boundary.
+            if (mp.input) return (double)(off<0?*mp.input:mp.input.back());
+            return 0;
+          default : // Dirichet boundary.
+            return 0;
+          }
         return (double)mp.input[off];
       }
 
@@ -21373,7 +21400,7 @@ namespace cimg_library_suffixed {
           cc = (int)(centering_c*((int)sc - spectrum()));
 
         switch (boundary_conditions) {
-        case 2 : { // Periodic borders.
+        case 2 : { // Periodic boundary.
           res.assign(sx,sy,sz,sc);
           const int
             x0 = ((int)xc%width()) - width(),
@@ -21389,7 +21416,7 @@ namespace cimg_library_suffixed {
                 for (int x = x0; x<(int)sx; x+=width())
                   res.draw_image(x,y,z,c,*this);
         } break;
-        case 1 : { // Neumann borders.
+        case 1 : { // Neumann boundary.
           res.assign(sx,sy,sz,sc).draw_image(xc,yc,zc,cc,*this);
           CImg<T> sprite;
           if (xc>0) {  // X-backward
@@ -21427,7 +21454,7 @@ namespace cimg_library_suffixed {
             for (int c = cc + spectrum(); c<(int)sc; ++c) res.draw_image(0,0,0,c,sprite);
           }
         } break;
-        default : // Dirichlet borders.
+        default : // Dirichlet boundary.
           res.assign(sx,sy,sz,sc,0).draw_image(xc,yc,zc,cc,*this);
         }
         break;
@@ -25247,7 +25274,7 @@ namespace cimg_library_suffixed {
             break;
           }
         }
-      } else { // Generic version for other masks and borders conditions.
+      } else { // Generic version for other masks and boundary conditions.
         const int
           mx2 = mask.width()/2, my2 = mask.height()/2, mz2 = mask.depth()/2,
           mx1 = mx2 - 1 + (mask.width()%2), my1 = my2 - 1 + (mask.height()%2), mz1 = mz2 - 1 + (mask.depth()%2),

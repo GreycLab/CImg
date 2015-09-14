@@ -14087,7 +14087,6 @@ namespace cimg_library_suffixed {
           case 'G' : if (reserved_label['G']!=~0U) _cimg_mp_return(reserved_label['G']); _cimg_mp_opcode6(mp_ixyzc,16,17,18,1,0,0);
           case 'B' : if (reserved_label['B']!=~0U) _cimg_mp_return(reserved_label['B']); _cimg_mp_opcode6(mp_ixyzc,16,17,18,2,0,0);
           case 'A' : if (reserved_label['A']!=~0U) _cimg_mp_return(reserved_label['A']); _cimg_mp_opcode6(mp_ixyzc,16,17,18,3,0,0);
-            //          case '?' : _cimg_mp_opcode2(mp_u,0,1);
           }
         else if (ss2==se) { // Two-chars variable.
           if (*ss=='w' && *ss1=='h') _cimg_mp_return(reserved_label[0]); // wh
@@ -14287,7 +14286,21 @@ namespace cimg_library_suffixed {
             _cimg_mp_return(pos);
           }
 
-        // Look for unary/binary operators. The operator precedences is defined as in C++.
+        // Look for unary/binary/ternary operators. The operator precedences is the same as in C++.
+        for (char *s = ss; s<se; ++s) // Ternary operator '?..:..'.
+          if (*s=='?' && level[s - expr._data]==clevel) {
+            char *s1 = s + 1; while (s1<se1 && (*s1!=':' || level[s1 - expr._data]!=clevel)) ++s1;
+            const unsigned int
+              mem_cond = compile(ss,s),
+              p_left = code._width, mem_left = compile(s + 1,s1),
+              p_right = code._width, mem_right = compile(s1 + 1,se);
+            if (mempos>=mem._width) mem.resize(-200,1,1,1,0);
+            const unsigned int pos = mempos++;
+            CImg<longT>::vector(_cimg_mp_enfunc(mp_if),pos,mem_cond,mem_left,mem_right,
+                                p_right - p_left,code._width - p_right).move_to(code,p_left);
+            _cimg_mp_return(pos);
+          }
+
         for (char *s = se3, *ns = se2; s>ss; --s, --ns) if (*s=='|' && *ns=='|' && level[s - expr._data]==clevel) {
             const unsigned int mem_left = compile(ss,s), p_right = code._width, mem_right = compile(s + 2,se);
             if (mempos>=mem._width) mem.resize(-200,1,1,1,0);
@@ -14434,8 +14447,7 @@ namespace cimg_library_suffixed {
           if (!std::strncmp(ss,"sinc(",5)) _cimg_mp_opcode1(mp_sinc,compile(ss5,se1));
           if (!std::strncmp(ss,"log10(",6)) _cimg_mp_opcode1(mp_log10,compile(ss6,se1));
 
-          //          if ((*ss=='?' || *ss=='u') && *ss1=='(') { // ?() and u().
-          if (*ss=='u' && *ss1=='(') { // ?() and u().
+          if (*ss=='u' && *ss1=='(') { // u().
             if (*ss2==')') _cimg_mp_opcode2(mp_u,0,1);
             char *s1 = ss2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
             if (s1<se1) _cimg_mp_opcode2(mp_u,compile(ss2,s1),compile(s1 + 1,se1));

@@ -13874,7 +13874,7 @@ namespace cimg_library_suffixed {
 
     // Define the math formula parser/compiler and evaluator.
     struct _cimg_math_parser {
-      CImgList<longT> code;
+      CImgList<longT> _code, &code;
       CImg<longT> opcode;
       const CImg<longT>* p_code;
       CImgList<charT> labelM;
@@ -13883,7 +13883,7 @@ namespace cimg_library_suffixed {
       CImg<charT> expr;
       const CImg<T>& input;
       CImg<T> &output;
-      CImg<Tdouble> input_stats;
+      CImg<Tdouble> _input_stats, &input_stats;
       double median_value;
       bool is_median_value;
       unsigned int mempos, result;
@@ -13913,13 +13913,21 @@ namespace cimg_library_suffixed {
 #endif
 
       // Constructors.
-      _cimg_math_parser():input(CImg<T>::empty()),output(CImg<T>::empty()),
-                          median_value(0),is_median_value(false),calling_function(0) {}
+      _cimg_math_parser():
+        code(_code),input(CImg<T>::empty()),output(CImg<T>::empty()),input_stats(_input_stats),calling_function(0) {}
+
+      _cimg_math_parser(const _cimg_math_parser& mp):
+        code(mp.code),mem(mp.mem),input(mp.input),output(mp.output),input_stats(mp.input_stats),
+        median_value(mp.median_value),is_median_value(mp.is_median_value),result(mp.result),calling_function(0) {
+        opcode._width = opcode._depth = opcode._spectrum = 1;
+        opcode._is_shared = true;
+      }
 
       _cimg_math_parser(const CImg<T>& img_input, CImg<T> *const img_output,
                         const char *const expression, const char *const funcname=0):
-        input(img_input),output(img_output?*img_output:CImg<T>::empty()),
-        median_value(0),is_median_value(false),calling_function(funcname?funcname:"cimg_math_parser") {
+        code(_code),input(img_input),output(img_output?*img_output:CImg<T>::empty()),
+        input_stats(_input_stats),median_value(0),is_median_value(false),
+        calling_function(funcname?funcname:"cimg_math_parser") {
         if (!expression || !*expression)
           throw CImgArgumentException("[_cimg_math_parser] "
                                       "CImg<%s>::%s(): Empty specified expression.",

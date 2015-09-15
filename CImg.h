@@ -14653,7 +14653,7 @@ namespace cimg_library_suffixed {
               *se1 = 0; val = (double)cimg::fdate(s1 + 1,arg1); *se1 = ')';
             } else val = (double)cimg::date(arg1);
             arg1 = (unsigned int)val;
-            if (arg1>=0 && arg1<=9) _cimg_mp_return(arg1);
+            if (arg1<=9) _cimg_mp_return(arg1);
             if (mempos>=mem.size()) mem.resize(-200,1,1,1,0);
             pos = mempos++;
             mem[pos] = val;

@@ -14531,7 +14531,8 @@ namespace cimg_library_suffixed {
           if (!std::strncmp(ss,"dowhile(",8)) {
             s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
             p_proc = code._width; mem_proc = compile(ss8,s1);
-            mem_cond = compile(s1 + 1,se1);
+            if (s1<se1) mem_cond = compile(s1 + 1,se1);
+            else mem_cond = mem_proc;
             CImg<longT>::vector(_cimg_mp_enfunc(mp_dowhile),mem_proc,mem_cond,code._width - p_proc).
               move_to(code,p_proc);
             _cimg_mp_return(mem_proc);
@@ -14663,10 +14664,19 @@ namespace cimg_library_suffixed {
           if (!std::strncmp(ss,"print(",6)) {
             pos = compile(ss6,se1);
             *se1 = 0;
-            ((CImg<longT>::vector(_cimg_mp_enfunc(mp_print),pos),CImg<longT>::string(ss6).unroll('y'))>'y').
-              move_to(code);
+            ((CImg<longT>::vector(_cimg_mp_enfunc(mp_print),pos),
+              CImg<longT>::string(ss6).unroll('y'))>'y').move_to(code);
             *se1 = ')';
             _cimg_mp_return(pos);
+          }
+
+          if (!std::strncmp(ss,"debug(",6)) {
+            p_proc = code._width; mem_proc = compile(ss6,se1);
+            *se1 = 0;
+            ((CImg<longT>::vector(_cimg_mp_enfunc(mp_debug),mem_proc,code._width - p_proc),
+              CImg<longT>::string(ss6).unroll('y'))>'y').move_to(code,p_proc);
+            *se1 = ')';
+            _cimg_mp_return(mem_proc);
           }
 
           // Sub-family of 'is_?()' functions.
@@ -14990,11 +15000,6 @@ namespace cimg_library_suffixed {
 
       static double mp_sign(_cimg_math_parser& mp) {
         return cimg::sign(mp.mem[mp.opcode(2)]);
-      }
-
-      static double mp_time(_cimg_math_parser& mp) {
-        cimg::unused(mp);
-        return (double)cimg::time();
       }
 
       static double mp_abs(_cimg_math_parser& mp) {
@@ -15397,10 +15402,44 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_print(_cimg_math_parser& mp) {
-        const CImg<char> label(mp.opcode);
+        const CImg<char> expr(mp.opcode);
         const double val = mp.mem[mp.opcode(1)];
-        std::fprintf(cimg::output(),"\n[_cimg_math_parser] %s = %g",label.data()+2,val);
+        std::fprintf(cimg::output(),"\n[_cimg_math_parser] %s = %g",expr._data + 2,val);
+        std::fflush(cimg::output());
         return val;
+      }
+
+      static double mp_debug(_cimg_math_parser& mp) {
+#ifdef cimg_use_openmp
+        const unsigned int n_thread = omp_get_thread_num();
+#else
+        const unsigned int n_thread = 0;
+#endif
+        const CImg<char> expr(mp.opcode);
+        const unsigned int pos = (unsigned int)mp.opcode(1);
+        std::fprintf(cimg::output(),
+                     "\n[_cimg_math_parser] %p[thread #%u]: Start debugging expression '%s', code length %ld -> mem[%u] (memsize: %u)",
+                     (void*)&mp,n_thread,expr._data + 3,mp.opcode(2),pos,mp.mem._width);
+        std::fflush(cimg::output());
+
+        const CImg<longT> *const p_end = (++mp.p_code) + mp.opcode(2);
+        for ( ; mp.p_code<p_end; ++mp.p_code) {
+          cimg_test_abort();
+          const CImg<longT> &op = *mp.p_code;
+          mp.opcode._data = op._data; mp.opcode._height = op._height;
+          const unsigned target = (unsigned int)mp.opcode[1];
+          mp.mem[target] = _cimg_mp_defunc(mp);
+          std::fprintf(cimg::output(),
+                       "\n[_cimg_math_parser] %p[thread #%u]: Opcode %p = [ %s ] -> mem[%u] = %g",
+                       (void*)&mp,n_thread,(void*)mp.opcode._data,mp.opcode.value_string().data(),target,
+                       mp.mem[target]);
+          std::fflush(cimg::output());
+        }
+        std::fprintf(cimg::output(),
+                     "\n[_cimg_math_parser] %p[thread #%u]: End debugging expression '%s' -> mem[%u] = %g (memsize: %u)",
+                     (void*)&mp,n_thread,expr._data + 3,pos,mp.mem[pos],mp.mem._width);
+        std::fflush(cimg::output());
+        return mp.mem[pos];
       }
 
       // Evaluation procedure, with image data.

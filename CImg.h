@@ -14735,7 +14735,7 @@ namespace cimg_library_suffixed {
             break;
 
           case 'u' :
-            if (*ss1=='(') { // u().
+            if (*ss1=='(') { // u(..).
               if (*ss2==')') _cimg_mp_opcode2(mp_u,0,1);
               s1 = ss2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               if (s1<se1) _cimg_mp_opcode2(mp_u,compile(ss2,s1),compile(s1 + 1,se1));

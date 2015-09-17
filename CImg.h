@@ -15494,7 +15494,8 @@ namespace cimg_library_suffixed {
       double operator()(const double x, const double y, const double z, const double c) {
         if (!mem) return 0;  // Case of empty constructor.
         mem[_cimg_mp_x] = x; mem[_cimg_mp_y] = y; mem[_cimg_mp_z] = z; mem[_cimg_mp_c] = c;
-        for (p_code = code._data; p_code<code.end(); ++p_code) {
+        const CImg<longT> *const p_end = code.end();
+        for (p_code = code._data; p_code<p_end; ++p_code) {
           cimg_test_abort();
           const CImg<longT> &op = *p_code;
           // Allows to avoid parameter passing to evaluation functions.

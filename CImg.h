@@ -14426,8 +14426,18 @@ namespace cimg_library_suffixed {
           if (*ss=='~') _cimg_mp_opcode1(mp_bitwise_not,compile(ss1,se));
         }
         for (s = se2; s>ss; --s)
-          if (*s=='^' && level[s - expr._data]==clevel)
-            _cimg_mp_opcode2(mp_pow,compile(ss,s),compile(s + 1,se));
+          if (*s=='^' && level[s - expr._data]==clevel) {
+            arg1 = compile(ss,s);
+            arg2 = compile(s + 1,se);
+            switch (arg2) {
+            case 0 : _cimg_mp_return(1);
+            case 1 : _cimg_mp_return(arg1);
+            case 2 : _cimg_mp_opcode1(mp_sqr,arg1);
+            case 3 : _cimg_mp_opcode1(mp_pow3,arg1);
+            case 4 : _cimg_mp_opcode1(mp_pow4,arg1);
+            default : _cimg_mp_opcode2(mp_pow,compile(ss,s),compile(s + 1,se));
+            }
+          }
 
         // Array-like access to image values 'i[offset,_boundary]' and 'j[offset,_boundary]'.
         if (*se1==']') {
@@ -14672,8 +14682,15 @@ namespace cimg_library_suffixed {
                 !std::strncmp(ss,"norminf(",8)) {
               if (mempos>=mem.size()) mem.resize(-200,1,1,1,0);
               pos = mempos++;
-              CImg<longT>::vector(_cimg_mp_enfunc(mp_norm),pos,(longT)(arg1==~0U?-1:(int)arg1)).
-                move_to(_opcode);
+              switch (arg1) {
+              case 0 : CImg<longT>::vector(_cimg_mp_enfunc(mp_norm0),pos).move_to(_opcode); break;
+              case 1 : CImg<longT>::vector(_cimg_mp_enfunc(mp_norm1),pos).move_to(_opcode); break;
+              case 2 : CImg<longT>::vector(_cimg_mp_enfunc(mp_norm2),pos).move_to(_opcode); break;
+              case ~0U : CImg<longT>::vector(_cimg_mp_enfunc(mp_norminf),pos).move_to(_opcode); break;
+              default :
+                CImg<longT>::vector(_cimg_mp_enfunc(mp_normp),pos,(longT)(arg1==~0U?-1:(int)arg1)).
+                  move_to(_opcode);
+              }
               for (s = std::strchr(ss5,'(') + 1; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
@@ -14799,7 +14816,8 @@ namespace cimg_library_suffixed {
       // Defining these functions 'static' ensures that sizeof(mp_func)==sizeof(ulong), so we can store pointers to them
       // directly in the opcode vectors.
       static double mp_u(_cimg_math_parser& mp) {
-        return mp.mem[mp.opcode(2)] + cimg::rand()*(mp.mem[mp.opcode(3)] - mp.mem[mp.opcode(2)]);
+        const double m = mp.mem[mp.opcode(2)];
+        return m + cimg::rand()*(mp.mem[mp.opcode(3)] - m);
       }
 
       static double mp_g(_cimg_math_parser& mp) {
@@ -14920,17 +14938,6 @@ namespace cimg_library_suffixed {
         return ((unsigned long)mp.mem[mp.opcode(2)] | (unsigned long)mp.mem[mp.opcode(3)]);
       }
 
-      static double mp_pow(_cimg_math_parser& mp) {
-        const double v = mp.mem[mp.opcode(2)], p = mp.mem[mp.opcode(3)];
-        if (p==0) return 1;
-        if (p==0.5) return std::sqrt(v);
-        if (p==1) return v;
-        if (p==2) return v*v;
-        if (p==3) return v*v*v;
-        if (p==4) return v*v*v*v;
-        return std::pow(v,p);
-      }
-
       static double mp_sin(_cimg_math_parser& mp) {
         return std::sin(mp.mem[mp.opcode(2)]);
       }
@@ -14983,8 +14990,23 @@ namespace cimg_library_suffixed {
         return std::exp(mp.mem[mp.opcode(2)]);
       }
 
+      static double mp_pow(_cimg_math_parser& mp) {
+        const double v = mp.mem[mp.opcode(2)], p = mp.mem[mp.opcode(3)];
+        return std::pow(v,p);
+      }
+
       static double mp_sqr(_cimg_math_parser& mp) {
         return cimg::sqr(mp.mem[mp.opcode(2)]);
+      }
+
+      static double mp_pow3(_cimg_math_parser& mp) {
+        const double value = mp.mem[mp.opcode(2)];
+        return value*value*value;
+      }
+
+      static double mp_pow4(_cimg_math_parser& mp) {
+        const double value = mp.mem[mp.opcode(2)];
+        return value*value*value*value;
       }
 
       static double mp_sqrt(_cimg_math_parser& mp) {
@@ -15012,37 +15034,42 @@ namespace cimg_library_suffixed {
         return std::exp(-x*x/(2*s*s))/std::sqrt(2*s*s*cimg::PI);
       }
 
-      static double mp_norm(_cimg_math_parser& mp) {
-        const unsigned int norm_type = (unsigned int)mp.opcode(2);
+      static double mp_norm0(_cimg_math_parser& mp) {
         double res = 0;
-        unsigned int i;
-        switch (norm_type) {
-        case 0 : // L0-norm.
-          for (i = 3; i<mp.opcode._height; ++i)
-            res+=mp.mem[mp.opcode(i)]==0?0:1;
-          break;
-        case 1 : // L1-norm.
-          for (i = 3; i<mp.opcode._height; ++i)
-            res+=cimg::abs(mp.mem[mp.opcode(i)]);
-          break;
-        case 2 : // L2-norm.
-          for (i = 3; i<mp.opcode._height; ++i) {
-            const double val = mp.mem[mp.opcode(i)];
-            res+=val*val;
-          }
-          res = std::sqrt(res);
-          break;
-        case ~0U : // Linf-norm.
-          for (i = 3; i<mp.opcode._height; ++i) {
-            const double val = cimg::abs(mp.mem[mp.opcode(i)]);
-            if (val>res) res = val;
-          }
-          break;
-        default: // Lp-norm.
-          for (i = 3; i<mp.opcode._height; ++i)
-            res+=std::pow(cimg::abs(mp.mem[mp.opcode(i)]),(double)norm_type);
-          res = std::pow(res,1.0/norm_type);
+        for (unsigned int i = 2; i<mp.opcode._height; ++i)
+          res+=mp.mem[mp.opcode(i)]==0?0:1;
+        return res;
+      }
+
+      static double mp_norm1(_cimg_math_parser& mp) {
+        double res = 0;
+        for (unsigned int i = 2; i<mp.opcode._height; ++i)
+          res+=cimg::abs(mp.mem[mp.opcode(i)]);
+        return res;
+      }
+
+      static double mp_norm2(_cimg_math_parser& mp) {
+        double res = 0;
+        for (unsigned int i = 2; i<mp.opcode._height; ++i)
+          res+=cimg::sqr(mp.mem[mp.opcode(i)]);
+        return std::sqrt(res);
+      }
+
+      static double mp_norminf(_cimg_math_parser& mp) {
+        double res = 0;
+        for (unsigned int i = 2; i<mp.opcode._height; ++i) {
+          const double val = cimg::abs(mp.mem[mp.opcode(i)]);
+          if (val>res) res = val;
         }
+        return res;
+      }
+
+      static double mp_normp(_cimg_math_parser& mp) {
+        const double p = (double)mp.opcode(2);
+        double res = 0;
+        for (unsigned int i = 3; i<mp.opcode._height; ++i)
+          res+=std::pow(cimg::abs(mp.mem[mp.opcode(i)]),p);
+        res = std::pow(res,1/p);
         return res>0?res:0.0;
       }
 

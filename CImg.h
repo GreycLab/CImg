@@ -13891,8 +13891,9 @@ namespace cimg_library_suffixed {
       typedef double (*mp_func)(_cimg_math_parser&);
 
 #define _cimg_mp_return(x) { *se = saved_char; return x; }
-#define _cimg_mp_opcode0(op) _cimg_mp_return(opcode0(op));
-#define _cimg_mp_opcode1(op,i1) _cimg_mp_return(opcode1(op,i1));
+#define _cimg_mp_constant(val) _cimg_mp_return(constant(val))
+#define _cimg_mp_opcode0(op) _cimg_mp_return(opcode0(op))
+#define _cimg_mp_opcode1(op,i1) _cimg_mp_return(opcode1(op,i1))
 #define _cimg_mp_opcode2(op,i1,i2) { const unsigned int _i1 = i1, _i2 = i2; _cimg_mp_return(opcode2(op,_i1,_i2)); }
 #define _cimg_mp_opcode3(op,i1,i2,i3) \
   { const unsigned int _i1 = i1, _i2 = i2, _i3 = i3; _cimg_mp_return(opcode3(op,_i1,_i2,_i3)); }
@@ -13997,6 +13998,15 @@ namespace cimg_library_suffixed {
         opcode._is_shared = true;
       }
 
+      // Insert new constant value in memory.
+      unsigned int constant(const double val) {
+        if (val==(double)(int)val && val>=0 && val<=9) return (unsigned int)val;
+        if (mempos>=mem._width) mem.resize(-200,1,1,1,0);
+        const unsigned int pos = mempos++;
+        mem[pos] = val;
+        return pos;
+      }
+
       // Insert code instructions.
       unsigned int opcode0(const mp_func op) {
         if (mempos>=mem._width) mem.resize(-200,1,1,1,0);
@@ -14087,22 +14097,9 @@ namespace cimg_library_suffixed {
           if (nb==1 && !is_sth) val = -val;
         }
 #endif
+        if (nb==1) _cimg_mp_constant(val);
+        if (nb==2 && sep=='%') _cimg_mp_constant(val/100);
 
-        if (nb==1) {
-          if (val==(double)(int)val && val>=0 && val<=9) _cimg_mp_return((unsigned int)val);
-          if (mempos>=mem._width) mem.resize(-200,1,1,1,0);
-          pos = mempos++;
-          mem[pos] = val;
-          _cimg_mp_return(pos);
-        }
-        if (nb==2 && sep=='%') {
-          if (val==(double)(int)val && !(((int)val)%100) && val>=0 && val<=900)
-            _cimg_mp_return((unsigned int)val/100);
-          if (mempos>=mem._width) mem.resize(-200,1,1,1,0);
-          pos = mempos++;
-          mem[pos] = val/100;
-          _cimg_mp_return(pos);
-        }
         if (ss1==se) switch (*ss) { // One-char variable.
           case 'w' : case 'h' : case 'd' : case 's' : case 'r' :
           case 'x' : case 'y' : case 'z' : case 'c' : case 'e' : _cimg_mp_return(reserved_label[*ss]);
@@ -14128,68 +14125,83 @@ namespace cimg_library_suffixed {
               _cimg_mp_opcode6(mp_ixyzc,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,pos - 19,0,0);
             }
             if (*ss1=='m') { // im
+              if (reserved_label[4]!=~0U) _cimg_mp_return(reserved_label[4]);
               if (!input_stats) input.get_stats().move_to(input_stats);
-              if (reserved_label[4]!=~0U) _cimg_mp_return(reserved_label[4]); _cimg_mp_opcode0(mp_im);
+              _cimg_mp_opcode0(mp_im);
             }
             if (*ss1=='M') { // iM
+              if (reserved_label[5]!=~0U) _cimg_mp_return(reserved_label[5]);
               if (!input_stats) input.get_stats().move_to(input_stats);
-              if (reserved_label[5]!=~0U) _cimg_mp_return(reserved_label[5]); _cimg_mp_opcode0(mp_iM);
+              _cimg_mp_opcode0(mp_iM);
             }
             if (*ss1=='a') { // ia
+              if (reserved_label[6]!=~0U) _cimg_mp_return(reserved_label[6]);
               if (!input_stats) input.get_stats().move_to(input_stats);
-              if (reserved_label[6]!=~0U) _cimg_mp_return(reserved_label[6]); _cimg_mp_opcode0(mp_ia);
+              _cimg_mp_opcode0(mp_ia);
             }
             if (*ss1=='v') { // iv
+              if (reserved_label[7]!=~0U) _cimg_mp_return(reserved_label[7]);
               if (!input_stats) input.get_stats().move_to(input_stats);
-              if (reserved_label[7]!=~0U) _cimg_mp_return(reserved_label[7]); _cimg_mp_opcode0(mp_iv);
+              _cimg_mp_opcode0(mp_iv);
             }
             if (*ss1=='s') { // is
+              if (reserved_label[8]!=~0U) _cimg_mp_return(reserved_label[8]);
               if (!input_stats) input.get_stats().move_to(input_stats);
-              if (reserved_label[8]!=~0U) _cimg_mp_return(reserved_label[8]); _cimg_mp_opcode0(mp_is);
+              _cimg_mp_opcode0(mp_is);
             }
             if (*ss1=='p') { // ip
+              if (reserved_label[9]!=~0U) _cimg_mp_return(reserved_label[9]);
               if (!input_stats) input.get_stats().move_to(input_stats);
-              if (reserved_label[9]!=~0U) _cimg_mp_return(reserved_label[9]); _cimg_mp_opcode0(mp_ip);
+              _cimg_mp_opcode0(mp_ip);
             }
             if (*ss1=='c') { // ic
+              if (reserved_label[10]!=~0U) _cimg_mp_return(reserved_label[10]);
               if (!is_median_value && input) { median_value = input.median(); is_median_value = true; }
-              if (reserved_label[10]!=~0U) _cimg_mp_return(reserved_label[10]); _cimg_mp_opcode0(mp_ic);
+              _cimg_mp_opcode0(mp_ic);
             }
           }
           if (*ss1=='m') {
             if (*ss=='x') { // xm
+              if (reserved_label[11]!=~0U) _cimg_mp_return(reserved_label[11]);
               if (!input_stats) input.get_stats().move_to(input_stats);
-              if (reserved_label[11]!=~0U) _cimg_mp_return(reserved_label[11]); _cimg_mp_opcode0(mp_xm);
+              _cimg_mp_opcode0(mp_xm);
             }
             if (*ss=='y') { // ym
+              if (reserved_label[12]!=~0U) _cimg_mp_return(reserved_label[12]);
               if (!input_stats) input.get_stats().move_to(input_stats);
-              if (reserved_label[12]!=~0U) _cimg_mp_return(reserved_label[12]); _cimg_mp_opcode0(mp_ym);
+              _cimg_mp_opcode0(mp_ym);
             }
             if (*ss=='z') { // zm
+              if (reserved_label[13]!=~0U) _cimg_mp_return(reserved_label[13]);
               if (!input_stats) input.get_stats().move_to(input_stats);
-              if (reserved_label[13]!=~0U) _cimg_mp_return(reserved_label[13]); _cimg_mp_opcode0(mp_zm);
+              _cimg_mp_opcode0(mp_zm);
             }
             if (*ss=='c') { // cm
+              if (reserved_label[14]!=~0U) _cimg_mp_return(reserved_label[14]);
               if (!input_stats) input.get_stats().move_to(input_stats);
-              if (reserved_label[14]!=~0U) _cimg_mp_return(reserved_label[14]); _cimg_mp_opcode0(mp_cm);
+              _cimg_mp_opcode0(mp_cm);
             }
           }
           if (*ss1=='M') {
             if (*ss=='x') { // xM
+              if (reserved_label[15]!=~0U) _cimg_mp_return(reserved_label[15]);
               if (!input_stats) input.get_stats().move_to(input_stats);
-              if (reserved_label[15]!=~0U) _cimg_mp_return(reserved_label[15]); _cimg_mp_opcode0(mp_xM);
+              _cimg_mp_opcode0(mp_xM);
             }
             if (*ss=='y') { // yM
+              if (reserved_label[16]!=~0U) _cimg_mp_return(reserved_label[16]);
               if (!input_stats) input.get_stats().move_to(input_stats);
-              if (reserved_label[16]!=~0U) _cimg_mp_return(reserved_label[16]); _cimg_mp_opcode0(mp_yM);
+              _cimg_mp_opcode0(mp_yM);
             }
             if (*ss=='z') { // zM
+              if (reserved_label[17]!=~0U) _cimg_mp_return(reserved_label[17]);
               if (!input_stats) input.get_stats().move_to(input_stats);
-              if (reserved_label[17]!=~0U) _cimg_mp_return(reserved_label[17]); _cimg_mp_opcode0(mp_zM);
+              _cimg_mp_opcode0(mp_zM);
             }
             if (*ss=='c') { // cM
+              if (reserved_label[18]!=~0U) _cimg_mp_return(reserved_label[18]);
               if (!input_stats) input.get_stats().move_to(input_stats);
-              if (reserved_label[18]!=~0U) _cimg_mp_return(reserved_label[18]); _cimg_mp_opcode0(mp_cM);
+              _cimg_mp_opcode0(mp_cM);
             }
           }
         } else if (ss3==se) { // Three-chars variable.
@@ -14529,12 +14541,7 @@ namespace cimg_library_suffixed {
                 if (cimg_sscanf(ss5,"%u%c",&arg1,&sep)!=2 || sep!=',') { arg1 = 0; s1 = ss4; }
                 *se1 = 0; val = (double)cimg::fdate(s1 + 1,arg1); *se1 = ')';
               } else val = (double)cimg::date(arg1);
-              arg1 = (unsigned int)val;
-              if (arg1<=9) _cimg_mp_return(arg1);
-              if (mempos>=mem._width) mem.resize(-200,1,1,1,0);
-              pos = mempos++;
-              mem[pos] = val;
-              _cimg_mp_return(pos);
+              _cimg_mp_constant(val);
             }
             if (!std::strncmp(ss,"debug(",6)) {
               p_proc = code._width; mem_proc = compile(ss6,se1);
@@ -14665,11 +14672,7 @@ namespace cimg_library_suffixed {
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                 ++arg1; s = ns;
               }
-              if (arg1<=9) _cimg_mp_return(arg1);
-              if (mempos>=mem._width) mem.resize(-200,1,1,1,0);
-              pos = mempos++;
-              mem[pos] = arg1;
-              _cimg_mp_return(pos);
+              _cimg_mp_constant(arg1);
             }
             if ((cimg_sscanf(ss,"norm%u%c",&(arg1=~0U),&sep)==2 && sep=='(') ||
                 !std::strncmp(ss,"norminf(",8)) {

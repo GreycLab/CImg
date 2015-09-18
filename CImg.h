@@ -14284,29 +14284,24 @@ namespace cimg_library_suffixed {
             // Pixel assignment.
             if (l_variable_name>2 && (*ss=='i' || *ss=='j')) {
               is_sth = *ss=='j';
-              if (*ss1=='(' && *ve1==')') { // i/j(_x,_y,_z,_c)=value.
-                arg1 = is_sth?0U:(unsigned int)_cimg_mp_x;
+              if (*ss1=='(' && *ve1==')') { // i/j(x,_y,_z,_c)=value.
                 arg2 = is_sth?0U:(unsigned int)_cimg_mp_y;
                 arg3 = is_sth?0U:(unsigned int)_cimg_mp_z;
                 arg4 = is_sth?0U:(unsigned int)_cimg_mp_c;
-                if (ss2!=ve1) {
-                  s1 = ss2; while (s1<ve1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                  arg1 = compile(ss2,s1);
-                  if (s1<ve1) {
-                    s2 = ++s1; while (s2<ve1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-                    arg2 = compile(s1,s2);
-                    if (s2<ve1) {
-                      s3 = ++s2; while (s3<ve1 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
-                      arg3 = compile(s2,s3);
-                      if (s3<ve1) arg4 = compile(++s3,ve1);
-                    }
+                s1 = ss2; while (s1<ve1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                arg1 = compile(ss2,s1);
+                if (s1<ve1) {
+                  s2 = ++s1; while (s2<ve1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                  arg2 = compile(s1,s2);
+                  if (s2<ve1) {
+                    s3 = ++s2; while (s3<ve1 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
+                    arg3 = compile(s2,s3);
+                    if (s3<ve1) arg4 = compile(++s3,ve1);
                   }
                 }
                 _cimg_mp_opcode5(is_sth?mp_set_jxyzc:mp_set_ixyzc,arg1,arg2,arg3,arg4,compile(s + 1,se));
-              } else if (*ss1=='[' && *ve1==']') { // i/j[offset]=value.
-                arg1 = ss2==ve1?0:compile(ss2,ve1);
-                _cimg_mp_opcode2(is_sth?mp_set_joff:mp_set_ioff,arg1,compile(s + 1,se));
-              }
+              } else if (*ss1=='[' && *ve1==']') // i/j[offset]=value.
+                _cimg_mp_opcode2(is_sth?mp_set_joff:mp_set_ioff,compile(ss2,ve1),compile(s + 1,se));
             }
 
             // Variable assignment.
@@ -14595,16 +14590,15 @@ namespace cimg_library_suffixed {
           if ((*ss=='i' || is_sth) && *ss1=='[') {
             if (*ss2==']') _cimg_mp_opcode0(mp_i);
             s1 = ss2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-            arg2 = 0;
             arg1 = compile(ss2,s1);
-            if (s1<se1) arg2 = compile(s1 + 1,se1);
+            arg2 = s1>=se1?0:compile(s1 + 1,se1);
             _cimg_mp_opcode2(is_sth?mp_joff:mp_ioff,arg1,arg2);
           }
         }
 
         // Look for a function call or a parenthesis.
         if (*se1==')') {
-          if (*ss=='(') _cimg_mp_return(compile(ss1,se1));
+          if (*ss=='(') _cimg_mp_return(compile(ss1,se1)); // Simple parentheses.
 
           // i(...) or j(...).
           is_sth = *ss=='j';
@@ -14767,9 +14761,9 @@ namespace cimg_library_suffixed {
 
           case 'g' :
             if (!std::strncmp(ss,"gauss(",6)) { // Gaussian function.
-              arg2 = 1;
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss6,s1);
+              arg2 = 1;
               if (s1<se1) {
                 s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
                 arg2 = compile(s1 + 1,s2==se2?++s2:s2);
@@ -14943,9 +14937,9 @@ namespace cimg_library_suffixed {
 
           case 'r' :
             if (!std::strncmp(ss,"rol(",4) || !std::strncmp(ss,"ror(",4)) { // Bitwise rotation.
-              arg2 = 1;
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1-expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss4,s1==se2?++s1:s1);
+              arg2 = 1;
               if (s1<se1) {
                 s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2-expr._data]!=clevel1)) ++s2;
                 arg2 = compile(s1 + 1,se1);

@@ -13946,7 +13946,7 @@ namespace cimg_library_suffixed {
         }
 
         // Init constant values.
-        mem.assign(512);
+        mem.assign(256);
         for (unsigned int i = 0; i<=9; ++i) mem[i] = (double)i;
         mem[10] = (double)input._width;
         mem[11] = (double)input._height;
@@ -14531,7 +14531,7 @@ namespace cimg_library_suffixed {
               } else val = (double)cimg::date(arg1);
               arg1 = (unsigned int)val;
               if (arg1<=9) _cimg_mp_return(arg1);
-              if (mempos>=mem.size()) mem.resize(-200,1,1,1,0);
+              if (mempos>=mem._width) mem.resize(-200,1,1,1,0);
               pos = mempos++;
               mem[pos] = val;
               _cimg_mp_return(pos);
@@ -14602,7 +14602,7 @@ namespace cimg_library_suffixed {
             }
             if (*ss1=='s') { // Family of 'is_?()' functions.
               if (!std::strncmp(ss,"isin(",5)) {
-                if (mempos>=mem.size()) mem.resize(-200,1,1,1,0);
+                if (mempos>=mem._width) mem.resize(-200,1,1,1,0);
                 pos = mempos++;
                 CImg<longT>::vector(_cimg_mp_enfunc(mp_isin),pos).move_to(_opcode);
                 for (s = ss5; s<se; ++s) {
@@ -14666,14 +14666,14 @@ namespace cimg_library_suffixed {
                 ++arg1; s = ns;
               }
               if (arg1<=9) _cimg_mp_return(arg1);
-              if (mempos>=mem.size()) mem.resize(-200,1,1,1,0);
+              if (mempos>=mem._width) mem.resize(-200,1,1,1,0);
               pos = mempos++;
               mem[pos] = arg1;
               _cimg_mp_return(pos);
             }
             if ((cimg_sscanf(ss,"norm%u%c",&(arg1=~0U),&sep)==2 && sep=='(') ||
                 !std::strncmp(ss,"norminf(",8)) {
-              if (mempos>=mem.size()) mem.resize(-200,1,1,1,0);
+              if (mempos>=mem._width) mem.resize(-200,1,1,1,0);
               pos = mempos++;
               switch (arg1) {
               case 0 : CImg<longT>::vector(_cimg_mp_enfunc(mp_norm0),pos).move_to(_opcode); break;
@@ -14769,7 +14769,7 @@ namespace cimg_library_suffixed {
               !std::strncmp(ss,"med(",4) || !std::strncmp(ss,"kth(",4) ||
               !std::strncmp(ss,"arg(",4) ||
               !std::strncmp(ss,"argmin(",7) || !std::strncmp(ss,"argmax(",7)) { // Multi-argument functions.
-            if (mempos>=mem.size()) mem.resize(-200,1,1,1,0);
+            if (mempos>=mem._width) mem.resize(-200,1,1,1,0);
             pos = mempos++;
             is_sth = *ss=='a' && ss[3]!='(';
             CImg<longT>::vector(_cimg_mp_enfunc(*ss=='a'?(ss[3]=='('?mp_arg:ss[4]=='i'?mp_argmin:mp_argmax):

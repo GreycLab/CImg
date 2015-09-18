@@ -14403,30 +14403,35 @@ namespace cimg_library_suffixed {
           }
 
         // Look for unary/binary/ternary operators. The operator precedences is the same as in C++.
-        for (s = ss; s<se; ++s) // Ternary operator 'cond?expr1:expr2'.
-          if (*s=='?' && level[s - expr._data]==clevel) {
+        for (s = ss; s<se; ++s)
+          if (*s=='?' && level[s - expr._data]==clevel) { // Ternary operator 'cond?expr1:expr2'.
             s1 = s + 1; while (s1<se1 && (*s1!=':' || level[s1 - expr._data]!=clevel)) ++s1;
             arg1 = compile(ss,s);
             p2 = code._width; arg2 = compile(s + 1,s1);
             p3 = code._width; arg3 = compile(s1 + 1,se);
+            if (mem(arg1,1) && mem(arg2,1) && mem(arg3,1)) _cimg_mp_constant(mem[arg1]?mem[arg2]:mem[arg3]);
             if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
             pos = mempos++;
             CImg<longT>::vector(_cimg_mp_enfunc(mp_if),pos,arg1,arg2,arg3,
                                 p3 - p2,code._width - p3).move_to(code,p2);
             _cimg_mp_return(pos);
           }
-        for (s = se3, ns = se2; s>ss; --s, --ns) if (*s=='|' && *ns=='|' && level[s - expr._data]==clevel) {
+        for (s = se3, ns = se2; s>ss; --s, --ns)
+          if (*s=='|' && *ns=='|' && level[s - expr._data]==clevel) { // Logical or.
             arg1 = compile(ss,s);
             p2 = code._width; arg2 = compile(s + 2,se);
+            if (mem(arg1,1) && mem(arg2,1)) _cimg_mp_constant(mem[arg1] || mem[arg2]);
             if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
             pos = mempos++;
             CImg<longT>::vector(_cimg_mp_enfunc(mp_logical_or),pos,arg1,arg2,code._width - p2).
               move_to(code,p2);
             _cimg_mp_return(pos);
           }
-        for (s = se3, ns = se2; s>ss; --s, --ns) if (*s=='&' && *ns=='&' && level[s - expr._data]==clevel) {
+        for (s = se3, ns = se2; s>ss; --s, --ns)
+          if (*s=='&' && *ns=='&' && level[s - expr._data]==clevel) { // Logical and.
             arg1 = compile(ss,s);
             p2 = code._width; arg2 = compile(s + 2,se);
+            if (mem(arg1,1) && mem(arg2,1)) _cimg_mp_constant(mem[arg1] && mem[arg2]);
             if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
             pos = mempos++;
             CImg<longT>::vector(_cimg_mp_enfunc(mp_logical_and),pos,arg1,arg2,code._width - p2).
@@ -14770,6 +14775,7 @@ namespace cimg_library_suffixed {
               arg1 = compile(ss3,s1);
               p2 = code._width; arg2 = compile(s1 + 1,s2);
               p3 = code._width; arg3 = compile(s2 + 1,se1);
+              if (mem(arg1,1) && mem(arg2,1) && mem(arg3,1)) _cimg_mp_constant(mem[arg1]?mem[arg2]:mem[arg3]);
               if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
               pos = mempos++;
               CImg<longT>::vector(_cimg_mp_enfunc(mp_if),pos,arg1,arg2,arg3,
@@ -14899,6 +14905,9 @@ namespace cimg_library_suffixed {
                 s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2-expr._data]!=clevel1)) ++s2;
                 arg2 = compile(s1 + 1,se1);
               }
+              if (mem(arg1,1) && mem(arg2,1))
+                _cimg_mp_constant(*ss2=='l'?cimg::rol(mem[arg1],(unsigned int)mem[arg2]):
+                                  cimg::ror(mem[arg1],(unsigned int)mem[arg2]));
               _cimg_mp_opcode2(*ss2=='l'?mp_rol:mp_ror,arg1,arg2);
             }
             if (!std::strncmp(ss,"round(",6)) { // Value rounding.

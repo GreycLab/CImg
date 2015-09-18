@@ -15179,7 +15179,6 @@ namespace cimg_library_suffixed {
         std::fflush(cimg::output());
         const CImg<longT> *const p_end = (++mp.p_code) + mp.opcode(2);
         for ( ; mp.p_code<p_end; ++mp.p_code) {
-          cimg_test_abort();
           const CImg<longT> &op = *mp.p_code;
           mp.opcode._data = op._data; mp.opcode._height = op._height;
           const unsigned target = (unsigned int)mp.opcode[1];
@@ -15205,9 +15204,7 @@ namespace cimg_library_suffixed {
           *const p_proc = ++mp.p_code,
           *const p_end = p_proc + mp.opcode(3);
         do {
-          cimg_test_abort();
           for (mp.p_code = p_proc; mp.p_code<p_end; ++mp.p_code) { // Evaluate loop iteration + condition.
-            cimg_test_abort();
             const CImg<longT> &op = *mp.p_code;
             mp.opcode._data = op._data; mp.opcode._height = op._height;
             const unsigned int target = (unsigned int)mp.opcode[1];
@@ -15275,7 +15272,6 @@ namespace cimg_library_suffixed {
           *const p_end = p_right + mp.opcode(6);
         if (is_cond) {
           for ( ; mp.p_code<p_right; ++mp.p_code) {
-            cimg_test_abort();
             const CImg<longT> &op = *mp.p_code;
             mp.opcode._data = op._data; mp.opcode._height = op._height;
             const unsigned int target = (unsigned int)mp.opcode[1];
@@ -15285,7 +15281,6 @@ namespace cimg_library_suffixed {
           return mp.mem[mem_left];
         }
         for (mp.p_code = p_right; mp.p_code<p_end; ++mp.p_code) {
-          cimg_test_abort();
           const CImg<longT> &op = *mp.p_code;
           mp.opcode._data = op._data; mp.opcode._height = op._height;
           const unsigned int target = (unsigned int)mp.opcode[1];
@@ -15436,7 +15431,6 @@ namespace cimg_library_suffixed {
         if (!value_left) { mp.p_code = p_end - 1; return 0; }
         const unsigned int mem_right = (unsigned int)mp.opcode(3);
         for ( ; mp.p_code<p_end; ++mp.p_code) {
-          cimg_test_abort();
           const CImg<longT> &op = *mp.p_code;
           mp.opcode._data = op._data; mp.opcode._height = op._height;
           const unsigned int target = (unsigned int)mp.opcode[1];
@@ -15456,7 +15450,6 @@ namespace cimg_library_suffixed {
         if (value_left) { mp.p_code = p_end - 1; return 1; }
         const unsigned int mem_right = (unsigned int)mp.opcode(3);
         for ( ; mp.p_code<p_end; ++mp.p_code) {
-          cimg_test_abort();
           const CImg<longT> &op = *mp.p_code;
           mp.opcode._data = op._data; mp.opcode._height = op._height;
           const unsigned int target = (unsigned int)mp.opcode[1];
@@ -15690,9 +15683,7 @@ namespace cimg_library_suffixed {
           *const p_end = p_proc + mp.opcode(4);
         bool is_first_iter = true, is_cond = false;
         do {
-          cimg_test_abort();
           for (mp.p_code = p_cond; mp.p_code<p_proc; ++mp.p_code) { // Evaluate loop condition.
-            cimg_test_abort();
             const CImg<longT> &op = *mp.p_code;
             mp.opcode._data = op._data; mp.opcode._height = op._height;
             const unsigned target = (unsigned int)mp.opcode[1];
@@ -15701,7 +15692,6 @@ namespace cimg_library_suffixed {
           is_cond = (bool)mp.mem[mem_cond];
           if (is_cond) { // Evaluate loop iteration.
             for ( ; mp.p_code<p_end; ++mp.p_code) {
-              cimg_test_abort();
               const CImg<longT> &op = *mp.p_code;
               mp.opcode._data = op._data; mp.opcode._height = op._height;
               const unsigned int target = (unsigned int)mp.opcode[1];
@@ -15716,7 +15706,6 @@ namespace cimg_library_suffixed {
 
       // Evaluation procedure, with image data.
       double operator()(const double x, const double y, const double z, const double c) {
-        cimg_test_abort();
         if (!mem) return 0;  // Case of empty constructor.
         mem[_cimg_mp_x] = x; mem[_cimg_mp_y] = y; mem[_cimg_mp_z] = z; mem[_cimg_mp_c] = c;
         const CImg<longT> *const p_end = code.end();

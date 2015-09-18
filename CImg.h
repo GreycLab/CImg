@@ -13875,18 +13875,19 @@ namespace cimg_library_suffixed {
     // Define the math formula parser/compiler and evaluator.
     struct _cimg_math_parser {
       CImgList<longT> _code, &code;
-      CImg<longT> opcode;
-      const CImg<longT>* p_code;
       CImgList<charT> labelM;
-      CImg<uintT> level, labelMpos, reserved_label;
+
+      CImg<uintT> level, labelMpos, reserved_label, mem_stats;
+      CImg<Tdouble> _input_stats, &input_stats;
+      CImg<longT> opcode;
       CImg<doubleT> mem;
       CImg<charT> expr;
+
       const CImg<T>& input;
       CImg<T> &output;
-      CImg<Tdouble> _input_stats, &input_stats;
-      double median_value;
-      bool is_median_value;
-      unsigned int mempos, result;
+      const CImg<longT>* p_code;
+
+      unsigned int mempos, result, mem_median;
       const char *const calling_function;
       typedef double (*mp_func)(_cimg_math_parser&);
 
@@ -13915,20 +13916,19 @@ namespace cimg_library_suffixed {
 
       // Constructors.
       _cimg_math_parser():
-        code(_code),input(CImg<T>::empty()),output(CImg<T>::empty()),input_stats(_input_stats),calling_function(0) {}
+        code(_code),input_stats(_input_stats),input(CImg<T>::empty()),output(CImg<T>::empty()),calling_function(0) {}
 
       _cimg_math_parser(const _cimg_math_parser& mp):
-        code(mp.code),mem(mp.mem),input(mp.input),output(mp.output),input_stats(mp.input_stats),
-        median_value(mp.median_value),is_median_value(mp.is_median_value),result(mp.result),calling_function(0) {
+        code(mp.code),input_stats(mp.input_stats),mem(mp.mem),input(mp.input),output(mp.output),
+        result(mp.result),mem_median(mp.mem_median),calling_function(0) {
         opcode._width = opcode._depth = opcode._spectrum = 1;
         opcode._is_shared = true;
       }
 
       _cimg_math_parser(const CImg<T>& img_input, CImg<T> *const img_output,
                         const char *const expression, const char *const funcname=0):
-        code(_code),input(img_input),output(img_output?*img_output:CImg<T>::empty()),
-        input_stats(_input_stats),median_value(0),is_median_value(false),
-        calling_function(funcname?funcname:"cimg_math_parser") {
+        code(_code),input_stats(_input_stats),input(img_input),output(img_output?*img_output:CImg<T>::empty()),
+        mem_median(~0U),calling_function(funcname?funcname:"cimg_math_parser") {
         if (!expression || !*expression)
           throw CImgArgumentException("[_cimg_math_parser] "
                                       "CImg<%s>::%s(): Empty specified expression.",
@@ -14126,82 +14126,138 @@ namespace cimg_library_suffixed {
             }
             if (*ss1=='m') { // im
               if (reserved_label[4]!=~0U) _cimg_mp_return(reserved_label[4]);
-              if (!input_stats) input.get_stats().move_to(input_stats);
-              _cimg_mp_opcode0(mp_im);
+              if (!input_stats) {
+                input_stats.assign(1,14,1,1,0).fill(input.get_stats(),false);
+                mem_stats.assign(1,14,1,1,~0U);
+              }
+              if (mem_stats[0]==~0U) mem_stats[0] = constant(input_stats[0]);
+              _cimg_mp_return(mem_stats[0]);
             }
             if (*ss1=='M') { // iM
               if (reserved_label[5]!=~0U) _cimg_mp_return(reserved_label[5]);
-              if (!input_stats) input.get_stats().move_to(input_stats);
-              _cimg_mp_opcode0(mp_iM);
+              if (!input_stats) {
+                input_stats.assign(1,14,1,1,0).fill(input.get_stats(),false);
+                mem_stats.assign(1,14,1,1,~0U);
+              }
+              if (mem_stats[1]==~0U) mem_stats[1] = constant(input_stats[1]);
+              _cimg_mp_return(mem_stats[1]);
             }
             if (*ss1=='a') { // ia
               if (reserved_label[6]!=~0U) _cimg_mp_return(reserved_label[6]);
-              if (!input_stats) input.get_stats().move_to(input_stats);
-              _cimg_mp_opcode0(mp_ia);
+              if (!input_stats) {
+                input_stats.assign(1,14,1,1,0).fill(input.get_stats(),false);
+                mem_stats.assign(1,14,1,1,~0U);
+              }
+              if (mem_stats[2]==~0U) mem_stats[2] = constant(input_stats[2]);
+              _cimg_mp_return(mem_stats[2]);
             }
             if (*ss1=='v') { // iv
               if (reserved_label[7]!=~0U) _cimg_mp_return(reserved_label[7]);
-              if (!input_stats) input.get_stats().move_to(input_stats);
-              _cimg_mp_opcode0(mp_iv);
+              if (!input_stats) {
+                input_stats.assign(1,14,1,1,0).fill(input.get_stats(),false);
+                mem_stats.assign(1,14,1,1,~0U);
+              }
+              if (mem_stats[3]==~0U) mem_stats[3] = constant(input_stats[3]);
+              _cimg_mp_return(mem_stats[3]);
             }
             if (*ss1=='s') { // is
               if (reserved_label[8]!=~0U) _cimg_mp_return(reserved_label[8]);
-              if (!input_stats) input.get_stats().move_to(input_stats);
-              _cimg_mp_opcode0(mp_is);
+              if (!input_stats) {
+                input_stats.assign(1,14,1,1,0).fill(input.get_stats(),false);
+                mem_stats.assign(1,14,1,1,~0U);
+              }
+              if (mem_stats[12]==~0U) mem_stats[12] = constant(input_stats[12]);
+              _cimg_mp_return(mem_stats[12]);
             }
             if (*ss1=='p') { // ip
               if (reserved_label[9]!=~0U) _cimg_mp_return(reserved_label[9]);
-              if (!input_stats) input.get_stats().move_to(input_stats);
-              _cimg_mp_opcode0(mp_ip);
+              if (!input_stats) {
+                input_stats.assign(1,14,1,1,0).fill(input.get_stats(),false);
+                mem_stats.assign(1,14,1,1,~0U);
+              }
+              if (mem_stats[13]==~0U) mem_stats[13] = constant(input_stats[13]);
+              _cimg_mp_return(mem_stats[13]);
             }
             if (*ss1=='c') { // ic
               if (reserved_label[10]!=~0U) _cimg_mp_return(reserved_label[10]);
-              if (!is_median_value && input) { median_value = input.median(); is_median_value = true; }
-              _cimg_mp_opcode0(mp_ic);
+              if (mem_median==~0U) mem_median = constant(input.median());
+              _cimg_mp_return(mem_median);
             }
           }
           if (*ss1=='m') {
             if (*ss=='x') { // xm
               if (reserved_label[11]!=~0U) _cimg_mp_return(reserved_label[11]);
-              if (!input_stats) input.get_stats().move_to(input_stats);
-              _cimg_mp_opcode0(mp_xm);
+              if (!input_stats) {
+                input_stats.assign(1,14,1,1,0).fill(input.get_stats(),false);
+                mem_stats.assign(1,14,1,1,~0U);
+              }
+              if (mem_stats[4]==~0U) mem_stats[4] = constant(input_stats[4]);
+              _cimg_mp_return(mem_stats[4]);
             }
             if (*ss=='y') { // ym
               if (reserved_label[12]!=~0U) _cimg_mp_return(reserved_label[12]);
-              if (!input_stats) input.get_stats().move_to(input_stats);
-              _cimg_mp_opcode0(mp_ym);
+              if (!input_stats) {
+                input_stats.assign(1,14,1,1,0).fill(input.get_stats(),false);
+                mem_stats.assign(1,14,1,1,~0U);
+              }
+              if (mem_stats[5]==~0U) mem_stats[5] = constant(input_stats[5]);
+              _cimg_mp_return(mem_stats[5]);
             }
             if (*ss=='z') { // zm
               if (reserved_label[13]!=~0U) _cimg_mp_return(reserved_label[13]);
-              if (!input_stats) input.get_stats().move_to(input_stats);
-              _cimg_mp_opcode0(mp_zm);
+              if (!input_stats) {
+                input_stats.assign(1,14,1,1,0).fill(input.get_stats(),false);
+                mem_stats.assign(1,14,1,1,~0U);
+              }
+              if (mem_stats[6]==~0U) mem_stats[6] = constant(input_stats[6]);
+              _cimg_mp_return(mem_stats[6]);
             }
             if (*ss=='c') { // cm
               if (reserved_label[14]!=~0U) _cimg_mp_return(reserved_label[14]);
-              if (!input_stats) input.get_stats().move_to(input_stats);
-              _cimg_mp_opcode0(mp_cm);
+              if (!input_stats) {
+                input_stats.assign(1,14,1,1,0).fill(input.get_stats(),false);
+                mem_stats.assign(1,14,1,1,~0U);
+              }
+              if (mem_stats[7]==~0U) mem_stats[7] = constant(input_stats[7]);
+              _cimg_mp_return(mem_stats[7]);
             }
           }
           if (*ss1=='M') {
             if (*ss=='x') { // xM
               if (reserved_label[15]!=~0U) _cimg_mp_return(reserved_label[15]);
-              if (!input_stats) input.get_stats().move_to(input_stats);
-              _cimg_mp_opcode0(mp_xM);
+              if (!input_stats) {
+                input_stats.assign(1,14,1,1,0).fill(input.get_stats(),false);
+                mem_stats.assign(1,14,1,1,~0U);
+              }
+              if (mem_stats[8]==~0U) mem_stats[8] = constant(input_stats[8]);
+              _cimg_mp_return(mem_stats[8]);
             }
             if (*ss=='y') { // yM
               if (reserved_label[16]!=~0U) _cimg_mp_return(reserved_label[16]);
-              if (!input_stats) input.get_stats().move_to(input_stats);
-              _cimg_mp_opcode0(mp_yM);
+              if (!input_stats) {
+                input_stats.assign(1,14,1,1,0).fill(input.get_stats(),false);
+                mem_stats.assign(1,14,1,1,~0U);
+              }
+              if (mem_stats[9]==~0U) mem_stats[9] = constant(input_stats[9]);
+              _cimg_mp_return(mem_stats[9]);
             }
             if (*ss=='z') { // zM
               if (reserved_label[17]!=~0U) _cimg_mp_return(reserved_label[17]);
-              if (!input_stats) input.get_stats().move_to(input_stats);
-              _cimg_mp_opcode0(mp_zM);
+              if (!input_stats) {
+                input_stats.assign(1,14,1,1,0).fill(input.get_stats(),false);
+                mem_stats.assign(1,14,1,1,~0U);
+              }
+              if (mem_stats[10]==~0U) mem_stats[10] = constant(input_stats[10]);
+              _cimg_mp_return(mem_stats[10]);
             }
             if (*ss=='c') { // cM
               if (reserved_label[18]!=~0U) _cimg_mp_return(reserved_label[18]);
-              if (!input_stats) input.get_stats().move_to(input_stats);
-              _cimg_mp_opcode0(mp_cM);
+              if (!input_stats) {
+                input_stats.assign(1,14,1,1,0).fill(input.get_stats(),false);
+                mem_stats.assign(1,14,1,1,~0U);
+              }
+              if (mem_stats[11]==~0U) mem_stats[11] = constant(input_stats[11]);
+              _cimg_mp_return(mem_stats[11]);
             }
           }
         } else if (ss3==se) { // Three-chars variable.
@@ -15172,66 +15228,6 @@ namespace cimg_library_suffixed {
 
       static double mp_sinc(_cimg_math_parser& mp) {
         return cimg::sinc(mp.mem[mp.opcode(2)]);
-      }
-
-      static double mp_im(_cimg_math_parser& mp) {
-        return mp.input_stats?mp.input_stats[0]:0;
-      }
-
-      static double mp_iM(_cimg_math_parser& mp) {
-        return mp.input_stats?mp.input_stats[1]:0;
-      }
-
-      static double mp_ia(_cimg_math_parser& mp) {
-        return mp.input_stats?mp.input_stats[2]:0;
-      }
-
-      static double mp_iv(_cimg_math_parser& mp) {
-        return mp.input_stats?mp.input_stats[3]:0;
-      }
-
-      static double mp_is(_cimg_math_parser& mp) {
-        return mp.input_stats?mp.input_stats[12]:0;
-      }
-
-      static double mp_ip(_cimg_math_parser& mp) {
-        return mp.input_stats?mp.input_stats[13]:0;
-      }
-
-      static double mp_ic(_cimg_math_parser& mp) {
-        return mp.is_median_value?mp.median_value:0;
-      }
-
-      static double mp_xm(_cimg_math_parser& mp) {
-        return mp.input_stats?mp.input_stats[4]:0;
-      }
-
-      static double mp_ym(_cimg_math_parser& mp) {
-        return mp.input_stats?mp.input_stats[5]:0;
-      }
-
-      static double mp_zm(_cimg_math_parser& mp) {
-        return mp.input_stats?mp.input_stats[6]:0;
-      }
-
-      static double mp_cm(_cimg_math_parser& mp) {
-        return mp.input_stats?mp.input_stats[7]:0;
-      }
-
-      static double mp_xM(_cimg_math_parser& mp) {
-        return mp.input_stats?mp.input_stats[8]:0;
-      }
-
-      static double mp_yM(_cimg_math_parser& mp) {
-        return mp.input_stats?mp.input_stats[9]:0;
-      }
-
-      static double mp_zM(_cimg_math_parser& mp) {
-        return mp.input_stats?mp.input_stats[10]:0;
-      }
-
-      static double mp_cM(_cimg_math_parser& mp) {
-        return mp.input_stats?mp.input_stats[11]:0;
       }
 
       static double mp_arg(_cimg_math_parser& mp) {

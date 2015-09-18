@@ -14404,15 +14404,8 @@ namespace cimg_library_suffixed {
               (*ps!='e' || !(ps>ss && (*(ps - 1)=='.' || (*(ps - 1)>='0' && *(ps - 1)<='9')))) &&
               level[s - expr._data]==clevel)
             _cimg_mp_opcode2(mp_sub,compile(ss,s),compile(s + 1,se));
-        for (s = se2; s>ss; --s) if (*s=='*' && level[s - expr._data]==clevel) {
-            mem_left = compile(ss,s);
-            p_right = code._width; mem_right = compile(s + 1,se);
-            if (mempos>=mem._width) mem.resize(-200,1,1,1,0);
-            pos = mempos++;
-            CImg<longT>::vector(_cimg_mp_enfunc(mp_mul),pos,mem_left,mem_right,code._width - p_right).
-              move_to(code,p_right);
-            _cimg_mp_return(pos);
-          }
+        for (s = se2; s>ss; --s) if (*s=='*' && level[s - expr._data]==clevel)
+            _cimg_mp_opcode2(mp_mul,compile(ss,s),compile(s + 1,se));
         for (s = se2; s>ss; --s)
           if (*s=='/' && level[s - expr._data]==clevel)
             _cimg_mp_opcode2(mp_div,compile(ss,s),compile(s + 1,se));
@@ -14895,19 +14888,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_mul(_cimg_math_parser& mp) {
-        const double value_left = mp.mem[mp.opcode(2)];
-        const CImg<longT> *const p_end = ++mp.p_code + mp.opcode(4);
-        if (!value_left) { mp.p_code = p_end - 1; return 0; }
-        const unsigned int mem_right = (unsigned int)mp.opcode(3);
-        for ( ; mp.p_code<p_end; ++mp.p_code) {
-          cimg_test_abort();
-          const CImg<longT> &op = *mp.p_code;
-          mp.opcode._data = op._data; mp.opcode._height = op._height;
-          const unsigned int target = (unsigned int)mp.opcode[1];
-          mp.mem[target] = _cimg_mp_defunc(mp);
-        }
-        --mp.p_code;
-        return value_left*(double)mp.mem[mem_right];
+        return mp.mem[mp.opcode(2)] * mp.mem[mp.opcode(3)];
       }
 
       static double mp_div(_cimg_math_parser& mp) {

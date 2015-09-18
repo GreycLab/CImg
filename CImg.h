@@ -14790,36 +14790,36 @@ namespace cimg_library_suffixed {
                 (_opcode>'y').move_to(code);
                 _cimg_mp_return(pos);
               }
-              if (!std::strncmp(ss,"isval(",6)) {
+              if (!std::strncmp(ss,"isval(",6)) { // Is value?
                 val = 0;
                 if (cimg_sscanf(ss6,"%lf%c%c",&val,&sep,&end)==2 && sep==')') _cimg_mp_return(1);
                 _cimg_mp_return(0);
               }
-              if (!std::strncmp(ss,"isdir(",6)) {
+              if (!std::strncmp(ss,"isdir(",6)) { // Is directory?
                 *se1 = 0;
                 is_sth = cimg::is_directory(ss6);
                 *se1 = ')';
                 _cimg_mp_return(is_sth?1U:0U);
               }
-              if (!std::strncmp(ss,"isfile(",7)) {
+              if (!std::strncmp(ss,"isfile(",7)) { // Is file?
                 *se1 = 0;
                 is_sth = cimg::is_file(ss7);
                 *se1 = ')';
                 _cimg_mp_return(is_sth?1U:0U);
               }
-              if (!std::strncmp(ss,"isnan(",6)) {
+              if (!std::strncmp(ss,"isnan(",6)) { // Is Nan?
                 if (ss6==se1) _cimg_mp_return(0);
                 _cimg_mp_opcode1(mp_isnan,compile(ss6,se1));
               }
-              if (!std::strncmp(ss,"isinf(",6)) {
+              if (!std::strncmp(ss,"isinf(",6)) { // Is infinite?
                 if (ss6==se1) _cimg_mp_return(0);
                 _cimg_mp_opcode1(mp_isinf,compile(ss6,se1));
               }
-              if (!std::strncmp(ss,"isint(",6)) {
+              if (!std::strncmp(ss,"isint(",6)) { // Is integer?
                 if (ss6==se1) _cimg_mp_return(0);
                 _cimg_mp_opcode1(mp_isint,compile(ss6,se1));
               }
-              if (!std::strncmp(ss,"isbool(",7)) {
+              if (!std::strncmp(ss,"isbool(",7)) { // Is boolean?
                 if (ss7==se1) _cimg_mp_return(0);
                 _cimg_mp_opcode1(mp_isbool,compile(ss7,se1));
               }
@@ -14845,7 +14845,7 @@ namespace cimg_library_suffixed {
             break;
 
           case 'n' :
-            if (!std::strncmp(ss,"narg(",5)) {
+            if (!std::strncmp(ss,"narg(",5)) { // Number of arguments.
               if (*ss5==')') _cimg_mp_return(0);
               arg1 = 0;
               for (s = ss5; s<se; ++s) {
@@ -14856,7 +14856,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_constant(arg1);
             }
             if ((cimg_sscanf(ss,"norm%u%c",&(arg1=~0U),&sep)==2 && sep=='(') ||
-                !std::strncmp(ss,"norminf(",8)) {
+                !std::strncmp(ss,"norminf(",8)) { // Lp norm.
               if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
               pos = mempos++;
               switch (arg1) {
@@ -14880,7 +14880,7 @@ namespace cimg_library_suffixed {
             break;
 
           case 'p' :
-            if (!std::strncmp(ss,"print(",6)) {
+            if (!std::strncmp(ss,"print(",6)) { // Print expression.
               pos = compile(ss6,se1);
               *se1 = 0;
               ((CImg<longT>::vector(_cimg_mp_enfunc(mp_print),pos),
@@ -14891,7 +14891,7 @@ namespace cimg_library_suffixed {
             break;
 
           case 'r' :
-            if (!std::strncmp(ss,"rol(",4) || !std::strncmp(ss,"ror(",4)) {
+            if (!std::strncmp(ss,"rol(",4) || !std::strncmp(ss,"ror(",4)) { // Bitwise rotation.
               arg2 = 1;
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1-expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss4,s1==se2?++s1:s1);
@@ -14901,7 +14901,7 @@ namespace cimg_library_suffixed {
               }
               _cimg_mp_opcode2(*ss2=='l'?mp_rol:mp_ror,arg1,arg2);
             }
-            if (!std::strncmp(ss,"round(",6)) {
+            if (!std::strncmp(ss,"round(",6)) { // Value rounding.
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss6,s1==se2?++s1:s1);
               arg2 = 1; arg3 = 0;
@@ -14963,7 +14963,7 @@ namespace cimg_library_suffixed {
             break;
 
           case 'u' :
-            if (*ss1=='(') { // u(..).
+            if (*ss1=='(') { // Random value with uniform distribution.
               if (*ss2==')') _cimg_mp_opcode2(mp_u,0,1);
               s1 = ss2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               if (s1<se1) _cimg_mp_opcode2(mp_u,compile(ss2,s1),compile(s1 + 1,se1));
@@ -14972,7 +14972,7 @@ namespace cimg_library_suffixed {
             break;
 
           case 'w' :
-            if (!std::strncmp(ss,"whiledo(",8)) {
+            if (!std::strncmp(ss,"whiledo(",8)) { // While...do
               s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               p1 = code._width; arg1 = compile(ss8,s1);
               p2 = code._width; arg2 = compile(s1 + 1,se1);
@@ -15038,6 +15038,33 @@ namespace cimg_library_suffixed {
         return std::acos(mp.mem[mp.opcode(2)]);
       }
 
+      static double mp_arg(_cimg_math_parser& mp) {
+        const int _ind = (int)mp.mem[mp.opcode(2)];
+        const unsigned int nb_args = mp.opcode._height - 2, ind = _ind<0?_ind + nb_args:(unsigned int)_ind;
+        if (ind>=nb_args) return 0;
+        return mp.mem[mp.opcode(ind + 2)];
+      }
+
+      static double mp_argmin(_cimg_math_parser& mp) {
+        double val = mp.mem[mp.opcode(2)];
+        unsigned int argval = 0;
+        for (unsigned int i = 3; i<mp.opcode._height; ++i) {
+          const double _val = mp.mem[mp.opcode(i)];
+          if (_val<val) { val = _val; argval = i - 2; }
+        }
+        return (double)argval;
+      }
+
+      static double mp_argmax(_cimg_math_parser& mp) {
+        double val = mp.mem[mp.opcode(2)];
+        unsigned int argval = 0;
+        for (unsigned int i = 3; i<mp.opcode._height; ++i) {
+          const double _val = mp.mem[mp.opcode(i)];
+          if (_val>val) { val = _val; argval = i - 2; }
+        }
+        return (double)argval;
+      }
+
       static double mp_asin(_cimg_math_parser& mp) {
         return std::asin(mp.mem[mp.opcode(2)]);
       }
@@ -15072,6 +15099,64 @@ namespace cimg_library_suffixed {
 
       static double mp_cosh(_cimg_math_parser& mp) {
         return std::cosh(mp.mem[mp.opcode(2)]);
+      }
+
+      static double mp_cut(_cimg_math_parser& mp) {
+        double val = mp.mem[mp.opcode(2)], cmin = mp.mem[mp.opcode(3)], cmax = mp.mem[mp.opcode(4)];
+        return val<cmin?cmin:val>cmax?cmax:val;
+      }
+
+      static double mp_debug(_cimg_math_parser& mp) {
+#ifdef cimg_use_openmp
+        const unsigned int n_thread = omp_get_thread_num();
+#else
+        const unsigned int n_thread = 0;
+#endif
+        const CImg<char> expr(mp.opcode);
+        const unsigned int pos = (unsigned int)mp.opcode(1);
+        std::fprintf(cimg::output(),
+                     "\n[_cimg_math_parser] %p[thread #%u]: Start debugging expression '%s', code length %ld -> mem[%u] (memsize: %u)",
+                     (void*)&mp,n_thread,expr._data + 3,mp.opcode(2),pos,mp.mem._width);
+        std::fflush(cimg::output());
+        const CImg<longT> *const p_end = (++mp.p_code) + mp.opcode(2);
+        for ( ; mp.p_code<p_end; ++mp.p_code) {
+          cimg_test_abort();
+          const CImg<longT> &op = *mp.p_code;
+          mp.opcode._data = op._data; mp.opcode._height = op._height;
+          const unsigned target = (unsigned int)mp.opcode[1];
+          mp.mem[target] = _cimg_mp_defunc(mp);
+          std::fprintf(cimg::output(),
+                       "\n[_cimg_math_parser] %p[thread #%u]: Opcode %p = [ %s ] -> mem[%u] = %g",
+                       (void*)&mp,n_thread,(void*)mp.opcode._data,mp.opcode.value_string().data(),target,
+                       mp.mem[target]);
+          std::fflush(cimg::output());
+        }
+        std::fprintf(cimg::output(),
+                     "\n[_cimg_math_parser] %p[thread #%u]: End debugging expression '%s' -> mem[%u] = %g (memsize: %u)",
+                     (void*)&mp,n_thread,expr._data + 3,pos,mp.mem[pos],mp.mem._width);
+        std::fflush(cimg::output());
+        return mp.mem[pos];
+      }
+
+      static double mp_dowhile(_cimg_math_parser& mp) {
+        const unsigned int
+          mem_proc = (unsigned int)mp.opcode(1),
+          mem_cond = (unsigned int)mp.opcode(2);
+        const CImg<longT>
+          *const p_proc = ++mp.p_code,
+          *const p_end = p_proc + mp.opcode(3);
+        do {
+          cimg_test_abort();
+          for (mp.p_code = p_proc; mp.p_code<p_end; ++mp.p_code) { // Evaluate loop iteration + condition.
+            cimg_test_abort();
+            const CImg<longT> &op = *mp.p_code;
+            mp.opcode._data = op._data; mp.opcode._height = op._height;
+            const unsigned int target = (unsigned int)mp.opcode[1];
+            mp.mem[target] = _cimg_mp_defunc(mp);
+          }
+        } while (mp.mem[mem_cond]);
+        --mp.p_code;
+        return mp.mem[mem_proc];
       }
 
       static double mp_div(_cimg_math_parser& mp) {
@@ -15119,6 +15204,159 @@ namespace cimg_library_suffixed {
       static double mp_i(_cimg_math_parser& mp) {
         return (double)mp.input.atXYZC((int)mp.mem[_cimg_mp_x],(int)mp.mem[_cimg_mp_y],
                                        (int)mp.mem[_cimg_mp_z],(int)mp.mem[_cimg_mp_c],0);
+      }
+
+      static double mp_if(_cimg_math_parser& mp) {
+        const bool is_cond = (bool)mp.mem[mp.opcode(2)];
+        const unsigned int
+          mem_left = (unsigned int)mp.opcode(3),
+          mem_right = (unsigned int)mp.opcode(4);
+        const CImg<longT>
+          *const p_right = ++mp.p_code + mp.opcode(5),
+          *const p_end = p_right + mp.opcode(6);
+        if (is_cond) {
+          for ( ; mp.p_code<p_right; ++mp.p_code) {
+            cimg_test_abort();
+            const CImg<longT> &op = *mp.p_code;
+            mp.opcode._data = op._data; mp.opcode._height = op._height;
+            const unsigned int target = (unsigned int)mp.opcode[1];
+            mp.mem[target] = _cimg_mp_defunc(mp);
+          }
+          mp.p_code = p_end - 1;
+          return mp.mem[mem_left];
+        }
+        for (mp.p_code = p_right; mp.p_code<p_end; ++mp.p_code) {
+          cimg_test_abort();
+          const CImg<longT> &op = *mp.p_code;
+          mp.opcode._data = op._data; mp.opcode._height = op._height;
+          const unsigned int target = (unsigned int)mp.opcode[1];
+          mp.mem[target] = _cimg_mp_defunc(mp);
+        }
+        --mp.p_code;
+        return mp.mem[mem_right];
+      }
+
+      static double mp_int(_cimg_math_parser& mp) {
+        return (double)(long)mp.mem[mp.opcode(2)];
+      }
+
+      static double mp_ioff(_cimg_math_parser& mp) {
+        const long off = (long)mp.mem[mp.opcode(2)];
+        const unsigned int boundary = (unsigned int)mp.mem[mp.opcode(3)];
+        if (off<0 || off>=(long)mp.input.size())
+          switch (boundary) {
+          case 2 : // Periodic boundary.
+            if (mp.input) return (double)mp.input[cimg::mod(off,(long)mp.input.size())];
+            return 0;
+          case 1 : // Neumann boundary.
+            if (mp.input) return (double)(off<0?*mp.input:mp.input.back());
+            return 0;
+          default : // Dirichet boundary.
+            return 0;
+          }
+        return (double)mp.input[off];
+      }
+
+      static double mp_isbool(_cimg_math_parser& mp) {
+        const double val = mp.mem[mp.opcode(2)];
+        return (val==0.0 || val==1.0);
+      }
+
+      static double mp_isin(_cimg_math_parser& mp) {
+        double value = mp.mem[mp.opcode(2)];
+        for (unsigned int i = 3; i<mp.opcode._height; ++i)
+          if (value==mp.mem[mp.opcode(i)]) return 1.0;
+        return 0.0;
+      }
+
+      static double mp_isinf(_cimg_math_parser& mp) {
+        const double val = mp.mem[mp.opcode(2)];
+        return cimg::type<double>::is_inf(val);
+      }
+
+      static double mp_isint(_cimg_math_parser& mp) {
+        const double val = mp.mem[mp.opcode(2)];
+        return (double)(cimg::mod(val,1.0)==0);
+      }
+
+      static double mp_isnan(_cimg_math_parser& mp) {
+        const double val = mp.mem[mp.opcode(2)];
+        return cimg::type<double>::is_nan(val);
+      }
+
+      static double mp_ixyzc(_cimg_math_parser& mp) {
+        const double
+          x = mp.mem[mp.opcode(2)], y = mp.mem[mp.opcode(3)], z = mp.mem[mp.opcode(4)], c = mp.mem[mp.opcode(5)];
+        const int i = (int)mp.mem[mp.opcode(6)], b = (int)mp.mem[mp.opcode(7)];
+        if (i==0) { // Nearest neighbor interpolation.
+          if (b==2) return (double)mp.input.atXYZC(cimg::mod((int)x,mp.input.width()),
+                                                   cimg::mod((int)y,mp.input.height()),
+                                                   cimg::mod((int)z,mp.input.depth()),
+                                                   cimg::mod((int)c,mp.input.spectrum()));
+          if (b==1) return (double)mp.input.atXYZC((int)x,(int)y,(int)z,(int)c);
+          return (double)mp.input.atXYZC((int)x,(int)y,(int)z,(int)c,0);
+        } else { // Linear interpolation.
+          if (b==2) return (double)mp.input.linear_atXYZC(cimg::mod((float)x,(float)mp.input.width()),
+                                                          cimg::mod((float)y,(float)mp.input.height()),
+                                                          cimg::mod((float)z,(float)mp.input.depth()),
+                                                          cimg::mod((float)c,(float)mp.input.spectrum()));
+          if (b==1) return (double)mp.input.linear_atXYZC((float)x,(float)y,(float)z,(float)c);
+          return (double)mp.input.linear_atXYZC((float)x,(float)y,(float)z,(float)c,0);
+        }
+      }
+
+      static double mp_joff(_cimg_math_parser& mp) {
+        const int
+          x = (int)mp.mem[_cimg_mp_x], y = (int)mp.mem[_cimg_mp_y],
+          z = (int)mp.mem[_cimg_mp_z], c = (int)mp.mem[_cimg_mp_c];
+        const long off = mp.input.offset(x,y,z,c) + (long)(mp.mem[mp.opcode(2)]);
+        const unsigned int boundary = (unsigned int)mp.mem[mp.opcode(3)];
+        if (off<0 || off>=(long)mp.input.size())
+          switch (boundary) {
+          case 2 : // Periodic boundary.
+            if (mp.input) return (double)mp.input[cimg::mod(off,(long)mp.input.size())];
+            return 0;
+          case 1 : // Neumann boundary.
+            if (mp.input) return (double)(off<0?*mp.input:mp.input.back());
+            return 0;
+          default : // Dirichet boundary.
+            return 0;
+          }
+        return (double)mp.input[off];
+      }
+
+      static double mp_jxyzc(_cimg_math_parser& mp) {
+        const double x = mp.mem[_cimg_mp_x], y = mp.mem[_cimg_mp_y], z = mp.mem[_cimg_mp_z], c = mp.mem[_cimg_mp_c];
+        const double
+          dx = mp.mem[mp.opcode(2)], dy = mp.mem[mp.opcode(3)], dz = mp.mem[mp.opcode(4)], dc = mp.mem[mp.opcode(5)];
+        const int i = (int)mp.mem[mp.opcode(6)], b = (int)mp.mem[mp.opcode(7)];
+        if (i==0) { // Nearest neighbor interpolation.
+          if (b==2) return (double)mp.input.atXYZC(cimg::mod((int)(x + dx),mp.input.width()),
+                                                   cimg::mod((int)(y + dy),mp.input.height()),
+                                                   cimg::mod((int)(z + dz),mp.input.depth()),
+                                                   cimg::mod((int)(c + dc),mp.input.spectrum()));
+          if (b==1) return (double)mp.input.atXYZC((int)(x + dx),(int)(y + dy),(int)(z + dz),(int)(c + dc));
+          return (double)mp.input.atXYZC((int)(x + dx),(int)(y + dy),(int)(z + dz),(int)(c + dc),0);
+        } else { // Linear interpolation.
+          if (b==2)
+            return (double)mp.input.linear_atXYZC(cimg::mod((float)(x + dx),(float)mp.input.width()),
+                                                  cimg::mod((float)(y + dy),(float)mp.input.height()),
+                                                  cimg::mod((float)(z + dz),(float)mp.input.depth()),
+                                                  cimg::mod((float)(c + dc),(float)mp.input.spectrum()));
+          if (b==1) return (double)mp.input.linear_atXYZC((float)(x + dx),(float)(y + dy),
+                                                          (float)(z + dz),(float)(c + dc));
+          return (double)mp.input.linear_atXYZC((float)(x + dx),(float)(y + dy),(float)(z + dz),(float)(c + dc),0);
+        }
+      }
+
+      static double mp_kth(_cimg_math_parser& mp) {
+        CImg<doubleT> values(mp.opcode._height - 3);
+        double *p = values.data();
+        for (unsigned int i = 3; i<mp.opcode._height; ++i) *(p++) = mp.mem[mp.opcode(i)];
+        int ind = (int)cimg::round(mp.mem[mp.opcode(2)]);
+        if (ind<0) ind+=values.width() + 1;
+        ind = cimg::max(1,cimg::min(values.width(),ind));
+        return values.kth_smallest(ind - 1);
       }
 
       static double mp_log(_cimg_math_parser& mp) {
@@ -15169,6 +15407,14 @@ namespace cimg_library_suffixed {
         return (double)(bool)mp.mem[mem_right];
       }
 
+      static double mp_lsl(_cimg_math_parser& mp) {
+        return (long)mp.mem[mp.opcode(2)]<<(unsigned int)mp.mem[mp.opcode(3)];
+      }
+
+      static double mp_lsr(_cimg_math_parser& mp) {
+        return (long)mp.mem[mp.opcode(2)]>>(unsigned int)mp.mem[mp.opcode(3)];
+      }
+
       static double mp_lt(_cimg_math_parser& mp) {
         return (double)(mp.mem[mp.opcode(2)]<mp.mem[mp.opcode(3)]);
       }
@@ -15177,8 +15423,27 @@ namespace cimg_library_suffixed {
         return (double)(mp.mem[mp.opcode(2)]<=mp.mem[mp.opcode(3)]);
       }
 
+      static double mp_max(_cimg_math_parser& mp) {
+        double val = mp.mem[mp.opcode(2)];
+        for (unsigned int i = 3; i<mp.opcode._height; ++i) val = cimg::max(val,mp.mem[mp.opcode(i)]);
+        return val;
+      }
+
+      static double mp_min(_cimg_math_parser& mp) {
+        double val = mp.mem[mp.opcode(2)];
+        for (unsigned int i = 3; i<mp.opcode._height; ++i) val = cimg::min(val,mp.mem[mp.opcode(i)]);
+        return val;
+      }
+
       static double mp_minus(_cimg_math_parser& mp) {
         return -mp.mem[mp.opcode(2)];
+      }
+
+      static double mp_med(_cimg_math_parser& mp) {
+        CImg<doubleT> values(mp.opcode._height - 2);
+        double *p = values.data();
+        for (unsigned int i = 2; i<mp.opcode._height; ++i) *(p++) = mp.mem[mp.opcode(i)];
+        return values.median();
       }
 
       static double mp_modulo(_cimg_math_parser& mp) {
@@ -15247,8 +15512,72 @@ namespace cimg_library_suffixed {
         return value*value*value*value;
       }
 
+      static double mp_print(_cimg_math_parser& mp) {
+        const CImg<char> expr(mp.opcode);
+        const double val = mp.mem[mp.opcode(1)];
+        std::fprintf(cimg::output(),"\n[_cimg_math_parser] %s = %g",expr._data + 2,val);
+        std::fflush(cimg::output());
+        return val;
+      }
+
+      static double mp_replace(_cimg_math_parser& mp) {
+        return mp.mem[mp.opcode(2)];
+      }
+
+      static double mp_rol(_cimg_math_parser& mp) {
+        return cimg::rol(mp.mem[mp.opcode(2)],(unsigned int)mp.mem[mp.opcode(3)]);
+      }
+
+      static double mp_ror(_cimg_math_parser& mp) {
+        return cimg::ror(mp.mem[mp.opcode(2)],(unsigned int)mp.mem[mp.opcode(3)]);
+      }
+
       static double mp_round(_cimg_math_parser& mp) {
         return cimg::round(mp.mem[mp.opcode(2)],mp.mem[mp.opcode(3)],(int)mp.mem[mp.opcode(4)]);
+      }
+
+      static double mp_set_ioff(_cimg_math_parser& mp) {
+        const long off = (long)mp.mem[mp.opcode(2)];
+        const double value = mp.mem[mp.opcode(3)];
+        if (off>=0 && off<(long)mp.output.size()) mp.output._data[off] = (T)value;
+        return value;
+      }
+
+      static double mp_set_ixyzc(_cimg_math_parser& mp) {
+        const int
+          x = (int)mp.mem[mp.opcode(2)], y = (int)mp.mem[mp.opcode(3)],
+          z = (int)mp.mem[mp.opcode(4)], c = (int)mp.mem[mp.opcode(5)];
+        const double value = mp.mem[mp.opcode(6)];
+        if (x>=0 && x<mp.output.width() && y>=0 && y<mp.output.height() &&
+            z>=0 && z<mp.output.depth() && c>=0 && c<mp.output.spectrum()) {
+          mp.output(x,y,z,c) = (T)value;
+        }
+        return value;
+      }
+
+      static double mp_set_joff(_cimg_math_parser& mp) {
+        const int
+          x = (int)mp.mem[_cimg_mp_x], y = (int)mp.mem[_cimg_mp_y],
+          z = (int)mp.mem[_cimg_mp_z], c = (int)mp.mem[_cimg_mp_c];
+        const long off = mp.output.offset(x,y,z,c) + (long)(mp.mem[mp.opcode(2)]);
+        const double value = mp.mem[mp.opcode(3)];
+        if (off>=0 && off<(long)mp.output.size()) mp.output._data[off] = (T)value;
+        return value;
+      }
+
+      static double mp_set_jxyzc(_cimg_math_parser& mp) {
+        const double
+          dx = mp.mem[mp.opcode(2)], dy = mp.mem[mp.opcode(3)],
+          dz = mp.mem[mp.opcode(4)], dc = mp.mem[mp.opcode(5)];
+        const int
+          x = (int)(dx + mp.mem[_cimg_mp_x]), y = (int)(dy + mp.mem[_cimg_mp_y]),
+          z = (int)(dz + mp.mem[_cimg_mp_z]), c = (int)(dc + mp.mem[_cimg_mp_c]);
+        const double value = mp.mem[mp.opcode(6)];
+        if (x>=0 && x<mp.output.width() && y>=0 && y<mp.output.height() &&
+            z>=0 && z<mp.output.depth() && c>=0 && c<mp.output.spectrum()) {
+          mp.output(x,y,z,c) = (T)value;
+        }
+        return value;
       }
 
       static double mp_sign(_cimg_math_parser& mp) {
@@ -15257,6 +15586,10 @@ namespace cimg_library_suffixed {
 
       static double mp_sin(_cimg_math_parser& mp) {
         return std::sin(mp.mem[mp.opcode(2)]);
+      }
+
+      static double mp_sinc(_cimg_math_parser& mp) {
+        return cimg::sinc(mp.mem[mp.opcode(2)]);
       }
 
       static double mp_sinh(_cimg_math_parser& mp) {
@@ -15286,331 +15619,6 @@ namespace cimg_library_suffixed {
       static double mp_u(_cimg_math_parser& mp) {
         const double m = mp.mem[mp.opcode(2)];
         return m + cimg::rand()*(mp.mem[mp.opcode(3)] - m);
-      }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      static double mp_cut(_cimg_math_parser& mp) {
-        double val = mp.mem[mp.opcode(2)], cmin = mp.mem[mp.opcode(3)], cmax = mp.mem[mp.opcode(4)];
-        return val<cmin?cmin:val>cmax?cmax:val;
-      }
-
-      static double mp_min(_cimg_math_parser& mp) {
-        double val = mp.mem[mp.opcode(2)];
-        for (unsigned int i = 3; i<mp.opcode._height; ++i) val = cimg::min(val,mp.mem[mp.opcode(i)]);
-        return val;
-      }
-
-      static double mp_max(_cimg_math_parser& mp) {
-        double val = mp.mem[mp.opcode(2)];
-        for (unsigned int i = 3; i<mp.opcode._height; ++i) val = cimg::max(val,mp.mem[mp.opcode(i)]);
-        return val;
-      }
-
-      static double mp_med(_cimg_math_parser& mp) {
-        CImg<doubleT> values(mp.opcode._height - 2);
-        double *p = values.data();
-        for (unsigned int i = 2; i<mp.opcode._height; ++i) *(p++) = mp.mem[mp.opcode(i)];
-        return values.median();
-      }
-
-      static double mp_kth(_cimg_math_parser& mp) {
-        CImg<doubleT> values(mp.opcode._height - 3);
-        double *p = values.data();
-        for (unsigned int i = 3; i<mp.opcode._height; ++i) *(p++) = mp.mem[mp.opcode(i)];
-        int ind = (int)cimg::round(mp.mem[mp.opcode(2)]);
-        if (ind<0) ind+=values.width() + 1;
-        ind = cimg::max(1,cimg::min(values.width(),ind));
-        return values.kth_smallest(ind - 1);
-      }
-
-      static double mp_argmin(_cimg_math_parser& mp) {
-        double val = mp.mem[mp.opcode(2)];
-        unsigned int argval = 0;
-        for (unsigned int i = 3; i<mp.opcode._height; ++i) {
-          const double _val = mp.mem[mp.opcode(i)];
-          if (_val<val) { val = _val; argval = i - 2; }
-        }
-        return (double)argval;
-      }
-
-      static double mp_argmax(_cimg_math_parser& mp) {
-        double val = mp.mem[mp.opcode(2)];
-        unsigned int argval = 0;
-        for (unsigned int i = 3; i<mp.opcode._height; ++i) {
-          const double _val = mp.mem[mp.opcode(i)];
-          if (_val>val) { val = _val; argval = i - 2; }
-        }
-        return (double)argval;
-      }
-
-      static double mp_isin(_cimg_math_parser& mp) {
-        double value = mp.mem[mp.opcode(2)];
-        for (unsigned int i = 3; i<mp.opcode._height; ++i)
-          if (value==mp.mem[mp.opcode(i)]) return 1.0;
-        return 0.0;
-      }
-
-      static double mp_isnan(_cimg_math_parser& mp) {
-        const double val = mp.mem[mp.opcode(2)];
-        return cimg::type<double>::is_nan(val);
-      }
-
-      static double mp_isinf(_cimg_math_parser& mp) {
-        const double val = mp.mem[mp.opcode(2)];
-        return cimg::type<double>::is_inf(val);
-      }
-
-      static double mp_isint(_cimg_math_parser& mp) {
-        const double val = mp.mem[mp.opcode(2)];
-        return (double)(cimg::mod(val,1.0)==0);
-      }
-
-      static double mp_isbool(_cimg_math_parser& mp) {
-        const double val = mp.mem[mp.opcode(2)];
-        return (val==0.0 || val==1.0);
-      }
-
-      static double mp_rol(_cimg_math_parser& mp) {
-        return cimg::rol(mp.mem[mp.opcode(2)],(unsigned int)mp.mem[mp.opcode(3)]);
-      }
-
-      static double mp_ror(_cimg_math_parser& mp) {
-        return cimg::ror(mp.mem[mp.opcode(2)],(unsigned int)mp.mem[mp.opcode(3)]);
-      }
-
-      static double mp_lsl(_cimg_math_parser& mp) {
-        return (long)mp.mem[mp.opcode(2)]<<(unsigned int)mp.mem[mp.opcode(3)];
-      }
-
-      static double mp_lsr(_cimg_math_parser& mp) {
-        return (long)mp.mem[mp.opcode(2)]>>(unsigned int)mp.mem[mp.opcode(3)];
-      }
-
-      static double mp_sinc(_cimg_math_parser& mp) {
-        return cimg::sinc(mp.mem[mp.opcode(2)]);
-      }
-
-      static double mp_arg(_cimg_math_parser& mp) {
-        const int _ind = (int)mp.mem[mp.opcode(2)];
-        const unsigned int nb_args = mp.opcode._height - 2, ind = _ind<0?_ind + nb_args:(unsigned int)_ind;
-        if (ind>=nb_args) return 0;
-        return mp.mem[mp.opcode(ind + 2)];
-      }
-
-      static double mp_int(_cimg_math_parser& mp) {
-        return (double)(long)mp.mem[mp.opcode(2)];
-      }
-
-      static double mp_replace(_cimg_math_parser& mp) {
-        return mp.mem[mp.opcode(2)];
-      }
-
-      static double mp_ioff(_cimg_math_parser& mp) {
-        const long off = (long)mp.mem[mp.opcode(2)];
-        const unsigned int boundary = (unsigned int)mp.mem[mp.opcode(3)];
-        if (off<0 || off>=(long)mp.input.size())
-          switch (boundary) {
-          case 2 : // Periodic boundary.
-            if (mp.input) return (double)mp.input[cimg::mod(off,(long)mp.input.size())];
-            return 0;
-          case 1 : // Neumann boundary.
-            if (mp.input) return (double)(off<0?*mp.input:mp.input.back());
-            return 0;
-          default : // Dirichet boundary.
-            return 0;
-          }
-        return (double)mp.input[off];
-      }
-
-      static double mp_joff(_cimg_math_parser& mp) {
-        const int
-          x = (int)mp.mem[_cimg_mp_x], y = (int)mp.mem[_cimg_mp_y],
-          z = (int)mp.mem[_cimg_mp_z], c = (int)mp.mem[_cimg_mp_c];
-        const long off = mp.input.offset(x,y,z,c) + (long)(mp.mem[mp.opcode(2)]);
-        const unsigned int boundary = (unsigned int)mp.mem[mp.opcode(3)];
-        if (off<0 || off>=(long)mp.input.size())
-          switch (boundary) {
-          case 2 : // Periodic boundary.
-            if (mp.input) return (double)mp.input[cimg::mod(off,(long)mp.input.size())];
-            return 0;
-          case 1 : // Neumann boundary.
-            if (mp.input) return (double)(off<0?*mp.input:mp.input.back());
-            return 0;
-          default : // Dirichet boundary.
-            return 0;
-          }
-        return (double)mp.input[off];
-      }
-
-      static double mp_ixyzc(_cimg_math_parser& mp) {
-        const double
-          x = mp.mem[mp.opcode(2)], y = mp.mem[mp.opcode(3)], z = mp.mem[mp.opcode(4)], c = mp.mem[mp.opcode(5)];
-        const int i = (int)mp.mem[mp.opcode(6)], b = (int)mp.mem[mp.opcode(7)];
-        if (i==0) { // Nearest neighbor interpolation.
-          if (b==2) return (double)mp.input.atXYZC(cimg::mod((int)x,mp.input.width()),
-                                                   cimg::mod((int)y,mp.input.height()),
-                                                   cimg::mod((int)z,mp.input.depth()),
-                                                   cimg::mod((int)c,mp.input.spectrum()));
-          if (b==1) return (double)mp.input.atXYZC((int)x,(int)y,(int)z,(int)c);
-          return (double)mp.input.atXYZC((int)x,(int)y,(int)z,(int)c,0);
-        } else { // Linear interpolation.
-          if (b==2) return (double)mp.input.linear_atXYZC(cimg::mod((float)x,(float)mp.input.width()),
-                                                          cimg::mod((float)y,(float)mp.input.height()),
-                                                          cimg::mod((float)z,(float)mp.input.depth()),
-                                                          cimg::mod((float)c,(float)mp.input.spectrum()));
-          if (b==1) return (double)mp.input.linear_atXYZC((float)x,(float)y,(float)z,(float)c);
-          return (double)mp.input.linear_atXYZC((float)x,(float)y,(float)z,(float)c,0);
-        }
-      }
-
-      static double mp_jxyzc(_cimg_math_parser& mp) {
-        const double x = mp.mem[_cimg_mp_x], y = mp.mem[_cimg_mp_y], z = mp.mem[_cimg_mp_z], c = mp.mem[_cimg_mp_c];
-        const double
-          dx = mp.mem[mp.opcode(2)], dy = mp.mem[mp.opcode(3)], dz = mp.mem[mp.opcode(4)], dc = mp.mem[mp.opcode(5)];
-        const int i = (int)mp.mem[mp.opcode(6)], b = (int)mp.mem[mp.opcode(7)];
-        if (i==0) { // Nearest neighbor interpolation.
-          if (b==2) return (double)mp.input.atXYZC(cimg::mod((int)(x + dx),mp.input.width()),
-                                                   cimg::mod((int)(y + dy),mp.input.height()),
-                                                   cimg::mod((int)(z + dz),mp.input.depth()),
-                                                   cimg::mod((int)(c + dc),mp.input.spectrum()));
-          if (b==1) return (double)mp.input.atXYZC((int)(x + dx),(int)(y + dy),(int)(z + dz),(int)(c + dc));
-          return (double)mp.input.atXYZC((int)(x + dx),(int)(y + dy),(int)(z + dz),(int)(c + dc),0);
-        } else { // Linear interpolation.
-          if (b==2)
-            return (double)mp.input.linear_atXYZC(cimg::mod((float)(x + dx),(float)mp.input.width()),
-                                                  cimg::mod((float)(y + dy),(float)mp.input.height()),
-                                                  cimg::mod((float)(z + dz),(float)mp.input.depth()),
-                                                  cimg::mod((float)(c + dc),(float)mp.input.spectrum()));
-          if (b==1) return (double)mp.input.linear_atXYZC((float)(x + dx),(float)(y + dy),
-                                                          (float)(z + dz),(float)(c + dc));
-          return (double)mp.input.linear_atXYZC((float)(x + dx),(float)(y + dy),(float)(z + dz),(float)(c + dc),0);
-        }
-      }
-
-      static double mp_set_ioff(_cimg_math_parser& mp) {
-        const long off = (long)mp.mem[mp.opcode(2)];
-        const double value = mp.mem[mp.opcode(3)];
-        if (off>=0 && off<(long)mp.output.size()) mp.output._data[off] = (T)value;
-        return value;
-      }
-
-      static double mp_set_joff(_cimg_math_parser& mp) {
-        const int
-          x = (int)mp.mem[_cimg_mp_x], y = (int)mp.mem[_cimg_mp_y],
-          z = (int)mp.mem[_cimg_mp_z], c = (int)mp.mem[_cimg_mp_c];
-        const long off = mp.output.offset(x,y,z,c) + (long)(mp.mem[mp.opcode(2)]);
-        const double value = mp.mem[mp.opcode(3)];
-        if (off>=0 && off<(long)mp.output.size()) mp.output._data[off] = (T)value;
-        return value;
-      }
-
-      static double mp_set_ixyzc(_cimg_math_parser& mp) {
-        const int
-          x = (int)mp.mem[mp.opcode(2)], y = (int)mp.mem[mp.opcode(3)],
-          z = (int)mp.mem[mp.opcode(4)], c = (int)mp.mem[mp.opcode(5)];
-        const double value = mp.mem[mp.opcode(6)];
-        if (x>=0 && x<mp.output.width() && y>=0 && y<mp.output.height() &&
-            z>=0 && z<mp.output.depth() && c>=0 && c<mp.output.spectrum()) {
-          mp.output(x,y,z,c) = (T)value;
-        }
-        return value;
-      }
-
-      static double mp_set_jxyzc(_cimg_math_parser& mp) {
-        const double
-          dx = mp.mem[mp.opcode(2)], dy = mp.mem[mp.opcode(3)],
-          dz = mp.mem[mp.opcode(4)], dc = mp.mem[mp.opcode(5)];
-        const int
-          x = (int)(dx + mp.mem[_cimg_mp_x]), y = (int)(dy + mp.mem[_cimg_mp_y]),
-          z = (int)(dz + mp.mem[_cimg_mp_z]), c = (int)(dc + mp.mem[_cimg_mp_c]);
-        const double value = mp.mem[mp.opcode(6)];
-        if (x>=0 && x<mp.output.width() && y>=0 && y<mp.output.height() &&
-            z>=0 && z<mp.output.depth() && c>=0 && c<mp.output.spectrum()) {
-          mp.output(x,y,z,c) = (T)value;
-        }
-        return value;
-      }
-
-      static double mp_if(_cimg_math_parser& mp) {
-        const bool is_cond = (bool)mp.mem[mp.opcode(2)];
-        const unsigned int
-          mem_left = (unsigned int)mp.opcode(3),
-          mem_right = (unsigned int)mp.opcode(4);
-        const CImg<longT>
-          *const p_right = ++mp.p_code + mp.opcode(5),
-          *const p_end = p_right + mp.opcode(6);
-        if (is_cond) {
-          for ( ; mp.p_code<p_right; ++mp.p_code) {
-            cimg_test_abort();
-            const CImg<longT> &op = *mp.p_code;
-            mp.opcode._data = op._data; mp.opcode._height = op._height;
-            const unsigned int target = (unsigned int)mp.opcode[1];
-            mp.mem[target] = _cimg_mp_defunc(mp);
-          }
-          mp.p_code = p_end - 1;
-          return mp.mem[mem_left];
-        }
-        for (mp.p_code = p_right; mp.p_code<p_end; ++mp.p_code) {
-          cimg_test_abort();
-          const CImg<longT> &op = *mp.p_code;
-          mp.opcode._data = op._data; mp.opcode._height = op._height;
-          const unsigned int target = (unsigned int)mp.opcode[1];
-          mp.mem[target] = _cimg_mp_defunc(mp);
-        }
-        --mp.p_code;
-        return mp.mem[mem_right];
-      }
-
-      static double mp_dowhile(_cimg_math_parser& mp) {
-        const unsigned int
-          mem_proc = (unsigned int)mp.opcode(1),
-          mem_cond = (unsigned int)mp.opcode(2);
-        const CImg<longT>
-          *const p_proc = ++mp.p_code,
-          *const p_end = p_proc + mp.opcode(3);
-        do {
-          cimg_test_abort();
-          for (mp.p_code = p_proc; mp.p_code<p_end; ++mp.p_code) { // Evaluate loop iteration + condition.
-            cimg_test_abort();
-            const CImg<longT> &op = *mp.p_code;
-            mp.opcode._data = op._data; mp.opcode._height = op._height;
-            const unsigned int target = (unsigned int)mp.opcode[1];
-            mp.mem[target] = _cimg_mp_defunc(mp);
-          }
-        } while (mp.mem[mem_cond]);
-        --mp.p_code;
-        return mp.mem[mem_proc];
       }
 
       static double mp_whiledo(_cimg_math_parser& mp) { // Used also by 'for()'.
@@ -15645,47 +15653,6 @@ namespace cimg_library_suffixed {
         } while (is_cond);
         mp.p_code = p_end - 1;
         return is_first_iter?0:mp.mem[mem_proc];
-      }
-
-      static double mp_print(_cimg_math_parser& mp) {
-        const CImg<char> expr(mp.opcode);
-        const double val = mp.mem[mp.opcode(1)];
-        std::fprintf(cimg::output(),"\n[_cimg_math_parser] %s = %g",expr._data + 2,val);
-        std::fflush(cimg::output());
-        return val;
-      }
-
-      static double mp_debug(_cimg_math_parser& mp) {
-#ifdef cimg_use_openmp
-        const unsigned int n_thread = omp_get_thread_num();
-#else
-        const unsigned int n_thread = 0;
-#endif
-        const CImg<char> expr(mp.opcode);
-        const unsigned int pos = (unsigned int)mp.opcode(1);
-        std::fprintf(cimg::output(),
-                     "\n[_cimg_math_parser] %p[thread #%u]: Start debugging expression '%s', code length %ld -> mem[%u] (memsize: %u)",
-                     (void*)&mp,n_thread,expr._data + 3,mp.opcode(2),pos,mp.mem._width);
-        std::fflush(cimg::output());
-
-        const CImg<longT> *const p_end = (++mp.p_code) + mp.opcode(2);
-        for ( ; mp.p_code<p_end; ++mp.p_code) {
-          cimg_test_abort();
-          const CImg<longT> &op = *mp.p_code;
-          mp.opcode._data = op._data; mp.opcode._height = op._height;
-          const unsigned target = (unsigned int)mp.opcode[1];
-          mp.mem[target] = _cimg_mp_defunc(mp);
-          std::fprintf(cimg::output(),
-                       "\n[_cimg_math_parser] %p[thread #%u]: Opcode %p = [ %s ] -> mem[%u] = %g",
-                       (void*)&mp,n_thread,(void*)mp.opcode._data,mp.opcode.value_string().data(),target,
-                       mp.mem[target]);
-          std::fflush(cimg::output());
-        }
-        std::fprintf(cimg::output(),
-                     "\n[_cimg_math_parser] %p[thread #%u]: End debugging expression '%s' -> mem[%u] = %g (memsize: %u)",
-                     (void*)&mp,n_thread,expr._data + 3,pos,mp.mem[pos],mp.mem._width);
-        std::fflush(cimg::output());
-        return mp.mem[pos];
       }
 
       // Evaluation procedure, with image data.

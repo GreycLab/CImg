@@ -13998,7 +13998,7 @@ namespace cimg_library_suffixed {
         opcode._is_shared = true;
       }
 
-      // Insert new constant value in memory.
+      // Insert constant value in memory.
       unsigned int constant(const double val) {
         if (val==(double)(int)val && val>=0 && val<=9) return (unsigned int)val;
         if (mempos>=mem._width) mem.resize(-200,1,1,1,0);
@@ -14180,7 +14180,7 @@ namespace cimg_library_suffixed {
             }
             if (*ss1=='c') { // ic
               if (reserved_label[10]!=~0U) _cimg_mp_return(reserved_label[10]);
-              if (mem_median==~0U) mem_median = constant(input.median());
+              if (mem_median==~0U) mem_median = input?constant(input.median()):0;
               _cimg_mp_return(mem_median);
             }
           }

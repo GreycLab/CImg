@@ -14278,7 +14278,8 @@ namespace cimg_library_suffixed {
 
         // Variable declaration/assignment or pixel assignment.
         for (s = ss1, ps = ss, ns = ss2; s<se1; ++s, ++ps, ++ns)
-          if (*s=='=' && *ns!='=' && *ps!='=' && *ps!='>' && *ps!='<' && *ps!='!' && level[s - expr._data]==clevel) {
+          if (*s=='=' && *ns!='=' && *ps!='=' && *ps!='>' && *ps!='<' && *ps!='!' && *ps!='+' && *ps!='-' &&
+              level[s - expr._data]==clevel) {
             CImg<charT> variable_name(ss,(unsigned int)(s - ss + 1));
             variable_name.back() = 0;
             cimg::strpare(variable_name);
@@ -14379,7 +14380,6 @@ namespace cimg_library_suffixed {
                 else { // Already declared (or reserved).
                   CImg<longT>::vector(_cimg_mp_enfunc(mp_replace),arg1,arg2).move_to(code);
                   mem(arg1,1) = 0; // Not a constant anymore.
-                  _cimg_mp_return(arg1);
                 }
               } else {
                 int label_pos = -1;
@@ -14393,14 +14393,31 @@ namespace cimg_library_suffixed {
                 } else { // Already declared.
                   arg1 = labelMpos[label_pos];
                   CImg<longT>::vector(_cimg_mp_enfunc(mp_replace),arg1,arg2).move_to(code);
-                  _cimg_mp_return(arg1);
                 }
               }
-              _cimg_mp_return(arg2);
+              _cimg_mp_return(arg1);
             }
           }
 
         // Look for unary/binary/ternary operators. The operator precedences should be the same as in C++.
+        for (s = se2, ps = se3; s>ss; --s, --ps)
+          if (*s=='=' && (*ps=='+' || *ps=='-') && level[s - expr._data]==clevel) { // Self-addition and self-subtraction.
+            arg1 = compile(ss,ps);
+            if (mem(arg1,1)) {
+              *se = saved_char;
+              throw CImgArgumentException("[_cimg_math_parser] "
+                                          "CImg<%s>::%s(): Invalid self-%s of constant '%s' in expression '%s%s%s'.",
+                                          pixel_type(),calling_function,
+                                          *ps=='+'?"addition":"subtraction",ss,
+                                          (ss - 8)>expr._data?"...":"",
+                                          (ss - 8)>expr._data?ss - 8:expr._data,
+                                          se<&expr.back()?"...":"");
+            }
+            arg2 = compile(s + 1,se);
+            CImg<longT>::vector(_cimg_mp_enfunc(*ps=='+'?mp_self_add:mp_self_sub),arg1,arg2).move_to(code);
+            _cimg_mp_return(arg1);
+          }
+
         for (s = ss; s<se; ++s)
           if (*s=='?' && level[s - expr._data]==clevel) { // Ternary operator 'cond?expr1:expr2'.
             s1 = s + 1; while (s1<se1 && (*s1!=':' || level[s1 - expr._data]!=clevel)) ++s1;
@@ -14509,20 +14526,21 @@ namespace cimg_library_suffixed {
             _cimg_mp_opcode2(mp_lsr,arg1,arg2);
           }
 
-        for (s = se2, ps = se3; s>ss; --s, --ps)
-          if (*s=='+' && *ps!='-' && *ps!='+' && *ps!='*' && *ps!='/' && *ps!='%' &&
+        for (ns = se1, s = se2, ps = se3; s>ss; --ns, --s, --ps)
+          if (*s=='+' && *ns!='+' && *ps!='-' && *ps!='+' && *ps!='*' && *ps!='/' && *ps!='%' &&
               *ps!='&' && *ps!='|' && *ps!='^' && *ps!='!' && *ps!='~' &&
               (*ps!='e' || !(ps>ss && (*(ps - 1)=='.' || (*(ps - 1)>='0' && *(ps - 1)<='9')))) &&
               level[s - expr._data]==clevel) { // Addition.
-            arg1 = compile(ss,s); arg2 = compile(s + 1,se);
+            arg1 = compile(ss,s);
+            arg2 = compile(s + 1,se);
             if (mem(arg1,1) && mem(arg2,1)) _cimg_mp_constant(mem[arg1] + mem[arg2]);
             if (arg2==1) _cimg_mp_opcode1(mp_inc,arg1);
             if (arg1==1) _cimg_mp_opcode1(mp_inc,arg2);
             _cimg_mp_opcode2(mp_add,arg1,arg2);
           }
 
-        for (s = se2, ps = se3; s>ss; --s, --ps)
-          if (*s=='-' && *ps!='-' && *ps!='+' && *ps!='*' && *ps!='/' && *ps!='%' &&
+        for (ns = se1, s = se2, ps = se3; s>ss; --ns, --s, --ps)
+          if (*s=='-' && *ns!='-' && *ps!='-' && *ps!='+' && *ps!='*' && *ps!='/' && *ps!='%' &&
               *ps!='&' && *ps!='|' && *ps!='^' && *ps!='!' && *ps!='~' &&
               (*ps!='e' || !(ps>ss && (*(ps - 1)=='.' || (*(ps - 1)>='0' && *(ps - 1)<='9')))) &&
               level[s - expr._data]==clevel) { // Subtraction.
@@ -14586,6 +14604,40 @@ namespace cimg_library_suffixed {
             case 4 : _cimg_mp_opcode1(mp_pow4,arg1);
             default : _cimg_mp_opcode2(mp_pow,compile(ss,s),compile(s + 1,se));
             }
+          }
+
+        for (s = se1, ps = se2; s>ss; --s, --ps)
+          if (*s=='+' && *ps=='+' && level[s - expr._data]==clevel) { // Self-increment.
+            arg1 = compile(ss,ps);
+            if (mem(arg1,1)) {
+              *se = saved_char;
+              throw CImgArgumentException("[_cimg_math_parser] "
+                                          "CImg<%s>::%s(): Invalid self-increment of constant '%s' in expression '%s%s%s'.",
+                                          pixel_type(),calling_function,
+                                          ss,
+                                          (ss - 8)>expr._data?"...":"",
+                                          (ss - 8)>expr._data?ss - 8:expr._data,
+                                          se<&expr.back()?"...":"");
+            }
+            CImg<longT>::vector(_cimg_mp_enfunc(mp_self_inc),arg1).move_to(code);
+            _cimg_mp_return(arg1);
+          }
+
+        for (s = se1, ps = se2; s>ss; --s, --ps)
+          if (*s=='-' && *ps=='-' && level[s - expr._data]==clevel) { // Self-decrement.
+            arg1 = compile(ss,ps);
+            if (mem(arg1,1)) {
+              *se = saved_char;
+              throw CImgArgumentException("[_cimg_math_parser] "
+                                          "CImg<%s>::%s(): Invalid self-decrement of constant '%s' in expression '%s%s%s'.",
+                                          pixel_type(),calling_function,
+                                          ss,
+                                          (ss - 8)>expr._data?"...":"",
+                                          (ss - 8)>expr._data?ss - 8:expr._data,
+                                          se<&expr.back()?"...":"");
+            }
+            CImg<longT>::vector(_cimg_mp_enfunc(mp_self_dec),arg1).move_to(code);
+            _cimg_mp_return(arg1);
           }
 
         // Array-like access to image values 'i[offset,_boundary]' and 'j[offset,_boundary]'.
@@ -15594,6 +15646,22 @@ namespace cimg_library_suffixed {
 
       static double mp_round(_cimg_math_parser& mp) {
         return cimg::round(mp.mem[mp.opcode(2)],mp.mem[mp.opcode(3)],(int)mp.mem[mp.opcode(4)]);
+      }
+
+      static double mp_self_add(_cimg_math_parser& mp) {
+        return mp.mem[mp.opcode(1)]+=mp.mem[mp.opcode(2)];
+      }
+
+      static double mp_self_dec(_cimg_math_parser& mp) {
+        return --mp.mem[mp.opcode(1)];
+      }
+
+      static double mp_self_inc(_cimg_math_parser& mp) {
+        return ++mp.mem[mp.opcode(1)];
+      }
+
+      static double mp_self_sub(_cimg_math_parser& mp) {
+        return mp.mem[mp.opcode(1)]-=mp.mem[mp.opcode(2)];
       }
 
       static double mp_set_ioff(_cimg_math_parser& mp) {

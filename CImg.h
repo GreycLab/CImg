@@ -13879,7 +13879,7 @@ namespace cimg_library_suffixed {
 
       CImg<uintT> level, labelMpos, reserved_label, mem_stats;
       CImg<Tdouble> _input_stats, &input_stats;
-      CImg<longT> opcode;
+      CImg<longT> *p_code_end, opcode;
       CImg<doubleT> mem;
       CImg<charT> expr;
 
@@ -13915,16 +13915,6 @@ namespace cimg_library_suffixed {
 #endif
 
       // Constructors.
-      _cimg_math_parser():
-        code(_code),input_stats(_input_stats),input(CImg<T>::empty()),output(CImg<T>::empty()),calling_function(0) {}
-
-      _cimg_math_parser(const _cimg_math_parser& mp):
-        code(mp.code),input_stats(mp.input_stats),mem(mp.mem),input(mp.input),output(mp.output),
-        result(mp.result),mem_median(mp.mem_median),calling_function(0) {
-        opcode._width = opcode._depth = opcode._spectrum = 1;
-        opcode._is_shared = true;
-      }
-
       _cimg_math_parser(const CImg<T>& img_input, CImg<T> *const img_output,
                         const char *const expression, const char *const funcname=0):
         code(_code),input_stats(_input_stats),input(img_input),output(img_output?*img_output:CImg<T>::empty()),
@@ -13991,6 +13981,7 @@ namespace cimg_library_suffixed {
         // [11] = xm, [12] = ym, [13] = zm, [14] = cm, [15] = xM, [16] = yM, [17] = zM, [18]=cM, [19]=i0...[28]=i9.
 
         result = compile(expr._data,expr._data + expr._width - 1); // Compile formula into a serie of opcodes.
+        p_code_end = code.end();
 
         // Free resources used for parsing and prepare for evaluation.
         mem.resize(mempos,1,1,1,-1);
@@ -13998,6 +13989,19 @@ namespace cimg_library_suffixed {
         labelMpos.assign();
         reserved_label.assign();
         expr.assign();
+        opcode._width = opcode._depth = opcode._spectrum = 1;
+        opcode._is_shared = true;
+      }
+
+      _cimg_math_parser():
+        code(_code),input_stats(_input_stats),p_code_end(0),input(CImg<T>::empty()),
+        output(CImg<T>::empty()),result(0),calling_function(0) {
+        mem.assign(1 + _cimg_mp_c,1,1,1,0); // Allow to skip an 'is_empty' test in operator()().
+      }
+
+      _cimg_math_parser(const _cimg_math_parser& mp):
+        code(mp.code),input_stats(mp.input_stats),p_code_end(mp.p_code_end),mem(mp.mem),input(mp.input),
+        output(mp.output),result(mp.result),mem_median(mp.mem_median),calling_function(0) {
         opcode._width = opcode._depth = opcode._spectrum = 1;
         opcode._is_shared = true;
       }
@@ -15710,10 +15714,8 @@ namespace cimg_library_suffixed {
 
       // Evaluation procedure, with image data.
       double operator()(const double x, const double y, const double z, const double c) {
-        if (!mem) return 0;  // Case of empty constructor.
         mem[_cimg_mp_x] = x; mem[_cimg_mp_y] = y; mem[_cimg_mp_z] = z; mem[_cimg_mp_c] = c;
-        const CImg<longT> *const p_end = code.end();
-        for (p_code = code._data; p_code<p_end; ++p_code) {
+        for (p_code = code._data; p_code<p_code_end; ++p_code) {
           const CImg<longT> &op = *p_code;
           // Allows to avoid parameter passing to evaluation functions.
           opcode._data = op._data; opcode._height = op._height;

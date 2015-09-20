@@ -15138,14 +15138,31 @@ namespace cimg_library_suffixed {
           cimglist_for(labelM,i) if (!std::strcmp(variable_name,labelM[i])) _cimg_mp_return(labelMpos[i]);
         } else if (reserved_label[*variable_name]!=~0U) // Single-char variable.
           _cimg_mp_return(reserved_label[*variable_name]);
+
+
+        // Reached an unknown item -> error.
+        is_sth = true; // is_valid_variable_name.
+        if (*variable_name>='0' && *variable_name<='9') is_sth = false;
+        else for (ns = variable_name._data + 1; *ns; ++ns)
+               if ((*ns<'a' || *ns>'z') && (*ns<'A' || *ns>'Z') && (*ns<'0' || *ns>'9') && *ns!='_') {
+                 is_sth = false; break;
+               }
+
         *se = saved_char;
-        throw CImgArgumentException("[_cimg_math_parser] "
-                                    "CImg<%s>::%s(): Invalid item '%s' in expression '%s%s%s'.",
-                                    pixel_type(),calling_function,
-                                    variable_name._data,
-                                    (ss - 8)>expr._data?"...":"",
-                                    (ss - 8)>expr._data?ss - 8:expr._data,
-                                    se<&expr.back()?"...":"");
+        if (is_sth) throw CImgArgumentException("[_cimg_math_parser] "
+                                                "CImg<%s>::%s(): Undefined variable '%s' in expression '%s%s%s'.",
+                                                pixel_type(),calling_function,
+                                                variable_name._data,
+                                                (ss - 8)>expr._data?"...":"",
+                                                (ss - 8)>expr._data?ss - 8:expr._data,
+                                                se<&expr.back()?"...":"");
+        else throw CImgArgumentException("[_cimg_math_parser] "
+                                         "CImg<%s>::%s(): Invalid item '%s' in expression '%s%s%s'.",
+                                         pixel_type(),calling_function,
+                                         variable_name._data,
+                                         (ss - 8)>expr._data?"...":"",
+                                         (ss - 8)>expr._data?ss - 8:expr._data,
+                                         se<&expr.back()?"...":"");
       }
 
       // Evaluation procedure.

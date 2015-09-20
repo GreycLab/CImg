@@ -14085,12 +14085,13 @@ namespace cimg_library_suffixed {
         const char saved_char = *se; *se = 0;
         const unsigned int clevel = level[ss - expr._data], clevel1 = clevel + 1;
         bool is_sth;
+        CImgList<longT> _opcode;
+        CImg<charT> variable_name;
 
         // Look for a single value, variable or variable assignment.
         double val, val1, val2;
         sep = end = 0;
         int nb = cimg_sscanf(ss,"%lf%c%c",&val,&sep,&end);
-        CImgList<longT> _opcode;
 
 #if cimg_OS==2
         // Check for +/-NaN and +/-inf as Microsoft's sscanf() version is not able
@@ -14281,7 +14282,7 @@ namespace cimg_library_suffixed {
           if (*s=='=' && *ns!='=' && *ps!='=' && *ps!='>' && *ps!='<' && *ps!='!' &&
               *ps!='+' && *ps!='-' && *ps!='*' && *ps!='/' && *ps!='%' &&
               level[s - expr._data]==clevel) {
-            CImg<charT> variable_name(ss,(unsigned int)(s - ss + 1));
+            variable_name.assign(ss,(unsigned int)(s - ss + 1));
             variable_name.back() = 0;
             cimg::strpare(variable_name);
             const unsigned int l_variable_name = std::strlen(variable_name);
@@ -14613,22 +14614,32 @@ namespace cimg_library_suffixed {
             }
           }
 
-        for (s = se2, ps = se3; s>ss; --s, --ps)
-          if ((*s=='+' || *s=='-') && *ps==*s && level[s - expr._data]==clevel) { // Self-increment and decrement.
-            arg1 = compile(s + 1,se);
-            if (mem(arg1,1)>=0) {
-              *se = saved_char;
-              throw CImgArgumentException("[_cimg_math_parser] "
-                                          "CImg<%s>::%s(): Invalid self-%s of non-variable '%s' in expression '%s%s%s'.",
-                                          pixel_type(),calling_function,
-                                          *s=='+'?"increment":"decrement",ss,
-                                          (ss - 8)>expr._data?"...":"",
-                                          (ss - 8)>expr._data?ss - 8:expr._data,
-                                          se<&expr.back()?"...":"");
-            }
-            CImg<longT>::vector(_cimg_mp_enfunc(*s=='+'?mp_self_inc:mp_self_dec),arg1).move_to(code);
+        is_sth = ss1<se1 && (*ss=='+' || *ss=='-') && *ss1==*ss; // Check pre-decrement and pre-increment.
+        if (is_sth || (se2>ss && (*se1=='+' || *se1=='-') && *se2==*se1)) { // Pre/post-decrement and increment.
+          arg1 = is_sth?compile(ss2,se):compile(ss,se2);
+          if (mem(arg1,1)>=0) {
+            *se = saved_char;
+            if (is_sth) variable_name.assign(ss2,(unsigned int)(se - ss1));
+            else variable_name.assign(ss,(unsigned int)(se1 - ss));
+            variable_name.back() = 0;
+            throw CImgArgumentException("[_cimg_math_parser] "
+                                        "CImg<%s>::%s(): Invalid self-%s of non-variable '%s' in expression '%s%s%s'.",
+                                        pixel_type(),calling_function,
+                                        is_sth?(*ss=='+'?"increment":"decrement"):
+                                        *se1=='+'?"increment":"decrement",
+                                        variable_name._data,
+                                        (ss - 8)>expr._data?"...":"",
+                                        (ss - 8)>expr._data?ss - 8:expr._data,
+                                        se<&expr.back()?"...":"");
+          }
+          if (is_sth) {
+            CImg<longT>::vector(_cimg_mp_enfunc(*ss=='+'?mp_self_inc:mp_self_dec),arg1).move_to(code);
             _cimg_mp_return(arg1);
           }
+          pos = opcode1(mp_replace,arg1);
+          CImg<longT>::vector(_cimg_mp_enfunc(*se1=='+'?mp_self_inc:mp_self_dec),arg1).move_to(code);
+          _cimg_mp_return(pos);
+        }
 
         // Array-like access to image values 'i[offset,_boundary]' and 'j[offset,_boundary]'.
         if (*se1==']') {
@@ -15108,7 +15119,7 @@ namespace cimg_library_suffixed {
         } // if (se1==')').
 
         // No known item found, assuming this is an already initialized variable.
-        CImg<charT> variable_name(ss,(unsigned int)(se - ss + 1));
+        variable_name.assign(ss,(unsigned int)(se - ss + 1));
         variable_name.back() = 0;
         if (variable_name[1]) { // Multi-char variable.
           cimglist_for(labelM,i) if (!std::strcmp(variable_name,labelM[i])) _cimg_mp_return(labelMpos[i]);

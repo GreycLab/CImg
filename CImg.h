@@ -13872,7 +13872,7 @@ namespace cimg_library_suffixed {
     //@{
     //-------------------------------------
 
-    // Define the math formula parser/compiler and evaluator.
+    // Define the math formula parser/compiler and expression evaluator.
     struct _cimg_math_parser {
       CImgList<longT> _code, &code;
       CImgList<charT> labelM;
@@ -13950,7 +13950,8 @@ namespace cimg_library_suffixed {
         mem[18] = cimg::PI;
         mem[19] = std::exp(1.0);
 
-        std::memset(mem.data(0,1),0,sizeof(double)*mem._width); // Set constant/variable property.
+        // Set constant/variable property : { 1 = constant | -1 = variable | 0 = other }.
+        std::memset(mem.data(0,1),0,sizeof(double)*mem._width);
         for (unsigned int i = 0; i<20; ++i) mem(i,1) = 1;
 
         // Then, [20] = x, [21] = y, [22] = z and [23] = c.
@@ -14011,7 +14012,7 @@ namespace cimg_library_suffixed {
         if (val==(double)(int)val && val>=0 && val<=9) return (unsigned int)val;
         if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
         const unsigned int pos = mempos++;
-        mem[pos] = val; mem(pos,1) = 1; // Set constant state.
+        mem[pos] = val; mem(pos,1) = 1; // Set constant property.
         return pos;
       }
 
@@ -14396,7 +14397,7 @@ namespace cimg_library_suffixed {
                   CImg<longT>::vector(_cimg_mp_enfunc(mp_replace),arg1,arg2).move_to(code);
                 }
               }
-              mem(arg1,1) = -1; // Set variable state.
+              mem(arg1,1) = -1; // Set variable property.
               _cimg_mp_return(arg1);
             }
           }
@@ -14415,8 +14416,8 @@ namespace cimg_library_suffixed {
             case '*' : op = mp_self_mul; s_op = "multiplication"; break;
             case '/' : op = mp_self_div; s_op = "division"; break;
             case '%' : op = mp_self_modulo; s_op = "modulo"; break;
-            case '<' : op = mp_self_lsl; s_op = "left bitshift"; break;
-            case '>' : op = mp_self_lsr; s_op = "right bitshift"; break;
+            case '<' : op = mp_self_bitwise_left_shift; s_op = "left bitshift"; break;
+            case '>' : op = mp_self_bitwise_right_shift; s_op = "right bitshift"; break;
             case '&' : op = mp_self_bitwise_and; s_op = "bitwise and"; break;
             case '|' : op = mp_self_bitwise_or; s_op = "bitwise or"; break;
             default : op = mp_self_power; s_op = "power"; break;
@@ -14425,7 +14426,8 @@ namespace cimg_library_suffixed {
             if (mem(arg1,1)>=0) {
               *se = saved_char;
               throw CImgArgumentException("[_cimg_math_parser] "
-                                          "CImg<%s>::%s(): Invalid self-%s of non-variable '%s' in expression '%s%s%s'.",
+                                          "CImg<%s>::%s(): Invalid self-%s of non-variable '%s' "
+                                          "in expression '%s%s%s'.",
                                           pixel_type(),calling_function,
                                           s_op,ss,
                                           (ss - 8)>expr._data?"...":"",
@@ -14535,14 +14537,14 @@ namespace cimg_library_suffixed {
           if (*s=='<' && *ns=='<' && level[s - expr._data]==clevel) { // Left bit shift.
             arg1 = compile(ss,s); arg2 = compile(s + 2,se);
             if (mem(arg1,1)>0 && mem(arg2,1)>0) _cimg_mp_constant((long)mem[arg1]<<(unsigned int)mem[arg2]);
-            _cimg_mp_opcode2(mp_lsl,compile(ss,s),compile(s + 2,se));
+            _cimg_mp_opcode2(mp_bitwise_left_shift,compile(ss,s),compile(s + 2,se));
           }
 
         for (s = se3, ns = se2; s>ss; --s, --ns)
           if (*s=='>' && *ns=='>' && level[s - expr._data]==clevel) { // Right bit shift.
             arg1 = compile(ss,s); arg2 = compile(s + 2,se);
             if (mem(arg1,1)>0 && mem(arg2,1)>0) _cimg_mp_constant((long)mem[arg1]>>(unsigned int)mem[arg2]);
-            _cimg_mp_opcode2(mp_lsr,arg1,arg2);
+            _cimg_mp_opcode2(mp_bitwise_right_shift,arg1,arg2);
           }
 
         for (ns = se1, s = se2, ps = se3; s>ss; --ns, --s, --ps)
@@ -14553,8 +14555,8 @@ namespace cimg_library_suffixed {
             arg1 = compile(ss,s);
             arg2 = compile(s + 1,se);
             if (mem(arg1,1)>0 && mem(arg2,1)>0) _cimg_mp_constant(mem[arg1] + mem[arg2]);
-            if (arg2==1) _cimg_mp_opcode1(mp_inc,arg1);
-            if (arg1==1) _cimg_mp_opcode1(mp_inc,arg2);
+            if (arg2==1) _cimg_mp_opcode1(mp_increment,arg1);
+            if (arg1==1) _cimg_mp_opcode1(mp_increment,arg2);
             _cimg_mp_opcode2(mp_add,arg1,arg2);
           }
 
@@ -14565,7 +14567,7 @@ namespace cimg_library_suffixed {
               level[s - expr._data]==clevel) { // Subtraction.
             arg1 = compile(ss,s); arg2 = compile(s + 1,se);
             if (mem(arg1,1)>0 && mem(arg2,1)>0) _cimg_mp_constant(mem[arg1] - mem[arg2]);
-            if (arg2==1) _cimg_mp_opcode1(mp_dec,arg1);
+            if (arg2==1) _cimg_mp_opcode1(mp_decrement,arg1);
             _cimg_mp_opcode2(mp_sub,arg1,arg2);
           }
 
@@ -14644,11 +14646,11 @@ namespace cimg_library_suffixed {
                                         se<&expr.back()?"...":"");
           }
           if (is_sth) {
-            CImg<longT>::vector(_cimg_mp_enfunc(*ss=='+'?mp_self_inc:mp_self_dec),arg1).move_to(code);
+            CImg<longT>::vector(_cimg_mp_enfunc(*ss=='+'?mp_self_increment:mp_self_decrement),arg1).move_to(code);
             _cimg_mp_return(arg1);
           }
           pos = opcode1(mp_replace,arg1);
-          CImg<longT>::vector(_cimg_mp_enfunc(*se1=='+'?mp_self_inc:mp_self_dec),arg1).move_to(code);
+          CImg<longT>::vector(_cimg_mp_enfunc(*se1=='+'?mp_self_increment:mp_self_decrement),arg1).move_to(code);
           _cimg_mp_return(pos);
         }
 
@@ -15146,6 +15148,19 @@ namespace cimg_library_suffixed {
                                     se<&expr.back()?"...":"");
       }
 
+      // Evaluation procedure, with image data.
+      double operator()(const double x, const double y, const double z, const double c) {
+        mem[_cimg_mp_x] = x; mem[_cimg_mp_y] = y; mem[_cimg_mp_z] = z; mem[_cimg_mp_c] = c;
+        for (p_code = code._data; p_code<p_code_end; ++p_code) {
+          const CImg<longT> &op = *p_code;
+          // Allows to avoid parameter passing to evaluation functions.
+          opcode._data = op._data; opcode._height = op._height;
+          const unsigned int target = (unsigned int)opcode[1];
+          mem[target] = _cimg_mp_defunc(*this);
+        }
+        return mem[result];
+      }
+
       // Evaluation functions, known by the parser.
       // Defining these functions 'static' ensures that sizeof(mp_func)==sizeof(ulong), so we can store pointers to them
       // directly in the opcode vectors.
@@ -15238,7 +15253,8 @@ namespace cimg_library_suffixed {
         const CImg<char> expr(mp.opcode);
         const unsigned int pos = (unsigned int)mp.opcode(1);
         std::fprintf(cimg::output(),
-                     "\n[_cimg_math_parser] %p[thread #%u]: Start debugging expression '%s', code length %ld -> mem[%u] (memsize: %u)",
+                     "\n[_cimg_math_parser] %p[thread #%u]: "
+                     "Start debugging expression '%s', code length %ld -> mem[%u] (memsize: %u)",
                      (void*)&mp,n_thread,expr._data + 3,mp.opcode(2),pos,mp.mem._width);
         std::fflush(cimg::output());
         const CImg<longT> *const p_end = (++mp.p_code) + mp.opcode(2);
@@ -15248,20 +15264,22 @@ namespace cimg_library_suffixed {
           const unsigned target = (unsigned int)mp.opcode[1];
           mp.mem[target] = _cimg_mp_defunc(mp);
           std::fprintf(cimg::output(),
-                       "\n[_cimg_math_parser] %p[thread #%u]: Opcode %p = [ %s ] -> mem[%u] = %g",
+                       "\n[_cimg_math_parser] %p[thread #%u]: "
+                       "Opcode %p = [ %s ] -> mem[%u] = %g",
                        (void*)&mp,n_thread,(void*)mp.opcode._data,mp.opcode.value_string().data(),target,
                        mp.mem[target]);
           std::fflush(cimg::output());
         }
         std::fprintf(cimg::output(),
-                     "\n[_cimg_math_parser] %p[thread #%u]: End debugging expression '%s' -> mem[%u] = %g (memsize: %u)",
+                     "\n[_cimg_math_parser] %p[thread #%u]: "
+                     "End debugging expression '%s' -> mem[%u] = %g (memsize: %u)",
                      (void*)&mp,n_thread,expr._data + 3,pos,mp.mem[pos],mp.mem._width);
         std::fflush(cimg::output());
         --mp.p_code;
         return mp.mem[pos];
       }
 
-      static double mp_dec(_cimg_math_parser& mp) {
+      static double mp_decrement(_cimg_math_parser& mp) {
         return mp.mem[mp.opcode(2)] - 1;
       }
 
@@ -15359,7 +15377,7 @@ namespace cimg_library_suffixed {
         return mp.mem[mem_right];
       }
 
-      static double mp_inc(_cimg_math_parser& mp) {
+      static double mp_increment(_cimg_math_parser& mp) {
         return mp.mem[mp.opcode(2)] + 1;
       }
 
@@ -15532,11 +15550,11 @@ namespace cimg_library_suffixed {
         return (double)(bool)mp.mem[mem_right];
       }
 
-      static double mp_lsl(_cimg_math_parser& mp) {
+      static double mp_bitwise_left_shift(_cimg_math_parser& mp) {
         return (long)mp.mem[mp.opcode(2)]<<(unsigned int)mp.mem[mp.opcode(3)];
       }
 
-      static double mp_lsr(_cimg_math_parser& mp) {
+      static double mp_bitwise_right_shift(_cimg_math_parser& mp) {
         return (long)mp.mem[mp.opcode(2)]>>(unsigned int)mp.mem[mp.opcode(3)];
       }
 
@@ -15670,16 +15688,26 @@ namespace cimg_library_suffixed {
         return mp.mem[mp.opcode(1)] = val & (unsigned long)mp.mem[mp.opcode(2)];
       }
 
+      static double mp_self_bitwise_left_shift(_cimg_math_parser& mp) {
+        const long val = (long)mp.mem[mp.opcode(1)];
+        return mp.mem[mp.opcode(1)] = val<<(unsigned int)mp.mem[mp.opcode(2)];
+      }
+
       static double mp_self_bitwise_or(_cimg_math_parser& mp) {
         const unsigned long val = (unsigned long)mp.mem[mp.opcode(1)];
         return mp.mem[mp.opcode(1)] = val | (unsigned long)mp.mem[mp.opcode(2)];
       }
 
-      static double mp_self_dec(_cimg_math_parser& mp) {
+      static double mp_self_bitwise_right_shift(_cimg_math_parser& mp) {
+        const long val = (long)mp.mem[mp.opcode(1)];
+        return mp.mem[mp.opcode(1)] = val>>(unsigned int)mp.mem[mp.opcode(2)];
+      }
+
+      static double mp_self_decrement(_cimg_math_parser& mp) {
         return --mp.mem[mp.opcode(1)];
       }
 
-      static double mp_self_inc(_cimg_math_parser& mp) {
+      static double mp_self_increment(_cimg_math_parser& mp) {
         return ++mp.mem[mp.opcode(1)];
       }
 
@@ -15689,16 +15717,6 @@ namespace cimg_library_suffixed {
 
       static double mp_self_div(_cimg_math_parser& mp) {
         return mp.mem[mp.opcode(1)]/=mp.mem[mp.opcode(2)];
-      }
-
-      static double mp_self_lsl(_cimg_math_parser& mp) {
-        const long val = (long)mp.mem[mp.opcode(1)];
-        return mp.mem[mp.opcode(1)] = val<<(unsigned int)mp.mem[mp.opcode(2)];
-      }
-
-      static double mp_self_lsr(_cimg_math_parser& mp) {
-        const long val = (long)mp.mem[mp.opcode(1)];
-        return mp.mem[mp.opcode(1)] = val>>(unsigned int)mp.mem[mp.opcode(2)];
       }
 
       static double mp_self_modulo(_cimg_math_parser& mp) {
@@ -15831,18 +15849,6 @@ namespace cimg_library_suffixed {
         return is_first_iter?0:mp.mem[mem_proc];
       }
 
-      // Evaluation procedure, with image data.
-      double operator()(const double x, const double y, const double z, const double c) {
-        mem[_cimg_mp_x] = x; mem[_cimg_mp_y] = y; mem[_cimg_mp_z] = z; mem[_cimg_mp_c] = c;
-        for (p_code = code._data; p_code<p_code_end; ++p_code) {
-          const CImg<longT> &op = *p_code;
-          // Allows to avoid parameter passing to evaluation functions.
-          opcode._data = op._data; opcode._height = op._height;
-          const unsigned int target = (unsigned int)opcode[1];
-          mem[target] = _cimg_mp_defunc(*this);
-        }
-        return mem[result];
-      }
     };
 
     //! Compute the square value of each pixel value.

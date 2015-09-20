@@ -14590,10 +14590,10 @@ namespace cimg_library_suffixed {
           }
 
         if (se1>ss) {
-          if (*ss=='+' && *ss1!='+') // Unary plus.
+          if (*ss=='+' && (*ss1!='+' || (ss2<se && *ss2>='0' && *ss2<='9'))) // Unary plus.
             _cimg_mp_return(compile(ss1,se));
 
-          if (*ss=='-' && *ss1!='-') { // Unary minus.
+          if (*ss=='-' && (*ss1!='-' || (ss2<se && *ss2>='0' && *ss2<='9'))) { // Unary minus.
             arg1 = compile(ss1,se);
             if (mem(arg1,1)>0) _cimg_mp_constant(-mem[arg1]);
             _cimg_mp_opcode1(mp_minus,arg1);
@@ -14636,8 +14636,9 @@ namespace cimg_library_suffixed {
             else variable_name.assign(ss,(unsigned int)(se1 - ss));
             variable_name.back() = 0;
             throw CImgArgumentException("[_cimg_math_parser] "
-                                        "CImg<%s>::%s(): Invalid self-%s of non-variable '%s' in expression '%s%s%s'.",
+                                        "CImg<%s>::%s(): Invalid %s-%s of non-variable '%s' in expression '%s%s%s'.",
                                         pixel_type(),calling_function,
+                                        is_sth?"pre":"post",
                                         is_sth?(*ss=='+'?"increment":"decrement"):
                                         *se1=='+'?"increment":"decrement",
                                         variable_name._data,

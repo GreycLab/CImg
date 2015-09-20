@@ -15148,7 +15148,7 @@ namespace cimg_library_suffixed {
                                     se<&expr.back()?"...":"");
       }
 
-      // Evaluation procedure, with image data.
+      // Evaluation procedure.
       double operator()(const double x, const double y, const double z, const double c) {
         mem[_cimg_mp_x] = x; mem[_cimg_mp_y] = y; mem[_cimg_mp_z] = z; mem[_cimg_mp_c] = c;
         for (p_code = code._data; p_code<p_code_end; ++p_code) {

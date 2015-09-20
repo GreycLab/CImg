@@ -13887,7 +13887,7 @@ namespace cimg_library_suffixed {
       CImg<T> &output;
       const CImg<longT>* p_code;
 
-      unsigned int mempos, result, mem_median;
+      unsigned int mempos, result, mem_median, debug_indent;
       const char *const calling_function;
       typedef double (*mp_func)(_cimg_math_parser&);
 
@@ -13918,7 +13918,7 @@ namespace cimg_library_suffixed {
       _cimg_math_parser(const CImg<T>& img_input, CImg<T> *const img_output,
                         const char *const expression, const char *const funcname=0):
         code(_code),input_stats(_input_stats),input(img_input),output(img_output?*img_output:CImg<T>::empty()),
-        mem_median(~0U),calling_function(funcname?funcname:"cimg_math_parser") {
+        mem_median(~0U),debug_indent(0),calling_function(funcname?funcname:"cimg_math_parser") {
         if (!expression || !*expression)
           throw CImgArgumentException("[_cimg_math_parser] "
                                       "CImg<%s>::%s(): Empty specified expression.",
@@ -13996,13 +13996,13 @@ namespace cimg_library_suffixed {
 
       _cimg_math_parser():
         code(_code),input_stats(_input_stats),p_code_end(0),input(CImg<T>::empty()),
-        output(CImg<T>::empty()),result(0),calling_function(0) {
+        output(CImg<T>::empty()),result(0),debug_indent(0),calling_function(0) {
         mem.assign(1 + _cimg_mp_c,1,1,1,0); // Allow to skip an 'is_empty' test in operator()().
       }
 
       _cimg_math_parser(const _cimg_math_parser& mp):
         code(mp.code),input_stats(mp.input_stats),p_code_end(mp.p_code_end),mem(mp.mem),input(mp.input),
-        output(mp.output),result(mp.result),mem_median(mp.mem_median),calling_function(0) {
+        output(mp.output),result(mp.result),mem_median(mp.mem_median),debug_indent(0),calling_function(0) {
         opcode._width = opcode._depth = opcode._spectrum = 1;
         opcode._is_shared = true;
       }
@@ -15270,27 +15270,32 @@ namespace cimg_library_suffixed {
         const CImg<char> expr(mp.opcode);
         const unsigned int pos = (unsigned int)mp.opcode(1);
         std::fprintf(cimg::output(),
-                     "\n[_cimg_math_parser] %p[thread #%u]: "
+                     "\n[_cimg_math_parser] %p[thread #%u]:%*c"
                      "Start debugging expression '%s', code length %ld -> mem[%u] (memsize: %u)",
-                     (void*)&mp,n_thread,expr._data + 3,mp.opcode(2),pos,mp.mem._width);
+                     (void*)&mp,n_thread,mp.debug_indent,' ',
+                     expr._data + 3,mp.opcode(2),pos,mp.mem._width);
         std::fflush(cimg::output());
         const CImg<longT> *const p_end = (++mp.p_code) + mp.opcode(2);
+        mp.debug_indent+=3;
         for ( ; mp.p_code<p_end; ++mp.p_code) {
           const CImg<longT> &op = *mp.p_code;
           mp.opcode._data = op._data; mp.opcode._height = op._height;
           const unsigned target = (unsigned int)mp.opcode[1];
           mp.mem[target] = _cimg_mp_defunc(mp);
           std::fprintf(cimg::output(),
-                       "\n[_cimg_math_parser] %p[thread #%u]: "
+                       "\n[_cimg_math_parser] %p[thread #%u]:%*c"
                        "Opcode %p = [ %s ] -> mem[%u] = %g",
-                       (void*)&mp,n_thread,(void*)mp.opcode._data,mp.opcode.value_string().data(),target,
+                       (void*)&mp,n_thread,mp.debug_indent,' ',
+                       (void*)mp.opcode._data,mp.opcode.value_string().data(),target,
                        mp.mem[target]);
           std::fflush(cimg::output());
         }
+        mp.debug_indent-=3;
         std::fprintf(cimg::output(),
-                     "\n[_cimg_math_parser] %p[thread #%u]: "
+                     "\n[_cimg_math_parser] %p[thread #%u]:%*c"
                      "End debugging expression '%s' -> mem[%u] = %g (memsize: %u)",
-                     (void*)&mp,n_thread,expr._data + 3,pos,mp.mem[pos],mp.mem._width);
+                     (void*)&mp,n_thread,mp.debug_indent,' ',
+                     expr._data + 3,pos,mp.mem[pos],mp.mem._width);
         std::fflush(cimg::output());
         --mp.p_code;
         return mp.mem[pos];

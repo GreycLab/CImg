@@ -4640,6 +4640,49 @@ namespace cimg_library_suffixed {
       return cimg::strncasecmp(str1,str2,1 + (l1<l2?l1:l2));
     }
 
+    //! Ellipsize a string.
+    /**
+       \param str C-string.
+       \param l Max number of characters.
+       \param is_ending Tell if the dots are placed at the end or at the center of the ellipsized string.
+    **/
+    char *strellipsize(char *const str, const unsigned int l=64, const bool is_ending=true) {
+      if (!str) return str;
+      const unsigned int nl = l<5?5:l, ls = (unsigned int)std::strlen(str);
+      if (ls<=nl) return str;
+      if (is_ending) std::strcpy(str + nl - 5,"(...)");
+      else {
+        const unsigned int ll = (nl - 5)/2 + 1 - (nl%2), lr = nl - ll - 5;
+        std::strcpy(str + ll,"(...)");
+        std::memmove(str + ll + 5,str + ls - lr,lr);
+      }
+      str[nl] = 0;
+      return str;
+    }
+
+    //! Ellipsize a string.
+    /**
+       \param str C-string.
+       \param res output C-string.
+       \param l Max number of characters.
+       \param is_ending Tell if the dots are placed at the end or at the center of the ellipsized string.
+    **/
+    char *strellipsize(const char *const str, char *const res, const unsigned int l=64, const bool is_ending=true) {
+      const unsigned int nl = l<5?5:l, ls = (unsigned int)std::strlen(str);
+      if (ls<=nl) { std::strcpy(res,str); return res; }
+      if (is_ending) {
+        std::strncpy(res,str,nl - 5);
+        std::strcpy(res + nl -5,"(...)");
+      } else {
+        const unsigned int ll = (nl - 5)/2 + 1 - (nl%2), lr = nl - ll - 5;
+        std::strncpy(res,str,ll);
+        std::strcpy(res + ll,"(...)");
+        std::strncpy(res + ll + 5,str + ls - lr,lr);
+      }
+      res[nl] = 0;
+      return res;
+    }
+
     //! Remove delimiters on the start and/or end of a C-string.
     /**
        \param[in,out] str C-string to work with (modified at output).
@@ -13941,6 +13984,7 @@ namespace cimg_library_suffixed {
         for (const char *ps = expr._data; *ps && lv>=0; ++ps)
           *(pd++) = (unsigned int)(*ps=='('||*ps=='['?lv++:*ps==')'||*ps==']'?--lv:lv);
         if (lv!=0) {
+          cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
                                       "CImg<%s>::%s(): Unbalanced parentheses/brackets in expression '%s'.",
                                       pixel_type(),calling_function,
@@ -14024,11 +14068,13 @@ namespace cimg_library_suffixed {
           while (*ss==' ') ++ss;
           while (se>ss && *(se-1)==' ') --se;
         }
-        if (se<=ss || !*ss)
+        if (se<=ss || !*ss) {
+          cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
                                       "CImg<%s>::%s(): Missing item in expression '%s'.",
                                       pixel_type(),calling_function,
                                       expr._data);
+        }
         unsigned int pos, p1, p2, p3, arg1, arg2, arg3, arg4, arg5, arg6;
         char
           *const se1 = se - 1, *const se2 = se - 2, *const se3 = se - 3,
@@ -14311,6 +14357,7 @@ namespace cimg_library_suffixed {
                 }
               }
               *se = saved_char;
+              cimg::strellipsize(variable_name,64);
               throw CImgArgumentException("[_cimg_math_parser] "
                                           "CImg<%s>::%s(): Invalid variable name '%s' in expression "
                                           "'%s%s%s'.",
@@ -14427,6 +14474,8 @@ namespace cimg_library_suffixed {
             } else if (mem(arg1,1)>=0) {
               *se = saved_char;
               variable_name.assign(ss,(unsigned int)(s - ss)).back() = 0;
+              cimg::strellipsize(variable_name,64);
+              cimg::strellipsize(expr,64);
               throw CImgArgumentException("[_cimg_math_parser] "
                                           "CImg<%s>::%s(): Invalid self-%s of non-variable '%s' "
                                           "in expression '%s%s%s'.",
@@ -14651,6 +14700,8 @@ namespace cimg_library_suffixed {
             if (is_sth) variable_name.assign(ss2,(unsigned int)(se - ss1));
             else variable_name.assign(ss,(unsigned int)(se1 - ss));
             variable_name.back() = 0;
+            cimg::strellipsize(variable_name,64);
+            cimg::strellipsize(expr,64);
             throw CImgArgumentException("[_cimg_math_parser] "
                                         "CImg<%s>::%s(): Invalid %s-%s of non-variable '%s' in expression '%s%s%s'.",
                                         pixel_type(),calling_function,
@@ -15164,6 +15215,8 @@ namespace cimg_library_suffixed {
                }
 
         *se = saved_char;
+        cimg::strellipsize(variable_name,64);
+        cimg::strellipsize(expr,64);
         if (is_sth) throw CImgArgumentException("[_cimg_math_parser] "
                                                 "CImg<%s>::%s(): Undefined variable '%s' in expression '%s%s%s'.",
                                                 pixel_type(),calling_function,

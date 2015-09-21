@@ -14039,7 +14039,7 @@ namespace cimg_library_suffixed {
         // [4] = im, [5] = iM, [6] = ia, [7] = iv, [8] = is, [9] = ip, [10] = ic,
         // [11] = xm, [12] = ym, [13] = zm, [14] = cm, [15] = xM, [16] = yM, [17] = zM, [18]=cM, [19]=i0...[28]=i9.
 
-        result = compile(expr._data,expr._data + expr._width - 1); // Compile formula into a serie of opcodes.
+        result = compile(expr._data,expr._data + expr._width - 1); // Compile expression into a serie of opcodes.
         p_code_end = code.end();
 
         // Free resources used for parsing and prepare for evaluation.
@@ -14097,7 +14097,7 @@ namespace cimg_library_suffixed {
         CImgList<longT> _opcode;
         CImg<charT> variable_name;
 
-        // Look for a single value, variable or variable assignment.
+        // Look for a single value, pre-defined variable or a variable assignment.
         double val, val1, val2;
         sep = end = 0;
         int nb = cimg_sscanf(ss,"%lf%c%c",&val,&sep,&end);
@@ -14300,11 +14300,11 @@ namespace cimg_library_suffixed {
             if (l_variable_name>3 && (*ss=='i' || *ss=='j')) {
               char *const ve1 = ss + l_variable_name - 1;
               is_sth = *ss=='j'; // is_relative?
-              arg5 = compile(s + 1,se);
               if (*ss1=='(' && *ve1==')') { // i/j(x,_y,_z,_c)=value.
                 arg2 = is_sth?0U:(unsigned int)_cimg_mp_y;
                 arg3 = is_sth?0U:(unsigned int)_cimg_mp_z;
                 arg4 = is_sth?0U:(unsigned int)_cimg_mp_c;
+                arg5 = compile(s + 1,se);
                 s1 = ss2; while (s1<ve1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                 arg1 = compile(ss2,s1);
                 if (s1<ve1) {
@@ -14323,8 +14323,9 @@ namespace cimg_library_suffixed {
                 _cimg_mp_opcode5(is_sth?mp_set_jxyzc:mp_set_ixyzc,arg1,arg2,arg3,arg4,arg5);
               } else if (*ss1=='[' && *ve1==']') { // i/j[offset]=value.
                 arg1 = compile(ss2,ve1);
+                arg2 = compile(s + 1,se);
                 if (p_coords) p_coords[is_sth?5:0] = arg1;
-                _cimg_mp_opcode2(is_sth?mp_set_joff:mp_set_ioff,arg1,arg5);
+                _cimg_mp_opcode2(is_sth?mp_set_joff:mp_set_ioff,arg1,arg2);
               }
             }
 

@@ -13909,6 +13909,9 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_opcode2(op,i1,i2) { const unsigned int _i1 = i1, _i2 = i2; _cimg_mp_return(opcode2(op,_i1,_i2)); }
 #define _cimg_mp_opcode3(op,i1,i2,i3) \
   { const unsigned int _i1 = i1, _i2 = i2, _i3 = i3; _cimg_mp_return(opcode3(op,_i1,_i2,_i3)); }
+#define _cimg_mp_opcode5(op,i1,i2,i3,i4,i5) \
+  { const unsigned int _i1 = i1, _i2 = i2, _i3 = i3, _i4 = i4, _i5 = i5; \
+        _cimg_mp_return(opcode5(op,_i1,_i2,_i3,_i4,_i5)); }
 #define _cimg_mp_opcode6(op,i1,i2,i3,i4,i5,i6) \
   { const unsigned int _i1 = i1, _i2 = i2, _i3 = i3, _i4 = i4, _i5 = i5, _i6 = i6; \
         _cimg_mp_return(opcode6(op,_i1,_i2,_i3,_i4,_i5,_i6)); }
@@ -14016,10 +14019,7 @@ namespace cimg_library_suffixed {
       }
 
       // Compilation procedure.
-      unsigned int compile(char *ss, char *se, unsigned int *p_outcoords=0) {
-        if (p_outcoords)
-          p_outcoords[0] = p_outcoords[1] = p_outcoords[2] = p_outcoords[3] = p_outcoords[4] =
-            p_outcoords[5] = p_outcoords[6] = p_outcoords[7] = p_outcoords[8] = p_outcoords[9] = ~0U;
+      unsigned int compile(char *ss, char *se, unsigned int *p_coords=0) {
         if (ss<se) {
           while (*ss==' ') ++ss;
           while (se>ss && *(se-1)==' ') --se;
@@ -14036,11 +14036,15 @@ namespace cimg_library_suffixed {
           *const ss5 = ss + 5, *const ss6 = ss + 6, *const ss7 = ss + 7, *const ss8 = ss + 8,
           *s, *ps, *ns, *s1, *s2, *s3, *s4, *s5, c1, c2, c3, c4, sep, end;
 
-        if (*se1==';') return compile(ss,se1);
+        if (p_coords)
+          p_coords[0] = p_coords[1] = p_coords[2] = p_coords[3] = p_coords[4] =
+            p_coords[5] = p_coords[6] = p_coords[7] = p_coords[8] = p_coords[9] = ~0U;
+
+        if (*se1==';') return compile(ss,se1,p_coords);
         const char saved_char = *se; *se = 0;
         const unsigned int clevel = level[ss - expr._data], clevel1 = clevel + 1;
         bool is_sth;
-        CImg<uintT> outcoords;
+        CImg<uintT> coords;
         CImgList<longT> _opcode;
         CImg<charT> variable_name;
 
@@ -14231,7 +14235,7 @@ namespace cimg_library_suffixed {
         }
 
         for (s = se2; s>ss; --s) // Separator ';'.
-          if (*s==';' && level[s - expr._data]==clevel) { compile(ss,s); _cimg_mp_return(compile(s + 1,se,p_outcoords)); }
+          if (*s==';' && level[s - expr._data]==clevel) { compile(ss,s); _cimg_mp_return(compile(s + 1,se,p_coords)); }
 
         // Variable declaration/assignment or pixel assignment.
         for (s = ss1, ps = ss, ns = ss2; s<se1; ++s, ++ps, ++ns)
@@ -14243,122 +14247,144 @@ namespace cimg_library_suffixed {
             cimg::strpare(variable_name);
             const unsigned int l_variable_name = std::strlen(variable_name);
 
-            // Pixel assignment (generic).
-            if (l_variable_name>3 && !std::strchr(variable_name,'?') &&
-                (std::strchr(variable_name,'(') || std::strchr(variable_name,'['))) {
-              outcoords.assign(10);
-              arg1 = compile(ss,s,outcoords);
-              arg2 = compile(s + 1,se);
-              if (*outcoords!=~0U || outcoords[1]!=~0U || outcoords[5]!=~0U || outcoords[6]!=~0U) {
-                if (*outcoords!=~0U) // i[off]=...
-                  CImg<longT>::vector(_cimg_mp_enfunc(mp_set_ioff),arg1,*outcoords,arg2).move_to(code);
-                else if (outcoords[1]!=~0U) // i(x,y,z,c)=...
-                  CImg<longT>::vector(_cimg_mp_enfunc(mp_set_ixyzc),arg1,
-                                      outcoords[1],outcoords[2],outcoords[3],outcoords[4],arg2).move_to(code);
-                else if (outcoords[5]!=~0U) // j[off]=...
-                  CImg<longT>::vector(_cimg_mp_enfunc(mp_set_joff),arg1,outcoords[5],arg2).move_to(code);
-                else if (outcoords[6]!=~0U) // j(x,y,z,c)=...
-                  CImg<longT>::vector(_cimg_mp_enfunc(mp_set_jxyzc),arg1,
-                                      outcoords[6],outcoords[7],outcoords[8],outcoords[9],arg2).move_to(code);
-                if (p_outcoords) std::memcpy(p_outcoords,outcoords,outcoords._width*sizeof(unsigned int));
-                _cimg_mp_return(arg1);
-              } else throw CImgArgumentException("[_cimg_math_parser] "
-                                                 "CImg<%s>::%s(): Invalid variable name '%s' in expression "
-                                                 "'%s%s%s'.",
-                                                 pixel_type(),calling_function,
-                                                 variable_name._data,
-                                                 (ss - 8)>expr._data?"...":"",
-                                                 (ss - 8)>expr._data?ss - 8:expr._data,
-                                                 se<&expr.back()?"...":"");
+            // Pixel assignment (fast).
+            if (l_variable_name>3 && (*ss=='i' || *ss=='j')) {
+              char *const ve1 = ss + l_variable_name - 1;
+              is_sth = *ss=='j'; // is_relative?
+              arg5 = compile(s + 1,se);
+              if (*ss1=='(' && *ve1==')') { // i/j(x,_y,_z,_c)=value.
+                arg2 = is_sth?0U:(unsigned int)_cimg_mp_y;
+                arg3 = is_sth?0U:(unsigned int)_cimg_mp_z;
+                arg4 = is_sth?0U:(unsigned int)_cimg_mp_c;
+                s1 = ss2; while (s1<ve1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                arg1 = compile(ss2,s1);
+                if (s1<ve1) {
+                  s2 = ++s1; while (s2<ve1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                  arg2 = compile(s1,s2);
+                  if (s2<ve1) {
+                    s3 = ++s2; while (s3<ve1 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
+                    arg3 = compile(s2,s3);
+                    if (s3<ve1) arg4 = compile(++s3,ve1);
+                  }
+                }
+                if (p_coords) {
+                  if (is_sth) { p_coords[6] = arg1; p_coords[7] = arg2; p_coords[8] = arg3; p_coords[9] = arg4; }
+                  else { p_coords[1] = arg1; p_coords[2] = arg2; p_coords[3] = arg3; p_coords[4] = arg4; }
+                }
+                _cimg_mp_opcode5(is_sth?mp_set_jxyzc:mp_set_ixyzc,arg1,arg2,arg3,arg4,arg5);
+              } else if (*ss1=='[' && *ve1==']') { // i/j[offset]=value.
+                arg1 = compile(ss2,ve1);
+                if (p_coords) p_coords[is_sth?5:0] = arg1;
+                _cimg_mp_opcode2(is_sth?mp_set_joff:mp_set_ioff,arg1,arg5);
+              }
             }
 
-            // Variable assignment.
             is_sth = true; // is_valid_variable_name.
             if (*variable_name>='0' && *variable_name<='9') is_sth = false;
             else for (ns = variable_name._data + 1; *ns; ++ns)
                    if ((*ns<'a' || *ns>'z') && (*ns<'A' || *ns>'Z') && (*ns<'0' || *ns>'9') && *ns!='_') {
                      is_sth = false; break;
                    }
-            if (!is_sth) {
+
+            if (!is_sth) { // Not a valid name.
+              is_sth = (bool)std::strchr(variable_name,'?'); // Contains_ternary_operator?
+              if (is_sth) break; // Do nothing and make ternary operator prioritary over assignment.
+
+              // Pixel assignment (generic).
+              if (l_variable_name>3 && (std::strchr(variable_name,'(') || std::strchr(variable_name,'['))) {
+                coords.assign(10);
+                arg1 = compile(ss,s,coords);
+                arg2 = compile(s + 1,se);
+                if (*coords!=~0U || coords[1]!=~0U || coords[5]!=~0U || coords[6]!=~0U) {
+                  if (*coords!=~0U) // i[off]=...
+                    CImg<longT>::vector(_cimg_mp_enfunc(mp_set_ioff),arg1,*coords,arg2).move_to(code);
+                  else if (coords[1]!=~0U) // i(x,y,z,c)=...
+                    CImg<longT>::vector(_cimg_mp_enfunc(mp_set_ixyzc),arg1,
+                                        coords[1],coords[2],coords[3],coords[4],arg2).move_to(code);
+                  else if (coords[5]!=~0U) // j[off]=...
+                    CImg<longT>::vector(_cimg_mp_enfunc(mp_set_joff),arg1,coords[5],arg2).move_to(code);
+                  else if (coords[6]!=~0U) // j(x,y,z,c)=...
+                    CImg<longT>::vector(_cimg_mp_enfunc(mp_set_jxyzc),arg1,
+                                        coords[6],coords[7],coords[8],coords[9],arg2).move_to(code);
+                  if (p_coords) std::memcpy(p_coords,coords,coords._width*sizeof(unsigned int));
+                  _cimg_mp_return(arg1);
+                }
+              }
               *se = saved_char;
-              if (!std::strchr(variable_name,'?'))
-                throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s(): Invalid variable name '%s' in expression "
-                                            "'%s%s%s'.",
-                                            pixel_type(),calling_function,
-                                            variable_name._data,
-                                            (ss - 8)>expr._data?"...":"",
-                                            (ss - 8)>expr._data?ss - 8:expr._data,
-                                            se<&expr.back()?"...":"");
-              // Else, variable name contains a '?' : do nothing and wait for the ternary operator.
-              break;
-            } else {
-
-              // Check for particular case of a reserved variable.
-              if (variable_name[1] && !variable_name[2]) { // Two-chars variable.
-                c1 = variable_name[0];
-                c2 = variable_name[1];
-                if (c1=='w' && c2=='h') variable_name.fill((char)0,(char)0); // wh
-                else if (c1=='p' && c2=='i') variable_name.fill(3,0); // pi
-                else if (c1=='i') {
-                  if (c2>='0' && c2<='9') variable_name.fill(19 + c2 - '0',0); // i0...i9
-                  else if (c2=='m') variable_name.fill(4,0); // im
-                  else if (c2=='M') variable_name.fill(5,0); // iM
-                  else if (c2=='a') variable_name.fill(6,0); // ia
-                  else if (c2=='v') variable_name.fill(7,0); // iv
-                  else if (c2=='s') variable_name.fill(8,0); // is
-                  else if (c2=='p') variable_name.fill(9,0); // ip
-                  else if (c2=='c') variable_name.fill(10,0); // ic
-                } else if (c2=='m') {
-                  if (c1=='x') variable_name.fill(11,0); // xm
-                  else if (c1=='y') variable_name.fill(12,0); // ym
-                  else if (c1=='z') variable_name.fill(13,0); // zm
-                  else if (c1=='c') variable_name.fill(14,0); // cm
-                } else if (c2=='M') {
-                  if (c1=='x') variable_name.fill(15,0); // xM
-                  else if (c1=='y') variable_name.fill(16,0); // yM
-                  else if (c1=='z') variable_name.fill(17,0); // zM
-                  else if (c1=='c') variable_name.fill(18,0); // cM
-                }
-              } else if (variable_name[1] && variable_name[2] && !variable_name[3]) { // Three-chars variable.
-                c1 = variable_name[0];
-                c2 = variable_name[1];
-                c3 = variable_name[2];
-                if (c1=='w' && c2=='h' && c3=='d') variable_name.fill(1,0,0); // whd
-              } else if (variable_name[1] && variable_name[2] && variable_name[3] &&
-                         !variable_name[4]) { // Four-chars variable.
-                c1 = variable_name[0];
-                c2 = variable_name[1];
-                c3 = variable_name[2];
-                c4 = variable_name[3];
-                if (c1=='w' && c2=='h' && c3=='d' && c4=='s') variable_name.fill(2,0,0,0); // whds
-              }
-
-              // Set new variable value.
-              arg2 = compile(s + 1,se);
-              if (!variable_name[1]) { // One-char variable, or variable in reserved_labels.
-                arg1 = reserved_label[*variable_name];
-                if (arg1==~0U) // New variable.
-                  arg1 = reserved_label[*variable_name] = opcode1(mp_replace,arg2);
-                else // Already declared (or reserved).
-                  CImg<longT>::vector(_cimg_mp_enfunc(mp_replace),arg1,arg2).move_to(code);
-              } else {
-                int label_pos = -1;
-                cimglist_for(labelM,i) // Check for existing variable with same name.
-                  if (!std::strcmp(variable_name,labelM[i])) { label_pos = i; break; }
-                if (label_pos<0) { // New variable.
-                  if (labelM._width>=labelMpos._width) labelMpos.resize(-200,1,1,1,0);
-                  label_pos = labelM.width();
-                  variable_name.move_to(labelM);
-                  arg1 = labelMpos[label_pos] = opcode1(mp_replace,arg2);
-                } else { // Already declared.
-                  arg1 = labelMpos[label_pos];
-                  CImg<longT>::vector(_cimg_mp_enfunc(mp_replace),arg1,arg2).move_to(code);
-                }
-              }
-              mem(arg1,1) = -1; // Set variable property.
-              _cimg_mp_return(arg1);
+              throw CImgArgumentException("[_cimg_math_parser] "
+                                          "CImg<%s>::%s(): Invalid variable name '%s' in expression "
+                                          "'%s%s%s'.",
+                                          pixel_type(),calling_function,
+                                          variable_name._data,
+                                          (ss - 8)>expr._data?"...":"",
+                                          (ss - 8)>expr._data?ss - 8:expr._data,
+                                          se<&expr.back()?"...":"");
             }
+
+            // Check for particular case of a reserved variable assignment.
+            if (variable_name[1] && !variable_name[2]) { // Two-chars variable.
+              c1 = variable_name[0];
+              c2 = variable_name[1];
+              if (c1=='w' && c2=='h') variable_name.fill((char)0,(char)0); // wh
+              else if (c1=='p' && c2=='i') variable_name.fill(3,0); // pi
+              else if (c1=='i') {
+                if (c2>='0' && c2<='9') variable_name.fill(19 + c2 - '0',0); // i0...i9
+                else if (c2=='m') variable_name.fill(4,0); // im
+                else if (c2=='M') variable_name.fill(5,0); // iM
+                else if (c2=='a') variable_name.fill(6,0); // ia
+                else if (c2=='v') variable_name.fill(7,0); // iv
+                else if (c2=='s') variable_name.fill(8,0); // is
+                else if (c2=='p') variable_name.fill(9,0); // ip
+                else if (c2=='c') variable_name.fill(10,0); // ic
+              } else if (c2=='m') {
+                if (c1=='x') variable_name.fill(11,0); // xm
+                else if (c1=='y') variable_name.fill(12,0); // ym
+                else if (c1=='z') variable_name.fill(13,0); // zm
+                else if (c1=='c') variable_name.fill(14,0); // cm
+              } else if (c2=='M') {
+                if (c1=='x') variable_name.fill(15,0); // xM
+                else if (c1=='y') variable_name.fill(16,0); // yM
+                else if (c1=='z') variable_name.fill(17,0); // zM
+                else if (c1=='c') variable_name.fill(18,0); // cM
+              }
+            } else if (variable_name[1] && variable_name[2] && !variable_name[3]) { // Three-chars variable.
+              c1 = variable_name[0];
+              c2 = variable_name[1];
+              c3 = variable_name[2];
+              if (c1=='w' && c2=='h' && c3=='d') variable_name.fill(1,0,0); // whd
+            } else if (variable_name[1] && variable_name[2] && variable_name[3] &&
+                       !variable_name[4]) { // Four-chars variable.
+              c1 = variable_name[0];
+              c2 = variable_name[1];
+              c3 = variable_name[2];
+              c4 = variable_name[3];
+              if (c1=='w' && c2=='h' && c3=='d' && c4=='s') variable_name.fill(2,0,0,0); // whds
+            }
+
+            // Set new value to variable.
+            arg2 = compile(s + 1,se);
+            if (!variable_name[1]) { // One-char variable, or variable in reserved_labels.
+              arg1 = reserved_label[*variable_name];
+              if (arg1==~0U) // New variable.
+                arg1 = reserved_label[*variable_name] = opcode1(mp_replace,arg2);
+              else // Already declared (or reserved).
+                CImg<longT>::vector(_cimg_mp_enfunc(mp_replace),arg1,arg2).move_to(code);
+            } else {
+              int label_pos = -1;
+              cimglist_for(labelM,i) // Check for existing variable with same name.
+                if (!std::strcmp(variable_name,labelM[i])) { label_pos = i; break; }
+              if (label_pos<0) { // New variable.
+                if (labelM._width>=labelMpos._width) labelMpos.resize(-200,1,1,1,0);
+                label_pos = labelM.width();
+                variable_name.move_to(labelM);
+                arg1 = labelMpos[label_pos] = opcode1(mp_replace,arg2);
+              } else { // Already declared.
+                arg1 = labelMpos[label_pos];
+                CImg<longT>::vector(_cimg_mp_enfunc(mp_replace),arg1,arg2).move_to(code);
+              }
+            }
+            mem(arg1,1) = -1; // Set variable property.
+            _cimg_mp_return(arg1);
           }
 
         // Look for unary/binary/ternary operators. The operator precedences should be the same as in C++.
@@ -14382,24 +14408,22 @@ namespace cimg_library_suffixed {
             default : op = mp_self_power; s_op = "power"; break;
             }
 
-            outcoords.assign(10);
-            arg1 = compile(ss,*ps=='>' || *ps=='<'?ns:ps,outcoords);
+            coords.assign(10);
+            arg1 = compile(ss,*ps=='>' || *ps=='<'?ns:ps,coords);
             arg2 = compile(s + 1,se);
             CImg<longT>::vector(_cimg_mp_enfunc(op),arg1,arg2).move_to(code);
-
-            // Act on output pixel instead of on variable.
-            if (*outcoords!=~0U || outcoords[1]!=~0U || outcoords[5]!=~0U || outcoords[6]!=~0U) {
-              if (*outcoords!=~0U) // i[off]+=...
-                CImg<longT>::vector(_cimg_mp_enfunc(mp_set_ioff),arg1,*outcoords,arg1).move_to(code);
-              else if (outcoords[1]!=~0U) // i(x,y,z,c)+=...
+            if (*coords!=~0U || coords[1]!=~0U || coords[5]!=~0U || coords[6]!=~0U) { // Assign pixel.
+              if (*coords!=~0U) // i[off]+=...
+                CImg<longT>::vector(_cimg_mp_enfunc(mp_set_ioff),arg1,*coords,arg1).move_to(code);
+              else if (coords[1]!=~0U) // i(x,y,z,c)+=...
                 CImg<longT>::vector(_cimg_mp_enfunc(mp_set_ixyzc),arg1,
-                                    outcoords[1],outcoords[2],outcoords[3],outcoords[4],arg1).move_to(code);
-              else if (outcoords[5]!=~0U) // j[off]+=...
-                CImg<longT>::vector(_cimg_mp_enfunc(mp_set_joff),arg1,outcoords[5],arg1).move_to(code);
-              else if (outcoords[6]!=~0U) // j(x,y,z,c)+=...
+                                    coords[1],coords[2],coords[3],coords[4],arg1).move_to(code);
+              else if (coords[5]!=~0U) // j[off]+=...
+                CImg<longT>::vector(_cimg_mp_enfunc(mp_set_joff),arg1,coords[5],arg1).move_to(code);
+              else if (coords[6]!=~0U) // j(x,y,z,c)+=...
                 CImg<longT>::vector(_cimg_mp_enfunc(mp_set_jxyzc),arg1,
-                                    outcoords[6],outcoords[7],outcoords[8],outcoords[9],arg1).move_to(code);
-              if (p_outcoords) std::memcpy(p_outcoords,outcoords,outcoords._width*sizeof(unsigned int));
+                                    coords[6],coords[7],coords[8],coords[9],arg1).move_to(code);
+              if (p_coords) std::memcpy(p_coords,coords,coords._width*sizeof(unsigned int));
             } else if (mem(arg1,1)>=0) {
               *se = saved_char;
               variable_name.assign(ss,(unsigned int)(s - ss)).back() = 0;
@@ -14603,10 +14627,26 @@ namespace cimg_library_suffixed {
             }
           }
 
-        is_sth = ss1<se1 && (*ss=='+' || *ss=='-') && *ss1==*ss; // Check pre-decrement or pre-increment.
+        is_sth = ss1<se1 && (*ss=='+' || *ss=='-') && *ss1==*ss; // is pre-decrement?
         if (is_sth || (se2>ss && (*se1=='+' || *se1=='-') && *se2==*se1)) { // Pre/post-decrement and increment.
-          arg1 = is_sth?compile(ss2,se):compile(ss,se2);
-          if (mem(arg1,1)>=0) {
+          coords.assign(10);
+          arg1 = is_sth?compile(ss2,se,coords):compile(ss,se2,coords);
+          pos = is_sth?arg1:opcode1(mp_replace,arg1);
+          CImg<longT>::vector(_cimg_mp_enfunc((is_sth && *ss=='+') || (!is_sth && *se1=='+')?mp_self_increment:
+                                              mp_self_decrement),arg1).move_to(code);
+          if (*coords!=~0U || coords[1]!=~0U || coords[5]!=~0U || coords[6]!=~0U) { // Assign pixel.
+            if (*coords!=~0U) // i[off]++
+              CImg<longT>::vector(_cimg_mp_enfunc(mp_set_ioff),arg1,*coords,arg1).move_to(code);
+            else if (coords[1]!=~0U) // i(x,y,z,c)++
+              CImg<longT>::vector(_cimg_mp_enfunc(mp_set_ixyzc),arg1,
+                                  coords[1],coords[2],coords[3],coords[4],arg1).move_to(code);
+            else if (coords[5]!=~0U) // j[off]++
+              CImg<longT>::vector(_cimg_mp_enfunc(mp_set_joff),arg1,coords[5],arg1).move_to(code);
+            else if (coords[6]!=~0U) // j(x,y,z,c)++
+              CImg<longT>::vector(_cimg_mp_enfunc(mp_set_jxyzc),arg1,
+                                  coords[6],coords[7],coords[8],coords[9],arg1).move_to(code);
+            if (p_coords && is_sth) std::memcpy(p_coords,coords,coords._width*sizeof(unsigned int));
+          } else if (mem(arg1,1)>=0) {
             *se = saved_char;
             if (is_sth) variable_name.assign(ss2,(unsigned int)(se - ss1));
             else variable_name.assign(ss,(unsigned int)(se1 - ss));
@@ -14622,12 +14662,6 @@ namespace cimg_library_suffixed {
                                         (ss - 8)>expr._data?ss - 8:expr._data,
                                         se<&expr.back()?"...":"");
           }
-          if (is_sth) {
-            CImg<longT>::vector(_cimg_mp_enfunc(*ss=='+'?mp_self_increment:mp_self_decrement),arg1).move_to(code);
-            _cimg_mp_return(arg1);
-          }
-          pos = opcode1(mp_replace,arg1);
-          CImg<longT>::vector(_cimg_mp_enfunc(*se1=='+'?mp_self_increment:mp_self_decrement),arg1).move_to(code);
           _cimg_mp_return(pos);
         }
 
@@ -14639,14 +14673,14 @@ namespace cimg_library_suffixed {
             s1 = ss2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
             arg1 = compile(ss2,s1);
             arg2 = s1>=se1?0:compile(s1 + 1,se1);
-            if (p_outcoords) p_outcoords[is_sth?5:0] = arg1;
+            if (p_coords) p_coords[is_sth?5:0] = arg1;
             _cimg_mp_opcode2(is_sth?mp_joff:mp_ioff,arg1,arg2);
           }
         }
 
         // Look for a function call or a parenthesis.
         if (*se1==')') {
-          if (*ss=='(') _cimg_mp_return(compile(ss1,se1,p_outcoords)); // Simple parentheses.
+          if (*ss=='(') _cimg_mp_return(compile(ss1,se1,p_coords)); // Simple parentheses.
 
           // i(...) or j(...).
           is_sth = *ss=='j'; // is_relative?
@@ -14656,7 +14690,7 @@ namespace cimg_library_suffixed {
             arg2 = is_sth?0U:(unsigned int)_cimg_mp_y;
             arg3 = is_sth?0U:(unsigned int)_cimg_mp_z;
             arg4 = is_sth?0U:(unsigned int)_cimg_mp_c;
-            arg5 = arg6 = 0;
+            arg5 = ~0U; arg6 = 0;
             if (ss2!=se1) {
               s1 = ss2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss2,s1);
@@ -14678,14 +14712,11 @@ namespace cimg_library_suffixed {
                 }
               }
             }
-            if (p_outcoords) {
-              if (is_sth) {
-                p_outcoords[6] = arg1; p_outcoords[7] = arg2; p_outcoords[8] = arg3; p_outcoords[9] = arg4;
-              } else {
-                p_outcoords[1] = arg1; p_outcoords[2] = arg2; p_outcoords[3] = arg3; p_outcoords[4] = arg4;
-              }
+            if (p_coords && arg5==~0U) {
+              if (is_sth) { p_coords[6] = arg1; p_coords[7] = arg2; p_coords[8] = arg3; p_coords[9] = arg4; }
+              else { p_coords[1] = arg1; p_coords[2] = arg2; p_coords[3] = arg3; p_coords[4] = arg4; }
             }
-            _cimg_mp_opcode6(is_sth?mp_jxyzc:mp_ixyzc,arg1,arg2,arg3,arg4,arg5,arg6);
+            _cimg_mp_opcode6(is_sth?mp_jxyzc:mp_ixyzc,arg1,arg2,arg3,arg4,arg5==~0U?0:arg5,arg6);
           }
 
           // Mathematical functions.
@@ -14780,8 +14811,8 @@ namespace cimg_library_suffixed {
               _cimg_mp_constant(val);
             }
 
-            if (!std::strncmp(ss,"debug(",6)) { // Print debug.
-              p1 = code._width; arg1 = compile(ss6,se1,p_outcoords);
+            if (!std::strncmp(ss,"debug(",6)) { // Print debug info.
+              p1 = code._width; arg1 = compile(ss6,se1,p_coords);
               *se1 = 0;
               ((CImg<longT>::vector(_cimg_mp_enfunc(mp_debug),arg1,code._width - p1),
                 CImg<longT>::string(ss6).unroll('y'))>'y').move_to(code,p1);
@@ -14981,7 +15012,7 @@ namespace cimg_library_suffixed {
 
           case 'p' :
             if (!std::strncmp(ss,"print(",6)) { // Print expression.
-              pos = compile(ss6,se1);
+              pos = compile(ss6,se1,p_coords);
               *se1 = 0;
               ((CImg<longT>::vector(_cimg_mp_enfunc(mp_print),pos),
                 CImg<longT>::string(ss6).unroll('y'))>'y').move_to(code);
@@ -15198,6 +15229,15 @@ namespace cimg_library_suffixed {
         if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
         const unsigned int pos = mempos++;
         CImg<longT>::vector(_cimg_mp_enfunc(op),pos,arg1,arg2,arg3).move_to(code);
+        return pos;
+      }
+
+      unsigned int opcode5(const mp_func op,
+                           const unsigned int arg1, const unsigned int arg2, const unsigned int arg3,
+                           const unsigned int arg4, const unsigned int arg5) {
+        if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
+        const unsigned int pos = mempos++;
+        CImg<longT>::vector(_cimg_mp_enfunc(op),pos,arg1,arg2,arg3,arg4,arg5).move_to(code);
         return pos;
       }
 
@@ -15712,7 +15752,7 @@ namespace cimg_library_suffixed {
       static double mp_print(_cimg_math_parser& mp) {
         const CImg<char> expr(mp.opcode);
         const double val = mp.mem[mp.opcode(1)];
-        std::fprintf(cimg::output(),"\n[_cimg_math_parser] %s = %g",expr._data + 2,val);
+        std::fprintf(cimg::output(),"\n[_cimg_math_parser] '%s' = %g",expr._data + 2,val);
         std::fflush(cimg::output());
         return val;
       }

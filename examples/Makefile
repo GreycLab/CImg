@@ -88,6 +88,11 @@ CIMG_VERSION = _cimg_version
 X11PATH      = /usr/X11R6
 CC           = g++
 EXEPFX       =
+ifeq ($(MSYSTEM),MINGW32)
+EXESFX       = .exe
+else
+EXESFX       =
+endif
 CCVER       = $(CC)
 ifeq ($(notdir $(CC)),g++)
 CCVER        = `$(CC) -v 2>&1 | tail -n 1`
@@ -248,13 +253,9 @@ endif
 	@echo
 	@echo "** Compiling '$* ($(CIMG_VERSION))' with '$(CCVER)'"
 	@echo
-	$(CC) -o $(EXEPFX)$* $< $(CFLAGS) $(CONF_CFLAGS) $(LIBS) $(CONF_LIBS)
+	$(CC) -o $(EXEPFX)$*$(EXESFX) $< $(CFLAGS) $(CONF_CFLAGS) $(LIBS) $(CONF_LIBS)
 ifeq ($(STRIP_EXE),true)
-ifeq ($(MSYSTEM),MINGW32)
-	strip $(EXEPFX)$*.exe
-else
-	strip $(EXEPFX)$*
-endif
+	strip $(EXEPFX)$*$(EXESFX)
 endif
 menu:
 	@echo

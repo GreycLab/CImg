@@ -13979,6 +13979,7 @@ namespace cimg_library_suffixed {
           throw CImgArgumentException("[_cimg_math_parser] "
                                       "CImg<%s>::%s(): Empty specified expression.",
                                       pixel_type(),calling_function);
+
         CImg<charT>::string(expression).move_to(expr);
         level.assign(expr._width - 1);
         int lv = 0; // Count parentheses/brackets level of expression.
@@ -14841,7 +14842,8 @@ namespace cimg_library_suffixed {
             break;
 
           case 'd' :
-            if (!std::strncmp(ss,"dowhile(",8)) { // Do..while
+            if (!std::strncmp(ss,"dowhile",7) && (*ss7=='(' || (*ss7==' ' && *ss8=='('))) { // Do..while
+              if (*ss7==' ') cimg::swap(*ss7,*ss8); // Allow space before opening brace.
               s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               p1 = code._width; arg1 = compile(ss8,s1);
               if (s1<se1) arg2 = compile(s1 + 1,se1);
@@ -14883,7 +14885,8 @@ namespace cimg_library_suffixed {
             break;
 
           case 'f' :
-            if (*ss1=='o' && *ss2=='r' && *ss3=='(') { // For..
+            if (*ss1=='o' && *ss2=='r' && (*ss3=='(' || (*ss3==' ' && *ss4=='('))) { // For..
+              if (*ss3==' ') cimg::swap(*ss3,*ss4); // Allow space before opening brace.
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               s3 = s2 + 1; while (s3<se1 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
@@ -14936,7 +14939,8 @@ namespace cimg_library_suffixed {
               _cimg_mp_opcode1(mp_int,arg1);
             }
 
-            if (*ss1=='f' && *ss2=='(') { // If..then..else.
+            if (*ss1=='f' && (*ss2=='(' || (*ss2==' ' && *ss3=='('))) { // If..then..else.
+              if (*ss2==' ') cimg::swap(*ss2,*ss3); // Allow space before opening brace.
               s1 = ss3; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg1 = compile(ss3,s1);
@@ -15166,7 +15170,8 @@ namespace cimg_library_suffixed {
             break;
 
           case 'w' :
-            if (!std::strncmp(ss,"whiledo(",8)) { // While...do
+            if (!std::strncmp(ss,"whiledo",7) && (*ss7=='(' || (*ss7==' ' && *ss8=='('))) { // While...do
+              if (*ss7==' ') cimg::swap(*ss7,*ss8); // Allow space before opening brace.
               s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               p1 = code._width; arg1 = compile(ss8,s1);
               p2 = code._width; arg2 = compile(s1 + 1,se1);
@@ -15306,8 +15311,8 @@ namespace cimg_library_suffixed {
       }
 
       // Evaluation functions, known by the parser.
-      // Defining these functions 'static' ensures that sizeof(mp_func)==sizeof(ulong), so we can store pointers to them
-      // directly in the opcode vectors.
+      // Defining these functions 'static' ensures that sizeof(mp_func)==sizeof(ulong),
+      // so we can store pointers to them directly in the opcode vectors.
       static double mp_abs(_cimg_math_parser& mp) {
         return cimg::abs(mp.mem[mp.opcode(2)]);
       }
@@ -44427,7 +44432,7 @@ namespace cimg_library_suffixed {
       unsigned int dimbuf = 0;
       J_COLOR_SPACE colortype = JCS_RGB;
 
-      switch(_spectrum) {
+      switch (_spectrum) {
       case 1 : dimbuf = 1; colortype = JCS_GRAYSCALE; break;
       case 2 : dimbuf = 3; colortype = JCS_RGB; break;
       case 3 : dimbuf = 3; colortype = JCS_RGB; break;
@@ -44459,13 +44464,13 @@ namespace cimg_library_suffixed {
         switch (_spectrum) {
         case 1 : { // Greyscale images
           const T *ptr_g = data(0, cinfo.next_scanline);
-          for(unsigned int b = 0; b < cinfo.image_width; b++)
+          for (unsigned int b = 0; b<cinfo.image_width; b++)
             *(ptrd++) = (unsigned char)*(ptr_g++);
         } break;
         case 2 : { // RG images
           const T *ptr_r = data(0,cinfo.next_scanline,0,0),
             *ptr_g = data(0,cinfo.next_scanline,0,1);
-          for(unsigned int b = 0; b < cinfo.image_width; ++b) {
+          for (unsigned int b = 0; b<cinfo.image_width; ++b) {
             *(ptrd++) = (unsigned char)*(ptr_r++);
             *(ptrd++) = (unsigned char)*(ptr_g++);
             *(ptrd++) = 0;
@@ -44475,7 +44480,7 @@ namespace cimg_library_suffixed {
           const T *ptr_r = data(0,cinfo.next_scanline,0,0),
             *ptr_g = data(0,cinfo.next_scanline,0,1),
             *ptr_b = data(0,cinfo.next_scanline,0,2);
-          for(unsigned int b = 0; b < cinfo.image_width; ++b) {
+          for (unsigned int b = 0; b<cinfo.image_width; ++b) {
             *(ptrd++) = (unsigned char)*(ptr_r++);
             *(ptrd++) = (unsigned char)*(ptr_g++);
             *(ptrd++) = (unsigned char)*(ptr_b++);
@@ -44486,7 +44491,7 @@ namespace cimg_library_suffixed {
             *ptr_g = data(0,cinfo.next_scanline,0,1),
             *ptr_b = data(0,cinfo.next_scanline,0,2),
             *ptr_a = data(0,cinfo.next_scanline,0,3);
-          for(unsigned int b = 0; b < cinfo.image_width; ++b) {
+          for (unsigned int b = 0; b<cinfo.image_width; ++b) {
             *(ptrd++) = (unsigned char)*(ptr_r++);
             *(ptrd++) = (unsigned char)*(ptr_g++);
             *(ptrd++) = (unsigned char)*(ptr_b++);

@@ -160,7 +160,7 @@ CIMG_NODISPLAY_CFLAGS = -Dcimg_display=0
 # Flags to enable the use of the X11 library.
 # (X11 is used by CImg to handle display windows)
 # !!! For 64bits systems : replace -L$(X11PATH)/lib by -L$(X11PATH)/lib64 !!!
-CIMG_X11_DEFINE =
+CIMG_X11_DEFINE = -Dcimg_display=1
 CIMG_X11_INCDIR = -I$(X11PATH)/include
 CIMG_X11_CFLAGS = $(CIMG_X11_DEFINE) $(CIMG_X11_INCDIR)
 CIMG_X11_LIBS = -L$(X11PATH)/lib -lpthread -lX11

@@ -4646,7 +4646,8 @@ namespace cimg_library_suffixed {
        \param l Max number of characters.
        \param is_ending Tell if the dots are placed at the end or at the center of the ellipsized string.
     **/
-    char *strellipsize(char *const str, const unsigned int l=64, const bool is_ending=true) {
+    inline char *strellipsize(char *const str, const unsigned int l=64,
+                              const bool is_ending=true) {
       if (!str) return str;
       const unsigned int nl = l<5?5:l, ls = (unsigned int)std::strlen(str);
       if (ls<=nl) return str;
@@ -4667,7 +4668,8 @@ namespace cimg_library_suffixed {
        \param l Max number of characters.
        \param is_ending Tell if the dots are placed at the end or at the center of the ellipsized string.
     **/
-    char *strellipsize(const char *const str, char *const res, const unsigned int l=64, const bool is_ending=true) {
+    inline char *strellipsize(const char *const str, char *const res, const unsigned int l=64,
+                              const bool is_ending=true) {
       const unsigned int nl = l<5?5:l, ls = (unsigned int)std::strlen(str);
       if (ls<=nl) { std::strcpy(res,str); return res; }
       if (is_ending) {

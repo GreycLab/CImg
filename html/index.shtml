@@ -344,9 +344,12 @@
         <li><a href="img/postcard51.jpg" onclick="NewWindow(this.href,'name','420','320','yes');return false;">
             EDF/France, from ZondeR.</a></li>
         <li><a href="img/postcard52.jpg" onclick="NewWindow(this.href,'name','300','460','yes');return false;">
-            Belgium, from Marc Lis.</a><br/><br/></li>
+            Belgium, from Marc Lis.</a>
         <li><a href="img/postcard53.jpg" onclick="NewWindow(this.href,'name','420','320','yes');return false;">
-            Roma/Italy, from Patrick Wauters.</a><br/><br/></li>
+            Roma/Italy, from Patrick Wauters.</a>
+        <li><a href="img/postcard54.jpg" onclick="NewWindow(this.href,'name','420','320','yes');return false;">
+            Germany, from Werner Meier.</a>
+          <br/><br/></li>
         <li>If you have too much money, you can also <a href="https://sourceforge.net/p/cimg/donate/">
             <img src="img/project-support.jpg" alt=""></img></a></li>
     </ul></li>

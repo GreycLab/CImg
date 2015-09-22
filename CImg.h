@@ -14069,8 +14069,10 @@ namespace cimg_library_suffixed {
       unsigned int compile(char *ss, char *se, unsigned int *p_coords=0) {
         if (ss<se) {
           while (*ss==' ') ++ss;
-          while (se>ss && *(se-1)==' ') --se;
+          while (se>ss && *(se - 1)==' ') --se;
         }
+        if (se>ss && *(se - 1)==';') --se;
+
         if (se<=ss || !*ss) {
           cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
@@ -14089,7 +14091,6 @@ namespace cimg_library_suffixed {
           p_coords[0] = p_coords[1] = p_coords[2] = p_coords[3] = p_coords[4] =
             p_coords[5] = p_coords[6] = p_coords[7] = p_coords[8] = p_coords[9] = ~0U;
 
-        if (*se1==';') return compile(ss,se1,p_coords);
         const char saved_char = *se; *se = 0;
         const unsigned int clevel = level[ss - expr._data], clevel1 = clevel + 1;
         bool is_sth;
@@ -14119,17 +14120,28 @@ namespace cimg_library_suffixed {
 
         if (ss1==se) switch (*ss) { // One-char variable.
           case 'w' : case 'h' : case 'd' : case 's' : case 'r' :
-          case 'x' : case 'y' : case 'z' : case 'c' : case 'e' : _cimg_mp_return(reserved_label[*ss]);
-          case 'u' : if (reserved_label['u']!=~0U) _cimg_mp_return(reserved_label['u']); _cimg_mp_opcode2(mp_u,0,1);
-          case 'g' : if (reserved_label['g']!=~0U) _cimg_mp_return(reserved_label['g']); _cimg_mp_opcode0(mp_g);
-          case 'i' : if (reserved_label['i']!=~0U) _cimg_mp_return(reserved_label['i']); _cimg_mp_opcode0(mp_i);
-          case 'R' : if (reserved_label['R']!=~0U) _cimg_mp_return(reserved_label['R']);
+          case 'x' : case 'y' : case 'z' : case 'c' : case 'e' :
+            _cimg_mp_return(reserved_label[*ss]);
+          case 'u' :
+            if (reserved_label['u']!=~0U) _cimg_mp_return(reserved_label['u']);
+            _cimg_mp_opcode2(mp_u,0,1);
+          case 'g' :
+            if (reserved_label['g']!=~0U) _cimg_mp_return(reserved_label['g']);
+            _cimg_mp_opcode0(mp_g);
+          case 'i' :
+            if (reserved_label['i']!=~0U) _cimg_mp_return(reserved_label['i']);
+            _cimg_mp_opcode0(mp_i);
+          case 'R' :
+            if (reserved_label['R']!=~0U) _cimg_mp_return(reserved_label['R']);
             _cimg_mp_opcode6(mp_ixyzc,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,0,0,0);
-          case 'G' : if (reserved_label['G']!=~0U) _cimg_mp_return(reserved_label['G']);
+          case 'G' :
+            if (reserved_label['G']!=~0U) _cimg_mp_return(reserved_label['G']);
             _cimg_mp_opcode6(mp_ixyzc,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,1,0,0);
-          case 'B' : if (reserved_label['B']!=~0U) _cimg_mp_return(reserved_label['B']);
+          case 'B' :
+            if (reserved_label['B']!=~0U) _cimg_mp_return(reserved_label['B']);
             _cimg_mp_opcode6(mp_ixyzc,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,2,0,0);
-          case 'A' : if (reserved_label['A']!=~0U) _cimg_mp_return(reserved_label['A']);
+          case 'A' :
+            if (reserved_label['A']!=~0U) _cimg_mp_return(reserved_label['A']);
             _cimg_mp_opcode6(mp_ixyzc,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,3,0,0);
           }
         else if (ss2==se) { // Two-chars variable.
@@ -14340,7 +14352,7 @@ namespace cimg_library_suffixed {
               is_sth = (bool)std::strchr(variable_name,'?'); // Contains_ternary_operator?
               if (is_sth) break; // Do nothing and make ternary operator prioritary over assignment.
 
-              // Pixel assignment (generic).
+              // Pixel assignment (generic lvalue).
               if (l_variable_name>3 && (std::strchr(variable_name,'(') || std::strchr(variable_name,'['))) {
                 coords.assign(10);
                 arg1 = compile(ss,s,coords);
@@ -14727,9 +14739,9 @@ namespace cimg_library_suffixed {
             if (*ss2==']') _cimg_mp_opcode0(mp_i);
             s1 = ss2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
             arg1 = compile(ss2,s1);
-            arg2 = s1>=se1?0:compile(s1 + 1,se1);
-            if (p_coords) p_coords[is_sth?5:0] = arg1;
-            _cimg_mp_opcode2(is_sth?mp_joff:mp_ioff,arg1,arg2);
+            arg2 = s1>=se1?~0U:compile(s1 + 1,se1);
+            if (p_coords && arg2==~0U) p_coords[is_sth?5:0] = arg1;
+            _cimg_mp_opcode2(is_sth?mp_joff:mp_ioff,arg1,arg2==~0U?0:arg2);
           }
         }
 
@@ -16004,7 +16016,7 @@ namespace cimg_library_suffixed {
         return is_first_iter?0:mp.mem[mem_proc];
       }
 
-    };
+    }; // struct _cimg_math_parser {}.
 
     //! Compute the square value of each pixel value.
     /**

@@ -14504,12 +14504,12 @@ namespace cimg_library_suffixed {
             _cimg_mp_return(arg1);
           }
 
-        for (s = ss1; s<se3; ++s)
+        for (s = ss1; s<se1; ++s)
           if (*s=='?' && level[s - expr._data]==clevel) { // Ternary operator 'cond?expr1:expr2'.
             s1 = s + 1; while (s1<se1 && (*s1!=':' || level[s1 - expr._data]!=clevel)) ++s1;
             arg1 = compile(ss,s);
-            p2 = code._width; arg2 = compile(s + 1,s1);
-            p3 = code._width; arg3 = compile(s1 + 1,se);
+            p2 = code._width; arg2 = compile(s + 1,*s1!=':'?se:s1);
+            p3 = code._width; arg3 = *s1!=':'?0:compile(s1 + 1,se);
             if (mem(arg1,1)>0 && mem(arg2,1)>0 && mem(arg3,1)>0) _cimg_mp_constant(mem[arg1]?mem[arg2]:mem[arg3]);
             if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
             pos = mempos++;

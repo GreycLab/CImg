@@ -14968,24 +14968,10 @@ namespace cimg_library_suffixed {
             }
 
             if (*ss1=='s') { // Family of 'is_?()' functions.
-              if (!std::strncmp(ss,"isin(",5)) {
-                if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
-                pos = mempos++;
-                CImg<longT>::vector(_cimg_mp_enfunc(mp_isin),pos).move_to(_opcode);
-                for (s = ss5; s<se; ++s) {
-                  ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
-                                 (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
-                  CImg<longT>::vector(compile(s,ns)).move_to(_opcode);
-                  s = ns;
-                }
-                (_opcode>'y').move_to(code);
-                _cimg_mp_return(pos);
-              }
 
-              if (!std::strncmp(ss,"isval(",6)) { // Is value?
-                val = 0;
-                if (cimg_sscanf(ss6,"%lf%c%c",&val,&sep,&end)==2 && sep==')') _cimg_mp_return(1);
-                _cimg_mp_return(0);
+              if (!std::strncmp(ss,"isbool(",7)) { // Is boolean?
+                if (ss7==se1) _cimg_mp_return(0);
+                _cimg_mp_opcode1(mp_isbool,compile(ss7,se1));
               }
 
               if (!std::strncmp(ss,"isdir(",6)) { // Is directory?
@@ -15002,9 +14988,18 @@ namespace cimg_library_suffixed {
                 _cimg_mp_return(is_sth?1U:0U);
               }
 
-              if (!std::strncmp(ss,"isnan(",6)) { // Is Nan?
-                if (ss6==se1) _cimg_mp_return(0);
-                _cimg_mp_opcode1(mp_isnan,compile(ss6,se1));
+              if (!std::strncmp(ss,"isin(",5)) { // Is in sequence?
+                if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
+                pos = mempos++;
+                CImg<longT>::vector(_cimg_mp_enfunc(mp_isin),pos).move_to(_opcode);
+                for (s = ss5; s<se; ++s) {
+                  ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                                 (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                  CImg<longT>::vector(compile(s,ns)).move_to(_opcode);
+                  s = ns;
+                }
+                (_opcode>'y').move_to(code);
+                _cimg_mp_return(pos);
               }
 
               if (!std::strncmp(ss,"isinf(",6)) { // Is infinite?
@@ -15017,10 +15012,17 @@ namespace cimg_library_suffixed {
                 _cimg_mp_opcode1(mp_isint,compile(ss6,se1));
               }
 
-              if (!std::strncmp(ss,"isbool(",7)) { // Is boolean?
-                if (ss7==se1) _cimg_mp_return(0);
-                _cimg_mp_opcode1(mp_isbool,compile(ss7,se1));
+              if (!std::strncmp(ss,"isnan(",6)) { // Is Nan?
+                if (ss6==se1) _cimg_mp_return(0);
+                _cimg_mp_opcode1(mp_isnan,compile(ss6,se1));
               }
+
+              if (!std::strncmp(ss,"isval(",6)) { // Is value?
+                val = 0;
+                if (cimg_sscanf(ss6,"%lf%c%c",&val,&sep,&end)==2 && sep==')') _cimg_mp_return(1);
+                _cimg_mp_return(0);
+              }
+
             }
             break;
 

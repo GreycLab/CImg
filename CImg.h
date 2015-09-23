@@ -14952,13 +14952,13 @@ namespace cimg_library_suffixed {
               _cimg_mp_opcode1(mp_int,arg1);
             }
 
-            if (*ss1=='f' && (*ss2=='(' || (*ss2==' ' && *ss3=='('))) { // If..then..else.
+            if (*ss1=='f' && (*ss2=='(' || (*ss2==' ' && *ss3=='('))) { // If..then[..else.]
               if (*ss2==' ') cimg::swap(*ss2,*ss3); // Allow space before opening brace.
               s1 = ss3; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg1 = compile(ss3,s1);
               p2 = code._width; arg2 = compile(s1 + 1,s2);
-              p3 = code._width; arg3 = compile(s2 + 1,se1);
+              p3 = code._width; arg3 = s2>=se1?0:compile(s2 + 1,se1);
               if (mem(arg1,1)>0 && mem(arg2,1)>0 && mem(arg3,1)>0) _cimg_mp_constant(mem[arg1]?mem[arg2]:mem[arg3]);
               if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
               pos = mempos++;

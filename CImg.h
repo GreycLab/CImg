@@ -41404,10 +41404,10 @@ namespace cimg_library_suffixed {
         if (TIFFGetField(tif,TIFFTAG_IMAGEDESCRIPTION,&s_description) && s_description)
           CImg<charT>::string(s_description).move_to(*description);
       }
-      const unsigned int spectrum = is_spp?samplesperpixel:photo==3?3:1;
+      const unsigned int spectrum = !is_spp || photo>=3?(photo>1?3:1):samplesperpixel;
       assign(nx,ny,1,spectrum);
 
-      if (photo>=3 && sampleformat==1 && bitspersample==8 && (samplesperpixel==3 || samplesperpixel==4)) {
+      if (photo>=3 && sampleformat==1 && bitspersample==8 && (samplesperpixel==1 || samplesperpixel==3 || samplesperpixel==4)) {
         // Special case for unsigned color images.
         uint32 *const raster = (uint32*)_TIFFmalloc(nx*ny*sizeof(uint32));
         if (!raster) {

@@ -4748,7 +4748,7 @@ namespace cimg_library_suffixed {
             *nd = (char)val; break;
           case 'x' :
             cimg_sscanf(++ns,"%x",&val);
-            while ((*ns>='0' && *ns<='7') || (*ns>='a' && *ns<='f') || (*ns>='A' && *ns<='F')) ++ns;
+            while ((*ns>='0' && *ns<='9') || (*ns>='a' && *ns<='f') || (*ns>='A' && *ns<='F')) ++ns;
             *nd = (char)val; break;
           default : *nd = *(ns++);
           } else *nd = *(ns++);

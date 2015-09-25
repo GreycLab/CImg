@@ -8999,10 +8999,8 @@ namespace cimg_library_suffixed {
      - Construct images from C-style arrays:
          - <tt>CImg<int> img(data_buffer,256,256);</tt> constructs a 256x256 greyscale image from a \c int* buffer
          \c data_buffer (of size 256x256=65536).
-         - <tt>CImg<unsigned char> img(data_buffer,256,256,1,3,false);</tt> constructs a 256x256 color image
+         - <tt>CImg<unsigned char> img(data_buffer,256,256,1,3);</tt> constructs a 256x256 color image
          from a \c unsigned \c char* buffer \c data_buffer (where R,G,B channels follow each others).
-         - <tt>CImg<unsigned char> img(data_buffer,256,256,1,3,true);</tt> constructs a 256x256 color image
-         from a \c unsigned \c char* buffer \c data_buffer (where R,G,B channels are multiplexed).
 
          The complete list of constructors can be found <a href="#constructors">here</a>.
 

@@ -41405,7 +41405,7 @@ namespace cimg_library_suffixed {
       const unsigned int spectrum = !is_spp || photo>=3?(photo>1?3:1):samplesperpixel;
       assign(nx,ny,1,spectrum);
 
-      if (photo>=3 && sampleformat==1 && bitspersample==8 && (samplesperpixel==1 || samplesperpixel==3 || samplesperpixel==4)) {
+      if (photo>=3 && sampleformat==1 && bitspersample>=4 && (samplesperpixel==1 || samplesperpixel==3 || samplesperpixel==4)) {
         // Special case for unsigned color images.
         uint32 *const raster = (uint32*)_TIFFmalloc(nx*ny*sizeof(uint32));
         if (!raster) {

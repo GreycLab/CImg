@@ -14341,11 +14341,10 @@ namespace cimg_library_suffixed {
 
             is_sth = true; // is_valid_variable_name.
             if (*variable_name>='0' && *variable_name<='9') is_sth = false;
-            else for (ns = variable_name._data + 1; *ns; ++ns)
+            else for (ns = variable_name._data; *ns; ++ns)
                    if ((*ns<'a' || *ns>'z') && (*ns<'A' || *ns>'Z') && (*ns<'0' || *ns>'9') && *ns!='_') {
                      is_sth = false; break;
                    }
-
             if (!is_sth) { // Not a valid name.
               is_sth = (bool)std::strchr(variable_name,'?'); // Contains_ternary_operator?
               if (is_sth) break; // Do nothing and make ternary operator prioritary over assignment.
@@ -14424,7 +14423,7 @@ namespace cimg_library_suffixed {
 
             // Set new value to variable.
             arg2 = compile(s + 1,se);
-            if (!variable_name[1]) { // One-char variable, or variable in reserved_labels.
+            if (!variable_name[1] && *variable_name>=0) { // One-char variable, or variable in reserved_labels.
               arg1 = reserved_label[*variable_name];
               if (arg1==~0U) // New variable.
                 arg1 = reserved_label[*variable_name] = opcode1(mp_replace,arg2);

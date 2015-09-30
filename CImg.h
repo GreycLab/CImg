@@ -24033,7 +24033,7 @@ namespace cimg_library_suffixed {
                 cimg_forX(res,x) *(ptrd++) = atX(x - (int)*(ptrs0++),y,z,c,0);
               }
           }
-        } else { // Absolute warp.
+        } else { // Backward-absolute warp.
           if (interpolation==2) { // Cubic interpolation.
             if (boundary_conditions==2) // Periodic boundaries.
 #ifdef cimg_use_openmp
@@ -24211,7 +24211,7 @@ namespace cimg_library_suffixed {
                 cimg_forX(res,x) *(ptrd++) = atXY(x - (int)*(ptrs0++),y - (int)*(ptrs1++),z,c,0);
               }
           }
-        } else { // Absolute warp.
+        } else { // Backward-absolute warp.
           if (interpolation==2) { // Cubic interpolation.
             if (boundary_conditions==2) // Periodic boundaries.
 #ifdef cimg_use_openmp
@@ -24284,7 +24284,7 @@ namespace cimg_library_suffixed {
           }
         }
 
-      } else if (warp._spectrum==3) { // 3d warping.
+      } else { // 3d warping.
         if (mode>=3) { // Forward-relative warp.
           res.fill(0);
           if (interpolation>=1) // Linear interpolation.
@@ -24413,7 +24413,7 @@ namespace cimg_library_suffixed {
                 cimg_forX(res,x) *(ptrd++) = atXYZ(x - (int)*(ptrs0++),y - (int)*(ptrs1++),z - (int)*(ptrs2++),c,0);
               }
           }
-        } else { // Absolute warp.
+        } else { // Backward-absolute warp.
           if (interpolation==2) { // Cubic interpolation.
             if (boundary_conditions==2) // Periodic boundaries.
 #ifdef cimg_use_openmp

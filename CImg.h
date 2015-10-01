@@ -29495,12 +29495,14 @@ namespace cimg_library_suffixed {
       if (is_empty()) return CImg<intT>::empty();
       if (target._spectrum!=_spectrum)
         throw CImgArgumentException(_cimg_instance
-                                    "patchmatch(): Instance image and specified target (%u,%u,%u,%u,%p) have different spectrums.",
+                                    "patchmatch(): Instance image and specified target (%u,%u,%u,%u,%p) "
+                                    "have different spectrums.",
                                     cimg_instance,
                                     target._width,target._height,target._depth,target._spectrum,target._data);
       if (patch_width>_width || patch_height>_height || patch_depth>_depth)
         throw CImgArgumentException(_cimg_instance
-                                    "patchmatch(): Specified patch size (%u,%u,%u) is bigger than dimensions of instance image.",
+                                    "patchmatch(): Specified patch size %ux%ux%u is bigger than the dimensions "
+                                    "of the instance image.",
                                     cimg_instance,patch_width,patch_height,patch_depth);
 
       CImg<intT> map(_width,_height,_depth,_depth>1?3:2);

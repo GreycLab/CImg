@@ -29533,7 +29533,7 @@ namespace cimg_library_suffixed {
         // Start iteration loop.
         for (unsigned int iter = 0; iter<nb_iterations; ++iter) {
 
-#pragma omp parallel for if (_width>64 && iter<nb_iterations-2)
+          //#pragma omp parallel for if (_width>64 && iter<nb_iterations-2)
           cimg_forXYZ(*this,X,Y,Z) {
             const bool is_even = !(iter%2);
             const int
@@ -29741,14 +29741,14 @@ namespace cimg_library_suffixed {
     // Compute SSD between two patches in different images.
     static float _patchmatch(const CImg<T>& img1, const CImg<T>& img2,
                              const unsigned int psizew, const unsigned int psizeh,
-                             const int x1, const int y1, const int x2, const int y2,
+                             const int x1, const int y1,
+                             const int x2, const int y2,
                              const float max_ssd) { // 2d version.
       float ssd = 0;
       cimg_forC(img1,c)
         for (unsigned int j = 0; j<psizeh; ++j) {
-          for (unsigned int i = 0; i<psizew; ++i) {
-            ssd += cimg::sqr(img1(x1 + i,y1 + j,0,c) - img2(x2 + i,y2 + j,0,c));
-          }
+          for (unsigned int i = 0; i<psizew; ++i)
+            ssd += cimg::sqr(img1(x1 + i,y1 + j,c) - img2(x2 + i,y2 + j,c));
           if (ssd>max_ssd) return max_ssd;
         }
       return ssd;
@@ -29763,9 +29763,8 @@ namespace cimg_library_suffixed {
       cimg_forC(img1,c)
         for (unsigned int k = 0; k<psized; ++k)
           for (unsigned int j = 0; j<psizeh; ++j) {
-            for (unsigned int i = 0; i<psizew; ++i) {
-              ssd += cimg::sqr(img1(x1 + i,y1 + j,z1 + k,0,c) - img2(x2 + i, y2 + j,z2 + k,0,c));
-            }
+            for (unsigned int i = 0; i<psizew; ++i)
+              ssd += cimg::sqr(img1(x1 + i,y1 + j,z1 + k,c) - img2(x2 + i, y2 + j,z2 + k,c));
             if (ssd>max_ssd) return max_ssd;
           }
       return ssd;

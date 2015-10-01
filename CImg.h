@@ -29522,9 +29522,9 @@ namespace cimg_library_suffixed {
             u = (int)cimg::rand(cx1,target.width() - 1 - cx2),
             v = (int)cimg::rand(cy1,target.height() - 1 - cy2),
             w = (int)cimg::rand(cz1,target.depth() - 1 - cz2);
-          map(x,y,0) = u;
-          map(x,y,1) = v;
-          map(x,y,2) = w;
+          map(x,y,z,0) = u;
+          map(x,y,z,1) = v;
+          map(x,y,z,2) = w;
           score(x,y,z) = _patchmatch(*this,target,patch_width,patch_height,patch_depth,
                                      x - cx1,y - cy1,z - cz1,
                                      u - cx1,v - cy1,w - cz1,cimg::type<float>::inf());

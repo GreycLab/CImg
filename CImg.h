@@ -10133,9 +10133,9 @@ namespace cimg_library_suffixed {
       const unsigned long off = (unsigned long)offset(x,y,z,c);
       if (!_data || off>=size()) {
         cimg::warn(_cimg_instance
-                   "operator(): Invalid pixel request, at coordinates (%u,%u,%u,%u) [offset=%u].",
+                   "operator(): Invalid pixel request, at coordinates (%d,%d,%d,%d) [offset=%u].",
                    cimg_instance,
-                   x,y,z,c,off);
+                   (int)x,(int)y,(int)z,(int)c,off);
         return *_data;
       }
       else return _data[off];
@@ -19951,9 +19951,9 @@ namespace cimg_library_suffixed {
 
     //! Fill image with random values in specified range.
     /**
-       \param val_min Minimal random value.
-       \param val_max Maximal random value.
-       \note Random samples are following a uniform distribution.
+       \param val_min Minimal authorized random value.
+       \param val_max Maximal authorized random value.
+       \note Random variables are uniformely distributed in [val_min,val_max].
      **/
     CImg<T>& rand(const T& val_min, const T& val_max) {
       const float delta = (float)val_max - (float)val_min + (cimg::type<T>::is_float()?0:1);
@@ -29460,6 +29460,146 @@ namespace cimg_library_suffixed {
       return U;
     }
 
+    //! Compute correspondence map between two images, using the patch-match algorithm.
+    /**
+        \param target The target image.
+        \param patch_size Size of the patch used for matching.
+        \param nb_iterations Number of patch-match iterations.
+        \param nb_randoms Number of randomization attempts (per pixel).
+        \param[out] matching_score If not null, returned as the image of matching scores.
+        \note
+        The patch-match algorithm is described in this paper:
+        Connelly Barnes, Eli Shechtman, Adam Finkelstein, Dan B Goldman(2009),
+        PatchMatch: A Randomized Correspondence Algorithm for Structural Image Editing
+    **/
+    CImg<T>& patchmatch(const CImg<T>& target, const unsigned int patch_size,
+                        const unsigned int nb_iterations=4, const unsigned int nb_randoms=4,
+                        CImg<floatT> *const matching_score=0) {
+      return get_patchmatch(target,patch_size,nb_iterations,nb_randoms,matching_score).move_to(*this);
+    }
+
+    //! Compute correspondence map between two images, using the patch-match algorithm \newinstance
+    CImg<intT> get_patchmatch(const CImg<T>& target, const unsigned int patch_size,
+                              const unsigned int nb_iterations=4, const unsigned int nb_randoms=4,
+                              CImg<floatT> *const matching_score=0) const {
+
+      if (target._spectrum!=_spectrum)
+        throw CImgArgumentException(_cimg_instance
+                                    "patchmatch(): Instance image and specified target (%u,%u,%u,%u,%p) have different spectrums.",
+                                    cimg_instance,
+                                    target._width,target._height,target._depth,target._spectrum,target._data);
+      if (patch_size>_width || patch_size>_height)
+        throw CImgArgumentException(_cimg_instance
+                                    "patchmatch(): Patch size is bigger than dimensions of instance image.",
+                                    cimg_instance);
+
+      CImg<intT> map(_width,_height,1,2);
+      CImg<floatT> score(_width,_height);
+      const int psize = (int)patch_size, psize1 = psize/2, psize2 = psize - psize1 - 1;
+
+      // Initialize correspondence map.
+      cimg_forXY(map,x,y) {
+        const int
+          cx1 = x<=psize1?x:(x<width() - psize2?psize1:psize + x - width()), cx2 = psize - cx1 - 1,
+          cy1 = y<=psize1?y:(y<height() - psize2?psize1:psize + y - height()) , cy2 = psize - cy1 - 1;
+        const int
+          u = (int)cimg::rand(cx1,target.width() - 1 - cx2),
+          v = (int)cimg::rand(cy1,target.height() - 1 - cy2);
+        map(x,y,0) = u;
+        map(x,y,1) = v;
+        score(x,y) = _patchmatch(*this,target,patch_size,x - cx1,y - cy1,u - cx1,v - cy1,cimg::type<float>::inf());
+      }
+
+      // Start iteration loop.
+      for (unsigned int iter = 0; iter<nb_iterations; ++iter) {
+
+#pragma omp parallel for if (_width>128 && iter<nb_iterations-2)
+        for (int Y = 0; Y<height(); ++Y)
+          for (int X = 0; X<width(); ++X) {
+            const bool is_even = !(iter%2);
+            const int
+              x = is_even?X:width() - 1 - X,
+              y = is_even?Y:height() - 1 - Y,
+              cx1 = x<=psize1?x:(x<width() - psize2?psize1:psize + x - width()), cx2 = psize - cx1 - 1,
+              cy1 = y<=psize1?y:(y<height() - psize2?psize1:psize + y - height()) , cy2 = psize - cy1 - 1,
+              xp = x - cx1,
+              yp = y - cy1;
+
+            // Propagation.
+            if (is_even) {
+              if (x>0) { // Compare with left neighbor.
+                const int u = map(x - 1,y,0), v = map(x - 1,y,1);
+                if (u>=cx1 - 1 && u<target.width() - 1 - cx2 && v>=cy1 && v<target.height() - cy2) {
+                  const float
+                    current_score = score(x,y),
+                    D = _patchmatch(*this,target,patch_size,xp,yp,u + 1 - cx1,v - cy1,current_score);
+                  if (D<current_score) { score(x,y) = D; map(x,y,0) = u + 1; map(x,y,1) = v; }
+                }
+              }
+              if (y>0) { // Compare with up neighbor.
+                const int u = map(x,y - 1,0), v = map(x,y - 1,1);
+                if (u>=cx1 && u<target.width() - cx2 && v>=cy1 - 1 && v<target.height() - cy2 - 1) {
+                  const float
+                    current_score = score(x,y),
+                    D = _patchmatch(*this,target,patch_size,xp,yp,u - cx1,v + 1 - cy1,current_score);
+                  if (D<current_score) { score(x,y) = D; map(x,y,0) = u; map(x,y,1) = v + 1; }
+                }
+              }
+            } else {
+              if (x<width() - 1) { // Compare with right neighbor.
+                const int u = map(x + 1,y,0), v = map(x + 1,y,1);
+                if (u>=cx1 + 1 && u<target.width() + 1 - cx2 && v>=cy1 && v<target.height() - cy2) {
+                  const float
+                    current_score = score(x,y),
+                    D = _patchmatch(*this,target,patch_size,xp,yp,u - 1 - cx1,v - cy1,current_score);
+                  if (D<current_score) { score(x,y) = D; map(x,y,0) = u - 1; map(x,y,1) = v; }
+                }
+              }
+              if (y<height() - 1) { // Compare with bottom neighbor.
+                const int u = map(x,y + 1,0), v = map(x,y + 1,1);
+                if (u>=cx1 && u<target.width() - cx2 && v>=cy1 + 1 && v<target.height() + 1 - cy2) {
+                  const float
+                    current_score = score(x,y),
+                    D = _patchmatch(*this,target,patch_size,xp,yp,u - cx1,v - 1 - cy1,current_score);
+                  if (D<current_score) { score(x,y) = D; map(x,y,0) = u; map(x,y,1) = v - 1; }
+                }
+              }
+            }
+
+            // Randomization.
+            const int u = map(x,y,0), v = map(x,y,1);
+            float w = (float)target.width(), h = (float)target.height();
+            for (unsigned int i = 0; i<nb_randoms; ++i) {
+              const int
+                ui = cimg::rand(cimg::max(cx1,u - w),cimg::min(target.width() - 1 - cx2,u + w)),
+                vi = cimg::rand(cimg::max(cy1,v - h),cimg::min(target.height() - 1 - cy2,v + h));
+              const float
+                current_score = score(x,y),
+                D = _patchmatch(*this,target,patch_size,xp,yp,ui - cx1,vi - cy1,current_score);
+              if (D<current_score) { score(x,y) = D; map(x,y,0) = ui; map(x,y,1) = vi; }
+              w*=0.5; h*=0.5;
+            }
+          }
+      }
+      if (matching_score) score.move_to(*matching_score);
+      return map;
+    }
+
+    // Compute SSD between two patches in different images.
+    static float _patchmatch(const CImg<T>& img1, const CImg<T>& img2, const unsigned int psize,
+                             const int x1, const int y1, const int x2, const int y2,
+                             const float max_ssd) {
+      float ssd = 0;
+      cimg_forC(img1,c)
+        for (unsigned int j = 0; j<psize; ++j) {
+          for (unsigned int i = 0; i<psize; ++i) {
+            ssd += cimg::sqr(img1(x1 + i, y1 + j,0,c) - img2(x2 + i, y2 + j,0,c));
+          }
+          if (ssd>max_ssd) return max_ssd;
+        }
+      return ssd;
+    }
+
     //! Compute Euclidean distance function to a specified value.
     /**
         \param value Reference value.
@@ -29647,7 +29787,7 @@ namespace cimg_library_suffixed {
       return get_distance_dijkstra(value,metric,is_high_connectivity,return_path).move_to(*this);
     }
 
-    //! Compute distance map to a specified value, according to a custom metric (use dijkstra algorithm). \newinstance.
+    //! Compute distance map to a specified value, according to a custom metric (use dijkstra algorithm) \newinstance.
     template<typename t, typename to>
     CImg<typename cimg::superset<t,long>::type>
     get_distance_dijkstra(const T& value, const CImg<t>& metric, const bool is_high_connectivity,

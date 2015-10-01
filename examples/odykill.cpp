@@ -155,17 +155,17 @@ int main(int argc,char **argv) {
         int n = 5 + ((int)(200*cimg::rand())%16);
         enemy = graphics[n];
         m_enemy = masks[n];
-        enemy_x=cimg::crand()*1e8; enemy_y=cimg::crand()*1e8; enemy_z=cimg::crand()*1e8;
+        enemy_x=cimg::rand(-1,1)*1e8; enemy_y=cimg::rand(-1,1)*1e8; enemy_z=cimg::rand(-1,1)*1e8;
         va = angle = 0;
       }
     }
 
-    if (enemy_x<0) { enemy_x=0; vx = speed*cimg::crand(); }
-    if (enemy_x>canvas.width()) { enemy_x=canvas.width(); vx = speed*cimg::crand(); }
-    if (enemy_y<0) { enemy_y=0; vy = speed*cimg::crand(); }
-    if (!shooted && enemy_y>canvas.height()) { enemy_y=canvas.height(); vy = speed*cimg::crand(); }
-    if (enemy_z<0.1) { enemy_z = 0.1; vz = speed*0.01*cimg::crand(); }
-    if (enemy_z>0.7) { enemy_z = 0.7; vz = speed*0.01*cimg::crand(); }
+    if (enemy_x<0) { enemy_x=0; vx = speed*cimg::rand(-1,1); }
+    if (enemy_x>canvas.width()) { enemy_x=canvas.width(); vx = speed*cimg::rand(-1,1); }
+    if (enemy_y<0) { enemy_y=0; vy = speed*cimg::rand(-1,1); }
+    if (!shooted && enemy_y>canvas.height()) { enemy_y=canvas.height(); vy = speed*cimg::rand(-1,1); }
+    if (enemy_z<0.1) { enemy_z = 0.1; vz = speed*0.01*cimg::rand(-1,1); }
+    if (enemy_z>0.7) { enemy_z = 0.7; vz = speed*0.01*cimg::rand(-1,1); }
     angle+=va;
 
     // Handle mouse interaction

@@ -4298,8 +4298,9 @@ namespace cimg_library_suffixed {
       _rand(seed,true);
     }
 
-    inline double rand() {
-      return cimg::_rand()/16777215.;
+    inline double rand(const double val_min, const double val_max) {
+      const double val = cimg::_rand()/16777215.;
+      return val_min + (val_max - val_min)*val;
     }
 
 #else
@@ -4320,19 +4321,20 @@ namespace cimg_library_suffixed {
       std::srand(seed);
     }
 
-    //! Return a random variable between [0,1] with respect to an uniform distribution.
+    //! Return a random variable uniformely distributed between [val_min,val_max].
     /**
     **/
-    inline double rand() {
-      return (double)std::rand()/RAND_MAX;
+    inline double rand(const double val_min, const double val_max) {
+      const double val = (double)std::rand()/RAND_MAX;
+      return val_min + (val_max - val_min)*val;
     }
 #endif
 
-    //! Return a random variable between [-1,1] with respect to an uniform distribution.
+    //! Return a random variable uniformely distributed between [0,val_max].
     /**
-    **/
-    inline double crand() {
-      return 1 - 2*cimg::rand();
+     **/
+    inline double rand(const double val_max=1) {
+      return cimg::rand(0,val_max);
     }
 
     //! Return a random variable following a gaussian distribution and a standard deviation of 1.
@@ -4341,8 +4343,8 @@ namespace cimg_library_suffixed {
     inline double grand() {
       double x1, w;
       do {
-        const double x2 = 2*cimg::rand() - 1.0;
-        x1 = 2*cimg::rand() - 1.0;
+        const double x2 = cimg::rand(-1,1);
+        x1 = cimg::rand(-1,1);
         w = x1*x1 + x2*x2;
       } while (w<=0 || w>=1.0);
       return x1*std::sqrt((-2*std::log(w))/w);
@@ -4796,8 +4798,9 @@ namespace cimg_library_suffixed {
       static char randomid[9] = { 0 };
       cimg::srand();
       for (unsigned int k = 0; k<8; ++k) {
-        const int v = (int)std::rand()%3;
-        randomid[k] = (char)(v==0?('0' + (std::rand()%10)):(v==1?('a' + (std::rand()%26)):('A' + (std::rand()%26))));
+        const int v = (int)cimg::rand(65535)%3;
+        randomid[k] = (char)(v==0?('0' + ((int)cimg::rand(65535)%10)):
+                             (v==1?('a' + ((int)cimg::rand(65535)%26)):('A' + ((int)cimg::rand(65535)%26))));
       }
       cimg::mutex(6,0);
       return randomid;
@@ -15980,8 +15983,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_u(_cimg_math_parser& mp) {
-        const double m = mp.mem[mp.opcode(2)];
-        return m + cimg::rand()*(mp.mem[mp.opcode(3)] - m);
+        return cimg::rand(mp.mem[mp.opcode(2)],mp.mem[mp.opcode(3)]);
       }
 
       static double mp_whiledo(_cimg_math_parser& mp) { // Used also by 'for()'.
@@ -20023,7 +20025,7 @@ namespace cimg_library_suffixed {
       } break;
       case 1 : { // Uniform noise
         cimg_rof(*this,ptrd,T) {
-          Tfloat val = (Tfloat)(*ptrd + nsigma*cimg::crand());
+          Tfloat val = (Tfloat)(*ptrd + nsigma*cimg::rand(-1,1));
           if (val>vmax) val = vmax;
           if (val<vmin) val = vmin;
           *ptrd = (T)val;
@@ -20032,7 +20034,7 @@ namespace cimg_library_suffixed {
       case 2 : { // Salt & Pepper noise
         if (nsigma<0) nsigma = -nsigma;
         if (M==m) { m = 0; M = (Tfloat)(cimg::type<T>::is_float()?1:cimg::type<T>::max()); }
-        cimg_rof(*this,ptrd,T) if (cimg::rand()*100<nsigma) *ptrd = (T)(cimg::rand()<0.5?M:m);
+        cimg_rof(*this,ptrd,T) if (cimg::rand(100)<nsigma) *ptrd = (T)(cimg::rand()<0.5?M:m);
       } break;
       case 3 : { // Poisson Noise
         cimg_rof(*this,ptrd,T) *ptrd = (T)cimg::prand(*ptrd);
@@ -37344,7 +37346,8 @@ namespace cimg_library_suffixed {
           for (int y0 = 0; y0<h; y0+=delta)
             for (int x0 = 0; x0<w; x0+=delta) {
               const int x1 = (x0 + delta)%w, y1 = (y0 + delta)%h, xc = (x0 + delta2)%w, yc = (y0 + delta2)%h;
-              const Tfloat val = (Tfloat)(0.25f*(ref(x0,y0) + ref(x0,y1) + ref(x0,y1) + ref(x1,y1)) + r*cimg::crand());
+              const Tfloat val = (Tfloat)(0.25f*(ref(x0,y0) + ref(x0,y1) + ref(x0,y1) + ref(x1,y1)) +
+                                          r*cimg::rand(-1,1));
               ref(xc,yc) = (T)(val<m?m:val>M?M:val);
             }
 
@@ -37353,21 +37356,24 @@ namespace cimg_library_suffixed {
             for (int x0=0; x0<w; x0+=delta) {
               const int y0 = cimg::mod(y,h), x1 = (x0 + delta)%w, y1 = (y + delta)%h,
                 xc = (x0 + delta2)%w, yc = (y + delta2)%h;
-              const Tfloat val = (Tfloat)(0.25f*(ref(xc,y0) + ref(x0,yc) + ref(xc,y1) + ref(x1,yc)) + r*cimg::crand());
+              const Tfloat val = (Tfloat)(0.25f*(ref(xc,y0) + ref(x0,yc) + ref(xc,y1) + ref(x1,yc)) +
+                                          r*cimg::rand(-1,1));
               ref(xc,yc) = (T)(val<m?m:val>M?M:val);
             }
           for (int y0 = 0; y0<h; y0+=delta)
             for (int x = -delta2; x<w; x+=delta) {
               const int x0 = cimg::mod(x,w), x1 = (x + delta)%w, y1 = (y0 + delta)%h,
                 xc = (x + delta2)%w, yc = (y0 + delta2)%h;
-              const Tfloat val = (Tfloat)(0.25f*(ref(xc,y0) + ref(x0,yc) + ref(xc,y1) + ref(x1,yc)) + r*cimg::crand());
+              const Tfloat val = (Tfloat)(0.25f*(ref(xc,y0) + ref(x0,yc) + ref(xc,y1) + ref(x1,yc)) +
+                                          r*cimg::rand(-1,1));
               ref(xc,yc) = (T)(val<m?m:val>M?M:val);
             }
           for (int y = -delta2; y<h; y+=delta)
             for (int x = -delta2; x<w; x+=delta) {
               const int x0 = cimg::mod(x,w), y0 = cimg::mod(y,h), x1 = (x + delta)%w, y1 = (y + delta)%h,
                 xc = (x + delta2)%w, yc = (y + delta2)%h;
-              const Tfloat val = (Tfloat)(0.25f*(ref(xc,y0) + ref(x0,yc) + ref(xc,y1) + ref(x1,yc)) + r*cimg::crand());
+              const Tfloat val = (Tfloat)(0.25f*(ref(xc,y0) + ref(x0,yc) + ref(xc,y1) + ref(x1,yc)) +
+                                          r*cimg::rand(-1,1));
                 ref(xc,yc) = (T)(val<m?m:val>M?M:val);
             }
         }

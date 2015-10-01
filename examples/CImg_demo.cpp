@@ -421,7 +421,7 @@ void* item_soccer_bobs() {
   CImg<unsigned char> foot(data_foot,200,200,1,3,false), canvas0(640,480,1,3,0);
   const unsigned char color[] = { 255, 255, 0 };
   float zoom = 0.2f;
-  cimg_forXY(canvas0,x,y) canvas0(x,y,1) = (unsigned char)(20 + (y*215/canvas0.height()) + 19*cimg::crand());
+  cimg_forXY(canvas0,x,y) canvas0(x,y,1) = (unsigned char)(20 + (y*215/canvas0.height()) + 19*cimg::rand(-1,1));
   canvas0.draw_text(5,5,"Left/Right Mouse Button = Zoom In/Out\nMiddle Button = Reset Screen",color);
   CImgList<unsigned char> canvas(16,canvas0);
   CImg<float> mask(foot.width(),foot.height());
@@ -682,11 +682,11 @@ void* item_shade_bobs() {
   while (!disp.is_closed() && !disp.is_keyQ() && !disp.is_keyESC()) {
     if ((t+=0.015f)>4*cimg::PI) {
       img.fill(0);
-      rx = (float)(cimg::crand());
-      ry = (float)(cimg::crand());
-      rz = (float)(cimg::crand());
-      rt = (float)(cimg::crand());
-      rcx = 0.6f*(float)(cimg::crand());
+      rx = (float)(cimg::rand(-1,1));
+      ry = (float)(cimg::rand(-1,1));
+      rz = (float)(cimg::rand(-1,1));
+      rt = (float)(cimg::rand(-1,1));
+      rcx = 0.6f*(float)(cimg::rand(-1,1));
       t = 0;
       palette = CImg<unsigned char>(3,4 + (int)(12*cimg::rand()),1,1,0).noise(255,2).resize(3,256,1,1,3);
       palette(0) = palette(1) = palette(2) = 0;
@@ -1035,7 +1035,7 @@ void* item_fireworks() {
 
     if (disp.button()&1 || !particles.size() || (--time)<0) {
       particles.insert(CImg<>::vector((float)cimg::rand()*img.width(),(float)img.height(),
-                                      (float)cimg::crand()*4,-6 - (float)cimg::rand()*3,
+                                      (float)cimg::rand(-1,1)*4,-6 - (float)cimg::rand()*3,
                                       30 + 60*(float)cimg::rand(),3));
       colors.insert(CImg<unsigned char>::vector(255,255,255));
       time = (float)(cimg::rand()*speed);
@@ -1261,7 +1261,7 @@ void* item_breakout() {
         if (disp.is_resized()) disp.resize(disp);
       }
       board.fill(0); visu0 = background;
-      cimg_forXY(board,x,y) if (0.2f + cimg::crand()>=0) {
+      cimg_forXY(board,x,y) if (0.2f + cimg::rand(-1,1)>=0) {
         CImg<float> cbrick = CImg<double>::vector(100 + cimg::rand()*155,100 + cimg::rand()*155,100 + cimg::rand()*155).
           unroll('v').resize(brick.width(),brick.height());
         cimg_forC(cbrick,k) (cbrick.get_shared_channel(k).mul(brick))/=255;
@@ -1591,8 +1591,8 @@ int main(int argc, char **argv) {
       blue[]   = { 55, 140, 185 },  grey[] = { 127, 127, 127 };
     float
       rx = 0, ry = 0, t = 0, gamma = 0, vgamma = 0, T = 0.9f,
-      nrx = (float)(2*cimg::crand()),
-      nry = (float)(2*cimg::crand());
+      nrx = (float)(2*cimg::rand(-1,1)),
+      nry = (float)(2*cimg::rand(-1,1));
     int y0 = 2*13;
     CImg<unsigned char> back(1,2,1,3,10), fore, text, img;
     back.fillC(0,1,0,10,10,235).resize(320,420,1,3,3).get_shared_channel(2).noise(10,1).draw_plasma();
@@ -1673,9 +1673,9 @@ int main(int argc, char **argv) {
           gamma = vgamma = 0;
           rx = nrx;
           ry = nry;
-          nrx=(float)(2*cimg::crand()); nry=(float)(2*cimg::crand());
+          nrx=(float)(2*cimg::rand(-1,1)); nry=(float)(2*cimg::rand(-1,1));
         }
-        t+=0.006f; T+=0.005f; if (T>1) { T-=(float)(1 + cimg::crand()); vgamma = 0.03f; }
+        t+=0.006f; T+=0.005f; if (T>1) { T-=(float)(1 + cimg::rand(-1,1)); vgamma = 0.03f; }
         if (disp.button()) { demo_number = 1 + (disp.mouse_y() - y0)/13; disp.set_button(); }
         disp.resize(disp,false).display(img).wait(25);
       }

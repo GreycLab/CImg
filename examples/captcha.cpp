@@ -120,7 +120,7 @@ int main(int argc,char **argv) {
       }
       if (std::rand()%2) tmp = (tmp.get_dilate(3)-=tmp);
       tmp.blur((float)cimg::rand()*0.8f).normalize(0,255);
-      const float sin_offset = (float)cimg::crand()*3, sin_freq = (float)cimg::crand()/7;
+      const float sin_offset = (float)cimg::rand(-1,1)*3, sin_freq = (float)cimg::rand(-1,1)/7;
       cimg_forYC(captcha,y,v) captcha.get_shared_row(y,0,v).shift((int)(4*std::cos(y*sin_freq + sin_offset)));
       captcha.draw_image(6 + 40*k,tmp);
     }

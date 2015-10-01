@@ -29519,8 +29519,7 @@ namespace cimg_library_suffixed {
           const int
             cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
             cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
-            cz1 = z<=psized1?z:(z<depth() - psized2?psized1:psized + z - depth()), cz2 = psized - cz1 - 1;
-          const int
+            cz1 = z<=psized1?z:(z<depth() - psized2?psized1:psized + z - depth()), cz2 = psized - cz1 - 1,
             u = (int)cimg::rand(cx1,target.width() - 1 - cx2),
             v = (int)cimg::rand(cy1,target.height() - 1 - cy2),
             w = (int)cimg::rand(cz1,target.depth() - 1 - cz2);
@@ -29541,7 +29540,9 @@ namespace cimg_library_suffixed {
             const int
               x = is_even?X:width() - 1 - X,
               y = is_even?Y:height() - 1 - Y,
-              z = is_even?Z:depth() - 1 - Z,
+              z = is_even?Z:depth() - 1 - Z;
+            if (score(x,y,z)<=1e-5) continue;
+            const int
               cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
               cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
               cz1 = z<=psized1?z:(z<depth() - psized2?psized1:psized + z - depth()), cz2 = psized - cz1 - 1,
@@ -29650,8 +29651,7 @@ namespace cimg_library_suffixed {
         cimg_forXY(map,x,y) {
           const int
             cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
-            cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()) , cy2 = psizeh - cy1 - 1;
-          const int
+            cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()) , cy2 = psizeh - cy1 - 1,
             u = (int)cimg::rand(cx1,target.width() - 1 - cx2),
             v = (int)cimg::rand(cy1,target.height() - 1 - cy2);
           map(x,y,0) = u;
@@ -29668,7 +29668,9 @@ namespace cimg_library_suffixed {
             const bool is_even = !(iter%2);
             const int
               x = is_even?X:width() - 1 - X,
-              y = is_even?Y:height() - 1 - Y,
+              y = is_even?Y:height() - 1 - Y;
+            if (score(x,y)<=1e-5) continue;
+            const int
               cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
               cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()) , cy2 = psizeh - cy1 - 1,
               xp = x - cx1,

@@ -29533,7 +29533,7 @@ namespace cimg_library_suffixed {
         // Start iteration loop.
         for (unsigned int iter = 0; iter<nb_iterations; ++iter) {
 
-          //#pragma omp parallel for if (_width>64 && iter<nb_iterations-2)
+#pragma omp parallel for collapse(2) if (_width>64 && iter<nb_iterations-2)
           cimg_forXYZ(*this,X,Y,Z) {
             const bool is_even = !(iter%2);
             const int

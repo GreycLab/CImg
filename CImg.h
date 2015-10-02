@@ -29504,18 +29504,24 @@ namespace cimg_library_suffixed {
                                     "patchmatch(): Specified patch size %ux%ux%u is bigger than the dimensions "
                                     "of the instance image.",
                                     cimg_instance,patch_width,patch_height,patch_depth);
+      if (patch_width>target._width || patch_height>target._height || patch_depth>target._depth)
+        throw CImgArgumentException(_cimg_instance
+                                    "patchmatch(): Specified patch size %ux%ux%u is bigger than the dimensions "
+                                    "of the target image (%u,%u,%u,%u,%p).",
+                                    cimg_instance,patch_width,patch_height,patch_depth,
+                                    target._width,target._height,target._depth,target._spectrum,target._data);
 
-      CImg<intT> map(_width,_height,_depth,_depth>1?3:2);
+      CImg<intT> map(_width,_height,_depth,target._depth>1?3:2);
       CImg<floatT> score(_width,_height,_depth);
       const int
         psizew = (int)patch_width, psizew1 = psizew/2, psizew2 = psizew - psizew1 - 1,
         psizeh = (int)patch_height, psizeh1 = psizeh/2, psizeh2 = psizeh - psizeh1 - 1,
         psized = (int)patch_depth, psized1 = psized/2, psized2 = psized - psized1 - 1;
 
-      if (_depth>1) { // 3d version.
+      if (_depth>1 || target._depth>1) { // 3d version.
 
         // Initialize correspondence map.
-        cimg_forXYZ(map,x,y,z) {
+        cimg_forXYZ(*this,x,y,z) {
           const int
             cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
             cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
@@ -29648,7 +29654,7 @@ namespace cimg_library_suffixed {
       } else { // 2d version.
 
         // Initialize correspondence map.
-        cimg_forXY(map,x,y) {
+        cimg_forXY(*this,x,y) {
           const int
             cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
             cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()) , cy2 = psizeh - cy1 - 1,

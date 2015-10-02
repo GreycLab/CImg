@@ -29653,7 +29653,7 @@ namespace cimg_library_suffixed {
                 ui = (int)cimg::round(cimg::rand(cimg::max(cx1,u - dw),cimg::min(target.width() - 1 - cx2,u + dw))),
                 vi = (int)cimg::round(cimg::rand(cimg::max(cy1,v - dh),cimg::min(target.height() - 1 - cy2,v + dh))),
                 wi = (int)cimg::round(cimg::rand(cimg::max(cz1,w - dd),cimg::min(target.depth() - 1 - cz2,w + dd)));
-              if (allow_identity || (u!=ui && v!=vi && w!=wi)) {
+              if (allow_identity || (ui!=x && vi!=y && wi!=z)) {
                 const float
                   current_score = score(x,y,z),
                   D = _patchmatch(*this,target,patch_width,patch_height,patch_depth,
@@ -29756,7 +29756,7 @@ namespace cimg_library_suffixed {
               const int
                 ui = (int)cimg::round(cimg::rand(cimg::max(cx1,u - dw),cimg::min(target.width() - 1 - cx2,u + dw))),
                 vi = (int)cimg::round(cimg::rand(cimg::max(cy1,v - dh),cimg::min(target.height() - 1 - cy2,v + dh)));
-              if (allow_identity || (ui!=u && vi!=v)) {
+              if (allow_identity || (ui!=x && vi!=y)) {
                 const float
                   current_score = score(x,y),
                   D = _patchmatch(*this,target,patch_width,patch_height,

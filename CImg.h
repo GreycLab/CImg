@@ -4035,7 +4035,7 @@ namespace cimg_library_suffixed {
       return -1;
 #else
 #if cimg_OS==1
-      const unsigned int l = std::strlen(command);
+      const unsigned int l = (unsigned int)std::strlen(command);
       if (l) {
         char *const ncommand = new char[l + 16];
         std::strncpy(ncommand,command,l);
@@ -7491,7 +7491,7 @@ namespace cimg_library_suffixed {
 
       // Allocate space for window title
       const char *const nptitle = ptitle?ptitle:"";
-      const unsigned int s = std::strlen(nptitle) + 1;
+      const unsigned int s = (unsigned int)std::strlen(nptitle) + 1;
       char *const tmp_title = s?new char[s]:0;
       if (s) std::memcpy(tmp_title,nptitle,s*sizeof(char));
 
@@ -7846,7 +7846,7 @@ namespace cimg_library_suffixed {
       va_end(ap);
       if (!std::strcmp(_title,tmp)) { delete[] tmp; return *this; }
       delete[] _title;
-      const unsigned int s = std::strlen(tmp) + 1;
+      const unsigned int s = (unsigned int)std::strlen(tmp) + 1;
       _title = new char[s];
       std::memcpy(_title,tmp,s*sizeof(char));
       Display *const dpy = cimg::X11_attr().display;
@@ -14307,7 +14307,7 @@ namespace cimg_library_suffixed {
               level[s - expr._data]==clevel) {
             variable_name.assign(ss,(unsigned int)(s - ss + 1)).back() = 0;
             cimg::strpare(variable_name);
-            const unsigned int l_variable_name = std::strlen(variable_name);
+            const unsigned int l_variable_name = (unsigned int)std::strlen(variable_name);
 
             // Pixel assignment (fast).
             if (l_variable_name>3 && (*ss=='i' || *ss=='j')) {
@@ -52240,7 +52240,7 @@ namespace cimg {
     char *pd = _path;
     for (char *ps = pd; *ps; ++ps) { if (*ps!='/' || *ps!=*(ps+1)) *(pd++) = *ps; }
     *pd = 0;
-    unsigned int lp = std::strlen(_path);
+    unsigned int lp = (unsigned int)std::strlen(_path);
     if (!_is_pattern && lp && _path[lp - 1]=='/') {
       _path[lp - 1] = 0; --lp;
 #if cimg_OS!=2
@@ -52260,7 +52260,7 @@ namespace cimg {
       } else { // No path to folder specified, assuming current folder.
         is_current = true; *_path = 0;
       }
-      lp = std::strlen(_path);
+      lp = (unsigned int)std::strlen(_path);
     }
 
     // Windows version.
@@ -52276,7 +52276,7 @@ namespace cimg {
     do {
       const char *const filename = file_data.cFileName;
       if (*filename!='.' || (filename[1] && (filename[1]!='.' || filename[2]))) {
-        const unsigned int lf = std::strlen(filename);
+        const unsigned int lf = (unsigned int)std::strlen(filename);
         const bool is_directory = (file_data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)!=0;
         if ((!mode && !is_directory) || (mode==1 && is_directory) || mode>=2) {
           if (include_path) {
@@ -52298,7 +52298,7 @@ namespace cimg {
     while ((ent=readdir(dir))!=0) {
       const char *const filename = ent->d_name;
       if (*filename!='.' || (filename[1] && (filename[1]!='.' || filename[2]))) {
-        const unsigned int lf = std::strlen(filename);
+        const unsigned int lf = (unsigned int)std::strlen(filename);
         CImg<char> full_filename(lp + lf + 2);
 
         if (!is_current) {

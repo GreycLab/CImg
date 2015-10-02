@@ -29480,8 +29480,8 @@ namespace cimg_library_suffixed {
                         const unsigned int patch_width,
                         const unsigned int patch_height,
                         const unsigned int patch_depth=1,
-                        const unsigned int nb_iterations=4,
-                        const unsigned int nb_randoms=4,
+                        const unsigned int nb_iterations=5,
+                        const unsigned int nb_randoms=5,
                         const bool allow_identity=true,
                         CImg<floatT> *const matching_score=0) {
       return get_patchmatch(target,patch_width,patch_height,patch_depth,
@@ -29493,8 +29493,8 @@ namespace cimg_library_suffixed {
                               const unsigned int patch_width,
                               const unsigned int patch_height,
                               const unsigned int patch_depth,
-                              const unsigned int nb_iterations=4,
-                              const unsigned int nb_randoms=4,
+                              const unsigned int nb_iterations=5,
+                              const unsigned int nb_randoms=5,
                               const bool allow_identity=true,
                               CImg<floatT> *const matching_score=0) const {
 

@@ -29526,9 +29526,9 @@ namespace cimg_library_suffixed {
             cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
             cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
             cz1 = z<=psized1?z:(z<depth() - psized2?psized1:psized + z - depth()), cz2 = psized - cz1 - 1,
-            u = (int)cimg::rand(cx1,target.width() - 1 - cx2),
-            v = (int)cimg::rand(cy1,target.height() - 1 - cy2),
-            w = (int)cimg::rand(cz1,target.depth() - 1 - cz2);
+            u = (int)cimg::round(cimg::rand(cx1,target.width() - 1 - cx2)),
+            v = (int)cimg::round(cimg::rand(cy1,target.height() - 1 - cy2)),
+            w = (int)cimg::round(cimg::rand(cz1,target.depth() - 1 - cz2));
           map(x,y,z,0) = u;
           map(x,y,z,1) = v;
           map(x,y,z,2) = w;
@@ -29573,7 +29573,7 @@ namespace cimg_library_suffixed {
               if (y>0) { // Compare with up neighbor.
                 const int u = map(x,y - 1,z,0), v = map(x,y - 1,z,1), w = map(x,y - 1,z,2);
                 if (u>=cx1 && u<target.width() - cx2 &&
-                    v>=cy1 - 1 && v<target.height() - cy2 - 1 &&
+                    v>=cy1 - 1 && v<target.height() - 1 - cy2 &&
                     w>=cz1 && w<target.depth() - cx2) {
                   const float
                     current_score = score(x,y,z),
@@ -29586,7 +29586,7 @@ namespace cimg_library_suffixed {
                 const int u = map(x,y,z - 1,0), v = map(x,y,z - 1,1), w = map(x,y,z - 1,2);
                 if (u>=cx1 && u<target.width() - cx2 &&
                     v>=cy1 && v<target.height() - cy2 &&
-                    w>=cz1 - 1 && w<target.depth() - cz2 - 1) {
+                    w>=cz1 - 1 && w<target.depth() - 1 - cz2) {
                   const float
                     current_score = score(x,y,z),
                     D = _patchmatch(*this,target,patch_width,patch_height,patch_depth,
@@ -29638,9 +29638,9 @@ namespace cimg_library_suffixed {
             float dw = (float)target.width(), dh = (float)target.height(), dd = (float)target.depth();
             for (unsigned int i = 0; i<nb_randoms; ++i) {
               const int
-                ui = (int)cimg::rand(cimg::max(cx1,u - dw),cimg::min(target.width() - 1 - cx2,u + dw)),
-                vi = (int)cimg::rand(cimg::max(cy1,v - dh),cimg::min(target.height() - 1 - cy2,v + dh)),
-                wi = (int)cimg::rand(cimg::max(cz1,w - dd),cimg::min(target.depth() - 1 - cz2,w + dd));
+                ui = (int)cimg::round(cimg::rand(cimg::max(cx1,u - dw),cimg::min(target.width() - 1 - cx2,u + dw))),
+                vi = (int)cimg::round(cimg::rand(cimg::max(cy1,v - dh),cimg::min(target.height() - 1 - cy2,v + dh))),
+                wi = (int)cimg::round(cimg::rand(cimg::max(cz1,w - dd),cimg::min(target.depth() - 1 - cz2,w + dd)));
               const float
                 current_score = score(x,y,z),
                 D = _patchmatch(*this,target,patch_width,patch_height,patch_depth,
@@ -29658,8 +29658,8 @@ namespace cimg_library_suffixed {
           const int
             cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
             cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()) , cy2 = psizeh - cy1 - 1,
-            u = (int)cimg::rand(cx1,target.width() - 1 - cx2),
-            v = (int)cimg::rand(cy1,target.height() - 1 - cy2);
+            u = (int)cimg::round(cimg::rand(cx1,target.width() - 1 - cx2)),
+            v = (int)cimg::round(cimg::rand(cy1,target.height() - 1 - cy2));
           map(x,y,0) = u;
           map(x,y,1) = v;
           score(x,y) = _patchmatch(*this,target,patch_width,patch_height,
@@ -29686,7 +29686,8 @@ namespace cimg_library_suffixed {
             if (is_even) {
               if (x>0) { // Compare with left neighbor.
                 const int u = map(x - 1,y,0), v = map(x - 1,y,1);
-                if (u>=cx1 - 1 && u<target.width() - 1 - cx2 && v>=cy1 && v<target.height() - cy2) {
+                if (u>=cx1 - 1 && u<target.width() - 1 - cx2 &&
+                    v>=cy1 && v<target.height() - cy2) {
                   const float
                     current_score = score(x,y),
                     D = _patchmatch(*this,target,patch_width,patch_height,
@@ -29696,7 +29697,8 @@ namespace cimg_library_suffixed {
               }
               if (y>0) { // Compare with up neighbor.
                 const int u = map(x,y - 1,0), v = map(x,y - 1,1);
-                if (u>=cx1 && u<target.width() - cx2 && v>=cy1 - 1 && v<target.height() - cy2 - 1) {
+                if (u>=cx1 && u<target.width() - cx2 &&
+                    v>=cy1 - 1 && v<target.height() - 1 - cy2) {
                   const float
                     current_score = score(x,y),
                     D = _patchmatch(*this,target,patch_width,patch_height,
@@ -29707,7 +29709,8 @@ namespace cimg_library_suffixed {
             } else {
               if (x<width() - 1) { // Compare with right neighbor.
                 const int u = map(x + 1,y,0), v = map(x + 1,y,1);
-                if (u>=cx1 + 1 && u<target.width() + 1 - cx2 && v>=cy1 && v<target.height() - cy2) {
+                if (u>=cx1 + 1 && u<target.width() + 1 - cx2 &&
+                    v>=cy1 && v<target.height() - cy2) {
                   const float
                     current_score = score(x,y),
                     D = _patchmatch(*this,target,patch_width,patch_height,
@@ -29717,7 +29720,8 @@ namespace cimg_library_suffixed {
               }
               if (y<height() - 1) { // Compare with bottom neighbor.
                 const int u = map(x,y + 1,0), v = map(x,y + 1,1);
-                if (u>=cx1 && u<target.width() - cx2 && v>=cy1 + 1 && v<target.height() + 1 - cy2) {
+                if (u>=cx1 && u<target.width() - cx2 &&
+                    v>=cy1 + 1 && v<target.height() + 1 - cy2) {
                   const float
                     current_score = score(x,y),
                     D = _patchmatch(*this,target,patch_width,patch_height,
@@ -29732,8 +29736,8 @@ namespace cimg_library_suffixed {
             float dw = (float)target.width(), dh = (float)target.height();
             for (unsigned int i = 0; i<nb_randoms; ++i) {
               const int
-                ui = (int)cimg::rand(cimg::max(cx1,u - dw),cimg::min(target.width() - 1 - cx2,u + dw)),
-                vi = (int)cimg::rand(cimg::max(cy1,v - dh),cimg::min(target.height() - 1 - cy2,v + dh));
+                ui = (int)cimg::round(cimg::rand(cimg::max(cx1,u - dw),cimg::min(target.width() - 1 - cx2,u + dw))),
+                vi = (int)cimg::round(cimg::rand(cimg::max(cy1,v - dh),cimg::min(target.height() - 1 - cy2,v + dh)));
               const float
                 current_score = score(x,y),
                 D = _patchmatch(*this,target,patch_width,patch_height,

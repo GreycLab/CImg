@@ -15380,15 +15380,15 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_bitwise_and(_cimg_math_parser& mp) {
-        return ((unsigned long)mp.mem[mp.opcode[2]] & (unsigned long)mp.mem[mp.opcode[3]]);
+        return (double)((unsigned long)mp.mem[mp.opcode[2]] & (unsigned long)mp.mem[mp.opcode[3]]);
       }
 
       static double mp_bitwise_not(_cimg_math_parser& mp) {
-        return ~(unsigned long)mp.mem[mp.opcode[2]];
+        return (double)~(unsigned long)mp.mem[mp.opcode[2]];
       }
 
       static double mp_bitwise_or(_cimg_math_parser& mp) {
-        return ((unsigned long)mp.mem[mp.opcode[2]] | (unsigned long)mp.mem[mp.opcode[3]]);
+        return (double)((unsigned long)mp.mem[mp.opcode[2]] | (unsigned long)mp.mem[mp.opcode[3]]);
       }
 
       static double mp_cbrt(_cimg_math_parser& mp) {
@@ -15720,11 +15720,11 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_bitwise_left_shift(_cimg_math_parser& mp) {
-        return (long)mp.mem[mp.opcode[2]]<<(unsigned int)mp.mem[mp.opcode[3]];
+        return (double)((long)mp.mem[mp.opcode[2]]<<(unsigned int)mp.mem[mp.opcode[3]]);
       }
 
       static double mp_bitwise_right_shift(_cimg_math_parser& mp) {
-        return (long)mp.mem[mp.opcode[2]]>>(unsigned int)mp.mem[mp.opcode[3]];
+        return (double)((long)mp.mem[mp.opcode[2]]>>(unsigned int)mp.mem[mp.opcode[3]]);
       }
 
       static double mp_lt(_cimg_math_parser& mp) {
@@ -15854,22 +15854,22 @@ namespace cimg_library_suffixed {
 
       static double mp_self_bitwise_and(_cimg_math_parser& mp) {
         const unsigned long val = (unsigned long)mp.mem[mp.opcode[1]];
-        return mp.mem[mp.opcode[1]] = val & (unsigned long)mp.mem[mp.opcode[2]];
+        return mp.mem[mp.opcode[1]] = (double)(val & (unsigned long)mp.mem[mp.opcode[2]]);
       }
 
       static double mp_self_bitwise_left_shift(_cimg_math_parser& mp) {
         const long val = (long)mp.mem[mp.opcode[1]];
-        return mp.mem[mp.opcode[1]] = val<<(unsigned int)mp.mem[mp.opcode[2]];
+        return mp.mem[mp.opcode[1]] = (double)(val<<(unsigned int)mp.mem[mp.opcode[2]]);
       }
 
       static double mp_self_bitwise_or(_cimg_math_parser& mp) {
         const unsigned long val = (unsigned long)mp.mem[mp.opcode[1]];
-        return mp.mem[mp.opcode[1]] = val | (unsigned long)mp.mem[mp.opcode[2]];
+        return mp.mem[mp.opcode[1]] = (double)(val | (unsigned long)mp.mem[mp.opcode[2]]);
       }
 
       static double mp_self_bitwise_right_shift(_cimg_math_parser& mp) {
         const long val = (long)mp.mem[mp.opcode[1]];
-        return mp.mem[mp.opcode[1]] = val>>(unsigned int)mp.mem[mp.opcode[2]];
+        return mp.mem[mp.opcode[1]] = (double)(val>>(unsigned int)mp.mem[mp.opcode[2]]);
       }
 
       static double mp_self_decrement(_cimg_math_parser& mp) {

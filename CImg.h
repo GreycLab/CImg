@@ -15514,17 +15514,24 @@ namespace cimg_library_suffixed {
                      expr._data,((double*)mp.opcode[2] - mp.mem._data),g_target - mp.mem._data,mp.mem._width);
         std::fflush(cimg::output());
         const CImg<uptrT> *const p_end = (++mp.p_code) + ((double*)mp.opcode[2] - mp.mem._data);
+        CImg<uptrT> _op;
         mp.debug_indent+=3;
         for ( ; mp.p_code<p_end; ++mp.p_code) {
           const CImg<uptrT> &op = *mp.p_code;
           mp.opcode._data = op._data; mp.opcode._height = op._height;
+
+          _op.assign(1,op._height - 1); // Convert pointers back to offsets for debug printing.
+          const uptrT *ptrs = op._data + 1;
+          for (uptrT *ptrd = _op._data, *const ptrde = _op._data + _op._height; ptrd<ptrde; ++ptrd)
+            *ptrd = ((double*)*(ptrs++) - mp.mem._data);
+
           double *const target = (double*)mp.opcode[1];
           *target = _cimg_mp_defunc(mp);
           std::fprintf(cimg::output(),
                        "\n[_cimg_math_parser] %p[thread #%u]:%*c"
-                       "Opcode %p = [ %s ] -> mem[%lu] = %g",
+                       "Opcode %p = [ %p,%s ] -> mem[%lu] = %g",
                        (void*)&mp,n_thread,mp.debug_indent,' ',
-                       (void*)mp.opcode._data,mp.opcode.value_string().data(),
+                       (void*)mp.opcode._data,(void*)*mp.opcode,_op.value_string().data(),
                        target - mp.mem._data,*target);
           std::fflush(cimg::output());
         }

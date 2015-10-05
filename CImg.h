@@ -13948,7 +13948,7 @@ namespace cimg_library_suffixed {
       const CImg<T>& input;
       const CImgList<T>& inputs;
       CImg<T> &output;
-      CImgList<T> &outputs;
+      CImgList<T>& outputs;
       const CImg<uptrT>* p_code;
 
       unsigned int mempos, mem_median, debug_indent;
@@ -13974,8 +13974,8 @@ namespace cimg_library_suffixed {
       // Constructors.
       _cimg_math_parser(const char *const expression, const char *const funcname=0,
                         const CImg<T>& img_input=CImg<T>::empty(), CImg<T> *const img_output=0,
-                        const CImgList<T>& list_inputs=CImgList<T>::empty(), CImgList<T> *const list_outputs=0):
-        code(_code),input_stats(_input_stats),input(img_input),inputs(list_inputs),
+                        const CImgList<T> *const list_inputs=0, CImgList<T> *const list_outputs=0):
+        code(_code),input_stats(_input_stats),input(img_input),inputs(list_inputs?*list_inputs:CImgList<T>::empty()),
         output(img_output?*img_output:CImg<T>::empty()),outputs(list_outputs?*list_outputs:CImgList<T>::empty()),
         mem_median(~0U),debug_indent(0),
         calling_function(funcname?funcname:"cimg_math_parser") {
@@ -17492,20 +17492,25 @@ namespace cimg_library_suffixed {
        \param y Value of the pre-defined variable \c y.
        \param z Value of the pre-defined variable \c z.
        \param c Value of the pre-defined variable \c c.
+       \param list_inputs A list of input images attached to the specified math formula.
+       \param list_outputs A pointer to a list of output images attached to the specified math formula.
     **/
     double eval(const char *const expression,
-                const double x=0, const double y=0, const double z=0, const double c=0) {
-      return _eval(this,expression,x,y,z,c);
+                const double x=0, const double y=0, const double z=0, const double c=0,
+                const CImgList<T> *const list_inputs=0, CImgList<T> *const list_outputs=0) {
+      return _eval(this,expression,x,y,z,c,list_inputs,list_outputs);
     }
 
     //! Evaluate math formula \const.
     double eval(const char *const expression,
-                const double x=0, const double y=0, const double z=0, const double c=0) const {
-      return _eval(0,expression,x,y,z,c);
+                const double x=0, const double y=0, const double z=0, const double c=0,
+                const CImgList<T> *const list_inputs=0, CImgList<T> *const list_outputs=0) const {
+      return _eval(0,expression,x,y,z,c,list_inputs,list_outputs);
     }
 
     double _eval(CImg<T> *const output, const char *const expression,
-                 const double x, const double y, const double z, const double c) const {
+                 const double x, const double y, const double z, const double c,
+                 const CImgList<T> *const list_inputs, CImgList<T> *const list_outputs) const {
       if (!expression) return 0;
       if (!expression[1]) switch (*expression) { // Single-char optimization.
         case 'w' : return (double)_width;
@@ -17515,7 +17520,7 @@ namespace cimg_library_suffixed {
         case 'r' : return (double)_is_shared;
         }
       return _cimg_math_parser(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
-                               "eval",*this,output)(x,y,z,c);
+                               "eval",*this,output,list_inputs,list_outputs)(x,y,z,c);
     }
 
     //! Evaluate math formula on a set of variables.
@@ -19663,8 +19668,11 @@ namespace cimg_library_suffixed {
        \param expression C-string describing a math formula, or a list of values.
        \param repeat_values In case a list of values is provided, tells if this list must be repeated for the filling.
        \param allow_formula tells if a formula is allowed or only a list of values.
+       \param list_inputs In case of a mathematical expression, attach a list of images to the specified expression.
+       \param list_outputs In case of a mathematical expression, attach a list of images to the specified expression.
     **/
-    CImg<T>& fill(const char *const expression, const bool repeat_values, const bool allow_formula=true) {
+    CImg<T>& fill(const char *const expression, const bool repeat_values, const bool allow_formula=true,
+                  const CImgList<T> *const list_inputs=0, CImgList<T> *const list_outputs=0) {
       if (is_empty() || !expression || !*expression) return *this;
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
@@ -19673,7 +19681,7 @@ namespace cimg_library_suffixed {
       if (allow_formula) try { // Try to fill values according to a formula.
         const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(), &base = _base?_base:*this;
         _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
-                             "fill",base,this);
+                             "fill",base,this,list_inputs,list_outputs);
         T *ptrd = *expression=='<'?end() - 1:_data;
         if (*expression=='<') cimg_rofXYZC(*this,x,y,z,c) *(ptrd--) = (T)mp(x,y,z,c);
         else if (*expression=='>') cimg_forXYZC(*this,x,y,z,c) *(ptrd++) = (T)mp(x,y,z,c);
@@ -19726,8 +19734,9 @@ namespace cimg_library_suffixed {
     }
 
     //! Fill sequentially pixel values according to a given expression \newinstance.
-    CImg<T> get_fill(const char *const expression, const bool repeat_values, const bool allow_formula=true) const {
-      return (+*this).fill(expression,repeat_values,allow_formula);
+    CImg<T> get_fill(const char *const expression, const bool repeat_values, const bool allow_formula=true,
+                     const CImgList<T> *const list_inputs=0, CImgList<T> *const list_outputs=0) const {
+      return (+*this).fill(expression,repeat_values,allow_formula,list_inputs,list_outputs);
     }
 
     //! Fill sequentially pixel values according to the values found in another image.
@@ -48518,42 +48527,6 @@ namespace cimg_library_suffixed {
       }
       min_val = (t)min_value;
       return *ptr_max;
-    }
-
-    //! Evaluate math formula.
-    /**
-       \param expression Math formula, as a C-string.
-       \param x Value of the pre-defined variable \c x.
-       \param y Value of the pre-defined variable \c y.
-       \param z Value of the pre-defined variable \c z.
-       \param c Value of the pre-defined variable \c c.
-    **/
-    double eval(const char *const expression,
-                const CImg<T> &img_input=CImg<T>::empty(), const CImg<T> *const img_output=0,
-                const double x=0, const double y=0, const double z=0, const double c=0) {
-      return _eval(this,expression,img_input,img_output,x,y,z,c);
-    }
-
-    //! Evaluate math formula \const.
-    double eval(const char *const expression,
-                const CImg<T> &img_input=CImg<T>::empty(), const CImg<T> *const img_output=0,
-                const double x=0, const double y=0, const double z=0, const double c=0) const {
-      return _eval(0,expression,img_input,img_output,x,y,z,c);
-    }
-
-    double _eval(CImgList<T> *const output, const char *const expression,
-                 const CImg<T> &img_input, const CImg<T> *const img_output,
-                 const double x, const double y, const double z, const double c) const {
-      if (!expression) return 0;
-      if (!expression[1]) switch (*expression) { // Single-char optimization.
-        case 'w' : return (double)img_input._width;
-        case 'h' : return (double)img_input._height;
-        case 'd' : return (double)img_input._depth;
-        case 's' : return (double)img_input._spectrum;
-        case 'r' : return (double)img_input._is_shared;
-        }
-      return _cimg_math_parser(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
-                               "eval",img_input,img_output,*this,output)(x,y,z,c);
     }
 
     //@}

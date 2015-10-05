@@ -13944,7 +13944,8 @@ namespace cimg_library_suffixed {
       CImg<T> &output;
       const CImg<longT>* p_code;
 
-      unsigned int mempos, result, mem_median, debug_indent;
+      unsigned int mempos, mem_median, debug_indent;
+      double *result;
       const char *const calling_function;
       typedef double (*mp_func)(_cimg_math_parser&);
 
@@ -14040,11 +14041,13 @@ namespace cimg_library_suffixed {
         // [4] = im, [5] = iM, [6] = ia, [7] = iv, [8] = is, [9] = ip, [10] = ic,
         // [11] = xm, [12] = ym, [13] = zm, [14] = cm, [15] = xM, [16] = yM, [17] = zM, [18]=cM, [19]=i0...[28]=i9.
 
-        result = compile(expr._data,expr._data + expr._width - 1); // Compile expression into a serie of opcodes.
+        // Compile expression into a serie of opcodes.
+        const unsigned int i_result = compile(expr._data,expr._data + expr._width - 1);
         p_code_end = code.end();
 
         // Free resources used for parsing and prepare for evaluation.
         mem.resize(mempos,1,1,1,-1);
+        result = mem._data + i_result;
         level.assign();
         labelMpos.assign();
         reserved_label.assign();
@@ -14055,13 +14058,15 @@ namespace cimg_library_suffixed {
 
       _cimg_math_parser():
         code(_code),input_stats(_input_stats),p_code_end(0),input(CImg<T>::empty()),
-        output(CImg<T>::empty()),result(0),debug_indent(0),calling_function(0) {
+        output(CImg<T>::empty()),debug_indent(0),calling_function(0) {
         mem.assign(1 + _cimg_mp_c,1,1,1,0); // Allow to skip an 'is_empty' test in operator()().
+        result = mem._data;
       }
 
       _cimg_math_parser(const _cimg_math_parser& mp):
         code(mp.code),input_stats(mp.input_stats),p_code_end(mp.p_code_end),mem(mp.mem),input(mp.input),
-        output(mp.output),result(mp.result),mem_median(mp.mem_median),debug_indent(0),calling_function(0) {
+        output(mp.output),mem_median(mp.mem_median),debug_indent(0),result(mem._data + (mp.result - mp.mem._data)),
+        calling_function(0) {
         opcode._width = opcode._depth = opcode._spectrum = 1;
         opcode._is_shared = true;
       }
@@ -15265,7 +15270,7 @@ namespace cimg_library_suffixed {
           const unsigned int target = (unsigned int)opcode[1];
           mem[target] = _cimg_mp_defunc(*this);
         }
-        return mem[result];
+        return *result;
       }
 
       // Insert constant value in memory.

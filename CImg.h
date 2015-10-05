@@ -13964,11 +13964,11 @@ namespace cimg_library_suffixed {
 
 #if defined(_WIN64)
       // On Win64 and gcc 4.7, sizeof(long)!=sizeof(pointer), so a workaround is needed..
-#define _cimg_mp_enfunc(op) (long)((char*)(op) - (char*)mp_u)
-#define _cimg_mp_defunc(mp) (*(mp_func)((char*)mp_u + (mp).opcode[0]))(mp)
+#define _cimg_mp_enfunc(op) (long)((char*)(op) - (char*)mp_abs)
+#define _cimg_mp_defunc(mp) (*(mp_func)((char*)mp_abs + *(mp).opcode))(mp)
 #else
 #define _cimg_mp_enfunc(op) (long)(op)
-#define _cimg_mp_defunc(mp) (*(mp_func)((mp).opcode[0]))(mp)
+#define _cimg_mp_defunc(mp) (*(mp_func)(*(mp).opcode))(mp)
 #endif
 
       // Constructors.

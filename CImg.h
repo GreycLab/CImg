@@ -15238,7 +15238,7 @@ namespace cimg_library_suffixed {
 
         } // if (se1==')').
 
-        // Variables related to list of input images.
+        // Variables related to the list of input images.
         if (*ss1=='#' && ss2<se) {
           arg1 = compile(ss2,se);
           const unsigned int ind = inputs._width?cimg::mod((unsigned int)mem[arg1],inputs._width):0;

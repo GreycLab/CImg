@@ -13950,7 +13950,6 @@ namespace cimg_library_suffixed {
       CImg<Tdouble> _input_stats, &input_stats;
       CImgList<Tdouble> _inputs_stats, &inputs_stats;
       CImg<uintT> mem_input_stats;
-      CImgList<uintT> mem_inputs_stats;
 
       CImg<uintT> level, labelMpos, reserved_label;
       CImgList<charT> labelM;
@@ -14002,7 +14001,6 @@ namespace cimg_library_suffixed {
                                       expr._data);
         }
         inputs_stats.assign(inputs._width);
-        mem_inputs_stats.assign(inputs._width);
 
         // Init constant values.
         mem.assign(256,2);
@@ -15251,27 +15249,27 @@ namespace cimg_library_suffixed {
         if (*ss1=='#' && ss2<se) {
           arg1 = compile(ss2,se);
           const unsigned int ind = inputs._width?cimg::mod((unsigned int)mem[arg1],inputs._width):0;
-          if (*ss=='w') { // w#ind
+          if (*ss=='w') { // w#
             if (!inputs._width) _cimg_mp_return(0);
             if (mem(arg1,1)>0) _cimg_mp_constant(inputs[ind]._width);
             _cimg_mp_opcode1(mp_inputs_width,arg1);
           }
-          if (*ss=='h') { // h#ind
+          if (*ss=='h') { // h#
             if (!inputs._width) _cimg_mp_return(0);
             if (mem(arg1,1)>0) _cimg_mp_constant(inputs[ind]._height);
             _cimg_mp_opcode1(mp_inputs_height,arg1);
           }
-          if (*ss=='d') { // d#ind
+          if (*ss=='d') { // d#
             if (!inputs._width) _cimg_mp_return(0);
             if (mem(arg1,1)>0) _cimg_mp_constant(inputs[ind]._depth);
             _cimg_mp_opcode1(mp_inputs_depth,arg1);
           }
-          if (*ss=='r') { // r#ind
+          if (*ss=='r') { // r#
             if (!inputs._width) _cimg_mp_return(0);
             if (mem(arg1,1)>0) _cimg_mp_constant(inputs[ind]._is_shared);
             _cimg_mp_opcode1(mp_inputs_is_shared,arg1);
           }
-          if (*ss=='s') { // s#ind
+          if (*ss=='s') { // s#
             if (!inputs._width) _cimg_mp_return(0);
             if (mem(arg1,1)>0) _cimg_mp_constant(inputs[ind]._spectrum);
             _cimg_mp_opcode1(mp_inputs_spectrum,arg1);
@@ -15279,21 +15277,15 @@ namespace cimg_library_suffixed {
         } else if (*ss2=='#' && ss3<se) {
           arg1 = compile(ss3,se);
           const unsigned int ind = cimg::mod((unsigned int)mem[arg1],inputs._width);
-          if (*ss=='w' && *ss1=='h') { // wh#ind
+          if (*ss=='w' && *ss1=='h') { // wh#
             if (!inputs._width) _cimg_mp_return(0);
             if (mem(arg1,1)>0) _cimg_mp_constant(inputs[ind]._width*inputs[ind]._height);
             _cimg_mp_opcode1(mp_inputs_wh,arg1);
           }
           if (*ss=='i') {
-            if (*ss1=='m') { // im#ind
-              if (!inputs._width) _cimg_mp_return(0);
-              if (!inputs_stats[ind]) {
-                inputs_stats[ind].assign(1,14,1,1,0).fill(inputs[ind].get_stats(),false);
-                mem_inputs_stats[ind].assign(1,14,1,1,~0U);
-              }
-              if (mem_inputs_stats(ind,0)==~0U) mem_inputs_stats(ind,0) = constant(inputs_stats(ind,0));
-              _cimg_mp_return(mem_inputs_stats(ind,0));
-            }
+            if (*ss1=='m') { if (!inputs._width) _cimg_mp_return(0); _cimg_mp_opcode2(mp_inputs_stats,arg1,0); } // im#
+            if (*ss1=='M') { if (!inputs._width) _cimg_mp_return(0); _cimg_mp_opcode2(mp_inputs_stats,arg1,1); } // iM#
+            if (*ss1=='a') { if (!inputs._width) _cimg_mp_return(0); _cimg_mp_opcode2(mp_inputs_stats,arg1,2); } // ia#
           }
           if (*ss1=='m') {
 
@@ -15302,8 +15294,6 @@ namespace cimg_library_suffixed {
           if (*ss1=='M') {
 
           }
-
-
 
         } else if (*ss=='w' && *ss1=='h' && *ss2=='d' && *ss3=='#' && ss4<se) {
           arg1 = compile(ss4,se);
@@ -15689,6 +15679,14 @@ namespace cimg_library_suffixed {
       static double mp_inputs_spectrum(_cimg_math_parser& mp) {
         const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.inputs._width);
         return (double)mp.inputs[ind]._spectrum;
+      }
+
+      static double mp_inputs_stats(_cimg_math_parser& mp) {
+        const unsigned int
+          ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.inputs._width),
+          k = *(double*)mp.opcode[3];
+        if (!mp.inputs_stats[ind]) mp.inputs_stats[ind].assign(1,14,1,1,0).fill(mp.inputs[ind].get_stats(),false);
+        return (double)mp.inputs_stats(ind,k);
       }
 
       static double mp_int(_cimg_math_parser& mp) {

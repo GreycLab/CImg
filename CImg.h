@@ -15238,13 +15238,63 @@ namespace cimg_library_suffixed {
 
         } // if (se1==')').
 
+        // Variables for input list images.
+        if (*ss1=='#' && ss2<se) {
+          arg1 = compile(ss2,se);
+          const unsigned int ind = inputs._width?cimg::mod((unsigned int)mem[arg1],inputs._width):0;
+          switch (*ss) {
+          case 'w' :
+            if (!inputs._width) _cimg_mp_return(0);
+            if (mem(arg1,1)>0) _cimg_mp_constant(inputs[ind]._width);
+            _cimg_mp_opcode1(mp_inputs_width,arg1);
+            break;
+          case 'h' :
+            if (!inputs._width) _cimg_mp_return(0);
+            if (mem(arg1,1)>0) _cimg_mp_constant(inputs[ind]._height);
+            _cimg_mp_opcode1(mp_inputs_height,arg1);
+            break;
+          case 'd' :
+            if (!inputs._width) _cimg_mp_return(0);
+            if (mem(arg1,1)>0) _cimg_mp_constant(inputs[ind]._depth);
+            _cimg_mp_opcode1(mp_inputs_depth,arg1);
+            break;
+          case 'r' :
+            if (!inputs._width) _cimg_mp_return(0);
+            if (mem(arg1,1)>0) _cimg_mp_constant(inputs[ind]._is_shared);
+            _cimg_mp_opcode1(mp_inputs_depth,arg1);
+            break;
+          case 's' :
+            if (!inputs._width) _cimg_mp_return(0);
+            if (mem(arg1,1)>0) _cimg_mp_constant(inputs[ind]._spectrum);
+            _cimg_mp_opcode1(mp_inputs_spectrum,arg1);
+          }
+        } else if (*ss=='w' && *ss1=='h' && *ss2=='#') {
+          arg1 = compile(ss3,se);
+          if (!inputs._width) _cimg_mp_return(0);
+          const unsigned int ind = cimg::mod((unsigned int)mem[arg1],inputs._width);
+          if (mem(arg1,1)>0) _cimg_mp_constant(inputs[ind]._width*inputs[ind]._height);
+          _cimg_mp_opcode1(mp_inputs_wh,arg1);
+        } else if (*ss=='w' && *ss1=='h' && *ss2=='d' && *ss3=='#') {
+          arg1 = compile(ss4,se);
+          if (!inputs._width) _cimg_mp_return(0);
+          const unsigned int ind = cimg::mod((unsigned int)mem[arg1],inputs._width);
+          if (mem(arg1,1)>0) _cimg_mp_constant(inputs[ind]._width*inputs[ind]._height*inputs[ind]._depth);
+          _cimg_mp_opcode1(mp_inputs_whd,arg1);
+        } else if (*ss=='w' && *ss1=='h' && *ss2=='d' && *ss3=='s' && *ss4=='#') {
+          arg1 = compile(ss5,se);
+          if (!inputs._width) _cimg_mp_return(0);
+          const unsigned int ind = cimg::mod((unsigned int)mem[arg1],inputs._width);
+          if (mem(arg1,1)>0) _cimg_mp_constant(inputs[ind]._width*inputs[ind]._height*inputs[ind]._depth*
+                                               inputs[ind]._spectrum);
+          _cimg_mp_opcode1(mp_inputs_whds,arg1);
+        }
+
         // No known item found, assuming this is an already initialized variable.
         variable_name.assign(ss,(unsigned int)(se - ss + 1)).back() = 0;
         if (variable_name[1]) { // Multi-char variable.
           cimglist_for(labelM,i) if (!std::strcmp(variable_name,labelM[i])) _cimg_mp_return(labelMpos[i]);
         } else if (reserved_label[*variable_name]!=~0U) // Single-char variable.
           _cimg_mp_return(reserved_label[*variable_name]);
-
 
         // Reached an unknown item -> error.
         is_sth = true; // is_valid_variable_name.
@@ -15566,6 +15616,41 @@ namespace cimg_library_suffixed {
 
       static double mp_increment(_cimg_math_parser& mp) {
         return *(double*)mp.opcode[2] + 1;
+      }
+
+      static double mp_inputs_depth(_cimg_math_parser& mp) {
+        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.inputs._width);
+        return (double)mp.inputs[ind]._depth;
+      }
+
+      static double mp_inputs_height(_cimg_math_parser& mp) {
+        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.inputs._width);
+        return (double)mp.inputs[ind]._height;
+      }
+
+      static double mp_inputs_wh(_cimg_math_parser& mp) {
+        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.inputs._width);
+        return (double)mp.inputs[ind]._width*mp.inputs[ind]._height;
+      }
+
+      static double mp_inputs_whd(_cimg_math_parser& mp) {
+        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.inputs._width);
+        return (double)mp.inputs[ind]._width*mp.inputs[ind]._height*mp.inputs[ind]._depth;
+      }
+
+      static double mp_inputs_whds(_cimg_math_parser& mp) {
+        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.inputs._width);
+        return (double)mp.inputs[ind]._width*mp.inputs[ind]._height*mp.inputs[ind]._depth*mp.inputs[ind]._spectrum;
+      }
+
+      static double mp_inputs_width(_cimg_math_parser& mp) {
+        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.inputs._width);
+        return (double)mp.inputs[ind]._width;
+      }
+
+      static double mp_inputs_spectrum(_cimg_math_parser& mp) {
+        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.inputs._width);
+        return (double)mp.inputs[ind]._spectrum;
       }
 
       static double mp_int(_cimg_math_parser& mp) {

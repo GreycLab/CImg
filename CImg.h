@@ -14067,6 +14067,16 @@ namespace cimg_library_suffixed {
         __cimg_math_parser(expression);
       }
 
+      _cimg_math_parser(const char *const expression,
+                        const CImg<T>& img_input, CImg<T> *const img_output,
+                        const CImgList<T>& list_input, CImgList<T> *const list_output,
+                        const char *const funcname=0):
+        code(_code),input_stats(_input_stats),input(img_input),inputs(list_input),
+        output(img_output?*img_output:CImg<T>::empty()),outputs(list_output?*list_output:CImgList<T>::empty()),
+        mem_median(~0U),debug_indent(0),calling_function(funcname?funcname:"cimg_math_parser") {
+        __cimg_math_parser(expression);
+      }
+
       _cimg_math_parser():
         code(_code),input_stats(_input_stats),p_code_end(0),
         input(CImg<T>::empty()),inputs(CImgList<T>::empty()),output(CImg<T>::empty()),outputs(CImgList<T>::empty()),

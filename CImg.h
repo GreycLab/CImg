@@ -14656,16 +14656,24 @@ namespace cimg_library_suffixed {
           CImg<uptrT>::vector((uptrT)((is_sth && *ss=='+') || (!is_sth && *se1=='+')?mp_self_increment:
                                       mp_self_decrement),arg1).move_to(code);
           if (*coords!=~0U || coords[1]!=~0U || coords[5]!=~0U || coords[6]!=~0U) { // Assign pixel.
-            if (*coords!=~0U) // i[off]++
-              CImg<uptrT>::vector((uptrT)mp_set_ioff,arg1,*coords,arg1).move_to(code);
-            else if (coords[1]!=~0U) // i(x,y,z,c)++
-              CImg<uptrT>::vector((uptrT)mp_set_ixyzc,arg1,
-                                  coords[1],coords[2],coords[3],coords[4],arg1).move_to(code);
-            else if (coords[5]!=~0U) // j[off]++
-              CImg<uptrT>::vector((uptrT)mp_set_joff,arg1,coords[5],arg1).move_to(code);
-            else if (coords[6]!=~0U) // j(x,y,z,c)++
-              CImg<uptrT>::vector((uptrT)mp_set_jxyzc,arg1,
-                                  coords[6],coords[7],coords[8],coords[9],arg1).move_to(code);
+            p1 = coords[10];
+            if (*coords!=~0U) { // i[_#ind,off]++
+              if (p1!=~0U) CImg<uptrT>::vector((uptrT)mp_set_ioff_list,arg1,p1,*coords,arg1).move_to(code);
+              else CImg<uptrT>::vector((uptrT)mp_set_ioff,arg1,*coords,arg1).move_to(code);
+            } else if (coords[1]!=~0U) { // i(_#ind,_x,_y,_z,_c)++
+              if (p1!=~0U) CImg<uptrT>::vector((uptrT)mp_set_ixyzc_list,arg1,
+                                               p1,coords[1],coords[2],coords[3],coords[4],arg1).move_to(code);
+              else CImg<uptrT>::vector((uptrT)mp_set_ixyzc,arg1,
+                                       coords[1],coords[2],coords[3],coords[4],arg1).move_to(code);
+            } else if (coords[5]!=~0U) { // j[#_ind,off]++
+              if (p1!=~0U) CImg<uptrT>::vector((uptrT)mp_set_joff_list,arg1,p1,coords[5],arg1).move_to(code);
+              else CImg<uptrT>::vector((uptrT)mp_set_joff,arg1,coords[5],arg1).move_to(code);
+            } else if (coords[6]!=~0U) { // j(#_ind,_x,_y,_z,_c)++
+              if (p1!=~0U) CImg<uptrT>::vector((uptrT)mp_set_jxyzc_list,arg1,
+                                               p1,coords[6],coords[7],coords[8],coords[9],arg1).move_to(code);
+              else CImg<uptrT>::vector((uptrT)mp_set_jxyzc,arg1,
+                                       coords[6],coords[7],coords[8],coords[9],arg1).move_to(code);
+            }
             if (p_coords && is_sth) std::memcpy(p_coords,coords,coords._width*sizeof(unsigned int));
           } else if (mem(arg1,1)>=0) {
             *se = saved_char;
@@ -15189,30 +15197,35 @@ namespace cimg_library_suffixed {
         if (*ss1=='#' && ss2<se) {
           arg1 = compile(ss2,se);
           p1 = (unsigned int)(listin._width && mem(arg1,1)>0?cimg::mod((int)mem[arg1],listin.width()):0);
-          if (*ss=='w') { // w#ind
+          switch (*ss) {
+          case 'w' : // w#ind
             if (!listin) _cimg_mp_return(0);
             if (mem(arg1,1)>0) _cimg_mp_constant(listin[p1]._width);
             _cimg_mp_opcode1(mp_list_width,arg1);
-          }
-          if (*ss=='h') { // h#ind
+          case 'h' : // h#ind
             if (!listin) _cimg_mp_return(0);
             if (mem(arg1,1)>0) _cimg_mp_constant(listin[p1]._height);
             _cimg_mp_opcode1(mp_list_height,arg1);
-          }
-          if (*ss=='d') { // d#ind
+          case 'd' : // d#ind
             if (!listin) _cimg_mp_return(0);
             if (mem(arg1,1)>0) _cimg_mp_constant(listin[p1]._depth);
             _cimg_mp_opcode1(mp_list_depth,arg1);
-          }
-          if (*ss=='r') { // r#ind
+          case 'r' : // r#ind
             if (!listin) _cimg_mp_return(0);
             if (mem(arg1,1)>0) _cimg_mp_constant(listin[p1]._is_shared);
             _cimg_mp_opcode1(mp_list_is_shared,arg1);
-          }
-          if (*ss=='s') { // s#ind
+          case 's' : // s#ind
             if (!listin) _cimg_mp_return(0);
             if (mem(arg1,1)>0) _cimg_mp_constant(listin[p1]._spectrum);
             _cimg_mp_opcode1(mp_list_spectrum,arg1);
+          case 'R' : // R#ind
+            _cimg_mp_opcode7(mp_ixyzc_list,p1,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,0,0,0);
+          case 'G' : // G#ind
+            _cimg_mp_opcode7(mp_ixyzc_list,p1,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,1,0,0);
+          case 'B' : // B#ind
+            _cimg_mp_opcode7(mp_ixyzc_list,p1,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,2,0,0);
+          case 'A' : // A#ind
+            _cimg_mp_opcode7(mp_ixyzc_list,p1,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,3,0,0);
           }
         }
         if (*ss2=='#' && ss3<se) {
@@ -15223,24 +15236,30 @@ namespace cimg_library_suffixed {
             if (mem(arg1,1)>0) _cimg_mp_constant(listin[p1]._width*listin[p1]._height);
             _cimg_mp_opcode1(mp_list_wh,arg1);
           }
-          if (*ss=='i' && *ss1=='c') { // ic#ind
-            if (!listin) _cimg_mp_return(0);
-            if (mem(arg1,1)>0) {
-              if (!list_median) list_median.assign(listin._width);
-              if (!list_median[p1]) CImg<doubleT>::vector(listin[p1].median()).move_to(list_median[p1]);
-              _cimg_mp_constant(*list_median[p1]);
-            }
-            _cimg_mp_opcode1(mp_list_median,arg1);
-          }
           arg2 = ~0U;
-          if (*ss=='i') switch (*ss1) {
+
+          if (*ss=='i') {
+            if (*ss1=='c') { // ic#ind
+              if (!listin) _cimg_mp_return(0);
+              if (mem(arg1,1)>0) {
+                if (!list_median) list_median.assign(listin._width);
+                if (!list_median[p1]) CImg<doubleT>::vector(listin[p1].median()).move_to(list_median[p1]);
+                _cimg_mp_constant(*list_median[p1]);
+              }
+              _cimg_mp_opcode1(mp_list_median,arg1);
+            }
+            if (*ss1>='0' && *ss1<='9') // i0#ind...i9#ind
+              _cimg_mp_opcode7(mp_ixyzc_list,p1,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,*ss1 - '0',0,0);
+
+            switch (*ss1) {
             case 'm' : arg2 = 0; break; // im#ind
             case 'M' : arg2 = 1; break; // iM#ind
             case 'a' : arg2 = 2; break; // ia#ind
             case 'v' : arg2 = 3; break; // iv#ind
             case 's' : arg2 = 12; break; // is#ind
             case 'p' : arg2 = 13; break; // ip#ind
-            } else if (*ss1=='m') switch (*ss) {
+            }
+          } else if (*ss1=='m') switch (*ss) {
             case 'x' : arg2 = 4; break; // xm#ind
             case 'y' : arg2 = 5; break; // ym#ind
             case 'z' : arg2 = 6; break; // zm#ind

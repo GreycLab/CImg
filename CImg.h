@@ -14660,7 +14660,7 @@ namespace cimg_library_suffixed {
         if (*se1==']') {
           is_sth = *ss=='j'; // is_relative?
           if ((*ss=='i' || is_sth) && *ss1=='[') {
-            if (*ss2=='#') { // Accedd to listin.
+            if (*ss2=='#') { // Access to listin.
               arg2 = 0; arg3 = ~0U;
               s1 = ss3; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss3,s1);

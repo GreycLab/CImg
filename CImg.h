@@ -14170,6 +14170,7 @@ namespace cimg_library_suffixed {
             _cimg_mp_opcode6(mp_ixyzc,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,3,0,0);
           }
         else if (ss2==se) { // Two-chars variable.
+          arg1 = arg2 = ~0U;
           if (*ss=='w' && *ss1=='h') _cimg_mp_return(reserved_label[0]); // wh
           if (*ss=='p' && *ss1=='i') _cimg_mp_return(reserved_label[3]); // pi
           if (*ss=='i') {
@@ -14178,141 +14179,40 @@ namespace cimg_library_suffixed {
               if (reserved_label[pos]!=~0U) _cimg_mp_return(reserved_label[pos]);
               _cimg_mp_opcode6(mp_ixyzc,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,pos - 19,0,0);
             }
-            if (*ss1=='m') { // im
-              if (reserved_label[4]!=~0U) _cimg_mp_return(reserved_label[4]);
-              if (!img_stats) {
-                img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
-                mem_img_stats.assign(1,14,1,1,~0U);
-              }
-              if (mem_img_stats[0]==~0U) mem_img_stats[0] = constant(img_stats[0]);
-              _cimg_mp_return(mem_img_stats[0]);
-            }
-            if (*ss1=='M') { // iM
-              if (reserved_label[5]!=~0U) _cimg_mp_return(reserved_label[5]);
-              if (!img_stats) {
-                img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
-                mem_img_stats.assign(1,14,1,1,~0U);
-              }
-              if (mem_img_stats[1]==~0U) mem_img_stats[1] = constant(img_stats[1]);
-              _cimg_mp_return(mem_img_stats[1]);
-            }
-            if (*ss1=='a') { // ia
-              if (reserved_label[6]!=~0U) _cimg_mp_return(reserved_label[6]);
-              if (!img_stats) {
-                img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
-                mem_img_stats.assign(1,14,1,1,~0U);
-              }
-              if (mem_img_stats[2]==~0U) mem_img_stats[2] = constant(img_stats[2]);
-              _cimg_mp_return(mem_img_stats[2]);
-            }
-            if (*ss1=='v') { // iv
-              if (reserved_label[7]!=~0U) _cimg_mp_return(reserved_label[7]);
-              if (!img_stats) {
-                img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
-                mem_img_stats.assign(1,14,1,1,~0U);
-              }
-              if (mem_img_stats[3]==~0U) mem_img_stats[3] = constant(img_stats[3]);
-              _cimg_mp_return(mem_img_stats[3]);
-            }
-            if (*ss1=='s') { // is
-              if (reserved_label[8]!=~0U) _cimg_mp_return(reserved_label[8]);
-              if (!img_stats) {
-                img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
-                mem_img_stats.assign(1,14,1,1,~0U);
-              }
-              if (mem_img_stats[12]==~0U) mem_img_stats[12] = constant(img_stats[12]);
-              _cimg_mp_return(mem_img_stats[12]);
-            }
-            if (*ss1=='p') { // ip
-              if (reserved_label[9]!=~0U) _cimg_mp_return(reserved_label[9]);
-              if (!img_stats) {
-                img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
-                mem_img_stats.assign(1,14,1,1,~0U);
-              }
-              if (mem_img_stats[13]==~0U) mem_img_stats[13] = constant(img_stats[13]);
-              _cimg_mp_return(mem_img_stats[13]);
-            }
-            if (*ss1=='c') { // ic
+            switch (*ss1) {
+            case 'm' : arg1 = 4; arg2 = 0; break; // im
+            case 'M' : arg1 = 5; arg2 = 1; break; // iM
+            case 'a' : arg1 = 6; arg2 = 2; break; // ia
+            case 'v' : arg1 = 7; arg2 = 3; break; // iv
+            case 's' : arg1 = 8; arg2 = 12; break; // is
+            case 'p' : arg1 = 9; arg2 = 13; break; // is
+            case 'c' : // ic
               if (reserved_label[10]!=~0U) _cimg_mp_return(reserved_label[10]);
               if (mem_img_median==~0U) mem_img_median = imgin?constant(imgin.median()):0;
               _cimg_mp_return(mem_img_median);
+              break;
             }
           }
-          if (*ss1=='m') {
-            if (*ss=='x') { // xm
-              if (reserved_label[11]!=~0U) _cimg_mp_return(reserved_label[11]);
-              if (!img_stats) {
-                img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
-                mem_img_stats.assign(1,14,1,1,~0U);
-              }
-              if (mem_img_stats[4]==~0U) mem_img_stats[4] = constant(img_stats[4]);
-              _cimg_mp_return(mem_img_stats[4]);
+          else if (*ss1=='m') switch (*ss) {
+            case 'x' : arg1 = 11; arg2 = 4; break; // xm
+            case 'y' : arg1 = 12; arg2 = 5; break; // ym
+            case 'z' : arg1 = 13; arg2 = 6; break; // zm
+            case 'c' : arg1 = 14; arg2 = 7; break; // cm
             }
-            if (*ss=='y') { // ym
-              if (reserved_label[12]!=~0U) _cimg_mp_return(reserved_label[12]);
-              if (!img_stats) {
-                img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
-                mem_img_stats.assign(1,14,1,1,~0U);
-              }
-              if (mem_img_stats[5]==~0U) mem_img_stats[5] = constant(img_stats[5]);
-              _cimg_mp_return(mem_img_stats[5]);
+          else if (*ss1=='M') switch (*ss) {
+            case 'x' : arg1 = 15; arg2 = 8; break; // xM
+            case 'y' : arg1 = 16; arg2 = 9; break; // yM
+            case 'z' : arg1 = 17; arg2 = 10; break; // zM
+            case 'c' : arg1 = 18; arg2 = 11; break; // cM
             }
-            if (*ss=='z') { // zm
-              if (reserved_label[13]!=~0U) _cimg_mp_return(reserved_label[13]);
-              if (!img_stats) {
-                img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
-                mem_img_stats.assign(1,14,1,1,~0U);
-              }
-              if (mem_img_stats[6]==~0U) mem_img_stats[6] = constant(img_stats[6]);
-              _cimg_mp_return(mem_img_stats[6]);
+          if (arg1!=~0U) {
+            if (reserved_label[arg1]!=~0U) _cimg_mp_return(reserved_label[arg1]);
+            if (!img_stats) {
+              img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
+              mem_img_stats.assign(1,14,1,1,~0U);
             }
-            if (*ss=='c') { // cm
-              if (reserved_label[14]!=~0U) _cimg_mp_return(reserved_label[14]);
-              if (!img_stats) {
-                img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
-                mem_img_stats.assign(1,14,1,1,~0U);
-              }
-              if (mem_img_stats[7]==~0U) mem_img_stats[7] = constant(img_stats[7]);
-              _cimg_mp_return(mem_img_stats[7]);
-            }
-          }
-          if (*ss1=='M') {
-            if (*ss=='x') { // xM
-              if (reserved_label[15]!=~0U) _cimg_mp_return(reserved_label[15]);
-              if (!img_stats) {
-                img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
-                mem_img_stats.assign(1,14,1,1,~0U);
-              }
-              if (mem_img_stats[8]==~0U) mem_img_stats[8] = constant(img_stats[8]);
-              _cimg_mp_return(mem_img_stats[8]);
-            }
-            if (*ss=='y') { // yM
-              if (reserved_label[16]!=~0U) _cimg_mp_return(reserved_label[16]);
-              if (!img_stats) {
-                img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
-                mem_img_stats.assign(1,14,1,1,~0U);
-              }
-              if (mem_img_stats[9]==~0U) mem_img_stats[9] = constant(img_stats[9]);
-              _cimg_mp_return(mem_img_stats[9]);
-            }
-            if (*ss=='z') { // zM
-              if (reserved_label[17]!=~0U) _cimg_mp_return(reserved_label[17]);
-              if (!img_stats) {
-                img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
-                mem_img_stats.assign(1,14,1,1,~0U);
-              }
-              if (mem_img_stats[10]==~0U) mem_img_stats[10] = constant(img_stats[10]);
-              _cimg_mp_return(mem_img_stats[10]);
-            }
-            if (*ss=='c') { // cM
-              if (reserved_label[18]!=~0U) _cimg_mp_return(reserved_label[18]);
-              if (!img_stats) {
-                img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
-                mem_img_stats.assign(1,14,1,1,~0U);
-              }
-              if (mem_img_stats[11]==~0U) mem_img_stats[11] = constant(img_stats[11]);
-              _cimg_mp_return(mem_img_stats[11]);
-            }
+            if (mem_img_stats[arg2]==~0U) mem_img_stats[arg2] = constant(img_stats[arg2]);
+            _cimg_mp_return(mem_img_stats[arg2]);
           }
         } else if (ss3==se) { // Three-chars variable.
           if (*ss=='w' && *ss1=='h' && *ss2=='d') _cimg_mp_return(reserved_label[1]); // whd
@@ -15294,33 +15194,33 @@ namespace cimg_library_suffixed {
             }
             _cimg_mp_opcode1(mp_list_median,arg1);
           }
-          unsigned int soff = ~0U;
+          arg2 = ~0U;
           if (*ss=='i') switch (*ss1) {
-            case 'm' : soff = 0; break; // im#ind
-            case 'M' : soff = 1; break; // iM#ind
-            case 'a' : soff = 2; break; // ia#ind
-            case 'v' : soff = 3; break; // iv#ind
-            case 's' : soff = 12; break; // is#ind
-            case 'p' : soff = 13; break; // ip#ind
+            case 'm' : arg2 = 0; break; // im#ind
+            case 'M' : arg2 = 1; break; // iM#ind
+            case 'a' : arg2 = 2; break; // ia#ind
+            case 'v' : arg2 = 3; break; // iv#ind
+            case 's' : arg2 = 12; break; // is#ind
+            case 'p' : arg2 = 13; break; // ip#ind
             } else if (*ss1=='m') switch (*ss) {
-            case 'x' : soff = 4; break; // xm#ind
-            case 'y' : soff = 5; break; // ym#ind
-            case 'z' : soff = 6; break; // zm#ind
-            case 'c' : soff = 7; break; // cm#ind
+            case 'x' : arg2 = 4; break; // xm#ind
+            case 'y' : arg2 = 5; break; // ym#ind
+            case 'z' : arg2 = 6; break; // zm#ind
+            case 'c' : arg2 = 7; break; // cm#ind
             } else if (*ss1=='M') switch (*ss) {
-            case 'x' : soff = 8; break; // xM#ind
-            case 'y' : soff = 9; break; // yM#ind
-            case 'z' : soff = 10; break; // zM#ind
-            case 'c' : soff = 11; break; // cM#ind
+            case 'x' : arg2 = 8; break; // xM#ind
+            case 'y' : arg2 = 9; break; // yM#ind
+            case 'z' : arg2 = 10; break; // zM#ind
+            case 'c' : arg2 = 11; break; // cM#ind
             }
-          if (soff!=~0U) {
+          if (arg2!=~0U) {
             if (!listin._width) _cimg_mp_return(0);
             if (mem(arg1,1)>0) {
               if (!list_stats) list_stats.assign(listin._width);
               if (!list_stats[ind]) list_stats[ind].assign(1,14,1,1,0).fill(listin[ind].get_stats(),false);
-              _cimg_mp_constant(list_stats(ind,soff));
+              _cimg_mp_constant(list_stats(ind,arg2));
             }
-            _cimg_mp_opcode2(mp_list_stats,arg1,soff);
+            _cimg_mp_opcode2(mp_list_stats,arg1,arg2);
           }
         }
 

@@ -14660,21 +14660,26 @@ namespace cimg_library_suffixed {
         if (*se1==']') {
           is_sth = *ss=='j'; // is_relative?
           if ((*ss=='i' || is_sth) && *ss1=='[') {
-            if (*ss2!='#') { // Access to imgin.
-              s1 = ss2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss2,s1);
-              arg2 = s1>=se1?~0U:compile(s1 + 1,se1);
-              if (p_coords && arg2==~0U) p_coords[is_sth?5:0] = arg1;
-              _cimg_mp_opcode2(is_sth?mp_joff:mp_ioff,arg1,arg2==~0U?0:arg2);
-            } else { // Access to listin.
+            if (*ss2=='#') { // Accedd to listin.
+              arg2 = 0; arg3 = ~0U;
               s1 = ss3; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss3,s1);
-              s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-              arg2 = compile(s1 + 1,s2);
-              arg3 = s2>=se1?~0U:compile(s2 + 1,se1);
-              if (!listin) _cimg_mp_return(0);
-              if (p_coords && arg2==~0U) { p_coords[10] = arg1; p_coords[is_sth?5:0] = arg1; }
+              if (s1<se1) {
+                s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                arg2 = compile(s1 + 1,s2);
+                if (s2<se1) arg3 = compile(s2 + 1,se1);
+              }
+              if (p_coords && arg3==~0U) { p_coords[10] = arg1; p_coords[is_sth?5:0] = arg2; }
               _cimg_mp_opcode3(is_sth?mp_joff_list:mp_ioff_list,arg1,arg2,arg3==~0U?0:arg3);
+            } else { // Access to imgin.
+              arg1 = 0; arg2 = ~0U;
+              if (ss2<se1) {
+                s1 = ss2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                arg1 = compile(ss2,s1);
+                if (s1<se1) arg2 = compile(s1 + 1,se1);
+              }
+              if (p_coords && arg2==~0U) p_coords[is_sth?5:0] = arg1;
+              _cimg_mp_opcode2(is_sth?mp_joff:mp_ioff,arg1,arg2==~0U?0:arg2);
             }
           }
         }
@@ -14691,7 +14696,7 @@ namespace cimg_library_suffixed {
             arg3 = is_sth?0U:(unsigned int)_cimg_mp_z;
             arg4 = is_sth?0U:(unsigned int)_cimg_mp_c;
             arg5 = ~0U; arg6 = 0;
-            if (ss2!=se1) {
+            if (ss2<se1) {
               s1 = ss2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss2,s1);
               if (s1<se1) {
@@ -15608,6 +15613,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_ioff_list(_cimg_math_parser& mp) {
+        if (!mp.listin) return 0;
         const unsigned int
           ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.listin._width),
           boundary = (unsigned int)*(double*)mp.opcode[4];
@@ -15696,6 +15702,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_joff_list(_cimg_math_parser& mp) {
+        if (!mp.listin) return 0;
         const int
           x = (int)mp.mem[_cimg_mp_x], y = (int)mp.mem[_cimg_mp_y],
           z = (int)mp.mem[_cimg_mp_z], c = (int)mp.mem[_cimg_mp_c];

@@ -15702,7 +15702,7 @@ namespace cimg_library_suffixed {
 
       static double mp_isbool(_cimg_math_parser& mp) {
         const double val = _mp_arg(2);
-        return (val==0.0 || val==1.0);
+        return (double)(val==0.0 || val==1.0);
       }
 
       static double mp_isin(_cimg_math_parser& mp) {
@@ -15713,7 +15713,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_isinf(_cimg_math_parser& mp) {
-        return cimg::type<double>::is_inf(_mp_arg(2));
+        return (double)cimg::type<double>::is_inf(_mp_arg(2));
       }
 
       static double mp_isint(_cimg_math_parser& mp) {

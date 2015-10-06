@@ -14282,7 +14282,7 @@ namespace cimg_library_suffixed {
                 }
                 if (*ss2=='#') _cimg_mp_opcode6(is_sth?mp_set_jxyzc_list:mp_set_ixyzc_list,p1,arg1,arg2,arg3,arg4,arg5);
                 _cimg_mp_opcode5(is_sth?mp_set_jxyzc:mp_set_ixyzc,arg1,arg2,arg3,arg4,arg5);
-              } else if (*ss1=='[' && *ve1==']') { // i/j[_#ind,_offset] = value
+              } else if (*ss1=='[' && *ve1==']') { // i/j[_#ind,offset] = value
                 if (*ss2=='#') {
                   s0 = ss3; while (s0<ve1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                   p1 = compile(ss3,s0++);
@@ -15232,13 +15232,13 @@ namespace cimg_library_suffixed {
             if (mem(arg1,1)>0) _cimg_mp_constant(listin[p1]._spectrum);
             _cimg_mp_opcode1(mp_list_spectrum,arg1);
           case 'R' : // R#ind
-            _cimg_mp_opcode7(mp_ixyzc_list,p1,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,0,0,0);
+            _cimg_mp_opcode7(mp_ixyzc_list,arg1,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,0,0,0);
           case 'G' : // G#ind
-            _cimg_mp_opcode7(mp_ixyzc_list,p1,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,1,0,0);
+            _cimg_mp_opcode7(mp_ixyzc_list,arg1,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,1,0,0);
           case 'B' : // B#ind
-            _cimg_mp_opcode7(mp_ixyzc_list,p1,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,2,0,0);
+            _cimg_mp_opcode7(mp_ixyzc_list,arg1,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,2,0,0);
           case 'A' : // A#ind
-            _cimg_mp_opcode7(mp_ixyzc_list,p1,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,3,0,0);
+            _cimg_mp_opcode7(mp_ixyzc_list,arg1,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,3,0,0);
           }
         }
         if (*ss2=='#' && ss3<se) {
@@ -15262,7 +15262,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_opcode1(mp_list_median,arg1);
             }
             if (*ss1>='0' && *ss1<='9') // i0#ind...i9#ind
-              _cimg_mp_opcode7(mp_ixyzc_list,p1,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,*ss1 - '0',0,0);
+              _cimg_mp_opcode7(mp_ixyzc_list,arg1,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,*ss1 - '0',0,0);
 
             switch (*ss1) {
             case 'm' : arg2 = 0; break; // im#ind

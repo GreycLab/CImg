@@ -16180,10 +16180,10 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_set_ioff_list(_cimg_math_parser& mp) {
-        if (!mp.listout) return 0;
+        const double value = *(double*)mp.opcode[4];
+        if (!mp.listout) return value;
         const unsigned int ind = (unsigned int)cimg::mod((int)*(double*)mp.opcode[2],mp.listin.width());
         const long off = (long)*(double*)mp.opcode[3];
-        const double value = *(double*)mp.opcode[4];
         CImg<T> &img = mp.listout[ind];
         if (off>=0 && off<(long)img.size()) img._data[off] = (T)value;
         return value;
@@ -16202,12 +16202,12 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_set_ixyzc_list(_cimg_math_parser& mp) {
-        if (!mp.listout) return 0;
+        const double value = *(double*)mp.opcode[7];
+        if (!mp.listout) return value;
         const unsigned int ind = (unsigned int)cimg::mod((int)*(double*)mp.opcode[2],mp.listin.width());
         const int
           x = (int)*(double*)mp.opcode[3], y = (int)*(double*)mp.opcode[4],
           z = (int)*(double*)mp.opcode[5], c = (int)*(double*)mp.opcode[6];
-        const double value = *(double*)mp.opcode[7];
         CImg<T> &img = mp.listout[ind];
         if (x>=0 && x<img.width() && y>=0 && y<img.height() &&
             z>=0 && z<img.depth() && c>=0 && c<img.spectrum()) {

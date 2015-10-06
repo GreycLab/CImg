@@ -14402,10 +14402,12 @@ namespace cimg_library_suffixed {
             arg1 = compile(ss,*ps=='>' || *ps=='<'?ns:ps,coords);
             arg2 = compile(s + 1,se);
             CImg<uptrT>::vector((uptrT)op,arg1,arg2).move_to(code);
+            p1 = coords[10];
             if (*coords!=~0U || coords[1]!=~0U || coords[5]!=~0U || coords[6]!=~0U) { // Modify pixel value.
-              if (*coords!=~0U) // i[off]+=...
-                CImg<uptrT>::vector((uptrT)mp_set_ioff,arg1,*coords,arg1).move_to(code);
-              else if (coords[1]!=~0U) // i(x,y,z,c)+=...
+              if (*coords!=~0U) { // i[off]+=...
+                if (p1!=~0U) CImg<uptrT>::vector((uptrT)mp_set_ioff_list,arg1,p1,*coords,arg1).move_to(code);
+                else CImg<uptrT>::vector((uptrT)mp_set_ioff,arg1,*coords,arg1).move_to(code);
+              } else if (coords[1]!=~0U) // i(x,y,z,c)+=...
                 CImg<uptrT>::vector((uptrT)mp_set_ixyzc,arg1,
                                     coords[1],coords[2],coords[3],coords[4],arg1).move_to(code);
               else if (coords[5]!=~0U) // j[off]+=...
@@ -15161,49 +15163,47 @@ namespace cimg_library_suffixed {
         // Variables related to the input list of images.
         if (*ss1=='#' && ss2<se) {
           arg1 = compile(ss2,se);
-          const unsigned int ind = (unsigned int)(listin._width && mem(arg1,1)>0?
-                                                  cimg::mod((int)mem[arg1],listin.width()):0);
+          p1 = (unsigned int)(listin._width && mem(arg1,1)>0?cimg::mod((int)mem[arg1],listin.width()):0);
           if (*ss=='w') { // w#ind
             if (!listin) _cimg_mp_return(0);
-            if (mem(arg1,1)>0) _cimg_mp_constant(listin[ind]._width);
+            if (mem(arg1,1)>0) _cimg_mp_constant(listin[p1]._width);
             _cimg_mp_opcode1(mp_list_width,arg1);
           }
           if (*ss=='h') { // h#ind
             if (!listin) _cimg_mp_return(0);
-            if (mem(arg1,1)>0) _cimg_mp_constant(listin[ind]._height);
+            if (mem(arg1,1)>0) _cimg_mp_constant(listin[p1]._height);
             _cimg_mp_opcode1(mp_list_height,arg1);
           }
           if (*ss=='d') { // d#ind
             if (!listin) _cimg_mp_return(0);
-            if (mem(arg1,1)>0) _cimg_mp_constant(listin[ind]._depth);
+            if (mem(arg1,1)>0) _cimg_mp_constant(listin[p1]._depth);
             _cimg_mp_opcode1(mp_list_depth,arg1);
           }
           if (*ss=='r') { // r#ind
             if (!listin) _cimg_mp_return(0);
-            if (mem(arg1,1)>0) _cimg_mp_constant(listin[ind]._is_shared);
+            if (mem(arg1,1)>0) _cimg_mp_constant(listin[p1]._is_shared);
             _cimg_mp_opcode1(mp_list_is_shared,arg1);
           }
           if (*ss=='s') { // s#ind
             if (!listin) _cimg_mp_return(0);
-            if (mem(arg1,1)>0) _cimg_mp_constant(listin[ind]._spectrum);
+            if (mem(arg1,1)>0) _cimg_mp_constant(listin[p1]._spectrum);
             _cimg_mp_opcode1(mp_list_spectrum,arg1);
           }
         }
         if (*ss2=='#' && ss3<se) {
           arg1 = compile(ss3,se);
-          const unsigned int ind = (unsigned int)(listin._width && mem(arg1,1)>0?
-                                                  cimg::mod((int)mem[arg1],listin.width()):0);
+          p1 = (unsigned int)(listin._width && mem(arg1,1)>0?cimg::mod((int)mem[arg1],listin.width()):0);
           if (*ss=='w' && *ss1=='h') { // wh#ind
             if (!listin) _cimg_mp_return(0);
-            if (mem(arg1,1)>0) _cimg_mp_constant(listin[ind]._width*listin[ind]._height);
+            if (mem(arg1,1)>0) _cimg_mp_constant(listin[p1]._width*listin[p1]._height);
             _cimg_mp_opcode1(mp_list_wh,arg1);
           }
           if (*ss=='i' && *ss1=='c') { // ic#ind
             if (!listin) _cimg_mp_return(0);
             if (mem(arg1,1)>0) {
               if (!list_median) list_median.assign(listin._width);
-              if (!list_median[ind]) CImg<doubleT>::vector(listin[ind].median()).move_to(list_median[ind]);
-              _cimg_mp_constant(*list_median[ind]);
+              if (!list_median[p1]) CImg<doubleT>::vector(listin[p1].median()).move_to(list_median[p1]);
+              _cimg_mp_constant(*list_median[p1]);
             }
             _cimg_mp_opcode1(mp_list_median,arg1);
           }
@@ -15230,8 +15230,8 @@ namespace cimg_library_suffixed {
             if (!listin) _cimg_mp_return(0);
             if (mem(arg1,1)>0) {
               if (!list_stats) list_stats.assign(listin._width);
-              if (!list_stats[ind]) list_stats[ind].assign(1,14,1,1,0).fill(listin[ind].get_stats(),false);
-              _cimg_mp_constant(list_stats(ind,arg2));
+              if (!list_stats[p1]) list_stats[p1].assign(1,14,1,1,0).fill(listin[p1].get_stats(),false);
+              _cimg_mp_constant(list_stats(p1,arg2));
             }
             _cimg_mp_opcode2(mp_list_stats,arg1,arg2);
           }
@@ -15240,16 +15240,16 @@ namespace cimg_library_suffixed {
         if (*ss=='w' && *ss1=='h' && *ss2=='d' && *ss3=='#' && ss4<se) {
           arg1 = compile(ss4,se);
           if (!listin) _cimg_mp_return(0);
-          const unsigned int ind = (unsigned int)(mem(arg1,1)>0?cimg::mod((int)mem[arg1],listin.width()):0);
-          if (mem(arg1,1)>0) _cimg_mp_constant(listin[ind]._width*listin[ind]._height*listin[ind]._depth);
+          p1 = (unsigned int)(mem(arg1,1)>0?cimg::mod((int)mem[arg1],listin.width()):0);
+          if (mem(arg1,1)>0) _cimg_mp_constant(listin[p1]._width*listin[p1]._height*listin[p1]._depth);
           _cimg_mp_opcode1(mp_list_whd,arg1);
         }
         if (*ss=='w' && *ss1=='h' && *ss2=='d' && *ss3=='s' && *ss4=='#' && ss5<se) {
           arg1 = compile(ss5,se);
           if (!listin) _cimg_mp_return(0);
-          const unsigned int ind = (unsigned int)(mem(arg1,1)>0?cimg::mod((int)mem[arg1],listin.width()):0);
-          if (mem(arg1,1)>0) _cimg_mp_constant(listin[ind]._width*listin[ind]._height*listin[ind]._depth*
-                                               listin[ind]._spectrum);
+          p1 = (unsigned int)(mem(arg1,1)>0?cimg::mod((int)mem[arg1],listin.width()):0);
+          if (mem(arg1,1)>0) _cimg_mp_constant(listin[p1]._width*listin[p1]._height*listin[p1]._depth*
+                                               listin[p1]._spectrum);
           _cimg_mp_opcode1(mp_list_whds,arg1);
         }
 
@@ -15625,7 +15625,7 @@ namespace cimg_library_suffixed {
       static double mp_ioff_list(_cimg_math_parser& mp) {
         if (!mp.listin) return 0;
         const unsigned int
-          ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.listin._width),
+          ind = (unsigned int)cimg::mod((int)*(double*)mp.opcode[2],mp.listin.width()),
           boundary_conditions = (unsigned int)*(double*)mp.opcode[4];
         const long off = (long)*(double*)mp.opcode[3];
         if (off<0 || off>=(long)mp.listin[ind].size())
@@ -15699,7 +15699,7 @@ namespace cimg_library_suffixed {
           x = *(double*)mp.opcode[3], y = *(double*)mp.opcode[4],
           z = *(double*)mp.opcode[5], c = *(double*)mp.opcode[6];
         const unsigned int
-          ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.listin._width),
+          ind = (unsigned int)cimg::mod((int)*(double*)mp.opcode[2],mp.listin.width()),
           interpolation = (unsigned int)*(double*)mp.opcode[7],
           boundary_conditions = (unsigned int)*(double*)mp.opcode[8];
         if (interpolation==0) { // Nearest neighbor interpolation.
@@ -15745,7 +15745,7 @@ namespace cimg_library_suffixed {
           x = (int)mp.mem[_cimg_mp_x], y = (int)mp.mem[_cimg_mp_y],
           z = (int)mp.mem[_cimg_mp_z], c = (int)mp.mem[_cimg_mp_c];
         const unsigned int
-          ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.listin._width),
+          ind = (unsigned int)cimg::mod((int)*(double*)mp.opcode[2],mp.listin.width()),
           boundary = (unsigned int)*(double*)mp.opcode[4];
         const long off = mp.listin[ind].offset(x,y,z,c) + (long)(*(double*)mp.opcode[2]);
         if (off<0 || off>=(long)mp.listin[ind].size())
@@ -15795,7 +15795,7 @@ namespace cimg_library_suffixed {
           dx = *(double*)mp.opcode[3], dy = *(double*)mp.opcode[4],
           dz = *(double*)mp.opcode[5], dc = *(double*)mp.opcode[6];
         const unsigned int
-          ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.listin._width),
+          ind = (unsigned int)cimg::mod((int)*(double*)mp.opcode[2],mp.listin.width()),
           interpolation = (unsigned int)*(double*)mp.opcode[7],
           boundary_conditions = (unsigned int)*(double*)mp.opcode[8];
         if (interpolation==0) { // Nearest neighbor interpolation.
@@ -15828,35 +15828,35 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_list_depth(_cimg_math_parser& mp) {
-        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.listin._width);
+        const unsigned int ind = (unsigned int)cimg::mod((int)*(double*)mp.opcode[2],mp.listin.width());
         return (double)mp.listin[ind]._depth;
       }
 
       static double mp_list_height(_cimg_math_parser& mp) {
-        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.listin._width);
+        const unsigned int ind = (unsigned int)cimg::mod((int)*(double*)mp.opcode[2],mp.listin.width());
         return (double)mp.listin[ind]._height;
       }
 
       static double mp_list_is_shared(_cimg_math_parser& mp) {
-        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.listin._width);
+        const unsigned int ind = (unsigned int)cimg::mod((int)*(double*)mp.opcode[2],mp.listin.width());
         return (double)mp.listin[ind]._is_shared;
       }
 
       static double mp_list_median(_cimg_math_parser& mp) {
-        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.listin._width);
+        const unsigned int ind = (unsigned int)cimg::mod((int)*(double*)mp.opcode[2],mp.listin.width());
         if (!mp.list_median) mp.list_median.assign(mp.listin._width);
         if (!mp.list_median[ind]) CImg<doubleT>::vector(mp.listin[ind].median()).move_to(mp.list_median[ind]);
         return *mp.list_median[ind];
       }
 
       static double mp_list_spectrum(_cimg_math_parser& mp) {
-        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.listin._width);
+        const unsigned int ind = (unsigned int)cimg::mod((int)*(double*)mp.opcode[2],mp.listin.width());
         return (double)mp.listin[ind]._spectrum;
       }
 
       static double mp_list_stats(_cimg_math_parser& mp) {
         const unsigned int
-          ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.listin._width),
+          ind = (unsigned int)cimg::mod((int)*(double*)mp.opcode[2],mp.listin.width()),
           k = *(double*)mp.opcode[3];
         if (!mp.list_stats) mp.list_stats.assign(mp.listin._width);
         if (!mp.list_stats[ind]) mp.list_stats[ind].assign(1,14,1,1,0).fill(mp.listin[ind].get_stats(),false);
@@ -15864,22 +15864,22 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_list_wh(_cimg_math_parser& mp) {
-        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.listin._width);
+        const unsigned int ind = (unsigned int)cimg::mod((int)*(double*)mp.opcode[2],mp.listin.width());
         return (double)mp.listin[ind]._width*mp.listin[ind]._height;
       }
 
       static double mp_list_whd(_cimg_math_parser& mp) {
-        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.listin._width);
+        const unsigned int ind = (unsigned int)cimg::mod((int)*(double*)mp.opcode[2],mp.listin.width());
         return (double)mp.listin[ind]._width*mp.listin[ind]._height*mp.listin[ind]._depth;
       }
 
       static double mp_list_whds(_cimg_math_parser& mp) {
-        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.listin._width);
+        const unsigned int ind = (unsigned int)cimg::mod((int)*(double*)mp.opcode[2],mp.listin.width());
         return (double)mp.listin[ind]._width*mp.listin[ind]._height*mp.listin[ind]._depth*mp.listin[ind]._spectrum;
       }
 
       static double mp_list_width(_cimg_math_parser& mp) {
-        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.listin._width);
+        const unsigned int ind = (unsigned int)cimg::mod((int)*(double*)mp.opcode[2],mp.listin.width());
         return (double)mp.listin[ind]._width;
       }
 
@@ -16127,6 +16127,15 @@ namespace cimg_library_suffixed {
         const long off = (long)*(double*)mp.opcode[2];
         const double value = *(double*)mp.opcode[3];
         if (off>=0 && off<(long)mp.imgout.size()) mp.imgout._data[off] = (T)value;
+        return value;
+      }
+
+      static double mp_set_ioff_list(_cimg_math_parser& mp) {
+        if (!mp.listout) return 0;
+        const unsigned int ind = (unsigned int)cimg::mod((int)*(double*)mp.opcode[2],mp.listin.width());
+        const long off = (long)*(double*)mp.opcode[3];
+        const double value = *(double*)mp.opcode[4];
+        if (off>=0 && off<(long)mp.listout[ind].size()) mp.listout[ind]._data[off] = (T)value;
         return value;
       }
 

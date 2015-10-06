@@ -13942,19 +13942,19 @@ namespace cimg_library_suffixed {
       const CImg<uptrT>* p_code;
 
       CImg<charT> expr;
-      const CImg<T>& input;
+      const CImg<T>& imgin;
       const CImgList<T>& listin;
-      CImg<T> &output;
+      CImg<T> &imgout;
       CImgList<T>& listout;
 
-      CImg<doubleT> _input_stats, &input_stats;
+      CImg<doubleT> _img_stats, &img_stats;
       CImgList<doubleT> _list_stats, &list_stats, _list_median, &list_median;
-      CImg<uintT> mem_input_stats;
+      CImg<uintT> mem_img_stats;
 
       CImg<uintT> level, labelMpos, reserved_label;
       CImgList<charT> labelM;
 
-      unsigned int mempos, mem_input_median, debug_indent;
+      unsigned int mempos, mem_img_median, debug_indent;
       double *result;
       const char *const calling_function;
       typedef double (*mp_func)(_cimg_math_parser&);
@@ -13978,10 +13978,10 @@ namespace cimg_library_suffixed {
       _cimg_math_parser(const char *const expression, const char *const funcname=0,
                         const CImg<T>& img_input=CImg<T>::empty(), CImg<T> *const img_output=0,
                         const CImgList<T> *const list_input=0, CImgList<T> *const list_output=0):
-        code(_code),input(img_input),listin(list_input?*list_input:CImgList<T>::empty()),
-        output(img_output?*img_output:CImg<T>::empty()),listout(list_output?*list_output:CImgList<T>::empty()),
-        input_stats(_input_stats),list_stats(_list_stats),list_median(_list_median),
-        mem_input_median(~0U),debug_indent(0),
+        code(_code),imgin(img_input),listin(list_input?*list_input:CImgList<T>::empty()),
+        imgout(img_output?*img_output:CImg<T>::empty()),listout(list_output?*list_output:CImgList<T>::empty()),
+        img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),
+        mem_img_median(~0U),debug_indent(0),
         calling_function(funcname?funcname:"cimg_math_parser") {
         if (!expression || !*expression)
           throw CImgArgumentException("[_cimg_math_parser] "
@@ -14005,14 +14005,14 @@ namespace cimg_library_suffixed {
         // Init constant values.
         mem.assign(256,2);
         for (unsigned int i = 0; i<=9; ++i) mem[i] = (double)i;
-        mem[10] = (double)input._width;
-        mem[11] = (double)input._height;
-        mem[12] = (double)input._depth;
-        mem[13] = (double)input._spectrum;
-        mem[14] = (double)input._is_shared;
-        mem[15] = (double)input._width*input._height;
-        mem[16] = (double)input._width*input._height*input._depth;
-        mem[17] = (double)input._width*input._height*input._depth*input._spectrum;
+        mem[10] = (double)imgin._width;
+        mem[11] = (double)imgin._height;
+        mem[12] = (double)imgin._depth;
+        mem[13] = (double)imgin._spectrum;
+        mem[14] = (double)imgin._is_shared;
+        mem[15] = (double)imgin._width*imgin._height;
+        mem[16] = (double)imgin._width*imgin._height*imgin._depth;
+        mem[17] = (double)imgin._width*imgin._height*imgin._depth*imgin._spectrum;
         mem[18] = cimg::PI;
         mem[19] = std::exp(1.0);
 
@@ -14069,8 +14069,8 @@ namespace cimg_library_suffixed {
 
       _cimg_math_parser():
         code(_code),p_code_end(0),
-        input(CImg<T>::empty()),listin(CImgList<T>::empty()),output(CImg<T>::empty()),listout(CImgList<T>::empty()),
-        input_stats(_input_stats),list_stats(_list_stats),list_median(_list_median),debug_indent(0),
+        imgin(CImg<T>::empty()),listin(CImgList<T>::empty()),imgout(CImg<T>::empty()),listout(CImgList<T>::empty()),
+        img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),debug_indent(0),
         calling_function(0) {
         mem.assign(1 + _cimg_mp_c,1,1,1,0); // Allow to skip 'is_empty?' test in operator()().
         result = mem._data;
@@ -14078,7 +14078,7 @@ namespace cimg_library_suffixed {
 
       _cimg_math_parser(const _cimg_math_parser& mp):
         mem(mp.mem),_code(mp._code),code(_code),p_code_end(code.end()),
-        input(mp.input),listin(mp.listin),output(mp.output),listout(mp.listout),input_stats(mp.input_stats),
+        imgin(mp.imgin),listin(mp.listin),imgout(mp.imgout),listout(mp.listout),img_stats(mp.img_stats),
         list_stats(mp.list_stats),list_median(mp.list_median),debug_indent(0),
         result(mem._data + (mp.result - mp.mem._data)),calling_function(0) {
         cimglist_for(code,l) {
@@ -14180,138 +14180,138 @@ namespace cimg_library_suffixed {
             }
             if (*ss1=='m') { // im
               if (reserved_label[4]!=~0U) _cimg_mp_return(reserved_label[4]);
-              if (!input_stats) {
-                input_stats.assign(1,14,1,1,0).fill(input.get_stats(),false);
-                mem_input_stats.assign(1,14,1,1,~0U);
+              if (!img_stats) {
+                img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
+                mem_img_stats.assign(1,14,1,1,~0U);
               }
-              if (mem_input_stats[0]==~0U) mem_input_stats[0] = constant(input_stats[0]);
-              _cimg_mp_return(mem_input_stats[0]);
+              if (mem_img_stats[0]==~0U) mem_img_stats[0] = constant(img_stats[0]);
+              _cimg_mp_return(mem_img_stats[0]);
             }
             if (*ss1=='M') { // iM
               if (reserved_label[5]!=~0U) _cimg_mp_return(reserved_label[5]);
-              if (!input_stats) {
-                input_stats.assign(1,14,1,1,0).fill(input.get_stats(),false);
-                mem_input_stats.assign(1,14,1,1,~0U);
+              if (!img_stats) {
+                img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
+                mem_img_stats.assign(1,14,1,1,~0U);
               }
-              if (mem_input_stats[1]==~0U) mem_input_stats[1] = constant(input_stats[1]);
-              _cimg_mp_return(mem_input_stats[1]);
+              if (mem_img_stats[1]==~0U) mem_img_stats[1] = constant(img_stats[1]);
+              _cimg_mp_return(mem_img_stats[1]);
             }
             if (*ss1=='a') { // ia
               if (reserved_label[6]!=~0U) _cimg_mp_return(reserved_label[6]);
-              if (!input_stats) {
-                input_stats.assign(1,14,1,1,0).fill(input.get_stats(),false);
-                mem_input_stats.assign(1,14,1,1,~0U);
+              if (!img_stats) {
+                img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
+                mem_img_stats.assign(1,14,1,1,~0U);
               }
-              if (mem_input_stats[2]==~0U) mem_input_stats[2] = constant(input_stats[2]);
-              _cimg_mp_return(mem_input_stats[2]);
+              if (mem_img_stats[2]==~0U) mem_img_stats[2] = constant(img_stats[2]);
+              _cimg_mp_return(mem_img_stats[2]);
             }
             if (*ss1=='v') { // iv
               if (reserved_label[7]!=~0U) _cimg_mp_return(reserved_label[7]);
-              if (!input_stats) {
-                input_stats.assign(1,14,1,1,0).fill(input.get_stats(),false);
-                mem_input_stats.assign(1,14,1,1,~0U);
+              if (!img_stats) {
+                img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
+                mem_img_stats.assign(1,14,1,1,~0U);
               }
-              if (mem_input_stats[3]==~0U) mem_input_stats[3] = constant(input_stats[3]);
-              _cimg_mp_return(mem_input_stats[3]);
+              if (mem_img_stats[3]==~0U) mem_img_stats[3] = constant(img_stats[3]);
+              _cimg_mp_return(mem_img_stats[3]);
             }
             if (*ss1=='s') { // is
               if (reserved_label[8]!=~0U) _cimg_mp_return(reserved_label[8]);
-              if (!input_stats) {
-                input_stats.assign(1,14,1,1,0).fill(input.get_stats(),false);
-                mem_input_stats.assign(1,14,1,1,~0U);
+              if (!img_stats) {
+                img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
+                mem_img_stats.assign(1,14,1,1,~0U);
               }
-              if (mem_input_stats[12]==~0U) mem_input_stats[12] = constant(input_stats[12]);
-              _cimg_mp_return(mem_input_stats[12]);
+              if (mem_img_stats[12]==~0U) mem_img_stats[12] = constant(img_stats[12]);
+              _cimg_mp_return(mem_img_stats[12]);
             }
             if (*ss1=='p') { // ip
               if (reserved_label[9]!=~0U) _cimg_mp_return(reserved_label[9]);
-              if (!input_stats) {
-                input_stats.assign(1,14,1,1,0).fill(input.get_stats(),false);
-                mem_input_stats.assign(1,14,1,1,~0U);
+              if (!img_stats) {
+                img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
+                mem_img_stats.assign(1,14,1,1,~0U);
               }
-              if (mem_input_stats[13]==~0U) mem_input_stats[13] = constant(input_stats[13]);
-              _cimg_mp_return(mem_input_stats[13]);
+              if (mem_img_stats[13]==~0U) mem_img_stats[13] = constant(img_stats[13]);
+              _cimg_mp_return(mem_img_stats[13]);
             }
             if (*ss1=='c') { // ic
               if (reserved_label[10]!=~0U) _cimg_mp_return(reserved_label[10]);
-              if (mem_input_median==~0U) mem_input_median = input?constant(input.median()):0;
-              _cimg_mp_return(mem_input_median);
+              if (mem_img_median==~0U) mem_img_median = imgin?constant(imgin.median()):0;
+              _cimg_mp_return(mem_img_median);
             }
           }
           if (*ss1=='m') {
             if (*ss=='x') { // xm
               if (reserved_label[11]!=~0U) _cimg_mp_return(reserved_label[11]);
-              if (!input_stats) {
-                input_stats.assign(1,14,1,1,0).fill(input.get_stats(),false);
-                mem_input_stats.assign(1,14,1,1,~0U);
+              if (!img_stats) {
+                img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
+                mem_img_stats.assign(1,14,1,1,~0U);
               }
-              if (mem_input_stats[4]==~0U) mem_input_stats[4] = constant(input_stats[4]);
-              _cimg_mp_return(mem_input_stats[4]);
+              if (mem_img_stats[4]==~0U) mem_img_stats[4] = constant(img_stats[4]);
+              _cimg_mp_return(mem_img_stats[4]);
             }
             if (*ss=='y') { // ym
               if (reserved_label[12]!=~0U) _cimg_mp_return(reserved_label[12]);
-              if (!input_stats) {
-                input_stats.assign(1,14,1,1,0).fill(input.get_stats(),false);
-                mem_input_stats.assign(1,14,1,1,~0U);
+              if (!img_stats) {
+                img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
+                mem_img_stats.assign(1,14,1,1,~0U);
               }
-              if (mem_input_stats[5]==~0U) mem_input_stats[5] = constant(input_stats[5]);
-              _cimg_mp_return(mem_input_stats[5]);
+              if (mem_img_stats[5]==~0U) mem_img_stats[5] = constant(img_stats[5]);
+              _cimg_mp_return(mem_img_stats[5]);
             }
             if (*ss=='z') { // zm
               if (reserved_label[13]!=~0U) _cimg_mp_return(reserved_label[13]);
-              if (!input_stats) {
-                input_stats.assign(1,14,1,1,0).fill(input.get_stats(),false);
-                mem_input_stats.assign(1,14,1,1,~0U);
+              if (!img_stats) {
+                img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
+                mem_img_stats.assign(1,14,1,1,~0U);
               }
-              if (mem_input_stats[6]==~0U) mem_input_stats[6] = constant(input_stats[6]);
-              _cimg_mp_return(mem_input_stats[6]);
+              if (mem_img_stats[6]==~0U) mem_img_stats[6] = constant(img_stats[6]);
+              _cimg_mp_return(mem_img_stats[6]);
             }
             if (*ss=='c') { // cm
               if (reserved_label[14]!=~0U) _cimg_mp_return(reserved_label[14]);
-              if (!input_stats) {
-                input_stats.assign(1,14,1,1,0).fill(input.get_stats(),false);
-                mem_input_stats.assign(1,14,1,1,~0U);
+              if (!img_stats) {
+                img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
+                mem_img_stats.assign(1,14,1,1,~0U);
               }
-              if (mem_input_stats[7]==~0U) mem_input_stats[7] = constant(input_stats[7]);
-              _cimg_mp_return(mem_input_stats[7]);
+              if (mem_img_stats[7]==~0U) mem_img_stats[7] = constant(img_stats[7]);
+              _cimg_mp_return(mem_img_stats[7]);
             }
           }
           if (*ss1=='M') {
             if (*ss=='x') { // xM
               if (reserved_label[15]!=~0U) _cimg_mp_return(reserved_label[15]);
-              if (!input_stats) {
-                input_stats.assign(1,14,1,1,0).fill(input.get_stats(),false);
-                mem_input_stats.assign(1,14,1,1,~0U);
+              if (!img_stats) {
+                img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
+                mem_img_stats.assign(1,14,1,1,~0U);
               }
-              if (mem_input_stats[8]==~0U) mem_input_stats[8] = constant(input_stats[8]);
-              _cimg_mp_return(mem_input_stats[8]);
+              if (mem_img_stats[8]==~0U) mem_img_stats[8] = constant(img_stats[8]);
+              _cimg_mp_return(mem_img_stats[8]);
             }
             if (*ss=='y') { // yM
               if (reserved_label[16]!=~0U) _cimg_mp_return(reserved_label[16]);
-              if (!input_stats) {
-                input_stats.assign(1,14,1,1,0).fill(input.get_stats(),false);
-                mem_input_stats.assign(1,14,1,1,~0U);
+              if (!img_stats) {
+                img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
+                mem_img_stats.assign(1,14,1,1,~0U);
               }
-              if (mem_input_stats[9]==~0U) mem_input_stats[9] = constant(input_stats[9]);
-              _cimg_mp_return(mem_input_stats[9]);
+              if (mem_img_stats[9]==~0U) mem_img_stats[9] = constant(img_stats[9]);
+              _cimg_mp_return(mem_img_stats[9]);
             }
             if (*ss=='z') { // zM
               if (reserved_label[17]!=~0U) _cimg_mp_return(reserved_label[17]);
-              if (!input_stats) {
-                input_stats.assign(1,14,1,1,0).fill(input.get_stats(),false);
-                mem_input_stats.assign(1,14,1,1,~0U);
+              if (!img_stats) {
+                img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
+                mem_img_stats.assign(1,14,1,1,~0U);
               }
-              if (mem_input_stats[10]==~0U) mem_input_stats[10] = constant(input_stats[10]);
-              _cimg_mp_return(mem_input_stats[10]);
+              if (mem_img_stats[10]==~0U) mem_img_stats[10] = constant(img_stats[10]);
+              _cimg_mp_return(mem_img_stats[10]);
             }
             if (*ss=='c') { // cM
               if (reserved_label[18]!=~0U) _cimg_mp_return(reserved_label[18]);
-              if (!input_stats) {
-                input_stats.assign(1,14,1,1,0).fill(input.get_stats(),false);
-                mem_input_stats.assign(1,14,1,1,~0U);
+              if (!img_stats) {
+                img_stats.assign(1,14,1,1,0).fill(imgin.get_stats(),false);
+                mem_img_stats.assign(1,14,1,1,~0U);
               }
-              if (mem_input_stats[11]==~0U) mem_input_stats[11] = constant(input_stats[11]);
-              _cimg_mp_return(mem_input_stats[11]);
+              if (mem_img_stats[11]==~0U) mem_img_stats[11] = constant(img_stats[11]);
+              _cimg_mp_return(mem_img_stats[11]);
             }
           }
         } else if (ss3==se) { // Three-chars variable.
@@ -15642,7 +15642,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_i(_cimg_math_parser& mp) {
-        return (double)mp.input.atXYZC((int)mp.mem[_cimg_mp_x],(int)mp.mem[_cimg_mp_y],
+        return (double)mp.imgin.atXYZC((int)mp.mem[_cimg_mp_x],(int)mp.mem[_cimg_mp_y],
                                        (int)mp.mem[_cimg_mp_z],(int)mp.mem[_cimg_mp_c],0);
       }
 
@@ -15741,18 +15741,18 @@ namespace cimg_library_suffixed {
       static double mp_ioff(_cimg_math_parser& mp) {
         const long off = (long)*(double*)mp.opcode[2];
         const unsigned int boundary = (unsigned int)*(double*)mp.opcode[3];
-        if (off<0 || off>=(long)mp.input.size())
+        if (off<0 || off>=(long)mp.imgin.size())
           switch (boundary) {
           case 2 : // Periodic boundary.
-            if (mp.input) return (double)mp.input[cimg::mod(off,(long)mp.input.size())];
+            if (mp.imgin) return (double)mp.imgin[cimg::mod(off,(long)mp.imgin.size())];
             return 0;
           case 1 : // Neumann boundary.
-            if (mp.input) return (double)(off<0?*mp.input:mp.input.back());
+            if (mp.imgin) return (double)(off<0?*mp.imgin:mp.imgin.back());
             return 0;
           default : // Dirichet boundary.
             return 0;
           }
-        return (double)mp.input[off];
+        return (double)mp.imgin[off];
       }
 
       static double mp_isbool(_cimg_math_parser& mp) {
@@ -15788,19 +15788,19 @@ namespace cimg_library_suffixed {
           z = *(double*)mp.opcode[4], c = *(double*)mp.opcode[5];
         const int i = (int)*(double*)mp.opcode[6], b = (int)*(double*)mp.opcode[7];
         if (i==0) { // Nearest neighbor interpolation.
-          if (b==2) return (double)mp.input.atXYZC(cimg::mod((int)x,mp.input.width()),
-                                                   cimg::mod((int)y,mp.input.height()),
-                                                   cimg::mod((int)z,mp.input.depth()),
-                                                   cimg::mod((int)c,mp.input.spectrum()));
-          if (b==1) return (double)mp.input.atXYZC((int)x,(int)y,(int)z,(int)c);
-          return (double)mp.input.atXYZC((int)x,(int)y,(int)z,(int)c,0);
+          if (b==2) return (double)mp.imgin.atXYZC(cimg::mod((int)x,mp.imgin.width()),
+                                                   cimg::mod((int)y,mp.imgin.height()),
+                                                   cimg::mod((int)z,mp.imgin.depth()),
+                                                   cimg::mod((int)c,mp.imgin.spectrum()));
+          if (b==1) return (double)mp.imgin.atXYZC((int)x,(int)y,(int)z,(int)c);
+          return (double)mp.imgin.atXYZC((int)x,(int)y,(int)z,(int)c,0);
         } else { // Linear interpolation.
-          if (b==2) return (double)mp.input.linear_atXYZC(cimg::mod((float)x,(float)mp.input.width()),
-                                                          cimg::mod((float)y,(float)mp.input.height()),
-                                                          cimg::mod((float)z,(float)mp.input.depth()),
-                                                          cimg::mod((float)c,(float)mp.input.spectrum()));
-          if (b==1) return (double)mp.input.linear_atXYZC((float)x,(float)y,(float)z,(float)c);
-          return (double)mp.input.linear_atXYZC((float)x,(float)y,(float)z,(float)c,0);
+          if (b==2) return (double)mp.imgin.linear_atXYZC(cimg::mod((float)x,(float)mp.imgin.width()),
+                                                          cimg::mod((float)y,(float)mp.imgin.height()),
+                                                          cimg::mod((float)z,(float)mp.imgin.depth()),
+                                                          cimg::mod((float)c,(float)mp.imgin.spectrum()));
+          if (b==1) return (double)mp.imgin.linear_atXYZC((float)x,(float)y,(float)z,(float)c);
+          return (double)mp.imgin.linear_atXYZC((float)x,(float)y,(float)z,(float)c,0);
         }
       }
 
@@ -15808,20 +15808,20 @@ namespace cimg_library_suffixed {
         const int
           x = (int)mp.mem[_cimg_mp_x], y = (int)mp.mem[_cimg_mp_y],
           z = (int)mp.mem[_cimg_mp_z], c = (int)mp.mem[_cimg_mp_c];
-        const long off = mp.input.offset(x,y,z,c) + (long)(*(double*)mp.opcode[2]);
+        const long off = mp.imgin.offset(x,y,z,c) + (long)(*(double*)mp.opcode[2]);
         const unsigned int boundary = (unsigned int)*(double*)mp.opcode[3];
-        if (off<0 || off>=(long)mp.input.size())
+        if (off<0 || off>=(long)mp.imgin.size())
           switch (boundary) {
           case 2 : // Periodic boundary.
-            if (mp.input) return (double)mp.input[cimg::mod(off,(long)mp.input.size())];
+            if (mp.imgin) return (double)mp.imgin[cimg::mod(off,(long)mp.imgin.size())];
             return 0;
           case 1 : // Neumann boundary.
-            if (mp.input) return (double)(off<0?*mp.input:mp.input.back());
+            if (mp.imgin) return (double)(off<0?*mp.imgin:mp.imgin.back());
             return 0;
           default : // Dirichet boundary.
             return 0;
           }
-        return (double)mp.input[off];
+        return (double)mp.imgin[off];
       }
 
       static double mp_jxyzc(_cimg_math_parser& mp) {
@@ -15831,21 +15831,21 @@ namespace cimg_library_suffixed {
           dz = *(double*)mp.opcode[4], dc = *(double*)mp.opcode[5];
         const int i = (int)*(double*)mp.opcode[6], b = (int)*(double*)mp.opcode[7];
         if (i==0) { // Nearest neighbor interpolation.
-          if (b==2) return (double)mp.input.atXYZC(cimg::mod((int)(x + dx),mp.input.width()),
-                                                   cimg::mod((int)(y + dy),mp.input.height()),
-                                                   cimg::mod((int)(z + dz),mp.input.depth()),
-                                                   cimg::mod((int)(c + dc),mp.input.spectrum()));
-          if (b==1) return (double)mp.input.atXYZC((int)(x + dx),(int)(y + dy),(int)(z + dz),(int)(c + dc));
-          return (double)mp.input.atXYZC((int)(x + dx),(int)(y + dy),(int)(z + dz),(int)(c + dc),0);
+          if (b==2) return (double)mp.imgin.atXYZC(cimg::mod((int)(x + dx),mp.imgin.width()),
+                                                   cimg::mod((int)(y + dy),mp.imgin.height()),
+                                                   cimg::mod((int)(z + dz),mp.imgin.depth()),
+                                                   cimg::mod((int)(c + dc),mp.imgin.spectrum()));
+          if (b==1) return (double)mp.imgin.atXYZC((int)(x + dx),(int)(y + dy),(int)(z + dz),(int)(c + dc));
+          return (double)mp.imgin.atXYZC((int)(x + dx),(int)(y + dy),(int)(z + dz),(int)(c + dc),0);
         } else { // Linear interpolation.
           if (b==2)
-            return (double)mp.input.linear_atXYZC(cimg::mod((float)(x + dx),(float)mp.input.width()),
-                                                  cimg::mod((float)(y + dy),(float)mp.input.height()),
-                                                  cimg::mod((float)(z + dz),(float)mp.input.depth()),
-                                                  cimg::mod((float)(c + dc),(float)mp.input.spectrum()));
-          if (b==1) return (double)mp.input.linear_atXYZC((float)(x + dx),(float)(y + dy),
+            return (double)mp.imgin.linear_atXYZC(cimg::mod((float)(x + dx),(float)mp.imgin.width()),
+                                                  cimg::mod((float)(y + dy),(float)mp.imgin.height()),
+                                                  cimg::mod((float)(z + dz),(float)mp.imgin.depth()),
+                                                  cimg::mod((float)(c + dc),(float)mp.imgin.spectrum()));
+          if (b==1) return (double)mp.imgin.linear_atXYZC((float)(x + dx),(float)(y + dy),
                                                           (float)(z + dz),(float)(c + dc));
-          return (double)mp.input.linear_atXYZC((float)(x + dx),(float)(y + dy),(float)(z + dz),(float)(c + dc),0);
+          return (double)mp.imgin.linear_atXYZC((float)(x + dx),(float)(y + dy),(float)(z + dz),(float)(c + dc),0);
         }
       }
 
@@ -16102,7 +16102,7 @@ namespace cimg_library_suffixed {
       static double mp_set_ioff(_cimg_math_parser& mp) {
         const long off = (long)*(double*)mp.opcode[2];
         const double value = *(double*)mp.opcode[3];
-        if (off>=0 && off<(long)mp.output.size()) mp.output._data[off] = (T)value;
+        if (off>=0 && off<(long)mp.imgout.size()) mp.imgout._data[off] = (T)value;
         return value;
       }
 
@@ -16111,9 +16111,9 @@ namespace cimg_library_suffixed {
           x = (int)*(double*)mp.opcode[2], y = (int)*(double*)mp.opcode[3],
           z = (int)*(double*)mp.opcode[4], c = (int)*(double*)mp.opcode[5];
         const double value = *(double*)mp.opcode[6];
-        if (x>=0 && x<mp.output.width() && y>=0 && y<mp.output.height() &&
-            z>=0 && z<mp.output.depth() && c>=0 && c<mp.output.spectrum()) {
-          mp.output(x,y,z,c) = (T)value;
+        if (x>=0 && x<mp.imgout.width() && y>=0 && y<mp.imgout.height() &&
+            z>=0 && z<mp.imgout.depth() && c>=0 && c<mp.imgout.spectrum()) {
+          mp.imgout(x,y,z,c) = (T)value;
         }
         return value;
       }
@@ -16122,9 +16122,9 @@ namespace cimg_library_suffixed {
         const int
           x = (int)mp.mem[_cimg_mp_x], y = (int)mp.mem[_cimg_mp_y],
           z = (int)mp.mem[_cimg_mp_z], c = (int)mp.mem[_cimg_mp_c];
-        const long off = mp.output.offset(x,y,z,c) + (long)(*(double*)mp.opcode[2]);
+        const long off = mp.imgout.offset(x,y,z,c) + (long)(*(double*)mp.opcode[2]);
         const double value = *(double*)mp.opcode[3];
-        if (off>=0 && off<(long)mp.output.size()) mp.output._data[off] = (T)value;
+        if (off>=0 && off<(long)mp.imgout.size()) mp.imgout._data[off] = (T)value;
         return value;
       }
 
@@ -16136,9 +16136,9 @@ namespace cimg_library_suffixed {
           x = (int)(dx + mp.mem[_cimg_mp_x]), y = (int)(dy + mp.mem[_cimg_mp_y]),
           z = (int)(dz + mp.mem[_cimg_mp_z]), c = (int)(dc + mp.mem[_cimg_mp_c]);
         const double value = *(double*)mp.opcode[6];
-        if (x>=0 && x<mp.output.width() && y>=0 && y<mp.output.height() &&
-            z>=0 && z<mp.output.depth() && c>=0 && c<mp.output.spectrum()) {
-          mp.output(x,y,z,c) = (T)value;
+        if (x>=0 && x<mp.imgout.width() && y>=0 && y<mp.imgout.height() &&
+            z>=0 && z<mp.imgout.depth() && c>=0 && c<mp.imgout.spectrum()) {
+          mp.imgout(x,y,z,c) = (T)value;
         }
         return value;
       }

@@ -9093,7 +9093,7 @@ namespace cimg_library_suffixed {
     typedef typename cimg::last<T,float>::type floatT;
     typedef typename cimg::last<T,double>::type doubleT;
 #if cimg_OS==2
-    typedef typename cimg::last<T,UINT_PTR>::type uptrT;  // Unsigned integer that can store a pointer.
+    typedef typename cimg::last<T,UINT_PTR>::type uptrT;  // Unsigned integer type that can store a pointer.
 #else
     typedef typename cimg::last<T,unsigned long>::type uptrT;
 #endif
@@ -14767,7 +14767,8 @@ namespace cimg_library_suffixed {
               else { p_coords[1] = arg1; p_coords[2] = arg2; p_coords[3] = arg3; p_coords[4] = arg4; }
               p_coords[10] = p1;
             }
-            if (*ss2=='#') _cimg_mp_opcode7(is_sth?mp_jxyzc_list:mp_ixyzc_list,p1,arg1,arg2,arg3,arg4,arg5==~0U?0:arg5,arg6==~0U?0:arg6);
+            if (*ss2=='#') _cimg_mp_opcode7(is_sth?mp_jxyzc_list:mp_ixyzc_list,p1,arg1,arg2,arg3,arg4,arg5==~0U?0:arg5,
+                                            arg6==~0U?0:arg6);
             _cimg_mp_opcode6(is_sth?mp_jxyzc:mp_ixyzc,arg1,arg2,arg3,arg4,arg5==~0U?0:arg5,arg6==~0U?0:arg6);
           }
 
@@ -15739,18 +15740,22 @@ namespace cimg_library_suffixed {
           interpolation = (unsigned int)*(double*)mp.opcode[6],
           boundary_conditions = (unsigned int)*(double*)mp.opcode[7];
         if (interpolation==0) { // Nearest neighbor interpolation.
-          if (boundary_conditions==2) return (double)mp.imgin.atXYZC(cimg::mod((int)x,mp.imgin.width()),
-                                                                     cimg::mod((int)y,mp.imgin.height()),
-                                                                     cimg::mod((int)z,mp.imgin.depth()),
-                                                                     cimg::mod((int)c,mp.imgin.spectrum()));
-          if (boundary_conditions==1) return (double)mp.imgin.atXYZC((int)x,(int)y,(int)z,(int)c);
+          if (boundary_conditions==2)
+            return (double)mp.imgin.atXYZC(cimg::mod((int)x,mp.imgin.width()),
+                                           cimg::mod((int)y,mp.imgin.height()),
+                                           cimg::mod((int)z,mp.imgin.depth()),
+                                           cimg::mod((int)c,mp.imgin.spectrum()));
+          if (boundary_conditions==1)
+            return (double)mp.imgin.atXYZC((int)x,(int)y,(int)z,(int)c);
           return (double)mp.imgin.atXYZC((int)x,(int)y,(int)z,(int)c,0);
         } else { // Linear interpolation.
-          if (boundary_conditions==2) return (double)mp.imgin.linear_atXYZC(cimg::mod((float)x,(float)mp.imgin.width()),
-                                                                            cimg::mod((float)y,(float)mp.imgin.height()),
-                                                                            cimg::mod((float)z,(float)mp.imgin.depth()),
-                                                                            cimg::mod((float)c,(float)mp.imgin.spectrum()));
-          if (boundary_conditions==1) return (double)mp.imgin.linear_atXYZC((float)x,(float)y,(float)z,(float)c);
+          if (boundary_conditions==2)
+            return (double)mp.imgin.linear_atXYZC(cimg::mod((float)x,(float)mp.imgin.width()),
+                                                  cimg::mod((float)y,(float)mp.imgin.height()),
+                                                  cimg::mod((float)z,(float)mp.imgin.depth()),
+                                                  cimg::mod((float)c,(float)mp.imgin.spectrum()));
+          if (boundary_conditions==1)
+            return (double)mp.imgin.linear_atXYZC((float)x,(float)y,(float)z,(float)c);
           return (double)mp.imgin.linear_atXYZC((float)x,(float)y,(float)z,(float)c,0);
         }
       }
@@ -15766,18 +15771,22 @@ namespace cimg_library_suffixed {
           z = *(double*)mp.opcode[5], c = *(double*)mp.opcode[6];
         const CImg<T> &img = mp.listin[ind];
         if (interpolation==0) { // Nearest neighbor interpolation.
-          if (boundary_conditions==2) return (double)img.atXYZC(cimg::mod((int)x,img.width()),
-                                                                cimg::mod((int)y,img.height()),
-                                                                cimg::mod((int)z,img.depth()),
-                                                                cimg::mod((int)c,img.spectrum()));
-          if (boundary_conditions==1) return (double)img.atXYZC((int)x,(int)y,(int)z,(int)c);
+          if (boundary_conditions==2)
+            return (double)img.atXYZC(cimg::mod((int)x,img.width()),
+                                      cimg::mod((int)y,img.height()),
+                                      cimg::mod((int)z,img.depth()),
+                                      cimg::mod((int)c,img.spectrum()));
+          if (boundary_conditions==1)
+            return (double)img.atXYZC((int)x,(int)y,(int)z,(int)c);
           return (double)img.atXYZC((int)x,(int)y,(int)z,(int)c,0);
         } else { // Linear interpolation.
-          if (boundary_conditions==2) return (double)img.linear_atXYZC(cimg::mod((float)x,(float)img.width()),
-                                                                       cimg::mod((float)y,(float)img.height()),
-                                                                       cimg::mod((float)z,(float)img.depth()),
-                                                                       cimg::mod((float)c,(float)img.spectrum()));
-          if (boundary_conditions==1) return (double)img.linear_atXYZC((float)x,(float)y,(float)z,(float)c);
+          if (boundary_conditions==2)
+            return (double)img.linear_atXYZC(cimg::mod((float)x,(float)img.width()),
+                                             cimg::mod((float)y,(float)img.height()),
+                                             cimg::mod((float)z,(float)img.depth()),
+                                             cimg::mod((float)c,(float)img.spectrum()));
+          if (boundary_conditions==1)
+            return (double)img.linear_atXYZC((float)x,(float)y,(float)z,(float)c);
           return (double)img.linear_atXYZC((float)x,(float)y,(float)z,(float)c,0);
         }
       }
@@ -15835,11 +15844,13 @@ namespace cimg_library_suffixed {
           interpolation = (unsigned int)*(double*)mp.opcode[6],
           boundary_conditions = (unsigned int)*(double*)mp.opcode[7];
         if (interpolation==0) { // Nearest neighbor interpolation.
-          if (boundary_conditions==2) return (double)mp.imgin.atXYZC(cimg::mod((int)nx,mp.imgin.width()),
-                                                                     cimg::mod((int)ny,mp.imgin.height()),
-                                                                     cimg::mod((int)nz,mp.imgin.depth()),
-                                                                     cimg::mod((int)nc,mp.imgin.spectrum()));
-          if (boundary_conditions==1) return (double)mp.imgin.atXYZC((int)nx,(int)ny,(int)nz,(int)nc);
+          if (boundary_conditions==2)
+            return (double)mp.imgin.atXYZC(cimg::mod((int)nx,mp.imgin.width()),
+                                           cimg::mod((int)ny,mp.imgin.height()),
+                                           cimg::mod((int)nz,mp.imgin.depth()),
+                                           cimg::mod((int)nc,mp.imgin.spectrum()));
+          if (boundary_conditions==1)
+            return (double)mp.imgin.atXYZC((int)nx,(int)ny,(int)nz,(int)nc);
           return (double)mp.imgin.atXYZC((int)nx,(int)ny,(int)nz,(int)nc,0);
         } else { // Linear interpolation.
           if (boundary_conditions==2)
@@ -15847,7 +15858,8 @@ namespace cimg_library_suffixed {
                                                   cimg::mod((float)ny,(float)mp.imgin.height()),
                                                   cimg::mod((float)nz,(float)mp.imgin.depth()),
                                                   cimg::mod((float)nc,(float)mp.imgin.spectrum()));
-          if (boundary_conditions==1) return (double)mp.imgin.linear_atXYZC((float)nx,(float)ny,(float)nz,(float)nc);
+          if (boundary_conditions==1)
+            return (double)mp.imgin.linear_atXYZC((float)nx,(float)ny,(float)nz,(float)nc);
           return (double)mp.imgin.linear_atXYZC((float)nx,(float)ny,(float)nz,(float)nc,0);
         }
       }
@@ -15864,11 +15876,13 @@ namespace cimg_library_suffixed {
           nz = z + *(double*)mp.opcode[5], nc = c + *(double*)mp.opcode[6];
         const CImg<T> &img = mp.listin[ind];
         if (interpolation==0) { // Nearest neighbor interpolation.
-          if (boundary_conditions==2) return (double)img.atXYZC(cimg::mod((int)nx,img.width()),
-                                                                cimg::mod((int)ny,img.height()),
-                                                                cimg::mod((int)nz,img.depth()),
-                                                                cimg::mod((int)nc,img.spectrum()));
-          if (boundary_conditions==1) return (double)img.atXYZC(nx,ny,nz,nc);
+          if (boundary_conditions==2)
+            return (double)img.atXYZC(cimg::mod((int)nx,img.width()),
+                                      cimg::mod((int)ny,img.height()),
+                                      cimg::mod((int)nz,img.depth()),
+                                      cimg::mod((int)nc,img.spectrum()));
+          if (boundary_conditions==1)
+            return (double)img.atXYZC(nx,ny,nz,nc);
           return (double)img.atXYZC(nx,ny,nz,nc,0);
         } else { // Linear interpolation.
           if (boundary_conditions==2)

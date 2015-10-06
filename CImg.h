@@ -14113,8 +14113,8 @@ namespace cimg_library_suffixed {
           *s, *ps, *ns, *s1, *s2, *s3, *s4, *s5, c1, c2, c3, c4, sep, end;
 
         if (p_coords)
-          p_coords[0] = p_coords[1] = p_coords[2] = p_coords[3] = p_coords[4] =
-            p_coords[5] = p_coords[6] = p_coords[7] = p_coords[8] = p_coords[9] = ~0U;
+          p_coords[0] = p_coords[1] = p_coords[2] = p_coords[3] = p_coords[4] = p_coords[5] =
+            p_coords[6] = p_coords[7] = p_coords[8] = p_coords[9] = p_coords[10] = ~0U;
 
         const char saved_char = *se; *se = 0;
         const unsigned int clevel = level[ss - expr._data], clevel1 = clevel + 1;
@@ -14278,7 +14278,7 @@ namespace cimg_library_suffixed {
 
               // Pixel assignment (generic lvalue).
               if (l_variable_name>3 && (std::strchr(variable_name,'(') || std::strchr(variable_name,'['))) {
-                coords.assign(10);
+                coords.assign(11);
                 arg1 = compile(ss,s,coords);
                 arg2 = compile(s + 1,se);
                 if (*coords!=~0U || coords[1]!=~0U || coords[5]!=~0U || coords[6]!=~0U) {
@@ -14395,7 +14395,7 @@ namespace cimg_library_suffixed {
             default : op = mp_self_power; s_op = "power"; break;
             }
 
-            coords.assign(10);
+            coords.assign(11);
             arg1 = compile(ss,*ps=='>' || *ps=='<'?ns:ps,coords);
             arg2 = compile(s + 1,se);
             CImg<uptrT>::vector((uptrT)op,arg1,arg2).move_to(code);
@@ -14618,7 +14618,7 @@ namespace cimg_library_suffixed {
 
         is_sth = ss1<se1 && (*ss=='+' || *ss=='-') && *ss1==*ss; // is pre-decrement?
         if (is_sth || (se2>ss && (*se1=='+' || *se1=='-') && *se2==*se1)) { // Pre/post-decrement and increment.
-          coords.assign(10);
+          coords.assign(11);
           arg1 = is_sth?compile(ss2,se,coords):compile(ss,se2,coords);
           pos = is_sth?arg1:opcode1(mp_replace,arg1);
           CImg<uptrT>::vector((uptrT)((is_sth && *ss=='+') || (!is_sth && *se1=='+')?mp_self_increment:
@@ -15175,7 +15175,6 @@ namespace cimg_library_suffixed {
             _cimg_mp_opcode1(mp_list_spectrum,arg1);
           }
         }
-
         if (*ss2=='#' && ss3<se) {
           arg1 = compile(ss3,se);
           const unsigned int ind = (unsigned int)(listin._width && mem(arg1,1)>0?

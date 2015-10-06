@@ -5896,6 +5896,12 @@ namespace cimg_library_suffixed {
       return _empty.assign();
     }
 
+    //! Return a reference to an empty display \const.
+    static const CImgDisplay& const_empty() {
+      static const CImgDisplay _empty;
+      return _empty;
+    }
+
 #define cimg_fitscreen(dx,dy,dz) CImgDisplay::_fitscreen(dx,dy,dz,128,-85,false), \
                                  CImgDisplay::_fitscreen(dx,dy,dz,128,-85,true)
     static unsigned int _fitscreen(const unsigned int dx, const unsigned int dy, const unsigned int dz,
@@ -10092,6 +10098,12 @@ namespace cimg_library_suffixed {
       return _empty.assign();
     }
 
+    //! Return a reference to an empty image \const.
+    static const CImg<T>& const_empty() {
+      static const CImg<T> _empty;
+      return _empty;
+    }
+
     //@}
     //------------------------------------------
     //
@@ -13979,9 +13991,9 @@ namespace cimg_library_suffixed {
 
       // Constructors.
       _cimg_math_parser(const char *const expression, const char *const funcname=0,
-                        const CImg<T>& img_input=CImg<T>::empty(), CImg<T> *const img_output=0,
+                        const CImg<T>& img_input=CImg<T>::const_empty(), CImg<T> *const img_output=0,
                         const CImgList<T> *const list_input=0, CImgList<T> *const list_output=0):
-        code(_code),imgin(img_input),listin(list_input?*list_input:CImgList<T>::empty()),
+        code(_code),imgin(img_input),listin(list_input?*list_input:CImgList<T>::const_empty()),
         imgout(img_output?*img_output:CImg<T>::empty()),listout(list_output?*list_output:CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),
         mem_img_median(~0U),debug_indent(0),
@@ -14072,7 +14084,8 @@ namespace cimg_library_suffixed {
 
       _cimg_math_parser():
         code(_code),p_code_end(0),
-        imgin(CImg<T>::empty()),listin(CImgList<T>::empty()),imgout(CImg<T>::empty()),listout(CImgList<T>::empty()),
+        imgin(CImg<T>::const_empty()),listin(CImgList<T>::const_empty()),
+        imgout(CImg<T>::empty()),listout(CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),debug_indent(0),
         calling_function(0) {
         mem.assign(1 + _cimg_mp_c,1,1,1,0); // Allow to skip 'is_empty?' test in operator()().
@@ -25466,7 +25479,7 @@ namespace cimg_library_suffixed {
       _cimg_math_parser *mp;
       ~_functor4d_streamline_expr() { delete mp; }
       _functor4d_streamline_expr(const char *const expr):mp(0) {
-        mp = new _cimg_math_parser(expr,"streamline",CImg<T>::empty(),0);
+        mp = new _cimg_math_parser(expr,"streamline",CImg<T>::const_empty(),0);
       }
       float operator()(const float x, const float y, const float z, const unsigned int c) const {
         return (float)(*mp)(x,y,z,c);
@@ -29490,7 +29503,7 @@ namespace cimg_library_suffixed {
     CImg<T>& displacement(const CImg<T>& source, const float smoothness=0.1f, const float precision=5.0f,
                           const unsigned int nb_scales=0, const unsigned int iteration_max=10000,
                           const bool is_backward=false,
-                          const CImg<floatT>& constraints=CImg<floatT>::empty()) {
+                          const CImg<floatT>& constraints=CImg<floatT>::const_empty()) {
       return get_displacement(source,smoothness,precision,nb_scales,iteration_max,is_backward,constraints).
         move_to(*this);
     }
@@ -29500,7 +29513,7 @@ namespace cimg_library_suffixed {
                                   const float smoothness=0.1f, const float precision=5.0f,
                                   const unsigned int nb_scales=0, const unsigned int iteration_max=10000,
                                   const bool is_backward=false,
-                                  const CImg<floatT>& constraints=CImg<floatT>::empty()) const {
+                                  const CImg<floatT>& constraints=CImg<floatT>::const_empty()) const {
       if (is_empty() || !source) return +*this;
       if (!is_sameXYZC(source))
         throw CImgArgumentException(_cimg_instance
@@ -29835,7 +29848,7 @@ namespace cimg_library_suffixed {
                               const bool allow_identity=true,
                               CImg<floatT> *const matching_score=0) const {
 
-      if (is_empty()) return CImg<intT>::empty();
+      if (is_empty()) return CImg<intT>::const_empty();
       if (target._spectrum!=_spectrum)
         throw CImgArgumentException(_cimg_instance
                                     "patchmatch(): Instance image and specified target (%u,%u,%u,%u,%p) "
@@ -31508,7 +31521,7 @@ namespace cimg_library_suffixed {
     **/
     template<typename tp, typename tc, typename tt, typename tx>
     const CImg<T>& texturize_object3d(CImgList<tp>& primitives, CImgList<tc>& colors,
-                                      const CImg<tt>& texture, const CImg<tx>& coords=CImg<tx>::empty()) const {
+                                      const CImg<tt>& texture, const CImg<tx>& coords=CImg<tx>::const_empty()) const {
       if (is_empty()) return *this;
       if (_height!=3)
         throw CImgInstanceException(_cimg_instance
@@ -32415,7 +32428,7 @@ namespace cimg_library_suffixed {
     struct _functor2d_expr {
       _cimg_math_parser *mp;
       _functor2d_expr(const char *const expr):mp(0) {
-        mp = new _cimg_math_parser(expr,0,CImg<T>::empty(),0);
+        mp = new _cimg_math_parser(expr,0,CImg<T>::const_empty(),0);
       }
       ~_functor2d_expr() { delete mp; }
       float operator()(const float x, const float y) const {
@@ -32443,7 +32456,7 @@ namespace cimg_library_suffixed {
       _cimg_math_parser *mp;
       ~_functor3d_expr() { delete mp; }
       _functor3d_expr(const char *const expr):mp(0) {
-        mp = new _cimg_math_parser(expr,0,CImg<T>::empty(),0);
+        mp = new _cimg_math_parser(expr,0,CImg<T>::const_empty(),0);
       }
       float operator()(const float x, const float y, const float z) const {
         return (float)(*mp)(x,y,z,0);
@@ -38463,7 +38476,7 @@ namespace cimg_library_suffixed {
                            const bool is_double_sided=false, const float focale=700,
                            const float lightx=0, const float lighty=0, const float lightz=-5e8,
                            const float specular_lightness=0.2f, const float specular_shininess=0.1f) {
-      return draw_object3d(x0,y0,z0,vertices,primitives,colors,CImg<floatT>::empty(),
+      return draw_object3d(x0,y0,z0,vertices,primitives,colors,CImg<floatT>::const_empty(),
                            render_type,is_double_sided,focale,lightx,lighty,lightz,
                            specular_lightness,specular_shininess,CImg<floatT>::empty());
     }
@@ -38478,7 +38491,7 @@ namespace cimg_library_suffixed {
                            const float lightx, const float lighty, const float lightz,
                            const float specular_lightness, const float specular_shininess,
                            CImg<tz>& zbuffer) {
-      return draw_object3d(x0,y0,z0,vertices,primitives,colors,CImg<floatT>::empty(),
+      return draw_object3d(x0,y0,z0,vertices,primitives,colors,CImg<floatT>::const_empty(),
                            render_type,is_double_sided,focale,lightx,lighty,lightz,
                            specular_lightness,specular_shininess,zbuffer);
     }
@@ -38493,7 +38506,7 @@ namespace cimg_library_suffixed {
                            const bool is_double_sided=false, const float focale=700,
                            const float lightx=0, const float lighty=0, const float lightz=-5e8,
                            const float specular_lightness=0.2f, const float specular_shininess=0.1f) {
-      return draw_object3d(x0,y0,z0,vertices,primitives,colors,CImg<floatT>::empty(),
+      return draw_object3d(x0,y0,z0,vertices,primitives,colors,CImg<floatT>::const_empty(),
                            render_type,is_double_sided,focale,lightx,lighty,lightz,
                            specular_lightness,specular_shininess,CImg<floatT>::empty());
     }
@@ -38508,7 +38521,7 @@ namespace cimg_library_suffixed {
                            const float lightx, const float lighty, const float lightz,
                            const float specular_lightness, const float specular_shininess,
                            CImg<tz>& zbuffer) {
-      return draw_object3d(x0,y0,z0,vertices,primitives,colors,CImg<floatT>::empty(),
+      return draw_object3d(x0,y0,z0,vertices,primitives,colors,CImg<floatT>::const_empty(),
                            render_type,is_double_sided,focale,lightx,lighty,lightz,
                            specular_lightness,specular_shininess,zbuffer);
     }
@@ -47813,6 +47826,12 @@ namespace cimg_library_suffixed {
       return _empty.assign();
     }
 
+    //! Return a reference to an empty list \const.
+    static const CImgList<T>& const_empty() {
+      static const CImgList<T> _empty;
+      return _empty;
+    }
+
     //@}
     //------------------------------------------
     //
@@ -51851,7 +51870,7 @@ namespace cimg_library_suffixed {
        \param is_variable_width Decide if the font has a variable (\c true) or fixed (\c false) width.
     **/
     static const CImgList<ucharT>& font(const unsigned int font_height, const bool is_variable_width=true) {
-      if (!font_height) return CImgList<ucharT>::empty();
+      if (!font_height) return CImgList<ucharT>::const_empty();
       cimg::mutex(11);
 
       // Decompress nearest base font data if needed.
@@ -52633,7 +52652,7 @@ namespace cimg {
     }
     WIN32_FIND_DATAA file_data;
     const HANDLE dir = FindFirstFileA(pattern.data(),&file_data);
-    if (dir==INVALID_HANDLE_VALUE) return CImgList<char>::empty();
+    if (dir==INVALID_HANDLE_VALUE) return CImgList<char>::const_empty();
     do {
       const char *const filename = file_data.cFileName;
       if (*filename!='.' || (filename[1] && (filename[1]!='.' || filename[2]))) {
@@ -52654,7 +52673,7 @@ namespace cimg {
     // Unix version (posix).
 #else
     DIR *const dir = opendir(is_root?"/":is_current?".":_path.data());
-    if (!dir) return CImgList<char>::empty();
+    if (!dir) return CImgList<char>::const_empty();
     struct dirent *ent;
     while ((ent=readdir(dir))!=0) {
       const char *const filename = ent->d_name;

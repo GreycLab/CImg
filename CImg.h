@@ -13943,12 +13943,12 @@ namespace cimg_library_suffixed {
 
       CImg<charT> expr;
       const CImg<T>& input;
-      const CImgList<T>& inputs;
+      const CImgList<T>& listin;
       CImg<T> &output;
-      CImgList<T>& outputs;
+      CImgList<T>& listout;
 
       CImg<doubleT> _input_stats, &input_stats;
-      CImgList<doubleT> _inputs_stats, &inputs_stats, _inputs_median, &inputs_median;
+      CImgList<doubleT> _list_stats, &list_stats, _list_median, &list_median;
       CImg<uintT> mem_input_stats;
 
       CImg<uintT> level, labelMpos, reserved_label;
@@ -13977,10 +13977,10 @@ namespace cimg_library_suffixed {
       // Constructors.
       _cimg_math_parser(const char *const expression, const char *const funcname=0,
                         const CImg<T>& img_input=CImg<T>::empty(), CImg<T> *const img_output=0,
-                        const CImgList<T> *const list_inputs=0, CImgList<T> *const list_outputs=0):
-        code(_code),input(img_input),inputs(list_inputs?*list_inputs:CImgList<T>::empty()),
-        output(img_output?*img_output:CImg<T>::empty()),outputs(list_outputs?*list_outputs:CImgList<T>::empty()),
-        input_stats(_input_stats),inputs_stats(_inputs_stats),inputs_median(_inputs_median),
+                        const CImgList<T> *const list_input=0, CImgList<T> *const list_output=0):
+        code(_code),input(img_input),listin(list_input?*list_input:CImgList<T>::empty()),
+        output(img_output?*img_output:CImg<T>::empty()),listout(list_output?*list_output:CImgList<T>::empty()),
+        input_stats(_input_stats),list_stats(_list_stats),list_median(_list_median),
         mem_input_median(~0U),debug_indent(0),
         calling_function(funcname?funcname:"cimg_math_parser") {
         if (!expression || !*expression)
@@ -14069,8 +14069,8 @@ namespace cimg_library_suffixed {
 
       _cimg_math_parser():
         code(_code),p_code_end(0),
-        input(CImg<T>::empty()),inputs(CImgList<T>::empty()),output(CImg<T>::empty()),outputs(CImgList<T>::empty()),
-        input_stats(_input_stats),inputs_stats(_inputs_stats),inputs_median(_inputs_median),debug_indent(0),
+        input(CImg<T>::empty()),listin(CImgList<T>::empty()),output(CImg<T>::empty()),listout(CImgList<T>::empty()),
+        input_stats(_input_stats),list_stats(_list_stats),list_median(_list_median),debug_indent(0),
         calling_function(0) {
         mem.assign(1 + _cimg_mp_c,1,1,1,0); // Allow to skip 'is_empty?' test in operator()().
         result = mem._data;
@@ -14078,8 +14078,8 @@ namespace cimg_library_suffixed {
 
       _cimg_math_parser(const _cimg_math_parser& mp):
         mem(mp.mem),_code(mp._code),code(_code),p_code_end(code.end()),
-        input(mp.input),inputs(mp.inputs),output(mp.output),outputs(mp.outputs),input_stats(mp.input_stats),
-        inputs_stats(mp.inputs_stats),inputs_median(mp.inputs_median),debug_indent(0),
+        input(mp.input),listin(mp.listin),output(mp.output),listout(mp.listout),input_stats(mp.input_stats),
+        list_stats(mp.list_stats),list_median(mp.list_median),debug_indent(0),
         result(mem._data + (mp.result - mp.mem._data)),calling_function(0) {
         cimglist_for(code,l) {
           CImg<uptrT> &op = code[l];
@@ -15247,52 +15247,52 @@ namespace cimg_library_suffixed {
         // Variables related to the input list of images.
         if (*ss1=='#' && ss2<se) {
           arg1 = compile(ss2,se);
-          const unsigned int ind = (unsigned int)(inputs._width && mem(arg1,1)>0?
-                                                  cimg::mod((int)mem[arg1],inputs.width()):0);
+          const unsigned int ind = (unsigned int)(listin._width && mem(arg1,1)>0?
+                                                  cimg::mod((int)mem[arg1],listin.width()):0);
           if (*ss=='w') { // w#ind
-            if (!inputs._width) _cimg_mp_return(0);
-            if (mem(arg1,1)>0) _cimg_mp_constant(inputs[ind]._width);
-            _cimg_mp_opcode1(mp_inputs_width,arg1);
+            if (!listin._width) _cimg_mp_return(0);
+            if (mem(arg1,1)>0) _cimg_mp_constant(listin[ind]._width);
+            _cimg_mp_opcode1(mp_list_width,arg1);
           }
           if (*ss=='h') { // h#ind
-            if (!inputs._width) _cimg_mp_return(0);
-            if (mem(arg1,1)>0) _cimg_mp_constant(inputs[ind]._height);
-            _cimg_mp_opcode1(mp_inputs_height,arg1);
+            if (!listin._width) _cimg_mp_return(0);
+            if (mem(arg1,1)>0) _cimg_mp_constant(listin[ind]._height);
+            _cimg_mp_opcode1(mp_list_height,arg1);
           }
           if (*ss=='d') { // d#ind
-            if (!inputs._width) _cimg_mp_return(0);
-            if (mem(arg1,1)>0) _cimg_mp_constant(inputs[ind]._depth);
-            _cimg_mp_opcode1(mp_inputs_depth,arg1);
+            if (!listin._width) _cimg_mp_return(0);
+            if (mem(arg1,1)>0) _cimg_mp_constant(listin[ind]._depth);
+            _cimg_mp_opcode1(mp_list_depth,arg1);
           }
           if (*ss=='r') { // r#ind
-            if (!inputs._width) _cimg_mp_return(0);
-            if (mem(arg1,1)>0) _cimg_mp_constant(inputs[ind]._is_shared);
-            _cimg_mp_opcode1(mp_inputs_is_shared,arg1);
+            if (!listin._width) _cimg_mp_return(0);
+            if (mem(arg1,1)>0) _cimg_mp_constant(listin[ind]._is_shared);
+            _cimg_mp_opcode1(mp_list_is_shared,arg1);
           }
           if (*ss=='s') { // s#ind
-            if (!inputs._width) _cimg_mp_return(0);
-            if (mem(arg1,1)>0) _cimg_mp_constant(inputs[ind]._spectrum);
-            _cimg_mp_opcode1(mp_inputs_spectrum,arg1);
+            if (!listin._width) _cimg_mp_return(0);
+            if (mem(arg1,1)>0) _cimg_mp_constant(listin[ind]._spectrum);
+            _cimg_mp_opcode1(mp_list_spectrum,arg1);
           }
         }
 
         if (*ss2=='#' && ss3<se) {
           arg1 = compile(ss3,se);
-          const unsigned int ind = (unsigned int)(inputs._width && mem(arg1,1)>0?
-                                                  cimg::mod((int)mem[arg1],inputs.width()):0);
+          const unsigned int ind = (unsigned int)(listin._width && mem(arg1,1)>0?
+                                                  cimg::mod((int)mem[arg1],listin.width()):0);
           if (*ss=='w' && *ss1=='h') { // wh#ind
-            if (!inputs._width) _cimg_mp_return(0);
-            if (mem(arg1,1)>0) _cimg_mp_constant(inputs[ind]._width*inputs[ind]._height);
-            _cimg_mp_opcode1(mp_inputs_wh,arg1);
+            if (!listin._width) _cimg_mp_return(0);
+            if (mem(arg1,1)>0) _cimg_mp_constant(listin[ind]._width*listin[ind]._height);
+            _cimg_mp_opcode1(mp_list_wh,arg1);
           }
           if (*ss=='i' && *ss1=='c') { // ic#ind
-            if (!inputs._width) _cimg_mp_return(0);
+            if (!listin._width) _cimg_mp_return(0);
             if (mem(arg1,1)>0) {
-              if (!inputs_median) inputs_median.assign(inputs._width);
-              if (!inputs_median[ind]) CImg<doubleT>::vector(inputs[ind].median()).move_to(inputs_median[ind]);
-              _cimg_mp_constant(*inputs_median[ind]);
+              if (!list_median) list_median.assign(listin._width);
+              if (!list_median[ind]) CImg<doubleT>::vector(listin[ind].median()).move_to(list_median[ind]);
+              _cimg_mp_constant(*list_median[ind]);
             }
-            _cimg_mp_opcode1(mp_inputs_median,arg1);
+            _cimg_mp_opcode1(mp_list_median,arg1);
           }
           unsigned int soff = ~0U;
           if (*ss=='i') switch (*ss1) {
@@ -15314,30 +15314,30 @@ namespace cimg_library_suffixed {
             case 'c' : soff = 11; break; // cM#ind
             }
           if (soff!=~0U) {
-            if (!inputs._width) _cimg_mp_return(0);
+            if (!listin._width) _cimg_mp_return(0);
             if (mem(arg1,1)>0) {
-              if (!inputs_stats) inputs_stats.assign(inputs._width);
-              if (!inputs_stats[ind]) inputs_stats[ind].assign(1,14,1,1,0).fill(inputs[ind].get_stats(),false);
-              _cimg_mp_constant(inputs_stats(ind,soff));
+              if (!list_stats) list_stats.assign(listin._width);
+              if (!list_stats[ind]) list_stats[ind].assign(1,14,1,1,0).fill(listin[ind].get_stats(),false);
+              _cimg_mp_constant(list_stats(ind,soff));
             }
-            _cimg_mp_opcode2(mp_inputs_stats,arg1,soff);
+            _cimg_mp_opcode2(mp_list_stats,arg1,soff);
           }
         }
 
         if (*ss=='w' && *ss1=='h' && *ss2=='d' && *ss3=='#' && ss4<se) {
           arg1 = compile(ss4,se);
-          if (!inputs._width) _cimg_mp_return(0);
-          const unsigned int ind = (unsigned int)(mem(arg1,1)>0?cimg::mod((int)mem[arg1],inputs.width()):0);
-          if (mem(arg1,1)>0) _cimg_mp_constant(inputs[ind]._width*inputs[ind]._height*inputs[ind]._depth);
-          _cimg_mp_opcode1(mp_inputs_whd,arg1);
+          if (!listin._width) _cimg_mp_return(0);
+          const unsigned int ind = (unsigned int)(mem(arg1,1)>0?cimg::mod((int)mem[arg1],listin.width()):0);
+          if (mem(arg1,1)>0) _cimg_mp_constant(listin[ind]._width*listin[ind]._height*listin[ind]._depth);
+          _cimg_mp_opcode1(mp_list_whd,arg1);
         }
         if (*ss=='w' && *ss1=='h' && *ss2=='d' && *ss3=='s' && *ss4=='#' && ss5<se) {
           arg1 = compile(ss5,se);
-          if (!inputs._width) _cimg_mp_return(0);
-          const unsigned int ind = (unsigned int)(mem(arg1,1)>0?cimg::mod((int)mem[arg1],inputs.width()):0);
-          if (mem(arg1,1)>0) _cimg_mp_constant(inputs[ind]._width*inputs[ind]._height*inputs[ind]._depth*
-                                               inputs[ind]._spectrum);
-          _cimg_mp_opcode1(mp_inputs_whds,arg1);
+          if (!listin._width) _cimg_mp_return(0);
+          const unsigned int ind = (unsigned int)(mem(arg1,1)>0?cimg::mod((int)mem[arg1],listin.width()):0);
+          if (mem(arg1,1)>0) _cimg_mp_constant(listin[ind]._width*listin[ind]._height*listin[ind]._depth*
+                                               listin[ind]._spectrum);
+          _cimg_mp_opcode1(mp_list_whds,arg1);
         }
 
         // No known item found, assuming this is an already initialized variable.
@@ -15678,60 +15678,60 @@ namespace cimg_library_suffixed {
         return *(double*)mp.opcode[2] + 1;
       }
 
-      static double mp_inputs_depth(_cimg_math_parser& mp) {
-        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.inputs._width);
-        return (double)mp.inputs[ind]._depth;
+      static double mp_list_depth(_cimg_math_parser& mp) {
+        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.listin._width);
+        return (double)mp.listin[ind]._depth;
       }
 
-      static double mp_inputs_height(_cimg_math_parser& mp) {
-        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.inputs._width);
-        return (double)mp.inputs[ind]._height;
+      static double mp_list_height(_cimg_math_parser& mp) {
+        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.listin._width);
+        return (double)mp.listin[ind]._height;
       }
 
-      static double mp_inputs_is_shared(_cimg_math_parser& mp) {
-        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.inputs._width);
-        return (double)mp.inputs[ind]._is_shared;
+      static double mp_list_is_shared(_cimg_math_parser& mp) {
+        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.listin._width);
+        return (double)mp.listin[ind]._is_shared;
       }
 
-      static double mp_inputs_median(_cimg_math_parser& mp) {
-        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.inputs._width);
-        if (!mp.inputs_median) mp.inputs_median.assign(mp.inputs._width);
-        if (!mp.inputs_median[ind]) CImg<doubleT>::vector(mp.inputs[ind].median()).move_to(mp.inputs_median[ind]);
-        return *mp.inputs_median[ind];
+      static double mp_list_median(_cimg_math_parser& mp) {
+        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.listin._width);
+        if (!mp.list_median) mp.list_median.assign(mp.listin._width);
+        if (!mp.list_median[ind]) CImg<doubleT>::vector(mp.listin[ind].median()).move_to(mp.list_median[ind]);
+        return *mp.list_median[ind];
       }
 
-      static double mp_inputs_spectrum(_cimg_math_parser& mp) {
-        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.inputs._width);
-        return (double)mp.inputs[ind]._spectrum;
+      static double mp_list_spectrum(_cimg_math_parser& mp) {
+        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.listin._width);
+        return (double)mp.listin[ind]._spectrum;
       }
 
-      static double mp_inputs_stats(_cimg_math_parser& mp) {
+      static double mp_list_stats(_cimg_math_parser& mp) {
         const unsigned int
-          ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.inputs._width),
+          ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.listin._width),
           k = *(double*)mp.opcode[3];
-        if (!mp.inputs_stats) mp.inputs_stats.assign(mp.inputs._width);
-        if (!mp.inputs_stats[ind]) mp.inputs_stats[ind].assign(1,14,1,1,0).fill(mp.inputs[ind].get_stats(),false);
-        return mp.inputs_stats(ind,k);
+        if (!mp.list_stats) mp.list_stats.assign(mp.listin._width);
+        if (!mp.list_stats[ind]) mp.list_stats[ind].assign(1,14,1,1,0).fill(mp.listin[ind].get_stats(),false);
+        return mp.list_stats(ind,k);
       }
 
-      static double mp_inputs_wh(_cimg_math_parser& mp) {
-        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.inputs._width);
-        return (double)mp.inputs[ind]._width*mp.inputs[ind]._height;
+      static double mp_list_wh(_cimg_math_parser& mp) {
+        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.listin._width);
+        return (double)mp.listin[ind]._width*mp.listin[ind]._height;
       }
 
-      static double mp_inputs_whd(_cimg_math_parser& mp) {
-        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.inputs._width);
-        return (double)mp.inputs[ind]._width*mp.inputs[ind]._height*mp.inputs[ind]._depth;
+      static double mp_list_whd(_cimg_math_parser& mp) {
+        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.listin._width);
+        return (double)mp.listin[ind]._width*mp.listin[ind]._height*mp.listin[ind]._depth;
       }
 
-      static double mp_inputs_whds(_cimg_math_parser& mp) {
-        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.inputs._width);
-        return (double)mp.inputs[ind]._width*mp.inputs[ind]._height*mp.inputs[ind]._depth*mp.inputs[ind]._spectrum;
+      static double mp_list_whds(_cimg_math_parser& mp) {
+        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.listin._width);
+        return (double)mp.listin[ind]._width*mp.listin[ind]._height*mp.listin[ind]._depth*mp.listin[ind]._spectrum;
       }
 
-      static double mp_inputs_width(_cimg_math_parser& mp) {
-        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.inputs._width);
-        return (double)mp.inputs[ind]._width;
+      static double mp_list_width(_cimg_math_parser& mp) {
+        const unsigned int ind = cimg::mod((unsigned int)*(double*)mp.opcode[2],mp.listin._width);
+        return (double)mp.listin[ind]._width;
       }
 
       static double mp_int(_cimg_math_parser& mp) {

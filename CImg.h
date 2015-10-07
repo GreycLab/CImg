@@ -15513,9 +15513,10 @@ namespace cimg_library_suffixed {
 #else
         const unsigned int n_thread = 0;
 #endif
-        const CImg<char> expr(mp.opcode._height - 3);
+        CImg<char> expr(mp.opcode._height - 3);
         const uptrT *ptrs = mp.opcode._data + 3;
         cimg_for(expr,ptrd,char) *ptrd = (char)*(ptrs++);
+        cimg::strellipsize(expr);
         const uptrT g_target = mp.opcode[1];
         std::fprintf(cimg::output(),
                      "\n[_cimg_math_parser] %p[thread #%u]:%*c"
@@ -16100,9 +16101,10 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_print(_cimg_math_parser& mp) {
-        const CImg<char> expr(mp.opcode._height - 2);
+        CImg<char> expr(mp.opcode._height - 2);
         const uptrT *ptrs = mp.opcode._data + 2;
         cimg_for(expr,ptrd,char) *ptrd = (char)*(ptrs++);
+        cimg::strellipsize(expr);
         const double val = _mp_arg(1);
         std::fprintf(cimg::output(),"\n[_cimg_math_parser] '%s' = %g",expr._data,val);
         std::fflush(cimg::output());

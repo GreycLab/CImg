@@ -29812,36 +29812,104 @@ namespace cimg_library_suffixed {
         \param patch_depth Depth of the patch used for matching.
         \param nb_iterations Number of patch-match iterations.
         \param nb_randoms Number of randomization attempts (per pixel).
-        \param allow_identity If target and instance are the same image,
-         tell if the identity map is allowed as a solution.
-        \param[out] matching_score If not null, returned as the image of matching scores.
+        \param initialization Image used as the initial correspondence estimate for the algorithm.
+        \param[out] matching_score Returned as the image of matching scores.
         \note
         The patch-match algorithm is described in this paper:
         Connelly Barnes, Eli Shechtman, Adam Finkelstein, Dan B Goldman(2009),
         PatchMatch: A Randomized Correspondence Algorithm for Structural Image Editing
     **/
+    template<typename t1, typename t2>
+    CImg<T>& patchmatch(const CImg<T>& target,
+                        const unsigned int patch_width,
+                        const unsigned int patch_height,
+                        const unsigned int patch_depth,
+                        const unsigned int nb_iterations,
+                        const unsigned int nb_randoms,
+                        const CImg<t1> &initialization,
+                        CImg<t2> &matching_score) {
+      return get_patchmatch(target,patch_width,patch_height,patch_depth,
+                            nb_iterations,nb_randoms,initialization,matching_score).move_to(*this);
+    }
+
+    //! Compute correspondence map between two images, using the patch-match algorithm \newinstance.
+    template<typename t1, typename t2>
+    CImg<intT> get_patchmatch(const CImg<T>& target,
+                              const unsigned int patch_width,
+                              const unsigned int patch_height,
+                              const unsigned int patch_depth,
+                              const unsigned int nb_iterations,
+                              const unsigned int nb_randoms,
+                              const CImg<t1> &initialization,
+                              CImg<t2> &matching_score) const {
+      return _get_patchmatch(target,patch_width,patch_height,patch_depth,
+                             nb_iterations,nb_randoms,
+                             initialization,
+                             true,matching_score);
+    }
+
+    //! Compute correspondence map between two images, using the patch-match algorithm \overloading.
+    template<typename t>
+    CImg<T>& patchmatch(const CImg<T>& target,
+                        const unsigned int patch_width,
+                        const unsigned int patch_height,
+                        const unsigned int patch_depth,
+                        const unsigned int nb_iterations,
+                        const unsigned int nb_randoms,
+                        const CImg<t> &initialization) {
+      return get_patchmatch(target,patch_width,patch_height,patch_depth,
+                            nb_iterations,nb_randoms,initialization).move_to(*this);
+    }
+
+    //! Compute correspondence map between two images, using the patch-match algorithm \overloading.
+    template<typename t>
+    CImg<intT> get_patchmatch(const CImg<T>& target,
+                              const unsigned int patch_width,
+                              const unsigned int patch_height,
+                              const unsigned int patch_depth,
+                              const unsigned int nb_iterations,
+                              const unsigned int nb_randoms,
+                              const CImg<t> &initialization) const {
+      return _get_patchmatch(target,patch_width,patch_height,patch_depth,
+                             nb_iterations,nb_randoms,
+                             initialization,
+                             false,CImg<T>::empty());
+    }
+
+    //! Compute correspondence map between two images, using the patch-match algorithm \overloading.
     CImg<T>& patchmatch(const CImg<T>& target,
                         const unsigned int patch_width,
                         const unsigned int patch_height,
                         const unsigned int patch_depth=1,
                         const unsigned int nb_iterations=5,
-                        const unsigned int nb_randoms=5,
-                        const bool allow_identity=true,
-                        CImg<floatT> *const matching_score=0) {
+                        const unsigned int nb_randoms=5) {
       return get_patchmatch(target,patch_width,patch_height,patch_depth,
-                            nb_iterations,nb_randoms,matching_score,allow_identity).move_to(*this);
+                            nb_iterations,nb_randoms).move_to(*this);
     }
 
-    //! Compute correspondence map between two images, using the patch-match algorithm \newinstance
+    //! Compute correspondence map between two images, using the patch-match algorithm \overloading.
     CImg<intT> get_patchmatch(const CImg<T>& target,
                               const unsigned int patch_width,
                               const unsigned int patch_height,
-                              const unsigned int patch_depth,
+                              const unsigned int patch_depth=1,
                               const unsigned int nb_iterations=5,
-                              const unsigned int nb_randoms=5,
-                              const bool allow_identity=true,
-                              CImg<floatT> *const matching_score=0) const {
+                              const unsigned int nb_randoms=5) const {
+      return _get_patchmatch(target,patch_width,patch_height,patch_depth,
+                             nb_iterations,nb_randoms,
+                             CImg<T>::const_empty(),
+                             false,CImg<T>::empty());
+    }
 
+    template<typename t1, typename t2>
+    CImg<intT> _get_patchmatch(const CImg<T>& target,
+                               const unsigned int patch_width,
+                               const unsigned int patch_height,
+                               const unsigned int patch_depth,
+                               const unsigned int nb_iterations,
+                               const unsigned int nb_randoms,
+                               const CImg<t1> &initialization,
+                               const bool is_matching_score,
+                               CImg<t2> &matching_score) const {
       if (is_empty()) return CImg<intT>::const_empty();
       if (target._spectrum!=_spectrum)
         throw CImgArgumentException(_cimg_instance
@@ -29860,6 +29928,16 @@ namespace cimg_library_suffixed {
                                     "of the target image (%u,%u,%u,%u,%p).",
                                     cimg_instance,patch_width,patch_height,patch_depth,
                                     target._width,target._height,target._depth,target._spectrum,target._data);
+      if (initialization &&
+          (initialization._width!=_width || initialization._height!=_height ||
+           initialization._depth!=_depth || initialization._spectrum!=(target._depth>1?3:2)))
+        throw CImgArgumentException(_cimg_instance
+                                    "patchmatch(): Specified initialization (%u,%u,%u,%u,%p) has invalid dimensions "
+                                    "considering instance and target image (%u,%u,%u,%u,%p).",
+                                    cimg_instance,
+                                    initialization._width,initialization._height,initialization._depth,
+                                    initialization._spectrum,initialization._data,
+                                    target._width,target._height,target._depth,target._spectrum,target._data);
 
       CImg<intT> map(_width,_height,_depth,target._depth>1?3:2);
       CImg<floatT> score(_width,_height,_depth);
@@ -29871,21 +29949,35 @@ namespace cimg_library_suffixed {
       if (_depth>1 || target._depth>1) { // 3d version.
 
         // Initialize correspondence map.
-        cimg_forXYZ(*this,x,y,z) {
-          const int
-            cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
-            cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
-            cz1 = z<=psized1?z:(z<depth() - psized2?psized1:psized + z - depth()), cz2 = psized - cz1 - 1,
-            u = (int)cimg::round(cimg::rand(cx1,target.width() - 1 - cx2)),
-            v = (int)cimg::round(cimg::rand(cy1,target.height() - 1 - cy2)),
-            w = (int)cimg::round(cimg::rand(cz1,target.depth() - 1 - cz2));
-          map(x,y,z,0) = u;
-          map(x,y,z,1) = v;
-          map(x,y,z,2) = w;
-          score(x,y,z) = _patchmatch(*this,target,patch_width,patch_height,patch_depth,
-                                     x - cx1,y - cy1,z - cz1,
-                                     u - cx1,v - cy1,w - cz1,cimg::type<float>::inf());
-        }
+        if (initialization) cimg_forXYZ(*this,x,y,z) { // User-defined initialization.
+            const int
+              cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
+              cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
+              cz1 = z<=psized1?z:(z<depth() - psized2?psized1:psized + z - depth()), cz2 = psized - cz1 - 1,
+              u = cimg::min(cimg::max((int)initialization(x,y,z,0),cx1),target.width() - 1 - cx2),
+              v = cimg::min(cimg::max((int)initialization(x,y,z,1),cy1),target.height() - 1 - cy2),
+              w = cimg::min(cimg::max((int)initialization(x,y,z,2),cz1),target.depth() - 1 - cz2);
+            map(x,y,z,0) = u;
+            map(x,y,z,1) = v;
+            map(x,y,z,2) = w;
+            score(x,y,z) = _patchmatch(*this,target,patch_width,patch_height,patch_depth,
+                                       x - cx1,y - cy1,z - cz1,
+                                       u - cx1,v - cy1,w - cz1,cimg::type<float>::inf());
+          } else cimg_forXYZ(*this,x,y,z) { // Random initialization.
+            const int
+              cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
+              cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
+              cz1 = z<=psized1?z:(z<depth() - psized2?psized1:psized + z - depth()), cz2 = psized - cz1 - 1,
+              u = (int)cimg::round(cimg::rand(cx1,target.width() - 1 - cx2)),
+              v = (int)cimg::round(cimg::rand(cy1,target.height() - 1 - cy2)),
+              w = (int)cimg::round(cimg::rand(cz1,target.depth() - 1 - cz2));
+            map(x,y,z,0) = u;
+            map(x,y,z,1) = v;
+            map(x,y,z,2) = w;
+            score(x,y,z) = _patchmatch(*this,target,patch_width,patch_height,patch_depth,
+                                       x - cx1,y - cy1,z - cz1,
+                                       u - cx1,v - cy1,w - cz1,cimg::type<float>::inf());
+          }
 
         // Start iteration loop.
         for (unsigned int iter = 0; iter<nb_iterations; ++iter) {
@@ -29911,8 +30003,7 @@ namespace cimg_library_suffixed {
             if (is_even) {
               if (x>0) { // Compare with left neighbor.
                 const int u = map(x - 1,y,z,0), v = map(x - 1,y,z,1), w = map(x - 1,y,z,2);
-                if ((allow_identity || (u!=x - 1 && v!=y && w!=z)) &&
-                    u>=cx1 - 1 && u<target.width() - 1 - cx2 &&
+                if (u>=cx1 - 1 && u<target.width() - 1 - cx2 &&
                     v>=cy1 && v<target.height() - cy2 &&
                     w>=cz1 && w<target.depth() - cz2) {
                   const float
@@ -29924,8 +30015,7 @@ namespace cimg_library_suffixed {
               }
               if (y>0) { // Compare with up neighbor.
                 const int u = map(x,y - 1,z,0), v = map(x,y - 1,z,1), w = map(x,y - 1,z,2);
-                if ((allow_identity || (u!=x && v!=y - 1 && w!=z)) &&
-                    u>=cx1 && u<target.width() - cx2 &&
+                if (u>=cx1 && u<target.width() - cx2 &&
                     v>=cy1 - 1 && v<target.height() - 1 - cy2 &&
                     w>=cz1 && w<target.depth() - cx2) {
                   const float
@@ -29937,8 +30027,7 @@ namespace cimg_library_suffixed {
               }
               if (z>0) { // Compare with backward neighbor.
                 const int u = map(x,y,z - 1,0), v = map(x,y,z - 1,1), w = map(x,y,z - 1,2);
-                if ((allow_identity || (u!=x && v!=y && w!=z - 1)) &&
-                    u>=cx1 && u<target.width() - cx2 &&
+                if (u>=cx1 && u<target.width() - cx2 &&
                     v>=cy1 && v<target.height() - cy2 &&
                     w>=cz1 - 1 && w<target.depth() - 1 - cz2) {
                   const float
@@ -29951,8 +30040,7 @@ namespace cimg_library_suffixed {
             } else {
               if (x<width() - 1) { // Compare with right neighbor.
                 const int u = map(x + 1,y,z,0), v = map(x + 1,y,z,1), w = map(x + 1,y,z,2);
-                if ((allow_identity || (u!=x + 1 && v!=y && w!=z)) &&
-                    u>=cx1 + 1 && u<target.width() + 1 - cx2 &&
+                if (u>=cx1 + 1 && u<target.width() + 1 - cx2 &&
                     v>=cy1 && v<target.height() - cy2 &&
                     w>=cz1 && w<target.depth() - cz2) {
                   const float
@@ -29964,8 +30052,7 @@ namespace cimg_library_suffixed {
               }
               if (y<height() - 1) { // Compare with bottom neighbor.
                 const int u = map(x,y + 1,z,0), v = map(x,y + 1,z,1), w = map(x,y + 1,z,2);
-                if ((allow_identity || (u!=x && v!=y + 1 && w!=z)) &&
-                    u>=cx1 && u<target.width() - cx2 &&
+                if (u>=cx1 && u<target.width() - cx2 &&
                     v>=cy1 + 1 && v<target.height() + 1 - cy2 &&
                     w>=cz1 && w<target.depth() - cz2) {
                   const float
@@ -29977,8 +30064,7 @@ namespace cimg_library_suffixed {
               }
               if (z<depth() - 1) { // Compare with forward neighbor.
                 const int u = map(x,y,z + 1,0), v = map(x,y,z + 1,1), w = map(x,y,z + 1,2);
-                if ((allow_identity || (u!=x && v!=y && w!=z + 1)) &&
-                    u>=cx1 && u<target.width() - cx2 &&
+                if (u>=cx1 && u<target.width() - cx2 &&
                     v>=cy1 && v<target.height() - cy2 &&
                     w>=cz1 + 1 && w<target.depth() + 1 - cz2) {
                   const float
@@ -29998,13 +30084,13 @@ namespace cimg_library_suffixed {
                 ui = (int)cimg::round(cimg::rand(cimg::max(cx1,u - dw),cimg::min(target.width() - 1 - cx2,u + dw))),
                 vi = (int)cimg::round(cimg::rand(cimg::max(cy1,v - dh),cimg::min(target.height() - 1 - cy2,v + dh))),
                 wi = (int)cimg::round(cimg::rand(cimg::max(cz1,w - dd),cimg::min(target.depth() - 1 - cz2,w + dd)));
-              if (allow_identity || (ui!=x && vi!=y && wi!=z)) {
+              if (ui!=u || vi!=v || wi!=w) {
                 const float
                   current_score = score(x,y,z),
                   D = _patchmatch(*this,target,patch_width,patch_height,patch_depth,
                                   xp,yp,zp,ui - cx1,vi - cy1,wi - cz1,current_score);
                 if (D<current_score) { score(x,y,z) = D; map(x,y,z,0) = ui; map(x,y,z,1) = vi; map(x,y,z,2) = wi; }
-                dw*=0.5; dh*=0.5; dd*=0.5;
+                dw = cimg::max(5.0f,dw*0.5); dh = cimg::max(5.0f,dh*0.5); dd = cimg::max(5.0f,dd*0.5);
               }
             }
           }
@@ -30013,17 +30099,27 @@ namespace cimg_library_suffixed {
       } else { // 2d version.
 
         // Initialize correspondence map.
-        cimg_forXY(*this,x,y) {
-          const int
-            cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
-            cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()) , cy2 = psizeh - cy1 - 1,
-            u = (int)cimg::round(cimg::rand(cx1,target.width() - 1 - cx2)),
-            v = (int)cimg::round(cimg::rand(cy1,target.height() - 1 - cy2));
-          map(x,y,0) = u;
-          map(x,y,1) = v;
-          score(x,y) = _patchmatch(*this,target,patch_width,patch_height,
-                                   x - cx1,y - cy1,u - cx1,v - cy1,cimg::type<float>::inf());
-        }
+        if (initialization) cimg_forXY(*this,x,y) { // Random initialization.
+            const int
+              cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
+              cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()) , cy2 = psizeh - cy1 - 1,
+              u = cimg::min(cimg::max((int)initialization(x,y,0),cx1),target.width() - 1 - cx2),
+              v = cimg::min(cimg::max((int)initialization(x,y,1),cy1),target.height() - 1 - cy2);
+            map(x,y,0) = u;
+            map(x,y,1) = v;
+            score(x,y) = _patchmatch(*this,target,patch_width,patch_height,
+                                     x - cx1,y - cy1,u - cx1,v - cy1,cimg::type<float>::inf());
+          } else cimg_forXY(*this,x,y) { // Random initialization.
+            const int
+              cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
+              cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()) , cy2 = psizeh - cy1 - 1,
+              u = (int)cimg::round(cimg::rand(cx1,target.width() - 1 - cx2)),
+              v = (int)cimg::round(cimg::rand(cy1,target.height() - 1 - cy2));
+            map(x,y,0) = u;
+            map(x,y,1) = v;
+            score(x,y) = _patchmatch(*this,target,patch_width,patch_height,
+                                     x - cx1,y - cy1,u - cx1,v - cy1,cimg::type<float>::inf());
+          }
 
         // Start iteration loop.
         for (unsigned int iter = 0; iter<nb_iterations; ++iter) {
@@ -30046,8 +30142,7 @@ namespace cimg_library_suffixed {
             if (is_even) {
               if (x>0) { // Compare with left neighbor.
                 const int u = map(x - 1,y,0), v = map(x - 1,y,1);
-                if ((allow_identity || (u!=x - 1 && v!=y)) &&
-                    u>=cx1 - 1 && u<target.width() - 1 - cx2 &&
+                if (u>=cx1 - 1 && u<target.width() - 1 - cx2 &&
                     v>=cy1 && v<target.height() - cy2) {
                   const float
                     current_score = score(x,y),
@@ -30058,8 +30153,7 @@ namespace cimg_library_suffixed {
               }
               if (y>0) { // Compare with up neighbor.
                 const int u = map(x,y - 1,0), v = map(x,y - 1,1);
-                if ((allow_identity || (u!=x && v!=y - 1)) &&
-                    u>=cx1 && u<target.width() - cx2 &&
+                if (u>=cx1 && u<target.width() - cx2 &&
                     v>=cy1 - 1 && v<target.height() - 1 - cy2) {
                   const float
                     current_score = score(x,y),
@@ -30071,8 +30165,7 @@ namespace cimg_library_suffixed {
             } else {
               if (x<width() - 1) { // Compare with right neighbor.
                 const int u = map(x + 1,y,0), v = map(x + 1,y,1);
-                if ((allow_identity || (u!=x + 1 && v!=y)) &&
-                    u>=cx1 + 1 && u<target.width() + 1 - cx2 &&
+                if (u>=cx1 + 1 && u<target.width() + 1 - cx2 &&
                     v>=cy1 && v<target.height() - cy2) {
                   const float
                     current_score = score(x,y),
@@ -30083,8 +30176,7 @@ namespace cimg_library_suffixed {
               }
               if (y<height() - 1) { // Compare with bottom neighbor.
                 const int u = map(x,y + 1,0), v = map(x,y + 1,1);
-                if ((allow_identity || (u!=x && v!=y + 1)) &&
-                    u>=cx1 && u<target.width() - cx2 &&
+                if (u>=cx1 && u<target.width() - cx2 &&
                     v>=cy1 + 1 && v<target.height() + 1 - cy2) {
                   const float
                     current_score = score(x,y),
@@ -30102,19 +30194,19 @@ namespace cimg_library_suffixed {
               const int
                 ui = (int)cimg::round(cimg::rand(cimg::max(cx1,u - dw),cimg::min(target.width() - 1 - cx2,u + dw))),
                 vi = (int)cimg::round(cimg::rand(cimg::max(cy1,v - dh),cimg::min(target.height() - 1 - cy2,v + dh)));
-              if (allow_identity || (ui!=x && vi!=y)) {
+              if (ui!=u || vi!=v) {
                 const float
                   current_score = score(x,y),
                   D = _patchmatch(*this,target,patch_width,patch_height,
                                   xp,yp,ui - cx1,vi - cy1,current_score);
                 if (D<current_score) { score(x,y) = D; map(x,y,0) = ui; map(x,y,1) = vi; }
-                dw*=0.5; dh*=0.5;
+                dw = cimg::max(5.0f,dw*0.5); dh = cimg::max(5.0f,dh*0.5);
               }
             }
           }
         }
       }
-      if (matching_score) score.move_to(*matching_score);
+      if (is_matching_score) score.move_to(matching_score);
       return map;
     }
 

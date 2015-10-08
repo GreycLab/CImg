@@ -40324,8 +40324,7 @@ namespace cimg_library_suffixed {
       else CImg<Tuchar>(crop,false).move_to(img2d);
 
       // Check for inf and nan values.
-      if (cimg::type<T>::is_float() && disp._normalization &&
-          (disp._normalization!=3 || cimg::type<T>::string()!=cimg::type<unsigned char>::string())) {
+      if (cimg::type<T>::is_float() && normalization) {
         bool is_inf = false, is_nan = false;
         cimg_for(img2d,ptr,Tuchar)
           if (cimg::type<T>::is_inf(*ptr)) { is_inf = true; break; }

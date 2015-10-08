@@ -29813,6 +29813,8 @@ namespace cimg_library_suffixed {
         \param nb_iterations Number of patch-match iterations.
         \param nb_randoms Number of randomization attempts (per pixel).
         \param initialization Image used as the initial correspondence estimate for the algorithm.
+          'initialization' may have a last channel with boolean values (0=false | other=true) that
+          tells for each pixel if its correspondence vector is constrained to its initial value (constraint mask).
         \param[out] matching_score Returned as the image of matching scores.
         \note
         The patch-match algorithm is described in this paper:
@@ -29928,9 +29930,13 @@ namespace cimg_library_suffixed {
                                     "of the target image (%u,%u,%u,%u,%p).",
                                     cimg_instance,patch_width,patch_height,patch_depth,
                                     target._width,target._height,target._depth,target._spectrum,target._data);
+      const unsigned int
+        _constraint = target._depth>1?3:2,
+        constraint = initialization._spectrum>_constraint?_constraint:0;
+
       if (initialization &&
           (initialization._width!=_width || initialization._height!=_height ||
-           initialization._depth!=_depth || initialization._spectrum!=(target._depth>1?3:2)))
+           initialization._depth!=_depth || initialization._spectrum<_constraint))
         throw CImgArgumentException(_cimg_instance
                                     "patchmatch(): Specified initialization (%u,%u,%u,%u,%p) has invalid dimensions "
                                     "considering instance and target image (%u,%u,%u,%u,%p).",
@@ -29938,6 +29944,7 @@ namespace cimg_library_suffixed {
                                     initialization._width,initialization._height,initialization._depth,
                                     initialization._spectrum,initialization._data,
                                     target._width,target._height,target._depth,target._spectrum,target._data);
+
 
       CImg<intT> map(_width,_height,_depth,target._depth>1?3:2);
       CImg<floatT> score(_width,_height,_depth);
@@ -29990,7 +29997,7 @@ namespace cimg_library_suffixed {
               x = is_even?X:width() - 1 - X,
               y = is_even?Y:height() - 1 - Y,
               z = is_even?Z:depth() - 1 - Z;
-            if (score(x,y,z)<=1e-5) continue;
+            if (score(x,y,z)<=1e-5 || (constraint && initialization(x,y,z,constraint)!=0)) continue;
             const int
               cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
               cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
@@ -30131,7 +30138,7 @@ namespace cimg_library_suffixed {
             const int
               x = is_even?X:width() - 1 - X,
               y = is_even?Y:height() - 1 - Y;
-            if (score(x,y)<=1e-5) continue;
+            if (score(x,y)<=1e-5 || (constraint && initialization(x,y,constraint)!=0)) continue;
             const int
               cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
               cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()) , cy2 = psizeh - cy1 - 1,

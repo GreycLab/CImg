@@ -29491,15 +29491,15 @@ namespace cimg_library_suffixed {
        \param nb_scales Number of scales used to estimate the displacement field.
        \param iteration_max Maximum number of iterations allowed for one scale.
        \param is_backward If false, match I2(X + U(X)) = I1(X), else match I2(X) = I1(X - U(X)).
-       \param initialization Image used as the initial correspondence estimate for the algorithm.
-       'initialization' may have a last channel with boolean values (0=false | other=true) that
+       \param guide Image used as the initial correspondence estimate for the algorithm.
+       'guide' may have a last channel with boolean values (0=false | other=true) that
        tells for each pixel if its correspondence vector is constrained to its initial value (constraint mask).
     **/
     CImg<T>& displacement(const CImg<T>& source, const float smoothness=0.1f, const float precision=5.0f,
                           const unsigned int nb_scales=0, const unsigned int iteration_max=10000,
                           const bool is_backward=false,
-                          const CImg<floatT>& initialization=CImg<floatT>::const_empty()) {
-      return get_displacement(source,smoothness,precision,nb_scales,iteration_max,is_backward,initialization).
+                          const CImg<floatT>& guide=CImg<floatT>::const_empty()) {
+      return get_displacement(source,smoothness,precision,nb_scales,iteration_max,is_backward,guide).
         move_to(*this);
     }
 
@@ -29508,7 +29508,7 @@ namespace cimg_library_suffixed {
                                   const float smoothness=0.1f, const float precision=5.0f,
                                   const unsigned int nb_scales=0, const unsigned int iteration_max=10000,
                                   const bool is_backward=false,
-                                  const CImg<floatT>& initialization=CImg<floatT>::const_empty()) const {
+                                  const CImg<floatT>& guide=CImg<floatT>::const_empty()) const {
       if (is_empty() || !source) return +*this;
       if (!is_sameXYZC(source))
         throw CImgArgumentException(_cimg_instance
@@ -29526,16 +29526,13 @@ namespace cimg_library_suffixed {
       const bool is_3d = source._depth>1;
       const unsigned int constraint = is_3d?3:2;
 
-      if (initialization &&
-          (initialization._width!=_width || initialization._height!=_height ||
-           initialization._depth!=_depth || initialization._spectrum<constraint))
+      if (guide &&
+          (guide._width!=_width || guide._height!=_height || guide._depth!=_depth || guide._spectrum<constraint))
         throw CImgArgumentException(_cimg_instance
-                                    "displacement(): Specified initialization (%u,%u,%u,%u,%p) "
+                                    "displacement(): Specified guide (%u,%u,%u,%u,%p) "
                                     "has invalid dimensions.",
                                     cimg_instance,
-                                    initialization._width,initialization._height,
-                                    initialization._depth,initialization._spectrum,
-                                    initialization._data);
+                                    guide._width,guide._height,guide._depth,guide._spectrum,guide._data);
 
       const unsigned int
         mins = is_3d?cimg::min(_width,_height,_depth):cimg::min(_width,_height),
@@ -29558,11 +29555,11 @@ namespace cimg_library_suffixed {
         const CImg<Tfloat>
           I1 = (source.get_resize(sw,sh,sd,-100,2)-=sm)/=sdelta,
           I2 = (get_resize(I1,2)-=tm)/=tdelta;
-        if (initialization._spectrum>constraint) initialization.get_resize(I2._width,I2._height,I2._depth,-100,1).move_to(V);
+        if (guide._spectrum>constraint) guide.get_resize(I2._width,I2._height,I2._depth,-100,1).move_to(V);
         if (U) (U*=1.5f).resize(I2._width,I2._height,I2._depth,-100,3);
         else {
-          if (initialization) initialization.get_shared_channels(0,is_3d?2:1).
-                                get_resize(I2._width,I2._height,I2._depth,-100,2).move_to(U);
+          if (guide)
+            guide.get_shared_channels(0,is_3d?2:1).get_resize(I2._width,I2._height,I2._depth,-100,2).move_to(U);
           else U.assign(I2._width,I2._height,I2._depth,is_3d?3:2,0);
         }
 
@@ -29619,6 +29616,11 @@ namespace cimg_library_suffixed {
                   }
                   _energy+=delta_I*delta_I + smoothness*_energy_regul;
                 }
+                if (V) cimg_forXYZ(V,x,y,z) if (V(x,y,z,3)) { // Apply constraints.
+                    U(x,y,z,0) = V(x,y,z,0)/factor;
+                    U(x,y,z,1) = V(x,y,z,1)/factor;
+                    U(x,y,z,2) = V(x,y,z,2)/factor;
+                  }
               } else { // Anisotropic regularization.
               const float nsmoothness = -smoothness;
 #ifdef cimg_use_openmp
@@ -29681,9 +29683,9 @@ namespace cimg_library_suffixed {
                   _energy+=delta_I*delta_I + nsmoothness*_energy_regul;
                 }
                 if (V) cimg_forXYZ(V,x,y,z) if (V(x,y,z,3)) { // Apply constraints.
-                    U(x,y,z,0) = V(x,y,z,0);
-                    U(x,y,z,1) = V(x,y,z,1);
-                    U(x,y,z,2) = V(x,y,z,2);
+                    U(x,y,z,0) = V(x,y,z,0)/factor;
+                    U(x,y,z,1) = V(x,y,z,1)/factor;
+                    U(x,y,z,2) = V(x,y,z,2)/factor;
                   }
               }
             }
@@ -29724,6 +29726,10 @@ namespace cimg_library_suffixed {
                   }
                   _energy+=delta_I*delta_I + smoothness*_energy_regul;
                 }
+                if (V) cimg_forX(V,x) if (V(x,y,2)) { // Apply constraints.
+                    U(x,y,0) = V(x,y,0)/factor;
+                    U(x,y,1) = V(x,y,1)/factor;
+                  }
               } else { // Anisotropic regularization.
               const float nsmoothness = -smoothness;
 #ifdef cimg_use_openmp
@@ -29770,8 +29776,8 @@ namespace cimg_library_suffixed {
                   _energy+=delta_I*delta_I + nsmoothness*_energy_regul;
                 }
                 if (V) cimg_forX(V,x) if (V(x,y,2)) { // Apply constraints.
-                    U(x,y,0) = V(x,y,0);
-                    U(x,y,1) = V(x,y,1);
+                    U(x,y,0) = V(x,y,0)/factor;
+                    U(x,y,1) = V(x,y,1)/factor;
                   }
               }
             }
@@ -29793,8 +29799,8 @@ namespace cimg_library_suffixed {
         \param patch_depth Depth of the patch used for matching.
         \param nb_iterations Number of patch-match iterations.
         \param nb_randoms Number of randomization attempts (per pixel).
-        \param initialization Image used as the initial correspondence estimate for the algorithm.
-          'initialization' may have a last channel with boolean values (0=false | other=true) that
+        \param guide Image used as the initial correspondence estimate for the algorithm.
+          'guide' may have a last channel with boolean values (0=false | other=true) that
           tells for each pixel if its correspondence vector is constrained to its initial value (constraint mask).
         \param[out] matching_score Returned as the image of matching scores.
         \note
@@ -29809,10 +29815,10 @@ namespace cimg_library_suffixed {
                         const unsigned int patch_depth,
                         const unsigned int nb_iterations,
                         const unsigned int nb_randoms,
-                        const CImg<t1> &initialization,
+                        const CImg<t1> &guide,
                         CImg<t2> &matching_score) {
       return get_patchmatch(patch_image,patch_width,patch_height,patch_depth,
-                            nb_iterations,nb_randoms,initialization,matching_score).move_to(*this);
+                            nb_iterations,nb_randoms,guide,matching_score).move_to(*this);
     }
 
     //! Compute correspondence map between two images, using the patch-match algorithm \newinstance.
@@ -29823,12 +29829,11 @@ namespace cimg_library_suffixed {
                               const unsigned int patch_depth,
                               const unsigned int nb_iterations,
                               const unsigned int nb_randoms,
-                              const CImg<t1> &initialization,
+                              const CImg<t1> &guide,
                               CImg<t2> &matching_score) const {
       return _get_patchmatch(patch_image,patch_width,patch_height,patch_depth,
                              nb_iterations,nb_randoms,
-                             initialization,
-                             true,matching_score);
+                             guide,true,matching_score);
     }
 
     //! Compute correspondence map between two images, using the patch-match algorithm \overloading.
@@ -29839,9 +29844,9 @@ namespace cimg_library_suffixed {
                         const unsigned int patch_depth,
                         const unsigned int nb_iterations,
                         const unsigned int nb_randoms,
-                        const CImg<t> &initialization) {
+                        const CImg<t> &guide) {
       return get_patchmatch(patch_image,patch_width,patch_height,patch_depth,
-                            nb_iterations,nb_randoms,initialization).move_to(*this);
+                            nb_iterations,nb_randoms,guide).move_to(*this);
     }
 
     //! Compute correspondence map between two images, using the patch-match algorithm \overloading.
@@ -29852,11 +29857,10 @@ namespace cimg_library_suffixed {
                               const unsigned int patch_depth,
                               const unsigned int nb_iterations,
                               const unsigned int nb_randoms,
-                              const CImg<t> &initialization) const {
+                              const CImg<t> &guide) const {
       return _get_patchmatch(patch_image,patch_width,patch_height,patch_depth,
                              nb_iterations,nb_randoms,
-                             initialization,
-                             false,CImg<T>::empty());
+                             guide,false,CImg<T>::empty());
     }
 
     //! Compute correspondence map between two images, using the patch-match algorithm \overloading.
@@ -29890,7 +29894,7 @@ namespace cimg_library_suffixed {
                                const unsigned int patch_depth,
                                const unsigned int nb_iterations,
                                const unsigned int nb_randoms,
-                               const CImg<t1> &initialization,
+                               const CImg<t1> &guide,
                                const bool is_matching_score,
                                CImg<t2> &matching_score) const {
       if (is_empty()) return CImg<intT>::const_empty();
@@ -29915,17 +29919,15 @@ namespace cimg_library_suffixed {
                                     patch_image._data);
       const unsigned int
         _constraint = patch_image._depth>1?3:2,
-        constraint = initialization._spectrum>_constraint?_constraint:0;
+        constraint = guide._spectrum>_constraint?_constraint:0;
 
-      if (initialization &&
-          (initialization._width!=_width || initialization._height!=_height ||
-           initialization._depth!=_depth || initialization._spectrum<_constraint))
+      if (guide &&
+          (guide._width!=_width || guide._height!=_height || guide._depth!=_depth || guide._spectrum<_constraint))
         throw CImgArgumentException(_cimg_instance
-                                    "patchmatch(): Specified initialization (%u,%u,%u,%u,%p) has invalid dimensions "
+                                    "patchmatch(): Specified guide (%u,%u,%u,%u,%p) has invalid dimensions "
                                     "considering instance and patch image image (%u,%u,%u,%u,%p).",
                                     cimg_instance,
-                                    initialization._width,initialization._height,initialization._depth,
-                                    initialization._spectrum,initialization._data,
+                                    guide._width,guide._height,guide._depth,guide._spectrum,guide._data,
                                     patch_image._width,patch_image._height,patch_image._depth,patch_image._spectrum,
                                     patch_image._data);
 
@@ -29939,14 +29941,14 @@ namespace cimg_library_suffixed {
       if (_depth>1 || patch_image._depth>1) { // 3d version.
 
         // Initialize correspondence map.
-        if (initialization) cimg_forXYZ(*this,x,y,z) { // User-defined initialization.
+        if (guide) cimg_forXYZ(*this,x,y,z) { // User-defined initialization.
             const int
               cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
               cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
               cz1 = z<=psized1?z:(z<depth() - psized2?psized1:psized + z - depth()), cz2 = psized - cz1 - 1,
-              u = cimg::min(cimg::max((int)initialization(x,y,z,0),cx1),patch_image.width() - 1 - cx2),
-              v = cimg::min(cimg::max((int)initialization(x,y,z,1),cy1),patch_image.height() - 1 - cy2),
-              w = cimg::min(cimg::max((int)initialization(x,y,z,2),cz1),patch_image.depth() - 1 - cz2);
+              u = cimg::min(cimg::max((int)guide(x,y,z,0),cx1),patch_image.width() - 1 - cx2),
+              v = cimg::min(cimg::max((int)guide(x,y,z,1),cy1),patch_image.height() - 1 - cy2),
+              w = cimg::min(cimg::max((int)guide(x,y,z,2),cz1),patch_image.depth() - 1 - cz2);
             map(x,y,z,0) = u;
             map(x,y,z,1) = v;
             map(x,y,z,2) = w;
@@ -29980,7 +29982,7 @@ namespace cimg_library_suffixed {
               x = is_even?X:width() - 1 - X,
               y = is_even?Y:height() - 1 - Y,
               z = is_even?Z:depth() - 1 - Z;
-            if (score(x,y,z)<=1e-5 || (constraint && initialization(x,y,z,constraint)!=0)) continue;
+            if (score(x,y,z)<=1e-5 || (constraint && guide(x,y,z,constraint)!=0)) continue;
             const int
               cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
               cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
@@ -30092,12 +30094,12 @@ namespace cimg_library_suffixed {
       } else { // 2d version.
 
         // Initialize correspondence map.
-        if (initialization) cimg_forXY(*this,x,y) { // Random initialization.
+        if (guide) cimg_forXY(*this,x,y) { // Random initialization.
             const int
               cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
               cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()) , cy2 = psizeh - cy1 - 1,
-              u = cimg::min(cimg::max((int)initialization(x,y,0),cx1),patch_image.width() - 1 - cx2),
-              v = cimg::min(cimg::max((int)initialization(x,y,1),cy1),patch_image.height() - 1 - cy2);
+              u = cimg::min(cimg::max((int)guide(x,y,0),cx1),patch_image.width() - 1 - cx2),
+              v = cimg::min(cimg::max((int)guide(x,y,1),cy1),patch_image.height() - 1 - cy2);
             map(x,y,0) = u;
             map(x,y,1) = v;
             score(x,y) = _patchmatch(*this,patch_image,patch_width,patch_height,
@@ -30124,7 +30126,7 @@ namespace cimg_library_suffixed {
             const int
               x = is_even?X:width() - 1 - X,
               y = is_even?Y:height() - 1 - Y;
-            if (score(x,y)<=1e-5 || (constraint && initialization(x,y,constraint)!=0)) continue;
+            if (score(x,y)<=1e-5 || (constraint && guide(x,y,constraint)!=0)) continue;
             const int
               cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
               cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()) , cy2 = psizeh - cy1 - 1,

@@ -29491,14 +29491,15 @@ namespace cimg_library_suffixed {
        \param nb_scales Number of scales used to estimate the displacement field.
        \param iteration_max Maximum number of iterations allowed for one scale.
        \param is_backward If false, match I2(X + U(X)) = I1(X), else match I2(X) = I1(X - U(X)).
-       \param constraints A list of constrained pixels (as a Nx4 or Nx6 image), i.e defining N points
-         of the estimated flow having a known value.
+       \param initialization Image used as the initial correspondence estimate for the algorithm.
+       'initialization' may have a last channel with boolean values (0=false | other=true) that
+       tells for each pixel if its correspondence vector is constrained to its initial value (constraint mask).
     **/
     CImg<T>& displacement(const CImg<T>& source, const float smoothness=0.1f, const float precision=5.0f,
                           const unsigned int nb_scales=0, const unsigned int iteration_max=10000,
                           const bool is_backward=false,
-                          const CImg<floatT>& constraints=CImg<floatT>::const_empty()) {
-      return get_displacement(source,smoothness,precision,nb_scales,iteration_max,is_backward,constraints).
+                          const CImg<floatT>& initialization=CImg<floatT>::const_empty()) {
+      return get_displacement(source,smoothness,precision,nb_scales,iteration_max,is_backward,initialization).
         move_to(*this);
     }
 
@@ -29507,7 +29508,7 @@ namespace cimg_library_suffixed {
                                   const float smoothness=0.1f, const float precision=5.0f,
                                   const unsigned int nb_scales=0, const unsigned int iteration_max=10000,
                                   const bool is_backward=false,
-                                  const CImg<floatT>& constraints=CImg<floatT>::const_empty()) const {
+                                  const CImg<floatT>& initialization=CImg<floatT>::const_empty()) const {
       if (is_empty() || !source) return +*this;
       if (!is_sameXYZC(source))
         throw CImgArgumentException(_cimg_instance
@@ -29521,7 +29522,21 @@ namespace cimg_library_suffixed {
                                     "(should be >=0)",
                                     cimg_instance,
                                     precision);
+
       const bool is_3d = source._depth>1;
+      const unsigned int constraint = is_3d?3:2;
+
+      if (initialization &&
+          (initialization._width!=_width || initialization._height!=_height ||
+           initialization._depth!=_depth || initialization._spectrum<constraint))
+        throw CImgArgumentException(_cimg_instance
+                                    "displacement(): Specified initialization (%u,%u,%u,%u,%p) "
+                                    "has invalid dimensions.",
+                                    cimg_instance,
+                                    initialization._width,initialization._height,
+                                    initialization._depth,initialization._spectrum,
+                                    initialization._data);
+
       const unsigned int
         mins = is_3d?cimg::min(_width,_height,_depth):cimg::min(_width,_height),
         _nb_scales = nb_scales>0?nb_scales:
@@ -29531,14 +29546,7 @@ namespace cimg_library_suffixed {
       float sm, sM = source.max_min(sm), tm, tM = max_min(tm);
       const float sdelta = sm==sM?1:(sM - sm), tdelta = tm==tM?1:(tM - tm);
 
-      if (constraints && (constraints.height()!=4 || is_3d) && (constraints.height()!=6 || !is_3d))
-        throw CImgArgumentException(_cimg_instance
-                                    "displacement(): Invalid specified constraints image (%u,%u,%u,%u,%p) "
-                                    " (should be a Nx4 or Nx6 image).",
-                                    cimg_instance,
-                                    constraints._width,constraints._height,constraints._depth,constraints._spectrum,
-                                    constraints._data);
-      CImg<floatT> U;
+      CImg<floatT> U, V;
       floatT bound = 0;
       for (int scale = (int)_nb_scales - 1; scale>=0; --scale) {
         const float factor = (float)std::pow(1.5,(double)scale);
@@ -29550,29 +29558,12 @@ namespace cimg_library_suffixed {
         const CImg<Tfloat>
           I1 = (source.get_resize(sw,sh,sd,-100,2)-=sm)/=sdelta,
           I2 = (get_resize(I1,2)-=tm)/=tdelta;
+        if (initialization._spectrum>constraint) initialization.get_resize(I2._width,I2._height,I2._depth,-100,1).move_to(V);
         if (U) (U*=1.5f).resize(I2._width,I2._height,I2._depth,-100,3);
-        else U.assign(I2._width,I2._height,I2._depth,is_3d?3:2,0);
-        if (constraints) {
-          if (is_3d) cimg_forX(constraints,k) {
-              const int
-                cx = (int)(constraints(k,0)*U.width()/width()),
-                cy = (int)(constraints(k,1)*U.height()/height()),
-                cz = (int)(constraints(k,2)*U.depth()/depth());
-              if (U.contains(U(cx,cy,cz))) {
-                U(cx,cy,cz,0) = (float)(constraints(k,3)/factor);
-                U(cx,cy,cz,1) = (float)(constraints(k,4)/factor);
-                U(cx,cy,cz,2) = (float)(constraints(k,5)/factor);
-              }
-            }
-          else cimg_forX(constraints,k) {
-              const int
-                cx = (int)(constraints(k,0)*U.width()/width()),
-                cy = (int)(constraints(k,1)*U.height()/height());
-              if (U.contains(U(cx,cy))) {
-                U(cx,cy,0) = (float)(constraints(k,2)/factor);
-                U(cx,cy,1) = (float)(constraints(k,3)/factor);
-              }
-            }
+        else {
+          if (initialization) initialization.get_shared_channels(0,is_3d?2:1).
+                                get_resize(I2._width,I2._height,I2._depth,-100,2).move_to(U);
+          else U.assign(I2._width,I2._height,I2._depth,is_3d?3:2,0);
         }
 
         float dt = 2, energy = cimg::type<float>::max();
@@ -29581,6 +29572,7 @@ namespace cimg_library_suffixed {
         for (unsigned int iteration = 0; iteration<iteration_max; ++iteration) {
           cimg_test_abort();
           float _energy = 0;
+
           if (is_3d) { // 3d version.
             if (smoothness>=0) // Isotropic regularization.
 #ifdef cimg_use_openmp
@@ -29688,19 +29680,13 @@ namespace cimg_library_suffixed {
                   }
                   _energy+=delta_I*delta_I + nsmoothness*_energy_regul;
                 }
+                if (V) cimg_forXYZ(V,x,y,z) if (V(x,y,z,3)) { // Apply constraints.
+                    U(x,y,z,0) = V(x,y,z,0);
+                    U(x,y,z,1) = V(x,y,z,1);
+                    U(x,y,z,2) = V(x,y,z,2);
+                  }
               }
             }
-            if (constraints) cimg_forX(constraints,k) {
-                const int
-                  cx = (int)(constraints(k,0)*U.width()/width()),
-                  cy = (int)(constraints(k,1)*U.height()/height()),
-                  cz = (int)(constraints(k,2)*U.depth()/depth());
-                if (U.contains(U(cx,cy,cz))) {
-                  U(cx,cy,cz,0) = (float)(constraints(k,3)/factor);
-                  U(cx,cy,cz,1) = (float)(constraints(k,4)/factor);
-                  U(cx,cy,cz,2) = (float)(constraints(k,5)/factor);
-                }
-              }
           } else { // 2d version.
             if (smoothness>=0) // Isotropic regularization.
 #ifdef cimg_use_openmp
@@ -29783,17 +29769,12 @@ namespace cimg_library_suffixed {
                   }
                   _energy+=delta_I*delta_I + nsmoothness*_energy_regul;
                 }
+                if (V) cimg_forX(V,x) if (V(x,y,2)) { // Apply constraints.
+                    U(x,y,0) = V(x,y,0);
+                    U(x,y,1) = V(x,y,1);
+                  }
               }
             }
-            if (constraints) cimg_forX(constraints,k) {
-                const int
-                  cx = (int)(constraints(k,0)*U.width()/width()),
-                  cy = (int)(constraints(k,1)*U.height()/height());
-                if (U.contains(U(cx,cy))) {
-                  U(cx,cy,0) = (float)(constraints(k,2)/factor);
-                  U(cx,cy,1) = (float)(constraints(k,3)/factor);
-                }
-              }
           }
           const float d_energy = (_energy - energy)/(sw*sh*sd);
           if (d_energy<=0 && -d_energy<_precision) break;

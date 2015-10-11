@@ -212,7 +212,11 @@
 //
 // Define 'cimg_use_vt100' to allow output of color messages on VT100-compatible terminals.
 #ifndef cimg_verbosity
+#if cimg_OS==2
 #define cimg_verbosity 2
+#else
+#define cimg_verbosity 1
+#endif
 #elif !(cimg_verbosity==0 || cimg_verbosity==1 || cimg_verbosity==2 || cimg_verbosity==3 || cimg_verbosity==4)
 #error CImg Library: Configuration variable 'cimg_verbosity' is badly defined.
 #error (should be { 0=quiet | 1=console | 2=dialog | 3=console+warnings | 4=dialog+warnings }).

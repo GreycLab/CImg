@@ -39869,6 +39869,14 @@ namespace cimg_library_suffixed {
         if (!title) disp.set_title("CImg<%s> (%ux%ux%ux%u)",pixel_type(),_width,_height,_depth,_spectrum);
       } else if (title) disp.set_title("%s",title);
 
+      CImg<T> thumb;
+      if (width()>disp.screen_width() || height()>disp.screen_height()) {
+        const int
+          im = cimg::min(width(),height()),
+          dm = cimg::min(disp.screen_width(),disp.screen_height());
+        get_resize(width()*dm/im,height()*dm/im,-100,-100).move_to(thumb);
+      }
+
       const unsigned int old_normalization = disp.normalization();
       bool old_is_resized = disp.is_resized();
       disp._normalization = 0;
@@ -40117,7 +40125,9 @@ namespace cimg_library_suffixed {
         if (mx!=omx || my!=omy || !visu0 || (_depth>1 && !view3d)) {
 
           if (!visu0) { // Create image of projected planes.
-            __get_select(disp,old_normalization,phase?X1:X0,phase?Y1:Y0,phase?Z1:Z0).move_to(visu0).resize(disp);
+            if (thumb) thumb.__get_select(disp,old_normalization,phase?X1:X0,phase?Y1:Y0,phase?Z1:Z0).move_to(visu0);
+            else __get_select(disp,old_normalization,phase?X1:X0,phase?Y1:Y0,phase?Z1:Z0).move_to(visu0);
+            visu0.resize(disp);
             view3d.assign();
             points3d.assign();
           }

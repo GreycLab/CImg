@@ -14023,41 +14023,45 @@ namespace cimg_library_suffixed {
 
         // Init constant values.
         mem.assign(256,2);
-        for (unsigned int i = 0; i<=9; ++i) mem[i] = (double)i;
-        mem[10] = (double)imgin._width;
-        mem[11] = (double)imgin._height;
-        mem[12] = (double)imgin._depth;
-        mem[13] = (double)imgin._spectrum;
-        mem[14] = (double)imgin._is_shared;
-        mem[15] = (double)imgin._width*imgin._height;
-        mem[16] = (double)imgin._width*imgin._height*imgin._depth;
-        mem[17] = (double)imgin._width*imgin._height*imgin._depth*imgin._spectrum;
-        mem[18] = cimg::PI;
-        mem[19] = std::exp(1.0);
+        double *p_mem = mem._data;
+        for (unsigned int i = 0; i<=10; ++i) *(p_mem++) = (double)i;  // mem[0-10]
+        for (unsigned int i = 1; i<=5; ++i) *(p_mem++) = -(double)i;  // mem[11-15]
+        *(p_mem++) = 0.5; // mem[16]
+        *(p_mem++) = 1.5; // mem[17]
+        *(p_mem++) = (double)imgin._width; // mem[18]
+        *(p_mem++) = (double)imgin._height; // mem[19]
+        *(p_mem++) = (double)imgin._depth; // mem[20]
+        *(p_mem++) = (double)imgin._spectrum; // mem[21]
+        *(p_mem++) = (double)imgin._is_shared; // mem[22]
+        *(p_mem++) = (double)imgin._width*imgin._height; // mem[23]
+        *(p_mem++) = (double)imgin._width*imgin._height*imgin._depth; // mem[24]
+        *(p_mem++) = (double)imgin._width*imgin._height*imgin._depth*imgin._spectrum; // mem[25]
+        *(p_mem++) = cimg::PI; // mem[26]
+        *(p_mem++) = std::exp(1.0); // mem[27]
 
         // Set constant/variable property : { 1 = constant | -1 = variable | 0 = other }.
         std::memset(mem.data(0,1),0,sizeof(double)*mem._width);
-        for (unsigned int i = 0; i<20; ++i) mem(i,1) = 1;
+        for (unsigned int i = 0; i<28; ++i) mem(i,1) = 1;
 
-        // Then, [20] = x, [21] = y, [22] = z and [23] = c.
-#define _cimg_mp_x 20
-#define _cimg_mp_y 21
-#define _cimg_mp_z 22
-#define _cimg_mp_c 23
-        mempos = 24;
+        // Then, [28] = x, [29] = y, [30] = z and [31] = c.
+#define _cimg_mp_x 28
+#define _cimg_mp_y 29
+#define _cimg_mp_z 30
+#define _cimg_mp_c 31
+        mempos = 32;
 
         labelMpos.assign(8);
         reserved_label.assign(128,1,1,1,~0U);
-        reserved_label['w'] = 10;
-        reserved_label['h'] = 11;
-        reserved_label['d'] = 12;
-        reserved_label['s'] = 13;
-        reserved_label['r'] = 14;
-        reserved_label[0] = 15; // wh
-        reserved_label[1] = 16; // whd
-        reserved_label[2] = 17; // whds
-        reserved_label[3] = 18; // pi
-        reserved_label['e'] = 19;
+        reserved_label['w'] = 18;
+        reserved_label['h'] = 19;
+        reserved_label['d'] = 20;
+        reserved_label['s'] = 21;
+        reserved_label['r'] = 22;
+        reserved_label[0] = 23; // wh
+        reserved_label[1] = 24; // whd
+        reserved_label[2] = 25; // whds
+        reserved_label[3] = 26; // pi
+        reserved_label['e'] = 27;
         reserved_label['x'] = _cimg_mp_x;
         reserved_label['y'] = _cimg_mp_y;
         reserved_label['z'] = _cimg_mp_z;
@@ -15358,7 +15362,12 @@ namespace cimg_library_suffixed {
 
       // Insert constant value in memory.
       unsigned int constant(const double val) {
-        if (val==(double)(int)val && val>=0 && val<=9) return (unsigned int)val;
+        if (val==(double)(int)val) {
+          if (val>=0 && val<=9) return (unsigned int)val;
+          if (val<0 && val>=-5) return (unsigned int)(10 - val);
+        }
+        if (val==0.5) return 16;
+        if (val==1.5) return 17;
         if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
         const unsigned int pos = mempos++;
         mem[pos] = val; mem(pos,1) = 1; // Set constant property.

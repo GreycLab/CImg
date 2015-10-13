@@ -13954,8 +13954,8 @@ namespace cimg_library_suffixed {
     struct _cimg_math_parser {
       CImg<doubleT> mem;
       CImgList<uptrT> _code, &code;
-      CImg<uptrT> *p_code_end, opcode;
-      const CImg<uptrT>* p_code;
+      CImg<uptrT> opcode;
+      const CImg<uptrT> *p_code_end, *p_code;
 
       CImg<charT> expr;
       const CImg<T>& imgin;

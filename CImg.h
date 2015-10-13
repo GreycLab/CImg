@@ -14041,7 +14041,7 @@ namespace cimg_library_suffixed {
 
         // Set constant/variable property : { 1 = constant | -1 = variable | 0 = other }.
         std::memset(mem.data(0,1),0,sizeof(double)*mem._width);
-        for (unsigned int i = 0; i<28; ++i) mem(i,1) = 1;
+        p_mem = mem.data(0,1); for (unsigned int i = 0; i<28; ++i) *(p_mem++) = 1;
 
         // Then, [28] = x, [29] = y, [30] = z and [31] = c.
 #define _cimg_mp_x 28

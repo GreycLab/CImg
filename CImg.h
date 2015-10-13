@@ -15908,8 +15908,8 @@ namespace cimg_library_suffixed {
                                       cimg::mod((int)nz,img.depth()),
                                       cimg::mod((int)nc,img.spectrum()));
           if (boundary_conditions==1)
-            return (double)img.atXYZC(nx,ny,nz,nc);
-          return (double)img.atXYZC(nx,ny,nz,nc,0);
+            return (double)img.atXYZC((int)nx,(int)ny,(int)nz,(int)nc);
+          return (double)img.atXYZC((int)nx,(int)ny,(int)nz,(int)nc,0);
         } else { // Linear interpolation.
           if (boundary_conditions==2)
             return (double)img.linear_atXYZC(cimg::mod((float)nx,(float)img.width()),
@@ -15990,7 +15990,7 @@ namespace cimg_library_suffixed {
       static double mp_list_stats(_cimg_math_parser& mp) {
         const unsigned int
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width()),
-          k = _mp_arg(3);
+          k = (unsigned int)_mp_arg(3);
         if (!mp.list_stats) mp.list_stats.assign(mp.listin._width);
         if (!mp.list_stats[ind]) mp.list_stats[ind].assign(1,14,1,1,0).fill(mp.listin[ind].get_stats(),false);
         return mp.list_stats(ind,k);
@@ -30098,7 +30098,7 @@ namespace cimg_library_suffixed {
                   D = _patchmatch(*this,patch_image,patch_width,patch_height,patch_depth,
                                   xp,yp,zp,ui - cx1,vi - cy1,wi - cz1,current_score);
                 if (D<current_score) { score(x,y,z) = D; map(x,y,z,0) = ui; map(x,y,z,1) = vi; map(x,y,z,2) = wi; }
-                dw = cimg::max(5.0f,dw*0.5); dh = cimg::max(5.0f,dh*0.5); dd = cimg::max(5.0f,dd*0.5);
+                dw = cimg::max(5.0f,dw*0.5f); dh = cimg::max(5.0f,dh*0.5f); dd = cimg::max(5.0f,dd*0.5f);
               }
             }
           }
@@ -30210,7 +30210,7 @@ namespace cimg_library_suffixed {
                   D = _patchmatch(*this,patch_image,patch_width,patch_height,
                                   xp,yp,ui - cx1,vi - cy1,current_score);
                 if (D<current_score) { score(x,y) = D; map(x,y,0) = ui; map(x,y,1) = vi; }
-                dw = cimg::max(5.0f,dw*0.5); dh = cimg::max(5.0f,dh*0.5);
+                dw = cimg::max(5.0f,dw*0.5f); dh = cimg::max(5.0f,dh*0.5f);
               }
             }
           }

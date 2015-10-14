@@ -29996,11 +29996,12 @@ namespace cimg_library_suffixed {
 
         // Start iteration loop.
         for (unsigned int iter = 0; iter<nb_iterations; ++iter) {
+          const bool is_even = !(iter%2);
+
 #ifdef cimg_use_openmp
 #pragma omp parallel for collapse(2) if (_width>64 && iter<nb_iterations-2)
 #endif
           cimg_forXYZ(*this,X,Y,Z) {
-            const bool is_even = !(iter%2);
             const int
               x = is_even?X:width() - 1 - X,
               y = is_even?Y:height() - 1 - Y,
@@ -30141,11 +30142,12 @@ namespace cimg_library_suffixed {
 
         // Start iteration loop.
         for (unsigned int iter = 0; iter<nb_iterations; ++iter) {
+          const bool is_even = !(iter%2);
+
 #ifdef cimg_use_openmp
 #pragma omp parallel for if (_width>64 && iter<nb_iterations-2)
 #endif
           cimg_forXY(*this,X,Y) {
-            const bool is_even = !(iter%2);
             const int
               x = is_even?X:width() - 1 - X,
               y = is_even?Y:height() - 1 - Y;

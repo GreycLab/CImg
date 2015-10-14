@@ -14578,7 +14578,7 @@ namespace cimg_library_suffixed {
             _cimg_mp_opcode2(mp_bitwise_right_shift,arg1,arg2);
           }
 
-        for (ns = se1, s = se2, ps = se3; s>ss; --ns, --s, --ps)
+        for (ns = ss2, s = ss1, ps = ss; s<se1; ++ns, ++s, ++ps)
           if (*s=='+' && (*ns!='+' || ns!=se1) && *ps!='-' && *ps!='+' && *ps!='*' && *ps!='/' && *ps!='%' &&
               *ps!='&' && *ps!='|' && *ps!='^' && *ps!='!' && *ps!='~' && *ps!='#' &&
               (*ps!='e' || !(ps>ss && (*(ps - 1)=='.' || (*(ps - 1)>='0' && *(ps - 1)<='9')))) &&
@@ -14591,7 +14591,7 @@ namespace cimg_library_suffixed {
             _cimg_mp_opcode2(mp_add,arg1,arg2);
           }
 
-        for (ns = se1, s = se2, ps = se3; s>ss; --ns, --s, --ps)
+        for (ns = ss2, s = ss1, ps = ss; s<se1; ++ns, ++s, ++ps)
           if (*s=='-' && (*ns!='-' || ns!=se1) && *ps!='-' && *ps!='+' && *ps!='*' && *ps!='/' && *ps!='%' &&
               *ps!='&' && *ps!='|' && *ps!='^' && *ps!='!' && *ps!='~' && *ps!='#' &&
               (*ps!='e' || !(ps>ss && (*(ps - 1)=='.' || (*(ps - 1)>='0' && *(ps - 1)<='9')))) &&

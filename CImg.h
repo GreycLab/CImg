@@ -14009,6 +14009,15 @@ namespace cimg_library_suffixed {
 
         CImg<charT>::string(expression).move_to(expr);
         level.assign(expr._width - 1);
+
+        char *pe = expr._data; // Remove spaces after operators + and - to avoid ambiguities.
+        for (const char *ps = expr._data; *ps; ++ps) {
+          *(pe++) = *ps;
+          if (*ps=='+' || *ps=='-') { while (*(++ps)==' ') {} --ps; }
+        }
+        *pe = 0;
+        expr._width = (unsigned int)(pe - expr._data + 1);
+
         int lv = 0; // Count parentheses/brackets level of expression.
         unsigned int *pd = level._data;
         for (const char *ps = expr._data; *ps && lv>=0; ++ps)
@@ -14578,7 +14587,6 @@ namespace cimg_library_suffixed {
             _cimg_mp_opcode2(mp_bitwise_right_shift,arg1,arg2);
           }
 
-        //        for (ns = ss2, s = ss1, ps = ss; s<se1; ++ns, ++s, ++ps)
         for (ns = se1, s = se2, ps = se3; s>ss; --ns, --s, --ps)
           if (*s=='+' && (*ns!='+' || ns!=se1) && *ps!='-' && *ps!='+' && *ps!='*' && *ps!='/' && *ps!='%' &&
               *ps!='&' && *ps!='|' && *ps!='^' && *ps!='!' && *ps!='~' && *ps!='#' &&
@@ -14592,7 +14600,6 @@ namespace cimg_library_suffixed {
             _cimg_mp_opcode2(mp_add,arg1,arg2);
           }
 
-        //        for (ns = ss2, s = ss1, ps = ss; s<se1; ++ns, ++s, ++ps)
         for (ns = se1, s = se2, ps = se3; s>ss; --ns, --s, --ps)
           if (*s=='-' && (*ns!='-' || ns!=se1) && *ps!='-' && *ps!='+' && *ps!='*' && *ps!='/' && *ps!='%' &&
               *ps!='&' && *ps!='|' && *ps!='^' && *ps!='!' && *ps!='~' && *ps!='#' &&

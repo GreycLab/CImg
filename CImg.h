@@ -27132,44 +27132,44 @@ namespace cimg_library_suffixed {
 
         // Check labels of the neighbors.
         bool is_same_label = true;
-        unsigned int label = 0;
+        T label = 0;
         if (x - 1>=0) {
           if ((*this)(x - 1,y,z)) {
-            if (!label) label = (unsigned int)(*this)(x - 1,y,z);
+            if (!label) label = (*this)(x - 1,y,z);
             else if (label!=(*this)(x - 1,y,z)) is_same_label = false;
           } else Q._priority_queue_insert(is_queued,sizeQ,priority(x - 1,y,z),x - 1,y,z);
         }
         if (x + 1<width()) {
           if ((*this)(x + 1,y,z)) {
-            if (!label) label = (unsigned int)(*this)(x + 1,y,z);
+            if (!label) label = (*this)(x + 1,y,z);
             else if (label!=(*this)(x + 1,y,z)) is_same_label = false;
           } else Q._priority_queue_insert(is_queued,sizeQ,priority(x + 1,y,z),x + 1,y,z);
         }
         if (y - 1>=0) {
           if ((*this)(x,y - 1,z)) {
-            if (!label) label = (unsigned int)(*this)(x,y - 1,z);
+            if (!label) label = (*this)(x,y - 1,z);
             else if (label!=(*this)(x,y - 1,z)) is_same_label = false;
           } else Q._priority_queue_insert(is_queued,sizeQ,priority(x,y - 1,z),x,y - 1,z);
         }
         if (y + 1<height()) {
           if ((*this)(x,y + 1,z)) {
-            if (!label) label = (unsigned int)(*this)(x,y + 1,z);
+            if (!label) label = (*this)(x,y + 1,z);
             else if (label!=(*this)(x,y + 1,z)) is_same_label = false;
           } else Q._priority_queue_insert(is_queued,sizeQ,priority(x,y + 1,z),x,y + 1,z);
         }
         if (z - 1>=0) {
           if ((*this)(x,y,z - 1)) {
-            if (!label) label = (unsigned int)(*this)(x,y,z - 1);
+            if (!label) label = (*this)(x,y,z - 1);
             else if (label!=(*this)(x,y,z - 1)) is_same_label = false;
           } else Q._priority_queue_insert(is_queued,sizeQ,priority(x,y,z - 1),x,y,z - 1);
         }
         if (z + 1<depth()) {
           if ((*this)(x,y,z + 1)) {
-            if (!label) label = (unsigned int)(*this)(x,y,z + 1);
+            if (!label) label = (*this)(x,y,z + 1);
             else if (label!=(*this)(x,y,z + 1)) is_same_label = false;
           } else Q._priority_queue_insert(is_queued,sizeQ,priority(x,y,z + 1),x,y,z + 1);
         }
-        if (is_same_label) (*this)(x,y,z) = (T)label;
+        if (is_same_label) (*this)(x,y,z) = label;
       }
 
       // Fill lines.

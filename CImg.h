@@ -39880,10 +39880,8 @@ namespace cimg_library_suffixed {
 
       CImg<T> thumb;
       if (width()>disp.screen_width() || height()>disp.screen_height()) {
-        const int
-          im = cimg::min(width(),height()),
-          dm = cimg::min(disp.screen_width(),disp.screen_height());
-        get_resize(width()*dm/im,height()*dm/im,-100,-100).move_to(thumb);
+        const double ratio = cimg::min((double)disp.screen_width()/width(),(double)disp.screen_height()/height());
+        get_resize(cimg::max(1,(int)(ratio*width())),cimg::max(1,(int)(ratio*height())),-100,-100).move_to(thumb);
       }
 
       const unsigned int old_normalization = disp.normalization();

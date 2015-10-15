@@ -13957,7 +13957,7 @@ namespace cimg_library_suffixed {
       CImg<uptrT> opcode;
       const CImg<uptrT> *p_code_end, *p_code;
 
-      CImg<charT> expr;
+      CImg<charT> expr, pexpr;
       const CImg<T>& imgin;
       const CImgList<T>& listin;
       CImg<T> &imgout;
@@ -14010,13 +14010,14 @@ namespace cimg_library_suffixed {
         CImg<charT>::string(expression).move_to(expr);
         level.assign(expr._width - 1);
 
-        char *pe = expr._data; // Remove spaces after operators + and - to avoid ambiguities.
-        for (const char *ps = expr._data; *ps; ++ps) {
-          *(pe++) = *ps;
-          if (*ps=='+' || *ps=='-') { while (*(++ps)==' ') {} --ps; }
+        // Ease the retrieval of previous non-space characters afterwards.
+        pexpr.assign(expr._width);
+        char *pe = pexpr._data;
+        for (char *ps = expr._data, c = ' '; *ps; ++ps) {
+          if (*ps!=' ') c = *ps;
+          *(pe++) = c;
         }
         *pe = 0;
-        expr._width = (unsigned int)(pe - expr._data + 1);
 
         int lv = 0; // Count parentheses/brackets level of expression.
         unsigned int *pd = level._data;
@@ -14090,6 +14091,7 @@ namespace cimg_library_suffixed {
         labelMpos.assign();
         reserved_label.assign();
         expr.assign();
+        pexpr.assign();
         opcode._width = opcode._depth = opcode._spectrum = 1;
         opcode._is_shared = true;
       }
@@ -14587,7 +14589,7 @@ namespace cimg_library_suffixed {
             _cimg_mp_opcode2(mp_bitwise_right_shift,arg1,arg2);
           }
 
-        for (ns = se1, s = se2, ps = se3; s>ss; --ns, --s, --ps)
+        for (ns = se1, s = se2, ps = pexpr._data + (se3 - expr._data); s>ss; --ns, --s, --ps)
           if (*s=='+' && (*ns!='+' || ns!=se1) && *ps!='-' && *ps!='+' && *ps!='*' && *ps!='/' && *ps!='%' &&
               *ps!='&' && *ps!='|' && *ps!='^' && *ps!='!' && *ps!='~' && *ps!='#' &&
               (*ps!='e' || !(ps>ss && (*(ps - 1)=='.' || (*(ps - 1)>='0' && *(ps - 1)<='9')))) &&
@@ -14600,7 +14602,7 @@ namespace cimg_library_suffixed {
             _cimg_mp_opcode2(mp_add,arg1,arg2);
           }
 
-        for (ns = se1, s = se2, ps = se3; s>ss; --ns, --s, --ps)
+        for (ns = se1, s = se2, ps = pexpr._data + (se3 - expr._data); s>ss; --ns, --s, --ps)
           if (*s=='-' && (*ns!='-' || ns!=se1) && *ps!='-' && *ps!='+' && *ps!='*' && *ps!='/' && *ps!='%' &&
               *ps!='&' && *ps!='|' && *ps!='^' && *ps!='!' && *ps!='~' && *ps!='#' &&
               (*ps!='e' || !(ps>ss && (*(ps - 1)=='.' || (*(ps - 1)>='0' && *(ps - 1)<='9')))) &&

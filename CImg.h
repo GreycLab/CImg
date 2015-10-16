@@ -49499,8 +49499,9 @@ namespace cimg_library_suffixed {
        \return A one-column vector containing the selected image indexes.
     **/
     CImg<intT> get_select(CImgDisplay &disp, const bool feature_type=true,
-                          const char axis='x', const float align=0) const {
-      return _get_select(disp,0,feature_type,axis,align,0,false,false,false);
+                          const char axis='x', const float align=0,
+                          const bool exit_on_anykey=false) const {
+      return _get_select(disp,0,feature_type,axis,align,exit_on_anykey,0,false,false,false);
     }
 
     //! Display a simple interactive interface to select images or sublists.
@@ -49512,13 +49513,14 @@ namespace cimg_library_suffixed {
        \return A one-column vector containing the selected image indexes.
     **/
     CImg<intT> get_select(const char *const title, const bool feature_type=true,
-                          const char axis='x', const float align=0) const {
+                          const char axis='x', const float align=0,
+                          const bool exit_on_anykey=false) const {
       CImgDisplay disp;
-      return _get_select(disp,title,feature_type,axis,align,0,false,false,false);
+      return _get_select(disp,title,feature_type,axis,align,exit_on_anykey,0,false,false,false);
     }
 
     CImg<intT> _get_select(CImgDisplay &disp, const char *const title, const bool feature_type,
-                           const char axis, const float align,
+                           const char axis, const float align, const bool exit_on_anykey,
                            const unsigned int orig, const bool resize_disp,
                            const bool exit_on_rightbutton, const bool exit_on_wheel) const {
       if (is_empty())
@@ -49737,6 +49739,7 @@ namespace cimg_library_suffixed {
         if (disp.is_resized()) { disp.resize(false); visu0.assign(); }
         if (ym>=0 && ym<13) { if (!text_down) { visu.assign(); text_down = true; }}
         else if (ym>=visu.height() - 13) { if(text_down) { visu.assign(); text_down = false; }}
+        if (!exit_on_anykey && key!=cimg::keyESC) key = 0;
       }
       CImg<intT> res(1,2,1,1,-1);
       if (is_selected) {
@@ -50934,9 +50937,9 @@ namespace cimg_library_suffixed {
     **/
     const CImgList<T>& display(CImgDisplay &disp, const bool display_info,
                                const char axis='x', const float align=0,
-                               unsigned int *const XYZ=0) const {
+                               unsigned int *const XYZ=0, const bool exit_on_anykey=false) const {
       bool is_exit = false;
-      return _display(disp,0,display_info,axis,align,XYZ,0,true,is_exit);
+      return _display(disp,0,display_info,axis,align,XYZ,exit_on_anykey,0,true,is_exit);
     }
 
     //! Display the current CImgList instance in a new display window.
@@ -50948,15 +50951,16 @@ namespace cimg_library_suffixed {
     **/
     const CImgList<T>& display(const char *const title=0, const bool display_info=true,
                                const char axis='x', const float align=0,
-                               unsigned int *const XYZ=0) const {
+                               unsigned int *const XYZ=0, const bool exit_on_anykey=false) const {
       CImgDisplay disp;
       bool is_exit = false;
-      return _display(disp,title,display_info,axis,align,XYZ,0,true,is_exit);
+      return _display(disp,title,display_info,axis,align,XYZ,exit_on_anykey,0,true,is_exit);
     }
 
     const CImgList<T>& _display(CImgDisplay &disp, const char *const title, const bool display_info,
                                 const char axis, const float align, unsigned int *const XYZ,
-                                const unsigned int orig, const bool is_first_call, bool &is_exit) const {
+                                const bool exit_on_anykey, const unsigned int orig, const bool is_first_call,
+                                bool &is_exit) const {
       if (is_empty())
         throw CImgInstanceException(_cimglist_instance
                                     "display(): Empty instance.",
@@ -51003,7 +51007,7 @@ namespace cimg_library_suffixed {
       } else {
         bool disp_resize = !is_first_call;
         while (!disp.is_closed() && !is_exit) {
-          const CImg<intT> s = _get_select(disp,0,true,axis,align,orig,disp_resize,!is_first_call,true);
+          const CImg<intT> s = _get_select(disp,0,true,axis,align,exit_on_anykey,orig,disp_resize,!is_first_call,true);
           disp_resize = true;
           if (s[0]<0) { // No selections done.
             if (disp.button()&2) { disp.flush(); break; }
@@ -51018,10 +51022,12 @@ namespace cimg_library_suffixed {
                 ind0 = (unsigned int)cimg::max(0,s[0] - (int)delta),
                 ind1 = (unsigned int)cimg::min(width() - 1,s[0] + (int)delta);
               if ((ind0!=0 || ind1!=_width - 1) && ind1 - ind0>=3)
-                get_shared_images(ind0,ind1)._display(disp,0,false,axis,align,XYZ,orig + ind0,false,is_exit);
+                get_shared_images(ind0,ind1)._display(disp,0,false,axis,align,XYZ,exit_on_anykey,
+                                                      orig + ind0,false,is_exit);
             }
           } else if (s[0]!=0 || s[1]!=width() - 1)
-            get_shared_images(s[0],s[1])._display(disp,0,false,axis,align,XYZ,orig + s[0],false,is_exit);
+            get_shared_images(s[0],s[1])._display(disp,0,false,axis,align,XYZ,exit_on_anykey,
+                                                  orig + s[0],false,is_exit);
         }
       }
       return *this;

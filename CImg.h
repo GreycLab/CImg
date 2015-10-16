@@ -40503,7 +40503,8 @@ namespace cimg_library_suffixed {
     CImg<intT> get_select_graph(CImgDisplay &disp,
                                 const unsigned int plot_type=1, const unsigned int vertex_type=1,
                                 const char *const labelx=0, const double xmin=0, const double xmax=0,
-                                const char *const labely=0, const double ymin=0, const double ymax=0) const {
+                                const char *const labely=0, const double ymin=0, const double ymax=0,
+                                const bool exit_on_anykey=false) const {
       if (is_empty())
         throw CImgInstanceException(_cimg_instance
                                     "select_graph(): Empty instance.",
@@ -40740,6 +40741,7 @@ namespace cimg_library_suffixed {
         }
         if (disp.is_resized()) { disp.resize(false); visu0.assign(); }
         if (visu && visu0) disp.wait();
+        if (!exit_on_anykey && okey && okey!=cimg::keyESC) { disp.set_key(key,false); okey = 0; }
       }
 
       disp._normalization = old_normalization;
@@ -44224,11 +44226,12 @@ namespace cimg_library_suffixed {
                                     const bool is_double_sided=true, const float focale=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
                                     const float specular_lightness=0.2f, const float specular_shininess=0.1f,
-                                    const bool display_axes=true, float *const pose_matrix=0) const {
+                                    const bool display_axes=true, float *const pose_matrix=0,
+                                    const bool exit_on_anykey=false) const {
       return _display_object3d(disp,0,vertices,primitives,colors,opacities,centering,render_static,
 			       render_motion,is_double_sided,focale,
                                light_x,light_y,light_z,specular_lightness,specular_shininess,
-			       display_axes,pose_matrix);
+			       display_axes,pose_matrix,exit_on_anykey);
     }
 
     //! Display object 3d in an interactive window \simplification.
@@ -44243,12 +44246,13 @@ namespace cimg_library_suffixed {
                                     const bool is_double_sided=true, const float focale=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
                                     const float specular_lightness=0.2f, const float specular_shininess=0.1f,
-                                    const bool display_axes=true, float *const pose_matrix=0) const {
+                                    const bool display_axes=true, float *const pose_matrix=0,
+                                    const bool exit_on_anykey=false) const {
       CImgDisplay disp;
       return _display_object3d(disp,title,vertices,primitives,colors,opacities,centering,render_static,
 			       render_motion,is_double_sided,focale,
                                light_x,light_y,light_z,specular_lightness,specular_shininess,
-			       display_axes,pose_matrix);
+			       display_axes,pose_matrix,exit_on_anykey);
     }
 
     //! Display object 3d in an interactive window \simplification.
@@ -44262,11 +44266,12 @@ namespace cimg_library_suffixed {
                                     const bool is_double_sided=true, const float focale=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
                                     const float specular_lightness=0.2f, const float specular_shininess=0.1f,
-                                    const bool display_axes=true, float *const pose_matrix=0) const {
+                                    const bool display_axes=true, float *const pose_matrix=0,
+                                    const bool exit_on_anykey=false) const {
       return display_object3d(disp,vertices,primitives,colors,CImgList<floatT>(),centering,
 			      render_static,render_motion,is_double_sided,focale,
                               light_x,light_y,light_z,specular_lightness,specular_shininess,
-			      display_axes,pose_matrix);
+			      display_axes,pose_matrix,exit_on_anykey);
     }
 
     //! Display object 3d in an interactive window \simplification.
@@ -44280,11 +44285,12 @@ namespace cimg_library_suffixed {
                                     const bool is_double_sided=true, const float focale=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
                                     const float specular_lightness=0.2f, const float specular_shininess=0.1f,
-                                    const bool display_axes=true, float *const pose_matrix=0) const {
+                                    const bool display_axes=true, float *const pose_matrix=0,
+                                    const bool exit_on_anykey=false) const {
       return display_object3d(title,vertices,primitives,colors,CImgList<floatT>(),centering,
                               render_static,render_motion,is_double_sided,focale,
                               light_x,light_y,light_z,specular_lightness,specular_shininess,
-                              display_axes,pose_matrix);
+                              display_axes,pose_matrix,exit_on_anykey);
     }
 
     //! Display object 3d in an interactive window \simplification.
@@ -44297,11 +44303,12 @@ namespace cimg_library_suffixed {
                                     const bool is_double_sided=true, const float focale=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
                                     const float specular_lightness=0.2f, const float specular_shininess=0.1f,
-                                    const bool display_axes=true, float *const pose_matrix=0) const {
+                                    const bool display_axes=true, float *const pose_matrix=0,
+                                    const bool exit_on_anykey=false) const {
       return display_object3d(disp,vertices,primitives,CImgList<T>(),centering,
                               render_static,render_motion,is_double_sided,focale,
                               light_x,light_y,light_z,specular_lightness,specular_shininess,
-                              display_axes,pose_matrix);
+                              display_axes,pose_matrix,exit_on_anykey);
     }
 
 
@@ -44315,11 +44322,12 @@ namespace cimg_library_suffixed {
                                     const bool is_double_sided=true, const float focale=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
                                     const float specular_lightness=0.2f, const float specular_shininess=0.1f,
-                                    const bool display_axes=true, float *const pose_matrix=0) const {
+                                    const bool display_axes=true, float *const pose_matrix=0,
+                                    const bool exit_on_anykey=false) const {
       return display_object3d(title,vertices,primitives,CImgList<T>(),centering,
                               render_static,render_motion,is_double_sided,focale,
                               light_x,light_y,light_z,specular_lightness,specular_shininess,
-                              display_axes,pose_matrix);
+                              display_axes,pose_matrix,exit_on_anykey);
     }
 
     //! Display object 3d in an interactive window \simplification.
@@ -44331,11 +44339,12 @@ namespace cimg_library_suffixed {
                                     const bool is_double_sided=true, const float focale=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
                                     const float specular_lightness=0.2f, const float specular_shininess=0.1f,
-                                    const bool display_axes=true, float *const pose_matrix=0) const {
+                                    const bool display_axes=true, float *const pose_matrix=0,
+                                    const bool exit_on_anykey=false) const {
       return display_object3d(disp,vertices,CImgList<uintT>(),centering,
                               render_static,render_motion,is_double_sided,focale,
                               light_x,light_y,light_z,specular_lightness,specular_shininess,
-                              display_axes,pose_matrix);
+                              display_axes,pose_matrix,exit_on_anykey);
     }
 
     //! Display object 3d in an interactive window \simplification.
@@ -44347,11 +44356,12 @@ namespace cimg_library_suffixed {
                                     const bool is_double_sided=true, const float focale=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
                                     const float specular_lightness=0.2f, const float specular_shininess=0.1f,
-                                    const bool display_axes=true, float *const pose_matrix=0) const {
+                                    const bool display_axes=true, float *const pose_matrix=0,
+                                    const bool exit_on_anykey=false) const {
       return display_object3d(title,vertices,CImgList<uintT>(),centering,
                               render_static,render_motion,is_double_sided,focale,
                               light_x,light_y,light_z,specular_lightness,specular_shininess,
-                              display_axes,pose_matrix);
+                              display_axes,pose_matrix,exit_on_anykey);
     }
 
     template<typename tp, typename tf, typename tc, typename to>
@@ -44365,7 +44375,8 @@ namespace cimg_library_suffixed {
 				     const bool is_double_sided, const float focale,
                                      const float light_x, const float light_y, const float light_z,
 				     const float specular_lightness, const float specular_shininess,
-				     const bool display_axes, float *const pose_matrix) const {
+				     const bool display_axes, float *const pose_matrix,
+                                     const bool exit_on_anykey) const {
       typedef typename cimg::superset<tp,float>::type tpfloat;
 
       // Check input arguments
@@ -44374,14 +44385,14 @@ namespace cimg_library_suffixed {
 		    _display_object3d(disp,title,vertices,primitives,colors,opacities,centering,
                                       render_static,render_motion,is_double_sided,focale,
                                       light_x,light_y,light_z,specular_lightness,specular_shininess,
-                                      display_axes,pose_matrix);
+                                      display_axes,pose_matrix,exit_on_anykey);
 	else return CImg<T>(1,2,1,1,64,128).resize(cimg_fitscreen(CImgDisplay::screen_width()/2,
                                                                   CImgDisplay::screen_height()/2,1),
                                                    1,(colors && colors[0].size()==1)?1:3,3).
                _display_object3d(disp,title,vertices,primitives,colors,opacities,centering,
 				 render_static,render_motion,is_double_sided,focale,
                                  light_x,light_y,light_z,specular_lightness,specular_shininess,
-				 display_axes,pose_matrix);
+				 display_axes,pose_matrix,exit_on_anykey);
       } else { if (disp) disp.resize(*this,false); }
       CImg<charT> error_message(1024);
       if (!vertices.is_object3d(primitives,colors,opacities,true,error_message))
@@ -44394,7 +44405,7 @@ namespace cimg_library_suffixed {
         return _display_object3d(disp,title,vertices,nprimitives,colors,opacities,centering,
 				 render_static,render_motion,is_double_sided,focale,
                                  light_x,light_y,light_z,specular_lightness,specular_shininess,
-				 display_axes,pose_matrix);
+				 display_axes,pose_matrix,exit_on_anykey);
       }
       if (!disp) {
 	disp.assign(cimg_fitscreen(_width,_height,_depth),title?title:0,3);
@@ -44777,6 +44788,7 @@ namespace cimg_library_suffixed {
           if (zbuffer) zbuffer.assign(disp.width(),disp.height());
           redraw = true;
         }
+        if (!exit_on_anykey && key!=cimg::keyESC) key = 0;
       }
       if (pose_matrix) {
         std::memcpy(pose_matrix,pose._data,12*sizeof(float));
@@ -44801,23 +44813,26 @@ namespace cimg_library_suffixed {
     const CImg<T>& display_graph(CImgDisplay &disp,
                                  const unsigned int plot_type=1, const unsigned int vertex_type=1,
                                  const char *const labelx=0, const double xmin=0, const double xmax=0,
-                                 const char *const labely=0, const double ymin=0, const double ymax=0) const {
-      return _display_graph(disp,0,plot_type,vertex_type,labelx,xmin,xmax,labely,ymin,ymax);
+                                 const char *const labely=0, const double ymin=0, const double ymax=0,
+                                 const bool exit_on_anykey=false) const {
+      return _display_graph(disp,0,plot_type,vertex_type,labelx,xmin,xmax,labely,ymin,ymax,exit_on_anykey);
     }
 
     //! Display 1d graph in an interactive window \overloading.
     const CImg<T>& display_graph(const char *const title=0,
                                  const unsigned int plot_type=1, const unsigned int vertex_type=1,
                                  const char *const labelx=0, const double xmin=0, const double xmax=0,
-                                 const char *const labely=0, const double ymin=0, const double ymax=0) const {
+                                 const char *const labely=0, const double ymin=0, const double ymax=0,
+                                 const bool exit_on_anykey=false) const {
       CImgDisplay disp;
-      return _display_graph(disp,title,plot_type,vertex_type,labelx,xmin,xmax,labely,ymin,ymax);
+      return _display_graph(disp,title,plot_type,vertex_type,labelx,xmin,xmax,labely,ymin,ymax,exit_on_anykey);
     }
 
     const CImg<T>& _display_graph(CImgDisplay &disp, const char *const title=0,
-                                 const unsigned int plot_type=1, const unsigned int vertex_type=1,
-                                 const char *const labelx=0, const double xmin=0, const double xmax=0,
-                                 const char *const labely=0, const double ymin=0, const double ymax=0) const {
+                                  const unsigned int plot_type=1, const unsigned int vertex_type=1,
+                                  const char *const labelx=0, const double xmin=0, const double xmax=0,
+                                  const char *const labely=0, const double ymin=0, const double ymax=0,
+                                  const bool exit_on_anykey=false) const {
       if (is_empty())
         throw CImgInstanceException(_cimg_instance
                                     "display_graph(): Empty instance.",
@@ -44843,7 +44858,7 @@ namespace cimg_library_suffixed {
         					           labelx,
                                                            nxmin + x0*(nxmax - nxmin)/siz1,
                                                            nxmin + x1*(nxmax - nxmin)/siz1,
-                                                           labely,y0,y1);
+                                                           labely,y0,y1,true);
 	const int mouse_x = disp.mouse_x(), mouse_y = disp.mouse_y();
         if (selection[0]>=0) {
           if (selection[2]<0) reset_view = true;
@@ -44927,6 +44942,7 @@ namespace cimg_library_suffixed {
             go_down = false;
           }
         }
+        if (!exit_on_anykey && key && key!=cimg::keyESC) { disp.set_key(key,false); key = 0; }
       }
       disp._normalization = old_normalization;
       return *this;

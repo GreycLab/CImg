@@ -40416,7 +40416,7 @@ namespace cimg_library_suffixed {
         } else if (!shape_selected) disp.wait();
         if (disp.is_resized()) { disp.resize(false)._is_resized = false; old_is_resized = true; visu0.assign(); }
         omx = mx; omy = my;
-        if (!exit_on_anykey && key!=cimg::keyESC) key = 0;
+        if (!exit_on_anykey && key!=cimg::keyESC && (key!=cimg::keyW || (!disp.is_keyCTRLLEFT() && !disp.is_keyCTRLRIGHT()))) key = 0;
       }
 
       // Return result.
@@ -40741,7 +40741,7 @@ namespace cimg_library_suffixed {
         }
         if (disp.is_resized()) { disp.resize(false); visu0.assign(); }
         if (visu && visu0) disp.wait();
-        if (!exit_on_anykey && okey && okey!=cimg::keyESC) { disp.set_key(key,false); okey = 0; }
+        if (!exit_on_anykey && okey!=cimg::keyESC && (okey!=cimg::keyW || (!disp.is_keyCTRLLEFT() && !disp.is_keyCTRLRIGHT()))) { disp.set_key(key,false); okey = 0; }
       }
 
       disp._normalization = old_normalization;
@@ -44194,7 +44194,7 @@ namespace cimg_library_suffixed {
           else { z0+=(depth() - 1 - z1); z1 = depth() - 1; }
         }
         disp.wait(100);
-        if (!exit_on_anykey && key!=cimg::keyESC) key = 0;
+        if (!exit_on_anykey && key!=cimg::keyESC && (key!=cimg::keyW || (!disp.is_keyCTRLLEFT() && !disp.is_keyCTRLRIGHT()))) key = 0;
       }
       disp.set_key(key);
       if (XYZ) { XYZ[0] = _XYZ[0]; XYZ[1] = _XYZ[1]; XYZ[2] = _XYZ[2]; }
@@ -44794,7 +44794,7 @@ namespace cimg_library_suffixed {
           if (zbuffer) zbuffer.assign(disp.width(),disp.height());
           redraw = true;
         }
-        if (!exit_on_anykey && key!=cimg::keyESC) key = 0;
+        if (!exit_on_anykey && key!=cimg::keyESC && (key!=cimg::keyW || (!disp.is_keyCTRLLEFT() && !disp.is_keyCTRLRIGHT()))) key = 0;
       }
       if (pose_matrix) {
         std::memcpy(pose_matrix,pose._data,12*sizeof(float));
@@ -44948,7 +44948,7 @@ namespace cimg_library_suffixed {
             go_down = false;
           }
         }
-        if (!exit_on_anykey && key && key!=cimg::keyESC) { disp.set_key(key,false); key = 0; }
+        if (!exit_on_anykey && key!=cimg::keyESC && (key!=cimg::keyW || (!disp.is_keyCTRLLEFT() && !disp.is_keyCTRLRIGHT()))) { disp.set_key(key,false); key = 0; }
       }
       disp._normalization = old_normalization;
       return *this;
@@ -49761,7 +49761,7 @@ namespace cimg_library_suffixed {
         if (disp.is_resized()) { disp.resize(false); visu0.assign(); }
         if (ym>=0 && ym<13) { if (!text_down) { visu.assign(); text_down = true; }}
         else if (ym>=visu.height() - 13) { if(text_down) { visu.assign(); text_down = false; }}
-        if (!exit_on_anykey && key!=cimg::keyESC) key = 0;
+        if (!exit_on_anykey && key!=cimg::keyESC && (key!=cimg::keyW || (!disp.is_keyCTRLLEFT() && !disp.is_keyCTRLRIGHT()))) key = 0;
       }
       CImg<intT> res(1,2,1,1,-1);
       if (is_selected) {

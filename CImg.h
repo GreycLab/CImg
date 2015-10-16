@@ -44891,9 +44891,9 @@ namespace cimg_library_suffixed {
           case cimg::keyPAD3 : go_right = true; go_down = true; key = 0; disp.set_key(); break;
           }
           if (disp.wheel()) {
-            if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) go_out = !(go_in = disp.wheel()>0);
+            if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) go_up = !(go_down = disp.wheel()<0);
             else if (disp.is_keySHIFTLEFT() || disp.is_keySHIFTRIGHT()) go_left = !(go_right = disp.wheel()>0);
-            else go_up = !(go_down = disp.wheel()<0);
+            else go_out = !(go_in = disp.wheel()>0);
             key = 0;
           }
 

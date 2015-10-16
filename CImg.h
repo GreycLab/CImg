@@ -39858,32 +39858,37 @@ namespace cimg_library_suffixed {
        \param XYZ Pointer to 3 values X,Y,Z which tells about the projection point coordinates, for volumetric images.
     **/
     CImg<T>& select(CImgDisplay &disp,
-		    const unsigned int feature_type=2, unsigned int *const XYZ=0) {
-      return get_select(disp,feature_type,XYZ).move_to(*this);
+		    const unsigned int feature_type=2, unsigned int *const XYZ=0,
+                    const bool exit_on_anykey=false) {
+      return get_select(disp,feature_type,XYZ,exit_on_anykey).move_to(*this);
     }
 
     //! Simple interface to select a shape from an image \overloading.
     CImg<T>& select(const char *const title,
-		    const unsigned int feature_type=2, unsigned int *const XYZ=0) {
-      return get_select(title,feature_type,XYZ).move_to(*this);
+		    const unsigned int feature_type=2, unsigned int *const XYZ=0,
+                    const bool exit_on_anykey=false) {
+      return get_select(title,feature_type,XYZ,exit_on_anykey).move_to(*this);
     }
 
     //! Simple interface to select a shape from an image \newinstance.
     CImg<intT> get_select(CImgDisplay &disp,
-		          const unsigned int feature_type=2, unsigned int *const XYZ=0) const {
-      return _get_select(disp,0,feature_type,XYZ,0,0,0,true,false);
+		          const unsigned int feature_type=2, unsigned int *const XYZ=0,
+                          const bool exit_on_anykey=false) const {
+      return _get_select(disp,0,feature_type,XYZ,0,0,0,exit_on_anykey,true,false);
     }
 
     //! Simple interface to select a shape from an image \newinstance.
     CImg<intT> get_select(const char *const title,
-    			  const unsigned int feature_type=2, unsigned int *const XYZ=0) const {
+    			  const unsigned int feature_type=2, unsigned int *const XYZ=0,
+                          const bool exit_on_anykey=false) const {
       CImgDisplay disp;
-      return _get_select(disp,title,feature_type,XYZ,0,0,0,true,false);
+      return _get_select(disp,title,feature_type,XYZ,0,0,0,exit_on_anykey,true,false);
     }
 
     CImg<intT> _get_select(CImgDisplay &disp, const char *const title,
 			   const unsigned int feature_type, unsigned int *const XYZ,
 			   const int origX, const int origY, const int origZ,
+                           const bool exit_on_anykey,
                            const bool reset_view3d,
                            const bool force_display_z_coord) const {
       if (is_empty()) return CImg<intT>(1,feature_type==0?3:6,1,1,-1);
@@ -40411,6 +40416,7 @@ namespace cimg_library_suffixed {
         } else if (!shape_selected) disp.wait();
         if (disp.is_resized()) { disp.resize(false)._is_resized = false; old_is_resized = true; visu0.assign(); }
         omx = mx; omy = my;
+        if (!exit_on_anykey && key!=cimg::keyESC) key = 0;
       }
 
       // Return result.
@@ -43937,8 +43943,9 @@ namespace cimg_library_suffixed {
         \param disp Display window.
         \param display_info Tells if image information are displayed on the standard output.
     **/
-    const CImg<T>& display(CImgDisplay &disp, const bool display_info, unsigned int *const XYZ=0) const {
-      return _display(disp,0,display_info,XYZ,false);
+    const CImg<T>& display(CImgDisplay &disp, const bool display_info, unsigned int *const XYZ=0,
+                           const bool exit_on_anykey=false) const {
+      return _display(disp,0,display_info,XYZ,exit_on_anykey,false);
     }
 
     //! Display image into an interactive window.
@@ -43946,13 +43953,14 @@ namespace cimg_library_suffixed {
         \param title Window title
         \param display_info Tells if image information are displayed on the standard output.
     **/
-    const CImg<T>& display(const char *const title=0, const bool display_info=true, unsigned int *const XYZ=0) const {
+    const CImg<T>& display(const char *const title=0, const bool display_info=true, unsigned int *const XYZ=0,
+                           const bool exit_on_anykey=false) const {
       CImgDisplay disp;
-      return _display(disp,title,display_info,XYZ,false);
+      return _display(disp,title,display_info,XYZ,exit_on_anykey,false);
     }
 
-    const CImg<T>& _display(CImgDisplay &disp, const char *const title,
-                            const bool display_info, unsigned int *const XYZ,
+    const CImg<T>& _display(CImgDisplay &disp, const char *const title, const bool display_info,
+                            unsigned int *const XYZ, const bool exit_on_anykey,
                             const bool exit_on_simpleclick) const {
       unsigned int oldw = 0, oldh = 0, _XYZ[3] = { 0 }, key = 0;
       int x0 = 0, y0 = 0, z0 = 0, x1 = width() - 1, y1 = height() - 1, z1 = depth() - 1;
@@ -44013,7 +44021,7 @@ namespace cimg_library_suffixed {
           _XYZ[1] = (unsigned int)(y1 - y0)/2;
           _XYZ[2] = (unsigned int)(z1 - z0)/2;
         }
-        const CImg<intT> selection = visu._get_select(disp,0,2,_XYZ,x0,y0,z0,is_first_select,_depth>1);
+        const CImg<intT> selection = visu._get_select(disp,0,2,_XYZ,x0,y0,z0,true,is_first_select,_depth>1);
         is_first_select = false;
 
         if (disp.wheel()) {
@@ -44178,6 +44186,7 @@ namespace cimg_library_suffixed {
           else { z0+=(depth() - 1 - z1); z1 = depth() - 1; }
         }
         disp.wait(100);
+        if (!exit_on_anykey && key!=cimg::keyESC) key = 0;
       }
       disp.set_key(key);
       if (XYZ) { XYZ[0] = _XYZ[0]; XYZ[1] = _XYZ[1]; XYZ[2] = _XYZ[2]; }
@@ -50988,7 +50997,7 @@ namespace cimg_library_suffixed {
           disp.resize(cimg_fitscreen(_data[0]._width,_data[0]._height,_data[0]._depth),false).
             set_title("%s (%ux%ux%ux%u)",
                       dtitle.data(),_data[0]._width,_data[0]._height,_data[0]._depth,_data[0]._spectrum);
-        _data[0]._display(disp,0,false,XYZ,!is_first_call);
+        _data[0]._display(disp,0,false,XYZ,false,!is_first_call);
         if (disp.key()) is_exit = true;
         disp.resize(cimg_fitscreen(dw,dh,1),false).set_title("%s",dtitle.data());
       } else {

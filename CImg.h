@@ -50492,7 +50492,7 @@ namespace cimg_library_suffixed {
       \param first_frame Index of the first frame to read.
       \param last_frame Index of the last frame to read.
       \param step_frame Step value for frame reading.
-      \note If step_frame==0, the current video stream is open or released without any frames read.
+      \note If step_frame==0, the current video stream is forced to be released (without any frames read).
     **/
     CImgList<T>& load_video(const char *const filename,
                             const unsigned int first_frame=0, const unsigned int last_frame=~0U,
@@ -50535,7 +50535,7 @@ namespace cimg_library_suffixed {
         } else
           if (filename)
             cimg::warn(_cimglist_instance
-                       "load_video() : File '%s', opened video stream associated with filename not found.",
+                       "load_video() : File '%s', no opened video stream associated with filename found.",
                        cimglist_instance,filename);
           else
             cimg::warn(_cimglist_instance

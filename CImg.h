@@ -40050,9 +40050,14 @@ namespace cimg_library_suffixed {
               X0 = (int)X; Y0 = (int)Y; Z0 = (int)Z;
             }
           }
-          if (disp.button()&4) { // Reset positions.
-            X = (float)X0; Y = (float)Y0; Z = (float)Z0; phase = area = clicked_area = starting_area = 0;
-            visu0.assign();
+          if (disp.button()&4) {
+            if (exit_on_anykey) {
+              X0 = X1 = Y0 = Y1 = Z0 = Z1 = -1;
+              shape_selected = true;
+            } else { // Reset positions.
+              X = (float)X0; Y = (float)Y0; Z = (float)Z0; phase = area = clicked_area = starting_area = 0;
+              visu0.assign();
+            }
           }
           if (disp.wheel()) { // When moving through the slices of the volume (with mouse wheel).
             if (_depth>1 && !disp.is_keyCTRLLEFT() && !disp.is_keyCTRLRIGHT() &&
@@ -40421,7 +40426,6 @@ namespace cimg_library_suffixed {
         if (!exit_on_anykey && key && key!=cimg::keyESC &&
             (key!=cimg::keyW || (!disp.is_keyCTRLLEFT() && !disp.is_keyCTRLRIGHT()))) {
           key = 0;
-          disp.close();
         }
       }
 
@@ -40442,7 +40446,7 @@ namespace cimg_library_suffixed {
 	default : res[0] = X0; res[1] = Y0; res[2] = Z0;
 	}
       }
-      disp.set_button();
+      if (!exit_on_anykey || !(disp.button()&4)) disp.set_button();
       if (!visible_cursor) disp.show_mouse();
       disp._normalization = old_normalization;
       disp._is_resized = old_is_resized;
@@ -40749,7 +40753,7 @@ namespace cimg_library_suffixed {
         if (visu && visu0) disp.wait();
         if (!exit_on_anykey && okey && okey!=cimg::keyESC &&
             (okey!=cimg::keyW || (!disp.is_keyCTRLLEFT() && !disp.is_keyCTRLRIGHT()))) {
-          disp.set_key(key,false).close();
+          disp.set_key(key,false);
           okey = 0;
         }
       }
@@ -43977,7 +43981,7 @@ namespace cimg_library_suffixed {
                             unsigned int *const XYZ, const bool exit_on_anykey,
                             const bool exit_on_simpleclick) const {
       unsigned int oldw = 0, oldh = 0, _XYZ[3] = { 0 }, key = 0;
-      int x0 = 0, y0 = 0, z0 = 0, x1 = width() - 1, y1 = height() - 1, z1 = depth() - 1;
+      int panx0 = -1, pany0 = -1, x0 = 0, y0 = 0, z0 = 0, x1 = width() - 1, y1 = height() - 1, z1 = depth() - 1;
 
       if (!disp) {
         disp.assign(cimg_fitscreen(_width,_height,_depth),title?title:0,1);
@@ -44207,7 +44211,6 @@ namespace cimg_library_suffixed {
         if (!exit_on_anykey && key && key!=cimg::keyESC &&
             (key!=cimg::keyW || (!disp.is_keyCTRLLEFT() && !disp.is_keyCTRLRIGHT()))) {
           key = 0;
-          disp.close();
         }
       }
       disp.set_key(key);
@@ -44811,7 +44814,6 @@ namespace cimg_library_suffixed {
         if (!exit_on_anykey && key && key!=cimg::keyESC &&
             (key!=cimg::keyW || (!disp.is_keyCTRLLEFT() && !disp.is_keyCTRLRIGHT()))) {
           key = 0;
-          disp.close();
         }
       }
       if (pose_matrix) {
@@ -44968,7 +44970,7 @@ namespace cimg_library_suffixed {
         }
         if (!exit_on_anykey && key && key!=cimg::keyESC &&
             (key!=cimg::keyW || (!disp.is_keyCTRLLEFT() && !disp.is_keyCTRLRIGHT()))) {
-          disp.set_key(key,false).close();
+          disp.set_key(key,false);
           key = 0;
         }
       }
@@ -49786,7 +49788,6 @@ namespace cimg_library_suffixed {
         if (!exit_on_anykey && key && key!=cimg::keyESC &&
             (key!=cimg::keyW || (!disp.is_keyCTRLLEFT() && !disp.is_keyCTRLRIGHT()))) {
           key = 0;
-          disp.close();
         }
       }
       CImg<intT> res(1,2,1,1,-1);

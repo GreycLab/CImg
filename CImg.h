@@ -30000,6 +30000,7 @@ namespace cimg_library_suffixed {
 
         // Start iteration loop.
         for (unsigned int iter = 0; iter<nb_iterations; ++iter) {
+          cimg_test_abort();
           const bool is_even = !(iter%2);
 
 #ifdef cimg_use_openmp

@@ -40051,13 +40051,8 @@ namespace cimg_library_suffixed {
             }
           }
           if (disp.button()&4) {
-            if (exit_on_anykey) {
-              X0 = X1 = Y0 = Y1 = Z0 = Z1 = -1;
-              shape_selected = true;
-            } else { // Reset positions.
-              X = (float)X0; Y = (float)Y0; Z = (float)Z0; phase = area = clicked_area = starting_area = 0;
-              visu0.assign();
-            }
+            X = (float)X0; Y = (float)Y0; Z = (float)Z0; phase = area = clicked_area = starting_area = 0;
+            visu0.assign();
           }
           if (disp.wheel()) { // When moving through the slices of the volume (with mouse wheel).
             if (_depth>1 && !disp.is_keyCTRLLEFT() && !disp.is_keyCTRLRIGHT() &&
@@ -43981,7 +43976,7 @@ namespace cimg_library_suffixed {
                             unsigned int *const XYZ, const bool exit_on_anykey,
                             const bool exit_on_simpleclick) const {
       unsigned int oldw = 0, oldh = 0, _XYZ[3] = { 0 }, key = 0;
-      int panx0 = -1, pany0 = -1, x0 = 0, y0 = 0, z0 = 0, x1 = width() - 1, y1 = height() - 1, z1 = depth() - 1;
+      int x0 = 0, y0 = 0, z0 = 0, x1 = width() - 1, y1 = height() - 1, z1 = depth() - 1;
 
       if (!disp) {
         disp.assign(cimg_fitscreen(_width,_height,_depth),title?title:0,1);

@@ -44964,8 +44964,8 @@ namespace cimg_library_suffixed {
             go_down = false;
           }
         }
-        if (!exit_on_anykey && key && key!=cimg::keyESC &&
-            (key!=cimg::keyW || (!disp.is_keyCTRLLEFT() && !disp.is_keyCTRLRIGHT()))) {
+        if (!exit_on_anykey && key && key!=(int)cimg::keyESC &&
+            (key!=(int)cimg::keyW || (!disp.is_keyCTRLLEFT() && !disp.is_keyCTRLRIGHT()))) {
           disp.set_key(key,false);
           key = 0;
         }

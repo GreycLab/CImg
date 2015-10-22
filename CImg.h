@@ -14037,7 +14037,7 @@ namespace cimg_library_suffixed {
         for (unsigned int i = 0; i<=10; ++i) *(p_mem++) = (double)i;  // mem[0-10]
         for (unsigned int i = 1; i<=5; ++i) *(p_mem++) = -(double)i;  // mem[11-15]
         *(p_mem++) = 0.5; // mem[16]
-        *(p_mem++) = 1.5; // mem[17]
+        *(p_mem++) = 0; // mem[17] = thread_id
         *(p_mem++) = (double)imgin._width; // mem[18]
         *(p_mem++) = (double)imgin._height; // mem[19]
         *(p_mem++) = (double)imgin._depth; // mem[20]
@@ -14052,6 +14052,7 @@ namespace cimg_library_suffixed {
         // Set constant/variable property : { 1 = constant | -1 = variable | 0 = other }.
         std::memset(mem.data(0,1),0,sizeof(double)*mem._width);
         p_mem = mem.data(0,1); for (unsigned int i = 0; i<28; ++i) *(p_mem++) = 1;
+        mem(17,1) = 0;
 
         // Then, [28] = x, [29] = y, [30] = z and [31] = c.
 #define _cimg_mp_x 28
@@ -14062,6 +14063,7 @@ namespace cimg_library_suffixed {
 
         labelMpos.assign(8);
         reserved_label.assign(128,1,1,1,~0U);
+        reserved_label['t'] = 17;
         reserved_label['w'] = 18;
         reserved_label['h'] = 19;
         reserved_label['d'] = 20;
@@ -14111,6 +14113,9 @@ namespace cimg_library_suffixed {
         imgin(mp.imgin),listin(mp.listin),imgout(mp.imgout),listout(mp.listout),img_stats(mp.img_stats),
         list_stats(mp.list_stats),list_median(mp.list_median),debug_indent(0),
         result(mem._data + (mp.result - mp.mem._data)),calling_function(0) {
+#ifdef cimg_use_openmp
+        mem[17] = omp_get_thread_num();
+#endif
         opcode._width = opcode._depth = opcode._spectrum = 1;
         opcode._is_shared = true;
       }
@@ -14168,7 +14173,7 @@ namespace cimg_library_suffixed {
         if (nb==2 && sep=='%') _cimg_mp_constant(val/100);
 
         if (ss1==se) switch (*ss) { // One-char variable.
-          case 'w' : case 'h' : case 'd' : case 's' : case 'r' :
+          case 't' : case 'w' : case 'h' : case 'd' : case 's' : case 'r' :
           case 'x' : case 'y' : case 'z' : case 'c' : case 'e' :
             _cimg_mp_return(reserved_label[*ss]);
           case 'u' :
@@ -15381,7 +15386,6 @@ namespace cimg_library_suffixed {
           if (val<0 && val>=-5) return (unsigned int)(10 - val);
         }
         if (val==0.5) return 16;
-        if (val==1.5) return 17;
         if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
         const unsigned int pos = mempos++;
         mem[pos] = val; mem(pos,1) = 1; // Set constant property.

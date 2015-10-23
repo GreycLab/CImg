@@ -136,7 +136,7 @@ if [ "$1" == "final" ]; then
 else
     git commit -m "Auto-commit for release "${RELEASE}${SUFFIX} >>$LOG_FILE 2>&1
 fi
-git push
+git push --tags
 
 # Create ZIP archive
 echo " - Build ZIP archive file '$ZIP_FILE'."

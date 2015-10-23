@@ -1526,7 +1526,7 @@ void* item_word_puzzle() {
       *mention = completed?(timer<700?mention5:timer<800?mention4:timer<900?mention3:
                             timer<1000?mention2:timer<1200?mention1:mention0):mention0;
     canvas.assign().draw_text(0,0,"Final time : %d\n\n%s",white,0,1,32,timer,mention).resize(-100,-100,1,3);
-    ((background/=2)&CImg<unsigned char>(2,2).fill(0,255,255,0).resize(background,0,2)).
+    ((background/=2)&CImg<unsigned char>(2,2).fill((unsigned char)0,255,255,0).resize(background,0,2)).
       draw_image((background.width() - canvas.width())/2,(background.height() - canvas.height())/2,
                  canvas,canvas.get_dilate(3).dilate(3).dilate(3),1,255).display(disp.flush());
     while (!disp.is_closed() && !disp.key() && !disp.button()) disp.resize(disp).wait();

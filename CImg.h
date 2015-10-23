@@ -15247,6 +15247,9 @@ namespace cimg_library_suffixed {
             if (!listin) _cimg_mp_return(0);
             if (mem(arg1,1)>0) _cimg_mp_constant(listin[p1]._spectrum);
             _cimg_mp_opcode1(mp_list_spectrum,arg1);
+          case 'i' : // i#ind
+            if (!listin) _cimg_mp_return(0);
+            _cimg_mp_opcode7(mp_list_ixyzc,arg1,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,_cimg_mp_c,0,0);
           case 'R' : // R#ind
             if (!listin) _cimg_mp_return(0);
             _cimg_mp_opcode7(mp_list_ixyzc,arg1,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,0,0,0);

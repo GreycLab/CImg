@@ -171,7 +171,7 @@
 #if !defined(cimg_use_cpp11) && __cplusplus>201100
 #define cimg_use_cpp11
 #endif
-#ifdef cimg_use_cpp11
+#if defined(cimg_use_cpp11) && cimg_use_cpp11!=0
 #include <initializer_list>
 #include <utility>
 #endif

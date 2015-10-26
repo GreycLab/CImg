@@ -169,7 +169,7 @@
 
 // Look for C++11 features
 #if !defined(cimg_use_cpp11) && __cplusplus>201100
-#define cimg_use_cpp11
+#define cimg_use_cpp11 1
 #endif
 #if defined(cimg_use_cpp11) && cimg_use_cpp11!=0
 #include <initializer_list>
@@ -9298,7 +9298,7 @@ namespace cimg_library_suffixed {
       _CImg_stdarg(*this,value0,value1,(unsigned long)size_x*size_y*size_z*size_c,int);
     }
 
-#ifdef cimg_use_cpp11
+#if defined(cimg_use_cpp11) && cimg_use_cpp11!=0
     //! Construct image with specified size and initialize pixel values from an initializer list of integers.
     /**
        Construct a new image instance of size \c size_x x \c size_y x \c size_z x \c size_c,
@@ -9754,7 +9754,7 @@ namespace cimg_library_suffixed {
 
     // Constructor and assignment operator for rvalue references (c++11).
     // This avoids an additional image copy for methods returning new images. Can save RAM for big images !
-#ifdef cimg_use_cpp11
+#if defined(cimg_use_cpp11) && cimg_use_cpp11!=0
     CImg(CImg<T>&& img):_width(0),_height(0),_depth(0),_spectrum(0),_is_shared(false),_data(0) {
       swap(img);
     }

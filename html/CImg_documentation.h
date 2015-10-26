@@ -826,7 +826,7 @@
   pixel values on a 5x5 neighborhood.
 
   \code
-  CImg<unsigned char> src("image_color.jpg"), dest(src,false), neighbor(5,5);  // Image definitions.
+  CImg<unsigned char> src("image_color.jpg"), dest(src,false);  // Image definitions.
   typedef unsigned char uchar;		   // Avoid space in the second parameter of the macro CImg_5x5x1 below.
   CImg<> N(5,5);	                   // Define a 5x5 neighborhood as a 5x5 image.
   cimg_forC(src,k)			   // Standard loop on color channels

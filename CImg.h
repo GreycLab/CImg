@@ -4576,23 +4576,6 @@ namespace cimg_library_suffixed {
       else { const double tmp = absa/absb; return absb==0?0:absb*std::sqrt(1.0 + tmp*tmp); }
     }
 
-    // Return 'true' is specified mathematical expression is self-referencing.
-    inline bool _is_self_expr(const char *expression) {
-      if (!expression || *expression=='>' || *expression=='<') return false;
-      for (const char *s = expression; *s; ++s)
-        if ((*s=='i' || *s=='j') && (s[1]=='(' || s[1]=='[')) {
-          const char opening = s[1], ending = opening=='('?')':']';
-          const char *ns;
-          int level = 0;
-          for (ns = s + 2; *ns; ++ns) { // Find ending ')' or ']'.
-            if (*ns==ending && !level) break;
-            if (*ns==opening) ++level; else if (*ns==ending) --level;
-          }
-          if (*ns && (ns[1]!='=' || ns[2]=='=')) return true;
-        } else if (*s=='R' || *s=='G' || *s=='B' || (*s=='i' && s[1]>='0' && s[1]<='7')) return true;
-      return false;
-    }
-
     //! Convert ascii character to lower case.
     inline char uncase(const char x) {
       return (char)((x<'A'||x>'Z')?x:x - 'A' + 'a');
@@ -10404,7 +10387,9 @@ namespace cimg_library_suffixed {
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
       try {
-        const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(), &base = _base?_base:*this;
+        const CImg<T>
+          _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
+          &base = _base?_base:*this;
         _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
                              "operator+=",base,this);
         T *ptrd = *expression=='<'?end() - 1:_data;
@@ -10561,7 +10546,9 @@ namespace cimg_library_suffixed {
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
       try {
-        const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(), &base = _base?_base:*this;
+        const CImg<T>
+          _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
+          &base = _base?_base:*this;
         _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
                              "operator-=",base,this);
         T *ptrd = *expression=='<'?end() - 1:_data;
@@ -10702,7 +10689,9 @@ namespace cimg_library_suffixed {
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
       try {
-        const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(), &base = _base?_base:*this;
+        const CImg<T>
+          _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
+          &base = _base?_base:*this;
         _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
                              "operator*=",base,this);
         T *ptrd = *expression=='<'?end() - 1:_data;
@@ -10824,7 +10813,9 @@ namespace cimg_library_suffixed {
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
       try {
-        const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(), &base = _base?_base:*this;
+        const CImg<T>
+          _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
+          &base = _base?_base:*this;
         _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
                              "operator/=",base,this);
         T *ptrd = *expression=='<'?end() - 1:_data;
@@ -10922,7 +10913,9 @@ namespace cimg_library_suffixed {
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
       try {
-        const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(), &base = _base?_base:*this;
+        const CImg<T>
+          _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
+          &base = _base?_base:*this;
         _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
                              "operator%=",base,this);
         T *ptrd = *expression=='<'?end() - 1:_data;
@@ -11022,7 +11015,9 @@ namespace cimg_library_suffixed {
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
       try {
-        const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(), &base = _base?_base:*this;
+        const CImg<T>
+          _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
+          &base = _base?_base:*this;
         _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
                              "operator&=",base,this);
         T *ptrd = *expression=='<'?end() - 1:_data;
@@ -11124,7 +11119,9 @@ namespace cimg_library_suffixed {
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
       try {
-        const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(), &base = _base?_base:*this;
+        const CImg<T>
+          _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
+          &base = _base?_base:*this;
         _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
                              "operator|=",base,this);
         T *ptrd = *expression=='<'?end() - 1:_data;
@@ -11230,7 +11227,9 @@ namespace cimg_library_suffixed {
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
       try {
-        const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(), &base = _base?_base:*this;
+        const CImg<T>
+          _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
+          &base = _base?_base:*this;
         _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
                              "operator^=",base,this);
         T *ptrd = *expression=='<'?end() - 1:_data;
@@ -11334,7 +11333,9 @@ namespace cimg_library_suffixed {
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
       try {
-        const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(), &base = _base?_base:*this;
+        const CImg<T>
+          _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
+          &base = _base?_base:*this;
         _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
                              "operator<<=",base,this);
         T *ptrd = *expression=='<'?end() - 1:_data;
@@ -11435,7 +11436,9 @@ namespace cimg_library_suffixed {
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
       try {
-        const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(), &base = _base?_base:*this;
+        const CImg<T>
+          _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
+          &base = _base?_base:*this;
         _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
                              "operator<<=",base,this);
         T *ptrd = *expression=='<'?end() - 1:_data;
@@ -11549,7 +11552,9 @@ namespace cimg_library_suffixed {
       cimg::exception_mode(0);
       bool is_equal = true;
       try {
-        const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(), &base = _base?_base:*this;
+        const CImg<T>
+          _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
+          &base = _base?_base:*this;
         _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
                              "operator<<=",base,0);
         const T *ptrs = *expression=='<'?end() - 1:_data;
@@ -14118,6 +14123,23 @@ namespace cimg_library_suffixed {
 #endif
         opcode._width = opcode._depth = opcode._spectrum = 1;
         opcode._is_shared = true;
+      }
+
+      // Return 'true' is the specified mathematical expression requires the input image to be copied.
+      static bool needs_input_copy(const char *expression) {
+        if (!expression || *expression=='>' || *expression=='<') return false;
+        for (const char *s = expression; *s; ++s)
+          if ((*s=='i' || *s=='j') && (s[1]=='(' || s[1]=='[') && (s[2]!='#')) {
+            const char opening = s[1], ending = opening=='('?')':']';
+            const char *ns;
+            int level = 0;
+            for (ns = s + 2; *ns; ++ns) { // Find ending ')' or ']'.
+              if (*ns==ending && !level) break;
+              if (*ns==opening) ++level; else if (*ns==ending) --level;
+            }
+            if (*ns && (ns[1]!='=' || ns[2]=='=')) return true;
+          } else if (*s=='R' || *s=='G' || *s=='B' || (*s=='i' && s[1]>='0' && s[1]<='7')) return true;
+        return false;
       }
 
       // Compilation procedure.
@@ -16985,7 +17007,9 @@ namespace cimg_library_suffixed {
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
       try {
-        const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(), &base = _base?_base:*this;
+        const CImg<T>
+          _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
+          &base = _base?_base:*this;
         _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
                              "pow",base,this);
         T *ptrd = *expression=='<'?end() - 1:_data;
@@ -17078,7 +17102,9 @@ namespace cimg_library_suffixed {
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
       try {
-        const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(), &base = _base?_base:*this;
+        const CImg<T>
+          _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
+          &base = _base?_base:*this;
         _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
                              "rol",base,this);
         T *ptrd = *expression=='<'?end() - 1:_data;
@@ -17172,7 +17198,9 @@ namespace cimg_library_suffixed {
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
       try {
-        const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(), &base = _base?_base:*this;
+        const CImg<T>
+          _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
+          &base = _base?_base:*this;
         _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
                              "ror",base,this);
         T *ptrd = *expression=='<'?end() - 1:_data;
@@ -17296,7 +17324,9 @@ namespace cimg_library_suffixed {
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
       try {
-        const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(), &base = _base?_base:*this;
+        const CImg<T>
+          _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
+          &base = _base?_base:*this;
         _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
                              "min",base,this);
         T *ptrd = *expression=='<'?end() - 1:_data;
@@ -17394,7 +17424,9 @@ namespace cimg_library_suffixed {
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
       try {
-        const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(), &base = _base?_base:*this;
+        const CImg<T>
+          _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
+          &base = _base?_base:*this;
         _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
                              "max",base,this);
         T *ptrd = *expression=='<'?end() - 1:_data;
@@ -20020,7 +20052,9 @@ namespace cimg_library_suffixed {
       CImg<charT> is_error;
 
       if (allow_formula) try { // Try to fill values according to a formula.
-        const CImg<T> _base = cimg::_is_self_expr(expression)?+*this:CImg<T>(), &base = _base?_base:*this;
+        const CImg<T>
+          _base = _cimg_math_parser::needs_input_copy(expression)?+*this:CImg<T>(),
+          &base = _base?_base:*this;
         _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
                              "fill",base,this,list_inputs,list_outputs);
         T *ptrd = *expression=='<'?end() - 1:_data;

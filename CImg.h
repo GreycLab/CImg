@@ -14088,18 +14088,20 @@ namespace cimg_library_suffixed {
         *(p_mem++) = (double)imgin._width*imgin._height*imgin._depth*imgin._spectrum; // mem[25]
         *(p_mem++) = cimg::PI; // mem[26]
         *(p_mem++) = std::exp(1.0); // mem[27]
+        *(p_mem++) = 0; // mem[28]
+        *(p_mem++) = 0; // mem[29]
 
         // Set constant/variable property : { 1 = constant | -1 = variable | 0 = other }.
         std::memset(mem.data(0,1),0,sizeof(double)*mem._width);
         p_mem = mem.data(0,1); for (unsigned int i = 0; i<28; ++i) *(p_mem++) = 1;
         mem(17,1) = 0;
 
-        // Then, [28] = x, [29] = y, [30] = z and [31] = c.
-#define _cimg_mp_x 28
-#define _cimg_mp_y 29
-#define _cimg_mp_z 30
-#define _cimg_mp_c 31
-        mempos = 32;
+        // Then, [30] = x, [31] = y, [32] = z and [33] = c.
+#define _cimg_mp_x 30
+#define _cimg_mp_y 31
+#define _cimg_mp_z 32
+#define _cimg_mp_c 33
+        mempos = 34;
 
         labelMpos.assign(8);
         reserved_label.assign(128,1,1,1,~0U);
@@ -14114,13 +14116,15 @@ namespace cimg_library_suffixed {
         reserved_label[2] = 25; // whds
         reserved_label[3] = 26; // pi
         reserved_label['e'] = 27;
+        reserved_label[29] = 28; // interpolation
+        reserved_label[30] = 29; // boundary
         reserved_label['x'] = _cimg_mp_x;
         reserved_label['y'] = _cimg_mp_y;
         reserved_label['z'] = _cimg_mp_z;
         reserved_label['c'] = _cimg_mp_c;
-        // reserved_label[4-28] store also two-chars variables:
+        // reserved_label[4-30] store also two-char variables:
         // [4] = im, [5] = iM, [6] = ia, [7] = iv, [8] = is, [9] = ip, [10] = ic,
-        // [11] = xm, [12] = ym, [13] = zm, [14] = cm, [15] = xM, [16] = yM, [17] = zM, [18]=cM, [19]=i0...[28]=i9.
+        // [11] = xm, [12] = ym, [13] = zm, [14] = cm, [15] = xM, [16] = yM, [17] = zM, [18]=cM, [19]=i0...[28]=i9,
 
         // Compile expression into a serie of opcodes.
         const unsigned int ind_result = compile(expr._data,expr._data + expr._width - 1);
@@ -14450,15 +14454,16 @@ namespace cimg_library_suffixed {
               c1 = variable_name[0];
               c2 = variable_name[1];
               c3 = variable_name[2];
-              if (c1=='w' && c2=='h' && c3=='d') variable_name.fill(1,0,0); // whd
+              if (c1=='w' && c2=='h' && c3=='d') variable_name.fill(1,0); // whd
             } else if (variable_name[1] && variable_name[2] && variable_name[3] &&
                        !variable_name[4]) { // Four-chars variable.
               c1 = variable_name[0];
               c2 = variable_name[1];
               c3 = variable_name[2];
               c4 = variable_name[3];
-              if (c1=='w' && c2=='h' && c3=='d' && c4=='s') variable_name.fill(2,0,0,0); // whds
-            }
+              if (c1=='w' && c2=='h' && c3=='d' && c4=='s') variable_name.fill(2,0); // whds
+            } else if (!std::strcmp(variable_name,"interpolation")) variable_name.fill(29,0);
+            else if (!std::strcmp(variable_name,"boundary")) variable_name.fill(30,0);
 
             // Set new value to variable.
             arg2 = compile(s + 1,se);
@@ -14798,8 +14803,10 @@ namespace cimg_library_suffixed {
             arg1 = compile(s0,s1);
             arg2 = s1<se1?compile(s1 + 1,se1):~0U;
             if (p_coords && arg2==~0U) { p_coords[is_sth?5:0] = arg1; p_coords[10] = p1; }
-            if (*ss2=='#') _cimg_mp_opcode3(is_sth?mp_list_joff:mp_list_ioff,p1,arg1,arg2==~0U?0:arg2);
-            _cimg_mp_opcode2(is_sth?mp_joff:mp_ioff,arg1,arg2==~0U?0:arg2);
+            if (*ss2=='#') _cimg_mp_opcode3(is_sth?mp_list_joff:mp_list_ioff,p1,arg1,
+                                            arg2==~0U?reserved_label[30]:arg2);
+            _cimg_mp_opcode2(is_sth?mp_joff:mp_ioff,arg1,
+                             arg2==~0U?0:arg2);
           }
         }
 
@@ -14845,9 +14852,12 @@ namespace cimg_library_suffixed {
               else { p_coords[1] = arg1; p_coords[2] = arg2; p_coords[3] = arg3; p_coords[4] = arg4; }
               p_coords[10] = p1;
             }
-            if (*ss2=='#') _cimg_mp_opcode7(is_sth?mp_list_jxyzc:mp_list_ixyzc,p1,arg1,arg2,arg3,arg4,arg5==~0U?0:arg5,
-                                            arg6==~0U?0:arg6);
-            _cimg_mp_opcode6(is_sth?mp_jxyzc:mp_ixyzc,arg1,arg2,arg3,arg4,arg5==~0U?0:arg5,arg6==~0U?0:arg6);
+            if (*ss2=='#') _cimg_mp_opcode7(is_sth?mp_list_jxyzc:mp_list_ixyzc,p1,arg1,arg2,arg3,arg4,
+                                            arg5==~0U?reserved_label[29]:arg5,
+                                            arg6==~0U?reserved_label[30]:arg6);
+            _cimg_mp_opcode6(is_sth?mp_jxyzc:mp_ixyzc,arg1,arg2,arg3,arg4,
+                             arg5==~0U?reserved_label[29]:arg5,
+                             arg6==~0U?reserved_label[30]:arg6);
           }
 
           // Mathematical functions.
@@ -15381,14 +15391,14 @@ namespace cimg_library_suffixed {
           }
         }
 
-        if (*ss=='w' && *ss1=='h' && *ss2=='d' && *ss3=='#' && ss4<se) {
+        if (*ss=='w' && *ss1=='h' && *ss2=='d' && *ss3=='#' && ss4<se) { // whd#ind
           arg1 = compile(ss4,se);
           if (!listin) _cimg_mp_return(0);
           p1 = (unsigned int)(mem(arg1,1)>0?cimg::mod((int)mem[arg1],listin.width()):0);
           if (mem(arg1,1)>0) _cimg_mp_constant(listin[p1]._width*listin[p1]._height*listin[p1]._depth);
           _cimg_mp_opcode1(mp_list_whd,arg1);
         }
-        if (*ss=='w' && *ss1=='h' && *ss2=='d' && *ss3=='s' && *ss4=='#' && ss5<se) {
+        if (*ss=='w' && *ss1=='h' && *ss2=='d' && *ss3=='s' && *ss4=='#' && ss5<se) { // whds#ind
           arg1 = compile(ss5,se);
           if (!listin) _cimg_mp_return(0);
           p1 = (unsigned int)(mem(arg1,1)>0?cimg::mod((int)mem[arg1],listin.width()):0);
@@ -15396,6 +15406,9 @@ namespace cimg_library_suffixed {
                                                listin[p1]._spectrum);
           _cimg_mp_opcode1(mp_list_whds,arg1);
         }
+
+        if (!std::strcmp(ss,"interpolation")) _cimg_mp_return(reserved_label[29]); // interpolation
+        if (!std::strcmp(ss,"boundary")) _cimg_mp_return(reserved_label[30]); // boundary
 
         // No known item found, assuming this is an already initialized variable.
         variable_name.assign(ss,(unsigned int)(se - ss + 1)).back() = 0;

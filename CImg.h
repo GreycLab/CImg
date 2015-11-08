@@ -13995,7 +13995,7 @@ namespace cimg_library_suffixed {
       CImg<doubleT> mem;
       CImgList<uptrT> _code, &code;
       CImg<uptrT> opcode;
-      const CImg<uptrT> *p_code_end, *p_code;
+      const CImg<uptrT> *p_code_begin, *p_code_end, *p_code;
 
       CImg<charT> expr, pexpr;
       const CImg<T>& imgin;
@@ -14010,7 +14010,7 @@ namespace cimg_library_suffixed {
       CImg<uintT> level, labelMpos, reserved_label;
       CImgList<charT> labelM;
 
-      unsigned int mempos, mem_img_median, debug_indent;
+      unsigned int mempos, mem_img_median, debug_indent, init_size;
       double *result;
       const char *const calling_function;
       typedef double (*mp_func)(_cimg_math_parser&);
@@ -14040,7 +14040,7 @@ namespace cimg_library_suffixed {
         code(_code),imgin(img_input),listin(list_input?*list_input:CImgList<T>::const_empty()),
         imgout(img_output?*img_output:CImg<T>::empty()),listout(list_output?*list_output:CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),
-        mem_img_median(~0U),debug_indent(0),
+        mem_img_median(~0U),debug_indent(0),init_size(0),
         calling_function(funcname?funcname:"cimg_math_parser") {
         if (!expression || !*expression)
           throw CImgArgumentException("[_cimg_math_parser] "
@@ -14101,8 +14101,9 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_y 31
 #define _cimg_mp_z 32
 #define _cimg_mp_c 33
-        mempos = 34;
+        mem[_cimg_mp_x] = mem[_cimg_mp_y] = mem[_cimg_mp_z] = mem[_cimg_mp_c] = 0;
 
+        mempos = 34;
         labelMpos.assign(8);
         reserved_label.assign(128,1,1,1,~0U);
         reserved_label['t'] = 17;
@@ -14140,10 +14141,20 @@ namespace cimg_library_suffixed {
         pexpr.assign();
         opcode._width = opcode._depth = opcode._spectrum = 1;
         opcode._is_shared = true;
+
+        // Execute init() function if any specified.
+        p_code_begin = code._data + init_size;
+        for (p_code = code._data; p_code<p_code_begin; ++p_code) {
+          const CImg<uptrT> &op = *p_code;
+          // Allows to avoid parameter passing to evaluation functions.
+          opcode._data = op._data; opcode._height = op._height;
+          const uptrT target = opcode[1];
+          mem[target] = _cimg_mp_defunc(*this);
+        }
       }
 
       _cimg_math_parser():
-        code(_code),p_code_end(0),
+        code(_code),p_code_begin(0),p_code_end(0),
         imgin(CImg<T>::const_empty()),listin(CImgList<T>::const_empty()),
         imgout(CImg<T>::empty()),listout(CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),debug_indent(0),
@@ -14153,7 +14164,7 @@ namespace cimg_library_suffixed {
       }
 
       _cimg_math_parser(const _cimg_math_parser& mp):
-        mem(mp.mem),code(mp.code),p_code_end(mp.p_code_end),
+        mem(mp.mem),code(mp.code),p_code_begin(mp.p_code_begin),p_code_end(mp.p_code_end),
         imgin(mp.imgin),listin(mp.listin),imgout(mp.imgout),listout(mp.listout),img_stats(mp.img_stats),
         list_stats(mp.list_stats),list_median(mp.list_median),debug_indent(0),
         result(mem._data + (mp.result - mp.mem._data)),calling_function(0) {
@@ -15020,6 +15031,19 @@ namespace cimg_library_suffixed {
             break;
 
           case 'i' :
+            if (!std::strncmp(ss,"init(",5)) { // Init.
+              if (code.width()) // (only allowed as the first instruction).
+                throw CImgArgumentException("[_cimg_math_parser] "
+                                            "CImg<%s>::%s(): Call to init() not done at the beginning of expression '%s%s%s'.",
+                                            pixel_type(),calling_function,
+                                            (ss - 8)>expr._data?"...":"",
+                                            (ss - 8)>expr._data?ss - 8:expr._data,
+                                            se<&expr.back()?"...":"");
+              arg1 = compile(ss5,se1,p_coords);
+              init_size = code.width();
+              _cimg_mp_return(arg1);
+            }
+
             if (!std::strncmp(ss,"int(",4)) { // Integer cast.
               arg1 = compile(ss4,se1);
               if (mem(arg1,1)>0) _cimg_mp_constant((long)mem[arg1]);
@@ -15447,7 +15471,7 @@ namespace cimg_library_suffixed {
       // Evaluation procedure.
       double operator()(const double x, const double y, const double z, const double c) {
         mem[_cimg_mp_x] = x; mem[_cimg_mp_y] = y; mem[_cimg_mp_z] = z; mem[_cimg_mp_c] = c;
-        for (p_code = code._data; p_code<p_code_end; ++p_code) {
+        for (p_code = p_code_begin; p_code<p_code_end; ++p_code) {
           const CImg<uptrT> &op = *p_code;
           // Allows to avoid parameter passing to evaluation functions.
           opcode._data = op._data; opcode._height = op._height;

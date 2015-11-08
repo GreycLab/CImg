@@ -14199,6 +14199,7 @@ namespace cimg_library_suffixed {
 
       // Compilation procedure.
       unsigned int compile(char *ss, char *se, unsigned int *p_coords=0) {
+        const char *const ss0 = ss;
         if (ss<se) {
           while (*ss==' ') ++ss;
           while (se>ss && *(se - 1)==' ') --se;
@@ -15031,19 +15032,6 @@ namespace cimg_library_suffixed {
             break;
 
           case 'i' :
-            if (!std::strncmp(ss,"init(",5)) { // Init.
-              if (code.width()) // (only allowed as the first instruction).
-                throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s(): Call to init() not done at the beginning of expression '%s%s%s'.",
-                                            pixel_type(),calling_function,
-                                            (ss - 8)>expr._data?"...":"",
-                                            (ss - 8)>expr._data?ss - 8:expr._data,
-                                            se<&expr.back()?"...":"");
-              arg1 = compile(ss5,se1,p_coords);
-              init_size = code.width();
-              _cimg_mp_return(arg1);
-            }
-
             if (!std::strncmp(ss,"int(",4)) { // Integer cast.
               arg1 = compile(ss4,se1);
               if (mem(arg1,1)>0) _cimg_mp_constant((long)mem[arg1]);
@@ -15063,6 +15051,19 @@ namespace cimg_library_suffixed {
               CImg<uptrT>::vector((uptrT)mp_if,pos,arg1,arg2,arg3,
                                   p3 - p2,code._width - p3).move_to(code,p2);
               _cimg_mp_return(pos);
+            }
+
+            if (!std::strncmp(ss,"init(",5)) { // Init.
+              if (ss0!=expr._data || code.width()) // (only allowed as the first instruction).
+                throw CImgArgumentException("[_cimg_math_parser] "
+                                            "CImg<%s>::%s(): Call to init() not done at the beginning of expression '%s%s%s'.",
+                                            pixel_type(),calling_function,
+                                            (ss - 8)>expr._data?"...":"",
+                                            (ss - 8)>expr._data?ss - 8:expr._data,
+                                            se<&expr.back()?"...":"");
+              arg1 = compile(ss5,se1,p_coords);
+              init_size = code.width();
+              _cimg_mp_return(arg1);
             }
 
             if (*ss1=='s') { // Family of 'is_?()' functions.

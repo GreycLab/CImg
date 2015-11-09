@@ -14142,9 +14142,9 @@ namespace cimg_library_suffixed {
         opcode._is_shared = true;
 
         // Execute init() function if any specified.
+        p_code_begin = code._data + init_size;
         if (init_size) {
           mem[_cimg_mp_x] = mem[_cimg_mp_y] = mem[_cimg_mp_z] = mem[_cimg_mp_c] = 0;
-          p_code_begin = code._data + init_size;
           for (p_code = code._data; p_code<p_code_begin; ++p_code) {
             const CImg<uptrT> &op = *p_code;
             // Allows to avoid parameter passing to evaluation functions.

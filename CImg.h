@@ -14096,7 +14096,6 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_y 31
 #define _cimg_mp_z 32
 #define _cimg_mp_c 33
-        mem[_cimg_mp_x] = mem[_cimg_mp_y] = mem[_cimg_mp_z] = mem[_cimg_mp_c] = 0;
 
         // Set constant/variable property : { 1 = constant | -1 = variable | 0 = other }.
         std::memset(mem.data(0,1),0,sizeof(double)*mem._width);
@@ -14143,13 +14142,16 @@ namespace cimg_library_suffixed {
         opcode._is_shared = true;
 
         // Execute init() function if any specified.
-        p_code_begin = code._data + init_size;
-        for (p_code = code._data; p_code<p_code_begin; ++p_code) {
-          const CImg<uptrT> &op = *p_code;
-          // Allows to avoid parameter passing to evaluation functions.
-          opcode._data = op._data; opcode._height = op._height;
-          const uptrT target = opcode[1];
-          mem[target] = _cimg_mp_defunc(*this);
+        if (init_size) {
+          mem[_cimg_mp_x] = mem[_cimg_mp_y] = mem[_cimg_mp_z] = mem[_cimg_mp_c] = 0;
+          p_code_begin = code._data + init_size;
+          for (p_code = code._data; p_code<p_code_begin; ++p_code) {
+            const CImg<uptrT> &op = *p_code;
+            // Allows to avoid parameter passing to evaluation functions.
+            opcode._data = op._data; opcode._height = op._height;
+            const uptrT target = opcode[1];
+            mem[target] = _cimg_mp_defunc(*this);
+          }
         }
       }
 

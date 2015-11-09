@@ -14091,17 +14091,17 @@ namespace cimg_library_suffixed {
         *(p_mem++) = 0; // mem[28]
         *(p_mem++) = 0; // mem[29]
 
-        // Set constant/variable property : { 1 = constant | -1 = variable | 0 = other }.
-        std::memset(mem.data(0,1),0,sizeof(double)*mem._width);
-        p_mem = mem.data(0,1); for (unsigned int i = 0; i<28; ++i) *(p_mem++) = 1;
-        mem(17,1) = 0;
-
         // Then, [30] = x, [31] = y, [32] = z and [33] = c.
 #define _cimg_mp_x 30
 #define _cimg_mp_y 31
 #define _cimg_mp_z 32
 #define _cimg_mp_c 33
         mem[_cimg_mp_x] = mem[_cimg_mp_y] = mem[_cimg_mp_z] = mem[_cimg_mp_c] = 0;
+
+        // Set constant/variable property : { 1 = constant | -1 = variable | 0 = other }.
+        std::memset(mem.data(0,1),0,sizeof(double)*mem._width);
+        p_mem = mem.data(0,1); for (unsigned int i = 0; i<28; ++i) *(p_mem++) = 1;
+        mem(17,1) = 0;
 
         mempos = 34;
         labelMpos.assign(8);

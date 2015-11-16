@@ -4407,6 +4407,10 @@ namespace cimg_library_suffixed {
       return (double)rol((long)a,n);
     }
 
+    inline double rol(const long double a, const unsigned int n=1) {
+      return (double)rol((long)a,n);
+    }
+
     //! Bitwise-rotate value on the right.
     template<typename T>
     inline T ror(const T& a, const unsigned int n=1) {
@@ -4418,6 +4422,10 @@ namespace cimg_library_suffixed {
     }
 
     inline double ror(const double a, const unsigned int n=1) {
+      return (double)ror((long)a,n);
+    }
+
+    inline double ror(const long double a, const unsigned int n=1) {
       return (double)ror((long)a,n);
     }
 

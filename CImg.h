@@ -75,6 +75,7 @@
 #include <cstdarg>
 #include <cstring>
 #include <cmath>
+#include <cfloat>
 #include <climits>
 #include <ctime>
 #include <exception>
@@ -2573,8 +2574,8 @@ namespace cimg_library_suffixed {
         return !(val==val);
 #endif
       }
-      static double min() { return -1.7E308; }
-      static double max() { return  1.7E308; }
+      static double min() { return -DBL_MAX; }
+      static double max() { return DBL_MAX; }
       static double inf() { return max()*max(); }
       static double nan() { const double val_nan = -std::sqrt(-1.0); return val_nan; }
       static double cut(const double val) { return val<min()?min():val>max()?max():val; }
@@ -2599,13 +2600,39 @@ namespace cimg_library_suffixed {
         return !(val==val);
 #endif
       }
-      static float min() { return -3.4E38f; }
-      static float max() { return  3.4E38f; }
+      static float min() { return -FLT_MAX; }
+      static float max() { return FLT_MAX; }
       static float inf() { return (float)cimg::type<double>::inf(); }
       static float nan() { return (float)cimg::type<double>::nan(); }
       static float cut(const double val) { return val<(double)min()?min():val>(double)max()?max():(float)val; }
       static const char* format() { return "%.16g"; }
       static double format(const float val) { return (double)val; }
+    };
+
+    template<> struct type<long double> {
+      static const char* string() { static const char *const s = "long double"; return s; }
+      static bool is_float() { return true; }
+      static bool is_inf(const long double val) {
+#ifdef isinf
+        return (bool)isinf(val);
+#else
+        return !is_nan(val) && (val<cimg::type<long double>::min() || val>cimg::type<long double>::max());
+#endif
+      }
+      static bool is_nan(const double val) {
+#ifdef isnan
+        return (bool)isnan(val);
+#else
+        return !(val==val);
+#endif
+      }
+      static long double min() { return -LDBL_MAX; }
+      static long double max() { return LDBL_MAX; }
+      static long double inf() { return max()*max(); }
+      static long double nan() { const long double val_nan = -std::sqrt(-1.0L); return val_nan; }
+      static long double cut(const long double val) { return val<min()?min():val>max()?max():val; }
+      static const char* format() { return "%.16g"; }
+      static double format(const long double val) { return (double)val; }
     };
 
     template<typename T, typename t> struct superset { typedef T type; };

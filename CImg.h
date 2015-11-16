@@ -5480,6 +5480,7 @@ namespace cimg_library_suffixed {
   _cimg_create_ext_operators(long)
   _cimg_create_ext_operators(float)
   _cimg_create_ext_operators(double)
+  _cimg_create_ext_operators(long double)
 
   template<typename T>
   inline CImg<_cimg_Tfloat> operator+(const char *const expression, const CImg<T>& img) {

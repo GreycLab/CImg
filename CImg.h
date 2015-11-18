@@ -14083,7 +14083,7 @@ namespace cimg_library_suffixed {
                                       "CImg<%s>::%s(): Empty specified expression.",
                                       pixel_type(),calling_function);
         const char *_expression = expression;
-        while (*_expression<=' ') ++_expression;
+        while (*_expression && *_expression<=' ') ++_expression;
         CImg<charT>::string(_expression).move_to(expr);
         level.assign(expr._width - 1);
 

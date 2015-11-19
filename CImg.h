@@ -15118,7 +15118,8 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"init(",5)) { // Init.
               if (ss0!=expr._data || code.width()) // (only allowed as the first instruction).
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s(): Call to init() not done at the beginning of expression '%s%s%s'.",
+                                            "CImg<%s>::%s(): Call to init() not done at the beginning "
+                                            "of expression '%s%s%s'.",
                                             pixel_type(),calling_function,
                                             (ss - 8)>expr._data?"...":"",
                                             (ss - 8)>expr._data?ss - 8:expr._data,

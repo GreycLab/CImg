@@ -5128,7 +5128,8 @@ namespace cimg_library_suffixed {
 
     // Load file from network as a local temporary file.
     inline char *load_network(const char *const url, char *const filename_local,
-                              const unsigned int timeout=0, const bool try_fallback=false);
+                              const unsigned int timeout=0, const bool try_fallback=false,
+                              const char *const referer=0);
 
     //! Return options specified on the command line.
     inline const char* option(const char *const name, const int argc, const char *const *const argv,
@@ -53165,7 +53166,8 @@ namespace cimg {
      \note Use the \c libcurl library, or the external binaries \c wget or \c curl to perform the download.
   **/
   inline char *load_network(const char *const url, char *const filename_local,
-                            const unsigned int timeout, const bool try_fallback) {
+                            const unsigned int timeout, const bool try_fallback,
+                            const char *const referer) {
     if (!url)
       throw CImgArgumentException("cimg::load_network(): Specified URL is (null).");
     if (!filename_local)
@@ -53200,6 +53202,7 @@ namespace cimg {
         curl_easy_setopt(curl,CURLOPT_FOLLOWLOCATION,1L);
         if (timeout) curl_easy_setopt(curl,CURLOPT_TIMEOUT,(long)timeout);
         if (std::strchr(url,'?')) curl_easy_setopt(curl,CURLOPT_HTTPGET,1L);
+        if (referer) curl_easy_setopt(curl,CURLOPT_REFERER,referer);
         res = curl_easy_perform(curl);
         curl_easy_cleanup(curl);
         std::fseek(file,0,SEEK_END); // Check if file size is 0.
@@ -53219,23 +53222,41 @@ namespace cimg {
     cimg::unused(try_fallback);
 
     // Try with 'curl' first.
-    if (timeout)
-      cimg_snprintf(command,command._width,"%s -m %u -f --silent --compressed -o \"%s\" \"%s\"",
-                    cimg::curl_path(),timeout,filename_local,url);
-    else
-      cimg_snprintf(command,command._width,"%s -f --silent --compressed -o \"%s\" \"%s\"",
-                    cimg::curl_path(),filename_local,url);
+    if (timeout) {
+      if (referer)
+        cimg_snprintf(command,command._width,"%s -e %s -m %u -f --silent --compressed -o \"%s\" \"%s\"",
+                      cimg::curl_path(),referer,timeout,filename_local,url);
+      else
+        cimg_snprintf(command,command._width,"%s -m %u -f --silent --compressed -o \"%s\" \"%s\"",
+                      cimg::curl_path(),timeout,filename_local,url);
+    } else {
+      if (referer)
+        cimg_snprintf(command,command._width,"%s -e %s -f --silent --compressed -o \"%s\" \"%s\"",
+                      cimg::curl_path(),referer,filename_local,url);
+      else
+        cimg_snprintf(command,command._width,"%s -f --silent --compressed -o \"%s\" \"%s\"",
+                      cimg::curl_path(),filename_local,url);
+    }
     cimg::system(command);
 
     if (!(file = std::fopen(filename_local,"rb"))) {
 
       // Try with 'wget' otherwise.
-      if (timeout)
-        cimg_snprintf(command,command._width,"%s -T %u -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
-                      cimg::wget_path(),timeout,filename_local,url);
-      else
-        cimg_snprintf(command,command._width,"%s -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
-                      cimg::wget_path(),filename_local,url);
+      if (timeout) {
+        if (referer)
+          cimg_snprintf(command,command._width,"%s --referer=%s -T %u -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
+                        cimg::wget_path(),referer,timeout,filename_local,url);
+        else
+          cimg_snprintf(command,command._width,"%s -T %u -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
+                        cimg::wget_path(),timeout,filename_local,url);
+      } else {
+        if (referer)
+          cimg_snprintf(command,command._width,"%s --referer=%s -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
+                        cimg::wget_path(),referer,filename_local,url);
+        else
+          cimg_snprintf(command,command._width,"%s -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
+                        cimg::wget_path(),filename_local,url);
+      }
       cimg::system(command);
 
       if (!(file = std::fopen(filename_local,"rb")))

@@ -51418,7 +51418,7 @@ namespace cimg_library_suffixed {
        \param fps Number of desired frames per second.
        \param nb_loops Number of loops (\c 0 for infinite looping).
     **/
-    const CImgList<T>& save_gif_external(const char *const filename, const unsigned int fps=25,
+    const CImgList<T>& save_gif_external(const char *const filename, const float fps=25,
                                          const unsigned int nb_loops=0) {
       CImg<charT> command(1024), filename_tmp(256), filename_tmp2(256);
       CImgList<charT> filenames;
@@ -51444,15 +51444,15 @@ namespace cimg_library_suffixed {
       }
 
 #if cimg_OS!=2
-      cimg_snprintf(command,command._width,"%s -delay 1x%u -loop %u",
-                    cimg::imagemagick_path(),fps,nb_loops);
+      cimg_snprintf(command,command._width,"%s -delay %u -loop %u",
+                    cimg::imagemagick_path(),(unsigned int)cimg::max(0.0f,cimg::round(100/fps)),nb_loops);
       CImg<ucharT>::string(command).move_to(filenames,0);
       cimg_snprintf(command,command._width,"\"%s\" >/dev/null 2>&1",
                     CImg<charT>::string(filename)._system_strescape().data());
       CImg<ucharT>::string(command).move_to(filenames);
 #else
-      cimg_snprintf(command,command._width,"\"%s -delay 1x%u -loop %u",
-                    cimg::imagemagick_path(),fps,nb_loops);
+      cimg_snprintf(command,command._width,"\"%s -delay %u -loop %u",
+                    cimg::imagemagick_path(),(unsigned int)cimg::max(0.0f,cimg::round(100/fps)),nb_loops);
       CImg<ucharT>::string(command).move_to(filenames,0);
       cimg_snprintf(command,command._width,"\"%s\"\" >NUL 2>&1",
                     CImg<charT>::string(filename)._system_strescape().data());

@@ -94,7 +94,7 @@
   as environment variables are automatically set by the CImg library (see also \ref cimg_environment).
 
   - The class \ref cimg_library::CImgException (and its subclasses) are used by the library to throw exceptions
-  when errors occur. Those exceptions can be catched with a bloc <tt>try { ..} catch (CImgException) { .. }</tt>.
+  when errors occur. Those exceptions can be caught with a <tt>try { ..} catch (CImgException) { .. }</tt> block.
   Subclasses define precisely the type of encountered errors.
 
   Knowing these four classes is \b enough to get benefit of the %CImg Library functionalities.
@@ -102,7 +102,7 @@
 
   \section s2 CImg version of "Hello world".
 
-  Below is a very simple code that creates a "Hello World" image. This shows you basically how a CImg program looks like.
+  Below is some very simple code that creates a "Hello World" image. This shows you basically how a CImg program looks like.
 
   \code
   #include "CImg.h"
@@ -132,15 +132,15 @@
   \endcode
 
   Generally, you can write very small code that performs complex image processing tasks. The %CImg Library is very simple
-  to use and provide a lot of interesting algorithms for image manipulation.
+  to use and provides a lot of interesting algorithms for image manipulation.
 
   \section s3 How to compile ?
 
   The CImg library is a very light and user-friendly library : only standard system libraries are used.
-  It avoid to handle complex dependancies and problems with library compatibility.
+  It avoids handling complex dependencies and problems with library compatibility.
   The only thing you need is a (quite modern) C++ compiler :
 
-  - <b>Microsoft Visual C++ 6.0, Visual Studio.NET and Visual Express Edition</b> : Use project files and solution files provided in the
+  - <b>Microsoft Visual C++ 6.0, Visual Studio.NET and Visual Express Edition</b> : Use the project files and solution files provided in the
   %CImg Library package (directory 'compilation/') to see how it works.
   - <b>Intel ICL compiler</b> : Use the following command to compile a CImg-based program with ICL :
   \code
@@ -164,9 +164,9 @@
   \endcode
   - <b>Dev-Cpp</b> : Use the project file provided in the CImg library package to see how it works.
 
-  If you are using another compilers and encounter problems, please
+  If you are using other compilers and encounter problems, please
   <a href="http://www.greyc.ensicaen.fr/~dtschump">write me</a> since maintaining compatibility is one
-  of the priority of the %CImg Library. Nevertheless, old compilers that does not respect the C++ norm will not
+  of the priorities of the %CImg Library. Nevertheless, old compilers that do not respect the C++ standard will not
   support the %CImg Library.
 
   \section s4 What's next ?

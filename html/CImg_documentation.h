@@ -56,7 +56,7 @@
   The %CImg Library consists in a single header file <tt>CImg.h</tt> providing a set of C++ template classes that
   can be used in your own sources, to load/save, process and display images or list of images.
   Very portable (Unix/X11,Windows, MacOS X, FreeBSD,..), efficient, simple to use, it's a pleasant toolkit
-  for coding image processing stuffs in C++.
+  for coding image processing stuff in C++.
 
   The header file <tt>CImg.h</tt> contains all the classes and functions that compose the library itself.
   This is one originality of the %CImg Library. This particularly means that :
@@ -64,7 +64,7 @@
   the compilation of your own C++ code.
   - No complex dependencies have to be handled : Just include the <tt>CImg.h</tt> file, and you get a working C++ image processing toolkit.
   - The compilation is done on the fly : only CImg functionalities really used by your program are compiled and appear in the
-  compiled executable program. This leads to very compact code, without any unused stuffs.
+  compiled executable program. This leads to very compact code, without any unused stuff.
   - Class members and functions are inlined, leading to better performance during the program execution.
 
   The %CImg Library is structured as follows :
@@ -216,7 +216,7 @@
   <a href="https://raw.githubusercontent.com/dtschump/CImg/master/CImg.h">CImg.h</a>
   providing a set of C++ classes and functions that can be used in your own sources,
   to load/save, manage/process and display generic images.
-  It's actually a very simple and pleasant toolkit for coding image processing stuffs in C++ :
+  It's actually a very simple and pleasant toolkit for coding image processing stuff in C++ :
   Just include the header file <tt>CImg.h</tt>, and you are ready to handle images in your C++ programs.
 
   \subsection ssf12 1.2. What platforms are supported ?

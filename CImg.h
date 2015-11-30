@@ -2076,7 +2076,7 @@ namespace cimg_library_suffixed {
 
   // Declare cimg:: namespace.
   // This is an uncomplete namespace definition here. It only contains some
-  // necessary stuffs to ensure a correct declaration order of the classes and functions
+  // necessary stuff to ensure a correct declaration order of the classes and functions
   // defined afterwards.
   namespace cimg {
 

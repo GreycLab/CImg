@@ -2316,25 +2316,37 @@ namespace cimg_library_suffixed {
   **/
   struct CImgException : public std::exception {
 #define _cimg_exception_err(etype,disp_flag) \
-  std::va_list ap; va_start(ap,format); cimg_vsnprintf(_message,16384,format,ap); va_end(ap); \
-  if (cimg::exception_mode()) { \
-    std::fprintf(cimg::output(),"\n%s[CImg] *** %s ***%s %s\n",cimg::t_red,etype,cimg::t_normal,_message); \
-    if (cimg_display && disp_flag && !(cimg::exception_mode()%2)) try { cimg::dialog(etype,_message,"Abort"); } \
-    catch (CImgException&) {} \
-    if (cimg::exception_mode()>=3) cimg_library_suffixed::cimg::info(); \
-  }
+  std::va_list ap, ap2; \
+  va_start(ap,format); va_start(ap2,format); \
+  int size = cimg_vsnprintf(0,0,format,ap2); \
+  if (size++>=0) { \
+    delete[] _message; \
+    _message = new char[size]; \
+    cimg_vsnprintf(_message,size,format,ap); \
+    if (cimg::exception_mode()) { \
+      std::fprintf(cimg::output(),"\n%s[CImg] *** %s ***%s %s\n",cimg::t_red,etype,cimg::t_normal,_message); \
+      if (cimg_display && disp_flag && !(cimg::exception_mode()%2)) try { cimg::dialog(etype,_message,"Abort"); } \
+      catch (CImgException&) {} \
+      if (cimg::exception_mode()>=3) cimg_library_suffixed::cimg::info(); \
+    } \
+  } \
+  va_end(ap); va_end(ap2); \
 
     char *_message;
-    CImgException() { _message = new char[16384]; *_message = 0; }
-    CImgException(const char *const format, ...) {
-      _message = new char[16384]; *_message = 0; _cimg_exception_err("CImgException",true);
-    }
+    CImgException() { _message = new char[1]; *_message = 0; }
+    CImgException(const char *const format, ...):_message(0) { _cimg_exception_err("CImgException",true); }
     CImgException(const CImgException& e) {
-      _message = new char[16384]; strncpy(_message,e._message,16383); _message[16383] = 0;
+      const int size = std::strlen(e._message);
+      _message = new char[size + 1];
+      std::strncpy(_message,e._message,size);
+      _message[size] = 0;
     }
     ~CImgException() throw() { delete[] _message; }
     CImgException& operator=(const CImgException& e) {
-      strncpy(_message,e._message,16383); _message[16383] = 0;
+      const int size = std::strlen(e._message);
+      _message = new char[size + 1];
+      std::strncpy(_message,e._message,size);
+      _message[size] = 0;
       return *this;
     }
     //! Return a C-string containing the error message associated to the thrown exception.
@@ -2345,16 +2357,20 @@ namespace cimg_library_suffixed {
   // a computationally-intensive function has been aborted by an external signal.
   struct CImgAbortException : public std::exception {
     char *_message;
-    CImgAbortException() { _message = new char[16384]; *_message = 0; }
-    CImgAbortException(const char *const format, ...) {
-      _message = new char[16384]; *_message = 0; _cimg_exception_err("CImgAbortException",true);
-    }
+    CImgAbortException() { _message = new char[1]; *_message = 0; }
+    CImgAbortException(const char *const format, ...):_message(0) { _cimg_exception_err("CImgAbortException",true); }
     CImgAbortException(const CImgAbortException& e) {
-      _message = new char[16384]; strncpy(_message,e._message,16383); _message[16383] = 0;
+      const int size = std::strlen(e._message);
+      _message = new char[size + 1];
+      std::strncpy(_message,e._message,size);
+      _message[size] = 0;
     }
     ~CImgAbortException() throw() { delete[] _message; }
     CImgAbortException& operator=(const CImgAbortException& e) {
-      strncpy(_message,e._message,16383); _message[16383] = 0;
+      const int size = std::strlen(e._message);
+      _message = new char[size + 1];
+      std::strncpy(_message,e._message,size);
+      _message[size] = 0;
       return *this;
     }
     //! Return a C-string containing the error message associated to the thrown exception.

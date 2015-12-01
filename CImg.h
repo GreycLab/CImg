@@ -2658,7 +2658,7 @@ namespace cimg_library_suffixed {
         return !is_nan(val) && (val<cimg::type<long double>::min() || val>cimg::type<long double>::max());
 #endif
       }
-      static bool is_nan(const double val) {
+      static bool is_nan(const long double val) {
 #ifdef isnan
         return (bool)isnan(val);
 #else

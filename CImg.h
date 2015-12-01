@@ -17200,14 +17200,8 @@ namespace cimg_library_suffixed {
             cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)std::pow((double)*ptrd,mp(x,y,z,c)); ++ptrd; }
         }
       } catch (CImgException&) {
-        CImg<Tfloat> values(_width,_height,_depth,_spectrum);
-        try {
-          values.fill(expression,true);
-        } catch (CImgException&) {
-          cimg::exception_mode(omode);
-          values.load(expression);
-        }
-        pow(values);
+        cimg::exception_mode(omode);
+        pow(CImg<Tfloat>(_width,_height,_depth,_spectrum,expression,true));
       }
       cimg::exception_mode(omode);
       return *this;
@@ -17298,14 +17292,8 @@ namespace cimg_library_suffixed {
             cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)cimg::rol(*ptrd,(unsigned int)mp(x,y,z,c)); ++ptrd; }
         }
       } catch (CImgException&) {
-        CImg<Tfloat> values(_width,_height,_depth,_spectrum);
-        try {
-          values.fill(expression,true);
-        } catch (CImgException&) {
-          cimg::exception_mode(omode);
-          values.load(expression);
-        }
-        rol(values);
+        cimg::exception_mode(omode);
+        rol(CImg<Tfloat>(_width,_height,_depth,_spectrum,expression,true));
       }
       cimg::exception_mode(omode);
       return *this;
@@ -17396,14 +17384,8 @@ namespace cimg_library_suffixed {
             cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)cimg::ror(*ptrd,(unsigned int)mp(x,y,z,c)); ++ptrd; }
         }
       } catch (CImgException&) {
-        CImg<Tfloat> values(_width,_height,_depth,_spectrum);
-        try {
-          values.fill(expression,true);
-        } catch (CImgException&) {
-          cimg::exception_mode(omode);
-          values.load(expression);
-        }
-        ror(values);
+        cimg::exception_mode(omode);
+        ror(CImg<Tfloat>(_width,_height,_depth,_spectrum,expression,true));
       }
       cimg::exception_mode(omode);
       return *this;
@@ -17524,14 +17506,8 @@ namespace cimg_library_suffixed {
             cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)cimg::min(*ptrd,(T)mp(x,y,z,c)); ++ptrd; }
         }
       } catch (CImgException&) {
-        CImg<T> values(_width,_height,_depth,_spectrum);
-        try {
-          values.fill(expression,true);
-        } catch (CImgException&) {
-          cimg::exception_mode(omode);
-          values.load(expression);
-        }
-        min(values);
+        cimg::exception_mode(omode);
+        min(CImg<T>(_width,_height,_depth,_spectrum,expression,true));
       }
       cimg::exception_mode(omode);
       return *this;
@@ -17628,14 +17604,8 @@ namespace cimg_library_suffixed {
             cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)cimg::max(*ptrd,(T)mp(x,y,z,c)); ++ptrd; }
         }
       } catch (CImgException&) {
-        CImg<T> values(_width,_height,_depth,_spectrum);
-        try {
-          values.fill(expression,true);
-        } catch (CImgException&) {
-          cimg::exception_mode(omode);
-          values.load(expression);
-        }
-        max(values);
+        cimg::exception_mode(omode);
+        max(CImg<T>(_width,_height,_depth,_spectrum,expression,true));
       }
       cimg::exception_mode(omode);
       return *this;

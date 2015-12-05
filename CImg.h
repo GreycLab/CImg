@@ -4856,7 +4856,7 @@ namespace cimg_library_suffixed {
     // Return a random filename.
     inline const char* filenamerand() {
       cimg::mutex(6);
-      static char randomid[9] = { 0 };
+      static char randomid[9];
       cimg::srand();
       for (unsigned int k = 0; k<8; ++k) {
         const int v = (int)cimg::rand(65535)%3;
@@ -5208,7 +5208,7 @@ namespace cimg_library_suffixed {
                        const char defaut, const char *const usage=0) {
       const char *const s = cimg::option(name,argc,argv,(char*)0);
       const char res = s?*s:defaut;
-      char tmp[8] = { 0 };
+      char tmp[8];
       *tmp = res;
       cimg::option(name,0,0,tmp,usage);
       return res;
@@ -7883,7 +7883,7 @@ namespace cimg_library_suffixed {
       if (is_empty()) return *this;
       Display *const dpy = cimg::X11_attr().display;
       cimg_lock_display();
-      const char pix_data[8] = { 0 };
+      static const char pix_data[8] = { 0 };
       XColor col;
       col.red = col.green = col.blue = 0;
       Pixmap pix = XCreateBitmapFromData(dpy,_window,pix_data,8,8);
@@ -23530,7 +23530,7 @@ namespace cimg_library_suffixed {
       static const Tfloat mask[9] = { 0.07842776544f, 0.1231940459f, 0.07842776544f,
                                       0.1231940459f,  0.1935127547f, 0.1231940459f,
                                       0.07842776544f, 0.1231940459f, 0.07842776544f };
-      T I[9] = { 0 };
+      T I[9];
       CImg<T> res(_width/2,_height/2,_depth,_spectrum);
       T *ptrd = res._data;
       cimg_forZC(*this,z,c) cimg_for3x3(*this,x,y,z,c,I,T)
@@ -26265,7 +26265,7 @@ namespace cimg_library_suffixed {
         Ttfloat *ptrd = res._data;
         switch (mask._depth) {
         case 3 : {
-          T I[27] = { 0 };
+          T I[27];
           cimg_forC(res,c) {
             cimg_test_abort();
             const CImg<T> _img = get_shared_channel(c%_spectrum);
@@ -26305,7 +26305,7 @@ namespace cimg_library_suffixed {
           }
         } break;
         case 2 : {
-          T I[8] = { 0 };
+          T I[8];
           cimg_forC(res,c) {
             cimg_test_abort();
             const CImg<T> _img = get_shared_channel(c%_spectrum);
@@ -26333,7 +26333,7 @@ namespace cimg_library_suffixed {
         case 1 :
           switch (mask._width) {
           case 6 : {
-            T I[36] = { 0 };
+            T I[36];
             cimg_forC(res,c) {
               cimg_test_abort();
               const CImg<T> _img = get_shared_channel(c%_spectrum);
@@ -26373,7 +26373,7 @@ namespace cimg_library_suffixed {
             }
           } break;
           case 5 : {
-            T I[25] = { 0 };
+            T I[25];
             cimg_forC(res,c) {
               cimg_test_abort();
               const CImg<T> _img = get_shared_channel(c%_spectrum);
@@ -26405,7 +26405,7 @@ namespace cimg_library_suffixed {
             }
           } break;
           case 4 : {
-            T I[16] = { 0 };
+            T I[16];
             cimg_forC(res,c) {
               cimg_test_abort();
               const CImg<T> _img = get_shared_channel(c%_spectrum);
@@ -26431,7 +26431,7 @@ namespace cimg_library_suffixed {
             }
           } break;
           case 3 : {
-            T I[9] = { 0 };
+            T I[9];
             cimg_forC(res,c) {
               cimg_test_abort();
               const CImg<T> _img = get_shared_channel(c%_spectrum);
@@ -26453,7 +26453,7 @@ namespace cimg_library_suffixed {
             }
           } break;
           case 2 : {
-            T I[4] = { 0 };
+            T I[4];
             cimg_forC(res,c) {
               cimg_test_abort();
               const CImg<T> _img = get_shared_channel(c%_spectrum);
@@ -28853,7 +28853,7 @@ namespace cimg_library_suffixed {
 #pragma omp parallel for cimg_openmp_if (_spectrum>=2)
 #endif
               cimg_forC(*this,c) {
-                T I[9] = { 0 };
+                T I[9];
                 CImg_3x3(J,T);
                 cimg_for3x3(*this,x,y,0,c,I,T) {
                   std::memcpy(J,I,9*sizeof(T));
@@ -28873,7 +28873,7 @@ namespace cimg_library_suffixed {
 #pragma omp parallel for cimg_openmp_if (_spectrum>=2)
 #endif
               cimg_forC(*this,c) {
-                T I[25] = { 0 };
+                T I[25];
                 CImg_5x5(J,T);
                 cimg_for5x5(*this,x,y,0,c,I,T) {
                   std::memcpy(J,I,25*sizeof(T));
@@ -28951,7 +28951,7 @@ namespace cimg_library_suffixed {
 #pragma omp parallel for cimg_openmp_if (_spectrum>=2)
 #endif
               cimg_forC(*this,c) {
-                T I[4] = { 0 };
+                T I[4];
                 cimg_for2x2(*this,x,y,0,c,I,T) res(x,c) = (T)(0.5f*(I[0] + I[1]));
               }
             } break;
@@ -28960,7 +28960,7 @@ namespace cimg_library_suffixed {
 #pragma omp parallel for cimg_openmp_if (_spectrum>=2)
 #endif
               cimg_forC(*this,c) {
-                T I[9] = { 0 };
+                T I[9];
                 cimg_for3x3(*this,x,y,0,c,I,T)
                   res(x,c) = I[3]<I[4]?(I[4]<I[5]?I[4]:(I[3]<I[5]?I[5]:I[3])):(I[3]<I[5]?I[3]:(I[4]<I[5]?I[5]:I[4]));
               }
@@ -37755,32 +37755,32 @@ namespace cimg_library_suffixed {
       if (is_empty()) return *this;
       const int yt = (y + 3 + font_height)<_height?y + 3:y - 2 - (int)font_height;
       const int siz = (int)values_x.size() - 1;
-      char txt[32] = { 0 };
+      CImg<charT> txt(32); *txt = 0;
       CImg<T> label;
       if (siz<=0) { // Degenerated case.
         draw_line(0,y,_width - 1,y,color,opacity,pattern);
         if (!siz) {
-          cimg_snprintf(txt,sizeof(txt),"%g",(double)*values_x);
+          cimg_snprintf(txt,txt._width,"%g",(double)*values_x);
           label.assign().draw_text(0,0,txt,color,(tc*)0,opacity,font_height);
           const int
             _xt = (width() - label.width())/2,
             xt = _xt<3?3:_xt + label.width()>=width() - 2?width() - 3 - label.width():_xt;
           draw_point(width()/2,y - 1,color,opacity).draw_point(width()/2,y + 1,color,opacity);
-          if (allow_zero || txt[0]!='0' || txt[1]!=0)
+          if (allow_zero || *txt!='0' || txt[1]!=0)
             draw_text(xt,yt,txt,color,(tc*)0,opacity,font_height);
         }
       } else { // Regular case.
         if (values_x[0]<values_x[siz]) draw_arrow(0,y,_width - 1,y,color,opacity,30,5,pattern);
         else draw_arrow(_width - 1,y,0,y,color,opacity,30,5,pattern);
         cimg_foroff(values_x,x) {
-          cimg_snprintf(txt,sizeof(txt),"%g",(double)values_x(x));
+          cimg_snprintf(txt,txt._width,"%g",(double)values_x(x));
           label.assign().draw_text(0,0,txt,color,(tc*)0,opacity,font_height);
           const int
             xi = (int)(x*(_width - 1)/siz),
             _xt = xi - label.width()/2,
             xt = _xt<3?3:_xt + label.width()>=width() - 2?width() - 3 - label.width():_xt;
           draw_point(xi,y - 1,color,opacity).draw_point(xi,y + 1,color,opacity);
-          if (allow_zero || txt[0]!='0' || txt[1]!=0)
+          if (allow_zero || *txt!='0' || txt[1]!=0)
             draw_text(xt,yt,txt,color,(tc*)0,opacity,font_height);
         }
       }
@@ -37804,12 +37804,12 @@ namespace cimg_library_suffixed {
                        const bool allow_zero=true) {
       if (is_empty()) return *this;
       int siz = (int)values_y.size() - 1;
-      char txt[32] = { 0 };
+      CImg<charT> txt(32); *txt = 0;
       CImg<T> label;
       if (siz<=0) { // Degenerated case.
         draw_line(x,0,x,_height - 1,color,opacity,pattern);
         if (!siz) {
-          cimg_snprintf(txt,sizeof(txt),"%g",(double)*values_y);
+          cimg_snprintf(txt,txt._width,"%g",(double)*values_y);
           label.assign().draw_text(0,0,txt,color,(tc*)0,opacity,font_height);
           const int
             _yt = (height() - label.height())/2,
@@ -37817,14 +37817,14 @@ namespace cimg_library_suffixed {
             _xt = x - 2 - label.width(),
             xt = _xt>=0?_xt:x + 3;
           draw_point(x - 1,height()/2,color,opacity).draw_point(x + 1,height()/2,color,opacity);
-          if (allow_zero || txt[0]!='0' || txt[1]!=0)
+          if (allow_zero || *txt!='0' || txt[1]!=0)
             draw_text(xt,yt,txt,color,(tc*)0,opacity,font_height);
         }
       } else { // Regular case.
         if (values_y[0]<values_y[siz]) draw_arrow(x,0,x,_height - 1,color,opacity,30,5,pattern);
         else draw_arrow(x,_height - 1,x,0,color,opacity,30,5,pattern);
         cimg_foroff(values_y,y) {
-          cimg_snprintf(txt,sizeof(txt),"%g",(double)values_y(y));
+          cimg_snprintf(txt,txt._width,"%g",(double)values_y(y));
           label.assign().draw_text(0,0,txt,color,(tc*)0,opacity,font_height);
           const int
             yi = (int)(y*(_height - 1)/siz),
@@ -37833,7 +37833,7 @@ namespace cimg_library_suffixed {
             _xt = x - 2 - label.width(),
             xt = _xt>=0?_xt:x + 3;
           draw_point(x - 1,yi,color,opacity).draw_point(x + 1,yi,color,opacity);
-          if (allow_zero || txt[0]!='0' || txt[1]!=0)
+          if (allow_zero || *txt!='0' || txt[1]!=0)
             draw_text(xt,yt,txt,color,(tc*)0,opacity,font_height);
         }
       }
@@ -40105,7 +40105,7 @@ namespace cimg_library_suffixed {
       disp._normalization = 0;
       disp.show().set_key(0).set_wheel().show_mouse();
 
-      unsigned char foreground_color[] = { 255,255,255 }, background_color[] = { 0,0,0 };
+      static const unsigned char foreground_color[] = { 255,255,255 }, background_color[] = { 0,0,0 };
 
       int area = 0, starting_area = 0, clicked_area = 0, phase = 0,
         X0 = (int)((XYZ?XYZ[0]:(_width - 1)/2)%_width),
@@ -40183,35 +40183,35 @@ namespace cimg_library_suffixed {
           } break;
         case cimg::keyS : if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) {
             static unsigned int snap_number = 0;
-            char filename[32] = { 0 };
+            CImg<charT> filename(32); *filename = 0;
             std::FILE *file;
             do {
-              cimg_snprintf(filename,sizeof(filename),cimg_appname "_%.4u.bmp",snap_number++);
+              cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.bmp",snap_number++);
               if ((file=std::fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
             if (visu0) {
               (+visu0).draw_text(0,0," Saving snapshot... ",foreground_color,background_color,0.7f,13).display(disp);
               visu0.save(filename);
-              (+visu0).draw_text(0,0," Snapshot '%s' saved. ",foreground_color,background_color,0.7f,13,filename).
+              (+visu0).draw_text(0,0," Snapshot '%s' saved. ",foreground_color,background_color,0.7f,13,filename._data).
                 display(disp);
             }
             disp.set_key(key,false); key = 0;
           } break;
         case cimg::keyO : if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) {
             static unsigned int snap_number = 0;
-            char filename[32] = { 0 };
+            CImg<charT> filename(32); *filename = 0;
             std::FILE *file;
             do {
 #ifdef cimg_use_zlib
-              cimg_snprintf(filename,sizeof(filename),cimg_appname "_%.4u.cimgz",snap_number++);
+              cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.cimgz",snap_number++);
 #else
-              cimg_snprintf(filename,sizeof(filename),cimg_appname "_%.4u.cimg",snap_number++);
+              cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.cimg",snap_number++);
 #endif
               if ((file=std::fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
             (+visu0).draw_text(0,0," Saving instance... ",foreground_color,background_color,0.7f,13).display(disp);
             save(filename);
-            (+visu0).draw_text(0,0," Instance '%s' saved. ",foreground_color,background_color,0.7f,13,filename).
+            (+visu0).draw_text(0,0," Instance '%s' saved. ",foreground_color,background_color,0.7f,13,filename._data).
               display(disp);
             disp.set_key(key,false); key = 0;
           } break;
@@ -40885,15 +40885,15 @@ namespace cimg_library_suffixed {
             static unsigned int snap_number = 0;
             if (visu || visu0) {
               CImg<ucharT> &screen = visu?visu:visu0;
-              char filename[32] = { 0 };
+              CImg<charT> filename(32); *filename = 0;
               std::FILE *file;
               do {
-                cimg_snprintf(filename,sizeof(filename),cimg_appname "_%.4u.bmp",snap_number++);
+                cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.bmp",snap_number++);
                 if ((file=std::fopen(filename,"r"))!=0) cimg::fclose(file);
               } while (file);
               (+screen).draw_text(0,0," Saving snapshot... ",black,gray,1,13).display(disp);
               screen.save(filename);
-              (+screen).draw_text(0,0," Snapshot '%s' saved. ",black,gray,1,13,filename).display(disp);
+              (+screen).draw_text(0,0," Snapshot '%s' saved. ",black,gray,1,13,filename._data).display(disp);
             }
             disp.set_key(key,false); okey = 0;
           } break;
@@ -40901,19 +40901,19 @@ namespace cimg_library_suffixed {
             static unsigned int snap_number = 0;
             if (visu || visu0) {
               CImg<ucharT> &screen = visu?visu:visu0;
-              char filename[32] = { 0 };
+              CImg<charT> filename(32); *filename = 0;
               std::FILE *file;
               do {
 #ifdef cimg_use_zlib
-                cimg_snprintf(filename,sizeof(filename),cimg_appname "_%.4u.cimgz",snap_number++);
+                cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.cimgz",snap_number++);
 #else
-                cimg_snprintf(filename,sizeof(filename),cimg_appname "_%.4u.cimg",snap_number++);
+                cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.cimg",snap_number++);
 #endif
                 if ((file=std::fopen(filename,"r"))!=0) cimg::fclose(file);
               } while (file);
               (+screen).draw_text(0,0," Saving instance... ",black,gray,1,13).display(disp);
               save(filename);
-              (+screen).draw_text(0,0," Instance '%s' saved. ",black,gray,1,13,filename).display(disp);
+              (+screen).draw_text(0,0," Instance '%s' saved. ",black,gray,1,13,filename._data).display(disp);
             }
             disp.set_key(key,false); okey = 0;
           } break;
@@ -41279,8 +41279,8 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
 
       std::FILE *const nfile = file?file:cimg::fopen(filename,"rb");
-      unsigned char header[64] = { 0 };
-      cimg::fread(header,54,nfile);
+      CImg<ucharT> header(64); *header = 0;
+      cimg::fread(header._data,54,nfile);
       if (*header!='B' || header[1]!='M') {
         if (!file) cimg::fclose(nfile);
         throw CImgIOException(_cimg_instance
@@ -41305,7 +41305,7 @@ namespace cimg_library_suffixed {
         file_size = (int)std::ftell(nfile);
         std::fseek(nfile,54,SEEK_SET);
       }
-      if (header_size>40) std::fseek(nfile, header_size - 40, SEEK_CUR);
+      if (header_size>40) std::fseek(nfile,header_size - 40,SEEK_CUR);
 
       const int
         cimg_iobuffer = 24*1024*1024,
@@ -42877,8 +42877,7 @@ namespace cimg_library_suffixed {
     }
 
     static void _load_inr_header(std::FILE *file, int out[8], float *const voxel_size) {
-      CImg<charT> item(1024); *item = 0;
-      char tmp1[64] = { 0 }, tmp2[64] = { 0 };
+      CImg<charT> item(1024), tmp1(64), tmp2(64); *item = *tmp1 = *tmp2 = 0;
       out[0] = std::fscanf(file,"%63s",item._data);
       out[0] = out[1] = out[2] = out[3] = out[5] = 1; out[4] = out[6] = out[7] = -1;
       if(cimg::strncasecmp(item,"#INRIMAGE-4#{",13)!=0)
@@ -42896,19 +42895,19 @@ namespace cimg_library_suffixed {
           cimg_sscanf(item," VY%*[^0-9.+-]%f",voxel_size + 1);
           cimg_sscanf(item," VZ%*[^0-9.+-]%f",voxel_size + 2);
         }
-        if (cimg_sscanf(item," CPU%*[ =]%s",tmp1)) out[7]=cimg::strncasecmp(tmp1,"sun",3)?0:1;
-        switch (cimg_sscanf(item," TYPE%*[ =]%s %s",tmp1,tmp2)) {
+        if (cimg_sscanf(item," CPU%*[ =]%s",tmp1._data)) out[7] = cimg::strncasecmp(tmp1,"sun",3)?0:1;
+        switch (cimg_sscanf(item," TYPE%*[ =]%s %s",tmp1._data,tmp2._data)) {
         case 0 : break;
-        case 2 : out[5] = cimg::strncasecmp(tmp1,"unsigned",8)?1:0; std::strncpy(tmp1,tmp2,sizeof(tmp1) - 1);
+        case 2 : out[5] = cimg::strncasecmp(tmp1,"unsigned",8)?1:0; std::strncpy(tmp1,tmp2,tmp1._width - 1);
         case 1 :
-          if (!cimg::strncasecmp(tmp1,"int",3)   || !cimg::strncasecmp(tmp1,"fixed",5))  out[4] = 0;
+          if (!cimg::strncasecmp(tmp1,"int",3) || !cimg::strncasecmp(tmp1,"fixed",5))  out[4] = 0;
           if (!cimg::strncasecmp(tmp1,"float",5) || !cimg::strncasecmp(tmp1,"double",6)) out[4] = 1;
-          if (!cimg::strncasecmp(tmp1,"packed",6))                                       out[4] = 2;
+          if (!cimg::strncasecmp(tmp1,"packed",6)) out[4] = 2;
           if (out[4]>=0) break;
         default :
           throw CImgIOException("CImg<%s>::load_inr(): Invalid pixel type '%s' defined in header.",
                                 pixel_type(),
-                                tmp2);
+                                tmp2._data);
         }
       }
       if(out[0]<0 || out[1]<0 || out[2]<0 || out[3]<0)
@@ -43062,8 +43061,8 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
 
       std::FILE *const nfile = file?file:cimg::fopen(filename,"rb");
-      char header[32] = { 0 };
-      cimg::fread(header,12,nfile);
+      CImg<charT> header(32); *header = 0;
+      cimg::fread(header._data,12,nfile);
       if (cimg::strncasecmp("PANDORE",header,7)) {
         if (!file) cimg::fclose(nfile);
         throw CImgIOException(_cimg_instance
@@ -43072,10 +43071,11 @@ namespace cimg_library_suffixed {
                               filename?filename:"(FILE*)");
       }
       unsigned int imageid, dims[8] = { 0 };
+      int ptbuf[4] = { 0 };
       cimg::fread(&imageid,1,nfile);
       const bool endian = imageid>255;
       if (endian) cimg::invert_endianness(imageid);
-      cimg::fread(header,20,nfile);
+      cimg::fread(header._data,20,nfile);
 
       switch (imageid) {
       case 2 : _cimg_load_pandore_case(2,dims[1],1,1,1,unsigned char,unsigned char,unsigned char,1); break;
@@ -43207,19 +43207,16 @@ namespace cimg_library_suffixed {
         break;
       case 33 : _cimg_load_pandore_case(4,dims[3],dims[2],dims[1],dims[0],double,float,float,4); break;
       case 34 : { // Points 1d
-        int ptbuf[4] = { 0 };
         cimg::fread(ptbuf,1,nfile);
         if (endian) cimg::invert_endianness(ptbuf,1);
         assign(1); (*this)(0) = (T)ptbuf[0];
       } break;
       case 35 : { // Points 2d
-        int ptbuf[4] = { 0 };
         cimg::fread(ptbuf,2,nfile);
         if (endian) cimg::invert_endianness(ptbuf,2);
         assign(2); (*this)(0) = (T)ptbuf[1]; (*this)(1) = (T)ptbuf[0];
       } break;
       case 36 : { // Points 3d
-        int ptbuf[4] = { 0 };
         cimg::fread(ptbuf,3,nfile);
         if (endian) cimg::invert_endianness(ptbuf,3);
         assign(3); (*this)(0) = (T)ptbuf[2]; (*this)(1) = (T)ptbuf[1]; (*this)(2) = (T)ptbuf[0];
@@ -44102,11 +44099,11 @@ namespace cimg_library_suffixed {
       const unsigned long siz = size(), msiz = siz*sizeof(T), siz1 = siz - 1,
         mdisp = msiz<8*1024?0U:msiz<8*1024*1024?1U:2U, width1 = _width - 1;
 
-      char _title[64] = { 0 };
-      if (!title) cimg_snprintf(_title,sizeof(_title),"CImg<%s>",pixel_type());
+      CImg<charT> _title(64); *_title = 0;
+      if (!title) cimg_snprintf(_title,_title._width,"CImg<%s>",pixel_type());
 
       std::fprintf(cimg::output(),"%s%s%s%s: %sthis%s = %p, %ssize%s = (%u,%u,%u,%u) [%lu %s], %sdata%s = (%s*)%p",
-                   cimg::t_magenta,cimg::t_bold,title?title:_title,cimg::t_normal,
+                   cimg::t_magenta,cimg::t_bold,title?title:_title._data,cimg::t_normal,
                    cimg::t_bold,cimg::t_normal,(void*)this,
                    cimg::t_bold,cimg::t_normal,_width,_height,_depth,_spectrum,
                    mdisp==0?msiz:(mdisp==1?(msiz>>10):(msiz>>20)),
@@ -44822,6 +44819,7 @@ namespace cimg_library_suffixed {
           }
         } else if (clicked) { x0 = x1; y0 = y1; clicked = false; redraw = true; }
 
+        CImg<charT> filename(32); *filename = 0;
         switch (key = disp.key()) {
 #if cimg_OS!=2
         case cimg::keyCTRLRIGHT :
@@ -44900,43 +44898,40 @@ namespace cimg_library_suffixed {
           } break;
         case cimg::keyS : if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) { // Save snapshot
             static unsigned int snap_number = 0;
-            char filename[32] = { 0 };
             std::FILE *file;
             do {
-              cimg_snprintf(filename,sizeof(filename),cimg_appname "_%.4u.bmp",snap_number++);
+              cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.bmp",snap_number++);
               if ((file=std::fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
             (+visu).draw_text(0,0," Saving snapshot... ",
                               foreground_color._data,background_color._data,0.7f,13).display(disp);
             visu.save(filename);
             (+visu).draw_text(0,0," Snapshot '%s' saved. ",
-                              foreground_color._data,background_color._data,0.7f,13,filename).display(disp);
+                              foreground_color._data,background_color._data,0.7f,13,filename._data).display(disp);
             disp.set_key(key,false); key = 0;
           } break;
         case cimg::keyG : if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) { // Save object as a .off file
             static unsigned int snap_number = 0;
-            char filename[32] = { 0 };
             std::FILE *file;
             do {
-              cimg_snprintf(filename,sizeof(filename),cimg_appname "_%.4u.off",snap_number++);
+              cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.off",snap_number++);
               if ((file=std::fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
             (+visu).draw_text(0,0," Saving object... ",
                               foreground_color._data,background_color._data,0.7f,13).display(disp);
             vertices.save_off(reverse_primitives?reverse_primitives:primitives,colors,filename);
             (+visu).draw_text(0,0," Object '%s' saved. ",
-                              foreground_color._data,background_color._data,0.7f,13,filename).display(disp);
+                              foreground_color._data,background_color._data,0.7f,13,filename._data).display(disp);
             disp.set_key(key,false); key = 0;
           } break;
         case cimg::keyO : if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) { // Save object as a .cimg file
             static unsigned int snap_number = 0;
-            char filename[32] = { 0 };
             std::FILE *file;
             do {
 #ifdef cimg_use_zlib
-              cimg_snprintf(filename,sizeof(filename),cimg_appname "_%.4u.cimgz",snap_number++);
+              cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.cimgz",snap_number++);
 #else
-              cimg_snprintf(filename,sizeof(filename),cimg_appname "_%.4u.cimg",snap_number++);
+              cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.cimg",snap_number++);
 #endif
               if ((file=std::fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
@@ -44945,16 +44940,15 @@ namespace cimg_library_suffixed {
             vertices.get_object3dtoCImg3d(reverse_primitives?reverse_primitives:primitives,colors,opacities).
               save(filename);
             (+visu).draw_text(0,0," Object '%s' saved. ",
-                              foreground_color._data,background_color._data,0.7f,13,filename).display(disp);
+                              foreground_color._data,background_color._data,0.7f,13,filename._data).display(disp);
             disp.set_key(key,false); key = 0;
           } break;
 #ifdef cimg_use_board
         case cimg::keyP : if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) { // Save object as a .EPS file
             static unsigned int snap_number = 0;
-            char filename[32] = { 0 };
             std::FILE *file;
             do {
-              cimg_snprintf(filename,sizeof(filename),cimg_appname "_%.4u.eps",snap_number++);
+              cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.eps",snap_number++);
               if ((file=std::fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
             (+visu).draw_text(0,0," Saving EPS snapshot... ",
@@ -44970,15 +44964,14 @@ namespace cimg_library_suffixed {
                                    sprite_scale);
             board.saveEPS(filename);
             (+visu).draw_text(0,0," Object '%s' saved. ",
-                              foreground_color._data,background_color._data,0.7f,13,filename).display(disp);
+                              foreground_color._data,background_color._data,0.7f,13,filename._data).display(disp);
             disp.set_key(key,false); key = 0;
           } break;
         case cimg::keyV : if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) { // Save object as a .SVG file
             static unsigned int snap_number = 0;
-            char filename[32] = { 0 };
             std::FILE *file;
             do {
-              cimg_snprintf(filename,sizeof(filename),cimg_appname "_%.4u.svg",snap_number++);
+              cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.svg",snap_number++);
               if ((file=std::fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
             (+visu).draw_text(0,0," Saving SVG snapshot... ",
@@ -44994,7 +44987,7 @@ namespace cimg_library_suffixed {
                                    sprite_scale);
             board.saveSVG(filename);
             (+visu).draw_text(0,0," Object '%s' saved. ",
-                              foreground_color._data,background_color._data,0.7f,13,filename).display(disp);
+                              foreground_color._data,background_color._data,0.7f,13,filename._data).display(disp);
             disp.set_key(key,false); key = 0;
           } break;
 #endif
@@ -45427,7 +45420,8 @@ namespace cimg_library_suffixed {
                    filename?filename:"(FILE*)");
 
       std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
-      unsigned char header[54] = { 0 }, align_buf[4] = { 0 };
+      CImg<ucharT> header(54); *header = 0;
+      unsigned char align_buf[4] = { 0 };
       const unsigned int
         align = (4 - (3*_width)%4)%4,
         buf_size = (3*_width + align)*height(),
@@ -45457,7 +45451,7 @@ namespace cimg_library_suffixed {
       header[0x25] = (buf_size>>24)&0xFF;
       header[0x27] = 0x1;
       header[0x2B] = 0x1;
-      cimg::fwrite(header,54,nfile);
+      cimg::fwrite(header._data,54,nfile);
 
       const T
         *ptr_r = data(0,_height - 1,0,0),
@@ -46506,8 +46500,7 @@ namespace cimg_library_suffixed {
       if (is_empty()) { cimg::fempty(0,filename); return *this; }
 
       std::FILE *file;
-      char header[348] = { 0 };
-      CImg<charT> hname(1024), iname(1024);
+      CImg<charT> header(348), hname(1024), iname(1024);
       const char *const ext = cimg::split_filename(filename);
       short datatype = -1;
       std::memset(header,0,348);
@@ -46528,17 +46521,17 @@ namespace cimg_library_suffixed {
       if (!cimg::strncasecmp(ext,"nii",3)) {
         std::strncpy(hname,filename,hname._width - 1); *iname = 0;
       }
-      int *const iheader = (int*)header;
+      int *const iheader = (int*)header._data;
       *iheader = 348;
-      std::strcpy(header + 4,"CImg");
-      std::strcpy(header + 14," ");
-      ((short*)(header + 36))[0] = 4096;
-      ((char*)(header + 38))[0] = 114;
-      ((short*)(header + 40))[0] = 4;
-      ((short*)(header + 40))[1] = (short)_width;
-      ((short*)(header + 40))[2] = (short)_height;
-      ((short*)(header + 40))[3] = (short)_depth;
-      ((short*)(header + 40))[4] = (short)_spectrum;
+      std::strcpy(header._data + 4,"CImg");
+      std::strcpy(header._data + 14," ");
+      ((short*)(header._data + 36))[0] = 4096;
+      ((char*)(header._data + 38))[0] = 114;
+      ((short*)(header._data + 40))[0] = 4;
+      ((short*)(header._data + 40))[1] = (short)_width;
+      ((short*)(header._data + 40))[2] = (short)_height;
+      ((short*)(header._data + 40))[3] = (short)_depth;
+      ((short*)(header._data + 40))[4] = (short)_spectrum;
       if (!cimg::strcasecmp(pixel_type(),"bool")) datatype = 2;
       if (!cimg::strcasecmp(pixel_type(),"unsigned char")) datatype = 2;
       if (!cimg::strcasecmp(pixel_type(),"char")) datatype = 2;
@@ -46556,17 +46549,17 @@ namespace cimg_library_suffixed {
                               cimg_instance,
                               pixel_type(),filename);
 
-      ((short*)(header + 70))[0] = datatype;
-      ((short*)(header + 72))[0] = sizeof(T);
-      ((float*)(header + 112))[0] = 1;
-      ((float*)(header + 76))[0] = 0;
+      ((short*)(header._data + 70))[0] = datatype;
+      ((short*)(header._data + 72))[0] = sizeof(T);
+      ((float*)(header._data + 112))[0] = 1;
+      ((float*)(header._data + 76))[0] = 0;
       if (voxel_size) {
-        ((float*)(header + 76))[1] = voxel_size[0];
-        ((float*)(header + 76))[2] = voxel_size[1];
-        ((float*)(header + 76))[3] = voxel_size[2];
-      } else ((float*)(header + 76))[1] = ((float*)(header + 76))[2] = ((float*)(header + 76))[3] = 1;
+        ((float*)(header._data + 76))[1] = voxel_size[0];
+        ((float*)(header._data + 76))[2] = voxel_size[1];
+        ((float*)(header._data + 76))[3] = voxel_size[2];
+      } else ((float*)(header._data + 76))[1] = ((float*)(header._data + 76))[2] = ((float*)(header._data + 76))[3] = 1;
       file = cimg::fopen(hname,"wb");
-      cimg::fwrite(header,348,file);
+      cimg::fwrite(header._data,348,file);
       if (*iname) { cimg::fclose(file); file = cimg::fopen(iname,"wb"); }
       cimg::fwrite(_data,size(),file);
       cimg::fclose(file);
@@ -46697,14 +46690,14 @@ namespace cimg_library_suffixed {
                               pixel_type(),filename?filename:"(FILE*)");
 
       std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
-      char header[257] = { 0 };
-      int err = cimg_snprintf(header,sizeof(header),"#INRIMAGE-4#{\nXDIM=%u\nYDIM=%u\nZDIM=%u\nVDIM=%u\n",
+      CImg<charT> header(257);
+      int err = cimg_snprintf(header,header._width,"#INRIMAGE-4#{\nXDIM=%u\nYDIM=%u\nZDIM=%u\nVDIM=%u\n",
                               _width,_height,_depth,_spectrum);
-      if (voxel_size) err+=cimg_sprintf(header + err,"VX=%g\nVY=%g\nVZ=%g\n",voxel_size[0],voxel_size[1],voxel_size[2]);
-      err+=cimg_sprintf(header + err,"TYPE=%s\nCPU=%s\n",inrtype,cimg::endianness()?"sun":"decm");
-      std::memset(header + err,'\n',252 - err);
-      std::memcpy(header + 252,"##}\n",4);
-      cimg::fwrite(header,256,nfile);
+      if (voxel_size) err+=cimg_sprintf(header._data + err,"VX=%g\nVY=%g\nVZ=%g\n",voxel_size[0],voxel_size[1],voxel_size[2]);
+      err+=cimg_sprintf(header._data + err,"TYPE=%s\nCPU=%s\n",inrtype,cimg::endianness()?"sun":"decm");
+      std::memset(header._data + err,'\n',252 - err);
+      std::memcpy(header._data + 252,"##}\n",4);
+      cimg::fwrite(header._data,256,nfile);
       cimg_forXYZ(*this,x,y,z) cimg_forC(*this,c) cimg::fwrite(&((*this)(x,y,z,c)),1,nfile);
       if (!file) cimg::fclose(nfile);
       return *this;
@@ -46884,9 +46877,9 @@ namespace cimg_library_suffixed {
       if (is_empty()) { cimg::fempty(file,filename); return *this; }
 
       std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
-      unsigned char header[36] = { 'P','A','N','D','O','R','E','0','4',0,0,0,
-                                   0,0,0,0,'C','I','m','g',0,0,0,0,0,
-                                   'N','o',' ','d','a','t','e',0,0,0,0 };
+      static const unsigned char header[36] = { 'P','A','N','D','O','R','E','0','4',0,0,0,
+                                                0,0,0,0,'C','I','m','g',0,0,0,0,0,
+                                                'N','o',' ','d','a','t','e',0,0,0,0 };
       unsigned int nbdims, dims[5] = { 0 };
       bool saved = false;
       _cimg_save_pandore_case(1,1,1,"unsigned char",2);
@@ -49911,6 +49904,8 @@ namespace cimg_library_suffixed {
         if (disp.button()&2 && exit_on_rightbutton) { is_selected = true; indice1 = indice0 = -1; }
         if (disp.wheel() && exit_on_wheel) is_selected = true;
 
+        CImg<charT> filename(32); *filename = 0;
+
         switch (key = disp.key()) {
 #if cimg_OS!=2
         case cimg::keyCTRLRIGHT :
@@ -49940,10 +49935,9 @@ namespace cimg_library_suffixed {
           } break;
         case cimg::keyS : if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) {
             static unsigned int snap_number = 0;
-            char filename[32] = { 0 };
             std::FILE *file;
             do {
-              cimg_snprintf(filename,sizeof(filename),cimg_appname "_%.4u.bmp",snap_number++);
+              cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.bmp",snap_number++);
               if ((file=std::fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
             if (visu0) {
@@ -49951,20 +49945,19 @@ namespace cimg_library_suffixed {
                                  foreground_color,background_color,0.7f,13).display(disp);
               visu0.save(filename);
               (+visu0).draw_text(0,0," Snapshot '%s' saved. ",
-                                 foreground_color,background_color,0.7f,13,filename).display(disp);
+                                 foreground_color,background_color,0.7f,13,filename._data).display(disp);
             }
             disp.set_key(key,false).wait(); key = 0;
           } break;
         case cimg::keyO :
           if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) {
             static unsigned int snap_number = 0;
-            char filename[32] = { 0 };
             std::FILE *file;
             do {
 #ifdef cimg_use_zlib
-              cimg_snprintf(filename,sizeof(filename),cimg_appname "_%.4u.cimgz",snap_number++);
+              cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.cimgz",snap_number++);
 #else
-              cimg_snprintf(filename,sizeof(filename),cimg_appname "_%.4u.cimg",snap_number++);
+              cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.cimg",snap_number++);
 #endif
               if ((file=std::fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
@@ -49972,7 +49965,7 @@ namespace cimg_library_suffixed {
                                foreground_color,background_color,0.7f,13).display(disp);
             save(filename);
             (+visu0).draw_text(0,0," Instance '%s' saved. ",
-                               foreground_color,background_color,0.7f,13,filename).display(disp);
+                               foreground_color,background_color,0.7f,13,filename._data).display(disp);
             disp.set_key(key,false).wait(); key = 0;
           } break;
         }
@@ -51129,10 +51122,10 @@ namespace cimg_library_suffixed {
       cimglist_for(*this,l) msiz+=_data[l].size();
       msiz*=sizeof(T);
       const unsigned int mdisp = msiz<8*1024?0U:msiz<8*1024*1024?1U:2U;
-      char _title[64] = { 0 };
-      if (!title) cimg_snprintf(_title,sizeof(_title),"CImgList<%s>",pixel_type());
+      CImg<charT> _title(64); *_title = 0;
+      if (!title) cimg_snprintf(_title,_title._width,"CImgList<%s>",pixel_type());
       std::fprintf(cimg::output(),"%s%s%s%s: %sthis%s = %p, %ssize%s = %u/%u [%u %s], %sdata%s = (CImg<%s>*)%p",
-                   cimg::t_magenta,cimg::t_bold,title?title:_title,cimg::t_normal,
+                   cimg::t_magenta,cimg::t_bold,title?title:_title._data,cimg::t_normal,
                    cimg::t_bold,cimg::t_normal,(void*)this,
                    cimg::t_bold,cimg::t_normal,_width,_allocated_width,
                    mdisp==0?msiz:(mdisp==1?(msiz>>10):(msiz>>20)),
@@ -52250,8 +52243,8 @@ namespace cimg_library_suffixed {
 
       // Decompress nearest base font data if needed.
       static const char *data_fonts[] = { cimg::data_font12x13, cimg::data_font20x23, cimg::data_font47x53, 0 };
-      const unsigned int data_widths[] = { 12,20,47,90 }, data_heights[] = { 13,23,53,103 },
-        data_Ms[] = { 86,79,57,47 };
+      static const unsigned int data_widths[] = { 12,20,47,90 }, data_heights[] = { 13,23,53,103 },
+                                data_Ms[] = { 86,79,57,47 };
       const unsigned int data_ind = font_height<=13U?0U:font_height<=23U?1U:font_height<=53U?2U:3U;
       static CImg<ucharT> base_fonts[4];
       CImg<ucharT> &base_font = base_fonts[data_ind];

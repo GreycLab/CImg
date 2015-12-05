@@ -2082,17 +2082,17 @@ namespace cimg_library_suffixed {
 
     // Define ascii sequences for colored terminal output.
 #ifdef cimg_use_vt100
-    const char t_normal[] = { 0x1b, '[', '0', ';', '0', ';', '0', 'm', 0 };
-    const char t_black[] = { 0x1b, '[', '0', ';', '3', '0', ';', '5', '9', 'm', 0 };
-    const char t_red[] = { 0x1b, '[', '0', ';', '3', '1', ';', '5', '9', 'm', 0 };
-    const char t_green[] = { 0x1b, '[', '0', ';', '3', '2', ';', '5', '9', 'm', 0 };
-    const char t_yellow[] = { 0x1b, '[', '0', ';', '3', '3', ';', '5', '9', 'm', 0 };
-    const char t_blue[] = { 0x1b, '[', '0', ';', '3', '4', ';', '5', '9', 'm', 0 };
-    const char t_magenta[] = { 0x1b, '[', '0', ';', '3', '5', ';', '5', '9', 'm', 0 };
-    const char t_cyan[] = { 0x1b, '[', '0', ';', '3', '6', ';', '5', '9', 'm', 0 };
-    const char t_white[] = { 0x1b, '[', '0', ';', '3', '7', ';', '5', '9', 'm', 0 };
-    const char t_bold[] = { 0x1b, '[', '1', 'm', 0 };
-    const char t_underscore[] = { 0x1b, '[', '4', 'm', 0 };
+    static const char t_normal[] = { 0x1b, '[', '0', ';', '0', ';', '0', 'm', 0 };
+    static const char t_black[] = { 0x1b, '[', '0', ';', '3', '0', ';', '5', '9', 'm', 0 };
+    static const char t_red[] = { 0x1b, '[', '0', ';', '3', '1', ';', '5', '9', 'm', 0 };
+    static const char t_green[] = { 0x1b, '[', '0', ';', '3', '2', ';', '5', '9', 'm', 0 };
+    static const char t_yellow[] = { 0x1b, '[', '0', ';', '3', '3', ';', '5', '9', 'm', 0 };
+    static const char t_blue[] = { 0x1b, '[', '0', ';', '3', '4', ';', '5', '9', 'm', 0 };
+    static const char t_magenta[] = { 0x1b, '[', '0', ';', '3', '5', ';', '5', '9', 'm', 0 };
+    static const char t_cyan[] = { 0x1b, '[', '0', ';', '3', '6', ';', '5', '9', 'm', 0 };
+    static const char t_white[] = { 0x1b, '[', '0', ';', '3', '7', ';', '5', '9', 'm', 0 };
+    static const char t_bold[] = { 0x1b, '[', '1', 'm', 0 };
+    static const char t_underscore[] = { 0x1b, '[', '4', 'm', 0 };
 #else
     const char t_normal[] = { 0 };
     const char *const t_black = cimg::t_normal,
@@ -3157,7 +3157,7 @@ namespace cimg_library_suffixed {
     const double PI = 3.14159265358979323846;   //!< Value of the mathematical constant PI
 
     // Define a 12x13 font (small size).
-    const char *const data_font12x13 =
+    static const char *const data_font12x13 =
 "                          .wjwlwmyuw>wjwkwbwjwkwRxuwmwjwkwmyuwJwjwlx`w      Fw                         mwlwlwuwnwuynwuwmyTwlwkwuwmwuwnwlwkwuwmwuw_wuxl"
 "wlwkwuwnwuynwuwTwlwlwtwnwtwnw my     Qw   +wlw   b{ \\w  Wx`xTw_w[wbxawSwkw  nynwky<x1w `y    ,w  Xwuw   CxlwiwlwmyuwbwuwUwiwlwbwiwrwqw^wuwmxuwnwiwlwmy"
 "uwJwiwlw^wnwEymymymymy1w^wkxnxtxnw<| gybwkwuwjwtwowmxswnxnwkxlxkw:wlymxlymykwn{myo{nymy2ykwqwqwm{myozn{o{mzpwrwpwkwkwswowkwqwqxswnyozlyozmzp}pwrwqwqwq"
@@ -3197,7 +3197,7 @@ namespace cimg_library_suffixed {
 "wlxm";
 
     // Define a 20x23 font (normal size).
-    const char *const data_font20x23 =
+    static const char *const data_font20x23 =
 "                                                9q\\q^r_rnp`qnq`plp7q\\q^q_qmqbq\\q^q_qmqHqmp_q\\q^r_rnp`qnq7q\\q^q_qmq_q \"r                               "
 "                        Mq^q^qnq`pnr`qnq`plp6q^q^pmp`qmqaq^q^pmp`qmqIpmq]q^q^qnq`pnr`qnq6q^q^pmp`qmq`q \"plp         'q     5qmq               Vq      "
 "               Xq    [plp      3qYq_p^rnpLplp8qYq_qNqYq_q4rmpaqYq_q_rmp%qYq^pGq  Irc|!pKp]raqjq`p   HtNq_qmq\\plqbp_shpdscq[q^q[p [q]s_r`uau]rbv`tcxbua"
@@ -3265,7 +3265,7 @@ namespace cimg_library_suffixed {
 "r^q                               *q                                                                                   kr               i";
 
     // Define a 47x53 font (extra-large size).
-    const char *const data_font47x53 =
+    static const char *const data_font47x53 =
 "                                                                                                                                                      "
 "        9])]2_2]T\\8^U^3]  E])]2`4^U^>])]2_4^U^ 6^T\\5])]1_2]T\\8^U^  K])]2`4^V^3]                                                                       "
 "                                                                                                                    U]*\\2a4`V\\8^U^5a  F]*\\1\\X\\4^U^=]*\\"
@@ -3458,7 +3458,7 @@ namespace cimg_library_suffixed {
 "                                                F]']2]    +]']2^ D]']3_   E]']1]   \"]']2^ 8]                             H";
 
     // Define a 90x103 font (huge size).
-    const char *const _data_font90x103[] = {  // Defined as an array to avoid MS compiler limit about constant string (65Kb).
+    static const char *const _data_font90x103[] = {  // Defined as an array to avoid MS compiler limit about constant string (65Kb).
       // Start of first string.
 "                                                                                                                                                      "
 "                                                                                                                                                      "
@@ -3998,7 +3998,7 @@ namespace cimg_library_suffixed {
 "                                                                                                                              D" };
 
     // Define a 40x38 'danger' color logo (used by cimg::dialog()).
-    const unsigned char logo40x38[4576] = {
+    static const unsigned char logo40x38[4576] = {
       177,200,200,200,3,123,123,0,36,200,200,200,1,123,123,0,2,255,255,0,1,189,189,189,1,0,0,0,34,200,200,200,
       1,123,123,0,4,255,255,0,1,189,189,189,1,0,0,0,1,123,123,123,32,200,200,200,1,123,123,0,5,255,255,0,1,0,0,
       0,2,123,123,123,30,200,200,200,1,123,123,0,6,255,255,0,1,189,189,189,1,0,0,0,2,123,123,123,29,200,200,200,
@@ -23527,9 +23527,9 @@ namespace cimg_library_suffixed {
     //! Resize image to half-size along XY axes, using an optimized filter \newinstance.
     CImg<T> get_resize_halfXY() const {
       if (is_empty()) return *this;
-      const Tfloat mask[9] = { 0.07842776544f, 0.1231940459f, 0.07842776544f,
-                              0.1231940459f,  0.1935127547f, 0.1231940459f,
-                              0.07842776544f, 0.1231940459f, 0.07842776544f };
+      static const Tfloat mask[9] = { 0.07842776544f, 0.1231940459f, 0.07842776544f,
+                                      0.1231940459f,  0.1935127547f, 0.1231940459f,
+                                      0.07842776544f, 0.1231940459f, 0.07842776544f };
       T I[9] = { 0 };
       CImg<T> res(_width/2,_height/2,_depth,_spectrum);
       T *ptrd = res._data;
@@ -40719,8 +40719,8 @@ namespace cimg_library_suffixed {
       if (nymin==nymax) { --nymin; ++nymax; }
       if (nxmin==nxmax && nxmin==0) { nxmin = 0; nxmax = siz - 1.0; }
 
-      const unsigned char black[] = { 0, 0, 0 }, white[] = { 255, 255, 255 }, gray[] = { 220, 220, 220 };
-      const unsigned char gray2[] = { 110, 110, 110 }, ngray[] = { 35, 35, 35 };
+      static const unsigned char black[] = { 0, 0, 0 }, white[] = { 255, 255, 255 }, gray[] = { 220, 220, 220 };
+      static const unsigned char gray2[] = { 110, 110, 110 }, ngray[] = { 35, 35, 35 };
       static unsigned int odimv = 0;
       static CImg<ucharT> colormap;
       if (odimv!=_spectrum) {
@@ -49798,7 +49798,7 @@ namespace cimg_library_suffixed {
       bool old_is_resized = disp.is_resized();
       disp._normalization = 0;
       disp.show().set_key(0);
-      const unsigned char foreground_color[] = { 255,255,255 }, background_color[] = { 0,0,0 };
+      static const unsigned char foreground_color[] = { 255,255,255 }, background_color[] = { 0,0,0 };
 
       // Enter event loop.
       CImg<ucharT> visu0, visu;
@@ -52249,7 +52249,7 @@ namespace cimg_library_suffixed {
       cimg::mutex(11);
 
       // Decompress nearest base font data if needed.
-      const char *data_fonts[] = { cimg::data_font12x13, cimg::data_font20x23, cimg::data_font47x53, 0 };
+      static const char *data_fonts[] = { cimg::data_font12x13, cimg::data_font20x23, cimg::data_font47x53, 0 };
       const unsigned int data_widths[] = { 12,20,47,90 }, data_heights[] = { 13,23,53,103 },
         data_Ms[] = { 86,79,57,47 };
       const unsigned int data_ind = font_height<=13U?0U:font_height<=23U?1U:font_height<=53U?2U:3U;
@@ -53365,7 +53365,7 @@ namespace cimg {
                  logo._data,is_centered);
     throw CImgIOException("cimg::dialog(): No display available.");
 #else
-    const unsigned char
+    static const unsigned char
       black[] = { 0,0,0 }, white[] = { 255,255,255 }, gray[] = { 200,200,200 }, gray2[] = { 150,150,150 };
 
     // Create buttons and canvas graphics

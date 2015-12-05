@@ -2094,8 +2094,8 @@ namespace cimg_library_suffixed {
     static const char t_bold[] = { 0x1b, '[', '1', 'm', 0 };
     static const char t_underscore[] = { 0x1b, '[', '4', 'm', 0 };
 #else
-    const char t_normal[] = { 0 };
-    const char *const t_black = cimg::t_normal,
+    static const char t_normal[] = { 0 };
+    static const char *const t_black = cimg::t_normal,
       *const t_red = cimg::t_normal,
       *const t_green = cimg::t_normal,
       *const t_yellow = cimg::t_normal,
@@ -4823,20 +4823,20 @@ namespace cimg_library_suffixed {
     // Return string that identifies the running OS.
     inline const char *stros() {
 #if defined(linux) || defined(__linux) || defined(__linux__)
-      const char *const str = "Linux";
+      static const char *const str = "Linux";
 #elif defined(sun) || defined(__sun)
-      const char *const str = "Sun OS";
+      static const char *const str = "Sun OS";
 #elif defined(BSD) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__FreeBSD__) || defined (__DragonFly__)
-      const char *const str = "BSD";
+      static const char *const str = "BSD";
 #elif defined(sgi) || defined(__sgi)
-      const char *const str = "Irix";
+      static const char *const str = "Irix";
 #elif defined(__MACOSX__) || defined(__APPLE__)
-      const char *const str = "Mac OS";
+      static const char *const str = "Mac OS";
 #elif defined(unix) || defined(__unix) || defined(__unix__)
-      const char *const str = "Generic Unix";
+      static const char *const str = "Generic Unix";
 #elif defined(_MSC_VER) || defined(WIN32)  || defined(_WIN32) || defined(__WIN32__) || \
   defined(WIN64) || defined(_WIN64) || defined(__WIN64__)
-      const char *const str = "Windows";
+      static const char *const str = "Windows";
 #else
       const char
         *const _str1 = std::getenv("OSTYPE"),

@@ -23530,8 +23530,7 @@ namespace cimg_library_suffixed {
       static const Tfloat mask[9] = { 0.07842776544f, 0.1231940459f, 0.07842776544f,
                                       0.1231940459f,  0.1935127547f, 0.1231940459f,
                                       0.07842776544f, 0.1231940459f, 0.07842776544f };
-      T I[9];
-      CImg<T> res(_width/2,_height/2,_depth,_spectrum);
+      CImg<T> I(9), res(_width/2,_height/2,_depth,_spectrum);
       T *ptrd = res._data;
       cimg_forZC(*this,z,c) cimg_for3x3(*this,x,y,z,c,I,T)
         if (x%2 && y%2) *(ptrd++) = (T)
@@ -26263,9 +26262,10 @@ namespace cimg_library_suffixed {
           ((mask._depth==1 && mask._width<=5) || (mask._depth==mask._width && mask._width<=3))) {
         // A special optimization is done for 2x2, 3x3, 4x4, 5x5, 2x2x2 and 3x3x3 mask (with boundary_conditions=1)
         Ttfloat *ptrd = res._data;
+        CImg<T> I;
         switch (mask._depth) {
         case 3 : {
-          T I[27];
+          I.assign(27);
           cimg_forC(res,c) {
             cimg_test_abort();
             const CImg<T> _img = get_shared_channel(c%_spectrum);
@@ -26305,7 +26305,7 @@ namespace cimg_library_suffixed {
           }
         } break;
         case 2 : {
-          T I[8];
+          I.assign(8);
           cimg_forC(res,c) {
             cimg_test_abort();
             const CImg<T> _img = get_shared_channel(c%_spectrum);
@@ -26333,7 +26333,7 @@ namespace cimg_library_suffixed {
         case 1 :
           switch (mask._width) {
           case 6 : {
-            T I[36];
+            I.assign(36);
             cimg_forC(res,c) {
               cimg_test_abort();
               const CImg<T> _img = get_shared_channel(c%_spectrum);
@@ -26373,7 +26373,7 @@ namespace cimg_library_suffixed {
             }
           } break;
           case 5 : {
-            T I[25];
+            I.assign(25);
             cimg_forC(res,c) {
               cimg_test_abort();
               const CImg<T> _img = get_shared_channel(c%_spectrum);
@@ -26405,7 +26405,7 @@ namespace cimg_library_suffixed {
             }
           } break;
           case 4 : {
-            T I[16];
+            I.assign(16);
             cimg_forC(res,c) {
               cimg_test_abort();
               const CImg<T> _img = get_shared_channel(c%_spectrum);
@@ -26431,7 +26431,7 @@ namespace cimg_library_suffixed {
             }
           } break;
           case 3 : {
-            T I[9];
+            I.assign(9);
             cimg_forC(res,c) {
               cimg_test_abort();
               const CImg<T> _img = get_shared_channel(c%_spectrum);
@@ -26453,7 +26453,7 @@ namespace cimg_library_suffixed {
             }
           } break;
           case 2 : {
-            T I[4];
+            I.assign(4);
             cimg_forC(res,c) {
               cimg_test_abort();
               const CImg<T> _img = get_shared_channel(c%_spectrum);
@@ -28929,6 +28929,7 @@ namespace cimg_library_suffixed {
             }
         } else { // 1d
 
+          CImg<T> I;
           if (threshold>0)
 #ifdef cimg_use_openmp
 #pragma omp parallel for cimg_openmp_if (_width>=16 && _spectrum>=2)
@@ -28951,7 +28952,7 @@ namespace cimg_library_suffixed {
 #pragma omp parallel for cimg_openmp_if (_spectrum>=2)
 #endif
               cimg_forC(*this,c) {
-                T I[4];
+                I.assign(4);
                 cimg_for2x2(*this,x,y,0,c,I,T) res(x,c) = (T)(0.5f*(I[0] + I[1]));
               }
             } break;
@@ -28960,7 +28961,7 @@ namespace cimg_library_suffixed {
 #pragma omp parallel for cimg_openmp_if (_spectrum>=2)
 #endif
               cimg_forC(*this,c) {
-                T I[9];
+                I.assign(9);
                 cimg_for3x3(*this,x,y,0,c,I,T)
                   res(x,c) = I[3]<I[4]?(I[4]<I[5]?I[4]:(I[3]<I[5]?I[5]:I[3])):(I[3]<I[5]?I[3]:(I[4]<I[5]?I[5]:I[4]));
               }

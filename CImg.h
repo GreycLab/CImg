@@ -37756,7 +37756,7 @@ namespace cimg_library_suffixed {
       if (is_empty()) return *this;
       const int yt = (y + 3 + font_height)<_height?y + 3:y - 2 - (int)font_height;
       const int siz = (int)values_x.size() - 1;
-      CImg<charT> txt(32); *txt = 0;
+      CImg<charT> txt(32);
       CImg<T> label;
       if (siz<=0) { // Degenerated case.
         draw_line(0,y,_width - 1,y,color,opacity,pattern);
@@ -37805,7 +37805,7 @@ namespace cimg_library_suffixed {
                        const bool allow_zero=true) {
       if (is_empty()) return *this;
       int siz = (int)values_y.size() - 1;
-      CImg<charT> txt(32); *txt = 0;
+      CImg<charT> txt(32);
       CImg<T> label;
       if (siz<=0) { // Degenerated case.
         draw_line(x,0,x,_height - 1,color,opacity,pattern);
@@ -40147,6 +40147,8 @@ namespace cimg_library_suffixed {
         if (mX>=width() && mY>=height()) area = 4;
         if (disp.button()) { if (!clicked_area) clicked_area = area; } else clicked_area = 0;
 
+        CImg<charT> filename(32);
+
         switch (key = disp.key()) {
 #if cimg_OS!=2
         case cimg::keyCTRLRIGHT :
@@ -40184,7 +40186,6 @@ namespace cimg_library_suffixed {
           } break;
         case cimg::keyS : if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) {
             static unsigned int snap_number = 0;
-            CImg<charT> filename(32); *filename = 0;
             std::FILE *file;
             do {
               cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.bmp",snap_number++);
@@ -40200,7 +40201,6 @@ namespace cimg_library_suffixed {
           } break;
         case cimg::keyO : if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) {
             static unsigned int snap_number = 0;
-            CImg<charT> filename(32); *filename = 0;
             std::FILE *file;
             do {
 #ifdef cimg_use_zlib
@@ -40855,6 +40855,7 @@ namespace cimg_library_suffixed {
         }
 
         // Test keys.
+        CImg<charT> filename(32);
         switch (okey = key) {
 #if cimg_OS!=2
         case cimg::keyCTRLRIGHT : case cimg::keySHIFTRIGHT :
@@ -40886,7 +40887,6 @@ namespace cimg_library_suffixed {
             static unsigned int snap_number = 0;
             if (visu || visu0) {
               CImg<ucharT> &screen = visu?visu:visu0;
-              CImg<charT> filename(32); *filename = 0;
               std::FILE *file;
               do {
                 cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.bmp",snap_number++);
@@ -40902,7 +40902,6 @@ namespace cimg_library_suffixed {
             static unsigned int snap_number = 0;
             if (visu || visu0) {
               CImg<ucharT> &screen = visu?visu:visu0;
-              CImg<charT> filename(32); *filename = 0;
               std::FILE *file;
               do {
 #ifdef cimg_use_zlib
@@ -41280,7 +41279,7 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
 
       std::FILE *const nfile = file?file:cimg::fopen(filename,"rb");
-      CImg<ucharT> header(64); *header = 0;
+      CImg<ucharT> header(64);
       cimg::fread(header._data,54,nfile);
       if (*header!='B' || header[1]!='M') {
         if (!file) cimg::fclose(nfile);
@@ -43062,7 +43061,7 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
 
       std::FILE *const nfile = file?file:cimg::fopen(filename,"rb");
-      CImg<charT> header(32); *header = 0;
+      CImg<charT> header(32);
       cimg::fread(header._data,12,nfile);
       if (cimg::strncasecmp("PANDORE",header,7)) {
         if (!file) cimg::fclose(nfile);
@@ -44100,7 +44099,7 @@ namespace cimg_library_suffixed {
       const unsigned long siz = size(), msiz = siz*sizeof(T), siz1 = siz - 1,
         mdisp = msiz<8*1024?0U:msiz<8*1024*1024?1U:2U, width1 = _width - 1;
 
-      CImg<charT> _title(64); *_title = 0;
+      CImg<charT> _title(64);
       if (!title) cimg_snprintf(_title,_title._width,"CImg<%s>",pixel_type());
 
       std::fprintf(cimg::output(),"%s%s%s%s: %sthis%s = %p, %ssize%s = (%u,%u,%u,%u) [%lu %s], %sdata%s = (%s*)%p",
@@ -44820,7 +44819,7 @@ namespace cimg_library_suffixed {
           }
         } else if (clicked) { x0 = x1; y0 = y1; clicked = false; redraw = true; }
 
-        CImg<charT> filename(32); *filename = 0;
+        CImg<charT> filename(32);
         switch (key = disp.key()) {
 #if cimg_OS!=2
         case cimg::keyCTRLRIGHT :
@@ -45421,7 +45420,7 @@ namespace cimg_library_suffixed {
                    filename?filename:"(FILE*)");
 
       std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
-      CImg<ucharT> header(54); *header = 0;
+      CImg<ucharT> header(54);
       unsigned char align_buf[4] = { 0 };
       const unsigned int
         align = (4 - (3*_width)%4)%4,
@@ -49905,8 +49904,7 @@ namespace cimg_library_suffixed {
         if (disp.button()&2 && exit_on_rightbutton) { is_selected = true; indice1 = indice0 = -1; }
         if (disp.wheel() && exit_on_wheel) is_selected = true;
 
-        CImg<charT> filename(32); *filename = 0;
-
+        CImg<charT> filename(32);
         switch (key = disp.key()) {
 #if cimg_OS!=2
         case cimg::keyCTRLRIGHT :
@@ -51123,7 +51121,7 @@ namespace cimg_library_suffixed {
       cimglist_for(*this,l) msiz+=_data[l].size();
       msiz*=sizeof(T);
       const unsigned int mdisp = msiz<8*1024?0U:msiz<8*1024*1024?1U:2U;
-      CImg<charT> _title(64); *_title = 0;
+      CImg<charT> _title(64);
       if (!title) cimg_snprintf(_title,_title._width,"CImgList<%s>",pixel_type());
       std::fprintf(cimg::output(),"%s%s%s%s: %sthis%s = %p, %ssize%s = %u/%u [%u %s], %sdata%s = (CImg<%s>*)%p",
                    cimg::t_magenta,cimg::t_bold,title?title:_title._data,cimg::t_normal,

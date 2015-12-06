@@ -46512,10 +46512,9 @@ namespace cimg_library_suffixed {
       if (is_empty()) { cimg::fempty(0,filename); return *this; }
 
       std::FILE *file;
-      CImg<charT> header(348), hname(1024), iname(1024);
+      CImg<charT> header(348,1,1,1,0), hname(1024), iname(1024);
       const char *const ext = cimg::split_filename(filename);
       short datatype = -1;
-      std::memset(header,0,348);
       if (!*ext) {
         cimg_snprintf(hname,hname._width,"%s.hdr",filename);
         cimg_snprintf(iname,iname._width,"%s.img",filename);

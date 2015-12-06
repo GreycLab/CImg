@@ -2615,8 +2615,20 @@ namespace cimg_library_suffixed {
       }
       static double min() { return -DBL_MAX; }
       static double max() { return DBL_MAX; }
-      static double inf() { return max()*max(); }
-      static double nan() { const double val_nan = -std::sqrt(-1.0); return val_nan; }
+      static double inf() {
+#ifdef INFINITY
+        return (double)INFINITY;
+#else
+        return max()*max();
+#endif
+      }
+      static double nan() {
+#ifdef NAN
+        return (double)NAN;
+#else
+        const double val_nan = -std::sqrt(-1.0); return val_nan;
+#endif
+      }
       static double cut(const double val) { return val<min()?min():val>max()?max():val; }
       static const char* format() { return "%.16g"; }
       static double format(const double val) { return val; }

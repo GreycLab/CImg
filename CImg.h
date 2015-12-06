@@ -45432,7 +45432,7 @@ namespace cimg_library_suffixed {
                    filename?filename:"(FILE*)");
 
       std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
-      CImg<ucharT> header(54);
+      CImg<ucharT> header(54,1,1,1,0);
       unsigned char align_buf[4] = { 0 };
       const unsigned int
         align = (4 - (3*_width)%4)%4,

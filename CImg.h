@@ -41291,7 +41291,7 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
 
       std::FILE *const nfile = file?file:cimg::fopen(filename,"rb");
-      CImg<ucharT> header(64);
+      CImg<ucharT> header(54);
       cimg::fread(header._data,54,nfile);
       if (*header!='B' || header[1]!='M') {
         if (!file) cimg::fclose(nfile);

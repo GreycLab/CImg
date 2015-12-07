@@ -28865,7 +28865,7 @@ namespace cimg_library_suffixed {
 #pragma omp parallel for cimg_openmp_if (_spectrum>=2)
 #endif
               cimg_forC(*this,c) {
-                T I[9];
+                T I[9] = { 0 };
                 CImg_3x3(J,T);
                 cimg_for3x3(*this,x,y,0,c,I,T) {
                   std::memcpy(J,I,9*sizeof(T));
@@ -28885,7 +28885,7 @@ namespace cimg_library_suffixed {
 #pragma omp parallel for cimg_openmp_if (_spectrum>=2)
 #endif
               cimg_forC(*this,c) {
-                T I[25];
+                T I[25] = { 0 };
                 CImg_5x5(J,T);
                 cimg_for5x5(*this,x,y,0,c,I,T) {
                   std::memcpy(J,I,25*sizeof(T));

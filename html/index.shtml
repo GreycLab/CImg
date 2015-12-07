@@ -87,7 +87,11 @@
 <div id="center"><div id="text_centre_intro">
 
 <blockquote>
-  <a href="http://tschumperle.users.greyc.fr/">David Tschumperl&eacute;</a> (project leader)<br/><br/>
+  <ul>
+    <li><a href="http://tschumperle.users.greyc.fr/">David Tschumperl&eacute;</a> (project leader)</li>
+  </ul>
+  &nbsp;&nbsp;&nbsp;(Check out his <a href="http://opensource.graphics">blog</a>)
+  <br/><br/>
   with the help of many contributors around the world :<br/><br/>
   <i>
     Maksim Aizenshtein,
@@ -351,8 +355,6 @@
         <li><a href="img/postcard54.jpg" onclick="NewWindow(this.href,'name','420','320','yes');return false;">
             Germany, from Werner Meier.</a>
           <br/><br/></li>
-        <li>If you have too much money, you can also <a href="https://sourceforge.net/p/cimg/donate/">
-            <img src="img/project-support.jpg" alt=""></img></a></li>
     </ul></li>
   </ul>
 </blockquote>

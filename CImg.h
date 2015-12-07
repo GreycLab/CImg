@@ -5221,7 +5221,7 @@ namespace cimg_library_suffixed {
       const char *const s = cimg::option(name,argc,argv,(char*)0);
       const char res = s?*s:defaut;
       char tmp[8];
-      *tmp = res;
+      *tmp = res; tmp[1] = 0;
       cimg::option(name,0,0,tmp,usage);
       return res;
     }
@@ -42889,7 +42889,8 @@ namespace cimg_library_suffixed {
     }
 
     static void _load_inr_header(std::FILE *file, int out[8], float *const voxel_size) {
-      CImg<charT> item(1024), tmp1(64), tmp2(64); *item = *tmp1 = *tmp2 = 0;
+      CImg<charT> item(1024), tmp1(64), tmp2(64);
+      *item = *tmp1 = *tmp2 = 0;
       out[0] = std::fscanf(file,"%63s",item._data);
       out[0] = out[1] = out[2] = out[3] = out[5] = 1; out[4] = out[6] = out[7] = -1;
       if(cimg::strncasecmp(item,"#INRIMAGE-4#{",13)!=0)
@@ -46536,13 +46537,13 @@ namespace cimg_library_suffixed {
       *iheader = 348;
       std::strcpy(header._data + 4,"CImg");
       std::strcpy(header._data + 14," ");
-      ((short*)(header._data + 36))[0] = 4096;
-      ((char*)(header._data + 38))[0] = 114;
-      ((short*)(header._data + 40))[0] = 4;
-      ((short*)(header._data + 40))[1] = (short)_width;
-      ((short*)(header._data + 40))[2] = (short)_height;
-      ((short*)(header._data + 40))[3] = (short)_depth;
-      ((short*)(header._data + 40))[4] = (short)_spectrum;
+      ((short*)&(header[36]))[0] = 4096;
+      ((char*)&(header[38]))[0] = 114;
+      ((short*)&(header[40]))[0] = 4;
+      ((short*)&(header[40]))[1] = (short)_width;
+      ((short*)&(header[40]))[2] = (short)_height;
+      ((short*)&(header[40]))[3] = (short)_depth;
+      ((short*)&(header[40]))[4] = (short)_spectrum;
       if (!cimg::strcasecmp(pixel_type(),"bool")) datatype = 2;
       if (!cimg::strcasecmp(pixel_type(),"unsigned char")) datatype = 2;
       if (!cimg::strcasecmp(pixel_type(),"char")) datatype = 2;
@@ -46560,15 +46561,15 @@ namespace cimg_library_suffixed {
                               cimg_instance,
                               pixel_type(),filename);
 
-      ((short*)(header._data + 70))[0] = datatype;
-      ((short*)(header._data + 72))[0] = sizeof(T);
-      ((float*)(header._data + 112))[0] = 1;
-      ((float*)(header._data + 76))[0] = 0;
+      ((short*)&(header[70]))[0] = datatype;
+      ((short*)&(header[72]))[0] = sizeof(T);
+      ((float*)&(header[112]))[0] = 1;
+      ((float*)&(header[76]))[0] = 0;
       if (voxel_size) {
-        ((float*)(header._data + 76))[1] = voxel_size[0];
-        ((float*)(header._data + 76))[2] = voxel_size[1];
-        ((float*)(header._data + 76))[3] = voxel_size[2];
-      } else ((float*)(header._data + 76))[1] = ((float*)(header._data + 76))[2] = ((float*)(header._data + 76))[3] = 1;
+        ((float*)&(header[76]))[1] = voxel_size[0];
+        ((float*)&(header[76]))[2] = voxel_size[1];
+        ((float*)&(header[76]))[3] = voxel_size[2];
+      } else ((float*)&(header[76]))[1] = ((float*)&(header[76]))[2] = ((float*)&(header[76]))[3] = 1;
       file = cimg::fopen(hname,"wb");
       cimg::fwrite(header._data,348,file);
       if (*iname) { cimg::fclose(file); file = cimg::fopen(iname,"wb"); }

@@ -86,22 +86,21 @@ CIMG_EXTRA_FILES = use_tiff_stream use_jpeg_buffer
 #---------------------------------
 CIMG_VERSION = _cimg_version
 X11PATH      = /usr/X11R6
-CC           = g++
 EXEPFX       =
 ifeq ($(MSYSTEM),MINGW32)
 EXESFX       = .exe
 else
 EXESFX       =
 endif
-CCVER       = $(CC)
-ifeq ($(notdir $(CC)),g++)
-CCVER        = `$(CC) -v 2>&1 | tail -n 1`
+CXXVER       = $(CXX)
+ifeq ($(notdir $(CXX)),g++)
+CXXVER       = `$(CXX) -v 2>&1 | tail -n 1`
 endif
-ifeq ($(notdir $(CC)),clang++)
-CCVER        = `$(CC) -v 2>&1 | head -n 1`
+ifeq ($(notdir $(CXX)),clang++)
+CXXVER       = `$(CXX) -v 2>&1 | head -n 1`
 endif
-ifeq ($(notdir $(CC)),icpc)
-CCVER        = "icpc \( `$(CC) -v 2>&1`\)"
+ifeq ($(notdir $(CXX)),icpc)
+CXXVER       = "icpc \( `$(CXX) -v 2>&1`\)"
 CFLAGS       = -I..
 LIBS         =
 else
@@ -114,7 +113,7 @@ endif
 #--------------------------------------------------
 
 # Flags to enable strict code standards
-ifeq ($(notdir $(CC)),icpc)
+ifeq ($(notdir $(CXX)),icpc)
 CIMG_ANSI_CFLAGS = -std=c++11 -ansi
 else
 CIMG_ANSI_CFLAGS = -std=c++11 -ansi -pedantic
@@ -128,10 +127,10 @@ CIMG_DEBUG_CFLAGS = -Dcimg_verbosity=3 -Dcimg_strict_warnings -g -fsanitize=addr
 CIMG_VT100_CFLAGS = -Dcimg_use_vt100
 
 # Flags to enable code optimization by the compiler.
-ifeq ($(notdir $(CC)),g++)
+ifeq ($(notdir $(CXX)),g++)
 CIMG_OPT_CFLAGS = -O2 -mtune=generic
 else
-ifeq ($(notdir $(CC)),icpc)
+ifeq ($(notdir $(CXX)),icpc)
 CIMG_OPT_CFLAGS = -fast
 else
 CIMG_OPT_CFLAGS = -O2
@@ -139,7 +138,7 @@ endif
 endif
 
 # Flags to enable OpenMP support.
-ifeq ($(notdir $(CC)),icpc)
+ifeq ($(notdir $(CXX)),icpc)
 CIMG_OPENMP_CFLAGS = #-Dcimg_use_openmp -openmp -i-static    # -> Seems to bug the compiler!
 else
 CIMG_OPENMP_DEFINE = -Dcimg_use_openmp -fopenmp
@@ -285,9 +284,9 @@ endif
 #-------------------------
 .cpp:
 	@echo
-	@echo "** Compiling '$* ($(CIMG_VERSION))' with '$(CCVER)'"
+	@echo "** Compiling '$* ($(CIMG_VERSION))' with '$(CXXVER)'"
 	@echo
-	$(CC) -o $(EXEPFX)$*$(EXESFX) $< $(CFLAGS) $(CONF_CFLAGS) $(LIBS) $(CONF_LIBS)
+	$(CXX) -o $(EXEPFX)$*$(EXESFX) $< $(CFLAGS) $(CONF_CFLAGS) $(LIBS) $(CONF_LIBS)
 ifeq ($(STRIP_EXE),true)
 	strip $(EXEPFX)$*$(EXESFX)
 endif

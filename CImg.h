@@ -53575,6 +53575,9 @@ namespace cil = cimg_library_suffixed;
 #ifdef _cimg_redefine_PI
 #define PI 3.141592653589793238462643383
 #endif
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 #endif
 // Local Variables:

@@ -14286,7 +14286,7 @@ namespace cimg_library_suffixed {
               }
               if (*ns && (ns[1]!='=' || ns[2]=='=')) return true;
             }
-          } else if (((*s=='R' || *s=='G' || *s=='B') && s[1]!='#') ||
+          } else if (((*s=='R' || *s=='G' || *s=='B' || *s=='A') && s[1]!='#') ||
                      (*s=='i' && s[1]>='0' && s[1]<='7' && s[2]!='#')) return true;
         return false;
       }

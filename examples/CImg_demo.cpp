@@ -1586,16 +1586,16 @@ int main(int argc, char **argv) {
     // Demo selection menu
     //---------------------
     const unsigned char
-      white[]  = { 255, 255, 255 }, black[] = { 0, 0, 0 },     red[] = { 120, 50, 80 },
-      yellow[] = { 200, 155, 0 },   green[] = { 30, 200, 70 }, purple[] = { 175, 32, 186 },
-      blue[]   = { 55, 140, 185 },  grey[] = { 127, 127, 127 };
+      white[]  = { 255, 255, 255 }, black[] = { 0, 0, 0 }, red[] = { 120, 50, 80 },
+      yellow[] = { 200, 155, 0 }, green[] = { 30, 200, 70 }, purple[] = { 175, 32, 186 },
+      blue[] = { 55, 140, 185 }, grey[] = { 127, 127, 127 };
     float
       rx = 0, ry = 0, t = 0, gamma = 0, vgamma = 0, T = 0.9f,
       nrx = (float)(2*cimg::rand(-1,1)),
       nry = (float)(2*cimg::rand(-1,1));
     int y0 = 2*13;
     CImg<unsigned char> back(1,2,1,3,10), fore, text, img;
-    back.fillC(0,1,0,10,10,235).resize(480,512,1,3,3).get_shared_channel(2).noise(10,1).draw_plasma();
+    back.fillC(0,1,0,10,10,235).resize(350,570,1,3,3).get_shared_channel(2).noise(10,1).draw_plasma();
     back.draw_rectangle(0,y0 - 7,back.width() - 1,y0 + 20,red);
     fore.assign(back.width(),50,1,1,0).draw_text(20,y0 - 3,"** CImg %u.%u.%u Samples **",grey,0,1,23,
                                                 cimg_version/100,(cimg_version/10)%10,cimg_version%10);
@@ -1636,13 +1636,13 @@ int main(int argc, char **argv) {
                    "25- 3D Reflection\n"
                    "26- Fish-Eye Magnification\n"
                    "27- Word Puzzle\n",
-                   white,0,1,13).resize(-100,-100,1,3);
-    fore.resize(back,0).draw_image(20,y0 + 2*13,text|=text.get_dilate(3)>>4);
+                   white,0,1,18).resize(-100,-100,1,3);
+    fore.resize(back,0).draw_image(20,y0 + 3*13,text|=text.get_dilate(3)>>4);
 
     CImgDisplay disp(back,"CImg Library Samples",0,false,true);
     disp.move((disp.screen_width() - disp.window_width())/2,(disp.screen_height() - disp.window_height())/2);
     img = back; back*=0.15f;
-    for (y0+=2*13; !disp.is_closed() && !disp.is_keyQ() && !disp.is_keyESC(); demo_number = 0) {
+    for (y0+=3*13; !disp.is_closed() && !disp.is_keyQ() && !disp.is_keyESC(); demo_number = 0) {
       while (!demo_number && !disp.is_closed() && !disp.is_keyQ() && !disp.is_keyESC()) {
         img*=0.85f; img+=back;
         for (int i = 0; i<60; ++i) {
@@ -1660,13 +1660,12 @@ int main(int argc, char **argv) {
         }
         const unsigned char *ptrs = fore.data();
         cimg_for(img,ptrd,unsigned char) { const unsigned char val = *(ptrs++); if (val) *ptrd = val; }
-        int y = disp.mouse_y();
-        if (y>=y0 && y<y0 + 27*13) {
-          y = (y/13)*13 + 7;
-          for (int yy = y - 6; yy<=y + 6; ++yy)
-            img.draw_rectangle(0,yy,0,1,img.width() - 1,yy,0,1,(unsigned char)(130 - 15*cimg::abs(yy - y)));
-          img.draw_triangle(2,y - 4,2,y + 4,8,y,yellow).
-            draw_triangle(img.width() - 2,y - 4,img.width() - 2,y + 4,img.width() - 8,y,yellow);
+        const int y = (disp.mouse_y() - y0)/18, _y = 18*y + y0 + 9;
+        if (y>=0 && y<27) {
+          for (int yy = _y - 9; yy<=_y + 8; ++yy)
+            img.draw_rectangle(0,yy,0,1,img.width() - 1,yy,0,1,(unsigned char)(130 - 14*cimg::abs(yy - _y)));
+          img.draw_triangle(2,_y -  6,2,_y + 6,8,_y,yellow).
+            draw_triangle(img.width() - 2,_y - 6,img.width() - 2,_y + 6,img.width() - 8,_y,yellow);
         }
         gamma+=vgamma;
         if (gamma>1) {
@@ -1676,7 +1675,7 @@ int main(int argc, char **argv) {
           nrx=(float)(2*cimg::rand(-1,1)); nry=(float)(2*cimg::rand(-1,1));
         }
         t+=0.006f; T+=0.005f; if (T>1) { T-=(float)(1 + cimg::rand(-1,1)); vgamma = 0.03f; }
-        if (disp.button()) { demo_number = 1 + (disp.mouse_y() - y0)/13; disp.set_button(); }
+        if (disp.button()) { demo_number = 1 + (disp.mouse_y() - y0)/18; disp.set_button(); }
         disp.resize(disp,false).display(img).wait(25);
       }
       start_item(demo_number);

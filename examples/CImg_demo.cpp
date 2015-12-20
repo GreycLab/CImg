@@ -1094,9 +1094,9 @@ void* item_rubber_logo() {
   CImgList<unsigned int> colors(faces.size(),CImg<unsigned char>::vector(100,100,255));
   cimglist_for(colors,l) {
     const float x = (points(faces(l,0),0) + points(faces(l,1),0) + points(faces(l,2),0))/3;
-    if (x<30) colors[l] = CImg<unsigned char>::vector(255,100,100);
-    else { if (x<34) colors[l] = CImg<unsigned char>::vector(200,155,100);
-    else { if (x<55) colors[l] = CImg<unsigned char>::vector(100,255,155);
+    if (x<30.3) colors[l] = CImg<unsigned char>::vector(255,100,100);
+    else { if (x<34.6) colors[l] = CImg<unsigned char>::vector(200,155,100);
+    else { if (x<55.5) colors[l] = CImg<unsigned char>::vector(100,255,155);
     }}}
   faces.reverse_object3d();
   points.shift_object3d()*=5.5f;

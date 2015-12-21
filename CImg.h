@@ -46352,7 +46352,8 @@ namespace cimg_library_suffixed {
         function uses CImg<T>&save_other(const char*).
      **/
     const CImg<T>& save_tiff(const char *const filename, const unsigned int compression_type=0,
-                             const float *const voxel_size=0, const char *const description=0) const {
+                             const float *const voxel_size=0, const char *const description=0,
+                             const bool is_bigtiff=true) const {
       if (!filename)
         throw CImgArgumentException(_cimg_instance
                                     "save_tiff(): Specified filename is (null).",
@@ -46360,7 +46361,7 @@ namespace cimg_library_suffixed {
       if (is_empty()) { cimg::fempty(0,filename); return *this; }
 
 #ifdef cimg_use_tiff
-      TIFF *tif = TIFFOpen(filename,"w");
+      TIFF *tif = TIFFOpen(filename,is_bigtiff?"w8":"w4");
       if (tif) {
         cimg_forZ(*this,z) get_slice(z)._save_tiff(tif,z,compression_type,voxel_size,description);
         TIFFClose(tif);
@@ -51781,7 +51782,8 @@ namespace cimg_library_suffixed {
       \param compression_type Compression mode used to write data.
     **/
     const CImgList<T>& save_tiff(const char *const filename, const unsigned int compression_type=0,
-                                 const float *const voxel_size=0, const char *const description=0) const {
+                                 const float *const voxel_size=0, const char *const description=0,
+                                 const bool is_bigtiff=true) const {
       if (!filename)
         throw CImgArgumentException(_cimglist_instance
                                     "save_tiff(): Specified filename is (null).",
@@ -51796,7 +51798,7 @@ namespace cimg_library_suffixed {
           _data[l].save_tiff(nfilename,compression_type,voxel_size,description);
         }
 #else
-      TIFF *tif = TIFFOpen(filename,"w");
+      TIFF *tif = TIFFOpen(filename,is_bigtiff?"w8":"w4");
       if (tif) {
         for (unsigned int dir = 0, l = 0; l<_width; ++l) {
           const CImg<T>& img = (*this)[l];

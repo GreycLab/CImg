@@ -46371,7 +46371,7 @@ namespace cimg_library_suffixed {
                                    filename);
       return *this;
 #else
-      cimg::unused(compression_type,voxel_size,description);
+      cimg::unused(compression_type,voxel_size,description,is_bigtiff);
       return save_other(filename);
 #endif
     }
@@ -51791,11 +51791,11 @@ namespace cimg_library_suffixed {
       if (is_empty()) { cimg::fempty(0,filename); return *this; }
 
 #ifndef cimg_use_tiff
-      if (_width==1) _data[0].save_tiff(filename,compression_type,voxel_size,description);
+      if (_width==1) _data[0].save_tiff(filename,compression_type,voxel_size,description,is_bigtiff);
       else cimglist_for(*this,l) {
           CImg<charT> nfilename(1024);
           cimg::number_filename(filename,l,6,nfilename);
-          _data[l].save_tiff(nfilename,compression_type,voxel_size,description);
+          _data[l].save_tiff(nfilename,compression_type,voxel_size,description,is_bigtiff);
         }
 #else
       TIFF *tif = TIFFOpen(filename,is_bigtiff?"w8":"w4");

@@ -14573,9 +14573,9 @@ namespace cimg_library_suffixed {
             arg2 = compile(s + 1,se);
             if (!variable_name[1] && *variable_name>=0) { // One-char variable, or variable in reserved_labels.
               arg1 = reserved_label[*variable_name];
-              if (arg1==~0U || arg1<=_cimg_mp_c) // New variable.
+              if (arg1==~0U || arg1<=_cimg_mp_c) // Create new variable slot.
                 arg1 = reserved_label[*variable_name] = opcode1(mp_replace,arg2);
-              else // Already declared (or reserved).
+              else // Already declared.
                 CImg<uptrT>::vector((uptrT)mp_replace,arg1,arg2).move_to(code);
             } else {
               int label_pos = -1;

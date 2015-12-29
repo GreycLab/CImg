@@ -14180,21 +14180,19 @@ namespace cimg_library_suffixed {
         *(p_mem++) = (double)imgin._width*imgin._height*imgin._depth*imgin._spectrum; // mem[25]
         *(p_mem++) = cimg::PI; // mem[26]
         *(p_mem++) = std::exp(1.0); // mem[27]
-        *(p_mem++) = 0; // mem[28]
-        *(p_mem++) = 0; // mem[29]
 
-        // Then, [30] = x, [31] = y, [32] = z and [33] = c.
-#define _cimg_mp_x 30
-#define _cimg_mp_y 31
-#define _cimg_mp_z 32
-#define _cimg_mp_c 33
+        // Then, [28] = x, [29] = y, [30] = z and [31] = c.
+#define _cimg_mp_x 28
+#define _cimg_mp_y 29
+#define _cimg_mp_z 30
+#define _cimg_mp_c 31
 
         // Set constant/variable property : { 1 = compilation-time constant | -1 = variable | 0 = other value }.
         std::memset(mem.data(0,1),0,sizeof(double)*mem._width);
         p_mem = mem.data(0,1); for (unsigned int i = 0; i<28; ++i) *(p_mem++) = 1;
         mem(17,1) = 0;
 
-        mempos = 34;
+        mempos = _cimg_mp_c + 1;
         labelMpos.assign(8);
         reserved_label.assign(128,1,1,1,~0U);
         reserved_label['t'] = 17;
@@ -14208,13 +14206,13 @@ namespace cimg_library_suffixed {
         reserved_label[2] = 25; // whds
         reserved_label[3] = 26; // pi
         reserved_label['e'] = 27;
-        reserved_label[29] = 28; // interpolation
-        reserved_label[30] = 29; // boundary
+        reserved_label[29] = 0; // interpolation
+        reserved_label[30] = 0; // boundary
         reserved_label['x'] = _cimg_mp_x;
         reserved_label['y'] = _cimg_mp_y;
         reserved_label['z'] = _cimg_mp_z;
         reserved_label['c'] = _cimg_mp_c;
-        // reserved_label[4-30] store also two-char variables:
+        // reserved_label[4-28] store also two-char variables:
         // [4] = im, [5] = iM, [6] = ia, [7] = iv, [8] = is, [9] = ip, [10] = ic,
         // [11] = xm, [12] = ym, [13] = zm, [14] = cm, [15] = xM, [16] = yM, [17] = zM, [18]=cM, [19]=i0...[28]=i9,
 
@@ -14575,7 +14573,7 @@ namespace cimg_library_suffixed {
             arg2 = compile(s + 1,se);
             if (!variable_name[1] && *variable_name>=0) { // One-char variable, or variable in reserved_labels.
               arg1 = reserved_label[*variable_name];
-              if (arg1==~0U) // New variable.
+              if (arg1==~0U || arg1<=_cimg_mp_c) // New variable.
                 arg1 = reserved_label[*variable_name] = opcode1(mp_replace,arg2);
               else // Already declared (or reserved).
                 CImg<uptrT>::vector((uptrT)mp_replace,arg1,arg2).move_to(code);

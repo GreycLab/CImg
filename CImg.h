@@ -14189,7 +14189,7 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_z 32
 #define _cimg_mp_c 33
 
-        // Set constant/variable property : { 1 = constant | -1 = variable | 0 = other }.
+        // Set constant/variable property : { 1 = compilation-time constant | -1 = variable | 0 = other value }.
         std::memset(mem.data(0,1),0,sizeof(double)*mem._width);
         p_mem = mem.data(0,1); for (unsigned int i = 0; i<28; ++i) *(p_mem++) = 1;
         mem(17,1) = 0;

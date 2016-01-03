@@ -14664,7 +14664,7 @@ namespace cimg_library_suffixed {
             p2 = code._width; arg2 = compile(s + 1,*s1!=':'?se:s1);
             p3 = code._width; arg3 = *s1!=':'?0:compile(s1 + 1,se);
             if (mem(arg1,1)>0 && mem(arg2,1)>0 && mem(arg3,1)>0) _cimg_mp_constant(mem[arg1]?mem[arg2]:mem[arg3]);
-            if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
+            if (mempos>=mem._width) mem.resize(-200,-100,1,1,0);
             pos = mempos++;
             CImg<uptrT>::vector((uptrT)mp_if,pos,arg1,arg2,arg3,
                                 p3 - p2,code._width - p3).move_to(code,p2);
@@ -14676,7 +14676,7 @@ namespace cimg_library_suffixed {
             arg1 = compile(ss,s);
             p2 = code._width; arg2 = compile(s + 2,se);
             if (mem(arg1,1)>0 && mem(arg2,1)>0) _cimg_mp_constant(mem[arg1] || mem[arg2]);
-            if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
+            if (mempos>=mem._width) mem.resize(-200,-100,1,1,0);
             pos = mempos++;
             CImg<uptrT>::vector((uptrT)mp_logical_or,pos,arg1,arg2,code._width - p2).
               move_to(code,p2);
@@ -14688,7 +14688,7 @@ namespace cimg_library_suffixed {
             arg1 = compile(ss,s);
             p2 = code._width; arg2 = compile(s + 2,se);
             if (mem(arg1,1)>0 && mem(arg2,1)>0) _cimg_mp_constant(mem[arg1] && mem[arg2]);
-            if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
+            if (mempos>=mem._width) mem.resize(-200,-100,1,1,0);
             pos = mempos++;
             CImg<uptrT>::vector((uptrT)mp_logical_and,pos,arg1,arg2,code._width - p2).
               move_to(code,p2);
@@ -14973,16 +14973,16 @@ namespace cimg_library_suffixed {
               _cimg_mp_opcode1(mp_abs,arg1);
             }
 
-            if (!std::strncmp(ss,"asin(",5)) { // Arcsin.
-              arg1 = compile(ss5,se1);
-              if (mem(arg1,1)>0) _cimg_mp_constant(std::asin(mem[arg1]));
-              _cimg_mp_opcode1(mp_asin,arg1);
-            }
-
             if (!std::strncmp(ss,"acos(",5)) { // Arccos.
               arg1 = compile(ss5,se1);
               if (mem(arg1,1)>0) _cimg_mp_constant(std::acos(mem[arg1]));
               _cimg_mp_opcode1(mp_acos,arg1);
+            }
+
+            if (!std::strncmp(ss,"asin(",5)) { // Arcsin.
+              arg1 = compile(ss5,se1);
+              if (mem(arg1,1)>0) _cimg_mp_constant(std::asin(mem[arg1]));
+              _cimg_mp_opcode1(mp_asin,arg1);
             }
 
             if (!std::strncmp(ss,"atan(",5)) { // Arctan.
@@ -15000,6 +15000,12 @@ namespace cimg_library_suffixed {
             break;
 
           case 'c' :
+            if (!std::strncmp(ss,"cbrt(",5)) { // Cubic root.
+              arg1 = compile(ss5,se1);
+              if (mem(arg1,1)>0) _cimg_mp_constant(std::pow(mem[arg1],1.0/3));
+              _cimg_mp_opcode1(mp_cbrt,arg1);
+            }
+
             if (!std::strncmp(ss,"cos(",4)) { // Cosine.
               arg1 = compile(ss4,se1);
               if (mem(arg1,1)>0) _cimg_mp_constant(std::cos(mem[arg1]));
@@ -15010,12 +15016,6 @@ namespace cimg_library_suffixed {
               arg1 = compile(ss5,se1);
               if (mem(arg1,1)>0) _cimg_mp_constant(std::cosh(mem[arg1]));
               _cimg_mp_opcode1(mp_cosh,arg1);
-            }
-
-            if (!std::strncmp(ss,"cbrt(",5)) { // Cubic root.
-              arg1 = compile(ss5,se1);
-              if (mem(arg1,1)>0) _cimg_mp_constant(std::pow(mem[arg1],1.0/3));
-              _cimg_mp_opcode1(mp_cbrt,arg1);
             }
 
             if (!std::strncmp(ss,"cut(",4)) { // Cut.
@@ -15033,17 +15033,6 @@ namespace cimg_library_suffixed {
             break;
 
           case 'd' :
-            if (!std::strncmp(ss,"dowhile",7) && (*ss7=='(' || (*ss7==' ' && *ss8=='('))) { // Do..while
-              if (*ss7==' ') cimg::swap(*ss7,*ss8); // Allow space before opening brace.
-              s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              p1 = code._width; arg1 = compile(ss8,s1);
-              if (s1<se1) arg2 = compile(s1 + 1,se1);
-              else arg2 = arg1;
-              CImg<uptrT>::vector((uptrT)mp_dowhile,arg1,arg2,code._width - p1).
-                move_to(code,p1);
-              _cimg_mp_return(arg1);
-            }
-
             if (!std::strncmp(ss,"date(",5)) { // Date and file date.
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = 0;
@@ -15066,6 +15055,17 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(arg1);
             }
             break;
+
+            if (!std::strncmp(ss,"dowhile",7) && (*ss7=='(' || (*ss7==' ' && *ss8=='('))) { // Do..while
+              if (*ss7==' ') cimg::swap(*ss7,*ss8); // Allow space before opening brace.
+              s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              p1 = code._width; arg1 = compile(ss8,s1);
+              if (s1<se1) arg2 = compile(s1 + 1,se1);
+              else arg2 = arg1;
+              CImg<uptrT>::vector((uptrT)mp_dowhile,arg1,arg2,code._width - p1).
+                move_to(code,p1);
+              _cimg_mp_return(arg1);
+            }
 
           case 'e' :
             if (!std::strncmp(ss,"exp(",4)) { // Exponential.
@@ -15124,12 +15124,6 @@ namespace cimg_library_suffixed {
             break;
 
           case 'i' :
-            if (!std::strncmp(ss,"int(",4)) { // Integer cast.
-              arg1 = compile(ss4,se1);
-              if (mem(arg1,1)>0) _cimg_mp_constant((long)mem[arg1]);
-              _cimg_mp_opcode1(mp_int,arg1);
-            }
-
             if (*ss1=='f' && (*ss2=='(' || (*ss2==' ' && *ss3=='('))) { // If..then[..else.]
               if (*ss2==' ') cimg::swap(*ss2,*ss3); // Allow space before opening brace.
               s1 = ss3; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -15138,7 +15132,7 @@ namespace cimg_library_suffixed {
               p2 = code._width; arg2 = compile(s1 + 1,s2);
               p3 = code._width; arg3 = s2>=se1?0:compile(s2 + 1,se1);
               if (mem(arg1,1)>0 && mem(arg2,1)>0 && mem(arg3,1)>0) _cimg_mp_constant(mem[arg1]?mem[arg2]:mem[arg3]);
-              if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
+              if (mempos>=mem._width) mem.resize(-200,-100,1,1,0);
               pos = mempos++;
               CImg<uptrT>::vector((uptrT)mp_if,pos,arg1,arg2,arg3,
                                   p3 - p2,code._width - p3).move_to(code,p2);
@@ -15157,6 +15151,12 @@ namespace cimg_library_suffixed {
               arg1 = compile(ss5,se1,p_coords);
               init_size = code.width();
               _cimg_mp_return(arg1);
+            }
+
+            if (!std::strncmp(ss,"int(",4)) { // Integer cast.
+              arg1 = compile(ss4,se1);
+              if (mem(arg1,1)>0) _cimg_mp_constant((long)mem[arg1]);
+              _cimg_mp_opcode1(mp_int,arg1);
             }
 
             if (*ss1=='s') { // Family of 'is_?()' functions.
@@ -15181,7 +15181,7 @@ namespace cimg_library_suffixed {
               }
 
               if (!std::strncmp(ss,"isin(",5)) { // Is in sequence?
-                if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
+                if (mempos>=mem._width) mem.resize(-200,-100,1,1,0);
                 pos = mempos++;
                 CImg<uptrT>::vector((uptrT)mp_isin,pos).move_to(_opcode);
                 for (s = ss5; s<se; ++s) {
@@ -15252,7 +15252,7 @@ namespace cimg_library_suffixed {
 
             if ((cimg_sscanf(ss,"norm%u%c",&(arg1=~0U),&sep)==2 && sep=='(') ||
                 !std::strncmp(ss,"norminf(",8)) { // Lp norm.
-              if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
+              if (mempos>=mem._width) mem.resize(-200,-100,1,1,0);
               pos = mempos++;
               switch (arg1) {
               case 0 : CImg<uptrT>::vector((uptrT)mp_norm0,pos).move_to(_opcode); break;
@@ -15316,22 +15316,16 @@ namespace cimg_library_suffixed {
             break;
 
           case 's' :
-            if (!std::strncmp(ss,"sin(",4)) { // Sine.
-              arg1 = compile(ss4,se1);
-              if (mem(arg1,1)>0) _cimg_mp_constant(std::sin(mem[arg1]));
-              _cimg_mp_opcode1(mp_sin,arg1);
-            }
-
-            if (!std::strncmp(ss,"sqr(",4)) { // Square.
-              arg1 = compile(ss4,se1);
-              if (mem(arg1,1)>0) _cimg_mp_constant(cimg::sqr(mem[arg1]));
-              _cimg_mp_opcode1(mp_sqr,arg1);
-            }
-
             if (!std::strncmp(ss,"sign(",5)) { // Sign.
               arg1 = compile(ss5,se1);
               if (mem(arg1,1)>0) _cimg_mp_constant(cimg::sign(mem[arg1]));
               _cimg_mp_opcode1(mp_sign,arg1);
+            }
+
+            if (!std::strncmp(ss,"sin(",4)) { // Sine.
+              arg1 = compile(ss4,se1);
+              if (mem(arg1,1)>0) _cimg_mp_constant(std::sin(mem[arg1]));
+              _cimg_mp_opcode1(mp_sin,arg1);
             }
 
             if (!std::strncmp(ss,"sinc(",5)) { // Sine cardinal.
@@ -15344,6 +15338,12 @@ namespace cimg_library_suffixed {
               arg1 = compile(ss5,se1);
               if (mem(arg1,1)>0) _cimg_mp_constant(std::sinh(mem[arg1]));
               _cimg_mp_opcode1(mp_sinh,arg1);
+            }
+
+            if (!std::strncmp(ss,"sqr(",4)) { // Square.
+              arg1 = compile(ss4,se1);
+              if (mem(arg1,1)>0) _cimg_mp_constant(cimg::sqr(mem[arg1]));
+              _cimg_mp_opcode1(mp_sqr,arg1);
             }
 
             if (!std::strncmp(ss,"sqrt(",5)) { // Square root.
@@ -15393,7 +15393,7 @@ namespace cimg_library_suffixed {
               !std::strncmp(ss,"med(",4) || !std::strncmp(ss,"kth(",4) ||
               !std::strncmp(ss,"arg(",4) ||
               !std::strncmp(ss,"argmin(",7) || !std::strncmp(ss,"argmax(",7)) { // Multi-argument functions.
-            if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
+            if (mempos>=mem._width) mem.resize(-200,-100,1,1,0);
             pos = mempos++;
             is_sth = *ss=='a' && ss[3]!='(';
             CImg<uptrT>::vector((uptrT)(*ss=='a'?(ss[3]=='('?mp_arg:ss[4]=='i'?mp_argmin:mp_argmax):
@@ -15588,7 +15588,7 @@ namespace cimg_library_suffixed {
           if (val<0 && val>=-5) return (unsigned int)(10 - val);
         }
         if (val==0.5) return 16;
-        if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
+        if (mempos>=mem._width) mem.resize(-200,-100,1,1,0);
         const unsigned int pos = mempos++;
         mem[pos] = val; mem(pos,1) = 1; // Set constant property.
         return pos;
@@ -15596,21 +15596,21 @@ namespace cimg_library_suffixed {
 
       // Insert code instructions.
       unsigned int opcode0(const mp_func op) {
-        if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
+        if (mempos>=mem._width) mem.resize(-200,-100,1,1,0);
         const unsigned int pos = mempos++;
         CImg<uptrT>::vector((uptrT)op,pos).move_to(code);
         return pos;
       }
 
       unsigned int opcode1(const mp_func op, const unsigned int arg1) {
-        if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
+        if (mempos>=mem._width) mem.resize(-200,-100,1,1,0);
         const unsigned int pos = mempos++;
         CImg<uptrT>::vector((uptrT)op,pos,arg1).move_to(code);
         return pos;
       }
 
       unsigned int opcode2(const mp_func op, const unsigned int arg1, const unsigned int arg2) {
-        if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
+        if (mempos>=mem._width) mem.resize(-200,-100,1,1,0);
         const unsigned int pos = mempos++;
         CImg<uptrT>::vector((uptrT)op,pos,arg1,arg2).move_to(code);
         return pos;
@@ -15618,7 +15618,7 @@ namespace cimg_library_suffixed {
 
       unsigned int opcode3(const mp_func op,
                            const unsigned int arg1, const unsigned int arg2, const unsigned int arg3) {
-        if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
+        if (mempos>=mem._width) mem.resize(-200,-100,1,1,0);
         const unsigned int pos = mempos++;
         CImg<uptrT>::vector((uptrT)op,pos,arg1,arg2,arg3).move_to(code);
         return pos;
@@ -15627,7 +15627,7 @@ namespace cimg_library_suffixed {
       unsigned int opcode5(const mp_func op,
                            const unsigned int arg1, const unsigned int arg2, const unsigned int arg3,
                            const unsigned int arg4, const unsigned int arg5) {
-        if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
+        if (mempos>=mem._width) mem.resize(-200,-100,1,1,0);
         const unsigned int pos = mempos++;
         CImg<uptrT>::vector((uptrT)op,pos,arg1,arg2,arg3,arg4,arg5).move_to(code);
         return pos;
@@ -15636,7 +15636,7 @@ namespace cimg_library_suffixed {
       unsigned int opcode6(const mp_func op,
                            const unsigned int arg1, const unsigned int arg2, const unsigned int arg3,
                            const unsigned int arg4, const unsigned int arg5, const unsigned int arg6) {
-        if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
+        if (mempos>=mem._width) mem.resize(-200,-100,1,1,0);
         const unsigned int pos = mempos++;
         CImg<uptrT>::vector((uptrT)op,pos,arg1,arg2,arg3,arg4,arg5,arg6).move_to(code);
         return pos;
@@ -15646,7 +15646,7 @@ namespace cimg_library_suffixed {
                            const unsigned int arg1, const unsigned int arg2, const unsigned int arg3,
                            const unsigned int arg4, const unsigned int arg5, const unsigned int arg6,
                            const unsigned int arg7) {
-        if (mempos>=mem._width) mem.resize(-200,2,1,1,0);
+        if (mempos>=mem._width) mem.resize(-200,-100,1,1,0);
         const unsigned int pos = mempos++;
         CImg<uptrT>::vector((uptrT)op,pos,arg1,arg2,arg3,arg4,arg5,arg6,arg7).move_to(code);
         return pos;

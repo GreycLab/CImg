@@ -14187,7 +14187,7 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_z 30
 #define _cimg_mp_c 31
 
-        // Set constant/variable property : { 1 = compilation-time constant | -1 = variable | 0 = other value }.
+        // Set constant/variable property : { 1 = compilation-time constant | -1 = variable value | 0 = other value }.
         std::memset(mem.data(0,1),0,sizeof(double)*mem._width);
         p_mem = mem.data(0,1); for (unsigned int i = 0; i<28; ++i) *(p_mem++) = 1;
         mem(17,1) = 0;
@@ -15350,6 +15350,20 @@ namespace cimg_library_suffixed {
               arg1 = compile(ss5,se1);
               if (mem(arg1,1)>0) _cimg_mp_constant(std::sqrt(mem[arg1]));
               _cimg_mp_opcode1(mp_sqrt,arg1);
+            }
+
+            if (!std::strncmp(ss,"swap(",5)) { // Swap values.
+              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss5,s1); arg2 = compile(s1 + 1,se1);
+              if (mem(arg1,1)>=0 || mem(arg2,1)>=0)
+                throw CImgArgumentException("[_cimg_math_parser] "
+                                            "CImg<%s>::%s(): Non-variable used as argument of function swap(), "
+                                            "in expression '%s%s%s'.",
+                                            pixel_type(),calling_function,
+                                            (ss - 8)>expr._data?"...":"",
+                                            (ss - 8)>expr._data?ss - 8:expr._data,
+                                            se<&expr.back()?"...":"");
+              _cimg_mp_opcode2(mp_swap,arg1,arg2);
             }
             break;
 
@@ -16536,6 +16550,11 @@ namespace cimg_library_suffixed {
 
       static double mp_sub(_cimg_math_parser& mp) {
         return _mp_arg(2) - _mp_arg(3);
+      }
+
+      static double mp_swap(_cimg_math_parser& mp) {
+        cimg::swap(mp.mem[mp.opcode[2]],mp.mem[mp.opcode[3]]);
+        return mp.mem[mp.opcode[2]];
       }
 
       static double mp_tan(_cimg_math_parser& mp) {

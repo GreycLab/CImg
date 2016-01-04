@@ -14579,11 +14579,11 @@ namespace cimg_library_suffixed {
             if (!variable_name[1] && *variable_name>=0) { // One-char variable, or variable in reserved_labels.
               arg1 = reserved_label[*variable_name];
               if (arg1==~0U || arg1<=_cimg_mp_c) { // Create new variable slot.
-                if (!mem(arg2,2)) arg1 = arg2; // Unlocked right-hand value.
-                else {
+                //                if (!mem(arg2,2)) arg1 = arg2; // Unlocked right-hand value.
+                //                else {
                   arg1 = opcode1(mp_replace,arg2);
-                  if (mem(arg2,1)>0) { code.remove(); mem[arg1] = mem[arg2]; } // Constant right-hand value.
-                }
+                  // BUG : if (mem(arg2,1)>0) { code.remove(); mem[arg1] = mem[arg2]; } // Constant right-hand value.
+                  //                }
                 reserved_label[*variable_name] = arg1;
                 mem(arg1,2) = 1; // Lock variable.
               } else // Already declared.
@@ -14596,11 +14596,11 @@ namespace cimg_library_suffixed {
                 if (labelM._width>=labelMpos._width) labelMpos.resize(-200,1,1,1,0);
                 label_pos = labelM.width();
                 variable_name.move_to(labelM);
-                if (!mem(arg2,2)) arg1 = arg2; // Unlocked right-hand value.
-                else {
+                //                if (!mem(arg2,2)) arg1 = arg2; // Unlocked right-hand value.
+                //                else {
                   arg1 = opcode1(mp_replace,arg2);
-                  if (mem(arg2,1)>0) { code.remove(); mem[arg1] = mem[arg2]; } // Constant right-hand value.
-                }
+                  // BUG : if (mem(arg2,1)>0) { code.remove(); mem[arg1] = mem[arg2]; } // Constant right-hand value.
+                  //                }
                 labelMpos[label_pos] = arg1;
                 mem(arg1,2) = 1; // Lock variable.
               } else { // Already declared.

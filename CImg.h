@@ -14164,7 +14164,7 @@ namespace cimg_library_suffixed {
         }
 
         // Init constant values.
-        mem.assign(128,3);
+        mem.assign(128,2);
         double *p_mem = mem._data;
         for (unsigned int i = 0; i<=10; ++i) *(p_mem++) = (double)i;  // mem[0-10]
         for (unsigned int i = 1; i<=5; ++i) *(p_mem++) = -(double)i;  // mem[11-15]
@@ -14187,15 +14187,11 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_z 30
 #define _cimg_mp_c 31
 
-        // Set variable type :
-        // { -1 = variable value | 0 = scalar value | 1 = compilation-time constant | N>1 = vector[N-1] }
-        // and assignability : { 0 = unlocked (assignable as a new variable) | 1 = locked (non-assignable) }.
-        p_mem = mem.data(0,1);
-        std::memset(p_mem,0,sizeof(double)*mem._width*2);
-        for (unsigned int i = 0; i<_cimg_mp_x; ++i) { p_mem[mem._width] = 1; *(p_mem++) = 1; } // Locked constants.
-        p_mem = mem.data(_cimg_mp_x,2);
-        *(p_mem++) = 1; *(p_mem++) = 1; *(p_mem++) = 1; *(p_mem++) = 1; // Locked (x,y,z,c).
-        mem(17,1) = 0; // Thread_is not a constant.
+        // Set value property :
+        // { -1 = variable | 0 = regular value | 1 = compilation-time constant | N>1 = constant ptr to vector[N-1] }.
+        std::memset(mem.data(0,1),0,sizeof(double)*mem._width);
+        p_mem = mem.data(0,1); for (unsigned int i = 0; i<28; ++i) *(p_mem++) = 1;
+        mem(17,1) = 0;
 
         mempos = _cimg_mp_c + 1;
         labelMpos.assign(8);
@@ -14578,31 +14574,19 @@ namespace cimg_library_suffixed {
             arg2 = compile(s + 1,se);
             if (!variable_name[1] && *variable_name>=0) { // One-char variable, or variable in reserved_labels.
               arg1 = reserved_label[*variable_name];
-              if (arg1==~0U || arg1<=_cimg_mp_c) { // Create new variable slot.
-                //                if (!mem(arg2,2)) arg1 = arg2; // Unlocked right-hand value.
-                //                else {
-                  arg1 = opcode1(mp_replace,arg2);
-                  // BUG : if (mem(arg2,1)>0) { code.remove(); mem[arg1] = mem[arg2]; } // Constant right-hand value.
-                  //                }
-                reserved_label[*variable_name] = arg1;
-                mem(arg1,2) = 1; // Lock variable.
-              } else // Already declared.
+              if (arg1==~0U || arg1<=_cimg_mp_c) // Create new variable slot.
+                arg1 = reserved_label[*variable_name] = opcode1(mp_replace,arg2);
+              else // Already declared.
                 CImg<uptrT>::vector((uptrT)mp_replace,arg1,arg2).move_to(code);
             } else {
               int label_pos = -1;
               cimglist_for(labelM,i) // Check for existing variable with same name.
                 if (!std::strcmp(variable_name,labelM[i])) { label_pos = i; break; }
-              if (label_pos<0) { // Create new variable slot.
+              if (label_pos<0) { // New variable.
                 if (labelM._width>=labelMpos._width) labelMpos.resize(-200,1,1,1,0);
                 label_pos = labelM.width();
                 variable_name.move_to(labelM);
-                //                if (!mem(arg2,2)) arg1 = arg2; // Unlocked right-hand value.
-                //                else {
-                  arg1 = opcode1(mp_replace,arg2);
-                  // BUG : if (mem(arg2,1)>0) { code.remove(); mem[arg1] = mem[arg2]; } // Constant right-hand value.
-                  //                }
-                labelMpos[label_pos] = arg1;
-                mem(arg1,2) = 1; // Lock variable.
+                arg1 = labelMpos[label_pos] = opcode1(mp_replace,arg2);
               } else { // Already declared.
                 arg1 = labelMpos[label_pos];
                 CImg<uptrT>::vector((uptrT)mp_replace,arg1,arg2).move_to(code);
@@ -14928,34 +14912,6 @@ namespace cimg_library_suffixed {
                                             arg2==~0U?reserved_label[30]:arg2);
             _cimg_mp_opcode2(is_sth?mp_joff:mp_ioff,arg1,
                              arg2==~0U?0:arg2);
-          }
-          s0 = strchr(ss,'[');
-          if (s0>ss) { // Component of a vector variable.
-            arg1 = ~0U;
-            arg2 = compile(++s0,se1);
-            variable_name.assign(ss,(unsigned int)(s0 - ss)).back() = 0;
-            //            cimg::strpare(variable_name);
-            if (variable_name[1]) { // Multi-char variable.
-              cimglist_for(labelM,i) if (!std::strcmp(variable_name,labelM[i])) {
-                arg1 = labelMpos[i];
-                if (!mem(arg1,2))
-                  throw CImgArgumentException("[_cimg_math_parser] "
-                                              "CImg<%s>::%s(): Variable '%s' is not a vector, "
-                                              "in expression '%s%s%s'.",
-                                              pixel_type(),calling_function,
-                                              variable_name._data,
-                                              (ss - 8)>expr._data?"...":"",
-                                              (ss - 8)>expr._data?ss - 8:expr._data,
-                                              se<&expr.back()?"...":"");
-                break;
-              }
-            } else arg1 = reserved_label[*variable_name]; // Single-char variable.
-
-            if (arg1!=~0U) {
-              //              std::fprintf(stderr,"\nDEBUG : arg1 = %u, arg2 = %u, cnst = %g\n",arg1,arg2,mem(arg2,1));
-              //              if (mem(arg1,1)>0 && mem(arg2,1)>0) _cimg_mp_return((unsigned int)mem[arg1] + (unsigned int)mem[arg2]);
-              _cimg_mp_opcode2(mp_vector_off,arg1,arg2);
-            }
           }
         }
 
@@ -15449,19 +15405,20 @@ namespace cimg_library_suffixed {
               if (arg1==~0U) arg1 = arg2;
               if (!arg1)
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s(): Zero-size vector() specified in expression '%s%s%s'.",
+                                            "CImg<%s>::%s(): Invalid zero-size vector() specified in expression '%s%s%s'.",
                                             pixel_type(),calling_function,
                                             (ss - 8)>expr._data?"...":"",
                                             (ss - 8)>expr._data?ss - 8:expr._data,
                                             se<&expr.back()?"...":"");
               if (mempos + arg1>=mem._width) mem.resize(2*mem._width + arg1,-100,1,1,0);
               pos = mempos++;
-              mem(pos,0) = mempos; mem(pos,1) = 1; mem(pos,2) = arg1;
+              mem(pos,0) = mempos; mem(pos,1) = arg1 + 1;
               mempos+=arg1;
-              _opcode.insert(CImg<uptrT>::vector((uptrT)mp_vector,pos,arg1),0);
+              _opcode.insert(CImg<uptrT>::vector((uptrT)mp_vector_replace,pos,arg1),0);
               (_opcode>'y').move_to(code);
               _cimg_mp_return(pos);
             }
+            break;
 
           case 'w' :
             if (!std::strncmp(ss,"whiledo",7) && (*ss7=='(' || (*ss7==' ' && *ss8=='('))) { // While...do
@@ -15647,13 +15604,14 @@ namespace cimg_library_suffixed {
                                       (ss - 8)>expr._data?"...":"",
                                       (ss - 8)>expr._data?ss - 8:expr._data,
                                       se<&expr.back()?"...":"");
-        else throw CImgArgumentException("[_cimg_math_parser] "
-                                         "CImg<%s>::%s(): Invalid item '%s' in expression '%s%s%s'.",
-                                         pixel_type(),calling_function,
-                                         variable_name._data,
-                                         (ss - 8)>expr._data?"...":"",
-                                         (ss - 8)>expr._data?ss - 8:expr._data,
-                                         se<&expr.back()?"...":"");
+        else
+          throw CImgArgumentException("[_cimg_math_parser] "
+                                      "CImg<%s>::%s(): Invalid item '%s' in expression '%s%s%s'.",
+                                      pixel_type(),calling_function,
+                                      variable_name._data,
+                                      (ss - 8)>expr._data?"...":"",
+                                      (ss - 8)>expr._data?ss - 8:expr._data,
+                                      se<&expr.back()?"...":"");
       }
 
       // Evaluation procedure.
@@ -15678,7 +15636,7 @@ namespace cimg_library_suffixed {
         if (val==0.5) return 16;
         if (mempos>=mem._width) mem.resize(-200,-100,1,1,0);
         const unsigned int pos = mempos++;
-        mem[pos] = val; mem(pos,1) = 1; // Unlocked constant.
+        mem[pos] = val; mem(pos,1) = 1; // Set constant property.
         return pos;
       }
 
@@ -16643,7 +16601,7 @@ namespace cimg_library_suffixed {
         return cimg::rand(_mp_arg(2),_mp_arg(3));
       }
 
-      static double mp_vector(_cimg_math_parser& mp) {
+      static double mp_vector_replace(_cimg_math_parser& mp) {
         unsigned int ptrs = 3U, ptrd = (unsigned int)_mp_arg(1), siz = mp.opcode[2];
         while (siz-->0) {
           mp.mem[ptrd++] = _mp_arg(ptrs++);
@@ -16652,10 +16610,11 @@ namespace cimg_library_suffixed {
         return _mp_arg(1);
       }
 
-      static double mp_vector_off(_cimg_math_parser& mp) {
+      /*      static double mp_vector_off(_cimg_math_parser& mp) {
         unsigned int ptr = (unsigned int)_mp_arg(2), off = (unsigned int)_mp_arg(3);
         return mp.mem[ptr + off];
       }
+      */
 
       static double mp_whiledo(_cimg_math_parser& mp) { // Used also by 'for()'.
         const uptrT

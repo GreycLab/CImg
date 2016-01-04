@@ -14585,7 +14585,7 @@ namespace cimg_library_suffixed {
                 arg1 = vector(arg3);
                 CImg<uptrT>::vector((uptrT)mp_vector_copy,arg1,arg2,arg3).move_to(code);
               } else { // Scalar.
-                arg1 = opcode1(mp_replace,arg2);
+                arg1 = opcode1(mp_copy,arg2);
                 mem(arg1,1) = -1; // Set variable property.
               }
 
@@ -14596,12 +14596,11 @@ namespace cimg_library_suffixed {
                 variable_name.move_to(labelM);
               }
 
-
             } else { // Variable was already declared.
               if (cimg::max(1.0f,mem(arg1,1))!=cimg::max(1.0f,mem(arg2,1)))
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s(): Invalid assignment of variable '%s',"
-                                            "from value of different dimension, in expression '%s%s%s'.",
+                                            "CImg<%s>::%s(): Dimension mismatch when assigning variable '%s',"
+                                            "in expression '%s%s%s'.",
                                             pixel_type(),calling_function,
                                             variable_name._data,
                                             (ss - 8)>expr._data?"...":"",
@@ -14610,7 +14609,7 @@ namespace cimg_library_suffixed {
               if (mem(arg1,1)>1)
                 CImg<uptrT>::vector((uptrT)mp_vector_copy,arg1,arg2,(uptrT)mem(arg1,1) - 1).move_to(code);
               else
-                CImg<uptrT>::vector((uptrT)mp_replace,arg1,arg2).move_to(code);
+                CImg<uptrT>::vector((uptrT)mp_copy,arg1,arg2).move_to(code);
             }
             _cimg_mp_return(arg1);
           }
@@ -14871,7 +14870,7 @@ namespace cimg_library_suffixed {
         if (is_sth || (se2>ss && (*se1=='+' || *se1=='-') && *se2==*se1)) { // Pre/post-decrement and increment.
           coords.assign(11);
           arg1 = is_sth?compile(ss2,se,coords):compile(ss,se2,coords);
-          pos = is_sth?arg1:opcode1(mp_replace,arg1);
+          pos = is_sth?arg1:opcode1(mp_copy,arg1);
           CImg<uptrT>::vector((uptrT)((is_sth && *ss=='+') || (!is_sth && *se1=='+')?mp_self_increment:
                                       mp_self_decrement),arg1).move_to(code);
           if (*coords!=~0U || coords[1]!=~0U || coords[5]!=~0U || coords[6]!=~0U) { // Assign pixel.
@@ -15298,8 +15297,12 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"print(",6)) { // Print expression.
               pos = compile(ss6,se1,p_coords);
               *se1 = 0;
-              ((CImg<uptrT>::vector((uptrT)mp_print,pos),
-                CImg<uptrT>::string(ss6).unroll('y'))>'y').move_to(code);
+              if (mem(pos,1)>1) // Vector.
+                ((CImg<uptrT>::vector((uptrT)mp_vector_print,pos,(uptrT)mem(pos,1) - 1),
+                  CImg<uptrT>::string(ss6).unroll('y'))>'y').move_to(code);
+              else // Scalar.
+                ((CImg<uptrT>::vector((uptrT)mp_print,pos),
+                  CImg<uptrT>::string(ss6).unroll('y'))>'y').move_to(code);
               *se1 = ')';
               _cimg_mp_return(pos);
             }
@@ -15430,7 +15433,7 @@ namespace cimg_library_suffixed {
                                             (ss - 8)>expr._data?ss - 8:expr._data,
                                             se<&expr.back()?"...":"");
               pos = vector(arg1);
-              _opcode.insert(CImg<uptrT>::vector((uptrT)mp_vector_replace,pos,arg1),0);
+              _opcode.insert(CImg<uptrT>::vector((uptrT)mp_vector_init,pos,arg1),0);
               (_opcode>'y').move_to(code);
               _cimg_mp_return(pos);
             }
@@ -15817,7 +15820,7 @@ namespace cimg_library_suffixed {
 #else
         const unsigned int n_thread = 0;
 #endif
-        CImg<char> expr(mp.opcode._height - 3);
+        CImg<charT> expr(mp.opcode._height - 3);
         const uptrT *ptrs = mp.opcode._data + 3;
         cimg_for(expr,ptrd,char) *ptrd = (char)*(ptrs++);
         cimg::strellipsize(expr);
@@ -16459,7 +16462,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_print(_cimg_math_parser& mp) {
-        CImg<char> expr(mp.opcode._height - 2);
+        CImg<charT> expr(mp.opcode._height - 2);
         const uptrT *ptrs = mp.opcode._data + 2;
         cimg_for(expr,ptrd,char) *ptrd = (char)*(ptrs++);
         cimg::strellipsize(expr);
@@ -16469,7 +16472,7 @@ namespace cimg_library_suffixed {
         return val;
       }
 
-      static double mp_replace(_cimg_math_parser& mp) {
+      static double mp_copy(_cimg_math_parser& mp) {
         return _mp_arg(2);
       }
 
@@ -16627,16 +16630,34 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_vector_copy(_cimg_math_parser& mp) {
-        unsigned int ptrd = (unsigned int)_mp_arg(1), ptrs = (unsigned int)_mp_arg(2), siz = mp.opcode[3];
+        unsigned int ptrd = mp.opcode[1] + 1, ptrs = mp.opcode[2] + 1, siz = mp.opcode[3];
         while (siz-->0) mp.mem[ptrd++] = mp.mem[ptrs++];
         return _mp_arg(1);
       }
 
-      static double mp_vector_replace(_cimg_math_parser& mp) {
-        unsigned int ptrs = 3U, ptrd = (unsigned int)_mp_arg(1), siz = mp.opcode[2];
-        while (siz-->0) {
-          mp.mem[ptrd++] = _mp_arg(ptrs++);
-          if (ptrs>=mp.opcode._height) ptrs = 3U;
+      static double mp_vector_print(_cimg_math_parser& mp) {
+        CImg<charT> expr(mp.opcode._height - 3);
+        const uptrT *ptrs = mp.opcode._data + 3;
+        cimg_for(expr,ptrd,char) *ptrd = (char)*(ptrs++);
+        cimg::strellipsize(expr);
+        unsigned int ptr = mp.opcode[1] + 1, siz = mp.opcode[2];
+        std::fprintf(cimg::output(),"\n[_cimg_math_parser] '%s[%u]' = (",expr._data,siz);
+        while (siz-->0) std::fprintf(cimg::output(),"%g%s",mp.mem[ptr++],siz?",":"");
+        std::fputc(')',cimg::output());
+        std::fflush(cimg::output());
+        return _mp_arg(1);
+      }
+
+      static double mp_vector_init(_cimg_math_parser& mp) {
+        unsigned int ptrs = 3U, ptrd = mp.opcode[1] + 1, siz = mp.opcode[2];
+        switch (mp.opcode._height) {
+        case 3 : std::memset(mp.mem._data + ptrd,0,siz*sizeof(double)); break;
+        case 4 : { const double val = _mp_arg(ptrs); while (siz-->0) mp.mem[ptrd++] = val; } break;
+        default :
+          while (siz-->0) {
+            mp.mem[ptrd++] = _mp_arg(ptrs++);
+            if (ptrs>=mp.opcode._height) ptrs = 3U;
+          }
         }
         return _mp_arg(1);
       }

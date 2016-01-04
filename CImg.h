@@ -14502,9 +14502,8 @@ namespace cimg_library_suffixed {
                                                 (ss - 8)>expr._data?ss - 8:expr._data,
                                                 se<&expr.back()?"...":"");
                   arg3 = compile(s + 1,se);
-                  CImg<uptrT>::vector((uptrT)mp_vector_set_off,
-                                      arg1,arg2,(uptrT)mem(arg1,1) - 1,arg3).move_to(code);
-                  _cimg_mp_return(arg1);
+                  CImg<uptrT>::vector((uptrT)mp_vector_set_off,arg3,arg1,arg2,(uptrT)mem(arg1,1) - 1).move_to(code);
+                  _cimg_mp_return(arg3);
                 }
               }
             }
@@ -16696,11 +16695,11 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_vector_set_off(_cimg_math_parser& mp) {
-        const unsigned int ptr = mp.opcode[1] + 1;
-        const int off = (int)_mp_arg(2), siz = (int)mp.opcode[3];
-        const double val = _mp_arg(4);
+        const unsigned int ptr = mp.opcode[2] + 1;
+        const int off = (int)_mp_arg(3), siz = (int)mp.opcode[4];
+        const double val = _mp_arg(1);
         if (off>=0 && off<siz) mp.mem[ptr + off] = val;
-        return _mp_arg(1);
+        return val;
       }
 
       static double mp_vector_print(_cimg_math_parser& mp) {

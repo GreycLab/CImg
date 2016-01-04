@@ -15410,10 +15410,7 @@ namespace cimg_library_suffixed {
                                             (ss - 8)>expr._data?"...":"",
                                             (ss - 8)>expr._data?ss - 8:expr._data,
                                             se<&expr.back()?"...":"");
-              if (mempos + arg1>=mem._width) mem.resize(2*mem._width + arg1,-100,1,1,0);
-              pos = mempos++;
-              mem(pos,0) = mempos; mem(pos,1) = arg1 + 1;
-              mempos+=arg1;
+              pos = vector(arg1);
               _opcode.insert(CImg<uptrT>::vector((uptrT)mp_vector_replace,pos,arg1),0);
               (_opcode>'y').move_to(code);
               _cimg_mp_return(pos);
@@ -15637,6 +15634,15 @@ namespace cimg_library_suffixed {
         if (mempos>=mem._width) mem.resize(-200,-100,1,1,0);
         const unsigned int pos = mempos++;
         mem[pos] = val; mem(pos,1) = 1; // Set constant property.
+        return pos;
+      }
+
+      // Insert (unitialized) vector in memory ('siz' must be >1).
+      unsigned int vector(const unsigned int siz) {
+        if (mempos + siz>=mem._width) mem.resize(2*mem._width + siz,-100,1,1,0);
+        const unsigned int pos = mempos++;
+        mem[pos] = mempos; mem(pos,1) = siz + 1; // Set const property + size.
+        mempos+=siz;
         return pos;
       }
 

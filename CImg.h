@@ -14110,17 +14110,15 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_constant(val) _cimg_mp_return(constant(val))
 #define _cimg_mp_opcode0(op) _cimg_mp_return(opcode0(op))
 #define _cimg_mp_opcode1(op,i1) _cimg_mp_return(opcode1(op,i1))
-#define _cimg_mp_opcode2(op,i1,i2) { const unsigned int _i1 = i1, _i2 = i2; _cimg_mp_return(opcode2(op,_i1,_i2)); }
-#define _cimg_mp_opcode3(op,i1,i2,i3) \
-  { const unsigned int _i1 = i1, _i2 = i2, _i3 = i3; _cimg_mp_return(opcode3(op,_i1,_i2,_i3)); }
+#define _cimg_mp_opcode2(op,i1,i2) { _i1 = i1; _i2 = i2; _cimg_mp_return(opcode2(op,_i1,_i2)); }
+#define _cimg_mp_opcode3(op,i1,i2,i3)  { _i1 = i1; _i2 = i2; _i3 = i3; _cimg_mp_return(opcode3(op,_i1,_i2,_i3)); }
 #define _cimg_mp_opcode5(op,i1,i2,i3,i4,i5) \
-  { const unsigned int _i1 = i1, _i2 = i2, _i3 = i3, _i4 = i4, _i5 = i5; \
-        _cimg_mp_return(opcode5(op,_i1,_i2,_i3,_i4,_i5)); }
+      { _i1 = i1; _i2 = i2; _i3 = i3; _i4 = i4; _i5 = i5; _cimg_mp_return(opcode5(op,_i1,_i2,_i3,_i4,_i5)); }
 #define _cimg_mp_opcode6(op,i1,i2,i3,i4,i5,i6) \
-  { const unsigned int _i1 = i1, _i2 = i2, _i3 = i3, _i4 = i4, _i5 = i5, _i6 = i6; \
+      { _i1 = i1; _i2 = i2; _i3 = i3; _i4 = i4; _i5 = i5; _i6 = i6; \
         _cimg_mp_return(opcode6(op,_i1,_i2,_i3,_i4,_i5,_i6)); }
 #define _cimg_mp_opcode7(op,i1,i2,i3,i4,i5,i6,i7) \
-      { const unsigned int _i1 = i1, _i2 = i2, _i3 = i3, _i4 = i4, _i5 = i5, _i6 = i6, _i7 = i7; \
+      { _i1 = i1; _i2 = i2; _i3 = i3; _i4 = i4; _i5 = i5; _i6 = i6; _i7 = i7; \
         _cimg_mp_return(opcode7(op,_i1,_i2,_i3,_i4,_i5,_i6,_i7)); }
 #define _cimg_mp_defunc(mp) (*(mp_func)(*(mp).opcode))(mp)
 
@@ -14305,7 +14303,7 @@ namespace cimg_library_suffixed {
                                       pixel_type(),calling_function,
                                       expr._data);
         }
-        unsigned int pos, p1, p2, p3, arg1, arg2, arg3, arg4, arg5, arg6;
+        unsigned int pos, p1, p2, p3, arg1, arg2, arg3, arg4, arg5, arg6, _i1, _i2, _i3, _i4, _i5, _i6, _i7;
         char
           *const se1 = se - 1, *const se2 = se - 2, *const se3 = se - 3,
           *const ss1 = ss + 1, *const ss2 = ss + 2, *const ss3 = ss + 3, *const ss4 = ss + 4,
@@ -14665,10 +14663,47 @@ namespace cimg_library_suffixed {
             default : op = mp_self_power; s_op = "power"; break;
             }
 
+            s1 = *ps=='>' || *ps=='<'?ns:ps;
+            /*            variable_name.assign(ss,(unsigned int)(s1 - ss + 1)).back() = 0;
+            cimg::strpare(variable_name);
+            const unsigned int l_variable_name = (unsigned int)std::strlen(variable_name);
+            char *const ve1 = ss + l_variable_name - 1;
+
+            if (l_variable_name>3 && *ve1==']') { // Vector value assignment.
+                            s0 = strchr(ss,'[');
+              if (s0>ss) {
+                arg1 = ~0U;
+                arg2 = compile(++s0,ve1);
+                variable_name.assign(ss,(unsigned int)(s0 - ss)).back() = 0;
+                if (variable_name[1]) { // Multi-char variable.
+                  cimglist_for(labelM,i) if (!std::strcmp(variable_name,labelM[i])) {
+                    arg1 = labelMpos[i]; break;
+                  }
+                } else arg1 = reserved_label[*variable_name]; // Single-char variable.
+                if (arg1!=~0U) {
+                  if (mem(arg1,1)<2)
+                    throw CImgArgumentException("[_cimg_math_parser] "
+                                                "CImg<%s>::%s(): Variable '%s' is not a vector, "
+                                                "in expression '%s%s%s'.",
+                                                pixel_type(),calling_function,
+                                                variable_name._data,
+                                                (ss - 8)>expr._data?"...":"",
+                                                (ss - 8)>expr._data?ss - 8:expr._data,
+                                                se<&expr.back()?"...":"");
+                  arg3 = compile(s + 1,se);
+                  CImg<uptrT>::vector((uptrT)mp_vector_off,arg3,arg1,arg2,(uptrT)mem(arg1,1) - 1).move_to(code);
+                  CImg<uptrT>::vector((uptrT)mp_vector_set_off,arg3,arg1,arg2,(uptrT)mem(arg1,1) - 1).move_to(code);
+                  _cimg_mp_return(arg3);
+                }
+              }
+            }
+            */
+
             coords.assign(11);
-            arg1 = compile(ss,*ps=='>' || *ps=='<'?ns:ps,coords);
+            arg1 = compile(ss,s1,coords);
             arg2 = compile(s + 1,se);
             CImg<uptrT>::vector((uptrT)op,arg1,arg2).move_to(code);
+
             if (*coords!=~0U || coords[1]!=~0U || coords[5]!=~0U || coords[6]!=~0U) { // Modify pixel value.
               p1 = coords[10];
               if (*coords!=~0U) { // i[_#ind,off] + = value

@@ -14190,11 +14190,11 @@ namespace cimg_library_suffixed {
         // Set variable type :
         // { -1 = variable value | 0 = scalar value | 1 = compilation-time constant | N>1 = vector[N-1] }
         // and assignability : { 0 = unlocked (assignable as a new variable) | 1 = locked (non-assignable) }.
-        std::memset(mem.data(0,1),0,sizeof(double)*mem._width*2);
         p_mem = mem.data(0,1);
+        std::memset(p_mem,0,sizeof(double)*mem._width*2);
         for (unsigned int i = 0; i<_cimg_mp_x; ++i) { p_mem[mem._width] = 1; *(p_mem++) = 1; } // Locked constants.
         p_mem = mem.data(_cimg_mp_x,2);
-        *(p_mem++) = 0; *(p_mem++) = 0; *(p_mem++) = 0; *(p_mem++) = 1; // Locked (x,y,z,c).
+        *(p_mem++) = 1; *(p_mem++) = 1; *(p_mem++) = 1; *(p_mem++) = 1; // Locked (x,y,z,c).
         mem(17,1) = 0; // Thread_is not a constant.
 
         mempos = _cimg_mp_c + 1;
@@ -14585,25 +14585,24 @@ namespace cimg_library_suffixed {
                   if (mem(arg2,1)>0) { code.remove(); mem[arg1] = mem[arg2]; } // Constant right-hand value.
                 }
                 reserved_label[*variable_name] = arg1;
-                mem(arg1,1) = mem(arg2,1); mem(arg1,2) = 1; // Transfer variable type and lock variable.
+                mem(arg1,2) = 1; // Lock variable.
               } else // Already declared.
                 CImg<uptrT>::vector((uptrT)mp_replace,arg1,arg2).move_to(code);
             } else {
               int label_pos = -1;
               cimglist_for(labelM,i) // Check for existing variable with same name.
                 if (!std::strcmp(variable_name,labelM[i])) { label_pos = i; break; }
-              if (label_pos<0) { // New variable.
+              if (label_pos<0) { // Create new variable slot.
                 if (labelM._width>=labelMpos._width) labelMpos.resize(-200,1,1,1,0);
                 label_pos = labelM.width();
                 variable_name.move_to(labelM);
-
-                if (!mem(arg2,2)) arg1 = arg2; // Create new variable slot.
+                if (!mem(arg2,2)) arg1 = arg2; // Unlocked right-hand value.
                 else {
                   arg1 = opcode1(mp_replace,arg2);
                   if (mem(arg2,1)>0) { code.remove(); mem[arg1] = mem[arg2]; } // Constant right-hand value.
                 }
                 labelMpos[label_pos] = arg1;
-                mem(arg1,1) = mem(arg2,1); mem(arg1,2) = 1; // Transfer variable type and lock variable.
+                mem(arg1,2) = 1; // Lock variable.
               } else { // Already declared.
                 arg1 = labelMpos[label_pos];
                 CImg<uptrT>::vector((uptrT)mp_replace,arg1,arg2).move_to(code);

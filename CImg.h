@@ -14432,12 +14432,12 @@ namespace cimg_library_suffixed {
             variable_name.assign(ss,(unsigned int)(s - ss + 1)).back() = 0;
             cimg::strpare(variable_name);
             const unsigned int l_variable_name = (unsigned int)std::strlen(variable_name);
+            char *const ve1 = ss + l_variable_name - 1;
 
             // Pixel assignment (fast).
-            if (l_variable_name>2 && (*ss=='i' || *ss=='j')) {
-              char *const ve1 = ss + l_variable_name - 1;
+            if (l_variable_name>2 && (*ss=='i' || *ss=='j') && (*ss1=='(' || *ss1=='[')) {
               is_sth = *ss=='j'; // is_relative?
-              if (*ss1=='(' && *ve1==')') { // i/j(_#ind,_x,_y,_z,_c) = value
+              if (*ss1=='(' && *ve1==')') { // i/j(_#ind,_x,_y,_z,_c) = value.
                 if (*ss2=='#') {
                   s0 = ss3; while (s0<ve1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                   p1 = compile(ss3,s0++);
@@ -14466,7 +14466,7 @@ namespace cimg_library_suffixed {
                 }
                 if (*ss2=='#') _cimg_mp_opcode6(is_sth?mp_list_set_jxyzc:mp_list_set_ixyzc,p1,arg1,arg2,arg3,arg4,arg5);
                 _cimg_mp_opcode5(is_sth?mp_set_jxyzc:mp_set_ixyzc,arg1,arg2,arg3,arg4,arg5);
-              } else if (*ss1=='[' && *ve1==']') { // i/j[_#ind,offset] = value
+              } else if (*ss1=='[' && *ve1==']') { // i/j[_#ind,offset] = value.
                 if (*ss2=='#') {
                   s0 = ss3; while (s0<ve1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                   p1 = compile(ss3,s0++);
@@ -14476,6 +14476,36 @@ namespace cimg_library_suffixed {
                 if (p_coords) { p_coords[is_sth?5:0] = arg1; p_coords[10] = p1; }
                 if (p1!=~0U) _cimg_mp_opcode3(is_sth?mp_list_set_joff:mp_list_set_ioff,p1,arg1,arg2);
                 _cimg_mp_opcode2(is_sth?mp_set_joff:mp_set_ioff,arg1,arg2);
+              }
+            }
+
+            // Assignement of a vector value.
+            if (l_variable_name>3 && *ve1==']') {
+              s0 = strchr(ss,'[');
+              if (s0>ss) {
+                arg1 = ~0U;
+                arg2 = compile(++s0,ve1);
+                variable_name.assign(ss,(unsigned int)(s0 - ss)).back() = 0;
+                if (variable_name[1]) { // Multi-char variable.
+                  cimglist_for(labelM,i) if (!std::strcmp(variable_name,labelM[i])) {
+                    arg1 = labelMpos[i]; break;
+                  }
+                } else arg1 = reserved_label[*variable_name]; // Single-char variable.
+                if (arg1!=~0U) {
+                  if (mem(arg1,1)<2)
+                    throw CImgArgumentException("[_cimg_math_parser] "
+                                                "CImg<%s>::%s(): Variable '%s' is not a vector, "
+                                                "in expression '%s%s%s'.",
+                                                pixel_type(),calling_function,
+                                                variable_name._data,
+                                                (ss - 8)>expr._data?"...":"",
+                                                (ss - 8)>expr._data?ss - 8:expr._data,
+                                                se<&expr.back()?"...":"");
+                  arg3 = compile(s + 1,se);
+                  CImg<uptrT>::vector((uptrT)mp_vector_set_off,
+                                      arg1,arg2,(uptrT)mem(arg1,1) - 1,arg3).move_to(code);
+                  _cimg_mp_return(arg1);
+                }
               }
             }
 
@@ -16663,6 +16693,14 @@ namespace cimg_library_suffixed {
         const unsigned int ptr = mp.opcode[2] + 1;
         const int off = (int)_mp_arg(3), siz = (int)mp.opcode[4];
         return off>=0 && off<siz?mp.mem[ptr + off]:0;
+      }
+
+      static double mp_vector_set_off(_cimg_math_parser& mp) {
+        const unsigned int ptr = mp.opcode[1] + 1;
+        const int off = (int)_mp_arg(2), siz = (int)mp.opcode[3];
+        const double val = _mp_arg(4);
+        if (off>=0 && off<siz) mp.mem[ptr + off] = val;
+        return _mp_arg(1);
       }
 
       static double mp_vector_print(_cimg_math_parser& mp) {

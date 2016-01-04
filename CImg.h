@@ -14187,11 +14187,15 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_z 30
 #define _cimg_mp_c 31
 
-        // Set constant/variable property : { 1 = compilation-time constant | -1 = variable value | 0 = other value }
-        // and type : { 0 = scalar | N>0 = pointer to a vector of N values }.
-        std::memset(mem.data(0,1),0,2*sizeof(double)*mem._width);
-        p_mem = mem.data(0,1); for (unsigned int i = 0; i<28; ++i) *(p_mem++) = 1;
-        mem(17,1) = 0;
+        // Set variable type :
+        // { -1 = variable value | 0 = scalar value | 1 = compilation-time constant | N>1 = vector[N-1] }
+        // and assignability : { 0 = unlocked (assignable as a new variable) | 1 = locked (non-assignable) }.
+        std::memset(mem.data(0,1),0,sizeof(double)*mem._width*2);
+        p_mem = mem.data(0,1);
+        for (unsigned int i = 0; i<_cimg_mp_x; ++i) { p_mem[mem._width] = 1; *(p_mem++) = 1; } // Locked constants.
+        p_mem = mem.data(_cimg_mp_x,2);
+        *(p_mem++) = 0; *(p_mem++) = 0; *(p_mem++) = 0; *(p_mem++) = 1; // Locked (x,y,z,c).
+        mem(17,1) = 0; // Thread_is not a constant.
 
         mempos = _cimg_mp_c + 1;
         labelMpos.assign(8);
@@ -14575,9 +14579,13 @@ namespace cimg_library_suffixed {
             if (!variable_name[1] && *variable_name>=0) { // One-char variable, or variable in reserved_labels.
               arg1 = reserved_label[*variable_name];
               if (arg1==~0U || arg1<=_cimg_mp_c) { // Create new variable slot.
-                arg1 = reserved_label[*variable_name] = opcode1(mp_replace,arg2);
-                if (mem(arg2,1)>0) { code.remove(); mem[arg1] = mem[arg2]; }
-                mem(arg1,2) = mem(arg2,2);
+                if (!mem(arg2,2)) arg1 = arg2; // Unlocked right-hand value.
+                else {
+                  arg1 = opcode1(mp_replace,arg2);
+                  if (mem(arg2,1)>0) { code.remove(); mem[arg1] = mem[arg2]; } // Constant right-hand value.
+                }
+                reserved_label[*variable_name] = arg1;
+                mem(arg1,1) = mem(arg2,1); mem(arg1,2) = 1; // Transfer variable type and lock variable.
               } else // Already declared.
                 CImg<uptrT>::vector((uptrT)mp_replace,arg1,arg2).move_to(code);
             } else {
@@ -14588,9 +14596,14 @@ namespace cimg_library_suffixed {
                 if (labelM._width>=labelMpos._width) labelMpos.resize(-200,1,1,1,0);
                 label_pos = labelM.width();
                 variable_name.move_to(labelM);
-                arg1 = labelMpos[label_pos] = opcode1(mp_replace,arg2);
-                if (mem(arg2,1)>0) { code.remove(); mem[arg1] = mem[arg2]; }
-                mem(arg1,2) = mem(arg2,2);
+
+                if (!mem(arg2,2)) arg1 = arg2; // Create new variable slot.
+                else {
+                  arg1 = opcode1(mp_replace,arg2);
+                  if (mem(arg2,1)>0) { code.remove(); mem[arg1] = mem[arg2]; } // Constant right-hand value.
+                }
+                labelMpos[label_pos] = arg1;
+                mem(arg1,1) = mem(arg2,1); mem(arg1,2) = 1; // Transfer variable type and lock variable.
               } else { // Already declared.
                 arg1 = labelMpos[label_pos];
                 CImg<uptrT>::vector((uptrT)mp_replace,arg1,arg2).move_to(code);
@@ -15666,7 +15679,7 @@ namespace cimg_library_suffixed {
         if (val==0.5) return 16;
         if (mempos>=mem._width) mem.resize(-200,-100,1,1,0);
         const unsigned int pos = mempos++;
-        mem[pos] = val; mem(pos,1) = 1; // Set constant property.
+        mem[pos] = val; mem(pos,1) = 1; // Unlocked constant.
         return pos;
       }
 

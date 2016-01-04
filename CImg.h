@@ -14466,6 +14466,7 @@ namespace cimg_library_suffixed {
                 }
                 if (*ss2=='#') _cimg_mp_opcode6(is_sth?mp_list_set_jxyzc:mp_list_set_ixyzc,p1,arg1,arg2,arg3,arg4,arg5);
                 _cimg_mp_opcode5(is_sth?mp_set_jxyzc:mp_set_ixyzc,arg1,arg2,arg3,arg4,arg5);
+
               } else if (*ss1=='[' && *ve1==']') { // i/j[_#ind,offset] = value.
                 if (*ss2=='#') {
                   s0 = ss3; while (s0<ve1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
@@ -14479,7 +14480,7 @@ namespace cimg_library_suffixed {
               }
             }
 
-            // Assignement of a vector value.
+            // Vector value assignement.
             if (l_variable_name>3 && *ve1==']') {
               s0 = strchr(ss,'[');
               if (s0>ss) {
@@ -16520,7 +16521,7 @@ namespace cimg_library_suffixed {
         cimg_for(expr,ptrd,char) *ptrd = (char)*(ptrs++);
         cimg::strellipsize(expr);
         const double val = _mp_arg(1);
-        std::fprintf(cimg::output(),"\n[_cimg_math_parser] '%s' = %g",expr._data,val);
+        std::fprintf(cimg::output(),"\n[_cimg_math_parser] %s = %g",expr._data,val);
         std::fflush(cimg::output());
         return val;
       }
@@ -16708,7 +16709,7 @@ namespace cimg_library_suffixed {
         cimg_for(expr,ptrd,char) *ptrd = (char)*(ptrs++);
         cimg::strellipsize(expr);
         unsigned int ptr = mp.opcode[1] + 1, siz = mp.opcode[2];
-        std::fprintf(cimg::output(),"\n[_cimg_math_parser] '%s[%u]' = (",expr._data,siz);
+        std::fprintf(cimg::output(),"\n[_cimg_math_parser] %s = (",expr._data);
         while (siz-->0) std::fprintf(cimg::output(),"%g%s",mp.mem[ptr++],siz?",":"");
         std::fputc(')',cimg::output());
         std::fflush(cimg::output());

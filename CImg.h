@@ -14571,28 +14571,47 @@ namespace cimg_library_suffixed {
             else if (!std::strcmp(variable_name,"boundary")) variable_name.fill(30,0);
 
             // Set new value to variable.
+            arg1 = ~0U;
             arg2 = compile(s + 1,se);
-            if (!variable_name[1] && *variable_name>=0) { // One-char variable, or variable in reserved_labels.
+            if (!variable_name[1]) // One-char variable, or variable in reserved_labels.
               arg1 = reserved_label[*variable_name];
-              if (arg1==~0U || arg1<=_cimg_mp_c) // Create new variable slot.
-                arg1 = reserved_label[*variable_name] = opcode1(mp_replace,arg2);
-              else // Already declared.
-                CImg<uptrT>::vector((uptrT)mp_replace,arg1,arg2).move_to(code);
-            } else {
-              int label_pos = -1;
-              cimglist_for(labelM,i) // Check for existing variable with same name.
-                if (!std::strcmp(variable_name,labelM[i])) { label_pos = i; break; }
-              if (label_pos<0) { // New variable.
-                if (labelM._width>=labelMpos._width) labelMpos.resize(-200,1,1,1,0);
-                label_pos = labelM.width();
-                variable_name.move_to(labelM);
-                arg1 = labelMpos[label_pos] = opcode1(mp_replace,arg2);
-              } else { // Already declared.
-                arg1 = labelMpos[label_pos];
-                CImg<uptrT>::vector((uptrT)mp_replace,arg1,arg2).move_to(code);
+            else // Multi-char variable name : check for existing variable with same name.
+              cimglist_for(labelM,i)
+                if (!std::strcmp(variable_name,labelM[i])) { arg1 = labelMpos[i]; break; }
+
+            if (arg1==~0U || arg1<=_cimg_mp_c) { // Create new variable.
+              if (mem(arg2,1)>1) { // Vector.
+                arg3 = (unsigned int)mem(arg2,1) - 1;
+                arg1 = vector(arg3);
+                CImg<uptrT>::vector((uptrT)mp_vector_copy,arg1,arg2,arg3).move_to(code);
+              } else { // Scalar.
+                arg1 = opcode1(mp_replace,arg2);
+                mem(arg1,1) = -1; // Set variable property.
               }
+
+              if (!variable_name[1]) reserved_label[*variable_name] = arg1;
+              else {
+                if (labelM._width>=labelMpos._width) labelMpos.resize(-200,1,1,1,0);
+                labelMpos[labelM._width] = arg1;
+                variable_name.move_to(labelM);
+              }
+
+
+            } else { // Variable was already declared.
+              if (cimg::max(1.0f,mem(arg1,1))!=cimg::max(1.0f,mem(arg2,1)))
+                throw CImgArgumentException("[_cimg_math_parser] "
+                                            "CImg<%s>::%s(): Invalid assignment of variable '%s',"
+                                            "from value of different dimension, in expression '%s%s%s'.",
+                                            pixel_type(),calling_function,
+                                            variable_name._data,
+                                            (ss - 8)>expr._data?"...":"",
+                                            (ss - 8)>expr._data?ss - 8:expr._data,
+                                            se<&expr.back()?"...":"");
+              if (mem(arg1,1)>1)
+                CImg<uptrT>::vector((uptrT)mp_vector_copy,arg1,arg2,(uptrT)mem(arg1,1) - 1).move_to(code);
+              else
+                CImg<uptrT>::vector((uptrT)mp_replace,arg1,arg2).move_to(code);
             }
-            mem(arg1,1) = -1; // Set variable property.
             _cimg_mp_return(arg1);
           }
 
@@ -15642,7 +15661,7 @@ namespace cimg_library_suffixed {
         if (mempos + siz>=mem._width) mem.resize(2*mem._width + siz,-100,1,1,0);
         const unsigned int pos = mempos++;
         mem[pos] = mempos; mem(pos,1) = siz + 1; // Set const property + size.
-        mempos+=siz;
+        for (unsigned int s = siz; s>0; --s) mem(mempos++,1) = -1; // Set variable for vector components.
         return pos;
       }
 
@@ -16605,6 +16624,12 @@ namespace cimg_library_suffixed {
 
       static double mp_u(_cimg_math_parser& mp) {
         return cimg::rand(_mp_arg(2),_mp_arg(3));
+      }
+
+      static double mp_vector_copy(_cimg_math_parser& mp) {
+        unsigned int ptrd = (unsigned int)_mp_arg(1), ptrs = (unsigned int)_mp_arg(2), siz = mp.opcode[3];
+        while (siz-->0) mp.mem[ptrd++] = mp.mem[ptrs++];
+        return _mp_arg(1);
       }
 
       static double mp_vector_replace(_cimg_math_parser& mp) {

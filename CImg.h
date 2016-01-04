@@ -14110,16 +14110,11 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_constant(val) _cimg_mp_return(constant(val))
 #define _cimg_mp_opcode0(op) _cimg_mp_return(opcode0(op))
 #define _cimg_mp_opcode1(op,i1) _cimg_mp_return(opcode1(op,i1))
-#define _cimg_mp_opcode2(op,i1,i2) { _i1 = i1; _i2 = i2; _cimg_mp_return(opcode2(op,_i1,_i2)); }
-#define _cimg_mp_opcode3(op,i1,i2,i3)  { _i1 = i1; _i2 = i2; _i3 = i3; _cimg_mp_return(opcode3(op,_i1,_i2,_i3)); }
-#define _cimg_mp_opcode5(op,i1,i2,i3,i4,i5) \
-      { _i1 = i1; _i2 = i2; _i3 = i3; _i4 = i4; _i5 = i5; _cimg_mp_return(opcode5(op,_i1,_i2,_i3,_i4,_i5)); }
-#define _cimg_mp_opcode6(op,i1,i2,i3,i4,i5,i6) \
-      { _i1 = i1; _i2 = i2; _i3 = i3; _i4 = i4; _i5 = i5; _i6 = i6; \
-        _cimg_mp_return(opcode6(op,_i1,_i2,_i3,_i4,_i5,_i6)); }
-#define _cimg_mp_opcode7(op,i1,i2,i3,i4,i5,i6,i7) \
-      { _i1 = i1; _i2 = i2; _i3 = i3; _i4 = i4; _i5 = i5; _i6 = i6; _i7 = i7; \
-        _cimg_mp_return(opcode7(op,_i1,_i2,_i3,_i4,_i5,_i6,_i7)); }
+#define _cimg_mp_opcode2(op,i1,i2) _cimg_mp_return(opcode2(op,i1,i2))
+#define _cimg_mp_opcode3(op,i1,i2,i3) _cimg_mp_return(opcode3(op,i1,i2,i3))
+#define _cimg_mp_opcode5(op,i1,i2,i3,i4,i5) _cimg_mp_return(opcode5(op,i1,i2,i3,i4,i5))
+#define _cimg_mp_opcode6(op,i1,i2,i3,i4,i5,i6) _cimg_mp_return(opcode6(op,i1,i2,i3,i4,i5,i6))
+#define _cimg_mp_opcode7(op,i1,i2,i3,i4,i5,i6,i7) _cimg_mp_return(opcode7(op,i1,i2,i3,i4,i5,i6,i7))
 #define _cimg_mp_defunc(mp) (*(mp_func)(*(mp).opcode))(mp)
 
       // Constructors.
@@ -14303,7 +14298,7 @@ namespace cimg_library_suffixed {
                                       pixel_type(),calling_function,
                                       expr._data);
         }
-        unsigned int pos, p1, p2, p3, arg1, arg2, arg3, arg4, arg5, arg6, _i1, _i2, _i3, _i4, _i5, _i6, _i7;
+        unsigned int pos, p1, p2, p3, arg1, arg2, arg3, arg4, arg5, arg6;
         char
           *const se1 = se - 1, *const se2 = se - 2, *const se3 = se - 3,
           *const ss1 = ss + 1, *const ss2 = ss + 2, *const ss3 = ss + 3, *const ss4 = ss + 4,
@@ -14664,13 +14659,13 @@ namespace cimg_library_suffixed {
             }
 
             s1 = *ps=='>' || *ps=='<'?ns:ps;
-            /*            variable_name.assign(ss,(unsigned int)(s1 - ss + 1)).back() = 0;
+            variable_name.assign(ss,(unsigned int)(s1 - ss + 1)).back() = 0;
             cimg::strpare(variable_name);
             const unsigned int l_variable_name = (unsigned int)std::strlen(variable_name);
             char *const ve1 = ss + l_variable_name - 1;
 
             if (l_variable_name>3 && *ve1==']') { // Vector value assignment.
-                            s0 = strchr(ss,'[');
+              s0 = strchr(ss,'[');
               if (s0>ss) {
                 arg1 = ~0U;
                 arg2 = compile(++s0,ve1);
@@ -14691,13 +14686,12 @@ namespace cimg_library_suffixed {
                                                 (ss - 8)>expr._data?ss - 8:expr._data,
                                                 se<&expr.back()?"...":"");
                   arg3 = compile(s + 1,se);
-                  CImg<uptrT>::vector((uptrT)mp_vector_off,arg3,arg1,arg2,(uptrT)mem(arg1,1) - 1).move_to(code);
-                  CImg<uptrT>::vector((uptrT)mp_vector_set_off,arg3,arg1,arg2,(uptrT)mem(arg1,1) - 1).move_to(code);
-                  _cimg_mp_return(arg3);
+                  pos = opcode3(mp_vector_off,arg1,arg2,(uptrT)mem(arg1,1) - 1);
+                  CImg<uptrT>::vector((uptrT)mp_vector_set_off,pos,arg1,arg2,(uptrT)mem(arg1,1) - 1).move_to(code);
+                  _cimg_mp_return(pos);
                 }
               }
             }
-            */
 
             coords.assign(11);
             arg1 = compile(ss,s1,coords);
@@ -14839,7 +14833,7 @@ namespace cimg_library_suffixed {
           if (*s=='<' && *ns=='<' && level[s - expr._data]==clevel) { // Left bit shift.
             arg1 = compile(ss,s); arg2 = compile(s + 2,se);
             if (mem(arg1,1)>0 && mem(arg2,1)>0) _cimg_mp_constant((long)mem[arg1]<<(unsigned int)mem[arg2]);
-            _cimg_mp_opcode2(mp_bitwise_left_shift,compile(ss,s),compile(s + 2,se));
+            _cimg_mp_opcode2(mp_bitwise_left_shift,arg1,arg2);
           }
 
         for (s = se3, ns = se2; s>ss; --s, --ns)
@@ -14927,7 +14921,7 @@ namespace cimg_library_suffixed {
             case 2 : _cimg_mp_opcode1(mp_sqr,arg1);
             case 3 : _cimg_mp_opcode1(mp_pow3,arg1);
             case 4 : _cimg_mp_opcode1(mp_pow4,arg1);
-            default : _cimg_mp_opcode2(mp_pow,compile(ss,s),compile(s + 1,se));
+            default : _cimg_mp_opcode2(mp_pow,arg1,arg2);
             }
           }
 
@@ -14993,8 +14987,7 @@ namespace cimg_library_suffixed {
             if (p_coords && arg2==~0U) { p_coords[is_sth?5:0] = arg1; p_coords[10] = p1; }
             if (*ss2=='#') _cimg_mp_opcode3(is_sth?mp_list_joff:mp_list_ioff,p1,arg1,
                                             arg2==~0U?reserved_label[30]:arg2);
-            _cimg_mp_opcode2(is_sth?mp_joff:mp_ioff,arg1,
-                             arg2==~0U?0:arg2);
+            _cimg_mp_opcode2(is_sth?mp_joff:mp_ioff,arg1,arg2==~0U?0:arg2);
           }
           s0 = strchr(ss,'[');
           if (s0>ss) { // Access to a vector component.
@@ -15497,8 +15490,9 @@ namespace cimg_library_suffixed {
             if (*ss1=='(') { // Random value with uniform distribution.
               if (*ss2==')') _cimg_mp_opcode2(mp_u,0,1);
               s1 = ss2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              if (s1<se1) _cimg_mp_opcode2(mp_u,compile(ss2,s1),compile(s1 + 1,se1));
-              _cimg_mp_opcode2(mp_u,0,compile(ss2,s1));
+              arg1 = compile(ss2,s1);
+              if (s1<se1) _cimg_mp_opcode2(mp_u,arg1,compile(s1 + 1,se1));
+              _cimg_mp_opcode2(mp_u,0,arg1);
             }
             break;
 

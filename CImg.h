@@ -14914,10 +14914,10 @@ namespace cimg_library_suffixed {
           _cimg_mp_return(pos);
         }
 
-        // Array-like access to image values 'i[_#ind,offset,_boundary]' and 'j[_#ind,offset,_boundary]'.
+        // Array-like access to vectors and  image values 'i[_#ind,offset,_boundary]' and 'j[_#ind,offset,_boundary]'.
         if (*se1==']') {
           is_sth = *ss=='j'; // is_relative?
-          if ((*ss=='i' || is_sth) && *ss1=='[') {
+          if ((*ss=='i' || is_sth) && *ss1=='[') { // Access to an image value.
             if (*ss2=='#') {
               s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
               p1 = compile(ss3,s0++);
@@ -14930,6 +14930,30 @@ namespace cimg_library_suffixed {
                                             arg2==~0U?reserved_label[30]:arg2);
             _cimg_mp_opcode2(is_sth?mp_joff:mp_ioff,arg1,
                              arg2==~0U?0:arg2);
+          }
+          s0 = strchr(ss,'[');
+          if (s0>ss) { // Access to a vector component.
+            arg1 = ~0U;
+            arg2 = compile(++s0,se1);
+            variable_name.assign(ss,(unsigned int)(s0 - ss)).back() = 0;
+            if (variable_name[1]) { // Multi-char variable.
+              cimglist_for(labelM,i) if (!std::strcmp(variable_name,labelM[i])) {
+                arg1 = labelMpos[i]; break;
+              }
+            } else arg1 = reserved_label[*variable_name]; // Single-char variable.
+
+            if (arg1!=~0U) {
+              if (mem(arg1,1)<2)
+                throw CImgArgumentException("[_cimg_math_parser] "
+                                            "CImg<%s>::%s(): Variable '%s' is not a vector, "
+                                            "in expression '%s%s%s'.",
+                                            pixel_type(),calling_function,
+                                            variable_name._data,
+                                            (ss - 8)>expr._data?"...":"",
+                                            (ss - 8)>expr._data?ss - 8:expr._data,
+                                            se<&expr.back()?"...":"");
+              _cimg_mp_opcode3(mp_vector_off,arg1,arg2,(uptrT)mem(arg1,1) - 1);
+            }
           }
         }
 
@@ -16635,6 +16659,12 @@ namespace cimg_library_suffixed {
         return _mp_arg(1);
       }
 
+      static double mp_vector_off(_cimg_math_parser& mp) {
+        const unsigned int ptr = mp.opcode[2] + 1;
+        const int off = (int)_mp_arg(3), siz = (int)mp.opcode[4];
+        return off>=0 && off<siz?mp.mem[ptr + off]:0;
+      }
+
       static double mp_vector_print(_cimg_math_parser& mp) {
         CImg<charT> expr(mp.opcode._height - 3);
         const uptrT *ptrs = mp.opcode._data + 3;
@@ -16661,12 +16691,6 @@ namespace cimg_library_suffixed {
         }
         return _mp_arg(1);
       }
-
-      /*      static double mp_vector_off(_cimg_math_parser& mp) {
-        unsigned int ptr = (unsigned int)_mp_arg(2), off = (unsigned int)_mp_arg(3);
-        return mp.mem[ptr + off];
-      }
-      */
 
       static double mp_whiledo(_cimg_math_parser& mp) { // Used also by 'for()'.
         const uptrT

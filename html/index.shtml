@@ -354,6 +354,10 @@
             Roma/Italy, from Patrick Wauters.</a>
         <li><a href="img/postcard54.jpg" onclick="NewWindow(this.href,'name','420','320','yes');return false;">
             Germany, from Werner Meier.</a>
+        <li><a href="img/postcard55.jpg" onclick="NewWindow(this.href,'name','320','420','yes');return false;">
+            Germany, from Justin Pletzfeld.</a>
+        <li><a href="img/postcard56.jpg" onclick="NewWindow(this.href,'name','420','320','yes');return false;">
+            New York/USA, from Garry R. Osgood.</a>
           <br/><br/></li>
     </ul></li>
   </ul>

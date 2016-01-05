@@ -14687,6 +14687,7 @@ namespace cimg_library_suffixed {
                                                 se<&expr.back()?"...":"");
                   arg3 = compile(s + 1,se);
                   pos = opcode3(mp_vector_off,arg1,arg2,(uptrT)mem(arg1,1) - 1);
+                  CImg<uptrT>::vector((uptrT)op,pos,arg3).move_to(code);
                   CImg<uptrT>::vector((uptrT)mp_vector_set_off,pos,arg1,arg2,(uptrT)mem(arg1,1) - 1).move_to(code);
                   _cimg_mp_return(pos);
                 }

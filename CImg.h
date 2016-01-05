@@ -14284,7 +14284,7 @@ namespace cimg_library_suffixed {
       }
 
       // Compilation procedure.
-      unsigned int compile(char *ss, char *se, unsigned int *p_coords=0) {
+      unsigned int compile(char *ss, char *se, unsigned int *p_ref=0) {
         const char *const ss0 = ss;
         if (ss<se) {
           while (*ss==' ') ++ss;
@@ -14306,14 +14306,20 @@ namespace cimg_library_suffixed {
           *s, *ps, *ns, *s0, *s1, *s2, *s3, c1, c2, c3, c4, sep = 0, end = 0;
         double val, val1, val2;
 
-        if (p_coords) {
-          *p_coords = 0; p_coords[1] = p_coords[2] = p_coords[3] = p_coords[4] = p_coords[5] = p_coords[6] = ~0U;
-        }
+        // 'p_ref' is a 'unsigned int[7]' used to return reference to image and vector values
+        // that are not known at compile time.
+        // p_ref[0] can be { 0 = scalar | 1 = vector value | 2 = image value (offset) | 3 = image value (coordinates) }.
+        // Depending on p_ref[0], the remaining p_ref[k] have the following meaning:
+        // When p_ref[0]==0, p_ref is actually unused.
+        // When p_ref[0]==1, p_ref = [ 1, vector_ind, offset ].
+        // When p_ref[0]==2, p_ref = [ 2, image_ind (or ~0U), is_relative, offset ].
+        // When p_ref[0]==3, p_ref = [ 3, image_ind (or ~0U), is_relative, x, y, z, c ].
+        if (p_ref) { *p_ref = 0; p_ref[1] = p_ref[2] = p_ref[3] = p_ref[4] = p_ref[5] = p_ref[6] = ~0U; }
 
         const char saved_char = *se; *se = 0;
         const unsigned int clevel = level[ss - expr._data], clevel1 = clevel + 1;
         bool is_sth, is_relative;
-        CImg<uintT> coords;
+        CImg<uintT> ref;
         CImgList<uptrT> _opcode;
         CImg<charT> variable_name;
 
@@ -14413,7 +14419,7 @@ namespace cimg_library_suffixed {
         }
 
         for (s = se2; s>ss; --s) // Separator ';'.
-          if (*s==';' && level[s - expr._data]==clevel) { compile(ss,s); _cimg_mp_return(compile(s + 1,se,p_coords)); }
+          if (*s==';' && level[s - expr._data]==clevel) { compile(ss,s); _cimg_mp_return(compile(s + 1,se,p_ref)); }
 
         // Variable declaration/assignment or pixel assignment.
         for (s = ss1, ps = ss, ns = ss2; s<se1; ++s, ++ps, ++ns)
@@ -14452,9 +14458,9 @@ namespace cimg_library_suffixed {
                     }
                   }
                 }
-                if (p_coords) {
-                  *p_coords = 3; p_coords[1] = p1; p_coords[2] = (unsigned int)is_relative;
-                  p_coords[3] = arg1; p_coords[4] = arg2; p_coords[5] = arg3; p_coords[6] = arg4;
+                if (p_ref) {
+                  *p_ref = 3; p_ref[1] = p1; p_ref[2] = (unsigned int)is_relative;
+                  p_ref[3] = arg1; p_ref[4] = arg2; p_ref[5] = arg3; p_ref[6] = arg4;
                 }
                 if (*ss2=='#')
                   _cimg_mp_opcode6(is_relative?mp_list_set_jxyzc:mp_list_set_ixyzc,p1,arg1,arg2,arg3,arg4,arg5);
@@ -14467,8 +14473,8 @@ namespace cimg_library_suffixed {
                 } else { p1 = ~0U; s0 = ss2; }
                 arg1 = compile(s0,ve1);
                 arg2 = compile(s + 1,se);
-                if (p_coords) {
-                  *p_coords = 2; p_coords[1] = p1; p_coords[2] = (unsigned int)is_relative; p_coords[3] = arg1;
+                if (p_ref) {
+                  *p_ref = 2; p_ref[1] = p1; p_ref[2] = (unsigned int)is_relative; p_ref[3] = arg1;
                 }
                 if (p1!=~0U)
                   _cimg_mp_opcode3(is_relative?mp_list_set_joff:mp_list_set_ioff,p1,arg1,arg2);
@@ -14517,15 +14523,15 @@ namespace cimg_library_suffixed {
 
               // Pixel assignment (generic lvalue).
               if (l_variable_name>2 && (std::strchr(variable_name,'(') || std::strchr(variable_name,'['))) {
-                coords.assign(7);
-                arg1 = compile(ss,s,coords);
+                ref.assign(7);
+                arg1 = compile(ss,s,ref);
                 arg2 = compile(s + 1,se);
 
-                if (*coords>1) {
-                  p1 = coords[1]; // #ind.
-                  is_relative = (bool)coords[2];
-                  if (*coords==2) { // i/j[_#ind,off] = value.
-                    arg3 = coords[3]; // offset.
+                if (*ref>1) {
+                  p1 = ref[1]; // #ind.
+                  is_relative = (bool)ref[2];
+                  if (*ref==2) { // i/j[_#ind,off] = value.
+                    arg3 = ref[3]; // offset.
                     if (!is_relative) { // i[_#ind,_off] = value.
                       if (p1!=~0U) CImg<uptrT>::vector((uptrT)mp_list_set_ioff,arg1,p1,arg3,arg2).move_to(code);
                       else CImg<uptrT>::vector((uptrT)mp_set_ioff,arg1,arg3,arg2).move_to(code);
@@ -14534,7 +14540,7 @@ namespace cimg_library_suffixed {
                       else CImg<uptrT>::vector((uptrT)mp_set_joff,arg1,arg3,arg2).move_to(code);
                     }
                   } else { // i/j(_#ind,_x,_y,_z,_c) = value.
-                    arg3 = coords[3]; arg4 = coords[4]; arg5 = coords[5]; arg6 = coords[6];
+                    arg3 = ref[3]; arg4 = ref[4]; arg5 = ref[5]; arg6 = ref[6];
                     if (!is_relative) { // i(_#ind,_x,_y,_z,_c) = value.
                       if (p1!=~0U)
                         CImg<uptrT>::vector((uptrT)mp_list_set_ixyzc,arg1,p1,arg3,arg4,arg5,arg6,arg2).move_to(code);
@@ -14548,7 +14554,7 @@ namespace cimg_library_suffixed {
                     }
                   }
 
-                  if (p_coords) std::memcpy(p_coords,coords,coords._width*sizeof(unsigned int));
+                  if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
                   _cimg_mp_return(arg1);
                 }
 
@@ -14711,16 +14717,16 @@ namespace cimg_library_suffixed {
               }
             }
 
-            coords.assign(7);
-            arg1 = compile(ss,s1,coords);
+            ref.assign(7);
+            arg1 = compile(ss,s1,ref);
             arg2 = compile(s + 1,se);
             CImg<uptrT>::vector((uptrT)op,arg1,arg2).move_to(code);
 
-            if (*coords>1) { // Modify pixel value.
-              p1 = coords[1]; // #ind.
-              is_relative = (bool)coords[2];
-              if (*coords==2) { // i/j[_#ind,off] += value.
-                arg3 = coords[3]; // offset.
+            if (*ref>1) { // Modify pixel value.
+              p1 = ref[1]; // #ind.
+              is_relative = (bool)ref[2];
+              if (*ref==2) { // i/j[_#ind,off] += value.
+                arg3 = ref[3]; // offset.
                 if (!is_relative) { // i[_#ind,off] += value.
                   if (p1!=~0U) CImg<uptrT>::vector((uptrT)mp_list_set_ioff,arg1,p1,arg3,arg1).move_to(code);
                   else CImg<uptrT>::vector((uptrT)mp_set_ioff,arg1,arg3,arg1).move_to(code);
@@ -14729,7 +14735,7 @@ namespace cimg_library_suffixed {
                   else CImg<uptrT>::vector((uptrT)mp_set_joff,arg1,arg3,arg1).move_to(code);
                 }
               } else { // i/j(_#ind,_x,_y,_z,_c) += value.
-                arg3 = coords[3]; arg4 = coords[4]; arg5 = coords[5]; arg6 = coords[6];
+                arg3 = ref[3]; arg4 = ref[4]; arg5 = ref[5]; arg6 = ref[6];
                 if (!is_relative) { // i(_#ind,_x,_y,_z,_c) += value.
                   if (p1!=~0U)
                     CImg<uptrT>::vector((uptrT)mp_list_set_ixyzc,arg1,p1,arg3,arg4,arg5,arg6,arg1).move_to(code);
@@ -14742,7 +14748,7 @@ namespace cimg_library_suffixed {
                     CImg<uptrT>::vector((uptrT)mp_set_jxyzc,arg1,arg3,arg4,arg5,arg6,arg1).move_to(code);
                 }
               }
-              if (p_coords) std::memcpy(p_coords,coords,coords._width*sizeof(unsigned int));
+              if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
             } else if (mem(arg1,1)>=0) {
               *se = saved_char;
               variable_name.assign(ss,(unsigned int)(s - ss)).back() = 0;
@@ -14952,18 +14958,18 @@ namespace cimg_library_suffixed {
 
         is_sth = ss1<se1 && (*ss=='+' || *ss=='-') && *ss1==*ss; // is pre-decrement?
         if (is_sth || (se2>ss && (*se1=='+' || *se1=='-') && *se2==*se1)) { // Pre/post-decrement and increment.
-          coords.assign(7);
-          arg1 = is_sth?compile(ss2,se,coords):compile(ss,se2,coords);
+          ref.assign(7);
+          arg1 = is_sth?compile(ss2,se,ref):compile(ss,se2,ref);
           pos = is_sth?arg1:opcode1(mp_copy,arg1);
           CImg<uptrT>::vector((uptrT)((is_sth && *ss=='+') || (!is_sth && *se1=='+')?mp_self_increment:
                                       mp_self_decrement),arg1).move_to(code);
 
-          if (*coords>1) { // Modify pixel value.
-            p1 = coords[1]; // #ind.
-            is_relative = (bool)coords[2];
+          if (*ref>1) { // Modify pixel value.
+            p1 = ref[1]; // #ind.
+            is_relative = (bool)ref[2];
 
-            if (*coords==2) { // i/j[_#ind,off]++.
-              arg3 = coords[3]; // offset.
+            if (*ref==2) { // i/j[_#ind,off]++.
+              arg3 = ref[3]; // offset.
               if (!is_relative) { // i[_#ind,off]++.
                 if (p1!=~0U) CImg<uptrT>::vector((uptrT)mp_list_set_ioff,arg1,p1,arg3,arg1).move_to(code);
                 else CImg<uptrT>::vector((uptrT)mp_set_ioff,arg1,arg3,arg1).move_to(code);
@@ -14972,7 +14978,7 @@ namespace cimg_library_suffixed {
                 else CImg<uptrT>::vector((uptrT)mp_set_joff,arg1,arg3,arg1).move_to(code);
               }
             } else { // i/j(_#ind,_x,_y,_z,_c)++
-              arg3 = coords[3]; arg4 = coords[4]; arg5 = coords[5]; arg6 = coords[6];
+              arg3 = ref[3]; arg4 = ref[4]; arg5 = ref[5]; arg6 = ref[6];
               if (!is_relative) { // i(_#ind,_x,_y,_z,_c)++
                 if (p1!=~0U)
                   CImg<uptrT>::vector((uptrT)mp_list_set_ixyzc,arg1,p1,arg3,arg4,arg5,arg6,arg1).move_to(code);
@@ -14984,9 +14990,9 @@ namespace cimg_library_suffixed {
                 else
                   CImg<uptrT>::vector((uptrT)mp_set_jxyzc,arg1,arg3,arg4,arg5,arg6,arg1).move_to(code);
               }
-              if (p_coords && is_sth) std::memcpy(p_coords,coords,coords._width*sizeof(unsigned int));
+              if (p_ref && is_sth) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
             }
-            if (p_coords && is_sth) std::memcpy(p_coords,coords,coords._width*sizeof(unsigned int));
+            if (p_ref && is_sth) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
           } else if (mem(arg1,1)>=0) {
             *se = saved_char;
             if (is_sth) variable_name.assign(ss2,(unsigned int)(se - ss1));
@@ -15019,8 +15025,8 @@ namespace cimg_library_suffixed {
             s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
             arg1 = compile(s0,s1);
             arg2 = s1<se1?compile(s1 + 1,se1):~0U;
-            if (p_coords && arg2==~0U) {
-              *p_coords = 2; p_coords[1] = p1; p_coords[2] = (unsigned int)is_relative; p_coords[3] = arg1;
+            if (p_ref && arg2==~0U) {
+              *p_ref = 2; p_ref[1] = p1; p_ref[2] = (unsigned int)is_relative; p_ref[3] = arg1;
             }
             if (*ss2=='#') _cimg_mp_opcode3(is_relative?mp_list_joff:mp_list_ioff,p1,arg1,
                                             arg2==~0U?reserved_label[30]:arg2);
@@ -15054,7 +15060,7 @@ namespace cimg_library_suffixed {
 
         // Look for a function call or a parenthesis.
         if (*se1==')') {
-          if (*ss=='(') _cimg_mp_return(compile(ss1,se1,p_coords)); // Simple parentheses.
+          if (*ss=='(') _cimg_mp_return(compile(ss1,se1,p_ref)); // Simple parentheses.
 
           // i(...) or j(...).
           is_relative = *ss=='j';
@@ -15089,9 +15095,9 @@ namespace cimg_library_suffixed {
                 }
               }
             }
-            if (p_coords && arg5==~0U && arg6==~0U) {
-              *p_coords = 3; p_coords[1] = p1; p_coords[2] = (unsigned int)is_relative;
-              p_coords[3] = arg1; p_coords[4] = arg2; p_coords[5] = arg3; p_coords[6] = arg4;
+            if (p_ref && arg5==~0U && arg6==~0U) {
+              *p_ref = 3; p_ref[1] = p1; p_ref[2] = (unsigned int)is_relative;
+              p_ref[3] = arg1; p_ref[4] = arg2; p_ref[5] = arg3; p_ref[6] = arg4;
             }
             if (*ss2=='#') _cimg_mp_opcode7(is_relative?mp_list_jxyzc:mp_list_ixyzc,p1,arg1,arg2,arg3,arg4,
                                             arg5==~0U?reserved_label[29]:arg5,
@@ -15184,7 +15190,7 @@ namespace cimg_library_suffixed {
             }
 
             if (!std::strncmp(ss,"debug(",6)) { // Print debug info.
-              p1 = code._width; arg1 = compile(ss6,se1,p_coords);
+              p1 = code._width; arg1 = compile(ss6,se1,p_ref);
               *se1 = 0;
               ((CImg<uptrT>::vector((uptrT)mp_debug,arg1,code._width - p1),
                 CImg<uptrT>::string(ss6).unroll('y'))>'y').move_to(code,p1);
@@ -15285,7 +15291,7 @@ namespace cimg_library_suffixed {
                                             (ss - 8)>expr._data?"...":"",
                                             (ss - 8)>expr._data?ss - 8:expr._data,
                                             se<&expr.back()?"...":"");
-              arg1 = compile(ss5,se1,p_coords);
+              arg1 = compile(ss5,se1,p_ref);
               init_size = code.width();
               _cimg_mp_return(arg1);
             }
@@ -15413,7 +15419,7 @@ namespace cimg_library_suffixed {
 
           case 'p' :
             if (!std::strncmp(ss,"print(",6)) { // Print expression.
-              pos = compile(ss6,se1,p_coords);
+              pos = compile(ss6,se1,p_ref);
               *se1 = 0;
               if (mem(pos,1)>1) // Vector.
                 ((CImg<uptrT>::vector((uptrT)mp_vector_print,pos,(uptrT)mem(pos,1) - 1),

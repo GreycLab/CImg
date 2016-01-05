@@ -15556,7 +15556,8 @@ namespace cimg_library_suffixed {
               if (arg1==~0U) arg1 = arg2;
               if (!arg1)
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s(): Invalid zero-size vector() specified in expression '%s%s%s'.",
+                                            "CImg<%s>::%s(): Invalid zero-size vector() specified "
+                                            "in expression '%s%s%s'.",
                                             pixel_type(),calling_function,
                                             (ss - 8)>expr._data?"...":"",
                                             (ss - 8)>expr._data?ss - 8:expr._data,

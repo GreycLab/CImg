@@ -14283,6 +14283,115 @@ namespace cimg_library_suffixed {
         return false;
       }
 
+      // Return variable type and infos from a substring :
+      // { empty = undefined scalar variable | (pos) = scalar variable | (pos,ind) = vector value |
+      //   (is_j,x,y,z,c) = image value | (is_j,ind,x,y,z,c) = image#ind value }.
+      /*
+      CImg<uintT> _compile(char *const ss, char *const se) const {
+        if (ss<se) {
+          while (*ss==' ') ++ss;
+          while (se>ss && *(se - 1)==' ') --se;
+        }
+        if (se<=ss || !*ss) {
+          cimg::strellipsize(expr,64);
+          throw CImgArgumentException("[_cimg_math_parser] "
+                                      "CImg<%s>::%s(): Missing item in expression '%s'.",
+                                      pixel_type(),calling_function,
+                                      expr._data);
+        }
+        const char saved_char = *se; *se = 0;
+        const unsigned int clevel = level[ss - expr._data], clevel1 = clevel + 1;
+        const char *const ss1 = ss + 1, se1 = se -1, *s0, *s;
+        unsigned int ind = ~0U, arg1, arg2, arg3, arg4;
+
+        const bool is_j = *ss==j;
+        if ((*ss=='j' || is_j) && ((*ss1=='(' && *se1==')') ||
+                                   (*ss1=='[' && *se1==']'))) { // Image value.
+          s0 = ss + 2;
+          if (*s0=='#') {
+            s = ++s0; while (s<se1 && (*s!=',' || level[s - expr._data]!=clevel1)) ++s;
+            ind = compile(s0,s++);
+          }
+          arg1 = is_j?0U:(unsigned int)_cimg_mp_x;
+          arg2 = is_j?0U:(unsigned int)_cimg_mp_y;
+          arg3 = is_j?0U:(unsigned int)_cimg_mp_z;
+          arg4 = is_j?0U:(unsigned int)_cimg_mp_c;
+          if (s<se1) {
+            s0 = s; while (s<se1 && (*s!=',' || level[s - expr._data]!=clevel1)) ++s;
+            arg1 = compile(s0,s);
+            if (s<se1) {
+              s0 = ++s; while (s<se1 && (*s!=',' || level[s - expr._data]!=clevel1)) ++s;
+              arg2 = compile(s0,s);
+              if (s<se1) {
+                s0 = ++s; while (s<se1 && (*s!=',' || level[s - expr._data]!=clevel1)) ++s;
+                arg3 = compile(s0,s);
+                if (s<se1)
+                  arg4 = compile(++s,se1);
+              }
+            }
+          }
+          if (ind==~0U) return CImg<uintT>::vector((unsigned int)is_j,arg1,arg2,arg3,arg4);
+          else return CImg<uintT>::vector((unsigned int)is_j,ind,arg1,arg2,arg3,arg4);
+        }
+
+        if (*se1==']' && se - ss>3) { // Vector value.
+          s0 = stdchr(ss,'[');
+          if (s0>ss) {
+            arg1 = ~0U;
+            *s0 = 0;
+            if (*ss1) { // Multi-char variable.
+              cimglist_for(labelM,i) if (!std::strcmp(ss,labelM[i])) {
+                arg1 = labelMpos[i]; break;
+              }
+            } else arg1 = reserved_label[*variable_name]; // Single-char variable.
+            *s0 = '[';
+
+            if (arg1==~0U)
+              throw CImgArgumentException("[_cimg_math_parser] "
+                                          "CImg<%s>::%s(): Undefined variable '%s', "
+                                          "in expression '%s%s%s'.",
+                                          pixel_type(),calling_function,
+                                          ss,
+                                          (ss - 8)>expr._data?"...":"",
+                                          (ss - 8)>expr._data?ss - 8:expr._data,
+                                          se<&expr.back()?"...":"");
+            if (mem(arg1,1)<2)
+              throw CImgArgumentException("[_cimg_math_parser] "
+                                          "CImg<%s>::%s(): Non-vector variable '%s', "
+                                          "in expression '%s%s%s'.",
+                                          pixel_type(),calling_function,
+                                          ss,
+                                          (ss - 8)>expr._data?"...":"",
+                                          (ss - 8)>expr._data?ss - 8:expr._data,
+                                          se<&expr.back()?"...":"");
+            ind = compile(s0 + 1,se1);
+            return CImg<uintT>::vector(arg1,ind);
+          }
+        }
+
+        // Scalar variable.
+        bool is_valid_name = true;
+        if (*ss>='0' && *ss<='9') is_valid_name = false;
+        else for (s = ss; *s; ++s)
+               if ((*s<'a' || *s>'z') && (*s<'A' || *s>'Z') && (*s<'0' || *s>'9') && *ns!='_') {
+                 is_valid_name = false; break;
+               }
+        if (!is_valid_name)
+          throw CImgArgumentException("[_cimg_math_parser] "
+                                      "CImg<%s>::%s(): Invalid variable name '%s', "
+                                      "in expression '%s%s%s'.",
+                                      pixel_type(),calling_function,
+                                      ss,
+                                      (ss - 8)>expr._data?"...":"",
+                                      (ss - 8)>expr._data?ss - 8:expr._data,
+                                      se<&expr.back()?"...":"");
+
+
+        *se = saved_char;
+        return 0;
+      }
+      */
+
       // Compilation procedure.
       unsigned int compile(char *ss, char *se, unsigned int *p_coords=0) {
         const char *const ss0 = ss;
@@ -14303,7 +14412,8 @@ namespace cimg_library_suffixed {
           *const se1 = se - 1, *const se2 = se - 2, *const se3 = se - 3,
           *const ss1 = ss + 1, *const ss2 = ss + 2, *const ss3 = ss + 3, *const ss4 = ss + 4,
           *const ss5 = ss + 5, *const ss6 = ss + 6, *const ss7 = ss + 7, *const ss8 = ss + 8,
-          *s, *ps, *ns, *s0, *s1, *s2, *s3, c1, c2, c3, c4, sep, end;
+          *s, *ps, *ns, *s0, *s1, *s2, *s3, c1, c2, c3, c4, sep = 0, end = 0;
+        double val, val1, val2;
 
         if (p_coords)
           p_coords[0] = p_coords[1] = p_coords[2] = p_coords[3] = p_coords[4] = p_coords[5] =
@@ -14316,10 +14426,8 @@ namespace cimg_library_suffixed {
         CImgList<uptrT> _opcode;
         CImg<charT> variable_name;
 
-        // Look for a single value, pre-defined variable or a variable assignment.
-        double val, val1, val2;
-        sep = end = 0;
-        int nb = cimg_sscanf(ss,"%lf%c%c",&val,&sep,&end);
+        // Look for a single value or a pre-defined variable.
+        int nb = cimg_sscanf(ss,"%lf%c%c",&val,&(sep=0),&(end=0));
 
 #if cimg_OS==2
         // Check for +/-NaN and +/-inf as Microsoft's sscanf() version is not able
@@ -14537,6 +14645,11 @@ namespace cimg_library_suffixed {
                                              coords[6],coords[7],coords[8],coords[9],arg2).move_to(code);
                   }
                   if (p_coords) std::memcpy(p_coords,coords,coords._width*sizeof(unsigned int));
+                  _cimg_mp_return(arg1);
+                }
+
+                if (mem(arg1,1)<0) { // Scalar variable assignment.
+                  CImg<uptrT>::vector((uptrT)mp_copy,arg1,arg2).move_to(code);
                   _cimg_mp_return(arg1);
                 }
               }

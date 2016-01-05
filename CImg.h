@@ -14504,6 +14504,7 @@ namespace cimg_library_suffixed {
                                                 (ss - 8)>expr._data?"...":"",
                                                 (ss - 8)>expr._data?ss - 8:expr._data,
                                                 se<&expr.back()?"...":"");
+
                   arg3 = compile(s + 1,se);
                   if (p_ref) { *p_ref = 1; p_ref[1] = arg1; p_ref[2] = arg2; }
                   CImg<uptrT>::vector((uptrT)mp_vector_set_off,arg3,arg1,arg2,(uptrT)mem(arg1,1) - 1).move_to(code);
@@ -14698,11 +14699,9 @@ namespace cimg_library_suffixed {
             // Operate on image / vector value (lvalue reference).
             if (*ref==1) { // Vector value.
               arg3 = ref[1]; arg4 = ref[2];
+              if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
               CImg<uptrT>::vector((uptrT)mp_vector_set_off,arg1,arg3,arg4,(uptrT)mem(arg3,1) - 1).move_to(code);
-              _cimg_mp_return(arg1);
-            }
-
-            if (*ref>1) { // Image value.
+            } else if (*ref>1) { // Image value.
               p1 = ref[1]; // #ind.
               is_relative = (bool)ref[2];
               if (*ref==2) { // i/j[_#ind,off] += value.
@@ -14729,7 +14728,7 @@ namespace cimg_library_suffixed {
                 }
               }
               if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
-            } else if (mem(arg1,1)>=0) {
+            } else if (mem(arg1,1)>=0) { // Error if non-variable scalar.
               *se = saved_char;
               variable_name.assign(ss,(unsigned int)(s - ss)).back() = 0;
               cimg::strellipsize(variable_name,64);

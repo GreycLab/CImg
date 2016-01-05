@@ -14157,7 +14157,7 @@ namespace cimg_library_suffixed {
         }
 
         // Init constant values.
-        mem.assign(128,2);
+        mem.assign(96,2);
         double *p_mem = mem._data;
         for (unsigned int i = 0; i<=10; ++i) *(p_mem++) = (double)i;  // mem[0-10]
         for (unsigned int i = 1; i<=5; ++i) *(p_mem++) = -(double)i;  // mem[11-15]

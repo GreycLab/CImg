@@ -14517,6 +14517,7 @@ namespace cimg_library_suffixed {
                    if ((*ns<'a' || *ns>'z') && (*ns<'A' || *ns>'Z') && (*ns<'0' || *ns>'9') && *ns!='_') {
                      is_sth = false; break;
                    }
+
             if (!is_sth) { // Not a valid name.
               is_sth = (bool)std::strchr(variable_name,'?'); // Contains_ternary_operator?
               if (is_sth) break; // Do nothing and make ternary operator prioritary over assignment.
@@ -14532,25 +14533,25 @@ namespace cimg_library_suffixed {
                   is_relative = (bool)ref[2];
                   if (*ref==2) { // i/j[_#ind,off] = value.
                     arg3 = ref[3]; // offset.
-                    if (!is_relative) { // i[_#ind,_off] = value.
-                      if (p1!=~0U) CImg<uptrT>::vector((uptrT)mp_list_set_ioff,arg1,p1,arg3,arg2).move_to(code);
-                      else CImg<uptrT>::vector((uptrT)mp_set_ioff,arg1,arg3,arg2).move_to(code);
-                    } else { // j[_#ind,_off] = value.
+                    if (is_relative) { // j[_#ind,_off] = value.
                       if (p1!=~0U) CImg<uptrT>::vector((uptrT)mp_list_set_joff,arg1,p1,arg3,arg2).move_to(code);
                       else CImg<uptrT>::vector((uptrT)mp_set_joff,arg1,arg3,arg2).move_to(code);
+                    } else { // i[_#ind,_off] = value.
+                      if (p1!=~0U) CImg<uptrT>::vector((uptrT)mp_list_set_ioff,arg1,p1,arg3,arg2).move_to(code);
+                      else CImg<uptrT>::vector((uptrT)mp_set_ioff,arg1,arg3,arg2).move_to(code);
                     }
                   } else { // i/j(_#ind,_x,_y,_z,_c) = value.
                     arg3 = ref[3]; arg4 = ref[4]; arg5 = ref[5]; arg6 = ref[6];
-                    if (!is_relative) { // i(_#ind,_x,_y,_z,_c) = value.
-                      if (p1!=~0U)
-                        CImg<uptrT>::vector((uptrT)mp_list_set_ixyzc,arg1,p1,arg3,arg4,arg5,arg6,arg2).move_to(code);
-                      else
-                        CImg<uptrT>::vector((uptrT)mp_set_ixyzc,arg1,arg3,arg4,arg5,arg6,arg2).move_to(code);
-                    } else { // j(_#ind,_x,_y,_z,_c) = value.
+                    if (is_relative) { // j(_#ind,_x,_y,_z,_c) = value.
                       if (p1!=~0U)
                         CImg<uptrT>::vector((uptrT)mp_list_set_jxyzc,arg1,p1,arg3,arg4,arg5,arg6,arg2).move_to(code);
                       else
                         CImg<uptrT>::vector((uptrT)mp_set_jxyzc,arg1,arg3,arg4,arg5,arg6,arg2).move_to(code);
+                    } else { // i(_#ind,_x,_y,_z,_c) = value.
+                      if (p1!=~0U)
+                        CImg<uptrT>::vector((uptrT)mp_list_set_ixyzc,arg1,p1,arg3,arg4,arg5,arg6,arg2).move_to(code);
+                      else
+                        CImg<uptrT>::vector((uptrT)mp_set_ixyzc,arg1,arg3,arg4,arg5,arg6,arg2).move_to(code);
                     }
                   }
 
@@ -14727,25 +14728,25 @@ namespace cimg_library_suffixed {
               is_relative = (bool)ref[2];
               if (*ref==2) { // i/j[_#ind,off] += value.
                 arg3 = ref[3]; // offset.
-                if (!is_relative) { // i[_#ind,off] += value.
-                  if (p1!=~0U) CImg<uptrT>::vector((uptrT)mp_list_set_ioff,arg1,p1,arg3,arg1).move_to(code);
-                  else CImg<uptrT>::vector((uptrT)mp_set_ioff,arg1,arg3,arg1).move_to(code);
-                } else { // j[_#ind,off] += value.
+                if (is_relative) { // j[_#ind,off] += value.
                   if (p1!=~0U) CImg<uptrT>::vector((uptrT)mp_list_set_joff,arg1,p1,arg3,arg1).move_to(code);
                   else CImg<uptrT>::vector((uptrT)mp_set_joff,arg1,arg3,arg1).move_to(code);
+                } else { // i[_#ind,off] += value.
+                  if (p1!=~0U) CImg<uptrT>::vector((uptrT)mp_list_set_ioff,arg1,p1,arg3,arg1).move_to(code);
+                  else CImg<uptrT>::vector((uptrT)mp_set_ioff,arg1,arg3,arg1).move_to(code);
                 }
               } else { // i/j(_#ind,_x,_y,_z,_c) += value.
                 arg3 = ref[3]; arg4 = ref[4]; arg5 = ref[5]; arg6 = ref[6];
-                if (!is_relative) { // i(_#ind,_x,_y,_z,_c) += value.
-                  if (p1!=~0U)
-                    CImg<uptrT>::vector((uptrT)mp_list_set_ixyzc,arg1,p1,arg3,arg4,arg5,arg6,arg1).move_to(code);
-                  else
-                    CImg<uptrT>::vector((uptrT)mp_set_ixyzc,arg1,arg3,arg4,arg5,arg6,arg1).move_to(code);
-                } else { // j(_#ind,_x,_y,_z,_c) += value.
+                if (is_relative) { // j(_#ind,_x,_y,_z,_c) += value.
                   if (p1!=~0U)
                     CImg<uptrT>::vector((uptrT)mp_list_set_jxyzc,arg1,p1,arg3,arg4,arg5,arg6,arg1).move_to(code);
                   else
                     CImg<uptrT>::vector((uptrT)mp_set_jxyzc,arg1,arg3,arg4,arg5,arg6,arg1).move_to(code);
+                } else { // i(_#ind,_x,_y,_z,_c) += value.
+                  if (p1!=~0U)
+                    CImg<uptrT>::vector((uptrT)mp_list_set_ixyzc,arg1,p1,arg3,arg4,arg5,arg6,arg1).move_to(code);
+                  else
+                    CImg<uptrT>::vector((uptrT)mp_set_ixyzc,arg1,arg3,arg4,arg5,arg6,arg1).move_to(code);
                 }
               }
               if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
@@ -14970,25 +14971,25 @@ namespace cimg_library_suffixed {
 
             if (*ref==2) { // i/j[_#ind,off]++.
               arg3 = ref[3]; // offset.
-              if (!is_relative) { // i[_#ind,off]++.
-                if (p1!=~0U) CImg<uptrT>::vector((uptrT)mp_list_set_ioff,arg1,p1,arg3,arg1).move_to(code);
-                else CImg<uptrT>::vector((uptrT)mp_set_ioff,arg1,arg3,arg1).move_to(code);
-              } else { // j[#_ind,off]++.
+              if (is_relative) { // j[_#ind,off]++.
                 if (p1!=~0U) CImg<uptrT>::vector((uptrT)mp_list_set_joff,arg1,p1,arg3,arg1).move_to(code);
                 else CImg<uptrT>::vector((uptrT)mp_set_joff,arg1,arg3,arg1).move_to(code);
+              } else { // i[#_ind,off]++.
+                if (p1!=~0U) CImg<uptrT>::vector((uptrT)mp_list_set_ioff,arg1,p1,arg3,arg1).move_to(code);
+                else CImg<uptrT>::vector((uptrT)mp_set_ioff,arg1,arg3,arg1).move_to(code);
               }
             } else { // i/j(_#ind,_x,_y,_z,_c)++
               arg3 = ref[3]; arg4 = ref[4]; arg5 = ref[5]; arg6 = ref[6];
-              if (!is_relative) { // i(_#ind,_x,_y,_z,_c)++
-                if (p1!=~0U)
-                  CImg<uptrT>::vector((uptrT)mp_list_set_ixyzc,arg1,p1,arg3,arg4,arg5,arg6,arg1).move_to(code);
-                else
-                  CImg<uptrT>::vector((uptrT)mp_set_ixyzc,arg1,arg3,arg4,arg5,arg6,arg1).move_to(code);
-              } else { // j(#_ind,_x,_y,_z,_c)++
+              if (is_relative) { // j(_#ind,_x,_y,_z,_c)++
                 if (p1!=~0U)
                   CImg<uptrT>::vector((uptrT)mp_list_set_jxyzc,arg1,p1,arg3,arg4,arg5,arg6,arg1).move_to(code);
                 else
                   CImg<uptrT>::vector((uptrT)mp_set_jxyzc,arg1,arg3,arg4,arg5,arg6,arg1).move_to(code);
+              } else { // i(#_ind,_x,_y,_z,_c)++
+                if (p1!=~0U)
+                  CImg<uptrT>::vector((uptrT)mp_list_set_ixyzc,arg1,p1,arg3,arg4,arg5,arg6,arg1).move_to(code);
+                else
+                  CImg<uptrT>::vector((uptrT)mp_set_ixyzc,arg1,arg3,arg4,arg5,arg6,arg1).move_to(code);
               }
               if (p_ref && is_sth) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
             }

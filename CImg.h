@@ -14646,7 +14646,7 @@ namespace cimg_library_suffixed {
             } else { // Variable was already declared.
               if (cimg::max(1.0f,mem(arg1,1))!=cimg::max(1.0f,mem(arg2,1)))
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s(): Dimension mismatch when assigning variable '%s',"
+                                            "CImg<%s>::%s(): Dimension mismatch when assigning variable '%s', "
                                             "in expression '%s%s%s'.",
                                             pixel_type(),calling_function,
                                             variable_name._data,
@@ -14994,6 +14994,7 @@ namespace cimg_library_suffixed {
               if (p_ref && is_sth) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
             }
             if (p_ref && is_sth) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
+
           } else if (mem(arg1,1)>=0) {
             *se = saved_char;
             if (is_sth) variable_name.assign(ss2,(unsigned int)(se - ss1));
@@ -15018,7 +15019,7 @@ namespace cimg_library_suffixed {
         // Array-like access to vectors and  image values 'i[_#ind,offset,_boundary]' and 'j[_#ind,offset,_boundary]'.
         if (*se1==']') {
           is_relative = *ss=='j';
-          if ((*ss=='i' || is_relative) && *ss1=='[') { // Access to an image value.
+          if ((*ss=='i' || is_relative) && *ss1=='[') { // Image value.
             if (*ss2=='#') {
               s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
               p1 = compile(ss3,s0++);
@@ -15034,7 +15035,7 @@ namespace cimg_library_suffixed {
             _cimg_mp_opcode2(is_relative?mp_joff:mp_ioff,arg1,arg2==~0U?0:arg2);
           }
           s0 = strchr(ss,'[');
-          if (s0>ss) { // Access to a vector component.
+          if (s0>ss) { // Vector value.
             arg1 = ~0U;
             arg2 = compile(++s0,se1);
             variable_name.assign(ss,(unsigned int)(s0 - ss)).back() = 0;
@@ -15043,6 +15044,8 @@ namespace cimg_library_suffixed {
                 arg1 = labelMpos[i]; break;
               }
             } else arg1 = reserved_label[*variable_name]; // Single-char variable.
+
+            if (p_ref) { *p_ref = 1; p_ref[1] = arg1; p_ref[2] = arg2; }
 
             if (arg1!=~0U) {
               if (mem(arg1,1)<2)

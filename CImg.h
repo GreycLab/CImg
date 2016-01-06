@@ -15061,7 +15061,7 @@ namespace cimg_library_suffixed {
               if (mem(arg1,1)<2) {
                 *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s(): Variable '%s' is not a vector, "
+                                            "CImg<%s>::%s(): Array brackets used on non-vector variable '%s', "
                                             "in expression '%s%s%s'.",
                                             pixel_type(),calling_function,
                                             variable_name._data,

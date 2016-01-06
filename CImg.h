@@ -14559,13 +14559,13 @@ namespace cimg_library_suffixed {
                 arg1 = compile(ss,s,ref); // Variable slot
                 arg2 = compile(s + 1,se); // Value to assign
 
-                if (cimg::max(1.0f,mem(arg1,1))!=cimg::max(1.0f,mem(arg2,1))) { // Dimension mismatch
+                if (cimg::max(1.0f,mem(arg1,1))!=cimg::max(1.0f,mem(arg2,1)) && mem(arg2,1)>1) { // Dimension mismatch
                   arg3 = mem(arg1,1)>1?mem(arg1,1) - 1:1;
                   arg4 = mem(arg2,1)>1?mem(arg2,1) - 1:1;
                   *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
                   throw CImgArgumentException("[_cimg_math_parser] "
                                               "CImg<%s>::%s(): Left and right-hand sides of assignment operator have "
-                                              "different dimensions or types (resp. '%s%u' and '%s%u'), "
+                                              "incompatible types (resp. '%s%u' and '%s%u'), "
                                               "in expression '%s%s%s'.",
                                               pixel_type(),calling_function,
                                               mem(arg1,1)>1?"vector":"scalar",arg3,
@@ -14606,14 +14606,16 @@ namespace cimg_library_suffixed {
                           CImg<uptrT>::vector((uptrT)mp_set_ixyzc,arg1,arg3,arg4,arg5,arg6,arg2).move_to(code);
                       }
                     }
-                  } else if (mem(arg1,1)>1) // Vector assignment
-                    CImg<uptrT>::vector((uptrT)mp_vector_copy,arg1,arg2,mem(arg1,1) - 1).move_to(code);
-                  if (*ref && p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
-                  _cimg_mp_return(arg1);
-                } else { // Scalar variable
+                  } else if (mem(arg1,1)>1) { // Vector variable
+                    if (mem(arg2,1)>1) // From vector
+                      CImg<uptrT>::vector((uptrT)mp_vector_copy,arg1,arg2,mem(arg1,1) - 1).move_to(code);
+                    else // From scalar
+                      CImg<uptrT>::vector((uptrT)mp_vector_init,arg1,(uptrT)mem(arg1,1) - 1,arg2).move_to(code);
+                    if (*ref && p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
+                  }
+                } else // Scalar variable
                   CImg<uptrT>::vector((uptrT)mp_copy,arg1,arg2,mem(arg1,1) - 1).move_to(code);
-                  _cimg_mp_return(arg1);
-                }
+                _cimg_mp_return(arg1);
               }
               *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
               throw CImgArgumentException("[_cimg_math_parser] "
@@ -14667,7 +14669,7 @@ namespace cimg_library_suffixed {
             } else if (!std::strcmp(variable_name,"interpolation")) variable_name.fill(29,0);
             else if (!std::strcmp(variable_name,"boundary")) variable_name.fill(30,0);
 
-            // Assign new value to a scalar variable.
+            // Assign new value to a scalar/vector variable.
             arg1 = ~0U;
             arg2 = compile(s + 1,se);
             if (!variable_name[1]) // One-char variable, or variable in reserved_labels
@@ -14693,14 +14695,14 @@ namespace cimg_library_suffixed {
                 variable_name.move_to(labelM);
               }
 
-            } else { // Variable was already declared
-              if (cimg::max(1.0f,mem(arg1,1))!=cimg::max(1.0f,mem(arg2,1))) {
+            } else { // Variable has been already declared
+              if (cimg::max(1.0f,mem(arg1,1))!=cimg::max(1.0f,mem(arg2,1)) && mem(arg2,1)>1) {
                 arg3 = mem(arg1,1)>1?mem(arg1,1) - 1:1;
                 arg4 = mem(arg2,1)>1?mem(arg2,1) - 1:1;
                 *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
                 throw CImgArgumentException("[_cimg_math_parser] "
                                             "CImg<%s>::%s(): Left and right-hand sides of assignment operator have "
-                                            "different dimensions or types (resp. '%s%u' and '%s%u'), "
+                                            "incompatible types (resp. '%s%u' and '%s%u'), "
                                             "in expression '%s%s%s'.",
                                             pixel_type(),calling_function,
                                             mem(arg1,1)>1?"vector":"scalar",arg3,
@@ -14709,9 +14711,12 @@ namespace cimg_library_suffixed {
                                             (ss - 8)>expr._data?ss - 8:expr._data,
                                             se<&expr.back()?"...":"");
               }
-              if (mem(arg1,1)>1)
-                CImg<uptrT>::vector((uptrT)mp_vector_copy,arg1,arg2,(uptrT)mem(arg1,1) - 1).move_to(code);
-              else
+              if (mem(arg1,1)>1) { // Vector
+                if (mem(arg2,1)>1) // From vector
+                  CImg<uptrT>::vector((uptrT)mp_vector_copy,arg1,arg2,(uptrT)mem(arg1,1) - 1).move_to(code);
+                else // From scalar
+                  CImg<uptrT>::vector((uptrT)mp_vector_init,arg1,(uptrT)mem(arg1,1) - 1,arg2).move_to(code);
+              } else // Scalar
                 CImg<uptrT>::vector((uptrT)mp_copy,arg1,arg2).move_to(code);
             }
             _cimg_mp_return(arg1);
@@ -14778,12 +14783,12 @@ namespace cimg_library_suffixed {
                 }
                 if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
               } else { // Error, not a scalar variable
-                *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
+                *se = saved_char; cimg::strellipsize(expr,64);
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s(): Invalid self-%s of non-variable '%s' "
+                                            "CImg<%s>::%s(): Invalid self-%s of non-variable "
                                             "in expression '%s%s%s'.",
                                             pixel_type(),calling_function,
-                                            s_op,variable_name._data,
+                                            s_op,
                                             (ss - 8)>expr._data?"...":"",
                                             (ss - 8)>expr._data?ss - 8:expr._data,
                                             se<&expr.back()?"...":"");
@@ -16823,6 +16828,20 @@ namespace cimg_library_suffixed {
         return _mp_arg(1);
       }
 
+      static double mp_vector_init(_cimg_math_parser& mp) {
+        unsigned int ptrs = 3U, ptrd = mp.opcode[1] + 1, siz = mp.opcode[2];
+        switch (mp.opcode._height) {
+        case 3 : std::memset(mp.mem._data + ptrd,0,siz*sizeof(double)); break; // 0 values given
+        case 4 : { const double val = _mp_arg(ptrs); while (siz-->0) mp.mem[ptrd++] = val; } break;
+        default :
+          while (siz-->0) {
+            mp.mem[ptrd++] = _mp_arg(ptrs++);
+            if (ptrs>=mp.opcode._height) ptrs = 3U;
+          }
+        }
+        return _mp_arg(1);
+      }
+
       static double mp_vector_off(_cimg_math_parser& mp) {
         const unsigned int ptr = mp.opcode[2] + 1, siz = (int)mp.opcode[3];
         const int off = (int)_mp_arg(4);
@@ -16847,20 +16866,6 @@ namespace cimg_library_suffixed {
         while (siz-->0) std::fprintf(cimg::output(),"%g%s",mp.mem[ptr++],siz?",":"");
         std::fputc(')',cimg::output());
         std::fflush(cimg::output());
-        return _mp_arg(1);
-      }
-
-      static double mp_vector_init(_cimg_math_parser& mp) {
-        unsigned int ptrs = 3U, ptrd = mp.opcode[1] + 1, siz = mp.opcode[2];
-        switch (mp.opcode._height) {
-        case 3 : std::memset(mp.mem._data + ptrd,0,siz*sizeof(double)); break;
-        case 4 : { const double val = _mp_arg(ptrs); while (siz-->0) mp.mem[ptrd++] = val; } break;
-        default :
-          while (siz-->0) {
-            mp.mem[ptrd++] = _mp_arg(ptrs++);
-            if (ptrs>=mp.opcode._height) ptrs = 3U;
-          }
-        }
         return _mp_arg(1);
       }
 

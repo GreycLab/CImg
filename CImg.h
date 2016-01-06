@@ -14549,7 +14549,7 @@ namespace cimg_library_suffixed {
                      is_sth = false; break;
                    }
 
-            if (!is_sth) { // Not a valid name -> check for a lvalue-reference
+            if (!is_sth) { // Invalid variable name: check for a lvalue-reference
               is_sth = (bool)std::strchr(variable_name,'?'); // Contains_ternary_operator?
               if (is_sth) break; // Do nothing and make ternary operator prioritary over assignment
 
@@ -14559,7 +14559,23 @@ namespace cimg_library_suffixed {
                 arg1 = compile(ss,s,ref); // Variable slot
                 arg2 = compile(s + 1,se); // Value to assign
 
-                if (mem(arg1,1)>=0) { // Not a scalar variable
+                if (cimg::max(1.0f,mem(arg1,1))!=cimg::max(1.0f,mem(arg2,1))) { // Dimension mismatch
+                  arg3 = mem(arg1,1)>1?mem(arg1,1) - 1:1;
+                  arg4 = mem(arg2,1)>1?mem(arg2,1) - 1:1;
+                  *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
+                  throw CImgArgumentException("[_cimg_math_parser] "
+                                              "CImg<%s>::%s(): Left and right-hand sides of assignment operator have "
+                                              "different dimensions or types (resp. '%s%u' and '%s%u'), "
+                                              "in expression '%s%s%s'.",
+                                              pixel_type(),calling_function,
+                                              mem(arg1,1)>1?"vector":"scalar",arg3,
+                                              mem(arg2,1)>1?"vector":"scalar",arg4,
+                                              (ss - 8)>expr._data?"...":"",
+                                              (ss - 8)>expr._data?ss - 8:expr._data,
+                                              se<&expr.back()?"...":"");
+                }
+
+                if (mem(arg1,1)>=0) { // Not a usual scalar variable
                   if (*ref==1) { // Vector value
                     arg3 = ref[1]; // Vector slot
                     arg4 = ref[2]; // Index
@@ -14590,13 +14606,12 @@ namespace cimg_library_suffixed {
                           CImg<uptrT>::vector((uptrT)mp_set_ixyzc,arg1,arg3,arg4,arg5,arg6,arg2).move_to(code);
                       }
                     }
-                  }
-                  if (*ref) { // Valid lvalue-reference
-                    if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
-                    _cimg_mp_return(arg1);
-                  }
+                  } else if (mem(arg1,1)>1) // Vector assignment
+                    CImg<uptrT>::vector((uptrT)mp_vector_copy,arg1,arg2,mem(arg1,1) - 1).move_to(code);
+                  if (*ref && p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
+                  _cimg_mp_return(arg1);
                 } else { // Scalar variable
-                  CImg<uptrT>::vector((uptrT)mp_copy,arg1,arg2).move_to(code);
+                  CImg<uptrT>::vector((uptrT)mp_copy,arg1,arg2,mem(arg1,1) - 1).move_to(code);
                   _cimg_mp_return(arg1);
                 }
               }
@@ -14680,12 +14695,16 @@ namespace cimg_library_suffixed {
 
             } else { // Variable was already declared
               if (cimg::max(1.0f,mem(arg1,1))!=cimg::max(1.0f,mem(arg2,1))) {
+                arg3 = mem(arg1,1)>1?mem(arg1,1) - 1:1;
+                arg4 = mem(arg2,1)>1?mem(arg2,1) - 1:1;
                 *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s(): Dimension mismatch when assigning variable '%s', "
+                                            "CImg<%s>::%s(): Left and right-hand sides of assignment operator have "
+                                            "different dimensions or types (resp. '%s%u' and '%s%u'), "
                                             "in expression '%s%s%s'.",
                                             pixel_type(),calling_function,
-                                            variable_name._data,
+                                            mem(arg1,1)>1?"vector":"scalar",arg3,
+                                            mem(arg2,1)>1?"vector":"scalar",arg4,
                                             (ss - 8)>expr._data?"...":"",
                                             (ss - 8)>expr._data?ss - 8:expr._data,
                                             se<&expr.back()?"...":"");

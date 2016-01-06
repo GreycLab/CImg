@@ -14750,7 +14750,7 @@ namespace cimg_library_suffixed {
             if (*ref>0 && mem(arg1,1)) arg1 = opcode1(mp_copy,arg1);
 
             if (mem(arg1,1)>1) // Vector
-              CImg<uptrT>::vector((uptrT)mp_vector_map,arg1,(uptrT)mem(arg1,1) - 1,(uptrT)op,arg2).
+              CImg<uptrT>::vector((uptrT)mp_vector_self_map,arg1,(uptrT)mem(arg1,1) - 1,(uptrT)op,arg2).
                 move_to(code);
             else { // Scalar / image value / vector value
               CImg<uptrT>::vector((uptrT)op,arg1,arg2).move_to(code);
@@ -15172,7 +15172,16 @@ namespace cimg_library_suffixed {
           case 'a' :
             if (!std::strncmp(ss,"abs(",4)) { // Absolute value
               arg1 = compile(ss4,se1);
-              if (mem(arg1,1)>0) _cimg_mp_constant(cimg::abs(mem[arg1]));
+              if (mem(arg1,1)==1) _cimg_mp_constant(cimg::abs(mem[arg1]));
+
+              /*              if (mem(arg1,1)>1) {
+                std::fprintf(stderr,"\nDEBUG : OUEEE\n");
+                arg2 = (unsigned int)mem(arg1,1) - 1;
+                arg3 = vector(arg2);
+                CImg<uptrT>::vector((uptrT)mp_vector_map,arg3,arg2,(uptrT)mp_abs,arg1).move_to(code);
+                _cimg_mp_return(arg3);
+              }
+              */
               _cimg_mp_opcode1(mp_abs,arg1);
             }
 
@@ -16847,7 +16856,13 @@ namespace cimg_library_suffixed {
         return _mp_arg(1);
       }
 
-      static double mp_vector_map(_cimg_math_parser& mp) {
+      static double mp_vector_off(_cimg_math_parser& mp) {
+        const unsigned int ptr = mp.opcode[2] + 1, siz = (int)mp.opcode[3];
+        const int off = (int)_mp_arg(4);
+        return off>=0 && off<(int)siz?mp.mem[ptr + off]:0;
+      }
+
+      static double mp_vector_self_map(_cimg_math_parser& mp) {
         CImg<uptrT> opcode_map(1,mp.opcode._height - 2);
         unsigned int ptrd = (unsigned int)mp.opcode[1] + 1, siz = (unsigned int)mp.opcode[2];
         *opcode_map = mp.opcode[3]; // Operator
@@ -16857,12 +16872,6 @@ namespace cimg_library_suffixed {
         while (siz-->0) { target = ptrd; mp.mem[ptrd++] = _cimg_mp_defunc(mp); }
         opcode_map.swap(mp.opcode);
         return _mp_arg(1);
-      }
-
-      static double mp_vector_off(_cimg_math_parser& mp) {
-        const unsigned int ptr = mp.opcode[2] + 1, siz = (int)mp.opcode[3];
-        const int off = (int)_mp_arg(4);
-        return off>=0 && off<(int)siz?mp.mem[ptr + off]:0;
       }
 
       static double mp_vector_set_off(_cimg_math_parser& mp) {

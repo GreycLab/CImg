@@ -14515,6 +14515,14 @@ namespace cimg_library_suffixed {
 
                   arg3 = compile(s + 1,se);
                   if (p_ref) { *p_ref = 1; p_ref[1] = arg1; p_ref[2] = arg2; }
+                  if (mem(arg2,1)>0) { // Constant index.
+                    pos = (int)mem(arg2,1);
+                    if (pos>=0 && pos<mem(arg1,1)) {
+                      CImg<uptrT>::vector((uptrT)mp_copy,arg1 + 1 + pos,arg3).move_to(code);
+                      _cimg_mp_return(arg3);
+                    }
+                    _cimg_mp_return(0);
+                  }
                   CImg<uptrT>::vector((uptrT)mp_vector_set_off,arg3,arg1,(uptrT)mem(arg1,1) - 1,arg2,arg3).
                     move_to(code);
                   _cimg_mp_return(arg3);
@@ -15026,6 +15034,7 @@ namespace cimg_library_suffixed {
                                             arg2==~0U?reserved_label[30]:arg2);
             _cimg_mp_opcode2(is_relative?mp_joff:mp_ioff,arg1,arg2==~0U?0:arg2);
           }
+
           s0 = strchr(ss,'[');
           if (s0>ss) { // Vector value.
             arg1 = ~0U;
@@ -15049,7 +15058,11 @@ namespace cimg_library_suffixed {
                                             (ss - 8)>expr._data?"...":"",
                                             (ss - 8)>expr._data?ss - 8:expr._data,
                                             se<&expr.back()?"...":"");
-              if (mem(arg2,1)>0) _cimg_mp_return(arg1 + 1 + (int)mem[arg2]); // Constant index.
+              if (mem(arg2,1)>0) { // Constant index.
+                pos = (int)mem(arg2,1);
+                if (pos>=0 && pos<mem(arg1,1)) _cimg_mp_return(arg1 + 1 + (int)mem[arg2]);
+                _cimg_mp_return(0);
+              }
               _cimg_mp_opcode3(mp_vector_off,arg1,(uptrT)mem(arg1,1) - 1,arg2);
             }
           }

@@ -14464,8 +14464,14 @@ namespace cimg_library_suffixed {
                   p_ref[3] = arg1; p_ref[4] = arg2; p_ref[5] = arg3; p_ref[6] = arg4;
                 }
                 if (*ss2=='#')
-                  _cimg_mp_opcode6(is_relative?mp_list_set_jxyzc:mp_list_set_ixyzc,p1,arg1,arg2,arg3,arg4,arg5);
-                _cimg_mp_opcode5(is_relative?mp_set_jxyzc:mp_set_ixyzc,arg1,arg2,arg3,arg4,arg5);
+                  CImg<uptrT>::vector((uptrT)(is_relative?mp_list_set_jxyzc:mp_list_set_ixyzc),
+                                      arg5,p1,arg1,arg2,arg3,arg4,arg5).move_to(code);
+                else
+                  CImg<uptrT>::vector((uptrT)(is_relative?mp_set_jxyzc:mp_set_ixyzc),
+                                      arg5,arg1,arg2,arg3,arg4,arg5).move_to(code);
+                _cimg_mp_return(arg5);
+                //                  _cimg_mp_opcode6(is_relative?mp_list_set_jxyzc:mp_list_set_ixyzc,p1,arg1,arg2,arg3,arg4,arg5);
+                //                _cimg_mp_opcode5(is_relative?mp_set_jxyzc:mp_set_ixyzc,arg1,arg2,arg3,arg4,arg5);
 
               } else if (*ss1=='[' && *ve1==']') { // i/j[_#ind,offset] = value.
                 if (*ss2=='#') {
@@ -14478,8 +14484,14 @@ namespace cimg_library_suffixed {
                   *p_ref = 2; p_ref[1] = p1; p_ref[2] = (unsigned int)is_relative; p_ref[3] = arg1;
                 }
                 if (p1!=~0U)
-                  _cimg_mp_opcode3(is_relative?mp_list_set_joff:mp_list_set_ioff,p1,arg1,arg2);
-                _cimg_mp_opcode2(is_relative?mp_set_joff:mp_set_ioff,arg1,arg2);
+                  CImg<uptrT>::vector((uptrT)(is_relative?mp_list_set_joff:mp_list_set_ioff),
+                                      arg2,arg1,arg2).move_to(code);
+                else
+                  CImg<uptrT>::vector((uptrT)(is_relative?mp_set_joff:mp_set_ioff),
+                                      arg2,arg1,arg2).move_to(code);
+                _cimg_mp_return(arg2);
+                  //                  _cimg_mp_opcode3(is_relative?mp_list_set_joff:mp_list_set_ioff,p1,arg1,arg2);
+                  //                _cimg_mp_opcode2(is_relative?mp_set_joff:mp_set_ioff,arg1,arg2);
               }
             }
 
@@ -14508,7 +14520,10 @@ namespace cimg_library_suffixed {
 
                   arg3 = compile(s + 1,se);
                   if (p_ref) { *p_ref = 1; p_ref[1] = arg1; p_ref[2] = arg2; }
-                  _cimg_mp_opcode4(mp_vector_set_off,arg3,arg1,arg2,(uptrT)mem(arg1,1) - 1);
+                  CImg<uptrT>::vector((uptrT)mp_vector_set_off,arg3,arg3,arg1,arg2,(uptrT)mem(arg1,1) - 1).
+                    move_to(code);
+                  _cimg_mp_return(arg3);
+                  //                  _cimg_mp_opcode4(mp_vector_set_off,arg3,arg1,arg2,(uptrT)mem(arg1,1) - 1);
                 }
               }
             }
@@ -14697,10 +14712,12 @@ namespace cimg_library_suffixed {
             CImg<uptrT>::vector((uptrT)op,arg1,arg2).move_to(code);
 
             if (*ref==1) { // Vector value.
+              if (mem(arg1,1)) arg1 = opcode1(mp_copy,arg1);
               arg3 = ref[1]; arg4 = ref[2];
               if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
               //              CImg<uptrT>::vector((uptrT)mp_vector_set_off,arg1,arg3,arg4,(uptrT)mem(arg3,1) - 1).move_to(code);
             } else if (*ref>1) { // Image value.
+              if (mem(arg1,1)) arg1 = opcode1(mp_copy,arg1);
               p1 = ref[1]; // #ind.
               is_relative = (bool)ref[2];
               if (*ref==2) { // i/j[_#ind,off] += value.

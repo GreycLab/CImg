@@ -15173,15 +15173,6 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"abs(",4)) { // Absolute value
               arg1 = compile(ss4,se1);
               if (mem(arg1,1)==1) _cimg_mp_constant(cimg::abs(mem[arg1]));
-
-              /*              if (mem(arg1,1)>1) {
-                std::fprintf(stderr,"\nDEBUG : OUEEE\n");
-                arg2 = (unsigned int)mem(arg1,1) - 1;
-                arg3 = vector(arg2);
-                CImg<uptrT>::vector((uptrT)mp_vector_map,arg3,arg2,(uptrT)mp_abs,arg1).move_to(code);
-                _cimg_mp_return(arg3);
-              }
-              */
               _cimg_mp_opcode1(mp_abs,arg1);
             }
 

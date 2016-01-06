@@ -14709,15 +14709,14 @@ namespace cimg_library_suffixed {
             ref.assign(7);
             arg1 = compile(ss,s1,ref);
             arg2 = compile(s + 1,se);
+            if (*ref>0 && mem(arg1,1)) arg1 = opcode1(mp_copy,arg1);
             CImg<uptrT>::vector((uptrT)op,arg1,arg2).move_to(code);
 
             if (*ref==1) { // Vector value.
-              if (mem(arg1,1)) arg1 = opcode1(mp_copy,arg1);
               arg3 = ref[1]; arg4 = ref[2];
               if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
               //              CImg<uptrT>::vector((uptrT)mp_vector_set_off,arg1,arg3,arg4,(uptrT)mem(arg3,1) - 1).move_to(code);
             } else if (*ref>1) { // Image value.
-              if (mem(arg1,1)) arg1 = opcode1(mp_copy,arg1);
               p1 = ref[1]; // #ind.
               is_relative = (bool)ref[2];
               if (*ref==2) { // i/j[_#ind,off] += value.

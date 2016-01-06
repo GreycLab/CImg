@@ -5700,7 +5700,7 @@ namespace cimg_library_suffixed {
    # Define the CImgDisplay structure
    #
    ----------------------------------*/
-  //! Allow to create windows, display images on them and manage user events (keyboard, mouse and windows events).
+  //! Allow the creation of windows, display images on them and manage user events (keyboard, mouse and windows events).
   /**
      CImgDisplay methods rely on a low-level graphic library to perform: it can be either \b X-Window
      (X11, for Unix-based systems) or \b GDI32 (for Windows-based systems).
@@ -9096,7 +9096,7 @@ namespace cimg_library_suffixed {
      The \c CImg<T> class contains a lot of functions that operates on images.
      Some of the most useful are:
 
-     - operator()(): allows to access or write pixel values.
+     - operator()(): Read or write pixel values.
      - display(): displays the image in a new window.
   **/
   template<typename T>
@@ -14232,7 +14232,6 @@ namespace cimg_library_suffixed {
           mem[_cimg_mp_x] = mem[_cimg_mp_y] = mem[_cimg_mp_z] = mem[_cimg_mp_c] = 0;
           for (p_code = code._data; p_code<p_code_begin; ++p_code) {
             const CImg<uptrT> &op = *p_code;
-            // Allows to avoid parameter passing to evaluation functions.
             opcode._data = op._data; opcode._height = op._height;
             const uptrT target = opcode[1];
             mem[target] = _cimg_mp_defunc(*this);
@@ -15762,7 +15761,6 @@ namespace cimg_library_suffixed {
         mem[_cimg_mp_x] = x; mem[_cimg_mp_y] = y; mem[_cimg_mp_z] = z; mem[_cimg_mp_c] = c;
         for (p_code = p_code_begin; p_code<p_code_end; ++p_code) {
           const CImg<uptrT> &op = *p_code;
-          // Allows to avoid parameter passing to evaluation functions.
           opcode._data = op._data; opcode._height = op._height;
           const uptrT target = opcode[1];
           mem[target] = _cimg_mp_defunc(*this);

@@ -15118,7 +15118,7 @@ namespace cimg_library_suffixed {
           }
         }
 
-        // Look for a function call or a parenthesis.
+        // Look for a function call, an access to image value, or a parenthesis.
         if (*se1==')') {
           if (*ss=='(') _cimg_mp_return(compile(ss1,se1,p_ref)); // Simple parentheses
 
@@ -15558,6 +15558,11 @@ namespace cimg_library_suffixed {
               _cimg_mp_opcode1(mp_sinh,arg1);
             }
 
+            if (!std::strncmp(ss,"sizeof(",7)) { // Sizeof
+              arg1 = compile(ss7,se1);
+              _cimg_mp_constant(mem(arg1,1)<2?1:mem(arg1,1) - 1);
+            }
+
             if (!std::strncmp(ss,"sqr(",4)) { // Square
               arg1 = compile(ss4,se1);
               if (mem(arg1,1)>0) _cimg_mp_constant(cimg::sqr(mem[arg1]));
@@ -15861,7 +15866,7 @@ namespace cimg_library_suffixed {
       unsigned int vector(const unsigned int siz) {
         if (mempos + siz>=mem._width) mem.resize(2*mem._width + siz,-100,1,1,0);
         const unsigned int pos = mempos++;
-        mem[pos] = mempos; mem(pos,1) = siz + 1; // Set const property + size
+        mem[pos] = cimg::type<double>::nan(); mem(pos,1) = siz + 1; // Set const property + size
         for (unsigned int s = siz; s>0; --s) mem(mempos++,1) = -1; // Set variable for vector components
         return pos;
       }

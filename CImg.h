@@ -15287,8 +15287,8 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(arg1);
             }
 
-            if (!std::strncmp(ss,"dim(",7)) { // Dimension of a value.
-              arg1 = compile(ss7,se1);
+            if (!std::strncmp(ss,"dim(",4)) { // Dimension of a value.
+              arg1 = compile(ss4,se1);
               _cimg_mp_constant(mem(arg1,1)<2?1:mem(arg1,1) - 1);
             }
 

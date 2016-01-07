@@ -15923,7 +15923,7 @@ namespace cimg_library_suffixed {
       // Check compatibility between two vector-valued arguments.
       void check_vargs(const unsigned int arg1, const unsigned int arg2, const char *const op,
                        const char *const ss, char *const se, const char saved_char) {
-        if (mem(arg1,1)>1 && mem(arg2,1)>1 && mem(arg1,1)!=mem(arg2,2)) {
+        if (mem(arg1,1)>1 && mem(arg2,1)>1 && mem(arg1,1)!=mem(arg2,1)) {
           const unsigned int
             dim_arg1 = mem(arg1,1)>1?mem(arg1,1) - 1:1,
             dim_arg2 = mem(arg2,1)>1?mem(arg2,1) - 1:1;

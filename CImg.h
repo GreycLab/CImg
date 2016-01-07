@@ -14117,7 +14117,7 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_opcode6(op,i1,i2,i3,i4,i5,i6) _cimg_mp_return(opcode6(op,i1,i2,i3,i4,i5,i6))
 #define _cimg_mp_opcode7(op,i1,i2,i3,i4,i5,i6,i7) _cimg_mp_return(opcode7(op,i1,i2,i3,i4,i5,i6,i7))
 #define _cimg_mp_defunc(mp) (*(mp_func)(*(mp).opcode))(mp)
-
+#define _cimg_mp_check_vargs(i1,i2,op) check_vargs(i1,i2,op,ss,se,saved_char)
       // Constructors.
       _cimg_math_parser(const char *const expression, const char *const funcname=0,
                         const CImg<T>& img_input=CImg<T>::const_empty(), CImg<T> *const img_output=0,
@@ -14696,21 +14696,7 @@ namespace cimg_library_suffixed {
               }
 
             } else { // Variable has been already declared
-              if (cimg::max(1.0f,mem(arg1,1))!=cimg::max(1.0f,mem(arg2,1)) && mem(arg2,1)>1) {
-                arg3 = mem(arg1,1)>1?mem(arg1,1) - 1:1;
-                arg4 = mem(arg2,1)>1?mem(arg2,1) - 1:1;
-                *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
-                throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s(): Left and right-hand sides of assignment operator have "
-                                            "incompatible types (resp. '%s%u' and '%s%u'), "
-                                            "in expression '%s%s%s'.",
-                                            pixel_type(),calling_function,
-                                            mem(arg1,1)>1?"vector":"scalar",arg3,
-                                            mem(arg2,1)>1?"vector":"scalar",arg4,
-                                            (ss - 8)>expr._data?"...":"",
-                                            (ss - 8)>expr._data?ss - 8:expr._data,
-                                            se<&expr.back()?"...":"");
-              }
+              _cimg_mp_check_vargs(arg1,arg2,"assignment");
               if (mem(arg1,1)>1) { // Vector
                 if (mem(arg2,1)>1) // From vector
                   CImg<uptrT>::vector((uptrT)mp_vector_copy,arg1,arg2,(uptrT)mem(arg1,1) - 1).move_to(code);
@@ -14731,16 +14717,16 @@ namespace cimg_library_suffixed {
             const char *s_op;
             mp_func op;
             switch (*ps) {
-            case '+' : op = mp_self_add; s_op = "addition"; break;
-            case '-' : op = mp_self_sub; s_op = "subtraction"; break;
-            case '*' : op = mp_self_mul; s_op = "multiplication"; break;
-            case '/' : op = mp_self_div; s_op = "division"; break;
-            case '%' : op = mp_self_modulo; s_op = "modulo"; break;
-            case '<' : op = mp_self_bitwise_left_shift; s_op = "left bitshift"; break;
-            case '>' : op = mp_self_bitwise_right_shift; s_op = "right bitshift"; break;
-            case '&' : op = mp_self_bitwise_and; s_op = "bitwise and"; break;
-            case '|' : op = mp_self_bitwise_or; s_op = "bitwise or"; break;
-            default : op = mp_self_power; s_op = "power"; break;
+            case '+' : op = mp_self_add; s_op = "self-addition"; break;
+            case '-' : op = mp_self_sub; s_op = "self-subtraction"; break;
+            case '*' : op = mp_self_mul; s_op = "self-multiplication"; break;
+            case '/' : op = mp_self_div; s_op = "self-division"; break;
+            case '%' : op = mp_self_modulo; s_op = "self-modulo"; break;
+            case '<' : op = mp_self_bitwise_left_shift; s_op = "self-left-bitshift"; break;
+            case '>' : op = mp_self_bitwise_right_shift; s_op = "self-right-bitshift"; break;
+            case '&' : op = mp_self_bitwise_and; s_op = "self-bitwise-and"; break;
+            case '|' : op = mp_self_bitwise_or; s_op = "self-bitwise-or"; break;
+            default : op = mp_self_power; s_op = "self-power"; break;
             }
             s1 = *ps=='>' || *ps=='<'?ns:ps;
 
@@ -14749,10 +14735,15 @@ namespace cimg_library_suffixed {
             arg2 = compile(s + 1,se);
             if (*ref>0 && mem(arg1,1)) arg1 = opcode1(mp_copy,arg1);
 
-            if (mem(arg1,1)>1) // Vector
-              CImg<uptrT>::vector((uptrT)mp_vector_self_map,arg1,(uptrT)mem(arg1,1) - 1,(uptrT)op,arg2).
-                move_to(code);
-            else { // Scalar / image value / vector value
+            if (mem(arg1,1)>1) { // Vector
+              if (mem(arg2,1)>1) {// From vector
+                _cimg_mp_check_vargs(arg1,arg2,s_op);
+                //                CImg<uptrT>::vector((uptrT)mp_vector_map_self,arg1,(uptrT)mem(arg1,1) - 1,(uptrT)op,arg2).
+                //                  move_to(code);
+              } else // From scalar
+                CImg<uptrT>::vector((uptrT)mp_vector_map_self,arg1,(uptrT)mem(arg1,1) - 1,(uptrT)op,arg2).
+                  move_to(code);
+            } else { // Scalar / image value / vector value
               CImg<uptrT>::vector((uptrT)op,arg1,arg2).move_to(code);
               if (mem(arg1,1)>=0) { // Not a scalar variable
                 if (*ref==1) { // Vector value
@@ -14789,7 +14780,7 @@ namespace cimg_library_suffixed {
                 } else { // Error, not a scalar variable
                   *se = saved_char; cimg::strellipsize(expr,64);
                   throw CImgArgumentException("[_cimg_math_parser] "
-                                              "CImg<%s>::%s(): Invalid self-%s of non-variable "
+                                              "CImg<%s>::%s(): Invalid %s of non-variable "
                                               "in expression '%s%s%s'.",
                                               pixel_type(),calling_function,
                                               s_op,
@@ -15257,7 +15248,11 @@ namespace cimg_library_suffixed {
               *se1 = ')';
               _cimg_mp_return(arg1);
             }
-            break;
+
+            if (!std::strncmp(ss,"dim(",7)) { // Dimension of a value.
+              arg1 = compile(ss7,se1);
+              _cimg_mp_constant(mem(arg1,1)<2?1:mem(arg1,1) - 1);
+            }
 
             if (!std::strncmp(ss,"dowhile",7) && (*ss7=='(' || (*ss7==' ' && *ss8=='('))) { // Do..while
               if (*ss7==' ') cimg::swap(*ss7,*ss8); // Allow space before opening brace
@@ -15269,6 +15264,7 @@ namespace cimg_library_suffixed {
                 move_to(code,p1);
               _cimg_mp_return(arg1);
             }
+            break;
 
           case 'e' :
             if (!std::strncmp(ss,"exp(",4)) { // Exponential
@@ -15547,11 +15543,6 @@ namespace cimg_library_suffixed {
               arg1 = compile(ss5,se1);
               if (mem(arg1,1)>0) _cimg_mp_constant(std::sinh(mem[arg1]));
               _cimg_mp_opcode1(mp_sinh,arg1);
-            }
-
-            if (!std::strncmp(ss,"sizeof(",7)) { // Sizeof
-              arg1 = compile(ss7,se1);
-              _cimg_mp_constant(mem(arg1,1)<2?1:mem(arg1,1) - 1);
             }
 
             if (!std::strncmp(ss,"sqr(",4)) { // Square
@@ -15927,6 +15918,27 @@ namespace cimg_library_suffixed {
         const unsigned int pos = mempos++;
         CImg<uptrT>::vector((uptrT)op,pos,arg1,arg2,arg3,arg4,arg5,arg6,arg7).move_to(code);
         return pos;
+      }
+
+      // Check compatibility between two vector-valued arguments.
+      void check_vargs(const unsigned int arg1, const unsigned int arg2, const char *const op,
+                       const char *const ss, char *const se, const char saved_char) {
+        if (mem(arg1,1)>1 && mem(arg2,1)>1 && mem(arg1,1)!=mem(arg2,2)) {
+          const unsigned int
+            dim_arg1 = mem(arg1,1)>1?mem(arg1,1) - 1:1,
+            dim_arg2 = mem(arg2,1)>1?mem(arg2,1) - 1:1;
+          *se = saved_char; cimg::strellipsize(expr,64);
+          throw CImgArgumentException("[_cimg_math_parser] "
+                                      "CImg<%s>::%s(): Left and right-hand sides of %s operator have "
+                                      "incompatible types (resp. '%s%u' and '%s%u'), "
+                                      "in expression '%s%s%s'.",
+                                      pixel_type(),calling_function,op,
+                                      mem(arg1,1)>1?"vector":"scalar",dim_arg1,
+                                      mem(arg2,1)>1?"vector":"scalar",dim_arg2,
+                                      (ss - 8)>expr._data?"...":"",
+                                      (ss - 8)>expr._data?ss - 8:expr._data,
+                                      se<&expr.back()?"...":"");
+        }
       }
 
       // Evaluation functions, known by the parser.
@@ -16858,7 +16870,7 @@ namespace cimg_library_suffixed {
         return off>=0 && off<(int)siz?mp.mem[ptr + off]:0;
       }
 
-      static double mp_vector_self_map(_cimg_math_parser& mp) {
+      static double mp_vector_map_self(_cimg_math_parser& mp) {
         CImg<uptrT> opcode_map(1,mp.opcode._height - 2);
         unsigned int ptrd = (unsigned int)mp.opcode[1] + 1, siz = (unsigned int)mp.opcode[2];
         *opcode_map = mp.opcode[3]; // Operator

@@ -14768,7 +14768,7 @@ namespace cimg_library_suffixed {
                 } else { // Error, not a scalar variable
                   *se = saved_char; cimg::strellipsize(expr,64);
                   throw CImgArgumentException("[_cimg_math_parser] "
-                                              "CImg<%s>::%s(): Invalid %s of non-variable "
+                                              "CImg<%s>::%s(): Left-hand side of %s is not a variable, "
                                               "in expression '%s%s%s'.",
                                               pixel_type(),calling_function,
                                               s_op,

@@ -13284,9 +13284,9 @@ namespace cimg_library_suffixed {
       return false;
     }
 
-    //! Test if image instance contains a 'nan' value.
+    //! Test if image instance contains a NaN value.
     /**
-       Return \c true, if image instance contains a 'nan' value, and \c false otherwise.
+       Return \c true, if image instance contains a NaN value, and \c false otherwise.
     **/
     bool is_nan() const {
       if (cimg::type<T>::is_float()) cimg_for(*this,p,T) if (cimg::type<T>::is_nan((float)*p)) return true;
@@ -15426,7 +15426,7 @@ namespace cimg_library_suffixed {
                 _cimg_mp_opcode1(mp_isint,arg1);
               }
 
-              if (!std::strncmp(ss,"isnan(",6)) { // Is Nan?
+              if (!std::strncmp(ss,"isnan(",6)) { // Is NaN?
                 if (ss6==se1) _cimg_mp_return(0);
                 arg1 = compile(ss6,se1);
                 if (mem(arg1,1)==1) _cimg_mp_return((unsigned int)cimg::type<double>::is_nan(mem[arg1]));
@@ -41070,7 +41070,7 @@ namespace cimg_library_suffixed {
       if (_depth>1) crop.get_projections2d(x,y,z).move_to(img2d);
       else CImg<Tuchar>(crop,false).move_to(img2d);
 
-      // Check for inf and nan values.
+      // Check for inf and NaN values.
       if (cimg::type<T>::is_float() && normalization) {
         bool is_inf = false, is_nan = false;
         cimg_for(img2d,ptr,Tuchar)
@@ -41091,7 +41091,7 @@ namespace cimg_library_suffixed {
             val_pinf = (T)(normalization==1 || normalization==3?M0 + (M0 - m0)*20 + 1:M0);
           if (is_nan)
             cimg_for(img2d,ptr,Tuchar)
-              if (cimg::type<T>::is_nan(*ptr)) *ptr = val_minf; // Replace nan values.
+              if (cimg::type<T>::is_nan(*ptr)) *ptr = val_minf; // Replace NaN values.
           if (is_inf)
             cimg_for(img2d,ptr,Tuchar)
               if (cimg::type<T>::is_inf(*ptr)) *ptr = (float)*ptr<0?val_minf:val_pinf; // Replace +-inf values.

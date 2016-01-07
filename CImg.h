@@ -14738,10 +14738,10 @@ namespace cimg_library_suffixed {
             if (mem(arg1,1)>1) { // Vector
               if (mem(arg2,1)>1) {// From vector
                 _cimg_mp_check_vargs(arg1,arg2,s_op);
-                //                CImg<uptrT>::vector((uptrT)mp_vector_map_self,arg1,(uptrT)mem(arg1,1) - 1,(uptrT)op,arg2).
-                //                  move_to(code);
+                CImg<uptrT>::vector((uptrT)mp_vector_map_self_vector,arg1,(uptrT)mem(arg1,1) - 1,(uptrT)op,arg2).
+                  move_to(code);
               } else // From scalar
-                CImg<uptrT>::vector((uptrT)mp_vector_map_self,arg1,(uptrT)mem(arg1,1) - 1,(uptrT)op,arg2).
+                CImg<uptrT>::vector((uptrT)mp_vector_map_self_scalar,arg1,(uptrT)mem(arg1,1) - 1,(uptrT)op,arg2).
                   move_to(code);
             } else { // Scalar / image value / vector value
               CImg<uptrT>::vector((uptrT)op,arg1,arg2).move_to(code);
@@ -16870,16 +16870,22 @@ namespace cimg_library_suffixed {
         return off>=0 && off<(int)siz?mp.mem[ptr + off]:0;
       }
 
-      static double mp_vector_map_self(_cimg_math_parser& mp) {
-        CImg<uptrT> opcode_map(1,mp.opcode._height - 2);
+      static double mp_vector_map_self_scalar(_cimg_math_parser& mp) { // Vector += scalar
         unsigned int ptrd = (unsigned int)mp.opcode[1] + 1, siz = (unsigned int)mp.opcode[2];
-        *opcode_map = mp.opcode[3]; // Operator
-        std::memcpy(opcode_map._data + 2,mp.opcode._data + 4,(opcode_map._height - 2)*sizeof(uptrT)); // Arguments
-        opcode_map.swap(mp.opcode);
+        *mp.opcode = mp.opcode[3]; // Operator
+        mp.opcode[2] = mp.opcode[4]; // Scalar argument
         uptrT &target = mp.opcode[1];
-        while (siz-->0) { target = ptrd; mp.mem[ptrd++] = _cimg_mp_defunc(mp); }
-        opcode_map.swap(mp.opcode);
-        return _mp_arg(1);
+        while (siz-->0)  { target = ptrd++; _cimg_mp_defunc(mp); }
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_vector_map_self_vector(_cimg_math_parser& mp) { // Vector += vector
+        unsigned int ptrd = (unsigned int)mp.opcode[1] + 1, siz = (unsigned int)mp.opcode[2],
+          ptrs = (unsigned int)mp.opcode[4] + 1;
+        *mp.opcode = mp.opcode[3]; // Operator
+        uptrT &target = mp.opcode[1], &source = mp.opcode[2];
+        while (siz-->0)  { target = ptrd++; source = ptrs++; _cimg_mp_defunc(mp); }
+        return cimg::type<double>::nan();
       }
 
       static double mp_vector_set_off(_cimg_math_parser& mp) {

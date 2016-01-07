@@ -14802,7 +14802,7 @@ namespace cimg_library_suffixed {
             arg1 = compile(ss,s);
             p2 = code._width; arg2 = compile(s + 1,*s1!=':'?se:s1);
             p3 = code._width; arg3 = *s1!=':'?0:compile(s1 + 1,se);
-            if (mem(arg1,1)>0 && mem(arg2,1)>0 && mem(arg3,1)>0) _cimg_mp_constant(mem[arg1]?mem[arg2]:mem[arg3]);
+            if (mem(arg1,1)==1 && mem(arg2,1)==1 && mem(arg3,1)==1) _cimg_mp_constant(mem[arg1]?mem[arg2]:mem[arg3]);
             if (mempos>=mem._width) mem.resize(-200,-100,1,1,0);
             pos = mempos++;
             CImg<uptrT>::vector((uptrT)mp_if,pos,arg1,arg2,arg3,
@@ -15014,6 +15014,7 @@ namespace cimg_library_suffixed {
 
           if (*ss=='!') { // Logical not
             arg1 = compile(ss1,se);
+            if (mem(arg1,1)>1) _cimg_mp_vector1_v(mp_logical_not,arg1);
             if (mem(arg1,1)>0) _cimg_mp_constant(!mem[arg1]);
             _cimg_mp_scalar1(mp_logical_not,arg1);
           }

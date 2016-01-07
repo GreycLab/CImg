@@ -14120,6 +14120,7 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_vector2_sv(op,i1,i2) _cimg_mp_return(vector2_sv(op,i1,i2))
 #define _cimg_mp_vector2_vs(op,i1,i2) _cimg_mp_return(vector2_vs(op,i1,i2))
 #define _cimg_mp_vector2_vv(op,i1,i2) _cimg_mp_return(vector2_vv(op,i1,i2))
+#define _cimg_mp_vector3_vss(op,i1,i2,i3) _cimg_mp_return(vector3_vss(op,i1,i2,i3))
 
       // Constructors.
       _cimg_math_parser(const char *const expression, const char *const funcname=0,
@@ -15340,6 +15341,8 @@ namespace cimg_library_suffixed {
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(s1 + 1,s2==se2?++s2:s2);
               arg3 = compile(s2 + 1,se1);
+              _cimg_mp_check_args(arg2,arg3,"function cut()",0);
+              if (mem(arg1,1)>1) _cimg_mp_vector3_vss(mp_cut,arg1,arg2,arg3);
               if (mem(arg1,1)>0 && mem(arg2,1)>0 && mem(arg3,1)>0) {
                 val = mem[arg1]; val1 = mem[arg2]; val2 = mem[arg3];
                 _cimg_mp_constant(val<val1?val1:val>val2?val2:val);
@@ -16089,6 +16092,13 @@ namespace cimg_library_suffixed {
       unsigned int vector2_sv(const mp_func op, const unsigned int arg1, const unsigned int arg2) {
         const unsigned int siz = (unsigned int)mem(arg2,1) - 1, pos = vector(siz);
         CImg<uptrT>::vector((uptrT)mp_vector_map_sv,pos,siz,(uptrT)op,arg1,arg2).move_to(code);
+        return pos;
+      }
+
+      unsigned int vector3_vss(const mp_func op, const unsigned int arg1, const unsigned int arg2,
+                               const unsigned int arg3) {
+        const unsigned int siz = (unsigned int)mem(arg1,1) - 1, pos = vector(siz);
+        CImg<uptrT>::vector((uptrT)mp_vector_map_vss,pos,siz,(uptrT)op,arg1,arg2,arg3).move_to(code);
         return pos;
       }
 
@@ -17089,6 +17099,18 @@ namespace cimg_library_suffixed {
         uptrT &argument1 = mp.opcode[2], &argument2 = mp.opcode[3];
         argument1 = mp.opcode[4];
         while (siz-->0) { argument2 = ptrs++; *(ptrd++) = (*op)(mp); }
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_vector_map_vss(_cimg_math_parser& mp) { // Operator(vector,scalar,scalar)
+        unsigned int
+          siz = (unsigned int)mp.opcode[2],
+          ptrs = (unsigned int)mp.opcode[4] + 1;
+        double *ptrd = &_mp_arg(1) + 1;
+        mp_func op = (mp_func)mp.opcode[3];
+        uptrT &argument1 = mp.opcode[2], &argument2 = mp.opcode[3], &argument3 = mp.opcode[4];
+        argument2 = mp.opcode[5]; argument3 = mp.opcode[6];
+        while (siz-->0) { argument1 = ptrs++; *(ptrd++) = (*op)(mp); }
         return cimg::type<double>::nan();
       }
 

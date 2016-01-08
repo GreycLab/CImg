@@ -15530,10 +15530,14 @@ namespace cimg_library_suffixed {
               p2 = code._width; arg2 = compile(s1 + 1,s2);
               p3 = code._width; arg3 = s2>=se1?0:compile(s2 + 1,se1);
               if (mem(arg1,1)>0 && mem(arg2,1)>0 && mem(arg3,1)>0) _cimg_mp_constant(mem[arg1]?mem[arg2]:mem[arg3]);
-              if (mempos>=mem._width) mem.resize(-200,-100,1,1,0);
-              pos = mempos++;
+              arg4 = mem(arg2,1)>0?(unsigned int)mem(arg2,1) - 1:0; // Vector size (or 0 for scalar).
+              if (arg4) pos = vector(arg4);
+              else {
+                if (mempos>=mem._width) mem.resize(-200,-100,1,1,0);
+                pos = mempos++;
+              }
               CImg<uptrT>::vector((uptrT)mp_if,pos,arg1,arg2,arg3,
-                                  p3 - p2,code._width - p3).move_to(code,p2);
+                                  p3 - p2,code._width - p3,arg4).move_to(code,p2);
               _cimg_mp_return(pos);
             }
 
@@ -16576,6 +16580,7 @@ namespace cimg_library_suffixed {
         const CImg<uptrT>
           *const p_right = ++mp.p_code + mp.opcode[5],
           *const p_end = p_right + mp.opcode[6];
+        const unsigned int target0 = mp.opcode[1] + 1, siz = mp.opcode[7];
         if (is_cond) {
           for ( ; mp.p_code<p_right; ++mp.p_code) {
             const CImg<uptrT> &op = *mp.p_code;
@@ -16584,6 +16589,7 @@ namespace cimg_library_suffixed {
             mp.mem[target] = _cimg_mp_defunc(mp);
           }
           mp.p_code = p_end - 1;
+          if (siz) std::memcpy(&mp.mem[target0],&mp.mem[mem_left + 1],sizeof(doubleT)*siz);
           return mp.mem[mem_left];
         }
         for (mp.p_code = p_right; mp.p_code<p_end; ++mp.p_code) {
@@ -16593,6 +16599,7 @@ namespace cimg_library_suffixed {
           mp.mem[target] = _cimg_mp_defunc(mp);
         }
         --mp.p_code;
+        if (siz) std::memcpy(&mp.mem[target0],&mp.mem[mem_right + 1],sizeof(doubleT)*siz);
         return mp.mem[mem_right];
       }
 

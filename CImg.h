@@ -15376,6 +15376,14 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
+            if (!std::strncmp(ss,"clog(",5)) { // Complex logarithm
+              arg1 = compile(ss5,se1);
+              _cimg_mp_check_type(arg1,"function 'clog()'",2,2);
+              pos = vector(2);
+              CImg<uptrT>::vector((uptrT)mp_complex_log,pos,arg1).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"cos(",4)) { // Cosine
               arg1 = compile(ss4,se1);
               if (mem(arg1,1)>1) _cimg_mp_vector1_v(mp_cos,arg1);
@@ -16387,6 +16395,14 @@ namespace cimg_library_suffixed {
         const double *ptrs = &_mp_arg(2) + 1, r = *(ptrs++), i = *(ptrs), er = std::exp(r);
         *(ptrd++) = er*std::cos(i);
         *(ptrd++) = er*std::sin(i);
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_complex_log(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const double *ptrs = &_mp_arg(2) + 1, r = *(ptrs++), i = *(ptrs);
+        *(ptrd++) = std::log(std::sqrt(r*r + i*i));
+        *(ptrd++) = std::atan2(i,r);
         return cimg::type<double>::nan();
       }
 

@@ -10154,10 +10154,7 @@ namespace cimg_library_suffixed {
       \endcode
     **/
     CImg<T>& swap(CImg<T>& img) {
-      cimg::swap(_width,img._width);
-      cimg::swap(_height,img._height);
-      cimg::swap(_depth,img._depth);
-      cimg::swap(_spectrum,img._spectrum);
+      cimg::swap(_width,img._width,_height,img._height,_depth,img._depth,_spectrum,img._spectrum);
       cimg::swap(_data,img._data);
       cimg::swap(_is_shared,img._is_shared);
       return img;
@@ -17296,14 +17293,63 @@ namespace cimg_library_suffixed {
         return off>=0 && off<(int)siz?mp.mem[ptr + off]:cimg::type<double>::nan();
       }
 
+      static double mp_vector_map_sv(_cimg_math_parser& mp) { // Operator(scalar,vector)
+        unsigned int
+          siz = (unsigned int)mp.opcode[2],
+          ptrs = (unsigned int)mp.opcode[5] + 1;
+        double *ptrd = &_mp_arg(1) + 1;
+        mp_func op = (mp_func)mp.opcode[3];
+        CImg<uptrT> l_opcode(4);
+        l_opcode[2] = mp.opcode[4]; // Scalar argument1
+        l_opcode.swap(mp.opcode);
+        uptrT &argument2 = mp.opcode[3];
+        while (siz-->0) { argument2 = ptrs++; *(ptrd++) = (*op)(mp); }
+        l_opcode.swap(mp.opcode);
+        return cimg::type<double>::nan();
+      }
+
       static double mp_vector_map_v(_cimg_math_parser& mp) { // Operator(vector)
         unsigned int
           siz = (unsigned int)mp.opcode[2],
           ptrs = (unsigned int)mp.opcode[4] + 1;
         double *ptrd = &_mp_arg(1) + 1;
         mp_func op = (mp_func)mp.opcode[3];
+        CImg<uptrT> l_opcode(1,3);
+        l_opcode.swap(mp.opcode);
         uptrT &argument = mp.opcode[2];
         while (siz-->0) { argument = ptrs++; *(ptrd++) = (*op)(mp); }
+        l_opcode.swap(mp.opcode);
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_vector_map_vs(_cimg_math_parser& mp) { // Operator(vector,scalar)
+        unsigned int
+          siz = (unsigned int)mp.opcode[2],
+          ptrs = (unsigned int)mp.opcode[4] + 1;
+        double *ptrd = &_mp_arg(1) + 1;
+        mp_func op = (mp_func)mp.opcode[3];
+        CImg<uptrT> l_opcode(1,4);
+        l_opcode[3] = mp.opcode[5]; // Scalar argument2
+        l_opcode.swap(mp.opcode);
+        uptrT &argument1 = mp.opcode[2];
+        while (siz-->0) { argument1 = ptrs++; *(ptrd++) = (*op)(mp); }
+        l_opcode.swap(mp.opcode);
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_vector_map_vss(_cimg_math_parser& mp) { // Operator(vector,scalar,scalar)
+        unsigned int
+          siz = (unsigned int)mp.opcode[2],
+          ptrs = (unsigned int)mp.opcode[4] + 1;
+        double *ptrd = &_mp_arg(1) + 1;
+        mp_func op = (mp_func)mp.opcode[3];
+        CImg<uptrT> l_opcode(1,5);
+        l_opcode[3] = mp.opcode[5]; // Scalar argument2
+        l_opcode[4] = mp.opcode[6]; // Scalar argument3
+        l_opcode.swap(mp.opcode);
+        uptrT &argument1 = mp.opcode[2];
+        while (siz-->0) { argument1 = ptrs++; *(ptrd++) = (*op)(mp); }
+        l_opcode.swap(mp.opcode);
         return cimg::type<double>::nan();
       }
 
@@ -17314,44 +17360,11 @@ namespace cimg_library_suffixed {
           ptrs2 = (unsigned int)mp.opcode[5] + 1;
         double *ptrd = &_mp_arg(1) + 1;
         mp_func op = (mp_func)mp.opcode[3];
+        CImg<uptrT> l_opcode(1,4);
+        l_opcode.swap(mp.opcode);
         uptrT &argument1 = mp.opcode[2], &argument2 = mp.opcode[3];
         while (siz-->0) { argument1 = ptrs1++; argument2 = ptrs2++; *(ptrd++) = (*op)(mp); }
-        return cimg::type<double>::nan();
-      }
-
-      static double mp_vector_map_vs(_cimg_math_parser& mp) { // Operator(vector,scalar)
-        unsigned int
-          siz = (unsigned int)mp.opcode[2],
-          ptrs = (unsigned int)mp.opcode[4] + 1;
-        double *ptrd = &_mp_arg(1) + 1;
-        mp_func op = (mp_func)mp.opcode[3];
-        uptrT &argument1 = mp.opcode[2], &argument2 = mp.opcode[3];
-        argument2 = mp.opcode[5];
-        while (siz-->0) { argument1 = ptrs++; *(ptrd++) = (*op)(mp); }
-        return cimg::type<double>::nan();
-      }
-
-      static double mp_vector_map_sv(_cimg_math_parser& mp) { // Operator(scalar,vector)
-        unsigned int
-          siz = (unsigned int)mp.opcode[2],
-          ptrs = (unsigned int)mp.opcode[5] + 1;
-        double *ptrd = &_mp_arg(1) + 1;
-        mp_func op = (mp_func)mp.opcode[3];
-        uptrT &argument1 = mp.opcode[2], &argument2 = mp.opcode[3];
-        argument1 = mp.opcode[4];
-        while (siz-->0) { argument2 = ptrs++; *(ptrd++) = (*op)(mp); }
-        return cimg::type<double>::nan();
-      }
-
-      static double mp_vector_map_vss(_cimg_math_parser& mp) { // Operator(vector,scalar,scalar)
-        unsigned int
-          siz = (unsigned int)mp.opcode[2],
-          ptrs = (unsigned int)mp.opcode[4] + 1;
-        double *ptrd = &_mp_arg(1) + 1;
-        mp_func op = (mp_func)mp.opcode[3];
-        uptrT &argument1 = mp.opcode[2], &argument2 = mp.opcode[3], &argument3 = mp.opcode[4];
-        argument2 = mp.opcode[5]; argument3 = mp.opcode[6];
-        while (siz-->0) { argument1 = ptrs++; *(ptrd++) = (*op)(mp); }
+        l_opcode.swap(mp.opcode);
         return cimg::type<double>::nan();
       }
 
@@ -17360,9 +17373,12 @@ namespace cimg_library_suffixed {
           ptrd = (unsigned int)mp.opcode[1] + 1,
           siz = (unsigned int)mp.opcode[2];
         mp_func op = (mp_func)mp.opcode[3];
-        uptrT &target = mp.opcode[1], &argument = mp.opcode[2];
-        argument = mp.opcode[4];
+        CImg<uptrT> l_opcode(1,3);
+        l_opcode[2] = mp.opcode[4]; // Scalar argument.
+        l_opcode.swap(mp.opcode);
+        uptrT &target = mp.opcode[1];
         while (siz-->0) { target = ptrd++; (*op)(mp); }
+        l_opcode.swap(mp.opcode);
         return cimg::type<double>::nan();
       }
 
@@ -17372,8 +17388,11 @@ namespace cimg_library_suffixed {
           siz = (unsigned int)mp.opcode[2],
           ptrs = (unsigned int)mp.opcode[4] + 1;
         mp_func op = (mp_func)mp.opcode[3];
+        CImg<uptrT> l_opcode(1,4);
+        l_opcode.swap(mp.opcode);
         uptrT &target = mp.opcode[1], &argument = mp.opcode[2];
         while (siz-->0)  { target = ptrd++; argument = ptrs++; (*op)(mp); }
+        l_opcode.swap(mp.opcode);
         return cimg::type<double>::nan();
       }
 
@@ -49077,8 +49096,7 @@ namespace cimg_library_suffixed {
        \note Can be used to exchange the content of two lists in a fast way.
     **/
     CImgList<T>& swap(CImgList<T>& list) {
-      cimg::swap(_width,list._width);
-      cimg::swap(_allocated_width,list._allocated_width);
+      cimg::swap(_width,list._width,_allocated_width,list._allocated_width);
       cimg::swap(_data,list._data);
       return list;
     }

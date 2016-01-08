@@ -14792,10 +14792,14 @@ namespace cimg_library_suffixed {
             _cimg_mp_check_type(arg1,"ternary operator '?:'",1,0);
             _cimg_mp_check_types(arg2,arg3,"ternary operator '?:'",3,0);
             if (mem(arg1,1)==1 && mem(arg2,1)==1 && mem(arg3,1)==1) _cimg_mp_constant(mem[arg1]?mem[arg2]:mem[arg3]);
-            if (mempos>=mem._width) mem.resize(-200,-100,1,1,0);
-            pos = mempos++;
+            arg4 = mem(arg2,1)>0?(unsigned int)mem(arg2,1) - 1:0; // Vector size (or 0 for scalar).
+            if (arg4) pos = vector(arg4);
+            else {
+              if (mempos>=mem._width) mem.resize(-200,-100,1,1,0);
+              pos = mempos++;
+            }
             CImg<uptrT>::vector((uptrT)mp_if,pos,arg1,arg2,arg3,
-                                p3 - p2,code._width - p3).move_to(code,p2);
+                                p3 - p2,code._width - p3,arg4).move_to(code,p2);
             _cimg_mp_return(pos);
           }
 
@@ -15529,7 +15533,9 @@ namespace cimg_library_suffixed {
               arg1 = compile(ss3,s1);
               p2 = code._width; arg2 = compile(s1 + 1,s2);
               p3 = code._width; arg3 = s2>=se1?0:compile(s2 + 1,se1);
-              if (mem(arg1,1)>0 && mem(arg2,1)>0 && mem(arg3,1)>0) _cimg_mp_constant(mem[arg1]?mem[arg2]:mem[arg3]);
+              _cimg_mp_check_type(arg1,"function 'if()'",1,0);
+              _cimg_mp_check_types(arg2,arg3,"function 'if()'",3,0);
+              if (mem(arg1,1)==1 && mem(arg2,1)==1 && mem(arg3,1)==1) _cimg_mp_constant(mem[arg1]?mem[arg2]:mem[arg3]);
               arg4 = mem(arg2,1)>0?(unsigned int)mem(arg2,1) - 1:0; // Vector size (or 0 for scalar).
               if (arg4) pos = vector(arg4);
               else {

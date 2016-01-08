@@ -2245,6 +2245,7 @@ namespace cimg_library_suffixed {
     // Evaluate math expression.
     inline double eval(const char *const expression,
                        const double x=0, const double y=0, const double z=0, const double c=0);
+
   }
 
   /*---------------------------------------
@@ -14101,7 +14102,7 @@ namespace cimg_library_suffixed {
       CImg<uintT> level, labelMpos, reserved_label;
       CImgList<charT> labelM;
 
-      unsigned int mempos, mem_img_median, debug_indent, init_size;
+      unsigned int mempos, mem_img_median, debug_indent, init_size, typeof_result;
       double *result;
       const char *const calling_function;
       typedef double (*mp_func)(_cimg_math_parser&);
@@ -14130,7 +14131,7 @@ namespace cimg_library_suffixed {
         code(_code),imgin(img_input),listin(list_input?*list_input:CImgList<T>::const_empty()),
         imgout(img_output?*img_output:CImg<T>::empty()),listout(list_output?*list_output:CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),
-        mem_img_median(~0U),debug_indent(0),init_size(0),
+        mem_img_median(~0U),debug_indent(0),init_size(0),typeof_result(0),
         calling_function(funcname?funcname:"cimg_math_parser") {
         if (!expression || !*expression)
           throw CImgArgumentException("[_cimg_math_parser] "
@@ -14221,6 +14222,7 @@ namespace cimg_library_suffixed {
         p_code_end = code.end();
 
         // Free resources used for parsing and prepare for evaluation.
+        if (mem(ind_result,1)>1) typeof_result = (unsigned int)mem(ind_result,1) - 1;
         mem.resize(mempos,1,1,1,-1);
         result = mem._data + ind_result;
         level.assign();
@@ -14292,8 +14294,9 @@ namespace cimg_library_suffixed {
       unsigned int compile(char *ss, char *se, unsigned int *p_ref=0) {
         const char *const ss0 = ss;
         if (ss<se) {
-          while (*ss==' ') ++ss;
-          while (se>ss && *(se - 1)==' ') --se;
+          char c;
+          while (*ss==' ' || *ss==';') ++ss;
+          while (se>ss && ((c=*(se - 1))==' ' || c==';')) --se;
         }
         if (se>ss && *(se - 1)==';') --se;
         if (se<=ss || !*ss) {
@@ -14802,7 +14805,7 @@ namespace cimg_library_suffixed {
           if (*s=='|' && *ns=='|' && level[s - expr._data]==clevel) { // Logical or
             arg1 = compile(ss,s);
             p2 = code._width; arg2 = compile(s + 2,se);
-            _cimg_mp_check_types(arg2,arg3,"operator '||'",1,0);
+            _cimg_mp_check_types(arg1,arg2,"operator '||'",1,0);
             if (mem(arg1,1)==1 && mem(arg2,1)==1) _cimg_mp_constant(mem[arg1] || mem[arg2]);
             if (mempos>=mem._width) mem.resize(-200,-100,1,1,0);
             pos = mempos++;
@@ -14815,7 +14818,7 @@ namespace cimg_library_suffixed {
           if (*s=='&' && *ns=='&' && level[s - expr._data]==clevel) { // Logical and
             arg1 = compile(ss,s);
             p2 = code._width; arg2 = compile(s + 2,se);
-            _cimg_mp_check_types(arg2,arg3,"operator '&&'",1,0);
+            _cimg_mp_check_types(arg1,arg2,"operator '&&'",1,0);
             if (mem(arg1,1)>0 && mem(arg2,1)>0) _cimg_mp_constant(mem[arg1] && mem[arg2]);
             if (mempos>=mem._width) mem.resize(-200,-100,1,1,0);
             pos = mempos++;
@@ -15439,7 +15442,7 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"dim(",4)) { // Dimension of a value.
               arg1 = compile(ss4,se1);
-              _cimg_mp_constant(mem(arg1,1)<2?1:mem(arg1,1) - 1);
+              _cimg_mp_constant(mem(arg1,1)<2?0:mem(arg1,1) - 1);
             }
 
             if (!std::strncmp(ss,"dot(",4)) { // Dot product
@@ -16109,6 +16112,22 @@ namespace cimg_library_suffixed {
           const uptrT target = opcode[1];
           mem[target] = _cimg_mp_defunc(*this);
         }
+        return *result;
+      }
+
+      // Evaluation procedure (return output vector values if any).
+      template<typename t>
+      double operator()(const double x, const double y, const double z, const double c,
+                        CImg<t> &vector_output) {
+        mem[_cimg_mp_x] = x; mem[_cimg_mp_y] = y; mem[_cimg_mp_z] = z; mem[_cimg_mp_c] = c;
+        for (p_code = p_code_begin; p_code<p_code_end; ++p_code) {
+          const CImg<uptrT> &op = *p_code;
+          opcode._data = op._data; opcode._height = op._height;
+          const uptrT target = opcode[1];
+          mem[target] = _cimg_mp_defunc(*this);
+        }
+        if (typeof_result) vector_output.assign(result + 1,1,typeof_result);
+        else vector_output.assign();
         return *result;
       }
 
@@ -18865,6 +18884,25 @@ namespace cimg_library_suffixed {
       return _eval(this,expression,x,y,z,c,list_inputs,list_outputs);
     }
 
+    //! Evaluate math formula.
+    /**
+       \param expression Math formula, as a C-string.
+       \param[out] vector_output Contains values of output vector returned by the evaluated formula
+         (or is empty if the returned type is scalar).
+       \param x Value of the pre-defined variable \c x.
+       \param y Value of the pre-defined variable \c y.
+       \param z Value of the pre-defined variable \c z.
+       \param c Value of the pre-defined variable \c c.
+       \param list_inputs A list of input images attached to the specified math formula.
+       \param list_outputs A pointer to a list of output images attached to the specified math formula.
+    **/
+    template<typename t>
+    double eval(const char *const expression, CImg<t> &vector_output,
+                const double x=0, const double y=0, const double z=0, const double c=0,
+                const CImgList<T> *const list_inputs=0, CImgList<T> *const list_outputs=0) {
+      return _eval(this,expression,vector_output,x,y,z,c,list_inputs,list_outputs);
+    }
+
     //! Evaluate math formula \const.
     double eval(const char *const expression,
                 const double x=0, const double y=0, const double z=0, const double c=0,
@@ -18872,7 +18910,15 @@ namespace cimg_library_suffixed {
       return _eval(0,expression,x,y,z,c,list_inputs,list_outputs);
     }
 
-    double _eval(CImg<T> *const output, const char *const expression,
+    //! Evaluate math formula \const.
+    template<typename t>
+    double eval(const char *const expression, CImg<t> &vector_output,
+                const double x=0, const double y=0, const double z=0, const double c=0,
+                const CImgList<T> *const list_inputs=0, CImgList<T> *const list_outputs=0) const {
+      return _eval(0,expression,vector_output,x,y,z,c,list_inputs,list_outputs);
+    }
+
+    double _eval(CImg<T> *const img_output, const char *const expression,
                  const double x, const double y, const double z, const double c,
                  const CImgList<T> *const list_inputs, CImgList<T> *const list_outputs) const {
       if (!expression) return 0;
@@ -18883,8 +18929,26 @@ namespace cimg_library_suffixed {
         case 's' : return (double)_spectrum;
         case 'r' : return (double)_is_shared;
         }
-      return _cimg_math_parser(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
-                               "eval",*this,output,list_inputs,list_outputs)(x,y,z,c);
+      _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),"eval",
+                           *this,img_output,list_inputs,list_outputs);
+      return mp(x,y,z,c);
+    }
+
+    template<typename t>
+    double _eval(CImg<T> *const img_output, const char *const expression, CImg<t>& vector_output,
+                 const double x, const double y, const double z, const double c,
+                 const CImgList<T> *const list_inputs, CImgList<T> *const list_outputs) const {
+      if (!expression) { vector_output.assign(); return 0; }
+      if (!expression[1]) switch (*expression) { // Single-char optimization.
+        case 'w' : vector_output.assign(); return (double)_width;
+        case 'h' : vector_output.assign(); return (double)_height;
+        case 'd' : vector_output.assign(); return (double)_depth;
+        case 's' : vector_output.assign(); return (double)_spectrum;
+        case 'r' : vector_output.assign(); return (double)_is_shared;
+        }
+      _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),"eval",
+                           *this,img_output,list_inputs,list_outputs);
+      return mp(x,y,z,c,vector_output);
     }
 
     //! Evaluate math formula on a set of variables.

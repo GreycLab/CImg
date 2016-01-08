@@ -15202,46 +15202,36 @@ namespace cimg_library_suffixed {
 
           s0 = strchr(ss,'[');
           if (s0>ss) { // Vector value
-            arg1 = ~0U;
+            arg1 = compile(ss,s0);
             arg2 = compile(++s0,se1);
-            variable_name.assign(ss,(unsigned int)(s0 - ss)).back() = 0;
-            if (variable_name[1]) { // Multi-char variable
-              cimglist_for(labelM,i) if (!std::strcmp(variable_name,labelM[i])) {
-                arg1 = labelMpos[i]; break;
-              }
-            } else arg1 = reserved_label[*variable_name]; // Single-char variable
-
             if (p_ref) { *p_ref = 1; p_ref[1] = arg1; p_ref[2] = arg2; }
-
-            if (arg1!=~0U) {
-              if (mem(arg1,1)<2) {
-                *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
-                throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s(): Array brackets used on non-vector variable '%s', "
-                                            "in expression '%s%s%s'.",
-                                            pixel_type(),calling_function,
-                                            variable_name._data,
-                                            (ss - 8)>expr._data?"...":"",
-                                            (ss - 8)>expr._data?ss - 8:expr._data,
-                                            se<&expr.back()?"...":"");
-              }
-              if (mem(arg2,1)>0) { // Constant index
-                nb = (int)mem[arg2];
-                if (nb>=0 && nb<(int)mem(arg1,1) - 1) _cimg_mp_return(arg1 + 1 + nb);
-                *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
-                throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s(): Out-of-bounds reference '%s[%d]' "
-                                            "('%s' has dimension %u), "
-                                            "in expression '%s%s%s'.",
-                                            pixel_type(),calling_function,
-                                            variable_name._data,nb,
-                                            variable_name._data,(unsigned int)mem(arg1,1) - 1,
-                                            (ss - 8)>expr._data?"...":"",
-                                            (ss - 8)>expr._data?ss - 8:expr._data,
-                                            se<&expr.back()?"...":"");
-              }
-              _cimg_mp_scalar3(mp_vector_off,arg1,(uptrT)mem(arg1,1) - 1,arg2);
+            if (mem(arg1,1)<2) {
+              *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
+              throw CImgArgumentException("[_cimg_math_parser] "
+                                          "CImg<%s>::%s(): Array brackets used on non-vector variable '%s', "
+                                          "in expression '%s%s%s'.",
+                                          pixel_type(),calling_function,
+                                          variable_name._data,
+                                          (ss - 8)>expr._data?"...":"",
+                                          (ss - 8)>expr._data?ss - 8:expr._data,
+                                          se<&expr.back()?"...":"");
             }
+            if (mem(arg2,1)>0) { // Constant index
+              nb = (int)mem[arg2];
+              if (nb>=0 && nb<(int)mem(arg1,1) - 1) _cimg_mp_return(arg1 + 1 + nb);
+              *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
+              throw CImgArgumentException("[_cimg_math_parser] "
+                                          "CImg<%s>::%s(): Out-of-bounds reference '%s[%d]' "
+                                          "('%s' has dimension %u), "
+                                          "in expression '%s%s%s'.",
+                                          pixel_type(),calling_function,
+                                          variable_name._data,nb,
+                                          variable_name._data,(unsigned int)mem(arg1,1) - 1,
+                                          (ss - 8)>expr._data?"...":"",
+                                          (ss - 8)>expr._data?ss - 8:expr._data,
+                                          se<&expr.back()?"...":"");
+            }
+            _cimg_mp_scalar3(mp_vector_off,arg1,(uptrT)mem(arg1,1) - 1,arg2);
           }
         }
 

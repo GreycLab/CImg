@@ -14706,7 +14706,39 @@ namespace cimg_library_suffixed {
             _cimg_mp_return(arg1);
           }
 
-        // Apply unary/binary/ternary operators. The operator precedences should be the same as in C++.
+        // Apply unary/binary/ternary operators. The operator precedences should be roughly the same as in C++.
+        for (s = se2, ps = se3, ns = ps - 1; s>ss1; --s, --ps, --ns) // Here, ns = ps - 1
+          if (*s=='=' && (*ps=='*' || *ps=='/' || *ps=='^') && *ns==*ps &&
+              level[s - expr._data]==clevel) { // Self-operators for complex numbers (**=,//=,^^=)
+            arg1 = compile(ss,ns);
+            arg2 = compile(s + 1,se);
+            _cimg_mp_check_types(arg1,arg2,*ps=='*'?"operator '**='":*ps=='/'?"operator '//='":"operator '^^='",7,2);
+            if (mem(arg1,1)>1) { // Complex
+              if (mem(arg2,1)>1) { // From complex
+                if (*ps=='*')
+                  CImg<uptrT>::vector((uptrT)mp_complex_mul,arg1,arg1,arg2).move_to(code);
+                else if (*ps=='/')
+                  CImg<uptrT>::vector((uptrT)mp_complex_div_vv,arg1,arg1,arg2).move_to(code);
+                else
+                  CImg<uptrT>::vector((uptrT)mp_complex_pow_vv,arg1,arg1,arg2).move_to(code);
+              } else { // From scalar
+                if (*ps=='*')
+                  CImg<uptrT>::vector((uptrT)mp_vector_map_self_s,arg1,2,(uptrT)mp_self_mul,arg2).move_to(code);
+                else if (*ps=='/')
+                  CImg<uptrT>::vector((uptrT)mp_vector_map_self_s,arg1,2,(uptrT)mp_self_div,arg2).move_to(code);
+                else
+                  CImg<uptrT>::vector((uptrT)mp_complex_pow_vs,arg1,arg1,arg2).move_to(code);
+              }
+            } else // Scalar from scalar
+              if (*ps=='*')
+                CImg<uptrT>::vector((uptrT)mp_self_mul,arg1,arg2).move_to(code);
+              else if (*ps=='/')
+                CImg<uptrT>::vector((uptrT)mp_self_div,arg1,arg2).move_to(code);
+              else
+                CImg<uptrT>::vector((uptrT)mp_self_pow,arg1,arg2).move_to(code);
+            _cimg_mp_return(arg1);
+          }
+
         for (s = se2, ps = se3, ns = ps - 1; s>ss1; --s, --ps, --ns) // Here, ns = ps - 1
           if (*s=='=' && (*ps=='+' || *ps=='-' || *ps=='*' || *ps=='/' || *ps=='%' ||
                           *ps=='&' || *ps=='^' || *ps=='|' ||
@@ -14724,7 +14756,7 @@ namespace cimg_library_suffixed {
             case '>' : op = mp_self_bitwise_right_shift; s_op = "operator '>=='"; break;
             case '&' : op = mp_self_bitwise_and; s_op = "operator '&='"; break;
             case '|' : op = mp_self_bitwise_or; s_op = "operator '|='"; break;
-            default : op = mp_self_power; s_op = "operator '^='"; break;
+            default : op = mp_self_pow; s_op = "operator '^='"; break;
             }
             s1 = *ps=='>' || *ps=='<'?ns:ps;
 
@@ -17284,7 +17316,7 @@ namespace cimg_library_suffixed {
         return val = cimg::mod(val,_mp_arg(2));
       }
 
-      static double mp_self_power(_cimg_math_parser& mp) {
+      static double mp_self_pow(_cimg_math_parser& mp) {
         double &val = _mp_arg(1);
         return val = std::pow(val,_mp_arg(2));
       }

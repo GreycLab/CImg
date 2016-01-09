@@ -15446,6 +15446,17 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar1(mp_cosh,arg1);
             }
 
+            if (!std::strncmp(ss,"cross(",6)) { // Cross product
+              s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss6,s1);
+              arg2 = compile(s1 + 1,se1);
+              _cimg_mp_check_types(arg1,arg2,"function 'cross()'",2,3);
+              pos = vector(3);
+              CImg<uptrT>::vector((uptrT)mp_cross,pos,arg1,arg2).move_to(code);
+              _cimg_mp_return(pos);
+            }
+            break;
+
             if (!std::strncmp(ss,"cut(",4)) { // Cut
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss4,s1==se2?++s1:s1);
@@ -16534,6 +16545,15 @@ namespace cimg_library_suffixed {
         return std::cosh(_mp_arg(2));
       }
 
+      static double mp_cross(_cimg_math_parser& mp) {
+        CImg<doubleT>
+          vout(&_mp_arg(1) + 1,1,3,1,1,true),
+          v1(&_mp_arg(2) + 1,1,3,1,1,true),
+          v2(&_mp_arg(3) + 1,1,3,1,1,true);
+        (vout = v1).cross(v2);
+        return cimg::type<double>::nan();
+      }
+
       static double mp_cut(_cimg_math_parser& mp) {
         double val = _mp_arg(2), cmin = _mp_arg(3), cmax = _mp_arg(4);
         return val<cmin?cmin:val>cmax?cmax:val;
@@ -16595,8 +16615,8 @@ namespace cimg_library_suffixed {
 
       static double mp_dot(_cimg_math_parser& mp) {
         const unsigned int siz = (unsigned int)mp.opcode[4];
-        return CImg<doubleT>(&_mp_arg(2) + 1,siz,1,1,1,true).
-          dot(CImg<doubleT>(&_mp_arg(3) + 1,siz,1,1,1,true));
+        return CImg<doubleT>(&_mp_arg(2) + 1,1,siz,1,1,true).
+          dot(CImg<doubleT>(&_mp_arg(3) + 1,1,siz,1,1,true));
       }
 
       static double mp_dowhile(_cimg_math_parser& mp) {

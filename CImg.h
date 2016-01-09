@@ -15155,7 +15155,7 @@ namespace cimg_library_suffixed {
             arg1 = compile(ss,s);
             arg2 = compile(s + 2,se);
             _cimg_mp_check_types(arg1,arg2,"operator '^^'",15,2);
-            if (mem(arg1,1)>1 || mem(arg2,1)>1) pos = vector(2);
+            pos = (mem(arg1,1)>1 || mem(arg2,1)>1)?vector(2):0;
             if (mem(arg1,1)>1 && mem(arg2,1)>1) {
               CImg<uptrT>::vector((uptrT)mp_complex_pow_vv,pos,arg1,arg2).move_to(code);
               _cimg_mp_return(pos);

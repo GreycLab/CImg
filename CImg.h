@@ -14531,10 +14531,22 @@ namespace cimg_library_suffixed {
                 arg3 = is_relative?0U:(unsigned int)_cimg_mp_z;
                 arg4 = is_relative?0U:(unsigned int)_cimg_mp_c;
                 arg5 = compile(s + 1,se); // Value to assign
-                if (s0<ve1) { // X-coordinate
+                if (s0<ve1) { // X-coordinate or [ X,_Y,_Z,_C ]
                   s1 = s0; while (s1<ve1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                   arg1 = compile(s0,s1);
-                  if (s1<ve1) { // Y-coordinate
+                  if (mem(arg1,1)>1) { // Coordinates specified as a vector
+                    p2 = (unsigned int)mem(arg1,1) - 1; // Vector size
+                    arg1 = arg1 + 1;
+                    if (p2>1) {
+                      arg2 = arg1 + 1;
+                      if (p2>2) {
+                        arg3 = arg2 + 1;
+                        if (p2>3) {
+                          arg4 = arg3 + 1;
+                        }
+                      }
+                    }
+                  } else if (s1<ve1) { // Y-coordinate
                     s2 = ++s1; while (s2<ve1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
                     arg2 = compile(s1,s2);
                     if (s2<ve1) { // Z-coordinate
@@ -15332,7 +15344,7 @@ namespace cimg_library_suffixed {
         if (*se1==')') {
           if (*ss=='(') _cimg_mp_return(compile(ss1,se1,p_ref)); // Simple parentheses
 
-          // i(...) or j(...).
+          // i/j(_#ind,_x,_y,_z,_c,_interpolation,_boundary).
           is_relative = *ss=='j';
           if ((*ss=='i' || is_relative) && *ss1=='(') {
             if (*ss2=='#') {
@@ -15347,7 +15359,24 @@ namespace cimg_library_suffixed {
             if (s0<se1) {
               s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(s0,s1);
-              if (s1<se1) {
+              if (mem(arg1,1)>1) { // Coordinates specified as a vector
+                p2 = (unsigned int)mem(arg1,1) - 1;
+                arg1 = arg1 + 1;
+                if (p2>1) {
+                  arg2 = arg1 + 1;
+                  if (p2>2) {
+                    arg3 = arg2 + 1;
+                    if (p2>3) {
+                      arg4 = arg3 + 1;
+                    }
+                  }
+                }
+                if (s1<se1) {
+                  s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                  arg5 = compile(s1,s2);
+                  if (s2<se1) arg6 = compile(++s2,se1);
+                }
+              } else if (s1<se1) {
                 s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
                 arg2 = compile(s1,s2);
                 if (s2<se1) {

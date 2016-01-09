@@ -4666,6 +4666,14 @@ namespace cimg_library_suffixed {
       else { const double tmp = absa/absb; return absb==0?0:absb*std::sqrt(1.0 + tmp*tmp); }
     }
 
+    //! Return sqrt(x^2 + y^2).
+    inline double hypot(const double x, const double y) {
+      double nx = cimg::abs(x), ny = cimg::abs(y), t;
+      if (nx<ny) { t = nx; nx = ny; } else t = ny;
+      if (nx>0) { t/=nx; return nx*std::sqrt(1+t*t); }
+      return 0;
+    }
+
     //! Convert ascii character to lower case.
     inline char uncase(const char x) {
       return (char)((x<'A'||x>'Z')?x:x - 'A' + 'a');
@@ -15012,7 +15020,7 @@ namespace cimg_library_suffixed {
             arg2 = compile(s + 2,se);
             _cimg_mp_check_types(arg1,arg2,"operator '**'",15,2);
             if (mem(arg1,1)>1 && mem(arg2,1)>1) {
-              pos = vector((unsigned int)mem(arg1,1) - 1);
+              pos = vector(2);
               CImg<uptrT>::vector((uptrT)mp_complex_mul,pos,arg1,arg2).move_to(code);
               _cimg_mp_return(pos);
             }
@@ -15041,13 +15049,13 @@ namespace cimg_library_suffixed {
             arg2 = compile(s + 2,se);
             _cimg_mp_check_types(arg1,arg2,"operator '//'",15,2);
             if (mem(arg1,1)>1 && mem(arg2,1)>1) {
-              pos = vector((unsigned int)mem(arg1,1) - 1);
+              pos = vector(2);
               CImg<uptrT>::vector((uptrT)mp_complex_div_vv,pos,arg1,arg2).move_to(code);
               _cimg_mp_return(pos);
             }
             if (mem(arg1,1)>1 && mem(arg2,1)<=1) _cimg_mp_vector2_vs(mp_div,arg1,arg2);
             if (mem(arg1,1)<=1 && mem(arg2,1)>1) {
-              pos = vector((unsigned int)mem(arg2,1) - 1);
+              pos = vector(2);
               CImg<uptrT>::vector((uptrT)mp_complex_div_sv,pos,arg1,arg2).move_to(code);
               _cimg_mp_return(pos);
             }
@@ -15107,19 +15115,24 @@ namespace cimg_library_suffixed {
           }
         }
 
-        /*
         for (s = se3, ns = se2; s>ss; --s, --ns)
           if (*s=='^' && *ns=='^' && level[s - expr._data]==clevel) { // Complex power
             arg1 = compile(ss,s);
             arg2 = compile(s + 2,se);
             _cimg_mp_check_types(arg1,arg2,"operator '^^'",15,2);
+            if (mem(arg1,1)>1 || mem(arg2,1)>1) pos = vector(2);
             if (mem(arg1,1)>1 && mem(arg2,1)>1) {
-              pos = vector((unsigned int)mem(arg1,1) - 1);
               CImg<uptrT>::vector((uptrT)mp_complex_pow_vv,pos,arg1,arg2).move_to(code);
               _cimg_mp_return(pos);
             }
-            if (mem(arg1,1)>1 && mem(arg2,1)<=1) _cimg_mp_vector2_vs(mp_complex_pow_vs_,arg1,arg2);
-            if (mem(arg1,1)<=1 && mem(arg2,1)>1) _cimg_mp_vector2_sv(mp_complex_pos_sv,arg1,arg2);
+            if (mem(arg1,1)>1 && mem(arg2,1)<=1) {
+              CImg<uptrT>::vector((uptrT)mp_complex_pow_vs,pos,arg1,arg2).move_to(code);
+              _cimg_mp_return(pos);
+            }
+            if (mem(arg1,1)<=1 && mem(arg2,1)>1) {
+              CImg<uptrT>::vector((uptrT)mp_complex_pow_sv,pos,arg1,arg2).move_to(code);
+              _cimg_mp_return(pos);
+            }
             if (mem(arg1,1)>0 && mem(arg2,1)>0) _cimg_mp_constant(std::pow(mem[arg1],mem[arg2]));
             switch (arg2) {
             case 0 : _cimg_mp_return(1);
@@ -15130,7 +15143,6 @@ namespace cimg_library_suffixed {
             default : _cimg_mp_scalar2(mp_pow,arg1,arg2);
             }
           }
-        */
 
         for (s = se2; s>ss; --s)
           if (*s=='^' && level[s - expr._data]==clevel) { // Power
@@ -16481,6 +16493,39 @@ namespace cimg_library_suffixed {
         return cimg::type<double>::nan();
       }
 
+      static void _mp_complex_pow(const double r1, const double i1,
+                                  const double r2, const double i2,
+                                  double *ptrd) {
+        const double
+          mod1_2 = r1*r1 + i1*i1,
+          phi1 = std::atan2(i1,r1),
+          modo = std::pow(mod1_2,0.5*r2)*std::exp(-i2*phi1),
+          phio = r2*phi1 + 0.5*i2*std::log(mod1_2);
+        *(ptrd++) = modo*std::cos(phio);
+        *ptrd = modo*std::sin(phio);
+      }
+
+      static double mp_complex_pow_sv(_cimg_math_parser& mp) {
+        const double val1 = _mp_arg(2), *ptr2 = &_mp_arg(3) + 1;
+        double *ptrd = &_mp_arg(1) + 1;
+        _mp_complex_pow(val1,0,ptr2[0],ptr2[1],ptrd);
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_complex_pow_vs(_cimg_math_parser& mp) {
+        const double *ptr1 = &_mp_arg(2) + 1, val2 = _mp_arg(3);
+        double *ptrd = &_mp_arg(1) + 1;
+        _mp_complex_pow(ptr1[0],ptr1[1],val2,0,ptrd);
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_complex_pow_vv(_cimg_math_parser& mp) {
+        const double *ptr1 = &_mp_arg(2) + 1, *ptr2 = &_mp_arg(3) + 1;
+        double *ptrd = &_mp_arg(1) + 1;
+        _mp_complex_pow(ptr1[0],ptr1[1],ptr2[0],ptr2[1],ptrd);
+        return cimg::type<double>::nan();
+      }
+
       static double mp_cos(_cimg_math_parser& mp) {
         return std::cos(_mp_arg(2));
       }
@@ -16604,10 +16649,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_hypot(_cimg_math_parser& mp) {
-        double x = cimg::abs(_mp_arg(2)), y = cimg::abs(_mp_arg(3)), t;
-        if (x<y) { t = x; x = y; } else t = y;
-        if (x>0) { t/=x; return x*std::sqrt(1+t*t); }
-        return 0;
+        return cimg::hypot(_mp_arg(2),_mp_arg(3));
       }
 
       static double mp_i(_cimg_math_parser& mp) {

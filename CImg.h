@@ -14455,7 +14455,7 @@ namespace cimg_library_suffixed {
             if (l_variable_name>3 && *ve1==']') {
               s0 = ve1; while (s0>ss && *s0!='[') --s0;
               if (s0>ss) {
-                variable_name[s0 - ss] = 0; // Shorten variable name
+                variable_name[s0 - ss] = 0; // Remove brackets in variable name
                 arg1 = ~0U; // Vector slot
                 arg2 = compile(++s0,ve1); // Index
                 arg3 = compile(s + 1,se); // Value to assign
@@ -14466,7 +14466,7 @@ namespace cimg_library_suffixed {
                   }
                 } else arg1 = reserved_label[*variable_name]; // Single-char variable
                 if (arg1!=~0U) { // Variable already exists
-                  if (mem(arg1,1)<2) {
+                  if (mem(arg1,1)<2) { // ...and is not a vector -> Error!
                     *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
                     throw CImgArgumentException("[_cimg_math_parser] "
                                                 "CImg<%s>::%s(): Array brackets used on non-vector variable '%s', "
@@ -14477,7 +14477,7 @@ namespace cimg_library_suffixed {
                                                 (ss - 8)>expr._data?ss - 8:expr._data,
                                                 se<&expr.back()?"...":"");
                   }
-                  if (mem(arg2,1)>0) { // Constant index
+                  if (mem(arg2,1)>0) { // Case of constant index
                     nb = (int)mem[arg2];
                     if (nb>=0 && nb<(int)mem(arg1,1) - 1) {
                       arg1+=nb + 1;
@@ -14495,8 +14495,7 @@ namespace cimg_library_suffixed {
                                                 (ss - 8)>expr._data?"...":"",
                                                 (ss - 8)>expr._data?ss - 8:expr._data,
                                                 se<&expr.back()?"...":"");
-                  }
-                  if (p_ref) { *p_ref = 1; p_ref[1] = arg1; p_ref[2] = arg2; }
+                  } else if (p_ref) { *p_ref = 1; p_ref[1] = arg1; p_ref[2] = arg2; }
                   CImg<uptrT>::vector((uptrT)mp_vector_set_off,arg3,arg1,(uptrT)mem(arg1,1) - 1,arg2,arg3).
                     move_to(code);
                   _cimg_mp_return(arg3);
@@ -14622,7 +14621,7 @@ namespace cimg_library_suffixed {
               }
             }
 
-            is_sth = true; // is_valid_variable_name
+            is_sth = true; // is_valid_variable_name?
             if (*variable_name>='0' && *variable_name<='9') is_sth = false;
             else for (ns = variable_name._data; *ns; ++ns)
                    if ((*ns<'a' || *ns>'z') && (*ns<'A' || *ns>'Z') && (*ns<'0' || *ns>'9') && *ns!='_') {
@@ -14711,7 +14710,7 @@ namespace cimg_library_suffixed {
 
                 } else if (mem(arg1,1)<0) { // Scalar variable
                   _cimg_mp_check_types(arg1,arg2,"assignment operator '='",1,0);
-                  CImg<uptrT>::vector((uptrT)mp_copy,arg1,arg2,mem(arg1,1) - 1).move_to(code);
+                  CImg<uptrT>::vector((uptrT)mp_copy,arg1,arg2).move_to(code);
                   _cimg_mp_return(arg1);
                 }
               }

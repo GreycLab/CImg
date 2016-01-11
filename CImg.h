@@ -14646,9 +14646,9 @@ namespace cimg_library_suffixed {
                     _cimg_mp_check_type(arg2,"assignment operator '='",1,0);
                     arg3 = ref[1]; // Vector slot
                     arg4 = ref[2]; // Index
-                    CImg<uptrT>::vector((uptrT)mp_vector_set_off,arg1,arg3,(uptrT)mem(arg3,1) - 1,arg4,arg2).
+                    CImg<uptrT>::vector((uptrT)mp_vector_set_off,arg2,arg3,(uptrT)mem(arg3,1) - 1,arg4,arg2).
                       move_to(code);
-                    _cimg_mp_return(arg1);
+                    _cimg_mp_return(arg2);
 
                   } else if (*ref>1) {
                     // Image value.
@@ -14912,7 +14912,8 @@ namespace cimg_library_suffixed {
                   arg3 = ref[1]; // Vector slot
                   arg4 = ref[2]; // Index
                   if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
-                  CImg<uptrT>::vector((uptrT)mp_vector_set_off,arg1,arg3,(uptrT)mem(arg3,1) - 1,arg4,arg1).move_to(code);
+                  CImg<uptrT>::vector((uptrT)mp_vector_set_off,arg1,arg3,(uptrT)mem(arg3,1) - 1,arg4,arg1).
+                    move_to(code);
                   _cimg_mp_return(arg1);
 
                 } else if (*ref>1) {
@@ -18276,7 +18277,7 @@ namespace cimg_library_suffixed {
           siz = mp.opcode[3];
         const int off = (int)_mp_arg(4);
         if (off>=0 && off<(int)siz) mp.mem[ptr + off] = _mp_arg(5);
-        return cimg::type<double>::nan();
+        return _mp_arg(5);
       }
 
       static double mp_vector_print(_cimg_math_parser& mp) {

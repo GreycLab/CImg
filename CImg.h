@@ -14582,8 +14582,6 @@ namespace cimg_library_suffixed {
                   }
                 }
 
-                std::fprintf(stderr,"\nDEBUG : %d\n",(int)mem(arg5,1));
-
                 if (mem(arg5,1)>1) {
                   p2 = ~0U; // To be the vector size
                   if (p1==~0U) p2 = imgin._spectrum;

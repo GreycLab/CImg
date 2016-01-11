@@ -15529,8 +15529,7 @@ namespace cimg_library_suffixed {
                                           (ss - 8)>expr._data?"...":"",
                                           (ss - 8)>expr._data?ss - 8:expr._data,
                                           se<&expr.back()?"...":"");
-            }
-            if (p_ref) { *p_ref = 1; p_ref[1] = arg1; p_ref[2] = arg2; }
+            } else if (p_ref) { *p_ref = 1; p_ref[1] = arg1; p_ref[2] = arg2; }
             _cimg_mp_scalar3(mp_vector_off,arg1,(uptrT)mem(arg1,1) - 1,arg2);
           }
         }
@@ -17604,7 +17603,7 @@ namespace cimg_library_suffixed {
 
       static double mp_list_set_ioff(_cimg_math_parser& mp) {
         const double val = _mp_arg(4);
-        if (mp.listout) return val;
+        if (!mp.listout) return val;
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         CImg<T> &img = mp.listout[ind];
         const long
@@ -17615,7 +17614,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_list_set_ioff_vector(_cimg_math_parser& mp) {
-        if (mp.listout) return cimg::type<double>::nan();
+        if (!mp.listout) return cimg::type<double>::nan();
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         CImg<T> &img = mp.listout[ind];
         const long
@@ -17630,7 +17629,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_list_set_ixyz_vector(_cimg_math_parser& mp) {
-        if (mp.listout) return cimg::type<double>::nan();
+        if (!mp.listout) return cimg::type<double>::nan();
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         CImg<T> &img = mp.listout[ind];
         const int x = (int)_mp_arg(3), y = (int)_mp_arg(4), z = (int)_mp_arg(5);
@@ -17674,7 +17673,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_list_set_joff_vector(_cimg_math_parser& mp) {
-        if (mp.listout) return cimg::type<double>::nan();
+        if (!mp.listout) return cimg::type<double>::nan();
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         CImg<T> &img = mp.listout[ind];
         const int
@@ -17692,7 +17691,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_list_set_jxyz_vector(_cimg_math_parser& mp) {
-        if (mp.listout) return cimg::type<double>::nan();
+        if (!mp.listout) return cimg::type<double>::nan();
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         CImg<T> &img = mp.listout[ind];
         const double ox = mp.mem[_cimg_mp_x], oy = mp.mem[_cimg_mp_y], oz = mp.mem[_cimg_mp_z];

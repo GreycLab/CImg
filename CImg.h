@@ -17055,7 +17055,7 @@ namespace cimg_library_suffixed {
           default : // Dirichet boundary
             return 0;
           }
-        return (double)mp.imgin[off];
+        return (double)img[off];
       }
 
       static double mp_joff_vector(_cimg_math_parser& mp) {
@@ -17453,11 +17453,13 @@ namespace cimg_library_suffixed {
 
       static double mp_list_set_ioff(_cimg_math_parser& mp) {
         const double val = _mp_arg(4);
-        if (!mp.listout) return val;
+        if (mp.listout) return val;
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
-        const long off = (long)_mp_arg(3);
         CImg<T> &img = mp.listout[ind];
-        if (off>=0 && off<(long)img.size()) img._data[off] = (T)val;
+        const long
+          off = (long)_mp_arg(3),
+          whds = (long)img.size();
+        if (off>=0 && off<whds) img[off] = (T)val;
         return val;
       }
 
@@ -17465,10 +17467,10 @@ namespace cimg_library_suffixed {
         const double val = _mp_arg(7);
         if (!mp.listout) return val;
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        CImg<T> &img = mp.listout[ind];
         const int
           x = (int)_mp_arg(3), y = (int)_mp_arg(4),
           z = (int)_mp_arg(5), c = (int)_mp_arg(6);
-        CImg<T> &img = mp.listout[ind];
         if (x>=0 && x<img.width() && y>=0 && y<img.height() &&
             z>=0 && z<img.depth() && c>=0 && c<img.spectrum()) {
           img(x,y,z,c) = (T)val;
@@ -17476,34 +17478,18 @@ namespace cimg_library_suffixed {
         return val;
       }
 
-      static double mp_list_set_ixyzc_vector(_cimg_math_parser& mp) { // Set vector value
-        if (!mp.listout) return cimg::type<double>::nan();
-        const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
-        const int
-          x = (int)_mp_arg(3), y = (int)_mp_arg(4),
-          z = (int)_mp_arg(5), c = (int)_mp_arg(6);
-        const double *ptrs = &_mp_arg(7) + 1;
-        unsigned int siz = mp.opcode[8];
-        CImg<T> &img = mp.listout[ind];
-        if (x>=0 && x<img.width() && y>=0 && y<img.height() &&
-            z>=0 && z<img.depth()) {
-          T *ptrd = img.data(x,y,z,c), *const ptrdb = img._data, *const ptrde = img.end();
-          const unsigned long whd = img.width()*img.height()*img.depth();
-          while (--siz>0) { if (ptrd>=ptrdb && ptrd<ptrde) *ptrd = (T)*ptrs; ++ptrs; ptrd+=whd; }
-        }
-        return cimg::type<double>::nan();
-      }
-
       static double mp_list_set_joff(_cimg_math_parser& mp) {
         const double val = _mp_arg(4);
         if (!mp.listout) return val;
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        CImg<T> &img = mp.listout[ind];
         const int
           ox = (int)mp.mem[_cimg_mp_x], oy = (int)mp.mem[_cimg_mp_y],
           oz = (int)mp.mem[_cimg_mp_z], oc = (int)mp.mem[_cimg_mp_c];
-        CImg<T> &img = mp.listout[ind];
-        const long off = img.offset(ox,oy,oz,oc) + (long)_mp_arg(3);
-        if (off>=0 && off<(long)img.size()) img[off] = (T)val;
+        const long
+          off = img.offset(ox,oy,oz,oc) + (long)_mp_arg(3),
+          whds = (long)img.size();
+        if (off>=0 && off<whds) img[off] = (T)val;
         return val;
       }
 
@@ -17511,38 +17497,18 @@ namespace cimg_library_suffixed {
         const double val = _mp_arg(7);
         if (!mp.listout) return val;
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        CImg<T> &img = mp.listout[ind];
         const double
           ox = mp.mem[_cimg_mp_x], oy = mp.mem[_cimg_mp_y],
           oz = mp.mem[_cimg_mp_z], oc = mp.mem[_cimg_mp_c];
         const int
           x = (int)(ox + _mp_arg(3)), y = (int)(oy + _mp_arg(4)),
           z = (int)(oz + _mp_arg(5)), c = (int)(oc + _mp_arg(6));
-        CImg<T> &img = mp.listout[ind];
         if (x>=0 && x<img.width() && y>=0 && y<img.height() &&
             z>=0 && z<img.depth() && c>=0 && c<img.spectrum()) {
           img(x,y,z,c) = (T)val;
         }
         return val;
-      }
-
-      static double mp_list_set_jxyzc_vector(_cimg_math_parser& mp) { // Set vector value
-        if (!mp.listout) return cimg::type<double>::nan();
-        const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
-        const double
-          ox = mp.mem[_cimg_mp_x], oy = mp.mem[_cimg_mp_y],
-          oz = mp.mem[_cimg_mp_z], oc = mp.mem[_cimg_mp_c];
-        const int
-          x = (int)(ox + _mp_arg(3)), y = (int)(oy + _mp_arg(4)),
-          z = (int)(oz + _mp_arg(5)), c = (int)(oc + _mp_arg(6));
-        const double *ptrs = &_mp_arg(7) + 1;
-        unsigned int siz = mp.opcode[8];
-        CImg<T> &img = mp.listout[ind];
-        if (x>=0 && x<img.width() && y>=0 && y<img.height() && z>=0 && z<img.depth()) {
-          T *ptrd = img.data(x,y,z,c), *const ptrdb = img._data, *const ptrde = img.end();
-          const unsigned long whd = img.width()*img.height()*img.depth();
-          while (--siz>0) { if (ptrd>=ptrdb && ptrd<ptrde) *ptrd = (T)*ptrs; ++ptrs; ptrd+=whd; }
-        }
-        return cimg::type<double>::nan();
       }
 
       static double mp_list_spectrum(_cimg_math_parser& mp) {
@@ -17812,18 +17778,21 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_set_ioff(_cimg_math_parser& mp) {
-        const long off = (long)_mp_arg(2);
+        CImg<T> &img = mp.imgout;
+        const long
+          off = (long)_mp_arg(2),
+          whds = (long)img.size();
         const double val = _mp_arg(3);
-        if (off>=0 && off<(long)mp.imgout.size()) mp.imgout[off] = (T)val;
+        if (off>=0 && off<whds) img[off] = (T)val;
         return val;
       }
 
       static double mp_set_ixyzc(_cimg_math_parser& mp) { // Set scalar value
+        CImg<T> &img = mp.imgout;
         const int
           x = (int)_mp_arg(2), y = (int)_mp_arg(3),
           z = (int)_mp_arg(4), c = (int)_mp_arg(5);
         const double val = _mp_arg(6);
-        CImg<T> &img = mp.imgout;
         if (x>=0 && x<img.width() && y>=0 && y<img.height() &&
             z>=0 && z<img.depth() && c>=0 && c<img.spectrum()) {
           img(x,y,z,c) = (T)val;
@@ -17831,50 +17800,21 @@ namespace cimg_library_suffixed {
         return val;
       }
 
-      static double mp_set_ixyzc_vector(_cimg_math_parser& mp) { // Set vector value
-        const int
-          x = (int)_mp_arg(2), y = (int)_mp_arg(3),
-          z = (int)_mp_arg(4), c = (int)_mp_arg(5);
-        const double *ptrs = &_mp_arg(6) + 1;
-        unsigned int siz = mp.opcode[7];
-        CImg<T> &img = mp.imgout;
-        if (x>=0 && x<img.width() && y>=0 && y<img.height() && z>=0 && z<img.depth()) {
-          T *ptrd = mp.imgout.data(x,y,z,c), *const ptrdb = mp.imgout._data, *const ptrde = mp.imgout.end();
-          const unsigned long whd = img.width()*img.height()*img.depth();
-          while (siz-->0) { if (ptrd>=ptrdb && ptrd<ptrde) *ptrd = (T)*ptrs; ++ptrs; ptrd+=whd; }
-        }
-        return cimg::type<double>::nan();
-      }
-
       static double mp_set_joff(_cimg_math_parser& mp) {
+        CImg<T> &img = mp.imgout;
         const int
           ox = (int)mp.mem[_cimg_mp_x], oy = (int)mp.mem[_cimg_mp_y],
           oz = (int)mp.mem[_cimg_mp_z], oc = (int)mp.mem[_cimg_mp_c];
-        const long off = mp.imgout.offset(ox,oy,oz,oc) + (long)_mp_arg(2);
+        const long
+          off = img.offset(ox,oy,oz,oc) + (long)_mp_arg(2),
+          whds = (long)img.size();
         const double val = _mp_arg(3);
-        if (off>=0 && off<(long)mp.imgout.size()) mp.imgout[off] = (T)val;
+        if (off>=0 && off<whds) img[off] = (T)val;
         return val;
       }
 
-      static double mp_set_jxyzc_vector(_cimg_math_parser& mp) {
-        const double
-          ox = mp.mem[_cimg_mp_x], oy = mp.mem[_cimg_mp_y],
-          oz = mp.mem[_cimg_mp_z], oc = mp.mem[_cimg_mp_c];
-        const int
-          x = (int)(ox + _mp_arg(2)), y = (int)(oy + _mp_arg(3)),
-          z = (int)(oz + _mp_arg(4)), c = (int)(oc + _mp_arg(5));
-        const double *ptrs = &_mp_arg(6) + 1;
-        unsigned int siz = mp.opcode[7];
-        CImg<T> &img = mp.imgout;
-        if (x>=0 && x<img.width() && y>=0 && y<img.height() && z>=0 && z<img.depth()) {
-          T *ptrd = img.data(x,y,z,c), *const ptrdb = img._data, *const ptrde = img.end();
-          const unsigned long whd = img.width()*img.height()*img.depth();
-          while (siz-->0) { if (ptrd>=ptrdb && ptrd<ptrde) *ptrd = (T)*ptrs; ++ptrs; ptrd+=whd; }
-        }
-        return cimg::type<double>::nan();
-      }
-
       static double mp_set_jxyzc(_cimg_math_parser& mp) {
+        CImg<T> &img = mp.imgout;
         const double
           ox = mp.mem[_cimg_mp_x], oy = mp.mem[_cimg_mp_y],
           oz = mp.mem[_cimg_mp_z], oc = mp.mem[_cimg_mp_c];
@@ -17882,10 +17822,9 @@ namespace cimg_library_suffixed {
           x = (int)(ox + _mp_arg(2)), y = (int)(oy + _mp_arg(3)),
           z = (int)(oz + _mp_arg(4)), c = (int)(oc + _mp_arg(5));
         const double val = _mp_arg(6);
-        CImg<T> &img = mp.imgout;
         if (x>=0 && x<img.width() && y>=0 && y<img.height() &&
             z>=0 && z<img.depth() && c>=0 && c<img.spectrum()) {
-          mp.imgout(x,y,z,c) = (T)val;
+          img(x,y,z,c) = (T)val;
         }
         return val;
       }

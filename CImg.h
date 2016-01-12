@@ -16319,6 +16319,16 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar1(mp_sinh,arg1);
             }
 
+            if (!std::strncmp(ss,"sort(",5)) { // Sort vector
+              s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss5,s1);
+              if (s1<se1) arg2 = compile(++s1,se1); else arg2 = 1;
+              _cimg_mp_check_type(arg1,"function 'sort()'",2,0);
+              pos = vector_copy(arg1);
+              CImg<uptrT>::vector((uptrT)mp_vector_sort,pos,(unsigned int)mem(arg1,1) - 1,arg2).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"sqr(",4)) { // Square
               arg1 = compile(ss4,se1);
               if (mem(arg1,1)>1) _cimg_mp_vector1_v(mp_sqr,arg1);
@@ -18544,6 +18554,14 @@ namespace cimg_library_suffixed {
         const int off = (int)_mp_arg(4);
         if (off>=0 && off<(int)siz) mp.mem[ptr + off] = _mp_arg(5);
         return _mp_arg(5);
+      }
+
+      static double mp_vector_sort(_cimg_math_parser& mp) {
+        double *const ptr = &_mp_arg(1) + 1;
+        const unsigned int siz = mp.opcode[2];
+        const bool is_increasing = (bool)_mp_arg(3);
+        CImg<doubleT>(ptr,1,siz,1,1,true).sort(is_increasing);
+        return cimg::type<double>::nan();
       }
 
       static double mp_vector_print(_cimg_math_parser& mp) {

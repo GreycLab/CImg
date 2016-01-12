@@ -15653,14 +15653,11 @@ namespace cimg_library_suffixed {
             if (p_ref && arg2==~0U) {
               *p_ref = 2; p_ref[1] = p1; p_ref[2] = (unsigned int)is_relative; p_ref[3] = arg1;
             }
-            pos = scalar(); // Create it as a variable to prevent from optimization
-            mem(pos,1) = -1;
             if (p1!=~0U)
-              CImg<uptrT>::vector((uptrT)(is_relative?mp_list_joff:mp_list_ioff),pos,
-                                  p1,arg1,arg2==~0U?reserved_label[30]:arg2).move_to(code);
+              pos = scalar3(is_relative?mp_list_joff:mp_list_ioff,p1,arg1,arg2==~0U?reserved_label[30]:arg2);
             else
-              CImg<uptrT>::vector((uptrT)(is_relative?mp_joff:mp_ioff),pos,
-                                  arg1,arg2==~0U?reserved_label[30]:arg2).move_to(code);
+              pos = scalar2(is_relative?mp_joff:mp_ioff,arg1,arg2==~0U?reserved_label[30]:arg2);
+            mem(pos,1) = -1; // Create it as a variable to prevent from optimization
             _cimg_mp_return(pos);
           }
 
@@ -15818,18 +15815,18 @@ namespace cimg_library_suffixed {
               *p_ref = 3; p_ref[1] = p1; p_ref[2] = (unsigned int)is_relative;
               p_ref[3] = arg1; p_ref[4] = arg2; p_ref[5] = arg3; p_ref[6] = arg4;
             }
-            pos = scalar(); // Create it as a variable to prevent from optimization
-            mem(pos,1) = -1;
+
             if (p1!=~0U)
-              CImg<uptrT>::vector((uptrT)(is_relative?mp_list_jxyzc:mp_list_ixyzc),pos,
-                                  p1,arg1,arg2,arg3,arg4,
-                                  arg5==~0U?reserved_label[29]:arg5,
-                                  arg6==~0U?reserved_label[30]:arg6).move_to(code);
+              pos = scalar7(is_relative?mp_list_jxyzc:mp_list_ixyzc,
+                            p1,arg1,arg2,arg3,arg4,
+                            arg5==~0U?reserved_label[29]:arg5,
+                            arg6==~0U?reserved_label[30]:arg6);
             else
-              CImg<uptrT>::vector((uptrT)(is_relative?mp_jxyzc:mp_ixyzc),pos,
-                                  arg1,arg2,arg3,arg4,
-                                  arg5==~0U?reserved_label[29]:arg5,
-                                  arg6==~0U?reserved_label[30]:arg6).move_to(code);
+              pos = scalar6(is_relative?mp_jxyzc:mp_ixyzc,
+                            arg1,arg2,arg3,arg4,
+                            arg5==~0U?reserved_label[29]:arg5,
+                            arg6==~0U?reserved_label[30]:arg6);
+            mem(pos,1) = -1; // Create it as a variable to prevent from optimization
             _cimg_mp_return(pos);
           }
 

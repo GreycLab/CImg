@@ -16704,20 +16704,26 @@ namespace cimg_library_suffixed {
       }
 
       unsigned int scalar1(const mp_func op, const unsigned int arg1) {
-        const unsigned int pos = scalar();
+        const unsigned int pos =
+          arg1>_cimg_mp_c && !mem(arg1,1)?arg1:scalar();
         CImg<uptrT>::vector((uptrT)op,pos,arg1).move_to(code);
         return pos;
       }
 
       unsigned int scalar2(const mp_func op, const unsigned int arg1, const unsigned int arg2) {
-        const unsigned int pos = scalar();
+        const unsigned int pos =
+          arg1>_cimg_mp_c && !mem(arg1,1)?arg1:
+          arg2>_cimg_mp_c && !mem(arg2,1)?arg2:scalar();
         CImg<uptrT>::vector((uptrT)op,pos,arg1,arg2).move_to(code);
         return pos;
       }
 
       unsigned int scalar3(const mp_func op,
                            const unsigned int arg1, const unsigned int arg2, const unsigned int arg3) {
-        const unsigned int pos = scalar();
+        const unsigned int pos =
+          arg1>_cimg_mp_c && !mem(arg1,1)?arg1:
+          arg2>_cimg_mp_c && !mem(arg2,1)?arg2:
+          arg3>_cimg_mp_c && !mem(arg3,1)?arg3:scalar();
         CImg<uptrT>::vector((uptrT)op,pos,arg1,arg2,arg3).move_to(code);
         return pos;
       }
@@ -16725,7 +16731,13 @@ namespace cimg_library_suffixed {
       unsigned int scalar6(const mp_func op,
                            const unsigned int arg1, const unsigned int arg2, const unsigned int arg3,
                            const unsigned int arg4, const unsigned int arg5, const unsigned int arg6) {
-        const unsigned int pos = scalar();
+        const unsigned int pos =
+          arg1>_cimg_mp_c && !mem(arg1,1)?arg1:
+          arg2>_cimg_mp_c && !mem(arg2,1)?arg2:
+          arg3>_cimg_mp_c && !mem(arg3,1)?arg3:
+          arg4>_cimg_mp_c && !mem(arg4,1)?arg4:
+          arg5>_cimg_mp_c && !mem(arg5,1)?arg5:
+          arg6>_cimg_mp_c && !mem(arg6,1)?arg6:scalar();
         CImg<uptrT>::vector((uptrT)op,pos,arg1,arg2,arg3,arg4,arg5,arg6).move_to(code);
         return pos;
       }
@@ -16734,7 +16746,14 @@ namespace cimg_library_suffixed {
                            const unsigned int arg1, const unsigned int arg2, const unsigned int arg3,
                            const unsigned int arg4, const unsigned int arg5, const unsigned int arg6,
                            const unsigned int arg7) {
-        const unsigned int pos = scalar();
+        const unsigned int pos =
+          arg1>_cimg_mp_c && !mem(arg1,1)?arg1:
+          arg2>_cimg_mp_c && !mem(arg2,1)?arg2:
+          arg3>_cimg_mp_c && !mem(arg3,1)?arg3:
+          arg4>_cimg_mp_c && !mem(arg4,1)?arg4:
+          arg5>_cimg_mp_c && !mem(arg5,1)?arg5:
+          arg6>_cimg_mp_c && !mem(arg6,1)?arg6:
+          arg7>_cimg_mp_c && !mem(arg7,1)?arg7:scalar();
         CImg<uptrT>::vector((uptrT)op,pos,arg1,arg2,arg3,arg4,arg5,arg6,arg7).move_to(code);
         return pos;
       }

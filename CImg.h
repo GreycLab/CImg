@@ -14453,7 +14453,8 @@ namespace cimg_library_suffixed {
             char *const ve1 = ss + l_variable_name - 1;
 
             // Assign image value (direct).
-            if (l_variable_name>2 && (*ss=='i' || *ss=='j' || *ss=='I' || *ss=='J') && (*ss1=='(' || *ss1=='[')) {
+            if (l_variable_name>2 && (*ss=='i' || *ss=='j' || *ss=='I' || *ss=='J') && (*ss1=='(' || *ss1=='[') &&
+                reserved_label[*ss]==~0U) {
               is_relative = *ss=='j' || *ss=='J';
 
               if (*ss1=='[' && *ve1==']') { // i/j/I/J[_#ind,offset] = value
@@ -14618,7 +14619,7 @@ namespace cimg_library_suffixed {
                                                 (ss - 8)>expr._data?ss - 8:expr._data,
                                                 se<&expr.back()?"...":"");
                   }
-                  if (mem(arg2,1)>0) { // Constant index -> return corresponding variable slot directly
+                  if (mem(arg2,1)==1) { // Constant index -> return corresponding variable slot directly
                     nb = (int)mem[arg2];
                     if (nb>=0 && nb<(int)mem(arg1,1) - 1) {
                       arg1+=nb + 1;
@@ -15695,7 +15696,7 @@ namespace cimg_library_suffixed {
           is_relative = *ss=='j' || *ss=='J';
 
           // I/J(_#ind,_x,_y,_z,_c,_interpolation,_boundary)
-          if ((*ss=='I' || *ss=='J') && *ss1=='(') { // Image value as scalar
+          if ((*ss=='I' || *ss=='J') && *ss1=='(' && reserved_label[*ss]==~0U) { // Image value as scalar
             if (*ss2=='#') {
               s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
               p1 = compile(ss3,s0++); // Index
@@ -15759,7 +15760,7 @@ namespace cimg_library_suffixed {
           }
 
           // i/j(_#ind,_x,_y,_z,_c,_interpolation,_boundary)
-          if ((*ss=='i' || *ss=='j') && *ss1=='(') { // Image value as scalar
+          if ((*ss=='i' || *ss=='j') && *ss1=='(' && reserved_label[*ss]==~0U) { // Image value as scalar
             if (*ss2=='#') {
               s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
               p1 = compile(ss3,s0++); // Index

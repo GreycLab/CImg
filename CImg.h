@@ -14479,6 +14479,7 @@ namespace cimg_library_suffixed {
 
                 if (p_ref) {
                   *p_ref = mem(arg2,1)>1?4:2; p_ref[1] = p1; p_ref[2] = (unsigned int)is_relative; p_ref[3] = arg1;
+                  if (!mem(arg2,1)) mem(arg2,1) = -1; // Prevent from optimization
                 }
                 if (p1!=~0U) {
                   if (!listout) _cimg_mp_return(arg2);
@@ -14555,6 +14556,7 @@ namespace cimg_library_suffixed {
                 if (p_ref) {
                   *p_ref = mem(arg5,1)>1?5:3; p_ref[1] = p1; p_ref[2] = (unsigned int)is_relative;
                   p_ref[3] = arg1; p_ref[4] = arg2; p_ref[5] = arg3; p_ref[6] = arg4;
+                  if (!mem(arg5,1)) mem(arg5,1) = -1; // Prevent from optimization
                 }
                 if (p1!=~0U) {
                   if (!listout) _cimg_mp_return(arg5);
@@ -15651,9 +15653,15 @@ namespace cimg_library_suffixed {
             if (p_ref && arg2==~0U) {
               *p_ref = 2; p_ref[1] = p1; p_ref[2] = (unsigned int)is_relative; p_ref[3] = arg1;
             }
+            pos = scalar(); // Create it as a variable to prevent from optimization
+            mem(pos,1) = -1;
             if (p1!=~0U)
-              _cimg_mp_scalar3(is_relative?mp_list_joff:mp_list_ioff,p1,arg1,arg2==~0U?reserved_label[30]:arg2);
-            _cimg_mp_scalar2(is_relative?mp_joff:mp_ioff,arg1,arg2==~0U?reserved_label[30]:arg2);
+              CImg<uptrT>::vector((uptrT)(is_relative?mp_list_joff:mp_list_ioff),pos,
+                                  p1,arg1,arg2==~0U?reserved_label[30]:arg2).move_to(code);
+            else
+              CImg<uptrT>::vector((uptrT)(is_relative?mp_joff:mp_ioff),pos,
+                                  arg1,arg2==~0U?reserved_label[30]:arg2).move_to(code);
+            _cimg_mp_return(pos);
           }
 
           s0 = se1; while (s0>ss && *s0!='[') --s0;
@@ -15663,10 +15671,9 @@ namespace cimg_library_suffixed {
             if (mem(arg1,1)<2) {
               *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
               throw CImgArgumentException("[_cimg_math_parser] "
-                                          "CImg<%s>::%s(): Array brackets used on non-vector variable '%s', "
+                                          "CImg<%s>::%s(): Array brackets used on non-vector variable, "
                                           "in expression '%s%s%s'.",
                                           pixel_type(),calling_function,
-                                          variable_name._data,
                                           (ss - 8)>expr._data?"...":"",
                                           (ss - 8)>expr._data?ss - 8:expr._data,
                                           se<&expr.back()?"...":"");
@@ -15685,7 +15692,8 @@ namespace cimg_library_suffixed {
                                           (ss - 8)>expr._data?"...":"",
                                           (ss - 8)>expr._data?ss - 8:expr._data,
                                           se<&expr.back()?"...":"");
-            } else if (p_ref) { *p_ref = 1; p_ref[1] = arg1; p_ref[2] = arg2; }
+            }
+            if (p_ref) { *p_ref = 1; p_ref[1] = arg1; p_ref[2] = arg2; }
             _cimg_mp_scalar3(mp_vector_off,arg1,(uptrT)mem(arg1,1) - 1,arg2);
           }
         }
@@ -15810,12 +15818,19 @@ namespace cimg_library_suffixed {
               *p_ref = 3; p_ref[1] = p1; p_ref[2] = (unsigned int)is_relative;
               p_ref[3] = arg1; p_ref[4] = arg2; p_ref[5] = arg3; p_ref[6] = arg4;
             }
-            if (*ss2=='#') _cimg_mp_scalar7(is_relative?mp_list_jxyzc:mp_list_ixyzc,p1,arg1,arg2,arg3,arg4,
-                                            arg5==~0U?reserved_label[29]:arg5,
-                                            arg6==~0U?reserved_label[30]:arg6);
-            _cimg_mp_scalar6(is_relative?mp_jxyzc:mp_ixyzc,arg1,arg2,arg3,arg4,
-                             arg5==~0U?reserved_label[29]:arg5,
-                             arg6==~0U?reserved_label[30]:arg6);
+            pos = scalar(); // Create it as a variable to prevent from optimization
+            mem(pos,1) = -1;
+            if (p1!=~0U)
+              CImg<uptrT>::vector((uptrT)(is_relative?mp_list_jxyzc:mp_list_ixyzc),pos,
+                                  p1,arg1,arg2,arg3,arg4,
+                                  arg5==~0U?reserved_label[29]:arg5,
+                                  arg6==~0U?reserved_label[30]:arg6).move_to(code);
+            else
+              CImg<uptrT>::vector((uptrT)(is_relative?mp_jxyzc:mp_ixyzc),pos,
+                                  arg1,arg2,arg3,arg4,
+                                  arg5==~0U?reserved_label[29]:arg5,
+                                  arg6==~0U?reserved_label[30]:arg6).move_to(code);
+            _cimg_mp_return(pos);
           }
 
           // Mathematical functions.

@@ -14322,12 +14322,13 @@ namespace cimg_library_suffixed {
         const char *s_op = 0;
         mp_func op;
 
-        // 'p_ref' is a 'unsigned int[7]' used to return reference to image and vector values
-        // that are not known at compile time.
-        // p_ref[0] can be { 0 = scalar | 1 = vector value | 2 = image value (offset) | 3 = image value (coordinates) |
-        //                   4 = image value as a vector (offsets) | 5 = image value as a vector (coordinates) }.
+        // 'p_ref' is a 'unsigned int[7]' used to return a reference to an image or vector value
+        // linked to the returned memory slot (reference that cannot be determined at compile time).
+        // p_ref[0] can be { 0 = scalar (unlinked) | 1 = vector value | 2 = image value (offset) |
+        //                   3 = image value (coordinates) | 4 = image value as a vector (offsets) |
+        //                   5 = image value as a vector (coordinates) }.
         // Depending on p_ref[0], the remaining p_ref[k] have the following meaning:
-        // When p_ref[0]==0, p_ref is actually unused.
+        // When p_ref[0]==0, p_ref is actually unlinked.
         // When p_ref[0]==1, p_ref = [ 1, vector_ind, offset ].
         // When p_ref[0]==2, p_ref = [ 2, image_ind (or ~0U), is_relative, offset ].
         // When p_ref[0]==3, p_ref = [ 3, image_ind (or ~0U), is_relative, x, y, z, c ].

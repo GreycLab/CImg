@@ -5591,12 +5591,12 @@ namespace cimg_library_suffixed {
 
   template<typename T>
   inline bool operator==(const char *const expression, const CImg<T>& img) {
-    return img == expression;
+    return img==expression;
   }
 
   template<typename T>
   inline bool operator!=(const char *const expression, const CImg<T>& img) {
-    return img != expression;
+    return img!=expression;
   }
 
   template<typename T>
@@ -10402,7 +10402,7 @@ namespace cimg_library_suffixed {
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
       try {
-        fill(expression,true);
+        _fill(expression,true,true,0,0,"operator=");
       } catch (CImgException&) {
         cimg::exception_mode(omode);
         load(expression);
@@ -10480,44 +10480,7 @@ namespace cimg_library_suffixed {
          instead of assigning them.
     **/
     CImg<T>& operator+=(const char *const expression) {
-      if (is_empty()) return *this;
-      const unsigned int omode = cimg::exception_mode();
-      cimg::exception_mode(0);
-      try {
-        bool is_parallelizable = true;
-        const CImg<T>
-          _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
-          &base = _base?_base:*this;
-        _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
-                             "operator+=",base,this);
-        T *ptrd = *expression=='<'?end() - 1:_data;
-        if (*expression=='<')
-          cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd + mp(x,y,z,c)); --ptrd; }
-        else if (*expression=='>')
-          cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd + mp(x,y,z,c)); ++ptrd; }
-        else {
-#ifdef cimg_use_openmp
-          cimg_openmp_if (*expression=='*' ||
-              (is_parallelizable && _width>=320 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
-#pragma omp parallel
-            {
-              _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
-#pragma omp for collapse(3)
-              cimg_forYZC(*this,y,z,c) {
-                T *ptrd = data(0,y,z,c);
-                cimg_forX(*this,x) { *ptrd = (T)(*ptrd + lmp(x,y,z,c)); ++ptrd; }
-              }
-            }
-          else
-#endif
-            cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd + mp(x,y,z,c)); ++ptrd; }
-        }
-      } catch (CImgException&) {
-        cimg::exception_mode(omode);
-        *this+=CImg<T>(_width,_height,_depth,_spectrum,expression,true);
-      }
-      cimg::exception_mode(omode);
-      return *this;
+      return *this+=CImg<T>(_width,_height,_depth,_spectrum)._fill(expression,true,true,0,0,"operator+=");
     }
 
     //! In-place addition operator.
@@ -10643,44 +10606,7 @@ namespace cimg_library_suffixed {
        Similar to operator+=(const char*), except that it performs a substraction instead of an addition.
      **/
     CImg<T>& operator-=(const char *const expression) {
-      if (is_empty()) return *this;
-      const unsigned int omode = cimg::exception_mode();
-      cimg::exception_mode(0);
-      try {
-        bool is_parallelizable = true;
-        const CImg<T>
-          _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
-          &base = _base?_base:*this;
-        _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
-                             "operator-=",base,this);
-        T *ptrd = *expression=='<'?end() - 1:_data;
-        if (*expression=='<')
-          cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd - mp(x,y,z,c)); --ptrd; }
-        else if (*expression=='>')
-          cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd - mp(x,y,z,c)); ++ptrd; }
-        else {
-#ifdef cimg_use_openmp
-          cimg_openmp_if (*expression=='*' ||
-              (is_parallelizable && _width>=320 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
-#pragma omp parallel
-            {
-              _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
-#pragma omp for collapse(3)
-              cimg_forYZC(*this,y,z,c) {
-                T *ptrd = data(0,y,z,c);
-                cimg_forX(*this,x) { *ptrd = (T)(*ptrd - lmp(x,y,z,c)); ++ptrd; }
-              }
-            }
-          else
-#endif
-            cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd - mp(x,y,z,c)); ++ptrd; }
-        }
-      } catch (CImgException&) {
-        cimg::exception_mode(omode);
-        *this-=CImg<T>(_width,_height,_depth,_spectrum,expression,true);
-      }
-      cimg::exception_mode(omode);
-      return *this;
+      return *this-=CImg<T>(_width,_height,_depth,_spectrum)._fill(expression,true,true,0,0,"operator-=");
     }
 
     //! In-place substraction operator.
@@ -10790,44 +10716,7 @@ namespace cimg_library_suffixed {
        Similar to operator+=(const char*), except that it performs a multiplication instead of an addition.
      **/
     CImg<T>& operator*=(const char *const expression) {
-      if (is_empty()) return *this;
-      const unsigned int omode = cimg::exception_mode();
-      cimg::exception_mode(0);
-      try {
-        bool is_parallelizable = true;
-        const CImg<T>
-          _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
-          &base = _base?_base:*this;
-        _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
-                             "operator*=",base,this);
-        T *ptrd = *expression=='<'?end() - 1:_data;
-        if (*expression=='<')
-          cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd * mp(x,y,z,c)); --ptrd; }
-        else if (*expression=='>')
-          cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd * mp(x,y,z,c)); ++ptrd; }
-        else {
-#ifdef cimg_use_openmp
-          cimg_openmp_if (*expression=='*' ||
-              (is_parallelizable && _width>=320 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
-#pragma omp parallel
-            {
-              _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
-#pragma omp for collapse(3)
-              cimg_forYZC(*this,y,z,c) {
-                T *ptrd = data(0,y,z,c);
-                cimg_forX(*this,x) { *ptrd = (T)(*ptrd * lmp(x,y,z,c)); ++ptrd; }
-              }
-            }
-          else
-#endif
-            cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd * mp(x,y,z,c)); ++ptrd; }
-        }
-      } catch (CImgException&) {
-        cimg::exception_mode(omode);
-        mul(CImg<T>(_width,_height,_depth,_spectrum,expression,true));
-      }
-      cimg::exception_mode(omode);
-      return *this;
+      return mul(CImg<T>(_width,_height,_depth,_spectrum)._fill(expression,true,true,0,0,"operator*="));
     }
 
     //! In-place multiplication operator.
@@ -10918,44 +10807,7 @@ namespace cimg_library_suffixed {
        Similar to operator+=(const char*), except that it performs a division instead of an addition.
      **/
     CImg<T>& operator/=(const char *const expression) {
-      if (is_empty()) return *this;
-      const unsigned int omode = cimg::exception_mode();
-      cimg::exception_mode(0);
-      try {
-        bool is_parallelizable = true;
-        const CImg<T>
-          _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
-          &base = _base?_base:*this;
-        _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
-                             "operator/=",base,this);
-        T *ptrd = *expression=='<'?end() - 1:_data;
-        if (*expression=='<')
-          cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd / mp(x,y,z,c)); --ptrd; }
-        else if (*expression=='>')
-          cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd / mp(x,y,z,c)); ++ptrd; }
-        else {
-#ifdef cimg_use_openmp
-          cimg_openmp_if (*expression=='*' ||
-              (is_parallelizable && _width>=320 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
-#pragma omp parallel
-            {
-              _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
-#pragma omp for collapse(3)
-              cimg_forYZC(*this,y,z,c) {
-                T *ptrd = data(0,y,z,c);
-                cimg_forX(*this,x) { *ptrd = (T)(*ptrd / lmp(x,y,z,c)); ++ptrd; }
-              }
-            }
-          else
-#endif
-            cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)(*ptrd / mp(x,y,z,c)); ++ptrd; }
-        }
-      } catch (CImgException&) {
-        cimg::exception_mode(omode);
-        div(CImg<T>(_width,_height,_depth,_spectrum,expression,true));
-      }
-      cimg::exception_mode(omode);
-      return *this;
+      return div(CImg<T>(_width,_height,_depth,_spectrum)._fill(expression,true,true,0,0,"operator/="));
     }
 
     //! In-place division operator.
@@ -11022,44 +10874,7 @@ namespace cimg_library_suffixed {
        Similar to operator+=(const char*), except that it performs a modulo operation instead of an addition.
     **/
     CImg<T>& operator%=(const char *const expression) {
-      if (is_empty()) return *this;
-      const unsigned int omode = cimg::exception_mode();
-      cimg::exception_mode(0);
-      try {
-        bool is_parallelizable = true;
-        const CImg<T>
-          _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
-          &base = _base?_base:*this;
-        _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
-                             "operator%=",base,this);
-        T *ptrd = *expression=='<'?end() - 1:_data;
-        if (*expression=='<')
-          cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)cimg::mod(*ptrd,(T)mp(x,y,z,c)); --ptrd; }
-        else if (*expression=='>')
-          cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)cimg::mod(*ptrd,(T)mp(x,y,z,c)); ++ptrd; }
-        else {
-#ifdef cimg_use_openmp
-          cimg_openmp_if (*expression=='*' ||
-              (is_parallelizable && _width>=320 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
-#pragma omp parallel
-            {
-              _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
-#pragma omp for collapse(3)
-              cimg_forYZC(*this,y,z,c) {
-                T *ptrd = data(0,y,z,c);
-                cimg_forX(*this,x) { *ptrd = (T)cimg::mod(*ptrd,(T)lmp(x,y,z,c)); ++ptrd; }
-              }
-            }
-          else
-#endif
-            cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)cimg::mod(*ptrd,(T)mp(x,y,z,c)); ++ptrd; }
-        }
-      } catch (CImgException&) {
-        cimg::exception_mode(omode);
-        *this%=CImg<T>(_width,_height,_depth,_spectrum,expression,true);
-      }
-      cimg::exception_mode(omode);
-      return *this;
+      return *this%=CImg<T>(_width,_height,_depth,_spectrum)._fill(expression,true,true,0,0,"operator%=");
     }
 
     //! In-place modulo operator.
@@ -11128,44 +10943,7 @@ namespace cimg_library_suffixed {
        Similar to operator+=(const char*), except that it performs a bitwise AND operation instead of an addition.
     **/
     CImg<T>& operator&=(const char *const expression) {
-      if (is_empty()) return *this;
-      const unsigned int omode = cimg::exception_mode();
-      cimg::exception_mode(0);
-      try {
-        bool is_parallelizable = true;
-        const CImg<T>
-          _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
-          &base = _base?_base:*this;
-        _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
-                             "operator&=",base,this);
-        T *ptrd = *expression=='<'?end() - 1:_data;
-        if (*expression=='<')
-          cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)((unsigned long)*ptrd & (unsigned long)mp(x,y,z,c)); --ptrd; }
-        else if (*expression=='>')
-          cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)((unsigned long)*ptrd & (unsigned long)mp(x,y,z,c)); ++ptrd; }
-        else {
-#ifdef cimg_use_openmp
-          cimg_openmp_if (*expression=='*' ||
-              (is_parallelizable && _width>=320 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
-#pragma omp parallel
-            {
-              _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
-#pragma omp for collapse(3)
-              cimg_forYZC(*this,y,z,c) {
-                T *ptrd = data(0,y,z,c);
-                cimg_forX(*this,x) { *ptrd = (T)((unsigned long)*ptrd & (unsigned long)lmp(x,y,z,c)); ++ptrd; }
-              }
-            }
-          else
-#endif
-            cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)((unsigned long)*ptrd & (unsigned long)mp(x,y,z,c)); ++ptrd; }
-        }
-      } catch (CImgException&) {
-        cimg::exception_mode(omode);
-        *this&=CImg<T>(_width,_height,_depth,_spectrum,expression,true);
-      }
-      cimg::exception_mode(omode);
-      return *this;
+      return *this&=CImg<T>(_width,_height,_depth,_spectrum)._fill(expression,true,true,0,0,"operator&=");
     }
 
     //! In-place bitwise AND operator.
@@ -11234,44 +11012,7 @@ namespace cimg_library_suffixed {
        Similar to operator+=(const char*), except that it performs a bitwise OR operation instead of an addition.
     **/
     CImg<T>& operator|=(const char *const expression) {
-      if (is_empty()) return *this;
-      const unsigned int omode = cimg::exception_mode();
-      cimg::exception_mode(0);
-      try {
-        bool is_parallelizable = true;
-        const CImg<T>
-          _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
-          &base = _base?_base:*this;
-        _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
-                             "operator|=",base,this);
-        T *ptrd = *expression=='<'?end() - 1:_data;
-        if (*expression=='<')
-          cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)((unsigned long)*ptrd | (unsigned long)mp(x,y,z,c)); --ptrd; }
-        else if (*expression=='>')
-          cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)((unsigned long)*ptrd | (unsigned long)mp(x,y,z,c)); ++ptrd; }
-        else {
-#ifdef cimg_use_openmp
-          cimg_openmp_if (*expression=='*' ||
-              (is_parallelizable && _width>=320 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
-#pragma omp parallel
-            {
-              _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
-#pragma omp for collapse(3)
-              cimg_forYZC(*this,y,z,c) {
-                T *ptrd = data(0,y,z,c);
-                cimg_forX(*this,x) { *ptrd = (T)((unsigned long)*ptrd | (unsigned long)lmp(x,y,z,c)); ++ptrd; }
-              }
-            }
-          else
-#endif
-            cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)((unsigned long)*ptrd | (unsigned long)mp(x,y,z,c)); ++ptrd; }
-        }
-      } catch (CImgException&) {
-        cimg::exception_mode(omode);
-        *this|=CImg<T>(_width,_height,_depth,_spectrum,expression,true);
-      }
-      cimg::exception_mode(omode);
-      return *this;
+      return *this|=CImg<T>(_width,_height,_depth,_spectrum)._fill(expression,true,true,0,0,"operator|=");
     }
 
     //! In-place bitwise OR operator.
@@ -11344,44 +11085,7 @@ namespace cimg_library_suffixed {
        - It does \e not compute the \e power of pixel values. For this purpose, use pow(const char*) instead.
     **/
     CImg<T>& operator^=(const char *const expression) {
-      if (is_empty()) return *this;
-      const unsigned int omode = cimg::exception_mode();
-      cimg::exception_mode(0);
-      try {
-        bool is_parallelizable = true;
-        const CImg<T>
-          _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
-          &base = _base?_base:*this;
-        _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
-                             "operator^=",base,this);
-        T *ptrd = *expression=='<'?end() - 1:_data;
-        if (*expression=='<')
-          cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)((unsigned long)*ptrd ^ (unsigned long)mp(x,y,z,c)); --ptrd; }
-        else if (*expression=='>')
-          cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)((unsigned long)*ptrd ^ (unsigned long)mp(x,y,z,c)); ++ptrd; }
-        else {
-#ifdef cimg_use_openmp
-          cimg_openmp_if (*expression=='*' ||
-              (is_parallelizable && _width>=320 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
-#pragma omp parallel
-            {
-              _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
-#pragma omp for collapse(3)
-              cimg_forYZC(*this,y,z,c) {
-                T *ptrd = data(0,y,z,c);
-                cimg_forX(*this,x) { *ptrd = (T)((unsigned long)*ptrd ^ (unsigned long)lmp(x,y,z,c)); ++ptrd; }
-              }
-            }
-          else
-#endif
-            cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)((unsigned long)*ptrd ^ (unsigned long)mp(x,y,z,c)); ++ptrd; }
-        }
-      } catch (CImgException&) {
-        cimg::exception_mode(omode);
-        *this^=CImg<T>(_width,_height,_depth,_spectrum,expression,true);
-      }
-      cimg::exception_mode(omode);
-      return *this;
+      return *this^=CImg<T>(_width,_height,_depth,_spectrum)._fill(expression,true,true,0,0,"operator^=");
     }
 
     //! In-place bitwise XOR operator.
@@ -11452,44 +11156,7 @@ namespace cimg_library_suffixed {
        Similar to operator+=(const char*), except that it performs a bitwise left shift instead of an addition.
     **/
     CImg<T>& operator<<=(const char *const expression) {
-      if (is_empty()) return *this;
-      const unsigned int omode = cimg::exception_mode();
-      cimg::exception_mode(0);
-      try {
-        bool is_parallelizable = true;
-        const CImg<T>
-          _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
-          &base = _base?_base:*this;
-        _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
-                             "operator<<=",base,this);
-        T *ptrd = *expression=='<'?end() - 1:_data;
-        if (*expression=='<')
-          cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)((long)*ptrd << (int)mp(x,y,z,c)); --ptrd; }
-        else if (*expression=='>')
-          cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)((long)*ptrd << (int)mp(x,y,z,c)); ++ptrd; }
-        else {
-#ifdef cimg_use_openmp
-          cimg_openmp_if (*expression=='*' ||
-              (is_parallelizable && _width>=320 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
-#pragma omp parallel
-            {
-              _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
-#pragma omp for collapse(3)
-              cimg_forYZC(*this,y,z,c) {
-                T *ptrd = data(0,y,z,c);
-                cimg_forX(*this,x) { *ptrd = (T)((long)*ptrd << (int)lmp(x,y,z,c)); ++ptrd; }
-              }
-            }
-          else
-#endif
-            cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)((long)*ptrd << (int)mp(x,y,z,c)); ++ptrd; }
-        }
-      } catch (CImgException&) {
-        cimg::exception_mode(omode);
-        *this<<=CImg<T>(_width,_height,_depth,_spectrum,expression,true);
-      }
-      cimg::exception_mode(omode);
-      return *this;
+      return *this<<=CImg<T>(_width,_height,_depth,_spectrum)._fill(expression,true,true,0,0,"operator<<=");
     }
 
     //! In-place bitwise left shift operator.
@@ -11559,44 +11226,7 @@ namespace cimg_library_suffixed {
        Similar to operator+=(const char*), except that it performs a bitwise right shift instead of an addition.
     **/
     CImg<T>& operator>>=(const char *const expression) {
-      if (is_empty()) return *this;
-      const unsigned int omode = cimg::exception_mode();
-      cimg::exception_mode(0);
-      try {
-        bool is_parallelizable = true;
-        const CImg<T>
-          _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
-          &base = _base?_base:*this;
-        _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
-                             "operator<<=",base,this);
-        T *ptrd = *expression=='<'?end() - 1:_data;
-        if (*expression=='<')
-          cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)((long)*ptrd >> (int)mp(x,y,z,c)); --ptrd; }
-        else if (*expression=='>')
-          cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)((long)*ptrd >> (int)mp(x,y,z,c)); ++ptrd; }
-        else {
-#ifdef cimg_use_openmp
-          cimg_openmp_if (*expression=='*' ||
-              (is_parallelizable && _width>=320 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
-#pragma omp parallel
-            {
-              _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
-#pragma omp for collapse(3)
-              cimg_forYZC(*this,y,z,c) {
-                T *ptrd = data(0,y,z,c);
-                cimg_forX(*this,x) { *ptrd = (T)((long)*ptrd >> (int)lmp(x,y,z,c)); ++ptrd; }
-              }
-            }
-          else
-#endif
-            cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)((long)*ptrd >> (int)mp(x,y,z,c)); ++ptrd; }
-        }
-      } catch (CImgException&) {
-        cimg::exception_mode(omode);
-        *this>>=CImg<T>(_width,_height,_depth,_spectrum,expression,true);
-      }
-      cimg::exception_mode(omode);
-      return *this;
+      return *this>>=CImg<T>(_width,_height,_depth,_spectrum)._fill(expression,true,true,0,0,"operator>>=");
     }
 
     //! In-place bitwise right shift operator.
@@ -11678,29 +11308,7 @@ namespace cimg_library_suffixed {
        \param expression Value string describing the way pixel values are compared.
     **/
     bool operator==(const char *const expression) const {
-      if (is_empty()) return !*expression;
-      const unsigned int omode = cimg::exception_mode();
-      cimg::exception_mode(0);
-      bool is_equal = true;
-      try {
-        bool is_parallelizable = true;
-        const CImg<T>
-          _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
-          &base = _base?_base:*this;
-        _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
-                             "operator<<=",base,0);
-        const T *ptrs = *expression=='<'?end() - 1:_data;
-        if (*expression=='<')
-          cimg_rofXYZC(*this,x,y,z,c) { if (!is_equal) break; is_equal = ((double)*(ptrs--)==mp(x,y,z,c)); }
-        else if (*expression=='>')
-          cimg_forXYZC(*this,x,y,z,c) { if (!is_equal) break; is_equal = ((double)*(ptrs++)==mp(x,y,z,c)); }
-        else cimg_forXYZC(*this,x,y,z,c) { if (!is_equal) break; is_equal = ((double)*(ptrs++)==mp(x,y,z,c)); }
-      } catch (CImgException&) {
-        cimg::exception_mode(omode);
-        is_equal = (*this==CImg<T>(_width,_height,_depth,_spectrum,expression,true));
-      }
-      cimg::exception_mode(omode);
-      return is_equal;
+      return *this==CImg<T>(_width,_height,_depth,_spectrum)._fill(expression,true,true,0,0,"operator==");
     }
 
     //! Test if two images have the same size and values.
@@ -19266,44 +18874,7 @@ namespace cimg_library_suffixed {
        Similar to operator+=(const char*), except it performs a pointwise exponentiation instead of an addition.
     **/
     CImg<T>& pow(const char *const expression) {
-      if (is_empty()) return *this;
-      const unsigned int omode = cimg::exception_mode();
-      cimg::exception_mode(0);
-      try {
-        bool is_parallelizable = true;
-        const CImg<T>
-          _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
-          &base = _base?_base:*this;
-        _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
-                             "pow",base,this);
-        T *ptrd = *expression=='<'?end() - 1:_data;
-        if (*expression=='<')
-          cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)std::pow((double)*ptrd,mp(x,y,z,c)); --ptrd; }
-        else if (*expression=='>')
-          cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)std::pow((double)*ptrd,mp(x,y,z,c)); ++ptrd; }
-        else {
-#ifdef cimg_use_openmp
-          cimg_openmp_if (*expression=='*' ||
-              (is_parallelizable && _width>=320 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
-#pragma omp parallel
-            {
-              _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
-#pragma omp for collapse(3)
-              cimg_forYZC(*this,y,z,c) {
-                T *ptrd = data(0,y,z,c);
-                cimg_forX(*this,x) { *ptrd = (T)std::pow((double)*ptrd,lmp(x,y,z,c)); ++ptrd; }
-              }
-            }
-          else
-#endif
-            cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)std::pow((double)*ptrd,mp(x,y,z,c)); ++ptrd; }
-        }
-      } catch (CImgException&) {
-        cimg::exception_mode(omode);
-        pow(CImg<Tfloat>(_width,_height,_depth,_spectrum,expression,true));
-      }
-      cimg::exception_mode(omode);
-      return *this;
+      return pow(CImg<T>(_width,_height,_depth,_spectrum)._fill(expression,true,true,0,0,"pow"));
     }
 
     //! Raise each pixel value to a power, specified from an expression \newinstance.
@@ -19358,44 +18929,7 @@ namespace cimg_library_suffixed {
        Similar to operator<<=(const char*), except that it performs a left rotation instead of a left shift.
     **/
     CImg<T>& rol(const char *const expression) {
-      if (is_empty()) return *this;
-      const unsigned int omode = cimg::exception_mode();
-      cimg::exception_mode(0);
-      try {
-        bool is_parallelizable = true;
-        const CImg<T>
-          _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
-          &base = _base?_base:*this;
-        _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
-                             "rol",base,this);
-        T *ptrd = *expression=='<'?end() - 1:_data;
-        if (*expression=='<')
-          cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)cimg::rol(*ptrd,(unsigned int)mp(x,y,z,c)); --ptrd; }
-        else if (*expression=='>')
-          cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)cimg::rol(*ptrd,(unsigned int)mp(x,y,z,c)); ++ptrd; }
-        else {
-#ifdef cimg_use_openmp
-          cimg_openmp_if (*expression=='*' ||
-              (is_parallelizable && _width>=320 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
-#pragma omp parallel
-            {
-              _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
-#pragma omp for collapse(3)
-              cimg_forYZC(*this,y,z,c) {
-                T *ptrd = data(0,y,z,c);
-                cimg_forX(*this,x) { *ptrd = (T)cimg::rol(*ptrd,(unsigned int)lmp(x,y,z,c)); ++ptrd; }
-              }
-            }
-          else
-#endif
-            cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)cimg::rol(*ptrd,(unsigned int)mp(x,y,z,c)); ++ptrd; }
-        }
-      } catch (CImgException&) {
-        cimg::exception_mode(omode);
-        rol(CImg<Tfloat>(_width,_height,_depth,_spectrum,expression,true));
-      }
-      cimg::exception_mode(omode);
-      return *this;
+      return rol(CImg<T>(_width,_height,_depth,_spectrum)._fill(expression,true,true,0,0,"rol"));
     }
 
     //! Compute the bitwise left rotation of each pixel value \newinstance.
@@ -19450,44 +18984,7 @@ namespace cimg_library_suffixed {
        Similar to operator>>=(const char*), except that it performs a right rotation instead of a right shift.
     **/
     CImg<T>& ror(const char *const expression) {
-      if (is_empty()) return *this;
-      const unsigned int omode = cimg::exception_mode();
-      cimg::exception_mode(0);
-      try {
-        bool is_parallelizable = true;
-        const CImg<T>
-          _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
-          &base = _base?_base:*this;
-        _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
-                             "ror",base,this);
-        T *ptrd = *expression=='<'?end() - 1:_data;
-        if (*expression=='<')
-          cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)cimg::ror(*ptrd,(unsigned int)mp(x,y,z,c)); --ptrd; }
-        else if (*expression=='>')
-          cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)cimg::ror(*ptrd,(unsigned int)mp(x,y,z,c)); ++ptrd; }
-        else {
-#ifdef cimg_use_openmp
-          cimg_openmp_if (*expression=='*' ||
-              (is_parallelizable && _width>=320 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
-#pragma omp parallel
-            {
-              _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
-#pragma omp for collapse(3)
-              cimg_forYZC(*this,y,z,c) {
-                T *ptrd = data(0,y,z,c);
-                cimg_forX(*this,x) { *ptrd = (T)cimg::ror(*ptrd,(unsigned int)lmp(x,y,z,c)); ++ptrd; }
-              }
-            }
-          else
-#endif
-            cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)cimg::ror(*ptrd,(unsigned int)mp(x,y,z,c)); ++ptrd; }
-        }
-      } catch (CImgException&) {
-        cimg::exception_mode(omode);
-        ror(CImg<Tfloat>(_width,_height,_depth,_spectrum,expression,true));
-      }
-      cimg::exception_mode(omode);
-      return *this;
+      return ror(CImg<T>(_width,_height,_depth,_spectrum)._fill(expression,true,true,0,0,"ror"));
     }
 
     //! Compute the bitwise right rotation of each pixel value \newinstance.
@@ -19572,44 +19069,7 @@ namespace cimg_library_suffixed {
        \f$\mathrm{min}(I_{(x,y,z,c)},\mathrm{expr}_{(x,y,z,c)})\f$.
     **/
     CImg<T>& min(const char *const expression) {
-      if (is_empty()) return *this;
-      const unsigned int omode = cimg::exception_mode();
-      cimg::exception_mode(0);
-      try {
-        bool is_parallelizable = true;
-        const CImg<T>
-          _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
-          &base = _base?_base:*this;
-        _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
-                             "min",base,this);
-        T *ptrd = *expression=='<'?end() - 1:_data;
-        if (*expression=='<')
-          cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)cimg::min(*ptrd,(T)mp(x,y,z,c)); --ptrd; }
-        else if (*expression=='>')
-          cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)cimg::min(*ptrd,(T)mp(x,y,z,c)); ++ptrd; }
-        else {
-#ifdef cimg_use_openmp
-          cimg_openmp_if (*expression=='*' ||
-              (is_parallelizable && _width>=320 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
-#pragma omp parallel
-            {
-              _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
-#pragma omp for collapse(3)
-              cimg_forYZC(*this,y,z,c) {
-                T *ptrd = data(0,y,z,c);
-                cimg_forX(*this,x) { *ptrd = (T)cimg::min(*ptrd,(T)lmp(x,y,z,c)); ++ptrd; }
-              }
-            }
-          else
-#endif
-            cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)cimg::min(*ptrd,(T)mp(x,y,z,c)); ++ptrd; }
-        }
-      } catch (CImgException&) {
-        cimg::exception_mode(omode);
-        min(CImg<T>(_width,_height,_depth,_spectrum,expression,true));
-      }
-      cimg::exception_mode(omode);
-      return *this;
+      return min(CImg<T>(_width,_height,_depth,_spectrum)._fill(expression,true,true,0,0,"min"));
     }
 
     //! Pointwise min operator between an image and an expression \newinstance.
@@ -19670,44 +19130,7 @@ namespace cimg_library_suffixed {
        \f$\mathrm{max}(I_{(x,y,z,c)},\mathrm{expr}_{(x,y,z,c)})\f$.
     **/
     CImg<T>& max(const char *const expression) {
-      if (is_empty()) return *this;
-      const unsigned int omode = cimg::exception_mode();
-      cimg::exception_mode(0);
-      try {
-        bool is_parallelizable = true;
-        const CImg<T>
-          _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
-          &base = _base?_base:*this;
-        _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
-                             "max",base,this);
-        T *ptrd = *expression=='<'?end() - 1:_data;
-        if (*expression=='<')
-          cimg_rofXYZC(*this,x,y,z,c) { *ptrd = (T)cimg::max(*ptrd,(T)mp(x,y,z,c)); --ptrd; }
-        else if (*expression=='>')
-          cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)cimg::max(*ptrd,(T)mp(x,y,z,c)); ++ptrd; }
-        else {
-#ifdef cimg_use_openmp
-          cimg_openmp_if (*expression=='*' ||
-              (is_parallelizable && _width>=320 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
-#pragma omp parallel
-            {
-              _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
-#pragma omp for collapse(3)
-              cimg_forYZC(*this,y,z,c) {
-                T *ptrd = data(0,y,z,c);
-                cimg_forX(*this,x) { *ptrd = (T)cimg::max(*ptrd,(T)lmp(x,y,z,c)); ++ptrd; }
-              }
-            }
-          else
-#endif
-            cimg_forXYZC(*this,x,y,z,c) { *ptrd = (T)cimg::max(*ptrd,(T)mp(x,y,z,c)); ++ptrd; }
-        }
-      } catch (CImgException&) {
-        cimg::exception_mode(omode);
-        max(CImg<T>(_width,_height,_depth,_spectrum,expression,true));
-      }
-      cimg::exception_mode(omode);
-      return *this;
+      return max(CImg<T>(_width,_height,_depth,_spectrum)._fill(expression,true,true,0,0,"max"));
     }
 
     //! Pointwise max operator between an image and an expression \newinstance.
@@ -22339,6 +21762,13 @@ namespace cimg_library_suffixed {
     **/
     CImg<T>& fill(const char *const expression, const bool repeat_values, const bool allow_formula=true,
                   const CImgList<T> *const list_inputs=0, CImgList<T> *const list_outputs=0) {
+      return _fill(expression,repeat_values,allow_formula,list_inputs,list_outputs,"fill");
+    }
+
+    CImg<T>& _fill(const char *const expression, const bool repeat_values, const bool allow_formula,
+                   const CImgList<T> *const list_inputs, CImgList<T> *const list_outputs,
+                   const char *const calling_function) {
+
       if (is_empty() || !expression || !*expression) return *this;
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
@@ -22350,7 +21780,7 @@ namespace cimg_library_suffixed {
             _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
             &base = _base?_base:*this;
           _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
-                               "fill",base,this,list_inputs,list_outputs);
+                               calling_function,base,this,list_inputs,list_outputs);
           T *ptrd = *expression=='<'?end() - 1:_data;
           if (*expression=='<')
             cimg_rofXYZC(*this,x,y,z,c) *(ptrd--) = (T)mp(x,y,z,c);
@@ -22395,8 +21825,8 @@ namespace cimg_library_suffixed {
         if (nb<siz && (sep || *nexpression)) {
           if (is_error) throw CImgArgumentException("%s",is_error._data);
           else throw CImgArgumentException(_cimg_instance
-                                           "fill(): Invalid sequence of filling values '%s'.",
-                                           cimg_instance,expression);
+                                           "%s(): Invalid sequence of filling values '%s'.",
+                                           cimg_instance,calling_function,expression);
         }
         if (repeat_values && nb && nb<siz)
           for (T *ptrs = _data, *const ptre = _data + siz; ptrd<ptre; ++ptrs) *(ptrd++) = *ptrs;

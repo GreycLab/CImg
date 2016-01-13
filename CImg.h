@@ -17450,11 +17450,10 @@ namespace cimg_library_suffixed {
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width()),
           boundary_conditions = (unsigned int)_mp_arg(4);
         const int
-          ox = (int)mp.mem[_cimg_mp_x], oy = (int)mp.mem[_cimg_mp_y],
-          oz = (int)mp.mem[_cimg_mp_z], oc = (int)mp.mem[_cimg_mp_c];
+          ox = (int)mp.mem[_cimg_mp_x], oy = (int)mp.mem[_cimg_mp_y], oz = (int)mp.mem[_cimg_mp_z];
         const CImg<T> &img = mp.listin[ind];
         const long
-          off = img.offset(ox,oy,oz,oc) + (long)_mp_arg(3),
+          off = img.offset(ox,oy,oz) + (long)_mp_arg(3),
           whd = img.width()*img.height()*img.depth();
         const T *ptrs;
         if (off<0 || off>=whd)
@@ -18223,11 +18222,9 @@ namespace cimg_library_suffixed {
         const unsigned int
           boundary_conditions = (unsigned int)_mp_arg(3);
         const CImg<T> &img = mp.imgin;
-        const int
-          ox = (int)mp.mem[_cimg_mp_x], oy = (int)mp.mem[_cimg_mp_y],
-          oz = (int)mp.mem[_cimg_mp_z], oc = (int)mp.mem[_cimg_mp_c];
+        const int ox = (int)mp.mem[_cimg_mp_x], oy = (int)mp.mem[_cimg_mp_y], oz = (int)mp.mem[_cimg_mp_z];
         const long
-          off = img.offset(ox,oy,oz,oc) + (long)_mp_arg(2),
+          off = img.offset(ox,oy,oz) + (long)_mp_arg(2),
           whd = img.width()*img.height()*img.depth();
         const T *ptrs;
         if (off<0 || off>=whd)

@@ -13891,7 +13891,7 @@ namespace cimg_library_suffixed {
       static bool needs_input_copy(const char *expression, bool &is_parallelizable) {
         if (!expression || *expression=='>' || *expression=='<') return is_parallelizable = false;
         for (const char *s = expression; *s; ++s)
-          if ((*s=='i' || *s=='j') && (s[1]=='(' || s[1]=='[')) {
+          if ((*s=='i' || *s=='j' || *s=='I' || *s=='J') && (s[1]=='(' || s[1]=='[')) {
             if (s[2]=='#') is_parallelizable = false;
             else {
               const char opening = s[1], ending = opening=='('?')':']';
@@ -13903,7 +13903,7 @@ namespace cimg_library_suffixed {
               }
               if (*ns && (ns[1]!='=' || ns[2]=='=')) return true;
             }
-          } else if (((*s=='R' || *s=='G' || *s=='B' || *s=='A') && s[1]!='#') ||
+          } else if (((*s=='R' || *s=='G' || *s=='B' || *s=='A' || *s=='I' || *s=='J') && s[1]!='#') ||
                      (*s=='i' && s[1]>='0' && s[1]<='7' && s[2]!='#')) return true;
         return false;
       }
@@ -15509,13 +15509,6 @@ namespace cimg_library_suffixed {
             break;
 
           case 'c' :
-            if (!std::strncmp(ss,"cbrt(",5)) { // Cubic root
-              arg1 = compile(ss5,se1);
-              if (mem(arg1,1)>1) _cimg_mp_vector1_v(mp_cbrt,arg1);
-              if (mem(arg1,1)>0) _cimg_mp_constant(std::pow(mem[arg1],1.0/3));
-              _cimg_mp_scalar1(mp_cbrt,arg1);
-            }
-
             if (!std::strncmp(ss,"cabs(",5)) { // Complex absolute value
               arg1 = compile(ss5,se1);
               _cimg_mp_check_type(arg1,"function 'cabs()'",2,2);
@@ -15528,12 +15521,11 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar2(mp_atan2,arg1 + 2,arg1 + 1);
             }
 
-            if (!std::strncmp(ss,"cexp(",5)) { // Complex exponential
+            if (!std::strncmp(ss,"cbrt(",5)) { // Cubic root
               arg1 = compile(ss5,se1);
-              _cimg_mp_check_type(arg1,"function 'cexp()'",2,2);
-              pos = vector(2);
-              CImg<uptrT>::vector((uptrT)mp_complex_exp,pos,arg1).move_to(code);
-              _cimg_mp_return(pos);
+              if (mem(arg1,1)>1) _cimg_mp_vector1_v(mp_cbrt,arg1);
+              if (mem(arg1,1)>0) _cimg_mp_constant(std::pow(mem[arg1],1.0/3));
+              _cimg_mp_scalar1(mp_cbrt,arg1);
             }
 
             if (!std::strncmp(ss,"cconj(",6)) { // Complex conjugate
@@ -15541,6 +15533,14 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_type(arg1,"function 'cconj()'",2,2);
               pos = vector(2);
               CImg<uptrT>::vector((uptrT)mp_complex_conj,pos,arg1).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
+            if (!std::strncmp(ss,"cexp(",5)) { // Complex exponential
+              arg1 = compile(ss5,se1);
+              _cimg_mp_check_type(arg1,"function 'cexp()'",2,2);
+              pos = vector(2);
+              CImg<uptrT>::vector((uptrT)mp_complex_exp,pos,arg1).move_to(code);
               _cimg_mp_return(pos);
             }
 
@@ -21794,11 +21794,11 @@ namespace cimg_library_suffixed {
             &base = _base?_base:*this;
           _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
                                calling_function,base,this,list_inputs,list_outputs);
-          bool is_parallel = false;
+          bool do_in_parallel = false;
 #ifdef cimg_use_openmp
           cimg_openmp_if(*expression=='*' ||
                          (is_parallelizable && _width>=320 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
-            is_parallel = true;
+            do_in_parallel = true;
 #endif
           if (mp.result_dim) { // Vector-valued expression
             const unsigned int N = cimg::min(mp.result_dim,_spectrum);
@@ -21811,7 +21811,7 @@ namespace cimg_library_suffixed {
                 const double *ptrs = res._data;
                 T *_ptrd = ptrd--; for (unsigned int n = N; n>0; --n) { *_ptrd = (*ptrs++); _ptrd+=whd; }
               }
-            } else if (*expression=='>' || !is_parallel) {
+            } else if (*expression=='>' || !do_in_parallel) {
               CImg<doubleT> res(1,mp.result_dim);
               cimg_forXYZ(*this,x,y,z) {
                 mp(x,y,z,0,res._data);
@@ -21841,7 +21841,7 @@ namespace cimg_library_suffixed {
             T *ptrd = *expression=='<'?end() - 1:_data;
             if (*expression=='<')
               cimg_rofXYZC(*this,x,y,z,c) *(ptrd--) = (T)mp(x,y,z,c);
-            else if (*expression=='>' || !is_parallel)
+            else if (*expression=='>' || !do_in_parallel)
               cimg_forXYZC(*this,x,y,z,c) *(ptrd++) = (T)mp(x,y,z,c);
             else {
 #ifdef cimg_use_openmp

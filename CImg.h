@@ -12842,7 +12842,8 @@ namespace cimg_library_suffixed {
        - Otherwise, if the maximum number of string characters is exceeded, the value string is cut off
          and terminated by character \c '\0'. In that case, the returned image size is <tt>max_size + 1</tt>.
     **/
-    CImg<charT> value_string(const char separator=',', const unsigned int max_size=0, const char *const format=0) const {
+    CImg<charT> value_string(const char separator=',', const unsigned int max_size=0,
+                             const char *const format=0) const {
       if (is_empty()) return CImg<charT>::string("");
       CImgList<charT> items;
       CImg<charT> s_item(256); *s_item = 0;
@@ -21797,7 +21798,8 @@ namespace cimg_library_suffixed {
           bool do_in_parallel = false;
 #ifdef cimg_use_openmp
           cimg_openmp_if(*expression=='*' ||
-                         (is_parallelizable && _width>=320 && _height*_depth*_spectrum>=2 && std::strlen(expression)>=6))
+                         (is_parallelizable && _width>=320 && _height*_depth*_spectrum>=2 &&
+                          std::strlen(expression)>=6))
             do_in_parallel = true;
 #endif
           if (mp.result_dim) { // Vector-valued expression

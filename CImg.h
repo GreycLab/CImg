@@ -15617,11 +15617,6 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(arg1);
             }
 
-            if (!std::strncmp(ss,"dim(",4)) { // Dimension of a value.
-              arg1 = compile(ss4,se1);
-              _cimg_mp_constant(mem(arg1,1)<2?0:mem(arg1,1) - 1);
-            }
-
             if (!std::strncmp(ss,"dot(",4)) { // Dot product
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss4,s1);
@@ -15960,6 +15955,11 @@ namespace cimg_library_suffixed {
               if (mem(arg1,1)>1) _cimg_mp_vector1_v(mp_sinh,arg1);
               if (mem(arg1,1)>0) _cimg_mp_constant(std::sinh(mem[arg1]));
               _cimg_mp_scalar1(mp_sinh,arg1);
+            }
+
+            if (!std::strncmp(ss,"size(",5)) { // Vector size.
+              arg1 = compile(ss5,se1);
+              _cimg_mp_constant(mem(arg1,1)<2?0:mem(arg1,1) - 1);
             }
 
             if (!std::strncmp(ss,"sort(",5)) { // Sort vector

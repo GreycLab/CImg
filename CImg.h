@@ -14217,17 +14217,8 @@ namespace cimg_library_suffixed {
                     arg1 = labelMpos[i]; break;
                   }
                 } else arg1 = reserved_label[*variable_name]; // Single-char variable
-                if (arg1==~0U) { // Variable does not exist -> error
-                  *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
-                  throw CImgArgumentException("[_cimg_math_parser] "
-                                              "CImg<%s>::%s(): Undefined variable '%s', "
-                                              "in expression '%s%s%s'.",
-                                              pixel_type(),calling_function,
-                                              variable_name._data,
-                                              (ss - 8)>expr._data?"...":"",
-                                              (ss - 8)>expr._data?ss - 8:expr._data,
-                                              se<&expr.back()?"...":"");
-                } else { // Variable already exists
+                if (arg1==~0U) compile(ss,s0 - 1); // Variable does not exist -> error
+                else { // Variable already exists
                   if (mem(arg1,1)<2) { // Variable is not a vector -> error
                     *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
                     throw CImgArgumentException("[_cimg_math_parser] "
@@ -14491,8 +14482,8 @@ namespace cimg_library_suffixed {
             // No assignment expressions match -> error
             *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
             throw CImgArgumentException("[_cimg_math_parser] "
-                                        "CImg<%s>::%s(): Invalid variable name '%s' in expression "
-                                        "'%s%s%s'.",
+                                        "CImg<%s>::%s(): Invalid left-hand operand '%s' of assignment operator '=', "
+                                        "in expression '%s%s%s'.",
                                         pixel_type(),calling_function,
                                         variable_name._data,
                                         (ss - 8)>expr._data?"...":"",
@@ -14711,12 +14702,14 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(arg1);
             }
 
+            variable_name.assign(ss,(unsigned int)(s - ss));
+            variable_name.back() = 0;
             *se = saved_char; cimg::strellipsize(expr,64);
             throw CImgArgumentException("[_cimg_math_parser] "
-                                        "CImg<%s>::%s(): Invalid or non-variable as left operand, "
+                                        "CImg<%s>::%s(): Invalid left-hand operand '%s' of %s, "
                                         "in expression '%s%s%s'.",
                                         pixel_type(),calling_function,
-                                        s_op,
+                                        variable_name._data,s_op,
                                         (ss - 8)>expr._data?"...":"",
                                         (ss - 8)>expr._data?ss - 8:expr._data,
                                         se<&expr.back()?"...":"");
@@ -15187,7 +15180,7 @@ namespace cimg_library_suffixed {
             _cimg_mp_return(pos);
           }
 
-          if (mem(arg1,1)<0) { // Scalar variable: s += scalar
+          if (mem(arg1,1)<0) { // Scalar variable: s++
             CImg<uptrT>::vector((uptrT)op,arg1).move_to(code);
             _cimg_mp_return(pos);
           }
@@ -15197,11 +15190,10 @@ namespace cimg_library_suffixed {
           variable_name.back() = 0;
           *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s(): Invalid %s-%s of variable '%s' in expression '%s%s%s'.",
+                                      "CImg<%s>::%s(): Invalid operand '%s' of %s, "
+                                      "in expression '%s%s%s'.",
                                       pixel_type(),calling_function,
-                                      is_sth?"pre":"post",
-                                      op==mp_self_increment?"increment":"decrement",
-                                      variable_name._data,
+                                      variable_name._data,s_op,
                                       (ss - 8)>expr._data?"...":"",
                                       (ss - 8)>expr._data?ss - 8:expr._data,
                                       se<&expr.back()?"...":"");

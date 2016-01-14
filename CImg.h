@@ -13988,9 +13988,8 @@ namespace cimg_library_suffixed {
             _cimg_mp_scalar0(mp_i);
           case 'I' :
             if (reserved_label['I']!=~0U) _cimg_mp_return(reserved_label['I']);
-            p2 = imgin._spectrum;
-            _cimg_mp_check_vector_dim(p2);
-            pos = vector(p2);
+            _cimg_mp_check_vector_dim(imgin._spectrum);
+            pos = vector(imgin._spectrum);
             CImg<uptrT>::vector((uptrT)mp_Joff,pos,0,0).move_to(code);
             _cimg_mp_return(pos);
           case 'R' :
@@ -16019,7 +16018,7 @@ namespace cimg_library_suffixed {
                 !std::strncmp(ss,"vector(",7)) { // Vector
               arg2 = 0; // Number of specified values.
               s = std::strchr(ss6,'(') + 1;
-              if (*s!=')') for (; s<se; ++s) {
+              if (*s!=')' || arg1==~0U) for (; s<se; ++s) {
                   ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                  (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                   arg3 = compile(s,ns);
@@ -16451,7 +16450,7 @@ namespace cimg_library_suffixed {
         if (!dim) {
           *se = saved_char; cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s(): Invalid 0-dimensional vector invoked "
+                                      "CImg<%s>::%s(): 0-dimensional vector has been found "
                                       "in expression '%s%s%s'.",
                                       pixel_type(),calling_function,
                                       (ss - 8)>expr._data?"...":"",
@@ -16460,7 +16459,7 @@ namespace cimg_library_suffixed {
         } else if (dim==~0U) {
           *se = saved_char; cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s(): Dimension of specified vector maybe variable "
+                                      "CImg<%s>::%s(): Vector with unknown size has been found "
                                       "in expression '%s%s%s'.",
                                       pixel_type(),calling_function,
                                       (ss - 8)>expr._data?"...":"",

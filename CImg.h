@@ -16618,19 +16618,32 @@ namespace cimg_library_suffixed {
       static void _mp_complex_pow(const double r1, const double i1,
                                   const double r2, const double i2,
                                   double *ptrd) {
-        if (!i2) {
-          if (!r2) { *(ptrd++) = 1; *ptrd = 1; return; }
-          if (r2==1) { *(ptrd++) = r1; *ptrd = i1; return; }
-          if (r2==2) { *(ptrd++) = r1*r1 - i1*i1; *ptrd = 2*r1*i1; return; }
-          if (r2==3) { *(ptrd++) = r1*r1*r1 - 3*r1*i1*i1; *ptrd = 3*r1*r1*i1 - i1*i1*i1; return; }
+        double ro, io;
+        if (i2<1e-15) { // Exponent is real
+          if (r1<1e-15) {
+            if (r2<1e-15) { ro = 1; io = 0; }
+            else ro = io = 0;
+          } else {
+            const double
+              mod1_2 = r1*r1 + i1*i1,
+              phi1 = std::atan2(i1,r1),
+              modo = std::pow(mod1_2,0.5*r2),
+              phio = r2*phi1;
+            ro = modo*std::cos(phio);
+            io = modo*std::sin(phio);
+          }
+        } else { // Exponent is complex
+          if (r1<1e-15 && i1<1e-15) ro = io = 0;
+          const double
+            mod1_2 = r1*r1 + i1*i1,
+            phi1 = std::atan2(i1,r1),
+            modo = std::pow(mod1_2,0.5*r2)*std::exp(-i2*phi1),
+            phio = r2*phi1 + 0.5*i2*std::log(mod1_2);
+          ro = modo*std::cos(phio);
+          io = modo*std::sin(phio);
         }
-        const double
-          mod1_2 = r1*r1 + i1*i1,
-          phi1 = std::atan2(i1,r1),
-          modo = std::pow(mod1_2,0.5*r2)*std::exp(-i2*phi1),
-          phio = r2*phi1 + 0.5*i2*std::log(mod1_2);
-        *(ptrd++) = modo*std::cos(phio);
-        *ptrd = modo*std::sin(phio);
+        *(ptrd++) = ro;
+        *ptrd = io;
       }
 
       static double mp_complex_pow_sv(_cimg_math_parser& mp) {

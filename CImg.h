@@ -14219,17 +14219,7 @@ namespace cimg_library_suffixed {
                 } else arg1 = reserved_label[*variable_name]; // Single-char variable
                 if (arg1==~0U) compile(ss,s0 - 1); // Variable does not exist -> error
                 else { // Variable already exists
-                  if (mem(arg1,1)<2) { // Variable is not a vector -> error
-                    *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
-                    throw CImgArgumentException("[_cimg_math_parser] "
-                                                "CImg<%s>::%s(): Array brackets used on non-vector variable '%s', "
-                                                "in expression '%s%s%s'.",
-                                                pixel_type(),calling_function,
-                                                variable_name._data,
-                                                (ss - 8)>expr._data?"...":"",
-                                                (ss - 8)>expr._data?ss - 8:expr._data,
-                                                se<&expr.back()?"...":"");
-                  }
+                  if (mem(arg1,1)<2) compile(ss,s); // Variable is not a vector -> error
                   if (mem(arg2,1)==1) { // Constant index -> return corresponding variable slot directly
                     nb = (int)mem[arg2];
                     if (nb>=0 && nb<(int)mem(arg1,1) - 1) {
@@ -14237,17 +14227,7 @@ namespace cimg_library_suffixed {
                       CImg<uptrT>::vector((uptrT)mp_copy,arg1,arg3).move_to(code);
                       _cimg_mp_return(arg1);
                     }
-                    *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
-                    throw CImgArgumentException("[_cimg_math_parser] "
-                                                "CImg<%s>::%s(): Out-of-bounds reference '%s[%d]' "
-                                                "('%s' has dimension %u), "
-                                                "in expression '%s%s%s'.",
-                                                pixel_type(),calling_function,
-                                                variable_name._data,nb,
-                                                variable_name._data,(unsigned int)mem(arg1,1) - 1,
-                                                (ss - 8)>expr._data?"...":"",
-                                                (ss - 8)>expr._data?ss - 8:expr._data,
-                                                se<&expr.back()?"...":"");
+                    compile(ss,s); // Out-of-bounds reference -> error
                   }
 
                   // Case of non-constant index -> return assigned value + linked reference
@@ -14482,7 +14462,7 @@ namespace cimg_library_suffixed {
             // No assignment expressions match -> error
             *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
             throw CImgArgumentException("[_cimg_math_parser] "
-                                        "CImg<%s>::%s(): Invalid left-hand operand '%s' of assignment operator '=', "
+                                        "CImg<%s>::%s(): Invalid left-hand operand '%s' for assignment operator '=', "
                                         "in expression '%s%s%s'.",
                                         pixel_type(),calling_function,
                                         variable_name._data,
@@ -14702,11 +14682,10 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(arg1);
             }
 
-            variable_name.assign(ss,(unsigned int)(s - ss));
-            variable_name.back() = 0;
+            variable_name.assign(ss,(unsigned int)(s - ss)).back() = 0;
             *se = saved_char; cimg::strellipsize(expr,64);
             throw CImgArgumentException("[_cimg_math_parser] "
-                                        "CImg<%s>::%s(): Invalid left-hand operand '%s' of %s, "
+                                        "CImg<%s>::%s(): Invalid left-hand operand '%s' for %s, "
                                         "in expression '%s%s%s'.",
                                         pixel_type(),calling_function,
                                         variable_name._data,s_op,
@@ -15190,7 +15169,7 @@ namespace cimg_library_suffixed {
           variable_name.back() = 0;
           *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s(): Invalid operand '%s' of %s, "
+                                      "CImg<%s>::%s(): Invalid operand '%s' for %s, "
                                       "in expression '%s%s%s'.",
                                       pixel_type(),calling_function,
                                       variable_name._data,s_op,
@@ -15259,11 +15238,13 @@ namespace cimg_library_suffixed {
             arg1 = compile(ss,s0);
             arg2 = compile(++s0,se1);
             if (mem(arg1,1)<2) {
+              variable_name.assign(ss,(unsigned int)(s0 - ss)).back() = 0;
               *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
               throw CImgArgumentException("[_cimg_math_parser] "
-                                          "CImg<%s>::%s(): Array brackets used on non-vector variable, "
+                                          "CImg<%s>::%s(): Array brackets used on non-vector variable '%s', "
                                           "in expression '%s%s%s'.",
                                           pixel_type(),calling_function,
+                                          variable_name._data,
                                           (ss - 8)>expr._data?"...":"",
                                           (ss - 8)>expr._data?ss - 8:expr._data,
                                           se<&expr.back()?"...":"");
@@ -15271,10 +15252,11 @@ namespace cimg_library_suffixed {
             if (mem(arg2,1)>0) { // Constant index
               nb = (int)mem[arg2];
               if (nb>=0 && nb<(int)mem(arg1,1) - 1) _cimg_mp_return(arg1 + 1 + nb);
+              variable_name.assign(ss,(unsigned int)(s0 - ss)).back() = 0;
               *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
               throw CImgArgumentException("[_cimg_math_parser] "
                                           "CImg<%s>::%s(): Out-of-bounds reference '%s[%d]' "
-                                          "('%s' has dimension %u), "
+                                          "(vector '%s' has dimension %u), "
                                           "in expression '%s%s%s'.",
                                           pixel_type(),calling_function,
                                           variable_name._data,nb,
@@ -15964,7 +15946,7 @@ namespace cimg_library_suffixed {
               if (mem(arg1,1)>=0 || mem(arg2,1)>=0) {
                 *se = saved_char; cimg::strellipsize(expr,64);
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s(): Non-variable used as argument of function 'swap()', "
+                                            "CImg<%s>::%s(): Non-variable arguments specified for function 'swap()', "
                                             "in expression '%s%s%s'.",
                                             pixel_type(),calling_function,
                                             (ss - 8)>expr._data?"...":"",
@@ -16636,6 +16618,12 @@ namespace cimg_library_suffixed {
       static void _mp_complex_pow(const double r1, const double i1,
                                   const double r2, const double i2,
                                   double *ptrd) {
+        if (!i2) {
+          if (!r2) { *(ptrd++) = 1; *ptrd = 1; return; }
+          if (r2==1) { *(ptrd++) = r1; *ptrd = i1; return; }
+          if (r2==2) { *(ptrd++) = r1*r1 - i1*i1; *ptrd = 2*r1*i1; return; }
+          if (r2==3) { *(ptrd++) = r1*r1*r1 - 3*r1*i1*i1; *ptrd = 3*r1*r1*i1 - i1*i1*i1; return; }
+        }
         const double
           mod1_2 = r1*r1 + i1*i1,
           phi1 = std::atan2(i1,r1),

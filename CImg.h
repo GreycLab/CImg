@@ -14444,7 +14444,7 @@ namespace cimg_library_suffixed {
               if (mem(arg1,1)>1) { // Vector variable: V = value
                 _cimg_mp_check_type(arg2,2,"assignment operator '='",1,0);
                 if (mem(arg2,1)>1) // From vector
-                  CImg<uptrT>::vector((uptrT)mp_vector_copy,arg1,arg2,mem(arg1,1) - 1).move_to(code);
+                  CImg<uptrT>::vector((uptrT)mp_vector_copy,arg1,arg2,(uptrT)mem(arg1,1) - 1).move_to(code);
                 else // From scalar
                   CImg<uptrT>::vector((uptrT)mp_vector_init,arg1,(uptrT)mem(arg1,1) - 1,arg2).move_to(code);
                 _cimg_mp_return(arg1);
@@ -15520,8 +15520,7 @@ namespace cimg_library_suffixed {
               CImg<uptrT>::vector((uptrT)mp_cross,pos,arg1,arg2).move_to(code);
               _cimg_mp_return(pos);
             }
-            break;
-
+            
             if (!std::strncmp(ss,"cut(",4)) { // Cut
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss4,s1==se2?++s1:s1);
@@ -15723,7 +15722,7 @@ namespace cimg_library_suffixed {
                                  (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                   arg1 = compile(s,ns);
                   if (mem(arg1,1)>1)
-                    CImg<uptrT>::sequence(mem(arg1,1) - 1,arg1 + 1,arg1 + (uptrT)mem(arg1,1) - 1).
+                    CImg<uptrT>::sequence((uptrT)mem(arg1,1) - 1,arg1 + 1,arg1 + (uptrT)mem(arg1,1) - 1).
                       move_to(_opcode);
                   else CImg<uptrT>::vector(arg1).move_to(_opcode);
                   s = ns;
@@ -15817,7 +15816,7 @@ namespace cimg_library_suffixed {
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                 arg2 = compile(s,ns);
                 if (mem(arg2,1)>1)
-                  CImg<uptrT>::sequence(mem(arg2,1) - 1,arg2 + 1,arg2 + (uptrT)mem(arg2,1) - 1).
+                  CImg<uptrT>::sequence((uptrT)mem(arg2,1) - 1,arg2 + 1,arg2 + (uptrT)mem(arg2,1) - 1).
                     move_to(_opcode);
                 else CImg<uptrT>::vector(arg2).move_to(_opcode);
                 s = ns;
@@ -16043,7 +16042,7 @@ namespace cimg_library_suffixed {
                              (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
               arg2 = compile(s,ns);
               if (mem(arg2,1)>1)
-                CImg<uptrT>::sequence(mem(arg2,1) - 1,arg2 + 1,arg2 + (uptrT)mem(arg2,1) - 1).
+                CImg<uptrT>::sequence((uptrT)mem(arg2,1) - 1,arg2 + 1,arg2 + (uptrT)mem(arg2,1) - 1).
                   move_to(_opcode);
               else CImg<uptrT>::vector(arg2).move_to(_opcode);
               s = ns;
@@ -17387,7 +17386,7 @@ namespace cimg_library_suffixed {
               *(ptrd++) = (double)img.linear_atXYZ((float)x,(float)y,(float)z,c);
           else
             cimg_forC(img,c)
-              *(ptrd++) = (double)img.linear_atXYZC((float)x,(float)y,(float)z,c,0);
+              *(ptrd++) = (double)img.linear_atXYZ((float)x,(float)y,(float)z,c,0);
         }
         return cimg::type<double>::nan();
       }
@@ -17461,7 +17460,7 @@ namespace cimg_library_suffixed {
               *(ptrd++) = (double)img.linear_atXYZ((float)x,(float)y,(float)z,c);
           else
             cimg_forC(img,c)
-              *(ptrd++) = (double)img.linear_atXYZC((float)x,(float)y,(float)z,c,0);
+              *(ptrd++) = (double)img.linear_atXYZ((float)x,(float)y,(float)z,c,0);
         }
         return cimg::type<double>::nan();
       }
@@ -17848,7 +17847,7 @@ namespace cimg_library_suffixed {
         const double val = _mp_arg(1);
         if (x>=0 && x<img.width() && y>=0 && y<img.height() &&
             z>=0 && z<img.depth() && c>=0 && c<img.spectrum()) {
-          img(x,y,z,c) = val;
+          img(x,y,z,c) = (T)val;
         }
         return val;
       }
@@ -18160,7 +18159,7 @@ namespace cimg_library_suffixed {
               *(ptrd++) = (double)img.linear_atXYZ((float)x,(float)y,(float)z,c);
           else
             cimg_forC(img,c)
-              *(ptrd++) = (double)img.linear_atXYZC((float)x,(float)y,(float)z,c,0);
+              *(ptrd++) = (double)img.linear_atXYZ((float)x,(float)y,(float)z,c,0);
         }
         return cimg::type<double>::nan();
       }
@@ -18231,7 +18230,7 @@ namespace cimg_library_suffixed {
               *(ptrd++) = (double)img.linear_atXYZ((float)x,(float)y,(float)z,c);
           else
             cimg_forC(img,c)
-              *(ptrd++) = (double)img.linear_atXYZC((float)x,(float)y,(float)z,c,0);
+              *(ptrd++) = (double)img.linear_atXYZ((float)x,(float)y,(float)z,c,0);
         }
         return cimg::type<double>::nan();
       }
@@ -21758,14 +21757,14 @@ namespace cimg_library_suffixed {
               cimg_rofXYZ(*this,x,y,z) {
                 mp(x,y,z,0,res._data);
                 const double *ptrs = res._data;
-                T *_ptrd = ptrd--; for (unsigned int n = N; n>0; --n) { *_ptrd = (*ptrs++); _ptrd+=whd; }
+                T *_ptrd = ptrd--; for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
               }
             } else if (*expression=='>' || !do_in_parallel) {
               CImg<doubleT> res(1,mp.result_dim);
               cimg_forXYZ(*this,x,y,z) {
                 mp(x,y,z,0,res._data);
                 const double *ptrs = res._data;
-                T *_ptrd = ptrd++; for (unsigned int n = N; n>0; --n) { *_ptrd = (*ptrs++); _ptrd+=whd; }
+                T *_ptrd = ptrd++; for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
               }
             } else {
 #ifdef cimg_use_openmp
@@ -21779,7 +21778,7 @@ namespace cimg_library_suffixed {
                   cimg_forX(*this,x) {
                     lmp(x,y,z,0,res._data);
                     const double *ptrs = res._data;
-                    T *_ptrd = ptrd++; for (unsigned int n = N; n>0; --n) { *_ptrd = (*ptrs++); _ptrd+=whd; }
+                    T *_ptrd = ptrd++; for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
                   }
                 }
               }

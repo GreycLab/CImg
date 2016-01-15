@@ -15793,25 +15793,40 @@ namespace cimg_library_suffixed {
               arg1 = compile(ss5,s1==se2?++s1:s1);
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(s1 + 1,s2==se2?++s2:s2);
-              if (s1<se1) arg3 = compile(s2 + 1,se1); else arg3 = 1;
+              if (s2<se1) arg3 = compile(++s2,se1); else arg3 = 1;
               _cimg_mp_check_type(arg1,1,"function 'mmul()'",2,0);
               _cimg_mp_check_type(arg2,2,"function 'mmul()'",2,0);
               _cimg_mp_check_type(arg3,3,"function 'mmul()'",1,0);
+              p3 = (unsigned int)mem[arg3];
+              if (mem(arg3,1)!=1 || !p3) {
+                variable_name.assign(s2,se - s2).back() = 0;
+                *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
+                throw CImgArgumentException("[_cimg_math_parser] "
+                                            "CImg<%s>::%s(): Third argument '%s' of function 'mmul()' is not "
+                                            "a positive constant, in expression '%s%s%s'.",
+                                            pixel_type(),calling_function,
+                                            variable_name.data(),
+                                            (ss - 8)>expr._data?"...":"",
+                                            (ss - 8)>expr._data?ss - 8:expr._data,
+                                            se<&expr.back()?"...":"");
+              }
               p1 = (unsigned int)mem(arg1,1) - 1;
               p2 = (unsigned int)mem(arg2,1) - 1;
-              if (p1%p2) {
+              arg5 = p2/p3;
+              arg4 = p1/arg5;
+              if (arg4*arg5!=p1 || arg5*p3!=p2) {
                 *se = saved_char; cimg::strellipsize(expr,64);
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s(): Types of arguments ('%s' and '%s') do not match for function 'mmul()', "
-                                            "of expression '%s%s%s'.",
+                                            "CImg<%s>::%s(): Types of first and second arguments ('%s' and '%s') "
+                                            "do not match for function 'mmul()', in expression '%s%s%s'.",
                                             pixel_type(),calling_function,
                                             s_type(arg1)._data,s_type(arg2)._data,
                                             (ss - 8)>expr._data?"...":"",
                                             (ss - 8)>expr._data?ss - 8:expr._data,
                                             se<&expr.back()?"...":"");
               }
-              pos = vector(p1/p2);
-              CImg<uptrT>::vector((uptrT)mp_matrix_mul,pos,arg1,p1,arg2,p2).move_to(code);
+              pos = vector(arg4*p3);
+              CImg<uptrT>::vector((uptrT)mp_matrix_mul,pos,arg1,arg2,arg4,arg5,p3).move_to(code);
               _cimg_mp_return(pos);
             }
             break;
@@ -17561,12 +17576,12 @@ namespace cimg_library_suffixed {
         double *ptrd = &_mp_arg(1) + 1;
         const double
           *ptr1 = &_mp_arg(2) + 1,
-          *ptr2 = &_mp_arg(4) + 1;
+          *ptr2 = &_mp_arg(3) + 1;
         const unsigned int
-          siz1 = (unsigned int)mp.opcode(3),
-          siz2 = (unsigned int)mp.opcode(5),
-          h1 = siz1/siz2;
-        CImg<double>(ptrd,1,h1,1,1,true) = CImg<double>(ptr1,siz1/h1,h1,1,1,true)*CImg<double>(ptr2,1,siz2,1,1,true);
+          k = (unsigned int)mp.opcode(4),
+          l = (unsigned int)mp.opcode(5),
+          m = (unsigned int)mp.opcode(6);
+        CImg<double>(ptrd,m,k,1,1,true) = CImg<double>(ptr1,l,k,1,1,true)*CImg<double>(ptr2,m,l,1,1,true);
         return cimg::type<double>::nan();
       }
 

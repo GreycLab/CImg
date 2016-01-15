@@ -15818,9 +15818,10 @@ namespace cimg_library_suffixed {
                 *se = saved_char; cimg::strellipsize(expr,64);
                 throw CImgArgumentException("[_cimg_math_parser] "
                                             "CImg<%s>::%s(): Types of first and second arguments ('%s' and '%s') "
-                                            "do not match for function 'mmul()', in expression '%s%s%s'.",
+                                            "do not match for function 'mmul()' with 'nb_colsB=%u', "
+                                            "in expression '%s%s%s'.",
                                             pixel_type(),calling_function,
-                                            s_type(arg1)._data,s_type(arg2)._data,
+                                            s_type(arg1)._data,s_type(arg2)._data,p3,
                                             (ss - 8)>expr._data?"...":"",
                                             (ss - 8)>expr._data?ss - 8:expr._data,
                                             se<&expr.back()?"...":"");

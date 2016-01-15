@@ -14523,8 +14523,8 @@ namespace cimg_library_suffixed {
                   if (p1*p2!=p3) {
                     *se = saved_char; cimg::strellipsize(expr,64);
                     throw CImgArgumentException("[_cimg_math_parser] "
-                                                "CImg<%s>::%s(): %s: Sizes of left-hand and right-hand operands ('%s' and '%s') "
-                                                "do not match, in expression '%s%s%s'.",
+                                                "CImg<%s>::%s(): %s: Sizes of left-hand and right-hand operands "
+                                                "('%s' and '%s') do not match, in expression '%s%s%s'.",
                                                 pixel_type(),calling_function,s_op,
                                                 s_type(arg1)._data,s_type(arg2)._data,
                                                 (ss - 4)>expr._data?"...":"",
@@ -14976,8 +14976,8 @@ namespace cimg_library_suffixed {
                 if (arg4*p2!=p1) {
                   *se = saved_char; cimg::strellipsize(expr,64);
                   throw CImgArgumentException("[_cimg_math_parser] "
-                                              "CImg<%s>::%s(): %s: Sizes of left-hand and right-hand operands ('%s' and '%s') "
-                                              "do not match, in expression '%s%s%s'.",
+                                              "CImg<%s>::%s(): %s: Sizes of left-hand and right-hand operands "
+                                              "('%s' and '%s') do not match, in expression '%s%s%s'.",
                                               pixel_type(),calling_function,s_op,
                                               s_type(arg1)._data,s_type(arg2)._data,
                                               (ss - 4)>expr._data?"...":"",

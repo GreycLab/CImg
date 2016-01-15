@@ -16896,9 +16896,9 @@ namespace cimg_library_suffixed {
                                   const double r2, const double i2,
                                   double *ptrd) {
         double ro, io;
-        if (i2<1e-15) { // Exponent is real
-          if (r1<1e-15) {
-            if (r2<1e-15) { ro = 1; io = 0; }
+        if (cimg::abs(i2)<1e-15) { // Exponent is real
+          if (cimg::abs(r1)<1e-15 && cimg::abs(i1)<1e-15) {
+            if (cimg::abs(r2)<1e-15) { ro = 1; io = 0; }
             else ro = io = 0;
           } else {
             const double
@@ -16910,7 +16910,7 @@ namespace cimg_library_suffixed {
             io = modo*std::sin(phio);
           }
         } else { // Exponent is complex
-          if (r1<1e-15 && i1<1e-15) ro = io = 0;
+          if (cimg::abs(r1)<1e-15 && cimg::abs(i1)<1e-15) ro = io = 0;
           const double
             mod1_2 = r1*r1 + i1*i1,
             phi1 = std::atan2(i1,r1),

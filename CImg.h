@@ -14507,13 +14507,33 @@ namespace cimg_library_suffixed {
             ref.assign(7);
             arg1 = compile(ss,ns,ref); // Vector slot
             arg2 = compile(s + 1,se); // Right operand
-            _cimg_mp_check_type(arg1,2,s_op,2,2);
-            _cimg_mp_check_type(arg2,2,s_op,2,2);
-
-            if (_cimg_mp_is_vector(arg2)) { // Complex **= complex
-              if (*ps=='*')
-                CImg<uptrT>::vector((uptrT)mp_complex_mul,arg1,arg1,arg2).move_to(code);
-              else if (*ps=='/')
+            if (*ps!='*') {
+              _cimg_mp_check_type(arg1,2,s_op,2,2);
+              _cimg_mp_check_type(arg2,2,s_op,2,2);
+            }
+            if (_cimg_mp_is_vector(arg2)) { // Complex **= complex or Matrix **= matrix
+              if (*ps=='*') {
+                if (_cimg_mp_vector_size(arg1)==2 && _cimg_mp_vector_size(arg2)==2)
+                  CImg<uptrT>::vector((uptrT)mp_complex_mul,arg1,arg1,arg2).move_to(code);
+                else {
+                  _cimg_mp_check_matrix_square(arg2,2,s_op);
+                  p3 = _cimg_mp_vector_size(arg1);
+                  p2 = (unsigned int)std::sqrt(_cimg_mp_vector_size(arg2));
+                  p1 = p3/p2;
+                  if (p1*p2!=p3) {
+                    *se = saved_char; cimg::strellipsize(expr,64);
+                    throw CImgArgumentException("[_cimg_math_parser] "
+                                                "CImg<%s>::%s(): %s: Sizes of left-hand and right-hand operands ('%s' and '%s') "
+                                                "do not match, in expression '%s%s%s'.",
+                                                pixel_type(),calling_function,s_op,
+                                                s_type(arg1)._data,s_type(arg2)._data,
+                                                (ss - 4)>expr._data?"...":"",
+                                                (ss - 4)>expr._data?ss - 4:expr._data,
+                                                se<&expr.back()?"...":"");
+                  }
+                  CImg<uptrT>::vector((uptrT)mp_matrix_mul,arg1,arg1,arg2,p1,p2,p2).move_to(code);
+                }
+              } else if (*ps=='/')
                 CImg<uptrT>::vector((uptrT)mp_complex_div_vv,arg1,arg1,arg2).move_to(code);
               else
                 CImg<uptrT>::vector((uptrT)mp_complex_pow_vv,arg1,arg1,arg2).move_to(code);
@@ -16692,13 +16712,16 @@ namespace cimg_library_suffixed {
           siz = _cimg_mp_vector_size(arg),
           n = (unsigned int)std::sqrt(siz);
         if (n*n!=siz) {
-          const char *s_arg = !n_arg?"":n_arg==1?"First ":n_arg==2?"Second ":n_arg==3?"Third ":"One ";
+          const char *s_arg;
+          if (*s_op!='F') s_arg = !n_arg?"":n_arg==1?"Left-hand ":"Right-hand ";
+          else s_arg = !n_arg?"":n_arg==1?"First ":n_arg==2?"Second ":n_arg==3?"Third ":"One ";
           *se = saved_char; cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
                                       "CImg<%s>::%s(): %s: %s%s (of type '%s') "
                                       "cannot be considered as a square matrix, in expression '%s%s%s'.",
                                       pixel_type(),calling_function,s_op,
-                                      s_arg,*s_arg?"argument":"Argument",s_type(arg)._data,
+                                      s_arg,*s_op=='F'?(*s_arg?"argument":"Argument"):(*s_arg?"operand":"Operand"),
+                                      s_type(arg)._data,
                                       (ss - 4)>expr._data?"...":"",
                                       (ss - 4)>expr._data?ss - 4:expr._data,
                                       se<&expr.back()?"...":"");

@@ -13703,6 +13703,7 @@ namespace cimg_library_suffixed {
     // Define the math formula parser/compiler and expression evaluator.
     struct _cimg_math_parser {
       CImg<doubleT> mem;
+      CImg<intT> memtype;
       CImgList<uptrT> _code, &code;
       CImg<uptrT> opcode;
       const CImg<uptrT> *p_code_begin, *p_code_end, *p_code;
@@ -13725,12 +13726,12 @@ namespace cimg_library_suffixed {
       const char *const calling_function;
       typedef double (*mp_func)(_cimg_math_parser&);
 
-#define _cimg_mp_is_constant(arg) (mem(arg,1)==1) // Is constant?
-#define _cimg_mp_is_scalar(arg) (mem(arg,1)<2) // Is scalar?
-#define _cimg_mp_is_temp(arg) (!mem(arg,1)) // Is temporary scalar?
-#define _cimg_mp_is_variable(arg) (mem(arg,1)==-1) // Is scalar variable?
-#define _cimg_mp_is_vector(arg) (mem(arg,1)>1) // Is vector?
-#define _cimg_mp_vector_size(arg) ((unsigned int)mem(arg,1) - 1) // Vector size
+#define _cimg_mp_is_constant(arg) (memtype[arg]==1) // Is constant?
+#define _cimg_mp_is_scalar(arg) (memtype[arg]<2) // Is scalar?
+#define _cimg_mp_is_temp(arg) (!memtype[arg]) // Is temporary scalar?
+#define _cimg_mp_is_variable(arg) (memtype[arg]==-1) // Is scalar variable?
+#define _cimg_mp_is_vector(arg) (memtype[arg]>1) // Is vector?
+#define _cimg_mp_vector_size(arg) ((unsigned int)memtype[arg] - 1) // Vector size
 #define _cimg_mp_check_type(arg,n_arg,s_op,mode,N) check_type(arg,n_arg,s_op,mode,N,ss,se,saved_char)
 #define _cimg_mp_check_constant(arg,n_arg,s_op) check_constant(arg,n_arg,s_op,ss,se,saved_char)
 #define _cimg_mp_check_matrix_square(arg,n_arg,s_op) check_matrix_square(arg,n_arg,s_op,ss,se,saved_char)
@@ -13790,7 +13791,8 @@ namespace cimg_library_suffixed {
         }
 
         // Init constant values.
-        mem.assign(96,2);
+        mem.assign(96);
+        memtype.assign(96);
         double *p_mem = mem._data;
         for (unsigned int i = 0; i<=10; ++i) *(p_mem++) = (double)i;  // mem[0-10]
         for (unsigned int i = 1; i<=5; ++i) *(p_mem++) = -(double)i;  // mem[11-15]
@@ -13815,9 +13817,9 @@ namespace cimg_library_suffixed {
 
         // Set value property :
         // { -1 = variable | 0 = regular value | 1 = compile time constant | N>1 = constant ptr to vector[N-1] }.
-        std::memset(mem.data(0,1),0,sizeof(double)*mem._width);
-        p_mem = mem.data(0,1); for (unsigned int i = 0; i<28; ++i) *(p_mem++) = 1;
-        mem(17,1) = 0;
+        std::memset(memtype._data,0,sizeof(int)*memtype._width);
+        int *p_memtype = memtype._data; for (unsigned int i = 0; i<28; ++i) *(p_memtype++) = 1;
+        memtype[17] = 0;
 
         mempos = _cimg_mp_c + 1;
         labelMpos.assign(8);
@@ -13851,6 +13853,7 @@ namespace cimg_library_suffixed {
         if (_cimg_mp_is_vector(ind_result)) result_dim = _cimg_mp_vector_size(ind_result);
         mem.resize(mempos,1,1,1,-1);
         result = mem._data + ind_result;
+        memtype.assign();
         level.assign();
         labelMpos.assign();
         reserved_label.assign();
@@ -14107,8 +14110,9 @@ namespace cimg_library_suffixed {
                   p_ref[1] = p1;
                   p_ref[2] = (unsigned int)is_relative;
                   p_ref[3] = arg1;
-                  if (_cimg_mp_is_vector(arg2)) set_variable_vector(arg2); // Prevent from being used in further optimization
-                  else if (_cimg_mp_is_temp(arg2)) mem(arg2,1) = -1;
+                  if (_cimg_mp_is_vector(arg2))
+                    set_variable_vector(arg2); // Prevent from being used in further optimization
+                  else if (_cimg_mp_is_temp(arg2)) memtype[arg2] = -1;
                 }
                 if (p1!=~0U) {
                   if (!listout) _cimg_mp_return(arg2);
@@ -14189,8 +14193,9 @@ namespace cimg_library_suffixed {
                   p_ref[4] = arg2;
                   p_ref[5] = arg3;
                   p_ref[6] = arg4;
-                  if (_cimg_mp_is_vector(arg5)) set_variable_vector(arg5); // Prevent from being used in further optimization
-                  else if (_cimg_mp_is_temp(arg5)) mem(arg5,1) = -1;
+                  if (_cimg_mp_is_vector(arg5))
+                    set_variable_vector(arg5); // Prevent from being used in further optimization
+                  else if (_cimg_mp_is_temp(arg5)) memtype[arg5] = -1;
                 }
                 if (p1!=~0U) {
                   if (!listout) _cimg_mp_return(arg5);
@@ -14252,7 +14257,7 @@ namespace cimg_library_suffixed {
                     *p_ref = 1;
                     p_ref[1] = arg1;
                     p_ref[2] = arg2;
-                    if (_cimg_mp_is_temp(arg3)) mem(arg3,1) = -1; // Prevent from being used in further optimization
+                    if (_cimg_mp_is_temp(arg3)) memtype[arg3] = -1; // Prevent from being used in further optimization
                   }
                   CImg<uptrT>::vector((uptrT)mp_vector_set_off,arg3,arg1,(uptrT)_cimg_mp_vector_size(arg1),arg2,arg3).
                     move_to(code);
@@ -14325,7 +14330,7 @@ namespace cimg_library_suffixed {
                   set_variable_vector(arg1);
                 } else { // Scalar variable
                   arg1 = scalar1(mp_copy,arg2);
-                  mem(arg1,1) = -1;
+                  memtype[arg1] = -1;
                 }
 
                 if (!variable_name[1]) reserved_label[*variable_name] = arg1;
@@ -14339,9 +14344,11 @@ namespace cimg_library_suffixed {
                 _cimg_mp_check_type(arg2,2,s_op,_cimg_mp_is_vector(arg1)?3:1,0);
                 if (_cimg_mp_is_vector(arg1)) { // Vector
                   if (_cimg_mp_is_vector(arg2)) // From vector
-                    CImg<uptrT>::vector((uptrT)mp_vector_copy,arg1,arg2,(uptrT)_cimg_mp_vector_size(arg1)).move_to(code);
+                    CImg<uptrT>::vector((uptrT)mp_vector_copy,arg1,arg2,(uptrT)_cimg_mp_vector_size(arg1)).
+                      move_to(code);
                   else // From scalar
-                    CImg<uptrT>::vector((uptrT)mp_vector_init,arg1,(uptrT)_cimg_mp_vector_size(arg1),arg2).move_to(code);
+                    CImg<uptrT>::vector((uptrT)mp_vector_init,arg1,(uptrT)_cimg_mp_vector_size(arg1),arg2).
+                      move_to(code);
                 } else // Scalar
                   CImg<uptrT>::vector((uptrT)mp_copy,arg1,arg2).move_to(code);
               }
@@ -14463,9 +14470,11 @@ namespace cimg_library_suffixed {
               if (_cimg_mp_is_vector(arg1)) { // Vector variable: V = value
                 _cimg_mp_check_type(arg2,2,s_op,1,0);
                 if (_cimg_mp_is_vector(arg2)) // From vector
-                  CImg<uptrT>::vector((uptrT)mp_vector_copy,arg1,arg2,(uptrT)_cimg_mp_vector_size(arg1)).move_to(code);
+                  CImg<uptrT>::vector((uptrT)mp_vector_copy,arg1,arg2,(uptrT)_cimg_mp_vector_size(arg1)).
+                    move_to(code);
                 else // From scalar
-                  CImg<uptrT>::vector((uptrT)mp_vector_init,arg1,(uptrT)_cimg_mp_vector_size(arg1),arg2).move_to(code);
+                  CImg<uptrT>::vector((uptrT)mp_vector_init,arg1,(uptrT)_cimg_mp_vector_size(arg1),arg2).
+                    move_to(code);
                 _cimg_mp_return(arg1);
               }
 
@@ -14786,7 +14795,8 @@ namespace cimg_library_suffixed {
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_bitwise_and,arg1,arg2);
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_bitwise_and,arg1,arg2);
             if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_bitwise_and,arg1,arg2);
-            if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2)) _cimg_mp_constant((unsigned long)mem[arg1] & (unsigned long)mem[arg2]);
+            if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2))
+              _cimg_mp_constant((unsigned long)mem[arg1] & (unsigned long)mem[arg2]);
             _cimg_mp_scalar2(mp_bitwise_and,arg1,arg2);
           }
 
@@ -14867,10 +14877,14 @@ namespace cimg_library_suffixed {
             arg1 = compile(ss,s);
             arg2 = compile(s + 2,se);
             _cimg_mp_check_type(arg2,2,"operator '<<'",3,_cimg_mp_vector_size(arg1));
-            if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_bitwise_left_shift,arg1,arg2);
-            if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_bitwise_left_shift,arg1,arg2);
-            if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_bitwise_left_shift,arg1,arg2);
-            if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2)) _cimg_mp_constant((long)mem[arg1]<<(unsigned int)mem[arg2]);
+            if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2))
+              _cimg_mp_vector2_vv(mp_bitwise_left_shift,arg1,arg2);
+            if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2))
+              _cimg_mp_vector2_vs(mp_bitwise_left_shift,arg1,arg2);
+            if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2))
+              _cimg_mp_vector2_sv(mp_bitwise_left_shift,arg1,arg2);
+            if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2))
+              _cimg_mp_constant((long)mem[arg1]<<(unsigned int)mem[arg2]);
             _cimg_mp_scalar2(mp_bitwise_left_shift,arg1,arg2);
           }
 
@@ -14879,10 +14893,14 @@ namespace cimg_library_suffixed {
             arg1 = compile(ss,s);
             arg2 = compile(s + 2,se);
             _cimg_mp_check_type(arg2,2,"operator '>>'",3,_cimg_mp_vector_size(arg1));
-            if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_bitwise_right_shift,arg1,arg2);
-            if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_bitwise_right_shift,arg1,arg2);
-            if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_bitwise_right_shift,arg1,arg2);
-            if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2)) _cimg_mp_constant((long)mem[arg1]>>(unsigned int)mem[arg2]);
+            if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2))
+              _cimg_mp_vector2_vv(mp_bitwise_right_shift,arg1,arg2);
+            if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2))
+              _cimg_mp_vector2_vs(mp_bitwise_right_shift,arg1,arg2);
+            if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2))
+              _cimg_mp_vector2_sv(mp_bitwise_right_shift,arg1,arg2);
+            if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2))
+              _cimg_mp_constant((long)mem[arg1]>>(unsigned int)mem[arg2]);
             _cimg_mp_scalar2(mp_bitwise_right_shift,arg1,arg2);
           }
 
@@ -14991,7 +15009,8 @@ namespace cimg_library_suffixed {
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_modulo,arg1,arg2);
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_modulo,arg1,arg2);
             if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_modulo,arg1,arg2);
-            if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2)) _cimg_mp_constant(cimg::mod(mem[arg1],mem[arg2]));
+            if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2))
+              _cimg_mp_constant(cimg::mod(mem[arg1],mem[arg2]));
             _cimg_mp_scalar2(mp_modulo,arg1,arg2);
           }
 
@@ -15041,7 +15060,8 @@ namespace cimg_library_suffixed {
               CImg<uptrT>::vector((uptrT)mp_complex_pow_sv,pos,arg1,arg2).move_to(code);
               _cimg_mp_return(pos);
             }
-            if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2)) _cimg_mp_constant(std::pow(mem[arg1],mem[arg2]));
+            if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2))
+              _cimg_mp_constant(std::pow(mem[arg1],mem[arg2]));
             switch (arg2) {
             case 0 : _cimg_mp_return(1);
             case 1 : _cimg_mp_return(arg1);
@@ -15060,7 +15080,8 @@ namespace cimg_library_suffixed {
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_pow,arg1,arg2);
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_pow,arg1,arg2);
             if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_pow,arg1,arg2);
-            if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2)) _cimg_mp_constant(std::pow(mem[arg1],mem[arg2]));
+            if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2))
+              _cimg_mp_constant(std::pow(mem[arg1],mem[arg2]));
             switch (arg2) {
             case 0 : _cimg_mp_return(1);
             case 1 : _cimg_mp_return(arg1);
@@ -15258,7 +15279,7 @@ namespace cimg_library_suffixed {
               if (!imgin) _cimg_mp_return(0);
               pos = scalar2(is_relative?mp_joff:mp_ioff,arg1,arg2==~0U?reserved_label[30]:arg2);
             }
-            mem(pos,1) = -1; // Create it as a variable to prevent from being used in further optimization
+            memtype[pos] = -1; // Create it as a variable to prevent from being used in further optimization
             _cimg_mp_return(pos);
           }
 
@@ -15433,7 +15454,7 @@ namespace cimg_library_suffixed {
                             arg5==~0U?reserved_label[29]:arg5,
                             arg6==~0U?reserved_label[30]:arg6);
             }
-            mem(pos,1) = -1; // Create it as a variable to prevent from being used in further optimization
+            memtype[pos] = -1; // Create it as a variable to prevent from being used in further optimization
             _cimg_mp_return(pos);
           }
 
@@ -15476,7 +15497,8 @@ namespace cimg_library_suffixed {
               if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_atan2,arg1,arg2);
               if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_atan2,arg1,arg2);
               if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_atan2,arg1,arg2);
-              if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2)) _cimg_mp_constant(std::atan2(mem[arg1],mem[arg2]));
+              if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2))
+                _cimg_mp_constant(std::atan2(mem[arg1],mem[arg2]));
               _cimg_mp_scalar2(mp_atan2,arg1,arg2);
             }
             break;
@@ -15559,7 +15581,9 @@ namespace cimg_library_suffixed {
               arg3 = compile(s2 + 1,se1);
               if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector3_vss(mp_cut,arg1,arg2,arg3);
               if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2) && _cimg_mp_is_constant(arg3)) {
-                val = mem[arg1]; val1 = mem[arg2]; val2 = mem[arg3];
+                val = mem[arg1];
+                val1 = mem[arg2];
+                val2 = mem[arg3];
                 _cimg_mp_constant(val<val1?val1:val>val2?val2:val);
               }
               _cimg_mp_scalar3(mp_cut,arg1,arg2,arg3);
@@ -15654,7 +15678,8 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_type(arg2,2,"Function 'gauss()'",1,0);
               if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector2_vs(mp_gauss,arg1,arg2);
               if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2)) {
-                val1 = mem[arg1]; val2 = mem[arg2];
+                val1 = mem[arg1];
+                val2 = mem[arg2];
                 _cimg_mp_constant(std::exp(-val1*val1/(2*val2*val2))/std::sqrt(2*val2*val2*cimg::PI));
               }
               _cimg_mp_scalar2(mp_gauss,arg1,arg2);
@@ -15670,7 +15695,8 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_type(arg1,1,s_op,1,0);
               _cimg_mp_check_type(arg2,2,s_op,1,0);
               if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2)) {
-                val1 = cimg::abs(mem[arg1]); val2 = cimg::abs(mem[arg2]);
+                val1 = cimg::abs(mem[arg1]);
+                val2 = cimg::abs(mem[arg2]);
                 if (val1<val2) { val = val1; val1 = val2; } else val = val2;
                 if (val1>0) { val/=val1; _cimg_mp_constant(val1*std::sqrt(1+val*val)); }
                 _cimg_mp_constant(0);
@@ -15705,8 +15731,8 @@ namespace cimg_library_suffixed {
               if (ss0!=expr._data || code.width()) { // (only allowed as the first instruction)
                 *se = saved_char; cimg::strellipsize(expr,64);
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s(): Function 'init()': Init invokation is not done at the beginning "
-                                            "of expression '%s%s%s'.",
+                                            "CImg<%s>::%s(): Function 'init()': Init invokation is not done at "
+                                            "the beginning of expression '%s%s%s'.",
                                             pixel_type(),calling_function,
                                             (ss - 4)>expr._data?"...":"",
                                             (ss - 4)>expr._data?ss - 4:expr._data,
@@ -15756,7 +15782,8 @@ namespace cimg_library_suffixed {
                                  (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                   arg1 = compile(s,ns);
                   if (_cimg_mp_is_vector(arg1))
-                    CImg<uptrT>::sequence((uptrT)_cimg_mp_vector_size(arg1),arg1 + 1,arg1 + (uptrT)_cimg_mp_vector_size(arg1)).
+                    CImg<uptrT>::sequence((uptrT)_cimg_mp_vector_size(arg1),arg1 + 1,
+                                          arg1 + (uptrT)_cimg_mp_vector_size(arg1)).
                       move_to(_opcode);
                   else CImg<uptrT>::vector(arg1).move_to(_opcode);
                   s = ns;
@@ -16011,7 +16038,8 @@ namespace cimg_library_suffixed {
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                 arg2 = compile(s,ns);
                 if (_cimg_mp_is_vector(arg2))
-                  CImg<uptrT>::sequence((uptrT)_cimg_mp_vector_size(arg2),arg2 + 1,arg2 + (uptrT)_cimg_mp_vector_size(arg2)).
+                  CImg<uptrT>::sequence((uptrT)_cimg_mp_vector_size(arg2),arg2 + 1,
+                                        arg2 + (uptrT)_cimg_mp_vector_size(arg2)).
                     move_to(_opcode);
                 else CImg<uptrT>::vector(arg2).move_to(_opcode);
                 s = ns;
@@ -16240,7 +16268,8 @@ namespace cimg_library_suffixed {
                              (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
               arg2 = compile(s,ns);
               if (_cimg_mp_is_vector(arg2))
-                CImg<uptrT>::sequence((uptrT)_cimg_mp_vector_size(arg2),arg2 + 1,arg2 + (uptrT)_cimg_mp_vector_size(arg2)).
+                CImg<uptrT>::sequence((uptrT)_cimg_mp_vector_size(arg2),arg2 + 1,
+                                      arg2 + (uptrT)_cimg_mp_vector_size(arg2)).
                   move_to(_opcode);
               else CImg<uptrT>::vector(arg2).move_to(_opcode);
               s = ns;
@@ -16474,15 +16503,16 @@ namespace cimg_library_suffixed {
           if (val<0 && val>=-5) return (unsigned int)(10 - val);
         }
         if (val==0.5) return 16;
-        if (mempos>=mem._width) mem.resize(-200,-100,1,1,0);
+        if (mempos>=mem._width) { mem.resize(-200,1,1,1,0); memtype.resize(-200,1,1,1,0); }
         const unsigned int pos = mempos++;
-        mem[pos] = val; mem(pos,1) = 1; // Set constant property
+        mem[pos] = val;
+        memtype[pos] = 1; // Set constant property
         return pos;
       }
 
       // Insert code instructions for processing scalars.
       unsigned int scalar() { // Insert new scalar in memory.
-        if (mempos>=mem._width) mem.resize(-200,-100,1,1,0);
+        if (mempos>=mem._width) { mem.resize(-200,1,1,1,0); memtype.resize(mem._width,1,1,1,0); }
         return mempos++;
       }
 
@@ -16551,7 +16581,7 @@ namespace cimg_library_suffixed {
       bool is_tmp_vector(const unsigned int arg) const {
         unsigned int siz = _cimg_mp_vector_size(arg);
         if (siz>8) return false;
-        const double *ptr = mem.data(arg + 1,1);
+        const int *ptr = memtype.data(arg + 1);
         bool is_tmp = true;
         while (siz-->0) if (*(ptr++)) { is_tmp = false; break; }
         return is_tmp;
@@ -16559,15 +16589,18 @@ namespace cimg_library_suffixed {
 
       void set_variable_vector(const unsigned int arg) {
         unsigned int siz = _cimg_mp_vector_size(arg);
-        double *ptr = mem.data(arg + 1,1);
+        int *ptr = memtype.data(arg + 1);
         while (siz-->0) *(ptr++) = -1;
       }
 
       unsigned int vector(const unsigned int siz) { // Insert new vector of specified size in memory.
-        if (mempos + siz>=mem._width) mem.resize(2*mem._width + siz,-100,1,1,0);
+        if (mempos + siz>=mem._width) {
+          mem.resize(2*mem._width + siz,1,1,1,0);
+          memtype.resize(mem._width,1,1,1,0);
+        }
         const unsigned int pos = mempos++;
         mem[pos] = cimg::type<double>::nan();
-        mem(pos,1) = siz + 1.0;
+        memtype[pos] = siz + 1.0;
         mempos+=siz;
         return pos;
       }

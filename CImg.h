@@ -16652,7 +16652,7 @@ namespace cimg_library_suffixed {
       void check_constant(const unsigned int arg, const unsigned int n_arg, const char *const s_op,
                           const char *const ss, char *const se, const char saved_char) {
         _cimg_mp_check_type(arg,n_arg,s_op,1,0);
-        if (!_cimg_mp_is_constant(arg) || mem[arg]<=1 || (double)(int)mem[arg]!=mem[arg]) {
+        if (!_cimg_mp_is_constant(arg) || mem[arg]<1 || (double)(int)mem[arg]!=mem[arg]) {
           const char *s_arg = !n_arg?"":n_arg==1?"First ":n_arg==2?"Second ":n_arg==3?"Third ":"One ";
           *se = saved_char; cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "

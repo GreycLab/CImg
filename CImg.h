@@ -13725,7 +13725,8 @@ namespace cimg_library_suffixed {
       const char *const calling_function;
       typedef double (*mp_func)(_cimg_math_parser&);
 
-#define _cimg_mp_check_type(i1,arg_number,s_op,mode,N) check_type(i1,arg_number,s_op,mode,N,ss,se,saved_char)
+#define _cimg_mp_check_type(arg,n_arg,s_op,mode,N) check_type(arg,n_arg,s_op,mode,N,ss,se,saved_char)
+#define _cimg_mp_check_matrix_square(arg,n_arg,s_op) check_matrix_square(arg,n_arg,s_op,ss,se,saved_char)
 #define _cimg_mp_check_vector_dim(dim) check_vector_dim(dim,ss,se,saved_char)
 #define _cimg_mp_defunc(mp) (*(mp_func)(*(mp).opcode))(mp)
 #define _cimg_mp_return(x) { *se = saved_char; return x; }
@@ -15788,6 +15789,24 @@ namespace cimg_library_suffixed {
             break;
 
           case 'm' :
+            if (!std::strncmp(ss,"meig(",5)) { // Matrix eigenvalues/eigenvector
+              arg1 = compile(ss5,se1);
+              _cimg_mp_check_matrix_square(arg1,1,"function 'meig()'");
+              p1 = (unsigned int)std::sqrt(mem(arg1,1) - 1);
+              pos = vector((p1 + 1)*p1);
+              CImg<uptrT>::vector((uptrT)mp_matrix_eig,pos,arg1,p1).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
+            if (!std::strncmp(ss,"minv(",5)) { // Matrix inversion
+              arg1 = compile(ss5,se1);
+              _cimg_mp_check_matrix_square(arg1,1,"function 'minv()'");
+              p1 = (unsigned int)std::sqrt(mem(arg1,1) - 1);
+              pos = vector(p1*p1);
+              CImg<uptrT>::vector((uptrT)mp_matrix_inv,pos,arg1,p1).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"mmul(",5)) { // Matrix multiplication
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss5,s1==se2?++s1:s1);
@@ -15799,13 +15818,11 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_type(arg3,3,"function 'mmul()'",1,0);
               p3 = (unsigned int)mem[arg3];
               if (mem(arg3,1)!=1 || !p3) {
-                variable_name.assign(s2,se - s2).back() = 0;
-                *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
+                *se = saved_char; cimg::strellipsize(expr,64);
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s(): Third argument '%s' of function 'mmul()' is not "
+                                            "CImg<%s>::%s(): Third argument of function 'mmul()' is not "
                                             "a positive constant, in expression '%s%s%s'.",
                                             pixel_type(),calling_function,
-                                            variable_name.data(),
                                             (ss - 8)>expr._data?"...":"",
                                             (ss - 8)>expr._data?ss - 8:expr._data,
                                             se<&expr.back()?"...":"");
@@ -15828,6 +15845,83 @@ namespace cimg_library_suffixed {
               }
               pos = vector(arg4*p3);
               CImg<uptrT>::vector((uptrT)mp_matrix_mul,pos,arg1,arg2,arg4,arg5,p3).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
+            if (!std::strncmp(ss,"msolve(",7)) { // Solve linear system
+              s1 = ss7; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss7,s1==se2?++s1:s1);
+              s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg2 = compile(s1 + 1,s2==se2?++s2:s2);
+              if (s2<se1) arg3 = compile(++s2,se1); else arg3 = 1;
+              _cimg_mp_check_type(arg1,1,"function 'msolve()'",2,0);
+              _cimg_mp_check_type(arg2,2,"function 'msolve()'",2,0);
+              _cimg_mp_check_type(arg3,3,"function 'msolve()'",1,0);
+              p3 = (unsigned int)mem[arg3];
+              if (mem(arg3,1)!=1 || !p3) {
+                *se = saved_char; cimg::strellipsize(expr,64);
+                throw CImgArgumentException("[_cimg_math_parser] "
+                                            "CImg<%s>::%s(): Third argument of function 'msolve()' is not "
+                                            "a positive constant, in expression '%s%s%s'.",
+                                            pixel_type(),calling_function,
+                                            (ss - 8)>expr._data?"...":"",
+                                            (ss - 8)>expr._data?ss - 8:expr._data,
+                                            se<&expr.back()?"...":"");
+              }
+              p1 = (unsigned int)mem(arg1,1) - 1;
+              p2 = (unsigned int)mem(arg2,1) - 1;
+              arg5 = p2/p3;
+              arg4 = p1/arg5;
+              if (arg4*arg5!=p1 || arg4*p3!=p2) {
+                *se = saved_char; cimg::strellipsize(expr,64);
+                throw CImgArgumentException("[_cimg_math_parser] "
+                                            "CImg<%s>::%s(): Types of first and second arguments ('%s' and '%s') "
+                                            "do not match for function 'msolve()' with 'nb_colsB=%u', "
+                                            "in expression '%s%s%s'.",
+                                            pixel_type(),calling_function,
+                                            s_type(arg1)._data,s_type(arg2)._data,p3,
+                                            (ss - 8)>expr._data?"...":"",
+                                            (ss - 8)>expr._data?ss - 8:expr._data,
+                                            se<&expr.back()?"...":"");
+              }
+              pos = vector(arg5*p3);
+              CImg<uptrT>::vector((uptrT)mp_matrix_solve,pos,arg1,arg2,arg4,arg5,p3).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
+            if (!std::strncmp(ss,"mtrans(",7)) { // Matrix transpose
+              s1 = ss7; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss7,s1==se2?++s1:s1);
+              arg2 = compile(++s1,se1);
+              _cimg_mp_check_type(arg1,1,"function 'mtrans()'",2,0);
+              _cimg_mp_check_type(arg2,2,"function 'mtrans()'",1,0);
+              p2 = (unsigned int)mem[arg2];
+              if (mem(arg2,1)!=1 || !p2) {
+                *se = saved_char; cimg::strellipsize(expr,64);
+                throw CImgArgumentException("[_cimg_math_parser] "
+                                            "CImg<%s>::%s(): Second argument of function 'mtrans()' is not "
+                                            "a positive constant, in expression '%s%s%s'.",
+                                            pixel_type(),calling_function,
+                                            (ss - 8)>expr._data?"...":"",
+                                            (ss - 8)>expr._data?ss - 8:expr._data,
+                                            se<&expr.back()?"...":"");
+              }
+              p1 = (unsigned int)mem(arg1,1) - 1;
+              p3 = p1/p2;
+              if (p2*p3!=p1) {
+                *se = saved_char; cimg::strellipsize(expr,64);
+                throw CImgArgumentException("[_cimg_math_parser] "
+                                            "CImg<%s>::%s(): Type of first arguments ('%s') "
+                                            "do not match for function 'mtrans()' with 'nb_colsA=%u', "
+                                            "in expression '%s%s%s'.",
+                                            pixel_type(),calling_function,
+                                            s_type(arg1)._data,p2,
+                                            (ss - 8)>expr._data?"...":"",
+                                            (ss - 8)>expr._data?ss - 8:expr._data,
+                                            se<&expr.back()?"...":"");
+              }
+              pos = vector(p3*p2);
+              CImg<uptrT>::vector((uptrT)mp_matrix_trans,pos,arg1,p2,p3).move_to(code);
               _cimg_mp_return(pos);
             }
             break;
@@ -16462,7 +16556,7 @@ namespace cimg_library_suffixed {
         return pos;
       }
 
-      // Check vector is not 0-dimensional, or with unknown dimension at compile time.
+      // Check a vector is not 0-dimensional, or with unknown dimension at compile time.
       void check_vector_dim(const unsigned int dim,
                             const char *const ss, char *const se, const char saved_char) {
         if (!dim) {
@@ -16486,11 +16580,32 @@ namespace cimg_library_suffixed {
         }
       }
 
+      // Check a matrix is square.
+      void check_matrix_square(const unsigned int arg, const unsigned int n_arg, const char *const s_op,
+                               const char *const ss, char *const se, const char saved_char) {
+        _cimg_mp_check_type(arg,0,calling_function,2,0);
+        const unsigned int
+          siz = (unsigned int)mem(arg,1) - 1,
+          n = (unsigned int)std::sqrt(siz);
+        if (n*n!=siz) {
+          const char *s_arg = !n_arg?"":n_arg==1?"First ":n_arg==2?"Second ":n_arg==3?"Third ":"One ";
+          *se = saved_char; cimg::strellipsize(expr,64);
+          throw CImgArgumentException("[_cimg_math_parser] "
+                                      "CImg<%s>::%s(): %s %s of %s has type '%s' "
+                                      "and cannot be considered as a square matrix, in expression '%s%s%s'.",
+                                      pixel_type(),calling_function,
+                                      s_arg,*s_arg?"argument":"Argument",s_op,s_type(arg)._data,
+                                      (ss - 8)>expr._data?"...":"",
+                                      (ss - 8)>expr._data?ss - 8:expr._data,
+                                      se<&expr.back()?"...":"");
+        }
+      }
+
       // Check type compatibility for one argument.
       // Bits of 'mode' tells what types are allowed:
       // { 1 = scalar | 2 = vectorN }.
       // If 'N' is not zero, it also restricts the vectors to be of size N only.
-      void check_type(const unsigned int arg, const unsigned int arg_number, const char *const s_op,
+      void check_type(const unsigned int arg, const unsigned int n_arg, const char *const s_op,
                       const unsigned int mode, const unsigned int N,
                       const char *const ss, char *const se, const char saved_char) {
         const bool
@@ -16501,8 +16616,8 @@ namespace cimg_library_suffixed {
         if (mode&2) cond|=is_vector;
         if (!cond) {
           const char *s_arg;
-          if (*s_op!='f') s_arg = !arg_number?"":arg_number==1?"Left-hand ":"Right-hand ";
-          else s_arg = !arg_number?"":arg_number==1?"First ":arg_number==2?"Second ":arg_number==3?"Third ":"One ";
+          if (*s_op!='f') s_arg = !n_arg?"":n_arg==1?"Left-hand ":"Right-hand ";
+          else s_arg = !n_arg?"":n_arg==1?"First ":n_arg==2?"Second ":n_arg==3?"Third ":"One ";
           CImg<charT> sb_type(32);
           if (mode==1) cimg_snprintf(sb_type,sb_type._width,"'scalar'");
           else if (mode==2) {
@@ -17573,6 +17688,25 @@ namespace cimg_library_suffixed {
         return (double)(_mp_arg(2)<=_mp_arg(3));
       }
 
+      static double mp_matrix_eig(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const double *ptr1 = &_mp_arg(2) + 1;
+        const unsigned int k = (unsigned int)mp.opcode(3);
+        CImg<double> val, vec;
+        CImg<double>(ptr1,k,k,1,1,true).symmetric_eigen(val,vec);
+        CImg<double>(ptrd,k,1,1,1,true) = val.unroll('x');
+        CImg<double>(ptrd + k,k,k,1,1,true) = vec.get_transpose();
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_matrix_inv(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const double *ptr1 = &_mp_arg(2) + 1;
+        const unsigned int k = (unsigned int)mp.opcode(3);
+        CImg<double>(ptrd,k,k,1,1,true) = CImg<double>(ptr1,k,k,1,1,true).get_invert();
+        return cimg::type<double>::nan();
+      }
+
       static double mp_matrix_mul(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
         const double
@@ -17583,6 +17717,29 @@ namespace cimg_library_suffixed {
           l = (unsigned int)mp.opcode(5),
           m = (unsigned int)mp.opcode(6);
         CImg<double>(ptrd,m,k,1,1,true) = CImg<double>(ptr1,l,k,1,1,true)*CImg<double>(ptr2,m,l,1,1,true);
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_matrix_solve(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const double
+          *ptr1 = &_mp_arg(2) + 1,
+          *ptr2 = &_mp_arg(3) + 1;
+        const unsigned int
+          k = (unsigned int)mp.opcode(4),
+          l = (unsigned int)mp.opcode(5),
+          m = (unsigned int)mp.opcode(6);
+        CImg<double>(ptrd,m,l,1,1,true) = CImg<double>(ptr2,m,k,1,1,true).get_solve(CImg<double>(ptr1,l,k,1,1,true));
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_matrix_trans(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const double *ptr1 = &_mp_arg(2) + 1;
+        const unsigned int
+          k = (unsigned int)mp.opcode(3),
+          l = (unsigned int)mp.opcode(4);
+        CImg<double>(ptrd,l,k,1,1,true) = CImg<double>(ptr1,k,l,1,1,true).get_transpose();
         return cimg::type<double>::nan();
       }
 

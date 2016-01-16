@@ -14076,7 +14076,7 @@ namespace cimg_library_suffixed {
               *ps!='+' && *ps!='-' && *ps!='*' && *ps!='/' && *ps!='%' &&
               *ps!='>' && *ps!='<' && *ps!='&' && *ps!='|' && *ps!='^' &&
               level[s - expr._data]==clevel) {
-            variable_name.assign(ss,(unsigned int)(s - ss + 1)).back() = 0;
+            variable_name.assign(ss,(unsigned int)(s + 1 - ss)).back() = 0;
             cimg::strpare(variable_name);
             const unsigned int l_variable_name = (unsigned int)std::strlen(variable_name);
             char *const ve1 = ss + l_variable_name - 1;
@@ -16497,7 +16497,7 @@ namespace cimg_library_suffixed {
         if (!std::strcmp(ss,"boundary")) _cimg_mp_return(reserved_label[30]); // boundary
 
         // No known item found, assuming this is an already initialized variable.
-        variable_name.assign(ss,(unsigned int)(se - ss + 1)).back() = 0;
+        variable_name.assign(ss,(unsigned int)(se + 1 - ss)).back() = 0;
         if (variable_name[1]) { // Multi-char variable
           cimglist_for(labelM,i) if (!std::strcmp(variable_name,labelM[i])) _cimg_mp_return(labelMpos[i]);
         } else if (reserved_label[*variable_name]!=~0U) // Single-char variable

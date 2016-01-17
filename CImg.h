@@ -16703,20 +16703,26 @@ namespace cimg_library_suffixed {
       }
 
       unsigned int vector2_vs(const mp_func op, const unsigned int arg1, const unsigned int arg2) {
-        const unsigned int siz = _cimg_mp_vector_size(arg1), pos = vector(siz);
+        const unsigned int
+          siz = _cimg_mp_vector_size(arg1),
+          pos = is_tmp_vector(arg1)?arg1:vector(siz);
         CImg<uptrT>::vector((uptrT)mp_vector_map_vs,pos,siz,(uptrT)op,arg1,arg2).move_to(code);
         return pos;
       }
 
       unsigned int vector2_sv(const mp_func op, const unsigned int arg1, const unsigned int arg2) {
-        const unsigned int siz = _cimg_mp_vector_size(arg2), pos = vector(siz);
+        const unsigned int
+          siz = _cimg_mp_vector_size(arg2),
+          pos = is_tmp_vector(arg2)?arg2:vector(siz);
         CImg<uptrT>::vector((uptrT)mp_vector_map_sv,pos,siz,(uptrT)op,arg1,arg2).move_to(code);
         return pos;
       }
 
       unsigned int vector3_vss(const mp_func op, const unsigned int arg1, const unsigned int arg2,
                                const unsigned int arg3) {
-        const unsigned int siz = _cimg_mp_vector_size(arg1), pos = vector(siz);
+        const unsigned int
+          siz = _cimg_mp_vector_size(arg1),
+          pos = is_tmp_vector(arg1)?arg1:vector(siz);
         CImg<uptrT>::vector((uptrT)mp_vector_map_vss,pos,siz,(uptrT)op,arg1,arg2,arg3).move_to(code);
         return pos;
       }

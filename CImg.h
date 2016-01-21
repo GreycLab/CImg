@@ -13719,7 +13719,7 @@ namespace cimg_library_suffixed {
       CImg<uintT> mem_img_stats;
 
       CImg<uintT> level, variable_pos, reserved_label;
-      CImgList<charT> variable_def;
+      CImgList<charT> variable_def, function_def, function_arg, function_body;
 
       unsigned int mempos, mem_img_median, debug_indent, init_size, result_dim;
       double *result;
@@ -14276,7 +14276,7 @@ namespace cimg_library_suffixed {
                      }
               if (is_sth) { // Looks like a valid function declaration
                 *s0 = 0;
-                std::fprintf(stderr,"\nWOUEHH ! %s\n",variable_name._data);
+                CImg<charT>(variable_name._data,s0 - variable_name._data + 1).move_to(function_def);
               }
             }
 

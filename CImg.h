@@ -13718,8 +13718,8 @@ namespace cimg_library_suffixed {
       CImgList<doubleT> _list_stats, &list_stats, _list_median, &list_median;
       CImg<uintT> mem_img_stats;
 
-      CImg<uintT> level, labelMpos, reserved_label;
-      CImgList<charT> labelM;
+      CImg<uintT> level, variable_pos, reserved_label;
+      CImgList<charT> variable_def;
 
       unsigned int mempos, mem_img_median, debug_indent, init_size, result_dim;
       double *result;
@@ -13822,7 +13822,7 @@ namespace cimg_library_suffixed {
         memtype[17] = 0;
 
         mempos = _cimg_mp_c + 1;
-        labelMpos.assign(8);
+        variable_pos.assign(8);
         reserved_label.assign(128,1,1,1,~0U);
         reserved_label['t'] = 17;
         reserved_label['w'] = 18;
@@ -13855,7 +13855,7 @@ namespace cimg_library_suffixed {
         result = mem._data + ind_result;
         memtype.assign();
         level.assign();
-        labelMpos.assign();
+        variable_pos.assign();
         reserved_label.assign();
         expr.assign();
         pexpr.assign();
@@ -14235,8 +14235,8 @@ namespace cimg_library_suffixed {
                 _cimg_mp_check_type(arg3,2,s_op,1,0);
 
                 if (variable_name[1]) { // Multi-char variable
-                  cimglist_for(labelM,i) if (!std::strcmp(variable_name,labelM[i])) {
-                    arg1 = labelMpos[i]; break;
+                  cimglist_for(variable_def,i) if (!std::strcmp(variable_name,variable_def[i])) {
+                    arg1 = variable_pos[i]; break;
                   }
                 } else arg1 = reserved_label[*variable_name]; // Single-char variable
                 if (arg1==~0U) compile(ss,s0 - 1); // Variable does not exist -> error
@@ -14263,6 +14263,20 @@ namespace cimg_library_suffixed {
                     move_to(code);
                   _cimg_mp_return(arg3);
                 }
+              }
+            }
+
+            // Assign function definition.
+            if (*ve1==')' && *ss!='(' && (s0 = std::strchr(variable_name,'('))!=0) {
+              is_sth = true; // is_valid_function_name?
+              if (*variable_name>='0' && *variable_name<='9') is_sth = false;
+              else for (ns = variable_name._data; ns<s0; ++ns)
+                     if ((*ns<'a' || *ns>'z') && (*ns<'A' || *ns>'Z') && (*ns<'0' || *ns>'9') && *ns!='_') {
+                       is_sth = false; break;
+                     }
+              if (is_sth) { // Looks like a valid function declaration
+                *s0 = 0;
+                std::fprintf(stderr,"\nWOUEHH ! %s\n",variable_name._data);
               }
             }
 
@@ -14321,8 +14335,8 @@ namespace cimg_library_suffixed {
               if (!variable_name[1]) // One-char variable, or variable in reserved_labels
                 arg1 = reserved_label[*variable_name];
               else // Multi-char variable name : check for existing variable with same name
-                cimglist_for(labelM,i)
-                  if (!std::strcmp(variable_name,labelM[i])) { arg1 = labelMpos[i]; break; }
+                cimglist_for(variable_def,i)
+                  if (!std::strcmp(variable_name,variable_def[i])) { arg1 = variable_pos[i]; break; }
 
               if (arg1==~0U || arg1<=_cimg_mp_c) { // Create new variable
                 if (_cimg_mp_is_vector(arg2)) { // Vector variable
@@ -14335,9 +14349,9 @@ namespace cimg_library_suffixed {
 
                 if (!variable_name[1]) reserved_label[*variable_name] = arg1;
                 else {
-                  if (labelM._width>=labelMpos._width) labelMpos.resize(-200,1,1,1,0);
-                  labelMpos[labelM._width] = arg1;
-                  variable_name.move_to(labelM);
+                  if (variable_def._width>=variable_pos._width) variable_pos.resize(-200,1,1,1,0);
+                  variable_pos[variable_def._width] = arg1;
+                  variable_name.move_to(variable_def);
                 }
 
               } else { // Variable already exists -> assign a new value
@@ -16499,7 +16513,7 @@ namespace cimg_library_suffixed {
         // No known item found, assuming this is an already initialized variable.
         variable_name.assign(ss,(unsigned int)(se + 1 - ss)).back() = 0;
         if (variable_name[1]) { // Multi-char variable
-          cimglist_for(labelM,i) if (!std::strcmp(variable_name,labelM[i])) _cimg_mp_return(labelMpos[i]);
+          cimglist_for(variable_def,i) if (!std::strcmp(variable_name,variable_def[i])) _cimg_mp_return(variable_pos[i]);
         } else if (reserved_label[*variable_name]!=~0U) // Single-char variable
           _cimg_mp_return(reserved_label[*variable_name]);
 

@@ -10402,7 +10402,7 @@ namespace cimg_library_suffixed {
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
       try {
-        _fill(expression,true,true,0,0,"operator=");
+        _fill(expression,true,true,0,0,"operator=",0);
       } catch (CImgException&) {
         cimg::exception_mode(omode);
         load(expression);
@@ -10480,7 +10480,7 @@ namespace cimg_library_suffixed {
          instead of assigning them.
     **/
     CImg<T>& operator+=(const char *const expression) {
-      return *this+=(+*this)._fill(expression,true,true,0,0,"operator+=");
+      return *this+=(+*this)._fill(expression,true,true,0,0,"operator+=",this);
     }
 
     //! In-place addition operator.
@@ -10606,7 +10606,7 @@ namespace cimg_library_suffixed {
        Similar to operator+=(const char*), except that it performs a substraction instead of an addition.
      **/
     CImg<T>& operator-=(const char *const expression) {
-      return *this-=(+*this)._fill(expression,true,true,0,0,"operator-=");
+      return *this-=(+*this)._fill(expression,true,true,0,0,"operator-=",this);
     }
 
     //! In-place substraction operator.
@@ -10716,7 +10716,7 @@ namespace cimg_library_suffixed {
        Similar to operator+=(const char*), except that it performs a multiplication instead of an addition.
      **/
     CImg<T>& operator*=(const char *const expression) {
-      return mul((+*this)._fill(expression,true,true,0,0,"operator*="));
+      return mul((+*this)._fill(expression,true,true,0,0,"operator*=",this));
     }
 
     //! In-place multiplication operator.
@@ -10807,7 +10807,7 @@ namespace cimg_library_suffixed {
        Similar to operator+=(const char*), except that it performs a division instead of an addition.
      **/
     CImg<T>& operator/=(const char *const expression) {
-      return div((+*this)._fill(expression,true,true,0,0,"operator/="));
+      return div((+*this)._fill(expression,true,true,0,0,"operator/=",this));
     }
 
     //! In-place division operator.
@@ -10874,7 +10874,7 @@ namespace cimg_library_suffixed {
        Similar to operator+=(const char*), except that it performs a modulo operation instead of an addition.
     **/
     CImg<T>& operator%=(const char *const expression) {
-      return *this%=(+*this)._fill(expression,true,true,0,0,"operator%=");
+      return *this%=(+*this)._fill(expression,true,true,0,0,"operator%=",this);
     }
 
     //! In-place modulo operator.
@@ -10943,7 +10943,7 @@ namespace cimg_library_suffixed {
        Similar to operator+=(const char*), except that it performs a bitwise AND operation instead of an addition.
     **/
     CImg<T>& operator&=(const char *const expression) {
-      return *this&=(+*this)._fill(expression,true,true,0,0,"operator&=");
+      return *this&=(+*this)._fill(expression,true,true,0,0,"operator&=",this);
     }
 
     //! In-place bitwise AND operator.
@@ -11012,7 +11012,7 @@ namespace cimg_library_suffixed {
        Similar to operator+=(const char*), except that it performs a bitwise OR operation instead of an addition.
     **/
     CImg<T>& operator|=(const char *const expression) {
-      return *this|=(+*this)._fill(expression,true,true,0,0,"operator|=");
+      return *this|=(+*this)._fill(expression,true,true,0,0,"operator|=",this);
     }
 
     //! In-place bitwise OR operator.
@@ -11085,7 +11085,7 @@ namespace cimg_library_suffixed {
        - It does \e not compute the \e power of pixel values. For this purpose, use pow(const char*) instead.
     **/
     CImg<T>& operator^=(const char *const expression) {
-      return *this^=(+*this)._fill(expression,true,true,0,0,"operator^=");
+      return *this^=(+*this)._fill(expression,true,true,0,0,"operator^=",this);
     }
 
     //! In-place bitwise XOR operator.
@@ -11156,7 +11156,7 @@ namespace cimg_library_suffixed {
        Similar to operator+=(const char*), except that it performs a bitwise left shift instead of an addition.
     **/
     CImg<T>& operator<<=(const char *const expression) {
-      return *this<<=(+*this)._fill(expression,true,true,0,0,"operator<<=");
+      return *this<<=(+*this)._fill(expression,true,true,0,0,"operator<<=",this);
     }
 
     //! In-place bitwise left shift operator.
@@ -11226,7 +11226,7 @@ namespace cimg_library_suffixed {
        Similar to operator+=(const char*), except that it performs a bitwise right shift instead of an addition.
     **/
     CImg<T>& operator>>=(const char *const expression) {
-      return *this>>=(+*this)._fill(expression,true,true,0,0,"operator>>=");
+      return *this>>=(+*this)._fill(expression,true,true,0,0,"operator>>=",this);
     }
 
     //! In-place bitwise right shift operator.
@@ -11308,7 +11308,7 @@ namespace cimg_library_suffixed {
        \param expression Value string describing the way pixel values are compared.
     **/
     bool operator==(const char *const expression) const {
-      return *this==(+*this)._fill(expression,true,true,0,0,"operator==");
+      return *this==(+*this)._fill(expression,true,true,0,0,"operator==",this);
     }
 
     //! Test if two images have the same size and values.
@@ -19287,7 +19287,7 @@ namespace cimg_library_suffixed {
        Similar to operator+=(const char*), except it performs a pointwise exponentiation instead of an addition.
     **/
     CImg<T>& pow(const char *const expression) {
-      return pow((+*this)._fill(expression,true,true,0,0,"pow"));
+      return pow((+*this)._fill(expression,true,true,0,0,"pow",this));
     }
 
     //! Raise each pixel value to a power, specified from an expression \newinstance.
@@ -19342,7 +19342,7 @@ namespace cimg_library_suffixed {
        Similar to operator<<=(const char*), except that it performs a left rotation instead of a left shift.
     **/
     CImg<T>& rol(const char *const expression) {
-      return rol((+*this)._fill(expression,true,true,0,0,"rol"));
+      return rol((+*this)._fill(expression,true,true,0,0,"rol",this));
     }
 
     //! Compute the bitwise left rotation of each pixel value \newinstance.
@@ -19397,7 +19397,7 @@ namespace cimg_library_suffixed {
        Similar to operator>>=(const char*), except that it performs a right rotation instead of a right shift.
     **/
     CImg<T>& ror(const char *const expression) {
-      return ror((+*this)._fill(expression,true,true,0,0,"ror"));
+      return ror((+*this)._fill(expression,true,true,0,0,"ror",this));
     }
 
     //! Compute the bitwise right rotation of each pixel value \newinstance.
@@ -19482,7 +19482,7 @@ namespace cimg_library_suffixed {
        \f$\mathrm{min}(I_{(x,y,z,c)},\mathrm{expr}_{(x,y,z,c)})\f$.
     **/
     CImg<T>& min(const char *const expression) {
-      return min((+*this)._fill(expression,true,true,0,0,"min"));
+      return min((+*this)._fill(expression,true,true,0,0,"min",this));
     }
 
     //! Pointwise min operator between an image and an expression \newinstance.
@@ -19543,7 +19543,7 @@ namespace cimg_library_suffixed {
        \f$\mathrm{max}(I_{(x,y,z,c)},\mathrm{expr}_{(x,y,z,c)})\f$.
     **/
     CImg<T>& max(const char *const expression) {
-      return max((+*this)._fill(expression,true,true,0,0,"max"));
+      return max((+*this)._fill(expression,true,true,0,0,"max",this));
     }
 
     //! Pointwise max operator between an image and an expression \newinstance.
@@ -22176,12 +22176,12 @@ namespace cimg_library_suffixed {
     **/
     CImg<T>& fill(const char *const expression, const bool repeat_values, const bool allow_formula=true,
                   const CImgList<T> *const list_inputs=0, CImgList<T> *const list_outputs=0) {
-      return _fill(expression,repeat_values,allow_formula,list_inputs,list_outputs,"fill");
+      return _fill(expression,repeat_values,allow_formula,list_inputs,list_outputs,"fill",0);
     }
 
     CImg<T>& _fill(const char *const expression, const bool repeat_values, const bool allow_formula,
                    const CImgList<T> *const list_inputs, CImgList<T> *const list_outputs,
-                   const char *const calling_function) {
+                   const char *const calling_function, const CImg<T> *provide_base) {
       if (is_empty() || !expression || !*expression) return *this;
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
@@ -22190,8 +22190,9 @@ namespace cimg_library_suffixed {
       if (allow_formula) try { // Try to fill values according to a formula
           bool is_parallelizable = true;
           const CImg<T>
-            _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?+*this:CImg<T>(),
-            &base = _base?_base:*this;
+            _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?
+            (provide_base?*provide_base:+*this):CImg<T>(),
+            &base = provide_base?*provide_base:_base?_base:*this;
           _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
                                calling_function,base,this,list_inputs,list_outputs);
           bool do_in_parallel = false;

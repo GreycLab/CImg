@@ -14312,13 +14312,8 @@ namespace cimg_library_suffixed {
                     std::fprintf(stderr,"\nDEBUG : ARG %u = '%s'\n",p1 + 1,s2);
                   }
                 }
-
-                function_def.display("FUNCTION_DEF");
-                function_body.display("FUNCTION_BODY");
-
                 std::fprintf(stderr,"\nDEBUG : New function '%s'() = '%s'\n",function_def.back().data(),function_body.back().data());
                 std::exit(0);
-
               }
             }
 

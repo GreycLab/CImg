@@ -13719,7 +13719,7 @@ namespace cimg_library_suffixed {
       CImg<uintT> mem_img_stats;
 
       CImg<uintT> level, variable_pos, reserved_label;
-      CImgList<charT> variable_def, function_def, function_arg, function_body;
+      CImgList<charT> variable_def, function_def, function_body;
 
       unsigned int mempos, mem_img_median, debug_indent, init_size, result_dim;
       double *result;
@@ -14277,6 +14277,11 @@ namespace cimg_library_suffixed {
               if (is_sth) { // Looks like a valid function declaration
                 *s0 = 0;
                 CImg<charT>(variable_name._data,s0 - variable_name._data + 1).move_to(function_def);
+                for (s = s0 + 1; s<ve1; ++s) {
+                  ns = s; while (ns<ve1 && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                                 (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+
+                }
               }
             }
 
@@ -31530,20 +31535,19 @@ namespace cimg_library_suffixed {
 
     //! Compute the structure tensor field of an image.
     /**
-       \param scheme Numerical scheme. Can be <tt>{ 0=central | 1=fwd/bwd1 | 2=fwd/bwd2 }</tt>
+       \param is_centered_scheme scheme. Can be <tt>{ false=fwd/bwd | true=centered }</tt>
     **/
-    CImg<T>& structure_tensors(const unsigned int scheme=2) {
-      return get_structure_tensors(scheme).move_to(*this);
+    CImg<T>& structure_tensors(const bool is_centered_scheme=false) {
+      return get_structure_tensors(is_centered_scheme).move_to(*this);
     }
 
     //! Compute the structure tensor field of an image \newinstance.
-    CImg<Tfloat> get_structure_tensors(const unsigned int scheme=2) const {
+    CImg<Tfloat> get_structure_tensors(const bool is_centered_scheme=false) const {
       if (is_empty()) return *this;
       CImg<Tfloat> res;
       if (_depth>1) { // 3d
         res.assign(_width,_height,_depth,6,0);
-        switch (scheme) {
-        case 0 : { // classical central finite differences
+        if (is_centered_scheme) { // Classical central finite differences
 #ifdef cimg_use_openmp
 #pragma omp parallel for cimg_openmp_if (_width*_height*_depth>=1048576 && _spectrum>=2)
 #endif
@@ -31565,31 +31569,7 @@ namespace cimg_library_suffixed {
               *(ptrd5++)+=iz*iz;
             }
           }
-        } break;
-        case 1 : { // Forward/backward finite differences (version 1).
-#ifdef cimg_use_openmp
-#pragma omp parallel for cimg_openmp_if (_width*_height*_depth>=1048576 && _spectrum>=2)
-#endif
-          cimg_forC(*this,c) {
-            Tfloat
-              *ptrd0 = res.data(0,0,0,0), *ptrd1 = res.data(0,0,0,1), *ptrd2 = res.data(0,0,0,2),
-              *ptrd3 = res.data(0,0,0,3), *ptrd4 = res.data(0,0,0,4), *ptrd5 = res.data(0,0,0,5);
-            CImg_3x3x3(I,Tfloat);
-            cimg_for3x3x3(*this,x,y,z,c,I,Tfloat) {
-              const Tfloat
-                ixf = Incc - Iccc, ixb = Iccc - Ipcc,
-                iyf = Icnc - Iccc, iyb = Iccc - Icpc,
-                izf = Iccn - Iccc, izb = Iccc - Iccp;
-              *(ptrd0++)+=(ixf*ixf + 2*ixf*ixb + ixb*ixb)/4;
-              *(ptrd1++)+=(ixf*iyf + ixf*iyb + ixb*iyf + ixb*iyb)/4;
-              *(ptrd2++)+=(ixf*izf + ixf*izb + ixb*izf + ixb*izb)/4;
-              *(ptrd3++)+=(iyf*iyf + 2*iyf*iyb + iyb*iyb)/4;
-              *(ptrd4++)+=(iyf*izf + iyf*izb + iyb*izf + iyb*izb)/4;
-              *(ptrd5++)+=(izf*izf + 2*izf*izb + izb*izb)/4;
-            }
-          }
-        } break;
-        default : { // Forward/backward finite differences (version 2).
+        } else { // Forward/backward finite differences.
 #ifdef cimg_use_openmp
 #pragma omp parallel for cimg_openmp_if (_width*_height*_depth>=1048576 && _spectrum>=2)
 #endif
@@ -31611,12 +31591,10 @@ namespace cimg_library_suffixed {
               *(ptrd5++)+=(izf*izf + izb*izb)/2;
             }
           }
-        } break;
         }
       } else { // 2d
         res.assign(_width,_height,_depth,3,0);
-        switch (scheme) {
-        case 0 : { // classical central finite differences
+        if (is_centered_scheme) { // Classical central finite differences
 #ifdef cimg_use_openmp
 #pragma omp parallel for cimg_openmp_if (_width*_height>=1048576 && _depth*_spectrum>=2)
 #endif
@@ -31632,25 +31610,7 @@ namespace cimg_library_suffixed {
               *(ptrd2++)+=iy*iy;
             }
           }
-        } break;
-        case 1 : { // Forward/backward finite differences (version 1).
-#ifdef cimg_use_openmp
-#pragma omp parallel for cimg_openmp_if (_width*_height>=1048576 && _depth*_spectrum>=2)
-#endif
-          cimg_forC(*this,c) {
-            Tfloat *ptrd0 = res.data(0,0,0,0), *ptrd1 = res.data(0,0,0,1), *ptrd2 = res.data(0,0,0,2);
-            CImg_3x3(I,Tfloat);
-            cimg_for3x3(*this,x,y,0,c,I,Tfloat) {
-              const Tfloat
-                ixf = Inc - Icc, ixb = Icc - Ipc,
-                iyf = Icn - Icc, iyb = Icc - Icp;
-              *(ptrd0++)+=(ixf*ixf + 2*ixf*ixb + ixb*ixb)/4;
-              *(ptrd1++)+=(ixf*iyf + ixf*iyb + ixb*iyf + ixb*iyb)/4;
-              *(ptrd2++)+=(iyf*iyf + 2*iyf*iyb + iyb*iyb)/4;
-            }
-          }
-        } break;
-        default : { // Forward/backward finite differences (version 2).
+        } else { // Forward/backward finite differences (version 2).
 #ifdef cimg_use_openmp
 #pragma omp parallel for cimg_openmp_if (_width*_height>=1048576 && _depth*_spectrum>=2)
 #endif
@@ -31666,7 +31626,6 @@ namespace cimg_library_suffixed {
               *(ptrd2++)+=(iyf*iyf + iyb*iyb)/2;
             }
           }
-        } break;
         }
       }
       return res;

@@ -13924,8 +13924,8 @@ namespace cimg_library_suffixed {
         const char *const ss0 = ss;
         if (ss<se) {
           char c;
-          while (*ss<=' ' || *ss==';') ++ss;
-          while (se>ss && ((c=*(se - 1))<=' ' || c==';')) --se;
+          while (*ss && (*ss<=' ' || *ss==';')) ++ss;
+          while (se>ss && (c=*(se - 1))>0 && (c<=' ' || c==';')) --se;
         }
         if (se>ss && *(se - 1)==';') --se;
         if (se<=ss || !*ss) {
@@ -14279,9 +14279,13 @@ namespace cimg_library_suffixed {
                 s1 = variable_name._data + l_variable_name - 1; // Pointer to closing parenthesis
 
                 CImg<charT>(variable_name._data,s0 - variable_name._data + 1).move_to(function_def);
+
+                ++s; while (*s && *s<=' ') ++s;
+                CImg<charT>(s,se - s + 1).move_to(function_body);
+
                 p1 = 0; // Number of function arguments
                 for (s = s0 + 1; s<=s1; ++p1, s = ns + 1) { // Parse function arguments
-                  while (*s<=' ') ++s;
+                  while (*s && *s<=' ') ++s;
                   s2 = s; // Start of the argument name
                   is_sth = true; // is_valid_argument_name?
                   if (*s>='0' && *s<='9') is_sth = false;
@@ -14290,10 +14294,7 @@ namespace cimg_library_suffixed {
                            is_sth = false; break;
                          }
                   s3 = ns; // End of the argument name
-                  while (*ns<=' ') ++ns;
-
-                  std::fprintf(stderr,"\nDEBUG : s = '%s', s2 = '%s', s3 = '%s', ns='%s'\n",s,s2,s3,ns);
-
+                  while (*ns && *ns<=' ') ++ns;
                   if (!is_sth || s2==s3 || (*ns!=',' && ns!=s1)) {
                     *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
                     throw CImgArgumentException("[_cimg_math_parser] "
@@ -14306,11 +14307,18 @@ namespace cimg_library_suffixed {
                                                 (ss - 4)>expr._data?ss - 4:expr._data,
                                                 se<&expr.back()?"...":"");
                   }
-                  if (ns==s1 || *ns==',') {
+                  if (ns==s1 || *ns==',') { // New argument found
                     *s3 = 0;
                     std::fprintf(stderr,"\nDEBUG : ARG %u = '%s'\n",p1 + 1,s2);
                   }
                 }
+
+                function_def.display("FUNCTION_DEF");
+                function_body.display("FUNCTION_BODY");
+
+                std::fprintf(stderr,"\nDEBUG : New function '%s'() = '%s'\n",function_def.back().data(),function_body.back().data());
+                std::exit(0);
+
               }
             }
 
@@ -15745,7 +15753,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar2(mp_mul,arg1,arg2);
             }
 
-            if (!std::strncmp(ss,"dowhile",7) && (*ss7=='(' || (*ss7<=' ' && *ss8=='('))) { // Do..while
+            if (!std::strncmp(ss,"dowhile",7) && (*ss7=='(' || (*ss7 && *ss7<=' ' && *ss8=='('))) { // Do..while
               if (*ss7<=' ') cimg::swap(*ss7,*ss8); // Allow space before opening brace
               s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               p1 = code._width;
@@ -15768,7 +15776,7 @@ namespace cimg_library_suffixed {
             break;
 
           case 'f' :
-            if (*ss1=='o' && *ss2=='r' && (*ss3=='(' || (*ss3<=' ' && *ss4=='('))) { // For loop
+            if (*ss1=='o' && *ss2=='r' && (*ss3=='(' || (*ss3 && *ss3<=' ' && *ss4=='('))) { // For loop
               if (*ss3<=' ') cimg::swap(*ss3,*ss4); // Allow space before opening brace
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
@@ -15826,7 +15834,7 @@ namespace cimg_library_suffixed {
             break;
 
           case 'i' :
-            if (*ss1=='f' && (*ss2=='(' || (*ss2<=' ' && *ss3=='('))) { // If..then[..else.]
+            if (*ss1=='f' && (*ss2=='(' || (*ss2 && *ss2<=' ' && *ss3=='('))) { // If..then[..else.]
               s_op = "Function 'if()'";
               if (*ss2<=' ') cimg::swap(*ss2,*ss3); // Allow space before opening brace
               s1 = ss3; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -16359,7 +16367,7 @@ namespace cimg_library_suffixed {
             break;
 
           case 'w' :
-            if (!std::strncmp(ss,"whiledo",7) && (*ss7=='(' || (*ss7<=' ' && *ss8=='('))) { // While...do
+            if (!std::strncmp(ss,"whiledo",7) && (*ss7=='(' || (*ss7 && *ss7<=' ' && *ss8=='('))) { // While...do
               if (*ss7<=' ') cimg::swap(*ss7,*ss8); // Allow space before opening brace
               s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               p1 = code._width;

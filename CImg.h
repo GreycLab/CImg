@@ -14266,7 +14266,7 @@ namespace cimg_library_suffixed {
               }
             }
 
-            // Assign function definition.
+            // Assign custom function expression.
             if (*ve1==')' && *ss!='(' && (s0 = std::strchr(variable_name,'('))!=0) {
               is_sth = true; // is_valid_function_name?
               if (*variable_name>='0' && *variable_name<='9') is_sth = false;
@@ -14277,9 +14277,7 @@ namespace cimg_library_suffixed {
               if (is_sth) { // Looks like a valid function declaration
                 *s0 = 0;
                 s1 = variable_name._data + l_variable_name - 1; // Pointer to closing parenthesis
-
                 CImg<charT>(variable_name._data,s0 - variable_name._data + 1).move_to(function_def);
-
                 ++s; while (*s && *s<=' ') ++s;
                 CImg<charT>(s,se - s + 1).move_to(function_body);
 
@@ -14308,8 +14306,14 @@ namespace cimg_library_suffixed {
                                                 se<&expr.back()?"...":"");
                   }
                   if (ns==s1 || *ns==',') { // New argument found
+                    CImg<charT> &body = function_body.back();
                     *s3 = 0;
-                    std::fprintf(stderr,"\nDEBUG : ARG %u = '%s'\n",p1 + 1,s2);
+                    p2 = s3 - s2; // Argument length
+                    p3 = body._width - p2 + 1; // Related to copy length
+                    for (ps = std::strstr(body._data,s2); ps; ps = std::strstr(ps,s2)) { // Argument replace
+                      *(ps++) = 'A' + p1;
+                      if (p2>1) { std::memmove(ps,ps + p2 - 1,body._data + p3 - ps); body._width-=p2 - 1; }
+                    }
                   }
                 }
                 std::fprintf(stderr,"\nDEBUG : New function '%s'() = '%s'\n",function_def.back().data(),function_body.back().data());

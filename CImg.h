@@ -14281,8 +14281,21 @@ namespace cimg_library_suffixed {
                 ++s; while (*s && *s<=' ') ++s;
                 CImg<charT>(s,se - s + 1).move_to(function_body);
 
-                p1 = 0; // Number of function arguments
+                p1 = 1; // Indice of current arguments
                 for (s = s0 + 1; s<=s1; ++p1, s = ns + 1) { // Parse function arguments
+
+                  if (p1>24) {
+                    *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
+                    throw CImgArgumentException("[_cimg_math_parser] "
+                                                "CImg<%s>::%s(): %s: Too much arguments (>24) specified when defining "
+                                                "function '%s()', in expression '%s%s%s'.",
+                                                pixel_type(),calling_function,s_op,
+                                                variable_name._data,
+                                                (ss - 4)>expr._data?"...":"",
+                                                (ss - 4)>expr._data?ss - 4:expr._data,
+                                                se<&expr.back()?"...":"");
+                  }
+
                   while (*s && *s<=' ') ++s;
                   s2 = s; // Start of the argument name
                   is_sth = true; // is_valid_argument_name?
@@ -14297,9 +14310,9 @@ namespace cimg_library_suffixed {
                     *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
                     throw CImgArgumentException("[_cimg_math_parser] "
                                                 "CImg<%s>::%s(): %s: %s name specified for argument %u when defining "
-                                                "'%s()', in expression '%s%s%s'.",
+                                                "function '%s()', in expression '%s%s%s'.",
                                                 pixel_type(),calling_function,s_op,
-                                                s2==s3?"Empty":"Invalid",p1 + 1,
+                                                is_sth?"Empty":"Invalid",p1,
                                                 variable_name._data,
                                                 (ss - 4)>expr._data?"...":"",
                                                 (ss - 4)>expr._data?ss - 4:expr._data,
@@ -14310,8 +14323,8 @@ namespace cimg_library_suffixed {
                     *s3 = 0;
                     p2 = s3 - s2; // Argument length
                     p3 = body._width - p2 + 1; // Related to copy length
-                    for (ps = std::strstr(body._data,s2); ps; ps = std::strstr(ps,s2)) { // Argument replace
-                      *(ps++) = 'A' + p1;
+                    for (ps = std::strstr(body._data,s2); ps; ps = std::strstr(ps,s2)) { // Replace by argument number
+                      *(ps++) = p1;
                       if (p2>1) { std::memmove(ps,ps + p2 - 1,body._data + p3 - ps); body._width-=p2 - 1; }
                     }
                   }

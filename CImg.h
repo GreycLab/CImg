@@ -13731,7 +13731,7 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_is_temp(arg) (!memtype[arg]) // Is temporary scalar?
 #define _cimg_mp_is_variable(arg) (memtype[arg]==-1) // Is scalar variable?
 #define _cimg_mp_is_vector(arg) (memtype[arg]>1) // Is vector?
-#define _cimg_mp_vector_size(arg) (_cimg_mp_is_scalar[arg]?0U:(unsigned int)memtype[arg] - 1) // Vector size
+#define _cimg_mp_vector_size(arg) (_cimg_mp_is_scalar(arg)?0U:(unsigned int)memtype[arg] - 1) // Vector size
 #define _cimg_mp_check_type(arg,n_arg,s_op,mode,N) check_type(arg,n_arg,s_op,mode,N,ss,se,saved_char)
 #define _cimg_mp_check_constant(arg,n_arg,s_op,is_strict) check_constant(arg,n_arg,s_op,is_strict,ss,se,saved_char)
 #define _cimg_mp_check_matrix_square(arg,n_arg,s_op) check_matrix_square(arg,n_arg,s_op,ss,se,saved_char)
@@ -16426,9 +16426,9 @@ namespace cimg_library_suffixed {
               CImg<charT> _expr = function_body[l]; // Expression to be substituted
               p1 = 1; // Indice of current parsed argument
               for (s = s0 + 1; s<=se1; ++p1, s = ns + 1) { // Parse function arguments
-                if (p1>p2) { ++p1; break; }
                 while (*s && *s<=' ') ++s;
-                if (*s==')' && p1==1) { p1 = 0; break; } // Function has no arguments
+                if (*s==')' && p1==1) break; // Function has no arguments
+                if (p1>p2) { ++p1; break; }
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
 
@@ -16445,6 +16445,7 @@ namespace cimg_library_suffixed {
                 }
                 *ns = 0;
               }
+
               if (p1!=p2+1) { // Number of specified argument do not fit
                 *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
                 throw CImgArgumentException("[_cimg_math_parser] "

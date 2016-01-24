@@ -16449,9 +16449,6 @@ namespace cimg_library_suffixed {
                 }
                 *ns = 0;
               }
-
-              std::fprintf(stderr,"\nDEBUG : p1 = %u, p2 = %u\n",p1,p2);
-
               if (p1!=p2+1) { // Number of specified argument do not fit
                 *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
                 throw CImgArgumentException("[_cimg_math_parser] "

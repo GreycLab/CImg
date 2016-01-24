@@ -14268,7 +14268,7 @@ namespace cimg_library_suffixed {
               }
             }
 
-            // Assign custom function expression.
+            // Assign user-defined function.
             if (*ve1==')' && *ss!='(' && (s0 = std::strchr(variable_name,'('))!=0) {
               is_sth = true; // is_valid_function_name?
               if (*variable_name>='0' && *variable_name<='9') is_sth = false;
@@ -14320,16 +14320,20 @@ namespace cimg_library_suffixed {
                     *s3 = 0;
                     p2 = s3 - s2; // Argument length
                     p3 = function_body[0]._width - p2 + 1; // Related to copy length
-                    for (ps = std::strstr(function_body[0],s2); ps; ps = std::strstr(ps,s2)) { // Substitute by arg number
+                    for (ps = std::strstr(function_body[0],s2); ps; ps = std::strstr(ps,s2)) { // Replace by arg number
                       if (!((ps>function_body[0]._data && is_varchar(*(ps - 1))) ||
                             (ps + p2<function_body[0].end() && is_varchar(*(ps + p2))))) {
                         *(ps++) = p1;
-                        if (p2>1) { std::memmove(ps,ps + p2 - 1,function_body[0]._data + p3 - ps); function_body[0]._width-=p2 - 1; }
+                        if (p2>1) {
+                          std::memmove(ps,ps + p2 - 1,function_body[0]._data + p3 - ps);
+                          function_body[0]._width-=p2 - 1;
+                        }
                       } else ++ps;
                     }
                   }
                 }
-                function_def[0].resize(function_def[0]._width + 1,1,1,1,0).back() = (char)(p1 - 1); // Store number of arguments
+                // Store number of arguments
+                function_def[0].resize(function_def[0]._width + 1,1,1,1,0).back() = (char)(p1 - 1);
                 _cimg_mp_return(0);
               }
             }
@@ -16450,7 +16454,8 @@ namespace cimg_library_suffixed {
                 *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
                 throw CImgArgumentException("[_cimg_math_parser] "
                                             "CImg<%s>::%s(): function '%s()': Number of specified arguments does not "
-                                            "fit function declaration (%u argument%s required), in expression '%s%s%s'.",
+                                            "fit function declaration (%u argument%s required), "
+                                            "in expression '%s%s%s'.",
                                             pixel_type(),calling_function,variable_name._data,
                                             p2,p2!=1?"s":"",
                                             (ss - 4)>expr._data?"...":"",
@@ -16627,7 +16632,8 @@ namespace cimg_library_suffixed {
         // No known item found, assuming this is an already initialized variable.
         variable_name.assign(ss,(unsigned int)(se + 1 - ss)).back() = 0;
         if (variable_name[1]) { // Multi-char variable
-          cimglist_for(variable_def,i) if (!std::strcmp(variable_name,variable_def[i])) _cimg_mp_return(variable_pos[i]);
+          cimglist_for(variable_def,i) if (!std::strcmp(variable_name,variable_def[i]))
+            _cimg_mp_return(variable_pos[i]);
         } else if (reserved_label[*variable_name]!=~0U) // Single-char variable
           _cimg_mp_return(reserved_label[*variable_name]);
 

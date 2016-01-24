@@ -14294,7 +14294,6 @@ namespace cimg_library_suffixed {
                                                 (ss - 4)>expr._data?ss - 4:expr._data,
                                                 se<&expr.back()?"...":"");
                   }
-
                   while (*s && *s<=' ') ++s;
                   if (*s==')' && p1==1) break; // Function has no arguments
 
@@ -14336,7 +14335,6 @@ namespace cimg_library_suffixed {
                 _cimg_mp_return(0);
               }
             }
-
 
             // Check if the variable name could be valid. If not, this is probably an lvalue assignment.
             is_sth = true; // is_valid_variable_name?
@@ -16436,7 +16434,7 @@ namespace cimg_library_suffixed {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
 
-                variable_name.assign(s,ns - s + 1).back() = 0; // Argument to put
+                variable_name.assign(s,ns - s + 1).back() = 0; // Argument to write
 
                 cimg_forX(_expr,k) if (_expr[k]==(char)p1) { // Perform argument substitution
                   _expr.resize(_expr._width + variable_name._width,1,1,1,0);
@@ -16461,6 +16459,7 @@ namespace cimg_library_suffixed {
                                             se<&expr.back()?"...":"");
               }
 
+              // Recompute 'pexpr' and 'level' for evaluating substituted expression.
               CImg<charT> _pexpr(_expr._width);
               ns = _pexpr._data;
               for (ps = _expr._data, c1 = ' '; *ps; ++ps) {

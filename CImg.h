@@ -16450,7 +16450,7 @@ namespace cimg_library_suffixed {
                 *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
                 throw CImgArgumentException("[_cimg_math_parser] "
                                             "CImg<%s>::%s(): function '%s()': Number of specified arguments does not "
-                                            "fit function declaration (requires %u argument%s), in expression '%s%s%s'.",
+                                            "fit function declaration (%u argument%s required), in expression '%s%s%s'.",
                                             pixel_type(),calling_function,variable_name._data,
                                             p2,p2!=1?"s":"",
                                             (ss - 4)>expr._data?"...":"",

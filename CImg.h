@@ -14277,9 +14277,9 @@ namespace cimg_library_suffixed {
               if (is_sth) { // Looks like a valid function declaration
                 *s0 = 0;
                 s1 = variable_name._data + l_variable_name - 1; // Pointer to closing parenthesis
-                CImg<charT>(variable_name._data,s0 - variable_name._data + 1).move_to(function_def);
+                CImg<charT>(variable_name._data,s0 - variable_name._data + 1).move_to(function_def,0);
                 ++s; while (*s && *s<=' ') ++s;
-                CImg<charT>(s,se - s + 1).move_to(function_body);
+                CImg<charT>(s,se - s + 1).move_to(function_body,0);
 
                 p1 = 1; // Indice of current parsed argument
                 for (s = s0 + 1; s<=s1; ++p1, s = ns + 1) { // Parse function arguments
@@ -14317,21 +14317,19 @@ namespace cimg_library_suffixed {
                                                 se<&expr.back()?"...":"");
                   }
                   if (ns==s1 || *ns==',') { // New argument found
-                    CImg<charT> &body = function_body.back();
                     *s3 = 0;
                     p2 = s3 - s2; // Argument length
-                    p3 = body._width - p2 + 1; // Related to copy length
-                    for (ps = std::strstr(body._data,s2); ps; ps = std::strstr(ps,s2)) { // Substitute by arg number
-                      if (!((ps>body._data && is_varchar(*(ps - 1))) ||
-                            (ps + p2<body.end() && is_varchar(*(ps + p2))))) {
+                    p3 = function_body[0]._width - p2 + 1; // Related to copy length
+                    for (ps = std::strstr(function_body[0],s2); ps; ps = std::strstr(ps,s2)) { // Substitute by arg number
+                      if (!((ps>function_body[0]._data && is_varchar(*(ps - 1))) ||
+                            (ps + p2<function_body[0].end() && is_varchar(*(ps + p2))))) {
                         *(ps++) = p1;
-                        if (p2>1) { std::memmove(ps,ps + p2 - 1,body._data + p3 - ps); body._width-=p2 - 1; }
+                        if (p2>1) { std::memmove(ps,ps + p2 - 1,function_body[0]._data + p3 - ps); function_body[0]._width-=p2 - 1; }
                       } else ++ps;
                     }
                   }
                 }
-                CImg<charT> &def = function_def.back();
-                def.resize(def._width + 1,1,1,1,0).back() = (char)(p1 - 1); // Store number of arguments
+                function_def[0].resize(function_def[0]._width + 1,1,1,1,0).back() = (char)(p1 - 1); // Store number of arguments
                 _cimg_mp_return(0);
               }
             }

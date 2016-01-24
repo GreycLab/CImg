@@ -13767,20 +13767,22 @@ namespace cimg_library_suffixed {
         const char *_expression = expression;
         while (*_expression && *_expression<=' ') ++_expression;
         CImg<charT>::string(_expression).move_to(expr);
-        level.assign(expr._width - 1);
 
         // Ease the retrieval of previous non-space characters afterwards.
         pexpr.assign(expr._width);
-        char *pe = pexpr._data;
-        for (char *ps = expr._data, c = ' '; *ps; ++ps) {
+        const char *ps;
+        char c, *pe = pexpr._data;
+        for (ps = expr._data, c = ' '; *ps; ++ps) {
           if (*ps!=' ') c = *ps;
           *(pe++) = c;
         }
         *pe = 0;
 
-        int lv = 0; // Count parentheses/brackets level of expression.
+        // Count parentheses/brackets level of expression.
+        level.assign(expr._width - 1);
+        int lv = 0;
         unsigned int *pd = level._data;
-        for (const char *ps = expr._data; *ps && lv>=0; ++ps)
+        for (ps = expr._data; *ps && lv>=0; ++ps)
           *(pd++) = (unsigned int)(*ps=='('||*ps=='['?lv++:*ps==')'||*ps==']'?--lv:lv);
         if (lv!=0) {
           cimg::strellipsize(expr,64);
@@ -14271,9 +14273,7 @@ namespace cimg_library_suffixed {
               is_sth = true; // is_valid_function_name?
               if (*variable_name>='0' && *variable_name<='9') is_sth = false;
               else for (ns = variable_name._data; ns<s0; ++ns)
-                     if ((*ns<'a' || *ns>'z') && (*ns<'A' || *ns>'Z') && (*ns<'0' || *ns>'9') && *ns!='_') {
-                       is_sth = false; break;
-                     }
+                     if (!is_varchar(*ns)) { is_sth = false; break; }
               if (is_sth) { // Looks like a valid function declaration
                 *s0 = 0;
                 s1 = variable_name._data + l_variable_name - 1; // Pointer to closing parenthesis
@@ -14281,9 +14281,8 @@ namespace cimg_library_suffixed {
                 ++s; while (*s && *s<=' ') ++s;
                 CImg<charT>(s,se - s + 1).move_to(function_body);
 
-                p1 = 1; // Indice of current arguments
+                p1 = 1; // Indice of current parsed argument
                 for (s = s0 + 1; s<=s1; ++p1, s = ns + 1) { // Parse function arguments
-
                   if (p1>24) {
                     *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
                     throw CImgArgumentException("[_cimg_math_parser] "
@@ -14297,13 +14296,13 @@ namespace cimg_library_suffixed {
                   }
 
                   while (*s && *s<=' ') ++s;
+                  if (*s==')' && p1==1) break; // Function has no arguments
+
                   s2 = s; // Start of the argument name
                   is_sth = true; // is_valid_argument_name?
                   if (*s>='0' && *s<='9') is_sth = false;
                   else for (ns = s; ns<s1 && *ns!=',' && *ns>' '; ++ns)
-                         if ((*ns<'a' || *ns>'z') && (*ns<'A' || *ns>'Z') && (*ns<'0' || *ns>'9') && *ns!='_') {
-                           is_sth = false; break;
-                         }
+                         if (!is_varchar(*ns)) { is_sth = false; break; }
                   s3 = ns; // End of the argument name
                   while (*ns && *ns<=' ') ++ns;
                   if (!is_sth || s2==s3 || (*ns!=',' && ns!=s1)) {
@@ -14323,24 +14322,27 @@ namespace cimg_library_suffixed {
                     *s3 = 0;
                     p2 = s3 - s2; // Argument length
                     p3 = body._width - p2 + 1; // Related to copy length
-                    for (ps = std::strstr(body._data,s2); ps; ps = std::strstr(ps,s2)) { // Replace by argument number
-                      *(ps++) = p1;
-                      if (p2>1) { std::memmove(ps,ps + p2 - 1,body._data + p3 - ps); body._width-=p2 - 1; }
+                    for (ps = std::strstr(body._data,s2); ps; ps = std::strstr(ps,s2)) { // Substitute by arg number
+                      if (!((ps>body._data && is_varchar(*(ps - 1))) ||
+                            (ps + p2<body.end() && is_varchar(*(ps + p2))))) {
+                        *(ps++) = p1;
+                        if (p2>1) { std::memmove(ps,ps + p2 - 1,body._data + p3 - ps); body._width-=p2 - 1; }
+                      } else ++ps;
                     }
                   }
                 }
-                std::fprintf(stderr,"\nDEBUG : New function '%s'() = '%s'\n",function_def.back().data(),function_body.back().data());
-                std::exit(0);
+                CImg<charT> &def = function_def.back();
+                def.resize(def._width + 1,1,1,1,0).back() = (char)(p1 - 1); // Store number of arguments
+                _cimg_mp_return(0);
               }
             }
+
 
             // Check if the variable name could be valid. If not, this is probably an lvalue assignment.
             is_sth = true; // is_valid_variable_name?
             if (*variable_name>='0' && *variable_name<='9') is_sth = false;
             else for (ns = variable_name._data; *ns; ++ns)
-                   if ((*ns<'a' || *ns>'z') && (*ns<'A' || *ns>'Z') && (*ns<'0' || *ns>'9') && *ns!='_') {
-                     is_sth = false; break;
-                   }
+                   if (!is_varchar(*ns)) { is_sth = false; break; }
 
             // Assign variable (direct).
             if (is_sth) {
@@ -16419,6 +16421,69 @@ namespace cimg_library_suffixed {
             _cimg_mp_return(pos);
           }
 
+          // No corresponding built-in function -> look for a user-defined function
+          s0 = strchr(ss,'(');
+          if (s0) {
+            variable_name.assign(ss,s0 - ss + 1).back() = 0;
+            cimglist_for(function_def,l) if (!std::strcmp(function_def[l],variable_name)) {
+              p2 = (unsigned int)function_def[l].back(); // Number of required arguments
+              CImg<charT> _expr = function_body[l]; // Expression to be substituted
+              p1 = 1; // Indice of current parsed argument
+              for (s = s0 + 1; s<=se1; ++p1, s = ns + 1) { // Parse function arguments
+                if (p1>p2) { ++p1; break; }
+                while (*s && *s<=' ') ++s;
+                if (*s==')' && p1==1) { p1 = 0; break; } // Function has no arguments
+                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+
+                variable_name.assign(s,ns - s + 1).back() = 0; // Argument to put
+
+                cimg_forX(_expr,k) if (_expr[k]==(char)p1) { // Perform argument substitution
+                  _expr.resize(_expr._width + variable_name._width,1,1,1,0);
+                  _expr[k++] = '(';
+                  std::memmove(_expr._data + k + variable_name._width,_expr._data + k,
+                               _expr._width - variable_name._width - k);
+                  std::memcpy(_expr._data + k,variable_name,variable_name._width - 1);
+                  k+=variable_name._width - 1;
+                  _expr[k++] = ')';
+                }
+                *ns = 0;
+              }
+
+              std::fprintf(stderr,"\nDEBUG : p1 = %u, p2 = %u\n",p1,p2);
+
+              if (p1!=p2+1) { // Number of specified argument do not fit
+                *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
+                throw CImgArgumentException("[_cimg_math_parser] "
+                                            "CImg<%s>::%s(): function '%s()': Number of specified arguments does not "
+                                            "fit function declaration (requires %u argument%s), in expression '%s%s%s'.",
+                                            pixel_type(),calling_function,variable_name._data,
+                                            p2,p2!=1?"s":"",
+                                            (ss - 4)>expr._data?"...":"",
+                                            (ss - 4)>expr._data?ss - 4:expr._data,
+                                            se<&expr.back()?"...":"");
+              }
+
+              CImg<charT> _pexpr(_expr._width);
+              ns = _pexpr._data;
+              for (ps = _expr._data, c1 = ' '; *ps; ++ps) {
+                if (*ps!=' ') c1 = *ps;
+                *(ns++) = c1;
+              }
+              *ns = 0;
+
+              CImg<uintT> _level(_expr._width - 1);
+              unsigned int *pd = _level._data;
+              arg1 = 0;
+              for (ps = _expr._data; *ps && arg1>=0; ++ps)
+                *(pd++) = (unsigned int)(*ps=='('||*ps=='['?arg1++:*ps==')'||*ps==']'?--arg1:arg1);
+
+              expr.swap(_expr); pexpr.swap(_pexpr); level.swap(_level);
+              pos = compile(expr._data,expr._data + expr._width - 1);
+              expr.swap(_expr); pexpr.swap(_pexpr); level.swap(_level);
+              _cimg_mp_return(pos);
+            }
+          }
         } // if (se1==')')
 
         // Vector specification using initializer '[ ... ]'.
@@ -16575,9 +16640,7 @@ namespace cimg_library_suffixed {
         is_sth = true; // is_valid_variable_name
         if (*variable_name>='0' && *variable_name<='9') is_sth = false;
         else for (ns = variable_name._data + 1; *ns; ++ns)
-               if ((*ns<'a' || *ns>'z') && (*ns<'A' || *ns>'Z') && (*ns<'0' || *ns>'9') && *ns!='_') {
-                 is_sth = false; break;
-               }
+               if (!is_varchar(*ns)) { is_sth = false; break; }
 
         *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
         if (is_sth)
@@ -16716,6 +16779,11 @@ namespace cimg_library_suffixed {
           arg7>_cimg_mp_c && _cimg_mp_is_temp(arg7)?arg7:scalar();
         CImg<uptrT>::vector((uptrT)op,pos,arg1,arg2,arg3,arg4,arg5,arg6,arg7).move_to(code);
         return pos;
+      }
+
+      // Return true if specified argument can be a part of an allowed  variable name.
+      bool is_varchar(const char c) {
+        return (c>='a' && c<='z') || (c>='A' && c<='Z') || (c>='0' && c<='9') || c=='_';
       }
 
       // Insert code instructions for processing vectors.

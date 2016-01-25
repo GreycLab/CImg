@@ -13720,6 +13720,7 @@ namespace cimg_library_suffixed {
 
       CImg<uintT> level, variable_pos, reserved_label;
       CImgList<charT> variable_def, function_def, function_body;
+      char *user_function;
 
       unsigned int mempos, mem_img_median, debug_indent, init_size, result_dim;
       double *result;
@@ -13732,6 +13733,7 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_is_variable(arg) (memtype[arg]==-1) // Is scalar variable?
 #define _cimg_mp_is_vector(arg) (memtype[arg]>1) // Is vector?
 #define _cimg_mp_vector_size(arg) (_cimg_mp_is_scalar(arg)?0U:(unsigned int)memtype[arg] - 1) // Vector size
+#define _cimg_mp_calling_function calling_function_s()._data
 #define _cimg_mp_check_type(arg,n_arg,s_op,mode,N) check_type(arg,n_arg,s_op,mode,N,ss,se,saved_char)
 #define _cimg_mp_check_constant(arg,n_arg,s_op,is_strict) check_constant(arg,n_arg,s_op,is_strict,ss,se,saved_char)
 #define _cimg_mp_check_matrix_square(arg,n_arg,s_op) check_matrix_square(arg,n_arg,s_op,ss,se,saved_char)
@@ -13757,13 +13759,13 @@ namespace cimg_library_suffixed {
                         const CImgList<T> *const list_input=0, CImgList<T> *const list_output=0):
         code(_code),imgin(img_input),listin(list_input?*list_input:CImgList<T>::const_empty()),
         imgout(img_output?*img_output:CImg<T>::empty()),listout(list_output?*list_output:CImgList<T>::empty()),
-        img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),
+        img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),user_function(0),
         mem_img_median(~0U),debug_indent(0),init_size(0),result_dim(0),
         calling_function(funcname?funcname:"cimg_math_parser") {
         if (!expression || !*expression)
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s(): Empty specified expression.",
-                                      pixel_type(),calling_function);
+                                      "CImg<%s>::%s: Empty specified expression.",
+                                      pixel_type(),_cimg_mp_calling_function);
         const char *_expression = expression;
         while (*_expression && *_expression<=' ') ++_expression;
         CImg<charT>::string(_expression).move_to(expr);
@@ -13787,8 +13789,8 @@ namespace cimg_library_suffixed {
         if (lv!=0) {
           cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s(): Unbalanced parentheses/brackets, in expression '%s'.",
-                                      pixel_type(),calling_function,
+                                      "CImg<%s>::%s: Unbalanced parentheses/brackets, in expression '%s'.",
+                                      pixel_type(),_cimg_mp_calling_function,
                                       expr._data);
         }
 
@@ -13926,9 +13928,9 @@ namespace cimg_library_suffixed {
         if (depth>64) {
           cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s(): Call stack overflow (infinite recursion?), "
+                                      "CImg<%s>::%s: Call stack overflow (infinite recursion?), "
                                       "in expression '%s%s%s'.",
-                                      pixel_type(),calling_function,
+                                      pixel_type(),_cimg_mp_calling_function,
                                       (ss - 4)>expr._data?"...":"",
                                       (ss - 4)>expr._data?ss - 4:expr._data,
                                       se<&expr.back()?"...":"");
@@ -13944,8 +13946,8 @@ namespace cimg_library_suffixed {
         if (se<=ss || !*ss) {
           cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s(): Missing item, in expression '%s'.",
-                                      pixel_type(),calling_function,
+                                      "CImg<%s>::%s: Missing item, in expression '%s'.",
+                                      pixel_type(),_cimg_mp_calling_function,
                                       expr._data);
         }
         const unsigned int depth1 = depth + 1;
@@ -14301,9 +14303,9 @@ namespace cimg_library_suffixed {
                   if (p1>24) {
                     *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
                     throw CImgArgumentException("[_cimg_math_parser] "
-                                                "CImg<%s>::%s(): %s: Too much arguments (>24) specified when defining "
+                                                "CImg<%s>::%s: %s: Too much arguments (>24) specified when defining "
                                                 "function '%s()', in expression '%s%s%s'.",
-                                                pixel_type(),calling_function,s_op,
+                                                pixel_type(),_cimg_mp_calling_function,s_op,
                                                 variable_name._data,
                                                 (ss - 4)>expr._data?"...":"",
                                                 (ss - 4)>expr._data?ss - 4:expr._data,
@@ -14322,9 +14324,9 @@ namespace cimg_library_suffixed {
                   if (!is_sth || s2==s3 || (*ns!=',' && ns!=s1)) {
                     *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
                     throw CImgArgumentException("[_cimg_math_parser] "
-                                                "CImg<%s>::%s(): %s: %s name specified for argument %u when defining "
+                                                "CImg<%s>::%s: %s: %s name specified for argument %u when defining "
                                                 "function '%s()', in expression '%s%s%s'.",
-                                                pixel_type(),calling_function,s_op,
+                                                pixel_type(),_cimg_mp_calling_function,s_op,
                                                 is_sth?"Empty":"Invalid",p1,
                                                 variable_name._data,
                                                 (ss - 4)>expr._data?"...":"",
@@ -14574,9 +14576,9 @@ namespace cimg_library_suffixed {
             // No assignment expressions match -> error
             *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
             throw CImgArgumentException("[_cimg_math_parser] "
-                                        "CImg<%s>::%s(): %s: Invalid left-hand operand '%s', "
+                                        "CImg<%s>::%s: %s: Invalid left-hand operand '%s', "
                                         "in expression '%s%s%s'.",
-                                        pixel_type(),calling_function,s_op,
+                                        pixel_type(),_cimg_mp_calling_function,s_op,
                                         variable_name._data,
                                         (ss - 4)>expr._data?"...":"",
                                         (ss - 4)>expr._data?ss - 4:expr._data,
@@ -14608,9 +14610,9 @@ namespace cimg_library_suffixed {
                   if (p1*p2!=p3) {
                     *se = saved_char; cimg::strellipsize(expr,64);
                     throw CImgArgumentException("[_cimg_math_parser] "
-                                                "CImg<%s>::%s(): %s: Sizes of left-hand and right-hand operands "
+                                                "CImg<%s>::%s: %s: Sizes of left-hand and right-hand operands "
                                                 "('%s' and '%s') do not match, in expression '%s%s%s'.",
-                                                pixel_type(),calling_function,s_op,
+                                                pixel_type(),_cimg_mp_calling_function,s_op,
                                                 s_type(arg1)._data,s_type(arg2)._data,
                                                 (ss - 4)>expr._data?"...":"",
                                                 (ss - 4)>expr._data?ss - 4:expr._data,
@@ -14818,9 +14820,9 @@ namespace cimg_library_suffixed {
             variable_name.assign(ss,(unsigned int)(s - ss)).back() = 0;
             *se = saved_char; cimg::strellipsize(expr,64);
             throw CImgArgumentException("[_cimg_math_parser] "
-                                        "CImg<%s>::%s(): %s: Invalid left-hand operand '%s', "
+                                        "CImg<%s>::%s: %s: Invalid left-hand operand '%s', "
                                         "in expression '%s%s%s'.",
-                                        pixel_type(),calling_function,s_op,
+                                        pixel_type(),_cimg_mp_calling_function,s_op,
                                         variable_name._data,
                                         (ss - 4)>expr._data?"...":"",
                                         (ss - 4)>expr._data?ss - 4:expr._data,
@@ -15061,9 +15063,9 @@ namespace cimg_library_suffixed {
                 if (arg4*p2!=p1) {
                   *se = saved_char; cimg::strellipsize(expr,64);
                   throw CImgArgumentException("[_cimg_math_parser] "
-                                              "CImg<%s>::%s(): %s: Sizes of left-hand and right-hand operands "
+                                              "CImg<%s>::%s: %s: Sizes of left-hand and right-hand operands "
                                               "('%s' and '%s') do not match, in expression '%s%s%s'.",
-                                              pixel_type(),calling_function,s_op,
+                                              pixel_type(),_cimg_mp_calling_function,s_op,
                                               s_type(arg1)._data,s_type(arg2)._data,
                                               (ss - 4)>expr._data?"...":"",
                                               (ss - 4)>expr._data?ss - 4:expr._data,
@@ -15342,9 +15344,9 @@ namespace cimg_library_suffixed {
           variable_name.back() = 0;
           *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s(): %s: Invalid operand '%s', "
+                                      "CImg<%s>::%s: %s: Invalid operand '%s', "
                                       "in expression '%s%s%s'.",
-                                      pixel_type(),calling_function,s_op,
+                                      pixel_type(),_cimg_mp_calling_function,s_op,
                                       variable_name._data,
                                       (ss - 4)>expr._data?"...":"",
                                       (ss - 4)>expr._data?ss - 4:expr._data,
@@ -15424,10 +15426,10 @@ namespace cimg_library_suffixed {
                 variable_name.assign(ss,(unsigned int)(s0 - ss)).back() = 0;
                 *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s(): %s: Out-of-bounds request for sub-vector '%s[%d,%d]' "
+                                            "CImg<%s>::%s: %s: Out-of-bounds request for sub-vector '%s[%d,%d]' "
                                             "(vector '%s' has dimension %u), "
                                             "in expression '%s%s%s'.",
-                                            pixel_type(),calling_function,s_op,
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
                                             variable_name._data,(int)mem[arg2],(int)mem[arg3],
                                             variable_name._data,p3,
                                             (ss - 4)>expr._data?"...":"",
@@ -15446,9 +15448,9 @@ namespace cimg_library_suffixed {
               variable_name.assign(ss,(unsigned int)(s0 - ss)).back() = 0;
               *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
               throw CImgArgumentException("[_cimg_math_parser] "
-                                          "CImg<%s>::%s(): %s: Array brackets used on non-vector variable '%s', "
+                                          "CImg<%s>::%s: %s: Array brackets used on non-vector variable '%s', "
                                           "in expression '%s%s%s'.",
-                                          pixel_type(),calling_function,s_op,
+                                          pixel_type(),_cimg_mp_calling_function,s_op,
                                           variable_name._data,
                                           (ss - 4)>expr._data?"...":"",
                                           (ss - 4)>expr._data?ss - 4:expr._data,
@@ -15462,10 +15464,10 @@ namespace cimg_library_suffixed {
               variable_name.assign(ss,(unsigned int)(s0 - ss)).back() = 0;
               *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
               throw CImgArgumentException("[_cimg_math_parser] "
-                                          "CImg<%s>::%s(): Out-of-bounds reference '%s[%d]' "
+                                          "CImg<%s>::%s: Out-of-bounds reference '%s[%d]' "
                                           "(vector '%s' has dimension %u), "
                                           "in expression '%s%s%s'.",
-                                          pixel_type(),calling_function,
+                                          pixel_type(),_cimg_mp_calling_function,
                                           variable_name._data,nb,
                                           variable_name._data,_cimg_mp_vector_size(arg1),
                                           (ss - 4)>expr._data?"...":"",
@@ -15888,9 +15890,9 @@ namespace cimg_library_suffixed {
               if (ss0!=expr._data || code.width()) { // (only allowed as the first instruction)
                 *se = saved_char; cimg::strellipsize(expr,64);
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s(): Function 'init()': Init invokation is not done at "
+                                            "CImg<%s>::%s: Function 'init()': Init invokation is not done at "
                                             "the beginning of expression '%s%s%s'.",
-                                            pixel_type(),calling_function,
+                                            pixel_type(),_cimg_mp_calling_function,
                                             (ss - 4)>expr._data?"...":"",
                                             (ss - 4)>expr._data?ss - 4:expr._data,
                                             se<&expr.back()?"...":"");
@@ -16067,10 +16069,10 @@ namespace cimg_library_suffixed {
               if (arg4*arg5!=p1 || arg5*p3!=p2) {
                 *se = saved_char; cimg::strellipsize(expr,64);
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s(): %s: Sizes of first and second arguments ('%s' and '%s') "
+                                            "CImg<%s>::%s: %s: Sizes of first and second arguments ('%s' and '%s') "
                                             "do not match for third argument 'nb_colsB=%u', "
                                             "in expression '%s%s%s'.",
-                                            pixel_type(),calling_function,s_op,
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
                                             s_type(arg1)._data,s_type(arg2)._data,p3,
                                             (ss - 4)>expr._data?"...":"",
                                             (ss - 4)>expr._data?ss - 4:expr._data,
@@ -16117,10 +16119,10 @@ namespace cimg_library_suffixed {
               if (arg4*arg5!=p1 || arg4*p3!=p2) {
                 *se = saved_char; cimg::strellipsize(expr,64);
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s(): %s: Sizes of first and second arguments ('%s' and '%s') "
+                                            "CImg<%s>::%s: %s: Sizes of first and second arguments ('%s' and '%s') "
                                             "do not match for third argument 'nb_colsB=%u', "
                                             "in expression '%s%s%s'.",
-                                            pixel_type(),calling_function,s_op,
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
                                             s_type(arg1)._data,s_type(arg2)._data,p3,
                                             (ss - 4)>expr._data?"...":"",
                                             (ss - 4)>expr._data?ss - 4:expr._data,
@@ -16151,10 +16153,10 @@ namespace cimg_library_suffixed {
               if (p2*p3!=p1) {
                 *se = saved_char; cimg::strellipsize(expr,64);
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s(): %s: Size of first argument ('%s') does not match"
+                                            "CImg<%s>::%s: %s: Size of first argument ('%s') does not match"
                                             "for second specified argument 'nb_cols=%u', "
                                             "in expression '%s%s%s'.",
-                                            pixel_type(),calling_function,s_op,
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
                                             s_type(arg1)._data,p2,
                                             (ss - 4)>expr._data?"...":"",
                                             (ss - 4)>expr._data?ss - 4:expr._data,
@@ -16329,9 +16331,9 @@ namespace cimg_library_suffixed {
               if (!_cimg_mp_is_variable(arg1) || !_cimg_mp_is_variable(arg2)) {
                 *se = saved_char; cimg::strellipsize(expr,64);
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s(): %s: Invalid non-variable arguments specified, "
+                                            "CImg<%s>::%s: %s: Invalid non-variable arguments specified, "
                                             "in expression '%s%s%s'.",
-                                            pixel_type(),calling_function,s_op,
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
                                             (ss - 4)>expr._data?"...":"",
                                             (ss - 4)>expr._data?ss - 4:expr._data,
                                             se<&expr.back()?"...":"");
@@ -16436,7 +16438,7 @@ namespace cimg_library_suffixed {
             _cimg_mp_return(pos);
           }
 
-          // No corresponding built-in function -> look for a user-defined function
+          // No corresponding built-in function -> Look for a user-defined function.
           s0 = strchr(ss,'(');
           if (s0) {
             variable_name.assign(ss,s0 - ss + 1).back() = 0;
@@ -16468,10 +16470,10 @@ namespace cimg_library_suffixed {
               if (p1!=p2+1) { // Number of specified argument do not fit
                 *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s(): function '%s()': Number of specified arguments does not "
+                                            "CImg<%s>::%s: function '%s()': Number of specified arguments does not "
                                             "fit function declaration (%u argument%s required), "
                                             "in expression '%s%s%s'.",
-                                            pixel_type(),calling_function,variable_name._data,
+                                            pixel_type(),_cimg_mp_calling_function,variable_name._data,
                                             p2,p2!=1?"s":"",
                                             (ss - 4)>expr._data?"...":"",
                                             (ss - 4)>expr._data?ss - 4:expr._data,
@@ -16494,7 +16496,10 @@ namespace cimg_library_suffixed {
                 *(pd++) = (unsigned int)(*ps=='('||*ps=='['?arg1++:*ps==')'||*ps==']'?--arg1:arg1);
 
               expr.swap(_expr); pexpr.swap(_pexpr); level.swap(_level);
+              s0 = user_function;
+              user_function = function_def[l];
               pos = compile(expr._data,expr._data + expr._width - 1,depth1,p_ref);
+              user_function = s0;
               expr.swap(_expr); pexpr.swap(_pexpr); level.swap(_level);
               _cimg_mp_return(pos);
             }
@@ -16661,16 +16666,16 @@ namespace cimg_library_suffixed {
         *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
         if (is_sth)
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s(): Undefined variable '%s' in expression '%s%s%s'.",
-                                      pixel_type(),calling_function,
+                                      "CImg<%s>::%s: Undefined variable '%s' in expression '%s%s%s'.",
+                                      pixel_type(),_cimg_mp_calling_function,
                                       variable_name._data,
                                       (ss - 4)>expr._data?"...":"",
                                       (ss - 4)>expr._data?ss - 4:expr._data,
                                       se<&expr.back()?"...":"");
         else
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s(): Invalid item '%s' in expression '%s%s%s'.",
-                                      pixel_type(),calling_function,
+                                      "CImg<%s>::%s: Invalid item '%s' in expression '%s%s%s'.",
+                                      pixel_type(),_cimg_mp_calling_function,
                                       variable_name._data,
                                       (ss - 4)>expr._data?"...":"",
                                       (ss - 4)>expr._data?ss - 4:expr._data,
@@ -16797,6 +16802,22 @@ namespace cimg_library_suffixed {
         return pos;
       }
 
+      // Return a string that defines the calling function + the user-defined function scope.
+      CImg<charT> calling_function_s() const {
+        CImg<charT> res;
+        const unsigned int
+          l1 = calling_function?std::strlen(calling_function):0,
+          l2 = user_function?std::strlen(user_function):0;
+        if (l2) {
+          res.assign(l1 + l2 + 48);
+          cimg_snprintf(res,res._width,"%s(): When substituting function '%s()'",calling_function,user_function);
+        } else {
+          res.assign(l1 + l2 + 4);
+          cimg_snprintf(res,res._width,"%s()",calling_function);
+        }
+        return res;
+      }
+
       // Return true if specified argument can be a part of an allowed  variable name.
       bool is_varchar(const char c) {
         return (c>='a' && c<='z') || (c>='A' && c<='Z') || (c>='0' && c<='9') || c=='_';
@@ -16890,7 +16911,7 @@ namespace cimg_library_suffixed {
           throw CImgArgumentException("[_cimg_math_parser] "
                                       "CImg<%s>::%s(): %s: %s%s (of type '%s') is not a %spositive integer constant, "
                                       "in expression '%s%s%s'.",
-                                      pixel_type(),calling_function,s_op,
+                                      pixel_type(),_cimg_mp_calling_function,s_op,
                                       s_arg,*s_arg?"argument":"Argument",s_type(arg)._data,
                                       is_strictly_positive?"strictly ":"",
                                       (ss - 4)>expr._data?"...":"",
@@ -16914,7 +16935,7 @@ namespace cimg_library_suffixed {
           throw CImgArgumentException("[_cimg_math_parser] "
                                       "CImg<%s>::%s(): %s: %s%s (of type '%s') "
                                       "cannot be considered as a square matrix, in expression '%s%s%s'.",
-                                      pixel_type(),calling_function,s_op,
+                                      pixel_type(),_cimg_mp_calling_function,s_op,
                                       s_arg,*s_op=='F'?(*s_arg?"argument":"Argument"):(*s_arg?"operand":"Operand"),
                                       s_type(arg)._data,
                                       (ss - 4)>expr._data?"...":"",
@@ -16953,7 +16974,7 @@ namespace cimg_library_suffixed {
           throw CImgArgumentException("[_cimg_math_parser] "
                                       "CImg<%s>::%s(): %s: %s%s has invalid type '%s' (should be %s), "
                                       "in expression '%s%s%s'.",
-                                      pixel_type(),calling_function,s_op,
+                                      pixel_type(),_cimg_mp_calling_function,s_op,
                                       s_arg,*s_op=='F'?(*s_arg?"argument":"Argument"):(*s_arg?"operand":"Operand"),
                                       s_type(arg)._data,sb_type._data,
                                       (ss - 4)>expr._data?"...":"",
@@ -16970,7 +16991,7 @@ namespace cimg_library_suffixed {
           throw CImgArgumentException("[_cimg_math_parser] "
                                       "CImg<%s>::%s(): %s: Invalid construction of a 0-dimensional vector, "
                                       "in expression '%s%s%s'.",
-                                      pixel_type(),calling_function,s_op,
+                                      pixel_type(),_cimg_mp_calling_function,s_op,
                                       (ss - 4)>expr._data?"...":"",
                                       (ss - 4)>expr._data?ss - 4:expr._data,
                                       se<&expr.back()?"...":"");
@@ -16979,7 +17000,7 @@ namespace cimg_library_suffixed {
           throw CImgArgumentException("[_cimg_math_parser] "
                                       "CImg<%s>::%s(): %s: Invalid construction of a vector with dynamic size, "
                                       "in expression '%s%s%s'.",
-                                      pixel_type(),calling_function,s_op,
+                                      pixel_type(),_cimg_mp_calling_function,s_op,
                                       (ss - 4)>expr._data?"...":"",
                                       (ss - 4)>expr._data?ss - 4:expr._data,
                                       se<&expr.back()?"...":"");

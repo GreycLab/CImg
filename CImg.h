@@ -13764,7 +13764,7 @@ namespace cimg_library_suffixed {
         calling_function(funcname?funcname:"cimg_math_parser") {
         if (!expression || !*expression)
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s: Empty specified expression.",
+                                      "CImg<%s>::%s: Empty expression.",
                                       pixel_type(),_cimg_mp_calling_function);
         const char *_expression = expression;
         while (*_expression && *_expression<=' ') ++_expression;
@@ -14303,7 +14303,7 @@ namespace cimg_library_suffixed {
                   if (p1>24) {
                     *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
                     throw CImgArgumentException("[_cimg_math_parser] "
-                                                "CImg<%s>::%s: %s: Too much arguments (>24) specified when defining "
+                                                "CImg<%s>::%s: %s: Too much specified arguments (>24) when defining "
                                                 "function '%s()', in expression '%s%s%s'.",
                                                 pixel_type(),_cimg_mp_calling_function,s_op,
                                                 variable_name._data,
@@ -14340,7 +14340,7 @@ namespace cimg_library_suffixed {
                     for (ps = std::strstr(function_body[0],s2); ps; ps = std::strstr(ps,s2)) { // Replace by arg number
                       if (!((ps>function_body[0]._data && is_varchar(*(ps - 1))) ||
                             (ps + p2<function_body[0].end() && is_varchar(*(ps + p2))))) {
-                        *(ps++) = p1;
+                        *(ps++) = (char)p1;
                         if (p2>1) {
                           std::memmove(ps,ps + p2 - 1,function_body[0]._data + p3 - ps);
                           function_body[0]._width-=p2 - 1;
@@ -14605,7 +14605,7 @@ namespace cimg_library_suffixed {
                 else {
                   _cimg_mp_check_matrix_square(arg2,2,s_op);
                   p3 = _cimg_mp_vector_size(arg1);
-                  p2 = (unsigned int)std::sqrt(_cimg_mp_vector_size(arg2));
+                  p2 = (unsigned int)std::sqrt((float)_cimg_mp_vector_size(arg2));
                   p1 = p3/p2;
                   if (p1*p2!=p3) {
                     *se = saved_char; cimg::strellipsize(expr,64);
@@ -15890,8 +15890,8 @@ namespace cimg_library_suffixed {
               if (ss0!=expr._data || code.width()) { // (only allowed as the first instruction)
                 *se = saved_char; cimg::strellipsize(expr,64);
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s: Function 'init()': Init invokation is not done at "
-                                            "the beginning of expression '%s%s%s'.",
+                                            "CImg<%s>::%s: Function 'init()': Init invokation not done at the "
+                                            "beginning of expression '%s%s%s'.",
                                             pixel_type(),_cimg_mp_calling_function,
                                             (ss - 4)>expr._data?"...":"",
                                             (ss - 4)>expr._data?ss - 4:expr._data,
@@ -16011,7 +16011,7 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"mdet(",5)) { // Matrix determinant
               arg1 = compile(ss5,se1,depth1,0);
               _cimg_mp_check_matrix_square(arg1,1,"Function 'mdet()'");
-              p1 = (unsigned int)std::sqrt(_cimg_mp_vector_size(arg1));
+              p1 = (unsigned int)std::sqrt((float)_cimg_mp_vector_size(arg1));
               _cimg_mp_scalar2(mp_matrix_det,arg1,p1);
             }
 
@@ -16027,7 +16027,7 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"meig(",5)) { // Matrix eigenvalues/eigenvector
               arg1 = compile(ss5,se1,depth1,0);
               _cimg_mp_check_matrix_square(arg1,1,"Function 'meig()'");
-              p1 = (unsigned int)std::sqrt(_cimg_mp_vector_size(arg1));
+              p1 = (unsigned int)std::sqrt((float)_cimg_mp_vector_size(arg1));
               pos = vector((p1 + 1)*p1);
               CImg<uptrT>::vector((uptrT)mp_matrix_eig,pos,arg1,p1).move_to(code);
               _cimg_mp_return(pos);
@@ -16045,7 +16045,7 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"minv(",5)) { // Matrix inversion
               arg1 = compile(ss5,se1,depth1,0);
               _cimg_mp_check_matrix_square(arg1,1,"Function 'minv()'");
-              p1 = (unsigned int)std::sqrt(_cimg_mp_vector_size(arg1));
+              p1 = (unsigned int)std::sqrt((float)_cimg_mp_vector_size(arg1));
               pos = vector(p1*p1);
               CImg<uptrT>::vector((uptrT)mp_matrix_inv,pos,arg1,p1).move_to(code);
               _cimg_mp_return(pos);
@@ -16136,7 +16136,7 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"mtrace(",7)) { // Matrix trace
               arg1 = compile(ss7,se1,depth1,0);
               _cimg_mp_check_matrix_square(arg1,1,"Function 'mtrace()'");
-              p1 = (unsigned int)std::sqrt(_cimg_mp_vector_size(arg1));
+              p1 = (unsigned int)std::sqrt((float)_cimg_mp_vector_size(arg1));
               _cimg_mp_scalar2(mp_matrix_trace,arg1,p1);
             }
 
@@ -16471,7 +16471,7 @@ namespace cimg_library_suffixed {
                 *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
                 throw CImgArgumentException("[_cimg_math_parser] "
                                             "CImg<%s>::%s: function '%s()': Number of specified arguments does not "
-                                            "fit function declaration (%u argument%s required), "
+                                            "match function declaration (%u argument%s required), "
                                             "in expression '%s%s%s'.",
                                             pixel_type(),_cimg_mp_calling_function,variable_name._data,
                                             p2,p2!=1?"s":"",
@@ -16846,7 +16846,7 @@ namespace cimg_library_suffixed {
         }
         const unsigned int pos = mempos++;
         mem[pos] = cimg::type<double>::nan();
-        memtype[pos] = siz + 1.0;
+        memtype[pos] = siz + 1;
         mempos+=siz;
         return pos;
       }
@@ -16926,7 +16926,7 @@ namespace cimg_library_suffixed {
         _cimg_mp_check_type(arg,n_arg,s_op,2,0);
         const unsigned int
           siz = _cimg_mp_vector_size(arg),
-          n = (unsigned int)std::sqrt(siz);
+          n = (unsigned int)std::sqrt((float)siz);
         if (n*n!=siz) {
           const char *s_arg;
           if (*s_op!='F') s_arg = !n_arg?"":n_arg==1?"Left-hand ":"Right-hand ";
@@ -18110,7 +18110,7 @@ namespace cimg_library_suffixed {
 
       static double mp_matrix_rot(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
-        const double x = _mp_arg(2), y = _mp_arg(3), z = _mp_arg(4), theta = _mp_arg(5);
+        const float x = (float)_mp_arg(2), y = (float)_mp_arg(3), z = (float)_mp_arg(4), theta = (float)_mp_arg(5);
         CImg<double>(ptrd,3,3,1,1,true) = CImg<double>::rotation_matrix(x,y,z,theta);
         return cimg::type<double>::nan();
       }

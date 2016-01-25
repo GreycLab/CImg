@@ -15562,7 +15562,7 @@ namespace cimg_library_suffixed {
             if (s0<se1) {
               s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(s0,s1,depth1,0);
-              if (_cimg_mp_is_vector(arg1)) { // Coordinates specified as a vector
+              if (_cimg_mp_is_vector(arg1)) { // Coordinates specified as a vector [X,Y,Z,C]
                 p2 = _cimg_mp_vector_size(arg1);
                 arg1 = arg1 + 1;
                 if (p2>1) {

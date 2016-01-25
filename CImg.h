@@ -31689,19 +31689,19 @@ namespace cimg_library_suffixed {
 
     //! Compute the structure tensor field of an image.
     /**
-       \param is_centered_scheme scheme. Can be <tt>{ false=fwd/bwd | true=centered }</tt>
+       \param is_fwbw_scheme scheme. Can be <tt>{ false=centered | true=forward-backward }</tt>
     **/
-    CImg<T>& structure_tensors(const bool is_centered_scheme=false) {
-      return get_structure_tensors(is_centered_scheme).move_to(*this);
+    CImg<T>& structure_tensors(const bool is_fwbw_scheme=false) {
+      return get_structure_tensors(is_fwbw_scheme).move_to(*this);
     }
 
     //! Compute the structure tensor field of an image \newinstance.
-    CImg<Tfloat> get_structure_tensors(const bool is_centered_scheme=false) const {
+    CImg<Tfloat> get_structure_tensors(const bool is_fwbw_scheme=false) const {
       if (is_empty()) return *this;
       CImg<Tfloat> res;
       if (_depth>1) { // 3d
         res.assign(_width,_height,_depth,6,0);
-        if (is_centered_scheme) { // Classical central finite differences
+        if (!is_fwbw_scheme) { // Classical central finite differences
 #ifdef cimg_use_openmp
 #pragma omp parallel for cimg_openmp_if (_width*_height*_depth>=1048576 && _spectrum>=2)
 #endif
@@ -31748,7 +31748,7 @@ namespace cimg_library_suffixed {
         }
       } else { // 2d
         res.assign(_width,_height,_depth,3,0);
-        if (is_centered_scheme) { // Classical central finite differences
+        if (!is_fwbw_scheme) { // Classical central finite differences
 #ifdef cimg_use_openmp
 #pragma omp parallel for cimg_openmp_if (_width*_height>=1048576 && _depth*_spectrum>=2)
 #endif

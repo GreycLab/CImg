@@ -13937,10 +13937,11 @@ namespace cimg_library_suffixed {
         }
 
         const char *const ss0 = ss;
+        char c1, c2, c3, c4;
+
         if (ss<se) {
-          char c;
           while (*ss && (*ss<=' ' || *ss==';')) ++ss;
-          while (se>ss && (c=*(se - 1))>0 && (c<=' ' || c==';')) --se;
+          while (se>ss && (c1=*(se - 1))>0 && (c1<=' ' || c1==';')) --se;
         }
         if (se>ss && *(se - 1)==';') --se;
         if (se<=ss || !*ss) {
@@ -13956,7 +13957,7 @@ namespace cimg_library_suffixed {
           *const se1 = se - 1, *const se2 = se - 2, *const se3 = se - 3,
           *const ss1 = ss + 1, *const ss2 = ss + 2, *const ss3 = ss + 3, *const ss4 = ss + 4,
           *const ss5 = ss + 5, *const ss6 = ss + 6, *const ss7 = ss + 7, *const ss8 = ss + 8,
-          *s, *ps, *ns, *s0, *s1, *s2, *s3, c1, c2, c3, c4, sep = 0, end = 0;
+          *s, *ps, *ns, *s0, *s1, *s2, *s3, sep = 0, end = 0;
         double val, val1, val2;
         const char *s_op;
         mp_func op;

@@ -16672,14 +16672,15 @@ namespace cimg_library_suffixed {
                                       (ss - 4)>expr._data?"...":"",
                                       (ss - 4)>expr._data?ss - 4:expr._data,
                                       se<&expr.back()?"...":"");
-        else
-          throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s: Invalid item '%s' in expression '%s%s%s'.",
-                                      pixel_type(),_cimg_mp_calling_function,
-                                      variable_name._data,
-                                      (ss - 4)>expr._data?"...":"",
-                                      (ss - 4)>expr._data?ss - 4:expr._data,
-                                      se<&expr.back()?"...":"");
+        s0 = std::strchr(ss,'(');
+        if (s0 && *se1==')') s_op = "function call"; else s_op = "item";
+        throw CImgArgumentException("[_cimg_math_parser] "
+                                    "CImg<%s>::%s: Unrecognized %s '%s' in expression '%s%s%s'.",
+                                    pixel_type(),_cimg_mp_calling_function,
+                                    s_op,variable_name._data,
+                                    (ss - 4)>expr._data?"...":"",
+                                    (ss - 4)>expr._data?ss - 4:expr._data,
+                                    se<&expr.back()?"...":"");
       }
 
       // Evaluation procedure.

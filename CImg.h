@@ -16492,7 +16492,7 @@ namespace cimg_library_suffixed {
               CImg<uintT> _level(_expr._width - 1);
               unsigned int *pd = _level._data;
               arg1 = 0;
-              for (ps = _expr._data; *ps && arg1>=0; ++ps)
+              for (ps = _expr._data; *ps; ++ps)
                 *(pd++) = (unsigned int)(*ps=='('||*ps=='['?arg1++:*ps==')'||*ps==']'?--arg1:arg1);
 
               expr.swap(_expr); pexpr.swap(_pexpr); level.swap(_level);

@@ -13925,7 +13925,7 @@ namespace cimg_library_suffixed {
 
       // Compilation procedure.
       unsigned int compile(char *ss, char *se, const unsigned int depth, unsigned int *p_ref) {
-        if (depth>64) {
+        if (depth>256) {
           cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
                                       "CImg<%s>::%s: Call stack overflow (infinite recursion?), "
@@ -14085,8 +14085,8 @@ namespace cimg_library_suffixed {
 
         for (s = se2; s>ss; --s) // Separator ';'
           if (*s==';' && level[s - expr._data]==clevel) {
-            compile(ss,s,depth1,0);
-            _cimg_mp_return(compile(s + 1,se,depth1,p_ref));
+            compile(ss,s,depth,0);
+            _cimg_mp_return(compile(s + 1,se,depth,p_ref));
           }
 
         // Declare / assign variable, vector value or image value.

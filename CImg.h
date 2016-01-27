@@ -14133,6 +14133,7 @@ namespace cimg_library_suffixed {
                   if (_cimg_mp_is_vector(arg2))
                     set_variable_vector(arg2); // Prevent from being used in further optimization
                   else if (_cimg_mp_is_temp(arg2)) memtype[arg2] = -1;
+                  if (_cimg_mp_is_temp(arg1)) memtype[arg1] = -1;
                 }
                 if (p1!=~0U) {
                   if (!listout) _cimg_mp_return(arg2);
@@ -14216,6 +14217,10 @@ namespace cimg_library_suffixed {
                   if (_cimg_mp_is_vector(arg5))
                     set_variable_vector(arg5); // Prevent from being used in further optimization
                   else if (_cimg_mp_is_temp(arg5)) memtype[arg5] = -1;
+                  if (_cimg_mp_is_temp(arg1)) memtype[arg1] = -1;
+                  if (_cimg_mp_is_temp(arg2)) memtype[arg2] = -1;
+                  if (_cimg_mp_is_temp(arg3)) memtype[arg3] = -1;
+                  if (_cimg_mp_is_temp(arg4)) memtype[arg4] = -1;
                 }
                 if (p1!=~0U) {
                   if (!listout) _cimg_mp_return(arg5);
@@ -14245,11 +14250,11 @@ namespace cimg_library_suffixed {
             }
 
             // Assign vector value (direct).
-            if (l_variable_name>3 && *ve1==']') {
+            if (l_variable_name>3 && *ve1==']' && *ss!='[') {
               s0 = ve1; while (s0>ss && *s0!='[') --s0;
               is_sth = true; // is_valid_variable_name?
-              if (*variable_name>='0' && *variable_name<='9') is_sth = false;
-              else for (ns = variable_name._data; ns<s0; ++ns)
+              if (*ss>='0' && *ss<='9') is_sth = false;
+              else for (ns = ss; ns<s0; ++ns)
                      if (!is_varchar(*ns)) { is_sth = false; break; }
               if (is_sth && s0>ss) {
                 variable_name[s0 - ss] = 0; // Remove brackets in variable name
@@ -14282,6 +14287,7 @@ namespace cimg_library_suffixed {
                     p_ref[1] = arg1;
                     p_ref[2] = arg2;
                     if (_cimg_mp_is_temp(arg3)) memtype[arg3] = -1; // Prevent from being used in further optimization
+                    if (_cimg_mp_is_temp(arg2)) memtype[arg2] = -1;
                   }
                   CImg<uptrT>::vector((uptrT)mp_vector_set_off,arg3,arg1,(uptrT)_cimg_mp_vector_size(arg1),arg2,arg3).
                     move_to(code);
@@ -14291,14 +14297,16 @@ namespace cimg_library_suffixed {
             }
 
             // Assign user-defined function.
-            if (*ve1==')' && *ss!='(') {
+            if (l_variable_name>3 && *ve1==')' && *ss!='(') {
               s0 = ve1; while (s0>ss && *s0!='(') --s0;
               is_sth = std::strncmp(variable_name,"debug(",6) &&
                 std::strncmp(variable_name,"print(",6); // is_valid_function_name?
-              if (*variable_name>='0' && *variable_name<='9') is_sth = false;
-              else for (ns = variable_name._data; ns<s0; ++ns)
+              if (*ss>='0' && *ss<='9') is_sth = false;
+              else for (ns = ss; ns<s0; ++ns)
                      if (!is_varchar(*ns)) { is_sth = false; break; }
+
               if (is_sth && s0>ss) { // Looks like a valid function declaration
+                s0 = variable_name._data + (s0 - ss);
                 *s0 = 0;
                 s1 = variable_name._data + l_variable_name - 1; // Pointer to closing parenthesis
                 CImg<charT>(variable_name._data,s0 - variable_name._data + 1).move_to(function_def,0);
@@ -15374,7 +15382,11 @@ namespace cimg_library_suffixed {
             arg1 = compile(s0,s1,depth1,0); // Offset
             arg2 = s1<se1?compile(s1 + 1,se1,depth1,0):~0U; // Boundary
             if (p_ref && arg2==~0U) {
-              *p_ref = 4; p_ref[1] = p1; p_ref[2] = (unsigned int)is_relative; p_ref[3] = arg1;
+              *p_ref = 4;
+              p_ref[1] = p1;
+              p_ref[2] = (unsigned int)is_relative;
+              p_ref[3] = arg1;
+              if (_cimg_mp_is_temp(arg1)) memtype[arg1] = -1;
             }
             p2 = ~0U; // 'p2' must the dimension of the vector-valued operand if any
             if (p1==~0U) p2 = imgin._spectrum;
@@ -15403,7 +15415,11 @@ namespace cimg_library_suffixed {
             arg1 = compile(s0,s1,depth1,0); // Offset
             arg2 = s1<se1?compile(s1 + 1,se1,depth1,0):~0U; // Boundary
             if (p_ref && arg2==~0U) {
-              *p_ref = 2; p_ref[1] = p1; p_ref[2] = (unsigned int)is_relative; p_ref[3] = arg1;
+              *p_ref = 2;
+              p_ref[1] = p1;
+              p_ref[2] = (unsigned int)is_relative;
+              p_ref[3] = arg1;
+              if (_cimg_mp_is_temp(arg1)) memtype[arg1] = -1;
             }
             if (p1!=~0U) {
               if (!listin) _cimg_mp_return(0);
@@ -15481,7 +15497,12 @@ namespace cimg_library_suffixed {
                                           (ss - 4)>expr._data?ss - 4:expr._data,
                                           se<&expr.back()?"...":"");
             }
-            if (p_ref) { *p_ref = 1; p_ref[1] = arg1; p_ref[2] = arg2; }
+            if (p_ref) {
+              *p_ref = 1;
+              p_ref[1] = arg1;
+              p_ref[2] = arg2;
+              if (_cimg_mp_is_temp(arg2)) memtype[arg2] = -1; // Prevent from being used in further optimization
+            }
             _cimg_mp_scalar3(mp_vector_off,arg1,(uptrT)_cimg_mp_vector_size(arg1),arg2);
           }
         }
@@ -15531,8 +15552,15 @@ namespace cimg_library_suffixed {
               }
             }
             if (p_ref && arg4==~0U && arg5==~0U) {
-              *p_ref = 5; p_ref[1] = p1; p_ref[2] = (unsigned int)is_relative;
-              p_ref[3] = arg1; p_ref[4] = arg2; p_ref[5] = arg3;
+              *p_ref = 5;
+              p_ref[1] = p1;
+              p_ref[2] = (unsigned int)is_relative;
+              p_ref[3] = arg1;
+              p_ref[4] = arg2;
+              p_ref[5] = arg3;
+              if (_cimg_mp_is_temp(arg1)) memtype[arg1] = -1;
+              if (_cimg_mp_is_temp(arg2)) memtype[arg2] = -1;
+              if (_cimg_mp_is_temp(arg3)) memtype[arg3] = -1;
             }
             p2 = ~0U; // 'p2' must the dimension of the vector-valued operand if any
             if (p1==~0U) p2 = imgin._spectrum;
@@ -15603,8 +15631,17 @@ namespace cimg_library_suffixed {
               }
             }
             if (p_ref && arg5==~0U && arg6==~0U) {
-              *p_ref = 3; p_ref[1] = p1; p_ref[2] = (unsigned int)is_relative;
-              p_ref[3] = arg1; p_ref[4] = arg2; p_ref[5] = arg3; p_ref[6] = arg4;
+              *p_ref = 3;
+              p_ref[1] = p1;
+              p_ref[2] = (unsigned int)is_relative;
+              p_ref[3] = arg1;
+              p_ref[4] = arg2;
+              p_ref[5] = arg3;
+              p_ref[6] = arg4;
+              if (_cimg_mp_is_temp(arg1)) memtype[arg1] = -1;
+              if (_cimg_mp_is_temp(arg2)) memtype[arg2] = -1;
+              if (_cimg_mp_is_temp(arg3)) memtype[arg3] = -1;
+              if (_cimg_mp_is_temp(arg4)) memtype[arg4] = -1;
             }
 
             if (p1!=~0U) {

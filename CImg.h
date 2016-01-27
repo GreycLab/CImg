@@ -14288,7 +14288,8 @@ namespace cimg_library_suffixed {
 
             // Assign user-defined function.
             if (*ve1==')' && *ss!='(' && (s0 = std::strchr(variable_name,'('))!=0) {
-              is_sth = !std::strncmp(s0,"debug(",6) && !std::strncmp(s0,"print(",6); // is_valid_function_name?
+              is_sth = std::strncmp(variable_name,"debug(",6) &&
+                std::strncmp(variable_name,"print(",6); // is_valid_function_name?
               if (*variable_name>='0' && *variable_name<='9') is_sth = false;
               else for (ns = variable_name._data; ns<s0; ++ns)
                      if (!is_varchar(*ns)) { is_sth = false; break; }

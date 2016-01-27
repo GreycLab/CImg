@@ -14133,6 +14133,7 @@ namespace cimg_library_suffixed {
                   if (_cimg_mp_is_vector(arg2))
                     set_variable_vector(arg2); // Prevent from being used in further optimization
                   else if (_cimg_mp_is_temp(arg2)) memtype[arg2] = -1;
+                  if (_cimg_mp_is_temp(p1)) memtype[p1] = -1;
                   if (_cimg_mp_is_temp(arg1)) memtype[arg1] = -1;
                 }
                 if (p1!=~0U) {
@@ -14217,6 +14218,7 @@ namespace cimg_library_suffixed {
                   if (_cimg_mp_is_vector(arg5))
                     set_variable_vector(arg5); // Prevent from being used in further optimization
                   else if (_cimg_mp_is_temp(arg5)) memtype[arg5] = -1;
+                  if (_cimg_mp_is_temp(p1)) memtype[p1] = -1;
                   if (_cimg_mp_is_temp(arg1)) memtype[arg1] = -1;
                   if (_cimg_mp_is_temp(arg2)) memtype[arg2] = -1;
                   if (_cimg_mp_is_temp(arg3)) memtype[arg3] = -1;
@@ -15386,6 +15388,7 @@ namespace cimg_library_suffixed {
               p_ref[1] = p1;
               p_ref[2] = (unsigned int)is_relative;
               p_ref[3] = arg1;
+              if (_cimg_mp_is_temp(p1)) memtype[p1] = -1; // Prevent from being used in further optimization
               if (_cimg_mp_is_temp(arg1)) memtype[arg1] = -1;
             }
             p2 = ~0U; // 'p2' must the dimension of the vector-valued operand if any
@@ -15419,6 +15422,7 @@ namespace cimg_library_suffixed {
               p_ref[1] = p1;
               p_ref[2] = (unsigned int)is_relative;
               p_ref[3] = arg1;
+              if (_cimg_mp_is_temp(p1)) memtype[p1] = -1; // Prevent from being used in further optimization
               if (_cimg_mp_is_temp(arg1)) memtype[arg1] = -1;
             }
             if (p1!=~0U) {
@@ -15558,6 +15562,7 @@ namespace cimg_library_suffixed {
               p_ref[3] = arg1;
               p_ref[4] = arg2;
               p_ref[5] = arg3;
+              if (_cimg_mp_is_temp(p1)) memtype[p1] = -1; // Prevent from being used in further optimization
               if (_cimg_mp_is_temp(arg1)) memtype[arg1] = -1;
               if (_cimg_mp_is_temp(arg2)) memtype[arg2] = -1;
               if (_cimg_mp_is_temp(arg3)) memtype[arg3] = -1;
@@ -15638,6 +15643,7 @@ namespace cimg_library_suffixed {
               p_ref[4] = arg2;
               p_ref[5] = arg3;
               p_ref[6] = arg4;
+              if (_cimg_mp_is_temp(p1)) memtype[p1] = -1; // Prevent from being used in further optimization
               if (_cimg_mp_is_temp(arg1)) memtype[arg1] = -1;
               if (_cimg_mp_is_temp(arg2)) memtype[arg2] = -1;
               if (_cimg_mp_is_temp(arg3)) memtype[arg3] = -1;

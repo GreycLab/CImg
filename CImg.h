@@ -14247,7 +14247,11 @@ namespace cimg_library_suffixed {
             // Assign vector value (direct).
             if (l_variable_name>3 && *ve1==']') {
               s0 = ve1; while (s0>ss && *s0!='[') --s0;
-              if (s0>ss) {
+              is_sth = true; // is_valid_variable_name?
+              if (*variable_name>='0' && *variable_name<='9') is_sth = false;
+              else for (ns = variable_name._data; ns<s0; ++ns)
+                     if (!is_varchar(*ns)) { is_sth = false; break; }
+              if (is_sth && s0>ss) {
                 variable_name[s0 - ss] = 0; // Remove brackets in variable name
                 arg1 = ~0U; // Vector slot
                 arg2 = compile(++s0,ve1,depth1,0); // Index
@@ -14287,13 +14291,14 @@ namespace cimg_library_suffixed {
             }
 
             // Assign user-defined function.
-            if (*ve1==')' && *ss!='(' && (s0 = std::strchr(variable_name,'('))!=0) {
+            if (*ve1==')' && *ss!='(') {
+              s0 = ve1; while (s0>ss && *s0!='(') --s0;
               is_sth = std::strncmp(variable_name,"debug(",6) &&
                 std::strncmp(variable_name,"print(",6); // is_valid_function_name?
               if (*variable_name>='0' && *variable_name<='9') is_sth = false;
               else for (ns = variable_name._data; ns<s0; ++ns)
                      if (!is_varchar(*ns)) { is_sth = false; break; }
-              if (is_sth) { // Looks like a valid function declaration
+              if (is_sth && s0>ss) { // Looks like a valid function declaration
                 *s0 = 0;
                 s1 = variable_name._data + l_variable_name - 1; // Pointer to closing parenthesis
                 CImg<charT>(variable_name._data,s0 - variable_name._data + 1).move_to(function_def,0);
@@ -16802,7 +16807,7 @@ namespace cimg_library_suffixed {
       }
 
       // Return true if specified argument can be a part of an allowed  variable name.
-      bool is_varchar(const char c) {
+      bool is_varchar(const char c) const {
         return (c>='a' && c<='z') || (c>='A' && c<='Z') || (c>='0' && c<='9') || c=='_';
       }
 

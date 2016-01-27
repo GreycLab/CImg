@@ -14288,7 +14288,7 @@ namespace cimg_library_suffixed {
 
             // Assign user-defined function.
             if (*ve1==')' && *ss!='(' && (s0 = std::strchr(variable_name,'('))!=0) {
-              is_sth = true; // is_valid_function_name?
+              is_sth = !std::strncmp(s0,"debug(",6) && !std::strncmp(s0,"print(",6); // is_valid_function_name?
               if (*variable_name>='0' && *variable_name<='9') is_sth = false;
               else for (ns = variable_name._data; ns<s0; ++ns)
                      if (!is_varchar(*ns)) { is_sth = false; break; }
@@ -16320,26 +16320,6 @@ namespace cimg_library_suffixed {
               if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_sqrt,arg1);
               if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(std::sqrt(mem[arg1]));
               _cimg_mp_scalar1(mp_sqrt,arg1);
-            }
-
-            if (!std::strncmp(ss,"swap(",5)) { // Swap values
-              s_op = "Function 'swap()'";
-              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss5,s1,depth1,0);
-              arg2 = compile(s1 + 1,se1,depth1,0);
-              _cimg_mp_check_type(arg2,2,s_op,3,_cimg_mp_vector_size(arg1));
-              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector2_vv(mp_swap,arg1,arg2);
-              if (!_cimg_mp_is_variable(arg1) || !_cimg_mp_is_variable(arg2)) {
-                *se = saved_char; cimg::strellipsize(expr,64);
-                throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s: %s: Invalid non-variable arguments specified, "
-                                            "in expression '%s%s%s'.",
-                                            pixel_type(),_cimg_mp_calling_function,s_op,
-                                            (ss - 4)>expr._data?"...":"",
-                                            (ss - 4)>expr._data?ss - 4:expr._data,
-                                            se<&expr.back()?"...":"");
-              }
-              _cimg_mp_scalar2(mp_swap,arg1,arg2);
             }
             break;
 
@@ -18530,11 +18510,6 @@ namespace cimg_library_suffixed {
 
       static double mp_sub(_cimg_math_parser& mp) {
         return _mp_arg(2) - _mp_arg(3);
-      }
-
-      static double mp_swap(_cimg_math_parser& mp) {
-        cimg::swap(mp.mem[mp.opcode[2]],mp.mem[mp.opcode[3]]);
-        return mp.mem[mp.opcode[2]];
       }
 
       static double mp_tan(_cimg_math_parser& mp) {

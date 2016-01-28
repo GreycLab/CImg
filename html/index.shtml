@@ -246,7 +246,7 @@
       or parts of the <a href="reference/index.html">documentation</a>.</li>
     <li>If you just want to say you've been happy with the library, you can send me a postcard from your place, to the following address : <br/>
       <i>David Tschumperl&eacute;, GREYC (UMR CNRS 6072), Equipe IMAGE, 6 Bd du Mar&eacute;chal Juin, 14050 Caen Cedex, FRANCE.</i><br/><br/>
-      53 postcards received yet (I still have empty space on my wall ! :) ), from :<br/><br/>
+      57 postcards received yet (I still have empty space on my wall ! :) ), from :<br/><br/>
       <ul>
         <li><a href="img/postcard1.jpg" onclick="NewWindow(this.href,'name','420','320','yes');return false;">
             Comissao Nacional de Energia Nuclear, Rio de Janeiro, Brazil.</a></li>
@@ -349,16 +349,18 @@
         <li><a href="img/postcard51.jpg" onclick="NewWindow(this.href,'name','420','320','yes');return false;">
             EDF/France, from ZondeR.</a></li>
         <li><a href="img/postcard52.jpg" onclick="NewWindow(this.href,'name','300','460','yes');return false;">
-            Belgium, from Marc Lis.</a>
+            Belgium, from Marc Lis.</a></li>
         <li><a href="img/postcard53.jpg" onclick="NewWindow(this.href,'name','420','320','yes');return false;">
-            Roma/Italy, from Patrick Wauters.</a>
+            Roma/Italy, from Patrick Wauters.</a></li>
         <li><a href="img/postcard54.jpg" onclick="NewWindow(this.href,'name','420','320','yes');return false;">
-            Germany, from Werner Meier.</a>
+            Germany, from Werner Meier.</a></li>
         <li><a href="img/postcard55.jpg" onclick="NewWindow(this.href,'name','320','420','yes');return false;">
-            Germany, from Justin Pletzfeld.</a>
+            Germany, from Justin Pletzfeld.</a></li>
         <li><a href="img/postcard56.jpg" onclick="NewWindow(this.href,'name','420','320','yes');return false;">
-            New York/USA, from Garry R. Osgood.</a>
-          <br/><br/></li>
+            New York/USA, from Garry R. Osgood.</a></li>
+        <li><a href="img/postcard57.jpg" onclick="NewWindow(this.href,'name','320','420','yes');return false;">
+            Italy, from Andrea (coder of PhotoFlow).</a></li>
+        <br/><br/></li>
     </ul></li>
   </ul>
 </blockquote>

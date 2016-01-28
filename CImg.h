@@ -14085,11 +14085,13 @@ namespace cimg_library_suffixed {
           if (*ss=='w' && *ss1=='h' && *ss2=='d' && *ss3=='s') _cimg_mp_return(reserved_label[2]); // whds
         }
 
-        for (s = se2; s>ss; --s) // Separator ';'
-          if (*s==';' && level[s - expr._data]==clevel) {
-            compile(ss,s,depth,0);
-            _cimg_mp_return(compile(s + 1,se,depth,p_ref));
+        pos = ~0U;
+        for (s0 = ss, s = ss1; s<se1; ++s)
+          if (*s==';' && level[s - expr._data]==clevel) { // Separator ';'
+            pos = compile(s0,s,depth,0);
+            s0 = s + 1;
           }
+        if (pos!=~0U) _cimg_mp_return(compile(s0,se,depth,p_ref));
 
         // Declare / assign variable, vector value or image value.
         for (s = ss1, ps = ss, ns = ss2; s<se1; ++s, ++ps, ++ns)

@@ -14104,7 +14104,7 @@ namespace cimg_library_suffixed {
 
             // Assign image value (direct).
             if (l_variable_name>2 && (*ss=='i' || *ss=='j' || *ss=='I' || *ss=='J') && (*ss1=='(' || *ss1=='[') &&
-                reserved_label[*ss]==~0U) {
+                (reserved_label[*ss]==~0U || *ss1=='(' || !_cimg_mp_is_vector(reserved_label[*ss]))) {
               is_relative = *ss=='j' || *ss=='J';
 
               if (*ss1=='[' && *ve1==']') { // i/j/I/J[_#ind,offset] = value
@@ -15375,7 +15375,8 @@ namespace cimg_library_suffixed {
           s_op = "Operator '[]'";
           is_relative = *ss=='j' || *ss=='J';
 
-          if ((*ss=='I' || *ss=='J') && *ss1=='[' && reserved_label[*ss]==~0U) { // Image value as a vector
+          if ((*ss=='I' || *ss=='J') && *ss1=='[' &&
+              (reserved_label[*ss]==~0U || !_cimg_mp_is_vector(reserved_label[*ss]))) { // Image value as a vector
             if (*ss2=='#') { // Index specified
               s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
               p1 = compile(ss3,s0++,depth1,0);
@@ -15409,7 +15410,8 @@ namespace cimg_library_suffixed {
             _cimg_mp_return(pos);
           }
 
-          if ((*ss=='i' || *ss=='j') && *ss1=='[' && reserved_label[*ss]==~0U) { // Image value as a scalar
+          if ((*ss=='i' || *ss=='j') && *ss1=='[' &&
+              (reserved_label[*ss]==~0U || !_cimg_mp_is_vector(reserved_label[*ss]))) { // Image value as a scalar
             if (*ss2=='#') { // Index specified
               s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
               p1 = compile(ss3,s0++,depth1,0);
@@ -15517,7 +15519,7 @@ namespace cimg_library_suffixed {
           is_relative = *ss=='j' || *ss=='J';
 
           // I/J(_#ind,_x,_y,_z,_c,_interpolation,_boundary)
-          if ((*ss=='I' || *ss=='J') && *ss1=='(' && reserved_label[*ss]==~0U) { // Image value as scalar
+          if ((*ss=='I' || *ss=='J') && *ss1=='(') { // Image value as scalar
             if (*ss2=='#') { // Index specified
               s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
               p1 = compile(ss3,s0++,depth1,0);
@@ -15589,7 +15591,7 @@ namespace cimg_library_suffixed {
           }
 
           // i/j(_#ind,_x,_y,_z,_c,_interpolation,_boundary)
-          if ((*ss=='i' || *ss=='j') && *ss1=='(' && reserved_label[*ss]==~0U) { // Image value as scalar
+          if ((*ss=='i' || *ss=='j') && *ss1=='(') { // Image value as scalar
             if (*ss2=='#') { // Index specified
               s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
               p1 = compile(ss3,s0++,depth1,0);

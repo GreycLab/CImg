@@ -16766,6 +16766,7 @@ namespace cimg_library_suffixed {
           if (val<0 && val>=-5) return (unsigned int)(10 - val);
         }
         if (val==0.5) return 16;
+        if (cimg::type<double>::is_nan(val)) return 28;
         if (mempos>=mem._width) { mem.resize(-200,1,1,1,0); memtype.resize(-200,1,1,1,0); }
         const unsigned int pos = mempos++;
         mem[pos] = val;

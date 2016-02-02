@@ -13946,6 +13946,9 @@ namespace cimg_library_suffixed {
           while (se>ss && (c1=*(se - 1))>0 && (c1<=' ' || c1==';')) --se;
         }
         if (se>ss && *(se - 1)==';') --se;
+        while (*ss=='(' && *(se - 1)==')' && std::strchr(ss,')')==se - 1) { // Detect simple content around parentheses.
+          ++ss; --se;
+        }
         if (se<=ss || !*ss) {
           cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "

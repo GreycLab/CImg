@@ -48544,7 +48544,7 @@ namespace cimg_library_suffixed {
 #ifdef cimg_use_tiff
       TIFF *tif = TIFFOpen(filename,is_bigtiff?"w8":"w4");
       if (tif) {
-        cimg_forZ(*this,z) get_slice(z)._save_tiff(tif,z,compression_type,voxel_size,description);
+        cimg_forZ(*this,z) _save_tiff(tif,z,z,compression_type,voxel_size,description);
         TIFFClose(tif);
       } else throw CImgIOException(_cimg_instance
                                    "save_tiff(): Failed to open file '%s' for writing.",
@@ -48560,13 +48560,13 @@ namespace cimg_library_suffixed {
 #ifdef cimg_use_tiff
 
 #define _cimg_save_tiff(types,typed,compression_type) if (!std::strcmp(types,pixel_type())) { \
-      const typed foo = (typed)0; return _save_tiff(tif,directory,foo,compression_type,voxel_size,description); }
+      const typed foo = (typed)0; return _save_tiff(tif,directory,z,foo,compression_type,voxel_size,description); }
 
     // [internal] Save a plane into a tiff file
     template<typename t>
-    const CImg<T>& _save_tiff(TIFF *tif, const unsigned int directory, const t& pixel_t,
-                              const unsigned int compression_type,
-                              const float *const voxel_size, const char *const description) const {
+    const CImg<T>& _save_tiff(TIFF *tif, const unsigned int directory, const unsigned int z, const t& pixel_t,
+                              const unsigned int compression_type, const float *const voxel_size,
+                              const char *const description) const {
       if (is_empty() || !tif || pixel_t) return *this;
       const char *const filename = TIFFFileName(tif);
       uint32 rowsperstrip = (uint32)-1;
@@ -48609,7 +48609,7 @@ namespace cimg_library_suffixed {
           for (unsigned int rr = 0; rr<nrow; ++rr)
             for (unsigned int cc = 0; cc<_width; ++cc)
               for (unsigned int vv = 0; vv<spp; ++vv)
-                buf[i++] = (t)(*this)(cc,row + rr,0,vv);
+                buf[i++] = (t)(*this)(cc,row + rr,z,vv);
           if (TIFFWriteEncodedStrip(tif,strip,buf,i*sizeof(t))<0)
             throw CImgIOException(_cimg_instance
                                   "save_tiff(): Invalid strip writing when saving file '%s'.",
@@ -48622,8 +48622,9 @@ namespace cimg_library_suffixed {
       return (*this);
     }
 
-    const CImg<T>& _save_tiff(TIFF *tif, const unsigned int directory, const unsigned int compression_type,
-                              const float *const voxel_size, const char *const description) const {
+    const CImg<T>& _save_tiff(TIFF *tif, const unsigned int directory, const unsigned int z,
+                              const unsigned int compression_type, const float *const voxel_size,
+                              const char *const description) const {
       _cimg_save_tiff("bool",unsigned char,compression_type);
       _cimg_save_tiff("char",char,compression_type);
       _cimg_save_tiff("unsigned char",unsigned char,compression_type);
@@ -53982,10 +53983,7 @@ namespace cimg_library_suffixed {
       if (tif) {
         for (unsigned int dir = 0, l = 0; l<_width; ++l) {
           const CImg<T>& img = (*this)[l];
-          if (img) {
-            if (img._depth==1) img._save_tiff(tif,dir++,compression_type,voxel_size,description);
-            else cimg_forZ(img,z) img.get_slice(z)._save_tiff(tif,dir++,compression_type,voxel_size,description);
-          }
+          cimg_forZ(img,z) img._save_tiff(tif,dir++,z,compression_type,voxel_size,description);
         }
         TIFFClose(tif);
       } else

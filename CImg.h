@@ -39484,11 +39484,11 @@ namespace cimg_library_suffixed {
         lZ = sprite.depth() - (z0 + sprite.depth()>depth()?z0 + sprite.depth() - depth():0) + (bz?z0:0),
         lC = sprite.spectrum() - (c0 + sprite.spectrum()>spectrum()?c0 + sprite.spectrum() - spectrum():0) + (bc?c0:0);
       const t
-        *ptrs = sprite._data -
-        (bx?x0:0) -
-        (by?y0*(uptrT)sprite.width():0) -
-        (bz?z0*(uptrT)sprite.width()*sprite.height():0) -
-        (bc?c0*(uptrT)sprite.width()*sprite.height()*sprite.depth():0);
+        *ptrs = sprite._data +
+        (bx?-x0:0) +
+        (by?-y0*(uptrT)sprite.width():0) +
+        (bz?-z0*(uptrT)sprite.width()*sprite.height():0) +
+        (bc?-c0*(uptrT)sprite.width()*sprite.height()*sprite.depth():0);
       const uptrT
         offX = (unsigned long)_width - lX,
         soffX = (unsigned long)sprite._width - lX,
@@ -39528,11 +39528,11 @@ namespace cimg_library_suffixed {
         lZ = sprite.depth() - (z0 + sprite.depth()>depth()?z0 + sprite.depth() - depth():0) + (bz?z0:0),
         lC = sprite.spectrum() - (c0 + sprite.spectrum()>spectrum()?c0 + sprite.spectrum() - spectrum():0) + (bc?c0:0);
       const T
-        *ptrs = sprite._data -
-        (bx?x0:0) -
-        (by?y0*(uptrT)sprite.width():0) -
-        (bz?z0*(uptrT)sprite.width()*sprite.height():0) -
-        (bc?c0*(uptrT)sprite.width()*sprite.height()*sprite.depth():0);
+        *ptrs = sprite._data +
+        (bx?-x0:0) +
+        (by?-y0*(uptrT)sprite.width():0) +
+        (bz?-z0*(uptrT)sprite.width()*sprite.height():0) +
+        (bc?-c0*(uptrT)sprite.width()*sprite.height()*sprite.depth():0);
       const unsigned long
         offX = (unsigned long)_width - lX,
         soffX = (unsigned long)sprite._width - lX,
@@ -39623,10 +39623,10 @@ namespace cimg_library_suffixed {
         lZ = sprite.depth() - (z0 + sprite.depth()>depth()?z0 + sprite.depth() - depth():0) + (bz?z0:0),
         lC = sprite.spectrum() - (c0 + sprite.spectrum()>spectrum()?c0 + sprite.spectrum() - spectrum():0) + (bc?c0:0);
       const uptrT
-        coff = -(bx?x0:0) -
-        (by?y0*(uptrT)mask.width():0) -
-        (bz?z0*(uptrT)mask.width()*mask.height():0) -
-        (bc?c0*(uptrT)mask.width()*mask.height()*mask.depth():0),
+        coff = (bx?-x0:0) +
+        (by?-y0*(uptrT)mask.width():0) +
+        (bz?-z0*(uptrT)mask.width()*mask.height():0) +
+        (bc?-c0*(uptrT)mask.width()*mask.height()*mask.depth():0),
         ssize = (uptrT)mask.width()*mask.height()*mask.depth()*mask.spectrum();
       const ti *ptrs = sprite._data + coff;
       const tm *ptrm = mask._data + coff;

@@ -157,16 +157,15 @@ CIMG_NODISPLAY_CFLAGS = -Dcimg_display=0
 
 # Flags to enable the use of the X11 library.
 # (X11 is used by CImg to handle display windows)
-# !!! For 64bits systems : replace -L$(X11PATH)/lib by -L$(X11PATH)/lib64 !!!
 CIMG_X11_DEFINE = -Dcimg_display=1
-CIMG_X11_INCDIR = -I$(X11PATH)/include
+CIMG_X11_INCDIR = `pkg-config --cflags x11 || echo -I/usr/X11R6/include`
 CIMG_X11_CFLAGS = $(CIMG_X11_DEFINE) $(CIMG_X11_INCDIR)
-CIMG_X11_LIBS = -L$(X11PATH)/lib -lpthread -lX11
+CIMG_X11_LIBS = `pkg-config --libs x11 || echo -L/usr/X11R6/lib -lX11` -lpthread
 
 # Flags to enable fast image display, using the XSHM library (when using X11).
 # !!! Seems to randomly crash when used on MacOSX and 64bits systems, so use it only when necessary !!!
-CIMG_XSHM_CFLAGS = # -Dcimg_use_xshm
-CIMG_XSHM_LIBS = # -lXext
+CIMG_XSHM_CFLAGS = -Dcimg_use_xshm `pkg-config --cflags xcb-shm`
+CIMG_XSHM_LIBS = `pkg-config --libs xcb-shm || echo -L$(USR)/X11R6/lib -lXext`
 
 # Flags to enable GDI32 display (Windows native).
 CIMG_GDI32_DEFINE = -mwindows
@@ -227,9 +226,9 @@ CIMG_FFMPEG_LIBS = -lavcodec -lavformat -lswscale
 # Flags to enable native support for compressed .cimgz files, using the Zlib library.
 # ( http://www.zlib.net/ )
 CIMG_ZLIB_DEFINE = -Dcimg_use_zlib
-CIMG_ZLIB_INCDIR =
+CIMG_ZLIB_INCDIR = `pkg-config --cflags zlib || echo -I$(USR)/$(INCLUDE)`
 CIMG_ZLIB_CFLAGS = $(CIMG_ZLIB_DEFINE) $(CIMG_ZLIB_INCDIR)
-CIMG_ZLIB_LIBS = -lz
+CIMG_ZLIB_LIBS = `pkg-config --libs zlib || echo -lz`
 
 # Flags to enable native support for downloading files from the network.
 # ( http://curl.haxx.se/libcurl/ )

@@ -148,10 +148,9 @@ endif
 
 # Flags to enable OpenCV support.
 CIMG_OPENCV_DEFINE = -Dcimg_use_opencv
-CIMG_OPENCV_INCDIR = -I/usr/include/opencv
+CIMG_OPENCV_INCDIR = `pkg-config opencv --cflags || echo -I/usr/include/opencv` -I/usr/include/opencv
 CIMG_OPENCV_CFLAGS = $(CIMG_OPENCV_DEFINE) $(CIMG_OPENCV_INCDIR)
-CIMG_OPENCV_LIBS = -lopencv_core -lopencv_highgui
-#CIMG_OPENCV_LIBS = -lcv -lhighgui    #-> Use this for OpenCV < 2.2.0
+CIMG_OPENCV_LIBS = `pkg-config opencv --libs || echo -lopencv_core -lopencv_highgui`
 
 # Flags used to disable display capablities of CImg
 CIMG_NODISPLAY_CFLAGS = -Dcimg_display=0
@@ -242,9 +241,9 @@ CIMG_CURL_LIBS = -lcurl
 # Flags to enable native support of most classical image file formats, using the Magick++ library.
 # ( http://www.imagemagick.org/Magick++/ )
 CIMG_MAGICK_DEFINE = -Dcimg_use_magick
-CIMG_MAGICK_INCDIR = `Magick++-config --cppflags` `Magick++-config --cxxflags`
+CIMG_MAGICK_INCDIR = `pkg-config --cflags GraphicsMagick++ || echo -I$(USR)/$(INCLUDE)/GraphicsMagick`
 CIMG_MAGICK_CFLAGS = $(CIMG_MAGICK_DEFINE) $(CIMG_MAGICK_INCDIR)
-CIMG_MAGICK_LIBS = `Magick++-config --ldflags` `Magick++-config --libs`
+CIMG_MAGICK_LIBS = `pkg-config --libs GraphicsMagick++ || echo -lGraphicsMagick++`
 
 # Flags to enable faster Discrete Fourier Transform computation, using the FFTW3 library
 # ( http://www.fftw.org/ )

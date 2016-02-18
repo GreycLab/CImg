@@ -16190,7 +16190,7 @@ namespace cimg_library_suffixed {
                                             (ss - 4)>expr._data?ss - 4:expr._data,
                                             se<&expr.back()?"...":"");
               }
-              pos = vector(arg5*p3);
+              pos = vector(arg4*p3);
               CImg<uptrT>::vector((uptrT)mp_matrix_solve,pos,arg1,arg2,arg4,arg5,p3).move_to(code);
               _cimg_mp_return(pos);
             }
@@ -18168,7 +18168,7 @@ namespace cimg_library_suffixed {
           k = (unsigned int)mp.opcode(4),
           l = (unsigned int)mp.opcode(5),
           m = (unsigned int)mp.opcode(6);
-        CImg<double>(ptrd,m,l,1,1,true) = CImg<double>(ptr2,m,k,1,1,true).get_solve(CImg<double>(ptr1,l,k,1,1,true));
+        CImg<double>(ptrd,m,k,1,1,true) = CImg<double>(ptr2,m,l,1,1,true).get_solve(CImg<double>(ptr1,k,l,1,1,true));
         return cimg::type<double>::nan();
       }
 

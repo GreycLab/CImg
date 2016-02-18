@@ -16178,7 +16178,7 @@ namespace cimg_library_suffixed {
               p3 = (unsigned int)mem[arg3];
               arg5 = p2/p3;
               arg4 = p1/arg5;
-              if (arg4*arg5!=p1 || arg4*p3!=p2) {
+              if (arg4*arg5!=p1 || arg5*p3!=p2) {
                 *se = saved_char; cimg::strellipsize(expr,64);
                 throw CImgArgumentException("[_cimg_math_parser] "
                                             "CImg<%s>::%s: %s: Sizes of first and second arguments ('%s' and '%s') "

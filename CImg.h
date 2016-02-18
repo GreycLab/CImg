@@ -43423,7 +43423,7 @@ namespace cimg_library_suffixed {
       unsigned int cdx = 0, dx = 0, dy = 0;
       int err = 0;
       double val;
-      assign(256,256);
+      assign(256,256,1,1,0);
       while ((err = std::fscanf(nfile,"%lf%255[^0-9eEinfa.+-]",&val,delimiter._data))>0) {
         if (err>0) (*this)(cdx++,dy) = (T)val;
         if (cdx>=_width) resize(3*_width/2,_height,1,1,0);

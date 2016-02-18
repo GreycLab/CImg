@@ -362,6 +362,8 @@
             Italy, from Andrea (coder of PhotoFlow).</a></li>
         <li><a href="img/postcard58.jpg" onclick="NewWindow(this.href,'name','420','320','yes');return false;">
             Sydney/Australia, from Peter Neave.</a></li>
+        <li><a href="img/postcard59.jpg" onclick="NewWindow(this.href,'name','320','420','yes');return false;">
+            Fort Worth/Texas/USA, from Steve Gillow.</a></li>
         <br/><br/></li>
     </ul></li>
   </ul>

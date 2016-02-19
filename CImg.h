@@ -20921,13 +20921,13 @@ namespace cimg_library_suffixed {
                                     "incompatible dimensions.",
                                     cimg_instance,
                                     A._width,A._height,A._depth,A._spectrum,A._data);
-      if (_width!=1) {
-        cimg_forX(*this,i) draw_image(i,get_column(i).solve(A));
-        return *this;
-      }
-
       typedef _cimg_Ttfloat Ttfloat;
-      if (A._width==A._height) {
+      if (A._width==A._height) { // Classical linear system
+        if (_width!=1) {
+          CImg<T> res(_width,A._width);
+          cimg_forX(*this,i) res.draw_image(i,get_column(i).solve(A));
+          return res.move_to(*this);
+        }
 #ifdef cimg_use_lapack
         char TRANS = 'N';
         int INFO, N = _height, LWORK = 4*N, *const IPIV = new int[N];
@@ -20963,6 +20963,11 @@ namespace cimg_library_suffixed {
 #endif
       } else { // Least-square solution for non-square systems.
 #ifdef cimg_use_lapack
+        if (_width!=1) {
+          CImg<T> res(_width,A._width);
+          cimg_forX(*this,i) res.draw_image(i,get_column(i).solve(A));
+          return res.move_to(*this);
+        }
 	char TRANS = 'N';
         int INFO, N = A._width, M = A._height, LWORK = -1, LDA = M, LDB = M, NRHS = _width;
 	Ttfloat WORK_QUERY;

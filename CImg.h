@@ -13928,7 +13928,7 @@ namespace cimg_library_suffixed {
       }
 
       // Compilation procedure.
-      unsigned int compile(char *ss, char *se, const unsigned int depth, unsigned int *p_ref) {
+      unsigned int compile(char *ss, char *se, const unsigned int depth, unsigned int *const p_ref) {
         if (depth>256) {
           cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
@@ -16095,6 +16095,21 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
+            if (!std::strncmp(ss,"memcpy(",7)) { // Memory copy
+              s_op = "Function 'memcpy()'";
+              s1 = ss7; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              ref.assign(14);
+              arg1 = compile(ss7,s1==se2?++s1:s1,depth1,ref);
+              s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg2 = compile(s1 + 1,s2==se2?++s2:s2,depth1,ref._data + 7);
+              arg3 = compile(++s2,se1,depth1,0);
+              _cimg_mp_check_type(arg3,3,s_op,1,0);
+              CImg<uptrT>(1,18).move_to(code);
+              code.back().get_shared_rows(0,3).fill((uptrT)mp_memcpy,arg1,arg2,arg3);
+              code.back().get_shared_rows(4,17).fill(ref);
+              _cimg_mp_return(arg1);
+            }
+
             if (!std::strncmp(ss,"meye(",5)) { // Matrix eigenvalues/eigenvector
               arg1 = compile(ss5,se1,depth1,0);
               _cimg_mp_check_constant(arg1,1,"Function 'meye()'",true);
@@ -18192,6 +18207,49 @@ namespace cimg_library_suffixed {
         double val = _mp_arg(2);
         for (unsigned int i = 3; i<mp.opcode._height; ++i) val = cimg::max(val,_mp_arg(i));
         return val;
+      }
+
+      static double* _mp_memcpy_double(_cimg_math_parser& mp, const unsigned int ind, const uptrT *const p_ref) {
+        if (!*p_ref) return &mp.mem[ind];
+        const long off = p_ref[1] + mp.mem[(long)p_ref[2]] + 1;
+        if (off>=0 && off<mp.mem._width) return &mp.mem[off];
+        return 0;
+      }
+
+      static float* _mp_memcpy_float(_cimg_math_parser& mp, const uptrT *const p_ref) {
+        return 0;
+      }
+
+      static double mp_memcpy(_cimg_math_parser& mp) {
+        long siz = (long)_mp_arg(3);
+        if (siz>0) {
+          const bool
+            is_doubled = mp.opcode[4]<=1,
+            is_doubles = mp.opcode[11]<=1;
+          if (is_doubled && is_doubles) { // (double*) <- (double*)
+            double *const ptrd = _mp_memcpy_double(mp,mp.opcode[1],&mp.opcode[4]);
+            const double *const ptrs = _mp_memcpy_double(mp,mp.opcode[2],&mp.opcode[11]);
+            if (ptrd && ptrs) {
+              const double *pend = mp.mem.end();
+              if (ptrd + siz>pend) siz-=ptrd + siz - pend;
+              if (ptrs + siz>pend) siz-=ptrs + siz - pend;
+              std::memcpy(ptrd,ptrs,siz*sizeof(double));
+            }
+          } else if (is_doubled && !is_doubles) { // (double*) <- (float*)
+            double *ptrd = _mp_memcpy_double(mp,mp.opcode[1],&mp.opcode[4]);
+            const float *ptrs = _mp_memcpy_float(mp,&mp.opcode[11]);
+            if (ptrd && ptrs) while (--siz>0) *(ptrd++) = (double)*(ptrs++);
+          } else if (!is_doubled && is_doubles) { // (float*) <- (double*)
+            float *ptrd = _mp_memcpy_float(mp,&mp.opcode[4]);
+            const double *ptrs = _mp_memcpy_double(mp,mp.opcode[2],&mp.opcode[11]);
+            if (ptrd && ptrs) while (--siz>0) *(ptrd++) = (float)*(ptrs++);
+          } else { // (float*) <- (float*)
+            float *const ptrd = _mp_memcpy_float(mp,&mp.opcode[4]);
+            const float *const ptrs = _mp_memcpy_float(mp,&mp.opcode[11]);
+            if (ptrd && ptrs) std::memcpy(ptrd,ptrs,siz*sizeof(float));
+          }
+        }
+        return _mp_arg(1);
       }
 
       static double mp_min(_cimg_math_parser& mp) {

@@ -18212,7 +18212,7 @@ namespace cimg_library_suffixed {
       static double* _mp_memcpy_double(_cimg_math_parser& mp, const unsigned int ind, const uptrT *const p_ref,
                                        const long siz) {
         if (!*p_ref) return &mp.mem[ind];
-        const long off = p_ref[1] + mp.mem[(long)p_ref[2]] + 1;
+        const long off = p_ref[1] + (long)mp.mem[(long)p_ref[2]] + 1;
         if (off<0 || off + siz - 1>=mp.mem.width())
           throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: 'memcpy()': "
                                       "Out-of-bounds variable pointer "
@@ -18228,13 +18228,14 @@ namespace cimg_library_suffixed {
         whd = (unsigned long)img._width*img._height*img._depth;
         const bool is_relative = (bool)p_ref[2];
         int ox, oy, oz, oc;
+		long off = 0;
         if (is_relative) {
           ox = (int)mp.mem[_cimg_mp_x];
           oy = (int)mp.mem[_cimg_mp_y];
           oz = (int)mp.mem[_cimg_mp_z];
           oc = (int)mp.mem[_cimg_mp_c];
+		  off = img.offset(ox,oy,oz,oc);
         }
-        long off = is_relative?img.offset(ox,oy,oz,oc):0;
         if ((*p_ref)%2) {
           const int
             x = (int)mp.mem[p_ref[3]],

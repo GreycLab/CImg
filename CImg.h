@@ -16074,7 +16074,7 @@ namespace cimg_library_suffixed {
               s_op = "Function 'mcopy()'";
               ref.assign(14);
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss1,s1==se2?++s1:s1,depth1,ref);
+              arg1 = compile(ss6,s1==se2?++s1:s1,depth1,ref);
               s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(s1,s2==se2?++s2:s2,depth1,ref._data + 7);
               arg3 = arg4 = arg5 = 1;

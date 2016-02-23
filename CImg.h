@@ -18238,7 +18238,7 @@ namespace cimg_library_suffixed {
         const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[cimg::mod((int)mp.mem[ind],mp.listin.width())];
         const bool is_relative = (bool)p_ref[2];
         int ox, oy, oz, oc;
-		long off = 0;
+        long off = 0;
         if (is_relative) {
           ox = (int)mp.mem[_cimg_mp_x];
           oy = (int)mp.mem[_cimg_mp_y];

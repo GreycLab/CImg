@@ -18221,18 +18221,19 @@ namespace cimg_library_suffixed {
       }
 
       static double* _mp_memcpy_double(_cimg_math_parser& mp, const unsigned int ind, const uptrT *const p_ref,
-                                       const long siz) {
+                                       const long siz, const long inc) {
         const long off = *p_ref?p_ref[1] + (long)mp.mem[(long)p_ref[2]] + 1:ind;
-        if (off<0 || off + siz - 1>=mp.mem.width())
+        if (off<0 || off + siz*inc>mp.mem.width())
           throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: 'memcpy()': "
                                       "Out-of-bounds variable pointer "
-                                      "(length: %ld, offset start: %ld, offset end: %ld, offset max: %u).",
-                                      mp.imgin.pixel_type(),siz,off,off + siz - 1,mp.mem._width - 1);
+                                      "(length: %ld, increment: %ld, offset start: %ld, "
+                                      "offset end: %ld, offset max: %u).",
+                                      mp.imgin.pixel_type(),siz,inc,off,off + siz*inc - 1,mp.mem._width - 1);
         return &mp.mem[off];
       }
 
       static float* _mp_memcpy_float(_cimg_math_parser& mp, const uptrT *const p_ref,
-                                     const long siz) {
+                                     const long siz, const long inc) {
         const unsigned ind = p_ref[1];
         const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[cimg::mod((int)mp.mem[ind],mp.listin.width())];
         const bool is_relative = (bool)p_ref[2];
@@ -18243,7 +18244,7 @@ namespace cimg_library_suffixed {
           oy = (int)mp.mem[_cimg_mp_y];
           oz = (int)mp.mem[_cimg_mp_z];
           oc = (int)mp.mem[_cimg_mp_c];
-		  off = img.offset(ox,oy,oz,oc);
+          off = img.offset(ox,oy,oz,oc);
         }
         if ((*p_ref)%2) {
           const int
@@ -18253,11 +18254,12 @@ namespace cimg_library_suffixed {
             c = *p_ref==5?0:(int)mp.mem[p_ref[6]];
           off+=(long)img.offset(x,y,z,c);
         } else off+=(long)mp.mem[p_ref[3]];
-        if (off<0 || off + siz - 1>=(long)img.size())
+        if (off<0 || off + siz*inc>(long)img.size())
           throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: Function 'memcpy()': "
                                       "Out-of-bounds image pointer "
-                                      "(length: %ld, offset start: %ld, offset end: %ld, offset max: %lu).",
-                                      mp.imgin.pixel_type(),siz,off,off + siz - 1,img.size() - 1);
+                                      "(length: %ld, increment: %ld, offset start: %ld, "
+                                      "offset end: %ld, offset max: %lu).",
+                                      mp.imgin.pixel_type(),siz,inc,off,off + siz*inc - 1,img.size() - 1);
         return (float*)&img[off];
       }
 
@@ -18269,8 +18271,8 @@ namespace cimg_library_suffixed {
             is_doubled = mp.opcode[7]<=1,
             is_doubles = mp.opcode[14]<=1;
           if (is_doubled && is_doubles) { // (double*) <- (double*)
-            double *ptrd = _mp_memcpy_double(mp,mp.opcode[2],&mp.opcode[7],siz*inc_d);
-            const double *ptrs = _mp_memcpy_double(mp,mp.opcode[3],&mp.opcode[14],siz*inc_s);
+            double *ptrd = _mp_memcpy_double(mp,mp.opcode[2],&mp.opcode[7],siz,inc_d);
+            const double *ptrs = _mp_memcpy_double(mp,mp.opcode[3],&mp.opcode[14],siz,inc_s);
             if (inc_d==1 && inc_s==1) {
               if (ptrs + siz - 1<ptrd || ptrs>ptrd + siz - 1) std::memcpy(ptrd,ptrs,siz*sizeof(double));
               else std::memmove(ptrd,ptrs,siz*sizeof(double));
@@ -18285,16 +18287,16 @@ namespace cimg_library_suffixed {
               }
             }
           } else if (is_doubled && !is_doubles) { // (double*) <- (float*)
-            double *ptrd = _mp_memcpy_double(mp,mp.opcode[2],&mp.opcode[7],siz*inc_d);
-            const float *ptrs = _mp_memcpy_float(mp,&mp.opcode[14],siz*inc_s);
+            double *ptrd = _mp_memcpy_double(mp,mp.opcode[2],&mp.opcode[7],siz,inc_d);
+            const float *ptrs = _mp_memcpy_float(mp,&mp.opcode[14],siz,inc_s);
             while (siz-->0) { *ptrd = (double)*ptrs; ptrd+=inc_d; ptrs+=inc_s; }
           } else if (!is_doubled && is_doubles) { // (float*) <- (double*)
-            float *ptrd = _mp_memcpy_float(mp,&mp.opcode[7],siz*inc_d);
-            const double *ptrs = _mp_memcpy_double(mp,mp.opcode[3],&mp.opcode[14],siz*inc_s);
+            float *ptrd = _mp_memcpy_float(mp,&mp.opcode[7],siz,inc_d);
+            const double *ptrs = _mp_memcpy_double(mp,mp.opcode[3],&mp.opcode[14],siz,inc_s);
             while (siz-->0) { *ptrd = (float)*ptrs; ptrd+=inc_d; ptrs+=inc_s; }
           } else { // (float*) <- (float*)
-            float *ptrd = _mp_memcpy_float(mp,&mp.opcode[7],siz*inc_d);
-            const float *ptrs = _mp_memcpy_float(mp,&mp.opcode[14],siz*inc_s);
+            float *ptrd = _mp_memcpy_float(mp,&mp.opcode[7],siz,inc_d);
+            const float *ptrs = _mp_memcpy_float(mp,&mp.opcode[14],siz,inc_s);
             if (inc_d==1 && inc_s==1) {
               if (ptrs + siz - 1<ptrd || ptrs>ptrd + siz - 1) std::memcpy(ptrd,ptrs,siz*sizeof(float));
               else std::memmove(ptrd,ptrs,siz*sizeof(float));

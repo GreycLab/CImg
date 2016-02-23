@@ -16117,7 +16117,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_type(arg5,3,s_op,1,0);
               CImg<uptrT>(1,21).move_to(code);
               code.back().get_shared_rows(0,6).fill((uptrT)mp_memcpy,28,arg1,arg2,arg3,arg4,arg5);
-              code.back().get_shared_rows(7,19).fill(ref);
+              code.back().get_shared_rows(7,20).fill(ref);
               _cimg_mp_return(28);
             }
 

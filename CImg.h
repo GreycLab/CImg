@@ -14863,7 +14863,7 @@ namespace cimg_library_suffixed {
             p2 = code._width;
             arg2 = compile(s + 1,*s1!=':'?se:s1,depth1,0);
             p3 = code._width;
-            arg3 = *s1!=':'?0:compile(s1 + 1,se,depth1,0);
+            arg3 = *s1!=':'?0:compile(++s1,se,depth1,0);
             _cimg_mp_check_type(arg1,1,s_op,1,0);
             _cimg_mp_check_type(arg3,3,s_op,_cimg_mp_is_vector(arg2)?2:1,_cimg_mp_vector_size(arg2));
             if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2) && _cimg_mp_is_constant(arg3))
@@ -15393,7 +15393,7 @@ namespace cimg_library_suffixed {
             } else { p1 = ~0U; s0 = ss2; }
             s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
             arg1 = compile(s0,s1,depth1,0); // Offset
-            arg2 = s1<se1?compile(s1 + 1,se1,depth1,0):~0U; // Boundary
+            arg2 = s1<se1?compile(++s1,se1,depth1,0):~0U; // Boundary
             if (p_ref && arg2==~0U) {
               *p_ref = 4;
               p_ref[1] = p1;
@@ -15428,7 +15428,7 @@ namespace cimg_library_suffixed {
             } else { p1 = ~0U; s0 = ss2; }
             s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
             arg1 = compile(s0,s1,depth1,0); // Offset
-            arg2 = s1<se1?compile(s1 + 1,se1,depth1,0):~0U; // Boundary
+            arg2 = s1<se1?compile(++s1,se1,depth1,0):~0U; // Boundary
             if (p_ref && arg2==~0U) {
               *p_ref = 2;
               p_ref[1] = p1;
@@ -15713,7 +15713,7 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"atan2(",6)) { // Arctan2
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss6,s1,depth1,0);
-              arg2 = compile(s1 + 1,se1,depth1,0);
+              arg2 = compile(++s1,se1,depth1,0);
               _cimg_mp_check_type(arg2,2,"Function 'atan2()'",3,_cimg_mp_vector_size(arg1));
               if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_atan2,arg1,arg2);
               if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_atan2,arg1,arg2);
@@ -15786,7 +15786,7 @@ namespace cimg_library_suffixed {
               s_op = "Function 'cross()";
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss6,s1,depth1,0);
-              arg2 = compile(s1 + 1,se1,depth1,0);
+              arg2 = compile(++s1,se1,depth1,0);
               _cimg_mp_check_type(arg1,1,s_op,2,3);
               _cimg_mp_check_type(arg2,2,s_op,2,3);
               pos = vector(3);
@@ -15798,8 +15798,8 @@ namespace cimg_library_suffixed {
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss4,s1,depth1,0);
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-              arg2 = compile(s1 + 1,s2,depth1,0);
-              arg3 = compile(s2 + 1,se1,depth1,0);
+              arg2 = compile(++s1,s2,depth1,0);
+              arg3 = compile(++s2,se1,depth1,0);
               if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector3_vss(mp_cut,arg1,arg2,arg3);
               if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2) && _cimg_mp_is_constant(arg3)) {
                 val = mem[arg1];
@@ -15820,7 +15820,7 @@ namespace cimg_library_suffixed {
                   (cimg_sscanf(ss5,"%u%c",&arg1,&sep)!=2 || sep!=')')) is_sth = true;
               if (is_sth) {
                 if (cimg_sscanf(ss5,"%u%c",&arg1,&sep)!=2 || sep!=',') { arg1 = 0; s1 = ss4; }
-                *se1 = 0; val = (double)cimg::fdate(s1 + 1,arg1); *se1 = ')';
+                *se1 = 0; val = (double)cimg::fdate(++s1,arg1); *se1 = ')';
               } else val = (double)cimg::date(arg1);
               _cimg_mp_constant(val);
             }
@@ -15839,7 +15839,7 @@ namespace cimg_library_suffixed {
               s_op = "Function 'dot()'";
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss4,s1,depth1,0);
-              arg2 = compile(s1 + 1,se1,depth1,0);
+              arg2 = compile(++s1,se1,depth1,0);
               _cimg_mp_check_type(arg1,1,s_op,2,0);
               _cimg_mp_check_type(arg2,2,s_op,2,0);
               if (_cimg_mp_is_vector(arg1)) _cimg_mp_scalar3(mp_dot,arg1,arg2,_cimg_mp_vector_size(arg1));
@@ -15851,7 +15851,7 @@ namespace cimg_library_suffixed {
               s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               p1 = code._width;
               arg1 = compile(ss8,s1,depth1,0);
-              if (s1<se1) arg2 = compile(s1 + 1,se1,depth1,0);
+              if (s1<se1) arg2 = compile(++s1,se1,depth1,0);
               else arg2 = arg1;
               _cimg_mp_check_type(arg2,2,"Function 'dowhile()'",1,0);
               CImg<uptrT>::vector((uptrT)mp_dowhile,arg1,arg2,code._width - p1).move_to(code,p1);
@@ -15876,10 +15876,10 @@ namespace cimg_library_suffixed {
               s3 = s2 + 1; while (s3<se1 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
               compile(ss4,s1,depth1,0);
               p1 = code._width;
-              arg1 = compile(s1 + 1,s2,depth1,0);
+              arg1 = compile(++s1,s2,depth1,0);
               p2 = code._width;
-              if (s3<se1) { pos = compile(s3 + 1,se1,depth1,0); compile(s2 + 1,s3,depth1,0); } // Body + proc
-              else pos = compile(s2 + 1,se1,depth1,0); // Proc only
+              if (s3<se1) { pos = compile(++s3,se1,depth1,0); compile(++s2,s3,depth1,0); } // Body + proc
+              else pos = compile(++s2,se1,depth1,0); // Proc only
               _cimg_mp_check_type(arg1,2,"Function 'for()'",1,0);
               arg2 = _cimg_mp_is_vector(pos)?_cimg_mp_vector_size(pos):0; // Output vector size (or 0 if scalar)
               CImg<uptrT>::vector((uptrT)mp_whiledo,pos,arg1,p2 - p1,code._width - p2,arg2).move_to(code,p1);
@@ -15908,7 +15908,7 @@ namespace cimg_library_suffixed {
               s_op = "Function 'hypot()'";
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss6,s1,depth1,0);
-              arg2 = compile(s1 + 1,se1,depth1,0);
+              arg2 = compile(++s1,se1,depth1,0);
               _cimg_mp_check_type(arg1,1,s_op,1,0);
               _cimg_mp_check_type(arg2,2,s_op,1,0);
               if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2)) {
@@ -15930,9 +15930,9 @@ namespace cimg_library_suffixed {
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg1 = compile(ss3,s1,depth1,0);
               p2 = code._width;
-              arg2 = compile(s1 + 1,s2,depth1,0);
+              arg2 = compile(++s1,s2,depth1,0);
               p3 = code._width;
-              arg3 = s2>=se1?0:compile(s2 + 1,se1,depth1,0);
+              arg3 = s2>=se1?0:compile(++s2,se1,depth1,0);
               _cimg_mp_check_type(arg1,1,s_op,1,0);
               _cimg_mp_check_type(arg3,3,s_op,3,_cimg_mp_vector_size(arg2));
               if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2) && _cimg_mp_is_constant(arg3))
@@ -16070,16 +16070,16 @@ namespace cimg_library_suffixed {
               s_op = "Function 'mcopy()'";
               ref.assign(14);
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss6,s1==se2?++s1:s1,depth1,ref);
+              arg1 = compile(ss6,s1,depth1,ref);
               s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-              arg2 = compile(s1,s2==se2?++s2:s2,depth1,ref._data + 7);
+              arg2 = compile(s1,s2,depth1,ref._data + 7);
               arg3 = arg4 = arg5 = 1;
               if (s2<se1) {
                 s3 = ++s2; while (s3<se1 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
-                arg3 = compile(s2,s3==se2?++s3:s3,depth1,0);
+                arg3 = compile(s2,s3,depth1,0);
                 if (s3<se1) {
                   s1 = ++s3; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                  arg4 = compile(s3,s1==se2?++s1:s1,depth1,0);
+                  arg4 = compile(s3,s1,depth1,0);
                   arg5 = s1<se1?compile(++s1,se1,depth1,0):1;
                 }
               }
@@ -16138,10 +16138,10 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"mmul(",5)) { // Matrix multiplication
               s_op = "Function 'mmul()'";
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss5,s1==se2?++s1:s1,depth1,0);
+              arg1 = compile(ss5,s1,depth1,0);
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-              arg2 = compile(s1 + 1,s2==se2?++s2:s2,depth1,0);
-              if (s2<se1) arg3 = compile(++s2,se1,depth1,0); else arg3 = 1;
+              arg2 = compile(++s1,s2,depth1,0);
+              arg3 = s2<se1?compile(++s2,se1,depth1,0):1;
               _cimg_mp_check_type(arg1,1,s_op,2,0);
               _cimg_mp_check_type(arg2,2,s_op,2,0);
               _cimg_mp_check_constant(arg3,3,s_op,true);
@@ -16170,11 +16170,11 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"mrot(",5)) { // Rotation matrix
               s_op = "Function 'mrot()'";
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss5,s1==se2?++s1:s1,depth1,0);
+              arg1 = compile(ss5,s1,depth1,0);
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-              arg2 = compile(s1 + 1,s2==se2?++s2:s2,depth1,0);
+              arg2 = compile(++s1,s2,depth1,0);
               s3 = s2 + 1; while (s3<se1 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
-              arg3 = compile(s2 + 1,s3==se2?++s3:s3,depth1,0);
+              arg3 = compile(++s2,s3,depth1,0);
               arg4 = compile(++s3,se1,depth1,0);
               _cimg_mp_check_type(arg1,1,s_op,1,0);
               _cimg_mp_check_type(arg2,2,s_op,1,0);
@@ -16188,10 +16188,10 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"msolve(",7)) { // Solve linear system
               s_op = "Function 'msolve()'";
               s1 = ss7; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss7,s1==se2?++s1:s1,depth1,0);
+              arg1 = compile(ss7,s1,depth1,0);
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-              arg2 = compile(s1 + 1,s2==se2?++s2:s2,depth1,0);
-              if (s2<se1) arg3 = compile(++s2,se1,depth1,0); else arg3 = 1;
+              arg2 = compile(++s1,s2,depth1,0);
+              arg3 = s2<se1?compile(++s2,se1,depth1,0):1;
               _cimg_mp_check_type(arg1,1,s_op,2,0);
               _cimg_mp_check_type(arg2,2,s_op,2,0);
               _cimg_mp_check_constant(arg3,3,s_op,true);
@@ -16227,7 +16227,7 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"mtrans(",7)) { // Matrix transpose
               s_op = "Function 'mtrans()'";
               s1 = ss7; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss7,s1==se2?++s1:s1,depth1,0);
+              arg1 = compile(ss7,s1,depth1,0);
               arg2 = compile(++s1,se1,depth1,0);
               _cimg_mp_check_type(arg1,1,s_op,2,0);
               _cimg_mp_check_constant(arg2,2,s_op,true);
@@ -16310,12 +16310,8 @@ namespace cimg_library_suffixed {
           case 'r' :
             if (!std::strncmp(ss,"rol(",4) || !std::strncmp(ss,"ror(",4)) { // Bitwise rotation
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1-expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss4,s1==se2?++s1:s1,depth1,0);
-              arg2 = 1;
-              if (s1<se1) {
-                s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2-expr._data]!=clevel1)) ++s2;
-                arg2 = compile(s1 + 1,se1,depth1,0);
-              }
+              arg1 = compile(ss4,s1,depth1,0);
+              arg2 = s1<se1?compile(++s1,se1,depth1,0):1;
               _cimg_mp_check_type(arg2,2,"Function 'rol()'",1,0);
               if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector2_vs(*ss2=='l'?mp_rol:mp_ror,arg1,arg2);
               if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2))
@@ -16327,13 +16323,13 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"round(",6)) { // Value rounding
               s_op = "Function 'round()'";
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss6,s1==se2?++s1:s1,depth1,0);
+              arg1 = compile(ss6,s1,depth1,0);
               arg2 = 1;
               arg3 = 0;
               if (s1<se1) {
                 s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-                arg2 = compile(s1 + 1,s2==se2?++s2:s2,depth1,0);
-                if (s2<se1) arg3 = compile(s2 + 1,se1,depth1,0);
+                arg2 = compile(++s1,s2,depth1,0);
+                arg3 = s2<se1?compile(++s2,se1,depth1,0):0;
               }
               _cimg_mp_check_type(arg2,2,s_op,1,0);
               _cimg_mp_check_type(arg3,3,s_op,1,0);
@@ -16427,7 +16423,7 @@ namespace cimg_library_suffixed {
               if (*ss2==')') _cimg_mp_scalar2(mp_u,0,1);
               s1 = ss2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss2,s1,depth1,0);
-              if (s1<se1) arg2 = compile(s1 + 1,se1,depth1,0); else { arg2 = arg1; arg1 = 0; }
+              if (s1<se1) arg2 = compile(++s1,se1,depth1,0); else { arg2 = arg1; arg1 = 0; }
               _cimg_mp_check_type(arg2,2,"Function 'u()'",3,_cimg_mp_vector_size(arg1));
               if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_u,arg1,arg2);
               if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_u,arg1,arg2);
@@ -16468,7 +16464,7 @@ namespace cimg_library_suffixed {
               p1 = code._width;
               arg1 = compile(ss8,s1,depth1,0);
               p2 = code._width;
-              pos = compile(s1 + 1,se1,depth1,0);
+              pos = compile(++s1,se1,depth1,0);
               _cimg_mp_check_type(arg1,1,"Function 'whiledo()'",1,0);
               arg2 = _cimg_mp_is_vector(pos)?_cimg_mp_vector_size(pos):0; // Output vector size (or 0 if scalar)
               CImg<uptrT>::vector((uptrT)mp_whiledo,pos,arg1,p2 - p1,code._width - p2,arg2).move_to(code,p1);

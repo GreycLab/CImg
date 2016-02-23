@@ -18222,13 +18222,15 @@ namespace cimg_library_suffixed {
 
       static double* _mp_memcpy_double(_cimg_math_parser& mp, const unsigned int ind, const uptrT *const p_ref,
                                        const long siz, const long inc) {
-        const long off = *p_ref?p_ref[1] + (long)mp.mem[(long)p_ref[2]] + 1:ind;
-        if (off<0 || off + siz*inc>mp.mem.width())
+        const long
+          off = *p_ref?p_ref[1] + (long)mp.mem[(long)p_ref[2]] + 1:ind,
+          eoff = off + (siz - 1)*inc;
+        if (off<0 || eoff>=mp.mem.width())
           throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: 'memcpy()': "
                                       "Out-of-bounds variable pointer "
                                       "(length: %ld, increment: %ld, offset start: %ld, "
                                       "offset end: %ld, offset max: %u).",
-                                      mp.imgin.pixel_type(),siz,inc,off,off + siz*inc - 1,mp.mem._width - 1);
+                                      mp.imgin.pixel_type(),siz,inc,off,eoff,mp.mem._width - 1);
         return &mp.mem[off];
       }
 
@@ -18254,12 +18256,13 @@ namespace cimg_library_suffixed {
             c = *p_ref==5?0:(int)mp.mem[p_ref[6]];
           off+=(long)img.offset(x,y,z,c);
         } else off+=(long)mp.mem[p_ref[3]];
-        if (off<0 || off + siz*inc>(long)img.size())
+        const long eoff = off + (siz - 1)*inc;
+        if (off<0 || eoff>=(long)img.size())
           throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: Function 'memcpy()': "
                                       "Out-of-bounds image pointer "
                                       "(length: %ld, increment: %ld, offset start: %ld, "
                                       "offset end: %ld, offset max: %lu).",
-                                      mp.imgin.pixel_type(),siz,inc,off,off + siz*inc - 1,img.size() - 1);
+                                      mp.imgin.pixel_type(),siz,inc,off,eoff,img.size() - 1);
         return (float*)&img[off];
       }
 

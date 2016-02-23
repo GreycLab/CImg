@@ -15796,9 +15796,9 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"cut(",4)) { // Cut
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss4,s1==se2?++s1:s1,depth1,0);
+              arg1 = compile(ss4,s1,depth1,0);
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-              arg2 = compile(s1 + 1,s2==se2?++s2:s2,depth1,0);
+              arg2 = compile(s1 + 1,s2,depth1,0);
               arg3 = compile(s2 + 1,se1,depth1,0);
               if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector3_vss(mp_cut,arg1,arg2,arg3);
               if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2) && _cimg_mp_is_constant(arg3)) {
@@ -15891,11 +15891,7 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"gauss(",6)) { // Gaussian function
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss6,s1,depth1,0);
-              arg2 = 1;
-              if (s1<se1) {
-                s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-                arg2 = compile(s1 + 1,s2==se2?++s2:s2,depth1,0);
-              }
+              arg2 = s1<se1?compile(++s1,se1,depth1,0):1;
               _cimg_mp_check_type(arg2,2,"Function 'gauss()'",1,0);
               if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector2_vs(mp_gauss,arg1,arg2);
               if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2)) {

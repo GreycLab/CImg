@@ -16070,6 +16070,32 @@ namespace cimg_library_suffixed {
             break;
 
           case 'm' :
+            if (!std::strncmp(ss,"mcopy(",6)) { // Memory copy
+              s_op = "Function 'mcopy()'";
+              ref.assign(14);
+              s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss7,s1==se2?++s1:s1,depth1,ref);
+              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg2 = compile(s1,s2==se2?++s2:s2,depth1,ref._data + 7);
+              arg3 = arg4 = arg5 = 1;
+              if (s2<se1) {
+                s3 = ++s2; while (s3<se1 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
+                arg3 = compile(s2,s3==se2?++s3:s3,depth1,0);
+                if (s3<se1) {
+                  s1 = ++s3; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                  arg4 = compile(s3,s1==se2?++s1:s1,depth1,0);
+                  arg5 = s1<se1?compile(++s1,se1,depth1,0):1;
+                }
+              }
+              _cimg_mp_check_type(arg3,3,s_op,1,0);
+              _cimg_mp_check_type(arg4,3,s_op,1,0);
+              _cimg_mp_check_type(arg5,3,s_op,1,0);
+              CImg<uptrT>(1,21).move_to(code);
+              code.back().get_shared_rows(0,6).fill((uptrT)mp_mcopy,28,arg1,arg2,arg3,arg4,arg5);
+              code.back().get_shared_rows(7,20).fill(ref);
+              _cimg_mp_return(28);
+            }
+
             if (!std::strncmp(ss,"mdet(",5)) { // Matrix determinant
               arg1 = compile(ss5,se1,depth1,0);
               _cimg_mp_check_matrix_square(arg1,1,"Function 'mdet()'");
@@ -16093,32 +16119,6 @@ namespace cimg_library_suffixed {
               pos = vector((p1 + 1)*p1);
               CImg<uptrT>::vector((uptrT)mp_matrix_eig,pos,arg1,p1).move_to(code);
               _cimg_mp_return(pos);
-            }
-
-            if (!std::strncmp(ss,"memcpy(",7)) { // Memory copy
-              s_op = "Function 'memcpy()'";
-              ref.assign(14);
-              s1 = ss7; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss7,s1==se2?++s1:s1,depth1,ref);
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-              arg2 = compile(s1,s2==se2?++s2:s2,depth1,ref._data + 7);
-              arg3 = arg4 = arg5 = 1;
-              if (s2<se1) {
-                s3 = ++s2; while (s3<se1 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
-                arg3 = compile(s2,s3==se2?++s3:s3,depth1,0);
-                if (s3<se1) {
-                  s1 = ++s3; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                  arg4 = compile(s3,s1==se2?++s1:s1,depth1,0);
-                  arg5 = s1<se1?compile(++s1,se1,depth1,0):1;
-                }
-              }
-              _cimg_mp_check_type(arg3,3,s_op,1,0);
-              _cimg_mp_check_type(arg4,3,s_op,1,0);
-              _cimg_mp_check_type(arg5,3,s_op,1,0);
-              CImg<uptrT>(1,21).move_to(code);
-              code.back().get_shared_rows(0,6).fill((uptrT)mp_memcpy,28,arg1,arg2,arg3,arg4,arg5);
-              code.back().get_shared_rows(7,20).fill(ref);
-              _cimg_mp_return(28);
             }
 
             if (!std::strncmp(ss,"meye(",5)) { // Matrix eigenvalues/eigenvector
@@ -18220,13 +18220,13 @@ namespace cimg_library_suffixed {
         return val;
       }
 
-      static double* _mp_memcpy_double(_cimg_math_parser& mp, const unsigned int ind, const uptrT *const p_ref,
-                                       const long siz, const long inc) {
+      static double* _mp_mcopy_double(_cimg_math_parser& mp, const unsigned int ind, const uptrT *const p_ref,
+                                      const long siz, const long inc) {
         const long
           off = *p_ref?p_ref[1] + (long)mp.mem[(long)p_ref[2]] + 1:ind,
           eoff = off + (siz - 1)*inc;
         if (off<0 || eoff>=mp.mem.width())
-          throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: 'memcpy()': "
+          throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: 'mcopy()': "
                                       "Out-of-bounds variable pointer "
                                       "(length: %ld, increment: %ld, offset start: %ld, "
                                       "offset end: %ld, offset max: %u).",
@@ -18234,8 +18234,8 @@ namespace cimg_library_suffixed {
         return &mp.mem[off];
       }
 
-      static float* _mp_memcpy_float(_cimg_math_parser& mp, const uptrT *const p_ref,
-                                     const long siz, const long inc) {
+      static float* _mp_mcopy_float(_cimg_math_parser& mp, const uptrT *const p_ref,
+                                    const long siz, const long inc) {
         const unsigned ind = p_ref[1];
         const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[cimg::mod((int)mp.mem[ind],mp.listin.width())];
         const bool is_relative = (bool)p_ref[2];
@@ -18258,7 +18258,7 @@ namespace cimg_library_suffixed {
         } else off+=(long)mp.mem[p_ref[3]];
         const long eoff = off + (siz - 1)*inc;
         if (off<0 || eoff>=(long)img.size())
-          throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: Function 'memcpy()': "
+          throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: Function 'mcopy()': "
                                       "Out-of-bounds image pointer "
                                       "(length: %ld, increment: %ld, offset start: %ld, "
                                       "offset end: %ld, offset max: %lu).",
@@ -18266,7 +18266,7 @@ namespace cimg_library_suffixed {
         return (float*)&img[off];
       }
 
-      static double mp_memcpy(_cimg_math_parser& mp) {
+      static double mp_mcopy(_cimg_math_parser& mp) {
         long siz = (long)_mp_arg(4);
         const long inc_d = (long)_mp_arg(5), inc_s = (long)_mp_arg(6);
         if (siz>0) {
@@ -18274,8 +18274,8 @@ namespace cimg_library_suffixed {
             is_doubled = mp.opcode[7]<=1,
             is_doubles = mp.opcode[14]<=1;
           if (is_doubled && is_doubles) { // (double*) <- (double*)
-            double *ptrd = _mp_memcpy_double(mp,mp.opcode[2],&mp.opcode[7],siz,inc_d);
-            const double *ptrs = _mp_memcpy_double(mp,mp.opcode[3],&mp.opcode[14],siz,inc_s);
+            double *ptrd = _mp_mcopy_double(mp,mp.opcode[2],&mp.opcode[7],siz,inc_d);
+            const double *ptrs = _mp_mcopy_double(mp,mp.opcode[3],&mp.opcode[14],siz,inc_s);
             if (inc_d==1 && inc_s==1) {
               if (ptrs + siz - 1<ptrd || ptrs>ptrd + siz - 1) std::memcpy(ptrd,ptrs,siz*sizeof(double));
               else std::memmove(ptrd,ptrs,siz*sizeof(double));
@@ -18290,16 +18290,16 @@ namespace cimg_library_suffixed {
               }
             }
           } else if (is_doubled && !is_doubles) { // (double*) <- (float*)
-            double *ptrd = _mp_memcpy_double(mp,mp.opcode[2],&mp.opcode[7],siz,inc_d);
-            const float *ptrs = _mp_memcpy_float(mp,&mp.opcode[14],siz,inc_s);
+            double *ptrd = _mp_mcopy_double(mp,mp.opcode[2],&mp.opcode[7],siz,inc_d);
+            const float *ptrs = _mp_mcopy_float(mp,&mp.opcode[14],siz,inc_s);
             while (siz-->0) { *ptrd = (double)*ptrs; ptrd+=inc_d; ptrs+=inc_s; }
           } else if (!is_doubled && is_doubles) { // (float*) <- (double*)
-            float *ptrd = _mp_memcpy_float(mp,&mp.opcode[7],siz,inc_d);
-            const double *ptrs = _mp_memcpy_double(mp,mp.opcode[3],&mp.opcode[14],siz,inc_s);
+            float *ptrd = _mp_mcopy_float(mp,&mp.opcode[7],siz,inc_d);
+            const double *ptrs = _mp_mcopy_double(mp,mp.opcode[3],&mp.opcode[14],siz,inc_s);
             while (siz-->0) { *ptrd = (float)*ptrs; ptrd+=inc_d; ptrs+=inc_s; }
           } else { // (float*) <- (float*)
-            float *ptrd = _mp_memcpy_float(mp,&mp.opcode[7],siz,inc_d);
-            const float *ptrs = _mp_memcpy_float(mp,&mp.opcode[14],siz,inc_s);
+            float *ptrd = _mp_mcopy_float(mp,&mp.opcode[7],siz,inc_d);
+            const float *ptrs = _mp_mcopy_float(mp,&mp.opcode[14],siz,inc_s);
             if (inc_d==1 && inc_s==1) {
               if (ptrs + siz - 1<ptrd || ptrs>ptrd + siz - 1) std::memcpy(ptrd,ptrs,siz*sizeof(float));
               else std::memmove(ptrd,ptrs,siz*sizeof(float));

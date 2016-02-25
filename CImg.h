@@ -29693,6 +29693,11 @@ namespace cimg_library_suffixed {
         _cimg_watershed_init(y + 1<height(),x,y + 1,z);
         _cimg_watershed_init(z - 1>=0,x,y,z - 1);
         _cimg_watershed_init(z + 1<depth(),x,y,z + 1);
+
+        _cimg_watershed_init(x - 1>=0 && y - 1>=0,x - 1,y - 1,z);
+        _cimg_watershed_init(x + 1<width() && y - 1>=0,x + 1,y - 1,z);
+        _cimg_watershed_init(x - 1>=0 && y + 1<height(),x - 1,y + 1,z);
+        _cimg_watershed_init(x + 1<width() && y + 1<height(),x + 1,y + 1,z);
       }
 
       // Start watershed computation.
@@ -29711,6 +29716,12 @@ namespace cimg_library_suffixed {
         _cimg_watershed_propage(y + 1<height(),x,y + 1,z);
         _cimg_watershed_propage(z - 1>=0,x,y,z - 1);
         _cimg_watershed_propage(z + 1<depth(),x,y,z + 1);
+
+        _cimg_watershed_propage(x - 1>=0 && y - 1>=0,x - 1,y - 1,z);
+        _cimg_watershed_propage(x + 1<width() && y - 1>=0,x + 1,y - 1,z);
+        _cimg_watershed_propage(x - 1>=0 && y + 1<height(),x - 1,y + 1,z);
+        _cimg_watershed_propage(x + 1<width() && y + 1<height(),x + 1,y + 1,z);
+
         if (is_same_label) (*this)(x,y,z) = label;
       }
 

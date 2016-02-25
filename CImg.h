@@ -29649,6 +29649,24 @@ namespace cimg_library_suffixed {
     **/
     template<typename t>
     CImg<T>& watershed(const CImg<t>& priority, const bool fill_lines=true) {
+#define _cimg_watershed_init(cond,X,Y,Z)                                \
+      if (cond && !(*this)(X,Y,Z)) Q._priority_queue_insert(is_queued,sizeQ,priority(X,Y,Z),X,Y,Z)
+
+#define _cimg_watershed_propage(cond,X,Y,Z) \
+      if (cond) { \
+        if ((*this)(X,Y,Z)) { \
+          if (!label) label = (*this)(X,Y,Z); \
+          else if (label!=(*this)(X,Y,Z)) is_same_label = false; \
+        } else Q._priority_queue_insert(is_queued,sizeQ,priority(X,Y,Z),X,Y,Z); \
+      }
+
+#define _cimg_watershed_fill(cond,X,Y,Z) \
+      if (cond) { \
+        if ((*this)(X,Y,Z)) { \
+          if (priority(X,Y,Z)>pmax) { pmax = priority(X,Y,Z); xmax = X; ymax = Y; zmax = Z; } \
+        } else Q._priority_queue_insert(is_queued,sizeQ,priority(X,Y,Z),X,Y,Z); \
+      }
+
       if (is_empty()) return *this;
       if (!is_sameXYZ(priority))
         throw CImgArgumentException(_cimg_instance
@@ -29669,18 +29687,12 @@ namespace cimg_library_suffixed {
       // Find seed points and insert them in priority queue.
       const T *ptrs = _data;
       cimg_forXYZ(*this,x,y,z) if (*(ptrs++)) {
-        if (x - 1>=0 && !(*this)(x - 1,y,z))
-          Q._priority_queue_insert(is_queued,sizeQ,priority(x - 1,y,z),x - 1,y,z);
-        if (x + 1<width() && !(*this)(x + 1,y,z))
-          Q._priority_queue_insert(is_queued,sizeQ,priority(x + 1,y,z),x + 1,y,z);
-        if (y - 1>=0 && !(*this)(x,y - 1,z))
-          Q._priority_queue_insert(is_queued,sizeQ,priority(x,y - 1,z),x,y - 1,z);
-        if (y + 1<height() && !(*this)(x,y + 1,z))
-          Q._priority_queue_insert(is_queued,sizeQ,priority(x,y + 1,z),x,y + 1,z);
-        if (z - 1>=0 && !(*this)(x,y,z - 1))
-          Q._priority_queue_insert(is_queued,sizeQ,priority(x,y,z - 1),x,y,z - 1);
-        if (z + 1<depth() && !(*this)(x,y,z + 1))
-          Q._priority_queue_insert(is_queued,sizeQ,priority(x,y,z + 1),x,y,z + 1);
+        _cimg_watershed_init(x - 1>=0,x - 1,y,z);
+        _cimg_watershed_init(x + 1<width(),x + 1,y,z);
+        _cimg_watershed_init(y - 1>=0,x,y - 1,z);
+        _cimg_watershed_init(y + 1<height(),x,y + 1,z);
+        _cimg_watershed_init(z - 1>=0,x,y,z - 1);
+        _cimg_watershed_init(z + 1<depth(),x,y,z + 1);
       }
 
       // Start watershed computation.
@@ -29693,42 +29705,12 @@ namespace cimg_library_suffixed {
         // Check labels of the neighbors.
         bool is_same_label = true;
         T label = 0;
-        if (x - 1>=0) {
-          if ((*this)(x - 1,y,z)) {
-            if (!label) label = (*this)(x - 1,y,z);
-            else if (label!=(*this)(x - 1,y,z)) is_same_label = false;
-          } else Q._priority_queue_insert(is_queued,sizeQ,priority(x - 1,y,z),x - 1,y,z);
-        }
-        if (x + 1<width()) {
-          if ((*this)(x + 1,y,z)) {
-            if (!label) label = (*this)(x + 1,y,z);
-            else if (label!=(*this)(x + 1,y,z)) is_same_label = false;
-          } else Q._priority_queue_insert(is_queued,sizeQ,priority(x + 1,y,z),x + 1,y,z);
-        }
-        if (y - 1>=0) {
-          if ((*this)(x,y - 1,z)) {
-            if (!label) label = (*this)(x,y - 1,z);
-            else if (label!=(*this)(x,y - 1,z)) is_same_label = false;
-          } else Q._priority_queue_insert(is_queued,sizeQ,priority(x,y - 1,z),x,y - 1,z);
-        }
-        if (y + 1<height()) {
-          if ((*this)(x,y + 1,z)) {
-            if (!label) label = (*this)(x,y + 1,z);
-            else if (label!=(*this)(x,y + 1,z)) is_same_label = false;
-          } else Q._priority_queue_insert(is_queued,sizeQ,priority(x,y + 1,z),x,y + 1,z);
-        }
-        if (z - 1>=0) {
-          if ((*this)(x,y,z - 1)) {
-            if (!label) label = (*this)(x,y,z - 1);
-            else if (label!=(*this)(x,y,z - 1)) is_same_label = false;
-          } else Q._priority_queue_insert(is_queued,sizeQ,priority(x,y,z - 1),x,y,z - 1);
-        }
-        if (z + 1<depth()) {
-          if ((*this)(x,y,z + 1)) {
-            if (!label) label = (*this)(x,y,z + 1);
-            else if (label!=(*this)(x,y,z + 1)) is_same_label = false;
-          } else Q._priority_queue_insert(is_queued,sizeQ,priority(x,y,z + 1),x,y,z + 1);
-        }
+        _cimg_watershed_propage(x - 1>=0,x - 1,y,z);
+        _cimg_watershed_propage(x + 1<width(),x + 1,y,z);
+        _cimg_watershed_propage(y - 1>=0,x,y - 1,z);
+        _cimg_watershed_propage(y + 1<height(),x,y + 1,z);
+        _cimg_watershed_propage(z - 1>=0,x,y,z - 1);
+        _cimg_watershed_propage(z + 1<depth(),x,y,z + 1);
         if (is_same_label) (*this)(x,y,z) = label;
       }
 
@@ -29750,36 +29732,12 @@ namespace cimg_library_suffixed {
           Q._priority_queue_remove(sizeQ);
           t pmax = cimg::type<t>::min();
           int xmax = 0, ymax = 0, zmax = 0;
-          if (x - 1>=0) {
-            if ((*this)(x - 1,y,z)) {
-              if (priority(x - 1,y,z)>pmax) { pmax = priority(x - 1,y,z); xmax = x - 1; ymax = y; zmax = z; }
-            } else Q._priority_queue_insert(is_queued,sizeQ,priority(x - 1,y,z),x - 1,y,z);
-          }
-          if (x + 1<width()) {
-            if ((*this)(x + 1,y,z)) {
-              if (priority(x + 1,y,z)>pmax) { pmax = priority(x + 1,y,z); xmax = x + 1; ymax = y; zmax = z; }
-            } else Q._priority_queue_insert(is_queued,sizeQ,priority(x + 1,y,z),x + 1,y,z);
-          }
-          if (y - 1>=0) {
-            if ((*this)(x,y - 1,z)) {
-              if (priority(x,y - 1,z)>pmax) { pmax = priority(x,y - 1,z); xmax = x; ymax = y - 1; zmax = z; }
-            } else Q._priority_queue_insert(is_queued,sizeQ,priority(x,y - 1,z),x,y - 1,z);
-          }
-          if (y + 1<height()) {
-            if ((*this)(x,y + 1,z)) {
-              if (priority(x,y + 1,z)>pmax) { pmax = priority(x,y + 1,z); xmax = x; ymax = y + 1; zmax = z; }
-            } else Q._priority_queue_insert(is_queued,sizeQ,priority(x,y + 1,z),x,y + 1,z);
-          }
-          if (z - 1>=0) {
-            if ((*this)(x,y,z - 1)) {
-              if (priority(x,y,z - 1)>pmax) { pmax = priority(x,y,z - 1); xmax = x; ymax = y; zmax = z - 1; }
-            } else Q._priority_queue_insert(is_queued,sizeQ,priority(x,y,z - 1),x,y,z - 1);
-          }
-          if (z + 1<depth()) {
-            if ((*this)(x,y,z + 1)) {
-              if (priority(x,y,z + 1)>pmax) { pmax = priority(x,y,z + 1); xmax = x; ymax = y; zmax = z + 1; }
-            } else Q._priority_queue_insert(is_queued,sizeQ,priority(x,y,z + 1),x,y,z + 1);
-          }
+          _cimg_watershed_fill(x - 1>=0,x - 1,y,z);
+          _cimg_watershed_fill(x + 1<width(),x + 1,y,z);
+          _cimg_watershed_fill(y - 1>=0,x,y - 1,z);
+          _cimg_watershed_fill(y + 1<height(),x,y + 1,z);
+          _cimg_watershed_fill(z - 1>=0,x,y,z - 1);
+          _cimg_watershed_fill(z + 1<depth(),x,y,z + 1);
           (*this)(x,y,z) = (*this)(xmax,ymax,zmax);
         }
       }

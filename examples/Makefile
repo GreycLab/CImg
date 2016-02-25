@@ -164,8 +164,8 @@ CIMG_X11_LIBS = `pkg-config --libs x11 || echo -L/usr/X11R6/lib -lX11` -lpthread
 
 # Flags to enable fast image display, using the XSHM library (when using X11).
 # !!! Seems to randomly crash when used on MacOSX and 64bits systems, so use it only when necessary !!!
-CIMG_XSHM_CFLAGS = -Dcimg_use_xshm `pkg-config --cflags xcb-shm`
-CIMG_XSHM_LIBS = `pkg-config --libs xcb-shm || echo -L$(USR)/X11R6/lib -lXext`
+CIMG_XSHM_CFLAGS = # -Dcimg_use_xshm `pkg-config --cflags xcb-shm`
+CIMG_XSHM_LIBS = # `pkg-config --libs xcb-shm || echo -L$(USR)/X11R6/lib -lXext`
 
 # Flags to enable GDI32 display (Windows native).
 CIMG_GDI32_DEFINE = -mwindows

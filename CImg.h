@@ -15551,7 +15551,7 @@ namespace cimg_library_suffixed {
                 if (s1<se1) {
                   s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
                   arg4 = compile(s1,s2,depth1,0);
-                  if (s2<se1) arg5 = compile(++s2,se1,depth1,0);
+                  arg5 = s2<se1?compile(++s2,se1,depth1,0):~0U;
                 }
               } else if (s1<se1) {
                 s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
@@ -15562,7 +15562,7 @@ namespace cimg_library_suffixed {
                   if (s3<se1) {
                     s2 = ++s3; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
                     arg4 = compile(s3,s2,depth1,0);
-                    if (s2<se1) arg5 = compile(++s2,se1,depth1,0);
+                    arg5 = s2<se1?compile(++s2,se1,depth1,0):~0U;
                   }
                 }
               }
@@ -15627,7 +15627,7 @@ namespace cimg_library_suffixed {
                 if (s1<se1) {
                   s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
                   arg5 = compile(s1,s2,depth1,0);
-                  if (s2<se1) arg6 = compile(++s2,se1,depth1,0);
+                  arg6 = s2<se1?compile(++s2,se1,depth1,0):~0U;
                 }
               } else if (s1<se1) {
                 s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
@@ -15641,7 +15641,7 @@ namespace cimg_library_suffixed {
                     if (s2<se1) {
                       s3 = ++s2; while (s3<se1 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
                       arg5 = compile(s2,s3,depth1,0);
-                      if (s3<se1) arg6 = compile(++s3,se1,depth1,0);
+                      arg6 = s3<se1?compile(++s3,se1,depth1,0):~0U;
                     }
                   }
                 }
@@ -15851,8 +15851,7 @@ namespace cimg_library_suffixed {
               s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               p1 = code._width;
               arg1 = compile(ss8,s1,depth1,0);
-              if (s1<se1) arg2 = compile(++s1,se1,depth1,0);
-              else arg2 = arg1;
+              arg2 = s1<se1?compile(++s1,se1,depth1,0):arg1;
               _cimg_mp_check_type(arg2,2,"Function 'dowhile()'",1,0);
               CImg<uptrT>::vector((uptrT)mp_dowhile,arg1,arg2,code._width - p1).move_to(code,p1);
               _cimg_mp_return(arg1);
@@ -15878,7 +15877,7 @@ namespace cimg_library_suffixed {
               p1 = code._width;
               arg1 = compile(++s1,s2,depth1,0);
               p2 = code._width;
-              if (s3<se1) { pos = compile(++s3,se1,depth1,0); compile(++s2,s3,depth1,0); } // Body + proc
+              if (s3<se1) { pos = compile(s3 + 1,se1,depth1,0); compile(++s2,s3,depth1,0); } // Body + proc
               else pos = compile(++s2,se1,depth1,0); // Proc only
               _cimg_mp_check_type(arg1,2,"Function 'for()'",1,0);
               arg2 = _cimg_mp_is_vector(pos)?_cimg_mp_vector_size(pos):0; // Output vector size (or 0 if scalar)
@@ -15932,7 +15931,7 @@ namespace cimg_library_suffixed {
               p2 = code._width;
               arg2 = compile(++s1,s2,depth1,0);
               p3 = code._width;
-              arg3 = s2>=se1?0:compile(++s2,se1,depth1,0);
+              arg3 = s2<se1?compile(++s2,se1,depth1,0):0;
               _cimg_mp_check_type(arg1,1,s_op,1,0);
               _cimg_mp_check_type(arg3,3,s_op,3,_cimg_mp_vector_size(arg2));
               if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2) && _cimg_mp_is_constant(arg3))
@@ -16378,7 +16377,7 @@ namespace cimg_library_suffixed {
               s_op = "Function 'sort()'";
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss5,s1,depth1,0);
-              if (s1<se1) arg2 = compile(++s1,se1,depth1,0); else arg2 = 1;
+              arg2 = s1<se1?compile(++s1,se1,depth1,0):1;
               _cimg_mp_check_type(arg1,1,s_op,2,0);
               _cimg_mp_check_type(arg2,2,s_op,1,0);
               p1 = _cimg_mp_vector_size(arg1);

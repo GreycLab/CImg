@@ -29683,21 +29683,29 @@ namespace cimg_library_suffixed {
       CImg<boolT> is_queued(_width,_height,_depth,1,0);
       CImg<typename cimg::superset2<T,t,int>::type> Q;
       unsigned int sizeQ = 0;
+      int px, nx, py, ny, pz, nz;
+      bool is_px, is_nx, is_py, is_ny, is_pz, is_nz;
 
       // Find seed points and insert them in priority queue.
       const T *ptrs = _data;
       cimg_forXYZ(*this,x,y,z) if (*(ptrs++)) {
-        _cimg_watershed_init(x - 1>=0,x - 1,y,z);
-        _cimg_watershed_init(x + 1<width(),x + 1,y,z);
-        _cimg_watershed_init(y - 1>=0,x,y - 1,z);
-        _cimg_watershed_init(y + 1<height(),x,y + 1,z);
-        _cimg_watershed_init(z - 1>=0,x,y,z - 1);
-        _cimg_watershed_init(z + 1<depth(),x,y,z + 1);
-
-        _cimg_watershed_init(x - 1>=0 && y - 1>=0,x - 1,y - 1,z);
-        _cimg_watershed_init(x + 1<width() && y - 1>=0,x + 1,y - 1,z);
-        _cimg_watershed_init(x - 1>=0 && y + 1<height(),x - 1,y + 1,z);
-        _cimg_watershed_init(x + 1<width() && y + 1<height(),x + 1,y + 1,z);
+        px = x - 1; nx = x + 1;
+        py = y - 1; ny = y + 1;
+        pz = z - 1; nz = z + 1;
+        is_px = px>=0; is_nx = nx<width();
+        is_py = py>=0; is_ny = ny<height();
+        is_pz = pz>=0; is_nz = nz<depth();
+        _cimg_watershed_init(is_px,px,y,z);
+        _cimg_watershed_init(is_nx,nx,y,z);
+        _cimg_watershed_init(is_py,x,py,z);
+        _cimg_watershed_init(is_ny,x,ny,z);
+        _cimg_watershed_init(is_pz,x,y,pz);
+        _cimg_watershed_init(is_nz,x,y,nz);
+/*        _cimg_watershed_init(is_px && is_py,px,py,z);
+        _cimg_watershed_init(is_nx && is_py,nx,py,z);
+        _cimg_watershed_init(is_px && is_ny,px,ny,z);
+        _cimg_watershed_init(is_nx && is_ny,nx,ny,z);
+*/
       }
 
       // Start watershed computation.
@@ -29705,22 +29713,28 @@ namespace cimg_library_suffixed {
 
         // Get and remove point with maximal priority from the queue.
         const int x = (int)Q(0,1), y = (int)Q(0,2), z = (int)Q(0,3);
-        Q._priority_queue_remove(sizeQ);
+        px = x - 1; nx = x + 1;
+        py = y - 1; ny = y + 1;
+        pz = z - 1; nz = z + 1;
+        is_px = px>=0; is_nx = nx<width();
+        is_py = py>=0; is_ny = ny<height();
+        is_pz = pz>=0; is_nz = nz<depth();
 
         // Check labels of the neighbors.
+        Q._priority_queue_remove(sizeQ);
         bool is_same_label = true;
         T label = 0;
-        _cimg_watershed_propage(x - 1>=0,x - 1,y,z);
-        _cimg_watershed_propage(x + 1<width(),x + 1,y,z);
-        _cimg_watershed_propage(y - 1>=0,x,y - 1,z);
-        _cimg_watershed_propage(y + 1<height(),x,y + 1,z);
-        _cimg_watershed_propage(z - 1>=0,x,y,z - 1);
-        _cimg_watershed_propage(z + 1<depth(),x,y,z + 1);
-
-        _cimg_watershed_propage(x - 1>=0 && y - 1>=0,x - 1,y - 1,z);
-        _cimg_watershed_propage(x + 1<width() && y - 1>=0,x + 1,y - 1,z);
-        _cimg_watershed_propage(x - 1>=0 && y + 1<height(),x - 1,y + 1,z);
-        _cimg_watershed_propage(x + 1<width() && y + 1<height(),x + 1,y + 1,z);
+        _cimg_watershed_propage(is_px,px,y,z);
+        _cimg_watershed_propage(is_nx,nx,y,z);
+        _cimg_watershed_propage(is_py,x,py,z);
+        _cimg_watershed_propage(is_ny,x,ny,z);
+        _cimg_watershed_propage(is_pz,x,y,pz);
+        _cimg_watershed_propage(is_nz,x,y,nz);
+/*        _cimg_watershed_propage(is_px && is_py,px,py,z);
+        _cimg_watershed_propage(is_nx && is_py,nx,py,z);
+        _cimg_watershed_propage(is_px && is_ny,px,ny,z);
+        _cimg_watershed_propage(is_nx && is_ny,nx,ny,z);
+*/
 
         if (is_same_label) (*this)(x,y,z) = label;
       }
@@ -29740,15 +29754,22 @@ namespace cimg_library_suffixed {
         // Start line filling process.
         while (sizeQ) {
           const int x = (int)Q(0,1), y = (int)Q(0,2), z = (int)Q(0,3);
+          px = x - 1; nx = x + 1;
+          py = y - 1; ny = y + 1;
+          pz = z - 1; nz = z + 1;
+          is_px = px>=0; is_nx = nx<width();
+          is_py = py>=0; is_ny = ny<height();
+          is_pz = pz>=0; is_nz = nz<depth();
+
           Q._priority_queue_remove(sizeQ);
           t pmax = cimg::type<t>::min();
           int xmax = 0, ymax = 0, zmax = 0;
-          _cimg_watershed_fill(x - 1>=0,x - 1,y,z);
-          _cimg_watershed_fill(x + 1<width(),x + 1,y,z);
-          _cimg_watershed_fill(y - 1>=0,x,y - 1,z);
-          _cimg_watershed_fill(y + 1<height(),x,y + 1,z);
-          _cimg_watershed_fill(z - 1>=0,x,y,z - 1);
-          _cimg_watershed_fill(z + 1<depth(),x,y,z + 1);
+          _cimg_watershed_fill(is_px,px,y,z);
+          _cimg_watershed_fill(is_nx,nx,y,z);
+          _cimg_watershed_fill(is_py,x,py,z);
+          _cimg_watershed_fill(is_ny,x,ny,z);
+          _cimg_watershed_fill(is_pz,x,y,pz);
+          _cimg_watershed_fill(is_nz,x,y,nz);
           (*this)(x,y,z) = (*this)(xmax,ymax,zmax);
         }
       }

@@ -29652,7 +29652,7 @@ namespace cimg_library_suffixed {
 #define _cimg_watershed_init(cond,X,Y,Z)                                \
       if (cond && !(*this)(X,Y,Z)) Q._priority_queue_insert(is_queued,sizeQ,priority(X,Y,Z),X,Y,Z)
 
-#define _cimg_watershed_propage(cond,X,Y,Z) \
+#define _cimg_watershed_propagate(cond,X,Y,Z) \
       if (cond) { \
         if ((*this)(X,Y,Z)) { \
           if (!label) label = (*this)(X,Y,Z); \
@@ -29724,16 +29724,16 @@ namespace cimg_library_suffixed {
         Q._priority_queue_remove(sizeQ);
         bool is_same_label = true;
         T label = 0;
-        _cimg_watershed_propage(is_px,px,y,z);
-        _cimg_watershed_propage(is_nx,nx,y,z);
-        _cimg_watershed_propage(is_py,x,py,z);
-        _cimg_watershed_propage(is_ny,x,ny,z);
-        _cimg_watershed_propage(is_pz,x,y,pz);
-        _cimg_watershed_propage(is_nz,x,y,nz);
-/*        _cimg_watershed_propage(is_px && is_py,px,py,z);
-        _cimg_watershed_propage(is_nx && is_py,nx,py,z);
-        _cimg_watershed_propage(is_px && is_ny,px,ny,z);
-        _cimg_watershed_propage(is_nx && is_ny,nx,ny,z);
+        _cimg_watershed_propagate(is_px,px,y,z);
+        _cimg_watershed_propagate(is_nx,nx,y,z);
+        _cimg_watershed_propagate(is_py,x,py,z);
+        _cimg_watershed_propagate(is_ny,x,ny,z);
+        _cimg_watershed_propagate(is_pz,x,y,pz);
+        _cimg_watershed_propagate(is_nz,x,y,nz);
+/*        _cimg_watershed_propagate(is_px && is_py,px,py,z);
+        _cimg_watershed_propagate(is_nx && is_py,nx,py,z);
+        _cimg_watershed_propagate(is_px && is_ny,px,ny,z);
+        _cimg_watershed_propagate(is_nx && is_ny,nx,ny,z);
 */
 
         if (is_same_label) (*this)(x,y,z) = label;

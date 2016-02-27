@@ -114,9 +114,9 @@ endif
 
 # Flags to enable strict code standards
 ifeq ($(notdir $(CXX)),icpc)
-CIMG_ANSI_CFLAGS = -std=c++11 -ansi
+CIMG_ANSI_CFLAGS = -std=c++11
 else
-CIMG_ANSI_CFLAGS = -std=c++11 -ansi -pedantic
+CIMG_ANSI_CFLAGS = -std=c++11 -pedantic
 endif
 
 # Flags to enable code debugging.

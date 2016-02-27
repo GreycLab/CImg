@@ -49188,9 +49188,9 @@ namespace cimg_library_suffixed {
       if (is_empty()) { cimg::fempty(file,filename); return *this; }
 
       std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
-      static const unsigned char header[36] = { 'P','A','N','D','O','R','E','0','4',0,0,0,
-                                                0,0,0,0,'C','I','m','g',0,0,0,0,0,
-                                                'N','o',' ','d','a','t','e',0,0,0,0 };
+      unsigned char header[36] = { 'P','A','N','D','O','R','E','0','4',0,0,0,
+                                   0,0,0,0,'C','I','m','g',0,0,0,0,0,
+                                   'N','o',' ','d','a','t','e',0,0,0,0 };
       unsigned int nbdims, dims[5] = { 0 };
       bool saved = false;
       _cimg_save_pandore_case(1,1,1,"unsigned char",2);

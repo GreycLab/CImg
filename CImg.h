@@ -29660,6 +29660,19 @@ namespace cimg_library_suffixed {
         } else Q._priority_queue_insert(labels,sizeQ,priority(X,Y,Z),X,Y,Z,n); \
       }
 
+      if (is_empty()) return *this;
+      if (!is_sameXYZ(priority))
+        throw CImgArgumentException(_cimg_instance
+                                    "watershed(): image instance and specified priority (%u,%u,%u,%u,%p) "
+                                    "have different dimensions.",
+                                    cimg_instance,
+                                    priority._width,priority._height,priority._depth,priority._spectrum,priority._data);
+      if (_spectrum!=1) {
+        cimg_forC(*this,c)
+          get_shared_channel(c).watershed(priority.get_shared_channel(c%priority._spectrum));
+        return *this;
+      }
+
       CImg<uintT> labels(_width,_height,_depth,1,0), seeds(64,3);
       CImg<typename cimg::superset2<T,t,int>::type> Q;
       unsigned int sizeQ = 0;

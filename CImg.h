@@ -29643,52 +29643,35 @@ namespace cimg_library_suffixed {
     //! Compute watershed transform.
     /**
        \param priority Priority map.
-       \param fill_lines Tells if watershed lines must be filled or not.
        \note Non-zero values of the instance instance are propagated to zero-valued ones according to
-         specified the priority map.
+       specified the priority map.
     **/
     template<typename t>
-    CImg<T>& watershed(const CImg<t>& priority, const bool fill_lines=true) {
-#define _cimg_watershed_init(cond,X,Y,Z) \
-      if (cond && !(*this)(X,Y,Z)) Q._priority_queue_insert(is_queued,sizeQ,priority(X,Y,Z),X,Y,Z)
+    CImg<T>& watershed(const CImg<t>& priority) {
+#define _cimg_watershed_init(cond,X,Y,Z)                            \
+      if (cond && !(*this)(X,Y,Z)) Q._priority_queue_insert(labels,sizeQ,priority(X,Y,Z),X,Y,Z,nb_seeds)
 
-#define _cimg_watershed_propagate(cond,X,Y,Z) \
-      if (cond) { \
-        if ((*this)(X,Y,Z)) { \
-          if (!label) label = (*this)(X,Y,Z); \
-          else if (label!=(*this)(X,Y,Z)) is_same_label = false; \
-        } else Q._priority_queue_insert(is_queued,sizeQ,priority(X,Y,Z),X,Y,Z); \
+#define _cimg_watershed_propagate(cond,X,Y,Z)                       \
+      if (cond) {                                                       \
+        if ((*this)(X,Y,Z)) {                                           \
+          ns = labels(X,Y,Z) - 1; xs = seeds(ns,0); ys = seeds(ns,1); zs = seeds(ns,2); \
+          d = cimg::sqr((float)x - xs) + cimg::sqr((float)y - ys) + cimg::sqr((float)z - zs); \
+          if (d<dmin) { dmin = d; nmin = ns; label = (*this)(xs,ys,zs); } \
+        } else Q._priority_queue_insert(labels,sizeQ,priority(X,Y,Z),X,Y,Z,n); \
       }
 
-#define _cimg_watershed_fill(cond,X,Y,Z) \
-      if (cond) { \
-        if ((*this)(X,Y,Z)) { \
-          if (priority(X,Y,Z)>pmax) { pmax = priority(X,Y,Z); xmax = X; ymax = Y; zmax = Z; } \
-        } else Q._priority_queue_insert(is_queued,sizeQ,priority(X,Y,Z),X,Y,Z); \
-      }
-
-      if (is_empty()) return *this;
-      if (!is_sameXYZ(priority))
-        throw CImgArgumentException(_cimg_instance
-                                    "watershed(): image instance and specified priority (%u,%u,%u,%u,%p) "
-                                    "have different dimensions.",
-                                    cimg_instance,
-                                    priority._width,priority._height,priority._depth,priority._spectrum,priority._data);
-      if (_spectrum!=1) {
-        cimg_forC(*this,c)
-          get_shared_channel(c).watershed(priority.get_shared_channel(c%priority._spectrum),fill_lines);
-        return *this;
-      }
-
-      CImg<boolT> is_queued(_width,_height,_depth,1,0);
+      CImg<uintT> labels(_width,_height,_depth,1,0), seeds(64,3);
       CImg<typename cimg::superset2<T,t,int>::type> Q;
       unsigned int sizeQ = 0;
       int px, nx, py, ny, pz, nz;
       bool is_px, is_nx, is_py, is_ny, is_pz, is_nz;
 
       // Find seed points and insert them in priority queue.
+      unsigned int nb_seeds = 0;
       const T *ptrs = _data;
       cimg_forXYZ(*this,x,y,z) if (*(ptrs++)) {
+        if (nb_seeds>=seeds._width) seeds.resize(2*seeds._width,3,1,1,0);
+        seeds(nb_seeds,0) = x; seeds(nb_seeds,1) = y; seeds(nb_seeds++,2) = z;
         px = x - 1; nx = x + 1;
         py = y - 1; ny = y + 1;
         pz = z - 1; nz = z + 1;
@@ -29701,11 +29684,7 @@ namespace cimg_library_suffixed {
         _cimg_watershed_init(is_ny,x,ny,z);
         _cimg_watershed_init(is_pz,x,y,pz);
         _cimg_watershed_init(is_nz,x,y,nz);
-/*        _cimg_watershed_init(is_px && is_py,px,py,z);
-        _cimg_watershed_init(is_nx && is_py,nx,py,z);
-        _cimg_watershed_init(is_px && is_ny,px,ny,z);
-        _cimg_watershed_init(is_nx && is_ny,nx,ny,z);
-*/
+        labels(x,y,z) = nb_seeds;
       }
 
       // Start watershed computation.
@@ -29713,6 +29692,7 @@ namespace cimg_library_suffixed {
 
         // Get and remove point with maximal priority from the queue.
         const int x = (int)Q(0,1), y = (int)Q(0,2), z = (int)Q(0,3);
+        const unsigned int n = labels(x,y,z);
         px = x - 1; nx = x + 1;
         py = y - 1; ny = y + 1;
         pz = z - 1; nz = z + 1;
@@ -29722,7 +29702,8 @@ namespace cimg_library_suffixed {
 
         // Check labels of the neighbors.
         Q._priority_queue_remove(sizeQ);
-        bool is_same_label = true;
+        float d, dmin = cimg::type<float>::inf();
+        unsigned int xs, ys, zs, ns, nmin = 0;
         T label = 0;
         _cimg_watershed_propagate(is_px,px,y,z);
         _cimg_watershed_propagate(is_nx,nx,y,z);
@@ -29730,56 +29711,16 @@ namespace cimg_library_suffixed {
         _cimg_watershed_propagate(is_ny,x,ny,z);
         _cimg_watershed_propagate(is_pz,x,y,pz);
         _cimg_watershed_propagate(is_nz,x,y,nz);
-/*        _cimg_watershed_propagate(is_px && is_py,px,py,z);
-        _cimg_watershed_propagate(is_nx && is_py,nx,py,z);
-        _cimg_watershed_propagate(is_px && is_ny,px,ny,z);
-        _cimg_watershed_propagate(is_nx && is_ny,nx,ny,z);
-*/
-
-        if (is_same_label) (*this)(x,y,z) = label;
-      }
-
-      // Fill lines.
-      if (fill_lines) {
-
-        // Sort all non-labeled pixels with labeled neighbors.
-        is_queued = false;
-        const T *ptrs = _data;
-        cimg_forXYZ(*this,x,y,z) if (!*(ptrs++) &&
-                                     ((x - 1>=0 && (*this)(x - 1,y,z)) || (x + 1<width() && (*this)(x + 1,y,z)) ||
-                                      (y - 1>=0 && (*this)(x,y - 1,z)) || (y + 1<height() && (*this)(x,y + 1,z)) ||
-                                      (z - 1>=0 && (*this)(x,y,z - 1)) || (z + 1>depth() && (*this)(x,y,z + 1))))
-          Q._priority_queue_insert(is_queued,sizeQ,priority(x,y,z),x,y,z);
-
-        // Start line filling process.
-        while (sizeQ) {
-          const int x = (int)Q(0,1), y = (int)Q(0,2), z = (int)Q(0,3);
-          px = x - 1; nx = x + 1;
-          py = y - 1; ny = y + 1;
-          pz = z - 1; nz = z + 1;
-          is_px = px>=0; is_nx = nx<width();
-          is_py = py>=0; is_ny = ny<height();
-          is_pz = pz>=0; is_nz = nz<depth();
-
-          Q._priority_queue_remove(sizeQ);
-          t pmax = cimg::type<t>::min();
-          int xmax = 0, ymax = 0, zmax = 0;
-          _cimg_watershed_fill(is_px,px,y,z);
-          _cimg_watershed_fill(is_nx,nx,y,z);
-          _cimg_watershed_fill(is_py,x,py,z);
-          _cimg_watershed_fill(is_ny,x,ny,z);
-          _cimg_watershed_fill(is_pz,x,y,pz);
-          _cimg_watershed_fill(is_nz,x,y,nz);
-          (*this)(x,y,z) = (*this)(xmax,ymax,zmax);
-        }
+        (*this)(x,y,z) = label;
+        labels(x,y,z) = ++nmin;
       }
       return *this;
     }
 
     //! Compute watershed transform \newinstance.
     template<typename t>
-    CImg<T> get_watershed(const CImg<t>& priority, const bool fill_lines=true) const {
-      return (+*this).watershed(priority,fill_lines);
+    CImg<T> get_watershed(const CImg<t>& priority) const {
+      return (+*this).watershed(priority);
     }
 
     // [internal] Insert/Remove items in priority queue, for watershed/distance transforms.

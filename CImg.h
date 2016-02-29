@@ -29701,11 +29701,10 @@ namespace cimg_library_suffixed {
         _cimg_watershed_init(is_ny,x,ny,z);
         _cimg_watershed_init(is_pz,x,y,pz);
         _cimg_watershed_init(is_nz,x,y,nz);
-/*        _cimg_watershed_init(is_px && is_py,px,py,z);
+        _cimg_watershed_init(is_px && is_py,px,py,z);
         _cimg_watershed_init(is_nx && is_py,nx,py,z);
         _cimg_watershed_init(is_px && is_ny,px,ny,z);
         _cimg_watershed_init(is_nx && is_ny,nx,ny,z);
-*/
       }
 
       // Start watershed computation.
@@ -29730,13 +29729,15 @@ namespace cimg_library_suffixed {
         _cimg_watershed_propagate(is_ny,x,ny,z);
         _cimg_watershed_propagate(is_pz,x,y,pz);
         _cimg_watershed_propagate(is_nz,x,y,nz);
-/*        _cimg_watershed_propagate(is_px && is_py,px,py,z);
+        _cimg_watershed_propagate(is_px && is_py,px,py,z);
         _cimg_watershed_propagate(is_nx && is_py,nx,py,z);
         _cimg_watershed_propagate(is_px && is_ny,px,ny,z);
         _cimg_watershed_propagate(is_nx && is_ny,nx,ny,z);
-*/
-
         if (is_same_label) (*this)(x,y,z) = label;
+
+        static CImgDisplay disp(3*width(),3*height(),"labels",1);
+        display(disp);
+        disp.wait(5);
       }
 
       // Fill lines.

@@ -29643,11 +29643,13 @@ namespace cimg_library_suffixed {
     //! Compute watershed transform.
     /**
        \param priority Priority map.
+       \param is_high_connectivity Boolean that choose between 4(false)- or 8(true)-connectivity
+       in 2d case, and between 6(false)- or 26(true)-connectivity in 3d case.
        \note Non-zero values of the instance instance are propagated to zero-valued ones according to
        specified the priority map.
     **/
     template<typename t>
-    CImg<T>& watershed(const CImg<t>& priority) {
+    CImg<T>& watershed(const CImg<t>& priority, const bool is_high_connectivity=false) {
 #define _cimg_watershed_init(cond,X,Y,Z)                            \
       if (cond && !(*this)(X,Y,Z)) Q._priority_queue_insert(labels,sizeQ,priority(X,Y,Z),X,Y,Z,nb_seeds)
 
@@ -29678,11 +29680,12 @@ namespace cimg_library_suffixed {
       unsigned int sizeQ = 0;
       int px, nx, py, ny, pz, nz;
       bool is_px, is_nx, is_py, is_ny, is_pz, is_nz;
+      const bool is_3d = _depth>1;
 
       // Find seed points and insert them in priority queue.
       unsigned int nb_seeds = 0;
       const T *ptrs = _data;
-      cimg_forXYZ(*this,x,y,z) if (*(ptrs++)) {
+      cimg_forXYZ(*this,x,y,z) if (*(ptrs++)) { // 3d version
         if (nb_seeds>=seeds._width) seeds.resize(2*seeds._width,3,1,1,0);
         seeds(nb_seeds,0) = x; seeds(nb_seeds,1) = y; seeds(nb_seeds++,2) = z;
         px = x - 1; nx = x + 1;
@@ -29695,8 +29698,34 @@ namespace cimg_library_suffixed {
         _cimg_watershed_init(is_nx,nx,y,z);
         _cimg_watershed_init(is_py,x,py,z);
         _cimg_watershed_init(is_ny,x,ny,z);
-        _cimg_watershed_init(is_pz,x,y,pz);
-        _cimg_watershed_init(is_nz,x,y,nz);
+        if (is_3d) {
+          _cimg_watershed_init(is_pz,x,y,pz);
+          _cimg_watershed_init(is_nz,x,y,nz);
+        }
+        if (is_high_connectivity) {
+          _cimg_watershed_init(is_px && is_py,px,py,z);
+          _cimg_watershed_init(is_nx && is_py,nx,py,z);
+          _cimg_watershed_init(is_px && is_ny,px,ny,z);
+          _cimg_watershed_init(is_nx && is_ny,nx,ny,z);
+          if (is_3d) {
+            _cimg_watershed_init(is_px && is_pz,px,y,pz);
+            _cimg_watershed_init(is_nx && is_pz,nx,y,pz);
+            _cimg_watershed_init(is_px && is_nz,px,y,nz);
+            _cimg_watershed_init(is_nx && is_nz,nx,y,nz);
+            _cimg_watershed_init(is_py && is_pz,x,py,pz);
+            _cimg_watershed_init(is_ny && is_pz,x,ny,pz);
+            _cimg_watershed_init(is_py && is_nz,x,py,nz);
+            _cimg_watershed_init(is_ny && is_nz,x,ny,nz);
+            _cimg_watershed_init(is_px && is_py && is_pz,px,py,pz);
+            _cimg_watershed_init(is_nx && is_py && is_pz,nx,py,pz);
+            _cimg_watershed_init(is_px && is_ny && is_pz,px,ny,pz);
+            _cimg_watershed_init(is_nx && is_ny && is_pz,nx,ny,pz);
+            _cimg_watershed_init(is_px && is_py && is_nz,px,py,nz);
+            _cimg_watershed_init(is_nx && is_py && is_nz,nx,py,nz);
+            _cimg_watershed_init(is_px && is_ny && is_nz,px,ny,nz);
+            _cimg_watershed_init(is_nx && is_ny && is_nz,nx,ny,nz);
+          }
+        }
         labels(x,y,z) = nb_seeds;
       }
 
@@ -29715,15 +29744,42 @@ namespace cimg_library_suffixed {
 
         // Check labels of the neighbors.
         Q._priority_queue_remove(sizeQ);
-        float d, dmin = cimg::type<float>::inf();
+
         unsigned int xs, ys, zs, ns, nmin = 0;
+        float d, dmin = cimg::type<float>::inf();
         T label = 0;
         _cimg_watershed_propagate(is_px,px,y,z);
         _cimg_watershed_propagate(is_nx,nx,y,z);
         _cimg_watershed_propagate(is_py,x,py,z);
         _cimg_watershed_propagate(is_ny,x,ny,z);
-        _cimg_watershed_propagate(is_pz,x,y,pz);
-        _cimg_watershed_propagate(is_nz,x,y,nz);
+        if (is_3d) {
+          _cimg_watershed_propagate(is_pz,x,y,pz);
+          _cimg_watershed_propagate(is_nz,x,y,nz);
+        }
+        if (is_high_connectivity) {
+          _cimg_watershed_propagate(is_px && is_py,px,py,z);
+          _cimg_watershed_propagate(is_nx && is_py,nx,py,z);
+          _cimg_watershed_propagate(is_px && is_ny,px,ny,z);
+          _cimg_watershed_propagate(is_nx && is_ny,nx,ny,z);
+          if (is_3d) {
+            _cimg_watershed_propagate(is_px && is_pz,px,y,pz);
+            _cimg_watershed_propagate(is_nx && is_pz,nx,y,pz);
+            _cimg_watershed_propagate(is_px && is_nz,px,y,nz);
+            _cimg_watershed_propagate(is_nx && is_nz,nx,y,nz);
+            _cimg_watershed_propagate(is_py && is_pz,x,py,pz);
+            _cimg_watershed_propagate(is_ny && is_pz,x,ny,pz);
+            _cimg_watershed_propagate(is_py && is_nz,x,py,nz);
+            _cimg_watershed_propagate(is_ny && is_nz,x,ny,nz);
+            _cimg_watershed_propagate(is_px && is_py && is_pz,px,py,pz);
+            _cimg_watershed_propagate(is_nx && is_py && is_pz,nx,py,pz);
+            _cimg_watershed_propagate(is_px && is_ny && is_pz,px,ny,pz);
+            _cimg_watershed_propagate(is_nx && is_ny && is_pz,nx,ny,pz);
+            _cimg_watershed_propagate(is_px && is_py && is_nz,px,py,nz);
+            _cimg_watershed_propagate(is_nx && is_py && is_nz,nx,py,nz);
+            _cimg_watershed_propagate(is_px && is_ny && is_nz,px,ny,nz);
+            _cimg_watershed_propagate(is_nx && is_ny && is_nz,nx,ny,nz);
+          }
+        }
         (*this)(x,y,z) = label;
         labels(x,y,z) = ++nmin;
       }
@@ -29732,8 +29788,8 @@ namespace cimg_library_suffixed {
 
     //! Compute watershed transform \newinstance.
     template<typename t>
-    CImg<T> get_watershed(const CImg<t>& priority) const {
-      return (+*this).watershed(priority);
+    CImg<T> get_watershed(const CImg<t>& priority, const bool is_high_connectivity=false) const {
+      return (+*this).watershed(priority,is_high_connectivity);
     }
 
     // [internal] Insert/Remove items in priority queue, for watershed/distance transforms.

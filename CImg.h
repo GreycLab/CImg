@@ -29643,28 +29643,21 @@ namespace cimg_library_suffixed {
     //! Compute watershed transform.
     /**
        \param priority Priority map.
-       \param fill_lines Tells if watershed lines must be filled or not.
        \note Non-zero values of the instance instance are propagated to zero-valued ones according to
-         specified the priority map.
+       specified the priority map.
     **/
     template<typename t>
-    CImg<T>& watershed(const CImg<t>& priority, const bool fill_lines=true) {
-#define _cimg_watershed_init(cond,X,Y,Z)                                \
-      if (cond && !(*this)(X,Y,Z)) Q._priority_queue_insert(is_queued,sizeQ,priority(X,Y,Z),X,Y,Z)
+    CImg<T>& watershed(const CImg<t>& priority) {
+#define _cimg_watershed_init(cond,X,Y,Z)                            \
+      if (cond && !(*this)(X,Y,Z)) Q._priority_queue_insert(labels,sizeQ,priority(X,Y,Z),X,Y,Z,nb_seeds)
 
-#define _cimg_watershed_propagate(cond,X,Y,Z) \
-      if (cond) { \
-        if ((*this)(X,Y,Z)) { \
-          if (!label) label = (*this)(X,Y,Z); \
-          else if (label!=(*this)(X,Y,Z)) is_same_label = false; \
-        } else Q._priority_queue_insert(is_queued,sizeQ,priority(X,Y,Z),X,Y,Z); \
-      }
-
-#define _cimg_watershed_fill(cond,X,Y,Z) \
-      if (cond) { \
-        if ((*this)(X,Y,Z)) { \
-          if (priority(X,Y,Z)>pmax) { pmax = priority(X,Y,Z); xmax = X; ymax = Y; zmax = Z; } \
-        } else Q._priority_queue_insert(is_queued,sizeQ,priority(X,Y,Z),X,Y,Z); \
+#define _cimg_watershed_propagate(cond,X,Y,Z)                       \
+      if (cond) {                                                       \
+        if ((*this)(X,Y,Z)) {                                           \
+          ns = labels(X,Y,Z) - 1; xs = seeds(ns,0); ys = seeds(ns,1); zs = seeds(ns,2); \
+          d = cimg::sqr((float)x - xs) + cimg::sqr((float)y - ys) + cimg::sqr((float)z - zs); \
+          if (d<dmin) { dmin = d; nmin = ns; label = (*this)(xs,ys,zs); } \
+        } else Q._priority_queue_insert(labels,sizeQ,priority(X,Y,Z),X,Y,Z,n); \
       }
 
       if (is_empty()) return *this;
@@ -29676,19 +29669,22 @@ namespace cimg_library_suffixed {
                                     priority._width,priority._height,priority._depth,priority._spectrum,priority._data);
       if (_spectrum!=1) {
         cimg_forC(*this,c)
-          get_shared_channel(c).watershed(priority.get_shared_channel(c%priority._spectrum),fill_lines);
+          get_shared_channel(c).watershed(priority.get_shared_channel(c%priority._spectrum));
         return *this;
       }
 
-      CImg<boolT> is_queued(_width,_height,_depth,1,0);
+      CImg<uintT> labels(_width,_height,_depth,1,0), seeds(64,3);
       CImg<typename cimg::superset2<T,t,int>::type> Q;
       unsigned int sizeQ = 0;
       int px, nx, py, ny, pz, nz;
       bool is_px, is_nx, is_py, is_ny, is_pz, is_nz;
 
       // Find seed points and insert them in priority queue.
+      unsigned int nb_seeds = 0;
       const T *ptrs = _data;
       cimg_forXYZ(*this,x,y,z) if (*(ptrs++)) {
+        if (nb_seeds>=seeds._width) seeds.resize(2*seeds._width,3,1,1,0);
+        seeds(nb_seeds,0) = x; seeds(nb_seeds,1) = y; seeds(nb_seeds++,2) = z;
         px = x - 1; nx = x + 1;
         py = y - 1; ny = y + 1;
         pz = z - 1; nz = z + 1;
@@ -29701,10 +29697,7 @@ namespace cimg_library_suffixed {
         _cimg_watershed_init(is_ny,x,ny,z);
         _cimg_watershed_init(is_pz,x,y,pz);
         _cimg_watershed_init(is_nz,x,y,nz);
-        _cimg_watershed_init(is_px && is_py,px,py,z);
-        _cimg_watershed_init(is_nx && is_py,nx,py,z);
-        _cimg_watershed_init(is_px && is_ny,px,ny,z);
-        _cimg_watershed_init(is_nx && is_ny,nx,ny,z);
+        labels(x,y,z) = nb_seeds;
       }
 
       // Start watershed computation.
@@ -29712,6 +29705,7 @@ namespace cimg_library_suffixed {
 
         // Get and remove point with maximal priority from the queue.
         const int x = (int)Q(0,1), y = (int)Q(0,2), z = (int)Q(0,3);
+        const unsigned int n = labels(x,y,z);
         px = x - 1; nx = x + 1;
         py = y - 1; ny = y + 1;
         pz = z - 1; nz = z + 1;
@@ -29721,7 +29715,8 @@ namespace cimg_library_suffixed {
 
         // Check labels of the neighbors.
         Q._priority_queue_remove(sizeQ);
-        bool is_same_label = true;
+        float d, dmin = cimg::type<float>::inf();
+        unsigned int xs, ys, zs, ns, nmin = 0;
         T label = 0;
         _cimg_watershed_propagate(is_px,px,y,z);
         _cimg_watershed_propagate(is_nx,nx,y,z);
@@ -29729,95 +29724,67 @@ namespace cimg_library_suffixed {
         _cimg_watershed_propagate(is_ny,x,ny,z);
         _cimg_watershed_propagate(is_pz,x,y,pz);
         _cimg_watershed_propagate(is_nz,x,y,nz);
-        _cimg_watershed_propagate(is_px && is_py,px,py,z);
-        _cimg_watershed_propagate(is_nx && is_py,nx,py,z);
-        _cimg_watershed_propagate(is_px && is_ny,px,ny,z);
-        _cimg_watershed_propagate(is_nx && is_ny,nx,ny,z);
-        if (is_same_label) (*this)(x,y,z) = label;
-
-        static CImgDisplay disp(3*width(),3*height(),"labels",1);
-        display(disp);
-        disp.wait(5);
-      }
-
-      // Fill lines.
-      if (fill_lines) {
-
-        // Sort all non-labeled pixels with labeled neighbors.
-        is_queued = false;
-        const T *ptrs = _data;
-        cimg_forXYZ(*this,x,y,z) if (!*(ptrs++) &&
-                                     ((x - 1>=0 && (*this)(x - 1,y,z)) || (x + 1<width() && (*this)(x + 1,y,z)) ||
-                                      (y - 1>=0 && (*this)(x,y - 1,z)) || (y + 1<height() && (*this)(x,y + 1,z)) ||
-                                      (z - 1>=0 && (*this)(x,y,z - 1)) || (z + 1>depth() && (*this)(x,y,z + 1))))
-          Q._priority_queue_insert(is_queued,sizeQ,priority(x,y,z),x,y,z);
-
-        // Start line filling process.
-        while (sizeQ) {
-          const int x = (int)Q(0,1), y = (int)Q(0,2), z = (int)Q(0,3);
-          px = x - 1; nx = x + 1;
-          py = y - 1; ny = y + 1;
-          pz = z - 1; nz = z + 1;
-          is_px = px>=0; is_nx = nx<width();
-          is_py = py>=0; is_ny = ny<height();
-          is_pz = pz>=0; is_nz = nz<depth();
-
-          Q._priority_queue_remove(sizeQ);
-          t pmax = cimg::type<t>::min();
-          int xmax = 0, ymax = 0, zmax = 0;
-          _cimg_watershed_fill(is_px,px,y,z);
-          _cimg_watershed_fill(is_nx,nx,y,z);
-          _cimg_watershed_fill(is_py,x,py,z);
-          _cimg_watershed_fill(is_ny,x,ny,z);
-          _cimg_watershed_fill(is_pz,x,y,pz);
-          _cimg_watershed_fill(is_nz,x,y,nz);
-          (*this)(x,y,z) = (*this)(xmax,ymax,zmax);
-        }
+        (*this)(x,y,z) = label;
+        labels(x,y,z) = ++nmin;
       }
       return *this;
     }
 
     //! Compute watershed transform \newinstance.
     template<typename t>
-    CImg<T> get_watershed(const CImg<t>& priority, const bool fill_lines=true) const {
-      return (+*this).watershed(priority,fill_lines);
+    CImg<T> get_watershed(const CImg<t>& priority) const {
+      return (+*this).watershed(priority);
     }
 
     // [internal] Insert/Remove items in priority queue, for watershed/distance transforms.
-    template<typename t>
-    bool _priority_queue_insert(CImg<boolT>& is_queued, unsigned int& siz, const t value,
-                                const unsigned int x, const unsigned int y, const unsigned int z) {
+    template<typename tq, typename tv>
+    bool _priority_queue_insert(CImg<tq>& is_queued, unsigned int& siz, const tv value,
+                                const unsigned int x, const unsigned int y, const unsigned int z,
+                                const unsigned int n=1) {
       if (is_queued(x,y,z)) return false;
-      is_queued(x,y,z) = true;
+      is_queued(x,y,z) = (tq)n;
       if (++siz>=_width) { if (!is_empty()) resize(_width*2,4,1,1,0); else assign(64,4); }
-      (*this)(siz - 1,0) = (T)value; (*this)(siz - 1,1) = (T)x; (*this)(siz - 1,2) = (T)y; (*this)(siz - 1,3) = (T)z;
+      (*this)(siz - 1,0) = (T)value;
+      (*this)(siz - 1,1) = (T)x;
+      (*this)(siz - 1,2) = (T)y;
+      (*this)(siz - 1,3) = (T)z;
       for (unsigned int pos = siz - 1, par = 0; pos && value>(*this)(par=(pos + 1)/2 - 1,0); pos = par) {
-        cimg::swap((*this)(pos,0),(*this)(par,0)); cimg::swap((*this)(pos,1),(*this)(par,1));
-        cimg::swap((*this)(pos,2),(*this)(par,2)); cimg::swap((*this)(pos,3),(*this)(par,3));
+        cimg::swap((*this)(pos,0),(*this)(par,0));
+        cimg::swap((*this)(pos,1),(*this)(par,1));
+        cimg::swap((*this)(pos,2),(*this)(par,2));
+        cimg::swap((*this)(pos,3),(*this)(par,3));
       }
       return true;
     }
 
     CImg<T>& _priority_queue_remove(unsigned int& siz) {
-      (*this)(0,0) = (*this)(--siz,0); (*this)(0,1) = (*this)(siz,1);
-      (*this)(0,2) = (*this)(siz,2); (*this)(0,3) = (*this)(siz,3);
+      (*this)(0,0) = (*this)(--siz,0);
+      (*this)(0,1) = (*this)(siz,1);
+      (*this)(0,2) = (*this)(siz,2);
+      (*this)(0,3) = (*this)(siz,3);
       const float value = (*this)(0,0);
       for (unsigned int pos = 0, left = 0, right = 0;
            ((right=2*(pos + 1),(left=right - 1))<siz && value<(*this)(left,0)) ||
              (right<siz && value<(*this)(right,0));) {
         if (right<siz) {
           if ((*this)(left,0)>(*this)(right,0)) {
-            cimg::swap((*this)(pos,0),(*this)(left,0)); cimg::swap((*this)(pos,1),(*this)(left,1));
-            cimg::swap((*this)(pos,2),(*this)(left,2)); cimg::swap((*this)(pos,3),(*this)(left,3));
+            cimg::swap((*this)(pos,0),(*this)(left,0));
+            cimg::swap((*this)(pos,1),(*this)(left,1));
+            cimg::swap((*this)(pos,2),(*this)(left,2));
+            cimg::swap((*this)(pos,3),(*this)(left,3));
             pos = left;
           } else {
-            cimg::swap((*this)(pos,0),(*this)(right,0)); cimg::swap((*this)(pos,1),(*this)(right,1));
-            cimg::swap((*this)(pos,2),(*this)(right,2)); cimg::swap((*this)(pos,3),(*this)(right,3));
+            cimg::swap((*this)(pos,0),(*this)(right,0));
+            cimg::swap((*this)(pos,1),(*this)(right,1));
+            cimg::swap((*this)(pos,2),(*this)(right,2));
+            cimg::swap((*this)(pos,3),(*this)(right,3));
             pos = right;
           }
         } else {
-          cimg::swap((*this)(pos,0),(*this)(left,0)); cimg::swap((*this)(pos,1),(*this)(left,1));
-          cimg::swap((*this)(pos,2),(*this)(left,2)); cimg::swap((*this)(pos,3),(*this)(left,3));
+          cimg::swap((*this)(pos,0),(*this)(left,0));
+          cimg::swap((*this)(pos,1),(*this)(left,1));
+          cimg::swap((*this)(pos,2),(*this)(left,2));
+          cimg::swap((*this)(pos,3),(*this)(left,3));
           pos = left;
         }
       }
@@ -49189,9 +49156,9 @@ namespace cimg_library_suffixed {
       if (is_empty()) { cimg::fempty(file,filename); return *this; }
 
       std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
-      static const unsigned char header[36] = { 'P','A','N','D','O','R','E','0','4',0,0,0,
-                                                0,0,0,0,'C','I','m','g',0,0,0,0,0,
-                                                'N','o',' ','d','a','t','e',0,0,0,0 };
+      unsigned char header[36] = { 'P','A','N','D','O','R','E','0','4',0,0,0,
+                                   0,0,0,0,'C','I','m','g',0,0,0,0,0,
+                                   'N','o',' ','d','a','t','e',0,0,0,0 };
       unsigned int nbdims, dims[5] = { 0 };
       bool saved = false;
       _cimg_save_pandore_case(1,1,1,"unsigned char",2);

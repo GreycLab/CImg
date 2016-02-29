@@ -29650,12 +29650,12 @@ namespace cimg_library_suffixed {
     **/
     template<typename t>
     CImg<T>& watershed(const CImg<t>& priority, const bool is_high_connectivity=false) {
-#define _cimg_watershed_init(cond,X,Y,Z)                            \
+#define _cimg_watershed_init(cond,X,Y,Z) \
       if (cond && !(*this)(X,Y,Z)) Q._priority_queue_insert(labels,sizeQ,priority(X,Y,Z),X,Y,Z,nb_seeds)
 
-#define _cimg_watershed_propagate(cond,X,Y,Z)                       \
-      if (cond) {                                                       \
-        if ((*this)(X,Y,Z)) {                                           \
+#define _cimg_watershed_propagate(cond,X,Y,Z) \
+      if (cond) { \
+        if ((*this)(X,Y,Z)) { \
           ns = labels(X,Y,Z) - 1; xs = seeds(ns,0); ys = seeds(ns,1); zs = seeds(ns,2); \
           d = cimg::sqr((float)x - xs) + cimg::sqr((float)y - ys) + cimg::sqr((float)z - zs); \
           if (d<dmin) { dmin = d; nmin = ns; label = (*this)(xs,ys,zs); } \

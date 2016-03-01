@@ -16474,15 +16474,22 @@ namespace cimg_library_suffixed {
 
           if (!std::strncmp(ss,"min(",4) || !std::strncmp(ss,"max(",4) ||
               !std::strncmp(ss,"med(",4) || !std::strncmp(ss,"kth(",4) ||
-              !std::strncmp(ss,"arg(",4) ||
+              !std::strncmp(ss,"arg(",4) || !std::strncmp(ss,"sum(",4) ||
+              !std::strncmp(ss,"std(",4) || !std::strncmp(ss,"var(",4) ||
+              !std::strncmp(ss,"prod(",5) || !std::strncmp(ss,"mean(",5) ||
               !std::strncmp(ss,"argmin(",7) || !std::strncmp(ss,"argmax(",7)) { // Multi-argument functions
             pos = scalar();
-            is_sth = *ss=='a' && ss[3]!='(';
             CImg<uptrT>::vector((uptrT)(*ss=='a'?(ss[3]=='('?mp_arg:ss[4]=='i'?mp_argmin:mp_argmax):
-                                        *ss=='k'?mp_kth:ss[1]=='i'?mp_min:
-                                        ss[1]=='a'?mp_max:mp_med),pos).
+                                        *ss=='s'?(ss[1]=='u'?mp_sum:mp_std):
+                                        *ss=='k'?mp_kth:
+                                        *ss=='p'?mp_prod:
+                                        *ss=='v'?mp_var:
+                                        ss[1]=='i'?mp_min:
+                                        ss[1]=='a'?mp_max:
+                                        ss[2]=='a'?mp_mean:
+                                        mp_med),pos).
               move_to(_opcode);
-            for (s = is_sth?ss7:ss4; s<se; ++s) {
+            for (s = std::strchr(ss,'(') + 1; s<se; ++s) {
               ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                              (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
               arg2 = compile(s,ns,depth1,0);
@@ -18319,6 +18326,12 @@ namespace cimg_library_suffixed {
         return -_mp_arg(2);
       }
 
+      static double mp_mean(_cimg_math_parser& mp) {
+        double val = _mp_arg(2);
+        for (unsigned int i = 3; i<mp.opcode._height; ++i) val+=_mp_arg(i);
+        return val/(mp.opcode._height - 2);
+      }
+
       static double mp_med(_cimg_math_parser& mp) {
         CImg<doubleT> vals(mp.opcode._height - 2);
         double *p = vals.data();
@@ -18400,6 +18413,12 @@ namespace cimg_library_suffixed {
         const double val = _mp_arg(1);
         std::fprintf(cimg::output(),"\n[_cimg_math_parser] %s = %g",expr._data,val);
         std::fflush(cimg::output());
+        return val;
+      }
+
+      static double mp_prod(_cimg_math_parser& mp) {
+        double val = _mp_arg(2);
+        for (unsigned int i = 3; i<mp.opcode._height; ++i) val*=_mp_arg(i);
         return val;
       }
 
@@ -18685,8 +18704,21 @@ namespace cimg_library_suffixed {
         return std::sqrt(_mp_arg(2));
       }
 
+      static double mp_std(_cimg_math_parser& mp) {
+        CImg<doubleT> vals(mp.opcode._height - 2);
+        double *p = vals.data();
+        for (unsigned int i = 2; i<mp.opcode._height; ++i) *(p++) = _mp_arg(i);
+        return std::sqrt(vals.variance());
+      }
+
       static double mp_sub(_cimg_math_parser& mp) {
         return _mp_arg(2) - _mp_arg(3);
+      }
+
+      static double mp_sum(_cimg_math_parser& mp) {
+        double val = _mp_arg(2);
+        for (unsigned int i = 3; i<mp.opcode._height; ++i) val+=_mp_arg(i);
+        return val;
       }
 
       static double mp_tan(_cimg_math_parser& mp) {
@@ -18699,6 +18731,13 @@ namespace cimg_library_suffixed {
 
       static double mp_u(_cimg_math_parser& mp) {
         return cimg::rand(_mp_arg(2),_mp_arg(3));
+      }
+
+      static double mp_var(_cimg_math_parser& mp) {
+        CImg<doubleT> vals(mp.opcode._height - 2);
+        double *p = vals.data();
+        for (unsigned int i = 2; i<mp.opcode._height; ++i) *(p++) = _mp_arg(i);
+        return vals.variance();
       }
 
       static double mp_vector_copy(_cimg_math_parser& mp) {

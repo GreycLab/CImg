@@ -15874,7 +15874,7 @@ namespace cimg_library_suffixed {
                 if (!img)
                   throw CImgArgumentException("[_cimg_math_parser] "
                                               "CImg<%s>::%s: Function '%s': Cannot crop empty image with "
-                                              "incomplete coordinates, in expression '%s%s%s'.",
+                                              "unspecified xyzc-coordinates, in expression '%s%s%s'.",
                                               pixel_type(),_cimg_mp_calling_function,
                                               (ss - 4)>expr._data?"...":"",
                                               (ss - 4)>expr._data?ss - 4:expr._data,

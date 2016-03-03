@@ -15806,37 +15806,47 @@ namespace cimg_library_suffixed {
                 s = ns;
               }
               (_opcode>'y').move_to(opcode);
+              arg1 = arg2 = arg3 = arg4 = ~0U;
               switch (opcode._height) {
               case 0 : case 1 :
                 CImg<uptrT>::vector(0,0,0,0,~0U,~0U,~0U,~0U,0).move_to(opcode);
                 break;
               case 2 :
                 CImg<uptrT>::vector(*opcode,0,0,0,opcode[1],~0U,~0U,~0U,reserved_label[30]).move_to(opcode);
+                arg1 = p1!=~0U?3:2;
                 break;
               case 3 :
                 CImg<uptrT>::vector(*opcode,0,0,0,opcode[1],~0U,~0U,~0U,opcode[2]).move_to(opcode);
+                arg1 = p1!=~0U?3:2;
                 break;
               case 4 :
                 CImg<uptrT>::vector(*opcode,opcode[1],0,0,opcode[2],opcode[3],~0U,~0U,reserved_label[30]).
                   move_to(opcode);
+                arg1 = p1!=~0U?4:3;
                 break;
               case 5 :
                 CImg<uptrT>::vector(*opcode,opcode[1],0,0,opcode[2],opcode[3],~0U,~0U,opcode[4]).
                   move_to(opcode);
+                arg1 = p1!=~0U?4:3;
                 break;
               case 6 :
                 CImg<uptrT>::vector(*opcode,opcode[1],opcode[2],0,opcode[3],opcode[4],opcode[5],~0U,
                                     reserved_label[30]).move_to(opcode);
+                arg1 = p1!=~0U?5:4;
                 break;
               case 7 :
                 CImg<uptrT>::vector(*opcode,opcode[1],opcode[2],0,opcode[3],opcode[4],opcode[5],~0U,
                                     opcode[6]).move_to(opcode);
+                arg1 = p1!=~0U?5:4;
                 break;
               case 8 :
                 CImg<uptrT>::vector(*opcode,opcode[1],opcode[2],opcode[3],opcode[4],opcode[5],opcode[6],
                                     opcode[7],reserved_label[30]).move_to(opcode);
+                arg1 = p1!=~0U?6:5;
                 break;
-              case 9 : break;
+              case 9 :
+                arg1 = p1!=~0U?6:5;
+                break;
               default : // Error -> too much arguments
                 throw CImgArgumentException("[_cimg_math_parser] "
                                             "CImg<%s>::%s: Function '%s': Too much arguments specified, "
@@ -15848,19 +15858,19 @@ namespace cimg_library_suffixed {
               }
 
               if (opcode[4]!=(uptrT)~0U) {
-                _cimg_mp_check_constant(opcode[4],p1!=~0U?6:5,s_op,true);
+                _cimg_mp_check_constant(opcode[4],arg1,s_op,true);
                 opcode[4] = (uptrT)mem[opcode[4]];
               }
               if (opcode[5]!=(uptrT)~0U) {
-                _cimg_mp_check_constant(opcode[5],p1!=~0U?7:6,s_op,true);
+                _cimg_mp_check_constant(opcode[5],arg1 + 1,s_op,true);
                 opcode[5] = (uptrT)mem[opcode[5]];
               }
               if (opcode[6]!=(uptrT)~0U) {
-                _cimg_mp_check_constant(opcode[6],p1!=~0U?8:7,s_op,true);
+                _cimg_mp_check_constant(opcode[6],arg1 + 2,s_op,true);
                 opcode[6] = (uptrT)mem[opcode[6]];
               }
               if (opcode[7]!=(uptrT)~0U) {
-                _cimg_mp_check_constant(opcode[7],p1!=~0U?9:8,s_op,true);
+                _cimg_mp_check_constant(opcode[7],arg1 + 3,s_op,true);
                 opcode[7] = (uptrT)mem[opcode[7]];
               }
 

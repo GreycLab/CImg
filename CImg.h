@@ -13867,6 +13867,7 @@ namespace cimg_library_suffixed {
         reserved_label.assign();
         expr.assign();
         pexpr.assign();
+        opcode.assign();
         opcode._width = opcode._depth = opcode._spectrum = 1;
         opcode._is_shared = true;
 
@@ -15782,8 +15783,126 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar1(mp_cosh,arg1);
             }
 
+            if (!std::strncmp(ss,"crop(",5)) { // Image crop
+              s_op = "Function 'crop()'";
+              if (*ss5=='#') { // Index specified
+                s0 = ss6; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                p1 = compile(ss6,s0++,depth1,0);
+              } else { p1 = ~0U; s0 = ss5; }
+
+              pos = 0;
+              for (s = s0; s<se; ++s, ++pos) {
+                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                arg1 = compile(s,ns,depth1,0);
+                if (!pos && _cimg_mp_is_vector(arg1)) { // Coordinates expressed as a vector [X,_Y,_Z,_C]
+                  opcode = CImg<uptrT>::sequence((uptrT)_cimg_mp_vector_size(arg1),arg1 + 1,
+                                                 arg1 + (uptrT)_cimg_mp_vector_size(arg1));
+                  opcode.resize(1,cimg::min(opcode._height,4U),1,1,0).move_to(_opcode);
+                } else {
+                  _cimg_mp_check_type(arg1,pos + 1,s_op,1,0);
+                  CImg<uptrT>::vector(arg1).move_to(_opcode);
+                }
+                s = ns;
+              }
+              (_opcode>'y').move_to(opcode);
+              switch (opcode._height) {
+              case 0 : case 1 :
+                CImg<uptrT>::vector(0,0,0,0,~0U,~0U,~0U,~0U,0).move_to(opcode);
+                break;
+              case 2 :
+                CImg<uptrT>::vector(*opcode,0,0,0,opcode[1],~0U,~0U,~0U,reserved_label[30]).move_to(opcode);
+                break;
+              case 3 :
+                CImg<uptrT>::vector(*opcode,0,0,0,opcode[1],~0U,~0U,~0U,opcode[2]).move_to(opcode);
+                break;
+              case 4 :
+                CImg<uptrT>::vector(*opcode,opcode[1],0,0,opcode[2],opcode[3],~0U,~0U,reserved_label[30]).
+                  move_to(opcode);
+                break;
+              case 5 :
+                CImg<uptrT>::vector(*opcode,opcode[1],0,0,opcode[2],opcode[3],~0U,~0U,opcode[4]).
+                  move_to(opcode);
+                break;
+              case 6 :
+                CImg<uptrT>::vector(*opcode,opcode[1],opcode[2],0,opcode[3],opcode[4],opcode[5],~0U,
+                                    reserved_label[30]).move_to(opcode);
+                break;
+              case 7 :
+                CImg<uptrT>::vector(*opcode,opcode[1],opcode[2],0,opcode[3],opcode[4],opcode[5],~0U,
+                                    opcode[6]).move_to(opcode);
+                break;
+              case 8 :
+                CImg<uptrT>::vector(*opcode,opcode[1],opcode[2],opcode[3],opcode[4],opcode[5],opcode[6],
+                                    opcode[7],reserved_label[30]).move_to(opcode);
+                break;
+              case 9 : break;
+              default : // Error -> too much arguments
+                throw CImgArgumentException("[_cimg_math_parser] "
+                                            "CImg<%s>::%s: Function '%s': Too much arguments specified, "
+                                            "in expression '%s%s%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,
+                                            (ss - 4)>expr._data?"...":"",
+                                            (ss - 4)>expr._data?ss - 4:expr._data,
+                                            se<&expr.back()?"...":"");
+              }
+
+              if (opcode[4]!=(uptrT)~0U) {
+                _cimg_mp_check_constant(opcode[4],p1!=~0U?5:6,s_op,true);
+                opcode[4] = (uptrT)mem[opcode[4]];
+              }
+              if (opcode[5]!=(uptrT)~0U) {
+                _cimg_mp_check_constant(opcode[5],p1!=~0U?6:7,s_op,true);
+                opcode[5] = (uptrT)mem[opcode[5]];
+              }
+              if (opcode[6]!=(uptrT)~0U) {
+                _cimg_mp_check_constant(opcode[6],p1!=~0U?7:8,s_op,true);
+                opcode[6] = (uptrT)mem[opcode[6]];
+              }
+              if (opcode[7]!=(uptrT)~0U) {
+                _cimg_mp_check_constant(opcode[7],p1!=~0U?8:9,s_op,true);
+                opcode[7] = (uptrT)mem[opcode[7]];
+              }
+
+              if (opcode[4]==(uptrT)~0U || opcode[5]==(uptrT)~0U ||
+                  opcode[6]==(uptrT)~0U || opcode[7]==(uptrT)~0U) {
+                if (p1!=~0U) {
+                  _cimg_mp_check_constant(p1,1,s_op,false);
+                  p1 = (unsigned int)cimg::mod((int)mem[p1],listin.width());
+                }
+                const CImg<T> &img = p1!=~0U?listin[p1]:imgin;
+                if (!img)
+                  throw CImgArgumentException("[_cimg_math_parser] "
+                                              "CImg<%s>::%s: Function '%s': Cannot crop empty image with incomplete coordinates, "
+                                              "in expression '%s%s%s'.",
+                                              pixel_type(),_cimg_mp_calling_function,
+                                              (ss - 4)>expr._data?"...":"",
+                                              (ss - 4)>expr._data?ss - 4:expr._data,
+                                              se<&expr.back()?"...":"");
+                if (opcode[4]==(uptrT)~0U) opcode[4] = (uptrT)img._width;
+                if (opcode[5]==(uptrT)~0U) opcode[5] = (uptrT)img._height;
+                if (opcode[6]==(uptrT)~0U) opcode[6] = (uptrT)img._depth;
+                if (opcode[7]==(uptrT)~0U) opcode[7] = (uptrT)img._spectrum;
+              }
+
+              pos = vector(opcode[4]*opcode[5]*opcode[6]*opcode[7]);
+              if (p1!=~0U)
+                CImg<uptrT>::vector((uptrT)mp_list_crop,
+                                    pos,p1,
+                                    *opcode,opcode[1],opcode[2],opcode[3],
+                                    opcode[4],opcode[5],opcode[6],opcode[7],
+                                    opcode[8]).move_to(code);
+              else
+                CImg<uptrT>::vector((uptrT)mp_crop,
+                                    pos,
+                                    *opcode,opcode[1],opcode[2],opcode[3],
+                                    opcode[4],opcode[5],opcode[6],opcode[7],
+                                    opcode[8]).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"cross(",6)) { // Cross product
-              s_op = "Function 'cross()";
+              s_op = "Function 'cross()'";
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss6,s1,depth1,0);
               arg2 = compile(++s1,se1,depth1,0);
@@ -16974,7 +17093,9 @@ namespace cimg_library_suffixed {
                           const char *const ss, char *const se, const char saved_char) {
         _cimg_mp_check_type(arg,n_arg,s_op,1,0);
         if (!_cimg_mp_is_constant(arg) || mem[arg]<(is_strictly_positive?1:0) || (double)(int)mem[arg]!=mem[arg]) {
-          const char *s_arg = !n_arg?"":n_arg==1?"First ":n_arg==2?"Second ":n_arg==3?"Third ":"One ";
+          const char *s_arg = !n_arg?"":n_arg==1?"First ":n_arg==2?"Second ":n_arg==3?"Third ":
+            n_arg==4?"Fourth ":n_arg==5?"Fifth ":n_arg==6?"Sixth ":n_arg==7?"Seventh ":n_arg==8?"Eighth ":
+            n_arg==9?"Ninth ":"One ";
           *se = saved_char; cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
                                       "CImg<%s>::%s(): %s: %s%s (of type '%s') is not a %spositive integer constant, "
@@ -17275,6 +17396,23 @@ namespace cimg_library_suffixed {
 
       static double mp_cosh(_cimg_math_parser& mp) {
         return std::cosh(_mp_arg(2));
+      }
+
+      static double mp_crop(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const bool boundary_conditions = (bool)_mp_arg(10);
+        const int x = (int)_mp_arg(2), y = (int)_mp_arg(3), z = (int)_mp_arg(4), c = (int)_mp_arg(5);
+        const unsigned int
+          dx = (int)mp.opcode[6],
+          dy = (int)mp.opcode[7],
+          dz = (int)mp.opcode[8],
+          dc = (int)mp.opcode[9];
+        const CImg<T> &img = mp.imgin;
+        if (!img) std::memset(ptrd,0,dx*dy*dz*dc*sizeof(double));
+        else CImg<double>(ptrd,dx,dy,dz,dc,true) = img.get_crop(x,y,z,c,
+                                                                x + dx - 1,y + dy - 1,z + dz - 1,c + dc - 1,
+                                                                boundary_conditions);
+        return cimg::type<double>::nan();
       }
 
       static double mp_cross(_cimg_math_parser& mp) {
@@ -17585,6 +17723,24 @@ namespace cimg_library_suffixed {
         if (ind<0) ind+=vals.width() + 1;
         ind = cimg::max(1,cimg::min(vals.width(),ind));
         return vals.kth_smallest(ind - 1);
+      }
+
+      static double mp_list_crop(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const bool boundary_conditions = (bool)_mp_arg(11);
+        const int x = (int)_mp_arg(3), y = (int)_mp_arg(4), z = (int)_mp_arg(5), c = (int)_mp_arg(6);
+        const unsigned int
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width()),
+          dx = (int)mp.opcode[7],
+          dy = (int)mp.opcode[8],
+          dz = (int)mp.opcode[9],
+          dc = (int)mp.opcode[10];
+        const CImg<T> &img = mp.listin[ind];
+        if (!img) std::memset(ptrd,0,dx*dy*dz*dc*sizeof(double));
+        else CImg<double>(ptrd,dx,dy,dz,dc,true) = img.get_crop(x,y,z,c,
+                                                                x + dx - 1,y + dy - 1,z + dz - 1,c + dc - 1,
+                                                                boundary_conditions);
+        return cimg::type<double>::nan();
       }
 
       static double mp_list_depth(_cimg_math_parser& mp) {

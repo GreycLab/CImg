@@ -15873,8 +15873,8 @@ namespace cimg_library_suffixed {
                 const CImg<T> &img = p1!=~0U?listin[p1]:imgin;
                 if (!img)
                   throw CImgArgumentException("[_cimg_math_parser] "
-                                              "CImg<%s>::%s: Function '%s': Cannot crop empty image with incomplete coordinates, "
-                                              "in expression '%s%s%s'.",
+                                              "CImg<%s>::%s: Function '%s': Cannot crop empty image with "
+                                              "incomplete coordinates, in expression '%s%s%s'.",
                                               pixel_type(),_cimg_mp_calling_function,
                                               (ss - 4)>expr._data?"...":"",
                                               (ss - 4)>expr._data?ss - 4:expr._data,

@@ -15841,26 +15841,26 @@ namespace cimg_library_suffixed {
                 throw CImgArgumentException("[_cimg_math_parser] "
                                             "CImg<%s>::%s: Function '%s': Too much arguments specified, "
                                             "in expression '%s%s%s'.",
-                                            pixel_type(),_cimg_mp_calling_function,
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
                                             (ss - 4)>expr._data?"...":"",
                                             (ss - 4)>expr._data?ss - 4:expr._data,
                                             se<&expr.back()?"...":"");
               }
 
               if (opcode[4]!=(uptrT)~0U) {
-                _cimg_mp_check_constant(opcode[4],p1!=~0U?5:6,s_op,true);
+                _cimg_mp_check_constant(opcode[4],p1!=~0U?6:5,s_op,true);
                 opcode[4] = (uptrT)mem[opcode[4]];
               }
               if (opcode[5]!=(uptrT)~0U) {
-                _cimg_mp_check_constant(opcode[5],p1!=~0U?6:7,s_op,true);
+                _cimg_mp_check_constant(opcode[5],p1!=~0U?7:6,s_op,true);
                 opcode[5] = (uptrT)mem[opcode[5]];
               }
               if (opcode[6]!=(uptrT)~0U) {
-                _cimg_mp_check_constant(opcode[6],p1!=~0U?7:8,s_op,true);
+                _cimg_mp_check_constant(opcode[6],p1!=~0U?8:7,s_op,true);
                 opcode[6] = (uptrT)mem[opcode[6]];
               }
               if (opcode[7]!=(uptrT)~0U) {
-                _cimg_mp_check_constant(opcode[7],p1!=~0U?8:9,s_op,true);
+                _cimg_mp_check_constant(opcode[7],p1!=~0U?9:8,s_op,true);
                 opcode[7] = (uptrT)mem[opcode[7]];
               }
 
@@ -15873,9 +15873,9 @@ namespace cimg_library_suffixed {
                 const CImg<T> &img = p1!=~0U?listin[p1]:imgin;
                 if (!img)
                   throw CImgArgumentException("[_cimg_math_parser] "
-                                              "CImg<%s>::%s: Function '%s': Cannot crop empty image with "
-                                              "unspecified xyzc-coordinates, in expression '%s%s%s'.",
-                                              pixel_type(),_cimg_mp_calling_function,
+                                              "CImg<%s>::%s: Function '%s': Cannot crop empty image when "
+                                              "some xyzc-coordinates are unspecified, in expression '%s%s%s'.",
+                                              pixel_type(),_cimg_mp_calling_function,s_op,
                                               (ss - 4)>expr._data?"...":"",
                                               (ss - 4)>expr._data?ss - 4:expr._data,
                                               se<&expr.back()?"...":"");
@@ -17401,8 +17401,11 @@ namespace cimg_library_suffixed {
       static double mp_crop(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
         const bool boundary_conditions = (bool)_mp_arg(10);
-        const int x = (int)_mp_arg(2), y = (int)_mp_arg(3), z = (int)_mp_arg(4), c = (int)_mp_arg(5);
-        const unsigned int
+        const int
+          x = (int)_mp_arg(2),
+          y = (int)_mp_arg(3),
+          z = (int)_mp_arg(4),
+          c = (int)_mp_arg(5),
           dx = (int)mp.opcode[6],
           dy = (int)mp.opcode[7],
           dz = (int)mp.opcode[8],
@@ -17727,10 +17730,13 @@ namespace cimg_library_suffixed {
 
       static double mp_list_crop(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
+        const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         const bool boundary_conditions = (bool)_mp_arg(11);
-        const int x = (int)_mp_arg(3), y = (int)_mp_arg(4), z = (int)_mp_arg(5), c = (int)_mp_arg(6);
-        const unsigned int
-          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width()),
+        const int
+          x = (int)_mp_arg(3),
+          y = (int)_mp_arg(4),
+          z = (int)_mp_arg(5),
+          c = (int)_mp_arg(6),
           dx = (int)mp.opcode[7],
           dy = (int)mp.opcode[8],
           dz = (int)mp.opcode[9],
@@ -17738,7 +17744,8 @@ namespace cimg_library_suffixed {
         const CImg<T> &img = mp.listin[ind];
         if (!img) std::memset(ptrd,0,dx*dy*dz*dc*sizeof(double));
         else CImg<double>(ptrd,dx,dy,dz,dc,true) = img.get_crop(x,y,z,c,
-                                                                x + dx - 1,y + dy - 1,z + dz - 1,c + dc - 1,
+                                                                x + dx - 1,y + dy - 1,
+                                                                z + dz - 1,c + dc - 1,
                                                                 boundary_conditions);
         return cimg::type<double>::nan();
       }
@@ -22723,6 +22730,7 @@ namespace cimg_library_suffixed {
           _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
                                calling_function,base,this,list_inputs,list_outputs);
           bool do_in_parallel = false;
+
 #ifdef cimg_use_openmp
           cimg_openmp_if(*expression=='*' ||
                          (is_parallelizable && _width>=320 && _height*_depth*_spectrum>=2 &&

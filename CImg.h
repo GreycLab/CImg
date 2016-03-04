@@ -15994,7 +15994,7 @@ namespace cimg_library_suffixed {
               arg1 = compile(ss4,se1,depth1,0);
               _cimg_mp_check_matrix_square(arg1,1,"Function 'det()'");
               p1 = (unsigned int)std::sqrt((float)_cimg_mp_vector_size(arg1));
-              _cimg_mp_scalar2(mp_matrix_det,arg1,p1);
+              _cimg_mp_scalar2(mp_det,arg1,p1);
             }
 
             if (!std::strncmp(ss,"diag(",5)) { // Diagonal matrix
@@ -16002,7 +16002,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_type(arg1,1,"Function 'diag()'",2,0);
               p1 = _cimg_mp_vector_size(arg1);
               pos = vector(p1*p1);
-              CImg<uptrT>::vector((uptrT)mp_matrix_diag,pos,arg1,p1).move_to(code);
+              CImg<uptrT>::vector((uptrT)mp_diag,pos,arg1,p1).move_to(code);
               _cimg_mp_return(pos);
             }
 
@@ -16035,7 +16035,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_matrix_square(arg1,1,"Function 'eig()'");
               p1 = (unsigned int)std::sqrt((float)_cimg_mp_vector_size(arg1));
               pos = vector((p1 + 1)*p1);
-              CImg<uptrT>::vector((uptrT)mp_matrix_eig,pos,arg1,p1).move_to(code);
+              CImg<uptrT>::vector((uptrT)mp_eig,pos,arg1,p1).move_to(code);
               _cimg_mp_return(pos);
             }
 
@@ -16051,7 +16051,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_constant(arg1,1,"Function 'eye()'",true);
               p1 = (unsigned int)mem[arg1];
               pos = vector(p1*p1);
-              CImg<uptrT>::vector((uptrT)mp_matrix_eye,pos,p1).move_to(code);
+              CImg<uptrT>::vector((uptrT)mp_eye,pos,p1).move_to(code);
               _cimg_mp_return(pos);
             }
             break;
@@ -16160,7 +16160,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_matrix_square(arg1,1,"Function 'inv()'");
               p1 = (unsigned int)std::sqrt((float)_cimg_mp_vector_size(arg1));
               pos = vector(p1*p1);
-              CImg<uptrT>::vector((uptrT)mp_matrix_inv,pos,arg1,p1).move_to(code);
+              CImg<uptrT>::vector((uptrT)mp_inv,pos,arg1,p1).move_to(code);
               _cimg_mp_return(pos);
             }
 
@@ -16378,7 +16378,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_type(arg3,3,s_op,1,0);
               _cimg_mp_check_type(arg4,4,s_op,1,0);
               pos = vector(9);
-              CImg<uptrT>::vector((uptrT)mp_matrix_rot,pos,arg1,arg2,arg3,arg4).move_to(code);
+              CImg<uptrT>::vector((uptrT)mp_rot,pos,arg1,arg2,arg3,arg4).move_to(code);
               _cimg_mp_return(pos);
             }
 
@@ -16464,7 +16464,7 @@ namespace cimg_library_suffixed {
                                             se<&expr.back()?"...":"");
               }
               pos = vector(arg4*p3);
-              CImg<uptrT>::vector((uptrT)mp_matrix_solve,pos,arg1,arg2,arg4,arg5,p3).move_to(code);
+              CImg<uptrT>::vector((uptrT)mp_solve,pos,arg1,arg2,arg4,arg5,p3).move_to(code);
               _cimg_mp_return(pos);
             }
 
@@ -16477,7 +16477,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_type(arg2,2,s_op,1,0);
               p1 = _cimg_mp_vector_size(arg1);
               pos = vector(p1);
-              CImg<uptrT>::vector((uptrT)mp_vector_sort,pos,arg1,p1,arg2).move_to(code);
+              CImg<uptrT>::vector((uptrT)mp_sort,pos,arg1,p1,arg2).move_to(code);
               _cimg_mp_return(pos);
             }
 
@@ -16515,7 +16515,7 @@ namespace cimg_library_suffixed {
               arg1 = compile(ss6,se1,depth1,0);
               _cimg_mp_check_matrix_square(arg1,1,"Function 'trace()'");
               p1 = (unsigned int)std::sqrt((float)_cimg_mp_vector_size(arg1));
-              _cimg_mp_scalar2(mp_matrix_trace,arg1,p1);
+              _cimg_mp_scalar2(mp_trace,arg1,p1);
             }
 
             if (!std::strncmp(ss,"transp(",7)) { // Matrix transpose
@@ -16541,7 +16541,7 @@ namespace cimg_library_suffixed {
                                             se<&expr.back()?"...":"");
               }
               pos = vector(p3*p2);
-              CImg<uptrT>::vector((uptrT)mp_matrix_trans,pos,arg1,p2,p3).move_to(code);
+              CImg<uptrT>::vector((uptrT)mp_transp,pos,arg1,p2,p3).move_to(code);
               _cimg_mp_return(pos);
             }
             break;
@@ -17496,6 +17496,20 @@ namespace cimg_library_suffixed {
         return _mp_arg(2) - 1;
       }
 
+      static double mp_det(_cimg_math_parser& mp) {
+        const double *ptrs = &_mp_arg(2) + 1;
+        const unsigned int k = (unsigned int)mp.opcode(3);
+        return CImg<double>(ptrs,k,k,1,1,true).det();
+      }
+
+      static double mp_diag(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const double *ptrs = &_mp_arg(2) + 1;
+        const unsigned int k = (unsigned int)mp.opcode(3);
+        CImg<double>(ptrd,k,k,1,1,true) = CImg<double>(ptrs,1,k,1,1,true).get_diagonal();
+        return cimg::type<double>::nan();
+      }
+
       static double mp_dot(_cimg_math_parser& mp) {
         const unsigned int siz = (unsigned int)mp.opcode[4];
         return CImg<doubleT>(&_mp_arg(2) + 1,1,siz,1,1,true).
@@ -17525,12 +17539,30 @@ namespace cimg_library_suffixed {
         return _mp_arg(2)/_mp_arg(3);
       }
 
+      static double mp_eig(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const double *ptr1 = &_mp_arg(2) + 1;
+        const unsigned int k = (unsigned int)mp.opcode(3);
+        CImg<double> val, vec;
+        CImg<double>(ptr1,k,k,1,1,true).symmetric_eigen(val,vec);
+        CImg<double>(ptrd,k,1,1,1,true) = val.unroll('x');
+        CImg<double>(ptrd + k,k,k,1,1,true) = vec.get_transpose();
+        return cimg::type<double>::nan();
+      }
+
       static double mp_eq(_cimg_math_parser& mp) {
         return (double)(_mp_arg(2)==_mp_arg(3));
       }
 
       static double mp_exp(_cimg_math_parser& mp) {
         return std::exp(_mp_arg(2));
+      }
+
+      static double mp_eye(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const unsigned int k = (unsigned int)mp.opcode(2);
+        CImg<double>(ptrd,k,k,1,1,true).identity_matrix();
+        return cimg::type<double>::nan();
       }
 
       static double mp_g(_cimg_math_parser& mp) {
@@ -17597,6 +17629,14 @@ namespace cimg_library_suffixed {
 
       static double mp_int(_cimg_math_parser& mp) {
         return (double)(long)_mp_arg(2);
+      }
+
+      static double mp_inv(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const double *ptr1 = &_mp_arg(2) + 1;
+        const unsigned int k = (unsigned int)mp.opcode(3);
+        CImg<double>(ptrd,k,k,1,1,true) = CImg<double>(ptr1,k,k,1,1,true).get_invert();
+        return cimg::type<double>::nan();
       }
 
       static double mp_ioff(_cimg_math_parser& mp) {
@@ -18296,46 +18336,6 @@ namespace cimg_library_suffixed {
         return (double)(_mp_arg(2)<=_mp_arg(3));
       }
 
-      static double mp_matrix_det(_cimg_math_parser& mp) {
-        const double *ptrs = &_mp_arg(2) + 1;
-        const unsigned int k = (unsigned int)mp.opcode(3);
-        return CImg<double>(ptrs,k,k,1,1,true).det();
-      }
-
-      static double mp_matrix_diag(_cimg_math_parser& mp) {
-        double *ptrd = &_mp_arg(1) + 1;
-        const double *ptrs = &_mp_arg(2) + 1;
-        const unsigned int k = (unsigned int)mp.opcode(3);
-        CImg<double>(ptrd,k,k,1,1,true) = CImg<double>(ptrs,1,k,1,1,true).get_diagonal();
-        return cimg::type<double>::nan();
-      }
-
-      static double mp_matrix_eig(_cimg_math_parser& mp) {
-        double *ptrd = &_mp_arg(1) + 1;
-        const double *ptr1 = &_mp_arg(2) + 1;
-        const unsigned int k = (unsigned int)mp.opcode(3);
-        CImg<double> val, vec;
-        CImg<double>(ptr1,k,k,1,1,true).symmetric_eigen(val,vec);
-        CImg<double>(ptrd,k,1,1,1,true) = val.unroll('x');
-        CImg<double>(ptrd + k,k,k,1,1,true) = vec.get_transpose();
-        return cimg::type<double>::nan();
-      }
-
-      static double mp_matrix_eye(_cimg_math_parser& mp) {
-        double *ptrd = &_mp_arg(1) + 1;
-        const unsigned int k = (unsigned int)mp.opcode(2);
-        CImg<double>(ptrd,k,k,1,1,true).identity_matrix();
-        return cimg::type<double>::nan();
-      }
-
-      static double mp_matrix_inv(_cimg_math_parser& mp) {
-        double *ptrd = &_mp_arg(1) + 1;
-        const double *ptr1 = &_mp_arg(2) + 1;
-        const unsigned int k = (unsigned int)mp.opcode(3);
-        CImg<double>(ptrd,k,k,1,1,true) = CImg<double>(ptr1,k,k,1,1,true).get_invert();
-        return cimg::type<double>::nan();
-      }
-
       static double mp_matrix_mul(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
         const double
@@ -18346,42 +18346,6 @@ namespace cimg_library_suffixed {
           l = (unsigned int)mp.opcode(5),
           m = (unsigned int)mp.opcode(6);
         CImg<double>(ptrd,m,k,1,1,true) = CImg<double>(ptr1,l,k,1,1,true)*CImg<double>(ptr2,m,l,1,1,true);
-        return cimg::type<double>::nan();
-      }
-
-      static double mp_matrix_rot(_cimg_math_parser& mp) {
-        double *ptrd = &_mp_arg(1) + 1;
-        const float x = (float)_mp_arg(2), y = (float)_mp_arg(3), z = (float)_mp_arg(4), theta = (float)_mp_arg(5);
-        CImg<double>(ptrd,3,3,1,1,true) = CImg<double>::rotation_matrix(x,y,z,theta);
-        return cimg::type<double>::nan();
-      }
-
-      static double mp_matrix_solve(_cimg_math_parser& mp) {
-        double *ptrd = &_mp_arg(1) + 1;
-        const double
-          *ptr1 = &_mp_arg(2) + 1,
-          *ptr2 = &_mp_arg(3) + 1;
-        const unsigned int
-          k = (unsigned int)mp.opcode(4),
-          l = (unsigned int)mp.opcode(5),
-          m = (unsigned int)mp.opcode(6);
-        CImg<double>(ptrd,m,k,1,1,true) = CImg<double>(ptr2,m,l,1,1,true).get_solve(CImg<double>(ptr1,k,l,1,1,true));
-        return cimg::type<double>::nan();
-      }
-
-      static double mp_matrix_trace(_cimg_math_parser& mp) {
-        const double *ptrs = &_mp_arg(2) + 1;
-        const unsigned int k = (unsigned int)mp.opcode(3);
-        return CImg<double>(ptrs,k,k,1,1,true).trace();
-      }
-
-      static double mp_matrix_trans(_cimg_math_parser& mp) {
-        double *ptrd = &_mp_arg(1) + 1;
-        const double *ptr1 = &_mp_arg(2) + 1;
-        const unsigned int
-          k = (unsigned int)mp.opcode(3),
-          l = (unsigned int)mp.opcode(4);
-        CImg<double>(ptrd,l,k,1,1,true) = CImg<double>(ptr1,k,l,1,1,true).get_transpose();
         return cimg::type<double>::nan();
       }
 
@@ -18605,6 +18569,13 @@ namespace cimg_library_suffixed {
 
       static double mp_ror(_cimg_math_parser& mp) {
         return cimg::ror(_mp_arg(2),(unsigned int)_mp_arg(3));
+      }
+
+      static double mp_rot(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const float x = (float)_mp_arg(2), y = (float)_mp_arg(3), z = (float)_mp_arg(4), theta = (float)_mp_arg(5);
+        CImg<double>(ptrd,3,3,1,1,true) = CImg<double>::rotation_matrix(x,y,z,theta);
+        return cimg::type<double>::nan();
       }
 
       static double mp_round(_cimg_math_parser& mp) {
@@ -18869,6 +18840,28 @@ namespace cimg_library_suffixed {
         return std::sinh(_mp_arg(2));
       }
 
+      static double mp_solve(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const double
+          *ptr1 = &_mp_arg(2) + 1,
+          *ptr2 = &_mp_arg(3) + 1;
+        const unsigned int
+          k = (unsigned int)mp.opcode(4),
+          l = (unsigned int)mp.opcode(5),
+          m = (unsigned int)mp.opcode(6);
+        CImg<double>(ptrd,m,k,1,1,true) = CImg<double>(ptr2,m,l,1,1,true).get_solve(CImg<double>(ptr1,k,l,1,1,true));
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_sort(_cimg_math_parser& mp) {
+        double *const ptrd = &_mp_arg(1) + 1;
+        const double *const ptrs = &_mp_arg(2) + 1;
+        const unsigned int siz = mp.opcode[3];
+        const bool is_increasing = (bool)_mp_arg(4);
+        CImg<doubleT>(ptrd,1,siz,1,1,true) = CImg<doubleT>(ptrs,1,siz,1,1,true).get_sort(is_increasing);
+        return cimg::type<double>::nan();
+      }
+
       static double mp_sqr(_cimg_math_parser& mp) {
         return cimg::sqr(_mp_arg(2));
       }
@@ -18900,6 +18893,22 @@ namespace cimg_library_suffixed {
 
       static double mp_tanh(_cimg_math_parser& mp) {
         return std::tanh(_mp_arg(2));
+      }
+
+      static double mp_trace(_cimg_math_parser& mp) {
+        const double *ptrs = &_mp_arg(2) + 1;
+        const unsigned int k = (unsigned int)mp.opcode(3);
+        return CImg<double>(ptrs,k,k,1,1,true).trace();
+      }
+
+      static double mp_transp(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const double *ptr1 = &_mp_arg(2) + 1;
+        const unsigned int
+          k = (unsigned int)mp.opcode(3),
+          l = (unsigned int)mp.opcode(4);
+        CImg<double>(ptrd,l,k,1,1,true) = CImg<double>(ptr1,k,l,1,1,true).get_transpose();
+        return cimg::type<double>::nan();
       }
 
       static double mp_u(_cimg_math_parser& mp) {
@@ -19029,15 +19038,6 @@ namespace cimg_library_suffixed {
         const int off = (int)_mp_arg(4);
         if (off>=0 && off<(int)siz) mp.mem[ptr + off] = _mp_arg(5);
         return _mp_arg(5);
-      }
-
-      static double mp_vector_sort(_cimg_math_parser& mp) {
-        double *const ptrd = &_mp_arg(1) + 1;
-        const double *const ptrs = &_mp_arg(2) + 1;
-        const unsigned int siz = mp.opcode[3];
-        const bool is_increasing = (bool)_mp_arg(4);
-        CImg<doubleT>(ptrd,1,siz,1,1,true) = CImg<doubleT>(ptrs,1,siz,1,1,true).get_sort(is_increasing);
-        return cimg::type<double>::nan();
       }
 
       static double mp_vector_print(_cimg_math_parser& mp) {

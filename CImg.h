@@ -15888,6 +15888,10 @@ namespace cimg_library_suffixed {
                                             (ss - 4)>expr._data?ss - 4:expr._data,
                                             se<&expr.back()?"...":"");
               }
+              _cimg_mp_check_type(*opcode,1,s_op,1,0);
+              _cimg_mp_check_type(opcode[1],2,s_op,1,0);
+              _cimg_mp_check_type(opcode[2],3,s_op,1,0);
+              _cimg_mp_check_type(opcode[3],4,s_op,1,0);
               if (opcode[4]!=(uptrT)~0U) {
                 _cimg_mp_check_constant(opcode[4],arg1,s_op,true);
                 opcode[4] = (uptrT)mem[opcode[4]];

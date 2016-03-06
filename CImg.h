@@ -15776,7 +15776,7 @@ namespace cimg_library_suffixed {
               arg1 = compile(ss5,s1,depth1,ref);
               s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(s1,s2,depth1,ref._data + 7);
-              arg3 = arg4 = arg5 = 1;
+              arg3 = ~0U; arg4 = arg5 = 1;
               if (s2<se1) {
                 s3 = ++s2; while (s3<se1 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
                 arg3 = compile(s2,s3,depth1,0);
@@ -15787,7 +15787,11 @@ namespace cimg_library_suffixed {
                 }
               }
               if (_cimg_mp_is_vector(arg1) && !ref[0]) ++arg1;
-              if (_cimg_mp_is_vector(arg2) && !ref[7]) ++arg2;
+              if (_cimg_mp_is_vector(arg2)) {
+                if (arg3==~0U) arg3 = _cimg_mp_vector_size(arg2);
+                if (!ref[7]) ++arg2;
+              }
+              if (arg3==~0U) arg3 = 1;
               _cimg_mp_check_type(arg3,3,s_op,1,0);
               _cimg_mp_check_type(arg4,4,s_op,1,0);
               _cimg_mp_check_type(arg5,5,s_op,1,0);

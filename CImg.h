@@ -15786,9 +15786,11 @@ namespace cimg_library_suffixed {
                   arg5 = s1<se1?compile(++s1,se1,depth1,0):1;
                 }
               }
+              if (_cimg_mp_is_vector(arg1) && !ref[0]) ++arg1;
+              if (_cimg_mp_is_vector(arg2) && !ref[7]) ++arg2;
               _cimg_mp_check_type(arg3,3,s_op,1,0);
-              _cimg_mp_check_type(arg4,3,s_op,1,0);
-              _cimg_mp_check_type(arg5,3,s_op,1,0);
+              _cimg_mp_check_type(arg4,4,s_op,1,0);
+              _cimg_mp_check_type(arg5,5,s_op,1,0);
               CImg<uptrT>(1,21).move_to(code);
               code.back().get_shared_rows(0,6).fill((uptrT)mp_mcopy,28,arg1,arg2,arg3,arg4,arg5);
               code.back().get_shared_rows(7,20).fill(ref);
@@ -15882,7 +15884,6 @@ namespace cimg_library_suffixed {
                                             (ss - 4)>expr._data?ss - 4:expr._data,
                                             se<&expr.back()?"...":"");
               }
-
               if (opcode[4]!=(uptrT)~0U) {
                 _cimg_mp_check_constant(opcode[4],arg1,s_op,true);
                 opcode[4] = (uptrT)mem[opcode[4]];

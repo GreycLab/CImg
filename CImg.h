@@ -15823,6 +15823,7 @@ namespace cimg_library_suffixed {
               } else { p1 = ~0U; s0 = ss5; }
 
               pos = 0;
+              is_sth = false; // Coordinates specified as a vector?
               for (s = s0; s<se; ++s, ++pos) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
@@ -15831,6 +15832,7 @@ namespace cimg_library_suffixed {
                   opcode = CImg<uptrT>::sequence((uptrT)_cimg_mp_vector_size(arg1),arg1 + 1,
                                                  arg1 + (uptrT)_cimg_mp_vector_size(arg1));
                   opcode.resize(1,cimg::min(opcode._height,4U),1,1,0).move_to(_opcode);
+                  is_sth = true;
                 } else {
                   _cimg_mp_check_type(arg1,pos + 1,s_op,1,0);
                   CImg<uptrT>::vector(arg1).move_to(_opcode);
@@ -15839,45 +15841,46 @@ namespace cimg_library_suffixed {
               }
               (_opcode>'y').move_to(opcode);
               arg1 = arg2 = arg3 = arg4 = ~0U;
+              arg5 = p1!=~0U?1:0;
               switch (opcode._height) {
               case 0 : case 1 :
                 CImg<uptrT>::vector(0,0,0,0,~0U,~0U,~0U,~0U,0).move_to(opcode);
                 break;
               case 2 :
                 CImg<uptrT>::vector(*opcode,0,0,0,opcode[1],~0U,~0U,~0U,reserved_label[30]).move_to(opcode);
-                arg1 = p1!=~0U?3:2;
+                arg1 = arg5?3:2;
                 break;
               case 3 :
                 CImg<uptrT>::vector(*opcode,0,0,0,opcode[1],~0U,~0U,~0U,opcode[2]).move_to(opcode);
-                arg1 = p1!=~0U?3:2;
+                arg1 = arg5?3:2;
                 break;
               case 4 :
                 CImg<uptrT>::vector(*opcode,opcode[1],0,0,opcode[2],opcode[3],~0U,~0U,reserved_label[30]).
                   move_to(opcode);
-                arg1 = p1!=~0U?4:3;
+                arg1 = (is_sth?2:1) + arg5;
                 break;
               case 5 :
                 CImg<uptrT>::vector(*opcode,opcode[1],0,0,opcode[2],opcode[3],~0U,~0U,opcode[4]).
                   move_to(opcode);
-                arg1 = p1!=~0U?4:3;
+                arg1 = (is_sth?2:1) + arg5;
                 break;
               case 6 :
                 CImg<uptrT>::vector(*opcode,opcode[1],opcode[2],0,opcode[3],opcode[4],opcode[5],~0U,
                                     reserved_label[30]).move_to(opcode);
-                arg1 = p1!=~0U?5:4;
+                arg1 = (is_sth?2:4) + arg5;
                 break;
               case 7 :
                 CImg<uptrT>::vector(*opcode,opcode[1],opcode[2],0,opcode[3],opcode[4],opcode[5],~0U,
                                     opcode[6]).move_to(opcode);
-                arg1 = p1!=~0U?5:4;
+                arg1 = (is_sth?2:4) + arg5;
                 break;
               case 8 :
                 CImg<uptrT>::vector(*opcode,opcode[1],opcode[2],opcode[3],opcode[4],opcode[5],opcode[6],
                                     opcode[7],reserved_label[30]).move_to(opcode);
-                arg1 = p1!=~0U?6:5;
+                arg1 = (is_sth?2:5) + arg5;
                 break;
               case 9 :
-                arg1 = p1!=~0U?6:5;
+                arg1 = (is_sth?2:5) + arg5;
                 break;
               default : // Error -> too much arguments
                 throw CImgArgumentException("[_cimg_math_parser] "
@@ -15888,10 +15891,10 @@ namespace cimg_library_suffixed {
                                             (ss - 4)>expr._data?ss - 4:expr._data,
                                             se<&expr.back()?"...":"");
               }
-              _cimg_mp_check_type(*opcode,1,s_op,1,0);
-              _cimg_mp_check_type(opcode[1],2,s_op,1,0);
-              _cimg_mp_check_type(opcode[2],3,s_op,1,0);
-              _cimg_mp_check_type(opcode[3],4,s_op,1,0);
+              _cimg_mp_check_type(*opcode,arg5 + 1,s_op,1,0);
+              _cimg_mp_check_type(opcode[1],arg5 + (is_sth?0:1),s_op,1,0);
+              _cimg_mp_check_type(opcode[2],arg5 + (is_sth?0:2),s_op,1,0);
+              _cimg_mp_check_type(opcode[3],arg5 + (is_sth?0:3),s_op,1,0);
               if (opcode[4]!=(uptrT)~0U) {
                 _cimg_mp_check_constant(opcode[4],arg1,s_op,true);
                 opcode[4] = (uptrT)mem[opcode[4]];

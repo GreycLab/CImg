@@ -15803,7 +15803,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_type(arg4,4,s_op,1,0);
               _cimg_mp_check_type(arg5,5,s_op,1,0);
               CImg<uptrT>(1,21).move_to(code);
-              code.back().get_shared_rows(0,6).fill((uptrT)mp_mcopy,28,arg1,arg2,arg3,arg4,arg5);
+              code.back().get_shared_rows(0,6).fill((uptrT)mp_memcopy,28,arg1,arg2,arg3,arg4,arg5);
               code.back().get_shared_rows(7,20).fill(ref);
               _cimg_mp_return(28);
             }
@@ -15847,47 +15847,46 @@ namespace cimg_library_suffixed {
                 s = ns;
               }
               (_opcode>'y').move_to(opcode);
-              arg1 = arg2 = arg3 = arg4 = ~0U;
-              arg5 = p1!=~0U?1:0;
+              arg1 = 0; arg2 = p1!=~0U?1:0;
               switch (opcode._height) {
               case 0 : case 1 :
                 CImg<uptrT>::vector(0,0,0,0,~0U,~0U,~0U,~0U,0).move_to(opcode);
                 break;
               case 2 :
                 CImg<uptrT>::vector(*opcode,0,0,0,opcode[1],~0U,~0U,~0U,reserved_label[30]).move_to(opcode);
-                arg1 = arg5?3:2;
+                arg1 = arg2?3:2;
                 break;
               case 3 :
                 CImg<uptrT>::vector(*opcode,0,0,0,opcode[1],~0U,~0U,~0U,opcode[2]).move_to(opcode);
-                arg1 = arg5?3:2;
+                arg1 = arg2?3:2;
                 break;
               case 4 :
                 CImg<uptrT>::vector(*opcode,opcode[1],0,0,opcode[2],opcode[3],~0U,~0U,reserved_label[30]).
                   move_to(opcode);
-                arg1 = (is_sth?2:1) + arg5;
+                arg1 = (is_sth?2:1) + arg2;
                 break;
               case 5 :
                 CImg<uptrT>::vector(*opcode,opcode[1],0,0,opcode[2],opcode[3],~0U,~0U,opcode[4]).
                   move_to(opcode);
-                arg1 = (is_sth?2:1) + arg5;
+                arg1 = (is_sth?2:1) + arg2;
                 break;
               case 6 :
                 CImg<uptrT>::vector(*opcode,opcode[1],opcode[2],0,opcode[3],opcode[4],opcode[5],~0U,
                                     reserved_label[30]).move_to(opcode);
-                arg1 = (is_sth?2:4) + arg5;
+                arg1 = (is_sth?2:4) + arg2;
                 break;
               case 7 :
                 CImg<uptrT>::vector(*opcode,opcode[1],opcode[2],0,opcode[3],opcode[4],opcode[5],~0U,
                                     opcode[6]).move_to(opcode);
-                arg1 = (is_sth?2:4) + arg5;
+                arg1 = (is_sth?2:4) + arg2;
                 break;
               case 8 :
                 CImg<uptrT>::vector(*opcode,opcode[1],opcode[2],opcode[3],opcode[4],opcode[5],opcode[6],
                                     opcode[7],reserved_label[30]).move_to(opcode);
-                arg1 = (is_sth?2:5) + arg5;
+                arg1 = (is_sth?2:5) + arg2;
                 break;
               case 9 :
-                arg1 = (is_sth?2:5) + arg5;
+                arg1 = (is_sth?2:5) + arg2;
                 break;
               default : // Error -> too much arguments
                 throw CImgArgumentException("[_cimg_math_parser] "
@@ -15898,10 +15897,10 @@ namespace cimg_library_suffixed {
                                             (ss - 4)>expr._data?ss - 4:expr._data,
                                             se<&expr.back()?"...":"");
               }
-              _cimg_mp_check_type(*opcode,arg5 + 1,s_op,1,0);
-              _cimg_mp_check_type(opcode[1],arg5 + (is_sth?0:1),s_op,1,0);
-              _cimg_mp_check_type(opcode[2],arg5 + (is_sth?0:2),s_op,1,0);
-              _cimg_mp_check_type(opcode[3],arg5 + (is_sth?0:3),s_op,1,0);
+              _cimg_mp_check_type(*opcode,arg2 + 1,s_op,1,0);
+              _cimg_mp_check_type(opcode[1],arg2 + (is_sth?0:1),s_op,1,0);
+              _cimg_mp_check_type(opcode[2],arg2 + (is_sth?0:2),s_op,1,0);
+              _cimg_mp_check_type(opcode[3],arg2 + (is_sth?0:3),s_op,1,0);
               if (opcode[4]!=(uptrT)~0U) {
                 _cimg_mp_check_constant(opcode[4],arg1,s_op,true);
                 opcode[4] = (uptrT)mem[opcode[4]];
@@ -15918,6 +15917,7 @@ namespace cimg_library_suffixed {
                 _cimg_mp_check_constant(opcode[7],arg1 + 3,s_op,true);
                 opcode[7] = (uptrT)mem[opcode[7]];
               }
+              _cimg_mp_check_type(opcode[8],arg1 + 4,s_op,1,0);
 
               if (opcode[4]==(uptrT)~0U || opcode[5]==(uptrT)~0U ||
                   opcode[6]==(uptrT)~0U || opcode[7]==(uptrT)~0U) {
@@ -17080,7 +17080,12 @@ namespace cimg_library_suffixed {
         const unsigned int
           siz = _cimg_mp_vector_size(arg1),
           pos = is_tmp_vector(arg1)?arg1:vector(siz);
-        CImg<uptrT>::vector((uptrT)mp_vector_map_v,pos,siz,(uptrT)op,arg1).move_to(code);
+        if (siz>16) CImg<uptrT>::vector((uptrT)mp_vector_map_v,pos,siz,(uptrT)op,arg1).move_to(code);
+        else {
+          code.insert(siz);
+          for (unsigned int k = 1; k<=siz; ++k)
+            CImg<uptrT>::vector((uptrT)op,pos + k,arg1 + k).move_to(code[code._width - 1 - siz + k]);
+        }
         return pos;
       }
 
@@ -17088,7 +17093,12 @@ namespace cimg_library_suffixed {
         const unsigned int
           siz = _cimg_mp_vector_size(arg1),
           pos = is_tmp_vector(arg1)?arg1:is_tmp_vector(arg2)?arg2:vector(siz);
-        CImg<uptrT>::vector((uptrT)mp_vector_map_vv,pos,siz,(uptrT)op,arg1,arg2).move_to(code);
+        if (siz>16) CImg<uptrT>::vector((uptrT)mp_vector_map_vv,pos,siz,(uptrT)op,arg1,arg2).move_to(code);
+        else {
+          code.insert(siz);
+          for (unsigned int k = 1; k<=siz; ++k)
+            CImg<uptrT>::vector((uptrT)op,pos + k,arg1 + k,arg2 + k).move_to(code[code._width - 1 - siz + k]);
+        }
         return pos;
       }
 
@@ -17096,7 +17106,12 @@ namespace cimg_library_suffixed {
         const unsigned int
           siz = _cimg_mp_vector_size(arg1),
           pos = is_tmp_vector(arg1)?arg1:vector(siz);
-        CImg<uptrT>::vector((uptrT)mp_vector_map_vs,pos,siz,(uptrT)op,arg1,arg2).move_to(code);
+        if (siz>16) CImg<uptrT>::vector((uptrT)mp_vector_map_vs,pos,siz,(uptrT)op,arg1,arg2).move_to(code);
+        else {
+          code.insert(siz);
+          for (unsigned int k = 1; k<=siz; ++k)
+            CImg<uptrT>::vector((uptrT)op,pos + k,arg1 + k,arg2).move_to(code[code._width - 1 - siz + k]);
+        }
         return pos;
       }
 
@@ -17104,7 +17119,12 @@ namespace cimg_library_suffixed {
         const unsigned int
           siz = _cimg_mp_vector_size(arg2),
           pos = is_tmp_vector(arg2)?arg2:vector(siz);
-        CImg<uptrT>::vector((uptrT)mp_vector_map_sv,pos,siz,(uptrT)op,arg1,arg2).move_to(code);
+        if (siz>16) CImg<uptrT>::vector((uptrT)mp_vector_map_sv,pos,siz,(uptrT)op,arg1,arg2).move_to(code);
+        else {
+          code.insert(siz);
+          for (unsigned int k = 1; k<=siz; ++k)
+            CImg<uptrT>::vector((uptrT)op,pos + k,arg1,arg2 + k).move_to(code[code._width - 1 - siz + k]);
+        }
         return pos;
       }
 
@@ -17113,7 +17133,12 @@ namespace cimg_library_suffixed {
         const unsigned int
           siz = _cimg_mp_vector_size(arg1),
           pos = is_tmp_vector(arg1)?arg1:vector(siz);
-        CImg<uptrT>::vector((uptrT)mp_vector_map_vss,pos,siz,(uptrT)op,arg1,arg2,arg3).move_to(code);
+        if (siz>16) CImg<uptrT>::vector((uptrT)mp_vector_map_vss,pos,siz,(uptrT)op,arg1,arg2,arg3).move_to(code);
+        else {
+          code.insert(siz);
+          for (unsigned int k = 1; k<=siz; ++k)
+            CImg<uptrT>::vector((uptrT)op,pos + k,arg1,arg2,arg3).move_to(code[code._width - 1 - siz + k]);
+        }
         return pos;
       }
 
@@ -18375,13 +18400,13 @@ namespace cimg_library_suffixed {
         return val;
       }
 
-      static double* _mp_mcopy_double(_cimg_math_parser& mp, const unsigned int ind, const uptrT *const p_ref,
-                                      const long siz, const long inc) {
+      static double* _mp_memcopy_double(_cimg_math_parser& mp, const unsigned int ind, const uptrT *const p_ref,
+                                        const long siz, const long inc) {
         const long
           off = *p_ref?p_ref[1] + (long)mp.mem[(long)p_ref[2]] + 1:ind,
           eoff = off + (siz - 1)*inc;
         if (off<0 || eoff>=mp.mem.width())
-          throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: 'mcopy()': "
+          throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: 'copy()': "
                                       "Out-of-bounds variable pointer "
                                       "(length: %ld, increment: %ld, offset start: %ld, "
                                       "offset end: %ld, offset max: %u).",
@@ -18389,8 +18414,8 @@ namespace cimg_library_suffixed {
         return &mp.mem[off];
       }
 
-      static float* _mp_mcopy_float(_cimg_math_parser& mp, const uptrT *const p_ref,
-                                    const long siz, const long inc) {
+      static float* _mp_memcopy_float(_cimg_math_parser& mp, const uptrT *const p_ref,
+                                      const long siz, const long inc) {
         const unsigned ind = p_ref[1];
         const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[cimg::mod((int)mp.mem[ind],mp.listin.width())];
         const bool is_relative = (bool)p_ref[2];
@@ -18413,7 +18438,7 @@ namespace cimg_library_suffixed {
         } else off+=(long)mp.mem[p_ref[3]];
         const long eoff = off + (siz - 1)*inc;
         if (off<0 || eoff>=(long)img.size())
-          throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: Function 'mcopy()': "
+          throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: Function 'copy()': "
                                       "Out-of-bounds image pointer "
                                       "(length: %ld, increment: %ld, offset start: %ld, "
                                       "offset end: %ld, offset max: %lu).",
@@ -18421,7 +18446,7 @@ namespace cimg_library_suffixed {
         return (float*)&img[off];
       }
 
-      static double mp_mcopy(_cimg_math_parser& mp) {
+      static double mp_memcopy(_cimg_math_parser& mp) {
         long siz = (long)_mp_arg(4);
         const long inc_d = (long)_mp_arg(5), inc_s = (long)_mp_arg(6);
         if (siz>0) {
@@ -18429,8 +18454,8 @@ namespace cimg_library_suffixed {
             is_doubled = mp.opcode[7]<=1,
             is_doubles = mp.opcode[14]<=1;
           if (is_doubled && is_doubles) { // (double*) <- (double*)
-            double *ptrd = _mp_mcopy_double(mp,mp.opcode[2],&mp.opcode[7],siz,inc_d);
-            const double *ptrs = _mp_mcopy_double(mp,mp.opcode[3],&mp.opcode[14],siz,inc_s);
+            double *ptrd = _mp_memcopy_double(mp,mp.opcode[2],&mp.opcode[7],siz,inc_d);
+            const double *ptrs = _mp_memcopy_double(mp,mp.opcode[3],&mp.opcode[14],siz,inc_s);
             if (inc_d==1 && inc_s==1) {
               if (ptrs + siz - 1<ptrd || ptrs>ptrd + siz - 1) std::memcpy(ptrd,ptrs,siz*sizeof(double));
               else std::memmove(ptrd,ptrs,siz*sizeof(double));
@@ -18445,16 +18470,16 @@ namespace cimg_library_suffixed {
               }
             }
           } else if (is_doubled && !is_doubles) { // (double*) <- (float*)
-            double *ptrd = _mp_mcopy_double(mp,mp.opcode[2],&mp.opcode[7],siz,inc_d);
-            const float *ptrs = _mp_mcopy_float(mp,&mp.opcode[14],siz,inc_s);
+            double *ptrd = _mp_memcopy_double(mp,mp.opcode[2],&mp.opcode[7],siz,inc_d);
+            const float *ptrs = _mp_memcopy_float(mp,&mp.opcode[14],siz,inc_s);
             while (siz-->0) { *ptrd = (double)*ptrs; ptrd+=inc_d; ptrs+=inc_s; }
           } else if (!is_doubled && is_doubles) { // (float*) <- (double*)
-            float *ptrd = _mp_mcopy_float(mp,&mp.opcode[7],siz,inc_d);
-            const double *ptrs = _mp_mcopy_double(mp,mp.opcode[3],&mp.opcode[14],siz,inc_s);
+            float *ptrd = _mp_memcopy_float(mp,&mp.opcode[7],siz,inc_d);
+            const double *ptrs = _mp_memcopy_double(mp,mp.opcode[3],&mp.opcode[14],siz,inc_s);
             while (siz-->0) { *ptrd = (float)*ptrs; ptrd+=inc_d; ptrs+=inc_s; }
           } else { // (float*) <- (float*)
-            float *ptrd = _mp_mcopy_float(mp,&mp.opcode[7],siz,inc_d);
-            const float *ptrs = _mp_mcopy_float(mp,&mp.opcode[14],siz,inc_s);
+            float *ptrd = _mp_memcopy_float(mp,&mp.opcode[7],siz,inc_d);
+            const float *ptrs = _mp_memcopy_float(mp,&mp.opcode[14],siz,inc_s);
             if (inc_d==1 && inc_s==1) {
               if (ptrs + siz - 1<ptrd || ptrs>ptrd + siz - 1) std::memcpy(ptrd,ptrs,siz*sizeof(float));
               else std::memmove(ptrd,ptrs,siz*sizeof(float));
@@ -20532,7 +20557,8 @@ namespace cimg_library_suffixed {
         case 's' : return (double)_spectrum;
         case 'r' : return (double)_is_shared;
         }
-      _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),"eval",
+      _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' ||
+                                         *expression=='*' || *expression=='!'?1:0),"eval",
                            *this,img_output,list_inputs,list_outputs);
       return mp(x,y,z,c);
     }
@@ -20576,7 +20602,8 @@ namespace cimg_library_suffixed {
         case 's' : output.assign(1); *output = (t)_spectrum;
         case 'r' : output.assign(1); *output = (t)_is_shared;
         }
-      _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),"eval",
+      _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' ||
+                                         *expression=='*' || *expression=='!'?1:0),"eval",
                            *this,img_output,list_inputs,list_outputs);
       output.assign(1,cimg::max(1U,mp.result_dim));
       mp(x,y,z,c,output._data);
@@ -22753,14 +22780,16 @@ namespace cimg_library_suffixed {
 
       if (allow_formula) try { // Try to fill values according to a formula
           CImg<T> base = provides_copy?provides_copy->get_shared():get_shared();
-          _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
+          _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' ||
+                                             *expression=='*' || *expression=='!'?1:0),
                                calling_function,base,this,list_inputs,list_outputs);
-          if (!provides_copy && expression && *expression!='>' && *expression!='<' && mp.needs_input_copy)
+          if (!provides_copy && expression && *expression!='>' && *expression!='<' && *expression!='+' &&
+              mp.needs_input_copy)
             base.assign().assign(*this); // Needs input copy
 
           bool do_in_parallel = false;
 #ifdef cimg_use_openmp
-          cimg_openmp_if(*expression=='*' ||
+          cimg_openmp_if(*expression=='*' || *expression=='!' ||
                          (mp.is_parallelizable && _width>=320 && _height*_depth*_spectrum>=2 &&
                           std::strlen(expression)>=6))
             do_in_parallel = true;

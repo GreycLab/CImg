@@ -22747,8 +22747,7 @@ namespace cimg_library_suffixed {
       if (allow_formula) try { // Try to fill values according to a formula
           bool is_parallelizable = true;
           const CImg<T>
-            _base = provides_copy?CImg<T>():_cimg_math_parser::needs_input_copy(expression,is_parallelizable)?
-            +*this:CImg<T>(),
+            _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable) && !provides_copy?+*this:CImg<T>(),
             &base = provides_copy?*provides_copy:_base?_base:*this;
           _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
                                calling_function,base,this,list_inputs,list_outputs);

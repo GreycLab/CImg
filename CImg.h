@@ -13726,6 +13726,7 @@ namespace cimg_library_suffixed {
       char *user_function;
 
       unsigned int mempos, mem_img_median, debug_indent, init_size, result_dim;
+      bool is_parallelizable;
       double *result;
       const char *const calling_function;
       typedef double (*mp_func)(_cimg_math_parser&);
@@ -13763,7 +13764,7 @@ namespace cimg_library_suffixed {
         code(_code),imgin(img_input),listin(list_input?*list_input:CImgList<T>::const_empty()),
         imgout(img_output?*img_output:CImg<T>::empty()),listout(list_output?*list_output:CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),user_function(0),
-        mem_img_median(~0U),debug_indent(0),init_size(0),result_dim(0),
+        mem_img_median(~0U),debug_indent(0),init_size(0),result_dim(0),is_parallelizable(true),
         calling_function(funcname?funcname:"cimg_math_parser") {
         if (!expression || !*expression)
           throw CImgArgumentException("[_cimg_math_parser] "
@@ -13889,7 +13890,7 @@ namespace cimg_library_suffixed {
         imgin(CImg<T>::const_empty()),listin(CImgList<T>::const_empty()),
         imgout(CImg<T>::empty()),listout(CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),debug_indent(0),
-        result_dim(0),calling_function(0) {
+        result_dim(0),is_parallelizable(true),calling_function(0) {
         mem.assign(1 + _cimg_mp_c,1,1,1,0); // Allow to skip 'is_empty?' test in operator()()
         result = mem._data;
       }
@@ -13898,7 +13899,8 @@ namespace cimg_library_suffixed {
         mem(mp.mem),code(mp.code),p_code_begin(mp.p_code_begin),p_code_end(mp.p_code_end),
         imgin(mp.imgin),listin(mp.listin),imgout(mp.imgout),listout(mp.listout),img_stats(mp.img_stats),
         list_stats(mp.list_stats),list_median(mp.list_median),debug_indent(0),
-        result_dim(mp.result_dim), result(mem._data + (mp.result - mp.mem._data)),calling_function(0) {
+        result_dim(mp.result_dim), is_parallelizable(mp.is_parallelizable),
+        result(mem._data + (mp.result - mp.mem._data)),calling_function(0) {
 #ifdef cimg_use_openmp
         mem[17] = omp_get_thread_num();
 #endif
@@ -13908,22 +13910,18 @@ namespace cimg_library_suffixed {
 
       // Return 'true' is the specified mathematical expression requires the input image to be copied
       // (basically if formula accesses pixels at locations other than (x,y,z,c)).
-      // Set 'is_parallelizable' to 'false' if expression should be evaluated with a single thread.
-      static bool needs_input_copy(const char *expression, bool &is_parallelizable) {
-        if (!expression || *expression=='>' || *expression=='<') return is_parallelizable = false;
+      static bool needs_input_copy(const char *expression) {
+        if (!expression || *expression=='>' || *expression=='<') return false;
         for (const char *s = expression; *s; ++s)
           if ((*s=='i' || *s=='j' || *s=='I' || *s=='J') && (s[1]=='(' || s[1]=='[')) {
-            if (s[2]=='#') is_parallelizable = false;
-            else {
-              const char opening = s[1], ending = opening=='('?')':']';
-              const char *ns;
-              int level = 0;
-              for (ns = s + 2; *ns; ++ns) { // Find ending ')' or ']'.
-                if (*ns==ending && !level) break;
-                if (*ns==opening) ++level; else if (*ns==ending) --level;
-              }
-              if (*ns && (ns[1]!='=' || ns[2]=='=')) return true;
+            const char opening = s[1], ending = opening=='('?')':']';
+            const char *ns;
+            int level = 0;
+            for (ns = s + 2; *ns; ++ns) { // Find ending ')' or ']'.
+              if (*ns==ending && !level) break;
+              if (*ns==opening) ++level; else if (*ns==ending) --level;
             }
+            if (*ns && (ns[1]!='=' || ns[2]=='=')) return true;
           } else if (((*s=='R' || *s=='G' || *s=='B' || *s=='A' || *s=='I' || *s=='J') && s[1]!='#') ||
                      (*s=='i' && s[1]>='0' && s[1]<='7' && s[2]!='#')) return true;
         return false;
@@ -14119,6 +14117,7 @@ namespace cimg_library_suffixed {
               is_relative = *ss=='j' || *ss=='J';
 
               if (*ss1=='[' && *ve1==']') { // i/j/I/J[_#ind,offset] = value
+                is_parallelizable = false;
                 if (*ss2=='#') { // Index specified
                   s0 = ss3; while (s0<ve1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                   p1 = compile(ss3,s0++,depth1,0);
@@ -14174,6 +14173,7 @@ namespace cimg_library_suffixed {
               }
 
               if (*ss1=='(' && *ve1==')') { // i/j/I/J(_#ind,_x,_y,_z,_c) = value
+                is_parallelizable = false;
                 if (*ss2=='#') { // Index specified
                   s0 = ss3; while (s0<ve1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                   p1 = compile(ss3,s0++,depth1,0);
@@ -14490,6 +14490,7 @@ namespace cimg_library_suffixed {
               }
 
               if (*ref==2) { // Image value (scalar): i/j[_#ind,off] = scalar
+                is_parallelizable = false;
                 _cimg_mp_check_type(arg2,2,s_op,1,0);
                 p1 = ref[1]; // Index
                 is_relative = (bool)ref[2];
@@ -14508,6 +14509,7 @@ namespace cimg_library_suffixed {
               }
 
               if (*ref==3) { // Image value (scalar): i/j(_#ind,_x,_y,_z,_c) = scalar
+                is_parallelizable = false;
                 _cimg_mp_check_type(arg2,2,s_op,1,0);
                 p1 = ref[1]; // Index
                 is_relative = (bool)ref[2];
@@ -14529,6 +14531,7 @@ namespace cimg_library_suffixed {
               }
 
               if (*ref==4) { // Image value (vector): I/J[_#ind,off] = value
+                is_parallelizable = false;
                 _cimg_mp_check_type(arg2,2,s_op,3,_cimg_mp_vector_size(arg1));
                 p1 = ref[1]; // Index
                 is_relative = (bool)ref[2];
@@ -14555,6 +14558,7 @@ namespace cimg_library_suffixed {
               }
 
               if (*ref==5) { // Image value (vector): I/J(_#ind,_x,_y,_z,_c) = value
+                is_parallelizable = false;
                 _cimg_mp_check_type(arg2,2,s_op,3,_cimg_mp_vector_size(arg1));
                 p1 = ref[1]; // Index
                 is_relative = (bool)ref[2];
@@ -14663,6 +14667,7 @@ namespace cimg_library_suffixed {
 
             // Write computed value back in image if necessary.
             if (*ref==4) { // Image value (vector): I/J[_#ind,off] **= value
+              is_parallelizable = false;
               p1 = ref[1]; // Index
               is_relative = (bool)ref[2];
               arg3 = ref[3]; // Offset
@@ -14678,6 +14683,7 @@ namespace cimg_library_suffixed {
               }
 
             } else if (*ref==5) { // Image value (vector): I/J(_#ind,_x,_y,_z,_c) **= value
+              is_parallelizable = false;
               p1 = ref[1]; // Index
               is_relative = (bool)ref[2];
               arg3 = ref[3]; // X
@@ -14738,6 +14744,7 @@ namespace cimg_library_suffixed {
             }
 
             if (*ref==2) { // Image value (scalar): i/j[_#ind,off] += scalar
+              is_parallelizable = false;
               _cimg_mp_check_type(arg2,2,s_op,1,0);
               p1 = ref[1]; // Index
               is_relative = (bool)ref[2];
@@ -14757,6 +14764,7 @@ namespace cimg_library_suffixed {
             }
 
             if (*ref==3) { // Image value (scalar): i/j(_#ind,_x,_y,_z,_c) += scalar
+              is_parallelizable = false;
               _cimg_mp_check_type(arg2,2,s_op,1,0);
               p1 = ref[1]; // Index
               is_relative = (bool)ref[2];
@@ -14779,6 +14787,7 @@ namespace cimg_library_suffixed {
             }
 
             if (*ref==4) { // Image value (vector): I/J[_#ind,off] += value
+              is_parallelizable = false;
               _cimg_mp_check_type(arg2,2,s_op,3,_cimg_mp_vector_size(arg1));
               p1 = ref[1]; // Index
               is_relative = (bool)ref[2];
@@ -14802,7 +14811,8 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(arg1);
             }
 
-            if (*ref==5) { // Image value (vector): I/J(_#ind,_x,_y,_z,_c) = value
+            if (*ref==5) { // Image value (vector): I/J(_#ind,_x,_y,_z,_c) += value
+              is_parallelizable = false;
               _cimg_mp_check_type(arg2,2,s_op,3,_cimg_mp_vector_size(arg1));
               p1 = ref[1]; // Index
               is_relative = (bool)ref[2];
@@ -15276,6 +15286,7 @@ namespace cimg_library_suffixed {
           }
 
           if (*ref==2) { // Image value (scalar): i/j[_#ind,off]++
+            is_parallelizable = false;
             p1 = ref[1]; // Index
             is_relative = (bool)ref[2];
             arg3 = ref[3]; // Offset
@@ -15294,6 +15305,7 @@ namespace cimg_library_suffixed {
           }
 
           if (*ref==3) { // Image value (scalar): i/j(_#ind,_x,_y,_z,_c)++
+            is_parallelizable = false;
             p1 = ref[1]; // Index
             is_relative = (bool)ref[2];
             arg3 = ref[3]; // X
@@ -15315,6 +15327,7 @@ namespace cimg_library_suffixed {
           }
 
           if (*ref==4) { // Image value (vector): I/J[_#ind,off]++
+            is_parallelizable = false;
             p1 = ref[1]; // Index
             is_relative = (bool)ref[2];
             arg3 = ref[3]; // Offset
@@ -15335,6 +15348,7 @@ namespace cimg_library_suffixed {
           }
 
           if (*ref==5) { // Image value (vector): I/J(_#ind,_x,_y,_z,_c)++
+            is_parallelizable = false;
             p1 = ref[1]; // Index
             is_relative = (bool)ref[2];
             arg3 = ref[3]; // X
@@ -16646,7 +16660,7 @@ namespace cimg_library_suffixed {
             _cimg_mp_return(pos);
           }
 
-          // No corresponding built-in function -> Look for a user-defined function.
+          // No corresponding built-in function -> Look for a user-defined macro.
           s0 = strchr(ss,'(');
           if (s0) {
             variable_name.assign(ss,s0 - ss + 1).back() = 0;
@@ -22745,9 +22759,8 @@ namespace cimg_library_suffixed {
       CImg<charT> is_error;
 
       if (allow_formula) try { // Try to fill values according to a formula
-          bool is_parallelizable = true;
           const CImg<T>
-            _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable) && !provides_copy?+*this:CImg<T>(),
+            _base = _cimg_math_parser::needs_input_copy(expression) && !provides_copy?+*this:CImg<T>(),
             &base = provides_copy?*provides_copy:_base?_base:*this;
           _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
                                calling_function,base,this,list_inputs,list_outputs);
@@ -22755,7 +22768,7 @@ namespace cimg_library_suffixed {
 
 #ifdef cimg_use_openmp
           cimg_openmp_if(*expression=='*' ||
-                         (is_parallelizable && _width>=320 && _height*_depth*_spectrum>=2 &&
+                         (mp.is_parallelizable && _width>=320 && _height*_depth*_spectrum>=2 &&
                           std::strlen(expression)>=6))
             do_in_parallel = true;
 #endif

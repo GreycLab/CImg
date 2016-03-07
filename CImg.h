@@ -22737,7 +22737,7 @@ namespace cimg_library_suffixed {
 
     CImg<T>& _fill(const char *const expression, const bool repeat_values, const bool allow_formula,
                    const CImgList<T> *const list_inputs, CImgList<T> *const list_outputs,
-                   const char *const calling_function, const CImg<T> *provide_base) {
+                   const char *const calling_function, const CImg<T> *provides_copy) {
       if (is_empty() || !expression || !*expression) return *this;
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
@@ -22746,9 +22746,9 @@ namespace cimg_library_suffixed {
       if (allow_formula) try { // Try to fill values according to a formula
           bool is_parallelizable = true;
           const CImg<T>
-            _base = _cimg_math_parser::needs_input_copy(expression,is_parallelizable)?
-            (provide_base?*provide_base:+*this):CImg<T>(),
-            &base = provide_base?*provide_base:_base?_base:*this;
+            _base = provides_copy?CImg<T>():_cimg_math_parser::needs_input_copy(expression,is_parallelizable)?
+            +*this:CImg<T>(),
+            &base = provides_copy?*provides_copy:_base?_base:*this;
           _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='*'?1:0),
                                calling_function,base,this,list_inputs,list_outputs);
           bool do_in_parallel = false;

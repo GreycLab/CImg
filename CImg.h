@@ -22783,7 +22783,7 @@ namespace cimg_library_suffixed {
           _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' ||
                                              *expression=='*' || *expression=='!'?1:0),
                                calling_function,base,this,list_inputs,list_outputs);
-          if (!provides_copy && expression && *expression!='>' && *expression!='<' && *expression!='+' &&
+          if (!provides_copy && expression && *expression!='>' && *expression!='<' && *expression!='!' &&
               mp.needs_input_copy)
             base.assign().assign(*this); // Needs input copy
 

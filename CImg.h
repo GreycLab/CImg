@@ -20558,7 +20558,7 @@ namespace cimg_library_suffixed {
         case 'r' : return (double)_is_shared;
         }
       _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' ||
-                                         *expression=='*' || *expression=='!'?1:0),"eval",
+                                         *expression=='*' || *expression==':'?1:0),"eval",
                            *this,img_output,list_inputs,list_outputs);
       return mp(x,y,z,c);
     }
@@ -20603,7 +20603,7 @@ namespace cimg_library_suffixed {
         case 'r' : output.assign(1); *output = (t)_is_shared;
         }
       _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' ||
-                                         *expression=='*' || *expression=='!'?1:0),"eval",
+                                         *expression=='*' || *expression==':'?1:0),"eval",
                            *this,img_output,list_inputs,list_outputs);
       output.assign(1,cimg::max(1U,mp.result_dim));
       mp(x,y,z,c,output._data);
@@ -22781,15 +22781,15 @@ namespace cimg_library_suffixed {
       if (allow_formula) try { // Try to fill values according to a formula
           CImg<T> base = provides_copy?provides_copy->get_shared():get_shared();
           _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' ||
-                                             *expression=='*' || *expression=='!'?1:0),
+                                             *expression=='*' || *expression==':'?1:0),
                                calling_function,base,this,list_inputs,list_outputs);
-          if (!provides_copy && expression && *expression!='>' && *expression!='<' && *expression!='!' &&
+          if (!provides_copy && expression && *expression!='>' && *expression!='<' && *expression!=':' &&
               mp.needs_input_copy)
             base.assign().assign(*this); // Needs input copy
 
           bool do_in_parallel = false;
 #ifdef cimg_use_openmp
-          cimg_openmp_if(*expression=='*' || *expression=='!' ||
+          cimg_openmp_if(*expression=='*' || *expression==':' ||
                          (mp.is_parallelizable && _width>=320 && _height*_depth*_spectrum>=2 &&
                           std::strlen(expression)>=6))
             do_in_parallel = true;

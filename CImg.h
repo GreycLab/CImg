@@ -2442,7 +2442,7 @@ namespace cimg_library_suffixed {
       static bool is_inf(const T) { return false; }
       static bool is_nan(const T) { return false; }
       static T min() { return ~max(); }
-      static T max() { return (T)(1UL<<(8*sizeof(T) - 1)); }
+      static T max() { return (T)1<<(8*sizeof(T) - 1); }
       static T inf() { return max(); }
       static T cut(const double val) { return val<(double)min()?min():val>(double)max()?max():(T)val; }
       static const char* format() { return "%s"; }

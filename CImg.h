@@ -13906,7 +13906,8 @@ namespace cimg_library_suffixed {
         opcode._is_shared = true;
       }
 
-      // Return 'true' is the specified mathematical expression requires the input image to be copied.
+      // Return 'true' is the specified mathematical expression requires the input image to be copied
+      // (basically if formula accesses pixels at locations other than (x,y,z,c)).
       // Set 'is_parallelizable' to 'false' if expression should be evaluated with a single thread.
       static bool needs_input_copy(const char *expression, bool &is_parallelizable) {
         if (!expression || *expression=='>' || *expression=='<') return is_parallelizable = false;

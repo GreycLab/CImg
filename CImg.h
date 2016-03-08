@@ -14296,7 +14296,7 @@ namespace cimg_library_suffixed {
               }
             }
 
-            // Assign user-defined function.
+            // Assign user-defined macro.
             if (l_variable_name>3 && *ve1==')' && *ss!='(') {
               s0 = ve1; while (s0>ss && *s0!='(') --s0;
               is_sth = std::strncmp(variable_name,"debug(",6) &&
@@ -14644,12 +14644,9 @@ namespace cimg_library_suffixed {
               else
                 CImg<uptrT>::vector((uptrT)mp_complex_pow_vv,arg1,arg1,arg2).move_to(code);
             } else { // Complex **= scalar
-              if (*ps=='*')
-                CImg<uptrT>::vector((uptrT)mp_self_map_vector_s,arg1,2,(uptrT)mp_self_mul,arg2).move_to(code);
-              else if (*ps=='/')
-                CImg<uptrT>::vector((uptrT)mp_self_map_vector_s,arg1,2,(uptrT)mp_self_div,arg2).move_to(code);
-              else
-                CImg<uptrT>::vector((uptrT)mp_complex_pow_vs,arg1,arg1,arg2).move_to(code);
+              if (*ps=='*') self_vector_s(arg1,mp_self_mul,arg2);
+              else if (*ps=='/') self_vector_s(arg1,mp_self_div,arg2);
+              else CImg<uptrT>::vector((uptrT)mp_complex_pow_vs,arg1,arg1,arg2).move_to(code);
             }
 
             // Write computed value back in image if necessary.
@@ -14780,12 +14777,7 @@ namespace cimg_library_suffixed {
               is_relative = (bool)ref[2];
               arg3 = ref[3]; // Offset
               if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
-              if (_cimg_mp_is_scalar(arg2))
-                CImg<uptrT>::vector((uptrT)mp_self_map_vector_s,arg1,(uptrT)_cimg_mp_vector_size(arg1),(uptrT)op,arg2).
-                  move_to(code);
-              else
-                CImg<uptrT>::vector((uptrT)mp_self_map_vector_v,arg1,(uptrT)_cimg_mp_vector_size(arg1),(uptrT)op,arg2).
-                  move_to(code);
+              if (_cimg_mp_is_scalar(arg2)) self_vector_s(arg1,op,arg2); else self_vector_v(arg1,op,arg2);
               if (p1!=~0U) {
                 if (!listout) _cimg_mp_return(arg1);
                 CImg<uptrT>::vector((uptrT)(is_relative?mp_list_set_Joff_v:mp_list_set_Ioff_v),
@@ -14807,12 +14799,7 @@ namespace cimg_library_suffixed {
               arg4 = ref[4]; // Y
               arg5 = ref[5]; // Z
               if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
-              if (_cimg_mp_is_scalar(arg2))
-                CImg<uptrT>::vector((uptrT)mp_self_map_vector_s,arg1,(uptrT)_cimg_mp_vector_size(arg1),(uptrT)op,arg2).
-                  move_to(code);
-              else
-                CImg<uptrT>::vector((uptrT)mp_self_map_vector_v,arg1,(uptrT)_cimg_mp_vector_size(arg1),(uptrT)op,arg2).
-                  move_to(code);
+              if (_cimg_mp_is_scalar(arg2)) self_vector_s(arg1,op,arg2); else self_vector_v(arg1,op,arg2);
               if (p1!=~0U) {
                 if (!listout) _cimg_mp_return(arg1);
                 CImg<uptrT>::vector((uptrT)(is_relative?mp_list_set_Jxyz_v:mp_list_set_Ixyz_v),
@@ -14827,12 +14814,8 @@ namespace cimg_library_suffixed {
 
             if (_cimg_mp_is_vector(arg1)) { // Vector variable: V += value
               _cimg_mp_check_type(arg2,2,s_op,3,_cimg_mp_vector_size(arg1));
-              if (_cimg_mp_is_vector(arg2)) // Vector += vector
-                CImg<uptrT>::vector((uptrT)mp_self_map_vector_v,arg1,(uptrT)_cimg_mp_vector_size(arg1),(uptrT)op,arg2).
-                  move_to(code);
-              else // Vector += scalar
-                CImg<uptrT>::vector((uptrT)mp_self_map_vector_s,arg1,(uptrT)_cimg_mp_vector_size(arg1),(uptrT)op,arg2).
-                  move_to(code);
+              if (_cimg_mp_is_vector(arg2)) self_vector_v(arg1,op,arg2); // Vector += vector
+              else self_vector_s(arg1,op,arg2); // Vector += scalar
               _cimg_mp_return(arg1);
             }
 
@@ -15319,9 +15302,7 @@ namespace cimg_library_suffixed {
             is_relative = (bool)ref[2];
             arg3 = ref[3]; // Offset
             if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
-            CImg<uptrT>::vector((uptrT)mp_self_map_vector_s,arg1,(uptrT)_cimg_mp_vector_size(arg1),
-                                (uptrT)(op==mp_self_increment?mp_self_add:mp_self_sub),1).
-              move_to(code);
+            self_vector_s(arg1,op==mp_self_increment?mp_self_add:mp_self_sub,1);
             if (p1!=~0U) {
               if (!listout) _cimg_mp_return(pos);
               CImg<uptrT>::vector((uptrT)(is_relative?mp_list_set_Joff_v:mp_list_set_Ioff_v),
@@ -15342,9 +15323,7 @@ namespace cimg_library_suffixed {
             arg4 = ref[4]; // Y
             arg5 = ref[5]; // Z
             if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
-            CImg<uptrT>::vector((uptrT)mp_self_map_vector_s,arg1,(uptrT)_cimg_mp_vector_size(arg1),
-                                (uptrT)(op==mp_self_increment?mp_self_add:mp_self_sub),1).
-              move_to(code);
+            self_vector_s(arg1,op==mp_self_increment?mp_self_add:mp_self_sub,1);
             if (p1!=~0U) {
               if (!listout) _cimg_mp_return(pos);
               CImg<uptrT>::vector((uptrT)(is_relative?mp_list_set_Jxyz_v:mp_list_set_Ixyz_v),
@@ -15358,9 +15337,7 @@ namespace cimg_library_suffixed {
           }
 
           if (_cimg_mp_is_vector(arg1)) { // Vector variable: V++
-            CImg<uptrT>::vector((uptrT)mp_self_map_vector_s,arg1,(uptrT)_cimg_mp_vector_size(arg1),
-                                (uptrT)(op==mp_self_increment?mp_self_add:mp_self_sub),1).
-              move_to(code);
+            self_vector_s(arg1,op==mp_self_increment?mp_self_add:mp_self_sub,1);
             _cimg_mp_return(pos);
           }
 
@@ -17076,11 +17053,31 @@ namespace cimg_library_suffixed {
         return pos;
       }
 
+      void self_vector_s(const unsigned int pos, const mp_func op, const unsigned int arg1) {
+        const unsigned int siz = _cimg_mp_vector_size(pos);
+        if (siz>24) CImg<uptrT>::vector((uptrT)mp_self_map_vector_s,pos,siz,(uptrT)op,arg1).move_to(code);
+        else {
+          code.insert(siz);
+          for (unsigned int k = 1; k<=siz; ++k)
+            CImg<uptrT>::vector((uptrT)op,pos + k,arg1).move_to(code[code._width - 1 - siz + k]);
+        }
+      }
+
+      void self_vector_v(const unsigned int pos, const mp_func op, const unsigned int arg1) {
+        const unsigned int siz = _cimg_mp_vector_size(pos);
+        if (siz>24) CImg<uptrT>::vector((uptrT)mp_self_map_vector_s,pos,siz,(uptrT)op,arg1).move_to(code);
+        else {
+          code.insert(siz);
+          for (unsigned int k = 1; k<=siz; ++k)
+            CImg<uptrT>::vector((uptrT)op,pos + k,arg1 + k).move_to(code[code._width - 1 - siz + k]);
+        }
+      }
+
       unsigned int vector1_v(const mp_func op, const unsigned int arg1) {
         const unsigned int
           siz = _cimg_mp_vector_size(arg1),
           pos = is_tmp_vector(arg1)?arg1:vector(siz);
-        if (siz>16) CImg<uptrT>::vector((uptrT)mp_vector_map_v,pos,siz,(uptrT)op,arg1).move_to(code);
+        if (siz>24) CImg<uptrT>::vector((uptrT)mp_vector_map_v,pos,siz,(uptrT)op,arg1).move_to(code);
         else {
           code.insert(siz);
           for (unsigned int k = 1; k<=siz; ++k)
@@ -17093,7 +17090,7 @@ namespace cimg_library_suffixed {
         const unsigned int
           siz = _cimg_mp_vector_size(arg1),
           pos = is_tmp_vector(arg1)?arg1:is_tmp_vector(arg2)?arg2:vector(siz);
-        if (siz>16) CImg<uptrT>::vector((uptrT)mp_vector_map_vv,pos,siz,(uptrT)op,arg1,arg2).move_to(code);
+        if (siz>24) CImg<uptrT>::vector((uptrT)mp_vector_map_vv,pos,siz,(uptrT)op,arg1,arg2).move_to(code);
         else {
           code.insert(siz);
           for (unsigned int k = 1; k<=siz; ++k)
@@ -17106,7 +17103,7 @@ namespace cimg_library_suffixed {
         const unsigned int
           siz = _cimg_mp_vector_size(arg1),
           pos = is_tmp_vector(arg1)?arg1:vector(siz);
-        if (siz>16) CImg<uptrT>::vector((uptrT)mp_vector_map_vs,pos,siz,(uptrT)op,arg1,arg2).move_to(code);
+        if (siz>24) CImg<uptrT>::vector((uptrT)mp_vector_map_vs,pos,siz,(uptrT)op,arg1,arg2).move_to(code);
         else {
           code.insert(siz);
           for (unsigned int k = 1; k<=siz; ++k)
@@ -17119,7 +17116,7 @@ namespace cimg_library_suffixed {
         const unsigned int
           siz = _cimg_mp_vector_size(arg2),
           pos = is_tmp_vector(arg2)?arg2:vector(siz);
-        if (siz>16) CImg<uptrT>::vector((uptrT)mp_vector_map_sv,pos,siz,(uptrT)op,arg1,arg2).move_to(code);
+        if (siz>24) CImg<uptrT>::vector((uptrT)mp_vector_map_sv,pos,siz,(uptrT)op,arg1,arg2).move_to(code);
         else {
           code.insert(siz);
           for (unsigned int k = 1; k<=siz; ++k)
@@ -17133,7 +17130,7 @@ namespace cimg_library_suffixed {
         const unsigned int
           siz = _cimg_mp_vector_size(arg1),
           pos = is_tmp_vector(arg1)?arg1:vector(siz);
-        if (siz>16) CImg<uptrT>::vector((uptrT)mp_vector_map_vss,pos,siz,(uptrT)op,arg1,arg2,arg3).move_to(code);
+        if (siz>24) CImg<uptrT>::vector((uptrT)mp_vector_map_vss,pos,siz,(uptrT)op,arg1,arg2,arg3).move_to(code);
         else {
           code.insert(siz);
           for (unsigned int k = 1; k<=siz; ++k)

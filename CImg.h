@@ -48939,7 +48939,7 @@ namespace cimg_library_suffixed {
       if (is_empty()) { cimg::fempty(0,filename); return *this; }
 
 #ifdef cimg_use_tiff
-      const bool _use_bigtiff = use_bigtiff && size()*sizeof(T)<1UL<<31; // Disable bigtiff for small images.
+      const bool _use_bigtiff = use_bigtiff && sizeof(uptrT)>=8 && size()*sizeof(T)>=1UL<<31; // No bigtiff for small images.
       TIFF *tif = TIFFOpen(filename,_use_bigtiff?"w8":"w4");
       if (tif) {
         cimg_forZ(*this,z) _save_tiff(tif,z,z,compression_type,voxel_size,description);
@@ -54377,7 +54377,9 @@ namespace cimg_library_suffixed {
           _data[l].save_tiff(nfilename,compression_type,voxel_size,description,use_bigtiff);
         }
 #else
-      const bool _use_bigtiff = use_bigtiff && size()*sizeof(T)<1UL<<31; // Disable bigtiff for small images.
+      typename CImg<T>::uptrT siz = 0;
+      cimglist_for(*this,l) siz+=_data[l].size();
+      const bool _use_bigtiff = use_bigtiff && sizeof(siz)>=8 && siz*sizeof(T)>=1UL<<31; // No bigtiff for small images.
       TIFF *tif = TIFFOpen(filename,_use_bigtiff?"w8":"w4");
       if (tif) {
         for (unsigned int dir = 0, l = 0; l<_width; ++l) {

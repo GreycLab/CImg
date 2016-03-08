@@ -13726,7 +13726,7 @@ namespace cimg_library_suffixed {
       char *user_function;
 
       unsigned int mempos, mem_img_median, debug_indent, init_size, result_dim;
-      bool is_parallelizable, needs_input_copy;
+      bool is_parallelizable, need_input_copy;
       double *result;
       const char *const calling_function;
       typedef double (*mp_func)(_cimg_math_parser&);
@@ -13765,7 +13765,7 @@ namespace cimg_library_suffixed {
         imgout(img_output?*img_output:CImg<T>::empty()),listout(list_output?*list_output:CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),user_function(0),
         mem_img_median(~0U),debug_indent(0),init_size(0),result_dim(0),is_parallelizable(true),
-        needs_input_copy(false),calling_function(funcname?funcname:"cimg_math_parser") {
+        need_input_copy(false),calling_function(funcname?funcname:"cimg_math_parser") {
         if (!expression || !*expression)
           throw CImgArgumentException("[_cimg_math_parser] "
                                       "CImg<%s>::%s: Empty expression.",
@@ -13890,7 +13890,7 @@ namespace cimg_library_suffixed {
         imgin(CImg<T>::const_empty()),listin(CImgList<T>::const_empty()),
         imgout(CImg<T>::empty()),listout(CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),debug_indent(0),
-        result_dim(0),is_parallelizable(true),needs_input_copy(false),calling_function(0) {
+        result_dim(0),is_parallelizable(true),need_input_copy(false),calling_function(0) {
         mem.assign(1 + _cimg_mp_c,1,1,1,0); // Allow to skip 'is_empty?' test in operator()()
         result = mem._data;
       }
@@ -13899,7 +13899,7 @@ namespace cimg_library_suffixed {
         mem(mp.mem),code(mp.code),p_code_begin(mp.p_code_begin),p_code_end(mp.p_code_end),
         imgin(mp.imgin),listin(mp.listin),imgout(mp.imgout),listout(mp.listout),img_stats(mp.img_stats),
         list_stats(mp.list_stats),list_median(mp.list_median),debug_indent(0),result_dim(mp.result_dim),
-        is_parallelizable(mp.is_parallelizable), needs_input_copy(mp.needs_input_copy),
+        is_parallelizable(mp.is_parallelizable), need_input_copy(mp.need_input_copy),
         result(mem._data + (mp.result - mp.mem._data)),calling_function(0) {
 #ifdef cimg_use_openmp
         mem[17] = omp_get_thread_num();
@@ -14005,25 +14005,25 @@ namespace cimg_library_suffixed {
           case 'I' :
             if (reserved_label['I']!=~0U) _cimg_mp_return(reserved_label['I']);
             _cimg_mp_check_vector0(imgin._spectrum,"variable 'I'");
-            needs_input_copy = true;
+            need_input_copy = true;
             pos = vector(imgin._spectrum);
             CImg<uptrT>::vector((uptrT)mp_Joff,pos,0,0).move_to(code);
             _cimg_mp_return(pos);
           case 'R' :
             if (reserved_label['R']!=~0U) _cimg_mp_return(reserved_label['R']);
-            needs_input_copy = true;
+            need_input_copy = true;
             _cimg_mp_scalar6(mp_ixyzc,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,0,0,0);
           case 'G' :
             if (reserved_label['G']!=~0U) _cimg_mp_return(reserved_label['G']);
-            needs_input_copy = true;
+            need_input_copy = true;
             _cimg_mp_scalar6(mp_ixyzc,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,1,0,0);
           case 'B' :
             if (reserved_label['B']!=~0U) _cimg_mp_return(reserved_label['B']);
-            needs_input_copy = true;
+            need_input_copy = true;
             _cimg_mp_scalar6(mp_ixyzc,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,2,0,0);
           case 'A' :
             if (reserved_label['A']!=~0U) _cimg_mp_return(reserved_label['A']);
-            needs_input_copy = true;
+            need_input_copy = true;
             _cimg_mp_scalar6(mp_ixyzc,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,3,0,0);
           }
         else if (ss2==se) { // Two-chars variable
@@ -14034,7 +14034,7 @@ namespace cimg_library_suffixed {
             if (*ss1>='0' && *ss1<='9') { // i0...i9
               pos = 19 + *ss1 - '0';
               if (reserved_label[pos]!=~0U) _cimg_mp_return(reserved_label[pos]);
-              needs_input_copy = true;
+              need_input_copy = true;
               _cimg_mp_scalar6(mp_ixyzc,_cimg_mp_x,_cimg_mp_y,_cimg_mp_z,pos - 19,0,0);
             }
             switch (*ss1) {
@@ -15417,7 +15417,7 @@ namespace cimg_library_suffixed {
               CImg<uptrT>::vector((uptrT)(is_relative?mp_list_Joff:mp_list_Ioff),
                                   pos,p1,arg1,arg2==~0U?reserved_label[30]:arg2).move_to(code);
             } else {
-              needs_input_copy = true;
+              need_input_copy = true;
               CImg<uptrT>::vector((uptrT)(is_relative?mp_Joff:mp_Ioff),
                                   pos,arg1,arg2==~0U?reserved_label[30]:arg2).move_to(code);
             }
@@ -15446,7 +15446,7 @@ namespace cimg_library_suffixed {
               pos = scalar3(is_relative?mp_list_joff:mp_list_ioff,p1,arg1,arg2==~0U?reserved_label[30]:arg2);
             } else {
               if (!imgin) _cimg_mp_return(0);
-              needs_input_copy = true;
+              need_input_copy = true;
               pos = scalar2(is_relative?mp_joff:mp_ioff,arg1,arg2==~0U?reserved_label[30]:arg2);
             }
             memtype[pos] = -1; // Create it as a variable to prevent from being used in further optimization
@@ -15598,7 +15598,7 @@ namespace cimg_library_suffixed {
                                   arg4==~0U?reserved_label[29]:arg4,
                                   arg5==~0U?reserved_label[30]:arg5).move_to(code);
             else {
-              needs_input_copy = true;
+              need_input_copy = true;
               CImg<uptrT>::vector((uptrT)(is_relative?mp_Jxyz:mp_Ixyz),
                                   pos,arg1,arg2,arg3,
                                   arg4==~0U?reserved_label[29]:arg4,
@@ -15677,7 +15677,7 @@ namespace cimg_library_suffixed {
                             arg6==~0U?reserved_label[30]:arg6);
             } else {
               if (!imgin) _cimg_mp_return(0);
-              needs_input_copy = true;
+              need_input_copy = true;
               pos = scalar6(is_relative?mp_jxyzc:mp_ixyzc,
                             arg1,arg2,arg3,arg4,
                             arg5==~0U?reserved_label[29]:arg5,
@@ -15926,7 +15926,7 @@ namespace cimg_library_suffixed {
                   p1 = (unsigned int)cimg::mod((int)mem[p1],listin.width());
                 }
                 const CImg<T> &img = p1!=~0U?listin[p1]:imgin;
-                if (p1==~0U) needs_input_copy = true;
+                if (p1==~0U) need_input_copy = true;
                 if (!img)
                   throw CImgArgumentException("[_cimg_math_parser] "
                                               "CImg<%s>::%s: Function '%s': Cannot crop empty image when "
@@ -22784,7 +22784,7 @@ namespace cimg_library_suffixed {
                                              *expression=='*' || *expression==':'?1:0),
                                calling_function,base,this,list_inputs,list_outputs);
           if (!provides_copy && expression && *expression!='>' && *expression!='<' && *expression!=':' &&
-              mp.needs_input_copy)
+              mp.need_input_copy)
             base.assign().assign(*this); // Needs input copy
 
           bool do_in_parallel = false;
@@ -48931,7 +48931,7 @@ namespace cimg_library_suffixed {
      **/
     const CImg<T>& save_tiff(const char *const filename, const unsigned int compression_type=0,
                              const float *const voxel_size=0, const char *const description=0,
-                             const bool is_bigtiff=true) const {
+                             const bool use_bigtiff=true) const {
       if (!filename)
         throw CImgArgumentException(_cimg_instance
                                     "save_tiff(): Specified filename is (null).",
@@ -48939,8 +48939,8 @@ namespace cimg_library_suffixed {
       if (is_empty()) { cimg::fempty(0,filename); return *this; }
 
 #ifdef cimg_use_tiff
-      const bool _is_bigtiff = is_bigtiff && sizeof(uptrT)>=8; // Disable bigtiff for 32bits.
-      TIFF *tif = TIFFOpen(filename,_is_bigtiff?"w8":"w4");
+      const bool _use_bigtiff = use_bigtiff && size()*sizeof(T)<1UL<<31; // Disable bigtiff for small images.
+      TIFF *tif = TIFFOpen(filename,_use_bigtiff?"w8":"w4");
       if (tif) {
         cimg_forZ(*this,z) _save_tiff(tif,z,z,compression_type,voxel_size,description);
         TIFFClose(tif);
@@ -48950,7 +48950,7 @@ namespace cimg_library_suffixed {
                                    filename);
       return *this;
 #else
-      cimg::unused(compression_type,voxel_size,description,is_bigtiff);
+      cimg::unused(compression_type,voxel_size,description,use_bigtiff);
       return save_other(filename);
 #endif
     }
@@ -54362,7 +54362,7 @@ namespace cimg_library_suffixed {
     **/
     const CImgList<T>& save_tiff(const char *const filename, const unsigned int compression_type=0,
                                  const float *const voxel_size=0, const char *const description=0,
-                                 const bool is_bigtiff=true) const {
+                                 const bool use_bigtiff=true) const {
       if (!filename)
         throw CImgArgumentException(_cimglist_instance
                                     "save_tiff(): Specified filename is (null).",
@@ -54370,15 +54370,15 @@ namespace cimg_library_suffixed {
       if (is_empty()) { cimg::fempty(0,filename); return *this; }
 
 #ifndef cimg_use_tiff
-      if (_width==1) _data[0].save_tiff(filename,compression_type,voxel_size,description,is_bigtiff);
+      if (_width==1) _data[0].save_tiff(filename,compression_type,voxel_size,description,use_bigtiff);
       else cimglist_for(*this,l) {
           CImg<charT> nfilename(1024);
           cimg::number_filename(filename,l,6,nfilename);
-          _data[l].save_tiff(nfilename,compression_type,voxel_size,description,is_bigtiff);
+          _data[l].save_tiff(nfilename,compression_type,voxel_size,description,use_bigtiff);
         }
 #else
-      const bool _is_bigtiff = is_bigtiff && sizeof(typename CImg<T>::uptrT)>=8; // Disable bigtiff for 32bits.
-      TIFF *tif = TIFFOpen(filename,_is_bigtiff?"w8":"w4");
+      const bool _use_bigtiff = use_bigtiff && size()*sizeof(T)<1UL<<31; // Disable bigtiff for small images.
+      TIFF *tif = TIFFOpen(filename,_use_bigtiff?"w8":"w4");
       if (tif) {
         for (unsigned int dir = 0, l = 0; l<_width; ++l) {
           const CImg<T>& img = (*this)[l];

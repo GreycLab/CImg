@@ -15757,7 +15757,7 @@ namespace cimg_library_suffixed {
               s_op = "Function 'copy()'";
               ref.assign(14);
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss5,s1,depth1,ref);
+              arg1 = p1 = compile(ss5,s1,depth1,ref);
               s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(s1,s2,depth1,ref._data + 7);
               arg3 = ~0U; arg4 = arg5 = 1;
@@ -15780,9 +15780,9 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_type(arg4,4,s_op,1,0);
               _cimg_mp_check_type(arg5,5,s_op,1,0);
               CImg<uptrT>(1,21).move_to(code);
-              code.back().get_shared_rows(0,6).fill((uptrT)mp_memcopy,28,arg1,arg2,arg3,arg4,arg5);
+              code.back().get_shared_rows(0,6).fill((uptrT)mp_memcopy,p1,arg1,arg2,arg3,arg4,arg5);
               code.back().get_shared_rows(7,20).fill(ref);
-              _cimg_mp_return(28);
+              _cimg_mp_return(p1);
             }
 
             if (!std::strncmp(ss,"cos(",4)) { // Cosine
@@ -16024,6 +16024,18 @@ namespace cimg_library_suffixed {
               CImg<uptrT>::vector((uptrT)mp_dowhile,arg1,arg2,code._width - p1).move_to(code,p1);
               _cimg_mp_return(arg1);
             }
+
+/*            if (!std::strncmp(ss,"draw(",5)) { // Draw vector on image
+              s_op = "Function 'crop()'";
+              if (*ss5=='#') { // Index specified
+                s0 = ss6; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                p1 = compile(ss6,s0++,depth1,0);
+              } else { p1 = ~0U; s0 = ss5; }
+
+
+
+            }
+*/
             break;
 
           case 'e' :
@@ -18492,7 +18504,7 @@ namespace cimg_library_suffixed {
             }
           }
         }
-        return cimg::type<double>::nan();
+        return _mp_arg(1);
       }
 
       static double mp_min(_cimg_math_parser& mp) {

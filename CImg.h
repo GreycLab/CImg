@@ -17065,7 +17065,7 @@ namespace cimg_library_suffixed {
 
       void self_vector_v(const unsigned int pos, const mp_func op, const unsigned int arg1) {
         const unsigned int siz = _cimg_mp_vector_size(pos);
-        if (siz>24) CImg<uptrT>::vector((uptrT)mp_self_map_vector_s,pos,siz,(uptrT)op,arg1).move_to(code);
+        if (siz>24) CImg<uptrT>::vector((uptrT)mp_self_map_vector_v,pos,siz,(uptrT)op,arg1).move_to(code);
         else {
           code.insert(siz);
           for (unsigned int k = 1; k<=siz; ++k)

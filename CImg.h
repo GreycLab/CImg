@@ -16024,18 +16024,6 @@ namespace cimg_library_suffixed {
               CImg<uptrT>::vector((uptrT)mp_dowhile,arg1,arg2,code._width - p1).move_to(code,p1);
               _cimg_mp_return(arg1);
             }
-
-/*            if (!std::strncmp(ss,"draw(",5)) { // Draw vector on image
-              s_op = "Function 'crop()'";
-              if (*ss5=='#') { // Index specified
-                s0 = ss6; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
-                p1 = compile(ss6,s0++,depth1,0);
-              } else { p1 = ~0U; s0 = ss5; }
-
-
-
-            }
-*/
             break;
 
           case 'e' :

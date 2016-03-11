@@ -14842,14 +14842,16 @@ namespace cimg_library_suffixed {
             s_op = "Operator '?:'";
             s1 = s + 1; while (s1<se1 && (*s1!=':' || level[s1 - expr._data]!=clevel)) ++s1;
             arg1 = compile(ss,s,depth1,0);
+            _cimg_mp_check_type(arg1,1,s_op,1,0);
+            if (_cimg_mp_is_constant(arg1)) {
+              if ((bool)mem[arg1]) return compile(s + 1,*s1!=':'?se:s1,depth1,0);
+              else return *s1!=':'?0:compile(++s1,se,depth1,0);
+            }
             p2 = code._width;
             arg2 = compile(s + 1,*s1!=':'?se:s1,depth1,0);
             p3 = code._width;
             arg3 = *s1!=':'?0:compile(++s1,se,depth1,0);
-            _cimg_mp_check_type(arg1,1,s_op,1,0);
             _cimg_mp_check_type(arg3,3,s_op,_cimg_mp_is_vector(arg2)?2:1,_cimg_mp_vector_size(arg2));
-            if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2) && _cimg_mp_is_constant(arg3))
-              _cimg_mp_constant(mem[arg1]?mem[arg2]:mem[arg3]);
             arg4 = _cimg_mp_is_vector(arg2)?_cimg_mp_vector_size(arg2):0; // Output vector size (or 0 if scalar)
             if (arg4) pos = vector(arg4); else pos = scalar();
             CImg<uptrT>::vector((uptrT)mp_if,pos,arg1,arg2,arg3,
@@ -16114,14 +16116,16 @@ namespace cimg_library_suffixed {
               s1 = ss3; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg1 = compile(ss3,s1,depth1,0);
+              _cimg_mp_check_type(arg1,1,s_op,1,0);
+              if (_cimg_mp_is_constant(arg1)) {
+                if ((bool)mem[arg1]) return compile(++s1,s2,depth1,0);
+                else return s2<se1?compile(++s2,se1,depth1,0):0;
+              }
               p2 = code._width;
               arg2 = compile(++s1,s2,depth1,0);
               p3 = code._width;
               arg3 = s2<se1?compile(++s2,se1,depth1,0):0;
-              _cimg_mp_check_type(arg1,1,s_op,1,0);
               _cimg_mp_check_type(arg3,3,s_op,3,_cimg_mp_vector_size(arg2));
-              if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2) && _cimg_mp_is_constant(arg3))
-                _cimg_mp_constant(mem[arg1]?mem[arg2]:mem[arg3]);
               arg4 = _cimg_mp_is_vector(arg2)?_cimg_mp_vector_size(arg2):0; // Output vector size (or 0 if scalar)
               if (arg4) pos = vector(arg4); else pos = scalar();
               CImg<uptrT>::vector((uptrT)mp_if,pos,arg1,arg2,arg3,

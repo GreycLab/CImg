@@ -16125,7 +16125,7 @@ namespace cimg_library_suffixed {
               arg2 = compile(++s1,s2,depth1,0);
               p3 = code._width;
               arg3 = s2<se1?compile(++s2,se1,depth1,0):0;
-              _cimg_mp_check_type(arg3,3,s_op,3,_cimg_mp_vector_size(arg2));
+              _cimg_mp_check_type(arg3,3,s_op,_cimg_mp_is_vector(arg2)?2:1,_cimg_mp_vector_size(arg2));
               arg4 = _cimg_mp_is_vector(arg2)?_cimg_mp_vector_size(arg2):0; // Output vector size (or 0 if scalar)
               if (arg4) pos = vector(arg4); else pos = scalar();
               CImg<uptrT>::vector((uptrT)mp_if,pos,arg1,arg2,arg3,

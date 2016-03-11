@@ -17134,7 +17134,7 @@ namespace cimg_library_suffixed {
         else {
           code.insert(siz);
           for (unsigned int k = 1; k<=siz; ++k)
-            CImg<uptrT>::vector((uptrT)op,pos + k,arg1,arg2,arg3).move_to(code[code._width - 1 - siz + k]);
+            CImg<uptrT>::vector((uptrT)op,pos + k,arg1 + k,arg2,arg3).move_to(code[code._width - 1 - siz + k]);
         }
         return pos;
       }

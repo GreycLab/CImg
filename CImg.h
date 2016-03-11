@@ -16469,12 +16469,30 @@ namespace cimg_library_suffixed {
               s_op = "Function 'sort()'";
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss5,s1,depth1,0);
-              arg2 = s1<se1?compile(++s1,se1,depth1,0):1;
+              arg2 = arg3 = 1;
+              if (s1<se1) {
+                s0 = ++s1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                arg2 = compile(s1,s0,depth1,0);
+                arg3 = s0<se1?compile(++s0,se1,depth1,0):1;
+              }
               _cimg_mp_check_type(arg1,1,s_op,2,0);
               _cimg_mp_check_type(arg2,2,s_op,1,0);
+              _cimg_mp_check_constant(arg3,3,s_op,true);
+              arg3 = (unsigned int)mem[arg3];
               p1 = _cimg_mp_vector_size(arg1);
+              if (p1%arg3) {
+                *se = saved_char; cimg::strellipsize(expr,64);
+                throw CImgArgumentException("[_cimg_math_parser] "
+                                            "CImg<%s>::%s: %s: Invalid specified chunk size (%u) for first argument "
+                                            "('%s'), in expression '%s%s%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            arg3,s_type(arg1)._data,
+                                            (ss - 4)>expr._data?"...":"",
+                                            (ss - 4)>expr._data?ss - 4:expr._data,
+                                            se<&expr.back()?"...":"");
+              }
               pos = vector(p1);
-              CImg<uptrT>::vector((uptrT)mp_sort,pos,arg1,p1,arg2).move_to(code);
+              CImg<uptrT>::vector((uptrT)mp_sort,pos,arg1,p1,arg2,arg3).move_to(code);
               _cimg_mp_return(pos);
             }
 
@@ -18898,9 +18916,12 @@ namespace cimg_library_suffixed {
       static double mp_sort(_cimg_math_parser& mp) {
         double *const ptrd = &_mp_arg(1) + 1;
         const double *const ptrs = &_mp_arg(2) + 1;
-        const unsigned int siz = mp.opcode[3];
+        const unsigned int
+          siz = mp.opcode[3],
+          chunk_siz = mp.opcode[5];
         const bool is_increasing = (bool)_mp_arg(4);
-        CImg<doubleT>(ptrd,1,siz,1,1,true) = CImg<doubleT>(ptrs,1,siz,1,1,true).get_sort(is_increasing);
+        CImg<doubleT>(ptrd,chunk_siz,siz/chunk_siz,1,1,true) = CImg<doubleT>(ptrs,chunk_siz,siz/chunk_siz,1,1,true).
+          get_sort(is_increasing,chunk_siz>1?'y':0);
         return cimg::type<double>::nan();
       }
 

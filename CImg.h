@@ -14297,7 +14297,7 @@ namespace cimg_library_suffixed {
             }
 
             // Assign user-defined macro.
-            if (l_variable_name>3 && *ve1==')' && *ss!='(') {
+            if (l_variable_name>2 && *ve1==')' && *ss!='(') {
               s0 = ve1; while (s0>ss && *s0!='(') --s0;
               is_sth = std::strncmp(variable_name,"debug(",6) &&
                 std::strncmp(variable_name,"print(",6); // is_valid_function_name?

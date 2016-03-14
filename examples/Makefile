@@ -260,7 +260,7 @@ endif
 CIMG_LAPACK_DEFINE = -Dcimg_use_lapack
 CIMG_LAPACK_INCDIR =
 CIMG_LAPACK_CFLAGS = $(CIMG_LAPACK_DEFINE) $(CIMG_LAPACK_INCDIR)
-CIMG_LAPACK_LIBS = -lblas -lg2c -llapack
+CIMG_LAPACK_LIBS = -lblas -llapack
 
 # Flags to enable the use of the Board library
 # ( http://libboard.sourceforge.net/ )
@@ -337,10 +337,12 @@ $(CIMG_ANSI_CFLAGS) \
 $(CIMG_VT100_CFLAGS) \
 $(CIMG_TIFF_CFLAGS) \
 $(CIMG_X11_CFLAGS) \
+$(CIMG_LAPACK_CFLAGS) \
 $(CIMG_XSHM_CFLAGS)" \
 "CONF_LIBS = \
 $(CIMG_X11_LIBS) \
 $(CIMG_TIFF_LIBS) \
+$(CIMG_LAPACK_LIBS) \
 $(CIMG_XSHM_LIBS)" \
 all $(CIMG_EXTRA_FILES)
 

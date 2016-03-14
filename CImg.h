@@ -15927,13 +15927,15 @@ namespace cimg_library_suffixed {
                                     *opcode,opcode[1],opcode[2],opcode[3],
                                     opcode[4],opcode[5],opcode[6],opcode[7],
                                     opcode[8]).move_to(code);
-              else
+              else {
+                need_input_copy = true;
                 CImg<uptrT>::vector((uptrT)mp_crop,
                                     pos,
                                     *opcode,opcode[1],opcode[2],opcode[3],
                                     opcode[4],opcode[5],opcode[6],opcode[7],
                                     opcode[8]).move_to(code);
-              _cimg_mp_return(pos);
+                _cimg_mp_return(pos);
+              }
             }
 
             if (!std::strncmp(ss,"cross(",6)) { // Cross product
@@ -18607,6 +18609,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_print(_cimg_math_parser& mp) {
+        cimg::mutex(6);
         CImg<charT> expr(mp.opcode._height - 2);
         const uptrT *ptrs = mp.opcode._data + 2;
         cimg_for(expr,ptrd,char) *ptrd = (char)*(ptrs++);
@@ -18614,6 +18617,7 @@ namespace cimg_library_suffixed {
         const double val = _mp_arg(1);
         std::fprintf(cimg::output(),"\n[_cimg_math_parser] %s = %g",expr._data,val);
         std::fflush(cimg::output());
+        cimg::mutex(6,0);
         return val;
       }
 
@@ -22816,7 +22820,6 @@ namespace cimg_library_suffixed {
                           std::strlen(expression)>=6))
             do_in_parallel = true;
 #endif
-
           if (mp.result_dim) { // Vector-valued expression
             const unsigned int N = cimg::min(mp.result_dim,_spectrum);
             const unsigned long whd = _width*_height*_depth;

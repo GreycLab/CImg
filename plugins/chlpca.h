@@ -164,8 +164,8 @@ return (*this);
 //! CHLPCA denoising from the PhD thesis of Hu Haijuan
 /**
    \param px the patch half width
-   \param px the patch half height
-   \param px the patch half depth
+   \param py the patch half height
+   \param pz the patch half depth
    \param wx the training region half width
    \param wy the training region half height
    \param wz the training region half depth

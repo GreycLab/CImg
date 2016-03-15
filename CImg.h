@@ -15809,6 +15809,13 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar1(mp_cosh,arg1);
             }
 
+            if (!std::strncmp(ss,"critical(",9)) { // Single thread section
+              p1 = code._width;
+              arg1 = compile(ss + 9,se1,depth1,p_ref);
+              CImg<uptrT>::vector((uptrT)mp_critical,arg1,code._width - p1).move_to(code,p1);
+              _cimg_mp_return(arg1);
+            }
+
             if (!std::strncmp(ss,"crop(",5)) { // Image crop
               s_op = "Function 'crop()'";
               if (*ss5=='#') { // Index specified
@@ -17498,6 +17505,22 @@ namespace cimg_library_suffixed {
         return std::cosh(_mp_arg(2));
       }
 
+      static double mp_critical(_cimg_math_parser& mp) {
+#ifdef cimg_use_openmp
+#pragma omp_critical
+#endif
+        {
+          for (const CImg<uptrT> *const p_end = ++mp.p_code + mp.opcode[2];
+            mp.p_code<p_end; ++mp.p_code) { // Evaluate loop iteration + condition
+            const CImg<uptrT> &op = *mp.p_code;
+            mp.opcode._data = op._data; mp.opcode._height = op._height;
+            const uptrT target = mp.opcode[1];
+            mp.mem[target] = _cimg_mp_defunc(mp);
+          }
+        }
+        return _mp_arg(1);
+      }
+
       static double mp_crop(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
         const bool boundary_conditions = (bool)_mp_arg(10);
@@ -18643,8 +18666,13 @@ namespace cimg_library_suffixed {
         cimg_for(expr,ptrd,char) *ptrd = (char)*(ptrs++);
         cimg::strellipsize(expr);
         const double val = _mp_arg(1);
-        std::fprintf(cimg::output(),"\n[_cimg_math_parser] %s = %g",expr._data,val);
-        std::fflush(cimg::output());
+#ifdef cimg_use_openmp
+#pragma omp critical
+#endif
+        {
+          std::fprintf(cimg::output(),"\n[_cimg_math_parser] %s = %g",expr._data,val);
+          std::fflush(cimg::output());
+        }
         cimg::mutex(6,0);
         return val;
       }

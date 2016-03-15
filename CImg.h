@@ -15809,13 +15809,6 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar1(mp_cosh,arg1);
             }
 
-            if (!std::strncmp(ss,"critical(",9)) { // Single thread section
-              p1 = code._width;
-              arg1 = compile(ss + 9,se1,depth1,p_ref);
-              CImg<uptrT>::vector((uptrT)mp_critical,arg1,code._width - p1).move_to(code,p1);
-              _cimg_mp_return(arg1);
-            }
-
             if (!std::strncmp(ss,"crop(",5)) { // Image crop
               s_op = "Function 'crop()'";
               if (*ss5=='#') { // Index specified
@@ -16441,6 +16434,13 @@ namespace cimg_library_suffixed {
               if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_sinc,arg1);
               if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(cimg::sinc(mem[arg1]));
               _cimg_mp_scalar1(mp_sinc,arg1);
+            }
+
+            if (!std::strncmp(ss,"single(",7)) { // Force single thread execution
+              p1 = code._width;
+              arg1 = compile(ss7,se1,depth1,p_ref);
+              CImg<uptrT>::vector((uptrT)mp_single,arg1,code._width - p1).move_to(code,p1);
+              _cimg_mp_return(arg1);
             }
 
             if (!std::strncmp(ss,"sinh(",5)) { // Hyperbolic sine
@@ -17503,24 +17503,6 @@ namespace cimg_library_suffixed {
 
       static double mp_cosh(_cimg_math_parser& mp) {
         return std::cosh(_mp_arg(2));
-      }
-
-      static double mp_critical(_cimg_math_parser& mp) {
-        const double res = _mp_arg(1);
-#ifdef cimg_use_openmp
-#pragma omp critical
-#endif
-        {
-          for (const CImg<uptrT> *const p_end = ++mp.p_code + mp.opcode[2];
-            mp.p_code<p_end; ++mp.p_code) { // Evaluate loop iteration + condition
-            const CImg<uptrT> &op = *mp.p_code;
-            mp.opcode._data = op._data; mp.opcode._height = op._height;
-            const uptrT target = mp.opcode[1];
-            mp.mem[target] = _cimg_mp_defunc(mp);
-          }
-        }
-        --mp.p_code;
-        return res;
       }
 
       static double mp_crop(_cimg_math_parser& mp) {
@@ -18956,6 +18938,24 @@ namespace cimg_library_suffixed {
 
       static double mp_sinc(_cimg_math_parser& mp) {
         return cimg::sinc(_mp_arg(2));
+      }
+
+      static double mp_single(_cimg_math_parser& mp) {
+        const double res = _mp_arg(1);
+#ifdef cimg_use_openmp
+#pragma omp critical
+#endif
+        {
+          for (const CImg<uptrT> *const p_end = ++mp.p_code + mp.opcode[2];
+            mp.p_code<p_end; ++mp.p_code) { // Evaluate loop iteration + condition
+            const CImg<uptrT> &op = *mp.p_code;
+            mp.opcode._data = op._data; mp.opcode._height = op._height;
+            const uptrT target = mp.opcode[1];
+            mp.mem[target] = _cimg_mp_defunc(mp);
+          }
+        }
+        --mp.p_code;
+        return res;
       }
 
       static double mp_sinh(_cimg_math_parser& mp) {

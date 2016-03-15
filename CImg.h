@@ -18069,9 +18069,8 @@ namespace cimg_library_suffixed {
           z = (int)_mp_arg(5), c = (int)_mp_arg(6);
         const double val = _mp_arg(1);
         if (x>=0 && x<img.width() && y>=0 && y<img.height() &&
-            z>=0 && z<img.depth() && c>=0 && c<img.spectrum()) {
+            z>=0 && z<img.depth() && c>=0 && c<img.spectrum())
           img(x,y,z,c) = (T)val;
-        }
         return val;
       }
 
@@ -18100,9 +18099,8 @@ namespace cimg_library_suffixed {
           z = (int)(oz + _mp_arg(5)), c = (int)(oc + _mp_arg(6));
         const double val = _mp_arg(1);
         if (x>=0 && x<img.width() && y>=0 && y<img.height() &&
-            z>=0 && z<img.depth() && c>=0 && c<img.spectrum()) {
+            z>=0 && z<img.depth() && c>=0 && c<img.spectrum())
           img(x,y,z,c) = (T)val;
-        }
         return val;
       }
 
@@ -18807,9 +18805,8 @@ namespace cimg_library_suffixed {
           z = (int)_mp_arg(4), c = (int)_mp_arg(5);
         const double val = _mp_arg(1);
         if (x>=0 && x<img.width() && y>=0 && y<img.height() &&
-            z>=0 && z<img.depth() && c>=0 && c<img.spectrum()) {
+            z>=0 && z<img.depth() && c>=0 && c<img.spectrum())
           img(x,y,z,c) = (T)val;
-        }
         return val;
       }
 
@@ -18836,9 +18833,8 @@ namespace cimg_library_suffixed {
           z = (int)(oz + _mp_arg(4)), c = (int)(oc + _mp_arg(5));
         const double val = _mp_arg(1);
         if (x>=0 && x<img.width() && y>=0 && y<img.height() &&
-            z>=0 && z<img.depth() && c>=0 && c<img.spectrum()) {
+            z>=0 && z<img.depth() && c>=0 && c<img.spectrum())
           img(x,y,z,c) = (T)val;
-        }
         return val;
       }
 

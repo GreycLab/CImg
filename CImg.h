@@ -17506,8 +17506,9 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_critical(_cimg_math_parser& mp) {
+        const double res = _mp_arg(1);
 #ifdef cimg_use_openmp
-#pragma omp_critical
+#pragma omp critical
 #endif
         {
           for (const CImg<uptrT> *const p_end = ++mp.p_code + mp.opcode[2];
@@ -17518,7 +17519,8 @@ namespace cimg_library_suffixed {
             mp.mem[target] = _cimg_mp_defunc(mp);
           }
         }
-        return _mp_arg(1);
+        --mp.p_code;
+        return res;
       }
 
       static double mp_crop(_cimg_math_parser& mp) {

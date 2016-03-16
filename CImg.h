@@ -16380,17 +16380,22 @@ namespace cimg_library_suffixed {
               s_op = "Function 'rot()'";
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss4,s1,depth1,0);
-              s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-              arg2 = compile(++s1,s2,depth1,0);
-              s3 = s2 + 1; while (s3<se1 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
-              arg3 = compile(++s2,s3,depth1,0);
-              arg4 = compile(++s3,se1,depth1,0);
               _cimg_mp_check_type(arg1,1,s_op,1,0);
-              _cimg_mp_check_type(arg2,2,s_op,1,0);
-              _cimg_mp_check_type(arg3,3,s_op,1,0);
-              _cimg_mp_check_type(arg4,4,s_op,1,0);
-              pos = vector(9);
-              CImg<uptrT>::vector((uptrT)mp_rot,pos,arg1,arg2,arg3,arg4).move_to(code);
+              if (s1<se1) { // 3d rotation
+                s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                arg2 = compile(++s1,s2,depth1,0);
+                s3 = s2 + 1; while (s3<se1 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
+                arg3 = compile(++s2,s3,depth1,0);
+                arg4 = compile(++s3,se1,depth1,0);
+                _cimg_mp_check_type(arg2,2,s_op,1,0);
+                _cimg_mp_check_type(arg3,3,s_op,1,0);
+                _cimg_mp_check_type(arg4,4,s_op,1,0);
+                pos = vector(9);
+                CImg<uptrT>::vector((uptrT)mp_rot3d,pos,arg1,arg2,arg3,arg4).move_to(code);
+              } else { // 2d rotation
+                pos = vector(4);
+                CImg<uptrT>::vector((uptrT)mp_rot2d,pos,arg1).move_to(code);
+              }
               _cimg_mp_return(pos);
             }
 
@@ -18677,7 +18682,20 @@ namespace cimg_library_suffixed {
         return cimg::ror(_mp_arg(2),(unsigned int)_mp_arg(3));
       }
 
-      static double mp_rot(_cimg_math_parser& mp) {
+      static double mp_rot2d(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const float
+          theta = (float)_mp_arg(2),
+          ca = std::cos(theta),
+          sa = std::sin(theta);
+        *(ptrd++) = ca;
+        *(ptrd++) = -sa;
+        *(ptrd++) = sa;
+        *ptrd = ca;
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_rot3d(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
         const float x = (float)_mp_arg(2), y = (float)_mp_arg(3), z = (float)_mp_arg(4), theta = (float)_mp_arg(5);
         CImg<double>(ptrd,3,3,1,1,true) = CImg<double>::rotation_matrix(x,y,z,theta);

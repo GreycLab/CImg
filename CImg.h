@@ -14446,7 +14446,7 @@ namespace cimg_library_suffixed {
                 }
 
               } else { // Variable already exists -> assign a new value
-                _cimg_mp_check_type(arg2,2,s_op,_cimg_mp_is_vector(arg1)?3:1,0);
+                _cimg_mp_check_type(arg2,2,s_op,_cimg_mp_is_vector(arg1)?3:1,_cimg_mp_vector_size(arg1));
                 if (_cimg_mp_is_vector(arg1)) { // Vector
                   if (_cimg_mp_is_vector(arg2)) // From vector
                     CImg<uptrT>::vector((uptrT)mp_vector_copy,arg1,arg2,(uptrT)_cimg_mp_vector_size(arg1)).
@@ -26921,14 +26921,16 @@ namespace cimg_library_suffixed {
        \param boundary Boundary conditions. Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic }</tt>.
        \note Most of the time, size of the image is modified.
     **/
-    CImg<T>& rotate(const float angle, const unsigned int interpolation=1, const unsigned int boundary_conditions=0) {
+    CImg<T>& rotate(const float angle, const unsigned int interpolation=1,
+                    const unsigned int boundary_conditions=0) {
       const float nangle = cimg::mod(angle,360.0f);
       if (nangle==0.0f) return *this;
       return get_rotate(angle,interpolation,boundary_conditions).move_to(*this);
     }
 
     //! Rotate image with arbitrary angle \newinstance.
-    CImg<T> get_rotate(const float angle, const unsigned int interpolation=1, const unsigned int boundary_conditions=0) const {
+    CImg<T> get_rotate(const float angle, const unsigned int interpolation=1,
+                       const unsigned int boundary_conditions=0) const {
       if (is_empty()) return *this;
       CImg<T> res;
       const float nangle = cimg::mod(angle,360.0f);
@@ -49036,7 +49038,8 @@ namespace cimg_library_suffixed {
       if (is_empty()) { cimg::fempty(0,filename); return *this; }
 
 #ifdef cimg_use_tiff
-      const bool _use_bigtiff = use_bigtiff && sizeof(uptrT)>=8 && size()*sizeof(T)>=1UL<<31; // No bigtiff for small images.
+      const bool
+        _use_bigtiff = use_bigtiff && sizeof(uptrT)>=8 && size()*sizeof(T)>=1UL<<31; // No bigtiff for small images.
       TIFF *tif = TIFFOpen(filename,_use_bigtiff?"w8":"w4");
       if (tif) {
         cimg_forZ(*this,z) _save_tiff(tif,z,z,compression_type,voxel_size,description);

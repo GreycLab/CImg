@@ -16376,7 +16376,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar2(*ss2=='l'?mp_rol:mp_ror,arg1,arg2);
             }
 
-            if (!std::strncmp(ss,"rot(",4)) { // Rotation matrix
+            if (!std::strncmp(ss,"rot(",4)) { // 2d/3d rotation matrix
               s_op = "Function 'rot()'";
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss4,s1,depth1,0);
@@ -26903,18 +26903,18 @@ namespace cimg_library_suffixed {
        \param boundary Boundary conditions. Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic }</tt>.
        \note Most of the time, size of the image is modified.
     **/
-    CImg<T>& rotate(const float angle, const unsigned int interpolation=1, const unsigned int boundary=0) {
+    CImg<T>& rotate(const float angle, const unsigned int interpolation=1, const unsigned int boundary_conditions=0) {
       const float nangle = cimg::mod(angle,360.0f);
       if (nangle==0.0f) return *this;
-      return get_rotate(angle,interpolation,boundary).move_to(*this);
+      return get_rotate(angle,interpolation,boundary_conditions).move_to(*this);
     }
 
     //! Rotate image with arbitrary angle \newinstance.
-    CImg<T> get_rotate(const float angle, const unsigned int interpolation=1, const unsigned int boundary=0) const {
+    CImg<T> get_rotate(const float angle, const unsigned int interpolation=1, const unsigned int boundary_conditions=0) const {
       if (is_empty()) return *this;
       CImg<T> res;
       const float nangle = cimg::mod(angle,360.0f);
-      if (boundary!=1 && cimg::mod(nangle,90.0f)==0) { // Optimized version for orthogonal angles.
+      if (boundary_conditions!=1 && cimg::mod(nangle,90.0f)==0) { // Optimized version for orthogonal angles.
         const int wm1 = width() - 1, hm1 = height() - 1;
         const int iangle = (int)nangle/90;
         switch (iangle) {
@@ -26947,7 +26947,7 @@ namespace cimg_library_suffixed {
           w2 = 0.5f*_width, h2 = 0.5f*_height,
           dw2 = 0.5f*(ux + vx), dh2 = 0.5f*(uy + vy);
         res.assign((int)(ux + vx),(int)(uy + vy),_depth,_spectrum);
-        switch (boundary) {
+        switch (boundary_conditions) {
         case 0 : { // Dirichlet boundaries.
           switch (interpolation) {
           case 2 : { // Cubic interpolation.
@@ -27037,7 +27037,7 @@ namespace cimg_library_suffixed {
                                       "rotate(): Invalid specified border conditions %d "
                                       "(should be { 0=dirichlet | 1=neumann | 2=periodic }).",
 				      cimg_instance,
-                                      boundary);
+                                      boundary_conditions);
         }
       }
       return res;
@@ -27053,13 +27053,13 @@ namespace cimg_library_suffixed {
        \param interpolation_type Type of interpolation. Can be <tt>{ 0=nearest | 1=linear | 2=cubic }</tt>.
     **/
     CImg<T>& rotate(const float angle, const float cx, const float cy, const float zoom,
-                    const unsigned int interpolation=1, const unsigned int boundary=3) {
-      return get_rotate(angle,cx,cy,zoom,interpolation,boundary).move_to(*this);
+                    const unsigned int interpolation=1, const unsigned int boundary_conditions=0) {
+      return get_rotate(angle,cx,cy,zoom,interpolation,boundary_conditions).move_to(*this);
     }
 
     //! Rotate image with arbitrary angle, around a center point \newinstance.
     CImg<T> get_rotate(const float angle, const float cx, const float cy, const float zoom,
-                       const unsigned int interpolation=1, const unsigned int boundary=3) const {
+                       const unsigned int interpolation=1, const unsigned int boundary_conditions=0) const {
       if (interpolation>2)
         throw CImgArgumentException(_cimg_instance
                                     "rotate(): Invalid specified interpolation type %d "
@@ -27073,7 +27073,7 @@ namespace cimg_library_suffixed {
         rad = (float)((angle*cimg::PI)/180.0),
         ca = (float)std::cos(rad)/zoom,
         sa = (float)std::sin(rad)/zoom;
-      switch (boundary) {
+      switch (boundary_conditions) {
       case 0 : {
         switch (interpolation) {
         case 2 : {
@@ -27163,7 +27163,7 @@ namespace cimg_library_suffixed {
                                     "rotate(): Invalid specified border conditions %d "
                                     "(should be { 0=dirichlet | 1=neumann | 2=periodic }).",
                                     cimg_instance,
-                                    boundary);
+                                    boundary_conditions);
       }
       return res;
     }

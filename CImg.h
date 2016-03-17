@@ -14178,7 +14178,7 @@ namespace cimg_library_suffixed {
                   arg1 = compile(s0,s1,depth1,0);
                   if (_cimg_mp_is_vector(arg1)) { // Coordinates specified as a vector [X,Y,Z,C]
                     p2 = _cimg_mp_vector_size(arg1); // Vector size
-                    arg1 = arg1 + 1;
+                    ++arg1;
                     if (p2>1) {
                       arg2 = arg1 + 1;
                       if (p2>2) {
@@ -15534,7 +15534,7 @@ namespace cimg_library_suffixed {
               arg1 = compile(s0,s1,depth1,0);
               if (_cimg_mp_is_vector(arg1)) { // Coordinates specified as a vector [X,Y,Z]
                 p2 = _cimg_mp_vector_size(arg1);
-                arg1 = arg1 + 1;
+                ++arg1;
                 if (p2>1) {
                   arg2 = arg1 + 1;
                   if (p2>2) arg3 = arg2 + 1;
@@ -15610,7 +15610,7 @@ namespace cimg_library_suffixed {
               arg1 = compile(s0,s1,depth1,0);
               if (_cimg_mp_is_vector(arg1)) { // Coordinates specified as a vector [X,Y,Z,C]
                 p2 = _cimg_mp_vector_size(arg1);
-                arg1 = arg1 + 1;
+                ++arg1;
                 if (p2>1) {
                   arg2 = arg1 + 1;
                   if (p2>2) {
@@ -16380,19 +16380,32 @@ namespace cimg_library_suffixed {
               s_op = "Function 'rot()'";
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss4,s1,depth1,0);
-              _cimg_mp_check_type(arg1,1,s_op,1,0);
               if (s1<se1) { // 3d rotation
-                s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-                arg2 = compile(++s1,s2,depth1,0);
-                s3 = s2 + 1; while (s3<se1 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
-                arg3 = compile(++s2,s3,depth1,0);
-                arg4 = compile(++s3,se1,depth1,0);
-                _cimg_mp_check_type(arg2,2,s_op,1,0);
-                _cimg_mp_check_type(arg3,3,s_op,1,0);
-                _cimg_mp_check_type(arg4,4,s_op,1,0);
+                _cimg_mp_check_type(arg1,1,s_op,3,3);
+                is_sth = false; // Is coordinates as vector?
+                if (_cimg_mp_is_vector(arg1)) { // Coordinates specified as a vector [X,Y,Z]
+                  is_sth = true;
+                  p2 = _cimg_mp_vector_size(arg1);
+                  ++arg1;
+                  if (p2>1) {
+                    arg2 = arg1 + 1;
+                    if (p2>2) arg3 = arg2 + 1;
+                  }
+                  arg4 = compile(++s1,se1,depth1,0);
+                } else {
+                  s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                  arg2 = compile(++s1,s2,depth1,0);
+                  s3 = s2 + 1; while (s3<se1 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
+                  arg3 = compile(++s2,s3,depth1,0);
+                  arg4 = compile(++s3,se1,depth1,0);
+                  _cimg_mp_check_type(arg2,2,s_op,1,0);
+                  _cimg_mp_check_type(arg3,3,s_op,1,0);
+                }
+                _cimg_mp_check_type(arg4,is_sth?2:4,s_op,1,0);
                 pos = vector(9);
                 CImg<uptrT>::vector((uptrT)mp_rot3d,pos,arg1,arg2,arg3,arg4).move_to(code);
               } else { // 2d rotation
+                _cimg_mp_check_type(arg1,1,s_op,1,0);
                 pos = vector(4);
                 CImg<uptrT>::vector((uptrT)mp_rot2d,pos,arg1).move_to(code);
               }
@@ -17192,7 +17205,7 @@ namespace cimg_library_suffixed {
         if (!_cimg_mp_is_constant(arg) || mem[arg]<(is_strictly_positive?1:0) || (double)(int)mem[arg]!=mem[arg]) {
           const char *s_arg = !n_arg?"":n_arg==1?"First ":n_arg==2?"Second ":n_arg==3?"Third ":
             n_arg==4?"Fourth ":n_arg==5?"Fifth ":n_arg==6?"Sixth ":n_arg==7?"Seventh ":n_arg==8?"Eighth ":
-            n_arg==9?"Ninth ":"One ";
+            n_arg==9?"Ninth ":"One of the ";
           *se = saved_char; cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
                                       "CImg<%s>::%s(): %s: %s%s (of type '%s') is not a %spositive integer constant, "
@@ -17246,7 +17259,9 @@ namespace cimg_library_suffixed {
         if (!cond) {
           const char *s_arg;
           if (*s_op!='F') s_arg = !n_arg?"":n_arg==1?"Left-hand ":"Right-hand ";
-          else s_arg = !n_arg?"":n_arg==1?"First ":n_arg==2?"Second ":n_arg==3?"Third ":"One ";
+          else s_arg = !n_arg?"":n_arg==1?"First ":n_arg==2?"Second ":n_arg==3?"Third ":
+                 n_arg==4?"Fourth ":n_arg==5?"Fifth ":n_arg==6?"Sixth ":n_arg==7?"Seventh ":n_arg==8?"Eighth":
+                 n_arg==9?"Ninth":"One of the ";
           CImg<charT> sb_type(32);
           if (mode==1) cimg_snprintf(sb_type,sb_type._width,"'scalar'");
           else if (mode==2) {

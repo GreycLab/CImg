@@ -13738,13 +13738,13 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_is_vector(arg) (memtype[arg]>1) // Is vector?
 #define _cimg_mp_vector_size(arg) (_cimg_mp_is_scalar(arg)?0U:(unsigned int)memtype[arg] - 1) // Vector size
 #define _cimg_mp_calling_function calling_function_s()._data
-#define _cimg_mp_check_type(arg,n_arg,s_op,mode,N) check_type(arg,n_arg,s_op,mode,N,ss,se,saved_char)
-#define _cimg_mp_check_constant(arg,n_arg,s_op,is_strict) check_constant(arg,n_arg,s_op,is_strict,ss,se,saved_char)
-#define _cimg_mp_check_matrix_square(arg,n_arg,s_op) check_matrix_square(arg,n_arg,s_op,ss,se,saved_char)
-#define _cimg_mp_check_vector0(dim,s_op) check_vector0(dim,s_op,ss,se,saved_char)
-#define _cimg_mp_check_listin(s_op) check_listin(s_op,ss,se,saved_char)
+#define _cimg_mp_check_type(arg,n_arg,mode,N) check_type(arg,n_arg,mode,N,ss,se,saved_char)
+#define _cimg_mp_check_constant(arg,n_arg,is_strict) check_constant(arg,n_arg,is_strict,ss,se,saved_char)
+#define _cimg_mp_check_matrix_square(arg,n_arg) check_matrix_square(arg,n_arg,ss,se,saved_char)
+#define _cimg_mp_check_vector0(dim) check_vector0(dim,ss,se,saved_char)
+#define _cimg_mp_check_listin() check_listin(ss,se,saved_char)
 #define _cimg_mp_defunc(mp) (*(mp_func)(*(mp).opcode))(mp)
-#define _cimg_mp_return(x) { *se = saved_char; s_op = ps_op; return x; }
+#define _cimg_mp_return(x) { *se = saved_char; s_op = previous_s_op; return x; }
 #define _cimg_mp_constant(val) _cimg_mp_return(constant(val))
 #define _cimg_mp_scalar0(op) _cimg_mp_return(scalar0(op))
 #define _cimg_mp_scalar1(op,i1) _cimg_mp_return(scalar1(op,i1))
@@ -13766,7 +13766,7 @@ namespace cimg_library_suffixed {
         imgout(img_output?*img_output:CImg<T>::empty()),listout(list_output?*list_output:CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),user_function(0),
         mem_img_median(~0U),debug_indent(0),init_size(0),result_dim(0),is_parallelizable(true),
-        need_input_copy(false),calling_function(funcname?funcname:"cimg_math_parser"),s_op(0) {
+        need_input_copy(false),calling_function(funcname?funcname:"cimg_math_parser"),s_op("") {
         if (!expression || !*expression)
           throw CImgArgumentException("[_cimg_math_parser] "
                                       "CImg<%s>::%s: Empty expression.",
@@ -13891,7 +13891,7 @@ namespace cimg_library_suffixed {
         imgin(CImg<T>::const_empty()),listin(CImgList<T>::const_empty()),
         imgout(CImg<T>::empty()),listout(CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),debug_indent(0),
-        result_dim(0),is_parallelizable(true),need_input_copy(false),calling_function(0),s_op(0) {
+        result_dim(0),is_parallelizable(true),need_input_copy(false),calling_function(0),s_op("") {
         mem.assign(1 + _cimg_mp_c,1,1,1,0); // Allow to skip 'is_empty?' test in operator()()
         result = mem._data;
       }
@@ -13901,7 +13901,7 @@ namespace cimg_library_suffixed {
         imgin(mp.imgin),listin(mp.listin),imgout(mp.imgout),listout(mp.listout),img_stats(mp.img_stats),
         list_stats(mp.list_stats),list_median(mp.list_median),debug_indent(0),result_dim(mp.result_dim),
         is_parallelizable(mp.is_parallelizable), need_input_copy(mp.need_input_copy),
-        result(mem._data + (mp.result - mp.mem._data)),calling_function(0),s_op(0) {
+        result(mem._data + (mp.result - mp.mem._data)),calling_function(0),s_op("") {
 #ifdef cimg_use_openmp
         mem[17] = omp_get_thread_num();
 #endif
@@ -13935,19 +13935,13 @@ namespace cimg_library_suffixed {
         }
         if (se<=ss || !*ss) {
           cimg::strellipsize(expr,64);
-          if (s_op)
-            throw CImgArgumentException("[_cimg_math_parser] "
-                                        "CImg<%s>::%s: %s: Missing %s, in expression '%s'.",
-                                        pixel_type(),_cimg_mp_calling_function,s_op,
-                                        *s_op=='F'?"argument":"operand",expr._data);
-          else
-            throw CImgArgumentException("[_cimg_math_parser] "
-                                        "CImg<%s>::%s: Missing item, in expression '%s'.",
-                                        pixel_type(),_cimg_mp_calling_function,
-                                        expr._data);
+          throw CImgArgumentException("[_cimg_math_parser] "
+                                      "CImg<%s>::%s: %s%s Missing %s, in expression '%s'.",
+                                      pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",
+                                      s_op && *s_op=='F'?"argument":"operand",expr._data);
         }
 
-        const char *const ps_op = s_op;
+        const char *const previous_s_op = s_op;
         const unsigned int depth1 = depth + 1;
         unsigned int pos, p1, p2, p3, arg1, arg2, arg3, arg4, arg5, arg6;
         char
@@ -14011,8 +14005,9 @@ namespace cimg_library_suffixed {
             if (reserved_label['i']!=~0U) _cimg_mp_return(reserved_label['i']);
             _cimg_mp_scalar0(mp_i);
           case 'I' :
+            s_op = "Variable 'I'";
             if (reserved_label['I']!=~0U) _cimg_mp_return(reserved_label['I']);
-            _cimg_mp_check_vector0(imgin._spectrum,"variable 'I'");
+            _cimg_mp_check_vector0(imgin._spectrum);
             need_input_copy = true;
             pos = vector(imgin._spectrum);
             CImg<uptrT>::vector((uptrT)mp_Joff,pos,0,0).move_to(code);
@@ -14116,7 +14111,7 @@ namespace cimg_library_suffixed {
                 if (*ss2=='#') { // Index specified
                   s0 = ss3; while (s0<ve1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                   p1 = compile(ss3,s0++,depth1,0);
-                  _cimg_mp_check_listin(s_op);
+                  _cimg_mp_check_listin();
                 } else { p1 = ~0U; s0 = ss2; }
                 arg1 = compile(s0,ve1,depth1,0); // Offset
                 arg2 = compile(s + 1,se,depth1,0); // Value to assign
@@ -14127,9 +14122,9 @@ namespace cimg_library_suffixed {
                     p3 = (unsigned int)cimg::mod((int)mem[p1],listin.width());
                     p2 = listin[p3]._spectrum;
                   }
-                  _cimg_mp_check_vector0(p2,s_op);
+                  _cimg_mp_check_vector0(p2);
                 } else p2 = 0;
-                _cimg_mp_check_type(arg2,2,s_op,*ss>='i'?1:3,p2);
+                _cimg_mp_check_type(arg2,2,*ss>='i'?1:3,p2);
 
                 if (p_ref) {
                   *p_ref = _cimg_mp_is_vector(arg2)?4:2;
@@ -14173,7 +14168,7 @@ namespace cimg_library_suffixed {
                 if (*ss2=='#') { // Index specified
                   s0 = ss3; while (s0<ve1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                   p1 = compile(ss3,s0++,depth1,0);
-                  _cimg_mp_check_listin(s_op);
+                  _cimg_mp_check_listin();
                 } else { p1 = ~0U; s0 = ss2; }
                 arg1 = is_relative?0U:(unsigned int)_cimg_mp_x;
                 arg2 = is_relative?0U:(unsigned int)_cimg_mp_y;
@@ -14211,9 +14206,9 @@ namespace cimg_library_suffixed {
                     p3 = (unsigned int)cimg::mod((int)mem[p1],listin.width());
                     p2 = listin[p3]._spectrum;
                   }
-                  _cimg_mp_check_vector0(p2,s_op);
+                  _cimg_mp_check_vector0(p2);
                 } else p2 = 0;
-                _cimg_mp_check_type(arg5,2,s_op,*ss>='i'?1:3,p2);
+                _cimg_mp_check_type(arg5,2,*ss>='i'?1:3,p2);
 
                 if (p_ref) {
                   *p_ref = _cimg_mp_is_vector(arg5)?5:3;
@@ -14271,7 +14266,7 @@ namespace cimg_library_suffixed {
                 arg1 = ~0U; // Vector slot
                 arg2 = compile(++s0,ve1,depth1,0); // Index
                 arg3 = compile(s + 1,se,depth1,0); // Value to assign
-                _cimg_mp_check_type(arg3,2,s_op,1,0);
+                _cimg_mp_check_type(arg3,2,1,0);
 
                 if (variable_name[1]) { // Multi-char variable
                   cimglist_for(variable_def,i) if (!std::strcmp(variable_name,variable_def[i])) {
@@ -14453,7 +14448,7 @@ namespace cimg_library_suffixed {
                 }
 
               } else { // Variable already exists -> assign a new value
-                _cimg_mp_check_type(arg2,2,s_op,_cimg_mp_is_vector(arg1)?3:1,_cimg_mp_vector_size(arg1));
+                _cimg_mp_check_type(arg2,2,_cimg_mp_is_vector(arg1)?3:1,_cimg_mp_vector_size(arg1));
                 if (_cimg_mp_is_vector(arg1)) { // Vector
                   if (_cimg_mp_is_vector(arg2)) // From vector
                     CImg<uptrT>::vector((uptrT)mp_vector_copy,arg1,arg2,(uptrT)_cimg_mp_vector_size(arg1)).
@@ -14477,7 +14472,7 @@ namespace cimg_library_suffixed {
               arg2 = compile(s + 1,se,depth1,0); // Value to assign
 
               if (*ref==1) { // Vector value (scalar): V[k] = scalar
-                _cimg_mp_check_type(arg2,2,s_op,1,0);
+                _cimg_mp_check_type(arg2,2,1,0);
                 arg3 = ref[1]; // Vector slot
                 arg4 = ref[2]; // Index
                 if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
@@ -14487,7 +14482,7 @@ namespace cimg_library_suffixed {
               }
 
               if (*ref==2) { // Image value (scalar): i/j[_#ind,off] = scalar
-                _cimg_mp_check_type(arg2,2,s_op,1,0);
+                _cimg_mp_check_type(arg2,2,1,0);
                 is_parallelizable = false;
                 p1 = ref[1]; // Index
                 is_relative = (bool)ref[2];
@@ -14506,7 +14501,7 @@ namespace cimg_library_suffixed {
               }
 
               if (*ref==3) { // Image value (scalar): i/j(_#ind,_x,_y,_z,_c) = scalar
-                _cimg_mp_check_type(arg2,2,s_op,1,0);
+                _cimg_mp_check_type(arg2,2,1,0);
                 is_parallelizable = false;
                 p1 = ref[1]; // Index
                 is_relative = (bool)ref[2];
@@ -14528,7 +14523,7 @@ namespace cimg_library_suffixed {
               }
 
               if (*ref==4) { // Image value (vector): I/J[_#ind,off] = value
-                _cimg_mp_check_type(arg2,2,s_op,3,_cimg_mp_vector_size(arg1));
+                _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
                 is_parallelizable = false;
                 p1 = ref[1]; // Index
                 is_relative = (bool)ref[2];
@@ -14555,7 +14550,7 @@ namespace cimg_library_suffixed {
               }
 
               if (*ref==5) { // Image value (vector): I/J(_#ind,_x,_y,_z,_c) = value
-                _cimg_mp_check_type(arg2,2,s_op,3,_cimg_mp_vector_size(arg1));
+                _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
                 is_parallelizable = false;
                 p1 = ref[1]; // Index
                 is_relative = (bool)ref[2];
@@ -14584,7 +14579,7 @@ namespace cimg_library_suffixed {
               }
 
               if (_cimg_mp_is_vector(arg1)) { // Vector variable: V = value
-                _cimg_mp_check_type(arg2,2,s_op,1,0);
+                _cimg_mp_check_type(arg2,2,1,0);
                 if (_cimg_mp_is_vector(arg2)) // From vector
                   CImg<uptrT>::vector((uptrT)mp_vector_copy,arg1,arg2,(uptrT)_cimg_mp_vector_size(arg1)).
                     move_to(code);
@@ -14595,7 +14590,7 @@ namespace cimg_library_suffixed {
               }
 
               if (_cimg_mp_is_variable(arg1)) { // Scalar variable: s = scalar
-                _cimg_mp_check_type(arg2,2,s_op,1,0);
+                _cimg_mp_check_type(arg2,2,1,0);
                 CImg<uptrT>::vector((uptrT)mp_copy,arg1,arg2).move_to(code);
                 _cimg_mp_return(arg1);
 
@@ -14624,15 +14619,15 @@ namespace cimg_library_suffixed {
             arg1 = compile(ss,ns,depth1,ref); // Vector slot
             arg2 = compile(s + 1,se,depth1,0); // Right operand
             if (*ps!='*') {
-              _cimg_mp_check_type(arg1,2,s_op,2,2);
-              _cimg_mp_check_type(arg2,2,s_op,2,2);
+              _cimg_mp_check_type(arg1,2,2,2);
+              _cimg_mp_check_type(arg2,2,2,2);
             }
             if (_cimg_mp_is_vector(arg2)) { // Complex **= complex or Matrix **= matrix
               if (*ps=='*') {
                 if (_cimg_mp_vector_size(arg1)==2 && _cimg_mp_vector_size(arg2)==2)
                   CImg<uptrT>::vector((uptrT)mp_complex_mul,arg1,arg1,arg2).move_to(code);
                 else {
-                  _cimg_mp_check_matrix_square(arg2,2,s_op);
+                  _cimg_mp_check_matrix_square(arg2,2);
                   p3 = _cimg_mp_vector_size(arg1);
                   p2 = (unsigned int)std::sqrt((float)_cimg_mp_vector_size(arg2));
                   p1 = p3/p2;
@@ -14727,7 +14722,7 @@ namespace cimg_library_suffixed {
             }
 
             if (*ref==1) { // Vector value (scalar): V[k] += scalar
-              _cimg_mp_check_type(arg2,2,s_op,1,0);
+              _cimg_mp_check_type(arg2,2,1,0);
               arg3 = ref[1]; // Vector slot
               arg4 = ref[2]; // Index
               if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
@@ -14738,7 +14733,7 @@ namespace cimg_library_suffixed {
             }
 
             if (*ref==2) { // Image value (scalar): i/j[_#ind,off] += scalar
-              _cimg_mp_check_type(arg2,2,s_op,1,0);
+              _cimg_mp_check_type(arg2,2,1,0);
               is_parallelizable = false;
               p1 = ref[1]; // Index
               is_relative = (bool)ref[2];
@@ -14758,7 +14753,7 @@ namespace cimg_library_suffixed {
             }
 
             if (*ref==3) { // Image value (scalar): i/j(_#ind,_x,_y,_z,_c) += scalar
-              _cimg_mp_check_type(arg2,2,s_op,1,0);
+              _cimg_mp_check_type(arg2,2,1,0);
               is_parallelizable = false;
               p1 = ref[1]; // Index
               is_relative = (bool)ref[2];
@@ -14781,7 +14776,7 @@ namespace cimg_library_suffixed {
             }
 
             if (*ref==4) { // Image value (vector): I/J[_#ind,off] += value
-              _cimg_mp_check_type(arg2,2,s_op,3,_cimg_mp_vector_size(arg1));
+              _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
               is_parallelizable = false;
               p1 = ref[1]; // Index
               is_relative = (bool)ref[2];
@@ -14801,7 +14796,7 @@ namespace cimg_library_suffixed {
             }
 
             if (*ref==5) { // Image value (vector): I/J(_#ind,_x,_y,_z,_c) += value
-              _cimg_mp_check_type(arg2,2,s_op,3,_cimg_mp_vector_size(arg1));
+              _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
               is_parallelizable = false;
               p1 = ref[1]; // Index
               is_relative = (bool)ref[2];
@@ -14823,14 +14818,14 @@ namespace cimg_library_suffixed {
             }
 
             if (_cimg_mp_is_vector(arg1)) { // Vector variable: V += value
-              _cimg_mp_check_type(arg2,2,s_op,3,_cimg_mp_vector_size(arg1));
+              _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
               if (_cimg_mp_is_vector(arg2)) self_vector_v(arg1,op,arg2); // Vector += vector
               else self_vector_s(arg1,op,arg2); // Vector += scalar
               _cimg_mp_return(arg1);
             }
 
             if (_cimg_mp_is_variable(arg1)) { // Scalar variable: s += scalar
-              _cimg_mp_check_type(arg2,2,s_op,1,0);
+              _cimg_mp_check_type(arg2,2,1,0);
               CImg<uptrT>::vector((uptrT)op,arg1,arg2).move_to(code);
               _cimg_mp_return(arg1);
             }
@@ -14852,7 +14847,7 @@ namespace cimg_library_suffixed {
             s_op = "Operator '?:'";
             s1 = s + 1; while (s1<se1 && (*s1!=':' || level[s1 - expr._data]!=clevel)) ++s1;
             arg1 = compile(ss,s,depth1,0);
-            _cimg_mp_check_type(arg1,1,s_op,1,0);
+            _cimg_mp_check_type(arg1,1,1,0);
             if (_cimg_mp_is_constant(arg1)) {
               if ((bool)mem[arg1]) return compile(s + 1,*s1!=':'?se:s1,depth1,0);
               else return *s1!=':'?0:compile(++s1,se,depth1,0);
@@ -14861,7 +14856,7 @@ namespace cimg_library_suffixed {
             arg2 = compile(s + 1,*s1!=':'?se:s1,depth1,0);
             p3 = code._width;
             arg3 = *s1!=':'?0:compile(++s1,se,depth1,0);
-            _cimg_mp_check_type(arg3,3,s_op,_cimg_mp_is_vector(arg2)?2:1,_cimg_mp_vector_size(arg2));
+            _cimg_mp_check_type(arg3,3,_cimg_mp_is_vector(arg2)?2:1,_cimg_mp_vector_size(arg2));
             arg4 = _cimg_mp_is_vector(arg2)?_cimg_mp_vector_size(arg2):0; // Output vector size (or 0 if scalar)
             if (arg4) pos = vector(arg4); else pos = scalar();
             CImg<uptrT>::vector((uptrT)mp_if,pos,arg1,arg2,arg3,
@@ -14875,8 +14870,8 @@ namespace cimg_library_suffixed {
             arg1 = compile(ss,s,depth1,0);
             p2 = code._width;
             arg2 = compile(s + 2,se,depth1,0);
-            _cimg_mp_check_type(arg1,1,s_op,1,0);
-            _cimg_mp_check_type(arg2,2,s_op,1,0);
+            _cimg_mp_check_type(arg1,1,1,0);
+            _cimg_mp_check_type(arg2,2,1,0);
             if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2))
               _cimg_mp_constant(mem[arg1] || mem[arg2]);
             pos = scalar();
@@ -14891,8 +14886,8 @@ namespace cimg_library_suffixed {
             arg1 = compile(ss,s,depth1,0);
             p2 = code._width;
             arg2 = compile(s + 2,se,depth1,0);
-            _cimg_mp_check_type(arg1,1,s_op,1,0);
-            _cimg_mp_check_type(arg2,2,s_op,1,0);
+            _cimg_mp_check_type(arg1,1,1,0);
+            _cimg_mp_check_type(arg2,2,1,0);
             if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2))
               _cimg_mp_constant(mem[arg1] && mem[arg2]);
             pos = scalar();
@@ -14903,9 +14898,10 @@ namespace cimg_library_suffixed {
 
         for (s = se2; s>ss; --s)
           if (*s=='|' && level[s - expr._data]==clevel) { // Bitwise or ('|')
+            s_op = "Operator '|'";
             arg1 = compile(ss,s,depth1,0);
             arg2 = compile(s + 1,se,depth1,0);
-            _cimg_mp_check_type(arg2,2,"operator '|'",3,_cimg_mp_vector_size(arg1));
+            _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_bitwise_or,arg1,arg2);
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_bitwise_or,arg1,arg2);
             if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_bitwise_or,arg1,arg2);
@@ -14916,9 +14912,10 @@ namespace cimg_library_suffixed {
 
         for (s = se2; s>ss; --s)
           if (*s=='&' && level[s - expr._data]==clevel) { // Bitwise and ('&')
+            s_op = "Operator '&'";
             arg1 = compile(ss,s,depth1,0);
             arg2 = compile(s + 1,se,depth1,0);
-            _cimg_mp_check_type(arg2,2,"operator '&'",3,_cimg_mp_vector_size(arg1));
+            _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_bitwise_and,arg1,arg2);
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_bitwise_and,arg1,arg2);
             if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_bitwise_and,arg1,arg2);
@@ -14929,9 +14926,10 @@ namespace cimg_library_suffixed {
 
         for (s = se3, ns = se2; s>ss; --s, --ns)
           if (*s=='!' && *ns=='=' && level[s - expr._data]==clevel) { // Not equal to ('!=')
+            s_op = "Operator '!='";
             arg1 = compile(ss,s,depth1,0);
             arg2 = compile(s + 2,se,depth1,0);
-            _cimg_mp_check_type(arg2,2,"operator '!='",3,_cimg_mp_vector_size(arg1));
+            _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_neq,arg1,arg2);
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_neq,arg1,arg2);
             if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_neq,arg1,arg2);
@@ -14941,9 +14939,10 @@ namespace cimg_library_suffixed {
 
         for (s = se3, ns = se2; s>ss; --s, --ns)
           if (*s=='=' && *ns=='=' && level[s - expr._data]==clevel) { // Equal to ('==')
+            s_op = "Operator '=='";
             arg1 = compile(ss,s,depth1,0);
             arg2 = compile(s + 2,se,depth1,0);
-            _cimg_mp_check_type(arg2,2,"operator '=='",3,_cimg_mp_vector_size(arg1));
+            _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_eq,arg1,arg2);
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_eq,arg1,arg2);
             if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_eq,arg1,arg2);
@@ -14953,9 +14952,10 @@ namespace cimg_library_suffixed {
 
         for (s = se3, ns = se2; s>ss; --s, --ns)
           if (*s=='<' && *ns=='=' && level[s - expr._data]==clevel) { // Less or equal than ('<=')
+            s_op = "Operator '<='";
             arg1 = compile(ss,s,depth1,0);
             arg2 = compile(s + 2,se,depth1,0);
-            _cimg_mp_check_type(arg2,2,"operator '<='",3,_cimg_mp_vector_size(arg1));
+            _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_lte,arg1,arg2);
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_lte,arg1,arg2);
             if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_lte,arg1,arg2);
@@ -14965,9 +14965,10 @@ namespace cimg_library_suffixed {
 
         for (s = se3, ns = se2; s>ss; --s, --ns)
           if (*s=='>' && *ns=='=' && level[s - expr._data]==clevel) { // Greater or equal than ('>=')
+            s_op = "Operator '>='";
             arg1 = compile(ss,s,depth1,0);
             arg2 = compile(s + 2,se,depth1,0);
-            _cimg_mp_check_type(arg2,2,"operator '>='",3,_cimg_mp_vector_size(arg1));
+            _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_gte,arg1,arg2);
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_gte,arg1,arg2);
             if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_gte,arg1,arg2);
@@ -14977,9 +14978,10 @@ namespace cimg_library_suffixed {
 
         for (s = se2, ns = se1, ps = se3; s>ss; --s, --ns, --ps)
           if (*s=='<' && *ns!='<' && *ps!='<' && level[s - expr._data]==clevel) { // Less than ('<')
+            s_op = "Operator '<'";
             arg1 = compile(ss,s,depth1,0);
             arg2 = compile(s + 1,se,depth1,0);
-            _cimg_mp_check_type(arg2,2,"operator '<'",3,_cimg_mp_vector_size(arg1));
+            _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_lt,arg1,arg2);
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_lt,arg1,arg2);
             if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_lt,arg1,arg2);
@@ -14989,9 +14991,10 @@ namespace cimg_library_suffixed {
 
         for (s = se2, ns = se1, ps = se3; s>ss; --s, --ns, --ps)
           if (*s=='>' && *ns!='>' && *ps!='>' && level[s - expr._data]==clevel) { // Greather than ('>')
+            s_op = "Operator '>'";
             arg1 = compile(ss,s,depth1,0);
             arg2 = compile(s + 1,se,depth1,0);
-            _cimg_mp_check_type(arg2,2,"operator '>'",3,_cimg_mp_vector_size(arg1));
+            _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_gt,arg1,arg2);
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_gt,arg1,arg2);
             if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_gt,arg1,arg2);
@@ -15001,9 +15004,10 @@ namespace cimg_library_suffixed {
 
         for (s = se3, ns = se2; s>ss; --s, --ns)
           if (*s=='<' && *ns=='<' && level[s - expr._data]==clevel) { // Left bit shift ('<<')
+            s_op = "Operator '<<'";
             arg1 = compile(ss,s,depth1,0);
             arg2 = compile(s + 2,se,depth1,0);
-            _cimg_mp_check_type(arg2,2,"operator '<<'",3,_cimg_mp_vector_size(arg1));
+            _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2))
               _cimg_mp_vector2_vv(mp_bitwise_left_shift,arg1,arg2);
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2))
@@ -15017,9 +15021,10 @@ namespace cimg_library_suffixed {
 
         for (s = se3, ns = se2; s>ss; --s, --ns)
           if (*s=='>' && *ns=='>' && level[s - expr._data]==clevel) { // Right bit shift ('>>')
+            s_op = "Operator '>>'";
             arg1 = compile(ss,s,depth1,0);
             arg2 = compile(s + 2,se,depth1,0);
-            _cimg_mp_check_type(arg2,2,"operator '>>'",3,_cimg_mp_vector_size(arg1));
+            _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2))
               _cimg_mp_vector2_vv(mp_bitwise_right_shift,arg1,arg2);
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2))
@@ -15037,9 +15042,10 @@ namespace cimg_library_suffixed {
               (*ps!='e' || !(ps - pexpr._data>ss - expr._data && (*(ps - 1)=='.' || (*(ps - 1)>='0' &&
                                                                                      *(ps - 1)<='9')))) &&
               level[s - expr._data]==clevel) { // Addition ('+')
+            s_op = "Operator '+'";
             arg1 = compile(ss,s,depth1,0);
             arg2 = compile(s + 1,se,depth1,0);
-            _cimg_mp_check_type(arg2,2,"operator '+'",3,_cimg_mp_vector_size(arg1));
+            _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_add,arg1,arg2);
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_add,arg1,arg2);
             if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_add,arg1,arg2);
@@ -15055,9 +15061,10 @@ namespace cimg_library_suffixed {
               (*ps!='e' || !(ps - pexpr._data>ss - expr._data && (*(ps - 1)=='.' || (*(ps - 1)>='0' &&
                                                                                      *(ps - 1)<='9')))) &&
               level[s - expr._data]==clevel) { // Subtraction ('-')
+            s_op = "Operator '-'";
             arg1 = compile(ss,s,depth1,0);
             arg2 = compile(s + 1,se,depth1,0);
-            _cimg_mp_check_type(arg2,2,"operator '-'",3,_cimg_mp_vector_size(arg1));
+            _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_sub,arg1,arg2);
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_sub,arg1,arg2);
             if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_sub,arg1,arg2);
@@ -15107,8 +15114,8 @@ namespace cimg_library_suffixed {
             s_op = "Operator '//'";
             arg1 = compile(ss,s,depth1,0);
             arg2 = compile(s + 2,se,depth1,0);
-            _cimg_mp_check_type(arg1,1,s_op,3,2);
-            _cimg_mp_check_type(arg2,2,s_op,3,2);
+            _cimg_mp_check_type(arg1,1,3,2);
+            _cimg_mp_check_type(arg2,2,3,2);
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) {
               pos = vector(2);
               CImg<uptrT>::vector((uptrT)mp_complex_div_vv,pos,arg1,arg2).move_to(code);
@@ -15125,9 +15132,10 @@ namespace cimg_library_suffixed {
           }
 
         for (s = se2; s>ss; --s) if (*s=='*' && level[s - expr._data]==clevel) { // Multiplication ('*')
+            s_op = "Operator '*'";
             arg1 = compile(ss,s,depth1,0);
             arg2 = compile(s + 1,se,depth1,0);
-            _cimg_mp_check_type(arg2,2,"operator '*'",3,_cimg_mp_vector_size(arg1));
+            _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_mul,arg1,arg2);
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_mul,arg1,arg2);
             if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_mul,arg1,arg2);
@@ -15137,9 +15145,10 @@ namespace cimg_library_suffixed {
 
 
         for (s = se2; s>ss; --s) if (*s=='/' && level[s - expr._data]==clevel) { // Division ('/')
+            s_op = "Operator '/'";
             arg1 = compile(ss,s,depth1,0);
             arg2 = compile(s + 1,se,depth1,0);
-            _cimg_mp_check_type(arg2,2,"operator '/'",3,_cimg_mp_vector_size(arg1));
+            _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_div,arg1,arg2);
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_div,arg1,arg2);
             if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_div,arg1,arg2);
@@ -15149,9 +15158,10 @@ namespace cimg_library_suffixed {
 
         for (s = se2, ns = se1; s>ss; --s, --ns)
           if (*s=='%' && *ns!='^' && level[s - expr._data]==clevel) { // Modulo ('%')
+            s_op = "Operator '%'";
             arg1 = compile(ss,s,depth1,0);
             arg2 = compile(s + 1,se,depth1,0);
-            _cimg_mp_check_type(arg2,2,"operator '%'",3,_cimg_mp_vector_size(arg1));
+            _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_modulo,arg1,arg2);
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_modulo,arg1,arg2);
             if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_modulo,arg1,arg2);
@@ -15161,10 +15171,13 @@ namespace cimg_library_suffixed {
           }
 
         if (se1>ss) {
-          if (*ss=='+' && (*ss1!='+' || (ss2<se && *ss2>='0' && *ss2<='9'))) // Unary plus ('+')
+          if (*ss=='+' && (*ss1!='+' || (ss2<se && *ss2>='0' && *ss2<='9'))) { // Unary plus ('+')
+            s_op = "Operator '+'";
             _cimg_mp_return(compile(ss1,se,depth1,0));
+          }
 
           if (*ss=='-' && (*ss1!='-' || (ss2<se && *ss2>='0' && *ss2<='9'))) { // Unary minus ('-')
+            s_op = "Operator '-'";
             arg1 = compile(ss1,se,depth1,0);
             if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_minus,arg1);
             if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(-mem[arg1]);
@@ -15172,6 +15185,7 @@ namespace cimg_library_suffixed {
           }
 
           if (*ss=='!') { // Logical not ('!')
+            s_op = "Operator '!'";
             arg1 = compile(ss1,se,depth1,0);
             if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_logical_not,arg1);
             if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(!mem[arg1]);
@@ -15179,6 +15193,7 @@ namespace cimg_library_suffixed {
           }
 
           if (*ss=='~') { // Bitwise not ('~')
+            s_op = "Operator '~'";
             arg1 = compile(ss1,se,depth1,0);
             if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_bitwise_not,arg1);
             if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(~(unsigned long)mem[arg1]);
@@ -15191,8 +15206,8 @@ namespace cimg_library_suffixed {
             s_op = "Operator '^^'";
             arg1 = compile(ss,s,depth1,0);
             arg2 = compile(s + 2,se,depth1,0);
-            _cimg_mp_check_type(arg1,1,s_op,3,2);
-            _cimg_mp_check_type(arg2,2,s_op,3,2);
+            _cimg_mp_check_type(arg1,1,3,2);
+            _cimg_mp_check_type(arg2,2,3,2);
             pos = (_cimg_mp_is_vector(arg1) || _cimg_mp_is_vector(arg2))?vector(2):0;
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) {
               CImg<uptrT>::vector((uptrT)mp_complex_pow_vv,pos,arg1,arg2).move_to(code);
@@ -15220,9 +15235,10 @@ namespace cimg_library_suffixed {
 
         for (s = se2; s>ss; --s)
           if (*s=='^' && level[s - expr._data]==clevel) { // Power ('^')
+            s_op = "Operator '^'";
             arg1 = compile(ss,s,depth1,0);
             arg2 = compile(s + 1,se,depth1,0);
-            _cimg_mp_check_type(arg2,2,"operator '^'",3,_cimg_mp_vector_size(arg1));
+            _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_pow,arg1,arg2);
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_pow,arg1,arg2);
             if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_pow,arg1,arg2);
@@ -15382,7 +15398,7 @@ namespace cimg_library_suffixed {
             if (*ss2=='#') { // Index specified
               s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
               p1 = compile(ss3,s0++,depth1,0);
-              _cimg_mp_check_listin(s_op);
+              _cimg_mp_check_listin();
             } else { p1 = ~0U; s0 = ss2; }
             s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
             arg1 = compile(s0,s1,depth1,0); // Offset
@@ -15401,7 +15417,7 @@ namespace cimg_library_suffixed {
               p3 = (unsigned int)cimg::mod((int)mem[p1],listin.width());
               p2 = listin[p3]._spectrum;
             }
-            _cimg_mp_check_vector0(p2,s_op);
+            _cimg_mp_check_vector0(p2);
             pos = vector(p2);
             if (p1!=~0U) {
               CImg<uptrT>::vector((uptrT)(is_relative?mp_list_Joff:mp_list_Ioff),
@@ -15451,8 +15467,8 @@ namespace cimg_library_suffixed {
             if (s1<se1) { // Two arguments -> sub-vector extraction
               arg2 = compile(++s0,s1,depth1,0);
               arg3 = compile(++s1,se1,depth1,0);
-              _cimg_mp_check_constant(arg2,1,s_op,false);
-              _cimg_mp_check_constant(arg3,2,s_op,false);
+              _cimg_mp_check_constant(arg2,1,false);
+              _cimg_mp_check_constant(arg3,2,false);
               p1 = (unsigned int)mem[arg2];
               p2 = (unsigned int)mem[arg3];
               p3 = _cimg_mp_vector_size(arg1);
@@ -15522,14 +15538,14 @@ namespace cimg_library_suffixed {
         if (*se1==')') {
           if (*ss=='(') _cimg_mp_return(compile(ss1,se1,depth1,p_ref)); // Simple parentheses
           is_relative = *ss=='j' || *ss=='J';
-          s_op = "operator '()'";
+          s_op = "Operator '()'";
 
           // I/J(_#ind,_x,_y,_z,_interpolation,_boundary)
           if ((*ss=='I' || *ss=='J') && *ss1=='(') { // Image value as scalar
             if (*ss2=='#') { // Index specified
               s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
               p1 = compile(ss3,s0++,depth1,0);
-              _cimg_mp_check_listin(s_op);
+              _cimg_mp_check_listin();
             } else { p1 = ~0U; s0 = ss2; }
             arg1 = is_relative?0U:(unsigned int)_cimg_mp_x;
             arg2 = is_relative?0U:(unsigned int)_cimg_mp_y;
@@ -15582,7 +15598,7 @@ namespace cimg_library_suffixed {
               p3 = (unsigned int)cimg::mod((int)mem[p1],listin.width());
               p2 = listin[p3]._spectrum;
             }
-            _cimg_mp_check_vector0(p2,s_op);
+            _cimg_mp_check_vector0(p2);
             pos = vector(p2);
             if (p1!=~0U)
               CImg<uptrT>::vector((uptrT)(is_relative?mp_list_Jxyz:mp_list_Ixyz),
@@ -15719,7 +15735,7 @@ namespace cimg_library_suffixed {
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss6,s1,depth1,0);
               arg2 = compile(++s1,se1,depth1,0);
-              _cimg_mp_check_type(arg2,2,"Function 'atan2()'",3,_cimg_mp_vector_size(arg1));
+              _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
               if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_atan2,arg1,arg2);
               if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_atan2,arg1,arg2);
               if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_atan2,arg1,arg2);
@@ -15733,14 +15749,14 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"cabs(",5)) { // Complex absolute value
               s_op = "Function 'cabs()'";
               arg1 = compile(ss5,se1,depth1,0);
-              _cimg_mp_check_type(arg1,0,"Function 'cabs()'",2,2);
+              _cimg_mp_check_type(arg1,0,2,2);
               _cimg_mp_scalar2(mp_hypot,arg1 + 1,arg1 + 2);
             }
 
             if (!std::strncmp(ss,"carg(",5)) { // Complex argument
               s_op = "Function 'carg()'";
               arg1 = compile(ss5,se1,depth1,0);
-              _cimg_mp_check_type(arg1,0,"Function 'carg()'",2,2);
+              _cimg_mp_check_type(arg1,0,2,2);
               _cimg_mp_scalar2(mp_atan2,arg1 + 2,arg1 + 1);
             }
 
@@ -15755,7 +15771,7 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"cconj(",6)) { // Complex conjugate
               s_op = "Function 'cconj()'";
               arg1 = compile(ss6,se1,depth1,0);
-              _cimg_mp_check_type(arg1,0,"Function 'cconj()'",2,2);
+              _cimg_mp_check_type(arg1,0,2,2);
               pos = vector(2);
               CImg<uptrT>::vector((uptrT)mp_complex_conj,pos,arg1).move_to(code);
               _cimg_mp_return(pos);
@@ -15764,7 +15780,7 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"cexp(",5)) { // Complex exponential
               s_op = "Function 'cexp()'";
               arg1 = compile(ss5,se1,depth1,0);
-              _cimg_mp_check_type(arg1,0,"Function 'cexp()'",2,2);
+              _cimg_mp_check_type(arg1,0,2,2);
               pos = vector(2);
               CImg<uptrT>::vector((uptrT)mp_complex_exp,pos,arg1).move_to(code);
               _cimg_mp_return(pos);
@@ -15773,7 +15789,7 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"clog(",5)) { // Complex logarithm
               s_op = "Function 'clog()'";
               arg1 = compile(ss5,se1,depth1,0);
-              _cimg_mp_check_type(arg1,0,"Function 'clog()'",2,2);
+              _cimg_mp_check_type(arg1,0,2,2);
               pos = vector(2);
               CImg<uptrT>::vector((uptrT)mp_complex_log,pos,arg1).move_to(code);
               _cimg_mp_return(pos);
@@ -15802,9 +15818,9 @@ namespace cimg_library_suffixed {
                 if (!ref[7]) ++arg2;
               }
               if (arg3==~0U) arg3 = 1;
-              _cimg_mp_check_type(arg3,3,s_op,1,0);
-              _cimg_mp_check_type(arg4,4,s_op,1,0);
-              _cimg_mp_check_type(arg5,5,s_op,1,0);
+              _cimg_mp_check_type(arg3,3,1,0);
+              _cimg_mp_check_type(arg4,4,1,0);
+              _cimg_mp_check_type(arg5,5,1,0);
               CImg<uptrT>(1,21).move_to(code);
               code.back().get_shared_rows(0,6).fill((uptrT)mp_memcopy,p1,arg1,arg2,arg3,arg4,arg5);
               code.back().get_shared_rows(7,20).fill(ref);
@@ -15832,7 +15848,7 @@ namespace cimg_library_suffixed {
               if (*ss5=='#') { // Index specified
                 s0 = ss6; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                 p1 = compile(ss6,s0++,depth1,0);
-                _cimg_mp_check_listin(s_op);
+                _cimg_mp_check_listin();
               } else { p1 = ~0U; s0 = ss5; need_input_copy = true; }
               pos = 0;
               is_sth = false; // Coordinates specified as a vector?
@@ -15846,7 +15862,7 @@ namespace cimg_library_suffixed {
                   opcode.resize(1,cimg::min(opcode._height,4U),1,1,0).move_to(_opcode);
                   is_sth = true;
                 } else {
-                  _cimg_mp_check_type(arg1,pos + 1,s_op,1,0);
+                  _cimg_mp_check_type(arg1,pos + 1,1,0);
                   CImg<uptrT>::vector(arg1).move_to(_opcode);
                 }
                 s = ns;
@@ -15895,46 +15911,46 @@ namespace cimg_library_suffixed {
                 break;
               default : // Error -> too much arguments
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s: Function '%s': Too much arguments specified, "
+                                            "CImg<%s>::%s: %s: Too much arguments specified, "
                                             "in expression '%s%s%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             (ss - 4)>expr._data?"...":"",
                                             (ss - 4)>expr._data?ss - 4:expr._data,
                                             se<&expr.back()?"...":"");
               }
-              _cimg_mp_check_type(*opcode,arg2 + 1,s_op,1,0);
-              _cimg_mp_check_type(opcode[1],arg2 + (is_sth?0:1),s_op,1,0);
-              _cimg_mp_check_type(opcode[2],arg2 + (is_sth?0:2),s_op,1,0);
-              _cimg_mp_check_type(opcode[3],arg2 + (is_sth?0:3),s_op,1,0);
+              _cimg_mp_check_type(*opcode,arg2 + 1,1,0);
+              _cimg_mp_check_type(opcode[1],arg2 + (is_sth?0:1),1,0);
+              _cimg_mp_check_type(opcode[2],arg2 + (is_sth?0:2),1,0);
+              _cimg_mp_check_type(opcode[3],arg2 + (is_sth?0:3),1,0);
 
               if (opcode[4]!=(uptrT)~0U) {
-                _cimg_mp_check_constant(opcode[4],arg1,s_op,true);
+                _cimg_mp_check_constant(opcode[4],arg1,true);
                 opcode[4] = (uptrT)mem[opcode[4]];
               }
               if (opcode[5]!=(uptrT)~0U) {
-                _cimg_mp_check_constant(opcode[5],arg1 + 1,s_op,true);
+                _cimg_mp_check_constant(opcode[5],arg1 + 1,true);
                 opcode[5] = (uptrT)mem[opcode[5]];
               }
               if (opcode[6]!=(uptrT)~0U) {
-                _cimg_mp_check_constant(opcode[6],arg1 + 2,s_op,true);
+                _cimg_mp_check_constant(opcode[6],arg1 + 2,true);
                 opcode[6] = (uptrT)mem[opcode[6]];
               }
               if (opcode[7]!=(uptrT)~0U) {
-                _cimg_mp_check_constant(opcode[7],arg1 + 3,s_op,true);
+                _cimg_mp_check_constant(opcode[7],arg1 + 3,true);
                 opcode[7] = (uptrT)mem[opcode[7]];
               }
-              _cimg_mp_check_type(opcode[8],arg1 + 4,s_op,1,0);
+              _cimg_mp_check_type(opcode[8],arg1 + 4,1,0);
 
               if (opcode[4]==(uptrT)~0U || opcode[5]==(uptrT)~0U ||
                   opcode[6]==(uptrT)~0U || opcode[7]==(uptrT)~0U) {
                 if (p1!=~0U) {
-                  _cimg_mp_check_constant(p1,1,s_op,false);
+                  _cimg_mp_check_constant(p1,1,false);
                   p1 = (unsigned int)cimg::mod((int)mem[p1],listin.width());
                 }
                 const CImg<T> &img = p1!=~0U?listin[p1]:imgin;
                 if (!img)
                   throw CImgArgumentException("[_cimg_math_parser] "
-                                              "CImg<%s>::%s: Function '%s': Cannot crop empty image when "
+                                              "CImg<%s>::%s: %s: Cannot crop empty image when "
                                               "some xyzc-coordinates are unspecified, in expression '%s%s%s'.",
                                               pixel_type(),_cimg_mp_calling_function,s_op,
                                               (ss - 4)>expr._data?"...":"",
@@ -15960,8 +15976,8 @@ namespace cimg_library_suffixed {
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss6,s1,depth1,0);
               arg2 = compile(++s1,se1,depth1,0);
-              _cimg_mp_check_type(arg1,1,s_op,2,3);
-              _cimg_mp_check_type(arg2,2,s_op,2,3);
+              _cimg_mp_check_type(arg1,1,2,3);
+              _cimg_mp_check_type(arg2,2,2,3);
               pos = vector(3);
               CImg<uptrT>::vector((uptrT)mp_cross,pos,arg1,arg2).move_to(code);
               _cimg_mp_return(pos);
@@ -16014,7 +16030,7 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"det(",4)) { // Matrix determinant
               s_op = "Function 'det()'";
               arg1 = compile(ss4,se1,depth1,0);
-              _cimg_mp_check_matrix_square(arg1,1,"Function 'det()'");
+              _cimg_mp_check_matrix_square(arg1,1);
               p1 = (unsigned int)std::sqrt((float)_cimg_mp_vector_size(arg1));
               _cimg_mp_scalar2(mp_det,arg1,p1);
             }
@@ -16022,7 +16038,7 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"diag(",5)) { // Diagonal matrix
               s_op = "Function 'diag()'";
               arg1 = compile(ss5,se1,depth1,0);
-              _cimg_mp_check_type(arg1,1,"Function 'diag()'",2,0);
+              _cimg_mp_check_type(arg1,1,2,0);
               p1 = _cimg_mp_vector_size(arg1);
               pos = vector(p1*p1);
               CImg<uptrT>::vector((uptrT)mp_diag,pos,arg1,p1).move_to(code);
@@ -16034,8 +16050,8 @@ namespace cimg_library_suffixed {
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss4,s1,depth1,0);
               arg2 = compile(++s1,se1,depth1,0);
-              _cimg_mp_check_type(arg1,1,s_op,2,0);
-              _cimg_mp_check_type(arg2,2,s_op,2,0);
+              _cimg_mp_check_type(arg1,1,2,0);
+              _cimg_mp_check_type(arg2,2,2,0);
               if (_cimg_mp_is_vector(arg1)) _cimg_mp_scalar3(mp_dot,arg1,arg2,_cimg_mp_vector_size(arg1));
               _cimg_mp_scalar2(mp_mul,arg1,arg2);
             }
@@ -16047,7 +16063,7 @@ namespace cimg_library_suffixed {
               p1 = code._width;
               arg1 = compile(ss8,s1,depth1,0);
               arg2 = s1<se1?compile(++s1,se1,depth1,0):arg1;
-              _cimg_mp_check_type(arg2,2,"Function 'dowhile()'",1,0);
+              _cimg_mp_check_type(arg2,2,1,0);
               CImg<uptrT>::vector((uptrT)mp_dowhile,arg1,arg2,code._width - p1).move_to(code,p1);
               _cimg_mp_return(arg1);
             }
@@ -16087,9 +16103,9 @@ namespace cimg_library_suffixed {
                 arg5 = compile(++s0,s1,depth1,0);
                 s0 = ++s1;
                 is_sth = p1!=~0U;
-                _cimg_mp_check_type(arg3,is_sth?4:3,s_op,1,0);
-                _cimg_mp_check_type(arg4,is_sth?5:4,s_op,1,0);
-                _cimg_mp_check_type(arg5,is_sth?6:5,s_op,1,0);
+                _cimg_mp_check_type(arg3,is_sth?4:3,1,0);
+                _cimg_mp_check_type(arg4,is_sth?5:4,1,0);
+                _cimg_mp_check_type(arg5,is_sth?6:5,1,0);
                 is_sth = false;
               }
 
@@ -16112,15 +16128,15 @@ namespace cimg_library_suffixed {
                 }
               }
               p2 = p1!=~0U?0:1;
-              _cimg_mp_check_constant(arg2,p2 + (is_sth?3:6),s_op,true);
+              _cimg_mp_check_constant(arg2,p2 + (is_sth?3:6),true);
               arg2 = (unsigned int)mem[arg2];
-              _cimg_mp_check_constant(arg3,p2 + (is_sth?4:7),s_op,true);
+              _cimg_mp_check_constant(arg3,p2 + (is_sth?4:7),true);
               arg3 = (unsigned int)mem[arg3];
-              _cimg_mp_check_constant(arg4,p2 + (is_sth?5:8),s_op,true);
+              _cimg_mp_check_constant(arg4,p2 + (is_sth?5:8),true);
               arg4 = (unsigned int)mem[arg4];
               if (arg5==~0U) arg5 = _cimg_mp_vector_size(arg1)/(arg2*arg3*arg4);
               else {
-                _cimg_mp_check_constant(arg5,p2 + (is_sth?6:9),s_op,true);
+                _cimg_mp_check_constant(arg5,p2 + (is_sth?6:9),true);
                 arg5 = (unsigned int)mem[arg5];
               }
               if (arg2*arg3*arg4*arg5!=_cimg_mp_vector_size(arg1)) {
@@ -16143,12 +16159,12 @@ namespace cimg_library_suffixed {
               if (s0<se1) {
                 s1 = s0 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                 arg6 = compile(++s0,s1,depth1,0);
-                _cimg_mp_check_type(arg6,0,s_op,1,0);
+                _cimg_mp_check_type(arg6,0,1,0);
                 opcode[11] = arg6;
                 if (s1<se1) {
                   s0 = s1 + 1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                   p2 = compile(++s1,s0,depth1,0);
-                  _cimg_mp_check_type(p2,0,s_op,2,0);
+                  _cimg_mp_check_type(p2,0,2,0);
                   if (arg2*arg3*arg4%_cimg_mp_vector_size(p2)) {
                     *se = saved_char; cimg::strellipsize(expr,64);
                     throw CImgArgumentException("[_cimg_math_parser] "
@@ -16164,7 +16180,7 @@ namespace cimg_library_suffixed {
                   opcode[12] = p2;
                   opcode[13] = _cimg_mp_vector_size(p2)/(arg2*arg3*arg4);
                   p3 = s0<se1?compile(++s0,se1,depth1,0):1;
-                  _cimg_mp_check_type(p3,0,s_op,1,0);
+                  _cimg_mp_check_type(p3,0,1,0);
                   opcode[14] = p3;
                 }
               }
@@ -16177,7 +16193,7 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"eig(",4)) { // Matrix eigenvalues/eigenvector
               s_op = "Function 'eig()'";
               arg1 = compile(ss4,se1,depth1,0);
-              _cimg_mp_check_matrix_square(arg1,1,"Function 'eig()'");
+              _cimg_mp_check_matrix_square(arg1,1);
               p1 = (unsigned int)std::sqrt((float)_cimg_mp_vector_size(arg1));
               pos = vector((p1 + 1)*p1);
               CImg<uptrT>::vector((uptrT)mp_eig,pos,arg1,p1).move_to(code);
@@ -16195,7 +16211,7 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"eye(",4)) { // Identity matrix
               s_op = "Function 'eye()'";
               arg1 = compile(ss4,se1,depth1,0);
-              _cimg_mp_check_constant(arg1,1,"Function 'eye()'",true);
+              _cimg_mp_check_constant(arg1,1,true);
               p1 = (unsigned int)mem[arg1];
               pos = vector(p1*p1);
               CImg<uptrT>::vector((uptrT)mp_eye,pos,p1).move_to(code);
@@ -16216,7 +16232,7 @@ namespace cimg_library_suffixed {
               p2 = code._width;
               if (s3<se1) { pos = compile(s3 + 1,se1,depth1,0); compile(++s2,s3,depth1,0); } // Body + proc
               else pos = compile(++s2,se1,depth1,0); // Proc only
-              _cimg_mp_check_type(arg1,2,"Function 'for()'",1,0);
+              _cimg_mp_check_type(arg1,2,1,0);
               arg2 = _cimg_mp_is_vector(pos)?_cimg_mp_vector_size(pos):0; // Output vector size (or 0 if scalar)
               CImg<uptrT>::vector((uptrT)mp_whiledo,pos,arg1,p2 - p1,code._width - p2,arg2).move_to(code,p1);
               _cimg_mp_return(pos);
@@ -16229,7 +16245,7 @@ namespace cimg_library_suffixed {
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss6,s1,depth1,0);
               arg2 = s1<se1?compile(++s1,se1,depth1,0):1;
-              _cimg_mp_check_type(arg2,2,s_op,1,0);
+              _cimg_mp_check_type(arg2,2,1,0);
               if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector2_vs(mp_gauss,arg1,arg2);
               if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2)) {
                 val1 = mem[arg1];
@@ -16246,8 +16262,8 @@ namespace cimg_library_suffixed {
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss6,s1,depth1,0);
               arg2 = compile(++s1,se1,depth1,0);
-              _cimg_mp_check_type(arg1,1,s_op,1,0);
-              _cimg_mp_check_type(arg2,2,s_op,1,0);
+              _cimg_mp_check_type(arg1,1,1,0);
+              _cimg_mp_check_type(arg2,2,1,0);
               if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2)) {
                 val1 = cimg::abs(mem[arg1]);
                 val2 = cimg::abs(mem[arg2]);
@@ -16266,7 +16282,7 @@ namespace cimg_library_suffixed {
               s1 = ss3; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg1 = compile(ss3,s1,depth1,0);
-              _cimg_mp_check_type(arg1,1,s_op,1,0);
+              _cimg_mp_check_type(arg1,1,1,0);
               if (_cimg_mp_is_constant(arg1)) {
                 if ((bool)mem[arg1]) return compile(++s1,s2,depth1,0);
                 else return s2<se1?compile(++s2,se1,depth1,0):0;
@@ -16275,7 +16291,7 @@ namespace cimg_library_suffixed {
               arg2 = compile(++s1,s2,depth1,0);
               p3 = code._width;
               arg3 = s2<se1?compile(++s2,se1,depth1,0):0;
-              _cimg_mp_check_type(arg3,3,s_op,_cimg_mp_is_vector(arg2)?2:1,_cimg_mp_vector_size(arg2));
+              _cimg_mp_check_type(arg3,3,_cimg_mp_is_vector(arg2)?2:1,_cimg_mp_vector_size(arg2));
               arg4 = _cimg_mp_is_vector(arg2)?_cimg_mp_vector_size(arg2):0; // Output vector size (or 0 if scalar)
               if (arg4) pos = vector(arg4); else pos = scalar();
               CImg<uptrT>::vector((uptrT)mp_if,pos,arg1,arg2,arg3,
@@ -16288,9 +16304,9 @@ namespace cimg_library_suffixed {
               if (ss0!=expr._data || code.width()) { // (only allowed as the first instruction)
                 *se = saved_char; cimg::strellipsize(expr,64);
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s: Function 'init()': Init invokation not done at the "
+                                            "CImg<%s>::%s: %s: Init invokation not done at the "
                                             "beginning of expression '%s%s%s'.",
-                                            pixel_type(),_cimg_mp_calling_function,
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
                                             (ss - 4)>expr._data?"...":"",
                                             (ss - 4)>expr._data?ss - 4:expr._data,
                                             se<&expr.back()?"...":"");
@@ -16311,7 +16327,7 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"inv(",4)) { // Matrix/scalar inversion
               s_op = "Function 'inv()'";
               arg1 = compile(ss4,se1,depth1,0);
-              _cimg_mp_check_matrix_square(arg1,1,s_op);
+              _cimg_mp_check_matrix_square(arg1,1);
               p1 = (unsigned int)std::sqrt((float)_cimg_mp_vector_size(arg1));
               pos = vector(p1*p1);
               CImg<uptrT>::vector((uptrT)mp_inv,pos,arg1,p1).move_to(code);
@@ -16435,9 +16451,9 @@ namespace cimg_library_suffixed {
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(++s1,s2,depth1,0);
               arg3 = s2<se1?compile(++s2,se1,depth1,0):1;
-              _cimg_mp_check_type(arg1,1,s_op,2,0);
-              _cimg_mp_check_type(arg2,2,s_op,2,0);
-              _cimg_mp_check_constant(arg3,3,s_op,true);
+              _cimg_mp_check_type(arg1,1,2,0);
+              _cimg_mp_check_type(arg2,2,2,0);
+              _cimg_mp_check_constant(arg3,3,true);
               p1 = _cimg_mp_vector_size(arg1);
               p2 = _cimg_mp_vector_size(arg2);
               p3 = (unsigned int)mem[arg3];
@@ -16525,7 +16541,7 @@ namespace cimg_library_suffixed {
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1-expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss4,s1,depth1,0);
               arg2 = s1<se1?compile(++s1,se1,depth1,0):1;
-              _cimg_mp_check_type(arg2,2,s_op,1,0);
+              _cimg_mp_check_type(arg2,2,1,0);
               if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector2_vs(*ss2=='l'?mp_rol:mp_ror,arg1,arg2);
               if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2))
                 _cimg_mp_constant(*ss2=='l'?cimg::rol(mem[arg1],(unsigned int)mem[arg2]):
@@ -16538,7 +16554,7 @@ namespace cimg_library_suffixed {
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss4,s1,depth1,0);
               if (s1<se1) { // 3d rotation
-                _cimg_mp_check_type(arg1,1,s_op,3,3);
+                _cimg_mp_check_type(arg1,1,3,3);
                 is_sth = false; // Is coordinates as vector?
                 if (_cimg_mp_is_vector(arg1)) { // Coordinates specified as a vector
                   is_sth = true;
@@ -16556,14 +16572,14 @@ namespace cimg_library_suffixed {
                   s3 = s2 + 1; while (s3<se1 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
                   arg3 = compile(++s2,s3,depth1,0);
                   arg4 = compile(++s3,se1,depth1,0);
-                  _cimg_mp_check_type(arg2,2,s_op,1,0);
-                  _cimg_mp_check_type(arg3,3,s_op,1,0);
+                  _cimg_mp_check_type(arg2,2,1,0);
+                  _cimg_mp_check_type(arg3,3,1,0);
                 }
-                _cimg_mp_check_type(arg4,is_sth?2:4,s_op,1,0);
+                _cimg_mp_check_type(arg4,is_sth?2:4,1,0);
                 pos = vector(9);
                 CImg<uptrT>::vector((uptrT)mp_rot3d,pos,arg1,arg2,arg3,arg4).move_to(code);
               } else { // 2d rotation
-                _cimg_mp_check_type(arg1,1,s_op,1,0);
+                _cimg_mp_check_type(arg1,1,1,0);
                 pos = vector(4);
                 CImg<uptrT>::vector((uptrT)mp_rot2d,pos,arg1).move_to(code);
               }
@@ -16581,8 +16597,8 @@ namespace cimg_library_suffixed {
                 arg2 = compile(++s1,s2,depth1,0);
                 arg3 = s2<se1?compile(++s2,se1,depth1,0):0;
               }
-              _cimg_mp_check_type(arg2,2,s_op,1,0);
-              _cimg_mp_check_type(arg3,3,s_op,1,0);
+              _cimg_mp_check_type(arg2,2,1,0);
+              _cimg_mp_check_type(arg3,3,1,0);
               if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector3_vss(mp_round,arg1,arg2,arg3);
               if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2) && _cimg_mp_is_constant(arg3))
                 _cimg_mp_constant(cimg::round(mem[arg1],mem[arg2],(int)mem[arg3]));
@@ -16644,9 +16660,9 @@ namespace cimg_library_suffixed {
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(++s1,s2,depth1,0);
               arg3 = s2<se1?compile(++s2,se1,depth1,0):1;
-              _cimg_mp_check_type(arg1,1,s_op,2,0);
-              _cimg_mp_check_type(arg2,2,s_op,2,0);
-              _cimg_mp_check_constant(arg3,3,s_op,true);
+              _cimg_mp_check_type(arg1,1,2,0);
+              _cimg_mp_check_type(arg2,2,2,0);
+              _cimg_mp_check_constant(arg3,3,true);
               p1 = _cimg_mp_vector_size(arg1);
               p2 = _cimg_mp_vector_size(arg2);
               p3 = (unsigned int)mem[arg3];
@@ -16679,9 +16695,9 @@ namespace cimg_library_suffixed {
                 arg2 = compile(s1,s0,depth1,0);
                 arg3 = s0<se1?compile(++s0,se1,depth1,0):1;
               }
-              _cimg_mp_check_type(arg1,1,s_op,2,0);
-              _cimg_mp_check_type(arg2,2,s_op,1,0);
-              _cimg_mp_check_constant(arg3,3,s_op,true);
+              _cimg_mp_check_type(arg1,1,2,0);
+              _cimg_mp_check_type(arg2,2,1,0);
+              _cimg_mp_check_constant(arg3,3,true);
               arg3 = (unsigned int)mem[arg3];
               p1 = _cimg_mp_vector_size(arg1);
               if (p1%arg3) {
@@ -16737,7 +16753,7 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"trace(",6)) { // Matrix trace
               s_op = "Function 'trace()'";
               arg1 = compile(ss6,se1,depth1,0);
-              _cimg_mp_check_matrix_square(arg1,1,"Function 'trace()'");
+              _cimg_mp_check_matrix_square(arg1,1);
               p1 = (unsigned int)std::sqrt((float)_cimg_mp_vector_size(arg1));
               _cimg_mp_scalar2(mp_trace,arg1,p1);
             }
@@ -16747,8 +16763,8 @@ namespace cimg_library_suffixed {
               s1 = ss7; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss7,s1,depth1,0);
               arg2 = compile(++s1,se1,depth1,0);
-              _cimg_mp_check_type(arg1,1,s_op,2,0);
-              _cimg_mp_check_constant(arg2,2,s_op,true);
+              _cimg_mp_check_type(arg1,1,2,0);
+              _cimg_mp_check_constant(arg2,2,true);
               p1 = _cimg_mp_vector_size(arg1);
               p2 = (unsigned int)mem[arg2];
               p3 = p1/p2;
@@ -16777,7 +16793,7 @@ namespace cimg_library_suffixed {
               s1 = ss2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss2,s1,depth1,0);
               if (s1<se1) arg2 = compile(++s1,se1,depth1,0); else { arg2 = arg1; arg1 = 0; }
-              _cimg_mp_check_type(arg2,2,"Function 'u()'",3,_cimg_mp_vector_size(arg1));
+              _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
               if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_u,arg1,arg2);
               if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_u,arg1,arg2);
               if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_u,arg1,arg2);
@@ -16803,7 +16819,7 @@ namespace cimg_library_suffixed {
                   s = ns;
                 }
               if (arg1==~0U) arg1 = arg2;
-              _cimg_mp_check_vector0(arg1,"Function 'vector()'");
+              _cimg_mp_check_vector0(arg1);
               pos = vector(arg1);
               _opcode.insert(CImg<uptrT>::vector((uptrT)mp_vector_init,pos,arg1),0);
               (_opcode>'y').move_to(code);
@@ -16820,7 +16836,7 @@ namespace cimg_library_suffixed {
               arg1 = compile(ss8,s1,depth1,0);
               p2 = code._width;
               pos = compile(++s1,se1,depth1,0);
-              _cimg_mp_check_type(arg1,1,"Function 'whiledo()'",1,0);
+              _cimg_mp_check_type(arg1,1,1,0);
               arg2 = _cimg_mp_is_vector(pos)?_cimg_mp_vector_size(pos):0; // Output vector size (or 0 if scalar)
               CImg<uptrT>::vector((uptrT)mp_whiledo,pos,arg1,p2 - p1,code._width - p2,arg2).move_to(code,p1);
               _cimg_mp_return(pos);
@@ -16938,6 +16954,7 @@ namespace cimg_library_suffixed {
 
         // Vector specification using initializer '[ ... ]'.
         if (*ss=='[' && *se1==']') {
+          s_op = "Operator '[]'";
           arg1 = 0; // Number of specified values.
           if (*ss1!=']') for (s = ss1; s<se; ++s) {
               ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
@@ -16950,7 +16967,7 @@ namespace cimg_library_suffixed {
               } else { CImg<uptrT>::vector(arg2).move_to(_opcode); ++arg1; }
               s = ns;
             }
-          _cimg_mp_check_vector0(arg1,"operator '[]'");
+          _cimg_mp_check_vector0(arg1);
           pos = vector(arg1);
           _opcode.insert(CImg<uptrT>::vector((uptrT)mp_vector_init,pos,arg1),0);
           (_opcode>'y').move_to(code);
@@ -17378,19 +17395,19 @@ namespace cimg_library_suffixed {
       }
 
       // Check if a memory slot is a positive integer constant scalar value.
-      void check_constant(const unsigned int arg, const unsigned int n_arg, const char *const s_op,
+      void check_constant(const unsigned int arg, const unsigned int n_arg,
                           const bool is_strictly_positive,
                           const char *const ss, char *const se, const char saved_char) {
-        _cimg_mp_check_type(arg,n_arg,s_op,1,0);
+        _cimg_mp_check_type(arg,n_arg,1,0);
         if (!_cimg_mp_is_constant(arg) || mem[arg]<(is_strictly_positive?1:0) || (double)(int)mem[arg]!=mem[arg]) {
           const char *s_arg = !n_arg?"":n_arg==1?"First ":n_arg==2?"Second ":n_arg==3?"Third ":
             n_arg==4?"Fourth ":n_arg==5?"Fifth ":n_arg==6?"Sixth ":n_arg==7?"Seventh ":n_arg==8?"Eighth ":
             n_arg==9?"Ninth ":"One of the ";
           *se = saved_char; cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s(): %s: %s%s (of type '%s') is not a %spositive integer constant, "
+                                      "CImg<%s>::%s(): %s%s %s%s (of type '%s') is not a %spositive integer constant, "
                                       "in expression '%s%s%s'.",
-                                      pixel_type(),_cimg_mp_calling_function,s_op,
+                                      pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",
                                       s_arg,*s_arg?"argument":"Argument",s_type(arg)._data,
                                       is_strictly_positive?"strictly ":"",
                                       (ss - 4)>expr._data?"...":"",
@@ -17400,9 +17417,9 @@ namespace cimg_library_suffixed {
       }
 
       // Check a matrix is square.
-      void check_matrix_square(const unsigned int arg, const unsigned int n_arg, const char *const s_op,
+      void check_matrix_square(const unsigned int arg, const unsigned int n_arg,
                                const char *const ss, char *const se, const char saved_char) {
-        _cimg_mp_check_type(arg,n_arg,s_op,2,0);
+        _cimg_mp_check_type(arg,n_arg,2,0);
         const unsigned int
           siz = _cimg_mp_vector_size(arg),
           n = (unsigned int)std::sqrt((float)siz);
@@ -17412,9 +17429,9 @@ namespace cimg_library_suffixed {
           else s_arg = !n_arg?"":n_arg==1?"First ":n_arg==2?"Second ":n_arg==3?"Third ":"One ";
           *se = saved_char; cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s(): %s: %s%s (of type '%s') "
+                                      "CImg<%s>::%s(): %s%s %s%s (of type '%s') "
                                       "cannot be considered as a square matrix, in expression '%s%s%s'.",
-                                      pixel_type(),_cimg_mp_calling_function,s_op,
+                                      pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",
                                       s_arg,*s_op=='F'?(*s_arg?"argument":"Argument"):(*s_arg?"operand":"Operand"),
                                       s_type(arg)._data,
                                       (ss - 4)>expr._data?"...":"",
@@ -17427,7 +17444,7 @@ namespace cimg_library_suffixed {
       // Bits of 'mode' tells what types are allowed:
       // { 1 = scalar | 2 = vectorN }.
       // If 'N' is not zero, it also restricts the vectors to be of size N only.
-      void check_type(const unsigned int arg, const unsigned int n_arg, const char *const s_op,
+      void check_type(const unsigned int arg, const unsigned int n_arg,
                       const unsigned int mode, const unsigned int N,
                       const char *const ss, char *const se, const char saved_char) {
         const bool
@@ -17453,9 +17470,9 @@ namespace cimg_library_suffixed {
           }
           *se = saved_char; cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s(): %s: %s%s has invalid type '%s' (should be %s), "
+                                      "CImg<%s>::%s(): %s%s %s%s has invalid type '%s' (should be %s), "
                                       "in expression '%s%s%s'.",
-                                      pixel_type(),_cimg_mp_calling_function,s_op,
+                                      pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",
                                       s_arg,*s_op=='F'?(*s_arg?"argument":"Argument"):(*s_arg?"operand":"Operand"),
                                       s_type(arg)._data,sb_type._data,
                                       (ss - 4)>expr._data?"...":"",
@@ -17465,14 +17482,13 @@ namespace cimg_library_suffixed {
       }
 
       // Check is listin is not empty.
-      void check_listin(const char *const s_op,
-                        const char *const ss, char *const se, const char saved_char) {
+      void check_listin(const char *const ss, char *const se, const char saved_char) {
         if (!listin) {
           *se = saved_char; cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s(): %s: Invalid call with an empty image list, "
+                                      "CImg<%s>::%s(): %s%s Invalid call with an empty image list, "
                                       "in expression '%s%s%s'.",
-                                      pixel_type(),_cimg_mp_calling_function,s_op,
+                                      pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",
                                       (ss - 4)>expr._data?"...":"",
                                       (ss - 4)>expr._data?ss - 4:expr._data,
                                       se<&expr.back()?"...":"");
@@ -17480,23 +17496,23 @@ namespace cimg_library_suffixed {
       }
 
       // Check a vector is not 0-dimensional, or with unknown dimension at compile time.
-      void check_vector0(const unsigned int dim, const char *const s_op,
+      void check_vector0(const unsigned int dim,
                          const char *const ss, char *const se, const char saved_char) {
         if (!dim) {
           *se = saved_char; cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s(): %s: Invalid construction of a 0-dimensional vector, "
+                                      "CImg<%s>::%s(): %s%s Invalid construction of a 0-dimensional vector, "
                                       "in expression '%s%s%s'.",
-                                      pixel_type(),_cimg_mp_calling_function,s_op,
+                                      pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",
                                       (ss - 4)>expr._data?"...":"",
                                       (ss - 4)>expr._data?ss - 4:expr._data,
                                       se<&expr.back()?"...":"");
         } else if (dim==~0U) {
           *se = saved_char; cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s(): %s: Invalid construction of a vector with dynamic size, "
+                                      "CImg<%s>::%s(): %s%s Invalid construction of a vector with dynamic size, "
                                       "in expression '%s%s%s'.",
-                                      pixel_type(),_cimg_mp_calling_function,s_op,
+                                      pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",
                                       (ss - 4)>expr._data?"...":"",
                                       (ss - 4)>expr._data?ss - 4:expr._data,
                                       se<&expr.back()?"...":"");

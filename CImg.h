@@ -16072,12 +16072,19 @@ namespace cimg_library_suffixed {
 
               s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg2 = compile(s0,s1,depth1,0);
-              s0 = s1 + 1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
-              arg3 = compile(++s1,s0,depth1,0);
-              s1 = s0 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg4 = compile(++s0,s1,depth1,0);
-              s0 = s1 + 1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
-              arg5 = compile(++s1,s0,depth1,0);
+              arg3 = arg4 = arg5 = 1;
+              if (s1<se1) {
+                s0 = s1 + 1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                arg3 = compile(++s1,s0,depth1,0);
+                if (s0<se1) {
+                  s1 = s0 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                  arg4 = compile(++s0,s1,depth1,0);
+                  if (s1<se1) {
+                    s0 = s1 + 1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                    arg5 = compile(++s1,s0,depth1,0);
+                  }
+                }
+              }
               p2 = p1!=~0U?0:1;
               _cimg_mp_check_constant(arg2,p2 + (is_sth?3:6),s_op,true);
               _cimg_mp_check_constant(arg3,p2 + (is_sth?4:7),s_op,true);
@@ -16093,7 +16100,7 @@ namespace cimg_library_suffixed {
                                             "CImg<%s>::%s: %s: Type of %s argument ('%s') and specified size "
                                             "(%u,%u,%u,%u) do not match, in expression '%s%s%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
-                                            p1!=~0U?"first":"second",s_type(arg1)._data,
+                                            p1==~0U?"first":"second",s_type(arg1)._data,
                                             arg2,arg3,arg4,arg5,
                                             (ss - 4)>expr._data?"...":"",
                                             (ss - 4)>expr._data?ss - 4:expr._data,
@@ -16485,6 +16492,7 @@ namespace cimg_library_suffixed {
                   is_sth = true;
                   p2 = _cimg_mp_vector_size(arg1);
                   ++arg1;
+                  arg2 = arg3 = 0;
                   if (p2>1) {
                     arg2 = arg1 + 1;
                     if (p2>2) arg3 = arg2 + 1;

@@ -53200,7 +53200,7 @@ namespace cimg_library_suffixed {
       *tmp = *str_pixeltype = *str_endian = 0;
       unsigned int j, N, W, H, D, C;
       int i, err;
-      j = 0; while((i=std::fgetc(nfile))!='\n' && i!=EOF && j<256) tmp[j++] = (char)i; tmp[j] = 0;
+      j = 0; while ((i=std::fgetc(nfile))!='\n' && i!=EOF && j<256) tmp[j++] = (char)i; tmp[j] = 0;
       err = cimg_sscanf(tmp,"%u%*c%255[A-Za-z_]%*c%255[sA-Za-z_ ]",
                         &N,str_pixeltype._data,str_endian._data);
       if (err<2) {
@@ -54389,7 +54389,7 @@ namespace cimg_library_suffixed {
 #define _cimg_save_cimg_case(Ts,Tss) \
       if (!saved && !cimg::strcasecmp(Ts,str_pixeltype)) { \
         for (unsigned int l = 0; l<lmax; ++l) { \
-          j = 0; while((i=std::fgetc(nfile))!='\n') tmp[j++]=(char)i; tmp[j] = 0; \
+          j = 0; while ((i=std::fgetc(nfile))!='\n') tmp[j++]=(char)i; tmp[j] = 0; \
           W = H = D = C = 0; \
           if (cimg_sscanf(tmp,"%u %u %u %u",&W,&H,&D,&C)!=4) \
             throw CImgIOException(_cimglist_instance \
@@ -54459,7 +54459,7 @@ namespace cimg_library_suffixed {
       *tmp = *str_pixeltype = *str_endian = 0;
       unsigned int j, N, W, H, D, C;
       int i, err;
-      j = 0; while((i=std::fgetc(nfile))!='\n' && i!=EOF && j<256) tmp[j++] = (char)i; tmp[j] = 0;
+      j = 0; while ((i=std::fgetc(nfile))!='\n' && i!=EOF && j<256) tmp[j++] = (char)i; tmp[j] = 0;
       err = cimg_sscanf(tmp,"%u%*c%255[A-Za-z_]%*c%255[sA-Za-z_ ]",&N,str_pixeltype._data,str_endian._data);
       if (err<2) {
         if (!file) cimg::fclose(nfile);

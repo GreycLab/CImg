@@ -13743,7 +13743,7 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_check_constant(arg,n_arg,is_strict) check_constant(arg,n_arg,is_strict,ss,se,saved_char)
 #define _cimg_mp_check_matrix_square(arg,n_arg) check_matrix_square(arg,n_arg,ss,se,saved_char)
 #define _cimg_mp_check_vector0(dim) check_vector0(dim,ss,se,saved_char)
-#define _cimg_mp_check_listin() check_listin(ss,se,saved_char)
+#define _cimg_mp_check_list(is_out) check_list(is_out,ss,se,saved_char)
 #define _cimg_mp_defunc(mp) (*(mp_func)(*(mp).opcode))(mp)
 #define _cimg_mp_return(x) { *se = saved_char; s_op = previous_s_op; ss_op = previous_ss_op; return x; }
 #define _cimg_mp_constant(val) _cimg_mp_return(constant(val))
@@ -14113,7 +14113,7 @@ namespace cimg_library_suffixed {
                 if (*ss2=='#') { // Index specified
                   s0 = ss3; while (s0<ve1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                   p1 = compile(ss3,s0++,depth1,0);
-                  _cimg_mp_check_listin();
+                  _cimg_mp_check_list(true);
                 } else { p1 = ~0U; s0 = ss2; }
                 arg1 = compile(s0,ve1,depth1,0); // Offset
                 arg2 = compile(s + 1,se,depth1,0); // Value to assign
@@ -14170,7 +14170,7 @@ namespace cimg_library_suffixed {
                 if (*ss2=='#') { // Index specified
                   s0 = ss3; while (s0<ve1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                   p1 = compile(ss3,s0++,depth1,0);
-                  _cimg_mp_check_listin();
+                  _cimg_mp_check_list(true);
                 } else { p1 = ~0U; s0 = ss2; }
                 arg1 = is_relative?0U:(unsigned int)_cimg_mp_x;
                 arg2 = is_relative?0U:(unsigned int)_cimg_mp_y;
@@ -15404,7 +15404,7 @@ namespace cimg_library_suffixed {
             if (*ss2=='#') { // Index specified
               s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
               p1 = compile(ss3,s0++,depth1,0);
-              _cimg_mp_check_listin();
+              _cimg_mp_check_list(false);
             } else { p1 = ~0U; s0 = ss2; }
             s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
             arg1 = compile(s0,s1,depth1,0); // Offset
@@ -15551,7 +15551,7 @@ namespace cimg_library_suffixed {
             if (*ss2=='#') { // Index specified
               s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
               p1 = compile(ss3,s0++,depth1,0);
-              _cimg_mp_check_listin();
+              _cimg_mp_check_list(false);
             } else { p1 = ~0U; s0 = ss2; }
             arg1 = is_relative?0U:(unsigned int)_cimg_mp_x;
             arg2 = is_relative?0U:(unsigned int)_cimg_mp_y;
@@ -15854,11 +15854,11 @@ namespace cimg_library_suffixed {
               if (*ss5=='#') { // Index specified
                 s0 = ss6; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                 p1 = compile(ss6,s0++,depth1,0);
-                _cimg_mp_check_listin();
+                _cimg_mp_check_list(false);
               } else { p1 = ~0U; s0 = ss5; need_input_copy = true; }
               pos = 0;
               is_sth = false; // Coordinates specified as a vector?
-              for (s = s0; s<se; ++s, ++pos) {
+              if (ss5<se1) for (s = s0; s<se; ++s, ++pos) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                 arg1 = compile(s,ns,depth1,0);
@@ -15874,6 +15874,7 @@ namespace cimg_library_suffixed {
                 s = ns;
               }
               (_opcode>'y').move_to(opcode);
+
               arg1 = 0; arg2 = p1!=~0U?1:0;
               switch (opcode._height) {
               case 0 : case 1 :
@@ -16080,70 +16081,91 @@ namespace cimg_library_suffixed {
               if (*ss5=='#') { // Index specified
                 s0 = ss6; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                 p1 = compile(ss6,s0++,depth1,0);
+                _cimg_mp_check_list(true);
               } else { p1 = ~0U; s0 = ss5; }
               s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(s0,s1,depth1,0);
-              s0 = s1 + 1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
-              arg2 = compile(++s1,s0,depth1,0);
-              if (_cimg_mp_is_vector(arg2)) { // Coordinates specified as a vector
-                arg3 = is_relative?0U:(unsigned int)_cimg_mp_y;
-                arg4 = is_relative?0U:(unsigned int)_cimg_mp_z;
-                arg5 = is_relative?0U:(unsigned int)_cimg_mp_c;
-                p2 = _cimg_mp_vector_size(arg2);
-                ++arg2;
-                if (p2>1) {
-                  arg3 = arg2 + 1;
-                  if (p2>2) {
-                    arg4 = arg3 + 1;
-                    if (p2>3) arg5 = arg4 + 1;
-                  }
-                }
-                ++s0;
-                is_sth = true;
-              } else {
-                s1 = s0 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                arg3 = compile(++s0,s1,depth1,0);
+              arg2 = is_relative?0U:(unsigned int)_cimg_mp_x;
+              arg3 = is_relative?0U:(unsigned int)_cimg_mp_y;
+              arg4 = is_relative?0U:(unsigned int)_cimg_mp_z;
+              arg5 = is_relative?0U:(unsigned int)_cimg_mp_c;
+              if (s1<se1) {
                 s0 = s1 + 1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
-                arg4 = compile(++s1,s0,depth1,0);
-                s1 = s0 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                arg5 = compile(++s0,s1,depth1,0);
-                s0 = ++s1;
-                is_sth = p1!=~0U;
-                _cimg_mp_check_type(arg3,is_sth?4:3,1,0);
-                _cimg_mp_check_type(arg4,is_sth?5:4,1,0);
-                _cimg_mp_check_type(arg5,is_sth?6:5,1,0);
-                is_sth = false;
+                arg2 = compile(++s1,s0,depth1,0);
+                if (_cimg_mp_is_vector(arg2)) { // Coordinates specified as a vector
+                  p2 = _cimg_mp_vector_size(arg2);
+                  ++arg2;
+                  if (p2>1) {
+                    arg3 = arg2 + 1;
+                    if (p2>2) {
+                      arg4 = arg3 + 1;
+                      if (p2>3) arg5 = arg4 + 1;
+                    }
+                  }
+                  ++s0;
+                  is_sth = true;
+                } else {
+                  if (s0<se1) {
+                    is_sth = p1!=~0U;
+                    s1 = s0 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                    arg3 = compile(++s0,s1,depth1,0);
+                    _cimg_mp_check_type(arg3,is_sth?4:3,1,0);
+                    if (s1<se1) {
+                      s0 = s1 + 1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                      arg4 = compile(++s1,s0,depth1,0);
+                      _cimg_mp_check_type(arg4,is_sth?5:4,1,0);
+                      if (s0<se1) {
+                        s1 = s0 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                        arg5 = compile(++s0,s1,depth1,0);
+                        _cimg_mp_check_type(arg5,is_sth?6:5,1,0);
+                        s0 = ++s1;
+                      }
+                    }
+                  }
+                  is_sth = false;
+                }
               }
 
               CImg<uptrT>::vector((uptrT)mp_draw,arg1,p1,arg2,arg3,arg4,arg5,0,0,0,0,1,(uptrT)-1,0,1).
                 move_to(opcode);
 
-              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg2 = compile(s0,s1,depth1,0);
-              arg3 = arg4 = 1; arg5 = ~0U;
-              if (s1<se1) {
-                s0 = s1 + 1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
-                arg3 = compile(++s1,s0,depth1,0);
-                if (s0<se1) {
-                  s1 = s0 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                  arg4 = compile(++s0,s1,depth1,0);
-                  if (s1<se1) {
-                    s0 = s1 + 1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
-                    arg5 = compile(++s1,s0,depth1,0);
+              arg2 = arg3 = arg4 = arg5 = ~0U;
+              p2 = p1!=~0U?0:1;
+              if (s0<se1) {
+                s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                arg2 = compile(s0,s1,depth1,0);
+                _cimg_mp_check_constant(arg2,p2 + (is_sth?3:6),true);
+                arg2 = (unsigned int)mem[arg2];
+                if (s1<se1) {
+                  s0 = s1 + 1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                  arg3 = compile(++s1,s0,depth1,0);
+                  _cimg_mp_check_constant(arg3,p2 + (is_sth?4:7),true);
+                  arg3 = (unsigned int)mem[arg3];
+                  if (s0<se1) {
+                    s1 = s0 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                    arg4 = compile(++s0,s1,depth1,0);
+                    _cimg_mp_check_constant(arg4,p2 + (is_sth?5:8),true);
+                    arg4 = (unsigned int)mem[arg4];
+                    if (s1<se1) {
+                      s0 = s1 + 1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                      arg5 = compile(++s1,s0,depth1,0);
+                      _cimg_mp_check_constant(arg5,p2 + (is_sth?6:9),true);
+                      arg5 = (unsigned int)mem[arg5];
+                    }
                   }
                 }
               }
-              p2 = p1!=~0U?0:1;
-              _cimg_mp_check_constant(arg2,p2 + (is_sth?3:6),true);
-              arg2 = (unsigned int)mem[arg2];
-              _cimg_mp_check_constant(arg3,p2 + (is_sth?4:7),true);
-              arg3 = (unsigned int)mem[arg3];
-              _cimg_mp_check_constant(arg4,p2 + (is_sth?5:8),true);
-              arg4 = (unsigned int)mem[arg4];
-              if (arg5==~0U) arg5 = _cimg_mp_vector_size(arg1)/(arg2*arg3*arg4);
-              else {
-                _cimg_mp_check_constant(arg5,p2 + (is_sth?6:9),true);
-                arg5 = (unsigned int)mem[arg5];
+              if (s0<s1) s0 = s1;
+              if (arg2==~0U || arg3==~0U || arg4==~0U || arg5==~0U) {
+                if (p1!=~0U) {
+                  _cimg_mp_check_constant(p1,1,false);
+                  p1 = (unsigned int)cimg::mod((int)mem[p1],listout.width());
+                }
+                const CImg<T> &img = p1!=~0U?listout[p1]:imgout;
+                if (arg2==~0U) arg2 = img._width;
+                if (arg3==~0U) arg3 = img._height;
+                if (arg4==~0U) arg4 = img._depth;
+                if (arg5==~0U) arg5 = img._spectrum;
               }
               if (arg2*arg3*arg4*arg5!=_cimg_mp_vector_size(arg1)) {
                 *se = saved_char; cimg::strellipsize(expr,64);
@@ -16368,6 +16390,7 @@ namespace cimg_library_suffixed {
               }
 
               if (!std::strncmp(ss,"isin(",5)) { // Is in sequence/vector?
+                if (ss5>=se1) _cimg_mp_return(0);
                 _cimg_mp_op("Function 'isin()'");
                 pos = scalar();
                 CImg<uptrT>::vector((uptrT)mp_isin,pos).move_to(_opcode);
@@ -16486,7 +16509,7 @@ namespace cimg_library_suffixed {
           case 'n' :
             if (!std::strncmp(ss,"narg(",5)) { // Number of arguments
               _cimg_mp_op("Function 'narg()'");
-              if (*ss5==')') _cimg_mp_return(0);
+              if (ss5>=se1) _cimg_mp_return(0);
               arg1 = 0;
               for (s = ss5; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
@@ -16813,7 +16836,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_op("Function 'vector()'");
               arg2 = 0; // Number of specified values.
               s = std::strchr(ss6,'(') + 1;
-              if (*s!=')' || arg1==~0U) for (; s<se; ++s) {
+              if (s<se1 || arg1==~0U) for (; s<se; ++s) {
                   ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                  (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                   arg3 = compile(s,ns,depth1,0);
@@ -17489,8 +17512,9 @@ namespace cimg_library_suffixed {
       }
 
       // Check is listin is not empty.
-      void check_listin(const char *const ss, char *const se, const char saved_char) {
-        if (!listin) {
+      void check_list(const bool is_out,
+                      const char *const ss, char *const se, const char saved_char) {
+        if ((!is_out && !listin) || (is_out && !listout)) {
           *se = saved_char; cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
                                       "CImg<%s>::%s(): %s%s Invalid call with an empty image list, "

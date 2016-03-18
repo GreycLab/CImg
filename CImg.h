@@ -2340,7 +2340,7 @@ namespace cimg_library_suffixed {
     char *_message;
     CImgException() { _message = new char[1]; *_message = 0; }
     CImgException(const char *const format, ...):_message(0) { _cimg_exception_err("CImgException",true); }
-    CImgException(const CImgException& e) {
+    CImgException(const CImgException& e):std::exception(*this) {
       const int size = std::strlen(e._message);
       _message = new char[size + 1];
       std::strncpy(_message,e._message,size);
@@ -2364,7 +2364,7 @@ namespace cimg_library_suffixed {
     char *_message;
     CImgAbortException() { _message = new char[1]; *_message = 0; }
     CImgAbortException(const char *const format, ...):_message(0) { _cimg_exception_err("CImgAbortException",true); }
-    CImgAbortException(const CImgAbortException& e) {
+    CImgAbortException(const CImgAbortException& e):std::exception(*this) {
       const int size = std::strlen(e._message);
       _message = new char[size + 1];
       std::strncpy(_message,e._message,size);

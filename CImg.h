@@ -13937,7 +13937,6 @@ namespace cimg_library_suffixed {
         }
         if (se<=ss || !*ss) {
           cimg::strellipsize(expr,64);
-
           throw CImgArgumentException("[_cimg_math_parser] "
                                       "CImg<%s>::%s: %s%s Missing %s, in expression '%s%s%s'.",
                                       pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",

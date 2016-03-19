@@ -13937,10 +13937,14 @@ namespace cimg_library_suffixed {
         }
         if (se<=ss || !*ss) {
           cimg::strellipsize(expr,64);
+
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s: %s%s Missing %s for statement '%s', in expression '%s'.",
+                                      "CImg<%s>::%s: %s%s Missing %s, in expression '%s%s%s'.",
                                       pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",
-                                      *s_op=='F'?"argument":"item",ss_op,expr._data);
+                                      *s_op=='F'?"argument":"item",
+                                      (ss_op - 4)>expr._data?"...":"",
+                                      (ss_op - 4)>expr._data?ss_op - 4:expr._data,
+                                      ss_op + std::strlen(ss_op)<&expr.back()?"...":"");
         }
 
         const char *const previous_s_op = s_op, *const previous_ss_op = ss_op;

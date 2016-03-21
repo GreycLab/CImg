@@ -13773,12 +13773,15 @@ namespace cimg_library_suffixed {
                                       "CImg<%s>::%s: Empty expression.",
                                       pixel_type(),_cimg_mp_calling_function);
         const char *_expression = expression;
-        while (*_expression && *_expression<=' ') ++_expression;
+        while (*_expression && (*_expression<=' ' || *_expression==';')) ++_expression;
         CImg<charT>::string(_expression).move_to(expr);
+        char *ps = &expr.back() - 1;
+        while (ps>expr._data && (*ps==' ' || *ps==';')) --ps;
+        *(++ps) = 0; expr._width = ps - expr._data + 1;
 
         // Ease the retrieval of previous non-space characters afterwards.
         pexpr.assign(expr._width);
-        const char *ps;
+
         char c, *pe = pexpr._data;
         for (ps = expr._data, c = ' '; *ps; ++ps) {
           if (*ps!=' ') c = *ps;
@@ -17140,7 +17143,7 @@ namespace cimg_library_suffixed {
         // Reached an unknown item -> error.
         is_sth = true; // is_valid_variable_name
         if (*variable_name>='0' && *variable_name<='9') is_sth = false;
-        else for (ns = variable_name._data + 1; *ns; ++ns)
+        else for (ns = variable_name._data; *ns; ++ns)
                if (!is_varchar(*ns)) { is_sth = false; break; }
 
         *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);

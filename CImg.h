@@ -14863,7 +14863,7 @@ namespace cimg_library_suffixed {
             p2 = code._width;
             arg2 = compile(s + 1,*s1!=':'?se:s1,depth1,0);
             p3 = code._width;
-            arg3 = *s1!=':'?0:compile(++s1,se,depth1,0);
+            arg3 = *s1==':'?compile(++s1,se,depth1,0):_cimg_mp_is_vector(arg2)?vector(_cimg_mp_vector_size(arg2),0):0;
             _cimg_mp_check_type(arg3,3,_cimg_mp_is_vector(arg2)?2:1,_cimg_mp_vector_size(arg2));
             arg4 = _cimg_mp_is_vector(arg2)?_cimg_mp_vector_size(arg2):0; // Output vector size (or 0 if scalar)
             if (arg4) pos = vector(arg4); else pos = scalar();
@@ -16324,7 +16324,7 @@ namespace cimg_library_suffixed {
               p2 = code._width;
               arg2 = compile(++s1,s2,depth1,0);
               p3 = code._width;
-              arg3 = s2<se1?compile(++s2,se1,depth1,0):0;
+              arg3 = s2<se1?compile(++s2,se1,depth1,0):_cimg_mp_is_vector(arg2)?vector(_cimg_mp_vector_size(arg2),0):0;
               _cimg_mp_check_type(arg3,3,_cimg_mp_is_vector(arg2)?2:1,_cimg_mp_vector_size(arg2));
               arg4 = _cimg_mp_is_vector(arg2)?_cimg_mp_vector_size(arg2):0; // Output vector size (or 0 if scalar)
               if (arg4) pos = vector(arg4); else pos = scalar();
@@ -17324,7 +17324,7 @@ namespace cimg_library_suffixed {
         while (siz-->0) *(ptr++) = -1;
       }
 
-      unsigned int vector(const unsigned int siz) { // Insert new vector of specified size in memory.
+      unsigned int vector(const unsigned int siz) { // Insert new vector of specified size in memory
         if (mempos + siz>=mem._width) {
           mem.resize(2*mem._width + siz,1,1,1,0);
           memtype.resize(mem._width,1,1,1,0);
@@ -17336,7 +17336,14 @@ namespace cimg_library_suffixed {
         return pos;
       }
 
-      unsigned int vector_copy(const unsigned int arg) { // Insert new copy of specified vector in memory.
+      unsigned int vector(const unsigned int siz, const double value) { // Insert new initialized vector
+        const unsigned int pos = vector(siz);
+        double *ptr = &mem[pos] + 1;
+        for (unsigned int i = 0; i<siz; ++i) *(ptr++) = value;
+        return pos;
+      }
+
+      unsigned int vector_copy(const unsigned int arg) { // Insert new copy of specified vector in memory
         const unsigned int
           siz = _cimg_mp_vector_size(arg),
           pos = vector(siz);

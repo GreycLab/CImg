@@ -518,7 +518,7 @@
   \code CImg<unsigned char> image("lena.jpg"), visu(500,400,1,3,0); \endcode
   Creation of two instances of images of \c unsigned \c char pixels.
   The first image \c image is initialized by reading an image file from the disk.
-  Here, <tt>lena.jpg</tt> must be in the same directory than the current program.
+  Here, <tt>lena.jpg</tt> must be in the same directory as the current program.
   Note that you must also have installed the \e ImageMagick package in order to be able to read JPG images.
   The second image \c visu is initialized as a black color image with dimension <tt>dx=500</tt>, <tt>dy=400</tt>,
   <tt>dz=1</tt> (here, it is a 2D image, not a 3D one), and <tt>dv=3</tt> (each pixel has 3 'vector' channels R,G,B).
@@ -803,7 +803,7 @@
   - and so on...
 
   The value of a neighborhood pixel outside the image range (image border problem) is automatically set to the same
-  values than the nearest valid pixel in the image (this is also called the \e Neumann \e border \e condition).
+  values as the nearest valid pixel in the image (this is also called the \e Neumann \e border \e condition).
 
   \subsection lo11 Example codes
   More than a long discussion, the above example will demonstrate how to compute the gradient norm of a 3D volume
@@ -994,7 +994,7 @@
    \param usage   : A brief explanation of the option. If \c usage==0, the option won't appear on the option list
 		    when invoking the executable with options \c -h or \c --help (hidden option).
 
-   \return \c cimg_option() returns an object that has the \e same \e type than the default value \c default.
+   \return \c cimg_option() returns an object that has the \e same \e type as the default value \c default.
    The return value is equal to the one specified on the command line. If no such option have been specified,
    the return value is equal to the default value \c default.
    Warning, this can be confusing in some situations (look at the end of the next section).

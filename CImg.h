@@ -17908,14 +17908,14 @@ namespace cimg_library_suffixed {
           dz = (unsigned int)mp.opcode[9],
           dc = (unsigned int)mp.opcode[10];
         const CImg<double> S(&_mp_arg(1) + 1,dx,dy,dz,dc,true);
-        const float opacity = _mp_arg(11);
+        const float opacity = (float)_mp_arg(11);
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
         if (img) {
           if (mp.opcode[12]!=(uptrT)-1) {
             const CImg<double> M(&_mp_arg(12) + 1,dx,dy,dz,(unsigned int)mp.opcode[13],true);
-            img.draw_image(x,y,z,c,S,M,opacity,_mp_arg(14));
+            img.draw_image(x,y,z,c,S,M,opacity,(float)_mp_arg(14));
           } else img.draw_image(x,y,z,c,S,opacity);
         }
         return cimg::type<double>::nan();

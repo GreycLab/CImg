@@ -44738,7 +44738,8 @@ namespace cimg_library_suffixed {
                               color_type,nfilename?nfilename:"(FILE*)");
       }
       const bool is_alpha = (color_type==PNG_COLOR_TYPE_RGBA);
-      assign(W,H,1,(is_gray?1:3) + (is_alpha?1:0));
+      try { assign(W,H,1,(is_gray?1:3) + (is_alpha?1:0)); }
+      catch (...) { if (!file) cimg::fclose(nfile); throw; }
       T
         *ptr_r = data(0,0,0,0),
         *ptr_g = is_gray?0:data(0,0,0,1),

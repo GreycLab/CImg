@@ -44443,18 +44443,18 @@ namespace cimg_library_suffixed {
       else return load_other(filename);
 #else
 
+      std::FILE *const nfile = file?file:cimg::fopen(filename,"rb");
       struct jpeg_decompress_struct cinfo;
       struct _cimg_error_mgr jerr;
       cinfo.err = jpeg_std_error(&jerr.original);
       jerr.original.error_exit = _cimg_jpeg_error_exit;
-
       if (setjmp(jerr.setjmp_buffer)) { // JPEG error
+        if (!file) cimg::fclose(nfile);
         throw CImgIOException(_cimg_instance
                              "load_jpeg(): Error message returned by libjpeg: %s.",
                              cimg_instance,jerr.message);
       }
 
-      std::FILE *const nfile = file?file:cimg::fopen(filename,"rb");
       jpeg_create_decompress(&cinfo);
       jpeg_stdio_src(&cinfo,nfile);
       jpeg_read_header(&cinfo,TRUE);
@@ -44471,7 +44471,8 @@ namespace cimg_library_suffixed {
       }
       CImg<ucharT> buffer(cinfo.output_width*cinfo.output_components);
       JSAMPROW row_pointer[1];
-      assign(cinfo.output_width,cinfo.output_height,1,cinfo.output_components);
+      try { assign(cinfo.output_width,cinfo.output_height,1,cinfo.output_components); }
+      catch (...) { if (!file) cimg::fclose(nfile); throw; }
       T *ptr_r = _data, *ptr_g = _data + 1UL*_width*_height, *ptr_b = _data + 2UL*_width*_height,
         *ptr_a = _data + 3UL*_width*_height;
       while (cinfo.output_scanline<cinfo.output_height) {

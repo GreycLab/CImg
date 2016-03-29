@@ -9309,7 +9309,7 @@ namespace cimg_library_suffixed {
     explicit CImg(const unsigned int size_x, const unsigned int size_y=1,
                   const unsigned int size_z=1, const unsigned int size_c=1):
       _is_shared(false) {
-      const unsigned long siz = (unsigned long)size_x*size_y*size_z*size_c;
+      size_t siz = (size_t)size_x*size_y*size_z*size_c;
       if (siz) {
         _width = size_x; _height = size_y; _depth = size_z; _spectrum = size_c;
         try { _data = new T[siz]; } catch (...) {
@@ -9341,7 +9341,7 @@ namespace cimg_library_suffixed {
     CImg(const unsigned int size_x, const unsigned int size_y,
          const unsigned int size_z, const unsigned int size_c, const T& value):
       _is_shared(false) {
-      const unsigned long siz = (unsigned long)size_x*size_y*size_z*size_c;
+      const size_t siz = (size_t)size_x*size_y*size_z*size_c;
       if (siz) {
         _width = size_x; _height = size_y; _depth = size_z; _spectrum = size_c;
         try { _data = new T[siz]; } catch (...) {
@@ -9388,7 +9388,7 @@ namespace cimg_library_suffixed {
          const int value0, const int value1, ...):
       _width(0),_height(0),_depth(0),_spectrum(0),_is_shared(false),_data(0) {
 #define _CImg_stdarg(img,a0,a1,N,t) { \
-	unsigned long _siz = (unsigned long)N; \
+	size_t _siz = (size_t)N; \
 	if (_siz--) { \
 	  va_list ap; \
 	  va_start(ap,a1); \
@@ -9402,7 +9402,7 @@ namespace cimg_library_suffixed {
 	} \
       }
       assign(size_x,size_y,size_z,size_c);
-      _CImg_stdarg(*this,value0,value1,(unsigned long)size_x*size_y*size_z*size_c,int);
+      _CImg_stdarg(*this,value0,value1,(size_t)size_x*size_y*size_z*size_c,int);
     }
 
 #if defined(cimg_use_cpp11) && cimg_use_cpp11!=0
@@ -9438,7 +9438,7 @@ namespace cimg_library_suffixed {
       _width(0),_height(0),_depth(0),_spectrum(0),_is_shared(false),_data(0) {
 #define _cimg_constructor_cpp11(repeat_values) \
   auto it = values.begin(); \
-  unsigned long siz = size(); \
+  size_t siz = size(); \
   if (repeat_values) for (T *ptrd = _data; siz--; ) { \
     *(ptrd++) = (T)(*(it++)); if (it==values.end()) it = values.begin(); } \
   else { siz = cimg::min(siz,values.size()); for (T *ptrd = _data; siz--; ) *(ptrd++) = (T)(*(it++)); }
@@ -9494,7 +9494,7 @@ namespace cimg_library_suffixed {
       _width(0),_height(0),_depth(0),_spectrum(0),_is_shared(false),_data(0) {
       assign(values.size(),1,1,1);
       auto it = values.begin();
-      unsigned long siz = _width;
+      unsigned int siz = _width;
       for (T *ptrd = _data; siz--; ) *(ptrd++) = (T)(*(it++));
     }
 
@@ -9531,7 +9531,7 @@ namespace cimg_library_suffixed {
          const double value0, const double value1, ...):
       _width(0),_height(0),_depth(0),_spectrum(0),_is_shared(false),_data(0) {
       assign(size_x,size_y,size_z,size_c);
-      _CImg_stdarg(*this,value0,value1,(unsigned long)size_x*size_y*size_z*size_c,double);
+      _CImg_stdarg(*this,value0,value1,(size_t)size_x*size_y*size_z*size_c,double);
     }
 
     //! Construct image with specified size and initialize pixel values from a value string.
@@ -9566,7 +9566,7 @@ namespace cimg_library_suffixed {
      **/
     CImg(const unsigned int size_x, const unsigned int size_y, const unsigned int size_z, const unsigned int size_c,
 	 const char *const values, const bool repeat_values):_is_shared(false) {
-      const unsigned long siz = (unsigned long)size_x*size_y*size_z*size_c;
+      const size_t siz = (size_t)size_x*size_y*size_z*size_c;
       if (siz) {
         _width = size_x; _height = size_y; _depth = size_z; _spectrum = size_c;
         try { _data = new T[siz]; } catch (...) {
@@ -9622,7 +9622,7 @@ namespace cimg_library_suffixed {
                                     cimg_instance,
                                     size_x,size_y,size_z,size_c,CImg<t>::pixel_type());
       }
-      const unsigned long siz = (unsigned long)size_x*size_y*size_z*size_c;
+      const size_t siz = (size_t)size_x*size_y*size_z*size_c;
       if (values && siz) {
         _width = size_x; _height = size_y; _depth = size_z; _spectrum = size_c;
         try { _data = new T[siz]; } catch (...) {
@@ -9641,7 +9641,7 @@ namespace cimg_library_suffixed {
     //! Construct image with specified size and initialize pixel values from a memory buffer \specialization.
     CImg(const T *const values, const unsigned int size_x, const unsigned int size_y=1,
          const unsigned int size_z=1, const unsigned int size_c=1, const bool is_shared=false) {
-      const unsigned long siz = (unsigned long)size_x*size_y*size_z*size_c;
+      const size_t siz = (size_t)size_x*size_y*size_z*size_c;
       if (values && siz) {
         _width = size_x; _height = size_y; _depth = size_z; _spectrum = size_c; _is_shared = is_shared;
         if (_is_shared) _data = const_cast<T*>(values);
@@ -9705,7 +9705,7 @@ namespace cimg_library_suffixed {
     **/
     template<typename t>
     CImg(const CImg<t>& img):_is_shared(false) {
-      const unsigned long siz = img.size();
+      const size_t siz = (size_t)img.size();
       if (img._data && siz) {
         _width = img._width; _height = img._height; _depth = img._depth; _spectrum = img._spectrum;
         try { _data = new T[siz]; } catch (...) {
@@ -9722,7 +9722,7 @@ namespace cimg_library_suffixed {
 
     //! Construct image copy \specialization.
     CImg(const CImg<T>& img) {
-      const unsigned long siz = img.size();
+      const size_t siz = (size_t)img.size();
       if (img._data && siz) {
         _width = img._width; _height = img._height; _depth = img._depth; _spectrum = img._spectrum;
         _is_shared = img._is_shared;
@@ -9767,7 +9767,7 @@ namespace cimg_library_suffixed {
                                     cimg_instance,
                                     CImg<t>::pixel_type(),img._width,img._height,img._depth,img._spectrum,img._data);
       }
-      const unsigned long siz = img.size();
+      const size_t siz = (size_t)img.size();
       if (img._data && siz) {
         _width = img._width; _height = img._height; _depth = img._depth; _spectrum = img._spectrum;
         try { _data = new T[siz]; } catch (...) {
@@ -9784,7 +9784,7 @@ namespace cimg_library_suffixed {
 
     //! Advanced copy constructor \specialization.
     CImg(const CImg<T>& img, const bool is_shared) {
-      const unsigned long siz = img.size();
+      const size_t siz = (size_t)img.size();
       if (img._data && siz) {
         _width = img._width; _height = img._height; _depth = img._depth; _spectrum = img._spectrum;
         _is_shared = is_shared;
@@ -9887,9 +9887,9 @@ namespace cimg_library_suffixed {
     **/
     CImg<T>& assign(const unsigned int size_x, const unsigned int size_y=1,
                     const unsigned int size_z=1, const unsigned int size_c=1) {
-      const unsigned long siz = (unsigned long)size_x*size_y*size_z*size_c;
+      const size_t siz = (size_t)size_x*size_y*size_z*size_c;
       if (!siz) return assign();
-      const unsigned long curr_siz = size();
+      const size_t curr_siz = (size_t)size();
       if (siz!=curr_siz) {
 	if (_is_shared)
           throw CImgArgumentException(_cimg_instance
@@ -9930,7 +9930,7 @@ namespace cimg_library_suffixed {
                     const unsigned int size_z, const unsigned int size_c,
                     const int value0, const int value1, ...) {
       assign(size_x,size_y,size_z,size_c);
-      _CImg_stdarg(*this,value0,value1,(unsigned long)size_x*size_y*size_z*size_c,int);
+      _CImg_stdarg(*this,value0,value1,(size_t)size_x*size_y*size_z*size_c,int);
       return *this;
     }
 
@@ -9942,7 +9942,7 @@ namespace cimg_library_suffixed {
                     const unsigned int size_z, const unsigned int size_c,
                     const double value0, const double value1, ...) {
       assign(size_x,size_y,size_z,size_c);
-      _CImg_stdarg(*this,value0,value1,(unsigned long)size_x*size_y*size_z*size_c,double);
+      _CImg_stdarg(*this,value0,value1,(size_t)size_x*size_y*size_z*size_c,double);
       return *this;
     }
 
@@ -9963,7 +9963,7 @@ namespace cimg_library_suffixed {
     template<typename t>
     CImg<T>& assign(const t *const values, const unsigned int size_x, const unsigned int size_y=1,
                     const unsigned int size_z=1, const unsigned int size_c=1) {
-      const unsigned long siz = (unsigned long)size_x*size_y*size_z*size_c;
+      const size_t siz = (size_t)size_x*size_y*size_z*size_c;
       if (!values || !siz) return assign();
       assign(size_x,size_y,size_z,size_c);
       const t *ptrs = values; cimg_for(*this,ptrd,T) *ptrd = (T)*(ptrs++);
@@ -9973,9 +9973,9 @@ namespace cimg_library_suffixed {
     //! Construct image with specified size and initialize pixel values from a memory buffer \specialization.
     CImg<T>& assign(const T *const values, const unsigned int size_x, const unsigned int size_y=1,
                     const unsigned int size_z=1, const unsigned int size_c=1) {
-      const unsigned long siz = (unsigned long)size_x*size_y*size_z*size_c;
+      const size_t siz = (size_t)size_x*size_y*size_z*size_c;
       if (!values || !siz) return assign();
-      const unsigned long curr_siz = size();
+      const size_t curr_siz = (size_t)size();
       if (values==_data && siz==curr_siz) return assign(size_x,size_y,size_z,size_c);
       if (_is_shared || values + siz<_data || values>=_data + size()) {
         assign(size_x,size_y,size_z,size_c);
@@ -10013,7 +10013,7 @@ namespace cimg_library_suffixed {
     //! Construct image with specified size and initialize pixel values from a memory buffer \overloading.
     CImg<T>& assign(const T *const values, const unsigned int size_x, const unsigned int size_y,
                     const unsigned int size_z, const unsigned int size_c, const bool is_shared) {
-      const unsigned long siz = (unsigned long)size_x*size_y*size_z*size_c;
+      const size_t siz = (size_t)size_x*size_y*size_z*size_c;
       if (!values || !siz) return assign();
       if (!is_shared) { if (_is_shared) assign(); assign(values,size_x,size_y,size_z,size_c); }
       else {
@@ -10255,7 +10255,7 @@ namespace cimg_library_suffixed {
 #if cimg_verbosity>=3
     T& operator()(const unsigned int x, const unsigned int y=0,
                   const unsigned int z=0, const unsigned int c=0) {
-      const unsigned long off = (unsigned long)offset(x,y,z,c);
+      const ulongT off = (ulongT)offset(x,y,z,c);
       if (!_data || off>=size()) {
         cimg::warn(_cimg_instance
                    "operator(): Invalid pixel request, at coordinates (%d,%d,%d,%d) [offset=%u].",
@@ -10286,14 +10286,14 @@ namespace cimg_library_suffixed {
          the reading/writing of several pixel values in the same image (e.g. in a loop).
      **/
     T& operator()(const unsigned int x, const unsigned int y, const unsigned int z, const unsigned int c,
-                  const unsigned long wh, const unsigned long whd=0) {
+                  const ulongT wh, const ulongT whd=0) {
       cimg::unused(wh,whd);
       return (*this)(x,y,z,c);
     }
 
     //! Access to a pixel value \const.
     const T& operator()(const unsigned int x, const unsigned int y, const unsigned int z, const unsigned int c,
-                        const unsigned long wh, const unsigned long whd=0) const {
+                        const ulongT wh, const ulongT whd=0) const {
       cimg::unused(wh,whd);
       return (*this)(x,y,z,c);
     }
@@ -10315,40 +10315,38 @@ namespace cimg_library_suffixed {
     }
 
     T& operator()(const unsigned int x, const unsigned int y, const unsigned int z) {
-      return _data[x + y*(unsigned long)_width + z*(unsigned long)_width*_height];
+      return _data[x + y*(ulongT)_width + z*(ulongT)_width*_height];
    }
 
     const T& operator()(const unsigned int x, const unsigned int y, const unsigned int z) const {
-      return _data[x + y*(unsigned long)_width + z*(unsigned long)_width*_height];
+      return _data[x + y*(ulongT)_width + z*(ulongT)_width*_height];
     }
 
     T& operator()(const unsigned int x, const unsigned int y, const unsigned int z, const unsigned int c) {
-      return _data[x + y*(unsigned long)_width + z*(unsigned long)_width*_height +
-                   c*(unsigned long)_width*_height*_depth];
+      return _data[x + y*(ulongT)_width + z*(ulongT)_width*_height + c*(ulongT)_width*_height*_depth];
     }
 
     const T& operator()(const unsigned int x, const unsigned int y, const unsigned int z, const unsigned int c) const {
-      return _data[x + y*(unsigned long)_width + z*(unsigned long)_width*_height +
-                   c*(unsigned long)_width*_height*_depth];
+      return _data[x + y*(ulongT)_width + z*(ulongT)_width*_height + c*(ulongT)_width*_height*_depth];
     }
 
     T& operator()(const unsigned int x, const unsigned int y, const unsigned int z, const unsigned int,
-                  const unsigned long wh) {
+                  const ulongT wh) {
       return _data[x + y*_width + z*wh];
     }
 
     const T& operator()(const unsigned int x, const unsigned int y, const unsigned int z, const unsigned int,
-                        const unsigned long wh) const {
+                        const ulongT wh) const {
       return _data[x + y*_width + z*wh];
     }
 
     T& operator()(const unsigned int x, const unsigned int y, const unsigned int z, const unsigned int c,
-                  const unsigned long wh, const unsigned long whd) {
+                  const ulongT wh, const ulongT whd) {
       return _data[x + y*_width + z*wh + c*whd];
     }
 
     const T& operator()(const unsigned int x, const unsigned int y, const unsigned int z, const unsigned int c,
-                        const unsigned long wh, const unsigned long whd) const {
+                        const ulongT wh, const ulongT whd) const {
       return _data[x + y*_width + z*wh + c*whd];
     }
 #endif
@@ -10529,11 +10527,11 @@ namespace cimg_library_suffixed {
     **/
     template<typename t>
     CImg<T>& operator+=(const CImg<t>& img) {
-      const unsigned long siz = size(), isiz = img.size();
+      const ulongT siz = size(), isiz = img.size();
       if (siz && isiz) {
         if (is_overlapped(img)) return *this+=+img;
         T *ptrd = _data, *const ptre = _data + siz;
-        if (siz>isiz) for (unsigned long n = siz/isiz; n; --n)
+        if (siz>isiz) for (ulongT n = siz/isiz; n; --n)
           for (const t *ptrs = img._data, *ptrs_end = ptrs + isiz; ptrs<ptrs_end; ++ptrd)
             *ptrd = (T)(*ptrd + *(ptrs++));
         for (const t *ptrs = img._data; ptrd<ptre; ++ptrd) *ptrd = (T)(*ptrd + *(ptrs++));
@@ -10639,11 +10637,11 @@ namespace cimg_library_suffixed {
      **/
     template<typename t>
     CImg<T>& operator-=(const CImg<t>& img) {
-      const unsigned long siz = size(), isiz = img.size();
+      const ulongT siz = size(), isiz = img.size();
       if (siz && isiz) {
         if (is_overlapped(img)) return *this-=+img;
         T *ptrd = _data, *const ptre = _data + siz;
-        if (siz>isiz) for (unsigned long n = siz/isiz; n; --n)
+        if (siz>isiz) for (ulongT n = siz/isiz; n; --n)
           for (const t *ptrs = img._data, *ptrs_end = ptrs + isiz; ptrs<ptrs_end; ++ptrd)
             *ptrd = (T)(*ptrd - *(ptrs++));
         for (const t *ptrs = img._data; ptrd<ptre; ++ptrd) *ptrd = (T)(*ptrd - *(ptrs++));
@@ -10907,11 +10905,11 @@ namespace cimg_library_suffixed {
     **/
     template<typename t>
     CImg<T>& operator%=(const CImg<t>& img) {
-      const unsigned long siz = size(), isiz = img.size();
+      const ulongT siz = size(), isiz = img.size();
       if (siz && isiz) {
         if (is_overlapped(img)) return *this%=+img;
         T *ptrd = _data, *const ptre = _data + siz;
-        if (siz>isiz) for (unsigned long n = siz/isiz; n; --n)
+        if (siz>isiz) for (ulongT n = siz/isiz; n; --n)
           for (const t *ptrs = img._data, *ptrs_end = ptrs + isiz; ptrs<ptrs_end; ++ptrd)
             *ptrd = cimg::mod(*ptrd,(T)*(ptrs++));
         for (const t *ptrs = img._data; ptrd<ptre; ++ptrd) *ptrd = cimg::mod(*ptrd,(T)*(ptrs++));
@@ -10958,7 +10956,7 @@ namespace cimg_library_suffixed {
 #ifdef cimg_use_openmp
 #pragma omp parallel for cimg_openmp_if(size()>=32768)
 #endif
-      cimg_rof(*this,ptrd,T) *ptrd = (T)((unsigned long)*ptrd & (unsigned long)value);
+      cimg_rof(*this,ptrd,T) *ptrd = (T)((ulongT)*ptrd & (ulongT)value);
       return *this;
     }
 
@@ -10976,14 +10974,14 @@ namespace cimg_library_suffixed {
     **/
     template<typename t>
     CImg<T>& operator&=(const CImg<t>& img) {
-      const unsigned long siz = size(), isiz = img.size();
+      const ulongT siz = size(), isiz = img.size();
       if (siz && isiz) {
         if (is_overlapped(img)) return *this&=+img;
         T *ptrd = _data, *const ptre = _data + siz;
-        if (siz>isiz) for (unsigned long n = siz/isiz; n; --n)
+        if (siz>isiz) for (ulongT n = siz/isiz; n; --n)
           for (const t *ptrs = img._data, *ptrs_end = ptrs + isiz; ptrs<ptrs_end; ++ptrd)
-            *ptrd = (T)((unsigned long)*ptrd & (unsigned long)*(ptrs++));
-        for (const t *ptrs = img._data; ptrd<ptre; ++ptrd) *ptrd = (T)((unsigned long)*ptrd & (unsigned long)*(ptrs++));
+            *ptrd = (T)((ulongT)*ptrd & (ulongT)*(ptrs++));
+        for (const t *ptrs = img._data; ptrd<ptre; ++ptrd) *ptrd = (T)((ulongT)*ptrd & (ulongT)*(ptrs++));
       }
       return *this;
     }
@@ -11027,7 +11025,7 @@ namespace cimg_library_suffixed {
 #ifdef cimg_use_openmp
 #pragma omp parallel for cimg_openmp_if(size()>=32768)
 #endif
-      cimg_rof(*this,ptrd,T) *ptrd = (T)((unsigned long)*ptrd | (unsigned long)value);
+      cimg_rof(*this,ptrd,T) *ptrd = (T)((ulongT)*ptrd | (ulongT)value);
       return *this;
     }
 
@@ -11045,14 +11043,14 @@ namespace cimg_library_suffixed {
     **/
     template<typename t>
     CImg<T>& operator|=(const CImg<t>& img) {
-      const unsigned long siz = size(), isiz = img.size();
+      const ulongT siz = size(), isiz = img.size();
       if (siz && isiz) {
         if (is_overlapped(img)) return *this|=+img;
         T *ptrd = _data, *const ptre = _data + siz;
-        if (siz>isiz) for (unsigned long n = siz/isiz; n; --n)
+        if (siz>isiz) for (ulongT n = siz/isiz; n; --n)
           for (const t *ptrs = img._data, *ptrs_end = ptrs + isiz; ptrs<ptrs_end; ++ptrd)
-            *ptrd = (T)((unsigned long)*ptrd | (unsigned long)*(ptrs++));
-        for (const t *ptrs = img._data; ptrd<ptre; ++ptrd) *ptrd = (T)((unsigned long)*ptrd | (unsigned long)*(ptrs++));
+            *ptrd = (T)((ulongT)*ptrd | (ulongT)*(ptrs++));
+        for (const t *ptrs = img._data; ptrd<ptre; ++ptrd) *ptrd = (T)((ulongT)*ptrd | (ulongT)*(ptrs++));
       }
       return *this;
     }
@@ -11098,7 +11096,7 @@ namespace cimg_library_suffixed {
 #ifdef cimg_use_openmp
 #pragma omp parallel for cimg_openmp_if(size()>=32768)
 #endif
-      cimg_rof(*this,ptrd,T) *ptrd = (T)((unsigned long)*ptrd ^ (unsigned long)value);
+      cimg_rof(*this,ptrd,T) *ptrd = (T)((ulongT)*ptrd ^ (ulongT)value);
       return *this;
     }
 
@@ -11120,14 +11118,14 @@ namespace cimg_library_suffixed {
     **/
     template<typename t>
     CImg<T>& operator^=(const CImg<t>& img) {
-      const unsigned long siz = size(), isiz = img.size();
+      const ulongT siz = size(), isiz = img.size();
       if (siz && isiz) {
         if (is_overlapped(img)) return *this^=+img;
         T *ptrd = _data, *const ptre = _data + siz;
-        if (siz>isiz) for (unsigned long n = siz/isiz; n; --n)
+        if (siz>isiz) for (ulongT n = siz/isiz; n; --n)
           for (const t *ptrs = img._data, *ptrs_end = ptrs + isiz; ptrs<ptrs_end; ++ptrd)
-            *ptrd = (T)((unsigned long)*ptrd ^ (unsigned long)*(ptrs++));
-        for (const t *ptrs = img._data; ptrd<ptre; ++ptrd) *ptrd = (T)((unsigned long)*ptrd ^ (unsigned long)*(ptrs++));
+            *ptrd = (T)((ulongT)*ptrd ^ (ulongT)*(ptrs++));
+        for (const t *ptrs = img._data; ptrd<ptre; ++ptrd) *ptrd = (T)((ulongT)*ptrd ^ (ulongT)*(ptrs++));
       }
       return *this;
     }
@@ -11189,11 +11187,11 @@ namespace cimg_library_suffixed {
     **/
     template<typename t>
     CImg<T>& operator<<=(const CImg<t>& img) {
-      const unsigned long siz = size(), isiz = img.size();
+      const ulongT siz = size(), isiz = img.size();
       if (siz && isiz) {
         if (is_overlapped(img)) return *this^=+img;
         T *ptrd = _data, *const ptre = _data + siz;
-        if (siz>isiz) for (unsigned long n = siz/isiz; n; --n)
+        if (siz>isiz) for (ulongT n = siz/isiz; n; --n)
           for (const t *ptrs = img._data, *ptrs_end = ptrs + isiz; ptrs<ptrs_end; ++ptrd)
             *ptrd = (T)((long)*ptrd << (int)*(ptrs++));
         for (const t *ptrs = img._data; ptrd<ptre; ++ptrd) *ptrd = (T)((long)*ptrd << (int)*(ptrs++));
@@ -11259,11 +11257,11 @@ namespace cimg_library_suffixed {
     **/
     template<typename t>
     CImg<T>& operator>>=(const CImg<t>& img) {
-      const unsigned long siz = size(), isiz = img.size();
+      const ulongT siz = size(), isiz = img.size();
       if (siz && isiz) {
         if (is_overlapped(img)) return *this^=+img;
         T *ptrd = _data, *const ptre = _data + siz;
-        if (siz>isiz) for (unsigned long n = siz/isiz; n; --n)
+        if (siz>isiz) for (ulongT n = siz/isiz; n; --n)
           for (const t *ptrs = img._data, *ptrs_end = ptrs + isiz; ptrs<ptrs_end; ++ptrd)
             *ptrd = (T)((long)*ptrd >> (int)*(ptrs++));
         for (const t *ptrs = img._data; ptrd<ptre; ++ptrd) *ptrd = (T)((long)*ptrd >> (int)*(ptrs++));
@@ -11308,7 +11306,7 @@ namespace cimg_library_suffixed {
     CImg<T> operator~() const {
       CImg<T> res(_width,_height,_depth,_spectrum);
       const T *ptrs = _data;
-      cimg_for(res,ptrd,T) { const unsigned long value = (unsigned long)*(ptrs++); *ptrd = (T)~value; }
+      cimg_for(res,ptrd,T) { const ulongT value = (ulongT)*(ptrs++); *ptrd = (T)~value; }
       return res;
     }
 
@@ -11357,7 +11355,7 @@ namespace cimg_library_suffixed {
     template<typename t>
     bool operator==(const CImg<t>& img) const {
       typedef _cimg_Tt Tt;
-      const unsigned long siz = size();
+      const ulongT siz = size();
       bool is_equal = true;
       if (siz!=img.size()) return false;
       t *ptrs = img._data + siz;
@@ -11568,8 +11566,8 @@ namespace cimg_library_suffixed {
                      img.size()*sizeof(float));
        \endcode
     **/
-    unsigned long size() const {
-      return (unsigned long)_width*_height*_depth*_spectrum;
+    ulongT size() const {
+      return (ulongT)_width*_height*_depth*_spectrum;
     }
 
     //! Return a pointer to the first pixel value.
@@ -11607,7 +11605,7 @@ namespace cimg_library_suffixed {
      **/
 #if cimg_verbosity>=3
     T *data(const unsigned int x, const unsigned int y=0, const unsigned int z=0, const unsigned int c=0) {
-      const unsigned long off = (unsigned long)offset(x,y,z,c);
+      const ulongT off = (ulongT)offset(x,y,z,c);
       if (off>=size())
         cimg::warn(_cimg_instance
                    "data(): Invalid pointer request, at coordinates (%u,%u,%u,%u) [offset=%u].",
@@ -11622,12 +11620,11 @@ namespace cimg_library_suffixed {
     }
 #else
     T* data(const unsigned int x, const unsigned int y=0, const unsigned int z=0, const unsigned int c=0) {
-      return _data + x + y*(unsigned long)_width + z*(unsigned long)_width*_height +
-        c*(unsigned long)_width*_height*_depth;
+      return _data + x + (ulongT)y*_width + (ulongT)z*_width*_height + (ulongT)c*_width*_height*_depth;
     }
 
     const T* data(const unsigned int x, const unsigned int y=0, const unsigned int z=0, const unsigned int c=0) const {
-      return _data + x + y*_width + z*(unsigned long)_width*_height + c*(unsigned long)_width*_height*_depth;
+      return _data + x + (ulongT)y*_width + (ulongT)z*_width*_height + (ulongT)c*_width*_height*_depth;
     }
 #endif
 
@@ -11647,8 +11644,8 @@ namespace cimg_library_suffixed {
        const float val = img[off];              // Get the blue value of this pixel.
        \endcode
     **/
-    long offset(const int x, const int y=0, const int z=0, const int c=0) const {
-      return x + y*(long)_width + z*(long)(_width*_height) + c*(long)(_width*_height*_depth);
+    longT offset(const int x, const int y=0, const int z=0, const int c=0) const {
+      return x + (longT)y*_width + (longT)z*_width*_height + (longT)c*_width*_height*_depth;
     }
 
     //! Return a CImg<T>::iterator pointing to the first pixel value.
@@ -12875,7 +12872,7 @@ namespace cimg_library_suffixed {
       unsigned int string_size = 0;
       const char *const _format = format?format:cimg::type<T>::format();
 
-      for (unsigned long off = 0, siz = (unsigned int)size(); off<siz && string_size<=max_size; ++off) {
+      for (ulongT off = 0, siz = size(); off<siz && string_size<=max_size; ++off) {
         const unsigned int printed_size = 1U + cimg_snprintf(s_item,s_item._width,_format,
                                                              cimg::type<T>::format(*(ptrs++)));
         CImg<charT> item(s_item._data,printed_size);
@@ -13230,15 +13227,15 @@ namespace cimg_library_suffixed {
     **/
     template<typename t>
     bool contains(const T& pixel, t& x, t& y, t& z, t& c) const {
-      const unsigned long wh = (unsigned long)_width*_height, whd = wh*_depth, siz = whd*_spectrum;
+      const ulongT wh = (ulongT)_width*_height, whd = wh*_depth, siz = whd*_spectrum;
       const T *const ppixel = &pixel;
       if (is_empty() || ppixel<_data || ppixel>=_data + siz) return false;
-      unsigned long off = (unsigned long)(ppixel - _data);
-      const unsigned long nc = off/whd;
+      ulongT off = (ulongT)(ppixel - _data);
+      const ulongT nc = off/whd;
       off%=whd;
-      const unsigned long nz = off/wh;
+      const ulongT nz = off/wh;
       off%=wh;
-      const unsigned long ny = off/_width, nx = off%_width;
+      const ulongT ny = off/_width, nx = off%_width;
       x = (t)nx; y = (t)ny; z = (t)nz; c = (t)nc;
       return true;
     }
@@ -13249,13 +13246,13 @@ namespace cimg_library_suffixed {
     **/
     template<typename t>
     bool contains(const T& pixel, t& x, t& y, t& z) const {
-      const unsigned long wh = (unsigned long)_width*_height, whd = wh*_depth, siz = whd*_spectrum;
+      const ulongT wh = (ulongT)_width*_height, whd = wh*_depth, siz = whd*_spectrum;
       const T *const ppixel = &pixel;
       if (is_empty() || ppixel<_data || ppixel>=_data + siz) return false;
-      unsigned long off = ((unsigned long)(ppixel - _data))%whd;
-      const unsigned long nz = off/wh;
+      ulongT off = ((ulongT)(ppixel - _data))%whd;
+      const ulongT nz = off/wh;
       off%=wh;
-      const unsigned long ny = off/_width, nx = off%_width;
+      const ulongT ny = off/_width, nx = off%_width;
       x = (t)nx; y = (t)ny; z = (t)nz;
       return true;
     }
@@ -13266,11 +13263,11 @@ namespace cimg_library_suffixed {
     **/
     template<typename t>
     bool contains(const T& pixel, t& x, t& y) const {
-      const unsigned long wh = (unsigned long)_width*_height, siz = wh*_depth*_spectrum;
+      const ulongT wh = (ulongT)_width*_height, siz = wh*_depth*_spectrum;
       const T *const ppixel = &pixel;
       if (is_empty() || ppixel<_data || ppixel>=_data + siz) return false;
-      unsigned long off = ((unsigned int)(ppixel - _data))%wh;
-      const unsigned long ny = off/_width, nx = off%_width;
+      ulongT off = ((unsigned int)(ppixel - _data))%wh;
+      const ulongT ny = off/_width, nx = off%_width;
       x = (t)nx; y = (t)ny;
       return true;
     }
@@ -13283,7 +13280,7 @@ namespace cimg_library_suffixed {
     bool contains(const T& pixel, t& x) const {
       const T *const ppixel = &pixel;
       if (is_empty() || ppixel<_data || ppixel>=_data + size()) return false;
-      x = (t)(((unsigned long)(ppixel - _data))%_width);
+      x = (t)(((ulongT)(ppixel - _data))%_width);
       return true;
     }
 
@@ -13317,7 +13314,7 @@ namespace cimg_library_suffixed {
     **/
     template<typename t>
     bool is_overlapped(const CImg<t>& img) const {
-      const unsigned long csiz = size(), isiz = img.size();
+      const ulongT csiz = size(), isiz = img.size();
       return !((void*)(_data + csiz)<=(void*)img._data || (void*)_data>=(void*)(img._data + isiz));
     }
 
@@ -13380,7 +13377,7 @@ namespace cimg_library_suffixed {
       // Check consistency of primitives.
       cimglist_for(primitives,l) {
         const CImg<tp>& primitive = primitives[l];
-        const unsigned long psiz = primitive.size();
+        const unsigned int psiz = primitive.size();
         switch (psiz) {
         case 1 : { // Point.
           const unsigned int i0 = (unsigned int)primitive(0);
@@ -13513,7 +13510,7 @@ namespace cimg_library_suffixed {
 
       // Check consistency of number of vertices / primitives.
       if (!full_check) {
-        const unsigned long minimal_size = 8UL + 3*nb_points + 6*nb_primitives;
+        const ulongT minimal_size = 8UL + 3*nb_points + 6*nb_primitives;
         if (_data + minimal_size>ptre) {
           if (error_message) cimg_sprintf(error_message,
                                           "CImg3d (%u,%u) has only %lu values, while at least %lu values were expected",

@@ -21164,9 +21164,9 @@ namespace cimg_library_suffixed {
                                     "dot(): Empty specified image.",
                                     cimg_instance);
 
-      const unsigned int nb = cimg::min(size(),img.size());
+      const ulongT nb = cimg::min(size(),img.size());
       double res = 0;
-      for (unsigned int off = 0; off<nb; ++off) res+=(double)_data[off]*(double)img[off];
+      for (ulongT off = 0; off<nb; ++off) res+=(double)_data[off]*(double)img[off];
       return res;
     }
 
@@ -44743,7 +44743,7 @@ namespace cimg_library_suffixed {
 
       // Allocate Memory for Image Read
       png_bytep *const imgData = new png_bytep[H];
-      for (unsigned int row = 0; row<H; ++row) imgData[row] = new png_byte[byte_depth*4*W];
+      for (unsigned int row = 0; row<H; ++row) imgData[row] = new png_byte[(size_t)byte_depth*4*W];
       png_read_image(png_ptr,imgData);
       png_read_end(png_ptr,end_info);
 
@@ -45896,7 +45896,7 @@ namespace cimg_library_suffixed {
     CImg<T>& _load_inr(std::FILE *const file, const char *const filename, float *const voxel_size) {
 #define _cimg_load_inr_case(Tf,sign,pixsize,Ts) \
      if (!loaded && fopt[6]==pixsize && fopt[4]==Tf && fopt[5]==sign) { \
-        Ts *xval, *const val = new Ts[(unsigned int)fopt[0]*fopt[3]]; \
+        Ts *xval, *const val = new Ts[(size_t)fopt[0]*fopt[3]]; \
         cimg_forYZ(*this,y,z) { \
             cimg::fread(val,fopt[0]*fopt[3],nfile); \
             if (fopt[7]!=endian) cimg::invert_endianness(val,fopt[0]*fopt[3]); \
@@ -46005,7 +46005,7 @@ namespace cimg_library_suffixed {
         cimg::fread(dims,nbdim,nfile); \
         if (endian) cimg::invert_endianness(dims,nbdim); \
         assign(nwidth,nheight,ndepth,ndim); \
-        const unsigned int siz = size(); \
+        const size_t siz = size(); \
         stype *buffer = new stype[siz]; \
         cimg::fread(buffer,siz,nfile); \
         if (endian) cimg::invert_endianness(buffer,siz); \
@@ -46092,7 +46092,7 @@ namespace cimg_library_suffixed {
         cimg::fread(dims,4,nfile);
         if (endian) cimg::invert_endianness(dims,4);
         assign(dims[2],dims[1],1,1);
-        const unsigned int siz = size();
+        const size_t siz = size();
         if (dims[3]<256) {
           unsigned char *buffer = new unsigned char[siz];
           cimg::fread(buffer,siz,nfile);
@@ -46125,7 +46125,7 @@ namespace cimg_library_suffixed {
         cimg::fread(dims,5,nfile);
         if (endian) cimg::invert_endianness(dims,5);
         assign(dims[3],dims[2],dims[1],1);
-        const unsigned int siz = size();
+        const size_t siz = size();
         if (dims[4]<256) {
           unsigned char *buffer = new unsigned char[siz];
           cimg::fread(buffer,siz,nfile);

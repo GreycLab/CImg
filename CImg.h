@@ -4372,9 +4372,9 @@ namespace cimg_library_suffixed {
 
     // Use a custom RNG.
     inline unsigned int _rand(const unsigned int seed=0, const bool set_seed=false) {
-      static unsigned long next = 0xB16B00B5;
+      static cimg_ulong next = 0xB16B00B5;
       cimg::mutex(4);
-      if (set_seed) next = (unsigned long)seed;
+      if (set_seed) next = (cimg_ulong)seed;
       next = next*1103515245 + 12345U;
       cimg::mutex(4,0);
       return (unsigned int)(next&0xFFFFFFU);
@@ -4586,8 +4586,8 @@ namespace cimg_library_suffixed {
 
     //! Return the nearest power of 2 higher than given value.
     template<typename T>
-    inline unsigned long nearest_pow2(const T& x) {
-      unsigned long i = 1;
+    inline cimg_ulong nearest_pow2(const T& x) {
+      cimg_ulong i = 1;
       while (x>i) i<<=1;
       return i;
     }
@@ -4853,7 +4853,7 @@ namespace cimg_library_suffixed {
     }
 
     // Return a temporary string describing the size of a memory buffer.
-    inline const char *strbuffersize(const unsigned long size);
+    inline const char *strbuffersize(const cimg_ulong size);
 
     // Return string that identifies the running OS.
     inline const char *stros() {
@@ -5133,23 +5133,23 @@ namespace cimg_library_suffixed {
        \note Same as <tt>std::fread()</tt> but may display warning message if all elements could not be read.
     **/
     template<typename T>
-    inline int fread(T *const ptr, const unsigned long nmemb, std::FILE *stream) {
+    inline size_t fread(T *const ptr, const size_t nmemb, std::FILE *stream) {
       if (!ptr || !stream)
         throw CImgArgumentException("cimg::fread(): Invalid reading request of %u %s%s from file %p to buffer %p.",
                                     nmemb,cimg::type<T>::string(),nmemb>1?"s":"",stream,ptr);
       if (!nmemb) return 0;
-      const unsigned long wlimitT = 63*1024*1024, wlimit = wlimitT/sizeof(T);
-      unsigned long to_read = nmemb, al_read = 0, l_to_read = 0, l_al_read = 0;
+      const size_t wlimitT = 63*1024*1024, wlimit = wlimitT/sizeof(T);
+      size_t to_read = nmemb, al_read = 0, l_to_read = 0, l_al_read = 0;
       do {
         l_to_read = (to_read*sizeof(T))<wlimitT?to_read:wlimit;
-        l_al_read = (unsigned long)std::fread((void*)(ptr + al_read),sizeof(T),l_to_read,stream);
+        l_al_read = std::fread((void*)(ptr + al_read),sizeof(T),l_to_read,stream);
         al_read+=l_al_read;
         to_read-=l_al_read;
       } while (l_to_read==l_al_read && to_read>0);
       if (to_read>0)
-        warn("cimg::fread(): Only %u/%u elements could be read from file.",
-             al_read,nmemb);
-      return (int)al_read;
+        warn("cimg::fread(): Only %lu/%lu elements could be read from file.",
+             (unsigned long)al_read,(unsigned long)nmemb);
+      return al_read;
     }
 
     //! Write data to file.
@@ -5161,23 +5161,23 @@ namespace cimg_library_suffixed {
        \note Similar to <tt>std::fwrite</tt> but may display warning messages if all elements could not be written.
     **/
     template<typename T>
-    inline int fwrite(const T *ptr, const unsigned long nmemb, std::FILE *stream) {
+    inline size_t fwrite(const T *ptr, const size_t nmemb, std::FILE *stream) {
       if (!ptr || !stream)
         throw CImgArgumentException("cimg::fwrite(): Invalid writing request of %u %s%s from buffer %p to file %p.",
                                     nmemb,cimg::type<T>::string(),nmemb>1?"s":"",ptr,stream);
       if (!nmemb) return 0;
-      const unsigned long wlimitT = 63*1024*1024, wlimit = wlimitT/sizeof(T);
-      unsigned long to_write = nmemb, al_write = 0, l_to_write = 0, l_al_write = 0;
+      const size_t wlimitT = 63*1024*1024, wlimit = wlimitT/sizeof(T);
+      size_t to_write = nmemb, al_write = 0, l_to_write = 0, l_al_write = 0;
       do {
         l_to_write = (to_write*sizeof(T))<wlimitT?to_write:wlimit;
-        l_al_write = (unsigned long)std::fwrite((void*)(ptr + al_write),sizeof(T),l_to_write,stream);
+        l_al_write = std::fwrite((void*)(ptr + al_write),sizeof(T),l_to_write,stream);
         al_write+=l_al_write;
         to_write-=l_al_write;
       } while (l_to_write==l_al_write && to_write>0);
       if (to_write>0)
-        warn("cimg::fwrite(): Only %u/%u elements could be written in file.",
-             al_write,nmemb);
-      return (int)al_write;
+        warn("cimg::fwrite(): Only %lu/%lu elements could be written in file.",
+             (unsigned long)al_write,(unsigned long)nmemb);
+      return al_write;
     }
 
     //! Create an empty file.
@@ -56293,7 +56293,7 @@ namespace cimg {
   }
 
   // Return a temporary string describing the size of a memory buffer.
-  inline const char *strbuffersize(const unsigned long size) {
+  inline const char *strbuffersize(const cimg_ulong size) {
     static CImg<char> res(256);
     cimg::mutex(5);
     if (size<1024LU) cimg_snprintf(res,res._width,"%lu byte%s",size,size>1?"s":"");

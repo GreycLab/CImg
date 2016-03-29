@@ -4958,26 +4958,22 @@ namespace cimg_library_suffixed {
     }
 
     //! Version of 'fseek()' that supports >=64bits offsets everywhere (for Windows).
+    int fseek(FILE *stream, cimg_long offset, int origin) {
 #if cimg_OS==2
-    int fseek(FILE *stream, INT_PTR offset, int origin) {
       return _fseeki64(stream,(__int64)offset,origin);
-    }
 #else
-    int fseek(FILE *stream, long offset, int origin) {
       return std::fseek(stream,offset,origin);
-    }
 #endif
+    }
 
     //! Version of 'ftell()' that supports >=64bits offsets everywhere (for Windows).
+    cimg_long ftell(FILE *stream) {
 #if cimg_OS==2
-    INT_PTR ftell(FILE *stream) {
       return (INT_PTR)_ftelli64(stream);
-    }
 #else
-    long ftell(FILE *stream) {
       return std::ftell(stream);
-    }
 #endif
+    }
 
     //! Check if a path is a directory.
     /**

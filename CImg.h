@@ -4958,7 +4958,7 @@ namespace cimg_library_suffixed {
     }
 
     //! Version of 'fseek()' that supports >=64bits offsets everywhere (for Windows).
-    int fseek(FILE *stream, cimg_long offset, int origin) {
+    inline int fseek(FILE *stream, cimg_long offset, int origin) {
 #if cimg_OS==2
       return _fseeki64(stream,(__int64)offset,origin);
 #else
@@ -4967,7 +4967,7 @@ namespace cimg_library_suffixed {
     }
 
     //! Version of 'ftell()' that supports >=64bits offsets everywhere (for Windows).
-    cimg_long ftell(FILE *stream) {
+    inline cimg_long ftell(FILE *stream) {
 #if cimg_OS==2
       return (cimg_long)_ftelli64(stream);
 #else

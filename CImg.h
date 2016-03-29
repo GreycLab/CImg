@@ -46284,8 +46284,8 @@ namespace cimg_library_suffixed {
                                     "load_raw(): Specified filename '%s' is a directory.",
                                     cimg_instance,filename);
 
-      ulongT siz = size_x*size_y*size_z*size_c;
-      const unsigned int
+      ulongT siz = (ulongT)size_x*size_y*size_z*size_c;
+      unsigned int
         _size_x = size_x,
         _size_y = size_y,
         _size_z = size_z,

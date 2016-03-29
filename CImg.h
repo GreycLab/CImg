@@ -149,13 +149,13 @@
 #endif
 
 // Define own types 'long/unsigned long' to ensure portability.
-// ( sizeof(unsigned long/long) = sizeof(void*) ).
+// ( with sizeof(unsigned long/long) = sizeof(void*) ).
 #if cimg_OS==2
-#define cimg_ulong UINT_PTR
-#define cimg_long INT_PTR
+typedef UINT_PTR cimg_ulong;
+typedef INT_PTR cimg_long;
 #else
-#define cimg_ulong unsigned long
-#define cimg_long long
+typedef unsigned long cimg_ulong;
+typedef long cimg_long;
 #endif
 
 // Include OS-specific headers.
@@ -2584,18 +2584,18 @@ namespace cimg_library_suffixed {
       static int format(const int val) { return val; }
     };
 
-    template<> struct type<unsigned long> {
+    template<> struct type<cimg_ulong> {
       static const char* string() { static const char *const s = "unsigned long"; return s; }
       static bool is_float() { return false; }
-      static bool is_inf(const unsigned long) { return false; }
-      static bool is_nan(const unsigned long) { return false; }
-      static unsigned long min() { return 0; }
-      static unsigned long max() { return (unsigned long)-1; }
-      static unsigned long inf() { return max(); }
-      static unsigned long cut(const double val) {
-        return val<(double)min()?min():val>(double)max()?max():(unsigned long)val; }
+      static bool is_inf(const cimg_ulong) { return false; }
+      static bool is_nan(const cimg_ulong) { return false; }
+      static cimg_ulong min() { return 0; }
+      static cimg_ulong max() { return (cimg_ulong)-1; }
+      static cimg_ulong inf() { return max(); }
+      static cimg_ulong cut(const double val) {
+        return val<(double)min()?min():val>(double)max()?max():(cimg_ulong)val; }
       static const char* format() { return "%lu"; }
-      static unsigned long format(const unsigned long val) { return val; }
+      static cimg_ulong format(const cimg_ulong val) { return val; }
     };
 
     template<> struct type<long> {
@@ -2604,7 +2604,7 @@ namespace cimg_library_suffixed {
       static bool is_inf(const long) { return false; }
       static bool is_nan(const long) { return false; }
       static long min() { return ~max(); }
-      static long max() { return (long)((unsigned long)-1>>1); }
+      static long max() { return (long)((cimg_ulong)-1>>1); }
       static long inf() { return max(); }
       static long cut(const double val) { return val<(double)min()?min():val>(double)max()?max():(long)val; }
       static const char* format() { return "%ld"; }
@@ -2709,7 +2709,7 @@ namespace cimg_library_suffixed {
     template<> struct superset<bool,short> { typedef short type; };
     template<> struct superset<bool,unsigned int> { typedef unsigned int type; };
     template<> struct superset<bool,int> { typedef int type; };
-    template<> struct superset<bool,unsigned long> { typedef unsigned long type; };
+    template<> struct superset<bool,cimg_ulong> { typedef cimg_ulong type; };
     template<> struct superset<bool,long> { typedef long type; };
     template<> struct superset<bool,float> { typedef float type; };
     template<> struct superset<bool,double> { typedef double type; };
@@ -2719,7 +2719,7 @@ namespace cimg_library_suffixed {
     template<> struct superset<unsigned char,short> { typedef short type; };
     template<> struct superset<unsigned char,unsigned int> { typedef unsigned int type; };
     template<> struct superset<unsigned char,int> { typedef int type; };
-    template<> struct superset<unsigned char,unsigned long> { typedef unsigned long type; };
+    template<> struct superset<unsigned char,cimg_ulong> { typedef cimg_ulong type; };
     template<> struct superset<unsigned char,long> { typedef long type; };
     template<> struct superset<unsigned char,float> { typedef float type; };
     template<> struct superset<unsigned char,double> { typedef double type; };
@@ -2729,7 +2729,7 @@ namespace cimg_library_suffixed {
     template<> struct superset<signed char,short> { typedef short type; };
     template<> struct superset<signed char,unsigned int> { typedef long type; };
     template<> struct superset<signed char,int> { typedef int type; };
-    template<> struct superset<signed char,unsigned long> { typedef long type; };
+    template<> struct superset<signed char,cimg_ulong> { typedef long type; };
     template<> struct superset<signed char,long> { typedef long type; };
     template<> struct superset<signed char,float> { typedef float type; };
     template<> struct superset<signed char,double> { typedef double type; };
@@ -2739,7 +2739,7 @@ namespace cimg_library_suffixed {
     template<> struct superset<char,short> { typedef short type; };
     template<> struct superset<char,unsigned int> { typedef long type; };
     template<> struct superset<char,int> { typedef int type; };
-    template<> struct superset<char,unsigned long> { typedef long type; };
+    template<> struct superset<char,cimg_ulong> { typedef long type; };
     template<> struct superset<char,long> { typedef long type; };
     template<> struct superset<char,float> { typedef float type; };
     template<> struct superset<char,double> { typedef double type; };
@@ -2748,14 +2748,14 @@ namespace cimg_library_suffixed {
     template<> struct superset<unsigned short,short> { typedef int type; };
     template<> struct superset<unsigned short,unsigned int> { typedef unsigned int type; };
     template<> struct superset<unsigned short,int> { typedef int type; };
-    template<> struct superset<unsigned short,unsigned long> { typedef unsigned long type; };
+    template<> struct superset<unsigned short,cimg_ulong> { typedef cimg_ulong type; };
     template<> struct superset<unsigned short,long> { typedef long type; };
     template<> struct superset<unsigned short,float> { typedef float type; };
     template<> struct superset<unsigned short,double> { typedef double type; };
     template<> struct superset<short,unsigned short> { typedef int type; };
     template<> struct superset<short,unsigned int> { typedef long type; };
     template<> struct superset<short,int> { typedef int type; };
-    template<> struct superset<short,unsigned long> { typedef long type; };
+    template<> struct superset<short,cimg_ulong> { typedef long type; };
     template<> struct superset<short,long> { typedef long type; };
     template<> struct superset<short,float> { typedef float type; };
     template<> struct superset<short,double> { typedef double type; };
@@ -2763,22 +2763,22 @@ namespace cimg_library_suffixed {
     template<> struct superset<unsigned int,signed char> { typedef long type; };
     template<> struct superset<unsigned int,short> { typedef long type; };
     template<> struct superset<unsigned int,int> { typedef long type; };
-    template<> struct superset<unsigned int,unsigned long> { typedef unsigned long type; };
+    template<> struct superset<unsigned int,cimg_ulong> { typedef cimg_ulong type; };
     template<> struct superset<unsigned int,long> { typedef long type; };
     template<> struct superset<unsigned int,float> { typedef float type; };
     template<> struct superset<unsigned int,double> { typedef double type; };
     template<> struct superset<int,unsigned int> { typedef long type; };
-    template<> struct superset<int,unsigned long> { typedef long type; };
+    template<> struct superset<int,cimg_ulong> { typedef long type; };
     template<> struct superset<int,long> { typedef long type; };
     template<> struct superset<int,float> { typedef float type; };
     template<> struct superset<int,double> { typedef double type; };
-    template<> struct superset<unsigned long,char> { typedef long type; };
-    template<> struct superset<unsigned long,signed char> { typedef long type; };
-    template<> struct superset<unsigned long,short> { typedef long type; };
-    template<> struct superset<unsigned long,int> { typedef long type; };
-    template<> struct superset<unsigned long,long> { typedef long type; };
-    template<> struct superset<unsigned long,float> { typedef double type; };
-    template<> struct superset<unsigned long,double> { typedef double type; };
+    template<> struct superset<cimg_ulong,char> { typedef long type; };
+    template<> struct superset<cimg_ulong,signed char> { typedef long type; };
+    template<> struct superset<cimg_ulong,short> { typedef long type; };
+    template<> struct superset<cimg_ulong,int> { typedef long type; };
+    template<> struct superset<cimg_ulong,long> { typedef long type; };
+    template<> struct superset<cimg_ulong,float> { typedef double type; };
+    template<> struct superset<cimg_ulong,double> { typedef double type; };
     template<> struct superset<long,float> { typedef double type; };
     template<> struct superset<long,double> { typedef double type; };
     template<> struct superset<float,double> { typedef double type; };
@@ -4512,7 +4512,7 @@ namespace cimg_library_suffixed {
     inline unsigned int abs(const unsigned int a) {
       return a;
     }
-    inline unsigned long abs(const unsigned long a) {
+    inline cimg_ulong abs(const cimg_ulong a) {
       return a;
     }
     inline double abs(const double a) {
@@ -4636,7 +4636,7 @@ namespace cimg_library_suffixed {
     inline int mod(const unsigned int x, const unsigned int m) {
       return (int)(x%m);
     }
-    inline int mod(const unsigned long x, const unsigned long m) {
+    inline int mod(const cimg_ulong x, const cimg_ulong m) {
       return (long)(x%m);
     }
 
@@ -5577,7 +5577,7 @@ namespace cimg_library_suffixed {
   _cimg_create_ext_operators(short)
   _cimg_create_ext_operators(unsigned int)
   _cimg_create_ext_operators(int)
-  _cimg_create_ext_operators(unsigned long)
+  _cimg_create_ext_operators(cimg_ulong)
   _cimg_create_ext_operators(long)
   _cimg_create_ext_operators(float)
   _cimg_create_ext_operators(double)
@@ -7796,7 +7796,7 @@ namespace cimg_library_suffixed {
       _min = _max = 0;
       std::memset(_data,0,(cimg::X11_attr().nb_bits==8?sizeof(unsigned char):
                            (cimg::X11_attr().nb_bits==16?sizeof(unsigned short):sizeof(unsigned int)))*
-                  (unsigned long)_width*_height);
+                  (size_t)_width*_height);
       return paint();
     }
 
@@ -7833,7 +7833,7 @@ namespace cimg_library_suffixed {
       _assign(disp._width,disp._height,disp._title,disp._normalization,disp._is_fullscreen,disp._is_closed);
       std::memcpy(_data,disp._data,(cimg::X11_attr().nb_bits==8?sizeof(unsigned char):
                                     cimg::X11_attr().nb_bits==16?sizeof(unsigned short):
-                                    sizeof(unsigned int))*(unsigned long)_width*_height);
+                                    sizeof(unsigned int))*(size_t)_width*_height);
       return paint();
     }
 
@@ -8028,7 +8028,7 @@ namespace cimg_library_suffixed {
           _set_colormap(_colormap,img._spectrum);
           unsigned char
             *const ndata = (img._width==_width && img._height==_height)?(unsigned char*)_data:
-            new unsigned char[(unsigned long)img._width*img._height],
+            new unsigned char[(size_t)img._width*img._height],
             *ptrd = (unsigned char*)ndata;
           switch (img._spectrum) {
           case 1 :
@@ -8054,7 +8054,7 @@ namespace cimg_library_suffixed {
         } break;
         case 16 : { // 16 bits colors, no normalization
           unsigned short *const ndata = (img._width==_width && img._height==_height)?(unsigned short*)_data:
-            new unsigned short[(unsigned long)img._width*img._height];
+            new unsigned short[(size_t)img._width*img._height];
           unsigned char *ptrd = (unsigned char*)ndata;
           const unsigned int M = 248;
           switch (img._spectrum) {
@@ -8101,7 +8101,7 @@ namespace cimg_library_suffixed {
         } break;
         default : { // 24 bits colors, no normalization
           unsigned int *const ndata = (img._width==_width && img._height==_height)?(unsigned int*)_data:
-            new unsigned int[(unsigned long)img._width*img._height];
+            new unsigned int[(size_t)img._width*img._height];
           if (sizeof(int)==4) { // 32 bits int uses optimized version
             unsigned int *ptrd = ndata;
             switch (img._spectrum) {

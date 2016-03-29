@@ -4231,25 +4231,25 @@ namespace cimg_library_suffixed {
        \param size Number of buffer elements to reverse.
     **/
     template<typename T>
-    inline void invert_endianness(T* const buffer, const unsigned long size) {
+    inline void invert_endianness(T* const buffer, const cimg_ulong size) {
       if (size) switch (sizeof(T)) {
-      case 1 : break;
-      case 2 : { for (unsigned short *ptr = (unsigned short*)buffer + size; ptr>(unsigned short*)buffer; ) {
-        const unsigned short val = *(--ptr);
-        *ptr = (unsigned short)((val>>8)|((val<<8)));
-      }
-      } break;
-      case 4 : { for (unsigned int *ptr = (unsigned int*)buffer + size; ptr>(unsigned int*)buffer; ) {
-        const unsigned int val = *(--ptr);
-        *ptr = (val>>24)|((val>>8)&0xff00)|((val<<8)&0xff0000)|(val<<24);
-      }
-      } break;
-      default : { for (T* ptr = buffer + size; ptr>buffer; ) {
-        unsigned char *pb = (unsigned char*)(--ptr), *pe = pb + sizeof(T);
-        for (int i = 0; i<(int)sizeof(T)/2; ++i) swap(*(pb++),*(--pe));
-      }
-      }
-      }
+        case 1 : break;
+        case 2 : { for (unsigned short *ptr = (unsigned short*)buffer + size; ptr>(unsigned short*)buffer; ) {
+              const unsigned short val = *(--ptr);
+              *ptr = (unsigned short)((val>>8)|((val<<8)));
+            }
+        } break;
+        case 4 : { for (unsigned int *ptr = (unsigned int*)buffer + size; ptr>(unsigned int*)buffer; ) {
+              const unsigned int val = *(--ptr);
+              *ptr = (val>>24)|((val>>8)&0xff00)|((val<<8)&0xff0000)|(val<<24);
+            }
+        } break;
+        default : { for (T* ptr = buffer + size; ptr>buffer; ) {
+              unsigned char *pb = (unsigned char*)(--ptr), *pe = pb + sizeof(T);
+              for (int i = 0; i<(int)sizeof(T)/2; ++i) swap(*(pb++),*(--pe));
+            }
+        }
+        }
     }
 
     //! Reverse endianness of a single variable.
@@ -4287,28 +4287,28 @@ namespace cimg_library_suffixed {
     /**
        \note The timer does not necessarily starts from \c 0.
     **/
-    inline unsigned long time() {
+    inline cimg_ulong time() {
 #if cimg_OS==1
       struct timeval st_time;
       gettimeofday(&st_time,0);
-      return (unsigned long)(st_time.tv_usec/1000 + st_time.tv_sec*1000);
+      return (cimg_ulong)(st_time.tv_usec/1000 + st_time.tv_sec*1000);
 #elif cimg_OS==2
       SYSTEMTIME st_time;
       GetLocalTime(&st_time);
-      return (unsigned long)(st_time.wMilliseconds + 1000*(st_time.wSecond + 60*(st_time.wMinute + 60*st_time.wHour)));
+      return (cimg_ulong)(st_time.wMilliseconds + 1000*(st_time.wSecond + 60*(st_time.wMinute + 60*st_time.wHour)));
 #else
       return 0;
 #endif
     }
 
     // Implement a tic/toc mechanism to display elapsed time of algorithms.
-    inline unsigned long tictoc(const bool is_tic);
+    inline cimg_ulong tictoc(const bool is_tic);
 
     //! Start tic/toc timer for time measurement between code instructions.
     /**
        \return Current value of the timer (same value as time()).
     **/
-    inline unsigned long tic() {
+    inline cimg_ulong tic() {
       return cimg::tictoc(true);
     }
 
@@ -4316,7 +4316,7 @@ namespace cimg_library_suffixed {
     /**
        \return Time elapsed (in ms) since last call to tic().
     **/
-    inline unsigned long toc() {
+    inline cimg_ulong toc() {
       return cimg::tictoc(false);
     }
 
@@ -4337,14 +4337,14 @@ namespace cimg_library_suffixed {
 #endif
     }
 
-    inline unsigned int _wait(const unsigned int milliseconds, unsigned long& timer) {
+    inline cimg_long _wait(const unsigned int milliseconds, cimg_ulong& timer) {
       if (!timer) timer = cimg::time();
-      const unsigned long current_time = cimg::time();
+      const cimg_ulong current_time = cimg::time();
       if (current_time>=timer + milliseconds) { timer = current_time; return 0; }
-      const unsigned long time_diff = timer + milliseconds - current_time;
+      const cimg_ulong time_diff = timer + milliseconds - current_time;
       timer = current_time + time_diff;
       cimg::sleep(time_diff);
-      return (unsigned int)time_diff;
+      return (cimg_long)time_diff;
     }
 
     //! Wait for a given number of milliseconds since the last call to wait().
@@ -4354,9 +4354,9 @@ namespace cimg_library_suffixed {
        \note Same as sleep() with a waiting time computed with regard to the last call
        of wait(). It may be used to temporize your program properly, without wasting CPU time.
     **/
-    inline unsigned int wait(const unsigned int milliseconds) {
+    inline cimg_long wait(const unsigned int milliseconds) {
       cimg::mutex(3);
-      static unsigned long timer = 0;
+      static cimg_ulong timer = 0;
       if (!timer) timer = cimg::time();
       cimg::mutex(3,0);
       return _wait(milliseconds,timer);
@@ -5756,7 +5756,7 @@ namespace cimg_library_suffixed {
      Remember to link your program against \b X11 or \b GDI32 libraries if you use CImgDisplay.
   **/
   struct CImgDisplay {
-    unsigned long _timer, _fps_frames, _fps_timer;
+    cimg_ulong _timer, _fps_frames, _fps_timer;
     unsigned int _width, _height, _normalization;
     float _fps_fps, _min, _max;
     bool _is_fullscreen;
@@ -56242,11 +56242,11 @@ namespace cimg {
   }
 
   // Implement a tic/toc mechanism to display elapsed time of algorithms.
-  inline unsigned long tictoc(const bool is_tic) {
+  inline cimg_ulong tictoc(const bool is_tic) {
     cimg::mutex(2);
-    static CImg<unsigned long> times(64);
+    static CImg<cimg_ulong> times(64);
     static unsigned int pos = 0;
-    const unsigned long t1 = cimg::time();
+    const cimg_ulong t1 = cimg::time();
     if (is_tic) { // Tic.
       times[pos++] = t1;
       if (pos>=times._width)
@@ -56257,9 +56257,9 @@ namespace cimg {
     // Toc.
     if (!pos)
       throw CImgArgumentException("cimg::toc(): No previous call to 'cimg::tic()' has been made.");
-    const unsigned long
+    const cimg_ulong
       t0 = times[--pos],
-      dt = t1>=t0?(t1 - t0):cimg::type<unsigned long>::max();
+      dt = t1>=t0?(t1 - t0):cimg::type<cimg_ulong>::max();
     const unsigned int
       edays = (unsigned int)(dt/86400000.0),
       ehours = (unsigned int)((dt - edays*86400000.0)/3600000.0),

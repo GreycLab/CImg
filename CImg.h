@@ -45679,34 +45679,34 @@ namespace cimg_library_suffixed {
       assign(dimx,dimy,dimz,dimv);
       switch (datatype) {
       case 2 : {
-        unsigned char *const buffer = new unsigned char[(unsigned int)dimx*dimy*dimz*dimv];
+        unsigned char *const buffer = new unsigned char[(size_t)dimx*dimy*dimz*dimv];
         cimg::fread(buffer,dimx*dimy*dimz*dimv,nfile);
         cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);
         delete[] buffer;
       } break;
       case 4 : {
-        short *const buffer = new short[(unsigned int)dimx*dimy*dimz*dimv];
+        short *const buffer = new short[(size_t)dimx*dimy*dimz*dimv];
         cimg::fread(buffer,dimx*dimy*dimz*dimv,nfile);
         if (endian) cimg::invert_endianness(buffer,dimx*dimy*dimz*dimv);
         cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);
         delete[] buffer;
       } break;
       case 8 : {
-        int *const buffer = new int[(unsigned int)dimx*dimy*dimz*dimv];
+        int *const buffer = new int[(size_t)dimx*dimy*dimz*dimv];
         cimg::fread(buffer,dimx*dimy*dimz*dimv,nfile);
         if (endian) cimg::invert_endianness(buffer,dimx*dimy*dimz*dimv);
         cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);
         delete[] buffer;
       } break;
       case 16 : {
-        float *const buffer = new float[(unsigned int)dimx*dimy*dimz*dimv];
+        float *const buffer = new float[(size_t)dimx*dimy*dimz*dimv];
         cimg::fread(buffer,dimx*dimy*dimz*dimv,nfile);
         if (endian) cimg::invert_endianness(buffer,dimx*dimy*dimz*dimv);
         cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);
         delete[] buffer;
       } break;
       case 64 : {
-        double *const buffer = new double[(unsigned int)dimx*dimy*dimz*dimv];
+        double *const buffer = new double[(size_t)dimx*dimy*dimz*dimv];
         cimg::fread(buffer,dimx*dimy*dimz*dimv,nfile);
         if (endian) cimg::invert_endianness(buffer,dimx*dimy*dimz*dimv);
         cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);

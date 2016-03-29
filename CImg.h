@@ -7558,8 +7558,8 @@ namespace cimg_library_suffixed {
       winattr.override_redirect = 1;
       _background_window = XCreateWindow(dpy,DefaultRootWindow(dpy),0,0,sx,sy,0,0,
                                          InputOutput,CopyFromParent,CWOverrideRedirect,&winattr);
-      const unsigned long buf_size = (unsigned long)sx*sy*(cimg::X11_attr().nb_bits==8?1:
-                                                           (cimg::X11_attr().nb_bits==16?2:4));
+      const cimg_ulong buf_size = (cimg_ulong)sx*sy*(cimg::X11_attr().nb_bits==8?1:
+                                                     (cimg::X11_attr().nb_bits==16?2:4));
       void *background_data = std::malloc(buf_size);
       std::memset(background_data,0,buf_size);
       XImage *background_image = XCreateImage(dpy,DefaultVisual(dpy,DefaultScreen(dpy)),cimg::X11_attr().nb_bits,
@@ -7725,8 +7725,8 @@ namespace cimg_library_suffixed {
       if (!_shminfo)
 #endif
         {
-          const unsigned long buf_size = (unsigned long)_width*_height*(cimg::X11_attr().nb_bits==8?1:
-                                                                        (cimg::X11_attr().nb_bits==16?2:4));
+          const cimg_ulong buf_size = (cimg_ulong)_width*_height*(cimg::X11_attr().nb_bits==8?1:
+                                                                  (cimg::X11_attr().nb_bits==16?2:4));
           _data = std::malloc(buf_size);
           _image = XCreateImage(dpy,DefaultVisual(dpy,DefaultScreen(dpy)),cimg::X11_attr().nb_bits,
                                 ZPixmap,0,(char*)_data,_width,_height,8,0);
@@ -7875,7 +7875,7 @@ namespace cimg_library_suffixed {
     CImgDisplay& toggle_fullscreen(const bool force_redraw=true) {
       if (is_empty()) return *this;
       if (force_redraw) {
-        const unsigned long buf_size = (unsigned long)_width*_height*
+        const cimg_ulong buf_size = (cimg_ulong)_width*_height*
           (cimg::X11_attr().nb_bits==8?1:(cimg::X11_attr().nb_bits==16?2:4));
         void *image_data = std::malloc(buf_size);
         std::memcpy(image_data,_data,buf_size);
@@ -8032,14 +8032,14 @@ namespace cimg_library_suffixed {
             *ptrd = (unsigned char*)ndata;
           switch (img._spectrum) {
           case 1 :
-            for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy)
+            for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy)
               (*ptrd++) = (unsigned char)*(data1++);
             break;
-          case 2 : for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+          case 2 : for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
 	      const unsigned char R = (unsigned char)*(data1++), G = (unsigned char)*(data2++);
 	      (*ptrd++) = (R&0xf0) | (G>>4);
 	    } break;
-          default : for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+          default : for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
 	      const unsigned char
                 R = (unsigned char)*(data1++),
                 G = (unsigned char)*(data2++),
@@ -8060,11 +8060,11 @@ namespace cimg_library_suffixed {
           switch (img._spectrum) {
           case 1 :
             if (cimg::X11_attr().byte_order)
-              for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+              for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                 const unsigned char val = (unsigned char)*(data1++), G = val>>2;
                 *(ptrd++) = (val&M) | (G>>3);
                 *(ptrd++) = (G<<5) | (G>>1);
-              } else for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+              } else for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                 const unsigned char val = (unsigned char)*(data1++), G = val>>2;
                 *(ptrd++) = (G<<5) | (G>>1);
                 *(ptrd++) = (val&M) | (G>>3);
@@ -8072,11 +8072,11 @@ namespace cimg_library_suffixed {
             break;
           case 2 :
             if (cimg::X11_attr().byte_order)
-              for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+              for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                 const unsigned char G = (unsigned char)*(data2++)>>2;
                 *(ptrd++) = ((unsigned char)*(data1++)&M) | (G>>3);
                 *(ptrd++) = (G<<5);
-              } else for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+              } else for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                 const unsigned char G = (unsigned char)*(data2++)>>2;
                 *(ptrd++) = (G<<5);
                 *(ptrd++) = ((unsigned char)*(data1++)&M) | (G>>3);
@@ -8084,11 +8084,11 @@ namespace cimg_library_suffixed {
             break;
           default :
             if (cimg::X11_attr().byte_order)
-              for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+              for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                 const unsigned char G = (unsigned char)*(data2++)>>2;
                 *(ptrd++) = ((unsigned char)*(data1++)&M) | (G>>3);
                 *(ptrd++) = (G<<5) | ((unsigned char)*(data3++)>>3);
-              } else for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+              } else for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                 const unsigned char G = (unsigned char)*(data2++)>>2;
                 *(ptrd++) = (G<<5) | ((unsigned char)*(data3++)>>3);
                 *(ptrd++) = ((unsigned char)*(data1++)&M) | (G>>3);
@@ -8107,31 +8107,31 @@ namespace cimg_library_suffixed {
             switch (img._spectrum) {
             case 1 :
               if (cimg::X11_attr().byte_order==cimg::endianness())
-                for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+                for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                   const unsigned char val = (unsigned char)*(data1++);
                   *(ptrd++) = (val<<16) | (val<<8) | val;
                 }
               else
-                for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+                for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                  const unsigned char val = (unsigned char)*(data1++);
                   *(ptrd++) = (val<<16) | (val<<8) | val;
                 }
               break;
             case 2 :
               if (cimg::X11_attr().byte_order==cimg::endianness())
-                for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy)
+                for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy)
                   *(ptrd++) = ((unsigned char)*(data1++)<<16) | ((unsigned char)*(data2++)<<8);
               else
-                for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy)
+                for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy)
                   *(ptrd++) = ((unsigned char)*(data2++)<<16) | ((unsigned char)*(data1++)<<8);
               break;
             default :
               if (cimg::X11_attr().byte_order==cimg::endianness())
-                for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy)
+                for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy)
                   *(ptrd++) = ((unsigned char)*(data1++)<<16) | ((unsigned char)*(data2++)<<8) |
                     (unsigned char)*(data3++);
               else
-                for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy)
+                for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy)
                   *(ptrd++) = ((unsigned char)*(data3++)<<24) | ((unsigned char)*(data2++)<<16) |
                     ((unsigned char)*(data1++)<<8);
             }
@@ -8140,12 +8140,12 @@ namespace cimg_library_suffixed {
             switch (img._spectrum) {
             case 1 :
               if (cimg::X11_attr().byte_order)
-                for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+                for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                   *(ptrd++) = 0;
                   *(ptrd++) = (unsigned char)*(data1++);
                   *(ptrd++) = 0;
                   *(ptrd++) = 0;
-                } else for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+                } else for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                   *(ptrd++) = 0;
                   *(ptrd++) = 0;
                   *(ptrd++) = (unsigned char)*(data1++);
@@ -8154,7 +8154,7 @@ namespace cimg_library_suffixed {
               break;
             case 2 :
               if (cimg::X11_attr().byte_order) cimg::swap(data1,data2);
-              for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+              for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                 *(ptrd++) = 0;
                 *(ptrd++) = (unsigned char)*(data2++);
                 *(ptrd++) = (unsigned char)*(data1++);
@@ -8163,12 +8163,12 @@ namespace cimg_library_suffixed {
               break;
             default :
               if (cimg::X11_attr().byte_order)
-                for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+                for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                   *(ptrd++) = 0;
                   *(ptrd++) = (unsigned char)*(data1++);
                   *(ptrd++) = (unsigned char)*(data2++);
                   *(ptrd++) = (unsigned char)*(data3++);
-                } else for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+                } else for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                   *(ptrd++) = (unsigned char)*(data3++);
                   *(ptrd++) = (unsigned char)*(data2++);
                   *(ptrd++) = (unsigned char)*(data1++);
@@ -8192,21 +8192,21 @@ namespace cimg_library_suffixed {
         case 8 : { // 256 colormap, with normalization
           _set_colormap(_colormap,img._spectrum);
           unsigned char *const ndata = (img._width==_width && img._height==_height)?(unsigned char*)_data:
-            new unsigned char[(unsigned long)img._width*img._height];
+            new unsigned char[(size_t)img._width*img._height];
           unsigned char *ptrd = (unsigned char*)ndata;
           switch (img._spectrum) {
-          case 1 : for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+          case 1 : for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
               const unsigned char R = (unsigned char)((*(data1++) - _min)*mm);
               *(ptrd++) = R;
             } break;
-          case 2 : for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+          case 2 : for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
               const unsigned char
                 R = (unsigned char)((*(data1++) - _min)*mm),
                 G = (unsigned char)((*(data2++) - _min)*mm);
             (*ptrd++) = (R&0xf0) | (G>>4);
           } break;
           default :
-            for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+            for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
               const unsigned char
                 R = (unsigned char)((*(data1++) - _min)*mm),
                 G = (unsigned char)((*(data2++) - _min)*mm),
@@ -8221,17 +8221,17 @@ namespace cimg_library_suffixed {
         } break;
         case 16 : { // 16 bits colors, with normalization
           unsigned short *const ndata = (img._width==_width && img._height==_height)?(unsigned short*)_data:
-            new unsigned short[(unsigned long)img._width*img._height];
+            new unsigned short[(size_t)img._width*img._height];
           unsigned char *ptrd = (unsigned char*)ndata;
           const unsigned int M = 248;
           switch (img._spectrum) {
           case 1 :
             if (cimg::X11_attr().byte_order)
-              for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+              for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                 const unsigned char val = (unsigned char)((*(data1++) - _min)*mm), G = val>>2;
                 *(ptrd++) = (val&M) | (G>>3);
                 *(ptrd++) = (G<<5) | (val>>3);
-              } else for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+              } else for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                 const unsigned char val = (unsigned char)((*(data1++) - _min)*mm), G = val>>2;
                 *(ptrd++) = (G<<5) | (val>>3);
                 *(ptrd++) = (val&M) | (G>>3);
@@ -8239,11 +8239,11 @@ namespace cimg_library_suffixed {
             break;
           case 2 :
             if (cimg::X11_attr().byte_order)
-              for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+              for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                 const unsigned char G = (unsigned char)((*(data2++) - _min)*mm)>>2;
                 *(ptrd++) = ((unsigned char)((*(data1++) - _min)*mm)&M) | (G>>3);
                 *(ptrd++) = (G<<5);
-              } else for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+              } else for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                 const unsigned char G = (unsigned char)((*(data2++) - _min)*mm)>>2;
                 *(ptrd++) = (G<<5);
                 *(ptrd++) = ((unsigned char)((*(data1++) - _min)*mm)&M) | (G>>3);
@@ -8251,11 +8251,11 @@ namespace cimg_library_suffixed {
             break;
           default :
             if (cimg::X11_attr().byte_order)
-              for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+              for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                 const unsigned char G = (unsigned char)((*(data2++) - _min)*mm)>>2;
                 *(ptrd++) = ((unsigned char)((*(data1++) - _min)*mm)&M) | (G>>3);
                 *(ptrd++) = (G<<5) | ((unsigned char)((*(data3++) - _min)*mm)>>3);
-              } else for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+              } else for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                 const unsigned char G = (unsigned char)((*(data2++) - _min)*mm)>>2;
                 *(ptrd++) = (G<<5) | ((unsigned char)((*(data3++) - _min)*mm)>>3);
                 *(ptrd++) = ((unsigned char)((*(data1++) - _min)*mm)&M) | (G>>3);
@@ -8268,43 +8268,43 @@ namespace cimg_library_suffixed {
         } break;
         default : { // 24 bits colors, with normalization
           unsigned int *const ndata = (img._width==_width && img._height==_height)?(unsigned int*)_data:
-            new unsigned int[(unsigned long)img._width*img._height];
+            new unsigned int[(size_t)img._width*img._height];
           if (sizeof(int)==4) { // 32 bits int uses optimized version
             unsigned int *ptrd = ndata;
             switch (img._spectrum) {
             case 1 :
               if (cimg::X11_attr().byte_order==cimg::endianness())
-                for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+                for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                   const unsigned char val = (unsigned char)((*(data1++) - _min)*mm);
                   *(ptrd++) = (val<<16) | (val<<8) | val;
                 }
               else
-                for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+                for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                   const unsigned char val = (unsigned char)((*(data1++) - _min)*mm);
                   *(ptrd++) = (val<<24) | (val<<16) | (val<<8);
                 }
               break;
             case 2 :
               if (cimg::X11_attr().byte_order==cimg::endianness())
-                for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy)
+                for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy)
                   *(ptrd++) =
                     ((unsigned char)((*(data1++) - _min)*mm)<<16) |
                     ((unsigned char)((*(data2++) - _min)*mm)<<8);
               else
-                for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy)
+                for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy)
                   *(ptrd++) =
                     ((unsigned char)((*(data2++) - _min)*mm)<<16) |
                     ((unsigned char)((*(data1++) - _min)*mm)<<8);
               break;
             default :
               if (cimg::X11_attr().byte_order==cimg::endianness())
-                for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy)
+                for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy)
                   *(ptrd++) =
                     ((unsigned char)((*(data1++) - _min)*mm)<<16) |
                     ((unsigned char)((*(data2++) - _min)*mm)<<8) |
                     (unsigned char)((*(data3++) - _min)*mm);
               else
-                for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy)
+                for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy)
                   *(ptrd++) =
                     ((unsigned char)((*(data3++) - _min)*mm)<<24) |
                     ((unsigned char)((*(data2++) - _min)*mm)<<16) |
@@ -8315,13 +8315,13 @@ namespace cimg_library_suffixed {
             switch (img._spectrum) {
             case 1 :
               if (cimg::X11_attr().byte_order)
-                for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+                for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                   const unsigned char val = (unsigned char)((*(data1++) - _min)*mm);
                   (*ptrd++) = 0;
                   (*ptrd++) = val;
                   (*ptrd++) = val;
                   (*ptrd++) = val;
-                } else for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+                } else for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                   const unsigned char val = (unsigned char)((*(data1++) - _min)*mm);
                   (*ptrd++) = val;
                   (*ptrd++) = val;
@@ -8331,7 +8331,7 @@ namespace cimg_library_suffixed {
               break;
             case 2 :
               if (cimg::X11_attr().byte_order) cimg::swap(data1,data2);
-              for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+              for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                 (*ptrd++) = 0;
                 (*ptrd++) = (unsigned char)((*(data2++) - _min)*mm);
                 (*ptrd++) = (unsigned char)((*(data1++) - _min)*mm);
@@ -8340,12 +8340,12 @@ namespace cimg_library_suffixed {
               break;
             default :
               if (cimg::X11_attr().byte_order)
-                for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+                for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                   (*ptrd++) = 0;
                   (*ptrd++) = (unsigned char)((*(data1++) - _min)*mm);
                   (*ptrd++) = (unsigned char)((*(data2++) - _min)*mm);
                   (*ptrd++) = (unsigned char)((*(data3++) - _min)*mm);
-                } else for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+                } else for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                   (*ptrd++) = (unsigned char)((*(data3++) - _min)*mm);
                   (*ptrd++) = (unsigned char)((*(data2++) - _min)*mm);
                   (*ptrd++) = (unsigned char)((*(data1++) - _min)*mm);
@@ -8376,7 +8376,7 @@ namespace cimg_library_suffixed {
       if (cimg::X11_attr().is_blue_first) cimg::swap(data1,data3);
       switch (cimg::X11_attr().nb_bits) {
       case 8 : {
-        for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+        for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
           const unsigned char val = *(ptrs++);
           *(data1++) = (T)(val&0xe0);
           *(data2++) = (T)((val&0x1c)<<3);
@@ -8384,12 +8384,12 @@ namespace cimg_library_suffixed {
         }
       } break;
       case 16 : {
-        if (cimg::X11_attr().byte_order) for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+        if (cimg::X11_attr().byte_order) for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
           const unsigned char val0 = *(ptrs++), val1 = *(ptrs++);
           *(data1++) = (T)(val0&0xf8);
           *(data2++) = (T)((val0<<5) | ((val1&0xe0)>>5));
           *(data3++) = (T)(val1<<3);
-          } else for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+          } else for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
           const unsigned short val0 = *(ptrs++), val1 = *(ptrs++);
           *(data1++) = (T)(val1&0xf8);
           *(data2++) = (T)((val1<<5) | ((val0&0xe0)>>5));
@@ -8397,12 +8397,12 @@ namespace cimg_library_suffixed {
         }
       } break;
       default : {
-        if (cimg::X11_attr().byte_order) for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+        if (cimg::X11_attr().byte_order) for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
           ++ptrs;
           *(data1++) = (T)*(ptrs++);
           *(data2++) = (T)*(ptrs++);
           *(data3++) = (T)*(ptrs++);
-          } else for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+          } else for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
             *(data3++) = (T)*(ptrs++);
             *(data2++) = (T)*(ptrs++);
             *(data1++) = (T)*(ptrs++);
@@ -8580,7 +8580,7 @@ namespace cimg_library_suffixed {
       disp->_bmi.bmiHeader.biYPelsPerMeter = 1;
       disp->_bmi.bmiHeader.biClrUsed = 0;
       disp->_bmi.bmiHeader.biClrImportant = 0;
-      disp->_data = new unsigned int[(unsigned long)disp->_width*disp->_height];
+      disp->_data = new unsigned int[(size_t)disp->_width*disp->_height];
       if (!disp->_is_fullscreen) { // Normal window
         RECT rect;
         rect.left = rect.top = 0; rect.right = (LONG)disp->_width - 1; rect.bottom = (LONG)disp->_height - 1;
@@ -8820,7 +8820,7 @@ namespace cimg_library_suffixed {
     CImgDisplay& toggle_fullscreen(const bool force_redraw=true) {
       if (is_empty()) return *this;
       if (force_redraw) {
-        const unsigned long buf_size = _width*_height*4UL;
+        const cimg_ulong buf_size = (cimg_ulong)_width*_height*4;
         void *odata = std::malloc(buf_size);
         if (odata) {
           std::memcpy(odata,_data,buf_size);
@@ -8945,20 +8945,20 @@ namespace cimg_library_suffixed {
       WaitForSingleObject(_mutex,INFINITE);
       unsigned int
         *const ndata = (img._width==_width && img._height==_height)?_data:
-        new unsigned int[(unsigned long)img._width*img._height],
+        new unsigned int[(size_t)img._width*img._height],
         *ptrd = ndata;
 
       if (!_normalization || (_normalization==3 && cimg::type<T>::string()==cimg::type<unsigned char>::string())) {
         _min = _max = 0;
         switch (img._spectrum) {
         case 1 : {
-          for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+          for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
             const unsigned char val = (unsigned char)*(data1++);
             *(ptrd++) = (unsigned int)((val<<16) | (val<<8) | val);
           }
         } break;
         case 2 : {
-          for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+          for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
             const unsigned char
               R = (unsigned char)*(data1++),
               G = (unsigned char)*(data2++);
@@ -8966,7 +8966,7 @@ namespace cimg_library_suffixed {
           }
         } break;
         default : {
-          for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+          for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
             const unsigned char
               R = (unsigned char)*(data1++),
               G = (unsigned char)*(data2++),
@@ -8983,13 +8983,13 @@ namespace cimg_library_suffixed {
         const float delta = _max - _min, mm = 255/(delta?delta:1.0f);
         switch (img._spectrum) {
         case 1 : {
-          for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+          for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
             const unsigned char val = (unsigned char)((*(data1++) - _min)*mm);
             *(ptrd++) = (unsigned int)((val<<16) | (val<<8) | val);
           }
         } break;
         case 2 : {
-          for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+          for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
             const unsigned char
               R = (unsigned char)((*(data1++) - _min)*mm),
               G = (unsigned char)((*(data2++) - _min)*mm);
@@ -8997,7 +8997,7 @@ namespace cimg_library_suffixed {
           }
         } break;
         default : {
-          for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+          for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
             const unsigned char
               R = (unsigned char)((*(data1++) - _min)*mm),
               G = (unsigned char)((*(data2++) - _min)*mm),
@@ -9021,7 +9021,7 @@ namespace cimg_library_suffixed {
         *data1 = img.data(0,0,0,0),
         *data2 = img.data(0,0,0,1),
         *data3 = img.data(0,0,0,2);
-      for (unsigned long xy = (unsigned long)img._width*img._height; xy>0; --xy) {
+      for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
         const unsigned int val = *(ptrs++);
         *(data1++) = (T)(unsigned char)(val>>16);
         *(data2++) = (T)(unsigned char)((val>>8)&0xFF);
@@ -9193,8 +9193,8 @@ namespace cimg_library_suffixed {
     typedef typename cimg::superset<T,short>::type Tshort;
     typedef typename cimg::superset<T,unsigned int>::type Tuint;
     typedef typename cimg::superset<T,int>::type Tint;
-    typedef typename cimg::superset<T,unsigned long>::type Tulong;
-    typedef typename cimg::superset<T,long>::type Tlong;
+    typedef typename cimg::superset<T,cimg_ulong>::type Tulong;
+    typedef typename cimg::superset<T,cimg_long>::type Tlong;
     typedef typename cimg::superset<T,float>::type Tfloat;
     typedef typename cimg::superset<T,double>::type Tdouble;
     typedef typename cimg::last<T,bool>::type boolT;
@@ -46233,7 +46233,7 @@ namespace cimg_library_suffixed {
                       const unsigned int size_x=0, const unsigned int size_y=1,
                       const unsigned int size_z=1, const unsigned int size_c=1,
                       const bool is_multiplexed=false, const bool invert_endianness=false,
-                      const unsigned long offset=0) {
+                      const ulongT offset=0) {
       return _load_raw(0,filename,size_x,size_y,size_z,size_c,is_multiplexed,invert_endianness,offset);
     }
 
@@ -46242,7 +46242,7 @@ namespace cimg_library_suffixed {
                                 const unsigned int size_x=0, const unsigned int size_y=1,
                                 const unsigned int size_z=1, const unsigned int size_c=1,
                                 const bool is_multiplexed=false, const bool invert_endianness=false,
-                                const unsigned long offset=0) {
+                                const ulongT offset=0) {
       return CImg<T>().load_raw(filename,size_x,size_y,size_z,size_c,is_multiplexed,invert_endianness,offset);
     }
 
@@ -46251,7 +46251,7 @@ namespace cimg_library_suffixed {
                       const unsigned int size_x=0, const unsigned int size_y=1,
                       const unsigned int size_z=1, const unsigned int size_c=1,
                       const bool is_multiplexed=false, const bool invert_endianness=false,
-                      const unsigned long offset=0) {
+                      const ulongT offset=0) {
       return _load_raw(file,0,size_x,size_y,size_z,size_c,is_multiplexed,invert_endianness,offset);
     }
 
@@ -46260,7 +46260,7 @@ namespace cimg_library_suffixed {
                                 const unsigned int size_x=0, const unsigned int size_y=1,
                                 const unsigned int size_z=1, const unsigned int size_c=1,
                                 const bool is_multiplexed=false, const bool invert_endianness=false,
-                                const unsigned long offset=0) {
+                                const ulongT offset=0) {
       return CImg<T>().load_raw(file,size_x,size_y,size_z,size_c,is_multiplexed,invert_endianness,offset);
     }
 
@@ -46268,7 +46268,7 @@ namespace cimg_library_suffixed {
 		       const unsigned int size_x, const unsigned int size_y,
 		       const unsigned int size_z, const unsigned int size_c,
 		       const bool is_multiplexed, const bool invert_endianness,
-                       const unsigned long offset) {
+                       const ulongT offset) {
       if (!file && !filename)
         throw CImgArgumentException(_cimg_instance
                                     "load_raw(): Specified filename is (null).",
@@ -46979,7 +46979,7 @@ namespace cimg_library_suffixed {
         if (step>0) cimg_forY(*this,y) {
             cimg_forX(*this,x) { *(ptr_b++) = (T)*(ptrs++); *(ptr_g++) = (T)*(ptrs++); *(ptr_r++) = (T)*(ptrs++); }
             ptrs+=step;
-          } else for (unsigned long siz = (unsigned long)img->width*img->height; siz; --siz) {
+          } else for (ulongT siz = (ulongT)img->width*img->height; siz; --siz) {
             *(ptr_b++) = (T)*(ptrs++); *(ptr_g++) = (T)*(ptrs++); *(ptr_r++) = (T)*(ptrs++);
           }
       }
@@ -47068,7 +47068,7 @@ namespace cimg_library_suffixed {
         xm = (int)st[4]; ym = (int)st[5], zm = (int)st[6], vm = (int)st[7];
         xM = (int)st[8]; yM = (int)st[9], zM = (int)st[10], vM = (int)st[11];
       }
-      const unsigned long siz = size(), msiz = siz*sizeof(T), siz1 = siz - 1,
+      const ulongT siz = size(), msiz = siz*sizeof(T), siz1 = siz - 1,
         mdisp = msiz<8*1024?0U:msiz<8*1024*1024?1U:2U, width1 = _width - 1;
 
       CImg<charT> _title(64);
@@ -48023,7 +48023,7 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
       if (!disp) disp.assign(cimg_fitscreen(CImgDisplay::screen_width()/2,CImgDisplay::screen_height()/2,1),0,0).
                    set_title(title?"%s":"CImg<%s>",title?title:pixel_type());
-      const unsigned long siz = (unsigned long)_width*_height*_depth, siz1 = cimg::max(1U,siz - 1);
+      const ulongT siz = (ulongT)_width*_height*_depth, siz1 = cimg::max(1U,siz - 1);
       const unsigned int old_normalization = disp.normalization();
       disp.show().flush()._normalization = 0;
 
@@ -48311,7 +48311,7 @@ namespace cimg_library_suffixed {
                    "%s data_%s[] = { %s\n  ",
                    varname._data,_width,_height,_depth,_spectrum,pixel_type(),pixel_type(),varname._data,
                    is_empty()?"};":"");
-      if (!is_empty()) for (unsigned long off = 0, siz = size() - 1; off<=siz; ++off) {
+      if (!is_empty()) for (ulongT off = 0, siz = size() - 1; off<=siz; ++off) {
         std::fprintf(nfile,cimg::type<T>::format(),cimg::type<T>::format((*this)[off]));
         if (off==siz) std::fprintf(nfile," };\n");
         else if (!((off + 1)%16)) std::fprintf(nfile,",\n  ");
@@ -48526,7 +48526,7 @@ namespace cimg_library_suffixed {
       jpeg_start_compress(&cinfo,TRUE);
 
       JSAMPROW row_pointer[1];
-      CImg<ucharT> buffer((unsigned long)_width*dimbuf);
+      CImg<ucharT> buffer(_width*dimbuf);
 
       while (cinfo.next_scanline<cinfo.image_height) {
         unsigned char *ptrd = buffer._data;
@@ -48623,20 +48623,20 @@ namespace cimg_library_suffixed {
       Magick::PixelPacket *pixels = image.getPixels(0,0,_width,_height);
       switch (_spectrum) {
       case 1 : // Scalar images
-        for (unsigned long off = (unsigned long)_width*_height; off; --off) {
+        for (ulongT off = (ulongT)_width*_height; off; --off) {
           pixels->red = pixels->green = pixels->blue = (Magick::Quantum)*(ptr_r++);
           ++pixels;
         }
         break;
       case 2 : // RG images
-        for (unsigned long off = (unsigned long)_width*_height; off; --off) {
+        for (ulongT off = (ulongT)_width*_height; off; --off) {
           pixels->red = (Magick::Quantum)*(ptr_r++);
           pixels->green = (Magick::Quantum)*(ptr_g++);
           pixels->blue = 0; ++pixels;
         }
         break;
       default : // RGB images
-        for (unsigned long off = (unsigned long)_width*_height; off; --off) {
+        for (ulongT off = (ulongT)_width*_height; off; --off) {
           pixels->red = (Magick::Quantum)*(ptr_r++);
           pixels->green = (Magick::Quantum)*(ptr_g++);
           pixels->blue = (Magick::Quantum)*(ptr_b++);
@@ -48906,7 +48906,7 @@ namespace cimg_library_suffixed {
         *ptr_r = data(0,0,0,0),
         *ptr_g = (_spectrum>=2)?data(0,0,0,1):0,
         *ptr_b = (_spectrum>=3)?data(0,0,0,2):0;
-      const unsigned long buf_size = cimg::min(1024*1024UL,_width*_height*(_spectrum==1?1UL:3UL));
+      const ulongT buf_size = cimg::min((ulongT)1024*1024,(ulongT)_width*_height*(_spectrum==1?1UL:3UL));
 
       std::fprintf(nfile,"P%c\n%u %u\n%u\n",
                    (_spectrum==1?'5':'6'),_width,_height,stmax<256?255:(stmax<4096?4095:65535));
@@ -48916,18 +48916,18 @@ namespace cimg_library_suffixed {
         if (bytes_per_pixel==1 || (!bytes_per_pixel && stmax<256)) { // Binary PGM 8 bits
           CImg<ucharT> buf(buf_size);
           for (longT to_write = (longT)width()*height(); to_write>0; ) {
-            const unsigned long N = cimg::min((unsigned long)to_write,buf_size);
+            const ulongT N = cimg::min((ulongT)to_write,buf_size);
             unsigned char *ptrd = buf._data;
-            for (unsigned long i = N; i>0; --i) *(ptrd++) = (unsigned char)*(ptr_r++);
+            for (ulongT i = N; i>0; --i) *(ptrd++) = (unsigned char)*(ptr_r++);
             cimg::fwrite(buf._data,N,nfile);
             to_write-=N;
           }
         } else { // Binary PGM 16 bits
           CImg<ushortT> buf(buf_size);
           for (longT to_write = (longT)width()*height(); to_write>0; ) {
-            const unsigned long N = cimg::min((unsigned long)to_write,buf_size);
+            const ulongT N = cimg::min((ulongT)to_write,buf_size);
             unsigned short *ptrd = buf._data;
-            for (unsigned long i = N; i>0; --i) *(ptrd++) = (unsigned short)*(ptr_r++);
+            for (ulongT i = N; i>0; --i) *(ptrd++) = (unsigned short)*(ptr_r++);
             if (!cimg::endianness()) cimg::invert_endianness(buf._data,buf_size);
             cimg::fwrite(buf._data,N,nfile);
             to_write-=N;
@@ -48938,9 +48938,9 @@ namespace cimg_library_suffixed {
         if (bytes_per_pixel==1 || (!bytes_per_pixel && stmax<256)) { // Binary PPM 8 bits
           CImg<ucharT> buf(buf_size);
           for (longT to_write = (longT)width()*height(); to_write>0; ) {
-            const unsigned long N = cimg::min((unsigned long)to_write,buf_size/3);
+            const ulongT N = cimg::min((ulongT)to_write,buf_size/3);
             unsigned char *ptrd = buf._data;
-            for (unsigned long i = N; i>0; --i) {
+            for (ulongT i = N; i>0; --i) {
               *(ptrd++) = (unsigned char)*(ptr_r++);
               *(ptrd++) = (unsigned char)*(ptr_g++);
               *(ptrd++) = 0;
@@ -48951,9 +48951,9 @@ namespace cimg_library_suffixed {
         } else {             // Binary PPM 16 bits
           CImg<ushortT> buf(buf_size);
           for (longT to_write = (longT)width()*height(); to_write>0; ) {
-            const unsigned long N = cimg::min((unsigned long)to_write,buf_size/3);
+            const ulongT N = cimg::min((ulongT)to_write,buf_size/3);
             unsigned short *ptrd = buf._data;
-            for (unsigned long i = N; i>0; --i) {
+            for (ulongT i = N; i>0; --i) {
               *(ptrd++) = (unsigned short)*(ptr_r++);
               *(ptrd++) = (unsigned short)*(ptr_g++);
               *(ptrd++) = 0;
@@ -48968,9 +48968,9 @@ namespace cimg_library_suffixed {
         if (bytes_per_pixel==1 || (!bytes_per_pixel && stmax<256)) { // Binary PPM 8 bits
           CImg<ucharT> buf(buf_size);
           for (longT to_write = (longT)width()*height(); to_write>0; ) {
-            const unsigned long N = cimg::min((unsigned long)to_write,buf_size/3);
+            const ulongT N = cimg::min((ulongT)to_write,buf_size/3);
             unsigned char *ptrd = buf._data;
-            for (unsigned long i = N; i>0; --i) {
+            for (ulongT i = N; i>0; --i) {
               *(ptrd++) = (unsigned char)*(ptr_r++);
               *(ptrd++) = (unsigned char)*(ptr_g++);
               *(ptrd++) = (unsigned char)*(ptr_b++);
@@ -48981,9 +48981,9 @@ namespace cimg_library_suffixed {
         } else {             // Binary PPM 16 bits
           CImg<ushortT> buf(buf_size);
           for (longT to_write = (longT)width()*height(); to_write>0; ) {
-            const unsigned long N = cimg::min((unsigned long)to_write,buf_size/3);
+            const ulongT N = cimg::min((ulongT)to_write,buf_size/3);
             unsigned short *ptrd = buf._data;
-            for (unsigned long i = N; i>0; --i) {
+            for (ulongT i = N; i>0; --i) {
               *(ptrd++) = (unsigned short)*(ptr_r++);
               *(ptrd++) = (unsigned short)*(ptr_g++);
               *(ptrd++) = (unsigned short)*(ptr_b++);
@@ -49024,7 +49024,7 @@ namespace cimg_library_suffixed {
                    cimg_instance,
                    filename?filename:"(FILE*)");
 
-      const unsigned long buf_size = cimg::min(1024*1024LU,_width*_height*_depth);
+      const ulongT buf_size = cimg::min((ulongT)1024*1024,(ulongT)_width*_height*_depth);
       std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
       const T *ptr = data(0,0,0,0);
 
@@ -49034,9 +49034,9 @@ namespace cimg_library_suffixed {
         std::fprintf(nfile,"P5\n%u %u %u\n255\n",_width,_height,_depth);
         CImg<ucharT> buf(buf_size);
         for (longT to_write = (longT)width()*height()*depth(); to_write>0; ) {
-          const unsigned long N = cimg::min((unsigned long)to_write,buf_size);
+          const ulongT N = cimg::min((ulongT)to_write,buf_size);
           unsigned char *ptrd = buf._data;
-          for (unsigned long i = N; i>0; --i) *(ptrd++) = (unsigned char)*(ptr++);
+          for (ulongT i = N; i>0; --i) *(ptrd++) = (unsigned char)*(ptr++);
           cimg::fwrite(buf._data,N,nfile);
           to_write-=N;
         }
@@ -49045,9 +49045,9 @@ namespace cimg_library_suffixed {
         else std::fprintf(nfile,"P8\n%u %u\n%d\n",_width,_height,(int)max());
         CImg<intT> buf(buf_size);
         for (longT to_write = (longT)width()*height()*depth(); to_write>0; ) {
-          const unsigned long N = cimg::min((unsigned long)to_write,buf_size);
+          const ulongT N = cimg::min((ulongT)to_write,buf_size);
           int *ptrd = buf._data;
-          for (unsigned long i = N; i>0; --i) *(ptrd++) = (int)*(ptr++);
+          for (ulongT i = N; i>0; --i) *(ptrd++) = (int)*(ptr++);
           cimg::fwrite(buf._data,N,nfile);
           to_write-=N;
         }
@@ -49056,9 +49056,9 @@ namespace cimg_library_suffixed {
         else std::fprintf(nfile,"P9\n%u %u\n%g\n",_width,_height,(double)max());
         CImg<floatT> buf(buf_size);
         for (longT to_write = (longT)width()*height()*depth(); to_write>0; ) {
-          const unsigned long N = cimg::min((unsigned long)to_write,buf_size);
+          const ulongT N = cimg::min((ulongT)to_write,buf_size);
           float *ptrd = buf._data;
-          for (unsigned long i = N; i>0; --i) *(ptrd++) = (float)*(ptr++);
+          for (ulongT i = N; i>0; --i) *(ptrd++) = (float)*(ptr++);
           cimg::fwrite(buf._data,N,nfile);
           to_write-=N;
         }
@@ -49115,9 +49115,9 @@ namespace cimg_library_suffixed {
       case 1 : { // Scalar image
         CImg<floatT> buf(buf_size);
         for (longT to_write = (longT)width()*height(); to_write>0; ) {
-          const unsigned long N = cimg::min((unsigned long)to_write,buf_size);
+          const ulongT N = cimg::min((ulongT)to_write,buf_size);
           float *ptrd = buf._data;
-          for (unsigned long i = N; i>0; --i) *(ptrd++) = (float)*(ptr_r++);
+          for (ulongT i = N; i>0; --i) *(ptrd++) = (float)*(ptr_r++);
           if (!cimg::endianness()) cimg::invert_endianness(buf._data,buf_size);
           cimg::fwrite(buf._data,N,nfile);
           to_write-=N;
@@ -49128,7 +49128,7 @@ namespace cimg_library_suffixed {
         for (longT to_write = (longT)width()*height(); to_write>0; ) {
           const unsigned int N = cimg::min((unsigned int)to_write,buf_size/3);
           float *ptrd = buf._data;
-          for (unsigned long i = N; i>0; --i) {
+          for (ulongT i = N; i>0; --i) {
             *(ptrd++) = (float)*(ptr_r++);
             *(ptrd++) = (float)*(ptr_g++);
             *(ptrd++) = 0;
@@ -49143,7 +49143,7 @@ namespace cimg_library_suffixed {
         for (longT to_write = (longT)width()*height(); to_write>0; ) {
           const unsigned int N = cimg::min((unsigned int)to_write,buf_size/3);
           float *ptrd = buf._data;
-          for (unsigned long i = N; i>0; --i) {
+          for (ulongT i = N; i>0; --i) {
             *(ptrd++) = (float)*(ptr_r++);
             *(ptrd++) = (float)*(ptr_g++);
             *(ptrd++) = (float)*(ptr_b++);
@@ -49184,7 +49184,7 @@ namespace cimg_library_suffixed {
                    filename?filename:"(FILE*)");
 
       std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
-      const unsigned long wh = (unsigned long)_width*_height;
+      const ulongT wh = (ulongT)_width*_height;
       unsigned char *const buffer = new unsigned char[3*wh], *nbuffer = buffer;
       const T
         *ptr1 = data(0,0,0,0),
@@ -49192,7 +49192,7 @@ namespace cimg_library_suffixed {
         *ptr3 = _spectrum>2?data(0,0,0,2):0;
       switch (_spectrum) {
       case 1 : { // Scalar image
-        for (unsigned long k = 0; k<wh; ++k) {
+        for (ulongT k = 0; k<wh; ++k) {
           const unsigned char val = (unsigned char)*(ptr1++);
           *(nbuffer++) = val;
           *(nbuffer++) = val;
@@ -49200,14 +49200,14 @@ namespace cimg_library_suffixed {
         }
       } break;
       case 2 : { // RG image
-        for (unsigned long k = 0; k<wh; ++k) {
+        for (ulongT k = 0; k<wh; ++k) {
           *(nbuffer++) = (unsigned char)(*(ptr1++));
           *(nbuffer++) = (unsigned char)(*(ptr2++));
           *(nbuffer++) = 0;
         }
       } break;
       default : { // RGB image
-        for (unsigned long k = 0; k<wh; ++k) {
+        for (ulongT k = 0; k<wh; ++k) {
           *(nbuffer++) = (unsigned char)(*(ptr1++));
           *(nbuffer++) = (unsigned char)(*(ptr2++));
           *(nbuffer++) = (unsigned char)(*(ptr3++));
@@ -49246,7 +49246,7 @@ namespace cimg_library_suffixed {
                    filename?filename:"(FILE*)");
 
       std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
-      const unsigned long wh = (unsigned long)_width*_height;
+      const ulongT wh = (ulongT)_width*_height;
       unsigned char *const buffer = new unsigned char[4*wh], *nbuffer = buffer;
       const T
         *ptr1 = data(0,0,0,0),
@@ -49255,7 +49255,7 @@ namespace cimg_library_suffixed {
         *ptr4 = _spectrum>3?data(0,0,0,3):0;
       switch (_spectrum) {
       case 1 : { // Scalar images
-        for (unsigned long k = 0; k<wh; ++k) {
+        for (ulongT k = 0; k<wh; ++k) {
           const unsigned char val = (unsigned char)*(ptr1++);
           *(nbuffer++) = val;
           *(nbuffer++) = val;
@@ -49264,7 +49264,7 @@ namespace cimg_library_suffixed {
         }
       } break;
       case 2 : { // RG images
-        for (unsigned long k = 0; k<wh; ++k) {
+        for (ulongT k = 0; k<wh; ++k) {
           *(nbuffer++) = (unsigned char)(*(ptr1++));
           *(nbuffer++) = (unsigned char)(*(ptr2++));
           *(nbuffer++) = 0;
@@ -49272,7 +49272,7 @@ namespace cimg_library_suffixed {
         }
       } break;
       case 3 : { // RGB images
-        for (unsigned long k = 0; k<wh; ++k) {
+        for (ulongT k = 0; k<wh; ++k) {
           *(nbuffer++) = (unsigned char)(*(ptr1++));
           *(nbuffer++) = (unsigned char)(*(ptr2++));
           *(nbuffer++) = (unsigned char)(*(ptr3++));
@@ -49280,7 +49280,7 @@ namespace cimg_library_suffixed {
         }
       } break;
       default : { // RGBA images
-        for (unsigned long k = 0; k<wh; ++k) {
+        for (ulongT k = 0; k<wh; ++k) {
           *(nbuffer++) = (unsigned char)(*(ptr1++));
           *(nbuffer++) = (unsigned char)(*(ptr2++));
           *(nbuffer++) = (unsigned char)(*(ptr3++));
@@ -49699,10 +49699,10 @@ namespace cimg_library_suffixed {
 #ifndef cimg_use_openexr
       return save_other(filename);
 #else
-      Imf::Rgba *const ptrd0 = new Imf::Rgba[(unsigned long)_width*_height], *ptrd = ptrd0, rgba;
+      Imf::Rgba *const ptrd0 = new Imf::Rgba[(size_t)_width*_height], *ptrd = ptrd0, rgba;
       switch (_spectrum) {
       case 1 : { // Grayscale image.
-        for (const T *ptr_r = data(), *const ptr_e = ptr_r + (unsigned long)_width*_height; ptr_r<ptr_e;) {
+        for (const T *ptr_r = data(), *const ptr_e = ptr_r + (ulongT)_width*_height; ptr_r<ptr_e;) {
           rgba.r = rgba.g = rgba.b = (half)(*(ptr_r++));
           rgba.a = (half)1;
           *(ptrd++) = rgba;
@@ -49710,7 +49710,7 @@ namespace cimg_library_suffixed {
       } break;
       case 2 : { // RG image.
         for (const T *ptr_r = data(), *ptr_g = data(0,0,0,1),
-               *const ptr_e = ptr_r + (unsigned long)_width*_height; ptr_r<ptr_e; ) {
+               *const ptr_e = ptr_r + (ulongT)_width*_height; ptr_r<ptr_e; ) {
           rgba.r = (half)(*(ptr_r++));
           rgba.g = (half)(*(ptr_g++));
           rgba.b = (half)0;
@@ -49720,7 +49720,7 @@ namespace cimg_library_suffixed {
       } break;
       case 3 : { // RGB image.
         for (const T *ptr_r = data(), *ptr_g = data(0,0,0,1), *ptr_b = data(0,0,0,2),
-               *const ptr_e = ptr_r + (unsigned long)_width*_height; ptr_r<ptr_e;) {
+               *const ptr_e = ptr_r + (ulongT)_width*_height; ptr_r<ptr_e;) {
           rgba.r = (half)(*(ptr_r++));
           rgba.g = (half)(*(ptr_g++));
           rgba.b = (half)(*(ptr_b++));
@@ -49730,7 +49730,7 @@ namespace cimg_library_suffixed {
       } break;
       default : { // RGBA image.
         for (const T *ptr_r = data(), *ptr_g = data(0,0,0,1), *ptr_b = data(0,0,0,2), *ptr_a = data(0,0,0,3),
-               *const ptr_e = ptr_r + (unsigned long)_width*_height; ptr_r<ptr_e;) {
+               *const ptr_e = ptr_r + (ulongT)_width*_height; ptr_r<ptr_e;) {
           rgba.r = (half)(*(ptr_r++));
           rgba.g = (half)(*(ptr_g++));
           rgba.b = (half)(*(ptr_b++));
@@ -50421,7 +50421,7 @@ namespace cimg_library_suffixed {
       CImg<T> res(40,38,1,3);
       const unsigned char *ptrs = cimg::logo40x38;
       T *ptr1 = res.data(0,0,0,0), *ptr2 = res.data(0,0,0,1), *ptr3 = res.data(0,0,0,2);
-      for (unsigned long off = 0; off<(unsigned long)res._width*res._height;) {
+      for (ulongT off = 0; off<(ulongT)res._width*res._height;) {
         const unsigned char n = *(ptrs++), r = *(ptrs++), g = *(ptrs++), b = *(ptrs++);
         for (unsigned int l = 0; l<n; ++off, ++l) { *(ptr1++) = (T)r; *(ptr2++) = (T)g; *(ptr3++) = (T)b; }
       }
@@ -50491,8 +50491,8 @@ namespace cimg_library_suffixed {
     typedef typename cimg::superset<T,short>::type Tshort;
     typedef typename cimg::superset<T,unsigned int>::type Tuint;
     typedef typename cimg::superset<T,int>::type Tint;
-    typedef typename cimg::superset<T,unsigned long>::type Tulong;
-    typedef typename cimg::superset<T,long>::type Tlong;
+    typedef typename cimg::superset<T,cimg_ulong>::type Tulong;
+    typedef typename cimg::superset<T,cimg_long>::type Tlong;
     typedef typename cimg::superset<T,float>::type Tfloat;
     typedef typename cimg::superset<T,double>::type Tdouble;
     typedef typename cimg::last<T,bool>::type boolT;
@@ -50632,11 +50632,11 @@ namespace cimg_library_suffixed {
       _width(0),_allocated_width(0),_data(0) {
 #define _CImgList_stdarg(t) { \
 	assign(n,width,height,depth,spectrum); \
-	const unsigned long siz = (unsigned long)width*height*depth*spectrum, nsiz = siz*n; \
+	const ulongT siz = (ulongT)width*height*depth*spectrum, nsiz = siz*n; \
 	T *ptrd = _data->_data; \
 	va_list ap; \
 	va_start(ap,val1); \
-	for (unsigned long l = 0, s = 0, i = 0; i<nsiz; ++i) { \
+	for (ulongT l = 0, s = 0, i = 0; i<nsiz; ++i) { \
 	  *(ptrd++) = (T)(i==0?val0:(i==1?val1:va_arg(ap,t))); \
 	  if ((++s)==siz) { ptrd = _data[++l]._data; s = 0; } \
 	} \
@@ -53122,7 +53122,7 @@ namespace cimg_library_suffixed {
    Bytef *const cbuf = new Bytef[csiz]; \
    cimg::fread(cbuf,csiz,nfile); \
    raw.assign(W,H,D,C); \
-   unsigned long destlen = (unsigned long)raw.size()*sizeof(Tss); \
+   ulongT destlen = (ulongT)raw.size()*sizeof(Tss); \
    uncompress((Bytef*)raw._data,&destlen,cbuf,csiz); \
    delete[] cbuf; \
    if (endian!=cimg::endianness()) cimg::invert_endianness(raw._data,raw.size()); \
@@ -53153,12 +53153,12 @@ namespace cimg_library_suffixed {
             else { \
               img.assign(W,H,D,C); \
               T *ptrd = img._data; \
-              for (unsigned long to_read = img.size(); to_read; ) { \
+              for (ulongT to_read = img.size(); to_read; ) { \
                 raw.assign(cimg::min(to_read,cimg_iobuffer)); \
                 cimg::fread(raw._data,raw._width,nfile); \
                 if (endian!=cimg::endianness()) cimg::invert_endianness(raw._data,raw.size()); \
                 const Tss *ptrs = raw._data; \
-                for (unsigned long off = (unsigned long)raw._width; off; --off) *(ptrd++) = (T)*(ptrs++); \
+                for (ulongT off = (ulongT)raw._width; off; --off) *(ptrd++) = (T)*(ptrs++); \
                 to_read-=raw._width; \
               } \
             } \
@@ -53172,13 +53172,13 @@ namespace cimg_library_suffixed {
                                     "load_cimg(): Specified filename is (null).",
                                     cimglist_instance);
 
-      const unsigned long cimg_iobuffer = 24*1024*1024;
+      const ulongT cimg_iobuffer = (ulongT)24*1024*1024;
       std::FILE *const nfile = file?file:cimg::fopen(filename,"rb");
       bool loaded = false, endian = cimg::endianness();
       CImg<charT> tmp(256), str_pixeltype(256), str_endian(256);
       *tmp = *str_pixeltype = *str_endian = 0;
       unsigned int j, N = 0, W, H, D, C;
-      unsigned long csiz;
+      ulongT csiz;
       int i, err;
       do {
         j = 0; while ((i=std::fgetc(nfile))!='\n' && i>=0 && j<255) tmp[j++] = (char)i; tmp[j] = 0;
@@ -53205,9 +53205,9 @@ namespace cimg_library_suffixed {
       _cimg_load_cimg_case("unsigned_int",unsigned int);
       _cimg_load_cimg_case("uint",unsigned int);
       _cimg_load_cimg_case("int",int);
-      _cimg_load_cimg_case("unsigned_long",unsigned long);
-      _cimg_load_cimg_case("ulong",unsigned long);
-      _cimg_load_cimg_case("long",long);
+      _cimg_load_cimg_case("unsigned_long",ulongT);
+      _cimg_load_cimg_case("ulong",ulongT);
+      _cimg_load_cimg_case("long",longT);
       _cimg_load_cimg_case("float",float);
       _cimg_load_cimg_case("double",double);
 
@@ -53389,9 +53389,9 @@ namespace cimg_library_suffixed {
       _cimg_load_cimg_case2("unsigned_int",unsigned int);
       _cimg_load_cimg_case2("uint",unsigned int);
       _cimg_load_cimg_case2("int",int);
-      _cimg_load_cimg_case2("unsigned_long",unsigned long);
-      _cimg_load_cimg_case2("ulong",unsigned long);
-      _cimg_load_cimg_case2("long",long);
+      _cimg_load_cimg_case2("unsigned_long",ulongT);
+      _cimg_load_cimg_case2("ulong",ulongT);
+      _cimg_load_cimg_case2("long",longT);
       _cimg_load_cimg_case2("float",float);
       _cimg_load_cimg_case2("double",double);
       if (!loaded) {
@@ -53605,7 +53605,7 @@ namespace cimg_library_suffixed {
       for (frame = nfirst_frame; !stop_flag && frame<=nlast_frame; frame+=nstep_frame) {
         tmp.fill(0);
         // *TRY* to read the luminance part, do not replace by cimg::fread!
-        err = (int)std::fread((void*)(tmp._data),1,(unsigned long)tmp._width*tmp._height,nfile);
+        err = (int)std::fread((void*)(tmp._data),1,(ulongT)tmp._width*tmp._height,nfile);
         if (err!=(int)(tmp._width*tmp._height)) {
           stop_flag = true;
           if (err>0)
@@ -53767,7 +53767,7 @@ namespace cimg_library_suffixed {
           if (step>0) cimg_forY(frame,y) {
               cimg_forX(frame,x) { *(ptr_b++) = (T)*(ptrs++); *(ptr_g++) = (T)*(ptrs++); *(ptr_r++) = (T)*(ptrs++); }
               ptrs+=step;
-            } else for (unsigned long siz = (unsigned long)src->width*src->height; siz; --siz) {
+            } else for (ulongT siz = (ulongT)src->width*src->height; siz; --siz) {
               *(ptr_b++) = (T)*(ptrs++); *(ptr_g++) = (T)*(ptrs++); *(ptr_r++) = (T)*(ptrs++);
             }
           frame.move_to(*this);
@@ -54444,9 +54444,9 @@ namespace cimg_library_suffixed {
       cimglist_for(*this,l) {
         CImg<ucharT> YCbCr((*this)[l]);
         if (is_rgb) YCbCr.RGBtoYCbCr();
-        cimg::fwrite(YCbCr._data,(unsigned long)YCbCr._width*YCbCr._height,nfile);
+        cimg::fwrite(YCbCr._data,(size_t)YCbCr._width*YCbCr._height,nfile);
         cimg::fwrite(YCbCr.get_resize(YCbCr._width/2, YCbCr._height/2,1,3,3).data(0,0,0,1),
-                     (unsigned long)YCbCr._width*YCbCr._height/2,nfile);
+                     (size_t)YCbCr._width*YCbCr._height/2,nfile);
       }
       if (!file) cimg::fclose(nfile);
       return *this;
@@ -54497,8 +54497,8 @@ namespace cimg_library_suffixed {
           bool failed_to_compress = true;
           if (is_compressed) {
 #ifdef cimg_use_zlib
-            const unsigned long siz = sizeof(T)*ref.size();
-            unsigned long csiz = siz + siz/100 + 16;
+            const ulongT siz = sizeof(T)*ref.size();
+            ulongT csiz = siz + siz/100 + 16;
             Bytef *const cbuf = new Bytef[csiz];
             if (compress(cbuf,&csiz,(Bytef*)ref._data,siz))
               cimg::warn(_cimglist_instance
@@ -54640,9 +54640,9 @@ namespace cimg_library_suffixed {
       _cimg_save_cimg_case("unsigned_int",unsigned int);
       _cimg_save_cimg_case("uint",unsigned int);
       _cimg_save_cimg_case("int",int);
-      _cimg_save_cimg_case("unsigned_long",unsigned long);
-      _cimg_save_cimg_case("ulong",unsigned long);
-      _cimg_save_cimg_case("long",long);
+      _cimg_save_cimg_case("unsigned_long",ulongT);
+      _cimg_save_cimg_case("ulong",ulongT);
+      _cimg_save_cimg_case("long",longT);
       _cimg_save_cimg_case("float",float);
       _cimg_save_cimg_case("double",double);
       if (!saved) {
@@ -54693,11 +54693,11 @@ namespace cimg_library_suffixed {
                                 const unsigned int dx, const unsigned int dy,
                                 const unsigned int dz, const unsigned int dc) {
       std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
-      const unsigned long siz = (unsigned long)dx*dy*dz*dc*sizeof(T);
+      const ulongT siz = (ulongT)dx*dy*dz*dc*sizeof(T);
       std::fprintf(nfile,"%u %s\n",nb,pixel_type());
       for (unsigned int i=nb; i; --i) {
         std::fprintf(nfile,"%u %u %u %u\n",dx,dy,dz,dc);
-	for (unsigned long off=siz; off; --off) std::fputc(0,nfile);
+	for (ulongT off = siz; off; --off) std::fputc(0,nfile);
       }
       if (!file) cimg::fclose(nfile);
     }
@@ -55052,8 +55052,8 @@ namespace cimg_library_suffixed {
           bool failed_to_compress = true;
           if (is_compressed) {
 #ifdef cimg_use_zlib
-            const unsigned long siz = sizeof(T)*ref.size();
-            unsigned long csiz = compressBound(siz);
+            const ulongT siz = sizeof(T)*ref.size();
+            ulongT csiz = (ulongT)compressBound(siz);
             Bytef *const cbuf = new Bytef[csiz];
             if (compress(cbuf,&csiz,(Bytef*)ref._data,siz))
               cimg::warn(_cimglist_instance
@@ -55087,11 +55087,11 @@ namespace cimg_library_suffixed {
         Bytef *cbuf = (Bytef*)stream; \
         if (sizeof(t)!=1 || cimg::type<t>::string()==cimg::type<bool>::string()) { \
           cbuf = new Bytef[csiz]; Bytef *_cbuf = cbuf; \
-          for (unsigned long i = 0; i<csiz; ++i) *(_cbuf++) = (Bytef)*(stream++); \
+          for (ulongT i = 0; i<csiz; ++i) *(_cbuf++) = (Bytef)*(stream++); \
           is_bytef = false; \
         } else { stream+=csiz; is_bytef = true; } \
         CImg<Tss> raw(W,H,D,C); \
-        unsigned long destlen = (unsigned long)raw.size()*sizeof(Tss); \
+        ulongT destlen = raw.size()*sizeof(Tss); \
         uncompress((Bytef*)raw._data,&destlen,cbuf,csiz); \
         if (!is_bytef) delete[] cbuf; \
         if (endian!=cimg::endianness()) cimg::invert_endianness(raw._data,raw.size()); \
@@ -55139,7 +55139,7 @@ namespace cimg_library_suffixed {
       CImg<charT> tmp(256), str_pixeltype(256), str_endian(256);
       *tmp = *str_pixeltype = *str_endian = 0;
       unsigned int j, N = 0, W, H, D, C;
-      unsigned long csiz;
+      ulongT csiz;
       int i, err;
       cimg::unused(is_bytef);
       do {
@@ -55164,9 +55164,9 @@ namespace cimg_library_suffixed {
       _cimg_unserialize_case("unsigned_int",unsigned int);
       _cimg_unserialize_case("uint",unsigned int);
       _cimg_unserialize_case("int",int);
-      _cimg_unserialize_case("unsigned_long",unsigned long);
-      _cimg_unserialize_case("ulong",unsigned long);
-      _cimg_unserialize_case("long",long);
+      _cimg_unserialize_case("unsigned_long",ulongT);
+      _cimg_unserialize_case("ulong",ulongT);
+      _cimg_unserialize_case("long",longT);
       _cimg_unserialize_case("float",float);
       _cimg_unserialize_case("double",double);
       if (!loaded)

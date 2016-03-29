@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 170
+#define cimg_version 171
 
 /*-----------------------------------------------------------
  #
@@ -4947,6 +4947,28 @@ namespace cimg_library_suffixed {
       return errn;
     }
 
+    //! Version of 'fseek()' that supports >=64bits offsets everywhere (for Windows).
+#if cimg_OS==2
+    int fseek(FILE *stream, INT_PTR offset, int origin) {
+      return _fseeki64(stream,(__int64)offset,origin);
+    }
+#else
+    int fseek(FILE *stream, long offset, int origin) {
+      return std::fseek(stream,offset,origin);
+    }
+#endif
+
+    //! Version of 'ftell()' that supports >=64bits offsets everywhere (for Windows).
+#if cimg_OS==2
+    INT_PTR ftell(FILE *stream) {
+      return (INT_PTR)_ftelli64(stream);
+    }
+#else
+    long ftell(FILE *stream) {
+      return std::ftell(stream);
+    }
+#endif
+
     //! Check if a path is a directory.
     /**
        \param path Specified path to test.
@@ -9182,10 +9204,10 @@ namespace cimg_library_suffixed {
     typedef typename cimg::last<T,double>::type doubleT;
 #if cimg_OS==2
     typedef typename cimg::last<T,UINT_PTR>::type uptrT;  // Unsigned integer type that can store a pointer.
-    typedef typename cimg::last<T,INT_PTR>::type ptrT; // Signed integer type that can store a pointer.
+    typedef typename cimg::last<T,INT_PTR>::type sptrT; // Signed integer type that can store a pointer.
 #else
     typedef typename cimg::last<T,unsigned long>::type uptrT;
-    typedef typename cimg::last<T,long>::type ptrT;
+    typedef typename cimg::last<T,long>::type sptrT;
 #endif
 
     //@}
@@ -44247,11 +44269,11 @@ namespace cimg_library_suffixed {
         bpp = header[0x1C] + (header[0x1D]<<8);
 
       if (!file_size || file_size==offset) {
-        std::fseek(nfile,0,SEEK_END);
-        file_size = (int)std::ftell(nfile);
-        std::fseek(nfile,54,SEEK_SET);
+        cimg::fseek(nfile,0,SEEK_END);
+        file_size = (int)cimg::ftell(nfile);
+        cimg::fseek(nfile,54,SEEK_SET);
       }
-      if (header_size>40) std::fseek(nfile,header_size - 40,SEEK_CUR);
+      if (header_size>40) cimg::fseek(nfile,header_size - 40,SEEK_CUR);
 
       const int
         cimg_iobuffer = 24*1024*1024,
@@ -44263,7 +44285,7 @@ namespace cimg_library_suffixed {
       if (bpp<16) { if (!nb_colors) nb_colors = 1<<bpp; } else nb_colors = 0;
       if (nb_colors) { colormap.assign(nb_colors); cimg::fread(colormap._data,nb_colors,nfile); }
       const int xoffset = offset - 14 - header_size - 4*nb_colors;
-      if (xoffset>0) std::fseek(nfile,xoffset,SEEK_CUR);
+      if (xoffset>0) cimg::fseek(nfile,xoffset,SEEK_CUR);
 
       CImg<ucharT> buffer;
       if (buf_size<cimg_iobuffer) { buffer.assign(buf_size); cimg::fread(buffer._data,buf_size,nfile); }
@@ -44289,7 +44311,7 @@ namespace cimg_library_suffixed {
         for (int y = height() - 1; y>=0; --y) {
           if (buf_size>=cimg_iobuffer) {
             cimg::fread(ptrs=buffer._data,dx_bytes,nfile);
-            std::fseek(nfile,align_bytes,SEEK_CUR);
+            cimg::fseek(nfile,align_bytes,SEEK_CUR);
           }
           unsigned char mask = 0x80, val = 0;
           cimg_forX(*this,x) {
@@ -44307,7 +44329,7 @@ namespace cimg_library_suffixed {
         for (int y = height() - 1; y>=0; --y) {
           if (buf_size>=cimg_iobuffer) {
             cimg::fread(ptrs=buffer._data,dx_bytes,nfile);
-            std::fseek(nfile,align_bytes,SEEK_CUR);
+            cimg::fseek(nfile,align_bytes,SEEK_CUR);
           }
           unsigned char mask = 0xF0, val = 0;
           cimg_forX(*this,x) {
@@ -44326,7 +44348,7 @@ namespace cimg_library_suffixed {
         for (int y = height() - 1; y>=0; --y) {
           if (buf_size>=cimg_iobuffer) {
             cimg::fread(ptrs=buffer._data,dx_bytes,nfile);
-            std::fseek(nfile,align_bytes,SEEK_CUR);
+            cimg::fseek(nfile,align_bytes,SEEK_CUR);
           }
           cimg_forX(*this,x) {
             const unsigned char *col = (unsigned char*)(colormap._data + *(ptrs++));
@@ -44341,7 +44363,7 @@ namespace cimg_library_suffixed {
         for (int y = height() - 1; y>=0; --y) {
           if (buf_size>=cimg_iobuffer) {
             cimg::fread(ptrs=buffer._data,dx_bytes,nfile);
-            std::fseek(nfile,align_bytes,SEEK_CUR);
+            cimg::fseek(nfile,align_bytes,SEEK_CUR);
           }
           cimg_forX(*this,x) {
             const unsigned char c1 = *(ptrs++), c2 = *(ptrs++);
@@ -44357,7 +44379,7 @@ namespace cimg_library_suffixed {
         for (int y = height() - 1; y>=0; --y) {
           if (buf_size>=cimg_iobuffer) {
             cimg::fread(ptrs=buffer._data,dx_bytes,nfile);
-            std::fseek(nfile,align_bytes,SEEK_CUR);
+            cimg::fseek(nfile,align_bytes,SEEK_CUR);
           }
           cimg_forX(*this,x) {
             (*this)(x,y,2) = (T)*(ptrs++);
@@ -44371,7 +44393,7 @@ namespace cimg_library_suffixed {
         for (int y = height() - 1; y>=0; --y) {
           if (buf_size>=cimg_iobuffer) {
             cimg::fread(ptrs=buffer._data,dx_bytes,nfile);
-            std::fseek(nfile,align_bytes,SEEK_CUR);
+            cimg::fseek(nfile,align_bytes,SEEK_CUR);
           }
           cimg_forX(*this,x) {
             (*this)(x,y,2) = (T)*(ptrs++);
@@ -46259,20 +46281,24 @@ namespace cimg_library_suffixed {
                                     "load_raw(): Specified filename '%s' is a directory.",
                                     cimg_instance,filename);
 
-      unsigned int siz = size_x*size_y*size_z*size_c,
-        _size_x = size_x, _size_y = size_y, _size_z = size_z, _size_c = size_c;
+      uptrT
+        siz = size_x*size_y*size_z*size_c,
+        _size_x = size_x,
+        _size_y = size_y,
+        _size_z = size_z,
+        _size_c = size_c;
       std::FILE *const nfile = file?file:cimg::fopen(filename,"rb");
       if (!siz) {  // Retrieve file size.
-        const long fpos = std::ftell(nfile);
+        const sptrT fpos = cimg::ftell(nfile);
         if (fpos<0) throw CImgArgumentException(_cimg_instance
                                                 "load_raw(): Cannot determine size of input file '%s'.",
                                                 cimg_instance,filename?filename:"(FILE*)");
-        std::fseek(nfile,0,SEEK_END);
-        siz = _size_y = (unsigned int)std::ftell(nfile)/sizeof(T);
+        cimg::fseek(nfile,0,SEEK_END);
+        siz = _size_y = cimg::ftell(nfile)/sizeof(T);
         _size_x = _size_z = _size_c = 1;
-        std::fseek(nfile,fpos,SEEK_SET);
+        cimg::fseek(nfile,fpos,SEEK_SET);
       }
-      std::fseek(nfile,(long)offset,SEEK_SET);
+      cimg::fseek(nfile,offset,SEEK_SET);
       assign(_size_x,_size_y,_size_z,_size_c,0);
       if (siz && (!is_multiplexed || size_c==1)) {
         cimg::fread(_data,siz,nfile);
@@ -50460,7 +50486,7 @@ namespace cimg_library_suffixed {
     **/
     typedef T value_type;
 
-    // Define common T-dependant types.
+    // Define common types related to template type T.
     typedef typename cimg::superset<T,bool>::type Tbool;
     typedef typename cimg::superset<T,unsigned char>::type Tuchar;
     typedef typename cimg::superset<T,char>::type Tchar;
@@ -50483,6 +50509,13 @@ namespace cimg_library_suffixed {
     typedef typename cimg::last<T,long>::type longT;
     typedef typename cimg::last<T,float>::type floatT;
     typedef typename cimg::last<T,double>::type doubleT;
+#if cimg_OS==2
+    typedef typename cimg::last<T,UINT_PTR>::type uptrT;  // Unsigned integer type that can store a pointer.
+    typedef typename cimg::last<T,INT_PTR>::type sptrT; // Signed integer type that can store a pointer.
+#else
+    typedef typename cimg::last<T,unsigned long>::type uptrT;
+    typedef typename cimg::last<T,long>::type sptrT;
+#endif
 
     //@}
     //---------------------------
@@ -53269,7 +53302,7 @@ namespace cimg_library_suffixed {
                                   cimglist_instance, \
                                   W,H,D,C,l,filename?filename:"(FILE*)"); \
           if (W*H*D*C>0) { \
-            if (l<nn0 || nx0>=W || ny0>=H || nz0>=D || nc0>=C) std::fseek(nfile,W*H*D*C*sizeof(Tss),SEEK_CUR); \
+            if (l<nn0 || nx0>=W || ny0>=H || nz0>=D || nc0>=C) cimg::fseek(nfile,W*H*D*C*sizeof(Tss),SEEK_CUR); \
             else { \
               const unsigned int \
                 _nx1 = nx1==~0U?W - 1:nx1, \
@@ -53287,32 +53320,32 @@ namespace cimg_library_suffixed {
               CImg<T> &img = _data[l - nn0]; \
               img.assign(1 + _nx1 - nx0,1 + _ny1 - ny0,1 + _nz1 - nz0,1 + _nc1 - nc0); \
               T *ptrd = img._data; \
-              const unsigned int skipvb = nc0*W*H*D*sizeof(Tss); \
-              if (skipvb) std::fseek(nfile,skipvb,SEEK_CUR); \
+              uptrT skipvb = nc0*W*H*D*sizeof(Tss); \
+              if (skipvb) cimg::fseek(nfile,skipvb,SEEK_CUR); \
               for (unsigned int c = 1 + _nc1 - nc0; c; --c) { \
-                const unsigned int skipzb = nz0*W*H*sizeof(Tss); \
-                if (skipzb) std::fseek(nfile,skipzb,SEEK_CUR); \
+                const uptrT skipzb = nz0*W*H*sizeof(Tss); \
+                if (skipzb) cimg::fseek(nfile,skipzb,SEEK_CUR); \
                 for (unsigned int z = 1 + _nz1 - nz0; z; --z) { \
-                  const unsigned int skipyb = ny0*W*sizeof(Tss); \
-                  if (skipyb) std::fseek(nfile,skipyb,SEEK_CUR); \
+                  const uptrT skipyb = ny0*W*sizeof(Tss); \
+                  if (skipyb) cimg::fseek(nfile,skipyb,SEEK_CUR); \
                   for (unsigned int y = 1 + _ny1 - ny0; y; --y) { \
-                    const unsigned int skipxb = nx0*sizeof(Tss); \
-                    if (skipxb) std::fseek(nfile,skipxb,SEEK_CUR); \
+                    const uptrT skipxb = nx0*sizeof(Tss); \
+                    if (skipxb) cimg::fseek(nfile,skipxb,SEEK_CUR); \
                     cimg::fread(raw._data,raw._width,nfile); \
                     if (endian!=cimg::endianness()) cimg::invert_endianness(raw._data,raw._width); \
                     const Tss *ptrs = raw._data; \
                     for (unsigned int off = raw._width; off; --off) *(ptrd++) = (T)*(ptrs++); \
-                    const unsigned int skipxe = (W - 1 - _nx1)*sizeof(Tss); \
-                    if (skipxe) std::fseek(nfile,skipxe,SEEK_CUR); \
+                    const uptrT skipxe = (W - 1 - _nx1)*sizeof(Tss); \
+                    if (skipxe) cimg::fseek(nfile,skipxe,SEEK_CUR); \
                   } \
-                  const unsigned int skipye = (H - 1 - _ny1)*W*sizeof(Tss); \
-                  if (skipye) std::fseek(nfile,skipye,SEEK_CUR); \
+                  const uptrT skipye = (H - 1 - _ny1)*W*sizeof(Tss); \
+                  if (skipye) cimg::fseek(nfile,skipye,SEEK_CUR); \
                 } \
-                const unsigned int skipze = (D - 1 - _nz1)*W*H*sizeof(Tss); \
-                if (skipze) std::fseek(nfile,skipze,SEEK_CUR); \
+                const uptrT skipze = (D - 1 - _nz1)*W*H*sizeof(Tss); \
+                if (skipze) cimg::fseek(nfile,skipze,SEEK_CUR); \
               } \
-              const unsigned int skipve = (C - 1 - _nc1)*W*H*D*sizeof(Tss); \
-              if (skipve) std::fseek(nfile,skipve,SEEK_CUR); \
+              const uptrT skipve = (C - 1 - _nc1)*W*H*D*sizeof(Tss); \
+              if (skipve) cimg::fseek(nfile,skipve,SEEK_CUR); \
             } \
           } \
         } \
@@ -53569,7 +53602,7 @@ namespace cimg_library_suffixed {
       bool stop_flag = false;
       int err;
       if (nfirst_frame) {
-        err = std::fseek(nfile,nfirst_frame*(size_x*size_y + size_x*size_y/2),SEEK_CUR);
+        err = cimg::fseek(nfile,nfirst_frame*(size_x*size_y + size_x*size_y/2),SEEK_CUR);
         if (err) {
           if (!file) cimg::fclose(nfile);
           throw CImgIOException(_cimglist_instance
@@ -53611,7 +53644,7 @@ namespace cimg_library_suffixed {
             }
             if (yuv2rgb) tmp.YCbCrtoRGB();
             insert(tmp);
-	    if (nstep_frame>1) std::fseek(nfile,(nstep_frame - 1)*(size_x*size_y + size_x*size_y/2),SEEK_CUR);
+	    if (nstep_frame>1) cimg::fseek(nfile,(nstep_frame - 1)*(size_x*size_y + size_x*size_y/2),SEEK_CUR);
           }
         }
       }
@@ -54533,7 +54566,7 @@ namespace cimg_library_suffixed {
                                   cimglist_instance, \
                                   W,H,D,C,l,filename?filename:"(FILE*)"); \
           if (W*H*D*C>0) { \
-            if (l<n0 || x0>=W || y0>=H || z0>=D || c0>=D) std::fseek(nfile,W*H*D*C*sizeof(Tss),SEEK_CUR); \
+            if (l<n0 || x0>=W || y0>=H || z0>=D || c0>=D) cimg::fseek(nfile,W*H*D*C*sizeof(Tss),SEEK_CUR); \
             else { \
               const CImg<T>& img = (*this)[l - n0]; \
               const T *ptrs = img._data; \
@@ -54548,31 +54581,31 @@ namespace cimg_library_suffixed {
                 nc1 = c1>=C?C - 1:c1; \
               CImg<Tss> raw(1 + nx1 - x0); \
               const unsigned int skipvb = c0*W*H*D*sizeof(Tss); \
-              if (skipvb) std::fseek(nfile,skipvb,SEEK_CUR); \
+              if (skipvb) cimg::fseek(nfile,skipvb,SEEK_CUR); \
               for (unsigned int v = 1 + nc1 - c0; v; --v) { \
                 const unsigned int skipzb = z0*W*H*sizeof(Tss); \
-                if (skipzb) std::fseek(nfile,skipzb,SEEK_CUR); \
+                if (skipzb) cimg::fseek(nfile,skipzb,SEEK_CUR); \
                 for (unsigned int z = 1 + nz1 - z0; z; --z) { \
                   const unsigned int skipyb = y0*W*sizeof(Tss); \
-                  if (skipyb) std::fseek(nfile,skipyb,SEEK_CUR); \
+                  if (skipyb) cimg::fseek(nfile,skipyb,SEEK_CUR); \
                   for (unsigned int y = 1 + ny1 - y0; y; --y) { \
                     const unsigned int skipxb = x0*sizeof(Tss); \
-                    if (skipxb) std::fseek(nfile,skipxb,SEEK_CUR); \
+                    if (skipxb) cimg::fseek(nfile,skipxb,SEEK_CUR); \
                     raw.assign(ptrs, raw._width); \
                     ptrs+=img._width; \
                     if (endian) cimg::invert_endianness(raw._data,raw._width); \
                     cimg::fwrite(raw._data,raw._width,nfile); \
                     const unsigned int skipxe = (W - 1 - nx1)*sizeof(Tss); \
-                    if (skipxe) std::fseek(nfile,skipxe,SEEK_CUR); \
+                    if (skipxe) cimg::fseek(nfile,skipxe,SEEK_CUR); \
                   } \
                   const unsigned int skipye = (H - 1 - ny1)*W*sizeof(Tss); \
-                  if (skipye) std::fseek(nfile,skipye,SEEK_CUR); \
+                  if (skipye) cimg::fseek(nfile,skipye,SEEK_CUR); \
                 } \
                 const unsigned int skipze = (D - 1 - nz1)*W*H*sizeof(Tss); \
-                if (skipze) std::fseek(nfile,skipze,SEEK_CUR); \
+                if (skipze) cimg::fseek(nfile,skipze,SEEK_CUR); \
               } \
               const unsigned int skipve = (C - 1 - nc1)*W*H*D*sizeof(Tss); \
-              if (skipve) std::fseek(nfile,skipve,SEEK_CUR); \
+              if (skipve) cimg::fseek(nfile,skipve,SEEK_CUR); \
             } \
           } \
         } \
@@ -56136,8 +56169,8 @@ namespace cimg {
         if (referer) curl_easy_setopt(curl,CURLOPT_REFERER,referer);
         res = curl_easy_perform(curl);
         curl_easy_cleanup(curl);
-        std::fseek(file,0,SEEK_END); // Check if file size is 0.
-        const long siz = std::ftell(file);
+        cimg::fseek(file,0,SEEK_END); // Check if file size is 0.
+        const typename CImg<char>::uptrT siz = cimg::ftell(file);
         cimg::fclose(file);
         if (siz>0 && res==CURLE_OK) {
           cimg::exception_mode(omode);
@@ -56208,7 +56241,7 @@ namespace cimg {
         file = std::fopen(filename_local,"rb");
       }
     }
-    std::fseek(file,0,SEEK_END); // Check if file size is 0.
+    cimg::fseek(file,0,SEEK_END); // Check if file size is 0.
     if (std::ftell(file)<=0)
       throw CImgIOException("cimg::load_network(): Failed to load URL '%s' with external commands "
                             "'wget' or 'curl'.",url);

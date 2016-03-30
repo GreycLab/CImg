@@ -185,13 +185,11 @@
 // Define own types 'cimg_long/ulong' and 'cimg_int64/uint64' to ensure portability.
 // ( constrained to 'sizeof(cimg_ulong/cimg_long) = sizeof(void*)' and 'sizeof(cimg_int64/cimg_uint64)=8' ).
 #if cimg_OS==2
-#define cimg_ulong UINT_PTR
-#define cimg_long INT_PTR
 #define cimg_uint64 unsigned __int64
 #define cimg_int64 __int64
+#define cimg_ulong UINT_PTR
+#define cimg_long INT_PTR
 #else
-#define cimg_ulong unsigned long
-#define cimg_long long
 #if UINTPTR_MAX==0xffffffff
 #define cimg_uint64 unsigned long long
 #define cimg_int64 long long
@@ -199,6 +197,8 @@
 #define cimg_uint64 unsigned long
 #define cimg_int64 long
 #endif
+#define cimg_ulong unsigned long
+#define cimg_long long
 #endif
 
 // Configure the 'abort' signal handler (does nothing by default).
@@ -2594,61 +2594,32 @@ namespace cimg_library_suffixed {
       static int format(const int val) { return val; }
     };
 
-    template<> struct type<unsigned long> {
-      static const char* string() { static const char *const s = "unsigned long"; return s; }
-      static bool is_float() { return false; }
-      static bool is_inf(const unsigned long) { return false; }
-      static bool is_nan(const unsigned long) { return false; }
-      static unsigned long min() { return 0; }
-      static unsigned long max() { return (unsigned long)-1; }
-      static unsigned long inf() { return max(); }
-      static unsigned long cut(const double val) {
-        return val<(double)min()?min():val>(double)max()?max():(unsigned long)val; }
-      static const char* format() { return "%lu"; }
-      static unsigned long format(const unsigned long val) { return val; }
-    };
-
-    template<> struct type<long> {
-      static const char* string() { static const char *const s = "long"; return s; }
-      static bool is_float() { return false; }
-      static bool is_inf(const long) { return false; }
-      static bool is_nan(const long) { return false; }
-      static long min() { return ~max(); }
-      static long max() { return (long)((unsigned long)-1>>1); }
-      static long inf() { return max(); }
-      static long cut(const double val) { return val<(double)min()?min():val>(double)max()?max():(long)val; }
-      static const char* format() { return "%ld"; }
-      static long format(const long val) { return val; }
-    };
-
-#if cimg_OS==2
-    template<> struct type<unsigned __int64> {
+    template<> struct type<cimg_uint64> {
       static const char* string() { static const char *const s = "unsigned int64"; return s; }
       static bool is_float() { return false; }
-      static bool is_inf(const unsigned __int64) { return false; }
-      static bool is_nan(const unsigned __int64) { return false; }
-      static unsigned __int64 min() { return 0; }
-      static unsigned __int64 max() { return (unsigned __int64)-1; }
-      static unsigned __int64 inf() { return max(); }
-      static unsigned __int64 cut(const double val) {
-        return val<(double)min()?min():val>(double)max()?max():(unsigned __int64)val; }
+      static bool is_inf(const cimg_uint64) { return false; }
+      static bool is_nan(const cimg_uint64) { return false; }
+      static cimg_uint64 min() { return 0; }
+      static cimg_uint64 max() { return (cimg_uint64)-1; }
+      static cimg_uint64 inf() { return max(); }
+      static cimg_uint64 cut(const double val) {
+        return val<(double)min()?min():val>(double)max()?max():(cimg_uint64)val; }
       static const char* format() { return "%lu"; }
-      static unsigned long format(const unsigned __int64 val) { return (unsigned long)val; }
+      static unsigned long format(const cimg_uint64 val) { return (unsigned long)val; }
     };
 
-    template<> struct type<__int64> {
+    template<> struct type<cimg_int64> {
       static const char* string() { static const char *const s = "int64"; return s; }
       static bool is_float() { return false; }
-      static bool is_inf(const __int64) { return false; }
-      static bool is_nan(const __int64) { return false; }
-      static __int64 min() { return ~max(); }
-      static __int64 max() { return (__int64)((unsigned __int64)-1>>1); }
-      static __int64 inf() { return max(); }
-      static __int64 cut(const double val) { return val<(double)min()?min():val>(double)max()?max():(__int64)val; }
+      static bool is_inf(const cimg_int64) { return false; }
+      static bool is_nan(const cimg_int64) { return false; }
+      static cimg_int64 min() { return ~max(); }
+      static cimg_int64 max() { return (cimg_int64)((cimg_uint64)-1>>1); }
+      static cimg_int64 inf() { return max(); }
+      static cimg_int64 cut(const double val) { return val<(double)min()?min():val>(double)max()?max():(cimg_int64)val; }
       static const char* format() { return "%ld"; }
-      static long format(const __int64 val) { return (long)val; }
+      static long format(const long val) { return (long)val; }
     };
-#endif
 
     template<> struct type<double> {
       static const char* string() { static const char *const s = "double"; return s; }
@@ -2748,8 +2719,8 @@ namespace cimg_library_suffixed {
     template<> struct superset<bool,short> { typedef short type; };
     template<> struct superset<bool,unsigned int> { typedef unsigned int type; };
     template<> struct superset<bool,int> { typedef int type; };
-    template<> struct superset<bool,unsigned long> { typedef unsigned long type; };
-    template<> struct superset<bool,long> { typedef long type; };
+    template<> struct superset<bool,cimg_uint64> { typedef cimg_uint64 type; };
+    template<> struct superset<bool,cimg_int64> { typedef cimg_int64 type; };
     template<> struct superset<bool,float> { typedef float type; };
     template<> struct superset<bool,double> { typedef double type; };
     template<> struct superset<unsigned char,char> { typedef short type; };
@@ -2758,28 +2729,28 @@ namespace cimg_library_suffixed {
     template<> struct superset<unsigned char,short> { typedef short type; };
     template<> struct superset<unsigned char,unsigned int> { typedef unsigned int type; };
     template<> struct superset<unsigned char,int> { typedef int type; };
-    template<> struct superset<unsigned char,unsigned long> { typedef unsigned long type; };
-    template<> struct superset<unsigned char,long> { typedef long type; };
+    template<> struct superset<unsigned char,cimg_uint64> { typedef cimg_uint64 type; };
+    template<> struct superset<unsigned char,cimg_int64> { typedef cimg_int64 type; };
     template<> struct superset<unsigned char,float> { typedef float type; };
     template<> struct superset<unsigned char,double> { typedef double type; };
     template<> struct superset<signed char,unsigned char> { typedef short type; };
     template<> struct superset<signed char,char> { typedef short type; };
     template<> struct superset<signed char,unsigned short> { typedef int type; };
     template<> struct superset<signed char,short> { typedef short type; };
-    template<> struct superset<signed char,unsigned int> { typedef long type; };
+    template<> struct superset<signed char,unsigned int> { typedef cimg_int64 type; };
     template<> struct superset<signed char,int> { typedef int type; };
-    template<> struct superset<signed char,unsigned long> { typedef long type; };
-    template<> struct superset<signed char,long> { typedef long type; };
+    template<> struct superset<signed char,cimg_uint64> { typedef cimg_int64 type; };
+    template<> struct superset<signed char,cimg_int64> { typedef cimg_int64 type; };
     template<> struct superset<signed char,float> { typedef float type; };
     template<> struct superset<signed char,double> { typedef double type; };
     template<> struct superset<char,unsigned char> { typedef short type; };
     template<> struct superset<char,signed char> { typedef short type; };
     template<> struct superset<char,unsigned short> { typedef int type; };
     template<> struct superset<char,short> { typedef short type; };
-    template<> struct superset<char,unsigned int> { typedef long type; };
+    template<> struct superset<char,unsigned int> { typedef cimg_int64 type; };
     template<> struct superset<char,int> { typedef int type; };
-    template<> struct superset<char,unsigned long> { typedef long type; };
-    template<> struct superset<char,long> { typedef long type; };
+    template<> struct superset<char,cimg_uint64> { typedef cimg_int64 type; };
+    template<> struct superset<char,cimg_int64> { typedef cimg_int64 type; };
     template<> struct superset<char,float> { typedef float type; };
     template<> struct superset<char,double> { typedef double type; };
     template<> struct superset<unsigned short,char> { typedef int type; };
@@ -2787,73 +2758,40 @@ namespace cimg_library_suffixed {
     template<> struct superset<unsigned short,short> { typedef int type; };
     template<> struct superset<unsigned short,unsigned int> { typedef unsigned int type; };
     template<> struct superset<unsigned short,int> { typedef int type; };
-    template<> struct superset<unsigned short,unsigned long> { typedef unsigned long type; };
-    template<> struct superset<unsigned short,long> { typedef long type; };
+    template<> struct superset<unsigned short,cimg_uint64> { typedef cimg_uint64 type; };
+    template<> struct superset<unsigned short,cimg_int64> { typedef cimg_int64 type; };
     template<> struct superset<unsigned short,float> { typedef float type; };
     template<> struct superset<unsigned short,double> { typedef double type; };
     template<> struct superset<short,unsigned short> { typedef int type; };
-    template<> struct superset<short,unsigned int> { typedef long type; };
+    template<> struct superset<short,unsigned int> { typedef cimg_int64 type; };
     template<> struct superset<short,int> { typedef int type; };
-    template<> struct superset<short,unsigned long> { typedef long type; };
-    template<> struct superset<short,long> { typedef long type; };
+    template<> struct superset<short,cimg_uint64> { typedef cimg_int64 type; };
+    template<> struct superset<short,cimg_int64> { typedef cimg_int64 type; };
     template<> struct superset<short,float> { typedef float type; };
     template<> struct superset<short,double> { typedef double type; };
-    template<> struct superset<unsigned int,char> { typedef long type; };
-    template<> struct superset<unsigned int,signed char> { typedef long type; };
-    template<> struct superset<unsigned int,short> { typedef long type; };
-    template<> struct superset<unsigned int,int> { typedef long type; };
-    template<> struct superset<unsigned int,unsigned long> { typedef unsigned long type; };
-    template<> struct superset<unsigned int,long> { typedef long type; };
+    template<> struct superset<unsigned int,char> { typedef cimg_int64 type; };
+    template<> struct superset<unsigned int,signed char> { typedef cimg_int64 type; };
+    template<> struct superset<unsigned int,short> { typedef cimg_int64 type; };
+    template<> struct superset<unsigned int,int> { typedef cimg_int64 type; };
+    template<> struct superset<unsigned int,cimg_uint64> { typedef cimg_uint64 type; };
+    template<> struct superset<unsigned int,cimg_int64> { typedef cimg_int64 type; };
     template<> struct superset<unsigned int,float> { typedef float type; };
     template<> struct superset<unsigned int,double> { typedef double type; };
-    template<> struct superset<int,unsigned int> { typedef long type; };
-    template<> struct superset<int,unsigned long> { typedef long type; };
-    template<> struct superset<int,long> { typedef long type; };
+    template<> struct superset<int,unsigned int> { typedef cimg_int64 type; };
+    template<> struct superset<int,cimg_uint64> { typedef cimg_int64 type; };
+    template<> struct superset<int,cimg_int64> { typedef cimg_int64 type; };
     template<> struct superset<int,float> { typedef float type; };
     template<> struct superset<int,double> { typedef double type; };
-    template<> struct superset<unsigned long,char> { typedef long type; };
-    template<> struct superset<unsigned long,signed char> { typedef long type; };
-    template<> struct superset<unsigned long,short> { typedef long type; };
-    template<> struct superset<unsigned long,int> { typedef long type; };
-    template<> struct superset<unsigned long,long> { typedef long type; };
-    template<> struct superset<unsigned long,float> { typedef double type; };
-    template<> struct superset<unsigned long,double> { typedef double type; };
-    template<> struct superset<long,float> { typedef double type; };
-    template<> struct superset<long,double> { typedef double type; };
+    template<> struct superset<cimg_uint64,char> { typedef cimg_int64 type; };
+    template<> struct superset<cimg_uint64,signed char> { typedef cimg_int64 type; };
+    template<> struct superset<cimg_uint64,short> { typedef cimg_int64 type; };
+    template<> struct superset<cimg_uint64,int> { typedef cimg_int64 type; };
+    template<> struct superset<cimg_uint64,cimg_int64> { typedef cimg_int64 type; };
+    template<> struct superset<cimg_uint64,float> { typedef double type; };
+    template<> struct superset<cimg_uint64,double> { typedef double type; };
+    template<> struct superset<cimg_int64,float> { typedef double type; };
+    template<> struct superset<cimg_int64,double> { typedef double type; };
     template<> struct superset<float,double> { typedef double type; };
-#if cimg_OS==2
-    template<> struct superset<bool,unsigned __int64> { typedef unsigned __int64 type; };
-    template<> struct superset<unsigned char,unsigned __int64> { typedef unsigned __int64 type; };
-    template<> struct superset<signed char,unsigned __int64> { typedef __int64 type; };
-    template<> struct superset<char,unsigned __int64> { typedef __int64 type; };
-    template<> struct superset<unsigned short,unsigned __int64> { typedef unsigned __int64 type; };
-    template<> struct superset<short,unsigned __int64> { typedef __int64 type; };
-    template<> struct superset<unsigned int,unsigned __int64> { typedef unsigned __int64 type; };
-    template<> struct superset<int,unsigned __int64> { typedef __int64 type; };
-    template<> struct superset<unsigned long,unsigned __int64> { typedef unsigned __int64 type; };
-    template<> struct superset<long,unsigned __int64> { typedef __int64 type; };
-    template<> struct superset<float,unsigned __int64> { typedef double type; };
-    template<> struct superset<unsigned __int64,signed char> { typedef __int64 type; };
-    template<> struct superset<unsigned __int64,char> { typedef __int64 type; };
-    template<> struct superset<unsigned __int64,short> { typedef __int64 type; };
-    template<> struct superset<unsigned __int64,int> { typedef __int64 type; };
-    template<> struct superset<unsigned __int64,long> { typedef __int64 type; };
-    template<> struct superset<unsigned __int64,float> { typedef double type; };
-    template<> struct superset<unsigned __int64,double> { typedef double type; };
-    template<> struct superset<bool,__int64> { typedef __int64 type; };
-    template<> struct superset<unsigned char,__int64> { typedef __int64 type; };
-    template<> struct superset<signed char,__int64> { typedef __int64 type; };
-    template<> struct superset<char,__int64> { typedef __int64 type; };
-    template<> struct superset<unsigned short,__int64> { typedef __int64 type; };
-    template<> struct superset<short,__int64> { typedef __int64 type; };
-    template<> struct superset<unsigned int,__int64> { typedef __int64 type; };
-    template<> struct superset<int,__int64> { typedef __int64 type; };
-    template<> struct superset<unsigned long,__int64> { typedef __int64 type; };
-    template<> struct superset<long,__int64> { typedef __int64 type; };
-    template<> struct superset<float,__int64> { typedef double type; };
-    template<> struct superset<__int64,float> { typedef double type; };
-    template<> struct superset<__int64,double> { typedef double type; };
-#endif
 
     template<typename t1, typename t2, typename t3> struct superset2 {
       typedef typename superset<t1, typename superset<t2,t3>::type>::type type;
@@ -2865,9 +2803,9 @@ namespace cimg_library_suffixed {
 
     template<typename t1, typename t2> struct last { typedef t2 type; };
 
-#define _cimg_Tt       typename cimg::superset<T,t>::type
-#define _cimg_Tfloat   typename cimg::superset<T,float>::type
-#define _cimg_Ttfloat  typename cimg::superset2<T,t,float>::type
+#define _cimg_Tt typename cimg::superset<T,t>::type
+#define _cimg_Tfloat typename cimg::superset<T,float>::type
+#define _cimg_Ttfloat typename cimg::superset2<T,t,float>::type
 #define _cimg_Ttdouble typename cimg::superset2<T,t,double>::type
 
     // Define variables used internally by CImg.
@@ -4581,20 +4519,20 @@ namespace cimg_library_suffixed {
     inline int abs(const unsigned short a) {
       return (int)a;
     }
-    inline long abs(const unsigned int a) {
-      return (long)a;
+    inline int abs(const unsigned int a) {
+      return (int)a;
     }
-    inline long abs(const unsigned long a) {
-      return (long)a;
+    inline int abs(const int a) {
+      return std::abs(a);
+    }
+    inline cimg_int64 abs(const cimg_uint64 a) {
+      return (cimg_int64)a;
     }
     inline double abs(const double a) {
       return std::fabs(a);
     }
     inline float abs(const float a) {
       return (float)std::fabs((double)a);
-    }
-    inline int abs(const int a) {
-      return std::abs(a);
     }
 
     //! Return square of a value.
@@ -4705,10 +4643,10 @@ namespace cimg_library_suffixed {
     inline int mod(const int x, const int m) {
       return x>=0?x%m:(x%m?m + x%m:0);
     }
-    inline long mod(const unsigned long x, const unsigned long m) {
+    inline cimg_int64 mod(const cimg_uint64 x, const cimg_uint64 m) {
       return x%m;
     }
-    inline long mod(const long x, const long m) {
+    inline cimg_int64 mod(const cimg_int64 x, const cimg_int64 m) {
       return x>=0?x%m:(x%m?m + x%m:0);
     }
 
@@ -5649,8 +5587,8 @@ namespace cimg_library_suffixed {
   _cimg_create_ext_operators(short)
   _cimg_create_ext_operators(unsigned int)
   _cimg_create_ext_operators(int)
-  _cimg_create_ext_operators(unsigned long)
-  _cimg_create_ext_operators(long)
+  _cimg_create_ext_operators(cimg_uint64)
+  _cimg_create_ext_operators(cimg_int64)
   _cimg_create_ext_operators(float)
   _cimg_create_ext_operators(double)
   _cimg_create_ext_operators(long double)
@@ -9278,6 +9216,8 @@ namespace cimg_library_suffixed {
     typedef typename cimg::last<T,int>::type intT;
     typedef typename cimg::last<T,cimg_ulong>::type ulongT;
     typedef typename cimg::last<T,cimg_long>::type longT;
+    typedef typename cimg::last<T,cimg_uint64>::type uint64T;
+    typedef typename cimg::last<T,cimg_int64>::type int64T;
     typedef typename cimg::last<T,float>::type floatT;
     typedef typename cimg::last<T,double>::type doubleT;
 
@@ -46182,7 +46122,7 @@ namespace cimg_library_suffixed {
             buffer-=siz;
             delete[] buffer;
           } else {
-            unsigned long *buffer = new unsigned long[siz];
+            unsigned int *buffer = new unsigned int[siz];
             cimg::fread(buffer,siz,nfile);
             if (endian) cimg::invert_endianness(buffer,siz);
             T *ptrd = _data;
@@ -49476,14 +49416,14 @@ namespace cimg_library_suffixed {
                               const unsigned int compression_type, const float *const voxel_size,
                               const char *const description) const {
       _cimg_save_tiff("bool",unsigned char,compression_type);
-      _cimg_save_tiff("char",char,compression_type);
       _cimg_save_tiff("unsigned char",unsigned char,compression_type);
-      _cimg_save_tiff("short",short,compression_type);
+      _cimg_save_tiff("char",char,compression_type);
       _cimg_save_tiff("unsigned short",unsigned short,compression_type);
-      _cimg_save_tiff("int",int,compression_type);
+      _cimg_save_tiff("short",short,compression_type);
       _cimg_save_tiff("unsigned int",unsigned int,compression_type);
-      _cimg_save_tiff("long",int,compression_type);
-      _cimg_save_tiff("unsigned long",unsigned int,compression_type);
+      _cimg_save_tiff("int",int,compression_type);
+      _cimg_save_tiff("unsigned int64",unsigned int,compression_type);
+      _cimg_save_tiff("int64",int,compression_type);
       _cimg_save_tiff("float",float,compression_type);
       _cimg_save_tiff("double",float,compression_type);
       const char *const filename = TIFFFileName(tif);
@@ -49587,8 +49527,8 @@ namespace cimg_library_suffixed {
       if (!cimg::strcasecmp(pixel_type(),"short")) datatype = 4;
       if (!cimg::strcasecmp(pixel_type(),"unsigned int")) datatype = 8;
       if (!cimg::strcasecmp(pixel_type(),"int")) datatype = 8;
-      if (!cimg::strcasecmp(pixel_type(),"unsigned long")) datatype = 8;
-      if (!cimg::strcasecmp(pixel_type(),"long")) datatype = 8;
+      if (!cimg::strcasecmp(pixel_type(),"unsigned int64")) datatype = 8;
+      if (!cimg::strcasecmp(pixel_type(),"int64")) datatype = 8;
       if (!cimg::strcasecmp(pixel_type(),"float")) datatype = 16;
       if (!cimg::strcasecmp(pixel_type(),"double")) datatype = 64;
       if (datatype<0)
@@ -49933,89 +49873,89 @@ namespace cimg_library_suffixed {
       bool saved = false;
       _cimg_save_pandore_case(1,1,1,"unsigned char",2);
       _cimg_save_pandore_case(1,1,1,"char",3);
-      _cimg_save_pandore_case(1,1,1,"short",3);
       _cimg_save_pandore_case(1,1,1,"unsigned short",3);
+      _cimg_save_pandore_case(1,1,1,"short",3);
       _cimg_save_pandore_case(1,1,1,"unsigned int",3);
       _cimg_save_pandore_case(1,1,1,"int",3);
-      _cimg_save_pandore_case(1,1,1,"unsigned long",4);
-      _cimg_save_pandore_case(1,1,1,"long",3);
+      _cimg_save_pandore_case(1,1,1,"unsigned int64",3);
+      _cimg_save_pandore_case(1,1,1,"int64",3);
       _cimg_save_pandore_case(1,1,1,"float",4);
       _cimg_save_pandore_case(1,1,1,"double",4);
 
       _cimg_save_pandore_case(0,1,1,"unsigned char",5);
       _cimg_save_pandore_case(0,1,1,"char",6);
-      _cimg_save_pandore_case(0,1,1,"short",6);
       _cimg_save_pandore_case(0,1,1,"unsigned short",6);
+      _cimg_save_pandore_case(0,1,1,"short",6);
       _cimg_save_pandore_case(0,1,1,"unsigned int",6);
       _cimg_save_pandore_case(0,1,1,"int",6);
-      _cimg_save_pandore_case(0,1,1,"unsigned long",7);
-      _cimg_save_pandore_case(0,1,1,"long",6);
+      _cimg_save_pandore_case(0,1,1,"unsigned int64",6);
+      _cimg_save_pandore_case(0,1,1,"int64",6);
       _cimg_save_pandore_case(0,1,1,"float",7);
       _cimg_save_pandore_case(0,1,1,"double",7);
 
       _cimg_save_pandore_case(0,0,1,"unsigned char",8);
       _cimg_save_pandore_case(0,0,1,"char",9);
-      _cimg_save_pandore_case(0,0,1,"short",9);
       _cimg_save_pandore_case(0,0,1,"unsigned short",9);
+      _cimg_save_pandore_case(0,0,1,"short",9);
       _cimg_save_pandore_case(0,0,1,"unsigned int",9);
       _cimg_save_pandore_case(0,0,1,"int",9);
-      _cimg_save_pandore_case(0,0,1,"unsigned long",10);
-      _cimg_save_pandore_case(0,0,1,"long",9);
+      _cimg_save_pandore_case(0,0,1,"unsigned int64",9);
+      _cimg_save_pandore_case(0,0,1,"int64",9);
       _cimg_save_pandore_case(0,0,1,"float",10);
       _cimg_save_pandore_case(0,0,1,"double",10);
 
       _cimg_save_pandore_case(0,1,3,"unsigned char",16);
       _cimg_save_pandore_case(0,1,3,"char",17);
-      _cimg_save_pandore_case(0,1,3,"short",17);
       _cimg_save_pandore_case(0,1,3,"unsigned short",17);
+      _cimg_save_pandore_case(0,1,3,"short",17);
       _cimg_save_pandore_case(0,1,3,"unsigned int",17);
       _cimg_save_pandore_case(0,1,3,"int",17);
-      _cimg_save_pandore_case(0,1,3,"unsigned long",18);
-      _cimg_save_pandore_case(0,1,3,"long",17);
+      _cimg_save_pandore_case(0,1,3,"unsigned int64",17);
+      _cimg_save_pandore_case(0,1,3,"int64",17);
       _cimg_save_pandore_case(0,1,3,"float",18);
       _cimg_save_pandore_case(0,1,3,"double",18);
 
       _cimg_save_pandore_case(0,0,3,"unsigned char",19);
       _cimg_save_pandore_case(0,0,3,"char",20);
-      _cimg_save_pandore_case(0,0,3,"short",20);
       _cimg_save_pandore_case(0,0,3,"unsigned short",20);
+      _cimg_save_pandore_case(0,0,3,"short",20);
       _cimg_save_pandore_case(0,0,3,"unsigned int",20);
       _cimg_save_pandore_case(0,0,3,"int",20);
-      _cimg_save_pandore_case(0,0,3,"unsigned long",21);
-      _cimg_save_pandore_case(0,0,3,"long",20);
+      _cimg_save_pandore_case(0,0,3,"unsigned int64",20);
+      _cimg_save_pandore_case(0,0,3,"int64",20);
       _cimg_save_pandore_case(0,0,3,"float",21);
       _cimg_save_pandore_case(0,0,3,"double",21);
 
       _cimg_save_pandore_case(1,1,0,"unsigned char",22);
       _cimg_save_pandore_case(1,1,0,"char",23);
-      _cimg_save_pandore_case(1,1,0,"short",23);
       _cimg_save_pandore_case(1,1,0,"unsigned short",23);
+      _cimg_save_pandore_case(1,1,0,"short",23);
       _cimg_save_pandore_case(1,1,0,"unsigned int",23);
       _cimg_save_pandore_case(1,1,0,"int",23);
-      _cimg_save_pandore_case(1,1,0,"unsigned long",25);
-      _cimg_save_pandore_case(1,1,0,"long",23);
+      _cimg_save_pandore_case(1,1,0,"unsigned int64",23);
+      _cimg_save_pandore_case(1,1,0,"int64",23);
       _cimg_save_pandore_case(1,1,0,"float",25);
       _cimg_save_pandore_case(1,1,0,"double",25);
 
       _cimg_save_pandore_case(0,1,0,"unsigned char",26);
       _cimg_save_pandore_case(0,1,0,"char",27);
-      _cimg_save_pandore_case(0,1,0,"short",27);
       _cimg_save_pandore_case(0,1,0,"unsigned short",27);
+      _cimg_save_pandore_case(0,1,0,"short",27);
       _cimg_save_pandore_case(0,1,0,"unsigned int",27);
       _cimg_save_pandore_case(0,1,0,"int",27);
-      _cimg_save_pandore_case(0,1,0,"unsigned long",29);
-      _cimg_save_pandore_case(0,1,0,"long",27);
+      _cimg_save_pandore_case(0,1,0,"unsigned int64",27);
+      _cimg_save_pandore_case(0,1,0,"int64",27);
       _cimg_save_pandore_case(0,1,0,"float",29);
       _cimg_save_pandore_case(0,1,0,"double",29);
 
       _cimg_save_pandore_case(0,0,0,"unsigned char",30);
       _cimg_save_pandore_case(0,0,0,"char",31);
-      _cimg_save_pandore_case(0,0,0,"short",31);
       _cimg_save_pandore_case(0,0,0,"unsigned short",31);
+      _cimg_save_pandore_case(0,0,0,"short",31);
       _cimg_save_pandore_case(0,0,0,"unsigned int",31);
       _cimg_save_pandore_case(0,0,0,"int",31);
-      _cimg_save_pandore_case(0,0,0,"unsigned long",33);
-      _cimg_save_pandore_case(0,0,0,"long",31);
+      _cimg_save_pandore_case(0,0,0,"unsigned int64",31);
+      _cimg_save_pandore_case(0,0,0,"int64",31);
       _cimg_save_pandore_case(0,0,0,"float",33);
       _cimg_save_pandore_case(0,0,0,"double",33);
 
@@ -50577,6 +50517,8 @@ namespace cimg_library_suffixed {
     typedef typename cimg::last<T,int>::type intT;
     typedef typename cimg::last<T,cimg_ulong>::type ulongT;
     typedef typename cimg::last<T,cimg_long>::type longT;
+    typedef typename cimg::last<T,cimg_uint64>::type uint64T;
+    typedef typename cimg::last<T,cimg_int64>::type int64T;
     typedef typename cimg::last<T,float>::type floatT;
     typedef typename cimg::last<T,double>::type doubleT;
 
@@ -53256,7 +53198,7 @@ namespace cimg_library_suffixed {
       do {
         j = 0; while ((i=std::fgetc(nfile))!='\n' && i>=0 && j<255) tmp[j++] = (char)i; tmp[j] = 0;
       } while (*tmp=='#' && i>=0);
-      err = cimg_sscanf(tmp,"%u%*c%255[A-Za-z_]%*c%255[sA-Za-z_ ]",
+      err = cimg_sscanf(tmp,"%u%*c%255[A-Za-z64_]%*c%255[sA-Za-z_ ]",
                         &N,str_pixeltype._data,str_endian._data);
       if (err<2) {
         if (!file) cimg::fclose(nfile);
@@ -53281,6 +53223,9 @@ namespace cimg_library_suffixed {
       _cimg_load_cimg_case("unsigned_long",ulongT);
       _cimg_load_cimg_case("ulong",ulongT);
       _cimg_load_cimg_case("long",longT);
+      _cimg_load_cimg_case("unsigned_int64",uint64T);
+      _cimg_load_cimg_case("uint64",uint64T);
+      _cimg_load_cimg_case("int64",int64T);
       _cimg_load_cimg_case("float",float);
       _cimg_load_cimg_case("double",double);
 
@@ -53433,7 +53378,7 @@ namespace cimg_library_suffixed {
       unsigned int j, N, W, H, D, C;
       int i, err;
       j = 0; while ((i=std::fgetc(nfile))!='\n' && i!=EOF && j<256) tmp[j++] = (char)i; tmp[j] = 0;
-      err = cimg_sscanf(tmp,"%u%*c%255[A-Za-z_]%*c%255[sA-Za-z_ ]",
+      err = cimg_sscanf(tmp,"%u%*c%255[A-Za-z64_]%*c%255[sA-Za-z_ ]",
                         &N,str_pixeltype._data,str_endian._data);
       if (err<2) {
         if (!file) cimg::fclose(nfile);
@@ -53465,6 +53410,9 @@ namespace cimg_library_suffixed {
       _cimg_load_cimg_case2("unsigned_long",ulongT);
       _cimg_load_cimg_case2("ulong",ulongT);
       _cimg_load_cimg_case2("long",longT);
+      _cimg_load_cimg_case2("unsigned_int64",uint64T);
+      _cimg_load_cimg_case2("uint64",uint64T);
+      _cimg_load_cimg_case2("int64",int64T);
       _cimg_load_cimg_case2("float",float);
       _cimg_load_cimg_case2("double",double);
       if (!loaded) {
@@ -54692,7 +54640,7 @@ namespace cimg_library_suffixed {
       unsigned int j, N, W, H, D, C;
       int i, err;
       j = 0; while ((i=std::fgetc(nfile))!='\n' && i!=EOF && j<256) tmp[j++] = (char)i; tmp[j] = 0;
-      err = cimg_sscanf(tmp,"%u%*c%255[A-Za-z_]%*c%255[sA-Za-z_ ]",&N,str_pixeltype._data,str_endian._data);
+      err = cimg_sscanf(tmp,"%u%*c%255[A-Za-z64_]%*c%255[sA-Za-z_ ]",&N,str_pixeltype._data,str_endian._data);
       if (err<2) {
         if (!file) cimg::fclose(nfile);
         throw CImgIOException(_cimglist_instance
@@ -54713,9 +54661,9 @@ namespace cimg_library_suffixed {
       _cimg_save_cimg_case("unsigned_int",unsigned int);
       _cimg_save_cimg_case("uint",unsigned int);
       _cimg_save_cimg_case("int",int);
-      _cimg_save_cimg_case("unsigned_long",ulongT);
-      _cimg_save_cimg_case("ulong",ulongT);
-      _cimg_save_cimg_case("long",longT);
+      _cimg_save_cimg_case("unsigned_int64",uint64T);
+      _cimg_save_cimg_case("uint64",uint64T);
+      _cimg_save_cimg_case("int64",int64T);
       _cimg_save_cimg_case("float",float);
       _cimg_save_cimg_case("double",double);
       if (!saved) {
@@ -55219,7 +55167,7 @@ namespace cimg_library_suffixed {
         j = 0; while ((i=(int)*stream)!='\n' && stream<estream && j<255) { ++stream; tmp[j++] = (char)i; }
         ++stream; tmp[j] = 0;
       } while (*tmp=='#' && stream<estream);
-      err = cimg_sscanf(tmp,"%u%*c%255[A-Za-z_]%*c%255[sA-Za-z_ ]",
+      err = cimg_sscanf(tmp,"%u%*c%255[A-Za-z64_]%*c%255[sA-Za-z_ ]",
                         &N,str_pixeltype._data,str_endian._data);
       if (err<2)
         throw CImgArgumentException("CImgList<%s>::get_unserialize(): CImg header not found in serialized buffer.",
@@ -55237,9 +55185,9 @@ namespace cimg_library_suffixed {
       _cimg_unserialize_case("unsigned_int",unsigned int);
       _cimg_unserialize_case("uint",unsigned int);
       _cimg_unserialize_case("int",int);
-      _cimg_unserialize_case("unsigned_long",ulongT);
-      _cimg_unserialize_case("ulong",ulongT);
-      _cimg_unserialize_case("long",longT);
+      _cimg_unserialize_case("unsigned_int64",uint64T);
+      _cimg_unserialize_case("uint64",uint64T);
+      _cimg_unserialize_case("int64",int64T);
       _cimg_unserialize_case("float",float);
       _cimg_unserialize_case("double",double);
       if (!loaded)

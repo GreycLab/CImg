@@ -2612,6 +2612,35 @@ namespace cimg_library_suffixed {
       static long format(const long val) { return val; }
     };
 
+#if cimg_OS==2
+    template<> struct type<unsigned __int64> {
+      static const char* string() { static const char *const s = "unsigned int64"; return s; }
+      static bool is_float() { return false; }
+      static bool is_inf(const unsigned __int64) { return false; }
+      static bool is_nan(const unsigned __int64) { return false; }
+      static unsigned __int64 min() { return 0; }
+      static unsigned __int64 max() { return (unsigned __int64)-1; }
+      static unsigned __int64 inf() { return max(); }
+      static unsigned __int64 cut(const double val) {
+        return val<(double)min()?min():val>(double)max()?max():(unsigned __int64)val; }
+      static const char* format() { return "%lu"; }
+      static unsigned long format(const unsigned __int64 val) { return (unsigned long)val; }
+    };
+
+    template<> struct type<__int64> {
+      static const char* string() { static const char *const s = "int64"; return s; }
+      static bool is_float() { return false; }
+      static bool is_inf(const __int64) { return false; }
+      static bool is_nan(const __int64) { return false; }
+      static __int64 min() { return ~max(); }
+      static __int64 max() { return (__int64)((unsigned __int64)-1>>1); }
+      static __int64 inf() { return max(); }
+      static __int64 cut(const double val) { return val<(double)min()?min():val>(double)max()?max():(__int64)val; }
+      static const char* format() { return "%ld"; }
+      static long format(const __int64 val) { return (long)val; }
+    };
+#endif
+
     template<> struct type<double> {
       static const char* string() { static const char *const s = "double"; return s; }
       static bool is_float() { return true; }

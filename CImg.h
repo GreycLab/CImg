@@ -149,7 +149,7 @@
 #endif
 
 // Define own types 'long/unsigned long' to ensure portability.
-// ( with sizeof(unsigned long/long) = sizeof(void*) ).
+// ( constrained to sizeof(cimg_ulong/cimg_long) = sizeof(void*) ).
 #if cimg_OS==2
 typedef UINT_PTR cimg_ulong;
 typedef INT_PTR cimg_long;

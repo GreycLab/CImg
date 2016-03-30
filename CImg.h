@@ -53122,7 +53122,7 @@ namespace cimg_library_suffixed {
    Bytef *const cbuf = new Bytef[csiz]; \
    cimg::fread(cbuf,csiz,nfile); \
    raw.assign(W,H,D,C); \
-   ulongT destlen = (ulongT)raw.size()*sizeof(Tss); \
+   uLongf destlen = (ulongT)raw.size()*sizeof(Tss); \
    uncompress((Bytef*)raw._data,&destlen,cbuf,csiz); \
    delete[] cbuf; \
    if (endian!=cimg::endianness()) cimg::invert_endianness(raw._data,raw.size()); \
@@ -54498,7 +54498,7 @@ namespace cimg_library_suffixed {
           if (is_compressed) {
 #ifdef cimg_use_zlib
             const ulongT siz = sizeof(T)*ref.size();
-            ulongT csiz = siz + siz/100 + 16;
+            uLongf csiz = siz + siz/100 + 16;
             Bytef *const cbuf = new Bytef[csiz];
             if (compress(cbuf,&csiz,(Bytef*)ref._data,siz))
               cimg::warn(_cimglist_instance
@@ -55053,7 +55053,7 @@ namespace cimg_library_suffixed {
           if (is_compressed) {
 #ifdef cimg_use_zlib
             const ulongT siz = sizeof(T)*ref.size();
-            ulongT csiz = (ulongT)compressBound(siz);
+            uLongf csiz = (ulongT)compressBound(siz);
             Bytef *const cbuf = new Bytef[csiz];
             if (compress(cbuf,&csiz,(Bytef*)ref._data,siz))
               cimg::warn(_cimglist_instance

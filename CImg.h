@@ -43687,10 +43687,10 @@ namespace cimg_library_suffixed {
 
       static const unsigned char black[] = { 0, 0, 0 }, white[] = { 255, 255, 255 }, gray[] = { 220, 220, 220 };
       static const unsigned char gray2[] = { 110, 110, 110 }, ngray[] = { 35, 35, 35 };
-      static unsigned int odimv = 0;
+      static unsigned int odimc = 0;
       static CImg<ucharT> colormap;
-      if (odimv!=_spectrum) {
-        odimv = _spectrum;
+      if (odimc!=_spectrum) {
+        odimc = _spectrum;
         colormap = CImg<ucharT>(3,_spectrum,1,1,120).noise(70,1);
         if (_spectrum==1) { colormap[0] = colormap[1] = 120; colormap[2] = 200; }
         else {
@@ -45650,7 +45650,7 @@ namespace cimg_library_suffixed {
         cimg::invert_endianness((float*)(header + 76),4);
         cimg::invert_endianness((float*)(header + 112),1);
       }
-      unsigned short *dim = (unsigned short*)(header + 40), dimx = 1, dimy = 1, dimz = 1, dimv = 1;
+      unsigned short *dim = (unsigned short*)(header + 40), dimx = 1, dimy = 1, dimz = 1, dimc = 1;
       if (!dim[0])
         cimg::warn(_cimg_instance
                    "load_analyze(): File '%s' defines an image with zero dimensions.",
@@ -45666,7 +45666,7 @@ namespace cimg_library_suffixed {
       if (dim[0]>=1) dimx = dim[1];
       if (dim[0]>=2) dimy = dim[2];
       if (dim[0]>=3) dimz = dim[3];
-      if (dim[0]>=4) dimv = dim[4];
+      if (dim[0]>=4) dimc = dim[4];
       float scalefactor = *(float*)(header + 112); if (scalefactor==0) scalefactor=1;
       const unsigned short datatype = *(unsigned short*)(header + 70);
       if (voxel_size) {
@@ -45676,40 +45676,53 @@ namespace cimg_library_suffixed {
       delete[] header;
 
       // Read pixel data.
-      assign(dimx,dimy,dimz,dimv);
+      assign(dimx,dimy,dimz,dimc);
+      const ulongT siz = (ulongT)dimx*dimy;
+      T *ptrd = _data;
+      ulongT off = 0;
       switch (datatype) {
       case 2 : {
-        unsigned char *const buffer = new unsigned char[(size_t)dimx*dimy*dimz*dimv];
-        cimg::fread(buffer,dimx*dimy*dimz*dimv,nfile);
-        cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);
+        unsigned char *const buffer = new unsigned char[siz];
+        cimg_forZC(*this,z,c) {
+          cimg::fread(buffer,siz,nfile);
+          cimg_forXY(*this,x,y) *(ptrd++) = (T)(buffer[off]*scalefactor);
+        }
         delete[] buffer;
       } break;
       case 4 : {
-        short *const buffer = new short[(size_t)dimx*dimy*dimz*dimv];
-        cimg::fread(buffer,dimx*dimy*dimz*dimv,nfile);
-        if (endian) cimg::invert_endianness(buffer,dimx*dimy*dimz*dimv);
-        cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);
+        short *const buffer = new short[siz];
+        cimg_forZC(*this,z,c) {
+          cimg::fread(buffer,siz,nfile);
+          if (endian) cimg::invert_endianness(buffer,siz);
+          off = 0; cimg_forXY(*this,x,y) *(ptrd++) = (T)(buffer[off++]*scalefactor);
+        }
         delete[] buffer;
       } break;
       case 8 : {
-        int *const buffer = new int[(size_t)dimx*dimy*dimz*dimv];
-        cimg::fread(buffer,dimx*dimy*dimz*dimv,nfile);
-        if (endian) cimg::invert_endianness(buffer,dimx*dimy*dimz*dimv);
-        cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);
+        int *const buffer = new int[siz];
+        cimg_forZC(*this,z,c) {
+          cimg::fread(buffer,siz,nfile);
+          if (endian) cimg::invert_endianness(buffer,siz);
+          off = 0; cimg_forXY(*this,x,y) *(ptrd++) = (T)(buffer[off++]*scalefactor);
+        }
         delete[] buffer;
       } break;
       case 16 : {
-        float *const buffer = new float[(size_t)dimx*dimy*dimz*dimv];
-        cimg::fread(buffer,dimx*dimy*dimz*dimv,nfile);
-        if (endian) cimg::invert_endianness(buffer,dimx*dimy*dimz*dimv);
-        cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);
+        float *const buffer = new float[siz];
+        cimg_forZC(*this,z,c) {
+          cimg::fread(buffer,siz,nfile);
+          if (endian) cimg::invert_endianness(buffer,siz);
+          off = 0; cimg_forXY(*this,x,y) *(ptrd++) = (T)(buffer[off++]*scalefactor);
+        }
         delete[] buffer;
       } break;
       case 64 : {
-        double *const buffer = new double[(size_t)dimx*dimy*dimz*dimv];
-        cimg::fread(buffer,dimx*dimy*dimz*dimv,nfile);
-        if (endian) cimg::invert_endianness(buffer,dimx*dimy*dimz*dimv);
-        cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);
+        double *const buffer = new double[siz];
+        cimg_forZC(*this,z,c) {
+          cimg::fread(buffer,siz,nfile);
+          if (endian) cimg::invert_endianness(buffer,siz);
+          off = 0; cimg_forXY(*this,x,y) *(ptrd++) = (T)(buffer[off++]*scalefactor);
+        }
         delete[] buffer;
       } break;
       default :

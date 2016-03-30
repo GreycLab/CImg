@@ -148,16 +148,6 @@
 #endif
 #endif
 
-// Define own types 'long/unsigned long' to ensure portability.
-// ( constrained to sizeof(cimg_ulong/cimg_long) = sizeof(void*) ).
-#if cimg_OS==2
-typedef UINT_PTR cimg_ulong;
-typedef INT_PTR cimg_long;
-#else
-typedef unsigned long cimg_ulong;
-typedef long cimg_long;
-#endif
-
 // Include OS-specific headers.
 #if cimg_OS==1
 #include <sys/types.h>
@@ -189,6 +179,16 @@ typedef long cimg_long;
 #if defined(cimg_use_cpp11) && cimg_use_cpp11!=0
 #include <initializer_list>
 #include <utility>
+#endif
+
+// Define own types 'long/unsigned long' to ensure portability.
+// ( constrained to sizeof(cimg_ulong/cimg_long) = sizeof(void*) ).
+#if cimg_OS==2
+typedef UINT_PTR cimg_ulong;
+typedef INT_PTR cimg_long;
+#else
+typedef unsigned long cimg_ulong;
+typedef long cimg_long;
 #endif
 
 // Configure the 'abort' signal handler (does nothing by default).
@@ -55091,7 +55091,7 @@ namespace cimg_library_suffixed {
           is_bytef = false; \
         } else { stream+=csiz; is_bytef = true; } \
         CImg<Tss> raw(W,H,D,C); \
-        ulongT destlen = raw.size()*sizeof(Tss); \
+        uLongf destlen = raw.size()*sizeof(Tss); \
         uncompress((Bytef*)raw._data,&destlen,cbuf,csiz); \
         if (!is_bytef) delete[] cbuf; \
         if (endian!=cimg::endianness()) cimg::invert_endianness(raw._data,raw.size()); \

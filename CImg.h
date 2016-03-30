@@ -111,6 +111,7 @@
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable:4127)
+#pragma warning(disable:4244)
 #pragma warning(disable:4311)
 #pragma warning(disable:4312)
 #pragma warning(disable:4512)
@@ -184,11 +185,11 @@
 // Define own types 'long/unsigned long' to ensure portability.
 // ( constrained to sizeof(cimg_ulong/cimg_long) = sizeof(void*) ).
 #if cimg_OS==2
-#define cimg_ulong UINT_PTR
-#define cimg_long INT_PTR
+typedef UINT_PTR cimg_ulong;
+typedef INT_PTR cimg_long;
 #else
-#define cimg_ulong unsigned long
-#define cimg_long long
+typedef unsigned long cimg_ulong;
+typedef long cimg_long;
 #endif
 
 // Configure the 'abort' signal handler (does nothing by default).
@@ -2351,14 +2352,14 @@ namespace cimg_library_suffixed {
     CImgException() { _message = new char[1]; *_message = 0; }
     CImgException(const char *const format, ...):_message(0) { _cimg_exception_err("CImgException",true); }
     CImgException(const CImgException& e):std::exception(e) {
-      const int size = std::strlen(e._message);
+      const size_t size = std::strlen(e._message);
       _message = new char[size + 1];
       std::strncpy(_message,e._message,size);
       _message[size] = 0;
     }
     ~CImgException() throw() { delete[] _message; }
     CImgException& operator=(const CImgException& e) {
-      const int size = std::strlen(e._message);
+      const size_t size = std::strlen(e._message);
       _message = new char[size + 1];
       std::strncpy(_message,e._message,size);
       _message[size] = 0;
@@ -2375,14 +2376,14 @@ namespace cimg_library_suffixed {
     CImgAbortException() { _message = new char[1]; *_message = 0; }
     CImgAbortException(const char *const format, ...):_message(0) { _cimg_exception_err("CImgAbortException",true); }
     CImgAbortException(const CImgAbortException& e):std::exception(e) {
-      const int size = std::strlen(e._message);
+      const size_t size = std::strlen(e._message);
       _message = new char[size + 1];
       std::strncpy(_message,e._message,size);
       _message[size] = 0;
     }
     ~CImgAbortException() throw() { delete[] _message; }
     CImgAbortException& operator=(const CImgAbortException& e) {
-      const int size = std::strlen(e._message);
+      const size_t size = std::strlen(e._message);
       _message = new char[size + 1];
       std::strncpy(_message,e._message,size);
       _message[size] = 0;
@@ -2782,6 +2783,39 @@ namespace cimg_library_suffixed {
     template<> struct superset<long,float> { typedef double type; };
     template<> struct superset<long,double> { typedef double type; };
     template<> struct superset<float,double> { typedef double type; };
+#if cimg_OS==2
+    template<> struct superset<bool,unsigned __int64> { typedef unsigned __int64 type; };
+    template<> struct superset<unsigned char,unsigned __int64> { typedef unsigned __int64 type; };
+    template<> struct superset<signed char,unsigned __int64> { typedef __int64 type; };
+    template<> struct superset<char,unsigned __int64> { typedef __int64 type; };
+    template<> struct superset<unsigned short,unsigned __int64> { typedef unsigned __int64 type; };
+    template<> struct superset<short,unsigned __int64> { typedef __int64 type; };
+    template<> struct superset<unsigned int,unsigned __int64> { typedef unsigned __int64 type; };
+    template<> struct superset<int,unsigned __int64> { typedef __int64 type; };
+    template<> struct superset<unsigned long,unsigned __int64> { typedef unsigned __int64 type; };
+    template<> struct superset<long,unsigned __int64> { typedef __int64 type; };
+    template<> struct superset<float,unsigned __int64> { typedef double type; };
+    template<> struct superset<unsigned __int64,signed char> { typedef __int64 type; };
+    template<> struct superset<unsigned __int64,char> { typedef __int64 type; };
+    template<> struct superset<unsigned __int64,short> { typedef __int64 type; };
+    template<> struct superset<unsigned __int64,int> { typedef __int64 type; };
+    template<> struct superset<unsigned __int64,long> { typedef __int64 type; };
+    template<> struct superset<unsigned __int64,float> { typedef double type; };
+    template<> struct superset<unsigned __int64,double> { typedef double type; };
+    template<> struct superset<bool,__int64> { typedef __int64 type; };
+    template<> struct superset<unsigned char,__int64> { typedef __int64 type; };
+    template<> struct superset<signed char,__int64> { typedef __int64 type; };
+    template<> struct superset<char,__int64> { typedef __int64 type; };
+    template<> struct superset<unsigned short,__int64> { typedef __int64 type; };
+    template<> struct superset<short,__int64> { typedef __int64 type; };
+    template<> struct superset<unsigned int,__int64> { typedef __int64 type; };
+    template<> struct superset<int,__int64> { typedef __int64 type; };
+    template<> struct superset<unsigned long,__int64> { typedef __int64 type; };
+    template<> struct superset<long,__int64> { typedef __int64 type; };
+    template<> struct superset<float,__int64> { typedef double type; };
+    template<> struct superset<__int64,float> { typedef double type; };
+    template<> struct superset<__int64,double> { typedef double type; };
+#endif
 
     template<typename t1, typename t2, typename t3> struct superset2 {
       typedef typename superset<t1, typename superset<t2,t3>::type>::type type;
@@ -4337,14 +4371,14 @@ namespace cimg_library_suffixed {
 #endif
     }
 
-    inline cimg_long _wait(const unsigned int milliseconds, cimg_ulong& timer) {
+    inline unsigned int _wait(const unsigned int milliseconds, cimg_ulong& timer) {
       if (!timer) timer = cimg::time();
       const cimg_ulong current_time = cimg::time();
       if (current_time>=timer + milliseconds) { timer = current_time; return 0; }
-      const cimg_ulong time_diff = timer + milliseconds - current_time;
+      const unsigned int time_diff = (unsigned int)(timer + milliseconds - current_time);
       timer = current_time + time_diff;
       cimg::sleep(time_diff);
-      return (cimg_long)time_diff;
+      return time_diff;
     }
 
     //! Wait for a given number of milliseconds since the last call to wait().
@@ -4634,10 +4668,10 @@ namespace cimg_library_suffixed {
       return x>=0?x%m:(x%m?m + x%m:0);
     }
     inline long mod(const unsigned long x, const unsigned long m) {
-      return (long)(x%m);
+      return x%m;
     }
     inline long mod(const long x, const long m) {
-      return (long)(x>=0?x%m:(x%m?m + x%m:0));
+      return x>=0?x%m:(x%m?m + x%m:0);
     }
 
     //! Return the min-mod of two values.
@@ -13795,7 +13829,7 @@ namespace cimg_library_suffixed {
         CImg<charT>::string(_expression).move_to(expr);
         char *ps = &expr.back() - 1;
         while (ps>expr._data && (*ps==' ' || *ps==';')) --ps;
-        *(++ps) = 0; expr._width = ps - expr._data + 1;
+        *(++ps) = 0; expr._width = (unsigned int)(ps - expr._data + 1);
 
         // Ease the retrieval of previous non-space characters afterwards.
         pexpr.assign(expr._width);
@@ -14340,9 +14374,9 @@ namespace cimg_library_suffixed {
                 s0 = variable_name._data + (s0 - ss);
                 *s0 = 0;
                 s1 = variable_name._data + l_variable_name - 1; // Pointer to closing parenthesis
-                CImg<charT>(variable_name._data,s0 - variable_name._data + 1).move_to(function_def,0);
+                CImg<charT>(variable_name._data,(unsigned int)(s0 - variable_name._data + 1)).move_to(function_def,0);
                 ++s; while (*s && *s<=' ') ++s;
-                CImg<charT>(s,se - s + 1).move_to(function_body,0);
+                CImg<charT>(s,(unsigned int)(se - s + 1)).move_to(function_body,0);
 
                 p1 = 1; // Indice of current parsed argument
                 for (s = s0 + 1; s<=s1; ++p1, s = ns + 1) { // Parse function arguments
@@ -14381,7 +14415,7 @@ namespace cimg_library_suffixed {
                   }
                   if (ns==s1 || *ns==',') { // New argument found
                     *s3 = 0;
-                    p2 = s3 - s2; // Argument length
+                    p2 = (unsigned int)(s3 - s2); // Argument length
                     p3 = function_body[0]._width - p2 + 1; // Related to copy length
                     for (ps = std::strstr(function_body[0],s2); ps; ps = std::strstr(ps,s2)) { // Replace by arg number
                       if (!((ps>function_body[0]._data && is_varchar(*(ps - 1))) ||
@@ -17309,8 +17343,8 @@ namespace cimg_library_suffixed {
       CImg<charT> calling_function_s() const {
         CImg<charT> res;
         const unsigned int
-          l1 = calling_function?std::strlen(calling_function):0,
-          l2 = user_function?std::strlen(user_function):0;
+          l1 = calling_function?(unsigned int)std::strlen(calling_function):0U,
+          l2 = user_function?(unsigned int)std::strlen(user_function):0U;
         if (l2) {
           res.assign(l1 + l2 + 48);
           cimg_snprintf(res,res._width,"%s(): When substituting function '%s()'",calling_function,user_function);
@@ -27171,7 +27205,7 @@ namespace cimg_library_suffixed {
        \param axis Unroll axis (can be \c 'x', \c 'y', \c 'z' or c 'c').
     **/
     CImg<T>& unroll(const char axis) {
-      const unsigned int siz = size();
+      const unsigned int siz = (unsigned int)size();
       if (siz) switch (cimg::uncase(axis)) {
       case 'x' : _width = siz; _height = _depth = _spectrum = 1; break;
       case 'y' : _height = siz; _width = _depth = _spectrum = 1; break;
@@ -43687,10 +43721,10 @@ namespace cimg_library_suffixed {
 
       static const unsigned char black[] = { 0, 0, 0 }, white[] = { 255, 255, 255 }, gray[] = { 220, 220, 220 };
       static const unsigned char gray2[] = { 110, 110, 110 }, ngray[] = { 35, 35, 35 };
-      static unsigned int odimc = 0;
+      static unsigned int odimv = 0;
       static CImg<ucharT> colormap;
-      if (odimc!=_spectrum) {
-        odimc = _spectrum;
+      if (odimv!=_spectrum) {
+        odimv = _spectrum;
         colormap = CImg<ucharT>(3,_spectrum,1,1,120).noise(70,1);
         if (_spectrum==1) { colormap[0] = colormap[1] = 120; colormap[2] = 200; }
         else {
@@ -45650,7 +45684,7 @@ namespace cimg_library_suffixed {
         cimg::invert_endianness((float*)(header + 76),4);
         cimg::invert_endianness((float*)(header + 112),1);
       }
-      unsigned short *dim = (unsigned short*)(header + 40), dimx = 1, dimy = 1, dimz = 1, dimc = 1;
+      unsigned short *dim = (unsigned short*)(header + 40), dimx = 1, dimy = 1, dimz = 1, dimv = 1;
       if (!dim[0])
         cimg::warn(_cimg_instance
                    "load_analyze(): File '%s' defines an image with zero dimensions.",
@@ -45666,7 +45700,7 @@ namespace cimg_library_suffixed {
       if (dim[0]>=1) dimx = dim[1];
       if (dim[0]>=2) dimy = dim[2];
       if (dim[0]>=3) dimz = dim[3];
-      if (dim[0]>=4) dimc = dim[4];
+      if (dim[0]>=4) dimv = dim[4];
       float scalefactor = *(float*)(header + 112); if (scalefactor==0) scalefactor=1;
       const unsigned short datatype = *(unsigned short*)(header + 70);
       if (voxel_size) {
@@ -45676,53 +45710,40 @@ namespace cimg_library_suffixed {
       delete[] header;
 
       // Read pixel data.
-      assign(dimx,dimy,dimz,dimc);
-      const ulongT siz = (ulongT)dimx*dimy;
-      T *ptrd = _data;
-      ulongT off = 0;
+      assign(dimx,dimy,dimz,dimv);
       switch (datatype) {
       case 2 : {
-        unsigned char *const buffer = new unsigned char[siz];
-        cimg_forZC(*this,z,c) {
-          cimg::fread(buffer,siz,nfile);
-          cimg_forXY(*this,x,y) *(ptrd++) = (T)(buffer[off]*scalefactor);
-        }
+        unsigned char *const buffer = new unsigned char[(size_t)dimx*dimy*dimz*dimv];
+        cimg::fread(buffer,dimx*dimy*dimz*dimv,nfile);
+        cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);
         delete[] buffer;
       } break;
       case 4 : {
-        short *const buffer = new short[siz];
-        cimg_forZC(*this,z,c) {
-          cimg::fread(buffer,siz,nfile);
-          if (endian) cimg::invert_endianness(buffer,siz);
-          off = 0; cimg_forXY(*this,x,y) *(ptrd++) = (T)(buffer[off++]*scalefactor);
-        }
+        short *const buffer = new short[(size_t)dimx*dimy*dimz*dimv];
+        cimg::fread(buffer,dimx*dimy*dimz*dimv,nfile);
+        if (endian) cimg::invert_endianness(buffer,dimx*dimy*dimz*dimv);
+        cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);
         delete[] buffer;
       } break;
       case 8 : {
-        int *const buffer = new int[siz];
-        cimg_forZC(*this,z,c) {
-          cimg::fread(buffer,siz,nfile);
-          if (endian) cimg::invert_endianness(buffer,siz);
-          off = 0; cimg_forXY(*this,x,y) *(ptrd++) = (T)(buffer[off++]*scalefactor);
-        }
+        int *const buffer = new int[(size_t)dimx*dimy*dimz*dimv];
+        cimg::fread(buffer,dimx*dimy*dimz*dimv,nfile);
+        if (endian) cimg::invert_endianness(buffer,dimx*dimy*dimz*dimv);
+        cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);
         delete[] buffer;
       } break;
       case 16 : {
-        float *const buffer = new float[siz];
-        cimg_forZC(*this,z,c) {
-          cimg::fread(buffer,siz,nfile);
-          if (endian) cimg::invert_endianness(buffer,siz);
-          off = 0; cimg_forXY(*this,x,y) *(ptrd++) = (T)(buffer[off++]*scalefactor);
-        }
+        float *const buffer = new float[(size_t)dimx*dimy*dimz*dimv];
+        cimg::fread(buffer,dimx*dimy*dimz*dimv,nfile);
+        if (endian) cimg::invert_endianness(buffer,dimx*dimy*dimz*dimv);
+        cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);
         delete[] buffer;
       } break;
       case 64 : {
-        double *const buffer = new double[siz];
-        cimg_forZC(*this,z,c) {
-          cimg::fread(buffer,siz,nfile);
-          if (endian) cimg::invert_endianness(buffer,siz);
-          off = 0; cimg_forXY(*this,x,y) *(ptrd++) = (T)(buffer[off++]*scalefactor);
-        }
+        double *const buffer = new double[(size_t)dimx*dimy*dimz*dimv];
+        cimg::fread(buffer,dimx*dimy*dimz*dimv,nfile);
+        if (endian) cimg::invert_endianness(buffer,dimx*dimy*dimz*dimv);
+        cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);
         delete[] buffer;
       } break;
       default :
@@ -46304,7 +46325,8 @@ namespace cimg_library_suffixed {
                                                 "load_raw(): Cannot determine size of input file '%s'.",
                                                 cimg_instance,filename?filename:"(FILE*)");
         cimg::fseek(nfile,0,SEEK_END);
-        siz = _size_y = cimg::ftell(nfile)/sizeof(T);
+        siz = cimg::ftell(nfile)/sizeof(T);
+		_size_y = (unsigned int)siz;
         _size_x = _size_z = _size_c = 1;
         cimg::fseek(nfile,fpos,SEEK_SET);
       }
@@ -53167,7 +53189,7 @@ namespace cimg_library_suffixed {
               img.assign(W,H,D,C); \
               T *ptrd = img._data; \
               for (ulongT to_read = img.size(); to_read; ) { \
-                raw.assign(cimg::min(to_read,cimg_iobuffer)); \
+                raw.assign((unsigned int)cimg::min(to_read,cimg_iobuffer)); \
                 cimg::fread(raw._data,raw._width,nfile); \
                 if (endian!=cimg::endianness()) cimg::invert_endianness(raw._data,raw.size()); \
                 const Tss *ptrs = raw._data; \

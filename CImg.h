@@ -4121,7 +4121,7 @@ namespace cimg_library_suffixed {
 #ifdef cimg_strict_warnings
         throw CImgWarningException(message);
 #else
-        std::fprintf(cimg::output(),"\n%s[CImg] *** Warning ***%s%s",cimg::t_red,cimg::t_normal,message);
+        std::fprintf(cimg::output(),"\n%s[CImg] *** Warning ***%s%s\n",cimg::t_red,cimg::t_normal,message);
 #endif
         delete[] message;
       }
@@ -50251,6 +50251,11 @@ namespace cimg_library_suffixed {
                                     "save_graphicsmagick_external(): Specified filename is (null).",
                                     cimg_instance);
       if (is_empty()) { cimg::fempty(0,filename); return *this; }
+      if (_depth>1)
+        cimg::warn(_cimg_instance
+                   "save_other(): File '%s', saving a volumetric image with an external call to "
+                   "GraphicsMagick only writes the first image slice.",
+                   cimg_instance,filename);
 
 #ifdef cimg_use_png
 #define _cimg_sge_ext1 "png"
@@ -50303,7 +50308,11 @@ namespace cimg_library_suffixed {
                                     "save_imagemagick_external(): Specified filename is (null).",
                                     cimg_instance);
       if (is_empty()) { cimg::fempty(0,filename); return *this; }
-
+      if (_depth>1)
+        cimg::warn(_cimg_instance
+                   "save_other(): File '%s', saving a volumetric image with an external call to "
+                   "ImageMagick only writes the first image slice.",
+                   cimg_instance,filename);
 #ifdef cimg_use_png
 #define _cimg_sie_ext1 "png"
 #define _cimg_sie_ext2 "png"
@@ -50407,6 +50416,11 @@ namespace cimg_library_suffixed {
                                     "save_other(): Specified filename is (null).",
                                     cimg_instance);
       if (is_empty()) { cimg::fempty(0,filename); return *this; }
+      if (_depth>1)
+        cimg::warn(_cimg_instance
+                   "save_other(): File '%s', saving a volumetric image with an external call to "
+                   "ImageMagick or GraphicsMagick only writes the first image slice.",
+                   cimg_instance,filename);
 
       const unsigned int omode = cimg::exception_mode();
       bool is_saved = true;

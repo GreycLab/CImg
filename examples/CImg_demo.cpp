@@ -649,7 +649,7 @@ void* item_plasma() {
 // Item : Oriented Convolutions
 //------------------------------
 void* item_oriented_convolutions() {
-  const CImg<unsigned char> img = CImg<unsigned char>(data_lena,256,256,1,1,false).noise(50,2);
+  const CImg<unsigned char> img = CImg<float>(data_milla,211,242,1,3).RGBtoYCbCr().channel(0).noise(50,2);
   CImgList<unsigned char> visu = (img,img,img);
   CImg<float> mask(16,16);
   const float value = 255;
@@ -727,7 +727,7 @@ void* item_shade_bobs() {
 // Item : Fourier Filtering
 //-------------------------
 void* item_fourier_filtering() {
-  const CImg<unsigned char> img = CImg<unsigned char>(data_lena,256,256,1,1,false).resize(256,256);
+  const CImg<unsigned char> img = CImg<float>(data_milla,211,242,1,3).RGBtoYCbCr().channel(0).resize(256,256);
   CImgList<float> F = img.get_FFT();
   cimglist_apply(F,shift)(img.width()/2,img.height()/2,0,0,2);
   const CImg<unsigned char> mag = ((F[0].get_pow(2) + F[1].get_pow(2)).sqrt() + 1).log().normalize(0,255);

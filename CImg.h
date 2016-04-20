@@ -31358,18 +31358,18 @@ namespace cimg_library_suffixed {
     /*
       \param ptr the pointer of the data
       \param N size of the data
-      \param sigma sigma of the box filter
+      \param boxsize Size of the box filter (can be subpixel).
       \param off the offset between two data point
       \param order the order of the filter 0 (smoothing), 1st derivtive and 2nd derivative.
       \param boundary_conditions Boundary conditions. Can be <tt>{ 0=dirichlet | 1=neumann }</tt>.
     */
-    static void _cimg_blur_box_apply(T *ptr, const float sigma, const int N, const ulongT off,
+    static void _cimg_blur_box_apply(T *ptr, const float boxsize, const int N, const ulongT off,
                                      const int order, const bool boundary_conditions) {
       // Smooth.
-      if (sigma>1) {
-        const int w2 = (int)(sigma - 1)/2;
+      if (boxsize>1) {
+        const int w2 = (int)(boxsize - 1)/2;
         const unsigned int winsize = 2*w2 + 1U;
-        const double frac = (sigma - winsize)/2.0;
+        const double frac = (boxsize - winsize)/2.0;
         CImg<Tfloat> win(winsize);
         Tfloat sum = 0; // window sum
         for (int x = -w2; x<=w2; ++x) {
@@ -31382,7 +31382,7 @@ namespace cimg_library_suffixed {
           next = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,w2 + 1);
         for (int x = 0; x < N - 1; ++x) {
           const double sum2 = sum + frac * (prev + next);
-          ptr[x*off] = (T)(sum2/sigma);
+          ptr[x*off] = (T)(sum2/boxsize);
           prev = win[ifirst];
           sum-=prev;
           ifirst = (int)((ifirst + 1)%winsize);
@@ -31392,7 +31392,7 @@ namespace cimg_library_suffixed {
           next = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,x + w2 + 2);
         }
         const double sum2 = sum + frac * (prev + next);
-        ptr[(N - 1)*off] = (T)(sum2/sigma);
+        ptr[(N - 1)*off] = (T)(sum2/boxsize);
       }
 
       // Derive.
@@ -31437,44 +31437,44 @@ namespace cimg_library_suffixed {
 
     // Apply box filter of order 0,1,2.
     /**
-      \param sigma sigma of the box filter
+      \param boxsize Size of the box window (can be subpixel)
       \param order the order of the filter 0,1 or 2.
       \param axis  Axis along which the filter is computed. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
       \param boundary_conditions Boundary conditions. Can be <tt>{ 0=dirichlet | 1=neumann }</tt>.
     **/
-    CImg<T>& boxfilter(const float sigma, const int order, const char axis='x',
+    CImg<T>& boxfilter(const float boxsize, const int order, const char axis='x',
                        const bool boundary_conditions=true) {
-      if (is_empty() || !sigma || (sigma<=1 && !order)) return *this;
+      if (is_empty() || !boxsize || (boxsize<=1 && !order)) return *this;
       const char naxis = cimg::uncase(axis);
-      const float nsigma = sigma>=0?sigma:-sigma*(naxis=='x'?_width:naxis=='y'?_height:naxis=='z'?_depth:_spectrum)/100;
+      const float nboxsize = boxsize>=0?boxsize:-boxsize*(naxis=='x'?_width:naxis=='y'?_height:naxis=='z'?_depth:_spectrum)/100;
       switch (naxis) {
       case 'x' : {
 #ifdef cimg_use_openmp
 #pragma omp parallel for collapse(3) if (_width>=256 && _height*_depth*_spectrum>=16)
 #endif
         cimg_forYZC(*this,y,z,c)
-          _cimg_blur_box_apply(data(0,y,z,c),nsigma,_width,1U,order,boundary_conditions);
+          _cimg_blur_box_apply(data(0,y,z,c),nboxsize,_width,1U,order,boundary_conditions);
       } break;
       case 'y' : {
 #ifdef cimg_use_openmp
 #pragma omp parallel for collapse(3) if (_width>=256 && _height*_depth*_spectrum>=16)
 #endif
         cimg_forXZC(*this,x,z,c)
-          _cimg_blur_box_apply(data(x,0,z,c),nsigma,_height,(ulongT)_width,order,boundary_conditions);
+          _cimg_blur_box_apply(data(x,0,z,c),nboxsize,_height,(ulongT)_width,order,boundary_conditions);
       } break;
       case 'z' : {
 #ifdef cimg_use_openmp
 #pragma omp parallel for collapse(3) if (_width>=256 && _height*_depth*_spectrum>=16)
 #endif
         cimg_forXYC(*this,x,y,c)
-          _cimg_blur_box_apply(data(x,y,0,c),nsigma,_depth,(ulongT)_width*_height,order,boundary_conditions);
+          _cimg_blur_box_apply(data(x,y,0,c),nboxsize,_depth,(ulongT)_width*_height,order,boundary_conditions);
       } break;
       default : {
 #ifdef cimg_use_openmp
 #pragma omp parallel for collapse(3) if (_width>=256 && _height*_depth*_spectrum>=16)
 #endif
         cimg_forXYZ(*this,x,y,z)
-          _cimg_blur_box_apply(data(x,y,z,0),nsigma,_spectrum,(ulongT)_width*_height*_depth,
+          _cimg_blur_box_apply(data(x,y,z,0),nboxsize,_spectrum,(ulongT)_width*_height*_depth,
                                order,boundary_conditions);
       }
       }
@@ -31482,50 +31482,50 @@ namespace cimg_library_suffixed {
     }
 
     // Apply box filter of order 0,1 or 2 \newinstance.
-    CImg<Tfloat> get_boxfilter(const float sigma, const int order, const char axis='x',
+    CImg<Tfloat> get_boxfilter(const float boxsize, const int order, const char axis='x',
                                const bool boundary_conditions=true) const {
-      return CImg<Tfloat>(*this,false).boxfilter(sigma,order,axis,boundary_conditions);
+      return CImg<Tfloat>(*this,false).boxfilter(boxsize,order,axis,boundary_conditions);
     }
 
     //! Blur image with a box filter.
     /**
-       \param sigma_x Size of the box window, along the X-axis.
-       \param sigma_y Size of the box window, along the Y-axis.
-       \param sigma_z Size of the box window, along the Z-axis.
+       \param boxsize_x Size of the box window, along the X-axis (can be subpixel).
+       \param boxsize_y Size of the box window, along the Y-axis (can be subpixel).
+       \param boxsize_z Size of the box window, along the Z-axis (can be subpixel).
        \param boundary_conditions Boundary conditions. Can be <tt>{ false=dirichlet | true=neumann }</tt>.
        \note
        - This is a recursive algorithm, not depending on the values of the box kernel size.
        \see blur().
     **/
-    CImg<T>& blur_box(const float sigma_x, const float sigma_y, const float sigma_z,
+    CImg<T>& blur_box(const float boxsize_x, const float boxsize_y, const float boxsize_z,
                       const bool boundary_conditions=true) {
       if (is_empty()) return *this;
-      if (_width>1) boxfilter(sigma_x,0,'x',boundary_conditions);
-      if (_height>1) boxfilter(sigma_y,0,'y',boundary_conditions);
-      if (_depth>1) boxfilter(sigma_z,0,'z',boundary_conditions);
+      if (_width>1) boxfilter(boxsize_x,0,'x',boundary_conditions);
+      if (_height>1) boxfilter(boxsize_y,0,'y',boundary_conditions);
+      if (_depth>1) boxfilter(boxsize_z,0,'z',boundary_conditions);
       return *this;
     }
 
     //! Blur image with a box filter \newinstance.
-    CImg<Tfloat> get_blur_box(const float sigma_x, const float sigma_y, const float sigma_z,
+    CImg<Tfloat> get_blur_box(const float boxsize_x, const float boxsize_y, const float boxsize_z,
                               const bool boundary_conditions=true) const {
-      return CImg<Tfloat>(*this,false).blur_box(sigma_x,sigma_y,sigma_z,boundary_conditions);
+      return CImg<Tfloat>(*this,false).blur_box(boxsize_x,boxsize_y,boxsize_z,boundary_conditions);
     }
 
     //! Blur image with a box filter.
     /**
-       \param sigma Size of the box window.
+       \param boxsize Size of the box window (can be subpixel).
        \param boundary_conditions Boundary conditions. Can be <tt>{ 0=dirichlet | 1=neumann }</tt>.a
        \see deriche(), vanvliet().
     **/
-    CImg<T>& blur_box(const float sigma, const bool boundary_conditions=true) {
-      const float nsigma = sigma>=0?sigma:-sigma*cimg::max(_width,_height,_depth)/100;
-      return blur_box(nsigma,nsigma,nsigma,boundary_conditions);
+    CImg<T>& blur_box(const float boxsize, const bool boundary_conditions=true) {
+      const float nboxsize = boxsize>=0?boxsize:-boxsize*cimg::max(_width,_height,_depth)/100;
+      return blur_box(nboxsize,nboxsize,nboxsize,boundary_conditions);
     }
 
     //! Blur image with a box filter \newinstance.
-    CImg<Tfloat> get_blur_box(const float sigma, const bool boundary_conditions=true) const {
-      return CImg<Tfloat>(*this,false).blur_box(sigma,boundary_conditions);
+    CImg<Tfloat> get_blur_box(const float boxsize, const bool boundary_conditions=true) const {
+      return CImg<Tfloat>(*this,false).blur_box(boxsize,boundary_conditions);
     }
 
     //! Blur image, with the image guided filter.

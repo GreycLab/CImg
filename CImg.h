@@ -4162,7 +4162,7 @@ namespace cimg_library_suffixed {
       si.dwFlags |= SW_HIDE | STARTF_USESHOWWINDOW;
       const BOOL res = CreateProcess((LPCTSTR)module_name,(LPTSTR)command,0,0,FALSE,0,0,0,&si,&pi);
       if (res) {
-        WaitForSingleObject(pi.hProcess, INFINITE);
+        WaitForSingleObject(pi.hProcess,INFINITE);
         CloseHandle(pi.hThread);
         CloseHandle(pi.hProcess);
         return 0;

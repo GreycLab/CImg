@@ -43087,10 +43087,8 @@ namespace cimg_library_suffixed {
       } else if (title) disp.set_title("%s",title);
 
       CImg<T> thumb;
-      if (width()>disp.screen_width() || height()>disp.screen_height()) {
-        const double ratio = cimg::min((double)disp.screen_width()/width(),(double)disp.screen_height()/height());
-        get_resize(cimg::max(1,(int)(ratio*width())),cimg::max(1,(int)(ratio*height())),-100,-100).move_to(thumb);
-      }
+      if (width()>disp.screen_width() || height()>disp.screen_height())
+        get_resize(cimg_fitscreen(width(),height(),1),1,-100).move_to(thumb);
 
       const unsigned int old_normalization = disp.normalization();
       bool old_is_resized = disp.is_resized();

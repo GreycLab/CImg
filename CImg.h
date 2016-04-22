@@ -29512,9 +29512,9 @@ namespace cimg_library_suffixed {
 #pragma omp parallel for collapse(3) if (_width*_height*_depth>=32768)
 #endif
             for (int z = mz1; z<mze; ++z)
-              for (int y = my1; y<mye; ++y)
+              for (int y = my1; y<mye; ++y) {
+                cimg_test_abort2();
                 for (int x = mx1; x<mxe; ++x) {
-                  cimg_test_abort2();
                   Ttfloat val = 0, N = 0;
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
@@ -29526,14 +29526,15 @@ namespace cimg_library_suffixed {
                   N*=M;
                   res(x,y,z,c) = (Ttfloat)(N?val/std::sqrt(N):0);
                 }
+              }
             if (boundary_conditions)
 #ifdef cimg_use_openmp
 #pragma omp parallel for collapse(2) if (_width>=256 && _height*_depth>=128)
 #endif
-              cimg_forYZ(res,y,z)
+              cimg_forYZ(res,y,z) {
+                cimg_test_abort2();
                 for (int x = 0; x<width();
                      (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
-                  cimg_test_abort2();
                   Ttfloat val = 0, N = 0;
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
@@ -29545,14 +29546,15 @@ namespace cimg_library_suffixed {
                   N*=M;
                   res(x,y,z,c) = (Ttfloat)(N?val/std::sqrt(N):0);
                 }
+              }
             else
 #ifdef cimg_use_openmp
 #pragma omp parallel for collapse(2) if (_width>=256 && _height*_depth>=128)
 #endif
-              cimg_forYZ(res,y,z)
+              cimg_forYZ(res,y,z) {
+                cimg_test_abort2();
                 for (int x = 0; x<width();
                      (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
-                  cimg_test_abort2();
                   Ttfloat val = 0, N = 0;
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
@@ -29564,14 +29566,15 @@ namespace cimg_library_suffixed {
                   N*=M;
                   res(x,y,z,c) = (Ttfloat)(N?val/std::sqrt(N):0);
                 }
+              }
           } else { // Classical correlation.
 #ifdef cimg_use_openmp
 #pragma omp parallel for collapse(3) if (_width*_height*_depth>=32768)
 #endif
             for (int z = mz1; z<mze; ++z)
-              for (int y = my1; y<mye; ++y)
+              for (int y = my1; y<mye; ++y) {
+                cimg_test_abort2();
                 for (int x = mx1; x<mxe; ++x) {
-                  cimg_test_abort2();
                   Ttfloat val = 0;
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
@@ -29579,14 +29582,15 @@ namespace cimg_library_suffixed {
                         val+=_img(x + xm,y + ym,z + zm)*_mask(mx1 + xm,my1 + ym,mz1 + zm);
                   res(x,y,z,c) = (Ttfloat)val;
                 }
+              }
             if (boundary_conditions)
 #ifdef cimg_use_openmp
 #pragma omp parallel for collapse(2) if (_width>=256 && _height*_depth>=128)
 #endif
-              cimg_forYZ(res,y,z)
+              cimg_forYZ(res,y,z) {
+                cimg_test_abort2();
                 for (int x = 0; x<width();
                      (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
-                  cimg_test_abort2();
                   Ttfloat val = 0;
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
@@ -29594,14 +29598,15 @@ namespace cimg_library_suffixed {
                         val+=_img._atXYZ(x + xm,y + ym,z + zm)*_mask(mx1 + xm,my1 + ym,mz1 + zm);
                   res(x,y,z,c) = (Ttfloat)val;
                 }
+              }
             else
 #ifdef cimg_use_openmp
 #pragma omp parallel for collapse(2) if (_width>=256 && _height*_depth>=128)
 #endif
-              cimg_forYZ(res,y,z)
+              cimg_forYZ(res,y,z) {
+                cimg_test_abort2();
                 for (int x = 0; x<width();
                      (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
-                  cimg_test_abort2();
                   Ttfloat val = 0;
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
@@ -29609,6 +29614,7 @@ namespace cimg_library_suffixed {
                         val+=_img.atXYZ(x + xm,y + ym,z + zm,0,0)*_mask(mx1 + xm,my1 + ym,mz1 + zm);
                   res(x,y,z,c) = (Ttfloat)val;
                 }
+              }
           }
         }
       }
@@ -29752,9 +29758,9 @@ namespace cimg_library_suffixed {
 #pragma omp parallel for collapse(3) if (_width*_height*_depth>=32768)
 #endif
           for (int z = mz1; z<mze; ++z)
-            for (int y = my1; y<mye; ++y)
+            for (int y = my1; y<mye; ++y) {
+              cimg_test_abort2();
               for (int x = mx1; x<mxe; ++x) {
-                cimg_test_abort2();
                 Tt min_val = cimg::type<Tt>::max();
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
@@ -29765,13 +29771,14 @@ namespace cimg_library_suffixed {
                     }
                 res(x,y,z,c) = min_val;
               }
+            }
           if (boundary_conditions)
 #ifdef cimg_use_openmp
 #pragma omp parallel for collapse(2) if (_width>=256 && _height*_depth>=128)
 #endif
-            cimg_forYZ(res,y,z)
+            cimg_forYZ(res,y,z) {
+              cimg_test_abort2();
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
-                cimg_test_abort2();
                 Tt min_val = cimg::type<Tt>::max();
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
@@ -29782,13 +29789,14 @@ namespace cimg_library_suffixed {
                     }
                 res(x,y,z,c) = min_val;
               }
+            }
           else
 #ifdef cimg_use_openmp
 #pragma omp parallel for collapse(2) if (_width>=256 && _height*_depth>=128)
 #endif
-            cimg_forYZ(res,y,z)
+            cimg_forYZ(res,y,z) {
+              cimg_test_abort2();
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
-                cimg_test_abort2();
                 Tt min_val = cimg::type<Tt>::max();
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
@@ -29799,15 +29807,16 @@ namespace cimg_library_suffixed {
                     }
                 res(x,y,z,c) = min_val;
               }
+            }
 
         } else { // Classical erosion.
 #ifdef cimg_use_openmp
 #pragma omp parallel for collapse(3) if (_width*_height*_depth>=32768)
 #endif
           for (int z = mz1; z<mze; ++z)
-            for (int y = my1; y<mye; ++y)
+            for (int y = my1; y<mye; ++y) {
+              cimg_test_abort2();
               for (int x = mx1; x<mxe; ++x) {
-                cimg_test_abort2();
                 Tt min_val = cimg::type<Tt>::max();
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
@@ -29817,13 +29826,14 @@ namespace cimg_library_suffixed {
                     }
                 res(x,y,z,c) = min_val;
               }
+            }
           if (boundary_conditions)
 #ifdef cimg_use_openmp
 #pragma omp parallel for collapse(2) if (_width>=256 && _height*_depth>=128)
 #endif
-            cimg_forYZ(res,y,z)
+            cimg_forYZ(res,y,z) {
+              cimg_test_abort2();
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
-                cimg_test_abort2();
                 Tt min_val = cimg::type<Tt>::max();
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
@@ -29833,13 +29843,14 @@ namespace cimg_library_suffixed {
                     }
                 res(x,y,z,c) = min_val;
               }
+            }
           else
 #ifdef cimg_use_openmp
 #pragma omp parallel for collapse(2) if (_width>=256 && _height*_depth>=128)
 #endif
-            cimg_forYZ(res,y,z)
+            cimg_forYZ(res,y,z) {
+              cimg_test_abort2();
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
-                cimg_test_abort2();
                 Tt min_val = cimg::type<Tt>::max();
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
@@ -29849,6 +29860,7 @@ namespace cimg_library_suffixed {
                     }
                 res(x,y,z,c) = min_val;
               }
+            }
         }
       }
       return res;
@@ -30048,9 +30060,9 @@ namespace cimg_library_suffixed {
 #pragma omp parallel for collapse(3) if (_width*_height*_depth>=32768)
 #endif
           for (int z = mz1; z<mze; ++z)
-            for (int y = my1; y<mye; ++y)
+            for (int y = my1; y<mye; ++y) {
+              cimg_test_abort2();
               for (int x = mx1; x<mxe; ++x) {
-                cimg_test_abort2();
                 Tt max_val = cimg::type<Tt>::min();
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
@@ -30061,13 +30073,14 @@ namespace cimg_library_suffixed {
                     }
                 res(x,y,z,c) = max_val;
               }
+            }
           if (boundary_conditions)
 #ifdef cimg_use_openmp
 #pragma omp parallel for collapse(2) if (_width>=256 && _height*_depth>=128)
 #endif
-            cimg_forYZ(res,y,z)
+            cimg_forYZ(res,y,z) {
+              cimg_test_abort2();
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
-                cimg_test_abort2();
                 Tt max_val = cimg::type<Tt>::min();
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
@@ -30078,13 +30091,14 @@ namespace cimg_library_suffixed {
                     }
                 res(x,y,z,c) = max_val;
               }
+            }
           else
 #ifdef cimg_use_openmp
 #pragma omp parallel for collapse(2) if (_width>=256 && _height*_depth>=128)
 #endif
-            cimg_forYZ(*this,y,z)
+            cimg_forYZ(*this,y,z) {
+              cimg_test_abort2();
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
-                cimg_test_abort2();
                 Tt max_val = cimg::type<Tt>::min();
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
@@ -30095,14 +30109,15 @@ namespace cimg_library_suffixed {
                     }
                 res(x,y,z,c) = max_val;
               }
+            }
         } else { // Classical dilation.
 #ifdef cimg_use_openmp
 #pragma omp parallel for collapse(3) if (_width>=256 && _height*_depth>=128)
 #endif
           for (int z = mz1; z<mze; ++z)
-            for (int y = my1; y<mye; ++y)
+            for (int y = my1; y<mye; ++y) {
+              cimg_test_abort2();
               for (int x = mx1; x<mxe; ++x) {
-                cimg_test_abort2();
                 Tt max_val = cimg::type<Tt>::min();
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
@@ -30112,13 +30127,14 @@ namespace cimg_library_suffixed {
                     }
                 res(x,y,z,c) = max_val;
               }
+            }
           if (boundary_conditions)
 #ifdef cimg_use_openmp
 #pragma omp parallel for collapse(2) if (_width>=256 && _height*_depth>=128)
 #endif
-            cimg_forYZ(res,y,z)
+            cimg_forYZ(res,y,z) {
+              cimg_test_abort2();
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
-                cimg_test_abort2();
                 Tt max_val = cimg::type<Tt>::min();
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
@@ -30128,13 +30144,14 @@ namespace cimg_library_suffixed {
                     }
                 res(x,y,z,c) = max_val;
               }
+            }
           else
 #ifdef cimg_use_openmp
 #pragma omp parallel for collapse(2) if (_width>=256 && _height*_depth>=128)
 #endif
-            cimg_forYZ(res,y,z)
+            cimg_forYZ(res,y,z) {
+              cimg_test_abort2();
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
-                cimg_test_abort2();
                 Tt max_val = cimg::type<Tt>::min();
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
@@ -30144,6 +30161,7 @@ namespace cimg_library_suffixed {
                     }
                 res(x,y,z,c) = max_val;
               }
+            }
         }
       }
       return res;
@@ -31011,76 +31029,78 @@ namespace cimg_library_suffixed {
 #ifdef cimg_use_openmp
 #pragma omp parallel for collapse(2) if (_width>=256 && _height*_depth>=2) firstprivate(val)
 #endif
-              cimg_forXYZ(*this,x,y,z) {
+              cimg_forYZ(*this,y,z) {
                 cimg_test_abort2();
-                val.fill(0);
-                const float
-                  n = (float)W(x,y,z,3),
-                  fsigma = (float)(n*sqrt2amplitude),
-                  fsigma2 = 2*fsigma*fsigma,
-                  length = gauss_prec*fsigma;
-                float
-                  S = 0,
-                  X = (float)x,
-                  Y = (float)y,
-                  Z = (float)z;
-                switch (interpolation_type) {
-                case 0 : { // Nearest neighbor
-                  for (float l = 0; l<length && X>=0 && X<=dx1 && Y>=0 && Y<=dy1 && Z>=0 && Z<=dz1; l+=dl) {
-                    const int
-                      cx = (int)(X + 0.5f),
-                      cy = (int)(Y + 0.5f),
-                      cz = (int)(Z + 0.5f);
-                    const float
-                      u = (float)W(cx,cy,cz,0),
-                      v = (float)W(cx,cy,cz,1),
-                      w = (float)W(cx,cy,cz,2);
-                    if (is_fast_approx) { cimg_forC(*this,c) val[c]+=(Tfloat)(*this)(cx,cy,cz,c); ++S; }
-                    else {
-                      const float coef = (float)std::exp(-l*l/fsigma2);
-                      cimg_forC(*this,c) val[c]+=(Tfloat)(coef*(*this)(cx,cy,cz,c));
-                      S+=coef;
+                cimg_forX(*this,x) {
+                  val.fill(0);
+                  const float
+                    n = (float)W(x,y,z,3),
+                    fsigma = (float)(n*sqrt2amplitude),
+                    fsigma2 = 2*fsigma*fsigma,
+                    length = gauss_prec*fsigma;
+                  float
+                    S = 0,
+                    X = (float)x,
+                    Y = (float)y,
+                    Z = (float)z;
+                  switch (interpolation_type) {
+                  case 0 : { // Nearest neighbor
+                    for (float l = 0; l<length && X>=0 && X<=dx1 && Y>=0 && Y<=dy1 && Z>=0 && Z<=dz1; l+=dl) {
+                      const int
+                        cx = (int)(X + 0.5f),
+                        cy = (int)(Y + 0.5f),
+                        cz = (int)(Z + 0.5f);
+                      const float
+                        u = (float)W(cx,cy,cz,0),
+                        v = (float)W(cx,cy,cz,1),
+                        w = (float)W(cx,cy,cz,2);
+                      if (is_fast_approx) { cimg_forC(*this,c) val[c]+=(Tfloat)(*this)(cx,cy,cz,c); ++S; }
+                      else {
+                        const float coef = (float)std::exp(-l*l/fsigma2);
+                        cimg_forC(*this,c) val[c]+=(Tfloat)(coef*(*this)(cx,cy,cz,c));
+                        S+=coef;
+                      }
+                      X+=u; Y+=v; Z+=w;
                     }
-                    X+=u; Y+=v; Z+=w;
-                  }
-                } break;
-                case 1 : { // Linear interpolation
-                  for (float l = 0; l<length && X>=0 && X<=dx1 && Y>=0 && Y<=dy1 && Z>=0 && Z<=dz1; l+=dl) {
-                    const float
-                      u = (float)(W._linear_atXYZ(X,Y,Z,0)),
-                      v = (float)(W._linear_atXYZ(X,Y,Z,1)),
-                      w = (float)(W._linear_atXYZ(X,Y,Z,2));
-                    if (is_fast_approx) { cimg_forC(*this,c) val[c]+=(Tfloat)_linear_atXYZ(X,Y,Z,c); ++S; }
-                    else {
-                      const float coef = (float)std::exp(-l*l/fsigma2);
-                      cimg_forC(*this,c) val[c]+=(Tfloat)(coef*_linear_atXYZ(X,Y,Z,c));
-                      S+=coef;
+                  } break;
+                  case 1 : { // Linear interpolation
+                    for (float l = 0; l<length && X>=0 && X<=dx1 && Y>=0 && Y<=dy1 && Z>=0 && Z<=dz1; l+=dl) {
+                      const float
+                        u = (float)(W._linear_atXYZ(X,Y,Z,0)),
+                        v = (float)(W._linear_atXYZ(X,Y,Z,1)),
+                        w = (float)(W._linear_atXYZ(X,Y,Z,2));
+                      if (is_fast_approx) { cimg_forC(*this,c) val[c]+=(Tfloat)_linear_atXYZ(X,Y,Z,c); ++S; }
+                      else {
+                        const float coef = (float)std::exp(-l*l/fsigma2);
+                        cimg_forC(*this,c) val[c]+=(Tfloat)(coef*_linear_atXYZ(X,Y,Z,c));
+                        S+=coef;
+                      }
+                      X+=u; Y+=v; Z+=w;
                     }
-                    X+=u; Y+=v; Z+=w;
-                  }
-                } break;
-                default : { // 2nd order Runge Kutta
-                  for (float l = 0; l<length && X>=0 && X<=dx1 && Y>=0 && Y<=dy1 && Z>=0 && Z<=dz1; l+=dl) {
-                    const float
-                      u0 = (float)(0.5f*W._linear_atXYZ(X,Y,Z,0)),
-                      v0 = (float)(0.5f*W._linear_atXYZ(X,Y,Z,1)),
-                      w0 = (float)(0.5f*W._linear_atXYZ(X,Y,Z,2)),
-                      u = (float)(W._linear_atXYZ(X + u0,Y + v0,Z + w0,0)),
-                      v = (float)(W._linear_atXYZ(X + u0,Y + v0,Z + w0,1)),
-                      w = (float)(W._linear_atXYZ(X + u0,Y + v0,Z + w0,2));
-                    if (is_fast_approx) { cimg_forC(*this,c) val[c]+=(Tfloat)_linear_atXYZ(X,Y,Z,c); ++S; }
-                    else {
-                      const float coef = (float)std::exp(-l*l/fsigma2);
-                      cimg_forC(*this,c) val[c]+=(Tfloat)(coef*_linear_atXYZ(X,Y,Z,c));
-                      S+=coef;
+                  } break;
+                  default : { // 2nd order Runge Kutta
+                    for (float l = 0; l<length && X>=0 && X<=dx1 && Y>=0 && Y<=dy1 && Z>=0 && Z<=dz1; l+=dl) {
+                      const float
+                        u0 = (float)(0.5f*W._linear_atXYZ(X,Y,Z,0)),
+                        v0 = (float)(0.5f*W._linear_atXYZ(X,Y,Z,1)),
+                        w0 = (float)(0.5f*W._linear_atXYZ(X,Y,Z,2)),
+                        u = (float)(W._linear_atXYZ(X + u0,Y + v0,Z + w0,0)),
+                        v = (float)(W._linear_atXYZ(X + u0,Y + v0,Z + w0,1)),
+                        w = (float)(W._linear_atXYZ(X + u0,Y + v0,Z + w0,2));
+                      if (is_fast_approx) { cimg_forC(*this,c) val[c]+=(Tfloat)_linear_atXYZ(X,Y,Z,c); ++S; }
+                      else {
+                        const float coef = (float)std::exp(-l*l/fsigma2);
+                        cimg_forC(*this,c) val[c]+=(Tfloat)(coef*_linear_atXYZ(X,Y,Z,c));
+                        S+=coef;
+                      }
+                      X+=u; Y+=v; Z+=w;
                     }
-                    X+=u; Y+=v; Z+=w;
+                  } break;
                   }
-                } break;
+                  Tfloat *ptrd = res.data(x,y,z);
+                  if (S>0) cimg_forC(res,c) { *ptrd+=val[c]/S; ptrd+=whd; }
+                  else cimg_forC(res,c) { *ptrd+=(Tfloat)((*this)(x,y,z,c)); ptrd+=whd; }
                 }
-                Tfloat *ptrd = res.data(x,y,z);
-                if (S>0) cimg_forC(res,c) { *ptrd+=val[c]/S; ptrd+=whd; }
-                else cimg_forC(res,c) { *ptrd+=(Tfloat)((*this)(x,y,z,c)); ptrd+=whd; }
               }
             }
           }
@@ -31106,70 +31126,72 @@ namespace cimg_library_suffixed {
 #ifdef cimg_use_openmp
 #pragma omp parallel for cimg_openmp_if(_width>=256 && _height>=2) firstprivate(val)
 #endif
-            cimg_forXY(*this,x,y) {
+            cimg_forY(*this,y) {
               cimg_test_abort2();
-              val.fill(0);
-              const float
-                n = (float)W(x,y,0,2),
-                fsigma = (float)(n*sqrt2amplitude),
-                fsigma2 = 2*fsigma*fsigma,
-                length = gauss_prec*fsigma;
-              float
-                S = 0,
-                X = (float)x,
-                Y = (float)y;
-              switch (interpolation_type) {
-              case 0 : { // Nearest-neighbor
-                for (float l = 0; l<length && X>=0 && X<=dx1 && Y>=0 && Y<=dy1; l+=dl) {
-                  const int
-                    cx = (int)(X + 0.5f),
-                    cy = (int)(Y + 0.5f);
-                  const float
-                    u = (float)W(cx,cy,0,0),
-                    v = (float)W(cx,cy,0,1);
-                  if (is_fast_approx) { cimg_forC(*this,c) val[c]+=(Tfloat)(*this)(cx,cy,0,c); ++S; }
-                  else {
-                    const float coef = (float)std::exp(-l*l/fsigma2);
-                    cimg_forC(*this,c) val[c]+=(Tfloat)(coef*(*this)(cx,cy,0,c));
-                    S+=coef;
+              cimg_forX(*this,x) {
+                val.fill(0);
+                const float
+                  n = (float)W(x,y,0,2),
+                  fsigma = (float)(n*sqrt2amplitude),
+                  fsigma2 = 2*fsigma*fsigma,
+                  length = gauss_prec*fsigma;
+                float
+                  S = 0,
+                  X = (float)x,
+                  Y = (float)y;
+                switch (interpolation_type) {
+                case 0 : { // Nearest-neighbor
+                  for (float l = 0; l<length && X>=0 && X<=dx1 && Y>=0 && Y<=dy1; l+=dl) {
+                    const int
+                      cx = (int)(X + 0.5f),
+                      cy = (int)(Y + 0.5f);
+                    const float
+                      u = (float)W(cx,cy,0,0),
+                      v = (float)W(cx,cy,0,1);
+                    if (is_fast_approx) { cimg_forC(*this,c) val[c]+=(Tfloat)(*this)(cx,cy,0,c); ++S; }
+                    else {
+                      const float coef = (float)std::exp(-l*l/fsigma2);
+                      cimg_forC(*this,c) val[c]+=(Tfloat)(coef*(*this)(cx,cy,0,c));
+                      S+=coef;
+                    }
+                    X+=u; Y+=v;
                   }
-                  X+=u; Y+=v;
-                }
-              } break;
-              case 1 : { // Linear interpolation
-                for (float l = 0; l<length && X>=0 && X<=dx1 && Y>=0 && Y<=dy1; l+=dl) {
-                  const float
-                    u = (float)(W._linear_atXY(X,Y,0,0)),
-                    v = (float)(W._linear_atXY(X,Y,0,1));
-                  if (is_fast_approx) { cimg_forC(*this,c) val[c]+=(Tfloat)_linear_atXY(X,Y,0,c); ++S; }
-                  else {
-                    const float coef = (float)std::exp(-l*l/fsigma2);
-                    cimg_forC(*this,c) val[c]+=(Tfloat)(coef*_linear_atXY(X,Y,0,c));
-                    S+=coef;
+                } break;
+                case 1 : { // Linear interpolation
+                  for (float l = 0; l<length && X>=0 && X<=dx1 && Y>=0 && Y<=dy1; l+=dl) {
+                    const float
+                      u = (float)(W._linear_atXY(X,Y,0,0)),
+                      v = (float)(W._linear_atXY(X,Y,0,1));
+                    if (is_fast_approx) { cimg_forC(*this,c) val[c]+=(Tfloat)_linear_atXY(X,Y,0,c); ++S; }
+                    else {
+                      const float coef = (float)std::exp(-l*l/fsigma2);
+                      cimg_forC(*this,c) val[c]+=(Tfloat)(coef*_linear_atXY(X,Y,0,c));
+                      S+=coef;
+                    }
+                    X+=u; Y+=v;
                   }
-                  X+=u; Y+=v;
-                }
-              } break;
-              default : { // 2nd-order Runge-kutta interpolation
-                for (float l = 0; l<length && X>=0 && X<=dx1 && Y>=0 && Y<=dy1; l+=dl) {
-                  const float
-                    u0 = (float)(0.5f*W._linear_atXY(X,Y,0,0)),
-                    v0 = (float)(0.5f*W._linear_atXY(X,Y,0,1)),
-                    u = (float)(W._linear_atXY(X + u0,Y + v0,0,0)),
-                    v = (float)(W._linear_atXY(X + u0,Y + v0,0,1));
-                  if (is_fast_approx) { cimg_forC(*this,c) val[c]+=(Tfloat)_linear_atXY(X,Y,0,c); ++S; }
-                  else {
-                    const float coef = (float)std::exp(-l*l/fsigma2);
-                    cimg_forC(*this,c) val[c]+=(Tfloat)(coef*_linear_atXY(X,Y,0,c));
-                    S+=coef;
+                } break;
+                default : { // 2nd-order Runge-kutta interpolation
+                  for (float l = 0; l<length && X>=0 && X<=dx1 && Y>=0 && Y<=dy1; l+=dl) {
+                    const float
+                      u0 = (float)(0.5f*W._linear_atXY(X,Y,0,0)),
+                      v0 = (float)(0.5f*W._linear_atXY(X,Y,0,1)),
+                      u = (float)(W._linear_atXY(X + u0,Y + v0,0,0)),
+                      v = (float)(W._linear_atXY(X + u0,Y + v0,0,1));
+                    if (is_fast_approx) { cimg_forC(*this,c) val[c]+=(Tfloat)_linear_atXY(X,Y,0,c); ++S; }
+                    else {
+                      const float coef = (float)std::exp(-l*l/fsigma2);
+                      cimg_forC(*this,c) val[c]+=(Tfloat)(coef*_linear_atXY(X,Y,0,c));
+                      S+=coef;
+                    }
+                    X+=u; Y+=v;
                   }
-                  X+=u; Y+=v;
                 }
+                }
+                Tfloat *ptrd = res.data(x,y);
+                if (S>0) cimg_forC(res,c) { *ptrd+=val[c]/S; ptrd+=whd; }
+                else cimg_forC(res,c) { *ptrd+=(Tfloat)((*this)(x,y,0,c)); ptrd+=whd; }
               }
-              }
-              Tfloat *ptrd = res.data(x,y);
-              if (S>0) cimg_forC(res,c) { *ptrd+=val[c]/S; ptrd+=whd; }
-              else cimg_forC(res,c) { *ptrd+=(Tfloat)((*this)(x,y,0,c)); ptrd+=whd; }
             }
           }
         }

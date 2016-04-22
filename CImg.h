@@ -213,6 +213,9 @@
 #ifndef cimg_test_abort
 #define cimg_test_abort()
 #endif
+#ifndef cimg_test_abort2
+#define cimg_test_abort2()
+#endif
 
 // Configure filename separator.
 //
@@ -29511,6 +29514,7 @@ namespace cimg_library_suffixed {
             for (int z = mz1; z<mze; ++z)
               for (int y = my1; y<mye; ++y)
                 for (int x = mx1; x<mxe; ++x) {
+                  cimg_test_abort2();
                   Ttfloat val = 0, N = 0;
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
@@ -29529,6 +29533,7 @@ namespace cimg_library_suffixed {
               cimg_forYZ(res,y,z)
                 for (int x = 0; x<width();
                      (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
+                  cimg_test_abort2();
                   Ttfloat val = 0, N = 0;
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
@@ -29547,6 +29552,7 @@ namespace cimg_library_suffixed {
               cimg_forYZ(res,y,z)
                 for (int x = 0; x<width();
                      (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
+                  cimg_test_abort2();
                   Ttfloat val = 0, N = 0;
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
@@ -29565,6 +29571,7 @@ namespace cimg_library_suffixed {
             for (int z = mz1; z<mze; ++z)
               for (int y = my1; y<mye; ++y)
                 for (int x = mx1; x<mxe; ++x) {
+                  cimg_test_abort2();
                   Ttfloat val = 0;
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
@@ -29579,6 +29586,7 @@ namespace cimg_library_suffixed {
               cimg_forYZ(res,y,z)
                 for (int x = 0; x<width();
                      (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
+                  cimg_test_abort2();
                   Ttfloat val = 0;
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
@@ -29593,6 +29601,7 @@ namespace cimg_library_suffixed {
               cimg_forYZ(res,y,z)
                 for (int x = 0; x<width();
                      (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
+                  cimg_test_abort2();
                   Ttfloat val = 0;
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
@@ -29745,6 +29754,7 @@ namespace cimg_library_suffixed {
           for (int z = mz1; z<mze; ++z)
             for (int y = my1; y<mye; ++y)
               for (int x = mx1; x<mxe; ++x) {
+                cimg_test_abort2();
                 Tt min_val = cimg::type<Tt>::max();
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
@@ -29761,6 +29771,7 @@ namespace cimg_library_suffixed {
 #endif
             cimg_forYZ(res,y,z)
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
+                cimg_test_abort2();
                 Tt min_val = cimg::type<Tt>::max();
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
@@ -29777,6 +29788,7 @@ namespace cimg_library_suffixed {
 #endif
             cimg_forYZ(res,y,z)
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
+                cimg_test_abort2();
                 Tt min_val = cimg::type<Tt>::max();
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
@@ -29795,6 +29807,7 @@ namespace cimg_library_suffixed {
           for (int z = mz1; z<mze; ++z)
             for (int y = my1; y<mye; ++y)
               for (int x = mx1; x<mxe; ++x) {
+                cimg_test_abort2();
                 Tt min_val = cimg::type<Tt>::max();
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
@@ -29810,6 +29823,7 @@ namespace cimg_library_suffixed {
 #endif
             cimg_forYZ(res,y,z)
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
+                cimg_test_abort2();
                 Tt min_val = cimg::type<Tt>::max();
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
@@ -29825,6 +29839,7 @@ namespace cimg_library_suffixed {
 #endif
             cimg_forYZ(res,y,z)
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
+                cimg_test_abort2();
                 Tt min_val = cimg::type<Tt>::max();
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
@@ -30035,6 +30050,7 @@ namespace cimg_library_suffixed {
           for (int z = mz1; z<mze; ++z)
             for (int y = my1; y<mye; ++y)
               for (int x = mx1; x<mxe; ++x) {
+                cimg_test_abort2();
                 Tt max_val = cimg::type<Tt>::min();
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
@@ -30051,6 +30067,7 @@ namespace cimg_library_suffixed {
 #endif
             cimg_forYZ(res,y,z)
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
+                cimg_test_abort2();
                 Tt max_val = cimg::type<Tt>::min();
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
@@ -30067,6 +30084,7 @@ namespace cimg_library_suffixed {
 #endif
             cimg_forYZ(*this,y,z)
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
+                cimg_test_abort2();
                 Tt max_val = cimg::type<Tt>::min();
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
@@ -30084,6 +30102,7 @@ namespace cimg_library_suffixed {
           for (int z = mz1; z<mze; ++z)
             for (int y = my1; y<mye; ++y)
               for (int x = mx1; x<mxe; ++x) {
+                cimg_test_abort2();
                 Tt max_val = cimg::type<Tt>::min();
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
@@ -30099,6 +30118,7 @@ namespace cimg_library_suffixed {
 #endif
             cimg_forYZ(res,y,z)
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
+                cimg_test_abort2();
                 Tt max_val = cimg::type<Tt>::min();
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
@@ -30114,6 +30134,7 @@ namespace cimg_library_suffixed {
 #endif
             cimg_forYZ(res,y,z)
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
+                cimg_test_abort2();
                 Tt max_val = cimg::type<Tt>::min();
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
@@ -30991,6 +31012,7 @@ namespace cimg_library_suffixed {
 #pragma omp parallel for collapse(2) if (_width>=256 && _height*_depth>=2) firstprivate(val)
 #endif
               cimg_forXYZ(*this,x,y,z) {
+                cimg_test_abort2();
                 val.fill(0);
                 const float
                   n = (float)W(x,y,z,3),
@@ -31085,6 +31107,7 @@ namespace cimg_library_suffixed {
 #pragma omp parallel for cimg_openmp_if(_width>=256 && _height>=2) firstprivate(val)
 #endif
             cimg_forXY(*this,x,y) {
+              cimg_test_abort2();
               val.fill(0);
               const float
                 n = (float)W(x,y,0,2),

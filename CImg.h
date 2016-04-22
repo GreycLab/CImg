@@ -2343,6 +2343,15 @@ namespace cimg_library_suffixed {
       \endcode
   **/
   struct CImgException : public std::exception {
+#ifdef cimg_r_mode
+#define _cimg_exception_err(etype,disp_flag) \
+  std::va_list ap; va_start(ap,format); cimg_vsnprintf(_message,16384,format,ap); va_end(ap); \
+  if (cimg::exception_mode()) { \
+    if (cimg_display && disp_flag && !(cimg::exception_mode()%2)) try { cimg::dialog(etype,_message,"Abort"); } \
+    catch (CImgException&) {} \
+    if (cimg::exception_mode()>=3) cimg_library_suffixed::cimg::info(); \
+  }
+#else
 #define _cimg_exception_err(etype,disp_flag) \
   std::va_list ap, ap2; \
   va_start(ap,format); va_start(ap2,format); \
@@ -2359,7 +2368,8 @@ namespace cimg_library_suffixed {
     } \
   } \
   va_end(ap); va_end(ap2); \
-
+  
+#endif
     char *_message;
     CImgException() { _message = new char[1]; *_message = 0; }
     CImgException(const char *const format, ...):_message(0) { _cimg_exception_err("CImgException",true); }
@@ -4071,7 +4081,11 @@ namespace cimg_library_suffixed {
     **/
     inline std::FILE* output(std::FILE *file) {
       cimg::mutex(1);
+#ifndef cimg_r_mode
       static std::FILE *res = stderr;
+#else
+      static std::FILE *res;
+#endif
       if (file) res = file;
       cimg::mutex(1,0);
       return res;
@@ -4124,7 +4138,11 @@ namespace cimg_library_suffixed {
 #ifdef cimg_strict_warnings
         throw CImgWarningException(message);
 #else
-        std::fprintf(cimg::output(),"\n%s[CImg] *** Warning ***%s%s\n",cimg::t_red,cimg::t_normal,message);
+#ifdef cimg_rmode
+	Rprintf("\n%s[CImg] *** Warning ***%s%s",cimg::t_red,cimg::t_normal,message);
+#else
+        std::fprintf(cimg::output(),"\n%s[CImg] *** Warning ***%s%s",cimg::t_red,cimg::t_normal,message);
+#endif //cimg_rmode
 #endif
         delete[] message;
       }
@@ -4381,8 +4399,9 @@ namespace cimg_library_suffixed {
     // at the same time!
 #ifdef cimg_use_rng
 
+#ifndef cimg_r_mode  //when compiling with R, stdint.h causes header incompatibility
 #include <stdint.h>
-
+#endif
     // Use a custom RNG.
     inline unsigned int _rand(const unsigned int seed=0, const bool set_seed=false) {
       static cimg_ulong next = 0xB16B00B5;
@@ -4902,6 +4921,17 @@ namespace cimg_library_suffixed {
     }
 
     // Return a random filename.
+
+#ifdef cimg_r_mode
+    // CRAN doesn't like calls to srand, use tmpnam instead
+    inline const char* filenamerand() {
+      cimg::mutex(6);
+      static char *randomid;
+      randomid = tmpnam(NULL);
+      cimg::mutex(6,0);
+      return randomid;
+    }
+#else
     inline const char* filenamerand() {
       cimg::mutex(6);
       static char randomid[9];
@@ -4914,7 +4944,7 @@ namespace cimg_library_suffixed {
       cimg::mutex(6,0);
       return randomid;
     }
-
+#endif
     // Convert filename as a Windows-style filename (short path name).
     inline void winformat_string(char *const str) {
       if (str && *str) {
@@ -4941,6 +4971,7 @@ namespace cimg_library_suffixed {
         throw CImgArgumentException("cimg::fopen(): File '%s', specified mode is (null).",
                                     path);
       std::FILE *res = 0;
+#ifndef cimg_r_mode //CRAN doesn't like stdout
       if (*path=='-' && (!path[1] || path[1]=='.')) {
         res = (*mode=='r')?stdin:stdout;
 #if cimg_OS==2
@@ -4949,6 +4980,9 @@ namespace cimg_library_suffixed {
         }
 #endif
       } else res = std::fopen(path,mode);
+#else
+      res = std::fopen(path,mode);
+#endif
       if (!res) throw CImgIOException("cimg::fopen(): Failed to open file '%s' with mode '%s'.",
                                       path,mode);
       return res;
@@ -4963,7 +4997,9 @@ namespace cimg_library_suffixed {
     **/
     inline int fclose(std::FILE *file) {
       if (!file) warn("cimg::fclose(): Specified file is (null).");
+#ifndef cimg_r_mode //CRAN doesn't like stdout
       if (!file || file==stdin || file==stdout) return 0;
+#endif
       const int errn = std::fclose(file);
       if (errn!=0) warn("cimg::fclose(): Error code %d returned during file closing.",
                         errn);
@@ -47198,8 +47234,9 @@ namespace cimg_library_suffixed {
       disp.show().flush();
 
       const CImg<char> dtitle = CImg<char>::string(disp.title());
-      if (display_info) print(dtitle);
-
+#ifndef cimg_r_mode 
+      if (display_info) print(dtitle); 
+#endif
       CImg<T> zoom;
       for (bool reset_view = true, resize_disp = false, is_first_select = true; !key && !disp.is_closed(); ) {
         if (reset_view) {
@@ -54272,7 +54309,9 @@ namespace cimg_library_suffixed {
         if (!title) disp.set_title("CImgList<%s> (%u)",pixel_type(),_width);
       } else if (title) disp.set_title("%s",title);
       const CImg<char> dtitle = CImg<char>::string(disp.title());
+#ifndef cimg_r_mode //CRAN doesn't like stdout
       if (display_info) print(disp.title());
+#endif      
       disp.show().flush();
 
       if (_width==1) {

@@ -104,7 +104,7 @@ CXXVER       = "icpc \( `$(CXX) -v 2>&1`\)"
 CFLAGS       = -I..
 LIBS         =
 else
-CFLAGS       = -I.. -Wall -W
+CFLAGS       = -I.. -Wall -Wextra
 LIBS         = -lm
 endif
 

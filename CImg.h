@@ -18943,13 +18943,8 @@ namespace cimg_library_suffixed {
         cimg_for(expr,ptrd,char) *ptrd = (char)*(ptrs++);
         cimg::strellipsize(expr);
         const double val = _mp_arg(1);
-#ifdef cimg_use_openmp
-#pragma omp critical
-#endif
-        {
-          std::fprintf(cimg::output(),"\n[_cimg_math_parser] %s = %g",expr._data,val);
-          std::fflush(cimg::output());
-        }
+        std::fprintf(cimg::output(),"\n[_cimg_math_parser] %s = %g",expr._data,val);
+        std::fflush(cimg::output());
         cimg::mutex(6,0);
         return val;
       }

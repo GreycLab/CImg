@@ -18937,15 +18937,20 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_print(_cimg_math_parser& mp) {
-        cimg::mutex(6);
-        CImg<charT> expr(mp.opcode._height - 2);
-        const ulongT *ptrs = mp.opcode._data + 2;
-        cimg_for(expr,ptrd,char) *ptrd = (char)*(ptrs++);
-        cimg::strellipsize(expr);
-        const double val = _mp_arg(1);
-        std::fprintf(cimg::output(),"\n[_cimg_math_parser] %s = %g",expr._data,val);
-        std::fflush(cimg::output());
-        cimg::mutex(6,0);
+          const double val = _mp_arg(1);
+#ifdef cimg_use_openmp
+#pragma omp critical
+#endif
+        {
+          CImg<charT> expr(mp.opcode._height - 2);
+          const ulongT *ptrs = mp.opcode._data + 2;
+          cimg_for(expr,ptrd,char) *ptrd = (char)*(ptrs++);
+          cimg::strellipsize(expr);
+          cimg::mutex(6);
+          std::fprintf(cimg::output(),"\n[_cimg_math_parser] %s = %g",expr._data,val);
+          std::fflush(cimg::output());
+          cimg::mutex(6,0);
+        }
         return val;
       }
 
@@ -19469,17 +19474,24 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_vector_print(_cimg_math_parser& mp) {
-        CImg<charT> expr(mp.opcode._height - 3);
-        const ulongT *ptrs = mp.opcode._data + 3;
-        cimg_for(expr,ptrd,char) *ptrd = (char)*(ptrs++);
-        cimg::strellipsize(expr);
-        unsigned int
-          ptr = mp.opcode[1] + 1,
-          siz = mp.opcode[2];
-        std::fprintf(cimg::output(),"\n[_cimg_math_parser] %s = [",expr._data);
-        while (siz-->0) std::fprintf(cimg::output(),"%g%s",mp.mem[ptr++],siz?",":"");
-        std::fputc(']',cimg::output());
-        std::fflush(cimg::output());
+#ifdef cimg_use_openmp
+#pragma omp critical
+#endif
+        {
+          CImg<charT> expr(mp.opcode._height - 3);
+          const ulongT *ptrs = mp.opcode._data + 3;
+          cimg_for(expr,ptrd,char) *ptrd = (char)*(ptrs++);
+          cimg::strellipsize(expr);
+          unsigned int
+            ptr = mp.opcode[1] + 1,
+            siz = mp.opcode[2];
+          cimg::mutex(6);
+          std::fprintf(cimg::output(),"\n[_cimg_math_parser] %s = [",expr._data);
+          while (siz-->0) std::fprintf(cimg::output(),"%g%s",mp.mem[ptr++],siz?",":"");
+          std::fputc(']',cimg::output());
+          std::fflush(cimg::output());
+          cimg::mutex(6,0);
+        }
         return cimg::type<double>::nan();
       }
 

@@ -44349,10 +44349,11 @@ namespace cimg_library_suffixed {
       if (header_size>40) cimg::fseek(nfile,header_size - 40,SEEK_CUR);
 
       const int
-        cimg_iobuffer = 24*1024*1024,
         dx_bytes = (bpp==1)?(dx/8 + (dx%8?1:0)):((bpp==4)?(dx/2 + (dx%2?1:0)):(dx*bpp/8)),
-        align_bytes = (4 - dx_bytes%4)%4,
-        buf_size = cimg::min(cimg::abs(dy)*(dx_bytes + align_bytes),file_size - offset);
+        align_bytes = (4 - dx_bytes%4)%4;
+      const longT
+        cimg_iobuffer = (longT)24*1024*1024,
+        buf_size = cimg::min((longT)cimg::abs(dy)*(dx_bytes + align_bytes),(longT)file_size - offset);
 
       CImg<intT> colormap;
       if (bpp<16) { if (!nb_colors) nb_colors = 1<<bpp; } else nb_colors = 0;
@@ -44361,8 +44362,10 @@ namespace cimg_library_suffixed {
       if (xoffset>0) cimg::fseek(nfile,xoffset,SEEK_CUR);
 
       CImg<ucharT> buffer;
-      if (buf_size<cimg_iobuffer) { buffer.assign(buf_size); cimg::fread(buffer._data,buf_size,nfile); }
-      else buffer.assign(dx_bytes + align_bytes);
+      if (buf_size<cimg_iobuffer) {
+        buffer.assign(cimg::abs(dy)*(dx_bytes + align_bytes),1,1,1,0);
+        cimg::fread(buffer._data,buf_size,nfile);
+      } else buffer.assign(dx_bytes + align_bytes);
       unsigned char *ptrs = buffer;
 
       // Decompress buffer (if necessary)

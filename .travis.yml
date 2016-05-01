@@ -3,15 +3,14 @@ compiler:
   - gcc
   - clang
 script:
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi	
   - cd examples
   - make travis
-install:
-- if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
 addons:
   apt:
     sources:
     - ubuntu-toolchain-r-test
-    packages:
+    packages:	
     - gcc-4.8
     - g++-4.8
     - clang

@@ -20,4 +20,3 @@ addons:
     - libmagick++-dev
     - libfftw3-dev
     - zlib1g-dev
-    - libtiff5-dev

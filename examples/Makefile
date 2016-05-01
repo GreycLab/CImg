@@ -348,6 +348,20 @@ $(CIMG_XSHM_LIBS)" \
 all $(CIMG_EXTRA_FILES)
 
 # Linux/BSD/Mac OSX targets, with X11 display.
+travis:
+	@$(MAKE) \
+"CONF_CFLAGS = \
+$(CIMG_ANSI_CFLAGS) \
+$(CIMG_VT100_CFLAGS) \
+$(CIMG_X11_CFLAGS) \
+$(CIMG_MAGICK_CFLAGS) \
+$(CIMG_FFTW3_CFLAGS)" \
+$(CIMG_XSHM_CFLAGS)" \
+"CONF_LIBS = \
+$(CIMG_X11_LIBS) \
+$(CIMG_XSHM_LIBS)" \
+all
+
 linux:
 	@$(MAKE) \
 "CONF_CFLAGS = \

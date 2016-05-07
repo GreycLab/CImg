@@ -13,10 +13,17 @@
 #                alalbiol@iteam.upv.es
 #
 #  How to use  : In the main program include:
+#   OPENCV 2.4.x
 #        #include "cv.h"
 #        #include "highgui.h"
 #        #define cimg_plugin1 "cvMat.h"
 #        #include "CImg.h"
+#
+#   OPENCV 3.x.x
+#        #include <opencv2/core.hpp>
+#        #define cimg_plugin1 "cvMat.h"
+#        #include "CImg.h"
+
 */
 #ifndef cimg_plugin_cvMat
 #define cimg_plugin_cvMat

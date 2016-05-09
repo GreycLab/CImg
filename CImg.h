@@ -16802,23 +16802,6 @@ namespace cimg_library_suffixed {
               if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(std::sqrt(mem[arg1]));
               _cimg_mp_scalar1(mp_sqrt,arg1);
             }
-
-/*            if (!std::strncmp(ss,"strcmp(",7)) { // String comparison
-              _cimg_mp_op("Function 'strcmp()'");
-              s1 = ss7; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              if (s1>=se1) compile(s1,se1,depth1,0); // Missing argument
-              s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-              if (s2<se1) {
-                arg1 = compile(s2 + 1,se1,depth1,0);
-                _cimg_mp_check_constant(arg1,3,false);
-                arg1 = (unsigned int)mem[arg1];
-              } else arg1 = ~0U;
-              *s1 = *s2 = 0;
-              val = (float)(arg1==~0U?std::strcmp(ss7,s1 + 1):std::strncmp(ss7,s1 + 1,arg1));
-              *s1 = *s2 = ','; *se1 = ')';
-              _cimg_mp_constant(val);
-            }
-*/
             break;
 
           case 't' :

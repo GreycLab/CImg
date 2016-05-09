@@ -16607,6 +16607,22 @@ namespace cimg_library_suffixed {
             break;
 
           case 'r' :
+            if (!std::strncmp(ss,"resize(",7)) { // Vector resize
+              _cimg_mp_op("Function 'resize()'");
+              s1 = ss7; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss7,s1,depth1,0);
+              s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg2 = compile(++s1,s2,depth1,0);
+              arg3 = s2<se1?compile(++s2,se1,depth1,0):1;
+              _cimg_mp_check_constant(arg2,2,true);
+              arg2 = (unsigned int)mem[arg2];
+              _cimg_mp_check_type(arg3,3,1,0);
+              pos = vector(arg2);
+              CImg<ulongT>::vector((ulongT)mp_vector_resize,pos,arg2,arg1,_cimg_mp_vector_size(arg1),arg3).
+                        move_to(code);
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"rol(",4) || !std::strncmp(ss,"ror(",4)) { // Bitwise rotation
               _cimg_mp_op(ss[2]=='l'?"Function 'rol()'":"Function 'ror()'");
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1-expr._data]!=clevel1)) ++s1;
@@ -19365,6 +19381,20 @@ namespace cimg_library_suffixed {
         const double *const ptrs = &_mp_arg(2) + 1;
         const unsigned int p1 = mp.opcode[3], p2 = mp.opcode[4];
         std::memcpy(ptrd,ptrs + p1,p2*sizeof(double));
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_vector_resize(_cimg_math_parser& mp) {
+        double *const ptrd = &_mp_arg(1) + 1;
+        const unsigned int p1 = mp.opcode[2], p2 = mp.opcode[4];
+        const int interpolation = (int)_mp_arg(5);
+        if (p2) { // Resize vector
+          const double *const ptrs = &_mp_arg(3) + 1;
+          CImg<doubleT>(ptrd,p1,1,1,1,true) = CImg<doubleT>(ptrs,p2,1,1,1,true).get_resize(p1,1,1,1,interpolation);
+        } else { // Resize scalar
+          const double value = _mp_arg(3);
+          CImg<doubleT>(ptrd,p1,1,1,1,true) = CImg<doubleT>(1,1,1,1,value).resize(p1,1,1,1,interpolation);
+        }
         return cimg::type<double>::nan();
       }
 

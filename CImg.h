@@ -210,6 +210,7 @@
 // With OpenMP support: #define cimg_test_abort() if (!omp_get_thread_num() && is_abort) throw CImgAbortException("")
 //
 // where 'is_abort' is a boolean variable.
+// 'cimg_test_abort2()' is the same but is called more often.
 #ifndef cimg_test_abort
 #define cimg_test_abort()
 #endif

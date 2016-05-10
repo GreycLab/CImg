@@ -36,6 +36,7 @@
   - Maksim Aizenshtein
   - Alberto Albiol
   - Antonio Albiol
+  - Simon Barthelmé
   - Neil Brown
   - Haz-Edine Assemlal
   - Vincent Barra

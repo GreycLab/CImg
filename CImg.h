@@ -209,7 +209,7 @@
 // 'cimg_abort_test2()' does the same but is called more often (in inner loops).
 #if defined(cimg_abort_test) && defined(cimg_use_openmp)
 
-// Define abort macros w/ OpenMP.
+// Define abort macros to be used with OpenMP.
 #ifndef cimg_abort_init
 #define cimg_abort_init bool cimg_abort_go = true; cimg::unused(cimg_abort_go)
 #endif
@@ -226,17 +226,16 @@
 #ifndef cimg_abort_catch2
 #define cimg_abort_catch2() cimg_abort_catch()
 #endif
-#else
-#ifndef cimg_abort_try2
-#define cimg_abort_try2
-#endif
-#ifndef cimg_abort_catch2
-#define cimg_abort_catch2()
-#endif
 #endif
 
-#else
-// Do not use abort macros or use them wo/ OpenMP.
+#endif
+
+#ifndef cimg_abort_test
+#define cimg_abort_test()
+#endif
+#ifndef cimg_abort_test2
+#define cimg_abort_test2()
+#endif
 #ifndef cimg_abort_init
 #define cimg_abort_init
 #endif
@@ -251,15 +250,6 @@
 #endif
 #ifndef cimg_abort_catch2
 #define cimg_abort_catch2()
-#endif
-
-#endif
-
-#ifndef cimg_abort_test
-#define cimg_abort_test()
-#endif
-#ifndef cimg_abort_test2
-#define cimg_abort_test2()
 #endif
 
 // Configure filename separator.

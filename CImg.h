@@ -16558,6 +16558,14 @@ namespace cimg_library_suffixed {
               if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(std::log10(mem[arg1]));
               _cimg_mp_scalar1(mp_log10,arg1);
             }
+
+            if (!std::strncmp(ss,"lowercase(",10)) { // Lower case
+              _cimg_mp_op("Function 'lowercase()'");
+              arg1 = compile(ss + 10,se1,depth1,0);
+              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_lowercase,arg1);
+              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(cimg::lowercase(mem[arg1]));
+              _cimg_mp_scalar1(mp_lowercase,arg1);
+            }
             break;
 
           case 'm' :
@@ -16944,6 +16952,14 @@ namespace cimg_library_suffixed {
               if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_u,arg1,arg2);
               if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_u,arg1,arg2);
               _cimg_mp_scalar2(mp_u,arg1,arg2);
+            }
+
+            if (!std::strncmp(ss,"uppercase(",10)) { // Upper case
+              _cimg_mp_op("Function 'uppercase()'");
+              arg1 = compile(ss + 10,se1,depth1,0);
+              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_uppercase,arg1);
+              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(cimg::uppercase(mem[arg1]));
+              _cimg_mp_scalar1(mp_uppercase,arg1);
             }
             break;
 
@@ -18809,6 +18825,9 @@ namespace cimg_library_suffixed {
         return (double)(bool)mp.mem[mem_right];
       }
 
+      static double mp_lowercase(_cimg_math_parser& mp) {
+        return cimg::lowercase(_mp_arg(2));
+      }
 
       static double mp_lt(_cimg_math_parser& mp) {
         return (double)(_mp_arg(2)<_mp_arg(3));
@@ -19434,6 +19453,10 @@ namespace cimg_library_suffixed {
 
       static double mp_u(_cimg_math_parser& mp) {
         return cimg::rand(_mp_arg(2),_mp_arg(3));
+      }
+
+      static double mp_uppercase(_cimg_math_parser& mp) {
+        return cimg::uppercase(_mp_arg(2));
       }
 
       static double mp_var(_cimg_math_parser& mp) {

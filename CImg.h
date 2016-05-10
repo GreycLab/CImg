@@ -219,25 +219,20 @@
 #ifndef cimg_abort_catch
 #define cimg_abort_catch() catch (...) { cimg_abort_go = false; }
 #endif
-
 #ifdef cimg_abort_test2
-
 #ifndef cimg_abort_try2
 #define cimg_abort_try2 cimg_abort_try
 #endif
 #ifndef cimg_abort_catch2
 #define cimg_abort_catch2() cimg_abort_catch()
 #endif
-
 #else
-
 #ifndef cimg_abort_try2
 #define cimg_abort_try2
 #endif
 #ifndef cimg_abort_catch2
 #define cimg_abort_catch2()
 #endif
-
 #endif
 
 #else
@@ -266,7 +261,6 @@
 #ifndef cimg_abort_test2
 #define cimg_abort_test2()
 #endif
-
 
 // Configure filename separator.
 //

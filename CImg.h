@@ -4805,8 +4805,8 @@ namespace cimg_library_suffixed {
        \param is_iterative Tells if the removal is done if several iterations are possible.
        \return \c true if delimiters have been removed, \c false otherwise.
    **/
-    inline bool strpare(char *const str, const char delimiter=' ',
-                        const bool is_symmetric=false, const bool is_iterative=false) {
+    inline bool strpare(char *const str, const char delimiter,
+                        const bool is_symmetric, const bool is_iterative) {
       if (!str) return false;
       const int l = (int)std::strlen(str);
       int p, q;
@@ -14140,7 +14140,7 @@ namespace cimg_library_suffixed {
               *ps!='>' && *ps!='<' && *ps!='&' && *ps!='|' && *ps!='^' &&
               level[s - expr._data]==clevel) {
             variable_name.assign(ss,(unsigned int)(s + 1 - ss)).back() = 0;
-            cimg::strpare(variable_name);
+            cimg::strpare(variable_name,' ',false,true);
             const unsigned int l_variable_name = (unsigned int)std::strlen(variable_name);
             char *const ve1 = ss + l_variable_name - 1;
             _cimg_mp_op("Operator '='");

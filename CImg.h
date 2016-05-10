@@ -16677,6 +16677,16 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
+            if (!std::strncmp(ss,"reverse(",8)) { // Vector reverse
+              _cimg_mp_op("Function 'reverse()'");
+              arg1 = compile(ss8,se1,depth1,0);
+              if (!_cimg_mp_is_vector(arg1)) _cimg_mp_return(arg1);
+              p1 = _cimg_mp_vector_size(arg1);
+              pos = vector(p1);
+              CImg<ulongT>::vector((ulongT)mp_vector_reverse,pos,arg1,p1).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"rol(",4) || !std::strncmp(ss,"ror(",4)) { // Bitwise rotation
               _cimg_mp_op(ss[2]=='l'?"Function 'rol()'":"Function 'ror()'");
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1-expr._data]!=clevel1)) ++s1;
@@ -17115,9 +17125,9 @@ namespace cimg_library_suffixed {
           }
         } // if (se1==')')
 
-        // Vector specification using initializer '[ ... ]'.
+        // Vector specification using initializer [ ... ].
         if (*ss=='[' && *se1==']') {
-          _cimg_mp_op("Operator '[]'");
+          _cimg_mp_op("Initializer '[...]'");
           arg1 = 0; // Number of specified values.
           if (*ss1!=']') for (s = ss1; s<se; ++s) {
               ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
@@ -17134,6 +17144,20 @@ namespace cimg_library_suffixed {
           pos = vector(arg1);
           _opcode.insert(CImg<ulongT>::vector((ulongT)mp_vector_init,pos,arg1),0);
           (_opcode>'y').move_to(code);
+          _cimg_mp_return(pos);
+        }
+
+        // Vector specification using string initializer '...'.
+        if (*ss=='\'' && *se1=='\'') {
+          _cimg_mp_op("Initializer ''...''");
+          arg1 = se1 - ss1; // Length of the string.
+          pos = vector(arg1);
+          *se1 = 0;
+          CImg<ulongT>::vector((ulongT)mp_string_init,pos,arg1).move_to(_opcode);
+          CImg<ulongT>(1,arg1/sizeof(ulongT) + (arg1%sizeof(ulongT)?1:0)).move_to(_opcode);
+          std::memcpy((char*)_opcode[1]._data,ss1,arg1);
+          (_opcode>'y').move_to(code);
+          *se1 = '\'';
           _cimg_mp_return(pos);
         }
 
@@ -19417,6 +19441,15 @@ namespace cimg_library_suffixed {
         return std::sqrt(vals.variance());
       }
 
+      static double mp_string_init(_cimg_math_parser& mp) {
+        const char *ptrs = (char*)&mp.opcode[3];
+        unsigned int
+          ptrd = (unsigned int)mp.opcode[1] + 1,
+          siz = (unsigned int)mp.opcode[2];
+        while (siz-->0) mp.mem[ptrd++] = (double)*(ptrs++);
+        return cimg::type<double>::nan();
+      }
+
       static double mp_sub(_cimg_math_parser& mp) {
         return _mp_arg(2) - _mp_arg(3);
       }
@@ -19443,11 +19476,11 @@ namespace cimg_library_suffixed {
 
       static double mp_transp(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
-        const double *ptr1 = &_mp_arg(2) + 1;
+        const double *ptrs = &_mp_arg(2) + 1;
         const unsigned int
           k = (unsigned int)mp.opcode(3),
           l = (unsigned int)mp.opcode(4);
-        CImg<double>(ptrd,l,k,1,1,true) = CImg<double>(ptr1,k,l,1,1,true).get_transpose();
+        CImg<double>(ptrd,l,k,1,1,true) = CImg<double>(ptrs,k,l,1,1,true).get_transpose();
         return cimg::type<double>::nan();
       }
 
@@ -19611,9 +19644,18 @@ namespace cimg_library_suffixed {
         return cimg::type<double>::nan();
       }
 
+      static double mp_vector_reverse(_cimg_math_parser& mp) {
+        double *const ptrd = &_mp_arg(1) + 1;
+        const double *const ptrs = &_mp_arg(2) + 1;
+        const unsigned int p1 = mp.opcode[3];
+        CImg<doubleT>(ptrd,p1,1,1,1,true) = CImg<doubleT>(ptrs,p1,1,1,1,true).get_mirror('x');
+        return cimg::type<double>::nan();
+      }
+
       static double mp_vector_same(_cimg_math_parser& mp) {
-        double *const ptr1 = &_mp_arg(2) + 1;
-        const double *const ptr2 = &_mp_arg(4) + 1;
+        const double
+          *const ptr1 = &_mp_arg(2) + 1,
+          *const ptr2 = &_mp_arg(4) + 1;
         const unsigned int p1 = mp.opcode[3], p2 = mp.opcode[5];
 
         // Compare all values.

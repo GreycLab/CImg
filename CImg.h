@@ -216,8 +216,13 @@
 #ifndef cimg_abort_try
 #define cimg_abort_try if (cimg_abort_go) try
 #endif
+#ifdef _MSC_VER_
+#define cimg_pragma(x) __pragma(x)
+#else
+#define cimg_pragma(x) _Pragma(#x)
+#endif
 #ifndef cimg_abort_catch
-#define cimg_abort_catch() catch (...) { _Pragma("omp atomic") cimg_abort_go&=false; }
+#define cimg_abort_catch() catch (...) { cimg_pragma(omp atomic) cimg_abort_go&=false; }
 #endif
 #ifdef cimg_abort_test2
 #ifndef cimg_abort_try2
@@ -2370,7 +2375,7 @@ namespace cimg_library_suffixed {
         cimg::exception_mode(0);                                    // Enable quiet exception mode.
         try {
           ...                                                       // Here, do what you want to stress CImg.
-        } catch (CImgException &e) {                                // You succeeded: something went wrong!
+        } catch (CImgException& e) {                                // You succeeded: something went wrong!
           std::fprintf(stderr,"CImg Library Error: %s",e.what());   // Display your custom error message.
           ...                                                       // Do what you want now to save the ship!
           }
@@ -23429,6 +23434,7 @@ namespace cimg_library_suffixed {
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
       CImg<charT> is_error;
+      cimg_abort_init;
 
       if (allow_formula) try { // Try to fill values according to a formula
           CImg<T> base = provides_copy?provides_copy->get_shared():get_shared();
@@ -23452,17 +23458,23 @@ namespace cimg_library_suffixed {
             T *ptrd = *expression=='<'?_data + _width*_height*_depth - 1:_data;
             if (*expression=='<') {
               CImg<doubleT> res(1,mp.result_dim);
-              cimg_rofXYZ(*this,x,y,z) {
-                mp(x,y,z,0,res._data);
-                const double *ptrs = res._data;
-                T *_ptrd = ptrd--; for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
+              cimg_rofYZ(*this,y,z) {
+                cimg_abort_test();
+                cimg_rofX(*this,x) {
+                  mp(x,y,z,0,res._data);
+                  const double *ptrs = res._data;
+                  T *_ptrd = ptrd--; for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
+                }
               }
             } else if (*expression=='>' || !do_in_parallel) {
               CImg<doubleT> res(1,mp.result_dim);
-              cimg_forXYZ(*this,x,y,z) {
-                mp(x,y,z,0,res._data);
-                const double *ptrs = res._data;
-                T *_ptrd = ptrd++; for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
+              cimg_forYZ(*this,y,z) {
+                cimg_abort_test();
+                cimg_forX(*this,x) {
+                  mp(x,y,z,0,res._data);
+                  const double *ptrs = res._data;
+                  T *_ptrd = ptrd++; for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
+                }
               }
             } else {
 #ifdef cimg_use_openmp
@@ -23470,7 +23482,8 @@ namespace cimg_library_suffixed {
               {
                 _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
 #pragma omp for collapse(2)
-                cimg_forYZ(*this,y,z) {
+                cimg_forYZ(*this,y,z) cimg_abort_try {
+                  cimg_abort_test();
                   CImg<doubleT> res(1,lmp.result_dim);
                   T *ptrd = data(0,y,z,0);
                   cimg_forX(*this,x) {
@@ -23478,7 +23491,7 @@ namespace cimg_library_suffixed {
                     const double *ptrs = res._data;
                     T *_ptrd = ptrd++; for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
                   }
-                }
+                } cimg_abort_catch()
               }
 #endif
             }
@@ -23486,19 +23499,20 @@ namespace cimg_library_suffixed {
           } else { // Scalar-valued expression
             T *ptrd = *expression=='<'?end() - 1:_data;
             if (*expression=='<')
-              cimg_rofXYZC(*this,x,y,z,c) *(ptrd--) = (T)mp(x,y,z,c);
+              cimg_rofYZC(*this,y,z,c) { cimg_abort_test(); cimg_rofX(*this,x) *(ptrd--) = (T)mp(x,y,z,c); }
             else if (*expression=='>' || !do_in_parallel)
-              cimg_forXYZC(*this,x,y,z,c) *(ptrd++) = (T)mp(x,y,z,c);
+              cimg_forYZC(*this,y,z,c) { cimg_abort_test(); cimg_forX(*this,x) *(ptrd++) = (T)mp(x,y,z,c); }
             else {
 #ifdef cimg_use_openmp
 #pragma omp parallel
               {
                 _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
 #pragma omp for collapse(3)
-                cimg_forYZC(*this,y,z,c) {
+                cimg_forYZC(*this,y,z,c) cimg_abort_try {
+                  cimg_abort_test();
                   T *ptrd = data(0,y,z,c);
                   cimg_forX(*this,x) *ptrd++ = (T)lmp(x,y,z,c);
-                }
+                } cimg_abort_catch()
               }
 #endif
             }
@@ -23532,6 +23546,7 @@ namespace cimg_library_suffixed {
           for (T *ptrs = _data, *const ptre = _data + siz; ptrd<ptre; ++ptrs) *(ptrd++) = *ptrs;
       }
       cimg::exception_mode(omode);
+      cimg_abort_test();
       return *this;
     }
 

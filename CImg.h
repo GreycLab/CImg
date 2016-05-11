@@ -17147,10 +17147,15 @@ namespace cimg_library_suffixed {
           _cimg_mp_return(pos);
         }
 
+        // Ascii code, using expression '_'char''.
+        if (*ss=='_' && *ss1=='\'' && se1>ss2 && *se1=='\'')
+          _cimg_mp_constant(*ss2);
+
         // Vector specification using string initializer '...'.
         if (*ss=='\'' && *se1=='\'') {
           _cimg_mp_op("Initializer ''...''");
           arg1 = se1 - ss1; // Length of the string.
+          _cimg_mp_check_vector0(arg1);
           pos = vector(arg1);
           *se1 = 0;
           CImg<ulongT>::vector((ulongT)mp_string_init,pos,arg1).move_to(_opcode);

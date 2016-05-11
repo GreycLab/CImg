@@ -217,7 +217,7 @@
 #define cimg_abort_try if (cimg_abort_go) try
 #endif
 #ifndef cimg_abort_catch
-#define cimg_abort_catch() catch (...) { cimg_abort_go = false; }
+#define cimg_abort_catch() catch (...) { _Pragma("omp atomic") cimg_abort_go&=false; }
 #endif
 #ifdef cimg_abort_test2
 #ifndef cimg_abort_try2

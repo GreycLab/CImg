@@ -1,8 +1,8 @@
 #
-#  File        : Makefile
+#  File        : Makefile.travis
 #                ( Makefile for GNU 'make' utility )
 #
-#  Description : Makefile for compiling CImg-based code on Unix.
+#  Description : A modified Makefile to check that all examples compile on travis-ci.
 #                This file is a part of the CImg Library project.
 #                ( http://cimg.eu )
 #
@@ -86,7 +86,7 @@ CIMG_EXTRA_FILES = use_tiff_stream use_jpeg_buffer
 #---------------------------------
 CIMG_VERSION = _cimg_version
 X11PATH      = /usr/X11R6
-CC           = g++
+#CC           = g++ (Set by env. variable)
 EXEPFX       =
 ifeq ($(MSYSTEM),MINGW32)
 EXESFX       = .exe
@@ -348,6 +348,30 @@ $(CIMG_XSHM_LIBS)" \
 all $(CIMG_EXTRA_FILES)
 
 # Linux/BSD/Mac OSX targets, with X11 display.
+travis:
+	@$(MAKE) \
+"CONF_CFLAGS = \
+$(CIMG_ANSI_CFLAGS) \
+$(CIMG_VT100_CFLAGS) \
+$(CIMG_X11_CFLAGS) \
+$(CIMG_FFTW3_CFLAGS) \
+$(CIMG_PNG_CFLAGS) \
+$(CIMG_JPEG_CFLAGS) \
+$(CIMG_ZLIB_CFLAGS) \
+$(CIMG_CURL_CFLAGS) \
+$(CIMG_MAGICK_CFLAGS) \
+$(CIMG_XSHM_CFLAGS)" \
+"CONF_LIBS = \
+$(CIMG_X11_LIBS) \
+$(CIMG_FFTW3_LIBS) \
+$(CIMG_PNG_LIBS) \
+$(CIMG_JPEG_LIBS) \
+$(CIMG_ZLIB_LIBS) \
+$(CIMG_MAGICK_LIBS) \
+$(CIMG_CURL_LIBS) \
+$(CIMG_XSHM_LIBS)" \
+all
+
 linux:
 	@$(MAKE) \
 "CONF_CFLAGS = \

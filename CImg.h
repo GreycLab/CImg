@@ -4737,6 +4737,9 @@ namespace cimg_library_suffixed {
     inline char lowercase(const char x) {
       return (char)((x<'A'||x>'Z')?x:x - 'A' + 'a');
     }
+    inline double lowercase(const double x) {
+      return (double)((x<'A'||x>'Z')?x:x - 'A' + 'a');
+    }
 
     //! Convert C-string to lower case.
     inline void lowercase(char *const str) {
@@ -4746,6 +4749,10 @@ namespace cimg_library_suffixed {
     //! Convert ascii character to upper case.
     inline char uppercase(const char x) {
       return (char)((x<'a'||x>'z')?x:x - 'a' + 'A');
+    }
+
+    inline double uppercase(const double x) {
+      return (double)((x<'a'||x>'z')?x:x - 'a' + 'A');
     }
 
     //! Convert C-string to upper case.
@@ -13832,7 +13839,6 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_scalar1(op,i1) _cimg_mp_return(scalar1(op,i1))
 #define _cimg_mp_scalar2(op,i1,i2) _cimg_mp_return(scalar2(op,i1,i2))
 #define _cimg_mp_scalar3(op,i1,i2,i3) _cimg_mp_return(scalar3(op,i1,i2,i3))
-#define _cimg_mp_scalar5(op,i1,i2,i3,i4,i5) _cimg_mp_return(scalar5(op,i1,i2,i3,i4,i5))
 #define _cimg_mp_scalar6(op,i1,i2,i3,i4,i5,i6) _cimg_mp_return(scalar6(op,i1,i2,i3,i4,i5,i6))
 #define _cimg_mp_scalar7(op,i1,i2,i3,i4,i5,i6,i7) _cimg_mp_return(scalar7(op,i1,i2,i3,i4,i5,i6,i7))
 #define _cimg_mp_vector1_v(op,i1) _cimg_mp_return(vector1_v(op,i1))
@@ -13863,27 +13869,13 @@ namespace cimg_library_suffixed {
 
         // Ease the retrieval of previous non-space characters afterwards.
         pexpr.assign(expr._width);
-
         char c, *pe = pexpr._data;
         for (ps = expr._data, c = ' '; *ps; ++ps) {
           if (*ps!=' ') c = *ps;
           *(pe++) = c;
         }
         *pe = 0;
-
-        // Count parentheses/brackets level of expression.
-        level.assign(expr._width - 1);
-        int lv = 0;
-        unsigned int *pd = level._data;
-        for (ps = expr._data; *ps && lv>=0; ++ps)
-          *(pd++) = (unsigned int)(*ps=='('||*ps=='['?lv++:*ps==')'||*ps==']'?--lv:lv);
-        if (lv!=0) {
-          cimg::strellipsize(expr,64);
-          throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s: Unbalanced parentheses/brackets, in expression '%s'.",
-                                      pixel_type(),_cimg_mp_calling_function,
-                                      expr._data);
-        }
+        level = get_level(expr);
 
         // Init constant values.
         mem.assign(96);
@@ -13994,6 +13986,30 @@ namespace cimg_library_suffixed {
 #endif
         opcode._width = opcode._depth = opcode._spectrum = 1;
         opcode._is_shared = true;
+      }
+
+      // Count parentheses/brackets level of expression.
+      CImg<uintT> get_level(CImg<charT>& expr) const {
+        CImg<uintT> res(expr._width - 1);
+        int lv = 0;
+        unsigned int *pd = res._data;
+        bool is_string = false, next_is_string = false, is_escaped = false, next_is_escaped = false;
+        for (const char *ps = expr._data; *ps && lv>=0; ++ps) {
+          if (!next_is_escaped && *ps=='\\') next_is_escaped = true;
+          if (!is_escaped && *ps=='\'') next_is_string = is_string?(is_string = false):true;
+          *(pd++) = is_string?~0U:(unsigned int)(*ps=='('||*ps=='['?lv++:*ps==')'||*ps==']'?--lv:lv);
+          is_string = next_is_string;
+          is_escaped = next_is_escaped;
+          next_is_escaped = false;
+        }
+        if (lv!=0) {
+          cimg::strellipsize(expr,64);
+          throw CImgArgumentException("[_cimg_math_parser] "
+                                      "CImg<%s>::%s: Unbalanced parentheses/brackets, in expression '%s'.",
+                                      pixel_type(),_cimg_mp_calling_function,
+                                      expr._data);
+        }
+        return res;
       }
 
       // Compilation procedure.
@@ -16764,11 +16780,17 @@ namespace cimg_library_suffixed {
               arg1 = compile(ss5,s1,depth1,0);
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(++s1,s2,depth1,0);
-              arg3 = s2<se1?compile(++s2,se1,depth1,0):28;
-              if (arg3!=~0U) _cimg_mp_check_type(arg3,3,1,0);
+              arg3 = 11;
+              arg4 = 1;
+              if (s2<se1) {
+                s3 = s2 + 1; while (s3<se1 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
+                arg3 = compile(++s2,s3,depth1,0);
+                _cimg_mp_check_type(arg3,3,1,0);
+                arg4 = s3<se1?compile(++s3,se1,depth1,0):1;
+              }
               p1 = _cimg_mp_vector_size(arg1);
               p2 = _cimg_mp_vector_size(arg2);
-              _cimg_mp_scalar5(mp_vector_same,arg1,p1,arg2,p2,arg3);
+              _cimg_mp_scalar6(mp_vector_same,arg1,p1,arg2,p2,arg3,arg4);
             }
 
             if (!std::strncmp(ss,"sign(",5)) { // Sign
@@ -17108,12 +17130,7 @@ namespace cimg_library_suffixed {
               }
               *ns = 0;
 
-              CImg<uintT> _level(_expr._width - 1);
-              unsigned int *pd = _level._data;
-              nb = 0;
-              for (ps = _expr._data; *ps && nb>=0; ++ps)
-                *(pd++) = (unsigned int)(*ps=='('||*ps=='['?nb++:*ps==')'||*ps==']'?--nb:nb);
-
+              CImg<uintT> _level = get_level(_expr);
               expr.swap(_expr); pexpr.swap(_pexpr); level.swap(_level);
               s0 = user_function;
               user_function = function_def[l];
@@ -17148,21 +17165,26 @@ namespace cimg_library_suffixed {
         }
 
         // Ascii code, using expression '_'char''.
-        if (*ss=='_' && *ss1=='\'' && se1>ss2 && *se1=='\'')
-          _cimg_mp_constant(*ss2);
+        if (*ss=='_' && *ss1=='\'' && se1>ss2 && *se1=='\'') {
+          arg1 = se1 - ss2;
+          CImg<charT>(ss2,arg1 + 1,1,1,1).move_to(variable_name).back() = 0;
+          cimg::strunescape(variable_name);
+          _cimg_mp_constant(*variable_name);
+        }
 
         // Vector specification using string initializer '...'.
-        if (*ss=='\'' && *se1=='\'') {
+        if (*ss=='\'' && *se1=='\'' && level[se1 - expr._data]==clevel) {
           _cimg_mp_op("Initializer ''...''");
-          arg1 = se1 - ss1; // Length of the string.
+          arg1 = se1 - ss1; // Original length of the string.
+          CImg<charT>(ss1,arg1 + 1,1,1,1).move_to(variable_name).back() = 0;
+          cimg::strunescape(variable_name);
+          arg1 = std::strlen(variable_name);
           _cimg_mp_check_vector0(arg1);
           pos = vector(arg1);
-          *se1 = 0;
           CImg<ulongT>::vector((ulongT)mp_string_init,pos,arg1).move_to(_opcode);
           CImg<ulongT>(1,arg1/sizeof(ulongT) + (arg1%sizeof(ulongT)?1:0)).move_to(_opcode);
-          std::memcpy((char*)_opcode[1]._data,ss1,arg1);
+          std::memcpy((char*)_opcode[1]._data,variable_name,arg1);
           (_opcode>'y').move_to(code);
-          *se1 = '\'';
           _cimg_mp_return(pos);
         }
 
@@ -17410,19 +17432,6 @@ namespace cimg_library_suffixed {
           arg2>_cimg_mp_c && _cimg_mp_is_temp(arg2)?arg2:
           arg3>_cimg_mp_c && _cimg_mp_is_temp(arg3)?arg3:scalar();
         CImg<ulongT>::vector((ulongT)op,pos,arg1,arg2,arg3).move_to(code);
-        return pos;
-      }
-
-      unsigned int scalar5(const mp_func op,
-                           const unsigned int arg1, const unsigned int arg2, const unsigned int arg3,
-                           const unsigned int arg4, const unsigned int arg5) {
-        const unsigned int pos =
-          arg1>_cimg_mp_c && _cimg_mp_is_temp(arg1)?arg1:
-          arg2>_cimg_mp_c && _cimg_mp_is_temp(arg2)?arg2:
-          arg3>_cimg_mp_c && _cimg_mp_is_temp(arg3)?arg3:
-          arg4>_cimg_mp_c && _cimg_mp_is_temp(arg4)?arg4:
-          arg5>_cimg_mp_c && _cimg_mp_is_temp(arg5)?arg5:scalar();
-        CImg<ulongT>::vector((ulongT)op,pos,arg1,arg2,arg3,arg4,arg5).move_to(code);
         return pos;
       }
 
@@ -19659,35 +19668,64 @@ namespace cimg_library_suffixed {
 
       static double mp_vector_same(_cimg_math_parser& mp) {
         const double
-          *const ptr1 = &_mp_arg(2) + 1,
-          *const ptr2 = &_mp_arg(4) + 1;
-        const unsigned int p1 = mp.opcode[3], p2 = mp.opcode[5];
+          *ptr1 = &_mp_arg(2) + 1,
+          *ptr2 = &_mp_arg(4) + 1;
+        unsigned int p1 = mp.opcode[3], p2 = mp.opcode[5], n;
+        const int N = (int)_mp_arg(6);
+        const bool case_sensitive = (bool)_mp_arg(7);
+        bool still_equal = true;
+        double value;
+        if (!N) return true;
 
         // Compare all values.
-        if (mp.opcode[6]==28) {
+        if (N<0) {
           if (p1>0 && p2>0) { // Vector == vector
             if (p1!=p2) return false;
-            return CImg<doubleT>(ptr1,p1,1,1,1,true) == CImg<doubleT>(ptr2,p2,1,1,1,true);
-          } else if (p1>0 && !p2) // Vector == scalar
-            return CImg<doubleT>(ptr1,p1,1,1,1,true) == _mp_arg(4);
-          else if (!p1 && p2>0) // Scalar == vector
-            return CImg<doubleT>(ptr2,p2,1,1,1,true) == _mp_arg(2);
-          // Scalar = scalar
-          return _mp_arg(2) == _mp_arg(4);
+            if (case_sensitive)
+              while (still_equal && p1--) still_equal = *(ptr1++)==*(ptr2++);
+            else
+              while (still_equal && p1--)
+                still_equal = cimg::lowercase(*(ptr1++))==cimg::lowercase(*(ptr2++));
+            return still_equal;
+          } else if (p1>0 && !p2) { // Vector == scalar
+            value = _mp_arg(4);
+            if (!case_sensitive) value = cimg::lowercase(value);
+            while (still_equal && p1--) still_equal = *(ptr1++)==value;
+            return still_equal;
+          } else if (!p1 && p2>0) { // Scalar == vector
+            value = _mp_arg(2);
+            if (!case_sensitive) value = cimg::lowercase(value);
+            while (still_equal && p2--) still_equal = *(ptr2++)==value;
+            return still_equal;
+          } else { // Scalar == scalar
+            if (case_sensitive) return _mp_arg(2)==_mp_arg(4);
+            else return cimg::lowercase(_mp_arg(2))==cimg::lowercase(_mp_arg(4));
+          }
         }
 
-        // Compare only N first values.
-        if (_mp_arg(6)<=0) return true;
-        const unsigned int N = (unsigned int)_mp_arg(6);
-        if (p1>0 && p2>0) { // Vector == vector (n first values).
-          const unsigned int n = cimg::min(N,p1,p2);
-          return CImg<doubleT>(ptr1,n,1,1,1,true) == CImg<doubleT>(ptr2,n,1,1,1,true);
-        } else if (p1>0 && !p2) // Vector = scalar (n first values).
-          return CImg<doubleT>(ptr1,cimg::min(N,p1),1,1,1,true) == _mp_arg(4);
-        else if (!p1 && p2>0) // Scalar = vector (n first values).
-          return CImg<doubleT>(ptr2,cimg::min(N,p2),1,1,1,true) == _mp_arg(2);
-        // Scalar = scalar
-        return _mp_arg(2) == _mp_arg(4);
+        // Compare only first N values.
+        if (p1>0 && p2>0) { // Vector == vector
+          n = cimg::min((unsigned int)N,p1,p2);
+          if (case_sensitive)
+            while (still_equal && n--) still_equal = *(ptr1++)==(*ptr2++);
+          else
+            while (still_equal && n--) still_equal = cimg::lowercase(*(ptr1++))==cimg::lowercase(*(ptr2++));
+          return still_equal;
+        } else if (p1>0 && !p2) { // Vector == scalar
+          n = cimg::min((unsigned int)N,p1);
+          value = _mp_arg(4);
+          if (!case_sensitive) value = cimg::lowercase(value);
+          while (still_equal && n--) still_equal = *(ptr1++)==value;
+          return still_equal;
+        } else if (!p1 && p2>0) { // Scalar == vector
+          n = cimg::min((unsigned int)N,p2);
+          value = _mp_arg(2);
+          if (!case_sensitive) value = cimg::lowercase(value);
+          while (still_equal && n--) still_equal = *(ptr2++)==value;
+          return still_equal;
+        }  // Scalar == scalar
+        if (case_sensitive) return _mp_arg(2)==_mp_arg(4);
+        return cimg::lowercase(_mp_arg(2))==cimg::lowercase(_mp_arg(4));
       }
 
       static double mp_vector_set_off(_cimg_math_parser& mp) {

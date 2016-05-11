@@ -348,6 +348,8 @@ $(CIMG_XSHM_LIBS)" \
 all $(CIMG_EXTRA_FILES)
 
 # Linux/BSD/Mac OSX targets, with X11 display.
+
+#A target for Travis-CI
 travis:
 	@$(MAKE) \
 "CONF_CFLAGS = \

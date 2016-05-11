@@ -13990,10 +13990,10 @@ namespace cimg_library_suffixed {
 
       // Count parentheses/brackets level of expression.
       CImg<uintT> get_level(CImg<charT>& expr) const {
-        CImg<uintT> res(expr._width - 1);
-        int lv = 0;
-        unsigned int *pd = res._data;
         bool is_string = false, next_is_string = false, is_escaped = false, next_is_escaped = false;
+        CImg<uintT> res(expr._width - 1);
+        unsigned int *pd = res._data;
+        int lv = 0;
         for (const char *ps = expr._data; *ps && lv>=0; ++ps) {
           if (!next_is_escaped && *ps=='\\') next_is_escaped = true;
           if (!is_escaped && *ps=='\'') next_is_string = is_string?(is_string = false):true;
@@ -17142,9 +17142,9 @@ namespace cimg_library_suffixed {
           }
         } // if (se1==')')
 
-        // Vector specification using initializer [ ... ].
+        // Vector initializer [ ... ].
         if (*ss=='[' && *se1==']') {
-          _cimg_mp_op("Initializer '[...]'");
+          _cimg_mp_op("Vector initializer");
           arg1 = 0; // Number of specified values.
           if (*ss1!=']') for (s = ss1; s<se; ++s) {
               ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
@@ -17164,21 +17164,36 @@ namespace cimg_library_suffixed {
           _cimg_mp_return(pos);
         }
 
-        // Ascii code, using expression '_'char''.
-        if (*ss=='_' && *ss1=='\'' && se1>ss2 && *se1=='\'') {
-          arg1 = se1 - ss2;
-          CImg<charT>(ss2,arg1 + 1,1,1,1).move_to(variable_name).back() = 0;
-          cimg::strunescape(variable_name);
-          _cimg_mp_constant(*variable_name);
-        }
-
-        // Vector specification using string initializer '...'.
-        if (*ss=='\'' && *se1=='\'' && level[se1 - expr._data]==clevel) {
-          _cimg_mp_op("Initializer ''...''");
-          arg1 = se1 - ss1; // Original length of the string.
-          CImg<charT>(ss1,arg1 + 1,1,1,1).move_to(variable_name).back() = 0;
+        // String initializer '...'.
+        if ((*ss=='\'' || (*ss=='_' && *ss1=='\'')) && *se1=='\'' && level[se1 - expr._data]==clevel) {
+          _cimg_mp_op("String initializer");
+          s1 = s2 = *ss=='_'?ss2:ss1; while (level[s2 - expr._data]==~0U) ++s2; // Check string conformity
+          arg1 = se1 - s1; // Original length of the string.
+          CImg<charT>(s1,arg1 + 1,1,1,1).move_to(variable_name).back() = 0;
+          if (s2!=se1) { // String contains non-escaped quote.
+            *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
+            throw CImgArgumentException("[_cimg_math_parser] "
+                                        "CImg<%s>::%s: %s: Malformed string '%s' (probably contains a non-escaped single quote), "
+                                        "in expression '%s%s%s'.",
+                                        pixel_type(),_cimg_mp_calling_function,s_op,
+                                        variable_name._data,
+                                        (ss - 4)>expr._data?"...":"",
+                                        (ss - 4)>expr._data?ss - 4:expr._data,
+                                        se<&expr.back()?"...":"");
+          }
           cimg::strunescape(variable_name);
           arg1 = std::strlen(variable_name);
+          if (!arg1) { // Empty string.
+            *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
+            throw CImgArgumentException("[_cimg_math_parser] "
+                                        "CImg<%s>::%s: %s: Invalid construction of an empty string, "
+                                        "in expression '%s%s%s'.",
+                                        pixel_type(),_cimg_mp_calling_function,s_op,
+                                        (ss - 4)>expr._data?"...":"",
+                                        (ss - 4)>expr._data?ss - 4:expr._data,
+                                        se<&expr.back()?"...":"");
+          }
+          if (*ss=='_') _cimg_mp_constant(*variable_name); // Single-char only
           _cimg_mp_check_vector0(arg1);
           pos = vector(arg1);
           CImg<ulongT>::vector((ulongT)mp_string_init,pos,arg1).move_to(_opcode);

@@ -17163,9 +17163,12 @@ namespace cimg_library_suffixed {
 
         // Ascii code 'code'.
         if (*ss=='\'' && *se1=='\'') {
-          CImg<charT>(ss1,se1 - ss).move_to(variable_name).back() = 0;
-          cimg::strunescape(variable_name);
-          arg1 = std::strlen(variable_name);
+          arg1 = 0;
+          if (se1>ss) {
+            CImg<charT>(ss1,se1 - ss).move_to(variable_name).back() = 0;
+            cimg::strunescape(variable_name);
+            arg1 = std::strlen(variable_name);
+          }
           if (arg1!=1) {
             *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
             throw CImgArgumentException("[_cimg_math_parser] "

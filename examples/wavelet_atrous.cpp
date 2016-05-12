@@ -130,7 +130,7 @@ int main(int argc,char **argv) {
 
   int firstDirIdx = 0,lastDirIdx = 2;
   if (axe_dec) { // The multiscale decomposition will be performed in just one direction
-    char c = cimg::uncase(axe_dec[0]);
+    char c = cimg::lowercase(axe_dec[0]);
     switch(c) {
     case 'x': firstDirIdx = 0; break;
     case 'y': firstDirIdx = 1; break;

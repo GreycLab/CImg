@@ -17157,6 +17157,23 @@ namespace cimg_library_suffixed {
           }
         } // if (se1==')')
 
+        // Ascii code.
+        if (*ss=='\'' && *se1=='\'') {
+          CImg<charT>(ss1,se1 - ss).move_to(variable_name).back() = 0;
+          cimg::strunescape(variable_name);
+          if (std::strlen(variable_name)!=1) {
+            *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
+            throw CImgArgumentException("[_cimg_math_parser] "
+                                        "CImg<%s>::%s: Invalid character literal, "
+                                        "in expression '%s%s%s'.",
+                                        pixel_type(),_cimg_mp_calling_function,
+                                        (ss - 4)>expr._data?"...":"",
+                                        (ss - 4)>expr._data?ss - 4:expr._data,
+                                        se<&expr.back()?"...":"");
+          }
+          _cimg_mp_constant(*variable_name);
+        }
+
         // Vector initializer [ ... ].
         if (*ss=='[' && *se1==']') {
           _cimg_mp_op("Vector initializer");

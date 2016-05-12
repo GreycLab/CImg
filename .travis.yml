@@ -3,7 +3,7 @@ compiler:
   - gcc
 script:
   - cd examples
-  - make CC='g++-4.8' travis
+  - make CXX='g++-4.8' travis
 addons:
   apt:
     sources:
@@ -15,5 +15,6 @@ addons:
     - libpng12-dev
     - libjpeg-dev
     - libmagick++-dev
+    - libgraphicsmagick++1-dev
     - libfftw3-dev
     - zlib1g-dev

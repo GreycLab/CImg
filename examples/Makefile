@@ -285,8 +285,7 @@ endif
 #-------------------------
 .cpp:
 	@echo
-	@echo "** Blah blah '$* ($(CIMG_VERSION))' with '$(CCVER)'"
-	@echo "** CC: '$(CC)' ** "		   
+	@echo "** Compiling '$* ($(CIMG_VERSION))' with '$(CCVER)'"
 	@echo
 	$(CC) -o $(EXEPFX)$*$(EXESFX) $< $(CFLAGS) $(CONF_CFLAGS) $(LIBS) $(CONF_LIBS)
 ifeq ($(STRIP_EXE),true)

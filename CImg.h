@@ -17157,16 +17157,18 @@ namespace cimg_library_suffixed {
           }
         } // if (se1==')')
 
-        // Ascii code.
+        // Ascii code 'code'.
         if (*ss=='\'' && *se1=='\'') {
           CImg<charT>(ss1,se1 - ss).move_to(variable_name).back() = 0;
           cimg::strunescape(variable_name);
-          if (std::strlen(variable_name)!=1) {
+          arg1 = std::strlen(variable_name);
+          if (arg1!=1) {
             *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
             throw CImgArgumentException("[_cimg_math_parser] "
-                                        "CImg<%s>::%s: Invalid character literal, "
+                                        "CImg<%s>::%s: Invalid %scharacter literal, "
                                         "in expression '%s%s%s'.",
                                         pixel_type(),_cimg_mp_calling_function,
+                                        arg1?"":"empty ",
                                         (ss - 4)>expr._data?"...":"",
                                         (ss - 4)>expr._data?ss - 4:expr._data,
                                         se<&expr.back()?"...":"");

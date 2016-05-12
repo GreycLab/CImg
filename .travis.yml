@@ -2,9 +2,8 @@ language: cpp
 compiler:
   - gcc
 script:
-  - export CXX="g++-4.8" CC="gcc-4.8"
   - cd examples
-  - make -f Makefile.travis travis
+  - make CC='g++-4.8' travis
 addons:
   apt:
     sources:

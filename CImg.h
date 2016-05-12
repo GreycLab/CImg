@@ -15050,10 +15050,12 @@ namespace cimg_library_suffixed {
             _cimg_mp_op("Operator '!='");
             arg1 = compile(ss,s,depth1,0);
             arg2 = compile(s + 2,se,depth1,0);
-            _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
-            if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_neq,arg1,arg2);
-            if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_neq,arg1,arg2);
-            if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_neq,arg1,arg2);
+            p1 = _cimg_mp_vector_size(arg1);
+            p2 = _cimg_mp_vector_size(arg2);
+            if (p1 || p2) {
+              if (p1 && p2 && p1!=p2) _cimg_mp_return(1);
+              _cimg_mp_scalar6(mp_vector_neq,arg1,p1,arg2,p2,11,1);
+            }
             if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2)) _cimg_mp_constant(mem[arg1]!=mem[arg2]);
             _cimg_mp_scalar2(mp_neq,arg1,arg2);
           }
@@ -15063,10 +15065,12 @@ namespace cimg_library_suffixed {
             _cimg_mp_op("Operator '=='");
             arg1 = compile(ss,s,depth1,0);
             arg2 = compile(s + 2,se,depth1,0);
-            _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
-            if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_eq,arg1,arg2);
-            if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_eq,arg1,arg2);
-            if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_eq,arg1,arg2);
+            p1 = _cimg_mp_vector_size(arg1);
+            p2 = _cimg_mp_vector_size(arg2);
+            if (p1 || p2) {
+              if (p1 && p2 && p1!=p2) _cimg_mp_return(0);
+              _cimg_mp_scalar6(mp_vector_eq,arg1,p1,arg2,p2,11,1);
+            }
             if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2)) _cimg_mp_constant(mem[arg1]==mem[arg2]);
             _cimg_mp_scalar2(mp_eq,arg1,arg2);
           }
@@ -16805,7 +16809,7 @@ namespace cimg_library_suffixed {
               }
               p1 = _cimg_mp_vector_size(arg1);
               p2 = _cimg_mp_vector_size(arg2);
-              _cimg_mp_scalar6(mp_vector_same,arg1,p1,arg2,p2,arg3,arg4);
+              _cimg_mp_scalar6(mp_vector_eq,arg1,p1,arg2,p2,arg3,arg4);
             }
 
             if (!std::strncmp(ss,"sign(",5)) { // Sign
@@ -19572,6 +19576,68 @@ namespace cimg_library_suffixed {
         return cimg::type<double>::nan();
       }
 
+      static double mp_vector_eq(_cimg_math_parser& mp) {
+        const double
+          *ptr1 = &_mp_arg(2) + 1,
+          *ptr2 = &_mp_arg(4) + 1;
+        unsigned int p1 = mp.opcode[3], p2 = mp.opcode[5], n;
+        const int N = (int)_mp_arg(6);
+        const bool case_sensitive = (bool)_mp_arg(7);
+        bool still_equal = true;
+        double value;
+        if (!N) return true;
+
+        // Compare all values.
+        if (N<0) {
+          if (p1>0 && p2>0) { // Vector == vector
+            if (p1!=p2) return false;
+            if (case_sensitive)
+              while (still_equal && p1--) still_equal = *(ptr1++)==*(ptr2++);
+            else
+              while (still_equal && p1--)
+                still_equal = cimg::lowercase(*(ptr1++))==cimg::lowercase(*(ptr2++));
+            return still_equal;
+          } else if (p1>0 && !p2) { // Vector == scalar
+            value = _mp_arg(4);
+            if (!case_sensitive) value = cimg::lowercase(value);
+            while (still_equal && p1--) still_equal = *(ptr1++)==value;
+            return still_equal;
+          } else if (!p1 && p2>0) { // Scalar == vector
+            value = _mp_arg(2);
+            if (!case_sensitive) value = cimg::lowercase(value);
+            while (still_equal && p2--) still_equal = *(ptr2++)==value;
+            return still_equal;
+          } else { // Scalar == scalar
+            if (case_sensitive) return _mp_arg(2)==_mp_arg(4);
+            else return cimg::lowercase(_mp_arg(2))==cimg::lowercase(_mp_arg(4));
+          }
+        }
+
+        // Compare only first N values.
+        if (p1>0 && p2>0) { // Vector == vector
+          n = cimg::min((unsigned int)N,p1,p2);
+          if (case_sensitive)
+            while (still_equal && n--) still_equal = *(ptr1++)==(*ptr2++);
+          else
+            while (still_equal && n--) still_equal = cimg::lowercase(*(ptr1++))==cimg::lowercase(*(ptr2++));
+          return still_equal;
+        } else if (p1>0 && !p2) { // Vector == scalar
+          n = cimg::min((unsigned int)N,p1);
+          value = _mp_arg(4);
+          if (!case_sensitive) value = cimg::lowercase(value);
+          while (still_equal && n--) still_equal = *(ptr1++)==value;
+          return still_equal;
+        } else if (!p1 && p2>0) { // Scalar == vector
+          n = cimg::min((unsigned int)N,p2);
+          value = _mp_arg(2);
+          if (!case_sensitive) value = cimg::lowercase(value);
+          while (still_equal && n--) still_equal = *(ptr2++)==value;
+          return still_equal;
+        }  // Scalar == scalar
+        if (case_sensitive) return _mp_arg(2)==_mp_arg(4);
+        return cimg::lowercase(_mp_arg(2))==cimg::lowercase(_mp_arg(4));
+      }
+
       static double mp_vector_off(_cimg_math_parser& mp) {
         const unsigned int
           ptr = mp.opcode[2] + 1,
@@ -19655,6 +19721,10 @@ namespace cimg_library_suffixed {
         return cimg::type<double>::nan();
       }
 
+      static double mp_vector_neq(_cimg_math_parser& mp) {
+        return !mp_vector_eq(mp);
+      }
+
       static double mp_vector_print(_cimg_math_parser& mp) {
 #ifdef cimg_use_openmp
 #pragma omp critical
@@ -19697,68 +19767,6 @@ namespace cimg_library_suffixed {
         const unsigned int p1 = mp.opcode[3];
         CImg<doubleT>(ptrd,p1,1,1,1,true) = CImg<doubleT>(ptrs,p1,1,1,1,true).get_mirror('x');
         return cimg::type<double>::nan();
-      }
-
-      static double mp_vector_same(_cimg_math_parser& mp) {
-        const double
-          *ptr1 = &_mp_arg(2) + 1,
-          *ptr2 = &_mp_arg(4) + 1;
-        unsigned int p1 = mp.opcode[3], p2 = mp.opcode[5], n;
-        const int N = (int)_mp_arg(6);
-        const bool case_sensitive = (bool)_mp_arg(7);
-        bool still_equal = true;
-        double value;
-        if (!N) return true;
-
-        // Compare all values.
-        if (N<0) {
-          if (p1>0 && p2>0) { // Vector == vector
-            if (p1!=p2) return false;
-            if (case_sensitive)
-              while (still_equal && p1--) still_equal = *(ptr1++)==*(ptr2++);
-            else
-              while (still_equal && p1--)
-                still_equal = cimg::lowercase(*(ptr1++))==cimg::lowercase(*(ptr2++));
-            return still_equal;
-          } else if (p1>0 && !p2) { // Vector == scalar
-            value = _mp_arg(4);
-            if (!case_sensitive) value = cimg::lowercase(value);
-            while (still_equal && p1--) still_equal = *(ptr1++)==value;
-            return still_equal;
-          } else if (!p1 && p2>0) { // Scalar == vector
-            value = _mp_arg(2);
-            if (!case_sensitive) value = cimg::lowercase(value);
-            while (still_equal && p2--) still_equal = *(ptr2++)==value;
-            return still_equal;
-          } else { // Scalar == scalar
-            if (case_sensitive) return _mp_arg(2)==_mp_arg(4);
-            else return cimg::lowercase(_mp_arg(2))==cimg::lowercase(_mp_arg(4));
-          }
-        }
-
-        // Compare only first N values.
-        if (p1>0 && p2>0) { // Vector == vector
-          n = cimg::min((unsigned int)N,p1,p2);
-          if (case_sensitive)
-            while (still_equal && n--) still_equal = *(ptr1++)==(*ptr2++);
-          else
-            while (still_equal && n--) still_equal = cimg::lowercase(*(ptr1++))==cimg::lowercase(*(ptr2++));
-          return still_equal;
-        } else if (p1>0 && !p2) { // Vector == scalar
-          n = cimg::min((unsigned int)N,p1);
-          value = _mp_arg(4);
-          if (!case_sensitive) value = cimg::lowercase(value);
-          while (still_equal && n--) still_equal = *(ptr1++)==value;
-          return still_equal;
-        } else if (!p1 && p2>0) { // Scalar == vector
-          n = cimg::min((unsigned int)N,p2);
-          value = _mp_arg(2);
-          if (!case_sensitive) value = cimg::lowercase(value);
-          while (still_equal && n--) still_equal = *(ptr2++)==value;
-          return still_equal;
-        }  // Scalar == scalar
-        if (case_sensitive) return _mp_arg(2)==_mp_arg(4);
-        return cimg::lowercase(_mp_arg(2))==cimg::lowercase(_mp_arg(4));
       }
 
       static double mp_vector_set_off(_cimg_math_parser& mp) {

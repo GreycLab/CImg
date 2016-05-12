@@ -13995,7 +13995,10 @@ namespace cimg_library_suffixed {
 
       // Count parentheses/brackets level of expression.
       CImg<uintT> get_level(CImg<charT>& expr) const {
-        bool is_string = false, next_is_string = false, is_escaped = false, next_is_escaped = false;
+        bool
+          is_escaped = false, next_is_escaped = false,
+          is_string = false, next_is_string = false,
+          is_char = false, next_is_char = false;
         CImg<uintT> res(expr._width - 1);
         unsigned int *pd = res._data;
         int lv = 0;
@@ -14004,10 +14007,12 @@ namespace cimg_library_suffixed {
           if (!is_escaped && *ps=='\'') {
             if (!is_string && ps>expr._data && *(ps - 1)=='[') next_is_string = true;
             else if (is_string && *(ps + 1)==']') next_is_string = is_string = false;
+            next_is_char = is_char?(is_char = false):true;
           }
-          *(pd++) = (unsigned int)(is_string || is_escaped?lv:*ps=='(' || *ps=='['?lv++:*ps==')' || *ps==']'?--lv:lv);
+          *(pd++) = (unsigned int)(is_string || is_escaped?lv:*ps=='(' || *ps=='['?lv++:*ps==')' || *ps==']'?--lv:lv + (is_char?1:0));
           is_string = next_is_string;
           is_escaped = next_is_escaped;
+          is_char = next_is_char;
           next_is_escaped = false;
         }
         if (is_string) {

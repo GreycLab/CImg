@@ -17162,41 +17162,25 @@ namespace cimg_library_suffixed {
           _cimg_mp_op("Vector initializer");
           s1 = ss1; while (s1<se2 && *s1<=' ') ++s1;
           s2 = se2; while (s2>s1 && *s2<=' ') --s2;
-
-          if (false && s2>s1 && *s1=='\'' && *s2=='\'') { // Vector values provided as a string
-/*            s3 = s4 = s1 + 1; while (level[s4 - expr._data]==clevel1) ++s4; // Check string conformity
-            arg1 = s4 - s3; // Original length of the string.
-            CImg<charT>(s3,arg1 + 1).move_to(variable_name).back() = 0;
-            if (s2!=se1) { // String contains non-escaped quote.
-              *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
-              throw CImgArgumentException("[_cimg_math_parser] "
-                                          "CImg<%s>::%s: %s: Malformed string '%s' (probably contains a non-escaped single quote), "
-                                          "in expression '%s%s%s'.",
-                                          pixel_type(),_cimg_mp_calling_function,s_op,
-                                          variable_name._data,
-                                          (ss - 4)>expr._data?"...":"",
-                                          (ss - 4)>expr._data?ss - 4:expr._data,
-                                          se<&expr.back()?"...":"");
-            }
-            cimg::strunescape(variable_name);
-            arg1 = std::strlen(variable_name);
+          if (s2>s1 && *s1=='\'' && *s2=='\'') { // Vector values provided as a string
+            arg1 = s2 - s1 - 1; // Original length of the string.
             if (!arg1) { // Empty string.
               *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
               throw CImgArgumentException("[_cimg_math_parser] "
-                                          "CImg<%s>::%s: %s: Invalid construction of an empty string, "
+                                          "CImg<%s>::%s: %s: Invalid empty string literal, "
                                           "in expression '%s%s%s'.",
                                           pixel_type(),_cimg_mp_calling_function,s_op,
                                           (ss - 4)>expr._data?"...":"",
                                           (ss - 4)>expr._data?ss - 4:expr._data,
                                           se<&expr.back()?"...":"");
             }
-            if (*ss=='_') _cimg_mp_constant(*variable_name); // Single-char only
-            _cimg_mp_check_vector0(arg1);
+            CImg<charT>(s1 + 1,arg1 + 1).move_to(variable_name).back() = 0;
+            cimg::strunescape(variable_name);
+            arg1 = std::strlen(variable_name);
             pos = vector(arg1);
             CImg<ulongT>::vector((ulongT)mp_string_init,pos,arg1).move_to(_opcode);
             CImg<ulongT>(1,arg1/sizeof(ulongT) + (arg1%sizeof(ulongT)?1:0)).move_to(_opcode);
             std::memcpy((char*)_opcode[1]._data,variable_name,arg1);
-*/
           } else { // Vector values provided as list of items
             arg1 = 0; // Number of specified values.
             if (*ss1!=']') for (s = ss1; s<se; ++s) {

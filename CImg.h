@@ -6106,10 +6106,10 @@ namespace cimg_library_suffixed {
         mh = dmin<0?(unsigned int)(sh*-dmin/100):(unsigned int)dmin,
         Mw = dmax<0?(unsigned int)(sw*-dmax/100):(unsigned int)dmax,
         Mh = dmax<0?(unsigned int)(sh*-dmax/100):(unsigned int)dmax;
-      if (nw<mw) { nh = nh*mw/nw; nh+=(nh==0?1:0); nw = mw; }
-      if (nh<mh) { nw = nw*mh/nh; nw+=(nw==0?1:0); nh = mh; }
-      if (nw>Mw) { nh = nh*Mw/nw; nh+=(nh==0?1:0); nw = Mw; }
-      if (nh>Mh) { nw = nw*Mh/nh; nw+=(nw==0?1:0); nh = Mh; }
+      if (nw<mw) { nh = nh*mw/nw; nh+=(nh==0); nw = mw; }
+      if (nh<mh) { nw = nw*mh/nh; nw+=(nw==0); nh = mh; }
+      if (nw>Mw) { nh = nh*Mw/nw; nh+=(nh==0); nw = Mw; }
+      if (nh>Mh) { nw = nw*Mh/nh; nw+=(nw==0); nh = Mh; }
       if (nw<mw) nw = mw;
       if (nh<mh) nh = mh;
       return return_y?nh:nw;
@@ -13988,10 +13988,10 @@ namespace cimg_library_suffixed {
             else if (mode==2 && *(ps + 1)==']') next_mode = !mode; // End vector-string
             if (mode<2) next_mode = mode?(mode = 0):1; // Start/end char-string
           }
-          *(pd++) = (unsigned int)(mode==2 || is_escaped?lv:
+          *(pd++) = (unsigned int)(mode>=1 || is_escaped?lv + (mode==1):
                                    *ps=='(' || *ps=='['?lv++:
                                    *ps==')' || *ps==']'?--lv:
-                                   lv + (mode==1?1:0));
+                                   lv);
           mode = next_mode;
           is_escaped = next_is_escaped;
           next_is_escaped = false;
@@ -15984,7 +15984,7 @@ namespace cimg_library_suffixed {
               }
               (_opcode>'y').move_to(opcode);
 
-              arg1 = 0; arg2 = p1!=~0U?1:0;
+              arg1 = 0; arg2 = (p1!=~0U);
               switch (opcode._height) {
               case 0 : case 1 :
                 CImg<ulongT>::vector(0,0,0,0,~0U,~0U,~0U,~0U,0).move_to(opcode);
@@ -21164,7 +21164,7 @@ namespace cimg_library_suffixed {
         case 'r' : return (double)_is_shared;
         }
       _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' ||
-                                         *expression=='*' || *expression==':'?1:0),"eval",
+                                         *expression=='*' || *expression==':'),"eval",
                            *this,img_output,list_inputs,list_outputs);
       return mp(x,y,z,c);
     }
@@ -21209,7 +21209,7 @@ namespace cimg_library_suffixed {
         case 'r' : output.assign(1); *output = (t)_is_shared;
         }
       _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' ||
-                                         *expression=='*' || *expression==':'?1:0),"eval",
+                                         *expression=='*' || *expression==':'),"eval",
                            *this,img_output,list_inputs,list_outputs);
       output.assign(1,cimg::max(1U,mp.result_dim));
       mp(x,y,z,c,output._data);
@@ -23388,7 +23388,7 @@ namespace cimg_library_suffixed {
       if (allow_formula) try { // Try to fill values according to a formula
           CImg<T> base = provides_copy?provides_copy->get_shared():get_shared();
           _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' ||
-                                             *expression=='*' || *expression==':'?1:0),
+                                             *expression=='*' || *expression==':'),
                                calling_function,base,this,list_inputs,list_outputs);
           if (!provides_copy && expression && *expression!='>' && *expression!='<' && *expression!=':' &&
               mp.need_input_copy)
@@ -23479,7 +23479,7 @@ namespace cimg_library_suffixed {
           sep = 0;
           const int err = cimg_sscanf(nexpression,"%16383[ \n\t0-9.eEinfa+-]%c",item,&sep);
           if (err>0 && cimg_sscanf(item,"%lf",&val)==1 && (sep==',' || sep==';' || err==1)) {
-            nexpression+=std::strlen(item) + (err>1?1:0);
+            nexpression+=std::strlen(item) + (err>1);
             *(ptrd++) = (T)val;
           } else break;
         }
@@ -39857,7 +39857,7 @@ namespace cimg_library_suffixed {
           nx = (int)npoints(np,0), ny = (int)npoints(np,1), ay = (int)npoints(ap,1),
           y0 = cy - (int)nymin, y1 = ny - (int)nymin;
         if (y0!=y1) {
-          const int countermin = ((ny<ay && cy<ny) || (ny>ay && cy>ny))?1:0;
+          const int countermin = (ny<ay && cy<ny) || (ny>ay && cy>ny);
           for (int x = cx, y = y0, _sx = 1, _sy = 1,
                  _dx = nx>cx?nx - cx:((_sx=-1),cx - nx),
                  _dy = y1>y0?y1 - y0:((_sy=-1),y0 - y1),
@@ -40901,10 +40901,10 @@ namespace cimg_library_suffixed {
       // Compute min/max and normalization factors.
       const ulongT
         siz = data.size(),
-        _siz1 = siz - (plot_type!=3?1:0),
+        _siz1 = siz - (plot_type!=3),
         siz1 = _siz1?_siz1:1;
       const unsigned int
-        _width1 = _width - (plot_type!=3?1:0),
+        _width1 = _width - (plot_type!=3),
         width1 = _width1?_width1:1;
       double m = ymin, M = ymax;
       if (ymin==ymax) m = (double)data.max_min(M);
@@ -43317,18 +43317,18 @@ namespace cimg_library_suffixed {
               _X = (int)X, _Y = (int)Y, _Z = (int)Z,
               w = disp.width(), W = width() + d,
               h = disp.height(), H = height() + d,
-              _xp = (int)(_X*(float)w/W), xp = _xp + ((int)(_xp*(float)W/w)!=_X?1:0),
-              _yp = (int)(_Y*(float)h/H), yp = _yp + ((int)(_yp*(float)H/h)!=_Y?1:0),
-              _xn = (int)((_X + 1.0f)*w/W - 1), xn = _xn + ((int)((_xn + 1.0f)*W/w)!=_X + 1?1:0),
-              _yn = (int)((_Y + 1.0f)*h/H - 1), yn = _yn + ((int)((_yn + 1.0f)*H/h)!=_Y + 1?1:0),
-              _zxp = (int)((_Z + width())*(float)w/W), zxp = _zxp + ((int)(_zxp*(float)W/w)!=_Z + width()?1:0),
-              _zyp = (int)((_Z + height())*(float)h/H), zyp = _zyp + ((int)(_zyp*(float)H/h)!=_Z + height()?1:0),
+              _xp = (int)(_X*(float)w/W), xp = _xp + ((int)(_xp*(float)W/w)!=_X),
+              _yp = (int)(_Y*(float)h/H), yp = _yp + ((int)(_yp*(float)H/h)!=_Y),
+              _xn = (int)((_X + 1.0f)*w/W - 1), xn = _xn + ((int)((_xn + 1.0f)*W/w)!=_X + 1),
+              _yn = (int)((_Y + 1.0f)*h/H - 1), yn = _yn + ((int)((_yn + 1.0f)*H/h)!=_Y + 1),
+              _zxp = (int)((_Z + width())*(float)w/W), zxp = _zxp + ((int)(_zxp*(float)W/w)!=_Z + width()),
+              _zyp = (int)((_Z + height())*(float)h/H), zyp = _zyp + ((int)(_zyp*(float)H/h)!=_Z + height()),
               _zxn = (int)((_Z + width() + 1.0f)*w/W - 1),
-                       zxn = _zxn + ((int)((_zxn + 1.0f)*W/w)!=_Z + width() + 1?1:0),
+                       zxn = _zxn + ((int)((_zxn + 1.0f)*W/w)!=_Z + width() + 1),
               _zyn = (int)((_Z + height() + 1.0f)*h/H - 1),
-                       zyn = _zyn + ((int)((_zyn + 1.0f)*H/h)!=_Z + height() + 1?1:0),
-              _xM = (int)(width()*(float)w/W - 1), xM = _xM + ((int)((_xM + 1.0f)*W/w)!=width()?1:0),
-              _yM = (int)(height()*(float)h/H - 1), yM = _yM + ((int)((_yM + 1.0f)*H/h)!=height()?1:0),
+                       zyn = _zyn + ((int)((_zyn + 1.0f)*H/h)!=_Z + height() + 1),
+              _xM = (int)(width()*(float)w/W - 1), xM = _xM + ((int)((_xM + 1.0f)*W/w)!=width()),
+              _yM = (int)(height()*(float)h/H - 1), yM = _yM + ((int)((_yM + 1.0f)*H/h)!=height()),
               xc = (xp + xn)/2,
               yc = (yp + yn)/2,
               zxc = (zxp + zxn)/2,
@@ -43366,16 +43366,16 @@ namespace cimg_library_suffixed {
             // Draw selection.
             if (phase) {
               const int
-                _xp0 = (int)(X0*(float)w/W), xp0 = _xp0 + ((int)(_xp0*(float)W/w)!=X0?1:0),
-                _yp0 = (int)(Y0*(float)h/H), yp0 = _yp0 + ((int)(_yp0*(float)H/h)!=Y0?1:0),
-                _xn0 = (int)((X0 + 1.0f)*w/W - 1), xn0 = _xn0 + ((int)((_xn0 + 1.0f)*W/w)!=X0 + 1?1:0),
-                _yn0 = (int)((Y0 + 1.0f)*h/H - 1), yn0 = _yn0 + ((int)((_yn0 + 1.0f)*H/h)!=Y0 + 1?1:0),
-                _zxp0 = (int)((Z0 + width())*(float)w/W), zxp0 = _zxp0 + ((int)(_zxp0*(float)W/w)!=Z0 + width()?1:0),
-                _zyp0 = (int)((Z0 + height())*(float)h/H), zyp0 = _zyp0 + ((int)(_zyp0*(float)H/h)!=Z0 + height()?1:0),
+                _xp0 = (int)(X0*(float)w/W), xp0 = _xp0 + ((int)(_xp0*(float)W/w)!=X0),
+                _yp0 = (int)(Y0*(float)h/H), yp0 = _yp0 + ((int)(_yp0*(float)H/h)!=Y0),
+                _xn0 = (int)((X0 + 1.0f)*w/W - 1), xn0 = _xn0 + ((int)((_xn0 + 1.0f)*W/w)!=X0 + 1),
+                _yn0 = (int)((Y0 + 1.0f)*h/H - 1), yn0 = _yn0 + ((int)((_yn0 + 1.0f)*H/h)!=Y0 + 1),
+                _zxp0 = (int)((Z0 + width())*(float)w/W), zxp0 = _zxp0 + ((int)(_zxp0*(float)W/w)!=Z0 + width()),
+                _zyp0 = (int)((Z0 + height())*(float)h/H), zyp0 = _zyp0 + ((int)(_zyp0*(float)H/h)!=Z0 + height()),
                 _zxn0 = (int)((Z0 + width() + 1.0f)*w/W - 1),
-                zxn0 = _zxn0 + ((int)((_zxn0 + 1.0f)*W/w)!=Z0 + width() + 1?1:0),
+                zxn0 = _zxn0 + ((int)((_zxn0 + 1.0f)*W/w)!=Z0 + width() + 1),
                 _zyn0 = (int)((Z0 + height() + 1.0f)*h/H - 1),
-                zyn0 = _zyn0 + ((int)((_zyn0 + 1.0f)*H/h)!=Z0 + height() + 1?1:0),
+                zyn0 = _zyn0 + ((int)((_zyn0 + 1.0f)*H/h)!=Z0 + height() + 1),
                 xc0 = (xp0 + xn0)/2,
                 yc0 = (yp0 + yn0)/2,
                 zxc0 = (zxp0 + zxn0)/2,
@@ -45825,7 +45825,7 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
 
       std::FILE *const nfile = file?file:cimg::fopen(filename,"rb");
-      int fopt[8], endian=cimg::endianness()?1:0;
+      int fopt[8], endian = cimg::endianness()?1:0;
       bool loaded = false;
       if (voxel_size) voxel_size[0] = voxel_size[1] = voxel_size[2] = 1;
       _load_inr_header(nfile,fopt,voxel_size);
@@ -47241,9 +47241,9 @@ namespace cimg_library_suffixed {
         if (go_out) {
           const int
             delta_x = (x1 - x0)/8, delta_y = (y1 - y0)/8, delta_z = (z1 - z0)/8,
-            ndelta_x = delta_x?delta_x:(_width>1?1:0),
-            ndelta_y = delta_y?delta_y:(_height>1?1:0),
-            ndelta_z = delta_z?delta_z:(_depth>1?1:0);
+            ndelta_x = delta_x?delta_x:(_width>1),
+            ndelta_y = delta_y?delta_y:(_height>1),
+            ndelta_z = delta_z?delta_z:(_depth>1);
           x0-=ndelta_x; y0-=ndelta_y; z0-=ndelta_z;
           x1+=ndelta_x; y1+=ndelta_y; z1+=ndelta_z;
           if (x0<0) { x1-=x0; x0 = 0; if (x1>=width()) x1 = width() - 1; }
@@ -47254,32 +47254,32 @@ namespace cimg_library_suffixed {
           if (z1>=depth()) { z0-=(z1 - depth() + 1); z1 = depth() - 1; if (z0<0) z0 = 0; }
         }
         if (go_left) {
-          const int delta = (x1 - x0)/4, ndelta = delta?delta:(_width>1?1:0);
+          const int delta = (x1 - x0)/4, ndelta = delta?delta:(_width>1);
           if (x0 - ndelta>=0) { x0-=ndelta; x1-=ndelta; }
           else { x1-=x0; x0 = 0; }
         }
         if (go_right) {
-          const int delta = (x1 - x0)/4, ndelta = delta?delta:(_width>1?1:0);
+          const int delta = (x1 - x0)/4, ndelta = delta?delta:(_width>1);
           if (x1+ndelta<width()) { x0+=ndelta; x1+=ndelta; }
           else { x0+=(width() - 1 - x1); x1 = width() - 1; }
         }
         if (go_up) {
-          const int delta = (y1 - y0)/4, ndelta = delta?delta:(_height>1?1:0);
+          const int delta = (y1 - y0)/4, ndelta = delta?delta:(_height>1);
           if (y0 - ndelta>=0) { y0-=ndelta; y1-=ndelta; }
           else { y1-=y0; y0 = 0; }
         }
         if (go_down) {
-          const int delta = (y1 - y0)/4, ndelta = delta?delta:(_height>1?1:0);
+          const int delta = (y1 - y0)/4, ndelta = delta?delta:(_height>1);
           if (y1+ndelta<height()) { y0+=ndelta; y1+=ndelta; }
           else { y0+=(height() - 1 - y1); y1 = height() - 1; }
         }
         if (go_inc) {
-          const int delta = (z1 - z0)/4, ndelta = delta?delta:(_depth>1?1:0);
+          const int delta = (z1 - z0)/4, ndelta = delta?delta:(_depth>1);
           if (z0 - ndelta>=0) { z0-=ndelta; z1-=ndelta; }
           else { z1-=z0; z0 = 0; }
         }
         if (go_dec) {
-          const int delta = (z1 - z0)/4, ndelta = delta?delta:(_depth>1?1:0);
+          const int delta = (z1 - z0)/4, ndelta = delta?delta:(_depth>1);
           if (z1+ndelta<depth()) { z0+=ndelta; z1+=ndelta; }
           else { z0+=(depth() - 1 - z1); z1 = depth() - 1; }
         }
@@ -48005,7 +48005,7 @@ namespace cimg_library_suffixed {
           }
           if (go_out) {
             if (x0>0 || x1<(int)siz1) {
-              const int delta_x = (x1 - x0)/8, ndelta_x = delta_x?delta_x:(siz>1?1:0);
+              const int delta_x = (x1 - x0)/8, ndelta_x = delta_x?delta_x:(siz>1);
               const double ndelta_y = (y1 - y0)/8;
               x0-=ndelta_x; x1+=ndelta_x;
               y0-=ndelta_y; y1+=ndelta_y;
@@ -54861,7 +54861,7 @@ namespace cimg_library_suffixed {
           } else {
             CImg<unsigned char> _src(src,false);
             _src.channels(0,cimg::min(_src._spectrum - 1,2U)).resize(W,H);
-            _src.resize(W,H,1,3,_src._spectrum==1?1:0);
+            _src.resize(W,H,1,3,_src._spectrum==1);
             const unsigned char *ptr_r = _src.data(0,0,0,0), *ptr_g = _src.data(0,0,0,1), *ptr_b = _src.data(0,0,0,2);
             char *ptrd = ipl->imageData;
             cimg_forXY(_src,x,y) {

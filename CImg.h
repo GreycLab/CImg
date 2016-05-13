@@ -13974,32 +13974,29 @@ namespace cimg_library_suffixed {
         opcode._is_shared = true;
       }
 
-      // Count parentheses/brackets level of expression.
+      // Count parentheses/brackets level of each character of the expression.
       CImg<uintT> get_level(CImg<charT>& expr) const {
-        bool
-          is_escaped = false, next_is_escaped = false,
-          is_string = false, next_is_string = false,
-          is_charstring = false, next_is_charstring = false;
+        bool is_escaped = false, next_is_escaped = false;
+        unsigned int mode = 0, next_mode = 0; // { 0=normal | 1=char-string | 2=vector-string
         CImg<uintT> res(expr._width - 1);
         unsigned int *pd = res._data;
         int lv = 0;
         for (const char *ps = expr._data; *ps && lv>=0; ++ps) {
           if (!next_is_escaped && *ps=='\\') next_is_escaped = true;
-          if (!is_escaped && *ps=='\'') {
-            if (!is_string && ps>expr._data && *(ps - 1)=='[') next_is_string = true;
-            else if (is_string && *(ps + 1)==']') next_is_string = is_string = false;
-            next_is_charstring = is_charstring?(is_charstring = false):true;
+          if (!is_escaped && *ps=='\'') { // Non-escaped character
+            if (mode<2 && ps>expr._data && *(ps - 1)=='[') next_mode = mode = 2; // Start vector-string
+            else if (mode==2 && *(ps + 1)==']') next_mode = !mode; // End vector-string
+            if (mode<2) next_mode = mode?(mode = 0):1; // Start/end char-string
           }
-          *(pd++) = (unsigned int)(is_string || is_escaped?lv:
+          *(pd++) = (unsigned int)(mode==2 || is_escaped?lv:
                                    *ps=='(' || *ps=='['?lv++:
                                    *ps==')' || *ps==']'?--lv:
-                                   lv + (is_charstring?1:0));
-          is_string = next_is_string;
+                                   lv + (mode==1?1:0));
+          mode = next_mode;
           is_escaped = next_is_escaped;
-          is_charstring = next_is_charstring;
           next_is_escaped = false;
         }
-        if (is_string) {
+        if (mode) {
           cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
                                       "CImg<%s>::%s: Unterminated string literal, in expression '%s'.",

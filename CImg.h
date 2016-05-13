@@ -17046,7 +17046,7 @@ namespace cimg_library_suffixed {
           if (!std::strncmp(ss,"min(",4) || !std::strncmp(ss,"max(",4) ||
               !std::strncmp(ss,"med(",4) || !std::strncmp(ss,"kth(",4) ||
               !std::strncmp(ss,"arg(",4) || !std::strncmp(ss,"sum(",4) ||
-              !std::strncmp(ss,"std(",4) || !std::strncmp(ss,"var(",4) ||
+              !std::strncmp(ss,"std(",4) || !std::strncmp(ss,"variance(",9) ||
               !std::strncmp(ss,"prod(",5) || !std::strncmp(ss,"mean(",5) ||
               !std::strncmp(ss,"argmin(",7) || !std::strncmp(ss,"argmax(",7)) { // Multi-argument functions
             _cimg_mp_op(*ss=='a'?(ss[3]=='('?"Function 'arg()'":ss[4]=='i'?"Function 'argmin()'":
@@ -17054,7 +17054,7 @@ namespace cimg_library_suffixed {
                         *ss=='s'?(ss[1]=='u'?"Function 'sum()'":"Function 'std()'"):
                         *ss=='k'?"Function 'kth()'":
                         *ss=='p'?"Function 'prod()'":
-                        *ss=='v'?"Function 'var()'":
+                        *ss=='v'?"Function 'variance()'":
                         ss[1]=='i'?"Function 'min()'":
                         ss[1]=='a'?"Function 'max()'":
                         ss[2]=='a'?"Function 'mean()'":"Function 'med()'");
@@ -17063,7 +17063,7 @@ namespace cimg_library_suffixed {
                                         *ss=='s'?(ss[1]=='u'?mp_sum:mp_std):
                                         *ss=='k'?mp_kth:
                                         *ss=='p'?mp_prod:
-                                        *ss=='v'?mp_var:
+                                        *ss=='v'?mp_variance:
                                         ss[1]=='i'?mp_min:
                                         ss[1]=='a'?mp_max:
                                         ss[2]=='a'?mp_mean:
@@ -19536,7 +19536,7 @@ namespace cimg_library_suffixed {
         return cimg::uppercase(_mp_arg(2));
       }
 
-      static double mp_var(_cimg_math_parser& mp) {
+      static double mp_variance(_cimg_math_parser& mp) {
         CImg<doubleT> vals(mp.opcode._height - 2);
         double *p = vals.data();
         for (unsigned int i = 2; i<mp.opcode._height; ++i) *(p++) = _mp_arg(i);

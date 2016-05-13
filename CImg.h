@@ -13979,7 +13979,7 @@ namespace cimg_library_suffixed {
         bool
           is_escaped = false, next_is_escaped = false,
           is_string = false, next_is_string = false,
-          is_char = false, next_is_char = false;
+          is_charstring = false, next_is_charstring = false;
         CImg<uintT> res(expr._width - 1);
         unsigned int *pd = res._data;
         int lv = 0;
@@ -13988,15 +13988,15 @@ namespace cimg_library_suffixed {
           if (!is_escaped && *ps=='\'') {
             if (!is_string && ps>expr._data && *(ps - 1)=='[') next_is_string = true;
             else if (is_string && *(ps + 1)==']') next_is_string = is_string = false;
-            next_is_char = is_char?(is_char = false):true;
+            next_is_charstring = is_charstring?(is_charstring = false):true;
           }
           *(pd++) = (unsigned int)(is_string || is_escaped?lv:
                                    *ps=='(' || *ps=='['?lv++:
                                    *ps==')' || *ps==']'?--lv:
-                                   lv + (is_char?1:0));
+                                   lv + (is_charstring?1:0));
           is_string = next_is_string;
           is_escaped = next_is_escaped;
-          is_char = next_is_char;
+          is_charstring = next_is_charstring;
           next_is_escaped = false;
         }
         if (is_string) {
@@ -17150,22 +17150,32 @@ namespace cimg_library_suffixed {
           }
         } // if (se1==')')
 
-        // Ascii code 'code'.
-        if (*ss=='\'' && *se1=='\'' && se1>ss) {
-          CImg<charT>(ss1,se1 - ss).move_to(variable_name).back() = 0;
-          cimg::strunescape(variable_name);
-          if (std::strlen(variable_name)!=1) {
+        // Char or string initializer.
+        if (se1>ss && *ss=='\'' && *se1=='\'') {
+          _cimg_mp_op("Char/string initializer");
+          arg1 = se1 - ss1; // Original string length.
+          if (arg1) {
+            CImg<charT>(ss1,arg1 + 1).move_to(variable_name).back() = 0;
+            cimg::strunescape(variable_name);
+            arg1 = std::strlen(variable_name);
+          }
+          if (!arg1) { // Empty string.
             *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
             throw CImgArgumentException("[_cimg_math_parser] "
-                                        "CImg<%s>::%s: Invalid %scharacter literal, "
+                                        "CImg<%s>::%s: %s: Empty char literal, "
                                         "in expression '%s%s%s'.",
-                                        pixel_type(),_cimg_mp_calling_function,
-                                        arg1?"":"empty ",
+                                        pixel_type(),_cimg_mp_calling_function,s_op,
                                         (ss - 4)>expr._data?"...":"",
                                         (ss - 4)>expr._data?ss - 4:expr._data,
                                         se<&expr.back()?"...":"");
           }
-          _cimg_mp_constant(*variable_name);
+          if (arg1==1) _cimg_mp_constant(*variable_name);
+          pos = vector(arg1);
+          CImg<ulongT>::vector((ulongT)mp_string_init,pos,arg1).move_to(_opcode);
+          CImg<ulongT>(1,arg1/sizeof(ulongT) + (arg1%sizeof(ulongT)?1:0)).move_to(_opcode);
+          std::memcpy((char*)_opcode[1]._data,variable_name,arg1);
+          (_opcode>'y').move_to(code);
+          _cimg_mp_return(pos);
         }
 
         // Vector initializer [ ... ].
@@ -17174,20 +17184,22 @@ namespace cimg_library_suffixed {
           s1 = ss1; while (s1<se2 && *s1<=' ') ++s1;
           s2 = se2; while (s2>s1 && *s2<=' ') --s2;
           if (s2>s1 && *s1=='\'' && *s2=='\'') { // Vector values provided as a string
-            arg1 = s2 - s1 - 1; // Original length of the string.
+            arg1 = s2 - s1 - 1; // Original string length.
+            if (arg1) {
+              CImg<charT>(s1 + 1,arg1 + 1).move_to(variable_name).back() = 0;
+              cimg::strunescape(variable_name);
+              arg1 = std::strlen(variable_name);
+            }
             if (!arg1) { // Empty string.
               *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
               throw CImgArgumentException("[_cimg_math_parser] "
-                                          "CImg<%s>::%s: %s: Invalid empty string literal, "
+                                          "CImg<%s>::%s: %s: Empty string literal, "
                                           "in expression '%s%s%s'.",
                                           pixel_type(),_cimg_mp_calling_function,s_op,
                                           (ss - 4)>expr._data?"...":"",
                                           (ss - 4)>expr._data?ss - 4:expr._data,
                                           se<&expr.back()?"...":"");
             }
-            CImg<charT>(s1 + 1,arg1 + 1).move_to(variable_name).back() = 0;
-            cimg::strunescape(variable_name);
-            arg1 = std::strlen(variable_name);
             pos = vector(arg1);
             CImg<ulongT>::vector((ulongT)mp_string_init,pos,arg1).move_to(_opcode);
             CImg<ulongT>(1,arg1/sizeof(ulongT) + (arg1%sizeof(ulongT)?1:0)).move_to(_opcode);
@@ -19718,11 +19730,12 @@ namespace cimg_library_suffixed {
           cimg::strellipsize(expr);
           unsigned int
             ptr = mp.opcode[1] + 1,
-            siz = mp.opcode[2];
+            siz0 = mp.opcode[2],
+            siz = siz0;
           cimg::mutex(6);
           std::fprintf(cimg::output(),"\n[_cimg_math_parser] %s = [",expr._data);
           while (siz-->0) std::fprintf(cimg::output(),"%g%s",mp.mem[ptr++],siz?",":"");
-          std::fputc(']',cimg::output());
+          std::fprintf(cimg::output(),"] (size: %u)",siz0);
           std::fflush(cimg::output());
           cimg::mutex(6,0);
         }

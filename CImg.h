@@ -17110,7 +17110,7 @@ namespace cimg_library_suffixed {
                   k+=variable_name._width - 1;
                   _expr[k++] = ')';
                 }
-                *ns = 0;
+                sep = *(s1 = ns); *ns = 0;
               }
 
               if (p1!=p2+1) { // Number of specified argument do not fit
@@ -17142,6 +17142,7 @@ namespace cimg_library_suffixed {
               pos = compile(expr._data,expr._data + expr._width - 1,depth1,p_ref);
               user_function = s0;
               expr.swap(_expr); pexpr.swap(_pexpr); level.swap(_level);
+              *s1 = sep;
               _cimg_mp_return(pos);
             }
           }
@@ -17345,7 +17346,7 @@ namespace cimg_library_suffixed {
         if (!std::strcmp(ss,"boundary")) _cimg_mp_return(reserved_label[30]); // boundary
 
         // No known item found, assuming this is an already initialized variable.
-        variable_name.assign(ss,(unsigned int)(se + 1 - ss)).back() = 0;
+        variable_name.assign(ss,(unsigned int)(se - ss + 1)).back() = 0;
         if (variable_name[1]) { // Multi-char variable
           cimglist_for(variable_def,i) if (!std::strcmp(variable_name,variable_def[i]))
             _cimg_mp_return(variable_pos[i]);

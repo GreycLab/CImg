@@ -17110,7 +17110,6 @@ namespace cimg_library_suffixed {
                   k+=variable_name._width - 1;
                   _expr[k++] = ')';
                 }
-                *ns = 0;
               }
 
               if (p1!=p2+1) { // Number of specified argument do not fit
@@ -18059,13 +18058,13 @@ namespace cimg_library_suffixed {
         }
         cimg_pragma_openmp(critical)
         {
+          mp.debug_indent-=3;
           std::fprintf(cimg::output(),
             "\n[_cimg_math_parser] %p[thread #%u]:%*c"
             "End debugging expression '%s' -> mem[%u] = %g (memsize: %u)",
             (void*)&mp,n_thread,mp.debug_indent,' ',
             expr._data,(unsigned int)g_target,mp.mem[g_target],mp.mem._width);
           std::fflush(cimg::output());
-          mp.debug_indent-=3;
         }
         --mp.p_code;
         return mp.mem[g_target];

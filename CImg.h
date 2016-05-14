@@ -18023,8 +18023,8 @@ namespace cimg_library_suffixed {
         const unsigned int n_thread = 0;
 #else
         const unsigned int n_thread = omp_get_thread_num();
-        cimg_pragma_openmp(critical)
 #endif
+        cimg_pragma_openmp(critical)
         {
           std::fprintf(cimg::output(),
                        "\n[_cimg_math_parser] %p[thread #%u]:%*c"
@@ -18032,20 +18032,23 @@ namespace cimg_library_suffixed {
                        (void*)&mp,n_thread,mp.debug_indent,' ',
                        expr._data,(unsigned int)mp.opcode[2],(unsigned int)g_target,mp.mem._width);
           std::fflush(cimg::output());
-          const CImg<ulongT> *const p_end = (++mp.p_code) + mp.opcode[2];
-          CImg<ulongT> _op;
           mp.debug_indent+=3;
-          for ( ; mp.p_code<p_end; ++mp.p_code) {
-            const CImg<ulongT> &op = *mp.p_code;
-            mp.opcode._data = op._data; mp.opcode._height = op._height;
+        }
+        const CImg<ulongT> *const p_end = (++mp.p_code) + mp.opcode[2];
+        CImg<ulongT> _op;
+        for ( ; mp.p_code<p_end; ++mp.p_code) {
+          const CImg<ulongT> &op = *mp.p_code;
+          mp.opcode._data = op._data; mp.opcode._height = op._height;
 
-            _op.assign(1,op._height - 1);
-            const ulongT *ptrs = op._data + 1;
-            for (ulongT *ptrd = _op._data, *const ptrde = _op._data + _op._height; ptrd<ptrde; ++ptrd)
-              *ptrd = *(ptrs++);
+          _op.assign(1,op._height - 1);
+          const ulongT *ptrs = op._data + 1;
+          for (ulongT *ptrd = _op._data, *const ptrde = _op._data + _op._height; ptrd<ptrde; ++ptrd)
+            *ptrd = *(ptrs++);
 
-            const ulongT target = mp.opcode[1];
-            mp.mem[target] = _cimg_mp_defunc(mp);
+          const ulongT target = mp.opcode[1];
+          mp.mem[target] = _cimg_mp_defunc(mp);
+          cimg_pragma_openmp(critical)
+          {
             std::fprintf(cimg::output(),
                          "\n[_cimg_math_parser] %p[thread #%u]:%*c"
                          "Opcode %p = [ %p,%s ] -> mem[%u] = %g",
@@ -18054,15 +18057,18 @@ namespace cimg_library_suffixed {
                          (unsigned int)target,mp.mem[target]);
             std::fflush(cimg::output());
           }
-          mp.debug_indent-=3;
-          std::fprintf(cimg::output(),
-                       "\n[_cimg_math_parser] %p[thread #%u]:%*c"
-                       "End debugging expression '%s' -> mem[%u] = %g (memsize: %u)",
-                       (void*)&mp,n_thread,mp.debug_indent,' ',
-                       expr._data,(unsigned int)g_target,mp.mem[g_target],mp.mem._width);
-          std::fflush(cimg::output());
-          --mp.p_code;
         }
+        cimg_pragma_openmp(critical)
+        {
+          std::fprintf(cimg::output(),
+            "\n[_cimg_math_parser] %p[thread #%u]:%*c"
+            "End debugging expression '%s' -> mem[%u] = %g (memsize: %u)",
+            (void*)&mp,n_thread,mp.debug_indent,' ',
+            expr._data,(unsigned int)g_target,mp.mem[g_target],mp.mem._width);
+          std::fflush(cimg::output());
+          mp.debug_indent-=3;
+        }
+        --mp.p_code;
         return mp.mem[g_target];
       }
 

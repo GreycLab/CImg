@@ -17110,7 +17110,7 @@ namespace cimg_library_suffixed {
                   k+=variable_name._width - 1;
                   _expr[k++] = ')';
                 }
-                sep = *(s1 = ns); *ns = 0;
+                *ns = 0;
               }
 
               if (p1!=p2+1) { // Number of specified argument do not fit
@@ -17142,7 +17142,6 @@ namespace cimg_library_suffixed {
               pos = compile(expr._data,expr._data + expr._width - 1,depth1,p_ref);
               user_function = s0;
               expr.swap(_expr); pexpr.swap(_pexpr); level.swap(_level);
-              *s1 = sep;
               _cimg_mp_return(pos);
             }
           }

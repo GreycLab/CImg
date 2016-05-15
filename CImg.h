@@ -16367,11 +16367,12 @@ namespace cimg_library_suffixed {
               p1 = code._width;
               arg1 = compile(++s1,s2,depth1,0);
               p2 = code._width;
+              p3 = mempos;
               if (s3<se1) { pos = compile(s3 + 1,se1,depth1,0); compile(++s2,s3,depth1,0); } // Body + proc
               else pos = compile(++s2,se1,depth1,0); // Proc only
               _cimg_mp_check_type(arg1,2,1,0);
               arg2 = _cimg_mp_is_vector(pos)?_cimg_mp_vector_size(pos):0; // Output vector size (or 0 if scalar)
-              CImg<ulongT>::vector((ulongT)mp_whiledo,pos,arg1,p2 - p1,code._width - p2,arg2).move_to(code,p1);
+              CImg<ulongT>::vector((ulongT)mp_whiledo,pos,arg1,p2 - p1,code._width - p2,arg2,pos>p3).move_to(code,p1);
               _cimg_mp_return(pos);
             }
             break;
@@ -17034,10 +17035,11 @@ namespace cimg_library_suffixed {
               p1 = code._width;
               arg1 = compile(ss8,s1,depth1,0);
               p2 = code._width;
+              p3 = mempos;
               pos = compile(++s1,se1,depth1,0);
               _cimg_mp_check_type(arg1,1,1,0);
               arg2 = _cimg_mp_is_vector(pos)?_cimg_mp_vector_size(pos):0; // Output vector size (or 0 if scalar)
-              CImg<ulongT>::vector((ulongT)mp_whiledo,pos,arg1,p2 - p1,code._width - p2,arg2).move_to(code,p1);
+              CImg<ulongT>::vector((ulongT)mp_whiledo,pos,arg1,p2 - p1,code._width - p2,arg2,pos>p3).move_to(code,p1);
               _cimg_mp_return(pos);
             }
             break;
@@ -19784,7 +19786,11 @@ namespace cimg_library_suffixed {
           *const p_proc = p_cond + mp.opcode[3],
           *const p_end = p_proc + mp.opcode[4];
         const unsigned int vsiz = mp.opcode[5];
-        bool is_first_iter = true, is_cond = false;
+        bool is_cond = false;
+        if (mp.opcode[6]) { // Set default result if inner memory slot and possibly no iterations
+          if (vsiz) CImg<doubleT>(&mp.mem[mem_proc] + 1,vsiz,1,1,1,true).fill(cimg::type<double>::nan());
+          else _mp_arg(1) = cimg::type<double>::nan();
+        }
         do {
           for (mp.p_code = p_cond; mp.p_code<p_proc; ++mp.p_code) { // Evaluate loop condition
             const CImg<ulongT> &op = *mp.p_code;
@@ -19800,12 +19806,10 @@ namespace cimg_library_suffixed {
               const ulongT target = mp.opcode[1];
               mp.mem[target] = _cimg_mp_defunc(mp);
             }
-            is_first_iter = false;
           }
         } while (is_cond);
         mp.p_code = p_end - 1;
-        if (vsiz && is_first_iter) std::memset(&mp.mem[mem_proc] + 1,0,vsiz*sizeof(double));
-        return is_first_iter?0:mp.mem[mem_proc];
+        return mp.mem[mem_proc];
       }
 
       static double mp_Ioff(_cimg_math_parser& mp) {

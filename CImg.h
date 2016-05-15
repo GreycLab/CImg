@@ -17219,16 +17219,7 @@ namespace cimg_library_suffixed {
             cimg::strunescape(variable_name);
             arg1 = std::strlen(variable_name);
           }
-          if (!arg1) { // Empty string.
-            *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
-            throw CImgArgumentException("[_cimg_math_parser] "
-                                        "CImg<%s>::%s: %s: Empty char literal, "
-                                        "in expression '%s%s%s'.",
-                                        pixel_type(),_cimg_mp_calling_function,s_op,
-                                        (ss - 4)>expr._data?"...":"",
-                                        (ss - 4)>expr._data?ss - 4:expr._data,
-                                        se<&expr.back()?"...":"");
-          }
+          if (!arg1) _cimg_mp_return(0); // Empty string -> 0
           if (arg1==1) _cimg_mp_constant(*variable_name);
           pos = vector(arg1);
           CImg<ulongT>::vector((ulongT)mp_string_init,pos,arg1).move_to(_opcode);
@@ -17250,16 +17241,7 @@ namespace cimg_library_suffixed {
               cimg::strunescape(variable_name);
               arg1 = std::strlen(variable_name);
             }
-            if (!arg1) { // Empty string.
-              *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
-              throw CImgArgumentException("[_cimg_math_parser] "
-                                          "CImg<%s>::%s: %s: Empty string literal, "
-                                          "in expression '%s%s%s'.",
-                                          pixel_type(),_cimg_mp_calling_function,s_op,
-                                          (ss - 4)>expr._data?"...":"",
-                                          (ss - 4)>expr._data?ss - 4:expr._data,
-                                          se<&expr.back()?"...":"");
-            }
+            if (!arg1) _cimg_mp_return(0); // Empty string -> 0
             pos = vector(arg1);
             CImg<ulongT>::vector((ulongT)mp_string_init,pos,arg1).move_to(_opcode);
             CImg<ulongT>(1,arg1/sizeof(ulongT) + (arg1%sizeof(ulongT)?1:0)).move_to(_opcode);

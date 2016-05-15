@@ -4744,13 +4744,23 @@ namespace cimg_library_suffixed {
     }
 
     //! Return the factorial of n
-    inline double factorial(const double x) {
-      if (x<0) return cimg::type<double>::nan();
-      if (x<2) return 1;
-      const unsigned int _x = (unsigned int)x;
-      double res = 1;
-      for (unsigned int i = 2; i<=_x; ++i) res*=i;
+    inline double factorial(const double n) {
+      if (n<0) return cimg::type<double>::nan();
+      if (n<2) return 1;
+      const unsigned int _n = (unsigned int)n;
+      double res = 2;
+      for (unsigned int i = 3; i<=_n; ++i) res*=i;
       return res;
+    }
+
+    //! Return the number of permutations of k objects in a set of n objects.
+    inline double permutations(const double k, const double n, const bool with_order) {
+      if (n<0 || k<0) return cimg::type<double>::nan();
+      if (k>n) return 0;
+      const unsigned int _n = (unsigned int)n, _k = (unsigned int)k;
+      double res = 1;
+      for (unsigned int i = n; i>=_n - _k + 1; --i) res*=i;
+      return with_order?res:res/cimg::factorial(k);
     }
 
     //! Convert ascii character to lower case.
@@ -16685,6 +16695,21 @@ namespace cimg_library_suffixed {
             break;
 
           case 'p' :
+            if (!std::strncmp(ss,"permut(",7)) { // Number of permutations
+              _cimg_mp_op("Function 'permut()'");
+              s1 = ss7; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg1 = compile(ss7,s1,depth1,0);
+              arg2 = compile(++s1,s2,depth1,0);
+              arg3 = compile(++s2,se1,depth1,0);
+              _cimg_mp_check_type(arg2,2,1,0);
+              _cimg_mp_check_type(arg3,3,1,0);
+              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector3_vss(mp_permutations,arg1,arg2,arg3);
+              if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2) && _cimg_mp_is_constant(arg3))
+                _cimg_mp_constant(cimg::permutations(mem[arg1],mem[arg2],(bool)mem[arg3]));
+              _cimg_mp_scalar3(mp_permutations,arg1,arg2,arg3);
+            }
+
             if (!std::strncmp(ss,"print(",6)) { // Print expression
               _cimg_mp_op("Function 'print()'");
               pos = compile(ss6,se1,depth1,p_ref);
@@ -19127,6 +19152,10 @@ namespace cimg_library_suffixed {
           res+=std::pow(cimg::abs(_mp_arg(i)),p);
         res = std::pow(res,1/p);
         return res>0?res:0.0;
+      }
+
+      static double mp_permutations(_cimg_math_parser& mp) {
+        return cimg::permutations(_mp_arg(2),_mp_arg(3),(bool)_mp_arg(4));
       }
 
       static double mp_pow(_cimg_math_parser& mp) {

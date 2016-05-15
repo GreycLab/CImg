@@ -16170,6 +16170,10 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(arg1);
             }
 
+            if (!std::strncmp(ss,"debugmem(",9)) { // View memory (for debug)
+              _cimg_mp_scalar0(mp_debugmem);
+            }
+
             if (!std::strncmp(ss,"det(",4)) { // Matrix determinant
               _cimg_mp_op("Function 'det()'");
               arg1 = compile(ss4,se1,depth1,0);
@@ -17479,7 +17483,7 @@ namespace cimg_library_suffixed {
       // Insert constant value in memory.
       unsigned int constant(const double val) {
         if (val==(double)(int)val) {
-          if (val>=0 && val<=9) return (unsigned int)val;
+          if (val>=0 && val<=10) return (unsigned int)val;
           if (val<0 && val>=-5) return (unsigned int)(10 - val);
         }
         if (val==0.5) return 16;
@@ -18128,6 +18132,13 @@ namespace cimg_library_suffixed {
         }
         --mp.p_code;
         return mp.mem[g_target];
+      }
+
+      static double mp_debugmem(_cimg_math_parser& mp) {
+        cimg::unused(mp);
+        std::fputc('\n',cimg::output());
+        mp.mem.display("[_cimg_math_parser] Memory snapshot");
+        return cimg::type<double>::nan();
       }
 
       static double mp_decrement(_cimg_math_parser& mp) {

@@ -4744,23 +4744,30 @@ namespace cimg_library_suffixed {
     }
 
     //! Return the factorial of n
-    inline double factorial(const double n) {
+    inline double factorial(const int n) {
       if (n<0) return cimg::type<double>::nan();
       if (n<2) return 1;
-      const unsigned int _n = (unsigned int)n;
       double res = 2;
-      for (unsigned int i = 3; i<=_n; ++i) res*=i;
+      for (int i = 3; i<=n; ++i) res*=i;
       return res;
     }
 
     //! Return the number of permutations of k objects in a set of n objects.
-    inline double permutations(const double k, const double n, const bool with_order) {
+    inline double permutations(const int k, const int n, const bool with_order) {
       if (n<0 || k<0) return cimg::type<double>::nan();
       if (k>n) return 0;
-      const unsigned int _n = (unsigned int)n, _k = (unsigned int)k;
       double res = 1;
-      for (unsigned int i = n; i>=_n - _k + 1; --i) res*=i;
+      for (int i = n; i>=n - k + 1; --i) res*=i;
       return with_order?res:res/cimg::factorial(k);
+    }
+
+    //! Return fibonacci number.
+    inline double fibonacci(const int n) {
+      if (n<0) return cimg::type<double>::nan();
+      if (n<3) return 1;
+      cimg_long fn1 = 1, fn2 = 1, fn = 2;
+      for (int i = 3; i<=n; ++i) { fn = fn1 + fn2; fn2 = fn1; fn1 = fn; }
+      return (double)fn;
     }
 
     //! Convert ascii character to lower case.
@@ -16385,6 +16392,14 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar1(mp_factorial,arg1);
             }
 
+            if (!std::strncmp(ss,"fibo(",5)) { // Fibonacci
+              _cimg_mp_op("Function 'fibo()'");
+              arg1 = compile(ss5,se1,depth1,0);
+              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_fibonacci,arg1);
+              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(cimg::fibonacci(mem[arg1]));
+              _cimg_mp_scalar1(mp_fibonacci,arg1);
+            }
+
             if (*ss1=='o' && *ss2=='r' && (*ss3=='(' || (*ss3 && *ss3<=' ' && *ss4=='('))) { // For loop
               _cimg_mp_op("Function 'for()'");
               if (*ss3<=' ') cimg::swap(*ss3,*ss4); // Allow space before opening brace
@@ -18211,6 +18226,10 @@ namespace cimg_library_suffixed {
 
       static double mp_factorial(_cimg_math_parser& mp) {
         return cimg::factorial(_mp_arg(2));
+      }
+
+      static double mp_fibonacci(_cimg_math_parser& mp) {
+        return cimg::fibonacci((int)_mp_arg(2));
       }
 
       static double mp_g(_cimg_math_parser& mp) {

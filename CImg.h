@@ -4743,6 +4743,16 @@ namespace cimg_library_suffixed {
       return 0;
     }
 
+    //! Return the factorial of n
+    inline double factorial(const double x) {
+      if (x<0) return cimg::type<double>::nan();
+      if (x<2) return 1;
+      const unsigned int _x = (unsigned int)x;
+      double res = 1;
+      for (unsigned int i = 2; i<=_x; ++i) res*=i;
+      return res;
+    }
+
     //! Convert ascii character to lower case.
     inline char lowercase(const char x) {
       return (char)((x<'A'||x>'Z')?x:x - 'A' + 'a');
@@ -16357,6 +16367,14 @@ namespace cimg_library_suffixed {
             break;
 
           case 'f' :
+            if (!std::strncmp(ss,"fact(",5)) { // Factorial
+              _cimg_mp_op("Function 'fact()'");
+              arg1 = compile(ss5,se1,depth1,0);
+              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_factorial,arg1);
+              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(cimg::factorial(mem[arg1]));
+              _cimg_mp_scalar1(mp_factorial,arg1);
+            }
+
             if (*ss1=='o' && *ss2=='r' && (*ss3=='(' || (*ss3 && *ss3<=' ' && *ss4=='('))) { // For loop
               _cimg_mp_op("Function 'for()'");
               if (*ss3<=' ') cimg::swap(*ss3,*ss4); // Allow space before opening brace
@@ -16372,7 +16390,7 @@ namespace cimg_library_suffixed {
               else pos = compile(++s2,se1,depth1,0); // Proc only
               _cimg_mp_check_type(arg1,2,1,0);
               arg2 = _cimg_mp_is_vector(pos)?_cimg_mp_vector_size(pos):0; // Output vector size (or 0 if scalar)
-              CImg<ulongT>::vector((ulongT)mp_whiledo,pos,arg1,p2 - p1,code._width - p2,arg2,pos>p3).move_to(code,p1);
+              CImg<ulongT>::vector((ulongT)mp_whiledo,pos,arg1,p2 - p1,code._width - p2,arg2,pos>=p3).move_to(code,p1);
               _cimg_mp_return(pos);
             }
             break;
@@ -17039,7 +17057,7 @@ namespace cimg_library_suffixed {
               pos = compile(++s1,se1,depth1,0);
               _cimg_mp_check_type(arg1,1,1,0);
               arg2 = _cimg_mp_is_vector(pos)?_cimg_mp_vector_size(pos):0; // Output vector size (or 0 if scalar)
-              CImg<ulongT>::vector((ulongT)mp_whiledo,pos,arg1,p2 - p1,code._width - p2,arg2,pos>p3).move_to(code,p1);
+              CImg<ulongT>::vector((ulongT)mp_whiledo,pos,arg1,p2 - p1,code._width - p2,arg2,pos>=p3).move_to(code,p1);
               _cimg_mp_return(pos);
             }
             break;
@@ -18164,6 +18182,10 @@ namespace cimg_library_suffixed {
         const unsigned int k = (unsigned int)mp.opcode(2);
         CImg<double>(ptrd,k,k,1,1,true).identity_matrix();
         return cimg::type<double>::nan();
+      }
+
+      static double mp_factorial(_cimg_math_parser& mp) {
+        return cimg::factorial(_mp_arg(2));
       }
 
       static double mp_g(_cimg_math_parser& mp) {

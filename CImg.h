@@ -16702,9 +16702,9 @@ namespace cimg_library_suffixed {
               arg1 = compile(ss7,s1,depth1,0);
               arg2 = compile(++s1,s2,depth1,0);
               arg3 = compile(++s2,se1,depth1,0);
+              _cimg_mp_check_type(arg1,1,1,0);
               _cimg_mp_check_type(arg2,2,1,0);
               _cimg_mp_check_type(arg3,3,1,0);
-              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector3_vss(mp_permutations,arg1,arg2,arg3);
               if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2) && _cimg_mp_is_constant(arg3))
                 _cimg_mp_constant(cimg::permutations(mem[arg1],mem[arg2],(bool)mem[arg3]));
               _cimg_mp_scalar3(mp_permutations,arg1,arg2,arg3);

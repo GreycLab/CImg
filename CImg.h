@@ -16170,8 +16170,8 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(arg1);
             }
 
-            if (!std::strncmp(ss,"debugmem(",9)) { // View memory (for debug)
-              _cimg_mp_scalar0(mp_debugmem);
+            if (!std::strncmp(ss,"debugm(",7)) { // View memory (for debug)
+              _cimg_mp_scalar0(mp_debug_memory);
             }
 
             if (!std::strncmp(ss,"det(",4)) { // Matrix determinant
@@ -18116,7 +18116,7 @@ namespace cimg_library_suffixed {
         return mp.mem[g_target];
       }
 
-      static double mp_debugmem(_cimg_math_parser& mp) {
+      static double mp_debug_memory(_cimg_math_parser& mp) {
         cimg::unused(mp);
         std::fputc('\n',cimg::output());
         mp.mem.display("[_cimg_math_parser] Memory snapshot");

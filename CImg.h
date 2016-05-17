@@ -14011,9 +14011,9 @@ namespace cimg_library_suffixed {
         for (const char *ps = expr._data; *ps && lv>=0; ++ps) {
           if (!next_is_escaped && *ps=='\\') next_is_escaped = true;
           if (!is_escaped && *ps=='\'') { // Non-escaped character
-            if (mode<2 && ps>expr._data && *(ps - 1)=='[') next_mode = mode = 2; // Start vector-string
+            if (!mode && ps>expr._data && *(ps - 1)=='[') next_mode = mode = 2; // Start vector-string
             else if (mode==2 && *(ps + 1)==']') next_mode = !mode; // End vector-string
-            if (mode<2) next_mode = mode?(mode = 0):1; // Start/end char-string
+            else if (mode<2) next_mode = mode?(mode = 0):1; // Start/end char-string
           }
           *(pd++) = (unsigned int)(mode>=1 || is_escaped?lv + (mode==1):
                                    *ps=='(' || *ps=='['?lv++:
@@ -17210,17 +17210,31 @@ namespace cimg_library_suffixed {
           }
         } // if (se1==')')
 
-        // Char or string initializer.
-        if (se1>ss && *ss=='\'' && *se1=='\'') {
-          _cimg_mp_op("Char/string initializer");
-          arg1 = se1 - ss1; // Original string length.
+        // Char / string initializer.
+        if (*se1=='\'' &&
+            ((se1>ss && *ss=='\'') ||
+            (se1>ss1 && *ss=='_' && *ss1=='\''))) {
+          if (*ss=='_') { _cimg_mp_op("Char initializer"); s1 = ss2; }
+          else { _cimg_mp_op("String initializer"); s1 = ss1; }
+          arg1 = se1 - s1; // Original string length.
           if (arg1) {
-            CImg<charT>(ss1,arg1 + 1).move_to(variable_name).back() = 0;
+            CImg<charT>(s1,arg1 + 1).move_to(variable_name).back() = 0;
             cimg::strunescape(variable_name);
             arg1 = std::strlen(variable_name);
           }
           if (!arg1) _cimg_mp_return(0); // Empty string -> 0
-          if (arg1==1) _cimg_mp_constant(*variable_name);
+          if (*ss=='_') {
+            if (arg1==1) _cimg_mp_constant(*variable_name);
+            *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
+            throw CImgArgumentException("[_cimg_math_parser] "
+                                        "CImg<%s>::%s: %s: Literal %s contains more than one character, "
+                                        "in expression '%s%s%s'.",
+                                        pixel_type(),_cimg_mp_calling_function,s_op,
+                                        ss1,
+                                        (ss - 4)>expr._data?"...":"",
+                                        (ss - 4)>expr._data?ss - 4:expr._data,
+                                        se<&expr.back()?"...":"");
+          }
           pos = vector(arg1);
           CImg<ulongT>::vector((ulongT)mp_string_init,pos,arg1).move_to(_opcode);
           CImg<ulongT>(1,arg1/sizeof(ulongT) + (arg1%sizeof(ulongT)?1:0)).move_to(_opcode);

@@ -16231,6 +16231,7 @@ namespace cimg_library_suffixed {
               arg3 = is_relative?0U:(unsigned int)_cimg_mp_y;
               arg4 = is_relative?0U:(unsigned int)_cimg_mp_z;
               arg5 = is_relative?0U:(unsigned int)_cimg_mp_c;
+              s0 = se1;
               if (s1<se1) {
                 s0 = s1 + 1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                 arg2 = compile(++s1,s0,depth1,0);
@@ -16297,6 +16298,7 @@ namespace cimg_library_suffixed {
                   }
                 }
               }
+
               if (s0<s1) s0 = s1;
               if (arg2==~0U || arg3==~0U || arg4==~0U || arg5==~0U) {
                 if (p1!=~0U) {

@@ -16404,6 +16404,25 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar1(mp_fibonacci,arg1);
             }
 
+            if (!std::strncmp(ss,"find(",5)) { // Find
+              _cimg_mp_op("Function 'find()'");
+              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg1 = compile(ss5,s1,depth1,0);
+              arg2 = compile(++s1,s2,depth1,0);
+              _cimg_mp_check_type(arg1,1,2,0);
+              _cimg_mp_check_type(arg2,2,2,0);
+              arg3 = arg4 = 0;
+              if (s2<se1) {
+                s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                arg3 = compile(++s2,s1,depth1,0);
+                arg4 = s1<se1?compile(++s1,se1,depth1,0):0;
+              }
+              _cimg_mp_check_type(arg3,3,1,0);
+              _cimg_mp_check_type(arg4,4,1,0);
+              _cimg_mp_return(26);
+            }
+
             if (*ss1=='o' && *ss2=='r' && (*ss3=='(' || (*ss3 && *ss3<=' ' && *ss4=='('))) { // For loop
               _cimg_mp_op("Function 'for()'");
               if (*ss3<=' ') cimg::swap(*ss3,*ss4); // Allow space before opening brace

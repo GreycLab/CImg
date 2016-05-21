@@ -16420,7 +16420,7 @@ namespace cimg_library_suffixed {
               }
               _cimg_mp_check_type(arg3,3,1,0);
               _cimg_mp_check_type(arg4,4,1,0);
-              _cimg_mp_return(26);
+              _cimg_mp_scalar6(mp_find,arg1,_cimg_mp_vector_size(arg1),arg2,_cimg_mp_vector_size(arg2),arg3,arg4);
             }
 
             if (*ss1=='o' && *ss2=='r' && (*ss3=='(' || (*ss3 && *ss3<=' ' && *ss4=='('))) { // For loop
@@ -18256,6 +18256,29 @@ namespace cimg_library_suffixed {
 
       static double mp_fibonacci(_cimg_math_parser& mp) {
         return cimg::fibonacci((int)_mp_arg(2));
+      }
+
+      static double mp_find(_cimg_math_parser& mp) {
+        const unsigned int
+          siz1 = (unsigned int)mp.opcode[3],
+          siz2 = (unsigned int)mp.opcode[5];
+        const double
+          *const ptr1b = &_mp_arg(2) + 1,
+          *const ptr1e = ptr1b + siz1,
+          *const ptr2b = &_mp_arg(4) + 1,
+          *const ptr2e = ptr2b + siz2,
+          *ptr1 = ptr1b,
+          *p1 = 0,
+          *p2 = 0;
+        const int ind = (int)_mp_arg(6);
+        const bool is_reverse = (bool)_mp_arg(7);
+        do {
+          while (ptr1<ptr1e && *ptr1!=*ptr2b) ++ptr1;
+          p1 = ptr1 + 1;
+          p2 = ptr2b + 1;
+          while (p1<ptr1e && p2<ptr2e && *p1==*p2) { ++p1; ++p2; }
+        } while (p2<ptr2e && ++ptr1<ptr1e);
+        return p2<ptr2e?-1.0:(double)(ptr1 - ptr1b);
       }
 
       static double mp_g(_cimg_math_parser& mp) {

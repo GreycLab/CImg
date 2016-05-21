@@ -17220,7 +17220,7 @@ namespace cimg_library_suffixed {
           if (arg1) {
             CImg<charT>(s1,arg1 + 1).move_to(variable_name).back() = 0;
             cimg::strunescape(variable_name);
-            arg1 = std::strlen(variable_name);
+            arg1 = (unsigned int)std::strlen(variable_name);
           }
           if (!arg1) _cimg_mp_return(0); // Empty string -> 0
           if (*ss=='_') {
@@ -17253,7 +17253,7 @@ namespace cimg_library_suffixed {
             if (arg1) {
               CImg<charT>(s1 + 1,arg1 + 1).move_to(variable_name).back() = 0;
               cimg::strunescape(variable_name);
-              arg1 = std::strlen(variable_name);
+              arg1 = (unsigned int)std::strlen(variable_name);
             }
             if (!arg1) _cimg_mp_return(0); // Empty string -> 0
             pos = vector(arg1);

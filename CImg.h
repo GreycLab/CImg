@@ -13852,6 +13852,7 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_scalar1(op,i1) _cimg_mp_return(scalar1(op,i1))
 #define _cimg_mp_scalar2(op,i1,i2) _cimg_mp_return(scalar2(op,i1,i2))
 #define _cimg_mp_scalar3(op,i1,i2,i3) _cimg_mp_return(scalar3(op,i1,i2,i3))
+#define _cimg_mp_scalar5(op,i1,i2,i3,i4,i5) _cimg_mp_return(scalar5(op,i1,i2,i3,i4,i5))
 #define _cimg_mp_scalar6(op,i1,i2,i3,i4,i5,i6) _cimg_mp_return(scalar6(op,i1,i2,i3,i4,i5,i6))
 #define _cimg_mp_scalar7(op,i1,i2,i3,i4,i5,i6,i7) _cimg_mp_return(scalar7(op,i1,i2,i3,i4,i5,i6,i7))
 #define _cimg_mp_vector1_v(op,i1) _cimg_mp_return(vector1_v(op,i1))
@@ -13911,6 +13912,7 @@ namespace cimg_library_suffixed {
         *(p_mem++) = cimg::type<double>::nan(); // mem[28]
 
         // Then, [29] = x, [30] = y, [31] = z and [32] = c.
+#define _cimg_mp_nan 28
 #define _cimg_mp_x 29
 #define _cimg_mp_y 30
 #define _cimg_mp_z 31
@@ -14505,7 +14507,7 @@ namespace cimg_library_suffixed {
                 }
                 // Store number of arguments
                 function_def[0].resize(function_def[0]._width + 1,1,1,1,0).back() = (char)(p1 - 1);
-                _cimg_mp_return(28);
+                _cimg_mp_return(_cimg_mp_nan);
               }
             }
 
@@ -16411,16 +16413,19 @@ namespace cimg_library_suffixed {
               arg1 = compile(ss5,s1,depth1,0);
               arg2 = compile(++s1,s2,depth1,0);
               _cimg_mp_check_type(arg1,1,2,0);
-              _cimg_mp_check_type(arg2,2,2,0);
-              arg3 = arg4 = 0;
+              arg3 = 1; arg4 = _cimg_mp_nan;
               if (s2<se1) {
                 s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                 arg3 = compile(++s2,s1,depth1,0);
-                arg4 = s1<se1?compile(++s1,se1,depth1,0):0;
+                _cimg_mp_check_type(arg3,3,1,0);
+                if (s1<se1) {
+                  arg4 = compile(++s1,se1,depth1,0);
+                  _cimg_mp_check_type(arg4,4,1,0);
+                }
               }
-              _cimg_mp_check_type(arg3,3,1,0);
-              _cimg_mp_check_type(arg4,4,1,0);
-              _cimg_mp_scalar6(mp_find,arg1,_cimg_mp_vector_size(arg1),arg2,_cimg_mp_vector_size(arg2),arg3,arg4);
+              if (_cimg_mp_is_vector(arg2))
+                _cimg_mp_scalar6(mp_find_vector,arg1,_cimg_mp_vector_size(arg1),arg2,_cimg_mp_vector_size(arg2),arg3,arg4);
+              _cimg_mp_scalar5(mp_find,arg1,_cimg_mp_vector_size(arg1),arg2,arg3,arg4);
             }
 
             if (*ss1=='o' && *ss2=='r' && (*ss3=='(' || (*ss3 && *ss3<=' ' && *ss4=='('))) { // For loop
@@ -17502,7 +17507,7 @@ namespace cimg_library_suffixed {
           if (val<0 && val>=-5) return (unsigned int)(10 - val);
         }
         if (val==0.5) return 16;
-        if (cimg::type<double>::is_nan(val)) return 28;
+        if (cimg::type<double>::is_nan(val)) return _cimg_mp_nan;
         if (mempos>=mem._width) { mem.resize(-200,1,1,1,0); memtype.resize(-200,1,1,1,0); }
         const unsigned int pos = mempos++;
         mem[pos] = val;
@@ -17544,6 +17549,19 @@ namespace cimg_library_suffixed {
           arg2>_cimg_mp_c && _cimg_mp_is_temp(arg2)?arg2:
           arg3>_cimg_mp_c && _cimg_mp_is_temp(arg3)?arg3:scalar();
         CImg<ulongT>::vector((ulongT)op,pos,arg1,arg2,arg3).move_to(code);
+        return pos;
+      }
+
+      unsigned int scalar5(const mp_func op,
+                           const unsigned int arg1, const unsigned int arg2, const unsigned int arg3,
+                           const unsigned int arg4, const unsigned int arg5) {
+        const unsigned int pos =
+          arg1>_cimg_mp_c && _cimg_mp_is_temp(arg1)?arg1:
+          arg2>_cimg_mp_c && _cimg_mp_is_temp(arg2)?arg2:
+          arg3>_cimg_mp_c && _cimg_mp_is_temp(arg3)?arg3:
+          arg4>_cimg_mp_c && _cimg_mp_is_temp(arg4)?arg4:
+          arg5>_cimg_mp_c && _cimg_mp_is_temp(arg5)?arg5:scalar();
+        CImg<ulongT>::vector((ulongT)op,pos,arg1,arg2,arg3,arg4,arg5).move_to(code);
         return pos;
       }
 
@@ -18179,7 +18197,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_dot(_cimg_math_parser& mp) {
-        const unsigned int siz = (unsigned int)mp.opcode[4];
+        const ulongT siz = (ulongT)mp.opcode[4];
         return CImg<doubleT>(&_mp_arg(2) + 1,1,siz,1,1,true).
           dot(CImg<doubleT>(&_mp_arg(3) + 1,1,siz,1,1,true));
       }
@@ -18259,25 +18277,61 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_find(_cimg_math_parser& mp) {
-        const unsigned int
-          siz1 = (unsigned int)mp.opcode[3],
-          siz2 = (unsigned int)mp.opcode[5];
+        const bool is_forward = (bool)_mp_arg(5);
+        const ulongT siz = (ulongT)mp.opcode[3];
+        longT ind = (longT)(mp.opcode[6]!=_cimg_mp_nan?_mp_arg(6):is_forward?0:siz - 1);
+        if (ind<0 || ind>=(longT)siz) return -1.;
+        const double
+          *const ptrb = &_mp_arg(2) + 1,
+          *const ptre = ptrb + siz,
+          val = _mp_arg(4),
+          *ptr = ptrb + ind;
+
+        // Forward search
+        if (is_forward) {
+          while (ptr<ptre && *ptr!=val) ++ptr;
+          return ptr==ptre?-1.:(double)(ptr - ptrb);
+        }
+
+        // Backward search.
+        while (ptr>=ptrb && *ptr!=val) --ptr;
+        return ptr<ptrb?-1.:(double)(ptr - ptrb);
+      }
+
+      static double mp_find_vector(_cimg_math_parser& mp) {
+        const bool is_forward = (bool)_mp_arg(6);
+        const ulongT
+          siz1 = (ulongT)mp.opcode[3],
+          siz2 = (ulongT)mp.opcode[5];
+        longT ind = (longT)(mp.opcode[7]!=_cimg_mp_nan?_mp_arg(7):is_forward?0:siz1 - 1);
+        if (ind<0 || ind>=(longT)siz1) return -1.;
         const double
           *const ptr1b = &_mp_arg(2) + 1,
           *const ptr1e = ptr1b + siz1,
           *const ptr2b = &_mp_arg(4) + 1,
           *const ptr2e = ptr2b + siz2,
-          *ptr1 = ptr1b,
+          *ptr1 = ptr1b + ind,
           *p1 = 0,
           *p2 = 0;
-        const int ind = (int)_mp_arg(6);
-        const bool is_reverse = (bool)_mp_arg(7);
+
+        // Forward search.
+        if (is_forward) {
+          do {
+            while (ptr1<ptr1e && *ptr1!=*ptr2b) ++ptr1;
+            p1 = ptr1 + 1;
+            p2 = ptr2b + 1;
+            while (p1<ptr1e && p2<ptr2e && *p1==*p2) { ++p1; ++p2; }
+          } while (p2<ptr2e && ++ptr1<ptr1e);
+          return p2<ptr2e?-1.0:(double)(ptr1 - ptr1b);
+        }
+
+        // Backward search.
         do {
-          while (ptr1<ptr1e && *ptr1!=*ptr2b) ++ptr1;
+          while (ptr1>=ptr1b && *ptr1!=*ptr2b) --ptr1;
           p1 = ptr1 + 1;
           p2 = ptr2b + 1;
           while (p1<ptr1e && p2<ptr2e && *p1==*p2) { ++p1; ++p2; }
-        } while (p2<ptr2e && ++ptr1<ptr1e);
+        } while (p2<ptr2e && --ptr1>=ptr1b);
         return p2<ptr2e?-1.0:(double)(ptr1 - ptr1b);
       }
 
@@ -19056,7 +19110,7 @@ namespace cimg_library_suffixed {
           off = *p_ref?p_ref[1] + (longT)mp.mem[(longT)p_ref[2]] + 1:ind,
           eoff = off + (siz - 1)*inc;
         if (off<0 || eoff>=mp.mem.width())
-          throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: 'copy()': "
+          throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: Function 'copy()': "
                                       "Out-of-bounds variable pointer "
                                       "(length: %ld, increment: %ld, offset start: %ld, "
                                       "offset end: %ld, offset max: %u).",

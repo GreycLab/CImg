@@ -16411,19 +16411,31 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"find(",5)) { // Find
               _cimg_mp_op("Function 'find()'");
+
+              // First argument: data to look at.
+              s0 = ss5; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
               if (*ss5=='#') { // Index specified
-                s0 = ss6; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
-                p1 = compile(ss6,s0++,depth1,0);
+                p1 = compile(ss6,s0,depth1,0);
                 _cimg_mp_check_list(true);
                 arg1 = ~0U;
               } else { // Vector specified
-                s0 = ss5; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
-                arg1 = compile(ss5,s0++,depth1,0);
+                arg1 = compile(ss5,s0,depth1,0);
                 _cimg_mp_check_type(arg1,1,2,0);
                 p1 = ~0U;
               }
-              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg2 = compile(s0,s1,depth1,0);
+
+              // Second argument: data to find.
+              s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              if (*s0=='#') { // Index specified
+                p2 = compile(++s0,s1,depth1,0);
+                _cimg_mp_check_list(true);
+                arg2 = ~0U;
+              } else { // Vector or scalar specified
+                arg2 = compile(s0,s1,depth1,0);
+                p2 = ~0U;
+              }
+
+              // Third and fourth arguments: search direction and starting index.
               arg3 = 1; arg4 = _cimg_mp_nan;
               if (s1<se1) {
                 s0 = s1 + 1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;

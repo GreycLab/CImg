@@ -16426,14 +16426,7 @@ namespace cimg_library_suffixed {
 
               // Second argument: data to find.
               s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              if (*s0=='#') { // Index specified
-                p2 = compile(++s0,s1,depth1,0);
-                _cimg_mp_check_list(true);
-                arg2 = ~0U;
-              } else { // Vector or scalar specified
-                arg2 = compile(s0,s1,depth1,0);
-                p2 = ~0U;
-              }
+              arg2 = compile(s0,s1,depth1,0);
 
               // Third and fourth arguments: search direction and starting index.
               arg3 = 1; arg4 = _cimg_mp_nan;

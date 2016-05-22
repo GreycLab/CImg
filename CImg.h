@@ -13852,6 +13852,7 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_scalar1(op,i1) _cimg_mp_return(scalar1(op,i1))
 #define _cimg_mp_scalar2(op,i1,i2) _cimg_mp_return(scalar2(op,i1,i2))
 #define _cimg_mp_scalar3(op,i1,i2,i3) _cimg_mp_return(scalar3(op,i1,i2,i3))
+#define _cimg_mp_scalar4(op,i1,i2,i3,i4) _cimg_mp_return(scalar4(op,i1,i2,i3,i4))
 #define _cimg_mp_scalar5(op,i1,i2,i3,i4,i5) _cimg_mp_return(scalar5(op,i1,i2,i3,i4,i5))
 #define _cimg_mp_scalar6(op,i1,i2,i3,i4,i5,i6) _cimg_mp_return(scalar6(op,i1,i2,i3,i4,i5,i6))
 #define _cimg_mp_scalar7(op,i1,i2,i3,i4,i5,i6,i7) _cimg_mp_return(scalar7(op,i1,i2,i3,i4,i5,i6,i7))
@@ -16410,23 +16411,36 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"find(",5)) { // Find
               _cimg_mp_op("Function 'find()'");
-              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-              arg1 = compile(ss5,s1,depth1,0);
-              arg2 = compile(++s1,s2,depth1,0);
-              _cimg_mp_check_type(arg1,1,2,0);
+              if (*ss5=='#') { // Index specified
+                s0 = ss6; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                p1 = compile(ss6,s0++,depth1,0);
+                _cimg_mp_check_list(true);
+                arg1 = ~0U;
+              } else { // Vector specified
+                s0 = ss5; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                arg1 = compile(ss5,s0++,depth1,0);
+                _cimg_mp_check_type(arg1,1,2,0);
+                p1 = ~0U;
+              }
+              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg2 = compile(s0,s1,depth1,0);
               arg3 = 1; arg4 = _cimg_mp_nan;
-              if (s2<se1) {
-                s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                arg3 = compile(++s2,s1,depth1,0);
+              if (s1<se1) {
+                s0 = s1 + 1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                arg3 = compile(++s1,s0,depth1,0);
                 _cimg_mp_check_type(arg3,3,1,0);
-                if (s1<se1) {
-                  arg4 = compile(++s1,se1,depth1,0);
+                if (s0<se1) {
+                  arg4 = compile(++s0,se1,depth1,0);
                   _cimg_mp_check_type(arg4,4,1,0);
                 }
               }
+              if (p1!=~0U) {
+                if (_cimg_mp_is_vector(arg2))
+                  _cimg_mp_scalar5(mp_list_find_seq,p1,arg2,_cimg_mp_vector_size(arg2),arg3,arg4);
+                _cimg_mp_scalar4(mp_list_find,p1,arg2,arg3,arg4);
+              }
               if (_cimg_mp_is_vector(arg2))
-                _cimg_mp_scalar6(mp_find_vector,arg1,_cimg_mp_vector_size(arg1),arg2,_cimg_mp_vector_size(arg2),arg3,arg4);
+                _cimg_mp_scalar6(mp_find_seq,arg1,_cimg_mp_vector_size(arg1),arg2,_cimg_mp_vector_size(arg2),arg3,arg4);
               _cimg_mp_scalar5(mp_find,arg1,_cimg_mp_vector_size(arg1),arg2,arg3,arg4);
             }
 
@@ -17554,6 +17568,18 @@ namespace cimg_library_suffixed {
         return pos;
       }
 
+      unsigned int scalar4(const mp_func op,
+                           const unsigned int arg1, const unsigned int arg2, const unsigned int arg3,
+                           const unsigned int arg4) {
+        const unsigned int pos =
+          arg1>_cimg_mp_c && _cimg_mp_is_temp(arg1)?arg1:
+          arg2>_cimg_mp_c && _cimg_mp_is_temp(arg2)?arg2:
+          arg3>_cimg_mp_c && _cimg_mp_is_temp(arg3)?arg3:
+          arg4>_cimg_mp_c && _cimg_mp_is_temp(arg4)?arg4:scalar();
+        CImg<ulongT>::vector((ulongT)op,pos,arg1,arg2,arg3,arg4).move_to(code);
+        return pos;
+      }
+
       unsigned int scalar5(const mp_func op,
                            const unsigned int arg1, const unsigned int arg2, const unsigned int arg3,
                            const unsigned int arg4, const unsigned int arg5) {
@@ -18300,7 +18326,7 @@ namespace cimg_library_suffixed {
         return ptr<ptrb?-1.:(double)(ptr - ptrb);
       }
 
-      static double mp_find_vector(_cimg_math_parser& mp) {
+      static double mp_find_seq(_cimg_math_parser& mp) {
         const bool is_forward = (bool)_mp_arg(6);
         const ulongT
           siz1 = (ulongT)mp.opcode[3],
@@ -18553,6 +18579,72 @@ namespace cimg_library_suffixed {
       static double mp_list_depth(_cimg_math_parser& mp) {
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         return (double)mp.listin[ind]._depth;
+      }
+
+      static double mp_list_find(_cimg_math_parser& mp) {
+        const unsigned int
+          indi = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        const CImg<T> &img = mp.listin[indi];
+        const bool is_forward = (bool)_mp_arg(4);
+        const ulongT siz = (ulongT)img.size();
+        longT ind = (longT)(mp.opcode[5]!=_cimg_mp_nan?_mp_arg(5):is_forward?0:siz - 1);
+        if (ind<0 || ind>=(longT)siz) return -1.;
+        const T
+          *const ptrb = img.data(),
+          *const ptre = img.end(),
+          *ptr = ptrb + ind;
+        const double val = _mp_arg(3);
+
+        // Forward search
+        if (is_forward) {
+          while (ptr<ptre && (double)*ptr!=val) ++ptr;
+          return ptr==ptre?-1.:(double)(ptr - ptrb);
+        }
+
+        // Backward search.
+        while (ptr>=ptrb && (double)*ptr!=val) --ptr;
+        return ptr<ptrb?-1.:(double)(ptr - ptrb);
+      }
+
+      static double mp_list_find_seq(_cimg_math_parser& mp) {
+        const unsigned int
+          indi = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        const CImg<T> &img = mp.listin[indi];
+        const bool is_forward = (bool)_mp_arg(5);
+        const ulongT
+          siz1 = (ulongT)img.size(),
+          siz2 = (ulongT)mp.opcode[4];
+        longT ind = (longT)(mp.opcode[6]!=_cimg_mp_nan?_mp_arg(6):is_forward?0:siz1 - 1);
+        if (ind<0 || ind>=(longT)siz1) return -1.;
+        const T
+          *const ptr1b = img.data(),
+          *const ptr1e = ptr1b + siz1,
+          *ptr1 = ptr1b + ind,
+          *p1 = 0;
+        const double
+          *const ptr2b = &_mp_arg(3) + 1,
+          *const ptr2e = ptr2b + siz2,
+          *p2 = 0;
+
+        // Forward search.
+        if (is_forward) {
+          do {
+            while (ptr1<ptr1e && *ptr1!=*ptr2b) ++ptr1;
+            p1 = ptr1 + 1;
+            p2 = ptr2b + 1;
+            while (p1<ptr1e && p2<ptr2e && *p1==*p2) { ++p1; ++p2; }
+          } while (p2<ptr2e && ++ptr1<ptr1e);
+          return p2<ptr2e?-1.0:(double)(ptr1 - ptr1b);
+        }
+
+        // Backward search.
+        do {
+          while (ptr1>=ptr1b && *ptr1!=*ptr2b) --ptr1;
+          p1 = ptr1 + 1;
+          p2 = ptr2b + 1;
+          while (p1<ptr1e && p2<ptr2e && *p1==*p2) { ++p1; ++p2; }
+        } while (p2<ptr2e && --ptr1>=ptr1b);
+        return p2<ptr2e?-1.0:(double)(ptr1 - ptr1b);
       }
 
       static double mp_list_height(_cimg_math_parser& mp) {

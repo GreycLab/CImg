@@ -14312,7 +14312,7 @@ namespace cimg_library_suffixed {
                   if (*ss>='i')
                     CImg<ulongT>::vector((ulongT)(is_relative?mp_set_joff:mp_set_ioff),
                                         arg2,arg1).move_to(code);
-                  if (_cimg_mp_is_scalar(arg2))
+                  else if (_cimg_mp_is_scalar(arg2))
                     CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Joff_s:mp_set_Ioff_s),
                                         arg2,arg1).move_to(code);
                   else
@@ -14867,7 +14867,7 @@ namespace cimg_library_suffixed {
             case '/' : op = mp_self_div; _cimg_mp_op("Operator '/='"); break;
             case '%' : op = mp_self_modulo; _cimg_mp_op("Operator '%='"); break;
             case '<' : op = mp_self_bitwise_left_shift; _cimg_mp_op("Operator '<<='"); break;
-            case '>' : op = mp_self_bitwise_right_shift; _cimg_mp_op("Operator '>=='"); break;
+            case '>' : op = mp_self_bitwise_right_shift; _cimg_mp_op("Operator '>>='"); break;
             case '&' : op = mp_self_bitwise_and; _cimg_mp_op("Operator '&='"); break;
             case '|' : op = mp_self_bitwise_or; _cimg_mp_op("Operator '|='"); break;
             default : op = mp_self_pow; _cimg_mp_op("Operator '^='"); break;
@@ -15700,7 +15700,9 @@ namespace cimg_library_suffixed {
               p_ref[2] = arg2;
               if (_cimg_mp_is_temp(arg2)) memtype[arg2] = -1; // Prevent from being used in further optimization
             }
-            _cimg_mp_scalar3(mp_vector_off,arg1,(ulongT)_cimg_mp_vector_size(arg1),arg2);
+            pos = scalar3(mp_vector_off,arg1,(ulongT)_cimg_mp_vector_size(arg1),arg2);
+            memtype[pos] = -1; // Create it as a variable to prevent from being used in further optimization
+            _cimg_mp_return(pos);
           }
         }
 

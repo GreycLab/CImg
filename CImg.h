@@ -13824,6 +13824,7 @@ namespace cimg_library_suffixed {
 
       CImg<uintT> level, variable_pos, reserved_label;
       CImgList<charT> variable_def, function_def, function_body;
+      CImgList<boolT> function_body_is_string;
       char *user_function;
 
       unsigned int mempos, mem_img_median, debug_indent, init_size, result_dim;
@@ -14039,6 +14040,27 @@ namespace cimg_library_suffixed {
                                       "CImg<%s>::%s: Unbalanced parentheses/brackets, in expression '%s'.",
                                       pixel_type(),_cimg_mp_calling_function,
                                       expr._data);
+        }
+        return res;
+      }
+
+      // Tell for each character of an expression if it is inside a string or not.
+      CImg<boolT> is_inside_string(CImg<charT>& expr) const {
+        bool is_escaped = false, next_is_escaped = false;
+        unsigned int mode = 0, next_mode = 0; // { 0=normal | 1=char-string | 2=vector-string
+        CImg<boolT> res = CImg<charT>::string(expr);
+        bool *pd = res._data;
+        for (const char *ps = expr._data; *ps; ++ps) {
+          if (!next_is_escaped && *ps=='\\') next_is_escaped = true;
+          if (!is_escaped && *ps=='\'') { // Non-escaped character
+            if (!mode && ps>expr._data && *(ps - 1)=='[') next_mode = mode = 2; // Start vector-string
+            else if (mode==2 && *(ps + 1)==']') next_mode = !mode; // End vector-string
+            else if (mode<2) next_mode = mode?(mode = 0):1; // Start/end char-string
+          }
+          *(pd++) = mode>=1 || is_escaped;
+          mode = next_mode;
+          is_escaped = next_is_escaped;
+          next_is_escaped = false;
         }
         return res;
       }
@@ -14508,6 +14530,9 @@ namespace cimg_library_suffixed {
                 }
                 // Store number of arguments
                 function_def[0].resize(function_def[0]._width + 1,1,1,1,0).back() = (char)(p1 - 1);
+
+                // Detect parts of function body inside a string.
+                is_inside_string(function_body[0]).move_to(function_body_is_string,0);
                 _cimg_mp_return(_cimg_mp_nan);
               }
             }
@@ -17200,6 +17225,7 @@ namespace cimg_library_suffixed {
             cimglist_for(function_def,l) if (!std::strcmp(function_def[l],variable_name)) {
               p2 = (unsigned int)function_def[l].back(); // Number of required arguments
               CImg<charT> _expr = function_body[l]; // Expression to be substituted
+
               p1 = 1; // Indice of current parsed argument
               for (s = s0 + 1; s<=se1; ++p1, s = ns + 1) { // Parse function arguments
                 while (*s && *s<=' ') ++s;
@@ -17207,17 +17233,21 @@ namespace cimg_library_suffixed {
                 if (p1>p2) { ++p1; break; }
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
-
                 variable_name.assign(s,ns - s + 1).back() = 0; // Argument to write
-
-                cimg_forX(_expr,k) if (_expr[k]==(char)p1) { // Perform argument substitution
-                  _expr.resize(_expr._width + variable_name._width,1,1,1,0);
-                  _expr[k++] = '(';
-                  std::memmove(_expr._data + k + variable_name._width,_expr._data + k,
-                               _expr._width - variable_name._width - k);
-                  std::memcpy(_expr._data + k,variable_name,variable_name._width - 1);
-                  k+=variable_name._width - 1;
-                  _expr[k++] = ')';
+                arg2 = 0;
+                cimg_forX(_expr,k) {
+                  if (_expr[k]==(char)p1) { // Perform argument substitution
+                    is_sth = function_body_is_string(l,arg2);
+                    arg1 = _expr._width;
+                    _expr.resize(arg1 + variable_name._width - (is_sth?2:0),1,1,1,0);
+                    std::memmove(_expr._data + k + variable_name._width + (is_sth?-1:1),_expr._data + k + 1,
+                                 arg1 - k - 1);
+                    if (!is_sth) _expr[k++] = '(';
+                    std::memcpy(_expr._data + k,variable_name,variable_name._width - 1);
+                    k+=variable_name._width - 1;
+                    if (!is_sth) _expr[k++] = ')';
+                  }
+                  ++arg2;
                 }
               }
 

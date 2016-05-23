@@ -15,9 +15,9 @@
         <li><b><a href="http://enas.gforge.inria.fr/">Event Neural Assembly Simulation</a></b> is an open-source C++ library to simulate so called event neural unit. Done by the INRIA lab, in France.</li>
         <li><b><a href="https://github.com/matthewhanson/gippy">GIPS</a></b> and <b><a href="https://github.com/matthewhanson/gippy/">GIPPY</a></b> are two new, related, open-source projects for processing of remote sensing data.</li>
         <li><b><a href="http://gmic.eu/">G'MIC</a></b> is an open and full-featured framework for image processing, providing several different user interfaces to convert/manipulate/filter/visualize generic image datasets, from 1d scalar signals to 3d+t sequences of multi-spectral volumetric images.</li>
-        <li><b><a href="http://koti.kapsi.fi/thirsima/gocam/">GoCam</a></b>, an open-source project for developing a computer vision system that analyses video capture of a go game.</li>
         <li><b><a href="http://www.eng.cam.ac.uk/~ajk61/IDIL/">IDIL</a></b> (Integrated Data &amp; Image Library), a cross-platform library for computing, plotting and image analysis.</li>
         <li><b><a href="https://github.com/dahtah/imager">Imager</a></b> is an image/video processing package for R, based on CImg.</li>
+        <li><b><a href="http://www.inviwo.org/">Inviwo</a></b> is a software framework for rapid visualization prototyping.</li>
         <li><b><a href="https://github.com/EyalAr/lwip">lwip</a></b>, a light-weight image processor for NodeJS.</li>
         <li><b><a href="http://www.morphographx.org/">MorphoGraphX</a></b> is a cross-platform, open-source application for the visualization and processing of 3D biological datasets.</li>
         <li><b><a href="http://www2.epa.gov/cameo/marplot-software">Marplot</a></b> is the mapping program for the CAMEO software suite, which is used widely to plan for and respond to chemical emergencies.</li>
@@ -28,7 +28,7 @@
         <li><b><a href="http://photivo.org/">Photivo</a></b> is an open-source photo processor. It handles your RAW files as well as bitmap files in a non-destructive 16 bit processing pipe with gimp workflow integration and batch mode.</li>
         <li><b><a href="http://www.dkfz.de/Macromol/quickfit/">QuickFit 3</a></b> is a data evaluation software for FCS and imagingFCS (imFCS) measurement.</li>
         <li><b><a href="http://www.sofa-framework.org/">Sofa</a></b> is an open-source framework primarily targeted at real-time simulation, with an emphasis on medical simulation.</li>
-        <li><b><a href="http://cs.ucsb.edu/~cmsweeney/theia/index.html">Theia</a></b> is a computer vision library aimed at providing efficient and reliable algorithms for Structure from Motion (SfM) and Simultaneous Localization and Mapping (SLAM) systems.</li>
+        <li><b><a href="http://www.theia-sfm.org/">Theia</a></b> is a computer vision library aimed at providing efficient and reliable algorithms for Structure from Motion (SfM) and Simultaneous Localization and Mapping (SLAM) systems.</li>
         <li><b><a href="http://www.vips.ecs.soton.ac.uk/index.php?title=GREYCstoration">The VIPS Library</a></b> uses <font color="#000066"><b>CImg</b></font> in one of its denoising plugin.</li>
         <li><b><a href="http://wxcam.sourceforge.net/">wxCam</a></b> is a webcam application for Linux.</li>
         <li><b><a href="http://xraysim.sourceforge.net/">XRaySim</a></b> is an open-source simulation package for use in Industrial Non-Destructive testing and medical imaging applications.</li>

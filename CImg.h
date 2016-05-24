@@ -54510,6 +54510,7 @@ namespace cimg_library_suffixed {
         res.append(str,'x');
       }
       if (!res) CImg<charT>(1,1,1,1,0).move_to(res);
+      else cimg::strellipsize(res,64,false);
       return res;
     }
 

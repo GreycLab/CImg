@@ -54492,6 +54492,7 @@ namespace cimg_library_suffixed {
             sublist._display(disp,0,titles?&t_sublist:0,false,axis,align,XYZ,exit_on_anykey,
                              orig + s[0],false,is_exit);
           }
+          disp.set_title("%s",dtitle.data());
         }
       }
       return *this;
@@ -54510,7 +54511,7 @@ namespace cimg_library_suffixed {
         res.append(str,'x');
       }
       if (!res) CImg<charT>(1,1,1,1,0).move_to(res);
-      else cimg::strellipsize(res,64,false);
+      else cimg::strellipsize(res,128,false);
       return res;
     }
 

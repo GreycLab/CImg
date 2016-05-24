@@ -54394,7 +54394,7 @@ namespace cimg_library_suffixed {
                                const char axis='x', const float align=0,
                                unsigned int *const XYZ=0, const bool exit_on_anykey=false) const {
       bool is_exit = false;
-      return _display(disp,0,display_info,axis,align,XYZ,exit_on_anykey,0,true,is_exit);
+      return _display(disp,0,0,display_info,axis,align,XYZ,exit_on_anykey,0,true,is_exit);
     }
 
     //! Display the current CImgList instance in a new display window.
@@ -54409,11 +54409,11 @@ namespace cimg_library_suffixed {
                                unsigned int *const XYZ=0, const bool exit_on_anykey=false) const {
       CImgDisplay disp;
       bool is_exit = false;
-      return _display(disp,title,display_info,axis,align,XYZ,exit_on_anykey,0,true,is_exit);
+      return _display(disp,title,0,display_info,axis,align,XYZ,exit_on_anykey,0,true,is_exit);
     }
 
-    const CImgList<T>& _display(CImgDisplay &disp, const char *const title, const bool display_info,
-                                const char axis, const float align, unsigned int *const XYZ,
+    const CImgList<T>& _display(CImgDisplay &disp, const char *const title, const CImgList<charT> *const titles,
+                                const bool display_info, const char axis, const float align, unsigned int *const XYZ,
                                 const bool exit_on_anykey, const unsigned int orig, const bool is_first_call,
                                 bool &is_exit) const {
       if (is_empty())
@@ -54431,7 +54431,7 @@ namespace cimg_library_suffixed {
             sum_width+=w;
             if (h>max_height) max_height = h;
           }
-          disp.assign(cimg_fitscreen(sum_width,max_height,1),title?title:0,1);
+          disp.assign(cimg_fitscreen(sum_width,max_height,1),title?title:titles?titles->__display()._data:0,1);
         } else {
           unsigned int max_width = 0, sum_height = 0;
           cimglist_for(*this,l) {
@@ -54442,10 +54442,11 @@ namespace cimg_library_suffixed {
             if (w>max_width) max_width = w;
             sum_height+=h;
           }
-          disp.assign(cimg_fitscreen(max_width,sum_height,1),title?title:0,1);
+          disp.assign(cimg_fitscreen(max_width,sum_height,1),title?title:titles?titles->__display()._data:0,1);
         }
-        if (!title) disp.set_title("CImgList<%s> (%u)",pixel_type(),_width);
+        if (!title && !titles) disp.set_title("CImgList<%s> (%u)",pixel_type(),_width);
       } else if (title) disp.set_title("%s",title);
+      else if (titles) disp.set_title("%s",titles->__display()._data);
       const CImg<char> dtitle = CImg<char>::string(disp.title());
       if (display_info) print(disp.title());
       disp.show().flush();
@@ -54476,16 +54477,40 @@ namespace cimg_library_suffixed {
                 delta = cimg::max(1U,(unsigned int)cimg::round(0.3*_width)),
                 ind0 = (unsigned int)cimg::max(0,s[0] - (int)delta),
                 ind1 = (unsigned int)cimg::min(width() - 1,s[0] + (int)delta);
-              if ((ind0!=0 || ind1!=_width - 1) && ind1 - ind0>=3)
-                get_shared_images(ind0,ind1)._display(disp,0,false,axis,align,XYZ,exit_on_anykey,
-                                                      orig + ind0,false,is_exit);
+              if ((ind0!=0 || ind1!=_width - 1) && ind1 - ind0>=3) {
+                const CImgList<T> sublist = get_shared_images(ind0,ind1);
+                CImgList<charT> t_sublist;
+                if (titles) t_sublist = titles->get_shared_images(ind0,ind1);
+                sublist._display(disp,0,titles?&t_sublist:0,false,axis,align,XYZ,exit_on_anykey,
+                                 orig + ind0,false,is_exit);
+              }
             }
-          } else if (s[0]!=0 || s[1]!=width() - 1)
-            get_shared_images(s[0],s[1])._display(disp,0,false,axis,align,XYZ,exit_on_anykey,
-                                                  orig + s[0],false,is_exit);
+          } else if (s[0]!=0 || s[1]!=width() - 1) {
+            const CImgList<T> sublist = get_shared_images(s[0],s[1]);
+            CImgList<charT> t_sublist;
+            if (titles) t_sublist = titles->get_shared_images(s[0],s[1]);
+            sublist._display(disp,0,titles?&t_sublist:0,false,axis,align,XYZ,exit_on_anykey,
+                             orig + s[0],false,is_exit);
+          }
         }
       }
       return *this;
+    }
+
+    //! [internal] Return string to describe display title.
+    CImg<charT> __display() const {
+      CImg<charT> res, str;
+      cimglist_for(*this,l) {
+        CImg<charT>::string(_data[l]).move_to(str);
+        if (l!=width() - 1) {
+          str.resize(str._width + 1,1,1,1,0);
+          str[str._width - 2] = ',';
+          str[str._width - 1] = ' ';
+        }
+        res.append(str,'x');
+      }
+      if (!res) CImg<charT>(1,1,1,1,0).move_to(res);
+      return res;
     }
 
     //! Save list into a file.

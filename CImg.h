@@ -54454,9 +54454,9 @@ namespace cimg_library_suffixed {
       if (_width==1) {
         const unsigned int dw = disp._width, dh = disp._height;
         if (!is_first_call)
-          disp.resize(cimg_fitscreen(_data[0]._width,_data[0]._height,_data[0]._depth),false).
-            set_title("%s (%ux%ux%ux%u)",
-                      dtitle.data(),_data[0]._width,_data[0]._height,_data[0]._depth,_data[0]._spectrum);
+          disp.resize(cimg_fitscreen(_data[0]._width,_data[0]._height,_data[0]._depth),false);
+        disp.set_title("%s (%ux%ux%ux%u)",
+                       dtitle.data(),_data[0]._width,_data[0]._height,_data[0]._depth,_data[0]._spectrum);
         _data[0]._display(disp,0,false,XYZ,exit_on_anykey,!is_first_call);
         if (disp.key()) is_exit = true;
         disp.resize(cimg_fitscreen(dw,dh,1),false).set_title("%s",dtitle.data());

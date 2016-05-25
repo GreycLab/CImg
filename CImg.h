@@ -54515,7 +54515,7 @@ namespace cimg_library_suffixed {
       if (_width>1) {
         const unsigned int l = std::strlen(res);
         if (res._width<=l + 16) res.resize(l + 16,1,1,1,0);
-        cimg_snprintf(res._data + l,16," #%u",_width);
+        cimg_snprintf(res._data + l,16," (#%u)",_width);
       }
       return res;
     }

@@ -47417,6 +47417,8 @@ namespace cimg_library_suffixed {
           if (is_empty()) zoom.assign(1,1,1,1,0); else zoom.assign();
         } else zoom = get_crop(x0,y0,z0,x1,y1,z1);
 
+        const CImg<T>& visu = zoom?zoom:*this;
+
         const unsigned int
           dx = 1U + x1 - x0, dy = 1U + y1 - y0, dz = 1U + z1 - z0,
           tw = dx + (dz>1?dz:0U), th = dy + (dz>1?dz:0U);
@@ -47434,7 +47436,6 @@ namespace cimg_library_suffixed {
           go_up = false, go_down = false, go_left = false, go_right = false,
           go_inc = false, go_dec = false, go_in = false, go_out = false,
           go_in_center = false;
-        const CImg<T>& visu = zoom?zoom:*this;
 
         disp.set_title("%s",dtitle._data);
         if (_width>1 && visu._width==1) disp.set_title("%s | x=%u",disp._title,x0);
@@ -47586,6 +47587,11 @@ namespace cimg_library_suffixed {
           if (x1>=width()) { x0-=(x1 - width() + 1); x1 = width() - 1; if (x0<0) x0 = 0; }
           if (y1>=height()) { y0-=(y1 - height() + 1); y1 = height() - 1; if (y0<0) y0 = 0; }
           if (z1>=depth()) { z0-=(z1 - depth() + 1); z1 = depth() - 1; if (z0<0) z0 = 0; }
+          const float
+            ratio = (float)(x1-x0)/(y1-y0),
+            ratiow = (float)disp._width/disp._height,
+            sub = cimg::min(cimg::abs(ratio - ratiow),cimg::abs(1/ratio-1/ratiow));
+          if (sub>0.01) resize_disp = true;
         }
         if (go_left) {
           const int delta = (x1 - x0)/4, ndelta = delta?delta:(_width>1);

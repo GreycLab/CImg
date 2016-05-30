@@ -168,9 +168,6 @@
 #define WIN32_LEAN_AND_MEAN
 #endif
 #include <windows.h>
-#include <locale>
-#include <codecvt>
-#include <string>
 #ifndef _WIN32_IE
 #define _WIN32_IE 0x0400
 #endif
@@ -5025,16 +5022,7 @@ namespace cimg_library_suffixed {
     }
 
     // Open a file (with wide character support on Windows).
-    inline std::FILE *win_fopen(const char *const path, const char *const mode) {
-#if cimg_OS==2
-      std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-      std::wstring wpath = converter.from_bytes(path);
-      std::wstring wmode = converter.from_bytes(mode);
-      return _wfopen(wpath.data(),wmode.data());
-#else
-      return std::fopen(path,mode);
-#endif
-    }
+    inline std::FILE *win_fopen(const char *const path, const char *const mode);
 
     //! Open a file.
     /**
@@ -55663,6 +55651,29 @@ namespace cimg_library_suffixed {
   */
 
 namespace cimg {
+
+  // Open a file (with wide character support on Windows).
+  inline std::FILE *win_fopen(const char *const path, const char *const mode) {
+#if cimg_OS==2
+    // Convert 'path' to a wide-character string.
+    int err = MultiByteToWideChar(CP_ACP,0,path,-1,0,0);
+    if (!err) return std::fopen(path,mode);
+    CImg<wchar_t> wpath(err);
+    err = MultiByteToWideChar(CP_ACP,0,path,-1,wpath,err);
+    if (!err) return std::fopen(path,mode);
+
+    // Convert 'mode' to a wide-character string.
+    err = MultiByteToWideChar(CP_ACP,0,mode,-1,0,0);
+    if (!err) return std::fopen(path,mode);
+    CImg<wchar_t> wmode(err);
+    err = MultiByteToWideChar(CP_ACP,0,mode,-1,wmode,err);
+    if (!err) return std::fopen(path,mode);
+
+    return _wfopen(wpath,wmode);
+#else
+    return std::fopen(path,mode);
+#endif
+  }
 
   //! Get/set path to store temporary files.
   /**

@@ -13851,7 +13851,7 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_calling_function calling_function_s()._data
 #define _cimg_mp_op(s) s_op = s; ss_op = ss
 #define _cimg_mp_check_type(arg,n_arg,mode,N) check_type(arg,n_arg,mode,N,ss,se,saved_char)
-#define _cimg_mp_check_constant(arg,n_arg,is_strict) check_constant(arg,n_arg,is_strict,ss,se,saved_char)
+#define _cimg_mp_check_constant(arg,n_arg,mode) check_constant(arg,n_arg,mode,ss,se,saved_char)
 #define _cimg_mp_check_matrix_square(arg,n_arg) check_matrix_square(arg,n_arg,ss,se,saved_char)
 #define _cimg_mp_check_vector0(dim) check_vector0(dim,ss,se,saved_char)
 #define _cimg_mp_check_list(is_out) check_list(is_out,ss,se,saved_char)
@@ -15653,8 +15653,8 @@ namespace cimg_library_suffixed {
             if (s1<se1) { // Two arguments -> sub-vector extraction
               arg2 = compile(++s0,s1,depth1,0);
               arg3 = compile(++s1,se1,depth1,0);
-              _cimg_mp_check_constant(arg2,1,false);
-              _cimg_mp_check_constant(arg3,2,false);
+              _cimg_mp_check_constant(arg2,1,1);
+              _cimg_mp_check_constant(arg3,2,1);
               p1 = (unsigned int)mem[arg2];
               p2 = (unsigned int)mem[arg3];
               p3 = _cimg_mp_vector_size(arg1);
@@ -16107,25 +16107,26 @@ namespace cimg_library_suffixed {
                                             (ss - 4)>expr._data?ss - 4:expr._data,
                                             se<&expr.back()?"...":"");
               }
-              _cimg_mp_check_type(*opcode,arg2 + 1,1,0);
-              _cimg_mp_check_type(opcode[1],arg2 + (is_sth?0:1),1,0);
-              _cimg_mp_check_type(opcode[2],arg2 + (is_sth?0:2),1,0);
-              _cimg_mp_check_type(opcode[3],arg2 + (is_sth?0:3),1,0);
 
+
+              _cimg_mp_check_type(*opcode,arg2 + 1,1,0);
+              _cimg_mp_check_type(opcode[1],arg2 + 1 + (is_sth?0:1),1,0);
+              _cimg_mp_check_type(opcode[2],arg2 + 1 + (is_sth?0:2),1,0);
+              _cimg_mp_check_type(opcode[3],arg2 + 1 + (is_sth?0:3),1,0);
               if (opcode[4]!=(ulongT)~0U) {
-                _cimg_mp_check_constant(opcode[4],arg1,true);
+                _cimg_mp_check_constant(opcode[4],arg1,2);
                 opcode[4] = (ulongT)mem[opcode[4]];
               }
               if (opcode[5]!=(ulongT)~0U) {
-                _cimg_mp_check_constant(opcode[5],arg1 + 1,true);
+                _cimg_mp_check_constant(opcode[5],arg1 + 1,2);
                 opcode[5] = (ulongT)mem[opcode[5]];
               }
               if (opcode[6]!=(ulongT)~0U) {
-                _cimg_mp_check_constant(opcode[6],arg1 + 2,true);
+                _cimg_mp_check_constant(opcode[6],arg1 + 2,2);
                 opcode[6] = (ulongT)mem[opcode[6]];
               }
               if (opcode[7]!=(ulongT)~0U) {
-                _cimg_mp_check_constant(opcode[7],arg1 + 3,true);
+                _cimg_mp_check_constant(opcode[7],arg1 + 3,2);
                 opcode[7] = (ulongT)mem[opcode[7]];
               }
               _cimg_mp_check_type(opcode[8],arg1 + 4,1,0);
@@ -16133,7 +16134,7 @@ namespace cimg_library_suffixed {
               if (opcode[4]==(ulongT)~0U || opcode[5]==(ulongT)~0U ||
                   opcode[6]==(ulongT)~0U || opcode[7]==(ulongT)~0U) {
                 if (p1!=~0U) {
-                  _cimg_mp_check_constant(p1,1,false);
+                  _cimg_mp_check_constant(p1,1,0);
                   p1 = (unsigned int)cimg::mod((int)mem[p1],listin.width());
                 }
                 const CImg<T> &img = p1!=~0U?listin[p1]:imgin;
@@ -16321,22 +16322,22 @@ namespace cimg_library_suffixed {
               if (s0<se1) {
                 s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                 arg2 = compile(s0,s1,depth1,0);
-                _cimg_mp_check_constant(arg2,p2 + (is_sth?3:6),true);
+                _cimg_mp_check_constant(arg2,p2 + (is_sth?3:6),2);
                 arg2 = (unsigned int)mem[arg2];
                 if (s1<se1) {
                   s0 = s1 + 1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                   arg3 = compile(++s1,s0,depth1,0);
-                  _cimg_mp_check_constant(arg3,p2 + (is_sth?4:7),true);
+                  _cimg_mp_check_constant(arg3,p2 + (is_sth?4:7),2);
                   arg3 = (unsigned int)mem[arg3];
                   if (s0<se1) {
                     s1 = s0 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                     arg4 = compile(++s0,s1,depth1,0);
-                    _cimg_mp_check_constant(arg4,p2 + (is_sth?5:8),true);
+                    _cimg_mp_check_constant(arg4,p2 + (is_sth?5:8),2);
                     arg4 = (unsigned int)mem[arg4];
                     if (s1<se1) {
                       s0 = s1 + 1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                       arg5 = compile(++s1,s0,depth1,0);
-                      _cimg_mp_check_constant(arg5,p2 + (is_sth?6:9),true);
+                      _cimg_mp_check_constant(arg5,p2 + (is_sth?6:9),2);
                       arg5 = (unsigned int)mem[arg5];
                     }
                   }
@@ -16346,7 +16347,7 @@ namespace cimg_library_suffixed {
               if (s0<s1) s0 = s1;
               if (arg2==~0U || arg3==~0U || arg4==~0U || arg5==~0U) {
                 if (p1!=~0U) {
-                  _cimg_mp_check_constant(p1,1,false);
+                  _cimg_mp_check_constant(p1,1,0);
                   p1 = (unsigned int)cimg::mod((int)mem[p1],listout.width());
                 }
                 const CImg<T> &img = p1!=~0U?listout[p1]:imgout;
@@ -16427,7 +16428,7 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"eye(",4)) { // Identity matrix
               _cimg_mp_op("Function 'eye()'");
               arg1 = compile(ss4,se1,depth1,0);
-              _cimg_mp_check_constant(arg1,1,true);
+              _cimg_mp_check_constant(arg1,1,2);
               p1 = (unsigned int)mem[arg1];
               pos = vector(p1*p1);
               CImg<ulongT>::vector((ulongT)mp_eye,pos,p1).move_to(code);
@@ -16735,7 +16736,7 @@ namespace cimg_library_suffixed {
               arg3 = s2<se1?compile(++s2,se1,depth1,0):1;
               _cimg_mp_check_type(arg1,1,2,0);
               _cimg_mp_check_type(arg2,2,2,0);
-              _cimg_mp_check_constant(arg3,3,true);
+              _cimg_mp_check_constant(arg3,3,2);
               p1 = _cimg_mp_vector_size(arg1);
               p2 = _cimg_mp_vector_size(arg2);
               p3 = (unsigned int)mem[arg3];
@@ -16840,7 +16841,7 @@ namespace cimg_library_suffixed {
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(++s1,s2,depth1,0);
               arg3 = s2<se1?compile(++s2,se1,depth1,0):1;
-              _cimg_mp_check_constant(arg2,2,true);
+              _cimg_mp_check_constant(arg2,2,2);
               arg2 = (unsigned int)mem[arg2];
               _cimg_mp_check_type(arg3,3,1,0);
               pos = vector(arg2);
@@ -17004,7 +17005,7 @@ namespace cimg_library_suffixed {
               arg3 = s2<se1?compile(++s2,se1,depth1,0):1;
               _cimg_mp_check_type(arg1,1,2,0);
               _cimg_mp_check_type(arg2,2,2,0);
-              _cimg_mp_check_constant(arg3,3,true);
+              _cimg_mp_check_constant(arg3,3,2);
               p1 = _cimg_mp_vector_size(arg1);
               p2 = _cimg_mp_vector_size(arg2);
               p3 = (unsigned int)mem[arg3];
@@ -17039,7 +17040,7 @@ namespace cimg_library_suffixed {
               }
               _cimg_mp_check_type(arg1,1,2,0);
               _cimg_mp_check_type(arg2,2,1,0);
-              _cimg_mp_check_constant(arg3,3,true);
+              _cimg_mp_check_constant(arg3,3,2);
               arg3 = (unsigned int)mem[arg3];
               p1 = _cimg_mp_vector_size(arg1);
               if (p1%arg3) {
@@ -17106,7 +17107,7 @@ namespace cimg_library_suffixed {
               arg1 = compile(ss7,s1,depth1,0);
               arg2 = compile(++s1,se1,depth1,0);
               _cimg_mp_check_type(arg1,1,2,0);
-              _cimg_mp_check_constant(arg2,2,true);
+              _cimg_mp_check_constant(arg2,2,2);
               p1 = _cimg_mp_vector_size(arg1);
               p2 = (unsigned int)mem[arg2];
               p3 = p1/p2;
@@ -17827,21 +17828,22 @@ namespace cimg_library_suffixed {
       }
 
       // Check if a memory slot is a positive integer constant scalar value.
+      // 'mode' can be { 0=constant | 1=positive constant | 2=strictly positive constant }
       void check_constant(const unsigned int arg, const unsigned int n_arg,
-                          const bool is_strictly_positive,
+                          const unsigned int mode,
                           const char *const ss, char *const se, const char saved_char) {
         _cimg_mp_check_type(arg,n_arg,1,0);
-        if (!_cimg_mp_is_constant(arg) || mem[arg]<(is_strictly_positive?1:0) || (double)(int)mem[arg]!=mem[arg]) {
+        if (!_cimg_mp_is_constant(arg) || mode==0?false:mem[arg]<(mode==2) || (double)(int)mem[arg]!=mem[arg]) {
           const char *s_arg = !n_arg?"":n_arg==1?"First ":n_arg==2?"Second ":n_arg==3?"Third ":
             n_arg==4?"Fourth ":n_arg==5?"Fifth ":n_arg==6?"Sixth ":n_arg==7?"Seventh ":n_arg==8?"Eighth ":
             n_arg==9?"Ninth ":"One of the ";
           *se = saved_char; cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s(): %s%s %s%s (of type '%s') is not a %spositive integer constant, "
+                                      "CImg<%s>::%s(): %s%s %s%s (of type '%s') is not a%s integer constant, "
                                       "in expression '%s%s%s'.",
                                       pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",
                                       s_arg,*s_arg?"argument":"Argument",s_type(arg)._data,
-                                      is_strictly_positive?"strictly ":"",
+                                      mode==0?"n":mode==1?" positive":" stricty positive",
                                       (ss - 4)>expr._data?"...":"",
                                       (ss - 4)>expr._data?ss - 4:expr._data,
                                       se<&expr.back()?"...":"");

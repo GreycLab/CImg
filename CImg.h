@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 172
+#define cimg_version 173
 
 /*-----------------------------------------------------------
  #
@@ -14282,6 +14282,7 @@ namespace cimg_library_suffixed {
                   _cimg_mp_check_list(true);
                 } else { p1 = ~0U; s0 = ss2; }
                 arg1 = compile(s0,ve1,depth1,0); // Offset
+                _cimg_mp_check_type(arg1,0,1,0);
                 arg2 = compile(s + 1,se,depth1,0); // Value to assign
                 if (_cimg_mp_is_vector(arg2)) {
                   p2 = ~0U; // 'p2' must the dimension of the vector-valued operand if any
@@ -15569,7 +15570,7 @@ namespace cimg_library_suffixed {
 
         // Array-like access to vectors and  image values 'i/j[_#ind,offset,_boundary]' and 'vector[offset]'.
         if (*se1==']' && *ss!='[') {
-          _cimg_mp_op("Operator '[]'");
+          _cimg_mp_op("Value accessor '[]'");
           is_relative = *ss=='j' || *ss=='J';
 
           if ((*ss=='I' || *ss=='J') && *ss1=='[' &&
@@ -15580,8 +15581,14 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_list(false);
             } else { p1 = ~0U; s0 = ss2; }
             s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+            p2 = 1 + (p1!=~0U);
             arg1 = compile(s0,s1,depth1,0); // Offset
-            arg2 = s1<se1?compile(++s1,se1,depth1,0):~0U; // Boundary
+            _cimg_mp_check_type(arg1,p2,1,0);
+            arg2 = ~0U;
+            if (s1<se1) {
+              arg2 = compile(++s1,se1,depth1,0); // Boundary
+              _cimg_mp_check_type(arg2,p2 + 1,1,0);
+            }
             if (p_ref && arg2==~0U) {
               *p_ref = 4;
               p_ref[1] = p1;
@@ -15719,7 +15726,7 @@ namespace cimg_library_suffixed {
         if (*se1==')') {
           if (*ss=='(') _cimg_mp_return(compile(ss1,se1,depth1,p_ref)); // Simple parentheses
           is_relative = *ss=='j' || *ss=='J';
-          _cimg_mp_op("Operator '()'");
+          _cimg_mp_op("Value accessor '()'");
 
           // I/J(_#ind,_x,_y,_z,_interpolation,_boundary)
           if ((*ss=='I' || *ss=='J') && *ss1=='(') { // Image value as scalar

@@ -54489,7 +54489,7 @@ namespace cimg_library_suffixed {
         while (!disp.is_closed() && !is_exit) {
           const CImg<intT> s = _get_select(disp,0,true,axis,align,exit_on_anykey,orig,disp_resize,!is_first_call,true);
           disp_resize = true;
-          if (s[0]<0) { // No selections done.
+          if (s[0]<0 && !disp.wheel()) { // No selections done.
             if (disp.button()&2) { disp.flush(); break; }
             is_exit = true;
           } else if (disp.wheel()) { // Zoom in/out.

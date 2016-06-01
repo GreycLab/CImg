@@ -17843,7 +17843,7 @@ namespace cimg_library_suffixed {
                                       "in expression '%s%s%s'.",
                                       pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",
                                       s_arg,*s_arg?"argument":"Argument",s_type(arg)._data,
-                                      mode==0?"n":mode==1?" positive":" stricty positive",
+                                      !mode?"n":mode==1?" positive":" stricty positive",
                                       (ss - 4)>expr._data?"...":"",
                                       (ss - 4)>expr._data?ss - 4:expr._data,
                                       se<&expr.back()?"...":"");

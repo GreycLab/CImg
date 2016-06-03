@@ -45882,8 +45882,8 @@ namespace cimg_library_suffixed {
                               "load_analyze(): Invalid zero-size header in file '%s'.",
                               cimg_instance,
                               filename?filename:"(FILE*)");
-
       if (header_size>=4096) { endian = true; cimg::invert_endianness(header_size); }
+
       unsigned char *const header = new unsigned char[header_size];
       cimg::fread(header + 4,header_size - 4,nfile_header);
       if (!file && nfile_header!=nfile) cimg::fclose(nfile_header);
@@ -45892,8 +45892,15 @@ namespace cimg_library_suffixed {
         cimg::invert_endianness((short*)(header + 70),1);
         cimg::invert_endianness((short*)(header + 72),1);
         cimg::invert_endianness((float*)(header + 76),4);
+        cimg::invert_endianness((float*)(header + 108),1);
         cimg::invert_endianness((float*)(header + 112),1);
       }
+
+      if (nfile_header==nfile) {
+        const unsigned int vox_offset = (unsigned int)*(float*)(header + 108);
+        std::fseek(nfile,vox_offset,SEEK_SET);
+      }
+
       unsigned short *dim = (unsigned short*)(header + 40), dimx = 1, dimy = 1, dimz = 1, dimv = 1;
       if (!dim[0])
         cimg::warn(_cimg_instance

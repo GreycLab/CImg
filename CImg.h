@@ -19047,7 +19047,7 @@ namespace cimg_library_suffixed {
         if (off<0 || off>=whd)
           switch (boundary_conditions) {
           case 2 : // Periodic boundary
-            if (!img) {
+            if (img) {
               ptrs = &img[cimg::mod(off,whd)];
               cimg_forC(img,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
             } else std::memset(ptrd,0,img._spectrum*sizeof(double));
@@ -19119,7 +19119,7 @@ namespace cimg_library_suffixed {
         if (off<0 || off>=whd)
           switch (boundary_conditions) {
           case 2 : // Periodic boundary
-            if (!img) {
+            if (img) {
               ptrs = &img[cimg::mod(off,whd)];
               cimg_forC(img,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
             } else std::memset(ptrd,0,img._spectrum*sizeof(double));
@@ -20138,8 +20138,7 @@ namespace cimg_library_suffixed {
 
       static double mp_Ioff(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
-        const unsigned int
-          boundary_conditions = (unsigned int)_mp_arg(3);
+        const unsigned int boundary_conditions = (unsigned int)_mp_arg(3);
         const CImg<T> &img = mp.imgin;
         const longT
           off = (longT)_mp_arg(2),
@@ -20148,7 +20147,7 @@ namespace cimg_library_suffixed {
         if (off<0 || off>=whd)
           switch (boundary_conditions) {
           case 2 : // Periodic boundary
-            if (!img) {
+            if (img) {
               ptrs = &img[cimg::mod(off,whd)];
               cimg_forC(img,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
             } else std::memset(ptrd,0,img._spectrum*sizeof(double));
@@ -20206,8 +20205,7 @@ namespace cimg_library_suffixed {
 
       static double mp_Joff(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
-        const unsigned int
-          boundary_conditions = (unsigned int)_mp_arg(3);
+        const unsigned int boundary_conditions = (unsigned int)_mp_arg(3);
         const CImg<T> &img = mp.imgin;
         const int ox = (int)mp.mem[_cimg_mp_x], oy = (int)mp.mem[_cimg_mp_y], oz = (int)mp.mem[_cimg_mp_z];
         const longT
@@ -20217,7 +20215,7 @@ namespace cimg_library_suffixed {
         if (off<0 || off>=whd)
           switch (boundary_conditions) {
           case 2 : // Periodic boundary
-            if (!img) {
+            if (img) {
               ptrs = &img[cimg::mod(off,whd)];
               cimg_forC(img,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
             } else std::memset(ptrd,0,img._spectrum*sizeof(double));

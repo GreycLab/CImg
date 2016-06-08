@@ -13918,16 +13918,17 @@ namespace cimg_library_suffixed {
         *(p_mem++) = (double)imgin._width*imgin._height; // mem[23]
         *(p_mem++) = (double)imgin._width*imgin._height*imgin._depth; // mem[24]
         *(p_mem++) = (double)imgin._width*imgin._height*imgin._depth*imgin._spectrum; // mem[25]
-        *(p_mem++) = cimg::PI; // mem[26]
+        *(p_mem++) = (double)listin._width; // mem[26]
         *(p_mem++) = std::exp(1.0); // mem[27]
-        *(p_mem++) = cimg::type<double>::nan(); // mem[28]
+        *(p_mem++) = cimg::PI; // mem[28]
+        *(p_mem++) = cimg::type<double>::nan(); // mem[29]
 
-        // Then, [29] = x, [30] = y, [31] = z and [32] = c.
-#define _cimg_mp_nan 28
-#define _cimg_mp_x 29
-#define _cimg_mp_y 30
-#define _cimg_mp_z 31
-#define _cimg_mp_c 32
+        // Then, [30] = x, [31] = y, [32] = z and [33] = c.
+#define _cimg_mp_nan 29
+#define _cimg_mp_x 30
+#define _cimg_mp_y 31
+#define _cimg_mp_z 32
+#define _cimg_mp_c 33
 
         // Set value property :
         // { -1 = variable | 0 = regular value | 1 = compile time constant | N>1 = constant ptr to vector[N-1] }.
@@ -13947,8 +13948,9 @@ namespace cimg_library_suffixed {
         reserved_label[0] = 23; // wh
         reserved_label[1] = 24; // whd
         reserved_label[2] = 25; // whds
-        reserved_label[3] = 26; // pi
+        reserved_label['l'] = 26;
         reserved_label['e'] = 27;
+        reserved_label[3] = 28; // pi
         reserved_label[29] = 0; // interpolation
         reserved_label[30] = 0; // boundary
         reserved_label['x'] = _cimg_mp_x;
@@ -14160,8 +14162,8 @@ namespace cimg_library_suffixed {
         if (nb==2 && sep=='%') _cimg_mp_constant(val/100);
 
         if (ss1==se) switch (*ss) { // One-char variable
-          case 't' : case 'w' : case 'h' : case 'd' : case 's' : case 'r' :
-          case 'x' : case 'y' : case 'z' : case 'c' : case 'e' :
+          case 'c' : case 'd' : case 'e' : case 'h' : case 'l' : case 'r' :
+          case 's' : case 't' : case 'w' : case 'x' : case 'y' : case 'z' :
             _cimg_mp_return(reserved_label[*ss]);
           case 'u' :
             if (reserved_label['u']!=~0U) _cimg_mp_return(reserved_label['u']);

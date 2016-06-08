@@ -15570,7 +15570,7 @@ namespace cimg_library_suffixed {
                                       se<&expr.back()?"...":"");
         }
 
-        // Array-like access to vectors and  image values 'i/j[_#ind,offset,_boundary]' and 'vector[offset]'.
+        // Array-like access to vectors and  image values 'i/j/I/J[_#ind,offset,_boundary]' and 'vector[offset]'.
         if (*se1==']' && *ss!='[') {
           _cimg_mp_op("Value accessor '[]'");
           is_relative = *ss=='j' || *ss=='J';
@@ -20155,7 +20155,7 @@ namespace cimg_library_suffixed {
             return cimg::type<double>::nan();
           case 1 : // Neumann boundary
             if (img) {
-              ptrs = off<0?img._data:&img.back();
+              ptrs = off<0?img._data:&img[whd - 1];
               cimg_forC(img,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
             } else std::memset(ptrd,0,img._spectrum*sizeof(double));
             return cimg::type<double>::nan();
@@ -20224,7 +20224,7 @@ namespace cimg_library_suffixed {
             return cimg::type<double>::nan();
           case 1 : // Neumann boundary
             if (img) {
-              ptrs = off<0?img._data:&img.back();
+              ptrs = off<0?img._data:&img[whd - 1];
               cimg_forC(img,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
             } else std::memset(ptrd,0,img._spectrum*sizeof(double));
             return cimg::type<double>::nan();

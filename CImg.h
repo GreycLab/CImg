@@ -54016,46 +54016,44 @@ namespace cimg_library_suffixed {
       assign();
 
       // Skip frames if necessary.
+      bool go_on = true;
       unsigned int &pos = positions[index];
       while (pos<first_frame) {
         cimg::mutex(9);
-        if (!cvGrabFrame(captures[index])) {
-          cimg::mutex(9,0);
-          throw CImgIOException(_cimglist_instance
-                                "load_video(): File '%s', unable to locate frame %u.",
-                                cimglist_instance,filename,first_frame);
-        }
+        if (!cvGrabFrame(captures[index])) { cimg::mutex(9,0); go_on = false; break; }
         cimg::mutex(9,0);
         ++pos;
       }
 
       // Read and convert frames.
-      const unsigned int _last_frame = cimg::min(nb_frames?nb_frames - 1:~0U,last_frame);
       const IplImage *src = 0;
-      while (pos<=_last_frame) {
-        cimg::mutex(9);
-        src = cvQueryFrame(captures[index]);
-        if (src) {
-          CImg<T> frame(src->width,src->height,1,3);
-          const int step = (int)(src->widthStep - 3*src->width);
-          const unsigned char* ptrs = (unsigned char*)src->imageData;
-          T *ptr_r = frame.data(0,0,0,0), *ptr_g = frame.data(0,0,0,1), *ptr_b = frame.data(0,0,0,2);
-          if (step>0) cimg_forY(frame,y) {
-              cimg_forX(frame,x) { *(ptr_b++) = (T)*(ptrs++); *(ptr_g++) = (T)*(ptrs++); *(ptr_r++) = (T)*(ptrs++); }
-              ptrs+=step;
-            } else for (ulongT siz = (ulongT)src->width*src->height; siz; --siz) {
-              *(ptr_b++) = (T)*(ptrs++); *(ptr_g++) = (T)*(ptrs++); *(ptr_r++) = (T)*(ptrs++);
-            }
-          frame.move_to(*this);
-          ++pos;
+      if (go_on) {
+        const unsigned int _last_frame = cimg::min(nb_frames?nb_frames - 1:~0U,last_frame);
+        while (pos<=_last_frame) {
+          cimg::mutex(9);
+          src = cvQueryFrame(captures[index]);
+          if (src) {
+            CImg<T> frame(src->width,src->height,1,3);
+            const int step = (int)(src->widthStep - 3*src->width);
+            const unsigned char* ptrs = (unsigned char*)src->imageData;
+            T *ptr_r = frame.data(0,0,0,0), *ptr_g = frame.data(0,0,0,1), *ptr_b = frame.data(0,0,0,2);
+            if (step>0) cimg_forY(frame,y) {
+                cimg_forX(frame,x) { *(ptr_b++) = (T)*(ptrs++); *(ptr_g++) = (T)*(ptrs++); *(ptr_r++) = (T)*(ptrs++); }
+                ptrs+=step;
+              } else for (ulongT siz = (ulongT)src->width*src->height; siz; --siz) {
+                *(ptr_b++) = (T)*(ptrs++); *(ptr_g++) = (T)*(ptrs++); *(ptr_r++) = (T)*(ptrs++);
+              }
+            frame.move_to(*this);
+            ++pos;
 
-          bool skip_failed = false;
-          for (unsigned int i = 1; i<step_frame && pos<=_last_frame; ++i, ++pos)
-            if (!cvGrabFrame(captures[index])) { skip_failed = true; break; }
-          if (skip_failed) src = 0;
+            bool skip_failed = false;
+            for (unsigned int i = 1; i<step_frame && pos<=_last_frame; ++i, ++pos)
+              if (!cvGrabFrame(captures[index])) { skip_failed = true; break; }
+            if (skip_failed) src = 0;
+          }
+          cimg::mutex(9,0);
+          if (!src) break;
         }
-        cimg::mutex(9,0);
-        if (!src) break;
       }
 
       if (!src || (nb_frames && pos>=nb_frames)) { // Close video stream when necessary.
@@ -54071,6 +54069,11 @@ namespace cimg_library_suffixed {
       cimg::mutex(9);
       last_used_index = index;
       cimg::mutex(9,0);
+
+      if (is_empty())
+        throw CImgIOException(_cimglist_instance
+                              "load_video(): File '%s', unable to locate frame %u.",
+                              cimglist_instance,filename,first_frame);
       return *this;
 #endif
     }

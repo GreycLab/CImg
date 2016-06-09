@@ -42499,7 +42499,7 @@ namespace cimg_library_suffixed {
 #ifdef cimg_use_board
               if (pboard) {
                 board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
-                board.fillCircle((float)x0,height()-(float)y0,0);
+                board.drawDot((float)x0,height()-(float)y0);
               }
 #endif
             } else { // Sprite.
@@ -42520,7 +42520,7 @@ namespace cimg_library_suffixed {
 #ifdef cimg_use_board
                 if (pboard) {
                   board.setPenColorRGBi(128,128,128);
-                  board.setFillColor(LibBoard::Color::None);
+                  board.setFillColor(LibBoard::Color::Null);
                   board.drawRectangle((float)nx0,height() - (float)ny0,sw,sh);
                 }
 #endif
@@ -42548,7 +42548,7 @@ namespace cimg_library_suffixed {
 #ifdef cimg_use_board
               if (pboard) {
                 board.setPenColorRGBi(128,128,128);
-                board.setFillColor(LibBoard::Color::None);
+                board.setFillColor(LibBoard::Color::Null);
                 board.drawRectangle((float)nx0,height() - (float)ny0,sw,sh);
               }
 #endif
@@ -42579,8 +42579,8 @@ namespace cimg_library_suffixed {
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
-              board.drawCircle((float)x0,height() - (float)y0,0);
-              board.drawCircle((float)x1,height() - (float)y1,0);
+              board.drawDot((float)x0,height() - (float)y0);
+              board.drawDot((float)x1,height() - (float)y1);
             }
 #endif
           }
@@ -42606,7 +42606,7 @@ namespace cimg_library_suffixed {
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
-              board.fillCircle(xc,height() - yc,0);
+              board.drawDot(xc,height() - yc);
             }
 #endif
             break;
@@ -42615,7 +42615,7 @@ namespace cimg_library_suffixed {
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
-              board.setFillColor(LibBoard::Color::None);
+              board.setFillColor(LibBoard::Color::Null);
               board.drawCircle(xc,height() - yc,radius);
             }
 #endif
@@ -42628,7 +42628,7 @@ namespace cimg_library_suffixed {
               board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
               if (!is_wireframe) board.fillCircle(xc,height() - yc,radius);
               else {
-                board.setFillColor(LibBoard::Color::None);
+                board.setFillColor(LibBoard::Color::Null);
                 board.drawCircle(xc,height() - yc,radius);
               }
             }
@@ -42671,8 +42671,8 @@ namespace cimg_library_suffixed {
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi(128,128,128,(unsigned char)(opacity*255));
-              board.drawCircle((float)x0,height() - (float)y0,0);
-              board.drawCircle((float)x1,height() - (float)y1,0);
+              board.drawDot((float)x0,height() - (float)y0);
+              board.drawDot((float)x1,height() - (float)y1);
             }
 #endif
           }
@@ -42696,9 +42696,9 @@ namespace cimg_library_suffixed {
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
-              board.drawCircle((float)x0,height() - (float)y0,0);
-              board.drawCircle((float)x1,height() - (float)y1,0);
-              board.drawCircle((float)x2,height() - (float)y2,0);
+              board.drawDot((float)x0,height() - (float)y0);
+              board.drawDot((float)x1,height() - (float)y1);
+              board.drawDot((float)x2,height() - (float)y2);
             }
 #endif
             break;
@@ -42816,10 +42816,10 @@ namespace cimg_library_suffixed {
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
-              board.drawCircle((float)x0,height() - (float)y0,0);
-              board.drawCircle((float)x1,height() - (float)y1,0);
-              board.drawCircle((float)x2,height() - (float)y2,0);
-              board.drawCircle((float)x3,height() - (float)y3,0);
+              board.drawDot((float)x0,height() - (float)y0);
+              board.drawDot((float)x1,height() - (float)y1);
+              board.drawDot((float)x2,height() - (float)y2);
+              board.drawDot((float)x3,height() - (float)y3);
             }
 #endif
             break;
@@ -42972,9 +42972,9 @@ namespace cimg_library_suffixed {
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi(128,128,128,(unsigned char)(opacity*255));
-              board.drawCircle((float)x0,height() - (float)y0,0);
-              board.drawCircle((float)x1,height() - (float)y1,0);
-              board.drawCircle((float)x2,height() - (float)y2,0);
+              board.drawDot((float)x0,height() - (float)y0);
+              board.drawDot((float)x1,height() - (float)y1);
+              board.drawDot((float)x2,height() - (float)y2);
             }
 #endif
             break;
@@ -43112,10 +43112,10 @@ namespace cimg_library_suffixed {
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi(128,128,128,(unsigned char)(opacity*255));
-              board.drawCircle((float)x0,height() - (float)y0,0);
-              board.drawCircle((float)x1,height() - (float)y1,0);
-              board.drawCircle((float)x2,height() - (float)y2,0);
-              board.drawCircle((float)x3,height() - (float)y3,0);
+              board.drawDot((float)x0,height() - (float)y0);
+              board.drawDot((float)x1,height() - (float)y1);
+              board.drawDot((float)x2,height() - (float)y2);
+              board.drawDot((float)x3,height() - (float)y3);
             }
 #endif
             break;

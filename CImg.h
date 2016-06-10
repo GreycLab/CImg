@@ -27494,48 +27494,47 @@ namespace cimg_library_suffixed {
       if (is_empty() || !permut) return CImg<t>(*this,false);
       CImg<t> res;
       const T* ptrs = _data;
-      if (!cimg::strncasecmp(permut,"xyzc",4)) return +*this;
-      if (!cimg::strncasecmp(permut,"xycz",4)) {
+      unsigned int code = 0;
+      if (std::strlen(permut)==4)
+        code = ((unsigned int)permut[0]<<24) | ((unsigned int)permut[1]<<16) |
+          ((unsigned int)permut[2]<<8) | ((unsigned int)permut[3]);
+      const ulongT wh = (ulongT)res._width*res._height, whd = wh*res._depth;
+      switch (code) {
+      case 0x78797a63 : // xyzc
+        return +*this;
+      case 0x7879637a : // xycz
 	res.assign(_width,_height,_spectrum,_depth);
-        const ulongT wh = (ulongT)res._width*res._height, whd = wh*res._depth;
 	cimg_forXYZC(*this,x,y,z,c) res(x,y,c,z,wh,whd) = (t)*(ptrs++);
-      }
-      if (!cimg::strncasecmp(permut,"xzyc",4)) {
+        break;
+      case 0x787a7963 : // xzyc
 	res.assign(_width,_depth,_height,_spectrum);
-        const ulongT wh = (ulongT)res._width*res._height, whd = wh*res._depth;
 	cimg_forXYZC(*this,x,y,z,c) res(x,z,y,c,wh,whd) = (t)*(ptrs++);
-      }
-      if (!cimg::strncasecmp(permut,"xzcy",4)) {
+        break;
+      case 0x787a6379 : // xzcy
 	res.assign(_width,_depth,_spectrum,_height);
-        const ulongT wh = (ulongT)res._width*res._height, whd = wh*res._depth;
 	cimg_forXYZC(*this,x,y,z,c) res(x,z,c,y,wh,whd) = (t)*(ptrs++);
-      }
-      if (!cimg::strncasecmp(permut,"xcyz",4)) {
+        break;
+      case 0x7863797a : // xcyz
 	res.assign(_width,_spectrum,_height,_depth);
-        const ulongT wh = (ulongT)res._width*res._height, whd = wh*res._depth;
 	cimg_forXYZC(*this,x,y,z,c) res(x,c,y,z,wh,whd) = (t)*(ptrs++);
-      }
-      if (!cimg::strncasecmp(permut,"xczy",4)) {
+        break;
+      case 0x78637a79 : // xczy
 	res.assign(_width,_spectrum,_depth,_height);
-        const ulongT wh = (ulongT)res._width*res._height, whd = wh*res._depth;
 	cimg_forXYZC(*this,x,y,z,c) res(x,c,z,y,wh,whd) = (t)*(ptrs++);
-      }
-      if (!cimg::strncasecmp(permut,"yxzc",4)) {
+        break;
+      case 0x79787a63 : // yxzc
 	res.assign(_height,_width,_depth,_spectrum);
-        const ulongT wh = (ulongT)res._width*res._height, whd = wh*res._depth;
 	cimg_forXYZC(*this,x,y,z,c) res(y,x,z,c,wh,whd) = (t)*(ptrs++);
-      }
-      if (!cimg::strncasecmp(permut,"yxcz",4)) {
+        break;
+      case 0x7978637a : // yxcz
 	res.assign(_height,_width,_spectrum,_depth);
-        const ulongT wh = (ulongT)res._width*res._height, whd = wh*res._depth;
 	cimg_forXYZC(*this,x,y,z,c) res(y,x,c,z,wh,whd) = (t)*(ptrs++);
-      }
-      if (!cimg::strncasecmp(permut,"yzxc",4)) {
+        break;
+      case 0x797a7863 : // yzxc
 	res.assign(_height,_depth,_width,_spectrum);
-        const ulongT wh = (ulongT)res._width*res._height, whd = wh*res._depth;
 	cimg_forXYZC(*this,x,y,z,c) res(y,z,x,c,wh,whd) = (t)*(ptrs++);
-      }
-      if (!cimg::strncasecmp(permut,"yzcx",4)) {
+        break;
+      case 0x797a6378 : // yzcx
 	res.assign(_height,_depth,_spectrum,_width);
 	switch (_width) {
 	case 1 : {
@@ -27563,53 +27562,44 @@ namespace cimg_library_suffixed {
 	  }
 	} break;
 	default : {
-          const ulongT wh = (ulongT)res._width*res._height, whd = wh*res._depth;
 	  cimg_forXYZC(*this,x,y,z,c) res(y,z,c,x,wh,whd) = *(ptrs++);
           return res;
 	}
 	}
-      }
-      if (!cimg::strncasecmp(permut,"ycxz",4)) {
+        break;
+      case 0x7963787a : // ycxz
 	res.assign(_height,_spectrum,_width,_depth);
-        const ulongT wh = (ulongT)res._width*res._height, whd = wh*res._depth;
 	cimg_forXYZC(*this,x,y,z,c) res(y,c,x,z,wh,whd) = (t)*(ptrs++);
-      }
-      if (!cimg::strncasecmp(permut,"yczx",4)) {
+        break;
+      case 0x79637a78 : // yczx
 	res.assign(_height,_spectrum,_depth,_width);
-        const ulongT wh = (ulongT)res._width*res._height, whd = wh*res._depth;
 	cimg_forXYZC(*this,x,y,z,c) res(y,c,z,x,wh,whd) = (t)*(ptrs++);
-      }
-      if (!cimg::strncasecmp(permut,"zxyc",4)) {
+        break;
+      case 0x7a787963 : // zxyc
 	res.assign(_depth,_width,_height,_spectrum);
-        const ulongT wh = (ulongT)res._width*res._height, whd = wh*res._depth;
 	cimg_forXYZC(*this,x,y,z,c) res(z,x,y,c,wh,whd) = (t)*(ptrs++);
-      }
-      if (!cimg::strncasecmp(permut,"zxcy",4)) {
+        break;
+      case 0x7a786379 : // zxcy
 	res.assign(_depth,_width,_spectrum,_height);
-        const ulongT wh = (ulongT)res._width*res._height, whd = wh*res._depth;
 	cimg_forXYZC(*this,x,y,z,c) res(z,x,c,y,wh,whd) = (t)*(ptrs++);
-      }
-      if (!cimg::strncasecmp(permut,"zyxc",4)) {
+        break;
+      case 0x7a797863 : // zyxc
 	res.assign(_depth,_height,_width,_spectrum);
-        const ulongT wh = (ulongT)res._width*res._height, whd = wh*res._depth;
 	cimg_forXYZC(*this,x,y,z,c) res(z,y,x,c,wh,whd) = (t)*(ptrs++);
-      }
-      if (!cimg::strncasecmp(permut,"zycx",4)) {
+        break;
+      case 0x7a796378 : // zycx
 	res.assign(_depth,_height,_spectrum,_width);
-        const ulongT wh = (ulongT)res._width*res._height, whd = wh*res._depth;
 	cimg_forXYZC(*this,x,y,z,c) res(z,y,c,x,wh,whd) = (t)*(ptrs++);
-      }
-      if (!cimg::strncasecmp(permut,"zcxy",4)) {
+        break;
+      case 0x7a637879 : // zcxy
 	res.assign(_depth,_spectrum,_width,_height);
-        const ulongT wh = (ulongT)res._width*res._height, whd = wh*res._depth;
 	cimg_forXYZC(*this,x,y,z,c) res(z,c,x,y,wh,whd) = (t)*(ptrs++);
-      }
-      if (!cimg::strncasecmp(permut,"zcyx",4)) {
+        break;
+      case 0x7a637978 : // zcyx
 	res.assign(_depth,_spectrum,_height,_width);
-        const ulongT wh = (ulongT)res._width*res._height, whd = wh*res._depth;
 	cimg_forXYZC(*this,x,y,z,c) res(z,c,y,x,wh,whd) = (t)*(ptrs++);
-      }
-      if (!cimg::strncasecmp(permut,"cxyz",4)) {
+        break;
+      case 0x6378797a : // cxyz
 	res.assign(_spectrum,_width,_height,_depth);
 	switch (_spectrum) {
 	case 1 : {
@@ -27643,31 +27633,27 @@ namespace cimg_library_suffixed {
 	  cimg_forXYZC(*this,x,y,z,c) res(c,x,y,z,wh,whd) = (t)*(ptrs++);
 	}
 	}
-      }
-      if (!cimg::strncasecmp(permut,"cxzy",4)) {
+        break;
+      case 0x63787a79 : // cxzy
 	res.assign(_spectrum,_width,_depth,_height);
-        const ulongT wh = (ulongT)res._width*res._height, whd = wh*res._depth;
 	cimg_forXYZC(*this,x,y,z,c) res(c,x,z,y,wh,whd) = (t)*(ptrs++);
-      }
-      if (!cimg::strncasecmp(permut,"cyxz",4)) {
+        break;
+      case 0x6379787a : // cyxz
 	res.assign(_spectrum,_height,_width,_depth);
-        const ulongT wh = (ulongT)res._width*res._height, whd = wh*res._depth;
 	cimg_forXYZC(*this,x,y,z,c) res(c,y,x,z,wh,whd) = (t)*(ptrs++);
-      }
-      if (!cimg::strncasecmp(permut,"cyzx",4)) {
+        break;
+      case 0x63797a78 : // cyzx
 	res.assign(_spectrum,_height,_depth,_width);
-        const ulongT wh = (ulongT)res._width*res._height, whd = wh*res._depth;
 	cimg_forXYZC(*this,x,y,z,c) res(c,y,z,x,wh,whd) = (t)*(ptrs++);
-      }
-      if (!cimg::strncasecmp(permut,"czxy",4)) {
+        break;
+      case 0x637a7879 : // czxy
 	res.assign(_spectrum,_depth,_width,_height);
-        const ulongT wh = (ulongT)res._width*res._height, whd = wh*res._depth;
 	cimg_forXYZC(*this,x,y,z,c) res(c,z,x,y,wh,whd) = (t)*(ptrs++);
-      }
-      if (!cimg::strncasecmp(permut,"czyx",4)) {
+        break;
+      case 0x637a7978 : // czyx
 	res.assign(_spectrum,_depth,_height,_width);
-        const ulongT wh = (ulongT)res._width*res._height, whd = wh*res._depth;
 	cimg_forXYZC(*this,x,y,z,c) res(c,z,y,x,wh,whd) = (t)*(ptrs++);
+        break;
       }
       if (!res)
         throw CImgArgumentException(_cimg_instance

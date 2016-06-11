@@ -27496,11 +27496,11 @@ namespace cimg_library_suffixed {
       const T* ptrs = _data;
       unsigned char s_code[4] = { 0,1,2,3 }, n_code[4] = { 0 };
       for (unsigned int l = 0; permut[l]; ++l) {
-        char c = cimg::lowercase(permut[l]);
+        int c = cimg::lowercase(permut[l]);
         if (c!='x' && c!='y' && c!='z' && c!='c') { *s_code = 4; break; }
-        else { ++n_code[(int)(c%=4)]; cimg::swap(s_code[l],s_code[(int)c]); }
+        else { ++n_code[c%=4]; s_code[l] = c; }
       }
-      if (*s_code<4 && *n_code<=1 && n_code[1]<=1 && n_code[2]<=1 && n_code[3]<=1) {
+      if (*permut && *s_code<4 && *n_code<=1 && n_code[1]<=1 && n_code[2]<=1 && n_code[3]<=1) {
         const unsigned int code = (s_code[0]<<12) | (s_code[1]<<8) | (s_code[2]<<4) | (s_code[3]);
         const ulongT wh = (ulongT)res._width*res._height, whd = wh*res._depth;
         switch (code) {

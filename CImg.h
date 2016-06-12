@@ -44867,27 +44867,27 @@ namespace cimg_library_suffixed {
     /**
        \param filename Filename, as a C-string.
     **/
-    CImg<T>& load_png(const char *const filename, unsigned int *const bytes_per_pixel=0) {
-      return _load_png(0,filename,bytes_per_pixel);
+    CImg<T>& load_png(const char *const filename, unsigned int *const bits_per_pixel=0) {
+      return _load_png(0,filename,bits_per_pixel);
     }
 
     //! Load image from a PNG file \newinstance.
-    static CImg<T> get_load_png(const char *const filename, unsigned int *const bytes_per_pixel=0) {
-      return CImg<T>().load_png(filename,bytes_per_pixel);
+    static CImg<T> get_load_png(const char *const filename, unsigned int *const bits_per_pixel=0) {
+      return CImg<T>().load_png(filename,bits_per_pixel);
     }
 
     //! Load image from a PNG file \overloading.
-    CImg<T>& load_png(std::FILE *const file, unsigned int *const bytes_per_pixel=0) {
-      return _load_png(file,0,bytes_per_pixel);
+    CImg<T>& load_png(std::FILE *const file, unsigned int *const bits_per_pixel=0) {
+      return _load_png(file,0,bits_per_pixel);
     }
 
     //! Load image from a PNG file \newinstance.
-    static CImg<T> get_load_png(std::FILE *const file, unsigned int *const bytes_per_pixel=0) {
-      return CImg<T>().load_png(file,bytes_per_pixel);
+    static CImg<T> get_load_png(std::FILE *const file, unsigned int *const bits_per_pixel=0) {
+      return CImg<T>().load_png(file,bits_per_pixel);
     }
 
     // (Note: Most of this function has been written by Eric Fausett)
-    CImg<T>& _load_png(std::FILE *const file, const char *const filename, unsigned int *const bytes_per_pixel) {
+    CImg<T>& _load_png(std::FILE *const file, const char *const filename, unsigned int *const bits_per_pixel) {
       if (!file && !filename)
         throw CImgArgumentException(_cimg_instance
                                     "load_png(): Specified filename is (null).",
@@ -44963,7 +44963,7 @@ namespace cimg_library_suffixed {
       int bit_depth, color_type, interlace_type;
       bool is_gray = false;
       png_get_IHDR(png_ptr,info_ptr,&W,&H,&bit_depth,&color_type,&interlace_type,(int*)0,(int*)0);
-      if (bytes_per_pixel) *bytes_per_pixel = (unsigned int)bit_depth>>3;
+      if (bits_per_pixel) *bits_per_pixel = (unsigned int)bit_depth;
 
       // Transforms to unify image data
       if (color_type==PNG_COLOR_TYPE_PALETTE) {

@@ -43912,8 +43912,13 @@ namespace cimg_library_suffixed {
       if (is_empty()) return CImg<ucharT>(1,1,1,1,0);
       const CImg<T> crop = get_shared_channels(0,cimg::min(2,spectrum() - 1));
       CImg<Tuchar> img2d;
-      if (_depth>1) crop.get_projections2d(x,y,z).move_to(img2d);
-      else CImg<Tuchar>(crop,false).move_to(img2d);
+      if (_depth>1) {
+        const int mdisp = cimg::min(disp.screen_width(),disp.screen_height());
+        if (depth()>mdisp) {
+          crop.get_resize(-100,-100,mdisp,-100,0).move_to(img2d);
+          img2d.projections2d(x,y,z*img2d._depth/_depth);
+        } else crop.get_projections2d(x,y,z).move_to(img2d);
+      } else CImg<Tuchar>(crop,false).move_to(img2d);
 
       // Check for inf and NaN values.
       if (cimg::type<T>::is_float() && normalization) {

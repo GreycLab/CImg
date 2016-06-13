@@ -17076,6 +17076,16 @@ namespace cimg_library_suffixed {
               if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(std::sqrt(mem[arg1]));
               _cimg_mp_scalar1(mp_sqrt,arg1);
             }
+
+            if (!std::strncmp(ss,"stod(",5)) { // String to double
+              _cimg_mp_op("Function 'stod()'");
+              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss5,s1,depth1,0);
+              arg2 = s1<se1?compile(++s1,se1,depth1,0):0;
+              _cimg_mp_check_type(arg2,2,1,0);
+              p1 = _cimg_mp_vector_size(arg1);
+              _cimg_mp_scalar3(mp_stod,arg1,p1,arg2);
+            }
             break;
 
           case 't' :
@@ -19823,6 +19833,34 @@ namespace cimg_library_suffixed {
           siz = (unsigned int)mp.opcode[2];
         while (siz-->0) mp.mem[ptrd++] = (double)*(ptrs++);
         return cimg::type<double>::nan();
+      }
+
+      static double mp_stod(_cimg_math_parser& mp) {
+        const double *ptrs = &_mp_arg(2);
+        const unsigned int siz = (unsigned int)_mp_arg(3);
+        const bool is_strict = (bool)_mp_arg(4);
+        if (!siz) return *ptrs>='0' && *ptrs<='9'?*ptrs - '0':cimg::type<double>::nan();
+        CImg<charT> ss(siz + 1);
+        double val = cimg::type<double>::nan();
+        char sep;
+        for (unsigned i = 0; i<siz; ++i) ss[i] = (char)*(++ptrs);
+        ss[siz] = 0;
+
+        int err = std::sscanf(ss,"%lf%c",&val,&sep);
+#if cimg_OS==2
+        // Check for +/-NaN and +/-inf as Microsoft's sscanf() version is not able
+        // to read those particular values.
+        if (!err && (*ss=='+' || *ss=='-' || *ss=='i' || *ss=='I' || *ss=='n' || *ss=='N')) {
+          bool is_positive = true;
+          const char *s = ss;
+          if (*s=='+') ++s; else if (*s=='-') { ++s; is_positive = false; }
+          if (!cimg::strcasecmp(s,"inf")) { val = cimg::type<double>::inf(); err = 1; }
+          else if (!cimg::strcasecmp(s,"nan")) { val = cimg::type<double>::nan(); err = 1; }
+          if (err==1 && !is_positive) val = -val;
+        }
+#endif
+        if (is_strict && err!=1) return  cimg::type<double>::nan();
+        return val;
       }
 
       static double mp_sub(_cimg_math_parser& mp) {

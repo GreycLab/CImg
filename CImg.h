@@ -31625,13 +31625,13 @@ namespace cimg_library_suffixed {
                                     guide._width,guide._height,guide._depth,guide._spectrum,guide._data);
       if (is_empty()) return *this;
       T edge_min, edge_max = guide.max_min(edge_min);
-      if (edge_min==edge_max || sigma_r == 0.) return *this;
+      if (edge_min==edge_max || sigma_r==0) return *this;
       const float
         edge_delta = (float)(edge_max - edge_min),
         _sigma_x = sigma_x>=0?sigma_x:-sigma_x*_width/100,
         _sigma_y = sigma_y>=0?sigma_y:-sigma_y*_height/100,
         _sigma_z = sigma_z>=0?sigma_z:-sigma_z*_depth/100,
-        _sigma_r = sigma_r>=0?sigma_r:-sigma_r*(edge_max-edge_min)/100,
+        _sigma_r = sigma_r>=0?sigma_r:-sigma_r*(edge_max - edge_min)/100,
         _sampling_x = sampling_x?sampling_x:cimg::max(_sigma_x,1.0f),
         _sampling_y = sampling_y?sampling_y:cimg::max(_sigma_y,1.0f),
         _sampling_z = sampling_z?sampling_z:cimg::max(_sigma_z,1.0f),
@@ -31917,9 +31917,8 @@ namespace cimg_library_suffixed {
     //! Blur image, with the image guided filter.
     /**
        \param guide Image used to guide the smoothing process.
-       \param radius Spatial radius.
-       \param regularization Regularization parameter.
-
+       \param radius Spatial radius. If negative, it is expressed as a percentage of the largest image size.
+       \param regularization Regularization parameter. If negative, it is expressed as a percentage of the guide value range.
        \note This method implements the filtering algorithm described in:
        He, Kaiming; Sun, Jian; Tang, Xiaoou, "Guided Image Filtering," Pattern Analysis and Machine Intelligence,
        IEEE Transactions on , vol.35, no.6, pp.1397,1409, June 2013
@@ -31937,8 +31936,14 @@ namespace cimg_library_suffixed {
                                     "blur_guided(): Invalid size for specified guide image (%u,%u,%u,%u,%p).",
                                     cimg_instance,
                                     guide._width,guide._height,guide._depth,guide._spectrum,guide._data);
-      if (is_empty() || !radius) return *this;
+      if (is_empty() || !radius || !regularization) return *this;
       const int _radius = radius>=0?(int)radius:(int)(-radius*cimg::max(_width,_height,_depth)/100);
+      float _regularization = regularization;
+      if (regularization<0) {
+        T edge_min, edge_max = guide.max_min(edge_min);
+        if (edge_min==edge_max) return *this;
+        _regularization = -regularization*(edge_max - edge_min)/100;
+      }
       const unsigned int psize = (unsigned int)(1 + 2*_radius);
       const CImg<uintT> N = CImg<uintT>(_width,_height,_depth,1,1)._blur_guided(psize);
       CImg<Tfloat>
@@ -31946,7 +31951,7 @@ namespace cimg_library_suffixed {
         mean_p = CImg<Tfloat>(*this,false)._blur_guided(psize).div(N),
         cov_Ip = CImg<Tfloat>(*this,false).mul(guide)._blur_guided(psize).div(N)-=mean_p.get_mul(mean_I),
         var_I = CImg<Tfloat>(guide,false).sqr()._blur_guided(psize).div(N)-=mean_I.get_sqr(),
-        &a = cov_Ip.div(var_I+=regularization),
+        &a = cov_Ip.div(var_I+=_regularization),
         &b = mean_p-=a.get_mul(mean_I);
       a._blur_guided(psize).div(N);
       b._blur_guided(psize).div(N);

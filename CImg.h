@@ -44942,6 +44942,7 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
 
 #ifndef cimg_use_png
+      cimg::unused(bits_per_pixel);
       if (file)
         throw CImgIOException(_cimg_instance
                               "load_png(): Unable to load data from '(FILE*)' unless libpng is enabled.",

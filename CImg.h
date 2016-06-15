@@ -16048,7 +16048,7 @@ namespace cimg_library_suffixed {
                 arg1 = compile(s,ns,depth1,0);
                 if (!pos && _cimg_mp_is_vector(arg1)) { // Coordinates specified as a vector
                   opcode = CImg<ulongT>::sequence((ulongT)_cimg_mp_vector_size(arg1),arg1 + 1,
-                                                 arg1 + (ulongT)_cimg_mp_vector_size(arg1));
+                                                  arg1 + (ulongT)_cimg_mp_vector_size(arg1));
                   opcode.resize(1,cimg::min(opcode._height,4U),1,1,0).move_to(_opcode);
                   is_sth = true;
                 } else {
@@ -16109,7 +16109,6 @@ namespace cimg_library_suffixed {
                                             (ss - 4)>expr._data?ss - 4:expr._data,
                                             se<&expr.back()?"...":"");
               }
-
 
               _cimg_mp_check_type(*opcode,arg2 + 1,1,0);
               _cimg_mp_check_type(opcode[1],arg2 + 1 + (is_sth?0:1),1,0);
@@ -19803,8 +19802,8 @@ namespace cimg_library_suffixed {
         double *const ptrd = &_mp_arg(1) + 1;
         const double *const ptrs = &_mp_arg(2) + 1;
         const unsigned int
-          siz = mp.opcode[3],
-          chunk_siz = mp.opcode[5];
+          siz = (unsigned int)mp.opcode[3],
+          chunk_siz = (unsigned int)mp.opcode[5];
         const bool is_increasing = (bool)_mp_arg(4);
         CImg<doubleT>(ptrd,chunk_siz,siz/chunk_siz,1,1,true) = CImg<doubleT>(ptrs,chunk_siz,siz/chunk_siz,1,1,true).
           get_sort(is_increasing,chunk_siz>1?'y':0);
@@ -21254,7 +21253,7 @@ namespace cimg_library_suffixed {
                                     "kth_smallest(): Empty instance.",
                                     cimg_instance);
       CImg<T> arr(*this);
-      unsigned int l = 0, ir = size() - 1;
+      unsigned int l = 0, ir = (unsigned int)size() - 1;
       for ( ; ; ) {
         if (ir<=l + 1) {
           if (ir==l + 1 && arr[ir]<arr[l]) cimg::swap(arr[l],arr[ir]);
@@ -21289,8 +21288,8 @@ namespace cimg_library_suffixed {
         throw CImgInstanceException(_cimg_instance
                                     "median(): Empty instance.",
                                     cimg_instance);
-      const unsigned int s = size();
-      const T res = kth_smallest(s>>1);
+      const unsigned long s = size();
+      const T res = kth_smallest((unsigned int)(s>>1));
       return (s%2)?res:((res + kth_smallest((s>>1) - 1))/2);
     }
 
@@ -22003,7 +22002,7 @@ namespace cimg_library_suffixed {
     **/
     CImg<T>& sequence(const T& a0, const T& a1) {
       if (is_empty()) return *this;
-      const unsigned int siz = size() - 1;
+      const unsigned long siz = size() - 1;
       T* ptr = _data;
       if (siz) {
         const double delta = (double)a1 - (double)a0;
@@ -29527,9 +29526,9 @@ namespace cimg_library_suffixed {
           ulongT i0 = 0, i = 0;
           do {
             while (i<siz && (*this)[i]==value) ++i;
-            if (i>i0) { if (keep_values) CImg<T>(_data + i0,1,i - i0).move_to(res); i0 = i; }
+            if (i>i0) { if (keep_values) CImg<T>(_data + i0,1,(unsigned int)(i - i0)).move_to(res); i0 = i; }
             while (i<siz && (*this)[i]!=value) ++i;
-            if (i>i0) { CImg<T>(_data + i0,1,i - i0).move_to(res); i0 = i; }
+            if (i>i0) { CImg<T>(_data + i0,1,(unsigned int)(i - i0)).move_to(res); i0 = i; }
           } while (i<siz);
         }
         }
@@ -29609,13 +29608,13 @@ namespace cimg_library_suffixed {
               while (i<siz && (*this)[i]==values[j]) { ++i; if (++j>=vsiz) j = 0; }
               i-=j;
               if (i>i1) {
-                if (i1>i0) CImg<T>(_data + i0,1,i1 - i0).move_to(res);
-                if (keep_values) CImg<T>(_data + i1,1,i - i1).move_to(res);
+                if (i1>i0) CImg<T>(_data + i0,1,(unsigned int)(i1 - i0)).move_to(res);
+                if (keep_values) CImg<T>(_data + i1,1,(unsigned int)(i - i1)).move_to(res);
                 i0 = i;
               } else ++i;
             } else ++i;
           } while (i<siz);
-          if (i0<siz) CImg<T>(_data + i0,1,siz - i0).move_to(res);
+          if (i0<siz) CImg<T>(_data + i0,1,(unsigned int)(siz - i0)).move_to(res);
         } break;
         }
       }
@@ -51236,7 +51235,7 @@ namespace cimg_library_suffixed {
       if (!n) return assign();
       if (_allocated_width<n || _allocated_width>(n<<2)) {
         delete[] _data;
-        _data = new CImg<T>[_allocated_width=cimg::max(16UL,cimg::nearest_pow2(n))];
+        _data = new CImg<T>[_allocated_width = (unsigned int)cimg::max(16UL,cimg::nearest_pow2(n))];
       }
       _width = n;
       return *this;

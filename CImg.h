@@ -45996,38 +45996,39 @@ namespace cimg_library_suffixed {
 
       // Read pixel data.
       assign(dimx,dimy,dimz,dimv);
+      const size_t pdim = (size_t)dimx*dimy*dimz*dimv;
       switch (datatype) {
       case 2 : {
-        unsigned char *const buffer = new unsigned char[(size_t)dimx*dimy*dimz*dimv];
-        cimg::fread(buffer,dimx*dimy*dimz*dimv,nfile);
+        unsigned char *const buffer = new unsigned char[pdim];
+        cimg::fread(buffer,pdim,nfile);
         cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);
         delete[] buffer;
       } break;
       case 4 : {
-        short *const buffer = new short[(size_t)dimx*dimy*dimz*dimv];
-        cimg::fread(buffer,dimx*dimy*dimz*dimv,nfile);
-        if (endian) cimg::invert_endianness(buffer,dimx*dimy*dimz*dimv);
+        short *const buffer = new short[pdim];
+        cimg::fread(buffer,pdim,nfile);
+        if (endian) cimg::invert_endianness(buffer,pdim);
         cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);
         delete[] buffer;
       } break;
       case 8 : {
-        int *const buffer = new int[(size_t)dimx*dimy*dimz*dimv];
-        cimg::fread(buffer,dimx*dimy*dimz*dimv,nfile);
-        if (endian) cimg::invert_endianness(buffer,dimx*dimy*dimz*dimv);
+        int *const buffer = new int[pdim];
+        cimg::fread(buffer,pdim,nfile);
+        if (endian) cimg::invert_endianness(buffer,pdim);
         cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);
         delete[] buffer;
       } break;
       case 16 : {
-        float *const buffer = new float[(size_t)dimx*dimy*dimz*dimv];
-        cimg::fread(buffer,dimx*dimy*dimz*dimv,nfile);
-        if (endian) cimg::invert_endianness(buffer,dimx*dimy*dimz*dimv);
+        float *const buffer = new float[pdim];
+        cimg::fread(buffer,pdim,nfile);
+        if (endian) cimg::invert_endianness(buffer,pdim);
         cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);
         delete[] buffer;
       } break;
       case 64 : {
-        double *const buffer = new double[(size_t)dimx*dimy*dimz*dimv];
-        cimg::fread(buffer,dimx*dimy*dimz*dimv,nfile);
-        if (endian) cimg::invert_endianness(buffer,dimx*dimy*dimz*dimv);
+        double *const buffer = new double[pdim];
+        cimg::fread(buffer,pdim,nfile);
+        if (endian) cimg::invert_endianness(buffer,pdim);
         cimg_foroff(*this,off) _data[off] = (T)(buffer[off]*scalefactor);
         delete[] buffer;
       } break;

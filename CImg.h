@@ -45986,7 +45986,7 @@ namespace cimg_library_suffixed {
       if (dim[0]>=2) dimy = dim[2];
       if (dim[0]>=3) dimz = dim[3];
       if (dim[0]>=4) dimv = dim[4];
-      float scalefactor = *(float*)(header + 112); if (scalefactor==0) scalefactor=1;
+      float scalefactor = *(float*)(header + 112); if (scalefactor==0) scalefactor = 1;
       const unsigned short datatype = *(unsigned short*)(header + 70);
       if (voxel_size) {
         const float *vsize = (float*)(header + 76);
@@ -49798,7 +49798,7 @@ namespace cimg_library_suffixed {
       if (is_empty()) { cimg::fempty(0,filename); return *this; }
 
       std::FILE *file;
-      CImg<charT> header(348,1,1,1,0), hname(1024), iname(1024);
+      CImg<charT> hname(1024), iname(1024);
       const char *const ext = cimg::split_filename(filename);
       short datatype = -1;
       if (!*ext) {
@@ -49818,8 +49818,10 @@ namespace cimg_library_suffixed {
       if (!cimg::strncasecmp(ext,"nii",3)) {
         std::strncpy(hname,filename,hname._width - 1); *iname = 0;
       }
+
+      CImg<charT> header(*iname?348:352,1,1,1,0);
       int *const iheader = (int*)header._data;
-      *iheader = 348;
+      *iheader = header.width();
       std::strcpy(header._data + 4,"CImg");
       std::strcpy(header._data + 14," ");
       ((short*)&(header[36]))[0] = 4096;
@@ -49848,6 +49850,7 @@ namespace cimg_library_suffixed {
 
       ((short*)&(header[70]))[0] = datatype;
       ((short*)&(header[72]))[0] = sizeof(T);
+      ((float*)&(header[108]))[0] = (float)(*iname?0:header.width());
       ((float*)&(header[112]))[0] = 1;
       ((float*)&(header[76]))[0] = 0;
       if (voxel_size) {
@@ -49856,7 +49859,7 @@ namespace cimg_library_suffixed {
         ((float*)&(header[76]))[3] = voxel_size[2];
       } else ((float*)&(header[76]))[1] = ((float*)&(header[76]))[2] = ((float*)&(header[76]))[3] = 1;
       file = cimg::fopen(hname,"wb");
-      cimg::fwrite(header._data,348,file);
+      cimg::fwrite(header._data,header.width(),file);
       if (*iname) { cimg::fclose(file); file = cimg::fopen(iname,"wb"); }
       cimg::fwrite(_data,size(),file);
       cimg::fclose(file);

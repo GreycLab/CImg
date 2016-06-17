@@ -49821,7 +49821,7 @@ namespace cimg_library_suffixed {
 
       CImg<charT> header(*iname?348:352,1,1,1,0);
       int *const iheader = (int*)header._data;
-      *iheader = header.width();
+      *iheader = 348;
       std::strcpy(header._data + 4,"CImg");
       std::strcpy(header._data + 14," ");
       ((short*)&(header[36]))[0] = 4096;

@@ -21265,7 +21265,7 @@ namespace cimg_library_suffixed {
           if (ir==l + 1 && arr[ir]<arr[l]) cimg::swap(arr[l],arr[ir]);
           return arr[k];
         } else {
-          const unsigned int mid = (l + ir)>>1;
+          const ulongT mid = (l + ir)>>1;
           cimg::swap(arr[mid],arr[l + 1]);
           if (arr[l]>arr[ir]) cimg::swap(arr[l],arr[ir]);
           if (arr[l + 1]>arr[ir]) cimg::swap(arr[l + 1],arr[ir]);

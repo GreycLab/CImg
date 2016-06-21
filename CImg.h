@@ -21295,7 +21295,7 @@ namespace cimg_library_suffixed {
                                     "median(): Empty instance.",
                                     cimg_instance);
       const ulongT s = size();
-      const T res = kth_smallest((unsigned int)(s>>1));
+      const T res = kth_smallest(s>>1);
       return (s%2)?res:((res + kth_smallest((s>>1) - 1))/2);
     }
 

@@ -30129,7 +30129,7 @@ namespace cimg_library_suffixed {
     /**
        \param kernel Structuring element.
        \param boundary_conditions Boundary conditions.
-       \param is_real Tells if the erosion is done in real mode (\c true) or in binary mode (\c false).
+       \param is_real Do the erosion in real mode (\c true) rather than binary mode (\c false).
     **/
     template<typename t>
     CImg<T>& erode(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
@@ -30420,7 +30420,7 @@ namespace cimg_library_suffixed {
     /**
        \param kernel Structuring element.
        \param boundary_conditions Boundary conditions.
-       \param is_real Tells if dilation is done in real mode (\c true) or in binary mode (\c false).
+       \param is_real Do the dilation in real mode (\c true) rather than binary mode (\c false).
     **/
     template<typename t>
     CImg<T>& dilate(const CImg<t>& kernel, const unsigned int boundary_conditions=1,

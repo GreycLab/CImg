@@ -17273,15 +17273,15 @@ namespace cimg_library_suffixed {
                 arg2 = 0;
                 cimg_forX(_expr,k) {
                   if (_expr[k]==(char)p1) { // Perform argument substitution
-                    is_sth = function_body_is_string(l,arg2);
+                    is_sth = !function_body_is_string(l,arg2) && (k==_expr.width() - 1 || _expr[k + 1]!='(');
                     arg1 = _expr._width;
-                    _expr.resize(arg1 + variable_name._width - (is_sth?2:0),1,1,1,0);
-                    std::memmove(_expr._data + k + variable_name._width + (is_sth?-1:1),_expr._data + k + 1,
+                    _expr.resize(arg1 + variable_name._width - (is_sth?0:2),1,1,1,0);
+                    std::memmove(_expr._data + k + variable_name._width + (is_sth?1:-1),_expr._data + k + 1,
                                  arg1 - k - 1);
-                    if (!is_sth) _expr[k++] = '(';
+                    if (is_sth) _expr[k++] = '(';
                     std::memcpy(_expr._data + k,variable_name,variable_name._width - 1);
                     k+=variable_name._width - 1;
-                    if (!is_sth) _expr[k++] = ')';
+                    if (is_sth) _expr[k++] = ')';
                   }
                   ++arg2;
                 }

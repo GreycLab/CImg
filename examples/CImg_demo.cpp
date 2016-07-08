@@ -68,9 +68,10 @@ void* item_blurring_gradient() {
 // Item : Rotozoom
 //-----------------
 void* item_rotozoom() {
-  CImg<unsigned char> src = CImg<unsigned char>(data_milla,211,242,1,3,false).resize(400,300,1,3,3), img(src);
+  CImg<unsigned char> src = CImg<unsigned char>(data_milla,211,242,1,3,false).resize(400,300,1,3,3),
+    img(src), img2(img);
   CImgDisplay disp(img.width(),img.height(),"[#2] - Rotozoom",0);
-  float alpha = 0, t = 0, angle = 0, zoom0 = -0.9f;
+  float alpha = 0, t = 0, angle = 0, zoom0 = -0.9f, w2 = 0.5*img.width(), h2 = 0.5*img.height();
   const unsigned char color[] = { 16,32,64 };
 
   while (!disp.is_closed() && !disp.is_keyQ() && !disp.is_keyESC()) {
@@ -83,9 +84,20 @@ void* item_rotozoom() {
         img(x,y,0,k) = (unsigned char)(val>255.0f?255:val);
       }
     }
-    const float zoom = (float)(zoom0 + 0.3f*(1 + std::cos(3*t)));
-    img.get_rotate(angle,0.5f*img.width(),0.5f*img.height(),1 + zoom,0,2).
-      draw_text(3,3,"Mouse buttons\nto zoom in/out",color,0,0.8f,24).display(disp.resize(false).wait(20));
+    const float
+      zoom = 1.0f + (float)(zoom0 + 0.3f*(1 + std::cos(3*t))),
+      rad = angle*cimg::PI/180, ca = std::cos(rad)/zoom, sa = std::sin(rad)/zoom;
+    cimg_forXY(img,x,y) {
+      const float
+        cX = x - w2, cY = y - h2,
+        fX = w2 + cX*ca - cY*sa,
+        fY = h2 + cX*sa + cY*ca;
+      const int
+        X = cimg::mod((int)fX,img.width()),
+        Y = cimg::mod((int)fY,img.height());
+      cimg_forC(img,c) img2(x,y,c) = img(X,Y,c);
+    }
+    img2.swap(img).draw_text(3,3,"Mouse buttons\nto zoom in/out",color,0,0.8f,24).display(disp.resize(false).wait(20));
     alpha+=0.7f; t+=0.01f; angle+=0.8f;
     zoom0+=disp.button()&1?0.1f:disp.button()&2?-0.1f:0;
     if (disp.is_keyCTRLLEFT() && disp.is_keyF()) disp.resize(400,400,false).toggle_fullscreen(false);
@@ -131,17 +143,25 @@ void* item_anisotropic_smoothing() {
 // Item : Fractal Animation
 //--------------------------
 void* item_fractal_animation() {
-  CImg<unsigned char> img(400,400,1,3,0), noise(3,2,1,3);
+  CImg<unsigned char> img(400,400,1,3,0), img2(img), noise(3,2,1,3);
+  const float w2 = 0.5f*img.width(), h2 = 0.5f*img.height();
   CImgDisplay disp(img,"[#4] - Fractal Animation");
   float zoom = 0;
-
   for (unsigned int iter = 0; !disp.is_closed() && !disp.is_keyQ() && !disp.is_keyESC(); ++iter, zoom+=0.2f) {
     img.draw_image((img.width() - noise.width())/2,
                    (img.height() - noise.height())/2,
-                   noise.fill(0).noise(255,1)).
-      rotate((float)(10*std::sin(iter/25.0)),0.5f*img.width(),0.5f*img.height(),
-             (float)(1.04f + 0.02f*std::sin(zoom/10)),0,0).
-      resize(disp.resize(false)).display(disp.wait(25));
+                   noise.fill(0).noise(255,1));
+    const float
+      nzoom = (float)(1.04f + 0.02f*std::sin(zoom/10)),
+      rad = 10*std::sin(iter/25.0)*cimg::PI/180, ca = std::cos(rad)/nzoom, sa = std::sin(rad)/nzoom;
+    cimg_forXY(img,x,y) {
+      const float
+        cX = x - w2, cY = y - h2,
+        X = w2 + cX*ca - cY*sa,
+        Y = h2 + cX*sa + cY*ca;
+      cimg_forC(img,c) img2(x,y,c) = img.atXY(X,Y,0,c,0);
+    }
+    img2.swap(img).resize(disp.resize(false)).display(disp.wait(25));
     if (disp.is_keyCTRLLEFT() && disp.is_keyF()) disp.resize(400,400,false).toggle_fullscreen(false);
   }
   return 0;

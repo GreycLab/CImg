@@ -27884,31 +27884,24 @@ namespace cimg_library_suffixed {
        \param angle Rotation angle, in degrees.
        \param cx X-coordinate of the rotation center.
        \param cy Y-coordinate of the rotation center.
-       \param zoom Zoom factor.
        \param boundary_conditions Boundary conditions. Can be <tt>{ 0=dirichlet | 1=neumann | 2=periodic }</tt>.
        \param interpolation_type Type of interpolation. Can be <tt>{ 0=nearest | 1=linear | 2=cubic }</tt>.
     **/
-    CImg<T>& rotate(const float angle, const float cx, const float cy, const float zoom,
-                    const unsigned int interpolation=1, const unsigned int boundary_conditions=0) {
-      return get_rotate(angle,cx,cy,zoom,interpolation,boundary_conditions).move_to(*this);
+    CImg<T>& rotate(const float angle, const float cx, const float cy,
+                    const unsigned int interpolation, const unsigned int boundary_conditions=0) {
+      return get_rotate(angle,cx,cy,interpolation,boundary_conditions).move_to(*this);
     }
 
     //! Rotate image with arbitrary angle, around a center point \newinstance.
-    CImg<T> get_rotate(const float angle, const float cx, const float cy, const float zoom,
-                       const unsigned int interpolation=1, const unsigned int boundary_conditions=0) const {
-      if (interpolation>2)
-        throw CImgArgumentException(_cimg_instance
-                                    "rotate(): Invalid specified interpolation type %d "
-                                    "(should be { 0=none | 1=linear | 2=cubic }).",
-                                    cimg_instance,
-                                    interpolation);
+    CImg<T> get_rotate(const float angle, const float cx, const float cy,
+                       const unsigned int interpolation, const unsigned int boundary_conditions=0) const {
       if (is_empty()) return *this;
       CImg<T> res(_width,_height,_depth,_spectrum);
       const Tfloat vmin = (Tfloat)cimg::type<T>::min(), vmax = (Tfloat)cimg::type<T>::max();
       const float
         rad = (float)((angle*cimg::PI)/180.0),
-        ca = (float)std::cos(rad)/zoom,
-        sa = (float)std::sin(rad)/zoom;
+        ca = (float)std::cos(rad),
+        sa = (float)std::sin(rad);
       switch (boundary_conditions) {
       case 0 : {
         switch (interpolation) {
@@ -27985,6 +27978,38 @@ namespace cimg_library_suffixed {
       }
       return res;
     }
+
+    // //! Rotate volumetric image with arbitrary angle and axis.
+    // /**
+    //    \param u X-coordinate of the 3d rotation axis.
+    //    \param v Y-coordinate of the 3d rotation axis.
+    //    \param w Z-coordinate of the 3d rotation axis.
+    //    \param angle Rotation angle, in degrees.
+    //    \param interpolation Type of interpolation. Can be <tt>{ 0=nearest | 1=linear | 2=cubic }</tt>.
+    //    \param boundary Boundary conditions. Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic }</tt>.
+    //    \note Most of the time, size of the image is modified.
+    // **/
+    // CImg<T> rotateXYZ(const float u, const float v, const float w, const float angle,
+    //                   const float cx, const float cy, const float cz,
+    //                   const unsigned int interpolation=1, const unsigned int boundary_conditions=0) {
+    //   return get_rotateXYZ(u,v,w,angle,interpolation,boundary_conditions).move_to(*this);
+    // }
+
+    // //! Rotate volumetric image with arbitrary angle and axis \newinstance.
+    // CImg<T> get_rotateXYZ(const float u, const float v, const float w, const float angle,
+    //                   const unsigned int interpolation=1, const unsigned int boundary_conditions=0) const {
+    //   if (is_empty()) return *this;
+    //   CImg<T> res;
+    //   const CImg<Tfloat> R = CImg<Tfloat>::rotation_matrix(u,v,w,-angle);
+
+
+    //   cimg_forXYZ(*this,x,y,z) {
+    //     const float
+    //       X =
+
+    //   }
+
+    // }
 
     //! Warp image content by a warping field.
     /**

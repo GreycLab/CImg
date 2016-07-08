@@ -23268,6 +23268,7 @@ namespace cimg_library_suffixed {
       }
       N = (double)std::sqrt(x*x + y*y + z*z);
       if (N>0) { X = x/N; Y = y/N; Z = z/N; }
+      else { X = Y = 0; Z = 1; }
       const double ang = w*cimg::PI/180, c = std::cos(ang), omc = 1 - c, s = std::sin(ang);
       return CImg<T>::matrix((T)(X*X*omc + c),(T)(X*Y*omc - Z*s),(T)(X*Z*omc + Y*s),
                              (T)(X*Y*omc + Z*s),(T)(Y*Y*omc + c),(T)(Y*Z*omc - X*s),

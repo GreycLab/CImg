@@ -23247,13 +23247,13 @@ namespace cimg_library_suffixed {
       return CImg<T>();
     }
 
-    //! Return a 3x3 rotation matrix along the (x,y,z)-axis with an angle w.
+    //! Return a 3x3 rotation matrix from an { axis + angle } or a quaternion.
     /**
        \param x X-coordinate of the rotation axis, or first quaternion coordinate.
        \param y Y-coordinate of the rotation axis, or second quaternion coordinate.
        \param z Z-coordinate of the rotation axis, or third quaternion coordinate.
-       \param w Angle of the rotation axis, or fourth quaternion coordinate.
-       \param is_quaternion Tell is the four arguments denotes a set { axis + angle } or a quaternion.
+       \param w Angle of the rotation axis (in degree), or fourth quaternion coordinate.
+       \param is_quaternion Tell is the four arguments denotes a set { axis + angle } or a quaternion (x,y,z,w).
      **/
     static CImg<T> rotation_matrix(const float x, const float y, const float z, const float w,
                                    const bool is_quaternion=false) {
@@ -23268,10 +23268,10 @@ namespace cimg_library_suffixed {
       }
       N = (double)std::sqrt(x*x + y*y + z*z);
       if (N>0) { X = x/N; Y = y/N; Z = z/N; }
-      const double c = std::cos(w), omc = 1 - c, s = std::sin(w);
+      const double ang = w*cimg::PI/180, c = std::cos(ang), omc = 1 - c, s = std::sin(ang);
       return CImg<T>::matrix((T)(X*X*omc + c),(T)(X*Y*omc - Z*s),(T)(X*Z*omc + Y*s),
                              (T)(X*Y*omc + Z*s),(T)(Y*Y*omc + c),(T)(Y*Z*omc - X*s),
-                             (T)(X*Z*omc - Y*s),(T)(Y*Z*omc + X*s),(T)(X*X*omc + c));
+                             (T)(X*Z*omc - Y*s),(T)(Y*Z*omc + X*s),(T)(Z*Z*omc + c));
     }
 
     //@}
@@ -43581,7 +43581,7 @@ namespace cimg_library_suffixed {
                 v = nw0*nu1 - nu0*nw1,
                 w = nv0*nu1 - nu0*nv1,
                 n = (float)std::sqrt(u*u + v*v + w*w),
-                alpha = (float)std::asin(n/R2);
+                alpha = (float)std::asin(n/R2)*180/cimg::PI;
               pose3d.draw_image(CImg<floatT>::rotation_matrix(u,v,w,alpha)*pose3d.get_crop(0,0,2,2));
               view3d.assign();
             } else if (disp.button()&2 && pose3d && oY3d!=Y3d) {  // Right button: zoom.
@@ -48096,7 +48096,7 @@ namespace cimg_library_suffixed {
               v = nw0*nu1 - nu0*nw1,
               w = nv0*nu1 - nu0*nv1,
               n = (float)std::sqrt(u*u + v*v + w*w),
-              alpha = (float)std::asin(n/R2);
+              alpha = (float)std::asin(n/R2)*180/cimg::PI;
             (CImg<floatT>::rotation_matrix(u,v,w,alpha)*pose).move_to(pose);
             x0 = x1; y0 = y1;
           }

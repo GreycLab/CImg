@@ -27775,17 +27775,17 @@ namespace cimg_library_suffixed {
         case 1 : { // 90 deg.
           res.assign(_height,_width,_depth,_spectrum);
           T *ptrd = res._data;
-          cimg_forXYZC(res,x,y,z,c) *(ptrd++) = (*this)(y,hm1-x,z,c);
+          cimg_forXYZC(res,x,y,z,c) *(ptrd++) = (*this)(y,hm1 - x,z,c);
         } break;
         case 2 : { // 180 deg.
           res.assign(_width,_height,_depth,_spectrum);
           T *ptrd = res._data;
-          cimg_forXYZC(res,x,y,z,c) *(ptrd++) = (*this)(wm1-x,hm1-y,z,c);
+          cimg_forXYZC(res,x,y,z,c) *(ptrd++) = (*this)(wm1 - x,hm1 - y,z,c);
         } break;
         case 3 : { // 270 deg.
           res.assign(_height,_width,_depth,_spectrum);
           T *ptrd = res._data;
-          cimg_forXYZC(res,x,y,z,c) *(ptrd++) = (*this)(wm1-y,x,z,c);
+          cimg_forXYZC(res,x,y,z,c) *(ptrd++) = (*this)(wm1 - y,x,z,c);
         } break;
         default : // 0 deg.
           return *this;
@@ -27807,19 +27807,19 @@ namespace cimg_library_suffixed {
           case 2 : { // Cubic interpolation.
             cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
             cimg_forXYZC(res,x,y,z,c) {
-              const Tfloat val = cubic_atXY(w2 + (x-dw2)*ca + (y-dh2)*sa,h2 - (x-dw2)*sa + (y-dh2)*ca,z,c,0);
+              const Tfloat val = cubic_atXY(w2 + (x - dw2)*ca + (y - dh2)*sa,h2 - (x - dw2)*sa + (y - dh2)*ca,z,c,0);
               res(x,y,z,c) = (T)(val<vmin?vmin:val>vmax?vmax:val);
             }
           } break;
           case 1 : { // Linear interpolation.
             cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
             cimg_forXYZC(res,x,y,z,c)
-              res(x,y,z,c) = (T)linear_atXY(w2 + (x-dw2)*ca + (y-dh2)*sa,h2 - (x-dw2)*sa + (y-dh2)*ca,z,c,0);
+              res(x,y,z,c) = (T)linear_atXY(w2 + (x - dw2)*ca + (y - dh2)*sa,h2 - (x - dw2)*sa + (y - dh2)*ca,z,c,0);
           } break;
           default : { // Nearest-neighbor interpolation.
             cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
             cimg_forXYZC(res,x,y,z,c)
-              res(x,y,z,c) = atXY((int)(w2 + (x-dw2)*ca + (y-dh2)*sa),(int)(h2 - (x-dw2)*sa + (y-dh2)*ca),z,c,0);
+              res(x,y,z,c) = atXY((int)(w2 + (x - dw2)*ca + (y - dh2)*sa),(int)(h2 - (x - dw2)*sa + (y - dh2)*ca),z,c,0);
           }
           }
         } break;
@@ -27828,19 +27828,19 @@ namespace cimg_library_suffixed {
           case 2 : { // Cubic interpolation.
             cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
             cimg_forXYZC(res,x,y,z,c) {
-              const Tfloat val = _cubic_atXY(w2 + (x-dw2)*ca + (y-dh2)*sa,h2 - (x-dw2)*sa + (y-dh2)*ca,z,c);
+              const Tfloat val = _cubic_atXY(w2 + (x - dw2)*ca + (y - dh2)*sa,h2 - (x - dw2)*sa + (y - dh2)*ca,z,c);
               res(x,y,z,c) = (T)(val<vmin?vmin:val>vmax?vmax:val);
             }
           } break;
           case 1 : { // Linear interpolation.
             cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
             cimg_forXYZC(res,x,y,z,c)
-              res(x,y,z,c) = (T)_linear_atXY(w2 + (x-dw2)*ca + (y-dh2)*sa,h2 - (x-dw2)*sa + (y-dh2)*ca,z,c);
+              res(x,y,z,c) = (T)_linear_atXY(w2 + (x - dw2)*ca + (y - dh2)*sa,h2 - (x - dw2)*sa + (y - dh2)*ca,z,c);
           } break;
           default : { // Nearest-neighbor interpolation.
             cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
             cimg_forXYZC(res,x,y,z,c)
-              res(x,y,z,c) = _atXY((int)(w2 + (x-dw2)*ca + (y-dh2)*sa),(int)(h2 - (x-dw2)*sa + (y-dh2)*ca),z,c);
+              res(x,y,z,c) = _atXY((int)(w2 + (x - dw2)*ca + (y - dh2)*sa),(int)(h2 - (x - dw2)*sa + (y - dh2)*ca),z,c);
           }
           }
         } break;
@@ -27849,22 +27849,22 @@ namespace cimg_library_suffixed {
           case 2 : { // Cubic interpolation.
             cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
             cimg_forXYZC(res,x,y,z,c) {
-              const Tfloat val = _cubic_atXY(cimg::mod(w2 + (x-dw2)*ca + (y-dh2)*sa,(float)width()),
-                                             cimg::mod(h2 - (x-dw2)*sa + (y-dh2)*ca,(float)height()),z,c);
+              const Tfloat val = _cubic_atXY(cimg::mod(w2 + (x - dw2)*ca + (y - dh2)*sa,(float)width()),
+                                             cimg::mod(h2 - (x - dw2)*sa + (y - dh2)*ca,(float)height()),z,c);
               res(x,y,z,c) = (T)(val<vmin?vmin:val>vmax?vmax:val);
             }
           } break;
           case 1 : { // Linear interpolation.
             cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
             cimg_forXYZC(res,x,y,z,c)
-              res(x,y,z,c) = (T)_linear_atXY(cimg::mod(w2 + (x-dw2)*ca + (y-dh2)*sa,(float)width()),
-                                             cimg::mod(h2 - (x-dw2)*sa + (y-dh2)*ca,(float)height()),z,c);
+              res(x,y,z,c) = (T)_linear_atXY(cimg::mod(w2 + (x - dw2)*ca + (y - dh2)*sa,(float)width()),
+                                             cimg::mod(h2 - (x - dw2)*sa + (y - dh2)*ca,(float)height()),z,c);
           } break;
           default : { // Nearest-neighbor interpolation.
             cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
             cimg_forXYZC(res,x,y,z,c)
-              res(x,y,z,c) = (*this)(cimg::mod((int)(w2 + (x-dw2)*ca + (y-dh2)*sa),width()),
-                                     cimg::mod((int)(h2 - (x-dw2)*sa + (y-dh2)*ca),height()),z,c);
+              res(x,y,z,c) = (*this)(cimg::mod((int)(w2 + (x - dw2)*ca + (y - dh2)*sa),width()),
+                                     cimg::mod((int)(h2 - (x - dw2)*sa + (y - dh2)*ca),height()),z,c);
           }
           }
         } break;

@@ -43583,7 +43583,7 @@ namespace cimg_library_suffixed {
                 w = nv0*nu1 - nu0*nv1,
                 n = (float)std::sqrt(u*u + v*v + w*w),
                 alpha = (float)std::asin(n/R2)*180/cimg::PI;
-              pose3d.draw_image(CImg<floatT>::rotation_matrix(u,v,w,alpha)*pose3d.get_crop(0,0,2,2));
+              pose3d.draw_image(CImg<floatT>::rotation_matrix(u,v,w,-alpha)*pose3d.get_crop(0,0,2,2));
               view3d.assign();
             } else if (disp.button()&2 && pose3d && oY3d!=Y3d) {  // Right button: zoom.
               pose3d(3,2)-=(oY3d - Y3d)*1.5f; view3d.assign();
@@ -48098,7 +48098,7 @@ namespace cimg_library_suffixed {
               w = nv0*nu1 - nu0*nv1,
               n = (float)std::sqrt(u*u + v*v + w*w),
               alpha = (float)std::asin(n/R2)*180/cimg::PI;
-            (CImg<floatT>::rotation_matrix(u,v,w,alpha)*pose).move_to(pose);
+            (CImg<floatT>::rotation_matrix(u,v,w,-alpha)*pose).move_to(pose);
             x0 = x1; y0 = y1;
           }
           if (disp.button()&2) {

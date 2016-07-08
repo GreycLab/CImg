@@ -23257,28 +23257,21 @@ namespace cimg_library_suffixed {
      **/
     static CImg<T> rotation_matrix(const float x, const float y, const float z, const float w,
                                    const bool is_quaternion=false) {
-      float X,Y,Z,W;
-      if (!is_quaternion) {
-        const float norm = (float)std::sqrt(x*x + y*y + z*z),
-          nx = norm>0?x/norm:0,
-          ny = norm>0?y/norm:0,
-          nz = norm>0?z/norm:1,
-          nw = norm>0?w:0,
-          sina = (float)std::sin(nw/2),
-          cosa = (float)std::cos(nw/2);
-        X = nx*sina;
-        Y = ny*sina;
-        Z = nz*sina;
-        W = cosa;
-      } else {
-        const float norm = (float)std::sqrt(x*x + y*y + z*z + w*w);
-        if (norm>0) { X = x/norm; Y = y/norm; Z = z/norm; W = w/norm; }
+      double X, Y, Z, W, N;
+      if (is_quaternion) {
+        N = (double)std::sqrt(x*x + y*y + z*z + w*w);
+        if (N>0) { X = x/N; Y = y/N; Z = z/N; W = w/N; }
         else { X = Y = Z = 0; W = 1; }
+        return CImg<T>::matrix((T)(X*X + Y*Y - Z*Z - W*W),(T)(2*Y*Z - 2*X*W),(T)(2*X*Z + 2*Y*W),
+                               (T)(2*X*W + 2*Y*Z),(T)(X*X - Y*Y + Z*Z - W*W),(T)(2*Z*W - 2*X*Y),
+                               (T)(2*Y*W - 2*X*Z),(T)(2*X*Y + 2*Z*W),(T)(X*X - Y*Y - Z*Z + W*W));
       }
-      const float xx = X*X, xy = X*Y, xz = X*Z, xw = X*W, yy = Y*Y, yz = Y*Z, yw = Y*W, zz = Z*Z, zw = Z*W;
-      return CImg<T>::matrix((T)(1 - 2*(yy + zz)), (T)(2*(xy + zw)),   (T)(2*(xz - yw)),
-			     (T)(2*(xy - zw)),   (T)(1 - 2*(xx + zz)), (T)(2*(yz + xw)),
-			     (T)(2*(xz + yw)),   (T)(2*(yz - xw)),   (T)(1 - 2*(xx + yy)));
+      N = (double)std::sqrt(x*x + y*y + z*z);
+      if (N>0) { X = x/N; Y = y/N; Z = z/N; }
+      const double c = std::cos(w), omc = 1 - c, s = std::sin(w);
+      return CImg<T>::matrix((T)(X*X*omc + c),(T)(X*Y*omc - Z*s),(T)(X*Z*omc + Y*s),
+                             (T)(X*Y*omc + Z*s),(T)(Y*Y*omc + c),(T)(Y*Z*omc - X*s),
+                             (T)(X*Z*omc - Y*s),(T)(Y*Z*omc + X*s),(T)(X*X*omc + c));
     }
 
     //@}

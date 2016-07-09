@@ -2676,7 +2676,9 @@ namespace cimg_library_suffixed {
       static cimg_int64 min() { return ~max(); }
       static cimg_int64 max() { return (cimg_int64)((cimg_uint64)-1>>1); }
       static cimg_int64 inf() { return max(); }
-      static cimg_int64 cut(const double val) { return val<(double)min()?min():val>(double)max()?max():(cimg_int64)val; }
+      static cimg_int64 cut(const double val) {
+        return val<(double)min()?min():val>(double)max()?max():(cimg_int64)val;
+      }
       static const char* format() { return "%ld"; }
       static long format(const long val) { return (long)val; }
     };

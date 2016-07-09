@@ -28002,6 +28002,38 @@ namespace cimg_library_suffixed {
       return res;
     }
 
+    //! Rotate volumetric image with arbitrary angle and axis, around a center point.
+    /**
+       \param u X-coordinate of the 3d rotation axis.
+       \param v Y-coordinate of the 3d rotation axis.
+       \param w Z-coordinate of the 3d rotation axis.
+       \param cx X-coordinate of the rotation center.
+       \param cy Y-coordinate of the rotation center.
+       \param cz Z-coordinate of the rotation center.
+       \param angle Rotation angle, in degrees.
+       \param interpolation Type of interpolation. Can be <tt>{ 0=nearest | 1=linear | 2=cubic }</tt>.
+       \param boundary Boundary conditions. Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic }</tt>.
+       \note Most of the time, size of the image is modified.
+    **/
+    CImg<T> rotateXYZ(const float u, const float v, const float w, const float angle,
+                      const float cx, const float cy, const float cz,
+                      const unsigned int interpolation=1, const unsigned int boundary_conditions=0) {
+      const float nangle = cimg::mod(angle,360.0f);
+      if (nangle==0.0f) return *this;
+      return get_rotateXYZ(u,v,w,nangle,cx,cy,cz,interpolation,boundary_conditions).move_to(*this);
+    }
+
+    //! Rotate volumetric image with arbitrary angle and axis, around a center point \newinstance.
+    CImg<T> get_rotateXYZ(const float u, const float v, const float w, const float angle,
+                          const float cx, const float cy, const float cz,
+                          const unsigned int interpolation=1, const unsigned int boundary_conditions=0) const {
+      if (is_empty()) return *this;
+      CImg<T> res(_width,_height,_depth,_spectrum);
+      CImg<floatT> R = CImg<floatT>::rotation_matrix(u,v,w,-angle);
+      _rotate(res,R,interpolation,boundary_conditions,cx,cy,cz,cx,cy,cz);
+      return res;
+    }
+
     // [internal] Perform 3d rotation with arbitrary axis and angle.
     void _rotate(CImg<T>& res, const CImg<Tfloat>& R,
                  const unsigned int interpolation, const unsigned int boundary_conditions,

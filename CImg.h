@@ -4735,10 +4735,15 @@ namespace cimg_library_suffixed {
        \return Rounded value, having the same type as input value \c x.
     **/
     template<typename T>
-    inline T round(const T& x, const double y=1, const int rounding_type=0) {
+    inline T round(const T& x, const double y, const int rounding_type=0) {
       if (y<=0) return x;
       const double sx = (double)x/y, floor = std::floor(sx), delta =  sx - floor;
       return (T)(y*(rounding_type<0?floor:rounding_type>0?std::ceil(sx):delta<0.5?floor:std::ceil(sx)));
+    }
+
+    template<typename T>
+    inline T round(const T& x) {
+      return (T)(int)(x + (x>=0?0.5f:-0.5f));
     }
 
     inline double _pythagore(double a, double b) {
@@ -18564,10 +18569,10 @@ namespace cimg_library_suffixed {
           z = _mp_arg(4), c = _mp_arg(5);
         if (interpolation==0) { // Nearest neighbor interpolation
           if (boundary_conditions==2)
-            return (double)img.atXYZC(cimg::mod((int)x,img.width()),
-                                      cimg::mod((int)y,img.height()),
-                                      cimg::mod((int)z,img.depth()),
-                                      cimg::mod((int)c,img.spectrum()));
+            return (double)img.atXYZC(cimg::mod((int)cimg::round(x),img.width()),
+                                      cimg::mod((int)cimg::round(y),img.height()),
+                                      cimg::mod((int)cimg::round(z),img.depth()),
+                                      cimg::mod((int)cimg::round(c),img.spectrum()));
           if (boundary_conditions==1)
             return (double)img.atXYZC((int)x,(int)y,(int)z,(int)c);
           return (double)img.atXYZC((int)x,(int)y,(int)z,(int)c,0);
@@ -18619,10 +18624,10 @@ namespace cimg_library_suffixed {
           z = oz + _mp_arg(4), c = oc + _mp_arg(5);
         if (interpolation==0) { // Nearest neighbor interpolation
           if (boundary_conditions==2)
-            return (double)img.atXYZC(cimg::mod((int)x,img.width()),
-                                      cimg::mod((int)y,img.height()),
-                                      cimg::mod((int)z,img.depth()),
-                                      cimg::mod((int)c,img.spectrum()));
+            return (double)img.atXYZC(cimg::mod((int)cimg::round(x),img.width()),
+                                      cimg::mod((int)cimg::round(y),img.height()),
+                                      cimg::mod((int)cimg::round(z),img.depth()),
+                                      cimg::mod((int)cimg::round(c),img.spectrum()));
           if (boundary_conditions==1)
             return (double)img.atXYZC((int)x,(int)y,(int)z,(int)c);
           return (double)img.atXYZC((int)x,(int)y,(int)z,(int)c,0);
@@ -18762,10 +18767,10 @@ namespace cimg_library_suffixed {
           z = _mp_arg(5), c = _mp_arg(6);
         if (interpolation==0) { // Nearest neighbor interpolation
           if (boundary_conditions==2)
-            return (double)img.atXYZC(cimg::mod((int)x,img.width()),
-                                      cimg::mod((int)y,img.height()),
-                                      cimg::mod((int)z,img.depth()),
-                                      cimg::mod((int)c,img.spectrum()));
+            return (double)img.atXYZC(cimg::mod((int)cimg::round(x),img.width()),
+                                      cimg::mod((int)cimg::round(y),img.height()),
+                                      cimg::mod((int)cimg::round(z),img.depth()),
+                                      cimg::mod((int)cimg::round(c),img.spectrum()));
           if (boundary_conditions==1)
             return (double)img.atXYZC((int)x,(int)y,(int)z,(int)c);
           return (double)img.atXYZC((int)x,(int)y,(int)z,(int)c,0);
@@ -18819,10 +18824,10 @@ namespace cimg_library_suffixed {
           z = oz + _mp_arg(5), c = oc + _mp_arg(6);
         if (interpolation==0) { // Nearest neighbor interpolation
           if (boundary_conditions==2)
-            return (double)img.atXYZC(cimg::mod((int)x,img.width()),
-                                      cimg::mod((int)y,img.height()),
-                                      cimg::mod((int)z,img.depth()),
-                                      cimg::mod((int)c,img.spectrum()));
+            return (double)img.atXYZC(cimg::mod((int)cimg::round(x),img.width()),
+                                      cimg::mod((int)cimg::round(y),img.height()),
+                                      cimg::mod((int)cimg::round(z),img.depth()),
+                                      cimg::mod((int)cimg::round(c),img.spectrum()));
           if (boundary_conditions==1)
             return (double)img.atXYZC((int)x,(int)y,(int)z,(int)c);
           return (double)img.atXYZC((int)x,(int)y,(int)z,(int)c,0);
@@ -18849,7 +18854,7 @@ namespace cimg_library_suffixed {
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         CImg<T> &img = mp.listout[ind];
         const longT
-          off = (longT)_mp_arg(3),
+          off = (longT)cimg::round(_mp_arg(3)),
           whds = (longT)img.size();
         const double val = _mp_arg(1);
         if (off>=0 && off<whds) img[off] = (T)val;
@@ -18860,8 +18865,8 @@ namespace cimg_library_suffixed {
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         CImg<T> &img = mp.listout[ind];
         const int
-          x = (int)_mp_arg(3), y = (int)_mp_arg(4),
-          z = (int)_mp_arg(5), c = (int)_mp_arg(6);
+          x = (int)cimg::round(_mp_arg(3)), y = (int)cimg::round(_mp_arg(4)),
+          z = (int)cimg::round(_mp_arg(5)), c = (int)cimg::round(_mp_arg(6));
         const double val = _mp_arg(1);
         if (x>=0 && x<img.width() && y>=0 && y<img.height() &&
             z>=0 && z<img.depth() && c>=0 && c<img.spectrum())
@@ -18876,7 +18881,7 @@ namespace cimg_library_suffixed {
           ox = (int)mp.mem[_cimg_mp_x], oy = (int)mp.mem[_cimg_mp_y],
           oz = (int)mp.mem[_cimg_mp_z], oc = (int)mp.mem[_cimg_mp_c];
         const longT
-          off = img.offset(ox,oy,oz,oc) + (longT)_mp_arg(3),
+          off = img.offset(ox,oy,oz,oc) + (longT)cimg::round(_mp_arg(3)),
           whds = (longT)img.size();
         const double val = _mp_arg(1);
         if (off>=0 && off<whds) img[off] = (T)val;
@@ -18890,8 +18895,8 @@ namespace cimg_library_suffixed {
           ox = mp.mem[_cimg_mp_x], oy = mp.mem[_cimg_mp_y],
           oz = mp.mem[_cimg_mp_z], oc = mp.mem[_cimg_mp_c];
         const int
-          x = (int)(ox + _mp_arg(3)), y = (int)(oy + _mp_arg(4)),
-          z = (int)(oz + _mp_arg(5)), c = (int)(oc + _mp_arg(6));
+          x = (int)cimg::round(ox + _mp_arg(3)), y = (int)cimg::round(oy + _mp_arg(4)),
+          z = (int)cimg::round(oz + _mp_arg(5)), c = (int)cimg::round(oc + _mp_arg(6));
         const double val = _mp_arg(1);
         if (x>=0 && x<img.width() && y>=0 && y<img.height() &&
             z>=0 && z<img.depth() && c>=0 && c<img.spectrum())
@@ -18903,7 +18908,7 @@ namespace cimg_library_suffixed {
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         CImg<T> &img = mp.listout[ind];
         const longT
-          off = (longT)_mp_arg(3),
+          off = (longT)cimg::round(_mp_arg(3)),
           whd = (longT)img.width()*img.height()*img.depth();
         const T val = (T)_mp_arg(1);
         if (off>=0 && off<whd) {
@@ -18917,7 +18922,7 @@ namespace cimg_library_suffixed {
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         CImg<T> &img = mp.listout[ind];
         const longT
-          off = (longT)_mp_arg(3),
+          off = (longT)cimg::round(_mp_arg(3)),
           whd = (longT)img.width()*img.height()*img.depth();
         const double *ptrs = &_mp_arg(1) + 1;
         if (off>=0 && off<whd) {
@@ -18930,7 +18935,10 @@ namespace cimg_library_suffixed {
       static double mp_list_set_Ixyz_s(_cimg_math_parser& mp) {
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         CImg<T> &img = mp.listout[ind];
-        const int x = (int)_mp_arg(3), y = (int)_mp_arg(4), z = (int)_mp_arg(5);
+        const int
+          x = (int)cimg::round(_mp_arg(3)),
+          y = (int)cimg::round(_mp_arg(4)),
+          z = (int)cimg::round(_mp_arg(5));
         const T val = (T)_mp_arg(1);
         if (x>=0 && x<img.width() && y>=0 && y<img.height() && z>=0 && z<img.depth()) {
           T *ptrd = &img(x,y,z);
@@ -18943,7 +18951,10 @@ namespace cimg_library_suffixed {
       static double mp_list_set_Ixyz_v(_cimg_math_parser& mp) {
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         CImg<T> &img = mp.listout[ind];
-        const int x = (int)_mp_arg(3), y = (int)_mp_arg(4), z = (int)_mp_arg(5);
+        const int
+          x = (int)cimg::round(_mp_arg(3)),
+          y = (int)cimg::round(_mp_arg(4)),
+          z = (int)cimg::round(_mp_arg(5));
         const double *ptrs = &_mp_arg(1) + 1;
         if (x>=0 && x<img.width() && y>=0 && y<img.height() && z>=0 && z<img.depth()) {
           T *ptrd = &img(x,y,z);
@@ -18960,7 +18971,7 @@ namespace cimg_library_suffixed {
           ox = (int)mp.mem[_cimg_mp_x], oy = (int)mp.mem[_cimg_mp_y],
           oz = (int)mp.mem[_cimg_mp_z], oc = (int)mp.mem[_cimg_mp_c];
         const longT
-          off = img.offset(ox,oy,oz,oc) + (longT)_mp_arg(3),
+          off = img.offset(ox,oy,oz,oc) + (longT)cimg::round(_mp_arg(3)),
           whd = (longT)img.width()*img.height()*img.depth();
         const T val = (T)_mp_arg(1);
         if (off>=0 && off<whd) {
@@ -18977,7 +18988,7 @@ namespace cimg_library_suffixed {
           ox = (int)mp.mem[_cimg_mp_x], oy = (int)mp.mem[_cimg_mp_y],
           oz = (int)mp.mem[_cimg_mp_z], oc = (int)mp.mem[_cimg_mp_c];
         const longT
-          off = img.offset(ox,oy,oz,oc) + (longT)_mp_arg(3),
+          off = img.offset(ox,oy,oz,oc) + (longT)cimg::round(_mp_arg(3)),
           whd = (longT)img.width()*img.height()*img.depth();
         const double *ptrs = &_mp_arg(1) + 1;
         if (off>=0 && off<whd) {
@@ -18991,7 +19002,10 @@ namespace cimg_library_suffixed {
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         CImg<T> &img = mp.listout[ind];
         const double ox = mp.mem[_cimg_mp_x], oy = mp.mem[_cimg_mp_y], oz = mp.mem[_cimg_mp_z];
-        const int x = (int)(ox + _mp_arg(3)), y = (int)(oy + _mp_arg(4)), z = (int)(oz + _mp_arg(5));
+        const int
+          x = (int)cimg::round(ox + _mp_arg(3)),
+          y = (int)cimg::round(oy + _mp_arg(4)),
+          z = (int)cimg::round(oz + _mp_arg(5));
         const T val = (T)_mp_arg(1);
         if (x>=0 && x<img.width() && y>=0 && y<img.height() && z>=0 && z<img.depth()) {
           T *ptrd = &img(x,y,z);
@@ -19005,7 +19019,10 @@ namespace cimg_library_suffixed {
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         CImg<T> &img = mp.listout[ind];
         const double ox = mp.mem[_cimg_mp_x], oy = mp.mem[_cimg_mp_y], oz = mp.mem[_cimg_mp_z];
-        const int x = (int)(ox + _mp_arg(3)), y = (int)(oy + _mp_arg(4)), z = (int)(oz + _mp_arg(5));
+        const int
+          x = (int)cimg::round(ox + _mp_arg(3)),
+          y = (int)cimg::round(oy + _mp_arg(4)),
+          z = (int)cimg::round(oz + _mp_arg(5));
         const double *ptrs = &_mp_arg(1) + 1;
         if (x>=0 && x<img.width() && y>=0 && y<img.height() && z>=0 && z<img.depth()) {
           T *ptrd = &img(x,y,z);
@@ -19093,9 +19110,9 @@ namespace cimg_library_suffixed {
         if (interpolation==0) { // Nearest neighbor interpolation
           if (boundary_conditions==2)
             cimg_forC(img,c)
-              *(ptrd++) = (double)img.atXYZ(cimg::mod((int)x,img.width()),
-                                            cimg::mod((int)y,img.height()),
-                                            cimg::mod((int)z,img.depth()),
+              *(ptrd++) = (double)img.atXYZ(cimg::mod((int)cimg::round(x),img.width()),
+                                            cimg::mod((int)cimg::round(y),img.height()),
+                                            cimg::mod((int)cimg::round(z),img.depth()),
                                             c);
           else if (boundary_conditions==1)
             cimg_forC(img,c)
@@ -19167,9 +19184,9 @@ namespace cimg_library_suffixed {
         if (interpolation==0) { // Nearest neighbor interpolation
           if (boundary_conditions==2)
             cimg_forC(img,c)
-              *(ptrd++) = (double)img.atXYZ(cimg::mod((int)x,img.width()),
-                                            cimg::mod((int)y,img.height()),
-                                            cimg::mod((int)z,img.depth()),
+              *(ptrd++) = (double)img.atXYZ(cimg::mod((int)cimg::round(x),img.width()),
+                                            cimg::mod((int)cimg::round(y),img.height()),
+                                            cimg::mod((int)cimg::round(z),img.depth()),
                                             c);
           else if (boundary_conditions==1)
             cimg_forC(img,c)
@@ -19604,7 +19621,7 @@ namespace cimg_library_suffixed {
       static double mp_set_ioff(_cimg_math_parser& mp) {
         CImg<T> &img = mp.imgout;
         const longT
-          off = (longT)_mp_arg(2),
+          off = (longT)cimg::round(_mp_arg(2)),
           whds = (longT)img.size();
         const double val = _mp_arg(1);
         if (off>=0 && off<whds) img[off] = (T)val;
@@ -19614,8 +19631,8 @@ namespace cimg_library_suffixed {
       static double mp_set_ixyzc(_cimg_math_parser& mp) {
         CImg<T> &img = mp.imgout;
         const int
-          x = (int)_mp_arg(2), y = (int)_mp_arg(3),
-          z = (int)_mp_arg(4), c = (int)_mp_arg(5);
+          x = (int)cimg::round(_mp_arg(2)), y = (int)cimg::round(_mp_arg(3)),
+          z = (int)cimg::round(_mp_arg(4)), c = (int)cimg::round(_mp_arg(5));
         const double val = _mp_arg(1);
         if (x>=0 && x<img.width() && y>=0 && y<img.height() &&
             z>=0 && z<img.depth() && c>=0 && c<img.spectrum())
@@ -19629,7 +19646,7 @@ namespace cimg_library_suffixed {
           ox = (int)mp.mem[_cimg_mp_x], oy = (int)mp.mem[_cimg_mp_y],
           oz = (int)mp.mem[_cimg_mp_z], oc = (int)mp.mem[_cimg_mp_c];
         const longT
-          off = img.offset(ox,oy,oz,oc) + (longT)_mp_arg(2),
+          off = img.offset(ox,oy,oz,oc) + (longT)cimg::round(_mp_arg(2)),
           whds = (longT)img.size();
         const double val = _mp_arg(1);
         if (off>=0 && off<whds) img[off] = (T)val;
@@ -19642,8 +19659,8 @@ namespace cimg_library_suffixed {
           ox = mp.mem[_cimg_mp_x], oy = mp.mem[_cimg_mp_y],
           oz = mp.mem[_cimg_mp_z], oc = mp.mem[_cimg_mp_c];
         const int
-          x = (int)(ox + _mp_arg(2)), y = (int)(oy + _mp_arg(3)),
-          z = (int)(oz + _mp_arg(4)), c = (int)(oc + _mp_arg(5));
+          x = (int)cimg::round(ox + _mp_arg(2)), y = (int)cimg::round(oy + _mp_arg(3)),
+          z = (int)cimg::round(oz + _mp_arg(4)), c = (int)cimg::round(oc + _mp_arg(5));
         const double val = _mp_arg(1);
         if (x>=0 && x<img.width() && y>=0 && y<img.height() &&
             z>=0 && z<img.depth() && c>=0 && c<img.spectrum())
@@ -19654,7 +19671,7 @@ namespace cimg_library_suffixed {
       static double mp_set_Ioff_s(_cimg_math_parser& mp) {
         CImg<T> &img = mp.imgout;
         const longT
-          off = (longT)_mp_arg(2),
+          off = (longT)cimg::round(_mp_arg(2)),
           whd = (longT)img.width()*img.height()*img.depth();
         const T val = (T)_mp_arg(1);
         if (off>=0 && off<whd) {
@@ -19667,7 +19684,7 @@ namespace cimg_library_suffixed {
       static double mp_set_Ioff_v(_cimg_math_parser& mp) {
         CImg<T> &img = mp.imgout;
         const longT
-          off = (longT)_mp_arg(2),
+          off = (longT)cimg::round(_mp_arg(2)),
           whd = (longT)img.width()*img.height()*img.depth();
         const double *ptrs = &_mp_arg(1) + 1;
         if (off>=0 && off<whd) {
@@ -19679,7 +19696,10 @@ namespace cimg_library_suffixed {
 
       static double mp_set_Ixyz_s(_cimg_math_parser& mp) {
         CImg<T> &img = mp.imgout;
-        const int x = (int)_mp_arg(2), y = (int)_mp_arg(3), z = (int)_mp_arg(4);
+        const int
+          x = (int)cimg::round(_mp_arg(2)),
+          y = (int)cimg::round(_mp_arg(3)),
+          z = (int)cimg::round(_mp_arg(4));
         const T val = (T)_mp_arg(1);
         if (x>=0 && x<img.width() && y>=0 && y<img.height() && z>=0 && z<img.depth()) {
           T *ptrd = &img(x,y,z);
@@ -19691,7 +19711,10 @@ namespace cimg_library_suffixed {
 
       static double mp_set_Ixyz_v(_cimg_math_parser& mp) {
         CImg<T> &img = mp.imgout;
-        const int x = (int)_mp_arg(2), y = (int)_mp_arg(3), z = (int)_mp_arg(4);
+        const int
+          x = (int)cimg::round(_mp_arg(2)),
+          y = (int)cimg::round(_mp_arg(3)),
+          z = (int)cimg::round(_mp_arg(4));
         const double *ptrs = &_mp_arg(1) + 1;
         if (x>=0 && x<img.width() && y>=0 && y<img.height() && z>=0 && z<img.depth()) {
           T *ptrd = &img(x,y,z);
@@ -19707,7 +19730,7 @@ namespace cimg_library_suffixed {
           ox = (int)mp.mem[_cimg_mp_x], oy = (int)mp.mem[_cimg_mp_y],
           oz = (int)mp.mem[_cimg_mp_z], oc = (int)mp.mem[_cimg_mp_c];
         const longT
-          off = img.offset(ox,oy,oz,oc) + (longT)_mp_arg(2),
+          off = img.offset(ox,oy,oz,oc) + (longT)cimg::round(_mp_arg(2)),
           whd = (longT)img.width()*img.height()*img.depth();
         const T val = (T)_mp_arg(1);
         if (off>=0 && off<whd) {
@@ -19723,7 +19746,7 @@ namespace cimg_library_suffixed {
           ox = (int)mp.mem[_cimg_mp_x], oy = (int)mp.mem[_cimg_mp_y],
           oz = (int)mp.mem[_cimg_mp_z], oc = (int)mp.mem[_cimg_mp_c];
         const longT
-          off = img.offset(ox,oy,oz,oc) + (longT)_mp_arg(2),
+          off = img.offset(ox,oy,oz,oc) + (longT)cimg::round(_mp_arg(2)),
           whd = (longT)img.width()*img.height()*img.depth();
         const double *ptrs = &_mp_arg(1) + 1;
         if (off>=0 && off<whd) {
@@ -19736,7 +19759,10 @@ namespace cimg_library_suffixed {
       static double mp_set_Jxyz_s(_cimg_math_parser& mp) {
         CImg<T> &img = mp.imgout;
         const double ox = mp.mem[_cimg_mp_x], oy = mp.mem[_cimg_mp_y], oz = mp.mem[_cimg_mp_z];
-        const int x = (int)(ox + _mp_arg(2)), y = (int)(oy + _mp_arg(3)), z = (int)(oz + _mp_arg(4));
+        const int
+          x = (int)cimg::round(ox + _mp_arg(2)),
+          y = (int)cimg::round(oy + _mp_arg(3)),
+          z = (int)cimg::round(oz + _mp_arg(4));
         const T val = (T)_mp_arg(1);
         if (x>=0 && x<img.width() && y>=0 && y<img.height() && z>=0 && z<img.depth()) {
           T *ptrd = &img(x,y,z);
@@ -19749,7 +19775,10 @@ namespace cimg_library_suffixed {
       static double mp_set_Jxyz_v(_cimg_math_parser& mp) {
         CImg<T> &img = mp.imgout;
         const double ox = mp.mem[_cimg_mp_x], oy = mp.mem[_cimg_mp_y], oz = mp.mem[_cimg_mp_z];
-        const int x = (int)(ox + _mp_arg(2)), y = (int)(oy + _mp_arg(3)), z = (int)(oz + _mp_arg(4));
+        const int
+          x = (int)cimg::round(ox + _mp_arg(2)),
+          y = (int)cimg::round(oy + _mp_arg(3)),
+          z = (int)cimg::round(oz + _mp_arg(4));
         const double *ptrs = &_mp_arg(1) + 1;
         if (x>=0 && x<img.width() && y>=0 && y<img.height() && z>=0 && z<img.depth()) {
           T *ptrd = &img(x,y,z);
@@ -20220,9 +20249,9 @@ namespace cimg_library_suffixed {
         if (interpolation==0) { // Nearest neighbor interpolation
           if (boundary_conditions==2)
             cimg_forC(img,c)
-              *(ptrd++) = (double)img.atXYZ(cimg::mod((int)x,img.width()),
-                                            cimg::mod((int)y,img.height()),
-                                            cimg::mod((int)z,img.depth()),
+              *(ptrd++) = (double)img.atXYZ(cimg::mod((int)cimg::round(x),img.width()),
+                                            cimg::mod((int)cimg::round(y),img.height()),
+                                            cimg::mod((int)cimg::round(z),img.depth()),
                                             c);
           else if (boundary_conditions==1)
             cimg_forC(img,c)
@@ -20290,9 +20319,9 @@ namespace cimg_library_suffixed {
         if (interpolation==0) { // Nearest neighbor interpolation
           if (boundary_conditions==2)
             cimg_forC(img,c)
-              *(ptrd++) = (double)img.atXYZ(cimg::mod((int)x,img.width()),
-                                            cimg::mod((int)y,img.height()),
-                                            cimg::mod((int)z,img.depth()),
+              *(ptrd++) = (double)img.atXYZ(cimg::mod((int)cimg::round(x),img.width()),
+                                            cimg::mod((int)cimg::round(y),img.height()),
+                                            cimg::mod((int)cimg::round(z),img.depth()),
                                             c);
           else if (boundary_conditions==1)
             cimg_forC(img,c)
@@ -27819,7 +27848,8 @@ namespace cimg_library_suffixed {
           default : { // Nearest-neighbor interpolation.
             cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
             cimg_forXYZC(res,x,y,z,c)
-              res(x,y,z,c) = atXY((int)(w2 + (x - dw2)*ca + (y - dh2)*sa),(int)(h2 - (x - dw2)*sa + (y - dh2)*ca),z,c,0);
+              res(x,y,z,c) = atXY((int)cimg::round(w2 + (x - dw2)*ca + (y - dh2)*sa),
+                                  (int)cimg::round(h2 - (x - dw2)*sa + (y - dh2)*ca),z,c,0);
           }
           }
         } break;
@@ -27840,7 +27870,8 @@ namespace cimg_library_suffixed {
           default : { // Nearest-neighbor interpolation.
             cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
             cimg_forXYZC(res,x,y,z,c)
-              res(x,y,z,c) = _atXY((int)(w2 + (x - dw2)*ca + (y - dh2)*sa),(int)(h2 - (x - dw2)*sa + (y - dh2)*ca),z,c);
+              res(x,y,z,c) = _atXY((int)cimg::round(w2 + (x - dw2)*ca + (y - dh2)*sa),
+                                   (int)cimg::round(h2 - (x - dw2)*sa + (y - dh2)*ca),z,c);
           }
           }
         } break;
@@ -27863,8 +27894,8 @@ namespace cimg_library_suffixed {
           default : { // Nearest-neighbor interpolation.
             cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
             cimg_forXYZC(res,x,y,z,c)
-              res(x,y,z,c) = (*this)(cimg::mod((int)(w2 + (x - dw2)*ca + (y - dh2)*sa),width()),
-                                     cimg::mod((int)(h2 - (x - dw2)*sa + (y - dh2)*ca),height()),z,c);
+              res(x,y,z,c) = (*this)(cimg::mod((int)cimg::round(w2 + (x - dw2)*ca + (y - dh2)*sa),width()),
+                                     cimg::mod((int)cimg::round(h2 - (x - dw2)*sa + (y - dh2)*ca),height()),z,c);
           }
           }
         } break;
@@ -28052,7 +28083,7 @@ namespace cimg_library_suffixed {
             cimg_forYZC(res,y,z,c) {
               const t *ptrs0 = warp.data(0,y,z); const T *ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
-                const int X = x + (int)*(ptrs0++);
+                const int X = x + (int)cimg::round(*(ptrs0++));
                 if (X>=0 && X<width()) res(X,y,z,c) = *(ptrs++);
               }
             }
@@ -28068,7 +28099,7 @@ namespace cimg_library_suffixed {
             cimg_forYZC(res,y,z,c) {
               const t *ptrs0 = warp.data(0,y,z); const T *ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
-                const int X = (int)*(ptrs0++);
+                const int X = (int)cimg::round(*(ptrs0++));
                 if (X>=0 && X<width()) res(X,y,z,c) = *(ptrs++);
               }
             }
@@ -28115,7 +28146,7 @@ namespace cimg_library_suffixed {
             if (boundary_conditions==2) // Periodic boundaries.
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (*this)(cimg::mod(x - (int)*(ptrs0++),(int)_width),y,z,c);
+                cimg_forX(res,x) *(ptrd++) = (*this)(cimg::mod(x - (int)cimg::round(*(ptrs0++)),(int)_width),y,z,c);
               }
             else if (boundary_conditions==1) // Neumann boundaries.
               cimg_forYZC(res,y,z,c) {
@@ -28171,7 +28202,7 @@ namespace cimg_library_suffixed {
             if (boundary_conditions==2) // Periodic boundaries.
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (*this)(cimg::mod((int)*(ptrs0++),(int)_width),0,0,c);
+                cimg_forX(res,x) *(ptrd++) = (*this)(cimg::mod((int)cimg::round(*(ptrs0++)),(int)_width),0,0,c);
               }
             else if (boundary_conditions==1) // Neumann boundaries.
               cimg_forYZC(res,y,z,c) {
@@ -28199,7 +28230,7 @@ namespace cimg_library_suffixed {
             cimg_forYZC(res,y,z,c) {
               const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1); const T *ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
-                const int X = x + (int)*(ptrs0++), Y = y + (int)*(ptrs1++);
+                const int X = x + (int)cimg::round(*(ptrs0++)), Y = y + (int)cimg::round(*(ptrs1++));
                 if (X>=0 && X<width() && Y>=0 && Y<height()) res(X,Y,z,c) = *(ptrs++);
               }
             }
@@ -28215,7 +28246,7 @@ namespace cimg_library_suffixed {
             cimg_forYZC(res,y,z,c) {
               const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1); const T *ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
-                const int X = (int)*(ptrs0++), Y = (int)*(ptrs1++);
+                const int X = (int)cimg::round(*(ptrs0++)), Y = (int)cimg::round(*(ptrs1++));
                 if (X>=0 && X<width() && Y>=0 && Y<height()) res(X,Y,z,c) = *(ptrs++);
               }
             }
@@ -28264,8 +28295,8 @@ namespace cimg_library_suffixed {
             if (boundary_conditions==2) // Periodic boundaries.
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (*this)(cimg::mod(x - (int)*(ptrs0++),(int)_width),
-                                                     cimg::mod(y - (int)*(ptrs1++),(int)_height),z,c);
+                cimg_forX(res,x) *(ptrd++) = (*this)(cimg::mod(x - (int)cimg::round(*(ptrs0++)),(int)_width),
+                                                     cimg::mod(y - (int)cimg::round(*(ptrs1++)),(int)_height),z,c);
               }
             else if (boundary_conditions==1) // Neumann boundaries.
               cimg_forYZC(res,y,z,c) {
@@ -28323,8 +28354,8 @@ namespace cimg_library_suffixed {
             if (boundary_conditions==2) // Periodic boundaries.
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (*this)(cimg::mod((int)*(ptrs0++),(int)_width),
-                                                     cimg::mod((int)*(ptrs1++),(int)_height),0,c);
+                cimg_forX(res,x) *(ptrd++) = (*this)(cimg::mod((int)cimg::round(*(ptrs0++)),(int)_width),
+                                                     cimg::mod((int)cimg::round(*(ptrs1++)),(int)_height),0,c);
               }
             else if (boundary_conditions==1) // Neumann boundaries.
               cimg_forYZC(res,y,z,c) {
@@ -28355,7 +28386,7 @@ namespace cimg_library_suffixed {
               const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1), *ptrs2 = warp.data(0,y,z,2);
               const T *ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
-                const int X = x + (int)*(ptrs0++), Y = y + (int)*(ptrs1++), Z = z + (int)*(ptrs2++);
+                const int X = x + (int)cimg::round(*(ptrs0++)), Y = y + (int)cimg::round(*(ptrs1++)), Z = z + (int)cimg::round(*(ptrs2++));
                 if (X>=0 && X<width() && Y>=0 && Y<height() && Z>=0 && Z<depth()) res(X,Y,Z,c) = *(ptrs++);
               }
             }
@@ -28373,7 +28404,7 @@ namespace cimg_library_suffixed {
               const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1), *ptrs2 = warp.data(0,y,z,2);
               const T *ptrs = data(0,y,z,c);
               cimg_forX(res,x) {
-                const int X = (int)*(ptrs0++), Y = (int)*(ptrs1++), Z = (int)*(ptrs2++);
+                const int X = (int)cimg::round(*(ptrs0++)), Y = (int)cimg::round(*(ptrs1++)), Z = (int)cimg::round(*(ptrs2++));
                 if (X>=0 && X<width() && Y>=0 && Y<height() && Z>=0 && Z<depth()) res(X,Y,Z,c) = *(ptrs++);
               }
             }
@@ -28435,9 +28466,9 @@ namespace cimg_library_suffixed {
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1), *ptrs2 = warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (*this)(cimg::mod(x - (int)*(ptrs0++),(int)_width),
-                                                     cimg::mod(y - (int)*(ptrs1++),(int)_height),
-                                                     cimg::mod(z - (int)*(ptrs2++),(int)_depth),c);
+                cimg_forX(res,x) *(ptrd++) = (*this)(cimg::mod(x - (int)cimg::round(*(ptrs0++)),(int)_width),
+                                                     cimg::mod(y - (int)cimg::round(*(ptrs1++)),(int)_height),
+                                                     cimg::mod(z - (int)cimg::round(*(ptrs2++)),(int)_depth),c);
               }
             else if (boundary_conditions==1) // Neumann boundaries.
               cimg_forYZC(res,y,z,c) {
@@ -28506,9 +28537,9 @@ namespace cimg_library_suffixed {
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1), *ptrs2 = warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (*this)(cimg::mod((int)*(ptrs0++),(int)_width),
-                                                     cimg::mod((int)*(ptrs1++),(int)_height),
-                                                     cimg::mod((int)*(ptrs2++),(int)_depth),c);
+                cimg_forX(res,x) *(ptrd++) = (*this)(cimg::mod((int)cimg::round(*(ptrs0++)),(int)_width),
+                                                     cimg::mod((int)cimg::round(*(ptrs1++)),(int)_height),
+                                                     cimg::mod((int)cimg::round(*(ptrs2++)),(int)_depth),c);
               }
             else if (boundary_conditions==1) // Neumann boundaries.
               cimg_forYZC(res,y,z,c) {

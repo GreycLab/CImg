@@ -27793,7 +27793,7 @@ namespace cimg_library_suffixed {
                     const unsigned int boundary_conditions=0) {
       const float nangle = cimg::mod(angle,360.0f);
       if (nangle==0.0f) return *this;
-      return get_rotate(angle,interpolation,boundary_conditions).move_to(*this);
+      return get_rotate(nangle,interpolation,boundary_conditions).move_to(*this);
     }
 
     //! Rotate image with arbitrary angle \newinstance.
@@ -27968,7 +27968,9 @@ namespace cimg_library_suffixed {
     **/
     CImg<T> rotateXYZ(const float u, const float v, const float w, const float angle,
                       const unsigned int interpolation=1, const unsigned int boundary_conditions=0) {
-      return get_rotateXYZ(u,v,w,angle,interpolation,boundary_conditions).move_to(*this);
+      const float nangle = cimg::mod(angle,360.0f);
+      if (nangle==0.0f) return *this;
+      return get_rotateXYZ(u,v,w,nangle,interpolation,boundary_conditions).move_to(*this);
     }
 
     //! Rotate volumetric image with arbitrary angle and axis \newinstance.
@@ -27995,8 +27997,16 @@ namespace cimg_library_suffixed {
         dz = (int)cimg::round(zM - zm + 1);
       R.transpose();
       res.assign(dx,dy,dz,_spectrum);
-      const float dw2 = 0.5f*dx, dh2 = 0.5f*dy, dd2 = 0.5f*dz;
+      const float rw2 = 0.5f*dx, rh2 = 0.5f*dy, rd2 = 0.5f*dz;
+      _rotate(res,R,interpolation,boundary_conditions,w2,h2,d2,rw2,rh2,rd2);
+      return res;
+    }
 
+    // [internal] Perform 3d rotation with arbitrary axis and angle.
+    void _rotate(CImg<T>& res, const CImg<Tfloat>& R,
+                 const unsigned int interpolation, const unsigned int boundary_conditions,
+                 const float w2, const float h2, const float d2,
+                 const float rw2, const float rh2, const float rd2) const {
       switch (boundary_conditions) {
       case 0 : { // Dirichlet boundaries
         switch (interpolation) {
@@ -28004,7 +28014,7 @@ namespace cimg_library_suffixed {
           cimg_pragma_openmp(parallel for collapse(2) if (res.size()>=2048))
           cimg_forXYZ(res,x,y,z) {
             const float
-              xc = x - dw2, yc = y - dh2, zc = z - dd2,
+              xc = x - rw2, yc = y - rh2, zc = z - rd2,
               X = w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,
               Y = h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,
               Z = d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc;
@@ -28015,7 +28025,7 @@ namespace cimg_library_suffixed {
           cimg_pragma_openmp(parallel for collapse(2) if (res.size()>=2048))
           cimg_forXYZ(res,x,y,z) {
             const float
-              xc = x - dw2, yc = y - dh2, zc = z - dd2,
+              xc = x - rw2, yc = y - rh2, zc = z - rd2,
               X = w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,
               Y = h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,
               Z = d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc;
@@ -28026,7 +28036,7 @@ namespace cimg_library_suffixed {
           cimg_pragma_openmp(parallel for collapse(2) if (res.size()>=2048))
           cimg_forXYZ(res,x,y,z) {
             const float
-              xc = x - dw2, yc = y - dh2, zc = z - dd2,
+              xc = x - rw2, yc = y - rh2, zc = z - rd2,
               X = w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,
               Y = h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,
               Z = d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc;
@@ -28042,7 +28052,7 @@ namespace cimg_library_suffixed {
           cimg_pragma_openmp(parallel for collapse(2) if (res.size()>=2048))
           cimg_forXYZ(res,x,y,z) {
             const float
-              xc = x - dw2, yc = y - dh2, zc = z - dd2,
+              xc = x - rw2, yc = y - rh2, zc = z - rd2,
               X = w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,
               Y = h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,
               Z = d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc;
@@ -28053,7 +28063,7 @@ namespace cimg_library_suffixed {
           cimg_pragma_openmp(parallel for collapse(2) if (res.size()>=2048))
           cimg_forXYZ(res,x,y,z) {
             const float
-              xc = x - dw2, yc = y - dh2, zc = z - dd2,
+              xc = x - rw2, yc = y - rh2, zc = z - rd2,
               X = w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,
               Y = h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,
               Z = d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc;
@@ -28064,7 +28074,7 @@ namespace cimg_library_suffixed {
           cimg_pragma_openmp(parallel for collapse(2) if (res.size()>=2048))
           cimg_forXYZ(res,x,y,z) {
             const float
-              xc = x - dw2, yc = y - dh2, zc = z - dd2,
+              xc = x - rw2, yc = y - rh2, zc = z - rd2,
               X = w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,
               Y = h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,
               Z = d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc;
@@ -28080,7 +28090,7 @@ namespace cimg_library_suffixed {
           cimg_pragma_openmp(parallel for collapse(2) if (res.size()>=2048))
           cimg_forXYZ(res,x,y,z) {
             const float
-              xc = x - dw2, yc = y - dh2, zc = z - dd2,
+              xc = x - rw2, yc = y - rh2, zc = z - rd2,
               X = cimg::mod(w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,(float)width()),
               Y = cimg::mod(h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,(float)height()),
               Z = cimg::mod(d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc,(float)depth());
@@ -28091,7 +28101,7 @@ namespace cimg_library_suffixed {
           cimg_pragma_openmp(parallel for collapse(2) if (res.size()>=2048))
           cimg_forXYZ(res,x,y,z) {
             const float
-              xc = x - dw2, yc = y - dh2, zc = z - dd2,
+              xc = x - rw2, yc = y - rh2, zc = z - rd2,
               X = cimg::mod(w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,(float)width()),
               Y = cimg::mod(h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,(float)height()),
               Z = cimg::mod(d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc,(float)depth());
@@ -28102,7 +28112,7 @@ namespace cimg_library_suffixed {
           cimg_pragma_openmp(parallel for collapse(2) if (res.size()>=2048))
           cimg_forXYZ(res,x,y,z) {
             const float
-              xc = x - dw2, yc = y - dh2, zc = z - dd2,
+              xc = x - rw2, yc = y - rh2, zc = z - rd2,
               X = cimg::mod(w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,(float)width()),
               Y = cimg::mod(h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,(float)height()),
               Z = cimg::mod(d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc,(float)depth());
@@ -28113,7 +28123,6 @@ namespace cimg_library_suffixed {
 
       } break;
       }
-      return res;
     }
 
     //! Warp image content by a warping field.

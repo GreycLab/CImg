@@ -27805,25 +27805,25 @@ namespace cimg_library_suffixed {
         const int wm1 = width() - 1, hm1 = height() - 1;
         const int iangle = (int)nangle/90;
         switch (iangle) {
-        case 1 : { // 90 deg.
+        case 1 : { // 90 deg
           res.assign(_height,_width,_depth,_spectrum);
           T *ptrd = res._data;
           cimg_forXYZC(res,x,y,z,c) *(ptrd++) = (*this)(y,hm1 - x,z,c);
         } break;
-        case 2 : { // 180 deg.
+        case 2 : { // 180 deg
           res.assign(_width,_height,_depth,_spectrum);
           T *ptrd = res._data;
           cimg_forXYZC(res,x,y,z,c) *(ptrd++) = (*this)(wm1 - x,hm1 - y,z,c);
         } break;
-        case 3 : { // 270 deg.
+        case 3 : { // 270 deg
           res.assign(_height,_width,_depth,_spectrum);
           T *ptrd = res._data;
           cimg_forXYZC(res,x,y,z,c) *(ptrd++) = (*this)(wm1 - y,x,z,c);
         } break;
-        default : // 0 deg.
+        default : // 0 deg
           return *this;
         }
-      } else { // Generic angle.
+      } else { // Generic angle
         const Tfloat vmin = (Tfloat)cimg::type<T>::min(), vmax = (Tfloat)cimg::type<T>::max();
         const float
           rad = (float)(nangle*cimg::PI/180.0),
@@ -27835,21 +27835,21 @@ namespace cimg_library_suffixed {
         res.assign((int)cimg::round(1 + ux + vx),(int)cimg::round(1 + uy + vy),_depth,_spectrum);
         const float dw2 = 0.5f*(res._width - 1), dh2 = 0.5f*(res._height - 1);
         switch (boundary_conditions) {
-        case 0 : { // Dirichlet boundaries.
+        case 0 : { // Dirichlet boundaries
           switch (interpolation) {
-          case 2 : { // Cubic interpolation.
+          case 2 : { // Cubic interpolation
             cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
             cimg_forXYZC(res,x,y,z,c) {
               const Tfloat val = cubic_atXY(w2 + (x - dw2)*ca + (y - dh2)*sa,h2 - (x - dw2)*sa + (y - dh2)*ca,z,c,0);
               res(x,y,z,c) = (T)(val<vmin?vmin:val>vmax?vmax:val);
             }
           } break;
-          case 1 : { // Linear interpolation.
+          case 1 : { // Linear interpolation
             cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
             cimg_forXYZC(res,x,y,z,c)
               res(x,y,z,c) = (T)linear_atXY(w2 + (x - dw2)*ca + (y - dh2)*sa,h2 - (x - dw2)*sa + (y - dh2)*ca,z,c,0);
           } break;
-          default : { // Nearest-neighbor interpolation.
+          default : { // Nearest-neighbor interpolation
             cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
             cimg_forXYZC(res,x,y,z,c)
               res(x,y,z,c) = atXY((int)cimg::round(w2 + (x - dw2)*ca + (y - dh2)*sa),
@@ -28045,15 +28045,122 @@ namespace cimg_library_suffixed {
         w2 = 0.5f*(_width - 1), h2 = 0.5f*(_height - 1), d2 = 0.5f*(_depth - 1),
         dw2 = 0.5f*dx, dh2 = 0.5f*dy, dd2 = 0.5f*dz;
 
-      cimg_forXYZ(res,x,y,z) {
-        const float
-          xc = x - dw2, yc = y - dh2, zc = z - dd2,
-          X = w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,
-          Y = h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,
-          Z = d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc;
-        cimg_forC(res,c) res(x,y,z,c) = atXYZ((int)cimg::round(X),(int)cimg::round(Y),(int)cimg::round(Z),c,0);
-      }
+      switch (boundary_conditions) {
+      case 0 : { // Dirichlet boundaries
+        switch (interpolation) {
+        case 2 : { // Cubic interpolation
+          cimg_pragma_openmp(parallel for collapse(2) if (res.size()>=2048))
+          cimg_forXYZ(res,x,y,z) {
+            const float
+              xc = x - dw2, yc = y - dh2, zc = z - dd2,
+              X = w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,
+              Y = h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,
+              Z = d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc;
+            cimg_forC(res,c) res(x,y,z,c) = cubic_atXYZ(X,Y,Z,c,0);
+          }
+        } break;
+        case 1 : { // Linear interpolation
+          cimg_pragma_openmp(parallel for collapse(2) if (res.size()>=2048))
+          cimg_forXYZ(res,x,y,z) {
+            const float
+              xc = x - dw2, yc = y - dh2, zc = z - dd2,
+              X = w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,
+              Y = h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,
+              Z = d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc;
+            cimg_forC(res,c) res(x,y,z,c) = linear_atXYZ(X,Y,Z,c,0);
+          }
+        } break;
+        default : { // Nearest-neighbor interpolation
+          cimg_pragma_openmp(parallel for collapse(2) if (res.size()>=2048))
+          cimg_forXYZ(res,x,y,z) {
+            const float
+              xc = x - dw2, yc = y - dh2, zc = z - dd2,
+              X = w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,
+              Y = h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,
+              Z = d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc;
+            cimg_forC(res,c) res(x,y,z,c) = atXYZ((int)cimg::round(X),(int)cimg::round(Y),(int)cimg::round(Z),c,0);
+          }
+        }
+        }
+      } break;
 
+      case 1 : { // Neumann boundaries
+        switch (interpolation) {
+        case 2 : { // Cubic interpolation
+          cimg_pragma_openmp(parallel for collapse(2) if (res.size()>=2048))
+          cimg_forXYZ(res,x,y,z) {
+            const float
+              xc = x - dw2, yc = y - dh2, zc = z - dd2,
+              X = w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,
+              Y = h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,
+              Z = d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc;
+            cimg_forC(res,c) res(x,y,z,c) = cubic_atXYZ(X,Y,Z,c);
+          }
+        } break;
+        case 1 : { // Linear interpolation
+          cimg_pragma_openmp(parallel for collapse(2) if (res.size()>=2048))
+          cimg_forXYZ(res,x,y,z) {
+            const float
+              xc = x - dw2, yc = y - dh2, zc = z - dd2,
+              X = w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,
+              Y = h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,
+              Z = d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc;
+            cimg_forC(res,c) res(x,y,z,c) = linear_atXYZ(X,Y,Z,c);
+          }
+        } break;
+        default : { // Nearest-neighbor interpolation
+          cimg_pragma_openmp(parallel for collapse(2) if (res.size()>=2048))
+          cimg_forXYZ(res,x,y,z) {
+            const float
+              xc = x - dw2, yc = y - dh2, zc = z - dd2,
+              X = w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,
+              Y = h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,
+              Z = d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc;
+            cimg_forC(res,c) res(x,y,z,c) = atXYZ((int)cimg::round(X),(int)cimg::round(Y),(int)cimg::round(Z),c);
+          }
+        }
+        }
+      } break;
+
+      default : { // Periodic boundaries
+        switch (interpolation) {
+        case 2 : { // Cubic interpolation
+          cimg_pragma_openmp(parallel for collapse(2) if (res.size()>=2048))
+          cimg_forXYZ(res,x,y,z) {
+            const float
+              xc = x - dw2, yc = y - dh2, zc = z - dd2,
+              X = cimg::mod(w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,(float)width()),
+              Y = cimg::mod(h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,(float)height()),
+              Z = cimg::mod(d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc,(float)depth());
+            cimg_forC(res,c) res(x,y,z,c) = cubic_atXYZ(X,Y,Z,c,0);
+          }
+        } break;
+        case 1 : { // Linear interpolation
+          cimg_pragma_openmp(parallel for collapse(2) if (res.size()>=2048))
+          cimg_forXYZ(res,x,y,z) {
+            const float
+              xc = x - dw2, yc = y - dh2, zc = z - dd2,
+              X = cimg::mod(w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,(float)width()),
+              Y = cimg::mod(h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,(float)height()),
+              Z = cimg::mod(d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc,(float)depth());
+            cimg_forC(res,c) res(x,y,z,c) = linear_atXYZ(X,Y,Z,c,0);
+          }
+        } break;
+        default : { // Nearest-neighbor interpolation
+          cimg_pragma_openmp(parallel for collapse(2) if (res.size()>=2048))
+          cimg_forXYZ(res,x,y,z) {
+            const float
+              xc = x - dw2, yc = y - dh2, zc = z - dd2,
+              X = cimg::mod(w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,(float)width()),
+              Y = cimg::mod(h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,(float)height()),
+              Z = cimg::mod(d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc,(float)depth());
+            cimg_forC(res,c) res(x,y,z,c) = atXYZ((int)cimg::round(X),(int)cimg::round(Y),(int)cimg::round(Z),c,0);
+          }
+        }
+        }
+
+      } break;
+      }
       return res;
     }
 

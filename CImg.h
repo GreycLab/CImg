@@ -27879,7 +27879,7 @@ namespace cimg_library_suffixed {
           }
           }
         } break;
-        case 2 : { // Periodic boundaries.
+        default : { // Periodic boundaries.
           switch (interpolation) {
           case 2 : { // Cubic interpolation.
             cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
@@ -27903,12 +27903,6 @@ namespace cimg_library_suffixed {
           }
           }
         } break;
-	default :
-	  throw CImgArgumentException(_cimg_instance
-                                      "rotate(): Invalid specified border conditions %d "
-                                      "(should be { 0=dirichlet | 1=neumann | 2=periodic }).",
-				      cimg_instance,
-                                      boundary_conditions);
         }
       }
       return res;
@@ -27980,7 +27974,7 @@ namespace cimg_library_suffixed {
         }
         }
       } break;
-      case 2 : {
+      default : {
         switch (interpolation) {
         case 2 : {
           cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
@@ -28004,43 +27998,64 @@ namespace cimg_library_suffixed {
         }
         }
       } break;
-      default :
-        throw CImgArgumentException(_cimg_instance
-                                    "rotate(): Invalid specified border conditions %d "
-                                    "(should be { 0=dirichlet | 1=neumann | 2=periodic }).",
-                                    cimg_instance,
-                                    boundary_conditions);
       }
       return res;
     }
 
-    // //! Rotate volumetric image with arbitrary angle and axis.
-    // /**
-    //    \param u X-coordinate of the 3d rotation axis.
-    //    \param v Y-coordinate of the 3d rotation axis.
-    //    \param w Z-coordinate of the 3d rotation axis.
-    //    \param angle Rotation angle, in degrees.
-    //    \param interpolation Type of interpolation. Can be <tt>{ 0=nearest | 1=linear | 2=cubic }</tt>.
-    //    \param boundary Boundary conditions. Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic }</tt>.
-    //    \note Most of the time, size of the image is modified.
-    // **/
-    // CImg<T> rotateXYZ(const float u, const float v, const float w, const float angle,
-    //                   const float cx, const float cy, const float cz,
-    //                   const unsigned int interpolation=1, const unsigned int boundary_conditions=0) {
-    //   return get_rotateXYZ(u,v,w,angle,interpolation,boundary_conditions).move_to(*this);
-    // }
-    //
-    // //! Rotate volumetric image with arbitrary angle and axis \newinstance.
-    // CImg<T> get_rotateXYZ(const float u, const float v, const float w, const float angle,
-    //                   const unsigned int interpolation=1, const unsigned int boundary_conditions=0) const {
-    //   if (is_empty()) return *this;
-    //   CImg<T> res;
-    //   const CImg<Tfloat> R = CImg<Tfloat>::rotation_matrix(u,v,w,-angle);
-    //   cimg_forXYZ(*this,x,y,z) {
-    //     const float
-    //       X =
-    //   }
-    // }
+    //! Rotate volumetric image with arbitrary angle and axis.
+    /**
+       \param u X-coordinate of the 3d rotation axis.
+       \param v Y-coordinate of the 3d rotation axis.
+       \param w Z-coordinate of the 3d rotation axis.
+       \param angle Rotation angle, in degrees.
+       \param interpolation Type of interpolation. Can be <tt>{ 0=nearest | 1=linear | 2=cubic }</tt>.
+       \param boundary Boundary conditions. Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic }</tt>.
+       \note Most of the time, size of the image is modified.
+    **/
+    CImg<T> rotateXYZ(const float u, const float v, const float w, const float angle,
+                      const float cx, const float cy, const float cz,
+                      const unsigned int interpolation=1, const unsigned int boundary_conditions=0) {
+      return get_rotateXYZ(u,v,w,angle,interpolation,boundary_conditions).move_to(*this);
+    }
+
+    //! Rotate volumetric image with arbitrary angle and axis \newinstance.
+    CImg<T> get_rotateXYZ(const float u, const float v, const float w, const float angle,
+                      const unsigned int interpolation=1, const unsigned int boundary_conditions=0) const {
+      if (is_empty()) return *this;
+      CImg<T> res;
+      const float
+        w1 = _width - 1, h1 = _height - 1, d1 = _depth -1;
+      CImg<Tfloat>
+        R = CImg<Tfloat>::rotation_matrix(u,v,w,angle),
+        X = R*CImg<Tfloat>(8,3,1,1,
+                           0.0f,w1,w1,0.0f,0.0f,w1,w1,0.0f,
+                           0.0f,0.0f,h1,h1,0.0f,0.0f,h1,h1,
+                           0.0f,0.0f,0.0f,0.0f,d1,d1,d1,d1);
+      float
+        xm, xM = X.get_shared_row(0).max_min(xm),
+        ym, yM = X.get_shared_row(1).max_min(ym),
+        zm, zM = X.get_shared_row(2).max_min(zm);
+      const int
+        dx = (int)cimg::round(xM - xm + 1),
+        dy = (int)cimg::round(yM - ym + 1),
+        dz = (int)cimg::round(zM - zm + 1);
+      R.transpose();
+      res.assign(dx,dy,dz,_spectrum);
+      const float
+        w2 = 0.5f*(_width - 1), h2 = 0.5f*(_height - 1), d2 = 0.5f*(_depth - 1),
+        dw2 = 0.5f*dx, dh2 = 0.5f*dy, dd2 = 0.5f*dz;
+
+      cimg_forXYZ(res,x,y,z) {
+        const float
+          xc = x - dw2, yc = y - dh2, zc = z - dd2,
+          X = w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,
+          Y = h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,
+          Z = d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc;
+        cimg_forC(res,c) res(x,y,z,c) = atXYZ((int)cimg::round(X),(int)cimg::round(Y),(int)cimg::round(Z),c,0);
+      }
+
+      return res;
+    }
 
     //! Warp image content by a warping field.
     /**

@@ -955,7 +955,7 @@ void* item_double_torus() {
   CImgList<unsigned int> primitives;
   CImg<float>
     points = CImg<>::torus3d(primitives,60,20),
-    points2 = CImg<>::rotation_matrix(1,0,0,(float)cimg::PI/2.0f)*points;
+    points2 = CImg<>::rotation_matrix(1,0,0,90)*points;
   CImgList<unsigned char> colors(2*primitives.size(),CImg<unsigned char>::vector(255,255,0));
   cimglist_for(primitives,ll) colors[ll++].fill(100,255,100);
   cimglist_for(primitives,l)
@@ -970,8 +970,8 @@ void* item_double_torus() {
     cimg_for3x3(visu,x,y,0,0,I,unsigned char) visu(x,y,0) = (Icc + Ipn + Icn + Inn)>>2;
     for (unsigned int y = 0; y<100; ++y) std::memset(visu.data(0,y,0,2),255 - y*255/100,visu.width());
     const CImg<float>
-      rpoints = CImg<>::rotation_matrix(1,1,0,(alpha+=0.01f))*CImg<>::rotation_matrix(1,0,1,(beta-=0.02f))*
-      CImg<>::rotation_matrix(0,1,1,(gamma+=0.03f))*points;
+      rpoints = CImg<>::rotation_matrix(1,1,0,(alpha+=1))*CImg<>::rotation_matrix(1,0,1,(beta-=2))*
+      CImg<>::rotation_matrix(0,1,1,(gamma+=3))*points;
     if (disp.is_resized()) disp.resize(false);
     if (disp.is_keyCTRLLEFT() && disp.is_keyF()) disp.resize(300,256,false).toggle_fullscreen(false);
     visu.draw_object3d(visu.width()/2.0f,visu.height()/2.0f,0,
@@ -1019,7 +1019,7 @@ void* item_3d_metaballs() {
     met.cx3 = 2.5f*(float)std::cos(2.5*delta); met.cy3 = 0; met.cz3 = 1.5f*(float)std::sin(2*(delta+=0.0125f));
     const CImg<float>
       points = CImg<>::isosurface3d(primitives,met,0.8f,-4.5f,-4.5f,-3.5f,4.5f,4.5f,3.5f,24,24,24),
-      rot = 50.0*CImg<>::rotation_matrix(0,0,1,(alpha+=0.02f))*CImg<>::rotation_matrix(1,1,0,(beta+=0.076f)),
+      rot = 50.0*CImg<>::rotation_matrix(0,0,1,(alpha+=2))*CImg<>::rotation_matrix(1,1,0,(beta+=5.6f)),
       rpoints = rot*points;
     primitives.reverse_object3d();
     if (colors.size()<primitives.size()) colors.assign(primitives.size(),1,3,1,1);
@@ -1130,8 +1130,8 @@ void* item_rubber_logo() {
     CImg<unsigned char>& frame = frames[nb_frame++];
     if (nb_frame>=frames.size()) { ok_visu = true; nb_frame = 0; }
     const CImg<float>
-      rot = CImg<>::rotation_matrix(0,1,0.2f,alpha+=0.011f)*
-      CImg<>::rotation_matrix(1,0.4f,1,beta+=0.015f)*
+      rot = CImg<>::rotation_matrix(0,1,0.2f,alpha+=1.1f)*
+      CImg<>::rotation_matrix(1,0.4f,1,beta+=1.5f)*
       (1 + 0.1f*std::cos((double)(gamma+=0.1f)));
     (frame=background).draw_object3d(frame.width()/2.0f,frame.height()/2.0f,frame.depth()/2.0f,
                                      rot*points,faces,colors,5,false,500,0,0,-5000,0.1f,1.0f);
@@ -1178,7 +1178,7 @@ void* item_image_waves() {
         move_to(particles);
       count = (float)(cimg::rand()*15);
     }
-    alpha = (disp.mouse_x()>=0 && disp.button()&2)?(float)(disp.mouse_x()*2*cimg::PI/disp.width()):(alpha + 0.02f);
+    alpha = (disp.mouse_x()>=0 && disp.button()&2)?(float)(disp.mouse_x()*2*180/disp.width()):(alpha + 2);
     if (disp.is_keyCTRLLEFT() && disp.is_keyF()) disp.resize(400,300,false).toggle_fullscreen(false);
     cimglist_for(particles,l) {
       float& z = up((int)particles(l,0)>>1,(int)particles(l,1)>>1);
@@ -1201,7 +1201,7 @@ void* item_image_waves() {
       opacities.insert(mball,~0U,true);
     }
     const CImg<float>
-      rot = CImg<>::rotation_matrix(1.0f,0,0,(float)(cimg::PI/3.0f))*CImg<>::rotation_matrix(0,0,1.0f,alpha),
+      rot = CImg<>::rotation_matrix(1.0f,0,0,-60)*CImg<>::rotation_matrix(0,0,1.0f,-alpha),
       rpoints = rot*(points>'x');
     (+back).draw_object3d(back.width()/2.0f,back.height()/2.0f,0,rpoints,faces,colors,opacities,4,false,
                           500.0f,0,0,0,1,1).display(disp.resize(false).wait(30));
@@ -1357,8 +1357,8 @@ void* item_3d_reflection() {
          back_alpha = 0, back_beta = 0, back_theta = -3.0f,
          main_alpha = 0, main_beta = 0, main_theta = 0;
        !disp.is_closed() && !disp.is_keyQ() && !disp.is_keyESC();
-       main_alpha+=0.041f, main_beta+=0.063f, main_theta+=0.02f,
-         back_alpha+=0.0031f, back_beta+=0.0043f, back_theta+=0.01f) {
+       main_alpha+=4.1f, main_beta+=6.3f, main_theta+=0.02f,
+         back_alpha+=0.31f, back_beta+=0.43f, back_theta+=0.01f) {
     const int
       main_X = (int)(visu.width()/2 + main_x + 100*std::cos(2.1*main_theta)),
       main_Y = (int)(visu.height()/2 + 120*std::sin(1.8*main_theta));

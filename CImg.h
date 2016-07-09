@@ -27966,16 +27966,16 @@ namespace cimg_library_suffixed {
        \param boundary Boundary conditions. Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic }</tt>.
        \note Most of the time, size of the image is modified.
     **/
-    CImg<T> rotateXYZ(const float u, const float v, const float w, const float angle,
-                      const unsigned int interpolation=1, const unsigned int boundary_conditions=0) {
+    CImg<T> rotate(const float u, const float v, const float w, const float angle,
+                   const unsigned int interpolation, const unsigned int boundary_conditions) {
       const float nangle = cimg::mod(angle,360.0f);
       if (nangle==0.0f) return *this;
-      return get_rotateXYZ(u,v,w,nangle,interpolation,boundary_conditions).move_to(*this);
+      return get_rotate(u,v,w,nangle,interpolation,boundary_conditions).move_to(*this);
     }
 
     //! Rotate volumetric image with arbitrary angle and axis \newinstance.
-    CImg<T> get_rotateXYZ(const float u, const float v, const float w, const float angle,
-                          const unsigned int interpolation=1, const unsigned int boundary_conditions=0) const {
+    CImg<T> get_rotate(const float u, const float v, const float w, const float angle,
+                       const unsigned int interpolation, const unsigned int boundary_conditions) const {
       if (is_empty()) return *this;
       CImg<T> res;
       const float
@@ -28015,18 +28015,18 @@ namespace cimg_library_suffixed {
        \param boundary Boundary conditions. Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic }</tt>.
        \note Most of the time, size of the image is modified.
     **/
-    CImg<T> rotateXYZ(const float u, const float v, const float w, const float angle,
-                      const float cx, const float cy, const float cz,
-                      const unsigned int interpolation=1, const unsigned int boundary_conditions=0) {
+    CImg<T> rotate(const float u, const float v, const float w, const float angle,
+                   const float cx, const float cy, const float cz,
+                   const unsigned int interpolation=1, const unsigned int boundary_conditions=0) {
       const float nangle = cimg::mod(angle,360.0f);
       if (nangle==0.0f) return *this;
-      return get_rotateXYZ(u,v,w,nangle,cx,cy,cz,interpolation,boundary_conditions).move_to(*this);
+      return get_rotate(u,v,w,nangle,cx,cy,cz,interpolation,boundary_conditions).move_to(*this);
     }
 
     //! Rotate volumetric image with arbitrary angle and axis, around a center point \newinstance.
-    CImg<T> get_rotateXYZ(const float u, const float v, const float w, const float angle,
-                          const float cx, const float cy, const float cz,
-                          const unsigned int interpolation=1, const unsigned int boundary_conditions=0) const {
+    CImg<T> get_rotate(const float u, const float v, const float w, const float angle,
+                       const float cx, const float cy, const float cz,
+                       const unsigned int interpolation=1, const unsigned int boundary_conditions=0) const {
       if (is_empty()) return *this;
       CImg<T> res(_width,_height,_depth,_spectrum);
       CImg<floatT> R = CImg<floatT>::rotation_matrix(u,v,w,-angle);

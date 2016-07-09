@@ -2714,7 +2714,7 @@ namespace cimg_library_suffixed {
         const double val_nan = -std::sqrt(-1.0); return val_nan;
 #endif
       }
-      static double cut(const double val) { return val<min()?min():val>max()?max():val; }
+      static double cut(const double val) { return val; }
       static const char* format() { return "%.16g"; }
       static double format(const double val) { return val; }
     };
@@ -2740,7 +2740,8 @@ namespace cimg_library_suffixed {
       static float max() { return FLT_MAX; }
       static float inf() { return (float)cimg::type<double>::inf(); }
       static float nan() { return (float)cimg::type<double>::nan(); }
-      static float cut(const double val) { return val<(double)min()?min():val>(double)max()?max():(float)val; }
+      static float cut(const double val) { return (float)val; }
+      static float cut(const float val) { return (float)val; }
       static const char* format() { return "%.16g"; }
       static double format(const float val) { return (double)val; }
     };
@@ -2766,7 +2767,7 @@ namespace cimg_library_suffixed {
       static long double max() { return LDBL_MAX; }
       static long double inf() { return max()*max(); }
       static long double nan() { const long double val_nan = -std::sqrt(-1.0L); return val_nan; }
-      static long double cut(const long double val) { return val<min()?min():val>max()?max():val; }
+      static long double cut(const long double val) { return val; }
       static const char* format() { return "%.16g"; }
       static double format(const long double val) { return (double)val; }
     };
@@ -27824,86 +27825,15 @@ namespace cimg_library_suffixed {
           return *this;
         }
       } else { // Generic angle
-        const Tfloat vmin = (Tfloat)cimg::type<T>::min(), vmax = (Tfloat)cimg::type<T>::max();
         const float
           rad = (float)(nangle*cimg::PI/180.0),
-          ca = (float)std::cos(rad),
-          sa = (float)std::sin(rad),
+          ca = (float)std::cos(rad), sa = (float)std::sin(rad),
           ux = cimg::abs((_width - 1)*ca), uy = cimg::abs((_width - 1)*sa),
           vx = cimg::abs((_height - 1)*sa), vy = cimg::abs((_height - 1)*ca),
           w2 = 0.5f*(_width - 1), h2 = 0.5f*(_height - 1);
         res.assign((int)cimg::round(1 + ux + vx),(int)cimg::round(1 + uy + vy),_depth,_spectrum);
-        const float dw2 = 0.5f*(res._width - 1), dh2 = 0.5f*(res._height - 1);
-        switch (boundary_conditions) {
-        case 0 : { // Dirichlet boundaries
-          switch (interpolation) {
-          case 2 : { // Cubic interpolation
-            cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
-            cimg_forXYZC(res,x,y,z,c) {
-              const Tfloat val = cubic_atXY(w2 + (x - dw2)*ca + (y - dh2)*sa,h2 - (x - dw2)*sa + (y - dh2)*ca,z,c,0);
-              res(x,y,z,c) = (T)(val<vmin?vmin:val>vmax?vmax:val);
-            }
-          } break;
-          case 1 : { // Linear interpolation
-            cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
-            cimg_forXYZC(res,x,y,z,c)
-              res(x,y,z,c) = (T)linear_atXY(w2 + (x - dw2)*ca + (y - dh2)*sa,h2 - (x - dw2)*sa + (y - dh2)*ca,z,c,0);
-          } break;
-          default : { // Nearest-neighbor interpolation
-            cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
-            cimg_forXYZC(res,x,y,z,c)
-              res(x,y,z,c) = atXY((int)cimg::round(w2 + (x - dw2)*ca + (y - dh2)*sa),
-                                  (int)cimg::round(h2 - (x - dw2)*sa + (y - dh2)*ca),z,c,0);
-          }
-          }
-        } break;
-        case 1 : { // Neumann boundaries.
-          switch (interpolation) {
-          case 2 : { // Cubic interpolation.
-            cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
-            cimg_forXYZC(res,x,y,z,c) {
-              const Tfloat val = _cubic_atXY(w2 + (x - dw2)*ca + (y - dh2)*sa,h2 - (x - dw2)*sa + (y - dh2)*ca,z,c);
-              res(x,y,z,c) = (T)(val<vmin?vmin:val>vmax?vmax:val);
-            }
-          } break;
-          case 1 : { // Linear interpolation.
-            cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
-            cimg_forXYZC(res,x,y,z,c)
-              res(x,y,z,c) = (T)_linear_atXY(w2 + (x - dw2)*ca + (y - dh2)*sa,h2 - (x - dw2)*sa + (y - dh2)*ca,z,c);
-          } break;
-          default : { // Nearest-neighbor interpolation.
-            cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
-            cimg_forXYZC(res,x,y,z,c)
-              res(x,y,z,c) = _atXY((int)cimg::round(w2 + (x - dw2)*ca + (y - dh2)*sa),
-                                   (int)cimg::round(h2 - (x - dw2)*sa + (y - dh2)*ca),z,c);
-          }
-          }
-        } break;
-        default : { // Periodic boundaries.
-          switch (interpolation) {
-          case 2 : { // Cubic interpolation.
-            cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
-            cimg_forXYZC(res,x,y,z,c) {
-              const Tfloat val = _cubic_atXY(cimg::mod(w2 + (x - dw2)*ca + (y - dh2)*sa,(float)width()),
-                                             cimg::mod(h2 - (x - dw2)*sa + (y - dh2)*ca,(float)height()),z,c);
-              res(x,y,z,c) = (T)(val<vmin?vmin:val>vmax?vmax:val);
-            }
-          } break;
-          case 1 : { // Linear interpolation.
-            cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
-            cimg_forXYZC(res,x,y,z,c)
-              res(x,y,z,c) = (T)_linear_atXY(cimg::mod(w2 + (x - dw2)*ca + (y - dh2)*sa,(float)width()),
-                                             cimg::mod(h2 - (x - dw2)*sa + (y - dh2)*ca,(float)height()),z,c);
-          } break;
-          default : { // Nearest-neighbor interpolation.
-            cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
-            cimg_forXYZC(res,x,y,z,c)
-              res(x,y,z,c) = (*this)(cimg::mod((int)cimg::round(w2 + (x - dw2)*ca + (y - dh2)*sa),width()),
-                                     cimg::mod((int)cimg::round(h2 - (x - dw2)*sa + (y - dh2)*ca),height()),z,c);
-          }
-          }
-        } break;
-        }
+        const float rw2 = 0.5f*(res._width - 1), rh2 = 0.5f*(res._height - 1);
+        _rotate(res,nangle,interpolation,boundary_conditions,w2,h2,rw2,rh2);
       }
       return res;
     }
@@ -27926,80 +27856,104 @@ namespace cimg_library_suffixed {
                        const unsigned int interpolation, const unsigned int boundary_conditions=0) const {
       if (is_empty()) return *this;
       CImg<T> res(_width,_height,_depth,_spectrum);
-      const Tfloat vmin = (Tfloat)cimg::type<T>::min(), vmax = (Tfloat)cimg::type<T>::max();
-      const float
-        rad = (float)((angle*cimg::PI)/180.0),
-        ca = (float)std::cos(rad),
-        sa = (float)std::sin(rad);
-      switch (boundary_conditions) {
-      case 0 : {
-        switch (interpolation) {
-        case 2 : {
-          cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
-          cimg_forXYZC(res,x,y,z,c) {
-            const Tfloat val = cubic_atXY(cx + (x-cx)*ca + (y-cy)*sa,cy - (x-cx)*sa + (y-cy)*ca,z,c,0);
-            res(x,y,z,c) = (T)(val<vmin?vmin:val>vmax?vmax:val);
-          }
-        } break;
-        case 1 : {
-          cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
-          cimg_forXYZC(res,x,y,z,c)
-            res(x,y,z,c) = (T)linear_atXY(cx + (x-cx)*ca + (y-cy)*sa,cy - (x-cx)*sa + (y-cy)*ca,z,c,0);
-        } break;
-        default : {
-          cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
-          cimg_forXYZC(res,x,y,z,c)
-            res(x,y,z,c) = atXY((int)(cx + (x-cx)*ca + (y-cy)*sa),(int)(cy - (x-cx)*sa + (y-cy)*ca),z,c,0);
-        }
-        }
-      } break;
-      case 1 : {
-        switch (interpolation) {
-        case 2 : {
-          cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
-          cimg_forXYZC(res,x,y,z,c) {
-            const Tfloat val = _cubic_atXY(cx + (x-cx)*ca + (y-cy)*sa,cy - (x-cx)*sa + (y-cy)*ca,z,c);
-            res(x,y,z,c) = (T)(val<vmin?vmin:val>vmax?vmax:val);
-          }
-        } break;
-        case 1 : {
-          cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
-          cimg_forXYZC(res,x,y,z,c)
-            res(x,y,z,c) = (T)_linear_atXY(cx + (x-cx)*ca + (y-cy)*sa,cy - (x-cx)*sa + (y-cy)*ca,z,c);
-        } break;
-        default : {
-          cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
-          cimg_forXYZC(res,x,y,z,c)
-            res(x,y,z,c) = _atXY((int)(cx + (x-cx)*ca + (y-cy)*sa),(int)(cy - (x-cx)*sa + (y-cy)*ca),z,c);
-        }
-        }
-      } break;
-      default : {
-        switch (interpolation) {
-        case 2 : {
-          cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
-          cimg_forXYZC(res,x,y,z,c) {
-            const Tfloat val = _cubic_atXY(cimg::mod(cx + (x-cx)*ca + (y-cy)*sa,(float)width()),
-                                           cimg::mod(cy - (x-cx)*sa + (y-cy)*ca,(float)height()),z,c);
-            res(x,y,z,c) = (T)(val<vmin?vmin:val>vmax?vmax:val);
-          }
-        } break;
-        case 1 : {
-          cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
-          cimg_forXYZC(res,x,y,z,c)
-            res(x,y,z,c) = (T)_linear_atXY(cimg::mod(cx + (x-cx)*ca + (y-cy)*sa,(float)width()),
-                                           cimg::mod(cy - (x-cx)*sa + (y-cy)*ca,(float)height()),z,c);
-        } break;
-        default : {
-          cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
-          cimg_forXYZC(res,x,y,z,c)
-            res(x,y,z,c) = (*this)(cimg::mod((int)(cx + (x-cx)*ca + (y-cy)*sa),width()),
-                                    cimg::mod((int)(cy - (x-cx)*sa + (y-cy)*ca),height()),z,c);
-        }
-        }
-      } break;
-      }
+      _rotate(res,angle,interpolation,boundary_conditions,cx,cy,cx,cy);
       return res;
+    }
+
+    // [internal] Perform 2d rotation with arbitrary angle.
+    void _rotate(CImg<T>& res, const float angle,
+                 const unsigned int interpolation, const unsigned int boundary_conditions,
+                 const float w2, const float h2,
+                 const float rw2, const float rh2) const {
+      const float
+        rad = (float)(angle*cimg::PI/180.0),
+        ca = (float)std::cos(rad), sa = (float)std::sin(rad);
+
+      switch (boundary_conditions) {
+      case 0 : { // Dirichlet boundaries
+        switch (interpolation) {
+        case 2 : { // Cubic interpolation
+          cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
+          cimg_forXYZC(res,x,y,z,c) {
+            const float xc = x - rw2, yc = y - rh2;
+            const Tfloat val = cubic_atXY(w2 + xc*ca + yc*sa,h2 - xc*sa + yc*ca,z,c,0);
+            res(x,y,z,c) = cimg::type<T>::cut(val);
+          }
+        } break;
+        case 1 : { // Linear interpolation
+          cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
+          cimg_forXYZC(res,x,y,z,c) {
+            const float xc = x - rw2, yc = y - rh2;
+            res(x,y,z,c) = (T)linear_atXY(w2 + xc*ca + yc*sa,h2 - xc*sa + yc*ca,z,c,0);
+          }
+        } break;
+        default : { // Nearest-neighbor interpolation
+          cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
+          cimg_forXYZC(res,x,y,z,c) {
+            const float xc = x - rw2, yc = y - rh2;
+            res(x,y,z,c) = atXY((int)cimg::round(w2 + xc*ca + yc*sa),
+                                (int)cimg::round(h2 - xc*sa + yc*ca),z,c,0);
+          }
+        }
+        }
+      } break;
+      case 1 : { // Neumann boundaries.
+        switch (interpolation) {
+        case 2 : { // Cubic interpolation.
+          cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
+          cimg_forXYZC(res,x,y,z,c) {
+            const float xc = x - rw2, yc = y - rh2;
+            const Tfloat val = _cubic_atXY(w2 + xc*ca + yc*sa,h2 - xc*sa + yc*ca,z,c);
+            res(x,y,z,c) = cimg::type<T>::cut(val);
+          }
+        } break;
+        case 1 : { // Linear interpolation.
+          cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
+          cimg_forXYZC(res,x,y,z,c) {
+            const float xc = x - rw2, yc = y - rh2;
+            res(x,y,z,c) = (T)_linear_atXY(w2 + xc*ca + yc*sa,h2 - xc*sa + yc*ca,z,c);
+          }
+        } break;
+        default : { // Nearest-neighbor interpolation.
+          cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
+          cimg_forXYZC(res,x,y,z,c) {
+            const float xc = x - rw2, yc = y - rh2;
+            res(x,y,z,c) = _atXY((int)cimg::round(w2 + xc*ca + yc*sa),
+                                 (int)cimg::round(h2 - xc*sa + yc*ca),z,c);
+          }
+        }
+        }
+      } break;
+        default : { // Periodic boundaries.
+          switch (interpolation) {
+          case 2 : { // Cubic interpolation.
+            cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
+            cimg_forXYZC(res,x,y,z,c) {
+              const float xc = x - rw2, yc = y - rh2;
+              const Tfloat val = _cubic_atXY(cimg::mod(w2 + xc*ca + yc*sa,(float)width()),
+                                             cimg::mod(h2 - xc*sa + yc*ca,(float)height()),z,c);
+              res(x,y,z,c) = cimg::type<T>::cut(val);
+            }
+          } break;
+          case 1 : { // Linear interpolation.
+            cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
+            cimg_forXYZC(res,x,y,z,c) {
+              const float xc = x - rw2, yc = y - rh2;
+              res(x,y,z,c) = (T)_linear_atXY(cimg::mod(w2 + xc*ca + yc*sa,(float)width()),
+                                             cimg::mod(h2 - xc*sa + yc*ca,(float)height()),z,c);
+            }
+          } break;
+          default : { // Nearest-neighbor interpolation.
+            cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
+            cimg_forXYZC(res,x,y,z,c) {
+              const float xc = x - rw2, yc = y - rh2;
+              res(x,y,z,c) = (*this)(cimg::mod((int)cimg::round(w2 + xc*ca + yc*sa),width()),
+                                     cimg::mod((int)cimg::round(h2 - xc*sa + yc*ca),height()),z,c);
+            }
+          }
+          }
+        } break;
+      }
     }
 
     //! Rotate volumetric image with arbitrary angle and axis.
@@ -28013,20 +27967,20 @@ namespace cimg_library_suffixed {
        \note Most of the time, size of the image is modified.
     **/
     CImg<T> rotateXYZ(const float u, const float v, const float w, const float angle,
-                      const float cx, const float cy, const float cz,
                       const unsigned int interpolation=1, const unsigned int boundary_conditions=0) {
       return get_rotateXYZ(u,v,w,angle,interpolation,boundary_conditions).move_to(*this);
     }
 
     //! Rotate volumetric image with arbitrary angle and axis \newinstance.
     CImg<T> get_rotateXYZ(const float u, const float v, const float w, const float angle,
-                      const unsigned int interpolation=1, const unsigned int boundary_conditions=0) const {
+                          const unsigned int interpolation=1, const unsigned int boundary_conditions=0) const {
       if (is_empty()) return *this;
       CImg<T> res;
       const float
-        w1 = _width - 1, h1 = _height - 1, d1 = _depth -1;
-      CImg<Tfloat>
-        R = CImg<Tfloat>::rotation_matrix(u,v,w,angle),
+        w1 = _width - 1, h1 = _height - 1, d1 = _depth -1,
+        w2 = 0.5f*w1, h2 = 0.5f*h1, d2 = 0.5f*d1;
+      CImg<floatT> R = CImg<floatT>::rotation_matrix(u,v,w,angle);
+      const CImg<Tfloat>
         X = R*CImg<Tfloat>(8,3,1,1,
                            0.0f,w1,w1,0.0f,0.0f,w1,w1,0.0f,
                            0.0f,0.0f,h1,h1,0.0f,0.0f,h1,h1,
@@ -28041,9 +27995,7 @@ namespace cimg_library_suffixed {
         dz = (int)cimg::round(zM - zm + 1);
       R.transpose();
       res.assign(dx,dy,dz,_spectrum);
-      const float
-        w2 = 0.5f*(_width - 1), h2 = 0.5f*(_height - 1), d2 = 0.5f*(_depth - 1),
-        dw2 = 0.5f*dx, dh2 = 0.5f*dy, dd2 = 0.5f*dz;
+      const float dw2 = 0.5f*dx, dh2 = 0.5f*dy, dd2 = 0.5f*dz;
 
       switch (boundary_conditions) {
       case 0 : { // Dirichlet boundaries

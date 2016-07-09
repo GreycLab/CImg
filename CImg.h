@@ -27992,11 +27992,11 @@ namespace cimg_library_suffixed {
         ym, yM = X.get_shared_row(1).max_min(ym),
         zm, zM = X.get_shared_row(2).max_min(zm);
       const int
-        dx = (int)cimg::round(xM - xm + 1),
-        dy = (int)cimg::round(yM - ym + 1),
-        dz = (int)cimg::round(zM - zm + 1);
+        dx = (int)cimg::round(xM - xm),
+        dy = (int)cimg::round(yM - ym),
+        dz = (int)cimg::round(zM - zm);
       R.transpose();
-      res.assign(dx,dy,dz,_spectrum);
+      res.assign(1 + dx,1 + dy,1 + dz,_spectrum);
       const float rw2 = 0.5f*dx, rh2 = 0.5f*dy, rd2 = 0.5f*dz;
       _rotate(res,R,interpolation,boundary_conditions,w2,h2,d2,rw2,rh2,rd2);
       return res;

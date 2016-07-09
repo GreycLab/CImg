@@ -444,8 +444,8 @@ int main(int argc,char **argv) {
 
           for (unsigned int i=0; i<N; i++) {
             std::fprintf(stderr,"\r- Frame %u/%u.",i,N);
-            const float alpha = (float)(i*2*cimg::PI/N);
-            const CImg<> rpts = CImg<>::rotation_matrix(0,1,0,alpha)*CImg<>::rotation_matrix(1,0,0,1.30f)*cpts;
+            const float alpha = (float)(i*360/N);
+            const CImg<> rpts = CImg<>::rotation_matrix(0,1,0,alpha)*CImg<>::rotation_matrix(1,0,0,75)*cpts;
             visu.fill(0).draw_object3d(visu.width()/2.0f,visu.height()/2.0f,-500.0f,rpts,primitives,colors,
                                        4,false,800.0f,visu.width()/2.0f,visu.height()/2.0f,-800.0f,0.05f,1.0f).
               display(disp3d);

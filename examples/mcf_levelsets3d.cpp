@@ -157,7 +157,7 @@ int main(int argc,char **argv) {
 
     // Display 3D object on the display window.
     CImg<unsigned char> visu(disp3d.width(),disp3d.height(),1,3,0);
-    const CImg<> rot = CImg<>::rotation_matrix(1,0,0,(beta+=0.01f))*CImg<>::rotation_matrix(0,1,1,(alpha+=0.05f));
+    const CImg<> rot = CImg<>::rotation_matrix(1,0,0,(beta+=0.5f))*CImg<>::rotation_matrix(0,1,1,(alpha+=3));
     if (points.size()) {
       visu.draw_object3d(visu.width()/2.0f,visu.height()/2.0f,0.0f,
                          rot*points,faces,colors,opacities,3,

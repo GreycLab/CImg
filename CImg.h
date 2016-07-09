@@ -27829,11 +27829,11 @@ namespace cimg_library_suffixed {
           rad = (float)(nangle*cimg::PI/180.0),
           ca = (float)std::cos(rad),
           sa = (float)std::sin(rad),
-          ux = cimg::abs(_width*ca), uy = cimg::abs(_width*sa),
-          vx = cimg::abs(_height*sa), vy = cimg::abs(_height*ca),
-          w2 = 0.5f*_width, h2 = 0.5f*_height,
-          dw2 = 0.5f*(ux + vx), dh2 = 0.5f*(uy + vy);
-        res.assign((int)(ux + vx),(int)(uy + vy),_depth,_spectrum);
+          ux = cimg::abs((_width - 1)*ca), uy = cimg::abs((_width - 1)*sa),
+          vx = cimg::abs((_height - 1)*sa), vy = cimg::abs((_height - 1)*ca),
+          w2 = 0.5f*(_width - 1), h2 = 0.5f*(_height - 1);
+        res.assign((int)cimg::round(1 + ux + vx),(int)cimg::round(1 + uy + vy),_depth,_spectrum);
+        const float dw2 = 0.5f*(res._width - 1), dh2 = 0.5f*(res._height - 1);
         switch (boundary_conditions) {
         case 0 : { // Dirichlet boundaries.
           switch (interpolation) {
@@ -28029,21 +28029,17 @@ namespace cimg_library_suffixed {
     //                   const unsigned int interpolation=1, const unsigned int boundary_conditions=0) {
     //   return get_rotateXYZ(u,v,w,angle,interpolation,boundary_conditions).move_to(*this);
     // }
-
+    //
     // //! Rotate volumetric image with arbitrary angle and axis \newinstance.
     // CImg<T> get_rotateXYZ(const float u, const float v, const float w, const float angle,
     //                   const unsigned int interpolation=1, const unsigned int boundary_conditions=0) const {
     //   if (is_empty()) return *this;
     //   CImg<T> res;
     //   const CImg<Tfloat> R = CImg<Tfloat>::rotation_matrix(u,v,w,-angle);
-
-
     //   cimg_forXYZ(*this,x,y,z) {
     //     const float
     //       X =
-
     //   }
-
     // }
 
     //! Warp image content by a warping field.

@@ -28050,7 +28050,7 @@ namespace cimg_library_suffixed {
               X = w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,
               Y = h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,
               Z = d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc;
-            cimg_forC(res,c) res(x,y,z,c) = cubic_atXYZ(X,Y,Z,c,0);
+            cimg_forC(res,c) res(x,y,z,c) = cimg::type<T>::cut(cubic_atXYZ(X,Y,Z,c,0));
           }
         } break;
         case 1 : { // Linear interpolation
@@ -28088,7 +28088,7 @@ namespace cimg_library_suffixed {
               X = w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,
               Y = h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,
               Z = d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc;
-            cimg_forC(res,c) res(x,y,z,c) = cubic_atXYZ(X,Y,Z,c);
+            cimg_forC(res,c) res(x,y,z,c) = cimg::type<T>::cut(_cubic_atXYZ(X,Y,Z,c));
           }
         } break;
         case 1 : { // Linear interpolation
@@ -28099,7 +28099,7 @@ namespace cimg_library_suffixed {
               X = w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,
               Y = h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,
               Z = d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc;
-            cimg_forC(res,c) res(x,y,z,c) = linear_atXYZ(X,Y,Z,c);
+            cimg_forC(res,c) res(x,y,z,c) = _linear_atXYZ(X,Y,Z,c);
           }
         } break;
         default : { // Nearest-neighbor interpolation
@@ -28110,7 +28110,7 @@ namespace cimg_library_suffixed {
               X = w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,
               Y = h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,
               Z = d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc;
-            cimg_forC(res,c) res(x,y,z,c) = atXYZ((int)cimg::round(X),(int)cimg::round(Y),(int)cimg::round(Z),c);
+            cimg_forC(res,c) res(x,y,z,c) = _atXYZ((int)cimg::round(X),(int)cimg::round(Y),(int)cimg::round(Z),c);
           }
         }
         }
@@ -28126,7 +28126,7 @@ namespace cimg_library_suffixed {
               X = cimg::mod(w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,(float)width()),
               Y = cimg::mod(h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,(float)height()),
               Z = cimg::mod(d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc,(float)depth());
-            cimg_forC(res,c) res(x,y,z,c) = cubic_atXYZ(X,Y,Z,c,0);
+            cimg_forC(res,c) res(x,y,z,c) = cimg::type<T>::cut(_cubic_atXYZ(X,Y,Z,c));
           }
         } break;
         case 1 : { // Linear interpolation
@@ -28137,18 +28137,18 @@ namespace cimg_library_suffixed {
               X = cimg::mod(w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,(float)width()),
               Y = cimg::mod(h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,(float)height()),
               Z = cimg::mod(d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc,(float)depth());
-            cimg_forC(res,c) res(x,y,z,c) = linear_atXYZ(X,Y,Z,c,0);
+            cimg_forC(res,c) res(x,y,z,c) = (T)_linear_atXYZ(X,Y,Z,c);
           }
         } break;
         default : { // Nearest-neighbor interpolation
           cimg_pragma_openmp(parallel for collapse(2) if (res.size()>=2048))
           cimg_forXYZ(res,x,y,z) {
-            const float
-              xc = x - rw2, yc = y - rh2, zc = z - rd2,
-              X = cimg::mod(w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,(float)width()),
-              Y = cimg::mod(h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,(float)height()),
-              Z = cimg::mod(d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc,(float)depth());
-            cimg_forC(res,c) res(x,y,z,c) = atXYZ((int)cimg::round(X),(int)cimg::round(Y),(int)cimg::round(Z),c,0);
+            const float xc = x - rw2, yc = y - rh2, zc = z - rd2;
+            const int
+              X = cimg::mod((int)cimg::round(w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc),(float)width()),
+              Y = cimg::mod((int)cimg::round(h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc),(float)height()),
+              Z = cimg::mod((int)cimg::round(d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc),(float)depth());
+            cimg_forC(res,c) res(x,y,z,c) = (*this)(X,Y,Z,c);
           }
         }
         }

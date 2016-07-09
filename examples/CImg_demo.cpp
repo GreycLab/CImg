@@ -1357,7 +1357,7 @@ void* item_3d_reflection() {
          back_alpha = 0, back_beta = 0, back_theta = -3.0f,
          main_alpha = 0, main_beta = 0, main_theta = 0;
        !disp.is_closed() && !disp.is_keyQ() && !disp.is_keyESC();
-       main_alpha+=4.1f, main_beta+=6.3f, main_theta+=0.02f,
+       main_alpha+=2.1f, main_beta+=3.3f, main_theta+=0.02f,
          back_alpha+=0.31f, back_beta+=0.43f, back_theta+=0.01f) {
     const int
       main_X = (int)(visu.width()/2 + main_x + 100*std::cos(2.1*main_theta)),

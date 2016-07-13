@@ -71,7 +71,7 @@ void* item_rotozoom() {
   CImg<unsigned char> src = CImg<unsigned char>(data_milla,211,242,1,3,false).resize(400,300,1,3,3),
     img(src), img2(img);
   CImgDisplay disp(img.width(),img.height(),"[#2] - Rotozoom",0);
-  float alpha = 0, t = 0, angle = 0, zoom0 = -0.9f, w2 = 0.5*img.width(), h2 = 0.5*img.height();
+  float alpha = 0, t = 0, angle = 0, zoom0 = -0.9f, w2 = 0.5f*img.width(), h2 = 0.5f*img.height();
   const unsigned char color[] = { 16,32,64 };
 
   while (!disp.is_closed() && !disp.is_keyQ() && !disp.is_keyESC()) {
@@ -86,7 +86,7 @@ void* item_rotozoom() {
     }
     const float
       zoom = 1.0f + (float)(zoom0 + 0.3f*(1 + std::cos(3*t))),
-      rad = angle*cimg::PI/180, ca = std::cos(rad)/zoom, sa = std::sin(rad)/zoom;
+      rad = (float)(angle*cimg::PI/180), ca = (float)std::cos(rad)/zoom, sa = (float)std::sin(rad)/zoom;
     cimg_forXY(img,x,y) {
       const float
         cX = x - w2, cY = y - h2,
@@ -153,13 +153,14 @@ void* item_fractal_animation() {
                    noise.fill(0).noise(255,1));
     const float
       nzoom = (float)(1.04f + 0.02f*std::sin(zoom/10)),
-      rad = 10*std::sin(iter/25.0)*cimg::PI/180, ca = std::cos(rad)/nzoom, sa = std::sin(rad)/nzoom;
+      rad = (float)(10*std::sin(iter/25.0)*cimg::PI/180),
+      ca = (float)std::cos(rad)/nzoom, sa = (float)std::sin(rad)/nzoom;
     cimg_forXY(img,x,y) {
       const float
         cX = x - w2, cY = y - h2,
         X = w2 + cX*ca - cY*sa,
         Y = h2 + cX*sa + cY*ca;
-      cimg_forC(img,c) img2(x,y,c) = img.atXY(X,Y,0,c,0);
+      cimg_forC(img,c) img2(x,y,c) = img.atXY((int)X,(int)Y,0,c,0);
     }
     img2.swap(img).resize(disp.resize(false)).display(disp.wait(25));
     if (disp.is_keyCTRLLEFT() && disp.is_keyF()) disp.resize(400,400,false).toggle_fullscreen(false);

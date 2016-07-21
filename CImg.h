@@ -341,16 +341,6 @@
 #define cimg_appname "CImg"
 #endif
 
-// Configure Half library support.
-// (http://half.sourceforge.net/)
-//
-// Define 'cimg_use_half' to enable Half library support.
-//
-// 'CImg[List]<half>' classes may be used to store 16bits-float images.
-#ifdef cimg_use_half
-#include "half.hpp"
-#endif
-
 // Configure OpenMP support.
 // (http://www.openmp.org)
 //
@@ -4673,42 +4663,42 @@ namespace cimg_library_suffixed {
     template<typename t1, typename t2>
     inline typename cimg::superset<t1,t2>::type min(const t1& a, const t2& b) {
       typedef typename cimg::superset<t1,t2>::type t1t2;
-      return (t1t2)(a<=b?a:b);
+      return a<=b?(t1t2)a:(t1t2)b;
     }
 
     //! Return the minimum between three values.
     template<typename t1, typename t2, typename t3>
     inline typename cimg::superset2<t1,t2,t3>::type min(const t1& a, const t2& b, const t3& c) {
       typedef typename cimg::superset2<t1,t2,t3>::type t1t2t3;
-      return (t1t2t3)cimg::min(cimg::min(a,b),c);
+      return cimg::min(cimg::min((t1t2t3)a,(t1t2t3)b),(t1t2t3)c);
     }
 
     //! Return the minimum between four values.
     template<typename t1, typename t2, typename t3, typename t4>
     inline typename cimg::superset3<t1,t2,t3,t4>::type min(const t1& a, const t2& b, const t3& c, const t4& d) {
       typedef typename cimg::superset3<t1,t2,t3,t4>::type t1t2t3t4;
-      return (t1t2t3t4)cimg::min(cimg::min(a,b,c),d);
+      return cimg::min(cimg::min((t1t2t3t4)a,(t1t2t3t4)b,(t1t2t3t4)c),(t1t2t3t4)d);
     }
 
     //! Return the maximum between two values.
     template<typename t1, typename t2>
     inline typename cimg::superset<t1,t2>::type max(const t1& a, const t2& b) {
       typedef typename cimg::superset<t1,t2>::type t1t2;
-      return (t1t2)(a>=b?a:b);
+      return a>=b?(t1t2)a:(t1t2)b;
     }
 
     //! Return the maximum between three values.
     template<typename t1, typename t2, typename t3>
     inline typename cimg::superset2<t1,t2,t3>::type max(const t1& a, const t2& b, const t3& c) {
       typedef typename cimg::superset2<t1,t2,t3>::type t1t2t3;
-      return (t1t2t3)cimg::max(cimg::max(a,b),c);
+      return cimg::max(cimg::max((t1t2t3)a,(t1t2t3)b),(t1t2t3)c);
     }
 
     //! Return the maximum between four values.
     template<typename t1, typename t2, typename t3, typename t4>
     inline typename cimg::superset3<t1,t2,t3,t4>::type max(const t1& a, const t2& b, const t3& c, const t4& d) {
       typedef typename cimg::superset3<t1,t2,t3,t4>::type t1t2t3t4;
-      return (t1t2t3t4)cimg::max(cimg::max(a,b,c),d);
+      return cimg::max(cimg::max((t1t2t3t4)a,(t1t2t3t4)b,(t1t2t3t4)c),(t1t2t3t4)d);
     }
 
     //! Return the sign of a value.
@@ -31289,7 +31279,7 @@ namespace cimg_library_suffixed {
       M[8] = scaleM * a3 * (a1 + a3 * a2);
       switch (order) {
       case 0 : {
-	const double iplus = (boundary_conditions?data[(N - 1)*off]:0);
+	const double iplus = (boundary_conditions?data[(N - 1)*off]:(T)0);
 	for (int pass = 0; pass<2; ++pass) {
 	  if (!pass) {
 	    for (int k = 1; k<4; ++k) val[k] = (boundary_conditions?*data/sumsq:0);
@@ -31320,7 +31310,7 @@ namespace cimg_library_suffixed {
 	double x[3]; // [front,center,back]
 	for (int pass = 0; pass<2; ++pass) {
 	  if (!pass) {
-	    for (int k = 0; k<3; ++k) x[k] = (boundary_conditions?*data:0);
+	    for (int k = 0; k<3; ++k) x[k] = (boundary_conditions?*data:(T)0);
 	    for (int k = 0; k<4; ++k) val[k] = 0;
 	  } else {
 	    /* apply Triggs border condition */
@@ -31353,7 +31343,7 @@ namespace cimg_library_suffixed {
 	double x[3]; // [front,center,back]
 	for (int pass = 0; pass<2; ++pass) {
 	  if (!pass) {
-	    for (int k = 0; k<3; ++k) x[k] = (boundary_conditions?*data:0);
+	    for (int k = 0; k<3; ++k) x[k] = (boundary_conditions?*data:(T)0);
 	    for (int k = 0; k<4; ++k) val[k] = 0;
 	  } else {
 	    /* apply Triggs border condition */
@@ -31382,7 +31372,7 @@ namespace cimg_library_suffixed {
 	double x[3]; // [front,center,back]
 	for (int pass = 0; pass<2; ++pass) {
 	  if (!pass) {
-	    for (int k = 0; k<3; ++k) x[k] = (boundary_conditions?*data:0);
+	    for (int k = 0; k<3; ++k) x[k] = (boundary_conditions?*data:(T)0);
 	    for (int k = 0; k<4; ++k) val[k] = 0;
 	  } else {
 	    /* apply Triggs border condition */
@@ -34495,7 +34485,7 @@ namespace cimg_library_suffixed {
     // Locally solve eikonal equation.
     Tfloat __distance_eikonal(const CImg<Tfloat>& res, const Tfloat P,
                               const int x=0, const int y=0, const int z=0) const {
-      const T M = cimg::type<T>::max();
+      const Tfloat M = (Tfloat)cimg::type<T>::max();
       T T1 = (T)cimg::min(x - 1>=0?res(x - 1,y,z):M,x + 1<width()?res(x + 1,y,z):M);
       Tfloat root = 0;
       if (_depth>1) { // 3d.

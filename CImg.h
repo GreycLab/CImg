@@ -2785,14 +2785,14 @@ namespace cimg_library_suffixed {
     };
 
 #ifdef cimg_use_half
-    template<> struct type<half_float::half> {
+    template<> struct type<half> {
       static const char* string() { static const char *const s = "half"; return s; }
       static bool is_float() { return true; }
       static bool is_inf(const long double val) {
 #ifdef isinf
         return (bool)isinf(val);
 #else
-        return !is_nan(val) && (val<cimg::type<half_float::half>::min() || val>cimg::type<half_float::half>::max());
+        return !is_nan(val) && (val<cimg::type<half>::min() || val>cimg::type<half>::max());
 #endif
       }
       static bool is_nan(const long double val) {
@@ -2802,13 +2802,13 @@ namespace cimg_library_suffixed {
         return !(val==val);
 #endif
       }
-      static half_float::half min() { return (half_float::half)-65504; }
-      static half_float::half max() { return (half_float::half)65504; }
-      static half_float::half inf() { return max()*max(); }
-      static half_float::half nan() { const half_float::half val_nan = (half_float::half)-std::sqrt(-1.0); return val_nan; }
-      static half_float::half cut(const double val) { return (half_float::half)val; }
+      static half min() { return (half)-65504; }
+      static half max() { return (half)65504; }
+      static half inf() { return max()*max(); }
+      static half nan() { const half val_nan = (half)-std::sqrt(-1.0); return val_nan; }
+      static half cut(const double val) { return (half)val; }
       static const char* format() { return "%.16g"; }
-      static double format(const half_float::half val) { return (double)val; }
+      static double format(const half val) { return (double)val; }
     };
 #endif
 
@@ -2894,14 +2894,14 @@ namespace cimg_library_suffixed {
     template<> struct superset<cimg_int64,double> { typedef double type; };
     template<> struct superset<float,double> { typedef double type; };
 #ifdef cimg_use_half
-    template<> struct superset<half_float::half,unsigned short> { typedef float type; };
-    template<> struct superset<half_float::half,short> { typedef float type; };
-    template<> struct superset<half_float::half,unsigned int> { typedef float type; };
-    template<> struct superset<half_float::half,int> { typedef float type; };
-    template<> struct superset<half_float::half,cimg_uint64> { typedef float type; };
-    template<> struct superset<half_float::half,cimg_int64> { typedef float type; };
-    template<> struct superset<half_float::half,float> { typedef float type; };
-    template<> struct superset<half_float::half,double> { typedef double type; };
+    template<> struct superset<half,unsigned short> { typedef float type; };
+    template<> struct superset<half,short> { typedef float type; };
+    template<> struct superset<half,unsigned int> { typedef float type; };
+    template<> struct superset<half,int> { typedef float type; };
+    template<> struct superset<half,cimg_uint64> { typedef float type; };
+    template<> struct superset<half,cimg_int64> { typedef float type; };
+    template<> struct superset<half,float> { typedef float type; };
+    template<> struct superset<half,double> { typedef double type; };
 #endif
 
     template<typename t1, typename t2, typename t3> struct superset2 {
@@ -4599,8 +4599,8 @@ namespace cimg_library_suffixed {
     }
 
 #ifdef cimg_use_half
-    inline half_float::half rol(const half_float::half a, const unsigned int n=1) {
-      return (half_float::half)rol((int)a,n);
+    inline half rol(const half a, const unsigned int n=1) {
+      return (half)rol((int)a,n);
     }
 #endif
 
@@ -4623,8 +4623,8 @@ namespace cimg_library_suffixed {
     }
 
 #ifdef cimg_use_half
-    inline half_float::half ror(const half_float::half a, const unsigned int n=1) {
-      return (half_float::half)ror((int)a,n);
+    inline half ror(const half a, const unsigned int n=1) {
+      return (half)ror((int)a,n);
     }
 #endif
 

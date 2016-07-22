@@ -44501,6 +44501,7 @@ namespace cimg_library_suffixed {
       const char *const ext = cimg::split_filename(filename);
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
+      bool is_loaded = true;
       try {
 #ifdef cimg_load_plugin
         cimg_load_plugin(filename);
@@ -44604,13 +44605,13 @@ namespace cimg_library_suffixed {
                  !cimg::strcasecmp(ext,"wmv") ||
                  !cimg::strcasecmp(ext,"xvid") ||
                  !cimg::strcasecmp(ext,"mpeg")) load_video(filename);
-        else throw CImgIOException("CImg<%s>::load()",
-                                   pixel_type());
-      } catch (CImgIOException&) {
-        std::FILE *file = 0;
-        try {
-          file = cimg::fopen(filename,"rb");
-        } catch (CImgIOException&) {
+        else is_loaded = false;
+      } catch (CImgIOException&) { is_loaded = false; }
+
+      // If nothing loaded, try to guess file format from magic number in file.
+      if (!is_loaded) {
+        std::FILE *file = std::fopen(filename,"rb");
+        if (!file) {
           cimg::exception_mode(omode);
           throw CImgIOException(_cimg_instance
                                 "load(): Failed to open file '%s'.",
@@ -44618,9 +44619,10 @@ namespace cimg_library_suffixed {
                                 filename);
         }
 
+        const char *const f_type = cimg::ftype(file,filename);
+        std::fclose(file);
+        is_loaded = true;
         try {
-          const char *const f_type = cimg::ftype(file,filename);
-          std::fclose(file);
           if (!cimg::strcasecmp(f_type,"pnm")) load_pnm(filename);
           else if (!cimg::strcasecmp(f_type,"pfm")) load_pfm(filename);
           else if (!cimg::strcasecmp(f_type,"bmp")) load_bmp(filename);
@@ -44631,18 +44633,20 @@ namespace cimg_library_suffixed {
           else if (!cimg::strcasecmp(f_type,"tif")) load_tiff(filename);
           else if (!cimg::strcasecmp(f_type,"gif")) load_gif_external(filename);
           else if (!cimg::strcasecmp(f_type,"dcm")) load_medcon_external(filename);
-          else throw CImgIOException("CImg<%s>::load()",
-                                     pixel_type());
+          else is_loaded = false;
+        } catch (CImgIOException&) { is_loaded = false; }
+      }
+
+      // If nothing loaded, try to load file with other means.
+      if (!is_loaded) {
+        try {
+          load_other(filename);
         } catch (CImgIOException&) {
-          try {
-            load_other(filename);
-          } catch (CImgIOException&) {
-            cimg::exception_mode(omode);
-            throw CImgIOException(_cimg_instance
-                                  "load(): Failed to recognize format of file '%s'.",
-                                  cimg_instance,
-                                  filename);
-          }
+          cimg::exception_mode(omode);
+          throw CImgIOException(_cimg_instance
+                                "load(): Failed to recognize format of file '%s'.",
+                                cimg_instance,
+                                filename);
         }
       }
       cimg::exception_mode(omode);
@@ -53579,6 +53583,7 @@ namespace cimg_library_suffixed {
       const char *const ext = cimg::split_filename(filename);
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
+      bool is_loaded = true;
       try {
 #ifdef cimglist_load_plugin
         cimglist_load_plugin(filename);
@@ -53639,41 +53644,41 @@ namespace cimg_library_suffixed {
                  !cimg::strcasecmp(ext,"xvid") ||
                  !cimg::strcasecmp(ext,"mpeg")) load_video(filename);
         else if (!cimg::strcasecmp(ext,"gz")) load_gzip_external(filename);
-        else throw CImgIOException("CImgList<%s>::load()",
-                                   pixel_type());
-      } catch (CImgIOException&) {
-        std::FILE *file = 0;
-        if (!is_stdin) try {
-            file = cimg::fopen(filename,"rb");
-          } catch (CImgIOException&) {
-            cimg::exception_mode(omode);
-            throw CImgIOException(_cimglist_instance
-                                  "load(): Failed to open file '%s'.",
-                                  cimglist_instance,
-                                  filename);
-          }
+        else is_loaded = false;
+      } catch (CImgIOException&) { is_loaded = false; }
 
+      // If nothing loaded, try to guess file format from magic number in file.
+      if (!is_loaded && !is_stdin) {
+        std::FILE *const file = std::fopen(filename,"rb");
+        if (!file) {
+          cimg::exception_mode(omode);
+          throw CImgIOException(_cimglist_instance
+                                "load(): Failed to open file '%s'.",
+                                cimglist_instance,
+                                filename);
+        }
+
+        const char *const f_type = cimg::ftype(file,filename);
+        std::fclose(file);
+        is_loaded = true;
         try {
-          if (!is_stdin) {
-            const char *const f_type = cimg::ftype(file,filename);
-            std::fclose(file);
-            if (!cimg::strcasecmp(f_type,"gif")) load_gif_external(filename);
-            else if (!cimg::strcasecmp(f_type,"tif")) load_tiff(filename);
-            else throw CImgIOException("CImgList<%s>::load()",
-                                       pixel_type());
-          } else throw CImgIOException("CImgList<%s>::load()",
-                                       pixel_type());
+          if (!cimg::strcasecmp(f_type,"gif")) load_gif_external(filename);
+          else if (!cimg::strcasecmp(f_type,"tif")) load_tiff(filename);
+          else is_loaded = false;
+        } catch (CImgIOException&) { is_loaded = false; }
+      }
+
+      // If nothing loaded, try to load file as a single image.
+      if (!is_loaded) {
+        assign(1);
+        try {
+          _data->load(filename);
         } catch (CImgIOException&) {
-          assign(1);
-          try {
-            _data->load(filename);
-          } catch (CImgIOException&) {
-            cimg::exception_mode(omode);
+          cimg::exception_mode(omode);
           throw CImgIOException(_cimglist_instance
                                 "load(): Failed to recognize format of file '%s'.",
                                 cimglist_instance,
                                 filename);
-          }
         }
       }
       cimg::exception_mode(omode);

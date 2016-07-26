@@ -513,6 +513,19 @@ extern "C" {
 #include "ImfArray.h"
 #endif
 
+// Configure TinyEXR support.
+// (https://github.com/syoyo/tinyexr)
+//
+// Define 'cimg_use_tinyexr' to enable TinyEXR support.
+//
+// TinyEXR is a small, single header-only library to load and save OpenEXR(.exr) images.
+#ifdef cimg_use_tinyexr
+#ifndef TINYEXR_IMPLEMENTATION
+#define TINYEXR_IMPLEMENTATION
+#endif
+#include "tinyexr.h"
+#endif
+
 // Lapack configuration.
 // (http://www.netlib.org/lapack)
 //
@@ -46524,10 +46537,7 @@ namespace cimg_library_suffixed {
         throw CImgArgumentException(_cimg_instance
                                     "load_exr(): Specified filename is (null).",
                                     cimg_instance);
-
-#ifndef cimg_use_openexr
-      return load_other(filename);
-#else
+#if defined(cimg_use_openexr)
       Imf::RgbaInputFile file(filename);
       Imath::Box2i dw = file.dataWindow();
       const int
@@ -46545,8 +46555,20 @@ namespace cimg_library_suffixed {
         *(ptr_b++) = (T)pixels[y][x].b;
         *(ptr_a++) = (T)pixels[y][x].a;
       }
-      return *this;
+#elif defined(cimg_use_tinexr)
+      float *res;
+      const char *err = 0;
+      int width = 0, height = 0;
+      const int ret = LoadEXR(&res,&width,&height,filename,&err);
+      if (ret) throw CImgIOException(_cimg_instance
+                                     "load_exr(): Unable to load EXR file '%s'.",
+                                     cimg_instance,filename);
+      CImg<floatT>(out,4,width,height,1,true).get_permute_axes("yzcx").move_to(*this);
+      std::free(res);
+#else
+      return load_other(filename);
 #endif
+      return *this;
     }
 
     //! Load image from a EXR file \newinstance.

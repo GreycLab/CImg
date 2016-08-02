@@ -23910,7 +23910,9 @@ namespace cimg_library_suffixed {
 #ifdef cimg_use_openmp
                 cimg_pragma_openmp(parallel)
                 {
-                  _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
+                  _cimg_math_parser
+                    _mp = omp_get_thread_num()?mp:_cimg_math_parser(),
+                    &lmp = omp_get_thread_num()?_mp:mp;
                   cimg_pragma_openmp(for collapse(2))
                     cimg_forYZ(*this,y,z) cimg_abort_try {
                     cimg_abort_test();
@@ -23936,7 +23938,9 @@ namespace cimg_library_suffixed {
 #ifdef cimg_use_openmp
                 cimg_pragma_openmp(parallel)
                 {
-                  _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
+                  _cimg_math_parser
+                    _mp = omp_get_thread_num()?mp:_cimg_math_parser(),
+                    &lmp = omp_get_thread_num()?_mp:mp;
                   cimg_pragma_openmp(for collapse(3))
                     cimg_forYZC(*this,y,z,c) cimg_abort_try {
                     cimg_abort_test();
@@ -28710,7 +28714,8 @@ namespace cimg_library_suffixed {
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1), *ptrs2 = warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)cubic_atXYZ((float)*(ptrs0++),(float)*(ptrs1++),(float)*(ptrs2++),c,(T)0);
+                cimg_forX(res,x) *(ptrd++) = (T)cubic_atXYZ((float)*(ptrs0++),(float)*(ptrs1++),(float)*(ptrs2++),
+                                                            c,(T)0);
               }
           } else if (interpolation==1) { // Linear interpolation.
             if (boundary_conditions==2) // Periodic boundaries.
@@ -28734,7 +28739,8 @@ namespace cimg_library_suffixed {
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1), *ptrs2 = warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)linear_atXYZ((float)*(ptrs0++),(float)*(ptrs1++),(float)*(ptrs2++),c,(T)0);
+                cimg_forX(res,x) *(ptrd++) = (T)linear_atXYZ((float)*(ptrs0++),(float)*(ptrs1++),(float)*(ptrs2++),
+                                                             c,(T)0);
               }
           } else { // Nearest-neighbor interpolation.
             if (boundary_conditions==2) // Periodic boundaries.

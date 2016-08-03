@@ -56741,7 +56741,7 @@ namespace cimg {
 #endif
 
     // Sort resulting list by lexicographic order.
-  if (res._width>=2) std::qsort(res._data,res._width,sizeof(CImg<char>),_sort_files);
+    if (res._width>=2) std::qsort(res._data,res._width,sizeof(CImg<char>),_sort_files);
 
     return res;
   }

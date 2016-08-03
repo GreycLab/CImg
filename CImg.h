@@ -4195,7 +4195,7 @@ namespace cimg_library_suffixed {
       SYSTEM_INFO sysinfo;
       GetSystemInfo(&sysinfo);
       res = (unsigned int)sysinfo.dwNumberOfProcessors;
-#else
+#elif cimg_OS == 1
       res = (unsigned int)sysconf(_SC_NPROCESSORS_ONLN);
 #endif
       return res?res:1U;
@@ -56706,7 +56706,7 @@ namespace cimg {
     FindClose(dir);
 
     // Unix version (posix).
-#else
+#elif cimg_OS == 1
     DIR *const dir = opendir(is_root?"/":is_current?".":_path.data());
     if (!dir) return CImgList<char>::const_empty();
     struct dirent *ent;

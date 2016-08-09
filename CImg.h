@@ -2309,7 +2309,7 @@ namespace cimg_library_suffixed {
     /**
        The way openmp-based methods are handled by \CImg can be changed dynamically, using this function.
        \param mode Desired openmp mode. Possible values are:
-       - \c 0: Never parallelize (quiet mode).
+       - \c 0: Never parallelize.
        - \c 1: Always parallelize.
        - \c 2: Adaptive parallelization mode (default behavior).
      **/
@@ -24371,9 +24371,7 @@ namespace cimg_library_suffixed {
       T m, M = max_min(m);
       const Tfloat fm = (Tfloat)m, fM = (Tfloat)M;
       if (m==M) return fill(min_value);
-      if (m!=a || M!=b)
-        cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=65536))
-        cimg_rof(*this,ptrd,T) *ptrd = (T)((*ptrd - fm)/(fM - fm)*(b - a) + a);
+      if (m!=a || M!=b) cimg_rof(*this,ptrd,T) *ptrd = (T)((*ptrd - fm)/(fM - fm)*(b - a) + a);
       return *this;
     }
 

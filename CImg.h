@@ -30184,7 +30184,9 @@ namespace cimg_library_suffixed {
           mx2 = kernel.width()/2, my2 = kernel.height()/2, mz2 = kernel.depth()/2,
           mx1 = mx2 - 1 + (kernel.width()%2), my1 = my2 - 1 + (kernel.height()%2), mz1 = mz2 - 1 + (kernel.depth()%2),
           mxe = width() - mx2, mye = height() - my2, mze = depth() - mz2;
-        cimg_pragma_openmp(parallel for cimg_openmp_if(res._spectrum>=2))
+#if cimg_OS!=2
+        cimg_pragma_openmp(parallel for cimg_openmp_if(res._spectrum>=2)) // (Isn't stable on Windows)
+#endif
         cimg_forC(res,c) cimg_abort_try {
           cimg_abort_test();
           const CImg<T> _img = get_shared_channel(c%_spectrum);
@@ -30409,7 +30411,9 @@ namespace cimg_library_suffixed {
         mx1 = mx2 - 1 + (kernel.width()%2), my1 = my2 - 1 + (kernel.height()%2), mz1 = mz2 - 1 + (kernel.depth()%2),
         mxe = width() - mx2, mye = height() - my2, mze = depth() - mz2;
       cimg_abort_init;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(_spectrum>=2))
+#if cimg_OS!=2
+      cimg_pragma_openmp(parallel for cimg_openmp_if(_spectrum>=2)) // (Isn't stable on Windows)
+#endif
       cimg_forC(*this,c) cimg_abort_try {
         cimg_abort_test();
         const CImg<T> _img = get_shared_channel(c%_spectrum);
@@ -30700,7 +30704,9 @@ namespace cimg_library_suffixed {
         mx1 = mx2 - 1 + (kernel.width()%2), my1 = my2 - 1 + (kernel.height()%2), mz1 = mz2 - 1 + (kernel.depth()%2),
         mxe = width() - mx2, mye = height() - my2, mze = depth() - mz2;
       cimg_abort_init;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(_spectrum>=2))
+#if cimg_OS!=2
+      cimg_pragma_openmp(parallel for cimg_openmp_if(_spectrum>=2)) // (Isn't stable on Windows)
+#endif
       cimg_forC(*this,c) cimg_abort_try {
         cimg_abort_test();
         const CImg<T> _img = get_shared_channel(c%_spectrum);

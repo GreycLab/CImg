@@ -374,6 +374,8 @@
             Toulouse/France, from David Revoy.</a></li>
         <li><a href="img/postcard63.jpg" onclick="NewWindow(this.href,'name','420','320','yes');return false;">
             Konstanz/Germany, from S&eacute;bastien Fourey.</a></li>
+        <li><a href="img/postcard64.jpg" onclick="NewWindow(this.href,'name','320','420','yes');return false;">
+            Bilbao/Spain, from Patrick Wauters.</a></li>
         <br/><br/></li>
     </ul></li>
   </ul>

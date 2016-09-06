@@ -15456,7 +15456,7 @@ namespace cimg_library_suffixed {
             _cimg_mp_op("Operator '~'");
             arg1 = compile(ss1,se,depth1,0);
             if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_bitwise_not,arg1);
-            if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(~(ulongT)mem[arg1]);
+            if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(~(unsigned int)mem[arg1]);
             _cimg_mp_scalar1(mp_bitwise_not,arg1);
           }
         }
@@ -18115,7 +18115,8 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_bitwise_not(_cimg_math_parser& mp) {
-        return (double)~(ulongT)_mp_arg(2);
+        // Limit result to 32bits such that it can be entirely represented as a 'double'.
+        return (double)~(unsigned int)_mp_arg(2);
       }
 
       static double mp_bitwise_or(_cimg_math_parser& mp) {

@@ -25953,9 +25953,9 @@ namespace cimg_library_suffixed {
       return res;
     }
 
-    //! Convert pixel values from RGB to XYZ_709 color spaces.
+    //! Convert pixel values from RGB to XYZ color spaces.
     /**
-       \note Uses the standard D65 white point.
+       \note Use formula from the Wikipedia page : https://en.wikipedia.org/wiki/CIE_1931_color_space
     **/
     CImg<T>& RGBtoXYZ() {
       if (_spectrum!=3)
@@ -25969,19 +25969,19 @@ namespace cimg_library_suffixed {
           R = (Tfloat)*p1/255,
           G = (Tfloat)*p2/255,
           B = (Tfloat)*p3/255;
-        *(p1++) = (T)(0.412453f*R + 0.357580f*G + 0.180423f*B);
-        *(p2++) = (T)(0.212671f*R + 0.715160f*G + 0.072169f*B);
-        *(p3++) = (T)(0.019334f*R + 0.119193f*G + 0.950227f*B);
+        *(p1++) = (T)(2.7689*R + 1.7517*G + 1.1302*B);
+        *(p2++) = (T)(R + 4.5907*G + 0.0601*B);
+        *(p3++) = (T)(0.056508*G + 5.5943*B);
       }
       return *this;
     }
 
-    //! Convert pixel values from RGB to XYZ_709 color spaces \newinstance.
+    //! Convert pixel values from RGB to XYZ color spaces \newinstance.
     CImg<Tfloat> get_RGBtoXYZ() const {
       return CImg<Tfloat>(*this,false).RGBtoXYZ();
     }
 
-    //! Convert pixel values from XYZ_709 to RGB color spaces.
+    //! Convert pixel values from XYZ to RGB color spaces.
     CImg<T>& XYZtoRGB() {
       if (_spectrum!=3)
         throw CImgInstanceException(_cimg_instance
@@ -25993,23 +25993,20 @@ namespace cimg_library_suffixed {
         const Tfloat
           X = (Tfloat)*p1*255,
           Y = (Tfloat)*p2*255,
-          Z = (Tfloat)*p3*255,
-          R = 3.240479f*X  - 1.537150f*Y - 0.498535f*Z,
-          G = -0.969256f*X + 1.875992f*Y + 0.041556f*Z,
-          B = 0.055648f*X  - 0.204043f*Y + 1.057311f*Z;
-        *(p1++) = (T)(R<0?0:(R>255?255:R));
-        *(p2++) = (T)(G<0?0:(G>255?255:G));
-        *(p3++) = (T)(B<0?0:(B>255?255:B));
+          Z = (Tfloat)*p3*255;
+        *(p1++) = (T)(0.41847*X  - 0.15866*Y - 0.082835*Z);
+        *(p2++) = (T)(-0.091169*X + 0.25243*Y + 0.015708*Z),
+        *(p3++) = (T)(0.0009209*X  - 0.0025498*Y + 0.17860*Z);
       }
       return *this;
     }
 
-    //! Convert pixel values from XYZ_709 to RGB color spaces \newinstance.
+    //! Convert pixel values from XYZ to RGB color spaces \newinstance.
     CImg<Tuchar> get_XYZtoRGB() const {
       return CImg<Tuchar>(*this,false).XYZtoRGB();
     }
 
-    //! Convert pixel values from XYZ_709 to Lab color spaces.
+    //! Convert pixel values from XYZ to Lab color spaces.
     CImg<T>& XYZtoLab() {
 #define _cimg_Labf(x) ((x)>=0.008856f?(std::pow(x,(Tfloat)1/3)):(7.787f*(x) + 16.0f/116))
 
@@ -26039,12 +26036,12 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Convert pixel values from XYZ_709 to Lab color spaces \newinstance.
+    //! Convert pixel values from XYZ to Lab color spaces \newinstance.
     CImg<Tfloat> get_XYZtoLab() const {
       return CImg<Tfloat>(*this,false).XYZtoLab();
     }
 
-    //! Convert pixel values from Lab to XYZ_709 color spaces.
+    //! Convert pixel values from Lab to XYZ color spaces.
     CImg<T>& LabtoXYZ() {
 #define _cimg_Labfi(x) ((x)>=0.206893f?((x)*(x)*(x)):(((x)-16.0f/116)/7.787f))
 
@@ -26076,12 +26073,12 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Convert pixel values from Lab to XYZ_709 color spaces \newinstance.
+    //! Convert pixel values from Lab to XYZ color spaces \newinstance.
     CImg<Tfloat> get_LabtoXYZ() const {
       return CImg<Tfloat>(*this,false).LabtoXYZ();
     }
 
-    //! Convert pixel values from XYZ_709 to xyY color spaces.
+    //! Convert pixel values from XYZ to xyY color spaces.
     CImg<T>& XYZtoxyY() {
       if (_spectrum!=3)
         throw CImgInstanceException(_cimg_instance
@@ -26103,12 +26100,12 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Convert pixel values from XYZ_709 to xyY color spaces \newinstance.
+    //! Convert pixel values from XYZ to xyY color spaces \newinstance.
     CImg<Tfloat> get_XYZtoxyY() const {
       return CImg<Tfloat>(*this,false).XYZtoxyY();
     }
 
-    //! Convert pixel values from xyY pixels to XYZ_709 color spaces.
+    //! Convert pixel values from xyY pixels to XYZ color spaces.
     CImg<T>& xyYtoXYZ() {
       if (_spectrum!=3)
         throw CImgInstanceException(_cimg_instance
@@ -26129,7 +26126,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Convert pixel values from xyY pixels to XYZ_709 color spaces \newinstance.
+    //! Convert pixel values from xyY pixels to XYZ color spaces \newinstance.
     CImg<Tfloat> get_xyYtoXYZ() const {
       return CImg<Tfloat>(*this,false).xyYtoXYZ();
     }

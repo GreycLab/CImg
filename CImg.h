@@ -26008,27 +26008,22 @@ namespace cimg_library_suffixed {
 
     //! Convert pixel values from XYZ to Lab color spaces.
     CImg<T>& XYZtoLab() {
-#define _cimg_Labf(x) ((x)>=0.008856f?(std::pow(x,(Tfloat)1/3)):(7.787f*(x) + 16.0f/116))
+#define _cimg_Labf(x) ((x)>=0.008856?(std::pow(x,(Tfloat)1/3)):(7.787*(x) + 16./116))
 
       if (_spectrum!=3)
         throw CImgInstanceException(_cimg_instance
                                     "XYZtoLab(): Instance is not a XYZ image.",
                                     cimg_instance);
-
-      const Tfloat
-        Xn = (Tfloat)(0.412453f + 0.357580f + 0.180423f),
-        Yn = (Tfloat)(0.212671f + 0.715160f + 0.072169f),
-        Zn = (Tfloat)(0.019334f + 0.119193f + 0.950227f);
+      const CImg<Tfloat> white = CImg<Tfloat>(1,1,1,3,255).RGBtoXYZ();
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
       for (ulongT N = (ulongT)_width*_height*_depth; N; --N) {
         const Tfloat
-          X = (Tfloat)*p1,
-          Y = (Tfloat)*p2,
-          Z = (Tfloat)*p3,
-          XXn = X/Xn, YYn = Y/Yn, ZZn = Z/Zn,
-          fX = (Tfloat)_cimg_Labf(XXn),
-          fY = (Tfloat)_cimg_Labf(YYn),
-          fZ = (Tfloat)_cimg_Labf(ZZn);
+          X = (Tfloat)(*p1/white[0]),
+          Y = (Tfloat)(*p2/white[1]),
+          Z = (Tfloat)(*p3/white[2]),
+          fX = (Tfloat)_cimg_Labf(X),
+          fY = (Tfloat)_cimg_Labf(Y),
+          fZ = (Tfloat)_cimg_Labf(Z);
         *(p1++) = (T)cimg::max(0.0f,116*fY - 16);
         *(p2++) = (T)(500*(fX - fY));
         *(p3++) = (T)(200*(fY - fZ));
@@ -26043,17 +26038,13 @@ namespace cimg_library_suffixed {
 
     //! Convert pixel values from Lab to XYZ color spaces.
     CImg<T>& LabtoXYZ() {
-#define _cimg_Labfi(x) ((x)>=0.206893f?((x)*(x)*(x)):(((x)-16.0f/116)/7.787f))
+#define _cimg_Labfi(x) ((x)>=0.206893?((x)*(x)*(x)):(((x)-16./116)/7.787))
 
       if (_spectrum!=3)
         throw CImgInstanceException(_cimg_instance
                                     "LabtoXYZ(): Instance is not a Lab image.",
                                     cimg_instance);
-
-      const Tfloat
-        Xn = (Tfloat)(0.412453f + 0.357580f + 0.180423f),
-        Yn = (Tfloat)(0.212671f + 0.715160f + 0.072169f),
-        Zn = (Tfloat)(0.019334f + 0.119193f + 0.950227f);
+      const CImg<Tfloat> white = CImg<Tfloat>(1,1,1,3,255).RGBtoXYZ();
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
       for (ulongT N = (ulongT)_width*_height*_depth; N; --N) {
         const Tfloat
@@ -26061,14 +26052,14 @@ namespace cimg_library_suffixed {
           a = (Tfloat)*p2,
           b = (Tfloat)*p3,
           cY = (L + 16)/116,
-          Y = (Tfloat)(Yn*_cimg_Labfi(cY)),
+          Y = (Tfloat)(white[1]*_cimg_Labfi(cY)),
           cX = a/500 + cY,
-          X = (Tfloat)(Xn*_cimg_Labfi(cX)),
+          X = (Tfloat)(white[0]*_cimg_Labfi(cX)),
           cZ = cY - b/200,
-          Z = (Tfloat)(Zn*_cimg_Labfi(cZ));
-        *(p1++) = (T)(X);
-        *(p2++) = (T)(Y);
-        *(p3++) = (T)(Z);
+          Z = (Tfloat)(white[2]*_cimg_Labfi(cZ));
+        *(p1++) = (T)X;
+        *(p2++) = (T)Y;
+        *(p3++) = (T)Z;
       }
       return *this;
     }

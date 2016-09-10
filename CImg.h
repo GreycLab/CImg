@@ -26008,7 +26008,7 @@ namespace cimg_library_suffixed {
 
     //! Convert pixel values from XYZ to Lab color spaces.
     CImg<T>& XYZtoLab() {
-#define _cimg_Labf(x) ((x)>=0.008856?(std::pow(x,(Tfloat)1/3)):(7.787*(x) + 16./116))
+#define _cimg_Labf(x) (24389*(x)>216?std::pow(x,(Tfloat)1/3):(24389*(x)/27 + 16)/116)
 
       if (_spectrum!=3)
         throw CImgInstanceException(_cimg_instance
@@ -26038,8 +26038,6 @@ namespace cimg_library_suffixed {
 
     //! Convert pixel values from Lab to XYZ color spaces.
     CImg<T>& LabtoXYZ() {
-#define _cimg_Labfi(x) ((x)>=0.206893?((x)*(x)*(x)):(((x)-16./116)/7.787))
-
       if (_spectrum!=3)
         throw CImgInstanceException(_cimg_instance
                                     "LabtoXYZ(): Instance is not a Lab image.",
@@ -26052,14 +26050,14 @@ namespace cimg_library_suffixed {
           a = (Tfloat)*p2,
           b = (Tfloat)*p3,
           cY = (L + 16)/116,
-          Y = (Tfloat)(white[1]*_cimg_Labfi(cY)),
-          cX = a/500 + cY,
-          X = (Tfloat)(white[0]*_cimg_Labfi(cX)),
           cZ = cY - b/200,
-          Z = (Tfloat)(white[2]*_cimg_Labfi(cZ));
-        *(p1++) = (T)X;
-        *(p2++) = (T)Y;
-        *(p3++) = (T)Z;
+          cX = a/500 + cY,
+          X = (Tfloat)(24389*cX>216?cX*cX*cX:(116*cX - 16)*27/24389),
+          Y = (Tfloat)(27*L>216?cY*cY*cY:27*L/24389),
+          Z = (Tfloat)(24389*cZ>216?cZ*cZ*cZ:(116*cZ - 16)*27/24389);
+        *(p1++) = (T)(X*white[0]);
+        *(p2++) = (T)(Y*white[1]);
+        *(p3++) = (T)(Z*white[2]);
       }
       return *this;
     }

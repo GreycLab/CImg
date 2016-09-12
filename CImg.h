@@ -22829,14 +22829,16 @@ namespace cimg_library_suffixed {
                        cimg_instance);
 
           f = std::sqrt(f);
-          const double l1 = 0.5*(e-f), l2 = 0.5*(e+f);
-          const double theta1 = std::atan2(l2-a,b), theta2 = std::atan2(l1-a,b);
+          const double
+            l1 = 0.5*(e - f),
+            l2 = 0.5*(e + f),
+            b2 = b*b,
+            norm1 = std::sqrt(cimg::sqr(l2 - a) + b2),
+            norm2 = std::sqrt(cimg::sqr(l1 - a) + b2);
           val[0] = (t)l2;
           val[1] = (t)l1;
-          vec(0,0) = (t)std::cos(theta1);
-          vec(0,1) = (t)std::sin(theta1);
-          vec(1,0) = (t)std::cos(theta2);
-          vec(1,1) = (t)std::sin(theta2);
+          if (norm1>0) { vec(0,0) = (t)(b/norm1); vec(0,1) = (t)((l2 - a)/norm1); } else { vec(0,0) = 1; vec(0,1) = 0; }
+          if (norm2>0) { vec(1,0) = (t)(b/norm2); vec(1,1) = (t)((l1 - a)/norm2); } else { vec(1,0) = 1; vec(1,1) = 0; }
         } break;
         default :
           throw CImgInstanceException(_cimg_instance

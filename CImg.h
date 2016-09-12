@@ -4686,7 +4686,7 @@ namespace cimg_library_suffixed {
     // Specialization of cimg::min(), seems to be faster.
     template<typename t>
     inline t min(const t& a, const t& b) {
-#if cimg_use_cpp11
+#if cimg_use_cpp11==1
       return std::min(a,b);
 #else
       return a<=b?a:b;
@@ -4717,7 +4717,7 @@ namespace cimg_library_suffixed {
     // Specialization of cimg::max(), seems to be faster.
     template<typename t>
     inline t max(const t& a, const t& b) {
-#if cimg_use_cpp11
+#if cimg_use_cpp11==1
       return std::max(a,b);
 #else
       return a>=b?a:b;

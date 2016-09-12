@@ -193,6 +193,7 @@
 #if cimg_use_cpp11==1
 #include <initializer_list>
 #include <utility>
+#include <algorithm>
 #endif
 
 // Convenient macro to define pragma

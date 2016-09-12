@@ -4844,7 +4844,7 @@ namespace cimg_library_suffixed {
     }
 
     // Code to compute fast median from 9, 25 and 49 values.
-    // Submitted by Ingo Weyrich, and borrowed from RawTherapee code.
+    // (contribution by Ingo Weyrich).
     template<typename T>
     inline T median9(T val0, T val1, T val2, T val3, T val4, T val5, T val6, T val7, T val8) {
       T tmp = cimg::min(val1,val2);

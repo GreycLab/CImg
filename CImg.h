@@ -79,6 +79,7 @@
 #include <climits>
 #include <ctime>
 #include <exception>
+#include <algorithm>
 
 // Detect/configure OS variables.
 //
@@ -192,7 +193,6 @@
 #endif
 #if cimg_use_cpp11==1
 #include <initializer_list>
-#include <algorithm>
 #include <utility>
 #endif
 
@@ -4687,11 +4687,7 @@ namespace cimg_library_suffixed {
     // Specialization of cimg::min(), seems to be faster.
     template<typename t>
     inline t min(const t& a, const t& b) {
-#if cimg_use_cpp11==1
       return std::min(a,b);
-#else
-      return a<=b?a:b;
-#endif
     }
 
     //! Return the minimum between three values.
@@ -4718,11 +4714,7 @@ namespace cimg_library_suffixed {
     // Specialization of cimg::max(), seems to be faster.
     template<typename t>
     inline t max(const t& a, const t& b) {
-#if cimg_use_cpp11==1
       return std::max(a,b);
-#else
-      return a>=b?a:b;
-#endif
     }
 
     //! Return the maximum between three values.

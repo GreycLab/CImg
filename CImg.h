@@ -4683,14 +4683,10 @@ namespace cimg_library_suffixed {
       return a<=b?(t1t2)a:(t1t2)b;
     }
 
-    // Specialization of cimg::min(), seems to be optimized when C++11 is enabled.
+    // Specialization of cimg::min(), seems to be faster.
     template<typename t>
     inline t min(const t& a, const t& b) {
-#if cimg_use_cpp11==1
-      return std::min(a,b);
-#else
       return a<=b?a:b;
-#endif
     }
 
     //! Return the minimum between three values.
@@ -4714,14 +4710,10 @@ namespace cimg_library_suffixed {
       return a>=b?(t1t2)a:(t1t2)b;
     }
 
-    // Specialization of cimg::max(), seems to be optimized when C++11 is enabled.
+    // Specialization of cimg::max(), seems to be faster.
     template<typename t>
     inline t max(const t& a, const t& b) {
-#if cimg_use_cpp11==1
-      return std::max(a,b);
-#else
       return a>=b?a:b;
-#endif
     }
 
     //! Return the maximum between three values.

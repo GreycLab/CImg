@@ -183,10 +183,14 @@
 #endif
 
 // Look for C++11 features.
-#if !defined(cimg_use_cpp11) && __cplusplus>201100
+#ifndef cimg_use_cpp11
+#if __cplusplus>201100
 #define cimg_use_cpp11 1
+#else
+#define cimg_use_cpp11 0
 #endif
-#if defined(cimg_use_cpp11) && cimg_use_cpp11!=0
+#endif
+#if cimg_use_cpp11==1
 #include <initializer_list>
 #include <utility>
 #endif
@@ -4817,6 +4821,16 @@ namespace cimg_library_suffixed {
       return (T)(y*(rounding_type<0?floor:rounding_type>0?std::ceil(sx):delta<0.5?floor:std::ceil(sx)));
     }
 
+    //! Return x^(1/3).
+    template<typename T>
+    inline double cbrt(const T& x) {
+#if cimg_use_cpp11==1
+      return std::cbrt(x);
+#else
+      return x>=0?std::pow((double)x,1.0/3):-std::pow(-(double)x,1.0/3);
+#endif
+    }
+
     inline double _pythagore(double a, double b) {
       const double absa = cimg::abs(a), absb = cimg::abs(b);
       if (absa>absb) { const double tmp = absb/absa; return absa*std::sqrt(1.0 + tmp*tmp); }
@@ -5522,6 +5536,13 @@ namespace cimg_library_suffixed {
 #endif
                    cimg::t_normal);
 
+      std::fprintf(cimg::output(),"  > Support for C++11:      %s%-13s%s %s('cimg_use_cpp11'=%d)%s\n",
+                   cimg::t_bold,
+                   cimg_use_cpp11?"Yes":"No",
+                   cimg::t_normal,cimg::t_green,
+                   (int)cimg_use_cpp11,
+                   cimg::t_normal);
+
       std::fprintf(cimg::output(),"  > Using VT100 messages:   %s%-13s%s %s('cimg_use_vt100' %s)%s\n",
                    cimg::t_bold,
 #ifdef cimg_use_vt100
@@ -5535,7 +5556,7 @@ namespace cimg_library_suffixed {
                    cimg::t_bold,
                    cimg_display==0?"No display":cimg_display==1?"X11":cimg_display==2?"Windows GDI":"Unknown",
                    cimg::t_normal,cimg::t_green,
-                   cimg_display,
+                   (int)cimg_display,
                    cimg::t_normal);
 
 #if cimg_display==1
@@ -9603,7 +9624,7 @@ namespace cimg_library_suffixed {
       _CImg_stdarg(*this,value0,value1,(size_t)size_x*size_y*size_z*size_c,int);
     }
 
-#if defined(cimg_use_cpp11) && cimg_use_cpp11!=0
+#if cimg_use_cpp11==1
     //! Construct image with specified size and initialize pixel values from an initializer list of integers.
     /**
        Construct a new image instance of size \c size_x x \c size_y x \c size_z x \c size_c,
@@ -10059,7 +10080,7 @@ namespace cimg_library_suffixed {
 
     // Constructor and assignment operator for rvalue references (c++11).
     // This avoids an additional image copy for methods returning new images. Can save RAM for big images !
-#if defined(cimg_use_cpp11) && cimg_use_cpp11!=0
+#if cimg_use_cpp11==1
     CImg(CImg<T>&& img):_width(0),_height(0),_depth(0),_spectrum(0),_is_shared(false),_data(0) {
       swap(img);
     }
@@ -16037,7 +16058,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_op("Function 'cbrt()'");
               arg1 = compile(ss5,se1,depth1,0);
               if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_cbrt,arg1);
-              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(std::pow(mem[arg1],1.0/3));
+              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(cimg::cbrt(mem[arg1]));
               _cimg_mp_scalar1(mp_cbrt,arg1);
             }
 
@@ -18129,7 +18150,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_cbrt(_cimg_math_parser& mp) {
-        return std::pow(_mp_arg(2),1.0/3);
+        return cimg::cbrt(_mp_arg(2));
       }
 
       static double mp_complex_conj(_cimg_math_parser& mp) {
@@ -26008,7 +26029,7 @@ namespace cimg_library_suffixed {
 
     //! Convert pixel values from XYZ to Lab color spaces.
     CImg<T>& XYZtoLab() {
-#define _cimg_Labf(x) (24389*(x)>216?std::pow(x,(Tfloat)1/3):(24389*(x)/27 + 16)/116)
+#define _cimg_Labf(x) (24389*(x)>216?cimg::cbrt(x):(24389*(x)/27 + 16)/116)
 
       if (_spectrum!=3)
         throw CImgInstanceException(_cimg_instance

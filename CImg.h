@@ -4683,6 +4683,16 @@ namespace cimg_library_suffixed {
       return a<=b?(t1t2)a:(t1t2)b;
     }
 
+    // Specialization of cimg::min(), seems to be optimized when C++11 is enabled.
+    template<typename t>
+    inline t min(const t& a, const t& b) {
+#if cimg_use_cpp11==1
+      return std::min(a,b);
+#else
+      return a<=b?a:b;
+#endif
+    }
+
     //! Return the minimum between three values.
     template<typename t1, typename t2, typename t3>
     inline typename cimg::superset2<t1,t2,t3>::type min(const t1& a, const t2& b, const t3& c) {
@@ -4702,6 +4712,16 @@ namespace cimg_library_suffixed {
     inline typename cimg::superset<t1,t2>::type max(const t1& a, const t2& b) {
       typedef typename cimg::superset<t1,t2>::type t1t2;
       return a>=b?(t1t2)a:(t1t2)b;
+    }
+
+    // Specialization of cimg::max(), seems to be optimized when C++11 is enabled.
+    template<typename t>
+    inline t max(const t& a, const t& b) {
+#if cimg_use_cpp11==1
+      return std::max(a,b);
+#else
+      return a>=b?a:b;
+#endif
     }
 
     //! Return the maximum between three values.
@@ -4829,6 +4849,50 @@ namespace cimg_library_suffixed {
 #else
       return x>=0?std::pow((double)x,1.0/3):-std::pow(-(double)x,1.0/3);
 #endif
+    }
+
+    // Code to compute fast median from 9 values.
+    // Submitted by Ingo Weyrich, borrowed from RawTherapee code.
+    template<typename T>
+    inline T median9(T val0, T val1, T val2, T val3, T val4, T val5, T val6, T val7, T val8) {
+      T tmp = cimg::min(val1,val2);
+      val2 = cimg::max(val1,val2);
+      val1 = tmp;
+      tmp = cimg::min(val4,val5);
+      val5 = cimg::max(val4,val5);
+      val4 = tmp;
+      tmp = cimg::min(val7,val8);
+      val8 = cimg::max(val7,val8);
+      val7 = tmp;
+      tmp = cimg::min(val0,val1);
+      val1 = cimg::max(val0,val1);
+      val0 = tmp;
+      tmp = cimg::min(val3,val4);
+      val4 = cimg::max(val3,val4);
+      val3 = tmp;
+      tmp = cimg::min(val6,val7);
+      val7 = cimg::max(val6,val7);
+      val6 = tmp;
+      tmp = cimg::min(val1,val2);
+      val2 = cimg::max(val1,val2);
+      val1 = tmp;
+      tmp = cimg::min(val4,val5);
+      val5 = cimg::max(val4,val5);
+      val4 = tmp;
+      tmp = cimg::min(val7,val8);
+      val8 = cimg::max(val7,val8);
+      val3 = cimg::max(val0,val3);
+      val5 = cimg::min(val5,val8);
+      val7 = cimg::max(val4,tmp);
+      tmp = cimg::min(val4,tmp);
+      val6 = cimg::max(val3,val6);
+      val4 = cimg::max(val1,tmp);
+      val2 = cimg::min(val2,val5);
+      val4 = cimg::min(val4,val7);
+      tmp = cimg::min(val4,val2);
+      val2 = cimg::max(val4,val2);
+      val4 = cimg::max(val6,tmp);
+      return cimg::min(val4,val2);
     }
 
     inline double _pythagore(double a, double b) {
@@ -32601,18 +32665,7 @@ namespace cimg_library_suffixed {
               cimg_pragma_openmp(parallel for cimg_openmp_if(_spectrum>=2))
               cimg_forC(*this,c) {
                 T I[9] = { (T)0 };
-                CImg_3x3(J,T);
-                cimg_for3x3(*this,x,y,0,c,I,T) {
-                  std::memcpy(J,I,9*sizeof(T));
-                  _cimg_median_sort(Jcp, Jnp); _cimg_median_sort(Jcc, Jnc); _cimg_median_sort(Jcn, Jnn);
-                  _cimg_median_sort(Jpp, Jcp); _cimg_median_sort(Jpc, Jcc); _cimg_median_sort(Jpn, Jcn);
-                  _cimg_median_sort(Jcp, Jnp); _cimg_median_sort(Jcc, Jnc); _cimg_median_sort(Jcn, Jnn);
-                  _cimg_median_sort(Jpp, Jpc); _cimg_median_sort(Jnc, Jnn); _cimg_median_sort(Jcc, Jcn);
-                  _cimg_median_sort(Jpc, Jpn); _cimg_median_sort(Jcp, Jcc); _cimg_median_sort(Jnp, Jnc);
-                  _cimg_median_sort(Jcc, Jcn); _cimg_median_sort(Jcc, Jnp); _cimg_median_sort(Jpn, Jcc);
-                  _cimg_median_sort(Jcc, Jnp);
-                  res(x,y,c) = Jcc;
-                }
+                cimg_for3x3(*this,x,y,0,c,I,T) res(x,y,c) = cimg::median9(I[0],I[1],I[2],I[3],I[4],I[5],I[6],I[7],I[8]);
               }
             } break;
             case 5 : {

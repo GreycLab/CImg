@@ -8253,7 +8253,9 @@ namespace cimg_library_suffixed {
               (*ptrd++) = (unsigned char)*(data1++);
             break;
           case 2 : for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
-	      const unsigned char R = (unsigned char)*(data1++), G = (unsigned char)*(data2++);
+	      const unsigned char
+                R = (unsigned char)*(data1++),
+                G = (unsigned char)*(data2++);
 	      (*ptrd++) = (R&0xf0) | (G>>4);
 	    } break;
           default : for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
@@ -8279,36 +8281,42 @@ namespace cimg_library_suffixed {
             if (cimg::X11_attr().byte_order)
               for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                 const unsigned char val = (unsigned char)*(data1++), G = val>>2;
-                *(ptrd++) = (val&M) | (G>>3);
-                *(ptrd++) = (G<<5) | (G>>1);
+                ptrd[0] = (val&M) | (G>>3);
+                ptrd[1] = (G<<5) | (G>>1);
+                ptrd+=2;
               } else for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                 const unsigned char val = (unsigned char)*(data1++), G = val>>2;
-                *(ptrd++) = (G<<5) | (G>>1);
-                *(ptrd++) = (val&M) | (G>>3);
+                ptrd[0] = (G<<5) | (G>>1);
+                ptrd[1] = (val&M) | (G>>3);
+                ptrd+=2;
               }
             break;
           case 2 :
             if (cimg::X11_attr().byte_order)
               for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                 const unsigned char G = (unsigned char)*(data2++)>>2;
-                *(ptrd++) = ((unsigned char)*(data1++)&M) | (G>>3);
-                *(ptrd++) = (G<<5);
+                ptrd[0] = ((unsigned char)*(data1++)&M) | (G>>3);
+                ptrd[1] = (G<<5);
+                ptrd+=2;
               } else for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                 const unsigned char G = (unsigned char)*(data2++)>>2;
-                *(ptrd++) = (G<<5);
-                *(ptrd++) = ((unsigned char)*(data1++)&M) | (G>>3);
+                ptrd[0] = (G<<5);
+                ptrd[1] = ((unsigned char)*(data1++)&M) | (G>>3);
+                ptrd+=2;
               }
             break;
           default :
             if (cimg::X11_attr().byte_order)
               for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                 const unsigned char G = (unsigned char)*(data2++)>>2;
-                *(ptrd++) = ((unsigned char)*(data1++)&M) | (G>>3);
-                *(ptrd++) = (G<<5) | ((unsigned char)*(data3++)>>3);
+                ptrd[0] = ((unsigned char)*(data1++)&M) | (G>>3);
+                ptrd[1] = (G<<5) | ((unsigned char)*(data3++)>>3);
+                ptrd+=2;
               } else for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                 const unsigned char G = (unsigned char)*(data2++)>>2;
-                *(ptrd++) = (G<<5) | ((unsigned char)*(data3++)>>3);
-                *(ptrd++) = ((unsigned char)*(data1++)&M) | (G>>3);
+                ptrd[0] = (G<<5) | ((unsigned char)*(data3++)>>3);
+                ptrd[1] = ((unsigned char)*(data1++)&M) | (G>>3);
+                ptrd+=2;
               }
           }
           if (ndata!=_data) {
@@ -8358,38 +8366,43 @@ namespace cimg_library_suffixed {
             case 1 :
               if (cimg::X11_attr().byte_order)
                 for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
-                  *(ptrd++) = 0;
-                  *(ptrd++) = (unsigned char)*(data1++);
-                  *(ptrd++) = 0;
-                  *(ptrd++) = 0;
+                  ptrd[0] = 0;
+                  ptrd[1] = (unsigned char)*(data1++);
+                  ptrd[2] = 0;
+                  ptrd[3] = 0;
+                  ptrd+=4;
                 } else for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
-                  *(ptrd++) = 0;
-                  *(ptrd++) = 0;
-                  *(ptrd++) = (unsigned char)*(data1++);
-                  *(ptrd++) = 0;
+                  ptrd[0] = 0;
+                  ptrd[1] = 0;
+                  ptrd[2] = (unsigned char)*(data1++);
+                  ptrd[3] = 0;
+                  ptrd+=4;
                 }
               break;
             case 2 :
               if (cimg::X11_attr().byte_order) cimg::swap(data1,data2);
               for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
-                *(ptrd++) = 0;
-                *(ptrd++) = (unsigned char)*(data2++);
-                *(ptrd++) = (unsigned char)*(data1++);
-                *(ptrd++) = 0;
+                ptrd[0] = 0;
+                ptrd[1] = (unsigned char)*(data2++);
+                ptrd[2] = (unsigned char)*(data1++);
+                ptrd[3] = 0;
+                ptrd+=4;
               }
               break;
             default :
               if (cimg::X11_attr().byte_order)
                 for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
-                  *(ptrd++) = 0;
-                  *(ptrd++) = (unsigned char)*(data1++);
-                  *(ptrd++) = (unsigned char)*(data2++);
-                  *(ptrd++) = (unsigned char)*(data3++);
+                  ptrd[0] = 0;
+                  ptrd[1] = (unsigned char)*(data1++);
+                  ptrd[2] = (unsigned char)*(data2++);
+                  ptrd[3] = (unsigned char)*(data3++);
+                  ptrd+=4;
                 } else for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
-                  *(ptrd++) = (unsigned char)*(data3++);
-                  *(ptrd++) = (unsigned char)*(data2++);
-                  *(ptrd++) = (unsigned char)*(data1++);
-                  *(ptrd++) = 0;
+                  ptrd[0] = (unsigned char)*(data3++);
+                  ptrd[1] = (unsigned char)*(data2++);
+                  ptrd[2] = (unsigned char)*(data1++);
+                  ptrd[3] = 0;
+                  ptrd+=4;
                 }
             }
           }
@@ -8446,36 +8459,42 @@ namespace cimg_library_suffixed {
             if (cimg::X11_attr().byte_order)
               for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                 const unsigned char val = (unsigned char)((*(data1++) - _min)*mm), G = val>>2;
-                *(ptrd++) = (val&M) | (G>>3);
-                *(ptrd++) = (G<<5) | (val>>3);
+                ptrd[0] = (val&M) | (G>>3);
+                ptrd[1] = (G<<5) | (val>>3);
+                ptrd+=2;
               } else for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                 const unsigned char val = (unsigned char)((*(data1++) - _min)*mm), G = val>>2;
-                *(ptrd++) = (G<<5) | (val>>3);
-                *(ptrd++) = (val&M) | (G>>3);
+                ptrd[0] = (G<<5) | (val>>3);
+                ptrd[1] = (val&M) | (G>>3);
+                ptrd+=2;
               }
             break;
           case 2 :
             if (cimg::X11_attr().byte_order)
               for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                 const unsigned char G = (unsigned char)((*(data2++) - _min)*mm)>>2;
-                *(ptrd++) = ((unsigned char)((*(data1++) - _min)*mm)&M) | (G>>3);
-                *(ptrd++) = (G<<5);
+                ptrd[0] = ((unsigned char)((*(data1++) - _min)*mm)&M) | (G>>3);
+                ptrd[1] = (G<<5);
+                ptrd+=2;
               } else for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                 const unsigned char G = (unsigned char)((*(data2++) - _min)*mm)>>2;
-                *(ptrd++) = (G<<5);
-                *(ptrd++) = ((unsigned char)((*(data1++) - _min)*mm)&M) | (G>>3);
+                ptrd[0] = (G<<5);
+                ptrd[1] = ((unsigned char)((*(data1++) - _min)*mm)&M) | (G>>3);
+                ptrd+=2;
               }
             break;
           default :
             if (cimg::X11_attr().byte_order)
               for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                 const unsigned char G = (unsigned char)((*(data2++) - _min)*mm)>>2;
-                *(ptrd++) = ((unsigned char)((*(data1++) - _min)*mm)&M) | (G>>3);
-                *(ptrd++) = (G<<5) | ((unsigned char)((*(data3++) - _min)*mm)>>3);
+                ptrd[0] = ((unsigned char)((*(data1++) - _min)*mm)&M) | (G>>3);
+                ptrd[1] = (G<<5) | ((unsigned char)((*(data3++) - _min)*mm)>>3);
+                ptrd+=2;
               } else for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                 const unsigned char G = (unsigned char)((*(data2++) - _min)*mm)>>2;
-                *(ptrd++) = (G<<5) | ((unsigned char)((*(data3++) - _min)*mm)>>3);
-                *(ptrd++) = ((unsigned char)((*(data1++) - _min)*mm)&M) | (G>>3);
+                ptrd[0] = (G<<5) | ((unsigned char)((*(data3++) - _min)*mm)>>3);
+                ptrd[1] = ((unsigned char)((*(data1++) - _min)*mm)&M) | (G>>3);
+                ptrd+=2;
               }
           }
           if (ndata!=_data) {
@@ -8534,39 +8553,44 @@ namespace cimg_library_suffixed {
               if (cimg::X11_attr().byte_order)
                 for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                   const unsigned char val = (unsigned char)((*(data1++) - _min)*mm);
-                  (*ptrd++) = 0;
-                  (*ptrd++) = val;
-                  (*ptrd++) = val;
-                  (*ptrd++) = val;
+                  ptrd[0] = 0;
+                  ptrd[1] = val;
+                  ptrd[2] = val;
+                  ptrd[3] = val;
+                  ptrd+=4;
                 } else for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
                   const unsigned char val = (unsigned char)((*(data1++) - _min)*mm);
-                  (*ptrd++) = val;
-                  (*ptrd++) = val;
-                  (*ptrd++) = val;
-                  (*ptrd++) = 0;
+                  ptrd[0] = val;
+                  ptrd[1] = val;
+                  ptrd[2] = val;
+                  ptrd[3] = 0;
+                  ptrd+=4;
                 }
               break;
             case 2 :
               if (cimg::X11_attr().byte_order) cimg::swap(data1,data2);
               for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
-                (*ptrd++) = 0;
-                (*ptrd++) = (unsigned char)((*(data2++) - _min)*mm);
-                (*ptrd++) = (unsigned char)((*(data1++) - _min)*mm);
-                (*ptrd++) = 0;
+                ptrd[0] = 0;
+                ptrd[1] = (unsigned char)((*(data2++) - _min)*mm);
+                ptrd[2] = (unsigned char)((*(data1++) - _min)*mm);
+                ptrd[3] = 0;
+                ptrd+=4;
               }
               break;
             default :
               if (cimg::X11_attr().byte_order)
                 for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
-                  (*ptrd++) = 0;
-                  (*ptrd++) = (unsigned char)((*(data1++) - _min)*mm);
-                  (*ptrd++) = (unsigned char)((*(data2++) - _min)*mm);
-                  (*ptrd++) = (unsigned char)((*(data3++) - _min)*mm);
+                  ptrd[0] = 0;
+                  ptrd[1] = (unsigned char)((*(data1++) - _min)*mm);
+                  ptrd[2] = (unsigned char)((*(data2++) - _min)*mm);
+                  ptrd[3] = (unsigned char)((*(data3++) - _min)*mm);
+                  ptrd+=4;
                 } else for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
-                  (*ptrd++) = (unsigned char)((*(data3++) - _min)*mm);
-                  (*ptrd++) = (unsigned char)((*(data2++) - _min)*mm);
-                  (*ptrd++) = (unsigned char)((*(data1++) - _min)*mm);
-                  (*ptrd++) = 0;
+                  ptrd[0] = (unsigned char)((*(data3++) - _min)*mm);
+                  ptrd[1] = (unsigned char)((*(data2++) - _min)*mm);
+                  ptrd[2] = (unsigned char)((*(data1++) - _min)*mm);
+                  ptrd[3] = 0;
+                  ptrd+=4;
                 }
             }
           }
@@ -8602,12 +8626,18 @@ namespace cimg_library_suffixed {
       } break;
       case 16 : {
         if (cimg::X11_attr().byte_order) for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
-          const unsigned char val0 = *(ptrs++), val1 = *(ptrs++);
+          const unsigned char
+            val0 = ptrs[0],
+            val1 = ptrs[1];
+          ptrs+=2;
           *(data1++) = (T)(val0&0xf8);
           *(data2++) = (T)((val0<<5) | ((val1&0xe0)>>5));
           *(data3++) = (T)(val1<<3);
           } else for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
-          const unsigned short val0 = *(ptrs++), val1 = *(ptrs++);
+          const unsigned short
+            val0 = ptrs[0],
+            val1 = ptrs[1];
+          ptrs+=2;
           *(data1++) = (T)(val1&0xf8);
           *(data2++) = (T)((val1<<5) | ((val0&0xe0)>>5));
           *(data3++) = (T)(val0<<3);
@@ -8616,13 +8646,15 @@ namespace cimg_library_suffixed {
       default : {
         if (cimg::X11_attr().byte_order) for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
           ++ptrs;
-          *(data1++) = (T)*(ptrs++);
-          *(data2++) = (T)*(ptrs++);
-          *(data3++) = (T)*(ptrs++);
+          *(data1++) = (T)ptrs[0];
+          *(data2++) = (T)ptrs[1];
+          *(data3++) = (T)ptrs[2];
+          ptrs+=3;
           } else for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
-            *(data3++) = (T)*(ptrs++);
-            *(data2++) = (T)*(ptrs++);
-            *(data1++) = (T)*(ptrs++);
+            *(data3++) = (T)ptrs[0];
+            *(data2++) = (T)ptrs[1];
+            *(data1++) = (T)ptrs[2];
+            ptrs+=3;
             ++ptrs;
           }
       }
@@ -27720,13 +27752,18 @@ namespace cimg_library_suffixed {
           case 2 : {
             t *ptr_r = res.data(0,0,0,0), *ptr_g = res.data(0,0,0,1);
             for (unsigned int siz = _height*_depth*_spectrum; siz; --siz) {
-              *(ptr_r++) = (t)*(ptrs++); *(ptr_g++) = (t)*(ptrs++);
+              *(ptr_r++) = (t)ptrs[0];
+              *(ptr_g++) = (t)ptrs[1];
+              ptrs+=2;
             }
           } break;
           case 3 : { // Optimization for the classical conversion from interleaved RGB to planar RGB
             t *ptr_r = res.data(0,0,0,0), *ptr_g = res.data(0,0,0,1), *ptr_b = res.data(0,0,0,2);
             for (unsigned int siz = _height*_depth*_spectrum; siz; --siz) {
-              *(ptr_r++) = (t)*(ptrs++); *(ptr_g++) = (t)*(ptrs++); *(ptr_b++) = (t)*(ptrs++);
+              *(ptr_r++) = (t)ptrs[0];
+              *(ptr_g++) = (t)ptrs[1];
+              *(ptr_b++) = (t)ptrs[2];
+              ptrs+=3;
             }
           } break;
           case 4 : { // Optimization for the classical conversion from interleaved RGBA to planar RGBA
@@ -27734,8 +27771,11 @@ namespace cimg_library_suffixed {
               *ptr_r = res.data(0,0,0,0), *ptr_g = res.data(0,0,0,1),
               *ptr_b = res.data(0,0,0,2), *ptr_a = res.data(0,0,0,3);
             for (unsigned int siz = _height*_depth*_spectrum; siz; --siz) {
-              *(ptr_r++) = (t)*(ptrs++); *(ptr_g++) = (t)*(ptrs++);
-              *(ptr_b++) = (t)*(ptrs++); *(ptr_a++) = (t)*(ptrs++);
+              *(ptr_r++) = (t)ptrs[0];
+              *(ptr_g++) = (t)ptrs[1];
+              *(ptr_b++) = (t)ptrs[2];
+              *(ptr_a++) = (t)ptrs[3];
+              ptrs+=4;
             }
           } break;
           default : {
@@ -27797,22 +27837,30 @@ namespace cimg_library_suffixed {
             const T *ptr_r = data(0,0,0,0), *ptr_g = data(0,0,0,1);
             t *ptrd = res._data;
             for (ulongT siz = (ulongT)_width*_height*_depth; siz; --siz) {
-              *(ptrd++) = (t)*(ptr_r++); *(ptrd++) = (t)*(ptr_g++);
+              ptrd[0] = (t)*(ptr_r++);
+              ptrd[1] = (t)*(ptr_g++);
+              ptrd+=2;
             }
           } break;
           case 3 : { // Optimization for the classical conversion from planar RGB to interleaved RGB
             const T *ptr_r = data(0,0,0,0), *ptr_g = data(0,0,0,1), *ptr_b = data(0,0,0,2);
             t *ptrd = res._data;
             for (ulongT siz = (ulongT)_width*_height*_depth; siz; --siz) {
-              *(ptrd++) = (t)*(ptr_r++); *(ptrd++) = (t)*(ptr_g++); *(ptrd++) = (t)*(ptr_b++);
+              ptrd[0] = (t)*(ptr_r++);
+              ptrd[1] = (t)*(ptr_g++);
+              ptrd[2] = (t)*(ptr_b++);
+              ptrd+=3;
             }
           } break;
           case 4 : { // Optimization for the classical conversion from planar RGBA to interleaved RGBA
             const T *ptr_r = data(0,0,0,0), *ptr_g = data(0,0,0,1), *ptr_b = data(0,0,0,2), *ptr_a = data(0,0,0,3);
             t *ptrd = res._data;
             for (ulongT siz = (ulongT)_width*_height*_depth; siz; --siz) {
-              *(ptrd++) = (t)*(ptr_r++); *(ptrd++) = (t)*(ptr_g++);
-              *(ptrd++) = (t)*(ptr_b++); *(ptrd++) = (t)*(ptr_a++);
+              ptrd[0] = (t)*(ptr_r++);
+              ptrd[1] = (t)*(ptr_g++);
+              ptrd[2] = (t)*(ptr_b++);
+              ptrd[3] = (t)*(ptr_a++);
+              ptrd+=4;
             }
           } break;
           default : {

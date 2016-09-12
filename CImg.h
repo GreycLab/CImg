@@ -4843,7 +4843,7 @@ namespace cimg_library_suffixed {
 #endif
     }
 
-    // Code to compute fast median from 9 values.
+    // Code to compute fast median from 9 and 25 values.
     // Submitted by Ingo Weyrich, borrowed from RawTherapee code.
     template<typename T>
     inline T median9(T val0, T val1, T val2, T val3, T val4, T val5, T val6, T val7, T val8) {
@@ -4885,6 +4885,222 @@ namespace cimg_library_suffixed {
       val2 = cimg::max(val4,val2);
       val4 = cimg::max(val6,tmp);
       return cimg::min(val4,val2);
+    }
+
+    template<typename T>
+    inline T median25(T val0, T val1, T val2, T val3, T val4,
+                      T val5, T val6, T val7, T val8, T val9,
+                      T val10, T val11, T val12, T val13, T val14,
+                      T val15, T val16, T val17, T val18, T val19,
+                      T val20, T val21, T val22, T val23, T val24) {
+      T tmp = std::min(val0,val1);
+      val1 = std::max(val0,val1);
+      val0 = tmp;
+      tmp = std::min(val3,val4);
+      val4 = std::max(val3,val4);
+      val3 = tmp;
+      tmp = std::min(val2,val4);
+      val4 = std::max(val2,val4);
+      val2 = std::min(tmp,val3);
+      val3 = std::max(tmp,val3);
+      tmp = std::min(val6,val7);
+      val7 = std::max(val6,val7);
+      val6 = tmp;
+      tmp = std::min(val5,val7);
+      val7 = std::max(val5,val7);
+      val5 = std::min(tmp,val6);
+      val6 = std::max(tmp,val6);
+      tmp = std::min(val9,val10);
+      val10 = std::max(val9,val10);
+      val9 = tmp;
+      tmp = std::min(val8,val10);
+      val10 = std::max(val8,val10);
+      val8 = std::min(tmp,val9);
+      val9 = std::max(tmp,val9);
+      tmp = std::min(val12,val13);
+      val13 = std::max(val12,val13);
+      val12 = tmp;
+      tmp = std::min(val11,val13);
+      val13 = std::max(val11,val13);
+      val11 = std::min(tmp,val12);
+      val12 = std::max(tmp,val12);
+      tmp = std::min(val15,val16);
+      val16 = std::max(val15,val16);
+      val15 = tmp;
+      tmp = std::min(val14,val16);
+      val16 = std::max(val14,val16);
+      val14 = std::min(tmp,val15);
+      val15 = std::max(tmp,val15);
+      tmp = std::min(val18,val19);
+      val19 = std::max(val18,val19);
+      val18 = tmp;
+      tmp = std::min(val17,val19);
+      val19 = std::max(val17,val19);
+      val17 = std::min(tmp,val18);
+      val18 = std::max(tmp,val18);
+      tmp = std::min(val21,val22);
+      val22 = std::max(val21,val22);
+      val21 = tmp;
+      tmp = std::min(val20,val22);
+      val22 = std::max(val20,val22);
+      val20 = std::min(tmp,val21);
+      val21 = std::max(tmp,val21);
+      tmp = std::min(val23,val24);
+      val24 = std::max(val23,val24);
+      val23 = tmp;
+      tmp = std::min(val2,val5);
+      val5 = std::max(val2,val5);
+      val2 = tmp;
+      tmp = std::min(val3,val6);
+      val6 = std::max(val3,val6);
+      val3 = tmp;
+      tmp = std::min(val0,val6);
+      val6 = std::max(val0,val6);
+      val0 = std::min(tmp,val3);
+      val3 = std::max(tmp,val3);
+      tmp = std::min(val4,val7);
+      val7 = std::max(val4,val7);
+      val4 = tmp;
+      tmp = std::min(val1,val7);
+      val7 = std::max(val1,val7);
+      val1 = std::min(tmp,val4);
+      val4 = std::max(tmp,val4);
+      tmp = std::min(val11,val14);
+      val14 = std::max(val11,val14);
+      val11 = tmp;
+      tmp = std::min(val8,val14);
+      val14 = std::max(val8,val14);
+      val8 = std::min(tmp,val11);
+      val11 = std::max(tmp,val11);
+      tmp = std::min(val12,val15);
+      val15 = std::max(val12,val15);
+      val12 = tmp;
+      tmp = std::min(val9,val15);
+      val15 = std::max(val9,val15);
+      val9 = std::min(tmp,val12);
+      val12 = std::max(tmp,val12);
+      tmp = std::min(val13,val16);
+      val16 = std::max(val13,val16);
+      val13 = tmp;
+      tmp = std::min(val10,val16);
+      val16 = std::max(val10,val16);
+      val10 = std::min(tmp,val13);
+      val13 = std::max(tmp,val13);
+      tmp = std::min(val20,val23);
+      val23 = std::max(val20,val23);
+      val20 = tmp;
+      tmp = std::min(val17,val23);
+      val23 = std::max(val17,val23);
+      val17 = std::min(tmp,val20);
+      val20 = std::max(tmp,val20);
+      tmp = std::min(val21,val24);
+      val24 = std::max(val21,val24);
+      val21 = tmp;
+      tmp = std::min(val18,val24);
+      val24 = std::max(val18,val24);
+      val18 = std::min(tmp,val21);
+      val21 = std::max(tmp,val21);
+      tmp = std::min(val19,val22);
+      val22 = std::max(val19,val22);
+      val19 = tmp;
+      val17 = std::max(val8,val17);
+      tmp = std::min(val9,val18);
+      val18 = std::max(val9,val18);
+      val9 = tmp;
+      tmp = std::min(val0,val18);
+      val18 = std::max(val0,val18);
+      val9 = std::max(tmp,val9);
+      tmp = std::min(val10,val19);
+      val19 = std::max(val10,val19);
+      val10 = tmp;
+      tmp = std::min(val1,val19);
+      val19 = std::max(val1,val19);
+      val1 = std::min(tmp,val10);
+      val10 = std::max(tmp,val10);
+      tmp = std::min(val11,val20);
+      val20 = std::max(val11,val20);
+      val11 = tmp;
+      tmp = std::min(val2,val20);
+      val20 = std::max(val2,val20);
+      val11 = std::max(tmp,val11);
+      tmp = std::min(val12,val21);
+      val21 = std::max(val12,val21);
+      val12 = tmp;
+      tmp = std::min(val3,val21);
+      val21 = std::max(val3,val21);
+      val3 = std::min(tmp,val12);
+      val12 = std::max(tmp,val12);
+      tmp = std::min(val13,val22);
+      val22 = std::max(val13,val22);
+      val4 = std::min(val4,val22);
+      val13 = std::max(val4,tmp);
+      tmp = std::min(val4,tmp);
+      val4 = tmp;
+      tmp = std::min(val14,val23);
+      val23 = std::max(val14,val23);
+      val14 = tmp;
+      tmp = std::min(val5,val23);
+      val23 = std::max(val5,val23);
+      val5 = std::min(tmp,val14);
+      val14 = std::max(tmp,val14);
+      tmp = std::min(val15,val24);
+      val24 = std::max(val15,val24);
+      val15 = tmp;
+      val6 = std::min(val6,val24);
+      tmp = std::min(val6,val15);
+      val15 = std::max(val6,val15);
+      val6 = tmp;
+      tmp = std::min(val7,val16);
+      val7 = std::min(tmp,val19);
+      tmp = std::min(val13,val21);
+      val15 = std::min(val15,val23);
+      tmp = std::min(val7,tmp);
+      val7 = std::min(tmp,val15);
+      val9 = std::max(val1,val9);
+      val11 = std::max(val3,val11);
+      val17 = std::max(val5,val17);
+      val17 = std::max(val11,val17);
+      val17 = std::max(val9,val17);
+      tmp = std::min(val4,val10);
+      val10 = std::max(val4,val10);
+      val4 = tmp;
+      tmp = std::min(val6,val12);
+      val12 = std::max(val6,val12);
+      val6 = tmp;
+      tmp = std::min(val7,val14);
+      val14 = std::max(val7,val14);
+      val7 = tmp;
+      tmp = std::min(val4,val6);
+      val6 = std::max(val4,val6);
+      val7 = std::max(tmp,val7);
+      tmp = std::min(val12,val14);
+      val14 = std::max(val12,val14);
+      val12 = tmp;
+      val10 = std::min(val10,val14);
+      tmp = std::min(val6,val7);
+      val7 = std::max(val6,val7);
+      val6 = tmp;
+      tmp = std::min(val10,val12);
+      val12 = std::max(val10,val12);
+      val10 = std::max(val6,tmp);
+      tmp = std::min(val6,tmp);
+      val17 = std::max(tmp,val17);
+      tmp = std::min(val12,val17);
+      val17 = std::max(val12,val17);
+      val12 = tmp;
+      val7 = std::min(val7,val17);
+      tmp = std::min(val7,val10);
+      val10 = std::max(val7,val10);
+      val7 = tmp;
+      tmp = std::min(val12,val18);
+      val18 = std::max(val12,val18);
+      val12 = std::max(val7,tmp);
+      val10 = std::min(val10,val18);
+      tmp = std::min(val12,val20);
+      val20 = std::max(val12,val20);
+      val12 = tmp;
+      tmp = std::min(val10,val20);
+      return std::max(tmp,val12);
     }
 
     inline double _pythagore(double a, double b) {
@@ -32657,7 +32873,8 @@ namespace cimg_library_suffixed {
               cimg_pragma_openmp(parallel for cimg_openmp_if(_spectrum>=2))
               cimg_forC(*this,c) {
                 T I[9] = { (T)0 };
-                cimg_for3x3(*this,x,y,0,c,I,T) res(x,y,c) = cimg::median9(I[0],I[1],I[2],I[3],I[4],I[5],I[6],I[7],I[8]);
+                cimg_for3x3(*this,x,y,0,c,I,T)
+                  res(x,y,c) = cimg::median9(I[0],I[1],I[2],I[3],I[4],I[5],I[6],I[7],I[8]);
               }
             } break;
             case 5 : {
@@ -32665,43 +32882,12 @@ namespace cimg_library_suffixed {
               cimg_forC(*this,c) {
                 T I[25] = { (T)0 };
                 CImg_5x5(J,T);
-                cimg_for5x5(*this,x,y,0,c,I,T) {
-                  std::memcpy(J,I,25*sizeof(T));
-                  _cimg_median_sort(Jbb,Jpb); _cimg_median_sort(Jnb,Jab); _cimg_median_sort(Jcb,Jab);
-                  _cimg_median_sort(Jcb,Jnb); _cimg_median_sort(Jpp,Jcp); _cimg_median_sort(Jbp,Jcp);
-                  _cimg_median_sort(Jbp,Jpp); _cimg_median_sort(Jap,Jbc); _cimg_median_sort(Jnp,Jbc);
-                  _cimg_median_sort(Jnp,Jap); _cimg_median_sort(Jcc,Jnc); _cimg_median_sort(Jpc,Jnc);
-                  _cimg_median_sort(Jpc,Jcc); _cimg_median_sort(Jbn,Jpn); _cimg_median_sort(Jac,Jpn);
-                  _cimg_median_sort(Jac,Jbn); _cimg_median_sort(Jnn,Jan); _cimg_median_sort(Jcn,Jan);
-                  _cimg_median_sort(Jcn,Jnn); _cimg_median_sort(Jpa,Jca); _cimg_median_sort(Jba,Jca);
-                  _cimg_median_sort(Jba,Jpa); _cimg_median_sort(Jna,Jaa); _cimg_median_sort(Jcb,Jbp);
-                  _cimg_median_sort(Jnb,Jpp); _cimg_median_sort(Jbb,Jpp); _cimg_median_sort(Jbb,Jnb);
-                  _cimg_median_sort(Jab,Jcp); _cimg_median_sort(Jpb,Jcp); _cimg_median_sort(Jpb,Jab);
-                  _cimg_median_sort(Jpc,Jac); _cimg_median_sort(Jnp,Jac); _cimg_median_sort(Jnp,Jpc);
-                  _cimg_median_sort(Jcc,Jbn); _cimg_median_sort(Jap,Jbn); _cimg_median_sort(Jap,Jcc);
-                  _cimg_median_sort(Jnc,Jpn); _cimg_median_sort(Jbc,Jpn); _cimg_median_sort(Jbc,Jnc);
-                  _cimg_median_sort(Jba,Jna); _cimg_median_sort(Jcn,Jna); _cimg_median_sort(Jcn,Jba);
-                  _cimg_median_sort(Jpa,Jaa); _cimg_median_sort(Jnn,Jaa); _cimg_median_sort(Jnn,Jpa);
-                  _cimg_median_sort(Jan,Jca); _cimg_median_sort(Jnp,Jcn); _cimg_median_sort(Jap,Jnn);
-                  _cimg_median_sort(Jbb,Jnn); _cimg_median_sort(Jbb,Jap); _cimg_median_sort(Jbc,Jan);
-                  _cimg_median_sort(Jpb,Jan); _cimg_median_sort(Jpb,Jbc); _cimg_median_sort(Jpc,Jba);
-                  _cimg_median_sort(Jcb,Jba); _cimg_median_sort(Jcb,Jpc); _cimg_median_sort(Jcc,Jpa);
-                  _cimg_median_sort(Jnb,Jpa); _cimg_median_sort(Jnb,Jcc); _cimg_median_sort(Jnc,Jca);
-                  _cimg_median_sort(Jab,Jca); _cimg_median_sort(Jab,Jnc); _cimg_median_sort(Jac,Jna);
-                  _cimg_median_sort(Jbp,Jna); _cimg_median_sort(Jbp,Jac); _cimg_median_sort(Jbn,Jaa);
-                  _cimg_median_sort(Jpp,Jaa); _cimg_median_sort(Jpp,Jbn); _cimg_median_sort(Jcp,Jpn);
-                  _cimg_median_sort(Jcp,Jan); _cimg_median_sort(Jnc,Jpa); _cimg_median_sort(Jbn,Jna);
-                  _cimg_median_sort(Jcp,Jnc); _cimg_median_sort(Jcp,Jbn); _cimg_median_sort(Jpb,Jap);
-                  _cimg_median_sort(Jnb,Jpc); _cimg_median_sort(Jbp,Jcn); _cimg_median_sort(Jpc,Jcn);
-                  _cimg_median_sort(Jap,Jcn); _cimg_median_sort(Jab,Jbc); _cimg_median_sort(Jpp,Jcc);
-                  _cimg_median_sort(Jcp,Jac); _cimg_median_sort(Jab,Jpp); _cimg_median_sort(Jab,Jcp);
-                  _cimg_median_sort(Jcc,Jac); _cimg_median_sort(Jbc,Jac); _cimg_median_sort(Jpp,Jcp);
-                  _cimg_median_sort(Jbc,Jcc); _cimg_median_sort(Jpp,Jbc); _cimg_median_sort(Jpp,Jcn);
-                  _cimg_median_sort(Jcc,Jcn); _cimg_median_sort(Jcp,Jcn); _cimg_median_sort(Jcp,Jbc);
-                  _cimg_median_sort(Jcc,Jnn); _cimg_median_sort(Jcp,Jcc); _cimg_median_sort(Jbc,Jnn);
-                  _cimg_median_sort(Jcc,Jba); _cimg_median_sort(Jbc,Jba); _cimg_median_sort(Jbc,Jcc);
-                  res(x,y,c) = Jcc;
-                }
+                cimg_for5x5(*this,x,y,0,c,I,T)
+                  res(x,y,c) = cimg::median25(I[0],I[1],I[2],I[3],I[4],
+                                              I[5],I[6],I[7],I[8],I[9],
+                                              I[10],I[11],I[12],I[13],I[14],
+                                              I[15],I[16],I[17],I[18],I[19],
+                                              I[20],I[21],I[22],I[23],I[24]);
               }
             } break;
             default : {

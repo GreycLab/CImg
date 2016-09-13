@@ -21304,6 +21304,7 @@ namespace cimg_library_suffixed {
         return *this;
       }
       if (p==0) return fill((T)1);
+      if (p==0.25) return sqrt().sqrt();
       if (p==0.5) return sqrt();
       if (p==1) return *this;
       if (p==2) return sqr();

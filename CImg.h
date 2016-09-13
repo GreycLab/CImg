@@ -15669,6 +15669,17 @@ namespace cimg_library_suffixed {
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_add,arg1,arg2);
             if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_add,arg1,arg2);
             if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2)) _cimg_mp_constant(mem[arg1] + mem[arg2]);
+            if (code) { // Try to spot linear case 'a*b + c'.
+              CImg<ulongT> &pop = code.back();
+              if (pop[0]==(ulongT)mp_mul && (pop[1]==arg1 || pop[1]==arg2)) {
+                arg3 = (unsigned int)pop[1];
+                arg4 = (unsigned int)pop[2];
+                arg5 = (unsigned int)pop[3];
+                code.remove();
+                CImg<ulongT>::vector((ulongT)mp_linear,arg3,arg4,arg5,arg3==arg2?arg1:arg2).move_to(code);
+                _cimg_mp_return(arg3);
+              }
+            }
             if (arg2==1) _cimg_mp_scalar1(mp_increment,arg1);
             if (arg1==1) _cimg_mp_scalar1(mp_increment,arg2);
             _cimg_mp_scalar2(mp_add,arg1,arg2);
@@ -19086,6 +19097,10 @@ namespace cimg_library_suffixed {
         if (ind<0) ind+=vals.width() + 1;
         ind = std::max(1,std::min(vals.width(),ind));
         return vals.kth_smallest(ind - 1);
+      }
+
+      static double mp_linear(_cimg_math_parser& mp) {
+        return _mp_arg(2)*_mp_arg(3) + _mp_arg(4);
       }
 
       static double mp_list_depth(_cimg_math_parser& mp) {

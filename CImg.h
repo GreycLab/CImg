@@ -21780,6 +21780,11 @@ namespace cimg_library_suffixed {
                                     "median(): Empty instance.",
                                     cimg_instance);
       const ulongT s = size();
+      switch (s) {
+      case 1 : return _data[0];
+      case 2 : return (_data[0] + _data[1])/2;
+      case 3 : std::max(std::min(_data[0],_data[1]),std::min(_data[2],std::max(_data[0],_data[1])));
+      }
       const T res = kth_smallest(s>>1);
       return (s%2)?res:(T)((res + kth_smallest((s>>1) - 1))/2);
     }

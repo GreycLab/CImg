@@ -15848,7 +15848,9 @@ namespace cimg_library_suffixed {
             case 2 : _cimg_mp_scalar1(mp_sqr,arg1);
             case 3 : _cimg_mp_scalar1(mp_pow3,arg1);
             case 4 : _cimg_mp_scalar1(mp_pow4,arg1);
-            default : _cimg_mp_scalar2(mp_pow,arg1,arg2);
+            default :
+              if (_cimg_mp_is_constant(arg2) && mem[arg2]==0.25) _cimg_mp_scalar1(mp_pow0_25,arg1);
+              _cimg_mp_scalar2(mp_pow,arg1,arg2);
             }
           }
 
@@ -15869,7 +15871,9 @@ namespace cimg_library_suffixed {
             case 2 : _cimg_mp_scalar1(mp_sqr,arg1);
             case 3 : _cimg_mp_scalar1(mp_pow3,arg1);
             case 4 : _cimg_mp_scalar1(mp_pow4,arg1);
-            default : _cimg_mp_scalar2(mp_pow,arg1,arg2);
+            default :
+              if (_cimg_mp_is_constant(arg2) && mem[arg2]==0.25) _cimg_mp_scalar1(mp_pow0_25,arg1);
+              _cimg_mp_scalar2(mp_pow,arg1,arg2);
             }
           }
 
@@ -19897,6 +19901,11 @@ namespace cimg_library_suffixed {
       static double mp_pow(_cimg_math_parser& mp) {
         const double v = _mp_arg(2), p = _mp_arg(3);
         return std::pow(v,p);
+      }
+
+      static double mp_pow0_25(_cimg_math_parser& mp) {
+        const double val = _mp_arg(2);
+        return std::sqrt(std::sqrt(val));
       }
 
       static double mp_pow3(_cimg_math_parser& mp) {

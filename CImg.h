@@ -37293,20 +37293,20 @@ namespace cimg_library_suffixed {
         } else { // ** Transparent drawing **
           if (brightness==1) { // Brightness==1
             cimg_forC(*this,c) {
-              const T val = (T)*(col++);
-              for (int x = dx; x>=0; --x) { *ptrd = (T)(val*nopacity + *ptrd*copacity); ++ptrd; }
+              const Tfloat val = *(col++)*nopacity;
+              for (int x = dx; x>=0; --x) { *ptrd = (T)(val + *ptrd*copacity); ++ptrd; }
               ptrd+=off;
             }
           } else if (brightness<=1) { // Brightness<1
             cimg_forC(*this,c) {
-              const T val = (T)(*(col++)*brightness);
-              for (int x = dx; x>=0; --x) { *ptrd = (T)(val*nopacity + *ptrd*copacity); ++ptrd; }
+              const Tfloat val = *(col++)*brightness*nopacity;
+              for (int x = dx; x>=0; --x) { *ptrd = (T)(val + *ptrd*copacity); ++ptrd; }
               ptrd+=off;
             }
           } else { // Brightness>1
             cimg_forC(*this,c) {
-              const T val = (T)((2-brightness)**(col++) + (brightness - 1)*maxval);
-              for (int x = dx; x>=0; --x) { *ptrd = (T)(val*nopacity + *ptrd*copacity); ++ptrd; }
+              const Tfloat val = ((2-brightness)**(col++) + (brightness - 1)*maxval)*nopacity;
+              for (int x = dx; x>=0; --x) { *ptrd = (T)(val + *ptrd*copacity); ++ptrd; }
               ptrd+=off;
             }
           }

@@ -116,7 +116,7 @@ int main(int argc,char **argv) {
       cimg_forXYC(tmp,x,y,v) {
         const int val = dir==0?x + y:(dir==1?x + tmp.height() - y:(dir==2?y + tmp.width() - x:
                                                                    tmp.width() - x + tmp.height() - y));
-        tmp(x,y,v) = (unsigned char)cimg::max(0.0f,cimg::min(255.0f,1.5f*tmp(x,y,v)*val/wph));
+        tmp(x,y,v) = (unsigned char)std::max(0.0f,std::min(255.0f,1.5f*tmp(x,y,v)*val/wph));
       }
       if (std::rand()%2) tmp = (tmp.get_dilate(3)-=tmp);
       tmp.blur((float)cimg::rand()*0.8f).normalize(0,255);

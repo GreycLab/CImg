@@ -415,7 +415,7 @@ void* item_mini_paint() {
     if (xo>=0 && yo>=0 && x>=0 && y>=0) {
       if (but&1 || but&4) {
         if (y<253) {
-          const float tmax = (float)cimg::max(cimg::abs(xo - x),cimg::abs(yo - y)) + 0.1f;
+          const float tmax = (float)std::max(cimg::abs(xo - x),cimg::abs(yo - y)) + 0.1f;
           const int radius = (but&1?3:0) + (but&4?6:0);
           for (float t = 0; t<=tmax; ++t)
             img.draw_circle((int)(x + t*(xo - x)/tmax),(int)(y + t*(yo - y)/tmax),radius,color);
@@ -554,7 +554,7 @@ void* item_virtual_landscape() {
   CImg_3x3(I,float); Ipp = Inp = Icc = Ipn = Inn = 0;
   cimg_for3x3(map,x,y,0,0,I,float) {
     const float nox = 0.5f*(Inc - Ipc), noy = 0.5f*(Icn - Icp);
-    cmap(x,y) = cimg::max(0.0f,0.5f*nox + noy);
+    cmap(x,y) = std::max(0.0f,0.5f*nox + noy);
   }
   cmap.normalize(0,255);
 
@@ -585,7 +585,7 @@ void* item_virtual_landscape() {
               visu(x,l,0) = 10; visu(x,l,1) = 200 - cl; visu(x,l,2) = 255 - cl;
             }
         }
-        ymin(x) = cimg::min(ymin(x),y); ymax(x) = cimg::max(ymax(x),y);
+        ymin(x) = std::min(ymin(x),y); ymax(x) = std::max(ymax(x),y);
       }
     }
     visu.draw_text(5,5,"%u frames/s",white,0,0.5f,13,(unsigned int)disp.frames_per_second());
@@ -631,12 +631,12 @@ void* item_plasma() {
     unsigned char *ptr_r = visu.data(0,0,0,0), *ptr_g = visu.data(0,0,0,1), *ptr_b = visu.data(0,0,0,2);
     cimg_forY(visu,y) {
       const float
-        *ptr_r1 = plasma.data((unsigned int)cimg::max(0.0f,camp(0)*(1.1 + std::sin(tx + cfreq(0)*y))),y,v0),
-        *ptr_g1 = plasma.data((unsigned int)cimg::max(0.0f,camp(1)*(1.1 + std::sin(tx + cfreq(1)*y))),y,v1),
-        *ptr_b1 = plasma.data((unsigned int)cimg::max(0.0f,camp(2)*(2 + std::sin(tx + cfreq(2)*y))),y,v2),
-        *ptr_r2 = plasma.data((unsigned int)cimg::max(0.0f,namp(0)*(1.1 + std::sin(tx + nfreq(0)*y))),y,v1),
-        *ptr_g2 = plasma.data((unsigned int)cimg::max(0.0f,namp(1)*(1.1 + std::sin(tx + nfreq(1)*y))),y,v2),
-        *ptr_b2 = plasma.data((unsigned int)cimg::max(0.0f,namp(2)*(2 + std::sin(tx + nfreq(2)*y))),y,v3);
+        *ptr_r1 = plasma.data((unsigned int)std::max(0.0f,camp(0)*(1.1f + std::sin(tx + cfreq(0)*y))),y,v0),
+        *ptr_g1 = plasma.data((unsigned int)std::max(0.0f,camp(1)*(1.1f + std::sin(tx + cfreq(1)*y))),y,v1),
+        *ptr_b1 = plasma.data((unsigned int)std::max(0.0f,camp(2)*(2.0f + std::sin(tx + cfreq(2)*y))),y,v2),
+        *ptr_r2 = plasma.data((unsigned int)std::max(0.0f,namp(0)*(1.1f + std::sin(tx + nfreq(0)*y))),y,v1),
+        *ptr_g2 = plasma.data((unsigned int)std::max(0.0f,namp(1)*(1.1f + std::sin(tx + nfreq(1)*y))),y,v2),
+        *ptr_b2 = plasma.data((unsigned int)std::max(0.0f,namp(2)*(2.0f + std::sin(tx + nfreq(2)*y))),y,v3);
       cimg_forX(visu,x) {
         *(ptr_r++) = (unsigned char)(umalpha*(*(ptr_r1++)) + alpha*(*(ptr_r2++)));
         *(ptr_g++) = (unsigned char)(umalpha*(*(ptr_g1++)) + alpha*(*(ptr_g2++)));
@@ -712,7 +712,7 @@ void* item_shade_bobs() {
       palette = CImg<unsigned char>(3,4 + (int)(12*cimg::rand()),1,1,0).noise(255,2).resize(3,256,1,1,3);
       palette(0) = palette(1) = palette(2) = 0;
       nbbobs = 20 + (int)(cimg::rand()*80);
-      rybobs = (10 + (int)(cimg::rand()*50))*cimg::min(img.width(),img.height())/300;
+      rybobs = (10 + (int)(cimg::rand()*50))*std::min(img.width(),img.height())/300;
     }
     for (int i = 0; i<nbbobs; ++i) {
       const float
@@ -765,10 +765,10 @@ void* item_fourier_filtering() {
       x = xm - img.width()/2,
       y = ym - img.height()/2;
     if (disp.button() && xm>=0 && ym>=0) {
-      const int r = (int)cimg::max(0.0f,(float)std::sqrt((float)x*x + y*y) - 3);
+      const int r = (int)std::max(0.0f,(float)std::sqrt((float)x*x + y*y) - 3);
       if (disp.button()&1) rmax = r;
       if (disp.button()&2) rmin = r;
-      if (rmin>=rmax) rmin = cimg::max(rmax - 1,0);
+      if (rmin>=rmax) rmin = std::max(rmax - 1,0);
       mask.fill(0).draw_circle(mag.width()/2,mag.height()/2,rmax,one).
         draw_circle(mag.width()/2,mag.height()/2,rmin,zero);
       CImgList<float> nF(F);
@@ -1075,9 +1075,9 @@ void* item_fireworks() {
       if (t<0 && t>=-1) {
         if ((speed*=0.9f)<10) speed=10.0f;
         const unsigned char
-          r = (unsigned char)cimg::min(50 + 3*(unsigned char)(100*cimg::rand()), 255),
-          g = (unsigned char)cimg::min(50 + 3*(unsigned char)(100*cimg::rand()), 255),
-          b = (unsigned char)cimg::min(50 + 3*(unsigned char)(100*cimg::rand()), 255);
+          r = (unsigned char)std::min(50 + 3*(unsigned char)(100*cimg::rand()), 255),
+          g = (unsigned char)std::min(50 + 3*(unsigned char)(100*cimg::rand()), 255),
+          b = (unsigned char)std::min(50 + 3*(unsigned char)(100*cimg::rand()), 255);
         const float di = 10 + (float)cimg::rand()*60, nr = (float)cimg::rand()*30;
         for (float i=0; i<360; i+=di) {
           const float rad = i*(float)cimg::PI/180, c = (float)std::cos(rad), s = (float)std::sin(rad);
@@ -1193,7 +1193,7 @@ void* item_image_waves() {
     CImgList<unsigned char> colors(colors0);
     CImgList<float> opacities(opacities0);
     cimglist_for(points,p)
-      points(p,2) = cimg::min(30 + uc.linear_atXY((p%img.width())/2.0f,(p/img.width())/2.0f),70.0f);
+      points(p,2) = std::min(30 + uc.linear_atXY((p%img.width())/2.0f,(p/img.width())/2.0f),70.0f);
     cimglist_for(particles,l) {
       points.insert(CImg<>::vector(3*(particles(l,0) - img.width()/2.0f),3*(particles(l,1) - img.height()/2.0f),30.0f +
                                    particles(l,2)));
@@ -1222,7 +1222,7 @@ void* item_breakout() {
     visu0(background/2.0), visu(visu0), brick(16,16,1,1,200), racket(64,8,1,3,0), ball(8,8,1,3,0);
   const unsigned char white[] = { 255,255,255 }, green1[] = { 60,150,30 }, green2[] = { 130,255,130 };
   cimg_for_borderXY(brick,x,y,1) brick(x,y) = x>y?255:128;
-  cimg_for_insideXY(brick,x,y,1) brick(x,y) = (unsigned char)cimg::min(255,64 + 8*(x + y));
+  cimg_for_insideXY(brick,x,y,1) brick(x,y) = (unsigned char)std::min(255,64 + 8*(x + y));
   brick.resize(31,15,1,1,1).resize(32,16,1,1,0);
   ball.draw_circle(4,4,2,white); ball-=ball.get_erode(3)/1.5;
   racket.draw_circle(4,3,4,green1).draw_circle(3,2,2,green2);
@@ -1390,7 +1390,7 @@ void* item_3d_reflection() {
                        false,500,0,0,-5000,0.1f,1.4f);
 
     if (disp.is_resized()) {
-      const int s = cimg::min(disp.window_width(),disp.window_height());
+      const int s = std::min(disp.window_width(),disp.window_height());
       disp.resize(s,s,false);
     }
     if (disp.is_keyCTRLLEFT() && disp.is_keyF()) disp.resize(512,512,false).toggle_fullscreen(false);
@@ -1624,7 +1624,7 @@ int main(int argc, char **argv) {
     cimg_forXY(fore,x,y)
       if (fore(x,y)==127) fore(x,y,0) = fore(x,y,1) = fore(x,y,2) = 1;
       else if (fore(x,y)) {
-        const float val = cimg::min(255.0f,7.0f*(y - 3));
+        const float val = std::min(255.0f,7.0f*(y - 3));
         fore(x,y,0) = (unsigned char)(val/1.5f);
         fore(x,y,1) = (unsigned char)val;
         fore(x,y,2) = (unsigned char)(val/1.1f);

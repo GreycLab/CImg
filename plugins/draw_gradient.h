@@ -193,7 +193,7 @@ CImg<T>& draw_gradient(const int x0, const int y0, const int x1, const int y1,
       const float
         amx = (float)x - x0,
         amy = (float)y - y0,
-        r = cimg::max(0.f,cimg::min(1.f,(amx*abx + amy*aby)/ab2));
+        r = std::max(0.f,std::min(1.f,(amx*abx + amy*aby)/ab2));
       _draw_gradient_profile(ptr++,opacity,r,pcol0,pcol1,profile);
     } if (pcol0) ++pcol0; if (pcol1) ++pcol1; }} break;
   case 1:{ // radial
@@ -201,7 +201,7 @@ CImg<T>& draw_gradient(const int x0, const int y0, const int x1, const int y1,
       const float
         amx = (float)x - x0,
         amy = (float)y - y0,
-        r = cimg::max(0.f,cimg::min(1.f,(amx*amx + amy*amy)/ab2));
+        r = std::max(0.f,std::min(1.f,(amx*amx + amy*amy)/ab2));
       _draw_gradient_profile(ptr++,opacity,r,pcol0,pcol1,profile);
      } if (pcol0) ++pcol0; if (pcol1) ++pcol1; }} break;
   case 2:{ // radial cone
@@ -209,7 +209,7 @@ CImg<T>& draw_gradient(const int x0, const int y0, const int x1, const int y1,
       const float
         amx = (float)x - x0,
         amy = (float)y - y0,
-        r = cimg::max(0.f,cimg::min(1.f,(float)std::sqrt((amx*amx + amy*amy)/ab2)));
+        r = std::max(0.f,std::min(1.f,(float)std::sqrt((amx*amx + amy*amy)/ab2)));
       _draw_gradient_profile(ptr++,opacity,r,pcol0,pcol1,profile);
     } if (pcol0) ++pcol0; if (pcol1) ++pcol1; }} break;
   case 3:{ // square
@@ -217,7 +217,7 @@ CImg<T>& draw_gradient(const int x0, const int y0, const int x1, const int y1,
       const float
         amx = (float)x - x0,
         amy = (float)y - y0,
-        r=cimg::max(0.f,cimg::min(1.f,(cimg::abs(amx*abx + amy*aby) + cimg::abs(amx*aby - amy*abx))/ab2));
+        r=std::max(0.f,std::min(1.f,(cimg::abs(amx*abx + amy*aby) + cimg::abs(amx*aby - amy*abx))/ab2));
       _draw_gradient_profile(ptr++,opacity,r,pcol0,pcol1,profile);
     } if (pcol0) ++pcol0; if (pcol1) ++pcol1; }} break;
   case 4:{ // rectangle (L1)
@@ -225,7 +225,7 @@ CImg<T>& draw_gradient(const int x0, const int y0, const int x1, const int y1,
       const float
         amx = (float)x - x0,
         amy = (float)y - y0,
-	r = cimg::max(0.f,cimg::min(1.f,(cimg::abs(amx/abx) + cimg::abs(amy/aby))));
+	r = std::max(0.f,std::min(1.f,(cimg::abs(amx/abx) + cimg::abs(amy/aby))));
       _draw_gradient_profile(ptr++,opacity,r,pcol0,pcol1,profile);
     } if (pcol0) ++pcol0; if (pcol1) ++pcol1; }} break;
    case 5:{ // rectangle (Linf)
@@ -233,7 +233,7 @@ CImg<T>& draw_gradient(const int x0, const int y0, const int x1, const int y1,
       const float
         amx = (float)x - x0,
         amy = (float)y - y0,
-	r=cimg::max(0.f,cimg::min(1.f,cimg::max(cimg::abs(amx/abx),cimg::abs(amy/aby))));
+	r=std::max(0.f,std::min(1.f,std::max(cimg::abs(amx/abx),cimg::abs(amy/aby))));
       _draw_gradient_profile(ptr++,opacity,r,pcol0,pcol1,profile);
     } if (pcol0) ++pcol0; if (pcol1) ++pcol1; }} break;
   case 6:{ // gaussian
@@ -241,7 +241,7 @@ CImg<T>& draw_gradient(const int x0, const int y0, const int x1, const int y1,
       const float
         amx = (float)x - x0,
         amy = (float)y - y0,
-        r = cimg::max(0.f,cimg::min(1.f,1 - (float)std::exp(-(amx*amx + amy*amy)/ab2)));
+        r = std::max(0.f,std::min(1.f,1 - (float)std::exp(-(amx*amx + amy*amy)/ab2)));
       _draw_gradient_profile(ptr++,opacity,r,pcol0,pcol1,profile);
     } if (pcol0) ++pcol0; if (pcol1) ++pcol1; }} break;
   default:

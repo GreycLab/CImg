@@ -139,7 +139,7 @@ int main(int argc,char **argv) {
     CImg<> points = img.get_isosurface3d(faces,0);
     CImgList<unsigned char> colors(faces.size(),CImg<unsigned char>::vector(200,128,100));
     CImgList<> opacities(faces.size(),CImg<>::vector(1.0f));
-    const float fact = 3*cimg::max(disp3d.width(),disp3d.height())/(4.0f*cimg::max(img.width(),img.height()));
+    const float fact = 3*std::max(disp3d.width(),disp3d.height())/(4.0f*std::max(img.width(),img.height()));
 
     // Append initial object if necessary.
     if (both) {

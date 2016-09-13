@@ -4678,57 +4678,41 @@ namespace cimg_library_suffixed {
     }
 
     //! Return the minimum between two values.
-    template<typename t1, typename t2>
-    inline typename cimg::superset<t1,t2>::type min(const t1& a, const t2& b) {
-      typedef typename cimg::superset<t1,t2>::type t1t2;
-      return a<=b?(t1t2)a:(t1t2)b;
-    }
-
-    // Specialization of cimg::min(), seems to be faster.
+    // (kept for compatibility reasons).
     template<typename t>
     inline t min(const t& a, const t& b) {
       return std::min(a,b);
     }
 
     //! Return the minimum between three values.
-    template<typename t1, typename t2, typename t3>
-    inline typename cimg::superset2<t1,t2,t3>::type min(const t1& a, const t2& b, const t3& c) {
-      typedef typename cimg::superset2<t1,t2,t3>::type t1t2t3;
-      return cimg::min(cimg::min((t1t2t3)a,(t1t2t3)b),(t1t2t3)c);
+    template<typename t>
+    inline t min(const t& a, const t& b, const t& c) {
+      return std::min(std::min(a,b),c);
     }
 
     //! Return the minimum between four values.
-    template<typename t1, typename t2, typename t3, typename t4>
-    inline typename cimg::superset3<t1,t2,t3,t4>::type min(const t1& a, const t2& b, const t3& c, const t4& d) {
-      typedef typename cimg::superset3<t1,t2,t3,t4>::type t1t2t3t4;
-      return cimg::min(cimg::min((t1t2t3t4)a,(t1t2t3t4)b,(t1t2t3t4)c),(t1t2t3t4)d);
+    template<typename t>
+    inline t min(const t& a, const t& b, const t& c, const t& d) {
+      return std::min(std::min(a,b),std::min(c,d));
     }
 
     //! Return the maximum between two values.
-    template<typename t1, typename t2>
-    inline typename cimg::superset<t1,t2>::type max(const t1& a, const t2& b) {
-      typedef typename cimg::superset<t1,t2>::type t1t2;
-      return a>=b?(t1t2)a:(t1t2)b;
-    }
-
-    // Specialization of cimg::max(), seems to be faster.
+    // (kept for compatibility reasons).
     template<typename t>
     inline t max(const t& a, const t& b) {
       return std::max(a,b);
     }
 
     //! Return the maximum between three values.
-    template<typename t1, typename t2, typename t3>
-    inline typename cimg::superset2<t1,t2,t3>::type max(const t1& a, const t2& b, const t3& c) {
-      typedef typename cimg::superset2<t1,t2,t3>::type t1t2t3;
-      return cimg::max(cimg::max((t1t2t3)a,(t1t2t3)b),(t1t2t3)c);
+    template<typename t>
+    inline t max(const t& a, const t& b, const t& c) {
+      return std::max(std::max(a,b),c);
     }
 
     //! Return the maximum between four values.
-    template<typename t1, typename t2, typename t3, typename t4>
-    inline typename cimg::superset3<t1,t2,t3,t4>::type max(const t1& a, const t2& b, const t3& c, const t4& d) {
-      typedef typename cimg::superset3<t1,t2,t3,t4>::type t1t2t3t4;
-      return cimg::max(cimg::max((t1t2t3t4)a,(t1t2t3t4)b,(t1t2t3t4)c),(t1t2t3t4)d);
+    template<typename t>
+    inline t max(const t& a, const t& b, const t& c, const t& d) {
+      return std::max(std::max(a,b),std::max(c,d));
     }
 
     //! Return the sign of a value.
@@ -4848,20 +4832,20 @@ namespace cimg_library_suffixed {
     // (contribution by Ingo Weyrich).
     template<typename T>
     inline T median9(T val0, T val1, T val2, T val3, T val4, T val5, T val6, T val7, T val8) {
-      T tmp = cimg::min(val1,val2);
-      val2 = cimg::max(val1,val2); val1 = tmp; tmp = cimg::min(val4,val5);
-      val5 = cimg::max(val4,val5); val4 = tmp; tmp = cimg::min(val7,val8);
-      val8 = cimg::max(val7,val8); val7 = tmp; tmp = cimg::min(val0,val1);
-      val1 = cimg::max(val0,val1); val0 = tmp; tmp = cimg::min(val3,val4);
-      val4 = cimg::max(val3,val4); val3 = tmp; tmp = cimg::min(val6,val7);
-      val7 = cimg::max(val6,val7); val6 = tmp; tmp = cimg::min(val1,val2);
-      val2 = cimg::max(val1,val2); val1 = tmp; tmp = cimg::min(val4,val5);
-      val5 = cimg::max(val4,val5); val4 = tmp; tmp = cimg::min(val7,val8);
-      val8 = cimg::max(val7,val8); val3 = cimg::max(val0,val3); val5 = cimg::min(val5,val8);
-      val7 = cimg::max(val4,tmp); tmp = cimg::min(val4,tmp); val6 = cimg::max(val3,val6);
-      val4 = cimg::max(val1,tmp); val2 = cimg::min(val2,val5); val4 = cimg::min(val4,val7);
-      tmp = cimg::min(val4,val2); val2 = cimg::max(val4,val2); val4 = cimg::max(val6,tmp);
-      return cimg::min(val4,val2);
+      T tmp = std::min(val1,val2);
+      val2 = std::max(val1,val2); val1 = tmp; tmp = std::min(val4,val5);
+      val5 = std::max(val4,val5); val4 = tmp; tmp = std::min(val7,val8);
+      val8 = std::max(val7,val8); val7 = tmp; tmp = std::min(val0,val1);
+      val1 = std::max(val0,val1); val0 = tmp; tmp = std::min(val3,val4);
+      val4 = std::max(val3,val4); val3 = tmp; tmp = std::min(val6,val7);
+      val7 = std::max(val6,val7); val6 = tmp; tmp = std::min(val1,val2);
+      val2 = std::max(val1,val2); val1 = tmp; tmp = std::min(val4,val5);
+      val5 = std::max(val4,val5); val4 = tmp; tmp = std::min(val7,val8);
+      val8 = std::max(val7,val8); val3 = std::max(val0,val3); val5 = std::min(val5,val8);
+      val7 = std::max(val4,tmp); tmp = std::min(val4,tmp); val6 = std::max(val3,val6);
+      val4 = std::max(val1,tmp); val2 = std::min(val2,val5); val4 = std::min(val4,val7);
+      tmp = std::min(val4,val2); val2 = std::max(val4,val2); val4 = std::max(val6,tmp);
+      return std::min(val4,val2);
     }
 
     template<typename T>
@@ -4870,65 +4854,65 @@ namespace cimg_library_suffixed {
                       T val10, T val11, T val12, T val13, T val14,
                       T val15, T val16, T val17, T val18, T val19,
                       T val20, T val21, T val22, T val23, T val24) {
-      T tmp = cimg::min(val0,val1);
-      val1 = cimg::max(val0,val1); val0 = tmp; tmp = cimg::min(val3,val4); val4 = cimg::max(val3,val4);
-      val3 = tmp; tmp = cimg::min(val2,val4); val4 = cimg::max(val2,val4); val2 = cimg::min(tmp,val3);
-      val3 = cimg::max(tmp,val3); tmp = cimg::min(val6,val7); val7 = cimg::max(val6,val7); val6 = tmp;
-      tmp = cimg::min(val5,val7); val7 = cimg::max(val5,val7); val5 = cimg::min(tmp,val6); val6 = cimg::max(tmp,val6);
-      tmp = cimg::min(val9,val10); val10 = cimg::max(val9,val10); val9 = tmp; tmp = cimg::min(val8,val10);
-      val10 = cimg::max(val8,val10); val8 = cimg::min(tmp,val9); val9 = cimg::max(tmp,val9);
-      tmp = cimg::min(val12,val13); val13 = cimg::max(val12,val13); val12 = tmp; tmp = cimg::min(val11,val13);
-      val13 = cimg::max(val11,val13); val11 = cimg::min(tmp,val12); val12 = cimg::max(tmp,val12);
-      tmp = cimg::min(val15,val16); val16 = cimg::max(val15,val16); val15 = tmp; tmp = cimg::min(val14,val16);
-      val16 = cimg::max(val14,val16); val14 = cimg::min(tmp,val15); val15 = cimg::max(tmp,val15);
-      tmp = cimg::min(val18,val19); val19 = cimg::max(val18,val19); val18 = tmp; tmp = cimg::min(val17,val19);
-      val19 = cimg::max(val17,val19); val17 = cimg::min(tmp,val18); val18 = cimg::max(tmp,val18);
-      tmp = cimg::min(val21,val22); val22 = cimg::max(val21,val22); val21 = tmp; tmp = cimg::min(val20,val22);
-      val22 = cimg::max(val20,val22); val20 = cimg::min(tmp,val21); val21 = cimg::max(tmp,val21);
-      tmp = cimg::min(val23,val24); val24 = cimg::max(val23,val24); val23 = tmp; tmp = cimg::min(val2,val5);
-      val5 = cimg::max(val2,val5); val2 = tmp; tmp = cimg::min(val3,val6); val6 = cimg::max(val3,val6); val3 = tmp;
-      tmp = cimg::min(val0,val6); val6 = cimg::max(val0,val6); val0 = cimg::min(tmp,val3); val3 = cimg::max(tmp,val3);
-      tmp = cimg::min(val4,val7); val7 = cimg::max(val4,val7); val4 = tmp; tmp = cimg::min(val1,val7);
-      val7 = cimg::max(val1,val7); val1 = cimg::min(tmp,val4); val4 = cimg::max(tmp,val4); tmp = cimg::min(val11,val14);
-      val14 = cimg::max(val11,val14); val11 = tmp; tmp = cimg::min(val8,val14); val14 = cimg::max(val8,val14);
-      val8 = cimg::min(tmp,val11); val11 = cimg::max(tmp,val11); tmp = cimg::min(val12,val15);
-      val15 = cimg::max(val12,val15); val12 = tmp; tmp = cimg::min(val9,val15); val15 = cimg::max(val9,val15);
-      val9 = cimg::min(tmp,val12); val12 = cimg::max(tmp,val12); tmp = cimg::min(val13,val16);
-      val16 = cimg::max(val13,val16); val13 = tmp; tmp = cimg::min(val10,val16); val16 = cimg::max(val10,val16);
-      val10 = cimg::min(tmp,val13); val13 = cimg::max(tmp,val13); tmp = cimg::min(val20,val23);
-      val23 = cimg::max(val20,val23); val20 = tmp; tmp = cimg::min(val17,val23); val23 = cimg::max(val17,val23);
-      val17 = cimg::min(tmp,val20); val20 = cimg::max(tmp,val20); tmp = cimg::min(val21,val24);
-      val24 = cimg::max(val21,val24); val21 = tmp; tmp = cimg::min(val18,val24); val24 = cimg::max(val18,val24);
-      val18 = cimg::min(tmp,val21); val21 = cimg::max(tmp,val21); tmp = cimg::min(val19,val22);
-      val22 = cimg::max(val19,val22); val19 = tmp; val17 = cimg::max(val8,val17); tmp = cimg::min(val9,val18);
-      val18 = cimg::max(val9,val18); val9 = tmp; tmp = cimg::min(val0,val18); val18 = cimg::max(val0,val18);
-      val9 = cimg::max(tmp,val9); tmp = cimg::min(val10,val19); val19 = cimg::max(val10,val19); val10 = tmp;
-      tmp = cimg::min(val1,val19); val19 = cimg::max(val1,val19); val1 = cimg::min(tmp,val10);
-      val10 = cimg::max(tmp,val10); tmp = cimg::min(val11,val20); val20 = cimg::max(val11,val20); val11 = tmp;
-      tmp = cimg::min(val2,val20); val20 = cimg::max(val2,val20); val11 = cimg::max(tmp,val11);
-      tmp = cimg::min(val12,val21); val21 = cimg::max(val12,val21); val12 = tmp; tmp = cimg::min(val3,val21);
-      val21 = cimg::max(val3,val21); val3 = cimg::min(tmp,val12); val12 = cimg::max(tmp,val12);
-      tmp = cimg::min(val13,val22); val22 = cimg::max(val13,val22); val4 = cimg::min(val4,val22);
-      val13 = cimg::max(val4,tmp); tmp = cimg::min(val4,tmp); val4 = tmp; tmp = cimg::min(val14,val23);
-      val23 = cimg::max(val14,val23); val14 = tmp; tmp = cimg::min(val5,val23); val23 = cimg::max(val5,val23);
-      val5 = cimg::min(tmp,val14); val14 = cimg::max(tmp,val14); tmp = cimg::min(val15,val24);
-      val24 = cimg::max(val15,val24); val15 = tmp; val6 = cimg::min(val6,val24); tmp = cimg::min(val6,val15);
-      val15 = cimg::max(val6,val15); val6 = tmp; tmp = cimg::min(val7,val16); val7 = cimg::min(tmp,val19);
-      tmp = cimg::min(val13,val21); val15 = cimg::min(val15,val23); tmp = cimg::min(val7,tmp);
-      val7 = cimg::min(tmp,val15); val9 = cimg::max(val1,val9); val11 = cimg::max(val3,val11);
-      val17 = cimg::max(val5,val17); val17 = cimg::max(val11,val17); val17 = cimg::max(val9,val17);
-      tmp = cimg::min(val4,val10); val10 = cimg::max(val4,val10); val4 = tmp; tmp = cimg::min(val6,val12);
-      val12 = cimg::max(val6,val12); val6 = tmp; tmp = cimg::min(val7,val14); val14 = cimg::max(val7,val14);
-      val7 = tmp; tmp = cimg::min(val4,val6); val6 = cimg::max(val4,val6); val7 = cimg::max(tmp,val7);
-      tmp = cimg::min(val12,val14); val14 = cimg::max(val12,val14); val12 = tmp; val10 = cimg::min(val10,val14);
-      tmp = cimg::min(val6,val7); val7 = cimg::max(val6,val7); val6 = tmp; tmp = cimg::min(val10,val12);
-      val12 = cimg::max(val10,val12); val10 = cimg::max(val6,tmp); tmp = cimg::min(val6,tmp);
-      val17 = cimg::max(tmp,val17); tmp = cimg::min(val12,val17); val17 = cimg::max(val12,val17); val12 = tmp;
-      val7 = cimg::min(val7,val17); tmp = cimg::min(val7,val10); val10 = cimg::max(val7,val10); val7 = tmp;
-      tmp = cimg::min(val12,val18); val18 = cimg::max(val12,val18); val12 = cimg::max(val7,tmp);
-      val10 = cimg::min(val10,val18); tmp = cimg::min(val12,val20); val20 = cimg::max(val12,val20); val12 = tmp;
-      tmp = cimg::min(val10,val20);
-      return cimg::max(tmp,val12);
+      T tmp = std::min(val0,val1);
+      val1 = std::max(val0,val1); val0 = tmp; tmp = std::min(val3,val4); val4 = std::max(val3,val4);
+      val3 = tmp; tmp = std::min(val2,val4); val4 = std::max(val2,val4); val2 = std::min(tmp,val3);
+      val3 = std::max(tmp,val3); tmp = std::min(val6,val7); val7 = std::max(val6,val7); val6 = tmp;
+      tmp = std::min(val5,val7); val7 = std::max(val5,val7); val5 = std::min(tmp,val6); val6 = std::max(tmp,val6);
+      tmp = std::min(val9,val10); val10 = std::max(val9,val10); val9 = tmp; tmp = std::min(val8,val10);
+      val10 = std::max(val8,val10); val8 = std::min(tmp,val9); val9 = std::max(tmp,val9);
+      tmp = std::min(val12,val13); val13 = std::max(val12,val13); val12 = tmp; tmp = std::min(val11,val13);
+      val13 = std::max(val11,val13); val11 = std::min(tmp,val12); val12 = std::max(tmp,val12);
+      tmp = std::min(val15,val16); val16 = std::max(val15,val16); val15 = tmp; tmp = std::min(val14,val16);
+      val16 = std::max(val14,val16); val14 = std::min(tmp,val15); val15 = std::max(tmp,val15);
+      tmp = std::min(val18,val19); val19 = std::max(val18,val19); val18 = tmp; tmp = std::min(val17,val19);
+      val19 = std::max(val17,val19); val17 = std::min(tmp,val18); val18 = std::max(tmp,val18);
+      tmp = std::min(val21,val22); val22 = std::max(val21,val22); val21 = tmp; tmp = std::min(val20,val22);
+      val22 = std::max(val20,val22); val20 = std::min(tmp,val21); val21 = std::max(tmp,val21);
+      tmp = std::min(val23,val24); val24 = std::max(val23,val24); val23 = tmp; tmp = std::min(val2,val5);
+      val5 = std::max(val2,val5); val2 = tmp; tmp = std::min(val3,val6); val6 = std::max(val3,val6); val3 = tmp;
+      tmp = std::min(val0,val6); val6 = std::max(val0,val6); val0 = std::min(tmp,val3); val3 = std::max(tmp,val3);
+      tmp = std::min(val4,val7); val7 = std::max(val4,val7); val4 = tmp; tmp = std::min(val1,val7);
+      val7 = std::max(val1,val7); val1 = std::min(tmp,val4); val4 = std::max(tmp,val4); tmp = std::min(val11,val14);
+      val14 = std::max(val11,val14); val11 = tmp; tmp = std::min(val8,val14); val14 = std::max(val8,val14);
+      val8 = std::min(tmp,val11); val11 = std::max(tmp,val11); tmp = std::min(val12,val15);
+      val15 = std::max(val12,val15); val12 = tmp; tmp = std::min(val9,val15); val15 = std::max(val9,val15);
+      val9 = std::min(tmp,val12); val12 = std::max(tmp,val12); tmp = std::min(val13,val16);
+      val16 = std::max(val13,val16); val13 = tmp; tmp = std::min(val10,val16); val16 = std::max(val10,val16);
+      val10 = std::min(tmp,val13); val13 = std::max(tmp,val13); tmp = std::min(val20,val23);
+      val23 = std::max(val20,val23); val20 = tmp; tmp = std::min(val17,val23); val23 = std::max(val17,val23);
+      val17 = std::min(tmp,val20); val20 = std::max(tmp,val20); tmp = std::min(val21,val24);
+      val24 = std::max(val21,val24); val21 = tmp; tmp = std::min(val18,val24); val24 = std::max(val18,val24);
+      val18 = std::min(tmp,val21); val21 = std::max(tmp,val21); tmp = std::min(val19,val22);
+      val22 = std::max(val19,val22); val19 = tmp; val17 = std::max(val8,val17); tmp = std::min(val9,val18);
+      val18 = std::max(val9,val18); val9 = tmp; tmp = std::min(val0,val18); val18 = std::max(val0,val18);
+      val9 = std::max(tmp,val9); tmp = std::min(val10,val19); val19 = std::max(val10,val19); val10 = tmp;
+      tmp = std::min(val1,val19); val19 = std::max(val1,val19); val1 = std::min(tmp,val10);
+      val10 = std::max(tmp,val10); tmp = std::min(val11,val20); val20 = std::max(val11,val20); val11 = tmp;
+      tmp = std::min(val2,val20); val20 = std::max(val2,val20); val11 = std::max(tmp,val11);
+      tmp = std::min(val12,val21); val21 = std::max(val12,val21); val12 = tmp; tmp = std::min(val3,val21);
+      val21 = std::max(val3,val21); val3 = std::min(tmp,val12); val12 = std::max(tmp,val12);
+      tmp = std::min(val13,val22); val22 = std::max(val13,val22); val4 = std::min(val4,val22);
+      val13 = std::max(val4,tmp); tmp = std::min(val4,tmp); val4 = tmp; tmp = std::min(val14,val23);
+      val23 = std::max(val14,val23); val14 = tmp; tmp = std::min(val5,val23); val23 = std::max(val5,val23);
+      val5 = std::min(tmp,val14); val14 = std::max(tmp,val14); tmp = std::min(val15,val24);
+      val24 = std::max(val15,val24); val15 = tmp; val6 = std::min(val6,val24); tmp = std::min(val6,val15);
+      val15 = std::max(val6,val15); val6 = tmp; tmp = std::min(val7,val16); val7 = std::min(tmp,val19);
+      tmp = std::min(val13,val21); val15 = std::min(val15,val23); tmp = std::min(val7,tmp);
+      val7 = std::min(tmp,val15); val9 = std::max(val1,val9); val11 = std::max(val3,val11);
+      val17 = std::max(val5,val17); val17 = std::max(val11,val17); val17 = std::max(val9,val17);
+      tmp = std::min(val4,val10); val10 = std::max(val4,val10); val4 = tmp; tmp = std::min(val6,val12);
+      val12 = std::max(val6,val12); val6 = tmp; tmp = std::min(val7,val14); val14 = std::max(val7,val14);
+      val7 = tmp; tmp = std::min(val4,val6); val6 = std::max(val4,val6); val7 = std::max(tmp,val7);
+      tmp = std::min(val12,val14); val14 = std::max(val12,val14); val12 = tmp; val10 = std::min(val10,val14);
+      tmp = std::min(val6,val7); val7 = std::max(val6,val7); val6 = tmp; tmp = std::min(val10,val12);
+      val12 = std::max(val10,val12); val10 = std::max(val6,tmp); tmp = std::min(val6,tmp);
+      val17 = std::max(tmp,val17); tmp = std::min(val12,val17); val17 = std::max(val12,val17); val12 = tmp;
+      val7 = std::min(val7,val17); tmp = std::min(val7,val10); val10 = std::max(val7,val10); val7 = tmp;
+      tmp = std::min(val12,val18); val18 = std::max(val12,val18); val12 = std::max(val7,tmp);
+      val10 = std::min(val10,val18); tmp = std::min(val12,val20); val20 = std::max(val12,val20); val12 = tmp;
+      tmp = std::min(val10,val20);
+      return std::max(tmp,val12);
     }
 
     template<typename T>
@@ -4939,217 +4923,217 @@ namespace cimg_library_suffixed {
                       T val28, T val29, T val30, T val31, T val32, T val33, T val34,
                       T val35, T val36, T val37, T val38, T val39, T val40, T val41,
                       T val42, T val43, T val44, T val45, T val46, T val47, T val48) {
-      T tmp = cimg::min(val0,val32);
-      val32 = cimg::max(val0,val32); val0 = tmp; tmp = cimg::min(val1,val33); val33 = cimg::max(val1,val33); val1 = tmp;
-      tmp = cimg::min(val2,val34); val34 = cimg::max(val2,val34); val2 = tmp; tmp = cimg::min(val3,val35);
-      val35 = cimg::max(val3,val35); val3 = tmp; tmp = cimg::min(val4,val36); val36 = cimg::max(val4,val36); val4 = tmp;
-      tmp = cimg::min(val5,val37); val37 = cimg::max(val5,val37); val5 = tmp; tmp = cimg::min(val6,val38);
-      val38 = cimg::max(val6,val38); val6 = tmp; tmp = cimg::min(val7,val39); val39 = cimg::max(val7,val39); val7 = tmp;
-      tmp = cimg::min(val8,val40); val40 = cimg::max(val8,val40); val8 = tmp; tmp = cimg::min(val9,val41);
-      val41 = cimg::max(val9,val41); val9 = tmp; tmp = cimg::min(val10,val42); val42 = cimg::max(val10,val42);
-      val10 = tmp; tmp = cimg::min(val11,val43); val43 = cimg::max(val11,val43); val11 = tmp;
-      tmp = cimg::min(val12,val44); val44 = cimg::max(val12,val44); val12 = tmp; tmp = cimg::min(val13,val45);
-      val45 = cimg::max(val13,val45); val13 = tmp; tmp = cimg::min(val14,val46); val46 = cimg::max(val14,val46);
-      val14 = tmp; tmp = cimg::min(val15,val47); val47 = cimg::max(val15,val47); val15 = tmp;
-      tmp = cimg::min(val16,val48); val48 = cimg::max(val16,val48); val16 = tmp; tmp = cimg::min(val0,val16);
-      val16 = cimg::max(val0,val16); val0 = tmp; tmp = cimg::min(val1,val17); val17 = cimg::max(val1,val17);
-      val1 = tmp; tmp = cimg::min(val2,val18); val18 = cimg::max(val2,val18); val2 = tmp; tmp = cimg::min(val3,val19);
-      val19 = cimg::max(val3,val19); val3 = tmp; tmp = cimg::min(val4,val20); val20 = cimg::max(val4,val20); val4 = tmp;
-      tmp = cimg::min(val5,val21); val21 = cimg::max(val5,val21); val5 = tmp; tmp = cimg::min(val6,val22);
-      val22 = cimg::max(val6,val22); val6 = tmp; tmp = cimg::min(val7,val23); val23 = cimg::max(val7,val23); val7 = tmp;
-      tmp = cimg::min(val8,val24); val24 = cimg::max(val8,val24); val8 = tmp; tmp = cimg::min(val9,val25);
-      val25 = cimg::max(val9,val25); val9 = tmp; tmp = cimg::min(val10,val26); val26 = cimg::max(val10,val26);
-      val10 = tmp; tmp = cimg::min(val11,val27); val27 = cimg::max(val11,val27); val11 = tmp;
-      tmp = cimg::min(val12,val28); val28 = cimg::max(val12,val28); val12 = tmp; tmp = cimg::min(val13,val29);
-      val29 = cimg::max(val13,val29); val13 = tmp; tmp = cimg::min(val14,val30); val30 = cimg::max(val14,val30);
-      val14 = tmp; tmp = cimg::min(val15,val31); val31 = cimg::max(val15,val31); val15 = tmp;
-      tmp = cimg::min(val32,val48); val48 = cimg::max(val32,val48); val32 = tmp; tmp = cimg::min(val16,val32);
-      val32 = cimg::max(val16,val32); val16 = tmp; tmp = cimg::min(val17,val33); val33 = cimg::max(val17,val33);
-      val17 = tmp; tmp = cimg::min(val18,val34); val34 = cimg::max(val18,val34); val18 = tmp;
-      tmp = cimg::min(val19,val35); val35 = cimg::max(val19,val35); val19 = tmp; tmp = cimg::min(val20,val36);
-      val36 = cimg::max(val20,val36); val20 = tmp; tmp = cimg::min(val21,val37); val37 = cimg::max(val21,val37);
-      val21 = tmp; tmp = cimg::min(val22,val38); val38 = cimg::max(val22,val38); val22 = tmp;
-      tmp = cimg::min(val23,val39); val39 = cimg::max(val23,val39); val23 = tmp; tmp = cimg::min(val24,val40);
-      val40 = cimg::max(val24,val40); val24 = tmp; tmp = cimg::min(val25,val41); val41 = cimg::max(val25,val41);
-      val25 = tmp; tmp = cimg::min(val26,val42); val42 = cimg::max(val26,val42); val26 = tmp;
-      tmp = cimg::min(val27,val43); val43 = cimg::max(val27,val43); val27 = tmp; tmp = cimg::min(val28,val44);
-      val44 = cimg::max(val28,val44); val28 = tmp; tmp = cimg::min(val29,val45); val45 = cimg::max(val29,val45);
-      val29 = tmp; tmp = cimg::min(val30,val46); val46 = cimg::max(val30,val46); val30 = tmp;
-      tmp = cimg::min(val31,val47); val47 = cimg::max(val31,val47); val31 = tmp; tmp = cimg::min(val0,val8);
-      val8 = cimg::max(val0,val8); val0 = tmp; tmp = cimg::min(val1,val9); val9 = cimg::max(val1,val9); val1 = tmp;
-      tmp = cimg::min(val2,val10); val10 = cimg::max(val2,val10); val2 = tmp; tmp = cimg::min(val3,val11);
-      val11 = cimg::max(val3,val11); val3 = tmp; tmp = cimg::min(val4,val12); val12 = cimg::max(val4,val12); val4 = tmp;
-      tmp = cimg::min(val5,val13); val13 = cimg::max(val5,val13); val5 = tmp; tmp = cimg::min(val6,val14);
-      val14 = cimg::max(val6,val14); val6 = tmp; tmp = cimg::min(val7,val15); val15 = cimg::max(val7,val15); val7 = tmp;
-      tmp = cimg::min(val16,val24); val24 = cimg::max(val16,val24); val16 = tmp; tmp = cimg::min(val17,val25);
-      val25 = cimg::max(val17,val25); val17 = tmp; tmp = cimg::min(val18,val26); val26 = cimg::max(val18,val26);
-      val18 = tmp; tmp = cimg::min(val19,val27); val27 = cimg::max(val19,val27); val19 = tmp;
-      tmp = cimg::min(val20,val28); val28 = cimg::max(val20,val28); val20 = tmp; tmp = cimg::min(val21,val29);
-      val29 = cimg::max(val21,val29); val21 = tmp; tmp = cimg::min(val22,val30); val30 = cimg::max(val22,val30);
-      val22 = tmp; tmp = cimg::min(val23,val31); val31 = cimg::max(val23,val31); val23 = tmp;
-      tmp = cimg::min(val32,val40); val40 = cimg::max(val32,val40); val32 = tmp; tmp = cimg::min(val33,val41);
-      val41 = cimg::max(val33,val41); val33 = tmp; tmp = cimg::min(val34,val42); val42 = cimg::max(val34,val42);
-      val34 = tmp; tmp = cimg::min(val35,val43); val43 = cimg::max(val35,val43); val35 = tmp;
-      tmp = cimg::min(val36,val44); val44 = cimg::max(val36,val44); val36 = tmp; tmp = cimg::min(val37,val45);
-      val45 = cimg::max(val37,val45); val37 = tmp; tmp = cimg::min(val38,val46); val46 = cimg::max(val38,val46);
-      val38 = tmp; tmp = cimg::min(val39,val47); val47 = cimg::max(val39,val47); val39 = tmp;
-      tmp = cimg::min(val8,val32); val32 = cimg::max(val8,val32); val8 = tmp; tmp = cimg::min(val9,val33);
-      val33 = cimg::max(val9,val33); val9 = tmp; tmp = cimg::min(val10,val34); val34 = cimg::max(val10,val34);
-      val10 = tmp; tmp = cimg::min(val11,val35); val35 = cimg::max(val11,val35); val11 = tmp;
-      tmp = cimg::min(val12,val36); val36 = cimg::max(val12,val36); val12 = tmp; tmp = cimg::min(val13,val37);
-      val37 = cimg::max(val13,val37); val13 = tmp; tmp = cimg::min(val14,val38); val38 = cimg::max(val14,val38);
-      val14 = tmp; tmp = cimg::min(val15,val39); val39 = cimg::max(val15,val39); val15 = tmp;
-      tmp = cimg::min(val24,val48); val48 = cimg::max(val24,val48); val24 = tmp; tmp = cimg::min(val8,val16);
-      val16 = cimg::max(val8,val16); val8 = tmp; tmp = cimg::min(val9,val17); val17 = cimg::max(val9,val17);
-      val9 = tmp; tmp = cimg::min(val10,val18); val18 = cimg::max(val10,val18); val10 = tmp;
-      tmp = cimg::min(val11,val19); val19 = cimg::max(val11,val19); val11 = tmp; tmp = cimg::min(val12,val20);
-      val20 = cimg::max(val12,val20); val12 = tmp; tmp = cimg::min(val13,val21); val21 = cimg::max(val13,val21);
-      val13 = tmp; tmp = cimg::min(val14,val22); val22 = cimg::max(val14,val22); val14 = tmp;
-      tmp = cimg::min(val15,val23); val23 = cimg::max(val15,val23); val15 = tmp; tmp = cimg::min(val24,val32);
-      val32 = cimg::max(val24,val32); val24 = tmp; tmp = cimg::min(val25,val33); val33 = cimg::max(val25,val33);
-      val25 = tmp; tmp = cimg::min(val26,val34); val34 = cimg::max(val26,val34); val26 = tmp;
-      tmp = cimg::min(val27,val35); val35 = cimg::max(val27,val35); val27 = tmp; tmp = cimg::min(val28,val36);
-      val36 = cimg::max(val28,val36); val28 = tmp; tmp = cimg::min(val29,val37); val37 = cimg::max(val29,val37);
-      val29 = tmp; tmp = cimg::min(val30,val38); val38 = cimg::max(val30,val38); val30 = tmp;
-      tmp = cimg::min(val31,val39); val39 = cimg::max(val31,val39); val31 = tmp; tmp = cimg::min(val40,val48);
-      val48 = cimg::max(val40,val48); val40 = tmp; tmp = cimg::min(val0,val4); val4 = cimg::max(val0,val4);
-      val0 = tmp; tmp = cimg::min(val1,val5); val5 = cimg::max(val1,val5); val1 = tmp; tmp = cimg::min(val2,val6);
-      val6 = cimg::max(val2,val6); val2 = tmp; tmp = cimg::min(val3,val7); val7 = cimg::max(val3,val7); val3 = tmp;
-      tmp = cimg::min(val8,val12); val12 = cimg::max(val8,val12); val8 = tmp; tmp = cimg::min(val9,val13);
-      val13 = cimg::max(val9,val13); val9 = tmp; tmp = cimg::min(val10,val14); val14 = cimg::max(val10,val14);
-      val10 = tmp; tmp = cimg::min(val11,val15); val15 = cimg::max(val11,val15); val11 = tmp;
-      tmp = cimg::min(val16,val20); val20 = cimg::max(val16,val20); val16 = tmp; tmp = cimg::min(val17,val21);
-      val21 = cimg::max(val17,val21); val17 = tmp; tmp = cimg::min(val18,val22); val22 = cimg::max(val18,val22);
-      val18 = tmp; tmp = cimg::min(val19,val23); val23 = cimg::max(val19,val23); val19 = tmp;
-      tmp = cimg::min(val24,val28); val28 = cimg::max(val24,val28); val24 = tmp; tmp = cimg::min(val25,val29);
-      val29 = cimg::max(val25,val29); val25 = tmp; tmp = cimg::min(val26,val30); val30 = cimg::max(val26,val30);
-      val26 = tmp; tmp = cimg::min(val27,val31); val31 = cimg::max(val27,val31); val27 = tmp;
-      tmp = cimg::min(val32,val36); val36 = cimg::max(val32,val36); val32 = tmp; tmp = cimg::min(val33,val37);
-      val37 = cimg::max(val33,val37); val33 = tmp; tmp = cimg::min(val34,val38); val38 = cimg::max(val34,val38);
-      val34 = tmp; tmp = cimg::min(val35,val39); val39 = cimg::max(val35,val39); val35 = tmp;
-      tmp = cimg::min(val40,val44); val44 = cimg::max(val40,val44); val40 = tmp; tmp = cimg::min(val41,val45);
-      val45 = cimg::max(val41,val45); val41 = tmp; tmp = cimg::min(val42,val46); val46 = cimg::max(val42,val46);
-      val42 = tmp; tmp = cimg::min(val43,val47); val47 = cimg::max(val43,val47); val43 = tmp;
-      tmp = cimg::min(val4,val32); val32 = cimg::max(val4,val32); val4 = tmp; tmp = cimg::min(val5,val33);
-      val33 = cimg::max(val5,val33); val5 = tmp; tmp = cimg::min(val6,val34); val34 = cimg::max(val6,val34);
-      val6 = tmp; tmp = cimg::min(val7,val35); val35 = cimg::max(val7,val35); val7 = tmp;
-      tmp = cimg::min(val12,val40); val40 = cimg::max(val12,val40); val12 = tmp; tmp = cimg::min(val13,val41);
-      val41 = cimg::max(val13,val41); val13 = tmp; tmp = cimg::min(val14,val42); val42 = cimg::max(val14,val42);
-      val14 = tmp; tmp = cimg::min(val15,val43); val43 = cimg::max(val15,val43); val15 = tmp;
-      tmp = cimg::min(val20,val48); val48 = cimg::max(val20,val48); val20 = tmp; tmp = cimg::min(val4,val16);
-      val16 = cimg::max(val4,val16); val4 = tmp; tmp = cimg::min(val5,val17); val17 = cimg::max(val5,val17);
-      val5 = tmp; tmp = cimg::min(val6,val18); val18 = cimg::max(val6,val18); val6 = tmp;
-      tmp = cimg::min(val7,val19); val19 = cimg::max(val7,val19); val7 = tmp; tmp = cimg::min(val12,val24);
-      val24 = cimg::max(val12,val24); val12 = tmp; tmp = cimg::min(val13,val25); val25 = cimg::max(val13,val25);
-      val13 = tmp; tmp = cimg::min(val14,val26); val26 = cimg::max(val14,val26); val14 = tmp;
-      tmp = cimg::min(val15,val27); val27 = cimg::max(val15,val27); val15 = tmp; tmp = cimg::min(val20,val32);
-      val32 = cimg::max(val20,val32); val20 = tmp; tmp = cimg::min(val21,val33); val33 = cimg::max(val21,val33);
-      val21 = tmp; tmp = cimg::min(val22,val34); val34 = cimg::max(val22,val34); val22 = tmp;
-      tmp = cimg::min(val23,val35); val35 = cimg::max(val23,val35); val23 = tmp; tmp = cimg::min(val28,val40);
-      val40 = cimg::max(val28,val40); val28 = tmp; tmp = cimg::min(val29,val41); val41 = cimg::max(val29,val41);
-      val29 = tmp; tmp = cimg::min(val30,val42); val42 = cimg::max(val30,val42); val30 = tmp;
-      tmp = cimg::min(val31,val43); val43 = cimg::max(val31,val43); val31 = tmp; tmp = cimg::min(val36,val48);
-      val48 = cimg::max(val36,val48); val36 = tmp; tmp = cimg::min(val4,val8); val8 = cimg::max(val4,val8);
-      val4 = tmp; tmp = cimg::min(val5,val9); val9 = cimg::max(val5,val9); val5 = tmp; tmp = cimg::min(val6,val10);
-      val10 = cimg::max(val6,val10); val6 = tmp; tmp = cimg::min(val7,val11); val11 = cimg::max(val7,val11); val7 = tmp;
-      tmp = cimg::min(val12,val16); val16 = cimg::max(val12,val16); val12 = tmp; tmp = cimg::min(val13,val17);
-      val17 = cimg::max(val13,val17); val13 = tmp; tmp = cimg::min(val14,val18); val18 = cimg::max(val14,val18);
-      val14 = tmp; tmp = cimg::min(val15,val19); val19 = cimg::max(val15,val19); val15 = tmp;
-      tmp = cimg::min(val20,val24); val24 = cimg::max(val20,val24); val20 = tmp; tmp = cimg::min(val21,val25);
-      val25 = cimg::max(val21,val25); val21 = tmp; tmp = cimg::min(val22,val26); val26 = cimg::max(val22,val26);
-      val22 = tmp; tmp = cimg::min(val23,val27); val27 = cimg::max(val23,val27); val23 = tmp;
-      tmp = cimg::min(val28,val32); val32 = cimg::max(val28,val32); val28 = tmp; tmp = cimg::min(val29,val33);
-      val33 = cimg::max(val29,val33); val29 = tmp; tmp = cimg::min(val30,val34); val34 = cimg::max(val30,val34);
-      val30 = tmp; tmp = cimg::min(val31,val35); val35 = cimg::max(val31,val35); val31 = tmp;
-      tmp = cimg::min(val36,val40); val40 = cimg::max(val36,val40); val36 = tmp; tmp = cimg::min(val37,val41);
-      val41 = cimg::max(val37,val41); val37 = tmp; tmp = cimg::min(val38,val42); val42 = cimg::max(val38,val42);
-      val38 = tmp; tmp = cimg::min(val39,val43); val43 = cimg::max(val39,val43); val39 = tmp;
-      tmp = cimg::min(val44,val48); val48 = cimg::max(val44,val48); val44 = tmp; tmp = cimg::min(val0,val2);
-      val2 = cimg::max(val0,val2); val0 = tmp; tmp = cimg::min(val1,val3); val3 = cimg::max(val1,val3); val1 = tmp;
-      tmp = cimg::min(val4,val6); val6 = cimg::max(val4,val6); val4 = tmp; tmp = cimg::min(val5,val7);
-      val7 = cimg::max(val5,val7); val5 = tmp; tmp = cimg::min(val8,val10); val10 = cimg::max(val8,val10); val8 = tmp;
-      tmp = cimg::min(val9,val11); val11 = cimg::max(val9,val11); val9 = tmp; tmp = cimg::min(val12,val14);
-      val14 = cimg::max(val12,val14); val12 = tmp; tmp = cimg::min(val13,val15); val15 = cimg::max(val13,val15);
-      val13 = tmp; tmp = cimg::min(val16,val18); val18 = cimg::max(val16,val18); val16 = tmp;
-      tmp = cimg::min(val17,val19); val19 = cimg::max(val17,val19); val17 = tmp; tmp = cimg::min(val20,val22);
-      val22 = cimg::max(val20,val22); val20 = tmp; tmp = cimg::min(val21,val23); val23 = cimg::max(val21,val23);
-      val21 = tmp; tmp = cimg::min(val24,val26); val26 = cimg::max(val24,val26); val24 = tmp;
-      tmp = cimg::min(val25,val27); val27 = cimg::max(val25,val27); val25 = tmp; tmp = cimg::min(val28,val30);
-      val30 = cimg::max(val28,val30); val28 = tmp; tmp = cimg::min(val29,val31); val31 = cimg::max(val29,val31);
-      val29 = tmp; tmp = cimg::min(val32,val34); val34 = cimg::max(val32,val34); val32 = tmp;
-      tmp = cimg::min(val33,val35); val35 = cimg::max(val33,val35); val33 = tmp; tmp = cimg::min(val36,val38);
-      val38 = cimg::max(val36,val38); val36 = tmp; tmp = cimg::min(val37,val39); val39 = cimg::max(val37,val39);
-      val37 = tmp; tmp = cimg::min(val40,val42); val42 = cimg::max(val40,val42); val40 = tmp;
-      tmp = cimg::min(val41,val43); val43 = cimg::max(val41,val43); val41 = tmp; tmp = cimg::min(val44,val46);
-      val46 = cimg::max(val44,val46); val44 = tmp; tmp = cimg::min(val45,val47); val47 = cimg::max(val45,val47);
-      val45 = tmp; tmp = cimg::min(val2,val32); val32 = cimg::max(val2,val32); val2 = tmp; tmp = cimg::min(val3,val33);
-      val33 = cimg::max(val3,val33); val3 = tmp; tmp = cimg::min(val6,val36); val36 = cimg::max(val6,val36); val6 = tmp;
-      tmp = cimg::min(val7,val37); val37 = cimg::max(val7,val37); val7 = tmp; tmp = cimg::min(val10,val40);
-      val40 = cimg::max(val10,val40); val10 = tmp; tmp = cimg::min(val11,val41); val41 = cimg::max(val11,val41);
-      val11 = tmp; tmp = cimg::min(val14,val44); val44 = cimg::max(val14,val44); val14 = tmp;
-      tmp = cimg::min(val15,val45); val45 = cimg::max(val15,val45); val15 = tmp; tmp = cimg::min(val18,val48);
-      val48 = cimg::max(val18,val48); val18 = tmp; tmp = cimg::min(val2,val16); val16 = cimg::max(val2,val16);
-      val2 = tmp; tmp = cimg::min(val3,val17); val17 = cimg::max(val3,val17); val3 = tmp;
-      tmp = cimg::min(val6,val20); val20 = cimg::max(val6,val20); val6 = tmp; tmp = cimg::min(val7,val21);
-      val21 = cimg::max(val7,val21); val7 = tmp; tmp = cimg::min(val10,val24); val24 = cimg::max(val10,val24);
-      val10 = tmp; tmp = cimg::min(val11,val25); val25 = cimg::max(val11,val25); val11 = tmp;
-      tmp = cimg::min(val14,val28); val28 = cimg::max(val14,val28); val14 = tmp; tmp = cimg::min(val15,val29);
-      val29 = cimg::max(val15,val29); val15 = tmp; tmp = cimg::min(val18,val32); val32 = cimg::max(val18,val32);
-      val18 = tmp; tmp = cimg::min(val19,val33); val33 = cimg::max(val19,val33); val19 = tmp;
-      tmp = cimg::min(val22,val36); val36 = cimg::max(val22,val36); val22 = tmp; tmp = cimg::min(val23,val37);
-      val37 = cimg::max(val23,val37); val23 = tmp; tmp = cimg::min(val26,val40); val40 = cimg::max(val26,val40);
-      val26 = tmp; tmp = cimg::min(val27,val41); val41 = cimg::max(val27,val41); val27 = tmp;
-      tmp = cimg::min(val30,val44); val44 = cimg::max(val30,val44); val30 = tmp; tmp = cimg::min(val31,val45);
-      val45 = cimg::max(val31,val45); val31 = tmp; tmp = cimg::min(val34,val48); val48 = cimg::max(val34,val48);
-      val34 = tmp; tmp = cimg::min(val2,val8); val8 = cimg::max(val2,val8); val2 = tmp; tmp = cimg::min(val3,val9);
-      val9 = cimg::max(val3,val9); val3 = tmp; tmp = cimg::min(val6,val12); val12 = cimg::max(val6,val12); val6 = tmp;
-      tmp = cimg::min(val7,val13); val13 = cimg::max(val7,val13); val7 = tmp; tmp = cimg::min(val10,val16);
-      val16 = cimg::max(val10,val16); val10 = tmp; tmp = cimg::min(val11,val17); val17 = cimg::max(val11,val17);
-      val11 = tmp; tmp = cimg::min(val14,val20); val20 = cimg::max(val14,val20); val14 = tmp;
-      tmp = cimg::min(val15,val21); val21 = cimg::max(val15,val21); val15 = tmp; tmp = cimg::min(val18,val24);
-      val24 = cimg::max(val18,val24); val18 = tmp; tmp = cimg::min(val19,val25); val25 = cimg::max(val19,val25);
-      val19 = tmp; tmp = cimg::min(val22,val28); val28 = cimg::max(val22,val28); val22 = tmp;
-      tmp = cimg::min(val23,val29); val29 = cimg::max(val23,val29); val23 = tmp; tmp = cimg::min(val26,val32);
-      val32 = cimg::max(val26,val32); val26 = tmp; tmp = cimg::min(val27,val33); val33 = cimg::max(val27,val33);
-      val27 = tmp; tmp = cimg::min(val30,val36); val36 = cimg::max(val30,val36); val30 = tmp;
-      tmp = cimg::min(val31,val37); val37 = cimg::max(val31,val37); val31 = tmp; tmp = cimg::min(val34,val40);
-      val40 = cimg::max(val34,val40); val34 = tmp; tmp = cimg::min(val35,val41); val41 = cimg::max(val35,val41);
-      val35 = tmp; tmp = cimg::min(val38,val44); val44 = cimg::max(val38,val44); val38 = tmp;
-      tmp = cimg::min(val39,val45); val45 = cimg::max(val39,val45); val39 = tmp; tmp = cimg::min(val42,val48);
-      val48 = cimg::max(val42,val48); val42 = tmp; tmp = cimg::min(val2,val4); val4 = cimg::max(val2,val4);
-      val2 = tmp; tmp = cimg::min(val3,val5); val5 = cimg::max(val3,val5); val3 = tmp; tmp = cimg::min(val6,val8);
-      val8 = cimg::max(val6,val8); val6 = tmp; tmp = cimg::min(val7,val9); val9 = cimg::max(val7,val9); val7 = tmp;
-      tmp = cimg::min(val10,val12); val12 = cimg::max(val10,val12); val10 = tmp; tmp = cimg::min(val11,val13);
-      val13 = cimg::max(val11,val13); val11 = tmp; tmp = cimg::min(val14,val16); val16 = cimg::max(val14,val16);
-      val14 = tmp; tmp = cimg::min(val15,val17); val17 = cimg::max(val15,val17); val15 = tmp;
-      tmp = cimg::min(val18,val20); val20 = cimg::max(val18,val20); val18 = tmp; tmp = cimg::min(val19,val21);
-      val21 = cimg::max(val19,val21); val19 = tmp; tmp = cimg::min(val22,val24); val24 = cimg::max(val22,val24);
-      val22 = tmp; tmp = cimg::min(val23,val25); val25 = cimg::max(val23,val25); val23 = tmp;
-      tmp = cimg::min(val26,val28); val28 = cimg::max(val26,val28); val26 = tmp; tmp = cimg::min(val27,val29);
-      val29 = cimg::max(val27,val29); val27 = tmp; tmp = cimg::min(val30,val32); val32 = cimg::max(val30,val32);
-      val30 = tmp; tmp = cimg::min(val31,val33); val33 = cimg::max(val31,val33); val31 = tmp;
-      tmp = cimg::min(val34,val36); val36 = cimg::max(val34,val36); val34 = tmp; tmp = cimg::min(val35,val37);
-      val37 = cimg::max(val35,val37); val35 = tmp; tmp = cimg::min(val38,val40); val40 = cimg::max(val38,val40);
-      val38 = tmp; tmp = cimg::min(val39,val41); val41 = cimg::max(val39,val41); val39 = tmp;
-      tmp = cimg::min(val42,val44); val44 = cimg::max(val42,val44); val42 = tmp; tmp = cimg::min(val43,val45);
-      val45 = cimg::max(val43,val45); val43 = tmp; tmp = cimg::min(val46,val48); val48 = cimg::max(val46,val48);
-      val46 = tmp; val1 = cimg::max(val0,val1); val3 = cimg::max(val2,val3); val5 = cimg::max(val4,val5);
-      val7 = cimg::max(val6,val7); val9 = cimg::max(val8,val9); val11 = cimg::max(val10,val11);
-      val13 = cimg::max(val12,val13); val15 = cimg::max(val14,val15); val17 = cimg::max(val16,val17);
-      val19 = cimg::max(val18,val19); val21 = cimg::max(val20,val21); val23 = cimg::max(val22,val23);
-      val24 = cimg::min(val24,val25); val26 = cimg::min(val26,val27); val28 = cimg::min(val28,val29);
-      val30 = cimg::min(val30,val31); val32 = cimg::min(val32,val33); val34 = cimg::min(val34,val35);
-      val36 = cimg::min(val36,val37); val38 = cimg::min(val38,val39); val40 = cimg::min(val40,val41);
-      val42 = cimg::min(val42,val43); val44 = cimg::min(val44,val45); val46 = cimg::min(val46,val47);
-      val32 = cimg::max(val1,val32); val34 = cimg::max(val3,val34); val36 = cimg::max(val5,val36);
-      val38 = cimg::max(val7,val38); val9 = cimg::min(val9,val40); val11 = cimg::min(val11,val42);
-      val13 = cimg::min(val13,val44); val15 = cimg::min(val15,val46); val17 = cimg::min(val17,val48);
-      val24 = cimg::max(val9,val24); val26 = cimg::max(val11,val26); val28 = cimg::max(val13,val28);
-      val30 = cimg::max(val15,val30); val17 = cimg::min(val17,val32); val19 = cimg::min(val19,val34);
-      val21 = cimg::min(val21,val36); val23 = cimg::min(val23,val38); val24 = cimg::max(val17,val24);
-      val26 = cimg::max(val19,val26); val21 = cimg::min(val21,val28); val23 = cimg::min(val23,val30);
-      val24 = cimg::max(val21,val24); val23 = cimg::min(val23,val26);
-      return cimg::max(val23,val24);
+      T tmp = std::min(val0,val32);
+      val32 = std::max(val0,val32); val0 = tmp; tmp = std::min(val1,val33); val33 = std::max(val1,val33); val1 = tmp;
+      tmp = std::min(val2,val34); val34 = std::max(val2,val34); val2 = tmp; tmp = std::min(val3,val35);
+      val35 = std::max(val3,val35); val3 = tmp; tmp = std::min(val4,val36); val36 = std::max(val4,val36); val4 = tmp;
+      tmp = std::min(val5,val37); val37 = std::max(val5,val37); val5 = tmp; tmp = std::min(val6,val38);
+      val38 = std::max(val6,val38); val6 = tmp; tmp = std::min(val7,val39); val39 = std::max(val7,val39); val7 = tmp;
+      tmp = std::min(val8,val40); val40 = std::max(val8,val40); val8 = tmp; tmp = std::min(val9,val41);
+      val41 = std::max(val9,val41); val9 = tmp; tmp = std::min(val10,val42); val42 = std::max(val10,val42);
+      val10 = tmp; tmp = std::min(val11,val43); val43 = std::max(val11,val43); val11 = tmp;
+      tmp = std::min(val12,val44); val44 = std::max(val12,val44); val12 = tmp; tmp = std::min(val13,val45);
+      val45 = std::max(val13,val45); val13 = tmp; tmp = std::min(val14,val46); val46 = std::max(val14,val46);
+      val14 = tmp; tmp = std::min(val15,val47); val47 = std::max(val15,val47); val15 = tmp;
+      tmp = std::min(val16,val48); val48 = std::max(val16,val48); val16 = tmp; tmp = std::min(val0,val16);
+      val16 = std::max(val0,val16); val0 = tmp; tmp = std::min(val1,val17); val17 = std::max(val1,val17);
+      val1 = tmp; tmp = std::min(val2,val18); val18 = std::max(val2,val18); val2 = tmp; tmp = std::min(val3,val19);
+      val19 = std::max(val3,val19); val3 = tmp; tmp = std::min(val4,val20); val20 = std::max(val4,val20); val4 = tmp;
+      tmp = std::min(val5,val21); val21 = std::max(val5,val21); val5 = tmp; tmp = std::min(val6,val22);
+      val22 = std::max(val6,val22); val6 = tmp; tmp = std::min(val7,val23); val23 = std::max(val7,val23); val7 = tmp;
+      tmp = std::min(val8,val24); val24 = std::max(val8,val24); val8 = tmp; tmp = std::min(val9,val25);
+      val25 = std::max(val9,val25); val9 = tmp; tmp = std::min(val10,val26); val26 = std::max(val10,val26);
+      val10 = tmp; tmp = std::min(val11,val27); val27 = std::max(val11,val27); val11 = tmp;
+      tmp = std::min(val12,val28); val28 = std::max(val12,val28); val12 = tmp; tmp = std::min(val13,val29);
+      val29 = std::max(val13,val29); val13 = tmp; tmp = std::min(val14,val30); val30 = std::max(val14,val30);
+      val14 = tmp; tmp = std::min(val15,val31); val31 = std::max(val15,val31); val15 = tmp;
+      tmp = std::min(val32,val48); val48 = std::max(val32,val48); val32 = tmp; tmp = std::min(val16,val32);
+      val32 = std::max(val16,val32); val16 = tmp; tmp = std::min(val17,val33); val33 = std::max(val17,val33);
+      val17 = tmp; tmp = std::min(val18,val34); val34 = std::max(val18,val34); val18 = tmp;
+      tmp = std::min(val19,val35); val35 = std::max(val19,val35); val19 = tmp; tmp = std::min(val20,val36);
+      val36 = std::max(val20,val36); val20 = tmp; tmp = std::min(val21,val37); val37 = std::max(val21,val37);
+      val21 = tmp; tmp = std::min(val22,val38); val38 = std::max(val22,val38); val22 = tmp;
+      tmp = std::min(val23,val39); val39 = std::max(val23,val39); val23 = tmp; tmp = std::min(val24,val40);
+      val40 = std::max(val24,val40); val24 = tmp; tmp = std::min(val25,val41); val41 = std::max(val25,val41);
+      val25 = tmp; tmp = std::min(val26,val42); val42 = std::max(val26,val42); val26 = tmp;
+      tmp = std::min(val27,val43); val43 = std::max(val27,val43); val27 = tmp; tmp = std::min(val28,val44);
+      val44 = std::max(val28,val44); val28 = tmp; tmp = std::min(val29,val45); val45 = std::max(val29,val45);
+      val29 = tmp; tmp = std::min(val30,val46); val46 = std::max(val30,val46); val30 = tmp;
+      tmp = std::min(val31,val47); val47 = std::max(val31,val47); val31 = tmp; tmp = std::min(val0,val8);
+      val8 = std::max(val0,val8); val0 = tmp; tmp = std::min(val1,val9); val9 = std::max(val1,val9); val1 = tmp;
+      tmp = std::min(val2,val10); val10 = std::max(val2,val10); val2 = tmp; tmp = std::min(val3,val11);
+      val11 = std::max(val3,val11); val3 = tmp; tmp = std::min(val4,val12); val12 = std::max(val4,val12); val4 = tmp;
+      tmp = std::min(val5,val13); val13 = std::max(val5,val13); val5 = tmp; tmp = std::min(val6,val14);
+      val14 = std::max(val6,val14); val6 = tmp; tmp = std::min(val7,val15); val15 = std::max(val7,val15); val7 = tmp;
+      tmp = std::min(val16,val24); val24 = std::max(val16,val24); val16 = tmp; tmp = std::min(val17,val25);
+      val25 = std::max(val17,val25); val17 = tmp; tmp = std::min(val18,val26); val26 = std::max(val18,val26);
+      val18 = tmp; tmp = std::min(val19,val27); val27 = std::max(val19,val27); val19 = tmp;
+      tmp = std::min(val20,val28); val28 = std::max(val20,val28); val20 = tmp; tmp = std::min(val21,val29);
+      val29 = std::max(val21,val29); val21 = tmp; tmp = std::min(val22,val30); val30 = std::max(val22,val30);
+      val22 = tmp; tmp = std::min(val23,val31); val31 = std::max(val23,val31); val23 = tmp;
+      tmp = std::min(val32,val40); val40 = std::max(val32,val40); val32 = tmp; tmp = std::min(val33,val41);
+      val41 = std::max(val33,val41); val33 = tmp; tmp = std::min(val34,val42); val42 = std::max(val34,val42);
+      val34 = tmp; tmp = std::min(val35,val43); val43 = std::max(val35,val43); val35 = tmp;
+      tmp = std::min(val36,val44); val44 = std::max(val36,val44); val36 = tmp; tmp = std::min(val37,val45);
+      val45 = std::max(val37,val45); val37 = tmp; tmp = std::min(val38,val46); val46 = std::max(val38,val46);
+      val38 = tmp; tmp = std::min(val39,val47); val47 = std::max(val39,val47); val39 = tmp;
+      tmp = std::min(val8,val32); val32 = std::max(val8,val32); val8 = tmp; tmp = std::min(val9,val33);
+      val33 = std::max(val9,val33); val9 = tmp; tmp = std::min(val10,val34); val34 = std::max(val10,val34);
+      val10 = tmp; tmp = std::min(val11,val35); val35 = std::max(val11,val35); val11 = tmp;
+      tmp = std::min(val12,val36); val36 = std::max(val12,val36); val12 = tmp; tmp = std::min(val13,val37);
+      val37 = std::max(val13,val37); val13 = tmp; tmp = std::min(val14,val38); val38 = std::max(val14,val38);
+      val14 = tmp; tmp = std::min(val15,val39); val39 = std::max(val15,val39); val15 = tmp;
+      tmp = std::min(val24,val48); val48 = std::max(val24,val48); val24 = tmp; tmp = std::min(val8,val16);
+      val16 = std::max(val8,val16); val8 = tmp; tmp = std::min(val9,val17); val17 = std::max(val9,val17);
+      val9 = tmp; tmp = std::min(val10,val18); val18 = std::max(val10,val18); val10 = tmp;
+      tmp = std::min(val11,val19); val19 = std::max(val11,val19); val11 = tmp; tmp = std::min(val12,val20);
+      val20 = std::max(val12,val20); val12 = tmp; tmp = std::min(val13,val21); val21 = std::max(val13,val21);
+      val13 = tmp; tmp = std::min(val14,val22); val22 = std::max(val14,val22); val14 = tmp;
+      tmp = std::min(val15,val23); val23 = std::max(val15,val23); val15 = tmp; tmp = std::min(val24,val32);
+      val32 = std::max(val24,val32); val24 = tmp; tmp = std::min(val25,val33); val33 = std::max(val25,val33);
+      val25 = tmp; tmp = std::min(val26,val34); val34 = std::max(val26,val34); val26 = tmp;
+      tmp = std::min(val27,val35); val35 = std::max(val27,val35); val27 = tmp; tmp = std::min(val28,val36);
+      val36 = std::max(val28,val36); val28 = tmp; tmp = std::min(val29,val37); val37 = std::max(val29,val37);
+      val29 = tmp; tmp = std::min(val30,val38); val38 = std::max(val30,val38); val30 = tmp;
+      tmp = std::min(val31,val39); val39 = std::max(val31,val39); val31 = tmp; tmp = std::min(val40,val48);
+      val48 = std::max(val40,val48); val40 = tmp; tmp = std::min(val0,val4); val4 = std::max(val0,val4);
+      val0 = tmp; tmp = std::min(val1,val5); val5 = std::max(val1,val5); val1 = tmp; tmp = std::min(val2,val6);
+      val6 = std::max(val2,val6); val2 = tmp; tmp = std::min(val3,val7); val7 = std::max(val3,val7); val3 = tmp;
+      tmp = std::min(val8,val12); val12 = std::max(val8,val12); val8 = tmp; tmp = std::min(val9,val13);
+      val13 = std::max(val9,val13); val9 = tmp; tmp = std::min(val10,val14); val14 = std::max(val10,val14);
+      val10 = tmp; tmp = std::min(val11,val15); val15 = std::max(val11,val15); val11 = tmp;
+      tmp = std::min(val16,val20); val20 = std::max(val16,val20); val16 = tmp; tmp = std::min(val17,val21);
+      val21 = std::max(val17,val21); val17 = tmp; tmp = std::min(val18,val22); val22 = std::max(val18,val22);
+      val18 = tmp; tmp = std::min(val19,val23); val23 = std::max(val19,val23); val19 = tmp;
+      tmp = std::min(val24,val28); val28 = std::max(val24,val28); val24 = tmp; tmp = std::min(val25,val29);
+      val29 = std::max(val25,val29); val25 = tmp; tmp = std::min(val26,val30); val30 = std::max(val26,val30);
+      val26 = tmp; tmp = std::min(val27,val31); val31 = std::max(val27,val31); val27 = tmp;
+      tmp = std::min(val32,val36); val36 = std::max(val32,val36); val32 = tmp; tmp = std::min(val33,val37);
+      val37 = std::max(val33,val37); val33 = tmp; tmp = std::min(val34,val38); val38 = std::max(val34,val38);
+      val34 = tmp; tmp = std::min(val35,val39); val39 = std::max(val35,val39); val35 = tmp;
+      tmp = std::min(val40,val44); val44 = std::max(val40,val44); val40 = tmp; tmp = std::min(val41,val45);
+      val45 = std::max(val41,val45); val41 = tmp; tmp = std::min(val42,val46); val46 = std::max(val42,val46);
+      val42 = tmp; tmp = std::min(val43,val47); val47 = std::max(val43,val47); val43 = tmp;
+      tmp = std::min(val4,val32); val32 = std::max(val4,val32); val4 = tmp; tmp = std::min(val5,val33);
+      val33 = std::max(val5,val33); val5 = tmp; tmp = std::min(val6,val34); val34 = std::max(val6,val34);
+      val6 = tmp; tmp = std::min(val7,val35); val35 = std::max(val7,val35); val7 = tmp;
+      tmp = std::min(val12,val40); val40 = std::max(val12,val40); val12 = tmp; tmp = std::min(val13,val41);
+      val41 = std::max(val13,val41); val13 = tmp; tmp = std::min(val14,val42); val42 = std::max(val14,val42);
+      val14 = tmp; tmp = std::min(val15,val43); val43 = std::max(val15,val43); val15 = tmp;
+      tmp = std::min(val20,val48); val48 = std::max(val20,val48); val20 = tmp; tmp = std::min(val4,val16);
+      val16 = std::max(val4,val16); val4 = tmp; tmp = std::min(val5,val17); val17 = std::max(val5,val17);
+      val5 = tmp; tmp = std::min(val6,val18); val18 = std::max(val6,val18); val6 = tmp;
+      tmp = std::min(val7,val19); val19 = std::max(val7,val19); val7 = tmp; tmp = std::min(val12,val24);
+      val24 = std::max(val12,val24); val12 = tmp; tmp = std::min(val13,val25); val25 = std::max(val13,val25);
+      val13 = tmp; tmp = std::min(val14,val26); val26 = std::max(val14,val26); val14 = tmp;
+      tmp = std::min(val15,val27); val27 = std::max(val15,val27); val15 = tmp; tmp = std::min(val20,val32);
+      val32 = std::max(val20,val32); val20 = tmp; tmp = std::min(val21,val33); val33 = std::max(val21,val33);
+      val21 = tmp; tmp = std::min(val22,val34); val34 = std::max(val22,val34); val22 = tmp;
+      tmp = std::min(val23,val35); val35 = std::max(val23,val35); val23 = tmp; tmp = std::min(val28,val40);
+      val40 = std::max(val28,val40); val28 = tmp; tmp = std::min(val29,val41); val41 = std::max(val29,val41);
+      val29 = tmp; tmp = std::min(val30,val42); val42 = std::max(val30,val42); val30 = tmp;
+      tmp = std::min(val31,val43); val43 = std::max(val31,val43); val31 = tmp; tmp = std::min(val36,val48);
+      val48 = std::max(val36,val48); val36 = tmp; tmp = std::min(val4,val8); val8 = std::max(val4,val8);
+      val4 = tmp; tmp = std::min(val5,val9); val9 = std::max(val5,val9); val5 = tmp; tmp = std::min(val6,val10);
+      val10 = std::max(val6,val10); val6 = tmp; tmp = std::min(val7,val11); val11 = std::max(val7,val11); val7 = tmp;
+      tmp = std::min(val12,val16); val16 = std::max(val12,val16); val12 = tmp; tmp = std::min(val13,val17);
+      val17 = std::max(val13,val17); val13 = tmp; tmp = std::min(val14,val18); val18 = std::max(val14,val18);
+      val14 = tmp; tmp = std::min(val15,val19); val19 = std::max(val15,val19); val15 = tmp;
+      tmp = std::min(val20,val24); val24 = std::max(val20,val24); val20 = tmp; tmp = std::min(val21,val25);
+      val25 = std::max(val21,val25); val21 = tmp; tmp = std::min(val22,val26); val26 = std::max(val22,val26);
+      val22 = tmp; tmp = std::min(val23,val27); val27 = std::max(val23,val27); val23 = tmp;
+      tmp = std::min(val28,val32); val32 = std::max(val28,val32); val28 = tmp; tmp = std::min(val29,val33);
+      val33 = std::max(val29,val33); val29 = tmp; tmp = std::min(val30,val34); val34 = std::max(val30,val34);
+      val30 = tmp; tmp = std::min(val31,val35); val35 = std::max(val31,val35); val31 = tmp;
+      tmp = std::min(val36,val40); val40 = std::max(val36,val40); val36 = tmp; tmp = std::min(val37,val41);
+      val41 = std::max(val37,val41); val37 = tmp; tmp = std::min(val38,val42); val42 = std::max(val38,val42);
+      val38 = tmp; tmp = std::min(val39,val43); val43 = std::max(val39,val43); val39 = tmp;
+      tmp = std::min(val44,val48); val48 = std::max(val44,val48); val44 = tmp; tmp = std::min(val0,val2);
+      val2 = std::max(val0,val2); val0 = tmp; tmp = std::min(val1,val3); val3 = std::max(val1,val3); val1 = tmp;
+      tmp = std::min(val4,val6); val6 = std::max(val4,val6); val4 = tmp; tmp = std::min(val5,val7);
+      val7 = std::max(val5,val7); val5 = tmp; tmp = std::min(val8,val10); val10 = std::max(val8,val10); val8 = tmp;
+      tmp = std::min(val9,val11); val11 = std::max(val9,val11); val9 = tmp; tmp = std::min(val12,val14);
+      val14 = std::max(val12,val14); val12 = tmp; tmp = std::min(val13,val15); val15 = std::max(val13,val15);
+      val13 = tmp; tmp = std::min(val16,val18); val18 = std::max(val16,val18); val16 = tmp;
+      tmp = std::min(val17,val19); val19 = std::max(val17,val19); val17 = tmp; tmp = std::min(val20,val22);
+      val22 = std::max(val20,val22); val20 = tmp; tmp = std::min(val21,val23); val23 = std::max(val21,val23);
+      val21 = tmp; tmp = std::min(val24,val26); val26 = std::max(val24,val26); val24 = tmp;
+      tmp = std::min(val25,val27); val27 = std::max(val25,val27); val25 = tmp; tmp = std::min(val28,val30);
+      val30 = std::max(val28,val30); val28 = tmp; tmp = std::min(val29,val31); val31 = std::max(val29,val31);
+      val29 = tmp; tmp = std::min(val32,val34); val34 = std::max(val32,val34); val32 = tmp;
+      tmp = std::min(val33,val35); val35 = std::max(val33,val35); val33 = tmp; tmp = std::min(val36,val38);
+      val38 = std::max(val36,val38); val36 = tmp; tmp = std::min(val37,val39); val39 = std::max(val37,val39);
+      val37 = tmp; tmp = std::min(val40,val42); val42 = std::max(val40,val42); val40 = tmp;
+      tmp = std::min(val41,val43); val43 = std::max(val41,val43); val41 = tmp; tmp = std::min(val44,val46);
+      val46 = std::max(val44,val46); val44 = tmp; tmp = std::min(val45,val47); val47 = std::max(val45,val47);
+      val45 = tmp; tmp = std::min(val2,val32); val32 = std::max(val2,val32); val2 = tmp; tmp = std::min(val3,val33);
+      val33 = std::max(val3,val33); val3 = tmp; tmp = std::min(val6,val36); val36 = std::max(val6,val36); val6 = tmp;
+      tmp = std::min(val7,val37); val37 = std::max(val7,val37); val7 = tmp; tmp = std::min(val10,val40);
+      val40 = std::max(val10,val40); val10 = tmp; tmp = std::min(val11,val41); val41 = std::max(val11,val41);
+      val11 = tmp; tmp = std::min(val14,val44); val44 = std::max(val14,val44); val14 = tmp;
+      tmp = std::min(val15,val45); val45 = std::max(val15,val45); val15 = tmp; tmp = std::min(val18,val48);
+      val48 = std::max(val18,val48); val18 = tmp; tmp = std::min(val2,val16); val16 = std::max(val2,val16);
+      val2 = tmp; tmp = std::min(val3,val17); val17 = std::max(val3,val17); val3 = tmp;
+      tmp = std::min(val6,val20); val20 = std::max(val6,val20); val6 = tmp; tmp = std::min(val7,val21);
+      val21 = std::max(val7,val21); val7 = tmp; tmp = std::min(val10,val24); val24 = std::max(val10,val24);
+      val10 = tmp; tmp = std::min(val11,val25); val25 = std::max(val11,val25); val11 = tmp;
+      tmp = std::min(val14,val28); val28 = std::max(val14,val28); val14 = tmp; tmp = std::min(val15,val29);
+      val29 = std::max(val15,val29); val15 = tmp; tmp = std::min(val18,val32); val32 = std::max(val18,val32);
+      val18 = tmp; tmp = std::min(val19,val33); val33 = std::max(val19,val33); val19 = tmp;
+      tmp = std::min(val22,val36); val36 = std::max(val22,val36); val22 = tmp; tmp = std::min(val23,val37);
+      val37 = std::max(val23,val37); val23 = tmp; tmp = std::min(val26,val40); val40 = std::max(val26,val40);
+      val26 = tmp; tmp = std::min(val27,val41); val41 = std::max(val27,val41); val27 = tmp;
+      tmp = std::min(val30,val44); val44 = std::max(val30,val44); val30 = tmp; tmp = std::min(val31,val45);
+      val45 = std::max(val31,val45); val31 = tmp; tmp = std::min(val34,val48); val48 = std::max(val34,val48);
+      val34 = tmp; tmp = std::min(val2,val8); val8 = std::max(val2,val8); val2 = tmp; tmp = std::min(val3,val9);
+      val9 = std::max(val3,val9); val3 = tmp; tmp = std::min(val6,val12); val12 = std::max(val6,val12); val6 = tmp;
+      tmp = std::min(val7,val13); val13 = std::max(val7,val13); val7 = tmp; tmp = std::min(val10,val16);
+      val16 = std::max(val10,val16); val10 = tmp; tmp = std::min(val11,val17); val17 = std::max(val11,val17);
+      val11 = tmp; tmp = std::min(val14,val20); val20 = std::max(val14,val20); val14 = tmp;
+      tmp = std::min(val15,val21); val21 = std::max(val15,val21); val15 = tmp; tmp = std::min(val18,val24);
+      val24 = std::max(val18,val24); val18 = tmp; tmp = std::min(val19,val25); val25 = std::max(val19,val25);
+      val19 = tmp; tmp = std::min(val22,val28); val28 = std::max(val22,val28); val22 = tmp;
+      tmp = std::min(val23,val29); val29 = std::max(val23,val29); val23 = tmp; tmp = std::min(val26,val32);
+      val32 = std::max(val26,val32); val26 = tmp; tmp = std::min(val27,val33); val33 = std::max(val27,val33);
+      val27 = tmp; tmp = std::min(val30,val36); val36 = std::max(val30,val36); val30 = tmp;
+      tmp = std::min(val31,val37); val37 = std::max(val31,val37); val31 = tmp; tmp = std::min(val34,val40);
+      val40 = std::max(val34,val40); val34 = tmp; tmp = std::min(val35,val41); val41 = std::max(val35,val41);
+      val35 = tmp; tmp = std::min(val38,val44); val44 = std::max(val38,val44); val38 = tmp;
+      tmp = std::min(val39,val45); val45 = std::max(val39,val45); val39 = tmp; tmp = std::min(val42,val48);
+      val48 = std::max(val42,val48); val42 = tmp; tmp = std::min(val2,val4); val4 = std::max(val2,val4);
+      val2 = tmp; tmp = std::min(val3,val5); val5 = std::max(val3,val5); val3 = tmp; tmp = std::min(val6,val8);
+      val8 = std::max(val6,val8); val6 = tmp; tmp = std::min(val7,val9); val9 = std::max(val7,val9); val7 = tmp;
+      tmp = std::min(val10,val12); val12 = std::max(val10,val12); val10 = tmp; tmp = std::min(val11,val13);
+      val13 = std::max(val11,val13); val11 = tmp; tmp = std::min(val14,val16); val16 = std::max(val14,val16);
+      val14 = tmp; tmp = std::min(val15,val17); val17 = std::max(val15,val17); val15 = tmp;
+      tmp = std::min(val18,val20); val20 = std::max(val18,val20); val18 = tmp; tmp = std::min(val19,val21);
+      val21 = std::max(val19,val21); val19 = tmp; tmp = std::min(val22,val24); val24 = std::max(val22,val24);
+      val22 = tmp; tmp = std::min(val23,val25); val25 = std::max(val23,val25); val23 = tmp;
+      tmp = std::min(val26,val28); val28 = std::max(val26,val28); val26 = tmp; tmp = std::min(val27,val29);
+      val29 = std::max(val27,val29); val27 = tmp; tmp = std::min(val30,val32); val32 = std::max(val30,val32);
+      val30 = tmp; tmp = std::min(val31,val33); val33 = std::max(val31,val33); val31 = tmp;
+      tmp = std::min(val34,val36); val36 = std::max(val34,val36); val34 = tmp; tmp = std::min(val35,val37);
+      val37 = std::max(val35,val37); val35 = tmp; tmp = std::min(val38,val40); val40 = std::max(val38,val40);
+      val38 = tmp; tmp = std::min(val39,val41); val41 = std::max(val39,val41); val39 = tmp;
+      tmp = std::min(val42,val44); val44 = std::max(val42,val44); val42 = tmp; tmp = std::min(val43,val45);
+      val45 = std::max(val43,val45); val43 = tmp; tmp = std::min(val46,val48); val48 = std::max(val46,val48);
+      val46 = tmp; val1 = std::max(val0,val1); val3 = std::max(val2,val3); val5 = std::max(val4,val5);
+      val7 = std::max(val6,val7); val9 = std::max(val8,val9); val11 = std::max(val10,val11);
+      val13 = std::max(val12,val13); val15 = std::max(val14,val15); val17 = std::max(val16,val17);
+      val19 = std::max(val18,val19); val21 = std::max(val20,val21); val23 = std::max(val22,val23);
+      val24 = std::min(val24,val25); val26 = std::min(val26,val27); val28 = std::min(val28,val29);
+      val30 = std::min(val30,val31); val32 = std::min(val32,val33); val34 = std::min(val34,val35);
+      val36 = std::min(val36,val37); val38 = std::min(val38,val39); val40 = std::min(val40,val41);
+      val42 = std::min(val42,val43); val44 = std::min(val44,val45); val46 = std::min(val46,val47);
+      val32 = std::max(val1,val32); val34 = std::max(val3,val34); val36 = std::max(val5,val36);
+      val38 = std::max(val7,val38); val9 = std::min(val9,val40); val11 = std::min(val11,val42);
+      val13 = std::min(val13,val44); val15 = std::min(val15,val46); val17 = std::min(val17,val48);
+      val24 = std::max(val9,val24); val26 = std::max(val11,val26); val28 = std::max(val13,val28);
+      val30 = std::max(val15,val30); val17 = std::min(val17,val32); val19 = std::min(val19,val34);
+      val21 = std::min(val21,val36); val23 = std::min(val23,val38); val24 = std::max(val17,val24);
+      val26 = std::max(val19,val26); val21 = std::min(val21,val28); val23 = std::min(val23,val30);
+      val24 = std::max(val21,val24); val23 = std::min(val23,val26);
+      return std::max(val23,val24);
     }
 
     inline double _pythagore(double a, double b) {
@@ -7189,7 +7173,7 @@ namespace cimg_library_suffixed {
         const CImg<T>& img = list._data[l];
         img.__get_select(*this,_normalization,(img._width - 1)/2,(img._height - 1)/2,
                          (img._depth - 1)/2).move_to(visu[l]);
-        dims = cimg::max(dims,visu[l]._spectrum);
+        dims = std::max(dims,visu[l]._spectrum);
       }
       cimglist_for(list,l) if (visu[l]._spectrum<dims) visu[l].resize(-100,-100,-100,dims,1);
       visu.get_append(axis,align).display(*this);
@@ -8189,8 +8173,8 @@ namespace cimg_library_suffixed {
       } else cimg_lock_display();
 
       // Set display variables.
-      _width = cimg::min(dimw,(unsigned int)screen_width());
-      _height = cimg::min(dimh,(unsigned int)screen_height());
+      _width = std::min(dimw,(unsigned int)screen_width());
+      _height = std::min(dimh,(unsigned int)screen_height());
       _normalization = normalization_type<4?normalization_type:3;
       _is_fullscreen = fullscreen_flag;
       _window_x = _window_y = 0;
@@ -9265,8 +9249,8 @@ namespace cimg_library_suffixed {
       if (!is_empty()) assign();
 
       // Set display variables
-      _width = cimg::min(dimw,(unsigned int)screen_width());
-      _height = cimg::min(dimh,(unsigned int)screen_height());
+      _width = std::min(dimw,(unsigned int)screen_width());
+      _height = std::min(dimh,(unsigned int)screen_height());
       _normalization = normalization_type<4?normalization_type:3;
       _is_fullscreen = fullscreen_flag;
       _window_x = _window_y = 0;
@@ -10013,7 +9997,7 @@ namespace cimg_library_suffixed {
   size_t siz = size(); \
   if (repeat_values) for (T *ptrd = _data; siz--; ) { \
     *(ptrd++) = (T)(*(it++)); if (it==values.end()) it = values.begin(); } \
-  else { siz = cimg::min(siz,values.size()); for (T *ptrd = _data; siz--; ) *(ptrd++) = (T)(*(it++)); }
+  else { siz = std::min(siz,values.size()); for (T *ptrd = _data; siz--; ) *(ptrd++) = (T)(*(it++)); }
       assign(size_x,size_y,size_z,size_c);
       _cimg_constructor_cpp11(repeat_values);
     }
@@ -16506,7 +16490,7 @@ namespace cimg_library_suffixed {
                 if (!pos && _cimg_mp_is_vector(arg1)) { // Coordinates specified as a vector
                   opcode = CImg<ulongT>::sequence(_cimg_mp_vector_size(arg1),arg1 + 1,
                                                   arg1 + (ulongT)_cimg_mp_vector_size(arg1));
-                  opcode.resize(1,cimg::min(opcode._height,4U),1,1,0).move_to(_opcode);
+                  opcode.resize(1,std::min(opcode._height,4U),1,1,0).move_to(_opcode);
                   is_sth = true;
                 } else {
                   _cimg_mp_check_type(arg1,pos + 1,1,0);
@@ -19096,7 +19080,7 @@ namespace cimg_library_suffixed {
         for (unsigned int i = 3; i<mp.opcode._height; ++i) *(p++) = _mp_arg(i);
         int ind = (int)cimg::round(_mp_arg(2));
         if (ind<0) ind+=vals.width() + 1;
-        ind = cimg::max(1,cimg::min(vals.width(),ind));
+        ind = std::max(1,std::min(vals.width(),ind));
         return vals.kth_smallest(ind - 1);
       }
 
@@ -19730,7 +19714,7 @@ namespace cimg_library_suffixed {
 
       static double mp_max(_cimg_math_parser& mp) {
         double val = _mp_arg(2);
-        for (unsigned int i = 3; i<mp.opcode._height; ++i) val = cimg::max(val,_mp_arg(i));
+        for (unsigned int i = 3; i<mp.opcode._height; ++i) val = std::max(val,_mp_arg(i));
         return val;
       }
 
@@ -19834,7 +19818,7 @@ namespace cimg_library_suffixed {
 
       static double mp_min(_cimg_math_parser& mp) {
         double val = _mp_arg(2);
-        for (unsigned int i = 3; i<mp.opcode._height; ++i) val = cimg::min(val,_mp_arg(i));
+        for (unsigned int i = 3; i<mp.opcode._height; ++i) val = std::min(val,_mp_arg(i));
         return val;
       }
 
@@ -20465,13 +20449,13 @@ namespace cimg_library_suffixed {
             while (still_equal && n--) still_equal = cimg::lowercase(*(ptr1++))==cimg::lowercase(*(ptr2++));
           return still_equal;
         } else if (p1>0 && !p2) { // Vector == scalar
-          n = cimg::min((unsigned int)N,p1);
+          n = std::min((unsigned int)N,p1);
           value = _mp_arg(4);
           if (!case_sensitive) value = cimg::lowercase(value);
           while (still_equal && n--) still_equal = *(ptr1++)==value;
           return still_equal;
         } else if (!p1 && p2>0) { // Scalar == vector
-          n = cimg::min((unsigned int)N,p2);
+          n = std::min((unsigned int)N,p2);
           value = _mp_arg(2);
           if (!case_sensitive) value = cimg::lowercase(value);
           while (still_equal && n--) still_equal = *(ptr2++)==value;
@@ -21486,7 +21470,7 @@ namespace cimg_library_suffixed {
     CImg<T>& min(const T& val) {
       if (is_empty()) return *this;
       cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=65536))
-      cimg_rof(*this,ptrd,T) *ptrd = cimg::min(*ptrd,val);
+      cimg_rof(*this,ptrd,T) *ptrd = std::min(*ptrd,val);
       return *this;
     }
 
@@ -21509,8 +21493,8 @@ namespace cimg_library_suffixed {
         T *ptrd = _data, *const ptre = _data + siz;
         if (siz>isiz) for (ulongT n = siz/isiz; n; --n)
           for (const t *ptrs = img._data, *ptrs_end = ptrs + isiz; ptrs<ptrs_end; ++ptrd)
-            *ptrd = cimg::min((T)*(ptrs++),*ptrd);
-        for (const t *ptrs = img._data; ptrd<ptre; ++ptrd) *ptrd = cimg::min((T)*(ptrs++),*ptrd);
+            *ptrd = std::min((T)*(ptrs++),*ptrd);
+        for (const t *ptrs = img._data; ptrd<ptre; ++ptrd) *ptrd = std::min((T)*(ptrs++),*ptrd);
       }
       return *this;
     }
@@ -21545,7 +21529,7 @@ namespace cimg_library_suffixed {
     CImg<T>& max(const T& val) {
       if (is_empty()) return *this;
       cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=65536))
-      cimg_rof(*this,ptrd,T) *ptrd = cimg::max(*ptrd,val);
+      cimg_rof(*this,ptrd,T) *ptrd = std::max(*ptrd,val);
       return *this;
     }
 
@@ -21568,8 +21552,8 @@ namespace cimg_library_suffixed {
         T *ptrd = _data, *const ptre = _data + siz;
         if (siz>isiz) for (ulongT n = siz/isiz; n; --n)
           for (const t *ptrs = img._data, *ptrs_end = ptrs + isiz; ptrs<ptrs_end; ++ptrd)
-            *ptrd = cimg::max((T)*(ptrs++),*ptrd);
-        for (const t *ptrs = img._data; ptrd<ptre; ++ptrd) *ptrd = cimg::max((T)*(ptrs++),*ptrd);
+            *ptrd = std::max((T)*(ptrs++),*ptrd);
+        for (const t *ptrs = img._data; ptrd<ptre; ++ptrd) *ptrd = std::max((T)*(ptrs++),*ptrd);
       }
       return *this;
     }
@@ -22061,7 +22045,7 @@ namespace cimg_library_suffixed {
       _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' ||
                                          *expression=='*' || *expression==':'),"eval",
                            *this,img_output,list_inputs,list_outputs);
-      output.assign(1,cimg::max(1U,mp.result_dim));
+      output.assign(1,std::max(1U,mp.result_dim));
       mp(x,y,z,c,output._data);
     }
 
@@ -22250,7 +22234,7 @@ namespace cimg_library_suffixed {
                                     "dot(): Empty specified image.",
                                     cimg_instance);
 
-      const ulongT nb = cimg::min(size(),img.size());
+      const ulongT nb = std::min(size(),img.size());
       double res = 0;
       for (ulongT off = 0; off<nb; ++off) res+=(double)_data[off]*(double)img[off];
       return res;
@@ -22318,7 +22302,7 @@ namespace cimg_library_suffixed {
         const t *ptrs = vec._data;
         const ulongT whd = (ulongT)_width*_height*_depth;
         T *ptrd = data(x,y,z);
-        for (unsigned int k = cimg::min((unsigned int)vec.size(),_spectrum); k; --k) {
+        for (unsigned int k = std::min((unsigned int)vec.size(),_spectrum); k; --k) {
           *ptrd = (T)*(ptrs++); ptrd+=whd;
         }
       }
@@ -22470,12 +22454,12 @@ namespace cimg_library_suffixed {
        dimension as a reference.
     **/
     CImg<T>& identity_matrix() {
-      return identity_matrix(cimg::max(_width,_height)).move_to(*this);
+      return identity_matrix(std::max(_width,_height)).move_to(*this);
     }
 
     //! Replace the image by an identity matrix \newinstance.
     CImg<T> get_identity_matrix() const {
-      return identity_matrix(cimg::max(_width,_height));
+      return identity_matrix(std::max(_width,_height));
     }
 
     //! Fill image with a linear sequence of values.
@@ -22633,7 +22617,7 @@ namespace cimg_library_suffixed {
     CImg<Tfloat> get_pseudoinvert() const {
       CImg<Tfloat> U, S, V;
       SVD(U,S,V);
-      const Tfloat tolerance = (sizeof(Tfloat)<=4?5.96e-8f:1.11e-16f)*cimg::max(_width,_height)*S.max();
+      const Tfloat tolerance = (sizeof(Tfloat)<=4?5.96e-8f:1.11e-16f)*std::max(_width,_height)*S.max();
       cimg_forX(V,x) {
 	const Tfloat s = S(x), invs = s>tolerance?1/s:0;
 	cimg_forY(V,y) V(x,y)*=invs;
@@ -23098,7 +23082,7 @@ namespace cimg_library_suffixed {
       else {
         U = *this;
 	if (lambda!=0) {
-	  const unsigned int delta = cimg::min(U._width,U._height);
+	  const unsigned int delta = std::min(U._width,U._height);
 	  for (unsigned int i = 0; i<delta; ++i) U(i,i) = (t)(U(i,i) + lambda);
 	}
         if (S.size()<_width) S.assign(1,_width);
@@ -23140,7 +23124,7 @@ namespace cimg_library_suffixed {
               for (int k = l; k<width(); ++k) U(k,i)*=scale;
             }
           }
-          anorm = (t)cimg::max((float)anorm,(float)(cimg::abs(S[i]) + cimg::abs(rv1[i])));
+          anorm = (t)std::max((float)anorm,(float)(cimg::abs(S[i]) + cimg::abs(rv1[i])));
         }
 
         for (int i = width() - 1; i>=0; --i) {
@@ -23158,7 +23142,7 @@ namespace cimg_library_suffixed {
           V(i,i) = (t)1.0; g = rv1[i]; l = i;
         }
 
-        for (int i = cimg::min(width(),height()) - 1; i>=0; --i) {
+        for (int i = std::min(width(),height()) - 1; i>=0; --i) {
           l = i + 1; g = S[i];
           for (int j = l; j<width(); ++j) U(j,i) = 0;
           if (g) {
@@ -23196,20 +23180,20 @@ namespace cimg_library_suffixed {
             nm = k - 1;
             t x = S[l], y = S[nm];
             g = rv1[nm]; h = rv1[k];
-            f = ((y - z)*(y + z)+(g - h)*(g + h))/cimg::max((t)1e-25,2*h*y);
+            f = ((y - z)*(y + z)+(g - h)*(g + h))/std::max((t)1e-25,2*h*y);
             g = (t)cimg::_pythagore(f,1.0);
-            f = ((x - z)*(x + z)+h*((y/(f + (f>=0?g:-g))) - h))/cimg::max((t)1e-25,x);
+            f = ((x - z)*(x + z)+h*((y/(f + (f>=0?g:-g))) - h))/std::max((t)1e-25,x);
             c = s = 1;
             for (int j = l; j<=nm; ++j) {
               const int i = j + 1;
               g = rv1[i]; h = s*g; g = c*g;
               t y = S[i];
               t z = (t)cimg::_pythagore(f,h);
-              rv1[j] = z; c = f/cimg::max((t)1e-25,z); s = h/cimg::max((t)1e-25,z);
+              rv1[j] = z; c = f/std::max((t)1e-25,z); s = h/std::max((t)1e-25,z);
               f = x*c + g*s; g = g*c - x*s; h = y*s; y*=c;
               cimg_forX(U,jj) { const t x = V(j,jj), z = V(i,jj); V(j,jj) = x*c + z*s; V(i,jj) = z*c - x*s; }
               z = (t)cimg::_pythagore(f,h); S[j] = z;
-              if (z) { z = 1/cimg::max((t)1e-25,z); c = f*z; s = h*z; }
+              if (z) { z = 1/std::max((t)1e-25,z); c = f*z; s = h*z; }
               f = c*g + s*y; x = c*y - s*g;
               cimg_forY(U,jj) { const t y = U(j,jj); z = U(i,jj); U(j,jj) = y*c + z*s; U(i,jj) = z*c - y*s; }
             }
@@ -24261,7 +24245,7 @@ namespace cimg_library_suffixed {
               do_in_parallel = true;
 #endif
             if (mp.result_dim) { // Vector-valued expression
-              const unsigned int N = cimg::min(mp.result_dim,_spectrum);
+              const unsigned int N = std::min(mp.result_dim,_spectrum);
               const ulongT whd = (ulongT)_width*_height*_depth;
               T *ptrd = *expression=='<'?_data + _width*_height*_depth - 1:_data;
               if (*expression=='<') {
@@ -24625,7 +24609,7 @@ namespace cimg_library_suffixed {
     CImg<T>& rand(const T& val_min, const T& val_max) {
       const float delta = (float)val_max - (float)val_min + (cimg::type<T>::is_float()?0:1);
       if (cimg::type<T>::is_float()) cimg_for(*this,ptrd,T) *ptrd = (T)(val_min + cimg::rand()*delta);
-      else cimg_for(*this,ptrd,T) *ptrd = cimg::min(val_max,(T)(val_min + cimg::rand()*delta));
+      else cimg_for(*this,ptrd,T) *ptrd = std::min(val_max,(T)(val_min + cimg::rand()*delta));
       return *this;
     }
 
@@ -24934,12 +24918,12 @@ namespace cimg_library_suffixed {
           cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=32768))
           cimg_rof(*this,ptrd,T) {
             const unsigned int val = (unsigned int)((*ptrd-m)*nb_levels/range);
-            *ptrd = (T)(m + cimg::min(val,nb_levels - 1)*range/nb_levels);
+            *ptrd = (T)(m + std::min(val,nb_levels - 1)*range/nb_levels);
           } else
           cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=32768))
           cimg_rof(*this,ptrd,T) {
             const unsigned int val = (unsigned int)((*ptrd-m)*nb_levels/range);
-            *ptrd = (T)cimg::min(val,nb_levels - 1);
+            *ptrd = (T)std::min(val,nb_levels - 1);
           }
       }
       return *this;
@@ -26400,7 +26384,7 @@ namespace cimg_library_suffixed {
           fX = (Tfloat)_cimg_Labf(X),
           fY = (Tfloat)_cimg_Labf(Y),
           fZ = (Tfloat)_cimg_Labf(Z);
-        *(p1++) = (T)cimg::max(0.0f,116*fY - 16);
+        *(p1++) = (T)std::max(0.0f,116*fY - 16);
         *(p2++) = (T)(500*(fX - fY));
         *(p3++) = (T)(200*(fY - fZ));
       }
@@ -26641,7 +26625,7 @@ namespace cimg_library_suffixed {
         // Raw resizing.
         //
       case -1 :
-        std::memcpy(res.assign(sx,sy,sz,sc,(T)0)._data,_data,sizeof(T)*cimg::min(size(),sx*sy*sz*sc));
+        std::memcpy(res.assign(sx,sy,sz,sc,(T)0)._data,_data,sizeof(T)*std::min(size(),(ulongT)sx*sy*sz*sc));
         break;
 
         // No interpolation.
@@ -26799,7 +26783,7 @@ namespace cimg_library_suffixed {
         if (sx!=_width) {
           CImg<Tfloat> tmp(sx,_height,_depth,_spectrum,0);
           for (unsigned int a = _width*sx, b = _width, c = sx, s = 0, t = 0; a; ) {
-            const unsigned int d = cimg::min(b,c);
+            const unsigned int d = std::min(b,c);
             a-=d; b-=d; c-=d;
             cimg_forYZC(tmp,y,z,v) tmp(t,y,z,v)+=(Tfloat)(*this)(s,y,z,v)*d;
             if (!b) {
@@ -26815,7 +26799,7 @@ namespace cimg_library_suffixed {
         if (sy!=_height) {
           CImg<Tfloat> tmp(sx,sy,_depth,_spectrum,0);
           for (unsigned int a = _height*sy, b = _height, c = sy, s = 0, t = 0; a; ) {
-            const unsigned int d = cimg::min(b,c);
+            const unsigned int d = std::min(b,c);
             a-=d; b-=d; c-=d;
             if (instance_first)
               cimg_forXZC(tmp,x,z,v) tmp(x,t,z,v)+=(Tfloat)(*this)(x,s,z,v)*d;
@@ -26834,7 +26818,7 @@ namespace cimg_library_suffixed {
         if (sz!=_depth) {
           CImg<Tfloat> tmp(sx,sy,sz,_spectrum,0);
           for (unsigned int a = _depth*sz, b = _depth, c = sz, s = 0, t = 0; a; ) {
-            const unsigned int d = cimg::min(b,c);
+            const unsigned int d = std::min(b,c);
             a-=d; b-=d; c-=d;
             if (instance_first)
               cimg_forXYC(tmp,x,y,v) tmp(x,y,t,v)+=(Tfloat)(*this)(x,y,s,v)*d;
@@ -26853,7 +26837,7 @@ namespace cimg_library_suffixed {
         if (sc!=_spectrum) {
           CImg<Tfloat> tmp(sx,sy,sz,sc,0);
           for (unsigned int a = _spectrum*sc, b = _spectrum, c = sc, s = 0, t = 0; a; ) {
-            const unsigned int d = cimg::min(b,c);
+            const unsigned int d = std::min(b,c);
             a-=d; b-=d; c-=d;
             if (instance_first)
               cimg_forXYZ(tmp,x,y,z) tmp(x,y,z,t)+=(Tfloat)(*this)(x,y,z,s)*d;
@@ -29311,7 +29295,7 @@ namespace cimg_library_suffixed {
 	  cimg_forC(*this,c) {
 	    const CImg<intT> coords = get_shared_channel(c)._autocrop(color[c],'x');
 	    const int nx0 = coords[0], nx1 = coords[1];
-	    if (nx0>=0 && nx1>=0) { x0 = cimg::min(x0,nx0); x1 = cimg::max(x1,nx1); }
+	    if (nx0>=0 && nx1>=0) { x0 = std::min(x0,nx0); x1 = std::max(x1,nx1); }
 	  }
           if (x0==width() && x1==-1) return assign(); else crop(x0,x1);
 	} break;
@@ -29320,7 +29304,7 @@ namespace cimg_library_suffixed {
 	  cimg_forC(*this,c) {
 	    const CImg<intT> coords = get_shared_channel(c)._autocrop(color[c],'y');
 	    const int ny0 = coords[0], ny1 = coords[1];
-	    if (ny0>=0 && ny1>=0) { y0 = cimg::min(y0,ny0); y1 = cimg::max(y1,ny1); }
+	    if (ny0>=0 && ny1>=0) { y0 = std::min(y0,ny0); y1 = std::max(y1,ny1); }
 	  }
           if (y0==height() && y1==-1) return assign(); else crop(0,y0,_width - 1,y1);
 	} break;
@@ -29329,7 +29313,7 @@ namespace cimg_library_suffixed {
 	  cimg_forC(*this,c) {
 	    const CImg<intT> coords = get_shared_channel(c)._autocrop(color[c],'z');
 	    const int nz0 = coords[0], nz1 = coords[1];
-	    if (nz0>=0 && nz1>=0) { z0 = cimg::min(z0,nz0); z1 = cimg::max(z1,nz1); }
+	    if (nz0>=0 && nz1>=0) { z0 = std::min(z0,nz0); z1 = std::max(z1,nz1); }
 	  }
 	  if (z0==depth() && z1==-1) return assign(); else crop(0,0,z0,_width - 1,_height - 1,z1);
 	}
@@ -30343,7 +30327,7 @@ namespace cimg_library_suffixed {
                                       const bool is_normalized=false) const {
       if (is_empty() || !kernel) return *this;
       typedef _cimg_Ttfloat Ttfloat;
-      CImg<Ttfloat> res(_width,_height,_depth,cimg::max(_spectrum,kernel._spectrum));
+      CImg<Ttfloat> res(_width,_height,_depth,std::max(_spectrum,kernel._spectrum));
       cimg_abort_init;
       if (boundary_conditions && kernel._width==kernel._height &&
           ((kernel._depth==1 && kernel._width<=5) || (kernel._depth==kernel._width && kernel._width<=3))) {
@@ -30795,7 +30779,7 @@ namespace cimg_library_suffixed {
                              const bool is_real=false) const {
       if (is_empty() || !kernel) return *this;
       typedef _cimg_Tt Tt;
-      CImg<Tt> res(_width,_height,_depth,cimg::max(_spectrum,kernel._spectrum));
+      CImg<Tt> res(_width,_height,_depth,std::max(_spectrum,kernel._spectrum));
       const int
         mx2 = kernel.width()/2, my2 = kernel.height()/2, mz2 = kernel.depth()/2,
         mx1 = mx2 - 1 + (kernel.width()%2), my1 = my2 - 1 + (kernel.height()%2), mz1 = mz2 - 1 + (kernel.depth()%2),
@@ -30933,7 +30917,7 @@ namespace cimg_library_suffixed {
             const T val = *ptrs; ptrs+=off; if (val<=cur) { cur = val; is_first = false; }}
           *(ptrd++) = cur;
           if (ptrs>=ptrse) {
-            T *pd = data(0,y,z,c); cur = cimg::min(cur,*ptrse); cimg_forX(buf,x) { *pd = cur; pd+=off; }
+            T *pd = data(0,y,z,c); cur = std::min(cur,*ptrse); cimg_forX(buf,x) { *pd = cur; pd+=off; }
           } else {
             for (int p = s1; p>0 && ptrd<=ptrde; --p) {
               const T val = *ptrs; if (ptrs<ptrse) ptrs+=off; if (val<=cur) { cur = val; is_first = false; }
@@ -30977,7 +30961,7 @@ namespace cimg_library_suffixed {
           }
           *(ptrd++) = cur;
           if (ptrs>=ptrse) {
-            T *pd = data(x,0,z,c); cur = cimg::min(cur,*ptrse); cimg_forX(buf,x) { *pd = cur; pd+=off; }
+            T *pd = data(x,0,z,c); cur = std::min(cur,*ptrse); cimg_forX(buf,x) { *pd = cur; pd+=off; }
           } else {
             for (int p = s1; p>0 && ptrd<=ptrde; --p) {
               const T val = *ptrs; if (ptrs<ptrse) ptrs+=off; if (val<=cur) { cur = val; is_first = false; }
@@ -31021,7 +31005,7 @@ namespace cimg_library_suffixed {
           }
           *(ptrd++) = cur;
           if (ptrs>=ptrse) {
-            T *pd = data(x,y,0,c); cur = cimg::min(cur,*ptrse); cimg_forX(buf,x) { *pd = cur; pd+=off; }
+            T *pd = data(x,y,0,c); cur = std::min(cur,*ptrse); cimg_forX(buf,x) { *pd = cur; pd+=off; }
           } else {
             for (int p = s1; p>0 && ptrd<=ptrde; --p) {
               const T val = *ptrs; if (ptrs<ptrse) ptrs+=off; if (val<=cur) { cur = val; is_first = false; }
@@ -31226,7 +31210,7 @@ namespace cimg_library_suffixed {
           }
           *(ptrd++) = cur;
           if (ptrs>=ptrse) {
-            T *pd = data(0,y,z,c); cur = cimg::max(cur,*ptrse); cimg_forX(buf,x) { *pd = cur; pd+=off; }
+            T *pd = data(0,y,z,c); cur = std::max(cur,*ptrse); cimg_forX(buf,x) { *pd = cur; pd+=off; }
           } else {
             for (int p = s1; p>0 && ptrd<=ptrde; --p) {
               const T val = *ptrs; if (ptrs<ptrse) ptrs+=off; if (val>=cur) { cur = val; is_first = false; }
@@ -31270,7 +31254,7 @@ namespace cimg_library_suffixed {
           }
           *(ptrd++) = cur;
           if (ptrs>=ptrse) {
-            T *pd = data(x,0,z,c); cur = cimg::max(cur,*ptrse); cimg_forX(buf,x) { *pd = cur; pd+=off; }
+            T *pd = data(x,0,z,c); cur = std::max(cur,*ptrse); cimg_forX(buf,x) { *pd = cur; pd+=off; }
           } else {
             for (int p = s1; p>0 && ptrd<=ptrde; --p) {
               const T val = *ptrs; if (ptrs<ptrse) ptrs+=off; if (val>=cur) { cur = val; is_first = false; }
@@ -31314,7 +31298,7 @@ namespace cimg_library_suffixed {
           }
           *(ptrd++) = cur;
           if (ptrs>=ptrse) {
-            T *pd = data(x,y,0,c); cur = cimg::max(cur,*ptrse); cimg_forX(buf,x) { *pd = cur; pd+=off; }
+            T *pd = data(x,y,0,c); cur = std::max(cur,*ptrse); cimg_forX(buf,x) { *pd = cur; pd+=off; }
           } else {
             for (int p = s1; p>0 && ptrd<=ptrde; --p) {
               const T val = *ptrs; if (ptrs<ptrse) ptrs+=off; if (val>=cur) { cur = val; is_first = false; }
@@ -32302,10 +32286,10 @@ namespace cimg_library_suffixed {
         _sigma_y = sigma_y>=0?sigma_y:-sigma_y*_height/100,
         _sigma_z = sigma_z>=0?sigma_z:-sigma_z*_depth/100,
         _sigma_r = sigma_r>=0?sigma_r:-sigma_r*(edge_max - edge_min)/100,
-        _sampling_x = sampling_x?sampling_x:cimg::max(_sigma_x,1.0f),
-        _sampling_y = sampling_y?sampling_y:cimg::max(_sigma_y,1.0f),
-        _sampling_z = sampling_z?sampling_z:cimg::max(_sigma_z,1.0f),
-        _sampling_r = sampling_r?sampling_r:cimg::max(_sigma_r,edge_delta/256),
+        _sampling_x = sampling_x?sampling_x:std::max(_sigma_x,1.0f),
+        _sampling_y = sampling_y?sampling_y:std::max(_sigma_y,1.0f),
+        _sampling_z = sampling_z?sampling_z:std::max(_sigma_z,1.0f),
+        _sampling_r = sampling_r?sampling_r:std::max(_sigma_r,edge_delta/256),
         derived_sigma_x = _sigma_x / _sampling_x,
         derived_sigma_y = _sigma_y / _sampling_y,
         derived_sigma_z = _sigma_z / _sampling_z,
@@ -32575,7 +32559,7 @@ namespace cimg_library_suffixed {
        \see deriche(), vanvliet().
     **/
     CImg<T>& blur_box(const float boxsize, const bool boundary_conditions=true) {
-      const float nboxsize = boxsize>=0?boxsize:-boxsize*cimg::max(_width,_height,_depth)/100;
+      const float nboxsize = boxsize>=0?boxsize:-boxsize*std::max(_width,_height,_depth)/100;
       return blur_box(nboxsize,nboxsize,nboxsize,boundary_conditions);
     }
 
@@ -33570,7 +33554,7 @@ namespace cimg_library_suffixed {
                                const float alpha=0.6f, const float sigma=1.1f, const bool is_sqrt=false) {
       CImg<Tfloat> res;
       const float
-        nsharpness = cimg::max(sharpness,1e-5f),
+        nsharpness = std::max(sharpness,1e-5f),
         power1 = (is_sqrt?0.5f:1)*nsharpness,
         power2 = power1/(1e-7f + 1 - anisotropy);
       blur(alpha).normalize(0,(T)255);
@@ -33683,7 +33667,7 @@ namespace cimg_library_suffixed {
                                     guide._width,guide._height,guide._depth,guide._spectrum,guide._data);
 
       const unsigned int
-        mins = is_3d?cimg::min(_width,_height,_depth):cimg::min(_width,_height),
+        mins = is_3d?cimg::min(_width,_height,_depth):std::min(_width,_height),
         _nb_scales = nb_scales>0?nb_scales:
         (unsigned int)cimg::round(std::log(mins/8.0)/std::log(1.5),1,1);
 
@@ -34086,9 +34070,9 @@ namespace cimg_library_suffixed {
               cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
               cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
               cz1 = z<=psized1?z:(z<depth() - psized2?psized1:psized + z - depth()), cz2 = psized - cz1 - 1,
-              u = cimg::min(cimg::max((int)guide(x,y,z,0),cx1),patch_image.width() - 1 - cx2),
-              v = cimg::min(cimg::max((int)guide(x,y,z,1),cy1),patch_image.height() - 1 - cy2),
-              w = cimg::min(cimg::max((int)guide(x,y,z,2),cz1),patch_image.depth() - 1 - cz2);
+              u = std::min(std::max((int)guide(x,y,z,0),cx1),patch_image.width() - 1 - cx2),
+              v = std::min(std::max((int)guide(x,y,z,1),cy1),patch_image.height() - 1 - cy2),
+              w = std::min(std::max((int)guide(x,y,z,2),cz1),patch_image.depth() - 1 - cz2);
             map(x,y,z,0) = u;
             map(x,y,z,1) = v;
             map(x,y,z,2) = w;
@@ -34213,19 +34197,19 @@ namespace cimg_library_suffixed {
             float dw = (float)patch_image.width(), dh = (float)patch_image.height(), dd = (float)patch_image.depth();
             for (unsigned int i = 0; i<nb_randoms; ++i) {
               const int
-                ui = (int)cimg::round(cimg::rand(cimg::max(cx1,u - dw),
-                                                 cimg::min(patch_image.width() - 1 - cx2,u + dw))),
-                vi = (int)cimg::round(cimg::rand(cimg::max(cy1,v - dh),
-                                                 cimg::min(patch_image.height() - 1 - cy2,v + dh))),
-                wi = (int)cimg::round(cimg::rand(cimg::max(cz1,w - dd),
-                                                 cimg::min(patch_image.depth() - 1 - cz2,w + dd)));
+                ui = (int)cimg::round(cimg::rand(std::max((float)cx1,u - dw),
+                                                 std::min(patch_image.width() - 1.0f - cx2,u + dw))),
+                vi = (int)cimg::round(cimg::rand(std::max((float)cy1,v - dh),
+                                                 std::min(patch_image.height() - 1.0f - cy2,v + dh))),
+                wi = (int)cimg::round(cimg::rand(std::max((float)cz1,w - dd),
+                                                 std::min(patch_image.depth() - 1.0f - cz2,w + dd)));
               if (ui!=u || vi!=v || wi!=w) {
                 const float
                   current_score = score(x,y,z),
                   D = _patchmatch(*this,patch_image,patch_width,patch_height,patch_depth,
                                   xp,yp,zp,ui - cx1,vi - cy1,wi - cz1,current_score);
                 if (D<current_score) { score(x,y,z) = D; map(x,y,z,0) = ui; map(x,y,z,1) = vi; map(x,y,z,2) = wi; }
-                dw = cimg::max(5.0f,dw*0.5f); dh = cimg::max(5.0f,dh*0.5f); dd = cimg::max(5.0f,dd*0.5f);
+                dw = std::max(5.0f,dw*0.5f); dh = std::max(5.0f,dh*0.5f); dd = std::max(5.0f,dd*0.5f);
               }
             }
           }
@@ -34238,8 +34222,8 @@ namespace cimg_library_suffixed {
             const int
               cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
               cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()) , cy2 = psizeh - cy1 - 1,
-              u = cimg::min(cimg::max((int)guide(x,y,0),cx1),patch_image.width() - 1 - cx2),
-              v = cimg::min(cimg::max((int)guide(x,y,1),cy1),patch_image.height() - 1 - cy2);
+              u = std::min(std::max((int)guide(x,y,0),cx1),patch_image.width() - 1 - cx2),
+              v = std::min(std::max((int)guide(x,y,1),cy1),patch_image.height() - 1 - cy2);
             map(x,y,0) = u;
             map(x,y,1) = v;
             score(x,y) = _patchmatch(*this,patch_image,patch_width,patch_height,
@@ -34326,17 +34310,17 @@ namespace cimg_library_suffixed {
             float dw = (float)patch_image.width(), dh = (float)patch_image.height();
             for (unsigned int i = 0; i<nb_randoms; ++i) {
               const int
-                ui = (int)cimg::round(cimg::rand(cimg::max(cx1,u - dw),
-                                                 cimg::min(patch_image.width() - 1 - cx2,u + dw))),
-                vi = (int)cimg::round(cimg::rand(cimg::max(cy1,v - dh),
-                                                 cimg::min(patch_image.height() - 1 - cy2,v + dh)));
+                ui = (int)cimg::round(cimg::rand(std::max((float)cx1,u - dw),
+                                                 std::min(patch_image.width() - 1.0f - cx2,u + dw))),
+                vi = (int)cimg::round(cimg::rand(std::max((float)cy1,v - dh),
+                                                 std::min(patch_image.height() - 1.0f - cy2,v + dh)));
               if (ui!=u || vi!=v) {
                 const float
                   current_score = score(x,y),
                   D = _patchmatch(*this,patch_image,patch_width,patch_height,
                                   xp,yp,ui - cx1,vi - cy1,current_score);
                 if (D<current_score) { score(x,y) = D; map(x,y,0) = ui; map(x,y,1) = vi; }
-                dw = cimg::max(5.0f,dw*0.5f); dh = cimg::max(5.0f,dh*0.5f);
+                dw = std::max(5.0f,dw*0.5f); dh = std::max(5.0f,dh*0.5f);
               }
             }
           }
@@ -34420,7 +34404,7 @@ namespace cimg_library_suffixed {
         return CImg<Tint>(*this,false).distance((Tint)value,metric).
           cut((Tint)cimg::type<T>::min(),(Tint)cimg::type<T>::max()).move_to(*this);
       bool is_value = false;
-      cimg_for(*this,ptr,T) *ptr = *ptr==value?is_value=true,(T)0:(T)cimg::max(0,99999999); // (avoid VC++ warning)
+      cimg_for(*this,ptr,T) *ptr = *ptr==value?is_value=true,(T)0:(T)std::max(0,99999999); // (avoid VC++ warning)
       if (!is_value) return fill(cimg::type<T>::max());
       switch (metric) {
       case 0 : return _distance_core(_distance_sep_cdt,_distance_dist_cdt);          // Chebyshev.
@@ -34884,27 +34868,27 @@ namespace cimg_library_suffixed {
     Tfloat __distance_eikonal(const CImg<Tfloat>& res, const Tfloat P,
                               const int x=0, const int y=0, const int z=0) const {
       const Tfloat M = (Tfloat)cimg::type<T>::max();
-      T T1 = (T)cimg::min(x - 1>=0?res(x - 1,y,z):M,x + 1<width()?res(x + 1,y,z):M);
+      T T1 = (T)std::min(x - 1>=0?res(x - 1,y,z):M,x + 1<width()?res(x + 1,y,z):M);
       Tfloat root = 0;
       if (_depth>1) { // 3d.
         T
-          T2 = (T)cimg::min(y - 1>=0?res(x,y - 1,z):M,y + 1<height()?res(x,y + 1,z):M),
-          T3 = (T)cimg::min(z - 1>=0?res(x,y,z - 1):M,z + 1<depth()?res(x,y,z + 1):M);
+          T2 = (T)std::min(y - 1>=0?res(x,y - 1,z):M,y + 1<height()?res(x,y + 1,z):M),
+          T3 = (T)std::min(z - 1>=0?res(x,y,z - 1):M,z + 1<depth()?res(x,y,z + 1):M);
         if (T1>T2) cimg::swap(T1,T2);
         if (T2>T3) cimg::swap(T2,T3);
         if (T1>T2) cimg::swap(T1,T2);
         if (P<=0) return (Tfloat)T1;
         if (T3<M && ___distance_eikonal(3,-2*(T1 + T2 + T3),T1*T1 + T2*T2 + T3*T3 - P*P,root))
-          return cimg::max((Tfloat)T3,root);
+          return std::max((Tfloat)T3,root);
         if (T2<M && ___distance_eikonal(2,-2*(T1 + T2),T1*T1 + T2*T2 - P*P,root))
-          return cimg::max((Tfloat)T2,root);
+          return std::max((Tfloat)T2,root);
         return P + T1;
       } else if (_height>1) { // 2d.
-        T T2 = (T)cimg::min(y - 1>=0?res(x,y - 1,z):M,y + 1<height()?res(x,y + 1,z):M);
+        T T2 = (T)std::min(y - 1>=0?res(x,y - 1,z):M,y + 1<height()?res(x,y + 1,z):M);
         if (T1>T2) cimg::swap(T1,T2);
         if (P<=0) return (Tfloat)T1;
         if (T2<M && ___distance_eikonal(2,-2*(T1 + T2),T1*T1 + T2*T2 - P*P,root))
-          return cimg::max((Tfloat)T2,root);
+          return std::max((Tfloat)T2,root);
         return P + T1;
       } else { // 1d.
         if (P<=0) return (Tfloat)T1;
@@ -37064,7 +37048,7 @@ namespace cimg_library_suffixed {
       }
 
       // Put color/texture data.
-      const unsigned int csiz = cimg::min(colors._width,primitives._width);
+      const unsigned int csiz = std::min(colors._width,primitives._width);
       for (int c = 0; c<(int)csiz; ++c) {
         const CImg<tc>& color = colors[c];
         const tc *ptrc = color._data;
@@ -37133,7 +37117,7 @@ namespace cimg_library_suffixed {
                                         const CImgList<to>& opacities) const {
       unsigned int siz = 8U + 3*_width;
       cimglist_for(primitives,p) siz+=primitives[p].size() + 1;
-      for (int c = cimg::min(primitives.width(),colors.width()) - 1; c>=0; --c) {
+      for (int c = std::min(primitives.width(),colors.width()) - 1; c>=0; --c) {
         if (colors[c].is_shared()) siz+=4;
         else { const unsigned int csiz = colors[c].size(); siz+=(csiz!=3)?4 + csiz:3; }
       }
@@ -37152,7 +37136,7 @@ namespace cimg_library_suffixed {
                                         const CImg<to>& opacities) const {
       unsigned int siz = 8U + 3*_width;
       cimglist_for(primitives,p) siz+=primitives[p].size() + 1;
-      for (int c = cimg::min(primitives.width(),colors.width()) - 1; c>=0; --c) {
+      for (int c = std::min(primitives.width(),colors.width()) - 1; c>=0; --c) {
         const unsigned int csiz = colors[c].size(); siz+=(csiz!=3)?4 + csiz:3;
       }
       if (colors._width<primitives._width) siz+=3*(primitives._width - colors._width);
@@ -37254,7 +37238,7 @@ namespace cimg_library_suffixed {
     //---------------------------
 
 #define cimg_init_scanline(color,opacity) \
-    const float _sc_nopacity = cimg::abs((float)opacity), _sc_copacity = 1 - cimg::max((float)opacity,0); \
+    const float _sc_nopacity = cimg::abs((float)opacity), _sc_copacity = 1 - std::max((float)opacity,0.0f); \
   const ulongT _sc_whd = (ulongT)_width*_height*_depth
 
 #define cimg_draw_scanline(x0,x1,y,color,opacity,brightness) \
@@ -37268,7 +37252,7 @@ namespace cimg_library_suffixed {
                             const tc *const color, const float opacity,
                             const float brightness,
                             const float nopacity, const float copacity, const ulongT whd) {
-      static const T maxval = (T)cimg::min(cimg::type<T>::max(),cimg::type<tc>::max());
+      static const T maxval = (T)std::min(cimg::type<T>::max(),(T)cimg::type<tc>::max());
       const int nx0 = x0>0?x0:0, nx1 = x1<width()?x1:width() - 1, dx = nx1 - nx0;
       if (dx>=0) {
         const tc *col = color;
@@ -37357,7 +37341,7 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
       if (x0>=0 && y0>=0 && z0>=0 && x0<width() && y0<height() && z0<depth()) {
         const ulongT whd = (ulongT)_width*_height*_depth;
-        const float nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0);
+        const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f);
         T *ptrd = data(x0,y0,z0,0);
         const tc *col = color;
         if (opacity>=1) cimg_forC(*this,c) { *ptrd = (T)*(col++); ptrd+=whd; }
@@ -37473,7 +37457,7 @@ namespace cimg_library_suffixed {
           if ((error-=dy)<0) { ptrd0+=offy; error+=dx; }
         }
       } else {
-        const float nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0);
+        const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f);
         if (~pattern) for (int error = dx>>1, x = 0; x<=dx; ++x) {
           if (pattern&hatch) {
             T *ptrd = ptrd0; const tc* col = color;
@@ -37598,7 +37582,7 @@ namespace cimg_library_suffixed {
           if ((error-=dy)<0) { ptrd0+=offy; ptrz+=offy; error+=dx; }
         }
       } else {
-        const float nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0);
+        const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f);
         if (~pattern) for (int error = dx>>1, x = 0; x<=dx; ++x) {
           const tzfloat z = Z0 + x*dz/ndx;
           if (z>=(tzfloat)*ptrz && pattern&hatch) {
@@ -37702,7 +37686,7 @@ namespace cimg_library_suffixed {
         }
         x+=px; y+=py; z+=pz; if (pattern) { hatch>>=1; if (!hatch) hatch = ~0U - (~0U>>1); }
       } else {
-        const float nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0);
+        const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f);
         for (unsigned int t = 0; t<=dmax; ++t) {
           if (!(~pattern) || (~pattern && pattern&hatch)) {
             T* ptrd = data((unsigned int)x,(unsigned int)y,(unsigned int)z);
@@ -37825,7 +37809,7 @@ namespace cimg_library_suffixed {
           if ((error-=dy)<0) { ptrd0+=offy; error+=dx; }
         }
       } else {
-        const float nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0);
+        const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f);
         if (~pattern) for (int error = dx>>1, x = 0; x<=dx; ++x) {
           T *ptrd = ptrd0;
           if (pattern&hatch) {
@@ -37966,7 +37950,7 @@ namespace cimg_library_suffixed {
           if ((error-=dy)<0) { ptrd0+=offy; error+=dx; }
         }
       } else {
-        const float nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0);
+        const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f);
         if (~pattern) for (int error = dx>>1, x = 0; x<=dx; ++x) {
           if (pattern&hatch) {
             const float z = Z0 + x*dz/ndx, tx = Tx0 + x*dtx/ndx, ty = Ty0 + x*dty/ndx;
@@ -38131,7 +38115,7 @@ namespace cimg_library_suffixed {
           if ((error-=dy)<0) { ptrd0+=offy; ptrz+=offy; error+=dx; }
         }
       } else {
-        const float nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0);
+        const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f);
         if (~pattern) for (int error = dx>>1, x = 0; x<=dx; ++x) {
           if (pattern&hatch) {
             const tzfloat z = Z0 + x*dz/ndx;
@@ -38568,7 +38552,7 @@ namespace cimg_library_suffixed {
                _counter = (_dxn-=_dyn?_dyn*(_dxn/_dyn):0, \
                            _dxr-=_dyr?_dyr*(_dxr/_dyr):0, \
                            _dxl-=_dyl?_dyl*(_dxl/_dyl):0, \
-                           cimg::min((int)(img)._height - y - 1,y2 - y)), \
+                           std::min((int)(img)._height - y - 1,y2 - y)), \
                _errn = _dyn/2, \
                _errr = _dyr/2, \
                _errl = _dyl/2, \
@@ -38605,7 +38589,7 @@ namespace cimg_library_suffixed {
                           _dcn-=_dyn?_dyn*(_dcn/_dyn):0, \
                           _dcr-=_dyr?_dyr*(_dcr/_dyr):0, \
                           _dcl-=_dyl?_dyl*(_dcl/_dyl):0, \
-                          cimg::min((int)(img)._height - y - 1,y2 - y)), \
+                          std::min((int)(img)._height - y - 1,y2 - y)), \
                _errn = _dyn/2, _errcn = _errn, \
                _errr = _dyr/2, _errcr = _errr, \
                _errl = _dyl/2, _errcl = _errl, \
@@ -38657,7 +38641,7 @@ namespace cimg_library_suffixed {
                           _dtyn-=_dyn?_dyn*(_dtyn/_dyn):0, \
                           _dtyr-=_dyr?_dyr*(_dtyr/_dyr):0, \
                           _dtyl-=_dyl?_dyl*(_dtyl/_dyl):0, \
-                          cimg::min((int)(img)._height - y - 1,y2 - y)), \
+                          std::min((int)(img)._height - y - 1,y2 - y)), \
                _errn = _dyn/2, _errtxn = _errn, _errtyn = _errn, \
                _errr = _dyr/2, _errtxr = _errr, _errtyr = _errr, \
                _errl = _dyl/2, _errtxl = _errl, _errtyl = _errl, \
@@ -38724,7 +38708,7 @@ namespace cimg_library_suffixed {
                           _dtyn-=_dyn?_dyn*(_dtyn/_dyn):0, \
                           _dtyr-=_dyr?_dyr*(_dtyr/_dyr):0, \
                           _dtyl-=_dyl?_dyl*(_dtyl/_dyl):0, \
-                          cimg::min((int)(img)._height - y - 1,y2 - y)), \
+                          std::min((int)(img)._height - y - 1,y2 - y)), \
                _errn = _dyn/2, _errcn = _errn, _errtxn = _errn, _errtyn = _errn, \
                _errr = _dyr/2, _errcr = _errr, _errtxr = _errr, _errtyr = _errr, \
                _errl = _dyl/2, _errcl = _errl, _errtxl = _errl, _errtyl = _errl, \
@@ -38804,7 +38788,7 @@ namespace cimg_library_suffixed {
                           _dlyn-=_dyn?_dyn*(_dlyn/_dyn):0, \
                           _dlyr-=_dyr?_dyr*(_dlyr/_dyr):0, \
                           _dlyl-=_dyl?_dyl*(_dlyl/_dyl):0, \
-                          cimg::min((int)(img)._height - y - 1,y2 - y)), \
+                          std::min((int)(img)._height - y - 1,y2 - y)), \
                _errn = _dyn/2, _errtxn = _errn, _errtyn = _errn, _errlxn = _errn, _errlyn = _errn, \
                _errr = _dyr/2, _errtxr = _errr, _errtyr = _errr, _errlxr = _errr, _errlyr = _errr, \
                _errl = _dyl/2, _errtxl = _errl, _errtyl = _errl, _errlxl = _errl, _errlyl = _errl, \
@@ -38958,9 +38942,9 @@ namespace cimg_library_suffixed {
                                     "different dimensions.",
                                     cimg_instance,
                                     zbuffer._width,zbuffer._height,zbuffer._depth,zbuffer._spectrum,zbuffer._data);
-      static const T maxval = (T)cimg::min(cimg::type<T>::max(),cimg::type<tc>::max());
+      static const T maxval = (T)std::min(cimg::type<T>::max(),(T)cimg::type<tc>::max());
       const float
-        nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0),
+        nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f),
         nbrightness = brightness<0?0:(brightness>2?2:brightness);
       const longT whd = (longT)width()*height()*depth(), offx = spectrum()*whd;
       int nx0 = x0, ny0 = y0, nx1 = x1, ny1 = y1, nx2 = x2, ny2 = y2;
@@ -39074,8 +39058,8 @@ namespace cimg_library_suffixed {
         throw CImgArgumentException(_cimg_instance
                                     "draw_triangle(): Specified color is (null).",
                                     cimg_instance);
-      static const T maxval = (T)cimg::min(cimg::type<T>::max(),cimg::type<tc>::max());
-      const float nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0);
+      static const T maxval = (T)std::min(cimg::type<T>::max(),(T)cimg::type<tc>::max());
+      const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f);
       const longT whd = (longT)width()*height()*depth(), offx = spectrum()*whd - 1;
       int nx0 = x0, ny0 = y0, nx1 = x1, ny1 = y1, nx2 = x2, ny2 = y2,
         nc0 = (int)((brightness0<0.0f?0.0f:(brightness0>2.0f?2.0f:brightness0))*256.0f),
@@ -39144,8 +39128,8 @@ namespace cimg_library_suffixed {
                                     "different dimensions.",
                                     cimg_instance,
                                     zbuffer._width,zbuffer._height,zbuffer._depth,zbuffer._spectrum,zbuffer._data);
-      static const T maxval = (T)cimg::min(cimg::type<T>::max(),cimg::type<tc>::max());
-      const float nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0);
+      static const T maxval = (T)std::min(cimg::type<T>::max(),(T)cimg::type<tc>::max());
+      const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f);
       const longT whd = (longT)width()*height()*depth(), offx = spectrum()*whd;
       int nx0 = x0, ny0 = y0, nx1 = x1, ny1 = y1, nx2 = x2, ny2 = y2,
         nc0 = (int)((brightness0<0.0f?0.0f:(brightness0>2.0f?2.0f:brightness0))*256.0f),
@@ -39277,9 +39261,9 @@ namespace cimg_library_suffixed {
                                     texture._width,texture._height,texture._depth,texture._spectrum,texture._data);
       if (is_overlapped(texture))
         return draw_triangle(x0,y0,x1,y1,x2,y2,+texture,tx0,ty0,tx1,ty1,tx2,ty2,opacity,brightness);
-      static const T maxval = (T)cimg::min(cimg::type<T>::max(),cimg::type<tc>::max());
+      static const T maxval = (T)std::min(cimg::type<T>::max(),cimg::type<tc>::max());
       const float
-        nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0),
+        nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f),
         nbrightness = brightness<0?0:(brightness>2?2:brightness);
       const ulongT
         whd = (ulongT)_width*_height*_depth,
@@ -39399,9 +39383,9 @@ namespace cimg_library_suffixed {
                                     texture._width,texture._height,texture._depth,texture._spectrum,texture._data);
       if (is_overlapped(texture))
         return draw_triangle(x0,y0,z0,x1,y1,z1,x2,y2,z2,+texture,tx0,ty0,tx1,ty1,tx2,ty2,opacity,brightness);
-      static const T maxval = (T)cimg::min(cimg::type<T>::max(),cimg::type<tc>::max());
+      static const T maxval = (T)std::min(cimg::type<T>::max(),(T)cimg::type<tc>::max());
       const float
-        nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0),
+        nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f),
         nbrightness = brightness<0?0:(brightness>2?2:brightness);
       const ulongT
         whd = (ulongT)_width*_height*_depth,
@@ -39543,9 +39527,9 @@ namespace cimg_library_suffixed {
                                     texture._width,texture._height,texture._depth,texture._spectrum,texture._data);
       if (is_overlapped(texture))
         return draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,+texture,tx0,ty0,tx1,ty1,tx2,ty2,opacity,brightness);
-      static const T maxval = (T)cimg::min(cimg::type<T>::max(),cimg::type<tc>::max());
+      static const T maxval = (T)std::min(cimg::type<T>::max(),(T)cimg::type<tc>::max());
       const float
-        nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0),
+        nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f),
         nbrightness = brightness<0?0:(brightness>2?2:brightness);
       const ulongT
         whd = (ulongT)_width*_height*_depth,
@@ -39719,8 +39703,8 @@ namespace cimg_library_suffixed {
                                     "draw_triangle(): Invalid specified light texture (%u,%u,%u,%u,%p).",
                                     cimg_instance,light._width,light._height,light._depth,light._spectrum,light._data);
       if (is_overlapped(light)) return draw_triangle(x0,y0,x1,y1,x2,y2,color,+light,lx0,ly0,lx1,ly1,lx2,ly2,opacity);
-      static const T maxval = (T)cimg::min(cimg::type<T>::max(),cimg::type<tc>::max());
-      const float nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0);
+      static const T maxval = (T)std::min(cimg::type<T>::max(),(T)cimg::type<tc>::max());
+      const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f);
       int nx0 = x0, ny0 = y0, nx1 = x1, ny1 = y1, nx2 = x2, ny2 = y2,
         nlx0 = lx0, nly0 = ly0, nlx1 = lx1, nly1 = ly1, nlx2 = lx2, nly2 = ly2;
       const ulongT
@@ -39814,8 +39798,8 @@ namespace cimg_library_suffixed {
                                     zbuffer._width,zbuffer._height,zbuffer._depth,zbuffer._spectrum,zbuffer._data);
       if (is_overlapped(light)) return draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,color,
                                                      +light,lx0,ly0,lx1,ly1,lx2,ly2,opacity);
-      static const T maxval = (T)cimg::min(cimg::type<T>::max(),cimg::type<tc>::max());
-      const float nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0);
+      static const T maxval = (T)std::min(cimg::type<T>::max(),(T)cimg::type<tc>::max());
+      const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f);
       const ulongT
         whd = (ulongT)_width*_height*_depth,
         lwh = (ulongT)light._width*light._height,
@@ -39943,8 +39927,8 @@ namespace cimg_library_suffixed {
       if (is_overlapped(texture))
         return draw_triangle(x0,y0,x1,y1,x2,y2,+texture,tx0,ty0,tx1,ty1,tx2,ty2,
                              brightness0,brightness1,brightness2,opacity);
-      static const T maxval = (T)cimg::min(cimg::type<T>::max(),cimg::type<tc>::max());
-      const float nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0);
+      static const T maxval = (T)std::min(cimg::type<T>::max(),cimg::type<tc>::max());
+      const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f);
       const ulongT
         whd = (ulongT)_width*_height*_depth,
         twh = (ulongT)texture._width*texture._height,
@@ -40036,8 +40020,8 @@ namespace cimg_library_suffixed {
                                     texture._width,texture._height,texture._depth,texture._spectrum,texture._data);
       if (is_overlapped(texture)) return draw_triangle(x0,y0,z0,x1,y1,z1,x2,y2,z2,+texture,tx0,ty0,tx1,ty1,tx2,ty2,
                                                        brightness0,brightness1,brightness2,opacity);
-      static const T maxval = (T)cimg::min(cimg::type<T>::max(),cimg::type<tc>::max());
-      const float nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0);
+      static const T maxval = (T)std::min(cimg::type<T>::max(),(T)cimg::type<tc>::max());
+      const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f);
       const ulongT
         whd = (ulongT)_width*_height*_depth,
         twh = (ulongT)texture._width*texture._height,
@@ -40158,8 +40142,8 @@ namespace cimg_library_suffixed {
       if (is_overlapped(texture))
         return draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,+texture,tx0,ty0,tx1,ty1,tx2,ty2,
                                                        brightness0,brightness1,brightness2,opacity);
-      static const T maxval = (T)cimg::min(cimg::type<T>::max(),cimg::type<tc>::max());
-      const float nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0);
+      static const T maxval = (T)std::min(cimg::type<T>::max(),(T)cimg::type<tc>::max());
+      const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f);
       const ulongT
         whd = (ulongT)_width*_height*_depth,
         twh = (ulongT)texture._width*texture._height,
@@ -40305,8 +40289,8 @@ namespace cimg_library_suffixed {
         return draw_triangle(x0,y0,x1,y1,x2,y2,+texture,tx0,ty0,tx1,ty1,tx2,ty2,light,lx0,ly0,lx1,ly1,lx2,ly2,opacity);
       if (is_overlapped(light))
         return draw_triangle(x0,y0,x1,y1,x2,y2,texture,tx0,ty0,tx1,ty1,tx2,ty2,+light,lx0,ly0,lx1,ly1,lx2,ly2,opacity);
-      static const T maxval = (T)cimg::min(cimg::type<T>::max(),cimg::type<tc>::max());
-      const float nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0);
+      static const T maxval = (T)std::min(cimg::type<T>::max(),(T)cimg::type<tc>::max());
+      const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f);
       const ulongT
         whd = (ulongT)_width*_height*_depth,
         twh = (ulongT)texture._width*texture._height,
@@ -40418,8 +40402,8 @@ namespace cimg_library_suffixed {
       if (is_overlapped(light))
         return draw_triangle(x0,y0,z0,x1,y1,z1,x2,y2,z2,texture,tx0,ty0,tx1,ty1,tx2,ty2,
                              +light,lx0,ly0,lx1,ly1,lx2,ly2,opacity);
-      static const T maxval = (T)cimg::min(cimg::type<T>::max(),cimg::type<tc>::max());
-      const float nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0);
+      static const T maxval = (T)std::min(cimg::type<T>::max(),(T)cimg::type<tc>::max());
+      const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f);
       const ulongT
         whd = (ulongT)_width*_height*_depth,
         twh = (ulongT)texture._width*texture._height,
@@ -40561,8 +40545,8 @@ namespace cimg_library_suffixed {
       if (is_overlapped(light))
         return draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,
                              texture,tx0,ty0,tx1,ty1,tx2,ty2,+light,lx0,ly0,lx1,ly1,lx2,ly2,opacity);
-      static const T maxval = (T)cimg::min(cimg::type<T>::max(),cimg::type<tc>::max());
-      const float nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0);
+      static const T maxval = (T)std::min(cimg::type<T>::max(),(T)cimg::type<tc>::max());
+      const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f);
       const ulongT
         whd = (ulongT)_width*_height*_depth,
         twh = (ulongT)texture._width*texture._height,
@@ -40704,7 +40688,7 @@ namespace cimg_library_suffixed {
         offX = (ulongT)_width - lX,
         offY = (ulongT)_width*(_height - lY),
         offZ = (ulongT)_width*_height*(_depth - lZ);
-      const float nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0);
+      const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f);
       T *ptrd = data(nx0<0?0:nx0,ny0<0?0:ny0,nz0<0?0:nz0,nc0<0?0:nc0);
       if (lX>0 && lY>0 && lZ>0 && lC>0)
         for (int v = 0; v<lC; ++v) {
@@ -41064,7 +41048,7 @@ namespace cimg_library_suffixed {
         nangle = (float)(angle*cimg::PI/180),
         u = (float)std::cos(nangle),
         v = (float)std::sin(nangle),
-        rmax = cimg::max(nr1,nr2),
+        rmax = std::max(nr1,nr2),
         l1 = (float)std::pow(rmax/(nr1>0?nr1:1e-6),2),
         l2 = (float)std::pow(rmax/(nr2>0?nr2:1e-6),2),
         a = l1*u*u + l2*v*v,
@@ -41220,7 +41204,7 @@ namespace cimg_library_suffixed {
         soffY = (ulongT)sprite._width*(sprite._height - lY),
         offZ = (ulongT)_width*_height*(_depth - lZ),
         soffZ = (ulongT)sprite._width*sprite._height*(sprite._depth - lZ);
-      const float nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0);
+      const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f);
       if (lX>0 && lY>0 && lZ>0 && lC>0) {
         T *ptrd = data(x0<0?0:x0,y0<0?0:y0,z0<0?0:z0,c0<0?0:c0);
         for (int v = 0; v<lC; ++v) {
@@ -41265,7 +41249,7 @@ namespace cimg_library_suffixed {
         offZ = (ulongT)_width*_height*(_depth - lZ),
         soffZ = (ulongT)sprite._width*sprite._height*(sprite._depth - lZ),
         slX = lX*sizeof(T);
-      const float nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0);
+      const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f);
       if (lX>0 && lY>0 && lZ>0 && lC>0) {
         T *ptrd = data(x0<0?0:x0,y0<0?0:y0,z0<0?0:z0,c0<0?0:c0);
         for (int v = 0; v<lC; ++v) {
@@ -41369,7 +41353,7 @@ namespace cimg_library_suffixed {
             for (int y = 0; y<lY; ++y) {
               for (int x = 0; x<lX; ++x) {
                 const float mopacity = (float)(*(ptrm++)*opacity),
-                  nopacity = cimg::abs(mopacity), copacity = mask_max_value - cimg::max(mopacity,0);
+                  nopacity = cimg::abs(mopacity), copacity = mask_max_value - std::max(mopacity,0.0f);
                 *ptrd = (T)((nopacity*(*(ptrs++)) + *ptrd*copacity)/mask_max_value);
                 ++ptrd;
               }
@@ -41564,7 +41548,7 @@ namespace cimg_library_suffixed {
             CImg<T> letter = font[c];
             if (letter) {
               if (is_native_font && _spectrum>letter._spectrum) letter.resize(-100,-100,1,_spectrum,0,2);
-              const unsigned int cmin = cimg::min(_spectrum,letter._spectrum);
+              const unsigned int cmin = std::min(_spectrum,letter._spectrum);
               if (foreground_color)
                 for (unsigned int c = 0; c<cmin; ++c)
                   if (foreground_color[c]!=1) letter.get_shared_channel(c)*=foreground_color[c];
@@ -41636,7 +41620,7 @@ namespace cimg_library_suffixed {
       float vmax,fact;
       if (factor<=0) {
         float m, M = (float)flow.get_norm(2).max_min(m);
-        vmax = (float)cimg::max(cimg::abs(m),cimg::abs(M));
+        vmax = (float)std::max(cimg::abs(m),cimg::abs(M));
         if (!vmax) vmax = 1;
         fact = -factor;
       } else { fact = factor; vmax = 1; }
@@ -41923,7 +41907,7 @@ namespace cimg_library_suffixed {
       if (plot_type==3) {
         color1.assign(_spectrum); color2.assign(_spectrum);
         cimg_forC(*this,c) {
-          color1[c] = (tc)cimg::min((float)cimg::type<tc>::max(),color[c]*1.2f);
+          color1[c] = (tc)std::min((float)cimg::type<tc>::max(),color[c]*1.2f);
           color2[c] = (tc)(color[c]*0.4f);
         }
       }
@@ -42108,7 +42092,7 @@ namespace cimg_library_suffixed {
 
       region.assign(_width,_height,_depth,1,(t)0);
       if (x>=0 && x<width() && y>=0 && y<height() && z>=0 && z<depth()) {
-        const float nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0);
+        const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f);
         const ulongT whd = (ulongT)_width*_height*_depth, siz = (ulongT)_spectrum*whd;
         const unsigned int W1 = _width - 1, H1 = _height - 1, D1 = _depth - 1;
         const bool is_3d = (_depth>1);
@@ -42288,7 +42272,7 @@ namespace cimg_library_suffixed {
       const Tfloat m = (Tfloat)cimg::type<T>::min(), M = (Tfloat)cimg::type<T>::max();
       cimg_forZC(*this,z,c) {
         CImg<T> ref = get_shared_slice(z,c);
-        for (int delta = 1<<cimg::min(scale,31U); delta>1; delta>>=1) {
+        for (int delta = 1<<std::min(scale,31U); delta>1; delta>>=1) {
           const int delta2 = delta>>1;
           const float r = alpha*delta + beta;
 
@@ -42368,7 +42352,7 @@ namespace cimg_library_suffixed {
                                     cimg_instance,
                                     colormap._width,colormap._height,colormap._depth,colormap._spectrum,colormap._data);
 
-      const float nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0), ln2 = (float)std::log(2.0);
+      const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f), ln2 = (float)std::log(2.0);
       const int
         _x0 = x0<0?0:x0>=width()?width() - 1:x0,
         _y0 = y0<0?0:y0>=height()?height() - 1:y0,
@@ -42448,7 +42432,7 @@ namespace cimg_library_suffixed {
         throw CImgArgumentException(_cimg_instance
                                     "draw_gaussian(): Specified color is (null).",
                                     cimg_instance);
-      const float sigma2 = 2*sigma*sigma, nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0);
+      const float sigma2 = 2*sigma*sigma, nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f);
       const ulongT whd = (ulongT)_width*_height*_depth;
       const tc *col = color;
       cimg_forX(*this,x) {
@@ -42485,7 +42469,7 @@ namespace cimg_library_suffixed {
       typedef typename CImg<t>::Tfloat tfloat;
       const CImg<tfloat> invT = tensor.get_invert(), invT2 = (invT*invT)/(-2.0);
       const tfloat a = invT2(0,0), b = 2*invT2(1,0), c = invT2(1,1);
-      const float nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0);
+      const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f);
       const ulongT whd = (ulongT)_width*_height*_depth;
       const tc *col = color;
       float dy = -yc;
@@ -42537,7 +42521,7 @@ namespace cimg_library_suffixed {
 
       const CImg<tfloat> invT = tensor.get_invert(), invT2 = (invT*invT)/(-2.0);
       const tfloat a = invT2(0,0), b = 2*invT2(1,0), c = 2*invT2(2,0), d = invT2(1,1), e = 2*invT2(2,1), f = invT2(2,2);
-      const float nopacity = cimg::abs(opacity), copacity = 1 - cimg::max(opacity,0);
+      const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f);
       const ulongT whd = (ulongT)_width*_height*_depth;
       const tc *col = color;
       cimg_forXYZ(*this,x,y,z) {
@@ -42853,7 +42837,7 @@ namespace cimg_library_suffixed {
             default_light_texture.draw_gaussian(nlx,nly,default_light_texture._width/3.0f,white);
             cimg_forXY(default_light_texture,x,y) {
               const float factor = default_light_texture(x,y);
-              if (factor>nspec) default_light_texture(x,y) = cimg::min(2,nsl1*factor*factor + nsl2*factor + nsl3);
+              if (factor>nspec) default_light_texture(x,y) = std::min(2.0f,nsl1*factor*factor + nsl2*factor + nsl3);
             }
             default_light_texture.resize(-100,-100,1,_spectrum);
             olightx = lightx; olighty = lighty; olightz = lightz; ospecular_shininess = specular_shininess;
@@ -43072,7 +43056,7 @@ namespace cimg_library_suffixed {
               ly = Y + (y0 + y1 + y2)/3 - lighty,
               lz = Z + (z0 + z1 + z2)/3 - lightz,
               nl = (tpfloat)std::sqrt(1e-5f + lx*lx + ly*ly + lz*lz),
-              factor = cimg::max(cimg::abs(-lx*nx-ly*ny-lz*nz)/(norm*nl),0);
+              factor = std::max(cimg::abs(-lx*nx - ly*ny - lz*nz)/(norm*nl),0.0f);
             lightprops[l] = factor<=nspec?factor:(nsl1*factor*factor + nsl2*factor + nsl3);
           } else lightprops[l] = 1;
         }
@@ -43143,7 +43127,7 @@ namespace cimg_library_suffixed {
               ly = Y + vertices(l,1) - lighty,
               lz = Z + vertices(l,2) - lightz,
               nl = (tpfloat)std::sqrt(1e-5f + lx*lx + ly*ly + lz*lz),
-              factor = cimg::max((-lx*nx-ly*ny-lz*nz)/(norm*nl),0);
+              factor = std::max((-lx*nx - ly*ny - lz*nz)/(norm*nl),0.0f);
             lightprops[l] = factor<=nspec?factor:(nsl1*factor*factor + nsl2*factor + nsl3);
           }
         } else {
@@ -43229,8 +43213,8 @@ namespace cimg_library_suffixed {
             const tpfloat z = Z + vertices(n0,2);
             const float factor = focale<0?1:sprite_scale*(absfocale?absfocale/(z + absfocale):1);
             const unsigned int
-              _sw = (unsigned int)(cimg::max(color._width,_opacity._width)*factor),
-              _sh = (unsigned int)(cimg::max(color._height,_opacity._height)*factor),
+              _sw = (unsigned int)(std::max(color._width,_opacity._width)*factor),
+              _sh = (unsigned int)(std::max(color._height,_opacity._height)*factor),
               sw = _sw?_sw:1, sh = _sh?_sh:1;
             const int nx0 = x0 - (int)sw/2, ny0 = y0 - (int)sh/2;
             if (sw<=3*_width/2 && sh<=3*_height/2 &&
@@ -43434,7 +43418,7 @@ namespace cimg_library_suffixed {
             else _draw_triangle(x0,y0,x1,y1,x2,y2,pcolor,opacity,lightprops(l));
 #ifdef cimg_use_board
             if (pboard) {
-              const float lp = cimg::min(lightprops(l),1);
+              const float lp = std::min(lightprops(l),1);
               board.setPenColorRGBi((unsigned char)(color[0]*lp),
                                      (unsigned char)(color[1]*lp),
                                      (unsigned char)(color[2]*lp),
@@ -43566,7 +43550,7 @@ namespace cimg_library_suffixed {
                 _draw_triangle(x0,y0,x2,y2,x3,y3,pcolor,opacity,lightprops(l));
 #ifdef cimg_use_board
             if (pboard) {
-              const float lp = cimg::min(lightprops(l),1);
+              const float lp = std::min(lightprops(l),1);
               board.setPenColorRGBi((unsigned char)(color[0]*lp),
                                      (unsigned char)(color[1]*lp),
                                      (unsigned char)(color[2]*lp),(unsigned char)(opacity*255));
@@ -43713,7 +43697,7 @@ namespace cimg_library_suffixed {
             else draw_triangle(x0,y0,z0,x1,y1,z1,x2,y2,z2,color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,lightprops(l));
 #ifdef cimg_use_board
             if (pboard) {
-              const float lp = cimg::min(lightprops(l),1);
+              const float lp = std::min(lightprops(l),1);
               board.setPenColorRGBi((unsigned char)(128*lp),
                                     (unsigned char)(128*lp),
                                     (unsigned char)(128*lp),
@@ -43867,7 +43851,7 @@ namespace cimg_library_suffixed {
                 draw_triangle(x0,y0,z0,x2,y2,z2,x3,y3,z3,color,tx0,ty0,tx2,ty2,tx3,ty3,opacity,lightprops(l));
 #ifdef cimg_use_board
             if (pboard) {
-              const float lp = cimg::min(lightprops(l),1);
+              const float lp = std::min(lightprops(l),1);
               board.setPenColorRGBi((unsigned char)(128*lp),
                                      (unsigned char)(128*lp),
                                      (unsigned char)(128*lp),
@@ -44198,7 +44182,7 @@ namespace cimg_library_suffixed {
             if ((disp.button()&3)==3) { pose3d.assign(); view3d.assign(); oX3d = oY3d = X3d = Y3d = -1; }
             else if (disp.button()&1 && pose3d && (oX3d!=X3d || oY3d!=Y3d)) { // Left button: rotate.
               const float
-                R = 0.45f*cimg::min(view3d._width,view3d._height),
+                R = 0.45f*std::min(view3d._width,view3d._height),
                 R2 = R*R,
                 u0 = (float)(oX3d - view3d.width()/2),
                 v0 = (float)(oY3d - view3d.height()/2),
@@ -44208,10 +44192,10 @@ namespace cimg_library_suffixed {
                 n1 = (float)std::sqrt(u1*u1 + v1*v1),
                 nu0 = n0>R?(u0*R/n0):u0,
                 nv0 = n0>R?(v0*R/n0):v0,
-                nw0 = (float)std::sqrt(cimg::max(0,R2 - nu0*nu0 - nv0*nv0)),
+                nw0 = (float)std::sqrt(std::max(0.0f,R2 - nu0*nu0 - nv0*nv0)),
                 nu1 = n1>R?(u1*R/n1):u1,
                 nv1 = n1>R?(v1*R/n1):v1,
-                nw1 = (float)std::sqrt(cimg::max(0,R2 - nu1*nu1 - nv1*nv1)),
+                nw1 = (float)std::sqrt(std::max(0.0f,R2 - nu1*nu1 - nv1*nv1)),
                 u = nv0*nw1 - nw0*nv1,
                 v = nw0*nu1 - nu0*nw1,
                 w = nv0*nu1 - nu0*nv1,
@@ -44323,7 +44307,7 @@ namespace cimg_library_suffixed {
                 sel_opacities3d.assign(sel_primitives3d._width,1,1,1,0.8f);
               }
               points3d.shift_object3d(-0.5f*(_width - 1),-0.5f*(_height - 1),-0.5f*(_depth - 1)).resize_object3d();
-              points3d*=0.75f*cimg::min(view3d._width,view3d._height);
+              points3d*=0.75f*std::min(view3d._width,view3d._height);
             }
 
             if (!pose3d) CImg<floatT>(4,3,1,1, 1,0,0,0, 0,1,0,0, 0,0,1,0).move_to(pose3d);
@@ -44559,10 +44543,10 @@ namespace cimg_library_suffixed {
     CImg<ucharT> __get_select(const CImgDisplay& disp, const int normalization,
                               const int x, const int y, const int z) const {
       if (is_empty()) return CImg<ucharT>(1,1,1,1,0);
-      const CImg<T> crop = get_shared_channels(0,cimg::min(2,spectrum() - 1));
+      const CImg<T> crop = get_shared_channels(0,std::min(2,spectrum() - 1));
       CImg<Tuchar> img2d;
       if (_depth>1) {
-        const int mdisp = cimg::min(disp.screen_width(),disp.screen_height());
+        const int mdisp = std::min(disp.screen_width(),disp.screen_height());
         if (depth()>mdisp) {
           crop.get_resize(-100,-100,mdisp,-100,0).move_to(img2d);
           img2d.projections2d(x,y,z*img2d._depth/_depth);
@@ -44721,8 +44705,8 @@ namespace cimg_library_suffixed {
               nx1 = x0<=x1?x1:x0,
               ny0 = y0<=y1?y0:y1,
               ny1 = y0<=y1?y1:y0,
-              sx0 = (int)(16 + nx0*(visu.width() - 32)/cimg::max(1U,siz - one)),
-              sx1 = (int)(15 + (nx1 + 1)*(visu.width() - 32)/cimg::max(1U,siz - one)),
+              sx0 = (int)(16 + nx0*(visu.width() - 32)/std::max((ulongT)1,siz - one)),
+              sx1 = (int)(15 + (nx1 + 1)*(visu.width() - 32)/std::max((ulongT)1,siz - one)),
               sy0 = 16 + ny0,
               sy1 = 16 + ny1;
             if (y0>=0 && y1>=0)
@@ -44735,7 +44719,7 @@ namespace cimg_library_suffixed {
             if (graph) visu.draw_line(mouse_x,16,mouse_x,visu.height() - 17,black,0.5f,0x55555555U);
             const unsigned int
               x = (unsigned int)cimg::round((mouse_x - 16.0f)*(siz - one)/(disp.width() - 32),1,one?0:-1);
-            const double cx = nxmin + x*(nxmax - nxmin)/cimg::max(1U,siz - 1);
+            const double cx = nxmin + x*(nxmax - nxmin)/std::max((ulongT)1,siz - 1);
             if (_spectrum>=7)
               cimg_snprintf(message,message._width,"Value[%u:%g] = ( %g %g %g ... %g %g %g )",x,cx,
                             (double)(*this)(x,0,0,0),(double)(*this)(x,0,0,1),(double)(*this)(x,0,0,2),
@@ -44753,8 +44737,8 @@ namespace cimg_library_suffixed {
                 ny0 = (unsigned int)(y0<=y1?y0:y1),
                 ny1 = (unsigned int)(y0<=y1?y1:y0);
 	      const double
-                cx0 = nxmin + nx0*(nxmax - nxmin)/cimg::max(1U,siz - 1),
-                cx1 = nxmin + (nx1 + one)*(nxmax - nxmin)/cimg::max(1U,siz - 1),
+                cx0 = nxmin + nx0*(nxmax - nxmin)/std::max((ulongT)1,siz - 1),
+                cx1 = nxmin + (nx1 + one)*(nxmax - nxmin)/std::max((ulongT)1,siz - 1),
                 cy0 = nymax - ny0*(nymax - nymin)/(visu._height - 32),
                 cy1 = nymax - ny1*(nymax - nymin)/(visu._height - 32);
 	      if (y0>=0 && y1>=0)
@@ -45151,7 +45135,7 @@ namespace cimg_library_suffixed {
         if (cdx>=_width) resize(3*_width/2,_height,1,1,0);
         char c = 0;
         if (!cimg_sscanf(delimiter,"%255[^\n]%c",tmp._data,&c) || c=='\n') {
-          dx = cimg::max(cdx,dx);
+          dx = std::max(cdx,dx);
           if (++dy>=_height) resize(_width,3*_height/2,1,1,0);
           cdx = 0;
         }
@@ -45232,7 +45216,7 @@ namespace cimg_library_suffixed {
         align_bytes = (4 - dx_bytes%4)%4;
       const longT
         cimg_iobuffer = (longT)24*1024*1024,
-        buf_size = cimg::min((longT)cimg::abs(dy)*(dx_bytes + align_bytes),(longT)file_size - offset);
+        buf_size = std::min((longT)cimg::abs(dy)*(dx_bytes + align_bytes),(longT)file_size - offset);
 
       CImg<intT> colormap;
       if (bpp<16) { if (!nb_colors) nb_colors = 1<<bpp; } else nb_colors = 0;
@@ -45847,7 +45831,7 @@ namespace cimg_library_suffixed {
         T *ptrd = data(0,0,0,0);
         unsigned int w = 0, h = 0, d = 0;
         for (longT to_read = (longT)((W/8 + (W%8?1:0))*H*D); to_read>0; ) {
-          raw.assign(cimg::min(to_read,cimg_iobuffer));
+          raw.assign(std::min(to_read,cimg_iobuffer));
           cimg::fread(raw._data,raw._width,nfile);
           to_read-=raw._width;
           const unsigned char *ptrs = raw._data;
@@ -45865,7 +45849,7 @@ namespace cimg_library_suffixed {
           assign(W,H,D,1);
           T *ptrd = data(0,0,0,0);
           for (longT to_read = (longT)size(); to_read>0; ) {
-            raw.assign(cimg::min(to_read,cimg_iobuffer));
+            raw.assign(std::min(to_read,cimg_iobuffer));
             cimg::fread(raw._data,raw._width,nfile);
             to_read-=raw._width;
             const unsigned char *ptrs = raw._data;
@@ -45876,7 +45860,7 @@ namespace cimg_library_suffixed {
           assign(W,H,D,1);
           T *ptrd = data(0,0,0,0);
           for (longT to_read = (longT)size(); to_read>0; ) {
-            raw.assign(cimg::min(to_read,cimg_iobuffer/2));
+            raw.assign(std::min(to_read,cimg_iobuffer/2));
             cimg::fread(raw._data,raw._width,nfile);
 	    if (!cimg::endianness()) cimg::invert_endianness(raw._data,raw._width);
             to_read-=raw._width;
@@ -45894,7 +45878,7 @@ namespace cimg_library_suffixed {
             *ptr_g = data(0,0,0,1),
             *ptr_b = data(0,0,0,2);
           for (longT to_read = (longT)size(); to_read>0; ) {
-            raw.assign(cimg::min(to_read,cimg_iobuffer));
+            raw.assign(std::min(to_read,cimg_iobuffer));
             cimg::fread(raw._data,raw._width,nfile);
             to_read-=raw._width;
             const unsigned char *ptrs = raw._data;
@@ -45912,7 +45896,7 @@ namespace cimg_library_suffixed {
             *ptr_g = data(0,0,0,1),
             *ptr_b = data(0,0,0,2);
           for (longT to_read = (longT)size(); to_read>0; ) {
-            raw.assign(cimg::min(to_read,cimg_iobuffer/2));
+            raw.assign(std::min(to_read,cimg_iobuffer/2));
             cimg::fread(raw._data,raw._width,nfile);
             if (!cimg::endianness()) cimg::invert_endianness(raw._data,raw._width);
             to_read-=raw._width;
@@ -45930,7 +45914,7 @@ namespace cimg_library_suffixed {
         assign(W,H,D,1);
         T *ptrd = data(0,0,0,0);
         for (longT to_read = (longT)size(); to_read>0; ) {
-          raw.assign(cimg::min(to_read,cimg_iobuffer));
+          raw.assign(std::min(to_read,cimg_iobuffer));
           cimg::fread(raw._data,raw._width,nfile);
           to_read-=raw._width;
           const int *ptrs = raw._data;
@@ -45942,7 +45926,7 @@ namespace cimg_library_suffixed {
         assign(W,H,D,1);
         T *ptrd = data(0,0,0,0);
         for (longT to_read = (longT)size(); to_read>0; ) {
-          raw.assign(cimg::min(to_read,cimg_iobuffer));
+          raw.assign(std::min(to_read,cimg_iobuffer));
           cimg::fread(raw._data,raw._width,nfile);
           to_read-=raw._width;
           const float *ptrs = raw._data;
@@ -46092,7 +46076,7 @@ namespace cimg_library_suffixed {
         *ptr_g = data(0,0,0,1),
         *ptr_b = data(0,0,0,2);
       for (longT to_read = (longT)size(); to_read>0; ) {
-        raw.assign(cimg::min(to_read,cimg_iobuffer));
+        raw.assign(std::min(to_read,cimg_iobuffer));
         cimg::fread(raw._data,raw._width,nfile);
         to_read-=raw._width;
         const unsigned char *ptrs = raw._data;
@@ -46149,7 +46133,7 @@ namespace cimg_library_suffixed {
         *ptr_b = data(0,0,0,2),
         *ptr_a = data(0,0,0,3);
       for (longT to_read = (longT)size(); to_read>0; ) {
-        raw.assign(cimg::min(to_read,cimg_iobuffer));
+        raw.assign(std::min(to_read,cimg_iobuffer));
         cimg::fread(raw._data,raw._width,nfile);
         to_read-=raw._width;
         const unsigned char *ptrs = raw._data;
@@ -46222,9 +46206,9 @@ namespace cimg_library_suffixed {
           if (l==nfirst_frame)
             assign(frame._width,frame._height,1 + (nlast_frame - nfirst_frame)/nstep_frame,frame._spectrum);
           if (frame._width>_width || frame._height>_height || frame._spectrum>_spectrum)
-            resize(cimg::max(frame._width,_width),
-                   cimg::max(frame._height,_height),-100,
-                   cimg::max(frame._spectrum,_spectrum),0);
+            resize(std::max(frame._width,_width),
+                   std::max(frame._height,_height),-100,
+                   std::max(frame._spectrum,_spectrum),0);
           draw_image(0,0,(l - nfirst_frame)/nstep_frame,frame);
         }
         TIFFClose(tif);
@@ -46262,8 +46246,8 @@ namespace cimg_library_suffixed {
                                     TIFFFileName(tif));
             }
             const t *ptr = buf;
-            for (unsigned int rr = row; rr<cimg::min((unsigned int)(row + th),(unsigned int)ny); ++rr)
-              for (unsigned int cc = col; cc<cimg::min((unsigned int)(col + tw),(unsigned int)nx); ++cc)
+            for (unsigned int rr = row; rr<std::min((unsigned int)(row + th),(unsigned int)ny); ++rr)
+              for (unsigned int cc = col; cc<std::min((unsigned int)(col + tw),(unsigned int)nx); ++cc)
                 for (unsigned int vv = 0; vv<samplesperpixel; ++vv)
                   (*this)(cc,rr,vv) = (T)(ptr[(rr - row)*th*samplesperpixel + (cc - col)*samplesperpixel + vv]);
           }
@@ -46287,8 +46271,8 @@ namespace cimg_library_suffixed {
                                       TIFFFileName(tif));
               }
               const t *ptr = buf;
-              for (unsigned int rr = row; rr<cimg::min((unsigned int)(row + th),(unsigned int)ny); ++rr)
-                for (unsigned int cc = col; cc<cimg::min((unsigned int)(col + tw),(unsigned int)nx); ++cc)
+              for (unsigned int rr = row; rr<std::min((unsigned int)(row + th),(unsigned int)ny); ++rr)
+                for (unsigned int cc = col; cc<std::min((unsigned int)(col + tw),(unsigned int)nx); ++cc)
                   (*this)(cc,rr,vv) = (T)*(ptr++);
             }
         _TIFFfree(buf);
@@ -48155,8 +48139,8 @@ namespace cimg_library_suffixed {
         if (!is_empty() && !disp.is_fullscreen() && resize_disp) {
           const unsigned int
             ttw = tw*disp.width()/oldw, tth = th*disp.height()/oldh,
-            dM = cimg::max(ttw,tth), diM = (unsigned int)cimg::max(disp.width(),disp.height()),
-            imgw = cimg::max(16U,ttw*diM/dM), imgh = cimg::max(16U,tth*diM/dM);
+            dM = std::max(ttw,tth), diM = (unsigned int)std::max(disp.width(),disp.height()),
+            imgw = std::max(16U,ttw*diM/dM), imgh = std::max(16U,tth*diM/dM);
           disp.set_fullscreen(false).resize(cimg_fitscreen(imgw,imgh,1),false);
           resize_disp = false;
         }
@@ -48320,7 +48304,7 @@ namespace cimg_library_suffixed {
           const float
             ratio = (float)(x1-x0)/(y1-y0),
             ratiow = (float)disp._width/disp._height,
-            sub = cimg::min(cimg::abs(ratio - ratiow),cimg::abs(1/ratio-1/ratiow));
+            sub = std::min(cimg::abs(ratio - ratiow),cimg::abs(1/ratio-1/ratiow));
           if (sub>0.01) resize_disp = true;
         }
         if (go_left) {
@@ -48638,7 +48622,7 @@ namespace cimg_library_suffixed {
         // Init object pose
         if (init_pose) {
           const float
-            ratio = delta>0?(2.0f*cimg::min(disp.width(),disp.height())/(3.0f*delta)):1,
+            ratio = delta>0?(2.0f*std::min(disp.width(),disp.height())/(3.0f*delta)):1,
             dx = (xM + xm)/2, dy = (yM + ym)/2, dz = (zM + zm)/2;
           if (centering)
             CImg<floatT>(4,3,1,1, ratio,0.,0.,-ratio*dx, 0.,ratio,0.,-ratio*dy, 0.,0.,ratio,-ratio*dz).move_to(pose);
@@ -48732,7 +48716,7 @@ namespace cimg_library_suffixed {
           else { x1 = disp.mouse_x(); y1 = disp.mouse_y(); }
           if (disp.button()&1) {
             const float
-              R = 0.45f*cimg::min(disp.width(),disp.height()),
+              R = 0.45f*std::min(disp.width(),disp.height()),
               R2 = R*R,
               u0 = (float)(x0 - disp.width()/2),
               v0 = (float)(y0 - disp.height()/2),
@@ -48742,10 +48726,10 @@ namespace cimg_library_suffixed {
               n1 = (float)std::sqrt(u1*u1 + v1*v1),
               nu0 = n0>R?(u0*R/n0):u0,
               nv0 = n0>R?(v0*R/n0):v0,
-              nw0 = (float)std::sqrt(cimg::max(0,R2 - nu0*nu0 - nv0*nv0)),
+              nw0 = (float)std::sqrt(std::max(0.0f,R2 - nu0*nu0 - nv0*nv0)),
               nu1 = n1>R?(u1*R/n1):u1,
               nv1 = n1>R?(v1*R/n1):v1,
-              nw1 = (float)std::sqrt(cimg::max(0,R2 - nu1*nu1 - nv1*nv1)),
+              nw1 = (float)std::sqrt(std::max(0.0f,R2 - nu1*nu1 - nv1*nv1)),
               u = nv0*nw1 - nw0*nv1,
               v = nw0*nu1 - nu0*nw1,
               w = nv0*nu1 - nu0*nv1,
@@ -49003,7 +48987,7 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
       if (!disp) disp.assign(cimg_fitscreen(CImgDisplay::screen_width()/2,CImgDisplay::screen_height()/2,1),0,0).
                    set_title(title?"%s":"CImg<%s>",title?title:pixel_type());
-      const ulongT siz = (ulongT)_width*_height*_depth, siz1 = cimg::max(1U,siz - 1);
+      const ulongT siz = (ulongT)_width*_height*_depth, siz1 = std::max((ulongT)1,siz - 1);
       const unsigned int old_normalization = disp.normalization();
       disp.show().flush()._normalization = 0;
 
@@ -49886,7 +49870,7 @@ namespace cimg_library_suffixed {
         *ptr_r = data(0,0,0,0),
         *ptr_g = (_spectrum>=2)?data(0,0,0,1):0,
         *ptr_b = (_spectrum>=3)?data(0,0,0,2):0;
-      const ulongT buf_size = cimg::min((ulongT)1024*1024,(ulongT)_width*_height*(_spectrum==1?1UL:3UL));
+      const ulongT buf_size = std::min((ulongT)1024*1024,(ulongT)_width*_height*(_spectrum==1?1UL:3UL));
 
       std::fprintf(nfile,"P%c\n%u %u\n%u\n",
                    (_spectrum==1?'5':'6'),_width,_height,stmax<256?255:(stmax<4096?4095:65535));
@@ -49896,7 +49880,7 @@ namespace cimg_library_suffixed {
         if (bytes_per_pixel==1 || (!bytes_per_pixel && stmax<256)) { // Binary PGM 8 bits
           CImg<ucharT> buf((unsigned int)buf_size);
           for (longT to_write = (longT)width()*height(); to_write>0; ) {
-            const ulongT N = cimg::min((ulongT)to_write,buf_size);
+            const ulongT N = std::min((ulongT)to_write,buf_size);
             unsigned char *ptrd = buf._data;
             for (ulongT i = N; i>0; --i) *(ptrd++) = (unsigned char)*(ptr_r++);
             cimg::fwrite(buf._data,N,nfile);
@@ -49905,7 +49889,7 @@ namespace cimg_library_suffixed {
         } else { // Binary PGM 16 bits
           CImg<ushortT> buf((unsigned int)buf_size);
           for (longT to_write = (longT)width()*height(); to_write>0; ) {
-            const ulongT N = cimg::min((ulongT)to_write,buf_size);
+            const ulongT N = std::min((ulongT)to_write,buf_size);
             unsigned short *ptrd = buf._data;
             for (ulongT i = N; i>0; --i) *(ptrd++) = (unsigned short)*(ptr_r++);
             if (!cimg::endianness()) cimg::invert_endianness(buf._data,buf_size);
@@ -49918,7 +49902,7 @@ namespace cimg_library_suffixed {
         if (bytes_per_pixel==1 || (!bytes_per_pixel && stmax<256)) { // Binary PPM 8 bits
           CImg<ucharT> buf((unsigned int)buf_size);
           for (longT to_write = (longT)width()*height(); to_write>0; ) {
-            const ulongT N = cimg::min((ulongT)to_write,buf_size/3);
+            const ulongT N = std::min((ulongT)to_write,buf_size/3);
             unsigned char *ptrd = buf._data;
             for (ulongT i = N; i>0; --i) {
               *(ptrd++) = (unsigned char)*(ptr_r++);
@@ -49931,7 +49915,7 @@ namespace cimg_library_suffixed {
         } else {             // Binary PPM 16 bits
           CImg<ushortT> buf((unsigned int)buf_size);
           for (longT to_write = (longT)width()*height(); to_write>0; ) {
-            const ulongT N = cimg::min((ulongT)to_write,buf_size/3);
+            const ulongT N = std::min((ulongT)to_write,buf_size/3);
             unsigned short *ptrd = buf._data;
             for (ulongT i = N; i>0; --i) {
               *(ptrd++) = (unsigned short)*(ptr_r++);
@@ -49948,7 +49932,7 @@ namespace cimg_library_suffixed {
         if (bytes_per_pixel==1 || (!bytes_per_pixel && stmax<256)) { // Binary PPM 8 bits
           CImg<ucharT> buf((unsigned int)buf_size);
           for (longT to_write = (longT)width()*height(); to_write>0; ) {
-            const ulongT N = cimg::min((ulongT)to_write,buf_size/3);
+            const ulongT N = std::min((ulongT)to_write,buf_size/3);
             unsigned char *ptrd = buf._data;
             for (ulongT i = N; i>0; --i) {
               *(ptrd++) = (unsigned char)*(ptr_r++);
@@ -49961,7 +49945,7 @@ namespace cimg_library_suffixed {
         } else { // Binary PPM 16 bits
           CImg<ushortT> buf((unsigned int)buf_size);
           for (longT to_write = (longT)width()*height(); to_write>0; ) {
-            const ulongT N = cimg::min((ulongT)to_write,buf_size/3);
+            const ulongT N = std::min((ulongT)to_write,buf_size/3);
             unsigned short *ptrd = buf._data;
             for (ulongT i = N; i>0; --i) {
               *(ptrd++) = (unsigned short)*(ptr_r++);
@@ -50004,7 +49988,7 @@ namespace cimg_library_suffixed {
                    cimg_instance,
                    filename?filename:"(FILE*)");
 
-      const ulongT buf_size = cimg::min((ulongT)1024*1024,(ulongT)_width*_height*_depth);
+      const ulongT buf_size = std::min((ulongT)1024*1024,(ulongT)_width*_height*_depth);
       std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
       const T *ptr = data(0,0,0,0);
 
@@ -50014,7 +49998,7 @@ namespace cimg_library_suffixed {
         std::fprintf(nfile,"P5\n%u %u %u\n255\n",_width,_height,_depth);
         CImg<ucharT> buf((unsigned int)buf_size);
         for (longT to_write = (longT)width()*height()*depth(); to_write>0; ) {
-          const ulongT N = cimg::min((ulongT)to_write,buf_size);
+          const ulongT N = std::min((ulongT)to_write,buf_size);
           unsigned char *ptrd = buf._data;
           for (ulongT i = N; i>0; --i) *(ptrd++) = (unsigned char)*(ptr++);
           cimg::fwrite(buf._data,N,nfile);
@@ -50025,7 +50009,7 @@ namespace cimg_library_suffixed {
         else std::fprintf(nfile,"P8\n%u %u\n%d\n",_width,_height,(int)max());
         CImg<intT> buf((unsigned int)buf_size);
         for (longT to_write = (longT)width()*height()*depth(); to_write>0; ) {
-          const ulongT N = cimg::min((ulongT)to_write,buf_size);
+          const ulongT N = std::min((ulongT)to_write,buf_size);
           int *ptrd = buf._data;
           for (ulongT i = N; i>0; --i) *(ptrd++) = (int)*(ptr++);
           cimg::fwrite(buf._data,N,nfile);
@@ -50036,7 +50020,7 @@ namespace cimg_library_suffixed {
         else std::fprintf(nfile,"P9\n%u %u\n%g\n",_width,_height,(double)max());
         CImg<floatT> buf((unsigned int)buf_size);
         for (longT to_write = (longT)width()*height()*depth(); to_write>0; ) {
-          const ulongT N = cimg::min((ulongT)to_write,buf_size);
+          const ulongT N = std::min((ulongT)to_write,buf_size);
           float *ptrd = buf._data;
           for (ulongT i = N; i>0; --i) *(ptrd++) = (float)*(ptr++);
           cimg::fwrite(buf._data,N,nfile);
@@ -50086,7 +50070,7 @@ namespace cimg_library_suffixed {
         *ptr_r = data(0,0,0,0),
         *ptr_g = (_spectrum>=2)?data(0,0,0,1):0,
         *ptr_b = (_spectrum>=3)?data(0,0,0,2):0;
-      const unsigned int buf_size = cimg::min(1024*1024U,_width*_height*(_spectrum==1?1:3));
+      const unsigned int buf_size = std::min(1024*1024U,_width*_height*(_spectrum==1?1:3));
 
       std::fprintf(nfile,"P%c\n%u %u\n1.0\n",
                    (_spectrum==1?'f':'F'),_width,_height);
@@ -50095,7 +50079,7 @@ namespace cimg_library_suffixed {
       case 1 : { // Scalar image
         CImg<floatT> buf(buf_size);
         for (longT to_write = (longT)width()*height(); to_write>0; ) {
-          const ulongT N = cimg::min((ulongT)to_write,buf_size);
+          const ulongT N = std::min((ulongT)to_write,(ulongT)buf_size);
           float *ptrd = buf._data;
           for (ulongT i = N; i>0; --i) *(ptrd++) = (float)*(ptr_r++);
           if (!cimg::endianness()) cimg::invert_endianness(buf._data,buf_size);
@@ -50106,7 +50090,7 @@ namespace cimg_library_suffixed {
       case 2 : { // RG image
         CImg<floatT> buf(buf_size);
         for (longT to_write = (longT)width()*height(); to_write>0; ) {
-          const unsigned int N = cimg::min((unsigned int)to_write,buf_size/3);
+          const unsigned int N = std::min((unsigned int)to_write,buf_size/3);
           float *ptrd = buf._data;
           for (ulongT i = N; i>0; --i) {
             *(ptrd++) = (float)*(ptr_r++);
@@ -50121,7 +50105,7 @@ namespace cimg_library_suffixed {
       default : { // RGB image
         CImg<floatT> buf(buf_size);
         for (longT to_write = (longT)width()*height(); to_write>0; ) {
-          const unsigned int N = cimg::min((unsigned int)to_write,buf_size/3);
+          const unsigned int N = std::min((unsigned int)to_write,buf_size/3);
           float *ptrd = buf._data;
           for (ulongT i = N; i>0; --i) {
             *(ptrd++) = (float)*(ptr_r++);
@@ -51578,7 +51562,7 @@ namespace cimg_library_suffixed {
        (that may occur when starting from an empty list and inserting several images in it).
     **/
     explicit CImgList(const unsigned int n):_width(n) {
-      if (n) _data = new CImg<T>[_allocated_width = (unsigned int)cimg::max(16UL,cimg::nearest_pow2(n))];
+      if (n) _data = new CImg<T>[_allocated_width = (unsigned int)std::max(16UL,cimg::nearest_pow2(n))];
       else { _allocated_width = 0; _data = 0; }
     }
 
@@ -51902,7 +51886,7 @@ namespace cimg_library_suffixed {
       if (!n) return assign();
       if (_allocated_width<n || _allocated_width>(n<<2)) {
         delete[] _data;
-        _data = new CImg<T>[_allocated_width = (unsigned int)cimg::max(16UL,cimg::nearest_pow2(n))];
+        _data = new CImg<T>[_allocated_width = (unsigned int)std::max(16UL,cimg::nearest_pow2(n))];
       }
       _width = n;
       return *this;
@@ -52830,7 +52814,7 @@ namespace cimg_library_suffixed {
       bool res = true; for (unsigned int l = 0; l<_width && res; ++l) res = _data[l].is_same##axis(img); return res; \
     } \
     template<typename t> bool is_same##axis(const CImgList<t>& list) const { \
-      const unsigned int lmin = cimg::min(_width,list._width); \
+      const unsigned int lmin = std::min(_width,list._width); \
       bool res = true; for (unsigned int l = 0; l<lmin && res; ++l) res = _data[l].is_same##axis(list[l]); return res; \
     } \
     template<typename t> bool is_sameN##axis(const unsigned int n, const CImg<t>& img) const { \
@@ -53532,9 +53516,9 @@ namespace cimg_library_suffixed {
           const CImg<T>& img = (*this)[l];
           if (img) {
             dx+=img._width;
-            dy = cimg::max(dy,img._height);
-            dz = cimg::max(dz,img._depth);
-            dc = cimg::max(dc,img._spectrum);
+            dy = std::max(dy,img._height);
+            dz = std::max(dz,img._depth);
+            dc = std::max(dc,img._spectrum);
           }
         }
         res.assign(dx,dy,dz,dc,(T)0);
@@ -53552,10 +53536,10 @@ namespace cimg_library_suffixed {
         cimglist_for(*this,l) {
           const CImg<T>& img = (*this)[l];
           if (img) {
-            dx = cimg::max(dx,img._width);
+            dx = std::max(dx,img._width);
             dy+=img._height;
-            dz = cimg::max(dz,img._depth);
-            dc = cimg::max(dc,img._spectrum);
+            dz = std::max(dz,img._depth);
+            dc = std::max(dc,img._spectrum);
           }
         }
         res.assign(dx,dy,dz,dc,(T)0);
@@ -53573,10 +53557,10 @@ namespace cimg_library_suffixed {
         cimglist_for(*this,l) {
           const CImg<T>& img = (*this)[l];
           if (img) {
-            dx = cimg::max(dx,img._width);
-            dy = cimg::max(dy,img._height);
+            dx = std::max(dx,img._width);
+            dy = std::max(dy,img._height);
             dz+=img._depth;
-            dc = cimg::max(dc,img._spectrum);
+            dc = std::max(dc,img._spectrum);
           }
         }
         res.assign(dx,dy,dz,dc,(T)0);
@@ -53594,9 +53578,9 @@ namespace cimg_library_suffixed {
         cimglist_for(*this,l) {
           const CImg<T>& img = (*this)[l];
           if (img) {
-            dx = cimg::max(dx,img._width);
-            dy = cimg::max(dy,img._height);
-            dz = cimg::max(dz,img._depth);
+            dx = std::max(dx,img._width);
+            dy = std::max(dy,img._height);
+            dz = std::max(dz,img._depth);
             dc+=img._spectrum;
           }
         }
@@ -53793,7 +53777,7 @@ namespace cimg_library_suffixed {
               src.__get_select(disp,old_normalization,(src._width - 1)/2,(src._height - 1)/2,(src._depth - 1)/2).
                 move_to(res);
               const unsigned int h = CImgDisplay::_fitscreen(res._width,res._height,1,128,-85,true);
-              res.resize(x - x0,cimg::max(32U,h*disp._height/max_height),1,res._spectrum==1?3:-100);
+              res.resize(x - x0,std::max(32U,h*disp._height/max_height),1,res._spectrum==1?3:-100);
               positions(ind,0) = positions(ind,2) = (int)x0;
               positions(ind,1) = positions(ind,3) = (int)(align*(visu0.height() - res.height()));
               positions(ind,2)+=res._width;
@@ -53813,7 +53797,7 @@ namespace cimg_library_suffixed {
                 CImg<ucharT>(img2d);
               if (res._spectrum>3) res.channels(0,2);
               const unsigned int w = CImgDisplay::_fitscreen(res._width,res._height,1,128,-85,false);
-              res.resize(cimg::max(32U,w*disp._width/max_width),y - y0,1,res._spectrum==1?3:-100);
+              res.resize(std::max(32U,w*disp._width/max_width),y - y0,1,res._spectrum==1?3:-100);
               positions(ind,0) = positions(ind,2) = (int)(align*(visu0.width() - res.width()));
               positions(ind,1) = positions(ind,3) = (int)y0;
               positions(ind,2)+=res._width - 1;
@@ -53827,7 +53811,7 @@ namespace cimg_library_suffixed {
         if (!visu || oindice0!=indice0 || oindice1!=indice1) {
           if (indice0>=0 && indice1>=0) {
             visu.assign(visu0,false);
-            const int indm = cimg::min(indice0,indice1), indM = cimg::max(indice0,indice1);
+            const int indm = std::min(indice0,indice1), indM = std::max(indice0,indice1);
             for (int ind = indm; ind<=indM; ++ind) if (positions(ind,0)>=0) {
                 visu.draw_rectangle(positions(ind,0),positions(ind,1),positions(ind,2),positions(ind,3),
                                     background_color,0.2f);
@@ -53952,7 +53936,7 @@ namespace cimg_library_suffixed {
       }
       CImg<intT> res(1,2,1,1,-1);
       if (is_selected) {
-        if (feature_type) res.fill(cimg::min(indice0,indice1),cimg::max(indice0,indice1));
+        if (feature_type) res.fill(std::min(indice0,indice1),std::max(indice0,indice1));
         else res.fill(indice0);
       }
       if (!(disp.button()&2)) disp.set_button();
@@ -54154,7 +54138,7 @@ namespace cimg_library_suffixed {
               img.assign(W,H,D,C); \
               T *ptrd = img._data; \
               for (ulongT to_read = img.size(); to_read; ) { \
-                raw.assign((unsigned int)cimg::min(to_read,cimg_iobuffer)); \
+                raw.assign((unsigned int)std::min(to_read,cimg_iobuffer)); \
                 cimg::fread(raw._data,raw._width,nfile); \
                 if (endian!=cimg::endianness()) cimg::invert_endianness(raw._data,raw.size()); \
                 const Tss *ptrs = raw._data; \
@@ -54350,11 +54334,11 @@ namespace cimg_library_suffixed {
                                     "load_cimg(): Specified filename is (null).",
                                     cimglist_instance);
       unsigned int
-        nn0 = cimg::min(n0,n1), nn1 = cimg::max(n0,n1),
-        nx0 = cimg::min(x0,x1), nx1 = cimg::max(x0,x1),
-        ny0 = cimg::min(y0,y1), ny1 = cimg::max(y0,y1),
-        nz0 = cimg::min(z0,z1), nz1 = cimg::max(z0,z1),
-        nc0 = cimg::min(c0,c1), nc1 = cimg::max(c0,c1);
+        nn0 = std::min(n0,n1), nn1 = std::max(n0,n1),
+        nx0 = std::min(x0,x1), nx1 = std::max(x0,x1),
+        ny0 = std::min(y0,y1), ny1 = std::max(y0,y1),
+        nz0 = std::min(z0,z1), nz1 = std::max(z0,z1),
+        nc0 = std::min(c0,c1), nc1 = std::max(c0,c1);
 
       std::FILE *const nfile = file?file:cimg::fopen(filename,"rb");
       bool loaded = false, endian = cimg::endianness();
@@ -54740,7 +54724,7 @@ namespace cimg_library_suffixed {
       }
 
       cimg::mutex(9);
-      const unsigned int nb_frames = (unsigned int)cimg::max(0.,cvGetCaptureProperty(captures[index],
+      const unsigned int nb_frames = (unsigned int)std::max(0.,cvGetCaptureProperty(captures[index],
                                                                                      CV_CAP_PROP_FRAME_COUNT));
       cimg::mutex(9,0);
       assign();
@@ -54758,7 +54742,7 @@ namespace cimg_library_suffixed {
       // Read and convert frames.
       const IplImage *src = 0;
       if (go_on) {
-        const unsigned int _last_frame = cimg::min(nb_frames?nb_frames - 1:~0U,last_frame);
+        const unsigned int _last_frame = std::min(nb_frames?nb_frames - 1:~0U,last_frame);
         while (pos<=_last_frame) {
           cimg::mutex(9);
           src = cvQueryFrame(captures[index]);
@@ -55238,9 +55222,9 @@ namespace cimg_library_suffixed {
             if (!is_first_call && wheel<0) break;
             if (wheel>0 && _width>=4) {
               const unsigned int
-                delta = cimg::max(1U,(unsigned int)cimg::round(0.3*_width)),
-                ind0 = (unsigned int)cimg::max(0,s[0] - (int)delta),
-                ind1 = (unsigned int)cimg::min(width() - 1,s[0] + (int)delta);
+                delta = std::max(1U,(unsigned int)cimg::round(0.3*_width)),
+                ind0 = (unsigned int)std::max(0,s[0] - (int)delta),
+                ind1 = (unsigned int)std::min(width() - 1,s[0] + (int)delta);
               if ((ind0!=0 || ind1!=_width - 1) && ind1 - ind0>=3) {
                 const CImgList<T> sublist = get_shared_images(ind0,ind1);
                 CImgList<charT> t_sublist;
@@ -55439,14 +55423,14 @@ namespace cimg_library_suffixed {
 
 #if cimg_OS!=2
       cimg_snprintf(command,command._width,"%s -delay %u -loop %u",
-                    cimg::imagemagick_path(),(unsigned int)cimg::max(0.0f,cimg::round(100/fps)),nb_loops);
+                    cimg::imagemagick_path(),(unsigned int)std::max(0.0f,cimg::round(100/fps)),nb_loops);
       CImg<ucharT>::string(command).move_to(filenames,0);
       cimg_snprintf(command,command._width,"\"%s\" >/dev/null 2>&1",
                     CImg<charT>::string(filename)._system_strescape().data());
       CImg<ucharT>::string(command).move_to(filenames);
 #else
       cimg_snprintf(command,command._width,"\"%s -delay %u -loop %u",
-                    cimg::imagemagick_path(),(unsigned int)cimg::max(0.0f,cimg::round(100/fps)),nb_loops);
+                    cimg::imagemagick_path(),(unsigned int)std::max(0.0f,cimg::round(100/fps)),nb_loops);
       CImg<ucharT>::string(command).move_to(filenames,0);
       cimg_snprintf(command,command._width,"\"%s\"\" >NUL 2>&1",
                     CImg<charT>::string(filename)._system_strescape().data());
@@ -55670,7 +55654,7 @@ namespace cimg_library_suffixed {
       }
       if (!cimg::strncasecmp("little",str_endian,6)) endian = false;
       else if (!cimg::strncasecmp("big",str_endian,3)) endian = true;
-      const unsigned int lmax = cimg::min(N,n0 + _width);
+      const unsigned int lmax = std::min(N,n0 + _width);
       _cimg_save_cimg_case("bool",bool);
       _cimg_save_cimg_case("unsigned_char",unsigned char);
       _cimg_save_cimg_case("uchar",unsigned char);
@@ -55969,7 +55953,7 @@ namespace cimg_library_suffixed {
             }
           } else {
             CImg<unsigned char> _src(src,false);
-            _src.channels(0,cimg::min(_src._spectrum - 1,2U)).resize(W,H);
+            _src.channels(0,std::min(_src._spectrum - 1,2U)).resize(W,H);
             _src.resize(W,H,1,3,_src._spectrum==1);
             const unsigned char *ptr_r = _src.data(0,0,0,0), *ptr_g = _src.data(0,0,0,1), *ptr_b = _src.data(0,0,0,2);
             char *ptrd = ipl->imageData;
@@ -56312,7 +56296,7 @@ namespace cimg_library_suffixed {
         font = base_font.get_split('x',256);
         if (font_height!=font[0]._height)
           cimglist_for(font,l)
-            font[l].resize(cimg::max(1U,font[l]._width*font_height/font[l]._height),font_height,-100,-100,
+            font[l].resize(std::max(1U,font[l]._width*font_height/font[l]._height),font_height,-100,-100,
                            font[0]._height>font_height?2:5);
         if (is_variable_width) font.crop_font();
         cimglist_for(font,l) font[l].resize(font[l]._width + padding_x,-100,1,1,0,0,0.5);
@@ -57414,7 +57398,7 @@ namespace cimg {
     cimglist_for(buttons,l) buttons[l].resize(-100,-100,1,3);
 
     unsigned int bw = 0, bh = 0;
-    cimglist_for(buttons,l) { bw = cimg::max(bw,buttons[l]._width); bh = cimg::max(bh,buttons[l]._height); }
+    cimglist_for(buttons,l) { bw = std::max(bw,buttons[l]._width); bh = std::max(bh,buttons[l]._height); }
     bw+=8; bh+=8;
     if (bw<64) bw = 64;
     if (bw>128) bw = 128;

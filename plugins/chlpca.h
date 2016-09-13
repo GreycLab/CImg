@@ -62,13 +62,13 @@
    cimg_forXY(img,xi,yi) cimg_for_windowXY(img,xi,yi,xj,yj,5,5) dest(yi,yi) += src(xj,yj);
 **/
 #define cimg_forXY_window(img,xi,yi,xj,yj,rx,ry)                        \
-for (int yi0=cimg::max(0,yi-ry), yi1=cimg::min(yi + ry,(int)img.height() - 1), yj=yi0;yj<=yi1;++yj) \
-for (int xi0=cimg::max(0,xi-rx), xi1=cimg::min(xi + rx,(int)img.width() - 1), xj=xi0;xj<=xi1;++xj)
+for (int yi0 = std::max(0,yi-ry), yi1=std::min(yi + ry,(int)img.height() - 1), yj=yi0;yj<=yi1;++yj) \
+for (int xi0 = std::max(0,xi-rx), xi1=std::min(xi + rx,(int)img.width() - 1), xj=xi0;xj<=xi1;++xj)
 
 #define cimg_forXYZ_window(img,xi,yi,zi,xj,yj,zj,rx,ry,rz)                                      \
-for (int zi0=cimg::max(0,zi-rz), zi1=cimg::min(zi + rz,(int)img.depth() - 1) , zj=zi0;zj<=zi1;++zj) \
-for (int yi0=cimg::max(0,yi-ry), yi1=cimg::min(yi + ry,(int)img.height() - 1), yj=yi0;yj<=yi1;++yj) \
-for (int xi0=cimg::max(0,xi-rx), xi1=cimg::min(xi + rx,(int)img.width() - 1) , xj=xi0;xj<=xi1;++xj)
+for (int zi0 = std::max(0,zi-rz), zi1=std::min(zi + rz,(int)img.depth() - 1) , zj=zi0;zj<=zi1;++zj) \
+for (int yi0 = std::max(0,yi-ry), yi1=std::min(yi + ry,(int)img.height() - 1), yj=yi0;yj<=yi1;++yj) \
+for (int xi0 = std::max(0,xi-rx), xi1=std::min(xi + rx,(int)img.width() - 1) , xj=xi0;xj<=xi1;++xj)
 
 //! Crop a patch in the image around position x,y,z and return a column vector
 /**

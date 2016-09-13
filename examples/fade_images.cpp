@@ -66,10 +66,10 @@ int main(int argc,char **argv) {
   cil::CImg<unsigned char> img1(file_i1), img2(file_i2);
   if (!img2.is_sameXYZC(img1)) {
     int
-      dx = cil::cimg::max(img1.width(),img2.width()),
-      dy = cil::cimg::max(img1.height(),img2.height()),
-      dz = cil::cimg::max(img1.depth(),img2.depth()),
-      dv = cil::cimg::max(img1.spectrum(),img2.spectrum());
+      dx = std::max(img1.width(),img2.width()),
+      dy = std::max(img1.height(),img2.height()),
+      dz = std::max(img1.depth(),img2.depth()),
+      dv = std::max(img1.spectrum(),img2.spectrum());
     img1.resize(dx,dy,dz,dv,3);
     img2.resize(dx,dy,dz,dv,3);
   }

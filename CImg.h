@@ -49920,7 +49920,7 @@ namespace cimg_library_suffixed {
         *ptr_r = data(0,0,0,0),
         *ptr_g = (_spectrum>=2)?data(0,0,0,1):0,
         *ptr_b = (_spectrum>=3)?data(0,0,0,2):0;
-      const ulongT buf_size = std::min((ulongT)1024*1024,(ulongT)_width*_height*(_spectrum==1?1UL:3UL));
+      const ulongT buf_size = std::min((ulongT)(1024*1024),(ulongT)(_width*_height*(_spectrum==1?1UL:3UL)));
 
       std::fprintf(nfile,"P%c\n%u %u\n%u\n",
                    (_spectrum==1?'5':'6'),_width,_height,stmax<256?255:(stmax<4096?4095:65535));

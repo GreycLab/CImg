@@ -15676,7 +15676,7 @@ namespace cimg_library_suffixed {
                 arg4 = (unsigned int)pop[2];
                 arg5 = (unsigned int)pop[3];
                 code.remove();
-                CImg<ulongT>::vector((ulongT)mp_linear,arg3,arg4,arg5,arg3==arg2?arg1:arg2).move_to(code);
+                CImg<ulongT>::vector((ulongT)mp_linear_add,arg3,arg4,arg5,arg3==arg2?arg1:arg2).move_to(code);
                 _cimg_mp_return(arg3);
               }
             }
@@ -15699,6 +15699,18 @@ namespace cimg_library_suffixed {
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_sub,arg1,arg2);
             if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_sub,arg1,arg2);
             if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2)) _cimg_mp_constant(mem[arg1] - mem[arg2]);
+            if (code) { // Try to spot linear cases 'a*b - c' and 'c - a*b'.
+              CImg<ulongT> &pop = code.back();
+              if (pop[0]==(ulongT)mp_mul && (pop[1]==arg1 || pop[1]==arg2)) {
+                arg3 = (unsigned int)pop[1];
+                arg4 = (unsigned int)pop[2];
+                arg5 = (unsigned int)pop[3];
+                code.remove();
+                CImg<ulongT>::vector((ulongT)(arg3==arg1?mp_linear_sub_left:mp_linear_sub_right),
+                                     arg3,arg4,arg5,arg3==arg1?arg2:arg1).move_to(code);
+                _cimg_mp_return(arg3);
+              }
+            }
             if (arg2==1) _cimg_mp_scalar1(mp_decrement,arg1);
             _cimg_mp_scalar2(mp_sub,arg1,arg2);
           }
@@ -19099,8 +19111,16 @@ namespace cimg_library_suffixed {
         return vals.kth_smallest(ind - 1);
       }
 
-      static double mp_linear(_cimg_math_parser& mp) {
+      static double mp_linear_add(_cimg_math_parser& mp) {
         return _mp_arg(2)*_mp_arg(3) + _mp_arg(4);
+      }
+
+      static double mp_linear_sub_left(_cimg_math_parser& mp) {
+        return _mp_arg(2)*_mp_arg(3) - _mp_arg(4);
+      }
+
+      static double mp_linear_sub_right(_cimg_math_parser& mp) {
+        return _mp_arg(4) - _mp_arg(2)*_mp_arg(3);
       }
 
       static double mp_list_depth(_cimg_math_parser& mp) {

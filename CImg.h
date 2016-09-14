@@ -51612,7 +51612,7 @@ namespace cimg_library_suffixed {
        (that may occur when starting from an empty list and inserting several images in it).
     **/
     explicit CImgList(const unsigned int n):_width(n) {
-      if (n) _data = new CImg<T>[_allocated_width = (unsigned int)std::max(16UL,cimg::nearest_pow2(n))];
+      if (n) _data = new CImg<T>[_allocated_width = (unsigned int)std::max((ulongT)16,cimg::nearest_pow2(n))];
       else { _allocated_width = 0; _data = 0; }
     }
 
@@ -51936,7 +51936,7 @@ namespace cimg_library_suffixed {
       if (!n) return assign();
       if (_allocated_width<n || _allocated_width>(n<<2)) {
         delete[] _data;
-        _data = new CImg<T>[_allocated_width = (unsigned int)std::max(16UL,cimg::nearest_pow2(n))];
+        _data = new CImg<T>[_allocated_width = (unsigned int)std::max((ulongT)16,cimg::nearest_pow2(n))];
       }
       _width = n;
       return *this;

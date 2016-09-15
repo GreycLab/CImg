@@ -15872,7 +15872,10 @@ namespace cimg_library_suffixed {
             case 3 : _cimg_mp_scalar1(mp_pow3,arg1);
             case 4 : _cimg_mp_scalar1(mp_pow4,arg1);
             default :
-              if (_cimg_mp_is_constant(arg2) && mem[arg2]==0.25) _cimg_mp_scalar1(mp_pow0_25,arg1);
+              if (_cimg_mp_is_constant(arg2)) {
+                if (mem[arg2]==0.5) { _cimg_mp_scalar1(mp_sqrt,arg1); }
+                else if (mem[arg2]==0.25) { _cimg_mp_scalar1(mp_pow0_25,arg1); }
+              }
               _cimg_mp_scalar2(mp_pow,arg1,arg2);
             }
           }
@@ -15895,7 +15898,10 @@ namespace cimg_library_suffixed {
             case 3 : _cimg_mp_scalar1(mp_pow3,arg1);
             case 4 : _cimg_mp_scalar1(mp_pow4,arg1);
             default :
-              if (_cimg_mp_is_constant(arg2) && mem[arg2]==0.25) _cimg_mp_scalar1(mp_pow0_25,arg1);
+              if (_cimg_mp_is_constant(arg2)) {
+                if (mem[arg2]==0.5) { _cimg_mp_scalar1(mp_sqrt,arg1); }
+                else if (mem[arg2]==0.25) { _cimg_mp_scalar1(mp_pow0_25,arg1); }
+              }
               _cimg_mp_scalar2(mp_pow,arg1,arg2);
             }
           }

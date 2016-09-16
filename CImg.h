@@ -16414,7 +16414,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_op("Function 'cabs()'");
               arg1 = compile(ss5,se1,depth1,0);
               _cimg_mp_check_type(arg1,0,2,2);
-              _cimg_mp_scalar2(mp_hypot,arg1 + 1,arg1 + 2);
+              _cimg_mp_scalar2(mp_complex_abs,arg1 + 1,arg1 + 2);
             }
 
             if (!std::strncmp(ss,"carg(",5)) { // Complex argument
@@ -18910,7 +18910,7 @@ namespace cimg_library_suffixed {
         return (double)(_mp_arg(2)>=_mp_arg(3));
       }
 
-      static double mp_hypot(_cimg_math_parser& mp) {
+      static double mp_complex_abs(_cimg_math_parser& mp) {
         return cimg::hypot(_mp_arg(2),_mp_arg(3));
       }
 

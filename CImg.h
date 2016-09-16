@@ -19885,6 +19885,10 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_norm0(_cimg_math_parser& mp) {
+        switch (mp.opcode._height) {
+        case 3 : return _mp_arg(2)!=0;
+        case 4 : return (_mp_arg(2)!=0) + (_mp_arg(3)!=0);
+        }
         double res = 0;
         for (unsigned int i = 2; i<mp.opcode._height; ++i)
           res+=_mp_arg(i)==0?0:1;
@@ -19892,6 +19896,10 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_norm1(_cimg_math_parser& mp) {
+        switch (mp.opcode._height) {
+        case 3 : return cimg::abs(_mp_arg(2));
+        case 4 : return cimg::abs(_mp_arg(2)) + cimg::abs(_mp_arg(3));
+        }
         double res = 0;
         for (unsigned int i = 2; i<mp.opcode._height; ++i)
           res+=cimg::abs(_mp_arg(i));
@@ -19899,6 +19907,10 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_norm2(_cimg_math_parser& mp) {
+        switch (mp.opcode._height) {
+        case 3 : return cimg::abs(_mp_arg(2));
+        case 4 : return std::sqrt(cimg::sqr(_mp_arg(2)) + cimg::sqr(_mp_arg(3)));
+        }
         double res = 0;
         for (unsigned int i = 2; i<mp.opcode._height; ++i)
           res+=cimg::sqr(_mp_arg(i));
@@ -19906,6 +19918,10 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_norminf(_cimg_math_parser& mp) {
+        switch (mp.opcode._height) {
+        case 3 : return cimg::abs(_mp_arg(2));
+        case 4 : return std::max(cimg::abs(_mp_arg(2)),cimg::abs(_mp_arg(3)));
+        }
         double res = 0;
         for (unsigned int i = 2; i<mp.opcode._height; ++i) {
           const double val = cimg::abs(_mp_arg(i));
@@ -19915,6 +19931,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_normp(_cimg_math_parser& mp) {
+        if (mp.opcode._height==3) return cimg::abs(_mp_arg(2));
         const double p = (double)mp.opcode[2];
         double res = 0;
         for (unsigned int i = 3; i<mp.opcode._height; ++i)

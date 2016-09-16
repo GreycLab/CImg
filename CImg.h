@@ -17005,25 +17005,6 @@ namespace cimg_library_suffixed {
             }
             break;
 
-          case 'h' :
-            if (!std::strncmp(ss,"hypot(",6)) { // Hypothenuse
-              _cimg_mp_op("Function 'hypot()'");
-              s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss6,s1,depth1,0);
-              arg2 = compile(++s1,se1,depth1,0);
-              _cimg_mp_check_type(arg1,1,1,0);
-              _cimg_mp_check_type(arg2,2,1,0);
-              if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2)) {
-                val1 = cimg::abs(mem[arg1]);
-                val2 = cimg::abs(mem[arg2]);
-                if (val1<val2) { val = val1; val1 = val2; } else val = val2;
-                if (val1>0) { val/=val1; _cimg_mp_constant(val1*std::sqrt(1+val*val)); }
-                _cimg_mp_constant(0);
-              }
-              _cimg_mp_scalar2(mp_hypot,arg1,arg2);
-            }
-            break;
-
           case 'i' :
             if (*ss1=='f' && (*ss2=='(' || (*ss2 && *ss2<=' ' && *ss3=='('))) { // If..then[..else.]
               _cimg_mp_op("Function 'if()'");

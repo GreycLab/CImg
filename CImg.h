@@ -5139,6 +5139,16 @@ namespace cimg_library_suffixed {
     //! Return sqrt(x^2 + y^2).
     template<typename T>
     inline T hypot(const T x, const T y) {
+      return std::sqrt(x*x + y*y);
+    }
+
+    template<typename T>
+    inline T hypot(const T x, const T y, const T z) {
+      return std::sqrt(x*x + y*y + z*z);
+    }
+
+    template<typename T>
+    inline T _hypot(const T x, const T y) { // Slower but more precise version
       T nx = cimg::abs(x), ny = cimg::abs(y), t;
       if (nx<ny) { t = nx; nx = ny; } else t = ny;
       if (nx>0) { t/=nx; return nx*std::sqrt(1 + t*t); }
@@ -18513,7 +18523,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_complex_abs(_cimg_math_parser& mp) {
-        return cimg::hypot(_mp_arg(2),_mp_arg(3));
+        return cimg::_hypot(_mp_arg(2),_mp_arg(3));
       }
 
       static double mp_complex_conj(_cimg_math_parser& mp) {
@@ -18559,7 +18569,7 @@ namespace cimg_library_suffixed {
       static double mp_complex_log(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
         const double *ptrs = &_mp_arg(2) + 1, r = *(ptrs++), i = *(ptrs);
-        *(ptrd++) = std::log(cimg::hypot(r,i));
+        *(ptrd++) = std::log(cimg::_hypot(r,i));
         *(ptrd++) = std::atan2(i,r);
         return cimg::type<double>::nan();
       }
@@ -19910,7 +19920,7 @@ namespace cimg_library_suffixed {
       static double mp_norm2(_cimg_math_parser& mp) {
         switch (mp.opcode._height) {
         case 3 : return cimg::abs(_mp_arg(2));
-        case 4 : return cimg::hypot(_mp_arg(2),_mp_arg(3));
+        case 4 : return cimg::_hypot(_mp_arg(2),_mp_arg(3));
         }
         double res = 0;
         for (unsigned int i = 2; i<mp.opcode._height; ++i)
@@ -23232,7 +23242,7 @@ namespace cimg_library_suffixed {
               for (int i = l; i<=k; ++i) {
                 f = s*rv1[i]; rv1[i] = c*rv1[i];
                 if ((cimg::abs(f) + anorm)==anorm) break;
-                g = S[i]; h = cimg::hypot(f,g); S[i] = h; h = 1/h; c = g*h; s = -f*h;
+                g = S[i]; h = cimg::_hypot(f,g); S[i] = h; h = 1/h; c = g*h; s = -f*h;
                 cimg_forY(U,j) { const t y = U(nm,j), z = U(i,j); U(nm,j) = y*c + z*s; U(i,j) = z*c - y*s; }
               }
             }
@@ -23243,18 +23253,18 @@ namespace cimg_library_suffixed {
             t x = S[l], y = S[nm];
             g = rv1[nm]; h = rv1[k];
             f = ((y - z)*(y + z)+(g - h)*(g + h))/std::max((t)1e-25,2*h*y);
-            g = cimg::hypot(f,(t)1);
+            g = cimg::_hypot(f,(t)1);
             f = ((x - z)*(x + z)+h*((y/(f + (f>=0?g:-g))) - h))/std::max((t)1e-25,x);
             c = s = 1;
             for (int j = l; j<=nm; ++j) {
               const int i = j + 1;
               g = rv1[i]; h = s*g; g = c*g;
               t y = S[i];
-              t z = cimg::hypot(f,h);
+              t z = cimg::_hypot(f,h);
               rv1[j] = z; c = f/std::max((t)1e-25,z); s = h/std::max((t)1e-25,z);
               f = x*c + g*s; g = g*c - x*s; h = y*s; y*=c;
               cimg_forX(U,jj) { const t x = V(j,jj), z = V(i,jj); V(j,jj) = x*c + z*s; V(i,jj) = z*c - x*s; }
-              z = cimg::hypot(f,h); S[j] = z;
+              z = cimg::_hypot(f,h); S[j] = z;
               if (z) { z = 1/std::max((t)1e-25,z); c = f*z; s = h*z; }
               f = c*g + s*y; x = c*y - s*g;
               cimg_forY(U,jj) { const t y = U(j,jj); z = U(i,jj); U(j,jj) = y*c + z*s; U(i,jj) = z*c - y*s; }
@@ -23783,14 +23793,14 @@ namespace cimg_library_suffixed {
                                    const bool is_quaternion=false) {
       double X, Y, Z, W, N;
       if (is_quaternion) {
-        N = (double)std::sqrt(x*x + y*y + z*z + w*w);
+        N = std::sqrt((double)x*x + (double)y*y + (double)z*z + (double)w*w);
         if (N>0) { X = x/N; Y = y/N; Z = z/N; W = w/N; }
         else { X = Y = Z = 0; W = 1; }
         return CImg<T>::matrix((T)(X*X + Y*Y - Z*Z - W*W),(T)(2*Y*Z - 2*X*W),(T)(2*X*Z + 2*Y*W),
                                (T)(2*X*W + 2*Y*Z),(T)(X*X - Y*Y + Z*Z - W*W),(T)(2*Z*W - 2*X*Y),
                                (T)(2*Y*W - 2*X*Z),(T)(2*X*Y + 2*Z*W),(T)(X*X - Y*Y - Z*Z + W*W));
       }
-      N = (double)std::sqrt(x*x + y*y + z*z);
+      N = cimg::hypot((double)x,(double)y,(double)z);
       if (N>0) { X = x/N; Y = y/N; Z = z/N; }
       else { X = Y = 0; Z = 1; }
       const double ang = w*cimg::PI/180, c = std::cos(ang), omc = 1 - c, s = std::sin(ang);
@@ -32084,7 +32094,7 @@ namespace cimg_library_suffixed {
                   u = (float)(a*vx + b*vy + c*vz),
                   v = (float)(b*vx + d*vy + e*vz),
                   w = (float)(c*vx + e*vy + f*vz),
-                  n = (float)std::sqrt(1e-5 + u*u + v*v + w*w),
+                  n = 1e-5f + cimg::hypot(u,v,w),
                   dln = dl/n;
                 *(pd0++) = (Tfloat)(u*dln);
                 *(pd1++) = (Tfloat)(v*dln);
@@ -33324,7 +33334,7 @@ namespace cimg_library_suffixed {
           const ulongT off = (ulongT)c*_width*_height*_depth + z*_width*_height;
           Tfloat *ptrd0 = grad[0]._data + off, *ptrd1 = grad[1]._data + off;
           CImg_3x3(I,Tfloat);
-          const Tfloat a = (Tfloat)(0.25f*(2-std::sqrt(2.0f))), b = (Tfloat)(0.5f*(std::sqrt(2.0f) - 1));
+          const Tfloat a = (Tfloat)(0.25f*(2 - std::sqrt(2.0f))), b = (Tfloat)(0.5f*(std::sqrt(2.0f) - 1));
           cimg_for3x3(*this,x,y,z,c,I,Tfloat) {
             *(ptrd0++) = -a*Ipp - b*Ipc - a*Ipn + a*Inp + b*Inc + a*Inn;
             *(ptrd1++) = -a*Ipp - b*Icp - a*Inp + a*Ipn + b*Icn + a*Inn;
@@ -35003,7 +35013,7 @@ namespace cimg_library_suffixed {
               ix = gx*sgn>0?(Incc - Iccc):(Iccc - Ipcc),
               iy = gy*sgn>0?(Icnc - Iccc):(Iccc - Icpc),
               iz = gz*sgn>0?(Iccn - Iccc):(Iccc - Iccp),
-              ng = (Tfloat)(1e-5f + std::sqrt(gx*gx + gy*gy + gz*gz)),
+              ng = 1e-5f + cimg::hypot(gx,gy,gz),
               ngx = gx/ng,
               ngy = gy/ng,
               ngz = gz/ng,
@@ -36972,11 +36982,11 @@ namespace cimg_library_suffixed {
             x1 = vertices(p1,0), y1 = vertices(p1,1), z1 = vertices(p1,2),
             x2 = vertices(p2,0), y2 = vertices(p2,1), z2 = vertices(p2,2),
             tnx0 = (x0 + x1)/2, tny0 = (y0 + y1)/2, tnz0 = (z0 + z1)/2,
-            nn0 = (float)std::sqrt(tnx0*tnx0 + tny0*tny0 + tnz0*tnz0),
+            nn0 = cimg::hypot(tnx0,tny0,tnz0),
             tnx1 = (x0 + x2)/2, tny1 = (y0 + y2)/2, tnz1 = (z0 + z2)/2,
-            nn1 = (float)std::sqrt(tnx1*tnx1 + tny1*tny1 + tnz1*tnz1),
+            nn1 = cimg::hypot(tnx1,tny1,tnz1),
             tnx2 = (x1 + x2)/2, tny2 = (y1 + y2)/2, tnz2 = (z1 + z2)/2,
-            nn2 = (float)std::sqrt(tnx2*tnx2 + tny2*tny2 + tnz2*tnz2),
+            nn2 = cimg::hypot(tnx2,tny2,tnz2),
             nx0 = tnx0/nn0, ny0 = tny0/nn0, nz0 = tnz0/nn0,
             nx1 = tnx1/nn1, ny1 = tny1/nn1, nz1 = tnz1/nn1,
             nx2 = tnx2/nn2, ny2 = tny2/nn2, nz2 = tnz2/nn2;
@@ -38578,15 +38588,15 @@ namespace cimg_library_suffixed {
             u0 = x - x0,
             v0 = y - y0,
             w0 = z - z0,
-            n0 = 1e-8f + (float)std::sqrt(u0*u0 + v0*v0 + w0*w0),
+            n0 = 1e-8f + cimg::hypot(u0,v0,w0),
             u1 = x1 - x,
             v1 = y1 - y,
             w1 = z1 - z,
-            n1 = 1e-8f + (float)std::sqrt(u1*u1 + v1*v1 + w1*w1),
+            n1 = 1e-8f + cimg::hypot(u1,v1,w1),
             u = u0/n0 + u1/n1,
             v = v0/n0 + v1/n1,
             w = w0/n0 + w1/n1,
-            n = 1e-8f + (float)std::sqrt(u*u + v*v + w*w),
+            n = 1e-8f + cimg::hypot(u,v,w),
             fact = 0.5f*(n0 + n1);
           tangents(p,0) = (Tfloat)(fact*u/n);
           tangents(p,1) = (Tfloat)(fact*v/n);
@@ -42892,7 +42902,7 @@ namespace cimg_library_suffixed {
               dlx = lightx - X,
               dly = lighty - Y,
               dlz = lightz - Z,
-              nl = (float)std::sqrt(dlx*dlx + dly*dly + dlz*dlz),
+              nl = cimg::hypot(dlx,dly,dlz),
               nlx = (default_light_texture._width - 1)/2*(1 + dlx/nl),
               nly = (default_light_texture._height - 1)/2*(1 + dly/nl),
               white[] = { 1 };
@@ -42973,9 +42983,9 @@ namespace cimg_library_suffixed {
             zc = _zc + _focale,
             xc = X + Xc*(absfocale?absfocale/zc:1),
             yc = Y + Yc*(absfocale?absfocale/zc:1),
-            radius = 0.5f*std::sqrt(cimg::sqr(vertices(i1,0) - vertices(i0,0)) +
-                                    cimg::sqr(vertices(i1,1) - vertices(i0,1)) +
-                                    cimg::sqr(vertices(i1,2) - vertices(i0,2)))*(absfocale?absfocale/zc:1),
+            radius = 0.5f*cimg::hypot(vertices(i1,0) - vertices(i0,0),
+                                      vertices(i1,1) - vertices(i0,1),
+                                      vertices(i1,2) - vertices(i0,2))*(absfocale?absfocale/zc:1),
             xm = xc - radius,
             ym = yc - radius,
             xM = xc + radius,
@@ -43113,11 +43123,11 @@ namespace cimg_library_suffixed {
               nx = dy1*dz2 - dz1*dy2,
               ny = dz1*dx2 - dx1*dz2,
               nz = dx1*dy2 - dy1*dx2,
-              norm = (tpfloat)std::sqrt(1e-5f + nx*nx + ny*ny + nz*nz),
+              norm = 1e-5f + cimg::hypot(nx,ny,nz),
               lx = X + (x0 + x1 + x2)/3 - lightx,
               ly = Y + (y0 + y1 + y2)/3 - lighty,
               lz = Z + (z0 + z1 + z2)/3 - lightz,
-              nl = (tpfloat)std::sqrt(1e-5f + lx*lx + ly*ly + lz*lz),
+              nl = 1e-5f + cimg::hypot(lx,ly,lz),
               factor = std::max(cimg::abs(-lx*nx - ly*ny - lz*nz)/(norm*nl),0.0f);
             lightprops[l] = factor<=nspec?factor:(nsl1*factor*factor + nsl2*factor + nsl3);
           } else lightprops[l] = 1;
@@ -43149,7 +43159,7 @@ namespace cimg_library_suffixed {
               nnx = dy1*dz2 - dz1*dy2,
               nny = dz1*dx2 - dx1*dz2,
               nnz = dx1*dy2 - dy1*dx2,
-              norm = (tpfloat)(1e-5f + std::sqrt(nnx*nnx + nny*nny + nnz*nnz)),
+              norm = 1e-5f + cimg::hypot(nnx,nny,nnz),
               nx = nnx/norm,
               ny = nny/norm,
               nz = nnz/norm;
@@ -43184,11 +43194,11 @@ namespace cimg_library_suffixed {
               nx = vertices_normals(l,0),
               ny = vertices_normals(l,1),
               nz = vertices_normals(l,2),
-              norm = (tpfloat)std::sqrt(1e-5f + nx*nx + ny*ny + nz*nz),
+              norm = 1e-5f + cimg::hypot(nx,ny,nz),
               lx = X + vertices(l,0) - lightx,
               ly = Y + vertices(l,1) - lighty,
               lz = Z + vertices(l,2) - lightz,
-              nl = (tpfloat)std::sqrt(1e-5f + lx*lx + ly*ly + lz*lz),
+              nl = 1e-5f + cimg::hypot(lx,ly,lz),
               factor = std::max((-lx*nx - ly*ny - lz*nz)/(norm*nl),0.0f);
             lightprops[l] = factor<=nspec?factor:(nsl1*factor*factor + nsl2*factor + nsl3);
           }
@@ -43203,7 +43213,7 @@ namespace cimg_library_suffixed {
               nx = vertices_normals(l,0),
               ny = vertices_normals(l,1),
               nz = vertices_normals(l,2),
-              norm = (tpfloat)std::sqrt(1e-5f + nx*nx + ny*ny + nz*nz),
+              norm = 1e-5f + cimg::hypot(nx,ny,nz),
               nnx = nx/norm,
               nny = ny/norm;
             lightprops(l,0) = lw2*(1 + nnx);
@@ -43342,9 +43352,9 @@ namespace cimg_library_suffixed {
             zc = Z + Zc + _focale,
             xc = X + Xc*(absfocale?absfocale/zc:1),
             yc = Y + Yc*(absfocale?absfocale/zc:1),
-            radius = 0.5f*std::sqrt(cimg::sqr(vertices(n1,0) - vertices(n0,0)) +
-                                    cimg::sqr(vertices(n1,1) - vertices(n0,1)) +
-                                    cimg::sqr(vertices(n1,2) - vertices(n0,2)))*(absfocale?absfocale/zc:1);
+            radius = 0.5f*cimg::hypot(vertices(n1,0) - vertices(n0,0),
+                                      vertices(n1,1) - vertices(n0,1),
+                                      vertices(n1,2) - vertices(n0,2))*(absfocale?absfocale/zc:1);
           switch (render_type) {
           case 0 :
             draw_point((int)xc,(int)yc,pcolor,opacity);
@@ -44261,7 +44271,7 @@ namespace cimg_library_suffixed {
                 u = nv0*nw1 - nw0*nv1,
                 v = nw0*nu1 - nu0*nw1,
                 w = nv0*nu1 - nu0*nv1,
-                n = (float)std::sqrt(u*u + v*v + w*w),
+                n = cimg::hypot(u,v,w),
                 alpha = (float)std::asin(n/R2)*180/cimg::PI;
               pose3d.draw_image(CImg<floatT>::rotation_matrix(u,v,w,-alpha)*pose3d.get_crop(0,0,2,2));
               view3d.assign();
@@ -44535,7 +44545,7 @@ namespace cimg_library_suffixed {
             } else switch (feature_type) {
               case 1 : {
                 const double dX = (double)(X0 - X1), dY = (double)(Y0 - Y1), dZ = (double)(Z0 - Z1),
-                  norm = std::sqrt(dX*dX + dY*dY + dZ*dZ);
+                  norm = cimg::hypot(dX,dY,dZ);
                 if (_depth>1 || force_display_z_coord)
                   cimg_snprintf(text,text._width," Vect (%d,%d,%d)-(%d,%d,%d), Norm = %g ",
                                 origX + X0,origY + Y0,origZ + Z0,origX + X1,origY + Y1,origZ + Z1,norm);
@@ -48737,7 +48747,7 @@ namespace cimg_library_suffixed {
           // Draw axes
           if (ndisplay_axes) {
             const float
-              n = (float)std::sqrt(1e-8 + r00*r00 + r01*r01 + r02*r02),
+              n = 1e-8f + cimg::hypot(r00,r01,r02),
               _r00 = r00/n, _r10 = r10/n, _r20 = r20/n,
               _r01 = r01/n, _r11 = r11/n, _r21 = r21/n,
               _r02 = r01/n, _r12 = r12/n, _r22 = r22/n,
@@ -48795,7 +48805,7 @@ namespace cimg_library_suffixed {
               u = nv0*nw1 - nw0*nv1,
               v = nw0*nu1 - nu0*nw1,
               w = nv0*nu1 - nu0*nv1,
-              n = (float)std::sqrt(u*u + v*v + w*w),
+              n = cimg::hypot(u,v,w),
               alpha = (float)std::asin(n/R2)*180/cimg::PI;
             (CImg<floatT>::rotation_matrix(u,v,w,-alpha)*pose).move_to(pose);
             x0 = x1; y0 = y1;

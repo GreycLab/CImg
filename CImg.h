@@ -19899,14 +19899,12 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_norm2(_cimg_math_parser& mp) {
-        double res = 0;
         for (unsigned int i = 2; i<mp.opcode._height; ++i)
           res+=cimg::sqr(_mp_arg(i));
         return std::sqrt(res);
       }
 
       static double mp_norminf(_cimg_math_parser& mp) {
-        double res = 0;
         for (unsigned int i = 2; i<mp.opcode._height; ++i) {
           const double val = cimg::abs(_mp_arg(i));
           if (val>res) res = val;

@@ -25921,14 +25921,16 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
-      for (ulongT N = (ulongT)_width*_height*_depth; N; --N) {
+      const ulongT whd = (ulongT)_width*_height*_depth;
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
-          R = (Tfloat)*p1,
-          G = (Tfloat)*p2,
-          B = (Tfloat)*p3,
-          nR = (R<0?0:(R>255?255:R))/255,
-          nG = (G<0?0:(G>255?255:G))/255,
-          nB = (B<0?0:(B>255?255:B))/255,
+          R = (Tfloat)p1[N],
+          G = (Tfloat)p2[N],
+          B = (Tfloat)p3[N],
+          nR = (R<0?0:(R>255?255:R)),
+          nG = (G<0?0:(G>255?255:G)),
+          nB = (B<0?0:(B>255?255:B)),
           m = cimg::min(nR,nG,nB),
           M = cimg::max(nR,nG,nB);
         Tfloat H = 0, S = 0;
@@ -25936,14 +25938,14 @@ namespace cimg_library_suffixed {
           const Tfloat
             f = (nR==m)?(nG-nB):((nG==m)?(nB-nR):(nR-nG)),
             i = (Tfloat)((nR==m)?3:((nG==m)?5:1));
-          H = (i-f/(M-m));
+          H = i - f/(M - m);
           if (H>=6) H-=6;
           H*=60;
-          S = (M-m)/M;
+          S = (M - m)/M;
         }
-        *(p1++) = (T)H;
-        *(p2++) = (T)S;
-        *(p3++) = (T)M;
+        p1[N]= (T)H;
+        p2[N] = (T)S;
+        p3[N] = (T)(M/255);
       }
       return *this;
     }

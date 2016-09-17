@@ -25900,11 +25900,13 @@ namespace cimg_library_suffixed {
 
     //! Convert pixel values from RGB to sRGB color spaces.
     CImg<T>& RGBtosRGB() {
-      cimg_for(*this,ptr,T) {
+      if (is_empty()) return *this;
+      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=524288))
+      cimg_rof(*this,ptr,T) {
         const Tfloat
           val = (Tfloat)*ptr,
           nval = (val<0?0:val>255?255:val)/255,
-          sval = (Tfloat)(nval<=0.0031308f?nval*12.92f:1.055f*std::pow(nval,0.416667f)-0.055f);
+          sval = (Tfloat)(nval<=0.0031308f?nval*12.92f:1.055f*std::pow(nval,0.416667f) - 0.055f);
         *ptr = (T)(sval*255);
       }
       return *this;
@@ -26012,31 +26014,33 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
-      for (ulongT N = (ulongT)_width*_height*_depth; N; --N) {
+      const ulongT whd = (ulongT)_width*_height*_depth;
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
-          R = (Tfloat)*p1,
-          G = (Tfloat)*p2,
-          B = (Tfloat)*p3,
-          nR = (R<0?0:(R>255?255:R))/255,
-          nG = (G<0?0:(G>255?255:G))/255,
-          nB = (B<0?0:(B>255?255:B))/255,
+          R = (Tfloat)p1[N],
+          G = (Tfloat)p2[N],
+          B = (Tfloat)p3[N],
+          nR = (R<0?0:(R>255?255:R)),
+          nG = (G<0?0:(G>255?255:G)),
+          nB = (B<0?0:(B>255?255:B)),
           m = cimg::min(nR,nG,nB),
           M = cimg::max(nR,nG,nB),
-          L = (m + M)/2;
+          L = (m + M)/(2*255);
         Tfloat H = 0, S = 0;
         if (M==m) H = S = 0;
         else {
           const Tfloat
-            f = (nR==m)?(nG-nB):((nG==m)?(nB-nR):(nR-nG)),
+            f = (nR==m)?(nG - nB):((nG==m)?(nB - nR):(nR - nG)),
             i = (nR==m)?3.0f:((nG==m)?5.0f:1.0f);
-          H = (i-f/(M-m));
+          H = i - f/(M - m);
           if (H>=6) H-=6;
           H*=60;
           S = (2*L<=1)?((M - m)/(M + m)):((M - m)/(2 - M - m));
         }
-        *(p1++) = (T)H;
-        *(p2++) = (T)S;
-        *(p3++) = (T)L;
+        p1[N] = (T)H;
+        p2[N] = (T)S;
+        p3[N] = (T)L;
       }
       return *this;
     }

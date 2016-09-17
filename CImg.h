@@ -25882,7 +25882,7 @@ namespace cimg_library_suffixed {
     //! Convert pixel values from sRGB to RGB color spaces.
     CImg<T>& sRGBtoRGB() {
       if (is_empty()) return *this;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=524288))
+      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=32))
       cimg_rof(*this,ptr,T) {
         const Tfloat
           sval = (Tfloat)*ptr,
@@ -25901,7 +25901,7 @@ namespace cimg_library_suffixed {
     //! Convert pixel values from RGB to sRGB color spaces.
     CImg<T>& RGBtosRGB() {
       if (is_empty()) return *this;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=524288))
+      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=32))
       cimg_rof(*this,ptr,T) {
         const Tfloat
           val = (Tfloat)*ptr,
@@ -25926,7 +25926,7 @@ namespace cimg_library_suffixed {
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
       const ulongT whd = (ulongT)_width*_height*_depth;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=256))
       for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
           R = (Tfloat)p1[N],
@@ -25968,7 +25968,7 @@ namespace cimg_library_suffixed {
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
       const ulongT whd = (ulongT)_width*_height*_depth;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=256))
       for (ulongT N = 0; N<whd; ++N) {
         Tfloat
           H = cimg::mod((Tfloat)p1[N],(Tfloat)360),
@@ -26015,7 +26015,7 @@ namespace cimg_library_suffixed {
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
       const ulongT whd = (ulongT)_width*_height*_depth;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=256))
       for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
           R = (Tfloat)p1[N],
@@ -26059,7 +26059,7 @@ namespace cimg_library_suffixed {
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
       const ulongT whd = (ulongT)_width*_height*_depth;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=256))
       for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
           H = cimg::mod((Tfloat)p1[N],(Tfloat)360),
@@ -26098,7 +26098,7 @@ namespace cimg_library_suffixed {
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
       const ulongT whd = (ulongT)_width*_height*_depth;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=256))
       for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
           R = (Tfloat)p1[N],
@@ -26136,7 +26136,7 @@ namespace cimg_library_suffixed {
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
       const ulongT whd = (ulongT)_width*_height*_depth;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=256))
       for (ulongT N = 0; N<whd; ++N) {
         Tfloat
           H = cimg::mod((Tfloat)p1[N],(Tfloat)360),
@@ -26181,7 +26181,7 @@ namespace cimg_library_suffixed {
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
       const ulongT whd = (ulongT)_width*_height*_depth;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=512))
       for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
           R = (Tfloat)p1[N],
@@ -26211,7 +26211,7 @@ namespace cimg_library_suffixed {
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
       const ulongT whd = (ulongT)_width*_height*_depth;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=512))
       for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
           Y = (Tfloat)p1[N] - 16,
@@ -26241,7 +26241,7 @@ namespace cimg_library_suffixed {
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
       const ulongT whd = (ulongT)_width*_height*_depth;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=16384))
       for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
           R = (Tfloat)p1[N]/255,
@@ -26269,7 +26269,7 @@ namespace cimg_library_suffixed {
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
       const ulongT whd = (ulongT)_width*_height*_depth;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=16384))
       for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
           Y = (Tfloat)p1[N],
@@ -26299,7 +26299,7 @@ namespace cimg_library_suffixed {
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
       const ulongT whd = (ulongT)_width*_height*_depth;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=2048))
       for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
           R = (Tfloat)p1[N],
@@ -26329,7 +26329,7 @@ namespace cimg_library_suffixed {
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
       const ulongT whd = (ulongT)_width*_height*_depth;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=2048))
       for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
           C = (Tfloat)p1[N],
@@ -26366,7 +26366,7 @@ namespace cimg_library_suffixed {
       const T *ps1 = data(0,0,0,0), *ps2 = data(0,0,0,1), *ps3 = data(0,0,0,2);
       Tfloat *pd1 = res.data(0,0,0,0), *pd2 = res.data(0,0,0,1), *pd3 = res.data(0,0,0,2), *pd4 = res.data(0,0,0,3);
       const ulongT whd = (ulongT)_width*_height*_depth;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=1024))
       for (ulongT N = 0; N<whd; ++N) {
         Tfloat
 	  C = (Tfloat)ps1[N],
@@ -26399,7 +26399,7 @@ namespace cimg_library_suffixed {
       const T *ps1 = data(0,0,0,0), *ps2 = data(0,0,0,1), *ps3 = data(0,0,0,2), *ps4 = data(0,0,0,3);
       Tfloat *pd1 = res.data(0,0,0,0), *pd2 = res.data(0,0,0,1), *pd3 = res.data(0,0,0,2);
       const ulongT whd = (ulongT)_width*_height*_depth;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=1024))
       for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
 	  C = (Tfloat)ps1[N],
@@ -26429,7 +26429,7 @@ namespace cimg_library_suffixed {
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
       const ulongT whd = (ulongT)_width*_height*_depth;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=2048))
       for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
           R = (Tfloat)p1[N]/255,
@@ -26456,7 +26456,7 @@ namespace cimg_library_suffixed {
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
       const ulongT whd = (ulongT)_width*_height*_depth;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=2048))
       for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
           X = (Tfloat)p1[N]*255,
@@ -26485,7 +26485,7 @@ namespace cimg_library_suffixed {
       const CImg<Tfloat> white = CImg<Tfloat>(1,1,1,3,255).RGBtoXYZ();
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
       const ulongT whd = (ulongT)_width*_height*_depth;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=128))
       for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
           X = (Tfloat)(p1[N]/white[0]),
@@ -26515,7 +26515,7 @@ namespace cimg_library_suffixed {
       const CImg<Tfloat> white = CImg<Tfloat>(1,1,1,3,255).RGBtoXYZ();
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
       const ulongT whd = (ulongT)_width*_height*_depth;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=128))
       for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
           L = (Tfloat)p1[N],
@@ -26548,7 +26548,7 @@ namespace cimg_library_suffixed {
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
       const ulongT whd = (ulongT)_width*_height*_depth;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=4096))
       for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
           X = (Tfloat)p1[N],
@@ -26577,7 +26577,7 @@ namespace cimg_library_suffixed {
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
       const ulongT whd = (ulongT)_width*_height*_depth;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=4096))
       for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
          px = (Tfloat)p1[N],

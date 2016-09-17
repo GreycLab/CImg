@@ -26058,11 +26058,13 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
-      for (ulongT N = (ulongT)_width*_height*_depth; N; --N) {
+      const ulongT whd = (ulongT)_width*_height*_depth;
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
-          H = cimg::mod((Tfloat)*p1,(Tfloat)360),
-          S = (Tfloat)*p2,
-          L = (Tfloat)*p3,
+          H = cimg::mod((Tfloat)p1[N],(Tfloat)360),
+          S = (Tfloat)p2[N],
+          L = (Tfloat)p3[N],
           q = 2*L<1?L*(1 + S):(L + S - L*S),
           p = 2*L - q,
           h = H/360,
@@ -26075,9 +26077,9 @@ namespace cimg_library_suffixed {
           R = 255*(6*ntr<1?p + (q - p)*6*ntr:(2*ntr<1?q:(3*ntr<2?p + (q - p)*6*(2.0f/3 - ntr):p))),
           G = 255*(6*ntg<1?p + (q - p)*6*ntg:(2*ntg<1?q:(3*ntg<2?p + (q - p)*6*(2.0f/3 - ntg):p))),
           B = 255*(6*ntb<1?p + (q - p)*6*ntb:(2*ntb<1?q:(3*ntb<2?p + (q - p)*6*(2.0f/3 - ntb):p)));
-        *(p1++) = (T)(R<0?0:(R>255?255:R));
-        *(p2++) = (T)(G<0?0:(G>255?255:G));
-        *(p3++) = (T)(B<0?0:(B>255?255:B));
+        p1[N] = (T)(R<0?0:(R>255?255:R));
+        p2[N] = (T)(G<0?0:(G>255?255:G));
+        p3[N] = (T)(B<0?0:(B>255?255:B));
       }
       return *this;
     }
@@ -26095,11 +26097,13 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
-      for (ulongT N = (ulongT)_width*_height*_depth; N; --N) {
+      const ulongT whd = (ulongT)_width*_height*_depth;
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
-          R = (Tfloat)*p1,
-          G = (Tfloat)*p2,
-          B = (Tfloat)*p3,
+          R = (Tfloat)p1[N],
+          G = (Tfloat)p2[N],
+          B = (Tfloat)p3[N],
           nR = (R<0?0:(R>255?255:R))/255,
           nG = (G<0?0:(G>255?255:G))/255,
           nB = (B<0?0:(B>255?255:B))/255,
@@ -26111,9 +26115,9 @@ namespace cimg_library_suffixed {
         if (theta>0) H = (nB<=nG)?theta:360 - theta;
         if (sum>0) S = 1 - 3/sum*m;
         I = sum/3;
-        *(p1++) = (T)H;
-        *(p2++) = (T)S;
-        *(p3++) = (T)I;
+        p1[N] = (T)H;
+        p2[N] = (T)S;
+        p3[N] = (T)I;
       }
       return *this;
     }
@@ -26131,11 +26135,13 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
-      for (ulongT N = (ulongT)_width*_height*_depth; N; --N) {
+      const ulongT whd = (ulongT)_width*_height*_depth;
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      for (ulongT N = 0; N<whd; ++N) {
         Tfloat
-          H = cimg::mod((Tfloat)*p1,(Tfloat)360),
-          S = (Tfloat)*p2,
-          I = (Tfloat)*p3,
+          H = cimg::mod((Tfloat)p1[N],(Tfloat)360),
+          S = (Tfloat)p2[N],
+          I = (Tfloat)p3[N],
           a = I*(1-S),
           R = 0, G = 0, B = 0;
         if (H<120) {
@@ -26154,9 +26160,9 @@ namespace cimg_library_suffixed {
           R = 3*I - (G + B);
         }
         R*=255; G*=255; B*=255;
-        *(p1++) = (T)(R<0?0:(R>255?255:R));
-        *(p2++) = (T)(G<0?0:(G>255?255:G));
-        *(p3++) = (T)(B<0?0:(B>255?255:B));
+        p1[N] = (T)(R<0?0:(R>255?255:R));
+        p2[N] = (T)(G<0?0:(G>255?255:G));
+        p3[N] = (T)(B<0?0:(B>255?255:B));
       }
       return *this;
     }
@@ -26174,17 +26180,19 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
-      for (ulongT N = (ulongT)_width*_height*_depth; N; --N) {
+      const ulongT whd = (ulongT)_width*_height*_depth;
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
-          R = (Tfloat)*p1,
-          G = (Tfloat)*p2,
-          B = (Tfloat)*p3,
+          R = (Tfloat)p1[N],
+          G = (Tfloat)p2[N],
+          B = (Tfloat)p3[N],
           Y = (66*R + 129*G + 25*B + 128)/256 + 16,
           Cb = (-38*R - 74*G + 112*B + 128)/256 + 128,
           Cr = (112*R - 94*G - 18*B + 128)/256 + 128;
-        *(p1++) = (T)(Y<0?0:(Y>255?255:Y));
-        *(p2++) = (T)(Cb<0?0:(Cb>255?255:Cb));
-        *(p3++) = (T)(Cr<0?0:(Cr>255?255:Cr));
+        p1[N] = (T)(Y<0?0:(Y>255?255:Y));
+        p2[N] = (T)(Cb<0?0:(Cb>255?255:Cb));
+        p3[N] = (T)(Cr<0?0:(Cr>255?255:Cr));
       }
       return *this;
     }
@@ -26202,17 +26210,19 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
-      for (ulongT N = (ulongT)_width*_height*_depth; N; --N) {
+      const ulongT whd = (ulongT)_width*_height*_depth;
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
-          Y = (Tfloat)*p1 - 16,
-          Cb = (Tfloat)*p2 - 128,
-          Cr = (Tfloat)*p3 - 128,
+          Y = (Tfloat)p1[N] - 16,
+          Cb = (Tfloat)p2[N] - 128,
+          Cr = (Tfloat)p3[N] - 128,
           R = (298*Y + 409*Cr + 128)/256,
           G = (298*Y - 100*Cb - 208*Cr + 128)/256,
           B = (298*Y + 516*Cb + 128)/256;
-        *(p1++) = (T)(R<0?0:(R>255?255:R));
-        *(p2++) = (T)(G<0?0:(G>255?255:G));
-        *(p3++) = (T)(B<0?0:(B>255?255:B));
+        p1[N] = (T)(R<0?0:(R>255?255:R));
+        p2[N] = (T)(G<0?0:(G>255?255:G));
+        p3[N] = (T)(B<0?0:(B>255?255:B));
       }
       return *this;
     }
@@ -26230,15 +26240,17 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
-      for (ulongT N = (ulongT)_width*_height*_depth; N; --N) {
+      const ulongT whd = (ulongT)_width*_height*_depth;
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
-          R = (Tfloat)*p1/255,
-          G = (Tfloat)*p2/255,
-          B = (Tfloat)*p3/255,
+          R = (Tfloat)p1[N]/255,
+          G = (Tfloat)p2[N]/255,
+          B = (Tfloat)p3[N]/255,
           Y = 0.299f*R + 0.587f*G + 0.114f*B;
-        *(p1++) = (T)Y;
-        *(p2++) = (T)(0.492f*(B-Y));
-        *(p3++) = (T)(0.877*(R-Y));
+        p1[N] = (T)Y;
+        p2[N] = (T)(0.492f*(B-Y));
+        p3[N] = (T)(0.877*(R-Y));
       }
       return *this;
     }
@@ -26256,17 +26268,19 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
-      for (ulongT N = (ulongT)_width*_height*_depth; N; --N) {
+      const ulongT whd = (ulongT)_width*_height*_depth;
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
-          Y = (Tfloat)*p1,
-          U = (Tfloat)*p2,
-          V = (Tfloat)*p3,
+          Y = (Tfloat)p1[N],
+          U = (Tfloat)p2[N],
+          V = (Tfloat)p3[N],
           R = (Y + 1.140f*V)*255,
           G = (Y - 0.395f*U - 0.581f*V)*255,
           B = (Y + 2.032f*U)*255;
-        *(p1++) = (T)(R<0?0:(R>255?255:R));
-        *(p2++) = (T)(G<0?0:(G>255?255:G));
-        *(p3++) = (T)(B<0?0:(B>255?255:B));
+        p1[N] = (T)(R<0?0:(R>255?255:R));
+        p2[N] = (T)(G<0?0:(G>255?255:G));
+        p3[N] = (T)(B<0?0:(B>255?255:B));
       }
       return *this;
     }
@@ -26284,17 +26298,19 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
-      for (ulongT N = (ulongT)_width*_height*_depth; N; --N) {
+      const ulongT whd = (ulongT)_width*_height*_depth;
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
-          R = (Tfloat)*p1,
-          G = (Tfloat)*p2,
-          B = (Tfloat)*p3,
+          R = (Tfloat)p1[N],
+          G = (Tfloat)p2[N],
+          B = (Tfloat)p3[N],
           C = 255 - R,
           M = 255 - G,
           Y = 255 - B;
-        *(p1++) = (T)(C<0?0:(C>255?255:C));
-        *(p2++) = (T)(M<0?0:(M>255?255:M));
-        *(p3++) = (T)(Y<0?0:(Y>255?255:Y));
+        p1[N] = (T)(C<0?0:(C>255?255:C));
+        p2[N] = (T)(M<0?0:(M>255?255:M));
+        p3[N] = (T)(Y<0?0:(Y>255?255:Y));
       }
       return *this;
     }
@@ -26312,17 +26328,19 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
-      for (ulongT N = (ulongT)_width*_height*_depth; N; --N) {
+      const ulongT whd = (ulongT)_width*_height*_depth;
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
-          C = (Tfloat)*p1,
-          M = (Tfloat)*p2,
-          Y = (Tfloat)*p3,
+          C = (Tfloat)p1[N],
+          M = (Tfloat)p2[N],
+          Y = (Tfloat)p3[N],
           R = 255 - C,
           G = 255 - M,
           B = 255 - Y;
-        *(p1++) = (T)(R<0?0:(R>255?255:R));
-        *(p2++) = (T)(G<0?0:(G>255?255:G));
-        *(p3++) = (T)(B<0?0:(B>255?255:B));
+        p1[N] = (T)(R<0?0:(R>255?255:R));
+        p2[N] = (T)(G<0?0:(G>255?255:G));
+        p3[N] = (T)(B<0?0:(B>255?255:B));
       }
       return *this;
     }
@@ -26347,18 +26365,20 @@ namespace cimg_library_suffixed {
       CImg<Tfloat> res(_width,_height,_depth,4);
       const T *ps1 = data(0,0,0,0), *ps2 = data(0,0,0,1), *ps3 = data(0,0,0,2);
       Tfloat *pd1 = res.data(0,0,0,0), *pd2 = res.data(0,0,0,1), *pd3 = res.data(0,0,0,2), *pd4 = res.data(0,0,0,3);
-      for (ulongT N = (ulongT)_width*_height*_depth; N; --N) {
+      const ulongT whd = (ulongT)_width*_height*_depth;
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      for (ulongT N = 0; N<whd; ++N) {
         Tfloat
-	  C = (Tfloat)*(ps1++),
-	  M = (Tfloat)*(ps2++),
-	  Y = (Tfloat)*(ps3++),
+	  C = (Tfloat)ps1[N],
+	  M = (Tfloat)ps2[N],
+	  Y = (Tfloat)ps3[N],
 	  K = cimg::min(C,M,Y);
 	if (K>=255) C = M = Y = 0;
 	else { const Tfloat K1 = 255 - K; C = 255*(C - K)/K1; M = 255*(M - K)/K1; Y = 255*(Y - K)/K1; }
-        *(pd1++) = (Tfloat)(C<0?0:(C>255?255:C));
-        *(pd2++) = (Tfloat)(M<0?0:(M>255?255:M));
-        *(pd3++) = (Tfloat)(Y<0?0:(Y>255?255:Y));
-        *(pd4++) = (Tfloat)(K<0?0:(K>255?255:K));
+        pd1[N] = (Tfloat)(C<0?0:(C>255?255:C));
+        pd2[N] = (Tfloat)(M<0?0:(M>255?255:M));
+        pd3[N] = (Tfloat)(Y<0?0:(Y>255?255:Y));
+        pd4[N] = (Tfloat)(K<0?0:(K>255?255:K));
       }
       return res;
     }
@@ -26378,19 +26398,21 @@ namespace cimg_library_suffixed {
       CImg<Tfloat> res(_width,_height,_depth,3);
       const T *ps1 = data(0,0,0,0), *ps2 = data(0,0,0,1), *ps3 = data(0,0,0,2), *ps4 = data(0,0,0,3);
       Tfloat *pd1 = res.data(0,0,0,0), *pd2 = res.data(0,0,0,1), *pd3 = res.data(0,0,0,2);
-      for (ulongT N = (ulongT)_width*_height*_depth; N; --N) {
+      const ulongT whd = (ulongT)_width*_height*_depth;
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
-	  C = (Tfloat)*(ps1++),
-	  M = (Tfloat)*(ps2++),
-	  Y = (Tfloat)*(ps3++),
-	  K = (Tfloat)*(ps4++),
+	  C = (Tfloat)ps1[N],
+	  M = (Tfloat)ps2[N],
+	  Y = (Tfloat)ps3[N],
+	  K = (Tfloat)ps4[N],
 	  K1 = 1 - K/255,
           nC = C*K1 + K,
           nM = M*K1 + K,
           nY = Y*K1 + K;
-        *(pd1++) = (Tfloat)(nC<0?0:(nC>255?255:nC));
-        *(pd2++) = (Tfloat)(nM<0?0:(nM>255?255:nM));
-        *(pd3++) = (Tfloat)(nY<0?0:(nY>255?255:nY));
+        pd1[N] = (Tfloat)(nC<0?0:(nC>255?255:nC));
+        pd2[N] = (Tfloat)(nM<0?0:(nM>255?255:nM));
+        pd3[N] = (Tfloat)(nY<0?0:(nY>255?255:nY));
       }
       return res;
     }
@@ -26406,14 +26428,16 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
-      for (ulongT N = (ulongT)_width*_height*_depth; N; --N) {
+      const ulongT whd = (ulongT)_width*_height*_depth;
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
-          R = (Tfloat)*p1/255,
-          G = (Tfloat)*p2/255,
-          B = (Tfloat)*p3/255;
-        *(p1++) = (T)(0.43603516*R + 0.38511658*G + 0.14305115*B);
-        *(p2++) = (T)(0.22248840*R + 0.71690369*G + 0.06060791*B);
-        *(p3++) = (T)(0.01391602*R + 0.09706116*G + 0.71392822*B);
+          R = (Tfloat)p1[N]/255,
+          G = (Tfloat)p2[N]/255,
+          B = (Tfloat)p3[N]/255;
+        p1[N] = (T)(0.43603516*R + 0.38511658*G + 0.14305115*B);
+        p2[N] = (T)(0.22248840*R + 0.71690369*G + 0.06060791*B);
+        p3[N] = (T)(0.01391602*R + 0.09706116*G + 0.71392822*B);
       }
       return *this;
     }
@@ -26431,14 +26455,16 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
-      for (ulongT N = (ulongT)_width*_height*_depth; N; --N) {
+      const ulongT whd = (ulongT)_width*_height*_depth;
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
-          X = (Tfloat)*p1*255,
-          Y = (Tfloat)*p2*255,
-          Z = (Tfloat)*p3*255;
-        *(p1++) = (T)(3.134274799724*X  - 1.617275708956*Y - 0.490724283042*Z);
-        *(p2++) = (T)(-0.978795575994*X + 1.916161689117*Y + 0.033453331711*Z),
-        *(p3++) = (T)(0.071976988401*X - 0.228984974402*Y + 1.405718224383*Z);
+          X = (Tfloat)p1[N]*255,
+          Y = (Tfloat)p2[N]*255,
+          Z = (Tfloat)p3[N]*255;
+        p1[N] = (T)(3.134274799724*X  - 1.617275708956*Y - 0.490724283042*Z);
+        p2[N] = (T)(-0.978795575994*X + 1.916161689117*Y + 0.033453331711*Z),
+        p3[N] = (T)(0.071976988401*X - 0.228984974402*Y + 1.405718224383*Z);
       }
       return *this;
     }
@@ -26521,16 +26547,18 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
-      for (ulongT N = (ulongT)_width*_height*_depth; N; --N) {
+      const ulongT whd = (ulongT)_width*_height*_depth;
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
-          X = (Tfloat)*p1,
-          Y = (Tfloat)*p2,
-          Z = (Tfloat)*p3,
+          X = (Tfloat)p1[N],
+          Y = (Tfloat)p2[N],
+          Z = (Tfloat)p3[N],
           sum = X + Y + Z,
           nsum = sum>0?sum:1;
-        *(p1++) = (T)(X/nsum);
-        *(p2++) = (T)(Y/nsum);
-        *(p3++) = (T)Y;
+        p1[N] = (T)(X/nsum);
+        p2[N] = (T)(Y/nsum);
+        p3[N] = (T)Y;
       }
       return *this;
     }
@@ -26548,15 +26576,17 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
-      for (ulongT N = (ulongT)_width*_height*_depth; N; --N) {
+      const ulongT whd = (ulongT)_width*_height*_depth;
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
-         px = (Tfloat)*p1,
-         py = (Tfloat)*p2,
-         Y = (Tfloat)*p3,
+         px = (Tfloat)p1[N],
+         py = (Tfloat)p2[N],
+         Y = (Tfloat)p3[N],
          ny = py>0?py:1;
-        *(p1++) = (T)(px*Y/ny);
-        *(p2++) = (T)Y;
-        *(p3++) = (T)((1 - px - py)*Y/ny);
+        p1[N] = (T)(px*Y/ny);
+        p2[N] = (T)Y;
+        p3[N] = (T)((1 - px - py)*Y/ny);
       }
       return *this;
     }

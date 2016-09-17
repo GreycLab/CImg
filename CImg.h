@@ -27026,7 +27026,7 @@ namespace cimg_library_suffixed {
                 *(pfoff++) = curr - (unsigned int)curr;
                 old = curr;
                 curr+=fy;
-                *(poff++) = sx*((unsigned int)curr-(unsigned int)old);
+                *(poff++) = sx*((unsigned int)curr - (unsigned int)old);
               }
               cimg_pragma_openmp(parallel for collapse(3) if (resy.size()>=65536))
               cimg_forXZC(resy,x,z,c) {

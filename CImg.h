@@ -25881,7 +25881,9 @@ namespace cimg_library_suffixed {
 
     //! Convert pixel values from sRGB to RGB color spaces.
     CImg<T>& sRGBtoRGB() {
-      cimg_for(*this,ptr,T) {
+      if (is_empty()) return *this;
+      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=524288))
+      cimg_rof(*this,ptr,T) {
         const Tfloat
           sval = (Tfloat)*ptr,
           nsval = (sval<0?0:sval>255?255:sval)/255,
@@ -25963,11 +25965,13 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
 
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
-      for (ulongT N = (ulongT)_width*_height*_depth; N; --N) {
+      const ulongT whd = (ulongT)_width*_height*_depth;
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      for (ulongT N = 0; N<whd; ++N) {
         Tfloat
-          H = cimg::mod((Tfloat)*p1,(Tfloat)360),
-          S = (Tfloat)*p2,
-          V = (Tfloat)*p3,
+          H = cimg::mod((Tfloat)p1[N],(Tfloat)360),
+          S = (Tfloat)p2[N],
+          V = (Tfloat)p3[N],
           R = 0, G = 0, B = 0;
         if (H==0 && S==0) R = G = B = V;
         else {
@@ -25988,9 +25992,9 @@ namespace cimg_library_suffixed {
           }
         }
         R*=255; G*=255; B*=255;
-        *(p1++) = (T)(R<0?0:(R>255?255:R));
-        *(p2++) = (T)(G<0?0:(G>255?255:G));
-        *(p3++) = (T)(B<0?0:(B>255?255:B));
+        p1[N] = (T)(R<0?0:(R>255?255:R));
+        p2[N] = (T)(G<0?0:(G>255?255:G));
+        p3[N] = (T)(B<0?0:(B>255?255:B));
       }
       return *this;
     }
@@ -26450,17 +26454,19 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
       const CImg<Tfloat> white = CImg<Tfloat>(1,1,1,3,255).RGBtoXYZ();
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
-      for (ulongT N = (ulongT)_width*_height*_depth; N; --N) {
+      const ulongT whd = (ulongT)_width*_height*_depth;
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
-          X = (Tfloat)(*p1/white[0]),
-          Y = (Tfloat)(*p2/white[1]),
-          Z = (Tfloat)(*p3/white[2]),
+          X = (Tfloat)(p1[N]/white[0]),
+          Y = (Tfloat)(p2[N]/white[1]),
+          Z = (Tfloat)(p3[N]/white[2]),
           fX = (Tfloat)_cimg_Labf(X),
           fY = (Tfloat)_cimg_Labf(Y),
           fZ = (Tfloat)_cimg_Labf(Z);
-        *(p1++) = (T)std::max(0.0f,116*fY - 16);
-        *(p2++) = (T)(500*(fX - fY));
-        *(p3++) = (T)(200*(fY - fZ));
+        p1[N] = (T)std::max(0.0f,116*fY - 16);
+        p2[N] = (T)(500*(fX - fY));
+        p3[N] = (T)(200*(fY - fZ));
       }
       return *this;
     }
@@ -26478,20 +26484,22 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
       const CImg<Tfloat> white = CImg<Tfloat>(1,1,1,3,255).RGBtoXYZ();
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
-      for (ulongT N = (ulongT)_width*_height*_depth; N; --N) {
+      const ulongT whd = (ulongT)_width*_height*_depth;
+      cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=65536))
+      for (ulongT N = 0; N<whd; ++N) {
         const Tfloat
-          L = (Tfloat)*p1,
-          a = (Tfloat)*p2,
-          b = (Tfloat)*p3,
+          L = (Tfloat)p1[N],
+          a = (Tfloat)p2[N],
+          b = (Tfloat)p3[N],
           cY = (L + 16)/116,
           cZ = cY - b/200,
           cX = a/500 + cY,
           X = (Tfloat)(24389*cX>216?cX*cX*cX:(116*cX - 16)*27/24389),
           Y = (Tfloat)(27*L>216?cY*cY*cY:27*L/24389),
           Z = (Tfloat)(24389*cZ>216?cZ*cZ*cZ:(116*cZ - 16)*27/24389);
-        *(p1++) = (T)(X*white[0]);
-        *(p2++) = (T)(Y*white[1]);
-        *(p3++) = (T)(Z*white[2]);
+        p1[N] = (T)(X*white[0]);
+        p2[N] = (T)(Y*white[1]);
+        p3[N] = (T)(Z*white[2]);
       }
       return *this;
     }

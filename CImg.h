@@ -22148,7 +22148,9 @@ namespace cimg_library_suffixed {
 #ifdef cimg_use_openmp
       cimg_pragma_openmp(parallel if (res._height>=512 && std::strlen(expression)>=6))
       {
-        _cimg_math_parser _mp = omp_get_thread_num()?mp:_cimg_math_parser(), &lmp = omp_get_thread_num()?_mp:mp;
+        _cimg_math_parser
+          _mp = omp_get_thread_num()?mp:_cimg_math_parser(),
+          &lmp = omp_get_thread_num()?_mp:mp;
         cimg_pragma_openmp(for)
           for (unsigned int i = 0; i<res._height; ++i) {
             const unsigned int i4 = 4*i;

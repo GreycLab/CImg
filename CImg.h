@@ -17262,9 +17262,11 @@ namespace cimg_library_suffixed {
                 else CImg<ulongT>::vector(arg2).move_to(_opcode);
                 s = ns;
               }
-              if (arg1>0 && _opcode._width==2) // Special case with one argument and p>=1
-                _cimg_mp_scalar1(mp_abs,arg2);
-              (_opcode>'y').move_to(code);
+
+              (_opcode>'y').move_to(opcode);
+              if (arg1>0 && opcode._height==3) // Special case with one argument and p>=1
+                _cimg_mp_scalar1(mp_abs,opcode[2]);
+              opcode.move_to(code);
               _cimg_mp_return(pos);
             }
             break;

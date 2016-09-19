@@ -4588,6 +4588,12 @@ namespace cimg_library_suffixed {
       return k - 1;
     }
 
+    //! Cut (i.e. clamp) value in specified interval.
+    template<typename T, typename t>
+    inline T cut(const T& val, const t& val_min, const t& val_max) {
+      return val<val_min?(T)val_min:val>val_max?(T)val_max:val;
+    }
+
     //! Bitwise-rotate value on the left.
     template<typename T>
     inline T rol(const T& a, const unsigned int n=1) {
@@ -4718,7 +4724,7 @@ namespace cimg_library_suffixed {
     //! Return the sign of a value.
     template<typename T>
     inline T sign(const T& x) {
-      return (x<0)?(T)(-1):(x==0?(T)0:(T)1);
+      return x<0?(T)-1:x==0?(T)0:(T)1;
     }
 
     //! Return the nearest power of 2 higher than given value.
@@ -12418,7 +12424,8 @@ namespace cimg_library_suffixed {
     }
 
     T& _atXY(const int x, const int y, const int z=0, const int c=0) {
-      return (*this)(x<0?0:(x>=width()?width() - 1:x), y<0?0:(y>=height()?height() - 1:y),z,c);
+      return (*this)(cimg::cut(x,0,width() - 1),
+                     cimg::cut(y,0,height() - 1),z,c);
     }
 
     //! Access to a pixel value, using Neumann boundary conditions for the X and Y-coordinates \const.
@@ -12431,7 +12438,8 @@ namespace cimg_library_suffixed {
     }
 
     const T& _atXY(const int x, const int y, const int z=0, const int c=0) const {
-      return (*this)(x<0?0:(x>=width()?width() - 1:x), y<0?0:(y>=height()?height() - 1:y),z,c);
+      return (*this)(cimg::cut(x,0,width() - 1),
+                     cimg::cut(y,0,height() - 1),z,c);
     }
 
     //! Access to a pixel value, using Dirichlet boundary conditions for the X,Y and Z-coordinates.
@@ -12465,8 +12473,9 @@ namespace cimg_library_suffixed {
     }
 
     T& _atXYZ(const int x, const int y, const int z, const int c=0) {
-      return (*this)(x<0?0:x>=width()?width() - 1:x,y<0?0:y>=height()?height() - 1:y,
-                     z<0?0:z>=depth()?depth() - 1:z,c);
+      return (*this)(cimg::cut(x,0,width() - 1),
+                     cimg::cut(y,0,height() - 1),
+                     cimg::cut(z,0,depth() - 1),c);
     }
 
     //! Access to a pixel value, using Neumann boundary conditions for the X,Y and Z-coordinates \const.
@@ -12479,8 +12488,9 @@ namespace cimg_library_suffixed {
     }
 
     const T& _atXYZ(const int x, const int y, const int z, const int c=0) const {
-      return (*this)(x<0?0:(x>=width()?width() - 1:x),y<0?0:(y>=height()?height() - 1:y),
-                     z<0?0:(z>=depth()?depth() - 1:z),c);
+      return (*this)(cimg::cut(x,0,width() - 1),
+                     cimg::cut(y,0,height() - 1),
+                     cimg::cut(z,0,depth() - 1),c);
     }
 
     //! Access to a pixel value, using Dirichlet boundary conditions.
@@ -12515,8 +12525,10 @@ namespace cimg_library_suffixed {
     }
 
     T& _atXYZC(const int x, const int y, const int z, const int c) {
-      return (*this)(x<0?0:(x>=width()?width() - 1:x), y<0?0:(y>=height()?height() - 1:y),
-                     z<0?0:(z>=depth()?depth() - 1:z), c<0?0:(c>=spectrum()?spectrum() - 1:c));
+      return (*this)(cimg::cut(x,0,width() - 1),
+                     cimg::cut(y,0,height() - 1),
+                     cimg::cut(z,0,depth() - 1),
+                     cimg::cut(c,0,spectrum() - 1));
     }
 
     //! Access to a pixel value, using Neumann boundary conditions \const.
@@ -12529,8 +12541,10 @@ namespace cimg_library_suffixed {
     }
 
     const T& _atXYZC(const int x, const int y, const int z, const int c) const {
-      return (*this)(x<0?0:(x>=width()?width() - 1:x), y<0?0:(y>=height()?height() - 1:y),
-                     z<0?0:(z>=depth()?depth() - 1:z), c<0?0:(c>=spectrum()?spectrum() - 1:c));
+      return (*this)(cimg::cut(x,0,width() - 1),
+                     cimg::cut(y,0,height() - 1),
+                     cimg::cut(z,0,depth() - 1),
+                     cimg::cut(c,0,spectrum() - 1));
     }
 
     //! Return pixel value, using linear interpolation and Dirichlet boundary conditions for the X-coordinate.
@@ -12587,7 +12601,7 @@ namespace cimg_library_suffixed {
 
     Tfloat _linear_atX(const float fx, const int y=0, const int z=0, const int c=0) const {
       const float
-        nfx = fx<0?0:(fx>_width - 1?_width - 1:fx);
+        nfx = cimg::cut(fx,0,width() - 1);
       const unsigned int
         x = (unsigned int)nfx;
       const float
@@ -12636,8 +12650,8 @@ namespace cimg_library_suffixed {
 
     Tfloat _linear_atXY(const float fx, const float fy, const int z=0, const int c=0) const {
       const float
-        nfx = fx<0?0:(fx>_width - 1?_width - 1:fx),
-        nfy = fy<0?0:(fy>_height - 1?_height - 1:fy);
+        nfx = cimg::cut(fx,0,width() - 1),
+        nfy = cimg::cut(fy,0,height() - 1);
       const unsigned int
         x = (unsigned int)nfx,
         y = (unsigned int)nfy;
@@ -12701,9 +12715,9 @@ namespace cimg_library_suffixed {
 
     Tfloat _linear_atXYZ(const float fx, const float fy=0, const float fz=0, const int c=0) const {
       const float
-        nfx = fx<0?0:(fx>_width - 1?_width - 1:fx),
-        nfy = fy<0?0:(fy>_height - 1?_height - 1:fy),
-        nfz = fz<0?0:(fz>_depth - 1?_depth - 1:fz);
+        nfx = cimg::cut(fx,0,width() - 1),
+        nfy = cimg::cut(fy,0,height() - 1),
+        nfz = cimg::cut(fz,0,depth() - 1);
       const unsigned int
         x = (unsigned int)nfx,
         y = (unsigned int)nfy,
@@ -12794,10 +12808,10 @@ namespace cimg_library_suffixed {
 
     Tfloat _linear_atXYZC(const float fx, const float fy=0, const float fz=0, const float fc=0) const {
       const float
-        nfx = fx<0?0:(fx>_width - 1?_width - 1:fx),
-        nfy = fy<0?0:(fy>_height - 1?_height - 1:fy),
-        nfz = fz<0?0:(fz>_depth - 1?_depth - 1:fz),
-        nfc = fc<0?0:(fc>_spectrum - 1?_spectrum - 1:fc);
+        nfx = cimg::cut(fx,0,width() - 1),
+        nfy = cimg::cut(fy,0,height() - 1),
+        nfz = cimg::cut(fz,0,depth() - 1),
+        nfc = cimg::cut(fc,0,spectrum() - 1);
       const unsigned int
         x = (unsigned int)nfx,
         y = (unsigned int)nfy,
@@ -12907,7 +12921,7 @@ namespace cimg_library_suffixed {
 
     Tfloat _cubic_atX(const float fx, const int y=0, const int z=0, const int c=0) const {
       const float
-        nfx = fx<0?0:(fx>_width - 1?_width - 1:fx);
+        nfx = cimg::cut(fx,0,width() - 1);
       const int
         x = (int)nfx;
       const float
@@ -12992,8 +13006,8 @@ namespace cimg_library_suffixed {
 
     Tfloat _cubic_atXY(const float fx, const float fy, const int z=0, const int c=0) const {
       const float
-        nfx = fx<0?0:(fx>_width - 1?_width - 1:fx),
-        nfy = fy<0?0:(fy>_height - 1?_height - 1:fy);
+        nfx = cimg::cut(fx,0,width() - 1),
+        nfy = cimg::cut(fy,0,height() - 1);
       const int x = (int)nfx, y = (int)nfy;
       const float dx = nfx - x, dy = nfy - y;
       const int
@@ -13148,9 +13162,9 @@ namespace cimg_library_suffixed {
 
     Tfloat _cubic_atXYZ(const float fx, const float fy, const float fz, const int c=0) const {
       const float
-        nfx = fx<0?0:(fx>_width - 1?_width - 1:fx),
-        nfy = fy<0?0:(fy>_height - 1?_height - 1:fy),
-        nfz = fz<0?0:(fz>_depth - 1?_depth - 1:fz);
+        nfx = cimg::cut(fx,0,width() - 1),
+        nfy = cimg::cut(fy,0,height() - 1),
+        nfz = cimg::cut(fz,0,depth() - 1);
       const int x = (int)nfx, y = (int)nfy, z = (int)nfz;
       const float dx = nfx - x, dy = nfy - y, dz = nfz - z;
       const int
@@ -25188,7 +25202,7 @@ namespace cimg_library_suffixed {
       CImg<tuint> res(_width,_height,_depth,map_indexes?_spectrum:1);
       tuint *ptrd = res._data;
       if (dithering>0) { // Dithered versions.
-        const float ndithering = (dithering<0?0:dithering>1?1:dithering)/16;
+        const float ndithering = cimg::cut(dithering,0,1)/16;
         Tfloat valm = 0, valM = (Tfloat)max_min(valm);
         if (valm==valM && valm>=0 && valM<=255) { valm = 0; valM = 255; }
         CImg<Tfloat> cache = get_crop(-1,0,0,0,_width,1,0,_spectrum - 1);
@@ -25463,7 +25477,7 @@ namespace cimg_library_suffixed {
         case 1 : // Neumann boundaries.
           cimg_for(res,ptrd,t) {
             const longT ind = (longT)*(ptrs++);
-            *ptrd = colormap[ind<0?0:ind>=(longT)pwhd?pwhd - 1:ind];
+            *ptrd = colormap[cimg::cut(ind,(longT)0,(longT)pwhd - 1)];
           } break;
         default : // Dirichlet boundaries.
           cimg_for(res,ptrd,t) {
@@ -25479,7 +25493,7 @@ namespace cimg_library_suffixed {
           const t *const ptrp0 = colormap._data, *ptrp1 = ptrp0 + pwhd;
           t *ptrd0 = res._data, *ptrd1 = ptrd0 + whd;
           for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
-            const ulongT _ind = (ulongT)*(ptrs++), ind = _ind%pwhd;
+            const ulongT ind = ((ulongT)*(ptrs++))%pwhd;
             *(ptrd0++) = ptrp0[ind]; *(ptrd1++) = ptrp1[ind];
           }
         } break;
@@ -25487,7 +25501,7 @@ namespace cimg_library_suffixed {
           const t *const ptrp0 = colormap._data, *ptrp1 = ptrp0 + pwhd;
           t *ptrd0 = res._data, *ptrd1 = ptrd0 + whd;
           for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
-            const longT _ind = (longT)*(ptrs++), ind = _ind<0?0:_ind>=(longT)pwhd?(longT)pwhd - 1:_ind;
+            const longT ind = cimg::cut((longT)*(ptrs++),(longT)0,(longT)pwhd - 1);
             *(ptrd0++) = ptrp0[ind]; *(ptrd1++) = ptrp1[ind];
           }
         } break;
@@ -25509,7 +25523,7 @@ namespace cimg_library_suffixed {
           const t *const ptrp0 = colormap._data, *ptrp1 = ptrp0 + pwhd, *ptrp2 = ptrp1 + pwhd;
           t *ptrd0 = res._data, *ptrd1 = ptrd0 + whd, *ptrd2 = ptrd1 + whd;
           for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
-            const ulongT _ind = (ulongT)*(ptrs++), ind = _ind%pwhd;
+            const ulongT ind = ((ulongT)*(ptrs++))%pwhd;
             *(ptrd0++) = ptrp0[ind]; *(ptrd1++) = ptrp1[ind]; *(ptrd2++) = ptrp2[ind];
           }
         } break;
@@ -25517,7 +25531,7 @@ namespace cimg_library_suffixed {
           const t *const ptrp0 = colormap._data, *ptrp1 = ptrp0 + pwhd, *ptrp2 = ptrp1 + pwhd;
           t *ptrd0 = res._data, *ptrd1 = ptrd0 + whd, *ptrd2 = ptrd1 + whd;
           for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
-            const longT _ind = (longT)*(ptrs++), ind = _ind<0?0:_ind>=(longT)pwhd?(longT)pwhd - 1:_ind;
+            const longT ind = cimg::cut((longT)*(ptrs++),(longT)0,(longT)pwhd - 1);
             *(ptrd0++) = ptrp0[ind]; *(ptrd1++) = ptrp1[ind]; *(ptrd2++) = ptrp2[ind];
           }
         } break;
@@ -25538,7 +25552,7 @@ namespace cimg_library_suffixed {
         case 2 : { // Periodic boundaries.
           t *ptrd = res._data;
           for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
-            const ulongT _ind = (ulongT)*(ptrs++), ind = _ind%pwhd;
+            const ulongT ind = ((ulongT)*(ptrs++))%pwhd;
             const t *ptrp = colormap._data + ind;
             t *_ptrd = ptrd++; cimg_forC(res,c) { *_ptrd = *ptrp; _ptrd+=whd; ptrp+=pwhd; }
           }
@@ -25546,7 +25560,7 @@ namespace cimg_library_suffixed {
         case 1 : { // Neumann boundaries.
           t *ptrd = res._data;
           for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
-            const longT _ind = (longT)*(ptrs++), ind = _ind<0?0:_ind>=(longT)pwhd?(longT)pwhd - 1:_ind;
+            const longT ind = cimg::cut((longT)*(ptrs++),(longT)0,(longT)pwhd - 1);
             const t *ptrp = colormap._data + ind;
             t *_ptrd = ptrd++; cimg_forC(res,c) { *_ptrd = *ptrp; _ptrd+=whd; ptrp+=pwhd; }
           }
@@ -25889,10 +25903,9 @@ namespace cimg_library_suffixed {
       cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=32))
       cimg_rof(*this,ptr,T) {
         const Tfloat
-          sval = (Tfloat)*ptr,
-          nsval = (sval<0?0:sval>255?255:sval)/255,
-          val = (Tfloat)(nsval<=0.04045f?nsval/12.92f:std::pow((nsval + 0.055f)/(1.055f),2.4f));
-        *ptr = (T)(val*255);
+          sval = (Tfloat)*ptr/255,
+          val = (Tfloat)(sval<=0.04045f?sval/12.92f:std::pow((sval + 0.055f)/(1.055f),2.4f));
+        *ptr = (T)cimg::cut(val*255,0,255);
       }
       return *this;
     }
@@ -25908,10 +25921,9 @@ namespace cimg_library_suffixed {
       cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=32))
       cimg_rof(*this,ptr,T) {
         const Tfloat
-          val = (Tfloat)*ptr,
-          nval = (val<0?0:val>255?255:val)/255,
-          sval = (Tfloat)(nval<=0.0031308f?nval*12.92f:1.055f*std::pow(nval,0.416667f) - 0.055f);
-        *ptr = (T)(sval*255);
+          val = (Tfloat)*ptr/255,
+          sval = (Tfloat)(val<=0.0031308f?val*12.92f:1.055f*std::pow(val,0.416667f) - 0.055f);
+        *ptr = (T)cimg::cut(sval*255,0,255);
       }
       return *this;
     }
@@ -25936,24 +25948,21 @@ namespace cimg_library_suffixed {
           R = (Tfloat)p1[N],
           G = (Tfloat)p2[N],
           B = (Tfloat)p3[N],
-          nR = (R<0?0:(R>255?255:R)),
-          nG = (G<0?0:(G>255?255:G)),
-          nB = (B<0?0:(B>255?255:B)),
-          m = cimg::min(nR,nG,nB),
-          M = cimg::max(nR,nG,nB);
+          m = cimg::min(R,G,B),
+          M = cimg::max(R,G,B);
         Tfloat H = 0, S = 0;
         if (M!=m) {
           const Tfloat
-            f = (nR==m)?(nG-nB):((nG==m)?(nB-nR):(nR-nG)),
-            i = (Tfloat)((nR==m)?3:((nG==m)?5:1));
+            f = R==m?G - B:G==m?B - R:R - G,
+            i = R==m?3:G==m?5:1;
           H = i - f/(M - m);
           if (H>=6) H-=6;
           H*=60;
           S = (M - m)/M;
         }
-        p1[N]= (T)H;
-        p2[N] = (T)S;
-        p3[N] = (T)(M/255);
+        p1[N] = (T)cimg::cut(H,0,360);
+        p2[N] = (T)cimg::cut(S,0,1);
+        p3[N] = (T)cimg::cut(M/255,0,1);
       }
       return *this;
     }
@@ -25984,7 +25993,7 @@ namespace cimg_library_suffixed {
           H/=60;
           const int i = (int)std::floor(H);
           const Tfloat
-            f = (i&1)?(H - i):(1 - H + i),
+            f = (i&1)?H - i:1 - H + i,
             m = V*(1 - S),
             n = V*(1 - S*f);
           switch (i) {
@@ -25997,10 +26006,9 @@ namespace cimg_library_suffixed {
           case 5 : R = V; G = m; B = n; break;
           }
         }
-        R*=255; G*=255; B*=255;
-        p1[N] = (T)(R<0?0:(R>255?255:R));
-        p2[N] = (T)(G<0?0:(G>255?255:G));
-        p3[N] = (T)(B<0?0:(B>255?255:B));
+        p1[N] = (T)cimg::cut(R*255,0,255);
+        p2[N] = (T)cimg::cut(G*255,0,255);
+        p3[N] = (T)cimg::cut(B*255,0,255);
       }
       return *this;
     }
@@ -26025,33 +26033,30 @@ namespace cimg_library_suffixed {
           R = (Tfloat)p1[N],
           G = (Tfloat)p2[N],
           B = (Tfloat)p3[N],
-          nR = (R<0?0:(R>255?255:R)),
-          nG = (G<0?0:(G>255?255:G)),
-          nB = (B<0?0:(B>255?255:B)),
-          m = cimg::min(nR,nG,nB),
-          M = cimg::max(nR,nG,nB),
+          m = cimg::min(R,G,B),
+          M = cimg::max(R,G,B),
           L = (m + M)/(2*255);
         Tfloat H = 0, S = 0;
         if (M==m) H = S = 0;
         else {
           const Tfloat
-            f = (nR==m)?(nG - nB):((nG==m)?(nB - nR):(nR - nG)),
-            i = (nR==m)?3.0f:((nG==m)?5.0f:1.0f);
+            f = R==m?G - B:G==m?B - R:R - G,
+            i = R==m?3:G==m?5:1;
           H = i - f/(M - m);
           if (H>=6) H-=6;
           H*=60;
-          S = (2*L<=1)?((M - m)/(M + m)):((M - m)/(2 - M - m));
+          S = 2*L<=1?(M - m)/(M + m):(M - m)/(2 - M - m);
         }
-        p1[N] = (T)H;
-        p2[N] = (T)S;
-        p3[N] = (T)L;
+        p1[N] = (T)cimg::cut(H,0,360);
+        p2[N] = (T)cimg::cut(S,0,1);
+        p3[N] = (T)cimg::cut(L,0,1);
       }
       return *this;
     }
 
     //! Convert pixel values from RGB to HSL color spaces \newinstance.
     CImg<Tfloat> get_RGBtoHSL() const {
-      return CImg< Tfloat>(*this,false).RGBtoHSL();
+      return CImg<Tfloat>(*this,false).RGBtoHSL();
     }
 
     //! Convert pixel values from HSL to RGB color spaces.
@@ -26069,21 +26074,21 @@ namespace cimg_library_suffixed {
           H = cimg::mod((Tfloat)p1[N],(Tfloat)360),
           S = (Tfloat)p2[N],
           L = (Tfloat)p3[N],
-          q = 2*L<1?L*(1 + S):(L + S - L*S),
+          q = 2*L<1?L*(1 + S):L + S - L*S,
           p = 2*L - q,
           h = H/360,
-          tr = h + 1.0f/3,
+          tr = h + (Tfloat)1/3,
           tg = h,
-          tb = h - 1.0f/3,
-          ntr = tr<0?tr + 1:(tr>1?tr - 1:tr),
-          ntg = tg<0?tg + 1:(tg>1?tg - 1:tg),
-          ntb = tb<0?tb + 1:(tb>1?tb - 1:tb),
-          R = 255*(6*ntr<1?p + (q - p)*6*ntr:(2*ntr<1?q:(3*ntr<2?p + (q - p)*6*(2.0f/3 - ntr):p))),
-          G = 255*(6*ntg<1?p + (q - p)*6*ntg:(2*ntg<1?q:(3*ntg<2?p + (q - p)*6*(2.0f/3 - ntg):p))),
-          B = 255*(6*ntb<1?p + (q - p)*6*ntb:(2*ntb<1?q:(3*ntb<2?p + (q - p)*6*(2.0f/3 - ntb):p)));
-        p1[N] = (T)(R<0?0:(R>255?255:R));
-        p2[N] = (T)(G<0?0:(G>255?255:G));
-        p3[N] = (T)(B<0?0:(B>255?255:B));
+          tb = h - (Tfloat)1/3,
+          ntr = tr<0?tr + 1:tr>1?tr - 1:tr,
+          ntg = tg<0?tg + 1:tg>1?tg - 1:tg,
+          ntb = tb<0?tb + 1:tb>1?tb - 1:tb,
+          R = 6*ntr<1?p + (q - p)*6*ntr:2*ntr<1?q:3*ntr<2?p + (q - p)*6*(2.0f/3 - ntr):p,
+          G = 6*ntg<1?p + (q - p)*6*ntg:2*ntg<1?q:3*ntg<2?p + (q - p)*6*(2.0f/3 - ntg):p,
+          B = 6*ntb<1?p + (q - p)*6*ntb:2*ntb<1?q:3*ntb<2?p + (q - p)*6*(2.0f/3 - ntb):p;
+        p1[N] = (T)cimg::cut(255*R,0,255);
+        p2[N] = (T)cimg::cut(255*G,0,255);
+        p3[N] = (T)cimg::cut(255*B,0,255);
       }
       return *this;
     }
@@ -26108,20 +26113,17 @@ namespace cimg_library_suffixed {
           R = (Tfloat)p1[N],
           G = (Tfloat)p2[N],
           B = (Tfloat)p3[N],
-          nR = (R<0?0:(R>255?255:R))/255,
-          nG = (G<0?0:(G>255?255:G))/255,
-          nB = (B<0?0:(B>255?255:B))/255,
-          m = cimg::min(nR,nG,nB),
-          theta = (Tfloat)(std::acos(0.5f*((nR - nG) + (nR - nB))/
-                                     std::sqrt(cimg::sqr(nR - nG) + (nR - nB)*(nG - nB)))*180/cimg::PI),
-          sum = nR + nG + nB;
+          m = cimg::min(R,G,B),
+          theta = (Tfloat)(std::acos(0.5f*((R - G) + (R - B))/
+                                     std::sqrt(cimg::sqr(R - G) + (R - B)*(G - B)))*180/cimg::PI),
+          sum = R + G + B;
         Tfloat H = 0, S = 0, I = 0;
-        if (theta>0) H = (nB<=nG)?theta:360 - theta;
+        if (theta>0) H = B<=G?theta:360 - theta;
         if (sum>0) S = 1 - 3/sum*m;
         I = sum/3;
-        p1[N] = (T)H;
-        p2[N] = (T)S;
-        p3[N] = (T)I;
+        p1[N] = (T)cimg::cut(H,0,360);
+        p2[N] = (T)cimg::cut(S,0,1);
+        p3[N] = (T)cimg::cut(I,0,1);
       }
       return *this;
     }
@@ -26146,7 +26148,7 @@ namespace cimg_library_suffixed {
           H = cimg::mod((Tfloat)p1[N],(Tfloat)360),
           S = (Tfloat)p2[N],
           I = (Tfloat)p3[N],
-          a = I*(1-S),
+          a = I*(1 - S),
           R = 0, G = 0, B = 0;
         if (H<120) {
           B = a;
@@ -26163,10 +26165,9 @@ namespace cimg_library_suffixed {
           B = (Tfloat)(I*(1 + S*std::cos(H*cimg::PI/180)/std::cos((60 - H)*cimg::PI/180)));
           R = 3*I - (G + B);
         }
-        R*=255; G*=255; B*=255;
-        p1[N] = (T)(R<0?0:(R>255?255:R));
-        p2[N] = (T)(G<0?0:(G>255?255:G));
-        p3[N] = (T)(B<0?0:(B>255?255:B));
+        p1[N] = (T)cimg::cut(R*255,0,255);
+        p2[N] = (T)cimg::cut(G*255,0,255);
+        p3[N] = (T)cimg::cut(B*255,0,255);
       }
       return *this;
     }
@@ -26194,9 +26195,9 @@ namespace cimg_library_suffixed {
           Y = (66*R + 129*G + 25*B + 128)/256 + 16,
           Cb = (-38*R - 74*G + 112*B + 128)/256 + 128,
           Cr = (112*R - 94*G - 18*B + 128)/256 + 128;
-        p1[N] = (T)(Y<0?0:(Y>255?255:Y));
-        p2[N] = (T)(Cb<0?0:(Cb>255?255:Cb));
-        p3[N] = (T)(Cr<0?0:(Cr>255?255:Cr));
+        p1[N] = (T)cimg::cut(Y,0,255),
+        p2[N] = (T)cimg::cut(Cb,0,255),
+        p3[N] = (T)cimg::cut(Cr,0,255);
       }
       return *this;
     }
@@ -26224,9 +26225,9 @@ namespace cimg_library_suffixed {
           R = (298*Y + 409*Cr + 128)/256,
           G = (298*Y - 100*Cb - 208*Cr + 128)/256,
           B = (298*Y + 516*Cb + 128)/256;
-        p1[N] = (T)(R<0?0:(R>255?255:R));
-        p2[N] = (T)(G<0?0:(G>255?255:G));
-        p3[N] = (T)(B<0?0:(B>255?255:B));
+        p1[N] = (T)cimg::cut(R,0,255),
+        p2[N] = (T)cimg::cut(G,0,255),
+        p3[N] = (T)cimg::cut(B,0,255);
       }
       return *this;
     }
@@ -26253,8 +26254,8 @@ namespace cimg_library_suffixed {
           B = (Tfloat)p3[N]/255,
           Y = 0.299f*R + 0.587f*G + 0.114f*B;
         p1[N] = (T)Y;
-        p2[N] = (T)(0.492f*(B-Y));
-        p3[N] = (T)(0.877*(R-Y));
+        p2[N] = (T)(0.492f*(B - Y));
+        p3[N] = (T)(0.877*(R - Y));
       }
       return *this;
     }
@@ -26282,9 +26283,9 @@ namespace cimg_library_suffixed {
           R = (Y + 1.140f*V)*255,
           G = (Y - 0.395f*U - 0.581f*V)*255,
           B = (Y + 2.032f*U)*255;
-        p1[N] = (T)(R<0?0:(R>255?255:R));
-        p2[N] = (T)(G<0?0:(G>255?255:G));
-        p3[N] = (T)(B<0?0:(B>255?255:B));
+        p1[N] = (T)cimg::cut(R,0,255),
+        p2[N] = (T)cimg::cut(G,0,255),
+        p3[N] = (T)cimg::cut(B,0,255);
       }
       return *this;
     }
@@ -26312,9 +26313,9 @@ namespace cimg_library_suffixed {
           C = 255 - R,
           M = 255 - G,
           Y = 255 - B;
-        p1[N] = (T)(C<0?0:(C>255?255:C));
-        p2[N] = (T)(M<0?0:(M>255?255:M));
-        p3[N] = (T)(Y<0?0:(Y>255?255:Y));
+        p1[N] = (T)cimg::cut(C,0,255),
+        p2[N] = (T)cimg::cut(M,0,255),
+        p3[N] = (T)cimg::cut(Y,0,255);
       }
       return *this;
     }
@@ -26342,9 +26343,9 @@ namespace cimg_library_suffixed {
           R = 255 - C,
           G = 255 - M,
           B = 255 - Y;
-        p1[N] = (T)(R<0?0:(R>255?255:R));
-        p2[N] = (T)(G<0?0:(G>255?255:G));
-        p3[N] = (T)(B<0?0:(B>255?255:B));
+        p1[N] = (T)cimg::cut(R,0,255),
+        p2[N] = (T)cimg::cut(G,0,255),
+        p3[N] = (T)cimg::cut(B,0,255);
       }
       return *this;
     }
@@ -26379,10 +26380,10 @@ namespace cimg_library_suffixed {
 	  K = cimg::min(C,M,Y);
 	if (K>=255) C = M = Y = 0;
 	else { const Tfloat K1 = 255 - K; C = 255*(C - K)/K1; M = 255*(M - K)/K1; Y = 255*(Y - K)/K1; }
-        pd1[N] = (Tfloat)(C<0?0:(C>255?255:C));
-        pd2[N] = (Tfloat)(M<0?0:(M>255?255:M));
-        pd3[N] = (Tfloat)(Y<0?0:(Y>255?255:Y));
-        pd4[N] = (Tfloat)(K<0?0:(K>255?255:K));
+        pd1[N] = (Tfloat)cimg::cut(C,0,255),
+        pd2[N] = (Tfloat)cimg::cut(M,0,255),
+        pd3[N] = (Tfloat)cimg::cut(Y,0,255),
+        pd4[N] = (Tfloat)cimg::cut(K,0,255);
       }
       return res;
     }
@@ -26414,9 +26415,9 @@ namespace cimg_library_suffixed {
           nC = C*K1 + K,
           nM = M*K1 + K,
           nY = Y*K1 + K;
-        pd1[N] = (Tfloat)(nC<0?0:(nC>255?255:nC));
-        pd2[N] = (Tfloat)(nM<0?0:(nM>255?255:nM));
-        pd3[N] = (Tfloat)(nY<0?0:(nY>255?255:nY));
+        pd1[N] = (Tfloat)cimg::cut(nC,0,255),
+        pd2[N] = (Tfloat)cimg::cut(nM,0,255),
+        pd3[N] = (Tfloat)cimg::cut(nY,0,255);
       }
       return res;
     }
@@ -26466,9 +26467,9 @@ namespace cimg_library_suffixed {
           X = (Tfloat)p1[N]*255,
           Y = (Tfloat)p2[N]*255,
           Z = (Tfloat)p3[N]*255;
-        p1[N] = (T)(3.134274799724*X  - 1.617275708956*Y - 0.490724283042*Z);
-        p2[N] = (T)(-0.978795575994*X + 1.916161689117*Y + 0.033453331711*Z),
-        p3[N] = (T)(0.071976988401*X - 0.228984974402*Y + 1.405718224383*Z);
+        p1[N] = (T)cimg::cut(3.134274799724*X  - 1.617275708956*Y - 0.490724283042*Z,0,255);
+        p2[N] = (T)cimg::cut(-0.978795575994*X + 1.916161689117*Y + 0.033453331711*Z,0,255);
+        p3[N] = (T)cimg::cut(0.071976988401*X - 0.228984974402*Y + 1.405718224383*Z,0,255);
       }
       return *this;
     }
@@ -26498,7 +26499,7 @@ namespace cimg_library_suffixed {
           fX = (Tfloat)_cimg_Labf(X),
           fY = (Tfloat)_cimg_Labf(Y),
           fZ = (Tfloat)_cimg_Labf(Z);
-        p1[N] = (T)std::max(0.0f,116*fY - 16);
+        p1[N] = (T)cimg::cut(116*fY - 16,0,100);
         p2[N] = (T)(500*(fX - fY));
         p3[N] = (T)(200*(fY - fZ));
       }
@@ -33014,7 +33015,7 @@ namespace cimg_library_suffixed {
               const int
                 x0 = x - hl, y0 = y - hl, x1 = x + hr, y1 = y + hr,
                 nx0 = x0<0?0:x0, ny0 = y0<0?0:y0,
-                                          nx1 = x1>=width()?width() - 1:x1, ny1 = y1>=height()?height() - 1:y1;
+                nx1 = x1>=width()?width() - 1:x1, ny1 = y1>=height()?height() - 1:y1;
               const float val0 = (float)(*this)(x,y,c);
               CImg<T> values(n*n);
               unsigned int nb_values = 0;
@@ -38957,7 +38958,7 @@ namespace cimg_library_suffixed {
                             const tc *const color, const float opacity,
                             const float brightness) {
       cimg_init_scanline(color,opacity);
-      const float nbrightness = brightness<0?0:(brightness>2?2:brightness);
+      const float nbrightness = cimg::cut(brightness,0,2);
       int nx0 = x0, ny0 = y0, nx1 = x1, ny1 = y1, nx2 = x2, ny2 = y2;
       if (ny0>ny1) cimg::swap(nx0,nx1,ny0,ny1);
       if (ny0>ny2) cimg::swap(nx0,nx2,ny0,ny2);
@@ -39065,7 +39066,7 @@ namespace cimg_library_suffixed {
       static const T maxval = (T)std::min(cimg::type<T>::max(),(T)cimg::type<tc>::max());
       const float
         nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f),
-        nbrightness = brightness<0?0:(brightness>2?2:brightness);
+        nbrightness = cimg::cut(brightness,0,2);
       const longT whd = (longT)width()*height()*depth(), offx = spectrum()*whd;
       int nx0 = x0, ny0 = y0, nx1 = x1, ny1 = y1, nx2 = x2, ny2 = y2;
       tzfloat nz0 = 1/(tzfloat)z0, nz1 = 1/(tzfloat)z1, nz2 = 1/(tzfloat)z2;
@@ -39384,7 +39385,7 @@ namespace cimg_library_suffixed {
       static const T maxval = (T)std::min(cimg::type<T>::max(),cimg::type<tc>::max());
       const float
         nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f),
-        nbrightness = brightness<0?0:(brightness>2?2:brightness);
+        nbrightness = cimg::cut(brightness,0,2);
       const ulongT
         whd = (ulongT)_width*_height*_depth,
         twh = (ulongT)texture._width*texture._height,
@@ -39506,7 +39507,7 @@ namespace cimg_library_suffixed {
       static const T maxval = (T)std::min(cimg::type<T>::max(),(T)cimg::type<tc>::max());
       const float
         nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f),
-        nbrightness = brightness<0?0:(brightness>2?2:brightness);
+        nbrightness = cimg::cut(brightness,0,2);
       const ulongT
         whd = (ulongT)_width*_height*_depth,
         twh = (ulongT)texture._width*texture._height,
@@ -39650,7 +39651,7 @@ namespace cimg_library_suffixed {
       static const T maxval = (T)std::min(cimg::type<T>::max(),(T)cimg::type<tc>::max());
       const float
         nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f),
-        nbrightness = brightness<0?0:(brightness>2?2:brightness);
+        nbrightness = cimg::cut(brightness,0,2);
       const ulongT
         whd = (ulongT)_width*_height*_depth,
         twh = (ulongT)texture._width*texture._height,
@@ -42474,10 +42475,10 @@ namespace cimg_library_suffixed {
 
       const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f), ln2 = (float)std::log(2.0);
       const int
-        _x0 = x0<0?0:x0>=width()?width() - 1:x0,
-        _y0 = y0<0?0:y0>=height()?height() - 1:y0,
-        _x1 = x1<0?1:x1>=width()?width() - 1:x1,
-        _y1 = y1<0?1:y1>=height()?height() - 1:y1;
+        _x0 = cimg::cut(x0,0,width() - 1),
+        _y0 = cimg::cut(y0,0,height() - 1),
+        _x1 = cimg::cut(x1,0,width() - 1),
+        _y1 = cimg::cut(y1,0,height() - 1);
 
       cimg_pragma_openmp(parallel for collapse(2) if ((1 + _x1 - _x0)*(1 + _y1 - _y0)>=2048))
       for (int q = _y0; q<=_y1; ++q)
@@ -44945,9 +44946,9 @@ namespace cimg_library_suffixed {
           if (disp.mouse_x()>=0 && disp.mouse_y()>=0) {
             const int
               mx = (mouse_x - 16)*(int)(siz - one)/(disp.width() - 32),
-              cx = mx<0?0:(mx>=(int)(siz - one)?(int)(siz - 1 - one):mx),
+              cx = cimg::cut(mx,0,(int)(siz - 1 - one)),
               my = mouse_y - 16,
-              cy = my<=0?0:(my>=(disp.height() - 32)?(disp.height() - 32):my);
+              cy = cimg::cut(my,0,disp.height() - 32);
 	    if (button&1) {
               if (!obutton) { x0 = cx; y0 = -1; } else { x1 = cx; y1 = -1; }
             }
@@ -49165,14 +49166,14 @@ namespace cimg_library_suffixed {
             const int
               xsiz = x1 - x0,
               mx = (mouse_x - 16)*xsiz/(disp.width() - 32),
-              cx = x0 + (mx<0?0:(mx>=xsiz?xsiz:mx));
+              cx = x0 + cimg::cut(mx,0,xsiz);
             if (x1 - x0>4) {
               x0 = cx - 7*(cx - x0)/8; x1 = cx + 7*(x1 - cx)/8;
               if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) {
                 const double
                   ysiz = y1 - y0,
                   my = (mouse_y - 16)*ysiz/(disp.height() - 32),
-                  cy = y1 - (my<0?0:(my>=ysiz?ysiz:my));
+                  cy = y1 - cimg::cut(my,0.0,ysiz);
                 y0 = cy - 7*(cy - y0)/8; y1 = cy + 7*(y1 - cy)/8;
               } else y0 = y1 = 0;
             }
@@ -52570,7 +52571,7 @@ namespace cimg_library_suffixed {
                                     "at(): Empty instance.",
                                     cimglist_instance);
 
-      return _data[pos<0?0:pos>=(int)_width?(int)_width - 1:pos];
+      return _data[cimg::cut(pos,0,width() - 1)];
     }
 
     //! Access to pixel value with Dirichlet boundary conditions.
@@ -52621,11 +52622,11 @@ namespace cimg_library_suffixed {
     }
 
     T& _atNXYZC(const int pos, const int x, const int y, const int z, const int c) {
-      return _data[pos<0?0:(pos>=(int)_width?(int)_width - 1:pos)].atXYZC(x,y,z,c);
+      return _data[cimg::cut(pos,0,width() - 1)].atXYZC(x,y,z,c);
     }
 
     T _atNXYZC(const int pos, const int x, const int y, const int z, const int c) const {
-      return _data[pos<0?0:(pos>=(int)_width?(int)_width - 1:pos)].atXYZC(x,y,z,c);
+      return _data[cimg::cut(pos,0,width() - 1)].atXYZC(x,y,z,c);
     }
 
     //! Access pixel value with Dirichlet boundary conditions for the 3 first coordinates (\c pos, \c x,\c y,\c z).
@@ -52676,11 +52677,11 @@ namespace cimg_library_suffixed {
     }
 
     T& _atNXYZ(const int pos, const int x, const int y, const int z, const int c=0) {
-      return _data[pos<0?0:(pos>=(int)_width?(int)_width - 1:pos)].atXYZ(x,y,z,c);
+      return _data[cimg::cut(pos,0,width() - 1)].atXYZ(x,y,z,c);
     }
 
     T _atNXYZ(const int pos, const int x, const int y, const int z, const int c=0) const {
-      return _data[pos<0?0:(pos>=(int)_width?(int)_width - 1:pos)].atXYZ(x,y,z,c);
+      return _data[cimg::cut(pos,0,width() - 1)].atXYZ(x,y,z,c);
     }
 
     //! Access to pixel value with Dirichlet boundary conditions for the 3 first coordinates (\c pos, \c x,\c y).
@@ -52731,11 +52732,11 @@ namespace cimg_library_suffixed {
     }
 
     T& _atNXY(const int pos, const int x, const int y, const int z=0, const int c=0) {
-      return _data[pos<0?0:(pos>=(int)_width?(int)_width - 1:pos)].atXY(x,y,z,c);
+      return _data[cimg::cut(pos,0,width() - 1)].atXY(x,y,z,c);
     }
 
     T _atNXY(const int pos, const int x, const int y, const int z=0, const int c=0) const {
-      return _data[pos<0?0:(pos>=(int)_width?(int)_width - 1:pos)].atXY(x,y,z,c);
+      return _data[cimg::cut(pos,0,width() - 1)].atXY(x,y,z,c);
     }
 
     //! Access to pixel value with Dirichlet boundary conditions for the 2 first coordinates (\c pos,\c x).
@@ -52786,11 +52787,11 @@ namespace cimg_library_suffixed {
     }
 
     T& _atNX(const int pos, const int x, const int y=0, const int z=0, const int c=0) {
-      return _data[pos<0?0:(pos>=(int)_width?(int)_width - 1:pos)].atX(x,y,z,c);
+      return _data[cimg::cut(pos,0,width() - 1)].atX(x,y,z,c);
     }
 
     T _atNX(const int pos, const int x, const int y=0, const int z=0, const int c=0) const {
-      return _data[pos<0?0:(pos>=(int)_width?(int)_width - 1:pos)].atX(x,y,z,c);
+      return _data[cimg::cut(pos,0,width() - 1)].atX(x,y,z,c);
     }
 
     //! Access to pixel value with Dirichlet boundary conditions for the first coordinate (\c pos).
@@ -52839,11 +52840,11 @@ namespace cimg_library_suffixed {
     }
 
     T& _atN(const int pos, const int x=0, const int y=0, const int z=0, const int c=0) {
-      return _data[pos<0?0:(pos>=(int)_width?(int)_width - 1:pos)](x,y,z,c);
+      return _data[cimg::cut(pos,0,width() - 1)](x,y,z,c);
     }
 
     T _atN(const int pos, const int x=0, const int y=0, const int z=0, const int c=0) const {
-      return _data[pos<0?0:(pos>=(int)_width?(int)_width - 1:pos)](x,y,z,c);
+      return _data[cimg::cut(pos,0,width() - 1)](x,y,z,c);
     }
 
     //! Return a C-string containing the values of all images in the instance list.

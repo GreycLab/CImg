@@ -19893,6 +19893,14 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_med(_cimg_math_parser& mp) {
+        switch (mp.opcode._height) {
+        case 3 : return _mp_arg(2);
+        case 4 : return (_mp_arg(2) + _mp_arg(3))/2;
+        case 5 : {
+          const double a0 = _mp_arg(2), a1 = _mp_arg(3), a2 = _mp_arg(4);
+          return std::max(std::min(a0,a1),std::min(a2,std::max(a0,a1)));
+        }
+        }
         CImg<doubleT> vals(mp.opcode._height - 2);
         double *p = vals.data();
         for (unsigned int i = 2; i<mp.opcode._height; ++i) *(p++) = _mp_arg(i);

@@ -32406,15 +32406,16 @@ namespace cimg_library_suffixed {
                                     "blur_bilateral(): Invalid size for specified guide image (%u,%u,%u,%u,%p).",
                                     cimg_instance,
                                     guide._width,guide._height,guide._depth,guide._spectrum,guide._data);
-      if (is_empty()) return *this;
+      if (is_empty() || (!sigma_x && !sigma_y && !sigma_z)) return *this;
       T edge_min, edge_max = guide.max_min(edge_min);
-      if (edge_min==edge_max || sigma_r==0) return *this;
+      if (edge_min==edge_max) return blur(sigma_x,sigma_y,sigma_z);
       const float
         edge_delta = (float)(edge_max - edge_min),
         _sigma_x = sigma_x>=0?sigma_x:-sigma_x*_width/100,
         _sigma_y = sigma_y>=0?sigma_y:-sigma_y*_height/100,
         _sigma_z = sigma_z>=0?sigma_z:-sigma_z*_depth/100,
-        _sigma_r = sigma_r>=0?sigma_r:-sigma_r*(edge_max - edge_min)/100,
+        __sigma_r = sigma_r>=0?sigma_r:-sigma_r*(edge_max - edge_min)/100,
+        _sigma_r = cimg::max(0.1f,__sigma_r),
         _sampling_x = sampling_x?sampling_x:std::max(_sigma_x,1.0f),
         _sampling_y = sampling_y?sampling_y:std::max(_sigma_y,1.0f),
         _sampling_z = sampling_z?sampling_z:std::max(_sigma_z,1.0f),

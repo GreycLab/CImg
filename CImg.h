@@ -32721,7 +32721,7 @@ namespace cimg_library_suffixed {
                                     "blur_guided(): Invalid size for specified guide image (%u,%u,%u,%u,%p).",
                                     cimg_instance,
                                     guide._width,guide._height,guide._depth,guide._spectrum,guide._data);
-      if (is_empty() || !radius || !regularization) return *this;
+      if (is_empty() || !radius) return *this;
       const int _radius = radius>=0?(int)radius:(int)(-radius*cimg::max(_width,_height,_depth)/100);
       float _regularization = regularization;
       if (regularization<0) {
@@ -32729,6 +32729,7 @@ namespace cimg_library_suffixed {
         if (edge_min==edge_max) return *this;
         _regularization = -regularization*(edge_max - edge_min)/100;
       }
+      _regularization = std::max(_regularization,0.01f);
       const unsigned int psize = (unsigned int)(1 + 2*_radius);
       const CImg<uintT> N = CImg<uintT>(_width,_height,_depth,1,1)._blur_guided(psize);
       CImg<Tfloat>

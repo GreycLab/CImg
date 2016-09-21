@@ -4286,6 +4286,8 @@ namespace cimg_library_suffixed {
         CloseHandle(pi.hProcess);
         return 0;
       } else return std::system(command);
+#else
+      return std::system(command);
 #endif
 #endif
     }
@@ -4463,6 +4465,8 @@ namespace cimg_library_suffixed {
       nanosleep(&tv,0);
 #elif cimg_OS==2
       Sleep(milliseconds);
+#else
+      cimg::unused(milliseconds);
 #endif
     }
 
@@ -5510,6 +5514,8 @@ namespace cimg_library_suffixed {
 #elif cimg_OS==2
       const unsigned int res = (unsigned int)GetFileAttributesA(path);
       return res==INVALID_FILE_ATTRIBUTES?false:(res&16);
+#else
+      return false;
 #endif
     }
 
@@ -5546,7 +5552,7 @@ namespace cimg_library_suffixed {
                       attr==4?ft.wHour:attr==5?ft.wMinute:ft.wSecond);
         CloseHandle(file);
       }
-#else
+#elif cimg_OS==1
       struct stat st_buf;
       if (!stat(path,&st_buf)) {
         const time_t _ft = st_buf.st_mtime;

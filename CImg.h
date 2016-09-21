@@ -26127,14 +26127,14 @@ namespace cimg_library_suffixed {
           R = (Tfloat)p1[N],
           G = (Tfloat)p2[N],
           B = (Tfloat)p3[N],
-          m = cimg::min(R,G,B),
           theta = (Tfloat)(std::acos(0.5f*((R - G) + (R - B))/
                                      std::sqrt(cimg::sqr(R - G) + (R - B)*(G - B)))*180/cimg::PI),
+          m = cimg::min(R,G,B),
           sum = R + G + B;
         Tfloat H = 0, S = 0, I = 0;
         if (theta>0) H = B<=G?theta:360 - theta;
-        if (sum>0) S = 1 - 3/sum*m;
-        I = sum/3;
+        if (sum>0) S = 1 - 3*m/sum;
+        I = sum/(3*255);
         p1[N] = (T)cimg::cut(H,0,360);
         p2[N] = (T)cimg::cut(S,0,1);
         p3[N] = (T)cimg::cut(I,0,1);

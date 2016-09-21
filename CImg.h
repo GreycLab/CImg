@@ -26059,7 +26059,7 @@ namespace cimg_library_suffixed {
           H = i - f/(M - m);
           if (H>=6) H-=6;
           H*=60;
-          S = 2*L<=1?(M - m)/(M + m):(M - m)/(2 - M - m);
+          S = 2*L<=1?(M - m)/(M + m):(M - m)/(2*255 - M - m);
         }
         p1[N] = (T)cimg::cut(H,0,360);
         p2[N] = (T)cimg::cut(S,0,1);

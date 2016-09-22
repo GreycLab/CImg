@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 177
+#define cimg_version 178
 
 /*-----------------------------------------------------------
  #
@@ -4838,10 +4838,41 @@ namespace cimg_library_suffixed {
 #endif
     }
 
-    // Code to compute fast median from 9, 25 and 49 values.
+    // Code to compute fast median from 2,3,5,7,9,25 and 49 values.
     // (contribution by Ingo Weyrich).
     template<typename T>
-    inline T median9(T val0, T val1, T val2, T val3, T val4, T val5, T val6, T val7, T val8) {
+    inline T median(T val0, T val1) {
+      return (val0 + val1)/2;
+    }
+
+    template<typename T>
+    inline T median(T val0, T val1, T val2) {
+      return std::max(std::min(val0,val1),std::min(val2,std::max(val0,val1)));
+    }
+
+    template<typename T>
+    inline T median(T val0, T val1, T val2, T val3, T val4) {
+      T tmp = std::min(val0,val1);
+      val1 = std::max(val0,val1); val0 = tmp; tmp = std::min(val3,val4); val4 = std::max(val3,val4);
+      val3 = std::max(val0,tmp);  val1 = std::min(val1,val4); tmp = std::min(val1,val2); val2 = std::max(val1,val2);
+      val1 = tmp; tmp = std::min(val2,val3);
+      return std::max(val1,tmp);
+    }
+
+    template<typename T>
+    inline T median(T val0, T val1, T val2, T val3, T val4, T val5, T val6) {
+      T tmp = std::min(val0,val5);
+      val5 = std::max(val0,val5); val0 = tmp; tmp = std::min(val0,val3); val3 = std::max(val0,val3); val0 = tmp;
+      tmp = std::min(val1,val6); val6 = std::max(val1,val6); val1 = tmp; tmp = std::min(val2,val4);
+      val4 = std::max(val2,val4); val2 = tmp; val1 = std::max(val0,val1); tmp = std::min(val3,val5);
+      val5 = std::max(val3,val5); val3 = tmp; tmp = std::min(val2,val6); val6 = std::max(val2,val6);
+      val3 = std::max(tmp,val3); val3 = std::min(val3,val6); tmp = std::min(val4,val5); val4 = std::max(val1,tmp);
+      tmp = std::min(val1,tmp); val3 = std::max(tmp,val3);
+      return std::min(val3,val4);
+    }
+
+    template<typename T>
+    inline T median(T val0, T val1, T val2, T val3, T val4, T val5, T val6, T val7, T val8) {
       T tmp = std::min(val1,val2);
       val2 = std::max(val1,val2); val1 = tmp; tmp = std::min(val4,val5);
       val5 = std::max(val4,val5); val4 = tmp; tmp = std::min(val7,val8);
@@ -4859,11 +4890,11 @@ namespace cimg_library_suffixed {
     }
 
     template<typename T>
-    inline T median25(T val0, T val1, T val2, T val3, T val4,
-                      T val5, T val6, T val7, T val8, T val9,
-                      T val10, T val11, T val12, T val13, T val14,
-                      T val15, T val16, T val17, T val18, T val19,
-                      T val20, T val21, T val22, T val23, T val24) {
+    inline T median(T val0, T val1, T val2, T val3, T val4,
+                    T val5, T val6, T val7, T val8, T val9,
+                    T val10, T val11, T val12, T val13, T val14,
+                    T val15, T val16, T val17, T val18, T val19,
+                    T val20, T val21, T val22, T val23, T val24) {
       T tmp = std::min(val0,val1);
       val1 = std::max(val0,val1); val0 = tmp; tmp = std::min(val3,val4); val4 = std::max(val3,val4);
       val3 = tmp; tmp = std::min(val2,val4); val4 = std::max(val2,val4); val2 = std::min(tmp,val3);
@@ -4926,13 +4957,13 @@ namespace cimg_library_suffixed {
     }
 
     template<typename T>
-    inline T median49(T val0, T val1, T val2, T val3, T val4, T val5, T val6,
-                      T val7, T val8, T val9, T val10, T val11, T val12, T val13,
-                      T val14, T val15, T val16, T val17, T val18, T val19, T val20,
-                      T val21, T val22, T val23, T val24, T val25, T val26, T val27,
-                      T val28, T val29, T val30, T val31, T val32, T val33, T val34,
-                      T val35, T val36, T val37, T val38, T val39, T val40, T val41,
-                      T val42, T val43, T val44, T val45, T val46, T val47, T val48) {
+    inline T median(T val0, T val1, T val2, T val3, T val4, T val5, T val6,
+                    T val7, T val8, T val9, T val10, T val11, T val12, T val13,
+                    T val14, T val15, T val16, T val17, T val18, T val19, T val20,
+                    T val21, T val22, T val23, T val24, T val25, T val26, T val27,
+                    T val28, T val29, T val30, T val31, T val32, T val33, T val34,
+                    T val35, T val36, T val37, T val38, T val39, T val40, T val41,
+                    T val42, T val43, T val44, T val45, T val46, T val47, T val48) {
       T tmp = std::min(val0,val32);
       val32 = std::max(val0,val32); val0 = tmp; tmp = std::min(val1,val33); val33 = std::max(val1,val33); val1 = tmp;
       tmp = std::min(val2,val34); val34 = std::max(val2,val34); val2 = tmp; tmp = std::min(val3,val35);
@@ -17719,7 +17750,7 @@ namespace cimg_library_suffixed {
                                         ss[1]=='i'?mp_min:
                                         ss[1]=='a'?mp_max:
                                         ss[2]=='a'?mp_mean:
-                                        mp_med),pos).
+                                        mp_median),pos).
               move_to(_opcode);
             for (s = std::strchr(ss,'(') + 1; s<se; ++s) {
               ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
@@ -19898,14 +19929,15 @@ namespace cimg_library_suffixed {
         return val/(mp.opcode._height - 2);
       }
 
-      static double mp_med(_cimg_math_parser& mp) {
-        switch (mp.opcode._height) {
-        case 3 : return _mp_arg(2);
-        case 4 : return (_mp_arg(2) + _mp_arg(3))/2;
-        case 5 : {
-          const double a0 = _mp_arg(2), a1 = _mp_arg(3), a2 = _mp_arg(4);
-          return std::max(std::min(a0,a1),std::min(a2,std::max(a0,a1)));
-        }
+      static double mp_median(_cimg_math_parser& mp) {
+        switch (mp.opcode._height - 2) {
+        case 1 : return _mp_arg(2);
+        case 2 : return cimg::median(_mp_arg(2),_mp_arg(3));
+        case 3 : return cimg::median(_mp_arg(2),_mp_arg(3),_mp_arg(4));
+        case 5 : return cimg::median(_mp_arg(2),_mp_arg(3),_mp_arg(4),_mp_arg(5),_mp_arg(6));
+        case 7 : return cimg::median(_mp_arg(2),_mp_arg(3),_mp_arg(4),_mp_arg(5),_mp_arg(6),_mp_arg(7),_mp_arg(8));
+        case 9 : return cimg::median(_mp_arg(2),_mp_arg(3),_mp_arg(4),_mp_arg(5),_mp_arg(6),_mp_arg(7),_mp_arg(8),
+                                     _mp_arg(9),_mp_arg(10));
         }
         CImg<doubleT> vals(mp.opcode._height - 2);
         double *p = vals.data();
@@ -21854,8 +21886,11 @@ namespace cimg_library_suffixed {
       const ulongT s = size();
       switch (s) {
       case 1 : return _data[0];
-      case 2 : return (_data[0] + _data[1])/2;
-      case 3 : return std::max(std::min(_data[0],_data[1]),std::min(_data[2],std::max(_data[0],_data[1])));
+      case 2 : return cimg::median(_data[0],_data[1]);
+      case 3 : return cimg::median(_data[0],_data[1],_data[2]);
+      case 5 : return cimg::median(_data[0],_data[1],_data[2],_data[3],_data[4]);
+      case 7 : return cimg::median(_data[0],_data[1],_data[2],_data[3],_data[4],_data[5],_data[6]);
+      case 9 : return cimg::median(_data[0],_data[1],_data[2],_data[3],_data[4],_data[5],_data[6],_data[7],_data[8]);
       }
       const T res = kth_smallest(s>>1);
       return (s%2)?res:(T)((res + kth_smallest((s>>1) - 1))/2);
@@ -33046,7 +33081,7 @@ namespace cimg_library_suffixed {
               cimg_forC(*this,c) {
                 T I[9] = { (T)0 };
                 cimg_for3x3(*this,x,y,0,c,I,T)
-                  res(x,y,c) = cimg::median9(I[0],I[1],I[2],I[3],I[4],I[5],I[6],I[7],I[8]);
+                  res(x,y,c) = cimg::median(I[0],I[1],I[2],I[3],I[4],I[5],I[6],I[7],I[8]);
               }
             } break;
             case 5 : {
@@ -33054,11 +33089,11 @@ namespace cimg_library_suffixed {
               cimg_forC(*this,c) {
                 T I[25] = { (T)0 };
                 cimg_for5x5(*this,x,y,0,c,I,T)
-                  res(x,y,c) = cimg::median25(I[0],I[1],I[2],I[3],I[4],
-                                              I[5],I[6],I[7],I[8],I[9],
-                                              I[10],I[11],I[12],I[13],I[14],
-                                              I[15],I[16],I[17],I[18],I[19],
-                                              I[20],I[21],I[22],I[23],I[24]);
+                  res(x,y,c) = cimg::median(I[0],I[1],I[2],I[3],I[4],
+                                            I[5],I[6],I[7],I[8],I[9],
+                                            I[10],I[11],I[12],I[13],I[14],
+                                            I[15],I[16],I[17],I[18],I[19],
+                                            I[20],I[21],I[22],I[23],I[24]);
               }
             } break;
             case 7 : {
@@ -33066,13 +33101,13 @@ namespace cimg_library_suffixed {
               cimg_forC(*this,c) {
                 T I[49] = { (T)0 };
                 cimg_for7x7(*this,x,y,0,c,I,T)
-                  res(x,y,c) = cimg::median49(I[0],I[1],I[2],I[3],I[4],I[5],I[6],
-                                              I[7],I[8],I[9],I[10],I[11],I[12],I[13],
-                                              I[14],I[15],I[16],I[17],I[18],I[19],I[20],
-                                              I[21],I[22],I[23],I[24],I[25],I[26],I[27],
-                                              I[28],I[29],I[30],I[31],I[32],I[33],I[34],
-                                              I[35],I[36],I[37],I[38],I[39],I[40],I[41],
-                                              I[42],I[43],I[44],I[45],I[46],I[47],I[48]);
+                  res(x,y,c) = cimg::median(I[0],I[1],I[2],I[3],I[4],I[5],I[6],
+                                            I[7],I[8],I[9],I[10],I[11],I[12],I[13],
+                                            I[14],I[15],I[16],I[17],I[18],I[19],I[20],
+                                            I[21],I[22],I[23],I[24],I[25],I[26],I[27],
+                                            I[28],I[29],I[30],I[31],I[32],I[33],I[34],
+                                            I[35],I[36],I[37],I[38],I[39],I[40],I[41],
+                                            I[42],I[43],I[44],I[45],I[46],I[47],I[48]);
               }
             } break;
             default : {

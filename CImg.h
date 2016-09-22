@@ -4903,43 +4903,17 @@ namespace cimg_library_suffixed {
       tmp = std::min(val5,val9); val9 = std::max(val5,val9); val5 = tmp; tmp = std::min(val0,val2);
       val2 = std::max(val0,val2); val0 = tmp; tmp = std::min(val3,val7); val7 = std::max(val3,val7); val3 = tmp;
       tmp = std::min(val10,val11); val11 = std::max(val10,val11); val10 = tmp; tmp = std::min(val1,val4);
-      val4 = std::max(val1,val4); val1 = tmp; tmp = std::min(val6,val12); val12 = std::max(val6,val12);  val6 = tmp;
+      val4 = std::max(val1,val4); val1 = tmp; tmp = std::min(val6,val12); val12 = std::max(val6,val12); val6 = tmp;
       tmp = std::min(val7,val8); val8 = std::max(val7,val8); val7 = tmp; val11 = std::min(val11,val12);
-      tmp = std::min(val4,val9);
-      val9 = std::max(val4,val9);
-      val4 = tmp;
-      tmp = std::min(val6,val10);
-      val10 = std::max(val6,val10);
-      val6 = tmp;
-      tmp = std::min(val3,val4);
-      val4 = std::max(val3,val4);
-      val3 = tmp;
-      tmp = std::min(val5,val6);
-      val6 = std::max(val5,val6);
-      val5 = tmp;
-      val8 = std::min(val8,val9);
-      val10 = std::min(val10,val11);
-      tmp = std::min(val1,val7);
-      val7 = std::max(val1,val7);
-      val1 = tmp;
-      tmp = std::min(val2,val6);
-      val6 = std::max(val2,val6);
-      val2 = tmp;
-      val3 = std::max(val1,val3);
-      tmp = std::min(val4,val7);
-      val7 = std::max(val4,val7);
-      val4 = tmp;
-      val8 = std::min(val8,val10);
-      val5 = std::max(val0,val5);
-      val5 = std::max(val2,val5);
-      tmp = std::min(val6,val8);
-      val8 = std::max(val6,val8);
-      val5 = std::max(val3,val5);
-      val7 = std::min(val7,val8);
-      val6 = std::max(val4,tmp);
-      tmp = std::min(val4,tmp);
-      val5 = std::max(tmp,val5);
-      val6 = std::min(val6,val7);
+      tmp = std::min(val4,val9); val9 = std::max(val4,val9); val4 = tmp; tmp = std::min(val6,val10);
+      val10 = std::max(val6,val10); val6 = tmp; tmp = std::min(val3,val4); val4 = std::max(val3,val4); val3 = tmp;
+      tmp = std::min(val5,val6); val6 = std::max(val5,val6); val5 = tmp; val8 = std::min(val8,val9);
+      val10 = std::min(val10,val11); tmp = std::min(val1,val7); val7 = std::max(val1,val7); val1 = tmp;
+      tmp = std::min(val2,val6); val6 = std::max(val2,val6); val2 = tmp; val3 = std::max(val1,val3);
+      tmp = std::min(val4,val7); val7 = std::max(val4,val7); val4 = tmp; val8 = std::min(val8,val10);
+      val5 = std::max(val0,val5); val5 = std::max(val2,val5); tmp = std::min(val6,val8); val8 = std::max(val6,val8);
+      val5 = std::max(val3,val5); val7 = std::min(val7,val8); val6 = std::max(val4,tmp); tmp = std::min(val4,tmp);
+      val5 = std::max(tmp,val5); val6 = std::min(val6,val7);
       return std::max(val5,val6);
     }
 
@@ -19992,6 +19966,8 @@ namespace cimg_library_suffixed {
         case 7 : return cimg::median(_mp_arg(2),_mp_arg(3),_mp_arg(4),_mp_arg(5),_mp_arg(6),_mp_arg(7),_mp_arg(8));
         case 9 : return cimg::median(_mp_arg(2),_mp_arg(3),_mp_arg(4),_mp_arg(5),_mp_arg(6),_mp_arg(7),_mp_arg(8),
                                      _mp_arg(9),_mp_arg(10));
+        case 13 : return cimg::median(_mp_arg(2),_mp_arg(3),_mp_arg(4),_mp_arg(5),_mp_arg(6),_mp_arg(7),_mp_arg(8),
+                                      _mp_arg(9),_mp_arg(10),_mp_arg(11),_mp_arg(12),_mp_arg(13),_mp_arg(14));
         }
         CImg<doubleT> vals(mp.opcode._height - 2);
         double *p = vals.data();
@@ -21945,6 +21921,8 @@ namespace cimg_library_suffixed {
       case 5 : return cimg::median(_data[0],_data[1],_data[2],_data[3],_data[4]);
       case 7 : return cimg::median(_data[0],_data[1],_data[2],_data[3],_data[4],_data[5],_data[6]);
       case 9 : return cimg::median(_data[0],_data[1],_data[2],_data[3],_data[4],_data[5],_data[6],_data[7],_data[8]);
+      case 13 : return cimg::median(_data[0],_data[1],_data[2],_data[3],_data[4],_data[5],_data[6],_data[7],_data[8],
+                                    _data[9],_data[10],_data[11],_data[12]);
       }
       const T res = kth_smallest(s>>1);
       return (s%2)?res:(T)((res + kth_smallest((s>>1) - 1))/2);

@@ -4839,7 +4839,7 @@ namespace cimg_library_suffixed {
     }
 
     // Code to compute fast median from 2,3,5,7,9,13,25 and 49 values.
-    // (contribution by Ingo Weyrich).
+    // (contribution by RawTherapee).
     template<typename T>
     inline T median(T val0, T val1) {
       return (val0 + val1)/2;

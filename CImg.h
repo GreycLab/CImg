@@ -15971,8 +15971,6 @@ namespace cimg_library_suffixed {
               CImg<ulongT>::vector((ulongT)mp_complex_pow_sv,pos,arg1,arg2).move_to(code);
               _cimg_mp_return(pos);
             }
-
-            std::fprintf(stderr,"\nDEBUG\n");
             CImg<ulongT>::vector((ulongT)mp_complex_pow_ss,pos,arg1,arg2).move_to(code);
             _cimg_mp_return(pos);
           }

@@ -17841,8 +17841,7 @@ namespace cimg_library_suffixed {
                   if (_expr[k]==(char)p1) { // Perform argument substitution
                     arg1 = _expr._width;
                     _expr.resize(arg1 + variable_name._width - 2,1,1,1,0);
-                    std::memmove(_expr._data + k + variable_name._width - 1,_expr._data + k + 1,
-                                 arg1 - k - 1);
+                    std::memmove(_expr._data + k + variable_name._width - 1,_expr._data + k + 1,arg1 - k - 1);
                     std::memcpy(_expr._data + k,variable_name,variable_name._width - 1);
                     k+=variable_name._width - 2;
                   }
@@ -22272,7 +22271,7 @@ namespace cimg_library_suffixed {
       if (!expression) return res.fill(0);
       _cimg_math_parser mp(expression,"eval",*this,output,list_inputs,list_outputs);
 #ifdef cimg_use_openmp
-      cimg_pragma_openmp(parallel if (res._height>=512 && std::strlen(expression)>=6))
+      cimg_pragma_openmp(parallel if (res._height>=512))
       {
         _cimg_math_parser
           _mp = omp_get_thread_num()?mp:_cimg_math_parser(),
@@ -24440,8 +24439,7 @@ namespace cimg_library_suffixed {
             bool do_in_parallel = false;
 #ifdef cimg_use_openmp
             cimg_openmp_if(*expression=='*' || *expression==':' ||
-                           (mp.is_parallelizable && _width>=320 && _height*_depth*_spectrum>=2 &&
-                            std::strlen(expression)>=6))
+                           (mp.is_parallelizable && _width>=320 && _height*_depth*_spectrum>=2))
               do_in_parallel = true;
 #endif
             if (mp.result_dim) { // Vector-valued expression
@@ -24468,7 +24466,7 @@ namespace cimg_library_suffixed {
                     T *_ptrd = ptrd++; for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
                   }
                 }
-              } else {
+             } else {
 #ifdef cimg_use_openmp
                 cimg_pragma_openmp(parallel)
                 {
@@ -24509,7 +24507,7 @@ namespace cimg_library_suffixed {
                     T *ptrd = data(0,y,z,c);
                     cimg_forX(*this,x) *ptrd++ = (T)lmp(x,y,z,c);
                   } cimg_abort_catch()
-                      }
+                }
 #endif
               }
             }

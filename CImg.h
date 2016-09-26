@@ -15088,12 +15088,11 @@ namespace cimg_library_suffixed {
                             std::memmove(ps,ps + p2,function_body[0].end() - ps - p2);
                             function_body[0]._width-=p2;
                           }
-                          ++ps;
                         } else if (ps + p2<function_body[0].end() && *(ps + p2)=='#') { // Remove post-number sign
                           *(ps++) = (char)p1;
                           std::memmove(ps,ps + p2,function_body[0].end() - ps - p2);
                           function_body[0]._width-=p2;
-                        } else { // Not surrounded by number signs
+                        } else { // Not near a number signs
                           *(ps++) = (char)p1;
                           if (p2>1) {
                             std::memmove(ps,ps + p2 - 1,function_body[0].end() - ps - p2 + 1);
@@ -17845,7 +17844,7 @@ namespace cimg_library_suffixed {
                     std::memmove(_expr._data + k + variable_name._width - 1,_expr._data + k + 1,
                                  arg1 - k - 1);
                     std::memcpy(_expr._data + k,variable_name,variable_name._width - 1);
-                    k+=variable_name._width - 1;
+                    k+=variable_name._width - 2;
                   }
                   ++arg2;
                 }

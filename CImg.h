@@ -15080,10 +15080,17 @@ namespace cimg_library_suffixed {
                     for (ps = std::strstr(function_body[0],s2); ps; ps = std::strstr(ps,s2)) { // Replace by arg number
                       if (!((ps>function_body[0]._data && is_varchar(*(ps - 1))) ||
                             (ps + p2<function_body[0].end() && is_varchar(*(ps + p2))))) {
-                        *(ps++) = (char)p1;
-                        if (p2>1) {
-                          std::memmove(ps,ps + p2 - 1,function_body[0]._data + p3 - ps);
-                          function_body[0]._width-=p2 - 1;
+                        if (ps>function_body[0]._data && *(ps - 1)=='#') {
+                          --ps;
+                          *(ps++) = (char)p1;
+                          std::memmove(ps,ps + p2,function_body[0]._data + p3 - ps - 1);
+                          function_body[0]._width-=p2;
+                        } else {
+                          *(ps++) = (char)p1;
+                          if (p2>1) {
+                            std::memmove(ps,ps + p2 - 1,function_body[0]._data + p3 - ps);
+                            function_body[0]._width-=p2 - 1;
+                          }
                         }
                       } else ++ps;
                     }

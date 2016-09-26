@@ -15958,7 +15958,7 @@ namespace cimg_library_suffixed {
             arg2 = compile(s + 2,se,depth1,0);
             _cimg_mp_check_type(arg1,1,3,2);
             _cimg_mp_check_type(arg2,2,3,2);
-            pos = (_cimg_mp_is_vector(arg1) || _cimg_mp_is_vector(arg2))?vector(2):0;
+            pos = vector(2);
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) {
               CImg<ulongT>::vector((ulongT)mp_complex_pow_vv,pos,arg1,arg2).move_to(code);
               _cimg_mp_return(pos);
@@ -15971,21 +15971,10 @@ namespace cimg_library_suffixed {
               CImg<ulongT>::vector((ulongT)mp_complex_pow_sv,pos,arg1,arg2).move_to(code);
               _cimg_mp_return(pos);
             }
-            if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2))
-              _cimg_mp_constant(std::pow(mem[arg1],mem[arg2]));
-            switch (arg2) {
-            case 0 : _cimg_mp_return(1);
-            case 1 : _cimg_mp_return(arg1);
-            case 2 : _cimg_mp_scalar1(mp_sqr,arg1);
-            case 3 : _cimg_mp_scalar1(mp_pow3,arg1);
-            case 4 : _cimg_mp_scalar1(mp_pow4,arg1);
-            default :
-              if (_cimg_mp_is_constant(arg2)) {
-                if (mem[arg2]==0.5) { _cimg_mp_scalar1(mp_sqrt,arg1); }
-                else if (mem[arg2]==0.25) { _cimg_mp_scalar1(mp_pow0_25,arg1); }
-              }
-              _cimg_mp_scalar2(mp_pow,arg1,arg2);
-            }
+
+            std::fprintf(stderr,"\nDEBUG\n");
+            CImg<ulongT>::vector((ulongT)mp_complex_pow_ss,pos,arg1,arg2).move_to(code);
+            _cimg_mp_return(pos);
           }
 
         for (s = se2; s>ss; --s)
@@ -18719,6 +18708,13 @@ namespace cimg_library_suffixed {
         }
         *(ptrd++) = ro;
         *ptrd = io;
+      }
+
+      static double mp_complex_pow_ss(_cimg_math_parser& mp) {
+        const double val1 = _mp_arg(2), val2 = _mp_arg(3);
+        double *ptrd = &_mp_arg(1) + 1;
+        _mp_complex_pow(val1,0,val2,0,ptrd);
+        return cimg::type<double>::nan();
       }
 
       static double mp_complex_pow_sv(_cimg_math_parser& mp) {

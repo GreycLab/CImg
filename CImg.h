@@ -15080,10 +15080,26 @@ namespace cimg_library_suffixed {
                     for (ps = std::strstr(function_body[0],s2); ps; ps = std::strstr(ps,s2)) { // Replace by arg number
                       if (!((ps>function_body[0]._data && is_varchar(*(ps - 1))) ||
                             (ps + p2<function_body[0].end() && is_varchar(*(ps + p2))))) {
-                        *(ps++) = (char)p1;
-                        if (p2>1) {
-                          std::memmove(ps,ps + p2 - 1,function_body[0]._data + p3 - ps);
-                          function_body[0]._width-=p2 - 1;
+                        if (ps>function_body[0]._data && *(ps - 1)=='#') { // Remove pre-number sign
+                          *(ps - 1) = (char)p1;
+                          if (ps + p2<function_body[0].end() && *(ps + p2)=='#') { // Has pre & post number signs
+                            std::memmove(ps,ps + p2 + 1,function_body[0].end() - ps - p2 - 1);
+                            function_body[0]._width-=p2 + 1;
+                          } else { // Has pre number sign only
+                            std::memmove(ps,ps + p2,function_body[0].end() - ps - p2);
+                            function_body[0]._width-=p2;
+                          }
+                          ++ps;
+                        } else if (ps + p2<function_body[0].end() && *(ps + p2)=='#') { // Remove post-number sign
+                          *(ps++) = (char)p1;
+                          std::memmove(ps,ps + p2,function_body[0].end() - ps - p2);
+                          function_body[0]._width-=p2;
+                        } else { // Not surrounded by number signs
+                          *(ps++) = (char)p1;
+                          if (p2>1) {
+                            std::memmove(ps,ps + p2 - 1,function_body[0].end() - ps - p2 + 1);
+                            function_body[0]._width-=p2 - 1;
+                          }
                         }
                       } else ++ps;
                     }
@@ -15091,12 +15107,6 @@ namespace cimg_library_suffixed {
                 }
                 // Store number of arguments.
                 function_def[0].resize(function_def[0]._width + 1,1,1,1,0).back() = (char)(p1 - 1);
-
-                // Remove number signs, if any.
-                cimg_forX(function_body[0],k) if (function_body(0,k)=='#') {
-                  std::memmove(function_body[0]._data + k,function_body[0]._data + k + 1,function_body[0]._width - k - 1);
-                  --function_body[0]._width;
-                }
 
                 // Detect parts of function body inside a string.
                 is_inside_string(function_body[0]).move_to(function_body_is_string,0);

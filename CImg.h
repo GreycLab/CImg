@@ -32548,19 +32548,21 @@ namespace cimg_library_suffixed {
                 X = (int)cimg::round(x/_sampling_x) + padding_x,
                 Y = (int)cimg::round(y/_sampling_y) + padding_y,
                 Z = (int)cimg::round(z/_sampling_z) + padding_z,
-                R = (int)cimg::round((edge-edge_min)/_sampling_r) + padding_r;
+                R = (int)cimg::round((edge - edge_min)/_sampling_r) + padding_r;
               bgrid(X,Y,Z,R)+=(float)val;
               bgridw(X,Y,Z,R)+=1;
             }
             bgrid.blur(derived_sigma_x,derived_sigma_y,derived_sigma_z,true).deriche(derived_sigma_r,0,'c',false);
             bgridw.blur(derived_sigma_x,derived_sigma_y,derived_sigma_z,true).deriche(derived_sigma_r,0,'c',false);
+
+            cimg_pragma_openmp(parallel for collapse(3) if (size()>=256))
             cimg_forXYZ(*this,x,y,z) {
               const float edge = (float)_guide(x,y,z);
               const float
                 X = x/_sampling_x + padding_x,
                 Y = y/_sampling_y + padding_y,
                 Z = z/_sampling_z + padding_z,
-                R = (edge-edge_min)/_sampling_r + padding_r;
+                R = (edge - edge_min)/_sampling_r + padding_r;
               const float bval0 = bgrid.linear_atXYZC(X,Y,Z,R), bval1 = bgridw.linear_atXYZC(X,Y,Z,R);
               (*this)(x,y,z,c) = (T)(bval0/bval1);
             }
@@ -32576,17 +32578,19 @@ namespace cimg_library_suffixed {
               const int
                 X = (int)cimg::round(x/_sampling_x) + padding_x,
                 Y = (int)cimg::round(y/_sampling_y) + padding_y,
-                R = (int)cimg::round((edge-edge_min)/_sampling_r) + padding_r;
+                R = (int)cimg::round((edge - edge_min)/_sampling_r) + padding_r;
               bgrid(X,Y,R,0)+=(float)val;
               bgrid(X,Y,R,1)+=1;
             }
             bgrid.blur(derived_sigma_x,derived_sigma_y,0,true).blur(0,0,derived_sigma_r,false);
+
+            cimg_pragma_openmp(parallel for collapse(2) if (size()>=256))
             cimg_forXY(*this,x,y) {
               const float edge = (float)_guide(x,y);
               const float
                 X = x/_sampling_x + padding_x,
                 Y = y/_sampling_y + padding_y,
-                R = (edge-edge_min)/_sampling_r + padding_r;
+                R = (edge - edge_min)/_sampling_r + padding_r;
               const float bval0 = bgrid.linear_atXYZ(X,Y,R,0), bval1 = bgrid.linear_atXYZ(X,Y,R,1);
               (*this)(x,y,c) = (T)(bval0/bval1);
             }

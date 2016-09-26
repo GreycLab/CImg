@@ -15076,7 +15076,6 @@ namespace cimg_library_suffixed {
                   if (ns==s1 || *ns==',') { // New argument found
                     *s3 = 0;
                     p2 = (unsigned int)(s3 - s2); // Argument length
-                    p3 = function_body[0]._width - p2 + 1; // Related to copy length
                     for (ps = std::strstr(function_body[0],s2); ps; ps = std::strstr(ps,s2)) { // Replace by arg number
                       if (!((ps>function_body[0]._data && is_varchar(*(ps - 1))) ||
                             (ps + p2<function_body[0].end() && is_varchar(*(ps + p2))))) {

@@ -15093,10 +15093,12 @@ namespace cimg_library_suffixed {
                           std::memmove(ps,ps + p2,function_body[0].end() - ps - p2);
                           function_body[0]._width-=p2;
                         } else { // Not near a number sign
-                          ps-=(ulongT)function_body[0]._data;
-                          function_body[0].resize(function_body[0]._width - p2 + 3,1,1,1,0);
-                          ps+=(ulongT)function_body[0]._data;
-                          std::memmove(ps + 3,ps + p2,function_body[0].end() - ps - p2 - 3);
+                          if (p2<3) {
+                            ps-=(ulongT)function_body[0]._data;
+                            function_body[0].resize(function_body[0]._width - p2 + 3,1,1,1,0);
+                            ps+=(ulongT)function_body[0]._data;
+                          } else function_body[0]._width-=p2 - 3;
+                          std::memmove(ps + 3,ps + p2,function_body[0].end() - ps - 3);
                           *(ps++) = '(';
                           *(ps++) = (char)p1;
                           *(ps++) = ')';

@@ -15029,7 +15029,6 @@ namespace cimg_library_suffixed {
               if (*ss>='0' && *ss<='9') is_sth = false;
               else for (ns = ss; ns<s0; ++ns)
                      if (!is_varchar(*ns)) { is_sth = false; break; }
-
               if (is_sth && s0>ss) { // Looks like a valid function declaration
                 s0 = variable_name._data + (s0 - ss);
                 *s0 = 0;

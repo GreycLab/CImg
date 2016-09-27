@@ -17845,7 +17845,7 @@ namespace cimg_library_suffixed {
               ss[1]=='a'?mp_max:
               ss[2]=='a'?mp_mean:
               mp_median;
-            is_sth = true; // tell if all arguments are constants
+            is_sth = true; // Tell if all arguments are constants
             pos = scalar();
             CImg<ulongT>::vector((ulongT)op,pos).move_to(_opcode);
             for (s = std::strchr(ss,'(') + 1; s<se; ++s) {
@@ -17860,29 +17860,9 @@ namespace cimg_library_suffixed {
               is_sth&=_cimg_mp_is_constant(arg2);
               s = ns;
             }
-
-            if (is_sth &&
-                (op==mp_max ||
-                 op==mp_mean ||
-                 op==mp_median ||
-                 op==mp_min ||
-                 op==mp_std ||
-                 op==mp_sum ||
-                 op==mp_variance
-                 )) { // If all arguments are constant -> direct computation.
-              CImg<doubleT> values(_opcode._width - 1);
-              cimg_forX(values,k) values[k] = mem[_opcode(k + 1,0)];
-              val =
-                op==mp_max?values.max():
-                op==mp_mean?values.mean():
-                op==mp_median?values.median():
-                op==mp_min?values.min():
-                op==mp_std?std::sqrt(values.variance()):
-                op==mp_sum?values.sum():
-                op==mp_variance?values.variance():0;
-              _cimg_mp_constant(val);
-            }
-            (_opcode>'y').move_to(code);
+            (_opcode>'y').move_to(opcode);
+            if (is_sth) _cimg_mp_constant(op(*this));
+            opcode.move_to(code);
             _cimg_mp_return(pos);
           }
 

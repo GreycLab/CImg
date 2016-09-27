@@ -15092,7 +15092,7 @@ namespace cimg_library_suffixed {
                           *(ps++) = (char)p1;
                           std::memmove(ps,ps + p2,function_body[0].end() - ps - p2);
                           function_body[0]._width-=p2;
-                        } else { // Not near a number signs
+                        } else { // Not near a number sign
                           *(ps++) = (char)p1;
                           if (p2>1) {
                             std::memmove(ps,ps + p2 - 1,function_body[0].end() - ps - p2 + 1);

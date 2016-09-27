@@ -18461,7 +18461,7 @@ namespace cimg_library_suffixed {
                           const unsigned int mode,
                           const char *const ss, char *const se, const char saved_char) {
         _cimg_mp_check_type(arg,n_arg,1,0);
-        if (!_cimg_mp_is_constant(arg) || mode==0?false:mem[arg]<(mode==2) || (double)(int)mem[arg]!=mem[arg]) {
+        if (!_cimg_mp_is_constant(arg) || (double)(int)mem[arg]!=mem[arg] || (!mode?false:mem[arg]<(mode==2))) {
           const char *s_arg = !n_arg?"":n_arg==1?"First ":n_arg==2?"Second ":n_arg==3?"Third ":
             n_arg==4?"Fourth ":n_arg==5?"Fifth ":n_arg==6?"Sixth ":n_arg==7?"Seventh ":n_arg==8?"Eighth ":
             n_arg==9?"Ninth ":"One of the ";

@@ -32601,7 +32601,7 @@ namespace cimg_library_suffixed {
             bgrid.blur(derived_sigma_x,derived_sigma_y,derived_sigma_z,true).deriche(derived_sigma_r,0,'c',false);
             bgridw.blur(derived_sigma_x,derived_sigma_y,derived_sigma_z,true).deriche(derived_sigma_r,0,'c',false);
 
-            cimg_pragma_openmp(parallel for collapse(3) if (size()>=256))
+            cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(size()>=4096))
             cimg_forXYZ(*this,x,y,z) {
               const float edge = (float)_guide(x,y,z);
               const float
@@ -32630,7 +32630,7 @@ namespace cimg_library_suffixed {
             }
             bgrid.blur(derived_sigma_x,derived_sigma_y,0,true).blur(0,0,derived_sigma_r,false);
 
-            cimg_pragma_openmp(parallel for collapse(2) if (size()>=256))
+            cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(size()>=4096))
             cimg_forXY(*this,x,y) {
               const float edge = (float)_guide(x,y);
               const float
@@ -33868,7 +33868,7 @@ namespace cimg_library_suffixed {
         }
       } else { // for 2d images
         get_structure_tensors().move_to(res).blur(sigma);
-        cimg_pragma_openmp(parallel for if(_width>=256 && _height>=256))
+        cimg_pragma_openmp(parallel for cimg_openmp_if(_width>=256 && _height>=256))
         cimg_forY(*this,y) {
           Tfloat *ptrd0 = res.data(0,y,0,0), *ptrd1 = res.data(0,y,0,1), *ptrd2 = res.data(0,y,0,2);
           CImg<floatT> val(2), vec(2,2);

@@ -56564,9 +56564,10 @@ namespace cimg_library_suffixed {
           ind = (unsigned int)i; break; // Found empty slot or cached font.
         }
       if (ind==~0U) { // No empty slots nor existing font in cache.
+        fonts->assign();
         std::memmove(fonts,fonts + 1,15*sizeof(CImgList<ucharT>));
         std::memmove(is_variable_widths,is_variable_widths + 1,15*sizeof(bool));
-        std::memset(fonts + (ind=15),0,sizeof(CImgList<ucharT>));  // Free a slot in cache for new font.
+        std::memset(fonts + (ind=15),0,sizeof(CImgList<ucharT>)); // Free a slot in cache for new font.
       }
       CImgList<ucharT> &font = fonts[ind];
 

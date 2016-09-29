@@ -56708,7 +56708,8 @@ namespace cimg {
     return stdin;
 #else
     cimg::exception_mode(0);
-    throw CImgIOException("cimg::stdin(): Reference to 'stdin' stream not allowed in R mode ('cimg_use_r' is defined).");
+    throw CImgIOException("cimg::stdin(): Reference to 'stdin' stream not allowed in R mode "
+                          "('cimg_use_r' is defined).");
     return 0;
 #endif
   }
@@ -56718,7 +56719,8 @@ namespace cimg {
     return stdout;
 #else
     cimg::exception_mode(0);
-    throw CImgIOException("cimg::stdout(): Reference to 'stdout' stream not allowed in R mode ('cimg_use_r' is defined).");
+    throw CImgIOException("cimg::stdout(): Reference to 'stdout' stream not allowed in R mode "
+                          "('cimg_use_r' is defined).");
     return 0;
 #endif
   }
@@ -56728,7 +56730,8 @@ namespace cimg {
     return stderr;
 #else
     cimg::exception_mode(0);
-    throw CImgIOException("cimg::stderr(): Reference to 'stderr' stream not allowed in R mode ('cimg_use_r' is defined).");
+    throw CImgIOException("cimg::stderr(): Reference to 'stderr' stream not allowed in R mode "
+                          "('cimg_use_r' is defined).");
     return 0;
 #endif
   }

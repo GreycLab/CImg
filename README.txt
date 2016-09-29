@@ -25,7 +25,7 @@
   It consists in a single header file 'CImg.h' providing a minimal set of C++
   classes and methods that can be used in your own sources, to load/save,
   process and display images. Very portable (Unix/X11,Windows, MacOS X, FreeBSD, .. ),
-  efficient, easy to use, it's a pleasant library for developping image processing
+  efficient, easy to use, it's a pleasant library for developing image processing
   algorithms in C++.
 
 # Authors and contributors :

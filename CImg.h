@@ -2418,6 +2418,7 @@ namespace cimg_library_suffixed {
       \endcode
   **/
   struct CImgException : public std::exception {
+#ifndef cimg_r_mode
 #define _cimg_exception_err(etype,disp_flag) \
   std::va_list ap, ap2; \
   va_start(ap,format); va_start(ap2,format); \
@@ -2435,6 +2436,19 @@ namespace cimg_library_suffixed {
   } \
   va_end(ap); va_end(ap2); \
 
+#else //cimg_r_mode: we need to handle exceptions differently
+#define _cimg_exception_err(etype,disp_flag) \
+  std::va_list ap, ap2; \
+  va_start(ap,format); va_start(ap2,format); \
+  int size = cimg_vsnprintf(0,0,format,ap2); \
+  if (size++>=0) { \
+    delete[] _message; \
+    _message = new char[size]; \
+    cimg_vsnprintf(_message,size,format,ap); \
+  } \
+  va_end(ap); va_end(ap2); \
+
+#endif //cimg_r_mode    
     char *_message;
     CImgException() { _message = new char[1]; *_message = 0; }
     CImgException(const char *const format, ...):_message(0) { _cimg_exception_err("CImgException",true); }
@@ -4187,7 +4201,11 @@ namespace cimg_library_suffixed {
     **/
     inline std::FILE* output(std::FILE *file) {
       cimg::mutex(1);
+#ifndef cimg_r_mode
       static std::FILE *res = stderr;
+#else //R-mode CRAN forbids direct output to stderr
+      static std::FILE *res;
+#endif
       if (file) res = file;
       cimg::mutex(1,0);
       return res;
@@ -4240,7 +4258,11 @@ namespace cimg_library_suffixed {
 #ifdef cimg_strict_warnings
         throw CImgWarningException(message);
 #else
+#ifdef cimg_r_mode //CRAN forbids direct output to stdout/stderr
+	Rprintf("\n%s[CImg] *** Warning ***%s%s",cimg::t_red,cimg::t_normal,message);
+#else	
         std::fprintf(cimg::output(),"\n%s[CImg] *** Warning ***%s%s\n",cimg::t_red,cimg::t_normal,message);
+#endif //cimg_r_mode	
 #endif
         delete[] message;
       }
@@ -4501,8 +4523,9 @@ namespace cimg_library_suffixed {
     // at the same time!
 #ifdef cimg_use_rng
 
+#ifndef cimg_r_mode  //when compiling with R, stdint.h causes header incompatibility
 #include <stdint.h>
-
+#endif 
     // Use a custom RNG.
     inline unsigned int _rand(const unsigned int seed=0, const bool set_seed=false) {
       static cimg_ulong next = 0xB16B00B5;
@@ -5538,6 +5561,7 @@ namespace cimg_library_suffixed {
         throw CImgArgumentException("cimg::fopen(): File '%s', specified mode is (null).",
                                     path);
       std::FILE *res = 0;
+#ifndef cimg_r_mode //CRAN forbids direct output to stdout
       if (*path=='-' && (!path[1] || path[1]=='.')) {
         res = (*mode=='r')?stdin:stdout;
 #if cimg_OS==2
@@ -5546,6 +5570,9 @@ namespace cimg_library_suffixed {
         }
 #endif
       } else res = std_fopen(path,mode);
+#else //cimg_r_mode
+      res = std::fopen(path,mode);
+#endif //cimg_r_mode
       if (!res) throw CImgIOException("cimg::fopen(): Failed to open file '%s' with mode '%s'.",
                                       path,mode);
       return res;
@@ -48393,8 +48420,9 @@ namespace cimg_library_suffixed {
       disp.show().flush();
 
       const CImg<char> dtitle = CImg<char>::string(disp.title());
+#ifndef cimg_r_mode 
       if (display_info) print(dtitle);
-
+#endif
       CImg<T> zoom;
       for (bool reset_view = true, resize_disp = false, is_first_select = true; !key && !disp.is_closed(); ) {
         if (reset_view) {
@@ -55477,7 +55505,9 @@ namespace cimg_library_suffixed {
       } else if (title) disp.set_title("%s",title);
       else if (titles) disp.set_title("%s",titles->__display()._data);
       const CImg<char> dtitle = CImg<char>::string(disp.title());
+#ifndef cimg_r_mode //CRAN forbids output to stdout
       if (display_info) print(disp.title());
+#endif     
       disp.show().flush();
 
       if (_width==1) {
@@ -55626,8 +55656,12 @@ namespace cimg_library_suffixed {
 #endif
       else if (!cimg::strcasecmp(ext,"gz")) return save_gzip_external(fn);
       else {
-        if (_width==1) _data[0].save(fn,-1);
+        if (_width==1) _data[0].save(fn,-1);	
+#ifndef cimg_r_mode
         else cimglist_for(*this,l) { _data[l].save(fn,is_stdout?-1:l); if (is_stdout) std::fputc(EOF,stdout); }
+#else //cimg_r_mode
+	else cimglist_for(*this,l) { _data[l].save(fn,is_stdout?-1:l); }
+#endif //cimg_r_mode
       }
       return *this;
     }

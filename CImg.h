@@ -28701,8 +28701,8 @@ namespace cimg_library_suffixed {
             cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
             cimg_forXYZC(res,x,y,z,c) {
               const float xc = x - rw2, yc = y - rh2;
-              res(x,y,z,c) = (*this)(cimg::mod((int)cimg::round(w2 + xc*ca + yc*sa),width()),
-                                     cimg::mod((int)cimg::round(h2 - xc*sa + yc*ca),height()),z,c);
+              res(x,y,z,c) = (*this)(cimg::mod((int)cimg::round(w2 + xc*ca + yc*sa),(float)width()),
+                                     cimg::mod((int)cimg::round(h2 - xc*sa + yc*ca),(float)height()),z,c);
             }
           }
           }

@@ -28877,9 +28877,9 @@ namespace cimg_library_suffixed {
           cimg_forXYZ(res,x,y,z) {
             const float
               xc = x - rw2, yc = y - rh2, zc = z - rd2,
-              X = cimg::mod(w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,(float)width()),
-              Y = cimg::mod(h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,(float)height()),
-              Z = cimg::mod(d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc,(float)depth());
+              X = cimg::mod((float)(w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc),(float)width()),
+              Y = cimg::mod((float)(h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc),(float)height()),
+              Z = cimg::mod((float)(d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc),(float)depth());
             cimg_forC(res,c) res(x,y,z,c) = cimg::type<T>::cut(_cubic_atXYZ(X,Y,Z,c));
           }
         } break;
@@ -28888,9 +28888,9 @@ namespace cimg_library_suffixed {
           cimg_forXYZ(res,x,y,z) {
             const float
               xc = x - rw2, yc = y - rh2, zc = z - rd2,
-              X = cimg::mod(w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,(float)width()),
-              Y = cimg::mod(h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,(float)height()),
-              Z = cimg::mod(d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc,(float)depth());
+              X = cimg::mod((float)(w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc),(float)width()),
+              Y = cimg::mod((float)(h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc),(float)height()),
+              Z = cimg::mod((float)(d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc),(float)depth());
             cimg_forC(res,c) res(x,y,z,c) = (T)_linear_atXYZ(X,Y,Z,c);
           }
         } break;
@@ -28899,14 +28899,13 @@ namespace cimg_library_suffixed {
           cimg_forXYZ(res,x,y,z) {
             const float xc = x - rw2, yc = y - rh2, zc = z - rd2;
             const int
-              X = cimg::mod((int)cimg::round(w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc),(float)width()),
-              Y = cimg::mod((int)cimg::round(h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc),(float)height()),
-              Z = cimg::mod((int)cimg::round(d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc),(float)depth());
+              X = cimg::mod((int)cimg::round(w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc),width()),
+              Y = cimg::mod((int)cimg::round(h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc),height()),
+              Z = cimg::mod((int)cimg::round(d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc),depth());
             cimg_forC(res,c) res(x,y,z,c) = (*this)(X,Y,Z,c);
           }
         }
         }
-
       } break;
       }
     }

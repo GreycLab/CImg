@@ -32866,7 +32866,7 @@ namespace cimg_library_suffixed {
        \see deriche(), vanvliet().
     **/
     CImg<T>& blur_box(const float boxsize, const bool boundary_conditions=true) {
-      const float nboxsize = boxsize>=0?boxsize:-boxsize*std::max(_width,_height,_depth)/100;
+      const float nboxsize = boxsize>=0?boxsize:-boxsize*std::max(std::max(_width,_height),_depth)/100;
       return blur_box(nboxsize,nboxsize,nboxsize,boundary_conditions);
     }
 

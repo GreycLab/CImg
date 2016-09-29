@@ -1,12 +1,9 @@
 language: cpp
 compiler:
   - gcc
-  - clang
 script:
   - cd examples
-  - make mlinux
-install:
-- if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
+  - make CXX='g++-4.8' travis
 addons:
   apt:
     sources:
@@ -15,4 +12,9 @@ addons:
     - gcc-4.8
     - g++-4.8
     - clang
-
+    - libpng12-dev
+    - libjpeg-dev
+    - libmagick++-dev
+    - libgraphicsmagick++1-dev
+    - libfftw3-dev
+    - zlib1g-dev

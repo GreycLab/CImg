@@ -36,6 +36,7 @@
   - Maksim Aizenshtein
   - Alberto Albiol
   - Antonio Albiol
+  - Simon Barthelme
   - Neil Brown
   - Haz-Edine Assemlal
   - Vincent Barra
@@ -58,6 +59,7 @@
   - David Grimbichler
   - Jinwei Gu
   - Jean-Daniel Guyot
+  - Cedric Hammiche
   - Matt Hanson
   - Sebastien Hanel
   - Michael Holroyd

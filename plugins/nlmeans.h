@@ -101,9 +101,9 @@ CImg<T>& nlmeans(int patch_size=1, double lambda=-1, double alpha=3, double sigm
           for (int xi = 0; xi<width(); ++xi) {
             cimg_forC(*this,v) uhat[v] = 0;
             float sw = 0, wmax = -1;
-            for (int zj = cimg::max(0,zi - pzi); zj<cimg::min(depth(),zi + pzi + 1); ++zj)
-              for (int yj = cimg::max(0,yi - pyi); yj<cimg::min(height(),yi + pyi + 1); ++yj)
-                for (int xj = cimg::max(0,xi - pxi); xj<cimg::min(width(),xi + pxi + 1); ++xj)
+            for (int zj = std::max(0,zi - pzi); zj<std::min(depth(),zi + pzi + 1); ++zj)
+              for (int yj = std::max(0,yi - pyi); yj<std::min(height(),yi + pyi + 1); ++yj)
+                for (int xj = std::max(0,xi - pxi); xj<std::min(width(),xi + pxi + 1); ++xj)
                   if (cimg::abs(P(xi,yi,zi) - P(xj,yj,zj))/sig<3) {
                     double d = 0;
                     int n = 0;
@@ -160,8 +160,8 @@ CImg<T>& nlmeans(int patch_size=1, double lambda=-1, double alpha=3, double sigm
         for (int xi = 0; xi<width(); ++xi) {
           cimg_forC(*this,v) uhat[v] = 0;
           float sw = 0, wmax = -1;
-          for (int yj = cimg::max(0,yi - pyi); yj<cimg::min(height(),yi + pyi + 1); ++yj)
-            for (int xj = cimg::max(0,xi - pxi); xj<cimg::min(width(),xi + pxi + 1); ++xj)
+          for (int yj = std::max(0,yi - pyi); yj<std::min(height(),yi + pyi + 1); ++yj)
+            for (int xj = std::max(0,xi - pxi); xj<std::min(width(),xi + pxi + 1); ++xj)
               if (cimg::abs(P(xi,yi) - P(xj,yj))/sig<3.) {
                 double d = 0;
                 int n = 0;

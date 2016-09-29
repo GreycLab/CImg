@@ -58,7 +58,7 @@ CImg<float> get_vizFlow(const float cutVal = 0) const {
     const float
       xx = (float)(-(*this)(x,y,0)),
       yy = (float)(-(*this)(x,y,1)),
-      H = (float)cimg::max(180*((std::atan2(yy,xx)/cimg::PI) + 1.0),0.0),
+      H = (float)std::max(180*((std::atan2(yy,xx)/cimg::PI) + 1.0),0.0),
       S = mag(x,y),
       V = 1.0f;
     res(x,y,0) = H;
@@ -170,13 +170,13 @@ CImg<T>& patchMatch(const CImg<Tt> &img0, const CImg<Tt> &img1,
         const T offXCurr = off(x, y, 0), offYCurr = off(x, y, 1);
         do{
           const int
-            wMinX = cimg::max(0, x + offXCurr - wSizX/2),
-            wMaxX = cimg::min(w1 - 1, x + offXCurr + wSizX/2);
+            wMinX = std::max(0, x + offXCurr - wSizX/2),
+            wMaxX = std::min(w1 - 1, x + offXCurr + wSizX/2);
           x1 = (int)((wMaxX - wMinX) * cimg::rand() + wMinX);
 
           const int
-            wMinY = cimg::max(0, y + offYCurr - wSizY/2),
-            wMaxY = cimg::min(h1 - 1, y + offYCurr + wSizY/2);
+            wMinY = std::max(0, y + offYCurr - wSizY/2),
+            wMaxY = std::min(h1 - 1, y + offYCurr + wSizY/2);
           y1 = (int)((wMaxY - wMinY) * cimg::rand() + wMinY);
           d2 = distPatch(img0big, img1big, x, y, x1, y1, P);
 

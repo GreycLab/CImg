@@ -104,7 +104,7 @@ CXXVER       = "icpc \( `$(CXX) -v 2>&1`\)"
 CFLAGS       = -I..
 LIBS         =
 else
-CFLAGS       = -I.. -Wall -Wextra
+CFLAGS       = -I.. -Wall -Wextra -Wfatal-errors
 LIBS         = -lm
 endif
 
@@ -211,10 +211,10 @@ CIMG_MINC2_LIBS = -lminc_io -lvolume_io2 -lminc2 -lnetcdf -lhdf5 -lz -L${HOME}/l
 
 # Flags to enable native support for EXR image files, using the OpenEXR library.
 # ( http://www.openexr.com/ )
-CIMG_EXR_DEFINE = -Dcimg_use_openexr
-CIMG_EXR_INCDIR = -I/usr/include/OpenEXR
-CIMG_EXR_CFLAGS = $(CIMG_EXR_DEFINE) $(CIMG_EXR_INCDIR)
-CIMG_EXR_LIBS = -lIlmImf -lHalf
+CIMG_OPENEXR_DEFINE = -Dcimg_use_openexr
+CIMG_OPENEXR_INCDIR = -I/usr/include/OpenEXR
+CIMG_OPENEXR_CFLAGS = $(CIMG_OPENEXR_DEFINE) $(CIMG_OPENEXR_INCDIR)
+CIMG_OPENEXR_LIBS = -lIlmImf -lHalf
 
 # Flags to enable native support for various video files, using the FFMPEG library.
 # ( http://www.ffmpeg.org/ )
@@ -347,6 +347,30 @@ $(CIMG_XSHM_LIBS)" \
 all $(CIMG_EXTRA_FILES)
 
 # Linux/BSD/Mac OSX targets, with X11 display.
+
+#A target for Travis-CI
+travis:
+	@$(MAKE) \
+"CONF_CFLAGS = \
+$(CIMG_ANSI_CFLAGS) \
+$(CIMG_VT100_CFLAGS) \
+$(CIMG_X11_CFLAGS) \
+$(CIMG_FFTW3_CFLAGS) \
+$(CIMG_PNG_CFLAGS) \
+$(CIMG_JPEG_CFLAGS) \
+$(CIMG_ZLIB_CFLAGS) \
+$(CIMG_CURL_CFLAGS) \
+$(CIMG_XSHM_CFLAGS)" \
+"CONF_LIBS = \
+$(CIMG_X11_LIBS) \
+$(CIMG_FFTW3_LIBS) \
+$(CIMG_PNG_LIBS) \
+$(CIMG_JPEG_LIBS) \
+$(CIMG_ZLIB_LIBS) \
+$(CIMG_CURL_LIBS) \
+$(CIMG_XSHM_LIBS)" \
+all
+
 linux:
 	@$(MAKE) \
 "CONF_CFLAGS = \
@@ -405,7 +429,7 @@ $(CIMG_X11_CFLAGS) \
 $(CIMG_XSHM_CFLAGS) \
 $(CIMG_XRANDR_CFLAGS) \
 $(CIMG_TIFF_CFLAGS) \
-$(CIMG_EXR_CFLAGS) \
+$(CIMG_OPENEXR_CFLAGS) \
 $(CIMG_PNG_CFLAGS) \
 $(CIMG_JPEG_CFLAGS) \
 $(CIMG_ZLIB_CFLAGS) \
@@ -418,7 +442,7 @@ $(CIMG_X11_LIBS) \
 $(CIMG_XSHM_LIBS) \
 $(CIMG_XRANDR_LIBS) \
 $(CIMG_TIFF_LIBS) -ltiffxx \
-$(CIMG_EXR_LIBS) \
+$(CIMG_OPENEXR_LIBS) \
 $(CIMG_PNG_LIBS) \
 $(CIMG_JPEG_LIBS) \
 $(CIMG_ZLIB_LIBS) \
@@ -491,7 +515,7 @@ $(CIMG_XSHM_CFLAGS) \
 $(CIMG_XRANDR_CFLAGS) \
 $(CIMG_TIFF_CFLAGS) \
 $(CIMG_MINC2_CFLAGS) \
-$(CIMG_EXR_CFLAGS) \
+$(CIMG_OPENEXR_CFLAGS) \
 $(CIMG_PNG_CFLAGS) \
 $(CIMG_JPEG_CFLAGS) \
 $(CIMG_ZLIB_CFLAGS) \
@@ -505,7 +529,7 @@ $(CIMG_XSHM_LIBS) \
 $(CIMG_XRANDR_LIBS) \
 $(CIMG_TIFF_LIBS) \
 $(CIMG_MINC2_LIBS) \
-$(CIMG_EXR_LIBS) \
+$(CIMG_OPENEXR_LIBS) \
 $(CIMG_PNG_LIBS) \
 $(CIMG_JPEG_LIBS) \
 $(CIMG_ZLIB_LIBS) \
@@ -564,7 +588,7 @@ $(CIMG_VT100_CFLAGS) \
 $(CIMG_X11_CFLAGS) \
 $(CIMG_TIFF_CFLAGS) \
 $(CIMG_MINC2_CFLAGS) \
-$(CIMG_EXR_CFLAGS) \
+$(CIMG_OPENEXR_CFLAGS) \
 $(CIMG_PNG_CFLAGS) \
 $(CIMG_JPEG_CFLAGS) \
 $(CIMG_ZLIB_CFLAGS) \
@@ -575,7 +599,7 @@ $(CIMG_FFTW3_CFLAGS)" \
 $(CIMG_X11_LIBS) \
 $(CIMG_TIFF_LIBS) \
 $(CIMG_MINC2_LIBS) \
-$(CIMG_EXR_LIBS) \
+$(CIMG_OPENEXR_LIBS) \
 $(CIMG_PNG_LIBS) \
 $(CIMG_JPEG_LIBS) \
 $(CIMG_ZLIB_LIBS) \

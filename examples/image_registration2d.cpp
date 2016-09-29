@@ -89,7 +89,7 @@ CImg<> optflow(const CImg<>& source, const CImg<>& target,
   CImg<> U;
 
   const unsigned int _nb_scales = nb_scales>0?nb_scales:
-    (unsigned int)(2*std::log((double)(cimg::max(src.width(),src.height()))));
+    (unsigned int)(2*std::log((double)(std::max(src.width(),src.height()))));
   for (int scale = _nb_scales - 1; scale>=0; --scale) {
     const float factor = (float)std::pow(1.5,(double)scale);
     const unsigned int
@@ -184,9 +184,9 @@ int main(int argc,char **argv) {
   CImgDisplay disp;
   if (dispflag) {
     unsigned int w = src.width(), h = src.height();
-    const unsigned int dmin = cimg::min(w,h), minsiz = 512;
+    const unsigned int dmin = std::min(w,h), minsiz = 512;
     if (dmin<minsiz) { w=w*minsiz/dmin; h=h*minsiz/dmin; }
-    const unsigned int dmax = cimg::max(w,h), maxsiz = 1024;
+    const unsigned int dmax = std::max(w,h), maxsiz = 1024;
     if (dmax>maxsiz) { w=w*maxsiz/dmax; h=h*maxsiz/dmax; }
     disp.assign(w,h,"Estimated Motion",0);
   }
@@ -202,9 +202,9 @@ int main(int argc,char **argv) {
   CImgDisplay disp2;
   if (dispflag) {
     unsigned int w = src.width(), h = src.height();
-    const unsigned int dmin = cimg::min(w,h), minsiz = 100;
+    const unsigned int dmin = std::min(w,h), minsiz = 100;
     if (dmin<minsiz) { w = w*minsiz/dmin; h=h*minsiz/dmin; }
-    const unsigned int dmax = cimg::max(w,h), maxsiz = 1024/3;
+    const unsigned int dmax = std::max(w,h), maxsiz = 1024/3;
     if (dmax>maxsiz) { w = w*maxsiz/dmax; h=h*maxsiz/dmax; }
     disp2.assign(3*w,h,"Source/Destination images and Motion animation",0);
   }

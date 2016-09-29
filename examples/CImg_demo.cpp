@@ -68,9 +68,10 @@ void* item_blurring_gradient() {
 // Item : Rotozoom
 //-----------------
 void* item_rotozoom() {
-  CImg<unsigned char> src = CImg<unsigned char>(data_milla,211,242,1,3,false).resize(400,300,1,3,3), img(src);
+  CImg<unsigned char> src = CImg<unsigned char>(data_milla,211,242,1,3,false).resize(400,300,1,3,3),
+    img(src), img2(img);
   CImgDisplay disp(img.width(),img.height(),"[#2] - Rotozoom",0);
-  float alpha = 0, t = 0, angle = 0, zoom0 = -0.9f;
+  float alpha = 0, t = 0, angle = 0, zoom0 = -0.9f, w2 = 0.5f*img.width(), h2 = 0.5f*img.height();
   const unsigned char color[] = { 16,32,64 };
 
   while (!disp.is_closed() && !disp.is_keyQ() && !disp.is_keyESC()) {
@@ -83,9 +84,20 @@ void* item_rotozoom() {
         img(x,y,0,k) = (unsigned char)(val>255.0f?255:val);
       }
     }
-    const float zoom = (float)(zoom0 + 0.3f*(1 + std::cos(3*t)));
-    img.get_rotate(angle,0.5f*img.width(),0.5f*img.height(),1 + zoom,0,2).
-      draw_text(3,3,"Mouse buttons\nto zoom in/out",color,0,0.8f,24).display(disp.resize(false).wait(20));
+    const float
+      zoom = 1.0f + (float)(zoom0 + 0.3f*(1 + std::cos(3*t))),
+      rad = (float)(angle*cimg::PI/180), ca = (float)std::cos(rad)/zoom, sa = (float)std::sin(rad)/zoom;
+    cimg_forXY(img,x,y) {
+      const float
+        cX = x - w2, cY = y - h2,
+        fX = w2 + cX*ca - cY*sa,
+        fY = h2 + cX*sa + cY*ca;
+      const int
+        X = cimg::mod((int)fX,img.width()),
+        Y = cimg::mod((int)fY,img.height());
+      cimg_forC(img,c) img2(x,y,c) = img(X,Y,c);
+    }
+    img2.swap(img).draw_text(3,3,"Mouse buttons\nto zoom in/out",color,0,0.8f,24).display(disp.resize(false).wait(20));
     alpha+=0.7f; t+=0.01f; angle+=0.8f;
     zoom0+=disp.button()&1?0.1f:disp.button()&2?-0.1f:0;
     if (disp.is_keyCTRLLEFT() && disp.is_keyF()) disp.resize(400,400,false).toggle_fullscreen(false);
@@ -131,17 +143,26 @@ void* item_anisotropic_smoothing() {
 // Item : Fractal Animation
 //--------------------------
 void* item_fractal_animation() {
-  CImg<unsigned char> img(400,400,1,3,0), noise(3,2,1,3);
+  CImg<unsigned char> img(400,400,1,3,0), img2(img), noise(3,2,1,3);
+  const float w2 = 0.5f*img.width(), h2 = 0.5f*img.height();
   CImgDisplay disp(img,"[#4] - Fractal Animation");
   float zoom = 0;
-
   for (unsigned int iter = 0; !disp.is_closed() && !disp.is_keyQ() && !disp.is_keyESC(); ++iter, zoom+=0.2f) {
     img.draw_image((img.width() - noise.width())/2,
                    (img.height() - noise.height())/2,
-                   noise.fill(0).noise(255,1)).
-      rotate((float)(10*std::sin(iter/25.0)),0.5f*img.width(),0.5f*img.height(),
-             (float)(1.04f + 0.02f*std::sin(zoom/10)),0,0).
-      resize(disp.resize(false)).display(disp.wait(25));
+                   noise.fill(0).noise(255,1));
+    const float
+      nzoom = (float)(1.04f + 0.02f*std::sin(zoom/10)),
+      rad = (float)(10*std::sin(iter/25.0)*cimg::PI/180),
+      ca = (float)std::cos(rad)/nzoom, sa = (float)std::sin(rad)/nzoom;
+    cimg_forXY(img,x,y) {
+      const float
+        cX = x - w2, cY = y - h2,
+        X = w2 + cX*ca - cY*sa,
+        Y = h2 + cX*sa + cY*ca;
+      cimg_forC(img,c) img2(x,y,c) = img.atXY((int)X,(int)Y,0,c,0);
+    }
+    img2.swap(img).resize(disp.resize(false)).display(disp.wait(25));
     if (disp.is_keyCTRLLEFT() && disp.is_keyF()) disp.resize(400,400,false).toggle_fullscreen(false);
   }
   return 0;
@@ -394,7 +415,7 @@ void* item_mini_paint() {
     if (xo>=0 && yo>=0 && x>=0 && y>=0) {
       if (but&1 || but&4) {
         if (y<253) {
-          const float tmax = (float)cimg::max(cimg::abs(xo - x),cimg::abs(yo - y)) + 0.1f;
+          const float tmax = (float)std::max(cimg::abs(xo - x),cimg::abs(yo - y)) + 0.1f;
           const int radius = (but&1?3:0) + (but&4?6:0);
           for (float t = 0; t<=tmax; ++t)
             img.draw_circle((int)(x + t*(xo - x)/tmax),(int)(y + t*(yo - y)/tmax),radius,color);
@@ -533,7 +554,7 @@ void* item_virtual_landscape() {
   CImg_3x3(I,float); Ipp = Inp = Icc = Ipn = Inn = 0;
   cimg_for3x3(map,x,y,0,0,I,float) {
     const float nox = 0.5f*(Inc - Ipc), noy = 0.5f*(Icn - Icp);
-    cmap(x,y) = cimg::max(0.0f,0.5f*nox + noy);
+    cmap(x,y) = std::max(0.0f,0.5f*nox + noy);
   }
   cmap.normalize(0,255);
 
@@ -564,7 +585,7 @@ void* item_virtual_landscape() {
               visu(x,l,0) = 10; visu(x,l,1) = 200 - cl; visu(x,l,2) = 255 - cl;
             }
         }
-        ymin(x) = cimg::min(ymin(x),y); ymax(x) = cimg::max(ymax(x),y);
+        ymin(x) = std::min(ymin(x),y); ymax(x) = std::max(ymax(x),y);
       }
     }
     visu.draw_text(5,5,"%u frames/s",white,0,0.5f,13,(unsigned int)disp.frames_per_second());
@@ -610,12 +631,12 @@ void* item_plasma() {
     unsigned char *ptr_r = visu.data(0,0,0,0), *ptr_g = visu.data(0,0,0,1), *ptr_b = visu.data(0,0,0,2);
     cimg_forY(visu,y) {
       const float
-        *ptr_r1 = plasma.data((unsigned int)cimg::max(0.0f,camp(0)*(1.1 + std::sin(tx + cfreq(0)*y))),y,v0),
-        *ptr_g1 = plasma.data((unsigned int)cimg::max(0.0f,camp(1)*(1.1 + std::sin(tx + cfreq(1)*y))),y,v1),
-        *ptr_b1 = plasma.data((unsigned int)cimg::max(0.0f,camp(2)*(2 + std::sin(tx + cfreq(2)*y))),y,v2),
-        *ptr_r2 = plasma.data((unsigned int)cimg::max(0.0f,namp(0)*(1.1 + std::sin(tx + nfreq(0)*y))),y,v1),
-        *ptr_g2 = plasma.data((unsigned int)cimg::max(0.0f,namp(1)*(1.1 + std::sin(tx + nfreq(1)*y))),y,v2),
-        *ptr_b2 = plasma.data((unsigned int)cimg::max(0.0f,namp(2)*(2 + std::sin(tx + nfreq(2)*y))),y,v3);
+        *ptr_r1 = plasma.data((unsigned int)std::max(0.0f,camp(0)*(1.1f + std::sin(tx + cfreq(0)*y))),y,v0),
+        *ptr_g1 = plasma.data((unsigned int)std::max(0.0f,camp(1)*(1.1f + std::sin(tx + cfreq(1)*y))),y,v1),
+        *ptr_b1 = plasma.data((unsigned int)std::max(0.0f,camp(2)*(2.0f + std::sin(tx + cfreq(2)*y))),y,v2),
+        *ptr_r2 = plasma.data((unsigned int)std::max(0.0f,namp(0)*(1.1f + std::sin(tx + nfreq(0)*y))),y,v1),
+        *ptr_g2 = plasma.data((unsigned int)std::max(0.0f,namp(1)*(1.1f + std::sin(tx + nfreq(1)*y))),y,v2),
+        *ptr_b2 = plasma.data((unsigned int)std::max(0.0f,namp(2)*(2.0f + std::sin(tx + nfreq(2)*y))),y,v3);
       cimg_forX(visu,x) {
         *(ptr_r++) = (unsigned char)(umalpha*(*(ptr_r1++)) + alpha*(*(ptr_r2++)));
         *(ptr_g++) = (unsigned char)(umalpha*(*(ptr_g1++)) + alpha*(*(ptr_g2++)));
@@ -691,7 +712,7 @@ void* item_shade_bobs() {
       palette = CImg<unsigned char>(3,4 + (int)(12*cimg::rand()),1,1,0).noise(255,2).resize(3,256,1,1,3);
       palette(0) = palette(1) = palette(2) = 0;
       nbbobs = 20 + (int)(cimg::rand()*80);
-      rybobs = (10 + (int)(cimg::rand()*50))*cimg::min(img.width(),img.height())/300;
+      rybobs = (10 + (int)(cimg::rand()*50))*std::min(img.width(),img.height())/300;
     }
     for (int i = 0; i<nbbobs; ++i) {
       const float
@@ -744,10 +765,10 @@ void* item_fourier_filtering() {
       x = xm - img.width()/2,
       y = ym - img.height()/2;
     if (disp.button() && xm>=0 && ym>=0) {
-      const int r = (int)cimg::max(0.0f,(float)std::sqrt((float)x*x + y*y) - 3);
+      const int r = (int)std::max(0.0f,(float)std::sqrt((float)x*x + y*y) - 3);
       if (disp.button()&1) rmax = r;
       if (disp.button()&2) rmin = r;
-      if (rmin>=rmax) rmin = cimg::max(rmax - 1,0);
+      if (rmin>=rmax) rmin = std::max(rmax - 1,0);
       mask.fill(0).draw_circle(mag.width()/2,mag.height()/2,rmax,one).
         draw_circle(mag.width()/2,mag.height()/2,rmin,zero);
       CImgList<float> nF(F);
@@ -935,7 +956,7 @@ void* item_double_torus() {
   CImgList<unsigned int> primitives;
   CImg<float>
     points = CImg<>::torus3d(primitives,60,20),
-    points2 = CImg<>::rotation_matrix(1,0,0,(float)cimg::PI/2.0f)*points;
+    points2 = CImg<>::rotation_matrix(1,0,0,90)*points;
   CImgList<unsigned char> colors(2*primitives.size(),CImg<unsigned char>::vector(255,255,0));
   cimglist_for(primitives,ll) colors[ll++].fill(100,255,100);
   cimglist_for(primitives,l)
@@ -950,8 +971,8 @@ void* item_double_torus() {
     cimg_for3x3(visu,x,y,0,0,I,unsigned char) visu(x,y,0) = (Icc + Ipn + Icn + Inn)>>2;
     for (unsigned int y = 0; y<100; ++y) std::memset(visu.data(0,y,0,2),255 - y*255/100,visu.width());
     const CImg<float>
-      rpoints = CImg<>::rotation_matrix(1,1,0,(alpha+=0.01f))*CImg<>::rotation_matrix(1,0,1,(beta-=0.02f))*
-      CImg<>::rotation_matrix(0,1,1,(gamma+=0.03f))*points;
+      rpoints = CImg<>::rotation_matrix(1,1,0,(alpha+=1))*CImg<>::rotation_matrix(1,0,1,(beta-=2))*
+      CImg<>::rotation_matrix(0,1,1,(gamma+=3))*points;
     if (disp.is_resized()) disp.resize(false);
     if (disp.is_keyCTRLLEFT() && disp.is_keyF()) disp.resize(300,256,false).toggle_fullscreen(false);
     visu.draw_object3d(visu.width()/2.0f,visu.height()/2.0f,0,
@@ -999,7 +1020,7 @@ void* item_3d_metaballs() {
     met.cx3 = 2.5f*(float)std::cos(2.5*delta); met.cy3 = 0; met.cz3 = 1.5f*(float)std::sin(2*(delta+=0.0125f));
     const CImg<float>
       points = CImg<>::isosurface3d(primitives,met,0.8f,-4.5f,-4.5f,-3.5f,4.5f,4.5f,3.5f,24,24,24),
-      rot = 50.0*CImg<>::rotation_matrix(0,0,1,(alpha+=0.02f))*CImg<>::rotation_matrix(1,1,0,(beta+=0.076f)),
+      rot = 50.0*CImg<>::rotation_matrix(0,0,1,(alpha+=2))*CImg<>::rotation_matrix(1,1,0,(beta+=5.6f)),
       rpoints = rot*points;
     primitives.reverse_object3d();
     if (colors.size()<primitives.size()) colors.assign(primitives.size(),1,3,1,1);
@@ -1054,9 +1075,9 @@ void* item_fireworks() {
       if (t<0 && t>=-1) {
         if ((speed*=0.9f)<10) speed=10.0f;
         const unsigned char
-          r = (unsigned char)cimg::min(50 + 3*(unsigned char)(100*cimg::rand()), 255),
-          g = (unsigned char)cimg::min(50 + 3*(unsigned char)(100*cimg::rand()), 255),
-          b = (unsigned char)cimg::min(50 + 3*(unsigned char)(100*cimg::rand()), 255);
+          r = (unsigned char)std::min(50 + 3*(unsigned char)(100*cimg::rand()), 255),
+          g = (unsigned char)std::min(50 + 3*(unsigned char)(100*cimg::rand()), 255),
+          b = (unsigned char)std::min(50 + 3*(unsigned char)(100*cimg::rand()), 255);
         const float di = 10 + (float)cimg::rand()*60, nr = (float)cimg::rand()*30;
         for (float i=0; i<360; i+=di) {
           const float rad = i*(float)cimg::PI/180, c = (float)std::cos(rad), s = (float)std::sin(rad);
@@ -1110,8 +1131,8 @@ void* item_rubber_logo() {
     CImg<unsigned char>& frame = frames[nb_frame++];
     if (nb_frame>=frames.size()) { ok_visu = true; nb_frame = 0; }
     const CImg<float>
-      rot = CImg<>::rotation_matrix(0,1,0.2f,alpha+=0.011f)*
-      CImg<>::rotation_matrix(1,0.4f,1,beta+=0.015f)*
+      rot = CImg<>::rotation_matrix(0,1,0.2f,alpha+=1.1f)*
+      CImg<>::rotation_matrix(1,0.4f,1,beta+=1.5f)*
       (1 + 0.1f*std::cos((double)(gamma+=0.1f)));
     (frame=background).draw_object3d(frame.width()/2.0f,frame.height()/2.0f,frame.depth()/2.0f,
                                      rot*points,faces,colors,5,false,500,0,0,-5000,0.1f,1.0f);
@@ -1158,7 +1179,7 @@ void* item_image_waves() {
         move_to(particles);
       count = (float)(cimg::rand()*15);
     }
-    alpha = (disp.mouse_x()>=0 && disp.button()&2)?(float)(disp.mouse_x()*2*cimg::PI/disp.width()):(alpha + 0.02f);
+    alpha = (disp.mouse_x()>=0 && disp.button()&2)?(float)(disp.mouse_x()*2*180/disp.width()):(alpha + 2);
     if (disp.is_keyCTRLLEFT() && disp.is_keyF()) disp.resize(400,300,false).toggle_fullscreen(false);
     cimglist_for(particles,l) {
       float& z = up((int)particles(l,0)>>1,(int)particles(l,1)>>1);
@@ -1172,7 +1193,7 @@ void* item_image_waves() {
     CImgList<unsigned char> colors(colors0);
     CImgList<float> opacities(opacities0);
     cimglist_for(points,p)
-      points(p,2) = cimg::min(30 + uc.linear_atXY((p%img.width())/2.0f,(p/img.width())/2.0f),70.0f);
+      points(p,2) = std::min(30 + uc.linear_atXY((p%img.width())/2.0f,(p/img.width())/2.0f),70.0f);
     cimglist_for(particles,l) {
       points.insert(CImg<>::vector(3*(particles(l,0) - img.width()/2.0f),3*(particles(l,1) - img.height()/2.0f),30.0f +
                                    particles(l,2)));
@@ -1181,7 +1202,7 @@ void* item_image_waves() {
       opacities.insert(mball,~0U,true);
     }
     const CImg<float>
-      rot = CImg<>::rotation_matrix(1.0f,0,0,(float)(cimg::PI/3.0f))*CImg<>::rotation_matrix(0,0,1.0f,alpha),
+      rot = CImg<>::rotation_matrix(1.0f,0,0,-60)*CImg<>::rotation_matrix(0,0,1.0f,-alpha),
       rpoints = rot*(points>'x');
     (+back).draw_object3d(back.width()/2.0f,back.height()/2.0f,0,rpoints,faces,colors,opacities,4,false,
                           500.0f,0,0,0,1,1).display(disp.resize(false).wait(30));
@@ -1201,7 +1222,7 @@ void* item_breakout() {
     visu0(background/2.0), visu(visu0), brick(16,16,1,1,200), racket(64,8,1,3,0), ball(8,8,1,3,0);
   const unsigned char white[] = { 255,255,255 }, green1[] = { 60,150,30 }, green2[] = { 130,255,130 };
   cimg_for_borderXY(brick,x,y,1) brick(x,y) = x>y?255:128;
-  cimg_for_insideXY(brick,x,y,1) brick(x,y) = (unsigned char)cimg::min(255,64 + 8*(x + y));
+  cimg_for_insideXY(brick,x,y,1) brick(x,y) = (unsigned char)std::min(255,64 + 8*(x + y));
   brick.resize(31,15,1,1,1).resize(32,16,1,1,0);
   ball.draw_circle(4,4,2,white); ball-=ball.get_erode(3)/1.5;
   racket.draw_circle(4,3,4,green1).draw_circle(3,2,2,green2);
@@ -1337,8 +1358,8 @@ void* item_3d_reflection() {
          back_alpha = 0, back_beta = 0, back_theta = -3.0f,
          main_alpha = 0, main_beta = 0, main_theta = 0;
        !disp.is_closed() && !disp.is_keyQ() && !disp.is_keyESC();
-       main_alpha+=0.041f, main_beta+=0.063f, main_theta+=0.02f,
-         back_alpha+=0.0031f, back_beta+=0.0043f, back_theta+=0.01f) {
+       main_alpha+=2.1f, main_beta+=3.3f, main_theta+=0.02f,
+         back_alpha+=0.31f, back_beta+=0.43f, back_theta+=0.01f) {
     const int
       main_X = (int)(visu.width()/2 + main_x + 100*std::cos(2.1*main_theta)),
       main_Y = (int)(visu.height()/2 + 120*std::sin(1.8*main_theta));
@@ -1369,7 +1390,7 @@ void* item_3d_reflection() {
                        false,500,0,0,-5000,0.1f,1.4f);
 
     if (disp.is_resized()) {
-      const int s = cimg::min(disp.window_width(),disp.window_height());
+      const int s = std::min(disp.window_width(),disp.window_height());
       disp.resize(s,s,false);
     }
     if (disp.is_keyCTRLLEFT() && disp.is_keyF()) disp.resize(512,512,false).toggle_fullscreen(false);
@@ -1603,7 +1624,7 @@ int main(int argc, char **argv) {
     cimg_forXY(fore,x,y)
       if (fore(x,y)==127) fore(x,y,0) = fore(x,y,1) = fore(x,y,2) = 1;
       else if (fore(x,y)) {
-        const float val = cimg::min(255.0f,7.0f*(y - 3));
+        const float val = std::min(255.0f,7.0f*(y - 3));
         fore(x,y,0) = (unsigned char)(val/1.5f);
         fore(x,y,1) = (unsigned char)val;
         fore(x,y,2) = (unsigned char)(val/1.1f);

@@ -74,9 +74,9 @@ void insert_ellipsoid(const CImg<t>& tensor, const float X, const float Y, const
 			      tensor[4],tensor[7],tensor[10],
 			      tensor[5],tensor[8],tensor[11]);
   const int
-    r = (int)cimg::min(30 + 1.5f*cimg::abs(255*fa*tensor[3]),255.0f),
-    g = (int)cimg::min(30 + 1.5f*cimg::abs(255*fa*tensor[4]),255.0f),
-    b = (int)cimg::min(30 + 1.5f*cimg::abs(255*fa*tensor[5]),255.0f);
+    r = (int)std::min(30 + 1.5f*cimg::abs(255*fa*tensor[3]),255.0f),
+    g = (int)std::min(30 + 1.5f*cimg::abs(255*fa*tensor[4]),255.0f),
+    b = (int)std::min(30 + 1.5f*cimg::abs(255*fa*tensor[5]),255.0f);
 
   // Define mesh points
   const unsigned int N0 = points.size();
@@ -353,9 +353,9 @@ int main(int argc,char **argv) {
     const float fa = get_FA(val[0],val[1],val[2]);
     eigen(x,y,z,12) = fa;
     const int
-      r = (int)cimg::min(255.0f,1.5f*cimg::abs(255*fa*vec(0,0))),
-      g = (int)cimg::min(255.0f,1.5f*cimg::abs(255*fa*vec(0,1))),
-      b = (int)cimg::min(255.0f,1.5f*cimg::abs(255*fa*vec(0,2)));
+      r = (int)std::min(255.0f,1.5f*cimg::abs(255*fa*vec(0,0))),
+      g = (int)std::min(255.0f,1.5f*cimg::abs(255*fa*vec(0,1))),
+      b = (int)std::min(255.0f,1.5f*cimg::abs(255*fa*vec(0,2)));
     coloredFA(x,y,z,0) = (unsigned char)r;
     coloredFA(x,y,z,1) = (unsigned char)g;
     coloredFA(x,y,z,2) = (unsigned char)b;
@@ -434,7 +434,7 @@ int main(int argc,char **argv) {
             xm, xM = x.max_min(xm),
             ym, yM = y.max_min(ym),
             zm, zM = z.max_min(zm),
-            ratio = 2.0f*cimg::min(visu.width(),visu.height())/(3.0f*cimg::max(xM - xm,yM - ym,zM - zm)),
+            ratio = 2.0f*std::min(visu.width(),visu.height())/(3.0f*cimg::max(xM - xm,yM - ym,zM - zm)),
             dx = 0.5f*(xM + xm), dy = 0.5f*(yM + ym), dz = 0.5f*(zM  +zm);
           cimg_forX(pts,l) {
             cpts(l,0) = (pts(l,0) - dx)*ratio;
@@ -444,8 +444,8 @@ int main(int argc,char **argv) {
 
           for (unsigned int i=0; i<N; i++) {
             std::fprintf(stderr,"\r- Frame %u/%u.",i,N);
-            const float alpha = (float)(i*2*cimg::PI/N);
-            const CImg<> rpts = CImg<>::rotation_matrix(0,1,0,alpha)*CImg<>::rotation_matrix(1,0,0,1.30f)*cpts;
+            const float alpha = (float)(i*360/N);
+            const CImg<> rpts = CImg<>::rotation_matrix(0,1,0,alpha)*CImg<>::rotation_matrix(1,0,0,75)*cpts;
             visu.fill(0).draw_object3d(visu.width()/2.0f,visu.height()/2.0f,-500.0f,rpts,primitives,colors,
                                        4,false,800.0f,visu.width()/2.0f,visu.height()/2.0f,-800.0f,0.05f,1.0f).
               display(disp3d);

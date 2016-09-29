@@ -139,7 +139,7 @@ int main(int argc,char **argv) {
     CImg<> points = img.get_isosurface3d(faces,0);
     CImgList<unsigned char> colors(faces.size(),CImg<unsigned char>::vector(200,128,100));
     CImgList<> opacities(faces.size(),CImg<>::vector(1.0f));
-    const float fact = 3*cimg::max(disp3d.width(),disp3d.height())/(4.0f*cimg::max(img.width(),img.height()));
+    const float fact = 3*std::max(disp3d.width(),disp3d.height())/(4.0f*std::max(img.width(),img.height()));
 
     // Append initial object if necessary.
     if (both) {
@@ -157,7 +157,7 @@ int main(int argc,char **argv) {
 
     // Display 3D object on the display window.
     CImg<unsigned char> visu(disp3d.width(),disp3d.height(),1,3,0);
-    const CImg<> rot = CImg<>::rotation_matrix(1,0,0,(beta+=0.01f))*CImg<>::rotation_matrix(0,1,1,(alpha+=0.05f));
+    const CImg<> rot = CImg<>::rotation_matrix(1,0,0,(beta+=0.5f))*CImg<>::rotation_matrix(0,1,1,(alpha+=3));
     if (points.size()) {
       visu.draw_object3d(visu.width()/2.0f,visu.height()/2.0f,0.0f,
                          rot*points,faces,colors,opacities,3,

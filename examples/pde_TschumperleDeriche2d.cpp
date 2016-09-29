@@ -201,7 +201,7 @@ int main(int argc,char **argv) {
     }
     if (dt>0) {
       float m, M = veloc.max_min(m);
-      xdt = dt/cimg::max(cimg::abs(m),cimg::abs(M));
+      xdt = dt/std::max(cimg::abs(m),cimg::abs(M));
     } else xdt=-dt;
     img+=veloc*xdt;
     img.cut((float)initial_min,(float)initial_max);

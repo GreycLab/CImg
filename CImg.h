@@ -2227,6 +2227,11 @@ namespace cimg_library_suffixed {
       return mode;
     }
 
+    // Functions to return standard streams 'stdin', 'stdout' and 'stderr'.
+    inline FILE* _stdin();
+    inline FILE* _stdout();
+    inline FILE* _stderr();
+
     // Mandatory because Microsoft's _snprintf() and _vsnprintf() do not add the '\0' character
     // at the end of the string.
 #if cimg_OS==2 && defined(_MSC_VER)
@@ -2294,7 +2299,7 @@ namespace cimg_library_suffixed {
        \param mode Desired exception mode. Possible values are:
        - \c 0: Hide library messages (quiet mode).
        - \c 1: Print library messages on the console.
-       - \c 2: Display library messages on a dialog window (default behavior).
+       - \c 2: Display library messages on a dialog window.
        - \c 3: Do as \c 1 + add extra debug warnings (slow down the code!).
        - \c 4: Do as \c 2 + add extra debug warnings (slow down the code!).
      **/
@@ -4187,7 +4192,7 @@ namespace cimg_library_suffixed {
     **/
     inline std::FILE* output(std::FILE *file) {
       cimg::mutex(1);
-      static std::FILE *res = stderr;
+      static std::FILE *res = cimg::_stderr();
       if (file) res = file;
       cimg::mutex(1,0);
       return res;
@@ -5539,7 +5544,7 @@ namespace cimg_library_suffixed {
                                     path);
       std::FILE *res = 0;
       if (*path=='-' && (!path[1] || path[1]=='.')) {
-        res = (*mode=='r')?stdin:stdout;
+        res = (*mode=='r')?cimg::_stdin():cimg::_stdout();
 #if cimg_OS==2
         if (*mode && mode[1]=='b') { // Force stdin/stdout to be in binary mode.
           if (_setmode(_fileno(res),0x8000)==-1) res = 0;
@@ -5560,7 +5565,7 @@ namespace cimg_library_suffixed {
     **/
     inline int fclose(std::FILE *file) {
       if (!file) warn("cimg::fclose(): Specified file is (null).");
-      if (!file || file==stdin || file==stdout) return 0;
+      if (!file || file==cimg::_stdin() || file==cimg::_stdout()) return 0;
       const int errn = std::fclose(file);
       if (errn!=0) warn("cimg::fclose(): Error code %d returned during file closing.",
                         errn);
@@ -55656,7 +55661,7 @@ namespace cimg_library_suffixed {
       else if (!cimg::strcasecmp(ext,"gz")) return save_gzip_external(fn);
       else {
         if (_width==1) _data[0].save(fn,-1);
-        else cimglist_for(*this,l) { _data[l].save(fn,is_stdout?-1:l); if (is_stdout) std::fputc(EOF,stdout); }
+        else cimglist_for(*this,l) { _data[l].save(fn,is_stdout?-1:l); if (is_stdout) std::fputc(EOF,cimg::_stdout()); }
       }
       return *this;
     }
@@ -56695,6 +56700,38 @@ namespace cimg_library_suffixed {
   */
 
 namespace cimg {
+
+  // Functions to return standard streams 'stdin', 'stdout' and 'stderr'.
+  // (throw a CImgIOException when macro 'cimg_use_r' is defined).
+  inline FILE* _stdin() {
+#ifndef cimg_use_r
+    return stdin;
+#else
+    cimg::exception_mode(0);
+    throw CImgIOException("cimg::stdin(): Reference to 'stdin' stream not allowed in R mode ('cimg_use_r' is defined).");
+    return 0;
+#endif
+  }
+
+  inline FILE* _stdout() {
+#ifndef cimg_use_r
+    return stdout;
+#else
+    cimg::exception_mode(0);
+    throw CImgIOException("cimg::stdout(): Reference to 'stdout' stream not allowed in R mode ('cimg_use_r' is defined).");
+    return 0;
+#endif
+  }
+
+  inline FILE* _stderr() {
+#ifndef cimg_use_r
+    return stderr;
+#else
+    cimg::exception_mode(0);
+    throw CImgIOException("cimg::stderr(): Reference to 'stderr' stream not allowed in R mode ('cimg_use_r' is defined).");
+    return 0;
+#endif
+  }
 
   // Open a file (with wide character support on Windows).
   inline std::FILE *win_fopen(const char *const path, const char *const mode) {

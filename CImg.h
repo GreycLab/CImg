@@ -4778,6 +4778,12 @@ namespace cimg_library_suffixed {
       const double dx = (double)x, dm = (double)m;
       return (T)(dx - dm * std::floor(dx / dm));
     }
+        template<typename T1,typename T2>
+    inline T1 mod(const T1& x, const T2& m) {
+      const double dx = (double)x, dm = (double)m;
+      return (T1)(dx - dm * std::floor(dx / dm));
+      }
+    
     inline int mod(const bool x, const bool m) {
       return m?(x?1:0):0;
     }

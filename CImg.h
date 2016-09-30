@@ -20654,15 +20654,6 @@ namespace cimg_library_suffixed {
         return _mp_arg(1);
       }
 
-      static double mp_vector_swap(_cimg_math_parser& mp) {
-        unsigned int
-          ptr1 = (unsigned int)mp.opcode[1] + 1,
-          siz = (unsigned int)mp.opcode[2],
-          ptr2 = (unsigned int)mp.opcode[3] + 1;
-        while (siz-->0) cimg::swap(mp.mem[ptr1++],mp.mem[ptr2++]);
-        return cimg::type<double>::nan();
-      }
-
       static double mp_tan(_cimg_math_parser& mp) {
         return std::tan(_mp_arg(2));
       }
@@ -20928,6 +20919,15 @@ namespace cimg_library_suffixed {
         const int off = (int)_mp_arg(4);
         if (off>=0 && off<(int)siz) mp.mem[ptr + off] = _mp_arg(5);
         return _mp_arg(5);
+      }
+
+      static double mp_vector_swap(_cimg_math_parser& mp) {
+        unsigned int
+          ptr1 = (unsigned int)mp.opcode[1] + 1,
+          siz = (unsigned int)mp.opcode[2],
+          ptr2 = (unsigned int)mp.opcode[3] + 1;
+        while (siz-->0) cimg::swap(mp.mem[ptr1++],mp.mem[ptr2++]);
+        return cimg::type<double>::nan();
       }
 
       static double mp_whiledo(_cimg_math_parser& mp) { // Used also by 'for()'

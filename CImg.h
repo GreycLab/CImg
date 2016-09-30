@@ -15949,6 +15949,18 @@ namespace cimg_library_suffixed {
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_mul,arg1,arg2);
             if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_mul,arg1,arg2);
             if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2)) _cimg_mp_constant(mem[arg1]*mem[arg2]);
+
+            if (code) { // Try to spot double multiplication 'a*b*c'.
+              CImg<ulongT> &pop = code.back();
+              if (pop[0]==(ulongT)mp_mul && (pop[1]==arg1 || pop[1]==arg2)) {
+                arg3 = (unsigned int)pop[1];
+                arg4 = (unsigned int)pop[2];
+                arg5 = (unsigned int)pop[3];
+                code.remove();
+                CImg<ulongT>::vector((ulongT)mp_mul2,arg3,arg4,arg5,arg3==arg2?arg1:arg2).move_to(code);
+                _cimg_mp_return(arg3);
+              }
+            }
             if (!arg1 || !arg2) _cimg_mp_return(0);
             _cimg_mp_scalar2(mp_mul,arg1,arg2);
           }
@@ -20081,6 +20093,10 @@ namespace cimg_library_suffixed {
 
       static double mp_mul(_cimg_math_parser& mp) {
         return _mp_arg(2)*_mp_arg(3);
+      }
+
+      static double mp_mul2(_cimg_math_parser& mp) {
+        return _mp_arg(2)*_mp_arg(3)*_mp_arg(4);
       }
 
       static double mp_neq(_cimg_math_parser& mp) {

@@ -17152,11 +17152,12 @@ namespace cimg_library_suffixed {
 
               if (s3<se1) { pos = compile(s3 + 1,se1,depth1,0); compile(++s2,s3,depth1,0); } // Body + proc
               else pos = compile(++s2,se1,depth1,0); // Proc only
-
               _cimg_mp_check_type(arg1,2,1,0);
               arg2 = _cimg_mp_is_vector(pos)?_cimg_mp_vector_size(pos):0; // Output vector size (or 0 if scalar)
-              CImg<ulongT>::vector((ulongT)mp_whiledo,pos,arg1,p2 - p1,code._width - p2,arg2,
-                                   pos>=p3 && !_cimg_mp_is_constant(pos)).move_to(code,p1);
+              if (_cimg_mp_is_constant(pos)) { // Transform return value as a 'ghost' variable if it was a constant.
+                arg3 = scalar(); mem[arg3] = mem[pos]; memtype[arg3] = -1; pos = arg3;
+              }
+              CImg<ulongT>::vector((ulongT)mp_whiledo,pos,arg1,p2 - p1,code._width - p2,arg2,pos>=p3).move_to(code,p1);
               _cimg_mp_return(pos);
             }
             break;
@@ -17844,8 +17845,10 @@ namespace cimg_library_suffixed {
               pos = compile(++s1,se1,depth1,0);
               _cimg_mp_check_type(arg1,1,1,0);
               arg2 = _cimg_mp_is_vector(pos)?_cimg_mp_vector_size(pos):0; // Output vector size (or 0 if scalar)
-              CImg<ulongT>::vector((ulongT)mp_whiledo,pos,arg1,p2 - p1,code._width - p2,arg2,
-                                   pos>=p3 && !_cimg_mp_is_constant(pos)).move_to(code,p1);
+              if (_cimg_mp_is_constant(pos)) { // Transform return value as a 'ghost' variable if it was a constant.
+                arg3 = scalar(); mem[arg3] = mem[pos]; memtype[arg3] = -1; pos = arg3;
+              }
+              CImg<ulongT>::vector((ulongT)mp_whiledo,pos,arg1,p2 - p1,code._width - p2,arg2,pos>=p3).move_to(code,p1);
               _cimg_mp_return(pos);
             }
             break;

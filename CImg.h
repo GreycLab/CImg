@@ -17726,6 +17726,31 @@ namespace cimg_library_suffixed {
               p1 = _cimg_mp_vector_size(arg1);
               _cimg_mp_scalar3(mp_stod,arg1,p1,arg2);
             }
+
+            if (!std::strncmp(ss,"swap(",5)) { // Swap two variables
+              _cimg_mp_op("Function 'swap()'");
+              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss5,s1,depth1,0);
+              arg2 = compile(++s1,se1,depth1,0);
+              _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
+              if ((!_cimg_mp_is_variable(arg1) && !_cimg_mp_is_vector(arg1)) ||
+                  (!_cimg_mp_is_variable(arg2) && !_cimg_mp_is_vector(arg2))) {
+                *se = saved_char; cimg::strellipsize(expr,64);
+                throw CImgArgumentException("[_cimg_math_parser] "
+                                            "CImg<%s>::%s: %s: One of the arguments ('%s' and '%s') "
+                                            "is not a variable or vector, in expression '%s%s%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            s_type(arg1)._data,s_type(arg2)._data,
+                                            (ss - 4)>expr._data?"...":"",
+                                            (ss - 4)>expr._data?ss - 4:expr._data,
+                                            se<&expr.back()?"...":"");
+              }
+              if (_cimg_mp_is_vector(arg1))
+                CImg<ulongT>::vector((ulongT)mp_vector_swap,arg1,_cimg_mp_vector_size(arg1),arg2).move_to(code);
+              else
+                CImg<ulongT>::vector((ulongT)mp_swap,arg1,arg2).move_to(code);
+              _cimg_mp_return(arg1);
+            }
             break;
 
           case 't' :
@@ -20609,7 +20634,7 @@ namespace cimg_library_suffixed {
           if (err==1 && !is_positive) val = -val;
         }
 #endif
-        if (is_strict && err!=1) return  cimg::type<double>::nan();
+        if (is_strict && err!=1) return cimg::type<double>::nan();
         return val;
       }
 
@@ -20622,6 +20647,20 @@ namespace cimg_library_suffixed {
         double val = _mp_arg(3);
         for (unsigned int i = 3; i<i_end; ++i) val+=_mp_arg(i);
         return val;
+      }
+
+      static double mp_swap(_cimg_math_parser& mp) {
+        cimg::swap(_mp_arg(1),_mp_arg(2));
+        return _mp_arg(1);
+      }
+
+      static double mp_vector_swap(_cimg_math_parser& mp) {
+        unsigned int
+          ptr1 = (unsigned int)mp.opcode[1] + 1,
+          siz = (unsigned int)mp.opcode[2],
+          ptr2 = (unsigned int)mp.opcode[3] + 1;
+        while (siz-->0) cimg::swap(mp.mem[ptr1++],mp.mem[ptr2++]);
+        return cimg::type<double>::nan();
       }
 
       static double mp_tan(_cimg_math_parser& mp) {

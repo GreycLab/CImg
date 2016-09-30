@@ -14539,7 +14539,9 @@ namespace cimg_library_suffixed {
         if (init_size) {
           mem[_cimg_mp_x] = mem[_cimg_mp_y] = mem[_cimg_mp_z] = mem[_cimg_mp_c] = 0;
           for (p_code = code._data; p_code<p_code_begin; ++p_code) {
-            const ulongT target = (opcode._data = p_code->_data)[1];
+            const CImg<ulongT> &op = *p_code;
+            opcode._data = op._data;
+            const ulongT target = opcode[1];
             mem[target] = _cimg_mp_defunc(*this);
           }
         }
@@ -18183,7 +18185,9 @@ namespace cimg_library_suffixed {
       double operator()(const double x, const double y, const double z, const double c) {
         mem[_cimg_mp_x] = x; mem[_cimg_mp_y] = y; mem[_cimg_mp_z] = z; mem[_cimg_mp_c] = c;
         for (p_code = p_code_begin; p_code<p_code_end; ++p_code) {
-          const ulongT target = (opcode._data = p_code->_data)[1];
+          const CImg<ulongT> &op = *p_code;
+          opcode._data = op._data;
+          const ulongT target = opcode[1];
           mem[target] = _cimg_mp_defunc(*this);
         }
         return *result;
@@ -18194,7 +18198,9 @@ namespace cimg_library_suffixed {
       void operator()(const double x, const double y, const double z, const double c, t *const output) {
         mem[_cimg_mp_x] = x; mem[_cimg_mp_y] = y; mem[_cimg_mp_z] = z; mem[_cimg_mp_c] = c;
         for (p_code = p_code_begin; p_code<p_code_end; ++p_code) {
-          const ulongT target = (opcode._data = p_code->_data)[1];
+          const CImg<ulongT> &op = *p_code;
+          opcode._data = op._data;
+          const ulongT target = opcode[1];
           mem[target] = _cimg_mp_defunc(*this);
         }
         if (result_dim) {
@@ -18952,7 +18958,9 @@ namespace cimg_library_suffixed {
           *const p_end = p_proc + mp.opcode[3];
         do {
           for (mp.p_code = p_proc; mp.p_code<p_end; ++mp.p_code) { // Evaluate loop iteration + condition
-            const ulongT target = (mp.opcode._data = mp.p_code->_data)[1];
+            const CImg<ulongT> &op = *mp.p_code;
+            mp.opcode._data = op._data;
+            const ulongT target = mp.opcode[1];
             mp.mem[target] = _cimg_mp_defunc(mp);
           }
         } while (mp.mem[mem_cond]);
@@ -19108,7 +19116,9 @@ namespace cimg_library_suffixed {
         const unsigned int vtarget = (unsigned int)mp.opcode[1], vsiz = (unsigned int)mp.opcode[7];
         if (is_cond) {
           for ( ; mp.p_code<p_right; ++mp.p_code) {
-            const ulongT target = (mp.opcode._data = mp.p_code->_data)[1];
+            const CImg<ulongT> &op = *mp.p_code;
+            mp.opcode._data = op._data;
+            const ulongT target = mp.opcode[1];
             mp.mem[target] = _cimg_mp_defunc(mp);
           }
           mp.p_code = p_end - 1;
@@ -19116,7 +19126,9 @@ namespace cimg_library_suffixed {
           return mp.mem[mem_left];
         }
         for (mp.p_code = p_right; mp.p_code<p_end; ++mp.p_code) {
-          const ulongT target = (mp.opcode._data = mp.p_code->_data)[1];
+          const CImg<ulongT> &op = *mp.p_code;
+          mp.opcode._data = op._data;
+          const ulongT target = mp.opcode[1];
           mp.mem[target] = _cimg_mp_defunc(mp);
         }
         --mp.p_code;
@@ -19868,7 +19880,9 @@ namespace cimg_library_suffixed {
         if (!val_left) { mp.p_code = p_end - 1; return 0; }
         const ulongT mem_right = mp.opcode[3];
         for ( ; mp.p_code<p_end; ++mp.p_code) {
-          const ulongT target = (mp.opcode._data = mp.p_code->_data)[1];
+          const CImg<ulongT> &op = *mp.p_code;
+          mp.opcode._data = op._data;
+          const ulongT target = mp.opcode[1];
           mp.mem[target] = _cimg_mp_defunc(mp);
         }
         --mp.p_code;
@@ -19885,7 +19899,9 @@ namespace cimg_library_suffixed {
         if (val_left) { mp.p_code = p_end - 1; return 1; }
         const ulongT mem_right = mp.opcode[3];
         for ( ; mp.p_code<p_end; ++mp.p_code) {
-          const ulongT target = (mp.opcode._data = mp.p_code->_data)[1];
+          const CImg<ulongT> &op = *mp.p_code;
+          mp.opcode._data = op._data;
+          const ulongT target = mp.opcode[1];
           mp.mem[target] = _cimg_mp_defunc(mp);
         }
         --mp.p_code;
@@ -20485,7 +20501,9 @@ namespace cimg_library_suffixed {
         {
           for (const CImg<ulongT> *const p_end = ++mp.p_code + mp.opcode[2];
                mp.p_code<p_end; ++mp.p_code) { // Evaluate loop iteration + condition
-            const ulongT target = (mp.opcode._data = mp.p_code->_data)[1];
+            const CImg<ulongT> &op = *mp.p_code;
+            mp.opcode._data = op._data;
+            const ulongT target = mp.opcode[1];
             mp.mem[target] = _cimg_mp_defunc(mp);
           }
         }
@@ -20869,13 +20887,17 @@ namespace cimg_library_suffixed {
         }
         do {
           for (mp.p_code = p_cond; mp.p_code<p_proc; ++mp.p_code) { // Evaluate loop condition
-            const ulongT target = (mp.opcode._data = mp.p_code->_data)[1];
+            const CImg<ulongT> &op = *mp.p_code;
+            mp.opcode._data = op._data;
+            const ulongT target = mp.opcode[1];
             mp.mem[target] = _cimg_mp_defunc(mp);
           }
           is_cond = (bool)mp.mem[mem_cond];
           if (is_cond) { // Evaluate loop iteration
             for ( ; mp.p_code<p_end; ++mp.p_code) {
-              const ulongT target = (mp.opcode._data = mp.p_code->_data)[1];
+              const CImg<ulongT> &op = *mp.p_code;
+              mp.opcode._data = op._data;
+              const ulongT target = mp.opcode[1];
               mp.mem[target] = _cimg_mp_defunc(mp);
             }
           }

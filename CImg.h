@@ -31235,7 +31235,7 @@ namespace cimg_library_suffixed {
       if (sx>1 && _width>1) { // Along X-axis.
         const int L = width(), off = 1, s = (int)sx, _s1 = s/2, _s2 = s - _s1, s1 = _s1>L?L:_s1, s2 = _s2>L?L:_s2;
         CImg<T> buf(L);
-#ifdef cimg_use_opemp
+#ifdef cimg_use_openmp
 #pragma omp parallel for collapse(3) firstprivate(buf) if (size()>524288)
 #endif
         cimg_forYZC(*this,y,z,c) {
@@ -31278,7 +31278,7 @@ namespace cimg_library_suffixed {
         const int L = height(), off = width(), s = (int)sy, _s1 = s/2, _s2 = s - _s1, s1 = _s1>L?L:_s1,
           s2 = _s2>L?L:_s2;
         CImg<T> buf(L);
-#ifdef cimg_use_opemp
+#ifdef cimg_use_openmp
 #pragma omp parallel for collapse(3) firstprivate(buf) if (size()>524288)
 #endif
         cimg_forXZC(*this,x,z,c) {
@@ -31322,7 +31322,7 @@ namespace cimg_library_suffixed {
         const int L = depth(), off = width()*height(), s = (int)sz, _s1 = s/2, _s2 = s - _s1, s1 = _s1>L?L:_s1,
           s2 = _s2>L?L:_s2;
         CImg<T> buf(L);
-#ifdef cimg_use_opemp
+#ifdef cimg_use_openmp
 #pragma omp parallel for collapse(3) firstprivate(buf) if (size()>524288)
 #endif
         cimg_forXYC(*this,x,y,c) {
@@ -31527,7 +31527,7 @@ namespace cimg_library_suffixed {
       if (sx>1 && _width>1) { // Along X-axis.
         const int L = width(), off = 1, s = (int)sx, _s2 = s/2 + 1, _s1 = s - _s2, s1 = _s1>L?L:_s1, s2 = _s2>L?L:_s2;
         CImg<T> buf(L);
-#ifdef cimg_use_opemp
+#ifdef cimg_use_openmp
 #pragma omp parallel for collapse(3) firstprivate(buf) if (size()>524288)
 #endif
         cimg_forYZC(*this,y,z,c) {
@@ -31571,7 +31571,7 @@ namespace cimg_library_suffixed {
         const int L = height(), off = width(), s = (int)sy, _s2 = s/2 + 1, _s1 = s - _s2, s1 = _s1>L?L:_s1,
           s2 = _s2>L?L:_s2;
         CImg<T> buf(L);
-#ifdef cimg_use_opemp
+#ifdef cimg_use_openmp
 #pragma omp parallel for collapse(3) firstprivate(buf) if (size()>524288)
 #endif
         cimg_forXZC(*this,x,z,c) {
@@ -31615,7 +31615,7 @@ namespace cimg_library_suffixed {
         const int L = depth(), off = width()*height(), s = (int)sz, _s2 = s/2 + 1, _s1 = s - _s2, s1 = _s1>L?L:_s1,
           s2 = _s2>L?L:_s2;
         CImg<T> buf(L);
-#ifdef cimg_use_opemp
+#ifdef cimg_use_openmp
 #pragma omp parallel for collapse(3) firstprivate(buf) if (size()>524288)
 #endif
         cimg_forXYC(*this,x,y,c) {

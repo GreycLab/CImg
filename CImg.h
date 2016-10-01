@@ -31235,9 +31235,7 @@ namespace cimg_library_suffixed {
       if (sx>1 && _width>1) { // Along X-axis.
         const int L = width(), off = 1, s = (int)sx, _s1 = s/2, _s2 = s - _s1, s1 = _s1>L?L:_s1, s2 = _s2>L?L:_s2;
         CImg<T> buf(L);
-#ifdef cimg_use_openmp
-#pragma omp parallel for collapse(3) firstprivate(buf) if (size()>524288)
-#endif
+        cimg_pragma_openmp(parallel for collapse(3) firstprivate(buf) if (size()>524288))
         cimg_forYZC(*this,y,z,c) {
           T *const ptrdb = buf._data, *ptrd = buf._data, *const ptrde = buf._data + L - 1;
           const T *const ptrsb = data(0,y,z,c), *ptrs = ptrsb, *const ptrse = ptrs + L*off - off;
@@ -31278,9 +31276,7 @@ namespace cimg_library_suffixed {
         const int L = height(), off = width(), s = (int)sy, _s1 = s/2, _s2 = s - _s1, s1 = _s1>L?L:_s1,
           s2 = _s2>L?L:_s2;
         CImg<T> buf(L);
-#ifdef cimg_use_openmp
-#pragma omp parallel for collapse(3) firstprivate(buf) if (size()>524288)
-#endif
+        cimg_pragma_openmp(parallel for collapse(3) firstprivate(buf) if (size()>524288))
         cimg_forXZC(*this,x,z,c) {
           T *const ptrdb = buf._data, *ptrd = ptrdb, *const ptrde = buf._data + L - 1;
           const T *const ptrsb = data(x,0,z,c), *ptrs = ptrsb, *const ptrse = ptrs + L*off - off;
@@ -31322,9 +31318,7 @@ namespace cimg_library_suffixed {
         const int L = depth(), off = width()*height(), s = (int)sz, _s1 = s/2, _s2 = s - _s1, s1 = _s1>L?L:_s1,
           s2 = _s2>L?L:_s2;
         CImg<T> buf(L);
-#ifdef cimg_use_openmp
-#pragma omp parallel for collapse(3) firstprivate(buf) if (size()>524288)
-#endif
+        cimg_pragma_openmp(parallel for collapse(3) firstprivate(buf) if (size()>524288))
         cimg_forXYC(*this,x,y,c) {
           T *const ptrdb = buf._data, *ptrd = ptrdb, *const ptrde = buf._data + L - 1;
           const T *const ptrsb = data(x,y,0,c), *ptrs = ptrsb, *const ptrse = ptrs + L*off - off;
@@ -31527,9 +31521,7 @@ namespace cimg_library_suffixed {
       if (sx>1 && _width>1) { // Along X-axis.
         const int L = width(), off = 1, s = (int)sx, _s2 = s/2 + 1, _s1 = s - _s2, s1 = _s1>L?L:_s1, s2 = _s2>L?L:_s2;
         CImg<T> buf(L);
-#ifdef cimg_use_openmp
-#pragma omp parallel for collapse(3) firstprivate(buf) if (size()>524288)
-#endif
+        cimg_pragma_openmp(parallel for collapse(3) firstprivate(buf) if (size()>524288))
         cimg_forYZC(*this,y,z,c) {
           T *const ptrdb = buf._data, *ptrd = ptrdb, *const ptrde = buf._data + L - 1;
           const T *const ptrsb = data(0,y,z,c), *ptrs = ptrsb, *const ptrse = ptrs + L*off - off;
@@ -31571,9 +31563,7 @@ namespace cimg_library_suffixed {
         const int L = height(), off = width(), s = (int)sy, _s2 = s/2 + 1, _s1 = s - _s2, s1 = _s1>L?L:_s1,
           s2 = _s2>L?L:_s2;
         CImg<T> buf(L);
-#ifdef cimg_use_openmp
-#pragma omp parallel for collapse(3) firstprivate(buf) if (size()>524288)
-#endif
+        cimg_pragma_openmp(parallel for collapse(3) firstprivate(buf) if (size()>524288))
         cimg_forXZC(*this,x,z,c) {
           T *const ptrdb = buf._data, *ptrd = ptrdb, *const ptrde = buf._data + L - 1;
           const T *const ptrsb = data(x,0,z,c), *ptrs = ptrsb, *const ptrse = ptrs + L*off - off;
@@ -31615,9 +31605,7 @@ namespace cimg_library_suffixed {
         const int L = depth(), off = width()*height(), s = (int)sz, _s2 = s/2 + 1, _s1 = s - _s2, s1 = _s1>L?L:_s1,
           s2 = _s2>L?L:_s2;
         CImg<T> buf(L);
-#ifdef cimg_use_openmp
-#pragma omp parallel for collapse(3) firstprivate(buf) if (size()>524288)
-#endif
+        cimg_pragma_openmp(parallel for collapse(3) firstprivate(buf) if (size()>524288))
         cimg_forXYC(*this,x,y,c) {
           T *const ptrdb = buf._data, *ptrd = ptrdb, *const ptrde = buf._data + L - 1;
           const T *const ptrsb = data(x,y,0,c), *ptrs = ptrsb, *const ptrse = ptrs + L*off - off;

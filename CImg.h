@@ -17795,6 +17795,35 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar2(mp_u,arg1,arg2);
             }
 
+            if (!std::strncmp(ss,"unref(",6)) { // Un-reference variable
+              _cimg_mp_op("Function 'unref()'");
+              for (s0 = ss6; s0<se1; s0 = s1) {
+                if (s0>ss6 && *s0==',') ++s0;
+                s1 = s0; while (s1<se1 && *s1!=',') ++s1;
+                c1 = *s1;
+                if (s1>s0) {
+                  *s1 = 0;
+                  arg1 = arg2 = ~0U;
+                  if (s0[1]) // Multi-char variable
+                    cimglist_for(variable_def,i) if (!std::strcmp(s0,variable_def[i])) {
+                      arg1 = variable_pos[i]; arg2 = i; break;
+                    } else arg1 = reserved_label[*s0]; // Single-char variable
+                  if (arg1!=~0U) {
+                    if (arg2==~0U) reserved_label[*s0] = ~0U;
+                    else {
+                      variable_def.remove(arg2);
+                      if (arg2<variable_pos._width - 1)
+                        std::memmove(variable_pos._data + arg2,variable_pos._data + arg2 + 1,
+                                     sizeof(uintT)*(variable_pos._width - arg2 - 1));
+                      --variable_pos._width;
+                    }
+                  }
+                  *s1 = c1;
+                } else compile(s0,s1,depth1,0); // Will throw a 'missing argument' exception
+              }
+              _cimg_mp_return(arg1!=~0U?arg1:_cimg_mp_nan); // Return value of last specified variable.
+            }
+
             if (!std::strncmp(ss,"uppercase(",10)) { // Upper case
               _cimg_mp_op("Function 'uppercase()'");
               arg1 = compile(ss + 10,se1,depth1,0);

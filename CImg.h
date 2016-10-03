@@ -17804,10 +17804,11 @@ namespace cimg_library_suffixed {
                 if (s1>s0) {
                   *s1 = 0;
                   arg1 = arg2 = ~0U;
-                  if (s0[1]) // Multi-char variable
+                  if (s0[1]) { // Multi-char variable
                     cimglist_for(variable_def,i) if (!std::strcmp(s0,variable_def[i])) {
                       arg1 = variable_pos[i]; arg2 = i; break;
-                    } else arg1 = reserved_label[*s0]; // Single-char variable
+                    }
+                  } else arg1 = reserved_label[*s0]; // Single-char variable
                   if (arg1!=~0U) {
                     if (arg2==~0U) reserved_label[*s0] = ~0U;
                     else {
@@ -31136,6 +31137,7 @@ namespace cimg_library_suffixed {
     CImg<_cimg_Tt> get_erode(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                              const bool is_real=false) const {
       if (is_empty() || !kernel) return *this;
+      if (!is_real && kernel==0) return CImg<T>(width(),height(),depth(),spectrum(),0);
       typedef _cimg_Tt Tt;
       CImg<Tt> res(_width,_height,_depth,std::max(_spectrum,kernel._spectrum));
       const int
@@ -31422,7 +31424,7 @@ namespace cimg_library_suffixed {
     template<typename t>
     CImg<_cimg_Tt> get_dilate(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                               const bool is_real=false) const {
-      if (is_empty() || !kernel) return *this;
+      if (is_empty() || !kernel || (!is_real && kernel==0)) return *this;
       typedef _cimg_Tt Tt;
       CImg<Tt> res(_width,_height,_depth,_spectrum);
       const int

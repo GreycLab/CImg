@@ -14386,8 +14386,8 @@ namespace cimg_library_suffixed {
       CImg<uintT> mem_img_stats;
 
       CImg<uintT> level, variable_pos, reserved_label;
-      CImgList<charT> variable_def, function_def, function_body;
-      CImgList<boolT> function_body_is_string;
+      CImgList<charT> variable_def, macro_def, macro_body;
+      CImgList<boolT> macro_body_is_string;
       char *user_function;
 
       unsigned int mempos, mem_img_median, debug_indent, init_size, result_dim;
@@ -15039,9 +15039,9 @@ namespace cimg_library_suffixed {
                 s0 = variable_name._data + (s0 - ss);
                 *s0 = 0;
                 s1 = variable_name._data + l_variable_name - 1; // Pointer to closing parenthesis
-                CImg<charT>(variable_name._data,(unsigned int)(s0 - variable_name._data + 1)).move_to(function_def,0);
+                CImg<charT>(variable_name._data,(unsigned int)(s0 - variable_name._data + 1)).move_to(macro_def,0);
                 ++s; while (*s && *s<=' ') ++s;
-                CImg<charT>(s,(unsigned int)(se - s + 1)).move_to(function_body,0);
+                CImg<charT>(s,(unsigned int)(se - s + 1)).move_to(macro_body,0);
 
                 p1 = 1; // Indice of current parsed argument
                 for (s = s0 + 1; s<=s1; ++p1, s = ns + 1) { // Parse function arguments
@@ -15081,29 +15081,29 @@ namespace cimg_library_suffixed {
                   if (ns==s1 || *ns==',') { // New argument found
                     *s3 = 0;
                     p2 = (unsigned int)(s3 - s2); // Argument length
-                    for (ps = std::strstr(function_body[0],s2); ps; ps = std::strstr(ps,s2)) { // Replace by arg number
-                      if (!((ps>function_body[0]._data && is_varchar(*(ps - 1))) ||
-                            (ps + p2<function_body[0].end() && is_varchar(*(ps + p2))))) {
-                        if (ps>function_body[0]._data && *(ps - 1)=='#') { // Remove pre-number sign
+                    for (ps = std::strstr(macro_body[0],s2); ps; ps = std::strstr(ps,s2)) { // Replace by arg number
+                      if (!((ps>macro_body[0]._data && is_varchar(*(ps - 1))) ||
+                            (ps + p2<macro_body[0].end() && is_varchar(*(ps + p2))))) {
+                        if (ps>macro_body[0]._data && *(ps - 1)=='#') { // Remove pre-number sign
                           *(ps - 1) = (char)p1;
-                          if (ps + p2<function_body[0].end() && *(ps + p2)=='#') { // Has pre & post number signs
-                            std::memmove(ps,ps + p2 + 1,function_body[0].end() - ps - p2 - 1);
-                            function_body[0]._width-=p2 + 1;
+                          if (ps + p2<macro_body[0].end() && *(ps + p2)=='#') { // Has pre & post number signs
+                            std::memmove(ps,ps + p2 + 1,macro_body[0].end() - ps - p2 - 1);
+                            macro_body[0]._width-=p2 + 1;
                           } else { // Has pre number sign only
-                            std::memmove(ps,ps + p2,function_body[0].end() - ps - p2);
-                            function_body[0]._width-=p2;
+                            std::memmove(ps,ps + p2,macro_body[0].end() - ps - p2);
+                            macro_body[0]._width-=p2;
                           }
-                        } else if (ps + p2<function_body[0].end() && *(ps + p2)=='#') { // Remove post-number sign
+                        } else if (ps + p2<macro_body[0].end() && *(ps + p2)=='#') { // Remove post-number sign
                           *(ps++) = (char)p1;
-                          std::memmove(ps,ps + p2,function_body[0].end() - ps - p2);
-                          function_body[0]._width-=p2;
+                          std::memmove(ps,ps + p2,macro_body[0].end() - ps - p2);
+                          macro_body[0]._width-=p2;
                         } else { // Not near a number sign
                           if (p2<3) {
-                            ps-=(ulongT)function_body[0]._data;
-                            function_body[0].resize(function_body[0]._width - p2 + 3,1,1,1,0);
-                            ps+=(ulongT)function_body[0]._data;
-                          } else function_body[0]._width-=p2 - 3;
-                          std::memmove(ps + 3,ps + p2,function_body[0].end() - ps - 3);
+                            ps-=(ulongT)macro_body[0]._data;
+                            macro_body[0].resize(macro_body[0]._width - p2 + 3,1,1,1,0);
+                            ps+=(ulongT)macro_body[0]._data;
+                          } else macro_body[0]._width-=p2 - 3;
+                          std::memmove(ps + 3,ps + p2,macro_body[0].end() - ps - 3);
                           *(ps++) = '(';
                           *(ps++) = (char)p1;
                           *(ps++) = ')';
@@ -15114,10 +15114,10 @@ namespace cimg_library_suffixed {
                 }
 
                 // Store number of arguments.
-                function_def[0].resize(function_def[0]._width + 1,1,1,1,0).back() = (char)(p1 - 1);
+                macro_def[0].resize(macro_def[0]._width + 1,1,1,1,0).back() = (char)(p1 - 1);
 
                 // Detect parts of function body inside a string.
-                is_inside_string(function_body[0]).move_to(function_body_is_string,0);
+                is_inside_string(macro_body[0]).move_to(macro_body_is_string,0);
                 _cimg_mp_return(_cimg_mp_nan);
               }
             }
@@ -17931,9 +17931,9 @@ namespace cimg_library_suffixed {
           s0 = strchr(ss,'(');
           if (s0) {
             variable_name.assign(ss,(unsigned int)(s0 - ss + 1)).back() = 0;
-            cimglist_for(function_def,l) if (!std::strcmp(function_def[l],variable_name)) {
-              p2 = (unsigned int)function_def[l].back(); // Number of required arguments
-              CImg<charT> _expr = function_body[l]; // Expression to be substituted
+            cimglist_for(macro_def,l) if (!std::strcmp(macro_def[l],variable_name)) {
+              p2 = (unsigned int)macro_def[l].back(); // Number of required arguments
+              CImg<charT> _expr = macro_body[l]; // Expression to be substituted
 
               p1 = 1; // Indice of current parsed argument
               for (s = s0 + 1; s<=se1; ++p1, s = ns + 1) { // Parse function arguments
@@ -17981,7 +17981,7 @@ namespace cimg_library_suffixed {
               CImg<uintT> _level = get_level(_expr);
               expr.swap(_expr); pexpr.swap(_pexpr); level.swap(_level);
               s0 = user_function;
-              user_function = function_def[l];
+              user_function = macro_def[l];
               pos = compile(expr._data,expr._data + expr._width - 1,depth1,p_ref);
               user_function = s0;
               expr.swap(_expr); pexpr.swap(_pexpr); level.swap(_level);

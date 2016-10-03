@@ -18535,7 +18535,7 @@ namespace cimg_library_suffixed {
             n_arg==9?"Ninth ":"One of the ";
           *se = saved_char; cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s(): %s%s %s%s (of type '%s') is not a%s integer constant, "
+                                      "CImg<%s>::%s: %s%s %s%s (of type '%s') is not a%s integer constant, "
                                       "in expression '%s%s%s'.",
                                       pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",
                                       s_arg,*s_arg?"argument":"Argument",s_type(arg)._data,
@@ -18559,7 +18559,7 @@ namespace cimg_library_suffixed {
           else s_arg = !n_arg?"":n_arg==1?"First ":n_arg==2?"Second ":n_arg==3?"Third ":"One ";
           *se = saved_char; cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s(): %s%s %s%s (of type '%s') "
+                                      "CImg<%s>::%s: %s%s %s%s (of type '%s') "
                                       "cannot be considered as a square matrix, in expression '%s%s%s'.",
                                       pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",
                                       s_arg,*s_op=='F'?(*s_arg?"argument":"Argument"):(*s_arg?"operand":"Operand"),
@@ -18600,7 +18600,7 @@ namespace cimg_library_suffixed {
           }
           *se = saved_char; cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s(): %s%s %s%s has invalid type '%s' (should be %s), "
+                                      "CImg<%s>::%s: %s%s %s%s has invalid type '%s' (should be %s), "
                                       "in expression '%s%s%s'.",
                                       pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",
                                       s_arg,*s_op=='F'?(*s_arg?"argument":"Argument"):(*s_arg?"operand":"Operand"),
@@ -18617,7 +18617,7 @@ namespace cimg_library_suffixed {
         if ((!is_out && !listin) || (is_out && !listout)) {
           *se = saved_char; cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s(): %s%s Invalid call with an empty image list, "
+                                      "CImg<%s>::%s: %s%s Invalid call with an empty image list, "
                                       "in expression '%s%s%s'.",
                                       pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",
                                       (ss - 4)>expr._data?"...":"",
@@ -18632,7 +18632,7 @@ namespace cimg_library_suffixed {
         if (!dim) {
           *se = saved_char; cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s(): %s%s Invalid construction of a 0-dimensional vector, "
+                                      "CImg<%s>::%s: %s%s Invalid construction of a 0-dimensional vector, "
                                       "in expression '%s%s%s'.",
                                       pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",
                                       (ss - 4)>expr._data?"...":"",
@@ -18641,7 +18641,7 @@ namespace cimg_library_suffixed {
         } else if (dim==~0U) {
           *se = saved_char; cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s(): %s%s Invalid construction of a vector with dynamic size, "
+                                      "CImg<%s>::%s: %s%s Invalid construction of a vector with dynamic size, "
                                       "in expression '%s%s%s'.",
                                       pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",
                                       (ss - 4)>expr._data?"...":"",

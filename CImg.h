@@ -14469,19 +14469,19 @@ namespace cimg_library_suffixed {
         for (unsigned int i = 0; i<=10; ++i) p_mem[i] = (double)i; // mem[0-10] = 0...10
         for (unsigned int i = 1; i<=5; ++i) p_mem[i + 10] = -(double)i; // mem[11-15] = -1...-5
         p_mem[16] = 0.5;
-        p_mem[17] = 0; // mem[17] = thread_id
-        p_mem[18] = (double)imgin._width;
-        p_mem[19] = (double)imgin._height;
-        p_mem[20] = (double)imgin._depth;
-        p_mem[21] = (double)imgin._spectrum;
-        p_mem[22] = (double)imgin._is_shared;
-        p_mem[23] = (double)imgin._width*imgin._height;
-        p_mem[24] = (double)imgin._width*imgin._height*imgin._depth;
-        p_mem[25] = (double)imgin._width*imgin._height*imgin._depth*imgin._spectrum;
-        p_mem[26] = (double)listin._width;
-        p_mem[27] = std::exp(1.0);
-        p_mem[28] = cimg::PI;
-        p_mem[_cimg_mp_slot_nan] = cimg::type<double>::nan();
+        p_mem[17] = 0; // thread_id
+        p_mem[18] = (double)imgin._width; // w
+        p_mem[19] = (double)imgin._height; // h
+        p_mem[20] = (double)imgin._depth; // d
+        p_mem[21] = (double)imgin._spectrum; // s
+        p_mem[22] = (double)imgin._is_shared; // r
+        p_mem[23] = (double)imgin._width*imgin._height; // wh
+        p_mem[24] = (double)imgin._width*imgin._height*imgin._depth; // whd
+        p_mem[25] = (double)imgin._width*imgin._height*imgin._depth*imgin._spectrum; // whds
+        p_mem[26] = (double)listin._width; // l
+        p_mem[27] = std::exp(1.0); // e
+        p_mem[28] = cimg::PI; // pi
+        p_mem[_cimg_mp_slot_nan] = cimg::type<double>::nan(); // nan
 
         // Set value property :
         // { -1 = variable | 0 = regular value | 1 = compile time constant | N>1 = constant ptr to vector[N-1] }.

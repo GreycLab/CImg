@@ -14388,7 +14388,7 @@ namespace cimg_library_suffixed {
       CImg<uintT> level, variable_pos, reserved_label;
       CImgList<charT> variable_def, macro_def, macro_body;
       CImgList<boolT> macro_body_is_string;
-      char *user_function;
+      char *user_macro;
 
       unsigned int mempos, mem_img_median, debug_indent, init_size, result_dim;
       bool is_parallelizable, need_input_copy;
@@ -14432,7 +14432,7 @@ namespace cimg_library_suffixed {
                         const CImgList<T> *const list_input=0, CImgList<T> *const list_output=0):
         code(_code),imgin(img_input),listin(list_input?*list_input:CImgList<T>::const_empty()),
         imgout(img_output?*img_output:CImg<T>::empty()),listout(list_output?*list_output:CImgList<T>::empty()),
-        img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),user_function(0),
+        img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),user_macro(0),
         mem_img_median(~0U),debug_indent(0),init_size(0),result_dim(0),is_parallelizable(true),
         need_input_copy(false),calling_function(funcname?funcname:"cimg_math_parser") {
         if (!expression || !*expression)
@@ -18001,10 +18001,10 @@ namespace cimg_library_suffixed {
 
               CImg<uintT> _level = get_level(_expr);
               expr.swap(_expr); pexpr.swap(_pexpr); level.swap(_level);
-              s0 = user_function;
-              user_function = macro_def[l];
+              s0 = user_macro;
+              user_macro = macro_def[l];
               pos = compile(expr._data,expr._data + expr._width - 1,depth1,p_ref);
-              user_function = s0;
+              user_macro = s0;
               expr.swap(_expr); pexpr.swap(_pexpr); level.swap(_level);
               _cimg_mp_return(pos);
             }
@@ -18430,10 +18430,10 @@ namespace cimg_library_suffixed {
         CImg<charT> res;
         const unsigned int
           l1 = calling_function?(unsigned int)std::strlen(calling_function):0U,
-          l2 = user_function?(unsigned int)std::strlen(user_function):0U;
+          l2 = user_macro?(unsigned int)std::strlen(user_macro):0U;
         if (l2) {
           res.assign(l1 + l2 + 48);
-          cimg_snprintf(res,res._width,"%s(): When substituting function '%s()'",calling_function,user_function);
+          cimg_snprintf(res,res._width,"%s(): When substituting function '%s()'",calling_function,user_macro);
         } else {
           res.assign(l1 + l2 + 4);
           cimg_snprintf(res,res._width,"%s()",calling_function);

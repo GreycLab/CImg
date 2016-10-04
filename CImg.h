@@ -14443,14 +14443,14 @@ namespace cimg_library_suffixed {
         while (*_expression && (*_expression<=' ' || *_expression==';')) ++_expression;
         CImg<charT>::string(_expression).move_to(expr);
         char *ps = &expr.back() - 1;
-        while (ps>expr._data && (*ps==' ' || *ps==';')) --ps;
+        while (ps>expr._data && (*ps<=' ' || *ps==';')) --ps;
         *(++ps) = 0; expr._width = (unsigned int)(ps - expr._data + 1);
 
         // Ease the retrieval of previous non-space characters afterwards.
         pexpr.assign(expr._width);
         char c, *pe = pexpr._data;
         for (ps = expr._data, c = ' '; *ps; ++ps) {
-          if (*ps!=' ') c = *ps;
+          if (*ps>' ') c = *ps; else *ps = ' ';
           *(pe++) = c;
         }
         *pe = 0;

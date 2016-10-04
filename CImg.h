@@ -18007,21 +18007,21 @@ namespace cimg_library_suffixed {
             }
 
             if (arg3) { // Macro name matched but number of arguments does not
-              CImg<uintT> prototypes(arg3);
+              CImg<uintT> sig_nargs(arg3);
               arg1 = 0;
               cimglist_for(macro_def,l) if (!std::strcmp(macro_def[l],variable_name))
-                prototypes[arg1++] = (unsigned int)macro_def[l].back();
+                sig_nargs[arg1++] = (unsigned int)macro_def[l].back();
               *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
-              if (prototypes._width>1) {
-                prototypes.sort();
-                arg1 = prototypes.back();
-                --prototypes._width;
+              if (sig_nargs._width>1) {
+                sig_nargs.sort();
+                arg1 = sig_nargs.back();
+                --sig_nargs._width;
                 throw CImgArgumentException("[_cimg_math_parser] "
                                             "CImg<%s>::%s: Macro '%s()': Number of specified arguments (%u) does not "
                                             "match macro declaration (defined for %s and %u arguments), "
                                             "in expression '%s%s%s'.",
                                             pixel_type(),_cimg_mp_calling_function,variable_name._data,
-                                            p1,prototypes.value_string()._data,arg1,
+                                            p1,sig_nargs.value_string()._data,arg1,
                                             (ss - 4)>expr._data?"...":"",
                                             (ss - 4)>expr._data?ss - 4:expr._data,
                                             se<&expr.back()?"...":"");
@@ -18031,7 +18031,7 @@ namespace cimg_library_suffixed {
                                             "match macro declaration (defined for %u argument%s), "
                                             "in expression '%s%s%s'.",
                                             pixel_type(),_cimg_mp_calling_function,variable_name._data,
-                                            p1,*prototypes,*prototypes!=1?"s":"",
+                                            p1,*sig_nargs,*sig_nargs!=1?"s":"",
                                             (ss - 4)>expr._data?"...":"",
                                             (ss - 4)>expr._data?ss - 4:expr._data,
                                             se<&expr.back()?"...":"");

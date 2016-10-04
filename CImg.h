@@ -14440,17 +14440,17 @@ namespace cimg_library_suffixed {
                                       "CImg<%s>::%s: Empty expression.",
                                       pixel_type(),_cimg_mp_calling_function);
         const char *_expression = expression;
-        while (*_expression && (*_expression<=' ' || *_expression==';')) ++_expression;
+        while (*_expression && ((signed char)*_expression<=' ' || *_expression==';')) ++_expression;
         CImg<charT>::string(_expression).move_to(expr);
         char *ps = &expr.back() - 1;
-        while (ps>expr._data && (*ps<=' ' || *ps==';')) --ps;
+        while (ps>expr._data && ((signed char)*ps<=' ' || *ps==';')) --ps;
         *(++ps) = 0; expr._width = (unsigned int)(ps - expr._data + 1);
 
         // Ease the retrieval of previous non-space characters afterwards.
         pexpr.assign(expr._width);
         char c, *pe = pexpr._data;
         for (ps = expr._data, c = ' '; *ps; ++ps) {
-          if (*ps>' ') c = *ps; else *ps = ' ';
+          if ((signed char)*ps>' ') c = *ps; else *ps = ' ';
           *(pe++) = c;
         }
         *pe = 0;
@@ -14628,10 +14628,9 @@ namespace cimg_library_suffixed {
         char c1, c2, c3, c4;
 
         if (ss<se) {
-          while (*ss && (*ss<=' ' || *ss==';')) ++ss;
-          while (se>ss && (c1=*(se - 1))>0 && (c1<=' ' || c1==';')) --se;
+          while (*ss && ((signed char)*ss<=' ' || *ss==';')) ++ss;
+          while (se>ss && ((signed char)(c1 = *(se - 1))<=' ' || c1==';')) --se;
         }
-        if (se>ss && *(se - 1)==';') --se;
         while (*ss=='(' && *(se - 1)==')' && std::strchr(ss,')')==se - 1) { // Detect simple content around parentheses.
           ++ss; --se;
         }

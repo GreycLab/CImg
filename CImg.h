@@ -15161,9 +15161,9 @@ namespace cimg_library_suffixed {
                 c3 = variable_name[2];
                 c4 = variable_name[3];
                 if (c1=='w' && c2=='h' && c3=='d' && c4=='s') variable_name.fill(2,0); // whds
-              } else if (!std::strcmp(variable_name,"interpolation")) {
+              } else if (!std::strcmp(variable_name,"interpolation")) { // interpolation
                 *variable_name = 29; variable_name[1] = 0;
-              } else if (!std::strcmp(variable_name,"boundary")) {
+              } else if (!std::strcmp(variable_name,"boundary")) { // boundary
                 *variable_name = 30; variable_name[1] = 0;
               }
 

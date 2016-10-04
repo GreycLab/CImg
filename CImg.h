@@ -14464,37 +14464,33 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_slot_c 33
 
         mem.assign(96);
-        memtype.assign(96);
-        double *const p_mem = mem._data;
-        for (unsigned int i = 0; i<=10; ++i) p_mem[i] = (double)i; // mem[0-10] = 0...10
-        for (unsigned int i = 1; i<=5; ++i) p_mem[i + 10] = -(double)i; // mem[11-15] = -1...-5
-        p_mem[16] = 0.5;
-        p_mem[17] = 0; // thread_id
-        p_mem[18] = (double)imgin._width; // w
-        p_mem[19] = (double)imgin._height; // h
-        p_mem[20] = (double)imgin._depth; // d
-        p_mem[21] = (double)imgin._spectrum; // s
-        p_mem[22] = (double)imgin._is_shared; // r
-        p_mem[23] = (double)imgin._width*imgin._height; // wh
-        p_mem[24] = (double)imgin._width*imgin._height*imgin._depth; // whd
-        p_mem[25] = (double)imgin._width*imgin._height*imgin._depth*imgin._spectrum; // whds
-        p_mem[26] = (double)listin._width; // l
-        p_mem[27] = std::exp(1.0); // e
-        p_mem[28] = cimg::PI; // pi
-        p_mem[_cimg_mp_slot_nan] = cimg::type<double>::nan(); // nan
+        for (unsigned int i = 0; i<=10; ++i) mem[i] = (double)i; // mem[0-10] = 0...10
+        for (unsigned int i = 1; i<=5; ++i) mem[i + 10] = -(double)i; // mem[11-15] = -1...-5
+        mem[16] = 0.5;
+        mem[17] = 0; // thread_id
+        mem[18] = (double)imgin._width; // w
+        mem[19] = (double)imgin._height; // h
+        mem[20] = (double)imgin._depth; // d
+        mem[21] = (double)imgin._spectrum; // s
+        mem[22] = (double)imgin._is_shared; // r
+        mem[23] = (double)imgin._width*imgin._height; // wh
+        mem[24] = (double)imgin._width*imgin._height*imgin._depth; // whd
+        mem[25] = (double)imgin._width*imgin._height*imgin._depth*imgin._spectrum; // whds
+        mem[26] = (double)listin._width; // l
+        mem[27] = std::exp(1.0); // e
+        mem[28] = cimg::PI; // pi
+        mem[_cimg_mp_slot_nan] = cimg::type<double>::nan(); // nan
 
         // Set value property :
         // { -1 = variable | 0 = regular value | 1 = compile time constant | N>1 = constant ptr to vector[N-1] }.
-        std::memset(memtype._data,0,sizeof(int)*memtype._width);
-        int *const p_memtype = memtype._data;
-        for (unsigned int i = 0; i<_cimg_mp_slot_x; ++i) p_memtype[i] = 1;
+        memtype.assign(mem._width,1,1,1,0);
+        for (unsigned int i = 0; i<_cimg_mp_slot_x; ++i) memtype[i] = 1;
         memtype[17] = 0;
-
         mempos = _cimg_mp_slot_c + 1;
         variable_pos.assign(8);
+
         reserved_label.assign(128,1,1,1,~0U);
-        reserved_label[29] = 0; // interpolation
-        reserved_label[30] = 0; // boundary
+        reserved_label[29] = reserved_label[30] = 0; // interpolation & boundary
         // reserved_label[4-28] are used to store these two-char variables:
         // [0] = wh, [1] = whd, [2] = whds, [3] = pi, [4] = im, [5] = iM, [6] = ia, [7] = iv,
         // [8] = is, [9] = ip, [10] = ic, [11] = xm, [12] = ym, [13] = zm, [14] = cm, [15] = xM,

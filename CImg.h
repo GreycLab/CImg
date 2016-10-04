@@ -17833,7 +17833,7 @@ namespace cimg_library_suffixed {
                   } else arg1 = reserved_label[arg3 = *s0]; // Single-char variable
 
                   if (arg1!=~0U) {
-                    if (arg2==~0U) reserved_label[arg3] = ~0U;
+                    if (arg2==~0U) { if (arg3!=~0U) reserved_label[arg3] = ~0U; }
                     else {
                       variable_def.remove(arg2);
                       if (arg2<variable_pos._width - 1)

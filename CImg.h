@@ -17954,7 +17954,17 @@ namespace cimg_library_suffixed {
           s0 = strchr(ss,'(');
           if (s0) {
             variable_name.assign(ss,(unsigned int)(s0 - ss + 1)).back() = 0;
-            cimglist_for(macro_def,l) if (!std::strcmp(macro_def[l],variable_name)) {
+
+            // Count number of specified arguments.
+            p1 = 0;
+            for (s = s0 + 1; s<=se1; ++p1, s = ns + 1) {
+              while (*s && *s<=' ') ++s;
+              if (*s==')' && !p1) break;
+              ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                             (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+            }
+
+            cimglist_for(macro_def,l) if (!std::strcmp(macro_def[l],variable_name) && macro_def[l].back()==(char)p1) {
               p2 = (unsigned int)macro_def[l].back(); // Number of required arguments
               CImg<charT> _expr = macro_body[l]; // Expression to be substituted
 

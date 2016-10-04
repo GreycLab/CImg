@@ -17950,7 +17950,7 @@ namespace cimg_library_suffixed {
             _cimg_mp_return(pos);
           }
 
-          // No corresponding built-in function -> Look for a user-defined macro.
+          // No corresponding built-in function -> Look for a user-defined macro call.
           s0 = strchr(ss,'(');
           if (s0) {
             variable_name.assign(ss,(unsigned int)(s0 - ss + 1)).back() = 0;
@@ -21050,7 +21050,10 @@ namespace cimg_library_suffixed {
         double *ptrd = &_mp_arg(1) + 1;
         const unsigned int boundary_conditions = (unsigned int)_mp_arg(3);
         const CImg<T> &img = mp.imgin;
-        const int ox = (int)mp.mem[_cimg_mp_slot_x], oy = (int)mp.mem[_cimg_mp_slot_y], oz = (int)mp.mem[_cimg_mp_slot_z];
+        const int
+          ox = (int)mp.mem[_cimg_mp_slot_x],
+          oy = (int)mp.mem[_cimg_mp_slot_y],
+          oz = (int)mp.mem[_cimg_mp_slot_z];
         const longT
           off = img.offset(ox,oy,oz) + (longT)_mp_arg(2),
           whd = (longT)img.width()*img.height()*img.depth();

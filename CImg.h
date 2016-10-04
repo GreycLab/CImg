@@ -15046,8 +15046,8 @@ namespace cimg_library_suffixed {
                   if (p1>24) {
                     *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
                     throw CImgArgumentException("[_cimg_math_parser] "
-                                                "CImg<%s>::%s: %s: Too much specified arguments (>24) when defining "
-                                                "function '%s()', in expression '%s%s%s'.",
+                                                "CImg<%s>::%s: %s: Too much specified arguments (>24) in macro "
+                                                "definition '%s()', in expression '%s%s%s'.",
                                                 pixel_type(),_cimg_mp_calling_function,s_op,
                                                 variable_name._data,
                                                 (ss - 4)>expr._data?"...":"",
@@ -15068,7 +15068,7 @@ namespace cimg_library_suffixed {
                     *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
                     throw CImgArgumentException("[_cimg_math_parser] "
                                                 "CImg<%s>::%s: %s: %s name specified for argument %u when defining "
-                                                "function '%s()', in expression '%s%s%s'.",
+                                                "macro '%s()', in expression '%s%s%s'.",
                                                 pixel_type(),_cimg_mp_calling_function,s_op,
                                                 is_sth?"Empty":"Invalid",p1,
                                                 variable_name._data,
@@ -17964,7 +17964,8 @@ namespace cimg_library_suffixed {
                              (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
             }
 
-            cimglist_for(macro_def,l) if (!std::strcmp(macro_def[l],variable_name) && macro_def[l].back()==(char)p1) {
+            arg3 = 0; // Number of possible name matches
+            cimglist_for(macro_def,l) if ((arg3+=!std::strcmp(macro_def[l],variable_name)) && macro_def[l].back()==(char)p1) {
               p2 = (unsigned int)macro_def[l].back(); // Number of required arguments
               CImg<charT> _expr = macro_body[l]; // Expression to be substituted
 
@@ -17989,19 +17990,6 @@ namespace cimg_library_suffixed {
                 }
               }
 
-              if (p1!=p2+1) { // Number of specified argument do not fit
-                *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
-                throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s: Function '%s()': Number of specified arguments does not "
-                                            "match function declaration (%u argument%s required), "
-                                            "in expression '%s%s%s'.",
-                                            pixel_type(),_cimg_mp_calling_function,variable_name._data,
-                                            p2,p2!=1?"s":"",
-                                            (ss - 4)>expr._data?"...":"",
-                                            (ss - 4)>expr._data?ss - 4:expr._data,
-                                            se<&expr.back()?"...":"");
-              }
-
               // Recompute 'pexpr' and 'level' for evaluating substituted expression.
               CImg<charT> _pexpr(_expr._width);
               ns = _pexpr._data;
@@ -18019,6 +18007,37 @@ namespace cimg_library_suffixed {
               user_function = s0;
               expr.swap(_expr); pexpr.swap(_pexpr); level.swap(_level);
               _cimg_mp_return(pos);
+            }
+
+            if (arg3) { // Macro name matched but number of arguments does not
+              CImg<uintT> prototypes(arg3);
+              arg1 = 0;
+              cimglist_for(macro_def,l) if (!std::strcmp(macro_def[l],variable_name))
+                prototypes[arg1++] = (unsigned int)macro_def[l].back();
+              *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
+              if (prototypes._width>1) {
+                prototypes.sort();
+                arg1 = prototypes.back();
+                --prototypes._width;
+                throw CImgArgumentException("[_cimg_math_parser] "
+                                            "CImg<%s>::%s: Macro '%s()': Number of specified arguments (%u) does not "
+                                            "match macro declaration (defined for %s and %u arguments), "
+                                            "in expression '%s%s%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,variable_name._data,
+                                            p1,prototypes.value_string()._data,arg1,
+                                            (ss - 4)>expr._data?"...":"",
+                                            (ss - 4)>expr._data?ss - 4:expr._data,
+                                            se<&expr.back()?"...":"");
+              } else
+                throw CImgArgumentException("[_cimg_math_parser] "
+                                            "CImg<%s>::%s: Macro '%s()': Number of specified arguments (%u) does not "
+                                            "match macro declaration (defined for %u argument%s), "
+                                            "in expression '%s%s%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,variable_name._data,
+                                            p1,*prototypes,*prototypes!=1?"s":"",
+                                            (ss - 4)>expr._data?"...":"",
+                                            (ss - 4)>expr._data?ss - 4:expr._data,
+                                            se<&expr.back()?"...":"");
             }
           }
         } // if (se1==')')

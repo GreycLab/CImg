@@ -18019,7 +18019,7 @@ namespace cimg_library_suffixed {
                 arg1 = sig_nargs.back();
                 --sig_nargs._width;
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s: Macro '%s()': Number of specified arguments (%u) does not "
+                                            "CImg<%s>::%s: Function '%s()': Number of specified arguments (%u) does not "
                                             "match macro declaration (defined for %s and %u arguments), "
                                             "in expression '%s%s%s'.",
                                             pixel_type(),_cimg_mp_calling_function,variable_name._data,
@@ -18029,7 +18029,7 @@ namespace cimg_library_suffixed {
                                             se<&expr.back()?"...":"");
               } else
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s: Macro '%s()': Number of specified arguments (%u) does not "
+                                            "CImg<%s>::%s: Function '%s()': Number of specified arguments (%u) does not "
                                             "match macro declaration (defined for %u argument%s), "
                                             "in expression '%s%s%s'.",
                                             pixel_type(),_cimg_mp_calling_function,variable_name._data,

@@ -16630,14 +16630,18 @@ namespace cimg_library_suffixed {
               arg1 = p1 = compile(ss5,s1,depth1,ref);
               s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(s1,s2,depth1,ref._data + 7);
-              arg3 = ~0U; arg4 = arg5 = 1;
+              arg3 = ~0U; arg4 = arg5 = arg6 = 1;
               if (s2<se1) {
                 s3 = ++s2; while (s3<se1 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
                 arg3 = compile(s2,s3,depth1,0);
                 if (s3<se1) {
                   s1 = ++s3; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                   arg4 = compile(s3,s1,depth1,0);
-                  arg5 = s1<se1?compile(++s1,se1,depth1,0):1;
+                  if (s1<se1) {
+                    s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                    arg5 = compile(s1,s2,depth1,0);
+                    arg6 = s2<se1?compile(++s2,se1,depth1,0):1;
+                  }
                 }
               }
               if (_cimg_mp_is_vector(arg1) && !ref[0]) ++arg1;
@@ -16649,9 +16653,10 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_type(arg3,3,1,0);
               _cimg_mp_check_type(arg4,4,1,0);
               _cimg_mp_check_type(arg5,5,1,0);
-              CImg<ulongT>(1,21).move_to(code);
-              code.back().get_shared_rows(0,6).fill((ulongT)mp_memcopy,p1,arg1,arg2,arg3,arg4,arg5);
-              code.back().get_shared_rows(7,20).fill(ref);
+              _cimg_mp_check_type(arg6,5,1,0);
+              CImg<ulongT>(1,22).move_to(code);
+              code.back().get_shared_rows(0,7).fill((ulongT)mp_memcopy,p1,arg1,arg2,arg3,arg4,arg5,arg6);
+              code.back().get_shared_rows(8,21).fill(ref);
               _cimg_mp_return(p1);
             }
 
@@ -20066,48 +20071,58 @@ namespace cimg_library_suffixed {
       static double mp_memcopy(_cimg_math_parser& mp) {
         longT siz = (longT)_mp_arg(4);
         const longT inc_d = (longT)_mp_arg(5), inc_s = (longT)_mp_arg(6);
+        const float
+          _opacity = (float)_mp_arg(7),
+          opacity = (float)cimg::abs(_opacity),
+          omopacity = 1 - std::max(_opacity,0.0f);
         if (siz>0) {
           const bool
-            is_doubled = mp.opcode[7]<=1,
-            is_doubles = mp.opcode[14]<=1;
+            is_doubled = mp.opcode[8]<=1,
+            is_doubles = mp.opcode[15]<=1;
           if (is_doubled && is_doubles) { // (double*) <- (double*)
-            double *ptrd = _mp_memcopy_double(mp,(unsigned int)mp.opcode[2],&mp.opcode[7],siz,inc_d);
-            const double *ptrs = _mp_memcopy_double(mp,(unsigned int)mp.opcode[3],&mp.opcode[14],siz,inc_s);
-            if (inc_d==1 && inc_s==1) {
+            double *ptrd = _mp_memcopy_double(mp,(unsigned int)mp.opcode[2],&mp.opcode[8],siz,inc_d);
+            const double *ptrs = _mp_memcopy_double(mp,(unsigned int)mp.opcode[3],&mp.opcode[15],siz,inc_s);
+            if (inc_d==1 && inc_s==1 && _opacity>=1) {
               if (ptrs + siz - 1<ptrd || ptrs>ptrd + siz - 1) std::memcpy(ptrd,ptrs,siz*sizeof(double));
               else std::memmove(ptrd,ptrs,siz*sizeof(double));
             } else {
-              if (ptrs + (siz - 1)*inc_s<ptrd || ptrs>ptrd + (siz - 1)*inc_d)
-                while (siz-->0) { *ptrd = (double)*ptrs; ptrd+=inc_d; ptrs+=inc_s; }
-              else { // Overlapping buffers
+              if (ptrs + (siz - 1)*inc_s<ptrd || ptrs>ptrd + (siz - 1)*inc_d) {
+                if (_opacity>=1) while (siz-->0) { *ptrd = *ptrs; ptrd+=inc_d; ptrs+=inc_s; }
+                else while (siz-->0) { *ptrd = omopacity**ptrd + opacity**ptrs; ptrd+=inc_d; ptrs+=inc_s; }
+              } else { // Overlapping buffers
                 CImg<double> buf((unsigned int)siz);
                 cimg_for(buf,ptr,double) { *ptr = *ptrs; ptrs+=inc_s; }
                 ptrs = buf;
-                while (siz-->0) { *ptrd = *(ptrs++); ptrd+=inc_d; }
+                if (_opacity>=1) while (siz-->0) { *ptrd = *(ptrs++); ptrd+=inc_d; }
+                else while (siz-->0) { *ptrd = omopacity**ptrd + opacity**(ptrs++); ptrd+=inc_d; }
               }
             }
           } else if (is_doubled && !is_doubles) { // (double*) <- (float*)
-            double *ptrd = _mp_memcopy_double(mp,(unsigned int)mp.opcode[2],&mp.opcode[7],siz,inc_d);
-            const float *ptrs = _mp_memcopy_float(mp,&mp.opcode[14],siz,inc_s);
-            while (siz-->0) { *ptrd = (double)*ptrs; ptrd+=inc_d; ptrs+=inc_s; }
+            double *ptrd = _mp_memcopy_double(mp,(unsigned int)mp.opcode[2],&mp.opcode[8],siz,inc_d);
+            const float *ptrs = _mp_memcopy_float(mp,&mp.opcode[15],siz,inc_s);
+            if (_opacity>=1) while (siz-->0) { *ptrd = *ptrs; ptrd+=inc_d; ptrs+=inc_s; }
+            else while (siz-->0) { *ptrd = omopacity**ptrd + _opacity**ptrs; ptrd+=inc_d; ptrs+=inc_s; }
           } else if (!is_doubled && is_doubles) { // (float*) <- (double*)
-            float *ptrd = _mp_memcopy_float(mp,&mp.opcode[7],siz,inc_d);
-            const double *ptrs = _mp_memcopy_double(mp,(unsigned int)mp.opcode[3],&mp.opcode[14],siz,inc_s);
-            while (siz-->0) { *ptrd = (float)*ptrs; ptrd+=inc_d; ptrs+=inc_s; }
+            float *ptrd = _mp_memcopy_float(mp,&mp.opcode[8],siz,inc_d);
+            const double *ptrs = _mp_memcopy_double(mp,(unsigned int)mp.opcode[3],&mp.opcode[15],siz,inc_s);
+            if (_opacity>=1) while (siz-->0) { *ptrd = (float)*ptrs; ptrd+=inc_d; ptrs+=inc_s; }
+            else while (siz-->0) { *ptrd = (float)(omopacity**ptrd + opacity**ptrs); ptrd+=inc_d; ptrs+=inc_s; }
           } else { // (float*) <- (float*)
-            float *ptrd = _mp_memcopy_float(mp,&mp.opcode[7],siz,inc_d);
-            const float *ptrs = _mp_memcopy_float(mp,&mp.opcode[14],siz,inc_s);
-            if (inc_d==1 && inc_s==1) {
+            float *ptrd = _mp_memcopy_float(mp,&mp.opcode[8],siz,inc_d);
+            const float *ptrs = _mp_memcopy_float(mp,&mp.opcode[15],siz,inc_s);
+            if (inc_d==1 && inc_s==1 && _opacity>=1) {
               if (ptrs + siz - 1<ptrd || ptrs>ptrd + siz - 1) std::memcpy(ptrd,ptrs,siz*sizeof(float));
               else std::memmove(ptrd,ptrs,siz*sizeof(float));
             } else {
-              if (ptrs + (siz - 1)*inc_s<ptrd || ptrs>ptrd + (siz - 1)*inc_d)
-                while (siz-->0) { *ptrd = (float)*ptrs; ptrd+=inc_d; ptrs+=inc_s; }
-              else { // Overlapping buffers
-                CImg<float> buf((unsigned int)siz);
+              if (ptrs + (siz - 1)*inc_s<ptrd || ptrs>ptrd + (siz - 1)*inc_d) {
+                if (_opacity>=1) while (siz-->0) { *ptrd = *ptrs; ptrd+=inc_d; ptrs+=inc_s; }
+                else while (siz-->0) { *ptrd = omopacity**ptrd + opacity**ptrs; ptrd+=inc_d; ptrs+=inc_s; }
+              } else { // Overlapping buffers
+                CImg<floatT> buf((unsigned int)siz);
                 cimg_for(buf,ptr,float) { *ptr = *ptrs; ptrs+=inc_s; }
                 ptrs = buf;
-                while (siz-->0) { *ptrd = *(ptrs++); ptrd+=inc_d; }
+                if (_opacity>=1) while (siz-->0) { *ptrd = *(ptrs++); ptrd+=inc_d; }
+                else while (siz-->0) { *ptrd = omopacity**ptrd + opacity**(ptrs++); ptrd+=inc_d; }
               }
             }
           }

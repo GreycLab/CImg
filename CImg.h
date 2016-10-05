@@ -17759,13 +17759,14 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"unref(",6)) { // Un-reference variable
               _cimg_mp_op("Function 'unref()'");
+              arg1 = ~0U;
               for (s0 = ss6; s0<se1; s0 = s1) {
                 if (s0>ss6 && *s0==',') ++s0;
                 s1 = s0; while (s1<se1 && *s1!=',') ++s1;
                 c1 = *s1;
                 if (s1>s0) {
                   *s1 = 0;
-                  arg1 = arg2 = arg3 = ~0U;
+                  arg2 = arg3 = ~0U;
                   if (s0[0]=='w' && s0[1]=='h' && !s0[2]) arg1 = reserved_label[arg3 = 0];
                   else if (s0[0]=='w' && s0[1]=='h' && s0[2]=='d' && !s0[3]) arg1 = reserved_label[arg3 = 1];
                   else if (s0[0]=='w' && s0[1]=='h' && s0[2]=='d' && s0[3]=='s' && !s0[4])

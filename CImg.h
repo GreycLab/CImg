@@ -19059,7 +19059,7 @@ namespace cimg_library_suffixed {
         if (img) {
           if (mp.opcode[13]!=~0U) { // Opacity mask specified
             const ulongT sizM = mp.opcode[14];
-            if (sizM<(ulong)dx*dy*dz)
+            if (sizM<(ulongT)dx*dy*dz)
               throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: Function 'draw()': "
                                           "Mask dimension (%lu values) and specified sprite geometry (%u,%u,%u,%u) "
                                           "(%lu values) do not match.",

@@ -16997,7 +16997,7 @@ namespace cimg_library_suffixed {
                 if (arg4==~0U) arg4 = img._depth;
                 if (arg5==~0U) arg5 = img._spectrum;
               }
-              if (arg2*arg3*arg4*arg5!=_cimg_mp_vector_size(arg1)) {
+              if (arg2*arg3*arg4*arg5>_cimg_mp_vector_size(arg1)) {
                 *se = saved_char; cimg::strellipsize(expr,64);
                 throw CImgArgumentException("[_cimg_math_parser] "
                                             "CImg<%s>::%s: %s: Type of %s argument ('%s') and specified size "
@@ -17023,7 +17023,7 @@ namespace cimg_library_suffixed {
                   s0 = s1 + 1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                   p2 = compile(++s1,s0,depth1,0);
                   _cimg_mp_check_type(p2,0,2,0);
-                  if (arg2*arg3*arg4%_cimg_mp_vector_size(p2)) {
+                  if (_cimg_mp_vector_size(arg1)%_cimg_mp_vector_size(p2)) {
                     *se = saved_char; cimg::strellipsize(expr,64);
                     throw CImgArgumentException("[_cimg_math_parser] "
                                                 "CImg<%s>::%s: %s: Type of opacity mask ('%s') and specified size "

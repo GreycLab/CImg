@@ -16955,7 +16955,7 @@ namespace cimg_library_suffixed {
                 }
               }
 
-              CImg<ulongT>::vector((ulongT)mp_draw,arg1,p1,arg2,arg3,arg4,arg5,0,0,0,0,1,(ulongT)-1,0,1).
+              CImg<ulongT>::vector((ulongT)mp_draw,arg1,_cimg_mp_vector_size(arg1),p1,arg2,arg3,arg4,arg5,0,0,0,0,1,(ulongT)-1,0,1).
                 move_to(opcode);
 
               arg2 = arg3 = arg4 = arg5 = ~0U;
@@ -16963,30 +16963,26 @@ namespace cimg_library_suffixed {
               if (s0<se1) {
                 s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                 arg2 = compile(s0,s1,depth1,0);
-                _cimg_mp_check_constant(arg2,p2 + (is_sth?3:6),2);
-                arg2 = (unsigned int)mem[arg2];
+                _cimg_mp_check_type(arg2,p2 + (is_sth?3:6),1,0);
                 if (s1<se1) {
                   s0 = s1 + 1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                   arg3 = compile(++s1,s0,depth1,0);
-                  _cimg_mp_check_constant(arg3,p2 + (is_sth?4:7),2);
-                  arg3 = (unsigned int)mem[arg3];
+                  _cimg_mp_check_type(arg3,p2 + (is_sth?4:7),1,0);
                   if (s0<se1) {
                     s1 = s0 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                     arg4 = compile(++s0,s1,depth1,0);
-                    _cimg_mp_check_constant(arg4,p2 + (is_sth?5:8),2);
-                    arg4 = (unsigned int)mem[arg4];
+                    _cimg_mp_check_type(arg4,p2 + (is_sth?5:8),1,0);
                     if (s1<se1) {
                       s0 = s1 + 1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                       arg5 = compile(++s1,s0,depth1,0);
-                      _cimg_mp_check_constant(arg5,p2 + (is_sth?6:9),2);
-                      arg5 = (unsigned int)mem[arg5];
+                      _cimg_mp_check_type(arg5,p2 + (is_sth?6:9),1,0);
                     }
                   }
                 }
               }
-
               if (s0<s1) s0 = s1;
-              if (arg2==~0U || arg3==~0U || arg4==~0U || arg5==~0U) {
+
+/*              if (arg2==~0U || arg3==~0U || arg4==~0U || arg5==~0U) {
                 if (p1!=~0U) {
                   _cimg_mp_check_constant(p1,1,0);
                   p1 = (unsigned int)cimg::mod((int)mem[p1],listout.width());
@@ -17009,21 +17005,22 @@ namespace cimg_library_suffixed {
                                             (ss - 4)>expr._data?ss - 4:expr._data,
                                             se<&expr.back()?"...":"");
               }
-              opcode[7] = (ulongT)arg2;
-              opcode[8] = (ulongT)arg3;
-              opcode[9] = (ulongT)arg4;
-              opcode[10] = (ulongT)arg5;
+*/
+              opcode[8] = (ulongT)arg2;
+              opcode[9] = (ulongT)arg3;
+              opcode[10] = (ulongT)arg4;
+              opcode[11] = (ulongT)arg5;
 
               if (s0<se1) {
                 s1 = s0 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                 arg6 = compile(++s0,s1,depth1,0);
                 _cimg_mp_check_type(arg6,0,1,0);
-                opcode[11] = arg6;
+                opcode[12] = arg6;
                 if (s1<se1) {
                   s0 = s1 + 1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                   p2 = compile(++s1,s0,depth1,0);
                   _cimg_mp_check_type(p2,0,2,0);
-                  if (_cimg_mp_vector_size(arg1)%_cimg_mp_vector_size(p2)) {
+  /*                if (_cimg_mp_vector_size(arg1)%_cimg_mp_vector_size(p2)) {
                     *se = saved_char; cimg::strellipsize(expr,64);
                     throw CImgArgumentException("[_cimg_math_parser] "
                                                 "CImg<%s>::%s: %s: Type of opacity mask ('%s') and specified size "
@@ -17035,11 +17032,12 @@ namespace cimg_library_suffixed {
                                                 (ss - 4)>expr._data?ss - 4:expr._data,
                                                 se<&expr.back()?"...":"");
                   }
-                  opcode[12] = p2;
-                  opcode[13] = _cimg_mp_vector_size(p2)/(arg2*arg3*arg4);
+*/
+                  opcode[13] = p2;
+                  opcode[14] = _cimg_mp_vector_size(p2)/(arg2*arg3*arg4);
                   p3 = s0<se1?compile(++s0,se1,depth1,0):1;
                   _cimg_mp_check_type(p3,0,1,0);
-                  opcode[14] = p3;
+                  opcode[15] = p3;
                 }
               }
               opcode.move_to(code);
@@ -19066,21 +19064,27 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_draw(_cimg_math_parser& mp) {
-        const int x = (int)_mp_arg(3), y = (int)_mp_arg(4), z = (int)_mp_arg(5), c = (int)_mp_arg(6);
+        const int x = (int)_mp_arg(4), y = (int)_mp_arg(5), z = (int)_mp_arg(6), c = (int)_mp_arg(7);
         const unsigned int
-          dx = (unsigned int)mp.opcode[7],
-          dy = (unsigned int)mp.opcode[8],
-          dz = (unsigned int)mp.opcode[9],
-          dc = (unsigned int)mp.opcode[10];
-        const CImg<double> S(&_mp_arg(1) + 1,dx,dy,dz,dc,true);
-        const float opacity = (float)_mp_arg(11);
-        unsigned int ind = (unsigned int)mp.opcode[2];
-        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+          dx = (unsigned int)_mp_arg(8),
+          dy = (unsigned int)_mp_arg(9),
+          dz = (unsigned int)_mp_arg(10),
+          dc = (unsigned int)_mp_arg(11);
+        const ulongT sizS = mp.opcode[2];
+        if (sizS<(ulongT)dx*dy*dz*dc)
+          throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: Function 'draw()': "
+                                      "Sprite dimension (%lu values) and specified sprite geometry (%u,%u,%u,%u) "
+                                      "(%lu values) do not match.",
+                                      mp.imgin.pixel_type(),sizS,dx,dy,dz,dc,(ulongT)dx*dy*dz*dc);
+        CImg<double> S(&_mp_arg(1) + 1,dx,dy,dz,dc,true);
+        const float opacity = (float)_mp_arg(12);
+        unsigned int ind = (unsigned int)mp.opcode[3];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.listin.width());
         CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
         if (img) {
-          if (mp.opcode[12]!=(ulongT)-1) {
-            const CImg<double> M(&_mp_arg(12) + 1,dx,dy,dz,(unsigned int)mp.opcode[13],true);
-            img.draw_image(x,y,z,c,S,M,opacity,(float)_mp_arg(14));
+          if (mp.opcode[13]!=(ulongT)-1) {
+            const CImg<double> M(&_mp_arg(13) + 1,dx,dy,dz,(unsigned int)mp.opcode[14],true);
+            img.draw_image(x,y,z,c,S,M,opacity,(float)_mp_arg(15));
           } else img.draw_image(x,y,z,c,S,opacity);
         }
         return cimg::type<double>::nan();

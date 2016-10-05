@@ -16955,7 +16955,7 @@ namespace cimg_library_suffixed {
                 }
               }
 
-              CImg<ulongT>::vector((ulongT)mp_draw,arg1,_cimg_mp_vector_size(arg1),p1,arg2,arg3,arg4,arg5,0,0,0,0,1,(ulongT)-1,0,1).
+              CImg<ulongT>::vector((ulongT)mp_draw,arg1,_cimg_mp_vector_size(arg1),p1,arg2,arg3,arg4,arg5,0,0,0,0,1,(ulongT)~0U,0,1).
                 move_to(opcode);
 
               arg2 = arg3 = arg4 = arg5 = ~0U;
@@ -16982,30 +16982,6 @@ namespace cimg_library_suffixed {
               }
               if (s0<s1) s0 = s1;
 
-/*              if (arg2==~0U || arg3==~0U || arg4==~0U || arg5==~0U) {
-                if (p1!=~0U) {
-                  _cimg_mp_check_constant(p1,1,0);
-                  p1 = (unsigned int)cimg::mod((int)mem[p1],listout.width());
-                }
-                const CImg<T> &img = p1!=~0U?listout[p1]:imgout;
-                if (arg2==~0U) arg2 = img._width;
-                if (arg3==~0U) arg3 = img._height;
-                if (arg4==~0U) arg4 = img._depth;
-                if (arg5==~0U) arg5 = img._spectrum;
-              }
-              if (arg2*arg3*arg4*arg5>_cimg_mp_vector_size(arg1)) {
-                *se = saved_char; cimg::strellipsize(expr,64);
-                throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s: %s: Type of %s argument ('%s') and specified size "
-                                            "(%u,%u,%u,%u) do not match, in expression '%s%s%s'.",
-                                            pixel_type(),_cimg_mp_calling_function,s_op,
-                                            p1==~0U?"first":"second",s_type(arg1)._data,
-                                            arg2,arg3,arg4,arg5,
-                                            (ss - 4)>expr._data?"...":"",
-                                            (ss - 4)>expr._data?ss - 4:expr._data,
-                                            se<&expr.back()?"...":"");
-              }
-*/
               opcode[8] = (ulongT)arg2;
               opcode[9] = (ulongT)arg3;
               opcode[10] = (ulongT)arg4;
@@ -17020,21 +16996,8 @@ namespace cimg_library_suffixed {
                   s0 = s1 + 1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                   p2 = compile(++s1,s0,depth1,0);
                   _cimg_mp_check_type(p2,0,2,0);
-  /*                if (_cimg_mp_vector_size(arg1)%_cimg_mp_vector_size(p2)) {
-                    *se = saved_char; cimg::strellipsize(expr,64);
-                    throw CImgArgumentException("[_cimg_math_parser] "
-                                                "CImg<%s>::%s: %s: Type of opacity mask ('%s') and specified size "
-                                                "(%u,%u,%u,%u) do not match, in expression '%s%s%s'.",
-                                                pixel_type(),_cimg_mp_calling_function,s_op,
-                                                s_type(p2)._data,
-                                                arg2,arg3,arg4,arg5,
-                                                (ss - 4)>expr._data?"...":"",
-                                                (ss - 4)>expr._data?ss - 4:expr._data,
-                                                se<&expr.back()?"...":"");
-                  }
-*/
                   opcode[13] = p2;
-                  opcode[14] = _cimg_mp_vector_size(p2)/(arg2*arg3*arg4);
+                  opcode[14] = _cimg_mp_vector_size(p2);
                   p3 = s0<se1?compile(++s0,se1,depth1,0):1;
                   _cimg_mp_check_type(p3,0,1,0);
                   opcode[15] = p3;
@@ -19089,8 +19052,14 @@ namespace cimg_library_suffixed {
         const float opacity = (float)_mp_arg(12);
 
         if (img) {
-          if (mp.opcode[13]!=(ulongT)-1) {
-            const CImg<double> M(&_mp_arg(13) + 1,dx,dy,dz,(unsigned int)mp.opcode[14],true);
+          if (mp.opcode[13]!=~0U) { // Opacity mask specified
+            const ulongT sizM = mp.opcode[14];
+            if (sizM<(ulong)dx*dy*dz*dc)
+              throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: Function 'draw()': "
+                                          "Mask dimension (%lu values) and specified sprite geometry (%u,%u,%u,%u) "
+                                          "(%lu values) do not match.",
+                                          mp.imgin.pixel_type(),sizS,dx,dy,dz,dc,(ulongT)dx*dy*dz*dc);
+            const CImg<double> M(&_mp_arg(13) + 1,dx,dy,dz,sizM/(dx*dy*dz*dc),true);
             img.draw_image(x,y,z,c,S,M,opacity,(float)_mp_arg(15));
           } else img.draw_image(x,y,z,c,S,opacity);
         }

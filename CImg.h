@@ -19054,12 +19054,12 @@ namespace cimg_library_suffixed {
         if (img) {
           if (mp.opcode[13]!=~0U) { // Opacity mask specified
             const ulongT sizM = mp.opcode[14];
-            if (sizM<(ulong)dx*dy*dz*dc)
+            if (sizM<(ulong)dx*dy*dz)
               throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: Function 'draw()': "
                                           "Mask dimension (%lu values) and specified sprite geometry (%u,%u,%u,%u) "
                                           "(%lu values) do not match.",
                                           mp.imgin.pixel_type(),sizS,dx,dy,dz,dc,(ulongT)dx*dy*dz*dc);
-            const CImg<double> M(&_mp_arg(13) + 1,dx,dy,dz,sizM/(dx*dy*dz*dc),true);
+            const CImg<double> M(&_mp_arg(13) + 1,dx,dy,dz,(unsigned int)(sizM/(dx*dy*dz)),true);
             img.draw_image(x,y,z,c,S,M,opacity,(float)_mp_arg(15));
           } else img.draw_image(x,y,z,c,S,opacity);
         }

@@ -16960,8 +16960,8 @@ namespace cimg_library_suffixed {
                 }
               }
 
-              CImg<ulongT>::vector((ulongT)mp_draw,arg1,_cimg_mp_vector_size(arg1),p1,arg2,arg3,arg4,arg5,0,0,0,0,1,(ulongT)~0U,0,1).
-                move_to(opcode);
+              CImg<ulongT>::vector((ulongT)mp_draw,arg1,_cimg_mp_vector_size(arg1),p1,arg2,arg3,arg4,arg5,
+                                   0,0,0,0,1,(ulongT)~0U,0,1).move_to(opcode);
 
               arg2 = arg3 = arg4 = arg5 = ~0U;
               p2 = p1!=~0U?0:1;
@@ -17985,8 +17985,8 @@ namespace cimg_library_suffixed {
                 arg1 = sig_nargs.back();
                 --sig_nargs._width;
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s: Function '%s()': Number of specified arguments (%u) does not "
-                                            "match macro declaration (defined for %s or %u arguments), "
+                                            "CImg<%s>::%s: Function '%s()': Number of specified arguments (%u) "
+                                            "does not match macro declaration (defined for %s or %u arguments), "
                                             "in expression '%s%s%s'.",
                                             pixel_type(),_cimg_mp_calling_function,variable_name._data,
                                             p1,sig_nargs.value_string()._data,arg1,
@@ -17995,8 +17995,8 @@ namespace cimg_library_suffixed {
                                             se<&expr.back()?"...":"");
               } else
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s: Function '%s()': Number of specified arguments (%u) does not "
-                                            "match macro declaration (defined for %u argument%s), "
+                                            "CImg<%s>::%s: Function '%s()': Number of specified arguments (%u) "
+                                            "does not match macro declaration (defined for %u argument%s), "
                                             "in expression '%s%s%s'.",
                                             pixel_type(),_cimg_mp_calling_function,variable_name._data,
                                             p1,*sig_nargs,*sig_nargs!=1?"s":"",

@@ -16291,16 +16291,33 @@ namespace cimg_library_suffixed {
           s0 = se1; while (s0>ss && (*s0!='[' || level[s0 - expr._data]!=clevel)) --s0;
           if (s0>ss) { // Vector value
             arg1 = compile(ss,s0,depth1,0);
+            if (_cimg_mp_is_scalar(arg1)) {
+              variable_name.assign(ss,(unsigned int)(s0 - ss)).back() = 0;
+              *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
+              throw CImgArgumentException("[_cimg_math_parser] "
+                                          "CImg<%s>::%s: %s: Array brackets used on non-vector variable '%s', "
+                                          "in expression '%s%s%s'.",
+                                          pixel_type(),_cimg_mp_calling_function,s_op,
+                                          variable_name._data,
+                                          (ss - 4)>expr._data?"...":"",
+                                          (ss - 4)>expr._data?ss - 4:expr._data,
+                                          se<&expr.back()?"...":"");
+            }
             s1 = s0 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
 
             if (s1<se1) { // Two arguments -> sub-vector extraction
+              p1 = _cimg_mp_vector_size(arg1);
               arg2 = compile(++s0,s1,depth1,0); // Starting indice
-              arg3 = compile(++s1,se1,depth1,0); // Ending indice
-              _cimg_mp_check_constant(arg2,1,1);
-              _cimg_mp_check_constant(arg3,2,1);
-              p1 = (unsigned int)mem[arg2];
-              p2 = (unsigned int)mem[arg3];
-              p3 = _cimg_mp_vector_size(arg1);
+              arg3 = compile(++s1,se1,depth1,0); // Length
+              _cimg_mp_check_constant(arg3,2,2);
+              arg3 = (unsigned int)mem[arg3];
+              pos = vector(arg3);
+              CImg<ulongT>::vector((ulongT)mp_vector_crop,pos,arg1,p1,arg2,arg3).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
+/*
+  p3 = _cimg_mp_vector_size(arg1);
               if (p1>=p3 || p2>=p3) {
                 variable_name.assign(ss,(unsigned int)(s0 - ss)).back() = 0;
                 *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
@@ -16321,21 +16338,9 @@ namespace cimg_library_suffixed {
               CImg<ulongT>::vector((ulongT)mp_vector_crop,pos,arg1,p1,p2).move_to(code);
               _cimg_mp_return(pos);
             }
+*/
 
             // One argument -> vector value reference
-            if (_cimg_mp_is_scalar(arg1)) {
-              variable_name.assign(ss,(unsigned int)(s0 - ss)).back() = 0;
-              *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
-              throw CImgArgumentException("[_cimg_math_parser] "
-                                          "CImg<%s>::%s: %s: Array brackets used on non-vector variable '%s', "
-                                          "in expression '%s%s%s'.",
-                                          pixel_type(),_cimg_mp_calling_function,s_op,
-                                          variable_name._data,
-                                          (ss - 4)>expr._data?"...":"",
-                                          (ss - 4)>expr._data?ss - 4:expr._data,
-                                          se<&expr.back()?"...":"");
-            }
-
             arg2 = compile(++s0,se1,depth1,0);
             if (_cimg_mp_is_constant(arg2)) { // Constant index
               nb = (int)mem[arg2];
@@ -20752,8 +20757,16 @@ namespace cimg_library_suffixed {
       static double mp_vector_crop(_cimg_math_parser& mp) {
         double *const ptrd = &_mp_arg(1) + 1;
         const double *const ptrs = &_mp_arg(2) + 1;
-        const unsigned int p1 = (unsigned int)mp.opcode[3], p2 = (unsigned int)mp.opcode[4];
-        std::memcpy(ptrd,ptrs + p1,p2*sizeof(double));
+        const longT
+          length = (longT)mp.opcode[3],
+          start = (longT)_mp_arg(4),
+          sublength = (longT)mp.opcode[5];
+        if (start<0 || start + sublength>length)
+          throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: Value accessor '[]': "
+                                      "Out-of-bounds sub-vector request "
+                                      "(length: %ld, start: %ld, sub-length: %ld).",
+                                      mp.imgin.pixel_type(),length,start,sublength);
+        std::memcpy(ptrd,ptrs + start,sublength*sizeof(double));
         return cimg::type<double>::nan();
       }
 

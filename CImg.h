@@ -15236,6 +15236,7 @@ namespace cimg_library_suffixed {
             }
 
             // Assign lvalue (variable name was not valid for a direct assignment).
+            arg1 = ~0U;
             is_sth = (bool)std::strchr(variable_name,'?'); // Contains_ternary_operator?
             if (is_sth) break; // Do nothing and make ternary operator prioritary over assignment
 
@@ -15366,16 +15367,16 @@ namespace cimg_library_suffixed {
                 _cimg_mp_check_type(arg2,2,1,0);
                 CImg<ulongT>::vector((ulongT)mp_copy,arg1,arg2).move_to(code);
                 _cimg_mp_return(arg1);
-
               }
             }
 
             // No assignment expressions match -> error
             *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
             throw CImgArgumentException("[_cimg_math_parser] "
-                                        "CImg<%s>::%s: %s: Invalid left-hand operand '%s', "
+                                        "CImg<%s>::%s: %s: Invalid %slvalue '%s', "
                                         "in expression '%s%s%s'.",
                                         pixel_type(),_cimg_mp_calling_function,s_op,
+                                        arg1!=~0U && _cimg_mp_is_constant(arg1)?"const ":"",
                                         variable_name._data,
                                         (ss - 4)>expr._data?"...":"",
                                         (ss - 4)>expr._data?ss - 4:expr._data,
@@ -15605,11 +15606,13 @@ namespace cimg_library_suffixed {
             }
 
             variable_name.assign(ss,(unsigned int)(s - ss)).back() = 0;
+            cimg::strpare(variable_name,' ',false,true);
             *se = saved_char; cimg::strellipsize(expr,64);
             throw CImgArgumentException("[_cimg_math_parser] "
-                                        "CImg<%s>::%s: %s: Invalid left-hand operand '%s', "
+                                        "CImg<%s>::%s: %s: Invalid %slvalue '%s', "
                                         "in expression '%s%s%s'.",
                                         pixel_type(),_cimg_mp_calling_function,s_op,
+                                        _cimg_mp_is_constant(arg1)?"const ":"",
                                         variable_name._data,
                                         (ss - 4)>expr._data?"...":"",
                                         (ss - 4)>expr._data?ss - 4:expr._data,
@@ -16229,11 +16232,13 @@ namespace cimg_library_suffixed {
           if (is_sth) variable_name.assign(ss2,(unsigned int)(se - ss1));
           else variable_name.assign(ss,(unsigned int)(se1 - ss));
           variable_name.back() = 0;
+          cimg::strpare(variable_name,' ',false,true);
           *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s: %s: Invalid operand '%s', "
+                                      "CImg<%s>::%s: %s: Invalid %slvalue '%s', "
                                       "in expression '%s%s%s'.",
                                       pixel_type(),_cimg_mp_calling_function,s_op,
+                                      _cimg_mp_is_constant(arg1)?"const ":"",
                                       variable_name._data,
                                       (ss - 4)>expr._data?"...":"",
                                       (ss - 4)>expr._data?ss - 4:expr._data,

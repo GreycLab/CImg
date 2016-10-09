@@ -15192,7 +15192,8 @@ namespace cimg_library_suffixed {
                   set_variable_vector(arg1);
                 } else { // Scalar variable
                   arg1 = scalar1(mp_copy,arg2);
-                  memtype[arg1] = -1;
+//                  memtype[arg1] = -1;
+                  memtype[arg1] = is_const?1:-1;
                 }
 
                 if (!variable_name[1]) reserved_label[*variable_name] = arg1;

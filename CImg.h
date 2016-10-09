@@ -15125,7 +15125,7 @@ namespace cimg_library_suffixed {
               variable_name.resize(variable_name.end() - s0,1,1,1,0,0,1);
             }
 
-            std::fprintf(stderr,"\nDEBUG ; variable name = '%s', is_const = %d\n",variable_name._data,(int)is_const);
+//            std::fprintf(stderr,"\nDEBUG ; variable name = '%s', is_const = %d\n",variable_name._data,(int)is_const);
 
             if (*variable_name>='0' && *variable_name<='9') is_sth = false;
             else for (ns = variable_name._data; *ns; ++ns)

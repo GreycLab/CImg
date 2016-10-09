@@ -15185,7 +15185,7 @@ namespace cimg_library_suffixed {
                 cimglist_for(variable_def,i)
                   if (!std::strcmp(variable_name,variable_def[i])) { arg1 = variable_pos[i]; break; }
 
-              if (arg1==~0U || arg1<=_cimg_mp_slot_c) { // Create new variable
+              if (arg1==~0U || (arg1<=_cimg_mp_slot_c && !variable_name[1])) { // Create new variable
                 if (_cimg_mp_is_vector(arg2)) { // Vector variable
                   arg1 = vector_copy(arg2);
                   set_variable_vector(arg1);
@@ -15208,10 +15208,10 @@ namespace cimg_library_suffixed {
                 }
 
               } else { // Variable already exists -> assign a new value
-                if (is_const) {
+                if (_cimg_mp_is_constant(arg1)) {
                   *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
                   throw CImgArgumentException("[_cimg_math_parser] "
-                                              "CImg<%s>::%s: %s: Invalid re-assignment of const variable '%s', "
+                                              "CImg<%s>::%s: %s: Invalid assignment of const variable '%s', "
                                               "in expression '%s%s%s'.",
                                               pixel_type(),_cimg_mp_calling_function,s_op,
                                               variable_name._data,

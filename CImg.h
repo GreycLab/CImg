@@ -15119,6 +15119,7 @@ namespace cimg_library_suffixed {
             // Check if the variable name could be valid. If not, this is probably an lvalue assignment.
             is_sth = true; // is_valid_variable_name?
             const bool is_const = l_variable_name>6 && !std::strncmp(variable_name,"const ",6);
+
             s0 = variable_name._data;
             if (is_const) {
               s0+=6; while ((signed char)*s0<=' ') ++s0;
@@ -15190,7 +15191,8 @@ namespace cimg_library_suffixed {
                   set_variable_vector(arg1);
                 } else { // Scalar variable
                   if (is_const) {
-                    arg1 = arg2;
+                    arg1 = scalar();
+                    mem[arg1] = arg2;
                     memtype[arg1] = 1;
                   } else {
                     arg1 = scalar1(mp_copy,arg2);
@@ -15206,6 +15208,17 @@ namespace cimg_library_suffixed {
                 }
 
               } else { // Variable already exists -> assign a new value
+                if (is_const) {
+                  *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
+                  throw CImgArgumentException("[_cimg_math_parser] "
+                                              "CImg<%s>::%s: %s: Invalid re-assignment of const variable '%s', "
+                                              "in expression '%s%s%s'.",
+                                              pixel_type(),_cimg_mp_calling_function,s_op,
+                                              variable_name._data,
+                                              (ss - 4)>expr._data?"...":"",
+                                              (ss - 4)>expr._data?ss - 4:expr._data,
+                                              se<&expr.back()?"...":"");
+                }
                 _cimg_mp_check_type(arg2,2,_cimg_mp_is_vector(arg1)?3:1,_cimg_mp_vector_size(arg1));
                 if (_cimg_mp_is_vector(arg1)) { // Vector
                   if (_cimg_mp_is_vector(arg2)) // From vector

@@ -15211,7 +15211,7 @@ namespace cimg_library_suffixed {
                 if (is_const || _cimg_mp_is_constant(arg1)) {
                   *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
                   throw CImgArgumentException("[_cimg_math_parser] "
-                                              "CImg<%s>::%s: %s: Invalid re-assignment of %sconst variable '%s'%s, "
+                                              "CImg<%s>::%s: %s: Invalid assignment of %sconst variable '%s'%s, "
                                               "in expression '%s%s%s'.",
                                               pixel_type(),_cimg_mp_calling_function,s_op,
                                               _cimg_mp_is_constant(arg1)?"":"non-",
@@ -15235,7 +15235,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(arg1);
             }
 
-            // Assign lvalue (variable name was not valid).
+            // Assign lvalue (variable name was not valid for a direct assignment).
             is_sth = (bool)std::strchr(variable_name,'?'); // Contains_ternary_operator?
             if (is_sth) break; // Do nothing and make ternary operator prioritary over assignment
 

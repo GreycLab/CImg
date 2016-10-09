@@ -15125,8 +15125,6 @@ namespace cimg_library_suffixed {
               variable_name.resize(variable_name.end() - s0,1,1,1,0,0,1);
             }
 
-//            std::fprintf(stderr,"\nDEBUG ; variable name = '%s', is_const = %d\n",variable_name._data,(int)is_const);
-
             if (*variable_name>='0' && *variable_name<='9') is_sth = false;
             else for (ns = variable_name._data; *ns; ++ns)
                    if (!is_varchar(*ns)) { is_sth = false; break; }
@@ -15191,9 +15189,13 @@ namespace cimg_library_suffixed {
                   arg1 = vector_copy(arg2);
                   set_variable_vector(arg1);
                 } else { // Scalar variable
-                  arg1 = scalar1(mp_copy,arg2);
-//                  memtype[arg1] = -1;
-                  memtype[arg1] = is_const?1:-1;
+                  if (is_const) {
+                    arg1 = arg2;
+                    memtype[arg1] = 1;
+                  } else {
+                    arg1 = scalar1(mp_copy,arg2);
+                    memtype[arg1] = -1;
+                  }
                 }
 
                 if (!variable_name[1]) reserved_label[*variable_name] = arg1;

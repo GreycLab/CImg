@@ -16294,8 +16294,8 @@ namespace cimg_library_suffixed {
             s1 = s0 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
 
             if (s1<se1) { // Two arguments -> sub-vector extraction
-              arg2 = compile(++s0,s1,depth1,0);  // Starting indice
-              arg3 = compile(++s1,se1,depth1,0); // Length
+              arg2 = compile(++s0,s1,depth1,0); // Starting indice
+              arg3 = compile(++s1,se1,depth1,0); // Ending indice
               _cimg_mp_check_constant(arg2,1,1);
               _cimg_mp_check_constant(arg3,2,1);
               p1 = (unsigned int)mem[arg2];

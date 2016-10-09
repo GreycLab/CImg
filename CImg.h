@@ -16099,7 +16099,7 @@ namespace cimg_library_suffixed {
           if (*ref==1) { // Vector value (scalar): V[k]++
             arg3 = ref[1]; // Vector slot
             arg4 = ref[2]; // Index
-            if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
+            if (is_sth && p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
             CImg<ulongT>::vector((ulongT)op,arg1,1).move_to(code);
             CImg<ulongT>::vector((ulongT)mp_vector_set_off,arg1,arg3,(ulongT)_cimg_mp_vector_size(arg3),arg4,arg1).
               move_to(code);
@@ -16111,7 +16111,7 @@ namespace cimg_library_suffixed {
             p1 = ref[1]; // Index
             is_relative = (bool)ref[2];
             arg3 = ref[3]; // Offset
-            if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
+            if (is_sth && p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
             CImg<ulongT>::vector((ulongT)op,arg1).move_to(code);
             if (p1!=~0U) {
               if (!listout) _cimg_mp_return(pos);
@@ -16133,7 +16133,7 @@ namespace cimg_library_suffixed {
             arg4 = ref[4]; // Y
             arg5 = ref[5]; // Z
             arg6 = ref[6]; // C
-            if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
+            if (is_sth && p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
             CImg<ulongT>::vector((ulongT)op,arg1).move_to(code);
             if (p1!=~0U) {
               if (!listout) _cimg_mp_return(pos);
@@ -16152,7 +16152,7 @@ namespace cimg_library_suffixed {
             p1 = ref[1]; // Index
             is_relative = (bool)ref[2];
             arg3 = ref[3]; // Offset
-            if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
+            if (is_sth && p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
             self_vector_s(arg1,op==mp_self_increment?mp_self_add:mp_self_sub,1);
             if (p1!=~0U) {
               if (!listout) _cimg_mp_return(pos);
@@ -16173,7 +16173,7 @@ namespace cimg_library_suffixed {
             arg3 = ref[3]; // X
             arg4 = ref[4]; // Y
             arg5 = ref[5]; // Z
-            if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
+            if (is_sth && p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
             self_vector_s(arg1,op==mp_self_increment?mp_self_add:mp_self_sub,1);
             if (p1!=~0U) {
               if (!listout) _cimg_mp_return(pos);

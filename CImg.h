@@ -14974,7 +14974,7 @@ namespace cimg_library_suffixed {
 
             // Assign vector value (direct).
             if (l_variable_name>3 && *ve1==']' && *ss!='[') {
-              s0 = ve1; while (s0>ss && *s0!='[') --s0;
+              s0 = ve1; while (s0>ss && (*s0!='[' || level[s0 - expr._data]!=clevel)) --s0;
               is_sth = true; // is_valid_variable_name?
               if (*ss>='0' && *ss<='9') is_sth = false;
               else for (ns = ss; ns<s0; ++ns)

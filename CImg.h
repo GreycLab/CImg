@@ -16082,14 +16082,11 @@ namespace cimg_library_suffixed {
           ref.assign(7);
           arg1 = is_sth?compile(ss2,se,depth1,ref):compile(ss,se2,depth1,ref); // Variable slot
 
-/*
-          std::fprintf(stderr,"\nDEBUG : is_sth=%d, arg1 = %u, mem[arg1] = %g, type[arg1] = %d\n",(int)is_sth,arg1,mem[arg1],memtype[arg1]);
-          ref.print("REF");
-          if (*ref>0 && !_cimg_mp_is_temp(arg1)) { // Apply operator on a copy if necessary
+          // Apply operator on a copy to prevent modifying a constant or a variable, when target is a reference.
+          if (*ref && !_cimg_mp_is_temp(arg1)) {
             if (_cimg_mp_is_vector(arg1)) arg1 = vector_copy(arg1);
-            else { arg1 = scalar1(mp_copy,arg1); memtype[arg1] = -1; }
+            else arg1 = scalar1(mp_copy,arg1);
           }
-*/
 
           if (is_sth) pos = arg1; // Determine return indice, depending on pre/post action
           else {
@@ -18317,9 +18314,8 @@ namespace cimg_library_suffixed {
 
       unsigned int scalar1(const mp_func op, const unsigned int arg1) {
         const unsigned int pos =
-          arg1>_cimg_mp_slot_c && _cimg_mp_is_temp(arg1)?arg1:scalar();
-        if (pos!=arg1 || op!=mp_copy)
-          CImg<ulongT>::vector((ulongT)op,pos,arg1).move_to(code);
+          arg1>_cimg_mp_slot_c && _cimg_mp_is_temp(arg1) && op!=mp_copy?arg1:scalar();
+        CImg<ulongT>::vector((ulongT)op,pos,arg1).move_to(code);
         return pos;
       }
 

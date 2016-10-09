@@ -15208,13 +15208,15 @@ namespace cimg_library_suffixed {
                 }
 
               } else { // Variable already exists -> assign a new value
-                if (_cimg_mp_is_constant(arg1)) {
+                if (is_const || _cimg_mp_is_constant(arg1)) {
                   *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
                   throw CImgArgumentException("[_cimg_math_parser] "
-                                              "CImg<%s>::%s: %s: Invalid assignment of const variable '%s', "
+                                              "CImg<%s>::%s: %s: Invalid re-assignment of %sconst variable '%s'%s, "
                                               "in expression '%s%s%s'.",
                                               pixel_type(),_cimg_mp_calling_function,s_op,
+                                              _cimg_mp_is_constant(arg1)?"":"non-",
                                               variable_name._data,
+                                              !_cimg_mp_is_constant(arg1) && is_const?" as a new const variable":"",
                                               (ss - 4)>expr._data?"...":"",
                                               (ss - 4)>expr._data?ss - 4:expr._data,
                                               se<&expr.back()?"...":"");

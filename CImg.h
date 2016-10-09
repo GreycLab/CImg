@@ -15118,6 +15118,15 @@ namespace cimg_library_suffixed {
 
             // Check if the variable name could be valid. If not, this is probably an lvalue assignment.
             is_sth = true; // is_valid_variable_name?
+            const bool is_const = l_variable_name>6 && !std::strncmp(variable_name,"const ",6);
+            s0 = variable_name._data;
+            if (is_const) {
+              s0+=6; while ((signed char)*s0<=' ') ++s0;
+              variable_name.resize(variable_name.end() - s0,1,1,1,0,0,1);
+            }
+
+            std::fprintf(stderr,"\nDEBUG ; variable name = '%s', is_const = %d\n",variable_name._data,(int)is_const);
+
             if (*variable_name>='0' && *variable_name<='9') is_sth = false;
             else for (ns = variable_name._data; *ns; ++ns)
                    if (!is_varchar(*ns)) { is_sth = false; break; }
@@ -15169,6 +15178,8 @@ namespace cimg_library_suffixed {
 
               arg1 = ~0U;
               arg2 = compile(s + 1,se,depth1,0);
+              if (is_const) _cimg_mp_check_constant(arg2,2,0);
+
               if (!variable_name[1]) // One-char variable, or variable in reserved_labels
                 arg1 = reserved_label[*variable_name];
               else // Multi-char variable name : check for existing variable with same name
@@ -16309,36 +16320,12 @@ namespace cimg_library_suffixed {
               p1 = _cimg_mp_vector_size(arg1);
               arg2 = compile(++s0,s1,depth1,0); // Starting indice
               arg3 = compile(++s1,se1,depth1,0); // Length
-              _cimg_mp_check_constant(arg3,2,2);
+              _cimg_mp_check_constant(arg3,2,3);
               arg3 = (unsigned int)mem[arg3];
               pos = vector(arg3);
               CImg<ulongT>::vector((ulongT)mp_vector_crop,pos,arg1,p1,arg2,arg3).move_to(code);
               _cimg_mp_return(pos);
             }
-
-/*
-  p3 = _cimg_mp_vector_size(arg1);
-              if (p1>=p3 || p2>=p3) {
-                variable_name.assign(ss,(unsigned int)(s0 - ss)).back() = 0;
-                *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
-                throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s: %s: Out-of-bounds request for sub-vector '%s[%d,%d]' "
-                                            "(vector '%s' has dimension %u), "
-                                            "in expression '%s%s%s'.",
-                                            pixel_type(),_cimg_mp_calling_function,s_op,
-                                            variable_name._data,(int)mem[arg2],(int)mem[arg3],
-                                            variable_name._data,p3,
-                                            (ss - 4)>expr._data?"...":"",
-                                            (ss - 4)>expr._data?ss - 4:expr._data,
-                                            se<&expr.back()?"...":"");
-              }
-              if (p1>p2) cimg::swap(p1,p2);
-              (p2-=p1)++;
-              pos = vector(p2);
-              CImg<ulongT>::vector((ulongT)mp_vector_crop,pos,arg1,p1,p2).move_to(code);
-              _cimg_mp_return(pos);
-            }
-*/
 
             // One argument -> vector value reference
             arg2 = compile(++s0,se1,depth1,0);
@@ -16766,19 +16753,19 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_type((unsigned int)opcode[2],arg2 + 1 + (is_sth?0:2),1,0);
               _cimg_mp_check_type((unsigned int)opcode[3],arg2 + 1 + (is_sth?0:3),1,0);
               if (opcode[4]!=(ulongT)~0U) {
-                _cimg_mp_check_constant((unsigned int)opcode[4],arg1,2);
+                _cimg_mp_check_constant((unsigned int)opcode[4],arg1,3);
                 opcode[4] = (ulongT)mem[opcode[4]];
               }
               if (opcode[5]!=(ulongT)~0U) {
-                _cimg_mp_check_constant((unsigned int)opcode[5],arg1 + 1,2);
+                _cimg_mp_check_constant((unsigned int)opcode[5],arg1 + 1,3);
                 opcode[5] = (ulongT)mem[opcode[5]];
               }
               if (opcode[6]!=(ulongT)~0U) {
-                _cimg_mp_check_constant((unsigned int)opcode[6],arg1 + 2,2);
+                _cimg_mp_check_constant((unsigned int)opcode[6],arg1 + 2,3);
                 opcode[6] = (ulongT)mem[opcode[6]];
               }
               if (opcode[7]!=(ulongT)~0U) {
-                _cimg_mp_check_constant((unsigned int)opcode[7],arg1 + 3,2);
+                _cimg_mp_check_constant((unsigned int)opcode[7],arg1 + 3,3);
                 opcode[7] = (ulongT)mem[opcode[7]];
               }
               _cimg_mp_check_type((unsigned int)opcode[8],arg1 + 4,1,0);
@@ -16786,7 +16773,7 @@ namespace cimg_library_suffixed {
               if (opcode[4]==(ulongT)~0U || opcode[5]==(ulongT)~0U ||
                   opcode[6]==(ulongT)~0U || opcode[7]==(ulongT)~0U) {
                 if (p1!=~0U) {
-                  _cimg_mp_check_constant(p1,1,0);
+                  _cimg_mp_check_constant(p1,1,1);
                   p1 = (unsigned int)cimg::mod((int)mem[p1],listin.width());
                 }
                 const CImg<T> &img = p1!=~0U?listin[p1]:imgin;
@@ -17043,7 +17030,7 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"eye(",4)) { // Identity matrix
               _cimg_mp_op("Function 'eye()'");
               arg1 = compile(ss4,se1,depth1,0);
-              _cimg_mp_check_constant(arg1,1,2);
+              _cimg_mp_check_constant(arg1,1,3);
               p1 = (unsigned int)mem[arg1];
               pos = vector(p1*p1);
               CImg<ulongT>::vector((ulongT)mp_eye,pos,p1).move_to(code);
@@ -17337,7 +17324,7 @@ namespace cimg_library_suffixed {
               arg3 = s2<se1?compile(++s2,se1,depth1,0):1;
               _cimg_mp_check_type(arg1,1,2,0);
               _cimg_mp_check_type(arg2,2,2,0);
-              _cimg_mp_check_constant(arg3,3,2);
+              _cimg_mp_check_constant(arg3,3,3);
               p1 = _cimg_mp_vector_size(arg1);
               p2 = _cimg_mp_vector_size(arg2);
               p3 = (unsigned int)mem[arg3];
@@ -17453,7 +17440,7 @@ namespace cimg_library_suffixed {
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(++s1,s2,depth1,0);
               arg3 = s2<se1?compile(++s2,se1,depth1,0):1;
-              _cimg_mp_check_constant(arg2,2,2);
+              _cimg_mp_check_constant(arg2,2,3);
               arg2 = (unsigned int)mem[arg2];
               _cimg_mp_check_type(arg3,3,1,0);
               pos = vector(arg2);
@@ -17617,7 +17604,7 @@ namespace cimg_library_suffixed {
               arg3 = s2<se1?compile(++s2,se1,depth1,0):1;
               _cimg_mp_check_type(arg1,1,2,0);
               _cimg_mp_check_type(arg2,2,2,0);
-              _cimg_mp_check_constant(arg3,3,2);
+              _cimg_mp_check_constant(arg3,3,3);
               p1 = _cimg_mp_vector_size(arg1);
               p2 = _cimg_mp_vector_size(arg2);
               p3 = (unsigned int)mem[arg3];
@@ -17652,7 +17639,7 @@ namespace cimg_library_suffixed {
               }
               _cimg_mp_check_type(arg1,1,2,0);
               _cimg_mp_check_type(arg2,2,1,0);
-              _cimg_mp_check_constant(arg3,3,2);
+              _cimg_mp_check_constant(arg3,3,3);
               arg3 = (unsigned int)mem[arg3];
               p1 = _cimg_mp_vector_size(arg1);
               if (p1%arg3) {
@@ -17729,7 +17716,7 @@ namespace cimg_library_suffixed {
               arg1 = compile(ss7,s1,depth1,0);
               arg2 = compile(++s1,se1,depth1,0);
               _cimg_mp_check_type(arg1,1,2,0);
-              _cimg_mp_check_constant(arg2,2,2);
+              _cimg_mp_check_constant(arg2,2,3);
               p1 = _cimg_mp_vector_size(arg1);
               p2 = (unsigned int)mem[arg2];
               p3 = p1/p2;
@@ -18550,22 +18537,26 @@ namespace cimg_library_suffixed {
       }
 
       // Check if a memory slot is a positive integer constant scalar value.
-      // 'mode' can be { 0=constant | 1=positive constant | 2=strictly positive constant }
+      // 'mode' can be:
+      // { 0=constant | 1=integer constant | 2=positive integer constant | 3=strictly-positive integer constant }
       void check_constant(const unsigned int arg, const unsigned int n_arg,
                           const unsigned int mode,
                           const char *const ss, char *const se, const char saved_char) {
         _cimg_mp_check_type(arg,n_arg,1,0);
-        if (!_cimg_mp_is_constant(arg) || (double)(int)mem[arg]!=mem[arg] || (!mode?false:mem[arg]<(mode==2))) {
+        if (!(_cimg_mp_is_constant(arg) &&
+              (!mode || (double)(int)mem[arg]==mem[arg]) &&
+              (mode<2 || mem[arg]>=(mode==3)))) {
           const char *s_arg = !n_arg?"":n_arg==1?"First ":n_arg==2?"Second ":n_arg==3?"Third ":
             n_arg==4?"Fourth ":n_arg==5?"Fifth ":n_arg==6?"Sixth ":n_arg==7?"Seventh ":n_arg==8?"Eighth ":
             n_arg==9?"Ninth ":"One of the ";
           *se = saved_char; cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
-                                      "CImg<%s>::%s: %s%s %s%s (of type '%s') is not a%s integer constant, "
+                                      "CImg<%s>::%s: %s%s %s%s (of type '%s') is not a%s constant, "
                                       "in expression '%s%s%s'.",
                                       pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",
                                       s_arg,*s_arg?"argument":"Argument",s_type(arg)._data,
-                                      !mode?"n":mode==1?" positive":" stricty positive",
+                                      !mode?"":mode==1?"n integer":
+                                      mode==2?" positive integer":" strictly positive integer",
                                       (ss - 4)>expr._data?"...":"",
                                       (ss - 4)>expr._data?ss - 4:expr._data,
                                       se<&expr.back()?"...":"");

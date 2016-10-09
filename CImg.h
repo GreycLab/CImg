@@ -16082,10 +16082,14 @@ namespace cimg_library_suffixed {
           ref.assign(7);
           arg1 = is_sth?compile(ss2,se,depth1,ref):compile(ss,se2,depth1,ref); // Variable slot
 
-          if (*ref>0 && !_cimg_mp_is_temp(arg1)) { // Apply operator on a copy if necessary.
+/*
+          std::fprintf(stderr,"\nDEBUG : is_sth=%d, arg1 = %u, mem[arg1] = %g, type[arg1] = %d\n",(int)is_sth,arg1,mem[arg1],memtype[arg1]);
+          ref.print("REF");
+          if (*ref>0 && !_cimg_mp_is_temp(arg1)) { // Apply operator on a copy if necessary
             if (_cimg_mp_is_vector(arg1)) arg1 = vector_copy(arg1);
-            else arg1 = scalar1(mp_copy,arg1);
+            else { arg1 = scalar1(mp_copy,arg1); memtype[arg1] = -1; }
           }
+*/
 
           if (is_sth) pos = arg1; // Determine return indice, depending on pre/post action
           else {
@@ -16285,7 +16289,7 @@ namespace cimg_library_suffixed {
             _cimg_mp_return(pos);
           }
 
-          s0 = se1; while (s0>ss && *s0!='[') --s0;
+          s0 = se1; while (s0>ss && (*s0!='[' || level[s0 - expr._data]!=clevel)) --s0;
           if (s0>ss) { // Vector value
             arg1 = compile(ss,s0,depth1,0);
             s1 = s0 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;

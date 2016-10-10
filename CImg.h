@@ -14457,6 +14457,8 @@ namespace cimg_library_suffixed {
         level = get_level(expr);
 
         // Init constant values.
+#define _cimg_mp_interpolation (reserved_label[29]!=~0U?reserved_label[29]:0)
+#define _cimg_mp_boundary (reserved_label[30]!=~0U?reserved_label[30]:0)
 #define _cimg_mp_slot_nan 29
 #define _cimg_mp_slot_x 30
 #define _cimg_mp_slot_y 31
@@ -14491,7 +14493,6 @@ namespace cimg_library_suffixed {
         variable_pos.assign(8);
 
         reserved_label.assign(128,1,1,1,~0U);
-        reserved_label[29] = reserved_label[30] = 0; // interpolation & boundary
         // reserved_label[4-28] are used to store these two-char variables:
         // [0] = wh, [1] = whd, [2] = whds, [3] = pi, [4] = im, [5] = iM, [6] = ia, [7] = iv,
         // [8] = is, [9] = ip, [10] = ic, [11] = xm, [12] = ym, [13] = zm, [14] = cm, [15] = xM,
@@ -15185,17 +15186,14 @@ namespace cimg_library_suffixed {
                 cimglist_for(variable_def,i)
                   if (!std::strcmp(variable_name,variable_def[i])) { arg1 = variable_pos[i]; break; }
 
-              if (arg1==~0U || (arg1<=_cimg_mp_slot_c && !variable_name[1])) { // Create new variable
+              if (arg1==~0U) { // Create new variable
                 if (_cimg_mp_is_vector(arg2)) { // Vector variable
                   arg1 = vector_copy(arg2);
                   set_variable_vector(arg1);
                 } else { // Scalar variable
-                  if (is_const) {
-                    arg1 = scalar();
-                    mem[arg1] = arg2;
-                    memtype[arg1] = 1;
-                  } else {
-                    arg1 = scalar1(mp_copy,arg2);
+                  if (is_const) arg1 = arg2;
+                  else {
+                    arg1 = _cimg_mp_is_comp(arg2)?arg2:scalar1(mp_copy,arg2);
                     memtype[arg1] = -1;
                   }
                 }
@@ -15214,7 +15212,7 @@ namespace cimg_library_suffixed {
                                               "CImg<%s>::%s: %s: Invalid assignment of %sconst variable '%s'%s, "
                                               "in expression '%s%s%s'.",
                                               pixel_type(),_cimg_mp_calling_function,s_op,
-                                              _cimg_mp_is_constant(arg1)?"":"non-",
+                                              _cimg_mp_is_constant(arg1)?"already-defined ":"non-",
                                               variable_name._data,
                                               !_cimg_mp_is_constant(arg1) && is_const?" as a new const variable":"",
                                               (ss - 4)>expr._data?"...":"",
@@ -16284,11 +16282,11 @@ namespace cimg_library_suffixed {
             pos = vector(p2);
             if (p1!=~0U) {
               CImg<ulongT>::vector((ulongT)(is_relative?mp_list_Joff:mp_list_Ioff),
-                                  pos,p1,arg1,arg2==~0U?reserved_label[30]:arg2).move_to(code);
+                                  pos,p1,arg1,arg2==~0U?_cimg_mp_boundary:arg2).move_to(code);
             } else {
               need_input_copy = true;
               CImg<ulongT>::vector((ulongT)(is_relative?mp_Joff:mp_Ioff),
-                                  pos,arg1,arg2==~0U?reserved_label[30]:arg2).move_to(code);
+                                  pos,arg1,arg2==~0U?_cimg_mp_boundary:arg2).move_to(code);
             }
             _cimg_mp_return(pos);
           }
@@ -16312,11 +16310,11 @@ namespace cimg_library_suffixed {
             }
             if (p1!=~0U) {
               if (!listin) _cimg_mp_return(0);
-              pos = scalar3(is_relative?mp_list_joff:mp_list_ioff,p1,arg1,arg2==~0U?reserved_label[30]:arg2);
+              pos = scalar3(is_relative?mp_list_joff:mp_list_ioff,p1,arg1,arg2==~0U?_cimg_mp_boundary:arg2);
             } else {
               if (!imgin) _cimg_mp_return(0);
               need_input_copy = true;
-              pos = scalar2(is_relative?mp_joff:mp_ioff,arg1,arg2==~0U?reserved_label[30]:arg2);
+              pos = scalar2(is_relative?mp_joff:mp_ioff,arg1,arg2==~0U?_cimg_mp_boundary:arg2);
             }
             memtype[pos] = -2; // Prevent from being used in further optimization
             _cimg_mp_return(pos);
@@ -16448,15 +16446,15 @@ namespace cimg_library_suffixed {
             pos = vector(p2);
             if (p1!=~0U)
               CImg<ulongT>::vector((ulongT)(is_relative?mp_list_Jxyz:mp_list_Ixyz),
-                                  pos,p1,arg1,arg2,arg3,
-                                  arg4==~0U?reserved_label[29]:arg4,
-                                  arg5==~0U?reserved_label[30]:arg5).move_to(code);
+                                   pos,p1,arg1,arg2,arg3,
+                                   arg4==~0U?_cimg_mp_interpolation:arg4,
+                                   arg5!=~0U?_cimg_mp_boundary:arg5).move_to(code);
             else {
               need_input_copy = true;
               CImg<ulongT>::vector((ulongT)(is_relative?mp_Jxyz:mp_Ixyz),
                                   pos,arg1,arg2,arg3,
-                                  arg4==~0U?reserved_label[29]:arg4,
-                                  arg5==~0U?reserved_label[30]:arg5).move_to(code);
+                                  arg4==~0U?_cimg_mp_interpolation:arg4,
+                                  arg5==~0U?_cimg_mp_boundary:arg5).move_to(code);
             }
             _cimg_mp_return(pos);
           }
@@ -16527,15 +16525,15 @@ namespace cimg_library_suffixed {
               if (!listin) _cimg_mp_return(0);
               pos = scalar7(is_relative?mp_list_jxyzc:mp_list_ixyzc,
                             p1,arg1,arg2,arg3,arg4,
-                            arg5==~0U?reserved_label[29]:arg5,
-                            arg6==~0U?reserved_label[30]:arg6);
+                            arg5==~0U?_cimg_mp_interpolation:arg5,
+                            arg6==~0U?_cimg_mp_boundary:arg6);
             } else {
               if (!imgin) _cimg_mp_return(0);
               need_input_copy = true;
               pos = scalar6(is_relative?mp_jxyzc:mp_ixyzc,
                             arg1,arg2,arg3,arg4,
-                            arg5==~0U?reserved_label[29]:arg5,
-                            arg6==~0U?reserved_label[30]:arg6);
+                            arg5==~0U?_cimg_mp_interpolation:arg5,
+                            arg6==~0U?_cimg_mp_boundary:arg6);
             }
             memtype[pos] = -2; // Prevent from being used in further optimization
             _cimg_mp_return(pos);
@@ -16726,7 +16724,7 @@ namespace cimg_library_suffixed {
                 CImg<ulongT>::vector(0,0,0,0,~0U,~0U,~0U,~0U,0).move_to(opcode);
                 break;
               case 2 :
-                CImg<ulongT>::vector(*opcode,0,0,0,opcode[1],~0U,~0U,~0U,reserved_label[30]).move_to(opcode);
+                CImg<ulongT>::vector(*opcode,0,0,0,opcode[1],~0U,~0U,~0U,_cimg_mp_boundary).move_to(opcode);
                 arg1 = arg2?3:2;
                 break;
               case 3 :
@@ -16734,7 +16732,7 @@ namespace cimg_library_suffixed {
                 arg1 = arg2?3:2;
                 break;
               case 4 :
-                CImg<ulongT>::vector(*opcode,opcode[1],0,0,opcode[2],opcode[3],~0U,~0U,reserved_label[30]).
+                CImg<ulongT>::vector(*opcode,opcode[1],0,0,opcode[2],opcode[3],~0U,~0U,_cimg_mp_boundary).
                   move_to(opcode);
                 arg1 = (is_sth?2:1) + arg2;
                 break;
@@ -16745,7 +16743,7 @@ namespace cimg_library_suffixed {
                 break;
               case 6 :
                 CImg<ulongT>::vector(*opcode,opcode[1],opcode[2],0,opcode[3],opcode[4],opcode[5],~0U,
-                                    reserved_label[30]).move_to(opcode);
+                                    _cimg_mp_boundary).move_to(opcode);
                 arg1 = (is_sth?2:4) + arg2;
                 break;
               case 7 :
@@ -16755,7 +16753,7 @@ namespace cimg_library_suffixed {
                 break;
               case 8 :
                 CImg<ulongT>::vector(*opcode,opcode[1],opcode[2],opcode[3],opcode[4],opcode[5],opcode[6],
-                                    opcode[7],reserved_label[30]).move_to(opcode);
+                                    opcode[7],_cimg_mp_boundary).move_to(opcode);
                 arg1 = (is_sth?2:5) + arg2;
                 break;
               case 9 :
@@ -17807,8 +17805,8 @@ namespace cimg_library_suffixed {
                   else if (s0[0]=='c' && s0[1]=='M' && !s0[2]) arg1 = reserved_label[arg3 = 18];
                   else if (s0[0]=='i' && s0[1]>='0' && s0[1]<='9' && !s0[2])
                     arg1 = reserved_label[arg3 = 19 + s0[1] - '0'];
-                  else if (!std::strcmp(s0,"interpolation")) { arg1 = reserved_label[29]; reserved_label[29] = 0; }
-                  else if (!std::strcmp(s0,"boundary")) { arg1 = reserved_label[30]; reserved_label[30] = 0; }
+                  else if (!std::strcmp(s0,"interpolation")) arg1 = reserved_label[arg3 = 29];
+                  else if (!std::strcmp(s0,"boundary")) arg1 = reserved_label[arg3 = 30];
                   else if (s0[1]) { // Multi-char variable
                     cimglist_for(variable_def,i) if (!std::strcmp(s0,variable_def[i])) {
                       arg1 = variable_pos[i]; arg2 = i; break;
@@ -18128,31 +18126,31 @@ namespace cimg_library_suffixed {
           case 'i' : // i#ind
             if (!listin) _cimg_mp_return(0);
             _cimg_mp_scalar7(mp_list_ixyzc,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,_cimg_mp_slot_c,
-                             0,reserved_label[30]);
+                             0,_cimg_mp_boundary);
           case 'I' : // I#ind
             p2 = p1!=~0U?listin[p1]._spectrum:listin._width?~0U:0;
             _cimg_mp_check_vector0(p2);
             pos = vector(p2);
             CImg<ulongT>::vector((ulongT)mp_list_Ixyz,
                                  pos,p1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,
-                                 0,reserved_label[30]).move_to(code);
+                                 0,_cimg_mp_boundary).move_to(code);
             _cimg_mp_return(pos);
           case 'R' : // R#ind
             if (!listin) _cimg_mp_return(0);
             _cimg_mp_scalar7(mp_list_ixyzc,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,0,
-                             0,reserved_label[30]);
+                             0,_cimg_mp_boundary);
           case 'G' : // G#ind
             if (!listin) _cimg_mp_return(0);
             _cimg_mp_scalar7(mp_list_ixyzc,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,1,
-                             0,reserved_label[30]);
+                             0,_cimg_mp_boundary);
           case 'B' : // B#ind
             if (!listin) _cimg_mp_return(0);
             _cimg_mp_scalar7(mp_list_ixyzc,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,2,
-                             0,reserved_label[30]);
+                             0,_cimg_mp_boundary);
           case 'A' : // A#ind
             if (!listin) _cimg_mp_return(0);
             _cimg_mp_scalar7(mp_list_ixyzc,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,3,
-                             0,reserved_label[30]);
+                             0,_cimg_mp_boundary);
           }
         }
 
@@ -18179,7 +18177,7 @@ namespace cimg_library_suffixed {
             if (*ss1>='0' && *ss1<='9') { // i0#ind...i9#ind
               if (!listin) _cimg_mp_return(0);
               _cimg_mp_scalar7(mp_list_ixyzc,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,*ss1 - '0',
-                               0,reserved_label[30]);
+                               0,_cimg_mp_boundary);
             }
             switch (*ss1) {
             case 'm' : arg2 = 0; break; // im#ind
@@ -18226,8 +18224,8 @@ namespace cimg_library_suffixed {
           _cimg_mp_scalar1(mp_list_whds,arg1);
         }
 
-        if (!std::strcmp(ss,"interpolation")) _cimg_mp_return(reserved_label[29]); // interpolation
-        if (!std::strcmp(ss,"boundary")) _cimg_mp_return(reserved_label[30]); // boundary
+        if (!std::strcmp(ss,"interpolation")) _cimg_mp_return(_cimg_mp_interpolation); // interpolation
+        if (!std::strcmp(ss,"boundary")) _cimg_mp_return(_cimg_mp_boundary); // boundary
 
         // No known item found, assuming this is an already initialized variable.
         variable_name.assign(ss,(unsigned int)(se - ss + 1)).back() = 0;

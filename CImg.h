@@ -15191,8 +15191,7 @@ namespace cimg_library_suffixed {
                 } else { // Scalar variable
                   if (is_const) arg1 = arg2;
                   else {
-//                    arg1 = _cimg_mp_is_comp(arg2)?arg2:scalar1(mp_copy,arg2);
-                    arg1 = scalar1(mp_copy,arg2);
+                    arg1 = _cimg_mp_is_comp(arg2)?arg2:scalar1(mp_copy,arg2);
                     memtype[arg1] = -1;
                   }
                 }
@@ -15853,7 +15852,7 @@ namespace cimg_library_suffixed {
             if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2)) _cimg_mp_constant(mem[arg1] + mem[arg2]);
             if (code) { // Try to spot linear case 'a*b + c'.
               CImg<ulongT> &pop = code.back();
-              if (pop[0]==(ulongT)mp_mul && (pop[1]==arg1 || pop[1]==arg2)) {
+              if (pop[0]==(ulongT)mp_mul && _cimg_mp_is_comp(pop[1]) && (pop[1]==arg1 || pop[1]==arg2)) {
                 arg3 = (unsigned int)pop[1];
                 arg4 = (unsigned int)pop[2];
                 arg5 = (unsigned int)pop[3];
@@ -15888,7 +15887,7 @@ namespace cimg_library_suffixed {
             if (!arg1) _cimg_mp_scalar1(mp_minus,arg2);
             if (code) { // Try to spot linear cases 'a*b - c' and 'c - a*b'.
               CImg<ulongT> &pop = code.back();
-              if (pop[0]==(ulongT)mp_mul && (pop[1]==arg1 || pop[1]==arg2)) {
+              if (pop[0]==(ulongT)mp_mul && _cimg_mp_is_comp(pop[1]) && (pop[1]==arg1 || pop[1]==arg2)) {
                 arg3 = (unsigned int)pop[1];
                 arg4 = (unsigned int)pop[2];
                 arg5 = (unsigned int)pop[3];
@@ -15979,7 +15978,7 @@ namespace cimg_library_suffixed {
 
             if (code) { // Try to spot double multiplication 'a*b*c'.
               CImg<ulongT> &pop = code.back();
-              if (pop[0]==(ulongT)mp_mul && (pop[1]==arg1 || pop[1]==arg2)) {
+              if (pop[0]==(ulongT)mp_mul && _cimg_mp_is_comp(pop[1]) && (pop[1]==arg1 || pop[1]==arg2)) {
                 arg3 = (unsigned int)pop[1];
                 arg4 = (unsigned int)pop[2];
                 arg5 = (unsigned int)pop[3];

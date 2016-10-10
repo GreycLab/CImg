@@ -15133,7 +15133,7 @@ namespace cimg_library_suffixed {
 
             // Assign variable (direct).
             if (is_sth) {
-              arg3 = ~0U;
+              arg3 = variable_name[1]?~0U:*variable_name; // One-char variable
               if (variable_name[1] && !variable_name[2]) { // Two-chars variable
                 c1 = variable_name[0];
                 c2 = variable_name[1];

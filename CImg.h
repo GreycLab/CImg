@@ -15191,7 +15191,8 @@ namespace cimg_library_suffixed {
                 } else { // Scalar variable
                   if (is_const) arg1 = arg2;
                   else {
-                    arg1 = _cimg_mp_is_comp(arg2)?arg2:scalar1(mp_copy,arg2);
+//                    arg1 = _cimg_mp_is_comp(arg2)?arg2:scalar1(mp_copy,arg2);
+                    arg1 = scalar1(mp_copy,arg2);
                     memtype[arg1] = -1;
                   }
                 }

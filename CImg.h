@@ -14514,7 +14514,6 @@ namespace cimg_library_suffixed {
         expr.assign();
         pexpr.assign();
         opcode.assign();
-        opcode._width = opcode._depth = opcode._spectrum = 1;
         opcode._is_shared = true;
 
         // Execute init() function if any specified.
@@ -14549,7 +14548,7 @@ namespace cimg_library_suffixed {
 #ifdef cimg_use_openmp
         mem[17] = omp_get_thread_num();
 #endif
-        opcode._width = opcode._depth = opcode._spectrum = 1;
+        opcode.assign();
         opcode._is_shared = true;
       }
 
@@ -15192,6 +15191,7 @@ namespace cimg_library_suffixed {
                   if (is_const) arg1 = arg2;
                   else {
                     arg1 = _cimg_mp_is_comp(arg2)?arg2:scalar1(mp_copy,arg2);
+//                    arg1 = scalar1(mp_copy,arg2);
                     memtype[arg1] = -1;
                   }
                 }
@@ -17742,9 +17742,8 @@ namespace cimg_library_suffixed {
               if (p2*p3!=p1) {
                 *se = saved_char; cimg::strellipsize(expr,64);
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s: %s: Size of first argument ('%s') does not match"
-                                            "for second specified argument 'nb_cols=%u', "
-                                            "in expression '%s%s%s'.",
+                                            "CImg<%s>::%s: %s: Size of first argument ('%s') does not match "
+                                            "second argument 'nb_cols=%u', in expression '%s%s%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             s_type(arg1)._data,p2,
                                             (ss - 4)>expr._data?"...":"",
@@ -19009,14 +19008,14 @@ namespace cimg_library_suffixed {
 
       static double mp_det(_cimg_math_parser& mp) {
         const double *ptrs = &_mp_arg(2) + 1;
-        const unsigned int k = (unsigned int)mp.opcode(3);
+        const unsigned int k = (unsigned int)mp.opcode[3];
         return CImg<double>(ptrs,k,k,1,1,true).det();
       }
 
       static double mp_diag(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
         const double *ptrs = &_mp_arg(2) + 1;
-        const unsigned int k = (unsigned int)mp.opcode(3);
+        const unsigned int k = (unsigned int)mp.opcode[3];
         CImg<double>(ptrd,k,k,1,1,true) = CImg<double>(ptrs,1,k,1,1,true).get_diagonal();
         return cimg::type<double>::nan();
       }
@@ -19093,7 +19092,7 @@ namespace cimg_library_suffixed {
       static double mp_eig(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
         const double *ptr1 = &_mp_arg(2) + 1;
-        const unsigned int k = (unsigned int)mp.opcode(3);
+        const unsigned int k = (unsigned int)mp.opcode[3];
         CImg<double> val, vec;
         CImg<double>(ptr1,k,k,1,1,true).symmetric_eigen(val,vec);
         CImg<double>(ptrd,k,1,1,1,true) = val.unroll('x');
@@ -19111,7 +19110,7 @@ namespace cimg_library_suffixed {
 
       static double mp_eye(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
-        const unsigned int k = (unsigned int)mp.opcode(2);
+        const unsigned int k = (unsigned int)mp.opcode[2];
         CImg<double>(ptrd,k,k,1,1,true).identity_matrix();
         return cimg::type<double>::nan();
       }
@@ -19248,7 +19247,7 @@ namespace cimg_library_suffixed {
       static double mp_inv(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
         const double *ptr1 = &_mp_arg(2) + 1;
-        const unsigned int k = (unsigned int)mp.opcode(3);
+        const unsigned int k = (unsigned int)mp.opcode[3];
         CImg<double>(ptrd,k,k,1,1,true) = CImg<double>(ptr1,k,k,1,1,true).get_invert();
         return cimg::type<double>::nan();
       }
@@ -20027,9 +20026,9 @@ namespace cimg_library_suffixed {
           *ptr1 = &_mp_arg(2) + 1,
           *ptr2 = &_mp_arg(3) + 1;
         const unsigned int
-          k = (unsigned int)mp.opcode(4),
-          l = (unsigned int)mp.opcode(5),
-          m = (unsigned int)mp.opcode(6);
+          k = (unsigned int)mp.opcode[4],
+          l = (unsigned int)mp.opcode[5],
+          m = (unsigned int)mp.opcode[6];
         CImg<double>(ptrd,m,k,1,1,true) = CImg<double>(ptr1,l,k,1,1,true)*CImg<double>(ptr2,m,l,1,1,true);
         return cimg::type<double>::nan();
       }
@@ -20636,9 +20635,9 @@ namespace cimg_library_suffixed {
           *ptr1 = &_mp_arg(2) + 1,
           *ptr2 = &_mp_arg(3) + 1;
         const unsigned int
-          k = (unsigned int)mp.opcode(4),
-          l = (unsigned int)mp.opcode(5),
-          m = (unsigned int)mp.opcode(6);
+          k = (unsigned int)mp.opcode[4],
+          l = (unsigned int)mp.opcode[5],
+          m = (unsigned int)mp.opcode[6];
         CImg<double>(ptrd,m,k,1,1,true) = CImg<double>(ptr2,m,l,1,1,true).get_solve(CImg<double>(ptr1,k,l,1,1,true));
         return cimg::type<double>::nan();
       }
@@ -20729,7 +20728,7 @@ namespace cimg_library_suffixed {
 
       static double mp_trace(_cimg_math_parser& mp) {
         const double *ptrs = &_mp_arg(2) + 1;
-        const unsigned int k = (unsigned int)mp.opcode(3);
+        const unsigned int k = (unsigned int)mp.opcode[3];
         return CImg<double>(ptrs,k,k,1,1,true).trace();
       }
 
@@ -20737,8 +20736,8 @@ namespace cimg_library_suffixed {
         double *ptrd = &_mp_arg(1) + 1;
         const double *ptrs = &_mp_arg(2) + 1;
         const unsigned int
-          k = (unsigned int)mp.opcode(3),
-          l = (unsigned int)mp.opcode(4);
+          k = (unsigned int)mp.opcode[3],
+          l = (unsigned int)mp.opcode[4];
         CImg<double>(ptrd,l,k,1,1,true) = CImg<double>(ptrs,k,l,1,1,true).get_transpose();
         return cimg::type<double>::nan();
       }

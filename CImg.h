@@ -20952,9 +20952,9 @@ namespace cimg_library_suffixed {
             siz0 = (unsigned int)mp.opcode[3],
             siz = siz0;
           cimg::mutex(6);
-          std::fprintf(cimg::output(),"\n[_cimg_math_parser] %s = [",expr._data);
+          std::fprintf(cimg::output(),"\n[_cimg_math_parser] %s = [ ",expr._data);
           while (siz-->0) std::fprintf(cimg::output(),"%g%s",mp.mem[ptr++],siz?",":"");
-          std::fprintf(cimg::output(),"] (size: %u)",siz0);
+          std::fprintf(cimg::output()," ] (size: %u)",siz0);
           std::fflush(cimg::output());
           cimg::mutex(6,0);
         }

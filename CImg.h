@@ -16446,7 +16446,7 @@ namespace cimg_library_suffixed {
               CImg<ulongT>::vector((ulongT)(is_relative?mp_list_Jxyz:mp_list_Ixyz),
                                    pos,p1,arg1,arg2,arg3,
                                    arg4==~0U?_cimg_mp_interpolation:arg4,
-                                   arg5!=~0U?_cimg_mp_boundary:arg5).move_to(code);
+                                   arg5==~0U?_cimg_mp_boundary:arg5).move_to(code);
             else {
               need_input_copy = true;
               CImg<ulongT>::vector((ulongT)(is_relative?mp_Jxyz:mp_Ixyz),

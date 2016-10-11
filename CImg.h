@@ -41244,14 +41244,12 @@ namespace cimg_library_suffixed {
       if (xmax<0 || xmin>=width() || ymax<0 || ymax>=height()) return *this;
       if (ymin==ymax) return draw_line(xmin,ymin,xmax,ymax,color,opacity);
 
-      const int value_none = xmax + 1;
       ymin = std::max(0,ymin);
       ymax = std::min(height() - 1,ymax);
-      CImg<intT> Xs(points._width,ymax - ymin + 1,1,1,value_none);
+      CImg<intT> Xs(points._width,ymax - ymin + 1);
       CImg<uintT> count(Xs._height,1,1,1,0);
 
       unsigned int n = 0, nn = 1, an = 2;
-      while (points(nn,1)==points(n,1)) (n+=1)%=points._width;
       bool go_on = true;
 
       while (go_on) {
@@ -41273,15 +41271,8 @@ namespace cimg_library_suffixed {
       cimg_pragma_openmp(parallel for cimg_openmp_if(Xs._height>64))
       cimg_forY(Xs,y) {
         const CImg<intT> Xsy = Xs.get_shared_points(0,count[y] - 1,y).sort();
-        for (unsigned int n = 0; n<Xsy._width; ) {
-          int x0, x1;
-          do { x0 = Xsy[n++]; } while (x0==value_none && n<Xsy._width);
-          if (x0!=value_none) {
-            do { x1 = Xsy[n++]; } while (x1==value_none && n<Xsy._width);
-            if (x1!=value_none) cimg_draw_scanline(x0,x1,y + ymin,color,1,1);
-            else break;
-          } else break;
-        }
+        for (unsigned int n = 0; n<Xsy._width; n+=2)
+          cimg_draw_scanline(Xsy[n],Xsy[n + 1],y + ymin,color,1,1);
       }
 
       return *this;

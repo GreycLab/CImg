@@ -41241,7 +41241,7 @@ namespace cimg_library_suffixed {
         xmax = points.get_shared_row(0).max_min(xmin),
         ymax = points.get_shared_row(1).max_min(ymin);
 
-      if (xmax<0 || xmin>=width() || ymax<0 || ymax>=height()) return *this;
+      if (xmax<0 || xmin>=width() || ymax<0 || ymin>=height()) return *this;
       if (ymin==ymax) return draw_line(xmin,ymin,xmax,ymax,color,opacity);
 
       ymin = std::max(0,ymin);
@@ -41275,7 +41275,7 @@ namespace cimg_library_suffixed {
             tend = tmax - (cimg::sign(y01)==cimg::sign(y12));
           unsigned int y = (unsigned int)y0 - ymin;
           for (int t = 0; t<=tend; ++t, y+=dy)
-            if (y<=Xs._height) Xs(count[y]++,y) = x0 + t*x01/tmax;
+            if (y<Xs._height) Xs(count[y]++,y) = x0 + t*x01/tmax;
         }
 
         go_on = nn>n;

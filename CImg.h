@@ -41248,12 +41248,10 @@ namespace cimg_library_suffixed {
       ymax = std::min(height() - 1,ymax);
       CImg<intT> Xs(points._width,ymax - ymin + 1);
       CImg<uintT> count(Xs._height,1,1,1,0);
-
       unsigned int n = 0, nn = 1;
       bool go_on = true;
 
       while (go_on) {
-
         unsigned int an = (nn + 1)%points._width;
         const int
           x0 = (int)points(n,0),
@@ -41265,21 +41263,24 @@ namespace cimg_library_suffixed {
           x1 = (int)points(nn,0),
           y1 = (int)points(nn,1);
 
-        const unsigned int next_nn = an;
+        unsigned int tn = an;
+        while (points(tn,1)==y1) (tn+=1)%=points._width;
 
-        while (points(an,1)==points(nn,1)) (an+=1)%=points._width;
-        const int
-          y2 = (int)points(an,1),
-          x01 = x1 - x0, y01 = y1 - y0, y12 = y2 - y1,
-          dy = cimg::sign(y01),
-          tmax = std::max(1,cimg::abs(y01)),
-          tend = tmax - (cimg::sign(y01)==cimg::sign(y12));
-        unsigned int y = (unsigned int)y0 - ymin;
-        for (int t = 0; t<=tend; ++t, y+=dy)
-          if (y<=Xs._height) { Xs(count[y]++,y) = x0 + t*x01/tmax; }
+        if (y0!=y1) {
+          const int
+            y2 = (int)points(tn,1),
+            x01 = x1 - x0, y01 = y1 - y0, y12 = y2 - y1,
+            dy = cimg::sign(y01),
+            tmax = std::max(1,cimg::abs(y01)),
+            tend = tmax - (cimg::sign(y01)==cimg::sign(y12));
+          unsigned int y = (unsigned int)y0 - ymin;
+          for (int t = 0; t<=tend; ++t, y+=dy)
+            if (y<=Xs._height) Xs(count[y]++,y) = x0 + t*x01/tmax;
+        }
+
         go_on = nn>n;
         n = nn;
-        nn = next_nn;
+        nn = an;
       }
 
       cimg_pragma_openmp(parallel for cimg_openmp_if(Xs._height>64))

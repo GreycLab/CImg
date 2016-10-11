@@ -41235,7 +41235,7 @@ namespace cimg_library_suffixed {
       if (points._width==3) return draw_triangle((int)points(0,0),(int)points(0,1),
                                                  (int)points(1,0),(int)points(1,1),
                                                  (int)points(2,0),(int)points(2,1),color,opacity);
-      cimg_init_scanline(color,1);
+      cimg_init_scanline(color,opacity);
       int
         xmin = 0, ymin = 0,
         xmax = points.get_shared_row(0).max_min(xmin),
@@ -41287,7 +41287,7 @@ namespace cimg_library_suffixed {
       cimg_forY(Xs,y) {
         const CImg<intT> Xsy = Xs.get_shared_points(0,count[y] - 1,y).sort();
         for (unsigned int n = 0; n<Xsy._width; n+=2)
-          cimg_draw_scanline(Xsy[n],Xsy[n + 1],y + ymin,color,1,1);
+          cimg_draw_scanline(Xsy[n],Xsy[n + 1],y + ymin,color,opacity,1);
       }
 
       return *this;

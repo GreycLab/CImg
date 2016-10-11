@@ -41283,7 +41283,7 @@ namespace cimg_library_suffixed {
         nn = an;
       }
 
-      cimg_pragma_openmp(parallel for cimg_openmp_if(Xs._height>64))
+      cimg_pragma_openmp(parallel for cimg_openmp_if(Xs._height>32))
       cimg_forY(Xs,y) {
         const CImg<intT> Xsy = Xs.get_shared_points(0,count[y] - 1,y).sort();
         for (unsigned int n = 0; n<Xsy._width; n+=2)

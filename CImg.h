@@ -4733,7 +4733,7 @@ namespace cimg_library_suffixed {
     //! Return the sign of a value.
     template<typename T>
     inline T sign(const T& x) {
-      return x<0?(T)-1:x==0?(T)0:(T)1;
+      return (T)(x<0?-1:x>0);
     }
 
     //! Return the nearest power of 2 higher than given value.
@@ -25156,7 +25156,7 @@ namespace cimg_library_suffixed {
     **/
     CImg<T>& normalize() {
       const ulongT whd = (ulongT)_width*_height*_depth;
-      cimg_pragma_openmp(parallel for collapse(2) if (_width>=512 && _height*_depth>=16))
+      cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=512 && _height*_depth>=16))
       cimg_forYZ(*this,y,z) {
         T *ptrd = data(0,y,z,0);
         cimg_forX(*this,x) {
@@ -25200,7 +25200,7 @@ namespace cimg_library_suffixed {
       CImg<Tfloat> res(_width,_height,_depth);
       switch (norm_type) {
       case -1 : { // Linf-norm.
-        cimg_pragma_openmp(parallel for collapse(2) if (_width>=512 && _height*_depth>=16))
+        cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=512 && _height*_depth>=16))
         cimg_forYZ(*this,y,z) {
           const ulongT off = (ulongT)offset(0,y,z);
           const T *ptrs = _data + off;
@@ -25214,7 +25214,7 @@ namespace cimg_library_suffixed {
         }
       } break;
       case 0 : { // L0-norm.
-        cimg_pragma_openmp(parallel for collapse(2) if (_width>=512 && _height*_depth>=16))
+        cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=512 && _height*_depth>=16))
         cimg_forYZ(*this,y,z) {
           const ulongT off = (ulongT)offset(0,y,z);
           const T *ptrs = _data + off;
@@ -25228,7 +25228,7 @@ namespace cimg_library_suffixed {
         }
       } break;
       case 1 : { // L1-norm.
-        cimg_pragma_openmp(parallel for collapse(2) if (_width>=512 && _height*_depth>=16))
+        cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=512 && _height*_depth>=16))
         cimg_forYZ(*this,y,z) {
           const ulongT off = (ulongT)offset(0,y,z);
           const T *ptrs = _data + off;
@@ -25242,7 +25242,7 @@ namespace cimg_library_suffixed {
         }
       } break;
       case 2 : { // L2-norm.
-        cimg_pragma_openmp(parallel for collapse(2) if (_width>=512 && _height*_depth>=16))
+        cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=512 && _height*_depth>=16))
         cimg_forYZ(*this,y,z) {
           const ulongT off = (ulongT)offset(0,y,z);
           const T *ptrs = _data + off;
@@ -25256,7 +25256,7 @@ namespace cimg_library_suffixed {
         }
       } break;
       default : { // Linf-norm.
-        cimg_pragma_openmp(parallel for collapse(2) if (_width>=512 && _height*_depth>=16))
+        cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=512 && _height*_depth>=16))
         cimg_forYZ(*this,y,z) {
           const ulongT off = (ulongT)offset(0,y,z);
           const T *ptrs = _data + off;
@@ -25664,7 +25664,7 @@ namespace cimg_library_suffixed {
       } else { // Non-dithered versions
         switch (_spectrum) {
         case 1 : { // Optimized for scalars.
-          cimg_pragma_openmp(parallel for collapse(2) if (_width>=64 && _height*_depth>=16 && pwhd>=16))
+          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=64 && _height*_depth>=16 && pwhd>=16))
           cimg_forYZ(*this,y,z) {
             tuint *ptrd = res.data(0,y,z);
             for (const T *ptrs0 = data(0,y,z), *ptrs_end = ptrs0 + _width; ptrs0<ptrs_end; ) {
@@ -25679,7 +25679,7 @@ namespace cimg_library_suffixed {
           }
         } break;
         case 2 : { // Optimized for 2d vectors.
-          cimg_pragma_openmp(parallel for collapse(2) if (_width>=64 && _height*_depth>=16 && pwhd>=16))
+          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=64 && _height*_depth>=16 && pwhd>=16))
           cimg_forYZ(*this,y,z) {
             tuint *ptrd = res.data(0,y,z), *ptrd1 = ptrd + whd;
             for (const T *ptrs0 = data(0,y,z), *ptrs1 = ptrs0 + whd, *ptrs_end = ptrs0 + _width; ptrs0<ptrs_end; ) {
@@ -25697,7 +25697,7 @@ namespace cimg_library_suffixed {
           }
         } break;
         case 3 : { // Optimized for 3d vectors (colors).
-          cimg_pragma_openmp(parallel for collapse(2) if (_width>=64 && _height*_depth>=16 && pwhd>=16))
+          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=64 && _height*_depth>=16 && pwhd>=16))
           cimg_forYZ(*this,y,z) {
             tuint *ptrd = res.data(0,y,z), *ptrd1 = ptrd + whd, *ptrd2 = ptrd1 + whd;
             for (const T *ptrs0 = data(0,y,z), *ptrs1 = ptrs0 + whd, *ptrs2 = ptrs1 + whd,
@@ -25722,7 +25722,7 @@ namespace cimg_library_suffixed {
           }
         } break;
         default : // Generic version.
-          cimg_pragma_openmp(parallel for collapse(2) if (_width>=64 && _height*_depth>=16 && pwhd>=16))
+          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=64 && _height*_depth>=16 && pwhd>=16))
           cimg_forYZ(*this,y,z) {
             tuint *ptrd = res.data(0,y,z);
             for (const T *ptrs = data(0,y,z), *ptrs_end = ptrs + _width; ptrs<ptrs_end; ++ptrs) {
@@ -27079,7 +27079,7 @@ namespace cimg_library_suffixed {
             y0 = ((int)yc%height()) - height(),
             z0 = ((int)zc%depth()) - depth(),
             c0 = ((int)cc%spectrum()) - spectrum();
-          cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=65536))
+          cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=65536))
           for (int c = c0; c<(int)sc; c+=spectrum())
             for (int z = z0; z<(int)sz; z+=depth())
               for (int y = y0; y<(int)sy; y+=height())
@@ -27312,7 +27312,7 @@ namespace cimg_library_suffixed {
                 curr+=fx;
                 *(poff++) = (unsigned int)curr - (unsigned int)old;
               }
-              cimg_pragma_openmp(parallel for collapse(3) if (resx.size()>=65536))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(resx.size()>=65536))
               cimg_forYZC(resx,y,z,c) {
                 const T *ptrs = data(0,y,z,c), *const ptrsmax = ptrs + _width - 1;
                 T *ptrd = resx.data(0,y,z,c);
@@ -27346,7 +27346,7 @@ namespace cimg_library_suffixed {
                 curr+=fy;
                 *(poff++) = sx*((unsigned int)curr - (unsigned int)old);
               }
-              cimg_pragma_openmp(parallel for collapse(3) if (resy.size()>=65536))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(resy.size()>=65536))
               cimg_forXZC(resy,x,z,c) {
                 const T *ptrs = resx.data(x,0,z,c), *const ptrsmax = ptrs + (_height - 1)*sx;
                 T *ptrd = resy.data(x,0,z,c);
@@ -27382,7 +27382,7 @@ namespace cimg_library_suffixed {
                 curr+=fz;
                 *(poff++) = sxy*((unsigned int)curr - (unsigned int)old);
               }
-              cimg_pragma_openmp(parallel for collapse(3) if (resz.size()>=65536))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(resz.size()>=65536))
               cimg_forXYC(resz,x,y,c) {
                 const T *ptrs = resy.data(x,y,0,c), *const ptrsmax = ptrs + (_depth - 1)*sxy;
                 T *ptrd = resz.data(x,y,0,c);
@@ -27419,7 +27419,7 @@ namespace cimg_library_suffixed {
                 curr+=fc;
                 *(poff++) = sxyz*((unsigned int)curr - (unsigned int)old);
               }
-              cimg_pragma_openmp(parallel for collapse(3) if (resc.size()>=65536))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(resc.size()>=65536))
               cimg_forXYZ(resc,x,y,z) {
                 const T *ptrs = resz.data(x,y,z,0), *const ptrsmax = ptrs + (_spectrum - 1)*sxyz;
                 T *ptrd = resc.data(x,y,z,0);
@@ -27530,7 +27530,7 @@ namespace cimg_library_suffixed {
                 curr+=fx;
                 *(poff++) = (unsigned int)curr - (unsigned int)old;
               }
-              cimg_pragma_openmp(parallel for collapse(3) if (resx.size()>=65536))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(resx.size()>=65536))
               cimg_forYZC(resx,y,z,c) {
                 const T *const ptrs0 = data(0,y,z,c), *ptrs = ptrs0, *const ptrsmax = ptrs + (_width - 2);
                 T *ptrd = resx.data(0,y,z,c);
@@ -27570,7 +27570,7 @@ namespace cimg_library_suffixed {
                 curr+=fy;
                 *(poff++) = sx*((unsigned int)curr - (unsigned int)old);
               }
-              cimg_pragma_openmp(parallel for collapse(3) if (resy.size()>=65536))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(resy.size()>=65536))
               cimg_forXZC(resy,x,z,c) {
                 const T *const ptrs0 = resx.data(x,0,z,c), *ptrs = ptrs0, *const ptrsmax = ptrs + (_height - 2)*sx;
                 T *ptrd = resy.data(x,0,z,c);
@@ -27612,7 +27612,7 @@ namespace cimg_library_suffixed {
                 curr+=fz;
                 *(poff++) = sxy*((unsigned int)curr - (unsigned int)old);
               }
-              cimg_pragma_openmp(parallel for collapse(3) if (resz.size()>=65536))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(resz.size()>=65536))
               cimg_forXYC(resz,x,y,c) {
                 const T *const ptrs0 = resy.data(x,y,0,c), *ptrs = ptrs0, *const ptrsmax = ptrs + (_depth - 2)*sxy;
                 T *ptrd = resz.data(x,y,0,c);
@@ -27655,7 +27655,7 @@ namespace cimg_library_suffixed {
                 curr+=fc;
                 *(poff++) = sxyz*((unsigned int)curr - (unsigned int)old);
               }
-              cimg_pragma_openmp(parallel for collapse(3) if (resc.size()>=65536))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(resc.size()>=65536))
               cimg_forXYZ(resc,x,y,z) {
                 const T *const ptrs0 = resz.data(x,y,z,0), *ptrs = ptrs0, *const ptrsmax = ptrs + (_spectrum - 2)*sxyz;
                 T *ptrd = resc.data(x,y,z,0);
@@ -27707,7 +27707,7 @@ namespace cimg_library_suffixed {
                 curr+=fx;
                 *(poff++) = (unsigned int)curr - (unsigned int)old;
               }
-              cimg_pragma_openmp(parallel for collapse(3) if (resx.size()>=65536))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(resx.size()>=65536))
               cimg_forYZC(resx,y,z,c) {
                 const T *const ptrs0 = data(0,y,z,c), *ptrs = ptrs0, *const ptrsmin = ptrs0 + 1,
                   *const ptrsmax = ptrs0 + (_width - 2);
@@ -27754,7 +27754,7 @@ namespace cimg_library_suffixed {
                 curr+=fy;
                 *(poff++) = sx*((unsigned int)curr - (unsigned int)old);
               }
-              cimg_pragma_openmp(parallel for collapse(3) if (resy.size()>=65536))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(resy.size()>=65536))
               cimg_forXZC(resy,x,z,c) {
                 const T *const ptrs0 = resx.data(x,0,z,c), *ptrs = ptrs0, *const ptrsmin = ptrs0 + sx,
                   *const ptrsmax = ptrs0 + (_height - 2)*sx;
@@ -27803,7 +27803,7 @@ namespace cimg_library_suffixed {
                 curr+=fz;
                 *(poff++) = sxy*((unsigned int)curr - (unsigned int)old);
               }
-              cimg_pragma_openmp(parallel for collapse(3) if (resz.size()>=65536))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(resz.size()>=65536))
               cimg_forXYC(resz,x,y,c) {
                 const T *const ptrs0 = resy.data(x,y,0,c), *ptrs = ptrs0, *const ptrsmin = ptrs0 + sxy,
                   *const ptrsmax = ptrs0 + (_depth - 2)*sxy;
@@ -27853,7 +27853,7 @@ namespace cimg_library_suffixed {
                 curr+=fc;
                 *(poff++) = sxyz*((unsigned int)curr - (unsigned int)old);
               }
-              cimg_pragma_openmp(parallel for collapse(3) if (resc.size()>=65536))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(resc.size()>=65536))
               cimg_forXYZ(resc,x,y,z) {
                 const T *const ptrs0 = resz.data(x,y,z,0), *ptrs = ptrs0, *const ptrsmin = ptrs0 + sxyz,
                   *const ptrsmax = ptrs + (_spectrum - 2)*sxyz;
@@ -28756,7 +28756,7 @@ namespace cimg_library_suffixed {
       case 0 : { // Dirichlet boundaries
         switch (interpolation) {
         case 2 : { // Cubic interpolation
-          cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
+          cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=2048))
           cimg_forXYZC(res,x,y,z,c) {
             const float xc = x - rw2, yc = y - rh2;
             const Tfloat val = cubic_atXY(w2 + xc*ca + yc*sa,h2 - xc*sa + yc*ca,z,c,(T)0);
@@ -28764,14 +28764,14 @@ namespace cimg_library_suffixed {
           }
         } break;
         case 1 : { // Linear interpolation
-          cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
+          cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=2048))
           cimg_forXYZC(res,x,y,z,c) {
             const float xc = x - rw2, yc = y - rh2;
             res(x,y,z,c) = (T)linear_atXY(w2 + xc*ca + yc*sa,h2 - xc*sa + yc*ca,z,c,(T)0);
           }
         } break;
         default : { // Nearest-neighbor interpolation
-          cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
+          cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=2048))
           cimg_forXYZC(res,x,y,z,c) {
             const float xc = x - rw2, yc = y - rh2;
             res(x,y,z,c) = atXY((int)cimg::round(w2 + xc*ca + yc*sa),
@@ -28783,7 +28783,7 @@ namespace cimg_library_suffixed {
       case 1 : { // Neumann boundaries.
         switch (interpolation) {
         case 2 : { // Cubic interpolation.
-          cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
+          cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=2048))
           cimg_forXYZC(res,x,y,z,c) {
             const float xc = x - rw2, yc = y - rh2;
             const Tfloat val = _cubic_atXY(w2 + xc*ca + yc*sa,h2 - xc*sa + yc*ca,z,c);
@@ -28791,14 +28791,14 @@ namespace cimg_library_suffixed {
           }
         } break;
         case 1 : { // Linear interpolation.
-          cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
+          cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=2048))
           cimg_forXYZC(res,x,y,z,c) {
             const float xc = x - rw2, yc = y - rh2;
             res(x,y,z,c) = (T)_linear_atXY(w2 + xc*ca + yc*sa,h2 - xc*sa + yc*ca,z,c);
           }
         } break;
         default : { // Nearest-neighbor interpolation.
-          cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
+          cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=2048))
           cimg_forXYZC(res,x,y,z,c) {
             const float xc = x - rw2, yc = y - rh2;
             res(x,y,z,c) = _atXY((int)cimg::round(w2 + xc*ca + yc*sa),
@@ -28810,7 +28810,7 @@ namespace cimg_library_suffixed {
         default : { // Periodic boundaries.
           switch (interpolation) {
           case 2 : { // Cubic interpolation.
-            cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
+            cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=2048))
             cimg_forXYZC(res,x,y,z,c) {
               const float xc = x - rw2, yc = y - rh2;
               const Tfloat val = _cubic_atXY(cimg::mod(w2 + xc*ca + yc*sa,(float)width()),
@@ -28819,7 +28819,7 @@ namespace cimg_library_suffixed {
             }
           } break;
           case 1 : { // Linear interpolation.
-            cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
+            cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=2048))
             cimg_forXYZC(res,x,y,z,c) {
               const float xc = x - rw2, yc = y - rh2;
               res(x,y,z,c) = (T)_linear_atXY(cimg::mod(w2 + xc*ca + yc*sa,(float)width()),
@@ -28827,7 +28827,7 @@ namespace cimg_library_suffixed {
             }
           } break;
           default : { // Nearest-neighbor interpolation.
-            cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=2048))
+            cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=2048))
             cimg_forXYZC(res,x,y,z,c) {
               const float xc = x - rw2, yc = y - rh2;
               res(x,y,z,c) = (*this)(cimg::mod((int)cimg::round(w2 + xc*ca + yc*sa),(float)width()),
@@ -28926,7 +28926,7 @@ namespace cimg_library_suffixed {
       case 0 : { // Dirichlet boundaries
         switch (interpolation) {
         case 2 : { // Cubic interpolation
-          cimg_pragma_openmp(parallel for collapse(2) if (res.size()>=2048))
+          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(res.size()>=2048))
           cimg_forXYZ(res,x,y,z) {
             const float
               xc = x - rw2, yc = y - rh2, zc = z - rd2,
@@ -28937,7 +28937,7 @@ namespace cimg_library_suffixed {
           }
         } break;
         case 1 : { // Linear interpolation
-          cimg_pragma_openmp(parallel for collapse(2) if (res.size()>=2048))
+          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(res.size()>=2048))
           cimg_forXYZ(res,x,y,z) {
             const float
               xc = x - rw2, yc = y - rh2, zc = z - rd2,
@@ -28948,7 +28948,7 @@ namespace cimg_library_suffixed {
           }
         } break;
         default : { // Nearest-neighbor interpolation
-          cimg_pragma_openmp(parallel for collapse(2) if (res.size()>=2048))
+          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(res.size()>=2048))
           cimg_forXYZ(res,x,y,z) {
             const float xc = x - rw2, yc = y - rh2, zc = z - rd2;
             const int
@@ -28964,7 +28964,7 @@ namespace cimg_library_suffixed {
       case 1 : { // Neumann boundaries
         switch (interpolation) {
         case 2 : { // Cubic interpolation
-          cimg_pragma_openmp(parallel for collapse(2) if (res.size()>=2048))
+          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(res.size()>=2048))
           cimg_forXYZ(res,x,y,z) {
             const float
               xc = x - rw2, yc = y - rh2, zc = z - rd2,
@@ -28975,7 +28975,7 @@ namespace cimg_library_suffixed {
           }
         } break;
         case 1 : { // Linear interpolation
-          cimg_pragma_openmp(parallel for collapse(2) if (res.size()>=2048))
+          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(res.size()>=2048))
           cimg_forXYZ(res,x,y,z) {
             const float
               xc = x - rw2, yc = y - rh2, zc = z - rd2,
@@ -28986,7 +28986,7 @@ namespace cimg_library_suffixed {
           }
         } break;
         default : { // Nearest-neighbor interpolation
-          cimg_pragma_openmp(parallel for collapse(2) if (res.size()>=2048))
+          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(res.size()>=2048))
           cimg_forXYZ(res,x,y,z) {
             const float xc = x - rw2, yc = y - rh2, zc = z - rd2;
             const int
@@ -29002,7 +29002,7 @@ namespace cimg_library_suffixed {
       default : { // Periodic boundaries
         switch (interpolation) {
         case 2 : { // Cubic interpolation
-          cimg_pragma_openmp(parallel for collapse(2) if (res.size()>=2048))
+          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(res.size()>=2048))
           cimg_forXYZ(res,x,y,z) {
             const float
               xc = x - rw2, yc = y - rh2, zc = z - rd2,
@@ -29013,7 +29013,7 @@ namespace cimg_library_suffixed {
           }
         } break;
         case 1 : { // Linear interpolation
-          cimg_pragma_openmp(parallel for collapse(2) if (res.size()>=2048))
+          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(res.size()>=2048))
           cimg_forXYZ(res,x,y,z) {
             const float
               xc = x - rw2, yc = y - rh2, zc = z - rd2,
@@ -29024,7 +29024,7 @@ namespace cimg_library_suffixed {
           }
         } break;
         default : { // Nearest-neighbor interpolation
-          cimg_pragma_openmp(parallel for collapse(2) if (res.size()>=2048))
+          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(res.size()>=2048))
           cimg_forXYZ(res,x,y,z) {
             const float xc = x - rw2, yc = y - rh2, zc = z - rd2;
             const int
@@ -29071,7 +29071,7 @@ namespace cimg_library_suffixed {
         if (mode>=3) { // Forward-relative warp.
           res.fill((T)0);
           if (interpolation>=1) // Linear interpolation.
-            cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=4096))
+            cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
             cimg_forYZC(res,y,z,c) {
               const t *ptrs0 = warp.data(0,y,z); const T *ptrs = data(0,y,z,c);
               cimg_forX(res,x) res.set_linear_atX(*(ptrs++),x + (float)*(ptrs0++),y,z,c);
@@ -29087,7 +29087,7 @@ namespace cimg_library_suffixed {
         } else if (mode==2) { // Forward-absolute warp.
           res.fill((T)0);
           if (interpolation>=1) // Linear interpolation.
-            cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=4096))
+            cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
             cimg_forYZC(res,y,z,c) {
               const t *ptrs0 = warp.data(0,y,z); const T *ptrs = data(0,y,z,c);
               cimg_forX(res,x) res.set_linear_atX(*(ptrs++),(float)*(ptrs0++),y,z,c);
@@ -29103,38 +29103,38 @@ namespace cimg_library_suffixed {
         } else if (mode==1) { // Backward-relative warp.
           if (interpolation==2) { // Cubic interpolation.
             if (boundary_conditions==2) // Periodic boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=4096))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) *(ptrd++) = (T)_cubic_atX(cimg::mod(x - (float)*(ptrs0++),(float)_width),y,z,c);
               }
             else if (boundary_conditions==1) // Neumann boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=4096))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) *(ptrd++) = (T)_cubic_atX(x - (float)*(ptrs0++),y,z,c);
               }
             else // Dirichlet boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=4096))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) *(ptrd++) = (T)cubic_atX(x - (float)*(ptrs0++),y,z,c,(T)0);
               }
           } else if (interpolation==1) { // Linear interpolation.
             if (boundary_conditions==2) // Periodic boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=1048576))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=1048576))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) *(ptrd++) = (T)_linear_atX(cimg::mod(x - (float)*(ptrs0++),(float)_width),y,z,c);
               }
             else if (boundary_conditions==1) // Neumann boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=1048576))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=1048576))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) *(ptrd++) = (T)_linear_atX(x - (float)*(ptrs0++),y,z,c);
               }
             else // Dirichlet boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=1048576))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=1048576))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) *(ptrd++) = (T)linear_atX(x - (float)*(ptrs0++),y,z,c,(T)0);
@@ -29159,38 +29159,38 @@ namespace cimg_library_suffixed {
         } else { // Backward-absolute warp.
           if (interpolation==2) { // Cubic interpolation.
             if (boundary_conditions==2) // Periodic boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=4096))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) *(ptrd++) = (T)_cubic_atX(cimg::mod((float)*(ptrs0++),(float)_width),0,0,c);
               }
             else if (boundary_conditions==1) // Neumann boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=4096))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) *(ptrd++) = (T)_cubic_atX((float)*(ptrs0++),0,0,c);
               }
             else // Dirichlet boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=4096))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) *(ptrd++) = (T)cubic_atX((float)*(ptrs0++),0,0,c,(T)0);
               }
           } else if (interpolation==1) { // Linear interpolation.
             if (boundary_conditions==2) // Periodic boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=1048576))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=1048576))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) *(ptrd++) = (T)_linear_atX(cimg::mod((float)*(ptrs0++),(float)_width),0,0,c);
               }
             else if (boundary_conditions==1) // Neumann boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=1048576))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=1048576))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) *(ptrd++) = (T)_linear_atX((float)*(ptrs0++),0,0,c);
               }
             else // Dirichlet boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=1048576))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=1048576))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) *(ptrd++) = (T)linear_atX((float)*(ptrs0++),0,0,c,(T)0);
@@ -29218,7 +29218,7 @@ namespace cimg_library_suffixed {
         if (mode>=3) { // Forward-relative warp.
           res.fill((T)0);
           if (interpolation>=1) // Linear interpolation.
-            cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=4096))
+            cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
             cimg_forYZC(res,y,z,c) {
               const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1); const T *ptrs = data(0,y,z,c);
               cimg_forX(res,x) res.set_linear_atXY(*(ptrs++),x + (float)*(ptrs0++),y + (float)*(ptrs1++),z,c);
@@ -29234,7 +29234,7 @@ namespace cimg_library_suffixed {
         } else if (mode==2) { // Forward-absolute warp.
           res.fill((T)0);
           if (interpolation>=1) // Linear interpolation.
-            cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=4096))
+            cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
             cimg_forYZC(res,y,z,c) {
               const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1); const T *ptrs = data(0,y,z,c);
               cimg_forX(res,x) res.set_linear_atXY(*(ptrs++),(float)*(ptrs0++),(float)*(ptrs1++),z,c);
@@ -29250,40 +29250,40 @@ namespace cimg_library_suffixed {
         } else if (mode==1) { // Backward-relative warp.
           if (interpolation==2) { // Cubic interpolation.
             if (boundary_conditions==2) // Periodic boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=4096))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) *(ptrd++) = (T)_cubic_atXY(cimg::mod(x - (float)*(ptrs0++),(float)_width),
                                                             cimg::mod(y - (float)*(ptrs1++),(float)_height),z,c);
               }
             else if (boundary_conditions==1) // Neumann boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=4096))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) *(ptrd++) = (T)_cubic_atXY(x - (float)*(ptrs0++),y - (float)*(ptrs1++),z,c);
               }
             else // Dirichlet boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=4096))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) *(ptrd++) = (T)cubic_atXY(x - (float)*(ptrs0++),y - (float)*(ptrs1++),z,c,(T)0);
               }
           } else if (interpolation==1) { // Linear interpolation.
             if (boundary_conditions==2) // Periodic boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=1048576))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=1048576))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) *(ptrd++) = (T)_linear_atXY(cimg::mod(x - (float)*(ptrs0++),(float)_width),
                                                              cimg::mod(y - (float)*(ptrs1++),(float)_height),z,c);
               }
             else if (boundary_conditions==1) // Neumann boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=1048576))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=1048576))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) *(ptrd++) = (T)_linear_atXY(x - (float)*(ptrs0++),y - (float)*(ptrs1++),z,c);
               }
             else // Dirichlet boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=1048576))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=1048576))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) *(ptrd++) = (T)linear_atXY(x - (float)*(ptrs0++),y - (float)*(ptrs1++),z,c,(T)0);
@@ -29309,40 +29309,40 @@ namespace cimg_library_suffixed {
         } else { // Backward-absolute warp.
           if (interpolation==2) { // Cubic interpolation.
             if (boundary_conditions==2) // Periodic boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=4096))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) *(ptrd++) = (T)_cubic_atXY(cimg::mod((float)*(ptrs0++),(float)_width),
                                                             cimg::mod((float)*(ptrs1++),(float)_height),0,c);
               }
             else if (boundary_conditions==1) // Neumann boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=4096))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) *(ptrd++) = (T)_cubic_atXY((float)*(ptrs0++),(float)*(ptrs1++),0,c);
               }
             else // Dirichlet boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=4096))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) *(ptrd++) = (T)cubic_atXY((float)*(ptrs0++),(float)*(ptrs1++),0,c,(T)0);
               }
           } else if (interpolation==1) { // Linear interpolation.
             if (boundary_conditions==2) // Periodic boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=1048576))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=1048576))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) *(ptrd++) = (T)_linear_atXY(cimg::mod((float)*(ptrs0++),(float)_width),
                                                              cimg::mod((float)*(ptrs1++),(float)_height),0,c);
               }
             else if (boundary_conditions==1) // Neumann boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=1048576))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=1048576))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) *(ptrd++) = (T)_linear_atXY((float)*(ptrs0++),(float)*(ptrs1++),0,c);
               }
             else // Dirichlet boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=1048576))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=1048576))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) *(ptrd++) = (T)linear_atXY((float)*(ptrs0++),(float)*(ptrs1++),0,c,(T)0);
@@ -29371,7 +29371,7 @@ namespace cimg_library_suffixed {
         if (mode>=3) { // Forward-relative warp.
           res.fill((T)0);
           if (interpolation>=1) // Linear interpolation.
-            cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=4096))
+            cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
             cimg_forYZC(res,y,z,c) {
               const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1), *ptrs2 = warp.data(0,y,z,2);
               const T *ptrs = data(0,y,z,c);
@@ -29393,7 +29393,7 @@ namespace cimg_library_suffixed {
         } else if (mode==2) { // Forward-absolute warp.
           res.fill((T)0);
           if (interpolation>=1) // Linear interpolation.
-            cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=4096))
+            cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
             cimg_forYZC(res,y,z,c) {
               const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1), *ptrs2 = warp.data(0,y,z,2);
               const T *ptrs = data(0,y,z,c);
@@ -29414,7 +29414,7 @@ namespace cimg_library_suffixed {
         } else if (mode==1) { // Backward-relative warp.
           if (interpolation==2) { // Cubic interpolation.
             if (boundary_conditions==2) // Periodic boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=4096))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1), *ptrs2 = warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
@@ -29423,7 +29423,7 @@ namespace cimg_library_suffixed {
                                                              cimg::mod(z - (float)*(ptrs2++),(float)_depth),c);
               }
             else if (boundary_conditions==1) // Neumann boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=4096))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1), *ptrs2 = warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
@@ -29431,7 +29431,7 @@ namespace cimg_library_suffixed {
                   *(ptrd++) = (T)_cubic_atXYZ(x - (float)*(ptrs0++),y - (float)*(ptrs1++),z - (float)*(ptrs2++),c);
               }
             else // Dirichlet boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=4096))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1), *ptrs2 = warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
@@ -29440,7 +29440,7 @@ namespace cimg_library_suffixed {
               }
           } else if (interpolation==1) { // Linear interpolation.
             if (boundary_conditions==2) // Periodic boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=1048576))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=1048576))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1), *ptrs2 = warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
@@ -29449,7 +29449,7 @@ namespace cimg_library_suffixed {
                                                               cimg::mod(z - (float)*(ptrs2++),(float)_depth),c);
               }
             else if (boundary_conditions==1) // Neumann boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=1048576))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=1048576))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1), *ptrs2 = warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
@@ -29457,7 +29457,7 @@ namespace cimg_library_suffixed {
                   *(ptrd++) = (T)_linear_atXYZ(x - (float)*(ptrs0++),y - (float)*(ptrs1++),z - (float)*(ptrs2++),c);
               }
             else // Dirichlet boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=1048576))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=1048576))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1), *ptrs2 = warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
@@ -29489,7 +29489,7 @@ namespace cimg_library_suffixed {
         } else { // Backward-absolute warp.
           if (interpolation==2) { // Cubic interpolation.
             if (boundary_conditions==2) // Periodic boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=4096))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1), *ptrs2 = warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
@@ -29498,14 +29498,14 @@ namespace cimg_library_suffixed {
                                                              cimg::mod((float)*(ptrs2++),(float)_depth),c);
               }
             else if (boundary_conditions==1) // Neumann boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=4096))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1), *ptrs2 = warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) *(ptrd++) = (T)_cubic_atXYZ((float)*(ptrs0++),(float)*(ptrs1++),(float)*(ptrs2++),c);
               }
             else // Dirichlet boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=4096))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1), *ptrs2 = warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
@@ -29514,7 +29514,7 @@ namespace cimg_library_suffixed {
               }
           } else if (interpolation==1) { // Linear interpolation.
             if (boundary_conditions==2) // Periodic boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=1048576))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=1048576))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1), *ptrs2 = warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
@@ -29523,14 +29523,14 @@ namespace cimg_library_suffixed {
                                                               cimg::mod((float)*(ptrs2++),(float)_depth),c);
               }
             else if (boundary_conditions==1) // Neumann boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=1048576))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=1048576))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1), *ptrs2 = warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) *(ptrd++) = (T)_linear_atXYZ((float)*(ptrs0++),(float)*(ptrs1++),(float)*(ptrs2++),c);
               }
             else // Dirichlet boundaries.
-              cimg_pragma_openmp(parallel for collapse(3) if (res.size()>=1048576))
+              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=1048576))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1), *ptrs2 = warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
@@ -31000,7 +31000,7 @@ namespace cimg_library_suffixed {
           const CImg<t> K = kernel.get_shared_channel(c%kernel._spectrum);
           if (is_normalized) { // Normalized correlation.
             const Ttfloat _M = (Ttfloat)K.magnitude(2), M = _M*_M;
-            cimg_pragma_openmp(parallel for collapse(3) if (_width*_height*_depth>=32768))
+            cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width*_height*_depth>=32768))
             for (int z = mz1; z<mze; ++z)
               for (int y = my1; y<mye; ++y)
                 for (int x = mx1; x<mxe; ++x) cimg_abort_try2 {
@@ -31017,7 +31017,7 @@ namespace cimg_library_suffixed {
                   res(x,y,z,c) = (Ttfloat)(N?val/std::sqrt(N):0);
                 } cimg_abort_catch2()
             if (boundary_conditions)
-              cimg_pragma_openmp(parallel for collapse(2) if (_width>=256 && _height*_depth>=128))
+              cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=256 && _height*_depth>=128))
               cimg_forYZ(res,y,z) cimg_abort_try2 {
                 cimg_abort_test2();
                 for (int x = 0; x<width();
@@ -31035,7 +31035,7 @@ namespace cimg_library_suffixed {
                 }
               } cimg_abort_catch2()
             else
-              cimg_pragma_openmp(parallel for collapse(2) if (_width>=256 && _height*_depth>=128))
+              cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=256 && _height*_depth>=128))
               cimg_forYZ(res,y,z) cimg_abort_try2 {
                 cimg_abort_test2();
                 for (int x = 0; x<width();
@@ -31053,7 +31053,7 @@ namespace cimg_library_suffixed {
                 }
               } cimg_abort_catch2()
           } else { // Classical correlation.
-            cimg_pragma_openmp(parallel for collapse(3) if (_width*_height*_depth>=32768))
+            cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width*_height*_depth>=32768))
             for (int z = mz1; z<mze; ++z)
               for (int y = my1; y<mye; ++y)
                 for (int x = mx1; x<mxe; ++x) cimg_abort_try2 {
@@ -31066,7 +31066,7 @@ namespace cimg_library_suffixed {
                   res(x,y,z,c) = (Ttfloat)val;
                 } cimg_abort_catch2()
             if (boundary_conditions)
-              cimg_pragma_openmp(parallel for collapse(2) if (_width>=256 && _height*_depth>=128))
+              cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=256 && _height*_depth>=128))
               cimg_forYZ(res,y,z) cimg_abort_try2 {
                 cimg_abort_test2();
                 for (int x = 0; x<width();
@@ -31080,7 +31080,7 @@ namespace cimg_library_suffixed {
                 }
               } cimg_abort_catch2()
             else
-              cimg_pragma_openmp(parallel for collapse(2) if (_width>=256 && _height*_depth>=128))
+              cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=256 && _height*_depth>=128))
               cimg_forYZ(res,y,z) cimg_abort_try2 {
                 cimg_abort_test2();
                 for (int x = 0; x<width();
@@ -31122,7 +31122,7 @@ namespace cimg_library_suffixed {
     CImg<T>& cumulate(const char axis=0) {
       switch (cimg::lowercase(axis)) {
       case 'x' :
-        cimg_pragma_openmp(parallel for collapse(3) if (_width>=512 && _height*_depth*_spectrum>=16))
+        cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width>=512 && _height*_depth*_spectrum>=16))
         cimg_forYZC(*this,y,z,c) {
           T *ptrd = data(0,y,z,c);
           Tlong cumul = (Tlong)0;
@@ -31131,7 +31131,7 @@ namespace cimg_library_suffixed {
         break;
       case 'y' : {
         const ulongT w = (ulongT)_width;
-        cimg_pragma_openmp(parallel for collapse(3) if (_height>=512 && _width*_depth*_spectrum>=16))
+        cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_height>=512 && _width*_depth*_spectrum>=16))
         cimg_forXZC(*this,x,z,c) {
           T *ptrd = data(x,0,z,c);
           Tlong cumul = (Tlong)0;
@@ -31140,7 +31140,7 @@ namespace cimg_library_suffixed {
       } break;
       case 'z' : {
         const ulongT wh = (ulongT)_width*_height;
-        cimg_pragma_openmp(parallel for collapse(3) if (_depth>=512 && _width*_depth*_spectrum>=16))
+        cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_depth>=512 && _width*_depth*_spectrum>=16))
         cimg_forXYC(*this,x,y,c) {
           T *ptrd = data(x,y,0,c);
           Tlong cumul = (Tlong)0;
@@ -31149,7 +31149,7 @@ namespace cimg_library_suffixed {
       } break;
       case 'c' : {
         const ulongT whd = (ulongT)_width*_height*_depth;
-        cimg_pragma_openmp(parallel for collapse(3) if (_spectrum>=512 && _width*_height*_depth>=16))
+        cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_spectrum>=512 && _width*_height*_depth>=16))
         cimg_forXYZ(*this,x,y,z) {
           T *ptrd = data(x,y,z,0);
           Tlong cumul = (Tlong)0;
@@ -31227,7 +31227,7 @@ namespace cimg_library_suffixed {
         const CImg<T> _img = get_shared_channel(c%_spectrum);
         const CImg<t> K = kernel.get_shared_channel(c%kernel._spectrum);
         if (is_real) { // Real erosion
-          cimg_pragma_openmp(parallel for collapse(3) if (_width*_height*_depth>=32768))
+          cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width*_height*_depth>=32768))
           for (int z = mz1; z<mze; ++z)
             for (int y = my1; y<mye; ++y)
               for (int x = mx1; x<mxe; ++x) cimg_abort_try2 {
@@ -31243,7 +31243,7 @@ namespace cimg_library_suffixed {
                 res(x,y,z,c) = min_val;
               } cimg_abort_catch2()
           if (boundary_conditions)
-            cimg_pragma_openmp(parallel for collapse(2) if (_width>=256 && _height*_depth>=128))
+            cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=256 && _height*_depth>=128))
             cimg_forYZ(res,y,z) cimg_abort_try2 {
               cimg_abort_test2();
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
@@ -31259,7 +31259,7 @@ namespace cimg_library_suffixed {
               }
             } cimg_abort_catch2()
           else
-            cimg_pragma_openmp(parallel for collapse(2) if (_width>=256 && _height*_depth>=128))
+            cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=256 && _height*_depth>=128))
             cimg_forYZ(res,y,z) cimg_abort_try2 {
               cimg_abort_test2();
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
@@ -31276,7 +31276,7 @@ namespace cimg_library_suffixed {
             } cimg_abort_catch2()
 
         } else { // Binary erosion
-          cimg_pragma_openmp(parallel for collapse(3) if (_width*_height*_depth>=32768))
+          cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width*_height*_depth>=32768))
           for (int z = mz1; z<mze; ++z)
             for (int y = my1; y<mye; ++y)
               for (int x = mx1; x<mxe; ++x) cimg_abort_try2 {
@@ -31292,7 +31292,7 @@ namespace cimg_library_suffixed {
                 res(x,y,z,c) = min_val;
               } cimg_abort_catch2()
           if (boundary_conditions)
-            cimg_pragma_openmp(parallel for collapse(2) if (_width>=256 && _height*_depth>=128))
+            cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=256 && _height*_depth>=128))
             cimg_forYZ(res,y,z) cimg_abort_try2 {
               cimg_abort_test2();
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
@@ -31308,7 +31308,7 @@ namespace cimg_library_suffixed {
               }
             } cimg_abort_catch2()
           else
-            cimg_pragma_openmp(parallel for collapse(2) if (_width>=256 && _height*_depth>=128))
+            cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=256 && _height*_depth>=128))
             cimg_forYZ(res,y,z) cimg_abort_try2 {
               cimg_abort_test2();
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
@@ -31514,7 +31514,7 @@ namespace cimg_library_suffixed {
         const CImg<T> _img = get_shared_channel(c%_spectrum);
         const CImg<t> K = kernel.get_shared_channel(c%kernel._spectrum);
         if (is_real) { // Real dilation
-          cimg_pragma_openmp(parallel for collapse(3) if (_width*_height*_depth>=32768))
+          cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width*_height*_depth>=32768))
           for (int z = mz1; z<mze; ++z)
             for (int y = my1; y<mye; ++y)
               for (int x = mx1; x<mxe; ++x) cimg_abort_try2 {
@@ -31530,7 +31530,7 @@ namespace cimg_library_suffixed {
                 res(x,y,z,c) = max_val;
               } cimg_abort_catch2()
           if (boundary_conditions)
-            cimg_pragma_openmp(parallel for collapse(2) if (_width>=256 && _height*_depth>=128))
+            cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=256 && _height*_depth>=128))
             cimg_forYZ(res,y,z) cimg_abort_try2 {
               cimg_abort_test2();
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
@@ -31546,7 +31546,7 @@ namespace cimg_library_suffixed {
               }
             } cimg_abort_catch2()
           else
-            cimg_pragma_openmp(parallel for collapse(2) if (_width>=256 && _height*_depth>=128))
+            cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=256 && _height*_depth>=128))
             cimg_forYZ(*this,y,z) cimg_abort_try2 {
               cimg_abort_test2();
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
@@ -31562,7 +31562,7 @@ namespace cimg_library_suffixed {
               }
             } cimg_abort_catch2()
         } else { // Binary dilation
-          cimg_pragma_openmp(parallel for collapse(3) if (_width>=256 && _height*_depth>=128))
+          cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width>=256 && _height*_depth>=128))
           for (int z = mz1; z<mze; ++z)
             for (int y = my1; y<mye; ++y)
               for (int x = mx1; x<mxe; ++x) cimg_abort_try2 {
@@ -31578,7 +31578,7 @@ namespace cimg_library_suffixed {
                 res(x,y,z,c) = max_val;
               } cimg_abort_catch2()
           if (boundary_conditions)
-            cimg_pragma_openmp(parallel for collapse(2) if (_width>=256 && _height*_depth>=128))
+            cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=256 && _height*_depth>=128))
             cimg_forYZ(res,y,z) cimg_abort_try2 {
               cimg_abort_test2();
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
@@ -31594,7 +31594,7 @@ namespace cimg_library_suffixed {
               }
             } cimg_abort_catch2()
           else
-            cimg_pragma_openmp(parallel for collapse(2) if (_width>=256 && _height*_depth>=128))
+            cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=256 && _height*_depth>=128))
             cimg_forYZ(res,y,z) cimg_abort_try2 {
               cimg_abort_test2();
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
@@ -32051,25 +32051,25 @@ namespace cimg_library_suffixed {
       case 'x' : {
         const int N = width();
         const ulongT off = 1U;
-        cimg_pragma_openmp(parallel for collapse(3) if (_width>=256 && _height*_depth*_spectrum>=16))
+        cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width>=256 && _height*_depth*_spectrum>=16))
         cimg_forYZC(*this,y,z,c) { T *ptrX = data(0,y,z,c); _cimg_deriche_apply; }
       } break;
       case 'y' : {
         const int N = height();
         const ulongT off = (ulongT)_width;
-        cimg_pragma_openmp(parallel for collapse(3) if (_width>=256 && _height*_depth*_spectrum>=16))
+        cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width>=256 && _height*_depth*_spectrum>=16))
         cimg_forXZC(*this,x,z,c) { T *ptrX = data(x,0,z,c); _cimg_deriche_apply; }
       } break;
       case 'z' : {
         const int N = depth();
         const ulongT off = (ulongT)_width*_height;
-        cimg_pragma_openmp(parallel for collapse(3) if (_width>=256 && _height*_depth*_spectrum>=16))
+        cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width>=256 && _height*_depth*_spectrum>=16))
         cimg_forXYC(*this,x,y,c) { T *ptrX = data(x,y,0,c); _cimg_deriche_apply; }
       } break;
       default : {
         const int N = spectrum();
         const ulongT off = (ulongT)_width*_height*_depth;
-        cimg_pragma_openmp(parallel for collapse(3) if (_width>=256 && _height*_depth*_spectrum>=16))
+        cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width>=256 && _height*_depth*_spectrum>=16))
         cimg_forXYZ(*this,x,y,z) { T *ptrX = data(x,y,z,0); _cimg_deriche_apply; }
       }
       }
@@ -32271,23 +32271,23 @@ namespace cimg_library_suffixed {
       filter[0] = B; filter[1] = -b1; filter[2] = -b2; filter[3] = -b3;
       switch (naxis) {
       case 'x' : {
-        cimg_pragma_openmp(parallel for collapse(3) if (_width>=256 && _height*_depth*_spectrum>=16))
+        cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width>=256 && _height*_depth*_spectrum>=16))
 	cimg_forYZC(*this,y,z,c)
 	  _cimg_recursive_apply(data(0,y,z,c),filter,_width,1U,order,boundary_conditions);
       } break;
       case 'y' : {
-        cimg_pragma_openmp(parallel for collapse(3) if (_width>=256 && _height*_depth*_spectrum>=16))
+        cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width>=256 && _height*_depth*_spectrum>=16))
 	cimg_forXZC(*this,x,z,c)
 	  _cimg_recursive_apply(data(x,0,z,c),filter,_height,(ulongT)_width,order,boundary_conditions);
       } break;
       case 'z' : {
-        cimg_pragma_openmp(parallel for collapse(3) if (_width>=256 && _height*_depth*_spectrum>=16))
+        cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width>=256 && _height*_depth*_spectrum>=16))
 	cimg_forXYC(*this,x,y,c)
 	  _cimg_recursive_apply(data(x,y,0,c),filter,_depth,(ulongT)_width*_height,
 				order,boundary_conditions);
       } break;
       default : {
-        cimg_pragma_openmp(parallel for collapse(3) if (_width>=256 && _height*_depth*_spectrum>=16))
+        cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width>=256 && _height*_depth*_spectrum>=16))
 	cimg_forXYZ(*this,x,y,z)
 	  _cimg_recursive_apply(data(x,y,z,0),filter,_spectrum,(ulongT)_width*_height*_depth,
 				order,boundary_conditions);
@@ -32453,7 +32453,7 @@ namespace cimg_library_suffixed {
               }
 
               cimg_abort_test();
-              cimg_pragma_openmp(parallel for collapse(2) if (_width>=256 && _height*_depth>=2) firstprivate(val))
+              cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=256 && _height*_depth>=2) firstprivate(val))
               cimg_forYZ(*this,y,z) cimg_abort_try2 {
                 cimg_abort_test2();
                 cimg_forX(*this,x) {
@@ -32924,22 +32924,22 @@ namespace cimg_library_suffixed {
         (naxis=='x'?_width:naxis=='y'?_height:naxis=='z'?_depth:_spectrum)/100;
       switch (naxis) {
       case 'x' : {
-        cimg_pragma_openmp(parallel for collapse(3) if (_width>=256 && _height*_depth*_spectrum>=16))
+        cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width>=256 && _height*_depth*_spectrum>=16))
         cimg_forYZC(*this,y,z,c)
           _cimg_blur_box_apply(data(0,y,z,c),nboxsize,_width,1U,order,boundary_conditions);
       } break;
       case 'y' : {
-        cimg_pragma_openmp(parallel for collapse(3) if (_width>=256 && _height*_depth*_spectrum>=16))
+        cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width>=256 && _height*_depth*_spectrum>=16))
         cimg_forXZC(*this,x,z,c)
           _cimg_blur_box_apply(data(x,0,z,c),nboxsize,_height,(ulongT)_width,order,boundary_conditions);
       } break;
       case 'z' : {
-        cimg_pragma_openmp(parallel for collapse(3) if (_width>=256 && _height*_depth*_spectrum>=16))
+        cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width>=256 && _height*_depth*_spectrum>=16))
         cimg_forXYC(*this,x,y,c)
           _cimg_blur_box_apply(data(x,y,0,c),nboxsize,_depth,(ulongT)_width*_height,order,boundary_conditions);
       } break;
       default : {
-        cimg_pragma_openmp(parallel for collapse(3) if (_width>=256 && _height*_depth*_spectrum>=16))
+        cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width>=256 && _height*_depth*_spectrum>=16))
         cimg_forXYZ(*this,x,y,z)
           _cimg_blur_box_apply(data(x,y,z,0),nboxsize,_spectrum,(ulongT)_width*_height*_depth,
                                order,boundary_conditions);
@@ -33178,7 +33178,7 @@ namespace cimg_library_suffixed {
         default : {
           const int psize2 = (int)patch_size/2, psize1 = (int)patch_size - psize2 - 1;
           if (is_fast_approx)
-            cimg_pragma_openmp(parallel for collapse(2) if (res._width>=32 && res._height*res._depth>=4) private(P,Q))
+            cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(res._width>=32 && res._height*res._depth>=4) private(P,Q))
             cimg_forXYZ(res,x,y,z) { // Fast
               P = img.get_crop(x - psize1,y - psize1,z - psize1,x + psize2,y + psize2,z + psize2,true);
               const int x0 = x - rsize1, y0 = y - rsize1, z0 = z - rsize1,
@@ -33290,7 +33290,7 @@ namespace cimg_library_suffixed {
       const int hl = (int)n/2, hr = hl - 1 + (int)n%2;
       if (res._depth!=1) { // 3d
         if (threshold>0)
-          cimg_pragma_openmp(parallel for collapse(3) if (_width>=16 && _height*_depth*_spectrum>=4))
+          cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width>=16 && _height*_depth*_spectrum>=4))
           cimg_forXYZC(*this,x,y,z,c) { // With threshold.
             const int
               x0 = x - hl, y0 = y - hl, z0 = z - hl, x1 = x + hr, y1 = y + hr, z1 = z + hr,
@@ -33305,7 +33305,7 @@ namespace cimg_library_suffixed {
             res(x,y,z,c) = values.get_shared_points(0,nb_values - 1).median();
           }
         else
-          cimg_pragma_openmp(parallel for collapse(3) if (_width>=16 && _height*_depth*_spectrum>=4))
+          cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width>=16 && _height*_depth*_spectrum>=4))
           cimg_forXYZC(*this,x,y,z,c) { // Without threshold.
             const int
               x0 = x - hl, y0 = y - hl, z0 = z - hl, x1 = x + hr, y1 = y + hr, z1 = z + hr,
@@ -33317,7 +33317,7 @@ namespace cimg_library_suffixed {
 #define _cimg_median_sort(a,b) if ((a)>(b)) cimg::swap(a,b)
         if (res._height!=1) { // 2d
           if (threshold>0)
-            cimg_pragma_openmp(parallel for collapse(2) if (_width>=16 && _height*_spectrum>=4))
+            cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=16 && _height*_spectrum>=4))
             cimg_forXYC(*this,x,y,c) { // With threshold.
               const int
                 x0 = x - hl, y0 = y - hl, x1 = x + hr, y1 = y + hr,
@@ -33367,7 +33367,7 @@ namespace cimg_library_suffixed {
               }
             } break;
             default : {
-              cimg_pragma_openmp(parallel for collapse(2) if (_width>=16 && _height*_spectrum>=4))
+              cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=16 && _height*_spectrum>=4))
               cimg_forXYC(*this,x,y,c) {
                 const int
                   x0 = x - hl, y0 = y - hl, x1 = x + hr, y1 = y + hr,
@@ -33444,7 +33444,7 @@ namespace cimg_library_suffixed {
         if (sharpen_type) { // Shock filters.
           CImg<Tfloat> G = (alpha>0?get_blur(alpha).get_structure_tensors():get_structure_tensors());
           if (sigma>0) G.blur(sigma);
-          cimg_pragma_openmp(parallel for collapse(2) if (_width>=32 && _height*_depth>=16))
+          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=32 && _height*_depth>=16))
           cimg_forYZ(G,y,z) {
             Tfloat *ptrG0 = G.data(0,y,z,0), *ptrG1 = G.data(0,y,z,1),
               *ptrG2 = G.data(0,y,z,2), *ptrG3 = G.data(0,y,z,3);
@@ -33649,7 +33649,7 @@ namespace cimg_library_suffixed {
         }
       } else switch (scheme) { // 2d.
       case -1 : { // Backward finite differences.
-        cimg_pragma_openmp(parallel for collapse(2) if (_width*_height>=1048576 && _depth*_spectrum>=2))
+        cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width*_height>=1048576 && _depth*_spectrum>=2))
         cimg_forZC(*this,z,c) {
           const ulongT off = (ulongT)c*_width*_height*_depth + z*_width*_height;
           Tfloat *ptrd0 = grad[0]._data + off, *ptrd1 = grad[1]._data + off;
@@ -33661,7 +33661,7 @@ namespace cimg_library_suffixed {
         }
       } break;
       case 1 : { // Forward finite differences.
-        cimg_pragma_openmp(parallel for collapse(2) if (_width*_height>=1048576 && _depth*_spectrum>=2))
+        cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width*_height>=1048576 && _depth*_spectrum>=2))
         cimg_forZC(*this,z,c) {
           const ulongT off = (ulongT)c*_width*_height*_depth + z*_width*_height;
           Tfloat *ptrd0 = grad[0]._data + off, *ptrd1 = grad[1]._data + off;
@@ -33673,7 +33673,7 @@ namespace cimg_library_suffixed {
         }
       } break;
       case 2 : { // Sobel scheme.
-        cimg_pragma_openmp(parallel for collapse(2) if (_width*_height>=1048576 && _depth*_spectrum>=2))
+        cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width*_height>=1048576 && _depth*_spectrum>=2))
         cimg_forZC(*this,z,c) {
           const ulongT off = (ulongT)c*_width*_height*_depth + z*_width*_height;
           Tfloat *ptrd0 = grad[0]._data + off, *ptrd1 = grad[1]._data + off;
@@ -33685,7 +33685,7 @@ namespace cimg_library_suffixed {
         }
       } break;
       case 3 : { // Rotation invariant kernel.
-        cimg_pragma_openmp(parallel for collapse(2) if (_width*_height>=1048576 && _depth*_spectrum>=2))
+        cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width*_height>=1048576 && _depth*_spectrum>=2))
         cimg_forZC(*this,z,c) {
           const ulongT off = (ulongT)c*_width*_height*_depth + z*_width*_height;
           Tfloat *ptrd0 = grad[0]._data + off, *ptrd1 = grad[1]._data + off;
@@ -33706,7 +33706,7 @@ namespace cimg_library_suffixed {
         grad[1] = get_vanvliet(0,1,'y');
       } break;
       default : { // Central finite differences
-        cimg_pragma_openmp(parallel for collapse(2) if (_width*_height>=1048576 && _depth*_spectrum>=2))
+        cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width*_height>=1048576 && _depth*_spectrum>=2))
         cimg_forZC(*this,z,c) {
           const ulongT off = (ulongT)c*_width*_height*_depth + z*_width*_height;
           Tfloat *ptrd0 = grad[0]._data + off, *ptrd1 = grad[1]._data + off;
@@ -33767,7 +33767,7 @@ namespace cimg_library_suffixed {
           }
         }
       } else if (!cimg::strcasecmp(naxes,def_axes2d)) { // 2d
-        cimg_pragma_openmp(parallel for collapse(2) if (_width*_height>=1048576 && _depth*_spectrum>=2))
+        cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width*_height>=1048576 && _depth*_spectrum>=2))
         cimg_forZC(*this,z,c) {
           const ulongT off = (ulongT)c*_width*_height*_depth + z*_width*_height;
           Tfloat *ptrd0 = res[0]._data + off, *ptrd1 = res[1]._data + off, *ptrd2 = res[2]._data + off;
@@ -33785,7 +33785,7 @@ namespace cimg_library_suffixed {
           bool valid_axis = false;
           if (axis1=='x' && axis2=='x') { // Ixx
             valid_axis = true;
-            cimg_pragma_openmp(parallel for collapse(2) if (_width*_height>=1048576 && _depth*_spectrum>=2))
+            cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width*_height>=1048576 && _depth*_spectrum>=2))
             cimg_forZC(*this,z,c) {
               Tfloat *ptrd = res[l2].data(0,0,z,c);
               CImg_3x3(I,Tfloat);
@@ -33794,7 +33794,7 @@ namespace cimg_library_suffixed {
           }
           else if (axis1=='x' && axis2=='y') { // Ixy
             valid_axis = true;
-            cimg_pragma_openmp(parallel for collapse(2) if (_width*_height>=1048576 && _depth*_spectrum>=2))
+            cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width*_height>=1048576 && _depth*_spectrum>=2))
             cimg_forZC(*this,z,c) {
               Tfloat *ptrd = res[l2].data(0,0,z,c);
               CImg_3x3(I,Tfloat);
@@ -33812,7 +33812,7 @@ namespace cimg_library_suffixed {
           }
           else if (axis1=='y' && axis2=='y') { // Iyy
             valid_axis = true;
-            cimg_pragma_openmp(parallel for collapse(2) if (_width*_height>=1048576 && _depth*_spectrum>=2))
+            cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width*_height>=1048576 && _depth*_spectrum>=2))
             cimg_forZC(*this,z,c) {
               Tfloat *ptrd = res[l2].data(0,0,z,c);
               CImg_3x3(I,Tfloat);
@@ -33989,7 +33989,7 @@ namespace cimg_library_suffixed {
 
       if (_depth>1) { // 3d
         get_structure_tensors().move_to(res).blur(sigma);
-        cimg_pragma_openmp(parallel for collapse(2) if(_width>=256 && _height*_depth>=256))
+        cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=256 && _height*_depth>=256))
         cimg_forYZ(*this,y,z) {
           Tfloat
             *ptrd0 = res.data(0,y,z,0), *ptrd1 = res.data(0,y,z,1), *ptrd2 = res.data(0,y,z,2),
@@ -34132,7 +34132,7 @@ namespace cimg_library_suffixed {
 
           if (is_3d) { // 3d version.
             if (smoothness>=0) // Isotropic regularization.
-              cimg_pragma_openmp(parallel for collapse(2) if (_height*_depth>=8 && _width>=16) reduction(+:_energy))
+              cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_height*_depth>=8 && _width>=16) reduction(+:_energy))
               cimg_forYZ(U,y,z) {
                 const int
                   _p1y = y?y - 1:0, _n1y = y<U.height() - 1?y + 1:y,
@@ -34181,7 +34181,7 @@ namespace cimg_library_suffixed {
                   }
               } else { // Anisotropic regularization.
               const float nsmoothness = -smoothness;
-              cimg_pragma_openmp(parallel for collapse(2) if (_height*_depth>=8 && _width>=16) reduction(+:_energy))
+              cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_height*_depth>=8 && _width>=16) reduction(+:_energy))
               cimg_forYZ(U,y,z) {
                 const int
                   _p1y = y?y - 1:0, _n1y = y<U.height() - 1?y + 1:y,
@@ -34528,7 +34528,7 @@ namespace cimg_library_suffixed {
           cimg_abort_test();
           const bool is_even = !(iter%2);
 
-          cimg_pragma_openmp(parallel for collapse(2) if (_width>64 && iter<nb_iterations-2))
+          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>64 && iter<nb_iterations-2))
           cimg_forXYZ(*this,X,Y,Z) {
             const int
               x = is_even?X:width() - 1 - X,
@@ -34904,7 +34904,7 @@ namespace cimg_library_suffixed {
         CImg<longT> g(_width), dt(_width), s(_width), t(_width);
         CImg<T> img = get_shared_channel(c);
 #if defined(cimg_use_openmp) && !cimg_is_gcc49x
-        cimg_pragma_openmp(parallel for collapse(2) if (_width>=512 && _height*_depth>=16) firstprivate(g,dt,s,t))
+        cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=512 && _height*_depth>=16) firstprivate(g,dt,s,t))
 #endif
         cimg_forYZ(*this,y,z) { // Over X-direction.
           cimg_forX(*this,x) g[x] = (longT)img(x,y,z,0,wh);
@@ -34914,7 +34914,7 @@ namespace cimg_library_suffixed {
         if (_height>1) {
           g.assign(_height); dt.assign(_height); s.assign(_height); t.assign(_height);
 #if defined(cimg_use_openmp) && !cimg_is_gcc49x
-          cimg_pragma_openmp(parallel for collapse(2) if (_height>=512 && _width*_depth>=16) firstprivate(g,dt,s,t))
+          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_height>=512 && _width*_depth>=16) firstprivate(g,dt,s,t))
 #endif
           cimg_forXZ(*this,x,z) { // Over Y-direction.
             cimg_forY(*this,y) g[y] = (longT)img(x,y,z,0,wh);
@@ -34925,7 +34925,7 @@ namespace cimg_library_suffixed {
         if (_depth>1) {
           g.assign(_depth); dt.assign(_depth); s.assign(_depth); t.assign(_depth);
 #if defined(cimg_use_openmp) && !cimg_is_gcc49x
-          cimg_pragma_openmp(parallel for collapse(2) if (_depth>=512 && _width*_height>=16) firstprivate(g,dt,s,t))
+          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_depth>=512 && _width*_height>=16) firstprivate(g,dt,s,t))
 #endif
           cimg_forXY(*this,x,y) { // Over Z-direction.
             cimg_forZ(*this,z) g[z] = (longT)img(x,y,z,0,wh);
@@ -34953,7 +34953,7 @@ namespace cimg_library_suffixed {
       cimg_pragma_openmp(parallel for cimg_openmp_if(_spectrum>=2))
       cimg_forC(*this,c) {
         CImg<T> img = get_shared_channel(c);
-        cimg_pragma_openmp(parallel for collapse(3) if (_width*_height*_depth>=1024))
+        cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width*_height*_depth>=1024))
         cimg_forXYZ(metric_mask,dx,dy,dz) {
           const t weight = metric_mask(dx,dy,dz);
           if (weight) {
@@ -37667,7 +37667,7 @@ namespace cimg_library_suffixed {
 
 #define cimg_init_scanline(color,opacity) \
     const float _sc_nopacity = cimg::abs((float)opacity), _sc_copacity = 1 - std::max((float)opacity,0.0f); \
-  const ulongT _sc_whd = (ulongT)_width*_height*_depth
+    const ulongT _sc_whd = (ulongT)_width*_height*_depth
 
 #define cimg_draw_scanline(x0,x1,y,color,opacity,brightness) \
     _draw_scanline(x0,x1,y,color,opacity,brightness,_sc_nopacity,_sc_copacity,_sc_whd)
@@ -41221,113 +41221,69 @@ namespace cimg_library_suffixed {
        \param color Pointer to \c spectrum() consecutive values of type \c T, defining the drawing color.
        \param opacity Drawing opacity.
      **/
-    template<typename t, typename tc>
-    CImg<T>& draw_polygon(const CImg<t>& points,
+    template<typename tp, typename tc>
+    CImg<T>& draw_polygon(const CImg<tp>& points,
                           const tc *const color, const float opacity=1) {
       if (is_empty() || !points) return *this;
       if (!color)
         throw CImgArgumentException(_cimg_instance
                                     "draw_polygon(): Specified color is (null).",
                                     cimg_instance);
-
-      // Normalize 2d input coordinates (remove adjacent duplicates).
-      CImg<intT> npoints(points._width,2);
-      unsigned int nb_points = 1, p = 0;
-      int cx = npoints(0,0) = (int)points(0,0), cy = npoints(0,1) = (int)points(0,1);
-      const int cx0 = cx, cy0 = cy;
-      for (p = 1; p<points._width; ++p) {
-        const int nx = (int)points(p,0), ny = (int)points(p,1);
-        if (nx!=cx || ny!=cy) { npoints(nb_points,0) = nx; npoints(nb_points++,1) = ny; cx = nx; cy = ny; }
-      }
-      --p;
-      if ((int)points(p,0)==cx0 && (int)points(p,1)==cy0) --nb_points;
-      if (nb_points<=1) return draw_point((int)npoints(0,0),(int)npoints(0,1),color,opacity);
-      if (nb_points==2) return draw_line((int)npoints(0,0),(int)npoints(0,1),
-                                         (int)npoints(1,0),(int)npoints(1,1),color,opacity);
-      if (nb_points==3) return draw_triangle((int)npoints(0,0),(int)npoints(0,1),
-                                             (int)npoints(1,0),(int)npoints(1,1),
-                                             (int)npoints(2,0),(int)npoints(2,1),color,opacity);
-
-      // Shift the coordinates so that the first and last vertices are not located on the same scanline.
-      if (npoints(0,1)==npoints(nb_points - 1,1)) {
-        const intT y0 = npoints(0,1);
-        unsigned int off = 1;
-        while ((int)npoints(off,1)==y0 && off<nb_points) ++off;
-        if (off<nb_points) {
-          npoints.get_shared_points(0,nb_points - 1,0).shift(-(int)off,0,0,0,2);
-          npoints.get_shared_points(0,nb_points - 1,1).shift(-(int)off,0,0,0,2);
-        }
-      }
-
+      if (points._width==1) return draw_point((int)points(0,0),(int)points(0,1),color,opacity);
+      if (points._width==2) return draw_line((int)points(0,0),(int)points(0,1),
+                                             (int)points(1,0),(int)points(1,1),color,opacity);
+      if (points._width==3) return draw_triangle((int)points(0,0),(int)points(0,1),
+                                                 (int)points(1,0),(int)points(1,1),
+                                                 (int)points(2,0),(int)points(2,1),color,opacity);
       cimg_init_scanline(color,1);
-
-      if (opacity!=1) { // For non-opaque polygons, do a little trick to avoid horizontal lines artefacts.
-        npoints.resize(nb_points,2,1,1,0);
-        CImg<intT> npoints_x = npoints.get_shared_row(0), npoints_y = npoints.get_shared_row(1);
-        int xmax = 0, xmin = (int)npoints_x.min_max(xmax), ymax = 0, ymin = (int)npoints_y.min_max(ymax);
-        if (xmax<0 || xmin>=width() || ymax<0 || ymin>=height()) return *this;
-        if (ymin==ymax) return cimg_draw_scanline(xmin,xmax,ymin,color,opacity,1);
-        const unsigned int
-          nxmin = xmin<0?0:(unsigned int)xmin, nxmax = xmax>=width()?_width - 1:(unsigned int)xmax,
-          nymin = ymin<0?0:(unsigned int)ymin, nymax = ymax>=height()?_height - 1:(unsigned int)ymax,
-          dx = 1 + nxmax - nxmin,
-          dy = 1 + nymax - nymin;
-        npoints_x-=nxmin; npoints_y-=nymin;
-        unsigned char one = 1;
-        const CImg<unsigned char> mask = CImg<unsigned char>(dx,dy,1,1,0).draw_polygon(npoints,&one,1);
-        CImg<T> _color(dx,dy,1,spectrum());
-        cimg_forC(_color,c) _color.get_shared_channel(c).fill(color[c]);
-        return draw_image(nxmin,nymin,0,0,_color,mask,opacity,1);
-      }
-
-      // Draw polygon segments.
       int
-        xmax = 0, xmin = (int)npoints.get_shared_points(0,nb_points - 1,0).min_max(xmax),
-        ymax = 0, ymin = (int)npoints.get_shared_points(0,nb_points - 1,1).min_max(ymax);
-      if (xmax<0 || xmin>=width() || ymax<0 || ymin>=height()) return *this;
-      if (ymin==ymax) return cimg_draw_scanline(xmin,xmax,ymin,color,1,1);
-      const unsigned int
-        nymin = ymin<0?0:(unsigned int)ymin,
-        nymax = ymax>=height()?_height - 1:(unsigned int)ymax,
-        dy = 1 + nymax - nymin;
-      CImg<intT> X(1 + 2*nb_points,dy,1,1,0), tmp;
-      cx = (int)npoints(0,0), cy = (int)npoints(0,1);
-      unsigned int cp = 0;
-      for (unsigned int p = 0; p<nb_points; ++p) {
-        const unsigned int np = (p!=nb_points - 1)?p + 1:0, ap = (np!=nb_points - 1)?np + 1:0;
+        xmin = 0, ymin = 0,
+        xmax = points.get_shared_row(0).max_min(xmin),
+        ymax = points.get_shared_row(1).max_min(ymin);
+
+      if (xmax<0 || xmin>=width() || ymax<0 || ymax>=height()) return *this;
+      if (ymin==ymax) return draw_line(xmin,ymin,xmax,ymax,color,opacity);
+
+      const int value_none = xmax + 1;
+      ymin = std::max(0,ymin);
+      ymax = std::min(height() - 1,ymax);
+      CImg<intT> Xs(points._width,ymax - ymin + 1,1,1,value_none);
+      CImg<uintT> count(Xs._height,1,1,1,0);
+
+      unsigned int n = 0, nn = 1, an = 2;
+      while (points(nn,1)==points(n,1)) (n+=1)%=points._width;
+      bool go_on = true;
+
+      while (go_on) {
+        while (points(an,1)==points(nn,1)) (an+=1)%=points._width;
         const int
-          nx = (int)npoints(np,0), ny = (int)npoints(np,1), ay = (int)npoints(ap,1),
-          y0 = cy - (int)nymin, y1 = ny - (int)nymin;
-        if (y0!=y1) {
-          const int countermin = (ny<ay && cy<ny) || (ny>ay && cy>ny);
-          for (int x = cx, y = y0, _sx = 1, _sy = 1,
-                 _dx = nx>cx?nx - cx:((_sx=-1),cx - nx),
-                 _dy = y1>y0?y1 - y0:((_sy=-1),y0 - y1),
-                 _counter = ((_dx-=_dy?_dy*(_dx/_dy):0),_dy),
-                 _err = _dx>>1,
-                 _rx = _dy?(nx - cx)/_dy:0;
-               _counter>=countermin;
-               --_counter, y+=_sy, x+=_rx + ((_err-=_dx)<0?_err+=_dy,_sx:0))
-            if (y>=0 && y<(int)dy) X(++X(0,y),y) = x;
-          cp = np; cx = nx; cy = ny;
-        } else {
-          const int pp = (int)(cp?cp - 1:nb_points - 1), py = (int)npoints(pp,1);
-          if (y0>=0 && y0<(int)dy) {
-            cimg_draw_scanline(cx<nx?cx:nx,cx<nx?nx:cx,y0 + nymin,color,1,1);
-            if ((cy>py && ay>cy) || (cy<py && ay<cy)) X(++X(0,y0),y0) = cx;
-          }
-          if (cy!=ay) { cp = np; cx = nx; cy = ny; }
+          x0 = (int)points(n,0), y0 = (int)points(n,1),
+          x1 = (int)points(nn,0), y1 = (int)points(nn,1),
+          y2 = (int)points(an,1),
+          x01 = x1 - x0, y01 = y1 - y0, y12 = y2 - y1,
+          dy = cimg::sign(y01),
+          tmax = std::max(1,cimg::abs(y01)),
+          tend = tmax - (cimg::sign(y01)==cimg::sign(y12));
+        unsigned int y = (unsigned int)y0 - ymin;
+        for (int t = 0; t<=tend; ++t, y+=dy)
+          if (y<=Xs._height) { Xs(count[y]++,y) = x0 + t*x01/tmax; }
+        go_on = nn>n; n = nn; nn = an;
+      }
+
+      cimg_pragma_openmp(parallel for cimg_openmp_if(Xs._height>64))
+      cimg_forY(Xs,y) {
+        const CImg<intT> Xsy = Xs.get_shared_points(0,count[y] - 1,y).sort();
+        for (unsigned int n = 0; n<Xsy._width; ) {
+          int x0, x1;
+          do { x0 = Xsy[n++]; } while (x0==value_none && n<Xsy._width);
+          if (x0!=value_none) {
+            do { x1 = Xsy[n++]; } while (x1==value_none && n<Xsy._width);
+            if (x1!=value_none) cimg_draw_scanline(x0,x1,y + ymin,color,1,1);
+            else break;
+          } else break;
         }
       }
 
-      // Draw polygon scanlines.
-      for (int y = 0; y<(int)dy; ++y) {
-        tmp.assign(X.data(1,y),X(0,y),1,1,1,true).sort();
-        for (int i = 1; i<=X(0,y); ) {
-          const int xb = X(i++,y), xe = X(i++,y);
-          cimg_draw_scanline(xb,xe,nymin + y,color,1,1);
-        }
-      }
       return *this;
     }
 
@@ -42787,7 +42743,7 @@ namespace cimg_library_suffixed {
         _x1 = cimg::cut(x1,0,width() - 1),
         _y1 = cimg::cut(y1,0,height() - 1);
 
-      cimg_pragma_openmp(parallel for collapse(2) if ((1 + _x1 - _x0)*(1 + _y1 - _y0)>=2048))
+      cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if((1 + _x1 - _x0)*(1 + _y1 - _y0)>=2048))
       for (int q = _y0; q<=_y1; ++q)
         for (int p = _x0; p<=_x1; ++p) {
           unsigned int iteration = 0;

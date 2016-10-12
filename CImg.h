@@ -16880,8 +16880,40 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(arg1);
             }
 
-            if (!std::strncmp(ss,"debugm(",7)) { // View memory (for debug)
-              _cimg_mp_scalar0(mp_debug_memory);
+            if (!std::strncmp(ss,"display(",8)) { // Display memory
+              _cimg_mp_op("Function 'display()'");
+              if (pexpr[se2 - expr._data]=='(') { // no arguments?
+                CImg<ulongT>::vector((ulongT)mp_display_memory,_cimg_mp_slot_nan).move_to(code);
+                _cimg_mp_return(_cimg_mp_slot_nan);
+              }
+              s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss8,s1,depth1,0);
+              arg2 = 0; arg3 = arg4 = arg5 = 1;
+              if (s1<se1) {
+                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                arg2 = compile(s1,s2,depth1,0);
+                if (s2<se1) {
+                  s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                  arg3 = compile(s2,s1,depth1,0);
+                  if (s1<se1) {
+                    s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                    arg4 = compile(s1,s2,depth1,0);
+                    arg5 = s2<se1?compile(++s2,se1,depth1,0):0;
+                  }
+                }
+              }
+              _cimg_mp_check_type(arg1,1,2,0);
+              _cimg_mp_check_type(arg2,2,1,0);
+              _cimg_mp_check_type(arg3,3,1,0);
+              _cimg_mp_check_type(arg4,4,1,0);
+              _cimg_mp_check_type(arg5,5,1,0);
+              *se1 = 0;
+              ((CImg<ulongT>::vector((ulongT)mp_display_vector,arg1,0,_cimg_mp_vector_size(arg1),arg2,arg3,arg4,arg5),
+                CImg<ulongT>::string(ss8).unroll('y'))>'y').move_to(opcode);
+              opcode[2] = opcode._height;
+              opcode.move_to(code);
+              *se1 = ')';
+              _cimg_mp_return(arg1);
             }
 
             if (!std::strncmp(ss,"det(",4)) { // Matrix determinant
@@ -19002,13 +19034,6 @@ namespace cimg_library_suffixed {
         return mp.mem[g_target];
       }
 
-      static double mp_debug_memory(_cimg_math_parser& mp) {
-        cimg::unused(mp);
-        std::fputc('\n',cimg::output());
-        mp.mem.display("[_cimg_math_parser] Memory snapshot");
-        return cimg::type<double>::nan();
-      }
-
       static double mp_decrement(_cimg_math_parser& mp) {
         return _mp_arg(2) - 1;
       }
@@ -19024,6 +19049,37 @@ namespace cimg_library_suffixed {
         const double *ptrs = &_mp_arg(2) + 1;
         const unsigned int k = (unsigned int)mp.opcode[3];
         CImg<double>(ptrd,k,k,1,1,true) = CImg<double>(ptrs,1,k,1,1,true).get_diagonal();
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_display_memory(_cimg_math_parser& mp) {
+        cimg::unused(mp);
+        std::fputc('\n',cimg::output());
+        mp.mem.display("[_cimg_math_parser] Memory snapshot");
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_display_vector(_cimg_math_parser& mp) {
+        const double *const ptr = &_mp_arg(1) + 1;
+        const unsigned int siz = (unsigned int)mp.opcode[3];
+        const int
+          w = (int)_mp_arg(4),
+          h = (int)_mp_arg(5),
+          d = (int)_mp_arg(6),
+          s = (int)_mp_arg(7);
+        CImg<double> img(ptr,1,siz,1,1,true), visu;
+        if (w>0 && h>0 && d>0 && s>0) {
+          if ((ulongT)w*h*d*s<=img.size()) visu = img.resize(w,h,d,s,-1).get_shared();
+          else visu = img.get_resize(w,h,d,s,-1);
+        } else visu = img.get_shared();
+
+        CImg<charT> expr(mp.opcode[2] - 8);
+        const ulongT *ptrs = mp.opcode._data + 8;
+        cimg_for(expr,ptrd,char) *ptrd = (char)*(ptrs++);
+        ((CImg<charT>::string("[_cimg_math_parser] ",false,true),expr)>'x').move_to(expr);
+        cimg::strellipsize(expr);
+        std::fputc('\n',cimg::output());
+        visu.display(expr._data);
         return cimg::type<double>::nan();
       }
 

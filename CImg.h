@@ -41248,7 +41248,6 @@ namespace cimg_library_suffixed {
         xmin = 0, ymin = 0,
         xmax = points.get_shared_row(0).max_min(xmin),
         ymax = points.get_shared_row(1).max_min(ymin);
-
       if (xmax<0 || xmin>=width() || ymax<0 || ymin>=height()) return *this;
       if (ymin==ymax) return draw_line(xmin,ymin,xmax,ymax,color,opacity);
 
@@ -41264,13 +41263,10 @@ namespace cimg_library_suffixed {
         const int
           x0 = (int)points(n,0),
           y0 = (int)points(n,1);
-
         if (points(nn,1)==y0) while (points(an,1)==y0) { nn = an; (an+=1)%=points._width; }
-
         const int
           x1 = (int)points(nn,0),
           y1 = (int)points(nn,1);
-
         unsigned int tn = an;
         while (points(tn,1)==y1) (tn+=1)%=points._width;
 
@@ -41297,7 +41293,6 @@ namespace cimg_library_suffixed {
         for (unsigned int n = 0; n<Xsy._width; n+=2)
           cimg_draw_scanline(Xsy[n],Xsy[n + 1],y + ymin,color,opacity,1);
       }
-
       return *this;
     }
 

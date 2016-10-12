@@ -14628,13 +14628,17 @@ namespace cimg_library_suffixed {
         const char *const ss0 = ss;
         char c1, c2, c3, c4;
 
-        if (ss<se) {
-          while (*ss && ((signed char)*ss<=' ' || *ss==';')) ++ss;
-          while (se>ss && ((signed char)(c1 = *(se - 1))<=' ' || c1==';')) --se;
-        }
-        while (*ss=='(' && *(se - 1)==')' && std::strchr(ss,')')==se - 1) { // Detect simple content around parentheses.
-          ++ss; --se;
-        }
+        do {
+          c2 = 0;
+          if (ss<se) {
+            while (*ss && ((signed char)*ss<=' ' || *ss==';')) ++ss;
+            while (se>ss && ((signed char)(c1 = *(se - 1))<=' ' || c1==';')) --se;
+          }
+          while (*ss=='(' && *(se - 1)==')' && std::strchr(ss,')')==se - 1) { // Detect simple content around parentheses.
+            ++ss; --se; c2 = 1;
+          }
+        } while (c2 && ss<se);
+
         if (se<=ss || !*ss) {
           cimg::strellipsize(expr,64);
           throw CImgArgumentException("[_cimg_math_parser] "
@@ -17978,12 +17982,18 @@ namespace cimg_library_suffixed {
               *ns = 0;
 
               CImg<uintT> _level = get_level(_expr);
-              expr.swap(_expr); pexpr.swap(_pexpr); level.swap(_level);
+              expr.swap(_expr);
+              pexpr.swap(_pexpr);
+              level.swap(_level);
+
               s0 = user_macro;
               user_macro = macro_def[l];
               pos = compile(expr._data,expr._data + expr._width - 1,depth1,p_ref);
               user_macro = s0;
-              expr.swap(_expr); pexpr.swap(_pexpr); level.swap(_level);
+
+              level.swap(_level);
+              pexpr.swap(_pexpr);
+              expr.swap(_expr);
               _cimg_mp_return(pos);
             }
 

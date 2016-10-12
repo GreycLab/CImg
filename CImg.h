@@ -17985,12 +17985,10 @@ namespace cimg_library_suffixed {
               expr.swap(_expr);
               pexpr.swap(_pexpr);
               level.swap(_level);
-
               s0 = user_macro;
               user_macro = macro_def[l];
               pos = compile(expr._data,expr._data + expr._width - 1,depth1,p_ref);
               user_macro = s0;
-
               level.swap(_level);
               pexpr.swap(_pexpr);
               expr.swap(_expr);

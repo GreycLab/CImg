@@ -15352,7 +15352,7 @@ namespace cimg_library_suffixed {
               }
 
               if (_cimg_mp_is_vector(arg1)) { // Vector variable: V = value
-                _cimg_mp_check_type(arg2,2,1,0);
+                _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
                 if (_cimg_mp_is_vector(arg2)) // From vector
                   CImg<ulongT>::vector((ulongT)mp_vector_copy,arg1,arg2,(ulongT)_cimg_mp_vector_size(arg1)).
                     move_to(code);

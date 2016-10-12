@@ -17946,7 +17946,7 @@ namespace cimg_library_suffixed {
             }
 
             arg3 = 0; // Number of possible name matches
-            cimglist_for(macro_def,l) if ((arg3+=!std::strcmp(macro_def[l],variable_name)) &&
+            cimglist_for(macro_def,l) if (!std::strcmp(macro_def[l],variable_name) && ++arg3 &&
                                           macro_def[l].back()==(char)p1) {
               p2 = (unsigned int)macro_def[l].back(); // Number of required arguments
               CImg<charT> _expr = macro_body[l]; // Expression to be substituted

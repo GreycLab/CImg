@@ -16559,6 +16559,32 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar1(mp_acos,arg1);
             }
 
+            if (!std::strncmp(ss,"arg(",4)) { // Nth argument
+              _cimg_mp_op("Function 'arg()'");
+              s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss4,s1,depth1,0);
+              _cimg_mp_check_type(arg1,1,1,0);
+              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg2 = compile(s1,s2,depth1,0);
+              p2 = _cimg_mp_vector_size(arg2);
+              pos = p2?vector(p2):scalar();
+              p3 = 3;
+              CImg<ulongT>::vector((ulongT)mp_arg,pos,0,p2,arg1,arg2).move_to(_opcode);
+              for (s = ++s2; s<se; ++s) {
+                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                arg3 = compile(s,ns,depth1,0);
+                _cimg_mp_check_type(arg3,p3,p2?2:1,p2);
+                CImg<ulongT>::vector(arg3).move_to(_opcode);
+                ++p3;
+                s = ns;
+              }
+              (_opcode>'y').move_to(opcode);
+              opcode[2] = opcode._height;
+              opcode.move_to(code);
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"asin(",5)) { // Arcsin
               _cimg_mp_op("Function 'asin()'");
               arg1 = compile(ss5,se1,depth1,0);
@@ -17927,7 +17953,7 @@ namespace cimg_library_suffixed {
 
           if (!std::strncmp(ss,"min(",4) || !std::strncmp(ss,"max(",4) ||
               !std::strncmp(ss,"med(",4) || !std::strncmp(ss,"kth(",4) ||
-              !std::strncmp(ss,"arg(",4) || !std::strncmp(ss,"sum(",4) ||
+              !std::strncmp(ss,"sum(",4) ||
               !std::strncmp(ss,"std(",4) || !std::strncmp(ss,"variance(",9) ||
               !std::strncmp(ss,"prod(",5) || !std::strncmp(ss,"mean(",5) ||
               !std::strncmp(ss,"argmin(",7) || !std::strncmp(ss,"argmax(",7)) { // Multi-argument functions
@@ -18753,10 +18779,18 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_arg(_cimg_math_parser& mp) {
-        const int _ind = (int)_mp_arg(3);
-        const unsigned int nb_args = (unsigned int)mp.opcode[2] - 3, ind = _ind<0?_ind + nb_args:(unsigned int)_ind;
+        const int _ind = (int)_mp_arg(4);
+        const unsigned int
+          nb_args = (unsigned int)mp.opcode[2] - 4,
+          ind = _ind<0?_ind + nb_args:(unsigned int)_ind,
+          siz = (unsigned int)mp.opcode[3];
+        if (siz>0) {
+          if (ind>=nb_args) std::memset(&_mp_arg(1) + 1,0,siz*sizeof(double));
+          else std::memcpy(&_mp_arg(1) + 1,&_mp_arg(ind + 4) + 1,siz*sizeof(double));
+          return cimg::type<double>::nan();
+        }
         if (ind>=nb_args) return 0;
-        return _mp_arg(ind + 3);
+        return _mp_arg(ind + 4);
       }
 
       static double mp_argmin(_cimg_math_parser& mp) {

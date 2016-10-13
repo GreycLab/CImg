@@ -16909,8 +16909,14 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_type(arg5,5,1,0);
 
               c1 = *s1; *s1 = 0;
+              variable_name.assign(CImg<charT>::string(ss8,true,true).unroll('y'),true);
+/*              ((CImg<ulongT>::vector((ulongT)mp_vector_print,arg1,0,(ulongT)_cimg_mp_vector_size(pos)),
+                variable_name)>'y').move_to(opcode);
+              opcode[2] = opcode._height;
+              opcode.move_to(code);
+*/
               ((CImg<ulongT>::vector((ulongT)mp_display_vector,arg1,0,_cimg_mp_vector_size(arg1),arg2,arg3,arg4,arg5),
-                CImg<ulongT>::string(ss8).unroll('y'))>'y').move_to(opcode);
+                variable_name)>'y').move_to(opcode);
               opcode[2] = opcode._height;
               opcode.move_to(code);
               *s1 = c1;

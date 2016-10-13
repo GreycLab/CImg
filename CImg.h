@@ -14628,13 +14628,14 @@ namespace cimg_library_suffixed {
         const char *const ss0 = ss;
         char c1, c2, c3, c4;
 
+        // Simplify expression when possible.
         do {
           c2 = 0;
           if (ss<se) {
             while (*ss && ((signed char)*ss<=' ' || *ss==';')) ++ss;
             while (se>ss && ((signed char)(c1 = *(se - 1))<=' ' || c1==';')) --se;
           }
-          while (*ss=='(' && *(se - 1)==')' && std::strchr(ss,')')==se - 1) { // Detect simple content around parentheses.
+          while (*ss=='(' && *(se - 1)==')' && std::strchr(ss,')')==se - 1) {
             ++ss; --se; c2 = 1;
           }
         } while (c2 && ss<se);
@@ -15017,7 +15018,8 @@ namespace cimg_library_suffixed {
                     if (_cimg_mp_is_comp(arg3)) memtype[arg3] = -2; // Prevent from being used in further optimization
                     if (_cimg_mp_is_comp(arg2)) memtype[arg2] = -2;
                   }
-                  CImg<ulongT>::vector((ulongT)mp_vector_set_off,arg3,arg1,(ulongT)_cimg_mp_vector_size(arg1),arg2,arg3).
+                  CImg<ulongT>::vector((ulongT)mp_vector_set_off,arg3,arg1,(ulongT)_cimg_mp_vector_size(arg1),
+                                       arg2,arg3).
                     move_to(code);
                   _cimg_mp_return(arg3);
                 }
@@ -32579,7 +32581,8 @@ namespace cimg_library_suffixed {
               }
 
               cimg_abort_test();
-              cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=256 && _height*_depth>=2) firstprivate(val))
+              cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=256 && _height*_depth>=2)
+                                 firstprivate(val))
               cimg_forYZ(*this,y,z) cimg_abort_try2 {
                 cimg_abort_test2();
                 cimg_forX(*this,x) {
@@ -33304,7 +33307,8 @@ namespace cimg_library_suffixed {
         default : {
           const int psize2 = (int)patch_size/2, psize1 = (int)patch_size - psize2 - 1;
           if (is_fast_approx)
-            cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(res._width>=32 && res._height*res._depth>=4) private(P,Q))
+            cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(res._width>=32 && res._height*res._depth>=4)
+                               private(P,Q))
             cimg_forXYZ(res,x,y,z) { // Fast
               P = img.get_crop(x - psize1,y - psize1,z - psize1,x + psize2,y + psize2,z + psize2,true);
               const int x0 = x - rsize1, y0 = y - rsize1, z0 = z - rsize1,
@@ -34258,7 +34262,8 @@ namespace cimg_library_suffixed {
 
           if (is_3d) { // 3d version.
             if (smoothness>=0) // Isotropic regularization.
-              cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_height*_depth>=8 && _width>=16) reduction(+:_energy))
+              cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_height*_depth>=8 && _width>=16)
+                                 reduction(+:_energy))
               cimg_forYZ(U,y,z) {
                 const int
                   _p1y = y?y - 1:0, _n1y = y<U.height() - 1?y + 1:y,
@@ -34307,7 +34312,8 @@ namespace cimg_library_suffixed {
                   }
               } else { // Anisotropic regularization.
               const float nsmoothness = -smoothness;
-              cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_height*_depth>=8 && _width>=16) reduction(+:_energy))
+              cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_height*_depth>=8 && _width>=16)
+                                 reduction(+:_energy))
               cimg_forYZ(U,y,z) {
                 const int
                   _p1y = y?y - 1:0, _n1y = y<U.height() - 1?y + 1:y,
@@ -35030,7 +35036,8 @@ namespace cimg_library_suffixed {
         CImg<longT> g(_width), dt(_width), s(_width), t(_width);
         CImg<T> img = get_shared_channel(c);
 #if defined(cimg_use_openmp) && !cimg_is_gcc49x
-        cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=512 && _height*_depth>=16) firstprivate(g,dt,s,t))
+        cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=512 && _height*_depth>=16)
+                           firstprivate(g,dt,s,t))
 #endif
         cimg_forYZ(*this,y,z) { // Over X-direction.
           cimg_forX(*this,x) g[x] = (longT)img(x,y,z,0,wh);
@@ -35040,7 +35047,8 @@ namespace cimg_library_suffixed {
         if (_height>1) {
           g.assign(_height); dt.assign(_height); s.assign(_height); t.assign(_height);
 #if defined(cimg_use_openmp) && !cimg_is_gcc49x
-          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_height>=512 && _width*_depth>=16) firstprivate(g,dt,s,t))
+          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_height>=512 && _width*_depth>=16)
+                             firstprivate(g,dt,s,t))
 #endif
           cimg_forXZ(*this,x,z) { // Over Y-direction.
             cimg_forY(*this,y) g[y] = (longT)img(x,y,z,0,wh);
@@ -35051,7 +35059,8 @@ namespace cimg_library_suffixed {
         if (_depth>1) {
           g.assign(_depth); dt.assign(_depth); s.assign(_depth); t.assign(_depth);
 #if defined(cimg_use_openmp) && !cimg_is_gcc49x
-          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_depth>=512 && _width*_height>=16) firstprivate(g,dt,s,t))
+          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_depth>=512 && _width*_height>=16)
+                             firstprivate(g,dt,s,t))
 #endif
           cimg_forXY(*this,x,y) { // Over Z-direction.
             cimg_forZ(*this,z) g[z] = (longT)img(x,y,z,0,wh);

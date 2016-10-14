@@ -17545,15 +17545,22 @@ namespace cimg_library_suffixed {
               _cimg_mp_op("Function 'resize()'");
               s1 = ss7; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss7,s1,depth1,0);
-              s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-              arg2 = compile(++s1,s2,depth1,0);
-              arg3 = s2<se1?compile(++s2,se1,depth1,0):1;
+              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg2 = compile(s1,s2,depth1,0);
+              arg3 = 1;
+              arg4 = 0;
+              if (s2<se1) {
+                s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                arg3 = compile(s2,s1,depth1,0);
+                arg4 = s1<se1?compile(++s1,se1,depth1,0):0;
+              }
               _cimg_mp_check_constant(arg2,2,3);
               arg2 = (unsigned int)mem[arg2];
               _cimg_mp_check_type(arg3,3,1,0);
+              _cimg_mp_check_type(arg4,4,1,0);
               pos = vector(arg2);
-              CImg<ulongT>::vector((ulongT)mp_vector_resize,pos,arg2,arg1,(ulongT)_cimg_mp_vector_size(arg1),arg3).
-                        move_to(code);
+              CImg<ulongT>::vector((ulongT)mp_vector_resize,pos,arg2,arg1,(ulongT)_cimg_mp_vector_size(arg1),
+                                   arg3,arg4).move_to(code);
               _cimg_mp_return(pos);
             }
 
@@ -21092,13 +21099,15 @@ namespace cimg_library_suffixed {
       static double mp_vector_resize(_cimg_math_parser& mp) {
         double *const ptrd = &_mp_arg(1) + 1;
         const unsigned int p1 = (unsigned int)mp.opcode[2], p2 = (unsigned int)mp.opcode[4];
-        const int interpolation = (int)_mp_arg(5);
+        const int
+          interpolation = (int)_mp_arg(5),
+          boundary = (int)_mp_arg(6);
         if (p2) { // Resize vector
           const double *const ptrs = &_mp_arg(3) + 1;
-          CImg<doubleT>(ptrd,p1,1,1,1,true) = CImg<doubleT>(ptrs,p2,1,1,1,true).get_resize(p1,1,1,1,interpolation);
+          CImg<doubleT>(ptrd,p1,1,1,1,true) = CImg<doubleT>(ptrs,p2,1,1,1,true).get_resize(p1,1,1,1,interpolation,boundary);
         } else { // Resize scalar
           const double value = _mp_arg(3);
-          CImg<doubleT>(ptrd,p1,1,1,1,true) = CImg<doubleT>(1,1,1,1,value).resize(p1,1,1,1,interpolation);
+          CImg<doubleT>(ptrd,p1,1,1,1,true) = CImg<doubleT>(1,1,1,1,value).resize(p1,1,1,1,interpolation,boundary);
         }
         return cimg::type<double>::nan();
       }

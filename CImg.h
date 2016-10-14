@@ -16327,7 +16327,7 @@ namespace cimg_library_suffixed {
           if (s0>ss) { // Vector value
             arg1 = compile(ss,s0,depth1,0);
             if (_cimg_mp_is_scalar(arg1)) {
-              variable_name.assign(ss,(unsigned int)(s0 - ss)).back() = 0;
+              variable_name.assign(ss,(unsigned int)(s0 - ss + 1)).back() = 0;
               *se = saved_char; cimg::strellipsize(variable_name,64); cimg::strellipsize(expr,64);
               throw CImgArgumentException("[_cimg_math_parser] "
                                           "CImg<%s>::%s: %s: Array brackets used on non-vector variable '%s', "

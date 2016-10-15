@@ -16628,6 +16628,13 @@ namespace cimg_library_suffixed {
             }
             break;
 
+          case 'b' :
+            if (!std::strncmp(ss,"break(",6)) { // Complex absolute value
+              CImg<ulongT>::vector((ulongT)mp_break,_cimg_mp_slot_nan).move_to(code);
+              _cimg_mp_return(_cimg_mp_slot_nan);
+            }
+            break;
+
           case 'c' :
             if (!std::strncmp(ss,"cabs(",5)) { // Complex absolute value
               _cimg_mp_op("Function 'cabs()'");
@@ -18873,6 +18880,12 @@ namespace cimg_library_suffixed {
 
       static double mp_bitwise_right_shift(_cimg_math_parser& mp) {
         return (double)((longT)_mp_arg(2)>>(unsigned int)_mp_arg(3));
+      }
+
+      static double mp_break(_cimg_math_parser& mp) {
+        std::fprintf(stderr,"\nDEBUG : break\n");
+//        mp.is_break = true;
+        return cimg::type<double>::nan();
       }
 
       static double mp_cbrt(_cimg_math_parser& mp) {

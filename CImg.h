@@ -14391,7 +14391,7 @@ namespace cimg_library_suffixed {
       char *user_macro;
 
       unsigned int mempos, mem_img_median, debug_indent, init_size, result_dim;
-      bool is_parallelizable, need_input_copy;
+      bool is_parallelizable, need_input_copy, is_break;
       double *result;
       const char *const calling_function, *s_op, *ss_op;
       typedef double (*mp_func)(_cimg_math_parser&);
@@ -14434,7 +14434,7 @@ namespace cimg_library_suffixed {
         imgout(img_output?*img_output:CImg<T>::empty()),listout(list_output?*list_output:CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),user_macro(0),
         mem_img_median(~0U),debug_indent(0),init_size(0),result_dim(0),is_parallelizable(true),
-        need_input_copy(false),calling_function(funcname?funcname:"cimg_math_parser") {
+        need_input_copy(false),is_break(false),calling_function(funcname?funcname:"cimg_math_parser") {
         if (!expression || !*expression)
           throw CImgArgumentException("[_cimg_math_parser] "
                                       "CImg<%s>::%s: Empty expression.",
@@ -14534,7 +14534,7 @@ namespace cimg_library_suffixed {
         imgin(CImg<T>::const_empty()),listin(CImgList<T>::const_empty()),
         imgout(CImg<T>::empty()),listout(CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),debug_indent(0),
-        result_dim(0),is_parallelizable(true),need_input_copy(false),calling_function(0) {
+        result_dim(0),is_parallelizable(true),need_input_copy(false),is_break(false),calling_function(0) {
         mem.assign(1 + _cimg_mp_slot_c,1,1,1,0); // Allow to skip 'is_empty?' test in operator()()
         result = mem._data;
       }
@@ -14543,7 +14543,7 @@ namespace cimg_library_suffixed {
         mem(mp.mem),code(mp.code),p_code_begin(mp.p_code_begin),p_code_end(mp.p_code_end),
         imgin(mp.imgin),listin(mp.listin),imgout(mp.imgout),listout(mp.listout),img_stats(mp.img_stats),
         list_stats(mp.list_stats),list_median(mp.list_median),debug_indent(0),result_dim(mp.result_dim),
-        is_parallelizable(mp.is_parallelizable), need_input_copy(mp.need_input_copy),
+        is_parallelizable(mp.is_parallelizable),need_input_copy(mp.need_input_copy),is_break(false),
         result(mem._data + (mp.result - mp.mem._data)),calling_function(0) {
 #ifdef cimg_use_openmp
         mem[17] = omp_get_thread_num();
@@ -18883,8 +18883,8 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_break(_cimg_math_parser& mp) {
-        std::fprintf(stderr,"\nDEBUG : break\n");
-//        mp.is_break = true;
+        mp.is_break = true;
+        mp.p_code = (CImg<ulongT>*)(-2*sizeof(CImg<ulongT>));
         return cimg::type<double>::nan();
       }
 
@@ -19184,6 +19184,7 @@ namespace cimg_library_suffixed {
         const CImg<ulongT>
           *const p_proc = ++mp.p_code,
           *const p_end = p_proc + mp.opcode[3];
+        mp.is_break = false;
         do {
           for (mp.p_code = p_proc; mp.p_code<p_end; ++mp.p_code) { // Evaluate loop iteration + condition
             const CImg<ulongT> &op = *mp.p_code;
@@ -19191,6 +19192,7 @@ namespace cimg_library_suffixed {
             const ulongT target = mp.opcode[1];
             mp.mem[target] = _cimg_mp_defunc(mp);
           }
+          if (mp.is_break) break;
         } while (mp.mem[mem_cond]);
         --mp.p_code;
         return mp.mem[mem_proc];

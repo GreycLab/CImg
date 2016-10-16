@@ -17554,8 +17554,7 @@ namespace cimg_library_suffixed {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                 pos = compile(s,ns,depth1,p_ref);
-                c1 = *ns;
-                *ns = 0;
+                c1 = *ns; *ns = 0;
                 variable_name.assign(CImg<charT>::string(s,true,true).unroll('y'),true);
                 cimg::strpare(variable_name,' ',false,true);
                 if (_cimg_mp_is_vector(pos)) // Vector
@@ -17566,8 +17565,7 @@ namespace cimg_library_suffixed {
                     variable_name)>'y').move_to(opcode);
                 opcode[2] = opcode._height;
                 opcode.move_to(code);
-                *ns = c1;
-                s = ns;
+                *ns = c1; s = ns;
               }
               _cimg_mp_return(pos);
             }

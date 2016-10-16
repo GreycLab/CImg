@@ -17975,7 +17975,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_op("Function 'vector()'");
               arg2 = 0; // Number of specified values.
               s = std::strchr(ss6,'(') + 1;
-              if (s<se1 || arg1==~0U) for (; s<se; ++s) {
+              if (s<se1 || arg1==~0U) for ( ; s<se; ++s) {
                   ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                  (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                   arg3 = compile(s,ns,depth1,0);
@@ -19247,7 +19247,7 @@ namespace cimg_library_suffixed {
             const ulongT target = mp.opcode[1];
             mp.mem[target] = _cimg_mp_defunc(mp);
           }
-          if (mp.break_type==1) break;
+          if (mp.break_type==1) break; else if (mp.break_type==2) mp.break_type = 0;
         } while (mp.mem[mem_cond]);
         mp.is_loop = _is_loop;
         mp.break_type = _break_type;
@@ -19408,13 +19408,14 @@ namespace cimg_library_suffixed {
         const unsigned int _break_type = mp.break_type;
         mp.is_loop = true;
         mp.break_type = 0;
+
         for (mp.p_code = p_init; mp.p_code<p_cond; ++mp.p_code) { // Evaluate init
           const CImg<ulongT> &op = *mp.p_code;
           mp.opcode._data = op._data;
           const ulongT target = mp.opcode[1];
           mp.mem[target] = _cimg_mp_defunc(mp);
         }
-
+        if (mp.break_type==2) mp.break_type = 0; // 'continue()' in init
         if (!mp.break_type) do {
             for (mp.p_code = p_cond; mp.p_code<p_body; ++mp.p_code) { // Evaluate condition
               const CImg<ulongT> &op = *mp.p_code;
@@ -19422,25 +19423,26 @@ namespace cimg_library_suffixed {
               const ulongT target = mp.opcode[1];
               mp.mem[target] = _cimg_mp_defunc(mp);
             }
-            if (mp.break_type==1) break; else if (mp.break_type==2) continue;
+            if (mp.break_type==1) break;
+
             is_cond = (bool)mp.mem[mem_cond];
-
             if (is_cond) {
-              for ( ; mp.p_code<p_post; ++mp.p_code) { // Evaluate body
-                const CImg<ulongT> &op = *mp.p_code;
-                mp.opcode._data = op._data;
-                const ulongT target = mp.opcode[1];
-                mp.mem[target] = _cimg_mp_defunc(mp);
-              }
-              if (mp.break_type==1) break; else if (mp.break_type==2) continue;
+              if (!mp.break_type)
+                for (mp.p_code = p_body; mp.p_code<p_post; ++mp.p_code) { // Evaluate body
+                  const CImg<ulongT> &op = *mp.p_code;
+                  mp.opcode._data = op._data;
+                  const ulongT target = mp.opcode[1];
+                  mp.mem[target] = _cimg_mp_defunc(mp);
+                }
+              if (mp.break_type==1) break; else if (mp.break_type==2) mp.break_type = 0;
 
-              for ( ; mp.p_code<p_end; ++mp.p_code) { // Evaluate post-code
+              for (mp.p_code = p_post; mp.p_code<p_end; ++mp.p_code) { // Evaluate post-code
                 const CImg<ulongT> &op = *mp.p_code;
                 mp.opcode._data = op._data;
                 const ulongT target = mp.opcode[1];
                 mp.mem[target] = _cimg_mp_defunc(mp);
               }
-              if (mp.break_type==1) break;
+              if (mp.break_type==1) break; else if (mp.break_type==2) mp.break_type = 0;
             }
           } while (is_cond);
 
@@ -21284,17 +21286,16 @@ namespace cimg_library_suffixed {
             const ulongT target = mp.opcode[1];
             mp.mem[target] = _cimg_mp_defunc(mp);
           }
-          if (mp.break_type==1) break; else if (mp.break_type==2) continue;
+          if (mp.break_type==1) break;
           is_cond = (bool)mp.mem[mem_cond];
-          if (is_cond) { // Evaluate body
-            for ( ; mp.p_code<p_end; ++mp.p_code) {
+          if (is_cond && !mp.break_type) // Evaluate body
+            for (mp.p_code = p_body; mp.p_code<p_end; ++mp.p_code) {
               const CImg<ulongT> &op = *mp.p_code;
               mp.opcode._data = op._data;
               const ulongT target = mp.opcode[1];
               mp.mem[target] = _cimg_mp_defunc(mp);
             }
-          }
-          if (mp.break_type==1) break;
+          if (mp.break_type==1) break; else if (mp.break_type==2) mp.break_type = 0;
         } while (is_cond);
 
         mp.is_loop = _is_loop;

@@ -18904,7 +18904,10 @@ namespace cimg_library_suffixed {
         if (mp.is_breakable) {
           mp.is_break = true;
           mp.p_code = mp.p_break - 1;
-        }
+        } else
+          throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: Function 'break()': "
+                                      "Invalid call outside loop.",
+                                      mp.imgin.pixel_type());
         return cimg::type<double>::nan();
       }
 
@@ -19223,7 +19226,7 @@ namespace cimg_library_suffixed {
         } while (mp.mem[mem_cond]);
         mp.is_breakable = _is_breakable;
         mp.is_break = _is_break;
-        mp.p_code = p_end - 1;
+        --mp.p_code;
         return mp.mem[mem_body];
       }
 

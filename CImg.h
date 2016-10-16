@@ -16634,8 +16634,10 @@ namespace cimg_library_suffixed {
 
           case 'b' :
             if (!std::strncmp(ss,"break(",6)) { // Complex absolute value
-              CImg<ulongT>::vector((ulongT)mp_break,_cimg_mp_slot_nan).move_to(code);
-              _cimg_mp_return(_cimg_mp_slot_nan);
+              if (pexpr[se2 - expr._data]=='(') { // no arguments?
+                CImg<ulongT>::vector((ulongT)mp_break,_cimg_mp_slot_nan).move_to(code);
+                _cimg_mp_return(_cimg_mp_slot_nan);
+              }
             }
             break;
 
@@ -17548,20 +17550,42 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"print(",6)) { // Print expression
               _cimg_mp_op("Function 'print()'");
-              pos = compile(ss6,se1,depth1,p_ref);
-              *se1 = 0;
-              variable_name.assign(CImg<charT>::string(ss6,true,true).unroll('y'),true);
-              cimg::strpare(variable_name,' ',false,true);
-              if (_cimg_mp_is_vector(pos)) // Vector
-                ((CImg<ulongT>::vector((ulongT)mp_vector_print,pos,0,(ulongT)_cimg_mp_vector_size(pos)),
-                  variable_name)>'y').move_to(opcode);
-              else // Scalar
-                ((CImg<ulongT>::vector((ulongT)mp_print,pos,0),
-                  variable_name)>'y').move_to(opcode);
-              opcode[2] = opcode._height;
-              opcode.move_to(code);
-              *se1 = ')';
+              for (s = ss6; s<se; ++s) {
+                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                pos = compile(s,ns,depth1,p_ref);
+                c1 = *ns;
+                *ns = 0;
+                variable_name.assign(CImg<charT>::string(s,true,true).unroll('y'),true);
+                cimg::strpare(variable_name,' ',false,true);
+                if (_cimg_mp_is_vector(pos)) // Vector
+                  ((CImg<ulongT>::vector((ulongT)mp_vector_print,pos,0,(ulongT)_cimg_mp_vector_size(pos)),
+                    variable_name)>'y').move_to(opcode);
+                else // Scalar
+                  ((CImg<ulongT>::vector((ulongT)mp_print,pos,0),
+                    variable_name)>'y').move_to(opcode);
+                opcode[2] = opcode._height;
+                opcode.move_to(code);
+                *ns = c1;
+                s = ns;
+              }
               _cimg_mp_return(pos);
+
+
+              // pos = compile(ss6,se1,depth1,p_ref);
+              // *se1 = 0;
+              // variable_name.assign(CImg<charT>::string(ss6,true,true).unroll('y'),true);
+              // cimg::strpare(variable_name,' ',false,true);
+              // if (_cimg_mp_is_vector(pos)) // Vector
+              //   ((CImg<ulongT>::vector((ulongT)mp_vector_print,pos,0,(ulongT)_cimg_mp_vector_size(pos)),
+              //     variable_name)>'y').move_to(opcode);
+              // else // Scalar
+              //   ((CImg<ulongT>::vector((ulongT)mp_print,pos,0),
+              //     variable_name)>'y').move_to(opcode);
+              // opcode[2] = opcode._height;
+              // opcode.move_to(code);
+              // *se1 = ')';
+              // _cimg_mp_return(pos);
             }
             break;
 

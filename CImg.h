@@ -17548,7 +17548,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar3(mp_permutations,arg1,arg2,arg3);
             }
 
-            if (!std::strncmp(ss,"print(",6)) { // Print expression
+            if (!std::strncmp(ss,"print(",6)) { // Print expressions
               _cimg_mp_op("Function 'print()'");
               for (s = ss6; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&

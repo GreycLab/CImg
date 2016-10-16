@@ -17570,22 +17570,6 @@ namespace cimg_library_suffixed {
                 s = ns;
               }
               _cimg_mp_return(pos);
-
-
-              // pos = compile(ss6,se1,depth1,p_ref);
-              // *se1 = 0;
-              // variable_name.assign(CImg<charT>::string(ss6,true,true).unroll('y'),true);
-              // cimg::strpare(variable_name,' ',false,true);
-              // if (_cimg_mp_is_vector(pos)) // Vector
-              //   ((CImg<ulongT>::vector((ulongT)mp_vector_print,pos,0,(ulongT)_cimg_mp_vector_size(pos)),
-              //     variable_name)>'y').move_to(opcode);
-              // else // Scalar
-              //   ((CImg<ulongT>::vector((ulongT)mp_print,pos,0),
-              //     variable_name)>'y').move_to(opcode);
-              // opcode[2] = opcode._height;
-              // opcode.move_to(code);
-              // *se1 = ')';
-              // _cimg_mp_return(pos);
             }
             break;
 

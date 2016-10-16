@@ -19200,9 +19200,7 @@ namespace cimg_library_suffixed {
           }
           if (mp.is_break) { mp.is_break = false; break; }
         } while (mp.mem[mem_cond]);
-
         mp.p_code = p_end - 1;
-//        --mp.p_code;
         return mp.mem[mem_proc];
       }
 

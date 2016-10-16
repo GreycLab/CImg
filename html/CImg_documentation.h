@@ -550,7 +550,7 @@
   \c visu and then, can be pipelined with the function \c draw_graph() which draws a plot in the image \c visu.
   The plot data are given by another image (the first argument of \c draw_graph()). In this case, the given image is
   the red-component of the line y of the original image, retrieved by the function \c get_crop() which returns a
-  sub-image of the image \c image. Remember that images coordinates are 4D (x,y,z,v) and for color images,
+  sub-image of the image \c image. Remember that images coordinates are 4D (x,y,z,c) and for color images,
   the R,G,B channels are respectively given by <tt>v=0, v=1</tt> and <tt>v=2</tt>.
   \code visu.draw_graph(image.get_crop(0,y,0,1,image.width()-1,y,0,1),green,1,0,256,0); \endcode
   Plot the intensity profile for the green channel of the clicked line.
@@ -627,7 +627,7 @@
 
   - \b cimg_for(img,ptr,T) :
   This macro loops over the pixel data buffer of the image \c img, using a pointer <tt>T* ptr</tt>,
-  starting from the beginning of the buffer (first pixel) till the end of the buffer (first pixel).
+  starting from the beginning of the buffer (first pixel) till the end of the buffer (last pixel).
       - \c img must be a (non empty) \c cimg_library::CImg image of pixels \c T.
       - \c ptr is a pointer of type \c T*.
   This kind of loop should not appear a lot in your own source code, since this is a low-level loop
@@ -658,23 +658,23 @@
   The following loops are probably the most used loops in image processing programs.
   They allow to loop over the image along one or several dimensions, along a raster scan course.
   Here is the list of such loop macros for a single dimension :
-  - \b cimg_forX(img,x) : equivalent to : <tt>for (int x = 0; x<img.width(); x++)</tt>.
-  - \b cimg_forY(img,y) : equivalent to : <tt>for (int y = 0; y<img.height(); y++)</tt>.
-  - \b cimg_forZ(img,z) : equivalent to : <tt>for (int z = 0; z<img.depth(); z++)</tt>.
-  - \b cimg_forC(img,v) : equivalent to : <tt>for (int v = 0; v<img.spectrum(); v++)</tt>.
+  - \b cimg_forX(img,x) : equivalent to : <tt>for (int x = 0; x<img.width(); ++x)</tt>.
+  - \b cimg_forY(img,y) : equivalent to : <tt>for (int y = 0; y<img.height(); ++y)</tt>.
+  - \b cimg_forZ(img,z) : equivalent to : <tt>for (int z = 0; z<img.depth(); ++z)</tt>.
+  - \b cimg_forC(img,c) : equivalent to : <tt>for (int c = 0; c<img.spectrum(); ++c)</tt>.
 
   Combinations of these macros are also defined as other loop macros, allowing to loop directly over 2D, 3D or 4D images :
   - \b cimg_forXY(img,x,y) : equivalent to : \c cimg_forY(img,y) \c cimg_forX(img,x).
   - \b cimg_forXZ(img,x,z) : equivalent to : \c cimg_forZ(img,z) \c cimg_forX(img,x).
   - \b cimg_forYZ(img,y,z) : equivalent to : \c cimg_forZ(img,z) \c cimg_forY(img,y).
-  - \b cimg_forXC(img,x,v) : equivalent to : \c cimg_forC(img,v) \c cimg_forX(img,x).
-  - \b cimg_forYC(img,y,v) : equivalent to : \c cimg_forC(img,v) \c cimg_forY(img,y).
-  - \b cimg_forZC(img,z,v) : equivalent to : \c cimg_forC(img,v) \c cimg_forZ(img,z).
+  - \b cimg_forXC(img,x,c) : equivalent to : \c cimg_forC(img,c) \c cimg_forX(img,x).
+  - \b cimg_forYC(img,y,c) : equivalent to : \c cimg_forC(img,c) \c cimg_forY(img,y).
+  - \b cimg_forZC(img,z,c) : equivalent to : \c cimg_forC(img,c) \c cimg_forZ(img,z).
   - \b cimg_forXYZ(img,x,y,z) : equivalent to : \c cimg_forZ(img,z) \c cimg_forXY(img,x,y).
-  - \b cimg_forXYC(img,x,y,v) : equivalent to : \c cimg_forC(img,v) \c cimg_forXY(img,x,y).
-  - \b cimg_forXZC(img,x,z,v) : equivalent to : \c cimg_forC(img,v) \c cimg_forXZ(img,x,z).
-  - \b cimg_forYZC(img,y,z,v) : equivalent to : \c cimg_forC(img,v) \c cimg_forYZ(img,y,z).
-  - \b cimg_forXYZC(img,x,y,z,v) : equivalent to : \c cimg_forC(img,v) \c cimg_forXYZ(img,x,y,z).
+  - \b cimg_forXYC(img,x,y,c) : equivalent to : \c cimg_forC(img,c) \c cimg_forXY(img,x,y).
+  - \b cimg_forXZC(img,x,z,c) : equivalent to : \c cimg_forC(img,c) \c cimg_forXZ(img,x,z).
+  - \b cimg_forYZC(img,y,z,c) : equivalent to : \c cimg_forC(img,c) \c cimg_forYZ(img,y,z).
+  - \b cimg_forXYZC(img,x,y,z,c) : equivalent to : \c cimg_forC(img,c) \c cimg_forXYZ(img,x,y,z).
 
   - For all these loops, \c x,\c y,\c z and \c v are inner-defined variables only visible inside the scope of the loop.
   They don't have to be defined before the call of the macro.
@@ -683,7 +683,7 @@
   Here is an example of use that creates an image with a smooth color gradient :
   \code
   CImg<unsigned char> img(256,256,1,3);       // Define a 256x256 color image
-  cimg_forXYC(img,x,y,v) { img(x,y,v) = (x+y)*(v+1)/6; }
+  cimg_forXYC(img,x,y,c) { img(x,y,c) = (x+y)*(c+1)/6; }
   img.display("Color gradient");
   \endcode
 
@@ -695,7 +695,7 @@
   - \b cimg_for_insideX(img,x,n) : Loop along the x-axis, except for pixels inside a border of \p n pixels wide.
   - \b cimg_for_insideY(img,y,n) : Loop along the y-axis, except for pixels inside a border of \p n pixels wide.
   - \b cimg_for_insideZ(img,z,n) : Loop along the z-axis, except for pixels inside a border of \p n pixels wide.
-  - \b cimg_for_insideC(img,v,n) : Loop along the v-axis, except for pixels inside a border of \p n pixels wide.
+  - \b cimg_for_insideC(img,c,n) : Loop along the c-axis, except for pixels inside a border of \p n pixels wide.
   - \b cimg_for_insideXY(img,x,y,n) : Loop along the (x,y)-axes, excepted for pixels inside a border of \p n pixels wide.
   - \b cimg_for_insideXYZ(img,x,y,z,n) : Loop along the (x,y,z)-axes, excepted for pixels inside a border of \p n pixels wide.
 
@@ -704,11 +704,11 @@
   - \b cimg_for_borderX(img,x,n) : Loop along the x-axis, only for pixels inside a border of \p n pixels wide.
   - \b cimg_for_borderY(img,y,n) : Loop along the y-axis, only for pixels inside a border of \p n pixels wide.
   - \b cimg_for_borderZ(img,z,n) : Loop along the z-axis, only for pixels inside a border of \p n pixels wide.
-  - \b cimg_for_borderC(img,v,n) : Loop along the z-axis, only for pixels inside a border of \p n pixels wide.
+  - \b cimg_for_borderC(img,c,n) : Loop along the c-axis, only for pixels inside a border of \p n pixels wide.
   - \b cimg_for_borderXY(img,x,y,n) : Loop along the (x,y)-axes, only for pixels inside a border of \p n pixels wide.
   - \b cimg_for_borderXYZ(img,x,y,z,n) : Loop along the (x,y,z)-axes, only for pixels inside a border of \p n pixels wide.
 
-  - For all these loops, \c x,\c y,\c z and \c v are inner-defined variables only visible inside the scope of the loop.
+  - For all these loops, \c x,\c y,\c z and \c c are inner-defined variables only visible inside the scope of the loop.
   They don't have to be defined before the call of the macro.
   - \c img must be a (non empty) cimg_library::CImg image.
   - The constant \c n stands for the size of the border.
@@ -733,14 +733,14 @@
 
   For 2D images, the neighborhood-based loop macros are :
 
-  - \b cimg_for2x2(img,x,y,z,v,I,T) : Loop along the (x,y)-axes using a centered 2x2 neighborhood.
-  - \b cimg_for3x3(img,x,y,z,v,I,T) : Loop along the (x,y)-axes using a centered 3x3 neighborhood.
-  - \b cimg_for4x4(img,x,y,z,v,I,T) : Loop along the (x,y)-axes using a centered 4x4 neighborhood.
-  - \b cimg_for5x5(img,x,y,z,v,I,T) : Loop along the (x,y)-axes using a centered 5x5 neighborhood.
+  - \b cimg_for2x2(img,x,y,z,c,I,T) : Loop along the (x,y)-axes using a centered 2x2 neighborhood.
+  - \b cimg_for3x3(img,x,y,z,c,I,T) : Loop along the (x,y)-axes using a centered 3x3 neighborhood.
+  - \b cimg_for4x4(img,x,y,z,c,I,T) : Loop along the (x,y)-axes using a centered 4x4 neighborhood.
+  - \b cimg_for5x5(img,x,y,z,c,I,T) : Loop along the (x,y)-axes using a centered 5x5 neighborhood.
 
   For all these loops, \c x and \c y are inner-defined variables only visible inside the scope of the loop.
   They don't have to be defined before the call of the macro.
-  \c img is a non empty CImg<T> image. \c z and \c v are constants that define on which image slice and
+  \c img is a non empty CImg<T> image. \c z and \c c are constants that define on which image slice and
   vector channel the loop must apply (usually both 0 for grayscale 2D images).
   Finally, \c I is the 2x2, 3x3, 4x4 or 5x5 neighborhood of type \c T that will be updated with the correct pixel values
   during the loop (see \ref lo9).
@@ -749,12 +749,12 @@
 
   For 3D images, the neighborhood-based loop macros are :
 
-  - \b cimg_for2x2x2(img,x,y,z,v,I,T) : Loop along the (x,y,z)-axes using a centered 2x2x2 neighborhood.
-  - \b cimg_for3x3x3(img,x,y,z,v,I,T) : Loop along the (x,y,z)-axes using a centered 3x3x3 neighborhood.
+  - \b cimg_for2x2x2(img,x,y,z,c,I,T) : Loop along the (x,y,z)-axes using a centered 2x2x2 neighborhood.
+  - \b cimg_for3x3x3(img,x,y,z,c,I,T) : Loop along the (x,y,z)-axes using a centered 3x3x3 neighborhood.
 
   For all these loops, \c x, \c y and \c z are inner-defined variables only visible inside the scope of the loop.
   They don't have to be defined before the call of the macro.
-  \c img is a non empty CImg<T> image. \c v is a constant that defines on which image channel
+  \c img is a non empty CImg<T> image. \c c is a constant that defines on which image channel
   the loop must apply (usually 0 for grayscale 3D images).
   Finally, \c I is the 2x2x2 or 3x3x3 neighborhood of type \c T that will be updated with the correct pixel values
   during the loop (see \ref lo9).

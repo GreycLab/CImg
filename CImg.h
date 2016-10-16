@@ -17012,7 +17012,8 @@ namespace cimg_library_suffixed {
               arg1 = compile(ss8,s1,depth1,0);
               arg2 = s1<se1?compile(++s1,se1,depth1,0):arg1;
               _cimg_mp_check_type(arg2,2,1,0);
-              CImg<ulongT>::vector((ulongT)mp_dowhile,arg1,arg2,code._width - p1).move_to(code,p1);
+              CImg<ulongT>::vector((ulongT)mp_dowhile,arg1,arg2,code._width - p1,_cimg_mp_vector_size(arg1),
+                                   arg1>=p1 && !_cimg_mp_is_constant(arg1)).move_to(code,p1);
               _cimg_mp_return(arg1);
             }
 
@@ -18884,7 +18885,7 @@ namespace cimg_library_suffixed {
 
       static double mp_break(_cimg_math_parser& mp) {
         mp.is_break = true;
-        mp.p_code = (CImg<ulongT>*)(-2*sizeof(CImg<ulongT>));
+        mp.p_code = (CImg<ulongT>*)(-2*sizeof(CImg<ulongT>)); // ptr_max - 2;
         return cimg::type<double>::nan();
       }
 
@@ -19184,6 +19185,11 @@ namespace cimg_library_suffixed {
         const CImg<ulongT>
           *const p_proc = ++mp.p_code,
           *const p_end = p_proc + mp.opcode[3];
+        const unsigned int vsiz = (unsigned int)mp.opcode[4];
+        if (mp.opcode[5]) { // Set default value for result if necessary
+          if (vsiz) CImg<doubleT>(&mp.mem[mem_proc] + 1,vsiz,1,1,1,true).fill(cimg::type<double>::nan());
+          else _mp_arg(1) = cimg::type<double>::nan();
+        }
         mp.is_break = false;
         do {
           for (mp.p_code = p_proc; mp.p_code<p_end; ++mp.p_code) { // Evaluate loop iteration + condition
@@ -19192,9 +19198,11 @@ namespace cimg_library_suffixed {
             const ulongT target = mp.opcode[1];
             mp.mem[target] = _cimg_mp_defunc(mp);
           }
-          if (mp.is_break) break;
+          if (mp.is_break) { mp.is_break = false; break; }
         } while (mp.mem[mem_cond]);
-        --mp.p_code;
+
+        mp.p_code = p_end - 1;
+//        --mp.p_code;
         return mp.mem[mem_proc];
       }
 
@@ -21154,10 +21162,11 @@ namespace cimg_library_suffixed {
           *const p_end = p_proc + mp.opcode[4];
         const unsigned int vsiz = (unsigned int)mp.opcode[5];
         bool is_cond = false;
-        if (mp.opcode[6]) { // Set default result if inner memory slot and possibly no iterations
+        if (mp.opcode[6]) { // Set default value for result if necessary
           if (vsiz) CImg<doubleT>(&mp.mem[mem_proc] + 1,vsiz,1,1,1,true).fill(cimg::type<double>::nan());
           else _mp_arg(1) = cimg::type<double>::nan();
         }
+        mp.is_break = false;
         do {
           for (mp.p_code = p_cond; mp.p_code<p_proc; ++mp.p_code) { // Evaluate loop condition
             const CImg<ulongT> &op = *mp.p_code;
@@ -21165,6 +21174,7 @@ namespace cimg_library_suffixed {
             const ulongT target = mp.opcode[1];
             mp.mem[target] = _cimg_mp_defunc(mp);
           }
+          if (mp.is_break) { mp.is_break = false; break; }
           is_cond = (bool)mp.mem[mem_cond];
           if (is_cond) { // Evaluate loop iteration
             for ( ; mp.p_code<p_end; ++mp.p_code) {
@@ -21174,6 +21184,7 @@ namespace cimg_library_suffixed {
               mp.mem[target] = _cimg_mp_defunc(mp);
             }
           }
+          if (mp.is_break) { mp.is_break = false; break; }
         } while (is_cond);
         mp.p_code = p_end - 1;
         return mp.mem[mem_proc];

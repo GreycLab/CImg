@@ -14431,7 +14431,7 @@ namespace cimg_library_suffixed {
       _cimg_math_parser(const char *const expression, const char *const funcname=0,
                         const CImg<T>& img_input=CImg<T>::const_empty(), CImg<T> *const img_output=0,
                         const CImgList<T> *const list_input=0, CImgList<T> *const list_output=0):
-        code(_code),p_break((CImg<ulongT>*)-sizeof(CImg<ulongT>)),
+        code(_code),p_break((CImg<ulongT>*)0 - 2),
         imgin(img_input),listin(list_input?*list_input:CImgList<T>::const_empty()),
         imgout(img_output?*img_output:CImg<T>::empty()),listout(list_output?*list_output:CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),user_macro(0),
@@ -14538,7 +14538,7 @@ namespace cimg_library_suffixed {
       }
 
       _cimg_math_parser():
-        code(_code),p_code_begin(0),p_code_end(0),p_break((CImg<ulongT>*)-sizeof(CImg<ulongT>)),
+        code(_code),p_code_begin(0),p_code_end(0),p_break((CImg<ulongT>*)0 - 2),
         imgin(CImg<T>::const_empty()),listin(CImgList<T>::const_empty()),
         imgout(CImg<T>::empty()),listout(CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),debug_indent(0),

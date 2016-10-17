@@ -51384,7 +51384,7 @@ namespace cimg_library_suffixed {
     /**
        \param filename Filename, as a C-string.
        \param colorspace Colorspace data field in output file
-       (see <a href="http://www.greyc.ensicaen.fr/~regis/Pandore/#documentation">Pandore file specifications</a>
+       (see <a href="http://www.greyc.ensicaen.fr/~regis/Pandore">Pandore file specifications</a>
        for more information).
     **/
     const CImg<T>& save_pandore(const char *const filename, const unsigned int colorspace=0) const {

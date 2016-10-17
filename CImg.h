@@ -19245,7 +19245,7 @@ namespace cimg_library_suffixed {
           if (mp.break_type==1) break; else if (mp.break_type==2) mp.break_type = 0;
         } while (mp.mem[mem_cond]);
         mp.break_type = _break_type;
-        --mp.p_code;
+        mp.p_code = p_end - 1;
         return mp.mem[mem_body];
       }
 

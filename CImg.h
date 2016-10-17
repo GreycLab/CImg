@@ -14503,8 +14503,13 @@ namespace cimg_library_suffixed {
         // Compile expression into a serie of opcodes.
         s_op = ""; ss_op = expr._data;
         const unsigned int ind_result = compile(expr._data,expr._data + expr._width - 1,0,0);
-        if (!_cimg_mp_is_constant(ind_result)) mem[ind_result] = cimg::type<double>::nan();
         p_code_end = code.end();
+        if (!_cimg_mp_is_constant(ind_result)) {
+          if (_cimg_mp_is_vector(ind_result))
+            CImg<doubleT>(&mem[ind_result] + 1,_cimg_mp_vector_size(ind_result),1,1,1,true).
+              fill(cimg::type<double>::nan());
+          else mem[ind_result] = cimg::type<double>::nan();
+        }
 
         // Free resources used for parsing and prepare for evaluation.
         if (_cimg_mp_is_vector(ind_result)) result_dim = _cimg_mp_vector_size(ind_result);
@@ -17020,13 +17025,15 @@ namespace cimg_library_suffixed {
               _cimg_mp_op("Function 'dowhile()'");
               if (*ss7<=' ') cimg::swap(*ss7,*ss8); // Allow space before opening brace
               s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              p1 = code._width;
-              arg1 = compile(ss8,s1,depth1,0);
-              arg2 = s1<se1?compile(++s1,se1,depth1,0):arg1;
-              _cimg_mp_check_type(arg2,2,1,0);
-              CImg<ulongT>::vector((ulongT)mp_dowhile,arg1,arg2,code._width - p1,_cimg_mp_vector_size(arg1),
-                                   arg1>=p1 && !_cimg_mp_is_constant(arg1)).move_to(code,p1);
-              _cimg_mp_return(arg1);
+              arg1 = code._width;
+              arg6 = mempos;
+              p1 = compile(ss8,s1,depth1,0);
+              arg2 = code._width;
+              p2 = s1<se1?compile(++s1,se1,depth1,0):p1;
+              _cimg_mp_check_type(p2,2,1,0);
+              CImg<ulongT>::vector((ulongT)mp_dowhile,p1,p2,arg2 - arg1,code._width - arg2,_cimg_mp_vector_size(p1),
+                                   p1>=arg6 && !_cimg_mp_is_constant(p1)).move_to(code,arg1);
+              _cimg_mp_return(p1);
             }
 
             if (!std::strncmp(ss,"draw(",5)) { // Draw image
@@ -17243,15 +17250,8 @@ namespace cimg_library_suffixed {
               }
               _cimg_mp_check_type(p2,2,1,0);
               arg5 = _cimg_mp_vector_size(pos);
-              CImg<ulongT>::vector((ulongT)mp_for,                   // [0] = op
-                                   p3,                               // [1] = mem_body
-                                   (ulongT)_cimg_mp_vector_size(p3), // [2] = sizeof(mem_body)
-                                   p2,                               // [3] = mem_cond
-                                   arg2 - arg1,                      // [4] = l_init
-                                   arg3 - arg2,                      // [5] = l_cond
-                                   arg4 - arg3,                      // [6] = l_body
-                                   code._width - arg4,               // [7] = l_post
-                                   p3>=arg6 && !_cimg_mp_is_constant(p3)). // [8] = is_init_needed
+              CImg<ulongT>::vector((ulongT)mp_for,p3,(ulongT)_cimg_mp_vector_size(p3),p2,arg2 - arg1,arg3 - arg2,
+                                   arg4 - arg3,code._width - arg4,p3>=arg6 && !_cimg_mp_is_constant(p3)).
                 move_to(code,arg1);
               _cimg_mp_return(p3);
             }
@@ -19219,16 +19219,24 @@ namespace cimg_library_suffixed {
           mem_cond = mp.opcode[2];
         const CImg<ulongT>
           *const p_body = ++mp.p_code,
-          *const p_end = p_body + mp.opcode[3];
-        const unsigned int vsiz = (unsigned int)mp.opcode[4];
-        if (mp.opcode[5]) { // Set default value for result if necessary
+          *const p_cond = p_body + mp.opcode[3],
+          *const p_end = p_cond + mp.opcode[4];
+        const unsigned int vsiz = (unsigned int)mp.opcode[5];
+        if (mp.opcode[6]) { // Set default value for result if necessary
           if (vsiz) CImg<doubleT>(&mp.mem[mem_body] + 1,vsiz,1,1,1,true).fill(cimg::type<double>::nan());
           else _mp_arg(1) = cimg::type<double>::nan();
         }
         const unsigned int _break_type = mp.break_type;
         mp.break_type = 0;
         do {
-          for (mp.p_code = p_body; mp.p_code<p_end; ++mp.p_code) { // Evaluate body + condition
+          for (mp.p_code = p_body; mp.p_code<p_cond; ++mp.p_code) { // Evaluate body
+            const CImg<ulongT> &op = *mp.p_code;
+            mp.opcode._data = op._data;
+            const ulongT target = mp.opcode[1];
+            mp.mem[target] = _cimg_mp_defunc(mp);
+          }
+          if (mp.break_type==1) break; else if (mp.break_type==2) mp.break_type = 0;
+          for (mp.p_code = p_cond; mp.p_code<p_end; ++mp.p_code) { // Evaluate condition
             const CImg<ulongT> &op = *mp.p_code;
             mp.opcode._data = op._data;
             const ulongT target = mp.opcode[1];

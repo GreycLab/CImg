@@ -14392,7 +14392,7 @@ namespace cimg_library_suffixed {
       char *user_macro;
 
       unsigned int mempos, mem_img_median, debug_indent, init_size, result_dim, break_type;
-      bool is_parallelizable, need_input_copy, is_loop;
+      bool is_parallelizable, need_input_copy;
       double *result;
       const char *const calling_function, *s_op, *ss_op;
       typedef double (*mp_func)(_cimg_math_parser&);
@@ -14435,9 +14435,8 @@ namespace cimg_library_suffixed {
         imgin(img_input),listin(list_input?*list_input:CImgList<T>::const_empty()),
         imgout(img_output?*img_output:CImg<T>::empty()),listout(list_output?*list_output:CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),user_macro(0),
-        mem_img_median(~0U),debug_indent(0),init_size(0),result_dim(0),break_type(0),is_parallelizable(true),
-        need_input_copy(false),is_loop(false),
-        calling_function(funcname?funcname:"cimg_math_parser") {
+        mem_img_median(~0U),debug_indent(0),init_size(0),result_dim(0),break_type(0),
+        is_parallelizable(true),need_input_copy(false),calling_function(funcname?funcname:"cimg_math_parser") {
         if (!expression || !*expression)
           throw CImgArgumentException("[_cimg_math_parser] "
                                       "CImg<%s>::%s: Empty expression.",
@@ -14488,7 +14487,7 @@ namespace cimg_library_suffixed {
 
         // Set value property :
         // { -2 = other | -1 = variable | 0 = computation value |
-        //   1 = compile-time constant | N>1 = constant ptr to vector[N-1] }.
+        //    1 = compile-time constant | N>1 = constant ptr to vector[N-1] }.
         memtype.assign(mem._width,1,1,1,0);
         for (unsigned int i = 0; i<_cimg_mp_slot_x; ++i) memtype[i] = 1;
         memtype[17] = 0;
@@ -14504,6 +14503,7 @@ namespace cimg_library_suffixed {
         // Compile expression into a serie of opcodes.
         s_op = ""; ss_op = expr._data;
         const unsigned int ind_result = compile(expr._data,expr._data + expr._width - 1,0,0);
+        if (!_cimg_mp_is_constant(ind_result)) mem[ind_result] = cimg::type<double>::nan();
         p_code_end = code.end();
 
         // Free resources used for parsing and prepare for evaluation.
@@ -14537,8 +14537,7 @@ namespace cimg_library_suffixed {
         imgin(CImg<T>::const_empty()),listin(CImgList<T>::const_empty()),
         imgout(CImg<T>::empty()),listout(CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),debug_indent(0),
-        result_dim(0),break_type(0),is_parallelizable(true),need_input_copy(false),is_loop(false),
-        calling_function(0) {
+        result_dim(0),break_type(0),is_parallelizable(true),need_input_copy(false),calling_function(0) {
         mem.assign(1 + _cimg_mp_slot_c,1,1,1,0); // Allow to skip 'is_empty?' test in operator()()
         result = mem._data;
       }
@@ -14547,7 +14546,7 @@ namespace cimg_library_suffixed {
         mem(mp.mem),code(mp.code),p_code_begin(mp.p_code_begin),p_code_end(mp.p_code_end),p_break(mp.p_break),
         imgin(mp.imgin),listin(mp.listin),imgout(mp.imgout),listout(mp.listout),img_stats(mp.img_stats),
         list_stats(mp.list_stats),list_median(mp.list_median),debug_indent(0),result_dim(mp.result_dim),
-        break_type(0),is_parallelizable(mp.is_parallelizable),need_input_copy(mp.need_input_copy),is_loop(false),
+        break_type(0),is_parallelizable(mp.is_parallelizable),need_input_copy(mp.need_input_copy),
         result(mem._data + (mp.result - mp.mem._data)),calling_function(0) {
 #ifdef cimg_use_openmp
         mem[17] = omp_get_thread_num();
@@ -18914,13 +18913,8 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_break(_cimg_math_parser& mp) {
-        if (mp.is_loop) {
-          mp.break_type = 1;
-          mp.p_code = mp.p_break - 1;
-        } else
-          throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: Function 'break()': "
-                                      "Invalid call outside loop.",
-                                      mp.imgin.pixel_type());
+        mp.break_type = 1;
+        mp.p_code = mp.p_break - 1;
         return cimg::type<double>::nan();
       }
 
@@ -19051,13 +19045,8 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_continue(_cimg_math_parser& mp) {
-        if (mp.is_loop) {
-          mp.break_type = 2;
-          mp.p_code = mp.p_break - 1;
-        } else
-          throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: Function 'continue()': "
-                                      "Invalid call outside loop.",
-                                      mp.imgin.pixel_type());
+        mp.break_type = 2;
+        mp.p_code = mp.p_break - 1;
         return cimg::type<double>::nan();
       }
 
@@ -19236,9 +19225,7 @@ namespace cimg_library_suffixed {
           if (vsiz) CImg<doubleT>(&mp.mem[mem_body] + 1,vsiz,1,1,1,true).fill(cimg::type<double>::nan());
           else _mp_arg(1) = cimg::type<double>::nan();
         }
-        const bool _is_loop = mp.is_loop;
         const unsigned int _break_type = mp.break_type;
-        mp.is_loop = true;
         mp.break_type = 0;
         do {
           for (mp.p_code = p_body; mp.p_code<p_end; ++mp.p_code) { // Evaluate body + condition
@@ -19249,7 +19236,6 @@ namespace cimg_library_suffixed {
           }
           if (mp.break_type==1) break; else if (mp.break_type==2) mp.break_type = 0;
         } while (mp.mem[mem_cond]);
-        mp.is_loop = _is_loop;
         mp.break_type = _break_type;
         --mp.p_code;
         return mp.mem[mem_body];
@@ -19404,9 +19390,7 @@ namespace cimg_library_suffixed {
           if (vsiz) CImg<doubleT>(&mp.mem[mem_body] + 1,vsiz,1,1,1,true).fill(cimg::type<double>::nan());
           else _mp_arg(1) = cimg::type<double>::nan();
         }
-        const bool _is_loop = mp.is_loop;
         const unsigned int _break_type = mp.break_type;
-        mp.is_loop = true;
         mp.break_type = 0;
 
         for (mp.p_code = p_init; mp.p_code<p_cond; ++mp.p_code) { // Evaluate init
@@ -19446,7 +19430,6 @@ namespace cimg_library_suffixed {
             }
           } while (is_cond);
 
-        mp.is_loop = _is_loop;
         mp.break_type = _break_type;
         mp.p_code = p_end - 1;
         return mp.mem[mem_body];
@@ -21275,9 +21258,7 @@ namespace cimg_library_suffixed {
           if (vsiz) CImg<doubleT>(&mp.mem[mem_body] + 1,vsiz,1,1,1,true).fill(cimg::type<double>::nan());
           else _mp_arg(1) = cimg::type<double>::nan();
         }
-        const bool _is_loop = mp.is_loop;
         const unsigned int _break_type = mp.break_type;
-        mp.is_loop = true;
         mp.break_type = 0;
         do {
           for (mp.p_code = p_cond; mp.p_code<p_body; ++mp.p_code) { // Evaluate condition
@@ -21298,7 +21279,6 @@ namespace cimg_library_suffixed {
           if (mp.break_type==1) break; else if (mp.break_type==2) mp.break_type = 0;
         } while (is_cond);
 
-        mp.is_loop = _is_loop;
         mp.break_type = _break_type;
         mp.p_code = p_end - 1;
         return mp.mem[mem_body];

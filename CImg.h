@@ -37962,7 +37962,7 @@ namespace cimg_library_suffixed {
 
     // [internal] The following _draw_scanline() routines are *non user-friendly functions*,
     // used only for internal purpose.
-    // Pre-requisites: x0<x1, y-coordinate is valid, col is valid.
+    // Pre-requisites: x0<=x1, y-coordinate is valid, col is valid.
     template<typename tc>
     CImg<T>& _draw_scanline(const int x0, const int x1, const int y,
                             const tc *const color, const float opacity,
@@ -41570,8 +41570,14 @@ namespace cimg_library_suffixed {
       cimg_pragma_openmp(parallel for cimg_openmp_if(Xs._height>32))
       cimg_forY(Xs,y) {
         const CImg<intT> Xsy = Xs.get_shared_points(0,count[y] - 1,y).sort();
-        for (unsigned int n = 0; n<Xsy._width; n+=2)
-          cimg_draw_scanline(Xsy[n],Xsy[n + 1],y + ymin,color,opacity,1);
+        int px = width();
+        for (unsigned int n = 0; n<Xsy._width; n+=2) {
+          int x0 = Xsy[n];
+          const int x1 = Xsy[n + 1];
+          x0+=x0==px;
+          cimg_draw_scanline(x0,x1,y + ymin,color,opacity,1);
+          px = x1;
+        }
       }
       return *this;
     }

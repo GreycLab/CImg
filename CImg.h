@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 178
+#define cimg_version 179
 
 /*-----------------------------------------------------------
  #
@@ -31517,7 +31517,7 @@ namespace cimg_library_suffixed {
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
                     for (int xm = -mx1; xm<=mx2; ++xm) {
-                      const t mval = K(mx2 - xm,my2 - ym,mz2 - zm);
+                      const t mval = K(mx1 + xm,my1 + ym,mz1 + zm);
                       const Tt cval = (Tt)(_img(x + xm,y + ym,z + zm) - mval);
                       if (cval<min_val) min_val = cval;
                     }
@@ -31532,7 +31532,7 @@ namespace cimg_library_suffixed {
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
                     for (int xm = -mx1; xm<=mx2; ++xm) {
-                      const t mval = K(mx2 - xm,my2 - ym,mz2 - zm);
+                      const t mval = K(mx1 + xm,my1 + ym,mz1 + zm);
                       const Tt cval = (Tt)(_img._atXYZ(x + xm,y + ym,z + zm) - mval);
                       if (cval<min_val) min_val = cval;
                     }
@@ -31548,7 +31548,7 @@ namespace cimg_library_suffixed {
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
                     for (int xm = -mx1; xm<=mx2; ++xm) {
-                      const t mval = K(mx2 - xm,my2 - ym,mz2 - zm);
+                      const t mval = K(mx1 + xm,my1 + ym,mz1 + zm);
                       const Tt cval = (Tt)(_img.atXYZ(x + xm,y + ym,z + zm,0,(T)0) - mval);
                       if (cval<min_val) min_val = cval;
                     }
@@ -31566,7 +31566,7 @@ namespace cimg_library_suffixed {
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
                     for (int xm = -mx1; xm<=mx2; ++xm)
-                      if (K(mx2 - xm,my2 - ym,mz2 - zm)) {
+                      if (K(mx1 + xm,my1 + ym,mz1 + zm)) {
                         const Tt cval = (Tt)_img(x + xm,y + ym,z + zm);
                         if (cval<min_val) min_val = cval;
                       }
@@ -31581,7 +31581,7 @@ namespace cimg_library_suffixed {
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
                     for (int xm = -mx1; xm<=mx2; ++xm)
-                      if (K(mx2 - xm,my2 - ym,mz2 - zm)) {
+                      if (K(mx1 + xm,my1 + ym,mz1 + zm)) {
                         const T cval = (Tt)_img._atXYZ(x + xm,y + ym,z + zm);
                         if (cval<min_val) min_val = cval;
                       }
@@ -31597,7 +31597,7 @@ namespace cimg_library_suffixed {
                 for (int zm = -mz1; zm<=mz2; ++zm)
                   for (int ym = -my1; ym<=my2; ++ym)
                     for (int xm = -mx1; xm<=mx2; ++xm)
-                      if (K(mx2 - xm,my2 - ym,mz2 - zm)) {
+                      if (K(mx1 + xm,my1 + ym,mz1 + zm)) {
                         const T cval = (Tt)_img.atXYZ(x + xm,y + ym,z + zm,0,(T)0);
                         if (cval<min_val) min_val = cval;
                       }

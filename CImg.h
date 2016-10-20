@@ -34771,9 +34771,9 @@ namespace cimg_library_suffixed {
       CImg<intT> map(_width,_height,_depth,patch_image._depth>1?3:2);
       CImg<floatT> score(_width,_height,_depth);
       const int
-        psizew = (int)patch_width, psizew1 = psizew/2, psizew2 = psizew - psizew1 - 1,
-        psizeh = (int)patch_height, psizeh1 = psizeh/2, psizeh2 = psizeh - psizeh1 - 1,
-        psized = (int)patch_depth, psized1 = psized/2, psized2 = psized - psized1 - 1;
+        psizew = (int)patch_width, psizew2 = psizew/2, psizew1 = psizew - psizew2 - 1,
+        psizeh = (int)patch_height, psizeh2 = psizeh/2, psizeh1 = psizeh - psizeh2 - 1,
+        psized = (int)patch_depth, psized2 = psized/2, psized1 = psized - psized2 - 1;
 
       if (_depth>1 || patch_image._depth>1) { // 3d version.
 

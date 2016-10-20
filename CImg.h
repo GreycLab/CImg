@@ -31270,7 +31270,7 @@ namespace cimg_library_suffixed {
       } else { // Generic version for other kernels and boundary conditions.
         const int
           mx1 = kernel.width()/2, my1 = kernel.height()/2, mz1 = kernel.depth()/2,
-          mx2 = mx1 - 1 + (kernel.width()%2), my2 = my1 - 1 + (kernel.height()%2), mz2 = mz1 - 1 + (kernel.depth()%2),
+          mx2 = kernel.width() - mx1 - 1, my2 = kernel.height() - my1 - 1, mz2 = kernel.depth() - mz1 - 1,
           mxe = width() - mx2, mye = height() - my2, mze = depth() - mz2;
 #if cimg_OS!=2
         cimg_pragma_openmp(parallel for cimg_openmp_if(res._spectrum>=2)) // (Isn't stable on Windows)
@@ -31496,8 +31496,8 @@ namespace cimg_library_suffixed {
       typedef _cimg_Tt Tt;
       CImg<Tt> res(_width,_height,_depth,std::max(_spectrum,kernel._spectrum));
       const int
-        mx1 = kernel.width()/2, my1 = kernel.height()/2, mz1 = kernel.depth()/2,
-        mx2 = mx1 - 1 + (kernel.width()%2), my2 = my1 - 1 + (kernel.height()%2), mz2 = mz1 - 1 + (kernel.depth()%2),
+        mx2 = kernel.width()/2, my2 = kernel.height()/2, mz2 = kernel.depth()/2,
+        mx1 = kernel.width() - mx2 - 1, my1 = kernel.height() - my2 - 1, mz1 = kernel.depth() - mz2 - 1,
         mxe = width() - mx2, mye = height() - my2, mze = depth() - mz2;
       cimg_abort_init;
 #if cimg_OS!=2
@@ -31784,7 +31784,7 @@ namespace cimg_library_suffixed {
       CImg<Tt> res(_width,_height,_depth,_spectrum);
       const int
         mx1 = kernel.width()/2, my1 = kernel.height()/2, mz1 = kernel.depth()/2,
-        mx2 = mx1 - 1 + (kernel.width()%2), my2 = my1 - 1 + (kernel.height()%2), mz2 = mz1 - 1 + (kernel.depth()%2),
+        mx2 = kernel.width() - mx1 - 1, my2 = kernel.height() - my1 - 1, mz2 = kernel.depth() - mz1 - 1,
         mxe = width() - mx2, mye = height() - my2, mze = depth() - mz2;
       cimg_abort_init;
 #if cimg_OS!=2
@@ -33570,7 +33570,7 @@ namespace cimg_library_suffixed {
       CImg<T> res(_width,_height,_depth,_spectrum);
       T *ptrd = res._data;
       cimg::unused(ptrd);
-      const int hr = (int)n/2, hl = hr - 1 + (int)n%2;
+      const int hr = (int)n/2, hl = n - hr - 1;
       if (res._depth!=1) { // 3d
         if (threshold>0)
           cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width>=16 && _height*_depth*_spectrum>=4))
@@ -45891,7 +45891,7 @@ namespace cimg_library_suffixed {
       if (header_size>40) cimg::fseek(nfile,header_size - 40,SEEK_CUR);
 
       const int
-        dx_bytes = (bpp==1)?(dx/8 + (dx%8?1:0)):((bpp==4)?(dx/2 + (dx%2?1:0)):(dx*bpp/8)),
+        dx_bytes = (bpp==1)?(dx/8 + (dx%8?1:0)):((bpp==4)?(dx/2 + (dx%2)):(dx*bpp/8)),
         align_bytes = (4 - dx_bytes%4)%4;
       const longT
         cimg_iobuffer = (longT)24*1024*1024,

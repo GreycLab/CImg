@@ -33570,7 +33570,7 @@ namespace cimg_library_suffixed {
       CImg<T> res(_width,_height,_depth,_spectrum);
       T *ptrd = res._data;
       cimg::unused(ptrd);
-      const int hl = (int)n/2, hr = hl - 1 + (int)n%2;
+      const int hr = (int)n/2, hl = hr - 1 + (int)n%2;
       if (res._depth!=1) { // 3d
         if (threshold>0)
           cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width>=16 && _height*_depth*_spectrum>=4))
@@ -33584,7 +33584,7 @@ namespace cimg_library_suffixed {
             unsigned int nb_values = 0;
             T *ptrd = values.data();
             cimg_for_inXYZ(*this,nx0,ny0,nz0,nx1,ny1,nz1,p,q,r)
-              if (cimg::abs((float)(*this)(p,q,r,c)-val0)<=threshold) { *(ptrd++) = (*this)(p,q,r,c); ++nb_values; }
+              if (cimg::abs((float)(*this)(p,q,r,c) - val0)<=threshold) { *(ptrd++) = (*this)(p,q,r,c); ++nb_values; }
             res(x,y,z,c) = values.get_shared_points(0,nb_values - 1).median();
           }
         else
@@ -33611,7 +33611,7 @@ namespace cimg_library_suffixed {
               unsigned int nb_values = 0;
               T *ptrd = values.data();
               cimg_for_inXY(*this,nx0,ny0,nx1,ny1,p,q)
-                if (cimg::abs((float)(*this)(p,q,c)-val0)<=threshold) { *(ptrd++) = (*this)(p,q,c); ++nb_values; }
+                if (cimg::abs((float)(*this)(p,q,c) - val0)<=threshold) { *(ptrd++) = (*this)(p,q,c); ++nb_values; }
               res(x,y,c) = values.get_shared_points(0,nb_values - 1).median();
             }
           else switch (n) { // Without threshold.
@@ -33674,7 +33674,7 @@ namespace cimg_library_suffixed {
               unsigned int nb_values = 0;
               T *ptrd = values.data();
               cimg_for_inX(*this,nx0,nx1,p)
-                if (cimg::abs((float)(*this)(p,c)-val0)<=threshold) { *(ptrd++) = (*this)(p,c); ++nb_values; }
+                if (cimg::abs((float)(*this)(p,c) - val0)<=threshold) { *(ptrd++) = (*this)(p,c); ++nb_values; }
               res(x,c) = values.get_shared_points(0,nb_values - 1).median();
             }
           else switch (n) { // Without threshold.

@@ -31269,8 +31269,8 @@ namespace cimg_library_suffixed {
         }
       } else { // Generic version for other kernels and boundary conditions.
         const int
-          mx2 = kernel.width()/2, my2 = kernel.height()/2, mz2 = kernel.depth()/2,
-          mx1 = mx2 - 1 + (kernel.width()%2), my1 = my2 - 1 + (kernel.height()%2), mz1 = mz2 - 1 + (kernel.depth()%2),
+          mx1 = kernel.width()/2, my1 = kernel.height()/2, mz1 = kernel.depth()/2,
+          mx2 = mx1 - 1 + (kernel.width()%2), my2 = my1 - 1 + (kernel.height()%2), mz2 = mz1 - 1 + (kernel.depth()%2),
           mxe = width() - mx2, mye = height() - my2, mze = depth() - mz2;
 #if cimg_OS!=2
         cimg_pragma_openmp(parallel for cimg_openmp_if(res._spectrum>=2)) // (Isn't stable on Windows)
@@ -31496,8 +31496,8 @@ namespace cimg_library_suffixed {
       typedef _cimg_Tt Tt;
       CImg<Tt> res(_width,_height,_depth,std::max(_spectrum,kernel._spectrum));
       const int
-        mx2 = kernel.width()/2, my2 = kernel.height()/2, mz2 = kernel.depth()/2,
-        mx1 = mx2 - 1 + (kernel.width()%2), my1 = my2 - 1 + (kernel.height()%2), mz1 = mz2 - 1 + (kernel.depth()%2),
+        mx1 = kernel.width()/2, my1 = kernel.height()/2, mz1 = kernel.depth()/2,
+        mx2 = mx1 - 1 + (kernel.width()%2), my2 = my1 - 1 + (kernel.height()%2), mz2 = mz1 - 1 + (kernel.depth()%2),
         mxe = width() - mx2, mye = height() - my2, mze = depth() - mz2;
       cimg_abort_init;
 #if cimg_OS!=2
@@ -31783,8 +31783,8 @@ namespace cimg_library_suffixed {
       typedef _cimg_Tt Tt;
       CImg<Tt> res(_width,_height,_depth,_spectrum);
       const int
-        mx2 = kernel.width()/2, my2 = kernel.height()/2, mz2 = kernel.depth()/2,
-        mx1 = mx2 - 1 + (kernel.width()%2), my1 = my2 - 1 + (kernel.height()%2), mz1 = mz2 - 1 + (kernel.depth()%2),
+        mx1 = kernel.width()/2, my1 = kernel.height()/2, mz1 = kernel.depth()/2,
+        mx2 = mx1 - 1 + (kernel.width()%2), my2 = my1 - 1 + (kernel.height()%2), mz2 = mz1 - 1 + (kernel.depth()%2),
         mxe = width() - mx2, mye = height() - my2, mze = depth() - mz2;
       cimg_abort_init;
 #if cimg_OS!=2

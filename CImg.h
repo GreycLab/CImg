@@ -18025,6 +18025,23 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
             break;
+
+          case 'x' :
+            if (!std::strncmp(ss,"xor(",4)) { // Xor
+              _cimg_mp_op("Function 'xor()'");
+              s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss4,s1,depth1,0);
+              arg2 = compile(++s1,se1,depth1,0);
+              _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
+              if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_xor,arg1,arg2);
+              if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_xor,arg1,arg2);
+              if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_xor,arg1,arg2);
+              if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2))
+                _cimg_mp_constant((ulongT)mem[arg1] ^ (ulongT)mem[arg2]);
+              _cimg_mp_scalar2(mp_xor,arg1,arg2);
+            }
+            break;
+
           }
 
           if (!std::strncmp(ss,"min(",4) || !std::strncmp(ss,"max(",4) ||
@@ -21447,6 +21464,10 @@ namespace cimg_library_suffixed {
               *(ptrd++) = (double)img.linear_atXYZ((float)x,(float)y,(float)z,c,(T)0);
         }
         return cimg::type<double>::nan();
+      }
+
+      static double mp_xor(_cimg_math_parser& mp) {
+        return (ulongT)_mp_arg(2) ^ (ulongT)_mp_arg(3);
       }
 
 #undef _mp_arg

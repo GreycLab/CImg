@@ -31054,7 +31054,7 @@ namespace cimg_library_suffixed {
           ((kernel._depth==1 && kernel._width<=5) || (kernel._depth==kernel._width && kernel._width<=3))) {
         // A special optimization is done for 2x2, 3x3, 4x4, 5x5, 2x2x2 and 3x3x3 kernel (with boundary_conditions=1)
         CImg<t> _kernel;
-        if (is_convolution) {
+        if (is_convolution) { // Add empty column/row/slice to shift kernel center in case of convolution
           const int dw = !(kernel.width()%2), dh = !(kernel.height()%2), dd = !(kernel.depth()%2);
           if (dw || dh || dd)
             kernel.get_resize(kernel.width() + dw,kernel.height() + dh,kernel.depth() + dd,-100,0,0).

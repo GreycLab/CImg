@@ -31636,7 +31636,7 @@ namespace cimg_library_suffixed {
     CImg<T>& erode(const unsigned int sx, const unsigned int sy, const unsigned int sz=1) {
       if (is_empty() || (sx==1 && sy==1 && sz==1)) return *this;
       if (sx>1 && _width>1) { // Along X-axis.
-        const int L = width(), off = 1, s = (int)sx, _s1 = s/2, _s2 = s - _s1, s1 = _s1>L?L:_s1, s2 = _s2>L?L:_s2;
+        const int L = width(), off = 1, s = (int)sx, _s2 = s/2 + 1, _s1 = s - _s2, s1 = _s1>L?L:_s1, s2 = _s2>L?L:_s2;
         CImg<T> buf(L);
         cimg_pragma_openmp(parallel for collapse(3) firstprivate(buf) if (size()>524288))
         cimg_forYZC(*this,y,z,c) {
@@ -31676,7 +31676,7 @@ namespace cimg_library_suffixed {
       }
 
       if (sy>1 && _height>1) { // Along Y-axis.
-        const int L = height(), off = width(), s = (int)sy, _s1 = s/2, _s2 = s - _s1, s1 = _s1>L?L:_s1,
+        const int L = height(), off = width(), s = (int)sy, _s2 = s/2 + 1, _s1 = s - _s2, s1 = _s1>L?L:_s1,
           s2 = _s2>L?L:_s2;
         CImg<T> buf(L);
         cimg_pragma_openmp(parallel for collapse(3) firstprivate(buf) if (size()>524288))
@@ -31718,7 +31718,7 @@ namespace cimg_library_suffixed {
       }
 
       if (sz>1 && _depth>1) { // Along Z-axis.
-        const int L = depth(), off = width()*height(), s = (int)sz, _s1 = s/2, _s2 = s - _s1, s1 = _s1>L?L:_s1,
+        const int L = depth(), off = width()*height(), s = (int)sz, _s2 = s/2 + 1, _s1 = s - _s2, s1 = _s1>L?L:_s1,
           s2 = _s2>L?L:_s2;
         CImg<T> buf(L);
         cimg_pragma_openmp(parallel for collapse(3) firstprivate(buf) if (size()>524288))
@@ -31922,7 +31922,7 @@ namespace cimg_library_suffixed {
     CImg<T>& dilate(const unsigned int sx, const unsigned int sy, const unsigned int sz=1) {
       if (is_empty() || (sx==1 && sy==1 && sz==1)) return *this;
       if (sx>1 && _width>1) { // Along X-axis.
-        const int L = width(), off = 1, s = (int)sx, _s2 = s/2 + 1, _s1 = s - _s2, s1 = _s1>L?L:_s1, s2 = _s2>L?L:_s2;
+        const int L = width(), off = 1, s = (int)sx, _s1 = s/2, _s2 = s - _s1, s1 = _s1>L?L:_s1, s2 = _s2>L?L:_s2;
         CImg<T> buf(L);
         cimg_pragma_openmp(parallel for collapse(3) firstprivate(buf) if (size()>524288))
         cimg_forYZC(*this,y,z,c) {
@@ -31963,7 +31963,7 @@ namespace cimg_library_suffixed {
       }
 
       if (sy>1 && _height>1) { // Along Y-axis.
-        const int L = height(), off = width(), s = (int)sy, _s2 = s/2 + 1, _s1 = s - _s2, s1 = _s1>L?L:_s1,
+        const int L = height(), off = width(), s = (int)sy, _s1 = s/2, _s2 = s - _s1, s1 = _s1>L?L:_s1,
           s2 = _s2>L?L:_s2;
         CImg<T> buf(L);
         cimg_pragma_openmp(parallel for collapse(3) firstprivate(buf) if (size()>524288))
@@ -32005,7 +32005,7 @@ namespace cimg_library_suffixed {
       }
 
       if (sz>1 && _depth>1) { // Along Z-axis.
-        const int L = depth(), off = width()*height(), s = (int)sz, _s2 = s/2 + 1, _s1 = s - _s2, s1 = _s1>L?L:_s1,
+        const int L = depth(), off = width()*height(), s = (int)sz, _s1 = s/2, _s2 = s - _s1, s1 = _s1>L?L:_s1,
           s2 = _s2>L?L:_s2;
         CImg<T> buf(L);
         cimg_pragma_openmp(parallel for collapse(3) firstprivate(buf) if (size()>524288))

@@ -14512,8 +14512,8 @@ namespace cimg_library_suffixed {
           else mem[ind_result] = cimg::type<double>::nan();
         }
 
-        // Free resources used for parsing and prepare for evaluation.
-        if (_cimg_mp_is_vector(ind_result)) result_dim = _cimg_mp_vector_size(ind_result);
+        // Free resources used for compiling expression and prepare evaluation.
+        result_dim = _cimg_mp_vector_size(ind_result);
         mem.resize(mempos,1,1,1,-1);
         result = mem._data + ind_result;
         memtype.assign();
@@ -14525,7 +14525,7 @@ namespace cimg_library_suffixed {
         opcode.assign();
         opcode._is_shared = true;
 
-        // Execute init() function if any specified.
+        // Execute init() bloc if any specified.
         p_code_begin = code._data + init_size;
         if (init_size) {
           mem[_cimg_mp_slot_x] = mem[_cimg_mp_slot_y] = mem[_cimg_mp_slot_z] = mem[_cimg_mp_slot_c] = 0;
@@ -15397,7 +15397,7 @@ namespace cimg_library_suffixed {
                                         s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
           }
 
-        // Apply unary/binary/ternary operators. The operator precedences should be roughly the same as in C++.
+        // Apply unary/binary/ternary operators. The operator precedences should be the same as in C++.
         for (s = se2, ps = se3, ns = ps - 1; s>ss1; --s, --ps, --ns) // Here, ns = ps - 1
           if (*s=='=' && (*ps=='*' || *ps=='/' || *ps=='^') && *ns==*ps &&
               level[s - expr._data]==clevel) { // Self-operators for complex numbers only (**=,//=,^^=)

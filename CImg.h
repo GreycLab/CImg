@@ -33587,7 +33587,7 @@ namespace cimg_library_suffixed {
       CImg<T> res(_width,_height,_depth,_spectrum);
       T *ptrd = res._data;
       cimg::unused(ptrd);
-      const int hl = (int)n/2, hr = n - hl - 1;
+      const int hr = (int)n/2, hl = n - hr - 1;
       if (res._depth!=1) { // 3d
         if (threshold>0)
           cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width>=16 && _height*_depth*_spectrum>=4))

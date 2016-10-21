@@ -31036,10 +31036,16 @@ namespace cimg_library_suffixed {
       return get_correlate(kernel,boundary_conditions,is_normalized).move_to(*this);
     }
 
-    //! Correlate image by a kernel \newinstance.
     template<typename t>
     CImg<_cimg_Ttfloat> get_correlate(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                                       const bool is_normalized=false) const {
+      return _correlate(kernel,boundary_conditions,is_normalized,false);
+    }
+
+    //! Correlate image by a kernel \newinstance.
+    template<typename t>
+    CImg<_cimg_Ttfloat> _correlate(const CImg<t>& kernel, const unsigned int boundary_conditions,
+                                   const bool is_normalized, const bool is_convolution) const {
       if (is_empty() || !kernel) return *this;
       typedef _cimg_Ttfloat Ttfloat;
       CImg<Ttfloat> res(_width,_height,_depth,std::max(_spectrum,kernel._spectrum));
@@ -31047,15 +31053,24 @@ namespace cimg_library_suffixed {
       if (boundary_conditions && kernel._width==kernel._height &&
           ((kernel._depth==1 && kernel._width<=5) || (kernel._depth==kernel._width && kernel._width<=3))) {
         // A special optimization is done for 2x2, 3x3, 4x4, 5x5, 2x2x2 and 3x3x3 kernel (with boundary_conditions=1)
+        CImg<t> _kernel;
+        if (is_convolution) {
+          const int dw = !(kernel.width()%2), dh = !(kernel.height()%2), dd = !(kernel.depth()%2);
+          if (dw || dh || dd)
+            kernel.get_resize(kernel.width() + dw,kernel.height() + dh,kernel.depth() + dd,-100,0,0).
+              move_to(_kernel);
+        }
+        if (!_kernel) _kernel = kernel.get_shared();
+
         Ttfloat *ptrd = res._data;
         CImg<T> I;
-        switch (kernel._depth) {
+        switch (_kernel._depth) {
         case 3 : {
           I.assign(27);
           cimg_forC(res,c) {
             cimg_abort_test();
             const CImg<T> _img = get_shared_channel(c%_spectrum);
-            const CImg<t> _K = kernel.get_shared_channel(c%kernel._spectrum);
+            const CImg<t> _K = _kernel.get_shared_channel(c%_kernel._spectrum);
             if (is_normalized) {
               const Ttfloat _M = (Ttfloat)_K.magnitude(2), M = _M*_M;
               cimg_for3x3x3(_img,x,y,z,0,I,T) {
@@ -31095,7 +31110,7 @@ namespace cimg_library_suffixed {
           cimg_forC(res,c) {
             cimg_abort_test();
             const CImg<T> _img = get_shared_channel(c%_spectrum);
-            const CImg<t> K = kernel.get_shared_channel(c%kernel._spectrum);
+            const CImg<t> K = _kernel.get_shared_channel(c%_kernel._spectrum);
             if (is_normalized) {
               const Ttfloat _M = (Ttfloat)K.magnitude(2), M = _M*_M;
               cimg_for2x2x2(_img,x,y,z,0,I,T) {
@@ -31117,13 +31132,13 @@ namespace cimg_library_suffixed {
         } break;
         default :
         case 1 :
-          switch (kernel._width) {
+          switch (_kernel._width) {
           case 6 : {
             I.assign(36);
             cimg_forC(res,c) {
               cimg_abort_test();
               const CImg<T> _img = get_shared_channel(c%_spectrum);
-              const CImg<t> K = kernel.get_shared_channel(c%kernel._spectrum);
+              const CImg<t> K = _kernel.get_shared_channel(c%_kernel._spectrum);
               if (is_normalized) {
                 const Ttfloat _M = (Ttfloat)K.magnitude(2), M = _M*_M;
                 cimg_forZ(_img,z) cimg_for6x6(_img,x,y,z,0,I,T) {
@@ -31163,7 +31178,7 @@ namespace cimg_library_suffixed {
             cimg_forC(res,c) {
               cimg_abort_test();
               const CImg<T> _img = get_shared_channel(c%_spectrum);
-              const CImg<t> K = kernel.get_shared_channel(c%kernel._spectrum);
+              const CImg<t> K = _kernel.get_shared_channel(c%_kernel._spectrum);
               if (is_normalized) {
                 const Ttfloat _M = (Ttfloat)K.magnitude(2), M = _M*_M;
                 cimg_forZ(_img,z) cimg_for5x5(_img,x,y,z,0,I,T) {
@@ -31195,7 +31210,7 @@ namespace cimg_library_suffixed {
             cimg_forC(res,c) {
               cimg_abort_test();
               const CImg<T> _img = get_shared_channel(c%_spectrum);
-              const CImg<t> K = kernel.get_shared_channel(c%kernel._spectrum);
+              const CImg<t> K = _kernel.get_shared_channel(c%_kernel._spectrum);
               if (is_normalized) {
                 const Ttfloat _M = (Ttfloat)K.magnitude(2), M = _M*_M;
                 cimg_forZ(_img,z) cimg_for4x4(_img,x,y,z,0,I,T) {
@@ -31221,7 +31236,7 @@ namespace cimg_library_suffixed {
             cimg_forC(res,c) {
               cimg_abort_test();
               const CImg<T> _img = get_shared_channel(c%_spectrum);
-              const CImg<t> K = kernel.get_shared_channel(c%kernel._spectrum);
+              const CImg<t> K = _kernel.get_shared_channel(c%_kernel._spectrum);
               if (is_normalized) {
                 const Ttfloat _M = (Ttfloat)K.magnitude(2), M = _M*_M;
                 cimg_forZ(_img,z) cimg_for3x3(_img,x,y,z,0,I,T) {
@@ -31243,7 +31258,7 @@ namespace cimg_library_suffixed {
             cimg_forC(res,c) {
               cimg_abort_test();
               const CImg<T> _img = get_shared_channel(c%_spectrum);
-              const CImg<t> K = kernel.get_shared_channel(c%kernel._spectrum);
+              const CImg<t> K = _kernel.get_shared_channel(c%_kernel._spectrum);
               if (is_normalized) {
                 const Ttfloat _M = (Ttfloat)K.magnitude(2), M = _M*_M;
                 cimg_forZ(_img,z) cimg_for2x2(_img,x,y,z,0,I,T) {
@@ -31262,16 +31277,18 @@ namespace cimg_library_suffixed {
             else cimg_forC(res,c) {
                 cimg_abort_test();
                 const CImg<T> _img = get_shared_channel(c%_spectrum);
-                const CImg<t> K = kernel.get_shared_channel(c%kernel._spectrum);
+                const CImg<t> K = _kernel.get_shared_channel(c%_kernel._spectrum);
                 res.get_shared_channel(c).assign(_img)*=K[0];
               }
             break;
           }
         }
       } else { // Generic version for other kernels and boundary conditions.
-        const int
+        int
           mx2 = kernel.width()/2, my2 = kernel.height()/2, mz2 = kernel.depth()/2,
-          mx1 = kernel.width() - mx2 - 1, my1 = kernel.height() - my2 - 1, mz1 = kernel.depth() - mz2 - 1,
+          mx1 = kernel.width() - mx2 - 1, my1 = kernel.height() - my2 - 1, mz1 = kernel.depth() - mz2 - 1;
+        if (is_convolution) cimg::swap(mx1,mx2,my1,my2,mz1,mz2);
+        const int
           mxe = width() - mx2, mye = height() - my2, mze = depth() - mz2;
 #if cimg_OS!=2
         cimg_pragma_openmp(parallel for cimg_openmp_if(res._spectrum>=2)) // (Isn't stable on Windows)
@@ -31397,6 +31414,14 @@ namespace cimg_library_suffixed {
       return get_convolve(kernel,boundary_conditions,is_normalized).move_to(*this);
     }
 
+    //! Convolve image by a kernel \newinstance.
+    template<typename t>
+    CImg<_cimg_Ttfloat> get_convolve(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
+                                     const bool is_normalized=false) const {
+      return _correlate(CImg<t>(kernel._data,kernel.size(),1,1,1,true).get_mirror('x').
+                        resize(kernel,-1),boundary_conditions,is_normalized,true);
+    }
+
     //! Cumulate image values, optionally along specified axis.
     /**
        \param axis Cumulation axis. Set it to 0 to cumulate all values globally without taking axes into account.
@@ -31464,15 +31489,6 @@ namespace cimg_library_suffixed {
     //! Cumulate image values, along specified axes \newintance.
     CImg<Tlong> get_cumulate(const char *const axes) const {
       return CImg<Tlong>(*this,false).cumulate(axes);
-    }
-
-    //! Convolve image by a kernel \newinstance.
-    template<typename t>
-    CImg<_cimg_Ttfloat> get_convolve(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
-                                     const bool is_normalized=false) const {
-      if (is_empty() || !kernel) return *this;
-      return get_correlate(CImg<t>(kernel._data,kernel.size(),1,1,1,true).get_mirror('x').
-                           resize(kernel,-1),boundary_conditions,is_normalized);
     }
 
     //! Erode image by a structuring element.

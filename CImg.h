@@ -15931,7 +15931,7 @@ namespace cimg_library_suffixed {
                 pos = vector(2);
                 CImg<ulongT>::vector((ulongT)mp_complex_mul,pos,arg1,arg2).move_to(code);
                 _cimg_mp_return(pos);
-              } else { // Matrix multiplication
+              } else { // Particular case of matrix multiplication
                 p1 = _cimg_mp_vector_size(arg1);
                 p2 = _cimg_mp_vector_size(arg2);
                 arg4 = p1/p2;
@@ -15986,6 +15986,12 @@ namespace cimg_library_suffixed {
             _cimg_mp_op("Operator '*'");
             arg1 = compile(ss,s,depth1,0);
             arg2 = compile(s + 1,se,depth1,0);
+            p2 = _cimg_mp_vector_size(arg2);
+            if (p2>0 && _cimg_mp_vector_size(arg1)==p2*p2) { // Particular case of matrix multiplication
+              pos = vector(p2);
+              CImg<ulongT>::vector((ulongT)mp_matrix_mul,pos,arg1,arg2,p2,p2,1).move_to(code);
+              _cimg_mp_return(pos);
+            }
             _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
             if (arg2==1) _cimg_mp_return(arg1);
             if (arg1==1) _cimg_mp_return(arg2);

@@ -1,0 +1,20 @@
+language: cpp
+compiler:
+  - gcc
+script:
+  - cd examples
+  - make CXX='g++-4.8' travis
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - gcc-4.8
+    - g++-4.8
+    - clang
+    - libpng12-dev
+    - libjpeg-dev
+    - libmagick++-dev
+    - libgraphicsmagick++1-dev
+    - libfftw3-dev
+    - zlib1g-dev

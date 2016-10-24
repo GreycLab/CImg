@@ -1,0 +1,22 @@
+Source: cimg
+Section: math
+Priority: optional
+Maintainer: Sam Hocevar (Debian packages) <sam+deb@zoy.org>
+Uploaders: Christophe Prud'homme <prudhomm@debian.org>, François-Xavier Dupé <Francois-Xavier.Dupe@greyc.ensicaen.fr>
+Build-Depends-Indep: libx11-dev
+Build-Depends: debhelper (>= 5.0)
+Standards-Version: 3.8.4
+
+Package: cimg-dev
+Depends: make | build-essential, libx11-dev, libxrandr-dev, imagemagick | graphicsmagick
+Suggests: xmedcon, lapack3-dev, libmagick++9-dev, fftw3-dev
+Architecture: all
+Description: C++ Template Image Processing Library
+ The CImg Library is an open-source C++ toolkit for image processing.
+ It consists in a single header file 'CImg.h' providing a minimal set of C++
+ classes and methods that can be used in your own sources, to load/save,
+ process and display images. Very portable (Unix/X11,Windows, MacOS X, FreeBSD, .. ),
+ efficient, easy to use, it's a pleasant library for developping image processing
+ algorithms in C++.
+ .
+ http://cimg.eu

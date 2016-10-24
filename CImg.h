@@ -15203,6 +15203,7 @@ namespace cimg_library_suffixed {
               if (arg1==~0U) { // Create new variable
                 if (_cimg_mp_is_vector(arg2)) { // Vector variable
                   arg1 = is_comp_vector(arg2)?arg2:vector_copy(arg2);
+                  arg1 = vector_copy(arg2);
                   set_variable_vector(arg1);
                 } else { // Scalar variable
                   if (is_const) arg1 = arg2;
@@ -17164,7 +17165,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_matrix_square(arg1,1);
               p1 = (unsigned int)std::sqrt((float)_cimg_mp_vector_size(arg1));
               pos = vector((p1 + 1)*p1);
-              CImg<ulongT>::vector((ulongT)mp_eig,pos,arg1,p1).move_to(code);
+              CImg<ulongT>::vector((ulongT)mp_matrix_eig,pos,arg1,p1).move_to(code);
               _cimg_mp_return(pos);
             }
 
@@ -17496,7 +17497,7 @@ namespace cimg_library_suffixed {
                 cimg::strellipsize(s0,64);
                 throw CImgArgumentException("[_cimg_math_parser] "
                                             "CImg<%s>::%s: %s: Types of first and second arguments ('%s' and '%s') "
-                                            "do not match for third argument 'nb_colsB=%u', "
+                                            "do not match with third argument 'nb_colsB=%u', "
                                             "in expression '%s%s%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             s_type(arg1)._data,s_type(arg2)._data,p3,
@@ -17573,6 +17574,33 @@ namespace cimg_library_suffixed {
               if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2) && _cimg_mp_is_constant(arg3))
                 _cimg_mp_constant(cimg::permutations(mem[arg1],mem[arg2],(bool)mem[arg3]));
               _cimg_mp_scalar3(mp_permutations,arg1,arg2,arg3);
+            }
+
+            if (!std::strncmp(ss,"pseudoinv(",10)) { // Matrix/scalar pseudo-inversion
+              _cimg_mp_op("Function 'pseudoinv()'");
+              s1 = ss + 10; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss + 10,s1,depth1,0);
+              arg2 = s1<se1?compile(++s1,se1,depth1,0):1;
+              _cimg_mp_check_type(arg1,1,2,0);
+              _cimg_mp_check_constant(arg2,2,3);
+              p1 = _cimg_mp_vector_size(arg1);
+              p2 = (unsigned int)mem[arg2];
+              p3 = p1/p2;
+              if (p3*p2!=p1) {
+                *se = saved_char;
+                s0 = ss - 4>expr._data?ss - 4:expr._data;
+                cimg::strellipsize(s0,64);
+                throw CImgArgumentException("[_cimg_math_parser] "
+                                            "CImg<%s>::%s: %s: Types of first argument ('%s') "
+                                            "does not match with second argument 'nb_colsA=%u', "
+                                            "in expression '%s%s%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            s_type(arg1)._data,p2,
+                                            s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
+              }
+              pos = vector(p1);
+              CImg<ulongT>::vector((ulongT)mp_matrix_pseudoinv,pos,arg1,p2,p3).move_to(code);
+              _cimg_mp_return(pos);
             }
 
             if (!std::strncmp(ss,"print(",6)) { // Print expressions
@@ -17789,7 +17817,7 @@ namespace cimg_library_suffixed {
                 cimg::strellipsize(s0,64);
                 throw CImgArgumentException("[_cimg_math_parser] "
                                             "CImg<%s>::%s: %s: Types of first and second arguments ('%s' and '%s') "
-                                            "do not match for third argument 'nb_colsB=%u', "
+                                            "do not match with third argument 'nb_colsB=%u', "
                                             "in expression '%s%s%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             s_type(arg1)._data,s_type(arg2)._data,p3,
@@ -17855,6 +17883,33 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_type(arg2,2,1,0);
               p1 = _cimg_mp_vector_size(arg1);
               _cimg_mp_scalar3(mp_stod,arg1,p1,arg2);
+            }
+
+            if (!std::strncmp(ss,"svd(",4)) { // Matrix SVD
+              _cimg_mp_op("Function 'svd()'");
+              s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss4,s1,depth1,0);
+              arg2 = s1<se1?compile(++s1,se1,depth1,0):1;
+              _cimg_mp_check_type(arg1,1,2,0);
+              _cimg_mp_check_constant(arg2,2,3);
+              p1 = _cimg_mp_vector_size(arg1);
+              p2 = (unsigned int)mem[arg2];
+              p3 = p1/p2;
+              if (p3*p2!=p1) {
+                *se = saved_char;
+                s0 = ss - 4>expr._data?ss - 4:expr._data;
+                cimg::strellipsize(s0,64);
+                throw CImgArgumentException("[_cimg_math_parser] "
+                                            "CImg<%s>::%s: %s: Types of first argument ('%s') "
+                                            "does not match with second argument 'nb_colsA=%u', "
+                                            "in expression '%s%s%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            s_type(arg1)._data,p2,
+                                            s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
+              }
+              pos = vector(p1 + p2 + p2*p2);
+              CImg<ulongT>::vector((ulongT)mp_matrix_svd,pos,arg1,p2,p3).move_to(code);
+              _cimg_mp_return(pos);
             }
             break;
 
@@ -19331,17 +19386,6 @@ namespace cimg_library_suffixed {
         return cimg::type<double>::nan();
       }
 
-      static double mp_eig(_cimg_math_parser& mp) {
-        double *ptrd = &_mp_arg(1) + 1;
-        const double *ptr1 = &_mp_arg(2) + 1;
-        const unsigned int k = (unsigned int)mp.opcode[3];
-        CImg<double> val, vec;
-        CImg<double>(ptr1,k,k,1,1,true).symmetric_eigen(val,vec);
-        CImg<double>(ptrd,k,1,1,1,true) = val.unroll('x');
-        CImg<double>(ptrd + k,k,k,1,1,true) = vec.get_transpose();
-        return cimg::type<double>::nan();
-      }
-
       static double mp_eq(_cimg_math_parser& mp) {
         return (double)(_mp_arg(2)==_mp_arg(3));
       }
@@ -20311,6 +20355,17 @@ namespace cimg_library_suffixed {
         return (double)(_mp_arg(2)<=_mp_arg(3));
       }
 
+      static double mp_matrix_eig(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const double *ptr1 = &_mp_arg(2) + 1;
+        const unsigned int k = (unsigned int)mp.opcode[3];
+        CImg<double> val, vec;
+        CImg<double>(ptr1,k,k,1,1,true).symmetric_eigen(val,vec);
+        CImg<double>(ptrd,1,k,1,1,true) = val;
+        CImg<double>(ptrd + k,k,k,1,1,true) = vec.get_transpose();
+        return cimg::type<double>::nan();
+      }
+
       static double mp_matrix_inv(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
         const double *ptr1 = &_mp_arg(2) + 1;
@@ -20329,6 +20384,30 @@ namespace cimg_library_suffixed {
           l = (unsigned int)mp.opcode[5],
           m = (unsigned int)mp.opcode[6];
         CImg<double>(ptrd,m,k,1,1,true) = CImg<double>(ptr1,l,k,1,1,true)*CImg<double>(ptr2,m,l,1,1,true);
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_matrix_pseudoinv(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const double *ptr1 = &_mp_arg(2) + 1;
+        const unsigned int
+          k = (unsigned int)mp.opcode[3],
+          l = (unsigned int)mp.opcode[4];
+        CImg<double>(ptrd,l,k,1,1,true) = CImg<double>(ptr1,k,l,1,1,true).get_pseudoinvert();
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_matrix_svd(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const double *ptr1 = &_mp_arg(2) + 1;
+        const unsigned int
+          k = (unsigned int)mp.opcode[3],
+          l = (unsigned int)mp.opcode[4];
+        CImg<double> U, S, V;
+        CImg<double>(ptr1,k,l,1,1,true).SVD(U,S,V);
+        CImg<double>(ptrd,k,l,1,1,true) = U;
+        CImg<double>(ptrd + k*l,1,k,1,1,true) = S;
+        CImg<double>(ptrd + k*l + k,k,k,1,1,true) = V;
         return cimg::type<double>::nan();
       }
 

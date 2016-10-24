@@ -15202,7 +15202,7 @@ namespace cimg_library_suffixed {
 
               if (arg1==~0U) { // Create new variable
                 if (_cimg_mp_is_vector(arg2)) { // Vector variable
-                  arg1 = vector_copy(arg2);
+                  arg1 = is_comp_vector(arg2)?arg2:vector_copy(arg2);
                   set_variable_vector(arg1);
                 } else { // Scalar variable
                   if (is_const) arg1 = arg2;
@@ -18592,7 +18592,7 @@ namespace cimg_library_suffixed {
       }
 
       // Insert code instructions for processing vectors.
-      bool is_tmp_vector(const unsigned int arg) const {
+      bool is_comp_vector(const unsigned int arg) const {
         unsigned int siz = _cimg_mp_vector_size(arg);
         if (siz>8) return false;
         const int *ptr = memtype.data(arg + 1);
@@ -18657,7 +18657,7 @@ namespace cimg_library_suffixed {
       unsigned int vector1_v(const mp_func op, const unsigned int arg1) {
         const unsigned int
           siz = _cimg_mp_vector_size(arg1),
-          pos = is_tmp_vector(arg1)?arg1:vector(siz);
+          pos = is_comp_vector(arg1)?arg1:vector(siz);
         if (siz>24) CImg<ulongT>::vector((ulongT)mp_vector_map_v,pos,siz,(ulongT)op,arg1).move_to(code);
         else {
           code.insert(siz);
@@ -18670,7 +18670,7 @@ namespace cimg_library_suffixed {
       unsigned int vector2_vv(const mp_func op, const unsigned int arg1, const unsigned int arg2) {
         const unsigned int
           siz = _cimg_mp_vector_size(arg1),
-          pos = is_tmp_vector(arg1)?arg1:is_tmp_vector(arg2)?arg2:vector(siz);
+          pos = is_comp_vector(arg1)?arg1:is_comp_vector(arg2)?arg2:vector(siz);
         if (siz>24) CImg<ulongT>::vector((ulongT)mp_vector_map_vv,pos,siz,(ulongT)op,arg1,arg2).move_to(code);
         else {
           code.insert(siz);
@@ -18683,7 +18683,7 @@ namespace cimg_library_suffixed {
       unsigned int vector2_vs(const mp_func op, const unsigned int arg1, const unsigned int arg2) {
         const unsigned int
           siz = _cimg_mp_vector_size(arg1),
-          pos = is_tmp_vector(arg1)?arg1:vector(siz);
+          pos = is_comp_vector(arg1)?arg1:vector(siz);
         if (siz>24) CImg<ulongT>::vector((ulongT)mp_vector_map_vs,pos,siz,(ulongT)op,arg1,arg2).move_to(code);
         else {
           code.insert(siz);
@@ -18696,7 +18696,7 @@ namespace cimg_library_suffixed {
       unsigned int vector2_sv(const mp_func op, const unsigned int arg1, const unsigned int arg2) {
         const unsigned int
           siz = _cimg_mp_vector_size(arg2),
-          pos = is_tmp_vector(arg2)?arg2:vector(siz);
+          pos = is_comp_vector(arg2)?arg2:vector(siz);
         if (siz>24) CImg<ulongT>::vector((ulongT)mp_vector_map_sv,pos,siz,(ulongT)op,arg1,arg2).move_to(code);
         else {
           code.insert(siz);
@@ -18710,7 +18710,7 @@ namespace cimg_library_suffixed {
                                const unsigned int arg3) {
         const unsigned int
           siz = _cimg_mp_vector_size(arg1),
-          pos = is_tmp_vector(arg1)?arg1:vector(siz);
+          pos = is_comp_vector(arg1)?arg1:vector(siz);
         if (siz>24) CImg<ulongT>::vector((ulongT)mp_vector_map_vss,pos,siz,(ulongT)op,arg1,arg2,arg3).move_to(code);
         else {
           code.insert(siz);

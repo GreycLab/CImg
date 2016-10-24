@@ -17343,11 +17343,15 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"inv(",4)) { // Matrix/scalar inversion
               _cimg_mp_op("Function 'inv()'");
               arg1 = compile(ss4,se1,depth1,0);
-              _cimg_mp_check_matrix_square(arg1,1);
-              p1 = (unsigned int)std::sqrt((float)_cimg_mp_vector_size(arg1));
-              pos = vector(p1*p1);
-              CImg<ulongT>::vector((ulongT)mp_inv,pos,arg1,p1).move_to(code);
-              _cimg_mp_return(pos);
+              if (_cimg_mp_is_vector(arg1)) {
+                _cimg_mp_check_matrix_square(arg1,1);
+                p1 = (unsigned int)std::sqrt((float)_cimg_mp_vector_size(arg1));
+                pos = vector(p1*p1);
+                CImg<ulongT>::vector((ulongT)mp_matrix_inv,pos,arg1,p1).move_to(code);
+                _cimg_mp_return(pos);
+              }
+              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(1/mem[arg1]);
+              _cimg_mp_scalar2(mp_div,1,arg1);
             }
 
             if (*ss1=='s') { // Family of 'is_?()' functions
@@ -19539,14 +19543,6 @@ namespace cimg_library_suffixed {
         return (double)(longT)_mp_arg(2);
       }
 
-      static double mp_inv(_cimg_math_parser& mp) {
-        double *ptrd = &_mp_arg(1) + 1;
-        const double *ptr1 = &_mp_arg(2) + 1;
-        const unsigned int k = (unsigned int)mp.opcode[3];
-        CImg<double>(ptrd,k,k,1,1,true) = CImg<double>(ptr1,k,k,1,1,true).get_invert();
-        return cimg::type<double>::nan();
-      }
-
       static double mp_ioff(_cimg_math_parser& mp) {
         const unsigned int
           boundary_conditions = (unsigned int)_mp_arg(3);
@@ -20313,6 +20309,14 @@ namespace cimg_library_suffixed {
 
       static double mp_lte(_cimg_math_parser& mp) {
         return (double)(_mp_arg(2)<=_mp_arg(3));
+      }
+
+      static double mp_matrix_inv(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const double *ptr1 = &_mp_arg(2) + 1;
+        const unsigned int k = (unsigned int)mp.opcode[3];
+        CImg<double>(ptrd,k,k,1,1,true) = CImg<double>(ptr1,k,k,1,1,true).get_invert();
+        return cimg::type<double>::nan();
       }
 
       static double mp_matrix_mul(_cimg_math_parser& mp) {

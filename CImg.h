@@ -17591,7 +17591,7 @@ namespace cimg_library_suffixed {
                 s0 = ss - 4>expr._data?ss - 4:expr._data;
                 cimg::strellipsize(s0,64);
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s: %s: Types of first argument ('%s') "
+                                            "CImg<%s>::%s: %s: Type of first argument ('%s') "
                                             "does not match with second argument 'nb_colsA=%u', "
                                             "in expression '%s%s%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
@@ -17900,7 +17900,7 @@ namespace cimg_library_suffixed {
                 s0 = ss - 4>expr._data?ss - 4:expr._data;
                 cimg::strellipsize(s0,64);
                 throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s: %s: Types of first argument ('%s') "
+                                            "CImg<%s>::%s: %s: Type of first argument ('%s') "
                                             "does not match with second argument 'nb_colsA=%u', "
                                             "in expression '%s%s%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,

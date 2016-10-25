@@ -16579,8 +16579,10 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"abort_test(",11)) { // Abort test
               _cimg_mp_op("Function 'abort_test()'");
-              CImg<ulongT>::vector((ulongT)mp_abort_test,_cimg_mp_slot_nan).move_to(_opcode);
-              _cimg_mp_return(_cimg_mp_slot_nan);
+              if (pexpr[se2 - expr._data]=='(') { // no arguments?
+                CImg<ulongT>::vector((ulongT)mp_abort_test,_cimg_mp_slot_nan).move_to(code);
+                _cimg_mp_return(_cimg_mp_slot_nan);
+              }
             }
 
             if (!std::strncmp(ss,"acos(",5)) { // Arccos

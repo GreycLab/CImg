@@ -16577,14 +16577,6 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar1(mp_abs,arg1);
             }
 
-            if (!std::strncmp(ss,"abort_test(",11)) { // Abort test
-              _cimg_mp_op("Function 'abort_test()'");
-              if (pexpr[se2 - expr._data]=='(') { // no arguments?
-                CImg<ulongT>::vector((ulongT)mp_abort_test,_cimg_mp_slot_nan).move_to(code);
-                _cimg_mp_return(_cimg_mp_slot_nan);
-              }
-            }
-
             if (!std::strncmp(ss,"acos(",5)) { // Arccos
               _cimg_mp_op("Function 'acos()'");
               arg1 = compile(ss5,se1,depth1,0);
@@ -16664,6 +16656,14 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"break(",6)) { // Complex absolute value
               if (pexpr[se2 - expr._data]=='(') { // no arguments?
                 CImg<ulongT>::vector((ulongT)mp_break,_cimg_mp_slot_nan).move_to(code);
+                _cimg_mp_return(_cimg_mp_slot_nan);
+              }
+            }
+
+            if (!std::strncmp(ss,"breakpoint(",11)) { // Break point (for abort test)
+              _cimg_mp_op("Function 'breakpoint()'");
+              if (pexpr[se2 - expr._data]=='(') { // no arguments?
+                CImg<ulongT>::vector((ulongT)mp_breakpoint,_cimg_mp_slot_nan).move_to(code);
                 _cimg_mp_return(_cimg_mp_slot_nan);
               }
             }
@@ -18937,12 +18937,6 @@ namespace cimg_library_suffixed {
         return cimg::abs(_mp_arg(2));
       }
 
-      static double mp_abort_test(_cimg_math_parser& mp) {
-        cimg_abort_test();
-        cimg::unused(mp);
-        return cimg::type<double>::nan();
-      }
-
       static double mp_add(_cimg_math_parser& mp) {
         return _mp_arg(2) + _mp_arg(3);
       }
@@ -19024,6 +19018,12 @@ namespace cimg_library_suffixed {
       static double mp_break(_cimg_math_parser& mp) {
         mp.break_type = 1;
         mp.p_code = mp.p_break - 1;
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_breakpoint(_cimg_math_parser& mp) {
+        cimg_abort_test();
+        cimg::unused(mp);
         return cimg::type<double>::nan();
       }
 

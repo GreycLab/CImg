@@ -26345,7 +26345,7 @@ namespace cimg_library_suffixed {
           dx[nb] = 1; dy[nb] = 1; dz[nb++] = 1;
         }
       }
-      return _get_label(nb,dx,dy,dz,tolerance);
+      return _label(nb,dx,dy,dz,tolerance);
     }
 
     //! Label connected components \overloading.
@@ -26370,12 +26370,12 @@ namespace cimg_library_suffixed {
                                                connectivity_mask(x,y,z)) {
         dx[nb] = x; dy[nb] = y; dz[nb++] = z;
       }
-      return _get_label(nb,dx,dy,dz,tolerance);
+      return _label(nb,dx,dy,dz,tolerance);
     }
 
-    CImg<ulongT> _get_label(const unsigned int nb, const int
-                            *const dx, const int *const dy, const int *const dz,
-                            const Tfloat tolerance) const {
+    CImg<ulongT> _label(const unsigned int nb, const int
+                        *const dx, const int *const dy, const int *const dz,
+                        const Tfloat tolerance) const {
       CImg<ulongT> res(_width,_height,_depth,_spectrum);
       cimg_forC(*this,c) {
         CImg<ulongT> _res = res.get_shared_channel(c);
@@ -28827,11 +28827,11 @@ namespace cimg_library_suffixed {
     //! Permute axes order \newinstance.
     CImg<T> get_permute_axes(const char *const order) const {
       const T foo = (T)0;
-      return _get_permute_axes(order,foo);
+      return _permute_axes(order,foo);
     }
 
     template<typename t>
-    CImg<t> _get_permute_axes(const char *const permut, const t&) const {
+    CImg<t> _permute_axes(const char *const permut, const t&) const {
       if (is_empty() || !permut) return CImg<t>(*this,false);
       CImg<t> res;
       const T* ptrs = _data;
@@ -34809,9 +34809,9 @@ namespace cimg_library_suffixed {
                               const unsigned int nb_randoms,
                               const CImg<t1> &guide,
                               CImg<t2> &matching_score) const {
-      return _get_patchmatch(patch_image,patch_width,patch_height,patch_depth,
-                             nb_iterations,nb_randoms,
-                             guide,true,matching_score);
+      return _patchmatch(patch_image,patch_width,patch_height,patch_depth,
+                         nb_iterations,nb_randoms,
+                         guide,true,matching_score);
     }
 
     //! Compute correspondence map between two images, using the patch-match algorithm \overloading.
@@ -34836,9 +34836,9 @@ namespace cimg_library_suffixed {
                               const unsigned int nb_iterations,
                               const unsigned int nb_randoms,
                               const CImg<t> &guide) const {
-      return _get_patchmatch(patch_image,patch_width,patch_height,patch_depth,
-                             nb_iterations,nb_randoms,
-                             guide,false,CImg<T>::empty());
+      return _patchmatch(patch_image,patch_width,patch_height,patch_depth,
+                         nb_iterations,nb_randoms,
+                         guide,false,CImg<T>::empty());
     }
 
     //! Compute correspondence map between two images, using the patch-match algorithm \overloading.
@@ -34859,22 +34859,22 @@ namespace cimg_library_suffixed {
                               const unsigned int patch_depth=1,
                               const unsigned int nb_iterations=5,
                               const unsigned int nb_randoms=5) const {
-      return _get_patchmatch(patch_image,patch_width,patch_height,patch_depth,
-                             nb_iterations,nb_randoms,
-                             CImg<T>::const_empty(),
-                             false,CImg<T>::empty());
+      return _patchmatch(patch_image,patch_width,patch_height,patch_depth,
+                         nb_iterations,nb_randoms,
+                         CImg<T>::const_empty(),
+                         false,CImg<T>::empty());
     }
 
     template<typename t1, typename t2>
-    CImg<intT> _get_patchmatch(const CImg<T>& patch_image,
-                               const unsigned int patch_width,
-                               const unsigned int patch_height,
-                               const unsigned int patch_depth,
-                               const unsigned int nb_iterations,
-                               const unsigned int nb_randoms,
-                               const CImg<t1> &guide,
-                               const bool is_matching_score,
-                               CImg<t2> &matching_score) const {
+    CImg<intT> _patchmatch(const CImg<T>& patch_image,
+                           const unsigned int patch_width,
+                           const unsigned int patch_height,
+                           const unsigned int patch_depth,
+                           const unsigned int nb_iterations,
+                           const unsigned int nb_randoms,
+                           const CImg<t1> &guide,
+                           const bool is_matching_score,
+                           CImg<t2> &matching_score) const {
       if (is_empty()) return CImg<intT>::const_empty();
       if (patch_image._spectrum!=_spectrum)
         throw CImgArgumentException(_cimg_instance
@@ -44783,7 +44783,7 @@ namespace cimg_library_suffixed {
     CImg<intT> get_select(CImgDisplay &disp,
 		          const unsigned int feature_type=2, unsigned int *const XYZ=0,
                           const bool exit_on_anykey=false) const {
-      return _get_select(disp,0,feature_type,XYZ,0,0,0,exit_on_anykey,true,false);
+      return _select(disp,0,feature_type,XYZ,0,0,0,exit_on_anykey,true,false);
     }
 
     //! Simple interface to select a shape from an image \newinstance.
@@ -44791,15 +44791,15 @@ namespace cimg_library_suffixed {
     			  const unsigned int feature_type=2, unsigned int *const XYZ=0,
                           const bool exit_on_anykey=false) const {
       CImgDisplay disp;
-      return _get_select(disp,title,feature_type,XYZ,0,0,0,exit_on_anykey,true,false);
+      return _select(disp,title,feature_type,XYZ,0,0,0,exit_on_anykey,true,false);
     }
 
-    CImg<intT> _get_select(CImgDisplay &disp, const char *const title,
-			   const unsigned int feature_type, unsigned int *const XYZ,
-			   const int origX, const int origY, const int origZ,
-                           const bool exit_on_anykey,
-                           const bool reset_view3d,
-                           const bool force_display_z_coord) const {
+    CImg<intT> _select(CImgDisplay &disp, const char *const title,
+                       const unsigned int feature_type, unsigned int *const XYZ,
+                       const int origX, const int origY, const int origZ,
+                       const bool exit_on_anykey,
+                       const bool reset_view3d,
+                       const bool force_display_z_coord) const {
       if (is_empty()) return CImg<intT>(1,feature_type==0?3:6,1,1,-1);
       if (!disp) {
         disp.assign(cimg_fitscreen(_width,_height,_depth),title?title:0,1);
@@ -48983,7 +48983,7 @@ namespace cimg_library_suffixed {
         }
 
         disp._mouse_x = old_mouse_x; disp._mouse_y = old_mouse_y;
-        const CImg<intT> selection = visu._get_select(disp,0,2,_XYZ,x0,y0,z0,true,is_first_select,_depth>1);
+        const CImg<intT> selection = visu._select(disp,0,2,_XYZ,x0,y0,z0,true,is_first_select,_depth>1);
         old_mouse_x = disp._mouse_x; old_mouse_y = disp._mouse_y;
         is_first_select = false;
 
@@ -54511,7 +54511,7 @@ namespace cimg_library_suffixed {
     CImg<intT> get_select(CImgDisplay &disp, const bool feature_type=true,
                           const char axis='x', const float align=0,
                           const bool exit_on_anykey=false) const {
-      return _get_select(disp,0,feature_type,axis,align,exit_on_anykey,0,false,false,false);
+      return _select(disp,0,feature_type,axis,align,exit_on_anykey,0,false,false,false);
     }
 
     //! Display a simple interactive interface to select images or sublists.
@@ -54526,13 +54526,13 @@ namespace cimg_library_suffixed {
                           const char axis='x', const float align=0,
                           const bool exit_on_anykey=false) const {
       CImgDisplay disp;
-      return _get_select(disp,title,feature_type,axis,align,exit_on_anykey,0,false,false,false);
+      return _select(disp,title,feature_type,axis,align,exit_on_anykey,0,false,false,false);
     }
 
-    CImg<intT> _get_select(CImgDisplay &disp, const char *const title, const bool feature_type,
-                           const char axis, const float align, const bool exit_on_anykey,
-                           const unsigned int orig, const bool resize_disp,
-                           const bool exit_on_rightbutton, const bool exit_on_wheel) const {
+    CImg<intT> _select(CImgDisplay &disp, const char *const title, const bool feature_type,
+                       const char axis, const float align, const bool exit_on_anykey,
+                       const unsigned int orig, const bool resize_disp,
+                       const bool exit_on_rightbutton, const bool exit_on_wheel) const {
       if (is_empty())
         throw CImgInstanceException(_cimglist_instance
                                     "select(): Empty instance.",
@@ -56031,7 +56031,7 @@ namespace cimg_library_suffixed {
       } else {
         bool disp_resize = !is_first_call;
         while (!disp.is_closed() && !is_exit) {
-          const CImg<intT> s = _get_select(disp,0,true,axis,align,exit_on_anykey,orig,disp_resize,!is_first_call,true);
+          const CImg<intT> s = _select(disp,0,true,axis,align,exit_on_anykey,orig,disp_resize,!is_first_call,true);
           disp_resize = true;
           if (s[0]<0 && !disp.wheel()) { // No selections done.
             if (disp.button()&2) { disp.flush(); break; }

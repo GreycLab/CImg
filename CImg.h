@@ -15203,7 +15203,6 @@ namespace cimg_library_suffixed {
               if (arg1==~0U) { // Create new variable
                 if (_cimg_mp_is_vector(arg2)) { // Vector variable
                   arg1 = is_comp_vector(arg2)?arg2:vector_copy(arg2);
-                  arg1 = vector_copy(arg2);
                   set_variable_vector(arg1);
                 } else { // Scalar variable
                   if (is_const) arg1 = arg2;

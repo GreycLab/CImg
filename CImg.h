@@ -21106,7 +21106,7 @@ namespace cimg_library_suffixed {
       static double mp_sum(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
         double val = _mp_arg(3);
-        for (unsigned int i = 3; i<i_end; ++i) val+=_mp_arg(i);
+        for (unsigned int i = 4; i<i_end; ++i) val+=_mp_arg(i);
         return val;
       }
 

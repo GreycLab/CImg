@@ -14383,16 +14383,16 @@ namespace cimg_library_suffixed {
       CImg<T> &imgout;
       CImgList<T>& listout;
 
-      CImg<doubleT> _img_stats, &img_stats;
+      CImg<doubleT> _img_stats, &img_stats, constcache_vals;
       CImgList<doubleT> _list_stats, &list_stats, _list_median, &list_median;
-      CImg<uintT> mem_img_stats;
+      CImg<uintT> mem_img_stats, constcache_inds;
 
       CImg<uintT> level, variable_pos, reserved_label;
       CImgList<charT> variable_def, macro_def, macro_body;
       CImgList<boolT> macro_body_is_string;
       char *user_macro;
 
-      unsigned int mempos, mem_img_median, debug_indent, init_size, result_dim, break_type;
+      unsigned int mempos, mem_img_median, debug_indent, init_size, result_dim, break_type, constcache_size;
       bool is_parallelizable, need_input_copy;
       double *result;
       const char *const calling_function, *s_op, *ss_op;
@@ -14436,7 +14436,7 @@ namespace cimg_library_suffixed {
         imgin(img_input),listin(list_input?*list_input:CImgList<T>::const_empty()),
         imgout(img_output?*img_output:CImg<T>::empty()),listout(list_output?*list_output:CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),user_macro(0),
-        mem_img_median(~0U),debug_indent(0),init_size(0),result_dim(0),break_type(0),
+        mem_img_median(~0U),debug_indent(0),init_size(0),result_dim(0),break_type(0),constcache_size(0),
         is_parallelizable(true),need_input_copy(false),calling_function(funcname?funcname:"cimg_math_parser") {
         if (!expression || !*expression)
           throw CImgArgumentException("[_cimg_math_parser] "
@@ -14517,6 +14517,8 @@ namespace cimg_library_suffixed {
         mem.resize(mempos,1,1,1,-1);
         result = mem._data + ind_result;
         memtype.assign();
+        constcache_vals.assign();
+        constcache_inds.assign();
         level.assign();
         variable_pos.assign();
         reserved_label.assign();
@@ -14543,7 +14545,8 @@ namespace cimg_library_suffixed {
         imgin(CImg<T>::const_empty()),listin(CImgList<T>::const_empty()),
         imgout(CImg<T>::empty()),listout(CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),debug_indent(0),
-        result_dim(0),break_type(0),is_parallelizable(true),need_input_copy(false),calling_function(0) {
+        result_dim(0),break_type(0),constcache_size(0),is_parallelizable(true),need_input_copy(false),
+        calling_function(0) {
         mem.assign(1 + _cimg_mp_slot_c,1,1,1,0); // Allow to skip 'is_empty?' test in operator()()
         result = mem._data;
       }
@@ -14552,7 +14555,7 @@ namespace cimg_library_suffixed {
         mem(mp.mem),code(mp.code),p_code_begin(mp.p_code_begin),p_code_end(mp.p_code_end),p_break(mp.p_break),
         imgin(mp.imgin),listin(mp.listin),imgout(mp.imgout),listout(mp.listout),img_stats(mp.img_stats),
         list_stats(mp.list_stats),list_median(mp.list_median),debug_indent(0),result_dim(mp.result_dim),
-        break_type(0),is_parallelizable(mp.is_parallelizable),need_input_copy(mp.need_input_copy),
+        break_type(0),constcache_size(0),is_parallelizable(mp.is_parallelizable),need_input_copy(mp.need_input_copy),
         result(mem._data + (mp.result - mp.mem._data)),calling_function(0) {
 #ifdef cimg_use_openmp
         mem[17] = omp_get_thread_num();
@@ -18105,12 +18108,12 @@ namespace cimg_library_suffixed {
               arg1 = compile(ss4,s1,depth1,0);
               arg2 = compile(++s1,se1,depth1,0);
               _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
-              if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_xor,arg1,arg2);
-              if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_xor,arg1,arg2);
-              if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_xor,arg1,arg2);
+              if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_vv(mp_bitwise_xor,arg1,arg2);
+              if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_bitwise_xor,arg1,arg2);
+              if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_bitwise_xor,arg1,arg2);
               if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2))
                 _cimg_mp_constant((ulongT)mem[arg1] ^ (ulongT)mem[arg2]);
-              _cimg_mp_scalar2(mp_xor,arg1,arg2);
+              _cimg_mp_scalar2(mp_bitwise_xor,arg1,arg2);
             }
             break;
 
@@ -18537,16 +18540,62 @@ namespace cimg_library_suffixed {
 
       // Insert constant value in memory.
       unsigned int constant(const double val) {
+
+        // Search for built-in constant.
         if (val==(double)(int)val) {
           if (val>=0 && val<=10) return (unsigned int)val;
           if (val<0 && val>=-5) return (unsigned int)(10 - val);
         }
         if (val==0.5) return 16;
         if (cimg::type<double>::is_nan(val)) return _cimg_mp_slot_nan;
+
+        // Search for constant already requested before (in const cache).
+        unsigned int ind = ~0U;
+        if (!constcache_size) {
+          constcache_vals.assign(16,1,1,1,0);
+          constcache_inds.assign(16,1,1,1,0);
+          *constcache_vals = val;
+          constcache_size = 1;
+          ind = 0;
+        } else { // Dichotomic search
+          const double val_beg = *constcache_vals, val_end = constcache_vals[constcache_size - 1];
+          if (val_beg>=val) ind = 0;
+          else if (val_end==val) ind = constcache_size - 1;
+          else if (val_end<val) ind = constcache_size;
+          else {
+            unsigned int i0 = 1, i1 = constcache_size - 2;
+            while (i0<=i1) {
+              const unsigned int mid = (i0 + i1)/2;
+              if (constcache_vals[mid]==val) { i0 = mid; break; }
+              else if (constcache_vals[mid]<val) i0 = mid + 1;
+              else i1 = mid - 1;
+            }
+            ind = i0;
+          }
+
+          if (ind>=constcache_size || constcache_vals[ind]!=val) {
+            ++constcache_size;
+            if (constcache_size>constcache_vals._width) {
+              constcache_vals.resize(-200,1,1,1,0);
+              constcache_inds.resize(-200,1,1,1,0);
+            }
+            const int l = constcache_size - (int)ind - 1;
+            if (l>0) {
+              std::memmove(&constcache_vals[ind + 1],&constcache_vals[ind],l*sizeof(double));
+              std::memmove(&constcache_inds[ind + 1],&constcache_inds[ind],l*sizeof(unsigned int));
+            }
+            constcache_vals[ind] = val;
+            constcache_inds[ind] = 0;
+          }
+        }
+        if (constcache_inds[ind]) return constcache_inds[ind];
+
+        // Insert new constant in memory if necessary.
         if (mempos>=mem._width) { mem.resize(-200,1,1,1,0); memtype.resize(-200,1,1,1,0); }
         const unsigned int pos = mempos++;
         mem[pos] = val;
         memtype[pos] = 1; // Set constant property
+        constcache_inds[ind] = pos;
         return pos;
       }
 
@@ -19012,6 +19061,10 @@ namespace cimg_library_suffixed {
 
       static double mp_bitwise_right_shift(_cimg_math_parser& mp) {
         return (double)((longT)_mp_arg(2)>>(unsigned int)_mp_arg(3));
+      }
+
+      static double mp_bitwise_xor(_cimg_math_parser& mp) {
+        return (double)((ulongT)_mp_arg(2) ^ (ulongT)_mp_arg(3));
       }
 
       static double mp_break(_cimg_math_parser& mp) {
@@ -21566,10 +21619,6 @@ namespace cimg_library_suffixed {
               *(ptrd++) = (double)img.linear_atXYZ((float)x,(float)y,(float)z,c,(T)0);
         }
         return cimg::type<double>::nan();
-      }
-
-      static double mp_xor(_cimg_math_parser& mp) {
-        return (ulongT)_mp_arg(2) ^ (ulongT)_mp_arg(3);
       }
 
 #undef _mp_arg

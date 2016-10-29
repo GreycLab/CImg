@@ -2752,7 +2752,7 @@ namespace cimg_library_suffixed {
 #endif
       }
       static double cut(const double val) { return val; }
-      static const char* format() { return "%.16g"; }
+      static const char* format() { return "%.17g"; }
       static const char* format_s() { return "%g"; }
       static double format(const double val) { return val; }
     };
@@ -2780,7 +2780,7 @@ namespace cimg_library_suffixed {
       static float nan() { return (float)cimg::type<double>::nan(); }
       static float cut(const double val) { return (float)val; }
       static float cut(const float val) { return (float)val; }
-      static const char* format() { return "%.16g"; }
+      static const char* format() { return "%.9g"; }
       static const char* format_s() { return "%g"; }
       static double format(const float val) { return (double)val; }
     };
@@ -2807,7 +2807,7 @@ namespace cimg_library_suffixed {
       static long double inf() { return max()*max(); }
       static long double nan() { const long double val_nan = -std::sqrt(-1.0L); return val_nan; }
       static long double cut(const long double val) { return val; }
-      static const char* format() { return "%.16g"; }
+      static const char* format() { return "%.17g"; }
       static const char* format_s() { return "%g"; }
       static double format(const long double val) { return (double)val; }
     };
@@ -2835,7 +2835,7 @@ namespace cimg_library_suffixed {
       static half inf() { return max()*max(); }
       static half nan() { const half val_nan = (half)-std::sqrt(-1.0); return val_nan; }
       static half cut(const double val) { return (half)val; }
-      static const char* format() { return "%.16g"; }
+      static const char* format() { return "%.9g"; }
       static const char* format_s() { return "%g"; }
       static double format(const half val) { return (double)val; }
     };
@@ -50125,7 +50125,7 @@ namespace cimg_library_suffixed {
       std::fprintf(nfile,"%u %u %u %u\n",_width,_height,_depth,_spectrum);
       const T* ptrs = _data;
       cimg_forYZC(*this,y,z,c) {
-        cimg_forX(*this,x) std::fprintf(nfile,"%.16g ",(double)*(ptrs++));
+        cimg_forX(*this,x) std::fprintf(nfile,"%.17g ",(double)*(ptrs++));
         std::fputc('\n',nfile);
       }
       if (!file) cimg::fclose(nfile);
@@ -50202,7 +50202,7 @@ namespace cimg_library_suffixed {
       std::FILE *const nfile = file?file:cimg::fopen(filename,"w");
       const T* ptrs = _data;
       cimg_forYZC(*this,y,z,c) {
-        cimg_forX(*this,x) std::fprintf(nfile,"%.16g%s",(double)*(ptrs++),(x==width() - 1)?"":",");
+        cimg_forX(*this,x) std::fprintf(nfile,"%.17g%s",(double)*(ptrs++),(x==width() - 1)?"":",");
         std::fputc('\n',nfile);
       }
       if (!file) cimg::fclose(nfile);

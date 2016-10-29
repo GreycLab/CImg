@@ -2549,6 +2549,7 @@ namespace cimg_library_suffixed {
       static T inf() { return max(); }
       static T cut(const double val) { return val<(double)min()?min():val>(double)max()?max():(T)val; }
       static const char* format() { return "%s"; }
+      static const char* format_s() { return "%s"; }
       static const char* format(const T& val) { static const char *const s = "unknown"; cimg::unused(val); return s; }
     };
 
@@ -2563,6 +2564,7 @@ namespace cimg_library_suffixed {
       static bool is_inf() { return false; }
       static bool cut(const double val) { return val<(double)min()?min():val>(double)max()?max():(bool)val; }
       static const char* format() { return "%s"; }
+      static const char* format_s() { return "%s"; }
       static const char* format(const bool val) { static const char* s[] = { "false", "true" }; return s[val?1:0]; }
     };
 
@@ -2577,6 +2579,7 @@ namespace cimg_library_suffixed {
       static unsigned char cut(const double val) {
         return val<(double)min()?min():val>(double)max()?max():(unsigned char)val; }
       static const char* format() { return "%u"; }
+      static const char* format_s() { return "%u"; }
       static unsigned int format(const unsigned char val) { return (unsigned int)val; }
     };
 
@@ -2592,6 +2595,7 @@ namespace cimg_library_suffixed {
       static char cut(const double val) {
         return val<(double)min()?min():val>(double)max()?max():(unsigned char)val; }
       static const char* format() { return "%u"; }
+      static const char* format_s() { return "%u"; }
       static unsigned int format(const char val) { return (unsigned int)val; }
     };
 #else
@@ -2605,6 +2609,7 @@ namespace cimg_library_suffixed {
       static char inf() { return max(); }
       static char cut(const double val) { return val<(double)min()?min():val>(double)max()?max():(char)val; }
       static const char* format() { return "%d"; }
+      static const char* format_s() { return "%d"; }
       static int format(const char val) { return (int)val; }
     };
 #endif
@@ -2620,6 +2625,7 @@ namespace cimg_library_suffixed {
       static signed char cut(const double val) {
         return val<(double)min()?min():val>(double)max()?max():(signed char)val; }
       static const char* format() { return "%d"; }
+      static const char* format_s() { return "%d"; }
       static int format(const signed char val) { return (int)val; }
     };
 
@@ -2634,6 +2640,7 @@ namespace cimg_library_suffixed {
       static unsigned short cut(const double val) {
         return val<(double)min()?min():val>(double)max()?max():(unsigned short)val; }
       static const char* format() { return "%u"; }
+      static const char* format_s() { return "%u"; }
       static unsigned int format(const unsigned short val) { return (unsigned int)val; }
     };
 
@@ -2647,6 +2654,7 @@ namespace cimg_library_suffixed {
       static short inf() { return max(); }
       static short cut(const double val) { return val<(double)min()?min():val>(double)max()?max():(short)val; }
       static const char* format() { return "%d"; }
+      static const char* format_s() { return "%d"; }
       static int format(const short val) { return (int)val; }
     };
 
@@ -2661,6 +2669,7 @@ namespace cimg_library_suffixed {
       static unsigned int cut(const double val) {
         return val<(double)min()?min():val>(double)max()?max():(unsigned int)val; }
       static const char* format() { return "%u"; }
+      static const char* format_s() { return "%u"; }
       static unsigned int format(const unsigned int val) { return val; }
     };
 
@@ -2674,6 +2683,7 @@ namespace cimg_library_suffixed {
       static int inf() { return max(); }
       static int cut(const double val) { return val<(double)min()?min():val>(double)max()?max():(int)val; }
       static const char* format() { return "%d"; }
+      static const char* format_s() { return "%d"; }
       static int format(const int val) { return val; }
     };
 
@@ -2688,6 +2698,7 @@ namespace cimg_library_suffixed {
       static cimg_uint64 cut(const double val) {
         return val<(double)min()?min():val>(double)max()?max():(cimg_uint64)val; }
       static const char* format() { return "%lu"; }
+      static const char* format_s() { return "%lu"; }
       static unsigned long format(const cimg_uint64 val) { return (unsigned long)val; }
     };
 
@@ -2703,6 +2714,7 @@ namespace cimg_library_suffixed {
         return val<(double)min()?min():val>(double)max()?max():(cimg_int64)val;
       }
       static const char* format() { return "%ld"; }
+      static const char* format_s() { return "%ld"; }
       static long format(const long val) { return (long)val; }
     };
 
@@ -2741,6 +2753,7 @@ namespace cimg_library_suffixed {
       }
       static double cut(const double val) { return val; }
       static const char* format() { return "%.16g"; }
+      static const char* format_s() { return "%g"; }
       static double format(const double val) { return val; }
     };
 
@@ -2768,6 +2781,7 @@ namespace cimg_library_suffixed {
       static float cut(const double val) { return (float)val; }
       static float cut(const float val) { return (float)val; }
       static const char* format() { return "%.16g"; }
+      static const char* format_s() { return "%g"; }
       static double format(const float val) { return (double)val; }
     };
 
@@ -2794,6 +2808,7 @@ namespace cimg_library_suffixed {
       static long double nan() { const long double val_nan = -std::sqrt(-1.0L); return val_nan; }
       static long double cut(const long double val) { return val; }
       static const char* format() { return "%.16g"; }
+      static const char* format_s() { return "%g"; }
       static double format(const long double val) { return (double)val; }
     };
 
@@ -2821,6 +2836,7 @@ namespace cimg_library_suffixed {
       static half nan() { const half val_nan = (half)-std::sqrt(-1.0); return val_nan; }
       static half cut(const double val) { return (half)val; }
       static const char* format() { return "%.16g"; }
+      static const char* format_s() { return "%g"; }
       static double format(const half val) { return (double)val; }
     };
 #endif
@@ -13518,7 +13534,6 @@ namespace cimg_library_suffixed {
       const T *ptrs = _data;
       unsigned int string_size = 0;
       const char *const _format = format?format:cimg::type<T>::format();
-
       for (ulongT off = 0, siz = size(); off<siz && string_size<=max_size; ++off) {
         const unsigned int printed_size = 1U + cimg_snprintf(s_item,s_item._width,_format,
                                                              cimg::type<T>::format(*(ptrs++)));
@@ -45333,8 +45348,7 @@ namespace cimg_library_suffixed {
                 else cimg_snprintf(text,text._width," Point (%d,%d) = [ ",origX + (int)X,origY + (int)Y);
                 char *ctext = text._data + std::strlen(text), *const ltext = text._data + 512;
                 for (unsigned int c = 0; c<_spectrum && ctext<ltext; ++c) {
-                  cimg_snprintf(ctext,text._width/2,cimg::type<T>::format(),
-                                cimg::type<T>::format((*this)((int)X,(int)Y,(int)Z,c)));
+                  cimg_snprintf(ctext,text._width/2,cimg::type<T>::format_s(),cimg::type<T>::format((*this)((int)X,(int)Y,(int)Z,c)));
                   ctext = text._data + std::strlen(text);
                   *(ctext++) = ' '; *ctext = 0;
                 }
@@ -48918,7 +48932,7 @@ namespace cimg_library_suffixed {
       else std::fprintf(cimg::output()," (%s) = [ ",_is_shared?"shared":"non-shared");
 
       if (!is_empty()) cimg_foroff(*this,off) {
-        std::fprintf(cimg::output(),cimg::type<T>::format(),cimg::type<T>::format(_data[off]));
+        std::fprintf(cimg::output(),"%g",(double)_data[off]);
         if (off!=siz1) std::fprintf(cimg::output(),"%s",off%_width==width1?" ; ":" ");
         if (off==7 && siz>16) { off = siz1 - 8; std::fprintf(cimg::output(),"... "); }
       }

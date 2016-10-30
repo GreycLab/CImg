@@ -25216,6 +25216,7 @@ namespace cimg_library_suffixed {
         if (repeat_values && nb && nb<siz)
           for (T *ptrs = _data, *const ptre = _data + siz; ptrd<ptre; ++ptrs) *(ptrd++) = *ptrs;
       }
+
       cimg::exception_mode(omode);
       cimg_abort_test();
       return *this;

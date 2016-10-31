@@ -45340,7 +45340,8 @@ namespace cimg_library_suffixed {
                 else cimg_snprintf(text,text._width," Point (%d,%d) = [ ",origX + (int)X,origY + (int)Y);
                 char *ctext = text._data + std::strlen(text), *const ltext = text._data + 512;
                 for (unsigned int c = 0; c<_spectrum && ctext<ltext; ++c) {
-                  cimg_snprintf(ctext,text._width/2,cimg::type<T>::format_s(),cimg::type<T>::format((*this)((int)X,(int)Y,(int)Z,c)));
+                  cimg_snprintf(ctext,text._width/2,cimg::type<T>::format_s(),
+                                cimg::type<T>::format((*this)((int)X,(int)Y,(int)Z,c)));
                   ctext = text._data + std::strlen(text);
                   *(ctext++) = ' '; *ctext = 0;
                 }

@@ -31480,9 +31480,6 @@ namespace cimg_library_suffixed {
         if (is_convolution) cimg::swap(mx1,mx2,my1,my2,mz1,mz2); // Shift kernel center in case of convolution
         const int
           mxe = width() - mx2, mye = height() - my2, mze = depth() - mz2;
-#if cimg_OS!=2
-        cimg_pragma_openmp(parallel for cimg_openmp_if(res._spectrum>=2)) // (Isn't stable on Windows)
-#endif
         cimg_forC(res,c) cimg_abort_try {
           cimg_abort_test();
           const CImg<T> _img = get_shared_channel(c%_spectrum);
@@ -31543,7 +31540,7 @@ namespace cimg_library_suffixed {
               } cimg_abort_catch2()
           } else { // Classical correlation.
             cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width*_height*_depth>=32768))
-            for (int z = mz1; z<mze; ++z)
+              for (int z = mz1; z<mze; ++z)
               for (int y = my1; y<mye; ++y)
                 for (int x = mx1; x<mxe; ++x) cimg_abort_try2 {
                   cimg_abort_test2();
@@ -31707,9 +31704,6 @@ namespace cimg_library_suffixed {
         mx1 = kernel.width() - mx2 - 1, my1 = kernel.height() - my2 - 1, mz1 = kernel.depth() - mz2 - 1,
         mxe = width() - mx2, mye = height() - my2, mze = depth() - mz2;
       cimg_abort_init;
-#if cimg_OS!=2
-      cimg_pragma_openmp(parallel for cimg_openmp_if(_spectrum>=2)) // (Isn't stable on Windows)
-#endif
       cimg_forC(*this,c) cimg_abort_try {
         cimg_abort_test();
         const CImg<T> _img = get_shared_channel(c%_spectrum);
@@ -31994,9 +31988,6 @@ namespace cimg_library_suffixed {
         mx2 = kernel.width() - mx1 - 1, my2 = kernel.height() - my1 - 1, mz2 = kernel.depth() - mz1 - 1,
         mxe = width() - mx2, mye = height() - my2, mze = depth() - mz2;
       cimg_abort_init;
-#if cimg_OS!=2
-      cimg_pragma_openmp(parallel for cimg_openmp_if(_spectrum>=2)) // (Isn't stable on Windows)
-#endif
       cimg_forC(*this,c) cimg_abort_try {
         cimg_abort_test();
         const CImg<T> _img = get_shared_channel(c%_spectrum);

@@ -9730,6 +9730,20 @@ namespace cimg_library_suffixed {
     template<typename T>
     static void screenshot(CImg<T>& img) {
       cimg::unused(img);
+/*
+      HDC dcDesktop;
+      HDC dcMem;
+      HBITMAP hbmpMem;
+      HBITMAP hOriginal;
+      BITMAP bmpDesktopCopy;
+      dcDesktop = GetDC( GetDesktopWindow() );
+      dcMem = CreateCompatibleDC( dcDesktop );
+      hbmpMem = CreateCompatibleBitmap( dcMem, m_lWidth, m_lHeight );
+      BitBlt( dcMem, 0, 0, m_lWidth, m_lHeight, dcDesktop, 0, 0, SRCCOPY );
+
+      // Copy the hbmpMem to the desktop copy
+      GetObject(hbmpMem, sizeof(BITMAP), (LPSTR)&bmpDesktopCopy);
+*/
       _no_display_exception();
     }
 

@@ -7818,6 +7818,17 @@ namespace cimg_library_suffixed {
       return assign();
     }
 
+
+    //! Take a snapshot of the current screen content.
+    /**
+       \param[out] img Output screenshot. Can be empty on input
+    **/
+    template<typename T>
+    static void screenshot(CImg<T>& img) {
+      cimg::unused(img);
+      _no_display_exception();
+    }
+
     //! Take a snapshot of the associated window content.
     /**
        \param[out] img Output snapshot. Can be empty on input.
@@ -9033,10 +9044,13 @@ namespace cimg_library_suffixed {
     }
 
     template<typename T>
-    static void snapshot(CImg<T>& img, const bool) {
-      Display *const dpy = XOpenDisplay(0);
-      if (!dpy)
-        throw CImgDisplayException("CImgDisplay::snapshot(): Failed to open X11 display.");
+    static void screenshot(CImg<T>& img) {
+      Display *dpy = cimg::X11_attr().display;
+      if (!dpy) {
+        dpy = XOpenDisplay(0);
+        if (!dpy)
+          throw CImgDisplayException("CImgDisplay::screenshot(): Failed to open X11 display.");
+      }
       Window root = DefaultRootWindow(dpy);
       XWindowAttributes gwa;
       XGetWindowAttributes(dpy,root,&gwa);
@@ -9054,6 +9068,7 @@ namespace cimg_library_suffixed {
         *(pG++) = (pixel & green_mask)>>8;
         *(pB++) = pixel & blue_mask;
       }
+      if (!cimg::X11_attr().display) XCloseDisplay(dpy);
     }
 
     template<typename T>
@@ -9710,6 +9725,12 @@ namespace cimg_library_suffixed {
       if (ndata!=_data) { _render_resize(ndata,img._width,img._height,_data,_width,_height); delete[] ndata; }
       ReleaseMutex(_mutex);
       return *this;
+    }
+
+    template<typename T>
+    static void screenshot(CImg<T>& img) {
+      cimg::unused(img);
+      _no_display_exception();
     }
 
     template<typename T>

@@ -9033,6 +9033,30 @@ namespace cimg_library_suffixed {
     }
 
     template<typename T>
+    static void snapshot(CImg<T>& img, const bool) {
+      Display *const dpy = XOpenDisplay(0);
+      if (!dpy)
+        throw CImgDisplayException("CImgDisplay::snapshot(): Failed to open X11 display.");
+      Window root = DefaultRootWindow(dpy);
+      XWindowAttributes gwa;
+      XGetWindowAttributes(dpy,root,&gwa);
+      const int width = gwa.width, height = gwa.height;
+      XImage *const image = XGetImage(dpy,root,0,0,width,height,AllPlanes,ZPixmap);
+      const unsigned long
+        red_mask = image->red_mask,
+        green_mask = image->green_mask,
+        blue_mask = image->blue_mask;
+      img.assign(width,height,1,3);
+      unsigned char *pR = img.data(0,0,0,0), *pG = img.data(0,0,0,1), *pB = img.data(0,0,0,2);
+      cimg_forXY(img,x,y) {
+        const unsigned long pixel = XGetPixel(image,x,y);
+        *(pR++) = (pixel & red_mask)>>16;
+        *(pG++) = (pixel & green_mask)>>8;
+        *(pB++) = pixel & blue_mask;
+      }
+    }
+
+    template<typename T>
     const CImgDisplay& snapshot(CImg<T>& img) const {
       if (is_empty()) { img.assign(); return *this; }
       const unsigned char *ptrs = (unsigned char*)_data;

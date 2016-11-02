@@ -6582,6 +6582,11 @@ namespace cimg_library_suffixed {
       assign(disp);
     }
 
+    template<typename T>
+    static void screenshot(CImg<T>& img) {
+      return screenshot(0,0,cimg::type<int>::max(),cimg::type<int>::max(),img);
+    }
+
 #if cimg_display==0
 
     static void _no_display_exception() {
@@ -9044,7 +9049,9 @@ namespace cimg_library_suffixed {
     }
 
     template<typename T>
-    static void screenshot(CImg<T>& img) {
+    static void screenshot(const int x0, const int y0,
+                           const int x1, const int y1,
+                           CImg<T>& img) {
       Display *dpy = cimg::X11_attr().display;
       if (!dpy) {
         dpy = XOpenDisplay(0);
@@ -9055,19 +9062,34 @@ namespace cimg_library_suffixed {
       XWindowAttributes gwa;
       XGetWindowAttributes(dpy,root,&gwa);
       const int width = gwa.width, height = gwa.height;
-      XImage *const image = XGetImage(dpy,root,0,0,width,height,AllPlanes,ZPixmap);
+      int _x0 = x0, _y0 = y0, _x1 = x1, _y1 = y1;
+      if (_x0>_x1) cimg::swap(_x0,_x1);
+      if (_y0>_y1) cimg::swap(_y0,_y1);
+
+      XImage *image = 0;
+      if (_x1>=0 && _x0<width && _y1>=0 && _y0<height) {
+        _x0 = cimg::max(_x0,0);
+        _y0 = cimg::max(_y0,0);
+        _x1 = cimg::min(_x1,width - 1);
+        _y1 = cimg::min(_y1,height - 1);
+        image = XGetImage(dpy,root,_x0,_y0,_x1 - _x0 + 1,_y1 - _y0 + 1,AllPlanes,ZPixmap);
+      }
+      if (!image)
+        throw CImgDisplayException("CImgDisplay::screenshot(): Failed to grab screenshot.");
+
       const unsigned long
         red_mask = image->red_mask,
         green_mask = image->green_mask,
         blue_mask = image->blue_mask;
-      img.assign(width,height,1,3);
-      unsigned char *pR = img.data(0,0,0,0), *pG = img.data(0,0,0,1), *pB = img.data(0,0,0,2);
+      img.assign(image->width,image->height,1,3);
+      T *pR = img.data(0,0,0,0), *pG = img.data(0,0,0,1), *pB = img.data(0,0,0,2);
       cimg_forXY(img,x,y) {
         const unsigned long pixel = XGetPixel(image,x,y);
-        *(pR++) = (pixel & red_mask)>>16;
-        *(pG++) = (pixel & green_mask)>>8;
-        *(pB++) = pixel & blue_mask;
+        *(pR++) = (T)((pixel & red_mask)>>16);
+        *(pG++) = (T)((pixel & green_mask)>>8);
+        *(pB++) = (T)(pixel & blue_mask);
       }
+      XDestroyImage(image);
       if (!cimg::X11_attr().display) XCloseDisplay(dpy);
     }
 

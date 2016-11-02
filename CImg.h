@@ -9059,6 +9059,7 @@ namespace cimg_library_suffixed {
     template<typename T>
     static void screenshot(const int x0, const int y0, const int x1, const int y1, CImg<T>& img) {
       Display *dpy = cimg::X11_attr().display;
+      cimg_lock_display();
       if (!dpy) {
         dpy = XOpenDisplay(0);
         if (!dpy)
@@ -9080,8 +9081,12 @@ namespace cimg_library_suffixed {
         _y1 = cimg::min(_y1,height - 1);
         image = XGetImage(dpy,root,_x0,_y0,_x1 - _x0 + 1,_y1 - _y0 + 1,AllPlanes,ZPixmap);
       }
-      if (!image)
-        throw CImgDisplayException("CImgDisplay::screenshot(): Failed to grab screenshot.");
+      if (!image) {
+        if (!cimg::X11_attr().display) XCloseDisplay(dpy);
+        cimg_unlock_display();
+        throw CImgDisplayException("CImgDisplay::screenshot(): Failed to take screenshot with coordinates (%d,%d)-(%d,%d).",
+                                   x0,y0,x1,y1);
+      }
 
       const unsigned long
         red_mask = image->red_mask,
@@ -9097,6 +9102,7 @@ namespace cimg_library_suffixed {
       }
       XDestroyImage(image);
       if (!cimg::X11_attr().display) XCloseDisplay(dpy);
+      cimg_unlock_display();
     }
 
     template<typename T>
@@ -9757,22 +9763,54 @@ namespace cimg_library_suffixed {
 
     template<typename T>
     static void screenshot(const int x0, const int y0, const int x1, const int y1, CImg<T>& img) {
-      cimg::unused(x0,y0,x1,y1,img);
-/*
-      HDC dcDesktop;
-      HDC dcMem;
-      HBITMAP hbmpMem;
-      HBITMAP hOriginal;
-      BITMAP bmpDesktopCopy;
-      dcDesktop = GetDC( GetDesktopWindow() );
-      dcMem = CreateCompatibleDC( dcDesktop );
-      hbmpMem = CreateCompatibleBitmap( dcMem, m_lWidth, m_lHeight );
-      BitBlt( dcMem, 0, 0, m_lWidth, m_lHeight, dcDesktop, 0, 0, SRCCOPY );
+      HDC hScreen = GetDC(GetDesktopWindow());
+      const int
+        width = GetDeviceCaps(hScreen,HORZRES),
+        height = GetDeviceCaps(hScreen,VERTRES);
+      int _x0 = x0, _y0 = y0, _x1 = x1, _y1 = y1;
+      if (_x0>_x1) cimg::swap(_x0,_x1);
+      if (_y0>_y1) cimg::swap(_y0,_y1);
 
-      // Copy the hbmpMem to the desktop copy
-      GetObject(hbmpMem, sizeof(BITMAP), (LPSTR)&bmpDesktopCopy);
-*/
-      _no_display_exception();
+      if (_x1>=0 && _x0<width && _y1>=0 && _y0<height) {
+        _x0 = cimg::max(_x0,0);
+        _y0 = cimg::max(_y0,0);
+        _x1 = cimg::min(_x1,width - 1);
+        _y1 = cimg::min(_y1,height - 1);
+        const int bw = _x1 - _x0 + 1, bh = _y1 - _y0 + 1;
+        HDC hdcMem = CreateCompatibleDC(hScreen);
+        HBITMAP hBitmap = CreateCompatibleBitmap(hScreen,bw,bh);
+        HGDIOBJ hOld = SelectObject(hdcMem,hBitmap);
+        BitBlt(hdcMem,0,0,bw,bh,hScreen,_x0,_y0,SRCCOPY);
+        SelectObject(hdcMem,hOld);
+
+        BITMAPINFOHEADER bmi = {0};
+        bmi.biSize = sizeof(BITMAPINFOHEADER);
+        bmi.biPlanes = 1;
+        bmi.biBitCount = 32;
+        bmi.biWidth = bw;
+        bmi.biHeight = -bh;
+        bmi.biCompression = BI_RGB;
+        bmi.biSizeImage = 0;
+
+        unsigned char *buf = new unsigned char[4*bw*bh];
+        GetDIBits(hdcMem,hBitmap,0,bh,buf,(BITMAPINFO*)&bmi,DIB_RGB_COLORS);
+        img.assign(bw,bh,1,3);
+        const unsigned char *ptrs = buf;
+        T *pR = img.data(0,0,0,0), *pG = img.data(0,0,0,1), *pB = img.data(0,0,0,2);
+        cimg_forXY(img,x,y) {
+          *(pR++) = (T)ptrs[2];
+          *(pG++) = (T)ptrs[1];
+          *(pB++) = (T)ptrs[0];
+          ptrs+=4;
+        }
+
+        delete[] buf;
+        ReleaseDC(GetDesktopWindow(),hScreen);
+        DeleteDC(hdcMem);
+        DeleteObject(hBitmap);
+      } else
+        throw CImgDisplayException("CImgDisplay::screenshot(): Failed to take screenshot with coordinates (%d,%d)-(%d,%d).",
+                                   x0,y0,x1,y1);
     }
 
     template<typename T>

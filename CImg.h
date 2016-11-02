@@ -6582,6 +6582,10 @@ namespace cimg_library_suffixed {
       assign(disp);
     }
 
+    //! Take a screenshot.
+    /**
+       \param[out] img Output screenshot. Can be empty on input
+    **/
     template<typename T>
     static void screenshot(CImg<T>& img) {
       return screenshot(0,0,cimg::type<int>::max(),cimg::type<int>::max(),img);
@@ -7826,11 +7830,15 @@ namespace cimg_library_suffixed {
 
     //! Take a snapshot of the current screen content.
     /**
+       \param x0 X-coordinate of the upper left corner.
+       \param y0 Y-coordinate of the upper left corner.
+       \param x1 X-coordinate of the lower right corner.
+       \param y1 Y-coordinate of the lower right corner.
        \param[out] img Output screenshot. Can be empty on input
     **/
     template<typename T>
-    static void screenshot(CImg<T>& img) {
-      cimg::unused(img);
+    static void screenshot(const int x0, const int y0, const int x1, const int y1, CImg<T>& img) {
+      cimg::unused(x0,y0,x1,y1,img);
       _no_display_exception();
     }
 
@@ -9049,9 +9057,7 @@ namespace cimg_library_suffixed {
     }
 
     template<typename T>
-    static void screenshot(const int x0, const int y0,
-                           const int x1, const int y1,
-                           CImg<T>& img) {
+    static void screenshot(const int x0, const int y0, const int x1, const int y1, CImg<T>& img) {
       Display *dpy = cimg::X11_attr().display;
       if (!dpy) {
         dpy = XOpenDisplay(0);
@@ -9750,8 +9756,8 @@ namespace cimg_library_suffixed {
     }
 
     template<typename T>
-    static void screenshot(CImg<T>& img) {
-      cimg::unused(img);
+    static void screenshot(const int x0, const int y0, const int x1, const int y1, CImg<T>& img) {
+      cimg::unused(x0,y0,x1,y1,img);
 /*
       HDC dcDesktop;
       HDC dcMem;

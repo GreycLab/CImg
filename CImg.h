@@ -4559,7 +4559,7 @@ namespace cimg_library_suffixed {
     // Use the system RNG.
     inline void srand() {
       const unsigned int t = (unsigned int)cimg::time();
-#if cimg_OS==1
+#if cimg_OS==1 || defined(__BORLANDC__)
       std::srand(t + (unsigned int)getpid());
 #elif cimg_OS==2
       std::srand(t + (unsigned int)_getpid());
@@ -5564,7 +5564,11 @@ namespace cimg_library_suffixed {
         res = (*mode=='r')?cimg::_stdin():cimg::_stdout();
 #if cimg_OS==2
         if (*mode && mode[1]=='b') { // Force stdin/stdout to be in binary mode.
+#ifdef __BORLANDC__
+          if (setmode(_fileno(res),0x8000)==-1) res = 0;
+#else
           if (_setmode(_fileno(res),0x8000)==-1) res = 0;
+#endif
         }
 #endif
       } else res = std_fopen(path,mode);
@@ -9279,7 +9283,7 @@ namespace cimg_library_suffixed {
         disp->_mouse_x = disp->_mouse_y = -1;
         disp->_is_mouse_tracked = false;
         cimg::mutex(15);
-	while (ShowCursor(TRUE)<0);
+	while (ShowCursor(TRUE)<0) {}
         cimg::mutex(15,0);
       } break;
       case WM_LBUTTONDOWN :
@@ -49031,6 +49035,7 @@ namespace cimg_library_suffixed {
        \param display_stats Tells to compute and display image statistics.
     **/
     const CImg<T>& print(const char *const title=0, const bool display_stats=true) const {
+
       int xm = 0, ym = 0, zm = 0, vm = 0, xM = 0, yM = 0, zM = 0, vM = 0;
       CImg<doubleT> st;
       if (!is_empty() && display_stats) {
@@ -49038,6 +49043,7 @@ namespace cimg_library_suffixed {
         xm = (int)st[4]; ym = (int)st[5], zm = (int)st[6], vm = (int)st[7];
         xM = (int)st[8]; yM = (int)st[9], zM = (int)st[10], vM = (int)st[11];
       }
+
       const ulongT siz = size(), msiz = siz*sizeof(T), siz1 = siz - 1,
         mdisp = msiz<8*1024?0U:msiz<8*1024*1024?1U:2U, width1 = _width - 1;
 
@@ -49048,7 +49054,7 @@ namespace cimg_library_suffixed {
                    cimg::t_magenta,cimg::t_bold,title?title:_title._data,cimg::t_normal,
                    cimg::t_bold,cimg::t_normal,(void*)this,
                    cimg::t_bold,cimg::t_normal,_width,_height,_depth,_spectrum,
-                   mdisp==0?msiz:(mdisp==1?(msiz>>10):(msiz>>20)),
+                   (unsigned long)(mdisp==0?msiz:(mdisp==1?(msiz>>10):(msiz>>20))),
                    mdisp==0?"b":(mdisp==1?"Kio":"Mio"),
                    cimg::t_bold,cimg::t_normal,pixel_type(),(void*)begin());
       if (_data)
@@ -49140,7 +49146,6 @@ namespace cimg_library_suffixed {
         } else zoom = get_crop(x0,y0,z0,x1,y1,z1);
 
         const CImg<T>& visu = zoom?zoom:*this;
-
         const unsigned int
           dx = 1U + x1 - x0, dy = 1U + y1 - y0, dz = 1U + z1 - z0,
           tw = dx + (dz>1?dz:0U), th = dy + (dz>1?dz:0U);
@@ -55170,7 +55175,7 @@ namespace cimg_library_suffixed {
       CImg<charT> tmp(256), str_pixeltype(256), str_endian(256);
       *tmp = *str_pixeltype = *str_endian = 0;
       unsigned int j, N = 0, W, H, D, C;
-      ulongT csiz;
+      unsigned long csiz;
       int i, err;
       do {
         j = 0; while ((i=std::fgetc(nfile))!='\n' && i>=0 && j<255) tmp[j++] = (char)i; tmp[j] = 0;
@@ -58386,7 +58391,7 @@ namespace cimg {
   inline const char *strbuffersize(const cimg_ulong size) {
     static CImg<char> res(256);
     cimg::mutex(5);
-    if (size<1024LU) cimg_snprintf(res,res._width,"%lu byte%s",size,size>1?"s":"");
+    if (size<1024LU) cimg_snprintf(res,res._width,"%lu byte%s",(unsigned long)size,size>1?"s":"");
     else if (size<1024*1024LU) { const float nsize = size/1024.0f; cimg_snprintf(res,res._width,"%.1f Kio",nsize); }
     else if (size<1024*1024*1024LU) {
       const float nsize = size/(1024*1024.0f); cimg_snprintf(res,res._width,"%.1f Mio",nsize);

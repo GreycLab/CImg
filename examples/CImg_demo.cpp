@@ -868,7 +868,7 @@ void* item_blobs_editor() {
           for (unsigned int x = x0; x<=x1; ++x) {
             float dist = dx*dx + dy*dy;
             if (dist<precision) {
-              const float val = (float)exp(-dist/sigma2);
+              const float val = (float)std::exp(-dist/sigma2);
               *ptr+=(unsigned int)(val*col1);
               *(ptr + wh)+=(unsigned int)(val*col2);
               *(ptr + 2*wh)+=(unsigned int)(val*col3);

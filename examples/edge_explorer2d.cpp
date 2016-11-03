@@ -133,13 +133,13 @@ int main(int argc, char** argv) {
           // s corresponds to the x-ordinate of the pixel while t corresponds to the y-ordinate.
           if ( 1 <= s && s <= visu_bw.width() - 1 && 1 <= t && t <=visu_bw.height() - 1) { // if - good points
             double
-              Gs = grad[0](s,t),                  //
-              Gt = grad[1](s,t),                               //  The actual pixel is (s,t)
-              Gst = cimg::abs(Gs) + cimg::abs(Gt),    //
+              Gs = grad[0](s,t),                    //
+              Gt = grad[1](s,t),                    //  The actual pixel is (s,t)
+              Gst = cimg::abs(Gs) + cimg::abs(Gt),  //
               // ^-- For efficient computation we observe that |Gs|+ |Gt| ~=~ sqrt( Gs^2 + Gt^2)
               Gr, Gur, Gu, Gul, Gl, Gdl, Gd, Gdr;
             // ^-- right, up right, up, up left, left, down left, down, down right.
-            double theta = std::atan2(Gt,Gs) + pi; // theta is from the interval [0,Pi]
+            double theta = std::atan2(std::max(1e-8,Gt),Gs) + pi; // theta is from the interval [0,Pi]
             switch(mode) {
             case 1: // Hysterese is applied
               if (Gst>=thresH) { edge.draw_point(s,t,black); }

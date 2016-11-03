@@ -18207,10 +18207,16 @@ namespace cimg_library_suffixed {
 
           case 'v' :
             if ((cimg_sscanf(ss,"vector%u%c",&(arg1=~0U),&sep)==2 && sep=='(' && arg1>0) ||
-                !std::strncmp(ss,"vector(",7)) { // Vector
+                !std::strncmp(ss,"vector(",7) ||
+                (!std::strncmp(ss,"vector",6) && ss7<se1 && (s=std::strchr(ss7,'('))!=0)) { // Vector
               _cimg_mp_op("Function 'vector()'");
               arg2 = 0; // Number of specified values.
-              s = std::strchr(ss6,'(') + 1;
+              if (arg1==~0U && *ss6!='(') {
+                arg1 = compile(ss6,s++,depth1,0);
+                _cimg_mp_check_constant(arg1,0,3);
+                arg1 = (unsigned int)mem[arg1];
+              } else s = std::strchr(ss6,'(') + 1;
+
               if (s<se1 || arg1==~0U) for ( ; s<se; ++s) {
                   ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                  (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;

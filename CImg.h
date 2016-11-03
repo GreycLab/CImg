@@ -27906,37 +27906,37 @@ namespace cimg_library_suffixed {
         //
       case 3 : {
         CImg<uintT> off(cimg::max(sx,sy,sz,sc));
-        CImg<floatT> foff(off._width);
+        CImg<doubleT> foff(off._width);
         CImg<T> resx, resy, resz, resc;
+        double curr, old;
 
         if (sx!=_width) {
           if (_width==1) get_resize(sx,_height,_depth,_spectrum,1).move_to(resx);
+          else if (_width>sx) get_resize(sx,_height,_depth,_spectrum,2).move_to(resx);
           else {
-            if (_width>sx) get_resize(sx,_height,_depth,_spectrum,2).move_to(resx);
-            else {
-              const float fx = (!boundary_conditions && sx>_width)?(sx>1?(_width - 1.0f)/(sx - 1):0):(float)_width/sx;
-              resx.assign(sx,_height,_depth,_spectrum);
-              float curr = 0, old = 0;
-              unsigned int *poff = off._data;
-              float *pfoff = foff._data;
-              cimg_forX(resx,x) {
-                *(pfoff++) = curr - (unsigned int)curr;
-                old = curr;
-                curr+=fx;
-                *(poff++) = (unsigned int)curr - (unsigned int)old;
-              }
-              cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(resx.size()>=65536))
+            const double fx = (!boundary_conditions && sx>_width)?(sx>1?(_width - 1.0)/(sx - 1):0):
+              (double)_width/sx;
+            resx.assign(sx,_height,_depth,_spectrum);
+            curr = old = 0;
+            unsigned int *poff = off._data;
+            double *pfoff = foff._data;
+            cimg_forX(resx,x) {
+              *(pfoff++) = curr - (unsigned int)curr;
+              old = curr;
+              curr = std::min(width() - 1.0,curr + fx);
+              *(poff++) = (unsigned int)curr - (unsigned int)old;
+            }
+            cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(resx.size()>=65536))
               cimg_forYZC(resx,y,z,c) {
-                const T *ptrs = data(0,y,z,c), *const ptrsmax = ptrs + _width - 1;
-                T *ptrd = resx.data(0,y,z,c);
-                const unsigned int *poff = off._data;
-                const float *pfoff = foff._data;
-                cimg_forX(resx,x) {
-                  const float alpha = *(pfoff++);
-                  const T val1 = *ptrs, val2 = ptrs<ptrsmax?*(ptrs + 1):val1;
-                  *(ptrd++) = (T)((1 - alpha)*val1 + alpha*val2);
-                  ptrs+=*(poff++);
-                }
+              const T *ptrs = data(0,y,z,c), *const ptrsmax = ptrs + _width - 1;
+              T *ptrd = resx.data(0,y,z,c);
+              const unsigned int *poff = off._data;
+              const double *pfoff = foff._data;
+              cimg_forX(resx,x) {
+                const double alpha = *(pfoff++);
+                const T val1 = *ptrs, val2 = ptrs<ptrsmax?*(ptrs + 1):val1;
+                *(ptrd++) = (T)((1 - alpha)*val1 + alpha*val2);
+                ptrs+=*(poff++);
               }
             }
           }
@@ -27947,16 +27947,16 @@ namespace cimg_library_suffixed {
           else {
             if (_height>sy) resx.get_resize(sx,sy,_depth,_spectrum,2).move_to(resy);
             else {
-              const float fy = (!boundary_conditions && sy>_height)?(sy>1?(_height - 1.0f)/(sy - 1):0):
-                (float)_height/sy;
+              const double fy = (!boundary_conditions && sy>_height)?(sy>1?(_height - 1.0)/(sy - 1):0):
+                (double)_height/sy;
               resy.assign(sx,sy,_depth,_spectrum);
-              float curr = 0, old = 0;
+              curr = old = 0;
               unsigned int *poff = off._data;
-              float *pfoff = foff._data;
+              double *pfoff = foff._data;
               cimg_forY(resy,y) {
                 *(pfoff++) = curr - (unsigned int)curr;
                 old = curr;
-                curr+=fy;
+                curr = std::min(height() - 1.0,curr + fy);
                 *(poff++) = sx*((unsigned int)curr - (unsigned int)old);
               }
               cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(resy.size()>=65536))
@@ -27964,9 +27964,9 @@ namespace cimg_library_suffixed {
                 const T *ptrs = resx.data(x,0,z,c), *const ptrsmax = ptrs + (_height - 1)*sx;
                 T *ptrd = resy.data(x,0,z,c);
                 const unsigned int *poff = off._data;
-                const float *pfoff = foff._data;
+                const double *pfoff = foff._data;
                 cimg_forY(resy,y) {
-                  const float alpha = *(pfoff++);
+                  const double alpha = *(pfoff++);
                   const T val1 = *ptrs, val2 = ptrs<ptrsmax?*(ptrs + sx):val1;
                   *ptrd = (T)((1 - alpha)*val1 + alpha*val2);
                   ptrd+=sx;
@@ -27983,16 +27983,17 @@ namespace cimg_library_suffixed {
           else {
             if (_depth>sz) resy.get_resize(sx,sy,sz,_spectrum,2).move_to(resz);
             else {
-              const float fz = (!boundary_conditions && sz>_depth)?(sz>1?(_depth - 1.0f)/(sz - 1):0):(float)_depth/sz;
+              const double fz = (!boundary_conditions && sz>_depth)?(sz>1?(_depth - 1.0)/(sz - 1):0):
+                (double)_depth/sz;
               const unsigned int sxy = sx*sy;
               resz.assign(sx,sy,sz,_spectrum);
-              float curr = 0, old = 0;
+              curr = old = 0;
               unsigned int *poff = off._data;
-              float *pfoff = foff._data;
+              double *pfoff = foff._data;
               cimg_forZ(resz,z) {
                 *(pfoff++) = curr - (unsigned int)curr;
                 old = curr;
-                curr+=fz;
+                curr = std::min(depth() - 1.0,curr + fz);
                 *(poff++) = sxy*((unsigned int)curr - (unsigned int)old);
               }
               cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(resz.size()>=65536))
@@ -28000,9 +28001,9 @@ namespace cimg_library_suffixed {
                 const T *ptrs = resy.data(x,y,0,c), *const ptrsmax = ptrs + (_depth - 1)*sxy;
                 T *ptrd = resz.data(x,y,0,c);
                 const unsigned int *poff = off._data;
-                const float *pfoff = foff._data;
+                const double *pfoff = foff._data;
                 cimg_forZ(resz,z) {
-                  const float alpha = *(pfoff++);
+                  const double alpha = *(pfoff++);
                   const T val1 = *ptrs, val2 = ptrs<ptrsmax?*(ptrs + sxy):val1;
                   *ptrd = (T)((1 - alpha)*val1 + alpha*val2);
                   ptrd+=sxy;
@@ -28019,17 +28020,17 @@ namespace cimg_library_suffixed {
           else {
             if (_spectrum>sc) resz.get_resize(sx,sy,sz,sc,2).move_to(resc);
             else {
-              const float fc = (!boundary_conditions && sc>_spectrum)?(sc>1?(_spectrum - 1.0f)/(sc - 1):0):
-                (float)_spectrum/sc;
+              const double fc = (!boundary_conditions && sc>_spectrum)?(sc>1?(_spectrum - 1.0)/(sc - 1):0):
+                (double)_spectrum/sc;
               const unsigned int sxyz = sx*sy*sz;
               resc.assign(sx,sy,sz,sc);
-              float curr = 0, old = 0;
+              curr = old = 0;
               unsigned int *poff = off._data;
-              float *pfoff = foff._data;
+              double *pfoff = foff._data;
               cimg_forC(resc,c) {
                 *(pfoff++) = curr - (unsigned int)curr;
                 old = curr;
-                curr+=fc;
+                curr = std::min(spectrum() - 1.0,curr + fc);
                 *(poff++) = sxyz*((unsigned int)curr - (unsigned int)old);
               }
               cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(resc.size()>=65536))
@@ -28037,9 +28038,9 @@ namespace cimg_library_suffixed {
                 const T *ptrs = resz.data(x,y,z,0), *const ptrsmax = ptrs + (_spectrum - 1)*sxyz;
                 T *ptrd = resc.data(x,y,z,0);
                 const unsigned int *poff = off._data;
-                const float *pfoff = foff._data;
+                const double *pfoff = foff._data;
                 cimg_forC(resc,c) {
-                  const float alpha = *(pfoff++);
+                  const double alpha = *(pfoff++);
                   const T val1 = *ptrs, val2 = ptrs<ptrsmax?*(ptrs + sxyz):val1;
                   *ptrd = (T)((1 - alpha)*val1 + alpha*val2);
                   ptrd+=sxyz;
@@ -28124,23 +28125,25 @@ namespace cimg_library_suffixed {
       case 5 : {
         const Tfloat vmin = (Tfloat)cimg::type<T>::min(), vmax = (Tfloat)cimg::type<T>::max();
         CImg<uintT> off(cimg::max(sx,sy,sz,sc));
-        CImg<floatT> foff(off._width);
+        CImg<doubleT> foff(off._width);
         CImg<T> resx, resy, resz, resc;
+        double curr, old;
 
         if (sx!=_width) {
           if (_width==1) get_resize(sx,_height,_depth,_spectrum,1).move_to(resx);
           else {
             if (_width>sx) get_resize(sx,_height,_depth,_spectrum,2).move_to(resx);
             else {
-              const float fx = (!boundary_conditions && sx>_width)?(sx>1?(_width - 1.0f)/(sx - 1):0):(float)_width/sx;
+              const double fx = (!boundary_conditions && sx>_width)?(sx>1?(_width - 1.0)/(sx - 1):0):
+                (double)_width/sx;
               resx.assign(sx,_height,_depth,_spectrum);
-              float curr = 0, old = 0;
+              curr = old = 0;
               unsigned int *poff = off._data;
-              float *pfoff = foff._data;
+              double *pfoff = foff._data;
               cimg_forX(resx,x) {
                 *(pfoff++) = curr - (unsigned int)curr;
                 old = curr;
-                curr+=fx;
+                curr = std::min(width() - 1.0,curr + fx);
                 *(poff++) = (unsigned int)curr - (unsigned int)old;
               }
               cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(resx.size()>=65536))
@@ -28148,14 +28151,14 @@ namespace cimg_library_suffixed {
                 const T *const ptrs0 = data(0,y,z,c), *ptrs = ptrs0, *const ptrsmax = ptrs + (_width - 2);
                 T *ptrd = resx.data(0,y,z,c);
                 const unsigned int *poff = off._data;
-                const float *pfoff = foff._data;
+                const double *pfoff = foff._data;
                 cimg_forX(resx,x) {
-                  const float t = *(pfoff++);
-                  const Tfloat
-                    val1 = (Tfloat)*ptrs,
-                    val0 = ptrs>ptrs0?(Tfloat)*(ptrs - 1):val1,
-                    val2 = ptrs<=ptrsmax?(Tfloat)*(ptrs + 1):val1,
-                    val3 = ptrs<ptrsmax?(Tfloat)*(ptrs + 2):val2,
+                  const double
+                    t = *(pfoff++),
+                    val1 = (double)*ptrs,
+                    val0 = ptrs>ptrs0?(double)*(ptrs - 1):val1,
+                    val2 = ptrs<=ptrsmax?(double)*(ptrs + 1):val1,
+                    val3 = ptrs<ptrsmax?(double)*(ptrs + 2):val2,
                     val = val1 + 0.5f*(t*(-val0 + val2) + t*t*(2*val0 - 5*val1 + 4*val2 - val3) +
                                        t*t*t*(-val0 + 3*val1 - 3*val2 + val3));
                   *(ptrd++) = (T)(val<vmin?vmin:val>vmax?vmax:val);
@@ -28171,16 +28174,16 @@ namespace cimg_library_suffixed {
           else {
             if (_height>sy) resx.get_resize(sx,sy,_depth,_spectrum,2).move_to(resy);
             else {
-              const float fy = (!boundary_conditions && sy>_height)?(sy>1?(_height - 1.0f)/(sy - 1):0):
-                (float)_height/sy;
+              const double fy = (!boundary_conditions && sy>_height)?(sy>1?(_height - 1.0)/(sy - 1):0):
+                (double)_height/sy;
               resy.assign(sx,sy,_depth,_spectrum);
-              float curr = 0, old = 0;
+              curr = old = 0;
               unsigned int *poff = off._data;
-              float *pfoff = foff._data;
+              double *pfoff = foff._data;
               cimg_forY(resy,y) {
                 *(pfoff++) = curr - (unsigned int)curr;
                 old = curr;
-                curr+=fy;
+                curr = std::min(height() - 1.0,curr + fy);
                 *(poff++) = sx*((unsigned int)curr - (unsigned int)old);
               }
               cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(resy.size()>=65536))
@@ -28188,14 +28191,14 @@ namespace cimg_library_suffixed {
                 const T *const ptrs0 = resx.data(x,0,z,c), *ptrs = ptrs0, *const ptrsmax = ptrs + (_height - 2)*sx;
                 T *ptrd = resy.data(x,0,z,c);
                 const unsigned int *poff = off._data;
-                const float *pfoff = foff._data;
+                const double *pfoff = foff._data;
                 cimg_forY(resy,y) {
-                  const float t = *(pfoff++);
-                  const Tfloat
-                    val1 = (Tfloat)*ptrs,
-                    val0 = ptrs>ptrs0?(Tfloat)*(ptrs - sx):val1,
-                    val2 = ptrs<=ptrsmax?(Tfloat)*(ptrs + sx):val1,
-                    val3 = ptrs<ptrsmax?(Tfloat)*(ptrs + 2*sx):val2,
+                  const double
+                    t = *(pfoff++),
+                    val1 = (double)*ptrs,
+                    val0 = ptrs>ptrs0?(double)*(ptrs - sx):val1,
+                    val2 = ptrs<=ptrsmax?(double)*(ptrs + sx):val1,
+                    val3 = ptrs<ptrsmax?(double)*(ptrs + 2*sx):val2,
                     val = val1 + 0.5f*(t*(-val0 + val2) + t*t*(2*val0 - 5*val1 + 4*val2 - val3) +
                                        t*t*t*(-val0 + 3*val1 - 3*val2 + val3));
                   *ptrd = (T)(val<vmin?vmin:val>vmax?vmax:val);
@@ -28213,16 +28216,17 @@ namespace cimg_library_suffixed {
           else {
             if (_depth>sz) resy.get_resize(sx,sy,sz,_spectrum,2).move_to(resz);
             else {
-              const float fz = (!boundary_conditions && sz>_depth)?(sz>1?(_depth - 1.0f)/(sz - 1):0):(float)_depth/sz;
+              const double fz = (!boundary_conditions && sz>_depth)?(sz>1?(_depth - 1.0)/(sz - 1):0):
+                (double)_depth/sz;
               const unsigned int sxy = sx*sy;
               resz.assign(sx,sy,sz,_spectrum);
-              float curr = 0, old = 0;
+              curr = old = 0;
               unsigned int *poff = off._data;
-              float *pfoff = foff._data;
+              double *pfoff = foff._data;
               cimg_forZ(resz,z) {
                 *(pfoff++) = curr - (unsigned int)curr;
                 old = curr;
-                curr+=fz;
+                curr = std::min(depth() - 1.0,curr + fz);
                 *(poff++) = sxy*((unsigned int)curr - (unsigned int)old);
               }
               cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(resz.size()>=65536))
@@ -28230,14 +28234,14 @@ namespace cimg_library_suffixed {
                 const T *const ptrs0 = resy.data(x,y,0,c), *ptrs = ptrs0, *const ptrsmax = ptrs + (_depth - 2)*sxy;
                 T *ptrd = resz.data(x,y,0,c);
                 const unsigned int *poff = off._data;
-                const float *pfoff = foff._data;
+                const double *pfoff = foff._data;
                 cimg_forZ(resz,z) {
-                  const float t = *(pfoff++);
-                  const Tfloat
-                    val1 = (Tfloat)*ptrs,
-                    val0 = ptrs>ptrs0?(Tfloat)*(ptrs - sxy):val1,
-                    val2 = ptrs<=ptrsmax?(Tfloat)*(ptrs + sxy):val1,
-                    val3 = ptrs<ptrsmax?(Tfloat)*(ptrs + 2*sxy):val2,
+                  const double
+                    t = *(pfoff++),
+                    val1 = (double)*ptrs,
+                    val0 = ptrs>ptrs0?(double)*(ptrs - sxy):val1,
+                    val2 = ptrs<=ptrsmax?(double)*(ptrs + sxy):val1,
+                    val3 = ptrs<ptrsmax?(double)*(ptrs + 2*sxy):val2,
                     val = val1 + 0.5f*(t*(-val0 + val2) + t*t*(2*val0 - 5*val1 + 4*val2 - val3) +
                                        t*t*t*(-val0 + 3*val1 - 3*val2 + val3));
                   *ptrd = (T)(val<vmin?vmin:val>vmax?vmax:val);
@@ -28255,17 +28259,17 @@ namespace cimg_library_suffixed {
           else {
             if (_spectrum>sc) resz.get_resize(sx,sy,sz,sc,2).move_to(resc);
             else {
-              const float fc = (!boundary_conditions && sc>_spectrum)?(sc>1?(_spectrum - 1.0f)/(sc - 1):0):
-                (float)_spectrum/sc;
+              const double fc = (!boundary_conditions && sc>_spectrum)?(sc>1?(_spectrum - 1.0)/(sc - 1):0):
+                (double)_spectrum/sc;
               const unsigned int sxyz = sx*sy*sz;
               resc.assign(sx,sy,sz,sc);
-              float curr = 0, old = 0;
+              curr = old = 0;
               unsigned int *poff = off._data;
-              float *pfoff = foff._data;
+              double *pfoff = foff._data;
               cimg_forC(resc,c) {
                 *(pfoff++) = curr - (unsigned int)curr;
                 old = curr;
-                curr+=fc;
+                curr = std::min(spectrum() - 1.0,curr + fc);
                 *(poff++) = sxyz*((unsigned int)curr - (unsigned int)old);
               }
               cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(resc.size()>=65536))
@@ -28273,14 +28277,14 @@ namespace cimg_library_suffixed {
                 const T *const ptrs0 = resz.data(x,y,z,0), *ptrs = ptrs0, *const ptrsmax = ptrs + (_spectrum - 2)*sxyz;
                 T *ptrd = resc.data(x,y,z,0);
                 const unsigned int *poff = off._data;
-                const float *pfoff = foff._data;
+                const double *pfoff = foff._data;
                 cimg_forC(resc,c) {
-                  const float t = *(pfoff++);
-                  const Tfloat
-                    val1 = (Tfloat)*ptrs,
-                    val0 = ptrs>ptrs0?(Tfloat)*(ptrs - sxyz):val1,
-                    val2 = ptrs<=ptrsmax?(Tfloat)*(ptrs + sxyz):val1,
-                    val3 = ptrs<ptrsmax?(Tfloat)*(ptrs + 2*sxyz):val2,
+                  const double
+                    t = *(pfoff++),
+                    val1 = (double)*ptrs,
+                    val0 = ptrs>ptrs0?(double)*(ptrs - sxyz):val1,
+                    val2 = ptrs<=ptrsmax?(double)*(ptrs + sxyz):val1,
+                    val3 = ptrs<ptrsmax?(double)*(ptrs + 2*sxyz):val2,
                     val = val1 + 0.5f*(t*(-val0 + val2) + t*t*(2*val0 - 5*val1 + 4*val2 - val3) +
                                        t*t*t*(-val0 + 3*val1 - 3*val2 + val3));
                   *ptrd = (T)(val<vmin?vmin:val>vmax?vmax:val);
@@ -28299,25 +28303,27 @@ namespace cimg_library_suffixed {
         // Lanczos interpolation.
         //
       case 6 : {
-        const Tfloat vmin = (Tfloat)cimg::type<T>::min(), vmax = (Tfloat)cimg::type<T>::max();
+        const double vmin = (double)cimg::type<T>::min(), vmax = (double)cimg::type<T>::max();
         CImg<uintT> off(cimg::max(sx,sy,sz,sc));
-        CImg<floatT> foff(off._width);
+        CImg<doubleT> foff(off._width);
         CImg<T> resx, resy, resz, resc;
+        double curr, old;
 
         if (sx!=_width) {
           if (_width==1) get_resize(sx,_height,_depth,_spectrum,1).move_to(resx);
           else {
             if (_width>sx) get_resize(sx,_height,_depth,_spectrum,2).move_to(resx);
             else {
-              const float fx = (!boundary_conditions && sx>_width)?(sx>1?(_width - 1.0f)/(sx - 1):0):(float)_width/sx;
+              const double fx = (!boundary_conditions && sx>_width)?(sx>1?(_width - 1.0)/(sx - 1):0):
+                (double)_width/sx;
               resx.assign(sx,_height,_depth,_spectrum);
-              float curr = 0, old = 0;
+              curr = old = 0;
               unsigned int *poff = off._data;
-              float *pfoff = foff._data;
+              double *pfoff = foff._data;
               cimg_forX(resx,x) {
                 *(pfoff++) = curr - (unsigned int)curr;
                 old = curr;
-                curr+=fx;
+                curr = std::min(width() - 1.0,curr + fx);
                 *(poff++) = (unsigned int)curr - (unsigned int)old;
               }
               cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(resx.size()>=65536))
@@ -28326,21 +28332,20 @@ namespace cimg_library_suffixed {
                   *const ptrsmax = ptrs0 + (_width - 2);
                 T *ptrd = resx.data(0,y,z,c);
                 const unsigned int *poff = off._data;
-                const float *pfoff = foff._data;
+                const double *pfoff = foff._data;
                 cimg_forX(resx,x) {
-                  const float
+                  const double
                     t = *(pfoff++),
                     w0 = _cimg_lanczos(t + 2),
                     w1 = _cimg_lanczos(t + 1),
                     w2 = _cimg_lanczos(t),
                     w3 = _cimg_lanczos(t - 1),
-                    w4 = _cimg_lanczos(t - 2);
-                  const Tfloat
-                    val2 = (Tfloat)*ptrs,
-                    val1 = ptrs>=ptrsmin?(Tfloat)*(ptrs - 1):val2,
-                    val0 = ptrs>ptrsmin?(Tfloat)*(ptrs - 2):val1,
-                    val3 = ptrs<=ptrsmax?(Tfloat)*(ptrs + 1):val2,
-                    val4 = ptrs<ptrsmax?(Tfloat)*(ptrs + 2):val3,
+                    w4 = _cimg_lanczos(t - 2),
+                    val2 = (double)*ptrs,
+                    val1 = ptrs>=ptrsmin?(double)*(ptrs - 1):val2,
+                    val0 = ptrs>ptrsmin?(double)*(ptrs - 2):val1,
+                    val3 = ptrs<=ptrsmax?(double)*(ptrs + 1):val2,
+                    val4 = ptrs<ptrsmax?(double)*(ptrs + 2):val3,
                     val = (val0*w0 + val1*w1 + val2*w2 + val3*w3 + val4*w4)/(w1 + w2 + w3 + w4);
                   *(ptrd++) = (T)(val<vmin?vmin:val>vmax?vmax:val);
                   ptrs+=*(poff++);
@@ -28355,16 +28360,16 @@ namespace cimg_library_suffixed {
           else {
             if (_height>sy) resx.get_resize(sx,sy,_depth,_spectrum,2).move_to(resy);
             else {
-              const float fy = (!boundary_conditions && sy>_height)?(sy>1?(_height - 1.0f)/(sy - 1):0):
-                (float)_height/sy;
+              const double fy = (!boundary_conditions && sy>_height)?(sy>1?(_height - 1.0)/(sy - 1):0):
+                (double)_height/sy;
               resy.assign(sx,sy,_depth,_spectrum);
-              float curr = 0, old = 0;
+              curr = old = 0;
               unsigned int *poff = off._data;
-              float *pfoff = foff._data;
+              double *pfoff = foff._data;
               cimg_forY(resy,y) {
                 *(pfoff++) = curr - (unsigned int)curr;
                 old = curr;
-                curr+=fy;
+                curr = std::min(height() - 1.0,curr + fy);
                 *(poff++) = sx*((unsigned int)curr - (unsigned int)old);
               }
               cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(resy.size()>=65536))
@@ -28373,21 +28378,20 @@ namespace cimg_library_suffixed {
                   *const ptrsmax = ptrs0 + (_height - 2)*sx;
                 T *ptrd = resy.data(x,0,z,c);
                 const unsigned int *poff = off._data;
-                const float *pfoff = foff._data;
+                const double *pfoff = foff._data;
                 cimg_forY(resy,y) {
-                  const float
+                  const double
                     t = *(pfoff++),
                     w0 = _cimg_lanczos(t + 2),
                     w1 = _cimg_lanczos(t + 1),
                     w2 = _cimg_lanczos(t),
                     w3 = _cimg_lanczos(t - 1),
-                    w4 = _cimg_lanczos(t - 2);
-                  const Tfloat
-                    val2 = (Tfloat)*ptrs,
-                    val1 = ptrs>=ptrsmin?(Tfloat)*(ptrs - sx):val2,
-                    val0 = ptrs>ptrsmin?(Tfloat)*(ptrs - 2*sx):val1,
-                    val3 = ptrs<=ptrsmax?(Tfloat)*(ptrs + sx):val2,
-                    val4 = ptrs<ptrsmax?(Tfloat)*(ptrs + 2*sx):val3,
+                    w4 = _cimg_lanczos(t - 2),
+                    val2 = (double)*ptrs,
+                    val1 = ptrs>=ptrsmin?(double)*(ptrs - sx):val2,
+                    val0 = ptrs>ptrsmin?(double)*(ptrs - 2*sx):val1,
+                    val3 = ptrs<=ptrsmax?(double)*(ptrs + sx):val2,
+                    val4 = ptrs<ptrsmax?(double)*(ptrs + 2*sx):val3,
                     val = (val0*w0 + val1*w1 + val2*w2 + val3*w3 + val4*w4)/(w1 + w2 + w3 + w4);
                   *ptrd = (T)(val<vmin?vmin:val>vmax?vmax:val);
                   ptrd+=sx;
@@ -28404,16 +28408,17 @@ namespace cimg_library_suffixed {
           else {
             if (_depth>sz) resy.get_resize(sx,sy,sz,_spectrum,2).move_to(resz);
             else {
-              const float fz = (!boundary_conditions && sz>_depth)?(sz>1?(_depth - 1.0f)/(sz - 1):0):(float)_depth/sz;
+              const double fz = (!boundary_conditions && sz>_depth)?(sz>1?(_depth - 1.0)/(sz - 1):0):
+                (double)_depth/sz;
               const unsigned int sxy = sx*sy;
               resz.assign(sx,sy,sz,_spectrum);
-              float curr = 0, old = 0;
+              curr = old = 0;
               unsigned int *poff = off._data;
-              float *pfoff = foff._data;
+              double *pfoff = foff._data;
               cimg_forZ(resz,z) {
                 *(pfoff++) = curr - (unsigned int)curr;
                 old = curr;
-                curr+=fz;
+                curr = std::min(depth() - 1.0,curr + fz);
                 *(poff++) = sxy*((unsigned int)curr - (unsigned int)old);
               }
               cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(resz.size()>=65536))
@@ -28422,21 +28427,20 @@ namespace cimg_library_suffixed {
                   *const ptrsmax = ptrs0 + (_depth - 2)*sxy;
                 T *ptrd = resz.data(x,y,0,c);
                 const unsigned int *poff = off._data;
-                const float *pfoff = foff._data;
+                const double *pfoff = foff._data;
                 cimg_forZ(resz,z) {
-                  const float
+                  const double
                     t = *(pfoff++),
                     w0 = _cimg_lanczos(t + 2),
                     w1 = _cimg_lanczos(t + 1),
                     w2 = _cimg_lanczos(t),
                     w3 = _cimg_lanczos(t - 1),
-                    w4 = _cimg_lanczos(t - 2);
-                  const Tfloat
-                    val2 = (Tfloat)*ptrs,
-                    val1 = ptrs>=ptrsmin?(Tfloat)*(ptrs - sxy):val2,
-                    val0 = ptrs>ptrsmin?(Tfloat)*(ptrs - 2*sxy):val1,
-                    val3 = ptrs<=ptrsmax?(Tfloat)*(ptrs + sxy):val2,
-                    val4 = ptrs<ptrsmax?(Tfloat)*(ptrs + 2*sxy):val3,
+                    w4 = _cimg_lanczos(t - 2),
+                    val2 = (double)*ptrs,
+                    val1 = ptrs>=ptrsmin?(double)*(ptrs - sxy):val2,
+                    val0 = ptrs>ptrsmin?(double)*(ptrs - 2*sxy):val1,
+                    val3 = ptrs<=ptrsmax?(double)*(ptrs + sxy):val2,
+                    val4 = ptrs<ptrsmax?(double)*(ptrs + 2*sxy):val3,
                     val = (val0*w0 + val1*w1 + val2*w2 + val3*w3 + val4*w4)/(w1 + w2 + w3 + w4);
                   *ptrd = (T)(val<vmin?vmin:val>vmax?vmax:val);
                   ptrd+=sxy;
@@ -28453,17 +28457,17 @@ namespace cimg_library_suffixed {
           else {
             if (_spectrum>sc) resz.get_resize(sx,sy,sz,sc,2).move_to(resc);
             else {
-              const float fc = (!boundary_conditions && sc>_spectrum)?(sc>1?(_spectrum - 1.0f)/(sc - 1):0):
-                (float)_spectrum/sc;
+              const double fc = (!boundary_conditions && sc>_spectrum)?(sc>1?(_spectrum - 1.0)/(sc - 1):0):
+                (double)_spectrum/sc;
               const unsigned int sxyz = sx*sy*sz;
               resc.assign(sx,sy,sz,sc);
-              float curr = 0, old = 0;
+              curr = old = 0;
               unsigned int *poff = off._data;
-              float *pfoff = foff._data;
+              double *pfoff = foff._data;
               cimg_forC(resc,c) {
                 *(pfoff++) = curr - (unsigned int)curr;
                 old = curr;
-                curr+=fc;
+                curr = std::min(spectrum() - 1.0,curr + fc);
                 *(poff++) = sxyz*((unsigned int)curr - (unsigned int)old);
               }
               cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(resc.size()>=65536))
@@ -28472,21 +28476,20 @@ namespace cimg_library_suffixed {
                   *const ptrsmax = ptrs + (_spectrum - 2)*sxyz;
                 T *ptrd = resc.data(x,y,z,0);
                 const unsigned int *poff = off._data;
-                const float *pfoff = foff._data;
+                const double *pfoff = foff._data;
                 cimg_forC(resc,c) {
-                  const float
+                  const double
                     t = *(pfoff++),
                     w0 = _cimg_lanczos(t + 2),
                     w1 = _cimg_lanczos(t + 1),
                     w2 = _cimg_lanczos(t),
                     w3 = _cimg_lanczos(t - 1),
-                    w4 = _cimg_lanczos(t - 2);
-                  const Tfloat
-                    val2 = (Tfloat)*ptrs,
-                    val1 = ptrs>=ptrsmin?(Tfloat)*(ptrs - sxyz):val2,
-                    val0 = ptrs>ptrsmin?(Tfloat)*(ptrs - 2*sxyz):val1,
-                    val3 = ptrs<=ptrsmax?(Tfloat)*(ptrs + sxyz):val2,
-                    val4 = ptrs<ptrsmax?(Tfloat)*(ptrs + 2*sxyz):val3,
+                    w4 = _cimg_lanczos(t - 2),
+                    val2 = (double)*ptrs,
+                    val1 = ptrs>=ptrsmin?(double)*(ptrs - sxyz):val2,
+                    val0 = ptrs>ptrsmin?(double)*(ptrs - 2*sxyz):val1,
+                    val3 = ptrs<=ptrsmax?(double)*(ptrs + sxyz):val2,
+                    val4 = ptrs<ptrsmax?(double)*(ptrs + 2*sxyz):val3,
                     val = (val0*w0 + val1*w1 + val2*w2 + val3*w3 + val4*w4)/(w1 + w2 + w3 + w4);
                   *ptrd = (T)(val<vmin?vmin:val>vmax?vmax:val);
                   ptrd+=sxyz;

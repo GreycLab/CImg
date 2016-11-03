@@ -16423,6 +16423,8 @@ namespace cimg_library_suffixed {
         if (*se1==']' && *ss!='[') {
           _cimg_mp_op("Value accessor '[]'");
           is_relative = *ss=='j' || *ss=='J';
+          s0 = std::strchr(ss,'[');
+          if (s0>ss && *(s0 - 1)==' ') cimg::swap(*s0,*(s0 - 1)); // Allow one space before opening bracket
 
           if ((*ss=='I' || *ss=='J') && *ss1=='[' &&
               (reserved_label[*ss]==~0U || !_cimg_mp_is_vector(reserved_label[*ss]))) { // Image value as a vector
@@ -16560,8 +16562,10 @@ namespace cimg_library_suffixed {
         // Look for a function call, an access to image value, or a parenthesis.
         if (*se1==')') {
           if (*ss=='(') _cimg_mp_return(compile(ss1,se1,depth1,p_ref)); // Simple parentheses
-          is_relative = *ss=='j' || *ss=='J';
           _cimg_mp_op("Value accessor '()'");
+          is_relative = *ss=='j' || *ss=='J';
+          s0 = std::strchr(ss,'(');
+          if (s0>ss && *(s0 - 1)==' ') cimg::swap(*s0,*(s0 - 1)); // Allow one space before opening brace
 
           // I/J(_#ind,_x,_y,_z,_interpolation,_boundary)
           if ((*ss=='I' || *ss=='J') && *ss1=='(') { // Image value as scalar
@@ -17199,7 +17203,6 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"dowhile",7) && (*ss7=='(' || (*ss7 && *ss7<=' ' && *ss8=='('))) { // Do..while
               _cimg_mp_op("Function 'dowhile()'");
-              if (*ss7<=' ') cimg::swap(*ss7,*ss8); // Allow space before opening brace
               s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = code._width;
               arg6 = mempos;
@@ -17407,7 +17410,6 @@ namespace cimg_library_suffixed {
 
             if (*ss1=='o' && *ss2=='r' && (*ss3=='(' || (*ss3 && *ss3<=' ' && *ss4=='('))) { // For loop
               _cimg_mp_op("Function 'for()'");
-              if (*ss3<=' ') cimg::swap(*ss3,*ss4); // Allow space before opening brace
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               s3 = s2 + 1; while (s3<se1 && (*s3!=',' || level[s3 - expr._data]!=clevel1)) ++s3;
@@ -17455,7 +17457,6 @@ namespace cimg_library_suffixed {
           case 'i' :
             if (*ss1=='f' && (*ss2=='(' || (*ss2 && *ss2<=' ' && *ss3=='('))) { // If..then[..else.]
               _cimg_mp_op("Function 'if()'");
-              if (*ss2<=' ') cimg::swap(*ss2,*ss3); // Allow space before opening brace
               s1 = ss3; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg1 = compile(ss3,s1,depth1,0);
@@ -18235,7 +18236,6 @@ namespace cimg_library_suffixed {
           case 'w' :
             if (!std::strncmp(ss,"whiledo",7) && (*ss7=='(' || (*ss7 && *ss7<=' ' && *ss8=='('))) { // While...do
               _cimg_mp_op("Function 'whiledo()'");
-              if (*ss7<=' ') cimg::swap(*ss7,*ss8); // Allow space before opening brace
               s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               p1 = code._width;
               arg1 = compile(ss8,s1,depth1,0);

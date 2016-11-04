@@ -17684,8 +17684,16 @@ namespace cimg_library_suffixed {
             }
 
             if ((cimg_sscanf(ss,"norm%u%c",&(arg1=~0U),&sep)==2 && sep=='(') ||
-                !std::strncmp(ss,"norminf(",8)) { // Lp norm
+                !std::strncmp(ss,"norminf(",8) || !std::strncmp(ss,"norm(",5) ||
+                (!std::strncmp(ss,"norm",4) && ss5<se1 && (s=std::strchr(ss5,'('))!=0)) { // Lp norm
               _cimg_mp_op("Function 'normP()'");
+              if (*ss4=='(') { arg1 = 2; s = ss5; }
+              else if (*ss4=='i' && *ss5=='n' && *ss6=='f' && *ss7=='(') { arg1 = ~0U; s = ss8; }
+              else if (arg1==~0U) {
+                arg1 = compile(ss4,s++,depth1,0);
+                _cimg_mp_check_constant(arg1,0,2);
+                arg1 = (unsigned int)mem[arg1];
+              } else s = std::strchr(ss4,'(') + 1;
               pos = scalar();
               switch (arg1) {
               case 0 :
@@ -17700,7 +17708,7 @@ namespace cimg_library_suffixed {
                 CImg<ulongT>::vector((ulongT)mp_normp,pos,0,(ulongT)(arg1==~0U?-1:(int)arg1)).
                   move_to(_opcode);
               }
-              for (s = std::strchr(ss5,'(') + 1; s<se; ++s) {
+              for ( ; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                 arg2 = compile(s,ns,depth1,0);

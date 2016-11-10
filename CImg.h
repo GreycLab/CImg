@@ -5265,8 +5265,8 @@ namespace cimg_library_suffixed {
 
     inline double _fibonacci(int exp) {
       double
-        base = 1.6180339887498948482045868343656, // (1 + sqrt(5))/2;
-        result = 0.44721359549995793928183473374626; // 1 / sqrt(5)
+        base = (1 + std::sqrt(5.0))/2,
+        result = 1/std::sqrt(5.0);
       while (exp) {
         if (exp&1) result*=base;
         exp>>=1;

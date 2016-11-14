@@ -211,7 +211,7 @@
 #define cimg_ulong UINT_PTR
 #define cimg_long INT_PTR
 #else
-#if UINTPTR_MAX==0xffffffff
+#if UINTPTR_MAX==0xffffffff || defined(__arm__) || defined(_M_ARM)
 #define cimg_uint64 unsigned long long
 #define cimg_int64 long long
 #else
@@ -5289,7 +5289,7 @@ namespace cimg_library_suffixed {
         return (double)((cimg_uint64)(_fibonacci(n) + 0.5));
 
       if (n<94) { // precise up to n = 78, less precise for n>78 up to n = 93, overflows for n>93
-        cimg_uint64 fn1 = (cimg_uint64)1304969544928657, fn2 = (cimg_uint64)806515533049393, fn = 0;
+        cimg_uint64 fn1 = 1304969544928657, fn2 = 806515533049393, fn = 0;
         for (int i = 75; i<=n; ++i) { fn = fn1 + fn2; fn2 = fn1; fn1 = fn; }
         return (double)fn;
       }

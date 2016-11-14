@@ -27366,9 +27366,9 @@ namespace cimg_library_suffixed {
 
     //! Convert pixel values from RGB to XYZ color spaces.
     /**
-       \param use_D50 Tell to use the D50 illuminant instead of D65.
+       \param use_D65 Tell to use the D65 illuminant (D50 otherwise).
     **/
-    CImg<T>& RGBtoXYZ(const bool use_D50=false) {
+    CImg<T>& RGBtoXYZ(const bool use_D65=true) {
       if (_spectrum!=3)
         throw CImgInstanceException(_cimg_instance
                                     "RGBtoXYZ(): Instance is not a RGB image.",
@@ -27382,26 +27382,29 @@ namespace cimg_library_suffixed {
           R = (Tfloat)p1[N]/255,
           G = (Tfloat)p2[N]/255,
           B = (Tfloat)p3[N]/255;
-        if (use_D50) { // D50
-          p1[N] = (T)(0.43603516*R + 0.38511658*G + 0.14305115*B);
-          p2[N] = (T)(0.22248840*R + 0.71690369*G + 0.06060791*B);
-          p3[N] = (T)(0.01391602*R + 0.09706116*G + 0.71392822*B);
-        } else { // D65
+        if (use_D65) { // D65
           p1[N] = (T)(0.4124564*R + 0.3575761*G + 0.1804375*B);
           p2[N] = (T)(0.2126729*R + 0.7151522*G + 0.0721750*B);
           p3[N] = (T)(0.0193339*R + 0.1191920*G + 0.9503041*B);
+        } else { // D50
+          p1[N] = (T)(0.43603516*R + 0.38511658*G + 0.14305115*B);
+          p2[N] = (T)(0.22248840*R + 0.71690369*G + 0.06060791*B);
+          p3[N] = (T)(0.01391602*R + 0.09706116*G + 0.71392822*B);
         }
       }
       return *this;
     }
 
     //! Convert pixel values from RGB to XYZ color spaces \newinstance.
-    CImg<Tfloat> get_RGBtoXYZ(const bool use_D50=false) const {
-      return CImg<Tfloat>(*this,false).RGBtoXYZ(use_D50);
+    CImg<Tfloat> get_RGBtoXYZ(const bool use_D65=true) const {
+      return CImg<Tfloat>(*this,false).RGBtoXYZ(use_D65);
     }
 
     //! Convert pixel values from XYZ to RGB color spaces.
-    CImg<T>& XYZtoRGB(const bool use_D50=false) {
+    /**
+       \param use_D65 Tell to use the D65 illuminant (D50 otherwise).
+    **/
+    CImg<T>& XYZtoRGB(const bool use_D65=true) {
       if (_spectrum!=3)
         throw CImgInstanceException(_cimg_instance
                                     "XYZtoRGB(): Instance is not a XYZ image.",
@@ -27415,22 +27418,22 @@ namespace cimg_library_suffixed {
           X = (Tfloat)p1[N]*255,
           Y = (Tfloat)p2[N]*255,
           Z = (Tfloat)p3[N]*255;
-        if (use_D50) {
-          p1[N] = (T)cimg::cut(3.134274799724*X  - 1.617275708956*Y - 0.490724283042*Z,0,255);
-          p2[N] = (T)cimg::cut(-0.978795575994*X + 1.916161689117*Y + 0.033453331711*Z,0,255);
-          p3[N] = (T)cimg::cut(0.071976988401*X - 0.228984974402*Y + 1.405718224383*Z,0,255);
-        } else {
+        if (use_D65) {
           p1[N] = (T)cimg::cut(3.2404542*X - 1.5371385*Y - 0.4985314*Z,0,255);
           p2[N] = (T)cimg::cut(-0.9692660*X + 1.8760108*Y + 0.0415560*Z,0,255);
           p3[N] = (T)cimg::cut(0.0556434*X - 0.2040259*Y + 1.0572252*Z,0,255);
+        } else {
+          p1[N] = (T)cimg::cut(3.134274799724*X  - 1.617275708956*Y - 0.490724283042*Z,0,255);
+          p2[N] = (T)cimg::cut(-0.978795575994*X + 1.916161689117*Y + 0.033453331711*Z,0,255);
+          p3[N] = (T)cimg::cut(0.071976988401*X - 0.228984974402*Y + 1.405718224383*Z,0,255);
         }
       }
       return *this;
     }
 
     //! Convert pixel values from XYZ to RGB color spaces \newinstance.
-    CImg<Tuchar> get_XYZtoRGB(const bool use_D50=false) const {
-      return CImg<Tuchar>(*this,false).XYZtoRGB(use_D50);
+    CImg<Tuchar> get_XYZtoRGB(const bool use_D65=true) const {
+      return CImg<Tuchar>(*this,false).XYZtoRGB(use_D65);
     }
 
     //! Convert pixel values from XYZ to Lab color spaces.
@@ -27556,43 +27559,43 @@ namespace cimg_library_suffixed {
     }
 
     //! Convert pixel values from RGB to Lab color spaces.
-    CImg<T>& RGBtoLab() {
-      return RGBtoXYZ().XYZtoLab();
+    CImg<T>& RGBtoLab(const bool use_D65=true) {
+      return RGBtoXYZ(use_D65).XYZtoLab();
     }
 
     //! Convert pixel values from RGB to Lab color spaces \newinstance.
-    CImg<Tfloat> get_RGBtoLab() const {
-      return CImg<Tfloat>(*this,false).RGBtoLab();
+    CImg<Tfloat> get_RGBtoLab(const bool use_D65=true) const {
+      return CImg<Tfloat>(*this,false).RGBtoLab(use_D65);
     }
 
     //! Convert pixel values from Lab to RGB color spaces.
-    CImg<T>& LabtoRGB() {
-      return LabtoXYZ().XYZtoRGB();
+    CImg<T>& LabtoRGB(const bool use_D65=true) {
+      return LabtoXYZ().XYZtoRGB(use_D65);
     }
 
     //! Convert pixel values from Lab to RGB color spaces \newinstance.
-    CImg<Tuchar> get_LabtoRGB() const {
-      return CImg<Tuchar>(*this,false).LabtoRGB();
+    CImg<Tuchar> get_LabtoRGB(const bool use_D65=true) const {
+      return CImg<Tuchar>(*this,false).LabtoRGB(use_D65);
     }
 
     //! Convert pixel values from RGB to xyY color spaces.
-    CImg<T>& RGBtoxyY() {
-      return RGBtoXYZ().XYZtoxyY();
+    CImg<T>& RGBtoxyY(const bool use_D65=true) {
+      return RGBtoXYZ(use_D65).XYZtoxyY();
     }
 
     //! Convert pixel values from RGB to xyY color spaces \newinstance.
-    CImg<Tfloat> get_RGBtoxyY() const {
-      return CImg<Tfloat>(*this,false).RGBtoxyY();
+    CImg<Tfloat> get_RGBtoxyY(const bool use_D65=true) const {
+      return CImg<Tfloat>(*this,false).RGBtoxyY(use_D65);
     }
 
     //! Convert pixel values from xyY to RGB color spaces.
-    CImg<T>& xyYtoRGB() {
-      return xyYtoXYZ().XYZtoRGB();
+    CImg<T>& xyYtoRGB(const bool use_D65=true) {
+      return xyYtoXYZ().XYZtoRGB(use_D65);
     }
 
     //! Convert pixel values from xyY to RGB color spaces \newinstance.
-    CImg<Tuchar> get_xyYtoRGB() const {
-      return CImg<Tuchar>(*this,false).xyYtoRGB();
+    CImg<Tuchar> get_xyYtoRGB(const bool use_D65=true) const {
+      return CImg<Tuchar>(*this,false).xyYtoRGB(use_D65);
     }
 
     //! Convert pixel values from RGB to CMYK color spaces.

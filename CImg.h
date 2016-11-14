@@ -197,7 +197,7 @@
 #endif
 
 // Convenient macro to define pragma
-#ifdef _MSC_VER_
+#ifdef _MSC_VER
 #define cimg_pragma(x) __pragma(x)
 #else
 #define cimg_pragma(x) _Pragma(#x)

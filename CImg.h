@@ -9110,7 +9110,8 @@ namespace cimg_library_suffixed {
       if (!cimg::X11_attr().display) XCloseDisplay(dpy);
       cimg_unlock_display();
       if (img.is_empty())
-        throw CImgDisplayException("CImgDisplay::screenshot(): Failed to take screenshot with coordinates (%d,%d)-(%d,%d).",
+        throw CImgDisplayException("CImgDisplay::screenshot(): Failed to take screenshot "
+                                   "with coordinates (%d,%d)-(%d,%d).",
                                    x0,y0,x1,y1);
     }
 
@@ -9824,7 +9825,8 @@ namespace cimg_library_suffixed {
         ReleaseDC(GetDesktopWindow(),hScreen);
       }
       if (img.is_empty())
-        throw CImgDisplayException("CImgDisplay::screenshot(): Failed to take screenshot with coordinates (%d,%d)-(%d,%d).",
+        throw CImgDisplayException("CImgDisplay::screenshot(): Failed to take screenshot "
+                                   "with coordinates (%d,%d)-(%d,%d).",
                                    x0,y0,x1,y1);
     }
 

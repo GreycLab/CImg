@@ -218,8 +218,13 @@
 #define cimg_uint64 unsigned long
 #define cimg_int64 long
 #endif
+#if defined(__arm__) || defined(_M_ARM)
+#define cimg_ulong unsigned long long
+#define cimg_long long long
+#else
 #define cimg_ulong unsigned long
 #define cimg_long long
+#endif
 #endif
 
 // Configure filename separator.
@@ -27437,14 +27442,14 @@ namespace cimg_library_suffixed {
     }
 
     //! Convert pixel values from XYZ to Lab color spaces.
-    CImg<T>& XYZtoLab() {
+    CImg<T>& XYZtoLab(const bool use_D65=true) {
 #define _cimg_Labf(x) (24389*(x)>216?cimg::cbrt(x):(24389*(x)/27 + 16)/116)
 
       if (_spectrum!=3)
         throw CImgInstanceException(_cimg_instance
                                     "XYZtoLab(): Instance is not a XYZ image.",
                                     cimg_instance);
-      const CImg<Tfloat> white = CImg<Tfloat>(1,1,1,3,255).RGBtoXYZ();
+      const CImg<Tfloat> white = CImg<Tfloat>(1,1,1,3,255).RGBtoXYZ(use_D65);
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
       const ulongT whd = (ulongT)_width*_height*_depth;
       cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=128))
@@ -27464,17 +27469,17 @@ namespace cimg_library_suffixed {
     }
 
     //! Convert pixel values from XYZ to Lab color spaces \newinstance.
-    CImg<Tfloat> get_XYZtoLab() const {
-      return CImg<Tfloat>(*this,false).XYZtoLab();
+    CImg<Tfloat> get_XYZtoLab(const bool use_D65=true) const {
+      return CImg<Tfloat>(*this,false).XYZtoLab(use_D65);
     }
 
     //! Convert pixel values from Lab to XYZ color spaces.
-    CImg<T>& LabtoXYZ() {
+    CImg<T>& LabtoXYZ(const bool use_D65=true) {
       if (_spectrum!=3)
         throw CImgInstanceException(_cimg_instance
                                     "LabtoXYZ(): Instance is not a Lab image.",
                                     cimg_instance);
-      const CImg<Tfloat> white = CImg<Tfloat>(1,1,1,3,255).RGBtoXYZ();
+      const CImg<Tfloat> white = CImg<Tfloat>(1,1,1,3,255).RGBtoXYZ(use_D65);
       T *p1 = data(0,0,0,0), *p2 = data(0,0,0,1), *p3 = data(0,0,0,2);
       const ulongT whd = (ulongT)_width*_height*_depth;
       cimg_pragma_openmp(parallel for cimg_openmp_if(whd>=128))
@@ -27497,8 +27502,8 @@ namespace cimg_library_suffixed {
     }
 
     //! Convert pixel values from Lab to XYZ color spaces \newinstance.
-    CImg<Tfloat> get_LabtoXYZ() const {
-      return CImg<Tfloat>(*this,false).LabtoXYZ();
+    CImg<Tfloat> get_LabtoXYZ(const bool use_D65=true) const {
+      return CImg<Tfloat>(*this,false).LabtoXYZ(use_D65);
     }
 
     //! Convert pixel values from XYZ to xyY color spaces.
@@ -27560,7 +27565,7 @@ namespace cimg_library_suffixed {
 
     //! Convert pixel values from RGB to Lab color spaces.
     CImg<T>& RGBtoLab(const bool use_D65=true) {
-      return RGBtoXYZ(use_D65).XYZtoLab();
+      return RGBtoXYZ(use_D65).XYZtoLab(use_D65);
     }
 
     //! Convert pixel values from RGB to Lab color spaces \newinstance.

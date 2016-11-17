@@ -41769,12 +41769,11 @@ namespace cimg_library_suffixed {
                             const int x1, const int y1, const int z1, const int c1,
                             const T val, const float opacity=1) {
       if (is_empty()) return *this;
-      const bool bx = (x0<x1), by = (y0<y1), bz = (z0<z1), bc = (c0<c1);
       const int
-        nx0 = bx?x0:x1, nx1 = bx?x1:x0,
-        ny0 = by?y0:y1, ny1 = by?y1:y0,
-        nz0 = bz?z0:z1, nz1 = bz?z1:z0,
-        nc0 = bc?c0:c1, nc1 = bc?c1:c0;
+        nx0 = x0<x1?x0:x1, nx1 = x0^x1^nx0,
+        ny0 = y0<y1?y0:y1, ny1 = y0^y1^ny0,
+        nz0 = z0<z1?z0:z1, nz1 = z0^z1^nz0,
+        nc0 = c0<c1?c0:c1, nc1 = c0^c1^nc0;
       const int
         lX = (1 + nx1 - nx0) + (nx1>=width()?width() - 1 - nx1:0) + (nx0<0?nx0:0),
         lY = (1 + ny1 - ny0) + (ny1>=height()?height() - 1 - ny1:0) + (ny0<0?ny0:0),
@@ -41871,10 +41870,9 @@ namespace cimg_library_suffixed {
       if (is_empty()) return *this;
       if (y0==y1) return draw_line(x0,y0,x1,y0,color,opacity,pattern,true);
       if (x0==x1) return draw_line(x0,y0,x0,y1,color,opacity,pattern,true);
-      const bool bx = (x0<x1), by = (y0<y1);
       const int
-        nx0 = bx?x0:x1, nx1 = bx?x1:x0,
-        ny0 = by?y0:y1, ny1 = by?y1:y0;
+        nx0 = x0<x1?x0:x1, nx1 = x0^x1^nx0,
+        ny0 = y0<y1?y0:y1, ny1 = y0^y1^ny0;
       if (ny1==ny0 + 1) return draw_line(nx0,ny0,nx1,ny0,color,opacity,pattern,true).
                       draw_line(nx1,ny1,nx0,ny1,color,opacity,pattern,false);
       return draw_line(nx0,ny0,nx1,ny0,color,opacity,pattern,true).

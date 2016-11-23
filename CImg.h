@@ -5296,7 +5296,7 @@ namespace cimg_library_suffixed {
       if (n<94) { // precise up to n = 78, less precise for n>78 up to n = 93, overflows for n>93
         cimg_uint64
           fn1 = (cimg_uint64)1304969544928657U,
-          fn2 = (cimg_uint64)806515533049393UU,
+          fn2 = (cimg_uint64)806515533049393U,
           fn = 0;
         for (int i = 75; i<=n; ++i) { fn = fn1 + fn2; fn2 = fn1; fn1 = fn; }
         return (double)fn;

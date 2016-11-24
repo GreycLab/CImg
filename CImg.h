@@ -10978,7 +10978,7 @@ namespace cimg_library_suffixed {
        \param list Destination list.
        \param pos Position of the newly inserted image in the list.
        \note
-       - When optionnal parameter \c pos is ommited, the image instance is transfered as a new
+       - When optional parameter \c pos is ommited, the image instance is transfered as a new
          image at the end of the specified \c list.
        - It is convenient to sequentially insert new images into image lists, with no
          additional copies of memory buffer.
@@ -31201,7 +31201,7 @@ namespace cimg_library_suffixed {
       return res;
     }
 
-    //! Split image into a list of sub-images, according to a specified splitting value sequence and optionnally axis.
+    //! Split image into a list of sub-images, according to a specified splitting value sequence and optionally axis.
     /**
        \param values Splitting value sequence.
        \param axis Axis along which the splitting is performed. Can be '0' to ignore axis.

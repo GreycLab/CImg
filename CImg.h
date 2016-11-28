@@ -16429,6 +16429,15 @@ namespace cimg_library_suffixed {
                                       s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
         }
 
+        // Percentage computation.
+        if (*se1=='%') {
+          arg1 = compile(ss,se1,depth1,0);
+          arg2 = _cimg_mp_is_constant(arg1)?0:constant(100);
+          if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector2_vs(mp_div,arg1,arg2);
+          if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(mem[arg1]/100);
+          _cimg_mp_scalar2(mp_div,arg1,arg2);
+        }
+
         // Array-like access to vectors and  image values 'i/j/I/J[_#ind,offset,_boundary]' and 'vector[offset]'.
         if (*se1==']' && *ss!='[') {
           _cimg_mp_op("Value accessor '[]'");

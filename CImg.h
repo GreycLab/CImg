@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 179
+#define cimg_version 180
 
 /*-----------------------------------------------------------
  #
@@ -14796,8 +14796,6 @@ namespace cimg_library_suffixed {
                                       (ss - 4)>expr._data?ss - 4:expr._data,
                                       se<&expr.back()?"...":"");
         }
-
-        const char *const ss0 = ss;
         char c1, c2, c3, c4;
 
         // Simplify expression when possible.
@@ -17498,18 +17496,20 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"init(",5)) { // Init
               _cimg_mp_op("Function 'init()'");
-              if (ss0!=expr._data || code.width()) { // (only allowed as the first instruction)
-                *se = saved_char;
-                s0 = ss - 4>expr._data?ss - 4:expr._data;
-                cimg::strellipsize(s0,64);
-                throw CImgArgumentException("[_cimg_math_parser] "
-                                            "CImg<%s>::%s: %s: Init invokation not done at the "
-                                            "beginning of expression '%s%s%s'.",
-                                            pixel_type(),_cimg_mp_calling_function,s_op,
-                                            s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
-              }
+              arg2 = code.width();
               arg1 = compile(ss5,se1,depth1,p_ref);
-              init_size = code.width();
+              arg2 = code.width() - arg2;
+
+              if (arg2 && code.width()) {
+                CImgList<ulongT> icode(arg2);
+                std::memcpy(icode._data,code._data + code.width() - arg2,arg2*sizeof(CImgList<ulongT>));
+                std::memmove(code._data + init_size + arg2,code._data + init_size,(code.width() - arg2 - init_size)*sizeof(CImgList<ulongT>));
+                std::memcpy(code._data + init_size,icode._data,arg2*sizeof(CImgList<ulongT>));
+                std::memset(icode._data,0,arg2*sizeof(CImgList<ulongT>));
+              }
+              init_size+=arg2;
+
+//              init_size = code.width();
               _cimg_mp_return(arg1);
             }
 

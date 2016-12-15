@@ -15869,7 +15869,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_vector2_sv(mp_bitwise_or,arg1,arg2);
             }
             if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2))
-              _cimg_mp_constant((ulongT)mem[arg1] | (ulongT)mem[arg2]);
+              _cimg_mp_constant((longT)mem[arg1] | (longT)mem[arg2]);
             if (!arg2) _cimg_mp_return(arg1);
             if (!arg1) _cimg_mp_return(arg2);
             _cimg_mp_scalar2(mp_bitwise_or,arg1,arg2);
@@ -15885,7 +15885,7 @@ namespace cimg_library_suffixed {
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_bitwise_and,arg1,arg2);
             if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_bitwise_and,arg1,arg2);
             if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2))
-              _cimg_mp_constant((ulongT)mem[arg1] & (ulongT)mem[arg2]);
+              _cimg_mp_constant((longT)mem[arg1] & (longT)mem[arg2]);
             if (!arg1 || !arg2) _cimg_mp_return(0);
             _cimg_mp_scalar2(mp_bitwise_and,arg1,arg2);
           }
@@ -18307,7 +18307,7 @@ namespace cimg_library_suffixed {
               if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_bitwise_xor,arg1,arg2);
               if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_bitwise_xor,arg1,arg2);
               if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2))
-                _cimg_mp_constant((ulongT)mem[arg1] ^ (ulongT)mem[arg2]);
+                _cimg_mp_constant((longT)mem[arg1] ^ (longT)mem[arg2]);
               _cimg_mp_scalar2(mp_bitwise_xor,arg1,arg2);
             }
             break;
@@ -19240,7 +19240,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_bitwise_and(_cimg_math_parser& mp) {
-        return (double)((ulongT)_mp_arg(2) & (ulongT)_mp_arg(3));
+        return (double)((longT)_mp_arg(2) & (longT)_mp_arg(3));
       }
 
       static double mp_bitwise_left_shift(_cimg_math_parser& mp) {
@@ -19253,7 +19253,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_bitwise_or(_cimg_math_parser& mp) {
-        return (double)((ulongT)_mp_arg(2) | (ulongT)_mp_arg(3));
+        return (double)((longT)_mp_arg(2) | (longT)_mp_arg(3));
       }
 
       static double mp_bitwise_right_shift(_cimg_math_parser& mp) {
@@ -19261,7 +19261,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_bitwise_xor(_cimg_math_parser& mp) {
-        return (double)((ulongT)_mp_arg(2) ^ (ulongT)_mp_arg(3));
+        return (double)((longT)_mp_arg(2) ^ (longT)_mp_arg(3));
       }
 
       static double mp_bool(_cimg_math_parser& mp) {
@@ -20996,7 +20996,7 @@ namespace cimg_library_suffixed {
 
       static double mp_self_bitwise_and(_cimg_math_parser& mp) {
         double &val = _mp_arg(1);
-        return val = (double)((ulongT)val & (ulongT)_mp_arg(2));
+        return val = (double)((longT)val & (longT)_mp_arg(2));
       }
 
       static double mp_self_bitwise_left_shift(_cimg_math_parser& mp) {
@@ -21006,7 +21006,7 @@ namespace cimg_library_suffixed {
 
       static double mp_self_bitwise_or(_cimg_math_parser& mp) {
         double &val = _mp_arg(1);
-        return val = (double)((ulongT)val | (ulongT)_mp_arg(2));
+        return val = (double)((longT)val | (longT)_mp_arg(2));
       }
 
       static double mp_self_bitwise_right_shift(_cimg_math_parser& mp) {

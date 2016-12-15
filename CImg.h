@@ -16221,6 +16221,12 @@ namespace cimg_library_suffixed {
 
           if (*ss=='!') { // Logical not ('!')
             _cimg_mp_op("Operator '!'");
+            if (*ss1=='!') { // '!!expr' optimized as 'bool(expr)'
+              arg1 = compile(ss2,se,depth1,0);
+              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_bool,arg1);
+              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant((bool)mem[arg1]);
+              _cimg_mp_scalar1(mp_bool,arg1);
+            }
             arg1 = compile(ss1,se,depth1,0);
             if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_logical_not,arg1);
             if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(!mem[arg1]);
@@ -16827,6 +16833,14 @@ namespace cimg_library_suffixed {
             break;
 
           case 'b' :
+            if (!std::strncmp(ss,"bool(",5)) { // Boolean cast
+              _cimg_mp_op("Function 'bool()'");
+              arg1 = compile(ss5,se1,depth1,0);
+              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_bool,arg1);
+              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant((bool)mem[arg1]);
+              _cimg_mp_scalar1(mp_bool,arg1);
+            }
+
             if (!std::strncmp(ss,"break(",6)) { // Complex absolute value
               if (pexpr[se2 - expr._data]=='(') { // no arguments?
                 CImg<ulongT>::vector((ulongT)mp_break,_cimg_mp_slot_nan).move_to(code);
@@ -17500,7 +17514,6 @@ namespace cimg_library_suffixed {
               arg2 = code.width();
               arg1 = compile(ss5,se1,depth1,p_ref);
               arg2 = code.width() - arg2;
-
               if (arg2 && code.width()) {
                 CImgList<ulongT> icode(arg2);
                 std::memcpy(icode._data,code._data + code.width() - arg2,arg2*sizeof(CImgList<ulongT>));
@@ -17509,8 +17522,6 @@ namespace cimg_library_suffixed {
                 std::memset(icode._data,0,arg2*sizeof(CImgList<ulongT>));
               }
               init_size+=arg2;
-
-//              init_size = code.width();
               _cimg_mp_return(arg1);
             }
 
@@ -19251,6 +19262,10 @@ namespace cimg_library_suffixed {
 
       static double mp_bitwise_xor(_cimg_math_parser& mp) {
         return (double)((ulongT)_mp_arg(2) ^ (ulongT)_mp_arg(3));
+      }
+
+      static double mp_bool(_cimg_math_parser& mp) {
+        return (double)(bool)_mp_arg(2);
       }
 
       static double mp_break(_cimg_math_parser& mp) {

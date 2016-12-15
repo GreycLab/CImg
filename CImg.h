@@ -14871,7 +14871,7 @@ namespace cimg_library_suffixed {
         if (nb==1) _cimg_mp_constant(val);
         if (nb==2 && sep=='%') _cimg_mp_constant(val/100);
 
-        if (ss1==se) switch (*ss) { // One-char variable
+        if (ss1==se) switch (*ss) { // One-char reserved variable
           case 'c' : _cimg_mp_return(reserved_label['c']!=~0U?reserved_label['c']:_cimg_mp_slot_c);
           case 'd' : _cimg_mp_return(reserved_label['d']!=~0U?reserved_label['d']:20);
           case 'e' : _cimg_mp_return(reserved_label['e']!=~0U?reserved_label['e']:27);
@@ -14918,7 +14918,7 @@ namespace cimg_library_suffixed {
             need_input_copy = true;
             _cimg_mp_scalar6(mp_ixyzc,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,3,0,0);
           }
-        else if (ss2==se) { // Two-chars variable
+        else if (ss2==se) { // Two-chars reserved variable
           arg1 = arg2 = ~0U;
           if (*ss=='w' && *ss1=='h') // wh
             _cimg_mp_return(reserved_label[0]!=~0U?reserved_label[0]:23);
@@ -14966,10 +14966,10 @@ namespace cimg_library_suffixed {
             if (mem_img_stats[arg2]==~0U) mem_img_stats[arg2] = constant(img_stats[arg2]);
             _cimg_mp_return(mem_img_stats[arg2]);
           }
-        } else if (ss3==se) { // Three-chars variable
+        } else if (ss3==se) { // Three-chars reserved variable
           if (*ss=='w' && *ss1=='h' && *ss2=='d') // whd
             _cimg_mp_return(reserved_label[1]!=~0U?reserved_label[1]:24);
-        } else if (ss4==se) { // Four-chars variable
+        } else if (ss4==se) { // Four-chars reserved variable
           if (*ss=='w' && *ss1=='h' && *ss2=='d' && *ss3=='s') // whds
             _cimg_mp_return(reserved_label[2]!=~0U?reserved_label[2]:25);
         }
@@ -14978,7 +14978,8 @@ namespace cimg_library_suffixed {
         for (s0 = ss, s = ss1; s<se1; ++s)
           if (*s==';' && level[s - expr._data]==clevel) { // Separator ';'
             pos = compile(s0,s,depth,0);
-            s0 = s + 1;
+            while (*s==';' && s<se1) ++s;
+            s0 = s;
           }
         if (pos!=~0U) _cimg_mp_return(compile(s0,se,depth,p_ref));
 

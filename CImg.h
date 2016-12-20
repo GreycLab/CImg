@@ -14977,10 +14977,9 @@ namespace cimg_library_suffixed {
         pos = ~0U;
         for (s0 = ss, s = ss1; s<se1; ++s)
           if (*s==';' && level[s - expr._data]==clevel) { // Separator ';'
-            pos = compile(s0,s,depth,0);
-//            while (*s==';' && s<se1) ++s;
-//            s0 = s;
-            s0 = ++s;
+            pos = compile(s0,s++,depth,0);
+            while (*s && ((signed char)*s<=' ' || *s==';')) ++s;
+            s0 = s;
           }
         if (pos!=~0U) _cimg_mp_return(compile(s0,se,depth,p_ref));
 

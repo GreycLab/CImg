@@ -19961,6 +19961,7 @@ namespace cimg_library_suffixed {
       static double mp_image_resize(_cimg_math_parser& mp) {
         unsigned int ind = (unsigned int)mp.opcode[2];
         ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listout.width());
+        cimg::mutex(6);
         CImg<T> &img = mp.listout[ind];
         const int
           w = mp.opcode[3]==~0U?-100:(int)cimg::round(_mp_arg(3)),
@@ -19976,6 +19977,7 @@ namespace cimg_library_suffixed {
           cz = (float)_mp_arg(11),
           cc = (float)_mp_arg(12);
         img.resize(w,h,d,s,interp,boundary,cx,cy,cz,cc);
+        cimg::mutex(6,0);
         return cimg::type<double>::nan();
       }
 

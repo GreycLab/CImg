@@ -17539,7 +17539,8 @@ namespace cimg_library_suffixed {
               if (arg2 && code.width()) {
                 CImgList<ulongT> icode(arg2);
                 std::memcpy(icode._data,code._data + code.width() - arg2,arg2*sizeof(CImgList<ulongT>));
-                std::memmove(code._data + init_size + arg2,code._data + init_size,(code.width() - arg2 - init_size)*sizeof(CImgList<ulongT>));
+                std::memmove(code._data + init_size + arg2,code._data + init_size,
+                             (code.width() - arg2 - init_size)*sizeof(CImgList<ulongT>));
                 std::memcpy(code._data + init_size,icode._data,arg2*sizeof(CImgList<ulongT>));
                 std::memset(icode._data,0,arg2*sizeof(CImgList<ulongT>));
               }

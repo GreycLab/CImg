@@ -17127,6 +17127,15 @@ namespace cimg_library_suffixed {
             break;
 
           case 'd' :
+            if (!std::strncmp(ss,"d(",2)) { // Image depth
+              _cimg_mp_op("Function 'd()'");
+              if (*ss2=='#') { p1 = compile(ss3,se1,depth1,0); _cimg_mp_check_list(false); } // Index specified
+              else { if (ss2!=se1) break; p1 = ~0U; }
+              pos = scalar();
+              CImg<ulongT>::vector((ulongT)mp_image_d,pos,p1).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"date(",5)) { // Date and file date
               _cimg_mp_op("Function 'date()'");
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -17485,6 +17494,16 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar2(mp_gauss,arg1,arg2);
             }
             break;
+
+          case 'h' :
+            if (!std::strncmp(ss,"h(",2)) { // Image height
+              _cimg_mp_op("Function 'h()'");
+              if (*ss2=='#') { p1 = compile(ss3,se1,depth1,0); _cimg_mp_check_list(false); } // Index specified
+              else { if (ss2!=se1) break; p1 = ~0U; }
+              pos = scalar();
+              CImg<ulongT>::vector((ulongT)mp_image_h,pos,p1).move_to(code);
+              _cimg_mp_return(pos);
+            }
 
           case 'i' :
             if (*ss1=='f' && (*ss2=='(' || (*ss2 && *ss2<=' ' && *ss3=='('))) { // If..then[..else.]
@@ -17931,6 +17950,15 @@ namespace cimg_library_suffixed {
             break;
 
           case 's' :
+            if (!std::strncmp(ss,"s(",2)) { // Image spectrum
+              _cimg_mp_op("Function 's()'");
+              if (*ss2=='#') { p1 = compile(ss3,se1,depth1,0); _cimg_mp_check_list(false); } // Index specified
+              else { if (ss2!=se1) break; p1 = ~0U; }
+              pos = scalar();
+              CImg<ulongT>::vector((ulongT)mp_image_s,pos,p1).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"same(",5)) { // Test if operands have the same values
               _cimg_mp_op("Function 'same()'");
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -18279,23 +18307,42 @@ namespace cimg_library_suffixed {
             break;
 
           case 'w' :
-/*            if (!std::strncmp(ss,"w(",2) { // Image width
+            if (!std::strncmp(ss,"w(",2)) { // Image width
               _cimg_mp_op("Function 'w()'");
-              if (*ss2=='#') { // Index specified
-                s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
-                p1 = compile(ss3,s0++,depth1,0);
-                _cimg_mp_check_list(false);
-              } else { p1 = ~0U; s0 = ss3; }
-              pos = 0;
-              pos = vector((unsigned int)(opcode[4]*opcode[5]*opcode[6]*opcode[7]));
-              CImg<ulongT>::vector((ulongT)mp_crop,
-                                  pos,p1,
-                                  *opcode,opcode[1],opcode[2],opcode[3],
-                                  opcode[4],opcode[5],opcode[6],opcode[7],
-                                  opcode[8]).move_to(code);
+              if (*ss2=='#') { p1 = compile(ss3,se1,depth1,0); _cimg_mp_check_list(false); } // Index specified
+              else { if (ss2!=se1) break; p1 = ~0U; }
+              pos = scalar();
+              CImg<ulongT>::vector((ulongT)mp_image_w,pos,p1).move_to(code);
               _cimg_mp_return(pos);
             }
-*/
+
+            if (!std::strncmp(ss,"wh(",3)) { // Image width*height
+              _cimg_mp_op("Function 'wh()'");
+              if (*ss3=='#') { p1 = compile(ss4,se1,depth1,0); _cimg_mp_check_list(false); } // Index specified
+              else { if (ss3!=se1) break; p1 = ~0U; }
+              pos = scalar();
+              CImg<ulongT>::vector((ulongT)mp_image_wh,pos,p1).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
+            if (!std::strncmp(ss,"whd(",4)) { // Image width*height*depth
+              _cimg_mp_op("Function 'whd()'");
+              if (*ss4=='#') { p1 = compile(ss5,se1,depth1,0); _cimg_mp_check_list(false); } // Index specified
+              else { if (ss4!=se1) break; p1 = ~0U; }
+              pos = scalar();
+              CImg<ulongT>::vector((ulongT)mp_image_whd,pos,p1).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
+            if (!std::strncmp(ss,"whds(",5)) { // Image width*height*depth*spectrum
+              _cimg_mp_op("Function 'whds()'");
+              if (*ss5=='#') { p1 = compile(ss6,se1,depth1,0); _cimg_mp_check_list(false); } // Index specified
+              else { if (ss5!=se1) break; p1 = ~0U; }
+              pos = scalar();
+              CImg<ulongT>::vector((ulongT)mp_image_whds,pos,p1).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"whiledo",7) && (*ss7=='(' || (*ss7 && *ss7<=' ' && *ss8=='('))) { // While...do
               _cimg_mp_op("Function 'whiledo()'");
               s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -19861,6 +19908,55 @@ namespace cimg_library_suffixed {
         else mp.p_code = p_end - 1;
         if (vsiz) std::memcpy(&mp.mem[vtarget] + 1,&mp.mem[is_cond?mem_left:mem_right] + 1,sizeof(double)*vsiz);
         return mp.mem[is_cond?mem_left:mem_right];
+      }
+
+      static double mp_image_w(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        return (double)img.width();
+      }
+
+      static double mp_image_wh(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        return (double)img.width()*img.height();
+      }
+
+      static double mp_image_whd(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        return (double)img.width()*img.height()*img.depth();
+      }
+
+      static double mp_image_whds(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        return (double)img.width()*img.height()*img.depth()*img.spectrum();
+      }
+
+      static double mp_image_h(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        return (double)img.height();
+      }
+
+      static double mp_image_d(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        return (double)img.depth();
+      }
+
+      static double mp_image_s(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        return (double)img.spectrum();
       }
 
       static double mp_increment(_cimg_math_parser& mp) {

@@ -18279,6 +18279,23 @@ namespace cimg_library_suffixed {
             break;
 
           case 'w' :
+/*            if (!std::strncmp(ss,"w(",2) { // Image width
+              _cimg_mp_op("Function 'w()'");
+              if (*ss2=='#') { // Index specified
+                s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                p1 = compile(ss3,s0++,depth1,0);
+                _cimg_mp_check_list(false);
+              } else { p1 = ~0U; s0 = ss3; }
+              pos = 0;
+              pos = vector((unsigned int)(opcode[4]*opcode[5]*opcode[6]*opcode[7]));
+              CImg<ulongT>::vector((ulongT)mp_crop,
+                                  pos,p1,
+                                  *opcode,opcode[1],opcode[2],opcode[3],
+                                  opcode[4],opcode[5],opcode[6],opcode[7],
+                                  opcode[8]).move_to(code);
+              _cimg_mp_return(pos);
+            }
+*/
             if (!std::strncmp(ss,"whiledo",7) && (*ss7=='(' || (*ss7 && *ss7<=' ' && *ss8=='('))) { // While...do
               _cimg_mp_op("Function 'whiledo()'");
               s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;

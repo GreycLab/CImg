@@ -17846,27 +17846,51 @@ namespace cimg_library_suffixed {
             break;
 
           case 'r' :
-            if (!std::strncmp(ss,"resize(",7)) { // Vector resize
+            if (!std::strncmp(ss,"resize(",7)) { // Vector or image resize
               _cimg_mp_op("Function 'resize()'");
-              s1 = ss7; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss7,s1,depth1,0);
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-              arg2 = compile(s1,s2,depth1,0);
-              arg3 = 1;
-              arg4 = 0;
-              if (s2<se1) {
-                s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                arg3 = compile(s2,s1,depth1,0);
-                arg4 = s1<se1?compile(++s1,se1,depth1,0):0;
+              if (*ss7!='#') { // Vector
+                s1 = ss7; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                arg1 = compile(ss7,s1,depth1,0);
+                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                arg2 = compile(s1,s2,depth1,0);
+                arg3 = 1;
+                arg4 = 0;
+                if (s2<se1) {
+                  s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                  arg3 = compile(s2,s1,depth1,0);
+                  arg4 = s1<se1?compile(++s1,se1,depth1,0):0;
+                }
+                _cimg_mp_check_constant(arg2,2,3);
+                arg2 = (unsigned int)mem[arg2];
+                _cimg_mp_check_type(arg3,3,1,0);
+                _cimg_mp_check_type(arg4,4,1,0);
+                pos = vector(arg2);
+                CImg<ulongT>::vector((ulongT)mp_vector_resize,pos,arg2,arg1,(ulongT)_cimg_mp_vector_size(arg1),
+                                     arg3,arg4).move_to(code);
+                _cimg_mp_return(pos);
+
+              } else { // Image
+                s0 = ss8; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                p1 = compile(ss8,s0++,depth1,0);
+                _cimg_mp_check_list(false);
+                CImg<ulongT>::vector((ulongT)mp_image_resize,_cimg_mp_slot_nan,p1,~0U,~0U,~0U,~0U,1,0,0,0,0,0).
+                  move_to(opcode);
+                pos = 0;
+                for (s = s0; s<se && pos<10; ++s) {
+                  ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                                 (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                  arg1 = compile(s,ns,depth1,0);
+                  _cimg_mp_check_type(arg1,pos + 2,1,0);
+                  opcode[pos + 3] = arg1;
+                  s = ns;
+                  ++pos;
+                }
+                std::fprintf(stderr,"\nDEBUG : resize image #%u\n",p1);
+                opcode.print("OPCODE");
+
+                opcode.move_to(code);
+                _cimg_mp_return(_cimg_mp_slot_nan);
               }
-              _cimg_mp_check_constant(arg2,2,3);
-              arg2 = (unsigned int)mem[arg2];
-              _cimg_mp_check_type(arg3,3,1,0);
-              _cimg_mp_check_type(arg4,4,1,0);
-              pos = vector(arg2);
-              CImg<ulongT>::vector((ulongT)mp_vector_resize,pos,arg2,arg1,(ulongT)_cimg_mp_vector_size(arg1),
-                                   arg3,arg4).move_to(code);
-              _cimg_mp_return(pos);
             }
 
             if (!std::strncmp(ss,"reverse(",8)) { // Vector reverse
@@ -19957,6 +19981,27 @@ namespace cimg_library_suffixed {
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
         return (double)img.spectrum();
+      }
+
+      static double mp_image_resize(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listout.width());
+        CImg<T> &img = mp.listout[ind];
+        const int
+          w = mp.opcode[3]==~0U?-100:(int)cimg::round(_mp_arg(3)),
+          h = mp.opcode[4]==~0U?-100:(int)cimg::round(_mp_arg(4)),
+          d = mp.opcode[5]==~0U?-100:(int)cimg::round(_mp_arg(5)),
+          s = mp.opcode[6]==~0U?-100:(int)cimg::round(_mp_arg(6)),
+          interp = (int)_mp_arg(7);
+        const unsigned int
+          boundary = (int)_mp_arg(8);
+        const float
+          cx = (float)_mp_arg(9),
+          cy = (float)_mp_arg(10),
+          cz = (float)_mp_arg(11),
+          cc = (float)_mp_arg(12);
+        img.resize(w,h,d,s,interp,boundary,cx,cy,cz,cc);
+        return cimg::type<double>::nan();
       }
 
       static double mp_increment(_cimg_math_parser& mp) {

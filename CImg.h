@@ -16484,11 +16484,11 @@ namespace cimg_library_suffixed {
             pos = vector(p2);
             if (p1!=~0U) {
               CImg<ulongT>::vector((ulongT)(is_relative?mp_list_Joff:mp_list_Ioff),
-                                  pos,p1,arg1,arg2==~0U?_cimg_mp_boundary:arg2).move_to(code);
+                                  pos,p1,arg1,arg2==~0U?_cimg_mp_boundary:arg2,p2).move_to(code);
             } else {
               need_input_copy = true;
               CImg<ulongT>::vector((ulongT)(is_relative?mp_Joff:mp_Ioff),
-                                  pos,arg1,arg2==~0U?_cimg_mp_boundary:arg2).move_to(code);
+                                  pos,arg1,arg2==~0U?_cimg_mp_boundary:arg2,p2).move_to(code);
             }
             _cimg_mp_return(pos);
           }
@@ -17874,6 +17874,7 @@ namespace cimg_library_suffixed {
                 _cimg_mp_return(pos);
 
               } else { // Image
+                is_parallelizable = false;
                 s0 = ss8; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                 p1 = compile(ss8,s0++,depth1,0);
                 _cimg_mp_check_list(false);
@@ -20595,8 +20596,10 @@ namespace cimg_library_suffixed {
         double *ptrd = &_mp_arg(1) + 1;
         const unsigned int
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width()),
-          boundary_conditions = (unsigned int)_mp_arg(4);
+          boundary_conditions = (unsigned int)_mp_arg(4),
+          vsiz = (unsigned int)_mp_arg(5);
         const CImg<T> &img = mp.listin[ind];
+        const unsigned int cmax = cimg::min(vsiz,img?img._spectrum:vsiz) - 1;
         const longT
           off = (longT)_mp_arg(3),
           whd = (longT)img.width()*img.height()*img.depth();
@@ -20606,21 +20609,21 @@ namespace cimg_library_suffixed {
           case 2 : // Periodic boundary
             if (img) {
               ptrs = &img[cimg::mod(off,whd)];
-              cimg_forC(img,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
-            } else std::memset(ptrd,0,img._spectrum*sizeof(double));
+              cimg_for_inC(img,0,cmax,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
+            } else std::memset(ptrd,0,(cmax + 1)*sizeof(double));
             return cimg::type<double>::nan();
           case 1 : // Neumann boundary
             if (img) {
               ptrs = off<0?img._data:&img.back();
-              cimg_forC(img,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
-            } else std::memset(ptrd,0,img._spectrum*sizeof(double));
+              cimg_for_inC(img,0,cmax,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
+            } else std::memset(ptrd,0,(cmax + 1)*sizeof(double));
             return cimg::type<double>::nan();
           default : // Dirichet boundary
-            std::memset(ptrd,0,img._spectrum*sizeof(double));
+            std::memset(ptrd,0,(cmax + 1)*sizeof(double));
             return cimg::type<double>::nan();
           }
         ptrs = &img[off];
-        cimg_forC(img,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
+        cimg_for_inC(img,0,cmax,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
         return cimg::type<double>::nan();
       }
 
@@ -20665,10 +20668,12 @@ namespace cimg_library_suffixed {
         double *ptrd = &_mp_arg(1) + 1;
         const unsigned int
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width()),
-          boundary_conditions = (unsigned int)_mp_arg(4);
+          boundary_conditions = (unsigned int)_mp_arg(4),
+          vsiz = (unsigned int)_mp_arg(5);
         const int
           ox = (int)mp.mem[_cimg_mp_slot_x], oy = (int)mp.mem[_cimg_mp_slot_y], oz = (int)mp.mem[_cimg_mp_slot_z];
         const CImg<T> &img = mp.listin[ind];
+        const unsigned int cmax = cimg::min(vsiz,img?img._spectrum:vsiz) - 1;
         const longT
           off = img.offset(ox,oy,oz) + (longT)_mp_arg(3),
           whd = (longT)img.width()*img.height()*img.depth();
@@ -20678,21 +20683,21 @@ namespace cimg_library_suffixed {
           case 2 : // Periodic boundary
             if (img) {
               ptrs = &img[cimg::mod(off,whd)];
-              cimg_forC(img,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
-            } else std::memset(ptrd,0,img._spectrum*sizeof(double));
+              cimg_for_inC(img,0,cmax,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
+            } else std::memset(ptrd,0,(cmax + 1)*sizeof(double));
             return cimg::type<double>::nan();
           case 1 : // Neumann boundary
             if (img) {
               ptrs = off<0?img._data:&img.back();
-              cimg_forC(img,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
-            } else std::memset(ptrd,0,img._spectrum*sizeof(double));
+              cimg_for_inC(img,0,cmax,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
+            } else std::memset(ptrd,0,(cmax + 1)*sizeof(double));
             return cimg::type<double>::nan();
           default : // Dirichet boundary
-            std::memset(ptrd,0,img._spectrum*sizeof(double));
+            std::memset(ptrd,0,(cmax + 1)*sizeof(double));
             return cimg::type<double>::nan();
           }
         ptrs = &img[off];
-        cimg_forC(img,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
+        cimg_for_inC(img,0,cmax,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
         return cimg::type<double>::nan();
       }
 
@@ -21863,8 +21868,11 @@ namespace cimg_library_suffixed {
 
       static double mp_Ioff(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
-        const unsigned int boundary_conditions = (unsigned int)_mp_arg(3);
+        const unsigned int
+          boundary_conditions = (unsigned int)_mp_arg(3),
+          vsiz = (unsigned int)_mp_arg(4);
         const CImg<T> &img = mp.imgin;
+        const unsigned int cmax = cimg::min(vsiz,img?img._spectrum:vsiz) - 1;
         const longT
           off = (longT)_mp_arg(2),
           whd = (longT)img.width()*img.height()*img.depth();
@@ -21874,21 +21882,21 @@ namespace cimg_library_suffixed {
           case 2 : // Periodic boundary
             if (img) {
               ptrs = &img[cimg::mod(off,whd)];
-              cimg_forC(img,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
-            } else std::memset(ptrd,0,img._spectrum*sizeof(double));
+              cimg_for_inC(img,0,cmax,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
+            } else std::memset(ptrd,0,(cmax + 1)*sizeof(double));
             return cimg::type<double>::nan();
           case 1 : // Neumann boundary
             if (img) {
               ptrs = off<0?img._data:&img[whd - 1];
-              cimg_forC(img,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
-            } else std::memset(ptrd,0,img._spectrum*sizeof(double));
+              cimg_for_inC(img,0,cmax,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
+            } else std::memset(ptrd,0,(cmax + 1)*sizeof(double));
             return cimg::type<double>::nan();
           default : // Dirichet boundary
-            std::memset(ptrd,0,img._spectrum*sizeof(double));
+            std::memset(ptrd,0,(cmax + 1)*sizeof(double));
             return cimg::type<double>::nan();
           }
         ptrs = &img[off];
-        cimg_forC(img,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
+        cimg_for_inC(img,0,cmax,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
         return cimg::type<double>::nan();
       }
 
@@ -21930,8 +21938,11 @@ namespace cimg_library_suffixed {
 
       static double mp_Joff(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
-        const unsigned int boundary_conditions = (unsigned int)_mp_arg(3);
+        const unsigned int
+          boundary_conditions = (unsigned int)_mp_arg(3),
+          vsiz = (unsigned int)_mp_arg(4);
         const CImg<T> &img = mp.imgin;
+        const unsigned int cmax = cimg::min(vsiz,img?img._spectrum:vsiz) - 1;
         const int
           ox = (int)mp.mem[_cimg_mp_slot_x],
           oy = (int)mp.mem[_cimg_mp_slot_y],
@@ -21945,21 +21956,21 @@ namespace cimg_library_suffixed {
           case 2 : // Periodic boundary
             if (img) {
               ptrs = &img[cimg::mod(off,whd)];
-              cimg_forC(img,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
-            } else std::memset(ptrd,0,img._spectrum*sizeof(double));
+              cimg_for_inC(img,0,cmax,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
+            } else std::memset(ptrd,0,(cmax + 1)*sizeof(double));
             return cimg::type<double>::nan();
           case 1 : // Neumann boundary
             if (img) {
               ptrs = off<0?img._data:&img[whd - 1];
-              cimg_forC(img,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
-            } else std::memset(ptrd,0,img._spectrum*sizeof(double));
+              cimg_for_inC(img,0,cmax,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
+            } else std::memset(ptrd,0,(cmax + 1)*sizeof(double));
             return cimg::type<double>::nan();
           default : // Dirichet boundary
-            std::memset(ptrd,0,img._spectrum*sizeof(double));
+            std::memset(ptrd,0,(cmax + 1)*sizeof(double));
             return cimg::type<double>::nan();
           }
         ptrs = &img[off];
-        cimg_forC(img,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
+        cimg_for_inC(img,0,cmax,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
         return cimg::type<double>::nan();
       }
 

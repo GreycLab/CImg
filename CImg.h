@@ -14553,7 +14553,7 @@ namespace cimg_library_suffixed {
       char *user_macro;
 
       unsigned int mempos, mem_img_median, debug_indent, init_size, result_dim, break_type, constcache_size;
-      bool is_parallelizable, need_input_copy;
+      bool is_parallelizable, is_fill, need_input_copy;
       double *result;
       const char *const calling_function, *s_op, *ss_op;
       typedef double (*mp_func)(_cimg_math_parser&);
@@ -14591,13 +14591,15 @@ namespace cimg_library_suffixed {
       // Constructors.
       _cimg_math_parser(const char *const expression, const char *const funcname=0,
                         const CImg<T>& img_input=CImg<T>::const_empty(), CImg<T> *const img_output=0,
-                        const CImgList<T> *const list_input=0, CImgList<T> *const list_output=0):
+                        const CImgList<T> *const list_input=0, CImgList<T> *const list_output=0,
+                        const bool _is_fill=false):
         code(_code),p_break((CImg<ulongT>*)0 - 2),
         imgin(img_input),listin(list_input?*list_input:CImgList<T>::const_empty()),
         imgout(img_output?*img_output:CImg<T>::empty()),listout(list_output?*list_output:CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),user_macro(0),
         mem_img_median(~0U),debug_indent(0),init_size(0),result_dim(0),break_type(0),constcache_size(0),
-        is_parallelizable(true),need_input_copy(false),calling_function(funcname?funcname:"cimg_math_parser") {
+        is_parallelizable(true),is_fill(_is_fill),need_input_copy(false),
+        calling_function(funcname?funcname:"cimg_math_parser") {
         if (!expression || !*expression)
           throw CImgArgumentException("[_cimg_math_parser] "
                                       "CImg<%s>::%s: Empty expression.",
@@ -14705,7 +14707,7 @@ namespace cimg_library_suffixed {
         imgin(CImg<T>::const_empty()),listin(CImgList<T>::const_empty()),
         imgout(CImg<T>::empty()),listout(CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),debug_indent(0),
-        result_dim(0),break_type(0),constcache_size(0),is_parallelizable(true),need_input_copy(false),
+        result_dim(0),break_type(0),constcache_size(0),is_parallelizable(true),is_fill(false),need_input_copy(false),
         calling_function(0) {
         mem.assign(1 + _cimg_mp_slot_c,1,1,1,0); // Allow to skip 'is_empty?' test in operator()()
         result = mem._data;
@@ -14715,8 +14717,8 @@ namespace cimg_library_suffixed {
         mem(mp.mem),code(mp.code),p_code_begin(mp.p_code_begin),p_code_end(mp.p_code_end),p_break(mp.p_break),
         imgin(mp.imgin),listin(mp.listin),imgout(mp.imgout),listout(mp.listout),img_stats(mp.img_stats),
         list_stats(mp.list_stats),list_median(mp.list_median),debug_indent(0),result_dim(mp.result_dim),
-        break_type(0),constcache_size(0),is_parallelizable(mp.is_parallelizable),need_input_copy(mp.need_input_copy),
-        result(mem._data + (mp.result - mp.mem._data)),calling_function(0) {
+        break_type(0),constcache_size(0),is_parallelizable(mp.is_parallelizable),is_fill(mp.is_fill),
+        need_input_copy(mp.need_input_copy), result(mem._data + (mp.result - mp.mem._data)),calling_function(0) {
 #ifdef cimg_use_openmp
         mem[17] = omp_get_thread_num();
 #endif
@@ -19971,6 +19973,10 @@ namespace cimg_library_suffixed {
           d = mp.opcode[5]==~0U?-100:(int)cimg::round(_mp_arg(5)),
           s = mp.opcode[6]==~0U?-100:(int)cimg::round(_mp_arg(6)),
           interp = (int)_mp_arg(7);
+        if (mp.is_fill && (img._data==mp.imgin._data || img._data==mp.imgout._data))
+          throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: Function 'resize()': "
+                                      "Resizing current image (%u,%u,%u,%u) to new dimensions (%u,%u,%u,%u) is not allowed.",
+                                      img.pixel_type(),img._width,img._height,img._depth,img._spectrum,w,h,d,s);
         const unsigned int
           boundary = (int)_mp_arg(8);
         const float
@@ -23254,7 +23260,7 @@ namespace cimg_library_suffixed {
         }
       _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' ||
                                          *expression=='*' || *expression==':'),"eval",
-                           *this,img_output,list_inputs,list_outputs);
+                           *this,img_output,list_inputs,list_outputs,false);
       return mp(x,y,z,c);
     }
 
@@ -23299,7 +23305,7 @@ namespace cimg_library_suffixed {
         }
       _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' ||
                                          *expression=='*' || *expression==':'),"eval",
-                           *this,img_output,list_inputs,list_outputs);
+                           *this,img_output,list_inputs,list_outputs,false);
       output.assign(1,std::max(1U,mp.result_dim));
       mp(x,y,z,c,output._data);
     }
@@ -23327,7 +23333,7 @@ namespace cimg_library_suffixed {
                         const CImgList<T> *const list_inputs=0, CImgList<T> *const list_outputs=0) const {
       CImg<doubleT> res(1,xyzc.size()/4);
       if (!expression) return res.fill(0);
-      _cimg_math_parser mp(expression,"eval",*this,output,list_inputs,list_outputs);
+      _cimg_math_parser mp(expression,"eval",*this,output,list_inputs,list_outputs,false);
 #ifdef cimg_use_openmp
       cimg_pragma_openmp(parallel if (res._height>=512))
       {
@@ -25489,7 +25495,7 @@ namespace cimg_library_suffixed {
             CImg<T> base = provides_copy?provides_copy->get_shared():get_shared();
             _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' ||
                                                *expression=='*' || *expression==':'),
-                                 calling_function,base,this,list_inputs,list_outputs);
+                                 calling_function,base,this,list_inputs,list_outputs,true);
             if (!provides_copy && expression && *expression!='>' && *expression!='<' && *expression!=':' &&
                 mp.need_input_copy)
               base.assign().assign(*this); // Needs input copy
@@ -25531,6 +25537,7 @@ namespace cimg_library_suffixed {
                   _cimg_math_parser
                     _mp = omp_get_thread_num()?mp:_cimg_math_parser(),
                     &lmp = omp_get_thread_num()?_mp:mp;
+                  lmp.is_fill = true;
                   cimg_pragma_openmp(for collapse(2))
                     cimg_forYZ(*this,y,z) cimg_abort_try {
                     cimg_abort_test();
@@ -25559,6 +25566,7 @@ namespace cimg_library_suffixed {
                   _cimg_math_parser
                     _mp = omp_get_thread_num()?mp:_cimg_math_parser(),
                     &lmp = omp_get_thread_num()?_mp:mp;
+                  lmp.is_fill = true;
                   cimg_pragma_openmp(for collapse(3))
                     cimg_forYZC(*this,y,z,c) cimg_abort_try {
                     cimg_abort_test();

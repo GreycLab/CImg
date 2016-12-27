@@ -294,7 +294,7 @@
 #define cimg_abort_try if (cimg_abort_go) try
 #endif
 #ifndef cimg_abort_catch
-#define cimg_abort_catch() catch (...) { cimg_pragma(omp atomic) cimg_abort_go&=false; }
+#define cimg_abort_catch() catch (CImgAbortException&) { cimg_pragma(omp atomic) cimg_abort_go&=false; }
 #endif
 #ifdef cimg_abort_test2
 #ifndef cimg_abort_try2
@@ -17423,7 +17423,7 @@ namespace cimg_library_suffixed {
               s0 = ss5; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
               if (*ss5=='#') { // Index specified
                 p1 = compile(ss6,s0,depth1,0);
-                _cimg_mp_check_list(true);
+                _cimg_mp_check_list(false);
                 arg1 = ~0U;
               } else { // Vector specified
                 arg1 = compile(ss5,s0,depth1,0);
@@ -17881,7 +17881,7 @@ namespace cimg_library_suffixed {
                 is_parallelizable = false;
                 s0 = ss8; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                 p1 = compile(ss8,s0++,depth1,0);
-                _cimg_mp_check_list(false);
+                _cimg_mp_check_list(true);
                 CImg<ulongT>::vector((ulongT)mp_image_resize,_cimg_mp_slot_nan,p1,~0U,~0U,~0U,~0U,1,0,0,0,0,0).
                   move_to(opcode);
                 pos = 0;
@@ -19232,7 +19232,7 @@ namespace cimg_library_suffixed {
         }
       }
 
-      // Check is listin is not empty.
+      // Check that listin or listout are not empty.
       void check_list(const bool is_out,
                       char *const ss, char *const se, const char saved_char) {
         if ((!is_out && !listin) || (is_out && !listout)) {
@@ -19963,8 +19963,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_image_resize(_cimg_math_parser& mp) {
-        unsigned int ind = (unsigned int)mp.opcode[2];
-        ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listout.width());
+        const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listout.width());
         cimg::mutex(6);
         CImg<T> &img = mp.listout[ind];
         const int
@@ -19973,7 +19972,7 @@ namespace cimg_library_suffixed {
           d = mp.opcode[5]==~0U?-100:(int)cimg::round(_mp_arg(5)),
           s = mp.opcode[6]==~0U?-100:(int)cimg::round(_mp_arg(6)),
           interp = (int)_mp_arg(7);
-        if (mp.is_fill && (img._data==mp.imgin._data || img._data==mp.imgout._data)) {
+        if (mp.is_fill && img._data==mp.imgout._data) {
           cimg::mutex(6,0);
           throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: Function 'resize()': "
                                       "Resizing current image (%u,%u,%u,%u) to new dimensions (%u,%u,%u,%u) is not allowed.",

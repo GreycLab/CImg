@@ -19973,10 +19973,12 @@ namespace cimg_library_suffixed {
           d = mp.opcode[5]==~0U?-100:(int)cimg::round(_mp_arg(5)),
           s = mp.opcode[6]==~0U?-100:(int)cimg::round(_mp_arg(6)),
           interp = (int)_mp_arg(7);
-        if (mp.is_fill && (img._data==mp.imgin._data || img._data==mp.imgout._data))
+        if (mp.is_fill && (img._data==mp.imgin._data || img._data==mp.imgout._data)) {
+          cimg::mutex(6,0);
           throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: Function 'resize()': "
                                       "Resizing current image (%u,%u,%u,%u) to new dimensions (%u,%u,%u,%u) is not allowed.",
                                       img.pixel_type(),img._width,img._height,img._depth,img._spectrum,w,h,d,s);
+        }
         const unsigned int
           boundary = (int)_mp_arg(8);
         const float

@@ -15131,7 +15131,7 @@ namespace cimg_library_suffixed {
                                         arg5,p1,arg1,arg2,arg3,arg4).move_to(code);
                   else if (_cimg_mp_is_scalar(arg5))
                     CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Jxyz_s:mp_list_set_Ixyz_s),
-                                        arg5,p1,arg1,arg2,arg3,p2).move_to(code);
+                                        arg5,p1,arg1,arg2,arg3).move_to(code);
                   else
                     CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Jxyz_v:mp_list_set_Ixyz_v),
                                         arg5,p1,arg1,arg2,arg3,p2).move_to(code);
@@ -15142,7 +15142,7 @@ namespace cimg_library_suffixed {
                                         arg5,arg1,arg2,arg3,arg4,p2).move_to(code);
                   else if (_cimg_mp_is_scalar(arg5))
                     CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Jxyz_s:mp_set_Ixyz_s),
-                                        arg5,arg1,arg2,arg3,p2).move_to(code);
+                                        arg5,arg1,arg2,arg3).move_to(code);
                   else
                     CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Jxyz_v:mp_set_Ixyz_v),
                                         arg5,arg1,arg2,arg3,p2).move_to(code);

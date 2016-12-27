@@ -15032,6 +15032,8 @@ namespace cimg_library_suffixed {
                   if (p1!=~0U && _cimg_mp_is_comp(p1)) memtype[p1] = -2;
                   if (_cimg_mp_is_comp(arg1)) memtype[arg1] = -2;
                 }
+                p2 = _cimg_mp_vector_size(arg2);
+
                 if (p1!=~0U) {
                   if (!listout) _cimg_mp_return(arg2);
                   if (*ss>='i')
@@ -15042,7 +15044,7 @@ namespace cimg_library_suffixed {
                                         arg2,p1,arg1).move_to(code);
                   else
                     CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Joff_v:mp_list_set_Ioff_v),
-                                        arg2,p1,arg1,_cimg_mp_vector_size(arg2)).move_to(code);
+                                        arg2,p1,arg1,p2).move_to(code);
                 } else {
                   if (!imgout) _cimg_mp_return(arg2);
                   if (*ss>='i')
@@ -15053,7 +15055,7 @@ namespace cimg_library_suffixed {
                                         arg2,arg1).move_to(code);
                   else
                     CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Joff_v:mp_set_Ioff_v),
-                                        arg2,arg1,_cimg_mp_vector_size(arg2)).move_to(code);
+                                        arg2,arg1,p2).move_to(code);
                 }
                 _cimg_mp_return(arg2);
               }

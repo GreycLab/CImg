@@ -16655,13 +16655,13 @@ namespace cimg_library_suffixed {
               CImg<ulongT>::vector((ulongT)(is_relative?mp_list_Jxyz:mp_list_Ixyz),
                                    pos,p1,arg1,arg2,arg3,
                                    arg4==~0U?_cimg_mp_interpolation:arg4,
-                                   arg5==~0U?_cimg_mp_boundary:arg5).move_to(code);
+                                   arg5==~0U?_cimg_mp_boundary:arg5,p2).move_to(code);
             else {
               need_input_copy = true;
               CImg<ulongT>::vector((ulongT)(is_relative?mp_Jxyz:mp_Ixyz),
                                   pos,arg1,arg2,arg3,
                                   arg4==~0U?_cimg_mp_interpolation:arg4,
-                                  arg5==~0U?_cimg_mp_boundary:arg5).move_to(code);
+                                  arg5==~0U?_cimg_mp_boundary:arg5,p2).move_to(code);
             }
             _cimg_mp_return(pos);
           }
@@ -18666,7 +18666,7 @@ namespace cimg_library_suffixed {
             pos = vector(p2);
             CImg<ulongT>::vector((ulongT)mp_list_Ixyz,
                                  pos,p1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,
-                                 0,_cimg_mp_boundary).move_to(code);
+                                 0,_cimg_mp_boundary,p2).move_to(code);
             _cimg_mp_return(pos);
           case 'R' : // R#ind
             if (!listin) _cimg_mp_return(0);
@@ -20632,33 +20632,35 @@ namespace cimg_library_suffixed {
         const unsigned int
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width()),
           interpolation = (unsigned int)_mp_arg(6),
-          boundary_conditions = (unsigned int)_mp_arg(7);
+          boundary_conditions = (unsigned int)_mp_arg(7),
+          vsiz = (unsigned int)_mp_arg(8);
         const CImg<T> &img = mp.listin[ind];
+        const unsigned int cmax = cimg::min(vsiz,img?img._spectrum:vsiz) - 1;
         const double x = _mp_arg(3), y = _mp_arg(4), z = _mp_arg(5);
         if (interpolation==0) { // Nearest neighbor interpolation
           if (boundary_conditions==2)
-            cimg_forC(img,c)
+            cimg_for_inC(img,0,cmax,c)
               *(ptrd++) = (double)img.atXYZ(cimg::mod((int)x,img.width()),
                                             cimg::mod((int)y,img.height()),
                                             cimg::mod((int)z,img.depth()),
                                             c);
           else if (boundary_conditions==1)
-            cimg_forC(img,c)
+            cimg_for_inC(img,0,cmax,c)
               *(ptrd++) = (double)img.atXYZ((int)x,(int)y,(int)z,c);
           else
-            cimg_forC(img,c)
+            cimg_for_inC(img,0,cmax,c)
               *(ptrd++) = (double)img.atXYZ((int)x,(int)y,(int)z,c,(T)0);
         } else { // Linear interpolation
           if (boundary_conditions==2)
-            cimg_forC(img,c)
+            cimg_for_inC(img,0,cmax,c)
               *(ptrd++) = (double)img.linear_atXYZ(cimg::mod((float)x,(float)img.width()),
                                                    cimg::mod((float)y,(float)img.height()),
                                                    cimg::mod((float)z,(float)img.depth()),c);
           else if (boundary_conditions==1)
-            cimg_forC(img,c)
+            cimg_for_inC(img,0,cmax,c)
               *(ptrd++) = (double)img.linear_atXYZ((float)x,(float)y,(float)z,c);
           else
-            cimg_forC(img,c)
+            cimg_for_inC(img,0,cmax,c)
               *(ptrd++) = (double)img.linear_atXYZ((float)x,(float)y,(float)z,c,(T)0);
         }
         return cimg::type<double>::nan();
@@ -20706,35 +20708,37 @@ namespace cimg_library_suffixed {
         const unsigned int
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width()),
           interpolation = (unsigned int)_mp_arg(6),
-          boundary_conditions = (unsigned int)_mp_arg(7);
+          boundary_conditions = (unsigned int)_mp_arg(7),
+          vsiz = (unsigned int)_mp_arg(8);
         const CImg<T> &img = mp.listin[ind];
+        const unsigned int cmax = cimg::min(vsiz,img?img._spectrum:vsiz) - 1;
         const double
           ox = mp.mem[_cimg_mp_slot_x], oy = mp.mem[_cimg_mp_slot_y], oz = mp.mem[_cimg_mp_slot_z],
           x = ox + _mp_arg(3), y = oy + _mp_arg(4), z = oz + _mp_arg(5);
         if (interpolation==0) { // Nearest neighbor interpolation
           if (boundary_conditions==2)
-            cimg_forC(img,c)
+            cimg_for_inC(img,0,cmax,c)
               *(ptrd++) = (double)img.atXYZ(cimg::mod((int)x,img.width()),
                                             cimg::mod((int)y,img.height()),
                                             cimg::mod((int)z,img.depth()),
                                             c);
           else if (boundary_conditions==1)
-            cimg_forC(img,c)
+            cimg_for_inC(img,0,cmax,c)
               *(ptrd++) = (double)img.atXYZ((int)x,(int)y,(int)z,c);
           else
-            cimg_forC(img,c)
+            cimg_for_inC(img,0,cmax,c)
               *(ptrd++) = (double)img.atXYZ((int)x,(int)y,(int)z,c,(T)0);
         } else { // Linear interpolation
           if (boundary_conditions==2)
-            cimg_forC(img,c)
+            cimg_for_inC(img,0,cmax,c)
               *(ptrd++) = (double)img.linear_atXYZ(cimg::mod((float)x,(float)img.width()),
                                                    cimg::mod((float)y,(float)img.height()),
                                                    cimg::mod((float)z,(float)img.depth()),c);
           else if (boundary_conditions==1)
-            cimg_forC(img,c)
+            cimg_for_inC(img,0,cmax,c)
               *(ptrd++) = (double)img.linear_atXYZ((float)x,(float)y,(float)z,c);
           else
-            cimg_forC(img,c)
+            cimg_for_inC(img,0,cmax,c)
               *(ptrd++) = (double)img.linear_atXYZ((float)x,(float)y,(float)z,c,(T)0);
         }
         return cimg::type<double>::nan();
@@ -21904,33 +21908,35 @@ namespace cimg_library_suffixed {
         double *ptrd = &_mp_arg(1) + 1;
         const unsigned int
           interpolation = (unsigned int)_mp_arg(5),
-          boundary_conditions = (unsigned int)_mp_arg(6);
+          boundary_conditions = (unsigned int)_mp_arg(6),
+          vsiz = (unsigned int)_mp_arg(7);
         const CImg<T> &img = mp.imgin;
+        const unsigned int cmax = cimg::min(vsiz,img?img._spectrum:vsiz) - 1;
         const double x = _mp_arg(2), y = _mp_arg(3), z = _mp_arg(4);
         if (interpolation==0) { // Nearest neighbor interpolation
           if (boundary_conditions==2)
-            cimg_forC(img,c)
+            cimg_for_inC(img,0,cmax,c)
               *(ptrd++) = (double)img.atXYZ(cimg::mod((int)x,img.width()),
                                             cimg::mod((int)y,img.height()),
                                             cimg::mod((int)z,img.depth()),
                                             c);
           else if (boundary_conditions==1)
-            cimg_forC(img,c)
+            cimg_for_inC(img,0,cmax,c)
               *(ptrd++) = (double)img.atXYZ((int)x,(int)y,(int)z,c);
           else
-            cimg_forC(img,c)
+            cimg_for_inC(img,0,cmax,c)
               *(ptrd++) = (double)img.atXYZ((int)x,(int)y,(int)z,c,(T)0);
         } else { // Linear interpolation
           if (boundary_conditions==2)
-            cimg_forC(img,c)
+            cimg_for_inC(img,0,cmax,c)
               *(ptrd++) = (double)img.linear_atXYZ(cimg::mod((float)x,(float)img.width()),
                                                    cimg::mod((float)y,(float)img.height()),
                                                    cimg::mod((float)z,(float)img.depth()),c);
           else if (boundary_conditions==1)
-            cimg_forC(img,c)
+            cimg_for_inC(img,0,cmax,c)
               *(ptrd++) = (double)img.linear_atXYZ((float)x,(float)y,(float)z,c);
           else
-            cimg_forC(img,c)
+            cimg_for_inC(img,0,cmax,c)
               *(ptrd++) = (double)img.linear_atXYZ((float)x,(float)y,(float)z,c,(T)0);
         }
         return cimg::type<double>::nan();
@@ -21978,35 +21984,37 @@ namespace cimg_library_suffixed {
         double *ptrd = &_mp_arg(1) + 1;
         const unsigned int
           interpolation = (unsigned int)_mp_arg(5),
-          boundary_conditions = (unsigned int)_mp_arg(6);
+          boundary_conditions = (unsigned int)_mp_arg(6),
+          vsiz = (unsigned int)_mp_arg(7);
         const CImg<T> &img = mp.imgin;
+        const unsigned int cmax = cimg::min(vsiz,img?img._spectrum:vsiz) - 1;
         const double
           ox = mp.mem[_cimg_mp_slot_x], oy = mp.mem[_cimg_mp_slot_y], oz = mp.mem[_cimg_mp_slot_z],
           x = ox + _mp_arg(2), y = oy + _mp_arg(3), z = oz + _mp_arg(4);
         if (interpolation==0) { // Nearest neighbor interpolation
           if (boundary_conditions==2)
-            cimg_forC(img,c)
+            cimg_for_inC(img,0,cmax,c)
               *(ptrd++) = (double)img.atXYZ(cimg::mod((int)x,img.width()),
                                             cimg::mod((int)y,img.height()),
                                             cimg::mod((int)z,img.depth()),
                                             c);
           else if (boundary_conditions==1)
-            cimg_forC(img,c)
+            cimg_for_inC(img,0,cmax,c)
               *(ptrd++) = (double)img.atXYZ((int)x,(int)y,(int)z,c);
           else
-            cimg_forC(img,c)
+            cimg_for_inC(img,0,cmax,c)
               *(ptrd++) = (double)img.atXYZ((int)x,(int)y,(int)z,c,(T)0);
         } else { // Linear interpolation
           if (boundary_conditions==2)
-            cimg_forC(img,c)
+            cimg_for_inC(img,0,cmax,c)
               *(ptrd++) = (double)img.linear_atXYZ(cimg::mod((float)x,(float)img.width()),
                                                    cimg::mod((float)y,(float)img.height()),
                                                    cimg::mod((float)z,(float)img.depth()),c);
           else if (boundary_conditions==1)
-            cimg_forC(img,c)
+            cimg_for_inC(img,0,cmax,c)
               *(ptrd++) = (double)img.linear_atXYZ((float)x,(float)y,(float)z,c);
           else
-            cimg_forC(img,c)
+            cimg_for_inC(img,0,cmax,c)
               *(ptrd++) = (double)img.linear_atXYZ((float)x,(float)y,(float)z,c,(T)0);
         }
         return cimg::type<double>::nan();

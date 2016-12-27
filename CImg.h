@@ -19975,7 +19975,7 @@ namespace cimg_library_suffixed {
         if (mp.is_fill && img._data==mp.imgout._data) {
           cimg::mutex(6,0);
           throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: Function 'resize()': "
-                                      "Resizing current image (%u,%u,%u,%u) to new dimensions (%u,%u,%u,%u) is not allowed.",
+                                      "Resizing current image (%u,%u,%u,%u) to new dimensions (%u,%u,%u,%u) is forbidden.",
                                       img.pixel_type(),img._width,img._height,img._depth,img._spectrum,w,h,d,s);
         }
         const unsigned int

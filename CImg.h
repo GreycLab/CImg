@@ -15042,7 +15042,7 @@ namespace cimg_library_suffixed {
                                         arg2,p1,arg1).move_to(code);
                   else
                     CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Joff_v:mp_list_set_Ioff_v),
-                                        arg2,p1,arg1).move_to(code);
+                                        arg2,p1,arg1,_cimg_mp_vector_size(arg2)).move_to(code);
                 } else {
                   if (!imgout) _cimg_mp_return(arg2);
                   if (*ss>='i')
@@ -15053,7 +15053,7 @@ namespace cimg_library_suffixed {
                                         arg2,arg1).move_to(code);
                   else
                     CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Joff_v:mp_set_Ioff_v),
-                                        arg2,arg1).move_to(code);
+                                        arg2,arg1,_cimg_mp_vector_size(arg2)).move_to(code);
                 }
                 _cimg_mp_return(arg2);
               }
@@ -15477,6 +15477,7 @@ namespace cimg_library_suffixed {
                 _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
                 is_parallelizable = false;
                 p1 = ref[1]; // Index
+                p2 = _cimg_mp_vector_size(arg2);
                 is_relative = (bool)ref[2];
                 arg3 = ref[3]; // Offset
                 if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
@@ -15487,7 +15488,7 @@ namespace cimg_library_suffixed {
                                         arg2,p1,arg3).move_to(code);
                   else
                     CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Joff_v:mp_list_set_Ioff_v),
-                                        arg2,p1,arg3).move_to(code);
+                                        arg2,p1,arg3,p2).move_to(code);
                 } else {
                   if (!imgout) _cimg_mp_return(arg2);
                   if (_cimg_mp_is_scalar(arg2))
@@ -15495,7 +15496,7 @@ namespace cimg_library_suffixed {
                                         arg2,arg3).move_to(code);
                   else
                     CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Joff_v:mp_set_Ioff_v),
-                                        arg2,arg3).move_to(code);
+                                        arg2,arg3,p2).move_to(code);
                 }
                 _cimg_mp_return(arg2);
               }
@@ -15612,17 +15613,18 @@ namespace cimg_library_suffixed {
             if (*ref==4) { // Image value (vector): I/J[_#ind,off] **= value
               is_parallelizable = false;
               p1 = ref[1]; // Index
+              p2 = _cimg_mp_vector_size(arg1);
               is_relative = (bool)ref[2];
               arg3 = ref[3]; // Offset
               if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
               if (p1!=~0U) {
                 if (!listout) _cimg_mp_return(arg1);
                 CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Joff_v:mp_list_set_Ioff_v),
-                                    arg1,p1,arg3).move_to(code);
+                                    arg1,p1,arg3,p2).move_to(code);
               } else {
                 if (!imgout) _cimg_mp_return(arg1);
                 CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Joff_v:mp_set_Ioff_v),
-                                    arg1,arg3).move_to(code);
+                                    arg1,arg3,p2).move_to(code);
               }
 
             } else if (*ref==5) { // Image value (vector): I/J(_#ind,_x,_y,_z,_c) **= value
@@ -15735,6 +15737,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_type(arg2,2,3,_cimg_mp_vector_size(arg1));
               is_parallelizable = false;
               p1 = ref[1]; // Index
+              p2 = _cimg_mp_vector_size(arg1);
               is_relative = (bool)ref[2];
               arg3 = ref[3]; // Offset
               if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
@@ -15742,11 +15745,11 @@ namespace cimg_library_suffixed {
               if (p1!=~0U) {
                 if (!listout) _cimg_mp_return(arg1);
                 CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Joff_v:mp_list_set_Ioff_v),
-                                    arg1,p1,arg3).move_to(code);
+                                    arg1,p1,arg3,p2).move_to(code);
               } else {
                 if (!imgout) _cimg_mp_return(arg1);
                 CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Joff_v:mp_set_Ioff_v),
-                                    arg1,arg3).move_to(code);
+                                    arg1,arg3,p2).move_to(code);
               }
               _cimg_mp_return(arg1);
             }
@@ -16385,6 +16388,7 @@ namespace cimg_library_suffixed {
           if (*ref==4) { // Image value (vector): I/J[_#ind,off]++
             is_parallelizable = false;
             p1 = ref[1]; // Index
+            p2 = _cimg_mp_vector_size(arg1);
             is_relative = (bool)ref[2];
             arg3 = ref[3]; // Offset
             if (is_sth && p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
@@ -16392,11 +16396,11 @@ namespace cimg_library_suffixed {
             if (p1!=~0U) {
               if (!listout) _cimg_mp_return(pos);
               CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Joff_v:mp_list_set_Ioff_v),
-                                  arg1,p1,arg3).move_to(code);
+                                  arg1,p1,arg3,p2).move_to(code);
             } else {
               if (!imgout) _cimg_mp_return(pos);
               CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Joff_v:mp_set_Ioff_v),
-                                  arg1,arg3).move_to(code);
+                                  arg1,arg3,p2).move_to(code);
             }
             _cimg_mp_return(pos);
           }

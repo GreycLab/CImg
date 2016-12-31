@@ -43336,219 +43336,129 @@ namespace cimg_library_suffixed {
 
     //! Draw filled 3d region with the flood fill algorithm.
     /**
-       \param x X-coordinate of the starting point of the region to fill.
-       \param y Y-coordinate of the starting point of the region to fill.
-       \param z Z-coordinate of the starting point of the region to fill.
+       \param x0 X-coordinate of the starting point of the region to fill.
+       \param y0 Y-coordinate of the starting point of the region to fill.
+       \param z0 Z-coordinate of the starting point of the region to fill.
        \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
        \param[out] region Image that will contain the mask of the filled region mask, as an output.
-       \param sigma Tolerance concerning neighborhood values.
+       \param tolerance Tolerance concerning neighborhood values.
        \param opacity Opacity of the drawing.
-       \param is_high_connexity Tells if 8-connexity must be used (only for 2d images).
+       \param is_high_connexity Tells if 8-connexity must be used.
        \return \c region is initialized with the binary mask of the filled region.
     **/
+    bool _draw_fill(const int x, const int y, const int z,
+                    const CImg<T>& ref, const float tolerance2) const {
+      const T *ptr1 = data(x,y,z), *ptr2 = ref._data;
+      const unsigned long off = _width*_height*_depth;
+      float diff = 0;
+      cimg_forC(*this,c) { diff += cimg::sqr(*ptr1 - *(ptr2++)); ptr1+=off; }
+      return diff<=tolerance2;
+    }
+
     template<typename tc, typename t>
-    CImg<T>& draw_fill(const int x, const int y, const int z,
+    CImg<T>& draw_fill(const int x0, const int y0, const int z0,
                        const tc *const color, const float opacity,
-                       CImg<t>& region, const float sigma=0,
-                       const bool is_high_connexity=false) {
+                       CImg<t> &region,
+                       const float tolerance = 0,
+                       const bool is_high_connectivity = false) {
+#define _draw_fill_push(x,y,z) if (N>=stack._width) stack.resize(2*N + 1,1,1,3,0); \
+                               stack[N] = x; stack(N,1) = y; stack(N++,2) = z
+#define _draw_fill_pop(x,y,z) x = stack[--N]; y = stack(N,1); z = stack(N,2)
+#define _draw_fill_is_inside(x,y,z) !region(x,y,z) && _draw_fill(x,y,z,ref,tolerance2)
 
-#define _cimg_draw_fill_test(x,y,z,res) if (region(x,y,z)) res = false; else { \
-  res = true; \
-  const T *reference_col = reference_color._data + _spectrum, *ptrs = data(x,y,z) + siz; \
-  for (unsigned int i = _spectrum; res && i; --i) { ptrs-=whd; res = (cimg::abs(*ptrs - *(--reference_col))<=sigma); } \
-  region(x,y,z) = (t)(res?1:noregion); \
-}
-
-#define _cimg_draw_fill_set(x,y,z) { \
-  const tc *col = color; \
-  T *ptrd = data(x,y,z); \
-  if (opacity>=1) cimg_forC(*this,c) { *ptrd = (T)*(col++); ptrd+=whd; } \
-  else cimg_forC(*this,c) { *ptrd = (T)(*(col++)*nopacity + *ptrd*copacity); ptrd+=whd; } \
-}
-
-#define _cimg_draw_fill_insert(x,y,z) { \
-  if (posr1>=remaining._height) remaining.resize(3,remaining._height<<1,1,1,0); \
-  unsigned int *ptrr = remaining.data(0,posr1); \
-  *(ptrr++) = x; *(ptrr++) = y; *(ptrr++) = z; ++posr1; \
-}
-
-#define _cimg_draw_fill_test_neighbor(x,y,z,cond) if (cond) { \
-  const unsigned int tx = x, ty = y, tz = z; \
-  _cimg_draw_fill_test(tx,ty,tz,res); if (res) _cimg_draw_fill_insert(tx,ty,tz); \
-}
-
-      if (!color)
-        throw CImgArgumentException(_cimg_instance
-                                    "draw_fill(): Specified color is (null).",
-                                    cimg_instance);
+      if (!containsXYZC(x0,y0,z0,0)) return *this;
+      const float nopacity = cimg::abs((float)opacity), copacity = 1 - std::max((float)opacity,0.0f);
+      const float tolerance2 = cimg::sqr(tolerance);
+      const CImg<T> ref = get_vector_at(x0,y0,z0);
+      CImg<uintT> stack(16,1,1,3);
+      unsigned int N = 0;
+      int x, y, z;
 
       region.assign(_width,_height,_depth,1,(t)0);
-      if (x>=0 && x<width() && y>=0 && y<height() && z>=0 && z<depth()) {
-        const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.0f);
-        const ulongT whd = (ulongT)_width*_height*_depth, siz = (ulongT)_spectrum*whd;
-        const unsigned int W1 = _width - 1, H1 = _height - 1, D1 = _depth - 1;
-        const bool is_3d = (_depth>1);
-        const CImg<T> reference_color = get_vector_at(x,y,z);
-        CImg<uintT> remaining(3,512,1,1,0);
-        remaining(0,0) = (unsigned int)x;
-        remaining(1,0) = (unsigned int)y;
-        remaining(2,0) = (unsigned int)z;
-        unsigned int posr0 = 0, posr1 = 1;
-        region(x,y,z) = (t)1;
-        const t noregion = ((t)1==(t)2)?(t)0:(t)-1;
-        if (is_3d) do { // 3d version of the filling algorithm
-          const unsigned int *pcurr = remaining.data(0,posr0++), xc = *(pcurr++), yc = *(pcurr++), zc = *(pcurr++);
-          if (posr0>=512) { remaining.shift(0,-(int)posr0); posr1-=posr0; posr0 = 0; }
-          bool cont, res;
-          unsigned int nxc = xc;
-          do { // X-backward
-            _cimg_draw_fill_set(nxc,yc,zc);
-            _cimg_draw_fill_test_neighbor(nxc,yc - 1,zc,yc!=0);
-            _cimg_draw_fill_test_neighbor(nxc,yc + 1,zc,yc<H1);
-            _cimg_draw_fill_test_neighbor(nxc,yc,zc - 1,zc!=0);
-            _cimg_draw_fill_test_neighbor(nxc,yc,zc + 1,zc<D1);
-            if (nxc) { --nxc; _cimg_draw_fill_test(nxc,yc,zc,cont); } else cont = false;
-          } while (cont);
-          nxc = xc;
-          do { // X-forward
-            if ((++nxc)<=W1) { _cimg_draw_fill_test(nxc,yc,zc,cont); } else cont = false;
-            if (cont) {
-              _cimg_draw_fill_set(nxc,yc,zc);
-              _cimg_draw_fill_test_neighbor(nxc,yc - 1,zc,yc!=0);
-              _cimg_draw_fill_test_neighbor(nxc,yc + 1,zc,yc<H1);
-              _cimg_draw_fill_test_neighbor(nxc,yc,zc - 1,zc!=0);
-              _cimg_draw_fill_test_neighbor(nxc,yc,zc + 1,zc<D1);
+      _draw_fill_push(x0,y0,z0);
+      while (N>0) {
+        _draw_fill_pop(x,y,z);
+        if (!region(x,y,z)) {
+          int xl = x - 1; while (xl>=0 && _draw_fill_is_inside(xl,y,z)) { _draw_fill_push(xl,y,z); --xl; }
+          int xr = x + 1; while (xr<width() && _draw_fill_is_inside(xr,y,z)) { _draw_fill_push(xr,y,z); ++xr; }
+          ++xl; --xr;
+          t *ptrr = region.data(xl,y,z); for (int k = xl; k<=xr; ++k) *(ptrr++) = (t)1;
+          if (opacity==1) cimg_forC(*this,c) {
+              const T val = (T)color[c];
+              T *ptri = data(xl,y,z,c); for (int k = xl; k<=xr; ++k) *(ptri++) = val;
+            } else cimg_forC(*this,c) {
+              const T val = (T)(color[c]*nopacity);
+              T *ptri = data(xl,y,z,c); for (int k = xl; k<=xr; ++k) { *ptri = (T)(val + *ptri*copacity); ++ptri; }
             }
-          } while (cont);
-          unsigned int nyc = yc;
-          do { // Y-backward
-            if (nyc) { --nyc; _cimg_draw_fill_test(xc,nyc,zc,cont); } else cont = false;
-            if (cont) {
-              _cimg_draw_fill_set(xc,nyc,zc);
-              _cimg_draw_fill_test_neighbor(xc - 1,nyc,zc,xc!=0);
-              _cimg_draw_fill_test_neighbor(xc + 1,nyc,zc,xc<W1);
-              _cimg_draw_fill_test_neighbor(xc,nyc,zc - 1,zc!=0);
-              _cimg_draw_fill_test_neighbor(xc,nyc,zc + 1,zc<D1);
-            }
-          } while (cont);
-          nyc = yc;
-          do { // Y-forward
-            if ((++nyc)<=H1) { _cimg_draw_fill_test(xc,nyc,zc,cont); } else cont = false;
-            if (cont) {
-              _cimg_draw_fill_set(xc,nyc,zc);
-              _cimg_draw_fill_test_neighbor(xc - 1,nyc,zc,xc!=0);
-              _cimg_draw_fill_test_neighbor(xc + 1,nyc,zc,xc<W1);
-              _cimg_draw_fill_test_neighbor(xc,nyc,zc - 1,zc!=0);
-              _cimg_draw_fill_test_neighbor(xc,nyc,zc + 1,zc<D1);
-            }
-          } while (cont);
-          unsigned int nzc = zc;
-          do { // Z-backward
-            if (nzc) { --nzc; _cimg_draw_fill_test(xc,yc,nzc,cont); } else cont = false;
-            if (cont) {
-              _cimg_draw_fill_set(xc,yc,nzc);
-              _cimg_draw_fill_test_neighbor(xc - 1,yc,nzc,xc!=0);
-              _cimg_draw_fill_test_neighbor(xc + 1,yc,nzc,xc<W1);
-              _cimg_draw_fill_test_neighbor(xc,yc - 1,nzc,yc!=0);
-              _cimg_draw_fill_test_neighbor(xc,yc + 1,nzc,yc<H1);
-            }
-          } while (cont);
-          nzc = zc;
-          do { // Z-forward
-            if ((++nzc)<=D1) { _cimg_draw_fill_test(xc,yc,nzc,cont); } else cont = false;
-            if (cont) {
-              _cimg_draw_fill_set(xc,nyc,zc);
-              _cimg_draw_fill_test_neighbor(xc - 1,yc,nzc,xc!=0);
-              _cimg_draw_fill_test_neighbor(xc + 1,yc,nzc,xc<W1);
-              _cimg_draw_fill_test_neighbor(xc,yc - 1,nzc,yc!=0);
-              _cimg_draw_fill_test_neighbor(xc,yc + 1,nzc,yc<H1);
-            }
-          } while (cont);
-        } while (posr1>posr0);
-        else do { // 2d version of the filling algorithm
-          const unsigned int *pcurr = remaining.data(0,posr0++), xc = *(pcurr++), yc = *(pcurr++);
-          if (posr0>=512) { remaining.shift(0,-(int)posr0); posr1-=posr0; posr0 = 0; }
-          bool cont, res;
-          unsigned int nxc = xc;
-          do { // X-backward
-            _cimg_draw_fill_set(nxc,yc,0);
-            _cimg_draw_fill_test_neighbor(nxc,yc - 1,0,yc!=0);
-            _cimg_draw_fill_test_neighbor(nxc,yc + 1,0,yc<H1);
-            if (is_high_connexity) {
-              _cimg_draw_fill_test_neighbor(nxc - 1,yc - 1,0,(nxc!=0 && yc!=0));
-              _cimg_draw_fill_test_neighbor(nxc + 1,yc - 1,0,(nxc<W1 && yc!=0));
-              _cimg_draw_fill_test_neighbor(nxc - 1,yc + 1,0,(nxc!=0 && yc<H1));
-              _cimg_draw_fill_test_neighbor(nxc + 1,yc + 1,0,(nxc<W1 && yc<H1));
-            }
-            if (nxc) { --nxc; _cimg_draw_fill_test(nxc,yc,0,cont); } else cont = false;
-          } while (cont);
-          nxc = xc;
-          do { // X-forward
-            if ((++nxc)<=W1) { _cimg_draw_fill_test(nxc,yc,0,cont); } else cont = false;
-            if (cont) {
-              _cimg_draw_fill_set(nxc,yc,0);
-              _cimg_draw_fill_test_neighbor(nxc,yc - 1,0,yc!=0);
-              _cimg_draw_fill_test_neighbor(nxc,yc + 1,0,yc<H1);
-              if (is_high_connexity) {
-                _cimg_draw_fill_test_neighbor(nxc - 1,yc - 1,0,(nxc!=0 && yc!=0));
-                _cimg_draw_fill_test_neighbor(nxc + 1,yc - 1,0,(nxc<W1 && yc!=0));
-                _cimg_draw_fill_test_neighbor(nxc - 1,yc + 1,0,(nxc!=0 && yc<H1));
-                _cimg_draw_fill_test_neighbor(nxc + 1,yc + 1,0,(nxc<W1 && yc<H1));
+        }
+        const int yp = y - 1, yn = y + 1, zp = z - 1, zn = z + 1;
+        if (yp>=0 && _draw_fill_is_inside(x,yp,z)) { _draw_fill_push(x,yp,z); }
+        if (yn<height() && _draw_fill_is_inside(x,yn,z)) { _draw_fill_push(x,yn,z); }
+        if (depth()>1) {
+          if (zp>=0 && _draw_fill_is_inside(x,y,zp)) { _draw_fill_push(x,y,zp); }
+          if (zn<depth() && _draw_fill_is_inside(x,y,zn)) { _draw_fill_push(x,y,zn); }
+        }
+        if (is_high_connectivity) {
+          const int xp = x - 1, xn = x + 1;
+          if (yp>=0) {
+            if (xp>=0 && _draw_fill_is_inside(xp,yp,z)) { _draw_fill_push(xp,yp,z); }
+            if (xn<width() && _draw_fill_is_inside(xn,yp,z)) { _draw_fill_push(xn,yp,z); }
+          }
+          if (yn<height()) {
+            if (xp>=0 && _draw_fill_is_inside(xp,yn,z)) { _draw_fill_push(xp,yn,z); }
+            if (xn<width() && _draw_fill_is_inside(xn,yn,z)) { _draw_fill_push(xn,yn,z); }
+          }
+          if (depth()>1) {
+            if (zp>=0) {
+              if (yp>=0) {
+                if (xp>=0 && _draw_fill_is_inside(xp,yp,zp)) { _draw_fill_push(xp,yp,zp); }
+                if (_draw_fill_is_inside(x,yp,zp)) { _draw_fill_push(x,yp,zp); }
+                if (xn<width() && _draw_fill_is_inside(xn,yp,zp)) { _draw_fill_push(xn,yp,zp); }
+              }
+              if (xp>=0 && _draw_fill_is_inside(xp,y,zp)) { _draw_fill_push(xp,y,zp); }
+              if (xn<width() && _draw_fill_is_inside(xn,y,zp)) { _draw_fill_push(xn,y,zp); }
+              if (yn<height()) {
+                if (xp>=0 && _draw_fill_is_inside(xp,yn,zp)) { _draw_fill_push(xp,yn,zp); }
+                if (_draw_fill_is_inside(x,yn,zp)) { _draw_fill_push(x,yn,zp); }
+                if (xn<width() && _draw_fill_is_inside(xn,yn,zp)) { _draw_fill_push(xn,yn,zp); }
               }
             }
-          } while (cont);
-          unsigned int nyc = yc;
-          do { // Y-backward
-            if (nyc) { --nyc; _cimg_draw_fill_test(xc,nyc,0,cont); } else cont = false;
-            if (cont) {
-              _cimg_draw_fill_set(xc,nyc,0);
-              _cimg_draw_fill_test_neighbor(xc - 1,nyc,0,xc!=0);
-              _cimg_draw_fill_test_neighbor(xc + 1,nyc,0,xc<W1);
-              if (is_high_connexity) {
-                _cimg_draw_fill_test_neighbor(xc - 1,nyc - 1,0,(xc!=0 && nyc!=0));
-                _cimg_draw_fill_test_neighbor(xc + 1,nyc - 1,0,(xc<W1 && nyc!=0));
-                _cimg_draw_fill_test_neighbor(xc - 1,nyc + 1,0,(xc!=0 && nyc<H1));
-                _cimg_draw_fill_test_neighbor(xc + 1,nyc + 1,0,(xc<W1 && nyc<H1));
+            if (zn<depth()) {
+              if (yp>=0) {
+                if (xp>=0 && _draw_fill_is_inside(xp,yp,zn)) { _draw_fill_push(xp,yp,zn); }
+                if (_draw_fill_is_inside(x,yp,zn)) { _draw_fill_push(x,yp,zn); }
+                if (xn<width() && _draw_fill_is_inside(xn,yp,zn)) { _draw_fill_push(xn,yp,zn); }
+              }
+              if (xp>=0 && _draw_fill_is_inside(xp,y,zn)) { _draw_fill_push(xp,y,zn); }
+              if (xn<width() && _draw_fill_is_inside(xn,y,zn)) { _draw_fill_push(xn,y,zn); }
+              if (yn<height()) {
+                if (xp>=0 && _draw_fill_is_inside(xp,yn,zn)) { _draw_fill_push(xp,yn,zn); }
+                if (_draw_fill_is_inside(x,yn,zn)) { _draw_fill_push(x,yn,zn); }
+                if (xn<width() && _draw_fill_is_inside(xn,yn,zn)) { _draw_fill_push(xn,yn,zn); }
               }
             }
-          } while (cont);
-          nyc = yc;
-          do { // Y-forward
-            if ((++nyc)<=H1) { _cimg_draw_fill_test(xc,nyc,0,cont); } else cont = false;
-            if (cont) {
-              _cimg_draw_fill_set(xc,nyc,0);
-              _cimg_draw_fill_test_neighbor(xc - 1,nyc,0,xc!=0);
-              _cimg_draw_fill_test_neighbor(xc + 1,nyc,0,xc<W1);
-              if (is_high_connexity) {
-                _cimg_draw_fill_test_neighbor(xc - 1,nyc - 1,0,(xc!=0 && nyc!=0));
-                _cimg_draw_fill_test_neighbor(xc + 1,nyc - 1,0,(xc<W1 && nyc!=0));
-                _cimg_draw_fill_test_neighbor(xc - 1,nyc + 1,0,(xc!=0 && nyc<H1));
-                _cimg_draw_fill_test_neighbor(xc + 1,nyc + 1,0,(xc<W1 && nyc<H1));
-              }
-            }
-          } while (cont);
-        } while (posr1>posr0);
-        if (noregion) cimg_for(region,ptrd,t) if (*ptrd==noregion) *ptrd = (t)0;
+          }
+        }
       }
       return *this;
     }
 
     //! Draw filled 3d region with the flood fill algorithm \simplification.
     template<typename tc>
-    CImg<T>& draw_fill(const int x, const int y, const int z,
+    CImg<T>& draw_fill(const int x0, const int y0, const int z0,
                        const tc *const color, const float opacity=1,
-                       const float sigma=0, const bool is_high_connexity=false) {
+                       const float tolerance=0, const bool is_high_connexity=false) {
       CImg<boolT> tmp;
-      return draw_fill(x,y,z,color,opacity,tmp,sigma,is_high_connexity);
+      return draw_fill(x0,y0,z0,color,opacity,tmp,tolerance,is_high_connexity);
     }
 
     //! Draw filled 2d region with the flood fill algorithm \simplification.
     template<typename tc>
-    CImg<T>& draw_fill(const int x, const int y,
+    CImg<T>& draw_fill(const int x0, const int y0,
                        const tc *const color, const float opacity=1,
-                       const float sigma=0, const bool is_high_connexity=false) {
+                       const float tolerance=0, const bool is_high_connexity=false) {
       CImg<boolT> tmp;
-      return draw_fill(x,y,0,color,opacity,tmp,sigma,is_high_connexity);
+      return draw_fill(x0,y0,0,color,opacity,tmp,tolerance,is_high_connexity);
     }
 
     //! Draw a random plasma texture.

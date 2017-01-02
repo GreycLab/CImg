@@ -43378,29 +43378,34 @@ namespace cimg_library_suffixed {
 #define _draw_fill_push(x,y,z) if (N>=stack._width) stack.resize(2*N + 1,1,1,3,0); \
                                stack[N] = x; stack(N,1) = y; stack(N++,2) = z
 #define _draw_fill_pop(x,y,z) x = stack[--N]; y = stack(N,1); z = stack(N,2)
-#define _draw_fill_is_inside(x,y,z) !region(x,y,z) && _draw_fill(x,y,z,ref,tolerance2)
+#define _draw_fill_is_inside(x,y,z) !_region(x,y,z) && _draw_fill(x,y,z,ref,tolerance2)
 
       if (!containsXYZC(x0,y0,z0,0)) return *this;
       const float nopacity = cimg::abs((float)opacity), copacity = 1 - std::max((float)opacity,0.0f);
       const float tolerance2 = cimg::sqr(tolerance);
       const CImg<T> ref = get_vector_at(x0,y0,z0);
       CImg<uintT> stack(16,1,1,3);
+      CImg<ucharT> _region(_width,_height,_depth,1,0);
       unsigned int N = 0;
       int x, y, z;
 
-      region.assign(_width,_height,_depth,1,(t)0);
       _draw_fill_push(x0,y0,z0);
       while (N>0) {
         _draw_fill_pop(x,y,z);
-        if (!region(x,y,z)) {
+        if (!_region(x,y,z)) {
           int xl = x - 1; while (xl>=0 && _draw_fill_is_inside(xl,y,z)) { _draw_fill_push(xl,y,z); --xl; }
           int xr = x + 1; while (xr<width() && _draw_fill_is_inside(xr,y,z)) { _draw_fill_push(xr,y,z); ++xr; }
           ++xl; --xr;
-          t *ptrr = region.data(xl,y,z); for (int k = xl; k<=xr; ++k) *(ptrr++) = (t)1;
-          if (opacity==1) cimg_forC(*this,c) {
-              const T val = (T)color[c];
-              T *ptri = data(xl,y,z,c); for (int k = xl; k<=xr; ++k) *(ptri++) = val;
+          std::memset(_region.data(xl,y,z),1,xr - xl + 1);
+          if (opacity==1) {
+            if (sizeof(T)==1) {
+              const int dx = xr - xl + 1;
+              cimg_forC(*this,c) std::memset(data(xl,y,z,c),(int)color[c],dx);
             } else cimg_forC(*this,c) {
+                const T val = (T)color[c];
+                T *ptri = data(xl,y,z,c); for (int k = xl; k<=xr; ++k) *(ptri++) = val;
+              }
+          } else cimg_forC(*this,c) {
               const T val = (T)(color[c]*nopacity);
               T *ptri = data(xl,y,z,c); for (int k = xl; k<=xr; ++k) { *ptri = (T)(val + *ptri*copacity); ++ptri; }
             }
@@ -43454,6 +43459,7 @@ namespace cimg_library_suffixed {
           }
         }
       }
+      _region.move_to(region);
       return *this;
     }
 
@@ -43462,7 +43468,7 @@ namespace cimg_library_suffixed {
     CImg<T>& draw_fill(const int x0, const int y0, const int z0,
                        const tc *const color, const float opacity=1,
                        const float tolerance=0, const bool is_high_connexity=false) {
-      CImg<boolT> tmp;
+      CImg<ucharT> tmp;
       return draw_fill(x0,y0,z0,color,opacity,tmp,tolerance,is_high_connexity);
     }
 
@@ -43471,7 +43477,7 @@ namespace cimg_library_suffixed {
     CImg<T>& draw_fill(const int x0, const int y0,
                        const tc *const color, const float opacity=1,
                        const float tolerance=0, const bool is_high_connexity=false) {
-      CImg<boolT> tmp;
+      CImg<ucharT> tmp;
       return draw_fill(x0,y0,0,color,opacity,tmp,tolerance,is_high_connexity);
     }
 

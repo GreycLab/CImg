@@ -305,7 +305,8 @@
 #endif
 #ifndef cimg_abort_catch_fill
 #define cimg_abort_catch_fill() \
-  catch (CImgException& e) { cimg_pragma(omp critical) CImg<charT>::string(e._message).move_to(is_error); }
+  catch (CImgException& e) { cimg_pragma(omp critical) CImg<charT>::string(e._message).move_to(is_error); \
+                             cimg_pragma(omp atomic) cimg_abort_go&=false; }
 #endif
 #endif
 

@@ -18821,6 +18821,7 @@ namespace cimg_library_suffixed {
 
       // Evaluation procedure for the end() blocks.
       void end() {
+        if (code_end.is_empty()) return;
         if (imgin) {
           mem[_cimg_mp_slot_x] = imgin._width - 1.0;
           mem[_cimg_mp_slot_y] = imgin._height - 1.0f;
@@ -31100,7 +31101,7 @@ namespace cimg_library_suffixed {
 
     struct _functor4d_streamline_expr {
       _cimg_math_parser *mp;
-      ~_functor4d_streamline_expr() { delete mp; }
+      ~_functor4d_streamline_expr() { mp->end(); delete mp; }
       _functor4d_streamline_expr(const char *const expr):mp(0) {
         mp = new _cimg_math_parser(expr,"streamline",CImg<T>::const_empty(),0);
       }
@@ -37982,10 +37983,10 @@ namespace cimg_library_suffixed {
 
     struct _functor2d_expr {
       _cimg_math_parser *mp;
+      ~_functor2d_expr() { mp->end(); delete mp; }
       _functor2d_expr(const char *const expr):mp(0) {
         mp = new _cimg_math_parser(expr,0,CImg<T>::const_empty(),0);
       }
-      ~_functor2d_expr() { delete mp; }
       float operator()(const float x, const float y) const {
         return (float)(*mp)(x,y,0,0);
       }
@@ -38009,7 +38010,7 @@ namespace cimg_library_suffixed {
 
     struct _functor3d_expr {
       _cimg_math_parser *mp;
-      ~_functor3d_expr() { delete mp; }
+      ~_functor3d_expr() { mp->end(); delete mp; }
       _functor3d_expr(const char *const expr):mp(0) {
         mp = new _cimg_math_parser(expr,0,CImg<T>::const_empty(),0);
       }

@@ -4713,13 +4713,6 @@ namespace cimg_library_suffixed {
       return x>0?(int)(1 + std::log10((double)x)):1;
     }
 
-    //! Return the minimum between two values.
-    // (kept for compatibility reasons).
-    template<typename t>
-    inline t min(const t& a, const t& b) {
-      return std::min(a,b);
-    }
-
     //! Return the minimum between three values.
     template<typename t>
     inline t min(const t& a, const t& b, const t& c) {
@@ -4730,13 +4723,6 @@ namespace cimg_library_suffixed {
     template<typename t>
     inline t min(const t& a, const t& b, const t& c, const t& d) {
       return std::min(std::min(a,b),std::min(c,d));
-    }
-
-    //! Return the maximum between two values.
-    // (kept for compatibility reasons).
-    template<typename t>
-    inline t max(const t& a, const t& b) {
-      return std::max(a,b);
     }
 
     //! Return the maximum between three values.
@@ -9088,10 +9074,10 @@ namespace cimg_library_suffixed {
 
       XImage *image = 0;
       if (_x1>=0 && _x0<width && _y1>=0 && _y0<height) {
-        _x0 = cimg::max(_x0,0);
-        _y0 = cimg::max(_y0,0);
-        _x1 = cimg::min(_x1,width - 1);
-        _y1 = cimg::min(_y1,height - 1);
+        _x0 = std::max(_x0,0);
+        _y0 = std::max(_y0,0);
+        _x1 = std::min(_x1,width - 1);
+        _y1 = std::min(_y1,height - 1);
         image = XGetImage(dpy,root,_x0,_y0,_x1 - _x0 + 1,_y1 - _y0 + 1,AllPlanes,ZPixmap);
 
         if (image) {
@@ -9786,10 +9772,10 @@ namespace cimg_library_suffixed {
         if (_x0>_x1) cimg::swap(_x0,_x1);
         if (_y0>_y1) cimg::swap(_y0,_y1);
         if (_x1>=0 && _x0<width && _y1>=0 && _y0<height) {
-          _x0 = cimg::max(_x0,0);
-          _y0 = cimg::max(_y0,0);
-          _x1 = cimg::min(_x1,width - 1);
-          _y1 = cimg::min(_y1,height - 1);
+          _x0 = std::max(_x0,0);
+          _y0 = std::max(_y0,0);
+          _x1 = std::min(_x1,width - 1);
+          _y1 = std::min(_y1,height - 1);
           const int bw = _x1 - _x0 + 1, bh = _y1 - _y0 + 1;
           HDC hdcMem = CreateCompatibleDC(hScreen);
           if (hdcMem) {
@@ -19966,16 +19952,22 @@ namespace cimg_library_suffixed {
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listout.width());
         cimg::mutex(6);
         CImg<T> &img = mp.listout[ind];
+        const double
+          _w = mp.opcode[3]==~0U?-100:_mp_arg(3),
+          _h = mp.opcode[4]==~0U?-100:_mp_arg(4),
+          _d = mp.opcode[5]==~0U?-100:_mp_arg(5),
+          _s = mp.opcode[6]==~0U?-100:_mp_arg(6);
         const int
-          w = mp.opcode[3]==~0U?-100:(int)cimg::round(_mp_arg(3)),
-          h = mp.opcode[4]==~0U?-100:(int)cimg::round(_mp_arg(4)),
-          d = mp.opcode[5]==~0U?-100:(int)cimg::round(_mp_arg(5)),
-          s = mp.opcode[6]==~0U?-100:(int)cimg::round(_mp_arg(6)),
+          w = (int)_w>=0?_w:std::max(1.0,-_w*img.width()/100),
+          h = (int)_h>=0?_h:std::max(1.0,-_h*img.height()/100),
+          d = (int)_d>=0?_d:std::max(1.0,-_d*img.depth()/100),
+          s = (int)_s>=0?_s:std::max(1.0,-_s*img.spectrum()/100),
           interp = (int)_mp_arg(7);
         if (mp.is_fill && img._data==mp.imgout._data) {
           cimg::mutex(6,0);
           throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: Function 'resize()': "
-                                      "Resizing current image (%u,%u,%u,%u) to new dimensions (%u,%u,%u,%u) is forbidden.",
+                                      "Cannot both fill and resize image (%u,%u,%u,%u) "
+                                      "to new dimensions (%u,%u,%u,%u).",
                                       img.pixel_type(),img._width,img._height,img._depth,img._spectrum,w,h,d,s);
         }
         const unsigned int
@@ -33605,7 +33597,7 @@ namespace cimg_library_suffixed {
         _sigma_y = sigma_y>=0?sigma_y:-sigma_y*_height/100,
         _sigma_z = sigma_z>=0?sigma_z:-sigma_z*_depth/100,
         __sigma_r = sigma_r>=0?sigma_r:-sigma_r*(edge_max - edge_min)/100,
-        _sigma_r = cimg::max(0.1f,__sigma_r),
+        _sigma_r = std::max(0.1f,__sigma_r),
         _sampling_x = sampling_x?sampling_x:std::max(_sigma_x,1.0f),
         _sampling_y = sampling_y?sampling_y:std::max(_sigma_y,1.0f),
         _sampling_z = sampling_z?sampling_z:std::max(_sigma_z,1.0f),

@@ -303,6 +303,10 @@
 #ifndef cimg_abort_catch2
 #define cimg_abort_catch2() cimg_abort_catch()
 #endif
+#ifndef cimg_abort_catch_fill
+#define cimg_abort_catch_fill() \
+  catch (CImgException& e) { cimg_pragma(omp critical) CImg<charT>::string(e._message).move_to(is_error); }
+#endif
 #endif
 
 #endif
@@ -327,6 +331,9 @@
 #endif
 #ifndef cimg_abort_catch2
 #define cimg_abort_catch2()
+#endif
+#ifndef cimg_abort_catch_fill
+#define cimg_abort_catch_fill()
 #endif
 #ifndef std_fopen
 #define std_fopen std::fopen
@@ -25541,11 +25548,7 @@ namespace cimg_library_suffixed {
                       const double *ptrs = res._data;
                       T *_ptrd = ptrd++; for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
                     }
-                  } cimg_abort_catch()
-                    catch (CImgException& e) {
-                      cimg_pragma(omp critical)
-                        CImg<charT>::string(e._message).move_to(is_error);
-                    }
+                  } cimg_abort_catch() cimg_abort_catch_fill()
                 }
 #endif
               }
@@ -25569,11 +25572,7 @@ namespace cimg_library_suffixed {
                     cimg_abort_test();
                     T *ptrd = data(0,y,z,c);
                     cimg_forX(*this,x) *ptrd++ = (T)lmp(x,y,z,c);
-                  } cimg_abort_catch()
-                    catch (CImgException& e) {
-                      cimg_pragma(omp critical)
-                        CImg<charT>::string(e._message).move_to(is_error);
-                    }
+                  } cimg_abort_catch() cimg_abort_catch_fill()
                 }
 #endif
               }

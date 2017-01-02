@@ -19957,11 +19957,11 @@ namespace cimg_library_suffixed {
           _h = mp.opcode[4]==~0U?-100:_mp_arg(4),
           _d = mp.opcode[5]==~0U?-100:_mp_arg(5),
           _s = mp.opcode[6]==~0U?-100:_mp_arg(6);
-        const int
-          w = (int)_w>=0?_w:std::max(1.0,-_w*img.width()/100),
-          h = (int)_h>=0?_h:std::max(1.0,-_h*img.height()/100),
-          d = (int)_d>=0?_d:std::max(1.0,-_d*img.depth()/100),
-          s = (int)_s>=0?_s:std::max(1.0,-_s*img.spectrum()/100),
+        const unsigned int
+          w = (unsigned int)(_w>=0?_w:-_w*img.width()/100),
+          h = (unsigned int)(_h>=0?_h:-_h*img.height()/100),
+          d = (unsigned int)(_d>=0?_d:-_d*img.depth()/100),
+          s = (unsigned int)(_s>=0?_s:-_s*img.spectrum()/100),
           interp = (int)_mp_arg(7);
         if (mp.is_fill && img._data==mp.imgout._data) {
           cimg::mutex(6,0);
@@ -27924,11 +27924,10 @@ namespace cimg_library_suffixed {
 
       if (!size_x || !size_y || !size_z || !size_c) return CImg<T>();
       const unsigned int
-        _sx = (unsigned int)(size_x<0?-size_x*width()/100:size_x),
-        _sy = (unsigned int)(size_y<0?-size_y*height()/100:size_y),
-        _sz = (unsigned int)(size_z<0?-size_z*depth()/100:size_z),
-        _sc = (unsigned int)(size_c<0?-size_c*spectrum()/100:size_c),
-        sx = _sx?_sx:1, sy = _sy?_sy:1, sz = _sz?_sz:1, sc = _sc?_sc:1;
+        sx = std::max(1U,(unsigned int)(size_x>=0?size_x:-size_x*width()/100)),
+        sy = std::max(1U,(unsigned int)(size_y>=0?size_y:-size_y*height()/100)),
+        sz = std::max(1U,(unsigned int)(size_z>=0?size_z:-size_z*depth()/100)),
+        sc = std::max(1U,(unsigned int)(size_c>=0?size_c:-size_c*spectrum()/100));
       if (sx==_width && sy==_height && sz==_depth && sc==_spectrum) return +*this;
       if (is_empty()) return CImg<T>(sx,sy,sz,sc,(T)0);
       CImg<T> res;

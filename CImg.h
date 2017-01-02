@@ -14526,9 +14526,9 @@ namespace cimg_library_suffixed {
     struct _cimg_math_parser {
       CImg<doubleT> mem;
       CImg<intT> memtype;
-      CImgList<ulongT> _code, &code;
+      CImgList<ulongT> _code, &code, code_init, code_end;
       CImg<ulongT> opcode;
-      const CImg<ulongT> *p_code_begin, *p_code_end, *p_code;
+      const CImg<ulongT> *p_code_end, *p_code;
       const CImg<ulongT> *const p_break;
 
       CImg<charT> expr, pexpr;
@@ -14546,7 +14546,7 @@ namespace cimg_library_suffixed {
       CImgList<boolT> macro_body_is_string;
       char *user_macro;
 
-      unsigned int mempos, mem_img_median, debug_indent, init_size, result_dim, break_type, constcache_size;
+      unsigned int mempos, mem_img_median, debug_indent, result_dim, break_type, constcache_size;
       bool is_parallelizable, is_fill, need_input_copy;
       double *result;
       const char *const calling_function, *s_op, *ss_op;
@@ -14591,7 +14591,7 @@ namespace cimg_library_suffixed {
         imgin(img_input),listin(list_input?*list_input:CImgList<T>::const_empty()),
         imgout(img_output?*img_output:CImg<T>::empty()),listout(list_output?*list_output:CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),user_macro(0),
-        mem_img_median(~0U),debug_indent(0),init_size(0),result_dim(0),break_type(0),constcache_size(0),
+        mem_img_median(~0U),debug_indent(0),result_dim(0),break_type(0),constcache_size(0),
         is_parallelizable(true),is_fill(_is_fill),need_input_copy(false),
         calling_function(funcname?funcname:"cimg_math_parser") {
         if (!expression || !*expression)
@@ -14660,7 +14660,6 @@ namespace cimg_library_suffixed {
         // Compile expression into a serie of opcodes.
         s_op = ""; ss_op = expr._data;
         const unsigned int ind_result = compile(expr._data,expr._data + expr._width - 1,0,0);
-        p_code_end = code.end();
         if (!_cimg_mp_is_constant(ind_result)) {
           if (_cimg_mp_is_vector(ind_result))
             CImg<doubleT>(&mem[ind_result] + 1,_cimg_mp_vector_size(ind_result),1,1,1,true).
@@ -14684,20 +14683,22 @@ namespace cimg_library_suffixed {
         opcode._is_shared = true;
 
         // Execute init() bloc if any specified.
-        p_code_begin = code._data + init_size;
-        if (init_size) {
+        if (code_init) {
           mem[_cimg_mp_slot_x] = mem[_cimg_mp_slot_y] = mem[_cimg_mp_slot_z] = mem[_cimg_mp_slot_c] = 0;
-          for (p_code = code._data; p_code<p_code_begin; ++p_code) {
+          p_code_end = code_init.end();
+          for (p_code = code_init; p_code<p_code_end; ++p_code) {
             const CImg<ulongT> &op = *p_code;
             opcode._data = op._data;
             const ulongT target = opcode[1];
             mem[target] = _cimg_mp_defunc(*this);
           }
         }
+
+        p_code_end = code.end();
       }
 
       _cimg_math_parser():
-        code(_code),p_code_begin(0),p_code_end(0),p_break((CImg<ulongT>*)0 - 2),
+        code(_code),p_code_end(0),p_break((CImg<ulongT>*)0 - 2),
         imgin(CImg<T>::const_empty()),listin(CImgList<T>::const_empty()),
         imgout(CImg<T>::empty()),listout(CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),debug_indent(0),
@@ -14708,7 +14709,7 @@ namespace cimg_library_suffixed {
       }
 
       _cimg_math_parser(const _cimg_math_parser& mp):
-        mem(mp.mem),code(mp.code),p_code_begin(mp.p_code_begin),p_code_end(mp.p_code_end),p_break(mp.p_break),
+        mem(mp.mem),code(mp.code),p_code_end(mp.p_code_end),p_break(mp.p_break),
         imgin(mp.imgin),listin(mp.listin),imgout(mp.imgout),listout(mp.listout),img_stats(mp.img_stats),
         list_stats(mp.list_stats),list_median(mp.list_median),debug_indent(0),result_dim(mp.result_dim),
         break_type(0),constcache_size(0),is_parallelizable(mp.is_parallelizable),is_fill(mp.is_fill),
@@ -17374,6 +17375,14 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
+            if (!std::strncmp(ss,"end(",4)) { // End
+              _cimg_mp_op("Function 'end()'");
+              code.swap(code_end);
+              arg1 = compile(ss4,se1,depth1,p_ref);
+              code.swap(code_end);
+              _cimg_mp_return(arg1);
+            }
+
             if (!std::strncmp(ss,"exp(",4)) { // Exponential
               _cimg_mp_op("Function 'exp()'");
               arg1 = compile(ss4,se1,depth1,0);
@@ -17531,18 +17540,9 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"init(",5)) { // Init
               _cimg_mp_op("Function 'init()'");
-              arg2 = code.width();
+              code.swap(code_init);
               arg1 = compile(ss5,se1,depth1,p_ref);
-              arg2 = code.width() - arg2;
-              if (arg2 && code.width()) {
-                CImgList<ulongT> icode(arg2);
-                std::memcpy(icode._data,code._data + code.width() - arg2,arg2*sizeof(CImgList<ulongT>));
-                std::memmove(code._data + init_size + arg2,code._data + init_size,
-                             (code.width() - arg2 - init_size)*sizeof(CImgList<ulongT>));
-                std::memcpy(code._data + init_size,icode._data,arg2*sizeof(CImgList<ulongT>));
-                std::memset(icode._data,0,arg2*sizeof(CImgList<ulongT>));
-              }
-              init_size+=arg2;
+              code.swap(code_init);
               _cimg_mp_return(arg1);
             }
 
@@ -18793,7 +18793,7 @@ namespace cimg_library_suffixed {
       // Evaluation procedure.
       double operator()(const double x, const double y, const double z, const double c) {
         mem[_cimg_mp_slot_x] = x; mem[_cimg_mp_slot_y] = y; mem[_cimg_mp_slot_z] = z; mem[_cimg_mp_slot_c] = c;
-        for (p_code = p_code_begin; p_code<p_code_end; ++p_code) {
+        for (p_code = code; p_code<p_code_end; ++p_code) {
           const CImg<ulongT> &op = *p_code;
           opcode._data = op._data;
           const ulongT target = opcode[1];
@@ -18806,7 +18806,7 @@ namespace cimg_library_suffixed {
       template<typename t>
       void operator()(const double x, const double y, const double z, const double c, t *const output) {
         mem[_cimg_mp_slot_x] = x; mem[_cimg_mp_slot_y] = y; mem[_cimg_mp_slot_z] = z; mem[_cimg_mp_slot_c] = c;
-        for (p_code = p_code_begin; p_code<p_code_end; ++p_code) {
+        for (p_code = code; p_code<p_code_end; ++p_code) {
           const CImg<ulongT> &op = *p_code;
           opcode._data = op._data;
           const ulongT target = opcode[1];
@@ -18817,6 +18817,23 @@ namespace cimg_library_suffixed {
           t *ptrd = output;
           for (unsigned int k = 0; k<result_dim; ++k) *(ptrd++) = (t)*(ptrs++);
         } else *output = (t)*result;
+      }
+
+      // Evaluation procedure for the end() blocks.
+      void end() {
+        if (imgin) {
+          mem[_cimg_mp_slot_x] = imgin._width - 1.0;
+          mem[_cimg_mp_slot_y] = imgin._height - 1.0f;
+          mem[_cimg_mp_slot_z] = imgin._depth - 1.0f;
+          mem[_cimg_mp_slot_c] = imgin._spectrum - 1.0f;
+        } else mem[_cimg_mp_slot_x] = mem[_cimg_mp_slot_y] = mem[_cimg_mp_slot_z] = mem[_cimg_mp_slot_c] = 0;
+        p_code_end = code_end.end();
+        for (p_code = code_end; p_code<p_code_end; ++p_code) {
+          const CImg<ulongT> &op = *p_code;
+          opcode._data = op._data;
+          const ulongT target = opcode[1];
+          mem[target] = _cimg_mp_defunc(*this);
+        }
       }
 
       // Return type of a memory element as a string.
@@ -23262,7 +23279,9 @@ namespace cimg_library_suffixed {
       _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' ||
                                          *expression=='*' || *expression==':'),"eval",
                            *this,img_output,list_inputs,list_outputs,false);
-      return mp(x,y,z,c);
+      const double val = mp(x,y,z,c);
+      mp.end();
+      return val;
     }
 
     //! Evaluate math formula.
@@ -23309,6 +23328,7 @@ namespace cimg_library_suffixed {
                            *this,img_output,list_inputs,list_outputs,false);
       output.assign(1,std::max(1U,mp.result_dim));
       mp(x,y,z,c,output._data);
+      mp.end();
     }
 
     //! Evaluate math formula on a set of variables.
@@ -23357,6 +23377,7 @@ namespace cimg_library_suffixed {
         *pd = mp(x,y,z,c);
       }
 #endif
+      mp.end();
       return res;
     }
 
@@ -25578,6 +25599,7 @@ namespace cimg_library_suffixed {
 #endif
               }
             }
+            mp.end();
           } catch (CImgException& e) { CImg<charT>::string(e._message).move_to(is_error); }
       }
 

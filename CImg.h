@@ -5438,6 +5438,22 @@ namespace cimg_library_suffixed {
       return false;
     }
 
+    //! Remove white spaces on the start and/or end of a C-string.
+    inline bool strpare(char *const str, const bool is_symmetric, const bool is_iterative) {
+      if (!str) return false;
+      const int l = (int)std::strlen(str);
+      int p, q;
+      if (is_symmetric) for (p = 0, q = l - 1; p<q && (signed char)str[p]<=' ' && (signed char)str[q]<=' '; ) {
+          --q; ++p; if (!is_iterative) break;
+        } else {
+        for (p = 0; p<l && (signed char)str[p]<=' '; ) { ++p; if (!is_iterative) break; }
+        for (q = l - 1; q>p && (signed char)str[q]<=' '; ) { --q; if (!is_iterative) break; }
+      }
+      const int n = q - p + 1;
+      if (n!=l) { std::memmove(str,str + p,(unsigned int)n); str[n] = 0; return true; }
+      return false;
+    }
+
     //! Replace reserved characters (for Windows filename) by another character.
     /**
        \param[in,out] str C-string to work with (modified at output).
@@ -14987,7 +15003,7 @@ namespace cimg_library_suffixed {
               *ps!='>' && *ps!='<' && *ps!='&' && *ps!='|' && *ps!='^' &&
               level[s - expr._data]==clevel) {
             variable_name.assign(ss,(unsigned int)(s + 1 - ss)).back() = 0;
-            cimg::strpare(variable_name,' ',false,true);
+            cimg::strpare(variable_name,false,true);
             const unsigned int l_variable_name = (unsigned int)std::strlen(variable_name);
             char *const ve1 = ss + l_variable_name - 1;
             _cimg_mp_op("Operator '='");
@@ -15210,7 +15226,7 @@ namespace cimg_library_suffixed {
                 *s0 = 0;
                 s1 = variable_name._data + l_variable_name - 1; // Pointer to closing parenthesis
                 CImg<charT>(variable_name._data,(unsigned int)(s0 - variable_name._data + 1)).move_to(macro_def,0);
-                ++s; while (*s && *s<=' ') ++s;
+                ++s; while (*s && (signed char)*s<=' ') ++s;
                 CImg<charT>(s,(unsigned int)(se - s + 1)).move_to(macro_body,0);
 
                 p1 = 1; // Indice of current parsed argument
@@ -15227,16 +15243,16 @@ namespace cimg_library_suffixed {
                                                 variable_name._data,
                                                 s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
                   }
-                  while (*s && *s<=' ') ++s;
+                  while (*s && (signed char)*s<=' ') ++s;
                   if (*s==')' && p1==1) break; // Function has no arguments
 
                   s2 = s; // Start of the argument name
                   is_sth = true; // is_valid_argument_name?
                   if (*s>='0' && *s<='9') is_sth = false;
-                  else for (ns = s; ns<s1 && *ns!=',' && *ns>' '; ++ns)
+                  else for (ns = s; ns<s1 && *ns!=',' && (signed char)*ns>' '; ++ns)
                          if (!is_varchar(*ns)) { is_sth = false; break; }
                   s3 = ns; // End of the argument name
-                  while (*ns && *ns<=' ') ++ns;
+                  while (*ns && (signed char)*ns<=' ') ++ns;
                   if (!is_sth || s2==s3 || (*ns!=',' && ns!=s1)) {
                     *se = saved_char;
                     cimg::strellipsize(variable_name,64);
@@ -15781,7 +15797,7 @@ namespace cimg_library_suffixed {
             }
 
             variable_name.assign(ss,(unsigned int)(s - ss)).back() = 0;
-            cimg::strpare(variable_name,' ',false,true);
+            cimg::strpare(variable_name,false,true);
             *se = saved_char;
             s0 = ss - 4>expr._data?ss - 4:expr._data;
             cimg::strellipsize(s0,64);
@@ -16428,7 +16444,7 @@ namespace cimg_library_suffixed {
           if (is_sth) variable_name.assign(ss2,(unsigned int)(se - ss1));
           else variable_name.assign(ss,(unsigned int)(se1 - ss));
           variable_name.back() = 0;
-          cimg::strpare(variable_name,' ',false,true);
+          cimg::strpare(variable_name,false,true);
           *se = saved_char;
           cimg::strellipsize(variable_name,64);
           s0 = ss - 4>expr._data?ss - 4:expr._data;
@@ -16446,8 +16462,7 @@ namespace cimg_library_suffixed {
         if (*se1==']' && *ss!='[') {
           _cimg_mp_op("Value accessor '[]'");
           is_relative = *ss=='j' || *ss=='J';
-          s0 = std::strchr(ss,'[');
-          if (s0>ss && *(s0 - 1)==' ') cimg::swap(*s0,*(s0 - 1)); // Allow one space before opening bracket
+          s0 = s1 = std::strchr(ss,'['); do { --s1; } while ((signed char)*s1<=' '); cimg::swap(*s0,*++s1);
 
           if ((*ss=='I' || *ss=='J') && *ss1=='[' &&
               (reserved_label[*ss]==~0U || !_cimg_mp_is_vector(reserved_label[*ss]))) { // Image value as a vector
@@ -16587,8 +16602,7 @@ namespace cimg_library_suffixed {
           if (*ss=='(') _cimg_mp_return(compile(ss1,se1,depth1,p_ref)); // Simple parentheses
           _cimg_mp_op("Value accessor '()'");
           is_relative = *ss=='j' || *ss=='J';
-          s0 = std::strchr(ss,'(');
-          if (s0>ss && *(s0 - 1)==' ') cimg::swap(*s0,*(s0 - 1)); // Allow one space before opening brace
+          s0 = s1 = std::strchr(ss,'('); do { --s1; } while ((signed char)*s1<=' '); cimg::swap(*s0,*++s1);
 
           // I/J(_#ind,_x,_y,_z,_interpolation,_boundary)
           if ((*ss=='I' || *ss=='J') && *ss1=='(') { // Image value as scalar
@@ -17164,7 +17178,7 @@ namespace cimg_library_suffixed {
               arg1 = compile(ss6,se1,depth1,p_ref);
               *se1 = 0;
               variable_name.assign(CImg<charT>::string(ss6,true,true).unroll('y'),true);
-              cimg::strpare(variable_name,' ',false,true);
+              cimg::strpare(variable_name,false,true);
               ((CImg<ulongT>::vector((ulongT)mp_debug,arg1,0,code._width - p1),
                 variable_name)>'y').move_to(opcode);
               opcode[2] = opcode._height;
@@ -17202,7 +17216,7 @@ namespace cimg_library_suffixed {
 
               c1 = *s1; *s1 = 0;
               variable_name.assign(CImg<charT>::string(ss8,true,true).unroll('y'),true);
-              cimg::strpare(variable_name,' ',false,true);
+              cimg::strpare(variable_name,false,true);
               if (_cimg_mp_is_vector(arg1))
                 ((CImg<ulongT>::vector((ulongT)mp_vector_print,arg1,0,(ulongT)_cimg_mp_vector_size(arg1)),
                   variable_name)>'y').move_to(opcode);
@@ -17839,7 +17853,7 @@ namespace cimg_library_suffixed {
                 pos = compile(s,ns,depth1,p_ref);
                 c1 = *ns; *ns = 0;
                 variable_name.assign(CImg<charT>::string(s,true,true).unroll('y'),true);
-                cimg::strpare(variable_name,' ',false,true);
+                cimg::strpare(variable_name,false,true);
                 if (_cimg_mp_is_vector(pos)) // Vector
                   ((CImg<ulongT>::vector((ulongT)mp_vector_print,pos,0,(ulongT)_cimg_mp_vector_size(pos)),
                     variable_name)>'y').move_to(opcode);
@@ -18474,7 +18488,7 @@ namespace cimg_library_suffixed {
             // Count number of specified arguments.
             p1 = 0;
             for (s = s0 + 1; s<=se1; ++p1, s = ns + 1) {
-              while (*s && *s<=' ') ++s;
+              while (*s && (signed char)*s<=' ') ++s;
               if (*s==')' && !p1) break;
               ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                              (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
@@ -18488,7 +18502,7 @@ namespace cimg_library_suffixed {
 
               p1 = 1; // Indice of current parsed argument
               for (s = s0 + 1; s<=se1; ++p1, s = ns + 1) { // Parse function arguments
-                while (*s && *s<=' ') ++s;
+                while (*s && (signed char)*s<=' ') ++s;
                 if (*s==')' && p1==1) break; // Function has no arguments
                 if (p1>p2) { ++p1; break; }
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
@@ -18511,7 +18525,7 @@ namespace cimg_library_suffixed {
               CImg<charT> _pexpr(_expr._width);
               ns = _pexpr._data;
               for (ps = _expr._data, c1 = ' '; *ps; ++ps) {
-                if (*ps!=' ') c1 = *ps;
+                if ((signed char)*ps>' ') c1 = *ps;
                 *(ns++) = c1;
               }
               *ns = 0;
@@ -18599,8 +18613,8 @@ namespace cimg_library_suffixed {
         // Vector initializer [ ... ].
         if (*ss=='[' && *se1==']') {
           _cimg_mp_op("Vector initializer");
-          s1 = ss1; while (s1<se2 && *s1<=' ') ++s1;
-          s2 = se2; while (s2>s1 && *s2<=' ') --s2;
+          s1 = ss1; while (s1<se2 && (signed char)*s1<=' ') ++s1;
+          s2 = se2; while (s2>s1 && (signed char)*s2<=' ') --s2;
           if (s2>s1 && *s1=='\'' && *s2=='\'') { // Vector values provided as a string
             arg1 = (unsigned int)(s2 - s1 - 1); // Original string length.
             if (arg1) {

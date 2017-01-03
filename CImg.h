@@ -17250,12 +17250,13 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar2(mp_mul,arg1,arg2);
             }
 
-            if (!std::strncmp(ss,"dowhile(",8)) { // Do..while
+            if (!std::strncmp(ss,"do(",3) || !std::strncmp(ss,"dowhile(",8)) { // Do..while
               _cimg_mp_op("Function 'dowhile()'");
-              s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s0 = *ss2=='('?ss3:ss8;
+              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = code._width;
               arg6 = mempos;
-              p1 = compile(ss8,s1,depth1,0); // Body
+              p1 = compile(s0,s1,depth1,0); // Body
               arg2 = code._width;
               p2 = s1<se1?compile(++s1,se1,depth1,0):p1; // Condition
               _cimg_mp_check_type(p2,2,1,0);
@@ -18383,11 +18384,12 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
-            if (!std::strncmp(ss,"whiledo(",8)) { // While...do
+            if (!std::strncmp(ss,"while(",6) || !std::strncmp(ss,"whiledo(",8)) { // While...do
               _cimg_mp_op("Function 'whiledo()'");
-              s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              s0 = *ss5=='('?ss6:ss8;
+              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               p1 = code._width;
-              arg1 = compile(ss8,s1,depth1,0);
+              arg1 = compile(s0,s1,depth1,0);
               p2 = code._width;
               arg6 = mempos;
               pos = compile(++s1,se1,depth1,0);

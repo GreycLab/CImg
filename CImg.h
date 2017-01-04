@@ -43485,8 +43485,8 @@ namespace cimg_library_suffixed {
               }
               x+=step;
             }
-            is_yp = is_yp0; is_yn = is_yn0; is_zp = is_zp0; is_zn = is_zn0;
-            if (step<0) { xl = ++x; x = xr + 1; } else xr = --x;
+            if (step<0) { xl = ++x; x = xr + 1; }
+            else { xr = --x; is_yp = is_yp0; is_yn = is_yn0; is_zp = is_zp0; is_zn = is_zn0; }
           }
           std::memset(_region.data(xl,y,z),1,xr - xl + 1);
           if (opacity==1) {

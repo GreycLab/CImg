@@ -43419,28 +43419,14 @@ namespace cimg_library_suffixed {
           int xl = x, xr = x;
 
           // Using these booleans reduces the number of pushes drastically.
-          bool
-            is_yp0 = false, is_yn0 = false, is_zp0 = false, is_zn0 = false,
-            is_yp = false, is_yn = false, is_zp = false, is_zn = false;
-
-          if (yp>=0 && _draw_fill_is_inside(x,yp,z)) {
-            _draw_fill_push(x,yp,z); is_yp0 = true;
-          } else is_yp0 = false;
-          if (yn<height() && _draw_fill_is_inside(x,yn,z)) {
-            _draw_fill_push(x,yn,z); is_yn0 = true;
-          } else is_yn0 = false;
-
-          if (depth()>1) {
-            if (zp>=0 && _draw_fill_is_inside(x,y,zp)) {
-              _draw_fill_push(x,y,zp); is_zp0 = true;
-            } else is_zp0 = false;
-            if (zn<depth() && _draw_fill_is_inside(x,y,zn)) {
-              _draw_fill_push(x,y,zn); is_zn0 = true;
-            } else is_zn0 = false;
-          }
+          bool is_yp = false, is_yn = false, is_zp = false, is_zn = false;
+          const bool
+            is_yp0 = yp>=0 && _draw_fill_is_inside(x,yp,z),
+            is_yn0 = yn<height() && _draw_fill_is_inside(x,yn,z),
+            is_zp0 = zp>=0 && _draw_fill_is_inside(x,y,zp),
+            is_zn0 = zn<depth() && _draw_fill_is_inside(x,y,zn);
 
           for (int step = -1; step<2; step+=2) {
-            is_yp = is_yp0; is_yn = is_yn0; is_zp = is_zp0; is_zn = is_zn0;
             while (x>=0 && x<width() && _draw_fill_is_inside(x,y,z)) {
               if (yp>=0 && _draw_fill_is_inside(x,yp,z)) {
                 if (!is_yp) { _draw_fill_push(x,yp,z); is_yp = true; }
@@ -43473,10 +43459,8 @@ namespace cimg_library_suffixed {
                       if (_draw_fill_is_inside(x,yp,zp)) { _draw_fill_push(x,yp,zp); }
                       if (xn<width() && _draw_fill_is_inside(xn,yp,zp)) { _draw_fill_push(xn,yp,zp); }
                     }
-
                     if (xp>=0 && _draw_fill_is_inside(xp,y,zp)) { _draw_fill_push(xp,y,zp); }
                     if (xn<width() && _draw_fill_is_inside(xn,y,zp)) { _draw_fill_push(xn,y,zp); }
-
                     if (yn<height() && !is_yn) {
                       if (xp>=0 && _draw_fill_is_inside(xp,yn,zp)) { _draw_fill_push(xp,yn,zp); }
                       if (_draw_fill_is_inside(x,yn,zp)) { _draw_fill_push(x,yn,zp); }
@@ -43489,10 +43473,8 @@ namespace cimg_library_suffixed {
                       if (_draw_fill_is_inside(x,yp,zn)) { _draw_fill_push(x,yp,zn); }
                       if (xn<width() && _draw_fill_is_inside(xn,yp,zn)) { _draw_fill_push(xn,yp,zn); }
                     }
-
                     if (xp>=0 && _draw_fill_is_inside(xp,y,zn)) { _draw_fill_push(xp,y,zn); }
                     if (xn<width() && _draw_fill_is_inside(xn,y,zn)) { _draw_fill_push(xn,y,zn); }
-
                     if (yn<height() && !is_yn) {
                       if (xp>=0 && _draw_fill_is_inside(xp,yn,zn)) { _draw_fill_push(xp,yn,zn); }
                       if (_draw_fill_is_inside(x,yn,zn)) { _draw_fill_push(x,yn,zn); }
@@ -43503,6 +43485,7 @@ namespace cimg_library_suffixed {
               }
               x+=step;
             }
+            is_yp = is_yp0; is_yn = is_yn0; is_zp = is_zp0; is_zn = is_zn0;
             if (step<0) { xl = ++x; x = xr + 1; } else xr = --x;
           }
           std::memset(_region.data(xl,y,z),1,xr - xl + 1);

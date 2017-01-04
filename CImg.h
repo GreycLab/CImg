@@ -43371,7 +43371,7 @@ namespace cimg_library_suffixed {
     }
 
     bool _draw_fill(const int x, const int y, const int z,
-                     const CImg<T>& ref, const float tolerance2) const {
+                    const CImg<T>& ref, const float tolerance2) const {
       const T *ptr1 = data(x,y,z), *ptr2 = ref._data;
       const unsigned long off = _width*_height*_depth;
       float diff = 0;
@@ -43406,7 +43406,7 @@ namespace cimg_library_suffixed {
       const float nopacity = cimg::abs((float)opacity), copacity = 1 - std::max((float)opacity,0.0f);
       const float tolerance2 = cimg::sqr(tolerance);
       const CImg<T> ref = get_vector_at(x0,y0,z0);
-      CImg<uintT> stack(_height,1,1,3);
+      CImg<uintT> stack(256,1,1,3);
       CImg<ucharT> _region(_width,_height,_depth,1,0);
       unsigned int N = 0;
       int x, y, z;

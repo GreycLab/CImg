@@ -43382,6 +43382,9 @@ namespace cimg_library_suffixed {
        \param is_high_connexity Tells if 8-connexity must be used.
        \return \c region is initialized with the binary mask of the filled region.
     **/
+
+
+
     bool _draw_fill(const int x, const int y, const int z,
                     const CImg<T>& ref, const float tolerance2) const {
       const T *ptr1 = data(x,y,z), *ptr2 = ref._data;
@@ -43415,9 +43418,62 @@ namespace cimg_library_suffixed {
       while (N>0) {
         _draw_fill_pop(x,y,z);
         if (!_region(x,y,z)) {
-          int xl = x - 1; while (xl>=0 && _draw_fill_is_inside(xl,y,z)) { _draw_fill_push(xl,y,z); --xl; }
-          int xr = x + 1; while (xr<width() && _draw_fill_is_inside(xr,y,z)) { _draw_fill_push(xr,y,z); ++xr; }
-          ++xl; --xr;
+          const int yp = y - 1, yn = y + 1, zp = z - 1, zn = z + 1;
+          int xl = x, xr = x;
+
+          for (int step = -1; step<2; step+=2) {
+            while (x>=0 && x<width() && _draw_fill_is_inside(x,y,z)) {
+              if (yp>=0 && _draw_fill_is_inside(x,yp,z)) { _draw_fill_push(x,yp,z); }
+              if (yn<height() && _draw_fill_is_inside(x,yn,z)) { _draw_fill_push(x,yn,z); }
+              if (depth()>1) {
+                if (zp>=0 && _draw_fill_is_inside(x,y,zp)) { _draw_fill_push(x,y,zp); }
+                if (zn<depth() && _draw_fill_is_inside(x,y,zn)) { _draw_fill_push(x,y,zn); }
+              }
+              if (is_high_connectivity) {
+                const int xp = x - 1, xn = x + 1;
+                if (yp>=0) {
+                  if (xp>=0 && _draw_fill_is_inside(xp,yp,z)) { _draw_fill_push(xp,yp,z); }
+                  if (xn<width() && _draw_fill_is_inside(xn,yp,z)) { _draw_fill_push(xn,yp,z); }
+                }
+                if (yn<height()) {
+                  if (xp>=0 && _draw_fill_is_inside(xp,yn,z)) { _draw_fill_push(xp,yn,z); }
+                  if (xn<width() && _draw_fill_is_inside(xn,yn,z)) { _draw_fill_push(xn,yn,z); }
+                }
+                if (depth()>1) {
+                  if (zp>=0) {
+                    if (yp>=0) {
+                      if (xp>=0 && _draw_fill_is_inside(xp,yp,zp)) { _draw_fill_push(xp,yp,zp); }
+                      if (_draw_fill_is_inside(x,yp,zp)) { _draw_fill_push(x,yp,zp); }
+                      if (xn<width() && _draw_fill_is_inside(xn,yp,zp)) { _draw_fill_push(xn,yp,zp); }
+                    }
+                    if (xp>=0 && _draw_fill_is_inside(xp,y,zp)) { _draw_fill_push(xp,y,zp); }
+                    if (xn<width() && _draw_fill_is_inside(xn,y,zp)) { _draw_fill_push(xn,y,zp); }
+                    if (yn<height()) {
+                      if (xp>=0 && _draw_fill_is_inside(xp,yn,zp)) { _draw_fill_push(xp,yn,zp); }
+                      if (_draw_fill_is_inside(x,yn,zp)) { _draw_fill_push(x,yn,zp); }
+                      if (xn<width() && _draw_fill_is_inside(xn,yn,zp)) { _draw_fill_push(xn,yn,zp); }
+                    }
+                  }
+                  if (zn<depth()) {
+                    if (yp>=0) {
+                      if (xp>=0 && _draw_fill_is_inside(xp,yp,zn)) { _draw_fill_push(xp,yp,zn); }
+                      if (_draw_fill_is_inside(x,yp,zn)) { _draw_fill_push(x,yp,zn); }
+                      if (xn<width() && _draw_fill_is_inside(xn,yp,zn)) { _draw_fill_push(xn,yp,zn); }
+                    }
+                    if (xp>=0 && _draw_fill_is_inside(xp,y,zn)) { _draw_fill_push(xp,y,zn); }
+                    if (xn<width() && _draw_fill_is_inside(xn,y,zn)) { _draw_fill_push(xn,y,zn); }
+                    if (yn<height()) {
+                      if (xp>=0 && _draw_fill_is_inside(xp,yn,zn)) { _draw_fill_push(xp,yn,zn); }
+                      if (_draw_fill_is_inside(x,yn,zn)) { _draw_fill_push(x,yn,zn); }
+                      if (xn<width() && _draw_fill_is_inside(xn,yn,zn)) { _draw_fill_push(xn,yn,zn); }
+                    }
+                  }
+                }
+              }
+              x+=step;
+            }
+            if (step<0) { xl = ++x; x = xr + 1; } else xr = --x;
+          }
           std::memset(_region.data(xl,y,z),1,xr - xl + 1);
           if (opacity==1) {
             if (sizeof(T)==1) {
@@ -43431,54 +43487,6 @@ namespace cimg_library_suffixed {
               const T val = (T)(color[c]*nopacity);
               T *ptri = data(xl,y,z,c); for (int k = xl; k<=xr; ++k) { *ptri = (T)(val + *ptri*copacity); ++ptri; }
             }
-        }
-        const int yp = y - 1, yn = y + 1, zp = z - 1, zn = z + 1;
-        if (yp>=0 && _draw_fill_is_inside(x,yp,z)) { _draw_fill_push(x,yp,z); }
-        if (yn<height() && _draw_fill_is_inside(x,yn,z)) { _draw_fill_push(x,yn,z); }
-        if (depth()>1) {
-          if (zp>=0 && _draw_fill_is_inside(x,y,zp)) { _draw_fill_push(x,y,zp); }
-          if (zn<depth() && _draw_fill_is_inside(x,y,zn)) { _draw_fill_push(x,y,zn); }
-        }
-        if (is_high_connectivity) {
-          const int xp = x - 1, xn = x + 1;
-          if (yp>=0) {
-            if (xp>=0 && _draw_fill_is_inside(xp,yp,z)) { _draw_fill_push(xp,yp,z); }
-            if (xn<width() && _draw_fill_is_inside(xn,yp,z)) { _draw_fill_push(xn,yp,z); }
-          }
-          if (yn<height()) {
-            if (xp>=0 && _draw_fill_is_inside(xp,yn,z)) { _draw_fill_push(xp,yn,z); }
-            if (xn<width() && _draw_fill_is_inside(xn,yn,z)) { _draw_fill_push(xn,yn,z); }
-          }
-          if (depth()>1) {
-            if (zp>=0) {
-              if (yp>=0) {
-                if (xp>=0 && _draw_fill_is_inside(xp,yp,zp)) { _draw_fill_push(xp,yp,zp); }
-                if (_draw_fill_is_inside(x,yp,zp)) { _draw_fill_push(x,yp,zp); }
-                if (xn<width() && _draw_fill_is_inside(xn,yp,zp)) { _draw_fill_push(xn,yp,zp); }
-              }
-              if (xp>=0 && _draw_fill_is_inside(xp,y,zp)) { _draw_fill_push(xp,y,zp); }
-              if (xn<width() && _draw_fill_is_inside(xn,y,zp)) { _draw_fill_push(xn,y,zp); }
-              if (yn<height()) {
-                if (xp>=0 && _draw_fill_is_inside(xp,yn,zp)) { _draw_fill_push(xp,yn,zp); }
-                if (_draw_fill_is_inside(x,yn,zp)) { _draw_fill_push(x,yn,zp); }
-                if (xn<width() && _draw_fill_is_inside(xn,yn,zp)) { _draw_fill_push(xn,yn,zp); }
-              }
-            }
-            if (zn<depth()) {
-              if (yp>=0) {
-                if (xp>=0 && _draw_fill_is_inside(xp,yp,zn)) { _draw_fill_push(xp,yp,zn); }
-                if (_draw_fill_is_inside(x,yp,zn)) { _draw_fill_push(x,yp,zn); }
-                if (xn<width() && _draw_fill_is_inside(xn,yp,zn)) { _draw_fill_push(xn,yp,zn); }
-              }
-              if (xp>=0 && _draw_fill_is_inside(xp,y,zn)) { _draw_fill_push(xp,y,zn); }
-              if (xn<width() && _draw_fill_is_inside(xn,y,zn)) { _draw_fill_push(xn,y,zn); }
-              if (yn<height()) {
-                if (xp>=0 && _draw_fill_is_inside(xp,yn,zn)) { _draw_fill_push(xp,yn,zn); }
-                if (_draw_fill_is_inside(x,yn,zn)) { _draw_fill_push(x,yn,zn); }
-                if (xn<width() && _draw_fill_is_inside(xn,yn,zn)) { _draw_fill_push(xn,yn,zn); }
-              }
-            }
-          }
         }
       }
       _region.move_to(region);

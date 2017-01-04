@@ -43419,9 +43419,28 @@ namespace cimg_library_suffixed {
           int xl = x, xr = x;
 
           // Using these booleans reduces the number of pushes drastically.
-          bool is_yp = false, is_yn = false, is_zp = false, is_zn = false;
+          bool
+            is_yp0 = false, is_yn0 = false, is_zp0 = false, is_zn0 = false,
+            is_yp = false, is_yn = false, is_zp = false, is_zn = false;
+
+          if (yp>=0 && _draw_fill_is_inside(x,yp,z)) {
+            _draw_fill_push(x,yp,z); is_yp0 = true;
+          } else is_yp0 = false;
+          if (yn<height() && _draw_fill_is_inside(x,yn,z)) {
+            _draw_fill_push(x,yn,z); is_yn0 = true;
+          } else is_yn0 = false;
+
+          if (depth()>1) {
+            if (zp>=0 && _draw_fill_is_inside(x,y,zp)) {
+              _draw_fill_push(x,y,zp); is_zp0 = true;
+            } else is_zp0 = false;
+            if (zn<depth() && _draw_fill_is_inside(x,y,zn)) {
+              _draw_fill_push(x,y,zn); is_zn0 = true;
+            } else is_zn0 = false;
+          }
 
           for (int step = -1; step<2; step+=2) {
+            is_yp = is_yp0; is_yn = is_yn0; is_zp = is_zp0; is_zn = is_zn0;
             while (x>=0 && x<width() && _draw_fill_is_inside(x,y,z)) {
               if (yp>=0 && _draw_fill_is_inside(x,yp,z)) {
                 if (!is_yp) { _draw_fill_push(x,yp,z); is_yp = true; }
@@ -43429,7 +43448,6 @@ namespace cimg_library_suffixed {
               if (yn<height() && _draw_fill_is_inside(x,yn,z)) {
                 if (!is_yn) { _draw_fill_push(x,yn,z); is_yn = true; }
               } else is_yn = false;
-
               if (depth()>1) {
                 if (zp>=0 && _draw_fill_is_inside(x,y,zp)) {
                   if (!is_zp) { _draw_fill_push(x,y,zp); is_zp = true; }

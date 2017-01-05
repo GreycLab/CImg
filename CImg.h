@@ -43420,12 +43420,6 @@ namespace cimg_library_suffixed {
 
           // Using these booleans reduces the number of pushes drastically.
           bool is_yp = false, is_yn = false, is_zp = false, is_zn = false;
-          const bool
-            is_yp0 = yp>=0 && _draw_fill_is_inside(x,yp,z),
-            is_yn0 = yn<height() && _draw_fill_is_inside(x,yn,z),
-            is_zp0 = zp>=0 && _draw_fill_is_inside(x,y,zp),
-            is_zn0 = zn<depth() && _draw_fill_is_inside(x,y,zn);
-
           for (int step = -1; step<2; step+=2) {
             while (x>=0 && x<width() && _draw_fill_is_inside(x,y,z)) {
               if (yp>=0 && _draw_fill_is_inside(x,yp,z)) {
@@ -43445,12 +43439,12 @@ namespace cimg_library_suffixed {
               if (is_high_connectivity) {
                 const int xp = x - 1, xn = x + 1;
                 if (yp>=0 && !is_yp) {
-                  if (xp>=0 && _draw_fill_is_inside(xp,yp,z)) { _draw_fill_push(xp,yp,z); }
-                  if (xn<width() && _draw_fill_is_inside(xn,yp,z)) { _draw_fill_push(xn,yp,z); }
+                  if (xp>=0 && _draw_fill_is_inside(xp,yp,z)) { _draw_fill_push(xp,yp,z); if (step<0) is_yp = true; }
+                  if (xn<width() && _draw_fill_is_inside(xn,yp,z)) { _draw_fill_push(xn,yp,z); if (step>0) is_yp = true; }
                 }
                 if (yn<height() && !is_yn) {
-                  if (xp>=0 && _draw_fill_is_inside(xp,yn,z)) { _draw_fill_push(xp,yn,z); }
-                  if (xn<width() && _draw_fill_is_inside(xn,yn,z)) { _draw_fill_push(xn,yn,z); }
+                  if (xp>=0 && _draw_fill_is_inside(xp,yn,z)) { _draw_fill_push(xp,yn,z); if (step<0) is_yp = true; }
+                  if (xn<width() && _draw_fill_is_inside(xn,yn,z)) { _draw_fill_push(xn,yn,z); if (step>0) is_yn = true; }
                 }
                 if (depth()>1) {
                   if (zp>=0 && !is_zp) {
@@ -43485,7 +43479,7 @@ namespace cimg_library_suffixed {
               }
               x+=step;
             }
-            if (step<0) { xl = ++x; x = xr + 1; is_yp = is_yp0; is_yn = is_yn0; is_zp = is_zp0; is_zn = is_zn0; }
+            if (step<0) { xl = ++x; x = xr + 1; is_yp = is_yn = is_zp = is_zn = false; }
             else xr = --x;
           }
           std::memset(_region.data(xl,y,z),1,xr - xl + 1);

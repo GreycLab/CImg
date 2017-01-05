@@ -43439,12 +43439,22 @@ namespace cimg_library_suffixed {
               if (is_high_connectivity) {
                 const int xp = x - 1, xn = x + 1;
                 if (yp>=0 && !is_yp) {
-                  if (xp>=0 && _draw_fill_is_inside(xp,yp,z)) { _draw_fill_push(xp,yp,z); if (step<0) is_yp = true; }
-                  if (xn<width() && _draw_fill_is_inside(xn,yp,z)) { _draw_fill_push(xn,yp,z); if (step>0) is_yp = true; }
+                  if (xp>=0 && _draw_fill_is_inside(xp,yp,z)) {
+                    _draw_fill_push(xp,yp,z); if (step<0) is_yp = true;
+                  }
+                  if (xn<width() && _draw_fill_is_inside(xn,yp,z)) {
+                    _draw_fill_push(xn,yp,z); if (step>0) is_yp = true;
+                  }
                 }
                 if (yn<height() && !is_yn) {
-                  if (xp>=0 && _draw_fill_is_inside(xp,yn,z)) { _draw_fill_push(xp,yn,z); if (step<0) is_yp = true; }
-                  if (xn<width() && _draw_fill_is_inside(xn,yn,z)) { _draw_fill_push(xn,yn,z); if (step>0) is_yn = true; }
+                  if (xp>=0 && _draw_fill_is_inside(xp,yn,z)) {
+                    _draw_fill_push(xp,yn,z);
+                    if (step<0) is_yp = true;
+                  }
+                  if (xn<width() && _draw_fill_is_inside(xn,yn,z)) {
+                    _draw_fill_push(xn,yn,z);
+                    if (step>0) is_yn = true;
+                  }
                 }
                 if (depth()>1) {
                   if (zp>=0 && !is_zp) {

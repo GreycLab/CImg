@@ -43448,40 +43448,49 @@ namespace cimg_library_suffixed {
                 }
                 if (yn<height() && !is_yn) {
                   if (xp>=0 && _draw_fill_is_inside(xp,yn,z)) {
-                    _draw_fill_push(xp,yn,z);
-                    if (step<0) is_yp = true;
+                    _draw_fill_push(xp,yn,z); if (step<0) is_yn = true;
                   }
                   if (xn<width() && _draw_fill_is_inside(xn,yn,z)) {
-                    _draw_fill_push(xn,yn,z);
-                    if (step>0) is_yn = true;
+                    _draw_fill_push(xn,yn,z); if (step>0) is_yn = true;
                   }
                 }
                 if (depth()>1) {
                   if (zp>=0 && !is_zp) {
+                    if (xp>=0 && _draw_fill_is_inside(xp,y,zp)) {
+                      _draw_fill_push(xp,y,zp); if (step<0) is_zp = true;
+                    }
+                    if (xn<width() && _draw_fill_is_inside(xn,y,zp)) {
+                      _draw_fill_push(xn,y,zp); if (step>0) is_zp = true;
+                    }
+
                     if (yp>=0 && !is_yp) {
-                      if (xp>=0 && _draw_fill_is_inside(xp,yp,zp)) { _draw_fill_push(xp,yp,zp); }
                       if (_draw_fill_is_inside(x,yp,zp)) { _draw_fill_push(x,yp,zp); }
+                      if (xp>=0 && _draw_fill_is_inside(xp,yp,zp)) { _draw_fill_push(xp,yp,zp); }
                       if (xn<width() && _draw_fill_is_inside(xn,yp,zp)) { _draw_fill_push(xn,yp,zp); }
                     }
-                    if (xp>=0 && _draw_fill_is_inside(xp,y,zp)) { _draw_fill_push(xp,y,zp); }
-                    if (xn<width() && _draw_fill_is_inside(xn,y,zp)) { _draw_fill_push(xn,y,zp); }
                     if (yn<height() && !is_yn) {
-                      if (xp>=0 && _draw_fill_is_inside(xp,yn,zp)) { _draw_fill_push(xp,yn,zp); }
                       if (_draw_fill_is_inside(x,yn,zp)) { _draw_fill_push(x,yn,zp); }
+                      if (xp>=0 && _draw_fill_is_inside(xp,yn,zp)) { _draw_fill_push(xp,yn,zp); }
                       if (xn<width() && _draw_fill_is_inside(xn,yn,zp)) { _draw_fill_push(xn,yn,zp); }
                     }
                   }
+
                   if (zn<depth() && !is_zn) {
+                    if (xp>=0 && _draw_fill_is_inside(xp,y,zn)) {
+                      _draw_fill_push(xp,y,zn); if (step<0) is_zn = true;
+                    }
+                    if (xn<width() && _draw_fill_is_inside(xn,y,zn)) {
+                      _draw_fill_push(xn,y,zn); if (step>0) is_zn = true;
+                    }
+
                     if (yp>=0 && !is_yp) {
-                      if (xp>=0 && _draw_fill_is_inside(xp,yp,zn)) { _draw_fill_push(xp,yp,zn); }
                       if (_draw_fill_is_inside(x,yp,zn)) { _draw_fill_push(x,yp,zn); }
+                      if (xp>=0 && _draw_fill_is_inside(xp,yp,zn)) { _draw_fill_push(xp,yp,zn); }
                       if (xn<width() && _draw_fill_is_inside(xn,yp,zn)) { _draw_fill_push(xn,yp,zn); }
                     }
-                    if (xp>=0 && _draw_fill_is_inside(xp,y,zn)) { _draw_fill_push(xp,y,zn); }
-                    if (xn<width() && _draw_fill_is_inside(xn,y,zn)) { _draw_fill_push(xn,y,zn); }
                     if (yn<height() && !is_yn) {
-                      if (xp>=0 && _draw_fill_is_inside(xp,yn,zn)) { _draw_fill_push(xp,yn,zn); }
                       if (_draw_fill_is_inside(x,yn,zn)) { _draw_fill_push(x,yn,zn); }
+                      if (xp>=0 && _draw_fill_is_inside(xp,yn,zn)) { _draw_fill_push(xp,yn,zn); }
                       if (xn<width() && _draw_fill_is_inside(xn,yn,zn)) { _draw_fill_push(xn,yn,zn); }
                     }
                   }

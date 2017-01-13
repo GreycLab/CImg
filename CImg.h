@@ -29350,17 +29350,17 @@ namespace cimg_library_suffixed {
     }
 
     template<typename t>
-    CImg<t> _permute_axes(const char *const permut, const t&) const {
-      if (is_empty() || !permut) return CImg<t>(*this,false);
+    CImg<t> _permute_axes(const char *const order, const t&) const {
+      if (is_empty() || !order) return CImg<t>(*this,false);
       CImg<t> res;
       const T* ptrs = _data;
       unsigned char s_code[4] = { 0,1,2,3 }, n_code[4] = { 0 };
-      for (unsigned int l = 0; permut[l]; ++l) {
-        int c = cimg::lowercase(permut[l]);
+      for (unsigned int l = 0; order[l]; ++l) {
+        int c = cimg::lowercase(order[l]);
         if (c!='x' && c!='y' && c!='z' && c!='c') { *s_code = 4; break; }
         else { ++n_code[c%=4]; s_code[l] = c; }
       }
-      if (*permut && *s_code<4 && *n_code<=1 && n_code[1]<=1 && n_code[2]<=1 && n_code[3]<=1) {
+      if (*order && *s_code<4 && *n_code<=1 && n_code[1]<=1 && n_code[2]<=1 && n_code[3]<=1) {
         const unsigned int code = (s_code[0]<<12) | (s_code[1]<<8) | (s_code[2]<<4) | (s_code[3]);
         ulongT wh, whd;
         switch (code) {
@@ -29566,7 +29566,7 @@ namespace cimg_library_suffixed {
         throw CImgArgumentException(_cimg_instance
                                     "permute_axes(): Invalid specified permutation '%s'.",
                                     cimg_instance,
-                                    permut);
+                                    order);
       return res;
     }
 

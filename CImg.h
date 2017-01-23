@@ -2241,9 +2241,9 @@ namespace cimg_library_suffixed {
     }
 
     // Functions to return standard streams 'stdin', 'stdout' and 'stderr'.
-    inline FILE* _stdin();
-    inline FILE* _stdout();
-    inline FILE* _stderr();
+    inline FILE* _stdin(const bool throw_exception=true);
+    inline FILE* _stdout(const bool throw_exception=true);
+    inline FILE* _stderr(const bool throw_exception=true);
 
     // Mandatory because Microsoft's _snprintf() and _vsnprintf() do not add the '\0' character
     // at the end of the string.
@@ -5603,8 +5603,8 @@ namespace cimg_library_suffixed {
        the file has not been closed properly.
     **/
     inline int fclose(std::FILE *file) {
-      if (!file) warn("cimg::fclose(): Specified file is (null).");
-      if (!file || file==cimg::_stdin() || file==cimg::_stdout()) return 0;
+      if (!file) { warn("cimg::fclose(): Specified file is (null)."); return 0; }
+      if (file==cimg::_stdin(false) || file==cimg::_stdout(false)) return 0;
       const int errn = std::fclose(file);
       if (errn!=0) warn("cimg::fclose(): Error code %d returned during file closing.",
                         errn);
@@ -57668,35 +57668,44 @@ namespace cimg {
 
   // Functions to return standard streams 'stdin', 'stdout' and 'stderr'.
   // (throw a CImgIOException when macro 'cimg_use_r' is defined).
-  inline FILE* _stdin() {
+  inline FILE* _stdin(const bool throw_exception) {
 #ifndef cimg_use_r
+    cimg::unused(throw_exception);
     return stdin;
 #else
-    cimg::exception_mode(0);
-    throw CImgIOException("cimg::stdin(): Reference to 'stdin' stream not allowed in R mode "
-                          "('cimg_use_r' is defined).");
+    if (throw_exception) {
+      cimg::exception_mode(0);
+      throw CImgIOException("cimg::stdin(): Reference to 'stdin' stream not allowed in R mode "
+                            "('cimg_use_r' is defined).");
+    }
     return 0;
 #endif
   }
 
-  inline FILE* _stdout() {
+  inline FILE* _stdout(const bool throw_exception) {
 #ifndef cimg_use_r
+    cimg::unused(throw_exception);
     return stdout;
 #else
-    cimg::exception_mode(0);
-    throw CImgIOException("cimg::stdout(): Reference to 'stdout' stream not allowed in R mode "
-                          "('cimg_use_r' is defined).");
+    if (throw_exception) {
+      cimg::exception_mode(0);
+      throw CImgIOException("cimg::stdout(): Reference to 'stdout' stream not allowed in R mode "
+                            "('cimg_use_r' is defined).");
+    }
     return 0;
 #endif
   }
 
-  inline FILE* _stderr() {
+  inline FILE* _stderr(const bool throw_exception) {
 #ifndef cimg_use_r
+    cimg::unused(throw_exception);
     return stderr;
 #else
-    cimg::exception_mode(0);
-    throw CImgIOException("cimg::stderr(): Reference to 'stderr' stream not allowed in R mode "
-                          "('cimg_use_r' is defined).");
+    if (throw_exception) {
+      cimg::exception_mode(0);
+      throw CImgIOException("cimg::stderr(): Reference to 'stderr' stream not allowed in R mode "
+                            "('cimg_use_r' is defined).");
+    }
     return 0;
 #endif
   }

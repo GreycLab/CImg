@@ -43235,7 +43235,7 @@ namespace cimg_library_suffixed {
       if (plot_type==3) {
         color1.assign(_spectrum); color2.assign(_spectrum);
         cimg_forC(*this,c) {
-          color1[c] = (tc)std::min((float)cimg::type<tc>::max(),color[c]*1.2f);
+          color1[c] = (tc)std::min((float)cimg::type<tc>::max(),(float)color[c]*1.2f);
           color2[c] = (tc)(color[c]*0.4f);
         }
       }
@@ -44153,6 +44153,7 @@ namespace cimg_library_suffixed {
           projections(l,0) = X + x;
         }
       }
+
       const float _focale = absfocale?absfocale:(1e5f-parallzmin);
       float zmax = 0;
       if (zbuffer) zmax = vertices.get_shared_row(2).max();
@@ -44335,7 +44336,7 @@ namespace cimg_library_suffixed {
               ly = Y + (y0 + y1 + y2)/3 - lighty,
               lz = Z + (z0 + z1 + z2)/3 - lightz,
               nl = 1e-5f + cimg::hypot(lx,ly,lz),
-              factor = std::max(cimg::abs(-lx*nx - ly*ny - lz*nz)/(norm*nl),0.0f);
+              factor = std::max(cimg::abs(-lx*nx - ly*ny - lz*nz)/(norm*nl),(tpfloat)0);
             lightprops[l] = factor<=nspec?factor:(nsl1*factor*factor + nsl2*factor + nsl3);
           } else lightprops[l] = 1;
         }
@@ -44406,7 +44407,7 @@ namespace cimg_library_suffixed {
               ly = Y + vertices(l,1) - lighty,
               lz = Z + vertices(l,2) - lightz,
               nl = 1e-5f + cimg::hypot(lx,ly,lz),
-              factor = std::max((-lx*nx - ly*ny - lz*nz)/(norm*nl),0.0f);
+              factor = std::max((-lx*nx - ly*ny - lz*nz)/(norm*nl),(tpfloat)0);
             lightprops[l] = factor<=nspec?factor:(nsl1*factor*factor + nsl2*factor + nsl3);
           }
         } else {

@@ -44140,7 +44140,6 @@ namespace cimg_library_suffixed {
           projections(l,1) = Y + absfocale*y/projectedz;
           projections(l,0) = X + absfocale*x/projectedz;
         }
-
       } else {
         cimg_pragma_openmp(parallel for cimg_openmp_if(projections.size()>4096))
         cimg_forX(projections,l) { // Parallel projection
@@ -44268,7 +44267,7 @@ namespace cimg_library_suffixed {
           if (y2>yM) yM = y2;
           if (y3<ym) ym = y3;
           if (y3>yM) yM = y3;
-          if (xM>=0 && xm<_width && yM>=0 && ym<_height && z0>zmin && z1>zmin && z2>zmin) {
+          if (xM>=0 && xm<_width && yM>=0 && ym<_height && z0>zmin && z1>zmin && z2>zmin && z3>zmin) {
             const float d = (x1 - x0)*(y2 - y0) - (x2 - x0)*(y1 - y0);
             if (is_double_sided || d<0) {
               visibles(l) = (unsigned int)l;

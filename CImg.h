@@ -27295,9 +27295,9 @@ namespace cimg_library_suffixed {
           tr = h + (Tfloat)1/3,
           tg = h,
           tb = h - (Tfloat)1/3,
-          ntr = tr<0?tr + 1:tr>1?tr - 1:tr,
-          ntg = tg<0?tg + 1:tg>1?tg - 1:tg,
-          ntb = tb<0?tb + 1:tb>1?tb - 1:tb,
+          ntr = tr<0?tr + 1:tr>1?tr - 1:(Tfloat)tr,
+          ntg = tg<0?tg + 1:tg>1?tg - 1:(Tfloat)tg,
+          ntb = tb<0?tb + 1:tb>1?tb - 1:(Tfloat)tb,
           R = 6*ntr<1?p + (q - p)*6*ntr:2*ntr<1?q:3*ntr<2?p + (q - p)*6*(2.0f/3 - ntr):p,
           G = 6*ntg<1?p + (q - p)*6*ntg:2*ntg<1?q:3*ntg<2?p + (q - p)*6*(2.0f/3 - ntg):p,
           B = 6*ntb<1?p + (q - p)*6*ntb:2*ntb<1?q:3*ntb<2?p + (q - p)*6*(2.0f/3 - ntb):p;

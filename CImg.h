@@ -20499,7 +20499,7 @@ namespace cimg_library_suffixed {
           whd = (longT)img.width()*img.height()*img.depth();
         const double *ptrs = &_mp_arg(1) + 1;
         if (off>=0 && off<whd) {
-          const unsigned int vsiz = (unsigned int)_mp_arg(4);
+          const unsigned int vsiz = (unsigned int)mp.opcode[4];
           T *ptrd = &img[off];
           cimg_for_inC(img,0,vsiz - 1,c) { *ptrd = (T)*(ptrs++); ptrd+=whd; }
         }
@@ -20531,7 +20531,7 @@ namespace cimg_library_suffixed {
           z = (int)_mp_arg(5);
         const double *ptrs = &_mp_arg(1) + 1;
         if (x>=0 && x<img.width() && y>=0 && y<img.height() && z>=0 && z<img.depth()) {
-          const unsigned int vsiz = (unsigned int)_mp_arg(6);
+          const unsigned int vsiz = (unsigned int)mp.opcode[6];
           T *ptrd = &img(x,y,z);
           const ulongT whd = (ulongT)img._width*img._height*img._depth;
           cimg_for_inC(img,0,vsiz - 1,c) { *ptrd = (T)*(ptrs++); ptrd+=whd; }
@@ -20567,7 +20567,7 @@ namespace cimg_library_suffixed {
           whd = (longT)img.width()*img.height()*img.depth();
         const double *ptrs = &_mp_arg(1) + 1;
         if (off>=0 && off<whd) {
-          const unsigned int vsiz = (unsigned int)_mp_arg(4);
+          const unsigned int vsiz = (unsigned int)mp.opcode[4];
           T *ptrd = &img[off];
           cimg_for_inC(img,0,vsiz - 1,c) { *ptrd = (T)*(ptrs++); ptrd+=whd; }
         }
@@ -20601,7 +20601,7 @@ namespace cimg_library_suffixed {
           z = (int)(oz + _mp_arg(5));
         const double *ptrs = &_mp_arg(1) + 1;
         if (x>=0 && x<img.width() && y>=0 && y<img.height() && z>=0 && z<img.depth()) {
-          const unsigned int vsiz = (unsigned int)_mp_arg(6);
+          const unsigned int vsiz = (unsigned int)mp.opcode[6];
           T *ptrd = &img(x,y,z);
           const ulongT whd = (ulongT)img._width*img._height*img._depth;
           cimg_for_inC(img,0,vsiz - 1,c) { *ptrd = (T)*(ptrs++); ptrd+=whd; }
@@ -20648,7 +20648,7 @@ namespace cimg_library_suffixed {
         const unsigned int
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width()),
           boundary_conditions = (unsigned int)_mp_arg(4),
-          vsiz = (unsigned int)_mp_arg(5);
+          vsiz = (unsigned int)mp.opcode[5];
         const CImg<T> &img = mp.listin[ind];
         const longT
           off = (longT)_mp_arg(3),
@@ -20683,7 +20683,7 @@ namespace cimg_library_suffixed {
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width()),
           interpolation = (unsigned int)_mp_arg(6),
           boundary_conditions = (unsigned int)_mp_arg(7),
-          vsiz = (unsigned int)_mp_arg(8);
+          vsiz = (unsigned int)mp.opcode[8];
         const CImg<T> &img = mp.listin[ind];
         const double x = _mp_arg(3), y = _mp_arg(4), z = _mp_arg(5);
         if (interpolation==0) { // Nearest neighbor interpolation
@@ -20720,7 +20720,7 @@ namespace cimg_library_suffixed {
         const unsigned int
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width()),
           boundary_conditions = (unsigned int)_mp_arg(4),
-          vsiz = (unsigned int)_mp_arg(5);
+          vsiz = (unsigned int)mp.opcode[5];
         const int
           ox = (int)mp.mem[_cimg_mp_slot_x], oy = (int)mp.mem[_cimg_mp_slot_y], oz = (int)mp.mem[_cimg_mp_slot_z];
         const CImg<T> &img = mp.listin[ind];
@@ -20757,7 +20757,7 @@ namespace cimg_library_suffixed {
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width()),
           interpolation = (unsigned int)_mp_arg(6),
           boundary_conditions = (unsigned int)_mp_arg(7),
-          vsiz = (unsigned int)_mp_arg(8);
+          vsiz = (unsigned int)mp.opcode[8];
         const CImg<T> &img = mp.listin[ind];
         const double
           ox = mp.mem[_cimg_mp_slot_x], oy = mp.mem[_cimg_mp_slot_y], oz = mp.mem[_cimg_mp_slot_z],
@@ -21369,7 +21369,7 @@ namespace cimg_library_suffixed {
           whd = (longT)img.width()*img.height()*img.depth();
         const double *ptrs = &_mp_arg(1) + 1;
         if (off>=0 && off<whd) {
-          const unsigned int vsiz = (unsigned int)_mp_arg(3);
+          const unsigned int vsiz = (unsigned int)mp.opcode[3];
           T *ptrd = &img[off];
           cimg_for_inC(img,0,vsiz - 1,c) { *ptrd = (T)*(ptrs++); ptrd+=whd; }
         }
@@ -21399,7 +21399,7 @@ namespace cimg_library_suffixed {
           z = (int)_mp_arg(4);
         const double *ptrs = &_mp_arg(1) + 1;
         if (x>=0 && x<img.width() && y>=0 && y<img.height() && z>=0 && z<img.depth()) {
-          const unsigned int vsiz = (unsigned int)_mp_arg(5);
+          const unsigned int vsiz = (unsigned int)mp.opcode[5];
           T *ptrd = &img(x,y,z);
           const ulongT whd = (ulongT)img._width*img._height*img._depth;
           cimg_for_inC(img,0,vsiz - 1,c) { *ptrd = (T)*(ptrs++); ptrd+=whd; }
@@ -21433,7 +21433,7 @@ namespace cimg_library_suffixed {
           whd = (longT)img.width()*img.height()*img.depth();
         const double *ptrs = &_mp_arg(1) + 1;
         if (off>=0 && off<whd) {
-          const unsigned int vsiz = (unsigned int)_mp_arg(3);
+          const unsigned int vsiz = (unsigned int)mp.opcode[3];
           T *ptrd = &img[off];
           cimg_for_inC(img,0,vsiz - 1,c) { *ptrd = (T)*(ptrs++); ptrd+=whd; }
         }
@@ -21465,7 +21465,7 @@ namespace cimg_library_suffixed {
           z = (int)(oz + _mp_arg(4));
         const double *ptrs = &_mp_arg(1) + 1;
         if (x>=0 && x<img.width() && y>=0 && y<img.height() && z>=0 && z<img.depth()) {
-          const unsigned int vsiz = (unsigned int)_mp_arg(5);
+          const unsigned int vsiz = (unsigned int)mp.opcode[5];
           T *ptrd = &img(x,y,z);
           const ulongT whd = (ulongT)img._width*img._height*img._depth;
           cimg_for_inC(img,0,vsiz - 1,c) { *ptrd = (T)*(ptrs++); ptrd+=whd; }
@@ -21925,7 +21925,7 @@ namespace cimg_library_suffixed {
         double *ptrd = &_mp_arg(1) + 1;
         const unsigned int
           boundary_conditions = (unsigned int)_mp_arg(3),
-          vsiz = (unsigned int)_mp_arg(4);
+          vsiz = (unsigned int)mp.opcode[4];
         const CImg<T> &img = mp.imgin;
         const longT
           off = (longT)_mp_arg(2),
@@ -21949,6 +21949,7 @@ namespace cimg_library_suffixed {
             std::memset(ptrd,0,vsiz*sizeof(double));
             return cimg::type<double>::nan();
           }
+
         ptrs = &img[off];
         cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
         return cimg::type<double>::nan();
@@ -21959,7 +21960,7 @@ namespace cimg_library_suffixed {
         const unsigned int
           interpolation = (unsigned int)_mp_arg(5),
           boundary_conditions = (unsigned int)_mp_arg(6),
-          vsiz = (unsigned int)_mp_arg(7);
+          vsiz = (unsigned int)mp.opcode[7];
         const CImg<T> &img = mp.imgin;
         const double x = _mp_arg(2), y = _mp_arg(3), z = _mp_arg(4);
         if (interpolation==0) { // Nearest neighbor interpolation
@@ -21995,7 +21996,7 @@ namespace cimg_library_suffixed {
         double *ptrd = &_mp_arg(1) + 1;
         const unsigned int
           boundary_conditions = (unsigned int)_mp_arg(3),
-          vsiz = (unsigned int)_mp_arg(4);
+          vsiz = (unsigned int)mp.opcode[4];
         const CImg<T> &img = mp.imgin;
         const int
           ox = (int)mp.mem[_cimg_mp_slot_x],
@@ -22033,7 +22034,7 @@ namespace cimg_library_suffixed {
         const unsigned int
           interpolation = (unsigned int)_mp_arg(5),
           boundary_conditions = (unsigned int)_mp_arg(6),
-          vsiz = (unsigned int)_mp_arg(7);
+          vsiz = (unsigned int)mp.opcode[7];
         const CImg<T> &img = mp.imgin;
         const double
           ox = mp.mem[_cimg_mp_slot_x], oy = mp.mem[_cimg_mp_slot_y], oz = mp.mem[_cimg_mp_slot_z],

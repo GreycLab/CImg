@@ -33744,35 +33744,38 @@ namespace cimg_library_suffixed {
       \param boundary_conditions Boundary conditions. Can be <tt>{ 0=dirichlet | 1=neumann }</tt>.
     */
     static void _cimg_blur_box_apply(T *ptr, const float boxsize, const int N, const ulongT off,
-                                     const int order, const bool boundary_conditions) {
+                                     const int order, const bool boundary_conditions,
+                                     const unsigned int nb_iter) {
       // Smooth.
-      if (boxsize>1) {
+      if (boxsize>1 && nb_iter) {
         const int w2 = (int)(boxsize - 1)/2;
         const unsigned int winsize = 2*w2 + 1U;
-        const double frac = (boxsize - winsize)/2.0;
+        const double frac = (boxsize - winsize)/2.;
         CImg<Tfloat> win(winsize);
-        Tfloat sum = 0; // window sum
-        for (int x = -w2; x<=w2; ++x) {
-          win[x + w2] = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,x);
-          sum+=win[x + w2];
-        }
-        int ifirst = 0, ilast = 2*w2;
-        Tfloat
-          prev = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,-w2 - 1),
-          next = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,w2 + 1);
-        for (int x = 0; x < N - 1; ++x) {
+        for (unsigned int iter = 0; iter<nb_iter; ++iter) {
+          Tfloat sum = 0; // window sum
+          for (int x = -w2; x<=w2; ++x) {
+            win[x + w2] = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,x);
+            sum+=win[x + w2];
+          }
+          int ifirst = 0, ilast = 2*w2;
+          Tfloat
+            prev = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,-w2 - 1),
+            next = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,w2 + 1);
+          for (int x = 0; x < N - 1; ++x) {
+            const double sum2 = sum + frac * (prev + next);
+            ptr[x*off] = (T)(sum2/boxsize);
+            prev = win[ifirst];
+            sum-=prev;
+            ifirst = (int)((ifirst + 1)%winsize);
+            ilast = (int)((ilast + 1)%winsize);
+            win[ilast] = next;
+            sum+=next;
+            next = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,x + w2 + 2);
+          }
           const double sum2 = sum + frac * (prev + next);
-          ptr[x*off] = (T)(sum2/boxsize);
-          prev = win[ifirst];
-          sum-=prev;
-          ifirst = (int)((ifirst + 1)%winsize);
-          ilast = (int)((ilast + 1)%winsize);
-          win[ilast] = next;
-          sum+=next;
-          next = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,x + w2 + 2);
+          ptr[(N - 1)*off] = (T)(sum2/boxsize);
         }
-        const double sum2 = sum + frac * (prev + next);
-        ptr[(N - 1)*off] = (T)(sum2/boxsize);
       }
 
       // Derive.
@@ -33823,7 +33826,8 @@ namespace cimg_library_suffixed {
       \param boundary_conditions Boundary conditions. Can be <tt>{ 0=dirichlet | 1=neumann }</tt>.
     **/
     CImg<T>& boxfilter(const float boxsize, const int order, const char axis='x',
-                       const bool boundary_conditions=true) {
+                       const bool boundary_conditions=true,
+                       const unsigned int nb_iter=1) {
       if (is_empty() || !boxsize || (boxsize<=1 && !order)) return *this;
       const char naxis = cimg::lowercase(axis);
       const float nboxsize = boxsize>=0?boxsize:-boxsize*
@@ -33832,23 +33836,23 @@ namespace cimg_library_suffixed {
       case 'x' : {
         cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width>=256 && _height*_depth*_spectrum>=16))
         cimg_forYZC(*this,y,z,c)
-          _cimg_blur_box_apply(data(0,y,z,c),nboxsize,_width,1U,order,boundary_conditions);
+          _cimg_blur_box_apply(data(0,y,z,c),nboxsize,_width,1U,order,boundary_conditions,nb_iter);
       } break;
       case 'y' : {
         cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width>=256 && _height*_depth*_spectrum>=16))
         cimg_forXZC(*this,x,z,c)
-          _cimg_blur_box_apply(data(x,0,z,c),nboxsize,_height,(ulongT)_width,order,boundary_conditions);
+          _cimg_blur_box_apply(data(x,0,z,c),nboxsize,_height,(ulongT)_width,order,boundary_conditions,nb_iter);
       } break;
       case 'z' : {
         cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width>=256 && _height*_depth*_spectrum>=16))
         cimg_forXYC(*this,x,y,c)
-          _cimg_blur_box_apply(data(x,y,0,c),nboxsize,_depth,(ulongT)_width*_height,order,boundary_conditions);
+          _cimg_blur_box_apply(data(x,y,0,c),nboxsize,_depth,(ulongT)_width*_height,order,boundary_conditions,nb_iter);
       } break;
       default : {
         cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width>=256 && _height*_depth*_spectrum>=16))
         cimg_forXYZ(*this,x,y,z)
           _cimg_blur_box_apply(data(x,y,z,0),nboxsize,_spectrum,(ulongT)_width*_height*_depth,
-                               order,boundary_conditions);
+                               order,boundary_conditions,nb_iter);
       }
       }
       return *this;
@@ -33856,8 +33860,9 @@ namespace cimg_library_suffixed {
 
     // Apply box filter of order 0,1 or 2 \newinstance.
     CImg<Tfloat> get_boxfilter(const float boxsize, const int order, const char axis='x',
-                               const bool boundary_conditions=true) const {
-      return CImg<Tfloat>(*this,false).boxfilter(boxsize,order,axis,boundary_conditions);
+                               const bool boundary_conditions=true,
+                               const unsigned int nb_iter=1) const {
+      return CImg<Tfloat>(*this,false).boxfilter(boxsize,order,axis,boundary_conditions,nb_iter);
     }
 
     //! Blur image with a box filter.
@@ -33871,11 +33876,12 @@ namespace cimg_library_suffixed {
        \see blur().
     **/
     CImg<T>& blur_box(const float boxsize_x, const float boxsize_y, const float boxsize_z,
-                      const bool boundary_conditions=true) {
+                      const bool boundary_conditions=true,
+                      const unsigned int nb_iter=1) {
       if (is_empty()) return *this;
-      if (_width>1) boxfilter(boxsize_x,0,'x',boundary_conditions);
-      if (_height>1) boxfilter(boxsize_y,0,'y',boundary_conditions);
-      if (_depth>1) boxfilter(boxsize_z,0,'z',boundary_conditions);
+      if (_width>1) boxfilter(boxsize_x,0,'x',boundary_conditions,nb_iter);
+      if (_height>1) boxfilter(boxsize_y,0,'y',boundary_conditions,nb_iter);
+      if (_depth>1) boxfilter(boxsize_z,0,'z',boundary_conditions,nb_iter);
       return *this;
     }
 

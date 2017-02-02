@@ -15583,33 +15583,12 @@ namespace cimg_library_suffixed {
             ref.assign(7);
             arg1 = compile(ss,ns,depth1,ref); // Vector slot
             arg2 = compile(s + 1,se,depth1,0); // Right operand
-            if (*ps!='*') {
-              _cimg_mp_check_type(arg1,2,2,2);
-              _cimg_mp_check_type(arg2,2,2,2);
-            }
-            if (_cimg_mp_is_vector(arg2)) { // Complex **= complex or Matrix **= matrix
-              if (*ps=='*') {
-                if (_cimg_mp_vector_size(arg1)==2 && _cimg_mp_vector_size(arg2)==2)
-                  CImg<ulongT>::vector((ulongT)mp_complex_mul,arg1,arg1,arg2).move_to(code);
-                else {
-                  _cimg_mp_check_matrix_square(arg2,2);
-                  p3 = _cimg_mp_vector_size(arg1);
-                  p2 = (unsigned int)std::sqrt((float)_cimg_mp_vector_size(arg2));
-                  p1 = p3/p2;
-                  if (p1*p2!=p3) {
-                    *se = saved_char;
-                    s0 = ss - 4>expr._data?ss - 4:expr._data;
-                    cimg::strellipsize(s0,64);
-                    throw CImgArgumentException("[_cimg_math_parser] "
-                                                "CImg<%s>::%s: %s: Types of left-hand and right-hand operands "
-                                                "('%s' and '%s') do not match, in expression '%s%s%s'.",
-                                                pixel_type(),_cimg_mp_calling_function,s_op,
-                                                s_type(arg1)._data,s_type(arg2)._data,
-                                                s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
-                  }
-                  CImg<ulongT>::vector((ulongT)mp_matrix_mul,arg1,arg1,arg2,p1,p2,p2).move_to(code);
-                }
-              } else if (*ps=='/')
+            _cimg_mp_check_type(arg1,1,2,2);
+            _cimg_mp_check_type(arg2,2,3,2);
+            if (_cimg_mp_is_vector(arg2)) { // Complex **= complex
+              if (*ps=='*')
+                CImg<ulongT>::vector((ulongT)mp_complex_mul,arg1,arg1,arg2).move_to(code);
+              else if (*ps=='/')
                 CImg<ulongT>::vector((ulongT)mp_complex_div_vv,arg1,arg1,arg2).move_to(code);
               else
                 CImg<ulongT>::vector((ulongT)mp_complex_pow_vv,arg1,arg1,arg2).move_to(code);
@@ -16097,36 +16076,18 @@ namespace cimg_library_suffixed {
           }
 
         for (s = se3, ns = se2; s>ss; --s, --ns)
-          if (*s=='*' && *ns=='*' && level[s - expr._data]==clevel) { // Complex/matrix multiplication ('**')
+          if (*s=='*' && *ns=='*' && level[s - expr._data]==clevel) { // Complex multiplication ('**')
             _cimg_mp_op("Operator '**'");
             arg1 = compile(ss,s,depth1,0);
             arg2 = compile(s + 2,se,depth1,0);
+            _cimg_mp_check_type(arg1,1,3,2);
+            _cimg_mp_check_type(arg2,2,3,2);
             if (arg2==1) _cimg_mp_return(arg1);
             if (arg1==1) _cimg_mp_return(arg2);
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2)) {
-              if (_cimg_mp_vector_size(arg1)==2 && _cimg_mp_vector_size(arg2)==2) { // Complex multiplication
-                pos = vector(2);
-                CImg<ulongT>::vector((ulongT)mp_complex_mul,pos,arg1,arg2).move_to(code);
-                _cimg_mp_return(pos);
-              } else { // Particular case of matrix multiplication
-                p1 = _cimg_mp_vector_size(arg1);
-                p2 = _cimg_mp_vector_size(arg2);
-                arg4 = p1/p2;
-                if (arg4*p2!=p1) {
-                  *se = saved_char;
-                  s0 = ss - 4>expr._data?ss - 4:expr._data;
-                  cimg::strellipsize(s0,64);
-                  throw CImgArgumentException("[_cimg_math_parser] "
-                                              "CImg<%s>::%s: %s: Types of left-hand and right-hand operands "
-                                              "('%s' and '%s') do not match, in expression '%s%s%s'.",
-                                              pixel_type(),_cimg_mp_calling_function,s_op,
-                                              s_type(arg1)._data,s_type(arg2)._data,
-                                              s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
-                }
-                pos = vector(arg4);
-                CImg<ulongT>::vector((ulongT)mp_matrix_mul,pos,arg1,arg2,arg4,p2,1).move_to(code);
-                _cimg_mp_return(pos);
-              }
+              pos = vector(2);
+              CImg<ulongT>::vector((ulongT)mp_complex_mul,pos,arg1,arg2).move_to(code);
+              _cimg_mp_return(pos);
             }
             if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_mul,arg1,arg2);
             if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_mul,arg1,arg2);

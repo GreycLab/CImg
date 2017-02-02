@@ -15593,9 +15593,16 @@ namespace cimg_library_suffixed {
               else
                 CImg<ulongT>::vector((ulongT)mp_complex_pow_vv,arg1,arg1,arg2).move_to(code);
             } else { // Complex **= scalar
-              if (*ps=='*') self_vector_s(arg1,mp_self_mul,arg2);
-              else if (*ps=='/') self_vector_s(arg1,mp_self_div,arg2);
-              else CImg<ulongT>::vector((ulongT)mp_complex_pow_vs,arg1,arg1,arg2).move_to(code);
+              if (*ps=='*') {
+                if (arg2==1) _cimg_mp_return(arg1);
+                self_vector_s(arg1,mp_self_mul,arg2);
+              } else if (*ps=='/') {
+                if (arg2==1) _cimg_mp_return(arg1);
+                self_vector_s(arg1,mp_self_div,arg2);
+              } else {
+                if (arg2==1) _cimg_mp_return(arg1);
+                CImg<ulongT>::vector((ulongT)mp_complex_pow_vs,arg1,arg1,arg2).move_to(code);
+              }
             }
 
             // Write computed value back in image if necessary.
@@ -15659,6 +15666,10 @@ namespace cimg_library_suffixed {
             ref.assign(7);
             arg1 = compile(ss,s1,depth1,ref); // Variable slot
             arg2 = compile(s + 1,se,depth1,0); // Value to apply
+
+            // Check for particular case to be simplified.
+            if ((op==mp_self_add || op==mp_self_sub) && !arg2) _cimg_mp_return(arg1);
+            if ((op==mp_self_mul || op==mp_self_div) && arg2==1) _cimg_mp_return(arg1);
 
             // Apply operator on a copy to prevent modifying a constant or a variable.
             if (*ref && (_cimg_mp_is_constant(arg1) || _cimg_mp_is_vector(arg1) || _cimg_mp_is_variable(arg1))) {

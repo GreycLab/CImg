@@ -380,7 +380,8 @@
             Bilbao/Spain, from Patrick Wauters.</a></li>
         <li><a href="img/postcard65.jpg" onclick="NewWindow(this.href,'name','420','320','yes');return false;">
             Haldern/Germany, from Volker Doebel.</a></li>
-
+        <li><a href="img/postcard66.jpg" onclick="NewWindow(this.href,'name','420','320','yes');return false;">
+            France, from Powlux.</a></li>
         <br/><br/></li>
     </ul></li>
   </ul>

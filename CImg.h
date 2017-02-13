@@ -41638,6 +41638,9 @@ namespace cimg_library_suffixed {
       if (ny0>ny2) cimg::swap(nx0,nx2,ny0,ny2,ntx0,ntx2,nty0,nty2,nlx0,nlx2,nly0,nly2);
       if (ny1>ny2) cimg::swap(nx1,nx2,ny1,ny2,ntx1,ntx2,nty1,nty2,nlx1,nlx2,nly1,nly2);
       if (ny0>=height() || ny2<0) return *this;
+      const bool is_bump = texture._spectrum>=_spectrum + 2;
+      const ulongT obx = twh*_spectrum, oby = twh*(_spectrum + 1);
+
       _cimg_for_triangle5(*this,xleft0,lxleft0,lyleft0,txleft0,tyleft0,xright0,lxright0,lyright0,txright0,tyright0,y,
                           nx0,ny0,nlx0,nly0,ntx0,nty0,nx1,ny1,nlx1,nly1,ntx1,nty1,nx2,ny2,nlx2,nly2,ntx2,nty2) {
         int
@@ -41677,7 +41680,8 @@ namespace cimg_library_suffixed {
         T* ptrd = data(xleft,y,0,0);
         if (opacity>=1) for (int x = xleft; x<=xright; ++x) {
           const tc *col = &texture._atXY(txleft,tyleft);
-          const tl *lig = &light._atXY(lxleft,lyleft);
+          const int bx = is_bump?128 - (int)col[obx]:0, by = is_bump?128 - (int)col[oby]:0;
+          const tl *lig = &light._atXY(lxleft + bx,lyleft + by);
           cimg_forC(*this,c) {
             const tl l = *lig;
             *ptrd = (T)(l<1?l**col:(2 - l)**col + (l - 1)*maxval);
@@ -41690,7 +41694,8 @@ namespace cimg_library_suffixed {
           tyleft+=rty+((errty-=ndty)<0?errty+=dx,sty:0);
         } else for (int x = xleft; x<=xright; ++x) {
           const tc *col = &texture._atXY(txleft,tyleft);
-          const tl *lig = &light._atXY(lxleft,lyleft);
+          const int bx = is_bump?128 - (int)col[obx]:0, by = is_bump?128 - (int)col[oby]:0;
+          const tl *lig = &light._atXY(lxleft + bx,lyleft + by);
           cimg_forC(*this,c) {
             const tl l = *lig;
             const T val = (T)(l<1?l**col:(2 - l)**col + (l - 1)*maxval);
@@ -41773,6 +41778,9 @@ namespace cimg_library_suffixed {
           (ptxl=ptxn,(ntx1 - ny1*(ntx2 - ntx1)/(ny2 - ny1))),
         tyl = ny1>=0?(ny0>=0?nty0:(nty0 - ny0*(nty1 - nty0)/(ny1 - ny0))):
           (ptyl=ptyn,(nty1 - ny1*(nty2 - nty1)/(ny2 - ny1)));
+      const bool is_bump = texture._spectrum>=_spectrum + 2;
+      const ulongT obx = twh*_spectrum, oby = twh*(_spectrum + 1);
+
       _cimg_for_triangle3(*this,xleft0,lxleft0,lyleft0,xright0,lxright0,lyright0,y,
                           nx0,ny0,nlx0,nly0,nx1,ny1,nlx1,nly1,nx2,ny2,nlx2,nly2) {
         if (y==ny1) { zl = nz1; txl = ntx1; tyl = nty1; pzl = pzn; ptxl = ptxn; ptyl = ptyn; }
@@ -41814,7 +41822,8 @@ namespace cimg_library_suffixed {
         if (opacity>=1) for (int x = xleft; x<=xright; ++x) {
           const float invz = 1/zleft;
           const tc *col = &texture._atXY((int)(txleft*invz),(int)(tyleft*invz));
-          const tl *lig = &light._atXY(lxleft,lyleft);
+          const int bx = is_bump?128 - (int)col[obx]:0, by = is_bump?128 - (int)col[oby]:0;
+          const tl *lig = &light._atXY(lxleft + bx,lyleft + by);
           cimg_forC(*this,c) {
             const tl l = *lig;
             *ptrd = (T)(l<1?l**col:(2 - l)**col + (l - 1)*maxval);
@@ -41826,7 +41835,8 @@ namespace cimg_library_suffixed {
         } else for (int x = xleft; x<=xright; ++x) {
           const float invz = 1/zleft;
           const tc *col = &texture._atXY((int)(txleft*invz),(int)(tyleft*invz));
-          const tl *lig = &light._atXY(lxleft,lyleft);
+          const int bx = is_bump?128 - (int)col[obx]:0, by = is_bump?128 - (int)col[oby]:0;
+          const tl *lig = &light._atXY(lxleft + bx,lyleft + by);
           cimg_forC(*this,c) {
             const tl l = *lig;
             const T val = (T)(l<1?l**col:(2 - l)**col + (l - 1)*maxval);
@@ -41917,6 +41927,9 @@ namespace cimg_library_suffixed {
         pzn = (nz2 - nz1)/(ny2 - ny1),
         zr = ny0>=0?nz0:(nz0 - ny0*(nz2 - nz0)/(ny2 - ny0)),
         zl = ny1>=0?(ny0>=0?nz0:(nz0 - ny0*(nz1 - nz0)/(ny1 - ny0))):(pzl=pzn,(nz1 - ny1*(nz2 - nz1)/(ny2 - ny1)));
+      const bool is_bump = texture._spectrum>=_spectrum + 2;
+      const ulongT obx = twh*_spectrum, oby = twh*(_spectrum + 1);
+
       _cimg_for_triangle3(*this,xleft0,lxleft0,lyleft0,xright0,lxright0,lyright0,y,
                           nx0,ny0,nlx0,nly0,nx1,ny1,nlx1,nly1,nx2,ny2,nlx2,nly2) {
         if (y==ny1) { zl = nz1; txl = ntx1; tyl = nty1; pzl = pzn; ptxl = ptxn; ptyl = ptyn; }
@@ -41957,7 +41970,8 @@ namespace cimg_library_suffixed {
               *ptrz = (tz)zleft;
               const tzfloat invz = 1/zleft;
               const tc *col = &texture._atXY((int)(txleft*invz),(int)(tyleft*invz));
-              const tl *lig = &light._atXY(lxleft,lyleft);
+              const int bx = is_bump?128 - (int)col[obx]:0, by = is_bump?128 - (int)col[oby]:0;
+              const tl *lig = &light._atXY(lxleft + bx,lyleft + by);
               cimg_forC(*this,c) {
                 const tl l = *lig;
                 *ptrd = (T)(l<1?l**col:(2 - l)**col + (l - 1)*maxval);
@@ -41973,7 +41987,8 @@ namespace cimg_library_suffixed {
               *ptrz = (tz)zleft;
               const tzfloat invz = 1/zleft;
               const tc *col = &texture._atXY((int)(txleft*invz),(int)(tyleft*invz));
-              const tl *lig = &light._atXY(lxleft,lyleft);
+              const int bx = is_bump?128 - (int)col[obx]:0, by = is_bump?128 - (int)col[oby]:0;
+              const tl *lig = &light._atXY(lxleft + bx,lyleft + by);
               cimg_forC(*this,c) {
                 const tl l = *lig;
                 const T val = (T)(l<1?l**col:(2 - l)**col + (l - 1)*maxval);

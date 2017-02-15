@@ -33740,15 +33740,15 @@ namespace cimg_library_suffixed {
         const int w2 = (int)(boxsize - 1)/2;
         const unsigned int winsize = 2*w2 + 1U;
         const double frac = (boxsize - winsize)/2.;
-        CImg<Tfloat> win(winsize);
+        CImg<T> win(winsize);
         for (unsigned int iter = 0; iter<nb_iter; ++iter) {
-          Tfloat sum = 0; // window sum
+          Tdouble sum = 0; // window sum
           for (int x = -w2; x<=w2; ++x) {
             win[x + w2] = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,x);
             sum+=win[x + w2];
           }
           int ifirst = 0, ilast = 2*w2;
-          Tfloat
+          T
             prev = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,-w2 - 1),
             next = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,w2 + 1);
           for (int x = 0; x < N - 1; ++x) {

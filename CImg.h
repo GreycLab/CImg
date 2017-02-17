@@ -29337,7 +29337,7 @@ namespace cimg_library_suffixed {
                    const unsigned int boundary_conditions=0) {
       if (is_empty()) return *this;
       if (boundary_conditions==3)
-        return get_crop(-delta_x,-delta_y,delta_z,-delta_c,
+        return get_crop(-delta_x,-delta_y,-delta_z,-delta_c,
                         width() - delta_x - 1,
                         height() - delta_y - 1,
                         depth() - delta_z - 1,

@@ -20754,6 +20754,7 @@ namespace cimg_library_suffixed {
         const CImg<T> &img = mp.listin[ind];
         const double x = _mp_arg(3), y = _mp_arg(4), z = _mp_arg(5);
         const ulongT whd = (ulongT)img._width*img._height*img._depth;
+        const T *ptrs;
         if (interpolation==0) switch (boundary_conditions) { // Nearest neighbor interpolation
           case 3 : { // Mirror
             const int
@@ -20762,7 +20763,7 @@ namespace cimg_library_suffixed {
               cx = mx<img.width()?mx:w2 - mx - 1,
               cy = my<img.height()?my:h2 - my - 1,
               cz = mz<img.depth()?mz:d2 - mz - 1;
-            const T *ptrs = &img(cx,cy,cz);
+            ptrs = &img(cx,cy,cz);
             cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
           } break;
           case 2 : { // Periodic
@@ -20770,16 +20771,16 @@ namespace cimg_library_suffixed {
               cx = cimg::mod((int)x,img.width()),
               cy = cimg::mod((int)y,img.height()),
               cz = cimg::mod((int)z,img.depth());
-            const T *ptrs = &img(cx,cy,cz);
+            ptrs = &img(cx,cy,cz);
             cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
           } break;
           case 1 : { // Neumann
-            const T *ptrs = &img._atXYZ((int)x,(int)y,(int)z);
+            ptrs = &img._atXYZ((int)x,(int)y,(int)z);
             cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
           } break;
           default : // Dirichlet
             if (img.containsXYZC(x,y,z)) {
-              const T *ptrs = &img((int)x,(int)y,(int)z);
+              ptrs = &img((int)x,(int)y,(int)z);
               cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
             } else std::memset(ptrd,0,vsiz*sizeof(double));
           } else switch (boundary_conditions) { // Linear interpolation
@@ -20861,6 +20862,7 @@ namespace cimg_library_suffixed {
           ox = mp.mem[_cimg_mp_slot_x], oy = mp.mem[_cimg_mp_slot_y], oz = mp.mem[_cimg_mp_slot_z],
           x = ox + _mp_arg(3), y = oy + _mp_arg(4), z = oz + _mp_arg(5);
         const ulongT whd = (ulongT)img._width*img._height*img._depth;
+        const T *ptrs;
         if (interpolation==0) switch (boundary_conditions) { // Nearest neighbor interpolation
           case 3 : { // Mirror
             const int
@@ -20869,7 +20871,7 @@ namespace cimg_library_suffixed {
               cx = mx<img.width()?mx:w2 - mx - 1,
               cy = my<img.height()?my:h2 - my - 1,
               cz = mz<img.depth()?mz:d2 - mz - 1;
-            const T *ptrs = &img(cx,cy,cz);
+            ptrs = &img(cx,cy,cz);
             cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
           } break;
           case 2 : { // Periodic
@@ -20877,16 +20879,16 @@ namespace cimg_library_suffixed {
               cx = cimg::mod((int)x,img.width()),
               cy = cimg::mod((int)y,img.height()),
               cz = cimg::mod((int)z,img.depth());
-            const T *ptrs = &img(cx,cy,cz);
+            ptrs = &img(cx,cy,cz);
             cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
           } break;
           case 1 : { // Neumann
-            const T *ptrs = &img._atXYZ((int)x,(int)y,(int)z);
+            ptrs = &img._atXYZ((int)x,(int)y,(int)z);
             cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
           } break;
           default : // Dirichlet
             if (img.containsXYZC(x,y,z)) {
-              const T *ptrs = &img((int)x,(int)y,(int)z);
+              ptrs = &img((int)x,(int)y,(int)z);
               cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
             } else std::memset(ptrd,0,vsiz*sizeof(double));
           } else switch (boundary_conditions) { // Linear interpolation
@@ -22088,6 +22090,7 @@ namespace cimg_library_suffixed {
         const CImg<T> &img = mp.imgin;
         const double x = _mp_arg(2), y = _mp_arg(3), z = _mp_arg(4);
         const ulongT whd = (ulongT)img._width*img._height*img._depth;
+        const T *ptrs;
         if (interpolation==0) switch (boundary_conditions) { // Nearest neighbor interpolation
           case 3 : { // Mirror
             const int
@@ -22096,7 +22099,7 @@ namespace cimg_library_suffixed {
               cx = mx<img.width()?mx:w2 - mx - 1,
               cy = my<img.height()?my:h2 - my - 1,
               cz = mz<img.depth()?mz:d2 - mz - 1;
-            const T *ptrs = &img(cx,cy,cz);
+            ptrs = &img(cx,cy,cz);
             cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
           } break;
           case 2 : { // Periodic
@@ -22104,16 +22107,16 @@ namespace cimg_library_suffixed {
               cx = cimg::mod((int)x,img.width()),
               cy = cimg::mod((int)y,img.height()),
               cz = cimg::mod((int)z,img.depth());
-            const T *ptrs = &img(cx,cy,cz);
+            ptrs = &img(cx,cy,cz);
             cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
           } break;
           case 1 : { // Neumann
-            const T *ptrs = &img._atXYZ((int)x,(int)y,(int)z);
+            ptrs = &img._atXYZ((int)x,(int)y,(int)z);
             cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
           } break;
           default : // Dirichlet
             if (img.containsXYZC(x,y,z)) {
-              const T *ptrs = &img((int)x,(int)y,(int)z);
+              ptrs = &img((int)x,(int)y,(int)z);
               cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
             } else std::memset(ptrd,0,vsiz*sizeof(double));
           } else switch (boundary_conditions) { // Linear interpolation
@@ -22195,6 +22198,7 @@ namespace cimg_library_suffixed {
           ox = mp.mem[_cimg_mp_slot_x], oy = mp.mem[_cimg_mp_slot_y], oz = mp.mem[_cimg_mp_slot_z],
           x = ox + _mp_arg(2), y = oy + _mp_arg(3), z = oz + _mp_arg(4);
         const ulongT whd = (ulongT)img._width*img._height*img._depth;
+        const T *ptrs;
         if (interpolation==0) switch (boundary_conditions) { // Nearest neighbor interpolation
           case 3 : { // Mirror
             const int
@@ -22203,7 +22207,7 @@ namespace cimg_library_suffixed {
               cx = mx<img.width()?mx:w2 - mx - 1,
               cy = my<img.height()?my:h2 - my - 1,
               cz = mz<img.depth()?mz:d2 - mz - 1;
-            const T *ptrs = &img(cx,cy,cz);
+            ptrs = &img(cx,cy,cz);
             cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
           } break;
           case 2 : { // Periodic
@@ -22211,16 +22215,16 @@ namespace cimg_library_suffixed {
               cx = cimg::mod((int)x,img.width()),
               cy = cimg::mod((int)y,img.height()),
               cz = cimg::mod((int)z,img.depth());
-            const T *ptrs = &img(cx,cy,cz);
+            ptrs = &img(cx,cy,cz);
             cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
           } break;
           case 1 : { // Neumann
-            const T *ptrs = &img._atXYZ((int)x,(int)y,(int)z);
+            ptrs = &img._atXYZ((int)x,(int)y,(int)z);
             cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
           } break;
           default : // Dirichlet
             if (img.containsXYZC(x,y,z)) {
-              const T *ptrs = &img((int)x,(int)y,(int)z);
+              ptrs = &img((int)x,(int)y,(int)z);
               cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
             } else std::memset(ptrd,0,vsiz*sizeof(double));
           } else switch (boundary_conditions) { // Linear interpolation
@@ -26837,7 +26841,7 @@ namespace cimg_library_suffixed {
     //! Map predefined colormap on the scalar (indexed) image instance.
     /**
        \param colormap Multi-valued colormap used for mapping the indexes.
-       \param boundary_conditions The border condition type { 0=zero |  1=dirichlet | 2=periodic }.
+       \param boundary_conditions The border condition type { 0=zero |  1=dirichlet | 2=periodic | 3=mirror }.
        \par Example
        \code
        const CImg<float> img("reference.jpg"),
@@ -26865,122 +26869,135 @@ namespace cimg_library_suffixed {
 
       const ulongT
         whd = (ulongT)_width*_height*_depth,
-        pwhd = (ulongT)colormap._width*colormap._height*colormap._depth;
+        cwhd = (ulongT)colormap._width*colormap._height*colormap._depth,
+        cwhd2 = 2*cwhd;
       CImg<t> res(_width,_height,_depth,colormap._spectrum==1?_spectrum:colormap._spectrum);
       switch (colormap._spectrum) {
 
-      case 1 : { // Optimized for scalars.
+      case 1 : { // Optimized for scalars
         const T *ptrs = _data;
         switch (boundary_conditions) {
-        case 2 : // Periodic boundaries.
+        case 3 : // Mirror
+          cimg_for(res,ptrd,t) {
+            const ulongT ind = ((ulongT)*(ptrs++))%cwhd2;
+            *ptrd = colormap[ind<cwhd?ind:cwhd2 - ind - 1];
+          }
+          break;
+        case 2 : // Periodic
           cimg_for(res,ptrd,t) {
             const ulongT ind = (ulongT)*(ptrs++);
-            *ptrd = colormap[ind%pwhd];
+            *ptrd = colormap[ind%cwhd];
           } break;
-        case 1 : // Neumann boundaries.
+        case 1 : // Neumann
           cimg_for(res,ptrd,t) {
             const longT ind = (longT)*(ptrs++);
-            *ptrd = colormap[cimg::cut(ind,(longT)0,(longT)pwhd - 1)];
+            *ptrd = colormap[cimg::cut(ind,(longT)0,(longT)cwhd - 1)];
           } break;
-        default : // Dirichlet boundaries.
+        default : // Dirichlet
           cimg_for(res,ptrd,t) {
             const ulongT ind = (ulongT)*(ptrs++);
-            *ptrd = ind<pwhd?colormap[ind]:(t)0;
+            *ptrd = ind<cwhd?colormap[ind]:(t)0;
           }
         }
       } break;
 
       case 2 : { // Optimized for 2d vectors.
+        const t *const ptrp0 = colormap._data, *ptrp1 = ptrp0 + cwhd;
+        t *ptrd0 = res._data, *ptrd1 = ptrd0 + whd;
         switch (boundary_conditions) {
-        case 2 : { // Periodic boundaries.
-          const t *const ptrp0 = colormap._data, *ptrp1 = ptrp0 + pwhd;
-          t *ptrd0 = res._data, *ptrd1 = ptrd0 + whd;
+        case 3 : // Mirror
           for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
-            const ulongT ind = ((ulongT)*(ptrs++))%pwhd;
+            const ulongT
+              _ind = ((ulongT)*(ptrs++))%cwhd2,
+              ind = _ind<cwhd?_ind:cwhd2 - _ind - 1;
             *(ptrd0++) = ptrp0[ind]; *(ptrd1++) = ptrp1[ind];
           }
-        } break;
-        case 1 : { // Neumann boundaries.
-          const t *const ptrp0 = colormap._data, *ptrp1 = ptrp0 + pwhd;
-          t *ptrd0 = res._data, *ptrd1 = ptrd0 + whd;
+          break;
+        case 2 : // Periodic
           for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
-            const longT ind = cimg::cut((longT)*(ptrs++),(longT)0,(longT)pwhd - 1);
+            const ulongT ind = ((ulongT)*(ptrs++))%cwhd;
             *(ptrd0++) = ptrp0[ind]; *(ptrd1++) = ptrp1[ind];
           }
-        } break;
-        default : { // Dirichlet boundaries.
-          const t *const ptrp0 = colormap._data, *ptrp1 = ptrp0 + pwhd;
-          t *ptrd0 = res._data, *ptrd1 = ptrd0 + whd;
+          break;
+        case 1 : // Neumann
+          for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
+            const longT ind = cimg::cut((longT)*(ptrs++),(longT)0,(longT)cwhd - 1);
+            *(ptrd0++) = ptrp0[ind]; *(ptrd1++) = ptrp1[ind];
+          }
+          break;
+        default : // Dirichlet
           for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
             const ulongT ind = (ulongT)*(ptrs++);
-            const bool is_in = ind<pwhd;
+            const bool is_in = ind<cwhd;
             *(ptrd0++) = is_in?ptrp0[ind]:(t)0; *(ptrd1++) = is_in?ptrp1[ind]:(t)0;
           }
-        }
         }
       } break;
 
       case 3 : { // Optimized for 3d vectors (colors).
+        const t *const ptrp0 = colormap._data, *ptrp1 = ptrp0 + cwhd, *ptrp2 = ptrp1 + cwhd;
+        t *ptrd0 = res._data, *ptrd1 = ptrd0 + whd, *ptrd2 = ptrd1 + whd;
         switch (boundary_conditions) {
-        case 2 : { // Periodic boundaries.
-          const t *const ptrp0 = colormap._data, *ptrp1 = ptrp0 + pwhd, *ptrp2 = ptrp1 + pwhd;
-          t *ptrd0 = res._data, *ptrd1 = ptrd0 + whd, *ptrd2 = ptrd1 + whd;
+        case 3 : // Mirror
           for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
-            const ulongT ind = ((ulongT)*(ptrs++))%pwhd;
+            const ulongT
+              _ind = ((ulongT)*(ptrs++))%cwhd2,
+              ind = _ind<cwhd?_ind:cwhd2 - _ind - 1;
             *(ptrd0++) = ptrp0[ind]; *(ptrd1++) = ptrp1[ind]; *(ptrd2++) = ptrp2[ind];
-          }
-        } break;
-        case 1 : { // Neumann boundaries.
-          const t *const ptrp0 = colormap._data, *ptrp1 = ptrp0 + pwhd, *ptrp2 = ptrp1 + pwhd;
-          t *ptrd0 = res._data, *ptrd1 = ptrd0 + whd, *ptrd2 = ptrd1 + whd;
+          } break;
+        case 2 : // Periodic
           for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
-            const longT ind = cimg::cut((longT)*(ptrs++),(longT)0,(longT)pwhd - 1);
+            const ulongT ind = ((ulongT)*(ptrs++))%cwhd;
             *(ptrd0++) = ptrp0[ind]; *(ptrd1++) = ptrp1[ind]; *(ptrd2++) = ptrp2[ind];
-          }
-        } break;
-        default : { // Dirichlet boundaries.
-          const t *const ptrp0 = colormap._data, *ptrp1 = ptrp0 + pwhd, *ptrp2 = ptrp1 + pwhd;
-          t *ptrd0 = res._data, *ptrd1 = ptrd0 + whd, *ptrd2 = ptrd1 + whd;
+          } break;
+        case 1 : // Neumann
+          for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
+            const longT ind = cimg::cut((longT)*(ptrs++),(longT)0,(longT)cwhd - 1);
+            *(ptrd0++) = ptrp0[ind]; *(ptrd1++) = ptrp1[ind]; *(ptrd2++) = ptrp2[ind];
+          } break;
+        default : // Dirichlet
           for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
             const ulongT ind = (ulongT)*(ptrs++);
-            const bool is_in = ind<pwhd;
+            const bool is_in = ind<cwhd;
             *(ptrd0++) = is_in?ptrp0[ind]:(t)0; *(ptrd1++) = is_in?ptrp1[ind]:(t)0; *(ptrd2++) = is_in?ptrp2[ind]:(t)0;
           }
-        }
         }
       } break;
 
       default : { // Generic version.
+        t *ptrd = res._data;
         switch (boundary_conditions) {
-        case 2 : { // Periodic boundaries.
-          t *ptrd = res._data;
+        case 3 : // Mirror
           for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
-            const ulongT ind = ((ulongT)*(ptrs++))%pwhd;
+            const ulongT
+              _ind = ((ulongT)*(ptrs++))%cwhd,
+              ind = _ind<cwhd?_ind:cwhd2 - _ind - 1;
             const t *ptrp = colormap._data + ind;
-            t *_ptrd = ptrd++; cimg_forC(res,c) { *_ptrd = *ptrp; _ptrd+=whd; ptrp+=pwhd; }
-          }
-        } break;
-        case 1 : { // Neumann boundaries.
-          t *ptrd = res._data;
+            t *_ptrd = ptrd++; cimg_forC(res,c) { *_ptrd = *ptrp; _ptrd+=whd; ptrp+=cwhd; }
+          } break;
+        case 2 : // Periodic
           for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
-            const longT ind = cimg::cut((longT)*(ptrs++),(longT)0,(longT)pwhd - 1);
+            const ulongT ind = ((ulongT)*(ptrs++))%cwhd;
             const t *ptrp = colormap._data + ind;
-            t *_ptrd = ptrd++; cimg_forC(res,c) { *_ptrd = *ptrp; _ptrd+=whd; ptrp+=pwhd; }
-          }
-        } break;
-        default : { // Dirichlet boundaries.
-          t *ptrd = res._data;
+            t *_ptrd = ptrd++; cimg_forC(res,c) { *_ptrd = *ptrp; _ptrd+=whd; ptrp+=cwhd; }
+          } break;
+        case 1 : // Neumann
+          for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
+            const longT ind = cimg::cut((longT)*(ptrs++),(longT)0,(longT)cwhd - 1);
+            const t *ptrp = colormap._data + ind;
+            t *_ptrd = ptrd++; cimg_forC(res,c) { *_ptrd = *ptrp; _ptrd+=whd; ptrp+=cwhd; }
+          } break;
+        default : // Dirichlet
           for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
             const ulongT ind = (ulongT)*(ptrs++);
-            const bool is_in = ind<pwhd;
+            const bool is_in = ind<cwhd;
             if (is_in) {
               const t *ptrp = colormap._data + ind;
-              t *_ptrd = ptrd++; cimg_forC(res,c) { *_ptrd = *ptrp; _ptrd+=whd; ptrp+=pwhd; }
+              t *_ptrd = ptrd++; cimg_forC(res,c) { *_ptrd = *ptrp; _ptrd+=whd; ptrp+=cwhd; }
             } else {
               t *_ptrd = ptrd++; cimg_forC(res,c) { *_ptrd = (t)0; _ptrd+=whd; }
             }
           }
-        }
         }
       }
       }

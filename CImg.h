@@ -16581,7 +16581,7 @@ namespace cimg_library_suffixed {
           is_relative = *ss=='j' || *ss=='J';
           s0 = s1 = std::strchr(ss,'('); do { --s1; } while ((signed char)*s1<=' '); cimg::swap(*s0,*++s1);
 
-          // I/J(_#ind,_x,_y,_z,_interpolation,_boundary)
+          // I/J(_#ind,_x,_y,_z,_interpolation,_boundary_conditions)
           if ((*ss=='I' || *ss=='J') && *ss1=='(') { // Image value as scalar
             if (*ss2=='#') { // Index specified
               s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
@@ -16656,7 +16656,7 @@ namespace cimg_library_suffixed {
             _cimg_mp_return(pos);
           }
 
-          // i/j(_#ind,_x,_y,_z,_c,_interpolation,_boundary)
+          // i/j(_#ind,_x,_y,_z,_c,_interpolation,_boundary_conditions)
           if ((*ss=='i' || *ss=='j') && *ss1=='(') { // Image value as scalar
             if (*ss2=='#') { // Index specified
               s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
@@ -20055,7 +20055,7 @@ namespace cimg_library_suffixed {
           case 2 : // Periodic
             return (double)img[cimg::mod(off,whds)];
           case 1 : // Neumann
-            return (double)(off<0?*img:img.back());
+            return (double)img[off<0?0:whds - 1];
           default : // Dirichlet
             return 0;
           }
@@ -20157,7 +20157,7 @@ namespace cimg_library_suffixed {
           case 2 : // Periodic
             return (double)img[cimg::mod(off,whds)];
           case 1 : // Neumann
-            return (double)(off<0?*img:img.back());
+            return (double)img[off<0?0:whds - 1];
           default : // Dirichlet
             return 0;
           }
@@ -20333,7 +20333,7 @@ namespace cimg_library_suffixed {
           case 2 : // Periodic
             return (double)img[cimg::mod(off,whds)];
           case 1 : // Neumann
-            return (double)(off<0?*img:img.back());
+            return (double)img[off<0?0:whds - 1];
           default : // Dirichlet
             return 0;
           }
@@ -20417,7 +20417,7 @@ namespace cimg_library_suffixed {
           case 2 : // Periodic
             return (double)img[cimg::mod(off,whds)];
           case 1 : // Neumann
-            return (double)(off<0?*img:img.back());
+            return (double)img[off<0?0:whds - 1];
           default : // Dirichlet
             return 0;
           }
@@ -20733,7 +20733,7 @@ namespace cimg_library_suffixed {
             cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
             return cimg::type<double>::nan();
           case 1 : // Neumann
-            ptrs = off<0?img._data:&img.back();
+            ptrs = off<0?&img[0]:&img[whd - 1];
             cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
             return cimg::type<double>::nan();
           default : // Dirichlet
@@ -20838,7 +20838,7 @@ namespace cimg_library_suffixed {
             cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
             return cimg::type<double>::nan();
           case 1 : // Neumann
-            ptrs = off<0?img._data:&img.back();
+            ptrs = off<0?&img[0]:&img[whd - 1];
             cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
             return cimg::type<double>::nan();
           default : // Dirichlet
@@ -22067,7 +22067,7 @@ namespace cimg_library_suffixed {
             cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
             return cimg::type<double>::nan();
           case 1 : // Neumann
-            ptrs = off<0?img._data:&img[whd - 1];
+            ptrs = off<0?&img[0]:&img[whd - 1];
             cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
             return cimg::type<double>::nan();
           default : // Dirichlet
@@ -22172,7 +22172,7 @@ namespace cimg_library_suffixed {
             cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
             return cimg::type<double>::nan();
           case 1 : // Neumann
-            ptrs = off<0?img._data:&img[whd - 1];
+            ptrs = off<0?&img[0]:&img[whd - 1];
             cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
             return cimg::type<double>::nan();
           default : // Dirichlet

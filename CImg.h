@@ -28198,7 +28198,9 @@ namespace cimg_library_suffixed {
           const int w2 = 2*width(), h2 = 2*height(), d2 = 2*depth(), s2 = 2*spectrum();
           cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=65536))
           cimg_forXYZC(res,x,y,z,c) {
-            const int mx = cimg::mod(x - xc,w2), my = cimg::mod(y - yc,h2), mz = cimg::mod(z - zc,d2), mc = cimg::mod(c - cc,s2);
+            const int
+              mx = cimg::mod(x - xc,w2), my = cimg::mod(y - yc,h2),
+              mz = cimg::mod(z - zc,d2), mc = cimg::mod(c - cc,s2);
             res(x,y,z,c) = (*this)(mx<width()?mx:w2 - mx - 1,
                                    my<height()?my:h2 - my - 1,
                                    mz<depth()?mz:d2 - mz - 1,
@@ -29329,16 +29331,17 @@ namespace cimg_library_suffixed {
        \param delta_y Amount of displacement along the Y-axis.
        \param delta_z Amount of displacement along the Z-axis.
        \param delta_c Amount of displacement along the C-axis.
-       \param boundary_conditions Border condition.
-
-       - \c boundary_conditions can be:
-          - 0: Zero border condition (Dirichlet).
-          - 1: Nearest neighbors (Neumann).
-          - 2: Periodic (Fourier style).
+       \param boundary_conditions Border condition. Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
     **/
     CImg<T>& shift(const int delta_x, const int delta_y=0, const int delta_z=0, const int delta_c=0,
-                   const int boundary_conditions=0) {
+                   const unsigned int boundary_conditions=0) {
       if (is_empty()) return *this;
+      if (boundary_conditions==3)
+        return get_crop(-delta_x,-delta_y,delta_z,-delta_c,
+                        width() - delta_x - 1,
+                        height() - delta_y - 1,
+                        depth() - delta_z - 1,
+                        spectrum() - delta_c - 1,3).move_to(*this);
       if (delta_x) // Shift along X-axis
         switch (boundary_conditions) {
         case 2 : { // Periodic
@@ -29533,7 +29536,7 @@ namespace cimg_library_suffixed {
 
     //! Shift image content \newinstance.
     CImg<T> get_shift(const int delta_x, const int delta_y=0, const int delta_z=0, const int delta_c=0,
-                          const int boundary_conditions=0) const {
+                      const unsigned int boundary_conditions=0) const {
       return (+*this).shift(delta_x,delta_y,delta_z,delta_c,boundary_conditions);
     }
 

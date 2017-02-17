@@ -20095,10 +20095,10 @@ namespace cimg_library_suffixed {
           z = _mp_arg(4), c = _mp_arg(5);
         if (interpolation==0) { // Nearest neighbor interpolation
           if (boundary_conditions==2)
-            return (double)img.atXYZC(cimg::mod((int)x,img.width()),
-                                      cimg::mod((int)y,img.height()),
-                                      cimg::mod((int)z,img.depth()),
-                                      cimg::mod((int)c,img.spectrum()));
+            return (double)img(cimg::mod((int)x,img.width()),
+                               cimg::mod((int)y,img.height()),
+                               cimg::mod((int)z,img.depth()),
+                               cimg::mod((int)c,img.spectrum()));
           if (boundary_conditions==1)
             return (double)img.atXYZC((int)x,(int)y,(int)z,(int)c);
           return (double)img.atXYZC((int)x,(int)y,(int)z,(int)c,(T)0);
@@ -20306,10 +20306,10 @@ namespace cimg_library_suffixed {
           z = _mp_arg(5), c = _mp_arg(6);
         if (interpolation==0) { // Nearest neighbor interpolation
           if (boundary_conditions==2)
-            return (double)img.atXYZC(cimg::mod((int)x,img.width()),
-                                      cimg::mod((int)y,img.height()),
-                                      cimg::mod((int)z,img.depth()),
-                                      cimg::mod((int)c,img.spectrum()));
+            return (double)img(cimg::mod((int)x,img.width()),
+                               cimg::mod((int)y,img.height()),
+                               cimg::mod((int)z,img.depth()),
+                               cimg::mod((int)c,img.spectrum()));
           if (boundary_conditions==1)
             return (double)img.atXYZC((int)x,(int)y,(int)z,(int)c);
           return (double)img.atXYZC((int)x,(int)y,(int)z,(int)c,(T)0);
@@ -20653,12 +20653,21 @@ namespace cimg_library_suffixed {
         const CImg<T> &img = mp.listin[ind];
         const double x = _mp_arg(3), y = _mp_arg(4), z = _mp_arg(5);
         if (interpolation==0) { // Nearest neighbor interpolation
-          if (boundary_conditions==2)
+          if (boundary_conditions==3) {
+            const int w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth();
+            cimg_for_inC(img,0,vsiz - 1,c) {
+              const int mx = cimg::mod((int)x,w2), my = cimg::mod((int)y,h2), mz = cimg::mod((int)z,d2);
+              *(ptrd++) = (double)img(mx<img.width()?mx:w2 - mx - 1,
+                                      my<img.height()?my:h2 - my - 1,
+                                      mz<img.depth()?mz:d2 - mz - 1,
+                                      c);
+            }
+          } else if (boundary_conditions==2)
             cimg_for_inC(img,0,vsiz - 1,c)
-              *(ptrd++) = (double)img.atXYZ(cimg::mod((int)x,img.width()),
-                                            cimg::mod((int)y,img.height()),
-                                            cimg::mod((int)z,img.depth()),
-                                            c);
+              *(ptrd++) = (double)img(cimg::mod((int)x,img.width()),
+                                      cimg::mod((int)y,img.height()),
+                                      cimg::mod((int)z,img.depth()),
+                                      c);
           else if (boundary_conditions==1)
             cimg_for_inC(img,0,vsiz - 1,c)
               *(ptrd++) = (double)img.atXYZ((int)x,(int)y,(int)z,c);
@@ -21925,12 +21934,21 @@ namespace cimg_library_suffixed {
         const CImg<T> &img = mp.imgin;
         const double x = _mp_arg(2), y = _mp_arg(3), z = _mp_arg(4);
         if (interpolation==0) { // Nearest neighbor interpolation
-          if (boundary_conditions==2)
+          if (boundary_conditions==3) {
+            const int w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth();
+            cimg_for_inC(img,0,vsiz - 1,c) {
+              const int mx = cimg::mod((int)x,w2), my = cimg::mod((int)y,h2), mz = cimg::mod((int)z,d2);
+              *(ptrd++) = (double)img(mx<img.width()?mx:w2 - mx - 1,
+                                      my<img.height()?my:h2 - my - 1,
+                                      mz<img.depth()?mz:d2 - mz - 1,
+                                      c);
+            }
+          } else if (boundary_conditions==2)
             cimg_for_inC(img,0,vsiz - 1,c)
-              *(ptrd++) = (double)img.atXYZ(cimg::mod((int)x,img.width()),
-                                            cimg::mod((int)y,img.height()),
-                                            cimg::mod((int)z,img.depth()),
-                                            c);
+              *(ptrd++) = (double)img(cimg::mod((int)x,img.width()),
+                                      cimg::mod((int)y,img.height()),
+                                      cimg::mod((int)z,img.depth()),
+                                      c);
           else if (boundary_conditions==1)
             cimg_for_inC(img,0,vsiz - 1,c)
               *(ptrd++) = (double)img.atXYZ((int)x,(int)y,(int)z,c);

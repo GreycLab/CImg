@@ -28124,7 +28124,7 @@ namespace cimg_library_suffixed {
        - 4 = grid interpolation.
        - 5 = cubic interpolation.
        - 6 = lanczos interpolation.
-       \param boundary_conditions Border condition type.
+       \param boundary_conditions Type of boundary conditions used if necessary.
        \param centering_x Set centering type (only if \p interpolation_type=0).
        \param centering_y Set centering type (only if \p interpolation_type=0).
        \param centering_z Set centering type (only if \p interpolation_type=0).
@@ -28193,6 +28193,18 @@ namespace cimg_library_suffixed {
           cc = (int)(centering_c*((int)sc - spectrum()));
 
         switch (boundary_conditions) {
+        case 3 : { // Mirror
+          res.assign(sx,sy,sz,sc);
+          const int w2 = 2*width(), h2 = 2*height(), d2 = 2*depth(), s2 = 2*spectrum();
+          cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=65536))
+          cimg_forXYZC(res,x,y,z,c) {
+            const int mx = cimg::mod(x - xc,w2), my = cimg::mod(y - yc,h2), mz = cimg::mod(z - zc,d2), mc = cimg::mod(c - cc,s2);
+            res(x,y,z,c) = (*this)(mx<width()?mx:w2 - mx - 1,
+                                   my<height()?my:h2 - my - 1,
+                                   mz<depth()?mz:d2 - mz - 1,
+                                   mc<spectrum()?mc:s2 - mc - 1);
+          }
+        } break;
         case 2 : { // Periodic
           res.assign(sx,sy,sz,sc);
           const int

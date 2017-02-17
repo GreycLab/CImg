@@ -31948,28 +31948,28 @@ namespace cimg_library_suffixed {
     //! Correlate image by a kernel.
     /**
        \param kernel = the correlation kernel.
-       \param boundary_conditions boundary conditions can be (0=zero, 1=dirichlet)
+       \param boundary_conditions boundary conditions can be (false=dirichlet, true=neumann)
        \param is_normalized = enable local normalization.
        \note
        - The correlation of the image instance \p *this by the kernel \p kernel is defined to be:
        res(x,y,z) = sum_{i,j,k} (*this)(x + i,y + j,z + k)*kernel(i,j,k).
     **/
     template<typename t>
-    CImg<T>& correlate(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
+    CImg<T>& correlate(const CImg<t>& kernel, const bool boundary_conditions=true,
                        const bool is_normalized=false) {
       if (is_empty() || !kernel) return *this;
       return get_correlate(kernel,boundary_conditions,is_normalized).move_to(*this);
     }
 
     template<typename t>
-    CImg<_cimg_Ttfloat> get_correlate(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
+    CImg<_cimg_Ttfloat> get_correlate(const CImg<t>& kernel, const bool boundary_conditions=true,
                                       const bool is_normalized=false) const {
       return _correlate(kernel,boundary_conditions,is_normalized,false);
     }
 
     //! Correlate image by a kernel \newinstance.
     template<typename t>
-    CImg<_cimg_Ttfloat> _correlate(const CImg<t>& kernel, const unsigned int boundary_conditions,
+    CImg<_cimg_Ttfloat> _correlate(const CImg<t>& kernel, const bool boundary_conditions,
                                    const bool is_normalized, const bool is_convolution) const {
       if (is_empty() || !kernel) return *this;
       typedef _cimg_Ttfloat Ttfloat;
@@ -31977,7 +31977,7 @@ namespace cimg_library_suffixed {
       cimg_abort_init;
       if (boundary_conditions && kernel._width==kernel._height &&
           ((kernel._depth==1 && kernel._width<=5) || (kernel._depth==kernel._width && kernel._width<=3))) {
-        // A special optimization is done for 2x2, 3x3, 4x4, 5x5, 2x2x2 and 3x3x3 kernel (with boundary_conditions=1).
+        // A special optimization is done for 2x2, 3x3, 4x4, 5x5, 2x2x2 and 3x3x3 kernel (with boundary_conditions=true).
         CImg<t> _kernel;
         if (is_convolution) { // Add empty column/row/slice to shift kernel center in case of convolution
           const int dw = !(kernel.width()%2), dh = !(kernel.height()%2), dd = !(kernel.depth()%2);
@@ -32324,21 +32324,21 @@ namespace cimg_library_suffixed {
     //! Convolve image by a kernel.
     /**
        \param kernel = the correlation kernel.
-       \param boundary_conditions boundary conditions can be (0=zero, 1=dirichlet)
+       \param boundary_conditions boundary conditions can be (false=dirichlet, true=neumann)
        \param is_normalized = enable local normalization.
        \note
        - The result \p res of the convolution of an image \p img by a kernel \p kernel is defined to be:
        res(x,y,z) = sum_{i,j,k} img(x-i,y-j,z-k)*kernel(i,j,k)
     **/
     template<typename t>
-    CImg<T>& convolve(const CImg<t>& kernel, const unsigned int boundary_conditions=1, const bool is_normalized=false) {
+    CImg<T>& convolve(const CImg<t>& kernel, const bool boundary_conditions=true, const bool is_normalized=false) {
       if (is_empty() || !kernel) return *this;
       return get_convolve(kernel,boundary_conditions,is_normalized).move_to(*this);
     }
 
     //! Convolve image by a kernel \newinstance.
     template<typename t>
-    CImg<_cimg_Ttfloat> get_convolve(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
+    CImg<_cimg_Ttfloat> get_convolve(const CImg<t>& kernel, const bool boundary_conditions=true,
                                      const bool is_normalized=false) const {
       return _correlate(CImg<t>(kernel._data,kernel.size(),1,1,1,true).get_mirror('x').
                         resize(kernel,-1),boundary_conditions,is_normalized,true);
@@ -32420,7 +32420,7 @@ namespace cimg_library_suffixed {
        \param is_real Do the erosion in real (a.k.a 'non-flat') mode (\c true) rather than binary mode (\c false).
     **/
     template<typename t>
-    CImg<T>& erode(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
+    CImg<T>& erode(const CImg<t>& kernel, const bool boundary_conditions=true,
                    const bool is_real=false) {
       if (is_empty() || !kernel) return *this;
       return get_erode(kernel,boundary_conditions,is_real).move_to(*this);
@@ -32428,7 +32428,7 @@ namespace cimg_library_suffixed {
 
     //! Erode image by a structuring element \newinstance.
     template<typename t>
-    CImg<_cimg_Tt> get_erode(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
+    CImg<_cimg_Tt> get_erode(const CImg<t>& kernel, const bool boundary_conditions=true,
                              const bool is_real=false) const {
       if (is_empty() || !kernel) return *this;
       if (!is_real && kernel==0) return CImg<T>(width(),height(),depth(),spectrum(),0);
@@ -32705,7 +32705,7 @@ namespace cimg_library_suffixed {
        \param is_real Do the dilation in real (a.k.a 'non-flat') mode (\c true) rather than binary mode (\c false).
     **/
     template<typename t>
-    CImg<T>& dilate(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
+    CImg<T>& dilate(const CImg<t>& kernel, const bool boundary_conditions=true,
                     const bool is_real=false) {
       if (is_empty() || !kernel) return *this;
       return get_dilate(kernel,boundary_conditions,is_real).move_to(*this);
@@ -32713,7 +32713,7 @@ namespace cimg_library_suffixed {
 
     //! Dilate image by a structuring element \newinstance.
     template<typename t>
-    CImg<_cimg_Tt> get_dilate(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
+    CImg<_cimg_Tt> get_dilate(const CImg<t>& kernel, const bool boundary_conditions=true,
                               const bool is_real=false) const {
       if (is_empty() || !kernel || (!is_real && kernel==0)) return *this;
       typedef _cimg_Tt Tt;

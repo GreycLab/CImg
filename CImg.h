@@ -29797,7 +29797,7 @@ namespace cimg_library_suffixed {
     /**
        \param angle Rotation angle, in degrees.
        \param interpolation Type of interpolation. Can be <tt>{ 0=nearest | 1=linear | 2=cubic }</tt>.
-       \param boundary Boundary conditions. Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic }</tt>.
+       \param boundary Boundary conditions. Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
        \note Most of the time, size of the image is modified.
     **/
     CImg<T>& rotate(const float angle, const unsigned int interpolation=1,
@@ -29855,7 +29855,7 @@ namespace cimg_library_suffixed {
        \param cx X-coordinate of the rotation center.
        \param cy Y-coordinate of the rotation center.
        \param boundary_conditions Boundary conditions. Can be <tt>{ 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
-       \param interpolation_type Type of interpolation. Can be <tt>{ 0=nearest | 1=linear | 2=cubic }</tt>.
+       \param interpolation_type Type of interpolation. Can be <tt>{ 0=nearest | 1=linear | 2=cubic | 3=mirror }</tt>.
     **/
     CImg<T>& rotate(const float angle, const float cx, const float cy,
                     const unsigned int interpolation, const unsigned int boundary_conditions=0) {
@@ -30010,7 +30010,7 @@ namespace cimg_library_suffixed {
        \param w Z-coordinate of the 3d rotation axis.
        \param angle Rotation angle, in degrees.
        \param interpolation Type of interpolation. Can be <tt>{ 0=nearest | 1=linear | 2=cubic }</tt>.
-       \param boundary Boundary conditions. Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic }</tt>.
+       \param boundary Boundary conditions. Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
        \note Most of the time, size of the image is modified.
     **/
     CImg<T> rotate(const float u, const float v, const float w, const float angle,
@@ -30058,7 +30058,7 @@ namespace cimg_library_suffixed {
        \param cy Y-coordinate of the rotation center.
        \param cz Z-coordinate of the rotation center.
        \param angle Rotation angle, in degrees.
-       \param interpolation Type of interpolation. Can be <tt>{ 0=nearest | 1=linear | 2=cubic }</tt>.
+       \param interpolation Type of interpolation. Can be <tt>{ 0=nearest | 1=linear | 2=cubic | 3=mirror }</tt>.
        \param boundary Boundary conditions. Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic }</tt>.
        \note Most of the time, size of the image is modified.
     **/
@@ -30087,83 +30087,53 @@ namespace cimg_library_suffixed {
                  const float w2, const float h2, const float d2,
                  const float rw2, const float rh2, const float rd2) const {
       switch (boundary_conditions) {
-      case 0 : { // Dirichlet boundaries
+      case 3 : // Mirror
         switch (interpolation) {
         case 2 : { // Cubic interpolation
+          const float ww = 2.0f*width(), hh = 2.0f*height(), dd = 2.0f*depth();
           cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(res.size()>=2048))
           cimg_forXYZ(res,x,y,z) {
             const float
               xc = x - rw2, yc = y - rh2, zc = z - rd2,
-              X = w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,
-              Y = h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,
-              Z = d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc;
-            cimg_forC(res,c) res(x,y,z,c) = cimg::type<T>::cut(cubic_atXYZ(X,Y,Z,c,(T)0));
+              X = cimg::mod((float)(w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc),ww),
+              Y = cimg::mod((float)(h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc),hh),
+              Z = cimg::mod((float)(d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc),dd);
+            cimg_forC(res,c) res(x,y,z,c) = cimg::type<T>::cut(_cubic_atXYZ(X<width()?X:ww - X - 1,
+                                                                            Y<height()?Y:hh - Y - 1,
+                                                                            Z<depth()?Z:dd - Z - z,c));
           }
         } break;
         case 1 : { // Linear interpolation
+          const float ww = 2.0f*width(), hh = 2.0f*height(), dd = 2.0f*depth();
           cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(res.size()>=2048))
           cimg_forXYZ(res,x,y,z) {
             const float
               xc = x - rw2, yc = y - rh2, zc = z - rd2,
-              X = w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,
-              Y = h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,
-              Z = d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc;
-            cimg_forC(res,c) res(x,y,z,c) = linear_atXYZ(X,Y,Z,c,(T)0);
+              X = cimg::mod((float)(w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc),ww),
+              Y = cimg::mod((float)(h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc),hh),
+              Z = cimg::mod((float)(d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc),dd);
+            cimg_forC(res,c) res(x,y,z,c) = (T)_linear_atXYZ(X<width()?X:ww - X - 1,
+                                                             Y<height()?Y:hh - Y - 1,
+                                                             Z<depth()?Z:dd - Z - 1,c);
           }
         } break;
         default : { // Nearest-neighbor interpolation
+          const int ww = 2*width(), hh = 2*height(), dd = 2*depth();
           cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(res.size()>=2048))
           cimg_forXYZ(res,x,y,z) {
             const float xc = x - rw2, yc = y - rh2, zc = z - rd2;
             const int
-              X = (int)cimg::round(w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc),
-              Y = (int)cimg::round(h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc),
-              Z = (int)cimg::round(d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc);
-            cimg_forC(res,c) res(x,y,z,c) = atXYZ(X,Y,Z,c,(T)0);
+              X = cimg::mod((int)cimg::round(w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc),ww),
+              Y = cimg::mod((int)cimg::round(h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc),hh),
+              Z = cimg::mod((int)cimg::round(d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc),dd);
+            cimg_forC(res,c) res(x,y,z,c) = (*this)(X<width()?X:ww - X - 1,
+                                                    Y<height()?Y:hh - Y - 1,
+                                                    Z<depth()?Z:dd - Z -  1,c);
           }
         }
-        }
-      } break;
-
-      case 1 : { // Neumann boundaries
-        switch (interpolation) {
-        case 2 : { // Cubic interpolation
-          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(res.size()>=2048))
-          cimg_forXYZ(res,x,y,z) {
-            const float
-              xc = x - rw2, yc = y - rh2, zc = z - rd2,
-              X = w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,
-              Y = h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,
-              Z = d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc;
-            cimg_forC(res,c) res(x,y,z,c) = cimg::type<T>::cut(_cubic_atXYZ(X,Y,Z,c));
-          }
         } break;
-        case 1 : { // Linear interpolation
-          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(res.size()>=2048))
-          cimg_forXYZ(res,x,y,z) {
-            const float
-              xc = x - rw2, yc = y - rh2, zc = z - rd2,
-              X = w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,
-              Y = h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,
-              Z = d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc;
-            cimg_forC(res,c) res(x,y,z,c) = _linear_atXYZ(X,Y,Z,c);
-          }
-        } break;
-        default : { // Nearest-neighbor interpolation
-          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(res.size()>=2048))
-          cimg_forXYZ(res,x,y,z) {
-            const float xc = x - rw2, yc = y - rh2, zc = z - rd2;
-            const int
-              X = (int)cimg::round(w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc),
-              Y = (int)cimg::round(h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc),
-              Z = (int)cimg::round(d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc);
-            cimg_forC(res,c) res(x,y,z,c) = _atXYZ(X,Y,Z,c);
-          }
-        }
-        }
-      } break;
 
-      default : { // Periodic boundaries
+      case 2 : // Periodic
         switch (interpolation) {
         case 2 : { // Cubic interpolation
           cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(res.size()>=2048))
@@ -30198,8 +30168,81 @@ namespace cimg_library_suffixed {
             cimg_forC(res,c) res(x,y,z,c) = (*this)(X,Y,Z,c);
           }
         }
+        } break;
+
+      case 1 : // Neumann
+        switch (interpolation) {
+        case 2 : { // Cubic interpolation
+          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(res.size()>=2048))
+          cimg_forXYZ(res,x,y,z) {
+            const float
+              xc = x - rw2, yc = y - rh2, zc = z - rd2,
+              X = w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,
+              Y = h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,
+              Z = d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc;
+            cimg_forC(res,c) res(x,y,z,c) = cimg::type<T>::cut(_cubic_atXYZ(X,Y,Z,c));
+          }
+        } break;
+        case 1 : { // Linear interpolation
+          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(res.size()>=2048))
+          cimg_forXYZ(res,x,y,z) {
+            const float
+              xc = x - rw2, yc = y - rh2, zc = z - rd2,
+              X = w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,
+              Y = h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,
+              Z = d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc;
+            cimg_forC(res,c) res(x,y,z,c) = _linear_atXYZ(X,Y,Z,c);
+          }
+        } break;
+        default : { // Nearest-neighbor interpolation
+          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(res.size()>=2048))
+          cimg_forXYZ(res,x,y,z) {
+            const float xc = x - rw2, yc = y - rh2, zc = z - rd2;
+            const int
+              X = (int)cimg::round(w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc),
+              Y = (int)cimg::round(h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc),
+              Z = (int)cimg::round(d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc);
+            cimg_forC(res,c) res(x,y,z,c) = _atXYZ(X,Y,Z,c);
+          }
         }
-      } break;
+        } break;
+
+      default : // Dirichlet
+        switch (interpolation) {
+        case 2 : { // Cubic interpolation
+          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(res.size()>=2048))
+          cimg_forXYZ(res,x,y,z) {
+            const float
+              xc = x - rw2, yc = y - rh2, zc = z - rd2,
+              X = w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,
+              Y = h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,
+              Z = d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc;
+            cimg_forC(res,c) res(x,y,z,c) = cimg::type<T>::cut(cubic_atXYZ(X,Y,Z,c,(T)0));
+          }
+        } break;
+        case 1 : { // Linear interpolation
+          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(res.size()>=2048))
+          cimg_forXYZ(res,x,y,z) {
+            const float
+              xc = x - rw2, yc = y - rh2, zc = z - rd2,
+              X = w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,
+              Y = h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,
+              Z = d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc;
+            cimg_forC(res,c) res(x,y,z,c) = linear_atXYZ(X,Y,Z,c,(T)0);
+          }
+        } break;
+        default : { // Nearest-neighbor interpolation
+          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(res.size()>=2048))
+          cimg_forXYZ(res,x,y,z) {
+            const float xc = x - rw2, yc = y - rh2, zc = z - rd2;
+            const int
+              X = (int)cimg::round(w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc),
+              Y = (int)cimg::round(h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc),
+              Z = (int)cimg::round(d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc);
+            cimg_forC(res,c) res(x,y,z,c) = atXYZ(X,Y,Z,c,(T)0);
+          }
+        }
+        } break;
       }
     }
 
@@ -30766,7 +30809,7 @@ namespace cimg_library_suffixed {
        \param y1 = Y-coordinate of the lower-right crop rectangle corner.
        \param z1 = Z-coordinate of the lower-right crop rectangle corner.
        \param c1 = C-coordinate of the lower-right crop rectangle corner.
-       \param boundary_conditions = Dirichlet (false) or Neumann border conditions.
+       \param boundary_conditions = Dirichlet (false) or Neumann boundary conditions.
     **/
     CImg<T>& crop(const int x0, const int y0, const int z0, const int c0,
                   const int x1, const int y1, const int z1, const int c1,
@@ -31905,7 +31948,7 @@ namespace cimg_library_suffixed {
     //! Correlate image by a kernel.
     /**
        \param kernel = the correlation kernel.
-       \param boundary_conditions = the border condition type (0=zero, 1=dirichlet)
+       \param boundary_conditions boundary conditions can be (0=zero, 1=dirichlet)
        \param is_normalized = enable local normalization.
        \note
        - The correlation of the image instance \p *this by the kernel \p kernel is defined to be:
@@ -32281,7 +32324,7 @@ namespace cimg_library_suffixed {
     //! Convolve image by a kernel.
     /**
        \param kernel = the correlation kernel.
-       \param boundary_conditions = the border condition type (0=zero, 1=dirichlet)
+       \param boundary_conditions boundary conditions can be (0=zero, 1=dirichlet)
        \param is_normalized = enable local normalization.
        \note
        - The result \p res of the convolution of an image \p img by a kernel \p kernel is defined to be:
@@ -33287,7 +33330,7 @@ namespace cimg_library_suffixed {
 	  if (!pass) {
 	    for (int k = 1; k<4; ++k) val[k] = (boundary_conditions?*data/sumsq:0);
 	  } else {
-	    /* apply Triggs border condition */
+	    // apply Triggs boundary conditions
 	    const double
 	      uplus = iplus/(1.0 - a1 - a2 - a3), vplus = uplus/(1.0 - a1 - a2 - a3),
 	      unp  = val[1] - uplus, unp1 = val[2] - uplus, unp2 = val[3] - uplus;
@@ -33316,7 +33359,7 @@ namespace cimg_library_suffixed {
 	    for (int k = 0; k<3; ++k) x[k] = (boundary_conditions?*data:(T)0);
 	    for (int k = 0; k<4; ++k) val[k] = 0;
 	  } else {
-	    /* apply Triggs border condition */
+	    // apply Triggs boundary conditions
 	    const double
 	      unp  = val[1], unp1 = val[2], unp2 = val[3];
 	    val[0] = (M[0] * unp + M[1] * unp1 + M[2] * unp2) * sum;
@@ -33349,7 +33392,7 @@ namespace cimg_library_suffixed {
 	    for (int k = 0; k<3; ++k) x[k] = (boundary_conditions?*data:(T)0);
 	    for (int k = 0; k<4; ++k) val[k] = 0;
 	  } else {
-	    /* apply Triggs border condition */
+	    // apply Triggs boundary conditions
 	    const double
 	      unp  = val[1], unp1 = val[2], unp2 = val[3];
 	    val[0] = (M[0] * unp + M[1] * unp1 + M[2] * unp2) * sum;
@@ -33378,7 +33421,7 @@ namespace cimg_library_suffixed {
 	    for (int k = 0; k<3; ++k) x[k] = (boundary_conditions?*data:(T)0);
 	    for (int k = 0; k<4; ++k) val[k] = 0;
 	  } else {
-	    /* apply Triggs border condition */
+	    // apply Triggs boundary conditions
 	    const double
 	      unp = val[1], unp1 = val[2], unp2 = val[3];
 	    val[0] = (M[0] * unp + M[1] * unp1 + M[2] * unp2) * sum;

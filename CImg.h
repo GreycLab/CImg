@@ -34856,7 +34856,7 @@ namespace cimg_library_suffixed {
                 Y = y/_sampling_y + padding_y,
                 Z = z/_sampling_z + padding_z,
                 R = (edge - edge_min)/_sampling_r + padding_r;
-              const float bval0 = bgrid.linear_atXYZC(X,Y,Z,R), bval1 = bgridw.linear_atXYZC(X,Y,Z,R);
+              const float bval0 = bgrid._linear_atXYZC(X,Y,Z,R), bval1 = bgridw._linear_atXYZC(X,Y,Z,R);
               (*this)(x,y,z,c) = (T)(bval0/bval1);
             }
           }
@@ -34884,7 +34884,7 @@ namespace cimg_library_suffixed {
                 X = x/_sampling_x + padding_x,
                 Y = y/_sampling_y + padding_y,
                 R = (edge - edge_min)/_sampling_r + padding_r;
-              const float bval0 = bgrid.linear_atXYZ(X,Y,R,0), bval1 = bgrid.linear_atXYZ(X,Y,R,1);
+              const float bval0 = bgrid._linear_atXYZ(X,Y,R,0), bval1 = bgrid._linear_atXYZ(X,Y,R,1);
               (*this)(x,y,c) = (T)(bval0/bval1);
             }
           }
@@ -36251,8 +36251,8 @@ namespace cimg_library_suffixed {
                     Y = is_backward?y - U(x,y,z,1):y + U(x,y,z,1),
                     Z = is_backward?z - U(x,y,z,2):z + U(x,y,z,2);
                   float delta_I = 0, _energy_regul = 0;
-                  if (is_backward) cimg_forC(I2,c) delta_I+=(float)(I1.linear_atXYZ(X,Y,Z,c) - I2(x,y,z,c));
-                  else cimg_forC(I2,c) delta_I+=(float)(I1(x,y,z,c) - I2.linear_atXYZ(X,Y,Z,c));
+                  if (is_backward) cimg_forC(I2,c) delta_I+=(float)(I1._linear_atXYZ(X,Y,Z,c) - I2(x,y,z,c));
+                  else cimg_forC(I2,c) delta_I+=(float)(I1(x,y,z,c) - I2._linear_atXYZ(X,Y,Z,c));
                   cimg_forC(U,c) {
                     const float
                       Ux = 0.5f*(U(_n1x,y,z,c) - U(_p1x,y,z,c)),
@@ -36261,7 +36261,7 @@ namespace cimg_library_suffixed {
                       Uxx = U(_n1x,y,z,c) + U(_p1x,y,z,c),
                       Uyy = U(x,_n1y,z,c) + U(x,_p1y,z,c),
                       Uzz = U(x,y,_n1z,c) + U(x,y,_p1z,c);
-                    U(x,y,z,c) = (float)(U(x,y,z,c) + dt*(delta_I*dI[c].linear_atXYZ(X,Y,Z) +
+                    U(x,y,z,c) = (float)(U(x,y,z,c) + dt*(delta_I*dI[c]._linear_atXYZ(X,Y,Z) +
                                                           smoothness* ( Uxx + Uyy + Uzz)))/(1 + 6*smoothness*dt);
                     _energy_regul+=Ux*Ux + Uy*Uy + Uz*Uz;
                   }
@@ -36301,8 +36301,8 @@ namespace cimg_library_suffixed {
                     Y = is_backward?y - U(x,y,z,1):y + U(x,y,z,1),
                     Z = is_backward?z - U(x,y,z,2):z + U(x,y,z,2);
                   float delta_I = 0, _energy_regul = 0;
-                  if (is_backward) cimg_forC(I2,c) delta_I+=(float)(I1.linear_atXYZ(X,Y,Z,c) - I2(x,y,z,c));
-                  else cimg_forC(I2,c) delta_I+=(float)(I1(x,y,z,c) - I2.linear_atXYZ(X,Y,Z,c));
+                  if (is_backward) cimg_forC(I2,c) delta_I+=(float)(I1._linear_atXYZ(X,Y,Z,c) - I2(x,y,z,c));
+                  else cimg_forC(I2,c) delta_I+=(float)(I1(x,y,z,c) - I2._linear_atXYZ(X,Y,Z,c));
                   cimg_forC(U,c) {
                     const float
                       Ux = 0.5f*(U(_n1x,y,z,c) - U(_p1x,y,z,c)),
@@ -36323,7 +36323,7 @@ namespace cimg_library_suffixed {
                       Uxy = 0.25f*(U(_n1x,_n1y,z,c) + U(_p1x,_p1y,z,c) - U(_n1x,_p1y,z,c) - U(_n1x,_p1y,z,c)),
                       Uxz = 0.25f*(U(_n1x,y,_n1z,c) + U(_p1x,y,_p1z,c) - U(_n1x,y,_p1z,c) - U(_n1x,y,_p1z,c)),
                       Uyz = 0.25f*(U(x,_n1y,_n1z,c) + U(x,_p1y,_p1z,c) - U(x,_n1y,_p1z,c) - U(x,_n1y,_p1z,c));
-                    U(x,y,z,c) = (float)(U(x,y,z,c) + dt*(delta_I*dI[c].linear_atXYZ(X,Y,Z) +
+                    U(x,y,z,c) = (float)(U(x,y,z,c) + dt*(delta_I*dI[c]._linear_atXYZ(X,Y,Z) +
                                                           nsmoothness* ( coef_a*Uxx + coef_b*Uxy +
                                                                          coef_c*Uxz + coef_d*Uyy +
                                                                          coef_e*Uyz + coef_f*Uzz ))
@@ -36364,15 +36364,15 @@ namespace cimg_library_suffixed {
                     X = is_backward?x - U(x,y,0):x + U(x,y,0),
                     Y = is_backward?y - U(x,y,1):y + U(x,y,1);
                   float delta_I = 0, _energy_regul = 0;
-                  if (is_backward) cimg_forC(I2,c) delta_I+=(float)(I1.linear_atXY(X,Y,c) - I2(x,y,c));
-                  else cimg_forC(I2,c) delta_I+=(float)(I1(x,y,c) - I2.linear_atXY(X,Y,c));
+                  if (is_backward) cimg_forC(I2,c) delta_I+=(float)(I1._linear_atXY(X,Y,c) - I2(x,y,c));
+                  else cimg_forC(I2,c) delta_I+=(float)(I1(x,y,c) - I2._linear_atXY(X,Y,c));
                   cimg_forC(U,c) {
                     const float
                       Ux = 0.5f*(U(_n1x,y,c) - U(_p1x,y,c)),
                       Uy = 0.5f*(U(x,_n1y,c) - U(x,_p1y,c)),
                       Uxx = U(_n1x,y,c) + U(_p1x,y,c),
                       Uyy = U(x,_n1y,c) + U(x,_p1y,c);
-                    U(x,y,c) = (float)(U(x,y,c) + dt*(delta_I*dI[c].linear_atXY(X,Y) +
+                    U(x,y,c) = (float)(U(x,y,c) + dt*(delta_I*dI[c]._linear_atXY(X,Y) +
                                                       smoothness*( Uxx + Uyy )))/(1 + 4*smoothness*dt);
                     _energy_regul+=Ux*Ux + Uy*Uy;
                   }
@@ -36403,8 +36403,8 @@ namespace cimg_library_suffixed {
                     X = is_backward?x - U(x,y,0):x + U(x,y,0),
                     Y = is_backward?y - U(x,y,1):y + U(x,y,1);
                   float delta_I = 0, _energy_regul = 0;
-                  if (is_backward) cimg_forC(I2,c) delta_I+=(float)(I1.linear_atXY(X,Y,c) - I2(x,y,c));
-                  else cimg_forC(I2,c) delta_I+=(float)(I1(x,y,c) - I2.linear_atXY(X,Y,c));
+                  if (is_backward) cimg_forC(I2,c) delta_I+=(float)(I1._linear_atXY(X,Y,c) - I2(x,y,c));
+                  else cimg_forC(I2,c) delta_I+=(float)(I1(x,y,c) - I2._linear_atXY(X,Y,c));
                   cimg_forC(U,c) {
                     const float
                       Ux = 0.5f*(U(_n1x,y,c) - U(_p1x,y,c)),
@@ -36418,7 +36418,7 @@ namespace cimg_library_suffixed {
                       Uxx = U(_n1x,y,c) + U(_p1x,y,c),
                       Uyy = U(x,_n1y,c) + U(x,_p1y,c),
                       Uxy = 0.25f*(U(_n1x,_n1y,c) + U(_p1x,_p1y,c) - U(_n1x,_p1y,c) - U(_n1x,_p1y,c));
-                    U(x,y,c) = (float)(U(x,y,c) + dt*(delta_I*dI[c].linear_atXY(X,Y) +
+                    U(x,y,c) = (float)(U(x,y,c) + dt*(delta_I*dI[c]._linear_atXY(X,Y) +
                                                       nsmoothness*( coef_a*Uxx + coef_b*Uxy + coef_c*Uyy )))/
                       (1 + 2*(coef_a + coef_c)*nsmoothness*dt);
                     _energy_regul+=N;

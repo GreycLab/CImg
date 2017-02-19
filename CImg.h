@@ -27382,7 +27382,7 @@ namespace cimg_library_suffixed {
     //! Map predefined colormap on the scalar (indexed) image instance.
     /**
        \param colormap Multi-valued colormap used for mapping the indexes.
-       \param boundary_conditions The border condition type { 0=zero |  1=dirichlet | 2=periodic | 3=mirror }.
+       \param boundary_conditions The border condition type { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
        \par Example
        \code
        const CImg<float> img("reference.jpg"),

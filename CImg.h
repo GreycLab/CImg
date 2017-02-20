@@ -48880,11 +48880,11 @@ namespace cimg_library_suffixed {
           TIFFGetField(tif,TIFFTAG_TILEWIDTH,&tw);
           TIFFGetField(tif,TIFFTAG_TILELENGTH,&th);
           if (config==PLANARCONFIG_CONTIG) switch (bitspersample) {
-            case 8 : {
+            case 8 :
               if (sampleformat==SAMPLEFORMAT_UINT)
                 _load_tiff_tiled_contig<unsigned char>(tif,samplesperpixel,nx,ny,tw,th);
               else _load_tiff_tiled_contig<signed char>(tif,samplesperpixel,nx,ny,tw,th);
-            } break;
+              break;
             case 16 :
               if (sampleformat==SAMPLEFORMAT_UINT)
                 _load_tiff_tiled_contig<unsigned short>(tif,samplesperpixel,nx,ny,tw,th);
@@ -48896,6 +48896,13 @@ namespace cimg_library_suffixed {
               else if (sampleformat==SAMPLEFORMAT_INT)
                 _load_tiff_tiled_contig<int>(tif,samplesperpixel,nx,ny,tw,th);
               else _load_tiff_tiled_contig<float>(tif,samplesperpixel,nx,ny,tw,th);
+              break;
+            case 64 :
+              if (sampleformat==SAMPLEFORMAT_UINT)
+                _load_tiff_tiled_contig<uint64T>(tif,samplesperpixel,nx,ny,tw,th);
+              else if (sampleformat==SAMPLEFORMAT_INT)
+                _load_tiff_tiled_contig<int64T>(tif,samplesperpixel,nx,ny,tw,th);
+              else _load_tiff_tiled_contig<double>(tif,samplesperpixel,nx,ny,tw,th);
               break;
             } else switch (bitspersample) {
             case 8 :
@@ -48915,6 +48922,13 @@ namespace cimg_library_suffixed {
                 _load_tiff_tiled_separate<int>(tif,samplesperpixel,nx,ny,tw,th);
               else _load_tiff_tiled_separate<float>(tif,samplesperpixel,nx,ny,tw,th);
               break;
+            case 64 :
+              if (sampleformat==SAMPLEFORMAT_UINT)
+                _load_tiff_tiled_separate<uint64T>(tif,samplesperpixel,nx,ny,tw,th);
+              else if (sampleformat==SAMPLEFORMAT_INT)
+                _load_tiff_tiled_separate<int64T>(tif,samplesperpixel,nx,ny,tw,th);
+              else _load_tiff_tiled_separate<double>(tif,samplesperpixel,nx,ny,tw,th);
+              break;
             }
         } else {
           if (config==PLANARCONFIG_CONTIG) switch (bitspersample) {
@@ -48932,6 +48946,11 @@ namespace cimg_library_suffixed {
               else if (sampleformat==SAMPLEFORMAT_INT) _load_tiff_contig<int>(tif,samplesperpixel,nx,ny);
               else _load_tiff_contig<float>(tif,samplesperpixel,nx,ny);
               break;
+            case 64 :
+              if (sampleformat==SAMPLEFORMAT_UINT) _load_tiff_contig<uint64T>(tif,samplesperpixel,nx,ny);
+              else if (sampleformat==SAMPLEFORMAT_INT) _load_tiff_contig<int64T>(tif,samplesperpixel,nx,ny);
+              else _load_tiff_contig<double>(tif,samplesperpixel,nx,ny);
+              break;
             } else switch (bitspersample) {
             case 8 :
               if (sampleformat==SAMPLEFORMAT_UINT) _load_tiff_separate<unsigned char>(tif,samplesperpixel,nx,ny);
@@ -48945,6 +48964,11 @@ namespace cimg_library_suffixed {
               if (sampleformat==SAMPLEFORMAT_UINT) _load_tiff_separate<unsigned int>(tif,samplesperpixel,nx,ny);
               else if (sampleformat==SAMPLEFORMAT_INT) _load_tiff_separate<int>(tif,samplesperpixel,nx,ny);
               else _load_tiff_separate<float>(tif,samplesperpixel,nx,ny);
+              break;
+            case 64 :
+              if (sampleformat==SAMPLEFORMAT_UINT) _load_tiff_separate<uint64T>(tif,samplesperpixel,nx,ny);
+              else if (sampleformat==SAMPLEFORMAT_INT) _load_tiff_separate<int64T>(tif,samplesperpixel,nx,ny);
+              else _load_tiff_separate<double>(tif,samplesperpixel,nx,ny);
               break;
             }
         }

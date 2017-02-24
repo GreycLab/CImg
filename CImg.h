@@ -210,6 +210,46 @@
 #define cimg_int64 __int64
 #define cimg_ulong UINT_PTR
 #define cimg_long INT_PTR
+#ifdef _MSC_VER
+#define cimg_fuint64 "%I64u"
+#define cimg_fint64 "%I64d"
+#else
+#define cimg_fuint64 "%llu"
+#define cimg_fint64 "%lld"
+#endif
+#else
+#if UINTPTR_MAX==0xffffffff || defined(__arm__) || defined(_M_ARM)
+#define cimg_uint64 unsigned long long
+#define cimg_int64 long long
+#define cimg_fuint64 "%llu"
+#define cimg_fint64 "%lld"
+#else
+#define cimg_uint64 unsigned long
+#define cimg_int64 long
+#define cimg_fuint64 "%lu"
+#define cimg_fint64 "%ld"
+#endif
+#if defined(__arm__) || defined(_M_ARM)
+#define cimg_ulong unsigned long long
+#define cimg_long long long
+#define cimg_fuint64 "%llu"
+#define cimg_fint64 "%lld"
+#else
+#define cimg_ulong unsigned long
+#define cimg_long long
+#define cimg_fuint64 "%lu"
+#define cimg_fint64 "%ld"
+#endif
+#endif
+
+/*
+// Define own types 'cimg_long/ulong' and 'cimg_int64/uint64' to ensure portability.
+// ( constrained to 'sizeof(cimg_ulong/cimg_long) = sizeof(void*)' and 'sizeof(cimg_int64/cimg_uint64)=8' ).
+#if cimg_OS==2
+#define cimg_uint64 unsigned __int64
+#define cimg_int64 __int64
+#define cimg_ulong UINT_PTR
+#define cimg_long INT_PTR
 #else
 #if UINTPTR_MAX==0xffffffff || defined(__arm__) || defined(_M_ARM)
 #define cimg_uint64 unsigned long long
@@ -226,6 +266,7 @@
 #define cimg_long long
 #endif
 #endif
+*/
 
 // Configure filename separator.
 //
@@ -2710,8 +2751,8 @@ namespace cimg_library_suffixed {
       static cimg_uint64 inf() { return max(); }
       static cimg_uint64 cut(const double val) {
         return val<(double)min()?min():val>(double)max()?max():(cimg_uint64)val; }
-      static const char* format() { return "%lu"; }
-      static const char* format_s() { return "%lu"; }
+      static const char* format() { return cimg_fuint64; }
+      static const char* format_s() { return cimg_fuint64; }
       static unsigned long format(const cimg_uint64 val) { return (unsigned long)val; }
     };
 
@@ -2726,8 +2767,8 @@ namespace cimg_library_suffixed {
       static cimg_int64 cut(const double val) {
         return val<(double)min()?min():val>(double)max()?max():(cimg_int64)val;
       }
-      static const char* format() { return "%ld"; }
-      static const char* format_s() { return "%ld"; }
+      static const char* format() { return cimg_fint64; }
+      static const char* format_s() { return cimg_fint64; }
       static long format(const long val) { return (long)val; }
     };
 
@@ -14872,7 +14913,7 @@ namespace cimg_library_suffixed {
         if (_data + minimal_size>ptre) {
           if (error_message) cimg_sprintf(error_message,
                                           "CImg3d (%u,%u) has only %lu values, while at least %lu values were expected",
-                                          nb_points,nb_primitives,size(),minimal_size);
+                                          nb_points,nb_primitives,(unsigned long)size(),(unsigned long)minimal_size);
           return false;
         }
       }
@@ -58629,7 +58670,7 @@ namespace cimg_library_suffixed {
           j = 0; while ((i=(int)*stream)!='\n' && stream<estream && j<255) { ++stream; tmp[j++] = (char)i; } \
           ++stream; tmp[j] = 0; \
           W = H = D = C = 0; csiz = 0; \
-          if ((err = cimg_sscanf(tmp,"%u %u %u %u #%lu",&W,&H,&D,&C,&csiz))<4) \
+          if ((err = cimg_sscanf(tmp,"%u %u %u %u #" cimg_fuint64,&W,&H,&D,&C,&csiz))<4) \
             throw CImgArgumentException("CImgList<%s>::unserialize(): Invalid specified size (%u,%u,%u,%u) for " \
                                         "image #%u in serialized buffer.", \
                                         pixel_type(),W,H,D,C,l); \
@@ -58658,7 +58699,7 @@ namespace cimg_library_suffixed {
       CImg<charT> tmp(256), str_pixeltype(256), str_endian(256);
       *tmp = *str_pixeltype = *str_endian = 0;
       unsigned int j, N = 0, W, H, D, C;
-      ulongT csiz;
+      uint64T csiz;
       int i, err;
       cimg::unused(is_bytef);
       do {

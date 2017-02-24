@@ -210,35 +210,20 @@
 #define cimg_int64 __int64
 #define cimg_ulong UINT_PTR
 #define cimg_long INT_PTR
-#ifdef _MSC_VER
-#define cimg_fuint64 "%I64u"
-#define cimg_fint64 "%I64d"
-#else
-#define cimg_fuint64 "%llu"
-#define cimg_fint64 "%lld"
-#endif
 #else
 #if UINTPTR_MAX==0xffffffff || defined(__arm__) || defined(_M_ARM)
 #define cimg_uint64 unsigned long long
 #define cimg_int64 long long
-#define cimg_fuint64 "%llu"
-#define cimg_fint64 "%lld"
 #else
 #define cimg_uint64 unsigned long
 #define cimg_int64 long
-#define cimg_fuint64 "%lu"
-#define cimg_fint64 "%ld"
 #endif
 #if defined(__arm__) || defined(_M_ARM)
 #define cimg_ulong unsigned long long
 #define cimg_long long long
-#define cimg_fuint64 "%llu"
-#define cimg_fint64 "%lld"
 #else
 #define cimg_ulong unsigned long
 #define cimg_long long
-#define cimg_fuint64 "%lu"
-#define cimg_fint64 "%ld"
 #endif
 #endif
 
@@ -2725,8 +2710,8 @@ namespace cimg_library_suffixed {
       static cimg_uint64 inf() { return max(); }
       static cimg_uint64 cut(const double val) {
         return val<(double)min()?min():val>(double)max()?max():(cimg_uint64)val; }
-      static const char* format() { return cimg_fuint64; }
-      static const char* format_s() { return cimg_fuint64; }
+      static const char* format() { return "%lu"; }
+      static const char* format_s() { return "%lu"; }
       static unsigned long format(const cimg_uint64 val) { return (unsigned long)val; }
     };
 
@@ -2741,8 +2726,8 @@ namespace cimg_library_suffixed {
       static cimg_int64 cut(const double val) {
         return val<(double)min()?min():val>(double)max()?max():(cimg_int64)val;
       }
-      static const char* format() { return cimg_fint64; }
-      static const char* format_s() { return cimg_fint64; }
+      static const char* format() { return "%ld"; }
+      static const char* format_s() { return "%ld"; }
       static long format(const long val) { return (long)val; }
     };
 
@@ -14887,7 +14872,7 @@ namespace cimg_library_suffixed {
         if (_data + minimal_size>ptre) {
           if (error_message) cimg_sprintf(error_message,
                                           "CImg3d (%u,%u) has only %lu values, while at least %lu values were expected",
-                                          nb_points,nb_primitives,(unsigned long)size(),(unsigned long)minimal_size);
+                                          nb_points,nb_primitives,size(),minimal_size);
           return false;
         }
       }
@@ -20492,7 +20477,7 @@ namespace cimg_library_suffixed {
           throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: Function 'draw()': "
                                       "Sprite dimension (%lu values) and specified sprite geometry (%u,%u,%u,%u) "
                                       "(%lu values) do not match.",
-                                      mp.imgin.pixel_type(),(unsigned long)sizS,dx,dy,dz,dc,(ulongT)dx*dy*dz*dc);
+                                      mp.imgin.pixel_type(),sizS,dx,dy,dz,dc,(ulongT)dx*dy*dz*dc);
         CImg<double> S(&_mp_arg(1) + 1,dx,dy,dz,dc,true);
         const float opacity = (float)_mp_arg(12);
 
@@ -20503,7 +20488,7 @@ namespace cimg_library_suffixed {
               throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: Function 'draw()': "
                                           "Mask dimension (%lu values) and specified sprite geometry (%u,%u,%u,%u) "
                                           "(%lu values) do not match.",
-                                          mp.imgin.pixel_type(),(unsigned long)sizS,dx,dy,dz,dc,(ulongT)dx*dy*dz*dc);
+                                          mp.imgin.pixel_type(),sizS,dx,dy,dz,dc,(ulongT)dx*dy*dz*dc);
             const CImg<double> M(&_mp_arg(13) + 1,dx,dy,dz,(unsigned int)(sizM/(dx*dy*dz)),true);
             img.draw_image(x,y,z,c,S,M,opacity,(float)_mp_arg(15));
           } else img.draw_image(x,y,z,c,S,opacity);
@@ -21602,7 +21587,7 @@ namespace cimg_library_suffixed {
                                       "Out-of-bounds variable pointer "
                                       "(length: %ld, increment: %ld, offset start: %ld, "
                                       "offset end: %ld, offset max: %u).",
-                                      mp.imgin.pixel_type(),(long)siz,(long)inc,(long)off,(long)eoff,mp.mem._width - 1);
+                                      mp.imgin.pixel_type(),siz,inc,off,eoff,mp.mem._width - 1);
         return &mp.mem[off];
       }
 
@@ -21634,7 +21619,7 @@ namespace cimg_library_suffixed {
                                       "Out-of-bounds image pointer "
                                       "(length: %ld, increment: %ld, offset start: %ld, "
                                       "offset end: %ld, offset max: %lu).",
-                                      mp.imgin.pixel_type(),(long)siz,(long)inc,(long)off,(long)eoff,img.size() - 1);
+                                      mp.imgin.pixel_type(),siz,inc,off,eoff,img.size() - 1);
         return (float*)&img[off];
       }
 
@@ -22329,7 +22314,7 @@ namespace cimg_library_suffixed {
           throw CImgArgumentException("[_cimg_math_parser] CImg<%s>: Value accessor '[]': "
                                       "Out-of-bounds sub-vector request "
                                       "(length: %ld, start: %ld, sub-length: %ld).",
-                                      mp.imgin.pixel_type(),(long)length,(long)start,(long)sublength);
+                                      mp.imgin.pixel_type(),length,start,sublength);
         std::memcpy(ptrd,ptrs + start,sublength*sizeof(double));
         return cimg::type<double>::nan();
       }
@@ -47571,7 +47556,7 @@ namespace cimg_library_suffixed {
         cimg::warn(_cimg_instance
                    "load_ascii(): Only %lu/%lu values read from file '%s'.",
                    cimg_instance,
-                   (unsigned long)off - 1,(unsigned long)siz,filename?filename:"(FILE*)");
+                   off - 1,siz,filename?filename:"(FILE*)");
 
       if (!file) cimg::fclose(nfile);
       return *this;
@@ -58040,7 +58025,7 @@ namespace cimg_library_suffixed {
                          cimglist_instance,
                          filename?filename:"(FILE*)");
             else {
-              std::fprintf(nfile," #%lu\n",(unsigned long)csiz);
+              std::fprintf(nfile," #%lu\n",csiz);
               cimg::fwrite(cbuf,csiz,nfile);
               delete[] cbuf;
               failed_to_compress = false;
@@ -58594,7 +58579,7 @@ namespace cimg_library_suffixed {
                          "get_serialize(): Failed to save compressed data, saving them uncompressed.",
                          cimglist_instance);
             else {
-              cimg_snprintf(tmpstr,tmpstr._width," #%lu\n",(unsigned long)csiz);
+              cimg_snprintf(tmpstr,tmpstr._width," #%lu\n",csiz);
               CImg<ucharT>::string(tmpstr,false).move_to(stream);
               CImg<ucharT>(cbuf,csiz).move_to(stream);
               delete[] cbuf;
@@ -58644,7 +58629,7 @@ namespace cimg_library_suffixed {
           j = 0; while ((i=(int)*stream)!='\n' && stream<estream && j<255) { ++stream; tmp[j++] = (char)i; } \
           ++stream; tmp[j] = 0; \
           W = H = D = C = 0; csiz = 0; \
-          if ((err = cimg_sscanf(tmp,"%u %u %u %u %lu",&W,&H,&D,&C,&csiz))<4) \
+          if ((err = cimg_sscanf(tmp,"%u %u %u %u #%lu",&W,&H,&D,&C,&csiz))<4) \
             throw CImgArgumentException("CImgList<%s>::unserialize(): Invalid specified size (%u,%u,%u,%u) for " \
                                         "image #%u in serialized buffer.", \
                                         pixel_type(),W,H,D,C,l); \
@@ -58673,7 +58658,7 @@ namespace cimg_library_suffixed {
       CImg<charT> tmp(256), str_pixeltype(256), str_endian(256);
       *tmp = *str_pixeltype = *str_endian = 0;
       unsigned int j, N = 0, W, H, D, C;
-      uLong csiz;
+      ulongT csiz;
       int i, err;
       cimg::unused(is_bytef);
       do {

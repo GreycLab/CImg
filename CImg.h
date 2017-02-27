@@ -242,32 +242,6 @@
 #endif
 #endif
 
-/*
-// Define own types 'cimg_long/ulong' and 'cimg_int64/uint64' to ensure portability.
-// ( constrained to 'sizeof(cimg_ulong/cimg_long) = sizeof(void*)' and 'sizeof(cimg_int64/cimg_uint64)=8' ).
-#if cimg_OS==2
-#define cimg_uint64 unsigned __int64
-#define cimg_int64 __int64
-#define cimg_ulong UINT_PTR
-#define cimg_long INT_PTR
-#else
-#if UINTPTR_MAX==0xffffffff || defined(__arm__) || defined(_M_ARM)
-#define cimg_uint64 unsigned long long
-#define cimg_int64 long long
-#else
-#define cimg_uint64 unsigned long
-#define cimg_int64 long
-#endif
-#if defined(__arm__) || defined(_M_ARM)
-#define cimg_ulong unsigned long long
-#define cimg_long long long
-#else
-#define cimg_ulong unsigned long
-#define cimg_long long
-#endif
-#endif
-*/
-
 // Configure filename separator.
 //
 // Filename separator is set by default to '/', except for Windows where it is '\'.
@@ -10385,15 +10359,16 @@ namespace cimg_library_suffixed {
             if (hBitmap) {
               HGDIOBJ hOld = SelectObject(hdcMem,hBitmap);
               if (hOld && BitBlt(hdcMem,0,0,bw,bh,hScreen,_x0,_y0,SRCCOPY) && SelectObject(hdcMem,hOld)) {
-                BITMAPINFOHEADER bmi = {0};
+                BITMAPINFOHEADER bmi;
                 bmi.biSize = sizeof(BITMAPINFOHEADER);
-                bmi.biPlanes = 1;
-                bmi.biBitCount = 32;
                 bmi.biWidth = bw;
                 bmi.biHeight = -bh;
+                bmi.biPlanes = 1;
+                bmi.biBitCount = 32;
                 bmi.biCompression = BI_RGB;
                 bmi.biSizeImage = 0;
-
+                bmi.biXPelsPerMeter = bmi.biYPelsPerMeter = 0;
+                bmi.biClrUsed = bmi.biClrImportant = 0;
                 unsigned char *buf = new unsigned char[4*bw*bh];
                 if (GetDIBits(hdcMem,hBitmap,0,bh,buf,(BITMAPINFO*)&bmi,DIB_RGB_COLORS)) {
                   img.assign(bw,bh,1,3);

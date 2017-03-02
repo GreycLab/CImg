@@ -206,6 +206,7 @@
 // Define own types 'cimg_long/ulong' and 'cimg_int64/uint64' to ensure portability.
 // ( constrained to 'sizeof(cimg_ulong/cimg_long) = sizeof(void*)' and 'sizeof(cimg_int64/cimg_uint64)=8' ).
 #if cimg_OS==2
+
 #define cimg_uint64 unsigned __int64
 #define cimg_int64 __int64
 #define cimg_ulong UINT_PTR
@@ -217,7 +218,9 @@
 #define cimg_fuint64 "%llu"
 #define cimg_fint64 "%lld"
 #endif
+
 #else
+
 #if UINTPTR_MAX==0xffffffff || defined(__arm__) || defined(_M_ARM)
 #define cimg_uint64 unsigned long long
 #define cimg_int64 long long
@@ -229,17 +232,15 @@
 #define cimg_fuint64 "%lu"
 #define cimg_fint64 "%ld"
 #endif
+
 #if defined(__arm__) || defined(_M_ARM)
 #define cimg_ulong unsigned long long
 #define cimg_long long long
-#define cimg_fuint64 "%llu"
-#define cimg_fint64 "%lld"
 #else
 #define cimg_ulong unsigned long
 #define cimg_long long
-#define cimg_fuint64 "%lu"
-#define cimg_fint64 "%ld"
 #endif
+
 #endif
 
 // Configure filename separator.

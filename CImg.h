@@ -43575,9 +43575,13 @@ namespace cimg_library_suffixed {
                                     "draw_ellipse(): Specified color is (null).",
                                     cimg_instance);
       if (r1<=0 || r2<=0) return draw_point(x0,y0,color,opacity);
+      if (r1==r2 && (float)(int)r1==r1) {
+        if (pattern) return draw_circle(x0,y0,r1,color,opacity,pattern);
+        else return draw_circle(x0,y0,r1,color,opacity);
+      }
       cimg_init_scanline(color,opacity);
       const float
-        nr1 = cimg::abs(r1), nr2 = cimg::abs(r2),
+        nr1 = cimg::abs(r1) - 0.5, nr2 = cimg::abs(r2) - 0.5,
         nangle = (float)(angle*cimg::PI/180),
         u = (float)std::cos(nangle),
         v = (float)std::sin(nangle),
@@ -43603,7 +43607,7 @@ namespace cimg_library_suffixed {
           bY = b*Y/a,
           fxmin = x0 - 0.5f - bY - sdelta,
           fxmax = x0 + 0.5f - bY + sdelta;
-        const int xmin = (int)fxmin, xmax = (int)fxmax;
+        const int xmin = (int)cimg::round(fxmin), xmax = (int)cimg::round(fxmax);
         if (!pattern) cimg_draw_scanline(xmin,xmax,y,color,opacity,1);
         else {
           if (first_line) {

@@ -48076,8 +48076,8 @@ namespace cimg_library_suffixed {
       else return load_other(filename);
 #else
       // Open file and check for PNG validity
-      const char *volatile nfilename = filename; // two 'volatile' here to remove a g++ warning due to 'setjmp'.
-      std::FILE *volatile nfile = file?file:cimg::fopen(nfilename,"rb");
+      const char *nfilename = filename;
+      std::FILE *nfile = file?file:cimg::fopen(nfilename,"rb");
 
       unsigned char pngCheck[8] = { 0 };
       cimg::fread(pngCheck,8,(std::FILE*)nfile);
@@ -49017,11 +49017,11 @@ namespace cimg_library_suffixed {
              rdr.ndim(2)?rdr.ndim(2):1,
              rdr.ndim(3)?rdr.ndim(3):1,
              rdr.ndim(4)?rdr.ndim(4):1);
-      if(typeid(T)==typeid(unsigned char))
+      if (typeid(T)==typeid(unsigned char))
         rdr.setup_read_byte();
-      else if(typeid(T)==typeid(int))
+      else if (typeid(T)==typeid(int))
         rdr.setup_read_int();
-      else if(typeid(T)==typeid(double))
+      else if (typeid(T)==typeid(double))
         rdr.setup_read_double();
       else
         rdr.setup_read_float();
@@ -49312,7 +49312,7 @@ namespace cimg_library_suffixed {
       *item = *tmp1 = *tmp2 = 0;
       out[0] = std::fscanf(file,"%63s",item._data);
       out[0] = out[1] = out[2] = out[3] = out[5] = 1; out[4] = out[6] = out[7] = -1;
-      if(cimg::strncasecmp(item,"#INRIMAGE-4#{",13)!=0)
+      if (cimg::strncasecmp(item,"#INRIMAGE-4#{",13)!=0)
         throw CImgIOException("CImg<%s>::load_inr(): INRIMAGE-4 header not found.",
                               pixel_type());
 
@@ -49342,17 +49342,17 @@ namespace cimg_library_suffixed {
                                 tmp2._data);
         }
       }
-      if(out[0]<0 || out[1]<0 || out[2]<0 || out[3]<0)
+      if (out[0]<0 || out[1]<0 || out[2]<0 || out[3]<0)
         throw CImgIOException("CImg<%s>::load_inr(): Invalid dimensions (%d,%d,%d,%d) defined in header.",
                               pixel_type(),
                               out[0],out[1],out[2],out[3]);
-      if(out[4]<0 || out[5]<0)
+      if (out[4]<0 || out[5]<0)
         throw CImgIOException("CImg<%s>::load_inr(): Incomplete pixel type defined in header.",
                               pixel_type());
-      if(out[6]<0)
+      if (out[6]<0)
         throw CImgIOException("CImg<%s>::load_inr(): Incomplete PIXSIZE field defined in header.",
                               pixel_type());
-      if(out[7]<0)
+      if (out[7]<0)
         throw CImgIOException("CImg<%s>::load_inr(): Big/Little Endian coding type undefined in header.",
                               pixel_type());
     }
@@ -52161,9 +52161,9 @@ namespace cimg_library_suffixed {
                                  "save_png(): Unable to save data in '(*FILE)' unless libpng is enabled.",
                                  cimg_instance);
 #else
-      const char *volatile nfilename = filename; // two 'volatile' here to remove a g++ warning due to 'setjmp'.
-      std::FILE *volatile nfile = file?file:cimg::fopen(nfilename,"wb");
-      volatile double stmin, stmax = (double)max_min(stmin);
+      const char *nfilename = filename;
+      std::FILE *nfile = file?file:cimg::fopen(nfilename,"wb");
+      double stmin, stmax = (double)max_min(stmin);
 
       if (_depth>1)
         cimg::warn(_cimg_instance
@@ -52188,7 +52188,7 @@ namespace cimg_library_suffixed {
       png_error_ptr user_error_fn = 0, user_warning_fn = 0;
       png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING,user_error_ptr, user_error_fn,
                                                     user_warning_fn);
-      if(!png_ptr){
+      if (!png_ptr){
         if (!file) cimg::fclose(nfile);
         throw CImgIOException(_cimg_instance
                               "save_png(): Failed to initialize 'png_ptr' structure when saving file '%s'.",
@@ -52921,17 +52921,17 @@ namespace cimg_library_suffixed {
        wtr.open(filename, imitate_file);
      else {
        minc::minc_info di;
-       if(width()) di.push_back(minc::dim_info(width(),width()*0.5,-1,minc::dim_info::DIM_X));
-       if(height()) di.push_back(minc::dim_info(height(),height()*0.5,-1,minc::dim_info::DIM_Y));
-       if(depth()) di.push_back(minc::dim_info(depth(),depth()*0.5,-1,minc::dim_info::DIM_Z));
-       if(spectrum()) di.push_back(minc::dim_info(spectrum(),spectrum()*0.5,-1,minc::dim_info::DIM_TIME));
+       if (width()) di.push_back(minc::dim_info(width(),width()*0.5,-1,minc::dim_info::DIM_X));
+       if (height()) di.push_back(minc::dim_info(height(),height()*0.5,-1,minc::dim_info::DIM_Y));
+       if (depth()) di.push_back(minc::dim_info(depth(),depth()*0.5,-1,minc::dim_info::DIM_Z));
+       if (spectrum()) di.push_back(minc::dim_info(spectrum(),spectrum()*0.5,-1,minc::dim_info::DIM_TIME));
        wtr.open(filename,di,1,NC_FLOAT,0);
      }
-     if(typeid(T)==typeid(unsigned char))
+     if (typeid(T)==typeid(unsigned char))
        wtr.setup_write_byte();
-     else if(typeid(T)==typeid(int))
+     else if (typeid(T)==typeid(int))
        wtr.setup_write_int();
-     else if(typeid(T)==typeid(double))
+     else if (typeid(T)==typeid(double))
        wtr.setup_write_double();
      else
        wtr.setup_write_float();
@@ -56443,7 +56443,7 @@ namespace cimg_library_suffixed {
         }
         if (disp.is_resized()) { disp.resize(false); visu0.assign(); }
         if (ym>=0 && ym<13) { if (!text_down) { visu.assign(); text_down = true; }}
-        else if (ym>=visu.height() - 13) { if(text_down) { visu.assign(); text_down = false; }}
+        else if (ym>=visu.height() - 13) { if (text_down) { visu.assign(); text_down = false; }}
         if (!exit_on_anykey && key && key!=cimg::keyESC &&
             (key!=cimg::keyW || (!disp.is_keyCTRLLEFT() && !disp.is_keyCTRLRIGHT()))) {
           key = 0;

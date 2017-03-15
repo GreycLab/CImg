@@ -48076,9 +48076,13 @@ namespace cimg_library_suffixed {
       else return load_other(filename);
 #else
       // Open file and check for PNG validity
+#if defined __GNUC__
+      const char *volatile nfilename = filename; // Use 'volatile' to avoid (wrong) g++ warning.
+      std::FILE *volatile nfile = file?file:cimg::fopen(nfilename,"rb");
+#else
       const char *nfilename = filename;
       std::FILE *nfile = file?file:cimg::fopen(nfilename,"rb");
-
+#endif
       unsigned char pngCheck[8] = { 0 };
       cimg::fread(pngCheck,8,(std::FILE*)nfile);
       if (png_sig_cmp(pngCheck,0,8)) {
@@ -52161,10 +52165,16 @@ namespace cimg_library_suffixed {
                                  "save_png(): Unable to save data in '(*FILE)' unless libpng is enabled.",
                                  cimg_instance);
 #else
+
+#if defined __GNUC__
+      const char *volatile nfilename = filename; // Use 'volatile' to avoid (wrong) g++ warning.
+      std::FILE *volatile nfile = file?file:cimg::fopen(nfilename,"wb");
+#else
       const char *nfilename = filename;
       std::FILE *nfile = file?file:cimg::fopen(nfilename,"wb");
-      double stmin, stmax = (double)max_min(stmin);
+#endif
 
+      double stmin, stmax = (double)max_min(stmin);
       if (_depth>1)
         cimg::warn(_cimg_instance
                    "save_png(): Instance is volumetric, only the first slice will be saved in file '%s'.",

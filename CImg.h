@@ -52169,12 +52169,13 @@ namespace cimg_library_suffixed {
 #if defined __GNUC__
       const char *volatile nfilename = filename; // Use 'volatile' to avoid (wrong) g++ warning.
       std::FILE *volatile nfile = file?file:cimg::fopen(nfilename,"wb");
+      volatile double stmin, stmax = (double)max_min(stmin);
 #else
       const char *nfilename = filename;
       std::FILE *nfile = file?file:cimg::fopen(nfilename,"wb");
+      double stmin, stmax = (double)max_min(stmin);
 #endif
 
-      double stmin, stmax = (double)max_min(stmin);
       if (_depth>1)
         cimg::warn(_cimg_instance
                    "save_png(): Instance is volumetric, only the first slice will be saved in file '%s'.",

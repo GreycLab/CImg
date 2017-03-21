@@ -15301,7 +15301,7 @@ namespace cimg_library_suffixed {
         unsigned int *pd = res._data;
         int level = 0;
         for (const char *ps = expr._data; *ps && level>=0; ++ps) {
-          if (!next_is_escaped && *ps=='\\') next_is_escaped = true;
+          if (!is_escaped && !next_is_escaped && *ps=='\\') next_is_escaped = true;
           if (!is_escaped && *ps=='\'') { // Non-escaped character
             if (!mode && ps>expr._data && *(ps - 1)=='[') next_mode = mode = 2; // Start vector-string
             else if (mode==2 && *(ps + 1)==']') next_mode = !mode; // End vector-string

@@ -20498,7 +20498,7 @@ namespace cimg_library_suffixed {
         CImg<double> S(&_mp_arg(1) + 1,dx,dy,dz,dc,true);
         const float opacity = (float)_mp_arg(12);
 
-        if (img) {
+        if (img._data) {
           if (mp.opcode[13]!=~0U) { // Opacity mask specified
             const ulongT sizM = mp.opcode[14];
             if (sizM<(ulongT)dx*dy*dz)
@@ -20605,7 +20605,7 @@ namespace cimg_library_suffixed {
           off = (longT)_mp_arg(2),
           whds = (longT)img.size();
         if (off>=0 && off<whds) return (double)img[off];
-        if (img) switch (boundary_conditions) {
+        if (img._data) switch (boundary_conditions) {
           case 3 : { // Mirror
             const longT whds2 = 2*whds, moff = cimg::mod(off,whds2);
             return (double)img[moff<whds?moff:whds2 - moff - 1];
@@ -20707,7 +20707,7 @@ namespace cimg_library_suffixed {
           off = img.offset(ox,oy,oz,oc) + (longT)_mp_arg(2),
           whds = (longT)img.size();
         if (off>=0 && off<whds) return (double)img[off];
-        if (img) switch (boundary_conditions) {
+        if (img._data) switch (boundary_conditions) {
           case 3 : { // Mirror
             const longT whds2 = 2*whds, moff = cimg::mod(off,whds2);
             return (double)img[moff<whds?moff:whds2 - moff - 1];
@@ -20883,7 +20883,7 @@ namespace cimg_library_suffixed {
           off = (longT)_mp_arg(3),
           whds = (longT)img.size();
         if (off>=0 && off<whds) return (double)img[off];
-        if (img) switch (boundary_conditions) {
+        if (img._data) switch (boundary_conditions) {
           case 3 : { // Mirror
             const longT whds2 = 2*whds, moff = cimg::mod(off,whds2);
             return (double)img[moff<whds?moff:whds2 - moff - 1];
@@ -20967,7 +20967,7 @@ namespace cimg_library_suffixed {
           off = img.offset(ox,oy,oz,oc) + (longT)_mp_arg(3),
           whds = (longT)img.size();
         if (off>=0 && off<whds) return (double)img[off];
-        if (img) switch (boundary_conditions) {
+        if (img._data) switch (boundary_conditions) {
           case 3 : { // Mirror
             const longT whds2 = 2*whds, moff = cimg::mod(off,whds2);
             return (double)img[moff<whds?moff:whds2 - moff - 1];
@@ -21279,7 +21279,7 @@ namespace cimg_library_suffixed {
           cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
           return cimg::type<double>::nan();
         }
-        if (img) switch (boundary_conditions) {
+        if (img._data) switch (boundary_conditions) {
           case 3 : { // Mirror
             const longT whd2 = 2*whd, moff = cimg::mod(off,whd2);
             ptrs = &img[moff<whd?moff:whd2 - moff - 1];
@@ -21385,7 +21385,7 @@ namespace cimg_library_suffixed {
           cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
           return cimg::type<double>::nan();
         }
-        if (img) switch (boundary_conditions) {
+        if (img._data) switch (boundary_conditions) {
           case 3 : { // Mirror
             const longT whd2 = 2*whd, moff = cimg::mod(off,whd2);
             ptrs = &img[moff<whd?moff:whd2 - moff - 1];
@@ -22616,7 +22616,7 @@ namespace cimg_library_suffixed {
           cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
           return cimg::type<double>::nan();
         }
-        if (img) switch (boundary_conditions) {
+        if (img._data) switch (boundary_conditions) {
           case 3 : { // Mirror
             const longT whd2 = 2*whd, moff = cimg::mod(off,whd2);
             ptrs = &img[moff<whd?moff:whd2 - moff - 1];
@@ -22722,7 +22722,7 @@ namespace cimg_library_suffixed {
           cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = *ptrs; ptrs+=whd; }
           return cimg::type<double>::nan();
         }
-        if (img) switch (boundary_conditions) {
+        if (img._data) switch (boundary_conditions) {
           case 3 : { // Mirror
             const longT whd2 = 2*whd, moff = cimg::mod(off,whd2);
             ptrs = &img[moff<whd?moff:whd2 - moff - 1];
@@ -28771,12 +28771,13 @@ namespace cimg_library_suffixed {
             x0 = ((int)xc%width()) - width(),
             y0 = ((int)yc%height()) - height(),
             z0 = ((int)zc%depth()) - depth(),
-            c0 = ((int)cc%spectrum()) - spectrum();
+            c0 = ((int)cc%spectrum()) - spectrum(),
+            dx = width(), dy = height(), dz = depth(), dc = spectrum();
           cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=65536))
-          for (int c = c0; c<(int)sc; c+=spectrum())
-            for (int z = z0; z<(int)sz; z+=depth())
-              for (int y = y0; y<(int)sy; y+=height())
-                for (int x = x0; x<(int)sx; x+=width())
+          for (int c = c0; c<(int)sc; c+=dc)
+            for (int z = z0; z<(int)sz; z+=dz)
+              for (int y = y0; y<(int)sy; y+=dy)
+                for (int x = x0; x<(int)sx; x+=dx)
                   res.draw_image(x,y,z,c,*this);
         } break;
         case 1 : { // Neumann

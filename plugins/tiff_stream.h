@@ -163,8 +163,8 @@ CImg<T>& load_tiff(std::istream* tiffInStream,
         if (l==nfirst_frame)
           assign(frame._width,frame._height,1 + (nlast_frame - nfirst_frame)/nstep_frame,frame._spectrum);
         if (frame._width>_width || frame._height>_height || frame._spectrum>_spectrum)
-          resize(cimg::max(frame._width,_width),cimg::max(frame._height,_height),
-                 -100,cimg::max(frame._spectrum,_spectrum),0);
+          resize(std::max(frame._width,_width),std::max(frame._height,_height),
+                 -100,std::max(frame._spectrum,_spectrum),0);
         draw_image(0,0,(l - nfirst_frame)/nstep_frame,frame);
       }
       TIFFClose(tif);

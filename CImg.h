@@ -15222,6 +15222,7 @@ namespace cimg_library_suffixed {
         memtype.assign(mem._width,1,1,1,0);
         for (unsigned int i = 0; i<_cimg_mp_slot_x; ++i) memtype[i] = 1;
         memtype[17] = 0;
+        memtype[_cimg_mp_slot_x] = memtype[_cimg_mp_slot_y] = memtype[_cimg_mp_slot_z] = memtype[_cimg_mp_slot_c] = -2;
         mempos = _cimg_mp_slot_c + 1;
         variable_pos.assign(8);
 

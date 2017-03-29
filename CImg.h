@@ -58337,7 +58337,6 @@ namespace cimg_library_suffixed {
         throw CImgIOException(_cimglist_instance
                               "save_gzip_external(): Specified filename is (null).",
                               cimglist_instance);
-
       CImg<charT> command(1024), filename_tmp(256), body(256);
       const char
         *ext = cimg::split_filename(filename,body),

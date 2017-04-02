@@ -57576,7 +57576,7 @@ namespace cimg_library_suffixed {
         if (nlast_frame>=nb_images) nlast_frame = nb_images - 1;
         assign(1 + (nlast_frame - nfirst_frame)/nstep_frame);
         TIFFSetDirectory(tif,0);
-#if cimg_verbosity>=3
+#if cimg_verbosity<3
         TIFFSetWarningHandler(0);
         TIFFSetErrorHandler(0);
 #endif

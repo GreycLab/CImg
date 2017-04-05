@@ -48680,6 +48680,10 @@ namespace cimg_library_suffixed {
                                     filename);
       return load_other(filename);
 #else
+#if cimg_verbosity<3
+      TIFFSetWarningHandler(0);
+      TIFFSetErrorHandler(0);
+#endif
       TIFF *tif = TIFFOpen(filename,"r");
       if (tif) {
         unsigned int nb_images = 0;

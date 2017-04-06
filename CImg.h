@@ -47474,7 +47474,7 @@ namespace cimg_library_suffixed {
 
       // If nothing loaded, try to guess file format from magic number in file.
       if (!is_loaded) {
-        std::FILE *file = std::fopen(filename,"rb");
+        std::FILE *file = std_fopen(filename,"rb");
         if (!file) {
           cimg::exception_mode(omode);
           throw CImgIOException(_cimg_instance
@@ -56564,7 +56564,7 @@ namespace cimg_library_suffixed {
 
       // If nothing loaded, try to guess file format from magic number in file.
       if (!is_loaded && !is_stdin) {
-        std::FILE *const file = std::fopen(filename,"rb");
+        std::FILE *const file = std_fopen(filename,"rb");
         if (!file) {
           cimg::exception_mode(omode);
           throw CImgIOException(_cimglist_instance

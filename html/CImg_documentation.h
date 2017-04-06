@@ -25,8 +25,6 @@
    the C++ template image processing library.
    This documentation have been generated using the tool <a href="http://www.doxygen.org">doxygen</a>.
    It contains a detailed description of all classes and functions of the %CImg Library.
-   If you have downloaded the CImg package, you actually have a local copy of these pages in the
-   \c CImg/html/reference/ directory.
 
    Use the menu above to navigate through the documentation pages.
    As a first step, you may look at the list of <a href="modules.html">available modules</a>.

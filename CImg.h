@@ -58977,7 +58977,10 @@ namespace cimg {
     err = MultiByteToWideChar(CP_UTF8,0,mode,-1,wmode,err);
     if (!err) return std_fopen(path,mode);
 
-    return _wfopen(wpath,wmode);
+//    return _wfopen(wpath,wmode);
+    FILE *res;
+    _wfopen_s(&res,wpath,wmode);
+    return res;
 #else
     return std_fopen(path,mode);
 #endif

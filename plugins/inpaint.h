@@ -281,8 +281,8 @@ CImg<T>& inpaint_patch(const CImg<t>& mask, const unsigned int patch_size=11,
       const int
         xl = (int)lookup_candidates(0,C),
         yl = (int)lookup_candidates(1,C),
-        x0 = cimg::max(p1,xl - l1), y0 = cimg::max(p1,yl - l1),
-        x1 = cimg::min(width() - 1 - p2,xl + l2), y1 = cimg::min(height() - 1 - p2,yl + l2);
+        x0 = std::max(p1,xl - l1), y0 = std::max(p1,yl - l1),
+        x1 = std::min(width() - 1 - p2,xl + l2), y1 = std::min(height() - 1 - p2,yl + l2);
       for (int y = y0; y<=y1; y+=_lookup_increment)
         for (int x = x0; x<=x1; x+=_lookup_increment) if (is_visited(x,y)!=target_index) {
             if (is_strict_search) mask._inpaint_patch_crop(x - p1,y - p1,x + p2,y + p2,1).move_to(pN);
@@ -352,17 +352,17 @@ CImg<T>& inpaint_patch(const CImg<t>& mask, const unsigned int patch_size=11,
 
   // Blend inpainting result (if requested), using multi-scale blending algorithm.
   if (blend_size && blend_scales) {
-    const float _blend_threshold = cimg::max(0.0f,cimg::min(1.0f,blend_threshold));
+    const float _blend_threshold = std::max(0.0f,std::min(1.0f,blend_threshold));
     saved_patches._height = nb_saved_patches;
 
     // Re-crop image and mask if outer blending is activated.
     if (is_blend_outer) {
       const int
         b2 = (int)blend_size/2, b1 = (int)blend_size - b2 - 1,
-        xb0 = cimg::max(0,ox - b1),
-        yb0 = cimg::max(0,oy - b1),
-        xb1 = cimg::min(_width - 1,xb0 + dx + b1 + b2),
-        yb1 = cimg::min(_height - 1,yb0 + dy + b1 + b2);
+        xb0 = std::max(0,ox - b1),
+        yb0 = std::max(0,oy - b1),
+        xb1 = std::min(_width - 1,xb0 + dx + b1 + b2),
+        yb1 = std::min(_height - 1,yb0 + dy + b1 + b2);
       ox = xb0; oy = yb0; dx = xb1 - xb0 + 1U, dy = yb1 - yb0 + 1U;
     }
 
@@ -391,17 +391,17 @@ CImg<T>& inpaint_patch(const CImg<t>& mask, const unsigned int patch_size=11,
     CImg_3x3(I,float);
     cimg_for3XY(offsets,x,y) if (mask(x + ox,y + oy)) {
       const float
-        iox = cimg::max((float)offsets(_n1x,y,0) - offsets(x,y,0),
-                        (float)offsets(x,y,0) - offsets(_p1x,y,0)),
-        ioy = cimg::max((float)offsets(x,_n1y,1) - offsets(x,y,1),
-                        (float)offsets(x,y,1) - offsets(x,_p1y,1)),
+        iox = std::max((float)offsets(_n1x,y,0) - offsets(x,y,0),
+                       (float)offsets(x,y,0) - offsets(_p1x,y,0)),
+        ioy = std::max((float)offsets(x,_n1y,1) - offsets(x,y,1),
+                       (float)offsets(x,y,1) - offsets(x,_p1y,1)),
         ion = std::sqrt(iox*iox + ioy*ioy);
       float iin = 0;
       cimg_forC(*this,c) {
         cimg_get3x3(*this,x,y,0,c,I,float);
         const float
-          iix = (float)cimg::max(Inc - Icc,Icc - Ipc),
-          iiy = (float)cimg::max(Icn - Icc,Icc - Icp);
+          iix = (float)std::max(Inc - Icc,Icc - Ipc),
+          iiy = (float)std::max(Icn - Icc,Icc - Icp);
         iin+=std::log(1 + iix*iix + iiy*iiy);
       }
       iin/=_spectrum;
@@ -438,10 +438,10 @@ CImg<T>& inpaint_patch(const CImg<t>& mask, const unsigned int patch_size=11,
           yd = (int)*(ptr++);
         if (xs - b1<0 || ys - b1<0 || xs + b2>=width() || ys + b2>=height()) { // Blend with partial patch.
           const int
-            xs0 = cimg::max(0,xs - b1),
-            ys0 = cimg::max(0,ys - b1),
-            xs1 = cimg::min(width() - 1,xs + b2),
-            ys1 = cimg::min(height() - 1,ys + b2);
+            xs0 = std::max(0,xs - b1),
+            ys0 = std::max(0,ys - b1),
+            xs1 = std::min(width() - 1,xs + b2),
+            ys1 = std::min(height() - 1,ys + b2);
           _inpaint_patch_crop(xs0,ys0,xs1,ys1,0).move_to(pP);
           weights._inpaint_patch_crop(xs0 - xs + b1,ys0 - ys + b1,xs1 - xs + b1,ys1 - ys + b1,0).move_to(pC);
           blended.draw_image(xd + xs0 - xs - ox,yd + ys0 - ys - oy,pP,pC,-1);

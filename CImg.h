@@ -58976,11 +58976,7 @@ namespace cimg {
     CImg<wchar_t> wmode(err);
     err = MultiByteToWideChar(CP_UTF8,0,mode,-1,wmode,err);
     if (!err) return std_fopen(path,mode);
-
-//    return _wfopen(wpath,wmode);
-    FILE *res;
-    _wfopen_s(&res,wpath,wmode);
-    return res;
+    return _wfopen(wpath,wmode);
 #else
     return std_fopen(path,mode);
 #endif

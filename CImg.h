@@ -56297,38 +56297,39 @@ namespace cimg_library_suffixed {
           visu0.assign(disp._width,disp._height,1,3,0); visu.assign();
           (indices0.get_resize(axis=='x'?visu0._width:visu0._height,1)).move_to(indices);
           unsigned int ind = 0;
-          if (axis=='x') for (unsigned int x = 0; x<visu0._width; ) {
-              const unsigned int x0 = x;
-              ind = indices[x];
-              while (x<indices._width && indices[x++]==ind) {}
-              const CImg<T>
-                onexone(1,1,1,1,(T)0),
-                &src = _data[ind]?_data[ind]:onexone;
+          const CImg<T> onexone(1,1,1,1,(T)0);
+          if (axis=='x')
+            cimg_pragma_openmp(parallel for cimg_openmp_if(_width>=4))
+            cimglist_for(*this,ind) {
+              unsigned int x0 = 0;
+              while (x0<visu0._width && indices[x0++]!=(unsigned int)ind) {}
+              unsigned int x1 = x0;
+              while (x1<visu0._width && indices[x1++]==(unsigned int)ind) {}
+              const CImg<T> &src = _data[ind]?_data[ind]:onexone;
               CImg<ucharT> res;
               src.__get_select(disp,old_normalization,(src._width - 1)/2,(src._height - 1)/2,(src._depth - 1)/2).
                 move_to(res);
               const unsigned int h = CImgDisplay::_fitscreen(res._width,res._height,1,128,-85,true);
-              res.resize(x - x0,std::max(32U,h*disp._height/max_height),1,res._spectrum==1?3:-100);
+              res.resize(x1 - x0,std::max(32U,h*disp._height/max_height),1,res._spectrum==1?3:-100);
               positions(ind,0) = positions(ind,2) = (int)x0;
               positions(ind,1) = positions(ind,3) = (int)(align*(visu0.height() - res.height()));
               positions(ind,2)+=res._width;
               positions(ind,3)+=res._height - 1;
               visu0.draw_image(positions(ind,0),positions(ind,1),res);
-            } else for (unsigned int y = 0; y<visu0._height; ) {
-              const unsigned int y0 = y;
-              ind = indices[y];
-              while (y<visu0._height && indices[++y]==ind) {}
-              const CImg<T> &src = _data[ind];
-              const CImg<Tuchar>
-                img2d = src._depth>1?src.get_projections2d((src._width - 1)/2,(src._height - 1)/2,(src._depth - 1)/2):
-                cimg::type<Tuchar>::string()==cimg::type<T>::string()?src.get_shared():src;
-              CImg<ucharT> res = old_normalization==1 ||
-                (old_normalization==3 && cimg::type<T>::string()!=cimg::type<unsigned char>::string())?
-                CImg<ucharT>(img2d.get_normalize((Tuchar)0,(Tuchar)255)):
-                CImg<ucharT>(img2d);
-              if (res._spectrum>3) res.channels(0,2);
+            }
+          else
+            cimg_pragma_openmp(parallel for cimg_openmp_if(_width>=4))
+            cimglist_for(*this,ind) {
+              unsigned int y0 = 0;
+              while (y0<visu0._height && indices[y0++]!=(unsigned int)ind) {}
+              unsigned int y1 = y0;
+              while (y1<visu0._height && indices[y1++]==(unsigned int)ind) {}
+              const CImg<T> &src = _data[ind]?_data[ind]:onexone;
+              CImg<ucharT> res;
+              src.__get_select(disp,old_normalization,(src._width - 1)/2,(src._height - 1)/2,(src._depth - 1)/2).
+                move_to(res);
               const unsigned int w = CImgDisplay::_fitscreen(res._width,res._height,1,128,-85,false);
-              res.resize(std::max(32U,w*disp._width/max_width),y - y0,1,res._spectrum==1?3:-100);
+              res.resize(std::max(32U,w*disp._width/max_width),y1 - y0,1,res._spectrum==1?3:-100);
               positions(ind,0) = positions(ind,2) = (int)(align*(visu0.width() - res.width()));
               positions(ind,1) = positions(ind,3) = (int)y0;
               positions(ind,2)+=res._width - 1;

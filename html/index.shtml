@@ -382,6 +382,10 @@
             Haldern/Germany, from Volker Doebel.</a></li>
         <li><a href="img/postcard66.jpg" onclick="NewWindow(this.href,'name','420','320','yes');return false;">
             France, from Powlux.</a></li>
+        <li><a href="img/postcard67.jpg" onclick="NewWindow(this.href,'name','420','320','yes');return false;">
+            Winnipeg / Canada, from James Jaworski.</a></li>
+        <li><a href="img/postcard68.jpg" onclick="NewWindow(this.href,'name','420','320','yes');return false;">
+            Newcastle upon tyne / England, from Richard Gledson.</a></li>
         <br/><br/></li>
     </ul></li>
   </ul>

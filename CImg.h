@@ -52861,6 +52861,9 @@ namespace cimg_library_suffixed {
       if (cimg::type<t>::is_float()) TIFFSetField(tif,TIFFTAG_SAMPLEFORMAT,3);
       else if (cimg::type<t>::min()==0) TIFFSetField(tif,TIFFTAG_SAMPLEFORMAT,1);
       else TIFFSetField(tif,TIFFTAG_SAMPLEFORMAT,2);
+      double valm, valM = max_min(valm);
+      TIFFSetField(tif,TIFFTAG_SMINSAMPLEVALUE,valm);
+      TIFFSetField(tif,TIFFTAG_SMAXSAMPLEVALUE,valM);
       TIFFSetField(tif,TIFFTAG_BITSPERSAMPLE,bpp);
       TIFFSetField(tif,TIFFTAG_PLANARCONFIG,PLANARCONFIG_CONTIG);
       TIFFSetField(tif,TIFFTAG_PHOTOMETRIC,photometric);
@@ -52870,6 +52873,7 @@ namespace cimg_library_suffixed {
       TIFFSetField(tif,TIFFTAG_ROWSPERSTRIP,rowsperstrip);
       TIFFSetField(tif,TIFFTAG_FILLORDER,FILLORDER_MSB2LSB);
       TIFFSetField(tif,TIFFTAG_SOFTWARE,"CImg");
+
       t *const buf = (t*)_TIFFmalloc(TIFFStripSize(tif));
       if (buf) {
         for (unsigned int row = 0; row<_height; row+=rowsperstrip) {

@@ -24154,11 +24154,12 @@ namespace cimg_library_suffixed {
     CImg<Tdouble> get_stats(const unsigned int variance_method=1) const {
       if (is_empty()) return CImg<doubleT>();
       const ulongT siz = size();
-      const T *const odata = _data;
-      const T *pm = odata, *pM = odata;
+      const T *const odata = _data, *const p_end = end(), *pm = odata, *pM = odata;
       double S = 0, S2 = 0, P = _data?1:0;
       T m = *pm, M = m;
-      cimg_for(*this,ptrs,T) {
+
+      cimg_pragma_openmp(parallel for reduction(+:S,S2) reduction(*:P) cimg_openmp_if(size()>=65536))
+      for (const T *ptrs = _data; ptrs<p_end; ++ptrs) {
         const T val = *ptrs;
         const double _val = (double)val;
         if (val<m) { m = val; pm = ptrs; }

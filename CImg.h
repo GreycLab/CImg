@@ -24153,21 +24153,30 @@ namespace cimg_library_suffixed {
     **/
     CImg<Tdouble> get_stats(const unsigned int variance_method=1) const {
       if (is_empty()) return CImg<doubleT>();
-      const ulongT siz = size();
       const T *const p_end = end(), *pm = _data, *pM = _data;
-      double S = 0, S2 = 0, P = _data?1:0;
-      T m = *pm, M = m;
+      double S = 0, S2 = 0, P = 1;
+      const ulongT siz = size();
+      T m = *pm, M = *pM;
 
-//      cimg_pragma_openmp(parallel for reduction(+:S,S2) reduction(*:P) cimg_openmp_if(size()>=65536))
-      for (const T *ptrs = _data; ptrs<p_end; ++ptrs) {
-        const T val = *ptrs;
-        const double _val = (double)val;
-        if (val<m) { m = val; pm = ptrs; }
-        if (val>M) { M = val; pM = ptrs; }
-        S+=_val;
-        S2+=_val*_val;
-        P*=_val;
+      cimg_pragma_openmp(parallel reduction(+:S,S2) reduction(*:P) cimg_openmp_if(siz>=65536)) {
+        const T *lpm = _data, *lpM = _data;
+        T lm = *lpm, lM = *lpM;
+        cimg_pragma_openmp(for nowait)
+        for (const T *ptrs = _data; ptrs<p_end; ++ptrs) {
+          const T val = *ptrs;
+          const double _val = (double)val;
+          if (val<lm) { lm = val; lpm = ptrs; }
+          if (val>lM) { lM = val; lpM = ptrs; }
+          S+=_val;
+          S2+=_val*_val;
+          P*=_val;
+        }
+        cimg_pragma_openmp(critical) {
+          if (lm<m || (lm==m && lpm<pm)) { m = lm; pm = lpm; }
+          if (lM>M || (lM==M && lpM<pM)) { M = lM; pM = lpM; }
+        }
       }
+
       const double
         mean_value = S/siz,
         _variance_value = variance_method==0?(S2 - S*S/siz)/siz:

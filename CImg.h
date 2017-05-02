@@ -525,10 +525,6 @@ extern "C" {
 // that can be saved as '.ps' or '.svg' files afterwards.
 // (see method 'CImg<T>::draw_object3d()').
 #ifdef cimg_use_board
-#ifdef None
-#undef None
-#define _cimg_redefine_None
-#endif
 #include "Board.h"
 #endif
 
@@ -60149,9 +60145,6 @@ namespace cil = cimg_library_suffixed;
 #endif
 #ifdef _cimg_redefine_True
 #define True 1
-#endif
-#ifdef _cimg_redefine_None
-#define None 0
 #endif
 #ifdef _cimg_redefine_min
 #define min(a,b) (((a)<(b))?(a):(b))

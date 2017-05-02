@@ -24158,7 +24158,7 @@ namespace cimg_library_suffixed {
       const ulongT siz = size();
       T m = *pm, M = *pM;
 
-      cimg_pragma_openmp(parallel reduction(+:S,S2) reduction(*:P) cimg_openmp_if(siz>=65536)) {
+      cimg_pragma_openmp(parallel reduction(+:S,S2) reduction(*:P) cimg_openmp_if(siz>=131072)) {
         const T *lpm = _data, *lpM = _data;
         T lm = *lpm, lM = *lpM;
         cimg_pragma_openmp(for)

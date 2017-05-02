@@ -24161,7 +24161,7 @@ namespace cimg_library_suffixed {
       cimg_pragma_openmp(parallel reduction(+:S,S2) reduction(*:P) cimg_openmp_if(siz>=65536)) {
         const T *lpm = _data, *lpM = _data;
         T lm = *lpm, lM = *lpM;
-        cimg_pragma_openmp(for nowait)
+        cimg_pragma_openmp(for)
         for (const T *ptrs = _data; ptrs<p_end; ++ptrs) {
           const T val = *ptrs;
           const double _val = (double)val;

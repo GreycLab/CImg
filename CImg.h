@@ -12166,7 +12166,7 @@ namespace cimg_library_suffixed {
     **/
     template<typename t>
     CImg<_cimg_Tt> operator*(const CImg<t>& img) const {
-      if (_width!=img._height || _depth!=1 || _spectrum!=1)
+      if (_width!=img._width || _height!=img._height || _depth!=1 || _spectrum!=1)
         throw CImgArgumentException(_cimg_instance
                                     "operator*(): Invalid multiplication of instance by specified "
                                     "matrix (%u,%u,%u,%u,%p)",

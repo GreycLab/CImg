@@ -83,7 +83,7 @@ CIMG_EXTRA_FILES = use_tiff_stream use_jpeg_buffer
 #---------------------------------
 # Set correct variables and paths
 #---------------------------------
-CIMG_VERSION = _cimg_version
+CIMG_VERSION = `grep 'cimg_version\ ' ../CImg.h | tail -c4 | head -c3`
 X11PATH      = /usr/X11R6
 EXEPFX       =
 ifeq ($(MSYSTEM),MINGW32)

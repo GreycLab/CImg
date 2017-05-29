@@ -79,8 +79,8 @@ sed s\/_cimg_version\/$RELEASE$SUFFIX\/ README.txt > $DEST_DIR/README.txt
 
 mkdir $DEST_DIR/examples
 cd $SRC_DIR/examples
-cp -f *.cpp *.m CMakeLists.txt $DEST_DIR/examples/
-sed s\/_cimg_version\/$RELEASE$SUFFIX\/ Makefile > $DEST_DIR/examples/Makefile
+cp -f *.cpp *.m CMakeLists.txt Makefile $DEST_DIR/examples/
+
 mkdir $DEST_DIR/examples/img
 cd $SRC_DIR/examples/img
 cp -f *.pgm *.ppm *.bmp *.h $DEST_DIR/examples/img/

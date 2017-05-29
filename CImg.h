@@ -26261,7 +26261,7 @@ namespace cimg_library_suffixed {
        \param repeat_values In case a list of values is provided, tells if this list must be repeated for the filling.
        \param allow_formula Tells that mathematical formulas are authorized for the filling.
        \param list_inputs In case of a mathematical expression, attach a list of images to the specified expression.
-       \param[out] list_outputs In case of a mathematical expression, attach a list of images to the specified expression.
+       \param[out] list_outputs In case of a math expression, list of images atatched to the specified expression.
     **/
     CImg<T>& fill(const char *const expression, const bool repeat_values, const bool allow_formula=true,
                   const CImgList<T> *const list_inputs=0, CImgList<T> *const list_outputs=0) {
@@ -30369,7 +30369,8 @@ namespace cimg_library_suffixed {
     /**
        \param angle Rotation angle, in degrees.
        \param interpolation Type of interpolation. Can be <tt>{ 0=nearest | 1=linear | 2=cubic }</tt>.
-       \param boundary_conditions Boundary conditions. Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
+       \param boundary_conditions Boundary conditions.
+              Can be <tt>{ 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
        \note The size of the image is modified.
     **/
     CImg<T>& rotate(const float angle, const unsigned int interpolation=1,
@@ -30582,7 +30583,8 @@ namespace cimg_library_suffixed {
        \param w Z-coordinate of the 3d rotation axis.
        \param angle Rotation angle, in degrees.
        \param interpolation Type of interpolation. Can be <tt>{ 0=nearest | 1=linear | 2=cubic }</tt>.
-       \param boundary_conditions Boundary conditions. Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
+       \param boundary_conditions Boundary conditions.
+              Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
        \note Most of the time, size of the image is modified.
     **/
     CImg<T> rotate(const float u, const float v, const float w, const float angle,

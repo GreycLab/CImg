@@ -22235,7 +22235,7 @@ namespace cimg_library_suffixed {
 
       static double mp_stod(_cimg_math_parser& mp) {
         const double *ptrs = &_mp_arg(2);
-        const unsigned int siz = (unsigned int)_mp_arg(3);
+        const unsigned int siz = (unsigned int)mp.opcode[3];
         const bool is_strict = (bool)_mp_arg(4);
         if (!siz) return *ptrs>='0' && *ptrs<='9'?*ptrs - '0':cimg::type<double>::nan();
         CImg<charT> ss(siz + 1);
@@ -22243,7 +22243,6 @@ namespace cimg_library_suffixed {
         char sep;
         for (unsigned i = 0; i<siz; ++i) ss[i] = (char)*(++ptrs);
         ss[siz] = 0;
-
         int err = std::sscanf(ss,"%lf%c",&val,&sep);
 #if cimg_OS==2
         // Check for +/-NaN and +/-inf as Microsoft's sscanf() version is not able

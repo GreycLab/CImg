@@ -385,7 +385,7 @@
   (for popular systems). Anyway, if your system is not recognized, you will have to set the environment
   variables by hand. Here is a quick explanations of environment variables.\n
 
-  Setting the environment variables is done with the <tt>#define</tt> keyword.
+  Setting the environment variables is done with the <tt>\#define</tt> keyword.
   This setting must be done <i>before including the file <tt>CImg.h</tt></i> in your source code.
   For instance,
   defining the environment variable \c cimg_display would be done like this :

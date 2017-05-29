@@ -24014,7 +24014,7 @@ namespace cimg_library_suffixed {
        \param z Value of the pre-defined variable \c z.
        \param c Value of the pre-defined variable \c c.
        \param list_inputs A list of input images attached to the specified math formula.
-       \param list_outputs A pointer to a list of output images attached to the specified math formula.
+       \param[out] list_outputs A pointer to a list of output images attached to the specified math formula.
     **/
     double eval(const char *const expression,
                 const double x=0, const double y=0, const double z=0, const double c=0,
@@ -24058,7 +24058,7 @@ namespace cimg_library_suffixed {
        \param z Value of the pre-defined variable \c z.
        \param c Value of the pre-defined variable \c c.
        \param list_inputs A list of input images attached to the specified math formula.
-       \param list_outputs A pointer to a list of output images attached to the specified math formula.
+       \param[out] list_outputs A pointer to a list of output images attached to the specified math formula.
     **/
     template<typename t>
     void eval(CImg<t> &output, const char *const expression,
@@ -24099,6 +24099,8 @@ namespace cimg_library_suffixed {
     /**
        \param expression Math formula, as a C-string.
        \param xyzc Set of values (x,y,z,c) used for the evaluation.
+       \param list_inputs A list of input images attached to the specified math formula.
+       \param[out] list_outputs A pointer to a list of output images attached to the specified math formula.
     **/
     template<typename t>
     CImg<doubleT> eval(const char *const expression, const CImg<t>& xyzc,
@@ -25449,6 +25451,7 @@ namespace cimg_library_suffixed {
     /**
        \param str input C-string to encode as an image.
        \param is_last_zero Tells if the ending \c '0' character appear in the resulting image.
+       \param is_shared Return result that shares its buffer with \p str.
     **/
     static CImg<T> string(const char *const str, const bool is_last_zero=true, const bool is_shared=false) {
       if (!str) return CImg<T>();
@@ -26257,8 +26260,9 @@ namespace cimg_library_suffixed {
     /**
        \param expression C-string describing a math formula, or a sequence of values.
        \param repeat_values In case a list of values is provided, tells if this list must be repeated for the filling.
+       \param allow_formula Tells that mathematical formulas are authorized for the filling.
        \param list_inputs In case of a mathematical expression, attach a list of images to the specified expression.
-       \param list_outputs In case of a mathematical expression, attach a list of images to the specified expression.
+       \param[out] list_outputs In case of a mathematical expression, attach a list of images to the specified expression.
     **/
     CImg<T>& fill(const char *const expression, const bool repeat_values, const bool allow_formula=true,
                   const CImgList<T> *const list_inputs=0, CImgList<T> *const list_outputs=0) {
@@ -26838,7 +26842,7 @@ namespace cimg_library_suffixed {
 
     //! Compute Lp-norm of each multi-valued pixel of the image instance.
     /**
-       \param norm_type Type of computed vector norm (can be \p -1=Linf, or \p>=0).
+       \param norm_type Type of computed vector norm (can be \p -1=Linf, or \p greater or equal than 0).
        \par Example
        \code
        const CImg<float> img("reference.jpg"), res = img.get_norm();
@@ -30366,8 +30370,8 @@ namespace cimg_library_suffixed {
     /**
        \param angle Rotation angle, in degrees.
        \param interpolation Type of interpolation. Can be <tt>{ 0=nearest | 1=linear | 2=cubic }</tt>.
-       \param boundary Boundary conditions. Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
-       \note Most of the time, size of the image is modified.
+       \param boundary_conditions Boundary conditions. Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
+       \note The size of the image is modified.
     **/
     CImg<T>& rotate(const float angle, const unsigned int interpolation=1,
                     const unsigned int boundary_conditions=0) {
@@ -30423,8 +30427,8 @@ namespace cimg_library_suffixed {
        \param angle Rotation angle, in degrees.
        \param cx X-coordinate of the rotation center.
        \param cy Y-coordinate of the rotation center.
+       \param interpolation Type of interpolation, <tt>{ 0=nearest | 1=linear | 2=cubic | 3=mirror }</tt>.
        \param boundary_conditions Boundary conditions, <tt>{ 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
-       \param interpolation_type Type of interpolation, <tt>{ 0=nearest | 1=linear | 2=cubic | 3=mirror }</tt>.
     **/
     CImg<T>& rotate(const float angle, const float cx, const float cy,
                     const unsigned int interpolation, const unsigned int boundary_conditions=0) {
@@ -30579,7 +30583,7 @@ namespace cimg_library_suffixed {
        \param w Z-coordinate of the 3d rotation axis.
        \param angle Rotation angle, in degrees.
        \param interpolation Type of interpolation. Can be <tt>{ 0=nearest | 1=linear | 2=cubic }</tt>.
-       \param boundary Boundary conditions. Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
+       \param boundary_conditions Boundary conditions. Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
        \note Most of the time, size of the image is modified.
     **/
     CImg<T> rotate(const float u, const float v, const float w, const float angle,
@@ -30623,12 +30627,12 @@ namespace cimg_library_suffixed {
        \param u X-coordinate of the 3d rotation axis.
        \param v Y-coordinate of the 3d rotation axis.
        \param w Z-coordinate of the 3d rotation axis.
+       \param angle Rotation angle, in degrees.
        \param cx X-coordinate of the rotation center.
        \param cy Y-coordinate of the rotation center.
        \param cz Z-coordinate of the rotation center.
-       \param angle Rotation angle, in degrees.
        \param interpolation Type of interpolation. Can be <tt>{ 0=nearest | 1=linear | 2=cubic | 3=mirror }</tt>.
-       \param boundary Boundary conditions. Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic }</tt>.
+       \param boundary_conditions Boundary conditions. Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic }</tt>.
        \note Most of the time, size of the image is modified.
     **/
     CImg<T> rotate(const float u, const float v, const float w, const float angle,
@@ -30819,7 +30823,6 @@ namespace cimg_library_suffixed {
     /**
        \param warp Warping field.
        \param mode Can be { 0=backward-absolute | 1=backward-relative | 2=forward-absolute | 3=foward-relative }
-       \param is_relative Tells if warping field gives absolute or relative warping coordinates.
        \param interpolation Can be <tt>{ 0=nearest | 1=linear | 2=cubic }</tt>.
        \param boundary_conditions Boundary conditions <tt>{ 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
     **/
@@ -33318,7 +33321,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Cumulate image values, along specified axes \newintance.
+    //! Cumulate image values, along specified axes \newinstance.
     CImg<Tlong> get_cumulate(const char *const axes) const {
       return CImg<Tlong>(*this,false).cumulate(axes);
     }
@@ -34463,6 +34466,7 @@ namespace cimg_library_suffixed {
     /**
        \param sigma Standard deviation of the blur.
        \param boundary_conditions Boundary conditions. Can be <tt>{ 0=dirichlet | 1=neumann }</tt>.a
+       \param is_gaussian Use a gaussian kernel (VanVliet) is set, a pseudo-gaussian (Deriche) otherwise.
        \see deriche(), vanvliet().
     **/
     CImg<T>& blur(const float sigma, const bool boundary_conditions=true, const bool is_gaussian=false) {
@@ -35042,6 +35046,7 @@ namespace cimg_library_suffixed {
       \param order the order of the filter 0,1 or 2.
       \param axis  Axis along which the filter is computed. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
       \param boundary_conditions Boundary conditions. Can be <tt>{ 0=dirichlet | 1=neumann }</tt>.
+      \param nb_iter Number of filter iterations.
     **/
     CImg<T>& boxfilter(const float boxsize, const int order, const char axis='x',
                        const bool boundary_conditions=true,
@@ -35089,6 +35094,7 @@ namespace cimg_library_suffixed {
        \param boxsize_y Size of the box window, along the Y-axis (can be subpixel).
        \param boxsize_z Size of the box window, along the Z-axis (can be subpixel).
        \param boundary_conditions Boundary conditions. Can be <tt>{ false=dirichlet | true=neumann }</tt>.
+       \param nb_iter Number of filter iterations.
        \note
        - This is a recursive algorithm, not depending on the values of the box kernel size.
        \see blur().
@@ -37126,6 +37132,7 @@ namespace cimg_library_suffixed {
        \param value Reference value.
        \param metric Field of distance potentials.
        \param is_high_connectivity Tells if the algorithm uses low or high connectivity.
+       \param[out] return_path An image containing the nodes of the minimal path.
      **/
     template<typename t, typename to>
     CImg<T>& distance_dijkstra(const T& value, const CImg<t>& metric, const bool is_high_connectivity,
@@ -44604,7 +44611,7 @@ namespace cimg_library_suffixed {
        \param[out] region Image that will contain the mask of the filled region mask, as an output.
        \param tolerance Tolerance concerning neighborhood values.
        \param opacity Opacity of the drawing.
-       \param is_high_connexity Tells if 8-connexity must be used.
+       \param is_high_connectivity Tells if 8-connexity must be used.
        \return \c region is initialized with the binary mask of the filled region.
     **/
     template<typename tc, typename t>
@@ -46440,6 +46447,7 @@ namespace cimg_library_suffixed {
        \param disp Display window to use.
        \param feature_type Type of feature to select. Can be <tt>{ 0=point | 1=line | 2=rectangle | 3=ellipse }</tt>.
        \param XYZ Pointer to 3 values X,Y,Z which tells about the projection point coordinates, for volumetric images.
+       \param exit_on_anykey Exit function when any key is pressed.
     **/
     CImg<T>& select(CImgDisplay &disp,
 		    const unsigned int feature_type=2, unsigned int *const XYZ=0,
@@ -48046,6 +48054,7 @@ namespace cimg_library_suffixed {
     //! Load image from a PNG file.
     /**
        \param filename Filename, as a C-string.
+       \param[out] bits_per_pixel Number of bits per pixels used to store pixel values in the image file.
     **/
     CImg<T>& load_png(const char *const filename, unsigned int *const bits_per_pixel=0) {
       return _load_png(0,filename,bits_per_pixel);
@@ -48653,6 +48662,8 @@ namespace cimg_library_suffixed {
        \param first_frame First frame to read (for multi-pages tiff).
        \param last_frame Last frame to read (for multi-pages tiff).
        \param step_frame Step value of frame reading.
+       \param[out] voxel_size Voxel size, as stored in the filename.
+       \param[out] description Description, as stored in the filename.
        \note
        - libtiff support is enabled by defining the precompilation
         directive \c cimg_use_tif.
@@ -50077,6 +50088,8 @@ namespace cimg_library_suffixed {
       \param first_frame Index of the first frame to read.
       \param last_frame Index of the last frame to read.
       \param step_frame Step value for frame reading.
+      \param axis Alignment axis.
+      \param align Apending alignment.
     **/
     CImg<T>& load_video(const char *const filename,
                         const unsigned int first_frame=0, const unsigned int last_frame=~0U,
@@ -50111,7 +50124,6 @@ namespace cimg_library_suffixed {
     //! Load gif file, using Imagemagick or GraphicsMagicks's external tools.
     /**
       \param filename Filename, as a C-string.
-      \param use_graphicsmagick Tells if GraphicsMagick's tool 'gm' is used instead of ImageMagick's tool 'convert'.
       \param axis Appending axis, if file contains multiple images. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
       \param align Appending alignment.
     **/
@@ -50414,6 +50426,8 @@ namespace cimg_library_suffixed {
        \param camera_index Index of the camera to capture images from.
        \param skip_frames Number of frames to skip before the capture.
        \param release_camera Tells if the camera ressource must be released at the end of the method.
+       \param capture_width Width of the desired image.
+       \param capture_height Height of the desired image.
     **/
     CImg<T>& load_camera(const unsigned int camera_index=0, const unsigned int skip_frames=0,
                          const bool release_camera=true, const unsigned int capture_width=0,
@@ -50609,6 +50623,8 @@ namespace cimg_library_suffixed {
     /**
         \param disp Display window.
         \param display_info Tells if image information are displayed on the standard output.
+        \param[in,out] XYZ Contains the XYZ coordinates at start / exit of the function.
+        \param exit_on_anykey Exit function when any key is pressed.
     **/
     const CImg<T>& display(CImgDisplay &disp, const bool display_info, unsigned int *const XYZ=0,
                            const bool exit_on_anykey=false) const {
@@ -50619,6 +50635,8 @@ namespace cimg_library_suffixed {
     /**
         \param title Window title
         \param display_info Tells if image information are displayed on the standard output.
+        \param[in,out] XYZ Contains the XYZ coordinates at start / exit of the function.
+        \param exit_on_anykey Exit function when any key is pressed.
     **/
     const CImg<T>& display(const char *const title=0, const bool display_info=true, unsigned int *const XYZ=0,
                            const bool exit_on_anykey=false) const {
@@ -50895,6 +50913,7 @@ namespace cimg_library_suffixed {
        \param specular_shininess Shininess of the object material.
        \param display_axes Tells if the 3d axes are displayed.
        \param pose_matrix Pointer to 12 values, defining a 3d pose (as a 4x3 matrix).
+       \param exit_on_anykey Exit function when any key is pressed.
     **/
     template<typename tp, typename tf, typename tc, typename to>
     const CImg<T>& display_object3d(CImgDisplay& disp,
@@ -51485,6 +51504,7 @@ namespace cimg_library_suffixed {
        \param labely Title for the vertical axis, as a C-string.
        \param ymin Minimum value along the X-axis.
        \param ymax Maximum value along the X-axis.
+       \param exit_on_anykey Exit function when any key is pressed.
     **/
     const CImg<T>& display_graph(CImgDisplay &disp,
                                  const unsigned int plot_type=1, const unsigned int vertex_type=1,
@@ -52797,6 +52817,9 @@ namespace cimg_library_suffixed {
     /**
        \param filename Filename, as a C-string.
        \param compression_type Type of data compression. Can be <tt>{ 0=None | 1=LZW | 2=JPEG }</tt>.
+       \param voxel_size Voxel size, to be stored in the filename.
+       \param description Description, to be stored in the filename.
+       \param use_bigtiff Allow to save big tiff files (>4Gb).
        \note
        - libtiff support is enabled by defining the precompilation
         directive \c cimg_use_tif.
@@ -56227,6 +56250,7 @@ namespace cimg_library_suffixed {
        \param feature_type Can be \c false to select a single image, or \c true to select a sublist.
        \param axis Axis along whom images are appended for visualization.
        \param align Alignment setting when images have not all the same size.
+       \param exit_on_anykey Exit function when any key is pressed.
        \return A one-column vector containing the selected image indexes.
     **/
     CImg<intT> get_select(CImgDisplay &disp, const bool feature_type=true,
@@ -56241,6 +56265,7 @@ namespace cimg_library_suffixed {
        \param feature_type Can be \c false to select a single image, or \c true to select a sublist.
        \param axis Axis along whom images are appended for visualization.
        \param align Alignment setting when images have not all the same size.
+       \param exit_on_anykey Exit function when any key is pressed.
        \return A one-column vector containing the selected image indexes.
     **/
     CImg<intT> get_select(const char *const title, const bool feature_type=true,
@@ -57400,7 +57425,6 @@ namespace cimg_library_suffixed {
     //! Load gif file, using ImageMagick or GraphicsMagick's external tools.
     /**
       \param filename Filename to read data from.
-      \param use_graphicsmagick Tells if GraphicsMagick's tool 'gm' is used instead of ImageMagick's tool 'convert'.
     **/
     CImgList<T>& load_gif_external(const char *const filename) {
       if (!filename)
@@ -57556,6 +57580,8 @@ namespace cimg_library_suffixed {
         \param first_frame Index of first image frame to read.
         \param last_frame Index of last image frame to read.
         \param step_frame Step applied between each frame.
+        \param[out] voxel_size Voxel size, as stored in the filename.
+        \param[out] description Description, as stored in the filename.
     **/
     CImgList<T>& load_tiff(const char *const filename,
 			   const unsigned int first_frame=0, const unsigned int last_frame=~0U,
@@ -57673,12 +57699,14 @@ namespace cimg_library_suffixed {
     /**
         \param disp Display window.
         \param display_info Tells if image information are displayed on the standard output.
-       \param axis Alignment axis for images viewing.
-       \param align Apending alignment.
-       \note This function opens a new window with a specific title and displays the list images of the
-         current CImgList instance into it.
-       Images of the list are appended in a single temporarly image for visualization purposes.
-       The function returns when a key is pressed or the display window is closed by the user.
+        \param axis Alignment axis for images viewing.
+        \param align Apending alignment.
+        \param[in,out] XYZ Contains the XYZ coordinates at start / exit of the function.
+        \param exit_on_anykey Exit function when any key is pressed.
+        \note This function opens a new window with a specific title and displays the list images of the
+          current CImgList instance into it.
+        Images of the list are appended in a single temporarly image for visualization purposes.
+        The function returns when a key is pressed or the display window is closed by the user.
     **/
     const CImgList<T>& display(CImgDisplay &disp, const bool display_info,
                                const char axis='x', const float align=0,
@@ -57693,6 +57721,8 @@ namespace cimg_library_suffixed {
       \param display_info Tells if list information must be written on standard output.
       \param axis Appending axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
       \param align Appending alignment.
+      \param[in,out] XYZ Contains the XYZ coordinates at start / exit of the function.
+      \param exit_on_anykey Exit function when any key is pressed.
     **/
     const CImgList<T>& display(const char *const title=0, const bool display_info=true,
                                const char axis='x', const float align=0,
@@ -58305,6 +58335,9 @@ namespace cimg_library_suffixed {
     /**
       \param filename Filename to write data to.
       \param compression_type Compression mode used to write data.
+      \param voxel_size Voxel size, to be stored in the filename.
+      \param description Description, to be stored in the filename.
+      \param use_bigtiff Allow to save big tiff files (>4Gb).
     **/
     const CImgList<T>& save_tiff(const char *const filename, const unsigned int compression_type=0,
                                  const float *const voxel_size=0, const char *const description=0,
@@ -59745,10 +59778,11 @@ namespace cimg {
 
   //! Load file from network as a local temporary file.
   /**
-     \param filename Filename, as a C-string.
+     \param url URL of the filename, as a C-string.
      \param[out] filename_local C-string containing the path to a local copy of \c filename.
      \param timeout Maximum time (in seconds) authorized for downloading the file from the URL.
      \param try_fallback When using libcurl, tells using system calls as fallbacks in case of libcurl failure.
+     \param referer Referer used, as a C-string.
      \return Value of \c filename_local.
      \note Use the \c libcurl library, or the external binaries \c wget or \c curl to perform the download.
   **/

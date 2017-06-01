@@ -1,0 +1,57 @@
+.PHONY = clean all pdf
+
+OS := $(shell uname -o)
+
+
+ifeq ($(findstring Msys,$(OS)),Msys)
+PREFIX=/mingw
+EXE_SUFFIX=.exe
+SO_SUFFIX=.dll
+SO_PATH=$(PREFIX)/bin
+LD_OPTS+= -lgdi32 -luser32
+else
+PREFIX=/usr/local
+EXE_SUFFIX=
+SO_SUFFIX=.so
+SO_PATH=$(PREFIX)/lib
+endif
+
+
+OUTPUT=use_tinymatwriter
+SRC_TEST = ./TinyMAT/tinymatwriter.cpp $(OUTPUT).cpp
+
+
+TAR_TEST = $(subst .cpp,.o,$(SRC_TEST))
+
+CC = g++
+
+OPTIMIZATION_OPTS = -O2 
+LD_OPTS += -lm
+CC_OPTS += -Wall  -std=gnu++11 $(OPTIMIZATION_OPTS) 
+
+debug: CC_OPTS += -DDEBUG -g
+
+
+
+debug: $(OUTPUT)$(EXE_SUFFIX)
+all: $(OUTPUT)$(EXE_SUFFIX)
+
+
+
+$(TAR_TEST): %.o: %.cpp
+	$(CC) $(CC_OPTS) -c -o $@ $<
+
+
+$(OUTPUT)$(EXE_SUFFIX): $(TAR_TEST)
+	$(CC) $(CC_OPTS) $(TAR_TEST) -o $@ $(LD_OPTS)
+
+
+
+clean:
+	-rm -f *~
+	-rm -f *.o
+	-rm -f *.d
+	-rm -f lib$(LIB_NAME).a
+	-rm -f $(OUTPUT)
+	-rm -f *.exe
+	-rm -f $(TAR_TEST)

@@ -5246,6 +5246,9 @@ namespace cimg_library_suffixed {
     inline int abs(const unsigned int a) {
       return (int)a;
     }
+    inline long abs(const unsigned long a) {
+      return (long)a;
+    }
     inline int abs(const int a) {
       return std::abs(a);
     }

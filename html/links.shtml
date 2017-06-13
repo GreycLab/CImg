@@ -29,6 +29,7 @@
         <li><b><a href="http://www.dkfz.de/Macromol/quickfit/">QuickFit 3</a></b> is a data evaluation software for FCS and imagingFCS (imFCS) measurement.</li>
         <li><b><a href="http://www.sofa-framework.org/">Sofa</a></b> is an open-source framework primarily targeted at real-time simulation, with an emphasis on medical simulation.</li>
         <li><b><a href="http://www.theia-sfm.org/">Theia</a></b> is a computer vision library aimed at providing efficient and reliable algorithms for Structure from Motion (SfM) and Simultaneous Localization and Mapping (SLAM) systems.</li>
+        <li><b><a href="http://www.pierrederian.net/typhoon.html">Typhoon</a></b> is a motion estimation program designed to retrieve vector motion fields from image sequences of turbulent flows.</li>
         <li><b><a href="http://www.vips.ecs.soton.ac.uk/index.php?title=GREYCstoration">The VIPS Library</a></b> uses <font color="#000066"><b>CImg</b></font> in one of its denoising plugin.</li>
         <li><b><a href="http://wxcam.sourceforge.net/">wxCam</a></b> is a webcam application for Linux.</li>
         <li><b><a href="http://xraysim.sourceforge.net/">XRaySim</a></b> is an open-source simulation package for use in Industrial Non-Destructive testing and medical imaging applications.</li>

@@ -49456,7 +49456,7 @@ namespace cimg_library_suffixed {
         *(ptr_b++) = (T)pixels[y][x].b;
         *(ptr_a++) = (T)pixels[y][x].a;
       }
-#elif defined(cimg_use_tinexr)
+#elif defined(cimg_use_tinyexr)
       float *res;
       const char *err = 0;
       int width = 0, height = 0;

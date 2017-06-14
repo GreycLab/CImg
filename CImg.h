@@ -50299,7 +50299,8 @@ namespace cimg_library_suffixed {
       if (!(file = std_fopen(filename_tmp,"rb"))) {
         cimg::fclose(cimg::fopen(filename,"r"));
         throw CImgIOException(_cimg_instance
-                              "load_imagemagick_external(): Failed to load file '%s' with external command 'magick/convert'.",
+                              "load_imagemagick_external(): Failed to load file '%s' with "
+                              "external command 'magick/convert'.",
                               cimg_instance,
                               filename);
 
@@ -53846,7 +53847,8 @@ namespace cimg_library_suffixed {
       file = std_fopen(filename,"rb");
       if (!file)
         throw CImgIOException(_cimg_instance
-                              "save_imagemagick_external(): Failed to save file '%s' with external command 'magick/convert'.",
+                              "save_imagemagick_external(): Failed to save file '%s' with "
+                              "external command 'magick/convert'.",
                               cimg_instance,
                               filename);
 

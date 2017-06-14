@@ -59136,7 +59136,7 @@ namespace cimg {
       std::FILE *file = 0;
 #if cimg_OS==2
       const char *const pf_path = programfiles_path();
-      for (int l = 0; l<2 && !is_path_found; ++l) {
+      for (int l = 0; l<2 && !path_found; ++l) {
         const char *const s_exe = l?"convert":"magick";
         cimg_snprintf(s_path,s_path._width,".\\%s.exe",s_exe);
         if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }

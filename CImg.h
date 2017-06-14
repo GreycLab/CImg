@@ -50278,7 +50278,7 @@ namespace cimg_library_suffixed {
           cimg::exception_mode(omode);
           throw CImgIOException(_cimg_instance
                                 "load_imagemagick_external(): Failed to load file '%s' with "
-                                "external command 'convert'.",
+                                "external command 'magick/convert'.",
                                 cimg_instance,
                                 filename);
         }
@@ -50299,7 +50299,7 @@ namespace cimg_library_suffixed {
       if (!(file = std_fopen(filename_tmp,"rb"))) {
         cimg::fclose(cimg::fopen(filename,"r"));
         throw CImgIOException(_cimg_instance
-                              "load_imagemagick_external(): Failed to load file '%s' with external command 'convert'.",
+                              "load_imagemagick_external(): Failed to load file '%s' with external command 'magick/convert'.",
                               cimg_instance,
                               filename);
 
@@ -53846,7 +53846,7 @@ namespace cimg_library_suffixed {
       file = std_fopen(filename,"rb");
       if (!file)
         throw CImgIOException(_cimg_instance
-                              "save_imagemagick_external(): Failed to save file '%s' with external command 'convert'.",
+                              "save_imagemagick_external(): Failed to save file '%s' with external command 'magick/convert'.",
                               cimg_instance,
                               filename);
 
@@ -58017,7 +58017,7 @@ namespace cimg_library_suffixed {
       file = std_fopen(filename,"rb");
       if (!file)
         throw CImgIOException(_cimglist_instance
-                              "save_gif_external(): Failed to save file '%s' with external command 'convert'.",
+                              "save_gif_external(): Failed to save file '%s' with external command 'magick/convert'.",
                               cimglist_instance,
                               filename);
       else cimg::fclose(file);
@@ -59134,84 +59134,87 @@ namespace cimg {
       std::FILE *file = 0;
 #if cimg_OS==2
       const char *const pf_path = programfiles_path();
-      if (!path_found) {
-        std::strcpy(s_path,".\\convert.exe");
+      for (int l = 0; l<2 && !is_path_found; ++l) {
+        const char *const s_exe = l?"convert":"magick";
+        cimg_snprintf(s_path,s_path._width,".\\%s.exe",s_exe);
         if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
+        for (int k = 32; k>=10 && !path_found; --k) {
+          cimg_snprintf(s_path,s_path._width,"%s\\IMAGEM~1.%.2d-\\%s.exe",pf_path,k,s_exe);
+          if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
+        }
+        for (int k = 9; k>=0 && !path_found; --k) {
+          cimg_snprintf(s_path,s_path._width,"%s\\IMAGEM~1.%d-Q\\%s.exe",pf_path,k,s_exe);
+          if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
+        }
+        for (int k = 32; k>=0 && !path_found; --k) {
+          cimg_snprintf(s_path,s_path._width,"%s\\IMAGEM~1.%d\\%s.exe",pf_path,k,s_exe);
+          if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
+        }
+        for (int k = 32; k>=10 && !path_found; --k) {
+          cimg_snprintf(s_path,s_path._width,"%s\\IMAGEM~1.%.2d-\\VISUA~1\\BIN\\%s.exe",pf_path,k,s_exe);
+          if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
+        }
+        for (int k = 9; k>=0 && !path_found; --k) {
+          cimg_snprintf(s_path,s_path._width,"%s\\IMAGEM~1.%d-Q\\VISUA~1\\BIN\\%s.exe",pf_path,k,s_exe);
+          if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
+        }
+        for (int k = 32; k>=0 && !path_found; --k) {
+          cimg_snprintf(s_path,s_path._width,"%s\\IMAGEM~1.%d\\VISUA~1\\BIN\\%s.exe",pf_path,k,s_exe);
+          if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
+        }
+        for (int k = 32; k>=10 && !path_found; --k) {
+          cimg_snprintf(s_path,s_path._width,"C:\\IMAGEM~1.%.2d-\\%s.exe",k,s_exe);
+          if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
+        }
+        for (int k = 9; k>=0 && !path_found; --k) {
+          cimg_snprintf(s_path,s_path._width,"C:\\IMAGEM~1.%d-Q\\%s.exe",k,s_exe);
+          if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
+        }
+        for (int k = 32; k>=0 && !path_found; --k) {
+          cimg_snprintf(s_path,s_path._width,"C:\\IMAGEM~1.%d\\%s.exe",k,s_exe);
+          if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
+        }
+        for (int k = 32; k>=10 && !path_found; --k) {
+          cimg_snprintf(s_path,s_path._width,"C:\\IMAGEM~1.%.2d-\\VISUA~1\\BIN\\%s.exe",k,s_exe);
+          if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
+        }
+        for (int k = 9; k>=0 && !path_found; --k) {
+          cimg_snprintf(s_path,s_path._width,"C:\\IMAGEM~1.%d-Q\\VISUA~1\\BIN\\%s.exe",k,s_exe);
+          if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
+        }
+        for (int k = 32; k>=0 && !path_found; --k) {
+          cimg_snprintf(s_path,s_path._width,"C:\\IMAGEM~1.%d\\VISUA~1\\BIN\\%s.exe",k,s_exe);
+          if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
+        }
+        for (int k = 32; k>=10 && !path_found; --k) {
+          cimg_snprintf(s_path,s_path._width,"D:\\IMAGEM~1.%.2d-\\%s.exe",k,s_exe);
+          if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
+        }
+        for (int k = 9; k>=0 && !path_found; --k) {
+          cimg_snprintf(s_path,s_path._width,"D:\\IMAGEM~1.%d-Q\\%s.exe",k,s_exe);
+          if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
+        }
+        for (int k = 32; k>=0 && !path_found; --k) {
+          cimg_snprintf(s_path,s_path._width,"D:\\IMAGEM~1.%d\\%s.exe",k,s_exe);
+          if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
+        }
+        for (int k = 32; k>=10 && !path_found; --k) {
+          cimg_snprintf(s_path,s_path._width,"D:\\IMAGEM~1.%.2d-\\VISUA~1\\BIN\\%s.exe",k,s_exe);
+          if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
+        }
+        for (int k = 9; k>=0 && !path_found; --k) {
+          cimg_snprintf(s_path,s_path._width,"D:\\IMAGEM~1.%d-Q\\VISUA~1\\BIN\\%s.exe",k,s_exe);
+          if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
+        }
+        for (int k = 32; k>=0 && !path_found; --k) {
+          cimg_snprintf(s_path,s_path._width,"D:\\IMAGEM~1.%d\\VISUA~1\\BIN\\%s.exe",k,s_exe);
+          if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
+        }
+        if (!path_found) cimg_snprintf(s_path,s_path._width,"%s.exe",s_exe);
       }
-      for (int k = 32; k>=10 && !path_found; --k) {
-        cimg_snprintf(s_path,s_path._width,"%s\\IMAGEM~1.%.2d-\\convert.exe",pf_path,k);
-        if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
-      }
-      for (int k = 9; k>=0 && !path_found; --k) {
-        cimg_snprintf(s_path,s_path._width,"%s\\IMAGEM~1.%d-Q\\convert.exe",pf_path,k);
-        if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
-      }
-      for (int k = 32; k>=0 && !path_found; --k) {
-        cimg_snprintf(s_path,s_path._width,"%s\\IMAGEM~1.%d\\convert.exe",pf_path,k);
-        if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
-      }
-      for (int k = 32; k>=10 && !path_found; --k) {
-        cimg_snprintf(s_path,s_path._width,"%s\\IMAGEM~1.%.2d-\\VISUA~1\\BIN\\convert.exe",pf_path,k);
-        if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
-      }
-      for (int k = 9; k>=0 && !path_found; --k) {
-        cimg_snprintf(s_path,s_path._width,"%s\\IMAGEM~1.%d-Q\\VISUA~1\\BIN\\convert.exe",pf_path,k);
-        if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
-      }
-      for (int k = 32; k>=0 && !path_found; --k) {
-        cimg_snprintf(s_path,s_path._width,"%s\\IMAGEM~1.%d\\VISUA~1\\BIN\\convert.exe",pf_path,k);
-        if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
-      }
-      for (int k = 32; k>=10 && !path_found; --k) {
-        cimg_snprintf(s_path,s_path._width,"C:\\IMAGEM~1.%.2d-\\convert.exe",k);
-        if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
-      }
-      for (int k = 9; k>=0 && !path_found; --k) {
-        cimg_snprintf(s_path,s_path._width,"C:\\IMAGEM~1.%d-Q\\convert.exe",k);
-        if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
-      }
-      for (int k = 32; k>=0 && !path_found; --k) {
-        cimg_snprintf(s_path,s_path._width,"C:\\IMAGEM~1.%d\\convert.exe",k);
-        if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
-      }
-      for (int k = 32; k>=10 && !path_found; --k) {
-        cimg_snprintf(s_path,s_path._width,"C:\\IMAGEM~1.%.2d-\\VISUA~1\\BIN\\convert.exe",k);
-        if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
-      }
-      for (int k = 9; k>=0 && !path_found; --k) {
-        cimg_snprintf(s_path,s_path._width,"C:\\IMAGEM~1.%d-Q\\VISUA~1\\BIN\\convert.exe",k);
-        if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
-      }
-      for (int k = 32; k>=0 && !path_found; --k) {
-        cimg_snprintf(s_path,s_path._width,"C:\\IMAGEM~1.%d\\VISUA~1\\BIN\\convert.exe",k);
-        if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
-      }
-      for (int k = 32; k>=10 && !path_found; --k) {
-        cimg_snprintf(s_path,s_path._width,"D:\\IMAGEM~1.%.2d-\\convert.exe",k);
-        if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
-      }
-      for (int k = 9; k>=0 && !path_found; --k) {
-        cimg_snprintf(s_path,s_path._width,"D:\\IMAGEM~1.%d-Q\\convert.exe",k);
-        if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
-      }
-      for (int k = 32; k>=0 && !path_found; --k) {
-        cimg_snprintf(s_path,s_path._width,"D:\\IMAGEM~1.%d\\convert.exe",k);
-        if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
-      }
-      for (int k = 32; k>=10 && !path_found; --k) {
-        cimg_snprintf(s_path,s_path._width,"D:\\IMAGEM~1.%.2d-\\VISUA~1\\BIN\\convert.exe",k);
-        if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
-      }
-      for (int k = 9; k>=0 && !path_found; --k) {
-        cimg_snprintf(s_path,s_path._width,"D:\\IMAGEM~1.%d-Q\\VISUA~1\\BIN\\convert.exe",k);
-        if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
-      }
-      for (int k = 32; k>=0 && !path_found; --k) {
-        cimg_snprintf(s_path,s_path._width,"D:\\IMAGEM~1.%d\\VISUA~1\\BIN\\convert.exe",k);
-        if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
-      }
-      if (!path_found) std::strcpy(s_path,"convert.exe");
 #else
+      std::strcpy(s_path,"./magick");
+      if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
       if (!path_found) {
         std::strcpy(s_path,"./convert");
         if ((file=std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }

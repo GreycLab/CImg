@@ -17410,6 +17410,15 @@ namespace cimg_library_suffixed {
             break;
 
           case 'c' :
+            if ((*ss1=='m' || *ss1=='M') && *ss2=='(') { // cm(), cM()
+              _cimg_mp_op(*ss1=='m'?"Function 'cm()'":"Function 'cM()'");
+              if (*ss3=='#') { p1 = compile(ss4,se1,depth1,0); _cimg_mp_check_list(false); } // Index specified
+              else { if (ss3!=se1) break; p1 = ~0U; }
+              pos = scalar();
+              CImg<ulongT>::vector((ulongT)(*ss1=='m'?mp_image_cm:mp_image_cM),pos,p1).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"cabs(",5)) { // Complex absolute value
               _cimg_mp_op("Function 'cabs()'");
               arg1 = compile(ss5,se1,depth1,0);
@@ -18972,6 +18981,15 @@ namespace cimg_library_suffixed {
             break;
 
           case 'x' :
+            if ((*ss1=='m' || *ss1=='M') && *ss2=='(') { // xm(), xM()
+              _cimg_mp_op(*ss1=='m'?"Function 'xm()'":"Function 'xM()'");
+              if (*ss3=='#') { p1 = compile(ss4,se1,depth1,0); _cimg_mp_check_list(false); } // Index specified
+              else { if (ss3!=se1) break; p1 = ~0U; }
+              pos = scalar();
+              CImg<ulongT>::vector((ulongT)(*ss1=='m'?mp_image_xm:mp_image_xM),pos,p1).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"xor(",4)) { // Xor
               _cimg_mp_op("Function 'xor()'");
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -18984,6 +19002,28 @@ namespace cimg_library_suffixed {
               if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2))
                 _cimg_mp_constant((longT)mem[arg1] ^ (longT)mem[arg2]);
               _cimg_mp_scalar2(mp_bitwise_xor,arg1,arg2);
+            }
+            break;
+
+          case 'y' :
+            if ((*ss1=='m' || *ss1=='M') && *ss2=='(') { // ym(), yM()
+              _cimg_mp_op(*ss1=='m'?"Function 'ym()'":"Function 'yM()'");
+              if (*ss3=='#') { p1 = compile(ss4,se1,depth1,0); _cimg_mp_check_list(false); } // Index specified
+              else { if (ss3!=se1) break; p1 = ~0U; }
+              pos = scalar();
+              CImg<ulongT>::vector((ulongT)(*ss1=='m'?mp_image_ym:mp_image_yM),pos,p1).move_to(code);
+              _cimg_mp_return(pos);
+            }
+            break;
+
+          case 'z' :
+            if ((*ss1=='m' || *ss1=='M') && *ss2=='(') { // zm(), zM()
+              _cimg_mp_op(*ss1=='m'?"Function 'zm()'":"Function 'zM()'");
+              if (*ss3=='#') { p1 = compile(ss4,se1,depth1,0); _cimg_mp_check_list(false); } // Index specified
+              else { if (ss3!=se1) break; p1 = ~0U; }
+              pos = scalar();
+              CImg<ulongT>::vector((ulongT)(*ss1=='m'?mp_image_zm:mp_image_zM),pos,p1).move_to(code);
+              _cimg_mp_return(pos);
             }
             break;
 
@@ -20656,6 +20696,78 @@ namespace cimg_library_suffixed {
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
         return (double)img.width()*img.height()*img.depth()*img.spectrum();
+      }
+
+      static double mp_image_xm(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        double x;
+        img.contains(img.min(),x);
+        return x;
+      }
+
+      static double mp_image_xM(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        double x;
+        img.contains(img.max(),x);
+        return x;
+      }
+
+      static double mp_image_ym(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        double x, y;
+        img.contains(img.min(),x,y);
+        return y;
+      }
+
+      static double mp_image_yM(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        double x, y;
+        img.contains(img.max(),x,y);
+        return y;
+      }
+
+      static double mp_image_zm(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        double x, y, z;
+        img.contains(img.min(),x,y,z);
+        return z;
+      }
+
+      static double mp_image_zM(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        double x, y, z;
+        img.contains(img.max(),x,y,z);
+        return z;
+      }
+
+      static double mp_image_cm(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        double x, y, z, c;
+        img.contains(img.min(),x,y,z,c);
+        return c;
+      }
+
+      static double mp_image_cM(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        double x, y, z, c;
+        img.contains(img.max(),x,y,z,c);
+        return c;
       }
 
       static double mp_increment(_cimg_math_parser& mp) {

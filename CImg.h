@@ -18080,7 +18080,7 @@ namespace cimg_library_suffixed {
 
           case 'i' :
             if ((*ss1=='m' || *ss1=='M' || *ss1=='a' || *ss1=='v' || *ss1=='s' || *ss1=='p' || *ss1=='c') &&
-                *ss2=='(') { // im(),iM(),ia(),iv(),is(),ip(),ic()
+                *ss2=='(') { // im(), iM(), ia(), iv(), is(), ip(), ic()
               _cimg_mp_op(*ss1=='m'?"Function 'im()'":
                           *ss1=='M'?"Function 'iM()'":
                           *ss1=='a'?"Function 'ia()'":

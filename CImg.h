@@ -15504,7 +15504,7 @@ namespace cimg_library_suffixed {
             case 'a' : arg1 = 6; arg2 = 2; break; // ia
             case 'v' : arg1 = 7; arg2 = 3; break; // iv
             case 's' : arg1 = 8; arg2 = 12; break; // is
-            case 'p' : arg1 = 9; arg2 = 13; break; // is
+            case 'p' : arg1 = 9; arg2 = 13; break; // ip
             case 'c' : // ic
               if (reserved_label[10]!=~0U) _cimg_mp_return(reserved_label[10]);
               if (mem_img_median==~0U) mem_img_median = imgin?constant(imgin.median()):0;
@@ -17682,7 +17682,7 @@ namespace cimg_library_suffixed {
             break;
 
           case 'd' :
-            if (!std::strncmp(ss,"d(",2)) { // Image depth
+            if (*ss1=='(') { // Image depth
               _cimg_mp_op("Function 'd()'");
               if (*ss2=='#') { p1 = compile(ss3,se1,depth1,0); _cimg_mp_check_list(false); } // Index specified
               else { if (ss2!=se1) break; p1 = ~0U; }
@@ -18060,7 +18060,7 @@ namespace cimg_library_suffixed {
             break;
 
           case 'h' :
-            if (!std::strncmp(ss,"h(",2)) { // Image height
+            if (*ss1=='(') { // Image height
               _cimg_mp_op("Function 'h()'");
               if (*ss2=='#') { p1 = compile(ss3,se1,depth1,0); _cimg_mp_check_list(false); } // Index specified
               else { if (ss2!=se1) break; p1 = ~0U; }
@@ -18070,6 +18070,28 @@ namespace cimg_library_suffixed {
             }
 
           case 'i' :
+            if ((*ss1=='m' || *ss1=='M' || *ss1=='a' || *ss1=='v' || *ss1=='s' || *ss1=='p' || *ss1=='c') &&
+                *ss2=='(') { // im(),iM(),ia(),iv(),is(),ip(),ic()
+              _cimg_mp_op(*ss1=='m'?"Function 'im()'":
+                          *ss1=='M'?"Function 'iM()'":
+                          *ss1=='a'?"Function 'ia()'":
+                          *ss1=='v'?"Function 'iv()'":
+                          *ss1=='s'?"Function 'is()'":
+                          *ss1=='p'?"Function 'ip()'":
+                          "Function 'ic()");
+              if (*ss3=='#') { p1 = compile(ss4,se1,depth1,0); _cimg_mp_check_list(false); } // Index specified
+              else { if (ss3!=se1) break; p1 = ~0U; }
+              pos = scalar();
+              CImg<ulongT>::vector((ulongT)(*ss1=='m'?mp_image_im:
+                                            *ss1=='M'?mp_image_iM:
+                                            *ss1=='a'?mp_image_ia:
+                                            *ss1=='v'?mp_image_iv:
+                                            *ss1=='s'?mp_image_is:
+                                            *ss1=='p'?mp_image_ip:
+                                            mp_image_ic),pos,p1).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
             if (*ss1=='f' && *ss2=='(') { // If..then[..else.]
               _cimg_mp_op("Function 'if()'");
               s1 = ss3; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -18538,7 +18560,7 @@ namespace cimg_library_suffixed {
             break;
 
           case 's' :
-            if (!std::strncmp(ss,"s(",2)) { // Image spectrum
+            if (*ss1=='(') { // Image spectrum
               _cimg_mp_op("Function 's()'");
               if (*ss2=='#') { p1 = compile(ss3,se1,depth1,0); _cimg_mp_check_list(false); } // Index specified
               else { if (ss2!=se1) break; p1 = ~0U; }
@@ -18895,7 +18917,7 @@ namespace cimg_library_suffixed {
             break;
 
           case 'w' :
-            if (!std::strncmp(ss,"w(",2)) { // Image width
+            if (*ss1=='(') { // Image width
               _cimg_mp_op("Function 'w()'");
               if (*ss2=='#') { p1 = compile(ss3,se1,depth1,0); _cimg_mp_check_list(false); } // Index specified
               else { if (ss2!=se1) break; p1 = ~0U; }
@@ -18904,7 +18926,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
-            if (!std::strncmp(ss,"wh(",3)) { // Image width*height
+            if (*ss1=='h' && *ss2=='(') { // Image width*height
               _cimg_mp_op("Function 'wh()'");
               if (*ss3=='#') { p1 = compile(ss4,se1,depth1,0); _cimg_mp_check_list(false); } // Index specified
               else { if (ss3!=se1) break; p1 = ~0U; }
@@ -18913,7 +18935,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
-            if (!std::strncmp(ss,"whd(",4)) { // Image width*height*depth
+            if (*ss1=='h' && *ss2=='d' && *ss3=='(') { // Image width*height*depth
               _cimg_mp_op("Function 'whd()'");
               if (*ss4=='#') { p1 = compile(ss5,se1,depth1,0); _cimg_mp_check_list(false); } // Index specified
               else { if (ss4!=se1) break; p1 = ~0U; }
@@ -18922,7 +18944,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
-            if (!std::strncmp(ss,"whds(",5)) { // Image width*height*depth*spectrum
+            if (*ss1=='h' && *ss2=='d' && *ss3=='s' && *ss4=='(') { // Image width*height*depth*spectrum
               _cimg_mp_op("Function 'whds()'");
               if (*ss5=='#') { p1 = compile(ss6,se1,depth1,0); _cimg_mp_check_list(false); } // Index specified
               else { if (ss5!=se1) break; p1 = ~0U; }
@@ -20516,6 +20538,55 @@ namespace cimg_library_suffixed {
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
         return (double)img.height();
+      }
+
+      static double mp_image_im(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        return (double)img.min();
+      }
+
+      static double mp_image_iM(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        return (double)img.max();
+      }
+
+      static double mp_image_ia(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        return (double)img.mean();
+      }
+
+      static double mp_image_iv(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        return (double)img.variance();
+      }
+
+      static double mp_image_is(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        return (double)img.sum();
+      }
+
+      static double mp_image_ip(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        return (double)img.product();
+      }
+
+      static double mp_image_ic(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        return (double)img.median();
       }
 
       static double mp_image_resize(_cimg_math_parser& mp) {

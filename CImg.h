@@ -34738,7 +34738,7 @@ namespace cimg_library_suffixed {
         CImg<Tfloat> res(_width,_height,_depth,_spectrum,0), W(_width,_height,_depth,is_3d?4:3), val(_spectrum,1,1,1,0);
         int N = 0;
         if (is_3d) { // 3d version
-          for (float phi = cimg::mod(180,da)/2.0f; phi<=180; phi+=da) {
+          for (float phi = cimg::mod(180.0f,da)/2.0f; phi<=180; phi+=da) {
             const float phir = (float)(phi*cimg::PI/180), datmp = (float)(da/std::cos(phir)),
               da2 = datmp<1?360.0f:datmp;
             for (float theta = 0; theta<360; (theta+=da2),++N) {
@@ -34844,7 +34844,7 @@ namespace cimg_library_suffixed {
             }
           }
         } else { // 2d LIC algorithm
-          for (float theta = cimg::mod(360,da)/2.0f; theta<360; (theta+=da),++N) {
+          for (float theta = cimg::mod(360.0f,da)/2.0f; theta<360; (theta+=da),++N) {
             const float thetar = (float)(theta*cimg::PI/180),
               vx = (float)(std::cos(thetar)), vy = (float)(std::sin(thetar));
             const t *pa = G.data(0,0,0,0), *pb = G.data(0,0,0,1), *pc = G.data(0,0,0,2);

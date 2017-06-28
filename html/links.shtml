@@ -33,6 +33,7 @@
         <li><b><a href="http://www.vips.ecs.soton.ac.uk/index.php?title=GREYCstoration">The VIPS Library</a></b> uses <font color="#000066"><b>CImg</b></font> in one of its denoising plugin.</li>
         <li><b><a href="http://wxcam.sourceforge.net/">wxCam</a></b> is a webcam application for Linux.</li>
         <li><b><a href="http://xraysim.sourceforge.net/">XRaySim</a></b> is an open-source simulation package for use in Industrial Non-Destructive testing and medical imaging applications.</li>
+        <li><b><a href="http://yadics.univ-lille1.fr/wordpress/">YaDICs</a></b> (Yet another Digital Image Correlation software) is a free software to estimate non-rigid motion between image frames.</li>
         <li><b><a href="http://zoomfx.sourceforge.net/">ZoomFX</a></b> is a free tool to help in image batch process thanks to an helpful visual interface and powerful filters.</li>
         <li><b><a href="https://github.com/search?q=cimg_library&type=Code&ref=searchresults">Other pieces of code using <font color="#000066"><b>CImg</b></font></a></b> can be found on
           <a href="https://github.com/search?q=cimg_library&type=Code&ref=searchresults">Github</a>.</li>

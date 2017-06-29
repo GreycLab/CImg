@@ -47149,11 +47149,18 @@ namespace cimg_library_suffixed {
                 if (_depth>1 || force_display_z_coord)
                   cimg_snprintf(text,text._width," Point (%d,%d,%d) = [ ",origX + (int)X,origY + (int)Y,origZ + (int)Z);
                 else cimg_snprintf(text,text._width," Point (%d,%d) = [ ",origX + (int)X,origY + (int)Y);
+                CImg<T> values = get_vector_at(X,Y,Z);
+                const bool is_large_spectrum = values._height>16;
+                if (is_large_spectrum) values.draw_image(0,8,values.get_rows(values._height - 8,values._height - 1)).resize(1,16,1,1,0);
                 char *ctext = text._data + std::strlen(text), *const ltext = text._data + 512;
-                for (unsigned int c = 0; c<_spectrum && ctext<ltext; ++c) {
-                  cimg_snprintf(ctext,text._width/2,cimg::type<T>::format_s(),
-                                cimg::type<T>::format((*this)((int)X,(int)Y,(int)Z,c)));
-                  ctext = text._data + std::strlen(text);
+                for (unsigned int c = 0; c<values._height && ctext<ltext; ++c) {
+                  cimg_snprintf(ctext,24,cimg::type<T>::format_s(),
+                                cimg::type<T>::format(values[c]));
+                  ctext += std::strlen(ctext);
+                  if (c==7 && is_large_spectrum) {
+                    cimg_snprintf(ctext,24," (...)");
+                    ctext += std::strlen(ctext);
+                  }
                   *(ctext++) = ' '; *ctext = 0;
                 }
                 std::strcpy(text._data + std::strlen(text),"] ");

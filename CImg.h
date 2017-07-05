@@ -17450,6 +17450,14 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
+            if (!std::strncmp(ss,"ceil(",5)) { // Ceil
+              _cimg_mp_op("Function 'ceil()'");
+              arg1 = compile(ss5,se1,depth1,0);
+              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_ceil,arg1);
+              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(std::ceil(mem[arg1]));
+              _cimg_mp_scalar1(mp_ceil,arg1);
+            }
+
             if (!std::strncmp(ss,"cexp(",5)) { // Complex exponential
               _cimg_mp_op("Function 'cexp()'");
               arg1 = compile(ss5,se1,depth1,0);
@@ -18048,6 +18056,14 @@ namespace cimg_library_suffixed {
                                    p3>=arg6 && !_cimg_mp_is_constant(p3),
                                    p2>=arg6 && !_cimg_mp_is_constant(p2)).move_to(code,arg1);
               _cimg_mp_return(p3);
+            }
+
+            if (!std::strncmp(ss,"floor(",6)) { // Floor
+              _cimg_mp_op("Function 'floor()'");
+              arg1 = compile(ss6,se1,depth1,0);
+              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_floor,arg1);
+              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(std::floor(mem[arg1]));
+              _cimg_mp_scalar1(mp_floor,arg1);
             }
             break;
 
@@ -20012,6 +20028,10 @@ namespace cimg_library_suffixed {
         return cimg::cbrt(_mp_arg(2));
       }
 
+      static double mp_ceil(_cimg_math_parser& mp) {
+        return std::ceil(_mp_arg(2));
+      }
+
       static double mp_complex_abs(_cimg_math_parser& mp) {
         return cimg::_hypot(_mp_arg(2),_mp_arg(3));
       }
@@ -20399,6 +20419,10 @@ namespace cimg_library_suffixed {
           while (p1<ptr1e && p2<ptr2e && *p1==*p2) { ++p1; ++p2; }
         } while (p2<ptr2e && --ptr1>=ptr1b);
         return p2<ptr2e?-1.0:(double)(ptr1 - ptr1b);
+      }
+
+      static double mp_floor(_cimg_math_parser& mp) {
+        return std::floor(_mp_arg(2));
       }
 
       static double mp_for(_cimg_math_parser& mp) {

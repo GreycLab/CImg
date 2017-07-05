@@ -58901,18 +58901,15 @@ namespace cimg_library_suffixed {
     static CImgList<T> get_unserialize(const CImg<t>& buffer) {
 #ifdef cimg_use_zlib
 #define _cimgz_unserialize_case(Tss) { \
-        Bytef *cbuf = (Bytef*)stream; \
+        Bytef *cbuf = 0; \
         if (sizeof(t)!=1 || cimg::type<t>::string()==cimg::type<bool>::string()) { \
           cbuf = new Bytef[csiz]; Bytef *_cbuf = cbuf; \
           for (ulongT i = 0; i<csiz; ++i) *(_cbuf++) = (Bytef)*(stream++); \
           is_bytef = false; \
-        } else { stream+=csiz; is_bytef = true; } \
-        CImg<Tss> raw(W,H,D,C); \
+        } else { cbuf = (Bytef*)stream; stream+=csiz; is_bytef = true; } \
         uLongf destlen = raw.size()*sizeof(Tss); \
         uncompress((Bytef*)raw._data,&destlen,cbuf,csiz); \
         if (!is_bytef) delete[] cbuf; \
-        if (endian!=cimg::endianness()) cimg::invert_endianness(raw._data,raw.size()); \
-        raw.move_to(img); \
       }
 #else
 #define _cimgz_unserialize_case(Tss) \
@@ -58932,16 +58929,15 @@ namespace cimg_library_suffixed {
                                         "image #%u in serialized buffer.", \
                                         pixel_type(),W,H,D,C,l); \
           if (W*H*D*C>0) { \
+            CImg<Tss> raw(W,H,D,C); \
             CImg<T> &img = res._data[l]; \
             if (err==5) _cimgz_unserialize_case(Tss) \
             else { \
-              if (sizeof(t)!=1) { \
-                CImg<ucharT> raw(W*sizeof(Tss),H,D,C);  \
-                cimg_for(raw,p,unsigned char) *p = (unsigned char)*(stream++); \
-                img.assign((Tss*)raw._data,W,H,D,C); \
-              } else img.assign((Tss*)stream,W,H,D,C); \
-              if (endian!=cimg::endianness()) cimg::invert_endianness(img._data,img.size()); \
+              CImg<ucharT> _raw((unsigned char*)raw._data,W*sizeof(Tss),H,D,C,true); \
+              cimg_for(_raw,p,unsigned char) *p = (unsigned char)*(stream++); \
             } \
+            if (endian!=cimg::endianness()) cimg::invert_endianness(raw._data,raw.size()); \
+            raw.move_to(img); \
           } \
         } \
         loaded = true; \

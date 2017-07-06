@@ -58946,6 +58946,7 @@ namespace cimg_library_suffixed {
           for (ulongT i = 0; i<csiz; ++i) *(_cbuf++) = (Bytef)*(stream++); \
           is_bytef = false; \
         } else { cbuf = (Bytef*)stream; stream+=csiz; is_bytef = true; } \
+        raw.assign(W,H,D,C); \
         uLongf destlen = raw.size()*sizeof(Tss); \
         uncompress((Bytef*)raw._data,&destlen,cbuf,csiz); \
         if (!is_bytef) delete[] cbuf; \
@@ -58968,10 +58969,14 @@ namespace cimg_library_suffixed {
                                         "image #%u in serialized buffer.", \
                                         pixel_type(),W,H,D,C,l); \
           if (W*H*D*C>0) { \
-            CImg<Tss> raw(W,H,D,C); \
+            CImg<Tss> raw; \
             CImg<T> &img = res._data[l]; \
             if (err==5) _cimgz_unserialize_case(Tss) \
-            else { \
+            else if (sizeof(Tss)==1) { \
+              raw.assign((Tss*)stream,W,H,D,C,true); \
+              stream+=raw.size(); \
+            } else { \
+              raw.assign(W,H,D,C); \
               CImg<ucharT> _raw((unsigned char*)raw._data,W*sizeof(Tss),H,D,C,true); \
               cimg_for(_raw,p,unsigned char) *p = (unsigned char)*(stream++); \
             } \

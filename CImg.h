@@ -47278,7 +47278,8 @@ namespace cimg_library_suffixed {
                 else cimg_snprintf(text,text._width," Point (%d,%d) = [ ",origX + (int)X,origY + (int)Y);
                 CImg<T> values = get_vector_at(X,Y,Z);
                 const bool is_large_spectrum = values._height>16;
-                if (is_large_spectrum) values.draw_image(0,8,values.get_rows(values._height - 8,values._height - 1)).resize(1,16,1,1,0);
+                if (is_large_spectrum)
+                  values.draw_image(0,8,values.get_rows(values._height - 8,values._height - 1)).resize(1,16,1,1,0);
                 char *ctext = text._data + std::strlen(text), *const ltext = text._data + 512;
                 for (unsigned int c = 0; c<values._height && ctext<ltext; ++c) {
                   cimg_snprintf(ctext,24,cimg::type<T>::format_s(),

@@ -15138,6 +15138,7 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_check_list(is_out) check_list(is_out,ss,se,saved_char)
 #define _cimg_mp_defunc(mp) (*(mp_func)(*(mp).opcode))(mp)
 #define _cimg_mp_return(x) { *se = saved_char; s_op = previous_s_op; ss_op = previous_ss_op; return x; }
+#define _cimg_mp_return_nan() _cimg_mp_return(_cimg_mp_slot_nan)
 #define _cimg_mp_constant(val) _cimg_mp_return(constant((double)(val)))
 #define _cimg_mp_scalar0(op) _cimg_mp_return(scalar0(op))
 #define _cimg_mp_scalar1(op,i1) _cimg_mp_return(scalar1(op,i1))
@@ -15860,7 +15861,7 @@ namespace cimg_library_suffixed {
 
                 // Detect parts of function body inside a string.
                 is_inside_string(macro_body[0]).move_to(macro_body_is_string,0);
-                _cimg_mp_return(_cimg_mp_slot_nan);
+                _cimg_mp_return_nan();
               }
             }
 
@@ -17297,7 +17298,7 @@ namespace cimg_library_suffixed {
 
           case '_' :
             if (*ss1=='(') // Skip arguments
-              _cimg_mp_return(_cimg_mp_slot_nan);
+              _cimg_mp_return_nan();
             break;
 
           case 'a' :
@@ -17396,7 +17397,7 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"break(",6)) { // Complex absolute value
               if (pexpr[se2 - expr._data]=='(') { // no arguments?
                 CImg<ulongT>::vector((ulongT)mp_break,_cimg_mp_slot_nan).move_to(code);
-                _cimg_mp_return(_cimg_mp_slot_nan);
+                _cimg_mp_return_nan();
               }
             }
 
@@ -17404,7 +17405,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_op("Function 'breakpoint()'");
               if (pexpr[se2 - expr._data]=='(') { // no arguments?
                 CImg<ulongT>::vector((ulongT)mp_breakpoint,_cimg_mp_slot_nan).move_to(code);
-                _cimg_mp_return(_cimg_mp_slot_nan);
+                _cimg_mp_return_nan();
               }
             }
             break;
@@ -17479,7 +17480,7 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"continue(",9)) { // Complex absolute value
               if (pexpr[se2 - expr._data]=='(') { // no arguments?
                 CImg<ulongT>::vector((ulongT)mp_continue,_cimg_mp_slot_nan).move_to(code);
-                _cimg_mp_return(_cimg_mp_slot_nan);
+                _cimg_mp_return_nan();
               }
             }
 
@@ -17741,7 +17742,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_op("Function 'display()'");
               if (pexpr[se2 - expr._data]=='(') { // no arguments?
                 CImg<ulongT>::vector((ulongT)mp_display_memory,_cimg_mp_slot_nan).move_to(code);
-                _cimg_mp_return(_cimg_mp_slot_nan);
+                _cimg_mp_return_nan();
               }
               if (*ss8!='#') { // Vector
                 s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -17789,7 +17790,7 @@ namespace cimg_library_suffixed {
                 p1 = compile(ss8 + 1,se1,depth1,0);
                 _cimg_mp_check_list(true);
                 CImg<ulongT>::vector((ulongT)mp_image_display,_cimg_mp_slot_nan,p1).move_to(code);
-                _cimg_mp_return(_cimg_mp_slot_nan);
+                _cimg_mp_return_nan();
               }
             }
 
@@ -17957,9 +17958,9 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"end(",4)) { // End
               _cimg_mp_op("Function 'end()'");
               code.swap(code_end);
-              arg1 = compile(ss4,se1,depth1,p_ref);
+              compile(ss4,se1,depth1,p_ref);
               code.swap(code_end);
-              _cimg_mp_return(arg1);
+              _cimg_mp_return_nan();
             }
 
             if (!std::strncmp(ss,"exp(",4)) { // Exponential
@@ -18458,7 +18459,7 @@ namespace cimg_library_suffixed {
                 p1 = compile(ss7,se1,depth1,0);
                 _cimg_mp_check_list(true);
                 CImg<ulongT>::vector((ulongT)mp_image_print,_cimg_mp_slot_nan,p1).move_to(code);
-                _cimg_mp_return(_cimg_mp_slot_nan);
+                _cimg_mp_return_nan();
               }
             }
             break;
@@ -18515,7 +18516,7 @@ namespace cimg_library_suffixed {
                                               s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
                 }
                 opcode.move_to(code);
-                _cimg_mp_return(_cimg_mp_slot_nan);
+                _cimg_mp_return_nan();
               }
             }
 
@@ -18770,7 +18771,7 @@ namespace cimg_library_suffixed {
                 _cimg_mp_check_type(arg2,3,1,0);
                 _cimg_mp_check_list(true);
                 CImg<ulongT>::vector((ulongT)mp_image_sort,_cimg_mp_slot_nan,p1,arg1,arg2).move_to(code);
-                _cimg_mp_return(_cimg_mp_slot_nan);
+                _cimg_mp_return_nan();
               }
             }
 

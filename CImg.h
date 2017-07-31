@@ -15545,11 +15545,24 @@ namespace cimg_library_suffixed {
         pos = ~0U;
         for (s0 = ss, s = ss1; s<se1; ++s)
           if (*s==';' && level[s - expr._data]==clevel) { // Separator ';'
+
             pos = compile(s0,s++,depth,0);
+
+/*            arg1 = code_end._width;
+            arg2 = compile(s0,s++,depth,0);
+            if (code_end._width==arg1) pos = arg2; // makes 'end()' return void
+*/
             while (*s && ((signed char)*s<=' ' || *s==';')) ++s;
             s0 = s;
           }
-        if (pos!=~0U) _cimg_mp_return(compile(s0,se,depth,p_ref));
+        if (pos!=~0U) {
+          pos = compile(s0,se,depth,p_ref);
+/*          arg1 = code_end._width;
+          arg2 = compile(s0,se,depth,p_ref);
+          if (code_end._width==arg1) pos = arg2; // makes 'end()' return void
+*/
+          _cimg_mp_return(pos);
+        }
 
         // Declare / assign variable, vector value or image value.
         for (s = ss1, ps = ss, ns = ss2; s<se1; ++s, ++ps, ++ns)

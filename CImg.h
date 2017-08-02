@@ -47239,20 +47239,26 @@ namespace cimg_library_suffixed {
               } break;
               case 2 : {
                 visu.draw_rectangle(X0<X1?xp0:xp,Y0<Y1?yp0:yp,X0<X1?xn:xn0,Y0<Y1?yn:yn0,background_color,0.2f).
+                  draw_rectangle(X0<X1?xp0:xp,Y0<Y1?yp0:yp,X0<X1?xn:xn0,Y0<Y1?yn:yn0,background_color,0.9f,0x55555555).
                   draw_rectangle(X0<X1?xp0:xp,Y0<Y1?yp0:yp,X0<X1?xn:xn0,Y0<Y1?yn:yn0,foreground_color,0.9f,0xAAAAAAAA).
-                  draw_rectangle(X0<X1?xp0:xp,Y0<Y1?yp0:yp,X0<X1?xn:xn0,Y0<Y1?yn:yn0,background_color,0.9f,0x55555555);
+                  draw_line(xc0,yc0,xc,yc,background_color,0.5f,0x55555555).
+                  draw_line(xc0,yc0,xc,yc,foreground_color,0.5f,0xAAAAAAAA);
                 if (d) {
                   visu.draw_rectangle(Z0<Z1?zxp0:zxp,Y0<Y1?yp0:yp,Z0<Z1?zxn:zxn0,Y0<Y1?yn:yn0,background_color,0.2f).
                     draw_rectangle(Z0<Z1?zxp0:zxp,Y0<Y1?yp0:yp,Z0<Z1?zxn:zxn0,Y0<Y1?yn:yn0,
-                                   foreground_color,0.9f,0xAAAAAAAA).
-                    draw_rectangle(Z0<Z1?zxp0:zxp,Y0<Y1?yp0:yp,Z0<Z1?zxn:zxn0,Y0<Y1?yn:yn0,
                                    background_color,0.9f,0x55555555).
+                    draw_rectangle(Z0<Z1?zxp0:zxp,Y0<Y1?yp0:yp,Z0<Z1?zxn:zxn0,Y0<Y1?yn:yn0,
+                                   foreground_color,0.9f,0xAAAAAAAA).
+                    draw_line(zxc0,yc0,zxc,yc,background_color,0.5f,0x55555555).
+                    draw_line(zxc0,yc0,zxc,yc,foreground_color,0.5f,0xAAAAAAAA).
                     draw_rectangle(X0<X1?xp0:xp,Z0<Z1?zyp0:zyp,X0<X1?xn:xn0,Z0<Z1?zyn:zyn0,
                                    background_color,0.2f).
                     draw_rectangle(X0<X1?xp0:xp,Z0<Z1?zyp0:zyp,X0<X1?xn:xn0,Z0<Z1?zyn:zyn0,
-                                   foreground_color,0.9f,0xAAAAAAAA).
+                                   background_color,0.9f,0x55555555).
                     draw_rectangle(X0<X1?xp0:xp,Z0<Z1?zyp0:zyp,X0<X1?xn:xn0,Z0<Z1?zyn:zyn0,
-                                   background_color,0.9f,0x55555555);
+                                   foreground_color,0.9f,0xAAAAAAAA).
+                    draw_line(xp0,zyp0,xn,zyn,background_color,0.5f,0x55555555).
+                    draw_line(xp0,zyp0,xn,zyn,foreground_color,0.5f,0xAAAAAAAA);
                 }
               } break;
               case 3 : {
@@ -47306,24 +47312,26 @@ namespace cimg_library_suffixed {
             } else switch (feature_type) {
               case 1 : {
                 const double dX = (double)(X0 - X1), dY = (double)(Y0 - Y1), dZ = (double)(Z0 - Z1),
-                  norm = cimg::hypot(dX,dY,dZ);
+                  length = cimg::hypot(dX,dY,dZ);
                 if (_depth>1 || force_display_z_coord)
-                  cimg_snprintf(text,text._width," Vect (%d,%d,%d)-(%d,%d,%d), Norm = %g ",
-                                origX + X0,origY + Y0,origZ + Z0,origX + X1,origY + Y1,origZ + Z1,norm);
-                else cimg_snprintf(text,text._width," Vect (%d,%d)-(%d,%d), Norm = %g ",
-                                   origX + X0,origY + Y0,origX + X1,origY + Y1,norm);
+                  cimg_snprintf(text,text._width," Vect (%d,%d,%d)-(%d,%d,%d), Length = %g ",
+                                origX + X0,origY + Y0,origZ + Z0,origX + X1,origY + Y1,origZ + Z1,length);
+                else cimg_snprintf(text,text._width," Vect (%d,%d)-(%d,%d), Length = %g ",
+                                   origX + X0,origY + Y0,origX + X1,origY + Y1,length);
               } break;
-              case 2 :
+              case 2 : {
+                const double dX = (double)(X0 - X1), dY = (double)(Y0 - Y1), dZ = (double)(Z0 - Z1),
+                  length = cimg::hypot(dX,dY,dZ);
                 if (_depth>1 || force_display_z_coord)
-                  cimg_snprintf(text,text._width," Box (%d,%d,%d)-(%d,%d,%d), Size = (%d,%d,%d) ",
+                  cimg_snprintf(text,text._width," Box (%d,%d,%d)-(%d,%d,%d), Size = (%d,%d,%d), Length = %g ",
                                 origX + (X0<X1?X0:X1),origY + (Y0<Y1?Y0:Y1),origZ + (Z0<Z1?Z0:Z1),
                                 origX + (X0<X1?X1:X0),origY + (Y0<Y1?Y1:Y0),origZ + (Z0<Z1?Z1:Z0),
-                                1 + cimg::abs(X0 - X1),1 + cimg::abs(Y0 - Y1),1 + cimg::abs(Z0 - Z1));
-                else cimg_snprintf(text,text._width," Box (%d,%d)-(%d,%d), Size = (%d,%d) ",
+                                1 + cimg::abs(X0 - X1),1 + cimg::abs(Y0 - Y1),1 + cimg::abs(Z0 - Z1),length);
+                else cimg_snprintf(text,text._width," Box (%d,%d)-(%d,%d), Size = (%d,%d), Length = %g ",
                                    origX + (X0<X1?X0:X1),origY + (Y0<Y1?Y0:Y1),
                                    origX + (X0<X1?X1:X0),origY + (Y0<Y1?Y1:Y0),
-                                   1 + cimg::abs(X0 - X1),1 + cimg::abs(Y0 - Y1));
-                break;
+                                   1 + cimg::abs(X0 - X1),1 + cimg::abs(Y0 - Y1),length);
+              } break;
               default :
                 if (_depth>1 || force_display_z_coord)
                   cimg_snprintf(text,text._width," Ellipse (%d,%d,%d)-(%d,%d,%d), Radii = (%d,%d,%d) ",

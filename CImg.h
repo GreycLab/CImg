@@ -47241,24 +47241,24 @@ namespace cimg_library_suffixed {
                 visu.draw_rectangle(X0<X1?xp0:xp,Y0<Y1?yp0:yp,X0<X1?xn:xn0,Y0<Y1?yn:yn0,background_color,0.2f).
                   draw_rectangle(X0<X1?xp0:xp,Y0<Y1?yp0:yp,X0<X1?xn:xn0,Y0<Y1?yn:yn0,background_color,0.9f,0x55555555).
                   draw_rectangle(X0<X1?xp0:xp,Y0<Y1?yp0:yp,X0<X1?xn:xn0,Y0<Y1?yn:yn0,foreground_color,0.9f,0xAAAAAAAA).
-                  draw_line(xc0,yc0,xc,yc,background_color,0.5f,0x55555555).
-                  draw_line(xc0,yc0,xc,yc,foreground_color,0.5f,0xAAAAAAAA);
+                  draw_arrow(xc0,yc0,xc,yc,background_color,0.5f,30,5,0x55555555).
+                  draw_arrow(xc0,yc0,xc,yc,foreground_color,0.5f,30,5,0xAAAAAAAA);
                 if (d) {
                   visu.draw_rectangle(Z0<Z1?zxp0:zxp,Y0<Y1?yp0:yp,Z0<Z1?zxn:zxn0,Y0<Y1?yn:yn0,background_color,0.2f).
                     draw_rectangle(Z0<Z1?zxp0:zxp,Y0<Y1?yp0:yp,Z0<Z1?zxn:zxn0,Y0<Y1?yn:yn0,
                                    background_color,0.9f,0x55555555).
                     draw_rectangle(Z0<Z1?zxp0:zxp,Y0<Y1?yp0:yp,Z0<Z1?zxn:zxn0,Y0<Y1?yn:yn0,
                                    foreground_color,0.9f,0xAAAAAAAA).
-                    draw_line(zxc0,yc0,zxc,yc,background_color,0.5f,0x55555555).
-                    draw_line(zxc0,yc0,zxc,yc,foreground_color,0.5f,0xAAAAAAAA).
+                    draw_arrow(zxc0,yc0,zxc,yc,background_color,0.5f,30,5,0x55555555).
+                    draw_arrow(zxc0,yc0,zxc,yc,foreground_color,0.5f,30,5,0xAAAAAAAA).
                     draw_rectangle(X0<X1?xp0:xp,Z0<Z1?zyp0:zyp,X0<X1?xn:xn0,Z0<Z1?zyn:zyn0,
                                    background_color,0.2f).
                     draw_rectangle(X0<X1?xp0:xp,Z0<Z1?zyp0:zyp,X0<X1?xn:xn0,Z0<Z1?zyn:zyn0,
                                    background_color,0.9f,0x55555555).
                     draw_rectangle(X0<X1?xp0:xp,Z0<Z1?zyp0:zyp,X0<X1?xn:xn0,Z0<Z1?zyn:zyn0,
                                    foreground_color,0.9f,0xAAAAAAAA).
-                    draw_line(xp0,zyp0,xn,zyn,background_color,0.5f,0x55555555).
-                    draw_line(xp0,zyp0,xn,zyn,foreground_color,0.5f,0xAAAAAAAA);
+                    draw_arrow(xp0,zyp0,xn,zyn,background_color,0.5f,30,5,0x55555555).
+                    draw_arrow(xp0,zyp0,xn,zyn,foreground_color,0.5f,30,5,0xAAAAAAAA);
                 }
               } break;
               case 3 : {

@@ -26616,6 +26616,11 @@ namespace cimg_library_suffixed {
             _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' ||
                                                *expression=='*' || *expression==':'),
                                  calling_function,base,this,list_inputs,list_outputs,true);
+
+
+            std::fprintf(stderr,"\nDEBUG : Expr = '%s', need input copy = %d\n",
+                         expression,(int)mp.need_input_copy);
+
             if (!provides_copy && expression && *expression!='>' && *expression!='<' && *expression!=':' &&
                 mp.need_input_copy)
               base.assign().assign(*this); // Needs input copy

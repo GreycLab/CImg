@@ -18803,14 +18803,12 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar1(mp_sqrt,arg1);
             }
 
-/*            if (!std::strncmp(ss,"srand(",6)) { // Set RNG seed
+            if (!std::strncmp(ss,"srand(",6)) { // Set RNG seed
               _cimg_mp_op("Function 'srand()'");
-              arg1 = compile(ss6,se1,depth1,0);
-
-              _cimg_mp_check_type(arg1,1,1,0);
-              _cimg_mp_scalar1(mp_sinc,arg1);
+              arg1 = ss6<se1?compile(ss6,se1,depth1,0):~0U;
+              if (arg1!=~0U) { _cimg_mp_check_type(arg1,1,1,0); _cimg_mp_scalar1(mp_srand,arg1); }
+              _cimg_mp_scalar0(mp_srand0);
             }
-*/
 
             if (!std::strncmp(ss,"stod(",5)) { // String to double
               _cimg_mp_op("Function 'stod()'");
@@ -22551,6 +22549,15 @@ namespace cimg_library_suffixed {
 
       static double mp_sqrt(_cimg_math_parser& mp) {
         return std::sqrt(_mp_arg(2));
+      }
+
+      static double mp_srand(_cimg_math_parser& mp) {
+        return cimg::srand((unsigned int)_mp_arg(2));
+      }
+
+      static double mp_srand0(_cimg_math_parser& mp) {
+        cimg::unused(mp);
+        return cimg::srand();
       }
 
       static double mp_std(_cimg_math_parser& mp) {

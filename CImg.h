@@ -5091,24 +5091,25 @@ namespace cimg_library_suffixed {
     inline unsigned int _rand(const unsigned int seed=0, const bool set_seed=false) {
       static cimg_ulong next = 0xB16B00B5;
       cimg::mutex(4);
-      if (set_seed) { next = (cimg_ulong)seed; return seed; }
+      if (set_seed) next = (cimg_ulong)seed;
       next = next*1103515245 + 12345U;
       cimg::mutex(4,0);
       return (unsigned int)(next&0xFFFFFFU);
     }
 
-    inline unsigned int srand() {
-      unsigned int t = (unsigned int)cimg::time();
+    inline void srand() {
+      const unsigned int t = (unsigned int)cimg::time();
 #if cimg_OS==1
-      t+=(unsigned int)getpid();
+      cimg::_rand(t + (unsigned int)getpid(),true);
 #elif cimg_OS==2
-      t+=(unsigned int)_getpid();
+      cimg::_rand(t + (unsigned int)_getpid(),true);
+#else
+      cimg::_rand(t,true);
 #endif
-      return cimg::_rand(t,true);
     }
 
-    inline unsigned int srand(const unsigned int seed) {
-      return _rand(seed,true);
+    inline void srand(const unsigned int seed) {
+      _rand(seed,true);
     }
 
     inline double rand(const double val_min, const double val_max) {
@@ -5119,7 +5120,7 @@ namespace cimg_library_suffixed {
 #else
 
     // Use the system RNG.
-    inline unsigned int srand() {
+    inline void srand() {
       const unsigned int t = (unsigned int)cimg::time();
 #if cimg_OS==1 || defined(__BORLANDC__)
       std::srand(t + (unsigned int)getpid());
@@ -5128,12 +5129,10 @@ namespace cimg_library_suffixed {
 #else
       std::srand(t);
 #endif
-      return t;
     }
 
-    inline unsigned int srand(const unsigned int seed) {
+    inline void srand(const unsigned int seed) {
       std::srand(seed);
-      return seed;
     }
 
     //! Return a random variable uniformely distributed between [val_min,val_max].
@@ -18803,13 +18802,6 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar1(mp_sqrt,arg1);
             }
 
-            if (!std::strncmp(ss,"srand(",6)) { // Set RNG seed
-              _cimg_mp_op("Function 'srand()'");
-              arg1 = ss6<se1?compile(ss6,se1,depth1,0):~0U;
-              if (arg1!=~0U) { _cimg_mp_check_type(arg1,1,1,0); _cimg_mp_scalar1(mp_srand,arg1); }
-              _cimg_mp_scalar0(mp_srand0);
-            }
-
             if (!std::strncmp(ss,"stod(",5)) { // String to double
               _cimg_mp_op("Function 'stod()'");
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -22549,15 +22541,6 @@ namespace cimg_library_suffixed {
 
       static double mp_sqrt(_cimg_math_parser& mp) {
         return std::sqrt(_mp_arg(2));
-      }
-
-      static double mp_srand(_cimg_math_parser& mp) {
-        return cimg::srand((unsigned int)_mp_arg(2));
-      }
-
-      static double mp_srand0(_cimg_math_parser& mp) {
-        cimg::unused(mp);
-        return cimg::srand();
       }
 
       static double mp_std(_cimg_math_parser& mp) {

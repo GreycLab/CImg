@@ -5098,14 +5098,13 @@ namespace cimg_library_suffixed {
     }
 
     unsigned int srand() {
-      const unsigned int t = (unsigned int)cimg::time();
+      unsigned int t = (unsigned int)cimg::time();
 #if cimg_OS==1
       t+=(unsigned int)getpid();
 #elif cimg_OS==2
       t+=(unsigned int)_getpid();
-#else
-      return cimg::_rand(t,true);
 #endif
+      return cimg::_rand(t,true);
     }
 
     unsigned int srand(const unsigned int seed) {

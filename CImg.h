@@ -17779,10 +17779,10 @@ namespace cimg_library_suffixed {
                 variable_name.assign(CImg<charT>::string(ss8,true,true).unroll('y'),true);
                 cimg::strpare(variable_name,false,true);
                 if (_cimg_mp_is_vector(arg1))
-                  ((CImg<ulongT>::vector((ulongT)mp_vector_print,arg1,0,(ulongT)_cimg_mp_vector_size(arg1)),
+                  ((CImg<ulongT>::vector((ulongT)mp_vector_print,arg1,0,(ulongT)_cimg_mp_vector_size(arg1),0),
                     variable_name)>'y').move_to(opcode);
                 else
-                  ((CImg<ulongT>::vector((ulongT)mp_print,arg1,0),
+                  ((CImg<ulongT>::vector((ulongT)mp_print,arg1,0,0),
                     variable_name)>'y').move_to(opcode);
                 opcode[2] = opcode._height;
                 opcode.move_to(code);
@@ -18443,10 +18443,12 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
-            if (!std::strncmp(ss,"print(",6)) { // Print expressions
-              _cimg_mp_op("Function 'print()'");
-              if (*ss6!='#') { // Regular expression
-                for (s = ss6; s<se; ++s) {
+            if (!std::strncmp(ss,"print(",6) || !std::strncmp(ss,"prints(",7)) { // Print expressions
+              is_sth = ss[5]=='s'; // is prints()
+              _cimg_mp_op(is_sth?"Function 'prints()'":"Function 'print()'");
+              s0 = is_sth?ss7:ss6;
+              if (*s0!='#' || is_sth) { // Regular expression
+                for (s = s0; s<se; ++s) {
                   ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                  (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                   pos = compile(s,ns,depth1,p_ref);
@@ -18454,10 +18456,10 @@ namespace cimg_library_suffixed {
                   variable_name.assign(CImg<charT>::string(s,true,true).unroll('y'),true);
                   cimg::strpare(variable_name,false,true);
                   if (_cimg_mp_is_vector(pos)) // Vector
-                    ((CImg<ulongT>::vector((ulongT)mp_vector_print,pos,0,(ulongT)_cimg_mp_vector_size(pos)),
+                    ((CImg<ulongT>::vector((ulongT)mp_vector_print,pos,0,(ulongT)_cimg_mp_vector_size(pos),is_sth?1:0),
                       variable_name)>'y').move_to(opcode);
                   else // Scalar
-                    ((CImg<ulongT>::vector((ulongT)mp_print,pos,0),
+                    ((CImg<ulongT>::vector((ulongT)mp_print,pos,0,is_sth?1:0),
                       variable_name)>'y').move_to(opcode);
                   opcode[2] = opcode._height;
                   opcode.move_to(code);
@@ -22149,14 +22151,18 @@ namespace cimg_library_suffixed {
 
       static double mp_print(_cimg_math_parser& mp) {
           const double val = _mp_arg(1);
+          const bool print_char = (bool)mp.opcode[3];
           cimg_pragma_openmp(critical)
           {
-            CImg<charT> expr(mp.opcode[2] - 3);
-            const ulongT *ptrs = mp.opcode._data + 3;
+            CImg<charT> expr(mp.opcode[2] - 4);
+            const ulongT *ptrs = mp.opcode._data + 4;
             cimg_for(expr,ptrd,char) *ptrd = (char)*(ptrs++);
             cimg::strellipsize(expr);
             cimg::mutex(6);
-            std::fprintf(cimg::output(),"\n[" cimg_appname "_math_parser] %s = %g",expr._data,val);
+            if (print_char)
+              std::fprintf(cimg::output(),"\n[" cimg_appname "_math_parser] %s = %g = '%c'",expr._data,val,(int)val);
+            else
+              std::fprintf(cimg::output(),"\n[" cimg_appname "_math_parser] %s = %g",expr._data,val);
             std::fflush(cimg::output());
             cimg::mutex(6,0);
           }
@@ -22816,10 +22822,11 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_vector_print(_cimg_math_parser& mp) {
+        const bool print_string = (bool)mp.opcode[4];
         cimg_pragma_openmp(critical)
         {
-          CImg<charT> expr(mp.opcode[2] - 4);
-          const ulongT *ptrs = mp.opcode._data + 4;
+          CImg<charT> expr(mp.opcode[2] - 5);
+          const ulongT *ptrs = mp.opcode._data + 5;
           cimg_for(expr,ptrd,char) *ptrd = (char)*(ptrs++);
           cimg::strellipsize(expr);
           unsigned int
@@ -22837,7 +22844,14 @@ namespace cimg_library_suffixed {
             } else std::fprintf(cimg::output(),"%g%s",mp.mem[ptr++],siz?",":"");
             ++count;
           }
-          std::fprintf(cimg::output()," ] (size: %u)",siz0);
+          if (print_string) {
+            CImg<charT> str(siz0 + 1);
+            ptr = (unsigned int)mp.opcode[1] + 1;
+            for (unsigned int k = 0; k<siz0; ++k) str[k] = (char)mp.mem[ptr++];
+            str[siz0] = 0;
+            cimg::strellipsize(str,1024,false);
+            std::fprintf(cimg::output()," ] = '%s' (size: %u)",str._data,siz0);
+          } else std::fprintf(cimg::output()," ] (size: %u)",siz0);
           std::fflush(cimg::output());
           cimg::mutex(6,0);
         }

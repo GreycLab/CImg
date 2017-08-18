@@ -5091,8 +5091,8 @@ namespace cimg_library_suffixed {
     inline unsigned int _rand(const unsigned int seed=0, const bool set_seed=false) {
       static cimg_ulong next = 0xB16B00B5;
       cimg::mutex(4);
-      if (set_seed) { next = (cimg_ulong)seed; cimg::mutex(4,0); return seed; }
-      next = next*1103515245 + 12345U;
+      if (set_seed) next = (cimg_ulong)seed;
+      else next = next*1103515245 + 12345U;
       cimg::mutex(4,0);
       return (unsigned int)(next&0xFFFFFFU);
     }

@@ -5097,7 +5097,7 @@ namespace cimg_library_suffixed {
       return (unsigned int)(next&0xFFFFFFU);
     }
 
-    unsigned int srand() {
+    inline unsigned int srand() {
       unsigned int t = (unsigned int)cimg::time();
 #if cimg_OS==1
       t+=(unsigned int)getpid();
@@ -5107,7 +5107,7 @@ namespace cimg_library_suffixed {
       return cimg::_rand(t,true);
     }
 
-    unsigned int srand(const unsigned int seed) {
+    inline unsigned int srand(const unsigned int seed) {
       return _rand(seed,true);
     }
 
@@ -5119,7 +5119,7 @@ namespace cimg_library_suffixed {
 #else
 
     // Use the system RNG.
-    unsigned int srand() {
+    inline unsigned int srand() {
       const unsigned int t = (unsigned int)cimg::time();
 #if cimg_OS==1 || defined(__BORLANDC__)
       std::srand(t + (unsigned int)getpid());
@@ -5131,7 +5131,7 @@ namespace cimg_library_suffixed {
       return t;
     }
 
-    unsigned int srand(const unsigned int seed) {
+    inline unsigned int srand(const unsigned int seed) {
       std::srand(seed);
       return seed;
     }
@@ -18802,6 +18802,15 @@ namespace cimg_library_suffixed {
               if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(std::sqrt(mem[arg1]));
               _cimg_mp_scalar1(mp_sqrt,arg1);
             }
+
+/*            if (!std::strncmp(ss,"srand(",6)) { // Set RNG seed
+              _cimg_mp_op("Function 'srand()'");
+              arg1 = compile(ss6,se1,depth1,0);
+
+              _cimg_mp_check_type(arg1,1,1,0);
+              _cimg_mp_scalar1(mp_sinc,arg1);
+            }
+*/
 
             if (!std::strncmp(ss,"stod(",5)) { // String to double
               _cimg_mp_op("Function 'stod()'");

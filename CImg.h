@@ -5091,25 +5091,25 @@ namespace cimg_library_suffixed {
     inline unsigned int _rand(const unsigned int seed=0, const bool set_seed=false) {
       static cimg_ulong next = 0xB16B00B5;
       cimg::mutex(4);
-      if (set_seed) next = (cimg_ulong)seed;
+      if (set_seed) { next = (cimg_ulong)seed; return seed; }
       next = next*1103515245 + 12345U;
       cimg::mutex(4,0);
       return (unsigned int)(next&0xFFFFFFU);
     }
 
-    inline void srand() {
+    unsigned int srand() {
       const unsigned int t = (unsigned int)cimg::time();
 #if cimg_OS==1
-      cimg::_rand(t + (unsigned int)getpid(),true);
+      t+=(unsigned int)getpid();
 #elif cimg_OS==2
-      cimg::_rand(t + (unsigned int)_getpid(),true);
+      t+=(unsigned int)_getpid();
 #else
-      cimg::_rand(t,true);
+      return cimg::_rand(t,true);
 #endif
     }
 
-    inline void srand(const unsigned int seed) {
-      _rand(seed,true);
+    unsigned int srand(const unsigned int seed) {
+      return _rand(seed,true);
     }
 
     inline double rand(const double val_min, const double val_max) {
@@ -5120,7 +5120,7 @@ namespace cimg_library_suffixed {
 #else
 
     // Use the system RNG.
-    inline void srand() {
+    unsigned int srand() {
       const unsigned int t = (unsigned int)cimg::time();
 #if cimg_OS==1 || defined(__BORLANDC__)
       std::srand(t + (unsigned int)getpid());
@@ -5129,10 +5129,12 @@ namespace cimg_library_suffixed {
 #else
       std::srand(t);
 #endif
+      return t;
     }
 
-    inline void srand(const unsigned int seed) {
+    unsigned int srand(const unsigned int seed) {
       std::srand(seed);
+      return seed;
     }
 
     //! Return a random variable uniformely distributed between [val_min,val_max].

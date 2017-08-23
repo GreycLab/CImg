@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 203
+#define cimg_version 204
 
 /*-----------------------------------------------------------
  #
@@ -33261,7 +33261,7 @@ namespace cimg_library_suffixed {
           cimg_forC(res,c) {
             cimg_abort_test();
             const CImg<T> _img = get_shared_channel(c%_spectrum);
-            const CImg<t> _K = _kernel.get_shared_channel((c/_spectrum)%_kernel._spectrum);
+            const CImg<t> _K = _kernel.get_shared_channel(c/_spectrum);
             if (is_normalized) {
               const Ttfloat _M = (Ttfloat)_K.magnitude(2), M = _M*_M;
               cimg_for3x3x3(_img,x,y,z,0,I,T) {
@@ -33301,7 +33301,7 @@ namespace cimg_library_suffixed {
           cimg_forC(res,c) {
             cimg_abort_test();
             const CImg<T> _img = get_shared_channel(c%_spectrum);
-            const CImg<t> K = _kernel.get_shared_channel((c/_spectrum)%_kernel._spectrum);
+            const CImg<t> K = _kernel.get_shared_channel(c/_spectrum);
             if (is_normalized) {
               const Ttfloat _M = (Ttfloat)K.magnitude(2), M = _M*_M;
               cimg_for2x2x2(_img,x,y,z,0,I,T) {
@@ -33329,7 +33329,7 @@ namespace cimg_library_suffixed {
             cimg_forC(res,c) {
               cimg_abort_test();
               const CImg<T> _img = get_shared_channel(c%_spectrum);
-              const CImg<t> K = _kernel.get_shared_channel((c/_spectrum)%_kernel._spectrum);
+              const CImg<t> K = _kernel.get_shared_channel(c/_spectrum);
               if (is_normalized) {
                 const Ttfloat _M = (Ttfloat)K.magnitude(2), M = _M*_M;
                 cimg_forZ(_img,z) cimg_for6x6(_img,x,y,z,0,I,T) {
@@ -33369,7 +33369,7 @@ namespace cimg_library_suffixed {
             cimg_forC(res,c) {
               cimg_abort_test();
               const CImg<T> _img = get_shared_channel(c%_spectrum);
-              const CImg<t> K = _kernel.get_shared_channel((c/_spectrum)%_kernel._spectrum);
+              const CImg<t> K = _kernel.get_shared_channel(c/_spectrum);
               if (is_normalized) {
                 const Ttfloat _M = (Ttfloat)K.magnitude(2), M = _M*_M;
                 cimg_forZ(_img,z) cimg_for5x5(_img,x,y,z,0,I,T) {
@@ -33401,7 +33401,7 @@ namespace cimg_library_suffixed {
             cimg_forC(res,c) {
               cimg_abort_test();
               const CImg<T> _img = get_shared_channel(c%_spectrum);
-              const CImg<t> K = _kernel.get_shared_channel((c/_spectrum)%_kernel._spectrum);
+              const CImg<t> K = _kernel.get_shared_channel(c/_spectrum);
               if (is_normalized) {
                 const Ttfloat _M = (Ttfloat)K.magnitude(2), M = _M*_M;
                 cimg_forZ(_img,z) cimg_for4x4(_img,x,y,z,0,I,T) {
@@ -33427,7 +33427,7 @@ namespace cimg_library_suffixed {
             cimg_forC(res,c) {
               cimg_abort_test();
               const CImg<T> _img = get_shared_channel(c%_spectrum);
-              const CImg<t> K = _kernel.get_shared_channel((c/_spectrum)%_kernel._spectrum);
+              const CImg<t> K = _kernel.get_shared_channel(c/_spectrum);
               if (is_normalized) {
                 const Ttfloat _M = (Ttfloat)K.magnitude(2), M = _M*_M;
                 cimg_forZ(_img,z) cimg_for3x3(_img,x,y,z,0,I,T) {
@@ -33449,7 +33449,7 @@ namespace cimg_library_suffixed {
             cimg_forC(res,c) {
               cimg_abort_test();
               const CImg<T> _img = get_shared_channel(c%_spectrum);
-              const CImg<t> K = _kernel.get_shared_channel((c/_spectrum)%_kernel._spectrum);
+              const CImg<t> K = _kernel.get_shared_channel(c/_spectrum);
               if (is_normalized) {
                 const Ttfloat _M = (Ttfloat)K.magnitude(2), M = _M*_M;
                 cimg_forZ(_img,z) cimg_for2x2(_img,x,y,z,0,I,T) {
@@ -33468,7 +33468,7 @@ namespace cimg_library_suffixed {
             else cimg_forC(res,c) {
                 cimg_abort_test();
                 const CImg<T> _img = get_shared_channel(c%_spectrum);
-                const CImg<t> K = _kernel.get_shared_channel((c/_spectrum)%_kernel._spectrum);
+                const CImg<t> K = _kernel.get_shared_channel(c/_spectrum);
                 res.get_shared_channel(c).assign(_img)*=K[0];
               }
             break;
@@ -33484,7 +33484,7 @@ namespace cimg_library_suffixed {
         cimg_forC(res,c) cimg_abort_try {
           cimg_abort_test();
           const CImg<T> _img = get_shared_channel(c%_spectrum);
-          const CImg<t> K = kernel.get_shared_channel((c/_spectrum)%kernel._spectrum);
+          const CImg<t> K = kernel.get_shared_channel(c/_spectrum);
           if (is_normalized) { // Normalized correlation.
             const Ttfloat _M = (Ttfloat)K.magnitude(2), M = _M*_M;
             cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width*_height*_depth>=32768))
@@ -33606,8 +33606,8 @@ namespace cimg_library_suffixed {
     template<typename t>
     CImg<_cimg_Ttfloat> get_convolve(const CImg<t>& kernel, const bool boundary_conditions=true,
                                      const bool is_normalized=false) const {
-      return _correlate(CImg<t>(kernel._data,kernel.size(),1,1,1,true).get_mirror('x').
-                        resize(kernel,-1),boundary_conditions,is_normalized,true);
+      return _correlate(CImg<t>(kernel._data,kernel.size()/kernel._spectrum,1,1,kernel._spectrum,true).
+                        get_mirror('x').resize(kernel,-1),boundary_conditions,is_normalized,true);
     }
 
     //! Cumulate image values, optionally along specified axis.
@@ -33708,7 +33708,7 @@ namespace cimg_library_suffixed {
       cimg_forC(*this,c) cimg_abort_try {
         cimg_abort_test();
         const CImg<T> _img = get_shared_channel(c%_spectrum);
-        const CImg<t> K = kernel.get_shared_channel((c/_spectrum)%kernel._spectrum);
+        const CImg<t> K = kernel.get_shared_channel(c/_spectrum);
         if (is_real) { // Real erosion
           cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width*_height*_depth>=32768))
           for (int z = mz1; z<mze; ++z)
@@ -33992,7 +33992,7 @@ namespace cimg_library_suffixed {
       cimg_forC(*this,c) cimg_abort_try {
         cimg_abort_test();
         const CImg<T> _img = get_shared_channel(c%_spectrum);
-        const CImg<t> K = kernel.get_shared_channel((c/_spectrum)%kernel._spectrum);
+        const CImg<t> K = kernel.get_shared_channel(c/_spectrum);
         if (is_real) { // Real dilation
           cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width*_height*_depth>=32768))
           for (int z = mz1; z<mze; ++z)

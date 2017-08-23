@@ -33241,7 +33241,7 @@ namespace cimg_library_suffixed {
       typedef _cimg_Ttfloat Ttfloat;
       CImg<Ttfloat> res(_width,_height,_depth,_spectrum*kernel._spectrum);
       const bool
-        is_inner_parallel = _depth>1?_width*_height*_depth>=32768:_width>=256 && _height*_depth>=128,
+        is_inner_parallel = _width*_height*_depth>=32768,
         is_outer_parallel = res.size()>=32768;
       cimg_abort_init;
 
@@ -33722,7 +33722,7 @@ namespace cimg_library_suffixed {
         mx1 = kernel.width() - mx2 - 1, my1 = kernel.height() - my2 - 1, mz1 = kernel.depth() - mz2 - 1,
         mxe = width() - mx2, mye = height() - my2, mze = depth() - mz2;
       const bool
-        is_inner_parallel = _depth>1?_width*_height*_depth>=32768:_width>=256 && _height*_depth>=128,
+        is_inner_parallel = _width*_height*_depth>=32768,
         is_outer_parallel = res.size()>=32768;
       cimg_abort_init;
       cimg_pragma_openmp(parallel for cimg_openmp_if(!is_inner_parallel && is_outer_parallel))
@@ -34010,7 +34010,7 @@ namespace cimg_library_suffixed {
         mx2 = kernel.width() - mx1 - 1, my2 = kernel.height() - my1 - 1, mz2 = kernel.depth() - mz1 - 1,
         mxe = width() - mx2, mye = height() - my2, mze = depth() - mz2;
       const bool
-        is_inner_parallel = _depth>1?_width*_height*_depth>=32768:_width>=256 && _height*_depth>=128,
+        is_inner_parallel = _width*_height*_depth>=32768,
         is_outer_parallel = res.size()>=32768;
       cimg_abort_init;
       cimg_pragma_openmp(parallel for cimg_openmp_if(!is_inner_parallel && is_outer_parallel))

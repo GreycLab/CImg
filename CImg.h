@@ -35850,7 +35850,7 @@ namespace cimg_library_suffixed {
             case 3 : {
               cimg_pragma_openmp(parallel for cimg_openmp_if(_spectrum>=2))
               cimg_forC(*this,c) {
-                T I[9] = { (T)0 };
+                CImg<T> I(9);
                 cimg_for3x3(*this,x,y,0,c,I,T)
                   res(x,y,c) = cimg::median(I[0],I[1],I[2],I[3],I[4],I[5],I[6],I[7],I[8]);
               }
@@ -35858,7 +35858,7 @@ namespace cimg_library_suffixed {
             case 5 : {
               cimg_pragma_openmp(parallel for cimg_openmp_if(_spectrum>=2))
               cimg_forC(*this,c) {
-                T I[25] = { (T)0 };
+                CImg<T> I(25);
                 cimg_for5x5(*this,x,y,0,c,I,T)
                   res(x,y,c) = cimg::median(I[0],I[1],I[2],I[3],I[4],
                                             I[5],I[6],I[7],I[8],I[9],
@@ -35870,7 +35870,7 @@ namespace cimg_library_suffixed {
             case 7 : {
               cimg_pragma_openmp(parallel for cimg_openmp_if(_spectrum>=2))
               cimg_forC(*this,c) {
-                T I[49] = { (T)0 };
+                CImg<T> I(49);
                 cimg_for7x7(*this,x,y,0,c,I,T)
                   res(x,y,c) = cimg::median(I[0],I[1],I[2],I[3],I[4],I[5],I[6],
                                             I[7],I[8],I[9],I[10],I[11],I[12],I[13],

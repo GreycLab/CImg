@@ -20447,10 +20447,10 @@ namespace cimg_library_suffixed {
         default : cimg_snprintf(format,format._width,"%%.%dg",nb_digits);
         }
         CImg<charT> str;
-        if (sizs) { // Vector version
+        if (sizs) { // Vector expression
           const double *ptrs = &_mp_arg(3) + 1;
           CImg<doubleT>(ptrs,sizs,1,1,1,true).value_string(',',sizd,format).move_to(str);
-        } else { // Scalar version
+        } else { // Scalar expression
           str.assign(sizd);
           cimg_snprintf(str,sizd,format,_mp_arg(3));
         }

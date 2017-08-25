@@ -17979,7 +17979,6 @@ namespace cimg_library_suffixed {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                 arg1 = compile(s,ns,depth1,0);
-                _cimg_mp_check_type(arg1,pos++,2,0);
                 CImg<ulongT>::vector(arg1,_cimg_mp_vector_size(arg1)).move_to(_opcode);
                 s = ns;
               }
@@ -20474,11 +20473,13 @@ namespace cimg_library_suffixed {
         const unsigned int nb_args = (unsigned int)(mp.opcode[2] - 3)/2;
         CImgList<charT> _str;
         for (unsigned int n = 0; n<nb_args; ++n) {
-          const double *ptr = &_mp_arg(3 + 2*n) + 1;
           const unsigned int siz = (unsigned int)mp.opcode[4 + 2*n];
-          unsigned int l = 0;
-          while (l<siz && ptr[l]) ++l;
-          CImg<doubleT>(ptr,l,1,1,1,true).move_to(_str);
+          if (siz) { // Vector argument
+            const double *ptr = &_mp_arg(3 + 2*n) + 1;
+            unsigned int l = 0;
+            while (l<siz && ptr[l]) ++l;
+            CImg<doubleT>(ptr,l,1,1,1,true).move_to(_str);
+          } else CImg<charT>::vector((char)_mp_arg(3 + 2*n)).move_to(_str); // Scalar argument
         }
         CImg(1,1,1,1,0).move_to(_str);
         const CImg<charT> str = _str>'x';

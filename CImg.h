@@ -18027,7 +18027,7 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"extern(",7)) { // Extern
               _cimg_mp_op("Function 'extern()'");
-              CImg<ulongT>::vector((ulongT)mp_extern,_cimg_mp_slot_nan,0).move_to(_opcode);
+              CImg<ulongT>::vector((ulongT)mp_extern,0,0).move_to(_opcode);
               pos = 1;
               for (s = ss7; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
@@ -18037,9 +18037,11 @@ namespace cimg_library_suffixed {
                 s = ns;
               }
               (_opcode>'y').move_to(opcode);
+              pos = scalar();
+              opcode[1] = pos;
               opcode[2] = opcode._height;
               opcode.move_to(code);
-              _cimg_mp_return_nan();
+              _cimg_mp_return(pos);
             }
 
             if (!std::strncmp(ss,"exp(",4)) { // Exponential
@@ -20563,8 +20565,9 @@ namespace cimg_library_suffixed {
         }
         CImg(1,1,1,1,0).move_to(_str);
         const CImg<charT> str = _str>'x';
-
-        // Do something with str._data here !
+#ifdef cimg_mp_extern_function
+        cimg_mp_extern_function;
+#endif
         return cimg::type<double>::nan();
       }
 

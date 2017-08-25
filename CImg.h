@@ -15243,7 +15243,7 @@ namespace cimg_library_suffixed {
 
         // Free resources used for compiling expression and prepare evaluation.
         result_dim = _cimg_mp_vector_size(ind_result);
-        mem.resize(mempos,1,1,1,-1);
+        if (mem._width>=256 && mem._width - mempos>=mem._width/2) mem.resize(mempos,1,1,1,-1);
         result = mem._data + ind_result;
         memtype.assign();
         constcache_vals.assign();
@@ -17444,6 +17444,27 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar2(mp_atan2,arg1 + 2,arg1 + 1);
             }
 
+            if (!std::strncmp(ss,"cats(",5)) { // Concatenate strings
+              _cimg_mp_op("Function 'cats()'");
+              CImg<ulongT>::vector((ulongT)mp_cats,0).move_to(_opcode);
+              for (s = ss5; s<se; ++s) {
+                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                arg1 = compile(s,ns,depth1,0);
+                if (s==ss5) _cimg_mp_check_constant(arg1,1,3); // First argument is output vector size
+                CImg<ulongT>::vector(arg1,_cimg_mp_vector_size(arg1)).move_to(_opcode);
+                s = ns;
+              }
+              (_opcode>'y').move_to(opcode);
+              p1 = (unsigned int)mem[opcode[2]];
+              pos = vector(p1);
+              opcode[1] = pos;
+              opcode[2] = p1;
+              opcode[3] = opcode._height;
+              opcode.move_to(code);
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"cbrt(",5)) { // Cubic root
               _cimg_mp_op("Function 'cbrt()'");
               arg1 = compile(ss5,se1,depth1,0);
@@ -17960,12 +17981,11 @@ namespace cimg_library_suffixed {
               s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(s1,s2,depth1,0);
               arg3 = s2<se1?compile(++s2,se1,depth1,0):0;
-              _cimg_mp_check_constant(arg2,2,3);
+              _cimg_mp_check_constant(arg1,2,3);
               _cimg_mp_check_type(arg3,3,1,0);
-              p1 = (unsigned int)mem[arg2];
+              p1 = (unsigned int)mem[arg1];
               pos = vector(p1);
-              std::memset(&mem[pos + 1],0,p1*sizeof(double));
-              CImg<ulongT>::vector((ulongT)mp_dtos,pos,p1,arg1,_cimg_mp_vector_size(arg1),arg3).move_to(code);
+              CImg<ulongT>::vector((ulongT)mp_dtos,pos,p1,arg2,_cimg_mp_vector_size(arg2),arg3).move_to(code);
               _cimg_mp_return(pos);
             }
             break;
@@ -17974,7 +17994,6 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"echo(",5)) { // Echo
               _cimg_mp_op("Function 'echo()'");
               CImg<ulongT>::vector((ulongT)mp_echo,_cimg_mp_slot_nan,0).move_to(_opcode);
-              pos = 1;
               for (s = ss5; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
@@ -20146,6 +20165,28 @@ namespace cimg_library_suffixed {
         return cimg::type<double>::nan();
       }
 
+      static double mp_cats(_cimg_math_parser& mp) {
+        const double *ptrd = &_mp_arg(1) + 1;
+        const unsigned int
+          sizd = (unsigned int)mp.opcode[2],
+          nb_args = (unsigned int)(mp.opcode[3] - 4)/2;
+        CImgList<charT> _str;
+        for (unsigned int n = 0; n<nb_args; ++n) {
+          const unsigned int siz = (unsigned int)mp.opcode[5 + 2*n];
+          if (siz) { // Vector argument
+            const double *ptrs = &_mp_arg(4 + 2*n) + 1;
+            unsigned int l = 0;
+            while (l<siz && ptrs[l]) ++l;
+            CImg<doubleT>(ptrs,l,1,1,1,true).move_to(_str);
+          } else CImg<charT>::vector((char)_mp_arg(4 + 2*n)).move_to(_str); // Scalar argument
+        }
+        CImg(1,1,1,1,0).move_to(_str);
+        const CImg<charT> str = _str>'x';
+        const unsigned int l = std::min(str._width,sizd);
+        CImg<doubleT>(ptrd,l,1,1,1,true) = str.get_shared_points(0,l - 1);
+        return cimg::type<double>::nan();
+      }
+
       static double mp_cbrt(_cimg_math_parser& mp) {
         return cimg::cbrt(_mp_arg(2));
       }
@@ -20476,13 +20517,13 @@ namespace cimg_library_suffixed {
         CImg<charT> str;
         if (sizs) { // Vector expression
           const double *ptrs = &_mp_arg(3) + 1;
-          CImg<doubleT>(ptrs,sizs,1,1,1,true).value_string(',',sizd,format).move_to(str);
+          CImg<doubleT>(ptrs,sizs,1,1,1,true).value_string(',',sizd + 1,format).move_to(str);
         } else { // Scalar expression
-          str.assign(sizd);
-          cimg_snprintf(str,sizd,format,_mp_arg(3));
+          str.assign(sizd + 1);
+          cimg_snprintf(str,sizd + 1,format,_mp_arg(3));
         }
-        const unsigned int l = std::strlen(str);
-        CImg<doubleT>(ptrd,l + 1,1,1,1,true) = str.get_shared_points(0,l);
+        const unsigned int l = std::min(sizd,(unsigned int)std::strlen(str) + 1);
+        CImg<doubleT>(ptrd,l,1,1,1,true) = str.get_shared_points(0,l - 1);
         return cimg::type<double>::nan();
       }
 

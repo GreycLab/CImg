@@ -17973,9 +17973,20 @@ namespace cimg_library_suffixed {
           case 'e' :
             if (!std::strncmp(ss,"echo(",5)) { // Echo
               _cimg_mp_op("Function 'echo()'");
-              arg1 = compile(ss5,se1,depth1,0);
-              CImg<ulongT>::vector((ulongT)mp_echo,arg1,_cimg_mp_vector_size(arg1)).move_to(code);
-              _cimg_mp_return(arg1);
+              CImg<ulongT>::vector((ulongT)mp_echo,_cimg_mp_slot_nan,0).move_to(_opcode);
+              pos = 1;
+              for (s = ss5; s<se; ++s) {
+                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                arg1 = compile(s,ns,depth1,0);
+                _cimg_mp_check_type(arg1,pos++,2,0);
+                CImg<ulongT>::vector(arg1,_cimg_mp_vector_size(arg1)).move_to(_opcode);
+                s = ns;
+              }
+              (_opcode>'y').move_to(opcode);
+              opcode[2] = opcode._height;
+              opcode.move_to(code);
+              _cimg_mp_return_nan();
             }
 
             if (!std::strncmp(ss,"eig(",4)) { // Matrix eigenvalues/eigenvector
@@ -20460,20 +20471,19 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_echo(_cimg_math_parser& mp) {
-        const unsigned int sizs = (unsigned int)mp.opcode[2];
-        CImg<charT> str;
-        if (sizs) { // Vector version
-          const double *ptrs = &_mp_arg(1) + 1;
-          str.assign(sizs + 1);
-          str.get_shared_points(0,sizs - 1) = CImg<doubleT>(ptrs,sizs,1,1,1,true);
-          str[sizs] = 0;
-        } else { // Scalar version
-          str.assign(2);
-          str[0] = (char)_mp_arg(1);
-          str[1] = 0;
+        const unsigned int nb_args = (unsigned int)(mp.opcode[2] - 3)/2;
+        CImgList<charT> _str;
+        for (unsigned int n = 0; n<nb_args; ++n) {
+          const double *ptr = &_mp_arg(3 + 2*n) + 1;
+          const unsigned int siz = (unsigned int)mp.opcode[4 + 2*n];
+          unsigned int l = 0;
+          while (l<siz && ptr[l]) ++l;
+          CImg<doubleT>(ptr,l,1,1,1,true).move_to(_str);
         }
+        CImg(1,1,1,1,0).move_to(_str);
+        const CImg<charT> str = _str>'x';
         std::fprintf(cimg::output(),"\n%s",str._data);
-        return _mp_arg(1);
+        return cimg::type<double>::nan();
       }
 
       static double mp_eq(_cimg_math_parser& mp) {

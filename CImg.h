@@ -17969,6 +17969,13 @@ namespace cimg_library_suffixed {
             break;
 
           case 'e' :
+            if (!std::strncmp(ss,"echo(",5)) { // Echo
+              _cimg_mp_op("Function 'echo()'");
+              arg1 = compile(ss5,se1,depth1,0);
+              CImg<ulongT>::vector((ulongT)mp_echo,arg1,_cimg_mp_vector_size(arg1)).move_to(code);
+              _cimg_mp_return(arg1);
+            }
+
             if (!std::strncmp(ss,"eig(",4)) { // Matrix eigenvalues/eigenvector
               _cimg_mp_op("Function 'eig()'");
               arg1 = compile(ss4,se1,depth1,0);
@@ -20442,12 +20449,29 @@ namespace cimg_library_suffixed {
         if (sizs) { // Vector version
           const double *ptrs = &_mp_arg(1) + 1;
           CImg<doubleT>(ptrs,sizs,1,1,1,true).value_string(',',sizd,format).move_to(str);
-        } else {
+        } else { // Scalar version
           str.assign(sizd);
           cimg_snprintf(str,sizd,format,_mp_arg(1));
         }
         const unsigned int l = std::strlen(str);
         CImg<doubleT>(ptrd,l + 1,1,1,1,true) = str.get_shared_points(0,l);
+        return _mp_arg(1);
+      }
+
+      static double mp_echo(_cimg_math_parser& mp) {
+        const unsigned int sizs = (unsigned int)mp.opcode[2];
+        CImg<charT> str;
+        if (sizs) { // Vector version
+          const double *ptrs = &_mp_arg(1) + 1;
+          str.assign(sizs + 1);
+          str.get_shared_points(0,sizs - 1) = CImg<doubleT>(ptrs,sizs,1,1,1,true);
+          str[sizs] = 0;
+        } else { // Scalar version
+          str.assign(2);
+          str[0] = (char)_mp_arg(1);
+          str[1] = 0;
+        }
+        std::fprintf(cimg::output(),"\n%s",str._data);
         return _mp_arg(1);
       }
 

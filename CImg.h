@@ -20430,7 +20430,14 @@ namespace cimg_library_suffixed {
         const unsigned int
           sizs = (unsigned int)mp.opcode[2],
           sizd = (unsigned int)mp.opcode[4];
-        const char *const format = "%g";
+        const int
+          nb_digits = (int)_mp_arg(5);
+        CImg<charT> format(8);
+        switch (nb_digits) {
+        case -1 : std::strcpy(format,"%g"); break;
+        case 0 : std::strcpy(format,"%.17g"); break;
+        default : cimg_snprintf(format,format._width,"%%.%dg",nb_digits);
+        }
         CImg<charT> str;
         if (sizs) { // Vector version
           const double *ptrs = &_mp_arg(1) + 1;

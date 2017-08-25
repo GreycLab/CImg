@@ -17960,11 +17960,13 @@ namespace cimg_library_suffixed {
               s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(s1,s2,depth1,0);
               arg3 = s2<se1?compile(++s2,se1,depth1,0):0;
-              _cimg_mp_check_type(arg2,2,2,0);
+              _cimg_mp_check_constant(arg2,2,3);
               _cimg_mp_check_type(arg3,3,1,0);
-              CImg<ulongT>::vector((ulongT)mp_dtos,arg1,_cimg_mp_vector_size(arg1),arg2,_cimg_mp_vector_size(arg2),arg3).
-                        move_to(code);
-              _cimg_mp_return(arg1);
+              p1 = (unsigned int)mem[arg2];
+              pos = vector(p1);
+              std::memset(&mem[pos + 1],0,p1*sizeof(double));
+              CImg<ulongT>::vector((ulongT)mp_dtos,pos,p1,arg1,_cimg_mp_vector_size(arg1),arg3).move_to(code);
+              _cimg_mp_return(pos);
             }
             break;
 
@@ -20433,12 +20435,11 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_dtos(_cimg_math_parser& mp) {
-        double *ptrd = &_mp_arg(3) + 1;
+        double *ptrd = &_mp_arg(1) + 1;
         const unsigned int
-          sizs = (unsigned int)mp.opcode[2],
-          sizd = (unsigned int)mp.opcode[4];
-        const int
-          nb_digits = (int)_mp_arg(5);
+          sizd = (unsigned int)mp.opcode[2],
+          sizs = (unsigned int)mp.opcode[4];
+        const int nb_digits = (int)_mp_arg(5);
         CImg<charT> format(8);
         switch (nb_digits) {
         case -1 : std::strcpy(format,"%g"); break;
@@ -20447,15 +20448,15 @@ namespace cimg_library_suffixed {
         }
         CImg<charT> str;
         if (sizs) { // Vector version
-          const double *ptrs = &_mp_arg(1) + 1;
+          const double *ptrs = &_mp_arg(3) + 1;
           CImg<doubleT>(ptrs,sizs,1,1,1,true).value_string(',',sizd,format).move_to(str);
         } else { // Scalar version
           str.assign(sizd);
-          cimg_snprintf(str,sizd,format,_mp_arg(1));
+          cimg_snprintf(str,sizd,format,_mp_arg(3));
         }
         const unsigned int l = std::strlen(str);
         CImg<doubleT>(ptrd,l + 1,1,1,1,true) = str.get_shared_points(0,l);
-        return _mp_arg(1);
+        return cimg::type<double>::nan();
       }
 
       static double mp_echo(_cimg_math_parser& mp) {

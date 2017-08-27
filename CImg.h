@@ -17978,14 +17978,22 @@ namespace cimg_library_suffixed {
               _cimg_mp_op("Function 'dtos()'");
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss5,s1,depth1,0);
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-              arg2 = compile(s1,s2,depth1,0);
-              arg3 = s2<se1?compile(++s2,se1,depth1,0):0;
-              _cimg_mp_check_constant(arg1,2,3);
-              _cimg_mp_check_type(arg3,3,1,0);
-              p1 = (unsigned int)mem[arg1];
+              arg2 = 0; arg3 = ~0U;
+              if (s1<se1) {
+                s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                arg2 = compile(++s1,s2,depth1,0);
+                arg3 = s2<se1?compile(++s2,se1,depth1,0):~0U;
+              }
+              _cimg_mp_check_type(arg2,2,1,0);
+              if (arg3==~0U) { // Auto-guess best output vector size
+                p1 = _cimg_mp_vector_size(arg1);
+                p1 = p1?19*p1 - 1:18;
+              } else {
+                _cimg_mp_check_constant(arg3,3,3);
+                p1 = (unsigned int)mem[arg3];
+              }
               pos = vector(p1);
-              CImg<ulongT>::vector((ulongT)mp_dtos,pos,p1,arg2,_cimg_mp_vector_size(arg2),arg3).move_to(code);
+              CImg<ulongT>::vector((ulongT)mp_dtos,pos,p1,arg1,_cimg_mp_vector_size(arg1),arg2).move_to(code);
               _cimg_mp_return(pos);
             }
             break;

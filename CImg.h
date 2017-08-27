@@ -20564,7 +20564,7 @@ namespace cimg_library_suffixed {
           } else CImg<charT>::vector((char)_mp_arg(3 + 2*n)).move_to(_str); // Scalar argument
         }
         CImg(1,1,1,1,0).move_to(_str);
-        const CImg<charT> str = _str>'x';
+        CImg<charT> str = _str>'x';
 #ifdef cimg_mp_extern_function
         try {
           cimg_mp_extern_function;

@@ -17451,12 +17451,13 @@ namespace cimg_library_suffixed {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                 arg1 = compile(s,ns,depth1,0);
-                if (s==ss5) _cimg_mp_check_constant(arg1,1,3); // First argument is output vector size
                 CImg<ulongT>::vector(arg1,_cimg_mp_vector_size(arg1)).move_to(_opcode);
                 s = ns;
               }
+              _cimg_mp_check_constant(arg1,1,3); // Last argument = output vector size
+              _opcode.remove();
               (_opcode>'y').move_to(opcode);
-              p1 = (unsigned int)mem[opcode[2]];
+              p1 = (unsigned int)mem[arg1];
               pos = vector(p1);
               opcode[1] = pos;
               opcode[2] = p1;

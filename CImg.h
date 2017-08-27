@@ -20566,13 +20566,7 @@ namespace cimg_library_suffixed {
         CImg(1,1,1,1,0).move_to(_str);
         CImg<charT> str = _str>'x';
 #ifdef cimg_mp_extern_function
-        try {
-          cimg_mp_extern_function;
-        } catch (...) {
-          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'extern()': "
-                                      "Running with argument '%s' throwed an exception. ",
-                                      mp.imgin.pixel_type(),str._data);
-        }
+        cimg_mp_extern_function(str);
 #endif
         return cimg::type<double>::nan();
       }

@@ -18346,6 +18346,12 @@ namespace cimg_library_suffixed {
             break;
 
           case 'l' :
+            if (*ss1=='(') { // Size of image list
+              _cimg_mp_op("Function 'l()'");
+              if (ss2!=se1) break;
+              _cimg_mp_scalar0(mp_list_l);
+            }
+
             if (!std::strncmp(ss,"log(",4)) { // Natural logarithm
               _cimg_mp_op("Function 'log()'");
               arg1 = compile(ss4,se1,depth1,0);
@@ -21507,6 +21513,10 @@ namespace cimg_library_suffixed {
           default : // Dirichlet
             return (double)img.linear_atXYZC((float)x,(float)y,(float)z,(float)c,(T)0);
           }
+      }
+
+      static double mp_list_l(_cimg_math_parser& mp) {
+        return (double)mp.listout.width();
       }
 
       static double mp_list_median(_cimg_math_parser& mp) {

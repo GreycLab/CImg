@@ -19229,7 +19229,6 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
             break;
-
           }
 
           if (!std::strncmp(ss,"min(",4) || !std::strncmp(ss,"max(",4) ||

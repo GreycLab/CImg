@@ -24586,7 +24586,7 @@ namespace cimg_library_suffixed {
     double _eval(CImg<T> *const img_output, const char *const expression,
                  const double x, const double y, const double z, const double c,
                  const CImgList<T> *const list_inputs, CImgList<T> *const list_outputs) const {
-      if (!expression) return 0;
+      if (!expression || !*expression) return 0;
       if (!expression[1]) switch (*expression) { // Single-char optimization.
         case 'w' : return (double)_width;
         case 'h' : return (double)_height;
@@ -24633,7 +24633,7 @@ namespace cimg_library_suffixed {
     void _eval(CImg<t>& output, CImg<T> *const img_output, const char *const expression,
                const double x, const double y, const double z, const double c,
                const CImgList<T> *const list_inputs, CImgList<T> *const list_outputs) const {
-      if (!expression) { output.assign(1); *output = 0; }
+      if (!expression || !*expression) { output.assign(1); *output = 0; }
       if (!expression[1]) switch (*expression) { // Single-char optimization.
         case 'w' : output.assign(1); *output = (t)_width;
         case 'h' : output.assign(1); *output = (t)_height;
@@ -24673,7 +24673,7 @@ namespace cimg_library_suffixed {
     CImg<doubleT> _eval(CImg<T> *const output, const char *const expression, const CImg<t>& xyzc,
                         const CImgList<T> *const list_inputs=0, CImgList<T> *const list_outputs=0) const {
       CImg<doubleT> res(1,xyzc.size()/4);
-      if (!expression) return res.fill(0);
+      if (!expression || !*expression) return res.fill(0);
       _cimg_math_parser mp(expression,"eval",*this,output,list_inputs,list_outputs,false);
 #ifdef cimg_use_openmp
       cimg_pragma_openmp(parallel if (res._height>=512))

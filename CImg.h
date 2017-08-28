@@ -18036,6 +18036,7 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"extern(",7)) { // Extern
               _cimg_mp_op("Function 'extern()'");
+              is_parallelizable = false;
               CImg<ulongT>::vector((ulongT)mp_extern,0,0).move_to(_opcode);
               pos = 1;
               for (s = ss7; s<se; ++s) {

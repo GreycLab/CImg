@@ -33422,6 +33422,7 @@ namespace cimg_library_suffixed {
       const bool
         is_inner_parallel = _width*_height*_depth>=32768,
         is_outer_parallel = res.size()>=32768;
+      cimg::unused(is_inner_parallel,is_outer_parallel);
       cimg_abort_init;
 
       if (boundary_conditions && kernel._width==kernel._height &&
@@ -33903,6 +33904,7 @@ namespace cimg_library_suffixed {
       const bool
         is_inner_parallel = _width*_height*_depth>=32768,
         is_outer_parallel = res.size()>=32768;
+      cimg::unused(is_inner_parallel,is_outer_parallel);
       cimg_abort_init;
       cimg_pragma_openmp(parallel for cimg_openmp_if(!is_inner_parallel && is_outer_parallel))
       cimg_forC(res,c) cimg_abort_try {
@@ -34191,6 +34193,7 @@ namespace cimg_library_suffixed {
       const bool
         is_inner_parallel = _width*_height*_depth>=32768,
         is_outer_parallel = res.size()>=32768;
+      cimg::unused(is_inner_parallel,is_outer_parallel);
       cimg_abort_init;
       cimg_pragma_openmp(parallel for cimg_openmp_if(!is_inner_parallel && is_outer_parallel))
       cimg_forC(res,c) cimg_abort_try {

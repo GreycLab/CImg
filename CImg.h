@@ -14228,8 +14228,8 @@ namespace cimg_library_suffixed {
        of the image instance (written in base 10), separated by specified \c separator character.
        \param separator A \c char character which specifies the separator between values in the returned C-string.
        \param max_size Maximum size of the returned image (or \c 0 if no limits are set).
-       \param format For float/double-values, tell the printf format used to generate the ascii representation of the numbers.
-         (or \c 0 for default representation).
+       \param format For float/double-values, tell the printf format used to generate the ascii representation
+         of the numbers (or \c 0 for default representation).
        \note
        - The returned image is never empty.
        - For an empty image instance, the returned string is <tt>""</tt>.
@@ -17426,8 +17426,10 @@ namespace cimg_library_suffixed {
           case 'c' :
             if ((*ss1=='m' || *ss1=='M') && *ss2=='(') { // cm(), cM()
               _cimg_mp_op(*ss1=='m'?"Function 'cm()'":"Function 'cM()'");
-              if (*ss3=='#') { p1 = compile(ss4,se1,depth1,0,is_single); _cimg_mp_check_list(false); } // Index specified
-              else { if (ss3!=se1) break; p1 = ~0U; }
+              if (*ss3=='#') { // Index specified
+                p1 = compile(ss4,se1,depth1,0,is_single);
+                _cimg_mp_check_list(false);
+              } else { if (ss3!=se1) break; p1 = ~0U; }
               pos = scalar();
               CImg<ulongT>::vector((ulongT)(*ss1=='m'?mp_image_cm:mp_image_cM),pos,p1).move_to(code);
               _cimg_mp_return(pos);
@@ -17737,8 +17739,10 @@ namespace cimg_library_suffixed {
           case 'd' :
             if (*ss1=='(') { // Image depth
               _cimg_mp_op("Function 'd()'");
-              if (*ss2=='#') { p1 = compile(ss3,se1,depth1,0,is_single); _cimg_mp_check_list(false); } // Index specified
-              else { if (ss2!=se1) break; p1 = ~0U; }
+              if (*ss2=='#') { // Index specified
+                p1 = compile(ss3,se1,depth1,0,is_single);
+                _cimg_mp_check_list(false);
+              } else { if (ss2!=se1) break; p1 = ~0U; }
               pos = scalar();
               CImg<ulongT>::vector((ulongT)mp_image_d,pos,p1).move_to(code);
               _cimg_mp_return(pos);
@@ -18190,8 +18194,10 @@ namespace cimg_library_suffixed {
           case 'h' :
             if (*ss1=='(') { // Image height
               _cimg_mp_op("Function 'h()'");
-              if (*ss2=='#') { p1 = compile(ss3,se1,depth1,0,is_single); _cimg_mp_check_list(false); } // Index specified
-              else { if (ss2!=se1) break; p1 = ~0U; }
+              if (*ss2=='#') { // Index specified
+                p1 = compile(ss3,se1,depth1,0,is_single);
+                _cimg_mp_check_list(false);
+              } else { if (ss2!=se1) break; p1 = ~0U; }
               pos = scalar();
               CImg<ulongT>::vector((ulongT)mp_image_h,pos,p1).move_to(code);
               _cimg_mp_return(pos);
@@ -18207,8 +18213,10 @@ namespace cimg_library_suffixed {
                           *ss1=='s'?"Function 'is()'":
                           *ss1=='p'?"Function 'ip()'":
                           "Function 'ic()");
-              if (*ss3=='#') { p1 = compile(ss4,se1,depth1,0,is_single); _cimg_mp_check_list(false); } // Index specified
-              else { if (ss3!=se1) break; p1 = ~0U; }
+              if (*ss3=='#') { // Index specified
+                p1 = compile(ss4,se1,depth1,0,is_single);
+                _cimg_mp_check_list(false);
+              } else { if (ss3!=se1) break; p1 = ~0U; }
               pos = scalar();
               CImg<ulongT>::vector((ulongT)(*ss1=='m'?mp_image_im:
                                             *ss1=='M'?mp_image_iM:
@@ -18233,7 +18241,8 @@ namespace cimg_library_suffixed {
               p2 = code._width;
               arg2 = compile(++s1,s2,depth1,0,is_single);
               p3 = code._width;
-              arg3 = s2<se1?compile(++s2,se1,depth1,0,is_single):_cimg_mp_is_vector(arg2)?vector(_cimg_mp_vector_size(arg2),0):0;
+              arg3 = s2<se1?compile(++s2,se1,depth1,0,is_single):
+                _cimg_mp_is_vector(arg2)?vector(_cimg_mp_vector_size(arg2),0):0;
               _cimg_mp_check_type(arg3,3,_cimg_mp_is_vector(arg2)?2:1,_cimg_mp_vector_size(arg2));
               arg4 = _cimg_mp_vector_size(arg2);
               if (arg4) pos = vector(arg4); else pos = scalar();
@@ -18705,8 +18714,10 @@ namespace cimg_library_suffixed {
           case 's' :
             if (*ss1=='(') { // Image spectrum
               _cimg_mp_op("Function 's()'");
-              if (*ss2=='#') { p1 = compile(ss3,se1,depth1,0,is_single); _cimg_mp_check_list(false); } // Index specified
-              else { if (ss2!=se1) break; p1 = ~0U; }
+              if (*ss2=='#') { // Index specified
+                p1 = compile(ss3,se1,depth1,0,is_single);
+                _cimg_mp_check_list(false);
+              } else { if (ss2!=se1) break; p1 = ~0U; }
               pos = scalar();
               CImg<ulongT>::vector((ulongT)mp_image_s,pos,p1).move_to(code);
               _cimg_mp_return(pos);
@@ -19106,8 +19117,10 @@ namespace cimg_library_suffixed {
           case 'w' :
             if (*ss1=='(') { // Image width
               _cimg_mp_op("Function 'w()'");
-              if (*ss2=='#') { p1 = compile(ss3,se1,depth1,0,is_single); _cimg_mp_check_list(false); } // Index specified
-              else { if (ss2!=se1) break; p1 = ~0U; }
+              if (*ss2=='#') { // Index specified
+                p1 = compile(ss3,se1,depth1,0,is_single);
+                _cimg_mp_check_list(false);
+              } else { if (ss2!=se1) break; p1 = ~0U; }
               pos = scalar();
               CImg<ulongT>::vector((ulongT)mp_image_w,pos,p1).move_to(code);
               _cimg_mp_return(pos);
@@ -19115,8 +19128,10 @@ namespace cimg_library_suffixed {
 
             if (*ss1=='h' && *ss2=='(') { // Image width*height
               _cimg_mp_op("Function 'wh()'");
-              if (*ss3=='#') { p1 = compile(ss4,se1,depth1,0,is_single); _cimg_mp_check_list(false); } // Index specified
-              else { if (ss3!=se1) break; p1 = ~0U; }
+              if (*ss3=='#') { // Index specified
+                p1 = compile(ss4,se1,depth1,0,is_single);
+                _cimg_mp_check_list(false);
+              } else { if (ss3!=se1) break; p1 = ~0U; }
               pos = scalar();
               CImg<ulongT>::vector((ulongT)mp_image_wh,pos,p1).move_to(code);
               _cimg_mp_return(pos);
@@ -19124,8 +19139,10 @@ namespace cimg_library_suffixed {
 
             if (*ss1=='h' && *ss2=='d' && *ss3=='(') { // Image width*height*depth
               _cimg_mp_op("Function 'whd()'");
-              if (*ss4=='#') { p1 = compile(ss5,se1,depth1,0,is_single); _cimg_mp_check_list(false); } // Index specified
-              else { if (ss4!=se1) break; p1 = ~0U; }
+              if (*ss4=='#') { // Index specified
+                p1 = compile(ss5,se1,depth1,0,is_single);
+                _cimg_mp_check_list(false);
+              } else { if (ss4!=se1) break; p1 = ~0U; }
               pos = scalar();
               CImg<ulongT>::vector((ulongT)mp_image_whd,pos,p1).move_to(code);
               _cimg_mp_return(pos);
@@ -19133,8 +19150,10 @@ namespace cimg_library_suffixed {
 
             if (*ss1=='h' && *ss2=='d' && *ss3=='s' && *ss4=='(') { // Image width*height*depth*spectrum
               _cimg_mp_op("Function 'whds()'");
-              if (*ss5=='#') { p1 = compile(ss6,se1,depth1,0,is_single); _cimg_mp_check_list(false); } // Index specified
-              else { if (ss5!=se1) break; p1 = ~0U; }
+              if (*ss5=='#') { // Index specified
+                p1 = compile(ss6,se1,depth1,0,is_single);
+                _cimg_mp_check_list(false);
+              } else { if (ss5!=se1) break; p1 = ~0U; }
               pos = scalar();
               CImg<ulongT>::vector((ulongT)mp_image_whds,pos,p1).move_to(code);
               _cimg_mp_return(pos);
@@ -19161,8 +19180,10 @@ namespace cimg_library_suffixed {
           case 'x' :
             if ((*ss1=='m' || *ss1=='M') && *ss2=='(') { // xm(), xM()
               _cimg_mp_op(*ss1=='m'?"Function 'xm()'":"Function 'xM()'");
-              if (*ss3=='#') { p1 = compile(ss4,se1,depth1,0,is_single); _cimg_mp_check_list(false); } // Index specified
-              else { if (ss3!=se1) break; p1 = ~0U; }
+              if (*ss3=='#') { // Index specified
+                p1 = compile(ss4,se1,depth1,0,is_single);
+                _cimg_mp_check_list(false);
+              } else { if (ss3!=se1) break; p1 = ~0U; }
               pos = scalar();
               CImg<ulongT>::vector((ulongT)(*ss1=='m'?mp_image_xm:mp_image_xM),pos,p1).move_to(code);
               _cimg_mp_return(pos);
@@ -19186,8 +19207,10 @@ namespace cimg_library_suffixed {
           case 'y' :
             if ((*ss1=='m' || *ss1=='M') && *ss2=='(') { // ym(), yM()
               _cimg_mp_op(*ss1=='m'?"Function 'ym()'":"Function 'yM()'");
-              if (*ss3=='#') { p1 = compile(ss4,se1,depth1,0,is_single); _cimg_mp_check_list(false); } // Index specified
-              else { if (ss3!=se1) break; p1 = ~0U; }
+              if (*ss3=='#') { // Index specified
+                p1 = compile(ss4,se1,depth1,0,is_single);
+                _cimg_mp_check_list(false);
+              } else { if (ss3!=se1) break; p1 = ~0U; }
               pos = scalar();
               CImg<ulongT>::vector((ulongT)(*ss1=='m'?mp_image_ym:mp_image_yM),pos,p1).move_to(code);
               _cimg_mp_return(pos);
@@ -19197,8 +19220,10 @@ namespace cimg_library_suffixed {
           case 'z' :
             if ((*ss1=='m' || *ss1=='M') && *ss2=='(') { // zm(), zM()
               _cimg_mp_op(*ss1=='m'?"Function 'zm()'":"Function 'zM()'");
-              if (*ss3=='#') { p1 = compile(ss4,se1,depth1,0,is_single); _cimg_mp_check_list(false); } // Index specified
-              else { if (ss3!=se1) break; p1 = ~0U; }
+              if (*ss3=='#') { // Index specified
+                p1 = compile(ss4,se1,depth1,0,is_single);
+                _cimg_mp_check_list(false);
+              } else { if (ss3!=se1) break; p1 = ~0U; }
               pos = scalar();
               CImg<ulongT>::vector((ulongT)(*ss1=='m'?mp_image_zm:mp_image_zM),pos,p1).move_to(code);
               _cimg_mp_return(pos);

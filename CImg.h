@@ -13705,15 +13705,13 @@ namespace cimg_library_suffixed {
       return Ic + 0.5f*(dx*(-Ip + In) + dx*dx*(2*Ip - 5*Ic + 4*In - Ia) + dx*dx*dx*(-Ip + 3*Ic - 3*In + Ia));
     }
 
-    //! Return damped pixel value, using cubic interpolation and Dirichlet boundary conditions for the X-coordinate.
+    //! Return clamped pixel value, using cubic interpolation and Dirichlet boundary conditions for the X-coordinate.
     /**
-       Similar to cubic_atX(float,int,int,int,const T) const, except that you can specify the authorized minimum
-       and maximum of the returned value.
+       Similar to cubic_atX(float,int,int,int,const T) const, except that the return value is clamped to stay in the
+       min/max range of the datatype \c T.
     **/
-    Tfloat cubic_atX(const float fx, const int y, const int z, const int c, const T& out_value,
-                     const Tfloat min_value, const Tfloat max_value) const {
-      const Tfloat val = cubic_atX(fx,y,z,c,out_value);
-      return val<min_value?min_value:val>max_value?max_value:val;
+    T cubic_cut_atX(const float fx, const int y, const int z, const int c, const T& out_value) const {
+      return cimg::type<T>::cut(cubic_atX(fx,y,z,c,out_value));
     }
 
     //! Return pixel value, using cubic interpolation and Neumann boundary conditions for the X-coordinate.
@@ -13756,21 +13754,17 @@ namespace cimg_library_suffixed {
       return Ic + 0.5f*(dx*(-Ip + In) + dx*dx*(2*Ip - 5*Ic + 4*In - Ia) + dx*dx*dx*(-Ip + 3*Ic - 3*In + Ia));
     }
 
-    //! Return damped pixel value, using cubic interpolation and Neumann boundary conditions for the X-coordinate.
+    //! Return clamped pixel value, using cubic interpolation and Neumann boundary conditions for the X-coordinate.
     /**
-       Similar to cubic_atX(float,int,int,int) const, except that you can specify the authorized minimum and maximum
-       of the returned value.
+       Similar to cubic_atX(float,int,int,int) const, except that the return value is clamped to stay in the
+       min/max range of the datatype \c T.
     **/
-    Tfloat cubic_atX(const float fx, const int y, const int z, const int c,
-                     const Tfloat min_value, const Tfloat max_value) const {
-      const Tfloat val = cubic_atX(fx,y,z,c);
-      return val<min_value?min_value:val>max_value?max_value:val;
+    T cubic_cut_atX(const float fx, const int y, const int z, const int c) const {
+      return cimg::type<T>::cut(cubic_atX(fx,y,z,c));
     }
 
-    Tfloat _cubic_atX(const float fx, const int y, const int z, const int c,
-                      const Tfloat min_value, const Tfloat max_value) const {
-      const Tfloat val = _cubic_atX(fx,y,z,c);
-      return val<min_value?min_value:val>max_value?max_value:val;
+    T _cubic_cut_atX(const float fx, const int y, const int z, const int c) const {
+      return cimg::type<T>::cut(_cubic_atX(fx,y,z,c));
     }
 
     //! Return pixel value, using cubic interpolation and Dirichlet boundary conditions for the X and Y-coordinates.
@@ -13799,15 +13793,13 @@ namespace cimg_library_suffixed {
       return Ic + 0.5f*(dy*(-Ip + In) + dy*dy*(2*Ip - 5*Ic + 4*In - Ia) + dy*dy*dy*(-Ip + 3*Ic - 3*In + Ia));
     }
 
-    //! Return damped pixel value, using cubic interpolation and Dirichlet boundary conditions for the X,Y-coordinates.
+    //! Return clamped pixel value, using cubic interpolation and Dirichlet boundary conditions for the X,Y-coordinates.
     /**
-       Similar to cubic_atXY(float,float,int,int,const T) const, except that you can specify the authorized
-       minimum and maximum of the returned value.
+       Similar to cubic_atXY(float,float,int,int,const T) const, except that the return value is clamped to stay in the
+       min/max range of the datatype \c T.
     **/
-    Tfloat cubic_atXY(const float fx, const float fy, const int z, const int c, const T& out_value,
-                      const Tfloat min_value, const Tfloat max_value) const {
-      const Tfloat val = cubic_atXY(fx,fy,z,c,out_value);
-      return val<min_value?min_value:val>max_value?max_value:val;
+    T cubic_cut_atXY(const float fx, const float fy, const int z, const int c, const T& out_value) const {
+      return cimg::type<T>::cut(cubic_atXY(fx,fy,z,c,out_value));
     }
 
     //! Return pixel value, using cubic interpolation and Neumann boundary conditions for the X and Y-coordinates.
@@ -13851,21 +13843,17 @@ namespace cimg_library_suffixed {
       return Ic + 0.5f*(dy*(-Ip + In) + dy*dy*(2*Ip - 5*Ic + 4*In - Ia) + dy*dy*dy*(-Ip + 3*Ic - 3*In + Ia));
     }
 
-    //! Return damped pixel value, using cubic interpolation and Neumann boundary conditions for the X,Y-coordinates.
+    //! Return clamped pixel value, using cubic interpolation and Neumann boundary conditions for the X,Y-coordinates.
     /**
-       Similar to cubic_atXY(float,float,int,int) const, except that you can specify the authorized minimum and
-       maximum of the returned value.
+       Similar to cubic_atXY(float,float,int,int) const, except that the return value is clamped to stay in the
+       min/max range of the datatype \c T.
     **/
-    Tfloat cubic_atXY(const float fx, const float fy, const int z, const int c,
-                      const Tfloat min_value, const Tfloat max_value) const {
-      const Tfloat val = cubic_atXY(fx,fy,z,c);
-      return val<min_value?min_value:val>max_value?max_value:val;
+    T cubic_cut_atXY(const float fx, const float fy, const int z, const int c) const {
+      return cimg::type<T>::cut(cubic_atXY(fx,fy,z,c));
     }
 
-    Tfloat _cubic_atXY(const float fx, const float fy, const int z, const int c,
-                       const Tfloat min_value, const Tfloat max_value) const {
-      const Tfloat val = _cubic_atXY(fx,fy,z,c);
-      return val<min_value?min_value:val>max_value?max_value:val;
+    T _cubic_cut_atXY(const float fx, const float fy, const int z, const int c) const {
+      return cimg::type<T>::cut(_cubic_atXY(fx,fy,z,c));
     }
 
     //! Return pixel value, using cubic interpolation and Dirichlet boundary conditions for the X,Y and Z-coordinates.
@@ -13955,15 +13943,13 @@ namespace cimg_library_suffixed {
       return Ic + 0.5f*(dz*(-Ip + In) + dz*dz*(2*Ip - 5*Ic + 4*In - Ia) + dz*dz*dz*(-Ip + 3*Ic - 3*In + Ia));
     }
 
-    //! Return damped pixel value, using cubic interpolation and Dirichlet boundary conditions for the XYZ-coordinates.
+    //! Return clamped pixel value, using cubic interpolation and Dirichlet boundary conditions for the XYZ-coordinates.
     /**
-       Similar to cubic_atXYZ(float,float,float,int,const T) const, except that you can specify the authorized
-       minimum and maximum of the returned value.
+       Similar to cubic_atXYZ(float,float,float,int,const T) const, except that the return value is clamped to stay
+       in the min/max range of the datatype \c T.
     **/
-    Tfloat cubic_atXYZ(const float fx, const float fy, const float fz, const int c, const T& out_value,
-                       const Tfloat min_value, const Tfloat max_value) const {
-      const Tfloat val = cubic_atXYZ(fx,fy,fz,c,out_value);
-      return val<min_value?min_value:val>max_value?max_value:val;
+    T cubic_cut_atXYZ(const float fx, const float fy, const float fz, const int c, const T& out_value) const {
+      return cimg::type<T>::cut(cubic_atXYZ(fx,fy,fz,c,out_value));
     }
 
     //! Return pixel value, using cubic interpolation and Neumann boundary conditions for the X,Y and Z-coordinates.
@@ -14069,21 +14055,17 @@ namespace cimg_library_suffixed {
       return Ic + 0.5f*(dz*(-Ip + In) + dz*dz*(2*Ip - 5*Ic + 4*In - Ia) + dz*dz*dz*(-Ip + 3*Ic - 3*In + Ia));
     }
 
-    //! Return damped pixel value, using cubic interpolation and Neumann boundary conditions for the XYZ-coordinates.
+    //! Return clamped pixel value, using cubic interpolation and Neumann boundary conditions for the XYZ-coordinates.
     /**
-       Similar to cubic_atXYZ(float,float,float,int) const, except that you can specify the authorized minimum and
-       maximum of the returned value.
+       Similar to cubic_atXYZ(float,float,float,int) const, except that the return value is clamped to stay in the
+       min/max range of the datatype \c T.
     **/
-    Tfloat cubic_atXYZ(const float fx, const float fy, const float fz, const int c,
-                       const Tfloat min_value, const Tfloat max_value) const {
-      const Tfloat val = cubic_atXYZ(fx,fy,fz,c);
-      return val<min_value?min_value:val>max_value?max_value:val;
+    T cubic_cut_atXYZ(const float fx, const float fy, const float fz, const int c) const {
+      return cimg::type<T>::cut(cubic_atXYZ(fx,fy,fz,c));
     }
 
-    Tfloat _cubic_atXYZ(const float fx, const float fy, const float fz, const int c,
-                        const Tfloat min_value, const Tfloat max_value) const {
-      const Tfloat val = _cubic_atXYZ(fx,fy,fz,c);
-      return val<min_value?min_value:val>max_value?max_value:val;
+    T _cubic_cut_atXYZ(const float fx, const float fy, const float fz, const int c) const {
+      return cimg::type<T>::cut(_cubic_atXYZ(fx,fy,fz,c));
     }
 
     //! Set pixel value, using linear interpolation for the X-coordinates.
@@ -31019,8 +31001,7 @@ namespace cimg_library_suffixed {
             const float xc = x - rw2, yc = y - rh2,
               mx = cimg::mod(w2 + xc*ca + yc*sa,ww),
               my = cimg::mod(h2 - xc*sa + yc*ca,hh);
-            const Tfloat val = _cubic_atXY(mx<width()?mx:ww - mx - 1,my<height()?my:hh - my - 1,z,c);
-            res(x,y,z,c) = cimg::type<T>::cut(val);
+            res(x,y,z,c) = _cubic_cut_atXY(mx<width()?mx:ww - mx - 1,my<height()?my:hh - my - 1,z,c);
           }
         } break;
         case 1 : { // Linear interpolation
@@ -31052,9 +31033,8 @@ namespace cimg_library_suffixed {
           cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=2048))
             cimg_forXYZC(res,x,y,z,c) {
             const float xc = x - rw2, yc = y - rh2;
-            const Tfloat val = _cubic_atXY(cimg::mod(w2 + xc*ca + yc*sa,(float)width()),
+            res(x,y,z,c) = _cubic_cut_atXY(cimg::mod(w2 + xc*ca + yc*sa,(float)width()),
                                            cimg::mod(h2 - xc*sa + yc*ca,(float)height()),z,c);
-            res(x,y,z,c) = cimg::type<T>::cut(val);
           }
         } break;
         case 1 : { // Linear interpolation
@@ -31081,8 +31061,7 @@ namespace cimg_library_suffixed {
           cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=2048))
           cimg_forXYZC(res,x,y,z,c) {
             const float xc = x - rw2, yc = y - rh2;
-            const Tfloat val = _cubic_atXY(w2 + xc*ca + yc*sa,h2 - xc*sa + yc*ca,z,c);
-            res(x,y,z,c) = cimg::type<T>::cut(val);
+            res(x,y,z,c) = _cubic_cut_atXY(w2 + xc*ca + yc*sa,h2 - xc*sa + yc*ca,z,c);
           }
         } break;
         case 1 : { // Linear interpolation
@@ -31108,8 +31087,7 @@ namespace cimg_library_suffixed {
           cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=2048))
           cimg_forXYZC(res,x,y,z,c) {
             const float xc = x - rw2, yc = y - rh2;
-            const Tfloat val = cubic_atXY(w2 + xc*ca + yc*sa,h2 - xc*sa + yc*ca,z,c,(T)0);
-            res(x,y,z,c) = cimg::type<T>::cut(val);
+            res(x,y,z,c) = cubic_cut_atXY(w2 + xc*ca + yc*sa,h2 - xc*sa + yc*ca,z,c,(T)0);
           }
         } break;
         case 1 : { // Linear interpolation
@@ -31227,9 +31205,9 @@ namespace cimg_library_suffixed {
               X = cimg::mod((float)(w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc),ww),
               Y = cimg::mod((float)(h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc),hh),
               Z = cimg::mod((float)(d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc),dd);
-            cimg_forC(res,c) res(x,y,z,c) = cimg::type<T>::cut(_cubic_atXYZ(X<width()?X:ww - X - 1,
-                                                                            Y<height()?Y:hh - Y - 1,
-                                                                            Z<depth()?Z:dd - Z - z,c));
+            cimg_forC(res,c) res(x,y,z,c) = _cubic_cut_atXYZ(X<width()?X:ww - X - 1,
+                                                             Y<height()?Y:hh - Y - 1,
+                                                             Z<depth()?Z:dd - Z - z,c);
           }
         } break;
         case 1 : { // Linear interpolation
@@ -31272,7 +31250,7 @@ namespace cimg_library_suffixed {
               X = cimg::mod((float)(w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc),(float)width()),
               Y = cimg::mod((float)(h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc),(float)height()),
               Z = cimg::mod((float)(d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc),(float)depth());
-            cimg_forC(res,c) res(x,y,z,c) = cimg::type<T>::cut(_cubic_atXYZ(X,Y,Z,c));
+            cimg_forC(res,c) res(x,y,z,c) = _cubic_cut_atXYZ(X,Y,Z,c);
           }
         } break;
         case 1 : { // Linear interpolation
@@ -31309,7 +31287,7 @@ namespace cimg_library_suffixed {
               X = w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,
               Y = h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,
               Z = d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc;
-            cimg_forC(res,c) res(x,y,z,c) = cimg::type<T>::cut(_cubic_atXYZ(X,Y,Z,c));
+            cimg_forC(res,c) res(x,y,z,c) = _cubic_cut_atXYZ(X,Y,Z,c);
           }
         } break;
         case 1 : { // Linear interpolation
@@ -31346,7 +31324,7 @@ namespace cimg_library_suffixed {
               X = w2 + R(0,0)*xc + R(1,0)*yc + R(2,0)*zc,
               Y = h2 + R(0,1)*xc + R(1,1)*yc + R(2,1)*zc,
               Z = d2 + R(0,2)*xc + R(1,2)*yc + R(2,2)*zc;
-            cimg_forC(res,c) res(x,y,z,c) = cimg::type<T>::cut(cubic_atXYZ(X,Y,Z,c,(T)0));
+            cimg_forC(res,c) res(x,y,z,c) = cubic_cut_atXYZ(X,Y,Z,c,(T)0);
           }
         } break;
         case 1 : { // Linear interpolation
@@ -31445,7 +31423,7 @@ namespace cimg_library_suffixed {
                 const t *ptrs0 = warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
                   const float mx = cimg::mod(x - (float)*(ptrs0++),w2);
-                  *(ptrd++) = (T)_cubic_atX(mx<width()?mx:w2 - mx - 1,y,z,c);
+                  *(ptrd++) = _cubic_cut_atX(mx<width()?mx:w2 - mx - 1,y,z,c);
                 }
               }
             } break;
@@ -31453,21 +31431,21 @@ namespace cimg_library_suffixed {
               cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)_cubic_atX(cimg::mod(x - (float)*(ptrs0++),(float)_width),y,z,c);
+                cimg_forX(res,x) *(ptrd++) = _cubic_cut_atX(cimg::mod(x - (float)*(ptrs0++),(float)_width),y,z,c);
               }
               break;
             case 1 : // Neumann
               cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)_cubic_atX(x - (float)*(ptrs0++),y,z,c);
+                cimg_forX(res,x) *(ptrd++) = _cubic_cut_atX(x - (float)*(ptrs0++),y,z,c);
               }
               break;
             default : // Dirichlet
               cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)cubic_atX(x - (float)*(ptrs0++),y,z,c,(T)0);
+                cimg_forX(res,x) *(ptrd++) = cubic_cut_atX(x - (float)*(ptrs0++),y,z,c,(T)0);
               }
             }
           else if (interpolation==1) // Linear interpolation
@@ -31546,7 +31524,7 @@ namespace cimg_library_suffixed {
                 const t *ptrs0 = warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
                   const float mx = cimg::mod((float)*(ptrs0++),w2);
-                  *(ptrd++) = (T)_cubic_atX(mx<width()?mx:w2 - mx - 1,0,0,c);
+                  *(ptrd++) = _cubic_cut_atX(mx<width()?mx:w2 - mx - 1,0,0,c);
                 }
               }
             } break;
@@ -31554,21 +31532,21 @@ namespace cimg_library_suffixed {
               cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)_cubic_atX(cimg::mod((float)*(ptrs0++),(float)_width),0,0,c);
+                cimg_forX(res,x) *(ptrd++) = _cubic_cut_atX(cimg::mod((float)*(ptrs0++),(float)_width),0,0,c);
               }
               break;
             case 1 : // Neumann
               cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)_cubic_atX((float)*(ptrs0++),0,0,c);
+                cimg_forX(res,x) *(ptrd++) = _cubic_cut_atX((float)*(ptrs0++),0,0,c);
               }
               break;
             default : // Dirichlet
               cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)cubic_atX((float)*(ptrs0++),0,0,c,(T)0);
+                cimg_forX(res,x) *(ptrd++) = cubic_cut_atX((float)*(ptrs0++),0,0,c,(T)0);
               }
             }
           else if (interpolation==1) // Linear interpolation
@@ -31683,7 +31661,7 @@ namespace cimg_library_suffixed {
                   const float
                     mx = cimg::mod(x - (float)*(ptrs0++),w2),
                     my = cimg::mod(y - (float)*(ptrs1++),h2);
-                  *(ptrd++) = (T)_cubic_atXY(mx<width()?mx:w2 - mx - 1,my<height()?my:h2 - my - 1,z,c);
+                  *(ptrd++) = _cubic_cut_atXY(mx<width()?mx:w2 - mx - 1,my<height()?my:h2 - my - 1,z,c);
                 }
               }
             } break;
@@ -31691,22 +31669,22 @@ namespace cimg_library_suffixed {
               cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)_cubic_atXY(cimg::mod(x - (float)*(ptrs0++),(float)_width),
-                                                            cimg::mod(y - (float)*(ptrs1++),(float)_height),z,c);
+                cimg_forX(res,x) *(ptrd++) = _cubic_cut_atXY(cimg::mod(x - (float)*(ptrs0++),(float)_width),
+                                                             cimg::mod(y - (float)*(ptrs1++),(float)_height),z,c);
               }
               break;
             case 1 : // Neumann
               cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)_cubic_atXY(x - (float)*(ptrs0++),y - (float)*(ptrs1++),z,c);
+                cimg_forX(res,x) *(ptrd++) = _cubic_cut_atXY(x - (float)*(ptrs0++),y - (float)*(ptrs1++),z,c);
               }
               break;
             default : // Dirichlet
               cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)cubic_atXY(x - (float)*(ptrs0++),y - (float)*(ptrs1++),z,c,(T)0);
+                cimg_forX(res,x) *(ptrd++) = cubic_cut_atXY(x - (float)*(ptrs0++),y - (float)*(ptrs1++),z,c,(T)0);
               }
             }
           else if (interpolation==1) // Linear interpolation
@@ -31792,7 +31770,7 @@ namespace cimg_library_suffixed {
                   const float
                     mx = cimg::mod((float)*(ptrs0++),w2),
                     my = cimg::mod((float)*(ptrs1++),h2);
-                  *(ptrd++) = (T)_cubic_atXY(mx<width()?mx:w2 - mx - 1,my<height()?my:h2 - my - 1,0,c);
+                  *(ptrd++) = _cubic_cut_atXY(mx<width()?mx:w2 - mx - 1,my<height()?my:h2 - my - 1,0,c);
                 }
               }
             } break;
@@ -31800,22 +31778,22 @@ namespace cimg_library_suffixed {
               cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)_cubic_atXY(cimg::mod((float)*(ptrs0++),(float)_width),
-                                                            cimg::mod((float)*(ptrs1++),(float)_height),0,c);
+                cimg_forX(res,x) *(ptrd++) = _cubic_cut_atXY(cimg::mod((float)*(ptrs0++),(float)_width),
+                                                             cimg::mod((float)*(ptrs1++),(float)_height),0,c);
               }
               break;
             case 1 : // Neumann
               cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)_cubic_atXY((float)*(ptrs0++),(float)*(ptrs1++),0,c);
+                cimg_forX(res,x) *(ptrd++) = _cubic_cut_atXY((float)*(ptrs0++),(float)*(ptrs1++),0,c);
               }
               break;
             default : // Dirichlet
               cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(res.size()>=4096))
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)cubic_atXY((float)*(ptrs0++),(float)*(ptrs1++),0,c,(T)0);
+                cimg_forX(res,x) *(ptrd++) = cubic_cut_atXY((float)*(ptrs0++),(float)*(ptrs1++),0,c,(T)0);
               }
             }
           else if (interpolation==1) // Linear interpolation
@@ -31949,9 +31927,9 @@ namespace cimg_library_suffixed {
                     mx = cimg::mod(x - (float)*(ptrs0++),w2),
                     my = cimg::mod(y - (float)*(ptrs1++),h2),
                     mz = cimg::mod(z - (float)*(ptrs2++),d2);
-                  *(ptrd++) = (T)_cubic_atXYZ(mx<width()?mx:w2 - mx - 1,
-                                              my<height()?my:h2 - my - 1,
-                                              mz<depth()?mz:d2 - mz - 1,c);
+                  *(ptrd++) = _cubic_cut_atXYZ(mx<width()?mx:w2 - mx - 1,
+                                               my<height()?my:h2 - my - 1,
+                                               mz<depth()?mz:d2 - mz - 1,c);
                 }
               }
             } break;
@@ -31960,9 +31938,9 @@ namespace cimg_library_suffixed {
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1), *ptrs2 = warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)_cubic_atXYZ(cimg::mod(x - (float)*(ptrs0++),(float)_width),
-                                                             cimg::mod(y - (float)*(ptrs1++),(float)_height),
-                                                             cimg::mod(z - (float)*(ptrs2++),(float)_depth),c);
+                cimg_forX(res,x) *(ptrd++) = _cubic_cut_atXYZ(cimg::mod(x - (float)*(ptrs0++),(float)_width),
+                                                              cimg::mod(y - (float)*(ptrs1++),(float)_height),
+                                                              cimg::mod(z - (float)*(ptrs2++),(float)_depth),c);
               }
               break;
             case 1 : // Neumann
@@ -31971,7 +31949,7 @@ namespace cimg_library_suffixed {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1), *ptrs2 = warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x)
-                  *(ptrd++) = (T)_cubic_atXYZ(x - (float)*(ptrs0++),y - (float)*(ptrs1++),z - (float)*(ptrs2++),c);
+                  *(ptrd++) = _cubic_cut_atXYZ(x - (float)*(ptrs0++),y - (float)*(ptrs1++),z - (float)*(ptrs2++),c);
               }
               break;
             default : // Dirichlet
@@ -31980,7 +31958,7 @@ namespace cimg_library_suffixed {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1), *ptrs2 = warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x)
-                  *(ptrd++) = (T)cubic_atXYZ(x - (float)*(ptrs0++),y - (float)*(ptrs1++),z - (float)*(ptrs2++),c,(T)0);
+                  *(ptrd++) = cubic_cut_atXYZ(x - (float)*(ptrs0++),y - (float)*(ptrs1++),z - (float)*(ptrs2++),c,(T)0);
               }
             }
           else if (interpolation==1) // Linear interpolation
@@ -32086,9 +32064,9 @@ namespace cimg_library_suffixed {
                     mx = cimg::mod((float)*(ptrs0++),w2),
                     my = cimg::mod((float)*(ptrs1++),h2),
                     mz = cimg::mod((float)*(ptrs2++),d2);
-                  *(ptrd++) = (T)_cubic_atXYZ(mx<width()?mx:w2 - mx - 1,
-                                              my<height()?my:h2 - my - 1,
-                                              mz<depth()?mz:d2 - mz - 1,c);
+                  *(ptrd++) = _cubic_cut_atXYZ(mx<width()?mx:w2 - mx - 1,
+                                               my<height()?my:h2 - my - 1,
+                                               mz<depth()?mz:d2 - mz - 1,c);
                 }
               }
             } break;
@@ -32097,9 +32075,9 @@ namespace cimg_library_suffixed {
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1), *ptrs2 = warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)_cubic_atXYZ(cimg::mod((float)*(ptrs0++),(float)_width),
-                                                             cimg::mod((float)*(ptrs1++),(float)_height),
-                                                             cimg::mod((float)*(ptrs2++),(float)_depth),c);
+                cimg_forX(res,x) *(ptrd++) = _cubic_cut_atXYZ(cimg::mod((float)*(ptrs0++),(float)_width),
+                                                              cimg::mod((float)*(ptrs1++),(float)_height),
+                                                              cimg::mod((float)*(ptrs2++),(float)_depth),c);
               }
               break;
             case 1 : // Neumann
@@ -32107,7 +32085,7 @@ namespace cimg_library_suffixed {
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1), *ptrs2 = warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)_cubic_atXYZ((float)*(ptrs0++),(float)*(ptrs1++),(float)*(ptrs2++),c);
+                cimg_forX(res,x) *(ptrd++) = _cubic_cut_atXYZ((float)*(ptrs0++),(float)*(ptrs1++),(float)*(ptrs2++),c);
               }
               break;
             default : // Dirichlet
@@ -32115,8 +32093,8 @@ namespace cimg_library_suffixed {
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = warp.data(0,y,z,0), *ptrs1 = warp.data(0,y,z,1), *ptrs2 = warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)cubic_atXYZ((float)*(ptrs0++),(float)*(ptrs1++),(float)*(ptrs2++),
-                                                            c,(T)0);
+                cimg_forX(res,x) *(ptrd++) = cubic_cut_atXYZ((float)*(ptrs0++),(float)*(ptrs1++),(float)*(ptrs2++),
+                                                             c,(T)0);
               }
             }
           else if (interpolation==1) // Linear interpolation

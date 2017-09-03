@@ -18023,12 +18023,12 @@ namespace cimg_library_suffixed {
               _cimg_mp_return_nan();
             }
 
-            if (!std::strncmp(ss,"extern(",7)) { // Extern
-              _cimg_mp_op("Function 'extern()'");
+            if (!std::strncmp(ss,"ext(",4)) { // Extern
+              _cimg_mp_op("Function 'ext()'");
               if (!is_single) is_parallelizable = false;
-              CImg<ulongT>::vector((ulongT)mp_extern,0,0).move_to(_opcode);
+              CImg<ulongT>::vector((ulongT)mp_ext,0,0).move_to(_opcode);
               pos = 1;
-              for (s = ss7; s<se; ++s) {
+              for (s = ss4; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                 arg1 = compile(s,ns,depth1,0,is_single);
@@ -20576,7 +20576,7 @@ namespace cimg_library_suffixed {
         return (double)(_mp_arg(2)==_mp_arg(3));
       }
 
-      static double mp_extern(_cimg_math_parser& mp) {
+      static double mp_ext(_cimg_math_parser& mp) {
         const unsigned int nb_args = (unsigned int)(mp.opcode[2] - 3)/2;
         CImgList<charT> _str;
         for (unsigned int n = 0; n<nb_args; ++n) {
@@ -20590,8 +20590,8 @@ namespace cimg_library_suffixed {
         }
         CImg(1,1,1,1,0).move_to(_str);
         CImg<charT> str = _str>'x';
-#ifdef cimg_mp_extern_function
-        cimg_mp_extern_function(str);
+#ifdef cimg_mp_ext_function
+        cimg_mp_ext_function(str);
 #endif
         return cimg::type<double>::nan();
       }

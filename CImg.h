@@ -4966,20 +4966,6 @@ namespace cimg_library_suffixed {
               *ptr = (val>>24)|((val>>8)&0xff00)|((val<<8)&0xff0000)|(val<<24);
             }
         } break;
-    // Reference for 64 bit byteswap
-    // https://blogs.oracle.com/DanX/entry/optimizing_byte_swapping_for_fun
-      case 8 : { for (unsigned long long *ptr = (unsigned long long*)buffer + size; ptr>(unsigned long long*)buffer; ) {
-        const unsigned long long val = *(--ptr);
-        *ptr =  (((val& 0xff00000000000000ull) >> 56)  |
-                 ((val& 0x00ff000000000000ull) >> 40)  |
-                 ((val& 0x0000ff0000000000ull) >> 24)  |
-                 ((val& 0x000000ff00000000ull) >>  8)  |
-                 ((val& 0x00000000ff000000ull) <<  8)  |
-                 ((val& 0x0000000000ff0000ull) << 24)  |
-                 ((val& 0x000000000000ff00ull) << 40)  |
-                 ((val& 0x00000000000000ffull) << 56));
-      }
-      } break;
         default : { for (T* ptr = buffer + size; ptr>buffer; ) {
               unsigned char *pb = (unsigned char*)(--ptr), *pe = pb + sizeof(T);
               for (int i = 0; i<(int)sizeof(T)/2; ++i) swap(*(pb++),*(--pe));

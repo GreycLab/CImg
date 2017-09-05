@@ -4970,7 +4970,7 @@ namespace cimg_library_suffixed {
         } break;
         case 8 : {
           for (cimg_uint64 *ptr = (cimg_uint64*)buffer + size; ptr>(cimg_uint64*)buffer; ) {
-            const unsigned long long val = *(--ptr);
+            const cimg_uint64 val = *(--ptr);
             *ptr =  (((val&0xff00000000000000ull)>>56) |
                      ((val&0x00ff000000000000ull)>>40) |
                      ((val&0x0000ff0000000000ull)>>24) |
@@ -4981,10 +4981,11 @@ namespace cimg_library_suffixed {
                      ((val&0x00000000000000ffull)<<56));
           }
         } break;
-        default : { for (T* ptr = buffer + size; ptr>buffer; ) {
-              unsigned char *pb = (unsigned char*)(--ptr), *pe = pb + sizeof(T);
-              for (int i = 0; i<(int)sizeof(T)/2; ++i) swap(*(pb++),*(--pe));
-            }
+        default : {
+          for (T* ptr = buffer + size; ptr>buffer; ) {
+            unsigned char *pb = (unsigned char*)(--ptr), *pe = pb + sizeof(T);
+            for (int i = 0; i<(int)sizeof(T)/2; ++i) swap(*(pb++),*(--pe));
+          }
         }
         }
     }

@@ -4968,6 +4968,7 @@ namespace cimg_library_suffixed {
             *ptr = (val>>24)|((val>>8)&0xff00)|((val<<8)&0xff0000)|(val<<24);
           }
         } break;
+#if cimg_use_cpp11==1
         case 8 : {
           for (cimg_uint64 *ptr = (cimg_uint64*)buffer + size; ptr>(cimg_uint64*)buffer; ) {
             const cimg_uint64 val = *(--ptr);
@@ -4981,6 +4982,7 @@ namespace cimg_library_suffixed {
                      ((val&0x00000000000000ffull)<<56));
           }
         } break;
+#endif
         default : {
           for (T* ptr = buffer + size; ptr>buffer; ) {
             unsigned char *pb = (unsigned char*)(--ptr), *pe = pb + sizeof(T);

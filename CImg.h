@@ -33449,7 +33449,7 @@ namespace cimg_library_suffixed {
                                    const bool is_normalized, const bool is_convolution) const {
       if (is_empty() || !kernel) return *this;
       typedef _cimg_Ttfloat Ttfloat;
-      CImg<Ttfloat> res(_width,_height,_depth,_spectrum*kernel._spectrum);
+      CImg<Ttfloat> res(_width,_height,_depth,std::max(_spectrum,kernel._spectrum));
       const bool
         is_inner_parallel = _width*_height*_depth>=32768,
         is_outer_parallel = res.size()>=32768;
@@ -33473,13 +33473,13 @@ namespace cimg_library_suffixed {
           cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
           cimg_forC(res,c) {
             cimg_abort_test();
-            const CImg<T> _img = get_shared_channel(c%_spectrum);
-            const CImg<t> _K = _kernel.get_shared_channel(c/_spectrum);
+            const CImg<T> img = get_shared_channel(c%_spectrum);
+            const CImg<t> K = _kernel.get_shared_channel(c%kernel._spectrum);
             CImg<T> I(27);
             Ttfloat *ptrd = res.data(0,0,0,c);
             if (is_normalized) {
-              const Ttfloat _M = (Ttfloat)_K.magnitude(2), M = _M*_M;
-              cimg_for3x3x3(_img,x,y,z,0,I,T) {
+              const Ttfloat _M = (Ttfloat)K.magnitude(2), M = _M*_M;
+              cimg_for3x3x3(img,x,y,z,0,I,T) {
                 const Ttfloat N = M*(I[ 0]*I[ 0] + I[ 1]*I[ 1] + I[ 2]*I[ 2] +
                                      I[ 3]*I[ 3] + I[ 4]*I[ 4] + I[ 5]*I[ 5] +
                                      I[ 6]*I[ 6] + I[ 7]*I[ 7] + I[ 8]*I[ 8] +
@@ -33489,39 +33489,39 @@ namespace cimg_library_suffixed {
                                      I[18]*I[18] + I[19]*I[19] + I[20]*I[20] +
                                      I[21]*I[21] + I[22]*I[22] + I[23]*I[23] +
                                      I[24]*I[24] + I[25]*I[25] + I[26]*I[26]);
-                *(ptrd++) = (Ttfloat)(N?(I[ 0]*_K[ 0] + I[ 1]*_K[ 1] + I[ 2]*_K[ 2] +
-                                         I[ 3]*_K[ 3] + I[ 4]*_K[ 4] + I[ 5]*_K[ 5] +
-                                         I[ 6]*_K[ 6] + I[ 7]*_K[ 7] + I[ 8]*_K[ 8] +
-                                         I[ 9]*_K[ 9] + I[10]*_K[10] + I[11]*_K[11] +
-                                         I[12]*_K[12] + I[13]*_K[13] + I[14]*_K[14] +
-                                         I[15]*_K[15] + I[16]*_K[16] + I[17]*_K[17] +
-                                         I[18]*_K[18] + I[19]*_K[19] + I[20]*_K[20] +
-                                         I[21]*_K[21] + I[22]*_K[22] + I[23]*_K[23] +
-                                         I[24]*_K[24] + I[25]*_K[25] + I[26]*_K[26])/std::sqrt(N):0);
+                *(ptrd++) = (Ttfloat)(N?(I[ 0]*K[ 0] + I[ 1]*K[ 1] + I[ 2]*K[ 2] +
+                                         I[ 3]*K[ 3] + I[ 4]*K[ 4] + I[ 5]*K[ 5] +
+                                         I[ 6]*K[ 6] + I[ 7]*K[ 7] + I[ 8]*K[ 8] +
+                                         I[ 9]*K[ 9] + I[10]*K[10] + I[11]*K[11] +
+                                         I[12]*K[12] + I[13]*K[13] + I[14]*K[14] +
+                                         I[15]*K[15] + I[16]*K[16] + I[17]*K[17] +
+                                         I[18]*K[18] + I[19]*K[19] + I[20]*K[20] +
+                                         I[21]*K[21] + I[22]*K[22] + I[23]*K[23] +
+                                         I[24]*K[24] + I[25]*K[25] + I[26]*K[26])/std::sqrt(N):0);
               }
-            } else cimg_for3x3x3(_img,x,y,z,0,I,T)
-                     *(ptrd++) = (Ttfloat)(I[ 0]*_K[ 0] + I[ 1]*_K[ 1] + I[ 2]*_K[ 2] +
-                                           I[ 3]*_K[ 3] + I[ 4]*_K[ 4] + I[ 5]*_K[ 5] +
-                                           I[ 6]*_K[ 6] + I[ 7]*_K[ 7] + I[ 8]*_K[ 8] +
-                                           I[ 9]*_K[ 9] + I[10]*_K[10] + I[11]*_K[11] +
-                                           I[12]*_K[12] + I[13]*_K[13] + I[14]*_K[14] +
-                                           I[15]*_K[15] + I[16]*_K[16] + I[17]*_K[17] +
-                                           I[18]*_K[18] + I[19]*_K[19] + I[20]*_K[20] +
-                                           I[21]*_K[21] + I[22]*_K[22] + I[23]*_K[23] +
-                                           I[24]*_K[24] + I[25]*_K[25] + I[26]*_K[26]);
+            } else cimg_for3x3x3(img,x,y,z,0,I,T)
+                     *(ptrd++) = (Ttfloat)(I[ 0]*K[ 0] + I[ 1]*K[ 1] + I[ 2]*K[ 2] +
+                                           I[ 3]*K[ 3] + I[ 4]*K[ 4] + I[ 5]*K[ 5] +
+                                           I[ 6]*K[ 6] + I[ 7]*K[ 7] + I[ 8]*K[ 8] +
+                                           I[ 9]*K[ 9] + I[10]*K[10] + I[11]*K[11] +
+                                           I[12]*K[12] + I[13]*K[13] + I[14]*K[14] +
+                                           I[15]*K[15] + I[16]*K[16] + I[17]*K[17] +
+                                           I[18]*K[18] + I[19]*K[19] + I[20]*K[20] +
+                                           I[21]*K[21] + I[22]*K[22] + I[23]*K[23] +
+                                           I[24]*K[24] + I[25]*K[25] + I[26]*K[26]);
           }
         } break;
         case 2 : {
           cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
           cimg_forC(res,c) {
             cimg_abort_test();
-            const CImg<T> _img = get_shared_channel(c%_spectrum);
-            const CImg<t> K = _kernel.get_shared_channel(c/_spectrum);
+            const CImg<T> img = get_shared_channel(c%_spectrum);
+            const CImg<t> K = _kernel.get_shared_channel(c%kernel._spectrum);
             CImg<T> I(8);
             Ttfloat *ptrd = res.data(0,0,0,c);
             if (is_normalized) {
               const Ttfloat _M = (Ttfloat)K.magnitude(2), M = _M*_M;
-              cimg_for2x2x2(_img,x,y,z,0,I,T) {
+              cimg_for2x2x2(img,x,y,z,0,I,T) {
                 const Ttfloat N = M*(I[0]*I[0] + I[1]*I[1] +
                                      I[2]*I[2] + I[3]*I[3] +
                                      I[4]*I[4] + I[5]*I[5] +
@@ -33531,7 +33531,7 @@ namespace cimg_library_suffixed {
                                          I[4]*K[4] + I[5]*K[5] +
                                          I[6]*K[6] + I[7]*K[7])/std::sqrt(N):0);
               }
-            } else cimg_for2x2x2(_img,x,y,z,0,I,T)
+            } else cimg_for2x2x2(img,x,y,z,0,I,T)
                      *(ptrd++) = (Ttfloat)(I[0]*K[0] + I[1]*K[1] +
                                            I[2]*K[2] + I[3]*K[3] +
                                            I[4]*K[4] + I[5]*K[5] +
@@ -33545,13 +33545,13 @@ namespace cimg_library_suffixed {
             cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
             cimg_forC(res,c) {
               cimg_abort_test();
-              const CImg<T> _img = get_shared_channel(c%_spectrum);
-              const CImg<t> K = _kernel.get_shared_channel(c/_spectrum);
+              const CImg<T> img = get_shared_channel(c%_spectrum);
+              const CImg<t> K = _kernel.get_shared_channel(c%kernel._spectrum);
               CImg<T> I(36);
               Ttfloat *ptrd = res.data(0,0,0,c);
               if (is_normalized) {
                 const Ttfloat _M = (Ttfloat)K.magnitude(2), M = _M*_M;
-                cimg_forZ(_img,z) cimg_for6x6(_img,x,y,z,0,I,T) {
+                cimg_forZ(img,z) cimg_for6x6(img,x,y,z,0,I,T) {
                   const Ttfloat N = M*(I[ 0]*I[ 0] + I[ 1]*I[ 1] + I[ 2]*I[ 2] + I[ 3]*I[ 3] + I[ 4]*I[ 4] +
                                        I[ 5]*I[ 5] + I[ 6]*I[ 6] + I[ 7]*I[ 7] + I[ 8]*I[ 8] + I[ 9]*I[ 9] +
                                        I[10]*I[10] + I[11]*I[11] + I[12]*I[12] + I[13]*I[13] + I[14]*I[14] +
@@ -33571,7 +33571,7 @@ namespace cimg_library_suffixed {
                                            I[32]*K[32] + I[33]*K[33] + I[34]*K[34] + I[35]*K[35])/
                                         std::sqrt(N):0);
                 }
-              } else cimg_forZ(_img,z) cimg_for6x6(_img,x,y,z,0,I,T)
+              } else cimg_forZ(img,z) cimg_for6x6(img,x,y,z,0,I,T)
                        *(ptrd++) = (Ttfloat)(I[ 0]*K[ 0] + I[ 1]*K[ 1] + I[ 2]*K[ 2] + I[ 3]*K[ 3] +
                                              I[ 4]*K[ 4] + I[ 5]*K[ 5] + I[ 6]*K[ 6] + I[ 7]*K[ 7] +
                                              I[ 8]*K[ 8] + I[ 9]*K[ 9] + I[10]*K[10] + I[11]*K[11] +
@@ -33587,13 +33587,13 @@ namespace cimg_library_suffixed {
             cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
             cimg_forC(res,c) {
               cimg_abort_test();
-              const CImg<T> _img = get_shared_channel(c%_spectrum);
-              const CImg<t> K = _kernel.get_shared_channel(c/_spectrum);
+              const CImg<T> img = get_shared_channel(c%_spectrum);
+              const CImg<t> K = _kernel.get_shared_channel(c%kernel._spectrum);
               CImg<T> I(25);
               Ttfloat *ptrd = res.data(0,0,0,c);
               if (is_normalized) {
                 const Ttfloat _M = (Ttfloat)K.magnitude(2), M = _M*_M;
-                cimg_forZ(_img,z) cimg_for5x5(_img,x,y,z,0,I,T) {
+                cimg_forZ(img,z) cimg_for5x5(img,x,y,z,0,I,T) {
                   const Ttfloat N = M*(I[ 0]*I[ 0] + I[ 1]*I[ 1] + I[ 2]*I[ 2] + I[ 3]*I[ 3] + I[ 4]*I[ 4] +
                                        I[ 5]*I[ 5] + I[ 6]*I[ 6] + I[ 7]*I[ 7] + I[ 8]*I[ 8] + I[ 9]*I[ 9] +
                                        I[10]*I[10] + I[11]*I[11] + I[12]*I[12] + I[13]*I[13] + I[14]*I[14] +
@@ -33607,7 +33607,7 @@ namespace cimg_library_suffixed {
                                            I[20]*K[20] + I[21]*K[21] + I[22]*K[22] + I[23]*K[23] +
                                            I[24]*K[24])/std::sqrt(N):0);
                 }
-              } else cimg_forZ(_img,z) cimg_for5x5(_img,x,y,z,0,I,T)
+              } else cimg_forZ(img,z) cimg_for5x5(img,x,y,z,0,I,T)
                        *(ptrd++) = (Ttfloat)(I[ 0]*K[ 0] + I[ 1]*K[ 1] + I[ 2]*K[ 2] + I[ 3]*K[ 3] +
                                              I[ 4]*K[ 4] + I[ 5]*K[ 5] + I[ 6]*K[ 6] + I[ 7]*K[ 7] +
                                              I[ 8]*K[ 8] + I[ 9]*K[ 9] + I[10]*K[10] + I[11]*K[11] +
@@ -33621,13 +33621,13 @@ namespace cimg_library_suffixed {
             cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
             cimg_forC(res,c) {
               cimg_abort_test();
-              const CImg<T> _img = get_shared_channel(c%_spectrum);
-              const CImg<t> K = _kernel.get_shared_channel(c/_spectrum);
+              const CImg<T> img = get_shared_channel(c%_spectrum);
+              const CImg<t> K = _kernel.get_shared_channel(c%kernel._spectrum);
               CImg<T> I(16);
               Ttfloat *ptrd = res.data(0,0,0,c);
               if (is_normalized) {
                 const Ttfloat _M = (Ttfloat)K.magnitude(2), M = _M*_M;
-                cimg_forZ(_img,z) cimg_for4x4(_img,x,y,z,0,I,T) {
+                cimg_forZ(img,z) cimg_for4x4(img,x,y,z,0,I,T) {
                   const Ttfloat N = M*(I[ 0]*I[ 0] + I[ 1]*I[ 1] + I[ 2]*I[ 2] + I[ 3]*I[ 3] +
                                        I[ 4]*I[ 4] + I[ 5]*I[ 5] + I[ 6]*I[ 6] + I[ 7]*I[ 7] +
                                        I[ 8]*I[ 8] + I[ 9]*I[ 9] + I[10]*I[10] + I[11]*I[11] +
@@ -33638,7 +33638,7 @@ namespace cimg_library_suffixed {
                                            I[12]*K[12] + I[13]*K[13] + I[14]*K[14] + I[15]*K[15])/
                                         std::sqrt(N):0);
                 }
-              } else cimg_forZ(_img,z) cimg_for4x4(_img,x,y,z,0,I,T)
+              } else cimg_forZ(img,z) cimg_for4x4(img,x,y,z,0,I,T)
                        *(ptrd++) = (Ttfloat)(I[ 0]*K[ 0] + I[ 1]*K[ 1] + I[ 2]*K[ 2] + I[ 3]*K[ 3] +
                                              I[ 4]*K[ 4] + I[ 5]*K[ 5] + I[ 6]*K[ 6] + I[ 7]*K[ 7] +
                                              I[ 8]*K[ 8] + I[ 9]*K[ 9] + I[10]*K[10] + I[11]*K[11] +
@@ -33649,13 +33649,13 @@ namespace cimg_library_suffixed {
             cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
             cimg_forC(res,c) {
               cimg_abort_test();
-              const CImg<T> _img = get_shared_channel(c%_spectrum);
-              const CImg<t> K = _kernel.get_shared_channel(c/_spectrum);
+              const CImg<T> img = get_shared_channel(c%_spectrum);
+              const CImg<t> K = _kernel.get_shared_channel(c%kernel._spectrum);
               CImg<T> I(9);
               Ttfloat *ptrd = res.data(0,0,0,c);
               if (is_normalized) {
                 const Ttfloat _M = (Ttfloat)K.magnitude(2), M = _M*_M;
-                cimg_forZ(_img,z) cimg_for3x3(_img,x,y,z,0,I,T) {
+                cimg_forZ(img,z) cimg_for3x3(img,x,y,z,0,I,T) {
                   const Ttfloat N = M*(I[0]*I[0] + I[1]*I[1] + I[2]*I[2] +
                                        I[3]*I[3] + I[4]*I[4] + I[5]*I[5] +
                                        I[6]*I[6] + I[7]*I[7] + I[8]*I[8]);
@@ -33663,7 +33663,7 @@ namespace cimg_library_suffixed {
                                            I[3]*K[3] + I[4]*K[4] + I[5]*K[5] +
                                            I[6]*K[6] + I[7]*K[7] + I[8]*K[8])/std::sqrt(N):0);
                 }
-              } else cimg_forZ(_img,z) cimg_for3x3(_img,x,y,z,0,I,T)
+              } else cimg_forZ(img,z) cimg_for3x3(img,x,y,z,0,I,T)
                        *(ptrd++) = (Ttfloat)(I[0]*K[0] + I[1]*K[1] + I[2]*K[2] +
                                              I[3]*K[3] + I[4]*K[4] + I[5]*K[5] +
                                              I[6]*K[6] + I[7]*K[7] + I[8]*K[8]);
@@ -33673,19 +33673,19 @@ namespace cimg_library_suffixed {
             cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
             cimg_forC(res,c) {
               cimg_abort_test();
-              const CImg<T> _img = get_shared_channel(c%_spectrum);
-              const CImg<t> K = _kernel.get_shared_channel(c/_spectrum);
+              const CImg<T> img = get_shared_channel(c%_spectrum);
+              const CImg<t> K = _kernel.get_shared_channel(c%kernel._spectrum);
               CImg<T> I(4);
               Ttfloat *ptrd = res.data(0,0,0,c);
               if (is_normalized) {
                 const Ttfloat _M = (Ttfloat)K.magnitude(2), M = _M*_M;
-                cimg_forZ(_img,z) cimg_for2x2(_img,x,y,z,0,I,T) {
+                cimg_forZ(img,z) cimg_for2x2(img,x,y,z,0,I,T) {
                   const Ttfloat N = M*(I[0]*I[0] + I[1]*I[1] +
                                        I[2]*I[2] + I[3]*I[3]);
                   *(ptrd++) = (Ttfloat)(N?(I[0]*K[0] + I[1]*K[1] +
                                            I[2]*K[2] + I[3]*K[3])/std::sqrt(N):0);
                 }
-              } else cimg_forZ(_img,z) cimg_for2x2(_img,x,y,z,0,I,T)
+              } else cimg_forZ(img,z) cimg_for2x2(img,x,y,z,0,I,T)
                        *(ptrd++) = (Ttfloat)(I[0]*K[0] + I[1]*K[1] +
                                              I[2]*K[2] + I[3]*K[3]);
             }
@@ -33694,9 +33694,9 @@ namespace cimg_library_suffixed {
             if (is_normalized) res.fill(1);
             else cimg_forC(res,c) {
                 cimg_abort_test();
-                const CImg<T> _img = get_shared_channel(c%_spectrum);
-                const CImg<t> K = _kernel.get_shared_channel(c/_spectrum);
-                res.get_shared_channel(c).assign(_img)*=K[0];
+                const CImg<T> img = get_shared_channel(c%_spectrum);
+                const CImg<t> K = _kernel.get_shared_channel(c%kernel._spectrum);
+                res.get_shared_channel(c).assign(img)*=K[0];
               }
             break;
           }
@@ -33711,8 +33711,8 @@ namespace cimg_library_suffixed {
         cimg_pragma_openmp(parallel for cimg_openmp_if(!is_inner_parallel && is_outer_parallel))
         cimg_forC(res,c) cimg_abort_try {
           cimg_abort_test();
-          const CImg<T> _img = get_shared_channel(c%_spectrum);
-          const CImg<t> K = kernel.get_shared_channel(c/_spectrum);
+          const CImg<T> img = get_shared_channel(c%_spectrum);
+          const CImg<t> K = kernel.get_shared_channel(c%kernel._spectrum);
           if (is_normalized) { // Normalized correlation.
             const Ttfloat _M = (Ttfloat)K.magnitude(2), M = _M*_M;
             cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(is_inner_parallel))
@@ -33724,7 +33724,7 @@ namespace cimg_library_suffixed {
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
                       for (int xm = -mx1; xm<=mx2; ++xm) {
-                        const Ttfloat _val = (Ttfloat)_img(x + xm,y + ym,z + zm);
+                        const Ttfloat _val = (Ttfloat)img(x + xm,y + ym,z + zm);
                         val+=_val*K(mx1 + xm,my1 + ym,mz1 + zm);
                         N+=_val*_val;
                       }
@@ -33741,7 +33741,7 @@ namespace cimg_library_suffixed {
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
                       for (int xm = -mx1; xm<=mx2; ++xm) {
-                        const Ttfloat _val = (Ttfloat)_img._atXYZ(x + xm,y + ym,z + zm);
+                        const Ttfloat _val = (Ttfloat)img._atXYZ(x + xm,y + ym,z + zm);
                         val+=_val*K(mx1 + xm,my1 + ym,mz1 + zm);
                         N+=_val*_val;
                       }
@@ -33759,7 +33759,7 @@ namespace cimg_library_suffixed {
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
                       for (int xm = -mx1; xm<=mx2; ++xm) {
-                        const Ttfloat _val = (Ttfloat)_img.atXYZ(x + xm,y + ym,z + zm,0,(T)0);
+                        const Ttfloat _val = (Ttfloat)img.atXYZ(x + xm,y + ym,z + zm,0,(T)0);
                         val+=_val*K(mx1 + xm,my1 + ym,mz1 + zm);
                         N+=_val*_val;
                       }
@@ -33777,7 +33777,7 @@ namespace cimg_library_suffixed {
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
                       for (int xm = -mx1; xm<=mx2; ++xm)
-                        val+=_img(x + xm,y + ym,z + zm)*K(mx1 + xm,my1 + ym,mz1 + zm);
+                        val+=img(x + xm,y + ym,z + zm)*K(mx1 + xm,my1 + ym,mz1 + zm);
                   res(x,y,z,c) = (Ttfloat)val;
                 } cimg_abort_catch2()
             if (boundary_conditions)
@@ -33790,7 +33790,7 @@ namespace cimg_library_suffixed {
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
                       for (int xm = -mx1; xm<=mx2; ++xm)
-                        val+=_img._atXYZ(x + xm,y + ym,z + zm)*K(mx1 + xm,my1 + ym,mz1 + zm);
+                        val+=img._atXYZ(x + xm,y + ym,z + zm)*K(mx1 + xm,my1 + ym,mz1 + zm);
                   res(x,y,z,c) = (Ttfloat)val;
                 }
               } cimg_abort_catch2()
@@ -33804,7 +33804,7 @@ namespace cimg_library_suffixed {
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
                       for (int xm = -mx1; xm<=mx2; ++xm)
-                        val+=_img.atXYZ(x + xm,y + ym,z + zm,0,(T)0)*K(mx1 + xm,my1 + ym,mz1 + zm);
+                        val+=img.atXYZ(x + xm,y + ym,z + zm,0,(T)0)*K(mx1 + xm,my1 + ym,mz1 + zm);
                   res(x,y,z,c) = (Ttfloat)val;
                 }
               } cimg_abort_catch2()
@@ -33927,7 +33927,7 @@ namespace cimg_library_suffixed {
       if (is_empty() || !kernel) return *this;
       if (!is_real && kernel==0) return CImg<T>(width(),height(),depth(),spectrum(),0);
       typedef _cimg_Tt Tt;
-      CImg<Tt> res(_width,_height,_depth,_spectrum*kernel._spectrum);
+      CImg<Tt> res(_width,_height,_depth,std::max(_spectrum,kernel._spectrum));
       const int
         mx2 = kernel.width()/2, my2 = kernel.height()/2, mz2 = kernel.depth()/2,
         mx1 = kernel.width() - mx2 - 1, my1 = kernel.height() - my2 - 1, mz1 = kernel.depth() - mz2 - 1,
@@ -33940,8 +33940,8 @@ namespace cimg_library_suffixed {
       cimg_pragma_openmp(parallel for cimg_openmp_if(!is_inner_parallel && is_outer_parallel))
       cimg_forC(res,c) cimg_abort_try {
         cimg_abort_test();
-        const CImg<T> _img = get_shared_channel(c%_spectrum);
-        const CImg<t> K = kernel.get_shared_channel(c/_spectrum);
+        const CImg<T> img = get_shared_channel(c%_spectrum);
+        const CImg<t> K = kernel.get_shared_channel(c%kernel._spectrum);
         if (is_real) { // Real erosion
           cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(is_inner_parallel))
           for (int z = mz1; z<mze; ++z)
@@ -33953,7 +33953,7 @@ namespace cimg_library_suffixed {
                   for (int ym = -my1; ym<=my2; ++ym)
                     for (int xm = -mx1; xm<=mx2; ++xm) {
                       const t mval = K(mx1 + xm,my1 + ym,mz1 + zm);
-                      const Tt cval = (Tt)(_img(x + xm,y + ym,z + zm) - mval);
+                      const Tt cval = (Tt)(img(x + xm,y + ym,z + zm) - mval);
                       if (cval<min_val) min_val = cval;
                     }
                 res(x,y,z,c) = min_val;
@@ -33968,7 +33968,7 @@ namespace cimg_library_suffixed {
                   for (int ym = -my1; ym<=my2; ++ym)
                     for (int xm = -mx1; xm<=mx2; ++xm) {
                       const t mval = K(mx1 + xm,my1 + ym,mz1 + zm);
-                      const Tt cval = (Tt)(_img._atXYZ(x + xm,y + ym,z + zm) - mval);
+                      const Tt cval = (Tt)(img._atXYZ(x + xm,y + ym,z + zm) - mval);
                       if (cval<min_val) min_val = cval;
                     }
                 res(x,y,z,c) = min_val;
@@ -33984,7 +33984,7 @@ namespace cimg_library_suffixed {
                   for (int ym = -my1; ym<=my2; ++ym)
                     for (int xm = -mx1; xm<=mx2; ++xm) {
                       const t mval = K(mx1 + xm,my1 + ym,mz1 + zm);
-                      const Tt cval = (Tt)(_img.atXYZ(x + xm,y + ym,z + zm,0,(T)0) - mval);
+                      const Tt cval = (Tt)(img.atXYZ(x + xm,y + ym,z + zm,0,(T)0) - mval);
                       if (cval<min_val) min_val = cval;
                     }
                 res(x,y,z,c) = min_val;
@@ -34002,7 +34002,7 @@ namespace cimg_library_suffixed {
                   for (int ym = -my1; ym<=my2; ++ym)
                     for (int xm = -mx1; xm<=mx2; ++xm)
                       if (K(mx1 + xm,my1 + ym,mz1 + zm)) {
-                        const Tt cval = (Tt)_img(x + xm,y + ym,z + zm);
+                        const Tt cval = (Tt)img(x + xm,y + ym,z + zm);
                         if (cval<min_val) min_val = cval;
                       }
                 res(x,y,z,c) = min_val;
@@ -34017,7 +34017,7 @@ namespace cimg_library_suffixed {
                   for (int ym = -my1; ym<=my2; ++ym)
                     for (int xm = -mx1; xm<=mx2; ++xm)
                       if (K(mx1 + xm,my1 + ym,mz1 + zm)) {
-                        const T cval = (Tt)_img._atXYZ(x + xm,y + ym,z + zm);
+                        const T cval = (Tt)img._atXYZ(x + xm,y + ym,z + zm);
                         if (cval<min_val) min_val = cval;
                       }
                 res(x,y,z,c) = min_val;
@@ -34033,7 +34033,7 @@ namespace cimg_library_suffixed {
                   for (int ym = -my1; ym<=my2; ++ym)
                     for (int xm = -mx1; xm<=mx2; ++xm)
                       if (K(mx1 + xm,my1 + ym,mz1 + zm)) {
-                        const T cval = (Tt)_img.atXYZ(x + xm,y + ym,z + zm,0,(T)0);
+                        const T cval = (Tt)img.atXYZ(x + xm,y + ym,z + zm,0,(T)0);
                         if (cval<min_val) min_val = cval;
                       }
                 res(x,y,z,c) = min_val;
@@ -34216,7 +34216,7 @@ namespace cimg_library_suffixed {
                               const bool is_real=false) const {
       if (is_empty() || !kernel || (!is_real && kernel==0)) return *this;
       typedef _cimg_Tt Tt;
-      CImg<Tt> res(_width,_height,_depth,_spectrum*kernel._spectrum);
+      CImg<Tt> res(_width,_height,_depth,std::max(_spectrum,kernel._spectrum));
       const int
         mx1 = kernel.width()/2, my1 = kernel.height()/2, mz1 = kernel.depth()/2,
         mx2 = kernel.width() - mx1 - 1, my2 = kernel.height() - my1 - 1, mz2 = kernel.depth() - mz1 - 1,
@@ -34229,8 +34229,8 @@ namespace cimg_library_suffixed {
       cimg_pragma_openmp(parallel for cimg_openmp_if(!is_inner_parallel && is_outer_parallel))
       cimg_forC(res,c) cimg_abort_try {
         cimg_abort_test();
-        const CImg<T> _img = get_shared_channel(c%_spectrum);
-        const CImg<t> K = kernel.get_shared_channel(c/_spectrum);
+        const CImg<T> img = get_shared_channel(c%_spectrum);
+        const CImg<t> K = kernel.get_shared_channel(c%kernel._spectrum);
         if (is_real) { // Real dilation
           cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(is_inner_parallel))
           for (int z = mz1; z<mze; ++z)
@@ -34242,7 +34242,7 @@ namespace cimg_library_suffixed {
                   for (int ym = -my1; ym<=my2; ++ym)
                     for (int xm = -mx1; xm<=mx2; ++xm) {
                       const t mval = K(mx2 - xm,my2 - ym,mz2 - zm);
-                      const Tt cval = (Tt)(_img(x + xm,y + ym,z + zm) + mval);
+                      const Tt cval = (Tt)(img(x + xm,y + ym,z + zm) + mval);
                       if (cval>max_val) max_val = cval;
                     }
                 res(x,y,z,c) = max_val;
@@ -34257,7 +34257,7 @@ namespace cimg_library_suffixed {
                   for (int ym = -my1; ym<=my2; ++ym)
                     for (int xm = -mx1; xm<=mx2; ++xm) {
                       const t mval = K(mx2 - xm,my2 - ym,mz2 - zm);
-                      const Tt cval = (Tt)(_img._atXYZ(x + xm,y + ym,z + zm) + mval);
+                      const Tt cval = (Tt)(img._atXYZ(x + xm,y + ym,z + zm) + mval);
                       if (cval>max_val) max_val = cval;
                     }
                 res(x,y,z,c) = max_val;
@@ -34273,7 +34273,7 @@ namespace cimg_library_suffixed {
                   for (int ym = -my1; ym<=my2; ++ym)
                     for (int xm = -mx1; xm<=mx2; ++xm) {
                       const t mval = K(mx2 - xm,my2 - ym,mz2 - zm);
-                      const Tt cval = (Tt)(_img.atXYZ(x + xm,y + ym,z + zm,0,(T)0) + mval);
+                      const Tt cval = (Tt)(img.atXYZ(x + xm,y + ym,z + zm,0,(T)0) + mval);
                       if (cval>max_val) max_val = cval;
                     }
                 res(x,y,z,c) = max_val;
@@ -34290,7 +34290,7 @@ namespace cimg_library_suffixed {
                   for (int ym = -my1; ym<=my2; ++ym)
                     for (int xm = -mx1; xm<=mx2; ++xm)
                       if (K(mx2 - xm,my2 - ym,mz2 - zm)) {
-                        const Tt cval = (Tt)_img(x + xm,y + ym,z + zm);
+                        const Tt cval = (Tt)img(x + xm,y + ym,z + zm);
                         if (cval>max_val) max_val = cval;
                       }
                 res(x,y,z,c) = max_val;
@@ -34305,7 +34305,7 @@ namespace cimg_library_suffixed {
                   for (int ym = -my1; ym<=my2; ++ym)
                     for (int xm = -mx1; xm<=mx2; ++xm)
                       if (K(mx2 - xm,my2 - ym,mz2 - zm)) {
-                        const T cval = (Tt)_img._atXYZ(x + xm,y + ym,z + zm);
+                        const T cval = (Tt)img._atXYZ(x + xm,y + ym,z + zm);
                         if (cval>max_val) max_val = cval;
                       }
                 res(x,y,z,c) = max_val;
@@ -34321,7 +34321,7 @@ namespace cimg_library_suffixed {
                   for (int ym = -my1; ym<=my2; ++ym)
                     for (int xm = -mx1; xm<=mx2; ++xm)
                       if (K(mx2 - xm,my2 - ym,mz2 - zm)) {
-                        const T cval = (Tt)_img.atXYZ(x + xm,y + ym,z + zm,0,(T)0);
+                        const T cval = (Tt)img.atXYZ(x + xm,y + ym,z + zm,0,(T)0);
                         if (cval>max_val) max_val = cval;
                       }
                 res(x,y,z,c) = max_val;

@@ -33449,6 +33449,17 @@ namespace cimg_library_suffixed {
                                    const bool is_normalized, const bool is_convolution) const {
       if (is_empty() || !kernel) return *this;
       typedef _cimg_Ttfloat Ttfloat;
+
+      if (!boundary_conditions && kernel._width==kernel._height &&
+          ((kernel._depth==1 && kernel._width<=6) || (kernel._depth==kernel._width && kernel._width<=3))) {
+        // Special optimization done for 2x2, 3x3, 4x4, 5x5, 6x6, 2x2x2 and 3x3x3 kernel (with boundary_conditions=false).
+        CImg<Ttfloat> res = (kernel._depth==1?get_crop(-1,-1,_width,_height):get_crop(-1,-1,-1,_width,_height,_depth)).
+          _correlate(kernel,true,is_normalized,is_convolution);
+        if (kernel._depth==1) res.crop(1,1,res._width - 2,res._height - 2);
+        else res.crop(1,1,1,res._width - 2,res._height - 2,res._depth - 2);
+        return res;
+      }
+
       CImg<Ttfloat> res(_width,_height,_depth,std::max(_spectrum,kernel._spectrum));
       const bool
         is_inner_parallel = _width*_height*_depth>=32768,
@@ -33457,8 +33468,8 @@ namespace cimg_library_suffixed {
       cimg_abort_init;
 
       if (boundary_conditions && kernel._width==kernel._height &&
-          ((kernel._depth==1 && kernel._width<=5) || (kernel._depth==kernel._width && kernel._width<=3))) {
-        // Special optimization done for 2x2, 3x3, 4x4, 5x5, 2x2x2 and 3x3x3 kernel (with boundary_conditions=true).
+          ((kernel._depth==1 && kernel._width<=6) || (kernel._depth==kernel._width && kernel._width<=3))) {
+        // Special optimization done for 2x2, 3x3, 4x4, 5x5, 6x6, 2x2x2 and 3x3x3 kernel (with boundary_conditions=true).
         CImg<t> _kernel;
         if (is_convolution) { // Add empty column/row/slice to shift kernel center in case of convolution
           const int dw = !(kernel.width()%2), dh = !(kernel.height()%2), dd = !(kernel.depth()%2);

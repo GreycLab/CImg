@@ -59181,19 +59181,11 @@ namespace cimg_library_suffixed {
         if (_data[l]._depth>1 || _data[l]._spectrum!=3) _data[l].get_resize(-100,-100,1,3).save_pnm(filename_tmp2);
         else _data[l].save_pnm(filename_tmp2);
       }
-#if cimg_OS!=2
-      cimg_snprintf(command,command._width,"%s -i \"%s_%%6d.ppm\" -vcodec %s -b %uk -r %u -y \"%s\" >/dev/null 2>&1",
+      cimg_snprintf(command,command._width,"%s -i \"%s_%%6d.ppm\" -vcodec %s -b %uk -r %u -y \"%s\"",
                     cimg::ffmpeg_path(),
                     CImg<charT>::string(filename_tmp)._system_strescape().data(),
                     _codec,bitrate,fps,
                     CImg<charT>::string(filename)._system_strescape().data());
-#else
-      cimg_snprintf(command,command._width,"\"%s -i \"%s_%%6d.ppm\" -vcodec %s -b %uk -r %u -y \"%s\"\" >NUL 2>&1",
-                    cimg::ffmpeg_path(),
-                    CImg<charT>::string(filename_tmp)._system_strescape().data(),
-                    _codec,bitrate,fps,
-                    CImg<charT>::string(filename)._system_strescape().data());
-#endif
       cimg::system(command);
       file = std_fopen(filename,"rb");
       if (!file)

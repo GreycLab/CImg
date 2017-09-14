@@ -58579,22 +58579,12 @@ namespace cimg_library_suffixed {
         if (_data[l]._depth>1 || _data[l]._spectrum!=3) _data[l].get_resize(-100,-100,1,3).save(filename_tmp2);
         else _data[l].save(filename_tmp2);
       }
-
-#if cimg_OS!=2
       cimg_snprintf(command,command._width,"%s -delay %u -loop %u",
                     cimg::imagemagick_path(),(unsigned int)std::max(0.0f,cimg::round(100/fps)),nb_loops);
       CImg<ucharT>::string(command).move_to(filenames,0);
-      cimg_snprintf(command,command._width,"\"%s\" >/dev/null 2>&1",
+      cimg_snprintf(command,command._width,"\"%s\"",
                     CImg<charT>::string(filename)._system_strescape().data());
       CImg<ucharT>::string(command).move_to(filenames);
-#else
-      cimg_snprintf(command,command._width,"\"%s -delay %u -loop %u",
-                    cimg::imagemagick_path(),(unsigned int)std::max(0.0f,cimg::round(100/fps)),nb_loops);
-      CImg<ucharT>::string(command).move_to(filenames,0);
-      cimg_snprintf(command,command._width,"\"%s\"\" >NUL 2>&1",
-                    CImg<charT>::string(filename)._system_strescape().data());
-      CImg<ucharT>::string(command).move_to(filenames);
-#endif
       CImg<charT> _command = filenames>'x';
       cimg_for(_command,p,char) if (!*p) *p = ' ';
       _command.back() = 0;

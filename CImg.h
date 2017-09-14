@@ -4854,9 +4854,9 @@ namespace cimg_library_suffixed {
 #if cimg_OS==1
       const unsigned int l = (unsigned int)std::strlen(command);
       if (l) {
-        char *const ncommand = new char[l + 16];
+        char *const ncommand = new char[l + 24];
         std::strncpy(ncommand,command,l);
-        std::strcpy(ncommand + l," 2> /dev/null"); // Make command silent.
+        std::strcpy(ncommand + l," >/dev/null 2>&1"); // Make command silent.
         const int out_val = std::system(ncommand);
         delete[] ncommand;
         return out_val;
@@ -57990,17 +57990,10 @@ namespace cimg_library_suffixed {
         if ((file=std_fopen(filename_tmp2,"rb"))!=0) cimg::fclose(file);
       } while (file);
       cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_%%6d.ppm",filename_tmp._data);
-#if cimg_OS!=2
-      cimg_snprintf(command,command._width,"%s -i \"%s\" \"%s\" >/dev/null 2>&1",
+      cimg_snprintf(command,command._width,"%s -i \"%s\" \"%s\"",
                     cimg::ffmpeg_path(),
                     CImg<charT>::string(filename)._system_strescape().data(),
                     CImg<charT>::string(filename_tmp2)._system_strescape().data());
-#else
-      cimg_snprintf(command,command._width,"\"%s -i \"%s\" \"%s\"\" >NUL 2>&1",
-                    cimg::ffmpeg_path(),
-                    CImg<charT>::string(filename)._system_strescape().data(),
-                    CImg<charT>::string(filename_tmp2)._system_strescape().data());
-#endif
       cimg::system(command,0);
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
@@ -58057,25 +58050,14 @@ namespace cimg_library_suffixed {
         else cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s-0.png",filename_tmp._data);
         if ((file=std_fopen(filename_tmp2,"rb"))!=0) cimg::fclose(file);
       } while (file);
-#if cimg_OS!=2
-      if (use_graphicsmagick) cimg_snprintf(command,command._width,"%s convert \"%s\" \"%s.png\" >/dev/null 2>&1",
+      if (use_graphicsmagick) cimg_snprintf(command,command._width,"%s convert \"%s\" \"%s.png\"",
                                             cimg::graphicsmagick_path(),
                                             CImg<charT>::string(filename)._system_strescape().data(),
                                             CImg<charT>::string(filename_tmp)._system_strescape().data());
-      else cimg_snprintf(command,command._width,"%s \"%s\" \"%s.png\" >/dev/null 2>&1",
+      else cimg_snprintf(command,command._width,"%s \"%s\" \"%s.png\"",
                          cimg::imagemagick_path(),
                          CImg<charT>::string(filename)._system_strescape().data(),
                          CImg<charT>::string(filename_tmp)._system_strescape().data());
-#else
-      if (use_graphicsmagick) cimg_snprintf(command,command._width,"\"%s convert \"%s\" \"%s.png\"\" >NUL 2>&1",
-                                            cimg::graphicsmagick_path(),
-                                            CImg<charT>::string(filename)._system_strescape().data(),
-                                            CImg<charT>::string(filename_tmp)._system_strescape().data());
-      else cimg_snprintf(command,command._width,"\"%s \"%s\" \"%s.png\"\" >NUL 2>&1",
-                         cimg::imagemagick_path(),
-                         CImg<charT>::string(filename)._system_strescape().data(),
-                         CImg<charT>::string(filename_tmp)._system_strescape().data());
-#endif
       cimg::system(command,0);
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);

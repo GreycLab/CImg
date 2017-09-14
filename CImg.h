@@ -33463,7 +33463,6 @@ namespace cimg_library_suffixed {
 
         // Special optimization done for 2x2, 3x3, 4x4, 5x5, 6x6, 2x2x2 and 3x3x3 kernel.
         if (!boundary_conditions && res_whd<=3000*3000) { // Dirichlet boundaries
-
           // For relatively small images, adding a zero border then use optimized NxN convolution loops is faster.
           res = (kernel._depth==1?get_crop(-1,-1,_width,_height):get_crop(-1,-1,-1,_width,_height,_depth)).
             _correlate(kernel,true,is_normalized,is_convolution);
@@ -33719,6 +33718,7 @@ namespace cimg_library_suffixed {
       }
 
       if (!res) { // Generic version for other kernels and boundary conditions.
+        res.assign(_width,_height,_depth,std::max(_spectrum,kernel._spectrum));
         int
           mx2 = kernel.width()/2, my2 = kernel.height()/2, mz2 = kernel.depth()/2,
           mx1 = kernel.width() - mx2 - 1, my1 = kernel.height() - my2 - 1, mz1 = kernel.depth() - mz2 - 1;

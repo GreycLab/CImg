@@ -50775,22 +50775,24 @@ namespace cimg_library_suffixed {
       std::FILE *file = 0;
       const CImg<charT> s_filename = CImg<charT>::string(filename)._system_strescape();
 #if cimg_OS==1
-      cimg_snprintf(command,command._width,"%s convert \"%s\" pnm:-",
-                    cimg::graphicsmagick_path(),s_filename.data());
-      file = popen(command,"r");
-      if (file) {
-        const unsigned int omode = cimg::exception_mode();
-        cimg::exception_mode(0);
-        try { load_pnm(file); } catch (...) {
+      if (!cimg::system("which gm")) {
+        cimg_snprintf(command,command._width,"%s convert \"%s\" pnm:-",
+                      cimg::graphicsmagick_path(),s_filename.data());
+        file = popen(command,"r");
+        if (file) {
+          const unsigned int omode = cimg::exception_mode();
+          cimg::exception_mode(0);
+          try { load_pnm(file); } catch (...) {
+            pclose(file);
+            cimg::exception_mode(omode);
+            throw CImgIOException(_cimg_instance
+                                  "load_graphicsmagick_external(): Failed to load file '%s' with external command 'gm'.",
+                                  cimg_instance,
+                                  filename);
+          }
           pclose(file);
-          cimg::exception_mode(omode);
-          throw CImgIOException(_cimg_instance
-                                "load_graphicsmagick_external(): Failed to load file '%s' with external command 'gm'.",
-                                cimg_instance,
-                                filename);
+          return *this;
         }
-        pclose(file);
-        return *this;
       }
 #endif
       do {
@@ -50887,25 +50889,27 @@ namespace cimg_library_suffixed {
       std::FILE *file = 0;
       const CImg<charT> s_filename = CImg<charT>::string(filename)._system_strescape();
 #if cimg_OS==1
-      cimg_snprintf(command,command._width,"%s%s \"%s\" pnm:-",
-                    cimg::imagemagick_path(),
-                    !cimg::strcasecmp(cimg::split_filename(filename),"pdf")?" -density 400x400":"",
-                    s_filename.data());
-      file = popen(command,"r");
-      if (file) {
-        const unsigned int omode = cimg::exception_mode();
-        cimg::exception_mode(0);
-        try { load_pnm(file); } catch (...) {
+      if (!cimg::system("which convert")) {
+        cimg_snprintf(command,command._width,"%s%s \"%s\" pnm:-",
+                      cimg::imagemagick_path(),
+                      !cimg::strcasecmp(cimg::split_filename(filename),"pdf")?" -density 400x400":"",
+                      s_filename.data());
+        file = popen(command,"r");
+        if (file) {
+          const unsigned int omode = cimg::exception_mode();
+          cimg::exception_mode(0);
+          try { load_pnm(file); } catch (...) {
+            pclose(file);
+            cimg::exception_mode(omode);
+            throw CImgIOException(_cimg_instance
+                                  "load_imagemagick_external(): Failed to load file '%s' with "
+                                  "external command 'magick/convert'.",
+                                  cimg_instance,
+                                  filename);
+          }
           pclose(file);
-          cimg::exception_mode(omode);
-          throw CImgIOException(_cimg_instance
-                                "load_imagemagick_external(): Failed to load file '%s' with "
-                                "external command 'magick/convert'.",
-                                cimg_instance,
-                                filename);
+          return *this;
         }
-        pclose(file);
-        return *this;
       }
 #endif
       do {

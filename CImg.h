@@ -50796,7 +50796,8 @@ namespace cimg_library_suffixed {
             pclose(file);
             cimg::exception_mode(omode);
             throw CImgIOException(_cimg_instance
-                                  "load_graphicsmagick_external(): Failed to load file '%s' with external command 'gm'.",
+                                  "load_graphicsmagick_external(): Failed to load file '%s' "
+                                  "with external command 'gm'.",
                                   cimg_instance,
                                   filename);
           }

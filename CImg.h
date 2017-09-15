@@ -17984,28 +17984,6 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(arg1);
             }
 
-            if (!std::strncmp(ss,"dtos(",5)) { // Double(s) to string
-              _cimg_mp_op("Function 'dtos()'");
-              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss5,s1,depth1,0,is_single);
-              arg2 = 0; arg3 = ~0U;
-              if (s1<se1) {
-                s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-                arg2 = compile(++s1,s2,depth1,0,is_single);
-                arg3 = s2<se1?compile(++s2,se1,depth1,0,is_single):~0U;
-              }
-              _cimg_mp_check_type(arg2,2,1,0);
-              if (arg3==~0U) { // Auto-guess best output vector size
-                p1 = _cimg_mp_vector_size(arg1);
-                p1 = p1?19*p1 - 1:18;
-              } else {
-                _cimg_mp_check_constant(arg3,3,3);
-                p1 = (unsigned int)mem[arg3];
-              }
-              pos = vector(p1);
-              CImg<ulongT>::vector((ulongT)mp_dtos,pos,p1,arg1,_cimg_mp_vector_size(arg1),arg2).move_to(code);
-              _cimg_mp_return(pos);
-            }
             break;
 
           case 'e' :
@@ -18913,14 +18891,20 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar0(mp_srand0);
             }
 
-            if (!std::strncmp(ss,"stod(",5)) { // String to double
-              _cimg_mp_op("Function 'stod()'");
+            if (!std::strncmp(ss,"stov(",5)) { // String to double
+              _cimg_mp_op("Function 'stov()'");
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss5,s1,depth1,0,is_single);
-              arg2 = s1<se1?compile(++s1,se1,depth1,0,is_single):0;
+              arg2 = arg3 = 0;
+              if (s1<se1) {
+                s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                arg2 = compile(++s1,s2,depth1,0,is_single);
+                arg3 = s2<se1?compile(++s2,se1,depth1,0,is_single):0;
+              }
               _cimg_mp_check_type(arg2,2,1,0);
+              _cimg_mp_check_type(arg3,3,1,0);
               p1 = _cimg_mp_vector_size(arg1);
-              _cimg_mp_scalar3(mp_stod,arg1,p1,arg2);
+              _cimg_mp_scalar4(mp_stov,arg1,p1,arg2,arg3);
             }
 
             if (!std::strncmp(ss,"svd(",4)) { // Matrix SVD
@@ -19112,6 +19096,29 @@ namespace cimg_library_suffixed {
               (_opcode>'y').move_to(opcode);
               opcode[2] = opcode._height;
               opcode.move_to(code);
+              _cimg_mp_return(pos);
+            }
+
+            if (!std::strncmp(ss,"vtos(",5)) { // Double(s) to string
+              _cimg_mp_op("Function 'vtos()'");
+              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss5,s1,depth1,0,is_single);
+              arg2 = 0; arg3 = ~0U;
+              if (s1<se1) {
+                s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                arg2 = compile(++s1,s2,depth1,0,is_single);
+                arg3 = s2<se1?compile(++s2,se1,depth1,0,is_single):~0U;
+              }
+              _cimg_mp_check_type(arg2,2,1,0);
+              if (arg3==~0U) { // Auto-guess best output vector size
+                p1 = _cimg_mp_vector_size(arg1);
+                p1 = p1?19*p1 - 1:18;
+              } else {
+                _cimg_mp_check_constant(arg3,3,3);
+                p1 = (unsigned int)mem[arg3];
+              }
+              pos = vector(p1);
+              CImg<ulongT>::vector((ulongT)mp_vtos,pos,p1,arg1,_cimg_mp_vector_size(arg1),arg2).move_to(code);
               _cimg_mp_return(pos);
             }
             break;
@@ -20558,7 +20565,7 @@ namespace cimg_library_suffixed {
         return mp.mem[mem_body];
       }
 
-      static double mp_dtos(_cimg_math_parser& mp) {
+      static double mp_vtos(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
         const unsigned int
           sizd = (unsigned int)mp.opcode[2],
@@ -22791,16 +22798,19 @@ namespace cimg_library_suffixed {
         return cimg::type<double>::nan();
       }
 
-      static double mp_stod(_cimg_math_parser& mp) {
+      static double mp_stov(_cimg_math_parser& mp) {
         const double *ptrs = &_mp_arg(2);
-        const unsigned int siz = (unsigned int)mp.opcode[3];
-        const bool is_strict = (bool)_mp_arg(4);
-        if (!siz) return *ptrs>='0' && *ptrs<='9'?*ptrs - '0':cimg::type<double>::nan();
-        CImg<charT> ss(siz + 1);
+        const ulongT siz = (ulongT)mp.opcode[3];
+        longT ind = (longT)_mp_arg(4);
+        const bool is_strict = (bool)_mp_arg(5);
         double val = cimg::type<double>::nan();
+        if (ind<0 || ind>=(longT)siz) return val;
+        if (!siz) return *ptrs>='0' && *ptrs<='9'?*ptrs - '0':val;
+
+        CImg<charT> ss(siz + 1 - ind);
         char sep;
-        for (unsigned i = 0; i<siz; ++i) ss[i] = (char)*(++ptrs);
-        ss[siz] = 0;
+        ptrs+=1 + ind; cimg_forX(ss,i) ss[i] = (char)*(ptrs++); ss.back() = 0;
+
         int err = std::sscanf(ss,"%lf%c",&val,&sep);
 #if cimg_OS==2
         // Check for +/-NaN and +/-inf as Microsoft's sscanf() version is not able

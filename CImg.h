@@ -20842,7 +20842,7 @@ namespace cimg_library_suffixed {
       static double mp_image_d(_cimg_math_parser& mp) {
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
-        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
         return (double)img.depth();
       }
 
@@ -20901,56 +20901,56 @@ namespace cimg_library_suffixed {
       static double mp_image_h(_cimg_math_parser& mp) {
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
-        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
         return (double)img.height();
       }
 
       static double mp_image_im(_cimg_math_parser& mp) {
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
-        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
         return (double)img.min();
       }
 
       static double mp_image_iM(_cimg_math_parser& mp) {
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
-        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
         return (double)img.max();
       }
 
       static double mp_image_ia(_cimg_math_parser& mp) {
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
-        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
         return (double)img.mean();
       }
 
       static double mp_image_iv(_cimg_math_parser& mp) {
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
-        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
         return (double)img.variance();
       }
 
       static double mp_image_is(_cimg_math_parser& mp) {
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
-        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
         return (double)img.sum();
       }
 
       static double mp_image_ip(_cimg_math_parser& mp) {
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
-        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
         return (double)img.product();
       }
 
       static double mp_image_ic(_cimg_math_parser& mp) {
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
-        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
         return (double)img.median();
       }
 
@@ -21003,7 +21003,7 @@ namespace cimg_library_suffixed {
       static double mp_image_s(_cimg_math_parser& mp) {
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
-        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
         return (double)img.spectrum();
       }
 
@@ -21026,35 +21026,35 @@ namespace cimg_library_suffixed {
       static double mp_image_w(_cimg_math_parser& mp) {
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
-        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
         return (double)img.width();
       }
 
       static double mp_image_wh(_cimg_math_parser& mp) {
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
-        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
         return (double)img.width()*img.height();
       }
 
       static double mp_image_whd(_cimg_math_parser& mp) {
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
-        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
         return (double)img.width()*img.height()*img.depth();
       }
 
       static double mp_image_whds(_cimg_math_parser& mp) {
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
-        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
         return (double)img.width()*img.height()*img.depth()*img.spectrum();
       }
 
       static double mp_image_xm(_cimg_math_parser& mp) {
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
-        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
         double x = 0;
         img.contains(img.min(),x);
         return x;
@@ -21063,7 +21063,7 @@ namespace cimg_library_suffixed {
       static double mp_image_xM(_cimg_math_parser& mp) {
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
-        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
         double x = 0;
         img.contains(img.max(),x);
         return x;
@@ -21072,7 +21072,7 @@ namespace cimg_library_suffixed {
       static double mp_image_ym(_cimg_math_parser& mp) {
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
-        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
         double x = 0, y = 0;
         img.contains(img.min(),x,y);
         return y;
@@ -21081,7 +21081,7 @@ namespace cimg_library_suffixed {
       static double mp_image_yM(_cimg_math_parser& mp) {
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
-        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
         double x = 0, y = 0;
         img.contains(img.max(),x,y);
         return y;
@@ -21090,7 +21090,7 @@ namespace cimg_library_suffixed {
       static double mp_image_zm(_cimg_math_parser& mp) {
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
-        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
         double x = 0, y = 0, z = 0;
         img.contains(img.min(),x,y,z);
         return z;
@@ -21099,7 +21099,7 @@ namespace cimg_library_suffixed {
       static double mp_image_zM(_cimg_math_parser& mp) {
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
-        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
         double x = 0, y = 0, z = 0;
         img.contains(img.max(),x,y,z);
         return z;
@@ -21108,7 +21108,7 @@ namespace cimg_library_suffixed {
       static double mp_image_cm(_cimg_math_parser& mp) {
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
-        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
         double x = 0, y = 0, z = 0, c = 0;
         img.contains(img.min(),x,y,z,c);
         return c;
@@ -21117,7 +21117,7 @@ namespace cimg_library_suffixed {
       static double mp_image_cM(_cimg_math_parser& mp) {
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
-        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[ind];
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
         double x = 0, y = 0, z = 0, c = 0;
         img.contains(img.max(),x,y,z,c);
         return c;

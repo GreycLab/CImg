@@ -329,7 +329,7 @@
 #endif
 #ifndef cimg_abort_catch_fill
 #define cimg_abort_catch_fill() \
-  catch (CImgException& e) { cimg_pragma(omp critical) CImg<charT>::string(e._message).move_to(is_error); \
+  catch (CImgException& e) { cimg_pragma(omp critical(abort)) CImg<charT>::string(e._message).move_to(is_error); \
                              cimg_pragma(omp atomic) cimg_abort_go&=false; }
 #endif
 #endif
@@ -20420,7 +20420,7 @@ namespace cimg_library_suffixed {
 #else
         const unsigned int n_thread = omp_get_thread_num();
 #endif
-        cimg_pragma_openmp(critical)
+        cimg_pragma_openmp(critical(mp_debug))
         {
           std::fprintf(cimg::output(),
                        "\n[" cimg_appname "_math_parser] %p[thread #%u]:%*c"
@@ -20443,7 +20443,7 @@ namespace cimg_library_suffixed {
 
           const ulongT target = mp.opcode[1];
           mp.mem[target] = _cimg_mp_defunc(mp);
-          cimg_pragma_openmp(critical)
+          cimg_pragma_openmp(critical(mp_debug))
           {
             std::fprintf(cimg::output(),
                          "\n[" cimg_appname "_math_parser] %p[thread #%u]:%*c"
@@ -20454,7 +20454,7 @@ namespace cimg_library_suffixed {
             std::fflush(cimg::output());
           }
         }
-        cimg_pragma_openmp(critical)
+        cimg_pragma_openmp(critical(mp_debug))
         {
           mp.debug_indent-=3;
           std::fprintf(cimg::output(),
@@ -22381,7 +22381,7 @@ namespace cimg_library_suffixed {
       static double mp_print(_cimg_math_parser& mp) {
           const double val = _mp_arg(1);
           const bool print_char = (bool)mp.opcode[3];
-          cimg_pragma_openmp(critical)
+          cimg_pragma_openmp(critical(mp_print))
           {
             CImg<charT> expr(mp.opcode[2] - 4);
             const ulongT *ptrs = mp.opcode._data + 4;
@@ -22722,7 +22722,7 @@ namespace cimg_library_suffixed {
 
       static double mp_single(_cimg_math_parser& mp) {
         const double res = _mp_arg(1);
-        cimg_pragma_openmp(critical)
+        cimg_pragma_openmp(critical(mp_single))
         {
           for (const CImg<ulongT> *const p_end = ++mp.p_code + mp.opcode[2];
                mp.p_code<p_end; ++mp.p_code) { // Evaluate body
@@ -23064,7 +23064,7 @@ namespace cimg_library_suffixed {
 
       static double mp_vector_print(_cimg_math_parser& mp) {
         const bool print_string = (bool)mp.opcode[4];
-        cimg_pragma_openmp(critical)
+        cimg_pragma_openmp(critical(mp_vector_print))
         {
           CImg<charT> expr(mp.opcode[2] - 5);
           const ulongT *ptrs = mp.opcode._data + 5;
@@ -24748,7 +24748,7 @@ namespace cimg_library_suffixed {
           S2+=_val*_val;
           P*=_val;
         }
-        cimg_pragma_openmp(critical) {
+        cimg_pragma_openmp(critical(get_stats)) {
           if (lm<m || (lm==m && lpm<pm)) { m = lm; pm = lpm; }
           if (lM>M || (lM==M && lpM<pM)) { M = lM; pM = lpM; }
         }

@@ -17579,7 +17579,7 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"critical(",9)) { // Critical section (single thread at a time)
               _cimg_mp_op("Function 'critical()'");
               p1 = code._width;
-              arg1 = compile(ss7,se1,depth1,p_ref,true);
+              arg1 = compile(ss + 9,se1,depth1,p_ref,true);
               CImg<ulongT>::vector((ulongT)mp_critical,arg1,code._width - p1).move_to(code,p1);
               _cimg_mp_return(arg1);
             }

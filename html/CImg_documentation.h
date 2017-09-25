@@ -138,7 +138,7 @@
   It avoids handling complex dependencies and problems with library compatibility.
   The only thing you need is a (quite modern) C++ compiler :
 
-  - <b>Microsoft Visual C++ 6.0, Visual Studio.NET and Visual Express Edition</b> : Use the project files and solution files provided in the
+  - <b>Microsoft Visual Studio.NET and Visual Express Edition</b> : Use the project files and solution files provided in the
   %CImg Library package (directory 'compilation/') to see how it works.
   - <b>Intel ICL compiler</b> : Use the following command to compile a CImg-based program with ICL :
   \code
@@ -224,7 +224,6 @@
   and should also work on any decent OS having a decent C++ compiler.
   Before each release, the CImg Library is compiled under these different configurations :
   \li PC Linux 32 bits, with g++.
-  \li PC Windows 32 bits, with Visual C++ 6.0.
   \li PC Windows 32 bits, with Visual C++ Express Edition.
   \li Sun SPARC Solaris 32 bits, with g++.
   \li Mac PPC with OS X and g++.

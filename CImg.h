@@ -47108,7 +47108,7 @@ namespace cimg_library_suffixed {
 
       CImg<T> thumb;
       if (width()>disp.screen_width() || height()>disp.screen_height())
-        get_resize(cimg_fitscreen(width(),height(),1),1,-100).move_to(thumb);
+        get_resize(cimg_fitscreen(width(),height(),depth()),depth(),-100).move_to(thumb);
 
       const unsigned int old_normalization = disp.normalization();
       bool old_is_resized = disp.is_resized();

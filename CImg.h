@@ -24787,8 +24787,9 @@ namespace cimg_library_suffixed {
     /**
        \param magnitude_type Norm type. Can be:
        - \c -1: Linf-norm
-       - \c 0: L2-norm
+       - \c 0: L0-norm
        - \c 1: L1-norm
+       - \c 2: L2-norm
     **/
     double magnitude(const int magnitude_type=2) const {
       if (is_empty())

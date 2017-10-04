@@ -30526,7 +30526,7 @@ namespace cimg_library_suffixed {
           }
           break;
         default : // Dirichlet
-          if (cimg::abs(delta_x)>=width()) return fill((T)0);
+          if (delta_x<=-width() || delta_x>=width()) return fill((T)0);
           if (delta_x<0) cimg_forYZC(*this,y,z,c) {
               std::memmove(data(0,y,z,c),data(-delta_x,y,z,c),(_width + delta_x)*sizeof(T));
               std::memset(data(_width + delta_x,y,z,c),0,-delta_x*sizeof(T));
@@ -30572,7 +30572,7 @@ namespace cimg_library_suffixed {
           }
           break;
         default : // Dirichlet
-          if (cimg::abs(delta_y)>=height()) return fill((T)0);
+          if (delta_y<=-height() || delta_y>=height()) return fill((T)0);
           if (delta_y<0) cimg_forZC(*this,z,c) {
               std::memmove(data(0,0,z,c),data(0,-delta_y,z,c),_width*(_height + delta_y)*sizeof(T));
               std::memset(data(0,_height + delta_y,z,c),0,-delta_y*_width*sizeof(T));
@@ -30622,7 +30622,7 @@ namespace cimg_library_suffixed {
           }
           break;
         default : // Dirichlet
-          if (cimg::abs(delta_z)>=depth()) return fill((T)0);
+          if (delta_z<=-depth() || delta_z>=depth()) return fill((T)0);
           if (delta_z<0) cimg_forC(*this,c) {
               std::memmove(data(0,0,0,c),data(0,0,-delta_z,c),_width*_height*(_depth + delta_z)*sizeof(T));
               std::memset(data(0,0,_depth + delta_z,c),0,_width*_height*(-delta_z)*sizeof(T));
@@ -30668,7 +30668,7 @@ namespace cimg_library_suffixed {
           }
           break;
         default : // Dirichlet
-          if (cimg::abs(delta_c)>=spectrum()) return fill((T)0);
+          if (delta_c<=-spectrum() || delta_c>=spectrum()) return fill((T)0);
           if (delta_c<0) {
             std::memmove(_data,data(0,0,0,-delta_c),_width*_height*_depth*(_spectrum + delta_c)*sizeof(T));
             std::memset(data(0,0,0,_spectrum + delta_c),0,_width*_height*_depth*(-delta_c)*sizeof(T));

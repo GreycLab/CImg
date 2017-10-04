@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 205
+#define cimg_version 210
 
 /*-----------------------------------------------------------
  #

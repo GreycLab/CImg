@@ -18190,6 +18190,7 @@ namespace cimg_library_suffixed {
               CImg<ulongT>::vector((ulongT)mp_image_h,pos,p1).move_to(code);
               _cimg_mp_return(pos);
             }
+            break;
 
           case 'i' :
             if ((*ss1=='m' || *ss1=='M' || *ss1=='a' || *ss1=='v' || *ss1=='s' || *ss1=='p' || *ss1=='c') &&
@@ -24656,11 +24657,11 @@ namespace cimg_library_suffixed {
                const CImgList<T> *const list_inputs, CImgList<T> *const list_outputs) const {
       if (!expression || !*expression) { output.assign(1); *output = 0; }
       if (!expression[1]) switch (*expression) { // Single-char optimization.
-        case 'w' : output.assign(1); *output = (t)_width;
-        case 'h' : output.assign(1); *output = (t)_height;
-        case 'd' : output.assign(1); *output = (t)_depth;
-        case 's' : output.assign(1); *output = (t)_spectrum;
-        case 'r' : output.assign(1); *output = (t)_is_shared;
+        case 'w' : output.assign(1); *output = (t)_width; break;
+        case 'h' : output.assign(1); *output = (t)_height; break;
+        case 'd' : output.assign(1); *output = (t)_depth; break;
+        case 's' : output.assign(1); *output = (t)_spectrum; break;
+        case 'r' : output.assign(1); *output = (t)_is_shared; break;
         }
       _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' ||
                                          *expression=='*' || *expression==':'),"eval",
@@ -47664,7 +47665,9 @@ namespace cimg_library_suffixed {
 	switch (feature_type) {
 	case 1 : case 2 : res[0] = X0; res[1] = Y0; res[2] = Z0; res[3] = X1; res[4] = Y1; res[5] = Z1; break;
         case 3 :
-          res[3] = cimg::abs(X1 - X0); res[4] = cimg::abs(Y1 - Y0); res[5] = cimg::abs(Z1 - Z0); // keep no break here!
+          res[3] = cimg::abs(X1 - X0); res[4] = cimg::abs(Y1 - Y0); res[5] = cimg::abs(Z1 - Z0);
+          res[0] = X0; res[1] = Y0; res[2] = Z0;
+          break;
 	default : res[0] = X0; res[1] = Y0; res[2] = Z0;
 	}
       }

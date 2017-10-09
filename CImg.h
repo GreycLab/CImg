@@ -59081,8 +59081,9 @@ namespace cimg_library_suffixed {
                                       cimglist_instance);
 
 #define _cimg_docase(x) ((x)>='a'&&(x)<='z'?(x) + 'A' - 'a':(x))
+
         const char
-          *const _codec = codec && *codec?codec:"mp4v",
+          *const _codec = codec && *codec?codec:cimg_OS==2?"mpeg":"mp4v",
           codec0 = _cimg_docase(_codec[0]),
           codec1 = _codec[0]?_cimg_docase(_codec[1]):0,
           codec2 = _codec[1]?_cimg_docase(_codec[2]):0,

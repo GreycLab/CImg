@@ -103,7 +103,7 @@ CXXVER       = "icpc \( `$(CXX) -v 2>&1`\)"
 CFLAGS       = -I..
 LIBS         =
 else
-CFLAGS       = -I.. -Wall -Wextra -Wfatal-errors -Wimplicit-fallthrough=0
+CFLAGS       = -I.. -Wall -Wextra -Wfatal-errors
 LIBS         = -lm
 endif
 

@@ -13092,7 +13092,7 @@ namespace cimg_library_suffixed {
     //! Return a reference to the last pixel value.
     /**
        \note
-       - Writing \c img.end() is equivalent to <tt>img[img.size() - 1]</tt>, or
+       - Writing \c img.back() is equivalent to <tt>img[img.size() - 1]</tt>, or
          <tt>img(img.width() - 1,img.height() - 1,img.depth() - 1,img.spectrum() - 1)</tt>.
        - It has been mainly defined for compatibility with STL naming conventions.
     **/

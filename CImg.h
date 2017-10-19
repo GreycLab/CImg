@@ -47722,19 +47722,18 @@ namespace cimg_library_suffixed {
       }
 
       switch (normalization) {
-      case 1 : img2d.normalize((T)0,(T)255); break;
+      case 1 : img2d.normalize((ucharT)0,(ucharT)255); break;
       case 2 : {
         const float m = disp._min, M = disp._max;
         (img2d-=m)*=255.0f/(M - m>0?M - m:1);
       } break;
       case 3 :
-        if (cimg::type<T>::is_float()) img2d.normalize((T)0,(T)255);
+        if (cimg::type<T>::is_float()) img2d.normalize((ucharT)0,(ucharT)255);
         else {
           const float m = (float)cimg::type<T>::min(), M = (float)cimg::type<T>::max();
           (img2d-=m)*=255.0f/(M - m>0?M - m:1);
         } break;
       }
-
       if (img2d.spectrum()==2) img2d.channels(0,2);
       return img2d;
     }

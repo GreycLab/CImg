@@ -390,6 +390,8 @@
             Pregonda / Menorca, from Josep Febrer.</a></li>
         <li><a href="img/postcard70.jpg" onclick="NewWindow(this.href,'name','420','320','yes');return false;">
             USA, from Patrick Wanters.</a></li>
+        <li><a href="img/postcard71.jpg" onclick="NewWindow(this.href,'name','420','320','yes');return false;">
+            Toulon/France, from Cyril Prissette.</a></li>
         <br/><br/></li>
     </ul></li>
   </ul>

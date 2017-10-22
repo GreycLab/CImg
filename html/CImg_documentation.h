@@ -241,7 +241,7 @@
   This package contains :
   - The main library file <a href="https://raw.githubusercontent.com/dtschump/CImg/master/CImg.h">CImg.h</a> (C++ header file).
   - Several C++ source code showing <a href="https://github.com/dtschump/CImg/tree/master/examples">examples of using CImg</a>.
-  - A complete library documentation, in <a href="index.html">HTML</a> and <a href="../CImg_reference.pdf">PDF</a> formats.
+  - A complete library documentation, in <a href="../CImg_reference.pdf">PDF</a> format.
   - Additional <a href="https://github.com/dtschump/CImg/tree/master/plugins/">library plug-ins</a> that can be used to extend
   library capabilities for specific uses.
 

@@ -35028,6 +35028,7 @@ namespace cimg_library_suffixed {
     CImg<T>& vanvliet(const float sigma, const unsigned int order, const char axis='x',
                       const bool boundary_conditions=true) {
       if (is_empty()) return *this;
+      if (!cimg::type<T>::is_float()) return CImg<Tfloat>(*this,false).vanvliet(sigma,order,axis,boundary_conditions).move_to(*this);
       const char naxis = cimg::lowercase(axis);
       const float nsigma = sigma>=0?sigma:-sigma*(naxis=='x'?_width:naxis=='y'?_height:naxis=='z'?_depth:_spectrum)/100;
       if (is_empty() || (nsigma<0.5f && !order)) return *this;

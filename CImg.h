@@ -17761,10 +17761,8 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"date(",5)) { // Current date or file date
               _cimg_mp_op("Function 'date()'");
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              try {
-                arg1 = ss5!=se1?compile(ss5,s1,depth1,0,is_single):~0U;
-                is_sth = s1++!=se1; // is_filename
-              } catch (CImgException&) { arg1 = ~0U; s1 = ss5; is_sth = true; } // 'date(filename)'
+              arg1 = ss5!=se1?compile(ss5,s1,depth1,0,is_single):~0U;
+              is_sth = s1++!=se1; // is_filename
               pos = arg1==~0U || _cimg_mp_is_vector(arg1)?vector(arg1==~0U?7:_cimg_mp_size(arg1)):scalar();
               if (is_sth) {
                 *se1 = 0;

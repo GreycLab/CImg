@@ -6229,12 +6229,12 @@ namespace cimg_library_suffixed {
       return !is_directory(path);
     }
 
-    //! Get last write time of a given file or directory.
+    //! Get last write time of a given file or directory (multiple-attributes version).
     /**
        \param path Specified path to get attributes from.
        \param[in,out] attr Type of requested time attributes.
                       Can be { 0=year | 1=month | 2=day | 3=day of week | 4=hour | 5=minute | 6=second }
-                      Replaced by read attributes after return (or -1 if requested attribute is invalid).
+                      Replaced by read attributes after return (or -1 if an error occured).
        \param nb_attr Number of attributes to read/write.
        \return Latest read attribute.
     **/
@@ -6276,12 +6276,24 @@ namespace cimg_library_suffixed {
       return res;
     }
 
-    //! Get current local time.
+    //! Get last write time of a given file or directory (single-attribute version).
+    /**
+       \param path Specified path to get attributes from.
+       \param attr Type of requested time attributes.
+                   Can be { 0=year | 1=month | 2=day | 3=day of week | 4=hour | 5=minute | 6=second }
+       \return Specified attribute or -1 if an error occured.
+    **/
+    inline int fdate(const char *const path, unsigned int attr) {
+      int out = (int)attr;
+      return fdate(path,&out,1);
+    }
+
+    //! Get current local time (multiple-attributes version).
     /**
        \param[in,out] attr Type of requested time attributes.
                            Can be { 0=year | 1=month | 2=day | 3=day of week | 4=hour | 5=minute | 6=second }
-                           Replaced by read attributes after return (or -1 if requested attribute is invalid).
-       \param nb_attr Number of attributes to read/write
+                           Replaced by read attributes after return (or -1 if an error occured).
+       \param nb_attr Number of attributes to read/write.
        \return Latest read attribute.
     **/
     template<typename T>
@@ -6310,6 +6322,17 @@ namespace cimg_library_suffixed {
 #endif
       cimg::mutex(6,0);
       return res;
+    }
+
+    //! Get current local time (single-attribute version).
+    /**
+       \param attr Type of requested time attribute.
+                   Can be { 0=year | 1=month | 2=day | 3=day of week | 4=hour | 5=minute | 6=second }
+       \return Specified attribute or -1 if an error occured.
+    **/
+    inline int date(unsigned int attr) {
+      int out = (int)attr;
+      return date(&out,1);
     }
 
     // Get/set path to store temporary files.

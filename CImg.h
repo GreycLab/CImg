@@ -6240,7 +6240,7 @@ namespace cimg_library_suffixed {
     **/
     template<typename T>
     inline int fdate(const char *const path, T *attr, const unsigned int nb_attr) {
-#define _cimg_fdate_err() { for (unsigned int i = 0; i<nb_attr; ++i) attr[i] = (T)-1; res = -1; }
+#define _cimg_fdate_err() for (unsigned int i = 0; i<nb_attr; ++i) attr[i] = (T)-1
       int res = -1;
       if (!path || !*path) { _cimg_fdate_err(); return -1; }
       cimg::mutex(6);
@@ -6258,7 +6258,7 @@ namespace cimg_library_suffixed {
           }
         } else _cimg_fdate_err();
         CloseHandle(file);
-      }
+      } else _cimg_fdate_err();
 #elif cimg_OS==1
       struct stat st_buf;
       if (!stat(path,&st_buf)) {

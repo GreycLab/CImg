@@ -6298,7 +6298,7 @@ namespace cimg_library_suffixed {
     **/
     template<typename T>
     inline int date(T *attr, const unsigned int nb_attr) {
-      int res;
+      int res = -1;
       cimg::mutex(6);
 #if cimg_OS==2
       SYSTEMTIME st;

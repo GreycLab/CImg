@@ -6232,22 +6232,31 @@ namespace cimg_library_suffixed {
     //! Get last write time of a given file or directory.
     /**
        \param path Specified path to get attributes from.
-       \param attr Type of requested time attribute.
-                   Can be { 0=year | 1=month | 2=day | 3=day of week | 4=hour | 5=minute | 6=second }
-       \return -1 if requested attribute could not be read.
+       \param[in,out] attr Type of requested time attributes.
+                      Can be { 0=year | 1=month | 2=day | 3=day of week | 4=hour | 5=minute | 6=second }
+                      Replaced by read attributes after return (or -1 if requested attribute is invalid).
+       \param nb_attr Number of attributes to read/write.
+       \return Latest read attribute.
     **/
-    inline int fdate(const char *const path, const unsigned int attr) {
+    template<typename T>
+    inline int fdate(const char *const path, T *attr, const unsigned int nb_attr) {
+#define _cimg_fdate_err() { for (unsigned int i = 0; i<nb_attr; ++i) attr[i] = (T)-1; res = -1; }
       int res = -1;
-      if (!path || !*path || attr>6) return -1;
+      if (!path || !*path) { _cimg_fdate_err(); return -1; }
       cimg::mutex(6);
 #if cimg_OS==2
       HANDLE file = CreateFileA(path,GENERIC_READ,0,0,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,0);
       if (file!=INVALID_HANDLE_VALUE) {
         FILETIME _ft;
         SYSTEMTIME ft;
-        if (GetFileTime(file,0,0,&_ft) && FileTimeToSystemTime(&_ft,&ft))
-          res = (int)(attr==0?ft.wYear:attr==1?ft.wMonth:attr==2?ft.wDay:attr==3?ft.wDayOfWeek:
-                      attr==4?ft.wHour:attr==5?ft.wMinute:ft.wSecond);
+        if (GetFileTime(file,0,0,&_ft) && FileTimeToSystemTime(&_ft,&ft)) {
+          for (unsigned int i = 0; i<nb_attr; ++i) {
+            res = (int)(attr[i]==0?ft.wYear:attr[i]==1?ft.wMonth:attr[i]==2?ft.wDay:
+                        attr[i]==3?ft.wDayOfWeek:attr[i]==4?ft.wHour:attr[i]==5?ft.wMinute:
+                        attr[i]==6?ft.wSecond:-1);
+            attr[i] = (T)res;
+          }
+        } else _cimg_fdate_err();
         CloseHandle(file);
       }
 #elif cimg_OS==1
@@ -6255,9 +6264,13 @@ namespace cimg_library_suffixed {
       if (!stat(path,&st_buf)) {
         const time_t _ft = st_buf.st_mtime;
         const struct tm& ft = *std::localtime(&_ft);
-        res = (int)(attr==0?ft.tm_year + 1900:attr==1?ft.tm_mon + 1:attr==2?ft.tm_mday:attr==3?ft.tm_wday:
-                    attr==4?ft.tm_hour:attr==5?ft.tm_min:ft.tm_sec);
-      }
+        for (unsigned int i = 0; i<nb_attr; ++i) {
+          res = (int)(attr[i]==0?ft.tm_year + 1900:attr[i]==1?ft.tm_mon + 1:attr[i]==2?ft.tm_mday:
+                      attr[i]==3?ft.tm_wday:attr[i]==4?ft.tm_hour:attr[i]==5?ft.tm_min:
+                      attr[i]==6?ft.tm_sec:-1);
+          attr[i] = (T)res;
+        }
+      } else _cimg_fdate_err();
 #endif
       cimg::mutex(6,0);
       return res;
@@ -6265,23 +6278,35 @@ namespace cimg_library_suffixed {
 
     //! Get current local time.
     /**
-       \param attr Type of requested time attribute.
-                   Can be { 0=year | 1=month | 2=day | 3=day of week | 4=hour | 5=minute | 6=second }
+       \param[in,out] attr Type of requested time attributes.
+                           Can be { 0=year | 1=month | 2=day | 3=day of week | 4=hour | 5=minute | 6=second }
+                           Replaced by read attributes after return (or -1 if requested attribute is invalid).
+       \param nb_attr Number of attributes to read/write
+       \return Latest read attribute.
     **/
-    inline int date(const unsigned int attr) {
+    template<typename T>
+    inline int date(T *attr, const unsigned int nb_attr) {
       int res;
       cimg::mutex(6);
 #if cimg_OS==2
       SYSTEMTIME st;
       GetLocalTime(&st);
-      res = (int)(attr==0?st.wYear:attr==1?st.wMonth:attr==2?st.wDay:attr==3?st.wDayOfWeek:
-                  attr==4?st.wHour:attr==5?st.wMinute:st.wSecond);
+      for (unsigned int i = 0; i<nb_attr; ++i) {
+        res = (int)(attr[i]==0?st.wYear:attr[i]==1?st.wMonth:attr[i]==2?st.wDay:
+                    attr[i]==3?st.wDayOfWeek:attr[i]==4?st.wHour:attr[i]==5?st.wMinute:
+                    attr[i]==6?st.wSecond:-1);
+        attr[i] = (T)res;
+      }
 #else
       time_t _st;
       std::time(&_st);
       struct tm *st = std::localtime(&_st);
-      res = (int)(attr==0?st->tm_year + 1900:attr==1?st->tm_mon + 1:attr==2?st->tm_mday:attr==3?st->tm_wday:
-                  attr==4?st->tm_hour:attr==5?st->tm_min:st->tm_sec);
+      for (unsigned int i = 0; i<nb_attr; ++i) {
+        res = (int)(attr[i]==0?st->tm_year + 1900:attr[i]==1?st->tm_mon + 1:attr[i]==2?st->tm_mday:
+                    attr[i]==3?st->tm_wday:attr[i]==4?st->tm_hour:attr[i]==5?st->tm_min:
+                    attr[i]==6?st->tm_sec:-1);
+        attr[i] = (T)res;
+      }
 #endif
       cimg::mutex(6,0);
       return res;
@@ -20451,23 +20476,22 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_date(_cimg_math_parser& mp) {
-        CImg<charT> filename(mp.opcode[2] - 5);
         const unsigned int
-          arg = (unsigned int)mp.opcode[3],
-          siz = (unsigned int)mp.opcode[4];
-        const double *const attr = arg==~0U?0:&_mp_arg(3) + 1;
+          _arg = (unsigned int)mp.opcode[3],
+          _siz = (unsigned int)mp.opcode[4],
+          siz = _siz?_siz:1;
+        const double *const arg_in = _arg==~0U?0:&_mp_arg(3) + (_siz?1:0);
+        double *const arg_out = &_mp_arg(1) + (_siz?1:0);
+        if (arg_in) std::memcpy(arg_out,arg_in,siz*sizeof(double));
+        else for (unsigned int i = 0; i<siz; ++i) arg_out[i] = i;
+
+        CImg<charT> filename(mp.opcode[2] - 5);
         if (filename) {
           const ulongT *ptrs = mp.opcode._data + 5;
           cimg_for(filename,ptrd,char) *ptrd = (char)*(ptrs++);
-          if (!siz) return cimg::fdate(filename,_mp_arg(3));
-          double *const ptrd = &_mp_arg(1) + 1;
-          for (unsigned int i = 0; i<siz; ++i) ptrd[i] = cimg::fdate(filename,attr?attr[i]:i);
-          return cimg::type<double>::nan();
-        }
-        if (!siz) return cimg::date(_mp_arg(3));
-        double *const ptrd = &_mp_arg(1) + 1;
-        for (unsigned int i = 0; i<siz; ++i) ptrd[i] = cimg::date(attr?attr[i]:i);
-        return cimg::type<double>::nan();
+          cimg::fdate(filename,arg_out,siz);
+        } else cimg::date(arg_out,siz);
+        return _siz?cimg::type<double>::nan():*arg_out;
       }
 
       static double mp_debug(_cimg_math_parser& mp) {

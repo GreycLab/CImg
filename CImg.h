@@ -28670,8 +28670,7 @@ namespace cimg_library_suffixed {
           M = cimg::max(R,G,B),
           L = (m + M)/(2*255);
         Tfloat H = 0, S = 0;
-        if (M==m) H = S = 0;
-        else {
+        if (M!=m) {
           const Tfloat
             f = R==m?G - B:G==m?B - R:R - G,
             i = R==m?3:G==m?5:1;

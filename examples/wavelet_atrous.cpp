@@ -156,7 +156,7 @@ int main(int argc,char **argv) {
     std::fprintf(stderr," - Saving of all output sequences : %s in the msa/ directory... \n",cimg::basename(name_o));
     int count = 1; // res0 = original image
     char filename[256] = "", filename_wav[256] = "";
-    char STmp[3] = "";
+    char STmp[16] = "";
     const int err = std::system("mkdir msa");
     if (!err) for (i = 0; i<s; i++) {
         std::strcpy( filename, "msa/res" );

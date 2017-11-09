@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 215
+#define cimg_version 216
 
 /*-----------------------------------------------------------
  #
@@ -36133,7 +36133,7 @@ namespace cimg_library_suffixed {
             T *ptrd = values.data();
             cimg_for_inXYZ(*this,nx0,ny0,nz0,nx1,ny1,nz1,p,q,r)
               if (cimg::abs((float)(*this)(p,q,r,c)-val0)<=threshold) { *(ptrd++) = (*this)(p,q,r,c); ++nb_values; }
-            res(x,y,z,c) = values.get_shared_points(0,nb_values - 1).median();
+            res(x,y,z,c) = nb_values?values.get_shared_points(0,nb_values - 1).median():(*this)(x,y,z,c);
           }
         else
           cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width>=16 && _height*_depth*_spectrum>=4))
@@ -36160,7 +36160,7 @@ namespace cimg_library_suffixed {
               T *ptrd = values.data();
               cimg_for_inXY(*this,nx0,ny0,nx1,ny1,p,q)
                 if (cimg::abs((float)(*this)(p,q,c)-val0)<=threshold) { *(ptrd++) = (*this)(p,q,c); ++nb_values; }
-              res(x,y,c) = values.get_shared_points(0,nb_values - 1).median();
+              res(x,y,c) = nb_values?values.get_shared_points(0,nb_values - 1).median():(*this)(x,y,c);
             }
           else switch (n) { // Without threshold.
             case 3 : {
@@ -36222,7 +36222,7 @@ namespace cimg_library_suffixed {
               T *ptrd = values.data();
               cimg_for_inX(*this,nx0,nx1,p)
                 if (cimg::abs((float)(*this)(p,c)-val0)<=threshold) { *(ptrd++) = (*this)(p,c); ++nb_values; }
-              res(x,c) = values.get_shared_points(0,nb_values - 1).median();
+              res(x,c) = nb_values?values.get_shared_points(0,nb_values - 1).median():(*this)(x,c);
             }
           else switch (n) { // Without threshold.
             case 2 : {

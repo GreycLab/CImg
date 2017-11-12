@@ -25592,7 +25592,7 @@ namespace cimg_library_suffixed {
           return *this;
         }
         CImg<t> V(_width,_width);
-        Tfloat M = 0, m = (Tfloat)min_max(M), maxabs = cimg::max((Tfloat)1.0f,cimg::abs(m),cimg::abs(M));
+        Tfloat M = 0, m = (Tfloat)min_max(M), maxabs = cimg::max((Tfloat)1,cimg::abs(m),cimg::abs(M));
         (CImg<Tfloat>(*this,false)/=maxabs).SVD(vec,val,V,false);
         if (maxabs!=1) val*=maxabs;
 
@@ -35915,16 +35915,17 @@ namespace cimg_library_suffixed {
         const int x0 = x - rsize1, y0 = y - rsize1, z0 = z - rsize1, \
           x1 = x + rsize2, y1 = y + rsize2, z1 = z + rsize2; \
         float sum_weights = 0; \
-        cimg_for_in##N##XYZ(res,x0,y0,z0,x1,y1,z1,p,q,r) if (cimg::abs(img(x,y,z,0) - img(p,q,r,0))<sigma_p3) { \
-          T *pQ = Q._data; cimg_forC(res,c) { cimg_get##N##x##N##x##N(img,p,q,r,c,pQ,T); pQ+=N3; } \
-          float distance2 = 0; \
-          pQ = Q._data; cimg_for(P,pP,T) { const float dI = (float)*pP - (float)*(pQ++); distance2+=dI*dI; } \
-          distance2/=Pnorm; \
-          const float dx = (float)p - x, dy = (float)q - y, dz = (float)r - z, \
-            alldist = distance2 + (dx*dx + dy*dy + dz*dz)/sigma_s2, weight = alldist>3?0.0f:1.0f; \
-          sum_weights+=weight; \
-          cimg_forC(res,c) res(x,y,z,c)+=weight*(*this)(p,q,r,c); \
-        } \
+        cimg_for_in##N##XYZ(res,x0,y0,z0,x1,y1,z1,p,q,r) \
+          if (cimg::abs((Tfloat)img(x,y,z,0) - (Tfloat)img(p,q,r,0))<sigma_p3) { \
+            T *pQ = Q._data; cimg_forC(res,c) { cimg_get##N##x##N##x##N(img,p,q,r,c,pQ,T); pQ+=N3; } \
+            float distance2 = 0; \
+            pQ = Q._data; cimg_for(P,pP,T) { const float dI = (float)*pP - (float)*(pQ++); distance2+=dI*dI; } \
+            distance2/=Pnorm; \
+            const float dx = (float)p - x, dy = (float)q - y, dz = (float)r - z, \
+              alldist = distance2 + (dx*dx + dy*dy + dz*dz)/sigma_s2, weight = alldist>3?0.0f:1.0f; \
+            sum_weights+=weight; \
+            cimg_forC(res,c) res(x,y,z,c)+=weight*(*this)(p,q,r,c); \
+          } \
         if (sum_weights>0) cimg_forC(res,c) res(x,y,z,c)/=sum_weights; \
         else cimg_forC(res,c) res(x,y,z,c) = (Tfloat)((*this)(x,y,z,c)); \
     }
@@ -35956,16 +35957,17 @@ namespace cimg_library_suffixed {
           T *pP = P._data; cimg_forC(res,c) { cimg_get##N##x##N(img,x,y,0,c,pP,T); pP+=N2; } \
           const int x0 = x - rsize1, y0 = y - rsize1, x1 = x + rsize2, y1 = y + rsize2; \
           float sum_weights = 0; \
-          cimg_for_in##N##XY(res,x0,y0,x1,y1,p,q) if (cimg::abs(img(x,y,0,0) - img(p,q,0,0))<sigma_p3) { \
-            T *pQ = Q._data; cimg_forC(res,c) { cimg_get##N##x##N(img,p,q,0,c,pQ,T); pQ+=N2; } \
-            float distance2 = 0; \
-            pQ = Q._data; cimg_for(P,pP,T) { const float dI = (float)*pP - (float)*(pQ++); distance2+=dI*dI; } \
-            distance2/=Pnorm; \
-            const float dx = (float)p - x, dy = (float)q - y, \
-              alldist = distance2 + (dx*dx+dy*dy)/sigma_s2, weight = alldist>3?0.0f:1.0f; \
-            sum_weights+=weight; \
-            cimg_forC(res,c) res(x,y,c)+=weight*(*this)(p,q,c); \
-          } \
+          cimg_for_in##N##XY(res,x0,y0,x1,y1,p,q) \
+            if (cimg::abs((Tfloat)img(x,y,0,0) - (Tfloat)img(p,q,0,0))<sigma_p3) { \
+              T *pQ = Q._data; cimg_forC(res,c) { cimg_get##N##x##N(img,p,q,0,c,pQ,T); pQ+=N2; } \
+              float distance2 = 0; \
+              pQ = Q._data; cimg_for(P,pP,T) { const float dI = (float)*pP - (float)*(pQ++); distance2+=dI*dI; } \
+              distance2/=Pnorm; \
+              const float dx = (float)p - x, dy = (float)q - y, \
+                alldist = distance2 + (dx*dx+dy*dy)/sigma_s2, weight = alldist>3?0.0f:1.0f; \
+              sum_weights+=weight; \
+              cimg_forC(res,c) res(x,y,c)+=weight*(*this)(p,q,c); \
+            } \
           if (sum_weights>0) cimg_forC(res,c) res(x,y,c)/=sum_weights; \
           else cimg_forC(res,c) res(x,y,c) = (Tfloat)((*this)(x,y,c)); \
         }
@@ -36015,15 +36017,16 @@ namespace cimg_library_suffixed {
               const int x0 = x - rsize1, y0 = y - rsize1, z0 = z - rsize1,
                 x1 = x + rsize2, y1 = y + rsize2, z1 = z + rsize2;
               float sum_weights = 0;
-              cimg_for_inXYZ(res,x0,y0,z0,x1,y1,z1,p,q,r) if (cimg::abs(img(x,y,z,0)-img(p,q,r,0))<sigma_p3) {
-                (Q = img.get_crop(p - psize1,q - psize1,r - psize1,p + psize2,q + psize2,r + psize2,true))-=P;
-                const float
-                  dx = (float)x - p, dy = (float)y - q, dz = (float)z - r,
-                  distance2 = (float)(Q.pow(2).sum()/Pnorm + (dx*dx + dy*dy + dz*dz)/sigma_s2),
-                  weight = distance2>3?0.0f:1.0f;
-                sum_weights+=weight;
-                cimg_forC(res,c) res(x,y,z,c)+=weight*(*this)(p,q,r,c);
-              }
+              cimg_for_inXYZ(res,x0,y0,z0,x1,y1,z1,p,q,r)
+                if (cimg::abs((Tfloat)img(x,y,z,0) - (Tfloat)img(p,q,r,0))<sigma_p3) {
+                  (Q = img.get_crop(p - psize1,q - psize1,r - psize1,p + psize2,q + psize2,r + psize2,true))-=P;
+                  const float
+                    dx = (float)x - p, dy = (float)y - q, dz = (float)z - r,
+                    distance2 = (float)(Q.pow(2).sum()/Pnorm + (dx*dx + dy*dy + dz*dz)/sigma_s2),
+                    weight = distance2>3?0.0f:1.0f;
+                  sum_weights+=weight;
+                  cimg_forC(res,c) res(x,y,z,c)+=weight*(*this)(p,q,r,c);
+                }
               if (sum_weights>0) cimg_forC(res,c) res(x,y,z,c)/=sum_weights;
               else cimg_forC(res,c) res(x,y,z,c) = (Tfloat)((*this)(x,y,z,c));
             } else
@@ -36066,15 +36069,16 @@ namespace cimg_library_suffixed {
               P = img.get_crop(x - psize1,y - psize1,x + psize2,y + psize2,true);
               const int x0 = x - rsize1, y0 = y - rsize1, x1 = x + rsize2, y1 = y + rsize2;
               float sum_weights = 0;
-              cimg_for_inXY(res,x0,y0,x1,y1,p,q) if (cimg::abs(img(x,y,0)-img(p,q,0))<sigma_p3) {
-                (Q = img.get_crop(p - psize1,q - psize1,p + psize2,q + psize2,true))-=P;
-                const float
-                  dx = (float)x - p, dy = (float)y - q,
-                  distance2 = (float)(Q.pow(2).sum()/Pnorm + (dx*dx + dy*dy)/sigma_s2),
-                  weight = distance2>3?0.0f:1.0f;
-                sum_weights+=weight;
-                cimg_forC(res,c) res(x,y,c)+=weight*(*this)(p,q,c);
-              }
+              cimg_for_inXY(res,x0,y0,x1,y1,p,q)
+                if ((Tfloat)cimg::abs(img(x,y,0) - (Tfloat)img(p,q,0))<sigma_p3) {
+                  (Q = img.get_crop(p - psize1,q - psize1,p + psize2,q + psize2,true))-=P;
+                  const float
+                    dx = (float)x - p, dy = (float)y - q,
+                    distance2 = (float)(Q.pow(2).sum()/Pnorm + (dx*dx + dy*dy)/sigma_s2),
+                    weight = distance2>3?0.0f:1.0f;
+                  sum_weights+=weight;
+                  cimg_forC(res,c) res(x,y,c)+=weight*(*this)(p,q,c);
+                }
               if (sum_weights>0) cimg_forC(res,c) res(x,y,c)/=sum_weights;
               else cimg_forC(res,c) res(x,y,c) = (Tfloat)((*this)(x,y,c));
             } else
@@ -36132,7 +36136,7 @@ namespace cimg_library_suffixed {
             unsigned int nb_values = 0;
             T *ptrd = values.data();
             cimg_for_inXYZ(*this,nx0,ny0,nz0,nx1,ny1,nz1,p,q,r)
-              if (cimg::abs((float)(*this)(p,q,r,c)-val0)<=threshold) { *(ptrd++) = (*this)(p,q,r,c); ++nb_values; }
+              if (cimg::abs((Tfloat)(*this)(p,q,r,c) - val0)<=threshold) { *(ptrd++) = (*this)(p,q,r,c); ++nb_values; }
             res(x,y,z,c) = nb_values?values.get_shared_points(0,nb_values - 1).median():(*this)(x,y,z,c);
           }
         else
@@ -36159,7 +36163,7 @@ namespace cimg_library_suffixed {
               unsigned int nb_values = 0;
               T *ptrd = values.data();
               cimg_for_inXY(*this,nx0,ny0,nx1,ny1,p,q)
-                if (cimg::abs((float)(*this)(p,q,c)-val0)<=threshold) { *(ptrd++) = (*this)(p,q,c); ++nb_values; }
+                if (cimg::abs((Tfloat)(*this)(p,q,c) - val0)<=threshold) { *(ptrd++) = (*this)(p,q,c); ++nb_values; }
               res(x,y,c) = nb_values?values.get_shared_points(0,nb_values - 1).median():(*this)(x,y,c);
             }
           else switch (n) { // Without threshold.
@@ -36221,7 +36225,7 @@ namespace cimg_library_suffixed {
               unsigned int nb_values = 0;
               T *ptrd = values.data();
               cimg_for_inX(*this,nx0,nx1,p)
-                if (cimg::abs((float)(*this)(p,c)-val0)<=threshold) { *(ptrd++) = (*this)(p,c); ++nb_values; }
+                if (cimg::abs((Tfloat)(*this)(p,c) - val0)<=threshold) { *(ptrd++) = (*this)(p,c); ++nb_values; }
               res(x,c) = nb_values?values.get_shared_points(0,nb_values - 1).median():(*this)(x,c);
             }
           else switch (n) { // Without threshold.
@@ -45042,7 +45046,7 @@ namespace cimg_library_suffixed {
       if (is_empty()) return *this;
       const bool allow_zero = (x0*x1>0) || (y0*y1>0);
       const float
-        dx = cimg::abs(x1-x0), dy = cimg::abs(y1-y0),
+        dx = cimg::abs(x1 - x0), dy = cimg::abs(y1 - y0),
         px = dx<=0?1:precisionx==0?(float)std::pow(10.0,(int)std::log10(dx) - 2.0):precisionx,
         py = dy<=0?1:precisiony==0?(float)std::pow(10.0,(int)std::log10(dy) - 2.0):precisiony;
       if (x0!=x1 && y0!=y1)

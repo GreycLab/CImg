@@ -28293,8 +28293,8 @@ namespace cimg_library_suffixed {
       return _label(nb,dx,dy,dz,tolerance);
     }
 
-    CImg<ulongT> _label(const unsigned int nb, const int
-                        *const dx, const int *const dy, const int *const dz,
+    CImg<ulongT> _label(const unsigned int nb, const int *const dx,
+                        const int *const dy, const int *const dz,
                         const Tfloat tolerance) const {
       CImg<ulongT> res(_width,_height,_depth,_spectrum);
       cimg_forC(*this,c) {
@@ -28322,7 +28322,7 @@ namespace cimg_library_suffixed {
             for (longT z = z0, nz = z0 + _dz, pz = z0*wh; z<z1; ++z, ++nz, pz+=wh) {
               for (longT y = y0, ny = y0 + _dy, py = y0*width() + pz; y<y1; ++y, ++ny, py+=width()) {
                 for (longT x = x0, nx = x0 + _dx, p = x0 + py; x<x1; ++x, ++nx, ++p) {
-                  if ((Tfloat)cimg::abs((*this)(x,y,z,c,wh,whd) - (*this)(nx,ny,nz,c,wh,whd))<=tolerance) {
+                  if (cimg::abs((Tfloat)(*this)(x,y,z,c,wh,whd) - (Tfloat)(*this)(nx,ny,nz,c,wh,whd))<=tolerance) {
                     const longT q = p + offset;
                     ulongT x, y;
                     for (x = (ulongT)(p<q?q:p), y = (ulongT)(p<q?p:q); x!=y && _res[x]!=x; ) {

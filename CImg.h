@@ -36133,12 +36133,12 @@ namespace cimg_library_suffixed {
               x0 = x - hl, y0 = y - hl, z0 = z - hl, x1 = x + hr, y1 = y + hr, z1 = z + hr,
               nx0 = x0<0?0:x0, ny0 = y0<0?0:y0, nz0 = z0<0?0:z0,
               nx1 = x1>=width()?width() - 1:x1, ny1 = y1>=height()?height() - 1:y1, nz1 = z1>=depth()?depth() - 1:z1;
-            const float val0 = (float)(*this)(x,y,z,c);
+            const Tfloat val0 = (Tfloat)(*this)(x,y,z,c);
             CImg<T> values(n*n*n);
             unsigned int nb_values = 0;
             T *ptrd = values.data();
             cimg_for_inXYZ(*this,nx0,ny0,nz0,nx1,ny1,nz1,p,q,r)
-              if (cimg::abs((Tfloat)(*this)(p,q,r,c) - val0)<=threshold) { *(ptrd++) = (*this)(p,q,r,c); ++nb_values; }
+              if (cimg::abs((*this)(p,q,r,c) - val0)<=threshold) { *(ptrd++) = (*this)(p,q,r,c); ++nb_values; }
             res(x,y,z,c) = nb_values?values.get_shared_points(0,nb_values - 1).median():(*this)(x,y,z,c);
           }
         else
@@ -36151,7 +36151,6 @@ namespace cimg_library_suffixed {
             res(x,y,z,c) = get_crop(nx0,ny0,nz0,c,nx1,ny1,nz1,c).median();
           }
       } else {
-#define _cimg_median_sort(a,b) if ((a)>(b)) cimg::swap(a,b)
         if (res._height!=1) { // 2d
           if (threshold>0)
             cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=16 && _height*_spectrum>=4))
@@ -36160,12 +36159,12 @@ namespace cimg_library_suffixed {
                 x0 = x - hl, y0 = y - hl, x1 = x + hr, y1 = y + hr,
                 nx0 = x0<0?0:x0, ny0 = y0<0?0:y0,
                 nx1 = x1>=width()?width() - 1:x1, ny1 = y1>=height()?height() - 1:y1;
-              const float val0 = (float)(*this)(x,y,c);
+              const Tfloat val0 = (Tfloat)(*this)(x,y,c);
               CImg<T> values(n*n);
               unsigned int nb_values = 0;
               T *ptrd = values.data();
               cimg_for_inXY(*this,nx0,ny0,nx1,ny1,p,q)
-                if (cimg::abs((Tfloat)(*this)(p,q,c) - val0)<=threshold) { *(ptrd++) = (*this)(p,q,c); ++nb_values; }
+                if (cimg::abs((*this)(p,q,c) - val0)<=threshold) { *(ptrd++) = (*this)(p,q,c); ++nb_values; }
               res(x,y,c) = nb_values?values.get_shared_points(0,nb_values - 1).median():(*this)(x,y,c);
             }
           else switch (n) { // Without threshold.
@@ -36215,19 +36214,18 @@ namespace cimg_library_suffixed {
             }
             }
         } else { // 1d
-
           if (threshold>0)
             cimg_pragma_openmp(parallel for cimg_openmp_if(_width>=16 && _spectrum>=2))
             cimg_forXC(*this,x,c) { // With threshold.
               const int
                 x0 = x - hl, x1 = x + hr,
                 nx0 = x0<0?0:x0, nx1 = x1>=width()?width() - 1:x1;
-              const float val0 = (float)(*this)(x,c);
+              const Tfloat val0 = (Tfloat)(*this)(x,c);
               CImg<T> values(n);
               unsigned int nb_values = 0;
               T *ptrd = values.data();
               cimg_for_inX(*this,nx0,nx1,p)
-                if (cimg::abs((Tfloat)(*this)(p,c) - val0)<=threshold) { *(ptrd++) = (*this)(p,c); ++nb_values; }
+                if (cimg::abs((*this)(p,c) - val0)<=threshold) { *(ptrd++) = (*this)(p,c); ++nb_values; }
               res(x,c) = nb_values?values.get_shared_points(0,nb_values - 1).median():(*this)(x,c);
             }
           else switch (n) { // Without threshold.

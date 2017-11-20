@@ -18927,7 +18927,7 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"stats(",6)) { // Image statistics
               _cimg_mp_op("Function 'stats()'");
               if (*ss6=='#') { // Index specified
-                p1 = compile(ss6,se1,depth1,0,is_single);
+                p1 = compile(ss7,se1,depth1,0,is_single);
                 _cimg_mp_check_list(false);
               } else { if (ss6!=se1) break; p1 = ~0U; }
               pos = vector(14);

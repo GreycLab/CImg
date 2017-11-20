@@ -24802,7 +24802,7 @@ namespace cimg_library_suffixed {
     /*
        \param variance_method Method used to compute the variance (see variance(const unsigned int) const).
        \return Statistics vector as
-         <tt>[min; max; mean; variance; xmin; ymin; zmin; cmin; xmax; ymax; zmax; cmax; sum; product]</tt>.
+         <tt>[min, max, mean, variance, xmin, ymin, zmin, cmin, xmax, ymax, zmax, cmax, sum, product]</tt>.
     **/
     CImg<Tdouble> get_stats(const unsigned int variance_method=1) const {
       if (is_empty()) return CImg<doubleT>();

@@ -311,54 +311,56 @@
 #if defined(cimg_abort_test) && defined(cimg_use_openmp)
 
 // Define abort macros to be used with OpenMP.
-#ifndef cimg_abort_init
-#define cimg_abort_init bool cimg_abort_go = true; cimg::unused(cimg_abort_go)
+#ifndef _cimg_abort_init_omp
+#define _cimg_abort_init_omp bool _cimg_abort_go_omp = true; cimg::unused(_cimg_abort_go_omp)
 #endif
-#ifndef cimg_abort_try
-#define cimg_abort_try if (cimg_abort_go) try
+#ifndef _cimg_abort_try_omp
+#define _cimg_abort_try_omp if (_cimg_abort_go_omp) try
 #endif
-#ifndef cimg_abort_catch
-#define cimg_abort_catch catch (CImgAbortException&) { cimg_pragma(omp atomic) cimg_abort_go&=false; }
+#ifndef _cimg_abort_catch_omp
+#define _cimg_abort_catch_omp catch (CImgAbortException&) { cimg_pragma(omp atomic) _cimg_abort_go_omp&=false; }
 #endif
 #ifdef cimg_abort_test2
-#ifndef cimg_abort_try2
-#define cimg_abort_try2 cimg_abort_try
+#ifndef _cimg_abort_try_omp2
+#define _cimg_abort_try_omp2 _cimg_abort_try_omp
 #endif
-#ifndef cimg_abort_catch2
-#define cimg_abort_catch2 cimg_abort_catch
+#ifndef _cimg_abort_catch_omp2
+#define _cimg_abort_catch_omp2 _cimg_abort_catch_omp
 #endif
-#ifndef cimg_abort_catch_fill
-#define cimg_abort_catch_fill \
+#ifndef _cimg_abort_catch_fill_omp
+#define _cimg_abort_catch_fill_omp \
   catch (CImgException& e) { cimg_pragma(omp critical(abort)) CImg<charT>::string(e._message).move_to(is_error); \
-                             cimg_pragma(omp atomic) cimg_abort_go&=false; }
+                             cimg_pragma(omp atomic) _cimg_abort_go_omp&=false; }
+#endif
 #endif
 #endif
 
+#ifndef _cimg_abort_init_omp
+#define _cimg_abort_init_omp
 #endif
-
+#ifndef _cimg_abort_try_omp
+#define _cimg_abort_try_omp
+#endif
+#ifndef _cimg_abort_catch_omp
+#define _cimg_abort_catch_omp
+#endif
+#ifndef _cimg_abort_try_omp2
+#define _cimg_abort_try_omp2
+#endif
+#ifndef _cimg_abort_catch_omp2
+#define _cimg_abort_catch_omp2
+#endif
+#ifndef _cimg_abort_catch_fill_omp
+#define _cimg_abort_catch_fill_omp
+#endif
+#ifndef cimg_abort_init
+#define cimg_abort_init
+#endif
 #ifndef cimg_abort_test
 #define cimg_abort_test
 #endif
 #ifndef cimg_abort_test2
 #define cimg_abort_test2
-#endif
-#ifndef cimg_abort_init
-#define cimg_abort_init
-#endif
-#ifndef cimg_abort_try
-#define cimg_abort_try
-#endif
-#ifndef cimg_abort_catch
-#define cimg_abort_catch
-#endif
-#ifndef cimg_abort_try2
-#define cimg_abort_try2
-#endif
-#ifndef cimg_abort_catch2
-#define cimg_abort_catch2
-#endif
-#ifndef cimg_abort_catch_fill
-#define cimg_abort_catch_fill
 #endif
 #ifndef std_fopen
 #define std_fopen std::fopen
@@ -20230,6 +20232,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_breakpoint(_cimg_math_parser& mp) {
+        cimg_abort_init;
         cimg_abort_test;
         cimg::unused(mp);
         return cimg::type<double>::nan();
@@ -26776,6 +26779,7 @@ namespace cimg_library_suffixed {
       cimg::exception_mode(0);
       CImg<charT> is_error;
       bool is_value_sequence = false;
+      cimg_abort_init;
 
       if (allow_formula) {
 
@@ -26789,7 +26793,7 @@ namespace cimg_library_suffixed {
         }
 
         // Try to fill values according to a formula.
-        cimg_abort_init;
+        _cimg_abort_init_omp;
         if (!is_value_sequence) try {
             CImg<T> base = provides_copy?provides_copy->get_shared():get_shared();
             _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' ||
@@ -26838,7 +26842,7 @@ namespace cimg_library_suffixed {
                     &lmp = omp_get_thread_num()?_mp:mp;
                   lmp.is_fill = true;
                   cimg_pragma_openmp(for collapse(2))
-                    cimg_forYZ(*this,y,z) cimg_abort_try {
+                    cimg_forYZ(*this,y,z) _cimg_abort_try_omp {
                     cimg_abort_test;
                     CImg<doubleT> res(1,lmp.result_dim);
                     T *ptrd = data(0,y,z,0);
@@ -26847,7 +26851,7 @@ namespace cimg_library_suffixed {
                       const double *ptrs = res._data;
                       T *_ptrd = ptrd++; for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
                     }
-                  } cimg_abort_catch cimg_abort_catch_fill
+                  } _cimg_abort_catch_omp _cimg_abort_catch_fill_omp
                 }
 #endif
               }
@@ -26867,11 +26871,11 @@ namespace cimg_library_suffixed {
                     &lmp = omp_get_thread_num()?_mp:mp;
                   lmp.is_fill = true;
                   cimg_pragma_openmp(for collapse(3))
-                    cimg_forYZC(*this,y,z,c) cimg_abort_try {
+                    cimg_forYZC(*this,y,z,c) _cimg_abort_try_omp {
                     cimg_abort_test;
                     T *ptrd = data(0,y,z,c);
                     cimg_forX(*this,x) *ptrd++ = (T)lmp(x,y,z,c);
-                  } cimg_abort_catch cimg_abort_catch_fill
+                  } _cimg_abort_catch_omp _cimg_abort_catch_fill_omp
                 }
 #endif
               }
@@ -33389,6 +33393,7 @@ namespace cimg_library_suffixed {
       const bool
         is_inner_parallel = _width*_height*_depth>=32768,
         is_outer_parallel = res_size>=32768;
+      _cimg_abort_init_omp;
       cimg_abort_init;
 
       if (kernel._width==kernel._height &&
@@ -33659,7 +33664,7 @@ namespace cimg_library_suffixed {
         const int
           mxe = width() - mx2, mye = height() - my2, mze = depth() - mz2;
         cimg_pragma_openmp(parallel for cimg_openmp_if(!is_inner_parallel && is_outer_parallel))
-        cimg_forC(res,c) cimg_abort_try {
+        cimg_forC(res,c) _cimg_abort_try_omp {
           cimg_abort_test;
           const CImg<T> img = get_shared_channel(c%_spectrum);
           const CImg<t> K = kernel.get_shared_channel(c%kernel._spectrum);
@@ -33668,7 +33673,7 @@ namespace cimg_library_suffixed {
             cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(is_inner_parallel))
             for (int z = mz1; z<mze; ++z)
               for (int y = my1; y<mye; ++y)
-                for (int x = mx1; x<mxe; ++x) cimg_abort_try2 {
+                for (int x = mx1; x<mxe; ++x) _cimg_abort_try_omp2 {
                   cimg_abort_test2;
                   Ttfloat val = 0, N = 0;
                   for (int zm = -mz1; zm<=mz2; ++zm)
@@ -33680,10 +33685,10 @@ namespace cimg_library_suffixed {
                       }
                   N*=M;
                   res(x,y,z,c) = (Ttfloat)(N?val/std::sqrt(N):0);
-                } cimg_abort_catch2
+                } _cimg_abort_catch_omp2
             if (boundary_conditions)
               cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(is_inner_parallel))
-              cimg_forYZ(res,y,z) cimg_abort_try2 {
+              cimg_forYZ(res,y,z) _cimg_abort_try_omp2 {
                 cimg_abort_test2;
                 for (int x = 0; x<width();
                      (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
@@ -33698,10 +33703,10 @@ namespace cimg_library_suffixed {
                   N*=M;
                   res(x,y,z,c) = (Ttfloat)(N?val/std::sqrt(N):0);
                 }
-              } cimg_abort_catch2
+              } _cimg_abort_catch_omp2
             else
               cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(is_inner_parallel))
-              cimg_forYZ(res,y,z) cimg_abort_try2 {
+              cimg_forYZ(res,y,z) _cimg_abort_try_omp2 {
                 cimg_abort_test2;
                 for (int x = 0; x<width();
                      (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
@@ -33716,12 +33721,12 @@ namespace cimg_library_suffixed {
                   N*=M;
                   res(x,y,z,c) = (Ttfloat)(N?val/std::sqrt(N):0);
                 }
-              } cimg_abort_catch2
+              } _cimg_abort_catch_omp2
           } else { // Classical correlation.
             cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(is_inner_parallel))
               for (int z = mz1; z<mze; ++z)
               for (int y = my1; y<mye; ++y)
-                for (int x = mx1; x<mxe; ++x) cimg_abort_try2 {
+                for (int x = mx1; x<mxe; ++x) _cimg_abort_try_omp2 {
                   cimg_abort_test2;
                   Ttfloat val = 0;
                   for (int zm = -mz1; zm<=mz2; ++zm)
@@ -33729,10 +33734,10 @@ namespace cimg_library_suffixed {
                       for (int xm = -mx1; xm<=mx2; ++xm)
                         val+=img(x + xm,y + ym,z + zm)*K(mx1 + xm,my1 + ym,mz1 + zm);
                   res(x,y,z,c) = (Ttfloat)val;
-                } cimg_abort_catch2
+                } _cimg_abort_catch_omp2
             if (boundary_conditions)
               cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(is_inner_parallel))
-              cimg_forYZ(res,y,z) cimg_abort_try2 {
+              cimg_forYZ(res,y,z) _cimg_abort_try_omp2 {
                 cimg_abort_test2;
                 for (int x = 0; x<width();
                      (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
@@ -33743,10 +33748,10 @@ namespace cimg_library_suffixed {
                         val+=img._atXYZ(x + xm,y + ym,z + zm)*K(mx1 + xm,my1 + ym,mz1 + zm);
                   res(x,y,z,c) = (Ttfloat)val;
                 }
-              } cimg_abort_catch2
+              } _cimg_abort_catch_omp2
             else
               cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(is_inner_parallel))
-              cimg_forYZ(res,y,z) cimg_abort_try2 {
+              cimg_forYZ(res,y,z) _cimg_abort_try_omp2 {
                 cimg_abort_test2;
                 for (int x = 0; x<width();
                      (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
@@ -33757,9 +33762,9 @@ namespace cimg_library_suffixed {
                         val+=img.atXYZ(x + xm,y + ym,z + zm,0,(T)0)*K(mx1 + xm,my1 + ym,mz1 + zm);
                   res(x,y,z,c) = (Ttfloat)val;
                 }
-              } cimg_abort_catch2
+              } _cimg_abort_catch_omp2
           }
-        } cimg_abort_catch
+        } _cimg_abort_catch_omp
       }
       cimg_abort_test;
       return res;
@@ -33886,9 +33891,10 @@ namespace cimg_library_suffixed {
         is_inner_parallel = _width*_height*_depth>=32768,
         is_outer_parallel = res.size()>=32768;
       cimg::unused(is_inner_parallel,is_outer_parallel);
+      _cimg_abort_init_omp;
       cimg_abort_init;
       cimg_pragma_openmp(parallel for cimg_openmp_if(!is_inner_parallel && is_outer_parallel))
-      cimg_forC(res,c) cimg_abort_try {
+      cimg_forC(res,c) _cimg_abort_try_omp {
         cimg_abort_test;
         const CImg<T> img = get_shared_channel(c%_spectrum);
         const CImg<t> K = kernel.get_shared_channel(c%kernel._spectrum);
@@ -33896,7 +33902,7 @@ namespace cimg_library_suffixed {
           cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(is_inner_parallel))
           for (int z = mz1; z<mze; ++z)
             for (int y = my1; y<mye; ++y)
-              for (int x = mx1; x<mxe; ++x) cimg_abort_try2 {
+              for (int x = mx1; x<mxe; ++x) _cimg_abort_try_omp2 {
                 cimg_abort_test2;
                 Tt min_val = cimg::type<Tt>::max();
                 for (int zm = -mz1; zm<=mz2; ++zm)
@@ -33907,10 +33913,10 @@ namespace cimg_library_suffixed {
                       if (cval<min_val) min_val = cval;
                     }
                 res(x,y,z,c) = min_val;
-              } cimg_abort_catch2
+              } _cimg_abort_catch_omp2
           if (boundary_conditions)
             cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(is_inner_parallel))
-            cimg_forYZ(res,y,z) cimg_abort_try2 {
+            cimg_forYZ(res,y,z) _cimg_abort_try_omp2 {
               cimg_abort_test2;
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
                 Tt min_val = cimg::type<Tt>::max();
@@ -33923,10 +33929,10 @@ namespace cimg_library_suffixed {
                     }
                 res(x,y,z,c) = min_val;
               }
-            } cimg_abort_catch2
+            } _cimg_abort_catch_omp2
           else
             cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(is_inner_parallel))
-            cimg_forYZ(res,y,z) cimg_abort_try2 {
+            cimg_forYZ(res,y,z) _cimg_abort_try_omp2 {
               cimg_abort_test2;
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
                 Tt min_val = cimg::type<Tt>::max();
@@ -33939,13 +33945,13 @@ namespace cimg_library_suffixed {
                     }
                 res(x,y,z,c) = min_val;
               }
-            } cimg_abort_catch2
+            } _cimg_abort_catch_omp2
 
         } else { // Binary erosion
           cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(is_inner_parallel))
           for (int z = mz1; z<mze; ++z)
             for (int y = my1; y<mye; ++y)
-              for (int x = mx1; x<mxe; ++x) cimg_abort_try2 {
+              for (int x = mx1; x<mxe; ++x) _cimg_abort_try_omp2 {
                 cimg_abort_test2;
                 Tt min_val = cimg::type<Tt>::max();
                 for (int zm = -mz1; zm<=mz2; ++zm)
@@ -33956,10 +33962,10 @@ namespace cimg_library_suffixed {
                         if (cval<min_val) min_val = cval;
                       }
                 res(x,y,z,c) = min_val;
-              } cimg_abort_catch2
+              } _cimg_abort_catch_omp2
           if (boundary_conditions)
             cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(is_inner_parallel))
-            cimg_forYZ(res,y,z) cimg_abort_try2 {
+            cimg_forYZ(res,y,z) _cimg_abort_try_omp2 {
               cimg_abort_test2;
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
                 Tt min_val = cimg::type<Tt>::max();
@@ -33972,10 +33978,10 @@ namespace cimg_library_suffixed {
                       }
                 res(x,y,z,c) = min_val;
               }
-            } cimg_abort_catch2
+            } _cimg_abort_catch_omp2
           else
             cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(is_inner_parallel))
-            cimg_forYZ(res,y,z) cimg_abort_try2 {
+            cimg_forYZ(res,y,z) _cimg_abort_try_omp2 {
               cimg_abort_test2;
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
                 Tt min_val = cimg::type<Tt>::max();
@@ -33988,9 +33994,9 @@ namespace cimg_library_suffixed {
                       }
                 res(x,y,z,c) = min_val;
               }
-            } cimg_abort_catch2
+            } _cimg_abort_catch_omp2
         }
-      } cimg_abort_catch
+      } _cimg_abort_catch_omp
       cimg_abort_test;
       return res;
     }
@@ -34175,9 +34181,10 @@ namespace cimg_library_suffixed {
         is_inner_parallel = _width*_height*_depth>=32768,
         is_outer_parallel = res.size()>=32768;
       cimg::unused(is_inner_parallel,is_outer_parallel);
+      _cimg_abort_init_omp;
       cimg_abort_init;
       cimg_pragma_openmp(parallel for cimg_openmp_if(!is_inner_parallel && is_outer_parallel))
-      cimg_forC(res,c) cimg_abort_try {
+      cimg_forC(res,c) _cimg_abort_try_omp {
         cimg_abort_test;
         const CImg<T> img = get_shared_channel(c%_spectrum);
         const CImg<t> K = kernel.get_shared_channel(c%kernel._spectrum);
@@ -34185,7 +34192,7 @@ namespace cimg_library_suffixed {
           cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(is_inner_parallel))
           for (int z = mz1; z<mze; ++z)
             for (int y = my1; y<mye; ++y)
-              for (int x = mx1; x<mxe; ++x) cimg_abort_try2 {
+              for (int x = mx1; x<mxe; ++x) _cimg_abort_try_omp2 {
                 cimg_abort_test2;
                 Tt max_val = cimg::type<Tt>::min();
                 for (int zm = -mz1; zm<=mz2; ++zm)
@@ -34196,10 +34203,10 @@ namespace cimg_library_suffixed {
                       if (cval>max_val) max_val = cval;
                     }
                 res(x,y,z,c) = max_val;
-              } cimg_abort_catch2
+              } _cimg_abort_catch_omp2
           if (boundary_conditions)
             cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(is_inner_parallel))
-            cimg_forYZ(res,y,z) cimg_abort_try2 {
+            cimg_forYZ(res,y,z) _cimg_abort_try_omp2 {
               cimg_abort_test2;
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
                 Tt max_val = cimg::type<Tt>::min();
@@ -34212,10 +34219,10 @@ namespace cimg_library_suffixed {
                     }
                 res(x,y,z,c) = max_val;
               }
-            } cimg_abort_catch2
+            } _cimg_abort_catch_omp2
           else
             cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(is_inner_parallel))
-            cimg_forYZ(*this,y,z) cimg_abort_try2 {
+            cimg_forYZ(*this,y,z) _cimg_abort_try_omp2 {
               cimg_abort_test2;
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
                 Tt max_val = cimg::type<Tt>::min();
@@ -34228,12 +34235,12 @@ namespace cimg_library_suffixed {
                     }
                 res(x,y,z,c) = max_val;
               }
-            } cimg_abort_catch2
+            } _cimg_abort_catch_omp2
         } else { // Binary dilation
           cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(is_inner_parallel))
           for (int z = mz1; z<mze; ++z)
             for (int y = my1; y<mye; ++y)
-              for (int x = mx1; x<mxe; ++x) cimg_abort_try2 {
+              for (int x = mx1; x<mxe; ++x) _cimg_abort_try_omp2 {
                 cimg_abort_test2;
                 Tt max_val = cimg::type<Tt>::min();
                 for (int zm = -mz1; zm<=mz2; ++zm)
@@ -34244,10 +34251,10 @@ namespace cimg_library_suffixed {
                         if (cval>max_val) max_val = cval;
                       }
                 res(x,y,z,c) = max_val;
-              } cimg_abort_catch2
+              } _cimg_abort_catch_omp2
           if (boundary_conditions)
             cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(is_inner_parallel))
-            cimg_forYZ(res,y,z) cimg_abort_try2 {
+            cimg_forYZ(res,y,z) _cimg_abort_try_omp2 {
               cimg_abort_test2;
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
                 Tt max_val = cimg::type<Tt>::min();
@@ -34260,10 +34267,10 @@ namespace cimg_library_suffixed {
                       }
                 res(x,y,z,c) = max_val;
               }
-            } cimg_abort_catch2
+            } _cimg_abort_catch_omp2
           else
             cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(is_inner_parallel))
-            cimg_forYZ(res,y,z) cimg_abort_try2 {
+            cimg_forYZ(res,y,z) _cimg_abort_try_omp2 {
               cimg_abort_test2;
               for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
                 Tt max_val = cimg::type<Tt>::min();
@@ -34276,9 +34283,9 @@ namespace cimg_library_suffixed {
                       }
                 res(x,y,z,c) = max_val;
               }
-            } cimg_abort_catch2
+            } _cimg_abort_catch_omp2
         }
-      } cimg_abort_catch
+      } _cimg_abort_catch_omp
       cimg_abort_test;
       return res;
     }
@@ -35049,6 +35056,7 @@ namespace cimg_library_suffixed {
       if (is_empty() || amplitude<=0 || dl<0) return *this;
       const bool is_3d = (G._spectrum==6);
       T val_min, val_max = max_min(val_min);
+      _cimg_abort_init_omp;
       cimg_abort_init;
 
       if (da<=0) {  // Iterated oriented Laplacians
@@ -35126,7 +35134,7 @@ namespace cimg_library_suffixed {
               cimg_abort_test;
               cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=256 && _height*_depth>=2)
                                  firstprivate(val))
-              cimg_forYZ(*this,y,z) cimg_abort_try2 {
+              cimg_forYZ(*this,y,z) _cimg_abort_try_omp2 {
                 cimg_abort_test2;
                 cimg_forX(*this,x) {
                   val.fill(0);
@@ -35198,7 +35206,7 @@ namespace cimg_library_suffixed {
                   if (S>0) cimg_forC(res,c) { *ptrd+=val[c]/S; ptrd+=whd; }
                   else cimg_forC(res,c) { *ptrd+=(Tfloat)((*this)(x,y,z,c)); ptrd+=whd; }
                 }
-              } cimg_abort_catch2
+              } _cimg_abort_catch_omp2
             }
           }
         } else { // 2d LIC algorithm
@@ -35221,7 +35229,7 @@ namespace cimg_library_suffixed {
 
             cimg_abort_test;
             cimg_pragma_openmp(parallel for cimg_openmp_if(_width>=256 && _height>=2) firstprivate(val))
-            cimg_forY(*this,y) cimg_abort_try2 {
+            cimg_forY(*this,y) _cimg_abort_try_omp2 {
               cimg_abort_test2;
               cimg_forX(*this,x) {
                 val.fill(0);
@@ -35287,7 +35295,7 @@ namespace cimg_library_suffixed {
                 if (S>0) cimg_forC(res,c) { *ptrd+=val[c]/S; ptrd+=whd; }
                 else cimg_forC(res,c) { *ptrd+=(Tfloat)((*this)(x,y,0,c)); ptrd+=whd; }
               }
-            } cimg_abort_catch2
+            } _cimg_abort_catch_omp2
           }
         }
         const Tfloat *ptrs = res._data;
@@ -36779,6 +36787,7 @@ namespace cimg_library_suffixed {
 
         float dt = 2, energy = cimg::type<float>::max();
         const CImgList<Tfloat> dI = is_backward?I1.get_gradient():I2.get_gradient();
+        cimg_abort_init;
 
         for (unsigned int iteration = 0; iteration<iteration_max; ++iteration) {
           cimg_abort_test;
@@ -37180,6 +37189,7 @@ namespace cimg_library_suffixed {
           }
 
         // Start iteration loop.
+        cimg_abort_init;
         for (unsigned int iter = 0; iter<nb_iterations; ++iter) {
           cimg_abort_test;
           const bool is_even = !(iter%2);

@@ -19251,12 +19251,13 @@ namespace cimg_library_suffixed {
 
           if (!std::strncmp(ss,"min(",4) || !std::strncmp(ss,"max(",4) ||
               !std::strncmp(ss,"med(",4) || !std::strncmp(ss,"kth(",4) ||
-              !std::strncmp(ss,"sum(",4) ||
+              !std::strncmp(ss,"sum(",4) || !std::strncmp(ss,"avg(",4) ||
               !std::strncmp(ss,"std(",4) || !std::strncmp(ss,"variance(",9) ||
               !std::strncmp(ss,"prod(",5) || !std::strncmp(ss,"mean(",5) ||
               !std::strncmp(ss,"argmin(",7) || !std::strncmp(ss,"argmax(",7) ||
               !std::strncmp(ss,"argkth(",7)) { // Multi-argument functions
-            _cimg_mp_op(*ss=='a'?(ss[3]=='k'?"Function 'argkth()'":
+            _cimg_mp_op(*ss=='a'?(ss[1]=='v'?"Function 'avg()'":
+                                  ss[3]=='k'?"Function 'argkth()'":
                                   ss[4]=='i'?"Function 'argmin()'":
                                   "Function 'argmax()'"):
                         *ss=='s'?(ss[1]=='u'?"Function 'sum()'":"Function 'std()'"):
@@ -19266,7 +19267,7 @@ namespace cimg_library_suffixed {
                         ss[1]=='i'?"Function 'min()'":
                         ss[1]=='a'?"Function 'max()'":
                         ss[2]=='a'?"Function 'mean()'":"Function 'med()'");
-            op = *ss=='a'?(ss[3]=='k'?mp_argkth:ss[4]=='i'?mp_argmin:mp_argmax):
+            op = *ss=='a'?(ss[1]=='v'?mp_avg:ss[3]=='k'?mp_argkth:ss[4]=='i'?mp_argmin:mp_argmax):
               *ss=='s'?(ss[1]=='u'?mp_sum:mp_std):
               *ss=='k'?mp_kth:
               *ss=='p'?mp_prod:
@@ -20194,6 +20195,13 @@ namespace cimg_library_suffixed {
 
       static double mp_atan2(_cimg_math_parser& mp) {
         return std::atan2(_mp_arg(2),_mp_arg(3));
+      }
+
+      static double mp_avg(_cimg_math_parser& mp) {
+        const unsigned int i_end = (unsigned int)mp.opcode[2];
+        double val = _mp_arg(3);
+        for (unsigned int i = 4; i<i_end; ++i) val+=_mp_arg(i);
+        return val/(i_end - 3);
       }
 
       static double mp_bitwise_and(_cimg_math_parser& mp) {

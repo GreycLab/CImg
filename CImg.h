@@ -38033,7 +38033,7 @@ namespace cimg_library_suffixed {
     **/
     CImg<T>& distance_eikonal(const unsigned int nb_iterations, const float band_size=0, const float time_step=0.5f) {
       if (is_empty()) return *this;
-      CImg<Tfloat> velocity(*this);
+      CImg<Tfloat> velocity(*this,false);
       for (unsigned int iteration = 0; iteration<nb_iterations; ++iteration) {
         Tfloat *ptrd = velocity._data, veloc_max = 0;
         if (_depth>1) { // 3d

@@ -24430,7 +24430,7 @@ namespace cimg_library_suffixed {
       const ulongT siz = size();
       if (!siz || !_data) return 0;
       if (variance_method>1) { // Compute a scaled version of the Laplacian.
-        CImg<Tdouble> tmp(*this);
+        CImg<Tdouble> tmp(*this,false);
         if (_depth==1) {
           const double cste = 1.0/std::sqrt(20.0); // Depends on how the Laplacian is computed.
           cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height>=262144 && _spectrum>=2))
@@ -24779,7 +24779,7 @@ namespace cimg_library_suffixed {
         return i*a*e - a*h*f - i*b*d + b*g*f + c*d*h - c*g*e;
       }
       default : {
-        CImg<Tfloat> lu(*this);
+        CImg<Tfloat> lu(*this,false);
         CImg<uintT> indx;
         bool d;
         lu._LU(indx,d);
@@ -25145,12 +25145,12 @@ namespace cimg_library_suffixed {
           a = _data[0], d = _data[1], g = _data[2],
           b = _data[3], e = _data[4], h = _data[5],
           c = _data[6], f = _data[7], i = _data[8];
-        _data[0] = (T)((i*e-f*h)/dete), _data[1] = (T)((g*f-i*d)/dete), _data[2] = (T)((d*h-g*e)/dete);
-        _data[3] = (T)((h*c-i*b)/dete), _data[4] = (T)((i*a-c*g)/dete), _data[5] = (T)((g*b-a*h)/dete);
-        _data[6] = (T)((b*f-e*c)/dete), _data[7] = (T)((d*c-a*f)/dete), _data[8] = (T)((a*e-d*b)/dete);
+        _data[0] = (T)((i*e - f*h)/dete), _data[1] = (T)((g*f - i*d)/dete), _data[2] = (T)((d*h - g*e)/dete);
+        _data[3] = (T)((h*c - i*b)/dete), _data[4] = (T)((i*a - c*g)/dete), _data[5] = (T)((g*b - a*h)/dete);
+        _data[6] = (T)((b*f - e*c)/dete), _data[7] = (T)((d*c - a*f)/dete), _data[8] = (T)((a*e - d*b)/dete);
       } else {
         if (use_LU) { // LU-based inverse computation
-          CImg<Tfloat> A(*this), indx, col(1,_width);
+          CImg<Tfloat> A(*this,false), indx, col(1,_width);
           bool d;
           A._LU(indx,d);
           cimg_forX(*this,j) {
@@ -26809,7 +26809,7 @@ namespace cimg_library_suffixed {
                                  calling_function,base,this,list_inputs,list_outputs,true);
             if (!provides_copy && expression && *expression!='>' && *expression!='<' && *expression!=':' &&
                 mp.need_input_copy)
-              base.assign().assign(*this); // Needs input copy
+              base.assign().assign(*this,false); // Needs input copy
 
             bool do_in_parallel = false;
 #ifdef cimg_use_openmp
@@ -38184,7 +38184,7 @@ namespace cimg_library_suffixed {
         }
       } else { // Multi-scale version
         if (invert) {
-          res.assign(*this);
+          res.assign(*this,false);
           switch (cimg::lowercase(axis)) {
           case 'x' : {
             unsigned int w = _width;
@@ -38255,7 +38255,7 @@ namespace cimg_library_suffixed {
         if (res) return res;
       } else { // Multi-scale transform
         if (invert) { // Inverse transform
-          res.assign(*this);
+          res.assign(*this,false);
           if (_width>1) {
             if (_height>1) {
               if (_depth>1) {
@@ -51713,7 +51713,7 @@ namespace cimg_library_suffixed {
       axes_primitives.assign(3,1,2,1,1, 0,1, 0,2, 0,3);
 
       // Begin user interaction loop
-      CImg<T> visu0(*this), visu;
+      CImg<T> visu0(*this,false), visu;
       CImg<tpfloat> zbuffer(visu0.width(),visu0.height(),1,1,0);
       bool init_pose = true, clicked = false, redraw = true;
       unsigned int key = 0;
@@ -53481,7 +53481,7 @@ namespace cimg_library_suffixed {
         _TIFFfree(buf);
       }
       TIFFWriteDirectory(tif);
-      return (*this);
+      return *this;
     }
 
     const CImg<T>& _save_tiff(TIFF *tif, const unsigned int directory, const unsigned int z,

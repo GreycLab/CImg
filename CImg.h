@@ -60421,14 +60421,16 @@ namespace cimg {
     static CImg<cimg_ulong> times(64);
     static unsigned int pos = 0;
     const cimg_ulong t1 = cimg::time();
-    if (is_tic) { // Tic.
+    if (is_tic) {
+      // Tic
       times[pos++] = t1;
       if (pos>=times._width)
         throw CImgArgumentException("cimg::tic(): Too much calls to 'cimg::tic()' without calls to 'cimg::toc()'.");
       cimg::mutex(2,0);
       return t1;
     }
-    // Toc.
+
+    // Toc
     if (!pos)
       throw CImgArgumentException("cimg::toc(): No previous call to 'cimg::tic()' has been made.");
     const cimg_ulong

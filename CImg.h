@@ -5871,6 +5871,12 @@ namespace cimg_library_suffixed {
       return _fibonacci(n); // Not precise, but better than the wrong overflowing calculation
     }
 
+    //! Calculate greatest common divisor.
+    inline long gcd(long a, long b) {
+      while (a) { const long c = a; a = b%a; b = c; }
+      return b;
+    }
+
     //! Convert ascii character to lower case.
     inline char lowercase(const char x) {
       return (char)((x<'A'||x>'Z')?x:x - 'A' + 'a');
@@ -18224,6 +18230,18 @@ namespace cimg_library_suffixed {
               }
               _cimg_mp_scalar2(mp_gauss,arg1,arg2);
             }
+
+            if (!std::strncmp(ss,"gcd(",4)) { // Gcd
+              _cimg_mp_op("Function 'gcd()'");
+              s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss4,s1,depth1,0,is_single);
+              arg2 = compile(++s1,se1,depth1,0,is_single);
+              _cimg_mp_check_type(arg1,1,1,0);
+              _cimg_mp_check_type(arg2,2,1,0);
+              if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2))
+                _cimg_mp_constant(cimg::gcd((long)mem[arg1],(long)mem[arg2]));
+              _cimg_mp_scalar2(mp_gcd,arg1,arg2);
+            }
             break;
 
           case 'h' :
@@ -20866,6 +20884,10 @@ namespace cimg_library_suffixed {
       static double mp_gauss(_cimg_math_parser& mp) {
         const double x = _mp_arg(2), s = _mp_arg(3);
         return std::exp(-x*x/(2*s*s))/std::sqrt(2*s*s*cimg::PI);
+      }
+
+      static double mp_gcd(_cimg_math_parser& mp) {
+        return cimg::gcd((long)_mp_arg(2),(long)_mp_arg(3));
       }
 
       static double mp_gt(_cimg_math_parser& mp) {

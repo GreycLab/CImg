@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 218
+#define cimg_version 219
 
 /*-----------------------------------------------------------
  #
@@ -59252,7 +59252,7 @@ namespace cimg_library_suffixed {
             CImg<Tss> raw; \
             CImg<T> &img = res._data[l]; \
             if (err==5) _cimgz_unserialize_case(Tss) \
-            else if (sizeof(Tss)==1) { \
+            else if (sizeof(Tss)==sizeof(t)) { \
               raw.assign((Tss*)stream,W,H,D,C,true); \
               stream+=raw.size(); \
             } else { \

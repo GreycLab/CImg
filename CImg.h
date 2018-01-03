@@ -59252,7 +59252,7 @@ namespace cimg_library_suffixed {
             CImg<Tss> raw; \
             CImg<T> &img = res._data[l]; \
             if (err==5) _cimgz_unserialize_case(Tss) \
-            else if (sizeof(Tss)==sizeof(t)) { \
+            else if (sizeof(Tss)==sizeof(t) && cimg::type<Tss>::is_float()==cimg::type<t>::is_float()) { \
               raw.assign((Tss*)stream,W,H,D,C,true); \
               stream+=raw.size(); \
             } else { \

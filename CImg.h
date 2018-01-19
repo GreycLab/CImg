@@ -20735,7 +20735,7 @@ namespace cimg_library_suffixed {
             CImg<doubleT>(ptr,l,1,1,1,true).move_to(_str);
           } else { // Scalar argument -> number
             it.assign(256);
-            cimg_snprintf(it,it._width,"%lf",_mp_arg(3 + 2*n));
+            cimg_snprintf(it,it._width,"%.17g",_mp_arg(3 + 2*n));
             CImg<charT>::string(it,false,true).move_to(_str);
           }
         }

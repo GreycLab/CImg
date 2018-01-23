@@ -51292,12 +51292,6 @@ namespace cimg_library_suffixed {
         if (_height>1 && visu._height==1) disp.set_title("%s | y=%u",disp._title,y0);
         if (_depth>1 && visu._depth==1) disp.set_title("%s | z=%u",disp._title,z0);
 
-        if (!is_first_select) {
-          _XYZ[0] = (unsigned int)(x1 - x0)/2;
-          _XYZ[1] = (unsigned int)(y1 - y0)/2;
-          _XYZ[2] = (unsigned int)(z1 - z0)/2;
-        }
-
         disp._mouse_x = old_mouse_x; disp._mouse_y = old_mouse_y;
         CImg<intT> selection = visu._select(disp,0,2,_XYZ,x0,y0,z0,true,is_first_select,_depth>1);
         old_mouse_x = disp._mouse_x; old_mouse_y = disp._mouse_y;
@@ -51306,16 +51300,16 @@ namespace cimg_library_suffixed {
         if (disp.wheel()) {
           if ((disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) &&
               (disp.is_keySHIFTLEFT() || disp.is_keySHIFTRIGHT())) {
-            go_down = !(go_up = disp.wheel()>0);
-          } else if (disp.is_keySHIFTLEFT() || disp.is_keySHIFTRIGHT()) {
             go_left = !(go_right = disp.wheel()>0);
+          } else if (disp.is_keySHIFTLEFT() || disp.is_keySHIFTRIGHT()) {
+            go_down = !(go_up = disp.wheel()>0);
           } else if (depth()==1 || disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) {
             go_out = !(go_in = disp.wheel()>0); go_in_center = false;
           }
           disp.set_wheel();
         }
 
-        if (disp.is_keyCTRLLEFT()) { // Alternative way for zoom and selection.
+        if (disp.is_keyCTRLLEFT()) { // Alternative way for zooming and selection.
           if (selection[2]==selection[5]) { selection[2] = 0; selection[5] = visu.depth() - 1; }
           else if (selection[1]==selection[4]) { selection[1] = 0; selection[4] = visu.height() - 1; }
           else if (selection[0]==selection[3]) { selection[0] = 0; selection[3] = visu.width() - 1; }
@@ -51413,13 +51407,13 @@ namespace cimg_library_suffixed {
             mY = my*(height() + (depth()>1?depth():0))/disp.height();
           int X = (int)_XYZ[0], Y = (int)_XYZ[1], Z = (int)_XYZ[2];
           if (mX<width() && mY<height())  {
-            X = x0 + mX*(1 + x1 - x0)/width(); Y = y0 + mY*(1 + y1 - y0)/height(); Z = (int)_XYZ[2];
+            X = x0 + mX*(1 + x1 - x0)/width(); Y = y0 + mY*(1 + y1 - y0)/height();
           }
           if (mX<width() && mY>=height()) {
-            X = x0 + mX*(1 + x1 - x0)/width(); Z = z0 + (mY - height())*(1 + z1 - z0)/depth(); Y = (int)_XYZ[1];
+            X = x0 + mX*(1 + x1 - x0)/width(); Z = z0 + (mY - height())*(1 + z1 - z0)/depth();
           }
           if (mX>=width() && mY<height()) {
-            Y = y0 + mY*(1 + y1 - y0)/height(); Z = z0 + (mX - width())*(1 + z1 - z0)/depth(); X = (int)_XYZ[0];
+            Y = y0 + mY*(1 + y1 - y0)/height(); Z = z0 + (mX - width())*(1 + z1 - z0)/depth();
           }
           if (x1 - x0>4) { x0 = X - 3*(X - x0)/4; x1 = X + 3*(x1 - X)/4; }
           if (y1 - y0>4) { y0 = Y - 3*(Y - y0)/4; y1 = Y + 3*(y1 - Y)/4; }

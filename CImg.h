@@ -47210,8 +47210,7 @@ namespace cimg_library_suffixed {
           }
           if (disp.wheel()) { // When moving through the slices of the volume (with mouse wheel).
             if (_depth>1 && !disp.is_keyCTRLLEFT() && !disp.is_keyCTRLRIGHT() &&
-                !disp.is_keySHIFTLEFT() && !disp.is_keySHIFTRIGHT() &&
-                !disp.is_keyALT() && !disp.is_keyALTGR()) {
+                !disp.is_keySHIFTLEFT() && !disp.is_keySHIFTRIGHT()) {
               switch (area) {
               case 1 :
                 if (phase) Z = (float)(Z1+=disp.wheel()); else Z = (float)(Z0+=disp.wheel());
@@ -51300,20 +51299,26 @@ namespace cimg_library_suffixed {
         }
 
         disp._mouse_x = old_mouse_x; disp._mouse_y = old_mouse_y;
-        const CImg<intT> selection = visu._select(disp,0,2,_XYZ,x0,y0,z0,true,is_first_select,_depth>1);
+        CImg<intT> selection = visu._select(disp,0,2,_XYZ,x0,y0,z0,true,is_first_select,_depth>1);
         old_mouse_x = disp._mouse_x; old_mouse_y = disp._mouse_y;
         is_first_select = false;
 
         if (disp.wheel()) {
-          if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) {
+          if ((disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) &&
+              (disp.is_keySHIFTLEFT() || disp.is_keySHIFTRIGHT())) {
             go_down = !(go_up = disp.wheel()>0);
           } else if (disp.is_keySHIFTLEFT() || disp.is_keySHIFTRIGHT()) {
             go_left = !(go_right = disp.wheel()>0);
-          }
-          else if (disp.is_keyALT() || disp.is_keyALTGR() || _depth==1) {
+          } else if (depth()==1 || disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) {
             go_out = !(go_in = disp.wheel()>0); go_in_center = false;
           }
           disp.set_wheel();
+        }
+
+        if (disp.is_keyCTRLLEFT()) { // Alternative way for zoom and selection.
+          if (selection[2]==selection[5]) { selection[2] = 0; selection[5] = visu.depth() - 1; }
+          else if (selection[1]==selection[4]) { selection[1] = 0; selection[4] = visu.height() - 1; }
+          else if (selection[0]==selection[3]) { selection[0] = 0; selection[3] = visu.width() - 1; }
         }
 
         const int
@@ -51330,11 +51335,7 @@ namespace cimg_library_suffixed {
 #if cimg_OS!=2
           case cimg::keyCTRLRIGHT : case cimg::keySHIFTRIGHT :
 #endif
-          case 0 : case cimg::keyCTRLLEFT : case cimg::keyPAD5 : case cimg::keySHIFTLEFT :
-#if cimg_OS!=2
-          case cimg::keyALTGR :
-#endif
-          case cimg::keyALT : key = 0; break;
+          case 0 : case cimg::keyCTRLLEFT : case cimg::keySHIFTLEFT : key = 0; break;
           case cimg::keyP : if (visu._depth>1 && (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT())) {
               // Special mode: play stack of frames
               const unsigned int

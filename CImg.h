@@ -17067,7 +17067,7 @@ namespace cimg_library_suffixed {
         if (*se1==']' && *ss!='[') {
           _cimg_mp_op("Value accessor '[]'");
           is_relative = *ss=='j' || *ss=='J';
-          s0 = s1 = std::strchr(ss,'['); do { --s1; } while ((signed char)*s1<=' '); cimg::swap(*s0,*++s1);
+          s0 = s1 = std::strchr(ss,'['); if (s0) { do { --s1; } while ((signed char)*s1<=' '); cimg::swap(*s0,*++s1); }
 
           if ((*ss=='I' || *ss=='J') && *ss1=='[' &&
               (reserved_label[*ss]==~0U || !_cimg_mp_is_vector(reserved_label[*ss]))) { // Image value as a vector
@@ -17207,7 +17207,7 @@ namespace cimg_library_suffixed {
           if (*ss=='(') _cimg_mp_return(compile(ss1,se1,depth1,p_ref,is_single)); // Simple parentheses
           _cimg_mp_op("Value accessor '()'");
           is_relative = *ss=='j' || *ss=='J';
-          s0 = s1 = std::strchr(ss,'('); do { --s1; } while ((signed char)*s1<=' '); cimg::swap(*s0,*++s1);
+          s0 = s1 = std::strchr(ss,'('); if (s0) { do { --s1; } while ((signed char)*s1<=' '); cimg::swap(*s0,*++s1); }
 
           // I/J(_#ind,_x,_y,_z,_interpolation,_boundary_conditions)
           if ((*ss=='I' || *ss=='J') && *ss1=='(') { // Image value as scalar

@@ -50401,6 +50401,7 @@ namespace cimg_library_suffixed {
       \param filename Filename, as a C-string.
       \param size_x Width of the frames.
       \param size_y Height of the frames.
+      \param chroma_subsampling Type of chroma subsampling. Can be <tt>{ 420 | 422 | 444 }</tt>.
       \param first_frame Index of the first frame to read.
       \param last_frame Index of the last frame to read.
       \param step_frame Step value for frame reading.
@@ -50409,33 +50410,41 @@ namespace cimg_library_suffixed {
     **/
     CImg<T>& load_yuv(const char *const filename,
                       const unsigned int size_x, const unsigned int size_y=1,
+                      const unsigned int chroma_subsampling=444,
                       const unsigned int first_frame=0, const unsigned int last_frame=~0U,
                       const unsigned int step_frame=1, const bool yuv2rgb=true, const char axis='z') {
-      return get_load_yuv(filename,size_x,size_y,first_frame,last_frame,step_frame,yuv2rgb,axis).move_to(*this);
+      return get_load_yuv(filename,size_x,size_y,chroma_subsampling,
+                          first_frame,last_frame,step_frame,yuv2rgb,axis).move_to(*this);
     }
 
     //! Load image sequence from a YUV file \newinstance.
     static CImg<T> get_load_yuv(const char *const filename,
                                 const unsigned int size_x, const unsigned int size_y=1,
+                                const unsigned int chroma_subsampling=444,
                                 const unsigned int first_frame=0, const unsigned int last_frame=~0U,
                                 const unsigned int step_frame=1, const bool yuv2rgb=true, const char axis='z') {
-      return CImgList<T>().load_yuv(filename,size_x,size_y,first_frame,last_frame,step_frame,yuv2rgb).get_append(axis);
+      return CImgList<T>().load_yuv(filename,size_x,size_y,chroma_subsampling,
+                                    first_frame,last_frame,step_frame,yuv2rgb).get_append(axis);
     }
 
     //! Load image sequence from a YUV file \overloading.
     CImg<T>& load_yuv(std::FILE *const file,
                       const unsigned int size_x, const unsigned int size_y=1,
+                      const unsigned int chroma_subsampling=444,
                       const unsigned int first_frame=0, const unsigned int last_frame=~0U,
 		      const unsigned int step_frame=1, const bool yuv2rgb=true, const char axis='z') {
-      return get_load_yuv(file,size_x,size_y,first_frame,last_frame,step_frame,yuv2rgb,axis).move_to(*this);
+      return get_load_yuv(file,size_x,size_y,chroma_subsampling,
+                          first_frame,last_frame,step_frame,yuv2rgb,axis).move_to(*this);
     }
 
     //! Load image sequence from a YUV file \newinstance.
     static CImg<T> get_load_yuv(std::FILE *const file,
                                 const unsigned int size_x, const unsigned int size_y=1,
+                                const unsigned int chroma_subsampling=444,
                                 const unsigned int first_frame=0, const unsigned int last_frame=~0U,
 				const unsigned int step_frame=1, const bool yuv2rgb=true, const char axis='z') {
-      return CImgList<T>().load_yuv(file,size_x,size_y,first_frame,last_frame,step_frame,yuv2rgb).get_append(axis);
+      return CImgList<T>().load_yuv(file,size_x,size_y,chroma_subsampling,
+                                    first_frame,last_frame,step_frame,yuv2rgb).get_append(axis);
     }
 
     //! Load 3d object from a .OFF file.
@@ -57658,37 +57667,46 @@ namespace cimg_library_suffixed {
     **/
     CImgList<T>& load_yuv(const char *const filename,
                           const unsigned int size_x, const unsigned int size_y,
+                          const unsigned int chroma_subsampling=444,
                           const unsigned int first_frame=0, const unsigned int last_frame=~0U,
                           const unsigned int step_frame=1, const bool yuv2rgb=true) {
-      return _load_yuv(0,filename,size_x,size_y,first_frame,last_frame,step_frame,yuv2rgb);
+      return _load_yuv(0,filename,size_x,size_y,chroma_subsampling,
+                       first_frame,last_frame,step_frame,yuv2rgb);
     }
 
     //! Load a list from a YUV image sequence file \newinstance.
     static CImgList<T> get_load_yuv(const char *const filename,
                                     const unsigned int size_x, const unsigned int size_y=1,
+                                    const unsigned int chroma_subsampling=444,
                                     const unsigned int first_frame=0, const unsigned int last_frame=~0U,
                                     const unsigned int step_frame=1, const bool yuv2rgb=true) {
-      return CImgList<T>().load_yuv(filename,size_x,size_y,first_frame,last_frame,step_frame,yuv2rgb);
+      return CImgList<T>().load_yuv(filename,size_x,size_y,chroma_subsampling,
+                                    first_frame,last_frame,step_frame,yuv2rgb);
     }
 
     //! Load a list from an image sequence YUV file \overloading.
     CImgList<T>& load_yuv(std::FILE *const file,
                           const unsigned int size_x, const unsigned int size_y,
+                          const unsigned int chroma_subsampling=444,
                           const unsigned int first_frame=0, const unsigned int last_frame=~0U,
                           const unsigned int step_frame=1, const bool yuv2rgb=true) {
-      return _load_yuv(file,0,size_x,size_y,first_frame,last_frame,step_frame,yuv2rgb);
+      return _load_yuv(file,0,size_x,size_y,chroma_subsampling,
+                       first_frame,last_frame,step_frame,yuv2rgb);
     }
 
     //! Load a list from an image sequence YUV file \newinstance.
     static CImgList<T> get_load_yuv(std::FILE *const file,
                                     const unsigned int size_x, const unsigned int size_y=1,
+                                    const unsigned int chroma_subsampling=444,
                                     const unsigned int first_frame=0, const unsigned int last_frame=~0U,
                                     const unsigned int step_frame=1, const bool yuv2rgb=true) {
-      return CImgList<T>().load_yuv(file,size_x,size_y,first_frame,last_frame,step_frame,yuv2rgb);
+      return CImgList<T>().load_yuv(file,size_x,size_y,chroma_subsampling,
+                                    first_frame,last_frame,step_frame,yuv2rgb);
     }
 
     CImgList<T>& _load_yuv(std::FILE *const file, const char *const filename,
 			   const unsigned int size_x, const unsigned int size_y,
+                           const unsigned int chroma_subsampling,
 			   const unsigned int first_frame, const unsigned int last_frame,
 			   const unsigned int step_frame, const bool yuv2rgb) {
       if (!filename && !file)
@@ -57705,18 +57723,25 @@ namespace cimg_library_suffixed {
                                     "load_yuv(): Invalid sequence size (%u,%u) in file '%s'.",
                                     cimglist_instance,
                                     size_x,size_y,filename?filename:"(FILE*)");
+      if (chroma_subsampling!=420 && chroma_subsampling!=422 && chroma_subsampling!=444)
+        throw CImgArgumentException(_cimglist_instance
+                                    "load_yuv(): Invalid chroma subsampling parameter %u, for file '%s'.",
+                                    cimglist_instance,
+                                    chroma_subsampling,filename?filename:"(FILE*)");
 
       const unsigned int
+        cfx = chroma_subsampling==420 || chroma_subsampling==422?2:1,
+        cfy = chroma_subsampling==420?2:1,
 	nfirst_frame = first_frame<last_frame?first_frame:last_frame,
 	nlast_frame = first_frame<last_frame?last_frame:first_frame,
 	nstep_frame = step_frame?step_frame:1;
 
-      CImg<ucharT> tmp(size_x,size_y,1,3), UV(size_x/2,size_y/2,1,2);
+      CImg<ucharT> YUV(size_x,size_y,1,3), UV(size_x/cfx,size_y/cfy,1,2);
       std::FILE *const nfile = file?file:cimg::fopen(filename,"rb");
       bool stop_flag = false;
       int err;
       if (nfirst_frame) {
-        err = cimg::fseek(nfile,nfirst_frame*(size_x*size_y + size_x*size_y/2),SEEK_CUR);
+        err = cimg::fseek(nfile,nfirst_frame*(YUV._width*YUV._height + 2*UV._width*UV._height),SEEK_CUR);
         if (err) {
           if (!file) cimg::fclose(nfile);
           throw CImgIOException(_cimglist_instance
@@ -57727,10 +57752,10 @@ namespace cimg_library_suffixed {
       }
       unsigned int frame;
       for (frame = nfirst_frame; !stop_flag && frame<=nlast_frame; frame+=nstep_frame) {
-        tmp.fill(0);
+        YUV.get_shared_channel(0).fill(0);
         // *TRY* to read the luminance part, do not replace by cimg::fread!
-        err = (int)std::fread((void*)(tmp._data),1,(ulongT)tmp._width*tmp._height,nfile);
-        if (err!=(int)(tmp._width*tmp._height)) {
+        err = (int)std::fread((void*)(YUV._data),1,(ulongT)YUV._width*YUV._height,nfile);
+        if (err!=(int)(YUV._width*YUV._height)) {
           stop_flag = true;
           if (err>0)
             cimg::warn(_cimglist_instance
@@ -57751,14 +57776,27 @@ namespace cimg_library_suffixed {
                          cimglist_instance,
                          filename?filename:"(FILE*)",size_x,size_y);
           } else {
-            cimg_forXY(UV,x,y) {
-              const int x2 = x*2, y2 = y*2;
-              tmp(x2,y2,1) = tmp(x2 + 1,y2,1) = tmp(x2,y2 + 1,1) = tmp(x2 + 1,y2 + 1,1) = UV(x,y,0);
-              tmp(x2,y2,2) = tmp(x2 + 1,y2,2) = tmp(x2,y2 + 1,2) = tmp(x2 + 1,y2 + 1,2) = UV(x,y,1);
+            switch (chroma_subsampling) {
+            case 420 :
+              cimg_forXY(UV,x,y) {
+                const int x2 = x*2, y2 = y*2;
+                YUV(x2,y2,1) = YUV(x2 + 1,y2,1) = YUV(x2,y2 + 1,1) = YUV(x2 + 1,y2 + 1,1) = UV(x,y,0);
+                YUV(x2,y2,2) = YUV(x2 + 1,y2,2) = YUV(x2,y2 + 1,2) = YUV(x2 + 1,y2 + 1,2) = UV(x,y,1);
+              }
+              break;
+            case 422 :
+              cimg_forXY(UV,x,y) {
+                const int x2 = x*2;
+                YUV(x2,y,1) = YUV(x2 + 1,y,1) = UV(x,y,0);
+                YUV(x2,y,2) = YUV(x2 + 1,y,2) = UV(x,y,1);
+              }
+              break;
+            default :
+              YUV.draw_image(0,0,0,1,UV);
             }
-            if (yuv2rgb) tmp.YCbCrtoRGB();
-            insert(tmp);
-	    if (nstep_frame>1) cimg::fseek(nfile,(nstep_frame - 1)*(size_x*size_y + size_x*size_y/2),SEEK_CUR);
+            if (yuv2rgb) YUV.YCbCrtoRGB();
+            insert(YUV);
+            if (nstep_frame>1) cimg::fseek(nfile,(nstep_frame - 1)*(size_x*size_y + size_x*size_y/2),SEEK_CUR);
           }
         }
       }

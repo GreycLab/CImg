@@ -57719,23 +57719,23 @@ namespace cimg_library_suffixed {
         throw CImgArgumentException(_cimglist_instance
                                     "load_yuv(): Specified filename is (null).",
                                     cimglist_instance);
-      if (!size_x || !size_y || size_x%2 || size_y%2)
-        throw CImgArgumentException(_cimglist_instance
-                                    "load_yuv(): Specified dimensions %ux%u are invalid, for file '%s'.",
-                                    cimglist_instance,
-                                    size_x,size_y,filename?filename:"(FILE*)");
       if (chroma_subsampling!=420 && chroma_subsampling!=422 && chroma_subsampling!=444)
         throw CImgArgumentException(_cimglist_instance
-                                    "load_yuv(): Specified chroma subsampling %u is invalid, for file '%s'.",
+                                    "load_yuv(): Specified chroma subsampling '%u' is invalid, for file '%s'.",
                                     cimglist_instance,
                                     chroma_subsampling,filename?filename:"(FILE*)");
-
       const unsigned int
         cfx = chroma_subsampling==420 || chroma_subsampling==422?2:1,
         cfy = chroma_subsampling==420?2:1,
 	nfirst_frame = first_frame<last_frame?first_frame:last_frame,
 	nlast_frame = first_frame<last_frame?last_frame:first_frame,
 	nstep_frame = step_frame?step_frame:1;
+
+      if (!size_x || !size_y || size_x%cfx || size_y%cfy)
+        throw CImgArgumentException(_cimglist_instance
+                                    "load_yuv(): Specified dimensions (%u,%u) are invalid, for file '%s'.",
+                                    cimglist_instance,
+                                    size_x,size_y,filename?filename:"(FILE*)");
 
       CImg<ucharT> YUV(size_x,size_y,1,3), UV(size_x/cfx,size_y/cfy,1,2);
       std::FILE *const nfile = file?file:cimg::fopen(filename,"rb");
@@ -58651,7 +58651,7 @@ namespace cimg_library_suffixed {
         cfx = chroma_subsampling==420 || chroma_subsampling==422?2:1,
         cfy = chroma_subsampling==420?2:1,
         w0 = (*this)[0]._width, h0 = (*this)[0]._height,
-        width0 = w0 + (w0%2), height0 = h0 + (h0)%2;
+        width0 = w0 + (w0%cfx), height0 = h0 + (h0%cfy);
       std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
       cimglist_for(*this,l) {
         const CImg<T> &frame = (*this)[l];
@@ -58669,7 +58669,7 @@ namespace cimg_library_suffixed {
           cimg::fwrite(YUV._data,(size_t)YUV._width*YUV._height*3,nfile);
         else {
           cimg::fwrite(YUV._data,(size_t)YUV._width*YUV._height,nfile);
-          CImg<charT> UV = YUV.get_channels(1,2);
+          CImg<ucharT> UV = YUV.get_channels(1,2);
           UV.resize(UV._width/cfx,UV._height/cfy,1,2,2);
           cimg::fwrite(UV._data,(size_t)UV._width*UV._height*2,nfile);
         }

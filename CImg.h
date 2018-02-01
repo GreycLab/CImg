@@ -57772,8 +57772,8 @@ namespace cimg_library_suffixed {
             stop_flag = true;
             if (err>0)
               cimg::warn(_cimglist_instance
-                         "load_yuv(): File '%s' contains incomplete data or given image dimensions (%u,%u) "
-                         "are incorrect.",
+                         "load_yuv(): File '%s' contains incomplete data or given image dimensions "
+                         "(%u,%u) are incorrect.",
                          cimglist_instance,
                          filename?filename:"(FILE*)",size_x,size_y);
           } else {

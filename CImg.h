@@ -49626,15 +49626,15 @@ namespace cimg_library_suffixed {
              rdr.ndim(2)?rdr.ndim(2):1,
              rdr.ndim(3)?rdr.ndim(3):1,
              rdr.ndim(4)?rdr.ndim(4):1);
-      if (typeid(T)==typeid(unsigned char))
+      if (cimg::type<T>::string()==cimg::type<unsigned char>::string())
         rdr.setup_read_byte();
-      else if (typeid(T)==typeid(int))
+      else if (cimg::type<T>::string()==cimg::type<int>::string())
         rdr.setup_read_int();
-      else if (typeid(T)==typeid(double))
+      else if (cimg::type<T>::string()==cimg::type<double>::string())
         rdr.setup_read_double();
       else
         rdr.setup_read_float();
-      minc::load_standard_volume(rdr, this->_data);
+      minc::load_standard_volume(rdr,this->_data);
       return *this;
 #endif
     }
@@ -52335,7 +52335,7 @@ namespace cimg_library_suffixed {
       else if (!cimg::strcasecmp(ext,"gz")) return save_gzip_external(fn);
 
       // Image sequences
-      else if (!cimg::strcasecmp(ext,"yuv")) return save_yuv(fn,true);
+      else if (!cimg::strcasecmp(ext,"yuv")) return save_yuv(fn,444,true);
       else if (!cimg::strcasecmp(ext,"avi") ||
                !cimg::strcasecmp(ext,"mov") ||
                !cimg::strcasecmp(ext,"asf") ||
@@ -53571,11 +53571,11 @@ namespace cimg_library_suffixed {
        if (spectrum()) di.push_back(minc::dim_info(spectrum(),spectrum()*0.5,-1,minc::dim_info::DIM_TIME));
        wtr.open(filename,di,1,NC_FLOAT,0);
      }
-     if (typeid(T)==typeid(unsigned char))
+     if (cimg::type<T>::string()==cimg::type<unsigned char>::string())
        wtr.setup_write_byte();
-     else if (typeid(T)==typeid(int))
+     else if (cimg::type<T>::string()==cimg::type<int>::string())
        wtr.setup_write_int();
-     else if (typeid(T)==typeid(double))
+     else if (cimg::type<T>::string()==cimg::type<double>::string())
        wtr.setup_write_double();
      else
        wtr.setup_write_float();
@@ -54117,21 +54117,26 @@ namespace cimg_library_suffixed {
     //! Save image as a .yuv video file.
     /**
        \param filename Filename, as a C-string.
+       \param chroma_subsampling Type of chroma subsampling. Can be <tt>{ 420 | 422 | 444 }</tt>.
        \param is_rgb Tells if pixel values of the instance image are RGB-coded (\c true) or YUV-coded (\c false).
        \note Each slice of the instance image is considered to be a single frame of the output video file.
     **/
-    const CImg<T>& save_yuv(const char *const filename, const bool is_rgb=true) const {
-      get_split('z').save_yuv(filename,is_rgb);
+    const CImg<T>& save_yuv(const char *const filename,
+                            const unsigned int chroma_subsampling=444,
+                            const bool is_rgb=true) const {
+      get_split('z').save_yuv(filename,chroma_subsampling,is_rgb);
       return *this;
     }
 
     //! Save image as a .yuv video file \overloading.
     /**
-       Same as save_yuv(const char*,bool) const
+       Same as save_yuv(const char*,const unsigned int,const bool) const
        with a file stream argument instead of a filename string.
     **/
-    const CImg<T>& save_yuv(std::FILE *const file, const bool is_rgb=true) const {
-      get_split('z').save_yuv(file,is_rgb);
+    const CImg<T>& save_yuv(std::FILE *const file,
+                            const unsigned int chroma_subsampling=444,
+                            const bool is_rgb=true) const {
+      get_split('z').save_yuv(file,chroma_subsampling,is_rgb);
       return *this;
     }
 
@@ -57660,6 +57665,7 @@ namespace cimg_library_suffixed {
         \param filename Filename to read data from.
         \param size_x Width of the images.
         \param size_y Height of the images.
+        \param chroma_subsampling Type of chroma subsampling. Can be <tt>{ 420 | 422 | 444 }</tt>.
         \param first_frame Index of first image frame to read.
         \param last_frame Index of last image frame to read.
         \param step_frame Step applied between each frame.
@@ -57713,19 +57719,14 @@ namespace cimg_library_suffixed {
         throw CImgArgumentException(_cimglist_instance
                                     "load_yuv(): Specified filename is (null).",
                                     cimglist_instance);
-      if (size_x%2 || size_y%2)
+      if (!size_x || !size_y || size_x%2 || size_y%2)
         throw CImgArgumentException(_cimglist_instance
-                                    "load_yuv(): Invalid odd XY dimensions %ux%u in file '%s'.",
-                                    cimglist_instance,
-                                    size_x,size_y,filename?filename:"(FILE*)");
-      if (!size_x || !size_y)
-        throw CImgArgumentException(_cimglist_instance
-                                    "load_yuv(): Invalid sequence size (%u,%u) in file '%s'.",
+                                    "load_yuv(): Specified dimensions %ux%u are invalid, for file '%s'.",
                                     cimglist_instance,
                                     size_x,size_y,filename?filename:"(FILE*)");
       if (chroma_subsampling!=420 && chroma_subsampling!=422 && chroma_subsampling!=444)
         throw CImgArgumentException(_cimglist_instance
-                                    "load_yuv(): Invalid chroma subsampling parameter %u, for file '%s'.",
+                                    "load_yuv(): Specified chroma subsampling %u is invalid, for file '%s'.",
                                     cimglist_instance,
                                     chroma_subsampling,filename?filename:"(FILE*)");
 
@@ -57779,16 +57780,16 @@ namespace cimg_library_suffixed {
             switch (chroma_subsampling) {
             case 420 :
               cimg_forXY(UV,x,y) {
-                const int x2 = x*2, y2 = y*2;
-                YUV(x2,y2,1) = YUV(x2 + 1,y2,1) = YUV(x2,y2 + 1,1) = YUV(x2 + 1,y2 + 1,1) = UV(x,y,0);
-                YUV(x2,y2,2) = YUV(x2 + 1,y2,2) = YUV(x2,y2 + 1,2) = YUV(x2 + 1,y2 + 1,2) = UV(x,y,1);
+                const int x2 = x*2, y2 = y*2, x2p1 = x2 + 1, y2p1 = y2 + 1;
+                YUV(x2,y2,1) = YUV(x2p1,y2,1) = YUV(x2,y2p1,1) = YUV(x2p1,y2p1,1) = UV(x,y,0);
+                YUV(x2,y2,2) = YUV(x2p1,y2,2) = YUV(x2,y2p1,2) = YUV(x2p1,y2p1,2) = UV(x,y,1);
               }
               break;
             case 422 :
               cimg_forXY(UV,x,y) {
-                const int x2 = x*2;
-                YUV(x2,y,1) = YUV(x2 + 1,y,1) = UV(x,y,0);
-                YUV(x2,y,2) = YUV(x2 + 1,y,2) = UV(x,y,1);
+                const int x2 = x*2, x2p1 = x2 + 1;
+                YUV(x2,y,1) = YUV(x2p1,y,1) = UV(x,y,0);
+                YUV(x2,y,2) = YUV(x2p1,y,2) = UV(x,y,1);
               }
               break;
             default :
@@ -58474,7 +58475,7 @@ namespace cimg_library_suffixed {
 #endif
       if (!cimg::strcasecmp(ext,"cimgz")) return save_cimg(fn,true);
       else if (!cimg::strcasecmp(ext,"cimg") || !*ext) return save_cimg(fn,false);
-      else if (!cimg::strcasecmp(ext,"yuv")) return save_yuv(fn,true);
+      else if (!cimg::strcasecmp(ext,"yuv")) return save_yuv(fn,444,true);
       else if (!cimg::strcasecmp(ext,"avi") ||
                !cimg::strcasecmp(ext,"mov") ||
                !cimg::strcasecmp(ext,"asf") ||
@@ -58601,47 +58602,83 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    const CImgList<T>& _save_yuv(std::FILE *const file, const char *const filename, const bool is_rgb) const {
-      if (!file && !filename)
-        throw CImgArgumentException(_cimglist_instance
-                                    "save_yuv(): Specified filename is (null).",
-                                    cimglist_instance);
-      if (is_empty()) { cimg::fempty(file,filename); return *this; }
-      if ((*this)[0].width()%2 || (*this)[0].height()%2)
-        throw CImgInstanceException(_cimglist_instance
-                                    "save_yuv(): Invalid odd instance dimensions (%u,%u) for file '%s'.",
-                                    cimglist_instance,
-                                    (*this)[0].width(),(*this)[0].height(),
-                                    filename?filename:"(FILE*)");
-
-      std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
-      cimglist_for(*this,l) {
-        CImg<ucharT> YCbCr((*this)[l]);
-        if (is_rgb) YCbCr.RGBtoYCbCr();
-        cimg::fwrite(YCbCr._data,(size_t)YCbCr._width*YCbCr._height,nfile);
-        cimg::fwrite(YCbCr.get_resize(YCbCr._width/2, YCbCr._height/2,1,3,3).data(0,0,0,1),
-                     (size_t)YCbCr._width*YCbCr._height/2,nfile);
-      }
-      if (!file) cimg::fclose(nfile);
-      return *this;
-    }
-
     //! Save list as a YUV image sequence file.
     /**
       \param filename Filename to write data to.
+      \param chroma_subsampling Type of chroma subsampling. Can be <tt>{ 420 | 422 | 444 }</tt>.
       \param is_rgb Tells if the RGB to YUV conversion must be done for saving.
     **/
-    const CImgList<T>& save_yuv(const char *const filename=0, const bool is_rgb=true) const {
-      return _save_yuv(0,filename,is_rgb);
+    const CImgList<T>& save_yuv(const char *const filename=0,
+                                const unsigned int chroma_subsampling=444,
+                                const bool is_rgb=true) const {
+      return _save_yuv(0,filename,chroma_subsampling,is_rgb);
     }
 
     //! Save image sequence into a YUV file.
     /**
       \param file File to write data to.
+      \param chroma_subsampling Type of chroma subsampling. Can be <tt>{ 420 | 422 | 444 }</tt>.
       \param is_rgb Tells if the RGB to YUV conversion must be done for saving.
     **/
-    const CImgList<T>& save_yuv(std::FILE *const file, const bool is_rgb=true) const {
-      return _save_yuv(file,0,is_rgb);
+    const CImgList<T>& save_yuv(std::FILE *const file,
+                                const unsigned int chroma_subsampling=444,
+                                const bool is_rgb=true) const {
+      return _save_yuv(file,0,chroma_subsampling,is_rgb);
+    }
+
+    const CImgList<T>& _save_yuv(std::FILE *const file, const char *const filename,
+                                 const unsigned int chroma_subsampling,
+                                 const bool is_rgb) const {
+      if (!file && !filename)
+        throw CImgArgumentException(_cimglist_instance
+                                    "save_yuv(): Specified filename is (null).",
+                                    cimglist_instance);
+      if (chroma_subsampling!=420 && chroma_subsampling!=422 && chroma_subsampling!=444)
+        throw CImgArgumentException(_cimglist_instance
+                                    "save_yuv(): Specified chroma subsampling %u is invalid, for file '%s'.",
+                                    cimglist_instance,
+                                    chroma_subsampling,filename?filename:"(FILE*)");
+
+      if (is_empty()) { cimg::fempty(file,filename); return *this; }
+      if ((*this)[0].width()%2 || (*this)[0].height()%2)
+        throw CImgInstanceException(_cimglist_instance
+                                    "save_yuv(): Invalid odd dimensions (%u,%u) for file '%s'.",
+                                    cimglist_instance,
+                                    (*this)[0].width(),(*this)[0].height(),
+                                    filename?filename:"(FILE*)");
+      const unsigned int
+        cfx = chroma_subsampling==420 || chroma_subsampling==422?2:1,
+        cfy = chroma_subsampling==420?2:1;
+      std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
+      cimglist_for(*this,l) {
+        const CImg<T> &frame = (*this)[l];
+        CImg<ucharT> YUV;
+        if (sizeof(T)==1 && !is_rgb)
+          YUV.assign((unsigned char*)frame._data,frame._width,frame._height,frame._depth,frame._spectrum,true);
+        else {
+          YUV = frame;
+          if (is_rgb) YUV.RGBtoYCbCr();
+        }
+        if (chroma_subsampling==444)
+          cimg::fwrite(YUV._data,(size_t)YUV._width*YUV._height*3,nfile);
+        else {
+          cimg::fwrite(YUV._data,(size_t)YUV._width*YUV._height,nfile);
+          CImg<charT> UV = YUV.get_channels(1,2);
+          UV.resize(UV._width/cfx,UV._height/cfy,1,2,2);
+          cimg::fwrite(UV._data,(size_t)UV._width*UV._height*2,nfile);
+        }
+      }
+      if (!file) cimg::fclose(nfile);
+      return *this;
+    }
+
+    //! Save list into a .cimg file.
+    /**
+       \param filename Filename to write data to.
+       \param is_compressed Tells if data compression must be enabled.
+    **/
+    const CImgList<T>& save_cimg(const char *const filename, const bool is_compressed=false) const {
+      return _save_cimg(0,filename,is_compressed);
     }
 
     const CImgList<T>& _save_cimg(std::FILE *const file, const char *const filename, const bool is_compressed) const {
@@ -58695,15 +58732,6 @@ namespace cimg_library_suffixed {
       }
       if (!file) cimg::fclose(nfile);
       return *this;
-    }
-
-    //! Save list into a .cimg file.
-    /**
-       \param filename Filename to write data to.
-       \param is_compressed Tells if data compression must be enabled.
-    **/
-    const CImgList<T>& save_cimg(const char *const filename, const bool is_compressed=false) const {
-      return _save_cimg(0,filename,is_compressed);
     }
 
     //! Save list into a .cimg file.

@@ -58646,25 +58646,23 @@ namespace cimg_library_suffixed {
                                     "save_yuv(): Specified chroma subsampling %u is invalid, for file '%s'.",
                                     cimglist_instance,
                                     chroma_subsampling,filename?filename:"(FILE*)");
-
       if (is_empty()) { cimg::fempty(file,filename); return *this; }
-      if ((*this)[0].width()%2 || (*this)[0].height()%2)
-        throw CImgInstanceException(_cimglist_instance
-                                    "save_yuv(): Invalid odd dimensions (%u,%u) for file '%s'.",
-                                    cimglist_instance,
-                                    (*this)[0].width(),(*this)[0].height(),
-                                    filename?filename:"(FILE*)");
       const unsigned int
         cfx = chroma_subsampling==420 || chroma_subsampling==422?2:1,
-        cfy = chroma_subsampling==420?2:1;
+        cfy = chroma_subsampling==420?2:1,
+        w0 = (*this)[0]._width, h0 = (*this)[0]._height,
+        width0 = w0 + (w0%2), height0 = h0 + (h0)%2;
       std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
       cimglist_for(*this,l) {
         const CImg<T> &frame = (*this)[l];
         CImg<ucharT> YUV;
-        if (sizeof(T)==1 && !is_rgb)
-          YUV.assign((unsigned char*)frame._data,frame._width,frame._height,frame._depth,frame._spectrum,true);
+        if (sizeof(T)==1 && !is_rgb &&
+            frame._width==width0 && frame._height==height0 && frame._depth==1 && frame._spectrum==3)
+          YUV.assign((unsigned char*)frame._data,width0,height0,1,3,true);
         else {
           YUV = frame;
+          if (YUV._width!=width0 || YUV._height!=height0 || YUV._depth!=1) YUV.resize(width0,height0,1,-100,0);
+          if (YUV._spectrum!=3) YUV.resize(-100,-100,1,3,YUV._spectrum==1?1:0);
           if (is_rgb) YUV.RGBtoYCbCr();
         }
         if (chroma_subsampling==444)

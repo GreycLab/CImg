@@ -57777,19 +57777,27 @@ namespace cimg_library_suffixed {
                          cimglist_instance,
                          filename?filename:"(FILE*)",size_x,size_y);
           } else {
+            const ucharT *ptrs1 = UV._data, *ptrs2 = UV.data(0,0,0,1);
+            ucharT *ptrd1 = YUV.data(0,0,0,1), *ptrd2 = YUV.data(0,0,0,2);
+            const unsigned int wd = YUV._width;
             switch (chroma_subsampling) {
             case 420 :
-              cimg_forXY(UV,x,y) {
-                const int x2 = x*2, y2 = y*2, x2p1 = x2 + 1, y2p1 = y2 + 1;
-                YUV(x2,y2,1) = YUV(x2p1,y2,1) = YUV(x2,y2p1,1) = YUV(x2p1,y2p1,1) = UV(x,y,0);
-                YUV(x2,y2,2) = YUV(x2p1,y2,2) = YUV(x2,y2p1,2) = YUV(x2p1,y2p1,2) = UV(x,y,1);
+              cimg_forY(UV,y) {
+                cimg_forX(UV,x) {
+                  const ucharT U = *(ptrs1++), V = *(ptrs2++);
+                  ptrd1[wd] = U; *(ptrd1)++ = U;
+                  ptrd1[wd] = U; *(ptrd1)++ = U;
+                  ptrd2[wd] = V; *(ptrd2)++ = V;
+                  ptrd2[wd] = V; *(ptrd2)++ = V;
+                }
+                ptrd1+=wd; ptrd2+=wd;
               }
               break;
             case 422 :
               cimg_forXY(UV,x,y) {
-                const int x2 = x*2, x2p1 = x2 + 1;
-                YUV(x2,y,1) = YUV(x2p1,y,1) = UV(x,y,0);
-                YUV(x2,y,2) = YUV(x2p1,y,2) = UV(x,y,1);
+                const ucharT U = *(ptrs1++), V = *(ptrs2++);
+                *(ptrd1++) = U; *(ptrd1++) = U;
+                *(ptrd2++) = V; *(ptrd2++) = V;
               }
               break;
             default :

@@ -57742,7 +57742,7 @@ namespace cimg_library_suffixed {
       bool stop_flag = false;
       int err;
       if (nfirst_frame) {
-        err = cimg::fseek(nfile,nfirst_frame*(YUV._width*YUV._height + 2*UV._width*UV._height),SEEK_CUR);
+        err = cimg::fseek(nfile,(ulongT)nfirst_frame*(YUV._width*YUV._height + 2*UV._width*UV._height),SEEK_CUR);
         if (err) {
           if (!file) cimg::fclose(nfile);
           throw CImgIOException(_cimglist_instance
@@ -57755,7 +57755,7 @@ namespace cimg_library_suffixed {
       for (frame = nfirst_frame; !stop_flag && frame<=nlast_frame; frame+=nstep_frame) {
         YUV.get_shared_channel(0).fill(0);
         // *TRY* to read the luminance part, do not replace by cimg::fread!
-        err = (int)std::fread((void*)(YUV._data),1,(ulongT)YUV._width*YUV._height,nfile);
+        err = (int)std::fread((void*)(YUV._data),1,(size_t)YUV._width*YUV._height,nfile);
         if (err!=(int)(YUV._width*YUV._height)) {
           stop_flag = true;
           if (err>0)
@@ -57767,7 +57767,7 @@ namespace cimg_library_suffixed {
         } else {
           UV.fill(0);
           // *TRY* to read the luminance part, do not replace by cimg::fread!
-          err = (int)std::fread((void*)(UV._data),1,(size_t)(UV.size()),nfile);
+          err = (int)std::fread((void*)(UV._data),1,(size_t)UV.size(),nfile);
           if (err!=(int)(UV.size())) {
             stop_flag = true;
             if (err>0)
@@ -57805,7 +57805,7 @@ namespace cimg_library_suffixed {
             }
             if (yuv2rgb) YUV.YCbCrtoRGB();
             insert(YUV);
-            if (nstep_frame>1) cimg::fseek(nfile,(nstep_frame - 1)*(size_x*size_y + size_x*size_y/2),SEEK_CUR);
+            if (nstep_frame>1) cimg::fseek(nfile,(ulongT)(nstep_frame - 1)*(size_x*size_y + size_x*size_y/2),SEEK_CUR);
           }
         }
       }

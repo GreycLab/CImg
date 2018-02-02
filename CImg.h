@@ -6237,6 +6237,20 @@ namespace cimg_library_suffixed {
       return !is_directory(path);
     }
 
+    //! Get file size.
+    /**
+       \param path Specified path to get size from.
+       \return File size or '-1' if file does not exist.
+    **/
+    inline cimg_int64 fsize(const char *const path) {
+      std::FILE *const file = std::fopen(path,"rb");
+      if (!file) return (cimg_int64)-1;
+      std::fseek(file,0,SEEK_END);
+      const cimg_int64 siz = (cimg_int64)std::ftell(file);
+      std::fclose(file);
+      return siz;
+    }
+
     //! Get last write time of a given file or directory (multiple-attributes version).
     /**
        \param path Specified path to get attributes from.
@@ -18213,6 +18227,19 @@ namespace cimg_library_suffixed {
               if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(std::floor(mem[arg1]));
               _cimg_mp_scalar1(mp_floor,arg1);
             }
+
+            if (!std::strncmp(ss,"fsize(",6)) { // File size
+              _cimg_mp_op("Function 'fsize()'");
+              *se1 = 0;
+              variable_name.assign(CImg<charT>::string(ss6,true,true).unroll('y'),true);
+              cimg::strpare(variable_name,false,true);
+              pos = scalar();
+              ((CImg<ulongT>::vector((ulongT)mp_fsize,pos,0),variable_name)>'y').move_to(opcode);
+              *se1 = ')';
+              opcode[2] = opcode._height;
+              opcode.move_to(code);
+              _cimg_mp_return(pos);
+            }
             break;
 
           case 'g' :
@@ -20884,6 +20911,11 @@ namespace cimg_library_suffixed {
         mp.break_type = _break_type;
         mp.p_code = p_end - 1;
         return mp.mem[mem_body];
+      }
+
+      static double mp_fsize(_cimg_math_parser& mp) {
+        const CImg<charT> filename(mp.opcode._data + 3,mp.opcode[2] - 3);
+        return (double)cimg::fsize(filename);
       }
 
       static double mp_g(_cimg_math_parser& mp) {
@@ -57742,7 +57774,7 @@ namespace cimg_library_suffixed {
       bool stop_flag = false;
       int err;
       if (nfirst_frame) {
-        err = cimg::fseek(nfile,(ulongT)nfirst_frame*(YUV._width*YUV._height + 2*UV._width*UV._height),SEEK_CUR);
+        err = cimg::fseek(nfile,(uint64T)nfirst_frame*(YUV._width*YUV._height + 2*UV._width*UV._height),SEEK_CUR);
         if (err) {
           if (!file) cimg::fclose(nfile);
           throw CImgIOException(_cimglist_instance
@@ -57805,7 +57837,7 @@ namespace cimg_library_suffixed {
             }
             if (yuv2rgb) YUV.YCbCrtoRGB();
             insert(YUV);
-            if (nstep_frame>1) cimg::fseek(nfile,(ulongT)(nstep_frame - 1)*(size_x*size_y + size_x*size_y/2),SEEK_CUR);
+            if (nstep_frame>1) cimg::fseek(nfile,(uint64T)(nstep_frame - 1)*(size_x*size_y + size_x*size_y/2),SEEK_CUR);
           }
         }
       }

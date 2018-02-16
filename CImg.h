@@ -17512,7 +17512,8 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"cats(",5)) { // Concatenate strings
               _cimg_mp_op("Function 'cats()'");
-              CImg<ulongT>::vector((ulongT)mp_cats,0).move_to(_opcode);
+              CImg<ulongT>::vector((ulongT)mp_cats,0,0,0).move_to(_opcode);
+              arg1 = 0;
               for (s = ss5; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;

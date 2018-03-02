@@ -48331,7 +48331,7 @@ namespace cimg_library_suffixed {
       if (header_size>40) cimg::fseek(nfile,header_size - 40,SEEK_CUR);
 
       const int
-        dx_bytes = (bpp==1)?(dx/8 + (dx%8?1:0)):((bpp==4)?(dx/2 + (dx%2)):(dx*bpp/8)),
+        dx_bytes = (bpp==1)?(dx/8 + (dx%8?1:0)):((bpp==4)?(dx/2 + (dx%2)):(int)((longT)dx*bpp/8)),
         align_bytes = (4 - dx_bytes%4)%4;
       const ulongT
         cimg_iobuffer = (ulongT)24*1024*1024,
@@ -48363,10 +48363,10 @@ namespace cimg_library_suffixed {
       }
 
       // Read pixel data
-      assign(dx,cimg::abs(dy),1,3);
+      assign(dx,cimg::abs(dy),1,3,0);
       switch (bpp) {
       case 1 : { // Monochrome
-        for (int y = height() - 1; y>=0; --y) {
+        if (colormap._width>=2) for (int y = height() - 1; y>=0; --y) {
           if (buf_size>=cimg_iobuffer) {
             if (!cimg::fread(ptrs=buffer._data,dx_bytes,nfile)) break;
             cimg::fseek(nfile,align_bytes,SEEK_CUR);
@@ -48384,7 +48384,7 @@ namespace cimg_library_suffixed {
         }
       } break;
       case 4 : { // 16 colors
-        for (int y = height() - 1; y>=0; --y) {
+        if (colormap._width>=16) for (int y = height() - 1; y>=0; --y) {
           if (buf_size>=cimg_iobuffer) {
             if (!cimg::fread(ptrs=buffer._data,dx_bytes,nfile)) break;
             cimg::fseek(nfile,align_bytes,SEEK_CUR);
@@ -48402,8 +48402,8 @@ namespace cimg_library_suffixed {
           ptrs+=align_bytes;
         }
       } break;
-      case 8 : { //  256 colors
-        for (int y = height() - 1; y>=0; --y) {
+      case 8 : { // 256 colors
+        if (colormap._width>=256) for (int y = height() - 1; y>=0; --y) {
           if (buf_size>=cimg_iobuffer) {
             if (!cimg::fread(ptrs=buffer._data,dx_bytes,nfile)) break;
             cimg::fseek(nfile,align_bytes,SEEK_CUR);

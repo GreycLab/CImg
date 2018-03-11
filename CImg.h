@@ -36560,7 +36560,7 @@ namespace cimg_library_suffixed {
             cimg_forC(*this,c) {
               Tfloat *ptrd = res[l2].data(0,0,0,c);
               CImg_3x3x3(I,Tfloat);
-              cimg_forC(*this,c) cimg_for3x3x3(*this,x,y,z,c,I,Tfloat) *(ptrd++) = (Icpp + Icnn - Icpn - Icnp)/4;
+              cimg_for3x3x3(*this,x,y,z,c,I,Tfloat) *(ptrd++) = (Icpp + Icnn - Icpn - Icnp)/4;
             }
           }
           else if (axis1=='z' && axis2=='z') { // Izz

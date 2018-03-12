@@ -132,8 +132,8 @@ rm -rf ../latex
 echo " - Commit on GIT repository."
 cd $SRC_DIR
 if [ "$1" == "final" ]; then
-    git tag -d v.$RELEASE1$RELEASE2$RELEASE3
-    git tag v.$RELEASE1$RELEASE2$RELEASE3
+    git tag -d v.$RELEASE1.$RELEASE2.$RELEASE3
+    git tag v.$RELEASE1.$RELEASE2.$RELEASE3
     git commit -m "Final release "${RELEASE} >>$LOG_FILE 2>&1
 else
     git commit -m "Auto-commit for release "${RELEASE}${SUFFIX} >>$LOG_FILE 2>&1

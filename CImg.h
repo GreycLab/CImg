@@ -4848,11 +4848,12 @@ namespace cimg_library_suffixed {
        but it does not open an extra console windows
        on Windows-based systems.
     **/
-    inline int system(const char *const command, const char *const module_name=0) {
+    inline int system(const char *const command, const char *const module_name=0, const bool is_verbose=false) {
       cimg::unused(module_name);
 #ifdef cimg_no_system_calls
       return -1;
 #else
+      if (is_verbose) return std::system(command);
 #if cimg_OS==1
       const unsigned int l = (unsigned int)std::strlen(command);
       if (l) {

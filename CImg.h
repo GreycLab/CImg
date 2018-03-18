@@ -35794,8 +35794,8 @@ namespace cimg_library_suffixed {
         mean_p = get_blur_box(psize,true),
         cov_Ip = (guide.get_mul(*this)).blur_box(psize,true)-=mean_I.get_mul(mean_p),
         var_I = guide.get_sqr().blur_box(psize,true)-=mean_I.get_sqr(),
-        a = cov_Ip.div(var_I+=_regularization),
-        b = mean_p - a.get_mul(mean_I);
+        &a = cov_Ip.div(var_I+=_regularization),
+        &b = mean_p-=a.get_mul(mean_I);
       a.blur_box(psize,true);
       b.blur_box(psize,true);
       return a.mul(guide)+=b;

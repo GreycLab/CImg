@@ -35789,35 +35789,16 @@ namespace cimg_library_suffixed {
       }
       _regularization = std::max(_regularization,0.01f);
       const unsigned int psize = (unsigned int)(1 + 2*_radius);
-      const CImg<uintT> N = CImg<uintT>(_width,_height,_depth,1,1)._blur_guided(psize);
       CImg<Tfloat>
-        mean_I = CImg<Tfloat>(guide,false)._blur_guided(psize).div(N),
-        mean_p = CImg<Tfloat>(*this,false)._blur_guided(psize).div(N),
-        cov_Ip = CImg<Tfloat>(*this,false).mul(guide)._blur_guided(psize).div(N)-=mean_p.get_mul(mean_I),
-        var_I = CImg<Tfloat>(guide,false).sqr()._blur_guided(psize).div(N)-=mean_I.get_sqr(),
-        &a = cov_Ip.div(var_I+=_regularization),
-        &b = mean_p-=a.get_mul(mean_I);
-      a._blur_guided(psize).div(N);
-      b._blur_guided(psize).div(N);
+        mean_I = guide.get_blur_box(psize,true),
+        mean_p = get_blur_box(psize,true),
+        cov_Ip = (guide.get_mul(*this)).blur_box(psize,true)-=mean_I.get_mul(mean_p),
+        var_I = guide.get_sqr().blur_box(psize,true)-=mean_I.get_sqr(),
+        a = cov_Ip.div(var_I+=_regularization),
+        b = mean_p - a.get_mul(mean_I);
+      a.blur_box(psize,true);
+      b.blur_box(psize,true);
       return a.mul(guide)+=b;
-    }
-
-    // [internal] Perform box filter with dirichlet boundary conditions.
-    CImg<T>& _blur_guided(const unsigned int psize) {
-      const int p1 = (int)psize/2, p2 = (int)psize - p1;
-      if (_depth!=1) {
-        CImg<floatT> cumul = get_cumulate('z'), cumul2 = cumul.get_shift(0,0,p2,0,1);
-        (cumul.shift(0,0,-p1,0,1)-=cumul2).move_to(*this);
-      }
-      if (_height!=1) {
-        CImg<floatT> cumul = get_cumulate('y'), cumul2 = cumul.get_shift(0,p2,0,0,1);
-        (cumul.shift(0,-p1,0,0,1)-=cumul2).move_to(*this);
-      }
-      if (_width!=1) {
-        CImg<floatT> cumul = get_cumulate('x'), cumul2 = cumul.get_shift(p2,0,0,0,1);
-        (cumul.shift(-p1,0,0,0,1)-=cumul2).move_to(*this);
-      }
-      return *this;
     }
 
     //! Blur image using patch-based space.

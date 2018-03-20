@@ -2854,12 +2854,8 @@ namespace cimg_library_suffixed {
         return !is_nan(val) && (val<cimg::type<half>::min() || val>cimg::type<half>::max());
 #endif
       }
-      static bool is_nan(const long double val) {
-#ifdef isnan
-        return (bool)isnan(val);
-#else
-        return !(val==val);
-#endif
+      static bool is_nan(const half val) {
+        return cimg::type<float>::is_nan((float)val);
       }
       static half min() { return (half)-65504; }
       static half max() { return (half)65504; }

@@ -2763,12 +2763,10 @@ namespace cimg_library_suffixed {
         return !is_nan(val) && (val<cimg::type<double>::min() || val>cimg::type<double>::max());
 #endif
       }
-      static bool is_nan(const double val) {
-#ifdef isnan
-        return (bool)isnan(val);
-#else
-        return !(val==val);
-#endif
+      static bool is_nan(const double val) { // Custom version that works with '-ffast-math'
+        cimg_uint64 u;
+        std::memcpy(&u,&val,8);
+        return ((u&0x7ff0000000000000)==0x7ff0000000000000)&&(u&0xfffffffffffff);
       }
       static double min() { return -DBL_MAX; }
       static double max() { return DBL_MAX; }
@@ -2802,12 +2800,10 @@ namespace cimg_library_suffixed {
         return !is_nan(val) && (val<cimg::type<float>::min() || val>cimg::type<float>::max());
 #endif
       }
-      static bool is_nan(const float val) {
-#ifdef isnan
-        return (bool)isnan(val);
-#else
-        return !(val==val);
-#endif
+      static bool is_nan(const float val) { // Custom version that works with '-ffast-math'
+        unsigned int u;
+        std::memcpy(&u,&val,4);
+        return ((u&0x7f800000)==0x7f800000)&&(u&0x7fffff);
       }
       static float min() { return -FLT_MAX; }
       static float max() { return FLT_MAX; }

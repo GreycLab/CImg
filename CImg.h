@@ -20075,7 +20075,7 @@ namespace cimg_library_suffixed {
         _cimg_mp_check_type(arg,n_arg,2,0);
         const unsigned int
           siz = _cimg_mp_size(arg),
-          n = (unsigned int)std::sqrt((float)siz);
+          n = (unsigned int)cimg::round(std::sqrt((float)siz));
         if (n*n!=siz) {
           const char *s_arg;
           if (*s_op!='F') s_arg = !n_arg?"":n_arg==1?"Left-hand ":"Right-hand ";

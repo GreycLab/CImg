@@ -17922,7 +17922,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_op("Function 'det()'");
               arg1 = compile(ss4,se1,depth1,0,is_single);
               _cimg_mp_check_matrix_square(arg1,1);
-              p1 = (unsigned int)std::sqrt((float)_cimg_mp_size(arg1));
+              p1 = (unsigned int)cimg::round(std::sqrt((float)_cimg_mp_size(arg1)));
               _cimg_mp_scalar2(mp_det,arg1,p1);
             }
 
@@ -18090,7 +18090,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_op("Function 'eig()'");
               arg1 = compile(ss4,se1,depth1,0,is_single);
               _cimg_mp_check_matrix_square(arg1,1);
-              p1 = (unsigned int)std::sqrt((float)_cimg_mp_size(arg1));
+              p1 = (unsigned int)cimg::round(std::sqrt((float)_cimg_mp_size(arg1)));
               pos = vector((p1 + 1)*p1);
               CImg<ulongT>::vector((ulongT)mp_matrix_eig,pos,arg1,p1).move_to(code);
               _cimg_mp_return(pos);
@@ -18348,7 +18348,7 @@ namespace cimg_library_suffixed {
               arg1 = compile(ss4,se1,depth1,0,is_single);
               if (_cimg_mp_is_vector(arg1)) {
                 _cimg_mp_check_matrix_square(arg1,1);
-                p1 = (unsigned int)std::sqrt((float)_cimg_mp_size(arg1));
+                p1 = (unsigned int)cimg::round(std::sqrt((float)_cimg_mp_size(arg1)));
                 pos = vector(p1*p1);
                 CImg<ulongT>::vector((ulongT)mp_matrix_inv,pos,arg1,p1).move_to(code);
                 _cimg_mp_return(pos);
@@ -19055,7 +19055,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_op("Function 'trace()'");
               arg1 = compile(ss6,se1,depth1,0,is_single);
               _cimg_mp_check_matrix_square(arg1,1);
-              p1 = (unsigned int)std::sqrt((float)_cimg_mp_size(arg1));
+              p1 = (unsigned int)cimg::round(std::sqrt((float)_cimg_mp_size(arg1)));
               _cimg_mp_scalar2(mp_trace,arg1,p1);
             }
 
@@ -24907,7 +24907,7 @@ namespace cimg_library_suffixed {
        \note - The spectrum() of the image must be a square.
      **/
     CImg<T> get_matrix_at(const unsigned int x=0, const unsigned int y=0, const unsigned int z=0) const {
-      const int n = (int)std::sqrt((double)_spectrum);
+      const int n = (int)cimg::round(std::sqrt((double)_spectrum));
       const T *ptrs = data(x,y,z,0);
       const ulongT whd = (ulongT)_width*_height*_depth;
       CImg<T> res(n,n);
@@ -44194,7 +44194,7 @@ namespace cimg_library_suffixed {
         b = u*v*(l1 - l2),
         c = l1*v*v + l2*u*u;
       const int
-        yb = (int)std::sqrt(a*rmax*rmax/(a*c - b*b)),
+        yb = (int)cimg::round(std::sqrt(a*rmax*rmax/(a*c - b*b))),
         tymin = y0 - yb - 1,
         tymax = y0 + yb + 1,
         ymin = tymin<0?0:tymin,

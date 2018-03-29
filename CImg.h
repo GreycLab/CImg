@@ -35137,8 +35137,9 @@ namespace cimg_library_suffixed {
                                     "blur_anisotropic(): Invalid specified diffusion tensor field (%u,%u,%u,%u,%p).",
                                     cimg_instance,
                                     G._width,G._height,G._depth,G._spectrum,G._data);
-
-      if (is_empty() || amplitude<=0 || dl<0) return *this;
+      if (is_empty() || dl<0) return *this;
+      const float namplitude = amplitude>=0?amplitude:-amplitude*cimg::max(_width,_height,_depth)/100;
+      unsigned int iamplitude = cimg::round(namplitude);
       const bool is_3d = (G._spectrum==6);
       T val_min, val_max = max_min(val_min);
       _cimg_abort_init_omp;
@@ -35146,7 +35147,7 @@ namespace cimg_library_suffixed {
 
       if (da<=0) {  // Iterated oriented Laplacians
         CImg<Tfloat> velocity(_width,_height,_depth,_spectrum);
-        for (unsigned int iteration = 0; iteration<(unsigned int)amplitude; ++iteration) {
+        for (unsigned int iteration = 0; iteration<iamplitude; ++iteration) {
           Tfloat *ptrd = velocity._data, veloc_max = 0;
           if (is_3d) // 3d version
             cimg_forC(*this,c) {
@@ -35184,7 +35185,7 @@ namespace cimg_library_suffixed {
         }
       } else { // LIC-based smoothing.
         const ulongT whd = (ulongT)_width*_height*_depth;
-        const float sqrt2amplitude = (float)std::sqrt(2*amplitude);
+        const float sqrt2amplitude = (float)std::sqrt(2*namplitude);
         const int dx1 = width() - 1, dy1 = height() - 1, dz1 = depth() - 1;
         CImg<Tfloat> res(_width,_height,_depth,_spectrum,0), W(_width,_height,_depth,is_3d?4:3), val(_spectrum,1,1,1,0);
         int N = 0;
@@ -35420,7 +35421,9 @@ namespace cimg_library_suffixed {
                               const float alpha=0.6f, const float sigma=1.1f, const float dl=0.8f, const float da=30,
                               const float gauss_prec=2, const unsigned int interpolation_type=0,
                               const bool is_fast_approx=true) {
-      return blur_anisotropic(get_diffusion_tensors(sharpness,anisotropy,alpha,sigma,interpolation_type!=3),
+      const float nalpha = alpha>=0?alpha:-alpha*cimg::max(_width,_height,_depth)/100;
+      const float nsigma = sigma>=0?sigma:-sigma*cimg::max(_width,_height,_depth)/100;
+      return blur_anisotropic(get_diffusion_tensors(sharpness,anisotropy,nalpha,nsigma,interpolation_type!=3),
                               amplitude,dl,da,gauss_prec,interpolation_type,is_fast_approx);
     }
 
@@ -47109,7 +47112,8 @@ namespace cimg_library_suffixed {
       float X = -1, Y = -1, Z = -1;
       unsigned int old_button = 0, key = 0;
 
-      bool is_deep_selection = is_deep_selection_default, shape_selected = false, text_down = false, visible_cursor = true;
+      bool is_deep_selection = is_deep_selection_default,
+        shape_selected = false, text_down = false, visible_cursor = true;
       static CImg<floatT> pose3d;
       static bool is_view3d = false, is_axes = true;
       if (reset_view3d) { pose3d.assign(); is_view3d = false; }

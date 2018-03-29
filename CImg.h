@@ -51352,14 +51352,6 @@ namespace cimg_library_suffixed {
           disp.set_wheel();
         }
 
-/*
-        if (disp.is_keyCTRLLEFT()) { // Alternative way for zooming and selection.
-          if (selection[2]==selection[5]) { selection[2] = 0; selection[5] = visu.depth() - 1; }
-          else if (selection[1]==selection[4]) { selection[1] = 0; selection[4] = visu.height() - 1; }
-          else if (selection[0]==selection[3]) { selection[0] = 0; selection[3] = visu.width() - 1; }
-        }
-*/
-
         const int
           sx0 = selection(0), sy0 = selection(1), sz0 = selection(2),
           sx1 = selection(3), sy1 = selection(4), sz1 = selection(5);

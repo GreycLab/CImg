@@ -47044,30 +47044,34 @@ namespace cimg_library_suffixed {
     **/
     CImg<T>& select(CImgDisplay &disp,
 		    const unsigned int feature_type=2, unsigned int *const XYZ=0,
-                    const bool exit_on_anykey=false) {
-      return get_select(disp,feature_type,XYZ,exit_on_anykey).move_to(*this);
+                    const bool exit_on_anykey=false,
+                    const bool is_deep_selection_default=false) {
+      return get_select(disp,feature_type,XYZ,exit_on_anykey,is_deep_selection_default).move_to(*this);
     }
 
     //! Simple interface to select a shape from an image \overloading.
     CImg<T>& select(const char *const title,
 		    const unsigned int feature_type=2, unsigned int *const XYZ=0,
-                    const bool exit_on_anykey=false) {
-      return get_select(title,feature_type,XYZ,exit_on_anykey).move_to(*this);
+                    const bool exit_on_anykey=false,
+                    const bool is_deep_selection_default=false) {
+      return get_select(title,feature_type,XYZ,exit_on_anykey,is_deep_selection_default).move_to(*this);
     }
 
     //! Simple interface to select a shape from an image \newinstance.
     CImg<intT> get_select(CImgDisplay &disp,
 		          const unsigned int feature_type=2, unsigned int *const XYZ=0,
-                          const bool exit_on_anykey=false) const {
-      return _select(disp,0,feature_type,XYZ,0,0,0,exit_on_anykey,true,false);
+                          const bool exit_on_anykey=false,
+                          const bool is_deep_selection_default=false) const {
+      return _select(disp,0,feature_type,XYZ,0,0,0,exit_on_anykey,true,false,is_deep_selection_default);
     }
 
     //! Simple interface to select a shape from an image \newinstance.
     CImg<intT> get_select(const char *const title,
     			  const unsigned int feature_type=2, unsigned int *const XYZ=0,
-                          const bool exit_on_anykey=false) const {
+                          const bool exit_on_anykey=false,
+                          const bool is_deep_selection_default=false) const {
       CImgDisplay disp;
-      return _select(disp,title,feature_type,XYZ,0,0,0,exit_on_anykey,true,false);
+      return _select(disp,title,feature_type,XYZ,0,0,0,exit_on_anykey,true,false,is_deep_selection_default);
     }
 
     CImg<intT> _select(CImgDisplay &disp, const char *const title,
@@ -47075,7 +47079,8 @@ namespace cimg_library_suffixed {
                        const int origX, const int origY, const int origZ,
                        const bool exit_on_anykey,
                        const bool reset_view3d,
-                       const bool force_display_z_coord) const {
+                       const bool force_display_z_coord,
+                       const bool is_deep_selection_default) const {
       if (is_empty()) return CImg<intT>(1,feature_type==0?3:6,1,1,-1);
       if (!disp) {
         disp.assign(cimg_fitscreen(_width,_height,_depth),title?title:0,1);
@@ -47104,7 +47109,7 @@ namespace cimg_library_suffixed {
       float X = -1, Y = -1, Z = -1;
       unsigned int old_button = 0, key = 0;
 
-      bool is_alternate_selection = false, shape_selected = false, text_down = false, visible_cursor = true;
+      bool is_deep_selection = is_deep_selection_default, shape_selected = false, text_down = false, visible_cursor = true;
       static CImg<floatT> pose3d;
       static bool is_view3d = false, is_axes = true;
       if (reset_view3d) { pose3d.assign(); is_view3d = false; }
@@ -47260,7 +47265,10 @@ namespace cimg_library_suffixed {
             case 1 :
               if (area==area_started) {
                 X1 = (int)X; Y1 = (int)Y; Z1 = (int)Z; ++phase;
-                if (_depth>1 && disp.is_keyCTRLLEFT()) { ++phase; is_alternate_selection = true; }
+                if (_depth>1) {
+                  if (disp.is_keyCTRLLEFT()) is_deep_selection = !is_deep_selection_default;
+                  if (is_deep_selection) ++phase;
+                }
               } else if (!(disp.button()&1)) { X = (float)X0; Y = (float)Y0; Z = (float)Z0; phase = 0; visu0.assign(); }
               break;
             case 2 : ++phase; break;
@@ -47633,7 +47641,7 @@ namespace cimg_library_suffixed {
       if (XYZ) { XYZ[0] = (unsigned int)X0; XYZ[1] = (unsigned int)Y0; XYZ[2] = (unsigned int)Z0; }
       if (shape_selected) {
         if (feature_type==2) {
-          if (is_alternate_selection) switch (area_started) {
+          if (is_deep_selection) switch (area_started) {
             case 1 : Z0 = 0; Z1 = _depth - 1; break;
             case 2 : Y0 = 0; Y1 = _height - 1; break;
             case 3 : X0 = 0; X1 = _width - 1; break;
@@ -51336,7 +51344,7 @@ namespace cimg_library_suffixed {
         if (_depth>1 && visu._depth==1) disp.set_title("%s | z=%u",disp._title,z0);
 
         disp._mouse_x = old_mouse_x; disp._mouse_y = old_mouse_y;
-        CImg<intT> selection = visu._select(disp,0,2,_XYZ,x0,y0,z0,true,is_first_select,_depth>1);
+        CImg<intT> selection = visu._select(disp,0,2,_XYZ,x0,y0,z0,true,is_first_select,_depth>1,true);
         old_mouse_x = disp._mouse_x; old_mouse_y = disp._mouse_y;
         is_first_select = false;
 

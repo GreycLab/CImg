@@ -7343,10 +7343,10 @@ namespace cimg_library_suffixed {
       return _empty;
     }
 
-#define cimg_fitscreen(dx,dy,dz) CImgDisplay::_fitscreen(dx,dy,dz,128,-85,false), \
-                                 CImgDisplay::_fitscreen(dx,dy,dz,128,-85,true)
+#define cimg_fitscreen(dx,dy,dz) CImgDisplay::_fitscreen(dx,dy,dz,320,-85,false), \
+                                 CImgDisplay::_fitscreen(dx,dy,dz,320,-85,true)
     static unsigned int _fitscreen(const unsigned int dx, const unsigned int dy, const unsigned int dz,
-                                   const int dmin, const int dmax,const bool return_y) {
+                                   const int dmin, const int dmax, const bool return_y) {
       const unsigned int _nw = dx + (dz>1?dz:0), _nh = dy + (dz>1?dz:0);
       unsigned int nw = _nw?_nw:1, nh = _nh?_nh:1;
       const unsigned int

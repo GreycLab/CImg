@@ -47093,7 +47093,7 @@ namespace cimg_library_suffixed {
 
       static const unsigned char foreground_color[] = { 255,255,255 }, background_color[] = { 0,0,0 };
 
-      int area = 0, starting_area = 0, clicked_area = 0, phase = 0,
+      int area = 0, area_started = 0, area_clicked = 0, phase = 0,
         X0 = (int)((XYZ?XYZ[0]:(_width - 1)/2)%_width),
         Y0 = (int)((XYZ?XYZ[1]:(_height - 1)/2)%_height),
         Z0 = (int)((XYZ?XYZ[2]:(_depth - 1)/2)%_depth),
@@ -47104,7 +47104,7 @@ namespace cimg_library_suffixed {
       float X = -1, Y = -1, Z = -1;
       unsigned int old_button = 0, key = 0;
 
-      bool shape_selected = false, text_down = false, visible_cursor = true;
+      bool is_alternate_selection = false, shape_selected = false, text_down = false, visible_cursor = true;
       static CImg<floatT> pose3d;
       static bool is_view3d = false, is_axes = true;
       if (reset_view3d) { pose3d.assign(); is_view3d = false; }
@@ -47130,7 +47130,7 @@ namespace cimg_library_suffixed {
         if (mX>=0 && mX<width() && mY>=height()) { area = 2; X = mX; Z = mY - _height; Y = (float)(phase?Y1:Y0); }
         if (mY>=0 && mX>=width() && mY<height()) { area = 3; Y = mY; Z = mX - _width; X = (float)(phase?X1:X0); }
         if (mX>=width() && mY>=height()) area = 4;
-        if (disp.button()) { if (!clicked_area) clicked_area = area; } else clicked_area = 0;
+        if (disp.button()) { if (!area_clicked) area_clicked = area; } else area_clicked = 0;
 
         CImg<charT> filename(32);
 
@@ -47210,18 +47210,18 @@ namespace cimg_library_suffixed {
           break;
 
         case 1 : case 2 : case 3 : // When mouse is over the XY,XZ or YZ projections.
-          if (disp.button()&1 && phase<2 && clicked_area==area) { // When selection has been started (1st step).
+          if (disp.button()&1 && phase<2 && area_clicked==area) { // When selection has been started (1st step).
             if (_depth>1 && (X1!=(int)X || Y1!=(int)Y || Z1!=(int)Z)) visu0.assign();
             X1 = (int)X; Y1 = (int)Y; Z1 = (int)Z;
           }
-          if (!(disp.button()&1) && phase>=2 && clicked_area!=area) { // When selection is at 2nd step (for volumes).
-            switch (starting_area) {
+          if (!(disp.button()&1) && phase>=2 && area_clicked!=area) { // When selection is at 2nd step (for volumes).
+            switch (area_started) {
             case 1 : if (Z1!=(int)Z) visu0.assign(); Z1 = (int)Z; break;
             case 2 : if (Y1!=(int)Y) visu0.assign(); Y1 = (int)Y; break;
             case 3 : if (X1!=(int)X) visu0.assign(); X1 = (int)X; break;
             }
           }
-          if (disp.button()&2 && clicked_area==area) { // When moving through the image/volume.
+          if (disp.button()&2 && area_clicked==area) { // When moving through the image/volume.
             if (phase) {
               if (_depth>1 && (X1!=(int)X || Y1!=(int)Y || Z1!=(int)Z)) visu0.assign();
               X1 = (int)X; Y1 = (int)Y; Z1 = (int)Z;
@@ -47231,7 +47231,7 @@ namespace cimg_library_suffixed {
             }
           }
           if (disp.button()&4) {
-            X = (float)X0; Y = (float)Y0; Z = (float)Z0; phase = area = clicked_area = starting_area = 0;
+            X = (float)X0; Y = (float)Y0; Z = (float)Z0; phase = area = area_clicked = area_started = 0;
             visu0.assign();
           }
           if (disp.wheel()) { // When moving through the slices of the volume (with mouse wheel).
@@ -47254,12 +47254,13 @@ namespace cimg_library_suffixed {
           if ((disp.button()&1)!=old_button) { // When left button has just been pressed or released.
             switch (phase) {
             case 0 :
-              if (area==clicked_area) {
-                X0 = X1 = (int)X; Y0 = Y1 = (int)Y; Z0 = Z1 = (int)Z; starting_area = area; ++phase;
+              if (area==area_clicked) {
+                X0 = X1 = (int)X; Y0 = Y1 = (int)Y; Z0 = Z1 = (int)Z; area_started = area; ++phase;
               } break;
             case 1 :
-              if (area==starting_area) {
+              if (area==area_started) {
                 X1 = (int)X; Y1 = (int)Y; Z1 = (int)Z; ++phase;
+                if (_depth>1 && disp.is_keyCTRLLEFT()) { ++phase; is_alternate_selection = true; }
               } else if (!(disp.button()&1)) { X = (float)X0; Y = (float)Y0; Z = (float)Z0; phase = 0; visu0.assign(); }
               break;
             case 2 : ++phase; break;
@@ -47428,8 +47429,9 @@ namespace cimg_library_suffixed {
             if (is_axes) { if (visible_cursor) { disp.hide_mouse(); visible_cursor = false; }}
             else { if (!visible_cursor) { disp.show_mouse(); visible_cursor = true; }}
             const int d = (depth()>1)?depth():0;
+            int _vX = (int)X, _vY = (int)Y, _vZ = (int)Z;
+            if (phase>=2) { _vX = X1; _vY = Y1; _vZ = Z1; }
             int
-              _vX = (int)X, _vY = (int)Y, _vZ = (int)Z,
               w = disp.width(), W = width() + d,
               h = disp.height(), H = height() + d,
               _xp = (int)(_vX*(float)w/W), xp = _xp + ((int)(_xp*(float)W/w)!=_vX),
@@ -47615,8 +47617,9 @@ namespace cimg_library_suffixed {
               visu.draw_text(0,text_down?visu.height() - 13:0,text,foreground_color,background_color,0.7f,13);
           }
 
-          disp.display(visu).wait();
-        } else if (!shape_selected) disp.wait();
+          disp.display(visu);
+        }
+        if (!shape_selected) disp.wait();
         if (disp.is_resized()) { disp.resize(false)._is_resized = false; old_is_resized = true; visu0.assign(); }
         omx = mx; omy = my;
         if (!exit_on_anykey && key && key!=cimg::keyESC &&
@@ -47630,6 +47633,11 @@ namespace cimg_library_suffixed {
       if (XYZ) { XYZ[0] = (unsigned int)X0; XYZ[1] = (unsigned int)Y0; XYZ[2] = (unsigned int)Z0; }
       if (shape_selected) {
         if (feature_type==2) {
+          if (is_alternate_selection) switch (area_started) {
+            case 1 : Z0 = 0; Z1 = _depth - 1; break;
+            case 2 : Y0 = 0; Y1 = _height - 1; break;
+            case 3 : X0 = 0; X1 = _width - 1; break;
+          }
           if (X0>X1) cimg::swap(X0,X1);
           if (Y0>Y1) cimg::swap(Y0,Y1);
           if (Z0>Z1) cimg::swap(Z0,Z1);
@@ -51344,11 +51352,13 @@ namespace cimg_library_suffixed {
           disp.set_wheel();
         }
 
+/*
         if (disp.is_keyCTRLLEFT()) { // Alternative way for zooming and selection.
           if (selection[2]==selection[5]) { selection[2] = 0; selection[5] = visu.depth() - 1; }
           else if (selection[1]==selection[4]) { selection[1] = 0; selection[4] = visu.height() - 1; }
           else if (selection[0]==selection[3]) { selection[0] = 0; selection[3] = visu.width() - 1; }
         }
+*/
 
         const int
           sx0 = selection(0), sy0 = selection(1), sz0 = selection(2),

@@ -47219,18 +47219,21 @@ namespace cimg_library_suffixed {
           break;
 
         case 1 : case 2 : case 3 : { // When mouse is over the XY,XZ or YZ projections.
-          if (disp.button()&1 && phase<2 && area_clicked==area) { // When selection has been started (1st step).
+          const unsigned int but = disp.button();
+          const bool b1 = (bool)(but&1), b2 = (bool)(but&2), b3 = (bool)(but&4);
+
+          if (b1 && phase<2 && area_clicked==area) { // When selection has been started (1st step).
             if (_depth>1 && (X1!=(int)X || Y1!=(int)Y || Z1!=(int)Z)) visu0.assign();
             X1 = (int)X; Y1 = (int)Y; Z1 = (int)Z;
           }
-          if (!(disp.button()&1) && phase>=2 && area_clicked!=area) { // When selection is at 2nd step (for volumes).
+          if (!b1 && phase>=2 && area_clicked!=area) { // When selection is at 2nd step (for volumes).
             switch (area_started) {
             case 1 : if (Z1!=(int)Z) visu0.assign(); Z1 = (int)Z; break;
             case 2 : if (Y1!=(int)Y) visu0.assign(); Y1 = (int)Y; break;
             case 3 : if (X1!=(int)X) visu0.assign(); X1 = (int)X; break;
             }
           }
-          if (disp.button()&2 && area_clicked==area) { // When moving through the image/volume.
+          if (b2 && area_clicked==area) { // When moving through the image/volume.
             if (phase) {
               if (_depth>1 && (X1!=(int)X || Y1!=(int)Y || Z1!=(int)Z)) visu0.assign();
               X1 = (int)X; Y1 = (int)Y; Z1 = (int)Z;
@@ -47239,7 +47242,7 @@ namespace cimg_library_suffixed {
               X0 = (int)X; Y0 = (int)Y; Z0 = (int)Z;
             }
           }
-          if (disp.button()&4) {
+          if (b3) {
             X = (float)X0; Y = (float)Y0; Z = (float)Z0; phase = area = area_clicked = area_started = 0;
             visu0.assign();
           }
@@ -47261,10 +47264,9 @@ namespace cimg_library_suffixed {
             } else key = ~0U;
           }
 
-          const bool isb = (bool)(disp.button()&1);
-          if ((phase==0 && isb) ||
-              (phase==1 && !isb) ||
-              (phase==2 && isb)) { // Detect change of phase
+          if ((phase==0 && b1) ||
+              (phase==1 && !b1) ||
+              (phase==2 && b1)) { // Detect change of phase
             switch (phase) {
             case 0 :
               if (area==area_clicked) {
@@ -47277,7 +47279,7 @@ namespace cimg_library_suffixed {
                   if (disp.is_keyCTRLLEFT()) is_deep_selection = !is_deep_selection_default;
                   if (is_deep_selection) ++phase;
                 }
-              } else if (!(disp.button()&1)) { X = (float)X0; Y = (float)Y0; Z = (float)Z0; phase = 0; visu0.assign(); }
+              } else if (!b1) { X = (float)X0; Y = (float)Y0; Z = (float)Z0; phase = 0; visu0.assign(); }
               break;
             case 2 : ++phase; break;
             }

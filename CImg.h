@@ -47110,7 +47110,7 @@ namespace cimg_library_suffixed {
         oX3d = X3d, oY3d = -1,
         omx = -1, omy = -1;
       float X = -1, Y = -1, Z = -1;
-      unsigned int old_button = 0, key = 0;
+      unsigned int key = 0;
 
       bool is_deep_selection = is_deep_selection_default,
         shape_selected = false, text_down = false, visible_cursor = true;
@@ -47218,7 +47218,7 @@ namespace cimg_library_suffixed {
           mx = my = -1; X = Y = Z = -1;
           break;
 
-        case 1 : case 2 : case 3 : // When mouse is over the XY,XZ or YZ projections.
+        case 1 : case 2 : case 3 : { // When mouse is over the XY,XZ or YZ projections.
           if (disp.button()&1 && phase<2 && area_clicked==area) { // When selection has been started (1st step).
             if (_depth>1 && (X1!=(int)X || Y1!=(int)Y || Z1!=(int)Z)) visu0.assign();
             X1 = (int)X; Y1 = (int)Y; Z1 = (int)Z;
@@ -47260,7 +47260,11 @@ namespace cimg_library_suffixed {
               disp.set_wheel();
             } else key = ~0U;
           }
-          if ((disp.button()&1)!=old_button) { // When left button has just been pressed or released.
+
+          const bool isb = (bool)(disp.button()&1);
+          if ((phase==0 && isb) ||
+              (phase==1 && !isb) ||
+              (phase==2 && isb)) { // Detect change of phase
             switch (phase) {
             case 0 :
               if (area==area_clicked) {
@@ -47277,9 +47281,8 @@ namespace cimg_library_suffixed {
               break;
             case 2 : ++phase; break;
             }
-            old_button = disp.button()&1;
           }
-          break;
+        } break;
 
         case 4 : // When mouse is over the 3d view.
           if (is_view3d && points3d) {

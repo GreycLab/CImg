@@ -7343,8 +7343,8 @@ namespace cimg_library_suffixed {
       return _empty;
     }
 
-#define cimg_fitscreen(dx,dy,dz) CImgDisplay::_fitscreen(dx,dy,dz,320,-85,false), \
-                                 CImgDisplay::_fitscreen(dx,dy,dz,320,-85,true)
+#define cimg_fitscreen(dx,dy,dz) CImgDisplay::_fitscreen(dx,dy,dz,480,-85,false), \
+                                 CImgDisplay::_fitscreen(dx,dy,dz,480,-85,true)
     static unsigned int _fitscreen(const unsigned int dx, const unsigned int dy, const unsigned int dz,
                                    const int dmin, const int dmax, const bool return_y) {
       const unsigned int _nw = dx + (dz>1?dz:0), _nh = dy + (dz>1?dz:0);
@@ -47222,11 +47222,11 @@ namespace cimg_library_suffixed {
           const unsigned int but = disp.button();
           const bool b1 = (bool)(but&1), b2 = (bool)(but&2), b3 = (bool)(but&4);
 
-          if (b1 && phase<2 && area_clicked==area) { // When selection has been started (1st step).
+          if (b1 && phase==1 && area_clicked==area) { // When selection has been started (1st step).
             if (_depth>1 && (X1!=(int)X || Y1!=(int)Y || Z1!=(int)Z)) visu0.assign();
             X1 = (int)X; Y1 = (int)Y; Z1 = (int)Z;
           }
-          if (!b1 && phase>=2 && area_clicked!=area) { // When selection is at 2nd step (for volumes).
+          if (!b1 && phase==2 && area_clicked!=area) { // When selection is at 2nd step (for volumes).
             switch (area_started) {
             case 1 : if (Z1!=(int)Z) visu0.assign(); Z1 = (int)Z; break;
             case 2 : if (Y1!=(int)Y) visu0.assign(); Y1 = (int)Y; break;
@@ -47242,7 +47242,7 @@ namespace cimg_library_suffixed {
               X0 = (int)X; Y0 = (int)Y; Z0 = (int)Z;
             }
           }
-          if (b3) {
+          if (b3) { // Reset selection
             X = (float)X0; Y = (float)Y0; Z = (float)Z0; phase = area = area_clicked = area_started = 0;
             visu0.assign();
           }
@@ -47266,8 +47266,7 @@ namespace cimg_library_suffixed {
 
           if ((phase==0 && b1) ||
               (phase==1 && !b1) ||
-              (phase==2 && b1)) { // Detect change of phase
-            switch (phase) {
+              (phase==2 && b1)) switch (phase) { // Detect change of phase
             case 0 :
               if (area==area_clicked) {
                 X0 = X1 = (int)X; Y0 = Y1 = (int)Y; Z0 = Z1 = (int)Z; area_started = area; ++phase;
@@ -47283,7 +47282,6 @@ namespace cimg_library_suffixed {
               break;
             case 2 : ++phase; break;
             }
-          }
         } break;
 
         case 4 : // When mouse is over the 3d view.
@@ -47485,20 +47483,23 @@ namespace cimg_library_suffixed {
             }
 
             // Draw box cursor.
-            if (xn - xp>=4 && yn - yp>=4) visu.draw_rectangle(xp,yp,xn,yn,foreground_color,0.2f).
-                                        draw_rectangle(xp,yp,xn,yn,foreground_color,1,0xAAAAAAAA).
-                                        draw_rectangle(xp,yp,xn,yn,background_color,1,0x55555555);
+            if (xn - xp>=4 && yn - yp>=4)
+              visu.draw_rectangle(xp,yp,xn,yn,foreground_color,0.2f).
+                draw_rectangle(xp,yp,xn,yn,foreground_color,1,0xAAAAAAAA).
+                draw_rectangle(xp,yp,xn,yn,background_color,1,0x55555555);
             if (_depth>1) {
-              if (yn - yp>=4 && zxn - zxp>=4) visu.draw_rectangle(zxp,yp,zxn,yn,background_color,0.2f).
-                                            draw_rectangle(zxp,yp,zxn,yn,foreground_color,1,0xAAAAAAAA).
-                                            draw_rectangle(zxp,yp,zxn,yn,background_color,1,0x55555555);
-              if (xn - xp>=4 && zyn - zyp>=4) visu.draw_rectangle(xp,zyp,xn,zyn,background_color,0.2f).
-                                            draw_rectangle(xp,zyp,xn,zyn,foreground_color,1,0xAAAAAAAA).
-                                            draw_rectangle(xp,zyp,xn,zyn,background_color,1,0x55555555);
+              if (yn - yp>=4 && zxn - zxp>=4)
+                visu.draw_rectangle(zxp,yp,zxn,yn,background_color,0.2f).
+                                              draw_rectangle(zxp,yp,zxn,yn,foreground_color,1,0xAAAAAAAA).
+                                              draw_rectangle(zxp,yp,zxn,yn,background_color,1,0x55555555);
+              if (xn - xp>=4 && zyn - zyp>=4)
+                visu.draw_rectangle(xp,zyp,xn,zyn,background_color,0.2f).
+                          draw_rectangle(xp,zyp,xn,zyn,foreground_color,1,0xAAAAAAAA).
+                          draw_rectangle(xp,zyp,xn,zyn,background_color,1,0x55555555);
             }
 
             // Draw selection.
-            if (phase) {
+            if (phase && (phase!=1 || area_started==area)) {
               const int
                 _xp0 = (int)(X0*(float)w/W), xp0 = _xp0 + ((int)(_xp0*(float)W/w)!=X0),
                 _yp0 = (int)(Y0*(float)h/H), yp0 = _yp0 + ((int)(_yp0*(float)H/h)!=Y0),

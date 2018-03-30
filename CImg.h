@@ -51376,7 +51376,7 @@ namespace cimg_library_suffixed {
         if (sx0>=0 && sy0>=0 && sz0>=0 && sx1>=0 && sy1>=0 && sz1>=0) {
           x1 = x0 + sx1; y1 = y0 + sy1; z1 = z0 + sz1;
           x0+=sx0; y0+=sy0; z0+=sz0;
-          if (sx0==sx1 && sy0==sy1 && sz0==sz1) {
+          if ((sx0==sx1 && sy0==sy1) || (_depth>1 && sx0==sx1 && sz0==sz1) || (_depth>1 && sy0==sy1 && sz0==sz1)) {
             if (exit_on_simpleclick && (!zoom || is_empty())) break; else reset_view = true;
           }
           resize_disp = true;

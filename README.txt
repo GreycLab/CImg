@@ -21,7 +21,7 @@
 # Summary
 #---------
 
-  The CImg Library is a small, open-source, modern C++ toolkit for image processing.
+  The CImg Library is a small, open-source, C++ toolkit for image processing.
   It consists in a single header file 'CImg.h' providing a minimal set of C++
   classes and methods that can be used in your own sources, to load/save,
   process and display images. Very portable (Unix/X11,Windows, MacOS X, FreeBSD, .. ),

@@ -18625,6 +18625,33 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
+            if (!std::strncmp(ss,"polygon(",8)) { // Polygon drawing
+              if (!is_single) is_parallelizable = false;
+              _cimg_mp_op("Function 'polygon()'");
+              if (*ss8=='#') { // Index specified
+                s0 = ss + 9; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                p1 = compile(ss + 9,s0++,depth1,0,is_single);
+                _cimg_mp_check_list(true);
+              } else { p1 = ~0U; s0 = ss8; }
+
+              CImg<ulongT>::vector((ulongT)mp_polygon,_cimg_mp_slot_nan,0,p1).move_to(l_opcode);
+              for (s = s0; s<se; ++s) {
+                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                arg2 = compile(s,ns,depth1,0,is_single);
+                if (_cimg_mp_is_vector(arg2))
+                  CImg<ulongT>::sequence(_cimg_mp_size(arg2),arg2 + 1,
+                                         arg2 + (ulongT)_cimg_mp_size(arg2)).
+                    move_to(l_opcode);
+                else CImg<ulongT>::vector(arg2).move_to(l_opcode);
+                s = ns;
+              }
+              (l_opcode>'y').move_to(opcode);
+              opcode[2] = opcode._height;
+              opcode.move_to(code);
+              _cimg_mp_return_nan();
+            }
+
             if (!std::strncmp(ss,"print(",6) || !std::strncmp(ss,"prints(",7)) { // Print expressions
               is_sth = ss[5]=='s'; // is prints()
               _cimg_mp_op(is_sth?"Function 'prints()'":"Function 'print()'");
@@ -22359,6 +22386,44 @@ namespace cimg_library_suffixed {
 
       static double mp_permutations(_cimg_math_parser& mp) {
         return cimg::permutations(_mp_arg(2),_mp_arg(3),(bool)_mp_arg(4));
+      }
+
+      static double mp_polygon(_cimg_math_parser& mp) {
+        const unsigned int i_end = (unsigned int)mp.opcode[2];
+        unsigned int ind = (unsigned int)mp.opcode[3];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.listin.width());
+        CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
+        const int nbv = (int)_mp_arg(4);
+        bool is_invalid_arguments = false;
+        if (nbv<=0) is_invalid_arguments = true;
+        else {
+          CImg<intT> points(nbv,2,1,1,0);
+          CImg<T> color(img._spectrum,1,1,1,0);
+          float opacity = 1;
+          unsigned int i = 5;
+          cimg_foroff(points,k) if (i<i_end) points(k/2,k%2) = cimg::round(_mp_arg(i++));
+          else { is_invalid_arguments = true; break; }
+          if (!is_invalid_arguments) {
+            if (i<i_end) opacity = (float)_mp_arg(i++);
+            cimg_forX(color,k) if (i<i_end) color[k] = (T)_mp_arg(i++);
+            else { color.resize(k,1,1,1,-1); break; }
+            color.resize(img._spectrum,1,1,1,0,2);
+            img.draw_polygon(points,color._data,opacity);
+          }
+        }
+        if (is_invalid_arguments) {
+          CImg<doubleT> args(i_end - 4);
+          cimg_forX(args,k) args[k] = _mp_arg(4 + k);
+          if (ind==~0U)
+            throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'polygon()': "
+                                        "Invalid arguments '%s'. ",
+                                        mp.imgin.pixel_type(),args.value_string()._data);
+          else
+            throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'polygon()': "
+                                        "Invalid arguments '#%u,%s'. ",
+                                        mp.imgin.pixel_type(),ind,args.value_string()._data);
+        }
+        return cimg::type<double>::nan();
       }
 
       static double mp_pow(_cimg_math_parser& mp) {

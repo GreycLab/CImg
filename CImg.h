@@ -18110,6 +18110,33 @@ namespace cimg_library_suffixed {
               _cimg_mp_return_nan();
             }
 
+            if (!std::strncmp(ss,"ellipse(",8)) { // Ellipse/circle drawing
+              if (!is_single) is_parallelizable = false;
+              _cimg_mp_op("Function 'ellipse()'");
+              if (*ss8=='#') { // Index specified
+                s0 = ss + 9; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                p1 = compile(ss + 9,s0++,depth1,0,is_single);
+                _cimg_mp_check_list(true);
+              } else { p1 = ~0U; s0 = ss8; }
+              if (s0==se1) compile(s0,se1,depth1,0,is_single); // 'missing' argument error
+              CImg<ulongT>::vector((ulongT)mp_ellipse,_cimg_mp_slot_nan,0,p1).move_to(l_opcode);
+              for (s = s0; s<se; ++s) {
+                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                arg2 = compile(s,ns,depth1,0,is_single);
+                if (_cimg_mp_is_vector(arg2))
+                  CImg<ulongT>::sequence(_cimg_mp_size(arg2),arg2 + 1,
+                                         arg2 + (ulongT)_cimg_mp_size(arg2)).
+                    move_to(l_opcode);
+                else CImg<ulongT>::vector(arg2).move_to(l_opcode);
+                s = ns;
+              }
+              (l_opcode>'y').move_to(opcode);
+              opcode[2] = opcode._height;
+              opcode.move_to(code);
+              _cimg_mp_return_nan();
+            }
+
             if (!std::strncmp(ss,"ext(",4)) { // Extern
               _cimg_mp_op("Function 'ext()'");
               if (!is_single) is_parallelizable = false;
@@ -18598,34 +18625,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar3(mp_permutations,arg1,arg2,arg3);
             }
 
-            if (!std::strncmp(ss,"pseudoinv(",10)) { // Matrix/scalar pseudo-inversion
-              _cimg_mp_op("Function 'pseudoinv()'");
-              s1 = ss + 10; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss + 10,s1,depth1,0,is_single);
-              arg2 = s1<se1?compile(++s1,se1,depth1,0,is_single):1;
-              _cimg_mp_check_type(arg1,1,2,0);
-              _cimg_mp_check_constant(arg2,2,3);
-              p1 = _cimg_mp_size(arg1);
-              p2 = (unsigned int)mem[arg2];
-              p3 = p1/p2;
-              if (p3*p2!=p1) {
-                *se = saved_char;
-                s0 = ss - 4>expr._data?ss - 4:expr._data;
-                cimg::strellipsize(s0,64);
-                throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                            "CImg<%s>::%s: %s: Type of first argument ('%s') "
-                                            "does not match with second argument 'nb_colsA=%u', "
-                                            "in expression '%s%s%s'.",
-                                            pixel_type(),_cimg_mp_calling_function,s_op,
-                                            s_type(arg1)._data,p2,
-                                            s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
-              }
-              pos = vector(p1);
-              CImg<ulongT>::vector((ulongT)mp_matrix_pseudoinv,pos,arg1,p2,p3).move_to(code);
-              _cimg_mp_return(pos);
-            }
-
-            if (!std::strncmp(ss,"polygon(",8)) { // Polygon drawing
+            if (!std::strncmp(ss,"polygon(",8)) { // Polygon/line drawing
               if (!is_single) is_parallelizable = false;
               _cimg_mp_op("Function 'polygon()'");
               if (*ss8=='#') { // Index specified
@@ -18633,7 +18633,7 @@ namespace cimg_library_suffixed {
                 p1 = compile(ss + 9,s0++,depth1,0,is_single);
                 _cimg_mp_check_list(true);
               } else { p1 = ~0U; s0 = ss8; }
-
+              if (s0==se1) compile(s0,se1,depth1,0,is_single); // 'missing' argument error
               CImg<ulongT>::vector((ulongT)mp_polygon,_cimg_mp_slot_nan,0,p1).move_to(l_opcode);
               for (s = s0; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
@@ -18681,6 +18681,33 @@ namespace cimg_library_suffixed {
                 CImg<ulongT>::vector((ulongT)mp_image_print,_cimg_mp_slot_nan,p1).move_to(code);
                 _cimg_mp_return_nan();
               }
+            }
+
+            if (!std::strncmp(ss,"pseudoinv(",10)) { // Matrix/scalar pseudo-inversion
+              _cimg_mp_op("Function 'pseudoinv()'");
+              s1 = ss + 10; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss + 10,s1,depth1,0,is_single);
+              arg2 = s1<se1?compile(++s1,se1,depth1,0,is_single):1;
+              _cimg_mp_check_type(arg1,1,2,0);
+              _cimg_mp_check_constant(arg2,2,3);
+              p1 = _cimg_mp_size(arg1);
+              p2 = (unsigned int)mem[arg2];
+              p3 = p1/p2;
+              if (p3*p2!=p1) {
+                *se = saved_char;
+                s0 = ss - 4>expr._data?ss - 4:expr._data;
+                cimg::strellipsize(s0,64);
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: Type of first argument ('%s') "
+                                            "does not match with second argument 'nb_colsA=%u', "
+                                            "in expression '%s%s%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            s_type(arg1)._data,p2,
+                                            s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
+              }
+              pos = vector(p1);
+              CImg<ulongT>::vector((ulongT)mp_matrix_pseudoinv,pos,arg1,p2,p3).move_to(code);
+              _cimg_mp_return(pos);
             }
             break;
 
@@ -20787,6 +20814,59 @@ namespace cimg_library_suffixed {
         return cimg::type<double>::nan();
       }
 
+      static double mp_ellipse(_cimg_math_parser& mp) {
+        const unsigned int i_end = (unsigned int)mp.opcode[2];
+        unsigned int ind = (unsigned int)mp.opcode[3];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.listin.width());
+        CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
+        CImg<T> color(img._spectrum,1,1,1,0);
+        bool is_invalid_arguments = false;
+        unsigned int i = 4;
+        float r1, r2, angle = 0, opacity = 1;
+        int x0, y0;
+        if (i>=i_end) is_invalid_arguments = true;
+        else {
+          x0 = (int)cimg::round(_mp_arg(i++));
+          if (i>=i_end) is_invalid_arguments = true;
+          else {
+            y0 = (int)cimg::round(_mp_arg(i++));
+            if (i>=i_end) is_invalid_arguments = true;
+            else {
+              r1 = (float)_mp_arg(i++);
+              if (i>=i_end) r2 = r1;
+              else {
+                r2 = (float)_mp_arg(i++);
+                if (i<i_end) {
+                  angle = (float)_mp_arg(i++);
+                  if (i<i_end) {
+                    opacity = (float)_mp_arg(i++);
+                    if (i<i_end) {
+                      cimg_forX(color,k) if (i<i_end) color[k] = (T)_mp_arg(i++);
+                      else { color.resize(k,1,1,1,-1); break; }
+                      color.resize(img._spectrum,1,1,1,0,2);
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        if (!is_invalid_arguments) img.draw_ellipse(x0,y0,r1,r2,angle,color._data,opacity);
+        else {
+          CImg<doubleT> args(i_end - 4);
+          cimg_forX(args,k) args[k] = _mp_arg(4 + k);
+          if (ind==~0U)
+            throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'ellipse()': "
+                                        "Invalid arguments '%s'. ",
+                                        mp.imgin.pixel_type(),args.value_string()._data);
+          else
+            throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'ellipse()': "
+                                        "Invalid arguments '#%u%s%s'. ",
+                                        mp.imgin.pixel_type(),ind,args._width?",":"",args.value_string()._data);
+        }
+        return cimg::type<double>::nan();
+      }
+
       static double mp_eq(_cimg_math_parser& mp) {
         return (double)(_mp_arg(2)==_mp_arg(3));
       }
@@ -22393,22 +22473,24 @@ namespace cimg_library_suffixed {
         unsigned int ind = (unsigned int)mp.opcode[3];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.listin.width());
         CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
-        const int nbv = (int)_mp_arg(4);
-        bool is_invalid_arguments = false;
-        if (nbv<=0) is_invalid_arguments = true;
-        else {
-          CImg<intT> points(nbv,2,1,1,0);
-          CImg<T> color(img._spectrum,1,1,1,0);
-          float opacity = 1;
-          unsigned int i = 5;
-          cimg_foroff(points,k) if (i<i_end) points(k/2,k%2) = cimg::round(_mp_arg(i++));
-          else { is_invalid_arguments = true; break; }
-          if (!is_invalid_arguments) {
-            if (i<i_end) opacity = (float)_mp_arg(i++);
-            cimg_forX(color,k) if (i<i_end) color[k] = (T)_mp_arg(i++);
-            else { color.resize(k,1,1,1,-1); break; }
-            color.resize(img._spectrum,1,1,1,0,2);
-            img.draw_polygon(points,color._data,opacity);
+        bool is_invalid_arguments = i_end<=4;
+        if (!is_invalid_arguments) {
+          const int nbv = (int)_mp_arg(4);
+          if (nbv<=0) is_invalid_arguments = true;
+          else {
+            CImg<intT> points(nbv,2,1,1,0);
+            CImg<T> color(img._spectrum,1,1,1,0);
+            float opacity = 1;
+            unsigned int i = 5;
+            cimg_foroff(points,k) if (i<i_end) points(k/2,k%2) = cimg::round(_mp_arg(i++));
+            else { is_invalid_arguments = true; break; }
+            if (!is_invalid_arguments) {
+              if (i<i_end) opacity = (float)_mp_arg(i++);
+              cimg_forX(color,k) if (i<i_end) color[k] = (T)_mp_arg(i++);
+              else { color.resize(k,1,1,1,-1); break; }
+              color.resize(img._spectrum,1,1,1,0,2);
+              img.draw_polygon(points,color._data,opacity);
+            }
           }
         }
         if (is_invalid_arguments) {
@@ -22420,8 +22502,8 @@ namespace cimg_library_suffixed {
                                         mp.imgin.pixel_type(),args.value_string()._data);
           else
             throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'polygon()': "
-                                        "Invalid arguments '#%u,%s'. ",
-                                        mp.imgin.pixel_type(),ind,args.value_string()._data);
+                                        "Invalid arguments '#%u%s%s'. ",
+                                        mp.imgin.pixel_type(),ind,args._width?",":"",args.value_string()._data);
         }
         return cimg::type<double>::nan();
       }

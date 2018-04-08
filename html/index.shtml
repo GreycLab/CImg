@@ -7,7 +7,7 @@
 <div id="center"><div id="text_centre_intro">
 
 <p>
-  The <font color="#000066"><b>CImg Library</b></font> is a <b>small</b>, <b>open-source</b>, and
+  The <font color="#000066"><b>CImg Library</b></font> is a <b>small</b> and <b>open-source</b>
   <b>C++ toolkit</b> for <b>image processing</b>,
   designed with these properties in mind :
 </p>

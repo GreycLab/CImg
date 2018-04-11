@@ -127,12 +127,12 @@ CIMG_VT100_CFLAGS = -Dcimg_use_vt100
 
 # Flags to enable code optimization by the compiler.
 ifeq ($(notdir $(CXX)),g++)
-CIMG_OPT_CFLAGS = -O3 -mtune=generic
+CIMG_OPT_CFLAGS = -Ofast -mtune=generic
 else
 ifeq ($(notdir $(CXX)),icpc)
 CIMG_OPT_CFLAGS = -fast
 else
-CIMG_OPT_CFLAGS = -O3
+CIMG_OPT_CFLAGS = -Ofast
 endif
 endif
 

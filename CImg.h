@@ -54319,7 +54319,7 @@ namespace cimg_library_suffixed {
     const CImg<T>& save_yuv(const char *const filename,
                             const unsigned int chroma_subsampling=444,
                             const bool is_rgb=true) const {
-      get_split('z').save_yuv(filename,chroma_subsampling,is_rgb);
+      CImgList<T>(*this,true).save_yuv(filename,chroma_subsampling,is_rgb);
       return *this;
     }
 
@@ -54331,7 +54331,7 @@ namespace cimg_library_suffixed {
     const CImg<T>& save_yuv(std::FILE *const file,
                             const unsigned int chroma_subsampling=444,
                             const bool is_rgb=true) const {
-      get_split('z').save_yuv(file,chroma_subsampling,is_rgb);
+      CImgList<T>(*this,true).save_yuv(file,chroma_subsampling,is_rgb);
       return *this;
     }
 
@@ -58850,23 +58850,25 @@ namespace cimg_library_suffixed {
       std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
       cimglist_for(*this,l) {
         const CImg<T> &frame = (*this)[l];
-        CImg<ucharT> YUV;
-        if (sizeof(T)==1 && !is_rgb &&
-            frame._width==width0 && frame._height==height0 && frame._depth==1 && frame._spectrum==3)
-          YUV.assign((unsigned char*)frame._data,width0,height0,1,3,true);
-        else {
-          YUV = frame;
-          if (YUV._width!=width0 || YUV._height!=height0 || YUV._depth!=1) YUV.resize(width0,height0,1,-100,0);
-          if (YUV._spectrum!=3) YUV.resize(-100,-100,1,3,YUV._spectrum==1?1:0);
-          if (is_rgb) YUV.RGBtoYCbCr();
-        }
-        if (chroma_subsampling==444)
-          cimg::fwrite(YUV._data,(size_t)YUV._width*YUV._height*3,nfile);
-        else {
-          cimg::fwrite(YUV._data,(size_t)YUV._width*YUV._height,nfile);
-          CImg<ucharT> UV = YUV.get_channels(1,2);
-          UV.resize(UV._width/cfx,UV._height/cfy,1,2,2);
-          cimg::fwrite(UV._data,(size_t)UV._width*UV._height*2,nfile);
+        cimg_forZ(frame,z) {
+          CImg<ucharT> YUV;
+          if (sizeof(T)==1 && !is_rgb &&
+              frame._width==width0 && frame._height==height0 && frame._depth==1 && frame._spectrum==3)
+            YUV.assign((unsigned char*)frame._data,width0,height0,1,3,true);
+          else {
+            YUV = frame.get_slice(z);
+            if (YUV._width!=width0 || YUV._height!=height0) YUV.resize(width0,height0,1,-100,0);
+            if (YUV._spectrum!=3) YUV.resize(-100,-100,1,3,YUV._spectrum==1?1:0);
+            if (is_rgb) YUV.RGBtoYCbCr();
+          }
+          if (chroma_subsampling==444)
+            cimg::fwrite(YUV._data,(size_t)YUV._width*YUV._height*3,nfile);
+          else {
+            cimg::fwrite(YUV._data,(size_t)YUV._width*YUV._height,nfile);
+            CImg<ucharT> UV = YUV.get_channels(1,2);
+            UV.resize(UV._width/cfx,UV._height/cfy,1,2,2);
+            cimg::fwrite(UV._data,(size_t)UV._width*UV._height*2,nfile);
+          }
         }
       }
       if (!file) cimg::fclose(nfile);

@@ -19367,7 +19367,7 @@ namespace cimg_library_suffixed {
               !std::strncmp(ss,"med(",4) || !std::strncmp(ss,"kth(",4) ||
               !std::strncmp(ss,"sum(",4) || !std::strncmp(ss,"avg(",4) ||
               !std::strncmp(ss,"std(",4) || !std::strncmp(ss,"variance(",9) ||
-              !std::strncmp(ss,"prod(",5) || !std::strncmp(ss,"mean(",5) ||
+              !std::strncmp(ss,"prod(",5) ||
               !std::strncmp(ss,"argmin(",7) || !std::strncmp(ss,"argmax(",7) ||
               !std::strncmp(ss,"argkth(",7)) { // Multi-argument functions
             _cimg_mp_op(*ss=='a'?(ss[1]=='v'?"Function 'avg()'":
@@ -19379,8 +19379,7 @@ namespace cimg_library_suffixed {
                         *ss=='p'?"Function 'prod()'":
                         *ss=='v'?"Function 'variance()'":
                         ss[1]=='i'?"Function 'min()'":
-                        ss[1]=='a'?"Function 'max()'":
-                        ss[2]=='a'?"Function 'mean()'":"Function 'med()'");
+                        ss[1]=='a'?"Function 'max()'":"Function 'med()'");
             op = *ss=='a'?(ss[1]=='v'?mp_avg:ss[3]=='k'?mp_argkth:ss[4]=='i'?mp_argmin:mp_argmax):
               *ss=='s'?(ss[1]=='u'?mp_sum:mp_std):
               *ss=='k'?mp_kth:

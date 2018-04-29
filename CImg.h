@@ -19388,7 +19388,7 @@ namespace cimg_library_suffixed {
               *ss=='v'?mp_variance:
               ss[1]=='i'?mp_min:
               ss[1]=='a'?mp_max:
-              ss[2]=='a'?mp_mean:
+              ss[2]=='a'?mp_avg:
               mp_median;
             is_sth = true; // Tell if all arguments are constant
             pos = scalar();
@@ -22359,13 +22359,6 @@ namespace cimg_library_suffixed {
 
       static double mp_minus(_cimg_math_parser& mp) {
         return -_mp_arg(2);
-      }
-
-      static double mp_mean(_cimg_math_parser& mp) {
-        const unsigned int i_end = (unsigned int)mp.opcode[2];
-        double val = _mp_arg(3);
-        for (unsigned int i = 4; i<i_end; ++i) val+=_mp_arg(i);
-        return val/(i_end - 3);
       }
 
       static double mp_median(_cimg_math_parser& mp) {

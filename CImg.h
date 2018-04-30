@@ -57996,6 +57996,11 @@ namespace cimg_library_suffixed {
           }
         }
       }
+      if (is_empty())
+        throw CImgIOException(_cimglist_instance
+                              "load_yuv() : Missing data in file '%s'.",
+                              cimglist_instance,
+                              filename?filename:"(FILE*)");
       if (stop_flag && nlast_frame!=~0U && frame!=nlast_frame)
         cimg::warn(_cimglist_instance
                    "load_yuv(): Frame %d not reached since only %u frames were found in file '%s'.",

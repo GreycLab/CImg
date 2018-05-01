@@ -19366,7 +19366,7 @@ namespace cimg_library_suffixed {
           if (!std::strncmp(ss,"min(",4) || !std::strncmp(ss,"max(",4) ||
               !std::strncmp(ss,"med(",4) || !std::strncmp(ss,"kth(",4) ||
               !std::strncmp(ss,"sum(",4) || !std::strncmp(ss,"avg(",4) ||
-              !std::strncmp(ss,"std(",4) || !std::strncmp(ss,"variance(",9) ||
+              !std::strncmp(ss,"std(",4) || !std::strncmp(ss,"var(",4) ||
               !std::strncmp(ss,"prod(",5) ||
               !std::strncmp(ss,"argmin(",7) || !std::strncmp(ss,"argmax(",7) ||
               !std::strncmp(ss,"argkth(",7)) { // Multi-argument functions
@@ -19377,14 +19377,14 @@ namespace cimg_library_suffixed {
                         *ss=='s'?(ss[1]=='u'?"Function 'sum()'":"Function 'std()'"):
                         *ss=='k'?"Function 'kth()'":
                         *ss=='p'?"Function 'prod()'":
-                        *ss=='v'?"Function 'variance()'":
+                        *ss=='v'?"Function 'var()'":
                         ss[1]=='i'?"Function 'min()'":
                         ss[1]=='a'?"Function 'max()'":"Function 'med()'");
             op = *ss=='a'?(ss[1]=='v'?mp_avg:ss[3]=='k'?mp_argkth:ss[4]=='i'?mp_argmin:mp_argmax):
               *ss=='s'?(ss[1]=='u'?mp_sum:mp_std):
               *ss=='k'?mp_kth:
               *ss=='p'?mp_prod:
-              *ss=='v'?mp_variance:
+              *ss=='v'?mp_var:
               ss[1]=='i'?mp_min:
               ss[1]=='a'?mp_max:
               ss[2]=='a'?mp_avg:
@@ -22998,7 +22998,7 @@ namespace cimg_library_suffixed {
         return cimg::uppercase(_mp_arg(2));
       }
 
-      static double mp_variance(_cimg_math_parser& mp) {
+      static double mp_var(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
         CImg<doubleT> vals(i_end - 3);
         double *p = vals.data();

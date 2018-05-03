@@ -842,7 +842,7 @@ extern "C" {
 #define cimg_rof(img,ptrs,T_ptrs) for (T_ptrs *ptrs = (img)._data + (img).size() - 1; ptrs>=(img)._data; --ptrs)
 #define cimg_foroff(img,off) for (cimg_ulong off = 0, _max##off = (img).size(); off<_max##off; ++off)
 
-#define cimg_for1(bound,i) for (int i = 0; i<(int)(bound); ++i)
+#define cimg_for1(bound,i) for (size_t i = 0; i<(size_t)(bound); ++i)
 #define cimg_forX(img,x) cimg_for1((img)._width,x)
 #define cimg_forY(img,y) cimg_for1((img)._height,y)
 #define cimg_forZ(img,z) cimg_for1((img)._depth,z)

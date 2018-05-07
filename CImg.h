@@ -56572,8 +56572,9 @@ namespace cimg_library_suffixed {
       }
       else {
         if (new_data) { // Insert with re-allocation.
-          if (npos) std::memcpy(new_data,_data,sizeof(CImg<T>)*npos);
-          if (npos!=_width - 1) std::memcpy(new_data + npos + 1,_data + npos,sizeof(CImg<T>)*(_width - 1 - npos));
+          if (npos) std::memcpy((void*)new_data,(void*)_data,sizeof(CImg<T>)*npos);
+          if (npos!=_width - 1)
+            std::memcpy((void*)(new_data + npos + 1),(void*)(_data + npos),sizeof(CImg<T>)*(_width - 1 - npos));
           if (is_shared && img) {
             new_data[npos]._width = img._width;
             new_data[npos]._height = img._height;
@@ -56586,11 +56587,12 @@ namespace cimg_library_suffixed {
             new_data[npos]._data = 0;
             new_data[npos] = img;
           }
-          std::memset(_data,0,sizeof(CImg<T>)*(_width - 1));
+          std::memset((void*)_data,0,sizeof(CImg<T>)*(_width - 1));
           delete[] _data;
           _data = new_data;
         } else { // Insert without re-allocation.
-          if (npos!=_width - 1) std::memmove(_data + npos + 1,_data + npos,sizeof(CImg<T>)*(_width - 1 - npos));
+          if (npos!=_width - 1)
+            std::memmove((void*)(_data + npos + 1),(void*)(_data + npos),sizeof(CImg<T>)*(_width - 1 - npos));
           if (is_shared && img) {
             _data[npos]._width = img._width;
             _data[npos]._height = img._height;
@@ -56725,16 +56727,19 @@ namespace cimg_library_suffixed {
         const unsigned int nb = 1 + npos2 - npos1;
         if (!(_width-=nb)) return assign();
         if (_width>(_allocated_width>>2) || _allocated_width<=16) { // Removing items without reallocation.
-          if (npos1!=_width) std::memmove(_data + npos1,_data + npos2 + 1,sizeof(CImg<T>)*(_width - npos1));
-          std::memset(_data + _width,0,sizeof(CImg<T>)*nb);
+          if (npos1!=_width)
+            std::memmove((void*)(_data + npos1),(void*)(_data + npos2 + 1),sizeof(CImg<T>)*(_width - npos1));
+          std::memset((void*)(_data + _width),0,sizeof(CImg<T>)*nb);
         } else { // Removing items with reallocation.
           _allocated_width>>=2;
           while (_allocated_width>16 && _width<(_allocated_width>>1)) _allocated_width>>=1;
           CImg<T> *const new_data = new CImg<T>[_allocated_width];
-          if (npos1) std::memcpy(new_data,_data,sizeof(CImg<T>)*npos1);
-          if (npos1!=_width) std::memcpy(new_data + npos1,_data + npos2 + 1,sizeof(CImg<T>)*(_width - npos1));
-          if (_width!=_allocated_width) std::memset(new_data + _width,0,sizeof(CImg<T>)*(_allocated_width - _width));
-          std::memset(_data,0,sizeof(CImg<T>)*(_width + nb));
+          if (npos1) std::memcpy((void*)new_data,(void*)_data,sizeof(CImg<T>)*npos1);
+          if (npos1!=_width)
+            std::memcpy((void*)(new_data + npos1),(void*)(_data + npos2 + 1),sizeof(CImg<T>)*(_width - npos1));
+          if (_width!=_allocated_width)
+            std::memset((void*)(new_data + _width),0,sizeof(CImg<T>)*(_allocated_width - _width));
+          std::memset((void*)_data,0,sizeof(CImg<T>)*(_width + nb));
           delete[] _data;
           _data = new_data;
         }

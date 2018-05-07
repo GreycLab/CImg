@@ -4869,7 +4869,7 @@ namespace cimg_library_suffixed {
       const unsigned int l = (unsigned int)std::strlen(command);
       if (l) {
         char *const ncommand = new char[l + 24];
-        std::strncpy(ncommand,command,l);
+        std::memcpy(ncommand,command,l);
         std::strcpy(ncommand + l," >/dev/null 2>&1"); // Make command silent.
         const int out_val = std::system(ncommand);
         delete[] ncommand;
@@ -11468,8 +11468,8 @@ namespace cimg_library_suffixed {
       if (values==_data && siz==curr_siz) return assign(size_x,size_y,size_z,size_c);
       if (_is_shared || values + siz<_data || values>=_data + size()) {
         assign(size_x,size_y,size_z,size_c);
-        if (_is_shared) std::memmove(_data,values,siz*sizeof(T));
-        else std::memcpy(_data,values,siz*sizeof(T));
+        if (_is_shared) std::memmove((void*)_data,(void*)values,siz*sizeof(T));
+        else std::memcpy((void*)_data,(void*)values,siz*sizeof(T));
       } else {
         T *new_data = 0;
         try { new_data = new T[siz]; } catch (...) {
@@ -11480,7 +11480,7 @@ namespace cimg_library_suffixed {
                                       cimg::strbuffersize(sizeof(T)*size_x*size_y*size_z*size_c),
                                       size_x,size_y,size_z,size_c);
         }
-        std::memcpy(new_data,values,siz*sizeof(T));
+        std::memcpy((void*)new_data,(void*)values,siz*sizeof(T));
         delete[] _data; _data = new_data; _width = size_x; _height = size_y; _depth = size_z; _spectrum = size_c;
       }
       return *this;
@@ -56534,13 +56534,13 @@ namespace cimg_library_suffixed {
         *_data = img;
       } else {
         if (new_data) { // Insert with re-allocation.
-          if (npos) std::memcpy(new_data,_data,sizeof(CImg<T>)*npos);
-          if (npos!=_width - 1) std::memcpy(new_data + npos + 1,_data + npos,sizeof(CImg<T>)*(_width - 1 - npos));
-          std::memset(_data,0,sizeof(CImg<T>)*(_width - 1));
+          if (npos) std::memcpy((void*)new_data,(void*)_data,sizeof(CImg<T>)*npos);
+          if (npos!=_width - 1) std::memcpy((void*)(new_data + npos + 1),(void*)(_data + npos),sizeof(CImg<T>)*(_width - 1 - npos));
+          std::memset((void*)_data,0,sizeof(CImg<T>)*(_width - 1));
           delete[] _data;
           _data = new_data;
         } else if (npos!=_width - 1) // Insert without re-allocation.
-          std::memmove(_data + npos + 1,_data + npos,sizeof(CImg<T>)*(_width - 1 - npos));
+          std::memmove((void*)(_data + npos + 1),(void*)(_data + npos),sizeof(CImg<T>)*(_width - 1 - npos));
         _data[npos]._width = _data[npos]._height = _data[npos]._depth = _data[npos]._spectrum = 0;
         _data[npos]._data = 0;
         _data[npos] = img;
@@ -59664,7 +59664,7 @@ namespace cimg_library_suffixed {
         fonts->assign();
         std::memmove(fonts,fonts + 1,15*sizeof(CImgList<ucharT>));
         std::memmove(is_variable_widths,is_variable_widths + 1,15*sizeof(bool));
-        std::memset(fonts + (ind=15),0,sizeof(CImgList<ucharT>)); // Free a slot in cache for new font.
+        std::memset((void*)(fonts + (ind=15)),0,sizeof(CImgList<ucharT>)); // Free a slot in cache for new font.
       }
       CImgList<ucharT> &font = fonts[ind];
 

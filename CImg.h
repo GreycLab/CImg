@@ -47747,8 +47747,9 @@ namespace cimg_library_suffixed {
                 if (_depth>1 || force_display_z_coord)
                   cimg_snprintf(text,text._width," Vect (%d,%d,%d)-(%d,%d,%d), Length = %g ",
                                 origX + X0,origY + Y0,origZ + Z0,origX + X1,origY + Y1,origZ + Z1,length);
-                else cimg_snprintf(text,text._width," Vect (%d,%d)-(%d,%d), Length = %g ",
-                                   origX + X0,origY + Y0,origX + X1,origY + Y1,length);
+                else cimg_snprintf(text,text._width," Vect (%d,%d)-(%d,%d), Length = %g, Angle = %g ",
+                                   origX + X0,origY + Y0,origX + X1,origY + Y1,length,
+                                   cimg::mod(180*std::atan2(-dY,-dX)/cimg::PI,360.));
               } break;
               case 2 : {
                 const double dX = (double)(X0 - X1), dY = (double)(Y0 - Y1), dZ = (double)(Z0 - Z1),

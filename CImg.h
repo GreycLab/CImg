@@ -27483,7 +27483,10 @@ namespace cimg_library_suffixed {
       } break;
       case 2 : { // Salt & Pepper noise
         if (nsigma<0) nsigma = -nsigma;
-        if (M==m) { m = 0; M = cimg::type<T>::is_float()?(Tfloat)1:(Tfloat)cimg::type<T>::max(); }
+        if (M==m) {
+          if (cimg::type<T>::is_float()) { m = (Tfloat)0; M = (Tfloat)1; }
+          else { m = (Tfloat)cimg::type<T>::min(); M = (Tfloat)cimg::type<T>::max(); }
+        }
         cimg_rof(*this,ptrd,T) if (cimg::rand(100)<nsigma) *ptrd = (T)(cimg::rand()<0.5?M:m);
       } break;
       case 3 : { // Poisson Noise

@@ -1,0 +1,8 @@
+prefix=/usr
+exec_prefix=/usr
+includedir=/usr/include/CImg
+
+Name: CImg
+Description: C++ Template Image Processing Toolkit
+Version: 1.5.0
+Cflags: -I${includedir}

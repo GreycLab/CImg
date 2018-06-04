@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!--#include file="header.html" -->
+
+<div id="bloc_option"><div id="top_vert"><div id="text_top">Links</div></div>
+  <div id="center"><div id="text_centre_intro">
+      <p>
+        The <font color="#000066"><b>CImg Library</b></font> is known to be used by the following projects.
+        If you are using <font color="#000066"><b>CImg</b></font> and want your project to appear on this page,
+        please post a message in the forum, or contact us by e-mail.
+      </p>
+      <ul>
+        <li><b><a href="http://www.imagico.de/ascos/">ASCOS</a></b>, a correction tool for satellite images.</li>
+        <li><b><a href="http://www.digikam.org/">Digikam</a></b>, an advanced digital photo management application.</li>
+        <li><b><a href="http://enas.gforge.inria.fr/">Event Neural Assembly Simulation</a></b> is an open-source C++ library to simulate so called event neural unit. Done by the INRIA lab, in France.</li>
+        <li><b><a href="https://github.com/matthewhanson/gippy">GIPS</a></b> and <b><a href="https://github.com/matthewhanson/gippy/">GIPPY</a></b> are two new, related, open-source projects for processing of remote sensing data.</li>
+        <li><b><a href="http://gmic.eu/">G'MIC</a></b> is an open and full-featured framework for image processing, providing several different user interfaces to convert/manipulate/filter/visualize generic image datasets, from 1d scalar signals to 3d+t sequences of multi-spectral volumetric images.</li>
+        <li><b><a href="http://www.eng.cam.ac.uk/~ajk61/IDIL/">IDIL</a></b> (Integrated Data &amp; Image Library), a cross-platform library for computing, plotting and image analysis.</li>
+        <li><b><a href="https://github.com/dahtah/imager">Imager</a></b> is an image/video processing package for R, based on CImg.</li>
+        <li><b><a href="http://www.inviwo.org/">Inviwo</a></b> is a software framework for rapid visualization prototyping.</li>
+        <li><b><a href="https://github.com/EyalAr/lwip">lwip</a></b>, a light-weight image processor for NodeJS.</li>
+        <li><b><a href="http://www.morphographx.org/">MorphoGraphX</a></b> is a cross-platform, open-source application for the visualization and processing of 3D biological datasets.</li>
+        <li><b><a href="http://www2.epa.gov/cameo/marplot-software">Marplot</a></b> is the mapping program for the CAMEO software suite, which is used widely to plan for and respond to chemical emergencies.</li>
+        <li><b><a href="http://natron.inria.fr/">Natron</a></b> is a free open-source, cross-platform compositing software. It aims to produce visual effects.</li>
+        <li><b><a href="http://cactus.nci.nih.gov/osra/">OSRA</a></b> (Optical Structure Recognition Application) is a utility designed to convert graphical representations of chemical structures into SMILES (Simplified Molecular Input Line Entry Specification) or SD files - a computer recognizable molecular structure formatis a free open-source, cross-platform compositing software.</li>
+        <li><b><a href="http://www.itm.uni-stuttgart.de/research/pasimodo/pasimodo_de.php">PASIMODO</a></b>, a program package for particle-based simulation methods, developed at the Institute of Engineering and Computational Mechanics (University of Stuttgart, Germany).</li>
+        <li><b><a href="http://www.phash.org/">pHash</a></b> is an open-source software library that implements several perceptual hashing algorithms, and provides a C-like API to use those functions in your own programs.</li>
+        <li><b><a href="http://photivo.org/">Photivo</a></b> is an open-source photo processor. It handles your RAW files as well as bitmap files in a non-destructive 16 bit processing pipe with gimp workflow integration and batch mode.</li>
+        <li><b><a href="http://www.dkfz.de/Macromol/quickfit/">QuickFit 3</a></b> is a data evaluation software for FCS and imagingFCS (imFCS) measurement.</li>
+        <li><b><a href="http://www.sofa-framework.org/">Sofa</a></b> is an open-source framework primarily targeted at real-time simulation, with an emphasis on medical simulation.</li>
+        <li><b><a href="http://www.theia-sfm.org/">Theia</a></b> is a computer vision library aimed at providing efficient and reliable algorithms for Structure from Motion (SfM) and Simultaneous Localization and Mapping (SLAM) systems.</li>
+        <li><b><a href="http://www.pierrederian.net/typhoon.html">Typhoon</a></b> is a motion estimation program designed to retrieve vector motion fields from image sequences of turbulent flows.</li>
+        <li><b><a href="http://www.vips.ecs.soton.ac.uk/index.php?title=GREYCstoration">The VIPS Library</a></b> uses <font color="#000066"><b>CImg</b></font> in one of its denoising plugin.</li>
+        <li><b><a href="http://wxcam.sourceforge.net/">wxCam</a></b> is a webcam application for Linux.</li>
+        <li><b><a href="http://xraysim.sourceforge.net/">XRaySim</a></b> is an open-source simulation package for use in Industrial Non-Destructive testing and medical imaging applications.</li>
+        <li><b><a href="http://yadics.univ-lille1.fr/wordpress/">YaDICs</a></b> (Yet another Digital Image Correlation software) is a free software to estimate non-rigid motion between image frames.</li>
+        <li><b><a href="http://zoomfx.sourceforge.net/">ZoomFX</a></b> is a free tool to help in image batch process thanks to an helpful visual interface and powerful filters.</li>
+        <li><b><a href="https://github.com/search?q=cimg_library&type=Code&ref=searchresults">Other pieces of code using <font color="#000066"><b>CImg</b></font></a></b> can be found on
+          <a href="https://github.com/search?q=cimg_library&type=Code&ref=searchresults">Github</a>.</li>
+      </ul>
+
+      </div></div><div id="footer"><img alt="" src="images/footer.jpg" /></div></div>
+
+<!--#include file="footer.html" -->

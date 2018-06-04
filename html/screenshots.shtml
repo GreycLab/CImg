@@ -24,7 +24,7 @@
     <td><font size="-1">
         <img alt="" src="img/item_description.jpg"></img> : <b>The main demo sample of the <font color="#000066"><b>CImg</b></font> package</b> (1433 lines of code).<br/>
         <img alt="" src="img/item_file.jpg"></img> :
-        <i><a href="https://github.com/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i><br/><br/>
+        <i><a href="https://framagit.org/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i><br/><br/>
         Contains 26 different real-time animations, as well as a nice selection menu. Look at the video to
         see all the different effects running.<br/><br/>
 	<a href="img/video_cimgdemo.html" onclick="NewWindow(this.href,'name','700','450','yes');return false;">
@@ -40,7 +40,7 @@
     <td><font size="-1">
         <img alt="" src="img/item_description.jpg"></img> : <b>A 2d bump-mapping effect</b> (30 lines of code).<br/>
         <img alt="" src="img/item_file.jpg"></img> :
-        <i><a href="https://github.com/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i><br/><br/>
+        <i><a href="https://framagit.org/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i><br/><br/>
         You can move the light source using the mouse.
         This sample shows how to handle mouse motion and create an animation in a window.
         It demonstrates also that the <font color="#000066"><b>CImg Library</b></font> is quite fast !
@@ -58,7 +58,7 @@
     <td><font size="-1">
         <img alt="" src="img/item_description.jpg"></img> : <b>Computation of the Hough Transform</b> (95 lines of code).<br/>
         <img alt="" src="img/item_file.jpg"></img> :
-        <i><a href="https://github.com/dtschump/CImg/blob/master/examples/hough_transform2d.cpp">hough_transform.cpp</a></i> <br/><br/>
+        <i><a href="https://framagit.org/dtschump/CImg/blob/master/examples/hough_transform2d.cpp">hough_transform.cpp</a></i> <br/><br/>
         Illustrate the computation of the Hough transform to detect lines in 2D images. Provide also simple user
         interface to select and display lines.
 </font></td></tr></table>
@@ -70,7 +70,7 @@
     <td><font size="-1">
         <img alt="" src="img/item_description.jpg"></img> : <b>Do a fading between two images</b> (35 lines of code).<br/>
         <img alt="" src="img/item_file.jpg"></img> :
-        <i><a href="https://github.com/dtschump/CImg/blob/master/examples/fade_images.cpp">fade_images.cpp</a></i> <br/><br/>
+        <i><a href="https://framagit.org/dtschump/CImg/blob/master/examples/fade_images.cpp">fade_images.cpp</a></i> <br/><br/>
         Very small code to perform a funny effect. Also demonstrate how to easily deal with command line arguments.
 </font></td></tr></table>
 
@@ -81,7 +81,7 @@
     <td><font size="-1">
         <img alt="" src="img/item_description.jpg"></img> : <b>A functional Mandelbrot fractal explorer</b> (51 lines of code).<br/>
         <img alt="" src="img/item_file.jpg"></img> :
-        <i><a href="https://github.com/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
+        <i><a href="https://framagit.org/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
         Show how to use the predefined feature selection function present in the <font color="#000066"><b>CImg Library</b></font>.<br/><br/>
 	<a href="img/video_mandelbrot.html" onclick="NewWindow(this.href,'name','700','450','yes');return false;">
           <img src="img/item_clickvideo.jpg" border="0" alt="Click here to see the video" onmouseover="this.src='img/item_clickvideo2.jpg';" onmouseout="this.src='img/item_clickvideo.jpg';" /></a>
@@ -94,7 +94,7 @@
     <td><font size="-1">
         <img alt="" src="img/item_description.jpg"></img> : <b>A simple shoot-em-up game, featuring the people of the Robotvis/Odyssee Lab</b> (180 lines of code).<br/>
         <img alt="" src="img/item_file.jpg"></img> :
-        <i><a href="https://github.com/dtschump/CImg/blob/master/examples/odykill.cpp">odykill.cpp</a></i> <br/><br/>
+        <i><a href="https://framagit.org/dtschump/CImg/blob/master/examples/odykill.cpp">odykill.cpp</a></i> <br/><br/>
         Another demonstration of handling mouse and creating animation for pedagogic purposes.
 </font></td></tr></table>
 
@@ -106,7 +106,7 @@
         <img alt="" src="img/item_description.jpg"></img> : <b>An implementation of an image registration algorithm, with
           multiscale capability</b> (201 lines of code).<br/>
         <img alt="" src="img/item_file.jpg"></img> :
-        <i><a href="https://github.com/dtschump/CImg/blob/master/examples/image_registration.cpp">image_registration.cpp</a></i> <br/><br/>
+        <i><a href="https://framagit.org/dtschump/CImg/blob/master/examples/image_registration.cpp">image_registration.cpp</a></i> <br/><br/>
         Compute a motion map between two images, and warp one into the another through a smooth animation.
 </font></td></tr></table>
 
@@ -117,7 +117,7 @@
     <td><font size="-1">
         <img alt="" src="img/item_description.jpg"></img> : <b>A mini-painting program</b> (30 lines of code).<br/>
         <img alt="" src="img/item_file.jpg"></img> :
-        <i><a href="https://github.com/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
+        <i><a href="https://framagit.org/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
         This is not a replacement to Photoshop, but it already includes a filling algorithm
         as well as a color selection tool.<br/><br/>
 	<a href="img/video_minipaint.html" onclick="NewWindow(this.href,'name','700','450','yes');return false;">
@@ -131,7 +131,7 @@
     <td><font size="-1">
         <img alt="" src="img/item_description.jpg"></img> : <b>A classical demomaking-effect, called 'rotozoom'</b> (20 lines of code).<br/>
         <img alt="" src="img/item_file.jpg"></img> :
-        <i><a href="https://github.com/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
+        <i><a href="https://framagit.org/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
         Smell the old school parfume of the atari/amiga demos.
 </font></td></tr></table>
 
@@ -142,7 +142,7 @@
     <td><font size="-1">
         <img alt="" src="img/item_description.jpg"></img> : <b>An animation featuring triangles that are rotating</b> (50 lines of code).<br/>
         <img alt="" src="img/item_file.jpg"></img> :
-        <i><a href="https://github.com/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
+        <i><a href="https://framagit.org/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
         Could be a replacement to your classical screen saver.
 </font></td></tr></table>
 
@@ -153,7 +153,7 @@
     <td><font size="-1">
         <img alt="" src="img/item_description.jpg"></img> : <b>A demo of image filtering in the Fourier Domain</b> (30 lines of code).<br/>
         <img alt="" src="img/item_file.jpg"></img> :
-        <i><a href="https://github.com/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
+        <i><a href="https://framagit.org/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
 	<a href="img/video_fourier.html" onclick="NewWindow(this.href,'name','700','450','yes');return false;">
           <img src="img/item_clickvideo.jpg" border="0" alt="Click here to see the video" onmouseover="this.src='img/item_clickvideo2.jpg';" onmouseout="this.src='img/item_clickvideo.jpg';" /></a>
 </font></td></tr></table>
@@ -165,7 +165,7 @@
     <td><font size="-1">
         <img alt="" src="img/item_description.jpg"></img> : <b>An example of real-time 3D rendering</b>.<br/>
         <img alt="" src="img/item_file.jpg"></img> :
-        <i><a href="https://github.com/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
+        <i><a href="https://framagit.org/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
         No use of OpenGL or VTK in this example, only pure <font color="#000066"><b>CImg</b></font> software functions are used ! <br/><br/>
 	<a href="img/video_doubletorus.html" onclick="NewWindow(this.href,'name','700','450','yes');return false;">
           <img src="img/item_clickvideo.jpg" border="0" alt="Click here to see the video" onmouseover="this.src='img/item_clickvideo2.jpg';" onmouseout="this.src='img/item_clickvideo.jpg';" /></a>
@@ -178,7 +178,7 @@
     <td><font size="-1">
         <img alt="" src="img/item_description.jpg"></img> : <b>An example of the ellipse drawing function, used to bounce an elastic bubble</b> (25 lines of code).<br/>
         <img alt="" src="img/item_file.jpg"></img> :
-        <i><a href="https://github.com/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
+        <i><a href="https://framagit.org/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
 	<a href="img/video_bubble.html" onclick="NewWindow(this.href,'name','700','450','yes');return false;">
           <img src="img/item_clickvideo.jpg" border="0" alt="Click here to see the video" onmouseover="this.src='img/item_clickvideo2.jpg';" onmouseout="this.src='img/item_clickvideo.jpg';" /></a>
 </font></td></tr></table>
@@ -190,7 +190,7 @@
     <td><font size="-1">
         <img alt="" src="img/item_description.jpg"></img> : <b>A real-time 3D virtual landscape</b> (40 lines of code).<br/>
         <img alt="" src="img/item_file.jpg"></img> :
-        <i><a href="https://github.com/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
+        <i><a href="https://framagit.org/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
         The altitude map is based on a 'fractal plasma' generator.<br/><br/>
 	<a href="img/video_landscape.html" onclick="NewWindow(this.href,'name','700','450','yes');return false;">
           <img src="img/item_clickvideo.jpg" border="0" alt="Click here to see the video" onmouseover="this.src='img/item_clickvideo2.jpg';" onmouseout="this.src='img/item_clickvideo.jpg';" /></a>
@@ -203,7 +203,7 @@
     <td><font size="-1">
         <img alt="" src="img/item_description.jpg"></img> : <b>A nice plasma effect with a sinus scroller</b> (70 lines of code).<br/>
         <img alt="" src="img/item_file.jpg"></img> :
-        <i><a href="https://github.com/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
+        <i><a href="https://framagit.org/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
 	<a href="img/video_plasma.html" onclick="NewWindow(this.href,'name','700','450','yes');return false;">
           <img src="img/item_clickvideo.jpg" border="0" alt="Click here to see the video" onmouseover="this.src='img/item_clickvideo2.jpg';" onmouseout="this.src='img/item_clickvideo.jpg';" /></a>
 </font></td></tr></table>
@@ -215,7 +215,7 @@
     <td><font size="-1">
         <img alt="" src="img/item_description.jpg"></img> : <b>An implementation of the well known Tetris game</b> (130 lines of code).<br/>
         <img alt="" src="img/item_file.jpg"></img> :
-        <i><a href="https://github.com/dtschump/CImg/blob/master/examples/tetris.cpp">tetris.cpp</a></i> <br/><br/>
+        <i><a href="https://framagit.org/dtschump/CImg/blob/master/examples/tetris.cpp">tetris.cpp</a></i> <br/><br/>
         Very small code for a complete version of the Tetris game.
 	<br/><br/><a href="img/video_tetris.html" onclick="NewWindow(this.href,'name','700','450','yes');return false;">
           <img src="img/item_clickvideo.jpg" border="0" alt="Click here to see the video" onmouseover="this.src='img/item_clickvideo2.jpg';" onmouseout="this.src='img/item_clickvideo.jpg';" /></a>
@@ -228,7 +228,7 @@
     <td><font size="-1">
         <img alt="" src="img/item_description.jpg"></img> : <b>The implementation of the Tschumperlé-Deriche algorithm for image restoration and inpainting</b> (170 lines of code).<br/>
         <img alt="" src="img/item_file.jpg"></img> :
-        <i><a href="https://github.com/dtschump/CImg/blob/master/examples/pde_TschumperleDeriche2d.cpp">pde_TschumperleDeriche2d.cpp</a></i> <br/><br/>
+        <i><a href="https://framagit.org/dtschump/CImg/blob/master/examples/pde_TschumperleDeriche2d.cpp">pde_TschumperleDeriche2d.cpp</a></i> <br/><br/>
         See <a href="ftp://ftp-sop.inria.fr/odyssee/Publications/2003/tschumperle-deriche:03.pdf">the corresponding publication</a>
         for more detail on the algorithm.
 </font></td></tr></table>
@@ -240,7 +240,7 @@
     <td><font size="-1">
         <img alt="" src="img/item_description.jpg"></img> : <b>A very smart and classical demo effect called 'Shade bobs'</b> (60 lines of code).<br/>
         <img alt="" src="img/item_file.jpg"></img> :
-        <i><a href="https://github.com/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
+        <i><a href="https://framagit.org/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
 	<a href="img/video_shadebobs.html" onclick="NewWindow(this.href,'name','700','450','yes');return false;">
           <img src="img/item_clickvideo.jpg" border="0" alt="Click here to see the video" onmouseover="this.src='img/item_clickvideo2.jpg';" onmouseout="this.src='img/item_clickvideo.jpg';" /></a>
 </font></td></tr></table>
@@ -252,7 +252,7 @@
     <td><font size="-1">
         <img alt="" src="img/item_description.jpg"></img> : <b>A nice Blob Editor in only few lines</b> (90 lines of code).<br/>
         <img alt="" src="img/item_file.jpg"></img> :
-        <i><a href="https://github.com/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
+        <i><a href="https://framagit.org/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
 	<a href="img/video_blobs.html" onclick="NewWindow(this.href,'name','700','450','yes');return false;">
           <img src="img/item_clickvideo.jpg" border="0" alt="Click here to see the video" onmouseover="this.src='img/item_clickvideo2.jpg';" onmouseout="this.src='img/item_clickvideo.jpg';" /></a>
 </font></td></tr></table>
@@ -264,7 +264,7 @@
     <td><font size="-1">
         <img alt="" src="img/item_description.jpg"></img> : <b>3d Metaballs animation</b> (23 lines of code).<br/>
         <img alt="" src="img/item_file.jpg"></img> :
-        <i><a href="https://github.com/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
+        <i><a href="https://framagit.org/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
 	<a href="img/video_metaballs.html" onclick="NewWindow(this.href,'name','700','450','yes');return false;">
           <img src="img/item_clickvideo.jpg" border="0" alt="Click here to see the video" onmouseover="this.src='img/item_clickvideo2.jpg';" onmouseout="this.src='img/item_clickvideo.jpg';" /></a>
 </font></td></tr></table>
@@ -276,7 +276,7 @@
     <td><font size="-1">
         <img alt="" src="img/item_description.jpg"></img> : <b>A tool to visualize images as surfaces in 3d</b> (100 lines of code).<br/>
         <img alt="" src="img/item_file.jpg"></img> :
-        <i><a href="https://github.com/dtschump/CImg/blob/master/examples/image_surface.cpp">image_surface.cpp</a></i> <br/><br/>
+        <i><a href="https://framagit.org/dtschump/CImg/blob/master/examples/image_surface.cpp">image_surface.cpp</a></i> <br/><br/>
 	<a href="img/video_imagesurface.html" onclick="NewWindow(this.href,'name','700','450','yes');return false;">
           <img src="img/item_clickvideo.jpg" border="0" alt="Click here to see the video" onmouseover="this.src='img/item_clickvideo2.jpg';" onmouseout="this.src='img/item_clickvideo.jpg';" /></a>
 </font></td></tr></table>
@@ -288,7 +288,7 @@
     <td><font size="-1">
         <img alt="" src="img/item_description.jpg"></img> : <b>A 3d viewer for Diffusion tensor imaging datasets</b> (526 lines of code).<br/>
         <img alt="" src="img/item_file.jpg"></img> :
-        <i><a href="https://github.com/dtschump/CImg/blob/master/examples/dtmri_view.cpp">dtmri_view.cpp</a></i> <br/><br/>
+        <i><a href="https://framagit.org/dtschump/CImg/blob/master/examples/dtmri_view.cpp">dtmri_view.cpp</a></i> <br/><br/>
 	<a href="img/video_dtmri.html" onclick="NewWindow(this.href,'name','700','450','yes');return false;">
           <img src="img/item_clickvideo.jpg" border="0" alt="Click here to see the video" onmouseover="this.src='img/item_clickvideo2.jpg';" onmouseout="this.src='img/item_clickvideo.jpg';" /></a>
 </font></td></tr></table>
@@ -300,7 +300,7 @@
     <td><font size="-1">
         <img alt="" src="img/item_description.jpg"></img> : <b>Applying the wave equation on an 3d image-mapped surface</b> (55 lines of code).<br/>
         <img alt="" src="img/item_file.jpg"></img> :
-        <i><a href="https://github.com/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
+        <i><a href="https://framagit.org/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
 	<a href="img/video_waves.html" onclick="NewWindow(this.href,'name','700','450','yes');return false;">
           <img src="img/item_clickvideo.jpg" border="0" alt="Click here to see the video" onmouseover="this.src='img/item_clickvideo2.jpg';" onmouseout="this.src='img/item_clickvideo.jpg';" /></a>
 </font></td></tr></table>
@@ -312,7 +312,7 @@
     <td><font size="-1">
         <img alt="" src="img/item_description.jpg"></img> : <b>A simple 2d curve editor using spline interpolation</b> (300 lines of code).<br/>
         <img alt="" src="img/item_file.jpg"></img> :
-        <i><a href="https://github.com/dtschump/CImg/blob/master/examples/curve_editor.cpp">curve_editor.cpp</a></i> <br/><br/>
+        <i><a href="https://framagit.org/dtschump/CImg/blob/master/examples/curve_editor.cpp">curve_editor.cpp</a></i> <br/><br/>
 	<a href="img/video_curveeditor.html" onclick="NewWindow(this.href,'name','700','450','yes');return false;">
           <img src="img/item_clickvideo.jpg" border="0" alt="Click here to see the video" onmouseover="this.src='img/item_clickvideo2.jpg';" onmouseout="this.src='img/item_clickvideo.jpg';" /></a>
 </font></td></tr></table>
@@ -324,7 +324,7 @@
     <td><font size="-1">
         <img alt="" src="img/item_description.jpg"></img> : <b>A complete and funny game featuring colored balls</b> (121 lines of code).<br/>
         <img alt="" src="img/item_file.jpg"></img> :
-        <i><a href="https://github.com/dtschump/CImg/blob/master/examples/jawbreaker.cpp">jawbreaker.cpp</a></i> <br/><br/>
+        <i><a href="https://framagit.org/dtschump/CImg/blob/master/examples/jawbreaker.cpp">jawbreaker.cpp</a></i> <br/><br/>
 	<a href="img/video_jawbreaker.html" onclick="NewWindow(this.href,'name','700','450','yes');return false;">
           <img src="img/item_clickvideo.jpg" border="0" alt="Click here to see the video" onmouseover="this.src='img/item_clickvideo2.jpg';" onmouseout="this.src='img/item_clickvideo.jpg';" /></a>
 </font></td></tr></table>
@@ -336,7 +336,7 @@
     <td><font size="-1">
         <img alt="" src="img/item_description.jpg"></img> : <b>A cool 3d reflection effect, using some <font color="#000066"><b>CImg</b></font> 3d object rendering tricks</b> (130 lines of code).<br/>
         <img alt="" src="img/item_file.jpg"></img> :
-        <i><a href="https://github.com/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
+        <i><a href="https://framagit.org/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
 	<a href="img/video_reflection.html" onclick="NewWindow(this.href,'name','700','450','yes');return false;">
           <img src="img/item_clickvideo.jpg" border="0" alt="Click here to see the video" onmouseover="this.src='img/item_clickvideo2.jpg';" onmouseout="this.src='img/item_clickvideo.jpg';" /></a>
 </font></td></tr></table>
@@ -348,7 +348,7 @@
     <td><font size="-1">
         <img alt="" src="img/item_description.jpg"></img> : <b>A simple word puzzle game</b> (100 lines of code).<br/>
         <img alt="" src="img/item_file.jpg"></img> :
-        <i><a href="https://github.com/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
+        <i><a href="https://framagit.org/dtschump/CImg/blob/master/examples/CImg_demo.cpp">CImg_demo.cpp</a></i> <br/><br/>
 </font></td></tr></table>
 
 </div></div><div id="footer"><img alt="" src="images/footer.jpg" /></div></div>

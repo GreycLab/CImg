@@ -21,7 +21,7 @@
     It contains all the required files, as well as various examples (which must be compiled),
     illustrating the use of the library functions and classes.<br/>
 </td></tr>
-<tr><td><a href="https://github.com/dtschump/CImg">
+<tr><td><a href="https://framagit.org/dtschump/CImg">
       <img src="img/item_sources.jpg" border="0" alt="Sources Repository"
            onmouseover="this.src='img/item_sources2.jpg';"
            onmouseout="this.src='img/item_sources.jpg';" /></a></td>
@@ -32,7 +32,7 @@
     type the commands : <br/><br/>
         <table cellpadding="10" cellspacing="0" border="0" bgcolor="#E0E0E0"><tr><td>
               <font size="-1"><i>
-                  <a href="https://github.com/dtschump/CImg">git clone https://github.com/dtschump/CImg.git</a>
+                  <a href="https://framagit.org/dtschump/CImg">git clone https://framagit.org/dtschump/CImg.git</a>
               </i></font>
         </td></tr></table>
         <br/>in your favorite console. Nevertheless, you have to know that some code in the source repository

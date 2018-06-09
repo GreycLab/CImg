@@ -15508,20 +15508,15 @@ namespace cimg_library_suffixed {
         CImgList<ulongT> l_opcode;
 
         // Look for a single value or a pre-defined variable.
-        int nb = cimg_sscanf(ss,"%lf%c%c",&val,&(sep=0),&(end=0));
-
-#if cimg_OS==2
-        // Check for +/-NaN and +/-inf as Microsoft's sscanf() version is not able
-        // to read those particular values.
-        if (!nb && (*ss=='+' || *ss=='-' || *ss=='i' || *ss=='I' || *ss=='n' || *ss=='N')) {
-          is_sth = true;
-          s = ss;
-          if (*s=='+') ++s; else if (*s=='-') { ++s; is_sth = false; }
+        int nb = 0;
+        s = ss + (*ss=='+' || *ss=='-'?1:0);
+        if (*s=='i' || *s=='I' || *s=='n' || *s=='N') { // Particular cases : +/-NaN and +/-Inf
+          is_sth = !(*ss=='-');
           if (!cimg::strcasecmp(s,"inf")) { val = cimg::type<double>::inf(); nb = 1; }
           else if (!cimg::strcasecmp(s,"nan")) { val = cimg::type<double>::nan(); nb = 1; }
           if (nb==1 && !is_sth) val = -val;
         }
-#endif
+        if (!nb) nb = cimg_sscanf(ss,"%lf%c%c",&val,&(sep=0),&(end=0));
         if (nb==1) _cimg_mp_constant(val);
         if (nb==2 && sep=='%') _cimg_mp_constant(val/100);
 
@@ -19807,12 +19802,12 @@ namespace cimg_library_suffixed {
       unsigned int constant(const double val) {
 
         // Search for built-in constant.
+        if (cimg::type<double>::is_nan(val)) return _cimg_mp_slot_nan;
         if (val==(double)(int)val) {
           if (val>=0 && val<=10) return (unsigned int)val;
           if (val<0 && val>=-5) return (unsigned int)(10 - val);
         }
         if (val==0.5) return 16;
-        if (cimg::type<double>::is_nan(val)) return _cimg_mp_slot_nan;
 
         // Search for constant already requested before (in const cache).
         unsigned int ind = ~0U;

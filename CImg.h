@@ -47201,7 +47201,6 @@ namespace cimg_library_suffixed {
         } break;
         }
       }
-
       if (render_type==5) cimg::mutex(10,0);
       return *this;
     }

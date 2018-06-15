@@ -47132,10 +47132,6 @@ namespace cimg_library_suffixed {
               lightprop2 = lightprops(n2), lightprop3 = lightprops(n3),
               lightpropc = (lightprop0 + lightprop1 + lightprop2 + lightprop3)/4;
             if (zbuffer)
-//              draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,color,tx0,ty0,tx1,ty1,tx2,ty2,
-//                            lightprop0,lightprop1,lightprop2,opacity).
-//                draw_triangle(zbuffer,x0,y0,z0,x2,y2,z2,x3,y3,z3,color,tx0,ty0,tx2,ty2,tx3,ty3,
-//                              lightprop0,lightprop2,lightprop3,opacity);
               draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,xc,yc,zc,color,tx0,ty0,tx1,ty1,txc,tyc,
                             lightprop0,lightprop1,lightpropc,opacity).
                 draw_triangle(zbuffer,x1,y1,z1,x2,y2,z2,xc,yc,zc,color,tx1,ty1,tx2,ty2,txc,tyc,

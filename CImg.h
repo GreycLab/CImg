@@ -46209,7 +46209,7 @@ namespace cimg_library_suffixed {
             }
           }
         } break;
-        case 4 : // Rectangle
+        case 4 : // Quadrangle
         case 12 : {
           const unsigned int
             i0 = (unsigned int)primitive(0),
@@ -46315,13 +46315,13 @@ namespace cimg_library_suffixed {
           const unsigned int psize = (unsigned int)primitive.size();
           const bool
             triangle_flag = (psize==3) || (psize==9),
-            rectangle_flag = (psize==4) || (psize==12);
-          if (triangle_flag || rectangle_flag) {
+            quadrangle_flag = (psize==4) || (psize==12);
+          if (triangle_flag || quadrangle_flag) {
             const unsigned int
               i0 = (unsigned int)primitive(0),
               i1 = (unsigned int)primitive(1),
               i2 = (unsigned int)primitive(2),
-              i3 = rectangle_flag?(unsigned int)primitive(3):0;
+              i3 = quadrangle_flag?(unsigned int)primitive(3):0;
             const tpfloat
               x0 = (tpfloat)vertices(i0,0), y0 = (tpfloat)vertices(i0,1), z0 = (tpfloat)vertices(i0,2),
               x1 = (tpfloat)vertices(i1,0), y1 = (tpfloat)vertices(i1,1), z1 = (tpfloat)vertices(i1,2),
@@ -46340,7 +46340,7 @@ namespace cimg_library_suffixed {
             vertices_normals(i0,ix)+=nx; vertices_normals(i0,iy)+=ny; vertices_normals(i0,iz)+=nz;
             vertices_normals(i1,ix)+=nx; vertices_normals(i1,iy)+=ny; vertices_normals(i1,iz)+=nz;
             vertices_normals(i2,ix)+=nx; vertices_normals(i2,iy)+=ny; vertices_normals(i2,iz)+=nz;
-            if (rectangle_flag) {
+            if (quadrangle_flag) {
               vertices_normals(i3,ix)+=nx; vertices_normals(i3,iy)+=ny; vertices_normals(i3,iz)+=nz;
             }
           }
@@ -46719,7 +46719,7 @@ namespace cimg_library_suffixed {
           } break;
           }
         } break;
-        case 4 : { // Colored rectangle
+        case 4 : { // Colored quadrangle
           const unsigned int
             n0 = (unsigned int)primitive[0],
             n1 = (unsigned int)primitive[1],

@@ -15480,7 +15480,7 @@ namespace cimg_library_suffixed {
           *const ss1 = ss + 1, *const ss2 = ss + 2, *const ss3 = ss + 3, *const ss4 = ss + 4,
           *const ss5 = ss + 5, *const ss6 = ss + 6, *const ss7 = ss + 7, *const ss8 = ss + 8,
           *s, *ps, *ns, *s0, *s1, *s2, *s3, sep = 0, end = 0;
-        double val, val1, val2;
+        double val = 0, val1, val2;
         mp_func op;
 
         // 'p_ref' is a 'unsigned int[7]' used to return a reference to an image or vector value
@@ -20819,8 +20819,8 @@ namespace cimg_library_suffixed {
         CImg<T> color(img._spectrum,1,1,1,0);
         bool is_invalid_arguments = false;
         unsigned int i = 4;
-        float r1, r2, angle = 0, opacity = 1;
-        int x0, y0;
+        float r1 = 0, r2 = 0, angle = 0, opacity = 1;
+        int x0 = 0, y0 = 0;
         if (i>=i_end) is_invalid_arguments = true;
         else {
           x0 = (int)cimg::round(_mp_arg(i++));

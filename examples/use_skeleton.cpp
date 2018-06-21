@@ -76,7 +76,7 @@ int main (int argc, char **argv) {
   const float dlt2 = cimg_option("-dlt",1.0f,"Discrete step");
 
   // Load the image (forcing it to be scalar with 2 values { 0,1 }).
-  CImg<unsigned int> image0(file_i), image = image0.get_norm().quantize(2).normalize(0.0f,1.0f);
+  CImg<unsigned int> image0(file_i), image = image0.get_norm().quantize(2).normalize(0.0f,1.0f).round();
   if (median) image.blur_median(median);
   if (invert) (image-=1)*=-1;
   if (display) (image0.get_normalize(0,255),image.get_normalize(0,255)).display("Input image - Binary image");

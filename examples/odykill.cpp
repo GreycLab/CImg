@@ -115,12 +115,12 @@ int main(int argc,char **argv) {
   const CImg<unsigned char>
     background = CImg<unsigned char>(100,100,1,3,0).noise(100,2).draw_plasma().
     resize(back0.width(),back0.height(),1,3,5)/2.5;
-  { for (unsigned int k=0; k<21; k++) {
+  for (unsigned int k = 0; k<21; k++) {
     CImg<> tmp = graphics[k].resize(k<5?32:164,k<5?32:164,1,3);
     cimg_forXY(tmp,x,y) tmp(x,y)  = (tmp(x,y,0)==255 && tmp(x,y,1)==255 && tmp(x,y,2)==255)?0.0f:1.0f;
-    masks[k]=tmp.get_shared_channel(0);
+    masks[k] = tmp.get_channel(0);
     graphics[k].resize(k<5?32:164,k<5?32:164,1,3,5);
-  }}
+  }
 
   CImg<unsigned char> canvas(background);
   int n = 5 + ((int)(200*cimg::rand())%16);

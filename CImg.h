@@ -47489,7 +47489,7 @@ namespace cimg_library_suffixed {
               pose3d.draw_image(CImg<floatT>::rotation_matrix(u,v,w,-alpha)*pose3d.get_crop(0,0,2,2));
               view3d.assign();
             } else if (disp.button()&2 && pose3d && oY3d!=Y3d) {  // Right button: zoom.
-              pose3d(3,2)+=(oY3d - Y3d)*1.5f; view3d.assign();
+              pose3d(3,2)+=(Y3d - oY3d)*1.5f; view3d.assign();
             }
             if (disp.wheel()) { // Wheel: zoom
               pose3d(3,2)-=disp.wheel()*15; view3d.assign(); disp.set_wheel();

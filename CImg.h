@@ -35947,9 +35947,9 @@ namespace cimg_library_suffixed {
       _regularization = std::max(_regularization,0.01f);
       const unsigned int psize = (unsigned int)(1 + 2*_radius);
       CImg<Tfloat>
-        mean_I = guide.get_blur_box(psize,true),
         mean_p = get_blur_box(psize,true),
-        cov_Ip = (guide.get_mul(*this)).blur_box(psize,true)-=mean_I.get_mul(mean_p),
+        mean_I = guide.get_blur_box(psize,true).resize(mean_p),
+        cov_Ip = get_mul(guide).blur_box(psize,true)-=mean_p.get_mul(mean_I),
         var_I = guide.get_sqr().blur_box(psize,true)-=mean_I.get_sqr(),
         &a = cov_Ip.div(var_I+=_regularization),
         &b = mean_p-=a.get_mul(mean_I);

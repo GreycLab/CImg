@@ -49315,6 +49315,12 @@ namespace cimg_library_suffixed {
                               "load_pfm(): WIDTH and HEIGHT fields are undefined in file '%s'.",
                               cimg_instance,
                               filename?filename:"(FILE*)");
+      } else if (W<=0 || H<=0) {
+        if (!file) cimg::fclose(nfile);
+        throw CImgIOException(_cimg_instance
+                              "load_pfm(): WIDTH (%d) and HEIGHT (%d) fields are invalid in file '%s'.",
+                              cimg_instance,W,H,
+                              filename?filename:"(FILE*)");
       }
       if (err==2) {
         while ((err=std::fscanf(nfile," %16383[^\n]",item.data()))!=EOF && (*item=='#' || !err)) std::fgetc(nfile);

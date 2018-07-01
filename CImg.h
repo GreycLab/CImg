@@ -7035,6 +7035,21 @@ namespace cimg_library_suffixed {
   }
 
   template<typename T>
+  inline CImg<_cimg_Tfloat> acosh(const CImg<T>& instance) {
+    return instance.get_acosh();
+  }
+
+  template<typename T>
+  inline CImg<_cimg_Tfloat> asinh(const CImg<T>& instance) {
+    return instance.get_asinh();
+  }
+
+  template<typename T>
+  inline CImg<_cimg_Tfloat> atanh(const CImg<T>& instance) {
+    return instance.get_atanh();
+  }
+
+  template<typename T>
   inline CImg<T> transpose(const CImg<T>& instance) {
     return instance.get_transpose();
   }
@@ -17407,6 +17422,30 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar1(mp_acos,arg1);
             }
 
+            if (!std::strncmp(ss,"acosh(",6)) { // Hyperbolic arccosine
+              _cimg_mp_op("Function 'acosh()'");
+              arg1 = compile(ss6,se1,depth1,0,is_single);
+              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_acosh,arg1);
+              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(std::acosh(mem[arg1]));
+              _cimg_mp_scalar1(mp_acosh,arg1);
+            }
+
+            if (!std::strncmp(ss,"asinh(",6)) { // Hyperbolic arcsine
+              _cimg_mp_op("Function 'asinh()'");
+              arg1 = compile(ss6,se1,depth1,0,is_single);
+              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_asinh,arg1);
+              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(std::asinh(mem[arg1]));
+              _cimg_mp_scalar1(mp_asinh,arg1);
+            }
+
+            if (!std::strncmp(ss,"atanh(",6)) { // Hyperbolic arctangent
+              _cimg_mp_op("Function 'atanh()'");
+              arg1 = compile(ss6,se1,depth1,0,is_single);
+              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_atanh,arg1);
+              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(std::atanh(mem[arg1]));
+              _cimg_mp_scalar1(mp_atanh,arg1);
+            }
+
             if (!std::strncmp(ss,"arg(",4)) { // Nth argument
               _cimg_mp_op("Function 'arg()'");
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -20250,6 +20289,18 @@ namespace cimg_library_suffixed {
 
       static double mp_acos(_cimg_math_parser& mp) {
         return std::acos(_mp_arg(2));
+      }
+
+      static double mp_acosh(_cimg_math_parser& mp) {
+        return std::acosh(_mp_arg(2));
+      }
+
+      static double mp_asinh(_cimg_math_parser& mp) {
+        return std::asinh(_mp_arg(2));
+      }
+
+      static double mp_atanh(_cimg_math_parser& mp) {
+        return std::atanh(_mp_arg(2));
       }
 
       static double mp_arg(_cimg_math_parser& mp) {
@@ -23945,6 +23996,66 @@ namespace cimg_library_suffixed {
     template<typename t>
     CImg<Tfloat> get_atan2(const CImg<t>& img) const {
       return CImg<Tfloat>(*this,false).atan2(img);
+    }
+
+    //! Compute the hyperbolic arccosine of each pixel value.
+    /**
+       Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its arccosineh
+       \f$\mathrm{acosh}(I_{(x,y,z,c)})\f$.
+       \note
+       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
+    **/
+    CImg<T>& acosh() {
+      if (is_empty()) return *this;
+      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=8192))
+      cimg_rof(*this,ptrd,T) *ptrd = (T)std::acosh((double)*ptrd);
+      return *this;
+    }
+
+    //! Compute the hyperbolic arccosine of each pixel value \newinstance.
+    CImg<Tfloat> get_acosh() const {
+      return CImg<Tfloat>(*this,false).acosh();
+    }
+
+    //! Compute the hyperbolic arcsine of each pixel value.
+    /**
+       Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its hyperbolic arcsine
+       \f$\mathrm{asinh}(I_{(x,y,z,c)})\f$.
+       \note
+       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
+    **/
+    CImg<T>& asinh() {
+      if (is_empty()) return *this;
+      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=8192))
+      cimg_rof(*this,ptrd,T) *ptrd = (T)std::asinh((double)*ptrd);
+      return *this;
+    }
+
+    //! Compute the hyperbolic arcsine of each pixel value \newinstance.
+    CImg<Tfloat> get_asinh() const {
+      return CImg<Tfloat>(*this,false).asinh();
+    }
+
+    //! Compute the hyperbolic arctangent of each pixel value.
+    /**
+       Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its hyperbolic arctangent
+       \f$\mathrm{atanh}(I_{(x,y,z,c)})\f$.
+       \note
+       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
+    **/
+    CImg<T>& atanh() {
+      if (is_empty()) return *this;
+      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=8192))
+      cimg_rof(*this,ptrd,T) *ptrd = (T)std::atanh((double)*ptrd);
+      return *this;
+    }
+
+    //! Compute the hyperbolic arcsine of each pixel value \newinstance.
+    CImg<Tfloat> get_atanh() const {
+      return CImg<Tfloat>(*this,false).atanh();
     }
 
     //! In-place pointwise multiplication.

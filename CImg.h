@@ -23588,6 +23588,17 @@ namespace cimg_library_suffixed {
 
     }; // struct _cimg_math_parser {}
 
+#define _cimg_apply_pointwise_function(name,func,openmp_size) \
+    CImg<T>& name() { \
+      if (is_empty()) return *this; \
+      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=openmp_size)) \
+      cimg_rof(*this,ptrd,T) *ptrd = (T)func((double)*ptrd); \
+      return *this; \
+    } \
+    CImg<Tfloat> get_##name() const { \
+      return CImg<Tfloat>(*this,false).name(); \
+    }
+
     //! Compute the square value of each pixel value.
     /**
        Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its square value \f$I_{(x,y,z,c)}^2\f$.
@@ -23601,17 +23612,7 @@ namespace cimg_library_suffixed {
        \endcode
        \image html ref_sqr.jpg
     **/
-    CImg<T>& sqr() {
-      if (is_empty()) return *this;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=524288))
-      cimg_rof(*this,ptrd,T) { const T val = *ptrd; *ptrd = (T)(val*val); };
-      return *this;
-    }
-
-    //! Compute the square value of each pixel value \newinstance.
-    CImg<Tfloat> get_sqr() const {
-      return CImg<Tfloat>(*this,false).sqr();
-    }
+    _cimg_apply_pointwise_function(sqr,cimg::sqr,524288);
 
     //! Compute the square root of each pixel value.
     /**
@@ -23626,17 +23627,7 @@ namespace cimg_library_suffixed {
        \endcode
        \image html ref_sqrt.jpg
     **/
-    CImg<T>& sqrt() {
-      if (is_empty()) return *this;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=8192))
-      cimg_rof(*this,ptrd,T) *ptrd = (T)std::sqrt((double)*ptrd);
-      return *this;
-    }
-
-    //! Compute the square root of each pixel value \newinstance.
-    CImg<Tfloat> get_sqrt() const {
-      return CImg<Tfloat>(*this,false).sqrt();
-    }
+    _cimg_apply_pointwise_function(sqrt,std::sqrt,8192);
 
     //! Compute the exponential of each pixel value.
     /**
@@ -23645,17 +23636,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    CImg<T>& exp() {
-      if (is_empty()) return *this;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=4096))
-      cimg_rof(*this,ptrd,T) *ptrd = (T)std::exp((double)*ptrd);
-      return *this;
-    }
-
-    //! Compute the exponential of each pixel value \newinstance.
-    CImg<Tfloat> get_exp() const {
-      return CImg<Tfloat>(*this,false).exp();
-    }
+    _cimg_apply_pointwise_function(exp,std::exp,4096);
 
     //! Compute the logarithm of each pixel value.
     /**
@@ -23665,17 +23646,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    CImg<T>& log() {
-      if (is_empty()) return *this;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=262144))
-      cimg_rof(*this,ptrd,T) *ptrd = (T)std::log((double)*ptrd);
-      return *this;
-    }
-
-    //! Compute the logarithm of each pixel value \newinstance.
-    CImg<Tfloat> get_log() const {
-      return CImg<Tfloat>(*this,false).log();
-    }
+    _cimg_apply_pointwise_function(log,std::log,262144);
 
     //! Compute the base-2 logarithm of each pixel value.
     /**
@@ -23685,17 +23656,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    CImg<T>& log2() {
-      if (is_empty()) return *this;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=4096))
-      cimg_rof(*this,ptrd,T) *ptrd = (T)cimg::log2((double)*ptrd);
-      return *this;
-    }
-
-    //! Compute the base-10 logarithm of each pixel value \newinstance.
-    CImg<Tfloat> get_log2() const {
-      return CImg<Tfloat>(*this,false).log2();
-    }
+    _cimg_apply_pointwise_function(log2,std::log2,4096);
 
     //! Compute the base-10 logarithm of each pixel value.
     /**
@@ -23705,17 +23666,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    CImg<T>& log10() {
-      if (is_empty()) return *this;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=4096))
-      cimg_rof(*this,ptrd,T) *ptrd = (T)std::log10((double)*ptrd);
-      return *this;
-    }
-
-    //! Compute the base-10 logarithm of each pixel value \newinstance.
-    CImg<Tfloat> get_log10() const {
-      return CImg<Tfloat>(*this,false).log10();
-    }
+    _cimg_apply_pointwise_function(log10,std::log10,4096);
 
     //! Compute the absolute value of each pixel value.
     /**
@@ -23724,17 +23675,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    CImg<T>& abs() {
-      if (is_empty()) return *this;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=524288))
-      cimg_rof(*this,ptrd,T) *ptrd = cimg::abs(*ptrd);
-      return *this;
-    }
-
-    //! Compute the absolute value of each pixel value \newinstance.
-    CImg<Tfloat> get_abs() const {
-      return CImg<Tfloat>(*this,false).abs();
-    }
+    _cimg_apply_pointwise_function(abs,cimg::abs,524288);
 
     //! Compute the sign of each pixel value.
     /**
@@ -23748,17 +23689,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    CImg<T>& sign() {
-      if (is_empty()) return *this;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=32768))
-      cimg_rof(*this,ptrd,T) *ptrd = cimg::sign(*ptrd);
-      return *this;
-    }
-
-    //! Compute the sign of each pixel value \newinstance.
-    CImg<Tfloat> get_sign() const {
-      return CImg<Tfloat>(*this,false).sign();
-    }
+    _cimg_apply_pointwise_function(sign,cimg::sign,32768);
 
     //! Compute the cosine of each pixel value.
     /**
@@ -23768,17 +23699,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    CImg<T>& cos() {
-      if (is_empty()) return *this;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=8192))
-      cimg_rof(*this,ptrd,T) *ptrd = (T)std::cos((double)*ptrd);
-      return *this;
-    }
-
-    //! Compute the cosine of each pixel value \newinstance.
-    CImg<Tfloat> get_cos() const {
-      return CImg<Tfloat>(*this,false).cos();
-    }
+    _cimg_apply_pointwise_function(cos,std::cos,8192);
 
     //! Compute the sine of each pixel value.
     /**
@@ -23788,17 +23709,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    CImg<T>& sin() {
-      if (is_empty()) return *this;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=8192))
-      cimg_rof(*this,ptrd,T) *ptrd = (T)std::sin((double)*ptrd);
-      return *this;
-    }
-
-    //! Compute the sine of each pixel value \newinstance.
-    CImg<Tfloat> get_sin() const {
-      return CImg<Tfloat>(*this,false).sin();
-    }
+    _cimg_apply_pointwise_function(sin,std::sin,8192);
 
     //! Compute the sinc of each pixel value.
     /**
@@ -23809,17 +23720,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    CImg<T>& sinc() {
-      if (is_empty()) return *this;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=2048))
-      cimg_rof(*this,ptrd,T) *ptrd = (T)cimg::sinc((double)*ptrd);
-      return *this;
-    }
-
-    //! Compute the sinc of each pixel value \newinstance.
-    CImg<Tfloat> get_sinc() const {
-      return CImg<Tfloat>(*this,false).sinc();
-    }
+    _cimg_apply_pointwise_function(sinc,cimg::sinc,2048);
 
     //! Compute the tangent of each pixel value.
     /**
@@ -23829,17 +23730,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    CImg<T>& tan() {
-      if (is_empty()) return *this;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=2048))
-      cimg_rof(*this,ptrd,T) *ptrd = (T)std::tan((double)*ptrd);
-      return *this;
-    }
-
-    //! Compute the tangent of each pixel value \newinstance.
-    CImg<Tfloat> get_tan() const {
-      return CImg<Tfloat>(*this,false).tan();
-    }
+    _cimg_apply_pointwise_function(tan,std::tan,2048);
 
     //! Compute the hyperbolic cosine of each pixel value.
     /**
@@ -23849,17 +23740,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    CImg<T>& cosh() {
-      if (is_empty()) return *this;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=2048))
-      cimg_rof(*this,ptrd,T) *ptrd = (T)std::cosh((double)*ptrd);
-      return *this;
-    }
-
-    //! Compute the hyperbolic cosine of each pixel value \newinstance.
-    CImg<Tfloat> get_cosh() const {
-      return CImg<Tfloat>(*this,false).cosh();
-    }
+    _cimg_apply_pointwise_function(cosh,std::cosh,2048);
 
     //! Compute the hyperbolic sine of each pixel value.
     /**
@@ -23869,17 +23750,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    CImg<T>& sinh() {
-      if (is_empty()) return *this;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=2048))
-      cimg_rof(*this,ptrd,T) *ptrd = (T)std::sinh((double)*ptrd);
-      return *this;
-    }
-
-    //! Compute the hyperbolic sine of each pixel value \newinstance.
-    CImg<Tfloat> get_sinh() const {
-      return CImg<Tfloat>(*this,false).sinh();
-    }
+    _cimg_apply_pointwise_function(sinh,std::sinh,2048);
 
     //! Compute the hyperbolic tangent of each pixel value.
     /**
@@ -23889,17 +23760,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    CImg<T>& tanh() {
-      if (is_empty()) return *this;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=2048))
-      cimg_rof(*this,ptrd,T) *ptrd = (T)std::tanh((double)*ptrd);
-      return *this;
-    }
-
-    //! Compute the hyperbolic tangent of each pixel value \newinstance.
-    CImg<Tfloat> get_tanh() const {
-      return CImg<Tfloat>(*this,false).tanh();
-    }
+    _cimg_apply_pointwise_function(tanh,std::tanh,2048);
 
     //! Compute the arccosine of each pixel value.
     /**
@@ -23909,17 +23770,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    CImg<T>& acos() {
-      if (is_empty()) return *this;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=8192))
-      cimg_rof(*this,ptrd,T) *ptrd = (T)std::acos((double)*ptrd);
-      return *this;
-    }
-
-    //! Compute the arccosine of each pixel value \newinstance.
-    CImg<Tfloat> get_acos() const {
-      return CImg<Tfloat>(*this,false).acos();
-    }
+    _cimg_apply_pointwise_function(acos,std::acos,8192);
 
     //! Compute the arcsine of each pixel value.
     /**
@@ -23929,17 +23780,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    CImg<T>& asin() {
-      if (is_empty()) return *this;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=8192))
-      cimg_rof(*this,ptrd,T) *ptrd = (T)std::asin((double)*ptrd);
-      return *this;
-    }
-
-    //! Compute the arcsine of each pixel value \newinstance.
-    CImg<Tfloat> get_asin() const {
-      return CImg<Tfloat>(*this,false).asin();
-    }
+    _cimg_apply_pointwise_function(asin,std::asin,8192);
 
     //! Compute the arctangent of each pixel value.
     /**
@@ -23949,17 +23790,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    CImg<T>& atan() {
-      if (is_empty()) return *this;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=8192))
-      cimg_rof(*this,ptrd,T) *ptrd = (T)std::atan((double)*ptrd);
-      return *this;
-    }
-
-    //! Compute the arctangent of each pixel value \newinstance.
-    CImg<Tfloat> get_atan() const {
-      return CImg<Tfloat>(*this,false).atan();
-    }
+    _cimg_apply_pointwise_function(atan,std::atan,8192);
 
     //! Compute the arctangent2 of each pixel value.
     /**
@@ -24006,17 +23837,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    CImg<T>& acosh() {
-      if (is_empty()) return *this;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=8192))
-      cimg_rof(*this,ptrd,T) *ptrd = (T)std::acosh((double)*ptrd);
-      return *this;
-    }
-
-    //! Compute the hyperbolic arccosine of each pixel value \newinstance.
-    CImg<Tfloat> get_acosh() const {
-      return CImg<Tfloat>(*this,false).acosh();
-    }
+    _cimg_apply_pointwise_function(acosh,std::acosh,8192);
 
     //! Compute the hyperbolic arcsine of each pixel value.
     /**
@@ -24026,17 +23847,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    CImg<T>& asinh() {
-      if (is_empty()) return *this;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=8192))
-      cimg_rof(*this,ptrd,T) *ptrd = (T)std::asinh((double)*ptrd);
-      return *this;
-    }
-
-    //! Compute the hyperbolic arcsine of each pixel value \newinstance.
-    CImg<Tfloat> get_asinh() const {
-      return CImg<Tfloat>(*this,false).asinh();
-    }
+    _cimg_apply_pointwise_function(asinh,std::asinh,8192);
 
     //! Compute the hyperbolic arctangent of each pixel value.
     /**
@@ -24046,17 +23857,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    CImg<T>& atanh() {
-      if (is_empty()) return *this;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=8192))
-      cimg_rof(*this,ptrd,T) *ptrd = (T)std::atanh((double)*ptrd);
-      return *this;
-    }
-
-    //! Compute the hyperbolic arcsine of each pixel value \newinstance.
-    CImg<Tfloat> get_atanh() const {
-      return CImg<Tfloat>(*this,false).atanh();
-    }
+    _cimg_apply_pointwise_function(atanh,std::atanh,8192);
 
     //! In-place pointwise multiplication.
     /**

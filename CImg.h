@@ -6959,33 +6959,33 @@ namespace cimg_library_suffixed {
     return instance.get_pseudoinvert();
   }
 
-#define _cimg_create_ext_function(name) \
+#define _cimg_create_ext_pointwise_function(name) \
   template<typename T> \
   inline CImg<_cimg_Tfloat> name(const CImg<T>& instance) { \
     return instance.get_##name(); \
   }
 
-  _cimg_create_ext_function(sqr)
-  _cimg_create_ext_function(sqrt)
-  _cimg_create_ext_function(exp)
-  _cimg_create_ext_function(log)
-  _cimg_create_ext_function(log2)
-  _cimg_create_ext_function(log10)
-  _cimg_create_ext_function(abs)
-  _cimg_create_ext_function(sign)
-  _cimg_create_ext_function(cos)
-  _cimg_create_ext_function(sin)
-  _cimg_create_ext_function(sinc)
-  _cimg_create_ext_function(tan)
-  _cimg_create_ext_function(acos)
-  _cimg_create_ext_function(asin)
-  _cimg_create_ext_function(atan)
-  _cimg_create_ext_function(cosh)
-  _cimg_create_ext_function(sinh)
-  _cimg_create_ext_function(tanh)
-  _cimg_create_ext_function(acosh)
-  _cimg_create_ext_function(asinh)
-  _cimg_create_ext_function(atanh)
+  _cimg_create_ext_pointwise_function(sqr)
+  _cimg_create_ext_pointwise_function(sqrt)
+  _cimg_create_ext_pointwise_function(exp)
+  _cimg_create_ext_pointwise_function(log)
+  _cimg_create_ext_pointwise_function(log2)
+  _cimg_create_ext_pointwise_function(log10)
+  _cimg_create_ext_pointwise_function(abs)
+  _cimg_create_ext_pointwise_function(sign)
+  _cimg_create_ext_pointwise_function(cos)
+  _cimg_create_ext_pointwise_function(sin)
+  _cimg_create_ext_pointwise_function(sinc)
+  _cimg_create_ext_pointwise_function(tan)
+  _cimg_create_ext_pointwise_function(acos)
+  _cimg_create_ext_pointwise_function(asin)
+  _cimg_create_ext_pointwise_function(atan)
+  _cimg_create_ext_pointwise_function(cosh)
+  _cimg_create_ext_pointwise_function(sinh)
+  _cimg_create_ext_pointwise_function(tanh)
+  _cimg_create_ext_pointwise_function(acosh)
+  _cimg_create_ext_pointwise_function(asinh)
+  _cimg_create_ext_pointwise_function(atanh)
 
   /*-----------------------------------
    #
@@ -23511,7 +23511,7 @@ namespace cimg_library_suffixed {
 
     }; // struct _cimg_math_parser {}
 
-#define _cimg_apply_pointwise_function(name,func,openmp_size) \
+#define _cimg_create_pointwise_functions(name,func,openmp_size) \
     CImg<T>& name() { \
       if (is_empty()) return *this; \
       cimg_pragma_openmp(parallel for cimg_openmp_if(size()>=openmp_size)) \
@@ -23535,7 +23535,7 @@ namespace cimg_library_suffixed {
        \endcode
        \image html ref_sqr.jpg
     **/
-    _cimg_apply_pointwise_function(sqr,cimg::sqr,524288)
+    _cimg_create_pointwise_functions(sqr,cimg::sqr,524288)
 
     //! Compute the square root of each pixel value.
     /**
@@ -23550,7 +23550,7 @@ namespace cimg_library_suffixed {
        \endcode
        \image html ref_sqrt.jpg
     **/
-    _cimg_apply_pointwise_function(sqrt,std::sqrt,8192)
+    _cimg_create_pointwise_functions(sqrt,std::sqrt,8192)
 
     //! Compute the exponential of each pixel value.
     /**
@@ -23559,7 +23559,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    _cimg_apply_pointwise_function(exp,std::exp,4096)
+    _cimg_create_pointwise_functions(exp,std::exp,4096)
 
     //! Compute the logarithm of each pixel value.
     /**
@@ -23569,7 +23569,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    _cimg_apply_pointwise_function(log,std::log,262144)
+    _cimg_create_pointwise_functions(log,std::log,262144)
 
     //! Compute the base-2 logarithm of each pixel value.
     /**
@@ -23579,7 +23579,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    _cimg_apply_pointwise_function(log2,std::log2,4096)
+    _cimg_create_pointwise_functions(log2,std::log2,4096)
 
     //! Compute the base-10 logarithm of each pixel value.
     /**
@@ -23589,7 +23589,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    _cimg_apply_pointwise_function(log10,std::log10,4096)
+    _cimg_create_pointwise_functions(log10,std::log10,4096)
 
     //! Compute the absolute value of each pixel value.
     /**
@@ -23598,7 +23598,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    _cimg_apply_pointwise_function(abs,cimg::abs,524288)
+    _cimg_create_pointwise_functions(abs,cimg::abs,524288)
 
     //! Compute the sign of each pixel value.
     /**
@@ -23612,7 +23612,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    _cimg_apply_pointwise_function(sign,cimg::sign,32768)
+    _cimg_create_pointwise_functions(sign,cimg::sign,32768)
 
     //! Compute the cosine of each pixel value.
     /**
@@ -23622,7 +23622,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    _cimg_apply_pointwise_function(cos,std::cos,8192)
+    _cimg_create_pointwise_functions(cos,std::cos,8192)
 
     //! Compute the sine of each pixel value.
     /**
@@ -23632,7 +23632,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    _cimg_apply_pointwise_function(sin,std::sin,8192)
+    _cimg_create_pointwise_functions(sin,std::sin,8192)
 
     //! Compute the sinc of each pixel value.
     /**
@@ -23643,7 +23643,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    _cimg_apply_pointwise_function(sinc,cimg::sinc,2048)
+    _cimg_create_pointwise_functions(sinc,cimg::sinc,2048)
 
     //! Compute the tangent of each pixel value.
     /**
@@ -23653,7 +23653,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    _cimg_apply_pointwise_function(tan,std::tan,2048)
+    _cimg_create_pointwise_functions(tan,std::tan,2048)
 
     //! Compute the hyperbolic cosine of each pixel value.
     /**
@@ -23663,7 +23663,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    _cimg_apply_pointwise_function(cosh,std::cosh,2048)
+    _cimg_create_pointwise_functions(cosh,std::cosh,2048)
 
     //! Compute the hyperbolic sine of each pixel value.
     /**
@@ -23673,7 +23673,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    _cimg_apply_pointwise_function(sinh,std::sinh,2048)
+    _cimg_create_pointwise_functions(sinh,std::sinh,2048)
 
     //! Compute the hyperbolic tangent of each pixel value.
     /**
@@ -23683,7 +23683,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    _cimg_apply_pointwise_function(tanh,std::tanh,2048)
+    _cimg_create_pointwise_functions(tanh,std::tanh,2048)
 
     //! Compute the arccosine of each pixel value.
     /**
@@ -23693,7 +23693,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    _cimg_apply_pointwise_function(acos,std::acos,8192)
+    _cimg_create_pointwise_functions(acos,std::acos,8192)
 
     //! Compute the arcsine of each pixel value.
     /**
@@ -23703,7 +23703,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    _cimg_apply_pointwise_function(asin,std::asin,8192)
+    _cimg_create_pointwise_functions(asin,std::asin,8192)
 
     //! Compute the arctangent of each pixel value.
     /**
@@ -23713,7 +23713,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    _cimg_apply_pointwise_function(atan,std::atan,8192)
+    _cimg_create_pointwise_functions(atan,std::atan,8192)
 
     //! Compute the arctangent2 of each pixel value.
     /**
@@ -23760,7 +23760,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    _cimg_apply_pointwise_function(acosh,std::acosh,8192)
+    _cimg_create_pointwise_functions(acosh,std::acosh,8192)
 
     //! Compute the hyperbolic arcsine of each pixel value.
     /**
@@ -23770,7 +23770,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    _cimg_apply_pointwise_function(asinh,std::asinh,8192)
+    _cimg_create_pointwise_functions(asinh,std::asinh,8192)
 
     //! Compute the hyperbolic arctangent of each pixel value.
     /**
@@ -23780,7 +23780,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    _cimg_apply_pointwise_function(atanh,std::atanh,8192)
+    _cimg_create_pointwise_functions(atanh,std::atanh,8192)
 
     //! In-place pointwise multiplication.
     /**

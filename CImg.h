@@ -5295,15 +5295,62 @@ namespace cimg_library_suffixed {
       return (float)std::fabs((double)a);
     }
 
+    //! Return hyperbolic arcosine of a value.
+    inline double acosh(const double x) {
+#if defined(cimg_use_cpp11) && !defined(_MSC_VER)
+      return std::acosh(x);
+#else
+      return std::log(x + std::sqrt(x*x - 1));
+#endif
+    }
+
+    //! Return hyperbolic arcsine of a value.
+    inline double asinh(const double x) {
+#if defined(cimg_use_cpp11) && !defined(_MSC_VER)
+      return std::asinh(x);
+#else
+      return std::log(x + std::sqrt(x*x + 1));
+#endif
+    }
+
+    //! Return hyperbolic arctangent of a value.
+    inline double atanh(const double x) {
+#if defined(cimg_use_cpp11) && !defined(_MSC_VER)
+      return std::atanh(x);
+#else
+      return 0.5*std::log((1.0 + x)/(1.0 - x));
+#endif
+    }
+
+    //! Return the sinc of a given value.
+    inline double sinc(const double x) {
+      return x?std::sin(x)/x:1;
+    }
+
+    //! Return base-2 logarithm of a value.
+    inline double log2(const double x) {
+#if defined(cimg_use_cpp11) && !defined(_MSC_VER)
+      return std::log2(x);
+#else
+      const double base2 = std::log(2.0);
+      return std::log(x)/base2;
+#endif
+    }
+
     //! Return square of a value.
     template<typename T>
     inline T sqr(const T& val) {
       return val*val;
     }
 
-    //! Return <tt>1 + log_10(x)</tt> of a value \c x.
-    inline int xln(const int x) {
-      return x>0?(int)(1 + std::log10((double)x)):1;
+    //! Return cubic root of a value.
+    template<typename T>
+    inline double cbrt(const T& x) {
+#if cimg_use_cpp11==1
+      return std::cbrt(x);
+#else
+      return x>=0?std::pow((double)x,1.0/3):-std::pow(-(double)x,1.0/3);
+#endif
     }
 
     //! Return the minimum between three values.
@@ -5342,11 +5389,6 @@ namespace cimg_library_suffixed {
       cimg_ulong i = 1;
       while (x>i) i<<=1;
       return i;
-    }
-
-    //! Return the sinc of a given value.
-    inline double sinc(const double x) {
-      return x?std::sin(x)/x:1;
     }
 
     //! Return the modulo of a value.
@@ -5403,12 +5445,6 @@ namespace cimg_library_suffixed {
       return a*b<=0?0:(a>0?(a<b?a:b):(a<b?b:a));
     }
 
-    //! Return base-2 logarithm of a value.
-    inline double log2(const double x) {
-      const double base = std::log(2.0);
-      return std::log(x)/base;
-    }
-
     template<typename T>
     inline T round(const T& x) {
       return (T)std::floor((_cimg_Tfloat)x + 0.5f);
@@ -5425,22 +5461,12 @@ namespace cimg_library_suffixed {
     inline T round(const T& x, const double y, const int rounding_type=0) {
       if (y<=0) return x;
       if (y==1) switch (rounding_type) {
-        case 0 : return round(x);
+        case 0 : return cimg::round(x);
         case 1 : return (T)std::ceil((_cimg_Tfloat)x);
         default : return (T)std::floor((_cimg_Tfloat)x);
         }
       const double sx = (double)x/y, floor = std::floor(sx), delta =  sx - floor;
       return (T)(y*(rounding_type<0?floor:rounding_type>0?std::ceil(sx):delta<0.5?floor:std::ceil(sx)));
-    }
-
-    //! Return x^(1/3).
-    template<typename T>
-    inline double cbrt(const T& x) {
-#if cimg_use_cpp11==1
-      return std::cbrt(x);
-#else
-      return x>=0?std::pow((double)x,1.0/3):-std::pow(-(double)x,1.0/3);
-#endif
     }
 
     // Code to compute fast median from 2,3,5,7,9,13,25 and 49 values.
@@ -17349,7 +17375,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_op("Function 'acosh()'");
               arg1 = compile(ss6,se1,depth1,0,is_single);
               if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_acosh,arg1);
-              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(std::acosh(mem[arg1]));
+              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(cimg::acosh(mem[arg1]));
               _cimg_mp_scalar1(mp_acosh,arg1);
             }
 
@@ -17357,7 +17383,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_op("Function 'asinh()'");
               arg1 = compile(ss6,se1,depth1,0,is_single);
               if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_asinh,arg1);
-              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(std::asinh(mem[arg1]));
+              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(cimg::asinh(mem[arg1]));
               _cimg_mp_scalar1(mp_asinh,arg1);
             }
 
@@ -17365,7 +17391,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_op("Function 'atanh()'");
               arg1 = compile(ss6,se1,depth1,0,is_single);
               if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_atanh,arg1);
-              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(std::atanh(mem[arg1]));
+              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(cimg::atanh(mem[arg1]));
               _cimg_mp_scalar1(mp_atanh,arg1);
             }
 
@@ -20215,15 +20241,15 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_acosh(_cimg_math_parser& mp) {
-        return std::acosh(_mp_arg(2));
+        return cimg::acosh(_mp_arg(2));
       }
 
       static double mp_asinh(_cimg_math_parser& mp) {
-        return std::asinh(_mp_arg(2));
+        return cimg::asinh(_mp_arg(2));
       }
 
       static double mp_atanh(_cimg_math_parser& mp) {
-        return std::atanh(_mp_arg(2));
+        return cimg::atanh(_mp_arg(2));
       }
 
       static double mp_arg(_cimg_math_parser& mp) {
@@ -23579,7 +23605,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    _cimg_create_pointwise_functions(log2,std::log2,4096)
+    _cimg_create_pointwise_functions(log2,cimg::log2,4096)
 
     //! Compute the base-10 logarithm of each pixel value.
     /**
@@ -23760,7 +23786,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    _cimg_create_pointwise_functions(acosh,std::acosh,8192)
+    _cimg_create_pointwise_functions(acosh,cimg::acosh,8192)
 
     //! Compute the hyperbolic arcsine of each pixel value.
     /**
@@ -23770,7 +23796,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    _cimg_create_pointwise_functions(asinh,std::asinh,8192)
+    _cimg_create_pointwise_functions(asinh,cimg::asinh,8192)
 
     //! Compute the hyperbolic arctangent of each pixel value.
     /**
@@ -23780,7 +23806,7 @@ namespace cimg_library_suffixed {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
-    _cimg_create_pointwise_functions(atanh,std::atanh,8192)
+    _cimg_create_pointwise_functions(atanh,cimg::atanh,8192)
 
     //! In-place pointwise multiplication.
     /**

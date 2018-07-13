@@ -17913,11 +17913,24 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"diag(",5)) { // Diagonal matrix
               _cimg_mp_op("Function 'diag()'");
-              arg1 = compile(ss5,se1,depth1,0,is_single);
-              if (_cimg_mp_is_scalar(arg1)) _cimg_mp_return(arg1);
-              p1 = _cimg_mp_size(arg1);
-              pos = vector(p1*p1);
-              CImg<ulongT>::vector((ulongT)mp_diag,pos,arg1,p1).move_to(code);
+              CImg<ulongT>::vector((ulongT)mp_diag,0,0).move_to(l_opcode);
+              for (s = ss5; s<se; ++s) {
+                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                arg2 = compile(s,ns,depth1,0,is_single);
+                if (_cimg_mp_is_vector(arg2))
+                  CImg<ulongT>::sequence(_cimg_mp_size(arg2),arg2 + 1,
+                                         arg2 + (ulongT)_cimg_mp_size(arg2)).
+                    move_to(l_opcode);
+                else CImg<ulongT>::vector(arg2).move_to(l_opcode);
+                s = ns;
+              }
+              (l_opcode>'y').move_to(opcode);
+              arg1 = opcode._height - 3;
+              pos = vector(arg1*arg1);
+              opcode[1] = pos;
+              opcode[2] = opcode._height;
+              opcode.move_to(code);
               _cimg_mp_return(pos);
             }
 
@@ -20662,10 +20675,10 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_diag(_cimg_math_parser& mp) {
+        const unsigned int i_end = (unsigned int)mp.opcode[2], siz = mp.opcode[2] - 3;
         double *ptrd = &_mp_arg(1) + 1;
-        const double *ptrs = &_mp_arg(2) + 1;
-        const unsigned int k = (unsigned int)mp.opcode[3];
-        CImg<doubleT>(ptrd,k,k,1,1,true) = CImg<doubleT>(ptrs,1,k,1,1,true).get_diagonal();
+        std::memset(ptrd,0,siz*siz*sizeof(double));
+        for (unsigned int i = 3; i<i_end; ++i) { *(ptrd++) = _mp_arg(i); ptrd+=siz; }
         return cimg::type<double>::nan();
       }
 

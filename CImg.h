@@ -19271,7 +19271,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_type(arg2,2,1,0);
               if (arg3==~0U) { // Auto-guess best output vector size
                 p1 = _cimg_mp_size(arg1);
-                p1 = p1?19*p1 - 1:18;
+                p1 = p1?22*p1 - 1:18;
               } else {
                 _cimg_mp_check_constant(arg3,3,3);
                 p1 = (unsigned int)mem[arg3];

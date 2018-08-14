@@ -8046,28 +8046,37 @@ namespace cimg_library_suffixed {
     template<typename t, typename T>
     static void _render_resize(const T *ptrs, const unsigned int ws, const unsigned int hs,
                                t *ptrd, const unsigned int wd, const unsigned int hd) {
-      unsigned int *const offx = new unsigned int[wd], *const offy = new unsigned int[hd + 1], *poffx, *poffy;
-      float s, curr, old;
-      s = (float)ws/wd;
-      poffx = offx; curr = 0; for (unsigned int x = 0; x<wd; ++x) {
-        old = curr; curr+=s; *(poffx++) = (unsigned int)curr - (unsigned int)old;
+      typedef typename cimg::last<T,cimg_ulong>::type ulongT;
+      CImg<ulongT> off_x(wd), off_y(hd + 1);
+      if (wd==ws) off_x.fill(1);
+      else {
+        ulongT *poff_x = off_x._data, curr = 0;
+        for (unsigned int x = 0; x<wd; ++x) {
+          const ulongT old = curr;
+          curr = (ulongT)((x + 1.0)*ws/wd);
+          *(poff_x++) = curr - old;
+        }
       }
-      s = (float)hs/hd;
-      poffy = offy; curr = 0; for (unsigned int y = 0; y<hd; ++y) {
-        old = curr; curr+=s; *(poffy++) = ws*((unsigned int)curr - (unsigned int)old);
+      if (hd==hs) off_y.fill(ws);
+      else {
+        ulongT *poff_y = off_y._data, curr = 0;
+        for (unsigned int y = 0; y<hd; ++y) {
+          const ulongT old = curr;
+          curr = (ulongT)((y + 1.0)*hs/hd);
+          *(poff_y++) = ws*(curr - old);
+        }
+        *poff_y = 0;
       }
-      *poffy = 0;
-      poffy = offy;
+      ulongT *poff_y = off_y._data;
       for (unsigned int y = 0; y<hd; ) {
         const T *ptr = ptrs;
-        poffx = offx;
-        for (unsigned int x = 0; x<wd; ++x) { *(ptrd++) = *ptr; ptr+=*(poffx++); }
+        ulongT *poff_x = off_x._data;
+        for (unsigned int x = 0; x<wd; ++x) { *(ptrd++) = *ptr; ptr+=*(poff_x++); }
         ++y;
-        unsigned int dy = *(poffy++);
-        for ( ; !dy && y<hd; std::memcpy(ptrd,ptrd - wd,sizeof(t)*wd), ++y, ptrd+=wd, dy = *(poffy++)) {}
+        ulongT dy = *(poff_y++);
+        for ( ; !dy && y<hd; std::memcpy(ptrd,ptrd - wd,sizeof(t)*wd), ++y, ptrd+=wd, dy = *(poff_y++)) {}
         ptrs+=dy;
       }
-      delete[] offx; delete[] offy;
     }
 
     //! Set normalization type.
@@ -29509,12 +29518,12 @@ namespace cimg_library_suffixed {
             }
             ++z;
             ulongT dz = *(poff_z++);
-            for ( ; !dz && z<dz; std::memcpy(ptrd,ptrd-sxy,sizeof(T)*sxy), ++z, ptrd+=sxy, dz = *(poff_z++)) {}
+            for ( ; !dz && z<dz; std::memcpy(ptrd,ptrd - sxy,sizeof(T)*sxy), ++z, ptrd+=sxy, dz = *(poff_z++)) {}
             ptrz+=dz;
           }
           ++c;
           ulongT dc = *(poff_c++);
-          for ( ; !dc && c<dc; std::memcpy(ptrd,ptrd-sxyz,sizeof(T)*sxyz), ++c, ptrd+=sxyz, dc = *(poff_c++)) {}
+          for ( ; !dc && c<dc; std::memcpy(ptrd,ptrd - sxyz,sizeof(T)*sxyz), ++c, ptrd+=sxyz, dc = *(poff_c++)) {}
           ptrc+=dc;
         }
       } break;

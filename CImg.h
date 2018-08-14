@@ -8047,11 +8047,7 @@ namespace cimg_library_suffixed {
     static void _render_resize(const T *ptrs, const unsigned int ws, const unsigned int hs,
                                t *ptrd, const unsigned int wd, const unsigned int hd) {
       typedef typename cimg::last<T,cimg_ulong>::type ulongT;
-#if UINTPTR_MAX==0xffffffff || defined(__arm__) || defined(_M_ARM) || ((ULONG_MAX)==(UINT_MAX))
-      const double one = 1.0;
-#else
-      const unsigned long one = 1UL;
-#endif
+      const ulongT one = 1;
       CImg<ulongT> off_x(wd), off_y(hd + 1);
       if (wd==ws) off_x.fill(1);
       else {
@@ -29456,18 +29452,14 @@ namespace cimg_library_suffixed {
         // Nearest neighbor interpolation.
         //
       case 1 : {
-#if UINTPTR_MAX==0xffffffff || defined(__arm__) || defined(_M_ARM) || ((ULONG_MAX)==(UINT_MAX))
-        const double one = 1.0;
-#else
-        const unsigned long one = 1UL;
-#endif
         res.assign(sx,sy,sz,sc);
         CImg<ulongT> off_x(sx), off_y(sy + 1), off_z(sz + 1), off_c(sc + 1);
         const ulongT
           wh = (ulongT)_width*_height,
           whd = (ulongT)_width*_height*_depth,
           sxy = (ulongT)sx*sy,
-          sxyz = (ulongT)sx*sy*sz;
+          sxyz = (ulongT)sx*sy*sz,
+          one = (ulongT)1;
         if (sx==_width) off_x.fill(1);
         else {
           ulongT *poff_x = off_x._data, curr = 0;

@@ -8047,7 +8047,7 @@ namespace cimg_library_suffixed {
     static void _render_resize(const T *ptrs, const unsigned int ws, const unsigned int hs,
                                t *ptrd, const unsigned int wd, const unsigned int hd) {
       typedef typename cimg::last<T,cimg_ulong>::type ulongT;
-      const ulongT one = 1;
+      const ulongT one = (ulongT)1;
       CImg<ulongT> off_x(wd), off_y(hd + 1);
       if (wd==ws) off_x.fill(1);
       else {

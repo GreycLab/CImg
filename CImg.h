@@ -8053,7 +8053,7 @@ namespace cimg_library_suffixed {
         ulongT *poff_x = off_x._data, curr = 0;
         for (unsigned int x = 0; x<wd; ++x) {
           const ulongT old = curr;
-          curr = (ulongT)((x + 1.0)*ws/wd);
+          curr = (x + 1UL)*ws/wd;
           *(poff_x++) = curr - old;
         }
       }
@@ -8062,7 +8062,7 @@ namespace cimg_library_suffixed {
         ulongT *poff_y = off_y._data, curr = 0;
         for (unsigned int y = 0; y<hd; ++y) {
           const ulongT old = curr;
-          curr = (ulongT)((y + 1.0)*hs/hd);
+          curr = (y + 1UL)*hs/hd;
           *(poff_y++) = ws*(curr - old);
         }
         *poff_y = 0;
@@ -29463,7 +29463,7 @@ namespace cimg_library_suffixed {
           ulongT *poff_x = off_x._data, curr = 0;
           cimg_forX(res,x) {
             const ulongT old = curr;
-            curr = (ulongT)((x + 1.0)*_width/sx);
+            curr = (x + 1UL)*_width/sx;
             *(poff_x++) = curr - old;
           }
         }
@@ -29472,7 +29472,7 @@ namespace cimg_library_suffixed {
           ulongT *poff_y = off_y._data, curr = 0;
           cimg_forY(res,y) {
             const ulongT old = curr;
-            curr = (ulongT)((y + 1.0)*_height/sy);
+            curr = (y + 1UL)*_height/sy;
             *(poff_y++) = _width*(curr - old);
           }
           *poff_y = 0;
@@ -29482,7 +29482,7 @@ namespace cimg_library_suffixed {
           ulongT *poff_z = off_z._data, curr = 0;
           cimg_forZ(res,z) {
             const ulongT old = curr;
-            curr = (ulongT)((z + 1.0)*_depth/sz);
+            curr = (z + 1UL)*_depth/sz;
             *(poff_z++) = wh*(curr - old);
           }
           *poff_z = 0;
@@ -29492,7 +29492,7 @@ namespace cimg_library_suffixed {
           ulongT *poff_c = off_c._data, curr = 0;
           cimg_forC(res,c) {
             const ulongT old = curr;
-            curr = (ulongT)((c + 1.0)*_spectrum/sc);
+            curr = (c + 1UL)*_spectrum/sc;
             *(poff_c++) = whd*(curr - old);
           }
           *poff_c = 0;

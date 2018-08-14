@@ -8047,13 +8047,18 @@ namespace cimg_library_suffixed {
     static void _render_resize(const T *ptrs, const unsigned int ws, const unsigned int hs,
                                t *ptrd, const unsigned int wd, const unsigned int hd) {
       typedef typename cimg::last<T,cimg_ulong>::type ulongT;
+#if UINTPTR_MAX==0xffffffff || defined(__arm__) || defined(_M_ARM) || ((ULONG_MAX)==(UINT_MAX))
+      const double one = 1.0;
+#else
+      const unsigned long one = 1UL;
+#endif
       CImg<ulongT> off_x(wd), off_y(hd + 1);
       if (wd==ws) off_x.fill(1);
       else {
         ulongT *poff_x = off_x._data, curr = 0;
         for (unsigned int x = 0; x<wd; ++x) {
           const ulongT old = curr;
-          curr = (x + 1UL)*ws/wd;
+          curr = (x + one)*ws/wd;
           *(poff_x++) = curr - old;
         }
       }
@@ -8062,7 +8067,7 @@ namespace cimg_library_suffixed {
         ulongT *poff_y = off_y._data, curr = 0;
         for (unsigned int y = 0; y<hd; ++y) {
           const ulongT old = curr;
-          curr = (y + 1UL)*hs/hd;
+          curr = (y + one)*hs/hd;
           *(poff_y++) = ws*(curr - old);
         }
         *poff_y = 0;
@@ -29451,6 +29456,11 @@ namespace cimg_library_suffixed {
         // Nearest neighbor interpolation.
         //
       case 1 : {
+#if UINTPTR_MAX==0xffffffff || defined(__arm__) || defined(_M_ARM) || ((ULONG_MAX)==(UINT_MAX))
+        const double one = 1.0;
+#else
+        const unsigned long one = 1UL;
+#endif
         res.assign(sx,sy,sz,sc);
         CImg<ulongT> off_x(sx), off_y(sy + 1), off_z(sz + 1), off_c(sc + 1);
         const ulongT
@@ -29463,7 +29473,7 @@ namespace cimg_library_suffixed {
           ulongT *poff_x = off_x._data, curr = 0;
           cimg_forX(res,x) {
             const ulongT old = curr;
-            curr = (x + 1UL)*_width/sx;
+            curr = (x + one)*_width/sx;
             *(poff_x++) = curr - old;
           }
         }
@@ -29472,7 +29482,7 @@ namespace cimg_library_suffixed {
           ulongT *poff_y = off_y._data, curr = 0;
           cimg_forY(res,y) {
             const ulongT old = curr;
-            curr = (y + 1UL)*_height/sy;
+            curr = (y + one)*_height/sy;
             *(poff_y++) = _width*(curr - old);
           }
           *poff_y = 0;
@@ -29482,7 +29492,7 @@ namespace cimg_library_suffixed {
           ulongT *poff_z = off_z._data, curr = 0;
           cimg_forZ(res,z) {
             const ulongT old = curr;
-            curr = (z + 1UL)*_depth/sz;
+            curr = (z + one)*_depth/sz;
             *(poff_z++) = wh*(curr - old);
           }
           *poff_z = 0;
@@ -29492,7 +29502,7 @@ namespace cimg_library_suffixed {
           ulongT *poff_c = off_c._data, curr = 0;
           cimg_forC(res,c) {
             const ulongT old = curr;
-            curr = (c + 1UL)*_spectrum/sc;
+            curr = (c + one)*_spectrum/sc;
             *(poff_c++) = whd*(curr - old);
           }
           *poff_c = 0;

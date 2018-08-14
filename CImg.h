@@ -22949,7 +22949,7 @@ namespace cimg_library_suffixed {
         char sep;
         ptrs+=1 + ind; cimg_forX(ss,i) ss[i] = (char)*(ptrs++); ss.back() = 0;
 
-        int err = std::sscanf(ss,"%lf%c",&val,&sep);
+        int err = cimg_sscanf(ss,"%lf%c",&val,&sep);
 #if cimg_OS==2
         // Check for +/-NaN and +/-inf as Microsoft's sscanf() version is not able
         // to read those particular values.

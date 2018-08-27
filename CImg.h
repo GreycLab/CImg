@@ -47665,9 +47665,13 @@ namespace cimg_library_suffixed {
                 if (_depth>1 || force_display_z_coord)
                   cimg_snprintf(text,text._width," Vect (%d,%d,%d)-(%d,%d,%d), Length = %g ",
                                 origX + X0,origY + Y0,origZ + Z0,origX + X1,origY + Y1,origZ + Z1,length);
-                else cimg_snprintf(text,text._width," Vect (%d,%d)-(%d,%d), Length = %g, Angle = %g\260 ",
-                                   origX + X0,origY + Y0,origX + X1,origY + Y1,length,
-                                   cimg::round(cimg::mod(180*std::atan2(-dY,-dX)/cimg::PI,360.),0.1));
+                else if (_width!=1 && _height!=1)
+                  cimg_snprintf(text,text._width," Vect (%d,%d)-(%d,%d), Length = %g, Angle = %g\260 ",
+                                origX + X0,origY + Y0,origX + X1,origY + Y1,length,
+                                cimg::round(cimg::mod(180*std::atan2(-dY,-dX)/cimg::PI,360.),0.1));
+                else
+                  cimg_snprintf(text,text._width," Vect (%d,%d)-(%d,%d), Length = %g ",
+                                origX + X0,origY + Y0,origX + X1,origY + Y1,length);
               } break;
               case 2 : {
                 const double dX = (double)(X0 - X1), dY = (double)(Y0 - Y1), dZ = (double)(Z0 - Z1),
@@ -47678,12 +47682,19 @@ namespace cimg_library_suffixed {
                                 origX + (X0<X1?X0:X1),origY + (Y0<Y1?Y0:Y1),origZ + (Z0<Z1?Z0:Z1),
                                 origX + (X0<X1?X1:X0),origY + (Y0<Y1?Y1:Y0),origZ + (Z0<Z1?Z1:Z0),
                                 1 + cimg::abs(X0 - X1),1 + cimg::abs(Y0 - Y1),1 + cimg::abs(Z0 - Z1),length);
-                else cimg_snprintf(text,text._width,
-                                   " Box (%d,%d)-(%d,%d), Size = (%d,%d), Length = %g, Angle = %g\260 ",
-                                   origX + (X0<X1?X0:X1),origY + (Y0<Y1?Y0:Y1),
-                                   origX + (X0<X1?X1:X0),origY + (Y0<Y1?Y1:Y0),
-                                   1 + cimg::abs(X0 - X1),1 + cimg::abs(Y0 - Y1),length,
-                                   cimg::round(cimg::mod(180*std::atan2(-dY,-dX)/cimg::PI,360.),0.1));
+                else if (_width!=1 && _height!=1)
+                  cimg_snprintf(text,text._width,
+                                " Box (%d,%d)-(%d,%d), Size = (%d,%d), Length = %g, Angle = %g\260 ",
+                                origX + (X0<X1?X0:X1),origY + (Y0<Y1?Y0:Y1),
+                                origX + (X0<X1?X1:X0),origY + (Y0<Y1?Y1:Y0),
+                                1 + cimg::abs(X0 - X1),1 + cimg::abs(Y0 - Y1),length,
+                                cimg::round(cimg::mod(180*std::atan2(-dY,-dX)/cimg::PI,360.),0.1));
+                else
+                  cimg_snprintf(text,text._width,
+                                " Box (%d,%d)-(%d,%d), Size = (%d,%d), Length = %g ",
+                                origX + (X0<X1?X0:X1),origY + (Y0<Y1?Y0:Y1),
+                                origX + (X0<X1?X1:X0),origY + (Y0<Y1?Y1:Y0),
+                                1 + cimg::abs(X0 - X1),1 + cimg::abs(Y0 - Y1),length);
               } break;
               default :
                 if (_depth>1 || force_display_z_coord)

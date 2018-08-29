@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 236
+#define cimg_version 240
 
 /*-----------------------------------------------------------
  #
@@ -15153,7 +15153,7 @@ namespace cimg_library_suffixed {
     struct _cimg_math_parser {
       CImg<doubleT> mem;
       CImg<intT> memtype;
-      CImgList<ulongT> _code, &code, code_init, code_end;
+      CImgList<ulongT> _code, &code, code_begin, code_end;
       CImg<ulongT> opcode;
       const CImg<ulongT> *p_code_end, *p_code;
       const CImg<ulongT> *const p_break;
@@ -15311,11 +15311,11 @@ namespace cimg_library_suffixed {
         opcode.assign();
         opcode._is_shared = true;
 
-        // Execute init() bloc if any specified.
-        if (code_init) {
+        // Execute begin() bloc if any specified.
+        if (code_begin) {
           mem[_cimg_mp_slot_x] = mem[_cimg_mp_slot_y] = mem[_cimg_mp_slot_z] = mem[_cimg_mp_slot_c] = 0;
-          p_code_end = code_init.end();
-          for (p_code = code_init; p_code<p_code_end; ++p_code) {
+          p_code_end = code_begin.end();
+          for (p_code = code_begin; p_code<p_code_end; ++p_code) {
             opcode._data = p_code->_data;
             const ulongT target = opcode[1];
             mem[target] = _cimg_mp_defunc(*this);
@@ -17473,14 +17473,6 @@ namespace cimg_library_suffixed {
             break;
 
           case 'b' :
-            if (!std::strncmp(ss,"bool(",5)) { // Boolean cast
-              _cimg_mp_op("Function 'bool()'");
-              arg1 = compile(ss5,se1,depth1,0,is_single);
-              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_bool,arg1);
-              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant((bool)mem[arg1]);
-              _cimg_mp_scalar1(mp_bool,arg1);
-            }
-
             if (!std::strncmp(ss,"break(",6)) { // Complex absolute value
               if (pexpr[se2 - expr._data]=='(') { // no arguments?
                 CImg<ulongT>::vector((ulongT)mp_break,_cimg_mp_slot_nan).move_to(code);
@@ -17494,6 +17486,22 @@ namespace cimg_library_suffixed {
                 CImg<ulongT>::vector((ulongT)mp_breakpoint,_cimg_mp_slot_nan).move_to(code);
                 _cimg_mp_return_nan();
               }
+            }
+
+            if (!std::strncmp(ss,"bool(",5)) { // Boolean cast
+              _cimg_mp_op("Function 'bool()'");
+              arg1 = compile(ss5,se1,depth1,0,is_single);
+              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_bool,arg1);
+              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant((bool)mem[arg1]);
+              _cimg_mp_scalar1(mp_bool,arg1);
+            }
+
+            if (!std::strncmp(ss,"begin(",6)) { // Begin
+              _cimg_mp_op("Function 'begin()'");
+              code.swap(code_begin);
+              arg1 = compile(ss6,se1,depth1,p_ref,true);
+              code.swap(code_begin);
+              _cimg_mp_return(arg1);
             }
             break;
 
@@ -18367,14 +18375,6 @@ namespace cimg_library_suffixed {
               CImg<ulongT>::vector((ulongT)mp_if,pos,arg1,arg2,arg3,
                                   p3 - p2,code._width - p3,arg4).move_to(code,p2);
               _cimg_mp_return(pos);
-            }
-
-            if (!std::strncmp(ss,"init(",5)) { // Init
-              _cimg_mp_op("Function 'init()'");
-              code.swap(code_init);
-              arg1 = compile(ss5,se1,depth1,p_ref,true);
-              code.swap(code_init);
-              _cimg_mp_return(arg1);
             }
 
             if (!std::strncmp(ss,"int(",4)) { // Integer cast

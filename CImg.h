@@ -13817,7 +13817,7 @@ namespace cimg_library_suffixed {
 
     Tfloat _cubic_atX(const float fx, const int y=0, const int z=0, const int c=0) const {
       const float
-        nfx = cimg::cut(fx,0,width() - 1);
+        nfx = cimg::type<float>::is_nan(fx)?0:cimg::cut(fx,0,width() - 1);
       const int
         x = (int)nfx;
       const float
@@ -13896,13 +13896,13 @@ namespace cimg_library_suffixed {
 
     Tfloat _cubic_atXY(const float fx, const float fy, const int z=0, const int c=0) const {
       const float
-        nfx = cimg::cut(fx,0,width() - 1),
-        nfy = cimg::cut(fy,0,height() - 1);
+        nfx = cimg::type<float>::is_nan(fx)?0:cimg::cut(fx,0,width() - 1),
+        nfy = cimg::type<float>::is_nan(fy)?0:cimg::cut(fy,0,height() - 1);
       const int x = (int)nfx, y = (int)nfy;
       const float dx = nfx - x, dy = nfy - y;
       const int
-        px = x - 1<0?0:x - 1, nx = dx>0?x + 1:x, ax = x + 2>=width()?width() - 1:x + 2,
-        py = y - 1<0?0:y - 1, ny = dy>0?y + 1:y, ay = y + 2>=height()?height() - 1:y + 2;
+        px = x - 1<0?0:x - 1, nx = dx<=0?x:x + 1, ax = x + 2>=width()?width() - 1:x + 2,
+        py = y - 1<0?0:y - 1, ny = dy<=0?y:y + 1, ay = y + 2>=height()?height() - 1:y + 2;
       const Tfloat
         Ipp = (Tfloat)(*this)(px,py,z,c), Icp = (Tfloat)(*this)(x,py,z,c), Inp = (Tfloat)(*this)(nx,py,z,c),
         Iap = (Tfloat)(*this)(ax,py,z,c),
@@ -14046,9 +14046,9 @@ namespace cimg_library_suffixed {
 
     Tfloat _cubic_atXYZ(const float fx, const float fy, const float fz, const int c=0) const {
       const float
-        nfx = cimg::cut(fx,0,width() - 1),
-        nfy = cimg::cut(fy,0,height() - 1),
-        nfz = cimg::cut(fz,0,depth() - 1);
+        nfx = cimg::type<float>::is_nan(fx)?0:cimg::cut(fx,0,width() - 1),
+        nfy = cimg::type<float>::is_nan(fy)?0:cimg::cut(fy,0,height() - 1),
+        nfz = cimg::type<float>::is_nan(fz)?0:cimg::cut(fz,0,depth() - 1);
       const int x = (int)nfx, y = (int)nfy, z = (int)nfz;
       const float dx = nfx - x, dy = nfy - y, dz = nfz - z;
       const int

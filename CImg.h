@@ -5297,7 +5297,7 @@ namespace cimg_library_suffixed {
 
     //! Return hyperbolic arcosine of a value.
     inline double acosh(const double x) {
-#if defined(cimg_use_cpp11) && !defined(_MSC_VER)
+#if cimg_use_cpp11==1 && !defined(_MSC_VER)
       return std::acosh(x);
 #else
       return std::log(x + std::sqrt(x*x - 1));
@@ -5306,7 +5306,7 @@ namespace cimg_library_suffixed {
 
     //! Return hyperbolic arcsine of a value.
     inline double asinh(const double x) {
-#if defined(cimg_use_cpp11) && !defined(_MSC_VER)
+#if cimg_use_cpp11==1 && !defined(_MSC_VER)
       return std::asinh(x);
 #else
       return std::log(x + std::sqrt(x*x + 1));
@@ -5315,7 +5315,7 @@ namespace cimg_library_suffixed {
 
     //! Return hyperbolic arctangent of a value.
     inline double atanh(const double x) {
-#if defined(cimg_use_cpp11) && !defined(_MSC_VER)
+#if cimg_use_cpp11==1 && !defined(_MSC_VER)
       return std::atanh(x);
 #else
       return 0.5*std::log((1.0 + x)/(1.0 - x));
@@ -5329,7 +5329,7 @@ namespace cimg_library_suffixed {
 
     //! Return base-2 logarithm of a value.
     inline double log2(const double x) {
-#if defined(cimg_use_cpp11) && !defined(_MSC_VER)
+#if cimg_use_cpp11==1 && !defined(_MSC_VER)
       return std::log2(x);
 #else
       const double base2 = std::log(2.0);

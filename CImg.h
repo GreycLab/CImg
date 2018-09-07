@@ -7311,22 +7311,25 @@ namespace cimg_library_suffixed {
                                  CImgDisplay::_fitscreen(dx,dy,dz,480,-85,true)
     static unsigned int _fitscreen(const unsigned int dx, const unsigned int dy, const unsigned int dz,
                                    const int dmin, const int dmax, const bool return_y) {
-      const unsigned int _nw = dx + (dz>1?dz:0), _nh = dy + (dz>1?dz:0);
-      unsigned int nw = _nw?_nw:1, nh = _nh?_nh:1;
-      const unsigned int
-        sw = (unsigned int)CImgDisplay::screen_width(),
-        sh = (unsigned int)CImgDisplay::screen_height(),
-        mw = dmin<0?(unsigned int)(sw*-dmin/100):(unsigned int)dmin,
-        mh = dmin<0?(unsigned int)(sh*-dmin/100):(unsigned int)dmin,
-        Mw = dmax<0?(unsigned int)(sw*-dmax/100):(unsigned int)dmax,
-        Mh = dmax<0?(unsigned int)(sh*-dmax/100):(unsigned int)dmax;
-      if (nw<mw) { nh = nh*mw/nw; nh+=(nh==0); nw = mw; }
-      if (nh<mh) { nw = nw*mh/nh; nw+=(nw==0); nh = mh; }
-      if (nw>Mw) { nh = nh*Mw/nw; nh+=(nh==0); nw = Mw; }
-      if (nh>Mh) { nw = nw*Mh/nh; nw+=(nw==0); nh = Mh; }
-      if (nw<mw) nw = mw;
-      if (nh<mh) nh = mh;
-      return return_y?nh:nw;
+      const int
+        u = CImgDisplay::screen_width(),
+        v = CImgDisplay::screen_height();
+      const float
+        mw = dmin<0?cimg::round(u*-dmin/100.0f):(float)dmin,
+        mh = dmin<0?cimg::round(v*-dmin/100.0f):(float)dmin,
+        Mw = dmax<0?cimg::round(u*-dmax/100.0f):(float)dmax,
+        Mh = dmax<0?cimg::round(v*-dmax/100.0f):(float)dmax;
+      float
+        w = (float)std::max(1U,dx),
+        h = (float)std::max(1U,dy);
+      if (dz>1) { w+=dz; h+=dz; }
+      if (w<mw) { h = h*mw/w; w = mw; }
+      if (h<mh) { w = w*mh/h; h = mh; }
+      if (w>Mw) { h = h*Mw/w; w = Mw; }
+      if (h>Mh) { w = w*Mh/h; h = Mh; }
+      if (w<mw) w = mw;
+      if (h<mh) h = mh;
+      return std::max(1U,(unsigned int)cimg::round(return_y?h:w));
     }
 
     //@}

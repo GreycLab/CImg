@@ -56287,11 +56287,17 @@ namespace cimg_library_suffixed {
     /**
     **/
     T& min() {
-      if (is_empty())
+      bool is_all_empty = true;
+      T *ptr_min = 0;
+      cimglist_for(*this,l) if (!_data[l].is_empty()) {
+        ptr_min = _data[l]._data;
+        is_all_empty = false;
+        break;
+      }
+      if (is_all_empty)
         throw CImgInstanceException(_cimglist_instance
-                                    "min(): Empty instance.",
+                                    "min(): Empty instance or list of empty images.",
                                     cimglist_instance);
-      T *ptr_min = _data->_data;
       T min_value = *ptr_min;
       cimglist_for(*this,l) {
         const CImg<T>& img = _data[l];
@@ -56302,11 +56308,17 @@ namespace cimg_library_suffixed {
 
     //! Return a reference to the minimum pixel value of the instance list \const.
     const T& min() const {
-      if (is_empty())
+      bool is_all_empty = true;
+      T *ptr_min = 0;
+      cimglist_for(*this,l) if (!_data[l].is_empty()) {
+        ptr_min = _data[l]._data;
+        is_all_empty = false;
+        break;
+      }
+      if (is_all_empty)
         throw CImgInstanceException(_cimglist_instance
-                                    "min(): Empty instance.",
+                                    "min(): Empty instance or list of empty images.",
                                     cimglist_instance);
-      const T *ptr_min = _data->_data;
       T min_value = *ptr_min;
       cimglist_for(*this,l) {
         const CImg<T>& img = _data[l];
@@ -56319,11 +56331,17 @@ namespace cimg_library_suffixed {
     /**
     **/
     T& max() {
-      if (is_empty())
+      bool is_all_empty = true;
+      T *ptr_max = 0;
+      cimglist_for(*this,l) if (!_data[l].is_empty()) {
+        ptr_max = _data[l]._data;
+        is_all_empty = false;
+        break;
+      }
+      if (is_all_empty)
         throw CImgInstanceException(_cimglist_instance
-                                    "max(): Empty instance.",
+                                    "max(): Empty instance or list of empty images.",
                                     cimglist_instance);
-      T *ptr_max = _data->_data;
       T max_value = *ptr_max;
       cimglist_for(*this,l) {
         const CImg<T>& img = _data[l];
@@ -56334,11 +56352,17 @@ namespace cimg_library_suffixed {
 
     //! Return a reference to the maximum pixel value of the instance list \const.
     const T& max() const {
-      if (is_empty())
+      bool is_all_empty = true;
+      T *ptr_max = 0;
+      cimglist_for(*this,l) if (!_data[l].is_empty()) {
+        ptr_max = _data[l]._data;
+        is_all_empty = false;
+        break;
+      }
+      if (is_all_empty)
         throw CImgInstanceException(_cimglist_instance
-                                    "max(): Empty instance.",
+                                    "max(): Empty instance or list of empty images.",
                                     cimglist_instance);
-      const T *ptr_max = _data->_data;
       T max_value = *ptr_max;
       cimglist_for(*this,l) {
         const CImg<T>& img = _data[l];
@@ -56353,11 +56377,17 @@ namespace cimg_library_suffixed {
     **/
     template<typename t>
     T& min_max(t& max_val) {
-      if (is_empty())
+      bool is_all_empty = true;
+      T *ptr_min = 0;
+      cimglist_for(*this,l) if (!_data[l].is_empty()) {
+        ptr_min = _data[l]._data;
+        is_all_empty = false;
+        break;
+      }
+      if (is_all_empty)
         throw CImgInstanceException(_cimglist_instance
-                                    "min_max(): Empty instance.",
+                                    "min_max(): Empty instance or list of empty images.",
                                     cimglist_instance);
-      T *ptr_min = _data->_data;
       T min_value = *ptr_min, max_value = min_value;
       cimglist_for(*this,l) {
         const CImg<T>& img = _data[l];
@@ -56377,11 +56407,17 @@ namespace cimg_library_suffixed {
     **/
     template<typename t>
     const T& min_max(t& max_val) const {
-      if (is_empty())
+      bool is_all_empty = true;
+      T *ptr_min = 0;
+      cimglist_for(*this,l) if (!_data[l].is_empty()) {
+        ptr_min = _data[l]._data;
+        is_all_empty = false;
+        break;
+      }
+      if (is_all_empty)
         throw CImgInstanceException(_cimglist_instance
-                                    "min_max(): Empty instance.",
+                                    "min_max(): Empty instance or list of empty images.",
                                     cimglist_instance);
-      const T *ptr_min = _data->_data;
       T min_value = *ptr_min, max_value = min_value;
       cimglist_for(*this,l) {
         const CImg<T>& img = _data[l];
@@ -56401,11 +56437,17 @@ namespace cimg_library_suffixed {
     **/
     template<typename t>
     T& max_min(t& min_val) {
-      if (is_empty())
+      bool is_all_empty = true;
+      T *ptr_max = 0;
+      cimglist_for(*this,l) if (!_data[l].is_empty()) {
+        ptr_max = _data[l]._data;
+        is_all_empty = false;
+        break;
+      }
+      if (is_all_empty)
         throw CImgInstanceException(_cimglist_instance
-                                    "max_min(): Empty instance.",
+                                    "max_min(): Empty instance or list of empty images.",
                                     cimglist_instance);
-      T *ptr_max = _data->_data;
       T min_value = *ptr_max, max_value = min_value;
       cimglist_for(*this,l) {
         const CImg<T>& img = _data[l];
@@ -56422,11 +56464,17 @@ namespace cimg_library_suffixed {
     //! Return a reference to the minimum pixel value of the instance list and return the minimum value as well \const.
     template<typename t>
     const T& max_min(t& min_val) const {
-      if (is_empty())
+      bool is_all_empty = true;
+      T *ptr_max = 0;
+      cimglist_for(*this,l) if (!_data[l].is_empty()) {
+        ptr_max = _data[l]._data;
+        is_all_empty = false;
+        break;
+      }
+      if (is_all_empty)
         throw CImgInstanceException(_cimglist_instance
-                                    "max_min(): Empty instance.",
+                                    "max_min(): Empty instance or list of empty images.",
                                     cimglist_instance);
-      const T *ptr_max = _data->_data;
       T min_value = *ptr_max, max_value = min_value;
       cimglist_for(*this,l) {
         const CImg<T>& img = _data[l];

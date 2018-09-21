@@ -17619,7 +17619,7 @@ namespace cimg_library_suffixed {
               }
               if (_cimg_mp_is_vector(arg1) && !ref[0]) ++arg1;
               if (_cimg_mp_is_vector(arg2)) {
-                if (arg3==~0U) arg3 = _cimg_mp_size(arg2);
+                if (arg3==~0U) arg3 = constant(_cimg_mp_size(arg2));
                 if (!ref[7]) ++arg2;
               }
               if (arg3==~0U) arg3 = 1;

@@ -56296,7 +56296,8 @@ namespace cimg_library_suffixed {
       }
       if (is_all_empty)
         throw CImgInstanceException(_cimglist_instance
-                                    "min(): Empty instance or list of empty images.",
+                                    "min(): %s.",
+                                    _data?"List of empty images":"Empty instance",
                                     cimglist_instance);
       T min_value = *ptr_min;
       cimglist_for(*this,l) {
@@ -56317,7 +56318,8 @@ namespace cimg_library_suffixed {
       }
       if (is_all_empty)
         throw CImgInstanceException(_cimglist_instance
-                                    "min(): Empty instance or list of empty images.",
+                                    "min(): %s.",
+                                    _data?"List of empty images":"Empty instance",
                                     cimglist_instance);
       T min_value = *ptr_min;
       cimglist_for(*this,l) {
@@ -56340,7 +56342,8 @@ namespace cimg_library_suffixed {
       }
       if (is_all_empty)
         throw CImgInstanceException(_cimglist_instance
-                                    "max(): Empty instance or list of empty images.",
+                                    "max(): %s.",
+                                    _data?"List of empty images":"Empty instance",
                                     cimglist_instance);
       T max_value = *ptr_max;
       cimglist_for(*this,l) {
@@ -56361,7 +56364,8 @@ namespace cimg_library_suffixed {
       }
       if (is_all_empty)
         throw CImgInstanceException(_cimglist_instance
-                                    "max(): Empty instance or list of empty images.",
+                                    "max(): %s.",
+                                    _data?"List of empty images":"Empty instance",
                                     cimglist_instance);
       T max_value = *ptr_max;
       cimglist_for(*this,l) {
@@ -56386,7 +56390,8 @@ namespace cimg_library_suffixed {
       }
       if (is_all_empty)
         throw CImgInstanceException(_cimglist_instance
-                                    "min_max(): Empty instance or list of empty images.",
+                                    "min_max(): %s.",
+                                    _data?"List of empty images":"Empty instance",
                                     cimglist_instance);
       T min_value = *ptr_min, max_value = min_value;
       cimglist_for(*this,l) {
@@ -56416,7 +56421,8 @@ namespace cimg_library_suffixed {
       }
       if (is_all_empty)
         throw CImgInstanceException(_cimglist_instance
-                                    "min_max(): Empty instance or list of empty images.",
+                                    "min_max(): %s.",
+                                    _data?"List of empty images":"Empty instance",
                                     cimglist_instance);
       T min_value = *ptr_min, max_value = min_value;
       cimglist_for(*this,l) {
@@ -56446,7 +56452,8 @@ namespace cimg_library_suffixed {
       }
       if (is_all_empty)
         throw CImgInstanceException(_cimglist_instance
-                                    "max_min(): Empty instance or list of empty images.",
+                                    "max_min(): %s.",
+                                    _data?"List of empty images":"Empty instance",
                                     cimglist_instance);
       T min_value = *ptr_max, max_value = min_value;
       cimglist_for(*this,l) {
@@ -56473,7 +56480,8 @@ namespace cimg_library_suffixed {
       }
       if (is_all_empty)
         throw CImgInstanceException(_cimglist_instance
-                                    "max_min(): Empty instance or list of empty images.",
+                                    "max_min(): %s.",
+                                    _data?"List of empty images":"Empty instance",
                                     cimglist_instance);
       T min_value = *ptr_max, max_value = min_value;
       cimglist_for(*this,l) {

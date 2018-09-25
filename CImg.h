@@ -17966,8 +17966,8 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar2(mp_mul,arg1,arg2);
             }
 
-            if (!std::strncmp(ss,"do(",3) || !std::strncmp(ss,"dowhile(",8)) { // Do..while
-              _cimg_mp_op("Function 'dowhile()'");
+            if (!std::strncmp(ss,"do(",3)) { // Do..while
+              _cimg_mp_op("Function 'do()'");
               s0 = *ss2=='('?ss3:ss8;
               s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = code._width;
@@ -17976,7 +17976,7 @@ namespace cimg_library_suffixed {
               arg2 = code._width;
               p2 = s1<se1?compile(++s1,se1,depth1,0,is_single):p1; // Condition
               _cimg_mp_check_type(p2,2,1,0);
-              CImg<ulongT>::vector((ulongT)mp_dowhile,p1,p2,arg2 - arg1,code._width - arg2,_cimg_mp_size(p1),
+              CImg<ulongT>::vector((ulongT)mp_do,p1,p2,arg2 - arg1,code._width - arg2,_cimg_mp_size(p1),
                                    p1>=arg6 && !_cimg_mp_is_constant(p1),
                                    p2>=arg6 && !_cimg_mp_is_constant(p2)).move_to(code,arg1);
               _cimg_mp_return(p1);
@@ -19372,8 +19372,8 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
-            if (!std::strncmp(ss,"while(",6) || !std::strncmp(ss,"whiledo(",8)) { // While...do
-              _cimg_mp_op("Function 'whiledo()'");
+            if (!std::strncmp(ss,"while(",6)) { // While...do
+              _cimg_mp_op("Function 'while()'");
               s0 = *ss5=='('?ss6:ss8;
               s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               p1 = code._width;
@@ -19383,7 +19383,7 @@ namespace cimg_library_suffixed {
               pos = compile(++s1,se1,depth1,0,is_single);
               _cimg_mp_check_type(arg1,1,1,0);
               arg2 = _cimg_mp_size(pos);
-              CImg<ulongT>::vector((ulongT)mp_whiledo,pos,arg1,p2 - p1,code._width - p2,arg2,
+              CImg<ulongT>::vector((ulongT)mp_while,pos,arg1,p2 - p1,code._width - p2,arg2,
                                    pos>=arg6 && !_cimg_mp_is_constant(pos),
                                    arg1>=arg6 && !_cimg_mp_is_constant(arg1)).move_to(code,p1);
               _cimg_mp_return(pos);
@@ -20770,7 +20770,7 @@ namespace cimg_library_suffixed {
           dot(CImg<doubleT>(&_mp_arg(3) + 1,1,siz,1,1,true));
       }
 
-      static double mp_dowhile(_cimg_math_parser& mp) {
+      static double mp_do(_cimg_math_parser& mp) {
         const ulongT
           mem_body = mp.opcode[1],
           mem_cond = mp.opcode[2];
@@ -23388,7 +23388,7 @@ namespace cimg_library_suffixed {
         return cimg::type<double>::nan();
       }
 
-      static double mp_whiledo(_cimg_math_parser& mp) {
+      static double mp_while(_cimg_math_parser& mp) {
         const ulongT
           mem_body = mp.opcode[1],
           mem_cond = mp.opcode[2];

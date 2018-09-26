@@ -19111,14 +19111,6 @@ namespace cimg_library_suffixed {
               CImg<ulongT>::vector((ulongT)mp_matrix_svd,pos,arg1,p2,p3).move_to(code);
               _cimg_mp_return(pos);
             }
-
-            if (!std::strncmp(ss,"swap(",5)) { // Swap memory content
-              CImg<charT>("swap\0\2",6,1,1,1,true).move_to(macro_def);
-              CImg<charT>::string("(size(\1)==size(\2)?(unref(__builtin_SWAP__);" \
-                                  "__builtin_SWAP__=\1;\1=\2;\2=__builtin_SWAP__));",true,true).move_to(macro_body);
-              CImg<boolT>(macro_body.back()._width,1,1,1,false).move_to(macro_body_is_string);
-              break; // Program flow will continue to macro substitution
-            }
             break;
 
           case 't' :

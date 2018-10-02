@@ -59816,21 +59816,24 @@ namespace cimg {
   // Open a file (with wide character support on Windows).
   inline std::FILE *win_fopen(const char *const path, const char *const mode) {
 #if cimg_OS==2
-    // Convert 'path' to a wide-character string.
-    int err = MultiByteToWideChar(CP_UTF8,0,path,-1,0,0);
-    if (!err) return std::fopen(path,mode);
-    CImg<wchar_t> wpath(err);
-    err = MultiByteToWideChar(CP_UTF8,0,path,-1,wpath,err);
-    if (!err) return std::fopen(path,mode);
+    std::FILE *const res = std::fopen(path,mode);
+    if (res) return res;
 
-    // Convert 'mode' to a wide-character string.
-    err = MultiByteToWideChar(CP_UTF8,0,mode,-1,0,0);
-    if (!err) return std_fopen(path,mode);
-    CImg<wchar_t> wmode(err);
-    err = MultiByteToWideChar(CP_UTF8,0,mode,-1,wmode,err);
-    if (!err) return std::fopen(path,mode);
-    std::FILE *const res = _wfopen(wpath,wmode);
-    return res?res:std::fopen(path,mode);
+    // Try alternative method, with wide-character string.
+    int err = MultiByteToWideChar(CP_UTF8,0,path,-1,0,0);
+    if (err) {
+      CImg<wchar_t> wpath(err);
+      err = MultiByteToWideChar(CP_UTF8,0,path,-1,wpath,err);
+      if (err) { // Convert 'mode' to a wide-character string.
+        err = MultiByteToWideChar(CP_UTF8,0,mode,-1,0,0);
+        if (err) {
+          CImg<wchar_t> wmode(err);
+          if (MultiByteToWideChar(CP_UTF8,0,mode,-1,wmode,err))
+            return _wfopen(wpath,wmode);
+        }
+      }
+    }
+    return 0;
 #else
     return std::fopen(path,mode);
 #endif

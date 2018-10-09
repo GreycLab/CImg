@@ -46545,7 +46545,7 @@ namespace cimg_library_suffixed {
             else _draw_triangle(x0,y0,x1,y1,x2,y2,pcolor,opacity,lightprops(l));
 #ifdef cimg_use_board
             if (pboard) {
-              const float lp = std::min(lightprops(l),1);
+              const float lp = std::min(lightprops(l),1.0f);
               board.setPenColorRGBi((unsigned char)(color[0]*lp),
                                      (unsigned char)(color[1]*lp),
                                      (unsigned char)(color[2]*lp),
@@ -46679,7 +46679,7 @@ namespace cimg_library_suffixed {
                 _draw_triangle(x0,y0,x2,y2,x3,y3,pcolor,opacity,lightprops(l));
 #ifdef cimg_use_board
             if (pboard) {
-              const float lp = std::min(lightprops(l),1);
+              const float lp = std::min(lightprops(l),1.0f);
               board.setPenColorRGBi((unsigned char)(color[0]*lp),
                                      (unsigned char)(color[1]*lp),
                                      (unsigned char)(color[2]*lp),(unsigned char)(opacity*255));
@@ -46838,7 +46838,7 @@ namespace cimg_library_suffixed {
             else draw_triangle(x0,y0,z0,x1,y1,z1,x2,y2,z2,color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,lightprops(l));
 #ifdef cimg_use_board
             if (pboard) {
-              const float lp = std::min(lightprops(l),1);
+              const float lp = std::min(lightprops(l),1.0f);
               board.setPenColorRGBi((unsigned char)(128*lp),
                                     (unsigned char)(128*lp),
                                     (unsigned char)(128*lp),

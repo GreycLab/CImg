@@ -59650,7 +59650,8 @@ namespace cimg_library_suffixed {
           if (ptrd + n<=ptrde) { std::memset(ptrd,v,n); ptrd+=n; }
           else { std::memset(ptrd,v,ptrde - ptrd); break; }
         }
-        base_font.get_shared_row(base_font.height()-1).fill(0); // Remove wrong pixels on last line
+        if (data_ind>=1 && data_ind<=2)
+          base_font.get_shared_row(base_font.height()-1).fill(0); // Remove wrong pixels on last line
       }
 
       // Find optimal font cache location to return.

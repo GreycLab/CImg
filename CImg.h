@@ -59423,7 +59423,7 @@ namespace cimg_library_suffixed {
                            font[0]._height>font_height?2:5);
         if (is_variable_width) { // Crop font
           cimglist_for(font,l) {
-            CImg<T>& letter = font[l];
+            CImg<ucharT>& letter = font[l];
             int xmin = letter.width(), xmax = 0;
             cimg_forXY(letter,x,y) if (letter(x,y)) { if (x<xmin) xmin = x; if (x>xmax) xmax = x; }
             if (xmin<=xmax) letter.crop(xmin,0,xmax,letter._height - 1);

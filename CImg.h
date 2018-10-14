@@ -59354,30 +59354,6 @@ namespace cimg_library_suffixed {
     //@{
     //----------------------------------
 
-    //! Crop font along the X-axis.
-    /**
-    **/
-    CImgList<T>& crop_font() {
-      return get_crop_font().move_to(*this);
-    }
-
-    //! Crop font along the X-axis \newinstance.
-    /**
-    **/
-    CImgList<T> get_crop_font() const {
-      CImgList<T> res;
-      cimglist_for(*this,l) {
-        const CImg<T>& letter = (*this)[l];
-        int xmin = letter.width(), xmax = 0;
-        cimg_forXY(letter,x,y) if (letter(x,y)) { if (x<xmin) xmin = x; if (x>xmax) xmax = x; }
-        if (xmin>xmax) CImg<T>(letter._width,letter._height,1,letter._spectrum,0).move_to(res);
-        else letter.get_crop(xmin,0,xmax,letter._height - 1).move_to(res);
-      }
-      res[' '].resize(res['f']._width,-100,-100,-100,0);
-      if (' ' + 256<res.size()) res[' ' + 256].resize(res['f']._width,-100,-100,-100,0);
-      return res;
-    }
-
     //! Return a CImg pre-defined font with desired size.
     /**
        \param font_height Height of the desired font (exact match for 13,23,53,103).
@@ -59445,7 +59421,16 @@ namespace cimg_library_suffixed {
           cimglist_for(font,l)
             font[l].resize(std::max(1U,font[l]._width*font_height/font[l]._height),font_height,-100,-100,
                            font[0]._height>font_height?2:5);
-        if (is_variable_width) font.crop_font();
+        if (is_variable_width) { // Crop font
+          cimglist_for(font,l) {
+            CImg<T>& letter = font[l];
+            int xmin = letter.width(), xmax = 0;
+            cimg_forXY(letter,x,y) if (letter(x,y)) { if (x<xmin) xmin = x; if (x>xmax) xmax = x; }
+            if (xmin<=xmax) letter.crop(xmin,0,xmax,letter._height - 1);
+          }
+          font[' '].resize(font['f']._width,-100,-100,-100,0);
+          if (' ' + 256<font.size()) font[' ' + 256].resize(font['f']._width,-100,-100,-100,0);
+        }
         cimglist_for(font,l) font[l].resize(font[l]._width + padding_x,-100,1,1,0,0,0.5);
         font.insert(256,0);
         cimglist_for_in(font,0,255,l) font[l].assign(font[l + 256]._width,font[l + 256]._height,1,3,1);

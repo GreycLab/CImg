@@ -60368,7 +60368,10 @@ namespace cimg_library_suffixed {
 
       // Render requested font.
       if (!font) {
-        const unsigned int padding_x = requested_height<33U?1U:requested_height<53U?2U:requested_height<103U?3U:4U;
+//        const unsigned int padding_x = requested_height<=32U?1U:requested_height<64U?2U:requested_height<128U?3U:4U;
+
+        const unsigned int padding_x = requested_height<=13?1U:requested_height<=32?0U:requested_height<=64U?1U:requested_height<=128?2U:3U;
+
         is_variable_widths[ind] = is_variable_width;
         font = basef.get_split('x',256);
         if (requested_height!=font[0]._height)

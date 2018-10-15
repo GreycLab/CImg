@@ -3373,7 +3373,7 @@ namespace cimg_library_suffixed {
 
     const double PI = 3.14159265358979323846;   //!< Value of the mathematical constant PI
 
-    // Define a 12x13 binary font (small).
+    // Define a 12x13 binary font (small sans).
     static const char *const data_font_small[] = {
       "                      UwlwnwoyuwHwlwmwcwlwnw[xuwowlwmwoyuwRwlwnxcw     Mw                    (wnwnwuwpwuypwuwoy"
       "ZwnwmwuwowuwmwnwnwuwowuwfwuxnwnwmwuwpwuypwuwZwnwnwtwpwtwow'y    Hw   cwnw  >{ jw %xdxZwdw_wexfwYwkw 7yowoyFx=w "
@@ -3425,7 +3425,7 @@ namespace cimg_library_suffixed {
       "0x lxdx gw[w=wiw*wbyowoyGwKwowewawcwow  YwOwoz Ewjwuwdw 7w   9w  Iwnwlw    \\w      0|*y[x=wiw,xWw=wKwowewawcwo"
       "w  Yw  hwVx 8w   9w  Jxmwnxp" };
 
-    // Define a 26x32 font (normal).
+    // Define a 26x32 font (normal sans).
     static const char *const data_font_normal[] = {
       "                                                      #{}~}a{|y~f{|y~}f{|}|x{}|j{|y}y{|y}g{}y~}|2y~|a{}~}f{}y~|"
       "gy}|yy}|i{}~}a{}~}f{}y~}gy}|yx}N{|}|x{}|hy~|ay~|fx~|g{}y~|y{}~j{|y~|yy~}5{}~}a{}~}f{}y~}gy~}yy~}e{|y~          "
@@ -3756,7 +3756,7 @@ namespace cimg_library_suffixed {
       "h{}y~           q{}~}  -{|}x~}|  f{}y~}|         t{|x~}|      kx~}|f{}y~dx~}|                                  "
       " :{}~}                                     I{" };
 
-    // Define a 52x64 font (large).
+    // Define a 52x64 font (large sans).
     static const char *const data_font_large[] = {
       "                                                                                                               "
       " -{|                                                                                                           "
@@ -4452,7 +4452,7 @@ namespace cimg_library_suffixed {
       "                                            L{}`~}                Ww}|                                         "
       "                                  r{" };
 
-    // Define a 104x128 binary font (huge).
+    // Define a 104x128 binary font (huge sans).
     static const char *const data_font_huge[] = {
       "                                                                                                               "
       "                                                                                                               "

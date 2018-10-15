@@ -3425,97 +3425,97 @@ namespace cimg_library_suffixed {
       "bzmznznznznwlzmw     hwHwlwSwTw <w8z ]x tx Zxjwmx RwWw/wgw pw_ynwky=wCwmwaw\\w_wnw  1wIwlz 'wiwuwaw  mw    Pw  "
       " swlwjw     hw        f| pyWx/wgw rxSw/wCwmwaw\\w_wnw  1w  AwRx  nw    Pw   txkwlxm" };
 
-    // Define a 20x23 font (normal size).
-    static const char *const data_font20x23[] = {
-      "                                                9q\\q^r_rnp`qnq_r6q\\q^q_qmqbq\\q^q_qmqHqmp_q\\q^r_rnp`qnq7q\\q"
-      "^q_qmq_q \"r                                                       Mq^q^qnq`pnr`qnq`plp6q^q^pmp`qmqaq^q^pmp`qmq"
-      "Ipmq]q^q^qnq`pnr`qnq6q^q^pmp`qmq`q \"plp         'q     5qmq               Vq                     Xq    [plp   "
-      "   3qYq_p^rnpLplp8qYq_qNqYq_q4rmpaqYq_q_rmp%qYq^pGq  Irc|!pKp]raqjq`p   HtNq_qmq\\plqbp_shpdscq[q^q[p [q]s_r`ua"
-      "u]rbv`tcxbuat LsZucrav_udwcxdw`udqiqeq]q]qjreq]sksgrjqbtcv_tcvaud{eqiqgqfqgqjsjqlrjrhrirfzfs`q[sZqMqJqCqNsLq]q]"
-      "q]q]q   .scq]s \\sKt%r  [s^raxdxat_qazgqlqlqctJqIqIqLqHsOqiqOtaqmq\\uft nufu`sLs`t\\qKv<r\\rLrepirepitgpeq]r^r^"
-      "r^r^r_plp_{gudxdxdxdxdq]q]q]q]wcrjqbt`t`t`t`tLtlpgqiqeqiqeqiqeqiqgrireq[s_q[q_pnp_pnr`qnq`plp7q[q_s`qmqcq[q_s`q"
-      "mq]pkpbpmr`q[q_s`pmraqmq8q[q^pnp_qnq^qaq\\qnq !pnqd{!pJp^tdunucr _y  dvOq_qmq\\plpap_pmpipdudq[p\\p_plplp _q^ub"
-      "tawcw^rbvavdxcwcw Ou]yerawbxeyexdwbxeqiqeq]q]qkrdq]sksgrjqdxewbxewcwe{eqiqfqhqfqjsjqkqjqfqiqezfs`q[s[sMpJqCqOtL"
-      "q]q]q]q]q  q 1tcq]t ^vaq_w&r  \\u_raxdxcxcuczgqlqlqexMsJqJsMq[p^uPqiqdq]uaqmq]qkqcq!qkqguaqmqNpkp\\p]pKtmp:p]pl"
-      "pKpfpfpfpcpipdq]r^r^r^r^r^r^{ixexdxdxdxdq]q]q]q]yerjqdxdxdxdxdxPwnpfqiqeqiqeqiqeqiqfqiqdq\\u_p[p^pnpKqnq_r5p[p^"
-      "pmp`qmqbp[p^pmp`qmq]tKp[p^pmpLqmq7p[p]pnp_qnq^p`q\\qnq5uauauauaucq`qhq4p]pKr_ueunucr `q  \\rkpOq_qmq\\plpctbqmq"
-      "kqerlpdq\\q\\q_qnpnq\\q%q^qkqcqnqapjrdpjr`sbq]rkp^qcrkrerkq Oplr`sirgtbqkrdripeqjsfq]q]ripeqiqeq]q]qlrcq]sksgsk"
-      "qerjrfqkrdrjrfqkrerjp`q`qiqfqhqeqkskqiqlqdqkq\\qeq]qZq\\qmqNqKqCqOqIq5q]q  q 1q`qZq _rlqbtaqjp$q  ^qkqatbr^q]rj"
-      "rewdqhqgqlqlqfrjrOuKqKu8p_rlpOqkqcq]qFpgpcp\"pgpTpkp\\q^p\\p^qLump:p^pjpLpgpepgpbpjpPt`t`t`t`t`qnq_qnqcripeq]q]"
-      "q]q]q]q]q]q]qjsfskqerjrfrjrfrjrfrjrfrjrRrjrfqiqeqiqeqiqeqiqeqkqcvbrlq`q]q_plp Iq]q_qmqNq]q_qmqKtIq]q_qmq ^q]q^p"
-      "lpKq`q mqkqcqkqcqkqcqkqcqkqdq`qhq5q^qLt`ueunudtasbqip`q`pipcq  [qIq_qmq`{gvcqmqkpdq_q\\q\\q]rZq%q_rkraqZq]qaqnq"
-      "bq]qXqcqiqeqiq1pSpXq`qfrhqnqbqjqdq]qhqfq]q]q]qiqeq]q]qmrbq]qnqmqnqgskqeqhqfqjqdqhqfqjqeqYq`qiqfrjreqkskqirnrdrm"
-      "r]qdq]qZq]qkq)qCqOqIq5q]q  q 1q`qZq _qkq_qaq mq  ^qkqaqnqar_q]qhqfrnqnreqhqgqlqlqfqhqPwLqLw9p_q_phqdqkqcq]qGpls"
-      "lpiu#pmtlpUpkp\\q_q_r8ump:p^pjpLpgpepgperipcq^qnq`qnq`qnq`qnq`qnq`qnq`qmqcq]q]q]q]q]q]q]q]q]qhqfskqeqhqfqhqfqhq"
-      "fqhqfqhqdphpfqirfqiqeqiqeqiqeqiqermrcwcqkq    [q 3qZp Oq nqmqmqeqiqeqiqeqiqeqiqeq_piq4q^pLvatd|evdvcqipasaqkqdq"
-      "  [qHq_qmq`{hrnpmpcqmqlpcq_q\\pZp]rZq%q_qiqaqZq]qapmqbq^qWqcqiqeqiqdq]qUsSs[qaqdqhqnqbqjqeq\\qgqgq]q^q\\qiqeq]q"
-      "]qnraq]qnqmqnqgqnqlqfqfqgqjqeqfqgqjqeqYq`qiqeqjqdqlqmqlqhqnqbqmq]rdq]qZq^pgp=taqns`s`snqatdv_snqcqnsbq]q]qkqcq]"
-      "qnsmshqns`saqnsasnqcqnr`tbvaqjqeqiqdqkqkqjrkreqiqdw`q`qZq#tnreqkq^qatauaqnsdqiq`raqjqdqiqdpmrcxdqmqmqatbxfyeqiq"
-      "bqnq`r`q^qfqhrmqmrfqhqgqlqlqgqfqep[pnqnp[p`q`pipbpnqnpNq]taq^qnqnqbqmqbq\\qIqmpkpmqkqkp$qmpkpmqVqmq\\q`q[pLqjqe"
-      "ump:p^pjpLphpdphpapkpbq^qnq`qnq`qnq`qnq`qnq`qnq`qmqdq\\q]q]q]q]q]q]q]q]qgqgqnqlqfqfqhqfqhqfqhqfqhqfqfrjrhqiqnqg"
-      "qiqeqiqeqiqeqiqdqmqbqkrdqmsbt`t`t`t`t`t`tlsfs_t`t`t`tbq]q]q]q[tbqns`s_s_s_s_s\\q`smpdqjqdqjqdqjqdqjqeqiqdqnscqi"
-      "q;qlqlqgqgqgqnqmqnqgqjqnqgqgqfq_qjq<{fpjpLvatd|fxeqkqdqipasaqkqdp  \\yNqGplqeqmp`qmqmqcrLqZq`qnpnq\\q%q_qiqaqZq"
-      "^rbqmqbubqms^qaqkqdqiqdq]qXuf{fu_q`qlrnqlqjqlqcqkreq\\qgqgq]q^q\\qiqeq]q]t`q]qnqmqnqgqnqlqfqfqgqkreqfqgqkres[q`"
-      "qiqeqjqdqlqmqlqhs`s]rcq]qZq#vbwcvbwcwev`wcwcq]q]qlqbq]vnthwcwcwcwcubwcvaqjqdqkqcqkqkqiqkqdqiqdw`q`qZq7smsfxdqlr"
-      "^qavdvawdqkq_raqjqdpgpeqntdxdqmqmqcwdyfyeqiqcqlq`raq^qfqhqlqlqfqhqgqlqlqgqfqfrZqZraqarkraqLq^vbq^wbqmqbq]tKpmpf"
-      "pkpjp_plp9plpkplpUs[qaqZpLqjqeump:p^pjpaplp_piqdpiqaplqbq_qlqbqlqbqlqbqlqbqlqbqlqbrmqdq\\q]q]q]q]q]q]q]q]qgqgqn"
-      "qlqfqfqhqfqhqfqhqfqhqfqerlrgqjqmqgqiqeqiqeqiqeqiqcsaqjqdqnq`vbvbvbvbvbvbvnuivbwcwcwcwcq]q]q]q]wcwcwcwcwcwcwOwcq"
-      "jqdqjqdqjqdqjqeqiqdwdqiq;pkqkpgpepgpmumpgpjrmpgpepfq_qkq;{hrkpLxdxf|fxepipdqipas`pkpcp  ZqHqGplpdt_pmplpmshsMqZ"
-      "qaplplp]q&q^qiqaq[qat`plqbvcx_q`ucrkr:uc{cucq`qlvlqjqlqcwdq\\qgqgxdvcqjtfyeq]q]s_q]qmsmqgqmqmqfqfqgwdqfqgwcv_q`"
-      "qiqdqlqbqmqmqmqfr`s]qbq\\q[q#pjqcrlrdqkpcrlrcqkrdq^rlrcrlrdq]q]qmqaq]rlrlqirlrdqkqcrlrerlrcr_qjpbq]qjqdqkqcqlsl"
-      "qhqmqbqkq^q_q`qZq_tjpSqmsmpgrlsdqnsaqmqbqkqdq\\rlrdqlq_raqjqeqgqgrnqnrdqlqcqmqmqcqkqerkq`qaycqlq_rbq^qfqhqlqlqf"
-      "qhqgqlqlqgqnvnqgrYqYrbqbrirbqLq_rnpmpdwaqmqcydq^qlqLpmpfpkpkq`plpa{RpltkpB{gpXpLqjqdtmpcqHp]plp_plp`pipjpipipms"
-      "fplpjphr_qlqbqlqbqlqbqlqbqlqbqlqbqlxkq\\xdxdxdxdq]q]q]q_vjqgqmqmqfqfqhqfqhqfqhqfqhqfqdrnrfqkqlqgqiqeqiqeqiqeqiq"
-      "csaqjqdqnq`pjqcpjqcpjqcpjqcpjqcpjqcpjrlrjqkpbqkrdqkrdqkrdqkrdq]q]q]q]qkrdrlrdqkqcqkqcqkqcqkqcqkqOqkqcqjqdqjqdqj"
-      "qdqjqdqkqcrlrdqkq:pnwnpgpnwnpgplslpgpkrlpgpkqkpfq^qlq6qaqlpMzfzfzfzgqipdqipbqmp`qmqc|  fqHqHqlpcuasmplpmpiulqSq"
-      "Zq]p^{+q^qiqaq\\q`ubqlqbpkrdrkrarawcx<tEteq`qlqlqlqjqlqcwdq\\qgqgxdvcqjtfyeq]q]t`q]qmsmqgqmqmqfqfqgvcqfqgv_t`q`"
-      "qiqdqlqbqmqmqmqgs_q]qaq\\q[q\"vcqjqeq]qjqdqiqdq^qjqcqjqdq]q]qnq`q]qkqkqiqjqeqiqdqjqeqjqcq^s^q]qjqdqkqbqmsmqgqmq"
-      "bqkq_qas_qYsc{Spkqkphqkrcqntcvcqiqeq\\qjqdqmr`tbqjqeqgqgqmqmqdqlqcqmqmqdqiqfqiqaqaycqlq_qaq^qfqhqlqlqfqhqfqmqmq"
-      "fqnvnqh}cqc}cqc}cqLq_qmpawbqkqasaq^qkqMpmpfpjsnpaplp`{RplpmqkpB{huatKqjqbrmpcqJt^r]plpctlpjqktlpmpkpltlpjqhq^ql"
-      "qbqlqbqlqbqlqbqlqcrlrcqlxkq\\xdxdxdxdq]q]q]q_vjqgqmqmqfqfqhqfqhqfqhqfqhqfqcteqlqkqgqiqeqiqeqiqeqiqbq`qkrdqmravb"
-      "vbvbvbvbvbvjqkq]qiqeqiqeqiqeqiqdq]q]q]q^qiqdqjqeqiqeqiqeqiqeqiqeqiqd{hqkpnqdqjqdqjqdqjqdqjqdqkqcqjqdqkq:pnwnpgp"
-      "nwnpgplslpgplrkpgpkqkpfq^qlq6qaqmqMzg|fxdxfqipdqipbqmqaqmqcp  \\wLqK{dt]qmqmqkrmrnrSqZqK{TtKq^qiqaq]r\\rdqkq\\q"
-      "dqiqaqarkrcsmq<tEtfq_qlqlqlqkqjqdqjqeq\\qgqgq]q^qgqfqiqeq]q]qnraq]qmsmqgqlqnqfqfqgq^qfqgqkq]raq`qiqdqlqbqnqkqnq"
-      "gt`q^raq\\q[q#wcqjqeq]qjqdydq^qjqcqjqdq]q]s_q]qkqkqiqjqeqiqdqjqeqjqcq]uaq]qjqcqmqaqmpmpmqfs`qmq_ras_qYscpjtRpkq"
-      "kphqkrcqkreqlrcqiqcr_qjqdqmq_qnqbqjqeqlqlqgqmqmqdqlqcqmqmqdqiqfqiqaqaqiqdqjqaq`q^qfqhqlqlqfqhqfrnqnrfqfqh}cqc}c"
-      "qc}cqLq_qmp_q^qkq`qMrlqMpmpfpWplpUqRplplqlp=q&qjq`pmp _plp]qkpnpdqhpeqkpnpiq^qjqdqjqdqjqdqjqdqjqdqjqdqkqdq\\q]q"
-      "]q]q]q]q]q]q]qgqgqlqnqfqfqhqfqhqfqhqfqhqfqbrdqmqjqgqiqeqiqeqiqeqiqbq`wcqlrcwcwcwcwcwcwc~kq]yeyeyeydq]q]q]q^qiqd"
-      "qjqeqiqeqiqeqiqeqiqeqiqd{hqlpmqdqjqdqjqdqjqdqjqcqmqbqjqcqmq9pkqkpgpepgpmumpgpmrjpgpepfq]pmq:{epmpLzg|evbveqipdq"
-      "ipbqmqaqmpbq  [qHqK{cpmq^plqmqkqktRqZqFqOtKq^qiqaq^rZqdy^qdqiqaqaqiq]q:uc{cudq_qlqlqmqjxdqiqfq\\qgqgq]q^qgqfqiq"
-      "eq]q]qmrbq]qlqlqgqlqnqfqfqgq^qfqgqkr]qaq`qiqcqnqaqnqkqnqhrnq`q_r`q\\q[q$qjqcqjqeq]qjqdydq^qjqcqjqdq]q]s_q]qkqkq"
-      "iqjqeqiqdqjqeqjqcqZsbq]qjqcqmqaqnqmqnqfs`qmq`r^r`qZr9pkqkphqkrcqjqeqkqcqiqet_qjqcqnq`rnqbqjqeqlqlqgqmqmqdqlqcqm"
-      "qmqdqiqfqiqaqaqiqdqjqbr`q]qhqgrmqmrfqhqeweqfqgrYqYrdpnqnpdrirdpnqnpNq_qmp_q]qmqcyPrmqMqmpkpmqkvaplpVqRqmpkpmq=q"
-      "&qjq`pmp(v_plp\\pkpmpdphqepkpmpjq]xdxdxdxdxdxdwdq\\q]q]q]q]q]q]q]q]qgqgqlqnqfqfqhqfqhqfqhqfqhqfqcteqnqiqgqiqeqi"
-      "qeqiqeqiqbq`vbqjqeqjqdqjqdqjqdqjqdqjqdqjqdqjxkq]yeyeyeydq]q]q]q^qiqdqjqeqiqeqiqeqiqeqiqeqiqQqmplqdqjqdqjqdqjqdq"
-      "jqcqmqbqjqcqmq9qlqlqgqgqgqnqmqnqgqnqjqgqgqfq]qnq:{eqnpLzg|dt`tdqipcpipbpkp`sbq  Zq plq`pmq_pkqmqkqjrQqZqFq'q]rk"
-      "raq_rYqdy^qdqiqbq`qiq^q6uf{fuaq_qlyjzeqiqeq]qhqfq]q]qhqfqiqeq]q]qlrcq]qlqlqgqkseqhqfq]qhqfqjq]qaq`qiqcqnq`skshr"
-      "mraq_q_q[q\\q$qjqcqjqeq]qjqdq\\q^qjqcqjqdq]q]qnq`q]qkqkqiqjqeqiqdqjqeqjqcqXqbq]qjqcqmqaqnqmqnqgqmq`s_q\\q`qZq7p"
-      "mpnqmpgqkrcqjqeqkpbqiqeq\\qjqcs_qlqcqjqeqlqlqgqmqmqdqlqcqmqmqdqiqfqiqaq`qkqdrjrdr_q]riqfrnqnreqhqducqhqerZqZrdw"
-      "drkrdwOq_qmp_q^w`q`q[sKplslpTplpWqQpmpkqnp<q&qjq`pmp aplp\\pkplpephqepkplpjq^zfzfzfzfzfzfxcq]q]q]q]q]q]q]q]q]qh"
-      "qfqkseqhqfqhqfqhqfqhqfqhqcrnreriqfqiqeqiqeqiqeqiqbq`q]qjqeqjqdqjqdqjqdqjqdqjqdqjqdqjqdq]q]q]q]q\\q]q]q]q^qiqdqj"
-      "qeqiqeqiqeqiqeqiqeqiqQqnpkqdqjqdqjqdqjqdqjqbsaqjqbs7qmqmqeqiqeqiqeqiqeqiqeq]qnp7q]rJrnpnresnpnsct_rcqipcqkqcqkq"
-      "asaq  [rkp&plpcplpnr`qkqmqkrltRqZqFq'q\\qkq`q`r_pjr^qcpjrcqkrbq`rkrdpkr3sSsLrlrnrhqhqeqjreripeqjsfq]q]riqfqiqeq"
-      "]q]qkrdq]qgqgqkserjrfq]rjrfqjrfpiraq_qkqbt`skshqkqaq`q^q[q\\q$qkrcrlrdqkpcrlrcqipdq^rlrcqjqdq]q]qmqaq]qkqkqiqjq"
-      "dqkqcrlrerlrcq^pjqbq]rlrbs_rkrfqmq`s`r\\q`qZq6qlrfrmscrlrepkqbrkqdqkpaqjqcs`rlqcrlrernsnrgrnqnrdqlqcrnqnrdrkqdq"
-      "kraq`qkqdqhqer^q\\rkqdwdqhqbqarjrdpYqYpbubpipbuNq_rnpmpbq^qnqnq`q`qZqIpgpRplp7pgp;q&rlr`pmp bplp[pkufpiqdpkukrl"
-      "pcqhqfqhqfqhqfqhqfqhqfqhqfqjqcripeq]q]q]q]q]q]q]q]qjsfqkserjrfrjrfrjrfrjrfrjrdrlrfrjreqkqcqkqcqkqcqkqaq`q]qnplq"
-      "eqkrdqkrdqkrdqkrdqkrdqkrdqksjpjqkpbqipdqipdqipdqipdq]q]q]q]qkqcqjqdqkqcqkqcqkqcqkqcqkq^qbqkqcrlrdrlrdrlrdrlrbsa"
-      "rlrbs6qkqcqkqcqkqcqkqcqkqdq\\r7q\\qFp\\p]r^rcqipcvbqkqas`r  \\vOqIqlpcw_pipmpivnrRpZpEqbqIq^q[ubwdxdw]qcwbwaq_w"
-      "cvbq]qRpSp[q^q^qhqexcxeyexdq\\xeqiqeq]q]qjrexdqgqgqjrdxeq\\xeqiqfx`q_war_ririqiqbqazfq[q\\q$xcwcvbwcxdq]wcqjqdq"
-      "]q]qlqbq]qkqkqiqjqdwcwcwcq^wbu`wbs_rkrgqkq`q`w`q`qZq$yewdqmq`wdvaqjqbr`qkqcyeyewcqlsdwcxdw`sauczexdq^umteucqhqb"
-      "q`xLqJsKsMq^vdxdpgpaq`qYqIqkq bqkq?{+yapmp Jpfpfpipcpfpiucqhqfqhqfqhqfqhqfqhqfqhqfqjxixexdxdxdxdq]q]q]q]yeqjrdx"
-      "dxdxdxdxdrjrgpnwdwcwcwcwaq`q]qnuexdxdxdxdxdxdvnwjvbxdxdxdxdq]q]q]q]wcqjqdwcwcwcwcw^qbwbwcwcwcwaq`w`q4uauauauauc"
-      "q\\r7p[qFp\\p\\p\\pbqipasapip`q^y  ctNqIqmqbu_phsgslrSq\\qEqbqIq^qZsawdxcu\\qbt^taq]uataq]q q]qgpiqfqfw`udwcxdq"
-      "Zudqiqeq]q]qirfxdqgqgqjrbtcqZtcqirfv_q]s_r_rirjrircqazfq[q\\q#tnqcqns`s`snqaucq\\snqcqjqdq]q]qkqcq]qkqkqiqjqbsa"
-      "qnsasnqcq]t_t_snqaq^rkrhrkraq`w`q`qZq#smrevbs^t`s`qjqbq`qiqdqnrmqdrmrcubqkrcubqntat^r`sc|fxdq^umtcqaqhqbq^tJqIq"
-      "IqLq]tcxLq`qYqHu `u>{+qnrmqapmp Kpepgpiuhpephscqfqhqfqhqfqhqfqhqfqhqfqhqixgudxdxdxdxdq]q]q]q]wcqjrbt`t`t`t`taph"
-      "pgplt`s_s_s_s_q`q]qmsctnqctnqctnqctnqctnqctnqbsktgs_uauauaucq]q]q]q[saqjqbs_s_s_s_sNpms_snqbsnqbsnqbsnqaq`qns_q"
-      " !p Zp      jp#q\\q6q7q   lq [sjq  Qq -q  OqZq]q  Cq;q HqWq $rIq`qZq _q iqbqKqFqIq`q     hp$q]u   JqYpmpLp   .p"
-      "        jp    ]p Xr`q[r !p       Tp\"p\\p6q6q   mq Yx  Qr -r  Ps\\q_s  Ipkq:q HqWq $qHq`qZq _q iqbqKqFqIq`q    "
-      " hp$q]t   IqYpmpLq   /q        kq     Fq_q[q #s       Tp\"q^q6p   1p Vu  Rs    YsJsMy &v<s HqWq &sHtcq]t _q iqb"
-      "qKqFqIq`q     hp$q   2q2q   /q        kq     Hs_q]s \"q                (r     Xy %t;r GqWq &rFscq]s ^q iqbqKqFq"
-      "Iq`q         ,q4r   0r        lr     Gr^q                               *q                                     "
-      "                                                             b" };
+    // Define a 18x22 font (normal size).
+    static const char *const data_font18x22[] = {
+      "                                           ,q^q`rarnpbqnqar<q^q`qaqmqaq^q_qbqmqPqmpaq^q`rarnpbqnq=q^q`qaqmq`q 1"
+      "r                                                 *q`q`qnqbpnrbqnqbplp<q`q`pmpbqmq`q`q_pmpcqmqQpmq_q`q`qnqbpnrb"
+      "qnq<q`q`pmpbqmqaq 1plp        (q     cqmq             /q                   cq   /plp      hq[qap`rnpPplp?q[qaqM"
+      "q]qaq=rmpcq[qaqarmp-q[q`pKq  \\rf|*pPp_rcqjqbp   atQqaqmqaplqbpeshpds`q^qaq]p dqbsaraucu`rcvctdxeuct Vsaubrdv`u"
+      "hwcxfwcufqiqcq]qeqjrfqaskshrjqdtdvbtevbuf{hqiqhqfqmqjsjqkrjririrhzesOs`qMqPqFqPsSq\\q^qcq[q   Psaqcs fsOt-r  ms"
+      "`rcxfxdtaqcziqlqlqetOqMqMqLqMsTqiqRtcqmqcubt-ucubsOsbt_qOv@r_rUrepkrepktgpcq`r`r`r`r`raplpc{gufxfxfxfxcq_q^q`qc"
+      "werjqdtbtbtbtbtPtlpiqiqgqiqgqiqgqiqhrirgq]s`q]qapnpapnrbqnqbplp>q]qasbqmq`q_qasbqmqbpkpdpmrbq]qasbpmrcqmq>q]q`p"
+      "npaqnq`qcq^qnq 0pnqg{*pOp`tfunuer iy $vRqaqmqaplpapepmpipduaq^p_paplplp hqcudtbwewarcvdvexfwew Yudydrdwcxiyexfw"
+      "exgqiqcq]qeqkreqaskshrjqfxfwexgwdwg{hqiqgqhqlqjsjqjqjqgqiqgzesOsasMpPqFqQtSq\\q^qcq[q 2q Ataqct hvbqbw.r  nuarc"
+      "xfxfxeueziqlqlqgxRsNqNsMq_p_uUqiqbqbucqmqdqkq_q/qkqducqmqQpkp^p`pOtmp>p`plpTpfphpfpepipbq`r`r`r`r`r`rb{ixgxfxfx"
+      "fxcq_q^q`qcygrjqfxfxfxfxfxTwnphqiqgqiqgqiqgqiqgqiqfq^u`p]p`pnpOqnqar<p]p`pmpbqmq_p_p`pmpbqmqbtOp]p`pmpPqmq=p]p_"
+      "pnpaqnq`pbq^qnq>ucucucucuaqcqhq<p^pPraugunuer jq  krkpRqaqmqaplpcthqmqkqerlpaq_q_qaqnpnqbq(qcqkqeqnqbpjrfpjrcsc"
+      "q`rkp_qfrkrgrkq Yplrgsirfteqkreripiqjsfq_q`ripgqiqcq]qeqlrdqaskshskqgrjrgqkrgrjrhqkrfrjpbqcqiqgqhqkqkskqhqlqeqk"
+      "q^qdqKqbqmqNqQqFqQqPq;q[q 2q Aq^q`q irlqctdqjp,q !qkqctdr`q`rjrgwfqhqiqlqlqhrjrTuOqOu<p`rlpTqkqaqbqOpgp_p0pgpSp"
+      "kpaq\\p^paqPump>papjpUpgpgpgpdpjpQtbtbtbtbtbqnqcqnqcripgq_q_q_q\\q_q^q`qcqjshskqgrjrhrjrhrjrhrjrhrjrVrjrhqiqgqi"
+      "qgqiqgqiqfqkqevdrlqaq_qaplp Vq_qaqmqMqaqaqmqRtMq_qaqmq hq_q`plpOqbq)qkqeqkqeqkqeqkqeqkqbqcqhq=q_qQtbugunuftasdq"
+      "ipcqbpipfq  jqLqaqmqe{gviqmqkpdq\\q_q_q_r`q(qdrkrcq[q_qdqnqcq`qYqfqiqgqiq9pWpVqgqfrgqnqeqjqeqaqhqfq_q`q_qiqcq]q"
+      "eqmrcqaqnqmqnqhskqgqhqgqjqgqhqhqjqfq[qcqiqgrjrkqkskqhrnrermr_qcqKqcqkq/qFqQqPq;q[q 2q Aq^q`q iqkq`qdq&q !qkqcqn"
+      "qcraq`qhqhrnqnrgqhqiqlqlqhqhqUwPqPw=p`qbphqfqkqaqbqPplslpeu1pmtlpTpkpaq]qar?ump>papjpUpgpgpgpgripaqaqnqbqnqbqnq"
+      "bqnqbqnqbqnqdqmqcq_q_q_q_q\\q_q^q`qcqhqhskqgqhqhqhqhqhqhqhqhqhqgphpgqirhqiqgqiqgqiqgqiqfrmreweqkq   .q CqZp [q*"
+      "qmqmqgqiqgqiqgqiqgqiqcqbpiq<q_pQvctf|gvdveqipdscqkqgq  jqKqaqmqe{hrnpmpiqmqlpcq\\q_p]p_r`q(qdqiqcq[q_qdpmqcqaqX"
+      "qfqiqgqiqcq^q]sWsYqhqdqgqnqeqjqfq`qgqgq_qaq^qiqcq]qeqnrbqaqnqmqnqhqnqlqhqfqhqjqhqfqiqjqfq[qcqiqfqjqjqlqmqlqgqnq"
+      "cqmq_rcqKqdpgp@tdqnsasbsnqdtcvcsnqfqnsaq^qcqkqaqfqnsmsgqnsbscqnsbsnqeqnrbtcveqjqgqiqiqkqkqirkrgqiqfwbq^q`q+tnrg"
+      "qkq_qdtaueqnseqiqcrdqjqfqiqepmrexfqmqmqdtcxhygqiqdqnqbrbqaqfqjrmqmrhqhqiqlqlqiqfqhp]pnqnp]pbqbpipdpnqnpNqatbqaq"
+      "nqnqdqmq`qaqRqmpkpmqgqkp2qmpkpmqUqmqaq^q]pSqjqeump>papjpUphpfphpcpkp`qaqnqbqnqbqnqbqnqbqnqbqnqdqmqdq^q_q_q_q\\q"
+      "_q^q`qcqgqiqnqlqhqfqjqfqjqfqjqfqjqfqirjriqiqnqiqiqgqiqgqiqgqiqeqmqdqkrfqmsctbtbtbtbtbtftlsdsbtbtbtbt_qaq_q_q`td"
+      "qnsbsasasasas`q`smpfqjqfqjqfqjqfqjqgqiqfqnseqiqDqlqlqiqgqiqnqmqnqiqjqnqiqgqdqbqjqD{gpjpQvctf|hxeqkqfqipdscqkqgp"
+      "  kyQqNplqeqmpfqmqmqcrLq]qbqnpnqbq(qdqiqcq[q`reqmqcueqms_qdqkqfqiqcq^q`uh{hu]qgqlrnqlqiqlqfqkrfq`qgqgq_qaq^qiqc"
+      "q]qetaqaqnqmqnqhqnqlqhqfqhqkrhqfqiqkrfs]qcqiqfqjqjqlqmqlqgsas_rbqKq,vewdvdwfwdvdwfwbq^qcqlq`qfvntgwewewdweudwdv"
+      "eqjqfqkqhqkqkqhqkqfqiqfwbq^q`q?smsfxfqlr_qdvdveweqkqbrdqjqfpgpfqntfxfqmqmqfweyhygqiqeqlqbrcqaqfqjqlqlqhqhqiqlql"
+      "qiqfqir\\q\\rcqcrkrcqLqbvcqawdqmq`qbtTpmpfpgpjpbplpDplpkplpTs`q_q\\pSqjqeump>papjpeplpdpiqfpiqcplq`qbqlqdqlqdql"
+      "qdqlqdqlqdqlqfrmqdq^q_q_q_q\\q_q^q`qcqgqiqnqlqhqfqjqfqjqfqjqfqjqfqhrlrhqjqmqiqiqgqiqgqiqgqiqdscqjqfqnqavdvdvdvd"
+      "vdvhvnugvewewewew`qaq_q_qbwewewewewewewSweqjqfqjqfqjqfqjqgqiqfwfqiqDpkqkpipepipmumpipjrmpipepdqbqkqC{irkpQxfxh|"
+      "hxepipfqipdsbpkpfp  iqKqNplpdtepmplpmshsMq]qcplplpcq)qcqiqcq\\qctcplqcvfx`qcuerkrBue{euaqgqlvlqiqlqfweq`qgqgxfv"
+      "fqjthycq]qes`qaqmsmqhqmqmqhqfqhwgqfqiwdvaqcqiqeqlqhqmqmqmqeras_qaqKq,pjqfrlreqkperlrfqkrcqbrlrfrlrcq^qcqmq_qfrl"
+      "rlqhrlrfqkqerlrfrlreraqjpcqaqjqfqkqhqlslqgqmqdqkq`qaq^q`qctjpWqmsmpgrlsfqnsbqmqeqkqdq`rlreqlqbrdqjqgqgqhrnqnrfq"
+      "lqeqmqmqfqkqfrkqbqcyeqlqardqaqfqjqlqlqhqhqiqlqlqiqnvnqjr[q[rdqdrirdqLqcrnpmpewdqmqeybqcqlqUpmpfpgpkqcplpf{Xpltk"
+      "pF{epZpSqjqdtmpbqMp`plpcplpepipjpkpipmshplpjpfrbqlqdqlqdqlqdqlqdqlqdqlqfqlxkq^xfxfxfxcq_q^q`qevjqiqmqmqhqfqjqfq"
+      "jqfqjqfqjqfqgrnrgqkqlqiqiqgqiqgqiqgqiqdscqjqfqnqapjqepjqepjqepjqepjqepjqipjrlrhqkpeqkrfqkrfqkrfqkraqaq_q_qbqkrf"
+      "rlrfqkqeqkqeqkqeqkqeqkqSqkqeqjqfqjqfqjqfqjqfqkqerlrfqkqCpnwnpipnwnpiplslpipkrlpipkqkpdqaqlq>qbqlpRzhzhzhzgqipfq"
+      "ipeqmpbqmqf| &qKqOqlpcugsmplpmpiulqSq]q_pd{.qcqiqcq]qbueqlqcpkrgrkrbrdwexDtItcqgqlqlqlqiqlqfweq`qgqgxfvfqjthycq"
+      "]qetaqaqmsmqhqmqmqhqfqhvfqfqiv`tbqcqiqeqlqhqmqmqmqfs`q_q`qKq+vfqjqfq_qjqgqiqcqbqjqfqjqcq^qcqnq^qfqkqkqhqjqgqiqf"
+      "qjqfqjqeq`s_qaqjqfqkqgqmsmqfqmqdqkqaqcs]q_sg{Wpkqkphqkreqntdvfqiqeq`qjqeqmrcteqjqgqgqhqmqmqfqlqeqmqmqgqiqgqiqcq"
+      "cyeqlqaqcqaqfqjqlqlqhqhqhqmqmqhqnvnqk}eqe}eqe}eqLqcqmpbweqkqcs_qcqkqVpmpfpfsnpdplpe{XplpmqkpF{fuctRqjqbrmpbqOta"
+      "raplphtlpjqmtlpmpkpntlpjqfqaqlqdqlqdqlqdqlqdqlqerlrgqlxkq^xfxfxfxcq_q^q`qevjqiqmqmqhqfqjqfqjqfqjqfqjqfqftfqlqkq"
+      "iqiqgqiqgqiqgqiqcqbqkrfqmrbvdvdvdvdvdvhvjqiq`qiqgqiqgqiqgqiqaqaq_q_qcqiqfqjqgqiqgqiqgqiqgqiqgqiqh{hqkpnqfqjqfqj"
+      "qfqjqfqjqfqkqeqjqfqkqCpnwnpipnwnpiplslpiplrkpipkqkpdqaqlq>qbqmqRzi|hxfxfqipfqipeqmqcqmqfp  kwOqR{dtcqmqmqkrmrnr"
+      "Sq]qS{StOqcqiqcq^r^rgqkq]qgqiqbqdrkresmqDtItdqfqlqlqlqjqjqgqjqfq`qgqgq_qaqgqhqiqcq]qeqnrbqaqmsmqhqlqnqhqfqhqaqf"
+      "qiqkq^rcqcqiqeqlqhqnqkqnqftaq`r`qKq,wfqjqfq_qjqgycqbqjqfqjqcq^qcs]qfqkqkqhqjqgqiqfqjqfqjqeq_ubqaqjqeqmqfqmpmpmq"
+      "esbqmqarcs]q_sgpjtVpkqkphqkreqkrfqlrfqiqcrcqjqeqmqbqnqeqjqgqlqlqhqmqmqfqlqeqmqmqgqiqgqiqcqcqiqfqjqcqbqaqfqjqlql"
+      "qhqhqhrnqnrhqfqk}eqe}eqe}eqLqcqmp`qaqkqbqPrlqVpmpfpVplpZqXplplqlpAq-qjq`pmp jplpbqkpnpfqhpgqkpnpgqaqjqfqjqfqjqf"
+      "qjqfqjqfqjqhqkqdq^q_q_q_q\\q_q^q`qcqgqiqlqnqhqfqjqfqjqfqjqfqjqfqereqmqjqiqiqgqiqgqiqgqiqcqbweqlrdwewewewewewi~i"
+      "q`ygygygyaqaq_q_qcqiqfqjqgqiqgqiqgqiqgqiqgqiqh{hqlpmqfqjqfqjqfqjqfqjqeqmqdqjqeqmqBpkqkpipepipmumpipmrjpipepdq`p"
+      "mqB{fpmpQzi|gvdveqipfqipeqmqcqmpeq  jqKqR{cpmqdplqmqkqktRq]qNqNtOqcqiqcq_r\\qgy_qgqiqbqdqiq_qBue{eubqfqlqlqmqix"
+      "gqiqgq`qgqgq_qaqgqhqiqcq]qeqmrcqaqlqlqhqlqnqhqfqhqaqfqiqkr^qcqcqiqdqnqgqnqkqnqgrnqaqar_qKq-qjqfqjqfq_qjqgycqbqj"
+      "qfqjqcq^qcs]qfqkqkqhqjqgqiqfqjqfqjqeq\\scqaqjqeqmqfqnqmqnqesbqmqbr`r^q`rApkqkphqkreqjqfqkqfqiqetcqjqdqnqcrnqeqj"
+      "qgqlqlqhqmqmqfqlqeqmqmqgqiqgqiqcqcqiqfqjqdrbq`qhqirmqmrhqhqgwgqfqjr[q[rfpnqnpfrirfpnqnpNqcqmp`q`qmqeySrmqVqmpkp"
+      "mqgvdplp[qXqmpkpmqAq-qjq`pmp/vcplpapkpmpfphqgpkpmphq`xfxfxfxfxfxhwdq^q_q_q_q\\q_q^q`qcqgqiqlqnqhqfqjqfqjqfqjqfq"
+      "jqfqftfqnqiqiqiqgqiqgqiqgqiqcqbvdqjqfqjqfqjqfqjqfqjqfqjqfqjqjqjxiq`ygygygyaqaq_q_qcqiqfqjqgqiqgqiqgqiqgqiqgqiqU"
+      "qmplqfqjqfqjqfqjqfqjqeqmqdqjqeqmqBqlqlqiqgqiqnqmqnqiqnqjqiqgqdq`qnqB{fqnpQzi|ftbtdqipepipepkpbseq  iq*plq`pmqep"
+      "kqmqkqjrQq]qNq*qbrkrcq`r[qgy_qgqiqcqcqiq`q>uh{hu_qfqlyizhqiqfqaqhqfq_q`qhqhqiqcq]qeqlrdqaqlqlqhqksgqhqgq`qhqhqj"
+      "q^qcqcqiqdqnqfsksgrmrbqaq^qKq-qjqfqjqfq_qjqgq[qbqjqfqjqcq^qcqnq^qfqkqkqhqjqgqiqfqjqfqjqeqZqcqaqjqeqmqfqnqmqnqfq"
+      "mqbsaq^q^q`q?pmpnqmpgqkreqjqfqkpeqiqeq`qjqdsbqlqfqjqgqlqlqhqmqmqfqlqeqmqmqgqiqgqiqcqbqkqfrjrfraq`riqhrnqnrgqhqf"
+      "ueqhqhr\\q\\rfwfrkrfwOqcqmp`qawbq^q`sTplslpSplp\\qWpmpkqnp@q-qjq`pmp lplpapkplpgphqgpkplphqazhzhzhzhzhzjxcq_q_q"
+      "_q_q\\q_q^q`qcqhqhqksgqhqhqhqhqhqhqhqhqhqfrnrfriqhqiqgqiqgqiqgqiqcqbq_qjqfqjqfqjqfqjqfqjqfqjqfqjqjqjqbq`q_q_q_q"
+      "Yqaq_q_qcqiqfqjqgqiqgqiqgqiqgqiqgqiqUqnpkqfqjqfqjqfqjqfqjqdscqjqds@qmqmqgqiqgqiqgqiqgqiqcq`qnp?q^rOrnpnrgsnpnse"
+      "tarcqipeqkqfqkqcsdq  jrkp0plpcplpnrfqkqmqkrltRq]qNq*qaqkqbqarapjraqdpjrfqkrcqcrkrfpkr;sWsQrlrnrgqhqhqjrfripiqjs"
+      "fq_q`riqhqiqcq]qeqkreqaqgqhqksgrjrgq`rjrhqjrgpircqbqkqctfsksgqkqbqbq]qKq-qkrfrlreqkperlrfqipcqbrlrfqjqcq^qcqmq_"
+      "qfqkqkqhqjqfqkqerlrfrlreq`pjqcqarlrdsdrkreqmqbsbr^q^q`q>qlrfrmserlrfpkqerkqdqkpeqjqdscrlqfrlrgrnsnrhrnqnrfqlqer"
+      "nqnrgrkqeqkrcqbqkqfqhqgr`q_rkqfwfqhqdqcrjrgp[q[pdudpipduNqcrnpmpcqaqnqnqbq^q_qRpgpQplpBpgp?q-rlr`pmp mplp`pkuhp"
+      "iqfpkuirlpfqhqhqhqhqhqhqhqhqhqhqhqjqjqcripgq_q_q_q\\q_q^q`qcqjshqksgrjrhrjrhrjrhrjrhrjrgrlrgrjrgqkqeqkqeqkqeqkq"
+      "bqbq_qnplqfqkrfqkrfqkrfqkrfqkrfqkrjqksjphqkpeqipfqipfqipfqipaqaq_q_qbqkqeqjqfqkqeqkqeqkqeqkqeqkqbqbqkqerlrfrlrf"
+      "rlrfrlrdscrlrds?qkqeqkqeqkqeqkqeqkqbq_r?q]qKp^p_r`rcqipeveqkqcscr  kvRqPqlpcwepipmpivnrRp]pMq^qNq`q`udwexfw`qdw"
+      "ewbqbwevaq^qZpWpYqeq]qhqhxdxiyexfq_xgqiqcq]qeqjrfxhqgqhqjrfxfq_xgqiqgxbqbwbrerirhqiqcqczeqKq-xfwdvdwfxcqawfqjqc"
+      "q^qcqlq`qfqkqkqhqjqfwewdweq`wcudwdsdrkrfqkqbqbwbq^q`q,ygweqmqcwdveqjqcrcqkqfygyfweqlsfwfxewbscuezgxfqaumtgueqhq"
+      "dqbxQqNsOsMqbvexgpgpcq^q^qRqkq lqkqC{2yapmp Zpfphpipepfpgufqhqhqhqhqhqhqhqhqhqhqhqjqjxixgxfxfxfxcq_q^q`qcygqjrf"
+      "xfxfxfxfxgrjrhpnwfwewewewbqbq_qnufxfxfxfxfxfxjvnwhvexfxfxfxaqaq_q_qbweqjqfwewewewewbqbwdwewewewcqbwbq=ucucucucu"
+      "aq_r?p\\qKp^p^p^pbqipcsdpipbqay #tQqPqmqbuephsgslrSq_qMq^qNq`q_scwexeu_qctatbq`uct`q^q*qdqgphqfqiwauhwcxfq]ufqi"
+      "qcq]qeqirgxhqgqhqjrdtdq]teqirgvaq`s`reriririrdqczeqKq,tnqfqnsasbsnqdubq`snqfqjqcq^qcqkqaqfqkqkqhqjqdscqnsbsnqeq"
+      "_t`tcsnqcqcrkrgrkrcqbwbq^q`q+smrgvcsat`sdqjqcqcqiqgqnrmqfrmrdudqkreueqntbt`rbse|hxfqaumteqcqhqdq`tOqMqMqLqatdxQ"
+      "q^q^qQu juB{2qnrmqapmp [pepipiujpepfsfqfqjqfqjqfqjqfqjqfqjqfqlqixgufxfxfxfxcq_q^q`qcweqjrdtbtbtbtbtdphphpltbsas"
+      "asas`qbq_qmsdtnqetnqetnqetnqetnqetnqhsktesbucucucu`qaq_q_q`scqjqdsasasasasRpmsasnqdsnqdsnqdsnqcqbqnsaq 0p fp   "
+      "  Ip)q_q:q>q  4q lsjq  ]q Aq  _qKq  Xq>q XqXq 5rMq^q`q iq\"qcqQqIqMqcq    @p(qbu   hqYpmpOp   Np       Zp   1p "
+      "brbq]r 0p      ?p(p_p:q=q  5q jx  ]r Ar  `sOs  ^pkq=q XqXq 5qLq^q`q iq\"qcqQqIqMqcq    @p(qbt   gqYpmpOq   Oq  "
+      "     [q    $qaq]q 2s      ?p(qaq:p   Op gu  ^s   .sOsRy 6v?s XqXq 7sLtaqct iq\"qcqQqIqMqcq    @p(q   Uq5q   Oq "
+      "      [q    &saq_s 1q               [r    7y 5t>r WqXq 7rJsaqcs hq\"qcqQqIqMqcq        +q7r   Pr       \\r    %"
+      "r`q                            5q                             %" };
+
+
 
     // Define a 47x53 font (extra-large size).
     static const char *const data_font47x53[] = {
@@ -59362,13 +59362,13 @@ namespace cimg_library_suffixed {
       cimg::mutex(11);
 
       // Decompress nearest base font data if needed.
-      static const char *const *font_data[] = { cimg::data_font12x13, cimg::data_font20x23, cimg::data_font47x53, cimg::data_font90x103 };
+      static const char *const *font_data[] = { cimg::data_font12x13, cimg::data_font18x22, cimg::data_font47x53, cimg::data_font90x103 };
       static const unsigned int
-        font_width[] = { 12,20,47,90 },
-        font_height[] = { 13,23,53,103 },
+        font_width[] = { 12,18,47,90 },
+        font_height[] = { 13,22,53,103 },
         font_M[] = { 86,79,57,47 },
         font_chunk[] = { sizeof(cimg::data_font12x13)/sizeof(char*),
-                         sizeof(cimg::data_font20x23)/sizeof(char*),
+                         sizeof(cimg::data_font18x22)/sizeof(char*),
                          sizeof(cimg::data_font47x53)/sizeof(char*),
                          sizeof(cimg::data_font90x103)/sizeof(char*) };
       static const unsigned char font_is_binary[] = { 1,1,1,1 };
@@ -59389,13 +59389,13 @@ namespace cimg_library_suffixed {
         // Recompose font data from several chunks, to deal with MS compiler limit with big strings (64 Kb).
         CImg<char> dataf;
         for (unsigned int k = 0; k<font_chunk[ind]; ++k)
-          dataf.append(CImg<char>::string(font_data[ind][k]),k==font_chunk[ind] - 1,true);
+          dataf.append(CImg<char>::string(font_data[ind][k],k==font_chunk[ind] - 1,true),'x');
 
         // Uncompress font data (decode RLE).
         const unsigned int M = font_M[ind];
         if (font_is_binary[ind])
           for (const char *ptrs = dataf; *ptrs; ++ptrs) {
-            const int c = (int)(*ptrs - M - 32), v = c>=0?255:0, n = c>=0?c:-c;
+            const int _n = (int)(*ptrs - M - 32), v = _n>=0?255:0, n = _n>=0?_n:-_n;
             if (ptrd + n<=ptrde) { std::memset(ptrd,v,n); ptrd+=n; }
             else { std::memset(ptrd,v,ptrde - ptrd); break; }
           }

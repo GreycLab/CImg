@@ -3425,7 +3425,7 @@ namespace cimg_library_suffixed {
       "0x lxdx gw[w=wiw*wbyowoyGwKwowewawcwow  YwOwoz Ewjwuwdw 7w   9w  Iwnwlw    \\w      0|*y[x=wiw,xWw=wKwowewawcwo"
       "w  Yw  hwVx 8w   9w  Jxmwnxp" };
 
-    // Define a 25x33 font (normal arial).
+    // Define a 25x33 font (normal).
     static const char *const data_font25x33[] = {
       "                                                                                                               "
       "             G{}y~|   N{|y}^{|y}|j{|y}| a{|y}|_{|y}|iy}|                                                       "
@@ -3728,7 +3728,7 @@ namespace cimg_library_suffixed {
       "~|k{|y~     d{|~} \\{}~|f{|}y~}|   7{|y~1{|}x~| ,y}y~y}  p{|}x~|        8{}x~}     ${|y~}f{}~}e{|y~}           "
       "                                                           O{" };
 
-    // Define a 53x64 font (large arial).
+    // Define a 53x64 font (large).
     static const char *const data_font53x64[] = {
       "                                                                                                               "
       "    {{y|}|                                                                                                     "
@@ -4417,7 +4417,7 @@ namespace cimg_library_suffixed {
       "w~N{}x~P{|w~}  1w~|  $w~} {{}x~} hw~| q{}x~}W{|w~              v{}x~M{|}w~y}|       \"{|w~ 4{|}x~y}|   #y|}v~}y"
       "|    Gy}x~y}                  Hy}x~y}|            @{}x~y}Nw~|I{}x~y}]{" };
 
-    // Define a 102x128 binary font (huge arial).
+    // Define a 102x128 binary font (huge).
     static const char *const data_font102x128[] = {
       "                                                                                                               "
       "                                                                                                               "

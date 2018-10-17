@@ -223,10 +223,8 @@
   It is regularly tested on different architectures and compilers,
   and should also work on any decent OS having a decent C++ compiler.
   Before each release, the CImg Library is compiled under these different configurations :
-  \li PC Linux 32 bits, with g++.
-  \li PC Windows 32 bits, with Visual C++ Express Edition.
-  \li Sun SPARC Solaris 32 bits, with g++.
-  \li Mac PPC with OS X and g++.
+  \li PC Linux 32/64 bits, with g++.
+  \li PC Windows 32/64 bits, with Visual C++ Express Edition.
 
   CImg has a minimal number of dependencies. In its minimal version, it can be compiled only with standard C++ headers.
   Anyway, it has interesting extension capabilities and can use external libraries to perform specific tasks more

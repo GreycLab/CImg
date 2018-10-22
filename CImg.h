@@ -7988,8 +7988,8 @@ namespace cimg_library_suffixed {
       return _empty;
     }
 
-#define cimg_fitscreen(dx,dy,dz) CImgDisplay::_fitscreen(dx,dy,dz,480,-85,false), \
-                                 CImgDisplay::_fitscreen(dx,dy,dz,480,-85,true)
+#define cimg_fitscreen(dx,dy,dz) CImgDisplay::_fitscreen(dx,dy,dz,128,-85,false), \
+                                 CImgDisplay::_fitscreen(dx,dy,dz,128,-85,true)
     static unsigned int _fitscreen(const unsigned int dx, const unsigned int dy, const unsigned int dz,
                                    const int dmin, const int dmax, const bool return_y) {
       const int
@@ -52092,7 +52092,9 @@ namespace cimg_library_suffixed {
             _XYZ[2] = (unsigned int)(z0 + z1)/2;
           }
           x0 = 0; y0 = 0; z0 = 0; x1 = width() - 1; y1 = height() - 1; z1 = depth() - 1;
+          disp.resize(cimg_fitscreen(_width,_height,_depth),false);
           oldw = disp._width; oldh = disp._height;
+          resize_disp = true;
           reset_view = false;
         }
         if (!x0 && !y0 && !z0 && x1==width() - 1 && y1==height() - 1 && z1==depth() - 1) {
@@ -52104,10 +52106,11 @@ namespace cimg_library_suffixed {
           dx = 1U + x1 - x0, dy = 1U + y1 - y0, dz = 1U + z1 - z0,
           tw = dx + (dz>1?dz:0U), th = dy + (dz>1?dz:0U);
         if (!is_empty() && !disp.is_fullscreen() && resize_disp) {
+          const float
+            ttw = (float)tw*disp.width()/oldw, tth = (float)th*disp.height()/oldh,
+            dM = std::max(ttw,tth), diM = (float)std::max(disp.width(),disp.height());
           const unsigned int
-            ttw = tw*disp.width()/oldw, tth = th*disp.height()/oldh,
-            dM = std::max(ttw,tth), diM = (unsigned int)std::max(disp.width(),disp.height()),
-            imgw = std::max(16U,ttw*diM/dM), imgh = std::max(16U,tth*diM/dM);
+            imgw = (unsigned int)(ttw*diM/dM), imgh = (unsigned int)(tth*diM/dM);
           disp.set_fullscreen(false).resize(cimg_fitscreen(imgw,imgh,1),false);
           resize_disp = false;
         }

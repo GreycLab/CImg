@@ -525,7 +525,7 @@ extern "C" {
 //
 // Define 'cimg_use_board' to enable Board support.
 //
-// Board library may be used to draw 3d objects in vector-graphics canvas
+// Board library may be used to draw 3D objects in vector-graphics canvas
 // that can be saved as '.ps' or '.svg' files afterwards.
 // (see method 'CImg<T>::draw_object3d()').
 #ifdef cimg_use_board
@@ -11205,7 +11205,7 @@ namespace cimg_library_suffixed {
      If you need a fifth dimension, you can use image lists \c CImgList<T> rather than simple images \c CImg<T>.
 
      Thus, the \c CImg<T> class is able to represent volumetric images of vector-valued pixels,
-     as well as images with less dimensions (1d scalar signal, 2d color images, ...).
+     as well as images with less dimensions (1D scalar signal, 2D color images, ...).
      Most member functions of the class CImg<\c T> are designed to handle this maximum case of (3+1) dimensions.
 
      Concerning the pixel value type \c T:
@@ -11999,7 +11999,7 @@ namespace cimg_library_suffixed {
        \note
        - The width() and height() of the constructed image instance are the same as the specified \c CImgDisplay.
        - The depth() and spectrum() of the constructed image instance are respectively set to \c 1 and \c 3
-         (i.e. a 2d color image).
+         (i.e. a 2D color image).
        - The image pixels are read as 8-bits RGB values.
      **/
     explicit CImg(const CImgDisplay &disp):_width(0),_height(0),_depth(0),_spectrum(0),_is_shared(false),_data(0) {
@@ -12381,7 +12381,7 @@ namespace cimg_library_suffixed {
          <tt>(width() - 1,height() - 1,depth() - 1,spectrum() - 1)</tt>.
        - Due to the particular arrangement of the pixel buffers defined in %CImg, you can omit one coordinate if the
          corresponding dimension is equal to \c 1.
-         For instance, pixels of a 2d image (depth() equal to \c 1) can be accessed by <tt>img(x,y,c)</tt> instead of
+         For instance, pixels of a 2D image (depth() equal to \c 1) can be accessed by <tt>img(x,y,c)</tt> instead of
          <tt>img(x,y,0,c)</tt>.
        \warning
        - There is \e no boundary checking done in this operator, to make it as fast as possible.
@@ -13644,7 +13644,7 @@ namespace cimg_library_suffixed {
        Return the image depth, i.e. the image dimension along the Z-axis.
        \note
        - The depth() of an empty image is equal to \c 0.
-       - depth() is typically equal to \c 1 when considering usual 2d images. When depth()\c > \c 1, the image
+       - depth() is typically equal to \c 1 when considering usual 2D images. When depth()\c > \c 1, the image
          is said to be \e volumetric.
        - depth() returns an \c int, although the image depth is internally stored as an \c unsigned \c int.
          Using an \c int is safer and prevents arithmetic traps possibly encountered when doing calculations involving
@@ -15433,18 +15433,18 @@ namespace cimg_library_suffixed {
       return !((void*)(_data + csiz)<=(void*)img._data || (void*)_data>=(void*)(img._data + isiz));
     }
 
-    //! Test if the set {\c *this,\c primitives,\c colors,\c opacities} defines a valid 3d object.
+    //! Test if the set {\c *this,\c primitives,\c colors,\c opacities} defines a valid 3D object.
     /**
-       Return \c true is the 3d object represented by the set {\c *this,\c primitives,\c colors,\c opacities} defines a
-       valid 3d object, and \c false otherwise. The vertex coordinates are defined by the instance image.
-       \param primitives List of primitives of the 3d object.
-       \param colors List of colors of the 3d object.
-       \param opacities List (or image) of opacities of the 3d object.
-       \param full_check Tells if full checking of the 3d object must be performed.
+       Return \c true is the 3D object represented by the set {\c *this,\c primitives,\c colors,\c opacities} defines a
+       valid 3D object, and \c false otherwise. The vertex coordinates are defined by the instance image.
+       \param primitives List of primitives of the 3D object.
+       \param colors List of colors of the 3D object.
+       \param opacities List (or image) of opacities of the 3D object.
+       \param full_check Tells if full checking of the 3D object must be performed.
        \param[out] error_message C-string to contain the error message, if the test does not succeed.
        \note
-       - Set \c full_checking to \c false to speed-up the 3d object checking. In this case, only the size of
-         each 3d object component is checked.
+       - Set \c full_checking to \c false to speed-up the 3D object checking. In this case, only the size of
+         each 3D object component is checked.
        - Size of the string \c error_message should be at least 128-bytes long, to be able to contain the error message.
     **/
     template<typename tp, typename tc, typename to>
@@ -15455,11 +15455,11 @@ namespace cimg_library_suffixed {
                      char *const error_message=0) const {
       if (error_message) *error_message = 0;
 
-      // Check consistency for the particular case of an empty 3d object.
+      // Check consistency for the particular case of an empty 3D object.
       if (is_empty()) {
         if (primitives || colors || opacities) {
           if (error_message) cimg_sprintf(error_message,
-                                          "3d object (%u,%u) defines no vertices but %u primitives, "
+                                          "3D object (%u,%u) defines no vertices but %u primitives, "
                                           "%u colors and %lu opacities",
                                           _width,primitives._width,primitives._width,
                                           colors._width,(unsigned long)opacities.size());
@@ -15471,19 +15471,19 @@ namespace cimg_library_suffixed {
       // Check consistency of vertices.
       if (_height!=3 || _depth>1 || _spectrum>1) { // Check vertices dimensions.
         if (error_message) cimg_sprintf(error_message,
-                                        "3d object (%u,%u) has invalid vertex dimensions (%u,%u,%u,%u)",
+                                        "3D object (%u,%u) has invalid vertex dimensions (%u,%u,%u,%u)",
                                         _width,primitives._width,_width,_height,_depth,_spectrum);
         return false;
       }
       if (colors._width>primitives._width + 1) {
         if (error_message) cimg_sprintf(error_message,
-                                        "3d object (%u,%u) defines %u colors",
+                                        "3D object (%u,%u) defines %u colors",
                                         _width,primitives._width,colors._width);
         return false;
       }
       if (opacities.size()>primitives._width) {
         if (error_message) cimg_sprintf(error_message,
-                                        "3d object (%u,%u) defines %lu opacities",
+                                        "3D object (%u,%u) defines %lu opacities",
                                         _width,primitives._width,(unsigned long)opacities.size());
         return false;
       }
@@ -15498,7 +15498,7 @@ namespace cimg_library_suffixed {
           const unsigned int i0 = (unsigned int)primitive(0);
           if (i0>=_width) {
             if (error_message) cimg_sprintf(error_message,
-                                            "3d object (%u,%u) refers to invalid vertex indice %u in "
+                                            "3D object (%u,%u) refers to invalid vertex indice %u in "
                                             "point primitive [%u]",
                                             _width,primitives._width,i0,l);
             return false;
@@ -15510,7 +15510,7 @@ namespace cimg_library_suffixed {
             i1 = (unsigned int)primitive(1);
           if (i0>=_width || i1>=_width) {
             if (error_message) cimg_sprintf(error_message,
-                                            "3d object (%u,%u) refers to invalid vertex indices (%u,%u) in "
+                                            "3D object (%u,%u) refers to invalid vertex indices (%u,%u) in "
                                             "sphere primitive [%u]",
                                             _width,primitives._width,i0,i1,l);
             return false;
@@ -15522,7 +15522,7 @@ namespace cimg_library_suffixed {
             i1 = (unsigned int)primitive(1);
           if (i0>=_width || i1>=_width) {
             if (error_message) cimg_sprintf(error_message,
-                                            "3d object (%u,%u) refers to invalid vertex indices (%u,%u) in "
+                                            "3D object (%u,%u) refers to invalid vertex indices (%u,%u) in "
                                             "segment primitive [%u]",
                                             _width,primitives._width,i0,i1,l);
             return false;
@@ -15535,7 +15535,7 @@ namespace cimg_library_suffixed {
             i2 = (unsigned int)primitive(2);
           if (i0>=_width || i1>=_width || i2>=_width) {
             if (error_message) cimg_sprintf(error_message,
-                                            "3d object (%u,%u) refers to invalid vertex indices (%u,%u,%u) in "
+                                            "3D object (%u,%u) refers to invalid vertex indices (%u,%u,%u) in "
                                             "triangle primitive [%u]",
                                             _width,primitives._width,i0,i1,i2,l);
             return false;
@@ -15549,7 +15549,7 @@ namespace cimg_library_suffixed {
             i3 = (unsigned int)primitive(3);
           if (i0>=_width || i1>=_width || i2>=_width || i3>=_width) {
             if (error_message) cimg_sprintf(error_message,
-                                            "3d object (%u,%u) refers to invalid vertex indices (%u,%u,%u,%u) in "
+                                            "3D object (%u,%u) refers to invalid vertex indices (%u,%u,%u,%u) in "
                                             "quadrangle primitive [%u]",
                                             _width,primitives._width,i0,i1,i2,i3,l);
             return false;
@@ -15557,7 +15557,7 @@ namespace cimg_library_suffixed {
         } break;
         default :
           if (error_message) cimg_sprintf(error_message,
-                                          "3d object (%u,%u) defines an invalid primitive [%u] of size %u",
+                                          "3D object (%u,%u) defines an invalid primitive [%u] of size %u",
                                           _width,primitives._width,l,(unsigned int)psiz);
           return false;
         }
@@ -15568,7 +15568,7 @@ namespace cimg_library_suffixed {
         const CImg<tc>& color = colors[c];
         if (!color) {
           if (error_message) cimg_sprintf(error_message,
-                                          "3d object (%u,%u) defines no color for primitive [%u]",
+                                          "3D object (%u,%u) defines no color for primitive [%u]",
                                           _width,primitives._width,c);
           return false;
         }
@@ -15579,7 +15579,7 @@ namespace cimg_library_suffixed {
         const CImg<tc> &light = colors.back();
         if (!light || light._depth>1) {
           if (error_message) cimg_sprintf(error_message,
-                                          "3d object (%u,%u) defines an invalid light texture (%u,%u,%u,%u)",
+                                          "3D object (%u,%u) defines an invalid light texture (%u,%u,%u,%u)",
                                           _width,primitives._width,light._width,
                                           light._height,light._depth,light._spectrum);
           return false;
@@ -15589,14 +15589,14 @@ namespace cimg_library_suffixed {
       return true;
     }
 
-    //! Test if image instance represents a valid serialization of a 3d object.
+    //! Test if image instance represents a valid serialization of a 3D object.
     /**
-       Return \c true if the image instance represents a valid serialization of a 3d object, and \c false otherwise.
+       Return \c true if the image instance represents a valid serialization of a 3D object, and \c false otherwise.
        \param full_check Tells if full checking of the instance must be performed.
        \param[out] error_message C-string to contain the error message, if the test does not succeed.
        \note
-       - Set \c full_check to \c false to speed-up the 3d object checking. In this case, only the size of
-         each 3d object component is checked.
+       - Set \c full_check to \c false to speed-up the 3D object checking. In this case, only the size of
+         each 3D object component is checked.
        - Size of the string \c error_message should be at least 128-bytes long, to be able to contain the error message.
     **/
     bool is_CImg3d(const bool full_check=true, char *const error_message=0) const {
@@ -19490,11 +19490,11 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar2(*ss2=='l'?mp_rol:mp_ror,arg1,arg2);
             }
 
-            if (!std::strncmp(ss,"rot(",4)) { // 2d/3d rotation matrix
+            if (!std::strncmp(ss,"rot(",4)) { // 2D/3D rotation matrix
               _cimg_mp_op("Function 'rot()'");
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss4,s1,depth1,0,is_single);
-              if (s1<se1) { // 3d rotation
+              if (s1<se1) { // 3D rotation
                 _cimg_mp_check_type(arg1,1,3,3);
                 is_sth = false; // Is coordinates as vector?
                 if (_cimg_mp_is_vector(arg1)) { // Coordinates specified as a vector
@@ -19519,7 +19519,7 @@ namespace cimg_library_suffixed {
                 _cimg_mp_check_type(arg4,is_sth?2:4,1,0);
                 pos = vector(9);
                 CImg<ulongT>::vector((ulongT)mp_rot3d,pos,arg1,arg2,arg3,arg4).move_to(code);
-              } else { // 2d rotation
+              } else { // 2D rotation
                 _cimg_mp_check_type(arg1,1,1,0);
                 pos = vector(4);
                 CImg<ulongT>::vector((ulongT)mp_rot2d,pos,arg1).move_to(code);
@@ -25864,7 +25864,7 @@ namespace cimg_library_suffixed {
       return get_permute_axes("yxzc");
     }
 
-    //! Compute the cross product between two \c 1x3 images, viewed as 3d vectors.
+    //! Compute the cross product between two \c 1x3 images, viewed as 3D vectors.
     /**
        \param img Image used as the second argument of the cross product.
        \note The first argument of the cross product is \c *this.
@@ -25873,7 +25873,7 @@ namespace cimg_library_suffixed {
     CImg<T>& cross(const CImg<t>& img) {
       if (_width!=1 || _height<3 || img._width!=1 || img._height<3)
         throw CImgInstanceException(_cimg_instance
-                                    "cross(): Instance and/or specified image (%u,%u,%u,%u,%p) are not 3d vectors.",
+                                    "cross(): Instance and/or specified image (%u,%u,%u,%u,%p) are not 3D vectors.",
                                     cimg_instance,
                                     img._width,img._height,img._depth,img._spectrum,img._data);
 
@@ -25884,7 +25884,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Compute the cross product between two \c 1x3 images, viewed as 3d vectors \newinstance.
+    //! Compute the cross product between two \c 1x3 images, viewed as 3D vectors \newinstance.
     template<typename t>
     CImg<_cimg_Tt> get_cross(const CImg<t>& img) const {
       return CImg<_cimg_Tt>(*this).cross(img);
@@ -28356,9 +28356,9 @@ namespace cimg_library_suffixed {
        \param max_value Maximum pixel value considered for the histogram computation.
          All pixel values higher than \p max_value will not be counted.
        \note
-       - The histogram H of an image I is the 1d function where H(x) counts the number of occurences of the value x
+       - The histogram H of an image I is the 1D function where H(x) counts the number of occurences of the value x
          in the image I.
-       - The resulting histogram is always defined in 1d. Histograms of multi-valued images are not multi-dimensional.
+       - The resulting histogram is always defined in 1D. Histograms of multi-valued images are not multi-dimensional.
        \par Example
        \code
        const CImg<float> img = CImg<float>("reference.jpg").histogram(256);
@@ -28511,7 +28511,7 @@ namespace cimg_library_suffixed {
             cimg::swap(cache_current,cache_next);
           }
         } break;
-        case 2 : { // Optimized for 2d vectors.
+        case 2 : { // Optimized for 2D vectors.
           tuint *ptrd1 = ptrd + whd;
           cimg_forYZ(*this,y,z) {
             if (y<height() - 2) {
@@ -28547,7 +28547,7 @@ namespace cimg_library_suffixed {
             cimg::swap(cache_current,cache_next);
           }
         } break;
-        case 3 : { // Optimized for 3d vectors (colors).
+        case 3 : { // Optimized for 3D vectors (colors).
           tuint *ptrd1 = ptrd + whd, *ptrd2 = ptrd1 + whd;
           cimg_forYZ(*this,y,z) {
             if (y<height() - 2) {
@@ -28646,7 +28646,7 @@ namespace cimg_library_suffixed {
             }
           }
         } break;
-        case 2 : { // Optimized for 2d vectors.
+        case 2 : { // Optimized for 2D vectors.
           cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=64 && _height*_depth>=16 && pwhd>=16))
           cimg_forYZ(*this,y,z) {
             tuint *ptrd = res.data(0,y,z), *ptrd1 = ptrd + whd;
@@ -28664,7 +28664,7 @@ namespace cimg_library_suffixed {
             }
           }
         } break;
-        case 3 : { // Optimized for 3d vectors (colors).
+        case 3 : { // Optimized for 3D vectors (colors).
           cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=64 && _height*_depth>=16 && pwhd>=16))
           cimg_forYZ(*this,y,z) {
             tuint *ptrd = res.data(0,y,z), *ptrd1 = ptrd + whd, *ptrd2 = ptrd1 + whd;
@@ -28775,7 +28775,7 @@ namespace cimg_library_suffixed {
         }
       } break;
 
-      case 2 : { // Optimized for 2d vectors.
+      case 2 : { // Optimized for 2D vectors.
         const t *const ptrp0 = colormap._data, *ptrp1 = ptrp0 + cwhd;
         t *ptrd0 = res._data, *ptrd1 = ptrd0 + whd;
         switch (boundary_conditions) {
@@ -28808,7 +28808,7 @@ namespace cimg_library_suffixed {
         }
       } break;
 
-      case 3 : { // Optimized for 3d vectors (colors).
+      case 3 : { // Optimized for 3D vectors (colors).
         const t *const ptrp0 = colormap._data, *ptrp1 = ptrp0 + cwhd, *ptrp2 = ptrp1 + cwhd;
         t *ptrd0 = res._data, *ptrd1 = ptrd0 + whd, *ptrd2 = ptrd1 + whd;
         switch (boundary_conditions) {
@@ -28881,7 +28881,7 @@ namespace cimg_library_suffixed {
     //! Label connected components.
     /**
        \param is_high_connectivity Boolean that choose between 4(false)- or 8(true)-connectivity
-       in 2d case, and between 6(false)- or 26(true)-connectivity in 3d case.
+       in 2D case, and between 6(false)- or 26(true)-connectivity in 3D case.
        \param tolerance Tolerance used to determine if two neighboring pixels belong to the same region.
        \note The algorithm of connected components computation has been primarily done
        by A. Meijster, according to the publication:
@@ -28906,7 +28906,7 @@ namespace cimg_library_suffixed {
         dx[nb] = 1; dy[nb] = 1; dz[nb++] = 0;
         dx[nb] = 1; dy[nb] = -1; dz[nb++] = 0;
       }
-      if (_depth>1) { // 3d version.
+      if (_depth>1) { // 3D version.
         dx[nb] = 0; dy[nb] = 0; dz[nb++]=1;
         if (is_high_connectivity) {
           dx[nb] = 1; dy[nb] = 1; dz[nb++] = -1;
@@ -31750,7 +31750,7 @@ namespace cimg_library_suffixed {
       return res;
     }
 
-    // [internal] Perform 2d rotation with arbitrary angle.
+    // [internal] Perform 2D rotation with arbitrary angle.
     void _rotate(CImg<T>& res, const float angle,
                  const unsigned int interpolation, const unsigned int boundary_conditions,
                  const float w2, const float h2,
@@ -31880,9 +31880,9 @@ namespace cimg_library_suffixed {
 
     //! Rotate volumetric image with arbitrary angle and axis.
     /**
-       \param u X-coordinate of the 3d rotation axis.
-       \param v Y-coordinate of the 3d rotation axis.
-       \param w Z-coordinate of the 3d rotation axis.
+       \param u X-coordinate of the 3D rotation axis.
+       \param v Y-coordinate of the 3D rotation axis.
+       \param w Z-coordinate of the 3D rotation axis.
        \param angle Rotation angle, in degrees.
        \param interpolation Type of interpolation. Can be <tt>{ 0=nearest | 1=linear | 2=cubic }</tt>.
        \param boundary_conditions Boundary conditions.
@@ -31927,9 +31927,9 @@ namespace cimg_library_suffixed {
 
     //! Rotate volumetric image with arbitrary angle and axis, around a center point.
     /**
-       \param u X-coordinate of the 3d rotation axis.
-       \param v Y-coordinate of the 3d rotation axis.
-       \param w Z-coordinate of the 3d rotation axis.
+       \param u X-coordinate of the 3D rotation axis.
+       \param v Y-coordinate of the 3D rotation axis.
+       \param w Z-coordinate of the 3D rotation axis.
        \param angle Rotation angle, in degrees.
        \param cx X-coordinate of the rotation center.
        \param cy Y-coordinate of the rotation center.
@@ -31957,7 +31957,7 @@ namespace cimg_library_suffixed {
       return res;
     }
 
-    // [internal] Perform 3d rotation with arbitrary axis and angle.
+    // [internal] Perform 3D rotation with arbitrary axis and angle.
     void _rotate(CImg<T>& res, const CImg<Tfloat>& R,
                  const unsigned int interpolation, const unsigned int boundary_conditions,
                  const float w2, const float h2, const float d2,
@@ -32149,7 +32149,7 @@ namespace cimg_library_suffixed {
 
       CImg<T> res(warp._width,warp._height,warp._depth,_spectrum);
 
-      if (warp._spectrum==1) { // 1d warping
+      if (warp._spectrum==1) { // 1D warping
         if (mode>=3) { // Forward-relative warp
           res.fill((T)0);
           if (interpolation>=1) // Linear interpolation
@@ -32385,7 +32385,7 @@ namespace cimg_library_suffixed {
             }
         }
 
-      } else if (warp._spectrum==2) { // 2d warping
+      } else if (warp._spectrum==2) { // 2D warping
         if (mode>=3) { // Forward-relative warp
           res.fill((T)0);
           if (interpolation>=1) // Linear interpolation
@@ -32638,7 +32638,7 @@ namespace cimg_library_suffixed {
             }
         }
 
-      } else { // 3d warping
+      } else { // 3D warping
         if (mode>=3) { // Forward-relative warp
           res.fill((T)0);
           if (interpolation>=1) // Linear interpolation
@@ -32959,7 +32959,7 @@ namespace cimg_library_suffixed {
       return res;
     }
 
-    //! Generate a 2d representation of a 3d image, with XY,XZ and YZ views.
+    //! Generate a 2D representation of a 3D image, with XY,XZ and YZ views.
     /**
        \param x0 X-coordinate of the projection point.
        \param y0 Y-coordinate of the projection point.
@@ -32981,7 +32981,7 @@ namespace cimg_library_suffixed {
         draw_image(0,img_xy._height,img_xz);
     }
 
-    //! Construct a 2d representation of a 3d image, with XY,XZ and YZ views \inplace.
+    //! Construct a 2D representation of a 3D image, with XY,XZ and YZ views \inplace.
     CImg<T>& projections2d(const unsigned int x0, const unsigned int y0, const unsigned int z0) {
       if (_depth<2) return *this;
       return get_projections2d(x0,y0,z0).move_to(*this);
@@ -33348,14 +33348,14 @@ namespace cimg_library_suffixed {
       return get_channels(c0,c1).move_to(*this);
     }
 
-    //! Return stream line of a 2d or 3d vector field.
+    //! Return stream line of a 2D or 3D vector field.
     CImg<floatT> get_streamline(const float x, const float y, const float z,
                                 const float L=256, const float dl=0.1f,
                                 const unsigned int interpolation_type=2, const bool is_backward_tracking=false,
                                 const bool is_oriented_only=false) const {
       if (_spectrum!=2 && _spectrum!=3)
         throw CImgInstanceException(_cimg_instance
-                                    "streamline(): Instance is not a 2d or 3d vector field.",
+                                    "streamline(): Instance is not a 2D or 3D vector field.",
                                     cimg_instance);
       if (_spectrum==2) {
         if (is_oriented_only) {
@@ -33378,7 +33378,7 @@ namespace cimg_library_suffixed {
                         0,0,0,_width - 1.0f,_height - 1.0f,_depth - 1.0f);
     }
 
-    //! Return stream line of a 3d vector field.
+    //! Return stream line of a 3D vector field.
     /**
        \param func Vector field function.
        \param x X-coordinate of the starting point of the streamline.
@@ -33507,7 +33507,7 @@ namespace cimg_library_suffixed {
       return coordinates;
     }
 
-    //! Return stream line of a 3d vector field \overloading.
+    //! Return stream line of a 3D vector field \overloading.
     static CImg<floatT> streamline(const char *const expression,
                                    const float x, const float y, const float z,
                                    const float L=256, const float dl=0.1f,
@@ -35250,7 +35250,7 @@ namespace cimg_library_suffixed {
     /**
        \param priority Priority map.
        \param is_high_connectivity Boolean that choose between 4(false)- or 8(true)-connectivity
-       in 2d case, and between 6(false)- or 26(true)-connectivity in 3d case.
+       in 2D case, and between 6(false)- or 26(true)-connectivity in 3D case.
        \note Non-zero values of the instance instance are propagated to zero-valued ones according to
        specified the priority map.
     **/
@@ -35291,7 +35291,7 @@ namespace cimg_library_suffixed {
       // Find seed points and insert them in priority queue.
       unsigned int nb_seeds = 0;
       const T *ptrs = _data;
-      cimg_forXYZ(*this,x,y,z) if (*(ptrs++)) { // 3d version
+      cimg_forXYZ(*this,x,y,z) if (*(ptrs++)) { // 3D version
         if (nb_seeds>=seeds._width) seeds.resize(2*seeds._width,3,1,1,0);
         seeds(nb_seeds,0) = x; seeds(nb_seeds,1) = y; seeds(nb_seeds++,2) = z;
         px = x - 1; nx = x + 1;
@@ -35867,7 +35867,7 @@ namespace cimg_library_suffixed {
         CImg<Tfloat> velocity(_width,_height,_depth,_spectrum);
         for (unsigned int iteration = 0; iteration<iamplitude; ++iteration) {
           Tfloat *ptrd = velocity._data, veloc_max = 0;
-          if (is_3d) // 3d version
+          if (is_3d) // 3D version
             cimg_forC(*this,c) {
               cimg_abort_test;
               CImg_3x3x3(I,Tfloat);
@@ -35885,7 +35885,7 @@ namespace cimg_library_suffixed {
                 if (veloc>veloc_max) veloc_max = veloc; else if (-veloc>veloc_max) veloc_max = -veloc;
               }
             }
-          else // 2d version
+          else // 2D version
             cimg_forZC(*this,z,c) {
               cimg_abort_test;
               CImg_3x3(I,Tfloat);
@@ -35907,7 +35907,7 @@ namespace cimg_library_suffixed {
         const int dx1 = width() - 1, dy1 = height() - 1, dz1 = depth() - 1;
         CImg<Tfloat> res(_width,_height,_depth,_spectrum,0), W(_width,_height,_depth,is_3d?4:3), val(_spectrum,1,1,1,0);
         int N = 0;
-        if (is_3d) { // 3d version
+        if (is_3d) { // 3D version
           for (float phi = cimg::mod(180.0f,da)/2.0f; phi<=180; phi+=da) {
             const float phir = (float)(phi*cimg::PI/180), datmp = (float)(da/std::cos(phir)),
               da2 = datmp<1?360.0f:datmp;
@@ -36013,7 +36013,7 @@ namespace cimg_library_suffixed {
               } _cimg_abort_catch_omp2
             }
           }
-        } else { // 2d LIC algorithm
+        } else { // 2D LIC algorithm
           for (float theta = cimg::mod(360.0f,da)/2.0f; theta<360; (theta+=da),++N) {
             const float thetar = (float)(theta*cimg::PI/180),
               vx = (float)(std::cos(thetar)), vy = (float)(std::sin(thetar));
@@ -36171,7 +36171,7 @@ namespace cimg_library_suffixed {
        \param sampling_r Amount of downsampling along the value axis used for the approximation.
          Defaults (0) to sigma_r.
        \note This algorithm uses the optimisation technique proposed by S. Paris and F. Durand, in ECCV'2006
-       (extended for 3d volumetric images).
+       (extended for 3D volumetric images).
        It is based on the reference implementation http://people.csail.mit.edu/jiawen/software/bilateralFilter.m
     **/
     template<typename t>
@@ -36214,7 +36214,7 @@ namespace cimg_library_suffixed {
         br = (unsigned int)(edge_delta/_sampling_r + 1 + 2*padding_r);
       if (bx>0 || by>0 || bz>0 || br>0) {
         const bool is_3d = (_depth>1);
-        if (is_3d) { // 3d version of the algorithm
+        if (is_3d) { // 3D version of the algorithm
           CImg<floatT> bgrid(bx,by,bz,br), bgridw(bx,by,bz,br);
           cimg_forC(*this,c) {
             const CImg<t> _guide = guide.get_shared_channel(c%guide._spectrum);
@@ -36245,7 +36245,7 @@ namespace cimg_library_suffixed {
               (*this)(x,y,z,c) = (T)(bval0/bval1);
             }
           }
-        } else { // 2d version of the algorithm
+        } else { // 2D version of the algorithm
           CImg<floatT> bgrid(bx,by,br,2);
           cimg_forC(*this,c) {
             const CImg<t> _guide = guide.get_shared_channel(c%guide._spectrum);
@@ -36648,7 +36648,7 @@ namespace cimg_library_suffixed {
       const int rsize2 = (int)lookup_size/2, rsize1 = (int)lookup_size - rsize2 - 1;
       const unsigned int N2 = patch_size*patch_size, N3 = N2*patch_size;
       cimg::unused(N2,N3);
-      if (_depth>1) switch (patch_size) { // 3d
+      if (_depth>1) switch (patch_size) { // 3D
         case 2 : if (is_fast_approx) _cimg_blur_patch3d_fast(2) else _cimg_blur_patch3d(2) break;
         case 3 : if (is_fast_approx) _cimg_blur_patch3d_fast(3) else _cimg_blur_patch3d(3) break;
         default : {
@@ -36696,7 +36696,7 @@ namespace cimg_library_suffixed {
               else cimg_forC(res,c) res(x,y,z,c) = (Tfloat)((*this)(x,y,z,c));
             }
         }
-        } else switch (patch_size) { // 2d
+        } else switch (patch_size) { // 2D
         case 2 : if (is_fast_approx) _cimg_blur_patch2d_fast(2) else _cimg_blur_patch2d(2) break;
         case 3 : if (is_fast_approx) _cimg_blur_patch2d_fast(3) else _cimg_blur_patch2d(3) break;
         case 4 : if (is_fast_approx) _cimg_blur_patch2d_fast(4) else _cimg_blur_patch2d(4) break;
@@ -36709,7 +36709,7 @@ namespace cimg_library_suffixed {
           const int psize2 = (int)patch_size/2, psize1 = (int)patch_size - psize2 - 1;
           if (is_fast_approx)
             cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=32 && res._height>=4) firstprivate(P,Q))
-            cimg_forXY(res,x,y) { // 2d fast approximation.
+            cimg_forXY(res,x,y) { // 2D fast approximation.
               P = img.get_crop(x - psize1,y - psize1,x + psize2,y + psize2,true);
               const int x0 = x - rsize1, y0 = y - rsize1, x1 = x + rsize2, y1 = y + rsize2;
               float sum_weights = 0;
@@ -36727,7 +36727,7 @@ namespace cimg_library_suffixed {
               else cimg_forC(res,c) res(x,y,c) = (Tfloat)((*this)(x,y,c));
             } else
             cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=32 && res._height>=4) firstprivate(P,Q))
-            cimg_forXY(res,x,y) { // 2d exact algorithm.
+            cimg_forXY(res,x,y) { // 2D exact algorithm.
               P = img.get_crop(x - psize1,y - psize1,x + psize2,y + psize2,true);
               const int x0 = x - rsize1, y0 = y - rsize1, x1 = x + rsize2, y1 = y + rsize2;
               float sum_weights = 0, weight_max = 0;
@@ -36767,7 +36767,7 @@ namespace cimg_library_suffixed {
       T *ptrd = res._data;
       cimg::unused(ptrd);
       const int hr = (int)n/2, hl = n - hr - 1;
-      if (res._depth!=1) { // 3d
+      if (res._depth!=1) { // 3D
         if (threshold>0)
           cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if(_width>=16 && _height*_depth*_spectrum>=4))
           cimg_forXYZC(*this,x,y,z,c) { // With threshold.
@@ -36889,7 +36889,7 @@ namespace cimg_library_suffixed {
       const float nedge = edge/2;
       CImg<Tfloat> velocity(_width,_height,_depth,_spectrum), _veloc_max(_spectrum);
 
-      if (_depth>1) { // 3d
+      if (_depth>1) { // 3D
         if (sharpen_type) { // Shock filters.
           CImg<Tfloat> G = (alpha>0?get_blur(alpha).get_structure_tensors():get_structure_tensors());
           if (sigma>0) G.blur(sigma);
@@ -36950,7 +36950,7 @@ namespace cimg_library_suffixed {
             }
             _veloc_max[c] = veloc_max;
           }
-      } else { // 2d.
+      } else { // 2D.
         if (sharpen_type) { // Shock filters.
           CImg<Tfloat> G = (alpha>0?get_blur(alpha).get_structure_tensors():get_structure_tensors());
           if (sigma>0) G.blur(sigma);
@@ -37045,7 +37045,7 @@ namespace cimg_library_suffixed {
       } else is_3d = (_depth>1);
       if (is_3d) {
         CImg<Tfloat>(_width,_height,_depth,_spectrum).move_to(grad);
-        switch (scheme) { // 3d.
+        switch (scheme) { // 3D.
         case -1 : { // Backward finite differences.
           cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height*_depth>=1048576 && _spectrum>=2))
           cimg_forC(*this,c) {
@@ -37096,7 +37096,7 @@ namespace cimg_library_suffixed {
           }
         }
         }
-      } else switch (scheme) { // 2d.
+      } else switch (scheme) { // 2D.
       case -1 : { // Backward finite differences.
         cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width*_height>=1048576 && _depth*_spectrum>=2))
         cimg_forZC(*this,z,c) {
@@ -37197,7 +37197,7 @@ namespace cimg_library_suffixed {
                                     naxes);
 
       res.assign(lmax/2,_width,_height,_depth,_spectrum);
-      if (!cimg::strcasecmp(naxes,def_axes3d)) { // 3d
+      if (!cimg::strcasecmp(naxes,def_axes3d)) { // 3D
 
         cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height*_depth>=1048576 && _spectrum>=2))
         cimg_forC(*this,c) {
@@ -37215,7 +37215,7 @@ namespace cimg_library_suffixed {
             *(ptrd5++) = Iccn + Iccp - 2*Iccc;          // Izz
           }
         }
-      } else if (!cimg::strcasecmp(naxes,def_axes2d)) { // 2d
+      } else if (!cimg::strcasecmp(naxes,def_axes2d)) { // 2D
         cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width*_height>=1048576 && _depth*_spectrum>=2))
         cimg_forZC(*this,z,c) {
           const ulongT off = (ulongT)c*_width*_height*_depth + z*_width*_height;
@@ -37304,21 +37304,21 @@ namespace cimg_library_suffixed {
     CImg<Tfloat> get_laplacian() const {
       if (is_empty()) return CImg<Tfloat>();
       CImg<Tfloat> res(_width,_height,_depth,_spectrum);
-      if (_depth>1) { // 3d
+      if (_depth>1) { // 3D
         cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height*_depth>=1048576 && _spectrum>=2))
         cimg_forC(*this,c) {
           Tfloat *ptrd = res.data(0,0,0,c);
           CImg_3x3x3(I,Tfloat);
           cimg_for3x3x3(*this,x,y,z,c,I,Tfloat) *(ptrd++) = Incc + Ipcc + Icnc + Icpc + Iccn + Iccp - 6*Iccc;
         }
-      } else if (_height>1) { // 2d
+      } else if (_height>1) { // 2D
         cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height>=1048576 && _depth*_spectrum>=2))
         cimg_forC(*this,c) {
           Tfloat *ptrd = res.data(0,0,0,c);
           CImg_3x3(I,Tfloat);
           cimg_for3x3(*this,x,y,0,c,I,Tfloat) *(ptrd++) = Inc + Ipc + Icn + Icp - 4*Icc;
         }
-      } else { // 1d
+      } else { // 1D
         cimg_pragma_openmp(parallel for cimg_openmp_if(_width>=1048576 && _height*_depth*_spectrum>=2))
         cimg_forC(*this,c) {
           Tfloat *ptrd = res.data(0,0,0,c);
@@ -37341,7 +37341,7 @@ namespace cimg_library_suffixed {
     CImg<Tfloat> get_structure_tensors(const bool is_fwbw_scheme=false) const {
       if (is_empty()) return *this;
       CImg<Tfloat> res;
-      if (_depth>1) { // 3d
+      if (_depth>1) { // 3D
         res.assign(_width,_height,_depth,6,0);
         if (!is_fwbw_scheme) { // Classical central finite differences
           cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height*_depth>=1048576 && _spectrum>=2))
@@ -37384,7 +37384,7 @@ namespace cimg_library_suffixed {
             }
           }
         }
-      } else { // 2d
+      } else { // 2D
         res.assign(_width,_height,_depth,3,0);
         if (!is_fwbw_scheme) { // Classical central finite differences
           cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height>=1048576 && _depth*_spectrum>=2))
@@ -37436,7 +37436,7 @@ namespace cimg_library_suffixed {
         power2 = power1/(1e-7f + 1 - anisotropy);
       blur(alpha).normalize(0,(T)255);
 
-      if (_depth>1) { // 3d
+      if (_depth>1) { // 3D
         get_structure_tensors().move_to(res).blur(sigma);
         cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=256 && _height*_depth>=256))
         cimg_forYZ(*this,y,z) {
@@ -37462,7 +37462,7 @@ namespace cimg_library_suffixed {
             *(ptrd5++) = n1*(uz*uz + vz*vz) + n2*wz*wz;
           }
         }
-      } else { // for 2d images
+      } else { // for 2D images
         get_structure_tensors().move_to(res).blur(sigma);
         cimg_pragma_openmp(parallel for cimg_openmp_if(_width>=256 && _height>=256))
         cimg_forY(*this,y) {
@@ -37580,7 +37580,7 @@ namespace cimg_library_suffixed {
           cimg_abort_test;
           float _energy = 0;
 
-          if (is_3d) { // 3d version.
+          if (is_3d) { // 3D version.
             if (smoothness>=0) // Isotropic regularization.
               cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_height*_depth>=8 && _width>=16)
                                  reduction(+:_energy))
@@ -37697,7 +37697,7 @@ namespace cimg_library_suffixed {
                   }
               }
             }
-          } else { // 2d version.
+          } else { // 2D version.
             if (smoothness>=0) // Isotropic regularization.
               cimg_pragma_openmp(parallel for cimg_openmp_if(_height>=8 && _width>=16) reduction(+:_energy))
               cimg_forY(U,y) {
@@ -37942,7 +37942,7 @@ namespace cimg_library_suffixed {
         psizeh = (int)patch_height, psizeh1 = psizeh/2, psizeh2 = psizeh - psizeh1 - 1,
         psized = (int)patch_depth, psized1 = psized/2, psized2 = psized - psized1 - 1;
 
-      if (_depth>1 || patch_image._depth>1) { // 3d version.
+      if (_depth>1 || patch_image._depth>1) { // 3D version.
 
         // Initialize correspondence map.
         if (guide) cimg_forXYZ(*this,x,y,z) { // User-defined initialization.
@@ -38096,7 +38096,7 @@ namespace cimg_library_suffixed {
           }
         }
 
-      } else { // 2d version.
+      } else { // 2D version.
 
         // Initialize correspondence map.
         if (guide) cimg_forXY(*this,x,y) { // Random initialization.
@@ -38216,7 +38216,7 @@ namespace cimg_library_suffixed {
                              const unsigned int psizew, const unsigned int psizeh,
                              const int x1, const int y1,
                              const int x2, const int y2,
-                             const float max_ssd) { // 2d version.
+                             const float max_ssd) { // 2D version.
       const T *p1 = img1.data(x1,y1), *p2 = img2.data(x2,y2);
       const ulongT
         offx1 = (ulongT)img1._width - psizew,
@@ -38240,7 +38240,7 @@ namespace cimg_library_suffixed {
                              const unsigned int psizew, const unsigned int psizeh, const unsigned int psized,
                              const int x1, const int y1, const int z1,
                              const int x2, const int y2, const int z2,
-                             const float max_ssd) { // 3d version.
+                             const float max_ssd) { // 3D version.
       const T *p1 = img1.data(x1,y1,z1), *p2 = img2.data(x2,y2,z2);
       const ulongT
         offx1 = (ulongT)img1._width - psizew,
@@ -38755,7 +38755,7 @@ namespace cimg_library_suffixed {
       const Tfloat M = (Tfloat)cimg::type<T>::max();
       T T1 = (T)std::min(x - 1>=0?res(x - 1,y,z):M,x + 1<width()?res(x + 1,y,z):M);
       Tfloat root = 0;
-      if (_depth>1) { // 3d.
+      if (_depth>1) { // 3D.
         T
           T2 = (T)std::min(y - 1>=0?res(x,y - 1,z):M,y + 1<height()?res(x,y + 1,z):M),
           T3 = (T)std::min(z - 1>=0?res(x,y,z - 1):M,z + 1<depth()?res(x,y,z + 1):M);
@@ -38768,14 +38768,14 @@ namespace cimg_library_suffixed {
         if (T2<M && ___distance_eikonal(2,-2*(T1 + T2),T1*T1 + T2*T2 - P*P,root))
           return std::max((Tfloat)T2,root);
         return P + T1;
-      } else if (_height>1) { // 2d.
+      } else if (_height>1) { // 2D.
         T T2 = (T)std::min(y - 1>=0?res(x,y - 1,z):M,y + 1<height()?res(x,y + 1,z):M);
         if (T1>T2) cimg::swap(T1,T2);
         if (P<=0) return (Tfloat)T1;
         if (T2<M && ___distance_eikonal(2,-2*(T1 + T2),T1*T1 + T2*T2 - P*P,root))
           return std::max((Tfloat)T2,root);
         return P + T1;
-      } else { // 1d.
+      } else { // 1D.
         if (P<=0) return (Tfloat)T1;
         return P + T1;
       }
@@ -38815,7 +38815,7 @@ namespace cimg_library_suffixed {
       CImg<Tfloat> velocity(*this,false);
       for (unsigned int iteration = 0; iteration<nb_iterations; ++iteration) {
         Tfloat *ptrd = velocity._data, veloc_max = 0;
-        if (_depth>1) { // 3d
+        if (_depth>1) { // 3D
           CImg_3x3x3(I,Tfloat);
           cimg_forC(*this,c) cimg_for3x3x3(*this,x,y,z,c,I,Tfloat) if (band_size<=0 || cimg::abs(Iccc)<band_size) {
             const Tfloat
@@ -38834,7 +38834,7 @@ namespace cimg_library_suffixed {
             *(ptrd++) = veloc;
             if (veloc>veloc_max) veloc_max = veloc; else if (-veloc>veloc_max) veloc_max = -veloc;
           } else *(ptrd++) = 0;
-        } else { // 2d version
+        } else { // 2D version
           CImg_3x3(I,Tfloat);
           cimg_forC(*this,c) cimg_for3x3(*this,x,y,0,c,I,Tfloat) if (band_size<=0 || cimg::abs(Icc)<band_size) {
             const Tfloat
@@ -39118,7 +39118,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Compute 1d Fast Fourier Transform, along a specified axis.
+    //! Compute 1D Fast Fourier Transform, along a specified axis.
     /**
        \param axis Axis along which the FFT is computed.
        \param is_invert Tells if the forward (\c false) or inverse (\c true) FFT is computed.
@@ -39139,7 +39139,7 @@ namespace cimg_library_suffixed {
       return res;
     }
 
-    //! Compute 1d Fast Fourier Transform, along a specified axis.
+    //! Compute 1D Fast Fourier Transform, along a specified axis.
     /**
        \param[in,out] real Real part of the pixel values.
        \param[in,out] imag Imaginary part of the pixel values.
@@ -39468,39 +39468,39 @@ namespace cimg_library_suffixed {
     //@}
     //-------------------------------------
     //
-    //! \name 3d Objects Management
+    //! \name 3D Objects Management
     //@{
     //-------------------------------------
 
-    //! Shift 3d object's vertices.
+    //! Shift 3D object's vertices.
     /**
-       \param tx X-coordinate of the 3d displacement vector.
-       \param ty Y-coordinate of the 3d displacement vector.
-       \param tz Z-coordinate of the 3d displacement vector.
+       \param tx X-coordinate of the 3D displacement vector.
+       \param ty Y-coordinate of the 3D displacement vector.
+       \param tz Z-coordinate of the 3D displacement vector.
     **/
     CImg<T>& shift_object3d(const float tx, const float ty=0, const float tz=0) {
       if (_height!=3 || _depth>1 || _spectrum>1)
         throw CImgInstanceException(_cimg_instance
-                                    "shift_object3d(): Instance is not a set of 3d vertices.",
+                                    "shift_object3d(): Instance is not a set of 3D vertices.",
                                     cimg_instance);
 
       get_shared_row(0)+=tx; get_shared_row(1)+=ty; get_shared_row(2)+=tz;
       return *this;
     }
 
-    //! Shift 3d object's vertices \newinstance.
+    //! Shift 3D object's vertices \newinstance.
     CImg<Tfloat> get_shift_object3d(const float tx, const float ty=0, const float tz=0) const {
       return CImg<Tfloat>(*this,false).shift_object3d(tx,ty,tz);
     }
 
-    //! Shift 3d object's vertices, so that it becomes centered.
+    //! Shift 3D object's vertices, so that it becomes centered.
     /**
        \note The object center is computed as its barycenter.
     **/
     CImg<T>& shift_object3d() {
       if (_height!=3 || _depth>1 || _spectrum>1)
         throw CImgInstanceException(_cimg_instance
-                                    "shift_object3d(): Instance is not a set of 3d vertices.",
+                                    "shift_object3d(): Instance is not a set of 3D vertices.",
                                     cimg_instance);
 
       CImg<T> xcoords = get_shared_row(0), ycoords = get_shared_row(1), zcoords = get_shared_row(2);
@@ -39512,21 +39512,21 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Shift 3d object's vertices, so that it becomes centered \newinstance.
+    //! Shift 3D object's vertices, so that it becomes centered \newinstance.
     CImg<Tfloat> get_shift_object3d() const {
       return CImg<Tfloat>(*this,false).shift_object3d();
     }
 
-    //! Resize 3d object.
+    //! Resize 3D object.
     /**
-       \param sx Width of the 3d object's bounding box.
-       \param sy Height of the 3d object's bounding box.
-       \param sz Depth of the 3d object's bounding box.
+       \param sx Width of the 3D object's bounding box.
+       \param sy Height of the 3D object's bounding box.
+       \param sz Depth of the 3D object's bounding box.
     **/
     CImg<T>& resize_object3d(const float sx, const float sy=-100, const float sz=-100) {
       if (_height!=3 || _depth>1 || _spectrum>1)
         throw CImgInstanceException(_cimg_instance
-                                    "resize_object3d(): Instance is not a set of 3d vertices.",
+                                    "resize_object3d(): Instance is not a set of 3D vertices.",
                                     cimg_instance);
 
       CImg<T> xcoords = get_shared_row(0), ycoords = get_shared_row(1), zcoords = get_shared_row(2);
@@ -39540,16 +39540,16 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Resize 3d object \newinstance.
+    //! Resize 3D object \newinstance.
     CImg<Tfloat> get_resize_object3d(const float sx, const float sy=-100, const float sz=-100) const {
       return CImg<Tfloat>(*this,false).resize_object3d(sx,sy,sz);
     }
 
-    //! Resize 3d object to unit size.
+    //! Resize 3D object to unit size.
     CImg<T> resize_object3d() {
       if (_height!=3 || _depth>1 || _spectrum>1)
         throw CImgInstanceException(_cimg_instance
-                                    "resize_object3d(): Instance is not a set of 3d vertices.",
+                                    "resize_object3d(): Instance is not a set of 3D vertices.",
                                     cimg_instance);
 
       CImg<T> xcoords = get_shared_row(0), ycoords = get_shared_row(1), zcoords = get_shared_row(2);
@@ -39562,16 +39562,16 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Resize 3d object to unit size \newinstance.
+    //! Resize 3D object to unit size \newinstance.
     CImg<Tfloat> get_resize_object3d() const {
       return CImg<Tfloat>(*this,false).resize_object3d();
     }
 
-    //! Merge two 3d objects together.
+    //! Merge two 3D objects together.
     /**
-       \param[in,out] primitives Primitives data of the current 3d object.
-       \param obj_vertices Vertices data of the additional 3d object.
-       \param obj_primitives Primitives data of the additional 3d object.
+       \param[in,out] primitives Primitives data of the current 3D object.
+       \param obj_vertices Vertices data of the additional 3D object.
+       \param obj_primitives Primitives data of the additional 3D object.
     **/
     template<typename tf, typename tp, typename tff>
     CImg<T>& append_object3d(CImgList<tf>& primitives, const CImg<tp>& obj_vertices,
@@ -39580,7 +39580,7 @@ namespace cimg_library_suffixed {
       if (obj_vertices._height!=3 || obj_vertices._depth>1 || obj_vertices._spectrum>1)
         throw CImgInstanceException(_cimg_instance
                                     "append_object3d(): Specified vertice image (%u,%u,%u,%u,%p) is not a "
-                                    "set of 3d vertices.",
+                                    "set of 3D vertices.",
                                     cimg_instance,
                                     obj_vertices._width,obj_vertices._height,
                                     obj_vertices._depth,obj_vertices._spectrum,obj_vertices._data);
@@ -39588,7 +39588,7 @@ namespace cimg_library_suffixed {
       if (is_empty()) { primitives.assign(obj_primitives); return assign(obj_vertices); }
       if (_height!=3 || _depth>1 || _spectrum>1)
         throw CImgInstanceException(_cimg_instance
-                                    "append_object3d(): Instance is not a set of 3d vertices.",
+                                    "append_object3d(): Instance is not a set of 3D vertices.",
                                     cimg_instance);
 
       const unsigned int P = _width;
@@ -39608,11 +39608,11 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Texturize primitives of a 3d object.
+    //! Texturize primitives of a 3D object.
     /**
-       \param[in,out] primitives Primitives data of the 3d object.
-       \param[in,out] colors Colors data of the 3d object.
-       \param texture Texture image to map to 3d object.
+       \param[in,out] primitives Primitives data of the 3D object.
+       \param[in,out] colors Colors data of the 3D object.
+       \param texture Texture image to map to 3D object.
        \param coords Texture-mapping coordinates.
     **/
     template<typename tp, typename tc, typename tt, typename tx>
@@ -39621,7 +39621,7 @@ namespace cimg_library_suffixed {
       if (is_empty()) return *this;
       if (_height!=3)
         throw CImgInstanceException(_cimg_instance
-                                    "texturize_object3d(): image instance is not a set of 3d points.",
+                                    "texturize_object3d(): image instance is not a set of 3D points.",
                                     cimg_instance);
       if (coords && (coords._width!=_width || coords._height!=2))
         throw CImgArgumentException(_cimg_instance
@@ -39689,13 +39689,13 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Generate a 3d elevation of the image instance.
+    //! Generate a 3D elevation of the image instance.
     /**
-       \param[out] primitives The returned list of the 3d object primitives
+       \param[out] primitives The returned list of the 3D object primitives
                               (template type \e tf should be at least \e unsigned \e int).
-       \param[out] colors The returned list of the 3d object colors.
+       \param[out] colors The returned list of the 3D object colors.
        \param elevation The input elevation map.
-       \return The N vertices (xi,yi,zi) of the 3d object as a Nx3 CImg<float> image (0<=i<=N - 1).
+       \return The N vertices (xi,yi,zi) of the 3D object as a Nx3 CImg<float> image (0<=i<=N - 1).
        \par Example
        \code
        const CImg<float> img("reference.jpg");
@@ -39732,10 +39732,10 @@ namespace cimg_library_suffixed {
       return elevation3d(primitives,func,0,0,_width - 1.0f,_height - 1.0f,_width,_height);
     }
 
-    //! Generate the 3d projection planes of the image instance.
+    //! Generate the 3D projection planes of the image instance.
     /**
-       \param[out] primitives Primitives data of the returned 3d object.
-       \param[out] colors Colors data of the returned 3d object.
+       \param[out] primitives Primitives data of the returned 3D object.
+       \param[out] colors Colors data of the returned 3D object.
        \param x0 X-coordinate of the projection point.
        \param y0 Y-coordinate of the projection point.
        \param z0 Z-coordinate of the projection point.
@@ -39781,14 +39781,14 @@ namespace cimg_library_suffixed {
       return points;
     }
 
-    //! Generate a isoline of the image instance as a 3d object.
+    //! Generate a isoline of the image instance as a 3D object.
     /**
-       \param[out] primitives The returned list of the 3d object primitives
+       \param[out] primitives The returned list of the 3D object primitives
                               (template type \e tf should be at least \e unsigned \e int).
-       \param isovalue The returned list of the 3d object colors.
+       \param isovalue The returned list of the 3D object colors.
        \param size_x The number of subdivisions along the X-axis.
        \param size_y The number of subdisivions along the Y-axis.
-       \return The N vertices (xi,yi,zi) of the 3d object as a Nx3 CImg<float> image (0<=i<=N - 1).
+       \return The N vertices (xi,yi,zi) of the 3D object as a Nx3 CImg<float> image (0<=i<=N - 1).
        \par Example
        \code
        const CImg<float> img("reference.jpg");
@@ -39807,7 +39807,7 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
       if (_depth>1)
         throw CImgInstanceException(_cimg_instance
-                                    "get_isoline3d(): Instance is not a 2d image.",
+                                    "get_isoline3d(): Instance is not a 2D image.",
                                     cimg_instance);
       primitives.assign();
       if (is_empty()) return *this;
@@ -39822,15 +39822,15 @@ namespace cimg_library_suffixed {
       return vertices;
     }
 
-    //! Generate an isosurface of the image instance as a 3d object.
+    //! Generate an isosurface of the image instance as a 3D object.
     /**
-       \param[out] primitives The returned list of the 3d object primitives
+       \param[out] primitives The returned list of the 3D object primitives
                               (template type \e tf should be at least \e unsigned \e int).
-       \param isovalue The returned list of the 3d object colors.
+       \param isovalue The returned list of the 3D object colors.
        \param size_x Number of subdivisions along the X-axis.
        \param size_y Number of subdisivions along the Y-axis.
        \param size_z Number of subdisivions along the Z-axis.
-       \return The N vertices (xi,yi,zi) of the 3d object as a Nx3 CImg<float> image (0<=i<=N - 1).
+       \return The N vertices (xi,yi,zi) of the 3D object as a Nx3 CImg<float> image (0<=i<=N - 1).
        \par Example
        \code
        const CImg<float> img = CImg<unsigned char>("reference.jpg").resize(-100,-100,20);
@@ -39862,9 +39862,9 @@ namespace cimg_library_suffixed {
       return vertices;
     }
 
-    //! Compute 3d elevation of a function as a 3d object.
+    //! Compute 3D elevation of a function as a 3D object.
     /**
-       \param[out] primitives Primitives data of the resulting 3d object.
+       \param[out] primitives Primitives data of the resulting 3D object.
        \param func Elevation function. Is of type <tt>float (*func)(const float x,const float y)</tt>.
        \param x0 X-coordinate of the starting point.
        \param y0 Y-coordinate of the starting point.
@@ -39912,7 +39912,7 @@ namespace cimg_library_suffixed {
       return vertices;
     }
 
-    //! Compute 3d elevation of a function, as a 3d object \overloading.
+    //! Compute 3D elevation of a function, as a 3D object \overloading.
     template<typename tf>
     static CImg<floatT> elevation3d(CImgList<tf>& primitives, const char *const expression,
                                     const float x0, const float y0, const float x1, const float y1,
@@ -39921,9 +39921,9 @@ namespace cimg_library_suffixed {
       return elevation3d(primitives,func,x0,y0,x1,y1,size_x,size_y);
     }
 
-    //! Compute 0-isolines of a function, as a 3d object.
+    //! Compute 0-isolines of a function, as a 3D object.
     /**
-       \param[out] primitives Primitives data of the resulting 3d object.
+       \param[out] primitives Primitives data of the resulting 3D object.
        \param func Elevation function. Is of type <tt>float (*func)(const float x,const float y)</tt>.
        \param isovalue Isovalue to extract from function.
        \param x0 X-coordinate of the starting point.
@@ -40018,7 +40018,7 @@ namespace cimg_library_suffixed {
       return vertices>'x';
     }
 
-    //! Compute isolines of a function, as a 3d object \overloading.
+    //! Compute isolines of a function, as a 3D object \overloading.
     template<typename tf>
     static CImg<floatT> isoline3d(CImgList<tf>& primitives, const char *const expression, const float isovalue,
                                   const float x0, const float y0, const float x1, const float y1,
@@ -40039,9 +40039,9 @@ namespace cimg_library_suffixed {
       return 0;
     }
 
-    //! Compute isosurface of a function, as a 3d object.
+    //! Compute isosurface of a function, as a 3D object.
     /**
-       \param[out] primitives Primitives data of the resulting 3d object.
+       \param[out] primitives Primitives data of the resulting 3D object.
        \param func Implicit function. Is of type <tt>float (*func)(const float x, const float y, const float z)</tt>.
        \param isovalue Isovalue to extract.
        \param x0 X-coordinate of the starting point.
@@ -40473,7 +40473,7 @@ namespace cimg_library_suffixed {
       return vertices>'x';
     }
 
-    //! Compute isosurface of a function, as a 3d object \overloading.
+    //! Compute isosurface of a function, as a 3D object \overloading.
     template<typename tf>
     static CImg<floatT> isosurface3d(CImgList<tf>& primitives, const char *const expression, const float isovalue,
                                      const float x0, const float y0, const float z0,
@@ -40567,14 +40567,14 @@ namespace cimg_library_suffixed {
       }
     };
 
-    //! Generate a 3d box object.
+    //! Generate a 3D box object.
     /**
-       \param[out] primitives The returned list of the 3d object primitives
+       \param[out] primitives The returned list of the 3D object primitives
                               (template type \e tf should be at least \e unsigned \e int).
        \param size_x The width of the box (dimension along the X-axis).
        \param size_y The height of the box (dimension along the Y-axis).
        \param size_z The depth of the box (dimension along the Z-axis).
-       \return The N vertices (xi,yi,zi) of the 3d object as a Nx3 CImg<float> image (0<=i<=N - 1).
+       \return The N vertices (xi,yi,zi) of the 3D object as a Nx3 CImg<float> image (0<=i<=N - 1).
        \par Example
        \code
        CImgList<unsigned int> faces3d;
@@ -40593,14 +40593,14 @@ namespace cimg_library_suffixed {
                           0.,    0.,    0.,    0.,size_z,size_z,size_z,size_z);
     }
 
-    //! Generate a 3d cone.
+    //! Generate a 3D cone.
     /**
-       \param[out] primitives The returned list of the 3d object primitives
+       \param[out] primitives The returned list of the 3D object primitives
                               (template type \e tf should be at least \e unsigned \e int).
        \param radius The radius of the cone basis.
        \param size_z The cone's height.
        \param subdivisions The number of basis angular subdivisions.
-       \return The N vertices (xi,yi,zi) of the 3d object as a Nx3 CImg<float> image (0<=i<=N - 1).
+       \return The N vertices (xi,yi,zi) of the 3D object as a Nx3 CImg<float> image (0<=i<=N - 1).
        \par Example
        \code
        CImgList<unsigned int> faces3d;
@@ -40630,14 +40630,14 @@ namespace cimg_library_suffixed {
       return vertices>'x';
     }
 
-    //! Generate a 3d cylinder.
+    //! Generate a 3D cylinder.
     /**
-       \param[out] primitives The returned list of the 3d object primitives
+       \param[out] primitives The returned list of the 3D object primitives
                               (template type \e tf should be at least \e unsigned \e int).
        \param radius The radius of the cylinder basis.
        \param size_z The cylinder's height.
        \param subdivisions The number of basis angular subdivisions.
-       \return The N vertices (xi,yi,zi) of the 3d object as a Nx3 CImg<float> image (0<=i<=N - 1).
+       \return The N vertices (xi,yi,zi) of the 3D object as a Nx3 CImg<float> image (0<=i<=N - 1).
        \par Example
        \code
        CImgList<unsigned int> faces3d;
@@ -40669,15 +40669,15 @@ namespace cimg_library_suffixed {
       return vertices>'x';
     }
 
-    //! Generate a 3d torus.
+    //! Generate a 3D torus.
     /**
-       \param[out] primitives The returned list of the 3d object primitives
+       \param[out] primitives The returned list of the 3D object primitives
                               (template type \e tf should be at least \e unsigned \e int).
        \param radius1 The large radius.
        \param radius2 The small radius.
        \param subdivisions1 The number of angular subdivisions for the large radius.
        \param subdivisions2 The number of angular subdivisions for the small radius.
-       \return The N vertices (xi,yi,zi) of the 3d object as a Nx3 CImg<float> image (0<=i<=N - 1).
+       \return The N vertices (xi,yi,zi) of the 3D object as a Nx3 CImg<float> image (0<=i<=N - 1).
        \par Example
        \code
        CImgList<unsigned int> faces3d;
@@ -40717,15 +40717,15 @@ namespace cimg_library_suffixed {
       return vertices>'x';
     }
 
-    //! Generate a 3d XY-plane.
+    //! Generate a 3D XY-plane.
     /**
-       \param[out] primitives The returned list of the 3d object primitives
+       \param[out] primitives The returned list of the 3D object primitives
                               (template type \e tf should be at least \e unsigned \e int).
        \param size_x The width of the plane (dimension along the X-axis).
        \param size_y The height of the plane (dimensions along the Y-axis).
        \param subdivisions_x The number of planar subdivisions along the X-axis.
        \param subdivisions_y The number of planar subdivisions along the Y-axis.
-       \return The N vertices (xi,yi,zi) of the 3d object as a Nx3 CImg<float> image (0<=i<=N - 1).
+       \return The N vertices (xi,yi,zi) of the 3D object as a Nx3 CImg<float> image (0<=i<=N - 1).
        \par Example
        \code
        CImgList<unsigned int> faces3d;
@@ -40752,13 +40752,13 @@ namespace cimg_library_suffixed {
       return vertices>'x';
     }
 
-    //! Generate a 3d sphere.
+    //! Generate a 3D sphere.
     /**
-       \param[out] primitives The returned list of the 3d object primitives
+       \param[out] primitives The returned list of the 3D object primitives
                               (template type \e tf should be at least \e unsigned \e int).
        \param radius The radius of the sphere (dimension along the X-axis).
        \param subdivisions The number of recursive subdivisions from an initial icosahedron.
-       \return The N vertices (xi,yi,zi) of the 3d object as a Nx3 CImg<float> image (0<=i<=N - 1).
+       \return The N vertices (xi,yi,zi) of the 3D object as a Nx3 CImg<float> image (0<=i<=N - 1).
        \par Example
        \code
        CImgList<unsigned int> faces3d;
@@ -40823,13 +40823,13 @@ namespace cimg_library_suffixed {
       return (vertices>'x')*=radius;
     }
 
-    //! Generate a 3d ellipsoid.
+    //! Generate a 3D ellipsoid.
     /**
-       \param[out] primitives The returned list of the 3d object primitives
+       \param[out] primitives The returned list of the 3D object primitives
                               (template type \e tf should be at least \e unsigned \e int).
        \param tensor The tensor which gives the shape and size of the ellipsoid.
        \param subdivisions The number of recursive subdivisions from an initial stretched icosahedron.
-       \return The N vertices (xi,yi,zi) of the 3d object as a Nx3 CImg<float> image (0<=i<=N - 1).
+       \return The N vertices (xi,yi,zi) of the 3D object as a Nx3 CImg<float> image (0<=i<=N - 1).
        \par Example
        \code
        CImgList<unsigned int> faces3d;
@@ -40859,12 +40859,12 @@ namespace cimg_library_suffixed {
       return V*vertices;
     }
 
-    //! Convert 3d object into a CImg3d representation.
+    //! Convert 3D object into a CImg3d representation.
     /**
-       \param primitives Primitives data of the 3d object.
-       \param colors Colors data of the 3d object.
-       \param opacities Opacities data of the 3d object.
-       \param full_check Tells if full checking of the 3d object must be performed.
+       \param primitives Primitives data of the 3D object.
+       \param colors Colors data of the 3D object.
+       \param opacities Opacities data of the 3D object.
+       \param full_check Tells if full checking of the 3D object must be performed.
     **/
     template<typename tp, typename tc, typename to>
     CImg<T>& object3dtoCImg3d(const CImgList<tp>& primitives,
@@ -40874,7 +40874,7 @@ namespace cimg_library_suffixed {
       return get_object3dtoCImg3d(primitives,colors,opacities,full_check).move_to(*this);
     }
 
-    //! Convert 3d object into a CImg3d representation \overloading.
+    //! Convert 3D object into a CImg3d representation \overloading.
     template<typename tp, typename tc>
     CImg<T>& object3dtoCImg3d(const CImgList<tp>& primitives,
                               const CImgList<tc>& colors,
@@ -40882,19 +40882,19 @@ namespace cimg_library_suffixed {
       return get_object3dtoCImg3d(primitives,colors,full_check).move_to(*this);
     }
 
-    //! Convert 3d object into a CImg3d representation \overloading.
+    //! Convert 3D object into a CImg3d representation \overloading.
     template<typename tp>
     CImg<T>& object3dtoCImg3d(const CImgList<tp>& primitives,
                               const bool full_check=true) {
       return get_object3dtoCImg3d(primitives,full_check).move_to(*this);
     }
 
-    //! Convert 3d object into a CImg3d representation \overloading.
+    //! Convert 3D object into a CImg3d representation \overloading.
     CImg<T>& object3dtoCImg3d(const bool full_check=true) {
       return get_object3dtoCImg3d(full_check).move_to(*this);
     }
 
-    //! Convert 3d object into a CImg3d representation \newinstance.
+    //! Convert 3D object into a CImg3d representation \newinstance.
     template<typename tp, typename tc, typename to>
     CImg<floatT> get_object3dtoCImg3d(const CImgList<tp>& primitives,
                                       const CImgList<tc>& colors,
@@ -40903,7 +40903,7 @@ namespace cimg_library_suffixed {
       CImg<charT> error_message(1024);
       if (!is_object3d(primitives,colors,opacities,full_check,error_message))
         throw CImgInstanceException(_cimg_instance
-                                    "object3dtoCImg3d(): Invalid specified 3d object (%u,%u) (%s).",
+                                    "object3dtoCImg3d(): Invalid specified 3D object (%u,%u) (%s).",
                                     cimg_instance,_width,primitives._width,error_message.data());
       CImg<floatT> res(1,_size_object3dtoCImg3d(primitives,colors,opacities));
       float *ptrd = res._data;
@@ -41030,7 +41030,7 @@ namespace cimg_library_suffixed {
       return siz;
     }
 
-    //! Convert 3d object into a CImg3d representation \overloading.
+    //! Convert 3D object into a CImg3d representation \overloading.
     template<typename tp, typename tc>
     CImg<floatT> get_object3dtoCImg3d(const CImgList<tp>& primitives,
                                       const CImgList<tc>& colors,
@@ -41039,7 +41039,7 @@ namespace cimg_library_suffixed {
       return get_object3dtoCImg3d(primitives,colors,opacities,full_check);
     }
 
-    //! Convert 3d object into a CImg3d representation \overloading.
+    //! Convert 3D object into a CImg3d representation \overloading.
     template<typename tp>
     CImg<floatT> get_object3dtoCImg3d(const CImgList<tp>& primitives,
                                       const bool full_check=true) const {
@@ -41047,7 +41047,7 @@ namespace cimg_library_suffixed {
       return get_object3dtoCImg3d(primitives,colors,opacities,full_check);
     }
 
-    //! Convert 3d object into a CImg3d representation \overloading.
+    //! Convert 3D object into a CImg3d representation \overloading.
     CImg<floatT> get_object3dtoCImg3d(const bool full_check=true) const {
       CImgList<T> opacities, colors;
       CImgList<uintT> primitives(width(),1,1,1,1);
@@ -41055,12 +41055,12 @@ namespace cimg_library_suffixed {
       return get_object3dtoCImg3d(primitives,colors,opacities,full_check);
     }
 
-    //! Convert CImg3d representation into a 3d object.
+    //! Convert CImg3d representation into a 3D object.
     /**
-       \param[out] primitives Primitives data of the 3d object.
-       \param[out] colors Colors data of the 3d object.
-       \param[out] opacities Opacities data of the 3d object.
-       \param full_check Tells if full checking of the 3d object must be performed.
+       \param[out] primitives Primitives data of the 3D object.
+       \param[out] colors Colors data of the 3D object.
+       \param[out] opacities Opacities data of the 3D object.
+       \param full_check Tells if full checking of the 3D object must be performed.
     **/
     template<typename tp, typename tc, typename to>
     CImg<T>& CImg3dtoobject3d(CImgList<tp>& primitives,
@@ -41070,7 +41070,7 @@ namespace cimg_library_suffixed {
       return get_CImg3dtoobject3d(primitives,colors,opacities,full_check).move_to(*this);
     }
 
-    //! Convert CImg3d representation into a 3d object \newinstance.
+    //! Convert CImg3d representation into a 3D object \newinstance.
     template<typename tp, typename tc, typename to>
     CImg<T> get_CImg3dtoobject3d(CImgList<tp>& primitives,
                                  CImgList<tc>& colors,
@@ -41200,7 +41200,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a 3d point.
+    //! Draw a 3D point.
     /**
        \param x0 X-coordinate of the point.
        \param y0 Y-coordinate of the point.
@@ -41235,7 +41235,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a 2d point \simplification.
+    //! Draw a 2D point \simplification.
     template<typename tc>
     CImg<T>& draw_point(const int x0, const int y0,
                         const tc *const color, const float opacity=1) {
@@ -41268,7 +41268,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a 2d line.
+    //! Draw a 2D line.
     /**
        \param x0 X-coordinate of the starting line point.
        \param y0 Y-coordinate of the starting line point.
@@ -41361,7 +41361,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a 2d line, with z-buffering.
+    //! Draw a 2D line, with z-buffering.
     /**
        \param zbuffer Zbuffer image.
        \param x0 X-coordinate of the starting point.
@@ -41492,7 +41492,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a 3d line.
+    //! Draw a 3D line.
     /**
        \param x0 X-coordinate of the starting point.
        \param y0 Y-coordinate of the starting point.
@@ -41583,7 +41583,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a textured 2d line.
+    //! Draw a textured 2D line.
     /**
        \param x0 X-coordinate of the starting line point.
        \param y0 Y-coordinate of the starting line point.
@@ -41717,7 +41717,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a textured 2d line, with perspective correction.
+    //! Draw a textured 2D line, with perspective correction.
     /**
        \param x0 X-coordinate of the starting point.
        \param y0 Y-coordinate of the starting point.
@@ -41858,7 +41858,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a textured 2d line, with perspective correction and z-buffering.
+    //! Draw a textured 2D line, with perspective correction and z-buffering.
     /**
        \param zbuffer Z-buffer image.
        \param x0 X-coordinate of the starting point.
@@ -42079,7 +42079,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a 2d arrow.
+    //! Draw a 2D arrow.
     /**
        \param x0 X-coordinate of the starting arrow point (tail).
        \param y0 Y-coordinate of the starting arrow point (tail).
@@ -42114,7 +42114,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a 2d spline.
+    //! Draw a 2D spline.
     /**
        \param x0 X-coordinate of the starting curve point
        \param y0 Y-coordinate of the starting curve point
@@ -42130,7 +42130,7 @@ namespace cimg_library_suffixed {
        \param pattern An integer whose bits describe the line pattern.
        \param init_hatch If \c true, init hatch motif.
        \note
-       - The curve is a 2d cubic Bezier spline, from the set of specified starting/ending points
+       - The curve is a 2D cubic Bezier spline, from the set of specified starting/ending points
        and corresponding velocity vectors.
        - The spline is drawn as a serie of connected segments. The \p precision parameter sets the
        average number of pixels in each drawn segment.
@@ -42180,10 +42180,10 @@ namespace cimg_library_suffixed {
       return draw_line(ox,oy,x1,y1,color,opacity,pattern,false);
     }
 
-    //! Draw a 3d spline \overloading.
+    //! Draw a 3D spline \overloading.
     /**
        \note
-       - Similar to CImg::draw_spline() for a 3d spline in a volumetric image.
+       - Similar to CImg::draw_spline() for a 3D spline in a volumetric image.
     **/
     template<typename tc>
     CImg<T>& draw_spline(const int x0, const int y0, const int z0, const float u0, const float v0, const float w0,
@@ -42220,7 +42220,7 @@ namespace cimg_library_suffixed {
       return draw_line(ox,oy,oz,x1,y1,z1,color,opacity,pattern,false);
     }
 
-    //! Draw a textured 2d spline.
+    //! Draw a textured 2D spline.
     /**
        \param x0 X-coordinate of the starting curve point
        \param y0 Y-coordinate of the starting curve point
@@ -42738,7 +42738,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a filled 2d triangle.
+    //! Draw a filled 2D triangle.
     /**
        \param x0 X-coordinate of the first vertex.
        \param y0 Y-coordinate of the first vertex.
@@ -42763,7 +42763,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a outlined 2d triangle.
+    //! Draw a outlined 2D triangle.
     /**
        \param x0 X-coordinate of the first vertex.
        \param y0 Y-coordinate of the first vertex.
@@ -42792,7 +42792,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a filled 2d triangle, with z-buffering.
+    //! Draw a filled 2D triangle, with z-buffering.
     /**
        \param zbuffer Z-buffer image.
        \param x0 X-coordinate of the first vertex.
@@ -42915,7 +42915,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a Gouraud-shaded 2d triangle.
+    //! Draw a Gouraud-shaded 2D triangle.
     /**
        \param x0 X-coordinate of the first vertex in the image instance.
        \param y0 Y-coordinate of the first vertex in the image instance.
@@ -42990,7 +42990,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a Gouraud-shaded 2d triangle, with z-buffering \overloading.
+    //! Draw a Gouraud-shaded 2D triangle, with z-buffering \overloading.
     template<typename tz, typename tc>
     CImg<T>& draw_triangle(CImg<tz>& zbuffer,
                            const int x0, const int y0, const float z0,
@@ -43083,7 +43083,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a color-interpolated 2d triangle.
+    //! Draw a color-interpolated 2D triangle.
     /**
        \param x0 X-coordinate of the first vertex in the image instance.
        \param y0 Y-coordinate of the first vertex in the image instance.
@@ -43110,7 +43110,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a textured 2d triangle.
+    //! Draw a textured 2D triangle.
     /**
        \param x0 X-coordinate of the first vertex in the image instance.
        \param y0 Y-coordinate of the first vertex in the image instance.
@@ -43249,7 +43249,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a 2d textured triangle, with perspective correction.
+    //! Draw a 2D textured triangle, with perspective correction.
     template<typename tc>
     CImg<T>& draw_triangle(const int x0, const int y0, const float z0,
                            const int x1, const int y1, const float z1,
@@ -43384,7 +43384,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a textured 2d triangle, with perspective correction and z-buffering.
+    //! Draw a textured 2D triangle, with perspective correction and z-buffering.
     template<typename tz, typename tc>
     CImg<T>& draw_triangle(CImg<tz>& zbuffer,
                            const int x0, const int y0, const float z0,
@@ -43550,7 +43550,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a Phong-shaded 2d triangle.
+    //! Draw a Phong-shaded 2D triangle.
     /**
        \param x0 X-coordinate of the first vertex in the image instance.
        \param y0 Y-coordinate of the first vertex in the image instance.
@@ -43653,7 +43653,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a Phong-shaded 2d triangle, with z-buffering.
+    //! Draw a Phong-shaded 2D triangle, with z-buffering.
     template<typename tz, typename tc, typename tl>
     CImg<T>& draw_triangle(CImg<tz>& zbuffer,
                            const int x0, const int y0, const float z0,
@@ -43771,7 +43771,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a textured Gouraud-shaded 2d triangle.
+    //! Draw a textured Gouraud-shaded 2D triangle.
     /**
        \param x0 X-coordinate of the first vertex in the image instance.
        \param y0 Y-coordinate of the first vertex in the image instance.
@@ -43884,7 +43884,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a textured Gouraud-shaded 2d triangle, with perspective correction \overloading.
+    //! Draw a textured Gouraud-shaded 2D triangle, with perspective correction \overloading.
     template<typename tc>
     CImg<T>& draw_triangle(const int x0, const int y0, const float z0,
                            const int x1, const int y1, const float z1,
@@ -43997,7 +43997,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a textured Gouraud-shaded 2d triangle, with perspective correction and z-buffering \overloading.
+    //! Draw a textured Gouraud-shaded 2D triangle, with perspective correction and z-buffering \overloading.
     template<typename tz, typename tc>
     CImg<T>& draw_triangle(CImg<tz>& zbuffer,
                            const int x0, const int y0, const float z0,
@@ -44123,7 +44123,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a textured Phong-shaded 2d triangle.
+    //! Draw a textured Phong-shaded 2D triangle.
     /**
        \param x0 X-coordinate of the first vertex in the image instance.
        \param y0 Y-coordinate of the first vertex in the image instance.
@@ -44262,7 +44262,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a textured Phong-shaded 2d triangle, with perspective correction.
+    //! Draw a textured Phong-shaded 2D triangle, with perspective correction.
     template<typename tc, typename tl>
     CImg<T>& draw_triangle(const int x0, const int y0, const float z0,
                            const int x1, const int y1, const float z1,
@@ -44402,7 +44402,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a textured Phong-shaded 2d triangle, with perspective correction and z-buffering.
+    //! Draw a textured Phong-shaded 2D triangle, with perspective correction and z-buffering.
     template<typename tz, typename tc, typename tl>
     CImg<T>& draw_triangle(CImg<tz>& zbuffer,
                            const int x0, const int y0, const float z0,
@@ -44556,7 +44556,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a filled 4d rectangle.
+    //! Draw a filled 4D rectangle.
     /**
        \param x0 X-coordinate of the upper-left rectangle corner.
        \param y0 Y-coordinate of the upper-left rectangle corner.
@@ -44605,7 +44605,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a filled 3d rectangle.
+    //! Draw a filled 3D rectangle.
     /**
        \param x0 X-coordinate of the upper-left rectangle corner.
        \param y0 Y-coordinate of the upper-left rectangle corner.
@@ -44629,7 +44629,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw an outlined 3d rectangle \overloading.
+    //! Draw an outlined 3D rectangle \overloading.
     template<typename tc>
     CImg<T>& draw_rectangle(const int x0, const int y0, const int z0,
                             const int x1, const int y1, const int z1,
@@ -44649,7 +44649,7 @@ namespace cimg_library_suffixed {
 	draw_line(x0,y1,z0,x0,y1,z1,color,opacity,pattern,true);
     }
 
-    //! Draw a filled 2d rectangle.
+    //! Draw a filled 2D rectangle.
     /**
        \param x0 X-coordinate of the upper-left rectangle corner.
        \param y0 Y-coordinate of the upper-left rectangle corner.
@@ -44665,7 +44665,7 @@ namespace cimg_library_suffixed {
       return draw_rectangle(x0,y0,0,x1,y1,_depth - 1,color,opacity);
     }
 
-    //! Draw a outlined 2d rectangle \overloading.
+    //! Draw a outlined 2D rectangle \overloading.
     template<typename tc>
     CImg<T>& draw_rectangle(const int x0, const int y0,
                             const int x1, const int y1,
@@ -44685,7 +44685,7 @@ namespace cimg_library_suffixed {
         draw_line(nx0,ny1 - 1,nx0,ny0 + 1,color,opacity,pattern,false);
     }
 
-    //! Draw a filled 2d polygon.
+    //! Draw a filled 2D polygon.
     /**
        \param points Set of polygon vertices.
        \param color Pointer to \c spectrum() consecutive values of type \c T, defining the drawing color.
@@ -44764,7 +44764,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a outlined 2d polygon \overloading.
+    //! Draw a outlined 2D polygon \overloading.
     template<typename t, typename tc>
     CImg<T>& draw_polygon(const CImg<t>& points,
                           const tc *const color, const float opacity, const unsigned int pattern) {
@@ -44775,7 +44775,7 @@ namespace cimg_library_suffixed {
         throw CImgArgumentException(_cimg_instance
                                     "draw_polygon(): Invalid specified point set.",
                                     cimg_instance);
-      case 2 : { // 2d version.
+      case 2 : { // 2D version.
         CImg<intT> npoints(points._width,2);
         int x = npoints(0,0) = (int)points(0,0), y = npoints(0,1) = (int)points(0,1);
         unsigned int nb_points = 1;
@@ -44793,7 +44793,7 @@ namespace cimg_library_suffixed {
         }
         draw_line(ox,oy,x0,y0,color,opacity,pattern,false);
       } break;
-      default : { // 3d version.
+      default : { // 3D version.
         CImg<intT> npoints(points._width,3);
         int
           x = npoints(0,0) = (int)points(0,0),
@@ -44821,7 +44821,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a filled 2d ellipse.
+    //! Draw a filled 2D ellipse.
     /**
        \param x0 X-coordinate of the ellipse center.
        \param y0 Y-coordinate of the ellipse center.
@@ -44837,7 +44837,7 @@ namespace cimg_library_suffixed {
       return _draw_ellipse(x0,y0,r1,r2,angle,color,opacity,0U);
     }
 
-    //! Draw a filled 2d ellipse \overloading.
+    //! Draw a filled 2D ellipse \overloading.
     /**
        \param x0 X-coordinate of the ellipse center.
        \param y0 Y-coordinate of the ellipse center.
@@ -44855,7 +44855,7 @@ namespace cimg_library_suffixed {
                           color,opacity);
     }
 
-    //! Draw an outlined 2d ellipse.
+    //! Draw an outlined 2D ellipse.
     /**
        \param x0 X-coordinate of the ellipse center.
        \param y0 Y-coordinate of the ellipse center.
@@ -44873,7 +44873,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw an outlined 2d ellipse \overloading.
+    //! Draw an outlined 2D ellipse \overloading.
     /**
        \param x0 X-coordinate of the ellipse center.
        \param y0 Y-coordinate of the ellipse center.
@@ -44955,7 +44955,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a filled 2d circle.
+    //! Draw a filled 2D circle.
     /**
        \param x0 X-coordinate of the circle center.
        \param y0 Y-coordinate of the circle center.
@@ -44994,7 +44994,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw an outlined 2d circle.
+    //! Draw an outlined 2D circle.
     /**
        \param x0 X-coordinate of the circle center.
        \param y0 Y-coordinate of the circle center.
@@ -45432,9 +45432,9 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a 2d vector field.
+    //! Draw a 2D vector field.
     /**
-       \param flow Image of 2d vectors used as input data.
+       \param flow Image of 2D vectors used as input data.
        \param color Image of spectrum()-D vectors corresponding to the color of each arrow.
        \param opacity Drawing opacity.
        \param sampling Length (in pixels) between each arrow.
@@ -45451,9 +45451,9 @@ namespace cimg_library_suffixed {
       return draw_quiver(flow,CImg<t2>(color,_spectrum,1,1,1,true),opacity,sampling,factor,is_arrow,pattern);
     }
 
-    //! Draw a 2d vector field, using a field of colors.
+    //! Draw a 2D vector field, using a field of colors.
     /**
-       \param flow Image of 2d vectors used as input data.
+       \param flow Image of 2D vectors used as input data.
        \param color Image of spectrum()-D vectors corresponding to the color of each arrow.
        \param opacity Opacity of the drawing.
        \param sampling Length (in pixels) between each arrow.
@@ -45679,7 +45679,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw 2d grid.
+    //! Draw 2D grid.
     /**
        \param values_x X-coordinates of the vertical lines.
        \param values_y Y-coordinates of the horizontal lines.
@@ -45704,7 +45704,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw 2d grid \simplification.
+    //! Draw 2D grid \simplification.
     template<typename tc>
     CImg<T>& draw_grid(const float delta_x,  const float delta_y,
                        const float offsetx, const float offsety,
@@ -45730,7 +45730,7 @@ namespace cimg_library_suffixed {
       return draw_grid(seqx,seqy,color,opacity,pattern_x,pattern_y);
     }
 
-    //! Draw 1d graph.
+    //! Draw 1D graph.
     /**
        \param data Image containing the graph values I = f(x).
        \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
@@ -45916,7 +45916,7 @@ namespace cimg_library_suffixed {
       return diff<=tolerance2;
     }
 
-    //! Draw filled 3d region with the flood fill algorithm.
+    //! Draw filled 3D region with the flood fill algorithm.
     /**
        \param x0 X-coordinate of the starting point of the region to fill.
        \param y0 Y-coordinate of the starting point of the region to fill.
@@ -46057,7 +46057,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw filled 3d region with the flood fill algorithm \simplification.
+    //! Draw filled 3D region with the flood fill algorithm \simplification.
     template<typename tc>
     CImg<T>& draw_fill(const int x0, const int y0, const int z0,
                        const tc *const color, const float opacity=1,
@@ -46066,7 +46066,7 @@ namespace cimg_library_suffixed {
       return draw_fill(x0,y0,z0,color,opacity,tmp,tolerance,is_high_connexity);
     }
 
-    //! Draw filled 2d region with the flood fill algorithm \simplification.
+    //! Draw filled 2D region with the flood fill algorithm \simplification.
     template<typename tc>
     CImg<T>& draw_fill(const int x0, const int y0,
                        const tc *const color, const float opacity=1,
@@ -46131,7 +46131,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a quadratic Mandelbrot or Julia 2d fractal.
+    //! Draw a quadratic Mandelbrot or Julia 2D fractal.
     /**
        \param x0 X-coordinate of the upper-left pixel.
        \param y0 Y-coordinate of the upper-left pixel.
@@ -46221,7 +46221,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a quadratic Mandelbrot or Julia 2d fractal \overloading.
+    //! Draw a quadratic Mandelbrot or Julia 2D fractal \overloading.
     template<typename tc>
     CImg<T>& draw_mandelbrot(const CImg<tc>& colormap, const float opacity=1,
                              const double z0r=-2, const double z0i=-2, const double z1r=2, const double z1i=2,
@@ -46233,7 +46233,7 @@ namespace cimg_library_suffixed {
                              z0r,z0i,z1r,z1i,iteration_max,is_normalized_iteration,is_julia_set,param_r,param_i);
     }
 
-    //! Draw a 1d gaussian function.
+    //! Draw a 1D gaussian function.
     /**
        \param xc X-coordinate of the gaussian center.
        \param sigma Standard variation of the gaussian distribution.
@@ -46261,7 +46261,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a 2d gaussian function.
+    //! Draw a 2D gaussian function.
     /**
        \param xc X-coordinate of the gaussian center.
        \param yc Y-coordinate of the gaussian center.
@@ -46304,7 +46304,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a 2d gaussian function \overloading.
+    //! Draw a 2D gaussian function \overloading.
     template<typename tc>
     CImg<T>& draw_gaussian(const int xc, const int yc, const float r1, const float r2, const float ru, const float rv,
                            const tc *const color, const float opacity=1) {
@@ -46316,14 +46316,14 @@ namespace cimg_library_suffixed {
       return draw_gaussian(xc,yc,tensor,color,opacity);
     }
 
-    //! Draw a 2d gaussian function \overloading.
+    //! Draw a 2D gaussian function \overloading.
     template<typename tc>
     CImg<T>& draw_gaussian(const float xc, const float yc, const float sigma,
                            const tc *const color, const float opacity=1) {
       return draw_gaussian(xc,yc,CImg<floatT>::diagonal(sigma,sigma),color,opacity);
     }
 
-    //! Draw a 3d gaussian function \overloading.
+    //! Draw a 3D gaussian function \overloading.
     template<typename t, typename tc>
     CImg<T>& draw_gaussian(const float xc, const float yc, const float zc, const CImg<t>& tensor,
                            const tc *const color, const float opacity=1) {
@@ -46352,19 +46352,19 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a 3d gaussian function \overloading.
+    //! Draw a 3D gaussian function \overloading.
     template<typename tc>
     CImg<T>& draw_gaussian(const float xc, const float yc, const float zc, const float sigma,
                            const tc *const color, const float opacity=1) {
       return draw_gaussian(xc,yc,zc,CImg<floatT>::diagonal(sigma,sigma,sigma),color,opacity);
     }
 
-    //! Draw a 3d object.
+    //! Draw a 3D object.
     /**
-       \param x0 X-coordinate of the 3d object position
-       \param y0 Y-coordinate of the 3d object position
-       \param z0 Z-coordinate of the 3d object position
-       \param vertices Image Nx3 describing 3d point coordinates
+       \param x0 X-coordinate of the 3D object position
+       \param y0 Y-coordinate of the 3D object position
+       \param z0 Z-coordinate of the 3D object position
+       \param vertices Image Nx3 describing 3D point coordinates
        \param primitives List of P primitives
        \param colors List of P color (or textures)
        \param opacities Image or list of P opacities
@@ -46390,7 +46390,7 @@ namespace cimg_library_suffixed {
                            specular_lightness,specular_shininess,CImg<floatT>::empty());
     }
 
-    //! Draw a 3d object \simplification.
+    //! Draw a 3D object \simplification.
     template<typename tp, typename tf, typename tc, typename to, typename tz>
     CImg<T>& draw_object3d(const float x0, const float y0, const float z0,
                            const CImg<tp>& vertices, const CImgList<tf>& primitives,
@@ -46436,7 +46436,7 @@ namespace cimg_library_suffixed {
     }
 #endif
 
-    //! Draw a 3d object \simplification.
+    //! Draw a 3D object \simplification.
     template<typename tp, typename tf, typename tc, typename to>
     CImg<T>& draw_object3d(const float x0, const float y0, const float z0,
                            const CImg<tp>& vertices, const CImgList<tf>& primitives,
@@ -46450,7 +46450,7 @@ namespace cimg_library_suffixed {
                            specular_lightness,specular_shininess,CImg<floatT>::empty());
     }
 
-    //! Draw a 3d object \simplification.
+    //! Draw a 3D object \simplification.
     template<typename tp, typename tf, typename tc, typename to, typename tz>
     CImg<T>& draw_object3d(const float x0, const float y0, const float z0,
                            const CImg<tp>& vertices, const CImgList<tf>& primitives,
@@ -46496,7 +46496,7 @@ namespace cimg_library_suffixed {
     }
 #endif
 
-    //! Draw a 3d object \simplification.
+    //! Draw a 3D object \simplification.
     template<typename tp, typename tf, typename tc>
     CImg<T>& draw_object3d(const float x0, const float y0, const float z0,
                            const CImg<tp>& vertices, const CImgList<tf>& primitives,
@@ -46510,7 +46510,7 @@ namespace cimg_library_suffixed {
                            specular_lightness,specular_shininess,CImg<floatT>::empty());
     }
 
-    //! Draw a 3d object \simplification.
+    //! Draw a 3D object \simplification.
     template<typename tp, typename tf, typename tc, typename tz>
     CImg<T>& draw_object3d(const float x0, const float y0, const float z0,
                            const CImg<tp>& vertices, const CImgList<tf>& primitives,
@@ -46598,7 +46598,7 @@ namespace cimg_library_suffixed {
       CImg<char> error_message(1024);
       if (!vertices.is_object3d(primitives,colors,opacities,false,error_message))
         throw CImgArgumentException(_cimg_instance
-                                    "draw_object3d(): Invalid specified 3d object (%u,%u) (%s).",
+                                    "draw_object3d(): Invalid specified 3D object (%u,%u) (%s).",
                                     cimg_instance,vertices._width,primitives._width,error_message.data());
 #ifndef cimg_use_board
       if (pboard) return *this;
@@ -46662,7 +46662,7 @@ namespace cimg_library_suffixed {
         }
       }
 
-      // Compute 3d to 2d projection.
+      // Compute 3D to 2D projection.
       CImg<tpfloat> projections(vertices._width,2);
       tpfloat parallzmin = cimg::type<tpfloat>::max();
       const float absfocale = focale?cimg::abs(focale):0;
@@ -48033,7 +48033,7 @@ namespace cimg_library_suffixed {
             }
         } break;
 
-        case 4 : // When mouse is over the 3d view.
+        case 4 : // When mouse is over the 3D view.
           if (is_view3d && points3d) {
             X3d = mx - width()*disp.width()/(width() + (depth()>1?depth():0));
             Y3d = my - height()*disp.height()/(height() + (depth()>1?depth():0));
@@ -48110,7 +48110,7 @@ namespace cimg_library_suffixed {
             points3d.assign();
           }
 
-          if (is_view3d && _depth>1 && !view3d) { // Create 3d view for volumetric images.
+          if (is_view3d && _depth>1 && !view3d) { // Create 3D view for volumetric images.
             const unsigned int
               _x3d = (unsigned int)cimg::round((float)_width*visu0._width/(_width + _depth),1,1),
               _y3d = (unsigned int)cimg::round((float)_height*visu0._height/(_height + _depth),1,1),
@@ -48812,7 +48812,7 @@ namespace cimg_library_suffixed {
         else if (!cimg::strcasecmp(ext,"dlm") ||
                  !cimg::strcasecmp(ext,"txt")) load_dlm(filename);
 
-        // 2d binary formats
+        // 2D binary formats
         else if (!cimg::strcasecmp(ext,"bmp")) load_bmp(filename);
         else if (!cimg::strcasecmp(ext,"jpg") ||
                  !cimg::strcasecmp(ext,"jpeg") ||
@@ -48841,7 +48841,7 @@ namespace cimg_library_suffixed {
                  !cimg::strcasecmp(ext,"srf")) load_dcraw_external(filename);
         else if (!cimg::strcasecmp(ext,"gif")) load_gif_external(filename);
 
-        // 3d binary formats
+        // 3D binary formats
         else if (!cimg::strcasecmp(ext,"dcm") ||
                  !cimg::strcasecmp(ext,"dicom")) load_medcon_external(filename);
         else if (!cimg::strcasecmp(ext,"hdr") ||
@@ -49713,17 +49713,17 @@ namespace cimg_library_suffixed {
       std::fgetc(nfile);
 
       switch (ppm_type) {
-      case 1 : { // 2d b&w ascii.
+      case 1 : { // 2D b&w ascii.
         assign(W,H,1,1);
         T* ptrd = _data;
         cimg_foroff(*this,off) { if (std::fscanf(nfile,"%d",&rval)>0) *(ptrd++) = (T)(rval?0:255); else break; }
       } break;
-      case 2 : { // 2d grey ascii.
+      case 2 : { // 2D grey ascii.
         assign(W,H,1,1);
         T* ptrd = _data;
         cimg_foroff(*this,off) { if (std::fscanf(nfile,"%d",&rval)>0) *(ptrd++) = (T)rval; else break; }
       } break;
-      case 3 : { // 2d color ascii.
+      case 3 : { // 2D color ascii.
         assign(W,H,1,3);
         T *ptrd = data(0,0,0,0), *ptr_g = data(0,0,0,1), *ptr_b = data(0,0,0,2);
         cimg_forXY(*this,x,y) {
@@ -49732,7 +49732,7 @@ namespace cimg_library_suffixed {
           } else break;
         }
       } break;
-      case 4 : { // 2d b&w binary (support 3D PINK extension).
+      case 4 : { // 2D b&w binary (support 3D PINK extension).
         CImg<ucharT> raw;
         assign(W,H,D,1);
         T *ptrd = data(0,0,0,0);
@@ -49750,7 +49750,7 @@ namespace cimg_library_suffixed {
           }
         }
       } break;
-      case 5 : case 7 : { // 2d/3d grey binary (support 3D PINK extension).
+      case 5 : case 7 : { // 2D/3D grey binary (support 3D PINK extension).
         if (colormax<256) { // 8 bits.
           CImg<ucharT> raw;
           assign(W,H,D,1);
@@ -49776,7 +49776,7 @@ namespace cimg_library_suffixed {
           }
         }
       } break;
-      case 6 : { // 2d color binary.
+      case 6 : { // 2D color binary.
         if (colormax<256) { // 8 bits.
           CImg<ucharT> raw;
           assign(W,H,1,3);
@@ -49816,7 +49816,7 @@ namespace cimg_library_suffixed {
           }
         }
       } break;
-      case 8 : { // 2d/3d grey binary with int32 integers (PINK extension).
+      case 8 : { // 2D/3D grey binary with int32 integers (PINK extension).
         CImg<intT> raw;
         assign(W,H,D,1);
         T *ptrd = data(0,0,0,0);
@@ -49828,7 +49828,7 @@ namespace cimg_library_suffixed {
           for (ulongT off = (ulongT)raw._width; off; --off) *(ptrd++) = (T)*(ptrs++);
         }
       } break;
-      case 9 : { // 2d/3d grey binary with float values (PINK extension).
+      case 9 : { // 2D/3D grey binary with float values (PINK extension).
         CImg<floatT> raw;
         assign(W,H,D,1);
         T *ptrd = data(0,0,0,0);
@@ -50960,7 +50960,7 @@ namespace cimg_library_suffixed {
       case 8 : _cimg_load_pandore_case(4,dims[3],dims[2],dims[1],1,unsigned char,unsigned char,unsigned char,1); break;
       case 9 : _cimg_load_pandore_case(4,dims[3],dims[2],dims[1],1,long,int,short,4); break;
       case 10 : _cimg_load_pandore_case(4,dims[3],dims[2],dims[1],1,double,float,float,4); break;
-      case 11 : { // Region 1d
+      case 11 : { // Region 1D
         cimg::fread(dims,3,nfile);
         if (endian) cimg::invert_endianness(dims,3);
         assign(dims[1],1,1,1);
@@ -50993,7 +50993,7 @@ namespace cimg_library_suffixed {
         }
       }
         break;
-      case 12 : { // Region 2d
+      case 12 : { // Region 2D
         cimg::fread(dims,4,nfile);
         if (endian) cimg::invert_endianness(dims,4);
         assign(dims[2],dims[1],1,1);
@@ -51026,7 +51026,7 @@ namespace cimg_library_suffixed {
         }
       }
         break;
-      case 13 : { // Region 3d
+      case 13 : { // Region 3D
         cimg::fread(dims,5,nfile);
         if (endian) cimg::invert_endianness(dims,5);
         assign(dims[3],dims[2],dims[1],1);
@@ -51079,17 +51079,17 @@ namespace cimg_library_suffixed {
       case 32 : _cimg_load_pandore_case(4,dims[3],dims[2],dims[1],dims[0],unsigned long,unsigned int,unsigned short,4);
         break;
       case 33 : _cimg_load_pandore_case(4,dims[3],dims[2],dims[1],dims[0],double,float,float,4); break;
-      case 34 : { // Points 1d
+      case 34 : { // Points 1D
         cimg::fread(ptbuf,1,nfile);
         if (endian) cimg::invert_endianness(ptbuf,1);
         assign(1); (*this)(0) = (T)ptbuf[0];
       } break;
-      case 35 : { // Points 2d
+      case 35 : { // Points 2D
         cimg::fread(ptbuf,2,nfile);
         if (endian) cimg::invert_endianness(ptbuf,2);
         assign(2); (*this)(0) = (T)ptbuf[1]; (*this)(1) = (T)ptbuf[0];
       } break;
-      case 36 : { // Points 3d
+      case 36 : { // Points 3D
         cimg::fread(ptbuf,3,nfile);
         if (endian) cimg::invert_endianness(ptbuf,3);
         assign(3); (*this)(0) = (T)ptbuf[2]; (*this)(1) = (T)ptbuf[1]; (*this)(2) = (T)ptbuf[0];
@@ -51269,10 +51269,10 @@ namespace cimg_library_suffixed {
                                     first_frame,last_frame,step_frame,yuv2rgb).get_append(axis);
     }
 
-    //! Load 3d object from a .OFF file.
+    //! Load 3D object from a .OFF file.
     /**
-        \param[out] primitives Primitives data of the 3d object.
-        \param[out] colors Colors data of the 3d object.
+        \param[out] primitives Primitives data of the 3D object.
+        \param[out] colors Colors data of the 3D object.
         \param filename Filename, as a C-string.
     **/
     template<typename tf, typename tc>
@@ -51280,19 +51280,19 @@ namespace cimg_library_suffixed {
       return _load_off(primitives,colors,0,filename);
     }
 
-    //! Load 3d object from a .OFF file \newinstance.
+    //! Load 3D object from a .OFF file \newinstance.
     template<typename tf, typename tc>
     static CImg<T> get_load_off(CImgList<tf>& primitives, CImgList<tc>& colors, const char *const filename) {
       return CImg<T>().load_off(primitives,colors,filename);
     }
 
-    //! Load 3d object from a .OFF file \overloading.
+    //! Load 3D object from a .OFF file \overloading.
     template<typename tf, typename tc>
     CImg<T>& load_off(CImgList<tf>& primitives, CImgList<tc>& colors, std::FILE *const file) {
       return _load_off(primitives,colors,file,0);
     }
 
-    //! Load 3d object from a .OFF file \newinstance.
+    //! Load 3D object from a .OFF file \newinstance.
     template<typename tf, typename tc>
     static CImg<T> get_load_off(CImgList<tf>& primitives, CImgList<tc>& colors, std::FILE *const file) {
       return CImg<T>().load_off(primitives,colors,file);
@@ -52308,16 +52308,16 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Display object 3d in an interactive window.
+    //! Display object 3D in an interactive window.
     /**
        \param disp Display window.
-       \param vertices Vertices data of the 3d object.
-       \param primitives Primitives data of the 3d object.
-       \param colors Colors data of the 3d object.
-       \param opacities Opacities data of the 3d object.
-       \param centering Tells if the 3d object must be centered for the display.
+       \param vertices Vertices data of the 3D object.
+       \param primitives Primitives data of the 3D object.
+       \param colors Colors data of the 3D object.
+       \param opacities Opacities data of the 3D object.
+       \param centering Tells if the 3D object must be centered for the display.
        \param render_static Rendering mode.
-       \param render_motion Rendering mode, when the 3d object is moved.
+       \param render_motion Rendering mode, when the 3D object is moved.
        \param is_double_sided Tells if the object primitives are double-sided.
        \param focale Focale
        \param light_x X-coordinate of the light source.
@@ -52325,8 +52325,8 @@ namespace cimg_library_suffixed {
        \param light_z Z-coordinate of the light source.
        \param specular_lightness Amount of specular light.
        \param specular_shininess Shininess of the object material.
-       \param display_axes Tells if the 3d axes are displayed.
-       \param pose_matrix Pointer to 12 values, defining a 3d pose (as a 4x3 matrix).
+       \param display_axes Tells if the 3D axes are displayed.
+       \param pose_matrix Pointer to 12 values, defining a 3D pose (as a 4x3 matrix).
        \param exit_on_anykey Exit function when any key is pressed.
     **/
     template<typename tp, typename tf, typename tc, typename to>
@@ -52348,7 +52348,7 @@ namespace cimg_library_suffixed {
 			       display_axes,pose_matrix,exit_on_anykey);
     }
 
-    //! Display object 3d in an interactive window \simplification.
+    //! Display object 3D in an interactive window \simplification.
     template<typename tp, typename tf, typename tc, typename to>
     const CImg<T>& display_object3d(const char *const title,
                                     const CImg<tp>& vertices,
@@ -52369,7 +52369,7 @@ namespace cimg_library_suffixed {
 			       display_axes,pose_matrix,exit_on_anykey);
     }
 
-    //! Display object 3d in an interactive window \simplification.
+    //! Display object 3D in an interactive window \simplification.
     template<typename tp, typename tf, typename tc>
     const CImg<T>& display_object3d(CImgDisplay &disp,
                                     const CImg<tp>& vertices,
@@ -52388,7 +52388,7 @@ namespace cimg_library_suffixed {
 			      display_axes,pose_matrix,exit_on_anykey);
     }
 
-    //! Display object 3d in an interactive window \simplification.
+    //! Display object 3D in an interactive window \simplification.
     template<typename tp, typename tf, typename tc>
     const CImg<T>& display_object3d(const char *const title,
 				    const CImg<tp>& vertices,
@@ -52407,7 +52407,7 @@ namespace cimg_library_suffixed {
                               display_axes,pose_matrix,exit_on_anykey);
     }
 
-    //! Display object 3d in an interactive window \simplification.
+    //! Display object 3D in an interactive window \simplification.
     template<typename tp, typename tf>
     const CImg<T>& display_object3d(CImgDisplay &disp,
                                     const CImg<tp>& vertices,
@@ -52426,7 +52426,7 @@ namespace cimg_library_suffixed {
     }
 
 
-    //! Display object 3d in an interactive window \simplification.
+    //! Display object 3D in an interactive window \simplification.
     template<typename tp, typename tf>
     const CImg<T>& display_object3d(const char *const title,
 				    const CImg<tp>& vertices,
@@ -52444,7 +52444,7 @@ namespace cimg_library_suffixed {
                               display_axes,pose_matrix,exit_on_anykey);
     }
 
-    //! Display object 3d in an interactive window \simplification.
+    //! Display object 3D in an interactive window \simplification.
     template<typename tp>
     const CImg<T>& display_object3d(CImgDisplay &disp,
                                     const CImg<tp>& vertices,
@@ -52461,7 +52461,7 @@ namespace cimg_library_suffixed {
                               display_axes,pose_matrix,exit_on_anykey);
     }
 
-    //! Display object 3d in an interactive window \simplification.
+    //! Display object 3D in an interactive window \simplification.
     template<typename tp>
     const CImg<T>& display_object3d(const char *const title,
 				    const CImg<tp>& vertices,
@@ -52511,7 +52511,7 @@ namespace cimg_library_suffixed {
       CImg<charT> error_message(1024);
       if (!vertices.is_object3d(primitives,colors,opacities,true,error_message))
         throw CImgArgumentException(_cimg_instance
-                                    "display_object3d(): Invalid specified 3d object (%u,%u) (%s).",
+                                    "display_object3d(): Invalid specified 3D object (%u,%u) (%s).",
                                     cimg_instance,vertices._width,primitives._width,error_message.data());
       if (vertices._width && !primitives) {
         CImgList<tf> nprimitives(vertices._width,1,1,1,1);
@@ -52527,7 +52527,7 @@ namespace cimg_library_suffixed {
                                    pixel_type(),vertices._width,primitives._width);
       } else if (title) disp.set_title("%s",title);
 
-      // Init 3d objects and compute object statistics
+      // Init 3D objects and compute object statistics
       CImg<floatT>
         pose,
         rotated_vertices(vertices._width,3),
@@ -52599,7 +52599,7 @@ namespace cimg_library_suffixed {
           redraw = true;
         }
 
-        // Rotate and draw 3d object
+        // Rotate and draw 3D object
         if (redraw) {
           const float
             r00 = pose(0,0), r10 = pose(1,0), r20 = pose(2,0), r30 = pose(3,0),
@@ -52764,7 +52764,7 @@ namespace cimg_library_suffixed {
             else zbuffer.assign(visu0.width(),visu0.height(),1,1,0);
             disp.set_key(key,false); key = 0; redraw = true;
           } break;
-        case cimg::keyA : if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) { // Show/hide 3d axes.
+        case cimg::keyA : if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) { // Show/hide 3D axes.
             ndisplay_axes = !ndisplay_axes;
             disp.set_key(key,false); key = 0; redraw = true;
           } break;
@@ -52907,7 +52907,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Display 1d graph in an interactive window.
+    //! Display 1D graph in an interactive window.
     /**
        \param disp Display window.
        \param plot_type Plot type. Can be <tt>{ 0=points | 1=segments | 2=splines | 3=bars }</tt>.
@@ -52928,7 +52928,7 @@ namespace cimg_library_suffixed {
       return _display_graph(disp,0,plot_type,vertex_type,labelx,xmin,xmax,labely,ymin,ymax,exit_on_anykey);
     }
 
-    //! Display 1d graph in an interactive window \overloading.
+    //! Display 1D graph in an interactive window \overloading.
     const CImg<T>& display_graph(const char *const title=0,
                                  const unsigned int plot_type=1, const unsigned int vertex_type=1,
                                  const char *const labelx=0, const double xmin=0, const double xmax=0,
@@ -53120,7 +53120,7 @@ namespace cimg_library_suffixed {
                !cimg::strcasecmp(ext,"h") ||
                !cimg::strcasecmp(ext,"c")) return save_cpp(fn);
 
-      // 2d binary formats
+      // 2D binary formats
       else if (!cimg::strcasecmp(ext,"bmp")) return save_bmp(fn);
       else if (!cimg::strcasecmp(ext,"jpg") ||
                !cimg::strcasecmp(ext,"jpeg") ||
@@ -53139,7 +53139,7 @@ namespace cimg_library_suffixed {
       else if (!cimg::strcasecmp(ext,"tif") ||
                !cimg::strcasecmp(ext,"tiff")) return save_tiff(fn);
 
-      // 3d binary formats
+      // 3D binary formats
       else if (!cimg::strcasecmp(ext,"cimgz")) return save_cimg(fn,true);
       else if (!cimg::strcasecmp(ext,"cimg") || !*ext) return save_cimg(fn,false);
       else if (!cimg::strcasecmp(ext,"dcm")) return save_medcon_external(fn);
@@ -53963,7 +53963,7 @@ namespace cimg_library_suffixed {
 
       if (!cimg::type<T>::is_float() && sizeof(T)==1 && _depth<2) // Can be saved as regular PNM file.
         _save_pnm(file,filename,0);
-      else if (!cimg::type<T>::is_float() && sizeof(T)==1) { // Save as extended P5 file: Binary byte-valued 3d.
+      else if (!cimg::type<T>::is_float() && sizeof(T)==1) { // Save as extended P5 file: Binary byte-valued 3D.
         std::fprintf(nfile,"P5\n%u %u %u\n255\n",_width,_height,_depth);
         CImg<ucharT> buf((unsigned int)buf_size);
         for (longT to_write = (longT)width()*height()*depth(); to_write>0; ) {
@@ -53973,7 +53973,7 @@ namespace cimg_library_suffixed {
           cimg::fwrite(buf._data,N,nfile);
           to_write-=N;
         }
-      } else if (!cimg::type<T>::is_float()) { // Save as P8: Binary int32-valued 3d.
+      } else if (!cimg::type<T>::is_float()) { // Save as P8: Binary int32-valued 3D.
         if (_depth>1) std::fprintf(nfile,"P8\n%u %u %u\n%d\n",_width,_height,_depth,(int)max());
         else std::fprintf(nfile,"P8\n%u %u\n%d\n",_width,_height,(int)max());
         CImg<intT> buf((unsigned int)buf_size);
@@ -53984,7 +53984,7 @@ namespace cimg_library_suffixed {
           cimg::fwrite(buf._data,N,nfile);
           to_write-=N;
         }
-      } else { // Save as P9: Binary float-valued 3d.
+      } else { // Save as P9: Binary float-valued 3D.
         if (_depth>1) std::fprintf(nfile,"P9\n%u %u %u\n%g\n",_width,_height,_depth,(double)max());
         else std::fprintf(nfile,"P9\n%u %u\n%g\n",_width,_height,(double)max());
         CImg<floatT> buf((unsigned int)buf_size);
@@ -54959,13 +54959,13 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Save 3d object as an Object File Format (.off) file.
+    //! Save 3D object as an Object File Format (.off) file.
     /**
        \param filename Filename, as a C-string.
-       \param primitives List of 3d object primitives.
-       \param colors List of 3d object colors.
+       \param primitives List of 3D object primitives.
+       \param colors List of 3D object colors.
        \note
-       - Instance image contains the vertices data of the 3d object.
+       - Instance image contains the vertices data of the 3D object.
        - Textured, transparent or sphere-shaped primitives cannot be managed by the .off file format.
        Such primitives will be lost or simplified during file saving.
        - The .off file format is <a href="http://people.sc.fsu.edu/~jburkardt/html/off_format.html">described here</a>.
@@ -54976,7 +54976,7 @@ namespace cimg_library_suffixed {
       return _save_off(primitives,colors,0,filename);
     }
 
-    //! Save 3d object as an Object File Format (.off) file \overloading.
+    //! Save 3D object as an Object File Format (.off) file \overloading.
     /**
        Same as save_off(const CImgList<tf>&,const CImgList<tc>&,const char*) const
        with a file stream argument instead of a filename string.
@@ -55004,7 +55004,7 @@ namespace cimg_library_suffixed {
       CImg<charT> error_message(1024);
       if (!is_object3d(primitives,colors,opacities,true,error_message))
         throw CImgInstanceException(_cimg_instance
-                                    "save_off(): Invalid specified 3d object, for file '%s' (%s).",
+                                    "save_off(): Invalid specified 3D object, for file '%s' (%s).",
                                     cimg_instance,
                                     filename?filename:"(FILE*)",error_message.data());
 
@@ -59036,12 +59036,12 @@ namespace cimg_library_suffixed {
       return CImgList<T>().load_gzip_external(filename);
     }
 
-    //! Load a 3d object from a .OFF file.
+    //! Load a 3D object from a .OFF file.
     /**
       \param filename Filename to read data from.
-      \param[out] primitives At return, contains the list of 3d object primitives.
-      \param[out] colors At return, contains the list of 3d object colors.
-      \return List of 3d object vertices.
+      \param[out] primitives At return, contains the list of 3D object primitives.
+      \param[out] colors At return, contains the list of 3D object colors.
+      \return List of 3D object vertices.
     **/
     template<typename tf, typename tc>
     CImgList<T>& load_off(const char *const filename,
@@ -59049,7 +59049,7 @@ namespace cimg_library_suffixed {
       return get_load_off(filename,primitives,colors).move_to(*this);
     }
 
-    //! Load a 3d object from a .OFF file \newinstance.
+    //! Load a 3D object from a .OFF file \newinstance.
     template<typename tf, typename tc>
       static CImgList<T> get_load_off(const char *const filename,
                                       CImgList<tf>& primitives, CImgList<tc>& colors) {
@@ -60401,7 +60401,7 @@ namespace cimg_library_suffixed {
       return font;
     }
 
-    //! Compute a 1d Fast Fourier Transform, along specified axis.
+    //! Compute a 1D Fast Fourier Transform, along specified axis.
     /**
        \param axis Axis along which the Fourier transform is computed.
        \param invert Tells if the direct (\c false) or inverse transform (\c true) is computed.
@@ -60444,7 +60444,7 @@ namespace cimg_library_suffixed {
       return CImgList<Tfloat>(*this,false).FFT(invert);
     }
 
-    //! Reverse primitives orientations of a 3d object.
+    //! Reverse primitives orientations of a 3D object.
     /**
     **/
     CImgList<T>& reverse_object3d() {
@@ -60461,7 +60461,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Reverse primitives orientations of a 3d object \newinstance.
+    //! Reverse primitives orientations of a 3D object \newinstance.
     CImgList<T> get_reverse_object3d() const {
       return (+*this).reverse_object3d();
     }

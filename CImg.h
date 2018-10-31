@@ -6622,6 +6622,11 @@ namespace cimg_library_suffixed {
       if (str) for (char *ptr = str; *ptr; ++ptr) *ptr = uppercase(*ptr);
     }
 
+    //! Return \c true if input character is blank (space, tab, or non-printable character).
+    inline bool is_blank(const char c) {
+      return c>=0 && c<=' ';
+    }
+
     //! Read value in a C-string.
     /**
        \param str C-string containing the float value to read.
@@ -6740,11 +6745,11 @@ namespace cimg_library_suffixed {
       if (!str) return false;
       const int l = (int)std::strlen(str);
       int p, q;
-      if (is_symmetric) for (p = 0, q = l - 1; p<q && (signed char)str[p]<=' ' && (signed char)str[q]<=' '; ) {
+      if (is_symmetric) for (p = 0, q = l - 1; p<q && is_blank(str[p]) && is_blank(str[q]); ) {
           --q; ++p; if (!is_iterative) break;
         } else {
-        for (p = 0; p<l && (signed char)str[p]<=' '; ) { ++p; if (!is_iterative) break; }
-        for (q = l - 1; q>p && (signed char)str[q]<=' '; ) { --q; if (!is_iterative) break; }
+        for (p = 0; p<l && is_blank(str[p]); ) { ++p; if (!is_iterative) break; }
+        for (q = l - 1; q>p && is_blank(str[q]); ) { --q; if (!is_iterative) break; }
       }
       const int n = q - p + 1;
       if (n!=l) { std::memmove(str,str + p,(unsigned int)n); str[n] = 0; return true; }
@@ -15911,17 +15916,17 @@ namespace cimg_library_suffixed {
                                       "CImg<%s>::%s: Empty expression.",
                                       pixel_type(),_cimg_mp_calling_function);
         const char *_expression = expression;
-        while (*_expression && ((signed char)*_expression<=' ' || *_expression==';')) ++_expression;
+        while (*_expression && (cimg::is_blank(*_expression) || *_expression==';')) ++_expression;
         CImg<charT>::string(_expression).move_to(expr);
         char *ps = &expr.back() - 1;
-        while (ps>expr._data && ((signed char)*ps<=' ' || *ps==';')) --ps;
+        while (ps>expr._data && (cimg::is_blank(*ps) || *ps==';')) --ps;
         *(++ps) = 0; expr._width = (unsigned int)(ps - expr._data + 1);
 
         // Ease the retrieval of previous non-space characters afterwards.
         pexpr.assign(expr._width);
         char c, *pe = pexpr._data;
         for (ps = expr._data, c = ' '; *ps; ++ps) {
-          if ((signed char)*ps>' ') c = *ps; else *ps = ' ';
+          if (!cimg::is_blank(*ps)) c = *ps; else *ps = ' ';
           *(pe++) = c;
         }
         *pe = 0;
@@ -16111,8 +16116,8 @@ namespace cimg_library_suffixed {
         do {
           c2 = 0;
           if (ss<se) {
-            while (*ss && ((signed char)*ss<=' ' || *ss==';')) ++ss;
-            while (se>ss && ((signed char)(c1 = *(se - 1))<=' ' || c1==';')) --se;
+            while (*ss && (cimg::is_blank(*ss) || *ss==';')) ++ss;
+            while (se>ss && (cimg::is_blank(c1 = *(se - 1)) || c1==';')) --se;
           }
           while (*ss=='(' && *(se - 1)==')' && std::strchr(ss,')')==se - 1) {
             ++ss; --se; c2 = 1;
@@ -16286,7 +16291,7 @@ namespace cimg_library_suffixed {
             arg2 = compile(s0,s++,depth,0,is_single);
             if (code_end._width==arg1) pos = arg2; // makes 'end()' return void
             is_sth = true;
-            while (*s && ((signed char)*s<=' ' || *s==';')) ++s;
+            while (*s && (cimg::is_blank(*s) || *s==';')) ++s;
             s0 = s;
           }
         if (is_sth) {
@@ -16526,7 +16531,7 @@ namespace cimg_library_suffixed {
                 *s0 = 0;
                 s1 = variable_name._data + l_variable_name - 1; // Pointer to closing parenthesis
                 CImg<charT>(variable_name._data,(unsigned int)(s0 - variable_name._data + 1)).move_to(macro_def,0);
-                ++s; while (*s && (signed char)*s<=' ') ++s;
+                ++s; while (*s && cimg::is_blank(*s)) ++s;
                 CImg<charT>(s,(unsigned int)(se - s + 1)).move_to(macro_body,0);
 
                 p1 = 1; // Indice of current parsed argument
@@ -16543,16 +16548,16 @@ namespace cimg_library_suffixed {
                                                 variable_name._data,
                                                 s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
                   }
-                  while (*s && (signed char)*s<=' ') ++s;
+                  while (*s && cimg::is_blank(*s)) ++s;
                   if (*s==')' && p1==1) break; // Function has no arguments
 
                   s2 = s; // Start of the argument name
                   is_sth = true; // is_valid_argument_name?
                   if (*s>='0' && *s<='9') is_sth = false;
-                  else for (ns = s; ns<s1 && *ns!=',' && (signed char)*ns>' '; ++ns)
+                  else for (ns = s; ns<s1 && *ns!=',' && !cimg::is_blank(*ns); ++ns)
                          if (!is_varchar(*ns)) { is_sth = false; break; }
                   s3 = ns; // End of the argument name
-                  while (*ns && (signed char)*ns<=' ') ++ns;
+                  while (*ns && cimg::is_blank(*ns)) ++ns;
                   if (!is_sth || s2==s3 || (*ns!=',' && ns!=s1)) {
                     *se = saved_char;
                     cimg::strellipsize(variable_name,64);
@@ -16616,7 +16621,7 @@ namespace cimg_library_suffixed {
 
             s0 = variable_name._data;
             if (is_const) {
-              s0+=6; while ((signed char)*s0<=' ') ++s0;
+              s0+=6; while (cimg::is_blank(*s0)) ++s0;
               variable_name.resize(variable_name.end() - s0,1,1,1,0,0,1);
             }
 
@@ -17743,7 +17748,7 @@ namespace cimg_library_suffixed {
         if (*se1==']' && *ss!='[') {
           _cimg_mp_op("Value accessor '[]'");
           is_relative = *ss=='j' || *ss=='J';
-          s0 = s1 = std::strchr(ss,'['); if (s0) { do { --s1; } while ((signed char)*s1<=' '); cimg::swap(*s0,*++s1); }
+          s0 = s1 = std::strchr(ss,'['); if (s0) { do { --s1; } while (cimg::is_blank(*s1)); cimg::swap(*s0,*++s1); }
 
           if ((*ss=='I' || *ss=='J') && *ss1=='[' &&
               (reserved_label[*ss]==~0U || !_cimg_mp_is_vector(reserved_label[*ss]))) { // Image value as a vector
@@ -17883,7 +17888,7 @@ namespace cimg_library_suffixed {
           if (*ss=='(') _cimg_mp_return(compile(ss1,se1,depth1,p_ref,is_single)); // Simple parentheses
           _cimg_mp_op("Value accessor '()'");
           is_relative = *ss=='j' || *ss=='J';
-          s0 = s1 = std::strchr(ss,'('); if (s0) { do { --s1; } while ((signed char)*s1<=' '); cimg::swap(*s0,*++s1); }
+          s0 = s1 = std::strchr(ss,'('); if (s0) { do { --s1; } while (cimg::is_blank(*s1)); cimg::swap(*s0,*++s1); }
 
           // I/J(_#ind,_x,_y,_z,_interpolation,_boundary_conditions)
           if ((*ss=='I' || *ss=='J') && *ss1=='(') { // Image value as scalar
@@ -20118,7 +20123,7 @@ namespace cimg_library_suffixed {
             // Count number of specified arguments.
             p1 = 0;
             for (s = s0 + 1; s<=se1; ++p1, s = ns + 1) {
-              while (*s && (signed char)*s<=' ') ++s;
+              while (*s && cimg::is_blank(*s)) ++s;
               if (*s==')' && !p1) break;
               ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                              (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
@@ -20132,7 +20137,7 @@ namespace cimg_library_suffixed {
 
               p1 = 1; // Indice of current parsed argument
               for (s = s0 + 1; s<=se1; ++p1, s = ns + 1) { // Parse function arguments
-                while (*s && (signed char)*s<=' ') ++s;
+                while (*s && cimg::is_blank(*s)) ++s;
                 if (*s==')' && p1==1) break; // Function has no arguments
                 if (p1>p2) { ++p1; break; }
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
@@ -20155,7 +20160,7 @@ namespace cimg_library_suffixed {
               CImg<charT> _pexpr(_expr._width);
               ns = _pexpr._data;
               for (ps = _expr._data, c1 = ' '; *ps; ++ps) {
-                if ((signed char)*ps>' ') c1 = *ps;
+                if (!cimg::is_blank(*ps)) c1 = *ps;
                 *(ns++) = c1;
               }
               *ns = 0;
@@ -20243,8 +20248,8 @@ namespace cimg_library_suffixed {
         // Vector initializer [ ... ].
         if (*ss=='[' && *se1==']') {
           _cimg_mp_op("Vector initializer");
-          s1 = ss1; while (s1<se2 && (signed char)*s1<=' ') ++s1;
-          s2 = se2; while (s2>s1 && (signed char)*s2<=' ') --s2;
+          s1 = ss1; while (s1<se2 && cimg::is_blank(*s1)) ++s1;
+          s2 = se2; while (s2>s1 && cimg::is_blank(*s2)) --s2;
           if (s2>s1 && *s1=='\'' && *s2=='\'') { // Vector values provided as a string
             arg1 = (unsigned int)(s2 - s1 - 1); // Original string length.
             if (arg1) {

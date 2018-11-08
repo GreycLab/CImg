@@ -48529,16 +48529,27 @@ namespace cimg_library_suffixed {
 
       static const unsigned char black[] = { 0, 0, 0 }, white[] = { 255, 255, 255 }, gray[] = { 220, 220, 220 };
       static const unsigned char gray2[] = { 110, 110, 110 }, ngray[] = { 35, 35, 35 };
-      static unsigned int odimv = 0;
-      static CImg<ucharT> colormap;
-      if (odimv!=_spectrum) {
-        odimv = _spectrum;
-        colormap = CImg<ucharT>(3,_spectrum,1,1,120).noise(70,1);
-        if (_spectrum==1) { colormap[0] = colormap[1] = 120; colormap[2] = 200; }
-        else {
-          colormap(0,0) = 220; colormap(1,0) = 10; colormap(2,0) = 10;
-          if (_spectrum>1) { colormap(0,1) = 10; colormap(1,1) = 220; colormap(2,1) = 10; }
-          if (_spectrum>2) { colormap(0,2) = 10; colormap(1,2) = 10; colormap(2,2) = 220; }
+
+      CImg<ucharT> colormap(3,_spectrum);
+      if (_spectrum==1) { colormap[0] = colormap[1] = 120; colormap[2] = 200; }
+      else {
+        colormap(0,0) = 220; colormap(1,0) = 10; colormap(2,0) = 10;
+        if (_spectrum>1) { colormap(0,1) = 10; colormap(1,1) = 220; colormap(2,1) = 10; }
+        if (_spectrum>2) { colormap(0,2) = 10; colormap(1,2) = 10; colormap(2,2) = 220; }
+        if (_spectrum>3) { colormap(0,3) = 220; colormap(1,3) = 220; colormap(2,3) = 10; }
+        if (_spectrum>4) { colormap(0,4) = 220; colormap(1,4) = 10; colormap(2,4) = 220; }
+        if (_spectrum>5) { colormap(0,5) = 10; colormap(1,5) = 220; colormap(2,5) = 220; }
+        if (_spectrum>6) {
+          cimg::mutex(8);
+          const unsigned int seed = cimg::rand();
+          cimg::srand(154362983);
+          cimg_for_inY(colormap,6,colormap.height()-1,k) {
+            colormap(0,k) = 120 + (unsigned char)cimg::rand(-100.f,100.f);
+            colormap(1,k) = 120 + (unsigned char)cimg::rand(-100.f,100.f);
+            colormap(2,k) = 120 + (unsigned char)cimg::rand(-100.f,100.f);
+          }
+          cimg::srand(seed);
+          cimg::mutex(8,0);
         }
       }
 

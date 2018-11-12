@@ -12933,22 +12933,134 @@ namespace cimg_library_suffixed {
     **/
     template<typename t>
     CImg<_cimg_Tt> operator*(const CImg<t>& img) const {
+      typedef _cimg_Ttdouble Ttdouble;
+      typedef _cimg_Tt Tt;
       if (_width!=img._height || _depth!=1 || _spectrum!=1)
         throw CImgArgumentException(_cimg_instance
                                     "operator*(): Invalid multiplication of instance by specified "
                                     "matrix (%u,%u,%u,%u,%p)",
                                     cimg_instance,
                                     img._width,img._height,img._depth,img._spectrum,img._data);
-      CImg<_cimg_Tt> res(img._width,_height);
+      CImg<Tt> res(img._width,_height);
+      if (img._width==1) { // Matrix * Vector
+        if (_height==1) switch (_width) { // Vector^T * Vector
+          case 1 :
+            res[0] = (Tt)((Ttdouble)_data[0]*img[0]);
+            return res;
+          case 2 :
+            res[0] = (Tt)((Ttdouble)_data[0]*img[0] + (Ttdouble)_data[1]*img[1]);
+            return res;
+          case 3 :
+            res[0] = (Tt)((Ttdouble)_data[0]*img[0] + (Ttdouble)_data[1]*img[1] +
+                          (Ttdouble)_data[2]*img[2]);
+            return res;
+          case 4 :
+            res[0] = (Tt)((Ttdouble)_data[0]*img[0] + (Ttdouble)_data[1]*img[1] +
+                          (Ttdouble)_data[2]*img[2] + (Ttdouble)_data[3]*img[3]);
+            return res;
+          default : {
+            Ttdouble val = 0;
+            cimg_forX(*this,i) val+=(Ttdouble)_data[i]*img[i];
+            res[0] = val;
+            return res;
+          }
+          } else if (_height==_width) switch (_width) { // Square_matrix * Vector
+          case 2 : // 2x2_matrix * Vector
+            res[0] = (Tt)((Ttdouble)_data[0]*img[0] + (Ttdouble)_data[1]*img[1]);
+            res[1] = (Tt)((Ttdouble)_data[2]*img[0] + (Ttdouble)_data[3]*img[1]);
+            return res;
+          case 3 : // 3x3_matrix * Vector
+            res[0] = (Tt)((Ttdouble)_data[0]*img[0] + (Ttdouble)_data[1]*img[1] +
+                          (Ttdouble)_data[2]*img[2]);
+            res[1] = (Tt)((Ttdouble)_data[3]*img[0] + (Ttdouble)_data[4]*img[1] +
+                          (Ttdouble)_data[5]*img[2]);
+            res[2] = (Tt)((Ttdouble)_data[6]*img[0] + (Ttdouble)_data[7]*img[1] +
+                          (Ttdouble)_data[8]*img[2]);
+            return res;
+          case 4 : // 4x4_matrix * Vector
+            res[0] = (Tt)((Ttdouble)_data[0]*img[0] + (Ttdouble)_data[1]*img[1] +
+                          (Ttdouble)_data[2]*img[2] + (Ttdouble)_data[3]*img[3]);
+            res[1] = (Tt)((Ttdouble)_data[4]*img[0] + (Ttdouble)_data[5]*img[1] +
+                          (Ttdouble)_data[6]*img[2] + (Ttdouble)_data[7]*img[3]);
+            res[2] = (Tt)((Ttdouble)_data[8]*img[0] + (Ttdouble)_data[9]*img[1] +
+                          (Ttdouble)_data[10]*img[2] + (Ttdouble)_data[11]*img[3]);
+            res[3] = (Tt)((Ttdouble)_data[12]*img[0] + (Ttdouble)_data[13]*img[1] +
+                          (Ttdouble)_data[14]*img[2] + (Ttdouble)_data[15]*img[3]);
+            return res;
+          }
+      } else if (img._height==img._width && _height==_width) switch (_height) { // Square_matrix * Square_matrix
+        case 2 : // 2x2_matrix * 2x2_matrix
+          res[0] = (Tt)((Ttdouble)_data[0]*img[0] + (Ttdouble)_data[1]*img[2]);
+          res[1] = (Tt)((Ttdouble)_data[0]*img[1] + (Ttdouble)_data[1]*img[3]);
+          res[2] = (Tt)((Ttdouble)_data[2]*img[0] + (Ttdouble)_data[3]*img[2]);
+          res[3] = (Tt)((Ttdouble)_data[2]*img[1] + (Ttdouble)_data[3]*img[3]);
+          return res;
+        case 3 : // 3x3_matrix * 3x3_matrix
+          res[0] = (Tt)((Ttdouble)_data[0]*img[0] + (Ttdouble)_data[1]*img[3] +
+                        (Ttdouble)_data[2]*img[6]);
+          res[1] = (Tt)((Ttdouble)_data[0]*img[1] + (Ttdouble)_data[1]*img[4] +
+                        (Ttdouble)_data[2]*img[7]);
+          res[2] = (Tt)((Ttdouble)_data[0]*img[2] + (Ttdouble)_data[1]*img[5] +
+                        (Ttdouble)_data[2]*img[8]);
+          res[3] = (Tt)((Ttdouble)_data[3]*img[0] + (Ttdouble)_data[4]*img[3] +
+                        (Ttdouble)_data[5]*img[6]);
+          res[4] = (Tt)((Ttdouble)_data[3]*img[1] + (Ttdouble)_data[4]*img[4] +
+                        (Ttdouble)_data[5]*img[7]);
+          res[5] = (Tt)((Ttdouble)_data[3]*img[2] + (Ttdouble)_data[4]*img[5] +
+                        (Ttdouble)_data[5]*img[8]);
+          res[6] = (Tt)((Ttdouble)_data[6]*img[0] + (Ttdouble)_data[7]*img[3] +
+                        (Ttdouble)_data[8]*img[6]);
+          res[7] = (Tt)((Ttdouble)_data[6]*img[1] + (Ttdouble)_data[7]*img[4] +
+                        (Ttdouble)_data[8]*img[7]);
+          res[8] = (Tt)((Ttdouble)_data[6]*img[2] + (Ttdouble)_data[7]*img[5] +
+                        (Ttdouble)_data[8]*img[8]);
+          return res;
+        case 4 : // 4x4_matrix * 4x4_matrix
+          res[0] = (Tt)((Ttdouble)_data[0]*img[0] + (Ttdouble)_data[1]*img[4] +
+                        (Ttdouble)_data[2]*img[8] + (Ttdouble)_data[3]*img[12]);
+          res[1] = (Tt)((Ttdouble)_data[0]*img[1] + (Ttdouble)_data[1]*img[5] +
+                        (Ttdouble)_data[2]*img[9] + (Ttdouble)_data[3]*img[13]);
+          res[2] = (Tt)((Ttdouble)_data[0]*img[2] + (Ttdouble)_data[1]*img[6] +
+                        (Ttdouble)_data[2]*img[10] + (Ttdouble)_data[3]*img[14]);
+          res[3] = (Tt)((Ttdouble)_data[0]*img[3] + (Ttdouble)_data[1]*img[7] +
+                        (Ttdouble)_data[2]*img[11] + (Ttdouble)_data[3]*img[15]);
+          res[4] = (Tt)((Ttdouble)_data[4]*img[0] + (Ttdouble)_data[5]*img[4] +
+                        (Ttdouble)_data[6]*img[8] + (Ttdouble)_data[7]*img[12]);
+          res[5] = (Tt)((Ttdouble)_data[4]*img[1] + (Ttdouble)_data[5]*img[5] +
+                        (Ttdouble)_data[6]*img[9] + (Ttdouble)_data[7]*img[13]);
+          res[6] = (Tt)((Ttdouble)_data[4]*img[2] + (Ttdouble)_data[5]*img[6] +
+                        (Ttdouble)_data[6]*img[10] + (Ttdouble)_data[7]*img[14]);
+          res[7] = (Tt)((Ttdouble)_data[4]*img[3] + (Ttdouble)_data[5]*img[7] +
+                        (Ttdouble)_data[6]*img[11] + (Ttdouble)_data[7]*img[15]);
+          res[8] = (Tt)((Ttdouble)_data[8]*img[0] + (Ttdouble)_data[9]*img[4] +
+                        (Ttdouble)_data[10]*img[8] + (Ttdouble)_data[11]*img[12]);
+          res[9] = (Tt)((Ttdouble)_data[8]*img[1] + (Ttdouble)_data[9]*img[5] +
+                        (Ttdouble)_data[10]*img[9] + (Ttdouble)_data[11]*img[13]);
+          res[10] = (Tt)((Ttdouble)_data[8]*img[2] + (Ttdouble)_data[9]*img[6] +
+                         (Ttdouble)_data[10]*img[10] + (Ttdouble)_data[11]*img[14]);
+          res[11] = (Tt)((Ttdouble)_data[8]*img[3] + (Ttdouble)_data[9]*img[7] +
+                         (Ttdouble)_data[10]*img[11] + (Ttdouble)_data[11]*img[15]);
+          res[12] = (Tt)((Ttdouble)_data[12]*img[0] + (Ttdouble)_data[13]*img[4] +
+                         (Ttdouble)_data[14]*img[8] + (Ttdouble)_data[15]*img[12]);
+          res[13] = (Tt)((Ttdouble)_data[12]*img[1] + (Ttdouble)_data[13]*img[5] +
+                         (Ttdouble)_data[14]*img[9] + (Ttdouble)_data[15]*img[13]);
+          res[14] = (Tt)((Ttdouble)_data[12]*img[2] + (Ttdouble)_data[13]*img[6] +
+                         (Ttdouble)_data[14]*img[10] + (Ttdouble)_data[15]*img[14]);
+          res[15] = (Tt)((Ttdouble)_data[12]*img[3] + (Ttdouble)_data[13]*img[7] +
+                         (Ttdouble)_data[14]*img[11] + (Ttdouble)_data[15]*img[15]);
+          return res;
+        }
+
+      // Generic version
 #ifdef cimg_use_openmp
       cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(size()>1024 && img.size()>1024))
-      cimg_forXY(res,i,j) {
-        _cimg_Ttdouble value = 0; cimg_forX(*this,k) value+=(*this)(k,j)*img(i,k); res(i,j) = (_cimg_Tt)value;
+        cimg_forXY(res,i,j) {
+        Ttdouble value = 0; cimg_forX(*this,k) value+=(*this)(k,j)*img(i,k); res(i,j) = (Tt)value;
       }
 #else
-      _cimg_Tt *ptrd = res._data;
+      Tt *ptrd = res._data;
       cimg_forXY(res,i,j) {
-        _cimg_Ttdouble value = 0; cimg_forX(*this,k) value+=(*this)(k,j)*img(i,k); *(ptrd++) = (_cimg_Tt)value;
+        Ttdouble value = 0; cimg_forX(*this,k) value+=(*this)(k,j)*img(i,k); *(ptrd++) = (Tt)value;
       }
 #endif
       return res;
@@ -18653,9 +18765,8 @@ namespace cimg_library_suffixed {
               arg1 = compile(ss4,s1,depth1,0,is_single);
               arg2 = compile(++s1,se1,depth1,0,is_single);
               _cimg_mp_check_type(arg1,1,2,0);
-              _cimg_mp_check_type(arg2,2,2,0);
-              if (_cimg_mp_is_vector(arg1)) _cimg_mp_scalar3(mp_dot,arg1,arg2,_cimg_mp_size(arg1));
-              _cimg_mp_scalar2(mp_mul,arg1,arg2);
+              _cimg_mp_check_type(arg2,2,2,_cimg_mp_size(arg1));
+              _cimg_mp_scalar3(mp_dot,arg1,arg2,_cimg_mp_size(arg1));
             }
 
             if (!std::strncmp(ss,"do(",3)) { // Do..while

@@ -13086,9 +13086,11 @@ namespace cimg_library_suffixed {
               a0 = (Ttdouble)_data[0], a1 = (Ttdouble)_data[1], a2 = (Ttdouble)_data[2], a3 = (Ttdouble)_data[3],
               a4 = (Ttdouble)_data[4], a5 = (Ttdouble)_data[5], a6 = (Ttdouble)_data[6], a7 = (Ttdouble)_data[7],
               a8 = (Ttdouble)_data[8], a9 = (Ttdouble)_data[9], a10 = (Ttdouble)_data[10], a11 = (Ttdouble)_data[11],
-              a12 = (Ttdouble)_data[12], a13 = (Ttdouble)_data[13], a14 = (Ttdouble)_data[14], a15 = (Ttdouble)_data[15];
+              a12 = (Ttdouble)_data[12], a13 = (Ttdouble)_data[13], a14 = (Ttdouble)_data[14],
+              a15 = (Ttdouble)_data[15];
             cimg_forX(img,col) {
-              const Ttdouble x = (Ttdouble)*(ps0++), y = (Ttdouble)*(ps1++), z = (Ttdouble)*(ps2++), c = (Ttdouble)*(ps3++);
+              const Ttdouble x = (Ttdouble)*(ps0++), y = (Ttdouble)*(ps1++), z = (Ttdouble)*(ps2++),
+                c = (Ttdouble)*(ps3++);
               *(pd0++) = (Tt)(a0*x + a1*y + a2*z + a3*c);
               *(pd1++) = (Tt)(a4*x + a5*y + a6*z + a7*c);
               *(pd2++) = (Tt)(a8*x + a9*y + a10*z + a11*c);

@@ -13052,7 +13052,7 @@ namespace cimg_library_suffixed {
             return res;
           } else switch (_width) { // Square_matrix * Matrix
           case 2 : { // 2x2_matrix * Matrix
-            const T *ps0 = img.data(), *ps1 = img.data(0,1);
+            const t *ps0 = img.data(), *ps1 = img.data(0,1);
             Tt *pd0 = res.data(), *pd1 = res.data(0,1);
             const Ttdouble
               a0 = (Ttdouble)_data[0], a1 = (Ttdouble)_data[1],
@@ -13065,7 +13065,7 @@ namespace cimg_library_suffixed {
             return res;
           }
           case 3 : { // 3x3_matrix * Matrix
-            const T *ps0 = img.data(), *ps1 = img.data(0,1), *ps2 = img.data(0,2);
+            const t *ps0 = img.data(), *ps1 = img.data(0,1), *ps2 = img.data(0,2);
             Tt *pd0 = res.data(), *pd1 = res.data(0,1), *pd2 = res.data(0,2);
             const Ttdouble
               a0 = (Ttdouble)_data[0], a1 = (Ttdouble)_data[1], a2 = (Ttdouble)_data[2],
@@ -13080,7 +13080,7 @@ namespace cimg_library_suffixed {
             return res;
           }
           case 4 : { // 4x4_matrix * Matrix
-            const T *ps0 = img.data(), *ps1 = img.data(0,1), *ps2 = img.data(0,2), *ps3 = img.data(0,3);
+            const t *ps0 = img.data(), *ps1 = img.data(0,1), *ps2 = img.data(0,2), *ps3 = img.data(0,3);
             Tt *pd0 = res.data(), *pd1 = res.data(0,1), *pd2 = res.data(0,2), *pd3 = res.data(0,3);
             const Ttdouble
               a0 = (Ttdouble)_data[0], a1 = (Ttdouble)_data[1], a2 = (Ttdouble)_data[2], a3 = (Ttdouble)_data[3],

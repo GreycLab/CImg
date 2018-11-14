@@ -674,6 +674,4 @@ $(FFTW3_LIBS)" \
 "STRIP_EXE=true" \
 all $(EXTRA_FILES)
 
-#-----------------
 # End of makefile
-#-----------------

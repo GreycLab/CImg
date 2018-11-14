@@ -37,14 +37,14 @@ CImg(const cv::Mat& src):_width(0),_height(0),_depth(0),_spectrum(0),_is_shared(
 CImg<T>& assign(const cv::Mat & src) {
   if (src.isContinuous()) {
     switch (src.depth()) {
-        // case CV_1U: { // 1-bit int.
+        // case CV_1U: { // 1-bit int
         //    IplImage *src1 = cvCreateImage(cvGetSize(src),CV_8U,1);
         //    cvConvert(src,src1);
         //    CImg<ucharT>((unsigned char*)src1->imageData,src1->nChannels,src1.cols,src1.rows,1,true).
         //      get_permute_axes("yzcx").move_to(*this);
         //    cvReleaseImage(&src1);
         //  } break;
-    case CV_8U: // 8-bit unsigned int.
+    case CV_8U: // 8-bit unsigned int
       if (src.channels()==1) {
         CImg<ucharT>((unsigned char*)src.ptr(),src.cols,src.rows,true).move_to(*this);
       } else {
@@ -61,7 +61,7 @@ CImg<T>& assign(const cv::Mat & src) {
         tmp.move_to(*this);
       }
       break;
-    case CV_8S: // 8-bit signed int.
+    case CV_8S: // 8-bit signed int
       if (src.channels()==1) {
         CImg<charT>((char*)src.ptr(),src.cols,src.rows,true).move_to(*this);
       } else {
@@ -78,7 +78,7 @@ CImg<T>& assign(const cv::Mat & src) {
         tmp.move_to(*this);
       }
       break;
-    case CV_16U: // 16-bit unsigned int.
+    case CV_16U: // 16-bit unsigned int
       if (src.channels()==1) {
         CImg<ushortT>((unsigned short*)src.ptr(),src.cols,src.rows,true).move_to(*this);
       } else {
@@ -95,7 +95,7 @@ CImg<T>& assign(const cv::Mat & src) {
         tmp.move_to(*this);
       }
       break;
-    case CV_16S: // 16-bit signed int.
+    case CV_16S: // 16-bit signed int
       if (src.channels()==1) {
         CImg<shortT>((short*)src.ptr(),src.cols,src.rows,true).move_to(*this);
       } else {
@@ -112,7 +112,7 @@ CImg<T>& assign(const cv::Mat & src) {
         tmp.move_to(*this);
       }
       break;
-    case CV_32S: // 32-bit signed int.
+    case CV_32S: // 32-bit signed int
       if (src.channels()==1) {
         CImg<intT>((int*)src.ptr(),src.cols,src.rows,true).move_to(*this);
       } else {
@@ -129,7 +129,7 @@ CImg<T>& assign(const cv::Mat & src) {
         tmp.move_to(*this);
       }
       break;
-    case CV_32F: // 32-bit float.
+    case CV_32F: // 32-bit float
       if (src.channels()==1) {
         CImg<floatT>((float*)src.ptr(),src.cols,src.rows,true).move_to(*this);
       } else {
@@ -146,7 +146,7 @@ CImg<T>& assign(const cv::Mat & src) {
         tmp.move_to(*this);
       }
       break;
-    case CV_64F: // 64-bit double.
+    case CV_64F: // 64-bit double
       if (src.channels()==1) {
         CImg<doubleT>((double*)src.ptr(),src.cols,src.rows,true).move_to(*this);
       } else {
@@ -172,7 +172,7 @@ CImg<T>& assign(const cv::Mat & src) {
   } else {
     cv::Size size = src.size();
     switch (src.depth()) {
-    case CV_8U: // 8-bit unsigned int.
+    case CV_8U: // 8-bit unsigned int
       if (src.channels()==1) {
         CImg<ucharT> tmp(src.cols,src.rows);
         for (int i = 0; i<size.height; ++i) {
@@ -196,7 +196,7 @@ CImg<T>& assign(const cv::Mat & src) {
         tmp.move_to(*this);
       }
       break;
-    case CV_8S: // 8-bit int.
+    case CV_8S: // 8-bit int
       if (src.channels()==1) {
         CImg<charT> tmp(src.cols,src.rows);
         for (int i = 0; i<size.height; ++i) {
@@ -220,7 +220,7 @@ CImg<T>& assign(const cv::Mat & src) {
         tmp.move_to(*this);
       }
       break;
-    case CV_16S: // 16-bit int.
+    case CV_16S: // 16-bit int
       if (src.channels()==1) {
         CImg<shortT> tmp(src.cols,src.rows);
         for (int i = 0; i<size.height; ++i) {
@@ -244,7 +244,7 @@ CImg<T>& assign(const cv::Mat & src) {
         tmp.move_to(*this);
       }
       break;
-    case CV_32F: // 32-bit float.float
+    case CV_32F: // 32-bit float
       if (src.channels()==1) {
         CImg<floatT> tmp(src.cols,src.rows);
         for (int i = 0; i<size.height; ++i) {
@@ -268,7 +268,7 @@ CImg<T>& assign(const cv::Mat & src) {
         tmp.move_to(*this);
       }
       break;
-    case CV_64F: // 64-bit double.
+    case CV_64F: // 64-bit double
       if (src.channels()==1) {
         CImg<doubleT> tmp(src.cols,src.rows);
         for (int i = 0; i<size.height; ++i) {

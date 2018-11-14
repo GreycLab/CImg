@@ -653,14 +653,13 @@ void* item_plasma() {
     if ((pos+=2)>lwidth + 2) pos = 0;
     cimg_forX(visu,x) {
       const int y0 = (int)(visu.height()/2 + visu.height()/4*std::sin(ts + x/(70 + 30*std::cos(beta))));
-      cimg_forY(scroll,y) {
-        if (scroll(x,y)) {
-          const unsigned int y1 = y0 + y + 2; visu(x,y1,0)*=0.7; visu(x,y1,1)*=0.7; visu(x,y1,2)*=0.7;
-          const unsigned int y2 = y1 - 6;
-          const float c = scroll(x,y)/255.0f;
-          (visu(x,y2,0)*= 1 - c)+=254*c;
-          (visu(x,y2,1)*= 1 - c)+=254*c;
-          (visu(x,y2,2)*= 1 - c)+=254*c;
+      cimg_forY(scroll,y) if (scroll(x,y)) {
+        const unsigned int y1 = y0 + y + 2;
+        const unsigned int y2 = y1 - 6;
+        const float c = scroll(x,y)/255.0f;
+        cimg_forC(visu,k) {
+          visu(x,y1,k) = (unsigned char)(visu(x,y1,k)*0.7f);
+          visu(x,y2,k) = (unsigned char)(visu(x,y2,k)*(1 - c) + 254*c);
         }
       }
     }

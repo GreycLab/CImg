@@ -70,6 +70,9 @@
 
 // Include standard C++ headers.
 // This is the minimal set of required headers to make CImg-based codes compile.
+#ifdef _PTHREAD_H
+#define cimg_use_pthread
+#endif
 #include <cstdio>
 #include <cstdlib>
 #include <cstdarg>
@@ -366,6 +369,7 @@
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 #include <pthread.h>
+#define cimg_use_pthread
 #ifdef cimg_use_xshm
 #include <sys/ipc.h>
 #include <sys/shm.h>
@@ -3067,7 +3071,7 @@ namespace cimg_library_suffixed {
       void lock(const unsigned int n) { WaitForSingleObject(mutex[n],INFINITE); }
       void unlock(const unsigned int n) { ReleaseMutex(mutex[n]); }
       int trylock(const unsigned int) { return 0; }
-#elif defined(_PTHREAD_H)
+#elif cimg_use_pthread
       pthread_mutex_t mutex[32];
       Mutex_info() { for (unsigned int i = 0; i<32; ++i) pthread_mutex_init(&mutex[i],0); }
       void lock(const unsigned int n) { pthread_mutex_lock(&mutex[n]); }

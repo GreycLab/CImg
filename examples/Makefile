@@ -336,7 +336,7 @@ menu:
 all: $(FILES)
 
 clean:
-	rm -rf *.exe *.o *~ \#* $(FILES) $(EXTRA_FILES)
+	rm -rf *.exe *.o *.obj *~ \#* $(FILES) $(EXTRA_FILES)
 ifneq ($(EXE_PRE),)
 	rm -f $(EXE_PRE)*
 endif

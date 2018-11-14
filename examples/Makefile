@@ -83,7 +83,7 @@ EXTRA_FILES = use_tiff_stream use_jpeg_buffer
 #---------------------------------
 # Set correct variables and paths
 #---------------------------------
-VERSION = `grep 'cimg_version\ ' ../CImg.h | tail -c4 | head -c3`
+VERSION = $(shell grep 'cimg_version\ ' ../CImg.h | tail -c4 | head -c3)
 X11PATH = /usr/X11R6
 
 EXE_PRE =
@@ -95,23 +95,29 @@ ifeq ($(MSYSTEM),MINGW64)
 EXE_EXT = .exe
 endif
 
-CXXVER = $(CXX)
-ifeq ($(notdir $(CXX)),g++)
+ifeq ($(shell echo $(notdir $(CXX)) | head -c3),g++)
 IS_GCC = 1
-CXXVER = `$(CXX) -v 2>&1 | tail -n 1`
 endif
-ifeq ($(notdir $(CXX)),clang++)
+ifeq ($(shell echo $(notdir $(CXX)) | head -c7),clang++)
 IS_CLANG = 1
-CXXVER = `$(CXX) -v 2>&1 | head -n 1`
 endif
-ifeq ($(notdir $(CXX)),icpc)
-CXXVER = "icpc \( `$(CXX) -v 2>&1`\)"
+ifeq ($(shell echo $(notdir $(CXX)) | head -c4),icpc)
 IS_ICPC = 1
-CFLAGS = -I..
-LIBS =
-else
+endif
+
+CXXVER = $(CXX)
 CFLAGS = -I.. -Wall -Wextra -Wfatal-errors
 LIBS = -lm
+ifdef IS_GCC
+CXXVER = $(shell $(CXX) -v 2>&1 | tail -n 1)
+endif
+ifdef IS_CLANG
+CXXVER = $(shell $(CXX) -v 2>&1 | head -n 1)
+endif
+ifdef IS_ICPC
+CXXVER = $(shell $(CXX) -v 2>&1)
+CFLAGS = -I..
+LIBS =
 endif
 
 #--------------------------------------------------
@@ -154,9 +160,9 @@ endif
 
 # Flags to enable OpenCV support.
 OPENCV_DEFINE = -Dcimg_use_opencv
-OPENCV_INCDIR = `pkg-config opencv --cflags || echo -I/usr/include/opencv` -I/usr/include/opencv
+OPENCV_INCDIR = $(shell pkg-config opencv --cflags || echo -I/usr/include/opencv) -I/usr/include/opencv
 OPENCV_CFLAGS = $(OPENCV_DEFINE) $(OPENCV_INCDIR)
-OPENCV_LIBS = `pkg-config opencv --libs || echo -lopencv_core -lopencv_highgui`
+OPENCV_LIBS = $(shell pkg-config opencv --libs || echo -lopencv_core -lopencv_highgui)
 
 # Flags used to disable display capablities of CImg
 NODISPLAY_CFLAGS = -Dcimg_display=0
@@ -164,14 +170,14 @@ NODISPLAY_CFLAGS = -Dcimg_display=0
 # Flags to enable the use of the X11 library.
 # (X11 is used by CImg to handle display windows)
 X11_DEFINE = -Dcimg_display=1
-X11_INCDIR = `pkg-config --cflags x11 || echo -I/usr/X11R6/include`
+X11_INCDIR = $(shell pkg-config --cflags x11 || echo -I/usr/X11R6/include)
 X11_CFLAGS = $(X11_DEFINE) $(X11_INCDIR)
-X11_LIBS = `pkg-config --libs x11 || echo -L/usr/X11R6/lib -lX11` -lpthread
+X11_LIBS = $(shell pkg-config --libs x11 || echo -L/usr/X11R6/lib -lX11) -lpthread
 
 # Flags to enable fast image display, using the XSHM library (when using X11).
 # !!! Seems to randomly crash when used on MacOSX and 64bits systems, so use it only when necessary !!!
-XSHM_CFLAGS = # -Dcimg_use_xshm `pkg-config --cflags xcb-shm`
-XSHM_LIBS = # `pkg-config --libs xcb-shm || echo -L$(USR)/X11R6/lib -lXext`
+XSHM_CFLAGS = # -Dcimg_use_xshm $(shell pkg-config --cflags xcb-shm)
+XSHM_LIBS = # $(shell pkg-config --libs xcb-shm || echo -L$(USR)/X11R6/lib -lXext)
 
 # Flags to enable GDI32 display (Windows native).
 GDI32_DEFINE = -mwindows
@@ -232,9 +238,9 @@ FFMPEG_LIBS = -lavcodec -lavformat -lswscale
 # Flags to enable native support for compressed .cimgz files, using the Zlib library.
 # ( http://www.zlib.net/ )
 ZLIB_DEFINE = -Dcimg_use_zlib
-ZLIB_INCDIR = `pkg-config --cflags zlib || echo -I$(USR)/$(INCLUDE)`
+ZLIB_INCDIR = $(shell pkg-config --cflags zlib || echo -I$(USR)/$(INCLUDE))
 ZLIB_CFLAGS = $(ZLIB_DEFINE) $(ZLIB_INCDIR)
-ZLIB_LIBS = `pkg-config --libs zlib || echo -lz`
+ZLIB_LIBS = $(shell pkg-config --libs zlib || echo -lz)
 
 # Flags to enable native support for downloading files from the network.
 # ( http://curl.haxx.se/libcurl/ )
@@ -246,9 +252,9 @@ CURL_LIBS = -lcurl
 # Flags to enable native support of most classical image file formats, using the Magick++ library.
 # ( http://www.imagemagick.org/Magick++/ )
 MAGICK_DEFINE = -Dcimg_use_magick
-MAGICK_INCDIR = `pkg-config --cflags GraphicsMagick++ || echo -I$(USR)/$(INCLUDE)/GraphicsMagick`
+MAGICK_INCDIR = $(shell pkg-config --cflags GraphicsMagick++ || echo -I$(USR)/$(INCLUDE)/GraphicsMagick)
 MAGICK_CFLAGS = $(MAGICK_DEFINE) $(MAGICK_INCDIR)
-MAGICK_LIBS = `pkg-config --libs GraphicsMagick++ || echo -lGraphicsMagick++`
+MAGICK_LIBS = $(shell pkg-config --libs GraphicsMagick++ || echo -lGraphicsMagick++)
 
 # Flags to enable faster Discrete Fourier Transform computation, using the FFTW3 library
 # ( http://www.fftw.org/ )

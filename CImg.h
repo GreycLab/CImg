@@ -18814,9 +18814,12 @@ namespace cimg_library_suffixed {
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss4,s1,depth1,0,is_single);
               arg2 = compile(++s1,se1,depth1,0,is_single);
-              _cimg_mp_check_type(arg1,1,2,0);
-              _cimg_mp_check_type(arg2,2,2,_cimg_mp_size(arg1));
-              _cimg_mp_scalar3(mp_dot,arg1,arg2,_cimg_mp_size(arg1));
+              if (_cimg_mp_is_vector(arg1)) {
+                _cimg_mp_check_type(arg2,2,2,_cimg_mp_size(arg1));
+                _cimg_mp_scalar3(mp_dot,arg1,arg2,_cimg_mp_size(arg1));
+              }
+              _cimg_mp_check_type(arg2,2,1,0);
+              _cimg_mp_scalar2(mp_mul,arg1,arg2);
             }
 
             if (!std::strncmp(ss,"do(",3)) { // Do..while

@@ -308,7 +308,7 @@ void* item_mandelbrot_explorer() {
         static CImg<unsigned char>
           help = CImg<unsigned char>().draw_text(0,0,"\n"
                                                  "  Use mouse to zoom on desired region.  \n"
-                                                 "  H             Show/Hide help  \n"
+                                                 "  H               Show/Hide help  \n"
                                                  "  PAD 1...9       Fractal navigation  \n"
                                                  "  PAD +/-       Zoom/Unzoom  \n"
                                                  "  SPACE         Set/Disable color smoothing  \n"
@@ -655,8 +655,12 @@ void* item_plasma() {
       const int y0 = (int)(visu.height()/2 + visu.height()/4*std::sin(ts + x/(70 + 30*std::cos(beta))));
       cimg_forY(scroll,y) {
         if (scroll(x,y)) {
-          const unsigned int y1 = y0 + y + 2; visu(x,y1,0)/=2; visu(x,y1,1)/=2; visu(x,y1,2)/=2;
-          const unsigned int y2 = y1 - 6; visu(x,y2,0) = visu(x,y2,1) = visu(x,y2,2) = 255;
+          const unsigned int y1 = y0 + y + 2; visu(x,y1,0)*=0.7; visu(x,y1,1)*=0.7; visu(x,y1,2)*=0.7;
+          const unsigned int y2 = y1 - 6;
+          const float c = scroll(x,y)/255.0f;
+          (visu(x,y2,0)*= 1 - c)+=254*c;
+          (visu(x,y2,1)*= 1 - c)+=254*c;
+          (visu(x,y2,2)*= 1 - c)+=254*c;
         }
       }
     }
@@ -1620,6 +1624,7 @@ int main(int argc, char **argv) {
     back.draw_rectangle(0,y0 - 7,back.width() - 1,y0 + 20,red);
     fore.assign(back.width(),50,1,1,0).draw_text(20,y0 - 3,"** CImg %u.%u.%u Samples **",grey,0,1,23,
                                                 cimg_version/100,(cimg_version/10)%10,cimg_version%10);
+    cimg_for(fore,ptr,unsigned char) *ptr = 127*(*ptr>64);
     (fore+=fore.get_dilate(3).dilate(3)).resize(-100,-100,1,3);
     cimg_forXY(fore,x,y)
       if (fore(x,y)==127) fore(x,y,0) = fore(x,y,1) = fore(x,y,2) = 1;
@@ -1669,9 +1674,9 @@ int main(int argc, char **argv) {
         for (int i = 0; i<60; ++i) {
           const float
             mx = (float)(img.width()/2 + (img.width()/2 - 30)*((1 - gamma)*std::cos(3*t + rx*i*18.0f*cimg::PI/180) +
-                                                         gamma*std::cos(3*t + nrx*i*18.0f*cimg::PI/180))),
+                                                               gamma*std::cos(3*t + nrx*i*18.0f*cimg::PI/180))),
             my = (float)(img.height()/2 + (img.height()/2 - 30)*((1 - gamma)*std::sin(4*t + ry*i*18.0f*cimg::PI/180) +
-                                                         gamma*std::sin(4*t + nry*i*18.0f*cimg::PI/180))),
+                                                                 gamma*std::sin(4*t + nry*i*18.0f*cimg::PI/180))),
             mz = (float)(1.3f + 1.2f*((1 - gamma)*std::sin(2*t + (rx + ry)*i*20*cimg::PI/180) +
                                       gamma*std::sin(2*t + (nrx + nry)*i*20*cimg::PI/180)));
           const int j = i%5;

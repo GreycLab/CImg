@@ -84,31 +84,34 @@ EXTRA_FILES = use_tiff_stream use_jpeg_buffer
 # Set correct variables and paths
 #---------------------------------
 VERSION = `grep 'cimg_version\ ' ../CImg.h | tail -c4 | head -c3`
-X11PATH      = /usr/X11R6
-EXEPFX       =
+X11PATH = /usr/X11R6
+
+EXE_PRE =
+EXE_EXT =
 ifeq ($(MSYSTEM),MINGW32)
-EXESFX       = .exe
-else
+EXE_EXT = .exe
+endif
 ifeq ($(MSYSTEM),MINGW64)
-EXESFX       = .exe
-else
-EXESFX       =
+EXE_EXT = .exe
 endif
-endif
-CXXVER       = $(CXX)
+
+CXXVER = $(CXX)
 ifeq ($(notdir $(CXX)),g++)
-CXXVER       = `$(CXX) -v 2>&1 | tail -n 1`
+IS_GCC = 1
+CXXVER = `$(CXX) -v 2>&1 | tail -n 1`
 endif
 ifeq ($(notdir $(CXX)),clang++)
-CXXVER       = `$(CXX) -v 2>&1 | head -n 1`
+IS_CLANG = 1
+CXXVER = `$(CXX) -v 2>&1 | head -n 1`
 endif
 ifeq ($(notdir $(CXX)),icpc)
-CXXVER       = "icpc \( `$(CXX) -v 2>&1`\)"
-CFLAGS       = -I..
-LIBS         =
+CXXVER = "icpc \( `$(CXX) -v 2>&1`\)"
+IS_ICPC = 1
+CFLAGS = -I..
+LIBS =
 else
-CFLAGS       = -I.. -Wall -Wextra -Wfatal-errors
-LIBS         = -lm
+CFLAGS = -I.. -Wall -Wextra -Wfatal-errors
+LIBS = -lm
 endif
 
 #--------------------------------------------------
@@ -130,23 +133,23 @@ DEBUG_CFLAGS = -Dcimg_verbosity=3 -Dcimg_strict_warnings -g -fsanitize=address
 VT100_CFLAGS = -Dcimg_use_vt100
 
 # Flags to enable code optimization by the compiler.
-ifeq ($(notdir $(CXX)),g++)
-OPT_CFLAGS = -Ofast -mtune=generic
-else
-ifeq ($(notdir $(CXX)),icpc)
-OPT_CFLAGS = -fast
-else
 OPT_CFLAGS = -Ofast
+ifdef IS_GCC
+OPT_CFLAGS = -Ofast -mtune=generic
 endif
+ifdef IS_ICPC
+OPT_CFLAGS = -fast
 endif
 
 # Flags to enable OpenMP support.
-ifeq ($(notdir $(CXX)),icpc)
-OPENMP_CFLAGS = #-Dcimg_use_openmp -openmp -i-static    # -> Seems to bug the compiler!
-else
 OPENMP_DEFINE = -Dcimg_use_openmp -fopenmp
 OPENMP_INCDIR =
 OPENMP_CFLAGS = $(OPENMP_DEFINE) $(OPENMP_INCDIR)
+ifdef IS_ICPC
+OPENMP_CFLAGS = #-Dcimg_use_openmp -openmp -i-static    # -> Seems to bug the compiler!
+endif
+ifdef IS_CLANG
+OPENMP_CFLAGS =
 endif
 
 # Flags to enable OpenCV support.
@@ -266,7 +269,7 @@ LAPACK_CFLAGS = $(LAPACK_DEFINE) $(LAPACK_INCDIR)
 LAPACK_LIBS = -lblas -llapack
 
 # Flags to enable the use of the Board library
-# ( http://libboard.sourceforge.net/ )
+# ( https://github.com/c-koi/libboard )
 BOARD_DEFINE = -Dcimg_use_board
 BOARD_INCDIR = -I/usr/include/board
 BOARD_CFLAGS = $(BOARD_DEFINE) $(BOARD_INCDIR)
@@ -287,9 +290,9 @@ endif
 	@echo
 	@echo "** Compiling '$* ($(VERSION))' with '$(CXXVER)'"
 	@echo
-	$(CXX) -o $(EXEPFX)$*$(EXESFX) $< $(CFLAGS) $(CONF_CFLAGS) $(LIBS) $(CONF_LIBS)
+	$(CXX) -o $(EXE_PRE)$*$(EXE_EXT) $< $(CFLAGS) $(CONF_CFLAGS) $(LIBS) $(CONF_LIBS)
 ifeq ($(STRIP_EXE),true)
-	strip $(EXEPFX)$*$(EXESFX)
+	strip $(EXE_PRE)$*$(EXE_EXT)
 endif
 menu:
 	@echo
@@ -328,8 +331,8 @@ all: $(FILES)
 
 clean:
 	rm -rf *.exe *.o *~ \#* $(FILES) $(EXTRA_FILES)
-ifneq ($(EXEPFX),)
-	rm -f $(EXEPFX)*
+ifneq ($(EXE_PRE),)
+	rm -f $(EXE_PRE)*
 endif
 
 # Custom user-defined target

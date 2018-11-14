@@ -1623,16 +1623,13 @@ int main(int argc, char **argv) {
     back.draw_rectangle(0,y0 - 7,back.width() - 1,y0 + 20,red);
     fore.assign(back.width(),50,1,1,0).draw_text(20,y0 - 3,"** CImg %u.%u.%u Samples **",grey,0,1,23,
                                                 cimg_version/100,(cimg_version/10)%10,cimg_version%10);
-    cimg_for(fore,ptr,unsigned char) *ptr = 127*(*ptr>64);
-    (fore+=fore.get_dilate(3).dilate(3)).resize(-100,-100,1,3);
-    cimg_forXY(fore,x,y)
-      if (fore(x,y)==127) fore(x,y,0) = fore(x,y,1) = fore(x,y,2) = 1;
-      else if (fore(x,y)) {
-        const float val = std::min(255.0f,7.0f*(y - 3));
-        fore(x,y,0) = (unsigned char)(val/1.5f);
-        fore(x,y,1) = (unsigned char)val;
-        fore(x,y,2) = (unsigned char)(val/1.1f);
-      }
+    fore.max(fore.get_threshold(1).dilate(3)).resize(-100,-100,1,3);
+    cimg_forXY(fore,x,y) if (fore(x,y)>1) {
+      const float val = std::min(255.0f,7.0f*(y - 3))*fore(x,y)/127;
+      fore(x,y,0) = (unsigned char)(val/1.5f);
+      fore(x,y,1) = (unsigned char)val;
+      fore(x,y,2) = (unsigned char)(val/1.1f);
+    }
     text.draw_text(1,1,
                    "1- Blurring Gradient\n"
                    "2- Rotozoom\n"

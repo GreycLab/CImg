@@ -84,6 +84,11 @@ EXTRA_FILES = use_tiff_stream use_jpeg_buffer
 # Set correct variables and paths
 #---------------------------------
 VERSION = $(shell grep 'cimg_version\ ' ../CImg.h | tail -c4 | head -c3)
+VERSION1 = $(shell grep 'cimg_version\ ' ../CImg.h | tail -c4 | head -c1)
+VERSION2 = $(shell grep 'cimg_version\ ' ../CImg.h | tail -c3 | head -c1)
+VERSION3 = $(shell grep 'cimg_version\ ' ../CImg.h | tail -c2 | head -c1)
+SVERSION=$(VERSION1).$(VERSION2).$(VERSION3)
+
 X11PATH = /usr/X11R6
 
 EXE_PRE =
@@ -294,7 +299,7 @@ endif
 #-------------------------
 .cpp:
 	@echo
-	@echo "** Compiling '$* ($(VERSION))' with '$(CXXVER)'"
+	@echo "** Compiling '$* ($(SVERSION))' with '$(CXXVER)'"
 	@echo
 	$(CXX) -o $(EXE_PRE)$*$(EXE_EXT) $< $(CFLAGS) $(CONF_CFLAGS) $(LIBS) $(CONF_LIBS)
 ifeq ($(STRIP_EXE),true)
@@ -302,7 +307,7 @@ ifeq ($(STRIP_EXE),true)
 endif
 menu:
 	@echo
-	@echo "CImg Library $(VERSION) : Examples"
+	@echo "CImg Library $(SVERSION) : Examples"
 	@echo "-----------------------------"
 	@echo "  > linux    : Linux/BSD target, X11 display, optimizations disabled."
 	@echo "  > dlinux   : Linux/BSD target, X11 display, debug mode."

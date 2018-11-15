@@ -53074,7 +53074,7 @@ namespace cimg_library_suffixed {
                                    specular_lightness,specular_shininess,
                                    sprite_scale);
             board.saveSVG(filename);
-            (+visu).draw_text(" Object '%s' saved. ",false,filename._data).display(disp);
+            (+visu).__draw_text(" Object '%s' saved. ",false,filename._data).display(disp);
             disp.set_key(key,false); key = 0;
           } break;
 #endif

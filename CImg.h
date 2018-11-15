@@ -8634,8 +8634,8 @@ namespace cimg_library_suffixed {
       unsigned int dims = 0;
       cimglist_for(list,l) {
         const CImg<T>& img = list._data[l];
-        img.__get_select(*this,_normalization,(img._width - 1)/2,(img._height - 1)/2,
-                         (img._depth - 1)/2).move_to(visu[l]);
+        img._get_select(*this,_normalization,(img._width - 1)/2,(img._height - 1)/2,
+                        (img._depth - 1)/2).move_to(visu[l]);
         dims = std::max(dims,visu[l]._spectrum);
       }
       cimglist_for(list,l) if (visu[l]._spectrum<dims) visu[l].resize(-100,-100,-100,dims,1);
@@ -48278,8 +48278,8 @@ namespace cimg_library_suffixed {
         if (mx!=omx || my!=omy || !visu0 || (_depth>1 && !view3d)) {
 
           if (!visu0) { // Create image of projected planes
-            if (thumb) thumb.__get_select(disp,old_normalization,phase?X1:X0,phase?Y1:Y0,phase?Z1:Z0).move_to(visu0);
-            else __get_select(disp,old_normalization,phase?X1:X0,phase?Y1:Y0,phase?Z1:Z0).move_to(visu0);
+            if (thumb) thumb._get_select(disp,old_normalization,phase?X1:X0,phase?Y1:Y0,phase?Z1:Z0).move_to(visu0);
+            else _get_select(disp,old_normalization,phase?X1:X0,phase?Y1:Y0,phase?Z1:Z0).move_to(visu0);
             visu0.resize(disp);
             view3d.assign();
             points3d.assign();
@@ -48570,8 +48570,10 @@ namespace cimg_library_suffixed {
                                    origX + X0,origY + Y0,origX + X1,origY + Y1,
                                    1 + cimg::abs(X0 - X1),1 + cimg::abs(Y0 - Y1));
               }
-            if (phase || (mx>=0 && my>=0))
-              visu.draw_text(0,text_down?visu.height() - 13:0,text,foreground_color,background_color,0.7f,13);
+            if (phase || (mx>=0 && my>=0)) {
+              const int fsiz = std::max(12U,cimg::min(visu._width/32,visu._height/32,16U));
+              visu.draw_text(0,text_down?visu.height() - fsiz:0,text,foreground_color,background_color,0.7f,fsiz);
+            }
           }
 
           disp.display(visu);
@@ -48618,8 +48620,8 @@ namespace cimg_library_suffixed {
     }
 
     // Return a visualizable uchar8 image for display routines.
-    CImg<ucharT> __get_select(const CImgDisplay& disp, const int normalization,
-                              const int x, const int y, const int z) const {
+    CImg<ucharT> _get_select(const CImgDisplay& disp, const int normalization,
+                             const int x, const int y, const int z) const {
       if (is_empty()) return CImg<ucharT>(1,1,1,1,0);
       const CImg<T> crop = get_shared_channels(0,std::min(2,spectrum() - 1));
       CImg<Tuchar> img2d;
@@ -57990,7 +57992,7 @@ namespace cimg_library_suffixed {
               while (x1<visu0._width && indices[x1++]==(unsigned int)ind) {}
               const CImg<T> &src = _data[ind]?_data[ind]:onexone;
               CImg<ucharT> res;
-              src.__get_select(disp,old_normalization,(src._width - 1)/2,(src._height - 1)/2,(src._depth - 1)/2).
+              src._get_select(disp,old_normalization,(src._width - 1)/2,(src._height - 1)/2,(src._depth - 1)/2).
                 move_to(res);
               const unsigned int h = CImgDisplay::_fitscreen(res._width,res._height,1,128,-85,true);
               res.resize(x1 - x0,std::max(32U,h*disp._height/max_height),1,res._spectrum==1?3:-100);
@@ -58009,7 +58011,7 @@ namespace cimg_library_suffixed {
               while (y1<visu0._height && indices[y1++]==(unsigned int)ind) {}
               const CImg<T> &src = _data[ind]?_data[ind]:onexone;
               CImg<ucharT> res;
-              src.__get_select(disp,old_normalization,(src._width - 1)/2,(src._height - 1)/2,(src._depth - 1)/2).
+              src._get_select(disp,old_normalization,(src._width - 1)/2,(src._height - 1)/2,(src._depth - 1)/2).
                 move_to(res);
               const unsigned int w = CImgDisplay::_fitscreen(res._width,res._height,1,128,-85,false);
               res.resize(std::max(32U,w*disp._width/max_width),y1 - y0,1,res._spectrum==1?3:-100);

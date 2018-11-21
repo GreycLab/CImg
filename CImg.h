@@ -38104,7 +38104,7 @@ namespace cimg_library_suffixed {
           (guide._width!=_width || guide._height!=_height || guide._depth!=_depth || guide._spectrum<_constraint))
         throw CImgArgumentException(_cimg_instance
                                     "patchmatch(): Specified guide (%u,%u,%u,%u,%p) has invalid dimensions "
-                                    "considering instance and patch image image (%u,%u,%u,%u,%p).",
+                                    "considering instance and patch image (%u,%u,%u,%u,%p).",
                                     cimg_instance,
                                     guide._width,guide._height,guide._depth,guide._spectrum,guide._data,
                                     patch_image._width,patch_image._height,patch_image._depth,patch_image._spectrum,

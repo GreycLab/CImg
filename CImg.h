@@ -16047,7 +16047,6 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_check_type(arg,n_arg,mode,N) check_type(arg,n_arg,mode,N,ss,se,saved_char)
 #define _cimg_mp_check_constant(arg,n_arg,mode) check_constant(arg,n_arg,mode,ss,se,saved_char)
 #define _cimg_mp_check_matrix_square(arg,n_arg) check_matrix_square(arg,n_arg,ss,se,saved_char)
-#define _cimg_mp_check_vector0(dim) check_vector0(dim,ss,se,saved_char)
 #define _cimg_mp_check_list(is_out) check_list(is_out,ss,se,saved_char)
 #define _cimg_mp_defunc(mp) (*(mp_func)(*(mp).opcode))(mp)
 #define _cimg_mp_return(x) { *se = saved_char; s_op = previous_s_op; ss_op = previous_ss_op; return x; }
@@ -16373,7 +16372,7 @@ namespace cimg_library_suffixed {
           case 'I' :
             _cimg_mp_op("Variable 'I'");
             if (reserved_label['I']!=~0U) _cimg_mp_return(reserved_label['I']);
-            _cimg_mp_check_vector0(imgin._spectrum);
+            if (!imgin._spectrum) _cimg_mp_return(0);
             need_input_copy = true;
             pos = vector(imgin._spectrum);
             CImg<ulongT>::vector((ulongT)mp_Joff,pos,0,0,imgin._spectrum).move_to(code);
@@ -16503,7 +16502,7 @@ namespace cimg_library_suffixed {
                     p3 = (unsigned int)cimg::mod((int)mem[p1],listin.width());
                     p2 = listin[p3]._spectrum;
                   }
-                  _cimg_mp_check_vector0(p2);
+                  if (!p2) _cimg_mp_return(0);
                 } else p2 = 0;
                 _cimg_mp_check_type(arg2,2,*ss>='i'?1:3,p2);
 
@@ -16589,7 +16588,7 @@ namespace cimg_library_suffixed {
                     p3 = (unsigned int)cimg::mod((int)mem[p1],listin.width());
                     p2 = listin[p3]._spectrum;
                   }
-                  _cimg_mp_check_vector0(p2);
+                  if (!p2) _cimg_mp_return(0);
                 } else p2 = 0;
                 _cimg_mp_check_type(arg5,2,*ss>='i'?1:3,p2);
 
@@ -17948,7 +17947,7 @@ namespace cimg_library_suffixed {
               p3 = (unsigned int)cimg::mod((int)mem[p1],listin.width());
               p2 = listin[p3]._spectrum;
             }
-            _cimg_mp_check_vector0(p2);
+            if (!p2) _cimg_mp_return(0);
             pos = vector(p2);
             if (p1!=~0U) {
               CImg<ulongT>::vector((ulongT)(is_relative?mp_list_Joff:mp_list_Ioff),
@@ -18116,7 +18115,7 @@ namespace cimg_library_suffixed {
               p3 = (unsigned int)cimg::mod((int)mem[p1],listin.width());
               p2 = listin[p3]._spectrum;
             }
-            _cimg_mp_check_vector0(p2);
+            if (!p2) _cimg_mp_return(0);
             pos = vector(p2);
             if (p1!=~0U)
               CImg<ulongT>::vector((ulongT)(is_relative?mp_list_Jxyz:mp_list_Ixyz),
@@ -20124,7 +20123,7 @@ namespace cimg_library_suffixed {
                   s = ns;
                 }
               if (arg1==~0U) arg1 = arg2;
-              _cimg_mp_check_vector0(arg1);
+              if (!arg1) _cimg_mp_return(0);
               pos = vector(arg1);
               l_opcode.insert(CImg<ulongT>::vector((ulongT)mp_vector_init,pos,0,arg1),0);
               (l_opcode>'y').move_to(opcode);
@@ -20446,7 +20445,7 @@ namespace cimg_library_suffixed {
                 } else { CImg<ulongT>::vector(arg2).move_to(l_opcode); ++arg1; }
                 s = ns;
               }
-            _cimg_mp_check_vector0(arg1);
+            if (!arg1) _cimg_mp_return(0);
             pos = vector(arg1);
             l_opcode.insert(CImg<ulongT>::vector((ulongT)mp_vector_init,pos,0,arg1),0);
             (l_opcode>'y').move_to(opcode);
@@ -20487,7 +20486,7 @@ namespace cimg_library_suffixed {
                              0,_cimg_mp_boundary);
           case 'I' : // I#ind
             p2 = p1!=~0U?listin[p1]._spectrum:listin._width?~0U:0;
-            _cimg_mp_check_vector0(p2);
+            if (!p2) _cimg_mp_return(0);
             pos = vector(p2);
             CImg<ulongT>::vector((ulongT)mp_list_Joff,pos,p1,0,0,p2).move_to(code);
             _cimg_mp_return(pos);
@@ -21077,31 +21076,6 @@ namespace cimg_library_suffixed {
           cimg::strellipsize(s0,64);
           throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                       "CImg<%s>::%s: %s%s Invalid call with an empty image list, "
-                                      "in expression '%s%s%s'.",
-                                      pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",
-                                      s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
-        }
-      }
-
-      // Check a vector is not 0-dimensional, or with unknown dimension at compile time.
-      void check_vector0(const unsigned int dim,
-                         char *const ss, char *const se, const char saved_char) {
-        char *s0 = 0;
-        if (!dim) {
-          *se = saved_char;
-          s0 = ss - 4>expr._data?ss - 4:expr._data;
-          cimg::strellipsize(s0,64);
-          throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                      "CImg<%s>::%s: %s%s Invalid construction of a 0-dimensional vector, "
-                                      "in expression '%s%s%s'.",
-                                      pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",
-                                      s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
-        } else if (dim==~0U) {
-          *se = saved_char;
-          s0 = ss - 4>expr._data?ss - 4:expr._data;
-          cimg::strellipsize(s0,64);
-          throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                      "CImg<%s>::%s: %s%s Invalid construction of a vector with possible dynamic size, "
                                       "in expression '%s%s%s'.",
                                       pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",
                                       s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");

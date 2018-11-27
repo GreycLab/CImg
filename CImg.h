@@ -18525,7 +18525,7 @@ namespace cimg_library_suffixed {
               } else { p1 = ~0U; s0 = ss5; need_input_copy = true; }
               pos = 0;
               is_sth = false; // Coordinates specified as a vector?
-              if (ss5<se1) for (s = s0; s<se; ++s, ++pos) {
+              if (s0<se1) for (s = s0; s<se; ++s, ++pos) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                 arg1 = compile(s,ns,depth1,0,is_single);
@@ -18549,39 +18549,39 @@ namespace cimg_library_suffixed {
                 break;
               case 2 :
                 CImg<ulongT>::vector(*opcode,0,0,0,opcode[1],~0U,~0U,~0U,_cimg_mp_boundary).move_to(opcode);
-                arg1 = arg2?3:2;
+                arg1 = arg2 + 2;
                 break;
               case 3 :
                 CImg<ulongT>::vector(*opcode,0,0,0,opcode[1],~0U,~0U,~0U,opcode[2]).move_to(opcode);
-                arg1 = arg2?3:2;
+                arg1 = arg2 + 2;
                 break;
               case 4 :
                 CImg<ulongT>::vector(*opcode,opcode[1],0,0,opcode[2],opcode[3],~0U,~0U,_cimg_mp_boundary).
                   move_to(opcode);
-                arg1 = (is_sth?2:1) + arg2;
+                arg1 = arg2 + (is_sth?2:3);
                 break;
               case 5 :
                 CImg<ulongT>::vector(*opcode,opcode[1],0,0,opcode[2],opcode[3],~0U,~0U,opcode[4]).
                   move_to(opcode);
-                arg1 = (is_sth?2:1) + arg2;
+                arg1 = arg2 + (is_sth?2:3);
                 break;
               case 6 :
                 CImg<ulongT>::vector(*opcode,opcode[1],opcode[2],0,opcode[3],opcode[4],opcode[5],~0U,
                                     _cimg_mp_boundary).move_to(opcode);
-                arg1 = (is_sth?2:4) + arg2;
+                arg1 = arg2 + (is_sth?2:4);
                 break;
               case 7 :
                 CImg<ulongT>::vector(*opcode,opcode[1],opcode[2],0,opcode[3],opcode[4],opcode[5],~0U,
                                     opcode[6]).move_to(opcode);
-                arg1 = (is_sth?2:4) + arg2;
+                arg1 = arg2 + (is_sth?2:4);
                 break;
               case 8 :
                 CImg<ulongT>::vector(*opcode,opcode[1],opcode[2],opcode[3],opcode[4],opcode[5],opcode[6],
                                     opcode[7],_cimg_mp_boundary).move_to(opcode);
-                arg1 = (is_sth?2:5) + arg2;
+                arg1 = arg2 + (is_sth?2:5);
                 break;
               case 9 :
-                arg1 = (is_sth?2:5) + arg2;
+                arg1 = arg2 + (is_sth?2:5);
                 break;
               default : // Error -> too much arguments
                 *se = saved_char;

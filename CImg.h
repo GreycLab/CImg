@@ -12581,7 +12581,7 @@ namespace cimg_library_suffixed {
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
       try {
-        _fill(expression,true,true,0,0,"operator=",0);
+        _fill(expression,true,1,0,0,"operator=",0);
       } catch (CImgException&) {
         cimg::exception_mode(omode);
         load(expression);
@@ -12657,7 +12657,7 @@ namespace cimg_library_suffixed {
          instead of assigning them.
     **/
     CImg<T>& operator+=(const char *const expression) {
-      return *this+=(+*this)._fill(expression,true,true,0,0,"operator+=",this);
+      return *this+=(+*this)._fill(expression,true,1,0,0,"operator+=",this);
     }
 
     //! In-place addition operator.
@@ -12780,7 +12780,7 @@ namespace cimg_library_suffixed {
        Similar to operator+=(const char*), except that it performs a substraction instead of an addition.
      **/
     CImg<T>& operator-=(const char *const expression) {
-      return *this-=(+*this)._fill(expression,true,true,0,0,"operator-=",this);
+      return *this-=(+*this)._fill(expression,true,1,0,0,"operator-=",this);
     }
 
     //! In-place substraction operator.
@@ -12886,7 +12886,7 @@ namespace cimg_library_suffixed {
        Similar to operator+=(const char*), except that it performs a multiplication instead of an addition.
      **/
     CImg<T>& operator*=(const char *const expression) {
-      return mul((+*this)._fill(expression,true,true,0,0,"operator*=",this));
+      return mul((+*this)._fill(expression,true,1,0,0,"operator*=",this));
     }
 
     //! In-place multiplication operator.
@@ -13139,7 +13139,7 @@ namespace cimg_library_suffixed {
        Similar to operator+=(const char*), except that it performs a division instead of an addition.
      **/
     CImg<T>& operator/=(const char *const expression) {
-      return div((+*this)._fill(expression,true,true,0,0,"operator/=",this));
+      return div((+*this)._fill(expression,true,1,0,0,"operator/=",this));
     }
 
     //! In-place division operator.
@@ -13204,7 +13204,7 @@ namespace cimg_library_suffixed {
        Similar to operator+=(const char*), except that it performs a modulo operation instead of an addition.
     **/
     CImg<T>& operator%=(const char *const expression) {
-      return *this%=(+*this)._fill(expression,true,true,0,0,"operator%=",this);
+      return *this%=(+*this)._fill(expression,true,1,0,0,"operator%=",this);
     }
 
     //! In-place modulo operator.
@@ -13271,7 +13271,7 @@ namespace cimg_library_suffixed {
        Similar to operator+=(const char*), except that it performs a bitwise AND operation instead of an addition.
     **/
     CImg<T>& operator&=(const char *const expression) {
-      return *this&=(+*this)._fill(expression,true,true,0,0,"operator&=",this);
+      return *this&=(+*this)._fill(expression,true,1,0,0,"operator&=",this);
     }
 
     //! In-place bitwise AND operator.
@@ -13338,7 +13338,7 @@ namespace cimg_library_suffixed {
        Similar to operator+=(const char*), except that it performs a bitwise OR operation instead of an addition.
     **/
     CImg<T>& operator|=(const char *const expression) {
-      return *this|=(+*this)._fill(expression,true,true,0,0,"operator|=",this);
+      return *this|=(+*this)._fill(expression,true,1,0,0,"operator|=",this);
     }
 
     //! In-place bitwise OR operator.
@@ -13409,7 +13409,7 @@ namespace cimg_library_suffixed {
        - It does \e not compute the \e power of pixel values. For this purpose, use pow(const char*) instead.
     **/
     CImg<T>& operator^=(const char *const expression) {
-      return *this^=(+*this)._fill(expression,true,true,0,0,"operator^=",this);
+      return *this^=(+*this)._fill(expression,true,1,0,0,"operator^=",this);
     }
 
     //! In-place bitwise XOR operator.
@@ -13478,7 +13478,7 @@ namespace cimg_library_suffixed {
        Similar to operator+=(const char*), except that it performs a bitwise left shift instead of an addition.
     **/
     CImg<T>& operator<<=(const char *const expression) {
-      return *this<<=(+*this)._fill(expression,true,true,0,0,"operator<<=",this);
+      return *this<<=(+*this)._fill(expression,true,1,0,0,"operator<<=",this);
     }
 
     //! In-place bitwise left shift operator.
@@ -13546,7 +13546,7 @@ namespace cimg_library_suffixed {
        Similar to operator+=(const char*), except that it performs a bitwise right shift instead of an addition.
     **/
     CImg<T>& operator>>=(const char *const expression) {
-      return *this>>=(+*this)._fill(expression,true,true,0,0,"operator>>=",this);
+      return *this>>=(+*this)._fill(expression,true,1,0,0,"operator>>=",this);
     }
 
     //! In-place bitwise right shift operator.
@@ -13628,7 +13628,7 @@ namespace cimg_library_suffixed {
        \param expression Value string describing the way pixel values are compared.
     **/
     bool operator==(const char *const expression) const {
-      return *this==(+*this)._fill(expression,true,true,0,0,"operator==",this);
+      return *this==(+*this)._fill(expression,true,1,0,0,"operator==",this);
     }
 
     //! Test if two images have the same size and values.
@@ -24804,7 +24804,7 @@ namespace cimg_library_suffixed {
        Similar to operator+=(const char*), except it performs a pointwise exponentiation instead of an addition.
     **/
     CImg<T>& pow(const char *const expression) {
-      return pow((+*this)._fill(expression,true,true,0,0,"pow",this));
+      return pow((+*this)._fill(expression,true,1,0,0,"pow",this));
     }
 
     //! Raise each pixel value to a power, specified from an expression \newinstance.
@@ -24857,7 +24857,7 @@ namespace cimg_library_suffixed {
        Similar to operator<<=(const char*), except that it performs a left rotation instead of a left shift.
     **/
     CImg<T>& rol(const char *const expression) {
-      return rol((+*this)._fill(expression,true,true,0,0,"rol",this));
+      return rol((+*this)._fill(expression,true,1,0,0,"rol",this));
     }
 
     //! Compute the bitwise left rotation of each pixel value \newinstance.
@@ -24910,7 +24910,7 @@ namespace cimg_library_suffixed {
        Similar to operator>>=(const char*), except that it performs a right rotation instead of a right shift.
     **/
     CImg<T>& ror(const char *const expression) {
-      return ror((+*this)._fill(expression,true,true,0,0,"ror",this));
+      return ror((+*this)._fill(expression,true,1,0,0,"ror",this));
     }
 
     //! Compute the bitwise right rotation of each pixel value \newinstance.
@@ -24993,7 +24993,7 @@ namespace cimg_library_suffixed {
        \f$\mathrm{min}(I_{(x,y,z,c)},\mathrm{expr}_{(x,y,z,c)})\f$.
     **/
     CImg<T>& min(const char *const expression) {
-      return min((+*this)._fill(expression,true,true,0,0,"min",this));
+      return min((+*this)._fill(expression,true,1,0,0,"min",this));
     }
 
     //! Pointwise min operator between an image and an expression \newinstance.
@@ -25052,7 +25052,7 @@ namespace cimg_library_suffixed {
        \f$\mathrm{max}(I_{(x,y,z,c)},\mathrm{expr}_{(x,y,z,c)})\f$.
     **/
     CImg<T>& max(const char *const expression) {
-      return max((+*this)._fill(expression,true,true,0,0,"max",this));
+      return max((+*this)._fill(expression,true,1,0,0,"max",this));
     }
 
     //! Pointwise max operator between an image and an expression \newinstance.
@@ -27716,10 +27716,12 @@ namespace cimg_library_suffixed {
     **/
     CImg<T>& fill(const char *const expression, const bool repeat_values, const bool allow_formula=true,
                   const CImgList<T> *const list_inputs=0, CImgList<T> *const list_outputs=0) {
-      return _fill(expression,repeat_values,allow_formula,list_inputs,list_outputs,"fill",0);
+      return _fill(expression,repeat_values,allow_formula?1:0,list_inputs,list_outputs,"fill",0);
     }
 
-    CImg<T>& _fill(const char *const expression, const bool repeat_values, bool allow_formula,
+    // 'formula_mode' = { 0 = does not allow formula | 1 = allow formula |
+    //                    2 = allow formula but do not fill image values }.
+    CImg<T>& _fill(const char *const expression, const bool repeat_values, const unsigned int formula_mode,
                    const CImgList<T> *const list_inputs, CImgList<T> *const list_outputs,
                    const char *const calling_function, const CImg<T> *provides_copy) {
       if (is_empty() || !expression || !*expression) return *this;
@@ -27729,7 +27731,7 @@ namespace cimg_library_suffixed {
       bool is_value_sequence = false;
       cimg_abort_init;
 
-      if (allow_formula) {
+      if (formula_mode) {
 
         // Try to pre-detect regular value sequence to avoid exception thrown by _cimg_math_parser.
         double value;
@@ -27765,21 +27767,23 @@ namespace cimg_library_suffixed {
                 CImg<doubleT> res(1,mp.result_dim);
                 cimg_rofYZ(*this,y,z) {
                   cimg_abort_test;
-                  cimg_rofX(*this,x) {
-                    mp(x,y,z,0,res._data);
-                    const double *ptrs = res._data;
-                    T *_ptrd = ptrd--; for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
-                  }
+                  if (formula_mode==2) cimg_rofX(*this,x) mp(x,y,z,0);
+                  else cimg_rofX(*this,x) {
+                      mp(x,y,z,0,res._data);
+                      const double *ptrs = res._data;
+                      T *_ptrd = ptrd--; for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
+                    }
                 }
               } else if (*expression=='>' || !do_in_parallel) {
                 CImg<doubleT> res(1,mp.result_dim);
                 cimg_forYZ(*this,y,z) {
                   cimg_abort_test;
-                  cimg_forX(*this,x) {
-                    mp(x,y,z,0,res._data);
-                    const double *ptrs = res._data;
-                    T *_ptrd = ptrd++; for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
-                  }
+                  if (formula_mode==2) cimg_forX(*this,x) mp(x,y,z,0);
+                  else cimg_forX(*this,x) {
+                      mp(x,y,z,0,res._data);
+                      const double *ptrs = res._data;
+                      T *_ptrd = ptrd++; for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
+                    }
                 }
              } else {
 #ifdef cimg_use_openmp
@@ -27792,12 +27796,15 @@ namespace cimg_library_suffixed {
                   cimg_pragma_openmp(for collapse(2))
                     cimg_forYZ(*this,y,z) _cimg_abort_try_omp {
                     cimg_abort_test;
-                    CImg<doubleT> res(1,lmp.result_dim);
-                    T *ptrd = data(0,y,z,0);
-                    cimg_forX(*this,x) {
-                      lmp(x,y,z,0,res._data);
-                      const double *ptrs = res._data;
-                      T *_ptrd = ptrd++; for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
+                    if (formula_mode==2) cimg_forX(*this,x) lmp(x,y,z,0);
+                    else {
+                      CImg<doubleT> res(1,lmp.result_dim);
+                      T *ptrd = data(0,y,z,0);
+                      cimg_forX(*this,x) {
+                        lmp(x,y,z,0,res._data);
+                        const double *ptrs = res._data;
+                        T *_ptrd = ptrd++; for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
+                      }
                     }
                   } _cimg_abort_catch_omp _cimg_abort_catch_fill_omp
                 }
@@ -27806,11 +27813,13 @@ namespace cimg_library_suffixed {
 
             } else { // Scalar-valued expression
               T *ptrd = *expression=='<'?end() - 1:_data;
-              if (*expression=='<')
-                cimg_rofYZC(*this,y,z,c) { cimg_abort_test; cimg_rofX(*this,x) *(ptrd--) = (T)mp(x,y,z,c); }
-              else if (*expression=='>' || !do_in_parallel)
-                cimg_forYZC(*this,y,z,c) { cimg_abort_test; cimg_forX(*this,x) *(ptrd++) = (T)mp(x,y,z,c); }
-              else {
+              if (*expression=='<') {
+                if (formula_mode==2) cimg_rofYZC(*this,y,z,c) { cimg_abort_test; cimg_rofX(*this,x) mp(x,y,z,c); }
+                else cimg_rofYZC(*this,y,z,c) { cimg_abort_test; cimg_rofX(*this,x) *(ptrd--) = (T)mp(x,y,z,c); }
+              } else if (*expression=='>' || !do_in_parallel) {
+                if (formula_mode==2) cimg_forYZC(*this,y,z,c) { cimg_abort_test; cimg_forX(*this,x) mp(x,y,z,c); }
+                else cimg_forYZC(*this,y,z,c) { cimg_abort_test; cimg_forX(*this,x) *(ptrd++) = (T)mp(x,y,z,c); }
+              } else {
 #ifdef cimg_use_openmp
                 cimg_pragma_openmp(parallel)
                 {
@@ -27821,8 +27830,11 @@ namespace cimg_library_suffixed {
                   cimg_pragma_openmp(for collapse(3))
                     cimg_forYZC(*this,y,z,c) _cimg_abort_try_omp {
                     cimg_abort_test;
-                    T *ptrd = data(0,y,z,c);
-                    cimg_forX(*this,x) *ptrd++ = (T)lmp(x,y,z,c);
+                    if (formula_mode==2) cimg_forX(*this,x) lmp(x,y,z,c);
+                    else {
+                      T *ptrd = data(0,y,z,c);
+                      cimg_forX(*this,x) *ptrd++ = (T)lmp(x,y,z,c);
+                    }
                   } _cimg_abort_catch_omp _cimg_abort_catch_fill_omp
                 }
 #endif
@@ -27833,7 +27845,7 @@ namespace cimg_library_suffixed {
       }
 
       // Try to fill values according to a value sequence.
-      if (!allow_formula || is_value_sequence || is_error) {
+      if (!formula_mode || is_value_sequence || is_error) {
         CImg<charT> item(256);
         char sep = 0;
         const char *nexpression = expression;
@@ -27867,7 +27879,7 @@ namespace cimg_library_suffixed {
     //! Fill sequentially pixel values according to a given expression \newinstance.
     CImg<T> get_fill(const char *const expression, const bool repeat_values, const bool allow_formula=true,
                      const CImgList<T> *const list_inputs=0, CImgList<T> *const list_outputs=0) const {
-      return (+*this).fill(expression,repeat_values,allow_formula,list_inputs,list_outputs);
+      return (+*this).fill(expression,repeat_values,allow_formula?1:0,list_inputs,list_outputs);
     }
 
     //! Fill sequentially pixel values according to the values found in another image.

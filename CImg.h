@@ -38099,7 +38099,7 @@ namespace cimg_library_suffixed {
             score(x,y,z) = _matchpatch(*this,patch_image,occ,patch_width,patch_height,patch_depth,
                                        x - cx1,y - cy1,z - cz1,
                                        u - cx1,v - cy1,w - cz1,
-                                       u,v,w,occ_penalization,cimg::type<float>::inf());
+                                       u,v,w,0,cimg::type<float>::inf());
           } else cimg_forXYZ(*this,x,y,z) { // Random initialization
             const int
               cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
@@ -38114,7 +38114,7 @@ namespace cimg_library_suffixed {
             score(x,y,z) = _matchpatch(*this,patch_image,occ,patch_width,patch_height,patch_depth,
                                        x - cx1,y - cy1,z - cz1,
                                        u - cx1,v - cy1,w - cz1,
-                                       u,v,w,occ_penalization,cimg::type<float>::inf());
+                                       u,v,w,0,cimg::type<float>::inf());
           }
 
         // Start iteration loop.
@@ -38140,7 +38140,8 @@ namespace cimg_library_suffixed {
               zp = z - cz1;
 
             int best_u = map(x,y,z,0), best_v = map(x,y,z,1), best_w = map(x,y,z,2), u, v, w;
-            float best_score = score(x,y,z), s;
+            const float best_score0 = score(x,y,z);
+            float best_score = best_score0, s;
 
             // Propagation.
             if (x>0) { // Compare with left neighbor
@@ -38239,11 +38240,14 @@ namespace cimg_library_suffixed {
                 dw = std::max(5.0f,dw*0.5f); dh = std::max(5.0f,dh*0.5f); dd = std::max(5.0f,dd*0.5f);
               }
             }
-            map(x,y,z,0) = best_u;
-            map(x,y,z,1) = best_v;
-            map(x,y,z,2) = best_w;
-            score(x,y,z) = best_score;
-            if (occ_penalization!=0) ++occ(best_u,best_v,best_w);
+
+            if (best_score<best_score0) {
+              map(x,y,z,0) = best_u;
+              map(x,y,z,1) = best_v;
+              map(x,y,z,2) = best_w;
+              score(x,y,z) = best_score;
+            }
+            if (occ_penalization!=0) cimg_pragma_openmp(atomic) ++occ(best_u,best_v,best_w);
           }
         }
 
@@ -38260,7 +38264,7 @@ namespace cimg_library_suffixed {
             map(x,y,1) = v;
             score(x,y) = _matchpatch(*this,patch_image,occ,patch_width,patch_height,
                                      x - cx1,y - cy1,u - cx1,v - cy1,
-                                     u,v,occ_penalization,cimg::type<float>::inf());
+                                     u,v,0,cimg::type<float>::inf());
           } else cimg_forXY(*this,x,y) { // Random initialization
             const int
               cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
@@ -38271,7 +38275,7 @@ namespace cimg_library_suffixed {
             map(x,y,1) = v;
             score(x,y) = _matchpatch(*this,patch_image,occ,patch_width,patch_height,
                                      x - cx1,y - cy1,u - cx1,v - cy1,
-                                     u,v,occ_penalization,cimg::type<float>::inf());
+                                     u,v,0,cimg::type<float>::inf());
           }
 
         // Start iteration loop.
@@ -38292,7 +38296,8 @@ namespace cimg_library_suffixed {
               yp = y - cy1;
 
             int best_u = map(x,y,0), best_v = map(x,y,1), u, v;
-            float best_score = score(x,y), s;
+            const float best_score0 = score(x,y);
+            float best_score = best_score0, s;
 
             // Propagation.
             if (x>0) { // Compare with left neighbor
@@ -38355,10 +38360,13 @@ namespace cimg_library_suffixed {
                 dw = std::max(5.0f,dw*0.5f); dh = std::max(5.0f,dh*0.5f);
               }
             }
-            map(x,y,0) = best_u;
-            map(x,y,1) = best_v;
-            score(x,y) = best_score;
-            if (occ_penalization!=0) ++occ(best_u,best_v);
+
+            if (best_score<best_score0) {
+              map(x,y,0) = best_u;
+              map(x,y,1) = best_v;
+              score(x,y) = best_score;
+            }
+            if (occ_penalization!=0) cimg_pragma_openmp(atomic) ++occ(best_u,best_v);
           }
         }
       }

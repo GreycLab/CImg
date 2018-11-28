@@ -38075,7 +38075,8 @@ namespace cimg_library_suffixed {
 
       CImg<intT> map(_width,_height,_depth,patch_image._depth>1?3:2);
       CImg<floatT> score(_width,_height,_depth);
-      CImg<uintT> occ(patch_image._width,patch_image._height,patch_image._depth,1,0);
+      CImg<uintT> occ;
+      if (occ_penalization!=0) occ.assign(patch_image._width,patch_image._height,patch_image._depth,1,0);
       const int
         psizew = (int)patch_width, psizew1 = psizew/2, psizew2 = psizew - psizew1 - 1,
         psizeh = (int)patch_height, psizeh1 = psizeh/2, psizeh2 = psizeh - psizeh1 - 1,
@@ -38233,7 +38234,7 @@ namespace cimg_library_suffixed {
             map(x,y,z,1) = best_v;
             map(x,y,z,2) = best_w;
             score(x,y,z) = best_score;
-            ++occ(best_u,best_v,best_w);
+            if (occ_penalization!=0) ++occ(best_u,best_v,best_w);
           }
         }
 
@@ -38341,7 +38342,7 @@ namespace cimg_library_suffixed {
             map(x,y,0) = best_u;
             map(x,y,1) = best_v;
             score(x,y) = best_score;
-            ++occ(best_u,best_v);
+            if (occ_penalization!=0) ++occ(best_u,best_v);
           }
         }
       }
@@ -38366,7 +38367,7 @@ namespace cimg_library_suffixed {
         psizeh*img1._width - psizew,
         offz2 = (ulongT)img2._width*img2._height*img2._depth - psized*img2._width*img2._height -
         psizeh*img2._width - psizew;
-      float ssd = cimg::sqr(occ_penalization*occ(x2,y2,z2));
+      float ssd = occ_penalization==0?0:cimg::sqr(occ_penalization*occ(x2,y2,z2));
       cimg_forC(img1,c) {
         for (unsigned int k = 0; k<psized; ++k) {
           for (unsigned int j = 0; j<psizeh; ++j) {
@@ -38394,7 +38395,7 @@ namespace cimg_library_suffixed {
         offx2 = (ulongT)img2._width - psizew,
         offy1 = (ulongT)img1._width*img1._height - psizeh*img1._width,
         offy2 = (ulongT)img2._width*img2._height - psizeh*img2._width;
-      float ssd = cimg::sqr(occ_penalization*occ(x2,y2));
+      float ssd = occ_penalization==0?0:cimg::sqr(occ_penalization*occ(x2,y2));
       cimg_forC(img1,c) {
         for (unsigned int j = 0; j<psizeh; ++j) {
           for (unsigned int i = 0; i<psizew; ++i)

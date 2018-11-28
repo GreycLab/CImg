@@ -38367,13 +38367,13 @@ namespace cimg_library_suffixed {
     }
 
     // Compute SSD between two patches in different images.
-    static float _matchpatch(const CImg<T>& img1, const CImg<T>& img2, const CImg<uintT>& occ,
+    static float _matchpatch( const CImg<T>& img1, const CImg<T>& img2, const CImg<uintT>& occ,
                              const unsigned int psizew, const unsigned int psizeh, const unsigned int psized,
                              const int x1, const int y1, const int z1,
                              const int x2, const int y2, const int z2,
                              const int xc, const int yc, const int zc,
                              const float occ_penalization,
-                             const float max_ssd) { // 3D version
+                             const float max_score) { // 3D version
       const T *p1 = img1.data(x1,y1,z1), *p2 = img2.data(x2,y2,z2);
       const ulongT
         offx1 = (ulongT)img1._width - psizew,
@@ -38384,20 +38384,20 @@ namespace cimg_library_suffixed {
         psizeh*img1._width - psizew,
         offz2 = (ulongT)img2._width*img2._height*img2._depth - psized*img2._width*img2._height -
         psizeh*img2._width - psizew;
-      float ssd = occ_penalization==0?0:cimg::sqr(occ_penalization*occ(xc,yc,zc));
+      float ssd = 0;
       cimg_forC(img1,c) {
         for (unsigned int k = 0; k<psized; ++k) {
           for (unsigned int j = 0; j<psizeh; ++j) {
             for (unsigned int i = 0; i<psizew; ++i)
               ssd += cimg::sqr(*(p1++) - *(p2++));
-            if (ssd>max_ssd) return max_ssd;
+            if (ssd>max_score) return max_score;
             p1+=offx1; p2+=offx2;
           }
           p1+=offy1; p2+=offy2;
         }
         p1+=offz1; p2+=offz2;
       }
-      return ssd;
+      return occ_penalization==0?ssd:cimg::sqr(std::sqrt(ssd) + occ_penalization*occ(xc,yc,zc));
     }
 
     static float _matchpatch(const CImg<T>& img1, const CImg<T>& img2, const CImg<uintT>& occ,
@@ -38406,24 +38406,24 @@ namespace cimg_library_suffixed {
                              const int x2, const int y2,
                              const int xc, const int yc,
                              const float occ_penalization,
-                             const float max_ssd) { // 2D version
+                             const float max_score) { // 2D version
       const T *p1 = img1.data(x1,y1), *p2 = img2.data(x2,y2);
       const ulongT
         offx1 = (ulongT)img1._width - psizew,
         offx2 = (ulongT)img2._width - psizew,
         offy1 = (ulongT)img1._width*img1._height - psizeh*img1._width,
         offy2 = (ulongT)img2._width*img2._height - psizeh*img2._width;
-      float ssd = occ_penalization==0?0:cimg::sqr(occ_penalization*occ(xc,yc));
+      float ssd = 0;
       cimg_forC(img1,c) {
         for (unsigned int j = 0; j<psizeh; ++j) {
           for (unsigned int i = 0; i<psizew; ++i)
             ssd += cimg::sqr(*(p1++) - *(p2++));
-          if (ssd>max_ssd) return max_ssd;
+          if (ssd>max_score) return max_score;
           p1+=offx1; p2+=offx2;
         }
         p1+=offy1; p2+=offy2;
       }
-      return ssd;
+      return occ_penalization==0?ssd:cimg::sqr(std::sqrt(ssd) + occ_penalization*occ(xc,yc));
     }
 
     //! Compute Euclidean distance function to a specified value.

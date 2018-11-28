@@ -38153,110 +38153,110 @@ namespace cimg_library_suffixed {
               yp = y - cy1,
               zp = z - cz1;
 
+            int best_u = map(x,y,z,0), best_v = map(x,y,z,1), best_w = map(x,y,z,2), u, v, w;
+            float best_score = score(x,y,z), s;
+
             // Propagation.
-            if (is_even) {
-              if (x>0) { // Compare with left neighbor
-                const int u = map(x - 1,y,z,0), v = map(x - 1,y,z,1), w = map(x - 1,y,z,2);
-                if (u>=cx1 - 1 && u<patch_image.width() - 1 - cx2 &&
-                    v>=cy1 && v<patch_image.height() - cy2 &&
-                    w>=cz1 && w<patch_image.depth() - cz2) {
-                  const float
-                    current_score = score(x,y,z),
-                    D = _matchpatch(*this,patch_image,patch_width,patch_height,patch_depth,
-                                    xp,yp,zp,u + 1 - cx1,v - cy1,w - cz1,current_score);
-                  if (D<current_score) { score(x,y,z) = D; map(x,y,z,0) = u + 1; map(x,y,z,1) = v; map(x,y,z,2) = w; }
-                }
+            if (x>0) { // Compare with left neighbor
+              u = map(x - 1,y,z,0);
+              v = map(x - 1,y,z,1);
+              w = map(x - 1,y,z,2);
+              if (u>=cx1 - 1 && u<patch_image.width() - 1 - cx2 &&
+                  v>=cy1 && v<patch_image.height() - cy2 &&
+                  w>=cz1 && w<patch_image.depth() - cz2) {
+                s = _matchpatch(*this,patch_image,patch_width,patch_height,patch_depth,
+                                xp,yp,zp,u + 1 - cx1,v - cy1,w - cz1,best_score);
+                if (s<best_score) { best_u = u + 1; best_v = v; best_w = w; best_score = s; }
               }
-              if (y>0) { // Compare with up neighbor
-                const int u = map(x,y - 1,z,0), v = map(x,y - 1,z,1), w = map(x,y - 1,z,2);
-                if (u>=cx1 && u<patch_image.width() - cx2 &&
-                    v>=cy1 - 1 && v<patch_image.height() - 1 - cy2 &&
-                    w>=cz1 && w<patch_image.depth() - cx2) {
-                  const float
-                    current_score = score(x,y,z),
-                    D = _matchpatch(*this,patch_image,patch_width,patch_height,patch_depth,
-                                    xp,yp,zp,u - cx1,v + 1 - cy1,w - cz1,current_score);
-                  if (D<current_score) { score(x,y,z) = D; map(x,y,z,0) = u; map(x,y,z,1) = v + 1; map(x,y,z,2) = w; }
-                }
+            }
+            if (y>0) { // Compare with up neighbor
+              u = map(x,y - 1,z,0);
+              v = map(x,y - 1,z,1);
+              w = map(x,y - 1,z,2);
+              if (u>=cx1 && u<patch_image.width() - cx2 &&
+                  v>=cy1 - 1 && v<patch_image.height() - 1 - cy2 &&
+                  w>=cz1 && w<patch_image.depth() - cx2) {
+                s = _matchpatch(*this,patch_image,patch_width,patch_height,patch_depth,
+                                xp,yp,zp,u - cx1,v + 1 - cy1,w - cz1,best_score);
+                if (s<best_score) { best_u = u; best_v = v + 1; best_w = w; best_score = s; }
               }
-              if (z>0) { // Compare with backward neighbor
-                const int u = map(x,y,z - 1,0), v = map(x,y,z - 1,1), w = map(x,y,z - 1,2);
-                if (u>=cx1 && u<patch_image.width() - cx2 &&
-                    v>=cy1 && v<patch_image.height() - cy2 &&
-                    w>=cz1 - 1 && w<patch_image.depth() - 1 - cz2) {
-                  const float
-                    current_score = score(x,y,z),
-                    D = _matchpatch(*this,patch_image,patch_width,patch_height,patch_depth,
-                                    xp,yp,zp,u - cx1,v - cy1,w + 1 - cz1,current_score);
-                  if (D<current_score) { score(x,y,z) = D; map(x,y,z,0) = u; map(x,y,z,1) = v; map(x,y,z,2) = w + 1; }
-                }
+            }
+            if (z>0) { // Compare with backward neighbor
+              u = map(x,y,z - 1,0);
+              v = map(x,y,z - 1,1);
+              w = map(x,y,z - 1,2);
+              if (u>=cx1 && u<patch_image.width() - cx2 &&
+                  v>=cy1 && v<patch_image.height() - cy2 &&
+                  w>=cz1 - 1 && w<patch_image.depth() - 1 - cz2) {
+                s = _matchpatch(*this,patch_image,patch_width,patch_height,patch_depth,
+                                xp,yp,zp,u - cx1,v - cy1,w + 1 - cz1,best_score);
+                if (s<best_score) { best_u = u; best_v = v; best_w = w + 1; best_score = s; }
               }
-            } else {
-              if (x<width() - 1) { // Compare with right neighbor
-                const int u = map(x + 1,y,z,0), v = map(x + 1,y,z,1), w = map(x + 1,y,z,2);
-                if (u>=cx1 + 1 && u<patch_image.width() + 1 - cx2 &&
-                    v>=cy1 && v<patch_image.height() - cy2 &&
-                    w>=cz1 && w<patch_image.depth() - cz2) {
-                  const float
-                    current_score = score(x,y,z),
-                    D = _matchpatch(*this,patch_image,patch_width,patch_height,patch_depth,
-                                    xp,yp,zp,u - 1 - cx1,v - cy1,w - cz1,current_score);
-                  if (D<current_score) { score(x,y,z) = D; map(x,y,z,0) = u - 1; map(x,y,z,1) = v; map(x,y,z,2) = w; }
-                }
+            }
+            if (x<width() - 1) { // Compare with right neighbor
+              u = map(x + 1,y,z,0);
+              v = map(x + 1,y,z,1);
+              w = map(x + 1,y,z,2);
+              if (u>=cx1 + 1 && u<patch_image.width() + 1 - cx2 &&
+                  v>=cy1 && v<patch_image.height() - cy2 &&
+                  w>=cz1 && w<patch_image.depth() - cz2) {
+                s = _matchpatch(*this,patch_image,patch_width,patch_height,patch_depth,
+                                xp,yp,zp,u - 1 - cx1,v - cy1,w - cz1,best_score);
+                if (s<best_score) { best_u = u - 1; best_v = v; best_w = w; best_score = s; }
               }
-              if (y<height() - 1) { // Compare with bottom neighbor
-                const int u = map(x,y + 1,z,0), v = map(x,y + 1,z,1), w = map(x,y + 1,z,2);
-                if (u>=cx1 && u<patch_image.width() - cx2 &&
-                    v>=cy1 + 1 && v<patch_image.height() + 1 - cy2 &&
-                    w>=cz1 && w<patch_image.depth() - cz2) {
-                  const float
-                    current_score = score(x,y,z),
-                    D = _matchpatch(*this,patch_image,patch_width,patch_height,patch_depth,
-                                    xp,yp,zp,u - cx1,v - 1 - cy1,w - cz1,current_score);
-                  if (D<current_score) { score(x,y,z) = D; map(x,y,z,0) = u; map(x,y,z,1) = v - 1; map(x,y,z,2) = w; }
-                }
+            }
+            if (y<height() - 1) { // Compare with bottom neighbor
+              u = map(x,y + 1,z,0);
+              v = map(x,y + 1,z,1);
+              w = map(x,y + 1,z,2);
+              if (u>=cx1 && u<patch_image.width() - cx2 &&
+                  v>=cy1 + 1 && v<patch_image.height() + 1 - cy2 &&
+                  w>=cz1 && w<patch_image.depth() - cz2) {
+                s = _matchpatch(*this,patch_image,patch_width,patch_height,patch_depth,
+                                xp,yp,zp,u - cx1,v - 1 - cy1,w - cz1,best_score);
+                if (s<best_score) { best_u = u; best_v = v - 1; best_w = w; best_score = s; }
               }
-              if (z<depth() - 1) { // Compare with forward neighbor
-                const int u = map(x,y,z + 1,0), v = map(x,y,z + 1,1), w = map(x,y,z + 1,2);
-                if (u>=cx1 && u<patch_image.width() - cx2 &&
-                    v>=cy1 && v<patch_image.height() - cy2 &&
-                    w>=cz1 + 1 && w<patch_image.depth() + 1 - cz2) {
-                  const float
-                    current_score = score(x,y,z),
-                    D = _matchpatch(*this,patch_image,patch_width,patch_height,patch_depth,
-                                    xp,yp,zp,u - cx1,v - cy1,w - 1 - cz1,current_score);
-                  if (D<current_score) { score(x,y,z) = D; map(x,y,z,0) = u; map(x,y,z,1) = v; map(x,y,z,2) = w - 1; }
-                }
+            }
+            if (z<depth() - 1) { // Compare with forward neighbor
+              u = map(x,y,z + 1,0);
+              v = map(x,y,z + 1,1);
+              w = map(x,y,z + 1,2);
+              if (u>=cx1 && u<patch_image.width() - cx2 &&
+                  v>=cy1 && v<patch_image.height() - cy2 &&
+                  w>=cz1 + 1 && w<patch_image.depth() + 1 - cz2) {
+                s = _matchpatch(*this,patch_image,patch_width,patch_height,patch_depth,
+                                xp,yp,zp,u - cx1,v - cy1,w - 1 - cz1,best_score);
+                if (s<best_score) { best_u = u; best_v = v; best_w = w - 1; best_score = s; }
               }
             }
 
             // Randomization.
-            const int u = map(x,y,z,0), v = map(x,y,z,1), w = map(x,y,z,2);
             float dw = (float)patch_image.width(), dh = (float)patch_image.height(), dd = (float)patch_image.depth();
             for (unsigned int i = 0; i<nb_randoms; ++i) {
-              const int
-                ui = (int)cimg::round(cimg::rand(std::max((float)cx1,u - dw),
-                                                 std::min(patch_image.width() - 1.0f - cx2,u + dw))),
-                vi = (int)cimg::round(cimg::rand(std::max((float)cy1,v - dh),
-                                                 std::min(patch_image.height() - 1.0f - cy2,v + dh))),
-                wi = (int)cimg::round(cimg::rand(std::max((float)cz1,w - dd),
-                                                 std::min(patch_image.depth() - 1.0f - cz2,w + dd)));
-              if (ui!=u || vi!=v || wi!=w) {
-                const float
-                  current_score = score(x,y,z),
-                  D = _matchpatch(*this,patch_image,patch_width,patch_height,patch_depth,
-                                  xp,yp,zp,ui - cx1,vi - cy1,wi - cz1,current_score);
-                if (D<current_score) { score(x,y,z) = D; map(x,y,z,0) = ui; map(x,y,z,1) = vi; map(x,y,z,2) = wi; }
+              u = (int)cimg::round(cimg::rand(std::max((float)cx1,best_u - dw),
+                                              std::min(patch_image.width() - 1.0f - cx2,best_u + dw)));
+              v = (int)cimg::round(cimg::rand(std::max((float)cy1,best_v - dh),
+                                              std::min(patch_image.height() - 1.0f - cy2,best_v + dh)));
+              w = (int)cimg::round(cimg::rand(std::max((float)cz1,best_w - dd),
+                                              std::min(patch_image.depth() - 1.0f - cz2,best_w + dd)));
+              if (u!=best_u || v!=best_v || w!=best_w) {
+                s = _matchpatch(*this,patch_image,patch_width,patch_height,patch_depth,
+                                xp,yp,zp,u - cx1,v - cy1,w - cz1,best_score);
+                if (s<best_score) { best_u = u; best_v = v; best_w = w; best_score = s; }
                 dw = std::max(5.0f,dw*0.5f); dh = std::max(5.0f,dh*0.5f); dd = std::max(5.0f,dd*0.5f);
               }
             }
+            map(x,y,z,0) = best_u;
+            map(x,y,z,1) = best_v;
+            map(x,y,z,2) = best_w;
+            score(x,y,z) = best_score;
           }
         }
 
       } else { // 2D version
 
         // Initialize correspondence map.
-        if (guide) cimg_forXY(*this,x,y) { // Random initialization
+        if (guide) cimg_forXY(*this,x,y) { // User-defined initialization
             const int
               cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
               cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()) , cy2 = psizeh - cy1 - 1,
@@ -38294,73 +38294,68 @@ namespace cimg_library_suffixed {
               xp = x - cx1,
               yp = y - cy1;
 
+            int best_u = map(x,y,0), best_v = map(x,y,1), u, v;
+            float best_score = score(x,y), s;
+
             // Propagation.
-            if (is_even) {
-              if (x>0) { // Compare with left neighbor
-                const int u = map(x - 1,y,0), v = map(x - 1,y,1);
-                if (u>=cx1 - 1 && u<patch_image.width() - 1 - cx2 &&
-                    v>=cy1 && v<patch_image.height() - cy2) {
-                  const float
-                    current_score = score(x,y),
-                    D = _matchpatch(*this,patch_image,patch_width,patch_height,
-                                    xp,yp,u + 1 - cx1,v - cy1,current_score);
-                  if (D<current_score) { score(x,y) = D; map(x,y,0) = u + 1; map(x,y,1) = v; }
-                }
+            if (x>0) { // Compare with left neighbor
+              u = map(x - 1,y,0);
+              v = map(x - 1,y,1);
+              if (u>=cx1 - 1 && u<patch_image.width() - 1 - cx2 &&
+                  v>=cy1 && v<patch_image.height() - cy2) {
+                s = _matchpatch(*this,patch_image,patch_width,patch_height,
+                                xp,yp,u + 1 - cx1,v - cy1,best_score);
+                if (s<best_score) { best_u = u + 1; best_v = v; best_score = s; }
               }
-              if (y>0) { // Compare with up neighbor
-                const int u = map(x,y - 1,0), v = map(x,y - 1,1);
-                if (u>=cx1 && u<patch_image.width() - cx2 &&
-                    v>=cy1 - 1 && v<patch_image.height() - 1 - cy2) {
-                  const float
-                    current_score = score(x,y),
-                    D = _matchpatch(*this,patch_image,patch_width,patch_height,
-                                    xp,yp,u - cx1,v + 1 - cy1,current_score);
-                  if (D<current_score) { score(x,y) = D; map(x,y,0) = u; map(x,y,1) = v + 1; }
-                }
+            }
+            if (y>0) { // Compare with up neighbor
+              u = map(x,y - 1,0);
+              v = map(x,y - 1,1);
+              if (u>=cx1 && u<patch_image.width() - cx2 &&
+                  v>=cy1 - 1 && v<patch_image.height() - 1 - cy2) {
+                s = _matchpatch(*this,patch_image,patch_width,patch_height,
+                                xp,yp,u - cx1,v + 1 - cy1,best_score);
+                if (s<best_score) { best_u = u; best_v = v + 1; best_score = s; }
               }
-            } else {
-              if (x<width() - 1) { // Compare with right neighbor
-                const int u = map(x + 1,y,0), v = map(x + 1,y,1);
-                if (u>=cx1 + 1 && u<patch_image.width() + 1 - cx2 &&
-                    v>=cy1 && v<patch_image.height() - cy2) {
-                  const float
-                    current_score = score(x,y),
-                    D = _matchpatch(*this,patch_image,patch_width,patch_height,
-                                    xp,yp,u - 1 - cx1,v - cy1,current_score);
-                  if (D<current_score) { score(x,y) = D; map(x,y,0) = u - 1; map(x,y,1) = v; }
-                }
+            }
+            if (x<width() - 1) { // Compare with right neighbor
+              u = map(x + 1,y,0);
+              v = map(x + 1,y,1);
+              if (u>=cx1 + 1 && u<patch_image.width() + 1 - cx2 &&
+                  v>=cy1 && v<patch_image.height() - cy2) {
+                s = _matchpatch(*this,patch_image,patch_width,patch_height,
+                                xp,yp,u - 1 - cx1,v - cy1,best_score);
+                if (s<best_score) { best_u = u - 1; best_v = v; best_score = s; }
               }
-              if (y<height() - 1) { // Compare with bottom neighbor
-                const int u = map(x,y + 1,0), v = map(x,y + 1,1);
-                if (u>=cx1 && u<patch_image.width() - cx2 &&
-                    v>=cy1 + 1 && v<patch_image.height() + 1 - cy2) {
-                  const float
-                    current_score = score(x,y),
-                    D = _matchpatch(*this,patch_image,patch_width,patch_height,
-                                    xp,yp,u - cx1,v - 1 - cy1,current_score);
-                  if (D<current_score) { score(x,y) = D; map(x,y,0) = u; map(x,y,1) = v - 1; }
-                }
+            }
+            if (y<height() - 1) { // Compare with bottom neighbor
+              u = map(x,y + 1,0);
+              v = map(x,y + 1,1);
+              if (u>=cx1 && u<patch_image.width() - cx2 &&
+                  v>=cy1 + 1 && v<patch_image.height() + 1 - cy2) {
+                s = _matchpatch(*this,patch_image,patch_width,patch_height,
+                                xp,yp,u - cx1,v - 1 - cy1,best_score);
+                if (s<best_score) { best_u = u; best_v = v - 1; best_score = s; }
               }
             }
 
             // Randomization.
-            const int u = map(x,y,0), v = map(x,y,1);
             float dw = (float)patch_image.width(), dh = (float)patch_image.height();
             for (unsigned int i = 0; i<nb_randoms; ++i) {
-              const int
-                ui = (int)cimg::round(cimg::rand(std::max((float)cx1,u - dw),
-                                                 std::min(patch_image.width() - 1.0f - cx2,u + dw))),
-                vi = (int)cimg::round(cimg::rand(std::max((float)cy1,v - dh),
-                                                 std::min(patch_image.height() - 1.0f - cy2,v + dh)));
-              if (ui!=u || vi!=v) {
-                const float
-                  current_score = score(x,y),
-                  D = _matchpatch(*this,patch_image,patch_width,patch_height,
-                                  xp,yp,ui - cx1,vi - cy1,current_score);
-                if (D<current_score) { score(x,y) = D; map(x,y,0) = ui; map(x,y,1) = vi; }
+              u = (int)cimg::round(cimg::rand(std::max((float)cx1,best_u - dw),
+                                              std::min(patch_image.width() - 1.0f - cx2,best_u + dw)));
+              v = (int)cimg::round(cimg::rand(std::max((float)cy1,best_v - dh),
+                                              std::min(patch_image.height() - 1.0f - cy2,best_v + dh)));
+              if (u!=best_u || v!=best_v) {
+                s = _matchpatch(*this,patch_image,patch_width,patch_height,
+                                xp,yp,u - cx1,v - cy1,best_score);
+                if (s<best_score) { best_u = u; best_v = v; best_score = s; }
                 dw = std::max(5.0f,dw*0.5f); dh = std::max(5.0f,dh*0.5f);
               }
             }
+            map(x,y,0) = best_u;
+            map(x,y,1) = best_v;
+            score(x,y) = best_score;
           }
         }
       }

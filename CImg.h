@@ -38075,8 +38075,25 @@ namespace cimg_library_suffixed {
 
       CImg<intT> map(_width,_height,_depth,patch_image._depth>1?3:2);
       CImg<floatT> score(_width,_height,_depth);
-      CImg<uintT> occ;
-      if (occ_penalization!=0) occ.assign(patch_image._width,patch_image._height,patch_image._depth,1,0);
+      CImg<uintT> occ, loop_order;
+      if (occ_penalization!=0) {
+        occ.assign(patch_image._width,patch_image._height,patch_image._depth,1,0);
+        loop_order.assign(_width,_height,_depth,_depth>1?3:2);
+        cimg_forXYZ(loop_order,x,y,z) {
+          loop_order(x,y,0) = x;
+          loop_order(x,y,1) = y;
+          if (loop_order._depth>1) loop_order(x,y,2) = z;
+        }
+        cimg_forXYZ(loop_order,x,y,z) {
+          const unsigned int
+            X = (unsigned int)cimg::round(cimg::rand(loop_order._width - 1.0)),
+            Y = (unsigned int)cimg::round(cimg::rand(loop_order._height - 1.0)),
+            Z = loop_order._depth>1?(unsigned int)cimg::round(cimg::rand(loop_order._depth  - 1.0)):0U;
+          cimg::swap(loop_order(x,y,z,0),loop_order(X,Y,Z,0));
+          cimg::swap(loop_order(x,y,z,1),loop_order(X,Y,Z,1));
+          if (loop_order._depth>1) cimg::swap(loop_order(x,y,z,2),loop_order(X,Y,Z,2));
+        }
+      }
       const int
         psizew = (int)patch_width, psizew1 = psizew/2, psizew2 = psizew - psizew1 - 1,
         psizeh = (int)patch_height, psizeh1 = psizeh/2, psizeh2 = psizeh - psizeh1 - 1,
@@ -38127,9 +38144,16 @@ namespace cimg_library_suffixed {
           cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>64 && iter<nb_iterations-2))
           cimg_forXYZ(*this,X,Y,Z) {
             const int
-              x = is_even?X:width() - 1 - X,
-              y = is_even?Y:height() - 1 - Y,
-              z = is_even?Z:depth() - 1 - Z;
+              _x = is_even?X:width() - 1 - X,
+              _y = is_even?Y:height() - 1 - Y,
+              _z = is_even?Z:depth() - 1 - Z;
+            int x, y, z;
+            if (occ_penalization) {
+              x = loop_order(_x,_y,_z,0);
+              y = loop_order(_x,_y,_z,1);
+              z = loop_order(_x,_y,_z,2);
+            } else { x = _x; y = _y; z = _z; }
+
             if (score(x,y,z)<=1e-5 || (constraint && guide(x,y,z,constraint)!=0)) continue;
             const int
               cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
@@ -38286,8 +38310,14 @@ namespace cimg_library_suffixed {
           cimg_pragma_openmp(parallel for cimg_openmp_if(_width>64 && iter<nb_iterations-2))
           cimg_forXY(*this,X,Y) {
             const int
-              x = is_even?X:width() - 1 - X,
-              y = is_even?Y:height() - 1 - Y;
+              _x = is_even?X:width() - 1 - X,
+              _y = is_even?Y:height() - 1 - Y;
+            int x, y;
+            if (occ_penalization) {
+              x = loop_order(_x,_y,0);
+              y = loop_order(_x,_y,1);
+            } else { x = _x; y = _y; }
+
             if (score(x,y)<=1e-5 || (constraint && guide(x,y,constraint)!=0)) continue;
             const int
               cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,

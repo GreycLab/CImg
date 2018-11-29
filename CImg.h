@@ -38080,9 +38080,9 @@ namespace cimg_library_suffixed {
         occ.assign(patch_image._width,patch_image._height,patch_image._depth,1,0);
         loop_order.assign(_width,_height,_depth,_depth>1?3:2);
         cimg_forXYZ(loop_order,x,y,z) {
-          loop_order(x,y,0) = x;
-          loop_order(x,y,1) = y;
-          if (loop_order._depth>1) loop_order(x,y,2) = z;
+          loop_order(x,y,z,0) = x;
+          loop_order(x,y,z,1) = y;
+          if (loop_order._depth>1) loop_order(x,y,z,2) = z;
         }
         cimg_forXYZ(loop_order,x,y,z) {
           const unsigned int

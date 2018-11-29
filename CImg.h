@@ -38187,7 +38187,7 @@ namespace cimg_library_suffixed {
               w = map(x,y - 1,z,2);
               if (u>=cx1 && u<patch_image.width() - cx2 &&
                   v>=cy1 - 1 && v<patch_image.height() - 1 - cy2 &&
-                  w>=cz1 && w<patch_image.depth() - cx2) {
+                  w>=cz1 && w<patch_image.depth() - cz2) {
                 s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,patch_depth,
                                 xp,yp,zp,u - cx1,v + 1 - cy1,w - cz1,
                                 u,v,w,occ_penalization,best_score);

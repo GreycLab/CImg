@@ -38138,15 +38138,15 @@ namespace cimg_library_suffixed {
         cimg_abort_init;
         for (unsigned int iter = 0; iter<nb_iterations; ++iter) {
           cimg_abort_test;
-          const bool is_even = !(iter%2);
+          const bool is_odd = iter%2;
           occ.fill(0);
 
           cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>64 && iter<nb_iterations-2))
           cimg_forXYZ(*this,X,Y,Z) {
             const int
-              _x = is_even?X:width() - 1 - X,
-              _y = is_even?Y:height() - 1 - Y,
-              _z = is_even?Z:depth() - 1 - Z;
+              _x = is_odd?width() - 1 - X:X,
+              _y = is_odd?height() - 1 - Y:Y,
+              _z = is_odd?depth() - 1 - Z:Z;
             int x, y, z;
             if (occ_penalization) {
               x = loop_order(_x,_y,_z,0);
@@ -38307,14 +38307,14 @@ namespace cimg_library_suffixed {
 
         // Start iteration loop.
         for (unsigned int iter = 0; iter<nb_iterations; ++iter) {
-          const bool is_even = !(iter%2);
+          const bool is_odd = iter%2;
           occ.fill(0);
 
           cimg_pragma_openmp(parallel for cimg_openmp_if(_width>64 && iter<nb_iterations-2))
           cimg_forXY(*this,X,Y) {
             const int
-              _x = is_even?X:width() - 1 - X,
-              _y = is_even?Y:height() - 1 - Y;
+              _x = is_odd?width() - 1 - X:X,
+              _y = is_odd?height() - 1 - Y:Y;
             int x, y;
             if (occ_penalization) {
               x = loop_order(_x,_y,0);
@@ -38410,7 +38410,7 @@ namespace cimg_library_suffixed {
     }
 
     // Compute SSD between two patches in different images.
-    static float _matchpatch( const CImg<T>& img1, const CImg<T>& img2, const CImg<uintT>& occ,
+    static float _matchpatch(const CImg<T>& img1, const CImg<T>& img2, const CImg<uintT>& occ,
                              const unsigned int psizew, const unsigned int psizeh, const unsigned int psized,
                              const int x1, const int y1, const int z1,
                              const int x2, const int y2, const int z2,
@@ -38421,18 +38421,16 @@ namespace cimg_library_suffixed {
       const ulongT
         offx1 = (ulongT)img1._width - psizew,
         offx2 = (ulongT)img2._width - psizew,
-        offy1 = (ulongT)img1._width*img1._height - psizeh*img1._width - psizew,
-        offy2 = (ulongT)img2._width*img2._height - psizeh*img2._width - psizew,
-        offz1 = (ulongT)img1._width*img1._height*img1._depth - psized*img1._width*img1._height -
-        psizeh*img1._width - psizew,
-        offz2 = (ulongT)img2._width*img2._height*img2._depth - psized*img2._width*img2._height -
-        psizeh*img2._width - psizew;
+        offy1 = (ulongT)img1._width*img1._height - (ulongT)psizeh*img1._width,
+        offy2 = (ulongT)img2._width*img2._height - (ulongT)psizeh*img2._width,
+        offz1 = (ulongT)img1._width*img1._height*img1._depth - (ulongT)psized*img1._width*img1._height,
+        offz2 = (ulongT)img2._width*img2._height*img2._depth - (ulongT)psized*img2._width*img2._height;
       float ssd = 0;
       cimg_forC(img1,c) {
         for (unsigned int k = 0; k<psized; ++k) {
           for (unsigned int j = 0; j<psizeh; ++j) {
             for (unsigned int i = 0; i<psizew; ++i)
-              ssd += cimg::sqr(*(p1++) - *(p2++));
+              ssd += cimg::sqr((Tfloat)*(p1++) - *(p2++));
             if (ssd>max_score) return max_score;
             p1+=offx1; p2+=offx2;
           }
@@ -38454,13 +38452,13 @@ namespace cimg_library_suffixed {
       const ulongT
         offx1 = (ulongT)img1._width - psizew,
         offx2 = (ulongT)img2._width - psizew,
-        offy1 = (ulongT)img1._width*img1._height - psizeh*img1._width,
-        offy2 = (ulongT)img2._width*img2._height - psizeh*img2._width;
+        offy1 = (ulongT)img1._width*img1._height - (ulongT)psizeh*img1._width,
+        offy2 = (ulongT)img2._width*img2._height - (ulongT)psizeh*img2._width;
       float ssd = 0;
       cimg_forC(img1,c) {
         for (unsigned int j = 0; j<psizeh; ++j) {
           for (unsigned int i = 0; i<psizew; ++i)
-            ssd += cimg::sqr(*(p1++) - *(p2++));
+            ssd += cimg::sqr((Tfloat)*(p1++) - *(p2++));
           if (ssd>max_score) return max_score;
           p1+=offx1; p2+=offx2;
         }

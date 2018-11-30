@@ -38091,7 +38091,7 @@ namespace cimg_library_suffixed {
             Z = loop_order._depth>1?(unsigned int)cimg::round(cimg::rand(loop_order._depth  - 1.0)):0U;
           cimg::swap(loop_order(x,y,z,0),loop_order(X,Y,Z,0));
           cimg::swap(loop_order(x,y,z,1),loop_order(X,Y,Z,1));
-          if (loop_order._depth>1) cimg::swap(loop_order(x,y,z,2),loop_order(X,Y,Z,2));
+          if (loop_order._spectrum>2) cimg::swap(loop_order(x,y,z,2),loop_order(X,Y,Z,2));
         }
       }
       const int
@@ -38151,7 +38151,7 @@ namespace cimg_library_suffixed {
             if (occ_penalization) {
               x = loop_order(_x,_y,_z,0);
               y = loop_order(_x,_y,_z,1);
-              z = loop_order(_x,_y,_z,2);
+              if (loop_order._spectrum>2) z = loop_order(_x,_y,_z,2); else z = _z;
             } else { x = _x; y = _y; z = _z; }
 
             if (score(x,y,z)<=1e-5 || (constraint && guide(x,y,z,constraint)!=0)) continue;

@@ -38082,7 +38082,7 @@ namespace cimg_library_suffixed {
         cimg_forXYZ(loop_order,x,y,z) {
           loop_order(x,y,z,0) = x;
           loop_order(x,y,z,1) = y;
-          if (loop_order._depth>1) loop_order(x,y,z,2) = z;
+          if (loop_order._spectrum>2) loop_order(x,y,z,2) = z;
         }
         cimg_forXYZ(loop_order,x,y,z) {
           const unsigned int
@@ -38107,9 +38107,9 @@ namespace cimg_library_suffixed {
               cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
               cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
               cz1 = z<=psized1?z:(z<depth() - psized2?psized1:psized + z - depth()), cz2 = psized - cz1 - 1,
-              u = std::min(std::max((int)guide(x,y,z,0),cx1),patch_image.width() - 1 - cx2),
-              v = std::min(std::max((int)guide(x,y,z,1),cy1),patch_image.height() - 1 - cy2),
-              w = std::min(std::max((int)guide(x,y,z,2),cz1),patch_image.depth() - 1 - cz2);
+              u = cimg::cut((int)guide(x,y,z,0),cx1,patch_image.width() - 1 - cx2),
+              v = cimg::cut((int)guide(x,y,z,1),cy1,patch_image.height() - 1 - cy2),
+              w = cimg::cut((int)guide(x,y,z,2),cz1,patch_image.depth() - 1 - cz2);
             map(x,y,z,0) = u;
             map(x,y,z,1) = v;
             map(x,y,z,2) = w;
@@ -38282,8 +38282,8 @@ namespace cimg_library_suffixed {
             const int
               cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
               cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()) , cy2 = psizeh - cy1 - 1,
-              u = std::min(std::max((int)guide(x,y,0),cx1),patch_image.width() - 1 - cx2),
-              v = std::min(std::max((int)guide(x,y,1),cy1),patch_image.height() - 1 - cy2);
+              u = cimg::cut((int)guide(x,y,0),cx1,patch_image.width() - 1 - cx2),
+              v = cimg::cut((int)guide(x,y,1),cy1,patch_image.height() - 1 - cy2);
             map(x,y,0) = u;
             map(x,y,1) = v;
             score(x,y) = _matchpatch(*this,patch_image,occ,patch_width,patch_height,

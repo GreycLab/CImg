@@ -36698,8 +36698,8 @@ namespace cimg_library_suffixed {
     /**
        \param sigma_s Amount of blur along the XYZ-axes.
        \param sigma_p Amount of blur along the value axis.
-       \param patch_size Size of the patchs.
-       \param lookup_size Size of the window to search similar patchs.
+       \param patch_size Size of the patches.
+       \param lookup_size Size of the window to search similar patches.
        \param smoothness Smoothness for the patch comparison.
        \param is_fast_approx Tells if a fast approximation of the gaussian function is used or not.
     **/

@@ -38084,7 +38084,7 @@ namespace cimg_library_suffixed {
           loop_order(x,y,z,1) = y;
           if (loop_order._spectrum>2) loop_order(x,y,z,2) = z;
         }
-        cimg_forXYZ(loop_order,x,y,z) {
+        cimg_forXYZ(loop_order,x,y,z) { // Randomize loop order in case of constraints on patch occurence
           const unsigned int
             X = (unsigned int)cimg::round(cimg::rand(loop_order._width - 1.0)),
             Y = (unsigned int)cimg::round(cimg::rand(loop_order._height - 1.0)),
@@ -38095,18 +38095,18 @@ namespace cimg_library_suffixed {
         }
       }
       const int
-        psizew = (int)patch_width, psizew1 = psizew/2, psizew2 = psizew - psizew1 - 1,
+        psizew = (int)patch_width,  psizew1 = psizew/2, psizew2 = psizew - psizew1 - 1,
         psizeh = (int)patch_height, psizeh1 = psizeh/2, psizeh2 = psizeh - psizeh1 - 1,
-        psized = (int)patch_depth, psized1 = psized/2, psized2 = psized - psized1 - 1;
+        psized = (int)patch_depth,  psized1 = psized/2, psized2 = psized - psized1 - 1;
 
       if (_depth>1 || patch_image._depth>1) { // 3D version
 
         // Initialize correspondence map.
         if (guide) cimg_forXYZ(*this,x,y,z) { // User-defined initialization
             const int
-              cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
+              cx1 = x<=psizew1?x:(x<width()  - psizew2?psizew1:psizew + x - width()),  cx2 = psizew - cx1 - 1,
               cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
-              cz1 = z<=psized1?z:(z<depth() - psized2?psized1:psized + z - depth()), cz2 = psized - cz1 - 1,
+              cz1 = z<=psized1?z:(z<depth()  - psized2?psized1:psized + z - depth()),  cz2 = psized - cz1 - 1,
               u = cimg::cut((int)guide(x,y,z,0),cx1,patch_image.width() - 1 - cx2),
               v = cimg::cut((int)guide(x,y,z,1),cy1,patch_image.height() - 1 - cy2),
               w = cimg::cut((int)guide(x,y,z,2),cz1,patch_image.depth() - 1 - cz2);
@@ -38119,9 +38119,9 @@ namespace cimg_library_suffixed {
                                        u,v,w,0,cimg::type<float>::inf());
           } else cimg_forXYZ(*this,x,y,z) { // Random initialization
             const int
-              cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
+              cx1 = x<=psizew1?x:(x<width()  - psizew2?psizew1:psizew + x - width()),  cx2 = psizew - cx1 - 1,
               cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
-              cz1 = z<=psized1?z:(z<depth() - psized2?psized1:psized + z - depth()), cz2 = psized - cz1 - 1,
+              cz1 = z<=psized1?z:(z<depth()  - psized2?psized1:psized + z - depth()),  cz2 = psized - cz1 - 1,
               u = (int)cimg::round(cimg::rand(cx1,patch_image.width() - 1 - cx2)),
               v = (int)cimg::round(cimg::rand(cy1,patch_image.height() - 1 - cy2)),
               w = (int)cimg::round(cimg::rand(cz1,patch_image.depth() - 1 - cz2));
@@ -38156,9 +38156,9 @@ namespace cimg_library_suffixed {
 
             if (score(x,y,z)<=1e-5 || (constraint && guide(x,y,z,constraint)!=0)) continue;
             const int
-              cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
+              cx1 = x<=psizew1?x:(x<width()  - psizew2?psizew1:psizew + x - width()),  cx2 = psizew - cx1 - 1,
               cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
-              cz1 = z<=psized1?z:(z<depth() - psized2?psized1:psized + z - depth()), cz2 = psized - cz1 - 1,
+              cz1 = z<=psized1?z:(z<depth()  - psized2?psized1:psized + z - depth()),  cz2 = psized - cz1 - 1,
               xp = x - cx1,
               yp = y - cy1,
               zp = z - cz1;
@@ -38248,7 +38248,10 @@ namespace cimg_library_suffixed {
             }
 
             // Randomization.
-            float dw = (float)patch_image.width(), dh = (float)patch_image.height(), dd = (float)patch_image.depth();
+            float
+              dw = (float)patch_image.width(),
+              dh = (float)patch_image.height(),
+              dd = (float)patch_image.depth();
             for (unsigned int i = 0; i<nb_randoms; ++i) {
               u = (int)cimg::round(cimg::rand(std::max((float)cx1,best_u - dw),
                                               std::min(patch_image.width() - 1.0f - cx2,best_u + dw)));
@@ -38280,8 +38283,8 @@ namespace cimg_library_suffixed {
         // Initialize correspondence map.
         if (guide) cimg_forXY(*this,x,y) { // User-defined initialization
             const int
-              cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
-              cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()) , cy2 = psizeh - cy1 - 1,
+              cx1 = x<=psizew1?x:(x<width()  - psizew2?psizew1:psizew + x - width()),  cx2 = psizew - cx1 - 1,
+              cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
               u = cimg::cut((int)guide(x,y,0),cx1,patch_image.width() - 1 - cx2),
               v = cimg::cut((int)guide(x,y,1),cy1,patch_image.height() - 1 - cy2);
             map(x,y,0) = u;
@@ -38291,8 +38294,8 @@ namespace cimg_library_suffixed {
                                      u,v,0,cimg::type<float>::inf());
           } else cimg_forXY(*this,x,y) { // Random initialization
             const int
-              cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
-              cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()) , cy2 = psizeh - cy1 - 1,
+              cx1 = x<=psizew1?x:(x<width()  - psizew2?psizew1:psizew + x - width()),  cx2 = psizew - cx1 - 1,
+              cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
               u = (int)cimg::round(cimg::rand(cx1,patch_image.width() - 1 - cx2)),
               v = (int)cimg::round(cimg::rand(cy1,patch_image.height() - 1 - cy2));
             map(x,y,0) = u;
@@ -38320,8 +38323,8 @@ namespace cimg_library_suffixed {
 
             if (score(x,y)<=1e-5 || (constraint && guide(x,y,constraint)!=0)) continue;
             const int
-              cx1 = x<=psizew1?x:(x<width() - psizew2?psizew1:psizew + x - width()), cx2 = psizew - cx1 - 1,
-              cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()) , cy2 = psizeh - cy1 - 1,
+              cx1 = x<=psizew1?x:(x<width()  - psizew2?psizew1:psizew + x - width()),  cx2 = psizew - cx1 - 1,
+              cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
               xp = x - cx1,
               yp = y - cy1;
 
@@ -38376,7 +38379,9 @@ namespace cimg_library_suffixed {
             }
 
             // Randomization.
-            float dw = (float)patch_image.width(), dh = (float)patch_image.height();
+            float
+              dw = (float)patch_image.width(),
+              dh = (float)patch_image.height();
             for (unsigned int i = 0; i<nb_randoms; ++i) {
               u = (int)cimg::round(cimg::rand(std::max((float)cx1,best_u - dw),
                                               std::min(patch_image.width() - 1.0f - cx2,best_u + dw)));

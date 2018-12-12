@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 242
+#define cimg_version 243
 
 /*-----------------------------------------------------------
  #
@@ -21816,21 +21816,23 @@ namespace cimg_library_suffixed {
         if (is_forward) {
           do {
             while (ptr1<ptr1e && *ptr1!=*ptr2b) ++ptr1;
+            if (ptr1>=ptr1e) return -1.;
             p1 = ptr1 + 1;
             p2 = ptr2b + 1;
             while (p1<ptr1e && p2<ptr2e && *p1==*p2) { ++p1; ++p2; }
           } while (p2<ptr2e && ++ptr1<ptr1e);
-          return p2<ptr2e?-1.0:(double)(ptr1 - ptr1b);
+          return p2<ptr2e?-1.:(double)(ptr1 - ptr1b);
         }
 
         // Backward search.
         do {
           while (ptr1>=ptr1b && *ptr1!=*ptr2b) --ptr1;
+          if (ptr1<ptr1b) return -1.;
           p1 = ptr1 + 1;
           p2 = ptr2b + 1;
           while (p1<ptr1e && p2<ptr2e && *p1==*p2) { ++p1; ++p2; }
         } while (p2<ptr2e && --ptr1>=ptr1b);
-        return p2<ptr2e?-1.0:(double)(ptr1 - ptr1b);
+        return p2<ptr2e?-1.:(double)(ptr1 - ptr1b);
       }
 
       static double mp_floor(_cimg_math_parser& mp) {
@@ -22355,6 +22357,7 @@ namespace cimg_library_suffixed {
         if (is_forward) {
           do {
             while (ptr1<ptr1e && *ptr1!=*ptr2b) ++ptr1;
+            if (ptr1>=ptr1e) return -1.;
             p1 = ptr1 + 1;
             p2 = ptr2b + 1;
             while (p1<ptr1e && p2<ptr2e && *p1==*p2) { ++p1; ++p2; }
@@ -22365,6 +22368,7 @@ namespace cimg_library_suffixed {
         // Backward search.
         do {
           while (ptr1>=ptr1b && *ptr1!=*ptr2b) --ptr1;
+          if (ptr1<ptr1b) return -1.;
           p1 = ptr1 + 1;
           p2 = ptr2b + 1;
           while (p1<ptr1e && p2<ptr2e && *p1==*p2) { ++p1; ++p2; }

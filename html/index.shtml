@@ -199,14 +199,8 @@
   <li>You can look at the quite complete <a href="CImg_slides.pdf"><font color="#000066"><b>CImg Library</b></font> presentation slides</a> (.pdf format) which gives
     more insights on the different library concepts.</li>
   <li>Online web statistics on the <font color="#000066"><b>CImg</b></font> website activity are available
-    <a href="http://my.statcounter.com/project/standard/stats.php?project_id=895001&guest=1">here</a> and below:</li>
+    <a href="http://my.statcounter.com/project/standard/stats.php?project_id=895001&guest=1">here</a>.</li>
 </ul>
-<table align="center" border="0" cellpadding="10" cellspacing="0" width="500">
-  <tbody><tr>
-      <td><script type="text/javascript" src="http://www.openhub.net/p/8841/widgets/project_basic_stats.js"></script></td>
-      <td><script type="text/javascript" src="http://www.openhub.net/p/8841/widgets/project_cocomo.js"></script></td>
-  </tr></tbody>
-</table>
 
 </div></div><div id="footer"><img alt="" src="images/footer.jpg" /></div></div>
 

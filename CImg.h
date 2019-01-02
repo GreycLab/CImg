@@ -5806,59 +5806,59 @@ namespace cimg_library_suffixed {
     }
 
     // Custom random number generator (allow re-entrance).
-    inline unsigned int _rand(const cimg_ulong seed, const bool set_seed, cimg_ulong *const p_next) {
-      static cimg_ulong next = 0xB16B00B5U;
-      cimg_ulong *const _p_next = p_next?p_next:&next;
-      if (!p_next) cimg::mutex(4);
-      if (set_seed) *_p_next = seed;
-      else *_p_next = *_p_next*1103515245 + 12345U;
-      if (!p_next) cimg::mutex(4,0);
-      return (unsigned int)(*_p_next&0xFFFFFFFFU);
+    inline unsigned int _rand(const cimg_ulong seed, const bool set_seed, cimg_ulong *const p_number) {
+      static cimg_ulong number = 0xB16B00B5U;
+      cimg_ulong *const _p_number = p_number?p_number:&number;
+      if (!p_number) cimg::mutex(4);
+      if (set_seed) *_p_number = seed;
+      else *_p_number = *_p_number*1103515245 + 12345U;
+      if (!p_number) cimg::mutex(4,0);
+      return (unsigned int)(*_p_number&0xFFFFFFFFU);
     }
 
     //! Set random seed for random numbers generator.
     /**
      **/
-    inline unsigned int srand(cimg_ulong *const p_next=0) {
+    inline unsigned int srand(cimg_ulong *const p_number=0) {
       cimg_ulong t = cimg::time();
 #if cimg_OS==1
       t+=(cimg_ulong)getpid();
 #elif cimg_OS==2
       t+=(cimg_ulong)_getpid();
 #endif
-      return cimg::_rand(t,true,p_next);
+      return cimg::_rand(t,true,p_number);
     }
 
     //! Set specified seed for random numbers generator.
     /**
      **/
-    inline unsigned int srand(const cimg_ulong seed, cimg_ulong *const p_next=0) {
-      return _rand(seed,true,p_next);
+    inline unsigned int srand(const cimg_ulong seed, cimg_ulong *const p_number=0) {
+      return _rand(seed,true,p_number);
     }
 
     //! Return a random number uniformely distributed between [val_min,val_max].
     /**
      **/
-    inline double rand(const double val_min, const double val_max, cimg_ulong *const p_next=0) {
-      const double val = cimg::_rand(0,false,p_next)/(double)0xFFFFFFFFU;
+    inline double rand(const double val_min, const double val_max, cimg_ulong *const p_number=0) {
+      const double val = cimg::_rand(0,false,p_number)/(double)0xFFFFFFFFU;
       return val_min + (val_max - val_min)*val;
     }
 
     //! Return a random number uniformely distributed between [0,val_max].
     /**
      **/
-    inline double rand(const double val_max=1, cimg_ulong *const p_next=0) {
-      return cimg::rand(0,val_max,p_next);
+    inline double rand(const double val_max=1, cimg_ulong *const p_number=0) {
+      return cimg::rand(0,val_max,p_number);
     }
 
     //! Return a random number following a gaussian distribution and a standard deviation of 1.
     /**
     **/
-    inline double grand(cimg_ulong *const p_next=0) {
+    inline double grand(cimg_ulong *const p_number=0) {
       double x1, w;
       do {
-        const double x2 = cimg::rand(-1,1,p_next);
-        x1 = cimg::rand(-1,1,p_next);
+        const double x2 = cimg::rand(-1,1,p_number);
+        x1 = cimg::rand(-1,1,p_number);
         w = x1*x1 + x2*x2;
       } while (w<=0 || w>=1.);
       return x1*std::sqrt((-2*std::log(w))/w);
@@ -5867,12 +5867,12 @@ namespace cimg_library_suffixed {
     //! Return a random number following a Poisson distribution of parameter z.
     /**
     **/
-    inline unsigned int prand(const double z, cimg_ulong *const p_next=0) {
+    inline unsigned int prand(const double z, cimg_ulong *const p_number=0) {
       if (z<=1.e-10) return 0;
-      if (z>100) return (unsigned int)((std::sqrt(z) * cimg::grand(p_next)) + z);
+      if (z>100) return (unsigned int)((std::sqrt(z) * cimg::grand(p_number)) + z);
       unsigned int k = 0;
       const double y = std::exp(-z);
-      for (double s = 1.; s>=y; ++k) s*=cimg::rand(1,p_next);
+      for (double s = 1.; s>=y; ++k) s*=cimg::rand(1,p_number);
       return k - 1;
     }
 
@@ -38171,7 +38171,7 @@ namespace cimg_library_suffixed {
       CImg<ulongT> seed = CImg<longT>(omp_get_max_threads()).rand(0U,0xFFFFFFFFU);
 #else
       const int thread_id = 0;
-      ulongT _seed = 0xB16B00B5U, *const seed = &_seed;
+      ulongT _seed = cimg::_rand(0,false,0), *const seed = &_seed;
 #endif
 
       if (_depth>1 || patch_image._depth>1) { // 3D version

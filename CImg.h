@@ -5803,19 +5803,12 @@ namespace cimg_library_suffixed {
 
     // Custom random number generator (allow re-entrance).
     inline unsigned int _rand(const cimg_ulong seed, const bool set_seed, cimg_ulong *const p_number) {
-      static cimg_ulong number = 0xB16B00B5U;
-      cimg_ulong *const _p_number = p_number?p_number:&number;
-      if (!p_number) cimg::mutex(4);
-      if (set_seed) *_p_number = seed;
-      else *_p_number = *_p_number*1103515245 + 12345U;
-      if (!p_number) cimg::mutex(4,0);
-      return (unsigned int)(*_p_number&0xFFFFFFFFU);
+      if (set_seed) *p_number = seed;
+      else *p_number = *p_number*1103515245 + 12345U;
+      return (unsigned int)(*p_number&0xFFFFFFFFU);
     }
 
-    //! Set random seed for random numbers generator.
-    /**
-     **/
-    inline unsigned int srand(cimg_ulong *const p_number=0) {
+    inline unsigned int srand(cimg_ulong *const p_number) {
       cimg_ulong t = cimg::time();
 #if cimg_OS==1
       t+=(cimg_ulong)getpid();
@@ -5825,32 +5818,20 @@ namespace cimg_library_suffixed {
       return cimg::_rand(t,true,p_number);
     }
 
-    //! Set specified seed for random numbers generator.
-    /**
-     **/
-    inline unsigned int srand(const cimg_ulong seed, cimg_ulong *const p_number=0) {
-      return _rand(seed,true,p_number);
+    inline unsigned int srand(const cimg_ulong seed, cimg_ulong *const p_number) {
+      return cimg::_rand(seed,true,p_number);
     }
 
-    //! Return a random number uniformely distributed between [val_min,val_max].
-    /**
-     **/
-    inline double rand(const double val_min, const double val_max, cimg_ulong *const p_number=0) {
+    inline double rand(const double val_min, const double val_max, cimg_ulong *const p_number) {
       const double val = cimg::_rand(0,false,p_number)/(double)0xFFFFFFFFU;
       return val_min + (val_max - val_min)*val;
     }
 
-    //! Return a random number uniformely distributed between [0,val_max].
-    /**
-     **/
-    inline double rand(const double val_max=1, cimg_ulong *const p_number=0) {
+    inline double rand(const double val_max, cimg_ulong *const p_number) {
       return cimg::rand(0,val_max,p_number);
     }
 
-    //! Return a random number following a gaussian distribution and a standard deviation of 1.
-    /**
-    **/
-    inline double grand(cimg_ulong *const p_number=0) {
+    inline double grand(cimg_ulong *const p_number) {
       double x1, w;
       do {
         const double x2 = cimg::rand(-1,1,p_number);
@@ -5860,16 +5841,43 @@ namespace cimg_library_suffixed {
       return x1*std::sqrt((-2*std::log(w))/w);
     }
 
-    //! Return a random number following a Poisson distribution of parameter z.
-    /**
-    **/
-    inline unsigned int prand(const double z, cimg_ulong *const p_number=0) {
+    inline unsigned int prand(const double z, cimg_ulong *const p_number) {
       if (z<=1.e-10) return 0;
       if (z>100) return (unsigned int)((std::sqrt(z) * cimg::grand(p_number)) + z);
       unsigned int k = 0;
       const double y = std::exp(-z);
       for (double s = 1.; s>=y; ++k) s*=cimg::rand(1,p_number);
       return k - 1;
+    }
+
+    // Non re-entrant versions.
+    inline cimg_ulong *__rand() {
+      static cimg_ulong number = 0xB16B00B5U;
+      return &number;
+    }
+
+    inline unsigned int srand() {
+      return cimg::srand(cimg::__rand());
+    }
+
+    inline unsigned int srand(const cimg_ulong seed) {
+      return cimg::srand(seed,cimg::__rand());
+    }
+
+    inline double rand(const double val_min, const double val_max) {
+      return cimg::rand(val_min,val_max,cimg::__rand());
+    }
+
+    inline double rand(const double val_max=1) {
+      return cimg::rand(val_max,cimg::__rand());
+    }
+
+    inline double grand() {
+      return cimg::grand(cimg::__rand());
+    }
+
+    inline unsigned int prand(const double z) {
+      return cimg::prand(z,cimg::__rand());
     }
 
     //! Cut (i.e. clamp) value in specified interval.
@@ -38212,144 +38220,146 @@ namespace cimg_library_suffixed {
           const bool is_odd = iter%2;
           occ.fill(0);
 
-          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64 &&
-                                                                     iter<nb_iterations-2))
-          cimg_forXYZ(*this,X,Y,Z) {
+          cimg_pragma_openmp(parallel cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64 &&
+                                                     iter<nb_iterations-2)) {
 #ifdef cimg_use_openmp
             const int thread_id = omp_get_thread_num();
 #endif
-            const int
-              _x = is_odd?width() - 1 - X:X,
-              _y = is_odd?height() - 1 - Y:Y,
-              _z = is_odd?depth() - 1 - Z:Z;
-            int x, y, z;
-            if (occ_penalization) {
-              x = loop_order(_x,_y,_z,0);
-              y = loop_order(_x,_y,_z,1);
-              if (loop_order._spectrum>2) z = loop_order(_x,_y,_z,2); else z = _z;
-            } else { x = _x; y = _y; z = _z; }
+            cimg_pragma_openmp(for collapse(2))
+              cimg_forXYZ(*this,X,Y,Z) {
+              const int
+                _x = is_odd?width() - 1 - X:X,
+                _y = is_odd?height() - 1 - Y:Y,
+                _z = is_odd?depth() - 1 - Z:Z;
+              int x, y, z;
+              if (occ_penalization) {
+                x = loop_order(_x,_y,_z,0);
+                y = loop_order(_x,_y,_z,1);
+                if (loop_order._spectrum>2) z = loop_order(_x,_y,_z,2); else z = _z;
+              } else { x = _x; y = _y; z = _z; }
 
-            if (score(x,y,z)<=1e-5 || (constraint && guide(x,y,z,constraint)!=0)) continue;
-            const int
-              cx1 = x<=psizew1?x:(x<width()  - psizew2?psizew1:psizew + x - width()),  cx2 = psizew - cx1 - 1,
-              cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
-              cz1 = z<=psized1?z:(z<depth()  - psized2?psized1:psized + z - depth()),  cz2 = psized - cz1 - 1,
-              xp = x - cx1,
-              yp = y - cy1,
-              zp = z - cz1;
+              if (score(x,y,z)<=1e-5 || (constraint && guide(x,y,z,constraint)!=0)) continue;
+              const int
+                cx1 = x<=psizew1?x:(x<width()  - psizew2?psizew1:psizew + x - width()),  cx2 = psizew - cx1 - 1,
+                cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
+                cz1 = z<=psized1?z:(z<depth()  - psized2?psized1:psized + z - depth()),  cz2 = psized - cz1 - 1,
+                xp = x - cx1,
+                yp = y - cy1,
+                zp = z - cz1;
 
-            int best_u = map(x,y,z,0), best_v = map(x,y,z,1), best_w = map(x,y,z,2), u, v, w;
-            const float best_score0 = score(x,y,z);
-            float best_score = best_score0, s;
+              int best_u = map(x,y,z,0), best_v = map(x,y,z,1), best_w = map(x,y,z,2), u, v, w;
+              const float best_score0 = score(x,y,z);
+              float best_score = best_score0, s;
 
-            // Propagation.
-            if (x>0) { // Compare with left neighbor
-              u = map(x - 1,y,z,0);
-              v = map(x - 1,y,z,1);
-              w = map(x - 1,y,z,2);
-              if (u>=cx1 - 1 && u<patch_image.width() - 1 - cx2 &&
-                  v>=cy1 && v<patch_image.height() - cy2 &&
-                  w>=cz1 && w<patch_image.depth() - cz2) {
-                s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,patch_depth,
-                                xp,yp,zp,u + 1 - cx1,v - cy1,w - cz1,
-                                u,v,w,occ_penalization,best_score);
-                if (s<best_score) { best_u = u + 1; best_v = v; best_w = w; best_score = s; }
+              // Propagation.
+              if (x>0) { // Compare with left neighbor
+                u = map(x - 1,y,z,0);
+                v = map(x - 1,y,z,1);
+                w = map(x - 1,y,z,2);
+                if (u>=cx1 - 1 && u<patch_image.width() - 1 - cx2 &&
+                    v>=cy1 && v<patch_image.height() - cy2 &&
+                    w>=cz1 && w<patch_image.depth() - cz2) {
+                  s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,patch_depth,
+                                  xp,yp,zp,u + 1 - cx1,v - cy1,w - cz1,
+                                  u,v,w,occ_penalization,best_score);
+                  if (s<best_score) { best_u = u + 1; best_v = v; best_w = w; best_score = s; }
+                }
               }
-            }
-            if (y>0) { // Compare with up neighbor
-              u = map(x,y - 1,z,0);
-              v = map(x,y - 1,z,1);
-              w = map(x,y - 1,z,2);
-              if (u>=cx1 && u<patch_image.width() - cx2 &&
-                  v>=cy1 - 1 && v<patch_image.height() - 1 - cy2 &&
-                  w>=cz1 && w<patch_image.depth() - cz2) {
-                s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,patch_depth,
-                                xp,yp,zp,u - cx1,v + 1 - cy1,w - cz1,
-                                u,v,w,occ_penalization,best_score);
-                if (s<best_score) { best_u = u; best_v = v + 1; best_w = w; best_score = s; }
+              if (y>0) { // Compare with up neighbor
+                u = map(x,y - 1,z,0);
+                v = map(x,y - 1,z,1);
+                w = map(x,y - 1,z,2);
+                if (u>=cx1 && u<patch_image.width() - cx2 &&
+                    v>=cy1 - 1 && v<patch_image.height() - 1 - cy2 &&
+                    w>=cz1 && w<patch_image.depth() - cz2) {
+                  s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,patch_depth,
+                                  xp,yp,zp,u - cx1,v + 1 - cy1,w - cz1,
+                                  u,v,w,occ_penalization,best_score);
+                  if (s<best_score) { best_u = u; best_v = v + 1; best_w = w; best_score = s; }
+                }
               }
-            }
-            if (z>0) { // Compare with backward neighbor
-              u = map(x,y,z - 1,0);
-              v = map(x,y,z - 1,1);
-              w = map(x,y,z - 1,2);
-              if (u>=cx1 && u<patch_image.width() - cx2 &&
-                  v>=cy1 && v<patch_image.height() - cy2 &&
-                  w>=cz1 - 1 && w<patch_image.depth() - 1 - cz2) {
-                s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,patch_depth,
-                                xp,yp,zp,u - cx1,v - cy1,w + 1 - cz1,
-                                u,v,w,occ_penalization,best_score);
-                if (s<best_score) { best_u = u; best_v = v; best_w = w + 1; best_score = s; }
+              if (z>0) { // Compare with backward neighbor
+                u = map(x,y,z - 1,0);
+                v = map(x,y,z - 1,1);
+                w = map(x,y,z - 1,2);
+                if (u>=cx1 && u<patch_image.width() - cx2 &&
+                    v>=cy1 && v<patch_image.height() - cy2 &&
+                    w>=cz1 - 1 && w<patch_image.depth() - 1 - cz2) {
+                  s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,patch_depth,
+                                  xp,yp,zp,u - cx1,v - cy1,w + 1 - cz1,
+                                  u,v,w,occ_penalization,best_score);
+                  if (s<best_score) { best_u = u; best_v = v; best_w = w + 1; best_score = s; }
+                }
               }
-            }
-            if (x<width() - 1) { // Compare with right neighbor
-              u = map(x + 1,y,z,0);
-              v = map(x + 1,y,z,1);
-              w = map(x + 1,y,z,2);
-              if (u>=cx1 + 1 && u<patch_image.width() + 1 - cx2 &&
-                  v>=cy1 && v<patch_image.height() - cy2 &&
-                  w>=cz1 && w<patch_image.depth() - cz2) {
-                s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,patch_depth,
-                                xp,yp,zp,u - 1 - cx1,v - cy1,w - cz1,
-                                u,v,w,occ_penalization,best_score);
-                if (s<best_score) { best_u = u - 1; best_v = v; best_w = w; best_score = s; }
+              if (x<width() - 1) { // Compare with right neighbor
+                u = map(x + 1,y,z,0);
+                v = map(x + 1,y,z,1);
+                w = map(x + 1,y,z,2);
+                if (u>=cx1 + 1 && u<patch_image.width() + 1 - cx2 &&
+                    v>=cy1 && v<patch_image.height() - cy2 &&
+                    w>=cz1 && w<patch_image.depth() - cz2) {
+                  s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,patch_depth,
+                                  xp,yp,zp,u - 1 - cx1,v - cy1,w - cz1,
+                                  u,v,w,occ_penalization,best_score);
+                  if (s<best_score) { best_u = u - 1; best_v = v; best_w = w; best_score = s; }
+                }
               }
-            }
-            if (y<height() - 1) { // Compare with bottom neighbor
-              u = map(x,y + 1,z,0);
-              v = map(x,y + 1,z,1);
-              w = map(x,y + 1,z,2);
-              if (u>=cx1 && u<patch_image.width() - cx2 &&
-                  v>=cy1 + 1 && v<patch_image.height() + 1 - cy2 &&
-                  w>=cz1 && w<patch_image.depth() - cz2) {
-                s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,patch_depth,
-                                xp,yp,zp,u - cx1,v - 1 - cy1,w - cz1,
-                                u,v,w,occ_penalization,best_score);
-                if (s<best_score) { best_u = u; best_v = v - 1; best_w = w; best_score = s; }
+              if (y<height() - 1) { // Compare with bottom neighbor
+                u = map(x,y + 1,z,0);
+                v = map(x,y + 1,z,1);
+                w = map(x,y + 1,z,2);
+                if (u>=cx1 && u<patch_image.width() - cx2 &&
+                    v>=cy1 + 1 && v<patch_image.height() + 1 - cy2 &&
+                    w>=cz1 && w<patch_image.depth() - cz2) {
+                  s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,patch_depth,
+                                  xp,yp,zp,u - cx1,v - 1 - cy1,w - cz1,
+                                  u,v,w,occ_penalization,best_score);
+                  if (s<best_score) { best_u = u; best_v = v - 1; best_w = w; best_score = s; }
+                }
               }
-            }
-            if (z<depth() - 1) { // Compare with forward neighbor
-              u = map(x,y,z + 1,0);
-              v = map(x,y,z + 1,1);
-              w = map(x,y,z + 1,2);
-              if (u>=cx1 && u<patch_image.width() - cx2 &&
-                  v>=cy1 && v<patch_image.height() - cy2 &&
-                  w>=cz1 + 1 && w<patch_image.depth() + 1 - cz2) {
-                s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,patch_depth,
-                                xp,yp,zp,u - cx1,v - cy1,w - 1 - cz1,
-                                u,v,w,occ_penalization,best_score);
-                if (s<best_score) { best_u = u; best_v = v; best_w = w - 1; best_score = s; }
+              if (z<depth() - 1) { // Compare with forward neighbor
+                u = map(x,y,z + 1,0);
+                v = map(x,y,z + 1,1);
+                w = map(x,y,z + 1,2);
+                if (u>=cx1 && u<patch_image.width() - cx2 &&
+                    v>=cy1 && v<patch_image.height() - cy2 &&
+                    w>=cz1 + 1 && w<patch_image.depth() + 1 - cz2) {
+                  s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,patch_depth,
+                                  xp,yp,zp,u - cx1,v - cy1,w - 1 - cz1,
+                                  u,v,w,occ_penalization,best_score);
+                  if (s<best_score) { best_u = u; best_v = v; best_w = w - 1; best_score = s; }
+                }
               }
-            }
 
-            // Randomization.
-            float
-              dw = (float)patch_image.width(),
-              dh = (float)patch_image.height(),
-              dd = (float)patch_image.depth();
-            for (unsigned int i = 0; i<nb_randoms; ++i) {
-              u = (int)cimg::round(cimg::rand(std::max((float)cx1,best_u - dw),
-                                              std::min(patch_image.width() - 1.f - cx2,best_u + dw),&seed[thread_id]));
-              v = (int)cimg::round(cimg::rand(std::max((float)cy1,best_v - dh),
-                                              std::min(patch_image.height() - 1.f - cy2,best_v + dh),&seed[thread_id]));
-              w = (int)cimg::round(cimg::rand(std::max((float)cz1,best_w - dd),
-                                              std::min(patch_image.depth() - 1.f - cz2,best_w + dd),&seed[thread_id]));
-              if (u!=best_u || v!=best_v || w!=best_w) {
-                s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,patch_depth,
-                                xp,yp,zp,u - cx1,v - cy1,w - cz1,
-                                u,v,w,occ_penalization,best_score);
-                if (s<best_score) { best_u = u; best_v = v; best_w = w; best_score = s; }
-                dw = std::max(5.f,dw*0.5f); dh = std::max(5.f,dh*0.5f); dd = std::max(5.f,dd*0.5f);
+              // Randomization.
+              float
+                dw = (float)patch_image.width(),
+                dh = (float)patch_image.height(),
+                dd = (float)patch_image.depth();
+              for (unsigned int i = 0; i<nb_randoms; ++i) {
+                u = (int)cimg::round(cimg::rand(std::max((float)cx1,best_u - dw),
+                                                std::min(patch_image.width() - 1.f - cx2,best_u + dw),&seed[thread_id]));
+                v = (int)cimg::round(cimg::rand(std::max((float)cy1,best_v - dh),
+                                                std::min(patch_image.height() - 1.f - cy2,best_v + dh),&seed[thread_id]));
+                w = (int)cimg::round(cimg::rand(std::max((float)cz1,best_w - dd),
+                                                std::min(patch_image.depth() - 1.f - cz2,best_w + dd),&seed[thread_id]));
+                if (u!=best_u || v!=best_v || w!=best_w) {
+                  s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,patch_depth,
+                                  xp,yp,zp,u - cx1,v - cy1,w - cz1,
+                                  u,v,w,occ_penalization,best_score);
+                  if (s<best_score) { best_u = u; best_v = v; best_w = w; best_score = s; }
+                  dw = std::max(5.f,dw*0.5f); dh = std::max(5.f,dh*0.5f); dd = std::max(5.f,dd*0.5f);
+                }
               }
-            }
 
-            if (best_score<best_score0) {
-              map(x,y,z,0) = best_u;
-              map(x,y,z,1) = best_v;
-              map(x,y,z,2) = best_w;
-              score(x,y,z) = best_score;
+              if (best_score<best_score0) {
+                map(x,y,z,0) = best_u;
+                map(x,y,z,1) = best_v;
+                map(x,y,z,2) = best_w;
+                score(x,y,z) = best_score;
+              }
+              if (occ_penalization!=0) cimg_pragma_openmp(atomic) ++occ(best_u,best_v,best_w);
             }
-            if (occ_penalization!=0) cimg_pragma_openmp(atomic) ++occ(best_u,best_v,best_w);
           }
         }
 
@@ -38385,102 +38395,104 @@ namespace cimg_library_suffixed {
           const bool is_odd = iter%2;
           occ.fill(0);
 
-          cimg_pragma_openmp(parallel for cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64 &&
-                                                         iter<nb_iterations-2))
-          cimg_forXY(*this,X,Y) {
+          cimg_pragma_openmp(parallel cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64 &&
+                                                     iter<nb_iterations-2)) {
 #ifdef cimg_use_openmp
             const int thread_id = omp_get_thread_num();
 #endif
-            const int
-              _x = is_odd?width() - 1 - X:X,
-              _y = is_odd?height() - 1 - Y:Y;
-            int x, y;
-            if (occ_penalization) {
-              x = loop_order(_x,_y,0);
-              y = loop_order(_x,_y,1);
-            } else { x = _x; y = _y; }
+            cimg_pragma_openmp(for)
+              cimg_forXY(*this,X,Y) {
+              const int
+                _x = is_odd?width() - 1 - X:X,
+                _y = is_odd?height() - 1 - Y:Y;
+              int x, y;
+              if (occ_penalization) {
+                x = loop_order(_x,_y,0);
+                y = loop_order(_x,_y,1);
+              } else { x = _x; y = _y; }
 
-            if (score(x,y)<=1e-5 || (constraint && guide(x,y,constraint)!=0)) continue;
-            const int
-              cx1 = x<=psizew1?x:(x<width()  - psizew2?psizew1:psizew + x - width()),  cx2 = psizew - cx1 - 1,
-              cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
-              xp = x - cx1,
-              yp = y - cy1;
+              if (score(x,y)<=1e-5 || (constraint && guide(x,y,constraint)!=0)) continue;
+              const int
+                cx1 = x<=psizew1?x:(x<width()  - psizew2?psizew1:psizew + x - width()),  cx2 = psizew - cx1 - 1,
+                cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
+                xp = x - cx1,
+                yp = y - cy1;
 
-            int best_u = map(x,y,0), best_v = map(x,y,1), u, v;
-            const float best_score0 = score(x,y);
-            float best_score = best_score0, s;
+              int best_u = map(x,y,0), best_v = map(x,y,1), u, v;
+              const float best_score0 = score(x,y);
+              float best_score = best_score0, s;
 
-            // Propagation.
-            if (x>0) { // Compare with left neighbor
-              u = map(x - 1,y,0);
-              v = map(x - 1,y,1);
-              if (u>=cx1 - 1 && u<patch_image.width() - 1 - cx2 &&
-                  v>=cy1 && v<patch_image.height() - cy2) {
-                s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,
-                                xp,yp,u + 1 - cx1,v - cy1,
-                                u,v,occ_penalization,best_score);
-                if (s<best_score) { best_u = u + 1; best_v = v; best_score = s; }
+              // Propagation.
+              if (x>0) { // Compare with left neighbor
+                u = map(x - 1,y,0);
+                v = map(x - 1,y,1);
+                if (u>=cx1 - 1 && u<patch_image.width() - 1 - cx2 &&
+                    v>=cy1 && v<patch_image.height() - cy2) {
+                  s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,
+                                  xp,yp,u + 1 - cx1,v - cy1,
+                                  u,v,occ_penalization,best_score);
+                  if (s<best_score) { best_u = u + 1; best_v = v; best_score = s; }
+                }
               }
-            }
-            if (y>0) { // Compare with up neighbor
-              u = map(x,y - 1,0);
-              v = map(x,y - 1,1);
-              if (u>=cx1 && u<patch_image.width() - cx2 &&
-                  v>=cy1 - 1 && v<patch_image.height() - 1 - cy2) {
-                s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,
-                                xp,yp,u - cx1,v + 1 - cy1,
-                                u,v,occ_penalization,best_score);
-                if (s<best_score) { best_u = u; best_v = v + 1; best_score = s; }
+              if (y>0) { // Compare with up neighbor
+                u = map(x,y - 1,0);
+                v = map(x,y - 1,1);
+                if (u>=cx1 && u<patch_image.width() - cx2 &&
+                    v>=cy1 - 1 && v<patch_image.height() - 1 - cy2) {
+                  s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,
+                                  xp,yp,u - cx1,v + 1 - cy1,
+                                  u,v,occ_penalization,best_score);
+                  if (s<best_score) { best_u = u; best_v = v + 1; best_score = s; }
+                }
               }
-            }
-            if (x<width() - 1) { // Compare with right neighbor
-              u = map(x + 1,y,0);
-              v = map(x + 1,y,1);
-              if (u>=cx1 + 1 && u<patch_image.width() + 1 - cx2 &&
-                  v>=cy1 && v<patch_image.height() - cy2) {
-                s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,
-                                xp,yp,u - 1 - cx1,v - cy1,
-                                u,v,occ_penalization,best_score);
-                if (s<best_score) { best_u = u - 1; best_v = v; best_score = s; }
+              if (x<width() - 1) { // Compare with right neighbor
+                u = map(x + 1,y,0);
+                v = map(x + 1,y,1);
+                if (u>=cx1 + 1 && u<patch_image.width() + 1 - cx2 &&
+                    v>=cy1 && v<patch_image.height() - cy2) {
+                  s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,
+                                  xp,yp,u - 1 - cx1,v - cy1,
+                                  u,v,occ_penalization,best_score);
+                  if (s<best_score) { best_u = u - 1; best_v = v; best_score = s; }
+                }
               }
-            }
-            if (y<height() - 1) { // Compare with bottom neighbor
-              u = map(x,y + 1,0);
-              v = map(x,y + 1,1);
-              if (u>=cx1 && u<patch_image.width() - cx2 &&
-                  v>=cy1 + 1 && v<patch_image.height() + 1 - cy2) {
-                s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,
-                                xp,yp,u - cx1,v - 1 - cy1,
-                                u,v,occ_penalization,best_score);
-                if (s<best_score) { best_u = u; best_v = v - 1; best_score = s; }
+              if (y<height() - 1) { // Compare with bottom neighbor
+                u = map(x,y + 1,0);
+                v = map(x,y + 1,1);
+                if (u>=cx1 && u<patch_image.width() - cx2 &&
+                    v>=cy1 + 1 && v<patch_image.height() + 1 - cy2) {
+                  s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,
+                                  xp,yp,u - cx1,v - 1 - cy1,
+                                  u,v,occ_penalization,best_score);
+                  if (s<best_score) { best_u = u; best_v = v - 1; best_score = s; }
+                }
               }
-            }
 
-            // Randomization.
-            float
-              dw = (float)patch_image.width(),
-              dh = (float)patch_image.height();
-            for (unsigned int i = 0; i<nb_randoms; ++i) {
-              u = (int)cimg::round(cimg::rand(std::max((float)cx1,best_u - dw),
-                                              std::min(patch_image.width() - 1.f - cx2,best_u + dw),&seed[thread_id]));
-              v = (int)cimg::round(cimg::rand(std::max((float)cy1,best_v - dh),
-                                              std::min(patch_image.height() - 1.f - cy2,best_v + dh),&seed[thread_id]));
-              if (u!=best_u || v!=best_v) {
-                s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,
-                                xp,yp,u - cx1,v - cy1,
-                                u,v,occ_penalization,best_score);
-                if (s<best_score) { best_u = u; best_v = v; best_score = s; }
-                dw = std::max(5.f,dw*0.5f); dh = std::max(5.f,dh*0.5f);
+              // Randomization.
+              float
+                dw = (float)patch_image.width(),
+                dh = (float)patch_image.height();
+              for (unsigned int i = 0; i<nb_randoms; ++i) {
+                u = (int)cimg::round(cimg::rand(std::max((float)cx1,best_u - dw),
+                                                std::min(patch_image.width() - 1.f - cx2,best_u + dw),&seed[thread_id]));
+                v = (int)cimg::round(cimg::rand(std::max((float)cy1,best_v - dh),
+                                                std::min(patch_image.height() - 1.f - cy2,best_v + dh),&seed[thread_id]));
+                if (u!=best_u || v!=best_v) {
+                  s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,
+                                  xp,yp,u - cx1,v - cy1,
+                                  u,v,occ_penalization,best_score);
+                  if (s<best_score) { best_u = u; best_v = v; best_score = s; }
+                  dw = std::max(5.f,dw*0.5f); dh = std::max(5.f,dh*0.5f);
+                }
               }
-            }
 
-            if (best_score<best_score0) {
-              map(x,y,0) = best_u;
-              map(x,y,1) = best_v;
-              score(x,y) = best_score;
+              if (best_score<best_score0) {
+                map(x,y,0) = best_u;
+                map(x,y,1) = best_v;
+                score(x,y) = best_score;
+              }
+              if (occ_penalization!=0) cimg_pragma_openmp(atomic) ++occ(best_u,best_v);
             }
-            if (occ_penalization!=0) cimg_pragma_openmp(atomic) ++occ(best_u,best_v);
           }
         }
       }

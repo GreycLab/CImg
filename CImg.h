@@ -16020,6 +16020,7 @@ namespace cimg_library_suffixed {
       unsigned int mempos, mem_img_median, debug_indent, result_dim, break_type, constcache_size;
       bool is_parallelizable, is_fill, need_input_copy;
       double *result;
+      ulongT seed;
       const char *const calling_function, *s_op, *ss_op;
       typedef double (*mp_func)(_cimg_math_parser&);
 
@@ -16064,7 +16065,7 @@ namespace cimg_library_suffixed {
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),user_macro(0),
         mem_img_median(~0U),debug_indent(0),result_dim(0),break_type(0),constcache_size(0),
         is_parallelizable(true),is_fill(_is_fill),need_input_copy(false),
-        calling_function(funcname?funcname:"cimg_math_parser") {
+        seed((ulongT)this),calling_function(funcname?funcname:"cimg_math_parser") {
         if (!expression || !*expression)
           throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                       "CImg<%s>::%s: Empty expression.",
@@ -16173,7 +16174,7 @@ namespace cimg_library_suffixed {
         imgout(CImg<T>::empty()),listout(CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),debug_indent(0),
         result_dim(0),break_type(0),constcache_size(0),is_parallelizable(true),is_fill(false),need_input_copy(false),
-        calling_function(0) {
+        seed((ulongT)this),calling_function(0) {
         mem.assign(1 + _cimg_mp_slot_c,1,1,1,0); // Allow to skip 'is_empty?' test in operator()()
         result = mem._data;
       }
@@ -16183,7 +16184,8 @@ namespace cimg_library_suffixed {
         imgin(mp.imgin),listin(mp.listin),imgout(mp.imgout),listout(mp.listout),img_stats(mp.img_stats),
         list_stats(mp.list_stats),list_median(mp.list_median),debug_indent(0),result_dim(mp.result_dim),
         break_type(0),constcache_size(0),is_parallelizable(mp.is_parallelizable),is_fill(mp.is_fill),
-        need_input_copy(mp.need_input_copy), result(mem._data + (mp.result - mp.mem._data)),calling_function(0) {
+        need_input_copy(mp.need_input_copy), result(mem._data + (mp.result - mp.mem._data)),
+        seed((ulongT)this),calling_function(0) {
 #ifdef cimg_use_openmp
         mem[17] = omp_get_thread_num();
 #endif
@@ -21890,7 +21892,7 @@ namespace cimg_library_suffixed {
 
       static double mp_g(_cimg_math_parser& mp) {
         cimg::unused(mp);
-        return cimg::grand();
+        return cimg::grand(&mp.seed);
       }
 
       static double mp_gauss(_cimg_math_parser& mp) {
@@ -23751,12 +23753,12 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_srand(_cimg_math_parser& mp) {
-        return cimg::srand((unsigned int)_mp_arg(2));
+        return cimg::srand((unsigned int)_mp_arg(2),&mp.seed);
       }
 
       static double mp_srand0(_cimg_math_parser& mp) {
         cimg::unused(mp);
-        return cimg::srand();
+        return cimg::srand(&mp.seed);
       }
 
       static double mp_std(_cimg_math_parser& mp) {
@@ -23842,7 +23844,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_u(_cimg_math_parser& mp) {
-        return cimg::rand(_mp_arg(2),_mp_arg(3));
+        return cimg::rand(_mp_arg(2),_mp_arg(3),&mp.seed);
       }
 
       static double mp_uppercase(_cimg_math_parser& mp) {

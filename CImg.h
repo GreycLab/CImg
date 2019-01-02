@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 243
+#define cimg_version 244
 
 /*-----------------------------------------------------------
  #
@@ -5805,101 +5805,74 @@ namespace cimg_library_suffixed {
       return _wait(milliseconds,timer);
     }
 
-    // Random number generators.
-    // CImg may use its own Random Number Generator (RNG) if configuration macro 'cimg_use_rng' is set.
-    // Use it for instance when you have to deal with concurrent threads trying to call std::srand()
-    // at the same time!
-#ifdef cimg_use_rng
-
-#include <stdint.h>
-
-    // Use a custom RNG.
-    inline unsigned int _rand(const unsigned int seed=0, const bool set_seed=false) {
-      static cimg_ulong next = 0xB16B00B5;
-      cimg::mutex(4);
-      if (set_seed) next = (cimg_ulong)seed;
-      else next = next*1103515245 + 12345U;
-      cimg::mutex(4,0);
-      return (unsigned int)(next&0xFFFFFFU);
+    // Custom random number generator (allow re-entrance).
+    inline unsigned int _rand(const cimg_ulong seed, const bool set_seed, cimg_ulong *const p_next) {
+      static cimg_ulong next = 0xB16B00B5U;
+      cimg_ulong *const _p_next = p_next?p_next:&next;
+      if (!p_next) cimg::mutex(4);
+      if (set_seed) *_p_next = seed;
+      else *_p_next = *_p_next*1103515245 + 12345U;
+      if (!p_next) cimg::mutex(4,0);
+      return (unsigned int)(*_p_next&0xFFFFFFFFU);
     }
 
-    inline unsigned int srand() {
-      unsigned int t = (unsigned int)cimg::time();
-#if cimg_OS==1
-      t+=(unsigned int)getpid();
-#elif cimg_OS==2
-      t+=(unsigned int)_getpid();
-#endif
-      return cimg::_rand(t,true);
-    }
-
-    inline unsigned int srand(const unsigned int seed) {
-      return _rand(seed,true);
-    }
-
-    inline double rand(const double val_min, const double val_max) {
-      const double val = cimg::_rand()/16777215.;
-      return val_min + (val_max - val_min)*val;
-    }
-
-#else
-
-    // Use the system RNG.
-    inline unsigned int srand() {
-      const unsigned int t = (unsigned int)cimg::time();
-#if cimg_OS==1 || defined(__BORLANDC__)
-      std::srand(t + (unsigned int)getpid());
-#elif cimg_OS==2
-      std::srand(t + (unsigned int)_getpid());
-#else
-      std::srand(t);
-#endif
-      return t;
-    }
-
-    inline unsigned int srand(const unsigned int seed) {
-      std::srand(seed);
-      return seed;
-    }
-
-    //! Return a random variable uniformely distributed between [val_min,val_max].
-    /**
-    **/
-    inline double rand(const double val_min, const double val_max) {
-      const double val = (double)std::rand()/RAND_MAX;
-      return val_min + (val_max - val_min)*val;
-    }
-#endif
-
-    //! Return a random variable uniformely distributed between [0,val_max].
+    //! Set random seed for random numbers generator.
     /**
      **/
-    inline double rand(const double val_max=1) {
-      return cimg::rand(0,val_max);
+    inline unsigned int srand(cimg_ulong *const p_next=0) {
+      cimg_ulong t = cimg::time();
+#if cimg_OS==1
+      t+=(cimg_ulong)getpid();
+#elif cimg_OS==2
+      t+=(cimg_ulong)_getpid();
+#endif
+      return cimg::_rand(t,true,p_next);
     }
 
-    //! Return a random variable following a gaussian distribution and a standard deviation of 1.
+    //! Set specified seed for random numbers generator.
+    /**
+     **/
+    inline unsigned int srand(const cimg_ulong seed, cimg_ulong *const p_next=0) {
+      return _rand(seed,true,p_next);
+    }
+
+    //! Return a random number uniformely distributed between [val_min,val_max].
+    /**
+     **/
+    inline double rand(const double val_min, const double val_max, cimg_ulong *const p_next=0) {
+      const double val = cimg::_rand(0,false,p_next)/(double)0xFFFFFFFFU;
+      return val_min + (val_max - val_min)*val;
+    }
+
+    //! Return a random number uniformely distributed between [0,val_max].
+    /**
+     **/
+    inline double rand(const double val_max=1, cimg_ulong *const p_next=0) {
+      return cimg::rand(0,val_max,p_next);
+    }
+
+    //! Return a random number following a gaussian distribution and a standard deviation of 1.
     /**
     **/
-    inline double grand() {
+    inline double grand(cimg_ulong *const p_next=0) {
       double x1, w;
       do {
-        const double x2 = cimg::rand(-1,1);
-        x1 = cimg::rand(-1,1);
+        const double x2 = cimg::rand(-1,1,p_next);
+        x1 = cimg::rand(-1,1,p_next);
         w = x1*x1 + x2*x2;
       } while (w<=0 || w>=1.);
       return x1*std::sqrt((-2*std::log(w))/w);
     }
 
-    //! Return a random variable following a Poisson distribution of parameter z.
+    //! Return a random number following a Poisson distribution of parameter z.
     /**
     **/
-    inline unsigned int prand(const double z) {
+    inline unsigned int prand(const double z, cimg_ulong *const p_next=0) {
       if (z<=1.e-10) return 0;
-      if (z>100) return (unsigned int)((std::sqrt(z) * cimg::grand()) + z);
+      if (z>100) return (unsigned int)((std::sqrt(z) * cimg::grand(p_next)) + z);
       unsigned int k = 0;
       const double y = std::exp(-z);
-      for (double s = 1.; s>=y; ++k) s*=cimg::rand();
+      for (double s = 1.; s>=y; ++k) s*=cimg::rand(1,p_next);
       return k - 1;
     }
 
@@ -38194,6 +38167,13 @@ namespace cimg_library_suffixed {
         psizeh = (int)patch_height, psizeh1 = psizeh/2, psizeh2 = psizeh - psizeh1 - 1,
         psized = (int)patch_depth,  psized1 = psized/2, psized2 = psized - psized1 - 1;
 
+#ifdef cimg_use_openmp
+      CImg<ulongT> seed = CImg<longT>(omp_get_max_threads()).rand(0U,0xFFFFFFFFU);
+#else
+      const int thread_id = 0;
+      ulongT _seed = 0xB16B00B5U, *const seed = &_seed;
+#endif
+
       if (_depth>1 || patch_image._depth>1) { // 3D version
 
         // Initialize correspondence map.
@@ -38239,6 +38219,9 @@ namespace cimg_library_suffixed {
           cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64 &&
                                                                      iter<nb_iterations-2))
           cimg_forXYZ(*this,X,Y,Z) {
+#ifdef cimg_use_openmp
+            const int thread_id = omp_get_thread_num();
+#endif
             const int
               _x = is_odd?width() - 1 - X:X,
               _y = is_odd?height() - 1 - Y:Y,
@@ -38350,11 +38333,11 @@ namespace cimg_library_suffixed {
               dd = (float)patch_image.depth();
             for (unsigned int i = 0; i<nb_randoms; ++i) {
               u = (int)cimg::round(cimg::rand(std::max((float)cx1,best_u - dw),
-                                              std::min(patch_image.width() - 1.f - cx2,best_u + dw)));
+                                              std::min(patch_image.width() - 1.f - cx2,best_u + dw),&seed[thread_id]));
               v = (int)cimg::round(cimg::rand(std::max((float)cy1,best_v - dh),
-                                              std::min(patch_image.height() - 1.f - cy2,best_v + dh)));
+                                              std::min(patch_image.height() - 1.f - cy2,best_v + dh),&seed[thread_id]));
               w = (int)cimg::round(cimg::rand(std::max((float)cz1,best_w - dd),
-                                              std::min(patch_image.depth() - 1.f - cz2,best_w + dd)));
+                                              std::min(patch_image.depth() - 1.f - cz2,best_w + dd),&seed[thread_id]));
               if (u!=best_u || v!=best_v || w!=best_w) {
                 s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,patch_depth,
                                 xp,yp,zp,u - cx1,v - cy1,w - cz1,
@@ -38409,6 +38392,9 @@ namespace cimg_library_suffixed {
           cimg_pragma_openmp(parallel for cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64 &&
                                                          iter<nb_iterations-2))
           cimg_forXY(*this,X,Y) {
+#ifdef cimg_use_openmp
+            const int thread_id = omp_get_thread_num();
+#endif
             const int
               _x = is_odd?width() - 1 - X:X,
               _y = is_odd?height() - 1 - Y:Y;
@@ -38481,9 +38467,9 @@ namespace cimg_library_suffixed {
               dh = (float)patch_image.height();
             for (unsigned int i = 0; i<nb_randoms; ++i) {
               u = (int)cimg::round(cimg::rand(std::max((float)cx1,best_u - dw),
-                                              std::min(patch_image.width() - 1.f - cx2,best_u + dw)));
+                                              std::min(patch_image.width() - 1.f - cx2,best_u + dw),&seed[thread_id]));
               v = (int)cimg::round(cimg::rand(std::max((float)cy1,best_v - dh),
-                                              std::min(patch_image.height() - 1.f - cy2,best_v + dh)));
+                                              std::min(patch_image.height() - 1.f - cy2,best_v + dh),&seed[thread_id]));
               if (u!=best_u || v!=best_v) {
                 s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,
                                 xp,yp,u - cx1,v - cy1,

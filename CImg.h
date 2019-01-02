@@ -5802,6 +5802,11 @@ namespace cimg_library_suffixed {
     }
 
     // Custom random number generator (allow re-entrance).
+    inline cimg_ulong *__rand() {
+      static cimg_ulong number = 0xB16B00B5U;
+      return &number;
+    }
+
     inline unsigned int _rand(const cimg_ulong seed, const bool set_seed, cimg_ulong *const p_number) {
       if (set_seed) *p_number = seed;
       else *p_number = *p_number*1103515245 + 12345U;
@@ -5818,8 +5823,22 @@ namespace cimg_library_suffixed {
       return cimg::_rand(t,true,p_number);
     }
 
+    inline unsigned int srand() {
+      cimg::mutex(4);
+      const unsigned int res = cimg::srand(cimg::__rand());
+      cimg::mutex(4,0);
+      return res;
+    }
+
     inline unsigned int srand(const cimg_ulong seed, cimg_ulong *const p_number) {
       return cimg::_rand(seed,true,p_number);
+    }
+
+    inline unsigned int srand(const cimg_ulong seed) {
+      cimg::mutex(4);
+      const unsigned int res = cimg::srand(seed,cimg::__rand());
+      cimg::mutex(4,0);
+      return res;
     }
 
     inline double rand(const double val_min, const double val_max, cimg_ulong *const p_number) {
@@ -5827,8 +5846,23 @@ namespace cimg_library_suffixed {
       return val_min + (val_max - val_min)*val;
     }
 
+    inline double rand(const double val_min, const double val_max) {
+      cimg::mutex(4);
+      const double res = cimg::rand(val_min,val_max,cimg::__rand());
+      cimg::mutex(4,0);
+      return res;
+    }
+
     inline double rand(const double val_max, cimg_ulong *const p_number) {
-      return cimg::rand(0,val_max,p_number);
+      const double val = cimg::_rand(0,false,p_number)/(double)0xFFFFFFFFU;
+      return val_max*val;
+    }
+
+    inline double rand(const double val_max=1) {
+      cimg::mutex(4);
+      const double res = cimg::rand(val_max,cimg::__rand());
+      cimg::mutex(4,0);
+      return res;
     }
 
     inline double grand(cimg_ulong *const p_number) {
@@ -5841,6 +5875,13 @@ namespace cimg_library_suffixed {
       return x1*std::sqrt((-2*std::log(w))/w);
     }
 
+    inline double grand() {
+      cimg::mutex(4);
+      const double res = cimg::grand(cimg::__rand());
+      cimg::mutex(4,0);
+      return res;
+    }
+
     inline unsigned int prand(const double z, cimg_ulong *const p_number) {
       if (z<=1.e-10) return 0;
       if (z>100) return (unsigned int)((std::sqrt(z) * cimg::grand(p_number)) + z);
@@ -5850,34 +5891,11 @@ namespace cimg_library_suffixed {
       return k - 1;
     }
 
-    // Non re-entrant versions.
-    inline cimg_ulong *__rand() {
-      static cimg_ulong number = 0xB16B00B5U;
-      return &number;
-    }
-
-    inline unsigned int srand() {
-      return cimg::srand(cimg::__rand());
-    }
-
-    inline unsigned int srand(const cimg_ulong seed) {
-      return cimg::srand(seed,cimg::__rand());
-    }
-
-    inline double rand(const double val_min, const double val_max) {
-      return cimg::rand(val_min,val_max,cimg::__rand());
-    }
-
-    inline double rand(const double val_max=1) {
-      return cimg::rand(val_max,cimg::__rand());
-    }
-
-    inline double grand() {
-      return cimg::grand(cimg::__rand());
-    }
-
     inline unsigned int prand(const double z) {
-      return cimg::prand(z,cimg::__rand());
+      cimg::mutex(4);
+      const unsigned int res = cimg::prand(z,cimg::__rand());
+      cimg::mutex(4,0);
+      return res;
     }
 
     //! Cut (i.e. clamp) value in specified interval.

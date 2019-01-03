@@ -16069,7 +16069,11 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_vector2_vv(op,i1,i2) _cimg_mp_return(vector2_vv(op,i1,i2))
 #define _cimg_mp_vector3_vss(op,i1,i2,i3) _cimg_mp_return(vector3_vss(op,i1,i2,i3))
 
-      // Constructors.
+      // Constructors / Destructors.
+      ~_cimg_math_parser() {
+        cimg::srand(rng);
+      }
+
       _cimg_math_parser(const char *const expression, const char *const funcname=0,
                         const CImg<T>& img_input=CImg<T>::const_empty(), CImg<T> *const img_output=0,
                         const CImgList<T> *const list_inputs=0, CImgList<T> *const list_outputs=0,
@@ -28163,6 +28167,7 @@ namespace cimg_library_suffixed {
 #endif
           cimg_pragma_openmp(for)
             cimg_rof(*this,ptrd,T) *ptrd = (T)(val_min + delta*cimg::rand(1,&rng));
+          cimg::srand(rng);
         } else cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),524288)) {
           ulongT rng = (cimg::_rand(),cimg::rng());
 #ifdef cimg_use_openmp
@@ -28170,6 +28175,7 @@ namespace cimg_library_suffixed {
 #endif
           cimg_pragma_openmp(for)
             cimg_rof(*this,ptrd,T) *ptrd = std::min(val_max,(T)(val_min + delta*cimg::rand(1,&rng)));
+          cimg::srand(rng);
         }
       return *this;
     }
@@ -28238,6 +28244,7 @@ namespace cimg_library_suffixed {
             if (val<vmin) val = vmin;
             *ptrd = (T)val;
           }
+          cimg::srand(rng);
         }
       } break;
       case 1 : { // Uniform noise
@@ -28253,6 +28260,7 @@ namespace cimg_library_suffixed {
             if (val<vmin) val = vmin;
             *ptrd = (T)val;
           }
+          cimg::srand(rng);
         }
       } break;
       case 2 : { // Salt & Pepper noise
@@ -28268,6 +28276,7 @@ namespace cimg_library_suffixed {
 #endif
           cimg_pragma_openmp(for)
             cimg_rof(*this,ptrd,T) if (cimg::rand(100,&rng)<nsigma) *ptrd = (T)(cimg::rand(1,&rng)<0.5?M:m);
+          cimg::srand(rng);
           }
       } break;
       case 3 : { // Poisson Noise
@@ -28278,6 +28287,7 @@ namespace cimg_library_suffixed {
 #endif
           cimg_pragma_openmp(for)
             cimg_rof(*this,ptrd,T) *ptrd = (T)cimg::prand(*ptrd,&rng);
+          cimg::srand(rng);
         }
       } break;
       case 4 : { // Rice noise
@@ -28298,6 +28308,7 @@ namespace cimg_library_suffixed {
             if (val<vmin) val = vmin;
             *ptrd = (T)val;
           }
+          cimg::srand(rng);
         }
       } break;
       default :
@@ -38428,6 +38439,7 @@ namespace cimg_library_suffixed {
               }
               if (occ_penalization!=0) cimg_pragma_openmp(atomic) ++occ(best_u,best_v,best_w);
             }
+            cimg::srand(rng);
           }
         }
 
@@ -38563,6 +38575,7 @@ namespace cimg_library_suffixed {
               if (occ_penalization!=0) cimg_pragma_openmp(atomic) ++occ(best_u,best_v);
             }
           }
+          cimg::srand(rng);
         }
       }
       if (is_matching_score) score.move_to(matching_score);
@@ -46510,6 +46523,7 @@ namespace cimg_library_suffixed {
             }
         }
       }
+      cimg::srand(rng);
       return *this;
     }
 

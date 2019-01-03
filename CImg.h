@@ -16081,6 +16081,9 @@ namespace cimg_library_suffixed {
         mem_img_median(~0U),debug_indent(0),result_dim(0),break_type(0),constcache_size(0),
         is_parallelizable(true),is_fill(_is_fill),need_input_copy(false),
         rng((ulongT)this + cimg::_rand()),calling_function(funcname?funcname:"cimg_math_parser") {
+#ifdef cimg_use_openmp
+        rng+=omp_get_thread_num();
+#endif
         if (!expression || !*expression)
           throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                       "CImg<%s>::%s: Empty expression.",
@@ -16189,7 +16192,7 @@ namespace cimg_library_suffixed {
         imgout(CImg<T>::empty()),listout(CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),debug_indent(0),
         result_dim(0),break_type(0),constcache_size(0),is_parallelizable(true),is_fill(false),need_input_copy(false),
-        rng((ulongT)this + cimg::_rand()),calling_function(0) {
+        rng(0),calling_function(0) {
         mem.assign(1 + _cimg_mp_slot_c,1,1,1,0); // Allow to skip 'is_empty?' test in operator()()
         result = mem._data;
       }
@@ -16203,6 +16206,7 @@ namespace cimg_library_suffixed {
         rng((ulongT)this + cimg::_rand()),calling_function(0) {
 #ifdef cimg_use_openmp
         mem[17] = omp_get_thread_num();
+        rng+=omp_get_thread_num();
 #endif
         opcode.assign();
         opcode._is_shared = true;
@@ -23774,6 +23778,9 @@ namespace cimg_library_suffixed {
 
       static double mp_srand0(_cimg_math_parser& mp) {
         cimg::srand(&mp.rng);
+#ifdef cimg_use_openmp
+        mp.rng+=omp_get_thread_num();
+#endif
         return cimg::type<double>::nan();
       }
 

@@ -111,7 +111,7 @@ IS_ICPC = 1
 endif
 
 CXXVER = $(CXX)
-CFLAGS = -I.. -Wall -Wextra -Wfatal-errors
+CFLAGS = -I.. -Wall -Wextra -Wfatal-errors -Werror=unknown-pragmas -Werror=unused-label
 LIBS = -lm
 ifdef IS_GCC
 CXXVER = $(shell $(CXX) -v 2>&1 | tail -n 1)

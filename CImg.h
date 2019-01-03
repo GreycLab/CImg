@@ -5820,13 +5820,11 @@ namespace cimg_library_suffixed {
     }
 
     inline void srand(cimg_ulong *const p_rng) {
-      cimg_ulong t = cimg::time();
 #if cimg_OS==1
-      t+=(cimg_ulong)getpid();
+      *p_rng = cimg::time() + (cimg_ulong)getpid();
 #elif cimg_OS==2
-      t+=(cimg_ulong)_getpid();
+      *p_rng = cimg::time() + (cimg_ulong)_getpid();
 #endif
-      *p_rng = t;
     }
 
     inline void srand() {
@@ -38239,6 +38237,9 @@ namespace cimg_library_suffixed {
           cimg_pragma_openmp(parallel cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64 &&
                                                      iter<nb_iterations-2)) {
             ulongT rng = (ulongT)this + cimg::_rand();
+#ifdef cimg_use_openmp
+            rng+=omp_get_thread_num();
+#endif
             cimg_pragma_openmp(for collapse(2))
               cimg_forXYZ(*this,X,Y,Z) {
               const int
@@ -38412,6 +38413,9 @@ namespace cimg_library_suffixed {
           cimg_pragma_openmp(parallel cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64 &&
                                                      iter<nb_iterations-2)) {
             ulongT rng = (ulongT)this + cimg::_rand();
+#ifdef cimg_use_openmp
+            rng+=omp_get_thread_num();
+#endif
             cimg_pragma_openmp(for)
               cimg_forXY(*this,X,Y) {
               const int

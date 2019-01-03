@@ -5802,9 +5802,9 @@ namespace cimg_library_suffixed {
     }
 
     // Custom random number generator (allow re-entrance).
-    inline cimg_ulong *__rand() { // Used as a shared global rng
+    inline cimg_ulong& rng() { // Used as a shared global number for rng
       static cimg_ulong rng = 0xB16B00B5U;
-      return &rng;
+      return rng;
     }
 
     inline unsigned int _rand(cimg_ulong *const p_rng) {
@@ -5814,33 +5814,31 @@ namespace cimg_library_suffixed {
 
     inline unsigned int _rand() {
       cimg::mutex(4);
-      const unsigned int res = cimg::_rand(cimg::__rand());
+      const unsigned int res = cimg::_rand(&cimg::rng());
       cimg::mutex(4,0);
       return res;
     }
 
-    inline cimg_ulong srand(cimg_ulong *const p_rng) {
+    inline void srand(cimg_ulong *const p_rng) {
       cimg_ulong t = cimg::time();
 #if cimg_OS==1
       t+=(cimg_ulong)getpid();
 #elif cimg_OS==2
       t+=(cimg_ulong)_getpid();
 #endif
-      return *p_rng = t;
+      *p_rng = t;
     }
 
-    inline cimg_ulong srand() {
+    inline void srand() {
       cimg::mutex(4);
-      const cimg_ulong res = cimg::srand(cimg::__rand());
+      cimg::srand(&cimg::rng());
       cimg::mutex(4,0);
-      return res;
     }
 
-    inline cimg_ulong srand(const cimg_ulong seed) {
+    inline void srand(const cimg_ulong seed) {
       cimg::mutex(4);
-      *cimg::__rand() = seed;
+      cimg::rng() = seed;
       cimg::mutex(4,0);
-      return seed;
     }
 
     inline double rand(const double val_min, const double val_max, cimg_ulong *const p_rng) {
@@ -5850,7 +5848,7 @@ namespace cimg_library_suffixed {
 
     inline double rand(const double val_min, const double val_max) {
       cimg::mutex(4);
-      const double res = cimg::rand(val_min,val_max,cimg::__rand());
+      const double res = cimg::rand(val_min,val_max,&cimg::rng());
       cimg::mutex(4,0);
       return res;
     }
@@ -5862,7 +5860,7 @@ namespace cimg_library_suffixed {
 
     inline double rand(const double val_max=1) {
       cimg::mutex(4);
-      const double res = cimg::rand(val_max,cimg::__rand());
+      const double res = cimg::rand(val_max,&cimg::rng());
       cimg::mutex(4,0);
       return res;
     }
@@ -5879,7 +5877,7 @@ namespace cimg_library_suffixed {
 
     inline double grand() {
       cimg::mutex(4);
-      const double res = cimg::grand(cimg::__rand());
+      const double res = cimg::grand(&cimg::rng());
       cimg::mutex(4,0);
       return res;
     }
@@ -5895,7 +5893,7 @@ namespace cimg_library_suffixed {
 
     inline unsigned int prand(const double z) {
       cimg::mutex(4);
-      const unsigned int res = cimg::prand(z,cimg::__rand());
+      const unsigned int res = cimg::prand(z,&cimg::rng());
       cimg::mutex(4,0);
       return res;
     }
@@ -23772,11 +23770,13 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_srand(_cimg_math_parser& mp) {
-        return mp.rng = (unsigned int)_mp_arg(2);
+        mp.rng = (unsigned int)_mp_arg(2);
+        return cimg::type<double>::nan();
       }
 
       static double mp_srand0(_cimg_math_parser& mp) {
-        return cimg::srand(&mp.rng);
+        cimg::srand(&mp.rng);
+        return cimg::type<double>::nan();
       }
 
       static double mp_std(_cimg_math_parser& mp) {
@@ -28150,7 +28150,7 @@ namespace cimg_library_suffixed {
        \note Random variables are uniformely distributed in [val_min,val_max].
      **/
     CImg<T>& rand(const T& val_min, const T& val_max) {
-      cimg_ulong rng = (cimg_ulong)this + cimg::_rand();
+      ulongT rng = (ulongT)this + cimg::_rand();
       const float delta = (float)val_max - (float)val_min + (cimg::type<T>::is_float()?0:1);
       if (cimg::type<T>::is_float()) cimg_for(*this,ptrd,T) *ptrd = (T)(val_min + delta*cimg::rand(1,&rng));
       else cimg_for(*this,ptrd,T) *ptrd = std::min(val_max,(T)(val_min + delta*cimg::rand(1,&rng)));
@@ -28207,7 +28207,7 @@ namespace cimg_library_suffixed {
       if (nsigma==0 && noise_type!=3) return *this;
       if (nsigma<0 || noise_type==2) m = (Tfloat)min_max(M);
       if (nsigma<0) nsigma = (Tfloat)(-nsigma*(M-m)/100.);
-      cimg_ulong rng = (cimg_ulong)this + cimg::_rand();
+      ulongT rng = (ulongT)this + cimg::_rand();
       switch (noise_type) {
       case 0 : { // Gaussian noise
         cimg_rof(*this,ptrd,T) {
@@ -38170,7 +38170,7 @@ namespace cimg_library_suffixed {
       CImg<intT> map(_width,_height,_depth,patch_image._depth>1?3:2);
       CImg<floatT> score(_width,_height,_depth);
       CImg<uintT> occ, loop_order;
-      ulongT rng = (cimg_ulong)this + cimg::_rand();
+      ulongT rng = (ulongT)this + cimg::_rand();
       if (occ_penalization!=0) {
         occ.assign(patch_image._width,patch_image._height,patch_image._depth,1,0);
         loop_order.assign(_width,_height,_depth,_depth>1?3:2);
@@ -46421,6 +46421,7 @@ namespace cimg_library_suffixed {
       if (is_empty()) return *this;
       const int w = width(), h = height();
       const Tfloat m = (Tfloat)cimg::type<T>::min(), M = (Tfloat)cimg::type<T>::max();
+      ulongT rng = (ulongT)this + cimg::_rand();
       cimg_forZC(*this,z,c) {
         CImg<T> ref = get_shared_slice(z,c);
         for (int delta = 1<<std::min(scale,31U); delta>1; delta>>=1) {
@@ -46432,7 +46433,7 @@ namespace cimg_library_suffixed {
             for (int x0 = 0; x0<w; x0+=delta) {
               const int x1 = (x0 + delta)%w, y1 = (y0 + delta)%h, xc = (x0 + delta2)%w, yc = (y0 + delta2)%h;
               const Tfloat val = (Tfloat)(0.25f*(ref(x0,y0) + ref(x0,y1) + ref(x0,y1) + ref(x1,y1)) +
-                                          r*cimg::rand(-1,1));
+                                          r*cimg::rand(-1,1,&rng));
               ref(xc,yc) = (T)(val<m?m:val>M?M:val);
             }
 
@@ -46442,7 +46443,7 @@ namespace cimg_library_suffixed {
               const int y0 = cimg::mod(y,h), x1 = (x0 + delta)%w, y1 = (y + delta)%h,
                 xc = (x0 + delta2)%w, yc = (y + delta2)%h;
               const Tfloat val = (Tfloat)(0.25f*(ref(xc,y0) + ref(x0,yc) + ref(xc,y1) + ref(x1,yc)) +
-                                          r*cimg::rand(-1,1));
+                                          r*cimg::rand(-1,1,&rng));
               ref(xc,yc) = (T)(val<m?m:val>M?M:val);
             }
           for (int y0 = 0; y0<h; y0+=delta)
@@ -46450,7 +46451,7 @@ namespace cimg_library_suffixed {
               const int x0 = cimg::mod(x,w), x1 = (x + delta)%w, y1 = (y0 + delta)%h,
                 xc = (x + delta2)%w, yc = (y0 + delta2)%h;
               const Tfloat val = (Tfloat)(0.25f*(ref(xc,y0) + ref(x0,yc) + ref(xc,y1) + ref(x1,yc)) +
-                                          r*cimg::rand(-1,1));
+                                          r*cimg::rand(-1,1,&rng));
               ref(xc,yc) = (T)(val<m?m:val>M?M:val);
             }
           for (int y = -delta2; y<h; y+=delta)
@@ -46458,7 +46459,7 @@ namespace cimg_library_suffixed {
               const int x0 = cimg::mod(x,w), y0 = cimg::mod(y,h), x1 = (x + delta)%w, y1 = (y + delta)%h,
                 xc = (x + delta2)%w, yc = (y + delta2)%h;
               const Tfloat val = (Tfloat)(0.25f*(ref(xc,y0) + ref(x0,yc) + ref(xc,y1) + ref(x1,yc)) +
-                                          r*cimg::rand(-1,1));
+                                          r*cimg::rand(-1,1,&rng));
                 ref(xc,yc) = (T)(val<m?m:val>M?M:val);
             }
         }
@@ -48868,16 +48869,12 @@ namespace cimg_library_suffixed {
         if (_spectrum>4) { colormap(0,4) = 220; colormap(1,4) = 10;  colormap(2,4) = 220; }
         if (_spectrum>5) { colormap(0,5) = 10;  colormap(1,5) = 220; colormap(2,5) = 220; }
         if (_spectrum>6) {
-          cimg::mutex(8);
-          const cimg_ulong seed = cimg::rand();
-          cimg::srand(10);
+          ulongT rng = 10;
           cimg_for_inY(colormap,6,colormap.height()-1,k) {
-            colormap(0,k) = (unsigned char)(120 + cimg::rand(-100.f,100.f));
-            colormap(1,k) = (unsigned char)(120 + cimg::rand(-100.f,100.f));
-            colormap(2,k) = (unsigned char)(120 + cimg::rand(-100.f,100.f));
+            colormap(0,k) = (unsigned char)(120 + cimg::rand(-100.f,100.f,&rng));
+            colormap(1,k) = (unsigned char)(120 + cimg::rand(-100.f,100.f,&rng));
+            colormap(2,k) = (unsigned char)(120 + cimg::rand(-100.f,100.f,&rng));
           }
-          cimg::srand(seed);
-          cimg::mutex(8,0);
         }
       }
 

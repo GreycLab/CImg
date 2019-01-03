@@ -28150,9 +28150,10 @@ namespace cimg_library_suffixed {
        \note Random variables are uniformely distributed in [val_min,val_max].
      **/
     CImg<T>& rand(const T& val_min, const T& val_max) {
+      cimg_ulong rng = (cimg_ulong)this + cimg::_rand();
       const float delta = (float)val_max - (float)val_min + (cimg::type<T>::is_float()?0:1);
-      if (cimg::type<T>::is_float()) cimg_for(*this,ptrd,T) *ptrd = (T)(val_min + cimg::rand()*delta);
-      else cimg_for(*this,ptrd,T) *ptrd = std::min(val_max,(T)(val_min + cimg::rand()*delta));
+      if (cimg::type<T>::is_float()) cimg_for(*this,ptrd,T) *ptrd = (T)(val_min + delta*cimg::rand(1,&rng));
+      else cimg_for(*this,ptrd,T) *ptrd = std::min(val_max,(T)(val_min + delta*cimg::rand(1,&rng)));
       return *this;
     }
 
@@ -28206,10 +28207,11 @@ namespace cimg_library_suffixed {
       if (nsigma==0 && noise_type!=3) return *this;
       if (nsigma<0 || noise_type==2) m = (Tfloat)min_max(M);
       if (nsigma<0) nsigma = (Tfloat)(-nsigma*(M-m)/100.);
+      cimg_ulong rng = (cimg_ulong)this + cimg::_rand();
       switch (noise_type) {
       case 0 : { // Gaussian noise
         cimg_rof(*this,ptrd,T) {
-          Tfloat val = (Tfloat)(*ptrd + nsigma*cimg::grand());
+          Tfloat val = (Tfloat)(*ptrd + nsigma*cimg::grand(&rng));
           if (val>vmax) val = vmax;
           if (val<vmin) val = vmin;
           *ptrd = (T)val;
@@ -28217,7 +28219,7 @@ namespace cimg_library_suffixed {
       } break;
       case 1 : { // Uniform noise
         cimg_rof(*this,ptrd,T) {
-          Tfloat val = (Tfloat)(*ptrd + nsigma*cimg::rand(-1,1));
+          Tfloat val = (Tfloat)(*ptrd + nsigma*cimg::rand(-1,1,&rng));
           if (val>vmax) val = vmax;
           if (val<vmin) val = vmin;
           *ptrd = (T)val;
@@ -28229,18 +28231,18 @@ namespace cimg_library_suffixed {
           if (cimg::type<T>::is_float()) { --m; ++M; }
           else { m = (Tfloat)cimg::type<T>::min(); M = (Tfloat)cimg::type<T>::max(); }
         }
-        cimg_rof(*this,ptrd,T) if (cimg::rand(100)<nsigma) *ptrd = (T)(cimg::rand()<0.5?M:m);
+        cimg_rof(*this,ptrd,T) if (cimg::rand(100,&rng)<nsigma) *ptrd = (T)(cimg::rand(1,&rng)<0.5?M:m);
       } break;
       case 3 : { // Poisson Noise
-        cimg_rof(*this,ptrd,T) *ptrd = (T)cimg::prand(*ptrd);
+        cimg_rof(*this,ptrd,T) *ptrd = (T)cimg::prand(*ptrd,&rng);
       } break;
       case 4 : { // Rice noise
         const Tfloat sqrt2 = (Tfloat)std::sqrt(2.);
         cimg_rof(*this,ptrd,T) {
           const Tfloat
             val0 = (Tfloat)*ptrd/sqrt2,
-            re = (Tfloat)(val0 + nsigma*cimg::grand()),
-            im = (Tfloat)(val0 + nsigma*cimg::grand());
+            re = (Tfloat)(val0 + nsigma*cimg::grand(&rng)),
+            im = (Tfloat)(val0 + nsigma*cimg::grand(&rng));
           Tfloat val = cimg::hypot(re,im);
           if (val>vmax) val = vmax;
           if (val<vmin) val = vmin;
@@ -38168,6 +38170,7 @@ namespace cimg_library_suffixed {
       CImg<intT> map(_width,_height,_depth,patch_image._depth>1?3:2);
       CImg<floatT> score(_width,_height,_depth);
       CImg<uintT> occ, loop_order;
+      ulongT rng = (cimg_ulong)this + cimg::_rand();
       if (occ_penalization!=0) {
         occ.assign(patch_image._width,patch_image._height,patch_image._depth,1,0);
         loop_order.assign(_width,_height,_depth,_depth>1?3:2);
@@ -38178,9 +38181,9 @@ namespace cimg_library_suffixed {
         }
         cimg_forXYZ(loop_order,x,y,z) { // Randomize loop order in case of constraints on patch occurence
           const unsigned int
-            X = (unsigned int)cimg::round(cimg::rand(loop_order._width - 1.)),
-            Y = (unsigned int)cimg::round(cimg::rand(loop_order._height - 1.)),
-            Z = loop_order._depth>1?(unsigned int)cimg::round(cimg::rand(loop_order._depth  - 1.)):0U;
+            X = (unsigned int)cimg::round(cimg::rand(loop_order._width - 1.,&rng)),
+            Y = (unsigned int)cimg::round(cimg::rand(loop_order._height - 1.,&rng)),
+            Z = loop_order._depth>1?(unsigned int)cimg::round(cimg::rand(loop_order._depth  - 1.,&rng)):0U;
           cimg::swap(loop_order(x,y,z,0),loop_order(X,Y,Z,0));
           cimg::swap(loop_order(x,y,z,1),loop_order(X,Y,Z,1));
           if (loop_order._spectrum>2) cimg::swap(loop_order(x,y,z,2),loop_order(X,Y,Z,2));
@@ -38192,10 +38195,10 @@ namespace cimg_library_suffixed {
         psized = (int)patch_depth,  psized1 = psized/2, psized2 = psized - psized1 - 1;
 
 #ifdef cimg_use_openmp
-      CImg<ulongT> rng = CImg<longT>(omp_get_max_threads()).rand(0U,0xFFFFFFFFU);
+      CImg<ulongT> p_rng = CImg<longT>(omp_get_max_threads()).rand(0U,0xFFFFFFFFU);
 #else
       const int thread_id = 0;
-      ulongT _rng = cimg::_rand(0,false,0), *const rng = &_rng;
+      ulongT *const p_rng = &rng;
 #endif
 
       if (_depth>1 || patch_image._depth>1) { // 3D version
@@ -38221,9 +38224,9 @@ namespace cimg_library_suffixed {
               cx1 = x<=psizew1?x:(x<width()  - psizew2?psizew1:psizew + x - width()),  cx2 = psizew - cx1 - 1,
               cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
               cz1 = z<=psized1?z:(z<depth()  - psized2?psized1:psized + z - depth()),  cz2 = psized - cz1 - 1,
-              u = (int)cimg::round(cimg::rand(cx1,patch_image.width() - 1 - cx2)),
-              v = (int)cimg::round(cimg::rand(cy1,patch_image.height() - 1 - cy2)),
-              w = (int)cimg::round(cimg::rand(cz1,patch_image.depth() - 1 - cz2));
+              u = (int)cimg::round(cimg::rand(cx1,patch_image.width() - 1 - cx2,&rng)),
+              v = (int)cimg::round(cimg::rand(cy1,patch_image.height() - 1 - cy2,&rng)),
+              w = (int)cimg::round(cimg::rand(cz1,patch_image.depth() - 1 - cz2,&rng));
             map(x,y,z,0) = u;
             map(x,y,z,1) = v;
             map(x,y,z,2) = w;
@@ -38358,11 +38361,11 @@ namespace cimg_library_suffixed {
                 dd = (float)patch_image.depth();
               for (unsigned int i = 0; i<nb_randoms; ++i) {
                 u = (int)cimg::round(cimg::rand(std::max((float)cx1,best_u - dw),
-                                                std::min(patch_image.width() - 1.f - cx2,best_u + dw),&rng[thread_id]));
+                                                std::min(patch_image.width() - 1.f - cx2,best_u + dw),&p_rng[thread_id]));
                 v = (int)cimg::round(cimg::rand(std::max((float)cy1,best_v - dh),
-                                                std::min(patch_image.height() - 1.f - cy2,best_v + dh),&rng[thread_id]));
+                                                std::min(patch_image.height() - 1.f - cy2,best_v + dh),&p_rng[thread_id]));
                 w = (int)cimg::round(cimg::rand(std::max((float)cz1,best_w - dd),
-                                                std::min(patch_image.depth() - 1.f - cz2,best_w + dd),&rng[thread_id]));
+                                                std::min(patch_image.depth() - 1.f - cz2,best_w + dd),&p_rng[thread_id]));
                 if (u!=best_u || v!=best_v || w!=best_w) {
                   s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,patch_depth,
                                   xp,yp,zp,u - cx1,v - cy1,w - cz1,
@@ -38401,8 +38404,8 @@ namespace cimg_library_suffixed {
             const int
               cx1 = x<=psizew1?x:(x<width()  - psizew2?psizew1:psizew + x - width()),  cx2 = psizew - cx1 - 1,
               cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
-              u = (int)cimg::round(cimg::rand(cx1,patch_image.width() - 1 - cx2)),
-              v = (int)cimg::round(cimg::rand(cy1,patch_image.height() - 1 - cy2));
+              u = (int)cimg::round(cimg::rand(cx1,patch_image.width() - 1 - cx2,&rng)),
+              v = (int)cimg::round(cimg::rand(cy1,patch_image.height() - 1 - cy2,&rng));
             map(x,y,0) = u;
             map(x,y,1) = v;
             score(x,y) = _matchpatch(*this,patch_image,occ,patch_width,patch_height,
@@ -38494,9 +38497,9 @@ namespace cimg_library_suffixed {
                 dh = (float)patch_image.height();
               for (unsigned int i = 0; i<nb_randoms; ++i) {
                 u = (int)cimg::round(cimg::rand(std::max((float)cx1,best_u - dw),
-                                                std::min(patch_image.width() - 1.f - cx2,best_u + dw),&rng[thread_id]));
+                                                std::min(patch_image.width() - 1.f - cx2,best_u + dw),&p_rng[thread_id]));
                 v = (int)cimg::round(cimg::rand(std::max((float)cy1,best_v - dh),
-                                                std::min(patch_image.height() - 1.f - cy2,best_v + dh),&rng[thread_id]));
+                                                std::min(patch_image.height() - 1.f - cy2,best_v + dh),&p_rng[thread_id]));
                 if (u!=best_u || v!=best_v) {
                   s = _matchpatch(*this,patch_image,occ,patch_width,patch_height,
                                   xp,yp,u - cx1,v - cy1,

@@ -28156,9 +28156,21 @@ namespace cimg_library_suffixed {
      **/
     CImg<T>& rand(const T& val_min, const T& val_max) {
       const float delta = (float)val_max - (float)val_min + (cimg::type<T>::is_float()?0:1);
-      ulongT rng = (ulongT)this + cimg::_rand();
-      if (cimg::type<T>::is_float()) cimg_for(*this,ptrd,T) *ptrd = (T)(val_min + delta*cimg::rand(1,&rng));
-      else cimg_for(*this,ptrd,T) *ptrd = std::min(val_max,(T)(val_min + delta*cimg::rand(1,&rng)));
+      if (cimg::type<T>::is_float()) cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),524288)) {
+          ulongT rng = (ulongT)this + cimg::_rand();
+#ifdef cimg_use_openmp
+          rng+=omp_get_thread_num();
+#endif
+          cimg_pragma_openmp(for)
+            cimg_rof(*this,ptrd,T) *ptrd = (T)(val_min + delta*cimg::rand(1,&rng));
+        } else cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),524288)) {
+          ulongT rng = (ulongT)this + cimg::_rand();
+#ifdef cimg_use_openmp
+          rng+=omp_get_thread_num();
+#endif
+          cimg_pragma_openmp(for)
+            cimg_rof(*this,ptrd,T) *ptrd = std::min(val_max,(T)(val_min + delta*cimg::rand(1,&rng)));
+        }
       return *this;
     }
 
@@ -28212,22 +28224,35 @@ namespace cimg_library_suffixed {
       if (nsigma==0 && noise_type!=3) return *this;
       if (nsigma<0 || noise_type==2) m = (Tfloat)min_max(M);
       if (nsigma<0) nsigma = (Tfloat)(-nsigma*(M-m)/100.);
-      ulongT rng = (ulongT)this + cimg::_rand();
       switch (noise_type) {
       case 0 : { // Gaussian noise
-        cimg_rof(*this,ptrd,T) {
-          Tfloat val = (Tfloat)(*ptrd + nsigma*cimg::grand(&rng));
-          if (val>vmax) val = vmax;
-          if (val<vmin) val = vmin;
-          *ptrd = (T)val;
+        cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),131072)) {
+          ulongT rng = (ulongT)this + cimg::_rand();
+#ifdef cimg_use_openmp
+          rng+=omp_get_thread_num();
+#endif
+          cimg_pragma_openmp(for)
+            cimg_rof(*this,ptrd,T) {
+            Tfloat val = (Tfloat)(*ptrd + nsigma*cimg::grand(&rng));
+            if (val>vmax) val = vmax;
+            if (val<vmin) val = vmin;
+            *ptrd = (T)val;
+          }
         }
       } break;
       case 1 : { // Uniform noise
-        cimg_rof(*this,ptrd,T) {
-          Tfloat val = (Tfloat)(*ptrd + nsigma*cimg::rand(-1,1,&rng));
-          if (val>vmax) val = vmax;
-          if (val<vmin) val = vmin;
-          *ptrd = (T)val;
+        cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),131072)) {
+          ulongT rng = (ulongT)this + cimg::_rand();
+#ifdef cimg_use_openmp
+          rng+=omp_get_thread_num();
+#endif
+          cimg_pragma_openmp(for)
+            cimg_rof(*this,ptrd,T) {
+            Tfloat val = (Tfloat)(*ptrd + nsigma*cimg::rand(-1,1,&rng));
+            if (val>vmax) val = vmax;
+            if (val<vmin) val = vmin;
+            *ptrd = (T)val;
+          }
         }
       } break;
       case 2 : { // Salt & Pepper noise
@@ -28236,22 +28261,43 @@ namespace cimg_library_suffixed {
           if (cimg::type<T>::is_float()) { --m; ++M; }
           else { m = (Tfloat)cimg::type<T>::min(); M = (Tfloat)cimg::type<T>::max(); }
         }
-        cimg_rof(*this,ptrd,T) if (cimg::rand(100,&rng)<nsigma) *ptrd = (T)(cimg::rand(1,&rng)<0.5?M:m);
+        cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),131072)) {
+          ulongT rng = (ulongT)this + cimg::_rand();
+#ifdef cimg_use_openmp
+          rng+=omp_get_thread_num();
+#endif
+          cimg_pragma_openmp(for)
+            cimg_rof(*this,ptrd,T) if (cimg::rand(100,&rng)<nsigma) *ptrd = (T)(cimg::rand(1,&rng)<0.5?M:m);
+          }
       } break;
       case 3 : { // Poisson Noise
-        cimg_rof(*this,ptrd,T) *ptrd = (T)cimg::prand(*ptrd,&rng);
+        cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),131072)) {
+          ulongT rng = (ulongT)this + cimg::_rand();
+#ifdef cimg_use_openmp
+          rng+=omp_get_thread_num();
+#endif
+          cimg_pragma_openmp(for)
+            cimg_rof(*this,ptrd,T) *ptrd = (T)cimg::prand(*ptrd,&rng);
+        }
       } break;
       case 4 : { // Rice noise
         const Tfloat sqrt2 = (Tfloat)std::sqrt(2.);
-        cimg_rof(*this,ptrd,T) {
-          const Tfloat
-            val0 = (Tfloat)*ptrd/sqrt2,
-            re = (Tfloat)(val0 + nsigma*cimg::grand(&rng)),
-            im = (Tfloat)(val0 + nsigma*cimg::grand(&rng));
-          Tfloat val = cimg::hypot(re,im);
-          if (val>vmax) val = vmax;
-          if (val<vmin) val = vmin;
-          *ptrd = (T)val;
+        cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),131072)) {
+          ulongT rng = (ulongT)this + cimg::_rand();
+#ifdef cimg_use_openmp
+          rng+=omp_get_thread_num();
+#endif
+          cimg_pragma_openmp(for)
+            cimg_rof(*this,ptrd,T) {
+            const Tfloat
+              val0 = (Tfloat)*ptrd/sqrt2,
+              re = (Tfloat)(val0 + nsigma*cimg::grand(&rng)),
+              im = (Tfloat)(val0 + nsigma*cimg::grand(&rng));
+            Tfloat val = cimg::hypot(re,im);
+            if (val>vmax) val = vmax;
+            if (val<vmin) val = vmin;
+            *ptrd = (T)val;
+          }
         }
       } break;
       default :

@@ -9864,7 +9864,7 @@ namespace cimg_library_suffixed {
             XResizeWindow(dpy,_window,dimx,dimy);
             XGetWindowAttributes(dpy,_window,&attr);
             if (attr.width==(int)dimx && attr.height==(int)dimy) break;
-            cimg::wait(5);
+            cimg::wait(5,&_timer);
           }
         }
         if (_width!=dimx || _height!=dimy) switch (cimg::X11_attr().nb_bits) {

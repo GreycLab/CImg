@@ -10712,6 +10712,7 @@ namespace cimg_library_suffixed {
       SetWindowLong(disp->_window,GWL_WNDPROC,(LONG)_handle_events);
 #endif
       SetEvent(disp->_is_created);
+      if (!disp->_is_closed) BringWindowToTop(disp->_window);
       while (GetMessage(&msg,0,0,0)) DispatchMessage(&msg);
       return 0;
     }

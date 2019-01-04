@@ -5776,12 +5776,12 @@ namespace cimg_library_suffixed {
 #endif
     }
 
-    inline unsigned int _wait(const unsigned int milliseconds, cimg_ulong& timer) {
-      if (!timer) timer = cimg::time();
+    inline unsigned int wait(const unsigned int milliseconds, cimg_ulong *const timer) {
+      if (!*timer) *timer = cimg::time();
       const cimg_ulong current_time = cimg::time();
-      if (current_time>=timer + milliseconds) { timer = current_time; return 0; }
-      const unsigned int time_diff = (unsigned int)(timer + milliseconds - current_time);
-      timer = current_time + time_diff;
+      if (current_time>=*timer + milliseconds) { *timer = current_time; return 0; }
+      const unsigned int time_diff = (unsigned int)(*timer + milliseconds - current_time);
+      *timer = current_time + time_diff;
       cimg::sleep(time_diff);
       return time_diff;
     }
@@ -5795,10 +5795,9 @@ namespace cimg_library_suffixed {
     **/
     inline cimg_long wait(const unsigned int milliseconds) {
       cimg::mutex(3);
-      static cimg_ulong timer = 0;
-      if (!timer) timer = cimg::time();
+      static cimg_ulong timer = cimg::time();
       cimg::mutex(3,0);
-      return _wait(milliseconds,timer);
+      return cimg::wait(milliseconds,&timer);
     }
 
     // Custom random number generator (allow re-entrance).
@@ -9042,7 +9041,7 @@ namespace cimg_library_suffixed {
        \note Similar to cimg::wait().
     **/
     CImgDisplay& wait(const unsigned int milliseconds) {
-      cimg::_wait(milliseconds,_timer);
+      cimg::wait(milliseconds,&_timer);
       return *this;
     }
 

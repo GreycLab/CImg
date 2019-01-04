@@ -2374,7 +2374,7 @@ namespace cimg_library_suffixed {
 #define cimg_openmp_sizefactor 1
 #endif
 #endif
-#define cimg_openmp_if(cond) if (cimg::openmp_mode()==1 || (cimg::openmp_mode()>1 && (cond)))
+#define cimg_openmp_if(cond) if ((cimg::openmp_mode()==1 || (cimg::openmp_mode()>1 && (cond))))
 #define cimg_openmp_if_size(size,min_size) cimg_openmp_if((size)>=(cimg_openmp_sizefactor)*(min_size))
 
     // Display a simple dialog box, and wait for the user's response.

@@ -2250,7 +2250,7 @@ namespace cimg_library_suffixed {
     // 'n' can be in [0,31] but mutex range [0,15] is reserved by CImg.
     inline int mutex(const unsigned int n, const int lock_mode=1);
 
-    inline unsigned int& _exception_mode(const unsigned int value, const bool is_set) {
+    inline unsigned int& exception_mode(const unsigned int value, const bool is_set) {
       static unsigned int mode = cimg_verbosity;
       if (is_set) { cimg::mutex(0); mode = value<4?value:4; cimg::mutex(0,0); }
       return mode;
@@ -2333,7 +2333,7 @@ namespace cimg_library_suffixed {
        - \c 4: Do as \c 2 + add extra debug warnings (slow down the code!).
      **/
     inline unsigned int& exception_mode(const unsigned int mode) {
-      return _exception_mode(mode,true);
+      return exception_mode(mode,true);
     }
 
     //! Return current \CImg exception mode.
@@ -2341,7 +2341,13 @@ namespace cimg_library_suffixed {
        \note By default, return the value of configuration macro \c cimg_verbosity
     **/
     inline unsigned int& exception_mode() {
-      return _exception_mode(0,false);
+      return exception_mode(0,false);
+    }
+
+    inline unsigned int openmp_mode(const unsigned int value, const bool is_set) {
+      static unsigned int mode = 2;
+      if (is_set)  { cimg::mutex(0); mode = value<2?value:2; cimg::mutex(0,0); }
+      return mode;
     }
 
     //! Set current \CImg openmp mode.
@@ -2352,19 +2358,13 @@ namespace cimg_library_suffixed {
        - \c 1: Always parallelize.
        - \c 2: Adaptive parallelization mode (default behavior).
      **/
-    inline unsigned int& _openmp_mode(const unsigned int value, const bool is_set) {
-      static unsigned int mode = 2;
-      if (is_set)  { cimg::mutex(0); mode = value<2?value:2; cimg::mutex(0,0); }
-      return mode;
-    }
-
-    inline unsigned int& openmp_mode(const unsigned int mode) {
-      return _openmp_mode(mode,true);
+    inline unsigned int openmp_mode(const unsigned int mode) {
+      return openmp_mode(mode,true);
     }
 
     //! Return current \CImg openmp mode.
-    inline unsigned int& openmp_mode() {
-      return _openmp_mode(0,false);
+    inline unsigned int openmp_mode() {
+      return openmp_mode(0,false);
     }
 
 #ifndef cimg_openmp_sizefactor

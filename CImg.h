@@ -3051,8 +3051,6 @@ namespace cimg_library_suffixed {
 #else
     inline X11_info& X11_attr() { static X11_info val; return val; }
 #endif
-#define cimg_lock_display() cimg::mutex(15)
-#define cimg_unlock_display() cimg::mutex(15,0)
 
 #elif cimg_display==2
     struct Win32_info {
@@ -3067,6 +3065,8 @@ namespace cimg_library_suffixed {
     inline Win32_info& Win32_attr() { static Win32_info val; return val; }
 #endif
 #endif
+#define cimg_lock_display() cimg::mutex(15)
+#define cimg_unlock_display() cimg::mutex(15,0)
 
     struct Mutex_info {
 #ifdef _PTHREAD_H

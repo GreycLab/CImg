@@ -5500,6 +5500,9 @@ namespace cimg_library_suffixed {
 
     // Lock/unlock mutex for CImg multi-thread programming.
     inline int mutex(const unsigned int n, const int lock_mode) {
+
+      std::fprintf(stderr,"\nMUTEX #%u %s\n",n,lock_mode?"lock":"unlock");
+
       switch (lock_mode) {
       case 0 : cimg::Mutex_attr().unlock(n); return 0;
       case 1 : cimg::Mutex_attr().lock(n); return 0;
@@ -10581,9 +10584,9 @@ namespace cimg_library_suffixed {
       } break;
       case WM_PAINT :
         disp->paint();
-        cimg::mutex(15);
+        cimg_lock_display();
         if (disp->_is_cursor_visible) while (ShowCursor(TRUE)<0); else while (ShowCursor(FALSE)>=0);
-        cimg::mutex(15,0);
+        cimg_unlock_display();
         break;
       case WM_ERASEBKGND :
         //        return 0;
@@ -10613,16 +10616,16 @@ namespace cimg_library_suffixed {
           disp->_mouse_x = disp->_mouse_y = -1;
         disp->_is_event = true;
         SetEvent(cimg::Win32_attr().wait_event);
-        cimg::mutex(15);
+        cimg_lock_display();
 	if (disp->_is_cursor_visible) while (ShowCursor(TRUE)<0); else while (ShowCursor(FALSE)>=0);
-        cimg::mutex(15,0);
+        cimg_unlock_display();
       }	break;
       case WM_MOUSELEAVE : {
         disp->_mouse_x = disp->_mouse_y = -1;
         disp->_is_mouse_tracked = false;
-        cimg::mutex(15);
+        cimg_lock_display();
 	while (ShowCursor(TRUE)<0) {}
-        cimg::mutex(15,0);
+        cimg_unlock_display();
       } break;
       case WM_LBUTTONDOWN :
         disp->set_button(1);

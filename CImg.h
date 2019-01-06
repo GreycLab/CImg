@@ -2368,11 +2368,7 @@ namespace cimg_library_suffixed {
     }
 
 #ifndef cimg_openmp_sizefactor
-#if cimg_OS==2
-#define cimg_openmp_sizefactor 5
-#else
 #define cimg_openmp_sizefactor 1
-#endif
 #endif
 #define cimg_openmp_if(cond) if ((cimg::openmp_mode()==1 || (cimg::openmp_mode()>1 && (cond))))
 #define cimg_openmp_if_size(size,min_size) cimg_openmp_if((size)>=(cimg_openmp_sizefactor)*(min_size))
@@ -5500,9 +5496,6 @@ namespace cimg_library_suffixed {
 
     // Lock/unlock mutex for CImg multi-thread programming.
     inline int mutex(const unsigned int n, const int lock_mode) {
-
-//      std::fprintf(stderr,"\nMUTEX #%u %s\n",n,lock_mode?"lock":"unlock");
-
       switch (lock_mode) {
       case 0 : cimg::Mutex_attr().unlock(n); return 0;
       case 1 : cimg::Mutex_attr().lock(n); return 0;
@@ -12879,7 +12872,7 @@ namespace cimg_library_suffixed {
     template<typename t>
     CImg<T>& operator*=(const t value) {
       if (is_empty()) return *this;
-      cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),262144))
+//      cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),262144))
       cimg_rof(*this,ptrd,T) *ptrd = (T)(*ptrd * value);
       return *this;
     }

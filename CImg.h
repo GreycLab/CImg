@@ -12872,8 +12872,13 @@ namespace cimg_library_suffixed {
     template<typename t>
     CImg<T>& operator*=(const t value) {
       if (is_empty()) return *this;
-//      cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),262144))
+#if cimg_OS==2
+      // For an unknown reason, the loop below is extremely slow on Windows when parallelized with OpenMP.
       cimg_rof(*this,ptrd,T) *ptrd = (T)(*ptrd * value);
+#else
+      cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),262144))
+        cimg_rof(*this,ptrd,T) *ptrd = (T)(*ptrd * value);
+#endif
       return *this;
     }
 

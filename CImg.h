@@ -46774,6 +46774,7 @@ namespace cimg_library_suffixed {
        \param lightz Z-coordinate of the light
        \param specular_lightness Amount of specular light.
        \param specular_shininess Shininess of the object
+       \param g_opacity Global opacity of the object.
     **/
     template<typename tp, typename tf, typename tc, typename to>
     CImg<T>& draw_object3d(const float x0, const float y0, const float z0,
@@ -46782,10 +46783,11 @@ namespace cimg_library_suffixed {
                            const unsigned int render_type=4,
                            const bool is_double_sided=false, const float focale=700,
                            const float lightx=0, const float lighty=0, const float lightz=-5e8,
-                           const float specular_lightness=0.2f, const float specular_shininess=0.1f) {
+                           const float specular_lightness=0.2f, const float specular_shininess=0.1f,
+                           const float g_opacity=1) {
       return draw_object3d(x0,y0,z0,vertices,primitives,colors,opacities,render_type,
                            is_double_sided,focale,lightx,lighty,lightz,
-                           specular_lightness,specular_shininess,CImg<floatT>::empty());
+                           specular_lightness,specular_shininess,g_opacity,CImg<floatT>::empty());
     }
 
     //! Draw a 3D object \simplification.
@@ -46797,10 +46799,10 @@ namespace cimg_library_suffixed {
                            const bool is_double_sided, const float focale,
                            const float lightx, const float lighty, const float lightz,
                            const float specular_lightness, const float specular_shininess,
-                           CImg<tz>& zbuffer) {
+                           const float g_opacity, CImg<tz>& zbuffer) {
       return _draw_object3d(0,zbuffer,x0,y0,z0,vertices,primitives,colors,opacities,
                             render_type,is_double_sided,focale,lightx,lighty,lightz,
-                            specular_lightness,specular_shininess,1);
+                            specular_lightness,specular_shininess,g_opacity,1);
     }
 
 #ifdef cimg_use_board
@@ -46812,10 +46814,11 @@ namespace cimg_library_suffixed {
                            const unsigned int render_type=4,
                            const bool is_double_sided=false, const float focale=700,
                            const float lightx=0, const float lighty=0, const float lightz=-5e8,
-                           const float specular_lightness=0.2f, const float specular_shininess=0.1f) {
+                           const float specular_lightness=0.2f, const float specular_shininess=0.1f,
+                           const float g_opacity=1) {
       return draw_object3d(board,x0,y0,z0,vertices,primitives,colors,opacities,render_type,
                            is_double_sided,focale,lightx,lighty,lightz,
-                           specular_lightness,specular_shininess,CImg<floatT>::empty());
+                           specular_lightness,specular_shininess,g_opacity,CImg<floatT>::empty());
     }
 
     template<typename tp, typename tf, typename tc, typename to, typename tz>
@@ -46827,10 +46830,10 @@ namespace cimg_library_suffixed {
                            const bool is_double_sided, const float focale,
                            const float lightx, const float lighty, const float lightz,
                            const float specular_lightness, const float specular_shininess,
-                           CImg<tz>& zbuffer) {
+                           const float g_opacity, CImg<tz>& zbuffer) {
       return _draw_object3d((void*)&board,zbuffer,x0,y0,z0,vertices,primitives,colors,opacities,
                             render_type,is_double_sided,focale,lightx,lighty,lightz,
-                            specular_lightness,specular_shininess,1);
+                            specular_lightness,specular_shininess,g_opacity,1);
     }
 #endif
 
@@ -46842,10 +46845,11 @@ namespace cimg_library_suffixed {
                            const unsigned int render_type=4,
                            const bool is_double_sided=false, const float focale=700,
                            const float lightx=0, const float lighty=0, const float lightz=-5e8,
-                           const float specular_lightness=0.2f, const float specular_shininess=0.1f) {
+                           const float specular_lightness=0.2f, const float specular_shininess=0.1f,
+                           const float g_opacity=1) {
       return draw_object3d(x0,y0,z0,vertices,primitives,colors,opacities,render_type,
                            is_double_sided,focale,lightx,lighty,lightz,
-                           specular_lightness,specular_shininess,CImg<floatT>::empty());
+                           specular_lightness,specular_shininess,g_opacity,CImg<floatT>::empty());
     }
 
     //! Draw a 3D object \simplification.
@@ -46857,10 +46861,10 @@ namespace cimg_library_suffixed {
                            const bool is_double_sided, const float focale,
                            const float lightx, const float lighty, const float lightz,
                            const float specular_lightness, const float specular_shininess,
-                           CImg<tz>& zbuffer) {
+                           const float g_opacity, CImg<tz>& zbuffer) {
       return _draw_object3d(0,zbuffer,x0,y0,z0,vertices,primitives,colors,opacities,
                             render_type,is_double_sided,focale,lightx,lighty,lightz,
-                            specular_lightness,specular_shininess,1);
+                            specular_lightness,specular_shininess,g_opacity,1);
     }
 
 #ifdef cimg_use_board
@@ -46872,10 +46876,11 @@ namespace cimg_library_suffixed {
                            const unsigned int render_type=4,
                            const bool is_double_sided=false, const float focale=700,
                            const float lightx=0, const float lighty=0, const float lightz=-5e8,
-                           const float specular_lightness=0.2f, const float specular_shininess=0.1f) {
+                           const float specular_lightness=0.2f, const float specular_shininess=0.1f,
+                           const float g_opacity=1) {
       return draw_object3d(board,x0,y0,z0,vertices,primitives,colors,opacities,render_type,
                            is_double_sided,focale,lightx,lighty,lightz,
-                           specular_lightness,specular_shininess,CImg<floatT>::empty());
+                           specular_lightness,specular_shininess,g_opacity,CImg<floatT>::empty());
     }
 
     template<typename tp, typename tf, typename tc, typename to, typename tz>
@@ -46887,10 +46892,10 @@ namespace cimg_library_suffixed {
                            const bool is_double_sided, const float focale,
                            const float lightx, const float lighty, const float lightz,
                            const float specular_lightness, const float specular_shininess,
-                           CImg<tz>& zbuffer) {
+                           const float g_opacity, CImg<tz>& zbuffer) {
       return _draw_object3d((void*)&board,zbuffer,x0,y0,z0,vertices,primitives,colors,opacities,
                             render_type,is_double_sided,focale,lightx,lighty,lightz,
-                            specular_lightness,specular_shininess,1);
+                            specular_lightness,specular_shininess,g_opacity,1);
     }
 #endif
 
@@ -46902,10 +46907,11 @@ namespace cimg_library_suffixed {
                            const unsigned int render_type=4,
                            const bool is_double_sided=false, const float focale=700,
                            const float lightx=0, const float lighty=0, const float lightz=-5e8,
-                           const float specular_lightness=0.2f, const float specular_shininess=0.1f) {
+                           const float specular_lightness=0.2f, const float specular_shininess=0.1f,
+                           const float g_opacity=1) {
       return draw_object3d(x0,y0,z0,vertices,primitives,colors,CImg<floatT>::const_empty(),
                            render_type,is_double_sided,focale,lightx,lighty,lightz,
-                           specular_lightness,specular_shininess,CImg<floatT>::empty());
+                           specular_lightness,specular_shininess,g_opacity,CImg<floatT>::empty());
     }
 
     //! Draw a 3D object \simplification.
@@ -46917,10 +46923,10 @@ namespace cimg_library_suffixed {
                            const bool is_double_sided, const float focale,
                            const float lightx, const float lighty, const float lightz,
                            const float specular_lightness, const float specular_shininess,
-                           CImg<tz>& zbuffer) {
+                           const float g_opacity, CImg<tz>& zbuffer) {
       return draw_object3d(x0,y0,z0,vertices,primitives,colors,CImg<floatT>::const_empty(),
                            render_type,is_double_sided,focale,lightx,lighty,lightz,
-                           specular_lightness,specular_shininess,zbuffer);
+                           specular_lightness,specular_shininess,g_opacity,zbuffer);
     }
 
 #ifdef cimg_use_board
@@ -46932,10 +46938,11 @@ namespace cimg_library_suffixed {
                            const unsigned int render_type=4,
                            const bool is_double_sided=false, const float focale=700,
                            const float lightx=0, const float lighty=0, const float lightz=-5e8,
-                           const float specular_lightness=0.2f, const float specular_shininess=0.1f) {
+                           const float specular_lightness=0.2f, const float specular_shininess=0.1f,
+                           const float g_opacity=1) {
       return draw_object3d(x0,y0,z0,vertices,primitives,colors,CImg<floatT>::const_empty(),
                            render_type,is_double_sided,focale,lightx,lighty,lightz,
-                           specular_lightness,specular_shininess,CImg<floatT>::empty());
+                           specular_lightness,specular_shininess,g_opacity,CImg<floatT>::empty());
     }
 
     template<typename tp, typename tf, typename tc, typename to, typename tz>
@@ -46947,10 +46954,10 @@ namespace cimg_library_suffixed {
                            const bool is_double_sided, const float focale,
                            const float lightx, const float lighty, const float lightz,
                            const float specular_lightness, const float specular_shininess,
-                           CImg<tz>& zbuffer) {
+                           const float g_opacity, CImg<tz>& zbuffer) {
       return draw_object3d(x0,y0,z0,vertices,primitives,colors,CImg<floatT>::const_empty(),
                            render_type,is_double_sided,focale,lightx,lighty,lightz,
-                           specular_lightness,specular_shininess,zbuffer);
+                           specular_lightness,specular_shininess,g_opacity,zbuffer);
     }
 #endif
 
@@ -46989,7 +46996,8 @@ namespace cimg_library_suffixed {
                             const bool is_double_sided, const float focale,
                             const float lightx, const float lighty, const float lightz,
                             const float specular_lightness, const float specular_shininess,
-                            const float sprite_scale) {
+                            const float g_opacity, const float sprite_scale) {
+      cimg::unused(g_opacity);
       typedef typename cimg::superset2<tp,tz,float>::type tpfloat;
       typedef typename to::value_type _to;
       if (is_empty() || !vertices || !primitives) return *this;
@@ -48574,12 +48582,12 @@ namespace cimg_library_suffixed {
                                    pose3d(3,1) + 0.5f*view3d._height,
                                    pose3d(3,2),
                                    rotated_points3d,sel_primitives3d,sel_colors3d,sel_opacities3d,
-                                   2,true,500,0,0,0,0,0,zbuffer3d);
+                                   2,true,500,0,0,0,0,0,1,zbuffer3d);
             view3d.draw_object3d(pose3d(3,0) + 0.5f*view3d._width,
                                  pose3d(3,1) + 0.5f*view3d._height,
                                  pose3d(3,2),
                                  rotated_points3d,primitives3d,colors3d,opacities3d,
-                                 2,true,500,0,0,0,0,0,zbuffer3d);
+                                 2,true,500,0,0,0,0,0,1,zbuffer3d);
             visu0.draw_image(x3d,y3d,view3d);
           }
           visu = visu0;
@@ -53034,7 +53042,7 @@ namespace cimg_library_suffixed {
                                    rotated_vertices,reverse_primitives?reverse_primitives:primitives,
                                    colors,opacities,clicked?nrender_motion:nrender_static,_is_double_sided==1,focale,
                                    width()/2.f + light_x,height()/2.f + light_y,light_z + Zoff,
-                                   specular_lightness,specular_shininess,sprite_scale);
+                                   specular_lightness,specular_shininess,1,sprite_scale);
           // Draw axes
           if (ndisplay_axes) {
             const float

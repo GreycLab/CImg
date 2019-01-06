@@ -46997,7 +46997,6 @@ namespace cimg_library_suffixed {
                             const float lightx, const float lighty, const float lightz,
                             const float specular_lightness, const float specular_shininess,
                             const float g_opacity, const float sprite_scale) {
-      cimg::unused(g_opacity);
       typedef typename cimg::superset2<tp,tz,float>::type tpfloat;
       typedef typename to::value_type _to;
       if (is_empty() || !vertices || !primitives) return *this;
@@ -47383,7 +47382,9 @@ namespace cimg_library_suffixed {
             __color.get_resize(-100,-100,-100,_spectrum,0):CImg<tc>(),
           &color = _color?_color:(__color?__color:default_color);
         const tc *const pcolor = color._data;
-        const float opacity = __draw_object3d(opacities,n_primitive,_opacity);
+        float opacity = __draw_object3d(opacities,n_primitive,_opacity);
+        if (_opacity.is_empty()) opacity*=g_opacity;
+        else if (!_opacity.is_shared()) _opacity*=g_opacity;
 
 #ifdef cimg_use_board
         LibBoard::Board &board = *(LibBoard::Board*)pboard;
@@ -53260,7 +53261,7 @@ namespace cimg_library_suffixed {
                                    colors,opacities,clicked?nrender_motion:nrender_static,
                                    _is_double_sided==1,focale,
                                    visu.width()/2.f + light_x,visu.height()/2.f + light_y,light_z + Zoff,
-                                   specular_lightness,specular_shininess,
+                                   specular_lightness,specular_shininess,1,
                                    sprite_scale);
             board.saveEPS(filename);
             (+visu).__draw_text(" Object '%s' saved. ",false,filename._data).display(disp);
@@ -53281,7 +53282,7 @@ namespace cimg_library_suffixed {
                                    colors,opacities,clicked?nrender_motion:nrender_static,
                                    _is_double_sided==1,focale,
                                    visu.width()/2.f + light_x,visu.height()/2.f + light_y,light_z + Zoff,
-                                   specular_lightness,specular_shininess,
+                                   specular_lightness,specular_shininess,1,
                                    sprite_scale);
             board.saveSVG(filename);
             (+visu).__draw_text(" Object '%s' saved. ",false,filename._data).display(disp);

@@ -5501,7 +5501,7 @@ namespace cimg_library_suffixed {
     // Lock/unlock mutex for CImg multi-thread programming.
     inline int mutex(const unsigned int n, const int lock_mode) {
 
-      std::fprintf(stderr,"\nMUTEX #%u %s\n",n,lock_mode?"lock":"unlock");
+//      std::fprintf(stderr,"\nMUTEX #%u %s\n",n,lock_mode?"lock":"unlock");
 
       switch (lock_mode) {
       case 0 : cimg::Mutex_attr().unlock(n); return 0;

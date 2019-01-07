@@ -835,6 +835,7 @@ extern "C" {
   for (T_ptrs *ptrs = (img)._data, *_max##ptrs = (img)._data + (img).size(); ptrs<_max##ptrs; ++ptrs)
 #define cimg_rof(img,ptrs,T_ptrs) for (T_ptrs *ptrs = (img)._data + (img).size() - 1; ptrs>=(img)._data; --ptrs)
 #define cimg_foroff(img,off) for (cimg_ulong off = 0, _max##off = (img).size(); off<_max##off; ++off)
+#define cimg_rofoff(img,off) for (cimg_long off = (cimg_long)((img).size() - 1); off>=0; --off)
 
 #define cimg_for1(bound,i) for (int i = 0; i<(int)(bound); ++i)
 #define cimg_forX(img,x) cimg_for1((img)._width,x)
@@ -28133,7 +28134,7 @@ namespace cimg_library_suffixed {
           rng+=omp_get_thread_num();
 #endif
           cimg_pragma_openmp(for)
-            cimg_rof(*this,ptrd,T) *ptrd = (T)(val_min + delta*cimg::rand(1,&rng));
+            cimg_rofoff(*this,off) _data[off] = (T)(val_min + delta*cimg::rand(1,&rng));
           cimg::srand(rng);
         } else cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),524288)) {
           ulongT rng = (cimg::_rand(),cimg::rng());
@@ -28141,7 +28142,7 @@ namespace cimg_library_suffixed {
           rng+=omp_get_thread_num();
 #endif
           cimg_pragma_openmp(for)
-            cimg_rof(*this,ptrd,T) *ptrd = std::min(val_max,(T)(val_min + delta*cimg::rand(1,&rng)));
+            cimg_rofoff(*this,off) _data[off] = std::min(val_max,(T)(val_min + delta*cimg::rand(1,&rng)));
           cimg::srand(rng);
         }
       return *this;
@@ -28203,11 +28204,11 @@ namespace cimg_library_suffixed {
           rng+=omp_get_thread_num();
 #endif
           cimg_pragma_openmp(for)
-            cimg_rof(*this,ptrd,T) {
-            Tfloat val = (Tfloat)(*ptrd + nsigma*cimg::grand(&rng));
+            cimg_rofoff(*this,off) {
+            Tfloat val = (Tfloat)(_data[off] + nsigma*cimg::grand(&rng));
             if (val>vmax) val = vmax;
             if (val<vmin) val = vmin;
-            *ptrd = (T)val;
+            _data[off] = (T)val;
           }
           cimg::srand(rng);
         }
@@ -28219,11 +28220,11 @@ namespace cimg_library_suffixed {
           rng+=omp_get_thread_num();
 #endif
           cimg_pragma_openmp(for)
-            cimg_rof(*this,ptrd,T) {
-            Tfloat val = (Tfloat)(*ptrd + nsigma*cimg::rand(-1,1,&rng));
+            cimg_rofoff(*this,off) {
+            Tfloat val = (Tfloat)(_data[off] + nsigma*cimg::rand(-1,1,&rng));
             if (val>vmax) val = vmax;
             if (val<vmin) val = vmin;
-            *ptrd = (T)val;
+            _data[off] = (T)val;
           }
           cimg::srand(rng);
         }
@@ -28240,7 +28241,7 @@ namespace cimg_library_suffixed {
           rng+=omp_get_thread_num();
 #endif
           cimg_pragma_openmp(for)
-            cimg_rof(*this,ptrd,T) if (cimg::rand(100,&rng)<nsigma) *ptrd = (T)(cimg::rand(1,&rng)<0.5?M:m);
+            cimg_rofoff(*this,off) if (cimg::rand(100,&rng)<nsigma) _data[off] = (T)(cimg::rand(1,&rng)<0.5?M:m);
           cimg::srand(rng);
           }
       } break;
@@ -28251,7 +28252,7 @@ namespace cimg_library_suffixed {
           rng+=omp_get_thread_num();
 #endif
           cimg_pragma_openmp(for)
-            cimg_rof(*this,ptrd,T) *ptrd = (T)cimg::prand(*ptrd,&rng);
+            cimg_rofoff(*this,off) _data[off] = (T)cimg::prand(_data[off],&rng);
           cimg::srand(rng);
         }
       } break;
@@ -28263,15 +28264,15 @@ namespace cimg_library_suffixed {
           rng+=omp_get_thread_num();
 #endif
           cimg_pragma_openmp(for)
-            cimg_rof(*this,ptrd,T) {
+            cimg_rofoff(*this,off) {
             const Tfloat
-              val0 = (Tfloat)*ptrd/sqrt2,
+              val0 = (Tfloat)_data[off]/sqrt2,
               re = (Tfloat)(val0 + nsigma*cimg::grand(&rng)),
               im = (Tfloat)(val0 + nsigma*cimg::grand(&rng));
             Tfloat val = cimg::hypot(re,im);
             if (val>vmax) val = vmax;
             if (val<vmin) val = vmin;
-            *ptrd = (T)val;
+            _data[off] = (T)val;
           }
           cimg::srand(rng);
         }
@@ -28496,14 +28497,14 @@ namespace cimg_library_suffixed {
       if (range>0) {
         if (keep_range)
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),32768))
-          cimg_rof(*this,ptrd,T) {
-            const unsigned int val = (unsigned int)((*ptrd-m)*nb_levels/range);
-            *ptrd = (T)(m + std::min(val,nb_levels - 1)*range/nb_levels);
+          cimg_rofoff(*this,off) {
+            const unsigned int val = (unsigned int)((_data[off] - m)*nb_levels/range);
+            _data[off] = (T)(m + std::min(val,nb_levels - 1)*range/nb_levels);
           } else
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),32768))
-          cimg_rof(*this,ptrd,T) {
-            const unsigned int val = (unsigned int)((*ptrd-m)*nb_levels/range);
-            *ptrd = (T)std::min(val,nb_levels - 1);
+          cimg_rofoff(*this,off) {
+            const unsigned int val = (unsigned int)((_data[off] - m)*nb_levels/range);
+            _data[off] = (T)std::min(val,nb_levels - 1);
           }
       }
       return *this;
@@ -28531,23 +28532,23 @@ namespace cimg_library_suffixed {
       if (strict_threshold) {
         if (soft_threshold)
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),32768))
-          cimg_rof(*this,ptrd,T) {
-            const T v = *ptrd;
-            *ptrd = v>value?(T)(v-value):v<-(float)value?(T)(v + value):(T)0;
+          cimg_rofoff(*this,off) {
+            const T v = _data[off];
+            _data[off] = v>value?(T)(v-value):v<-(float)value?(T)(v + value):(T)0;
           }
         else
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),65536))
-          cimg_rof(*this,ptrd,T) *ptrd = *ptrd>value?(T)1:(T)0;
+          cimg_rofoff(*this,off) _data[off] = _data[off]>value?(T)1:(T)0;
       } else {
         if (soft_threshold)
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),32768))
-          cimg_rof(*this,ptrd,T) {
-            const T v = *ptrd;
-            *ptrd = v>=value?(T)(v-value):v<=-(float)value?(T)(v + value):(T)0;
+          cimg_rofoff(*this,off) {
+            const T v = _data[off];
+            _data[off] = v>=value?(T)(v-value):v<=-(float)value?(T)(v + value):(T)0;
           }
         else
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),65536))
-          cimg_rof(*this,ptrd,T) *ptrd = *ptrd>=value?(T)1:(T)0;
+          cimg_rofoff(*this,off) _data[off] = _data[off]>=value?(T)1:(T)0;
       }
       return *this;
     }
@@ -28629,9 +28630,9 @@ namespace cimg_library_suffixed {
       cimg_forX(hist,pos) { cumul+=hist[pos]; hist[pos] = cumul; }
       if (!cumul) cumul = 1;
       cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),1048576))
-      cimg_rof(*this,ptrd,T) {
-        const int pos = (int)((*ptrd-vmin)*(nb_levels - 1.)/(vmax-vmin));
-        if (pos>=0 && pos<(int)nb_levels) *ptrd = (T)(vmin + (vmax-vmin)*hist[pos]/cumul);
+      cimg_rofoff(*this,off) {
+        const int pos = (int)((_data[off] - vmin)*(nb_levels - 1.)/(vmax - vmin));
+        if (pos>=0 && pos<(int)nb_levels) _data[off] = (T)(vmin + (vmax - vmin)*hist[pos]/cumul);
       }
       return *this;
     }
@@ -29408,11 +29409,11 @@ namespace cimg_library_suffixed {
     CImg<T>& sRGBtoRGB() {
       if (is_empty()) return *this;
       cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),32))
-      cimg_rof(*this,ptr,T) {
+      cimg_rofoff(*this,off) {
         const Tfloat
-          sval = (Tfloat)*ptr/255,
+          sval = (Tfloat)_data[off]/255,
           val = (Tfloat)(sval<=0.04045f?sval/12.92f:std::pow((sval + 0.055f)/(1.055f),2.4f));
-        *ptr = (T)cimg::cut(val*255,0,255);
+        _data[off] = (T)cimg::cut(val*255,0,255);
       }
       return *this;
     }
@@ -29426,11 +29427,11 @@ namespace cimg_library_suffixed {
     CImg<T>& RGBtosRGB() {
       if (is_empty()) return *this;
       cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),32))
-      cimg_rof(*this,ptr,T) {
+      cimg_rofoff(*this,off) {
         const Tfloat
-          val = (Tfloat)*ptr/255,
+          val = (Tfloat)_data[off]/255,
           sval = (Tfloat)(val<=0.0031308f?val*12.92f:1.055f*std::pow(val,0.416667f) - 0.055f);
-        *ptr = (T)cimg::cut(sval*255,0,255);
+        _data[off] = (T)cimg::cut(sval*255,0,255);
       }
       return *this;
     }

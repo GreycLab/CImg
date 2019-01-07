@@ -6042,6 +6042,15 @@ namespace cimg_library_suffixed {
 #endif
     }
 
+    template<typename T>
+    inline T pow3(const T& val) {
+      return val*val*val;
+    }
+    template<typename T>
+    inline T pow4(const T& val) {
+      return val*val*val*val;
+    }
+
     //! Return the minimum between three values.
     template<typename t>
     inline t min(const t& a, const t& b, const t& c) {
@@ -13113,7 +13122,7 @@ namespace cimg_library_suffixed {
                          cimg_openmp_if(size()>(cimg_openmp_sizefactor)*1024 &&
                                         img.size()>(cimg_openmp_sizefactor)*1024))
         cimg_forXY(res,i,j) {
-        Ttdouble value = 0; cimg_forX(*this,k) value+=(*this)(k,j)*img(i,k); res(i,j) = (Tt)value;
+          Ttdouble value = 0; cimg_forX(*this,k) value+=(*this)(k,j)*img(i,k); res(i,j) = (Tt)value;
       }
 #else
       Tt *ptrd = res._data;
@@ -24761,48 +24770,18 @@ namespace cimg_library_suffixed {
     **/
     CImg<T>& pow(const double p) {
       if (is_empty()) return *this;
-      if (p==-4) {
-        cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),32768))
-        cimg_rof(*this,ptrd,T) { const T val = *ptrd; *ptrd = (T)(1./(val*val*val*val)); }
-        return *this;
-      }
-      if (p==-3) {
-        cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),32768))
-        cimg_rof(*this,ptrd,T) { const T val = *ptrd; *ptrd = (T)(1./(val*val*val)); }
-        return *this;
-      }
-      if (p==-2) {
-        cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),32768))
-        cimg_rof(*this,ptrd,T) { const T val = *ptrd; *ptrd = (T)(1./(val*val)); }
-        return *this;
-      }
-      if (p==-1) {
-        cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),32768))
-        cimg_rof(*this,ptrd,T) { const T val = *ptrd; *ptrd = (T)(1./val); }
-        return *this;
-      }
-      if (p==-0.5) {
-        cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),8192))
-        cimg_rof(*this,ptrd,T) { const T val = *ptrd; *ptrd = (T)(1/std::sqrt((double)val)); }
-        return *this;
-      }
+      if (p==-4) { cimg_openmp_for(*this,1/(Tfloat)cimg::pow4(*ptr),32768); return *this; }
+      if (p==-3) { cimg_openmp_for(*this,1/(Tfloat)cimg::pow3(*ptr),32768); return *this; }
+      if (p==-2) { cimg_openmp_for(*this,1/(Tfloat)cimg::sqr(*ptr),32768); return *this; }
+      if (p==-1) { cimg_openmp_for(*this,1/(Tfloat)*ptr,32768); return *this; }
+      if (p==-0.5) { cimg_openmp_for(*this,1/std::sqrt((Tfloat)*ptr),8192); return *this; }
       if (p==0) return fill((T)1);
-      if (p==0.25) return sqrt().sqrt();
       if (p==0.5) return sqrt();
       if (p==1) return *this;
       if (p==2) return sqr();
-      if (p==3) {
-        cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),262144))
-        cimg_rof(*this,ptrd,T) { const T val = *ptrd; *ptrd = val*val*val; }
-        return *this;
-      }
-      if (p==4) {
-        cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),131072))
-        cimg_rof(*this,ptrd,T) { const T val = *ptrd; *ptrd = val*val*val*val; }
-        return *this;
-      }
-      cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),1024))
-      cimg_rof(*this,ptrd,T) *ptrd = (T)std::pow((double)*ptrd,p);
+      if (p==3) { cimg_openmp_for(*this,cimg::pow3(*ptr),262144); return *this; }
+      if (p==4) { cimg_openmp_for(*this,cimg::pow4(*ptr),131072); return *this; }
+      cimg_openmp_for(*this,std::pow((Tfloat)*ptr,(Tfloat)p),1024);
       return *this;
     }
 

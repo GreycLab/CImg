@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 244
+#define cimg_version 245
 
 /*-----------------------------------------------------------
  #
@@ -38435,7 +38435,9 @@ namespace cimg_library_suffixed {
           }
 
         // Start iteration loop.
+        cimg_abort_init;
         for (unsigned int iter = 0; iter<nb_iterations; ++iter) {
+          cimg_abort_test;
           const bool is_odd = iter%2;
           occ.fill(0);
 

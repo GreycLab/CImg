@@ -2374,7 +2374,7 @@ namespace cimg_library_suffixed {
 #define cimg_openmp_if_size(size,min_size) cimg_openmp_if((size)>=(cimg_openmp_sizefactor)*(min_size))
 
 #if cimg_OS==2
-// Do not try to parallelize simple loops on Windows due to noticed performance drop.
+// Disable parallelization of simple loops on Windows, due to noticed performance drop.
 #define cimg_openmp_for(instance,expr,min_size) cimg_rof((instance),ptr,T) *ptr = (T)(expr);
 #else
 #define cimg_openmp_for(instance,expr,min_size) \
@@ -12716,7 +12716,7 @@ namespace cimg_library_suffixed {
      **/
     CImg<T>& operator++() {
       if (is_empty()) return *this;
-      cimg_openmp_for(*this,++*ptr,524288);
+      cimg_openmp_for(*this,*ptr + 1,524288);
       return *this;
     }
 

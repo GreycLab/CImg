@@ -382,9 +382,9 @@
 // Configure OpenMP support.
 // (http://www.openmp.org)
 //
-// Define 'cimg_use_openmp' to enable OpenMP support.
+// Define 'cimg_use_openmp' to enable OpenMP support (requires OpenMP 3.0+).
 //
-// OpenMP directives may be used in a (very) few CImg functions to get
+// OpenMP directives are used in many CImg functions to get
 // advantages of multi-core CPUs.
 #ifdef cimg_use_openmp
 #include <omp.h>

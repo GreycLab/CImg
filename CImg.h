@@ -38194,6 +38194,7 @@ namespace cimg_library_suffixed {
                                     patch_image._data);
 
       CImg<intT> map(_width,_height,_depth,patch_image._depth>1?3:2);
+      CImg<ucharT> is_updated(_width,_height,_depth,1,3);
       CImg<floatT> score(_width,_height,_depth);
       CImg<uintT> occ, loop_order;
       ulongT rng = (cimg::_rand(),cimg::rng());
@@ -38260,6 +38261,7 @@ namespace cimg_library_suffixed {
         for (unsigned int iter = 0; iter<nb_iterations; ++iter) {
           cimg_abort_test;
           const bool is_odd = iter%2;
+          const unsigned int cmask = is_odd?1:2, nmask = 3 - cmask;
           occ.fill(0);
 
           cimg_pragma_openmp(parallel cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64 &&
@@ -38295,7 +38297,7 @@ namespace cimg_library_suffixed {
               float best_score = best_score0, s;
 
               // Propagation.
-              if (x>0) { // Compare with left neighbor
+              if (x>0 && (is_updated(x - 1,y,z)&cmask)) { // Compare with left neighbor
                 u = map(x - 1,y,z,0);
                 v = map(x - 1,y,z,1);
                 w = map(x - 1,y,z,2);
@@ -38308,7 +38310,7 @@ namespace cimg_library_suffixed {
                   if (s<best_score) { best_u = u + 1; best_v = v; best_w = w; best_score = s; }
                 }
               }
-              if (y>0) { // Compare with up neighbor
+              if (y>0 && (is_updated(x,y - 1,z)&cmask)) { // Compare with up neighbor
                 u = map(x,y - 1,z,0);
                 v = map(x,y - 1,z,1);
                 w = map(x,y - 1,z,2);
@@ -38321,7 +38323,7 @@ namespace cimg_library_suffixed {
                   if (s<best_score) { best_u = u; best_v = v + 1; best_w = w; best_score = s; }
                 }
               }
-              if (z>0) { // Compare with backward neighbor
+              if (z>0 && (is_updated(x,y,z - 1)&cmask)) { // Compare with backward neighbor
                 u = map(x,y,z - 1,0);
                 v = map(x,y,z - 1,1);
                 w = map(x,y,z - 1,2);
@@ -38334,7 +38336,7 @@ namespace cimg_library_suffixed {
                   if (s<best_score) { best_u = u; best_v = v; best_w = w + 1; best_score = s; }
                 }
               }
-              if (x<width() - 1) { // Compare with right neighbor
+              if (x<width() - 1 && (is_updated(x + 1,y,z)&cmask)) { // Compare with right neighbor
                 u = map(x + 1,y,z,0);
                 v = map(x + 1,y,z,1);
                 w = map(x + 1,y,z,2);
@@ -38347,7 +38349,7 @@ namespace cimg_library_suffixed {
                   if (s<best_score) { best_u = u - 1; best_v = v; best_w = w; best_score = s; }
                 }
               }
-              if (y<height() - 1) { // Compare with bottom neighbor
+              if (y<height() - 1 && (is_updated(x,y + 1,z)&cmask)) { // Compare with bottom neighbor
                 u = map(x,y + 1,z,0);
                 v = map(x,y + 1,z,1);
                 w = map(x,y + 1,z,2);
@@ -38360,7 +38362,7 @@ namespace cimg_library_suffixed {
                   if (s<best_score) { best_u = u; best_v = v - 1; best_w = w; best_score = s; }
                 }
               }
-              if (z<depth() - 1) { // Compare with forward neighbor
+              if (z<depth() - 1 && (is_updated(x,y,z + 1)&cmask)) { // Compare with forward neighbor
                 u = map(x,y,z + 1,0);
                 v = map(x,y,z + 1,1);
                 w = map(x,y,z + 1,2);
@@ -38400,7 +38402,8 @@ namespace cimg_library_suffixed {
                 map(x,y,z,1) = best_v;
                 map(x,y,z,2) = best_w;
                 score(x,y,z) = best_score;
-              }
+                is_updated(x,y,z) = 3;
+              } else is_updated(x,y,z)&=~nmask;
               if (occ_penalization!=0) cimg_pragma_openmp(atomic) ++occ(best_u,best_v,best_w);
             }
             cimg::srand(rng);
@@ -38439,6 +38442,7 @@ namespace cimg_library_suffixed {
         for (unsigned int iter = 0; iter<nb_iterations; ++iter) {
           cimg_abort_test;
           const bool is_odd = iter%2;
+          const unsigned int cmask = is_odd?1:2, nmask = 3 - cmask;
           occ.fill(0);
 
           cimg_pragma_openmp(parallel cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64 &&
@@ -38470,7 +38474,7 @@ namespace cimg_library_suffixed {
               float best_score = best_score0, s;
 
               // Propagation.
-              if (x>0) { // Compare with left neighbor
+              if (x>0 && (is_updated(x - 1,y)&cmask)) { // Compare with left neighbor
                 u = map(x - 1,y,0);
                 v = map(x - 1,y,1);
                 if (u>=cx1 - 1 && u<patch_image.width() - 1 - cx2 &&
@@ -38481,7 +38485,7 @@ namespace cimg_library_suffixed {
                   if (s<best_score) { best_u = u + 1; best_v = v; best_score = s; }
                 }
               }
-              if (y>0) { // Compare with up neighbor
+              if (y>0 && (is_updated(x,y - 1)&cmask)) { // Compare with up neighbor
                 u = map(x,y - 1,0);
                 v = map(x,y - 1,1);
                 if (u>=cx1 && u<patch_image.width() - cx2 &&
@@ -38492,7 +38496,7 @@ namespace cimg_library_suffixed {
                   if (s<best_score) { best_u = u; best_v = v + 1; best_score = s; }
                 }
               }
-              if (x<width() - 1) { // Compare with right neighbor
+              if (x<width() - 1 && (is_updated(x + 1,y)&cmask)) { // Compare with right neighbor
                 u = map(x + 1,y,0);
                 v = map(x + 1,y,1);
                 if (u>=cx1 + 1 && u<patch_image.width() + 1 - cx2 &&
@@ -38503,7 +38507,7 @@ namespace cimg_library_suffixed {
                   if (s<best_score) { best_u = u - 1; best_v = v; best_score = s; }
                 }
               }
-              if (y<height() - 1) { // Compare with bottom neighbor
+              if (y<height() - 1 && (is_updated(x,y + 1)&cmask)) { // Compare with bottom neighbor
                 u = map(x,y + 1,0);
                 v = map(x,y + 1,1);
                 if (u>=cx1 && u<patch_image.width() - cx2 &&
@@ -38537,7 +38541,8 @@ namespace cimg_library_suffixed {
                 map(x,y,0) = best_u;
                 map(x,y,1) = best_v;
                 score(x,y) = best_score;
-              }
+                is_updated(x,y) = 3;
+              } else is_updated(x,y)&=~nmask;
               if (occ_penalization!=0) cimg_pragma_openmp(atomic) ++occ(best_u,best_v);
             }
           }

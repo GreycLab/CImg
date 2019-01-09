@@ -38224,7 +38224,9 @@ namespace cimg_library_suffixed {
       if (_depth>1 || patch_image._depth>1) { // 3D version
 
         // Initialize correspondence map.
-        if (guide) cimg_forXYZ(*this,x,y,z) { // User-defined initialization
+        if (guide)
+          cimg_pragma_openmp(parallel for collapse(2) cimg_openmp_if_size(_width,64))
+            cimg_forXYZ(*this,x,y,z) { // User-defined initialization
             const int
               cx1 = x<=psizew1?x:(x<width()  - psizew2?psizew1:psizew + x - width()),  cx2 = psizew - cx1 - 1,
               cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
@@ -38239,21 +38241,29 @@ namespace cimg_library_suffixed {
                                        x - cx1,y - cy1,z - cz1,
                                        u - cx1,v - cy1,w - cz1,
                                        u,v,w,0,cimg::type<float>::inf());
-          } else cimg_forXYZ(*this,x,y,z) { // Random initialization
-            const int
-              cx1 = x<=psizew1?x:(x<width()  - psizew2?psizew1:psizew + x - width()),  cx2 = psizew - cx1 - 1,
-              cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
-              cz1 = z<=psized1?z:(z<depth()  - psized2?psized1:psized + z - depth()),  cz2 = psized - cz1 - 1,
-              u = (int)cimg::round(cimg::rand(cx1,patch_image.width() - 1 - cx2,&rng)),
-              v = (int)cimg::round(cimg::rand(cy1,patch_image.height() - 1 - cy2,&rng)),
-              w = (int)cimg::round(cimg::rand(cz1,patch_image.depth() - 1 - cz2,&rng));
-            map(x,y,z,0) = u;
-            map(x,y,z,1) = v;
-            map(x,y,z,2) = w;
-            score(x,y,z) = _matchpatch(*this,patch_image,occ,patch_width,patch_height,patch_depth,
-                                       x - cx1,y - cy1,z - cz1,
-                                       u - cx1,v - cy1,w - cz1,
-                                       u,v,w,0,cimg::type<float>::inf());
+          } else cimg_pragma_openmp(parallel cimg_openmp_if_size(_width,64)) {
+            ulongT rng = (cimg::_rand(),cimg::rng());
+#ifdef cimg_use_openmp
+            rng+=omp_get_thread_num();
+#endif
+            cimg_pragma_openmp(for collapse(2))
+              cimg_forXYZ(*this,x,y,z) { // Random initialization
+              const int
+                cx1 = x<=psizew1?x:(x<width()  - psizew2?psizew1:psizew + x - width()),  cx2 = psizew - cx1 - 1,
+                cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
+                cz1 = z<=psized1?z:(z<depth()  - psized2?psized1:psized + z - depth()),  cz2 = psized - cz1 - 1,
+                u = (int)cimg::round(cimg::rand(cx1,patch_image.width() - 1 - cx2,&rng)),
+                v = (int)cimg::round(cimg::rand(cy1,patch_image.height() - 1 - cy2,&rng)),
+                w = (int)cimg::round(cimg::rand(cz1,patch_image.depth() - 1 - cz2,&rng));
+              map(x,y,z,0) = u;
+              map(x,y,z,1) = v;
+              map(x,y,z,2) = w;
+              score(x,y,z) = _matchpatch(*this,patch_image,occ,patch_width,patch_height,patch_depth,
+                                         x - cx1,y - cy1,z - cz1,
+                                         u - cx1,v - cy1,w - cz1,
+                                         u,v,w,0,cimg::type<float>::inf());
+            }
+            cimg::srand(rng);
           }
 
         // Start iteration loop.
@@ -38413,7 +38423,9 @@ namespace cimg_library_suffixed {
       } else { // 2D version
 
         // Initialize correspondence map.
-        if (guide) cimg_forXY(*this,x,y) { // User-defined initialization
+        if (guide)
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(_width,64))
+            cimg_forXY(*this,x,y) { // User-defined initialization
             const int
               cx1 = x<=psizew1?x:(x<width()  - psizew2?psizew1:psizew + x - width()),  cx2 = psizew - cx1 - 1,
               cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
@@ -38424,17 +38436,25 @@ namespace cimg_library_suffixed {
             score(x,y) = _matchpatch(*this,patch_image,occ,patch_width,patch_height,
                                      x - cx1,y - cy1,u - cx1,v - cy1,
                                      u,v,0,cimg::type<float>::inf());
-          } else cimg_forXY(*this,x,y) { // Random initialization
-            const int
-              cx1 = x<=psizew1?x:(x<width()  - psizew2?psizew1:psizew + x - width()),  cx2 = psizew - cx1 - 1,
-              cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
-              u = (int)cimg::round(cimg::rand(cx1,patch_image.width() - 1 - cx2,&rng)),
-              v = (int)cimg::round(cimg::rand(cy1,patch_image.height() - 1 - cy2,&rng));
-            map(x,y,0) = u;
-            map(x,y,1) = v;
-            score(x,y) = _matchpatch(*this,patch_image,occ,patch_width,patch_height,
-                                     x - cx1,y - cy1,u - cx1,v - cy1,
-                                     u,v,0,cimg::type<float>::inf());
+          } else cimg_pragma_openmp(parallel cimg_openmp_if_size(_width,64)) {
+            ulongT rng = (cimg::_rand(),cimg::rng());
+#ifdef cimg_use_openmp
+            rng+=omp_get_thread_num();
+#endif
+            cimg_pragma_openmp(for)
+              cimg_forXY(*this,x,y) { // Random initialization
+              const int
+                cx1 = x<=psizew1?x:(x<width()  - psizew2?psizew1:psizew + x - width()),  cx2 = psizew - cx1 - 1,
+                cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
+                u = (int)cimg::round(cimg::rand(cx1,patch_image.width() - 1 - cx2,&rng)),
+                v = (int)cimg::round(cimg::rand(cy1,patch_image.height() - 1 - cy2,&rng));
+              map(x,y,0) = u;
+              map(x,y,1) = v;
+              score(x,y) = _matchpatch(*this,patch_image,occ,patch_width,patch_height,
+                                       x - cx1,y - cy1,u - cx1,v - cy1,
+                                       u,v,0,cimg::type<float>::inf());
+            }
+            cimg::srand(rng);
           }
 
         // Start iteration loop.

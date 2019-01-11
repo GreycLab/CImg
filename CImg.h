@@ -47286,7 +47286,7 @@ namespace cimg_library_suffixed {
       case 5 : { // Phong-Shading
         CImg<tpfloat> vertices_normals(vertices._width,6,1,1,0);
         cimg_pragma_openmp(parallel for cimg_openmp_if_size(nb_visibles,4096))
-        for (unsigned int l = 0; l<nb_visibles; ++l) {
+        for (int l = 0; l<(int)nb_visibles; ++l) {
           const CImg<tf>& primitive = primitives[visibles(l)];
           const unsigned int psize = (unsigned int)primitive.size();
           const bool

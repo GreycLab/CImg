@@ -3393,57 +3393,57 @@ namespace cimg_library_suffixed {
 
     const double PI = 3.14159265358979323846;   //!< Value of the mathematical constant PI
 
-    // Define a 12x13 binary font (small sans).
+    // Define a 10x13 binary font (small sans).
     static const char *const data_font_small[] = {
       "                      UwlwnwoyuwHwlwmwcwlwnw[xuwowlwmwoyuwRwlwnxcw     Mw                    (wnwnwuwpwuypwuwoy"
       "ZwnwmwuwowuwmwnwnwuwowuwfwuxnwnwmwuwpwuypwuwZwnwnwtwpwtwow'y    Hw   cwnw  >{ jw %xdxZwdw_wexfwYwkw 7yowoyFx=w "
       "ry    qw %wuw  !xnwkwnwoyuwfwuw[wkwnwcwowrwpwdwuwoxuwpwkwnwoyuwRwkwnwbwpwNyoyoyoyoy;wdwnxpxtxowG|!ydwnwuwowtwow"
       "pxswqxlwnxnxmwDwoyoxnyoymwp{oyq{pyoy>ypwqwpwp{oyqzo{q{pzrwrwowlwqwswpwnwqwsxswpypzoyqzozq}swrwrwqwtwswswtxsxswq"
-      "ws}qwbwnydwew_wfwdwkwmwowkw(w0wmwmwGwtwdxQw swuwnwo{q{pynwp|rwtwtwqydwcwcwcwmwmxgwqwpwnzpwuwpzoyRzoyoyexnynwdz"
-      "\\xnxgxrwsxrwsyswowmwmwmwmwmwmwo}ryp{q{q{q{nwmwnwmwozqxswpyoyoyoyoyeyuwswrwrwrwrwrwrwrwrwqwrwmwtwnwmwnwuwpwuypwu"
-      "woyZwmwnwuwowuwmwqwkwuwowuwoxnwuxowmwnwuwpwuypwuwZwmwnwuwowuwnwowmwtw\\wuwuwqwswqwswqwswqwswEwqwtweypzr~qyIw rw"
-      "swewnwuwowuwozswtwuwqwtwmwnwlwowuwuwowOxpxuxqwuwowswqwswoxpwlwjwqwswqwsw<wrwowrwuwqwrwqwswrwswpwmwmwrwswrwowlwq"
-      "wtwownxsxsxswqwswqwswqwswrwswqwrwowpwrwrwqwtwswswswswqwswmwpwbwoxuxSw_wfwdwYwkw(w0wmwmwGwtwoxnwNw uwswpwuwpwmwm"
-      "wswq{rwrwrwtwtwrwswfydwdyZwnwtwrwqwrwswowowdwrwqxuwSwrwfwuwnwlwnw[yuw[wowtwgwswqwswqwswewuwowuwowuwowuwowuwnwow"
-      "uwowswqwmwmwmwjwmwnwmwowswrxswqwswqwswqwswqwswqwswrwrwqwswrwrwrwrwrwrwrwrwqwswqzpwtw #w DwPwtwtwswqwswuwuwuwsws"
-      "wuwswqwGwqxtwf{qzr~r{qzqwrwpxowtwrw rzcwnwuwq}rwuwqwtwuwqwtwmwnwlwnynwOwowswowkwmwpwuwpwmwjwpwswqwswowmwjwiwjxs"
-      "wsytwrwuwqwrwrwmwrwqwmwnwmwrwowlwqwuwnwnxsxswuwtwrwqwrwswrwqwswswqwjwpwrwqwswrwtwtwqwuwowuwmwowbwpxsx]ypzoyozpy"
-      "pzozqznwmwowtwnwqzuyrzoypzozqwuxoypzpwswrwrwrwtwtwswrwrwrwq{owmwmwQyuwqwtwmwoxnypzqxswowowswqwswqwtxr|rwtwtwqyp"
-      "{q{qwswpwuwownwnwqwsxuwuxswrwrwtwtwswqwrwmwuwuwnwnwowtwpwuwuwewnzpwn{pwuwnwnxgwtxtwrwtwowtw_wuytwgynwmwlwgwswpy"
-      "uw[wowtwqwtwpwtwpwtwowuwmwnwuwowuwowuwowuwowuwowuwqxuwpwlwmwmwmwjwmwnwmwowrwswuwtwrwqwswqwswqwswqwswqwrwtwqwswu"
-      "wswrwrwrwrwrwrwrwpwuwpwswqwuwnyoyoyoyoyoyqyuyqyoyoyoyoymwqwjwmwnypzoyoyoyoyoynwnzqwswqwswqwswqwswrwrwqzqwrw^}s}"
-      "swtwtwswtwtwswtwtwK}rwuwe{s~t~s}rwtwqwrwpxowtwrw qwawewtwpwuwpxuwpycwlwnynwOwowswowkwpypwtwpzpzmwoypwsw[yr}rymw"
-      "rwtwtwtwrwuwq{qwmwrwq{q{rwm|owlwqxmwnwuwuwuwswuwtwrwqwrwswrwqwswswqylwpwrwqwswrwuwuwuwpwmwmwnwbwMwqwswqwmwswqws"
-      "wpwnwswqwswowmwowuwmwqwswswswswqwswqwswqwswqxnwswpwnwswrwrwrwtwtwrwtwqwrwmwqxlwlx]xuxrwtyqwuwlwpwtwpwmwswqwtxpx"
-      "owswrwqwswtwuxrwtwqwtwtwrwswrwswnwo{pwuwnxpwnwqwswtwtwswrwrwtwtwswuyuwswjwkwowpwrwowcwowuwnwnwswqxuxowowtwhwuwr"
-      "wrzpwtwq}jwuwtwuw_}qyoxfwswpyuwowdyoxowtwryuwqyuwqyuwmwnwuwowuwowuwowuwowuwowuwqwt{twl{q{q{q{nwmwnwmwpztwswuwtw"
-      "rwqwswqwswqwswqwswqwqxpwtwtwswrwrwrwrwrwrwrwowowswqwuwkwmwmwmwmwmwowswswmwswqwswqwswqwswnwqwjwmwowswqwswqwswqws"
-      "wqwswqwswqwswgwtxqwswqwswqwswqwswrwrwqwswrwrw^wtwtwswqwswuwuwuwswuwswswqwHwowuwf}t~s|r}swrwrwrwqwtwpwtwr~#zcwew"
-      "twoynwuxtwtwswgwlwowuwuwr}gyexowswowlwlwrwswlwqwswowowswpz^yayqwqwtwtwuwrwswrwrwrwmwrwqwmwnwsyswrwowlwqwuwnwnwu"
-      "wuwuwswtwuwrwqwrzqwqwszmyowpwrwpwuwqwuwuwuwpwmwmwnwbwPzqwswqwmwswq{pwnwswqwswowmwoxlwqwswswswswqwswqwswqwswqwlx"
-      "nwnwswqwtwqwuwuwuwqxowtwmwnwmwmwoytwiwtwtwswswpwtxqzpwswpxowswpwuwowuwpwswrwtwtwswtwtwrwtwqwtwtwrwswrwswnwowswq"
-      "wswowownwqwswtwtwswrwqwuwuwrwuyuwt~pwq~pwq~pwcwowuwozpwswowewswiwuwrwiwtwjwjwuytw\\wRwswoxuwHwtwpwswqwtxqwswqxo"
-      "wswqwswqwswqwswqwswqwswrwtwpwlwmwmwmwjwmwnwmwowrwswtwuwrwqwswqwswqwswqwswqwqxpwtwtwswrwrwrwrwrwrwrwowowswqwtwoz"
-      "pzpzpzpzpzr~swm{q{q{q{nwqwjwmwowswqwswqwswqwswqwswqwswqwswr}rwuwuwqwswqwswqwswqwswqwtwpwswqwtw\\wuwuwqwswqwswqw"
-      "swqwswJ}qxf}t~rzp{rwrwrwrwqwtwpwtwrw qwawg}owuwpwuwtwuwswuwfwlwmwmwPwnwswowmwkwr|mwqwswowowswmw^yo}oyqwqwszq{rw"
-      "rwrwmwrwqwmwnwqwswrwowlwqwtwownwtwtwswtwuwrwqwrwnwqwswtwkwowpwrwpwuwqwuwuwuwqwuwnwnwmwbwQwswqwswqwmwswqwlwnwswq"
-      "wswowmwowuwmwqwswswswswqwswqwswqwswqwjwownwswqwtwqwuwuwuwqxowtwnwmwmwmwpwtyhwtwtwswswpwswqwtwpwswqwmwswpwuwpwtw"
-      "pwswrwtwtwswtwtwrwtwqwtwtwrwswrwswnwowswqwswpwnwnwqwsxuwuxswrwpyqwqwswjwkwqwuwuwrwrwqwuwuwewowuwnwnwswq{ownxuwi"
-      "wtxtwrzpwtwkwjwuwtwuw\\wRwswnwuwSzpwtwowtxqwrwrwtxrxn{q{q{q{q{q{s{pwlwmwmwmwjwmwnwmwowrwswtwuwrwqwswqwswqwswqws"
-      "wqwrwtwqwuwswswrwrwrwrwrwrwrwowozpwswqwswqwswqwswqwswqwswqwswswswowmwmwmwmwjwqwjwmwowswqwswqwswqwswqwswqwswqwsw"
-      "gwuwuwqwswqwswqwswqwswqwtwpwswqwtw[yoyoyoyoyGwmwdwuwuwpxnxnyqwrwqwtwpwtwoxpw rwswSwuwmwuwpwuwtwuxswewlwcwPwnxux"
-      "ownwnwswnwlwqwswowowswnwZygygwkwswrwrwqwswrwswpwmwmwrwswrwowlwqwswpwnwqwswsxqwswqwmwswrwswqwrwowpxtxowowswqwswo"
-      "wowlwbwQwswqwswqwmwswqwswpwnwswqwswowmwowtwnwqwswswswswqwswqwswqwswqwmwswpwnwswpxowswqwtwoxnwlwmwmw[xuxrwtxpwsw"
-      "qwtwpwswqwmwswpypwtwpwswrwtwtwsxuwuxrwtwqwtwtwrwswrwswnwnwuwpwswqwmwmwswq{rwrwowowswqwkwlwoypwtwoydwowuwnwn{owm"
-      "wlwgwrwfwtw^wrw6wswnwuwJwtwowtzswrwrwtzswmwswqwswqwswqwswqwswqwswswswowswqwmwmwmwjwmwnwmwowswrwsxqwswqwswqwswqw"
-      "swqwswrwrwqwswrxtxrxtxrxtxrxtxowowmwswqwswqwswqwswqwswqwswqwswswtxowmwswqwswqwswqwswnwqwjwmwowswqwswqwswqwswqws"
-      "wqwswqwswowoxtwqwswqwswqwswqwswpxowswpx Wwlwbwnxcwpwrwqzpwtwoxo|!ydwfwtwozpwsxszuxgxnxcwmwcwoxmyp{q{pymwpzoyowm"
-      "ypymwmwjwiwkwowrwrwqws{oyqzo{qwlzrwrwowlwqwrwq{rwqwswsxpypwlyqwrwqznwoznwowswrxsxpwp}qwbwPzqzoyozpyowmzqwswowmw"
-      "owswowqwswswswswpypzozqwlynxozpxowswrwrwpwn{owmwmwQxuxqzoxnyoypwswowpwrwqzpxuxq{qwtxq{qzpylwoyq}r{qwnyuypwpwrwo"
-      "wnydwcwcwcwnzq{rwqwpwmwkwgzHz]}U|owuw@wqwswrytwqwqyqwqwswqwswqwswqwswqwswqwuwr{ryp{q{q{q{nwmwnwmwozqwsxpyoyoyoy"
-      "oygwuypzpzpzpznwowmwuypzpzpzpzpzpzryuzryoyoyoyoymwqwjwmwnypwswpyoyoyoyoyfzozpzpzpzpwnzow    \\wOwnwXw[w SwGz kx"
-      "0x lxdx gw[w=wiw*wbyowoyGwKwowewawcwow  YwOwoz Ewjwuwdw 7w   9w  Iwnwlw    \\w      0|*y[x=wiw,xWw=wKwowewawcwo"
-      "w  Yw  hwVx 8w   9w  Jxmwnxp" };
+      "ws}qwnwkwnydwew_wfwdwkwmwowkw(w0wmwmwGwtwdxQw swuwnwo{q{pynwp|rwtwtwqydwcwcwcwmwmxgwqwpwnzpwuwpzoyRzoyoyexnynwd"
+      "z\\xnxgxrwsxrwsyswowmwmwmwmwmwmwo}ryp{q{q{q{nwmwnwmwozqxswpyoyoyoyoyeyuwswrwrwrwrwrwrwrwrwqwrwmwtwnwmwnwuwpwuyp"
+      "wuwoyZwmwnwuwowuwmwqwkwuwowuwoxnwuxowmwnwuwpwuypwuwZwmwnwuwowuwnwowmwtw\\wuwuwqwswqwswqwswqwswEwqwtweypzr~qyIw "
+      "rwswewnwuwowuwozswtwuwqwtwmwnwlwowuwuwowOxpxuxqwuwowswqwswoxpwlwjwqwswqwsw<wrwowrwuwqwrwqwswrwswpwmwmwrwswrwowl"
+      "wqwtwownxsxsxswqwswqwswqwswrwswqwrwowpwrwrwqwtwswswswswqwswmwpwmwlwoxuxSw_wfwdwYwkw(w0wmwmwGwtwoxnwNw uwswpwuwp"
+      "wmwmwswq{rwrwrwtwtwrwswfydwdyZwnwtwrwqwrwswowowdwrwqxuwSwrwfwuwnwlwnw[yuw[wowtwgwswqwswqwswewuwowuwowuwowuwowuw"
+      "nwowuwowswqwmwmwmwjwmwnwmwowswrxswqwswqwswqwswqwswqwswrwrwqwswrwrwrwrwrwrwrwrwqwswqzpwtw #w DwPwtwtwswqwswuwuwu"
+      "wswswuwswqwGwqxtwf{qzr~r{qzqwrwpxowtwrw rzcwnwuwq}rwuwqwtwuwqwtwmwnwlwnynwOwowswowkwmwpwuwpwmwjwpwswqwswowmwjwi"
+      "wjxswsytwrwuwqwrwrwmwrwqwmwnwmwrwowlwqwuwnwnxsxswuwtwrwqwrwswrwqwswswqwjwpwrwqwswrwtwtwqwuwowuwmwowmwlwpxsx]ypz"
+      "oyozpypzozqznwmwowtwnwqzuyrzoypzozqwuxoypzpwswrwrwrwtwtwswrwrwrwq{owmwmwQyuwqwtwmwoxnypzqxswowowswqwswqwtxr|rwt"
+      "wtwqyp{q{qwswpwuwownwnwqwsxuwuxswrwrwtwtwswqwrwmwuwuwnwnwowtwpwuwuwewnzpwn{pwuwnwnxgwtxtwrwtwowtw_wuytwgynwmwlw"
+      "gwswpyuw[wowtwqwtwpwtwpwtwowuwmwnwuwowuwowuwowuwowuwowuwqxuwpwlwmwmwmwjwmwnwmwowrwswuwtwrwqwswqwswqwswqwswqwrwt"
+      "wqwswuwswrwrwrwrwrwrwrwpwuwpwswqwuwnyoyoyoyoyoyqyuyqyoyoyoyoymwqwjwmwnypzoyoyoyoyoynwnzqwswqwswqwswqwswrwrwqzqw"
+      "rw^}s}swtwtwswtwtwswtwtwK}rwuwe{s~t~s}rwtwqwrwpxowtwrw qwawewtwpwuwpxuwpycwlwnynwOwowswowkwpypwtwpzpzmwoypwsw[y"
+      "r}rymwrwtwtwtwrwuwq{qwmwrwq{q{rwm|owlwqxmwnwuwuwuwswuwtwrwqwrwswrwqwswswqylwpwrwqwswrwuwuwuwpwmwmwnwmwlwMwqwswq"
+      "wmwswqwswpwnwswqwswowmwowuwmwqwswswswswqwswqwswqwswqxnwswpwnwswrwrwrwtwtwrwtwqwrwmwqxlwlx]xuxrwtyqwuwlwpwtwpwmw"
+      "swqwtxpxowswrwqwswtwuxrwtwqwtwtwrwswrwswnwo{pwuwnxpwnwqwswtwtwswrwrwtwtwswuyuwswjwkwowpwrwowcwowuwnwnwswqxuxowo"
+      "wtwhwuwrwrzpwtwq}jwuwtwuw_}qyoxfwswpyuwowdyoxowtwryuwqyuwqyuwmwnwuwowuwowuwowuwowuwowuwqwt{twl{q{q{q{nwmwnwmwpz"
+      "twswuwtwrwqwswqwswqwswqwswqwqxpwtwtwswrwrwrwrwrwrwrwowowswqwuwkwmwmwmwmwmwowswswmwswqwswqwswqwswnwqwjwmwowswqws"
+      "wqwswqwswqwswqwswqwswgwtxqwswqwswqwswqwswrwrwqwswrwrw^wtwtwswqwswuwuwuwswuwswswqwHwowuwf}t~s|r}swrwrwrwqwtwpwtw"
+      "r~#zcwewtwoynwuxtwtwswgwlwowuwuwr}gyexowswowlwlwrwswlwqwswowowswpz^yayqwqwtwtwuwrwswrwrwrwmwrwqwmwnwsyswrwowlwq"
+      "wuwnwnwuwuwuwswtwuwrwqwrzqwqwszmyowpwrwpwuwqwuwuwuwpwmwmwnwlwmwPzqwswqwmwswq{pwnwswqwswowmwoxlwqwswswswswqwswqw"
+      "swqwswqwlxnwnwswqwtwqwuwuwuwqxowtwmwnwmwmwoytwiwtwtwswswpwtxqzpwswpxowswpwuwowuwpwswrwtwtwswtwtwrwtwqwtwtwrwswr"
+      "wswnwowswqwswowownwqwswtwtwswrwqwuwuwrwuyuwt~pwq~pwq~pwcwowuwozpwswowewswiwuwrwiwtwjwjwuytw\\wRwswoxuwHwtwpwswq"
+      "wtxqwswqxowswqwswqwswqwswqwswqwswrwtwpwlwmwmwmwjwmwnwmwowrwswtwuwrwqwswqwswqwswqwswqwqxpwtwtwswrwrwrwrwrwrwrwow"
+      "owswqwtwozpzpzpzpzpzr~swm{q{q{q{nwqwjwmwowswqwswqwswqwswqwswqwswqwswr}rwuwuwqwswqwswqwswqwswqwtwpwswqwtw\\wuwuw"
+      "qwswqwswqwswqwswJ}qxf}t~rzp{rwrwrwrwqwtwpwtwrw qwawg}owuwpwuwtwuwswuwfwlwmwmwPwnwswowmwkwr|mwqwswowowswmw^yo}oy"
+      "qwqwszq{rwrwrwmwrwqwmwnwqwswrwowlwqwtwownwtwtwswtwuwrwqwrwnwqwswtwkwowpwrwpwuwqwuwuwuwqwuwnwnwmwlwmwQwswqwswqwm"
+      "wswqwlwnwswqwswowmwowuwmwqwswswswswqwswqwswqwswqwjwownwswqwtwqwuwuwuwqxowtwnwmwmwmwpwtyhwtwtwswswpwswqwtwpwswqw"
+      "mwswpwuwpwtwpwswrwtwtwswtwtwrwtwqwtwtwrwswrwswnwowswqwswpwnwnwqwsxuwuxswrwpyqwqwswjwkwqwuwuwrwrwqwuwuwewowuwnwn"
+      "wswq{ownxuwiwtxtwrzpwtwkwjwuwtwuw\\wRwswnwuwSzpwtwowtxqwrwrwtxrxn{q{q{q{q{q{s{pwlwmwmwmwjwmwnwmwowrwswtwuwrwqws"
+      "wqwswqwswqwswqwrwtwqwuwswswrwrwrwrwrwrwrwowozpwswqwswqwswqwswqwswqwswqwswswswowmwmwmwmwjwqwjwmwowswqwswqwswqwsw"
+      "qwswqwswqwswgwuwuwqwswqwswqwswqwswqwtwpwswqwtw[yoyoyoyoyGwmwdwuwuwpxnxnyqwrwqwtwpwtwoxpw rwswSwuwmwuwpwuwtwuxsw"
+      "ewlwcwPwnxuxownwnwswnwlwqwswowowswnwZygygwkwswrwrwqwswrwswpwmwmwrwswrwowlwqwswpwnwqwswsxqwswqwmwswrwswqwrwowpxt"
+      "xowowswqwswowowlwlwmwQwswqwswqwmwswqwswpwnwswqwswowmwowtwnwqwswswswswqwswqwswqwswqwmwswpwnwswpxowswqwtwoxnwlwmw"
+      "mw[xuxrwtxpwswqwtwpwswqwmwswpypwtwpwswrwtwtwsxuwuxrwtwqwtwtwrwswrwswnwnwuwpwswqwmwmwswq{rwrwowowswqwkwlwoypwtwo"
+      "ydwowuwnwn{owmwlwgwrwfwtw^wrw6wswnwuwJwtwowtzswrwrwtzswmwswqwswqwswqwswqwswqwswswswowswqwmwmwmwjwmwnwmwowswrwsx"
+      "qwswqwswqwswqwswqwswrwrwqwswrxtxrxtxrxtxrxtxowowmwswqwswqwswqwswqwswqwswqwswswtxowmwswqwswqwswqwswnwqwjwmwowswq"
+      "wswqwswqwswqwswqwswqwswowoxtwqwswqwswqwswqwswpxowswpx Wwlwbwnxcwpwrwqzpwtwoxo|!ydwfwtwozpwsxszuxgxnxcwmwcwoxmyp"
+      "{q{pymwpzoyowmypymwmwjwiwkwowrwrwqws{oyqzo{qwlzrwrwowlwqwrwq{rwqwswsxpypwlyqwrwqznwoznwowswrxsxpwp}qwkwnwPzqzoy"
+      "ozpyowmzqwswowmwowswowqwswswswswpypzozqwlynxozpxowswrwrwpwn{owmwmwQxuxqzoxnyoypwswowpwrwqzpxuxq{qwtxq{qzpylwoyq"
+      "}r{qwnyuypwpwrwownydwcwcwcwnzq{rwqwpwmwkwgzHz]}U|owuw@wqwswrytwqwqyqwqwswqwswqwswqwswqwswqwuwr{ryp{q{q{q{nwmwnw"
+      "mwozqwsxpyoyoyoyoygwuypzpzpzpznwowmwuypzpzpzpzpzpzryuzryoyoyoyoymwqwjwmwnypwswpyoyoyoyoyfzozpzpzpzpwnzow    \\w"
+      "OwnwXw[w SwGz kx0x lxdx gw[w=wiw*wbyowoyGwKwowewawcwow  YwOwoz Ewjwuwdw 7w   9w  Iwnwlw    \\w      0|*y[x=wiw,"
+      "xWw=wKwowewawcwow  Yw  hwVx 8w   9w  Jxmwnxp" };
 
     // Define a 26x32 font (normal sans).
     static const char *const data_font_normal[] = {
@@ -60789,10 +60789,10 @@ namespace cimg_library_suffixed {
           }
           font[' '].resize(font['f']._width,-100,-100,-100,0);
           if (' ' + 256<font.size()) font[' ' + 256].resize(font['f']._width,-100,-100,-100,0);
-        }
-        cimglist_for(font,l)
-          font[l].resize(std::max(font[';']._width,font[l]._width) + padding_x,
-                         -100,1,1,0,0,0.55f);
+          cimglist_for(font,l)
+            font[l].resize(std::max(font[';']._width,font[l]._width) + padding_x,
+                           -100,1,1,0,0,0.55f);
+        } else cimglist_for(font,l) font[l].resize(font[l]._width + padding_x,-100,1,1,0,0,0.55f);
         font.insert(256,0);
         cimglist_for_in(font,0,255,l) font[l].assign(font[l + 256]._width,font[l + 256]._height,1,3,1);
       }

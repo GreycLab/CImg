@@ -28571,7 +28571,7 @@ namespace cimg_library_suffixed {
        \param max_value Maximum pixel value considered for the histogram computation.
          All pixel values higher than \p max_value will not be counted.
        \note
-       - The histogram H of an image I is the 1D function where H(x) counts the number of occurences of the value x
+       - The histogram H of an image I is the 1D function where H(x) counts the number of occurrences of the value x
          in the image I.
        - The resulting histogram is always defined in 1D. Histograms of multi-valued images are not multi-dimensional.
        \par Example
@@ -38091,7 +38091,7 @@ namespace cimg_library_suffixed {
         \param patch_depth Depth of the patch used for matching.
         \param nb_iterations Number of patch-match iterations.
         \param nb_randoms Number of randomization attempts (per pixel).
-        \param occ_penalization Penalization factor in score related patch occurences.
+        \param occ_penalization Penalization factor in score related patch occurrences.
         \param guide Image used as the initial correspondence estimate for the algorithm.
           'guide' may have a last channel with boolean values (0=false | other=true) that
           tells for each pixel if its correspondence vector is constrained to its initial value (constraint mask).
@@ -38213,7 +38213,7 @@ namespace cimg_library_suffixed {
           loop_order(x,y,z,1) = y;
           if (loop_order._spectrum>2) loop_order(x,y,z,2) = z;
         }
-        cimg_forXYZ(loop_order,x,y,z) { // Randomize loop order in case of constraints on patch occurence
+        cimg_forXYZ(loop_order,x,y,z) { // Randomize loop order in case of constraints on patch occurrence
           const unsigned int
             X = (unsigned int)cimg::round(cimg::rand(loop_order._width - 1.,&rng)),
             Y = (unsigned int)cimg::round(cimg::rand(loop_order._height - 1.,&rng)),

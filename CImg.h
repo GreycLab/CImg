@@ -8615,6 +8615,23 @@ namespace cimg_library_suffixed {
       return _fps_fps;
     }
 
+    // Move current display window so that its content stays inside the current screen.
+    CImgDisplay move_inside_screen() {
+      if (!is_empty()) {
+        const int
+          x0 = window_x(),
+          y0 = window_y(),
+          x1 = x0 + window_width() - 1,
+          y1 = y0 + window_height() - 1,
+          sw = CImgDisplay::screen_width(),
+          sh = CImgDisplay::screen_height();
+        if (x0<0 || y0<0 || x1>=sw || y1>=sh)
+          move(std::max(0,std::min(x0,sw - x1 + x0)),
+               std::max(0,std::min(y0,sh - y1 + y0)));
+      }
+      return *this;
+    }
+
     //@}
     //---------------------------------------
     //
@@ -48246,7 +48263,10 @@ namespace cimg_library_suffixed {
       if (!disp) {
         disp.assign(cimg_fitscreen(_width,_height,_depth),title?title:0,1);
         if (!title) disp.set_title("CImg<%s> (%ux%ux%ux%u)",pixel_type(),_width,_height,_depth,_spectrum);
-      } else if (title) disp.set_title("%s",title);
+      } else {
+        if (title) disp.set_title("%s",title);
+        disp.move_inside_screen();
+      }
 
       CImg<T> thumb;
       if (width()>disp.screen_width() || height()>disp.screen_height())
@@ -58170,7 +58190,10 @@ namespace cimg_library_suffixed {
         if (axis=='x') disp.assign(cimg_fitscreen(sum_width,max_height,1),title?title:0,1);
         else disp.assign(cimg_fitscreen(max_width,sum_height,1),title?title:0,1);
         if (!title) disp.set_title("CImgList<%s> (%u)",pixel_type(),_width);
-      } else if (title) disp.set_title("%s",title);
+      } else {
+        if (title) disp.set_title("%s",title);
+        disp.move_inside_screen();
+      }
       if (resize_disp) {
         if (axis=='x') disp.resize(cimg_fitscreen(sum_width,max_height,1),false);
         else disp.resize(cimg_fitscreen(max_width,sum_height,1),false);

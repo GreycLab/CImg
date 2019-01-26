@@ -8527,7 +8527,7 @@ namespace cimg_library_suffixed {
 
     //! Return one entry from the pressed keys history.
     /**
-       \param pos Indice to read from the pressed keys history (indice \c 0 corresponds to latest entry).
+       \param pos Index to read from the pressed keys history (index \c 0 corresponds to latest entry).
        \return Keycode of a pressed key or \c 0 for a released key.
        \note
        - Each CImgDisplay stores a history of the pressed keys in a buffer of size \c 128. When a new key is pressed,
@@ -8544,7 +8544,7 @@ namespace cimg_library_suffixed {
 
     //! Return one entry from the released keys history.
     /**
-       \param pos Indice to read from the released keys history (indice \c 0 corresponds to latest entry).
+       \param pos Index to read from the released keys history (index \c 0 corresponds to latest entry).
        \return Keycode of a released key or \c 0 for a pressed key.
        \note
        - Each CImgDisplay stores a history of the released keys in a buffer of size \c 128. When a new key is released,
@@ -15697,7 +15697,7 @@ namespace cimg_library_suffixed {
           const unsigned int i0 = (unsigned int)primitive(0);
           if (i0>=_width) {
             if (error_message) cimg_sprintf(error_message,
-                                            "3D object (%u,%u) refers to invalid vertex indice %u in "
+                                            "3D object (%u,%u) refers to invalid vertex index %u in "
                                             "point primitive [%u]",
                                             _width,primitives._width,i0,l);
             return false;
@@ -15872,7 +15872,7 @@ namespace cimg_library_suffixed {
           const unsigned int i0 = cimg::float2uint((float)*(ptrs++));
           if (i0>=nb_points) {
             if (error_message) cimg_sprintf(error_message,
-                                            "CImg3d (%u,%u) refers to invalid vertex indice %u in point primitive [%u]",
+                                            "CImg3d (%u,%u) refers to invalid vertex index %u in point primitive [%u]",
                                             nb_points,nb_primitives,i0,p);
             return false;
           }
@@ -15964,7 +15964,7 @@ namespace cimg_library_suffixed {
           if (!h && !s) {
             if (w>=c) {
               if (error_message) cimg_sprintf(error_message,
-                                              "CImg3d (%u,%u) refers to invalid shared sprite/texture indice %u "
+                                              "CImg3d (%u,%u) refers to invalid shared sprite/texture index %u "
                                               "for primitive [%u]",
                                               nb_points,nb_primitives,w,c);
               return false;
@@ -15996,7 +15996,7 @@ namespace cimg_library_suffixed {
           if (!h && !s) {
             if (w>=o) {
               if (error_message) cimg_sprintf(error_message,
-                                              "CImg3d (%u,%u) refers to invalid shared opacity indice %u "
+                                              "CImg3d (%u,%u) refers to invalid shared opacity index %u "
                                               "for primitive [%u]",
                                               nb_points,nb_primitives,w,o);
               return false;
@@ -16737,7 +16737,7 @@ namespace cimg_library_suffixed {
                 ++s; while (*s && cimg::is_blank(*s)) ++s;
                 CImg<charT>(s,(unsigned int)(se - s + 1)).move_to(macro_body,0);
 
-                p1 = 1; // Indice of current parsed argument
+                p1 = 1; // Index of current parsed argument
                 for (s = s0 + 1; s<=s1; ++p1, s = ns + 1) { // Parse function arguments
                   if (p1>24) {
                     *se = saved_char;
@@ -17823,7 +17823,7 @@ namespace cimg_library_suffixed {
             else arg1 = scalar1(mp_copy,arg1);
           }
 
-          if (is_sth) pos = arg1; // Determine return indice, depending on pre/post action
+          if (is_sth) pos = arg1; // Determine return index, depending on pre/post action
           else {
             if (_cimg_mp_is_vector(arg1)) pos = vector_copy(arg1);
             else pos = scalar1(mp_copy,arg1);
@@ -18046,7 +18046,7 @@ namespace cimg_library_suffixed {
 
             if (s1<se1) { // Two arguments -> sub-vector extraction
               p1 = _cimg_mp_size(arg1);
-              arg2 = compile(++s0,s1,depth1,0,is_single); // Starting indice
+              arg2 = compile(++s0,s1,depth1,0,is_single); // Starting index
               arg3 = compile(++s1,se1,depth1,0,is_single); // Length
               _cimg_mp_check_constant(arg3,2,3);
               arg3 = (unsigned int)mem[arg3];
@@ -20340,7 +20340,7 @@ namespace cimg_library_suffixed {
               p2 = (unsigned int)macro_def[l].back(); // Number of required arguments
               CImg<charT> _expr = macro_body[l]; // Expression to be substituted
 
-              p1 = 1; // Indice of current parsed argument
+              p1 = 1; // Index of current parsed argument
               for (s = s0 + 1; s<=se1; ++p1, s = ns + 1) { // Parse function arguments
                 while (*s && cimg::is_blank(*s)) ++s;
                 if (*s==')' && p1==1) break; // Function has no arguments
@@ -26803,9 +26803,9 @@ namespace cimg_library_suffixed {
        \param distance An object having operator()(unsigned int i, unsigned int j) which returns distance
          between two nodes (i,j).
        \param nb_nodes Number of graph nodes.
-       \param starting_node Indice of the starting node.
-       \param ending_node Indice of the ending node (set to ~0U to ignore ending node).
-       \param previous_node Array that gives the previous node indice in the path to the starting node
+       \param starting_node Index of the starting node.
+       \param ending_node Index of the ending node (set to ~0U to ignore ending node).
+       \param previous_node Array that gives the previous node index in the path to the starting node
          (optional parameter).
        \return Array of distances of each node to the starting node.
     **/
@@ -26814,7 +26814,7 @@ namespace cimg_library_suffixed {
                             const unsigned int starting_node, const unsigned int ending_node,
                             CImg<t>& previous_node) {
       if (starting_node>=nb_nodes)
-        throw CImgArgumentException("CImg<%s>::dijkstra(): Specified indice of starting node %u is higher "
+        throw CImgArgumentException("CImg<%s>::dijkstra(): Specified index of starting node %u is higher "
                                     "than number of nodes %u.",
                                     pixel_type(),starting_node,nb_nodes);
       CImg<T> dist(1,nb_nodes,1,1,cimg::type<T>::max());
@@ -26872,9 +26872,9 @@ namespace cimg_library_suffixed {
 
     //! Return minimal path in a graph, using the Dijkstra algorithm.
     /**
-       \param starting_node Indice of the starting node.
-       \param ending_node Indice of the ending node.
-       \param previous_node Array that gives the previous node indice in the path to the starting node
+       \param starting_node Index of the starting node.
+       \param ending_node Index of the ending node.
+       \param previous_node Array that gives the previous node index in the path to the starting node
          (optional parameter).
        \return Array of distances of each node to the starting node.
        \note image instance corresponds to the adjacency matrix of the graph.
@@ -40402,8 +40402,8 @@ namespace cimg_library_suffixed {
             for (const int *segment = segments[configuration]; *segment!=-1; ) {
               const unsigned int p0 = (unsigned int)*(segment++), p1 = (unsigned int)*(segment++);
               const tf
-                i0 = (tf)(_isoline3d_indice(p0,indices1,indices2,xi,nxi)),
-                i1 = (tf)(_isoline3d_indice(p1,indices1,indices2,xi,nxi));
+                i0 = (tf)(_isoline3d_index(p0,indices1,indices2,xi,nxi)),
+                i1 = (tf)(_isoline3d_index(p1,indices1,indices2,xi,nxi));
               CImg<tf>::vector(i0,i1).move_to(primitives);
             }
           }
@@ -40424,7 +40424,7 @@ namespace cimg_library_suffixed {
     }
 
     template<typename t>
-    static int _isoline3d_indice(const unsigned int edge, const CImg<t>& indices1, const CImg<t>& indices2,
+    static int _isoline3d_index(const unsigned int edge, const CImg<t>& indices1, const CImg<t>& indices2,
                                  const unsigned int x, const unsigned int nx) {
       switch (edge) {
       case 0 : return (int)indices1(x,0);
@@ -40855,9 +40855,9 @@ namespace cimg_library_suffixed {
                   p1 = (unsigned int)*(triangle++),
                   p2 = (unsigned int)*(triangle++);
                 const tf
-                  i0 = (tf)(_isosurface3d_indice(p0,indices1,indices2,xi,yi,nxi,nyi)),
-                  i1 = (tf)(_isosurface3d_indice(p1,indices1,indices2,xi,yi,nxi,nyi)),
-                  i2 = (tf)(_isosurface3d_indice(p2,indices1,indices2,xi,yi,nxi,nyi));
+                  i0 = (tf)(_isosurface3d_index(p0,indices1,indices2,xi,yi,nxi,nyi)),
+                  i1 = (tf)(_isosurface3d_index(p1,indices1,indices2,xi,yi,nxi,nyi)),
+                  i2 = (tf)(_isosurface3d_index(p2,indices1,indices2,xi,yi,nxi,nyi));
                 CImg<tf>::vector(i0,i2,i1).move_to(primitives);
               }
             }
@@ -40880,7 +40880,7 @@ namespace cimg_library_suffixed {
     }
 
     template<typename t>
-    static int _isosurface3d_indice(const unsigned int edge, const CImg<t>& indices1, const CImg<t>& indices2,
+    static int _isosurface3d_index(const unsigned int edge, const CImg<t>& indices1, const CImg<t>& indices2,
                                     const unsigned int x, const unsigned int y,
                                     const unsigned int nx, const unsigned int ny) {
       switch (edge) {
@@ -56563,7 +56563,7 @@ namespace cimg_library_suffixed {
 
     //! Return a reference to one image element of the list.
     /**
-       \param pos Indice of the image element.
+       \param pos Index of the image element.
     **/
     CImg<T>& operator()(const unsigned int pos) {
 #if cimg_verbosity>=3
@@ -56580,7 +56580,7 @@ namespace cimg_library_suffixed {
 
     //! Return a reference to one image of the list.
     /**
-       \param pos Indice of the image element.
+       \param pos Index of the image element.
     **/
     const CImg<T>& operator()(const unsigned int pos) const {
       return const_cast<CImgList<T>*>(this)->operator()(pos);
@@ -56588,7 +56588,7 @@ namespace cimg_library_suffixed {
 
     //! Return a reference to one pixel value of one image of the list.
     /**
-       \param pos Indice of the image element.
+       \param pos Index of the image element.
        \param x X-coordinate of the pixel value.
        \param y Y-coordinate of the pixel value.
        \param z Z-coordinate of the pixel value.
@@ -56771,7 +56771,7 @@ namespace cimg_library_suffixed {
 
     //! Return pointer to the pos-th image of the list.
     /**
-       \param pos Indice of the image element to access.
+       \param pos Index of the image element to access.
        \note <tt>list.data(n);</tt> is equivalent to <tt>list.data + n;</tt>.
     **/
 #if cimg_verbosity>=3
@@ -56848,7 +56848,7 @@ namespace cimg_library_suffixed {
 
     //! Return pos-th image of the list.
     /**
-       \param pos Indice of the image element to access.
+       \param pos Index of the image element to access.
     **/
     CImg<T>& at(const int pos) {
       if (is_empty())
@@ -56861,7 +56861,7 @@ namespace cimg_library_suffixed {
 
     //! Access to pixel value with Dirichlet boundary conditions.
     /**
-       \param pos Indice of the image element to access.
+       \param pos Index of the image element to access.
        \param x X-coordinate of the pixel value.
        \param y Y-coordinate of the pixel value.
        \param z Z-coordinate of the pixel value.
@@ -56880,7 +56880,7 @@ namespace cimg_library_suffixed {
 
     //! Access to pixel value with Neumann boundary conditions.
     /**
-       \param pos Indice of the image element to access.
+       \param pos Index of the image element to access.
        \param x X-coordinate of the pixel value.
        \param y Y-coordinate of the pixel value.
        \param z Z-coordinate of the pixel value.
@@ -56916,7 +56916,7 @@ namespace cimg_library_suffixed {
 
     //! Access pixel value with Dirichlet boundary conditions for the 3 coordinates (\c pos, \c x,\c y,\c z).
     /**
-       \param pos Indice of the image element to access.
+       \param pos Index of the image element to access.
        \param x X-coordinate of the pixel value.
        \param y Y-coordinate of the pixel value.
        \param z Z-coordinate of the pixel value.
@@ -56935,7 +56935,7 @@ namespace cimg_library_suffixed {
 
     //! Access to pixel value with Neumann boundary conditions for the 4 coordinates (\c pos, \c x,\c y,\c z).
     /**
-       \param pos Indice of the image element to access.
+       \param pos Index of the image element to access.
        \param x X-coordinate of the pixel value.
        \param y Y-coordinate of the pixel value.
        \param z Z-coordinate of the pixel value.
@@ -56971,7 +56971,7 @@ namespace cimg_library_suffixed {
 
     //! Access to pixel value with Dirichlet boundary conditions for the 3 coordinates (\c pos, \c x,\c y).
     /**
-       \param pos Indice of the image element to access.
+       \param pos Index of the image element to access.
        \param x X-coordinate of the pixel value.
        \param y Y-coordinate of the pixel value.
        \param z Z-coordinate of the pixel value.
@@ -56990,7 +56990,7 @@ namespace cimg_library_suffixed {
 
     //! Access to pixel value with Neumann boundary conditions for the 3 coordinates (\c pos, \c x,\c y).
     /**
-       \param pos Indice of the image element to access.
+       \param pos Index of the image element to access.
        \param x X-coordinate of the pixel value.
        \param y Y-coordinate of the pixel value.
        \param z Z-coordinate of the pixel value.
@@ -57026,7 +57026,7 @@ namespace cimg_library_suffixed {
 
     //! Access to pixel value with Dirichlet boundary conditions for the 2 coordinates (\c pos,\c x).
     /**
-       \param pos Indice of the image element to access.
+       \param pos Index of the image element to access.
        \param x X-coordinate of the pixel value.
        \param y Y-coordinate of the pixel value.
        \param z Z-coordinate of the pixel value.
@@ -57045,7 +57045,7 @@ namespace cimg_library_suffixed {
 
     //! Access to pixel value with Neumann boundary conditions for the 2 coordinates (\c pos, \c x).
     /**
-       \param pos Indice of the image element to access.
+       \param pos Index of the image element to access.
        \param x X-coordinate of the pixel value.
        \param y Y-coordinate of the pixel value.
        \param z Z-coordinate of the pixel value.
@@ -57081,7 +57081,7 @@ namespace cimg_library_suffixed {
 
     //! Access to pixel value with Dirichlet boundary conditions for the coordinate (\c pos).
     /**
-       \param pos Indice of the image element to access.
+       \param pos Index of the image element to access.
        \param x X-coordinate of the pixel value.
        \param y Y-coordinate of the pixel value.
        \param z Z-coordinate of the pixel value.
@@ -57100,7 +57100,7 @@ namespace cimg_library_suffixed {
 
     //! Return pixel value with Neumann boundary conditions for the coordinate (\c pos).
     /**
-       \param pos Indice of the image element to access.
+       \param pos Index of the image element to access.
        \param x X-coordinate of the pixel value.
        \param y Y-coordinate of the pixel value.
        \param z Z-coordinate of the pixel value.
@@ -57276,7 +57276,7 @@ namespace cimg_library_suffixed {
         z>=0 && z<_data[n].depth() && c>=0 && c<_data[n].spectrum();
     }
 
-    //! Test if list contains image with specified indice.
+    //! Test if list contains image with specified index.
     /**
        \param n Index of the checked image.
     **/
@@ -58208,7 +58208,7 @@ namespace cimg_library_suffixed {
       CImg<ucharT> visu0, visu;
       CImg<uintT> indices;
       CImg<intT> positions(_width,4,1,1,-1);
-      int oindice0 = -1, oindice1 = -1, indice0 = -1, indice1 = -1;
+      int oindex0 = -1, oindex1 = -1, index0 = -1, index1 = -1;
       bool is_clicked = false, is_selected = false, text_down = false, update_display = true;
       unsigned int key = 0;
 
@@ -58262,10 +58262,10 @@ namespace cimg_library_suffixed {
           update_display = true;
         }
 
-        if (!visu || oindice0!=indice0 || oindice1!=indice1) {
-          if (indice0>=0 && indice1>=0) {
+        if (!visu || oindex0!=index0 || oindex1!=index1) {
+          if (index0>=0 && index1>=0) {
             visu.assign(visu0,false);
-            const int indm = std::min(indice0,indice1), indM = std::max(indice0,indice1);
+            const int indm = std::min(index0,index1), indM = std::max(index0,index1);
             for (int ind = indm; ind<=indM; ++ind) if (positions(ind,0)>=0) {
                 visu.draw_rectangle(positions(ind,0),positions(ind,1),positions(ind,2),positions(ind,3),
                                     background_color,0.2f);
@@ -58277,11 +58277,11 @@ namespace cimg_library_suffixed {
             if (is_clicked) visu.__draw_text(" Images #%u - #%u, Size = %u",text_down,
                                              orig + indm,orig + indM,indM - indm + 1);
             else visu.__draw_text(" Image #%u (%u,%u,%u,%u)",text_down,
-                                  orig + indice0,
-                                  _data[indice0]._width,
-                                  _data[indice0]._height,
-                                  _data[indice0]._depth,
-                                  _data[indice0]._spectrum);
+                                  orig + index0,
+                                  _data[index0]._width,
+                                  _data[index0]._height,
+                                  _data[index0]._depth,
+                                  _data[index0]._spectrum);
             update_display = true;
           } else visu.assign();
         }
@@ -58291,27 +58291,27 @@ namespace cimg_library_suffixed {
 
         // Manage user events.
         const int xm = disp.mouse_x(), ym = disp.mouse_y();
-        int indice = -1;
+        int index = -1;
 
         if (xm>=0) {
-          indice = (int)indices(axis=='x'?xm:ym);
+          index = (int)indices(axis=='x'?xm:ym);
           if (disp.button()&1) {
-            if (!is_clicked) { is_clicked = true; oindice0 = indice0; indice0 = indice; }
-            oindice1 = indice1; indice1 = indice;
+            if (!is_clicked) { is_clicked = true; oindex0 = index0; index0 = index; }
+            oindex1 = index1; index1 = index;
             if (!feature_type) is_selected = true;
           } else {
-            if (!is_clicked) { oindice0 = oindice1 = indice0; indice0 = indice1 = indice; }
+            if (!is_clicked) { oindex0 = oindex1 = index0; index0 = index1 = index; }
             else is_selected = true;
           }
         } else {
           if (is_clicked) {
-            if (!(disp.button()&1)) { is_clicked = is_selected = false; indice0 = indice1 = -1; }
-            else indice1 = -1;
-          } else indice0 = indice1 = -1;
+            if (!(disp.button()&1)) { is_clicked = is_selected = false; index0 = index1 = -1; }
+            else index1 = -1;
+          } else index0 = index1 = -1;
         }
 
-        if (disp.button()&4) { is_clicked = is_selected = false; indice0 = indice1 = -1; }
-        if (disp.button()&2 && exit_on_rightbutton) { is_selected = true; indice1 = indice0 = -1; }
+        if (disp.button()&4) { is_clicked = is_selected = false; index0 = index1 = -1; }
+        if (disp.button()&2 && exit_on_rightbutton) { is_selected = true; index1 = index0 = -1; }
         if (disp.wheel() && exit_on_wheel) is_selected = true;
 
         CImg<charT> filename(32);
@@ -58384,8 +58384,8 @@ namespace cimg_library_suffixed {
       }
       CImg<intT> res(1,2,1,1,-1);
       if (is_selected) {
-        if (feature_type) res.fill(std::min(indice0,indice1),std::max(indice0,indice1));
-        else res.fill(indice0);
+        if (feature_type) res.fill(std::min(index0,index1),std::max(index0,index1));
+        else res.fill(index0);
       }
       if (!(disp.button()&2)) disp.set_button();
       disp._normalization = old_normalization;
@@ -61936,7 +61936,7 @@ namespace cimg {
      \param button6_label Label of the 6th button (\c 0 to hide button).
      \param logo Image logo displayed at the left of the main message.
      \param is_centered Tells if the dialog window must be centered on the screen.
-     \return Indice of clicked button (from \c 0 to \c 5), or \c -1 if the dialog window has been closed by the user.
+     \return Index of clicked button (from \c 0 to \c 5), or \c -1 if the dialog window has been closed by the user.
      \note
      - Up to 6 buttons can be defined in the dialog window.
      - The function returns when a user clicked one of the button or closed the dialog window.

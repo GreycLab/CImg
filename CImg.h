@@ -48279,9 +48279,9 @@ namespace cimg_library_suffixed {
       static const unsigned char foreground_color[] = { 255,255,255 }, background_color[] = { 0,0,0 };
 
       int area = 0, area_started = 0, area_clicked = 0, phase = 0,
-        X0 = (int)((XYZ?XYZ[0]:(_width - 1)/2)%_width),
-        Y0 = (int)((XYZ?XYZ[1]:(_height - 1)/2)%_height),
-        Z0 = (int)((XYZ?XYZ[2]:(_depth - 1)/2)%_depth),
+        X0 = (int)((XYZ?XYZ[0]:_width/2)%_width),
+        Y0 = (int)((XYZ?XYZ[1]:_height/2)%_height),
+        Z0 = (int)((XYZ?XYZ[2]:_depth/2)%_depth),
         X1 =-1, Y1 = -1, Z1 = -1,
         X3d = -1, Y3d = -1,
         oX3d = X3d, oY3d = -1,
@@ -52519,9 +52519,9 @@ namespace cimg_library_suffixed {
         if (reset_view) {
           if (XYZ) { _XYZ[0] = XYZ[0]; _XYZ[1] = XYZ[1]; _XYZ[2] = XYZ[2]; }
           else {
-            _XYZ[0] = (unsigned int)(x0 + x1)/2;
-            _XYZ[1] = (unsigned int)(y0 + y1)/2;
-            _XYZ[2] = (unsigned int)(z0 + z1)/2;
+            _XYZ[0] = (unsigned int)(x0 + x1 + 1)/2;
+            _XYZ[1] = (unsigned int)(y0 + y1 + 1)/2;
+            _XYZ[2] = (unsigned int)(z0 + z1 + 1)/2;
           }
           x0 = 0; y0 = 0; z0 = 0; x1 = width() - 1; y1 = height() - 1; z1 = depth() - 1;
           disp.resize(cimg_fitscreen(_width,_height,_depth),false);
@@ -58229,7 +58229,7 @@ namespace cimg_library_suffixed {
               while (x1<visu0._width && indices[x1++]==(unsigned int)ind) {}
               const CImg<T> &src = _data[ind]?_data[ind]:onexone;
               CImg<ucharT> res;
-              src._get_select(disp,old_normalization,(src._width - 1)/2,(src._height - 1)/2,(src._depth - 1)/2).
+              src._get_select(disp,old_normalization,src._width/2,src._height/2,src._depth/2).
                 move_to(res);
               const unsigned int h = CImgDisplay::_fitscreen(res._width,res._height,1,128,-85,true);
               res.resize(x1 - x0,std::max(32U,h*disp._height/max_height),1,res._spectrum==1?3:-100);

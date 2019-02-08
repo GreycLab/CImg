@@ -16039,7 +16039,7 @@ namespace cimg_library_suffixed {
       CImgList<ulongT> _code, &code, code_begin, code_end;
       CImg<ulongT> opcode;
       const CImg<ulongT> *p_code_end, *p_code;
-      const CImg<ulongT> *p_break;
+      const CImg<ulongT> *const p_break;
 
       CImg<charT> expr, pexpr;
       const CImg<T>& imgin;
@@ -16102,14 +16102,13 @@ namespace cimg_library_suffixed {
                         const CImg<T>& img_input=CImg<T>::const_empty(), CImg<T> *const img_output=0,
                         const CImgList<T> *const list_inputs=0, CImgList<T> *const list_outputs=0,
                         const bool _is_fill=false):
-        code(_code),p_break(0),
+        code(_code),p_break((CImg<ulongT>*)~(cimg_ulong)-2),
         imgin(img_input),listin(list_inputs?*list_inputs:CImgList<T>::const_empty()),
         imgout(img_output?*img_output:CImg<T>::empty()),listout(list_outputs?*list_outputs:CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),user_macro(0),
         mem_img_median(~0U),debug_indent(0),result_dim(0),break_type(0),constcache_size(0),
         is_parallelizable(true),is_fill(_is_fill),need_input_copy(false),
         rng((cimg::_rand(),cimg::rng())),calling_function(funcname?funcname:"cimg_math_parser") {
-        p_break-=2;
 #ifdef cimg_use_openmp
         rng+=omp_get_thread_num();
 #endif
@@ -16216,13 +16215,12 @@ namespace cimg_library_suffixed {
       }
 
       _cimg_math_parser():
-        code(_code),p_code_end(0),p_break(0),
+        code(_code),p_code_end(0),p_break((CImg<ulongT>*)~(cimg_ulong)-2),
         imgin(CImg<T>::const_empty()),listin(CImgList<T>::const_empty()),
         imgout(CImg<T>::empty()),listout(CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),debug_indent(0),
         result_dim(0),break_type(0),constcache_size(0),is_parallelizable(true),is_fill(false),need_input_copy(false),
         rng(0),calling_function(0) {
-        p_break-=2;
         mem.assign(1 + _cimg_mp_slot_c,1,1,1,0); // Allow to skip 'is_empty?' test in operator()()
         result = mem._data;
       }

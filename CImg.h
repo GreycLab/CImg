@@ -17956,7 +17956,8 @@ namespace cimg_library_suffixed {
           s0 = s1 = std::strchr(ss,'['); if (s0) { do { --s1; } while (cimg::is_blank(*s1)); cimg::swap(*s0,*++s1); }
 
           if ((*ss=='I' || *ss=='J') && *ss1=='[' &&
-              (reserved_label[(int)*ss]==~0U || !_cimg_mp_is_vector(reserved_label[(int)*ss]))) { // Image value as a vector
+              (reserved_label[(int)*ss]==~0U ||
+               !_cimg_mp_is_vector(reserved_label[(int)*ss]))) { // Image value as a vector
             if (*ss2=='#') { // Index specified
               s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
               p1 = compile(ss3,s0++,depth1,0,is_single);
@@ -17999,7 +18000,8 @@ namespace cimg_library_suffixed {
           }
 
           if ((*ss=='i' || *ss=='j') && *ss1=='[' &&
-              (reserved_label[(int)*ss]==~0U || !_cimg_mp_is_vector(reserved_label[(int)*ss]))) { // Image value as a scalar
+              (reserved_label[(int)*ss]==~0U ||
+               !_cimg_mp_is_vector(reserved_label[(int)*ss]))) { // Image value as a scalar
             if (*ss2=='#') { // Index specified
               s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
               p1 = compile(ss3,s0++,depth1,0,is_single);

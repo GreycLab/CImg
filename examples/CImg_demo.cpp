@@ -600,7 +600,7 @@ void* item_virtual_landscape() {
 void* item_plasma() {
   CImg<float> plasma, camp(3), cfreq(3), namp(3), nfreq(3);
   CImgList<unsigned char> font = CImgList<unsigned char>::font(53);
-  CImg<unsigned char> visu(400,300,1,3,0), letter, scroll(visu.width() + 2*font['W'].width(),font['W'].height(),1,1,0);
+  CImg<unsigned char> visu(400,300,1,3,0), letter, scroll(visu.width() + 2*font[(int)'W'].width(),font[(int)'W'].height(),1,1,0);
   const char *text = "   * The CImg Library : C++ Template Image Processing Toolkit *";
   CImgDisplay disp(visu,"[#13] - Plasma Effect");
   const unsigned char white[] = { 255, 255, 255 };

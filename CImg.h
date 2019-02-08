@@ -16039,7 +16039,7 @@ namespace cimg_library_suffixed {
       CImgList<ulongT> _code, &code, code_begin, code_end;
       CImg<ulongT> opcode;
       const CImg<ulongT> *p_code_end, *p_code;
-      const CImg<ulongT> *const p_break;
+      const CImg<ulongT> *p_break;
 
       CImg<charT> expr, pexpr;
       const CImg<T>& imgin;
@@ -16102,13 +16102,14 @@ namespace cimg_library_suffixed {
                         const CImg<T>& img_input=CImg<T>::const_empty(), CImg<T> *const img_output=0,
                         const CImgList<T> *const list_inputs=0, CImgList<T> *const list_outputs=0,
                         const bool _is_fill=false):
-        code(_code),p_break((CImg<ulongT>*)0 - 2),
+        code(_code),p_break(0),
         imgin(img_input),listin(list_inputs?*list_inputs:CImgList<T>::const_empty()),
         imgout(img_output?*img_output:CImg<T>::empty()),listout(list_outputs?*list_outputs:CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),user_macro(0),
         mem_img_median(~0U),debug_indent(0),result_dim(0),break_type(0),constcache_size(0),
         is_parallelizable(true),is_fill(_is_fill),need_input_copy(false),
         rng((cimg::_rand(),cimg::rng())),calling_function(funcname?funcname:"cimg_math_parser") {
+        p_break-=2;
 #ifdef cimg_use_openmp
         rng+=omp_get_thread_num();
 #endif
@@ -16215,12 +16216,13 @@ namespace cimg_library_suffixed {
       }
 
       _cimg_math_parser():
-        code(_code),p_code_end(0),p_break((CImg<ulongT>*)0 - 2),
+        code(_code),p_code_end(0),p_break(0),
         imgin(CImg<T>::const_empty()),listin(CImgList<T>::const_empty()),
         imgout(CImg<T>::empty()),listout(CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),debug_indent(0),
         result_dim(0),break_type(0),constcache_size(0),is_parallelizable(true),is_fill(false),need_input_copy(false),
         rng(0),calling_function(0) {
+        p_break-=2;
         mem.assign(1 + _cimg_mp_slot_c,1,1,1,0); // Allow to skip 'is_empty?' test in operator()()
         result = mem._data;
       }
@@ -16384,49 +16386,49 @@ namespace cimg_library_suffixed {
         if (nb==2 && sep=='%') _cimg_mp_constant(val/100);
 
         if (ss1==se) switch (*ss) { // One-char reserved variable
-          case 'c' : _cimg_mp_return(reserved_label['c']!=~0U?reserved_label['c']:_cimg_mp_slot_c);
-          case 'd' : _cimg_mp_return(reserved_label['d']!=~0U?reserved_label['d']:20);
-          case 'e' : _cimg_mp_return(reserved_label['e']!=~0U?reserved_label['e']:27);
-          case 'h' : _cimg_mp_return(reserved_label['h']!=~0U?reserved_label['h']:19);
-          case 'l' : _cimg_mp_return(reserved_label['l']!=~0U?reserved_label['l']:26);
-          case 'r' : _cimg_mp_return(reserved_label['r']!=~0U?reserved_label['r']:22);
-          case 's' : _cimg_mp_return(reserved_label['s']!=~0U?reserved_label['s']:21);
-          case 't' : _cimg_mp_return(reserved_label['t']!=~0U?reserved_label['t']:17);
-          case 'w' : _cimg_mp_return(reserved_label['w']!=~0U?reserved_label['w']:18);
-          case 'x' : _cimg_mp_return(reserved_label['x']!=~0U?reserved_label['x']:_cimg_mp_slot_x);
-          case 'y' : _cimg_mp_return(reserved_label['y']!=~0U?reserved_label['y']:_cimg_mp_slot_y);
-          case 'z' : _cimg_mp_return(reserved_label['z']!=~0U?reserved_label['z']:_cimg_mp_slot_z);
+          case 'c' : _cimg_mp_return(reserved_label[(int)'c']!=~0U?reserved_label[(int)'c']:_cimg_mp_slot_c);
+          case 'd' : _cimg_mp_return(reserved_label[(int)'d']!=~0U?reserved_label[(int)'d']:20);
+          case 'e' : _cimg_mp_return(reserved_label[(int)'e']!=~0U?reserved_label[(int)'e']:27);
+          case 'h' : _cimg_mp_return(reserved_label[(int)'h']!=~0U?reserved_label[(int)'h']:19);
+          case 'l' : _cimg_mp_return(reserved_label[(int)'l']!=~0U?reserved_label[(int)'l']:26);
+          case 'r' : _cimg_mp_return(reserved_label[(int)'r']!=~0U?reserved_label[(int)'r']:22);
+          case 's' : _cimg_mp_return(reserved_label[(int)'s']!=~0U?reserved_label[(int)'s']:21);
+          case 't' : _cimg_mp_return(reserved_label[(int)'t']!=~0U?reserved_label[(int)'t']:17);
+          case 'w' : _cimg_mp_return(reserved_label[(int)'w']!=~0U?reserved_label[(int)'w']:18);
+          case 'x' : _cimg_mp_return(reserved_label[(int)'x']!=~0U?reserved_label[(int)'x']:_cimg_mp_slot_x);
+          case 'y' : _cimg_mp_return(reserved_label[(int)'y']!=~0U?reserved_label[(int)'y']:_cimg_mp_slot_y);
+          case 'z' : _cimg_mp_return(reserved_label[(int)'z']!=~0U?reserved_label[(int)'z']:_cimg_mp_slot_z);
           case 'u' :
-            if (reserved_label['u']!=~0U) _cimg_mp_return(reserved_label['u']);
+            if (reserved_label[(int)'u']!=~0U) _cimg_mp_return(reserved_label[(int)'u']);
             _cimg_mp_scalar2(mp_u,0,1);
           case 'g' :
-            if (reserved_label['g']!=~0U) _cimg_mp_return(reserved_label['g']);
+            if (reserved_label[(int)'g']!=~0U) _cimg_mp_return(reserved_label[(int)'g']);
             _cimg_mp_scalar0(mp_g);
           case 'i' :
-            if (reserved_label['i']!=~0U) _cimg_mp_return(reserved_label['i']);
+            if (reserved_label[(int)'i']!=~0U) _cimg_mp_return(reserved_label[(int)'i']);
             _cimg_mp_scalar0(mp_i);
           case 'I' :
             _cimg_mp_op("Variable 'I'");
-            if (reserved_label['I']!=~0U) _cimg_mp_return(reserved_label['I']);
+            if (reserved_label[(int)'I']!=~0U) _cimg_mp_return(reserved_label[(int)'I']);
             if (!imgin._spectrum) _cimg_mp_return(0);
             need_input_copy = true;
             pos = vector(imgin._spectrum);
             CImg<ulongT>::vector((ulongT)mp_Joff,pos,0,0,imgin._spectrum).move_to(code);
             _cimg_mp_return(pos);
           case 'R' :
-            if (reserved_label['R']!=~0U) _cimg_mp_return(reserved_label['R']);
+            if (reserved_label[(int)'R']!=~0U) _cimg_mp_return(reserved_label[(int)'R']);
             need_input_copy = true;
             _cimg_mp_scalar6(mp_ixyzc,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,0,0,0);
           case 'G' :
-            if (reserved_label['G']!=~0U) _cimg_mp_return(reserved_label['G']);
+            if (reserved_label[(int)'G']!=~0U) _cimg_mp_return(reserved_label[(int)'G']);
             need_input_copy = true;
             _cimg_mp_scalar6(mp_ixyzc,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,1,0,0);
           case 'B' :
-            if (reserved_label['B']!=~0U) _cimg_mp_return(reserved_label['B']);
+            if (reserved_label[(int)'B']!=~0U) _cimg_mp_return(reserved_label[(int)'B']);
             need_input_copy = true;
             _cimg_mp_scalar6(mp_ixyzc,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,2,0,0);
           case 'A' :
-            if (reserved_label['A']!=~0U) _cimg_mp_return(reserved_label['A']);
+            if (reserved_label[(int)'A']!=~0U) _cimg_mp_return(reserved_label[(int)'A']);
             need_input_copy = true;
             _cimg_mp_scalar6(mp_ixyzc,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,3,0,0);
           }
@@ -16518,7 +16520,7 @@ namespace cimg_library_suffixed {
 
             // Assign image value (direct).
             if (l_variable_name>2 && (*ss=='i' || *ss=='j' || *ss=='I' || *ss=='J') && (*ss1=='(' || *ss1=='[') &&
-                (reserved_label[*ss]==~0U || *ss1=='(' || !_cimg_mp_is_vector(reserved_label[*ss]))) {
+                (reserved_label[(int)*ss]==~0U || *ss1=='(' || !_cimg_mp_is_vector(reserved_label[(int)*ss]))) {
               is_relative = *ss=='j' || *ss=='J';
 
               if (*ss1=='[' && *ve1==']') { // i/j/I/J[_#ind,offset] = value
@@ -16690,7 +16692,7 @@ namespace cimg_library_suffixed {
                   cimglist_for(variable_def,i) if (!std::strcmp(variable_name,variable_def[i])) {
                     arg1 = variable_pos[i]; break;
                   }
-                } else arg1 = reserved_label[*variable_name]; // Single-char variable
+                } else arg1 = reserved_label[(int)*variable_name]; // Single-char variable
                 if (arg1==~0U) compile(ss,s0 - 1,depth1,0,is_single); // Variable does not exist -> error
                 else { // Variable already exists
                   if (_cimg_mp_is_scalar(arg1)) compile(ss,s,depth1,0,is_single); // Variable is not a vector -> error
@@ -17954,7 +17956,7 @@ namespace cimg_library_suffixed {
           s0 = s1 = std::strchr(ss,'['); if (s0) { do { --s1; } while (cimg::is_blank(*s1)); cimg::swap(*s0,*++s1); }
 
           if ((*ss=='I' || *ss=='J') && *ss1=='[' &&
-              (reserved_label[*ss]==~0U || !_cimg_mp_is_vector(reserved_label[*ss]))) { // Image value as a vector
+              (reserved_label[(int)*ss]==~0U || !_cimg_mp_is_vector(reserved_label[(int)*ss]))) { // Image value as a vector
             if (*ss2=='#') { // Index specified
               s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
               p1 = compile(ss3,s0++,depth1,0,is_single);
@@ -17997,7 +17999,7 @@ namespace cimg_library_suffixed {
           }
 
           if ((*ss=='i' || *ss=='j') && *ss1=='[' &&
-              (reserved_label[*ss]==~0U || !_cimg_mp_is_vector(reserved_label[*ss]))) { // Image value as a scalar
+              (reserved_label[(int)*ss]==~0U || !_cimg_mp_is_vector(reserved_label[(int)*ss]))) { // Image value as a scalar
             if (*ss2=='#') { // Index specified
               s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
               p1 = compile(ss3,s0++,depth1,0,is_single);
@@ -20623,8 +20625,8 @@ namespace cimg_library_suffixed {
         if (variable_name[1]) { // Multi-char variable
           cimglist_for(variable_def,i) if (!std::strcmp(variable_name,variable_def[i]))
             _cimg_mp_return(variable_pos[i]);
-        } else if (reserved_label[*variable_name]!=~0U) // Single-char variable
-          _cimg_mp_return(reserved_label[*variable_name]);
+        } else if (reserved_label[(int)*variable_name]!=~0U) // Single-char variable
+          _cimg_mp_return(reserved_label[(int)*variable_name]);
 
         // Reached an unknown item -> error.
         is_sth = true; // is_valid_variable_name
@@ -45787,7 +45789,7 @@ namespace cimg_library_suffixed {
           c = (unsigned char)text[i];
           switch (c) {
           case '\n' : y+=font[0]._height; if (x>w) w = x; x = 0; break;
-          case '\t' : x+=4*font[' ']._width; break;
+          case '\t' : x+=4*font[(int)' ']._width; break;
           default : if (c<font._width) x+=font[c]._width;
           }
         }
@@ -45803,7 +45805,7 @@ namespace cimg_library_suffixed {
         const unsigned char c = (unsigned char)text[i];
         switch (c) {
         case '\n' : y+=font[0]._height; x = x0; break;
-        case '\t' : x+=4*font[' ']._width; break;
+        case '\t' : x+=4*font[(int)' ']._width; break;
         default : if (c<font._width) {
             CImg<T> letter = font[c];
             if (letter) {
@@ -45828,7 +45830,7 @@ namespace cimg_library_suffixed {
     }
 
     // [internal] Version used to display text in interactive viewers.
-    CImg<T>& __draw_text(const char *const text, const bool is_down, ...) {
+    CImg<T>& __draw_text(const char *const text, const int is_down, ...) {
       CImg<charT> tmp(2048);
       std::va_list ap; va_start(ap,is_down);
       cimg_vsnprintf(tmp,tmp._width,text,ap); va_end(ap);
@@ -48363,9 +48365,9 @@ namespace cimg_library_suffixed {
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
             if (visu0) {
-              (+visu0).__draw_text(" Saving snapshot...",text_down).display(disp);
+              (+visu0).__draw_text(" Saving snapshot...",(int)text_down).display(disp);
               visu0.save(filename);
-              (+visu0).__draw_text(" Snapshot '%s' saved. ",text_down,filename._data).display(disp);
+              (+visu0).__draw_text(" Snapshot '%s' saved. ",(int)text_down,filename._data).display(disp);
             }
             disp.set_key(key,false); key = 0;
           } break;
@@ -48380,9 +48382,9 @@ namespace cimg_library_suffixed {
 #endif
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
-            (+visu0).__draw_text(" Saving instance... ",text_down).display(disp);
+            (+visu0).__draw_text(" Saving instance... ",(int)text_down).display(disp);
             save(filename);
-            (+visu0).__draw_text(" Instance '%s' saved. ",text_down,filename._data).display(disp);
+            (+visu0).__draw_text(" Instance '%s' saved. ",(int)text_down,filename._data).display(disp);
             disp.set_key(key,false); key = 0;
           } break;
         }
@@ -48821,7 +48823,7 @@ namespace cimg_library_suffixed {
                                    origX + X0,origY + Y0,origX + X1,origY + Y1,
                                    1 + cimg::abs(X0 - X1),1 + cimg::abs(Y0 - Y1));
               }
-            if (phase || (mx>=0 && my>=0)) visu.__draw_text("%s",text_down,text._data);
+            if (phase || (mx>=0 && my>=0)) visu.__draw_text("%s",(int)text_down,text._data);
           }
 
           disp.display(visu);
@@ -49126,9 +49128,9 @@ namespace cimg_library_suffixed {
                 cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.bmp",snap_number++);
                 if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
               } while (file);
-              (+screen).__draw_text(" Saving snapshot... ",false).display(disp);
+              (+screen).__draw_text(" Saving snapshot... ",0).display(disp);
               screen.save(filename);
-              (+screen).__draw_text(" Snapshot '%s' saved. ",false,filename._data).display(disp);
+              (+screen).__draw_text(" Snapshot '%s' saved. ",0,filename._data).display(disp);
             }
             disp.set_key(key,false); okey = 0;
           } break;
@@ -49145,9 +49147,9 @@ namespace cimg_library_suffixed {
 #endif
                 if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
               } while (file);
-              (+screen).__draw_text(" Saving instance... ",false).display(disp);
+              (+screen).__draw_text(" Saving instance... ",0).display(disp);
               save(filename);
-              (+screen).__draw_text(" Instance '%s' saved. ",false,filename._data).display(disp);
+              (+screen).__draw_text(" Instance '%s' saved. ",0,filename._data).display(disp);
             }
             disp.set_key(key,false); okey = 0;
           } break;
@@ -53232,9 +53234,9 @@ namespace cimg_library_suffixed {
               cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.bmp",snap_number++);
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
-            (+visu).__draw_text(" Saving snapshot... ",false).display(disp);
+            (+visu).__draw_text(" Saving snapshot... ",0).display(disp);
             visu.save(filename);
-            (+visu).__draw_text(" Snapshot '%s' saved. ",false,filename._data).display(disp);
+            (+visu).__draw_text(" Snapshot '%s' saved. ",0,filename._data).display(disp);
             disp.set_key(key,false); key = 0;
           } break;
         case cimg::keyG : if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) { // Save object as a .off file
@@ -53244,9 +53246,9 @@ namespace cimg_library_suffixed {
               cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.off",snap_number++);
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
-            (+visu).__draw_text(" Saving object... ",false).display(disp);
+            (+visu).__draw_text(" Saving object... ",0).display(disp);
             vertices.save_off(reverse_primitives?reverse_primitives:primitives,colors,filename);
-            (+visu).__draw_text(" Object '%s' saved. ",false,filename._data).display(disp);
+            (+visu).__draw_text(" Object '%s' saved. ",0,filename._data).display(disp);
             disp.set_key(key,false); key = 0;
           } break;
         case cimg::keyO : if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) { // Save object as a .cimg file
@@ -53260,10 +53262,10 @@ namespace cimg_library_suffixed {
 #endif
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
-            (+visu).__draw_text(" Saving object... ",false).display(disp);
+            (+visu).__draw_text(" Saving object... ",0).display(disp);
             vertices.get_object3dtoCImg3d(reverse_primitives?reverse_primitives:primitives,colors,opacities).
               save(filename);
-            (+visu).__draw_text(" Object '%s' saved. ",false,filename._data).display(disp);
+            (+visu).__draw_text(" Object '%s' saved. ",0,filename._data).display(disp);
             disp.set_key(key,false); key = 0;
           } break;
 #ifdef cimg_use_board
@@ -53274,7 +53276,7 @@ namespace cimg_library_suffixed {
               cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.eps",snap_number++);
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
-            (+visu).__draw_text(" Saving EPS snapshot... ",false).display(disp);
+            (+visu).__draw_text(" Saving EPS snapshot... ",0).display(disp);
             LibBoard::Board board;
             (+visu)._draw_object3d(&board,zbuffer.fill(0),
                                    Xoff + visu._width/2.f,Yoff + visu._height/2.f,Zoff,
@@ -53285,7 +53287,7 @@ namespace cimg_library_suffixed {
                                    specular_lightness,specular_shininess,1,
                                    sprite_scale);
             board.saveEPS(filename);
-            (+visu).__draw_text(" Object '%s' saved. ",false,filename._data).display(disp);
+            (+visu).__draw_text(" Object '%s' saved. ",0,filename._data).display(disp);
             disp.set_key(key,false); key = 0;
           } break;
         case cimg::keyV : if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) { // Save object as a .SVG file
@@ -53295,7 +53297,7 @@ namespace cimg_library_suffixed {
               cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.svg",snap_number++);
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
-            (+visu).__draw_text(" Saving SVG snapshot... ",false,13).display(disp);
+            (+visu).__draw_text(" Saving SVG snapshot... ",0,13).display(disp);
             LibBoard::Board board;
             (+visu)._draw_object3d(&board,zbuffer.fill(0),
                                    Xoff + visu._width/2.f,Yoff + visu._height/2.f,Zoff,
@@ -53306,7 +53308,7 @@ namespace cimg_library_suffixed {
                                    specular_lightness,specular_shininess,1,
                                    sprite_scale);
             board.saveSVG(filename);
-            (+visu).__draw_text(" Object '%s' saved. ",false,filename._data).display(disp);
+            (+visu).__draw_text(" Object '%s' saved. ",0,filename._data).display(disp);
             disp.set_key(key,false); key = 0;
           } break;
 #endif
@@ -58274,9 +58276,9 @@ namespace cimg_library_suffixed {
                   visu.draw_rectangle(positions(ind,0),positions(ind,1),positions(ind,2),positions(ind,3),
                                       foreground_color,0.9f,0xAAAAAAAA);
               }
-            if (is_clicked) visu.__draw_text(" Images #%u - #%u, Size = %u",text_down,
+            if (is_clicked) visu.__draw_text(" Images #%u - #%u, Size = %u",(int)text_down,
                                              orig + indm,orig + indM,indM - indm + 1);
-            else visu.__draw_text(" Image #%u (%u,%u,%u,%u)",text_down,
+            else visu.__draw_text(" Image #%u (%u,%u,%u,%u)",(int)text_down,
                                   orig + index0,
                                   _data[index0]._width,
                                   _data[index0]._height,
@@ -58350,9 +58352,9 @@ namespace cimg_library_suffixed {
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
             if (visu0) {
-              (+visu0).__draw_text(" Saving snapshot... ",text_down).display(disp);
+              (+visu0).__draw_text(" Saving snapshot... ",(int)text_down).display(disp);
               visu0.save(filename);
-              (+visu0).__draw_text(" Snapshot '%s' saved. ",text_down,filename._data).display(disp);
+              (+visu0).__draw_text(" Snapshot '%s' saved. ",(int)text_down,filename._data).display(disp);
             }
             disp.set_key(key,false).wait(); key = 0;
           } break;
@@ -58368,9 +58370,9 @@ namespace cimg_library_suffixed {
 #endif
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
-            (+visu0).__draw_text(" Saving instance... ",text_down).display(disp);
+            (+visu0).__draw_text(" Saving instance... ",(int)text_down).display(disp);
             save(filename);
-            (+visu0).__draw_text(" Instance '%s' saved. ",text_down,filename._data).display(disp);
+            (+visu0).__draw_text(" Instance '%s' saved. ",(int)text_down,filename._data).display(disp);
             disp.set_key(key,false).wait(); key = 0;
           } break;
         }
@@ -60809,10 +60811,10 @@ namespace cimg_library_suffixed {
             cimg_forXY(letter,x,y) if (letter(x,y)) { if (x<xmin) xmin = x; if (x>xmax) xmax = x; }
             if (xmin<=xmax) letter.crop(xmin,0,xmax,letter._height - 1);
           }
-          font[' '].resize(font['f']._width,-100,-100,-100,0);
-          if (' ' + 256<font.size()) font[' ' + 256].resize(font['f']._width,-100,-100,-100,0);
+          font[(int)' '].resize(font[(int)'f']._width,-100,-100,-100,0);
+          if (' ' + 256<font.size()) font[' ' + 256].resize(font[(int)'f']._width,-100,-100,-100,0);
           cimglist_for(font,l)
-            font[l].resize(std::max(font[';']._width,font[l]._width) + padding_x,
+            font[l].resize(std::max(font[(int)';']._width,font[l]._width) + padding_x,
                            -100,1,1,0,0,0.55f);
         } else cimglist_for(font,l) font[l].resize(font[l]._width + padding_x,-100,1,1,0,0,0.55f);
         font.insert(256,0);

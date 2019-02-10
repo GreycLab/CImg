@@ -16378,8 +16378,7 @@ namespace cimg_library_suffixed {
           if (!cimg::strcasecmp(s,"inf")) { val = cimg::type<double>::inf(); nb = 1; }
           else if (!cimg::strcasecmp(s,"nan")) { val = cimg::type<double>::nan(); nb = 1; }
           if (nb==1 && is_sth) val = -val;
-        }
-        if (!nb && *s=='0' && (s[1]=='x' || s[1]=='X')) { // Hexadecimal number
+        } else if (*s=='0' && (s[1]=='x' || s[1]=='X')) { // Hexadecimal number
           is_sth = *ss=='-';
           if (cimg_sscanf(s + 2,"%x%c",&arg1,&sep)==1) {
             nb = 1;
@@ -23855,23 +23854,34 @@ namespace cimg_library_suffixed {
         if (!siz) return *ptrs>='0' && *ptrs<='9'?*ptrs - '0':val;
 
         CImg<charT> ss(siz + 1 - ind);
-        char sep;
-        ptrs+=1 + ind; cimg_forX(ss,i) ss[i] = (char)*(ptrs++); ss.back() = 0;
+        ptrs+=1 + ind;
+        cimg_forX(ss,i) ss[i] = ptrs[i];
+        ss.back() = 0;
 
-        int err = cimg_sscanf(ss,"%lf%c",&val,&sep);
+        const char *s = ss._data;
+        while (*s<=32) ++s;
+        const bool is_negative = *s=='-';
+        if (is_negative || *s=='+') ++s;
+        int err = 0;
+        char sep;
+
+        if (*s=='0' && (s[1]=='x' || s[1]=='X') && s[2]>32) { // Hexadecimal number
+          unsigned int ival;
+          err = cimg_sscanf(s + 2,"%x%c",&ival,&sep);
+          if (err>0) val = (double)ival;
+        } else if (*s>32) { // Decimal number
+          err = cimg_sscanf(s,"%lf%c",&val,&sep);
 #if cimg_OS==2
-        // Check for +/-NaN and +/-inf as Microsoft's sscanf() version is not able
-        // to read those particular values.
-        if (!err && (*ss=='+' || *ss=='-' || *ss=='i' || *ss=='I' || *ss=='n' || *ss=='N')) {
-          bool is_positive = true;
-          const char *s = ss;
-          if (*s=='+') ++s; else if (*s=='-') { ++s; is_positive = false; }
-          if (!cimg::strcasecmp(s,"inf")) { val = cimg::type<double>::inf(); err = 1; }
-          else if (!cimg::strcasecmp(s,"nan")) { val = cimg::type<double>::nan(); err = 1; }
-          if (err==1 && !is_positive) val = -val;
-        }
+          // Check for +/-NaN and +/-inf as Microsoft's sscanf() version is not able
+          // to read those particular values.
+          if (!err && (*s=='i' || *s=='I' || *s=='n' || *s=='N')) {
+            if (!cimg::strncasecmp(s,"inf",3)) { val = cimg::type<double>::inf(); err = 1 + (s[3]!=0); }
+            else if (!cimg::strncasecmp(s,"nan",3)) { val = cimg::type<double>::nan(); err = 1 + (s[3]!=0); }
+          }
 #endif
-        if (is_strict && err!=1) return cimg::type<double>::nan();
+        }
+        if (err<=0 || (is_strict && err!=1)) return cimg::type<double>::nan();
+        if (is_negative) val = -val;
         return val;
       }
 

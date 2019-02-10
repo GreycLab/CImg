@@ -23375,23 +23375,26 @@ namespace cimg_library_suffixed {
         unsigned int ind = (unsigned int)mp.opcode[3];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.listin.width());
         CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
-        bool is_invalid_arguments = i_end<=4;
+        bool is_invalid_arguments = i_end<=4, is_polyline = false;
         if (!is_invalid_arguments) {
-          const int nbv = (int)_mp_arg(4);
-          if (nbv<=0) is_invalid_arguments = true;
+          int nbv = (int)_mp_arg(4);
+          if (!nbv) is_invalid_arguments = true;
           else {
+            if (nbv<0) { nbv = -nbv; is_polyline = true; }
             CImg<intT> points(nbv,2,1,1,0);
             CImg<T> color(img._spectrum,1,1,1,0);
             float opacity = 1;
-            unsigned int i = 5;
+            unsigned int i = 5, pattern=~0U;
             cimg_foroff(points,k) if (i<i_end) points(k/2,k%2) = (int)cimg::round(_mp_arg(i++));
             else { is_invalid_arguments = true; break; }
             if (!is_invalid_arguments) {
               if (i<i_end) opacity = (float)_mp_arg(i++);
+              if (is_polyline && i<i_end) pattern = (unsigned int)_mp_arg(i++);
               cimg_forX(color,k) if (i<i_end) color[k] = (T)_mp_arg(i++);
               else { color.resize(k,1,1,1,-1); break; }
               color.resize(img._spectrum,1,1,1,0,2);
-              img.draw_polygon(points,color._data,opacity);
+              if (is_polyline) img.draw_polygon(points,color._data,opacity,pattern);
+              else img.draw_polygon(points,color._data,opacity);
             }
           }
         }

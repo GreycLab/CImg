@@ -6085,7 +6085,7 @@ namespace cimg_library_suffixed {
     //! Return the sign of a value.
     template<typename T>
     inline T sign(const T& x) {
-      return (T)(x<0?-1:x>0);
+      return (T)(cimg::type<T>::is_nan(x)?0:x<0?-1:x>0);
     }
 
     //! Return the nearest power of 2 higher than given value.

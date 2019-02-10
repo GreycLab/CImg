@@ -16374,10 +16374,18 @@ namespace cimg_library_suffixed {
         int nb = 0;
         s = ss + (*ss=='+' || *ss=='-'?1:0);
         if (*s=='i' || *s=='I' || *s=='n' || *s=='N') { // Particular cases : +/-NaN and +/-Inf
-          is_sth = !(*ss=='-');
+          is_sth = *ss=='-';
           if (!cimg::strcasecmp(s,"inf")) { val = cimg::type<double>::inf(); nb = 1; }
           else if (!cimg::strcasecmp(s,"nan")) { val = cimg::type<double>::nan(); nb = 1; }
-          if (nb==1 && !is_sth) val = -val;
+          if (nb==1 && is_sth) val = -val;
+        }
+        if (!nb && *s=='0' && (s[1]=='x' || s[1]=='X')) { // Hexadecimal number
+          is_sth = *ss=='-';
+          if (cimg_sscanf(s + 2,"%x%c",&arg1,&sep)==1) {
+            nb = 1;
+            val = (double)arg1;
+            if (is_sth) val = -val;
+          }
         }
         if (!nb) nb = cimg_sscanf(ss,"%lf%c%c",&val,&(sep=0),&(end=0));
         if (nb==1) _cimg_mp_constant(val);

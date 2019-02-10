@@ -47404,7 +47404,6 @@ namespace cimg_library_suffixed {
         const tc *const pcolor = color._data;
         float opacity = __draw_object3d(opacities,n_primitive,_opacity);
         if (_opacity.is_empty()) opacity*=g_opacity;
-        else if (!_opacity.is_shared()) _opacity*=g_opacity;
 
 #ifdef cimg_use_board
         LibBoard::Board &board = *(LibBoard::Board*)pboard;
@@ -47467,7 +47466,7 @@ namespace cimg_library_suffixed {
                 _nopacity = (sw!=_opacity._width || sh!=_opacity._height)?
                   _opacity.get_resize(sw,sh,1,-100,render_type<=3?1:3):CImg<_to>(),
                 &nopacity = _nopacity?_nopacity:_opacity;
-              draw_image(nx0,ny0,sprite,nopacity);
+              draw_image(nx0,ny0,sprite,nopacity,g_opacity);
 #ifdef cimg_use_board
               if (pboard) {
                 board.setPenColorRGBi(128,128,128);

@@ -45111,6 +45111,11 @@ namespace cimg_library_suffixed {
         throw CImgArgumentException(_cimg_instance
                                     "draw_polygon(): Specified color is (null).",
                                     cimg_instance);
+      if (points.height()!=2)
+        throw CImgArgumentException(_cimg_instance
+                                    "draw_polygon(): Invalid specified point set (%u,%u,%u,%u).",
+                                    cimg_instance,
+                                    points._width,points._height,points._depth,points._spectrum);
       if (points._width==1) return draw_point((int)points(0,0),(int)points(0,1),color,opacity);
       if (points._width==2) return draw_line((int)points(0,0),(int)points(0,1),
                                              (int)points(1,0),(int)points(1,1),color,opacity);
@@ -45176,17 +45181,25 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Draw a outlined 2D polygon \overloading.
+    //! Draw a outlined 2D or 3D polygon \overloading.
     template<typename t, typename tc>
     CImg<T>& draw_polygon(const CImg<t>& points,
                           const tc *const color, const float opacity, const unsigned int pattern) {
-      if (is_empty() || !points || points._width<3) return *this;
+      if (is_empty() || !points) return *this;
+      if (!color)
+        throw CImgArgumentException(_cimg_instance
+                                    "draw_polygon(): Specified color is (null).",
+                                    cimg_instance);
+      if (points._width==1) return draw_point((int)points(0,0),(int)points(0,1),color,opacity);
+      if (points._width==2) return draw_line((int)points(0,0),(int)points(0,1),
+                                             (int)points(1,0),(int)points(1,1),color,opacity,pattern);
       bool ninit_hatch = true;
       switch (points._height) {
       case 0 : case 1 :
         throw CImgArgumentException(_cimg_instance
-                                    "draw_polygon(): Invalid specified point set.",
-                                    cimg_instance);
+                                    "draw_polygon(): Invalid specified point set (%u,%u,%u,%u).",
+                                    cimg_instance,
+                                    points._width,points._height,points._depth,points._spectrum);
       case 2 : { // 2D version
         CImg<intT> npoints(points._width,2);
         int x = npoints(0,0) = (int)points(0,0), y = npoints(0,1) = (int)points(0,1);

@@ -21725,8 +21725,8 @@ namespace cimg_library_suffixed {
         CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
         CImg<T> color(img._spectrum,1,1,1,0);
         bool is_invalid_arguments = false, is_outlined = false;
-        unsigned int i = 4;
         float r1 = 0, r2 = 0, angle = 0, opacity = 1;
+        unsigned int i = 4, pattern = ~0U;
         int x0 = 0, y0 = 0;
         if (i>=i_end) is_invalid_arguments = true;
         else {
@@ -21744,7 +21744,11 @@ namespace cimg_library_suffixed {
                   angle = (float)_mp_arg(i++);
                   if (i<i_end) {
                     opacity = (float)_mp_arg(i++);
-                    if (r1<0 && r2<0) { is_outlined = true; r1 = -r1; r2 = -r2; }
+                    if (r1<0 && r2<0) {
+                      pattern = (unsigned int)_mp_arg(i++);
+                      is_outlined = true;
+                      r1 = -r1; r2 = -r2;
+                    }
                     if (i<i_end) {
                       cimg_forX(color,k) if (i<i_end) color[k] = (T)_mp_arg(i++);
                       else { color.resize(k,1,1,1,-1); break; }
@@ -21757,7 +21761,7 @@ namespace cimg_library_suffixed {
           }
         }
         if (!is_invalid_arguments) {
-          if (is_outlined) img.draw_ellipse(x0,y0,r1,r2,angle,color._data,opacity,~0U);
+          if (is_outlined) img.draw_ellipse(x0,y0,r1,r2,angle,color._data,opacity,pattern);
           else img.draw_ellipse(x0,y0,r1,r2,angle,color._data,opacity);
         } else {
           CImg<doubleT> args(i_end - 4);
@@ -45269,7 +45273,7 @@ namespace cimg_library_suffixed {
     template<typename tc>
     CImg<T>& draw_ellipse(const int x0, const int y0, const float r1, const float r2, const float angle,
                           const tc *const color, const float opacity=1) {
-      return _draw_ellipse(x0,y0,r1,r2,angle,color,opacity,0U);
+      return _draw_ellipse(x0,y0,r1,r2,angle,color,opacity,0U,true);
     }
 
     //! Draw a filled 2D ellipse \overloading.
@@ -45304,7 +45308,7 @@ namespace cimg_library_suffixed {
     template<typename tc>
     CImg<T>& draw_ellipse(const int x0, const int y0, const float r1, const float r2, const float angle,
                           const tc *const color, const float opacity, const unsigned int pattern) {
-      if (pattern) _draw_ellipse(x0,y0,r1,r2,angle,color,opacity,pattern);
+      if (pattern) _draw_ellipse(x0,y0,r1,r2,angle,color,opacity,pattern,false);
       return *this;
     }
 
@@ -45331,61 +45335,76 @@ namespace cimg_library_suffixed {
     template<typename tc>
     CImg<T>& _draw_ellipse(const int x0, const int y0, const float r1, const float r2, const float angle,
                            const tc *const color, const float opacity,
-                           const unsigned int pattern) {
-      if (is_empty()) return *this;
+                           const unsigned int pattern, const bool is_filled) {
+      if (is_empty() || (!is_filled && !pattern)) return *this;
       if (!color)
         throw CImgArgumentException(_cimg_instance
                                     "draw_ellipse(): Specified color is (null).",
                                     cimg_instance);
-      if (r1<=0 || r2<=0) return draw_point(x0,y0,color,opacity);
-      if (r1==r2 && (float)(int)r1==r1) {
-        if (pattern) return draw_circle(x0,y0,(int)cimg::round(r1),color,opacity,pattern);
-        else return draw_circle(x0,y0,(int)cimg::round(r1),color,opacity);
-      }
-      cimg_init_scanline(color,opacity);
+      if (r1<0 || r2<0) return *this;
+      if (r1*r2<=0) return draw_point(x0,y0,color,opacity);
+      if (r1==r2 && (float)(int)r1==r1 && pattern==~0U)
+        return draw_circle(x0,y0,(int)cimg::round(r1),color,opacity,pattern);
+
       const float
         nr1 = cimg::abs(r1) - 0.5, nr2 = cimg::abs(r2) - 0.5,
         nangle = (float)(angle*cimg::PI/180),
         u = (float)std::cos(nangle),
         v = (float)std::sin(nangle),
-        rmax = std::max(nr1,nr2),
-        l1 = (float)std::pow(rmax/(nr1>0?nr1:1e-6),2),
-        l2 = (float)std::pow(rmax/(nr2>0?nr2:1e-6),2),
-        a = l1*u*u + l2*v*v,
-        b = u*v*(l1 - l2),
-        c = l1*v*v + l2*u*u;
-      const int
-        yb = (int)cimg::round(std::sqrt(a*rmax*rmax/(a*c - b*b))),
-        tymin = y0 - yb - 1,
-        tymax = y0 + yb + 1,
-        ymin = tymin<0?0:tymin,
-        ymax = tymax>=height()?height() - 1:tymax;
-      int oxmin = 0, oxmax = 0;
-      bool first_line = true;
-      for (int y = ymin; y<=ymax; ++y) {
+        rmax = std::max(nr1,nr2);
+
+      if (is_filled) {
+        cimg_init_scanline(color,opacity);
         const float
-          Y = y - y0 + (y<y0?0.5f:-0.5f),
-          delta = b*b*Y*Y - a*(c*Y*Y - rmax*rmax),
-          sdelta = delta>0?(float)std::sqrt(delta)/a:0.f,
-          bY = b*Y/a,
-          fxmin = x0 - 0.5f - bY - sdelta,
-          fxmax = x0 + 0.5f - bY + sdelta;
-        const int xmin = (int)cimg::round(fxmin), xmax = (int)cimg::round(fxmax);
-        if (!pattern) cimg_draw_scanline(xmin,xmax,y,color,opacity,1);
-        else {
-          if (first_line) {
-            if (y0 - yb>=0) cimg_draw_scanline(xmin,xmax,y,color,opacity,1);
-            else draw_point(xmin,y,color,opacity).draw_point(xmax,y,color,opacity);
-            first_line = false;
-          } else {
-            if (xmin<oxmin) cimg_draw_scanline(xmin,oxmin - 1,y,color,opacity,1);
-            else cimg_draw_scanline(oxmin + (oxmin==xmin?0:1),xmin,y,color,opacity,1);
-            if (xmax<oxmax) cimg_draw_scanline(xmax,oxmax - 1,y,color,opacity,1);
-            else cimg_draw_scanline(oxmax + (oxmax==xmax?0:1),xmax,y,color,opacity,1);
-            if (y==tymax) cimg_draw_scanline(xmin + 1,xmax - 1,y,color,opacity,1);
+          l1 = (float)std::pow(rmax/(nr1>0?nr1:1e-6),2),
+          l2 = (float)std::pow(rmax/(nr2>0?nr2:1e-6),2),
+          a = l1*u*u + l2*v*v,
+          b = u*v*(l1 - l2),
+          c = l1*v*v + l2*u*u;
+        const int
+          yb = (int)cimg::round(std::sqrt(a*rmax*rmax/(a*c - b*b))),
+          tymin = y0 - yb - 1,
+          tymax = y0 + yb + 1,
+          ymin = tymin<0?0:tymin,
+          ymax = tymax>=height()?height() - 1:tymax;
+        int oxmin = 0, oxmax = 0;
+        bool first_line = true;
+        for (int y = ymin; y<=ymax; ++y) {
+          const float
+            Y = y - y0 + (y<y0?0.5f:-0.5f),
+            delta = b*b*Y*Y - a*(c*Y*Y - rmax*rmax),
+            sdelta = delta>0?(float)std::sqrt(delta)/a:0.f,
+            bY = b*Y/a,
+            fxmin = x0 - 0.5f - bY - sdelta,
+            fxmax = x0 + 0.5f - bY + sdelta;
+          const int xmin = (int)cimg::round(fxmin), xmax = (int)cimg::round(fxmax);
+          if (!pattern) cimg_draw_scanline(xmin,xmax,y,color,opacity,1);
+          else {
+            if (first_line) {
+              if (y0 - yb>=0) cimg_draw_scanline(xmin,xmax,y,color,opacity,1);
+              else draw_point(xmin,y,color,opacity).draw_point(xmax,y,color,opacity);
+              first_line = false;
+            } else {
+              if (xmin<oxmin) cimg_draw_scanline(xmin,oxmin - 1,y,color,opacity,1);
+              else cimg_draw_scanline(oxmin + (oxmin==xmin?0:1),xmin,y,color,opacity,1);
+              if (xmax<oxmax) cimg_draw_scanline(xmax,oxmax - 1,y,color,opacity,1);
+              else cimg_draw_scanline(oxmax + (oxmax==xmax?0:1),xmax,y,color,opacity,1);
+              if (y==tymax) cimg_draw_scanline(xmin + 1,xmax - 1,y,color,opacity,1);
+            }
           }
+          oxmin = xmin; oxmax = xmax;
         }
-        oxmin = xmin; oxmax = xmax;
+      } else {
+        CImg<int> points((unsigned int)cimg::round(3*rmax),2);
+        cimg_forX(points,k) {
+          const float
+            ang = (float)(2*cimg::PI*k/points._width),
+            X = (float)(r1*std::cos(ang)),
+            Y = (float)(r2*std::sin(ang));
+          points(k,0) = (int)cimg::round(x0 + (X*u - Y*v));
+          points(k,1) = (int)cimg::round(y0 + (X*v + Y*u));
+        }
+        draw_polygon(points,color,opacity,pattern);
       }
       return *this;
     }
@@ -45442,7 +45461,7 @@ namespace cimg_library_suffixed {
     CImg<T>& draw_circle(const int x0, const int y0, int radius,
                          const tc *const color, const float opacity,
                          const unsigned int pattern) {
-      cimg::unused(pattern);
+      if (pattern!=~0U) return draw_ellipse(x0,y0,radius,radius,0,color,opacity,pattern);
       if (is_empty()) return *this;
       if (!color)
         throw CImgArgumentException(_cimg_instance
@@ -45450,6 +45469,7 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
       if (radius<0 || x0 - radius>=width() || y0 + radius<0 || y0 - radius>=height()) return *this;
       if (!radius) return draw_point(x0,y0,color,opacity);
+
       draw_point(x0 - radius,y0,color,opacity).draw_point(x0 + radius,y0,color,opacity).
         draw_point(x0,y0 - radius,color,opacity).draw_point(x0,y0 + radius,color,opacity);
       if (radius==1) return *this;

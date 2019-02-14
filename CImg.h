@@ -47602,6 +47602,7 @@ namespace cimg_library_suffixed {
           default :
             if (is_wireframe) draw_circle((int)xc,(int)yc,(int)radius,pcolor,opacity,~0U);
             else draw_circle((int)xc,(int)yc,(int)radius,pcolor,opacity);
+
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));

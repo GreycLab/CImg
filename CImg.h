@@ -59306,7 +59306,7 @@ namespace cimg_library_suffixed {
       while (go_on && pos<=_last_frame) {
         cv::Mat cvimg;
         cimg::mutex(9);
-        if (captures[index]->read(cvimg)) { insert(1); back()._opencv_mat2cimg(cvimg); ++pos; } else go_on = false;
+        if (captures[index]->read(cvimg)) { insert(1).back()._opencv_mat2cimg(cvimg); ++pos; } else go_on = false;
         cimg::mutex(9,0);
         if (go_on)
           for (unsigned int i = 1; go_on && i<step_frame && pos<=_last_frame; ++i, ++pos) {
@@ -59316,7 +59316,7 @@ namespace cimg_library_suffixed {
           }
       }
 
-      if (!go_on || (nb_frames && pos>=nb_frames)) { // Close video stream when necessary
+      if (!go_on || nb_frames && pos>=nb_frames) { // Close video stream when necessary
         cimg::mutex(9);
         captures[index]->release();
         delete captures[index];

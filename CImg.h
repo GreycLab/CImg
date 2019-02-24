@@ -52453,6 +52453,7 @@ namespace cimg_library_suffixed {
       } else res = cv::Mat(rows,cols,mat_type,const_cast<T*>(buf.data())).clone();
       return res;
     }
+
 #endif
 
     //! Load image from a camera stream, using OpenCV \newinstance.

@@ -52338,7 +52338,7 @@ namespace cimg_library_suffixed {
 
     //! Load image from a camera stream, using OpenCV.
     /**
-       \param camera_index Index of the camera to capture images from.
+       \param camera_index Index of the camera to capture images from (from 0 to 63).
        \param skip_frames Number of frames to skip before the capture.
        \param release_camera Tells if the camera ressource must be released at the end of the method.
        \param capture_width Width of the desired image.
@@ -52348,14 +52348,14 @@ namespace cimg_library_suffixed {
                          const bool release_camera=true, const unsigned int capture_width=0,
                          const unsigned int capture_height=0) {
 #ifdef cimg_use_opencv
-      if (camera_index>99)
+      if (camera_index>=64)
         throw CImgArgumentException(_cimg_instance
                                     "load_camera(): Invalid request for camera #%u "
                                     "(no more than 100 cameras can be managed simultaneously).",
                                     cimg_instance,
                                     camera_index);
-      static cv::VideoCapture *capture[100] = { 0 };
-      static unsigned int capture_w[100], capture_h[100];
+      static cv::VideoCapture *capture[64] = { 0 };
+      static unsigned int capture_w[64], capture_h[64];
       if (release_camera) {
         cimg::mutex(9);
         if (capture[camera_index]) capture[camera_index]->release();

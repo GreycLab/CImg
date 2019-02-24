@@ -360,6 +360,28 @@
 #define cimg_abort_test2
 #endif
 
+// Configure OpenCV support.
+// (http://opencv.willowgarage.com/wiki/)
+//
+// Define 'cimg_use_opencv' to enable OpenCV support.
+//
+// OpenCV library may be used to access images from cameras
+// (see method 'CImg<T>::load_camera()').
+#ifdef cimg_use_opencv
+#ifdef True
+#undef True
+#define _cimg_redefine_True
+#endif
+#ifdef False
+#undef False
+#define _cimg_redefine_False
+#endif
+#include <cstddef>
+#include <opencv2/opencv.hpp>
+//#include "cv.h"
+//#include "highgui.h"
+#endif
+
 // Include display-specific headers.
 #if cimg_display==1
 #include <X11/Xlib.h>
@@ -391,27 +413,6 @@
 #define cimg_pragma_openmp(p) cimg_pragma(omp p)
 #else
 #define cimg_pragma_openmp(p)
-#endif
-
-// Configure OpenCV support.
-// (http://opencv.willowgarage.com/wiki/)
-//
-// Define 'cimg_use_opencv' to enable OpenCV support.
-//
-// OpenCV library may be used to access images from cameras
-// (see method 'CImg<T>::load_camera()').
-#ifdef cimg_use_opencv
-#ifdef True
-#undef True
-#define _cimg_redefine_True
-#endif
-#ifdef False
-#undef False
-#define _cimg_redefine_False
-#endif
-#include <cstddef>
-#include "cv.h"
-#include "highgui.h"
 #endif
 
 // Configure LibPNG support.
@@ -52351,23 +52352,26 @@ namespace cimg_library_suffixed {
                                     "(no more than 100 cameras can be managed simultaneously).",
                                     cimg_instance,
                                     camera_index);
-      static CvCapture *capture[100] = { 0 };
+      static cv::VideoCapture *capture[100] = { 0 };
       static unsigned int capture_w[100], capture_h[100];
       if (release_camera) {
         cimg::mutex(9);
-        if (capture[camera_index]) cvReleaseCapture(&(capture[camera_index]));
+        if (capture[camera_index]) capture[camera_index]->release();
+        delete capture[camera_index];
         capture[camera_index] = 0;
         capture_w[camera_index] = capture_h[camera_index] = 0;
         cimg::mutex(9,0);
         return *this;
       }
       if (!capture[camera_index]) {
-        cimg::mutex(9);
-        capture[camera_index] = cvCreateCameraCapture(camera_index);
-        capture_w[camera_index] = 0;
-        capture_h[camera_index] = 0;
-        cimg::mutex(9,0);
-        if (!capture[camera_index]) {
+        try {
+          cimg::mutex(9);
+          capture[camera_index] = new cv::VideoCapture(camera_index);
+          capture_w[camera_index] = 0;
+          capture_h[camera_index] = 0;
+          cimg::mutex(9,0);
+        } catch (...) {
+          cimg::mutex(9,0);
           throw CImgIOException(_cimg_instance
                                 "load_camera(): Failed to initialize camera #%u.",
                                 cimg_instance,
@@ -52376,28 +52380,18 @@ namespace cimg_library_suffixed {
       }
       cimg::mutex(9);
       if (capture_width!=capture_w[camera_index]) {
-        cvSetCaptureProperty(capture[camera_index],CV_CAP_PROP_FRAME_WIDTH,capture_width);
+        capture[camera_index]->set(CV_CAP_PROP_FRAME_WIDTH,capture_width);
         capture_w[camera_index] = capture_width;
       }
       if (capture_height!=capture_h[camera_index]) {
-        cvSetCaptureProperty(capture[camera_index],CV_CAP_PROP_FRAME_HEIGHT,capture_height);
+        capture[camera_index]->set(CV_CAP_PROP_FRAME_HEIGHT,capture_height);
         capture_h[camera_index] = capture_height;
       }
-      const IplImage *img = 0;
-      for (unsigned int i = 0; i<skip_frames; ++i) img = cvQueryFrame(capture[camera_index]);
-      img = cvQueryFrame(capture[camera_index]);
-      if (img) {
-        const int step = (int)(img->widthStep - 3*img->width);
-        assign(img->width,img->height,1,3);
-        const unsigned char* ptrs = (unsigned char*)img->imageData;
-        T *ptr_r = data(0,0,0,0), *ptr_g = data(0,0,0,1), *ptr_b = data(0,0,0,2);
-        if (step>0) cimg_forY(*this,y) {
-            cimg_forX(*this,x) { *(ptr_b++) = (T)*(ptrs++); *(ptr_g++) = (T)*(ptrs++); *(ptr_r++) = (T)*(ptrs++); }
-            ptrs+=step;
-          } else for (ulongT siz = (ulongT)img->width*img->height; siz; --siz) {
-            *(ptr_b++) = (T)*(ptrs++); *(ptr_g++) = (T)*(ptrs++); *(ptr_r++) = (T)*(ptrs++);
-          }
-      }
+      for (unsigned int i = 0; i<skip_frames; ++i) capture[camera_index]->grab();
+      cv::Mat cvimg;
+      capture[camera_index]->read(cvimg);
+      if (cvimg.empty()) { cimg::mutex(9,0); return assign(); }
+      _opencv_mat2cimg(cvimg);
       cimg::mutex(9,0);
       return *this;
 #else
@@ -52408,6 +52402,24 @@ namespace cimg_library_suffixed {
                             cimg_instance);
 #endif
     }
+
+#ifdef cimg_use_opencv
+    CImg<T>& _opencv_mat2cimg(const cv::Mat &src) {
+      if (src.channels()==1)
+        return assign((unsigned char*)src.ptr(),src.cols,src.rows,true).move_to(*this);
+      std::vector<cv::Mat> channels;
+      cv::split(src,channels);
+      cimg_library::CImg<ucharT>
+        tmp(src.cols,src.rows,1,3),
+        R = tmp.get_shared_channel(2),
+        G = tmp.get_shared_channel(1),
+        B = tmp.get_shared_channel(0);
+      std::memcpy(R.data(),channels[0].ptr(),src.cols*src.rows*sizeof(uchar));
+      std::memcpy(G.data(),channels[1].ptr(),src.cols*src.rows*sizeof(uchar));
+      std::memcpy(B.data(),channels[2].ptr(),src.cols*src.rows*sizeof(uchar));
+      return tmp.move_to(*this);
+    }
+#endif
 
     //! Load image from a camera stream, using OpenCV \newinstance.
     static CImg<T> get_load_camera(const unsigned int camera_index=0, const unsigned int skip_frames=0,

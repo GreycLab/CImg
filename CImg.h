@@ -360,28 +360,6 @@
 #define cimg_abort_test2
 #endif
 
-// Configure OpenCV support.
-// (http://opencv.willowgarage.com/wiki/)
-//
-// Define 'cimg_use_opencv' to enable OpenCV support.
-//
-// OpenCV library may be used to access images from cameras
-// (see method 'CImg<T>::load_camera()').
-#ifdef cimg_use_opencv
-#ifdef True
-#undef True
-#define _cimg_redefine_True
-#endif
-#ifdef False
-#undef False
-#define _cimg_redefine_False
-#endif
-#include <cstddef>
-#include <opencv2/opencv.hpp>
-//#include "cv.h"
-//#include "highgui.h"
-#endif
-
 // Include display-specific headers.
 #if cimg_display==1
 #include <X11/Xlib.h>
@@ -399,6 +377,30 @@
 #endif
 #ifndef cimg_appname
 #define cimg_appname "CImg"
+#endif
+
+// Configure OpenCV support.
+// (http://opencv.willowgarage.com/wiki/)
+//
+// Define 'cimg_use_opencv' to enable OpenCV support.
+//
+// OpenCV library may be used to access images from cameras
+// (see method 'CImg<T>::load_camera()').
+#ifdef cimg_use_opencv
+#ifdef True
+#undef True
+#define _cimg_redefine_True
+#endif
+#ifdef False
+#undef False
+#define _cimg_redefine_False
+#endif
+#ifdef Status
+#undef Status
+#define _cimg_redefine_Status
+#endif
+#include <cstddef>
+#include <opencv2/opencv.hpp>
 #endif
 
 // Configure OpenMP support.
@@ -52380,11 +52382,11 @@ namespace cimg_library_suffixed {
       }
       cimg::mutex(9);
       if (capture_width!=capture_w[camera_index]) {
-        capture[camera_index]->set(CV_CAP_PROP_FRAME_WIDTH,capture_width);
+        capture[camera_index]->set(cv::CAP_PROP_FRAME_WIDTH,capture_width);
         capture_w[camera_index] = capture_width;
       }
       if (capture_height!=capture_h[camera_index]) {
-        capture[camera_index]->set(CV_CAP_PROP_FRAME_HEIGHT,capture_height);
+        capture[camera_index]->set(cv::CAP_PROP_FRAME_HEIGHT,capture_height);
         capture_h[camera_index] = capture_height;
       }
       for (unsigned int i = 0; i<skip_frames; ++i) capture[camera_index]->grab();
@@ -62214,6 +62216,9 @@ namespace cil = cimg_library_suffixed;
 #endif
 #ifdef _cimg_redefine_True
 #define True 1
+#endif
+#ifdef _cimg_redefine_Status
+#define Status int
 #endif
 #ifdef _cimg_redefine_min
 #define min(a,b) (((a)<(b))?(a):(b))

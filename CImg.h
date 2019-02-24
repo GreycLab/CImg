@@ -52412,9 +52412,9 @@ namespace cimg_library_suffixed {
       std::vector<cv::Mat> channels;
       cv::split(src,channels);
       cimg_library::CImg<ucharT> res(src.cols,src.rows,1,3);
-      std::memcpy(res.data(0,0,0,0),channels[0].ptr(),src.cols*src.rows*sizeof(uchar));
+      std::memcpy(res.data(0,0,0,2),channels[0].ptr(),src.cols*src.rows*sizeof(uchar));
       std::memcpy(res.data(0,0,0,1),channels[1].ptr(),src.cols*src.rows*sizeof(uchar));
-      std::memcpy(res.data(0,0,0,2),channels[2].ptr(),src.cols*src.rows*sizeof(uchar));
+      std::memcpy(res.data(0,0,0,0),channels[2].ptr(),src.cols*src.rows*sizeof(uchar));
       return res;
     }
 
@@ -52450,7 +52450,7 @@ namespace cimg_library_suffixed {
         cimg_forC(*this,c)
           channels[c] = cv::Mat(_height,_width,mat_type,_data + _width*_height*(_spectrum - 1 - c));
         cv::merge(channels,res);
-      } else res = cv::Mat(_height,_width,mat_type,_data()).clone();
+      } else res = cv::Mat(_height,_width,mat_type,_data).clone();
       return res;
     }
 
@@ -60458,7 +60458,7 @@ namespace cimg_library_suffixed {
       cimg::unused(codec,keep_open);
       return save_ffmpeg_external(filename,fps);
 #else
-      static CvVideoWriter *writers[32] = { 0 };
+      static cv::VideoWriter *writers[32] = { 0 };
       static CImgList<charT> filenames(32);
       static CImg<intT> sizes(32,2,1,1,0);
       static int last_used_index = -1;
@@ -60507,8 +60507,7 @@ namespace cimg_library_suffixed {
           codec2 = _codec[1]?_cimg_docase(_codec[2]):0,
           codec3 = _codec[2]?_cimg_docase(_codec[3]):0;
         cimg::mutex(9);
-        writers[index] = cvCreateVideoWriter(filename,CV_FOURCC(codec0,codec1,codec2,codec3),
-                                             fps,cvSize(W,H));
+        writers[index] = new cv::VideoWriter(filename,CV_FOURCC(codec0,codec1,codec2,codec3),fps,cv::Size(W,H));
         CImg<charT>::string(filename).move_to(filenames[index]);
         sizes(index,0) = W; sizes(index,1) = H;
         cimg::mutex(9,0);
@@ -60522,7 +60521,6 @@ namespace cimg_library_suffixed {
       if (!is_empty()) {
         const unsigned int W = sizes(index,0), H = sizes(index,1);
         cimg::mutex(9);
-        IplImage *ipl = cvCreateImage(cvSize(W,H),8,3);
         cimglist_for(*this,l) {
           CImg<T> &src = _data[l];
           if (src.is_empty())
@@ -60534,31 +60532,21 @@ namespace cimg_library_suffixed {
                        "save_video(): Frame %u has incompatible dimension (%u,%u,%u,%u). "
                        "Some image data may be ignored when writing frame into video file '%s'.",
                        cimglist_instance,l,src._width,src._height,src._depth,src._spectrum,filename);
-          if (src._width==W && src._height==H && src._spectrum==3) {
-            const T *ptr_r = src.data(0,0,0,0), *ptr_g = src.data(0,0,0,1), *ptr_b = src.data(0,0,0,2);
-            char *ptrd = ipl->imageData;
-            cimg_forXY(src,x,y) {
-              *(ptrd++) = (char)*(ptr_b++); *(ptrd++) = (char)*(ptr_g++); *(ptrd++) = (char)*(ptr_r++);
-            }
-          } else {
-            CImg<unsigned char> _src(src,false);
+          if (src._width==W && src._height==H && src._spectrum==3)
+            writers[index]->write(CImg<ucharT>(src)._cimg2cvmat());
+          else {
+            CImg<ucharT> _src(src,false);
             _src.channels(0,std::min(_src._spectrum - 1,2U)).resize(W,H);
             _src.resize(W,H,1,3,_src._spectrum==1);
-            const unsigned char *ptr_r = _src.data(0,0,0,0), *ptr_g = _src.data(0,0,0,1), *ptr_b = _src.data(0,0,0,2);
-            char *ptrd = ipl->imageData;
-            cimg_forXY(_src,x,y) {
-              *(ptrd++) = (char)*(ptr_b++); *(ptrd++) = (char)*(ptr_g++); *(ptrd++) = (char)*(ptr_r++);
-            }
+            writers[index]->write(_src._cimg2cvmat());
           }
-          cvWriteFrame(writers[index],ipl);
         }
-        cvReleaseImage(&ipl);
         cimg::mutex(9,0);
       }
 
       cimg::mutex(9);
       if (!keep_open) {
-        cvReleaseVideoWriter(&writers[index]);
+        delete writers[index];
         writers[index] = 0;
         filenames[index].assign();
         sizes(index,0) = sizes(index,1) = 0;

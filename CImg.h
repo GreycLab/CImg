@@ -52405,7 +52405,9 @@ namespace cimg_library_suffixed {
     }
 
 #ifdef cimg_use_opencv
-    static CImg<T> _cvmat2cimg(const cv::Mat &src) {
+
+    // Convert a cv::Mat to a CImg<T>.
+    static CImg<ucharT> _cvmat2cimg(const cv::Mat &src) {
       if (src.channels()==1) return CImg<T>((unsigned char*)src.ptr(),src.cols,src.rows);
       std::vector<cv::Mat> channels;
       cv::split(src,channels);
@@ -52416,48 +52418,41 @@ namespace cimg_library_suffixed {
       return res;
     }
 
-/*    cv::Mat get_MAT(const unsigned int z=0) const {
-  if (is_empty())
-    throw CImgInstanceException(_cimg_instance
-                                "get_MAT() : instance image is empty.",
-                                cimg_instance);
-  if (z>=_depth)
-    throw CImgInstanceException(_cimg_instance
-                                "get_MAT() : specified slice %u is out of image bounds.",
-                                cimg_instance,z);
-  const CImg<T>
-    _slice = _depth>1?get_slice(z):CImg<T>(),
-    &slice = _depth>1?_slice:*this;
-  CImg<T> buf(slice,true);
-  int
-    cols = buf.width(),
-    rows = buf.height(),
-    nchannels = buf.spectrum(),
-    matType=-1;
-
-  if (!cimg::strcasecmp(buf.pixel_type(),"unsigned char")) matType = CV_8UC1;
-  if (!cimg::strcasecmp(buf.pixel_type(),"char")) matType = CV_8SC1;
-  if (!cimg::strcasecmp(buf.pixel_type(),"unsigned short")) matType = CV_16UC1;
-  if (!cimg::strcasecmp(buf.pixel_type(),"short")) matType = CV_16SC1;
-  if (!cimg::strcasecmp(buf.pixel_type(),"int")) matType = CV_32SC1;
-  if (!cimg::strcasecmp(buf.pixel_type(),"float")) matType = CV_32FC1;
-  if (!cimg::strcasecmp(buf.pixel_type(),"double")) matType = CV_64FC1;
-  if (matType<0)
-    throw CImgInstanceException(_cimg_instance
-                                "get_MAT() : pixel type '%s' is not supported.",
-                                cimg_instance,buf.pixel_type());
-  cv::Mat out;
-  std::vector<cv::Mat> channels(nchannels);
-  if (nchannels>1) {
-    for (int c = 0; c<nchannels; ++c) {
-      channels[c] = cv::Mat(rows,cols,matType,const_cast<T*>(buf.data() + rows*cols*(nchannels - 1 - c)));
-    } // for channels
-    cv::merge(channels,out);
-  } else out = cv::Mat(rows,cols,matType,const_cast<T*>(buf.data())).clone();
-  return out;
-}
-*/
-
+    // Convert a CImg<T> to a cv::Mat.
+    cv::Mat _cimg2cvmat() const {
+      if (is_empty())
+        throw CImgInstanceException(_cimg_instance
+                                    "_cimg2cvmat() : instance image is empty.",
+                                    cimg_instance);
+      const CImg<T>
+        _slice = _depth>1?get_slice(0):CImg<T>(),
+        &slice = _depth>1?_slice:*this;
+      CImg<T> buf(slice,true);
+      int
+        cols = buf.width(),
+        rows = buf.height(),
+        nchannels = buf.spectrum(),
+        mat_type = -1;
+      if (!cimg::strcasecmp(buf.pixel_type(),"unsigned char")) mat_type = CV_8UC1;
+      if (!cimg::strcasecmp(buf.pixel_type(),"char")) mat_type = CV_8SC1;
+      if (!cimg::strcasecmp(buf.pixel_type(),"unsigned short")) mat_type = CV_16UC1;
+      if (!cimg::strcasecmp(buf.pixel_type(),"short")) mat_type = CV_16SC1;
+      if (!cimg::strcasecmp(buf.pixel_type(),"int")) mat_type = CV_32SC1;
+      if (!cimg::strcasecmp(buf.pixel_type(),"float")) mat_type = CV_32FC1;
+      if (!cimg::strcasecmp(buf.pixel_type(),"double")) mat_type = CV_64FC1;
+      if (mat_type<0)
+        throw CImgInstanceException(_cimg_instance
+                                    "get_MAT() : pixel type '%s' is not supported.",
+                                    cimg_instance,buf.pixel_type());
+      cv::Mat res;
+      std::vector<cv::Mat> channels(nchannels);
+      if (nchannels>1) {
+        for (int c = 0; c<nchannels; ++c)
+          channels[c] = cv::Mat(rows,cols,mat_type,const_cast<T*>(buf.data() + rows*cols*(nchannels - 1 - c)));
+        cv::merge(channels,res);
+      } else res = cv::Mat(rows,cols,mat_type,const_cast<T*>(buf.data())).clone();
+      return res;
+    }
 #endif
 
     //! Load image from a camera stream, using OpenCV \newinstance.

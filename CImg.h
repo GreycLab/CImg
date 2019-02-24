@@ -52336,6 +52336,59 @@ namespace cimg_library_suffixed {
       return CImg<T>().load_dcraw_external(filename);
     }
 
+#ifdef cimg_use_opencv
+
+    // Convert a cv::Mat<uchar> to a CImg<uchar>.
+    static CImg<ucharT> _cvmat2cimg(const cv::Mat &src) {
+      if (src.channels()==1) return CImg<ucharT>(src.ptr(),src.cols,src.rows,1,1);
+      else if (src.channels()==3) { // BGR
+        CImg<ucharT> res(src.cols,src.rows,1,src.channels());
+        const unsigned char *ptrs = src.ptr();
+        unsigned char *pR = res.data(), *pG = res.data(0,0,0,1), *pB = res.data(0,0,0,2);
+        cimg_forXY(res,x,y) { *(pB++) = *(ptrs++); *(pG++) = *(ptrs++); *(pR++) = *(ptrs++); }
+        return res;
+      }
+      return CImg<ucharT>(src.ptr(),src.channels(),src.cols,src.rows,1,true).get_permute_axes("yzcx");
+    }
+
+    // Convert a CImg<T> to a cv::Mat.
+    cv::Mat _cimg2cvmat() const {
+      if (is_empty())
+        throw CImgInstanceException(_cimg_instance
+                                    "_cimg2cvmat() : Instance image is empty.",
+                                    cimg_instance);
+      if (_spectrum==2)
+        throw CImgInstanceException(_cimg_instance
+                                    "_cimg2cvmat() : Invalid number of channels (should be '1' or '3+').",
+                                    cimg_instance);
+      if (_depth!=1)
+        throw CImgInstanceException(_cimg_instance
+                                    "_cimg2cvmat() : Invalid number of slices (should be '1').",
+                                    cimg_instance);
+      int mat_type = -1;
+      if (cimg::type<T>::string()==cimg::type<unsigned char>::string()) mat_type = CV_8UC1;
+      if (cimg::type<T>::string()==cimg::type<char>::string()) mat_type = CV_8SC1;
+      if (cimg::type<T>::string()==cimg::type<unsigned short>::string()) mat_type = CV_16UC1;
+      if (cimg::type<T>::string()==cimg::type<short>::string()) mat_type = CV_16SC1;
+      if (cimg::type<T>::string()==cimg::type<int>::string()) mat_type = CV_32SC1;
+      if (cimg::type<T>::string()==cimg::type<float>::string()) mat_type = CV_32FC1;
+      if (cimg::type<T>::string()==cimg::type<double>::string()) mat_type = CV_64FC1;
+      if (mat_type<0)
+        throw CImgInstanceException(_cimg_instance
+                                    "_cvmat2cimg() : pixel type '%s' is not supported.",
+                                    cimg_instance,pixel_type());
+      cv::Mat res;
+      std::vector<cv::Mat> channels(_spectrum);
+      if (_spectrum>1) {
+        cimg_forC(*this,c)
+          channels[c] = cv::Mat(_height,_width,mat_type,_data + _width*_height*(_spectrum - 1 - c));
+        cv::merge(channels,res);
+      } else res = cv::Mat(_height,_width,mat_type,_data).clone();
+      return res;
+    }
+
+#endif
+
     //! Load image from a camera stream, using OpenCV.
     /**
        \param index Index of the camera to capture images from (from 0 to 63).
@@ -52403,58 +52456,6 @@ namespace cimg_library_suffixed {
                             cimg_instance);
 #endif
     }
-
-#ifdef cimg_use_opencv
-
-    // Convert a cv::Mat to a CImg<T>.
-    static CImg<ucharT> _cvmat2cimg(const cv::Mat &src) {
-      if (src.channels()==1) return CImg<T>((unsigned char*)src.ptr(),src.cols,src.rows);
-      std::vector<cv::Mat> channels;
-      cv::split(src,channels);
-      cimg_library::CImg<ucharT> res(src.cols,src.rows,1,3);
-      std::memcpy(res.data(0,0,0,2),channels[0].ptr(),src.cols*src.rows*sizeof(uchar));
-      std::memcpy(res.data(0,0,0,1),channels[1].ptr(),src.cols*src.rows*sizeof(uchar));
-      std::memcpy(res.data(0,0,0,0),channels[2].ptr(),src.cols*src.rows*sizeof(uchar));
-      return res;
-    }
-
-    // Convert a CImg<T> to a cv::Mat.
-    cv::Mat _cimg2cvmat() const {
-      if (is_empty())
-        throw CImgInstanceException(_cimg_instance
-                                    "_cimg2cvmat() : Instance image is empty.",
-                                    cimg_instance);
-      if (_spectrum==2)
-        throw CImgInstanceException(_cimg_instance
-                                    "_cimg2cvmat() : Invalid number of channels (should be '1' or '3+').",
-                                    cimg_instance);
-      if (_depth!=1)
-        throw CImgInstanceException(_cimg_instance
-                                    "_cimg2cvmat() : Invalid number of slices (should be '1').",
-                                    cimg_instance);
-      int mat_type = -1;
-      if (cimg::type<T>::string()==cimg::type<unsigned char>::string()) mat_type = CV_8UC1;
-      if (cimg::type<T>::string()==cimg::type<char>::string()) mat_type = CV_8SC1;
-      if (cimg::type<T>::string()==cimg::type<unsigned short>::string()) mat_type = CV_16UC1;
-      if (cimg::type<T>::string()==cimg::type<short>::string()) mat_type = CV_16SC1;
-      if (cimg::type<T>::string()==cimg::type<int>::string()) mat_type = CV_32SC1;
-      if (cimg::type<T>::string()==cimg::type<float>::string()) mat_type = CV_32FC1;
-      if (cimg::type<T>::string()==cimg::type<double>::string()) mat_type = CV_64FC1;
-      if (mat_type<0)
-        throw CImgInstanceException(_cimg_instance
-                                    "_cvmat2cimg() : pixel type '%s' is not supported.",
-                                    cimg_instance,pixel_type());
-      cv::Mat res;
-      std::vector<cv::Mat> channels(_spectrum);
-      if (_spectrum>1) {
-        cimg_forC(*this,c)
-          channels[c] = cv::Mat(_height,_width,mat_type,_data + _width*_height*(_spectrum - 1 - c));
-        cv::merge(channels,res);
-      } else res = cv::Mat(_height,_width,mat_type,_data).clone();
-      return res;
-    }
-
-#endif
 
     //! Load image from a camera stream, using OpenCV \newinstance.
     static CImg<T> get_load_camera(const unsigned int index=0, const unsigned int skip_frames=0,

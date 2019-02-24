@@ -52366,19 +52366,19 @@ namespace cimg_library_suffixed {
         return *this;
       }
       if (!captures[index]) {
-        try {
-          cimg::mutex(9);
-          captures[index] = new cv::VideoCapture(index);
-          captures_w[index] = 0;
-          captures_h[index] = 0;
-          cimg::mutex(9,0);
-        } catch (...) {
+        cimg::mutex(9);
+        captures[index] = new cv::VideoCapture(index);
+        captures_w[index] = captures_h[index] = 0;
+        if (!captures[index]->isOpened()) {
+          delete captures[index];
+          captures[index] = 0;
           cimg::mutex(9,0);
           throw CImgIOException(_cimg_instance
                                 "load_camera(): Failed to initialize camera #%u.",
                                 cimg_instance,
                                 index);
         }
+        cimg::mutex(9,0);
       }
       cimg::mutex(9);
       if (capture_width!=captures_w[index]) {
@@ -59304,20 +59304,20 @@ namespace cimg_library_suffixed {
                                 "load_video(): File '%s', no video reader slots available. "
                                 "You have to release some of your previously opened videos.",
                                 cimglist_instance,filename);
-        try {
-          cimg::mutex(9);
-          captures[index] = new cv::VideoCapture(filename);
-          CImg<charT>::string(filename).move_to(filenames[index]);
-          positions[index] = 0;
-          cimg::mutex(9,0);
-        } catch (...) {
-          filenames[index].assign();
+        cimg::mutex(9);
+        captures[index] = new cv::VideoCapture(filename);
+        positions[index] = 0;
+        if (!captures[index]->isOpened()) {
+          delete captures[index];
+          captures[index] = 0;
           cimg::mutex(9,0);
           cimg::fclose(cimg::fopen(filename,"rb"));  // Check file availability
           throw CImgIOException(_cimglist_instance
                                 "load_video(): File '%s', unable to detect format of video file.",
                                 cimglist_instance,filename);
         }
+        CImg<charT>::string(filename).move_to(filenames[index]);
+        cimg::mutex(9,0);
       }
 
       cimg::mutex(9);
@@ -60508,14 +60508,19 @@ namespace cimg_library_suffixed {
           codec3 = _codec[2]?_cimg_docase(_codec[3]):0;
         cimg::mutex(9);
         writers[index] = new cv::VideoWriter(filename,CV_FOURCC(codec0,codec1,codec2,codec3),fps,cv::Size(W,H));
-        CImg<charT>::string(filename).move_to(filenames[index]);
-        sizes(index,0) = W; sizes(index,1) = H;
-        cimg::mutex(9,0);
-        if (!writers[index])
+        if (!writers[index]->isOpened()) {
+          delete writers[index];
+          writers[index] = 0;
+          cimg::mutex(9,0);
           throw CImgIOException(_cimglist_instance
                                 "save_video(): File '%s', unable to initialize video writer with codec '%c%c%c%c'.",
                                 cimglist_instance,filename,
                                 codec0,codec1,codec2,codec3);
+        }
+        CImg<charT>::string(filename).move_to(filenames[index]);
+        sizes(index,0) = W;
+        sizes(index,1) = H;
+        cimg::mutex(9,0);
       }
 
       if (!is_empty()) {

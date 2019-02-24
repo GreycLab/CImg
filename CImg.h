@@ -52392,7 +52392,7 @@ namespace cimg_library_suffixed {
       for (unsigned int i = 0; i<skip_frames; ++i) captures[index]->grab();
       cv::Mat cvimg;
       captures[index]->read(cvimg);
-      if (cvimg.empty()) assign(); else _opencv_mat2cimg(cvimg);
+      if (cvimg.empty()) assign(); else _cvmat2cimg(cvimg).move_to(*this);
       cimg::mutex(9,0);
       return *this;
 #else
@@ -52405,21 +52405,59 @@ namespace cimg_library_suffixed {
     }
 
 #ifdef cimg_use_opencv
-    CImg<T>& _opencv_mat2cimg(const cv::Mat &src) {
-      if (src.channels()==1)
-        return assign((unsigned char*)src.ptr(),src.cols,src.rows,true).move_to(*this);
+    static CImg<T> _cvmat2cimg(const cv::Mat &src) {
+      if (src.channels()==1) return CImg<T>((unsigned char*)src.ptr(),src.cols,src.rows);
       std::vector<cv::Mat> channels;
       cv::split(src,channels);
-      cimg_library::CImg<ucharT>
-        tmp(src.cols,src.rows,1,3),
-        R = tmp.get_shared_channel(2),
-        G = tmp.get_shared_channel(1),
-        B = tmp.get_shared_channel(0);
-      std::memcpy(R.data(),channels[0].ptr(),src.cols*src.rows*sizeof(uchar));
-      std::memcpy(G.data(),channels[1].ptr(),src.cols*src.rows*sizeof(uchar));
-      std::memcpy(B.data(),channels[2].ptr(),src.cols*src.rows*sizeof(uchar));
-      return tmp.move_to(*this);
+      cimg_library::CImg<ucharT> res(src.cols,src.rows,1,3);
+      std::memcpy(res.data(0,0,0,0),channels[0].ptr(),src.cols*src.rows*sizeof(uchar));
+      std::memcpy(res.data(0,0,0,1),channels[1].ptr(),src.cols*src.rows*sizeof(uchar));
+      std::memcpy(res.data(0,0,0,2),channels[2].ptr(),src.cols*src.rows*sizeof(uchar));
+      return res;
     }
+
+/*    cv::Mat get_MAT(const unsigned int z=0) const {
+  if (is_empty())
+    throw CImgInstanceException(_cimg_instance
+                                "get_MAT() : instance image is empty.",
+                                cimg_instance);
+  if (z>=_depth)
+    throw CImgInstanceException(_cimg_instance
+                                "get_MAT() : specified slice %u is out of image bounds.",
+                                cimg_instance,z);
+  const CImg<T>
+    _slice = _depth>1?get_slice(z):CImg<T>(),
+    &slice = _depth>1?_slice:*this;
+  CImg<T> buf(slice,true);
+  int
+    cols = buf.width(),
+    rows = buf.height(),
+    nchannels = buf.spectrum(),
+    matType=-1;
+
+  if (!cimg::strcasecmp(buf.pixel_type(),"unsigned char")) matType = CV_8UC1;
+  if (!cimg::strcasecmp(buf.pixel_type(),"char")) matType = CV_8SC1;
+  if (!cimg::strcasecmp(buf.pixel_type(),"unsigned short")) matType = CV_16UC1;
+  if (!cimg::strcasecmp(buf.pixel_type(),"short")) matType = CV_16SC1;
+  if (!cimg::strcasecmp(buf.pixel_type(),"int")) matType = CV_32SC1;
+  if (!cimg::strcasecmp(buf.pixel_type(),"float")) matType = CV_32FC1;
+  if (!cimg::strcasecmp(buf.pixel_type(),"double")) matType = CV_64FC1;
+  if (matType<0)
+    throw CImgInstanceException(_cimg_instance
+                                "get_MAT() : pixel type '%s' is not supported.",
+                                cimg_instance,buf.pixel_type());
+  cv::Mat out;
+  std::vector<cv::Mat> channels(nchannels);
+  if (nchannels>1) {
+    for (int c = 0; c<nchannels; ++c) {
+      channels[c] = cv::Mat(rows,cols,matType,const_cast<T*>(buf.data() + rows*cols*(nchannels - 1 - c)));
+    } // for channels
+    cv::merge(channels,out);
+  } else out = cv::Mat(rows,cols,matType,const_cast<T*>(buf.data())).clone();
+  return out;
+}
+*/
+
 #endif
 
     //! Load image from a camera stream, using OpenCV \newinstance.
@@ -59306,7 +59344,8 @@ namespace cimg_library_suffixed {
       while (go_on && pos<=_last_frame) {
         cv::Mat cvimg;
         cimg::mutex(9);
-        if (captures[index]->read(cvimg)) { insert(1).back()._opencv_mat2cimg(cvimg); ++pos; } else go_on = false;
+        if (captures[index]->read(cvimg)) { CImg<T>::_cvmat2cimg(cvimg).move_to(*this); ++pos; }
+        else go_on = false;
         cimg::mutex(9,0);
         if (go_on)
           for (unsigned int i = 1; go_on && i<step_frame && pos<=_last_frame; ++i, ++pos) {
@@ -59316,7 +59355,7 @@ namespace cimg_library_suffixed {
           }
       }
 
-      if (!go_on || nb_frames && pos>=nb_frames) { // Close video stream when necessary
+      if (!go_on || (nb_frames && pos>=nb_frames)) { // Close video stream when necessary
         cimg::mutex(9);
         captures[index]->release();
         delete captures[index];

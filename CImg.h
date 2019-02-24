@@ -52338,66 +52338,65 @@ namespace cimg_library_suffixed {
 
     //! Load image from a camera stream, using OpenCV.
     /**
-       \param camera_index Index of the camera to capture images from (from 0 to 63).
+       \param index Index of the camera to capture images from (from 0 to 63).
        \param skip_frames Number of frames to skip before the capture.
        \param release_camera Tells if the camera ressource must be released at the end of the method.
        \param capture_width Width of the desired image.
        \param capture_height Height of the desired image.
     **/
-    CImg<T>& load_camera(const unsigned int camera_index=0, const unsigned int skip_frames=0,
+    CImg<T>& load_camera(const unsigned int index=0, const unsigned int skip_frames=0,
                          const bool release_camera=true, const unsigned int capture_width=0,
                          const unsigned int capture_height=0) {
 #ifdef cimg_use_opencv
-      if (camera_index>=64)
+      if (index>=64)
         throw CImgArgumentException(_cimg_instance
                                     "load_camera(): Invalid request for camera #%u "
                                     "(no more than 100 cameras can be managed simultaneously).",
                                     cimg_instance,
-                                    camera_index);
-      static cv::VideoCapture *capture[64] = { 0 };
-      static unsigned int capture_w[64], capture_h[64];
+                                    index);
+      static cv::VideoCapture *captures[64] = { 0 };
+      static unsigned int captures_w[64], captures_h[64];
       if (release_camera) {
         cimg::mutex(9);
-        if (capture[camera_index]) capture[camera_index]->release();
-        delete capture[camera_index];
-        capture[camera_index] = 0;
-        capture_w[camera_index] = capture_h[camera_index] = 0;
+        if (captures[index]) captures[index]->release();
+        delete captures[index];
+        captures[index] = 0;
+        captures_w[index] = captures_h[index] = 0;
         cimg::mutex(9,0);
         return *this;
       }
-      if (!capture[camera_index]) {
+      if (!captures[index]) {
         try {
           cimg::mutex(9);
-          capture[camera_index] = new cv::VideoCapture(camera_index);
-          capture_w[camera_index] = 0;
-          capture_h[camera_index] = 0;
+          captures[index] = new cv::VideoCapture(index);
+          captures_w[index] = 0;
+          captures_h[index] = 0;
           cimg::mutex(9,0);
         } catch (...) {
           cimg::mutex(9,0);
           throw CImgIOException(_cimg_instance
                                 "load_camera(): Failed to initialize camera #%u.",
                                 cimg_instance,
-                                camera_index);
+                                index);
         }
       }
       cimg::mutex(9);
-      if (capture_width!=capture_w[camera_index]) {
-        capture[camera_index]->set(cv::CAP_PROP_FRAME_WIDTH,capture_width);
-        capture_w[camera_index] = capture_width;
+      if (capture_width!=captures_w[index]) {
+        captures[index]->set(cv::CAP_PROP_FRAME_WIDTH,capture_width);
+        captures_w[index] = capture_width;
       }
-      if (capture_height!=capture_h[camera_index]) {
-        capture[camera_index]->set(cv::CAP_PROP_FRAME_HEIGHT,capture_height);
-        capture_h[camera_index] = capture_height;
+      if (capture_height!=captures_h[index]) {
+        captures[index]->set(cv::CAP_PROP_FRAME_HEIGHT,capture_height);
+        captures_h[index] = capture_height;
       }
-      for (unsigned int i = 0; i<skip_frames; ++i) capture[camera_index]->grab();
+      for (unsigned int i = 0; i<skip_frames; ++i) captures[index]->grab();
       cv::Mat cvimg;
-      capture[camera_index]->read(cvimg);
-      if (cvimg.empty()) { cimg::mutex(9,0); return assign(); }
-      _opencv_mat2cimg(cvimg);
+      captures[index]->read(cvimg);
+      if (cvimg.empty()) assign(); else _opencv_mat2cimg(cvimg);
       cimg::mutex(9,0);
       return *this;
 #else
-      cimg::unused(camera_index,skip_frames,release_camera,capture_width,capture_height);
+      cimg::unused(index,skip_frames,release_camera,capture_width,capture_height);
       throw CImgIOException(_cimg_instance
                             "load_camera(): This function requires the OpenCV library to run "
                             "(macro 'cimg_use_opencv' must be defined).",
@@ -52424,10 +52423,10 @@ namespace cimg_library_suffixed {
 #endif
 
     //! Load image from a camera stream, using OpenCV \newinstance.
-    static CImg<T> get_load_camera(const unsigned int camera_index=0, const unsigned int skip_frames=0,
+    static CImg<T> get_load_camera(const unsigned int index=0, const unsigned int skip_frames=0,
                                    const bool release_camera=true,
                                    const unsigned int capture_width=0, const unsigned int capture_height=0) {
-      return CImg<T>().load_camera(camera_index,skip_frames,release_camera,capture_width,capture_height);
+      return CImg<T>().load_camera(index,skip_frames,release_camera,capture_width,capture_height);
     }
 
     //! Load image using various non-native ways.
@@ -59217,7 +59216,7 @@ namespace cimg_library_suffixed {
                                     cimglist_instance,filename);
       return load_ffmpeg_external(filename);
 #else
-      static CvCapture *captures[32] = { 0 };
+      static cv::VideoCapture *captures[32] = { 0 };
       static CImgList<charT> filenames(32);
       static CImg<uintT> positions(32,1,1,1,0);
       static int last_used_index = -1;
@@ -59238,8 +59237,11 @@ namespace cimg_library_suffixed {
       if (!step_frame || (index>=0 && positions[index]>first_frame)) {
         if (index>=0) {
           cimg::mutex(9);
-          cvReleaseCapture(&captures[index]);
-          captures[index] = 0; filenames[index].assign(); positions[index] = 0;
+          captures[index]->release();
+          delete captures[index];
+          captures[index] = 0;
+          positions[index] = 0;
+          filenames[index].assign();
           if (last_used_index==index) last_used_index = -1;
           index = -1;
           cimg::mutex(9,0);
@@ -59268,13 +59270,15 @@ namespace cimg_library_suffixed {
                                 "load_video(): File '%s', no video reader slots available. "
                                 "You have to release some of your previously opened videos.",
                                 cimglist_instance,filename);
-        cimg::mutex(9);
-        captures[index] = cvCaptureFromFile(filename);
-        CImg<charT>::string(filename).move_to(filenames[index]);
-        positions[index] = 0;
-        cimg::mutex(9,0);
-        if (!captures[index]) {
+        try {
+          cimg::mutex(9);
+          captures[index] = new cv::VideoCapture(filename);
+          CImg<charT>::string(filename).move_to(filenames[index]);
+          positions[index] = 0;
+          cimg::mutex(9,0);
+        } catch (...) {
           filenames[index].assign();
+          cimg::mutex(9,0);
           cimg::fclose(cimg::fopen(filename,"rb"));  // Check file availability
           throw CImgIOException(_cimglist_instance
                                 "load_video(): File '%s', unable to detect format of video file.",
@@ -59283,55 +59287,39 @@ namespace cimg_library_suffixed {
       }
 
       cimg::mutex(9);
-      const unsigned int nb_frames = (unsigned int)std::max(0.,cvGetCaptureProperty(captures[index],
-                                                                                     CV_CAP_PROP_FRAME_COUNT));
+      const unsigned int nb_frames = (unsigned int)std::max(0.,captures[index]->get(cv::CAP_PROP_FRAME_COUNT));
       cimg::mutex(9,0);
       assign();
 
-      // Skip frames if necessary.
+      // Skip frames if requested.
       bool go_on = true;
       unsigned int &pos = positions[index];
       while (pos<first_frame) {
         cimg::mutex(9);
-        if (!cvGrabFrame(captures[index])) { cimg::mutex(9,0); go_on = false; break; }
+        if (!captures[index]->grab()) { cimg::mutex(9,0); go_on = false; break; }
         cimg::mutex(9,0);
         ++pos;
       }
 
       // Read and convert frames.
-      const IplImage *src = 0;
-      if (go_on) {
-        const unsigned int _last_frame = std::min(nb_frames?nb_frames - 1:~0U,last_frame);
-        while (pos<=_last_frame) {
-          cimg::mutex(9);
-          src = cvQueryFrame(captures[index]);
-          if (src) {
-            CImg<T> frame(src->width,src->height,1,3);
-            const int step = (int)(src->widthStep - 3*src->width);
-            const unsigned char* ptrs = (unsigned char*)src->imageData;
-            T *ptr_r = frame.data(0,0,0,0), *ptr_g = frame.data(0,0,0,1), *ptr_b = frame.data(0,0,0,2);
-            if (step>0) cimg_forY(frame,y) {
-                cimg_forX(frame,x) { *(ptr_b++) = (T)*(ptrs++); *(ptr_g++) = (T)*(ptrs++); *(ptr_r++) = (T)*(ptrs++); }
-                ptrs+=step;
-              } else for (ulongT siz = (ulongT)src->width*src->height; siz; --siz) {
-                *(ptr_b++) = (T)*(ptrs++); *(ptr_g++) = (T)*(ptrs++); *(ptr_r++) = (T)*(ptrs++);
-              }
-            frame.move_to(*this);
-            ++pos;
-
-            bool skip_failed = false;
-            for (unsigned int i = 1; i<step_frame && pos<=_last_frame; ++i, ++pos)
-              if (!cvGrabFrame(captures[index])) { skip_failed = true; break; }
-            if (skip_failed) src = 0;
+      const unsigned int _last_frame = std::min(nb_frames?nb_frames - 1:~0U,last_frame);
+      while (go_on && pos<=_last_frame) {
+        cv::Mat cvimg;
+        cimg::mutex(9);
+        if (captures[index]->read(cvimg)) { insert(1); back()._opencv_mat2cimg(cvimg); ++pos; } else go_on = false;
+        cimg::mutex(9,0);
+        if (go_on)
+          for (unsigned int i = 1; go_on && i<step_frame && pos<=_last_frame; ++i, ++pos) {
+            cimg::mutex(9);
+            if (!captures[index]->grab()) go_on = false;
+            cimg::mutex(9,0);
           }
-          cimg::mutex(9,0);
-          if (!src) break;
-        }
       }
 
-      if (!src || (nb_frames && pos>=nb_frames)) { // Close video stream when necessary
+      if (!go_on || (nb_frames && pos>=nb_frames)) { // Close video stream when necessary
         cimg::mutex(9);
-        cvReleaseCapture(&captures[index]);
+        captures[index]->release();
+        delete captures[index];
         captures[index] = 0;
         filenames[index].assign();
         positions[index] = 0;

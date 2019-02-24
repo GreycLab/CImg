@@ -52338,7 +52338,7 @@ namespace cimg_library_suffixed {
 
 #ifdef cimg_use_opencv
 
-    // Convert a cv::Mat<uchar> to a CImg<uchar>.
+    // Convert a continuous cv::Mat<uchar> to a CImg<uchar>.
     static CImg<ucharT> _cvmat2cimg(const cv::Mat &src) {
       if (src.channels()==1) return CImg<ucharT>(src.ptr(),src.cols,src.rows,1,1);
       else if (src.channels()==3) { // BGR

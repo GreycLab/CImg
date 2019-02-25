@@ -60498,15 +60498,12 @@ namespace cimg_library_suffixed {
           throw CImgInstanceException(_cimglist_instance
                                       "save_video(): Frame [0] is an empty image.",
                                       cimglist_instance);
-
-#define _cimg_docase(x) ((x)>='a'&&(x)<='z'?(x) + 'A' - 'a':(x))
-
         const char
           *const _codec = codec && *codec?codec:cimg_OS==2?"mpeg":"mp4v",
-          codec0 = _cimg_docase(_codec[0]),
-          codec1 = _codec[0]?_cimg_docase(_codec[1]):0,
-          codec2 = _codec[1]?_cimg_docase(_codec[2]):0,
-          codec3 = _codec[2]?_cimg_docase(_codec[3]):0;
+          codec0 = cimg::uppercase(_codec[0]),
+          codec1 = _codec[0]?cimg::uppercase(_codec[1]):0,
+          codec2 = _codec[1]?cimg::uppercase(_codec[2]):0,
+          codec3 = _codec[2]?cimg::uppercase(_codec[3]):0;
         cimg::mutex(9);
         writers[index] = new cv::VideoWriter(filename,CV_FOURCC(codec0,codec1,codec2,codec3),fps,cv::Size(W,H));
         if (!writers[index]->isOpened()) {

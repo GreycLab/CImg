@@ -52435,11 +52435,11 @@ namespace cimg_library_suffixed {
       }
       cimg::mutex(9);
       if (capture_width!=captures_w[index]) {
-        captures[index]->set(cv::CAP_PROP_FRAME_WIDTH,capture_width);
+        captures[index]->set(CV_CAP_PROP_FRAME_WIDTH,capture_width);
         captures_w[index] = capture_width;
       }
       if (capture_height!=captures_h[index]) {
-        captures[index]->set(cv::CAP_PROP_FRAME_HEIGHT,capture_height);
+        captures[index]->set(CV_CAP_PROP_FRAME_HEIGHT,capture_height);
         captures_h[index] = capture_height;
       }
       for (unsigned int i = 0; i<skip_frames; ++i) captures[index]->grab();
@@ -59322,7 +59322,7 @@ namespace cimg_library_suffixed {
       }
 
       cimg::mutex(9);
-      const unsigned int nb_frames = (unsigned int)std::max(0.,captures[index]->get(cv::CAP_PROP_FRAME_COUNT));
+      const unsigned int nb_frames = (unsigned int)std::max(0.,captures[index]->get(CV_CAP_PROP_FRAME_COUNT));
       cimg::mutex(9,0);
       assign();
 

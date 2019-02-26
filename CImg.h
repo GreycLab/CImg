@@ -401,8 +401,10 @@
 #endif
 #include <cstddef>
 #include <opencv2/opencv.hpp>
-#ifndef CV_FOURCC
-#define CV_FOURCC cv::VideoWriter::fourcc
+#if CV_MAJOR_VERSION >=3
+#define _cimg_fourcc cv::VideoWriter::fourcc
+#else
+#define _cimg_fourcc CV_FOURCC
 #endif
 #endif
 
@@ -60508,7 +60510,7 @@ namespace cimg_library_suffixed {
           codec2 = _codec[1]?cimg::uppercase(_codec[2]):0,
           codec3 = _codec[2]?cimg::uppercase(_codec[3]):0;
         cimg::mutex(9);
-        writers[index] = new cv::VideoWriter(filename,CV_FOURCC(codec0,codec1,codec2,codec3),fps,cv::Size(W,H));
+        writers[index] = new cv::VideoWriter(filename,_cimg_fourcc(codec0,codec1,codec2,codec3),fps,cv::Size(W,H));
         if (!writers[index]->isOpened()) {
           delete writers[index];
           writers[index] = 0;

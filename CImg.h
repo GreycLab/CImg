@@ -19199,14 +19199,10 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"fsize(",6)) { // File size
               _cimg_mp_op("Function 'fsize()'");
-              *se1 = 0;
-              variable_name.assign(CImg<charT>::string(ss6,true,true).unroll('y'),true);
-              cimg::strpare(variable_name,false,true);
+              arg1 = compile(ss6,se1,depth1,0,is_single);
+              _cimg_mp_check_type(arg1,1,2,0);
               pos = scalar();
-              ((CImg<ulongT>::vector((ulongT)mp_fsize,pos,0),variable_name)>'y').move_to(opcode);
-              *se1 = ')';
-              opcode[2] = opcode._height;
-              opcode.move_to(code);
+              CImg<ulongT>::vector((ulongT)mp_fsize,pos,arg1,(ulongT)_cimg_mp_size(arg1)).move_to(code);
               _cimg_mp_return(pos);
             }
             break;
@@ -21959,8 +21955,12 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_fsize(_cimg_math_parser& mp) {
-        const CImg<charT> filename(mp.opcode._data + 3,mp.opcode[2] - 3);
-        return (double)cimg::fsize(filename);
+        const double *ptrs = &_mp_arg(2) + 1;
+        const ulongT siz = (ulongT)mp.opcode[3];
+        CImg<charT> ss(siz + 1);
+        cimg_forX(ss,i) ss[i] = ptrs[i];
+        ss.back() = 0;
+        return (double)cimg::fsize(ss);
       }
 
       static double mp_g(_cimg_math_parser& mp) {

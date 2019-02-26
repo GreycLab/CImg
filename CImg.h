@@ -401,6 +401,9 @@
 #endif
 #include <cstddef>
 #include <opencv2/opencv.hpp>
+#ifndef CV_FOURCC
+#define CV_FOURCC cv::VideoWriter::fourcc
+#endif
 #endif
 
 // Configure OpenMP support.

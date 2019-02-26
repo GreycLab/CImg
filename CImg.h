@@ -19329,18 +19329,20 @@ namespace cimg_library_suffixed {
 
               if (!std::strncmp(ss,"isdir(",6)) { // Is directory?
                 _cimg_mp_op("Function 'isdir()'");
-                *se1 = 0;
-                is_sth = cimg::is_directory(ss6);
-                *se1 = ')';
-                _cimg_mp_return(is_sth?1U:0U);
+                arg1 = compile(ss6,se1,depth1,0,is_single);
+                _cimg_mp_check_type(arg1,1,2,0);
+                pos = scalar();
+                CImg<ulongT>::vector((ulongT)mp_isdir,pos,arg1,(ulongT)_cimg_mp_size(arg1)).move_to(code);
+                _cimg_mp_return(pos);
               }
 
               if (!std::strncmp(ss,"isfile(",7)) { // Is file?
                 _cimg_mp_op("Function 'isfile()'");
-                *se1 = 0;
-                is_sth = cimg::is_file(ss7);
-                *se1 = ')';
-                _cimg_mp_return(is_sth?1U:0U);
+                arg1 = compile(ss7,se1,depth1,0,is_single);
+                _cimg_mp_check_type(arg1,1,2,0);
+                pos = scalar();
+                CImg<ulongT>::vector((ulongT)mp_isfile,pos,arg1,(ulongT)_cimg_mp_size(arg1)).move_to(code);
+                _cimg_mp_return(pos);
               }
 
               if (!std::strncmp(ss,"isin(",5)) { // Is in sequence/vector?
@@ -22190,6 +22192,15 @@ namespace cimg_library_suffixed {
         return (double)(val==0. || val==1.);
       }
 
+      static double mp_isdir(_cimg_math_parser& mp) {
+        const double *ptrs = &_mp_arg(2) + 1;
+        const ulongT siz = (ulongT)mp.opcode[3];
+        CImg<charT> ss(siz + 1);
+        cimg_forX(ss,i) ss[i] = ptrs[i];
+        ss.back() = 0;
+        return (double)cimg::is_directory(ss);
+      }
+
       static double mp_isin(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
         const double val = _mp_arg(3);
@@ -22204,6 +22215,15 @@ namespace cimg_library_suffixed {
 
       static double mp_isint(_cimg_math_parser& mp) {
         return (double)(cimg::mod(_mp_arg(2),1.)==0);
+      }
+
+      static double mp_isfile(_cimg_math_parser& mp) {
+        const double *ptrs = &_mp_arg(2) + 1;
+        const ulongT siz = (ulongT)mp.opcode[3];
+        CImg<charT> ss(siz + 1);
+        cimg_forX(ss,i) ss[i] = ptrs[i];
+        ss.back() = 0;
+        return (double)cimg::is_file(ss);
       }
 
       static double mp_isnan(_cimg_math_parser& mp) {

@@ -17429,7 +17429,9 @@ namespace cimg_library_suffixed {
             p2 = _cimg_mp_size(arg2);
             if (p1 || p2) {
               if (p1 && p2 && p1!=p2) _cimg_mp_return(1);
-              _cimg_mp_scalar6(mp_vector_neq,arg1,p1,arg2,p2,11,1);
+              pos = scalar();
+              CImg<ulongT>::vector((ulongT)mp_vector_neq,pos,arg1,p1,arg2,p2,11,1).move_to(code);
+              _cimg_mp_return(pos);
             }
             if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2)) _cimg_mp_constant(mem[arg1]!=mem[arg2]);
             _cimg_mp_scalar2(mp_neq,arg1,arg2);
@@ -17445,7 +17447,9 @@ namespace cimg_library_suffixed {
             p2 = _cimg_mp_size(arg2);
             if (p1 || p2) {
               if (p1 && p2 && p1!=p2) _cimg_mp_return(0);
-              _cimg_mp_scalar6(mp_vector_eq,arg1,p1,arg2,p2,11,1);
+              pos = scalar();
+              CImg<ulongT>::vector((ulongT)mp_vector_eq,pos,arg1,p1,arg2,p2,11,1).move_to(code);
+              _cimg_mp_return(pos);
             }
             if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2)) _cimg_mp_constant(mem[arg1]==mem[arg2]);
             _cimg_mp_scalar2(mp_eq,arg1,arg2);

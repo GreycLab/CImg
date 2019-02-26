@@ -18749,19 +18749,12 @@ namespace cimg_library_suffixed {
               _cimg_mp_op("Function 'date()'");
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = ss5!=se1?compile(ss5,s1,depth1,0,is_single):~0U;
-              is_sth = s1++!=se1; // is_filename
+              arg2 = s1<se1?compile(++s1,se1,depth1,0,is_single):~0U;
+              if (arg2!=~0U) _cimg_mp_check_type(arg2,1,2,0);
               pos = arg1==~0U || _cimg_mp_is_vector(arg1)?vector(arg1==~0U?7:_cimg_mp_size(arg1)):scalar();
-              if (is_sth) {
-                *se1 = 0;
-                variable_name.assign(CImg<charT>::string(s1,true,true).unroll('y'),true);
-                cimg::strpare(variable_name,false,true);
-                ((CImg<ulongT>::vector((ulongT)mp_date,pos,0,arg1,_cimg_mp_size(pos)),variable_name)>'y').
-                  move_to(opcode);
-                *se1 = ')';
-              } else
-                CImg<ulongT>::vector((ulongT)mp_date,pos,0,arg1,_cimg_mp_size(pos)).move_to(opcode);
-              opcode[2] = opcode._height;
-              opcode.move_to(code);
+              CImg<ulongT>::vector((ulongT)mp_date,pos,_cimg_mp_size(pos),
+                                   arg1,arg1==~0U?~0U:_cimg_mp_size(arg1),
+                                   arg2,arg2==~0U?~0U:_cimg_mp_size(arg2)).move_to(code);
               _cimg_mp_return(pos);
             }
 
@@ -21487,21 +21480,30 @@ namespace cimg_library_suffixed {
 
       static double mp_date(_cimg_math_parser& mp) {
         const unsigned int
-          _arg = (unsigned int)mp.opcode[3],
-          _siz = (unsigned int)mp.opcode[4],
-          siz = _siz?_siz:1;
-        const double *const arg_in = _arg==~0U?0:&_mp_arg(3) + (_siz?1:0);
-        double *const arg_out = &_mp_arg(1) + (_siz?1:0);
-        if (arg_in) std::memcpy(arg_out,arg_in,siz*sizeof(double));
-        else for (unsigned int i = 0; i<siz; ++i) arg_out[i] = i;
+          siz_out = (unsigned int)mp.opcode[2],
+          siz_arg1 = (unsigned int)mp.opcode[4],
+          siz_arg2 = (unsigned int)mp.opcode[6];
+        double *ptr_out = &_mp_arg(1) + (siz_out?1:0);
+        const double
+          *ptr_arg1 = siz_arg1==~0U?0:&_mp_arg(3) + (siz_arg1?1:0),
+          *ptr_arg2 = siz_arg2==~0U?0:&_mp_arg(5) + 1;
 
-        CImg<charT> filename(mp.opcode[2] - 5);
-        if (filename) {
-          const ulongT *ptrs = mp.opcode._data + 5;
-          cimg_for(filename,ptrd,char) *ptrd = (char)*(ptrs++);
-          cimg::fdate(filename,arg_out,siz);
-        } else cimg::date(arg_out,siz);
-        return _siz?cimg::type<double>::nan():*arg_out;
+        if (!ptr_arg2) { // No filename specified
+          if (!siz_arg1) return cimg::date((unsigned int)*ptr_arg1);
+          if (siz_arg1==~0U) for (unsigned int k = 0; k<siz_out; ++k) ptr_out[k] = k;
+          else for (unsigned int k = 0; k<siz_out; ++k) ptr_out[k] = ptr_arg1[k];
+          cimg::date(ptr_out,siz_out);
+          return cimg::type<double>::nan();
+        }
+
+        // Filename specified.
+        CImg<charT> ss(siz_arg2 + 1);
+        cimg_forX(ss,i) ss[i] = (char)ptr_arg2[i];
+        ss.back() = 0;
+        if (!siz_arg1) return cimg::fdate(ss,(unsigned int)*ptr_arg1);
+        for (unsigned int k = 0; k<siz_out; ++k) ptr_out[k] = ptr_arg1[k];
+        cimg::fdate(ss,ptr_out,siz_out);
+        return cimg::type<double>::nan();
       }
 
       static double mp_debug(_cimg_math_parser& mp) {
@@ -21958,7 +21960,7 @@ namespace cimg_library_suffixed {
         const double *ptrs = &_mp_arg(2) + 1;
         const ulongT siz = (ulongT)mp.opcode[3];
         CImg<charT> ss(siz + 1);
-        cimg_forX(ss,i) ss[i] = ptrs[i];
+        cimg_forX(ss,i) ss[i] = (char)ptrs[i];
         ss.back() = 0;
         return (double)cimg::fsize(ss);
       }
@@ -22196,7 +22198,7 @@ namespace cimg_library_suffixed {
         const double *ptrs = &_mp_arg(2) + 1;
         const ulongT siz = (ulongT)mp.opcode[3];
         CImg<charT> ss(siz + 1);
-        cimg_forX(ss,i) ss[i] = ptrs[i];
+        cimg_forX(ss,i) ss[i] = (char)ptrs[i];
         ss.back() = 0;
         return (double)cimg::is_directory(ss);
       }
@@ -22221,7 +22223,7 @@ namespace cimg_library_suffixed {
         const double *ptrs = &_mp_arg(2) + 1;
         const ulongT siz = (ulongT)mp.opcode[3];
         CImg<charT> ss(siz + 1);
-        cimg_forX(ss,i) ss[i] = ptrs[i];
+        cimg_forX(ss,i) ss[i] = (char)ptrs[i];
         ss.back() = 0;
         return (double)cimg::is_file(ss);
       }
@@ -23887,7 +23889,7 @@ namespace cimg_library_suffixed {
 
         CImg<charT> ss(siz + 1 - ind);
         ptrs+=1 + ind;
-        cimg_forX(ss,i) ss[i] = ptrs[i];
+        cimg_forX(ss,i) ss[i] = (char)ptrs[i];
         ss.back() = 0;
 
         const char *s = ss._data;

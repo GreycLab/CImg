@@ -19981,7 +19981,9 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_type(arg2,2,1,0);
               _cimg_mp_check_type(arg3,3,1,0);
               p1 = _cimg_mp_size(arg1);
-              _cimg_mp_scalar4(mp_stov,arg1,p1,arg2,arg3);
+              pos = scalar();
+              CImg<ulongT>::vector((ulongT)mp_stov,pos,arg1,p1,arg2,arg3).move_to(code);
+              _cimg_mp_return(pos);
             }
 
             if (!std::strncmp(ss,"svd(",4)) { // Matrix SVD

@@ -52395,14 +52395,14 @@ namespace cimg_library_suffixed {
     //! Load image from a camera stream, using OpenCV.
     /**
        \param index Index of the camera to capture images from (from 0 to 63).
+       \param capture_width Width of the desired image ('0' stands for default value).
+       \param capture_height Height of the desired image ('0' stands for default value).
        \param skip_frames Number of frames to skip before the capture.
        \param release_camera Tells if the camera ressource must be released at the end of the method.
-       \param capture_width Width of the desired image.
-       \param capture_height Height of the desired image.
     **/
-    CImg<T>& load_camera(const unsigned int index=0, const unsigned int skip_frames=0,
-                         const bool release_camera=true, const unsigned int capture_width=0,
-                         const unsigned int capture_height=0) {
+    CImg<T>& load_camera(const unsigned int index=0,
+                         const unsigned int capture_width=0, const unsigned int capture_height=0,
+                         const unsigned int skip_frames=0, const bool release_camera=true) {
 #ifdef cimg_use_opencv
       if (index>=64)
         throw CImgArgumentException(_cimg_instance
@@ -52461,10 +52461,10 @@ namespace cimg_library_suffixed {
     }
 
     //! Load image from a camera stream, using OpenCV \newinstance.
-    static CImg<T> get_load_camera(const unsigned int index=0, const unsigned int skip_frames=0,
-                                   const bool release_camera=true,
-                                   const unsigned int capture_width=0, const unsigned int capture_height=0) {
-      return CImg<T>().load_camera(index,skip_frames,release_camera,capture_width,capture_height);
+    static CImg<T> get_load_camera(const unsigned int index=0,
+                                   const unsigned int capture_width=0, const unsigned int capture_height=0,
+                                   const unsigned int skip_frames=0, const bool release_camera=true) {
+      return CImg<T>().load_camera(index,capture_width,capture_height,skip_frames,release_camera);
     }
 
     //! Load image using various non-native ways.
@@ -59238,7 +59238,7 @@ namespace cimg_library_suffixed {
     /**
       \param filename Filename, as a C-string.
       \param first_frame Index of the first frame to read.
-      \param last_frame Index of the last frame to read.
+      \param last_frame Index of the last frame to read (can be higher than the actual number of frames, e.g. '~0U').
       \param step_frame Step value for frame reading.
       \note If step_frame==0, the current video stream is forced to be released (without any frames read).
     **/

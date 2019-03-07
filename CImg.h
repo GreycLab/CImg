@@ -26828,7 +26828,6 @@ namespace cimg_library_suffixed {
       d = true;
 
       bool return0 = false;
-
       cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height>=512))
       cimg_forX(*this,i) {
         Tfloat vmax = 0;

@@ -26840,7 +26840,6 @@ namespace cimg_library_suffixed {
       if (return0) { indx.fill(0); return fill(0); }
 
       cimg_forX(*this,j) {
-
         for (int i = 0; i<j; ++i) {
           Tfloat sum = (*this)(j,i);
           for (int k = 0; k<i; ++k) sum-=(*this)(k,i)*(*this)(j,k);

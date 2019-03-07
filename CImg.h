@@ -379,6 +379,20 @@
 #define cimg_appname "CImg"
 #endif
 
+// Configure Eigen support.
+// (https://eigen.tuxfamily.org/)
+//
+// Define 'cimg_use_eigen' to enable Eigen support.
+//
+// Eigen library may be used in matrix computation methods.
+#ifdef cimg_use_eigen
+#ifdef Success
+#undef Success
+#define _cimg_redefine_Success
+#endif
+#include <Eigen/Dense>
+#endif
+
 // Configure OpenCV support.
 // (http://opencv.willowgarage.com/wiki/)
 //
@@ -62272,6 +62286,9 @@ namespace cil = cimg_library_suffixed;
 #endif
 #ifdef _cimg_redefine_Status
 #define Status int
+#endif
+#ifdef _cimg_redefine_Success
+#define Success 0
 #endif
 #ifdef _cimg_redefine_min
 #define min(a,b) (((a)<(b))?(a):(b))

@@ -152,6 +152,11 @@ ifdef IS_ICPC
 OPT_CFLAGS = -fast
 endif
 
+# Flags to enable Eigen support.
+EIGEN_DEFINE = -Dcimg_use_eigen
+EIGEN_INCDIR =
+EIGEN_CFLAGS = $(EIGEN_DEFINE) $(EIGEN_INCDIR)
+
 # Flags to enable OpenMP support.
 OPENMP_DEFINE = -Dcimg_use_openmp -fopenmp
 OPENMP_INCDIR =

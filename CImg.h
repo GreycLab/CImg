@@ -390,6 +390,7 @@
 #undef Success
 #define _cimg_redefine_Success
 #endif
+#include <Eigen/Core>
 #include <Eigen/Dense>
 #endif
 
@@ -3136,6 +3137,14 @@ namespace cimg_library_suffixed {
         Magick::InitializeMagick("");
       }
     } _Magick_info;
+#endif
+
+#if defined(cimg_use_eigen)
+    static struct Eigen_info {
+      Eigen_info() {
+        Eigen::initParallel();
+      }
+    } _Eigen_info;
 #endif
 
 #if cimg_display==1
@@ -26141,7 +26150,14 @@ namespace cimg_library_suffixed {
         throw CImgInstanceException(_cimg_instance
                                     "invert(): Instance is not a square matrix.",
                                     cimg_instance);
-#ifdef cimg_use_lapack
+#ifdef cimg_use_eigen
+      cimg::unused(use_LU);
+      Eigen::Matrix<Tfloat,Eigen::Dynamic,Eigen::Dynamic> mat(_height,_width);
+      cimg_forXY(*this,x,y) mat(y,x) = (Tfloat)(*this)(x,y);
+      mat = mat.inverse();
+      cimg_forXY(*this,x,y) (*this)(x,y) = (T)mat(y,x);
+
+#elif defined(cimg_use_lapack)
       int INFO = (int)use_LU, N = _width, LWORK = 4*N, *const IPIV = new int[N];
       Tfloat
         *const lapA = new Tfloat[N*N],
@@ -26230,7 +26246,7 @@ namespace cimg_library_suffixed {
     //! Solve a system of linear equations.
     /**
        \param A Matrix of the linear system.
-       \note Solve \c AX=B where \c B=*this.
+       \note Solve \c AX = B where \c B=*this.
     **/
     template<typename t>
     CImg<T>& solve(const CImg<t>& A) {
@@ -26241,13 +26257,29 @@ namespace cimg_library_suffixed {
                                     cimg_instance,
                                     A._width,A._height,A._depth,A._spectrum,A._data);
       typedef _cimg_Ttfloat Ttfloat;
-      if (A._width==A._height) { // Classical linear system
+#ifdef cimg_use_eigen
+      if (_width!=1) {
+        CImg<T> res(_width,A._width);
+        cimg_forX(*this,i) res.draw_image(i,get_column(i).solve(A));
+        return res.move_to(*this);
+      }
+      Eigen::Matrix<Ttfloat,Eigen::Dynamic,Eigen::Dynamic> matA(A._height,A._width);
+      Eigen::Matrix<Ttfloat,Eigen::Dynamic,1> matB(_height);
+      cimg_forXY(A,x,y) matA(y,x) = (Ttfloat)A(x,y);
+      cimg_forY(*this,y) matB[y] = (Ttfloat)_data[y];
+      matA = matA.colPivHouseholderQr().solve(matB);
+      assign(1,matA.rows());
+      cimg_forY(*this,y) _data[y] = (T)matB[y];
+
+#else
+      if (A._width==A._height) { // Square linear system
         if (_width!=1) {
           CImg<T> res(_width,A._width);
           cimg_forX(*this,i) res.draw_image(i,get_column(i).solve(A));
           return res.move_to(*this);
         }
-#ifdef cimg_use_lapack
+
+#ifdef(cimg_use_lapack)
         char TRANS = 'N';
         int INFO, N = _height, LWORK = 4*N, *const IPIV = new int[N];
         Ttfloat
@@ -26314,6 +26346,7 @@ namespace cimg_library_suffixed {
 	assign(A.get_pseudoinvert()*(*this));
 #endif
       }
+#endif
       return *this;
     }
 

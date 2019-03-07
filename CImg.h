@@ -392,6 +392,7 @@
 #endif
 #include <Eigen/Core>
 #include <Eigen/Dense>
+#include <Eigen/Eigenvalues>
 #endif
 
 // Configure OpenCV support.
@@ -26152,10 +26153,10 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
 #ifdef cimg_use_eigen
       cimg::unused(use_LU);
-      Eigen::Matrix<Tfloat,Eigen::Dynamic,Eigen::Dynamic> mat(_height,_width);
-      cimg_forXY(*this,x,y) mat(y,x) = (Tfloat)(*this)(x,y);
-      mat = mat.inverse();
-      cimg_forXY(*this,x,y) (*this)(x,y) = (T)mat(y,x);
+      Eigen::Matrix<Tfloat,Eigen::Dynamic,Eigen::Dynamic> Emat(_height,_width);
+      cimg_forXY(*this,x,y) Emat(y,x) = (Tfloat)(*this)(x,y);
+      Emat = Emat.inverse();
+      cimg_forXY(*this,x,y) (*this)(x,y) = (T)Emat(y,x);
 
 #elif defined(cimg_use_lapack)
       int INFO = (int)use_LU, N = _width, LWORK = 4*N, *const IPIV = new int[N];
@@ -26264,13 +26265,13 @@ namespace cimg_library_suffixed {
       }
 
 #ifdef cimg_use_eigen
-      Eigen::Matrix<Ttfloat,Eigen::Dynamic,Eigen::Dynamic> matA(A._height,A._width);
-      Eigen::Matrix<Ttfloat,Eigen::Dynamic,1> matB(_height);
-      cimg_forXY(A,x,y) matA(y,x) = (Ttfloat)A(x,y);
-      cimg_forY(*this,y) matB[y] = (Ttfloat)_data[y];
-      matB = matA.colPivHouseholderQr().solve(matB);
-      assign(1,matB.rows());
-      cimg_forY(*this,y) _data[y] = (T)matB[y];
+      Eigen::Matrix<Ttfloat,Eigen::Dynamic,Eigen::Dynamic> EmatA(A._height,A._width);
+      Eigen::Matrix<Ttfloat,Eigen::Dynamic,1> EmatB(_height);
+      cimg_forXY(A,x,y) EmatA(y,x) = (Ttfloat)A(x,y);
+      cimg_forY(*this,y) EmatB[y] = (Ttfloat)_data[y];
+      EmatB = EmatA.colPivHouseholderQr().solve(EmatB);
+      assign(1,EmatB.rows());
+      cimg_forY(*this,y) _data[y] = (T)EmatB[y];
 
 #else
       if (A._width==A._height) { // Square linear system
@@ -26470,15 +26471,36 @@ namespace cimg_library_suffixed {
     template<typename t>
     const CImg<T>& symmetric_eigen(CImg<t>& val, CImg<t>& vec) const {
       if (is_empty()) { val.assign(); vec.assign(); }
+      else if (_width!=_height || _depth>1 || _spectrum>1)
+        throw CImgInstanceException(_cimg_instance
+                                    "eigen(): Instance is not a square matrix.",
+                                    cimg_instance);
       else {
-#ifdef cimg_use_lapack
+        typedef _cimg_Ttfloat Ttfloat;
+
+/*
+#ifdef cimg_use_eigen
+        Eigen::Matrix<Ttfloat,Eigen::Dynamic,Eigen::Dynamic> Emat(_width,_width);
+        cimg_forXY(*this,x,y) Emat(y,x) = (Ttfloat)(*this)(y,x);
+        Eigen::SelfAdjointEigenSolver<Eigen::Matrix<Ttfloat,Eigen::Dynamic,Eigen::Dynamic> > Esol(Emat,true);
+        Eigen::Matrix<Ttfloat,Eigen::Dynamic,Eigen::Dynamic> Eval = Esol.eigenvalues();
+        Eigen::Matrix<Ttfloat,Eigen::Dynamic,Eigen::Dynamic> Evec = Esol.eigenvectors();
+        val.assign(Eval.rows());
+        vec.assign(Evec.cols(),Evec.rows());
+        cimg_forY(val,y) val[y] = (t)Eval(y);
+        cimg_forXY(vec,x,y) vec(x,y) = (t)Evec(y,x);
+        // + Sort in decreasing order
+#elif defined(cimg_use_lapack)
+*/
+
+#if defined(cimg_use_lapack)
         char JOB = 'V', UPLO = 'U';
         int N = _width, LWORK = 4*N, INFO;
-        Tfloat
-          *const lapA = new Tfloat[N*N],
-          *const lapW = new Tfloat[N],
-          *const WORK = new Tfloat[LWORK];
-        cimg_forXY(*this,k,l) lapA[k*N + l] = (Tfloat)((*this)(k,l));
+        Ttfloat
+          *const lapA = new Ttfloat[N*N],
+          *const lapW = new Ttfloat[N],
+          *const WORK = new Ttfloat[LWORK];
+        cimg_forXY(*this,k,l) lapA[k*N + l] = (Ttfloat)((*this)(k,l));
         cimg::syev(JOB,UPLO,N,lapA,lapW,WORK,LWORK,INFO);
         if (INFO)
           cimg::warn(_cimg_instance
@@ -26494,10 +26516,6 @@ namespace cimg_library_suffixed {
         } else { val.fill(0); vec.fill(0); }
         delete[] lapA; delete[] lapW; delete[] WORK;
 #else
-        if (_width!=_height || _depth>1 || _spectrum>1)
-          throw CImgInstanceException(_cimg_instance
-                                      "eigen(): Instance is not a square matrix.",
-                                      cimg_instance);
 
 	val.assign(1,_width);
 	if (vec._data) vec.assign(_width,_width);
@@ -26507,8 +26525,8 @@ namespace cimg_library_suffixed {
           return *this;
         }
         CImg<t> V(_width,_width);
-        Tfloat M = 0, m = (Tfloat)min_max(M), maxabs = cimg::max((Tfloat)1,cimg::abs(m),cimg::abs(M));
-        (CImg<Tfloat>(*this,false)/=maxabs).SVD(vec,val,V,false);
+        Ttfloat M = 0, m = (Ttfloat)min_max(M), maxabs = cimg::max((Ttfloat)1,cimg::abs(m),cimg::abs(M));
+        (CImg<Ttfloat>(*this,false)/=maxabs).SVD(vec,val,V,false);
         if (maxabs!=1) val*=maxabs;
 
 	bool is_ambiguous = false;

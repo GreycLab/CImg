@@ -26475,7 +26475,7 @@ namespace cimg_library_suffixed {
 
 	bool is_ambiguous = false;
 	float eig = 0;
-	cimg_forY(val,p) {       // check for ambiguous cases
+	cimg_forY(val,p) { // Check for ambiguous cases
 	  if (val[p]>eig) eig = (float)val[p];
           t scal = 0;
           cimg_forY(vec,y) scal+=vec(p,y)*V(p,y);
@@ -26487,7 +26487,7 @@ namespace cimg_library_suffixed {
 	  SVD(vec,val,V,false,40,eig);
 	  val-=eig;
 	}
-        CImg<intT> permutations;  // sort eigenvalues in decreasing order
+        CImg<intT> permutations; // Sort eigenvalues in decreasing order
         CImg<t> tmp(_width);
         val.sort(permutations,false);
         cimg_forY(vec,k) {

@@ -26257,27 +26257,23 @@ namespace cimg_library_suffixed {
                                     cimg_instance,
                                     A._width,A._height,A._depth,A._spectrum,A._data);
       typedef _cimg_Ttfloat Ttfloat;
-#ifdef cimg_use_eigen
       if (_width!=1) {
         CImg<T> res(_width,A._width);
         cimg_forX(*this,i) res.draw_image(i,get_column(i).solve(A));
         return res.move_to(*this);
       }
+
+#ifdef cimg_use_eigen
       Eigen::Matrix<Ttfloat,Eigen::Dynamic,Eigen::Dynamic> matA(A._height,A._width);
       Eigen::Matrix<Ttfloat,Eigen::Dynamic,1> matB(_height);
       cimg_forXY(A,x,y) matA(y,x) = (Ttfloat)A(x,y);
       cimg_forY(*this,y) matB[y] = (Ttfloat)_data[y];
-      matA = matA.colPivHouseholderQr().solve(matB);
-      assign(1,matA.rows());
+      matB = matA.colPivHouseholderQr().solve(matB);
+      assign(1,matB.rows());
       cimg_forY(*this,y) _data[y] = (T)matB[y];
 
 #else
       if (A._width==A._height) { // Square linear system
-        if (_width!=1) {
-          CImg<T> res(_width,A._width);
-          cimg_forX(*this,i) res.draw_image(i,get_column(i).solve(A));
-          return res.move_to(*this);
-        }
 
 #ifdef(cimg_use_lapack)
         char TRANS = 'N';
@@ -26314,11 +26310,6 @@ namespace cimg_library_suffixed {
 #endif
       } else { // Least-square solution for non-square systems
 #ifdef cimg_use_lapack
-        if (_width!=1) {
-          CImg<T> res(_width,A._width);
-          cimg_forX(*this,i) res.draw_image(i,get_column(i).solve(A));
-          return res.move_to(*this);
-        }
 	char TRANS = 'N';
         int INFO, N = A._width, M = A._height, LWORK = -1, LDA = M, LDB = M, NRHS = _width;
 	Ttfloat WORK_QUERY;

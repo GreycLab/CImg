@@ -26275,7 +26275,7 @@ namespace cimg_library_suffixed {
 #else
       if (A._width==A._height) { // Square linear system
 
-#ifdef(cimg_use_lapack)
+#ifdef cimg_use_lapack
         char TRANS = 'N';
         int INFO, N = _height, LWORK = 4*N, *const IPIV = new int[N];
         Ttfloat

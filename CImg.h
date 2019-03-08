@@ -26151,36 +26151,6 @@ namespace cimg_library_suffixed {
         throw CImgInstanceException(_cimg_instance
                                     "invert(): Instance is not a square matrix.",
                                     cimg_instance);
-#ifdef cimg_use_eigen
-      cimg::unused(use_LU);
-      typedef Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> MatrixType;
-      Eigen::Map<MatrixType> Emat(_data,_height,_width);
-      Eigen::Matrix<Tfloat,Eigen::Dynamic,Eigen::Dynamic> Einv= Emat.inverse();
-      cimg_forXY(*this,x,y) (*this)(x,y) = (T)Einv(y,x);
-
-#elif defined(cimg_use_lapack)
-      int INFO = (int)use_LU, N = _width, LWORK = 4*N, *const IPIV = new int[N];
-      Tfloat
-        *const lapA = new Tfloat[N*N],
-        *const WORK = new Tfloat[LWORK];
-      cimg_forXY(*this,k,l) lapA[k*N + l] = (Tfloat)((*this)(k,l));
-      cimg::getrf(N,lapA,IPIV,INFO);
-      if (INFO)
-        cimg::warn(_cimg_instance
-                   "invert(): LAPACK function dgetrf_() returned error code %d.",
-                   cimg_instance,
-                   INFO);
-      else {
-        cimg::getri(N,lapA,IPIV,WORK,LWORK,INFO);
-        if (INFO)
-          cimg::warn(_cimg_instance
-                     "invert(): LAPACK function dgetri_() returned error code %d.",
-                     cimg_instance,
-                     INFO);
-      }
-      if (!INFO) cimg_forXY(*this,k,l) (*this)(k,l) = (T)(lapA[k*N + l]); else fill(0);
-      delete[] IPIV; delete[] lapA; delete[] WORK;
-#else
       const double dete = _width>3?-1.:det();
       if (dete!=0. && _width==2) {
         const double
@@ -26197,6 +26167,37 @@ namespace cimg_library_suffixed {
         _data[3] = (T)((h*c - i*b)/dete), _data[4] = (T)((i*a - c*g)/dete), _data[5] = (T)((g*b - a*h)/dete);
         _data[6] = (T)((b*f - e*c)/dete), _data[7] = (T)((d*c - a*f)/dete), _data[8] = (T)((a*e - d*b)/dete);
       } else {
+
+#ifdef cimg_use_eigen
+        cimg::unused(use_LU);
+        typedef Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> MatrixType;
+        Eigen::Map<MatrixType> Emat(_data,_height,_width);
+        Eigen::Matrix<Tfloat,Eigen::Dynamic,Eigen::Dynamic> Einv= Emat.inverse();
+        cimg_forXY(*this,x,y) (*this)(x,y) = (T)Einv(y,x);
+
+#elif defined(cimg_use_lapack)
+        int INFO = (int)use_LU, N = _width, LWORK = 4*N, *const IPIV = new int[N];
+        Tfloat
+          *const lapA = new Tfloat[N*N],
+          *const WORK = new Tfloat[LWORK];
+        cimg_forXY(*this,k,l) lapA[k*N + l] = (Tfloat)((*this)(k,l));
+        cimg::getrf(N,lapA,IPIV,INFO);
+        if (INFO)
+          cimg::warn(_cimg_instance
+                     "invert(): LAPACK function dgetrf_() returned error code %d.",
+                     cimg_instance,
+                     INFO);
+        else {
+          cimg::getri(N,lapA,IPIV,WORK,LWORK,INFO);
+          if (INFO)
+            cimg::warn(_cimg_instance
+                       "invert(): LAPACK function dgetri_() returned error code %d.",
+                       cimg_instance,
+                       INFO);
+        }
+        if (!INFO) cimg_forXY(*this,k,l) (*this)(k,l) = (T)(lapA[k*N + l]); else fill(0);
+        delete[] IPIV; delete[] lapA; delete[] WORK;
+#else
         if (use_LU) { // LU-based inverse computation
           CImg<Tfloat> A(*this,false), indx, col(1,_width);
           bool d;
@@ -26215,8 +26216,8 @@ namespace cimg_library_suffixed {
           S.diagonal();
           *this = V*S*U;
         }
-      }
 #endif
+      }
       return *this;
     }
 

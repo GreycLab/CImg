@@ -26170,8 +26170,8 @@ namespace cimg_library_suffixed {
 
 #ifdef cimg_use_eigen
         cimg::unused(use_LU);
-        typedef Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> MatrixType;
-        Eigen::Map<MatrixType> Emat(_data,_height,_width);
+        typedef Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> MatrixT;
+        Eigen::Map<MatrixT> Emat(_data,_height,_width);
         Eigen::Matrix<Tfloat,Eigen::Dynamic,Eigen::Dynamic> Einv= Emat.inverse();
         cimg_forXY(*this,x,y) (*this)(x,y) = (T)Einv(y,x);
 
@@ -26259,6 +26259,7 @@ namespace cimg_library_suffixed {
                                     cimg_instance,
                                     A._width,A._height,A._depth,A._spectrum,A._data);
       typedef _cimg_Ttfloat Ttfloat;
+
       if (_width!=1) {
         CImg<T> res(_width,A._width);
         cimg_forX(*this,i) res.draw_image(i,get_column(i).solve(A));
@@ -26266,14 +26267,13 @@ namespace cimg_library_suffixed {
       }
 
 #ifdef cimg_use_eigen
-      Eigen::Matrix<Ttfloat,Eigen::Dynamic,Eigen::Dynamic> EmatA(A._height,A._width);
-      Eigen::Matrix<Ttfloat,Eigen::Dynamic,1> EmatB(_height);
-      cimg_forXY(A,x,y) EmatA(y,x) = (Ttfloat)A(x,y);
-      cimg_forY(*this,y) EmatB[y] = (Ttfloat)_data[y];
-      EmatB = EmatA.colPivHouseholderQr().solve(EmatB);
-      assign(1,EmatB.rows());
-      cimg_forY(*this,y) _data[y] = (T)EmatB[y];
-
+      typedef Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> MatrixT;
+      typedef Eigen::Matrix<t,Eigen::Dynamic,1> Vectort;
+      Eigen::Map<MatrixT> EmatA(A._data,A._height,A._width);
+      Eigen::Map<Vectort> EmatB(_data,_height);
+      Eigen::Matrix<Ttfloat,Eigen::Dynamic,Eigen::Dynamic> EmatX = EmatA.colPivHouseholderQr().solve(EmatB);
+      assign(1,EmatX.rows());
+      cimg_forY(*this,y) _data[y] = (T)EmatX(y);
 #else
       if (A._width==A._height) { // Square linear system
 

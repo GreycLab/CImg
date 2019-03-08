@@ -26153,10 +26153,10 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
 #ifdef cimg_use_eigen
       cimg::unused(use_LU);
-      Eigen::Matrix<Tfloat,Eigen::Dynamic,Eigen::Dynamic> Emat(_height,_width);
-      cimg_forXY(*this,x,y) Emat(y,x) = (Tfloat)(*this)(x,y);
-      Emat = Emat.inverse();
-      cimg_forXY(*this,x,y) (*this)(x,y) = (T)Emat(y,x);
+      typedef Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> MatrixType;
+      Eigen::Map<MatrixType> Emat(_data,_height,_width);
+      Eigen::Matrix<Tfloat,Eigen::Dynamic,Eigen::Dynamic> Einv= Emat.inverse();
+      cimg_forXY(*this,x,y) (*this)(x,y) = (T)Einv(y,x);
 
 #elif defined(cimg_use_lapack)
       int INFO = (int)use_LU, N = _width, LWORK = 4*N, *const IPIV = new int[N];

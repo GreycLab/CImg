@@ -26170,8 +26170,9 @@ namespace cimg_library_suffixed {
 
 #ifdef cimg_use_eigen
         cimg::unused(use_LU);
-        typedef Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> MatrixT;
-        Eigen::Map<MatrixT> Emat(_data,_height,_width);
+        if (!cimg::type<T>::is_float()) return CImg<Tfloat>(*this,false).invert(use_LU).move_to(*this);
+        typedef Eigen::Matrix<Tfloat,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> MatrixT;
+        Eigen::Map<MatrixT> Emat((Tfloat*)_data,_height,_width);
         Emat = Emat.inverse();
 
 #elif defined(cimg_use_lapack)
@@ -26260,11 +26261,14 @@ namespace cimg_library_suffixed {
       typedef _cimg_Ttfloat Ttfloat;
 
 #ifdef cimg_use_eigen
-      typedef Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> MatrixT;
-      typedef Eigen::Matrix<t,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> Matrixt;
-      Eigen::Map<MatrixT> EmatA(A._data,A._height,A._width);
-      Eigen::Map<Matrixt> EmatB(_data,_height,_width);
-      Eigen::Matrix<Ttfloat,Eigen::Dynamic,Eigen::Dynamic> EmatX = EmatA.colPivHouseholderQr().solve(EmatB);
+      if (cimg::type<T>::string()!=cimg::type<t>::string() ||
+          !cimg::type<T>::is_float() ||
+          !cimg::type<t>::is_float()) return CImg<Ttfloat>(*this,false).solve(CImg<Ttfloat>(A)).move_to(*this);
+      typedef Eigen::Matrix<Ttfloat,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> MatrixT;
+      typedef Eigen::Matrix<Ttfloat,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> Matrixt;
+      const Eigen::Map<MatrixT> EmatA((Ttfloat*)A._data,A._height,A._width);
+      const Eigen::Map<Matrixt> EmatB((Ttfloat*)_data,_height,_width);
+      const Eigen::Matrix<Ttfloat,Eigen::Dynamic,Eigen::Dynamic> EmatX = EmatA.colPivHouseholderQr().solve(EmatB);
       assign(EmatX.cols(),EmatX.rows());
       cimg_forXY(*this,x,y) (*this)(x,y) = (T)EmatX(y,x);
 #else
@@ -26345,7 +26349,8 @@ namespace cimg_library_suffixed {
     //! Solve a system of linear equations \newinstance.
     template<typename t>
     CImg<_cimg_Ttfloat> get_solve(const CImg<t>& A) const {
-      return CImg<_cimg_Ttfloat>(*this,false).solve(A);
+      typedef _cimg_Ttfloat Ttfloat;
+      return CImg<Ttfloat>(*this,false).solve(A);
     }
 
     template<typename t, typename ti>
@@ -26477,23 +26482,19 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
       else {
 
-/*#ifdef cimg_use_eigen
-        typedef Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> MatrixT;
-        Eigen::Map<MatrixT> Emat(_data,_height,_width);
-        Eigen::SelfAdjointEigenSolver<MatrixT> Esol(Emat,true);
-
-        Eigen::Matrix<Ttfloat,Eigen::Dynamic,Eigen::Dynamic> Eval = Esol.eigenvalues();
-        Eigen::Matrix<Ttfloat,Eigen::Dynamic,Eigen::Dynamic> Evec = Esol.eigenvectors();
-
-        val.assign(Eval.rows());
+#ifdef cimg_use_eigen
+        if (!cimg::type<T>::is_float()) { CImg<Tfloat>(*this,false).symmetric_eigen(val,vec); return *this; }
+        typedef Eigen::Matrix<Tfloat,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> MatrixT;
+        const Eigen::Map<MatrixT> Emat((Tfloat*)_data,_height,_width);
+        const Eigen::SelfAdjointEigenSolver<MatrixT> Esol(Emat);
+        const Eigen::Matrix<Tfloat,Eigen::Dynamic,Eigen::Dynamic>
+          Eval = Esol.eigenvalues(), Evec = Esol.eigenvectors();
+        val.assign(1,Eval.rows());
         vec.assign(Evec.cols(),Evec.rows());
-        cimg_forY(val,y) val[y] = (t)Eval(y);
+        cimg_forY(val,y) val[val._height - 1 - y] = (t)Eval(y);
         cimg_forXY(vec,x,y) vec(x,y) = (t)Evec(y,x);
-        // + Sort in decreasing order
-#elif defined(cimg_use_lapack)
-*/
 
-#if defined(cimg_use_lapack)
+#elif defined(cimg_use_lapack)
         char JOB = 'V', UPLO = 'U';
         int N = _width, LWORK = 4*N, INFO;
         Tfloat
@@ -26515,6 +26516,7 @@ namespace cimg_library_suffixed {
           cimg_forXY(vec,k,l) vec(k,l) = (T)(lapA[(N - 1 - k)*N + l]);
         } else { val.fill(0); vec.fill(0); }
         delete[] lapA; delete[] lapW; delete[] WORK;
+        sort_eigenvalues = false;
 #else
 
 	val.assign(1,_width);
@@ -26543,6 +26545,7 @@ namespace cimg_library_suffixed {
 	  SVD(vec,val,V,false,40,eig);
 	  val-=eig;
 	}
+
         CImg<intT> permutations; // Sort eigenvalues in decreasing order
         CImg<t> tmp(_width);
         val.sort(permutations,false);

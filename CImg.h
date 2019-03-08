@@ -26260,21 +26260,21 @@ namespace cimg_library_suffixed {
                                     A._width,A._height,A._depth,A._spectrum,A._data);
       typedef _cimg_Ttfloat Ttfloat;
 
-      if (_width!=1) {
+#ifdef cimg_use_eigen
+      typedef Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> MatrixT;
+      typedef Eigen::Matrix<t,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> Matrixt;
+      Eigen::Map<MatrixT> EmatA(A._data,A._height,A._width);
+      Eigen::Map<Matrixt> EmatB(_data,_height,_width);
+      Eigen::Matrix<Ttfloat,Eigen::Dynamic,Eigen::Dynamic> EmatX = EmatA.colPivHouseholderQr().solve(EmatB);
+      assign(EmatX.cols(),EmatX.rows());
+      cimg_forXY(*this,x,y) (*this)(x,y) = (T)EmatX(y,x);
+#else
+      if (_width!=1) { // Process column-by-column
         CImg<T> res(_width,A._width);
         cimg_forX(*this,i) res.draw_image(i,get_column(i).solve(A));
         return res.move_to(*this);
       }
 
-#ifdef cimg_use_eigen
-      typedef Eigen::Matrix<T,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> MatrixT;
-      typedef Eigen::Matrix<t,Eigen::Dynamic,1> Vectort;
-      Eigen::Map<MatrixT> EmatA(A._data,A._height,A._width);
-      Eigen::Map<Vectort> EmatB(_data,_height);
-      Eigen::Matrix<Ttfloat,Eigen::Dynamic,Eigen::Dynamic> EmatX = EmatA.colPivHouseholderQr().solve(EmatB);
-      assign(1,EmatX.rows());
-      cimg_forY(*this,y) _data[y] = (T)EmatX(y);
-#else
       if (A._width==A._height) { // Square linear system
 
 #ifdef cimg_use_lapack

@@ -24026,8 +24026,8 @@ namespace cimg_library_suffixed {
         if (start<0 || start + step*sublength>length)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Value accessor '[]': "
                                       "Out-of-bounds sub-vector request "
-                                      "(length: %ld, start: %ld, sub-length: %ld).",
-                                      mp.imgin.pixel_type(),length,start,sublength);
+                                      "(length: %ld, start: %ld, sub-length: %ld, step: %ld).",
+                                      mp.imgin.pixel_type(),length,start,sublength,step);
         if (step==1) std::memcpy(ptrd,ptrs + start,sublength*sizeof(double));
         else for (longT k = 0; k<sublength; ++k) { *(ptrd++) = *ptrs; ptrs+=step; }
         return cimg::type<double>::nan();

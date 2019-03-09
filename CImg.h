@@ -24022,7 +24022,7 @@ namespace cimg_library_suffixed {
           length = (longT)mp.opcode[3],
           start = (longT)_mp_arg(4),
           sublength = (longT)mp.opcode[5],
-          step = (longT)mp.opcode[6];
+          step = (longT)_mp_arg(6);
         if (start<0 || start + step*sublength>length)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Value accessor '[]': "
                                       "Out-of-bounds sub-vector request "

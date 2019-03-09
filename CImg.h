@@ -26500,7 +26500,7 @@ namespace cimg_library_suffixed {
         val.assign(1,Eval.rows());
         vec.assign(Evec.cols(),Evec.rows());
         cimg_forY(val,y) val[val._height - 1 - y] = (t)Eval(y);
-        cimg_forXY(vec,x,y) vec(x,y) = (t)Evec(y,x);
+        cimg_forXY(vec,x,y) vec(x,y) = (t)Evec(y,vec._width - 1 - x);
 
 #elif defined(cimg_use_lapack)
         char JOB = 'V', UPLO = 'U';

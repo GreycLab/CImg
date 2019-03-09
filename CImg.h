@@ -20185,6 +20185,14 @@ namespace cimg_library_suffixed {
                 arg1 = (unsigned int)mem[arg1];
               } else s = std::strchr(ss6,'(') + 1;
 
+              if (arg1==~0U && *s=='#') { // Number of elements specified as first argument with '#'
+                s0 = ++s; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                arg1 = compile(s,s0++,depth1,0,is_single);
+                _cimg_mp_check_constant(arg1,1,3);
+                arg1 = (unsigned int)mem[arg1];
+                s = s0;
+              }
+
               if (s<se1 || arg1==~0U) for ( ; s<se; ++s) {
                   ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                  (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;

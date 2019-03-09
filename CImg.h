@@ -18089,14 +18089,16 @@ namespace cimg_library_suffixed {
             }
             s1 = s0 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
 
-            if (s1<se1) { // Two arguments -> sub-vector extraction
+            if (s1<se1) { // Two or three arguments -> sub-vector extraction
               p1 = _cimg_mp_size(arg1);
               arg2 = compile(++s0,s1,depth1,0,is_single); // Starting index
-              arg3 = compile(++s1,se1,depth1,0,is_single); // Length
+              s0 = ++s1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+              arg3 = compile(s1,s0,depth1,0,is_single); // Length
+              arg4 = s0<se1?compile(++s0,se1,depth1,0,is_single):1; // Step
               _cimg_mp_check_constant(arg3,2,3);
               arg3 = (unsigned int)mem[arg3];
               pos = vector(arg3);
-              CImg<ulongT>::vector((ulongT)mp_vector_crop,pos,arg1,p1,arg2,arg3).move_to(code);
+              CImg<ulongT>::vector((ulongT)mp_vector_crop,pos,arg1,p1,arg2,arg3,arg4).move_to(code);
               _cimg_mp_return(pos);
             }
 
@@ -24014,18 +24016,20 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_vector_crop(_cimg_math_parser& mp) {
-        double *const ptrd = &_mp_arg(1) + 1;
-        const double *const ptrs = &_mp_arg(2) + 1;
+        double *ptrd = &_mp_arg(1) + 1;
+        const double *ptrs = &_mp_arg(2) + 1;
         const longT
           length = (longT)mp.opcode[3],
           start = (longT)_mp_arg(4),
-          sublength = (longT)mp.opcode[5];
-        if (start<0 || start + sublength>length)
+          sublength = (longT)mp.opcode[5],
+          step = (longT)mp.opcode[6];
+        if (start<0 || start + step*sublength>length)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Value accessor '[]': "
                                       "Out-of-bounds sub-vector request "
                                       "(length: %ld, start: %ld, sub-length: %ld).",
                                       mp.imgin.pixel_type(),length,start,sublength);
-        std::memcpy(ptrd,ptrs + start,sublength*sizeof(double));
+        if (step==1) std::memcpy(ptrd,ptrs + start,sublength*sizeof(double));
+        else for (longT k = 0; k<sublength; ++k) { *(ptrd++) = *ptrs; ptrs+=step; }
         return cimg::type<double>::nan();
       }
 

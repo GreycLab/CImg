@@ -24023,10 +24023,6 @@ namespace cimg_library_suffixed {
           start = (longT)_mp_arg(4),
           sublength = (longT)mp.opcode[5],
           step = (longT)_mp_arg(6);
-
-        std::fprintf(stderr,"\nDEBUG : length = %d, start = %d, sublength = %d, step = %d\n",
-                     (int)length,(int)start,(int)sublength,(int)step);
-
         if (start<0 || start + step*sublength>length)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Value accessor '[]': "
                                       "Out-of-bounds sub-vector request "

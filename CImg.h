@@ -23214,9 +23214,9 @@ namespace cimg_library_suffixed {
           l = (unsigned int)mp.opcode[4];
         CImg<doubleT> U, S, V;
         CImg<doubleT>(ptr1,k,l,1,1,true).SVD(U,S,V);
-        CImg<doubleT>(ptrd,k,l,1,1,true) = U;
-        CImg<doubleT>(ptrd + k*l,1,k,1,1,true) = S;
-        CImg<doubleT>(ptrd + k*l + k,k,k,1,1,true) = V;
+        CImg<doubleT>(ptrd,1,k,1,1,true) = S;
+        CImg<doubleT>(ptrd + k,k,l,1,1,true) = U;
+        CImg<doubleT>(ptrd + k + k*l,k,k,1,1,true) = V;
         return cimg::type<double>::nan();
       }
 

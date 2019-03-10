@@ -45511,7 +45511,7 @@ namespace cimg_library_suffixed {
           oxmin = xmin; oxmax = xmax;
         }
       } else {
-        CImg<int> points((unsigned int)cimg::round(3*rmax),2);
+        CImg<int> points((unsigned int)cimg::round(6*rmax),2);
         cimg_forX(points,k) {
           const float
             ang = (float)(2*cimg::PI*k/points._width),

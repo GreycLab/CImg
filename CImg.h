@@ -45457,8 +45457,10 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
       if (r1<0 || r2<0) return *this;
       if (r1*r2<=0) return draw_point(x0,y0,color,opacity);
-      if (r1==r2 && (float)(int)r1==r1 && pattern==~0U)
-        return draw_circle(x0,y0,(int)cimg::round(r1),color,opacity,pattern);
+      if (r1==r2 && (float)(int)r1==r1) {
+        if (is_filled) return draw_circle(x0,y0,(int)cimg::round(r1),color,opacity);
+        else return draw_circle(x0,y0,(int)cimg::round(r1),color,opacity,pattern);
+      }
 
       const float
         nr1 = cimg::abs(r1) - 0.5, nr2 = cimg::abs(r2) - 0.5,

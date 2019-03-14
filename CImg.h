@@ -26529,9 +26529,7 @@ namespace cimg_library_suffixed {
           cimg_forXY(vec,k,l) vec(k,l) = (T)(lapA[(N - 1 - k)*N + l]);
         } else { val.fill(0); vec.fill(0); }
         delete[] lapA; delete[] lapW; delete[] WORK;
-        sort_eigenvalues = false;
 #else
-
 	val.assign(1,_width);
 	if (vec._data) vec.assign(_width,_width);
         if (_width<3) {

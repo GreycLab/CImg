@@ -26444,11 +26444,9 @@ namespace cimg_library_suffixed {
         case 2 : {
           const double a = (*this)[0], b = (*this)[1], c = (*this)[2], d = (*this)[3], e = a + d;
           double f = e*e - 4*(a*d - b*c);
-          if (f<0)
-            cimg::warn(_cimg_instance
-                       "eigen(): Complex eigenvalues found.",
-                       cimg_instance);
-
+          if (f<0) cimg::warn(_cimg_instance
+                              "eigen(): Complex eigenvalues found.",
+                              cimg_instance);
           f = std::sqrt(f);
           const double
             l1 = 0.5*(e - f),

@@ -62364,6 +62364,7 @@ namespace cil = cimg_library_suffixed;
 #endif
 
 #endif
+
 // Local Variables:
 // mode: c++
 // End:

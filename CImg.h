@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 251
+#define cimg_version 252
 
 /*-----------------------------------------------------------
  #
@@ -377,22 +377,6 @@
 #endif
 #ifndef cimg_appname
 #define cimg_appname "CImg"
-#endif
-
-// Configure Eigen support.
-// (https://eigen.tuxfamily.org/)
-//
-// Define 'cimg_use_eigen' to enable Eigen support.
-//
-// Eigen library may be used in matrix computation methods.
-#ifdef cimg_use_eigen
-#ifdef Success
-#undef Success
-#define _cimg_redefine_Success
-#endif
-#include <Eigen/Core>
-#include <Eigen/Dense>
-#include <Eigen/Eigenvalues>
 #endif
 
 // Configure OpenCV support.
@@ -3141,14 +3125,6 @@ namespace cimg_library_suffixed {
         Magick::InitializeMagick("");
       }
     } _Magick_info;
-#endif
-
-#if defined(cimg_use_eigen)
-    static struct Eigen_info {
-      Eigen_info() {
-        Eigen::initParallel();
-      }
-    } _Eigen_info;
 #endif
 
 #if cimg_display==1
@@ -26195,14 +26171,7 @@ namespace cimg_library_suffixed {
         _data[6] = (T)((b*f - e*c)/dete), _data[7] = (T)((d*c - a*f)/dete), _data[8] = (T)((a*e - d*b)/dete);
       } else {
 
-#ifdef cimg_use_eigen
-        cimg::unused(use_LU);
-        if (!cimg::type<T>::is_float()) return CImg<Tfloat>(*this,false).invert(use_LU).move_to(*this);
-        typedef Eigen::Matrix<Tfloat,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> MatrixT;
-        Eigen::Map<MatrixT> Emat((Tfloat*)_data,_height,_width);
-        Emat = Emat.inverse();
-
-#elif defined(cimg_use_lapack)
+#ifdef cimg_use_lapack
         int INFO = (int)use_LU, N = _width, LWORK = 4*N, *const IPIV = new int[N];
         Tfloat
           *const lapA = new Tfloat[N*N],
@@ -26307,19 +26276,6 @@ namespace cimg_library_suffixed {
           }
         return *this;
       }
-
-#ifdef cimg_use_eigen
-      if (cimg::type<T>::string()!=cimg::type<t>::string() ||
-          !cimg::type<T>::is_float() ||
-          !cimg::type<t>::is_float()) return CImg<Ttfloat>(*this,false).solve(CImg<Ttfloat>(A)).move_to(*this);
-      typedef Eigen::Matrix<Ttfloat,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> MatrixT;
-      typedef Eigen::Matrix<Ttfloat,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> Matrixt;
-      const Eigen::Map<MatrixT> EmatA((Ttfloat*)A._data,A._height,A._width);
-      const Eigen::Map<Matrixt> EmatB((Ttfloat*)_data,_height,_width);
-      const Eigen::Matrix<Ttfloat,Eigen::Dynamic,Eigen::Dynamic> EmatX = EmatA.colPivHouseholderQr().solve(EmatB);
-      assign(EmatX.cols(),EmatX.rows());
-      cimg_forXY(*this,x,y) (*this)(x,y) = (T)EmatX(y,x);
-#else
       if (_width!=1) { // Process column-by-column
         CImg<T> res(_width,A._width);
         cimg_forX(*this,i) res.draw_image(i,get_column(i).solve(A));
@@ -26391,7 +26347,6 @@ namespace cimg_library_suffixed {
 	assign(A.get_pseudoinvert()*(*this));
 #endif
       }
-#endif
       return *this;
     }
 
@@ -26545,17 +26500,7 @@ namespace cimg_library_suffixed {
         return *this;
       }
 
-#ifdef cimg_use_eigen
-      if (!cimg::type<T>::is_float()) { CImg<Tfloat>(*this,false).symmetric_eigen(val,vec); return *this; }
-      typedef Eigen::Matrix<Tfloat,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor> MatrixT;
-      const Eigen::Map<MatrixT> Emat((Tfloat*)_data,_height,_width);
-      const Eigen::SelfAdjointEigenSolver<MatrixT> Esol(Emat);
-      const Eigen::Matrix<Tfloat,Eigen::Dynamic,Eigen::Dynamic>
-        Eval = Esol.eigenvalues(), Evec = Esol.eigenvectors();
-      cimg_forY(val,y) val[val._height - 1 - y] = (t)Eval(y);
-      cimg_forXY(vec,x,y) vec(x,y) = (t)Evec(y,vec._width - 1 - x);
-
-#elif defined(cimg_use_lapack)
+#ifdef cimg_use_lapack
       char JOB = 'V', UPLO = 'U';
       int N = _width, LWORK = 4*N, INFO;
       Tfloat

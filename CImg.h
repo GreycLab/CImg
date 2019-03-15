@@ -26277,14 +26277,14 @@ namespace cimg_library_suffixed {
       if (A._width==A._height && A._width==2 && _height==2) {
         const double a = A[0], b = A[1], c = A[2], d = A[3], det = a*d - b*c,
           fa = std::fabs(a), fb = std::fabs(b), fc = std::fabs(c), fd = std::fabs(d),
-          fm = cimg::min(fa,fb,fc,fd);
-        if (fm==fa) cimg_forX(*this,k) {
+          fM = cimg::max(fa,fb,fc,fd);
+        if (fM==fa) cimg_forX(*this,k) {
             const double u = (*this)(k,0), v = (*this)(k,1), y = (a*v - c*u)/det;
             (*this)(k,0) = (T)((u - b*y)/a); (*this)(k,1) = (T)y;
-          } else if (fm==fc) cimg_forX(*this,k) {
+          } else if (fM==fc) cimg_forX(*this,k) {
             const double u = (*this)(k,0), v = (*this)(k,1), y = (a*v - c*u)/det;
             (*this)(k,0) = (T)((v - d*y)/c); (*this)(k,1) = (T)y;
-          } else if (fm==fb) cimg_forX(*this,k) {
+          } else if (fM==fb) cimg_forX(*this,k) {
             const double u = (*this)(k,0), v = (*this)(k,1), x = (d*u - b*v)/det;
             (*this)(k,0) = (T)x; (*this)(k,1) = (T)((u - a*x)/b);
           } else cimg_forX(*this,k) {

@@ -3006,6 +3006,7 @@ namespace cimg_library_suffixed {
     template<> struct superset<cimg_int64,float> { typedef double type; };
     template<> struct superset<cimg_int64,double> { typedef double type; };
     template<> struct superset<float,double> { typedef double type; };
+
 #ifdef cimg_use_half
     template<> struct superset<half,unsigned short> { typedef float type; };
     template<> struct superset<half,short> { typedef float type; };
@@ -3045,6 +3046,7 @@ namespace cimg_library_suffixed {
       bool is_blue_first;
       bool is_shm_enabled;
       bool byte_order;
+
 #ifdef cimg_use_xrandr
       XRRScreenSize *resolutions;
       Rotation curr_rotation;
@@ -3059,6 +3061,7 @@ namespace cimg_library_suffixed {
         wins = new CImgDisplay*[1024];
         pthread_mutex_init(&wait_event_mutex,0);
         pthread_cond_init(&wait_event,0);
+
 #ifdef cimg_use_xrandr
         resolutions = 0;
         curr_rotation = 0;
@@ -9273,6 +9276,7 @@ namespace cimg_library_suffixed {
     Colormap _colormap;
     XImage *_image;
     void *_data;
+
 #ifdef cimg_use_xshm
     XShmSegmentInfo *_shminfo;
 #endif
@@ -9287,6 +9291,7 @@ namespace cimg_library_suffixed {
         res = DisplayWidth(_dpy,DefaultScreen(_dpy));
         XCloseDisplay(_dpy);
       } else {
+
 #ifdef cimg_use_xrandr
         if (cimg::X11_attr().resolutions && cimg::X11_attr().curr_resolution)
           res = cimg::X11_attr().resolutions[cimg::X11_attr().curr_resolution].width;
@@ -9308,6 +9313,7 @@ namespace cimg_library_suffixed {
         res = DisplayHeight(_dpy,DefaultScreen(_dpy));
         XCloseDisplay(_dpy);
       } else {
+
 #ifdef cimg_use_xrandr
         if (cimg::X11_attr().resolutions && cimg::X11_attr().curr_resolution)
           res = cimg::X11_attr().resolutions[cimg::X11_attr().curr_resolution].height;
@@ -9522,6 +9528,7 @@ namespace cimg_library_suffixed {
         XSendEvent(dpy,_window,0,0,&event);
       } else { // Repaint directly (may be called from the expose event)
         GC gc = DefaultGC(dpy,DefaultScreen(dpy));
+
 #ifdef cimg_use_xshm
         if (_shminfo) XShmPutImage(dpy,_window,gc,_image,0,0,0,0,_width,_height,1);
         else XPutImage(dpy,_window,gc,_image,0,0,0,0,_width,_height);
@@ -9648,6 +9655,7 @@ namespace cimg_library_suffixed {
       do XWindowEvent(dpy,_background_window,StructureNotifyMask,&event);
       while (event.type!=MapNotify);
       GC gc = DefaultGC(dpy,DefaultScreen(dpy));
+
 #ifdef cimg_use_xshm
       if (_shminfo) XShmPutImage(dpy,_background_window,gc,background_image,0,0,0,0,sx,sy,0);
       else XPutImage(dpy,_background_window,gc,background_image,0,0,0,0,sx,sy);
@@ -9664,6 +9672,7 @@ namespace cimg_library_suffixed {
       if (!_is_fullscreen) return;
       Display *const dpy = cimg::X11_attr().display;
       XUngrabKeyboard(dpy,CurrentTime);
+
 #ifdef cimg_use_xrandr
       if (cimg::X11_attr().resolutions && cimg::X11_attr().curr_resolution) {
         XRRScreenConfiguration *config = XRRGetScreenInfo(dpy,DefaultRootWindow(dpy));
@@ -9836,6 +9845,7 @@ namespace cimg_library_suffixed {
       if (_is_fullscreen && !_is_closed) _desinit_fullscreen();
       XDestroyWindow(dpy,_window);
       _window = 0;
+
 #ifdef cimg_use_xshm
       if (_shminfo) {
         XShmDetach(dpy,_shminfo);
@@ -16141,6 +16151,7 @@ namespace cimg_library_suffixed {
         mem_img_median(~0U),debug_indent(0),result_dim(0),break_type(0),constcache_size(0),
         is_parallelizable(true),is_fill(_is_fill),need_input_copy(false),
         rng((cimg::_rand(),cimg::rng())),calling_function(funcname?funcname:"cimg_math_parser") {
+
 #ifdef cimg_use_openmp
         rng+=omp_get_thread_num();
 #endif
@@ -16264,6 +16275,7 @@ namespace cimg_library_suffixed {
         break_type(0),constcache_size(0),is_parallelizable(mp.is_parallelizable),is_fill(mp.is_fill),
         need_input_copy(mp.need_input_copy), result(mem._data + (mp.result - mp.mem._data)),
         rng((cimg::_rand(),cimg::rng())),calling_function(0) {
+
 #ifdef cimg_use_openmp
         mem[17] = omp_get_thread_num();
         rng+=omp_get_thread_num();
@@ -23895,6 +23907,7 @@ namespace cimg_library_suffixed {
 
       static double mp_srand0(_cimg_math_parser& mp) {
         cimg::srand(&mp.rng);
+
 #ifdef cimg_use_openmp
         mp.rng+=omp_get_thread_num();
 #endif
@@ -25683,6 +25696,7 @@ namespace cimg_library_suffixed {
       CImg<doubleT> res(1,xyzc.size()/4);
       if (!expression || !*expression) return res.fill(0);
       _cimg_math_parser mp(expression,"eval",*this,output,list_inputs,list_outputs,false);
+
 #ifdef cimg_use_openmp
       cimg_pragma_openmp(parallel if (res._height>=512))
       {
@@ -26274,21 +26288,21 @@ namespace cimg_library_suffixed {
       typedef _cimg_Ttfloat Ttfloat;
 
       if (A.size()==1) return (*this)/=A[0];
-      if (A._width==A._height && A._width==2 && _height==2) {
-        const double a = A[0], b = A[1], c = A[2], d = A[3], det = a*d - b*c,
+      if (A._width==2 && A._height==2 && _height==2) {
+        const double a = (double)A[0], b = (double)A[1], c = (double)A[2], d = (double)A[3],
           fa = std::fabs(a), fb = std::fabs(b), fc = std::fabs(c), fd = std::fabs(d),
-          fM = cimg::max(fa,fb,fc,fd);
+          det = a*d - b*c, fM = cimg::max(fa,fb,fc,fd);
         if (fM==fa) cimg_forX(*this,k) {
-            const double u = (*this)(k,0), v = (*this)(k,1), y = (a*v - c*u)/det;
+            const double u = (double)(*this)(k,0), v = (double)(*this)(k,1), y = (a*v - c*u)/det;
             (*this)(k,0) = (T)((u - b*y)/a); (*this)(k,1) = (T)y;
           } else if (fM==fc) cimg_forX(*this,k) {
-            const double u = (*this)(k,0), v = (*this)(k,1), y = (a*v - c*u)/det;
+            const double u = (double)(*this)(k,0), v = (double)(*this)(k,1), y = (a*v - c*u)/det;
             (*this)(k,0) = (T)((v - d*y)/c); (*this)(k,1) = (T)y;
           } else if (fM==fb) cimg_forX(*this,k) {
-            const double u = (*this)(k,0), v = (*this)(k,1), x = (d*u - b*v)/det;
+            const double u = (double)(*this)(k,0), v = (double)(*this)(k,1), x = (d*u - b*v)/det;
             (*this)(k,0) = (T)x; (*this)(k,1) = (T)((u - a*x)/b);
           } else cimg_forX(*this,k) {
-            const double u = (*this)(k,0), v = (*this)(k,1), x = (d*u - b*v)/det;
+            const double u = (double)(*this)(k,0), v = (double)(*this)(k,1), x = (d*u - b*v)/det;
             (*this)(k,0) = (T)x; (*this)(k,1) = (T)((v - c*x)/d);
           }
         return *this;
@@ -26348,6 +26362,7 @@ namespace cimg_library_suffixed {
         _solve(lu,indx);
 #endif
       } else { // Least-square solution for non-square systems
+
 #ifdef cimg_use_lapack
 	char TRANS = 'N';
         int INFO, N = A._width, M = A._height, LWORK = -1, LDA = M, LDB = M, NRHS = _width;
@@ -27930,6 +27945,7 @@ namespace cimg_library_suffixed {
               base.assign().assign(*this,false); // Needs input copy
 
             bool do_in_parallel = false;
+
 #ifdef cimg_use_openmp
             cimg_openmp_if(*expression=='*' || *expression==':' ||
                            (mp.is_parallelizable && _width>=(cimg_openmp_sizefactor)*320 &&
@@ -27963,6 +27979,7 @@ namespace cimg_library_suffixed {
                     }
                 }
              } else {
+
 #ifdef cimg_use_openmp
                 cimg_pragma_openmp(parallel)
                 {
@@ -27997,6 +28014,7 @@ namespace cimg_library_suffixed {
                 if (formula_mode==2) cimg_forYZC(*this,y,z,c) { cimg_abort_test; cimg_forX(*this,x) mp(x,y,z,c); }
                 else cimg_forYZC(*this,y,z,c) { cimg_abort_test; cimg_forX(*this,x) *(ptrd++) = (T)mp(x,y,z,c); }
               } else {
+
 #ifdef cimg_use_openmp
                 cimg_pragma_openmp(parallel)
                 {
@@ -28316,6 +28334,7 @@ namespace cimg_library_suffixed {
       const float delta = (float)val_max - (float)val_min + (cimg::type<T>::is_float()?0:1);
       if (cimg::type<T>::is_float()) cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),524288)) {
           ulongT rng = (cimg::_rand(),cimg::rng());
+
 #ifdef cimg_use_openmp
           rng+=omp_get_thread_num();
 #endif
@@ -28324,6 +28343,7 @@ namespace cimg_library_suffixed {
           cimg::srand(rng);
         } else cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),524288)) {
           ulongT rng = (cimg::_rand(),cimg::rng());
+
 #ifdef cimg_use_openmp
           rng+=omp_get_thread_num();
 #endif
@@ -28386,6 +28406,7 @@ namespace cimg_library_suffixed {
       case 0 : { // Gaussian noise
         cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),131072)) {
           ulongT rng = (cimg::_rand(),cimg::rng());
+
 #ifdef cimg_use_openmp
           rng+=omp_get_thread_num();
 #endif
@@ -28402,6 +28423,7 @@ namespace cimg_library_suffixed {
       case 1 : { // Uniform noise
         cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),131072)) {
           ulongT rng = (cimg::_rand(),cimg::rng());
+
 #ifdef cimg_use_openmp
           rng+=omp_get_thread_num();
 #endif
@@ -28423,6 +28445,7 @@ namespace cimg_library_suffixed {
         }
         cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),131072)) {
           ulongT rng = (cimg::_rand(),cimg::rng());
+
 #ifdef cimg_use_openmp
           rng+=omp_get_thread_num();
 #endif
@@ -28434,6 +28457,7 @@ namespace cimg_library_suffixed {
       case 3 : { // Poisson Noise
         cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),131072)) {
           ulongT rng = (cimg::_rand(),cimg::rng());
+
 #ifdef cimg_use_openmp
           rng+=omp_get_thread_num();
 #endif
@@ -28446,6 +28470,7 @@ namespace cimg_library_suffixed {
         const Tfloat sqrt2 = (Tfloat)std::sqrt(2.);
         cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),131072)) {
           ulongT rng = (cimg::_rand(),cimg::rng());
+
 #ifdef cimg_use_openmp
           rng+=omp_get_thread_num();
 #endif
@@ -38443,6 +38468,7 @@ namespace cimg_library_suffixed {
                                        u,v,w,0,cimg::type<float>::inf());
           } else cimg_pragma_openmp(parallel cimg_openmp_if_size(_width,64)) {
             ulongT rng = (cimg::_rand(),cimg::rng());
+
 #ifdef cimg_use_openmp
             rng+=omp_get_thread_num();
 #endif
@@ -38477,6 +38503,7 @@ namespace cimg_library_suffixed {
           cimg_pragma_openmp(parallel cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64 &&
                                                      iter<nb_iterations-2)) {
             ulongT rng = (cimg::_rand(),cimg::rng());
+
 #ifdef cimg_use_openmp
             rng+=omp_get_thread_num();
 #endif
@@ -38638,6 +38665,7 @@ namespace cimg_library_suffixed {
                                      u,v,0,cimg::type<float>::inf());
           } else cimg_pragma_openmp(parallel cimg_openmp_if_size(_width,64)) {
             ulongT rng = (cimg::_rand(),cimg::rng());
+
 #ifdef cimg_use_openmp
             rng+=omp_get_thread_num();
 #endif
@@ -38668,6 +38696,7 @@ namespace cimg_library_suffixed {
           cimg_pragma_openmp(parallel cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64 &&
                                                      iter<nb_iterations-2)) {
             ulongT rng = (cimg::_rand(),cimg::rng());
+
 #ifdef cimg_use_openmp
             rng+=omp_get_thread_num();
 #endif
@@ -39719,6 +39748,7 @@ namespace cimg_library_suffixed {
                                     pixel_type(),
                                     real._width,real._height,real._depth,real._spectrum,real._data,
                                     imag._width,imag._height,imag._depth,imag._spectrum,imag._data);
+
 #ifdef cimg_use_fftw3
       cimg::mutex(12);
       fftw_complex *data_in;
@@ -47612,6 +47642,7 @@ namespace cimg_library_suffixed {
 
             if (color.size()==_spectrum) { // Colored point
               draw_point(x0,y0,pcolor,opacity);
+
 #ifdef cimg_use_board
               if (pboard) {
                 board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
@@ -47633,6 +47664,7 @@ namespace cimg_library_suffixed {
                     color.get_resize(sw,sh,1,-100,render_type<=3?1:3):CImg<tc>(),
                   &sprite = _sprite?_sprite:color;
                 draw_image(nx0,ny0,sprite,opacity);
+
 #ifdef cimg_use_board
                 if (pboard) {
                   board.setPenColorRGBi(128,128,128);
@@ -47661,6 +47693,7 @@ namespace cimg_library_suffixed {
                   _opacity.get_resize(sw,sh,1,-100,render_type<=3?1:3):CImg<_to>(),
                 &nopacity = _nopacity?_nopacity:_opacity;
               draw_image(nx0,ny0,sprite,nopacity,g_opacity);
+
 #ifdef cimg_use_board
               if (pboard) {
                 board.setPenColorRGBi(128,128,128);
@@ -47684,6 +47717,7 @@ namespace cimg_library_suffixed {
           if (render_type) {
             if (zbuffer) draw_line(zbuffer,x0,y0,z0,x1,y1,z1,pcolor,opacity);
             else draw_line(x0,y0,x1,y1,pcolor,opacity);
+
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
@@ -47692,6 +47726,7 @@ namespace cimg_library_suffixed {
 #endif
           } else {
             draw_point(x0,y0,pcolor,opacity).draw_point(x1,y1,pcolor,opacity);
+
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
@@ -47719,6 +47754,7 @@ namespace cimg_library_suffixed {
           switch (render_type) {
           case 0 :
             draw_point((int)xc,(int)yc,pcolor,opacity);
+
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
@@ -47728,6 +47764,7 @@ namespace cimg_library_suffixed {
             break;
           case 1 :
             draw_circle((int)xc,(int)yc,(int)radius,pcolor,opacity,~0U);
+
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
@@ -47774,6 +47811,7 @@ namespace cimg_library_suffixed {
           if (render_type) {
             if (zbuffer) draw_line(zbuffer,x0,y0,z0,x1,y1,z1,color,tx0,ty0,tx1,ty1,opacity);
             else draw_line(x0,y0,x1,y1,color,tx0,ty0,tx1,ty1,opacity);
+
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi(128,128,128,(unsigned char)(opacity*255));
@@ -47785,6 +47823,7 @@ namespace cimg_library_suffixed {
                                                  ty0<=0?0:ty0>=color.height()?color.height() - 1:ty0)._data,opacity).
               draw_point(x1,y1,color.get_vector_at(tx1<=0?0:tx1>=color.width()?color.width() - 1:tx1,
                                                    ty1<=0?0:ty1>=color.height()?color.height() - 1:ty1)._data,opacity);
+
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi(128,128,128,(unsigned char)(opacity*255));
@@ -47810,6 +47849,7 @@ namespace cimg_library_suffixed {
           switch (render_type) {
           case 0 :
             draw_point(x0,y0,pcolor,opacity).draw_point(x1,y1,pcolor,opacity).draw_point(x2,y2,pcolor,opacity);
+
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
@@ -47826,6 +47866,7 @@ namespace cimg_library_suffixed {
             else
               draw_line(x0,y0,x1,y1,pcolor,opacity).draw_line(x0,y0,x2,y2,pcolor,opacity).
                 draw_line(x1,y1,x2,y2,pcolor,opacity);
+
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
@@ -47838,6 +47879,7 @@ namespace cimg_library_suffixed {
           case 2 :
             if (zbuffer) draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,pcolor,opacity);
             else draw_triangle(x0,y0,x1,y1,x2,y2,pcolor,opacity);
+
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
@@ -47850,6 +47892,7 @@ namespace cimg_library_suffixed {
           case 3 :
             if (zbuffer) draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,pcolor,opacity,lightprops(l));
             else _draw_triangle(x0,y0,x1,y1,x2,y2,pcolor,opacity,lightprops(l));
+
 #ifdef cimg_use_board
             if (pboard) {
               const float lp = std::min(lightprops(l),1.f);
@@ -47868,6 +47911,7 @@ namespace cimg_library_suffixed {
               draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,pcolor,
                             lightprops(n0),lightprops(n1),lightprops(n2),opacity);
             else draw_triangle(x0,y0,x1,y1,x2,y2,pcolor,lightprops(n0),lightprops(n1),lightprops(n2),opacity);
+
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi((unsigned char)(color[0]),
@@ -47888,6 +47932,7 @@ namespace cimg_library_suffixed {
             if (zbuffer)
               draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,pcolor,light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity);
             else draw_triangle(x0,y0,x1,y1,x2,y2,pcolor,light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity);
+
 #ifdef cimg_use_board
             if (pboard) {
               const float
@@ -47932,6 +47977,7 @@ namespace cimg_library_suffixed {
           case 0 :
             draw_point(x0,y0,pcolor,opacity).draw_point(x1,y1,pcolor,opacity).
               draw_point(x2,y2,pcolor,opacity).draw_point(x3,y3,pcolor,opacity);
+
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
@@ -47949,6 +47995,7 @@ namespace cimg_library_suffixed {
             else
               draw_line(x0,y0,x1,y1,pcolor,opacity).draw_line(x1,y1,x2,y2,pcolor,opacity).
                 draw_line(x2,y2,x3,y3,pcolor,opacity).draw_line(x3,y3,x0,y0,pcolor,opacity);
+
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
@@ -47965,6 +48012,7 @@ namespace cimg_library_suffixed {
                 draw_triangle(zbuffer,x0,y0,z0,x2,y2,z2,x3,y3,z3,pcolor,opacity);
             else
               draw_triangle(x0,y0,x1,y1,x2,y2,pcolor,opacity).draw_triangle(x0,y0,x2,y2,x3,y3,pcolor,opacity);
+
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
@@ -47984,6 +48032,7 @@ namespace cimg_library_suffixed {
             else
               _draw_triangle(x0,y0,x1,y1,x2,y2,pcolor,opacity,lightprops(l)).
                 _draw_triangle(x0,y0,x2,y2,x3,y3,pcolor,opacity,lightprops(l));
+
 #ifdef cimg_use_board
             if (pboard) {
               const float lp = std::min(lightprops(l),1.f);
@@ -48118,6 +48167,7 @@ namespace cimg_library_suffixed {
               draw_line(x0,y0,z0,x1,y1,z1,color,tx0,ty0,tx1,ty1,opacity).
                 draw_line(x0,y0,z0,x2,y2,z2,color,tx0,ty0,tx2,ty2,opacity).
                 draw_line(x1,y1,z1,x2,y2,z2,color,tx1,ty1,tx2,ty2,opacity);
+
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi(128,128,128,(unsigned char)(opacity*255));
@@ -48130,6 +48180,7 @@ namespace cimg_library_suffixed {
           case 2 :
             if (zbuffer) draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,color,tx0,ty0,tx1,ty1,tx2,ty2,opacity);
             else draw_triangle(x0,y0,z0,x1,y1,z1,x2,y2,z2,color,tx0,ty0,tx1,ty1,tx2,ty2,opacity);
+
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi(128,128,128,(unsigned char)(opacity*255));
@@ -48143,6 +48194,7 @@ namespace cimg_library_suffixed {
             if (zbuffer)
               draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,lightprops(l));
             else draw_triangle(x0,y0,z0,x1,y1,z1,x2,y2,z2,color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,lightprops(l));
+
 #ifdef cimg_use_board
             if (pboard) {
               const float lp = std::min(lightprops(l),1.f);
@@ -48163,6 +48215,7 @@ namespace cimg_library_suffixed {
             else
               draw_triangle(x0,y0,z0,x1,y1,z1,x2,y2,z2,color,tx0,ty0,tx1,ty1,tx2,ty2,
                             lightprops(n0),lightprops(n1),lightprops(n2),opacity);
+
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi(128,128,128,(unsigned char)(opacity*255));
@@ -48185,6 +48238,7 @@ namespace cimg_library_suffixed {
                             (unsigned int)lightprops(n1,0),(unsigned int)lightprops(n1,1),
                             (unsigned int)lightprops(n2,0),(unsigned int)lightprops(n2,1),
                             opacity);
+
 #ifdef cimg_use_board
             if (pboard) {
               const float
@@ -48243,6 +48297,7 @@ namespace cimg_library_suffixed {
                                                    ty2<=0?0:ty2>=color.height()?color.height() - 1:ty2)._data,opacity).
               draw_point(x3,y3,color.get_vector_at(tx3<=0?0:tx3>=color.width()?color.width() - 1:tx3,
                                                    ty3<=0?0:ty3>=color.height()?color.height() - 1:ty3)._data,opacity);
+
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi(128,128,128,(unsigned char)(opacity*255));
@@ -48264,6 +48319,7 @@ namespace cimg_library_suffixed {
                 draw_line(x1,y1,z1,x2,y2,z2,color,tx1,ty1,tx2,ty2,opacity).
                 draw_line(x2,y2,z2,x3,y3,z3,color,tx2,ty2,tx3,ty3,opacity).
                 draw_line(x3,y3,z3,x0,y0,z0,color,tx3,ty3,tx0,ty0,opacity);
+
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi(128,128,128,(unsigned char)(opacity*255));
@@ -48281,6 +48337,7 @@ namespace cimg_library_suffixed {
             else
               draw_triangle(x0,y0,z0,x1,y1,z1,x2,y2,z2,color,tx0,ty0,tx1,ty1,tx2,ty2,opacity).
                 draw_triangle(x0,y0,z0,x2,y2,z2,x3,y3,z3,color,tx0,ty0,tx2,ty2,tx3,ty3,opacity);
+
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi(128,128,128,(unsigned char)(opacity*255));
@@ -48300,6 +48357,7 @@ namespace cimg_library_suffixed {
             else
               draw_triangle(x0,y0,z0,x1,y1,z1,x2,y2,z2,color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,lightprops(l)).
                 draw_triangle(x0,y0,z0,x2,y2,z2,x3,y3,z3,color,tx0,ty0,tx2,ty2,tx3,ty3,opacity,lightprops(l));
+
 #ifdef cimg_use_board
             if (pboard) {
               const float lp = std::min(lightprops(l),1.f);
@@ -48339,6 +48397,7 @@ namespace cimg_library_suffixed {
                               lightprop2,lightprop3,lightpropc,opacity).
                 draw_triangle(x3,y3,z3,x0,y0,z0,xc,yc,zc,color,tx3,ty3,tx0,ty0,txc,tyc,
                               lightprop3,lightprop0,lightpropc,opacity);
+
 #ifdef cimg_use_board
             if (pboard) {
               board.setPenColorRGBi(128,128,128,(unsigned char)(opacity*255));
@@ -48376,6 +48435,7 @@ namespace cimg_library_suffixed {
                               light_texture,lx2,ly2,lx3,ly3,lxc,lyc,opacity).
                 draw_triangle(x3,y3,z3,x0,y0,z0,xc,yc,zc,color,tx3,ty3,tx0,ty0,txc,tyc,
                               light_texture,lx3,ly3,lx0,ly0,lxc,lyc,opacity);
+
 #ifdef cimg_use_board
             if (pboard) {
               const float
@@ -48569,6 +48629,7 @@ namespace cimg_library_suffixed {
             static unsigned int snap_number = 0;
             std::FILE *file;
             do {
+
 #ifdef cimg_use_zlib
               cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.cimgz",snap_number++);
 #else
@@ -49334,6 +49395,7 @@ namespace cimg_library_suffixed {
               CImg<ucharT> &screen = visu?visu:visu0;
               std::FILE *file;
               do {
+
 #ifdef cimg_use_zlib
                 cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.cimgz",snap_number++);
 #else
@@ -50014,6 +50076,7 @@ namespace cimg_library_suffixed {
         throw CImgArgumentException(_cimg_instance
                                     "load_magick(): Specified filename is (null).",
                                     cimg_instance);
+
 #ifdef cimg_use_magick
       Magick::Image image(filename);
       const unsigned int W = image.size().width(), H = image.size().height();
@@ -53494,6 +53557,7 @@ namespace cimg_library_suffixed {
             static unsigned int snap_number = 0;
             std::FILE *file;
             do {
+
 #ifdef cimg_use_zlib
               cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.cimgz",snap_number++);
 #else
@@ -53507,6 +53571,7 @@ namespace cimg_library_suffixed {
             (+visu).__draw_text(" Object '%s' saved. ",0,filename._data).display(disp);
             disp.set_key(key,false); key = 0;
           } break;
+
 #ifdef cimg_use_board
         case cimg::keyP : if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) { // Save object as a .EPS file
             static unsigned int snap_number = 0;
@@ -55859,6 +55924,7 @@ namespace cimg_library_suffixed {
                       _spectrum==1?_cimg_sge_ext1:_cimg_sge_ext2);
         if ((file=cimg::std_fopen(filename_tmp,"rb"))!=0) cimg::fclose(file);
       } while (file);
+
 #ifdef cimg_use_png
       save_png(filename_tmp);
 #else

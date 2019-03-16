@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 252
+#define cimg_version 253
 
 /*-----------------------------------------------------------
  #
@@ -24012,7 +24012,7 @@ namespace cimg_library_suffixed {
           start = (longT)_mp_arg(4),
           sublength = (longT)mp.opcode[5],
           step = (longT)_mp_arg(6);
-        if (start<0 || start + step*sublength>length)
+        if (start<0 || start + step*(sublength-1)>=length)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Value accessor '[]': "
                                       "Out-of-bounds sub-vector request "
                                       "(length: %ld, start: %ld, sub-length: %ld, step: %ld).",

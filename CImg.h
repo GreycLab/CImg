@@ -34845,8 +34845,7 @@ namespace cimg_library_suffixed {
               else cimg_forC(res,c) {
                   cimg_abort_test;
                   const CImg<T> img = get_shared_channel(c%_spectrum);
-                  const CImg<t> K = _kernel.get_shared_channel(c%kernel._spectrum);
-                  res.get_shared_channel(c).assign(img)*=K[0];
+                  res.get_shared_channel(c).assign(img)*=_kernel(0,0,0,c%kernel._spectrum);
                 }
               break;
             }

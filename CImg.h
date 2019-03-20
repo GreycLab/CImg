@@ -34687,16 +34687,16 @@ namespace cimg_library_suffixed {
                       bx = px>0?px - 1:px, ax = nx + 1<res.width()?nx + 1:nx,
                       py = y>0?y - 1:y, ny = y + 1<res.height()?y + 1:y,
                       by = py>0?py - 1:py, ay = ny + 1<res.height()?ny + 1:ny;
-                    const Ttfloat N = M*(cimg::sqr(I(bx,by,z)) + cimg::sqr(I(px,by,z)) + cimg::sqr(I(x,by,z)) +
-                                         cimg::sqr(I(nx,by,z)) + cimg::sqr(I(ax,by,z)) +
-                                         cimg::sqr(I(bx,py,z)) + cimg::sqr(I(px,py,z)) + cimg::sqr(I(x,py,z)) +
-                                         cimg::sqr(I(nx,py,z)) + cimg::sqr(I(ax,py,z)) +
-                                         cimg::sqr(I(bx,y,z)) + cimg::sqr(I(px,y,z)) + cimg::sqr(I(x,y,z)) +
-                                         cimg::sqr(I(nx,y,z)) + cimg::sqr(I(ax,y,z)) +
-                                         cimg::sqr(I(bx,ny,z)) + cimg::sqr(I(px,ny,z)) + cimg::sqr(I(x,ny,z)) +
-                                         cimg::sqr(I(nx,ny,z)) + cimg::sqr(I(ax,ny,z)) +
-                                         cimg::sqr(I(bx,ay,z)) + cimg::sqr(I(px,ay,z)) + cimg::sqr(I(x,ay,z)) +
-                                         cimg::sqr(I(nx,ay,z)) + cimg::sqr(I(ax,ay,z)));
+                    const Ttfloat N = M2*(cimg::sqr(I(bx,by,z)) + cimg::sqr(I(px,by,z)) + cimg::sqr(I(x,by,z)) +
+                                          cimg::sqr(I(nx,by,z)) + cimg::sqr(I(ax,by,z)) +
+                                          cimg::sqr(I(bx,py,z)) + cimg::sqr(I(px,py,z)) + cimg::sqr(I(x,py,z)) +
+                                          cimg::sqr(I(nx,py,z)) + cimg::sqr(I(ax,py,z)) +
+                                          cimg::sqr(I(bx,y,z)) + cimg::sqr(I(px,y,z)) + cimg::sqr(I(x,y,z)) +
+                                          cimg::sqr(I(nx,y,z)) + cimg::sqr(I(ax,y,z)) +
+                                          cimg::sqr(I(bx,ny,z)) + cimg::sqr(I(px,ny,z)) + cimg::sqr(I(x,ny,z)) +
+                                          cimg::sqr(I(nx,ny,z)) + cimg::sqr(I(ax,ny,z)) +
+                                          cimg::sqr(I(bx,ay,z)) + cimg::sqr(I(px,ay,z)) + cimg::sqr(I(x,ay,z)) +
+                                          cimg::sqr(I(nx,ay,z)) + cimg::sqr(I(ax,ay,z)));
                     _res(x,y,z) = (Ttfloat)(N?(K[0]*I(bx,by,z) + K[1]*I(px,by,z) + K[2]*I(x,by,z) +
                                                K[3]*I(nx,by,z) + K[4]*I(ax,by,z) +
                                                K[5]*I(bx,py,z) + K[6]*I(px,py,z) + K[7]*I(x,py,z) +
@@ -34744,14 +34744,14 @@ namespace cimg_library_suffixed {
                     const int
                       px = x>0?x - 1:x, nx = x + 1<res.width()?x + 1:x, ax = nx + 1<res.width()?nx + 1:nx,
                       py = y>0?y - 1:y, ny = y + 1<res.height()?y + 1:y, ay = ny + 1<res.height()?ny + 1:ny;
-                    const Ttfloat N = M*(cimg::sqr(I(px,py,z)) + cimg::sqr(I(x,py,z)) +
-                                         cimg::sqr(I(nx,py,z)) + cimg::sqr(I(ax,py,z)) +
-                                         cimg::sqr(I(px,y,z)) + cimg::sqr(I(x,y,z)) +
-                                         cimg::sqr(I(nx,y,z)) + cimg::sqr(I(ax,y,z)) +
-                                         cimg::sqr(I(px,ny,z)) + cimg::sqr(I(x,ny,z)) +
-                                         cimg::sqr(I(nx,ny,z)) + cimg::sqr(I(ax,ny,z)) +
-                                         cimg::sqr(I(px,ay,z)) + cimg::sqr(I(x,ay,z)) +
-                                         cimg::sqr(I(nx,ay,z)) + cimg::sqr(I(ax,ay,z)));
+                    const Ttfloat N = M2*(cimg::sqr(I(px,py,z)) + cimg::sqr(I(x,py,z)) +
+                                          cimg::sqr(I(nx,py,z)) + cimg::sqr(I(ax,py,z)) +
+                                          cimg::sqr(I(px,y,z)) + cimg::sqr(I(x,y,z)) +
+                                          cimg::sqr(I(nx,y,z)) + cimg::sqr(I(ax,y,z)) +
+                                          cimg::sqr(I(px,ny,z)) + cimg::sqr(I(x,ny,z)) +
+                                          cimg::sqr(I(nx,ny,z)) + cimg::sqr(I(ax,ny,z)) +
+                                          cimg::sqr(I(px,ay,z)) + cimg::sqr(I(x,ay,z)) +
+                                          cimg::sqr(I(nx,ay,z)) + cimg::sqr(I(ax,ay,z)));
                     _res(x,y,z) = (Ttfloat)(N?(K[0]*I(px,py,z) + K[1]*I(x,py,z) +
                                                K[2]*I(nx,py,z) + K[3]*I(ax,py,z) +
                                                K[4]*I(px,y,z) + K[5]*I(x,y,z) +
@@ -34793,9 +34793,9 @@ namespace cimg_library_suffixed {
                     const int
                       px = x>0?x - 1:x, nx = x + 1<res.width()?x + 1:x,
                       py = y>0?y - 1:y, ny = y + 1<res.height()?y + 1:y;
-                    const Ttfloat N = M*(cimg::sqr(I(px,py,z)) + cimg::sqr(I(x,py,z)) + cimg::sqr(I(nx,py,z)) +
-                                         cimg::sqr(I(px,y,z)) + cimg::sqr(I(x,y,z)) + cimg::sqr(I(nx,y,z)) +
-                                         cimg::sqr(I(px,ny,z)) + cimg::sqr(I(x,ny,z)) + cimg::sqr(I(nx,ny,z)));
+                    const Ttfloat N = M2*(cimg::sqr(I(px,py,z)) + cimg::sqr(I(x,py,z)) + cimg::sqr(I(nx,py,z)) +
+                                          cimg::sqr(I(px,y,z)) + cimg::sqr(I(x,y,z)) + cimg::sqr(I(nx,y,z)) +
+                                          cimg::sqr(I(px,ny,z)) + cimg::sqr(I(x,ny,z)) + cimg::sqr(I(nx,ny,z)));
                     _res(x,y,z) = (Ttfloat)(N?(K[0]*I(px,py,z) + K[1]*I(x,py,z) + K[2]*I(nx,py,z) +
                                                K[3]*I(px,y,z) + K[4]*I(x,y,z) + K[5]*I(nx,y,z) +
                                                K[6]*I(px,ny,z) + K[7]*I(x,ny,z) + K[8]*I(nx,ny,z))/std::sqrt(N):0);
@@ -34825,8 +34825,8 @@ namespace cimg_library_suffixed {
                   cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(_res.size(),16384))
                     cimg_forXYZ(res,x,y,z) {
                     const int nx = x + 1<res.width()?x + 1:x, ny = y + 1<res.height()?y + 1:y;
-                    const Ttfloat N = M*(cimg::sqr(I(x,y,z)) + cimg::sqr(I(nx,y,z)) +
-                                         cimg::sqr(I(x,ny,z)) + cimg::sqr(I(nx,ny,z)));
+                    const Ttfloat N = M2*(cimg::sqr(I(x,y,z)) + cimg::sqr(I(nx,y,z)) +
+                                          cimg::sqr(I(x,ny,z)) + cimg::sqr(I(nx,ny,z)));
                     _res(x,y,z) = (Ttfloat)(N?(K[0]*I(x,y,z) + K[1]*I(nx,y,z) +
                                                K[2]*I(x,ny,z) + K[3]*I(nx,ny,z))/std::sqrt(N):0);
                   }

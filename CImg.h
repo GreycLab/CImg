@@ -34714,40 +34714,65 @@ namespace cimg_library_suffixed {
                                                I[32]*K[32] + I[33]*K[33] + I[34]*K[34] + I[35]*K[35]);
               }
             } break;
-            case 5 : {
-              cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
-                cimg_forC(res,c) {
+            case 5 : { // 5x5 kernel
+              cimg_forC(res,c) {
                 cimg_abort_test;
-                const CImg<T> img = get_shared_channel(c%_spectrum);
+                const CImg<T> I = get_shared_channel(c%_spectrum);
                 const CImg<t> K = _kernel.get_shared_channel(c%kernel._spectrum);
-                CImg<T> I(25);
-                Ttfloat *ptrd = res.data(0,0,0,c);
+                CImg<T> _res = res.get_shared_channel(c);
                 if (is_normalized) {
                   const Ttfloat _M = (Ttfloat)K.magnitude(2), M = _M*_M;
-                  cimg_forZ(img,z) cimg_for5x5(img,x,y,z,0,I,T) {
-                    const Ttfloat N = M*(I[ 0]*I[ 0] + I[ 1]*I[ 1] + I[ 2]*I[ 2] + I[ 3]*I[ 3] + I[ 4]*I[ 4] +
-                                         I[ 5]*I[ 5] + I[ 6]*I[ 6] + I[ 7]*I[ 7] + I[ 8]*I[ 8] + I[ 9]*I[ 9] +
-                                         I[10]*I[10] + I[11]*I[11] + I[12]*I[12] + I[13]*I[13] + I[14]*I[14] +
-                                         I[15]*I[15] + I[16]*I[16] + I[17]*I[17] + I[18]*I[18] + I[19]*I[19] +
-                                         I[20]*I[20] + I[21]*I[21] + I[22]*I[22] + I[23]*I[23] + I[24]*I[24]);
-                    *(ptrd++) = (Ttfloat)(N?(I[ 0]*K[ 0] + I[ 1]*K[ 1] + I[ 2]*K[ 2] + I[ 3]*K[ 3] +
-                                             I[ 4]*K[ 4] + I[ 5]*K[ 5] + I[ 6]*K[ 6] + I[ 7]*K[ 7] +
-                                             I[ 8]*K[ 8] + I[ 9]*K[ 9] + I[10]*K[10] + I[11]*K[11] +
-                                             I[12]*K[12] + I[13]*K[13] + I[14]*K[14] + I[15]*K[15] +
-                                             I[16]*K[16] + I[17]*K[17] + I[18]*K[18] + I[19]*K[19] +
-                                             I[20]*K[20] + I[21]*K[21] + I[22]*K[22] + I[23]*K[23] +
-                                             I[24]*K[24])/std::sqrt(N):0);
+                  cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(_res.size(),16384))
+                    cimg_forXYZ(res,x,y,z) {
+                    const int
+                      px = x>0?x - 1:x, nx = x + 1<res.width()?x + 1:x,
+                      bx = px>0?px - 1:px, ax = nx + 1<res.width()?nx + 1:nx,
+                      py = y>0?y - 1:y, ny = y + 1<res.height()?y + 1:y,
+                      by = py>0?py - 1:py, ay = ny + 1<res.height()?ny + 1:ny;
+                    const Ttfloat N = (Ttfloat)(cimg::sqr(I(bx,by,z)) + cimg::sqr(I(px,by,z)) + cimg::sqr(I(x,by,z)) +
+                                                cimg::sqr(I(nx,by,z)) + cimg::sqr(I(ax,by,z)) +
+                                                cimg::sqr(I(bx,py,z)) + cimg::sqr(I(px,py,z)) + cimg::sqr(I(x,py,z)) +
+                                                cimg::sqr(I(nx,py,z)) + cimg::sqr(I(ax,py,z)) +
+                                                cimg::sqr(I(bx,y,z)) + cimg::sqr(I(px,y,z)) + cimg::sqr(I(x,y,z)) +
+                                                cimg::sqr(I(nx,y,z)) + cimg::sqr(I(ax,y,z)) +
+                                                cimg::sqr(I(bx,ny,z)) + cimg::sqr(I(px,ny,z)) + cimg::sqr(I(x,ny,z)) +
+                                                cimg::sqr(I(nx,ny,z)) + cimg::sqr(I(ax,ny,z)) +
+                                                cimg::sqr(I(bx,ay,z)) + cimg::sqr(I(px,ay,z)) + cimg::sqr(I(x,ay,z)) +
+                                                cimg::sqr(I(nx,ay,z)) + cimg::sqr(I(ax,ay,z)));
+                    _res(x,y,z) = (Ttfloat)(N?(K[0]*I(bx,by,z) + K[1]*I(px,by,z) + K[2]*I(x,by,z) +
+                                               K[3]*I(nx,by,z) + K[4]*I(ax,by,z) +
+                                               K[5]*I(bx,py,z) + K[6]*I(px,py,z) + K[7]*I(x,py,z) +
+                                               K[8]*I(nx,py,z) + K[9]*I(ax,py,z) +
+                                               K[10]*I(bx,y,z) + K[11]*I(px,y,z) + K[12]*I(x,y,z) +
+                                               K[13]*I(nx,y,z) + K[14]*I(ax,y,z) +
+                                               K[15]*I(bx,ny,z) + K[16]*I(px,ny,z) + K[17]*I(x,ny,z) +
+                                               K[18]*I(nx,ny,z) + K[19]*I(ax,ny,z) +
+                                               K[20]*I(bx,ay,z) + K[21]*I(px,ay,z) + K[22]*I(x,ay,z) +
+                                               K[23]*I(nx,ay,z) + K[24]*I(ax,ay,z))/std::sqrt(N):0);
                   }
-                } else cimg_forZ(img,z) cimg_for5x5(img,x,y,z,0,I,T)
-                         *(ptrd++) = (Ttfloat)(I[ 0]*K[ 0] + I[ 1]*K[ 1] + I[ 2]*K[ 2] + I[ 3]*K[ 3] +
-                                               I[ 4]*K[ 4] + I[ 5]*K[ 5] + I[ 6]*K[ 6] + I[ 7]*K[ 7] +
-                                               I[ 8]*K[ 8] + I[ 9]*K[ 9] + I[10]*K[10] + I[11]*K[11] +
-                                               I[12]*K[12] + I[13]*K[13] + I[14]*K[14] + I[15]*K[15] +
-                                               I[16]*K[16] + I[17]*K[17] + I[18]*K[18] + I[19]*K[19] +
-                                               I[20]*K[20] + I[21]*K[21] + I[22]*K[22] + I[23]*K[23] +
-                                               I[24]*K[24]);
+                } else {
+                  cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if_size(_res.size(),16384))
+                    cimg_forXYZ(res,x,y,z) {
+                    const int
+                      px = x>0?x - 1:x, nx = x + 1<res.width()?x + 1:x,
+                      bx = px>0?px - 1:px, ax = nx + 1<res.width()?nx + 1:nx,
+                      py = y>0?y - 1:y, ny = y + 1<res.height()?y + 1:y,
+                      by = py>0?py - 1:py, ay = ny + 1<res.height()?ny + 1:ny;
+                    _res(x,y,z) = (Ttfloat)(K[0]*I(bx,by,z) + K[1]*I(px,by,z) + K[2]*I(x,by,z) +
+                                            K[3]*I(nx,by,z) + K[4]*I(ax,by,z) +
+                                            K[5]*I(bx,py,z) + K[6]*I(px,py,z) + K[7]*I(x,py,z) +
+                                            K[8]*I(nx,py,z) + K[9]*I(ax,py,z) +
+                                            K[10]*I(bx,y,z) + K[11]*I(px,y,z) + K[12]*I(x,y,z) +
+                                            K[13]*I(nx,y,z) + K[14]*I(ax,y,z) +
+                                            K[15]*I(bx,ny,z) + K[16]*I(px,ny,z) + K[17]*I(x,ny,z) +
+                                            K[18]*I(nx,ny,z) + K[19]*I(ax,ny,z) +
+                                            K[20]*I(bx,ay,z) + K[21]*I(px,ay,z) + K[22]*I(x,ay,z) +
+                                            K[23]*I(nx,ay,z) + K[24]*I(ax,ay,z));
+                  }
+                }
               }
             } break;
+
             case 4 : {
               cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
                 cimg_forC(res,c) {

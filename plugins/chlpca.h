@@ -196,9 +196,10 @@ CImg<T> get_chlpca(const int px, const int py, const int pz,
   count.fill(0);
   cimg_for_stepZ(*this,zi,(depth()==1||pz==0)?1:nstep){
 #ifdef cimg_use_openmp
-#pragma omp parallel for
+
+    cimg_pragma_openmp(parallel for)
 #endif
-    cimg_for_stepXY((*this),xi,yi,nstep){
+      cimg_for_stepXY((*this),xi,yi,nstep){
       // extract the training region X
       int idc = 0;
       CImg<T> S = get_patch_dictionnary(xi,yi,zi,px,py,pz,wx,wy,wz,idc);

@@ -39998,7 +39998,9 @@ namespace cimg_library_suffixed {
 #else
       cimg::unused(nb_threads);
 #endif
-      const ulongT w = (ulongT)real._width, wh = w*real._height, whd = wh*real._depth;
+      const ulongT
+        w = (ulongT)real._width, d = (ulongT)real._depth,
+        wh = w*real._height, hd = real._height*d, whd = wh*real._depth;
       fftw_complex *const data_in = fftw_alloc_complex(whd);
       if (!data_in)
         throw CImgInstanceException("CImgList<%s>::FFT(): Failed to allocate memory (%s) "
@@ -40013,27 +40015,27 @@ namespace cimg_library_suffixed {
       cimg_forC(real,c) {
 	CImg<T> realc = real.get_shared_channel(c), imagc = imag.get_shared_channel(c);
 	double *datad = (double*)data_in;
-        cimg_pragma_openmp(parallel for cimg_openmp_if_size(realc.size(),125000))
-          cimg_rofoff(realc,i) {
-          const ulongT i2 = 2*i;
-          datad[i2] = (double)realc[i];
-          datad[i2 + 1] = (double)imagc[i];
+        cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if_size(realc.size(),125000))
+          cimg_forXYZ(realc,x,y,z) {
+          const ulongT offd = 2*(z + y*d + x*hd), offs = x + y*w + z*wh;
+          datad[offd] = (double)realc[offs];
+          datad[offd + 1] = (double)imagc[offs];
         }
         fftw_execute(data_plan);
 	if (is_invert) {
 	  const double a = 1.0/whd;
-          cimg_pragma_openmp(parallel for cimg_openmp_if_size(realc.size(),125000))
-            cimg_rofoff(realc,i) {
-            const ulongT i2 = 2*i;
-            realc[i] = (T)(a*datad[i2]);
-            imagc[i] = (T)(a*datad[i2 + 1]);
+          cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if_size(realc.size(),125000))
+            cimg_forXYZ(realc,x,y,z) {
+            const ulongT offs = 2*(z + y*d + x*hd), offd = x + y*w + z*wh;
+            realc[offd] = (T)(a*datad[offs]);
+            imagc[offd] = (T)(a*datad[offs + 1]);
           }
         } else
-          cimg_pragma_openmp(parallel for cimg_openmp_if_size(realc.size(),125000))
-            cimg_rofoff(realc,i) {
-            const ulongT i2 = 2*i;
-            realc[i] = (T)datad[i2];
-            imagc[i] = (T)datad[i2 + 1];
+          cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if_size(realc.size(),125000))
+            cimg_forXYZ(realc,x,y,z) {
+            const ulongT offs = 2*(z + y*d + x*hd), offd = x + y*w + z*wh;
+            realc[offd] = (T)datad[offs];
+            imagc[offd] = (T)datad[offs + 1];
           }
       }
       fftw_destroy_plan(data_plan);

@@ -305,6 +305,9 @@
 //
 // where 'is_abort' is a boolean variable defined somewhere in your code and reachable in the method.
 // 'cimg_abort_test2' does the same but is called more often (in inner loops).
+#if !defined(cimg_use_openmp) && defined(_OPENMP)
+#define cimg_use_openmp
+#endif
 #if defined(cimg_abort_test) && defined(cimg_use_openmp)
 
 // Define abort macros to be used with OpenMP.

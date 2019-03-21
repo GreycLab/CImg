@@ -39747,11 +39747,12 @@ namespace cimg_library_suffixed {
       switch (cimg::lowercase(axis)) {
       case 'x' : { // Fourier along X, using FFTW library
         data_in = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*real._width);
-        if (!data_in) throw CImgInstanceException("CImgList<%s>::FFT(): Failed to allocate memory (%s) "
-                                                  "for computing FFT of image (%u,%u,%u,%u) along the X-axis.",
-                                                  pixel_type(),
-                                                  cimg::strbuffersize(sizeof(fftw_complex)*real._width),
-                                                  real._width,real._height,real._depth,real._spectrum);
+        if (!data_in)
+          throw CImgInstanceException("CImgList<%s>::FFT(): Failed to allocate memory (%s) "
+                                      "for computing FFT of image (%u,%u,%u,%u) along the X-axis.",
+                                      pixel_type(),
+                                      cimg::strbuffersize(sizeof(fftw_complex)*real._width),
+                                      real._width,real._height,real._depth,real._spectrum);
 
         data_plan = fftw_plan_dft_1d(real._width,data_in,data_in,is_invert?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE);
         cimg_forYZC(real,y,z,c) {
@@ -40006,6 +40007,7 @@ namespace cimg_library_suffixed {
                                     cimg::strbuffersize(sizeof(fftw_complex)*real._width*
                                                         real._height*real._depth*real._spectrum),
                                     real._width,real._height,real._depth,real._spectrum);
+
       const fftw_plan data_plan = fftw_plan_dft_3d(real._width,real._height,real._depth,data_in,data_in,
                                                    is_invert?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE);
       cimg_forC(real,c) {

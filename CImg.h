@@ -288,34 +288,18 @@
 //
 // OpenMP directives are used in many CImg functions to get
 // advantages of multi-core CPUs.
-#if defined(cimg_use_openmp) && cimg_use_openmp==0
-#undef cimg_use_openmp
-#elif !defined(cimg_use_openmp) && defined(_OPENMP)
-#define cimg_use_openmp
+#if !defined(cimg_use_openmp)
+#ifdef _OPENMP
+#define cimg_use_openmp 1
+#else
+#define cimg_use_openmp 0
 #endif
-#ifdef cimg_use_openmp
+#endif
+#if cimg_use_openmp!=0
 #include <omp.h>
 #define cimg_pragma_openmp(p) cimg_pragma(omp p)
 #else
 #define cimg_pragma_openmp(p)
-#endif
-
-// Configure display framework.
-//
-// Define 'cimg_display' to: '0' to disable display capabilities.
-//                           '1' to use the X-Window framework (X11).
-//                           '2' to use the Microsoft GDI32 framework.
-#ifndef cimg_display
-#if cimg_OS==0
-#define cimg_display 0
-#elif cimg_OS==1
-#define cimg_display 1
-#elif cimg_OS==2
-#define cimg_display 2
-#endif
-#elif !(cimg_display==0 || cimg_display==1 || cimg_display==2)
-#error CImg Library: Configuration variable 'cimg_display' is badly defined.
-#error (should be { 0=none | 1=X-Window (X11) | 2=Microsoft GDI32 }).
 #endif
 
 // Configure the 'abort' signal handler (does nothing by default).
@@ -324,7 +308,7 @@
 //
 // where 'is_abort' is a boolean variable defined somewhere in your code and reachable in the method.
 // 'cimg_abort_test2' does the same but is called more often (in inner loops).
-#if defined(cimg_abort_test) && defined(cimg_use_openmp)
+#if defined(cimg_abort_test) && cimg_use_openmp!=0
 
 // Define abort macros to be used with OpenMP.
 #ifndef _cimg_abort_init_omp
@@ -377,6 +361,24 @@
 #endif
 #ifndef cimg_abort_test2
 #define cimg_abort_test2
+#endif
+
+// Configure display framework.
+//
+// Define 'cimg_display' to: '0' to disable display capabilities.
+//                           '1' to use the X-Window framework (X11).
+//                           '2' to use the Microsoft GDI32 framework.
+#ifndef cimg_display
+#if cimg_OS==0
+#define cimg_display 0
+#elif cimg_OS==1
+#define cimg_display 1
+#elif cimg_OS==2
+#define cimg_display 2
+#endif
+#elif !(cimg_display==0 || cimg_display==1 || cimg_display==2)
+#error CImg Library: Configuration variable 'cimg_display' is badly defined.
+#error (should be { 0=none | 1=X-Window (X11) | 2=Microsoft GDI32 }).
 #endif
 
 // Include display-specific headers.
@@ -7434,7 +7436,7 @@ namespace cimg_library_suffixed {
 #endif
       std::fprintf(cimg::output(),"  > Using OpenMP:           %s%-13s%s %s('cimg_use_openmp' %s)%s\n",
                    cimg::t_bold,
-#ifdef cimg_use_openmp
+#if cimg_use_openmp!=0
                    "Yes",cimg::t_normal,cimg::t_green,"defined",
 #else
                    "No",cimg::t_normal,cimg::t_green,"undefined",
@@ -13162,7 +13164,7 @@ namespace cimg_library_suffixed {
       }
 
       // Fallback to generic version.
-#ifdef cimg_use_openmp
+#if cimg_use_openmp!=0
       cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
                          cimg_openmp_if(size()>(cimg_openmp_sizefactor)*1024 &&
                                         img.size()>(cimg_openmp_sizefactor)*1024))
@@ -16133,7 +16135,7 @@ namespace cimg_library_suffixed {
         is_parallelizable(true),is_fill(_is_fill),need_input_copy(false),
         rng((cimg::_rand(),cimg::rng())),calling_function(funcname?funcname:"cimg_math_parser") {
 
-#ifdef cimg_use_openmp
+#if cimg_use_openmp!=0
         rng+=omp_get_thread_num();
 #endif
         if (!expression || !*expression)
@@ -16257,7 +16259,7 @@ namespace cimg_library_suffixed {
         need_input_copy(mp.need_input_copy), result(mem._data + (mp.result - mp.mem._data)),
         rng((cimg::_rand(),cimg::rng())),calling_function(0) {
 
-#ifdef cimg_use_openmp
+#if cimg_use_openmp!=0
         mem[17] = omp_get_thread_num();
         rng+=omp_get_thread_num();
 #endif
@@ -21546,7 +21548,7 @@ namespace cimg_library_suffixed {
         cimg::strellipsize(expr);
         const ulongT g_target = mp.opcode[1];
 
-#ifndef cimg_use_openmp
+#if cimg_use_openmp==0
         const unsigned int n_thread = 0;
 #else
         const unsigned int n_thread = omp_get_thread_num();
@@ -23889,7 +23891,7 @@ namespace cimg_library_suffixed {
       static double mp_srand0(_cimg_math_parser& mp) {
         cimg::srand(&mp.rng);
 
-#ifdef cimg_use_openmp
+#if cimg_use_openmp!=0
         mp.rng+=omp_get_thread_num();
 #endif
         return cimg::type<double>::nan();
@@ -25678,7 +25680,7 @@ namespace cimg_library_suffixed {
       if (!expression || !*expression) return res.fill(0);
       _cimg_math_parser mp(expression,"eval",*this,output,list_inputs,list_outputs,false);
 
-#ifdef cimg_use_openmp
+#if cimg_use_openmp!=0
       cimg_pragma_openmp(parallel if (res._height>=512))
       {
         _cimg_math_parser
@@ -27896,7 +27898,7 @@ namespace cimg_library_suffixed {
 
             bool do_in_parallel = false;
 
-#ifdef cimg_use_openmp
+#if cimg_use_openmp!=0
             cimg_openmp_if(*expression=='*' || *expression==':' ||
                            (mp.is_parallelizable && _width>=(cimg_openmp_sizefactor)*320 &&
                             _height*_depth*_spectrum>=2))
@@ -27930,7 +27932,7 @@ namespace cimg_library_suffixed {
                 }
              } else {
 
-#ifdef cimg_use_openmp
+#if cimg_use_openmp!=0
                 cimg_pragma_openmp(parallel)
                 {
                   _cimg_math_parser
@@ -27965,7 +27967,7 @@ namespace cimg_library_suffixed {
                 else cimg_forYZC(*this,y,z,c) { cimg_abort_test; cimg_forX(*this,x) *(ptrd++) = (T)mp(x,y,z,c); }
               } else {
 
-#ifdef cimg_use_openmp
+#if cimg_use_openmp!=0
                 cimg_pragma_openmp(parallel)
                 {
                   _cimg_math_parser
@@ -28285,7 +28287,7 @@ namespace cimg_library_suffixed {
       if (cimg::type<T>::is_float()) cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),524288)) {
           ulongT rng = (cimg::_rand(),cimg::rng());
 
-#ifdef cimg_use_openmp
+#if cimg_use_openmp!=0
           rng+=omp_get_thread_num();
 #endif
           cimg_pragma_openmp(for)
@@ -28294,7 +28296,7 @@ namespace cimg_library_suffixed {
         } else cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),524288)) {
           ulongT rng = (cimg::_rand(),cimg::rng());
 
-#ifdef cimg_use_openmp
+#if cimg_use_openmp!=0
           rng+=omp_get_thread_num();
 #endif
           cimg_pragma_openmp(for)
@@ -28357,7 +28359,7 @@ namespace cimg_library_suffixed {
         cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),131072)) {
           ulongT rng = (cimg::_rand(),cimg::rng());
 
-#ifdef cimg_use_openmp
+#if cimg_use_openmp!=0
           rng+=omp_get_thread_num();
 #endif
           cimg_pragma_openmp(for)
@@ -28374,7 +28376,7 @@ namespace cimg_library_suffixed {
         cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),131072)) {
           ulongT rng = (cimg::_rand(),cimg::rng());
 
-#ifdef cimg_use_openmp
+#if cimg_use_openmp!=0
           rng+=omp_get_thread_num();
 #endif
           cimg_pragma_openmp(for)
@@ -28396,7 +28398,7 @@ namespace cimg_library_suffixed {
         cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),131072)) {
           ulongT rng = (cimg::_rand(),cimg::rng());
 
-#ifdef cimg_use_openmp
+#if cimg_use_openmp!=0
           rng+=omp_get_thread_num();
 #endif
           cimg_pragma_openmp(for)
@@ -28408,7 +28410,7 @@ namespace cimg_library_suffixed {
         cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),131072)) {
           ulongT rng = (cimg::_rand(),cimg::rng());
 
-#ifdef cimg_use_openmp
+#if cimg_use_openmp!=0
           rng+=omp_get_thread_num();
 #endif
           cimg_pragma_openmp(for)
@@ -28421,7 +28423,7 @@ namespace cimg_library_suffixed {
         cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),131072)) {
           ulongT rng = (cimg::_rand(),cimg::rng());
 
-#ifdef cimg_use_openmp
+#if cimg_use_openmp!=0
           rng+=omp_get_thread_num();
 #endif
           cimg_pragma_openmp(for)
@@ -38457,7 +38459,7 @@ namespace cimg_library_suffixed {
           } else cimg_pragma_openmp(parallel cimg_openmp_if_size(_width,64)) {
             ulongT rng = (cimg::_rand(),cimg::rng());
 
-#ifdef cimg_use_openmp
+#if cimg_use_openmp!=0
             rng+=omp_get_thread_num();
 #endif
             cimg_pragma_openmp(for cimg_openmp_collapse(2))
@@ -38492,7 +38494,7 @@ namespace cimg_library_suffixed {
                                                      iter<nb_iterations-2)) {
             ulongT rng = (cimg::_rand(),cimg::rng());
 
-#ifdef cimg_use_openmp
+#if cimg_use_openmp!=0
             rng+=omp_get_thread_num();
 #endif
             cimg_pragma_openmp(for cimg_openmp_collapse(2))
@@ -38654,7 +38656,7 @@ namespace cimg_library_suffixed {
           } else cimg_pragma_openmp(parallel cimg_openmp_if_size(_width,64)) {
             ulongT rng = (cimg::_rand(),cimg::rng());
 
-#ifdef cimg_use_openmp
+#if cimg_use_openmp!=0
             rng+=omp_get_thread_num();
 #endif
             cimg_pragma_openmp(for)
@@ -38685,7 +38687,7 @@ namespace cimg_library_suffixed {
                                                      iter<nb_iterations-2)) {
             ulongT rng = (cimg::_rand(),cimg::rng());
 
-#ifdef cimg_use_openmp
+#if cimg_use_openmp!=0
             rng+=omp_get_thread_num();
 #endif
             cimg_pragma_openmp(for)
@@ -38924,13 +38926,13 @@ namespace cimg_library_suffixed {
 #define cimg_is_gcc49x (__GNUC__==4 && __GNUC_MINOR__==9)
 
       const ulongT wh = (ulongT)_width*_height;
-#if defined(cimg_use_openmp) && !cimg_is_gcc49x
+#if cimg_use_openmp!=0 && !cimg_is_gcc49x
       cimg_pragma_openmp(parallel for cimg_openmp_if(_spectrum>=2))
 #endif
       cimg_forC(*this,c) {
         CImg<longT> g(_width), dt(_width), s(_width), t(_width);
         CImg<T> img = get_shared_channel(c);
-#if defined(cimg_use_openmp) && !cimg_is_gcc49x
+#if cimg_use_openmp!=0 && !cimg_is_gcc49x
         cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*512 &&
                                                                    _height*_depth>=16)
                            firstprivate(g,dt,s,t))
@@ -38942,7 +38944,7 @@ namespace cimg_library_suffixed {
         }
         if (_height>1) {
           g.assign(_height); dt.assign(_height); s.assign(_height); t.assign(_height);
-#if defined(cimg_use_openmp) && !cimg_is_gcc49x
+#if cimg_use_openmp!=0 && !cimg_is_gcc49x
           cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
                              cimg_openmp_if(_height>=(cimg_openmp_sizefactor)*512 && _width*_depth>=16)
                              firstprivate(g,dt,s,t))
@@ -38955,7 +38957,7 @@ namespace cimg_library_suffixed {
         }
         if (_depth>1) {
           g.assign(_depth); dt.assign(_depth); s.assign(_depth); t.assign(_depth);
-#if defined(cimg_use_openmp) && !cimg_is_gcc49x
+#if cimg_use_openmp!=0 && !cimg_is_gcc49x
           cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
                              cimg_openmp_if(_depth>=(cimg_openmp_sizefactor)*512 && _width*_height>=16)
                              firstprivate(g,dt,s,t))

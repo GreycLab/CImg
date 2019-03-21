@@ -39701,21 +39701,21 @@ namespace cimg_library_suffixed {
     //! Compute 1D Fast Fourier Transform, along a specified axis.
     /**
        \param axis Axis along which the FFT is computed.
-       \param is_invert Tells if the forward (\c false) or inverse (\c true) FFT is computed.
+       \param is_inverse Tells if the forward (\c false) or inverse (\c true) FFT is computed.
     **/
-    CImgList<Tfloat> get_FFT(const char axis, const bool is_invert=false) const {
+    CImgList<Tfloat> get_FFT(const char axis, const bool is_inverse=false) const {
       CImgList<Tfloat> res(*this,CImg<Tfloat>());
-      CImg<Tfloat>::FFT(res[0],res[1],axis,is_invert);
+      CImg<Tfloat>::FFT(res[0],res[1],axis,is_inverse);
       return res;
     }
 
     //! Compute n-d Fast Fourier Transform.
     /*
-      \param is_invert Tells if the forward (\c false) or inverse (\c true) FFT is computed.
+      \param is_inverse Tells if the forward (\c false) or inverse (\c true) FFT is computed.
     **/
-    CImgList<Tfloat> get_FFT(const bool is_invert=false) const {
+    CImgList<Tfloat> get_FFT(const bool is_inverse=false) const {
       CImgList<Tfloat> res(*this,CImg<Tfloat>());
-      CImg<Tfloat>::FFT(res[0],res[1],is_invert);
+      CImg<Tfloat>::FFT(res[0],res[1],is_inverse);
       return res;
     }
 
@@ -39724,9 +39724,9 @@ namespace cimg_library_suffixed {
        \param[in,out] real Real part of the pixel values.
        \param[in,out] imag Imaginary part of the pixel values.
        \param axis Axis along which the FFT is computed.
-       \param is_invert Tells if the forward (\c false) or inverse (\c true) FFT is computed.
+       \param is_inverse Tells if the forward (\c false) or inverse (\c true) FFT is computed.
     **/
-    static void FFT(CImg<T>& real, CImg<T>& imag, const char axis, const bool is_invert=false) {
+    static void FFT(CImg<T>& real, CImg<T>& imag, const char axis, const bool is_inverse=false) {
       if (!real)
         throw CImgInstanceException("CImg<%s>::FFT(): Specified real part is empty.",
                                     pixel_type());
@@ -39754,14 +39754,14 @@ namespace cimg_library_suffixed {
                                       cimg::strbuffersize(sizeof(fftw_complex)*real._width),
                                       real._width,real._height,real._depth,real._spectrum);
 
-        data_plan = fftw_plan_dft_1d(real._width,data_in,data_in,is_invert?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE);
+        data_plan = fftw_plan_dft_1d(real._width,data_in,data_in,is_inverse?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE);
         cimg_forYZC(real,y,z,c) {
           T *ptrr = real.data(0,y,z,c), *ptri = imag.data(0,y,z,c);
           double *ptrd = (double*)data_in;
           cimg_forX(real,x) { *(ptrd++) = (double)*(ptrr++); *(ptrd++) = (double)*(ptri++); }
           fftw_execute(data_plan);
           const unsigned int fact = real._width;
-          if (is_invert) cimg_forX(real,x) { *(--ptri) = (T)(*(--ptrd)/fact); *(--ptrr) = (T)(*(--ptrd)/fact); }
+          if (is_inverse) cimg_forX(real,x) { *(--ptri) = (T)(*(--ptrd)/fact); *(--ptrr) = (T)(*(--ptrd)/fact); }
           else cimg_forX(real,x) { *(--ptri) = (T)*(--ptrd); *(--ptrr) = (T)*(--ptrd); }
         }
       } break;
@@ -39773,7 +39773,7 @@ namespace cimg_library_suffixed {
                                                   cimg::strbuffersize(sizeof(fftw_complex)*real._height),
                                                   real._width,real._height,real._depth,real._spectrum);
 
-        data_plan = fftw_plan_dft_1d(real._height,data_in,data_in,is_invert?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE);
+        data_plan = fftw_plan_dft_1d(real._height,data_in,data_in,is_inverse?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE);
         const unsigned int off = real._width;
         cimg_forXZC(real,x,z,c) {
           T *ptrr = real.data(x,0,z,c), *ptri = imag.data(x,0,z,c);
@@ -39781,7 +39781,7 @@ namespace cimg_library_suffixed {
           cimg_forY(real,y) { *(ptrd++) = (double)*ptrr; *(ptrd++) = (double)*ptri; ptrr+=off; ptri+=off; }
           fftw_execute(data_plan);
           const unsigned int fact = real._height;
-          if (is_invert)
+          if (is_inverse)
             cimg_forY(real,y) { ptrr-=off; ptri-=off; *ptri = (T)(*(--ptrd)/fact); *ptrr = (T)(*(--ptrd)/fact); }
           else cimg_forY(real,y) { ptrr-=off; ptri-=off; *ptri = (T)*(--ptrd); *ptrr = (T)*(--ptrd); }
         }
@@ -39794,7 +39794,7 @@ namespace cimg_library_suffixed {
                                                   cimg::strbuffersize(sizeof(fftw_complex)*real._depth),
                                                   real._width,real._height,real._depth,real._spectrum);
 
-        data_plan = fftw_plan_dft_1d(real._depth,data_in,data_in,is_invert?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE);
+        data_plan = fftw_plan_dft_1d(real._depth,data_in,data_in,is_inverse?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE);
         const ulongT off = (ulongT)real._width*real._height;
         cimg_forXYC(real,x,y,c) {
           T *ptrr = real.data(x,y,0,c), *ptri = imag.data(x,y,0,c);
@@ -39802,7 +39802,7 @@ namespace cimg_library_suffixed {
           cimg_forZ(real,z) { *(ptrd++) = (double)*ptrr; *(ptrd++) = (double)*ptri; ptrr+=off; ptri+=off; }
           fftw_execute(data_plan);
           const unsigned int fact = real._depth;
-          if (is_invert)
+          if (is_inverse)
             cimg_forZ(real,z) { ptrr-=off; ptri-=off; *ptri = (T)(*(--ptrd)/fact); *ptrr = (T)(*(--ptrd)/fact); }
           else cimg_forZ(real,z) { ptrr-=off; ptri-=off; *ptri = (T)*(--ptrd); *ptrr = (T)*(--ptrd); }
         }
@@ -39844,7 +39844,7 @@ namespace cimg_library_suffixed {
           for (unsigned int i = 0; i<N; i+=delta) {
             float wr = 1, wi = 0;
             const float
-              angle = (float)((is_invert?+1:-1)*2*cimg::PI/delta),
+              angle = (float)((is_inverse?+1:-1)*2*cimg::PI/delta),
               ca = (float)std::cos(angle),
               sa = (float)std::sin(angle);
             for (unsigned int k = 0; k<delta2; ++k) {
@@ -39863,7 +39863,7 @@ namespace cimg_library_suffixed {
             }
           }
         }
-        if (is_invert) { real/=N; imag/=N; }
+        if (is_inverse) { real/=N; imag/=N; }
       } break;
       case 'y' : { // Fourier along Y, using built-in functions
         const unsigned int N = real._height, N2 = N>>1;
@@ -39890,7 +39890,7 @@ namespace cimg_library_suffixed {
           for (unsigned int i = 0; i<N; i+=delta) {
             float wr = 1, wi = 0;
             const float
-              angle = (float)((is_invert?+1:-1)*2*cimg::PI/delta),
+              angle = (float)((is_inverse?+1:-1)*2*cimg::PI/delta),
               ca = (float)std::cos(angle),
               sa = (float)std::sin(angle);
             for (unsigned int k = 0; k<delta2; ++k) {
@@ -39909,7 +39909,7 @@ namespace cimg_library_suffixed {
             }
           }
         }
-        if (is_invert) { real/=N; imag/=N; }
+        if (is_inverse) { real/=N; imag/=N; }
       } break;
       case 'z' : { // Fourier along Z, using built-in functions
         const unsigned int N = real._depth, N2 = N>>1;
@@ -39936,7 +39936,7 @@ namespace cimg_library_suffixed {
           for (unsigned int i = 0; i<N; i+=delta) {
             float wr = 1, wi = 0;
             const float
-              angle = (float)((is_invert?+1:-1)*2*cimg::PI/delta),
+              angle = (float)((is_inverse?+1:-1)*2*cimg::PI/delta),
               ca = (float)std::cos(angle),
               sa = (float)std::sin(angle);
             for (unsigned int k = 0; k<delta2; ++k) {
@@ -39955,7 +39955,7 @@ namespace cimg_library_suffixed {
             }
           }
         }
-        if (is_invert) { real/=N; imag/=N; }
+        if (is_inverse) { real/=N; imag/=N; }
       } break;
       default :
         throw CImgArgumentException("CImgList<%s>::FFT(): Invalid specified axis '%c' for real and imaginary parts "
@@ -39971,11 +39971,11 @@ namespace cimg_library_suffixed {
     /**
        \param[in,out] real Real part of the pixel values.
        \param[in,out] imag Imaginary part of the pixel values.
-       \param is_invert Tells if the forward (\c false) or inverse (\c true) FFT is computed.
+       \param is_inverse Tells if the forward (\c false) or inverse (\c true) FFT is computed.
        \param nb_threads Number of parallel threads used for the computation.
          Use \c 0 to set this to the number of available cpus.
     **/
-    static void FFT(CImg<T>& real, CImg<T>& imag, const bool is_invert=false, const unsigned int nb_threads=0) {
+    static void FFT(CImg<T>& real, CImg<T>& imag, const bool is_inverse=false, const unsigned int nb_threads=0) {
       if (!real)
         throw CImgInstanceException("CImgList<%s>::FFT(): Empty specified real part.",
                                     pixel_type());
@@ -40005,31 +40005,43 @@ namespace cimg_library_suffixed {
                                                         real._height*real._depth*real._spectrum),
                                     real._width,real._height,real._depth,real._spectrum);
       fftw_plan data_plan;
-      const ulongT w = (ulongT)real._width, wh = w*real._height, whd = wh*real._depth;
+      const ulongT w = (ulongT)real._width, wh = w*real._height, hd = real._height*real._depth,
+        whd = wh*real._depth, whdw = whd - w;
       data_plan = fftw_plan_dft_3d(real._width,real._height,real._depth,data_in,data_in,
-                                   is_invert?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE);
+                                   is_inverse?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE);
       cimg_forC(real,c) {
-        T *ptrr = real.data(0,0,0,c), *ptri = imag.data(0,0,0,c);
-        double *ptrd = (double*)data_in;
-        for (unsigned int x = 0; x<real._width; ++x, ptrr-=wh - 1, ptri-=wh - 1)
-          for (unsigned int y = 0; y<real._height; ++y, ptrr-=whd-w, ptri-=whd-w)
-            for (unsigned int z = 0; z<real._depth; ++z, ptrr+=wh, ptri+=wh) {
-              *(ptrd++) = (double)*ptrr; *(ptrd++) = (double)*ptri;
-            }
+        cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height(),125000))
+          cimg_forX(real,x) {
+          const T *ptrr = real.data(x,0,0,c), *ptri = imag.data(x,0,0,c);
+          double *ptrd = (double*)data_in + 2*x*hd;
+          cimg_forY(real,y) {
+            cimg_forZ(real,z) { ptrd[0] = (double)*ptrr; ptrd[1] = (double)*ptri; ptrd+=2; ptrr+=wh; ptri+=wh; }
+            ptrr-=whdw; ptri-=whdw;
+          }
+        }
         fftw_execute(data_plan);
-        ptrd = (double*)data_in;
-        ptrr = real.data(0,0,0,c);
-        ptri = imag.data(0,0,0,c);
-        if (!is_invert) for (unsigned int x = 0; x<real._width; ++x, ptrr-=wh - 1, ptri-=wh - 1)
-          for (unsigned int y = 0; y<real._height; ++y, ptrr-=whd-w, ptri-=whd-w)
-            for (unsigned int z = 0; z<real._depth; ++z, ptrr+=wh, ptri+=wh) {
-              *ptrr = (T)*(ptrd++); *ptri = (T)*(ptrd++);
+
+        if (is_inverse) {
+          const double a = 1.0/whd;
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height(),125000))
+            cimg_forX(real,x) {
+            const double *ptrd = (double*)data_in + 2*x*hd;
+            T *ptrr = real.data(x,0,0,c), *ptri = imag.data(x,0,0,c);
+            cimg_forY(real,y) {
+              cimg_forZ(real,z) { *ptrr = (T)(a*ptrd[0]); *ptri = (T)(a*ptrd[1]); ptrd+=2; ptrr+=wh; ptri+=wh; }
+              ptrr-=whdw; ptri-=whdw;
             }
-        else for (unsigned int x = 0; x<real._width; ++x, ptrr-=wh - 1, ptri-=wh - 1)
-          for (unsigned int y = 0; y<real._height; ++y, ptrr-=whd-w, ptri-=whd-w)
-            for (unsigned int z = 0; z<real._depth; ++z, ptrr+=wh, ptri+=wh) {
-              *ptrr = (T)(*(ptrd++)/whd); *ptri = (T)(*(ptrd++)/whd);
+          }
+        } else
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height(),125000))
+            cimg_forX(real,x) {
+            const double *ptrd = (double*)data_in + 2*x*hd;
+            T *ptrr = real.data(x,0,0,c), *ptri = imag.data(x,0,0,c);
+            cimg_forY(real,y) {
+              cimg_forZ(real,z) { *ptrr = (T)ptrd[0]; *ptri = (T)ptrd[1]; ptrd+=2; ptrr+=wh; ptri+=wh; }
+              ptrr-=whdw; ptri-=whdw;
             }
+          }
       }
       fftw_destroy_plan(data_plan);
       fftw_free(data_in);
@@ -40039,9 +40051,9 @@ namespace cimg_library_suffixed {
       cimg::mutex(12,0);
 #else
       cimg::unused(nb_threads);
-      if (real._depth>1) FFT(real,imag,'z',is_invert);
-      if (real._height>1) FFT(real,imag,'y',is_invert);
-      if (real._width>1) FFT(real,imag,'x',is_invert);
+      if (real._depth>1) FFT(real,imag,'z',is_inverse);
+      if (real._height>1) FFT(real,imag,'y',is_inverse);
+      if (real._width>1) FFT(real,imag,'x',is_inverse);
 #endif
     }
 

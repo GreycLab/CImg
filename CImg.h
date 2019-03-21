@@ -40009,18 +40009,30 @@ namespace cimg_library_suffixed {
       const fftw_plan data_plan = fftw_plan_dft_3d(real._width,real._height,real._depth,data_in,data_in,
                                                    is_invert?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE);
       cimg_forC(real,c) {
-	CImg<> realc = real.get_shared_channel(c), imagc = imag.get_shared_channel(c);
+	CImg<T> realc = real.get_shared_channel(c), imagc = imag.get_shared_channel(c);
 	double *datad = (double*)data_in;
         cimg_pragma_openmp(parallel for cimg_openmp_if_size(realc.size(),125000))
-          cimg_rofoff(realc,i) { const ulongT i2 = 2*i; datad[i2] = realc[i]; datad[i2 + 1] = imagc[i]; }
+          cimg_rofoff(realc,i) {
+          const ulongT i2 = 2*i;
+          datad[i2] = (double)realc[i];
+          datad[i2 + 1] = (double)imagc[i];
+        }
         fftw_execute(data_plan);
 	if (is_invert) {
 	  const double a = 1.0/whd;
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(realc.size(),125000))
-            cimg_rofoff(realc,i) { const ulongT i2 = 2*i; realc[i] = a*datad[i2]; imagc[i] = a*datad[i2 + 1]; }
+            cimg_rofoff(realc,i) {
+            const ulongT i2 = 2*i;
+            realc[i] = (T)(a*datad[i2]);
+            imagc[i] = (T)(a*datad[i2 + 1]);
+          }
         } else
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(realc.size(),125000))
-            cimg_rofoff(realc,i) { const ulongT i2 = 2*i; realc[i] = datad[i2]; imagc[i] = datad[i2 + 1]; }
+            cimg_rofoff(realc,i) {
+            const ulongT i2 = 2*i;
+            realc[i] = (T)datad[i2];
+            imagc[i] = (T)datad[i2 + 1];
+          }
       }
       fftw_destroy_plan(data_plan);
       fftw_free(data_in);

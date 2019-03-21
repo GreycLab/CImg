@@ -39974,8 +39974,6 @@ namespace cimg_library_suffixed {
        \param is_invert Tells if the forward (\c false) or inverse (\c true) FFT is computed.
        \param nb_threads Number of parallel threads used for the computation.
          Use \c 0 to set this to the number of available cpus.
-
-	 based on fftw_plan_dft_3d
     **/
     static void FFT(CImg<T>& real, CImg<T>& imag, const bool is_invert=false, const unsigned int nb_threads=0) {
       if (!real)
@@ -39998,10 +39996,7 @@ namespace cimg_library_suffixed {
 #else
       cimg::unused(nb_threads);
 #endif
-      const ulongT
-        w = (ulongT)real._width, d = (ulongT)real._depth,
-        wh = w*real._height, hd = real._height*d, whd = wh*real._depth;
-      fftw_complex *const data_in = fftw_alloc_complex(whd);
+      fftw_complex *data_in = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*real._width*real._height*real._depth);
       if (!data_in)
         throw CImgInstanceException("CImgList<%s>::FFT(): Failed to allocate memory (%s) "
                                     "for computing FFT of image (%u,%u,%u,%u).",
@@ -40009,34 +40004,32 @@ namespace cimg_library_suffixed {
                                     cimg::strbuffersize(sizeof(fftw_complex)*real._width*
                                                         real._height*real._depth*real._spectrum),
                                     real._width,real._height,real._depth,real._spectrum);
-
-      const fftw_plan data_plan = fftw_plan_dft_3d(real._width,real._height,real._depth,data_in,data_in,
-                                                   is_invert?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE);
+      fftw_plan data_plan;
+      const ulongT w = (ulongT)real._width, wh = w*real._height, whd = wh*real._depth;
+      data_plan = fftw_plan_dft_3d(real._width,real._height,real._depth,data_in,data_in,
+                                   is_invert?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE);
       cimg_forC(real,c) {
-	CImg<T> realc = real.get_shared_channel(c), imagc = imag.get_shared_channel(c);
-	double *datad = (double*)data_in;
-        cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if_size(realc.size(),125000))
-          cimg_forXYZ(realc,x,y,z) {
-          const ulongT offd = 2*(z + y*d + x*hd), offs = x + y*w + z*wh;
-          datad[offd] = (double)realc[offs];
-          datad[offd + 1] = (double)imagc[offs];
-        }
+        T *ptrr = real.data(0,0,0,c), *ptri = imag.data(0,0,0,c);
+        double *ptrd = (double*)data_in;
+        for (unsigned int x = 0; x<real._width; ++x, ptrr-=wh - 1, ptri-=wh - 1)
+          for (unsigned int y = 0; y<real._height; ++y, ptrr-=whd-w, ptri-=whd-w)
+            for (unsigned int z = 0; z<real._depth; ++z, ptrr+=wh, ptri+=wh) {
+              *(ptrd++) = (double)*ptrr; *(ptrd++) = (double)*ptri;
+            }
         fftw_execute(data_plan);
-	if (is_invert) {
-	  const double a = 1.0/whd;
-          cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if_size(realc.size(),125000))
-            cimg_forXYZ(realc,x,y,z) {
-            const ulongT offs = 2*(z + y*d + x*hd), offd = x + y*w + z*wh;
-            realc[offd] = (T)(a*datad[offs]);
-            imagc[offd] = (T)(a*datad[offs + 1]);
-          }
-        } else
-          cimg_pragma_openmp(parallel for collapse(3) cimg_openmp_if_size(realc.size(),125000))
-            cimg_forXYZ(realc,x,y,z) {
-            const ulongT offs = 2*(z + y*d + x*hd), offd = x + y*w + z*wh;
-            realc[offd] = (T)datad[offs];
-            imagc[offd] = (T)datad[offs + 1];
-          }
+        ptrd = (double*)data_in;
+        ptrr = real.data(0,0,0,c);
+        ptri = imag.data(0,0,0,c);
+        if (!is_invert) for (unsigned int x = 0; x<real._width; ++x, ptrr-=wh - 1, ptri-=wh - 1)
+          for (unsigned int y = 0; y<real._height; ++y, ptrr-=whd-w, ptri-=whd-w)
+            for (unsigned int z = 0; z<real._depth; ++z, ptrr+=wh, ptri+=wh) {
+              *ptrr = (T)*(ptrd++); *ptri = (T)*(ptrd++);
+            }
+        else for (unsigned int x = 0; x<real._width; ++x, ptrr-=wh - 1, ptri-=wh - 1)
+          for (unsigned int y = 0; y<real._height; ++y, ptrr-=whd-w, ptri-=whd-w)
+            for (unsigned int z = 0; z<real._depth; ++z, ptrr+=wh, ptri+=wh) {
+              *ptrr = (T)(*(ptrd++)/whd); *ptri = (T)(*(ptrd++)/whd);
+            }
       }
       fftw_destroy_plan(data_plan);
       fftw_free(data_in);

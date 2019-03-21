@@ -281,6 +281,25 @@
 #error (should be { 0=quiet | 1=console | 2=dialog | 3=console+warnings | 4=dialog+warnings }).
 #endif
 
+// Configure OpenMP support.
+// (http://www.openmp.org)
+//
+// Define 'cimg_use_openmp' to enable OpenMP support (requires OpenMP 3.0+).
+//
+// OpenMP directives are used in many CImg functions to get
+// advantages of multi-core CPUs.
+#if defined(cimg_use_openmp) && cimg_use_openmp==0
+#undef cimg_use_openmp
+#elif !defined(cimg_use_openmp) && defined(_OPENMP)
+#define cimg_use_openmp
+#endif
+#ifdef cimg_use_openmp
+#include <omp.h>
+#define cimg_pragma_openmp(p) cimg_pragma(omp p)
+#else
+#define cimg_pragma_openmp(p)
+#endif
+
 // Configure display framework.
 //
 // Define 'cimg_display' to: '0' to disable display capabilities.
@@ -305,9 +324,6 @@
 //
 // where 'is_abort' is a boolean variable defined somewhere in your code and reachable in the method.
 // 'cimg_abort_test2' does the same but is called more often (in inner loops).
-#if !defined(cimg_use_openmp) && defined(_OPENMP)
-#define cimg_use_openmp
-#endif
 #if defined(cimg_abort_test) && defined(cimg_use_openmp)
 
 // Define abort macros to be used with OpenMP.
@@ -409,20 +425,6 @@
 #else
 #define _cimg_fourcc CV_FOURCC
 #endif
-#endif
-
-// Configure OpenMP support.
-// (http://www.openmp.org)
-//
-// Define 'cimg_use_openmp' to enable OpenMP support (requires OpenMP 3.0+).
-//
-// OpenMP directives are used in many CImg functions to get
-// advantages of multi-core CPUs.
-#ifdef cimg_use_openmp
-#include <omp.h>
-#define cimg_pragma_openmp(p) cimg_pragma(omp p)
-#else
-#define cimg_pragma_openmp(p)
 #endif
 
 // Configure LibPNG support.

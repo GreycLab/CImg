@@ -39753,12 +39753,11 @@ namespace cimg_library_suffixed {
                                     "(should be { x | y | z }).",
                                     pixel_type(),axis,
                                     real._width,real._height,real._depth,real._spectrum);
+      cimg::unused(nb_threads);
 #ifdef cimg_use_fftw3
       cimg::mutex(12);
 #ifndef cimg_use_fftw3_singlethread
       fftw_plan_with_nthreads(nb_threads?nb_threads:cimg::nb_cpus());
-#else
-      cimg::unused(nb_threads);
 #endif
       fftw_complex *data_in = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*real._width*real._height*real._depth);
       if (!data_in)
@@ -39964,12 +39963,11 @@ namespace cimg_library_suffixed {
                                     pixel_type(),
                                     real._width,real._height,real._depth,real._spectrum,real._data,
                                     imag._width,imag._height,imag._depth,imag._spectrum,imag._data);
+      cimg::unused(nb_threads);
 #ifdef cimg_use_fftw3
       cimg::mutex(12);
 #ifndef cimg_use_fftw3_singlethread
       fftw_plan_with_nthreads(nb_threads?nb_threads:cimg::nb_cpus());
-#else
-      cimg::unused(nb_threads);
 #endif
       fftw_complex *data_in = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*real._width*real._height*real._depth);
       if (!data_in)
@@ -40007,7 +40005,6 @@ namespace cimg_library_suffixed {
 #endif
       cimg::mutex(12,0);
 #else
-      cimg::unused(nb_threads);
       if (real._depth>1) FFT(real,imag,'z',is_inverse);
       if (real._height>1) FFT(real,imag,'y',is_inverse);
       if (real._width>1) FFT(real,imag,'x',is_inverse);

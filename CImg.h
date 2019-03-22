@@ -39730,7 +39730,6 @@ namespace cimg_library_suffixed {
       if (!real)
         throw CImgInstanceException("CImg<%s>::FFT(): Specified real part is empty.",
                                     pixel_type());
-
       if (!imag) imag.assign(real._width,real._height,real._depth,real._spectrum,(T)0);
       if (!real.is_sameXYZC(imag))
         throw CImgInstanceException("CImg<%s>::FFT(): Specified real part (%u,%u,%u,%u,%p) and "
@@ -39738,84 +39737,54 @@ namespace cimg_library_suffixed {
                                     pixel_type(),
                                     real._width,real._height,real._depth,real._spectrum,real._data,
                                     imag._width,imag._height,imag._depth,imag._spectrum,imag._data);
-
-#ifdef cimg_use_fftw3
-      cimg::mutex(12);
-      fftw_complex *data_in;
-      fftw_plan data_plan;
-
-      switch (cimg::lowercase(axis)) {
-      case 'x' : { // Fourier along X, using FFTW library
-        data_in = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*real._width);
-        if (!data_in)
-          throw CImgInstanceException("CImgList<%s>::FFT(): Failed to allocate memory (%s) "
-                                      "for computing FFT of image (%u,%u,%u,%u) along the X-axis.",
-                                      pixel_type(),
-                                      cimg::strbuffersize(sizeof(fftw_complex)*real._width),
-                                      real._width,real._height,real._depth,real._spectrum);
-
-        data_plan = fftw_plan_dft_1d(real._width,data_in,data_in,is_inverse?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE);
-        cimg_forYZC(real,y,z,c) {
-          T *ptrr = real.data(0,y,z,c), *ptri = imag.data(0,y,z,c);
-          double *ptrd = (double*)data_in;
-          cimg_forX(real,x) { *(ptrd++) = (double)*(ptrr++); *(ptrd++) = (double)*(ptri++); }
-          fftw_execute(data_plan);
-          const unsigned int fact = real._width;
-          if (is_inverse) cimg_forX(real,x) { *(--ptri) = (T)(*(--ptrd)/fact); *(--ptrr) = (T)(*(--ptrd)/fact); }
-          else cimg_forX(real,x) { *(--ptri) = (T)*(--ptrd); *(--ptrr) = (T)*(--ptrd); }
-        }
-      } break;
-      case 'y' : { // Fourier along Y, using FFTW library
-        data_in = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * real._height);
-        if (!data_in) throw CImgInstanceException("CImgList<%s>::FFT(): Failed to allocate memory (%s) "
-                                                  "for computing FFT of image (%u,%u,%u,%u) along the Y-axis.",
-                                                  pixel_type(),
-                                                  cimg::strbuffersize(sizeof(fftw_complex)*real._height),
-                                                  real._width,real._height,real._depth,real._spectrum);
-
-        data_plan = fftw_plan_dft_1d(real._height,data_in,data_in,is_inverse?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE);
-        const unsigned int off = real._width;
-        cimg_forXZC(real,x,z,c) {
-          T *ptrr = real.data(x,0,z,c), *ptri = imag.data(x,0,z,c);
-          double *ptrd = (double*)data_in;
-          cimg_forY(real,y) { *(ptrd++) = (double)*ptrr; *(ptrd++) = (double)*ptri; ptrr+=off; ptri+=off; }
-          fftw_execute(data_plan);
-          const unsigned int fact = real._height;
-          if (is_inverse)
-            cimg_forY(real,y) { ptrr-=off; ptri-=off; *ptri = (T)(*(--ptrd)/fact); *ptrr = (T)(*(--ptrd)/fact); }
-          else cimg_forY(real,y) { ptrr-=off; ptri-=off; *ptri = (T)*(--ptrd); *ptrr = (T)*(--ptrd); }
-        }
-      } break;
-      case 'z' : { // Fourier along Z, using FFTW library
-        data_in = (fftw_complex*)fftw_malloc(sizeof(fftw_complex) * real._depth);
-        if (!data_in) throw CImgInstanceException("CImgList<%s>::FFT(): Failed to allocate memory (%s) "
-                                                  "for computing FFT of image (%u,%u,%u,%u) along the Z-axis.",
-                                                  pixel_type(),
-                                                  cimg::strbuffersize(sizeof(fftw_complex)*real._depth),
-                                                  real._width,real._height,real._depth,real._spectrum);
-
-        data_plan = fftw_plan_dft_1d(real._depth,data_in,data_in,is_inverse?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE);
-        const ulongT off = (ulongT)real._width*real._height;
-        cimg_forXYC(real,x,y,c) {
-          T *ptrr = real.data(x,y,0,c), *ptri = imag.data(x,y,0,c);
-          double *ptrd = (double*)data_in;
-          cimg_forZ(real,z) { *(ptrd++) = (double)*ptrr; *(ptrd++) = (double)*ptri; ptrr+=off; ptri+=off; }
-          fftw_execute(data_plan);
-          const unsigned int fact = real._depth;
-          if (is_inverse)
-            cimg_forZ(real,z) { ptrr-=off; ptri-=off; *ptri = (T)(*(--ptrd)/fact); *ptrr = (T)(*(--ptrd)/fact); }
-          else cimg_forZ(real,z) { ptrr-=off; ptri-=off; *ptri = (T)*(--ptrd); *ptrr = (T)*(--ptrd); }
-        }
-      } break;
-      default :
+      const char _axis = cimg::lowercase(axis);
+      if (_axis!='x' && _axis!='y' && _axis!='z')
         throw CImgArgumentException("CImgList<%s>::FFT(): Invalid specified axis '%c' for real and imaginary parts "
                                     "(%u,%u,%u,%u) "
                                     "(should be { x | y | z }).",
                                     pixel_type(),axis,
                                     real._width,real._height,real._depth,real._spectrum);
+#ifdef cimg_use_fftw3
+      cimg::mutex(12);
+      fftw_complex *data_in = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*real._width*real._height*real._depth);
+      if (!data_in)
+        throw CImgInstanceException("CImgList<%s>::FFT(): Failed to allocate memory (%s) "
+                                    "for computing FFT of image (%u,%u,%u,%u) along the X-axis.",
+                                    pixel_type(),
+                                    cimg::strbuffersize(sizeof(fftw_complex)*real._width),
+                                    real._width,real._height,real._depth,real._spectrum);
+      double *const ptrf = (double*)data_in;
+      fftw_plan data_plan =
+        _axis=='x'?fftw_plan_many_dft(1,(int*)&real._width,real.height()*real.depth(),
+                                      data_in,0,1,real.width(),
+                                      data_in,0,1,real.width(),
+                                      is_inverse?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE):
+        _axis=='y'?fftw_plan_many_dft(1,(int*)&real._height,real.width()*real.depth(),
+                                      data_in,0,real.width(),1,
+                                      data_in,0,real.width(),1,
+                                      is_inverse?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE):
+        fftw_plan_many_dft(1,(int*)&real._depth,real.width()*real.height(),
+                           data_in,0,real.width()*real.height(),1,
+                           data_in,0,real.width()*real.height(),1,
+                           is_inverse?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE);
+      cimg_forC(real,c) {
+        CImg<T> realc = real.get_shared_channel(c), imagc = imag.get_shared_channel(c);
+        cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height()*real.depth(),125000))
+          cimg_rofoff(realc,i) { const ulongT i2 = 2*i; ptrf[i2] = (double)realc[i]; ptrf[i2 + 1] = (double)imagc[i]; }
+        fftw_execute(data_plan);
+        if (is_inverse) {
+          const double a = 1.0/(_axis=='x'?real.width():_axis=='y'?real.height():real.depth());
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height()*real.depth(),125000))
+            cimg_rofoff(realc,i) { const ulongT i2 = 2*i; realc[i] = (T)(a*ptrf[i2]); imagc[i] = (T)(a*ptrf[i2 + 1]); }
+        } else
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height()*real.depth(),125000))
+            cimg_rofoff(realc,i) { const ulongT i2 = 2*i; realc[i] = (T)ptrf[i2]; imagc[i] = (T)ptrf[i2 + 1]; }
       }
       fftw_destroy_plan(data_plan);
       fftw_free(data_in);
+#ifndef cimg_use_fftw3_singlethread
+      fftw_cleanup_threads();
+#endif
       cimg::mutex(12,0);
 #else
       switch (cimg::lowercase(axis)) {
@@ -40013,9 +39982,7 @@ namespace cimg_library_suffixed {
         fftw_plan_dft_1d(real._width,data_in,data_in,
                          is_inverse?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE);
       cimg_forC(real,c) {
-        CImg<T>
-          realc = real.get_shared_channel(c),
-          imagc = imag.get_shared_channel(c);
+        CImg<T> realc = real.get_shared_channel(c), imagc = imag.get_shared_channel(c);
         cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height()*real.depth(),125000))
           cimg_rofoff(realc,i) { const ulongT i2 = 2*i; ptrf[i2] = (double)realc[i]; ptrf[i2 + 1] = (double)imagc[i]; }
         fftw_execute(data_plan);

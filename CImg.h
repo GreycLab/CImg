@@ -40005,17 +40005,13 @@ namespace cimg_library_suffixed {
                                                         real._height*real._depth*real._spectrum),
                                     real._width,real._height,real._depth,real._spectrum);
       double *const ptrf = (double*)data_in;
-
-      fftw_plan data_plan;
-      if (real._depth>1)
-        data_plan = fftw_plan_dft_3d(real._depth,real._height,real._width,data_in,data_in,
-                                     is_inverse?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE);
-      else if (real._height>1)
-        data_plan = fftw_plan_dft_2d(real._height,real._width,data_in,data_in,
-                                     is_inverse?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE);
-      else
-        data_plan = fftw_plan_dft_1d(real._width,data_in,data_in,
-                                     is_inverse?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE);
+      fftw_plan data_plan =
+        real._depth>1?fftw_plan_dft_3d(real._depth,real._height,real._width,data_in,data_in,
+                                       is_inverse?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE):
+        real._height>1?fftw_plan_dft_2d(real._height,real._width,data_in,data_in,
+                                        is_inverse?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE):
+        fftw_plan_dft_1d(real._width,data_in,data_in,
+                         is_inverse?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE);
       cimg_forC(real,c) {
         CImg<T>
           realc = real.get_shared_channel(c),

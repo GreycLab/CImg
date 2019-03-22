@@ -3134,6 +3134,14 @@ namespace cimg_library_suffixed {
     } _Magick_info;
 #endif
 
+#if defined(cimg_use_fftw3)
+    static struct FFTW3_info {
+      FFTW3_info() {
+        fftw_init_threads();
+      }
+    } _FFTW3_info;
+#endif
+
 #if cimg_display==1
     // Define keycodes for X11-based graphical systems.
     const unsigned int keyESC        = XK_Escape;
@@ -39726,7 +39734,8 @@ namespace cimg_library_suffixed {
        \param axis Axis along which the FFT is computed.
        \param is_inverse Tells if the forward (\c false) or inverse (\c true) FFT is computed.
     **/
-    static void FFT(CImg<T>& real, CImg<T>& imag, const char axis, const bool is_inverse=false) {
+    static void FFT(CImg<T>& real, CImg<T>& imag, const char axis, const bool is_inverse=false,
+                    const unsigned int nb_threads=0) {
       if (!real)
         throw CImgInstanceException("CImg<%s>::FFT(): Specified real part is empty.",
                                     pixel_type());
@@ -39746,6 +39755,11 @@ namespace cimg_library_suffixed {
                                     real._width,real._height,real._depth,real._spectrum);
 #ifdef cimg_use_fftw3
       cimg::mutex(12);
+#ifndef cimg_use_fftw3_singlethread
+      fftw_plan_with_nthreads(nb_threads?nb_threads:cimg::nb_cpus());
+#else
+      cimg::unused(nb_threads);
+#endif
       fftw_complex *data_in = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*real._width*real._height*real._depth);
       if (!data_in)
         throw CImgInstanceException("CImgList<%s>::FFT(): Failed to allocate memory (%s) "
@@ -39938,7 +39952,8 @@ namespace cimg_library_suffixed {
        \param nb_threads Number of parallel threads used for the computation.
          Use \c 0 to set this to the number of available cpus.
     **/
-    static void FFT(CImg<T>& real, CImg<T>& imag, const bool is_inverse=false, const unsigned int nb_threads=0) {
+    static void FFT(CImg<T>& real, CImg<T>& imag, const bool is_inverse=false,
+                    const unsigned int nb_threads=0) {
       if (!real)
         throw CImgInstanceException("CImgList<%s>::FFT(): Empty specified real part.",
                                     pixel_type());
@@ -39952,10 +39967,7 @@ namespace cimg_library_suffixed {
 #ifdef cimg_use_fftw3
       cimg::mutex(12);
 #ifndef cimg_use_fftw3_singlethread
-      const unsigned int _nb_threads = nb_threads?nb_threads:cimg::nb_cpus();
-      static int fftw_st = fftw_init_threads();
-      cimg::unused(fftw_st);
-      fftw_plan_with_nthreads(_nb_threads);
+      fftw_plan_with_nthreads(nb_threads?nb_threads:cimg::nb_cpus());
 #else
       cimg::unused(nb_threads);
 #endif

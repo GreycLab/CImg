@@ -39717,7 +39717,7 @@ namespace cimg_library_suffixed {
       return res;
     }
 
-    //! Compute n-d Fast Fourier Transform.
+    //! Compute n-D Fast Fourier Transform.
     /*
       \param is_inverse Tells if the forward (\c false) or inverse (\c true) FFT is computed.
     **/
@@ -39944,7 +39944,7 @@ namespace cimg_library_suffixed {
 #endif
     }
 
-    //! Compute n-d Fast Fourier Transform.
+    //! Compute n-D Fast Fourier Transform.
     /**
        \param[in,out] real Real part of the pixel values.
        \param[in,out] imag Imaginary part of the pixel values.
@@ -61089,7 +61089,7 @@ namespace cimg_library_suffixed {
       return CImgList<Tfloat>(*this,false).FFT(axis,invert);
     }
 
-    //! Compute a n-d Fast Fourier Transform.
+    //! Compute n-D Fast Fourier Transform.
     /**
       \param invert Tells if the direct (\c false) or inverse transform (\c true) is computed.
     **/
@@ -61105,7 +61105,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Compute a n-d Fast Fourier Transform \newinstance.
+    //! Compute n-D Fast Fourier Transform \newinstance.
     CImgList<Tfloat> get_FFT(const bool invert=false) const {
       return CImgList<Tfloat>(*this,false).FFT(invert);
     }

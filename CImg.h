@@ -45462,12 +45462,12 @@ namespace cimg_library_suffixed {
                                     "draw_ellipse(): Specified color is (null).",
                                     cimg_instance);
       if (r1<0 || r2<0) return *this;
-      if (r1*r2<=0) return draw_point(x0,y0,color,opacity);
-      if ((int)cimg::round(r1)==(int)cimg::round(r2)) {
-        if (is_filled) return draw_circle(x0,y0,(int)cimg::round(r1),color,opacity);
-        else return draw_circle(x0,y0,(int)cimg::round(r1),color,opacity,pattern);
+      const int ir1 = (int)cimg::round(r1), ir2 = (int)cimg::round(r2);
+      if (!ir1 && !ir2) return draw_point(x0,y0,color,opacity);
+      if (ir1==ir2) {
+        if (is_filled) return draw_circle(x0,y0,ir1,color,opacity);
+        else return draw_circle(x0,y0,ir1,color,opacity,pattern);
       }
-
       const float
         nr1 = cimg::abs(r1) - 0.5, nr2 = cimg::abs(r2) - 0.5,
         nangle = (float)(angle*cimg::PI/180),

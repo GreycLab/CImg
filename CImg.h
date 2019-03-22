@@ -40007,11 +40007,14 @@ namespace cimg_library_suffixed {
       double *const ptrf = (double*)data_in;
 
       fftw_plan data_plan;
-      if (real.depth()>1)
+      if (real._depth>1)
         data_plan = fftw_plan_dft_3d(real._depth,real._height,real._width,data_in,data_in,
                                      is_inverse?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE);
-      else
+      else if (real._height>1)
         data_plan = fftw_plan_dft_2d(real._height,real._width,data_in,data_in,
+                                     is_inverse?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE);
+      else
+        data_plan = fftw_plan_dft_1d(real._width,data_in,data_in,
                                      is_inverse?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE);
       cimg_forC(real,c) {
         CImg<T>

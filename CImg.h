@@ -45463,7 +45463,7 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
       if (r1<0 || r2<0) return *this;
       if (r1*r2<=0) return draw_point(x0,y0,color,opacity);
-      if ((int)r1==(int)r2) {
+      if ((int)cimg::round(r1)==(int)cimg::round(r2)) {
         if (is_filled) return draw_circle(x0,y0,(int)cimg::round(r1),color,opacity);
         else return draw_circle(x0,y0,(int)cimg::round(r1),color,opacity,pattern);
       }

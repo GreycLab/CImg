@@ -39787,7 +39787,7 @@ namespace cimg_library_suffixed {
 #endif
       cimg::mutex(12,0);
 #else
-      switch (cimg::lowercase(axis)) {
+      switch (_axis) {
       case 'x' : { // Fourier along X, using built-in functions
         const unsigned int N = real._width, N2 = N>>1;
         if (((N - 1)&N) && N!=1)
@@ -39880,7 +39880,7 @@ namespace cimg_library_suffixed {
         }
         if (is_inverse) { real/=N; imag/=N; }
       } break;
-      case 'z' : { // Fourier along Z, using built-in functions
+      default : { // Fourier along Z, using built-in functions
         const unsigned int N = real._depth, N2 = N>>1;
         if (((N - 1)&N) && N!=1)
           throw CImgInstanceException("CImgList<%s>::FFT(): Specified real and imaginary parts (%u,%u,%u,%u) "
@@ -39926,12 +39926,6 @@ namespace cimg_library_suffixed {
         }
         if (is_inverse) { real/=N; imag/=N; }
       } break;
-      default :
-        throw CImgArgumentException("CImgList<%s>::FFT(): Invalid specified axis '%c' for real and imaginary parts "
-                                    "(%u,%u,%u,%u) "
-                                    "(should be { x | y | z }).",
-                                    pixel_type(),axis,
-                                    real._width,real._height,real._depth,real._spectrum);
       }
 #endif
     }

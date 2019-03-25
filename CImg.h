@@ -45488,8 +45488,8 @@ namespace cimg_library_suffixed {
       } else { // Filled
         cimg_init_scanline(color,opacity);
         const float
-          ca = std::cos(-ang),
-          sa = std::sin(-ang),
+          ca = std::cos(ang),
+          sa = -std::sin(ang),
           ca2 = ca*ca,
           sa2 = sa*sa,
           casa = ca*sa,

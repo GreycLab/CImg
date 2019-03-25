@@ -23245,9 +23245,11 @@ namespace cimg_library_suffixed {
       }
 
       static float* _mp_memcopy_float(_cimg_math_parser& mp, const ulongT *const p_ref,
-                                      const longT siz, const long inc) {
+                                      const longT siz, const long inc, const bool is_out) {
         const unsigned ind = (unsigned int)p_ref[1];
-        const CImg<T> &img = ind==~0U?mp.imgin:mp.listin[cimg::mod((int)mp.mem[ind],mp.listin.width())];
+        const CImg<T> &img =
+          is_out?(ind==~0U?mp.imgout:mp.listout[cimg::mod((int)mp.mem[ind],mp.listout.width())]):
+          (ind==~0U?mp.imgin:mp.listin[cimg::mod((int)mp.mem[ind],mp.listin.width())]);
         const bool is_relative = (bool)p_ref[2];
         int ox, oy, oz, oc;
         longT off = 0;
@@ -23307,17 +23309,17 @@ namespace cimg_library_suffixed {
             }
           } else if (is_doubled && !is_doubles) { // (double*) <- (float*)
             double *ptrd = _mp_memcopy_double(mp,(unsigned int)mp.opcode[2],&mp.opcode[8],siz,inc_d);
-            const float *ptrs = _mp_memcopy_float(mp,&mp.opcode[15],siz,inc_s);
+            const float *ptrs = _mp_memcopy_float(mp,&mp.opcode[15],siz,inc_s,false);
             if (_opacity>=1) while (siz-->0) { *ptrd = *ptrs; ptrd+=inc_d; ptrs+=inc_s; }
             else while (siz-->0) { *ptrd = omopacity**ptrd + _opacity**ptrs; ptrd+=inc_d; ptrs+=inc_s; }
           } else if (!is_doubled && is_doubles) { // (float*) <- (double*)
-            float *ptrd = _mp_memcopy_float(mp,&mp.opcode[8],siz,inc_d);
+            float *ptrd = _mp_memcopy_float(mp,&mp.opcode[8],siz,inc_d,true);
             const double *ptrs = _mp_memcopy_double(mp,(unsigned int)mp.opcode[3],&mp.opcode[15],siz,inc_s);
             if (_opacity>=1) while (siz-->0) { *ptrd = (float)*ptrs; ptrd+=inc_d; ptrs+=inc_s; }
             else while (siz-->0) { *ptrd = (float)(omopacity**ptrd + opacity**ptrs); ptrd+=inc_d; ptrs+=inc_s; }
           } else { // (float*) <- (float*)
-            float *ptrd = _mp_memcopy_float(mp,&mp.opcode[8],siz,inc_d);
-            const float *ptrs = _mp_memcopy_float(mp,&mp.opcode[15],siz,inc_s);
+            float *ptrd = _mp_memcopy_float(mp,&mp.opcode[8],siz,inc_d,true);
+            const float *ptrs = _mp_memcopy_float(mp,&mp.opcode[15],siz,inc_s,false);
             if (inc_d==1 && inc_s==1 && _opacity>=1) {
               if (ptrs + siz - 1<ptrd || ptrs>ptrd + siz - 1) std::memcpy(ptrd,ptrs,siz*sizeof(float));
               else std::memmove(ptrd,ptrs,siz*sizeof(float));

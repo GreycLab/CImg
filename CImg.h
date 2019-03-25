@@ -23247,8 +23247,8 @@ namespace cimg_library_suffixed {
       static float* _mp_memcopy_float(_cimg_math_parser& mp, const ulongT *const p_ref,
                                       const longT siz, const long inc, const bool is_out) {
         const unsigned ind = (unsigned int)p_ref[1];
-        const CImg<T> &img =
-          is_out?(ind==~0U?mp.imgout:mp.listout[cimg::mod((int)mp.mem[ind],mp.listout.width())]):
+        const CImg<T> &img = is_out?
+          (ind==~0U?mp.imgout:mp.listout[cimg::mod((int)mp.mem[ind],mp.listout.width())]):
           (ind==~0U?mp.imgin:mp.listin[cimg::mod((int)mp.mem[ind],mp.listin.width())]);
         const bool is_relative = (bool)p_ref[2];
         int ox, oy, oz, oc;

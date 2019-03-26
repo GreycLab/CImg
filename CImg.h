@@ -29136,128 +29136,150 @@ namespace cimg_library_suffixed {
       switch (colormap._spectrum) {
 
       case 1 : { // Optimized for scalars
-        const T *ptrs = _data;
         switch (boundary_conditions) {
         case 3 : // Mirror
-          cimg_for(res,ptrd,t) {
-            const ulongT ind = ((ulongT)*(ptrs++))%cwhd2;
-            *ptrd = colormap[ind<cwhd?ind:cwhd2 - ind - 1];
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
+          for (ulongT off = 0; off<whd; ++off) {
+            const ulongT ind = ((ulongT)_data[off])%cwhd2;
+            res[off] = colormap[ind<cwhd?ind:cwhd2 - ind - 1];
           }
           break;
         case 2 : // Periodic
-          cimg_for(res,ptrd,t) {
-            const ulongT ind = (ulongT)*(ptrs++);
-            *ptrd = colormap[ind%cwhd];
-          } break;
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
+          for (ulongT off = 0; off<whd; ++off) {
+            const ulongT ind = (ulongT)_data[off];
+            res[off] = colormap[ind%cwhd];
+          }
+          break;
         case 1 : // Neumann
-          cimg_for(res,ptrd,t) {
-            const longT ind = (longT)*(ptrs++);
-            *ptrd = colormap[cimg::cut(ind,(longT)0,(longT)cwhd - 1)];
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
+          for (ulongT off = 0; off<whd; ++off) {
+            const longT ind = (longT)_data[off];
+            res[off] = colormap[cimg::cut(ind,(longT)0,(longT)cwhd - 1)];
           } break;
         default : // Dirichlet
-          cimg_for(res,ptrd,t) {
-            const ulongT ind = (ulongT)*(ptrs++);
-            *ptrd = ind<cwhd?colormap[ind]:(t)0;
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
+          for (ulongT off = 0; off<whd; ++off) {
+            const ulongT ind = (ulongT)_data[off];
+            res[off] = ind<cwhd?colormap[ind]:(t)0;
           }
         }
       } break;
 
       case 2 : { // Optimized for 2D vectors
-        const t *const ptrp0 = colormap._data, *ptrp1 = ptrp0 + cwhd;
-        t *ptrd0 = res._data, *ptrd1 = ptrd0 + whd;
+        const t *const ptrp0 = colormap._data, *const ptrp1 = ptrp0 + cwhd;
+        t *const ptrd0 = res._data, *const ptrd1 = ptrd0 + whd;
         switch (boundary_conditions) {
         case 3 : // Mirror
-          for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
+          for (ulongT off = 0; off<whd; ++off) {
             const ulongT
-              _ind = ((ulongT)*(ptrs++))%cwhd2,
+              _ind = ((ulongT)_data[off])%cwhd2,
               ind = _ind<cwhd?_ind:cwhd2 - _ind - 1;
-            *(ptrd0++) = ptrp0[ind]; *(ptrd1++) = ptrp1[ind];
+            ptrd0[off] = ptrp0[ind]; ptrd1[off] = ptrp1[ind];
           }
           break;
         case 2 : // Periodic
-          for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
-            const ulongT ind = ((ulongT)*(ptrs++))%cwhd;
-            *(ptrd0++) = ptrp0[ind]; *(ptrd1++) = ptrp1[ind];
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
+          for (ulongT off = 0; off<whd; ++off) {
+            const ulongT ind = ((ulongT)_data[off])%cwhd;
+            ptrd0[off] = ptrp0[ind]; ptrd1[off] = ptrp1[ind];
           }
           break;
         case 1 : // Neumann
-          for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
-            const longT ind = cimg::cut((longT)*(ptrs++),(longT)0,(longT)cwhd - 1);
-            *(ptrd0++) = ptrp0[ind]; *(ptrd1++) = ptrp1[ind];
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
+          for (ulongT off = 0; off<whd; ++off) {
+            const longT ind = cimg::cut((longT)_data[off],(longT)0,(longT)cwhd - 1);
+            ptrd0[off] = ptrp0[ind]; ptrd1[off] = ptrp1[ind];
           }
           break;
         default : // Dirichlet
-          for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
-            const ulongT ind = (ulongT)*(ptrs++);
-            const bool is_in = ind<cwhd;
-            *(ptrd0++) = is_in?ptrp0[ind]:(t)0; *(ptrd1++) = is_in?ptrp1[ind]:(t)0;
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
+          for (ulongT off = 0; off<whd; ++off) {
+            const ulongT ind = (ulongT)_data[off];
+            if (ind<cwhd) { ptrd0[off] = ptrp0[ind]; ptrd1[off] = ptrp1[ind]; }
+            else ptrd0[off] = ptrd1[off] = (t)0;
           }
         }
       } break;
 
       case 3 : { // Optimized for 3D vectors (colors)
-        const t *const ptrp0 = colormap._data, *ptrp1 = ptrp0 + cwhd, *ptrp2 = ptrp1 + cwhd;
-        t *ptrd0 = res._data, *ptrd1 = ptrd0 + whd, *ptrd2 = ptrd1 + whd;
+        const t *const ptrp0 = colormap._data, *ptrp1 = ptrp0 + cwhd, *ptrp2 = ptrp0 + 2*cwhd;
+        t *const ptrd0 = res._data, *const ptrd1 = ptrd0 + whd, *const ptrd2 = ptrd0 + 2*whd;
         switch (boundary_conditions) {
         case 3 : // Mirror
-          for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
+          for (ulongT off = 0; off<whd; ++off) {
             const ulongT
-              _ind = ((ulongT)*(ptrs++))%cwhd2,
+              _ind = ((ulongT)_data[off])%cwhd2,
               ind = _ind<cwhd?_ind:cwhd2 - _ind - 1;
-            *(ptrd0++) = ptrp0[ind]; *(ptrd1++) = ptrp1[ind]; *(ptrd2++) = ptrp2[ind];
-          } break;
+            ptrd0[off] = ptrp0[ind]; ptrd1[off] = ptrp1[ind]; ptrd2[off] = ptrp2[ind];
+          }
+          break;
         case 2 : // Periodic
-          for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
-            const ulongT ind = ((ulongT)*(ptrs++))%cwhd;
-            *(ptrd0++) = ptrp0[ind]; *(ptrd1++) = ptrp1[ind]; *(ptrd2++) = ptrp2[ind];
-          } break;
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
+          for (ulongT off = 0; off<whd; ++off) {
+            const ulongT ind = ((ulongT)_data[off])%cwhd;
+            ptrd0[off] = ptrp0[ind]; ptrd1[off] = ptrp1[ind]; ptrd2[off] = ptrp2[ind];
+          }
+          break;
         case 1 : // Neumann
-          for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
-            const longT ind = cimg::cut((longT)*(ptrs++),(longT)0,(longT)cwhd - 1);
-            *(ptrd0++) = ptrp0[ind]; *(ptrd1++) = ptrp1[ind]; *(ptrd2++) = ptrp2[ind];
-          } break;
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
+          for (ulongT off = 0; off<whd; ++off) {
+            const longT ind = cimg::cut((longT)_data[off],(longT)0,(longT)cwhd - 1);
+            ptrd0[off] = ptrp0[ind]; ptrd1[off] = ptrp1[ind]; ptrd2[off] = ptrp2[ind];
+          }
+          break;
         default : // Dirichlet
-          for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
-            const ulongT ind = (ulongT)*(ptrs++);
-            const bool is_in = ind<cwhd;
-            *(ptrd0++) = is_in?ptrp0[ind]:(t)0; *(ptrd1++) = is_in?ptrp1[ind]:(t)0; *(ptrd2++) = is_in?ptrp2[ind]:(t)0;
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
+          for (ulongT off = 0; off<whd; ++off) {
+            const ulongT ind = (ulongT)_data[off];
+            if (ind<cwhd) { ptrd0[off] = ptrp0[ind]; ptrd1[off] = ptrp1[ind]; ptrd2[off] = ptrp2[ind]; }
+            else ptrd0[off] = ptrd1[off] = ptrd2[off] = (t)0;
           }
         }
       } break;
 
       default : { // Generic version
-        t *ptrd = res._data;
         switch (boundary_conditions) {
         case 3 : // Mirror
-          for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
+          for (ulongT off = 0; off<whd; ++off) {
             const ulongT
-              _ind = ((ulongT)*(ptrs++))%cwhd,
+              _ind = ((ulongT)_data[off])%cwhd,
               ind = _ind<cwhd?_ind:cwhd2 - _ind - 1;
-            const t *ptrp = colormap._data + ind;
-            t *_ptrd = ptrd++; cimg_forC(res,c) { *_ptrd = *ptrp; _ptrd+=whd; ptrp+=cwhd; }
-          } break;
+            t *const ptrd = &res[off];
+            const t *const ptrp = &colormap[ind];
+            cimg_forC(res,c) ptrd[c*whd] = ptrp[c*cwhd];
+          }
+          break;
         case 2 : // Periodic
-          for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
-            const ulongT ind = ((ulongT)*(ptrs++))%cwhd;
-            const t *ptrp = colormap._data + ind;
-            t *_ptrd = ptrd++; cimg_forC(res,c) { *_ptrd = *ptrp; _ptrd+=whd; ptrp+=cwhd; }
-          } break;
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
+          for (ulongT off = 0; off<whd; ++off) {
+            const ulongT ind = ((ulongT)_data[off])%cwhd;
+            t *const ptrd = &res[off];
+            const t *const ptrp = &colormap[ind];
+            cimg_forC(res,c) ptrd[c*whd] = ptrp[c*cwhd];
+          }
+          break;
         case 1 : // Neumann
-          for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
-            const longT ind = cimg::cut((longT)*(ptrs++),(longT)0,(longT)cwhd - 1);
-            const t *ptrp = colormap._data + ind;
-            t *_ptrd = ptrd++; cimg_forC(res,c) { *_ptrd = *ptrp; _ptrd+=whd; ptrp+=cwhd; }
-          } break;
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
+          for (ulongT off = 0; off<whd; ++off) {
+            const longT ind = cimg::cut((longT)_data[off],(longT)0,(longT)cwhd - 1);
+            t *const ptrd = &res[off];
+            const t *const ptrp = &colormap[ind];
+            cimg_forC(res,c) ptrd[c*whd] = ptrp[c*cwhd];
+          }
+          break;
         default : // Dirichlet
-          for (const T *ptrs = _data, *ptrs_end = ptrs + whd; ptrs<ptrs_end; ) {
-            const ulongT ind = (ulongT)*(ptrs++);
-            const bool is_in = ind<cwhd;
-            if (is_in) {
-              const t *ptrp = colormap._data + ind;
-              t *_ptrd = ptrd++; cimg_forC(res,c) { *_ptrd = *ptrp; _ptrd+=whd; ptrp+=cwhd; }
-            } else {
-              t *_ptrd = ptrd++; cimg_forC(res,c) { *_ptrd = (t)0; _ptrd+=whd; }
-            }
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
+          for (ulongT off = 0; off<whd; ++off) {
+            const ulongT ind = (ulongT)_data[off];
+            t *const ptrd = &res[off];
+            if (ind<cwhd) {
+              const t *const ptrp = &colormap[ind];
+              cimg_forC(res,c) ptrd[c*whd] = ptrp[c*cwhd];
+            } else cimg_forC(res,c) ptrd[c*whd] = (t)0;
           }
         }
       }

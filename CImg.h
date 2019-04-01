@@ -29260,43 +29260,56 @@ namespace cimg_library_suffixed {
       default : { // Generic version
         switch (boundary_conditions) {
         case 3 : // Mirror
-          cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
-          for (ulongT off = 0; off<whd; ++off) {
-            const ulongT
-              _ind = ((ulongT)_data[off])%cwhd,
-              ind = _ind<cwhd?_ind:cwhd2 - _ind - 1;
-            t *const ptrd = &res[off];
-            const t *const ptrp = &colormap[ind];
-            cimg_forC(res,c) ptrd[c*whd] = ptrp[c*cwhd];
-          }
-          break;
-        case 2 : // Periodic
-          cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
-          for (ulongT off = 0; off<whd; ++off) {
-            const ulongT ind = ((ulongT)_data[off])%cwhd;
-            t *const ptrd = &res[off];
-            const t *const ptrp = &colormap[ind];
-            cimg_forC(res,c) ptrd[c*whd] = ptrp[c*cwhd];
-          }
-          break;
-        case 1 : // Neumann
-          cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
-          for (ulongT off = 0; off<whd; ++off) {
-            const longT ind = cimg::cut((longT)_data[off],(longT)0,(longT)cwhd - 1);
-            t *const ptrd = &res[off];
-            const t *const ptrp = &colormap[ind];
-            cimg_forC(res,c) ptrd[c*whd] = ptrp[c*cwhd];
-          }
-          break;
-        default : // Dirichlet
-          cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
-          for (ulongT off = 0; off<whd; ++off) {
-            const ulongT ind = (ulongT)_data[off];
-            t *const ptrd = &res[off];
-            if (ind<cwhd) {
+          cimg_forC(*this,c) {
+            t *const ptrd = res.data(0,0,0,colormap._spectrum*c);
+            const T *const ptrs = data(0,0,0,c);
+            cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
+            for (ulongT off = 0; off<whd; ++off) {
+              const ulongT
+                _ind = ((ulongT)ptrs[off])%cwhd,
+                ind = _ind<cwhd?_ind:cwhd2 - _ind - 1;
+              t *const _ptrd = ptrd + off;
               const t *const ptrp = &colormap[ind];
-              cimg_forC(res,c) ptrd[c*whd] = ptrp[c*cwhd];
-            } else cimg_forC(res,c) ptrd[c*whd] = (t)0;
+              cimg_forC(colormap,k) _ptrd[k*whd] = ptrp[k*cwhd];
+            }
+          } break;
+        case 2 : // Periodic
+          cimg_forC(*this,c) {
+            t *const ptrd = res.data(0,0,0,colormap._spectrum*c);
+            const T *const ptrs = data(0,0,0,c);
+            cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
+            for (ulongT off = 0; off<whd; ++off) {
+              const ulongT ind = ((ulongT)ptrs[off])%cwhd;
+              t *const _ptrd = ptrd + off;
+              const t *const ptrp = &colormap[ind];
+              cimg_forC(colormap,k) _ptrd[k*whd] = ptrp[k*cwhd];
+            }
+          } break;
+        case 1 : // Neumann
+          cimg_forC(*this,c) {
+            t *const ptrd = res.data(0,0,0,colormap._spectrum*c);
+            const T *const ptrs = data(0,0,0,c);
+            cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
+            for (ulongT off = 0; off<whd; ++off) {
+              const longT ind = cimg::cut((longT)ptrs[off],(longT)0,(longT)cwhd - 1);
+              t *const _ptrd = ptrd + off;
+              const t *const ptrp = &colormap[ind];
+              cimg_forC(colormap,k) _ptrd[k*whd] = ptrp[k*cwhd];
+            }
+          } break;
+        default : // Dirichlet
+          cimg_forC(*this,c) {
+            t *const ptrd = res.data(0,0,0,colormap._spectrum*c);
+            const T *const ptrs = data(0,0,0,c);
+            cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
+            for (ulongT off = 0; off<whd; ++off) {
+              const ulongT ind = (ulongT)ptrs[off];
+              t *const _ptrd = ptrd + off;
+              if (ind<cwhd) {
+                const t *const ptrp = &colormap[ind];
+                cimg_forC(colormap,k) _ptrd[k*whd] = ptrp[k*cwhd];
+              } else cimg_forC(colormap,k) _ptrd[k*whd] = (t)0;
+            }
           }
         }
       }

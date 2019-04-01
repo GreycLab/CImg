@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 255
+#define cimg_version 256
 
 /*-----------------------------------------------------------
  #
@@ -29129,7 +29129,7 @@ namespace cimg_library_suffixed {
                                     colormap._width,colormap._height,colormap._depth,colormap._spectrum,colormap._data);
 
       const ulongT
-        whd = (ulongT)_width*_height*_depth,
+        whd = (ulongT)_width*_height*_depth, siz = size(),
         cwhd = (ulongT)colormap._width*colormap._height*colormap._depth,
         cwhd2 = 2*cwhd;
       CImg<t> res(_width,_height,_depth,colormap._spectrum==1?_spectrum:colormap._spectrum);
@@ -29139,27 +29139,27 @@ namespace cimg_library_suffixed {
         switch (boundary_conditions) {
         case 3 : // Mirror
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
-          for (ulongT off = 0; off<whd; ++off) {
+          for (ulongT off = 0; off<siz; ++off) {
             const ulongT ind = ((ulongT)_data[off])%cwhd2;
             res[off] = colormap[ind<cwhd?ind:cwhd2 - ind - 1];
           }
           break;
         case 2 : // Periodic
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
-          for (ulongT off = 0; off<whd; ++off) {
+          for (ulongT off = 0; off<siz; ++off) {
             const ulongT ind = (ulongT)_data[off];
             res[off] = colormap[ind%cwhd];
           }
           break;
         case 1 : // Neumann
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
-          for (ulongT off = 0; off<whd; ++off) {
+          for (ulongT off = 0; off<siz; ++off) {
             const longT ind = (longT)_data[off];
             res[off] = colormap[cimg::cut(ind,(longT)0,(longT)cwhd - 1)];
           } break;
         default : // Dirichlet
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
-          for (ulongT off = 0; off<whd; ++off) {
+          for (ulongT off = 0; off<siz; ++off) {
             const ulongT ind = (ulongT)_data[off];
             res[off] = ind<cwhd?colormap[ind]:(t)0;
           }

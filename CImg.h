@@ -19352,7 +19352,7 @@ namespace cimg_library_suffixed {
               if (!std::strncmp(ss,"isdir(",6)) { // Is directory?
                 _cimg_mp_op("Function 'isdir()'");
                 arg1 = compile(ss6,se1,depth1,0,is_single);
-                _cimg_mp_check_type(arg1,1,2,0);
+                if (_cimg_mp_is_scalar(arg1)) _cimg_mp_return(0);
                 pos = scalar();
                 CImg<ulongT>::vector((ulongT)mp_isdir,pos,arg1,(ulongT)_cimg_mp_size(arg1)).move_to(code);
                 _cimg_mp_return(pos);
@@ -19361,7 +19361,7 @@ namespace cimg_library_suffixed {
               if (!std::strncmp(ss,"isfile(",7)) { // Is file?
                 _cimg_mp_op("Function 'isfile()'");
                 arg1 = compile(ss7,se1,depth1,0,is_single);
-                _cimg_mp_check_type(arg1,1,2,0);
+                if (_cimg_mp_is_scalar(arg1)) _cimg_mp_return(0);
                 pos = scalar();
                 CImg<ulongT>::vector((ulongT)mp_isfile,pos,arg1,(ulongT)_cimg_mp_size(arg1)).move_to(code);
                 _cimg_mp_return(pos);

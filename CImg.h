@@ -19419,7 +19419,7 @@ namespace cimg_library_suffixed {
               if (!std::strncmp(ss,"isnumber(",9)) { // Is number?
                 _cimg_mp_op("Function 'isnumber()'");
                 val = 0;
-                if (cimg_sscanf(ss9,"%lf%c%c",&val,&sep,&end)==2 && sep==')') _cimg_mp_return(1);
+                if (cimg_sscanf(ss + 9,"%lf%c%c",&val,&sep,&end)==2 && sep==')') _cimg_mp_return(1);
                 _cimg_mp_return(0);
               }
 

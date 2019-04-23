@@ -19343,7 +19343,8 @@ namespace cimg_library_suffixed {
               if (!std::strncmp(ss,"isbool(",7)) { // Is boolean?
                 _cimg_mp_op("Function 'isbool()'");
                 if (ss7==se1) _cimg_mp_return(0);
-                arg1 = compile(ss7,se1,depth1,0,is_single);
+                try { arg1 = compile(ss7,se1,depth1,0,is_single); }
+                catch(CImgException&) { _cimg_mp_return(0); }
                 if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_isbool,arg1);
                 if (_cimg_mp_is_constant(arg1)) _cimg_mp_return(mem[arg1]==0. || mem[arg1]==1.);
                 _cimg_mp_scalar1(mp_isbool,arg1);
@@ -19401,7 +19402,8 @@ namespace cimg_library_suffixed {
               if (!std::strncmp(ss,"isint(",6)) { // Is integer?
                 _cimg_mp_op("Function 'isint()'");
                 if (ss6==se1) _cimg_mp_return(0);
-                arg1 = compile(ss6,se1,depth1,0,is_single);
+                try { arg1 = compile(ss6,se1,depth1,0,is_single); }
+                catch(CImgException&) { _cimg_mp_return(0); }
                 if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_isint,arg1);
                 if (_cimg_mp_is_constant(arg1)) _cimg_mp_return((unsigned int)(cimg::mod(mem[arg1],1.)==0));
                 _cimg_mp_scalar1(mp_isint,arg1);
@@ -19423,6 +19425,13 @@ namespace cimg_library_suffixed {
                 _cimg_mp_return(0);
               }
 
+              if (!std::strncmp(ss,"isval(",6)) { // Is valid expression?
+                _cimg_mp_op("Function 'isval()'");
+                if (ss6==se1) _cimg_mp_return(0);
+                try { arg1 = compile(ss6,se1,depth1,0,is_single); }
+                catch (CImgException&) { _cimg_mp_return(0); }
+                _cimg_mp_return(1);
+              }
             }
             break;
 

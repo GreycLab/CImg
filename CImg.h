@@ -19416,10 +19416,10 @@ namespace cimg_library_suffixed {
                 _cimg_mp_scalar1(mp_isnan,arg1);
               }
 
-              if (!std::strncmp(ss,"isval(",6)) { // Is value?
-                _cimg_mp_op("Function 'isval()'");
+              if (!std::strncmp(ss,"isnumber(",9)) { // Is number?
+                _cimg_mp_op("Function 'isnumber()'");
                 val = 0;
-                if (cimg_sscanf(ss6,"%lf%c%c",&val,&sep,&end)==2 && sep==')') _cimg_mp_return(1);
+                if (cimg_sscanf(ss9,"%lf%c%c",&val,&sep,&end)==2 && sep==')') _cimg_mp_return(1);
                 _cimg_mp_return(0);
               }
 

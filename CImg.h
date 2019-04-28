@@ -10748,11 +10748,21 @@ namespace cimg_library_suffixed {
         AdjustWindowRect(&rect,WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,false);
         const int
           border1 = (int)((rect.right - rect.left + 1 - disp->_width)/2),
-          border2 = (int)(rect.bottom - rect.top + 1 - disp->_height - border1);
+          border2 = (int)(rect.bottom - rect.top + 1 - disp->_height - border1),
+          ww = disp->_width + 2*border1,
+          wh = disp->_height + border1 + border2,
+          sw = CImgDisplay::screen_width(),
+          sh = CImgDisplay::screen_height();
+        int
+          wx = (int)cimg::round(cimg::rand(0,sw - ww -1)),
+          wy = (int)cimg::round(cimg::rand(64,sh - wh - 65));
+        if (wx + ww>=sw) wx = sw - ww;
+        if (wy + wh>=sh) wy = sh - wh;
+        if (wx<0) wx = 0;
+        if (wy<0) wy = 0;
         disp->_window = CreateWindowA("MDICLIENT",title?title:" ",
-                                     WS_OVERLAPPEDWINDOW | (disp->_is_closed?0:WS_VISIBLE), CW_USEDEFAULT,CW_USEDEFAULT,
-                                     disp->_width + 2*border1, disp->_height + border1 + border2,
-                                     0,0,0,&(disp->_ccs));
+                                      WS_OVERLAPPEDWINDOW | (disp->_is_closed?0:WS_VISIBLE),
+                                      wx,wy,ww,wh,0,0,0,&(disp->_ccs));
         if (!disp->_is_closed) {
           GetWindowRect(disp->_window,&rect);
           disp->_window_x = rect.left + border1;

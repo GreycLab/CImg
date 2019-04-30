@@ -23958,7 +23958,7 @@ namespace cimg_library_suffixed {
         ss.back() = 0;
 
         const char *s = ss._data;
-        while (*s<=32) ++s;
+        while (*s && *s<=32) ++s;
         const bool is_negative = *s=='-';
         if (is_negative || *s=='+') ++s;
         int err = 0;

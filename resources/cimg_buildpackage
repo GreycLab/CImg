@@ -92,7 +92,7 @@ cp -f *.h $DEST_DIR/plugins/
 
 mkdir $DEST_DIR/resources
 cd $SRC_DIR/resources
-cp -rf *.bat $DEST_DIR/resources/
+cp -rf *.bat *.py $DEST_DIR/resources/
 
 cd $DEST_DIR
 for i in CImg.h examples/*.cpp; do

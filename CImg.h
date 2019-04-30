@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 261
+#define cimg_version 262
 
 /*-----------------------------------------------------------
  #
@@ -35956,31 +35956,18 @@ namespace cimg_library_suffixed {
       (*this)(0,2) = (*this)(siz,2);
       (*this)(0,3) = (*this)(siz,3);
       const float value = (*this)(0,0);
-      for (unsigned int pos = 0, left = 0, right = 0;
-           ((right=2*(pos + 1),(left=right - 1))<siz && value<(*this)(left,0)) ||
-             (right<siz && value<(*this)(right,0));) {
-        if (right<siz) {
-          if ((*this)(left,0)>(*this)(right,0)) {
-            cimg::swap((*this)(pos,0),(*this)(left,0));
-            cimg::swap((*this)(pos,1),(*this)(left,1));
-            cimg::swap((*this)(pos,2),(*this)(left,2));
-            cimg::swap((*this)(pos,3),(*this)(left,3));
-            pos = left;
-          } else {
-            cimg::swap((*this)(pos,0),(*this)(right,0));
-            cimg::swap((*this)(pos,1),(*this)(right,1));
-            cimg::swap((*this)(pos,2),(*this)(right,2));
-            cimg::swap((*this)(pos,3),(*this)(right,3));
-            pos = right;
-          }
-        } else {
-          cimg::swap((*this)(pos,0),(*this)(left,0));
-          cimg::swap((*this)(pos,1),(*this)(left,1));
-          cimg::swap((*this)(pos,2),(*this)(left,2));
-          cimg::swap((*this)(pos,3),(*this)(left,3));
-          pos = left;
-        }
-      }
+      unsigned int pos = 0, swap = 0;
+      do {
+        const unsigned int left = 2*pos + 1, right = left + 1;
+        if (right<siz && value<(*this)(right,0)) swap = (*this)(left,0)>(*this)(right,0)?left:right;
+        else if (left<siz && value<(*this)(left,0)) swap = left;
+        else break;
+        cimg::swap((*this)(pos,0),(*this)(swap,0));
+        cimg::swap((*this)(pos,1),(*this)(swap,1));
+        cimg::swap((*this)(pos,2),(*this)(swap,2));
+        cimg::swap((*this)(pos,3),(*this)(swap,3));
+        pos = swap;
+      } while (true);
       return *this;
     }
 

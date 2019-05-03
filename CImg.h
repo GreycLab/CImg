@@ -19428,10 +19428,10 @@ namespace cimg_library_suffixed {
                 _cimg_mp_scalar1(mp_isnan,arg1);
               }
 
-              if (!std::strncmp(ss,"isnumber(",9)) { // Is number?
-                _cimg_mp_op("Function 'isnumber()'");
+              if (!std::strncmp(ss,"isnum(",6)) { // Is number?
+                _cimg_mp_op("Function 'isnum()'");
                 val = 0;
-                if (cimg_sscanf(ss + 9,"%lf%c%c",&val,&sep,&end)==2 && sep==')') _cimg_mp_return(1);
+                if (cimg_sscanf(ss6,"%lf%c%c",&val,&sep,&end)==2 && sep==')') _cimg_mp_return(1);
                 _cimg_mp_return(0);
               }
 

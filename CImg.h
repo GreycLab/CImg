@@ -19435,10 +19435,10 @@ namespace cimg_library_suffixed {
                 _cimg_mp_return(0);
               }
 
-              if (!std::strncmp(ss,"isval(",6)) { // Is valid expression?
-                _cimg_mp_op("Function 'isval()'");
-                if (ss6==se1) _cimg_mp_return(0);
-                try { arg1 = compile(ss6,se1,depth1,0,is_single); }
+              if (!std::strncmp(ss,"isexpr(",7)) { // Is valid expression?
+                _cimg_mp_op("Function 'isexpr()'");
+                if (ss7==se1) _cimg_mp_return(0);
+                try { arg1 = compile(ss7,se1,depth1,0,is_single); }
                 catch (CImgException&) { _cimg_mp_return(0); }
                 _cimg_mp_return(1);
               }

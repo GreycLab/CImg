@@ -58537,7 +58537,7 @@ namespace cimg_library_suffixed {
       const unsigned int old_normalization = disp.normalization();
       bool old_is_resized = disp.is_resized();
       disp._normalization = 0;
-      disp.show().set_key(0);
+      disp.show().set_key(0).show_mouse();
       static const unsigned char foreground_color[] = { 255,255,255 }, background_color[] = { 0,0,0 };
 
       // Enter event loop.

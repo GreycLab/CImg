@@ -27976,11 +27976,11 @@ namespace cimg_library_suffixed {
                     if (formula_mode==2) cimg_forX(*this,x) lmp(x,y,z,0);
                     else {
                       CImg<doubleT> res(1,lmp.result_dim);
-                      T *ptrd = data(0,y,z,0);
+                      T *__ptrd = data(0,y,z,0);
                       cimg_forX(*this,x) {
                         lmp(x,y,z,0,res._data);
                         const double *ptrs = res._data;
-                        T *_ptrd = ptrd++; for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
+                        T *_ptrd = __ptrd++; for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
                       }
                     }
                   } _cimg_abort_catch_omp _cimg_abort_catch_fill_omp
@@ -28010,8 +28010,8 @@ namespace cimg_library_suffixed {
                     cimg_abort_test;
                     if (formula_mode==2) cimg_forX(*this,x) lmp(x,y,z,c);
                     else {
-                      T *ptrd = data(0,y,z,c);
-                      cimg_forX(*this,x) *ptrd++ = (T)lmp(x,y,z,c);
+                      T *_ptrd = data(0,y,z,c);
+                      cimg_forX(*this,x) *(_ptrd++) = (T)lmp(x,y,z,c);
                     }
                   } _cimg_abort_catch_omp _cimg_abort_catch_fill_omp
                 }
@@ -60938,7 +60938,7 @@ namespace cimg_library_suffixed {
         Bytef *cbuf = 0; \
         if (sizeof(t)!=1 || cimg::type<t>::string()==cimg::type<bool>::string()) { \
           cbuf = new Bytef[csiz]; Bytef *_cbuf = cbuf; \
-          for (ulongT i = 0; i<csiz; ++i) *(_cbuf++) = (Bytef)*(stream++); \
+          for (ulongT k = 0; k<csiz; ++k) *(_cbuf++) = (Bytef)*(stream++); \
           is_bytef = false; \
         } else { cbuf = (Bytef*)stream; stream+=csiz; is_bytef = true; } \
         raw.assign(W,H,D,C); \

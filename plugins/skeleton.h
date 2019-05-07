@@ -263,7 +263,7 @@ bool _isSimple (const CImg<T> & img, int x, int y, int z ) const {
     for (int k = -1; k<=1; ++k)
       for (int l = -1; l<=1; ++l)
         for (int m = -1; m<=1; ++m) {
-          int label = 0;
+          int a_label = 0;
 
           // Protection
           if (x + k<0 || x + k>=img.width() ||
@@ -287,24 +287,24 @@ bool _isSimple (const CImg<T> & img, int x, int y, int z ) const {
                   // Search for a already knew component
                   if (visit(1 + k + k1,1 + l + l1,1 + m + m1)>0 &&
                       img(x + k + k1,y + l + l1,z + m + m1)!=0) {
-                    if (label==0) label = visit(1 + k + k1,1 + l + l1,1 + m + m1);
-                    else if (label!=visit(1 + k + k1,1 + l + l1,1 + m + m1)) {
+                    if (a_label==0) a_label = visit(1 + k + k1,1 + l + l1,1 + m + m1);
+                    else if (a_label!=visit(1 + k + k1,1 + l + l1,1 + m + m1)) {
                       // Meld component
                       --C_asterix;
 
                       int C = visit(1 + k + k1,1 + l + l1,1 + m + m1);
-                      cimg_forXYZ(visit,a,b,c) if (visit(a,b,c)==C) visit(a,b,c) = label;
+                      cimg_forXYZ(visit,a,b,c) if (visit(a,b,c)==C) visit(a,b,c) = a_label;
                     }
                   }
                 }
 
             // Label the point
-            if (label==0) {
+            if (a_label==0) {
               // Find a new component
               ++C_asterix;
               ++count;
               visit(1 + k ,1 + l,1 + m) = count;
-            } else visit(1 + k,1 + l,1 + m) = label;
+            } else visit(1 + k,1 + l,1 + m) = a_label;
           }
         }
 
@@ -342,11 +342,11 @@ bool _isSimple (const CImg<T> & img, int x, int y, int z ) const {
       if (y + k<0 || y + k>=img.height()) continue;
 
       if (img(x,y + k,z)==0 && visit(1,1 + k,1)==0) {
-        int label = 0;
+        int a_label = 0;
         ++C_bar;
         ++count;
         visit(1,1 + k,1) = count;
-        label = count;
+        a_label = count;
 
         // Follow component
         for (int l = -1; l<=1; ++l) {
@@ -354,28 +354,28 @@ bool _isSimple (const CImg<T> & img, int x, int y, int z ) const {
 
           if (x + l<img.width() && x + l>=0 && img(x + l,y + k,z)==0) {
             if (visit(1 + l,1 + k,1)!=0) {
-              if (label!=visit(1 + l,1 + k,1)) {
+              if (a_label!=visit(1 + l,1 + k,1)) {
                 // Meld component
                 --C_bar;
 
                 int C = visit(1 + l,1 + k,1);
                 cimg_forXYZ(visit,a,b,c)
-                  if (visit(a,b,c)==C) visit(a,b,c) = label;
+                  if (visit(a,b,c)==C) visit(a,b,c) = a_label;
               }
-            } else visit(1 + l,1 + k,1) = label;
+            } else visit(1 + l,1 + k,1) = a_label;
           }
 
           if (z + l<img.depth() && z + l>=0 && img(x,y + k,z + l)==0) {
             if (visit(1,1 + k,1 + l)!=0) {
-              if (label!=visit(1,1 + k,1 + l)) {
+              if (a_label!=visit(1,1 + k,1 + l)) {
                 // Meld component
                 --C_bar;
 
                 int C = visit(1,1 + k,1 + l);
                 cimg_forXYZ(visit,a,b,c)
-                  if (visit(a,b,c)==C) visit(a,b,c) = label;
+                  if (visit(a,b,c)==C) visit(a,b,c) = a_label;
               }
-            } else visit(1,1 + k,1 + l) = label;
+            } else visit(1,1 + k,1 + l) = a_label;
           }
         }
       }
@@ -386,11 +386,11 @@ bool _isSimple (const CImg<T> & img, int x, int y, int z ) const {
       if (z + k<0 || z + k>=img.depth()) continue;
 
       if (img(x,y,z + k)==0 && visit(1,1,1 + k)==0) {
-        int label = 0;
+        int a_label = 0;
         ++C_bar;
         ++count;
         visit(1,1,1 + k) = count;
-        label = count;
+        a_label = count;
 
         // Follow component
         for (int l = -1; l<=1; ++l) {
@@ -398,28 +398,28 @@ bool _isSimple (const CImg<T> & img, int x, int y, int z ) const {
 
           if (x + l<img.width() && x + l>=0 && img(x + l,y,z + k)==0) {
             if (visit(1 + l,1,1 + k)!=0) {
-              if (label!=visit(1 + l,1,1 + k)) {
+              if (a_label!=visit(1 + l,1,1 + k)) {
                 // Meld component
                 --C_bar;
 
                 int C = visit(1 + l,1,1 + k);
                 cimg_forXYZ(visit,a,b,c)
-                  if (visit(a,b,c)==C) visit(a,b,c) = label;
+                  if (visit(a,b,c)==C) visit(a,b,c) = a_label;
               }
-            } else visit(1 + l,1,1 + k) = label;
+            } else visit(1 + l,1,1 + k) = a_label;
           }
 
           if (y + l<img.height() && y + l>=0 && img(x,y + l,z + k)==0) {
             if (visit(1,1 + l,1 + k)!=0) {
-              if (label!=visit(1,1 + l,1 + k)) {
+              if (a_label!=visit(1,1 + l,1 + k)) {
                 // Meld component
                 --C_bar;
 
                 int C = visit(1,1 + l,1 + k);
                 cimg_forXYZ(visit,a,b,c)
-                  if (visit(a,b,c)==C) visit(a,b,c) = label;
+                  if (visit(a,b,c)==C) visit(a,b,c) = a_label;
               }
-            } else visit(1,1 + l,1 + k) = label;
+            } else visit(1,1 + l,1 + k) = a_label;
           }
         }
       }
@@ -433,16 +433,16 @@ bool _isSimple (const CImg<T> & img, int x, int y, int z ) const {
 /**
  * Test if a point is a end point
  * @param img the image
- * @param label the table of labels
+ * @param a_label the table of labels
  * @param curve set it to true for having medial curve
  * @param x the x coordinate
  * @param y the y coordinate
  * @param z the z coordinate
  * @return true if simple
  */
-bool _isEndPoint(const CImg<T> & img, const CImg<T> & label,
+bool _isEndPoint(const CImg<T> & img, const CImg<T> & a_label,
                  const bool curve, const int x, const int y, const int z) const {
-  if (label(x,y,z)==1) return true;
+  if (a_label(x,y,z)==1) return true;
 
   if ((!curve) && (img.depth()!=1)) { // 3D case with medial surface
     // Use Pudney specification with the 9 plans
@@ -505,7 +505,7 @@ CImg<T> get_skeleton (const CImg<floatT> & flux,
                       const CImg<floatT> & dist, const bool curve, const float thres) const {
   CImg<T>
     skeleton(*this),                      // The skeleton
-    label(width(),height(),depth(),1,0),  // Save label
+    a_label(width(),height(),depth(),1,0),  // Save label
     count(width(),height(),depth(),1,0);  // A counter for the queue
   std::priority_queue< _PointFlux, std::vector<_PointFlux>, _compare_point > pqueue(curve);
   int isb = 0;
@@ -546,7 +546,7 @@ CImg<T> get_skeleton (const CImg<floatT> & flux,
 
       // Test if the point is simple
     if (_isSimple(skeleton,p.pos[0],p.pos[1],p.pos[2]))	{
-      if ((! _isEndPoint(skeleton,label,curve,p.pos[0],p.pos[1],p.pos[2])) || p.flux>thres) {
+      if ((! _isEndPoint(skeleton,a_label,curve,p.pos[0],p.pos[1],p.pos[2])) || p.flux>thres) {
         skeleton(p.pos[0],p.pos[1],p.pos[2]) = 0; // Remove the point
 
         for (int k = -1; k<=1; ++k)
@@ -569,7 +569,7 @@ CImg<T> get_skeleton (const CImg<floatT> & flux,
                 count(p.pos[0] + k,p.pos[1] + l,p.pos[2] + m) = 1;
               }
             }
-      } else label(p.pos[0],p.pos[1],p.pos[2]) = 1; // Mark the point as skeletal
+      } else a_label(p.pos[0],p.pos[1],p.pos[2]) = 1; // Mark the point as skeletal
     }
   }
 

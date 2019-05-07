@@ -87,7 +87,7 @@ VERSION = $(shell grep 'cimg_version\ ' ../CImg.h | tail -c4 | head -c3)
 VERSION1 = $(shell grep 'cimg_version\ ' ../CImg.h | tail -c4 | head -c1)
 VERSION2 = $(shell grep 'cimg_version\ ' ../CImg.h | tail -c3 | head -c1)
 VERSION3 = $(shell grep 'cimg_version\ ' ../CImg.h | tail -c2 | head -c1)
-SVERSION=$(VERSION1).$(VERSION2).$(VERSION3)
+SVERSION = $(VERSION1).$(VERSION2).$(VERSION3)
 
 X11PATH = /usr/X11R6
 
@@ -111,7 +111,7 @@ IS_ICPC = 1
 endif
 
 CXXVER = $(CXX)
-CFLAGS = -I.. -Wall -Wextra -Wshadow -Wfatal-errors -Werror=unknown-pragmas -Werror=unused-label
+CFLAGS = -I.. -Wall -Wextra -Wfatal-errors -Werror=unknown-pragmas -Werror=unused-label
 LIBS = -lm
 ifdef IS_GCC
 CXXVER = $(shell $(CXX) -v 2>&1 | tail -n 1)
@@ -123,6 +123,13 @@ ifdef IS_ICPC
 CXXVER = $(shell $(CXX) -v 2>&1)
 CFLAGS = -I..
 LIBS =
+endif
+
+ifdef IS_GCC
+GCC_VER_GTEQ5 = $(shell expr `$(CXX) -dumpversion | cut -f1 -d.` \>= 5)
+ifeq ($(GCC_VER_GTEQ5),1)
+CFLAGS += -Wshadow
+endif
 endif
 
 #--------------------------------------------------

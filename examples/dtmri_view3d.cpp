@@ -386,7 +386,8 @@ int main(int argc,char **argv) {
       const unsigned char white[] = { 255 };
       disp3d.display(CImg<unsigned char>(disp3d.width(),disp3d.height(),1,1,0).
                      draw_text(10,10,"Please wait...",white)).show();
-      int xm,ym,zm,xM,yM,zM;
+
+      int xm, ym, zm, xM, yM, zM;
       if (!disp.key()) { xm = s[0]; ym = s[1]; zm = s[2]; xM = s[3]; yM = s[4]; zM = s[5]; }
       else { xm = ym = zm = 0; xM = eigen.width() - 1; yM = eigen.height() - 1; zM = eigen.height() - 1; }
       const CImg<> img = eigen.get_crop(xm,ym,zm,xM,yM,zM);
@@ -431,11 +432,11 @@ int main(int argc,char **argv) {
           CImg<> cpts(pts);
           const CImg<> x = pts.get_shared_row(0), y = pts.get_shared_row(1), z = pts.get_shared_row(2);
           float
-            xm, xM = x.max_min(xm),
-            ym, yM = y.max_min(ym),
-            zm, zM = z.max_min(zm),
-            ratio = 2.0f*std::min(visu.width(),visu.height())/(3.0f*cimg::max(xM - xm,yM - ym,zM - zm)),
-            dx = 0.5f*(xM + xm), dy = 0.5f*(yM + ym), dz = 0.5f*(zM  +zm);
+            _xm, _xM = x.max_min(_xm),
+            _ym, _yM = y.max_min(_ym),
+            _zm, _zM = z.max_min(_zm),
+            ratio = 2.0f*std::min(visu.width(),visu.height())/(3.0f*cimg::max(_xM - _xm,_yM - _ym,_zM - _zm)),
+            dx = 0.5f*(_xM + _xm), dy = 0.5f*(_yM + _ym), dz = 0.5f*(_zM + _zm);
           cimg_forX(pts,l) {
             cpts(l,0) = (pts(l,0) - dx)*ratio;
             cpts(l,1) = (pts(l,1) - dy)*ratio;
@@ -463,9 +464,9 @@ int main(int argc,char **argv) {
     //---------------------------
     case cimg::keyR : {
       std::fprintf(stderr,"\n- Statistics computation. Select region."); std::fflush(stderr);
-      const CImg<int> s = coloredFA.get_select(disp,2,XYZ);
+      const CImg<int> sel = coloredFA.get_select(disp,2,XYZ);
       int xm, ym, zm, xM, yM, zM;
-      if (!disp.key()) { xm = s[0]; ym = s[1]; zm = s[2]; xM = s[3]; yM = s[4]; zM = s[5]; }
+      if (!disp.key()) { xm = sel[0]; ym = sel[1]; zm = sel[2]; xM = sel[3]; yM = sel[4]; zM = sel[5]; }
       else { xm = ym = zm = 0; xM = eigen.width() - 1; yM = eigen.height() - 1; zM = eigen.height() - 1; }
       const CImg<> img = eigen.get_crop(xm,ym,zm,xM,yM,zM);
       std::fprintf(stderr,"\n- Mean diffusivity = %g, Mean FA = %g\n",
@@ -477,11 +478,11 @@ int main(int argc,char **argv) {
     //----------------------------------
     case cimg::keyF : {
       std::fprintf(stderr,"\n- Tracking mode (single region). Select starting region.\n"); std::fflush(stderr);
-      const CImg<int> s = coloredFA.get_select(disp,2,XYZ);
+      const CImg<int> sel = coloredFA.get_select(disp,2,XYZ);
       const unsigned int N = fibers.size();
-      for (int z=s[2]; z<=s[5]; z++)
-        for (int y=s[1]; y<=s[4]; y++)
-          for (int x=s[0]; x<=s[3]; x++) {
+      for (int z = sel[2]; z<=sel[5]; ++z)
+        for (int y = sel[1]; y<=sel[4]; ++y)
+          for (int x = sel[0]; x<=sel[3]; ++x) {
             const CImg<> fiber = get_fibertrack(eigen,x,y,z,lmax,dl,famin,cmin);
             if (fiber.width()>lmin) {
               std::fprintf(stderr,"\rFiber %u : Starting from (%d,%d,%d)\t\t",fibers.size(),x,y,z);
@@ -495,40 +496,40 @@ int main(int argc,char **argv) {
     //------------------------------------
     case cimg::keyG : {
       std::fprintf(stderr,"\n- Tracking mode (double region). Select starting region."); std::fflush(stderr);
-      const CImg<int> s = coloredFA.get_select(disp,2,XYZ);
+      const CImg<int> sel = coloredFA.get_select(disp,2,XYZ);
       std::fprintf(stderr," Select ending region."); std::fflush(stderr);
-      const CImg<int> ns = coloredFA.get_select(disp,2,XYZ);
+      const CImg<int> nsel = coloredFA.get_select(disp,2,XYZ);
       const unsigned int N = fibers.size();
 
       // Track from start to end
-      for (int z = s[2]; z<=s[5]; ++z)
-        for (int y = s[1]; y<=s[4]; ++y)
-          for (int x = s[0]; x<=s[3]; ++x) {
+      for (int z = sel[2]; z<=sel[5]; ++z)
+        for (int y = sel[1]; y<=sel[4]; ++y)
+          for (int x = sel[0]; x<=sel[3]; ++x) {
             const CImg<> fiber = get_fibertrack(eigen,x,y,z,lmax,dl,famin,cmin);
             if (fiber.width()>lmin) {
               bool valid_fiber = false;
               cimg_forX(fiber,k) {
                 const int fx = (int)fiber(k,0), fy = (int)fiber(k,1), fz = (int)fiber(k,2);
-                if (fx>=ns[0] && fx<=ns[3] &&
-                    fy>=ns[1] && fy<=ns[4] &&
-                    fz>=ns[2] && fz<=ns[5]) valid_fiber = true;
+                if (fx>=nsel[0] && fx<=nsel[3] &&
+                    fy>=nsel[1] && fy<=nsel[4] &&
+                    fz>=nsel[2] && fz<=nsel[5]) valid_fiber = true;
               }
               if (valid_fiber) fibers.insert(fiber);
             }
           }
 
       // Track from end to start
-      for (int z = ns[2]; z<=ns[5]; ++z)
-        for (int y = ns[1]; y<=ns[4]; ++y)
-          for (int x = ns[0]; x<=ns[3]; ++x) {
+      for (int z = nsel[2]; z<=nsel[5]; ++z)
+        for (int y = nsel[1]; y<=nsel[4]; ++y)
+          for (int x = nsel[0]; x<=nsel[3]; ++x) {
             const CImg<> fiber = get_fibertrack(eigen,x,y,z,lmax,dl,famin,cmin);
             if (fiber.width()>lmin) {
               bool valid_fiber = false;
               cimg_forX(fiber,k) {
                 const int fx = (int)fiber(k,0), fy = (int)fiber(k,1), fz = (int)fiber(k,2);
-                if (fx>=s[0] && fx<=s[3] &&
-                    fy>=s[1] && fy<=s[4] &&
-                    fz>=s[2] && fz<=s[5]) valid_fiber = true;
+                if (fx>=sel[0] && fx<=sel[3] &&
+                    fy>=sel[1] && fy<=sel[4] &&
+                    fz>=sel[2] && fz<=sel[5]) valid_fiber = true;
               }
               if (valid_fiber) {
                 std::fprintf(stderr,"\rFiber %u : Starting from (%d,%d,%d)\t\t",fibers.size(),x,y,z);

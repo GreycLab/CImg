@@ -177,8 +177,8 @@ int main(int argc, char **argv) {
 
             // Test possible end of the game
             gameover = true;
-            cimg_forXY(board,x,y)
-              if (board(x,y) && ((y && board(x,y)==board(x,y - 1)) || (x && board(x,y)==board(x - 1,y))))
+            cimg_forXY(board,p,q)
+              if (board(p,q) && ((q && board(p,q)==board(p,q - 1)) || (p && board(p,q)==board(p - 1,q))))
                 gameover = false;
           }
         }

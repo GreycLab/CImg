@@ -211,14 +211,14 @@ int main(int argc,char **argv) {
       if (!view_t) img.display(disp);
       else {
         const unsigned char white[3] = {255,255,255};
-        CImg<unsigned char> visu = img.get_resize(disp.width(),disp.height()).normalize(0,255);
+        CImg<unsigned char> nvisu = img.get_resize(disp.width(),disp.height()).normalize(0,255);
         CImg<> isophotes(img.width(),img.height(),1,2,0);
         cimg_forXY(img,x,y) if (!mask || mask(x,y)) {
           T.get_tensor_at(x,y).symmetric_eigen(val,vec);
           isophotes(x,y,0) = vec(0,0);
           isophotes(x,y,1) = vec(0,1);
         }
-        visu.draw_quiver(isophotes,white,0.5f,10,9,0).display(disp);
+        nvisu.draw_quiver(isophotes,white,0.5f,10,9,0).display(disp);
       }
     }
     if (save && file_o && !(iter%save)) img.save(file_o,iter);

@@ -152,9 +152,9 @@ int main(int argc,char **argv) {
       tomato_z = 0;
       if (enemy_y>5*canvas.height()/4) {
         shooted = 0;
-        int n = 5 + ((int)(200*cimg::rand())%16);
-        enemy = graphics[n];
-        m_enemy = masks[n];
+        int nn = 5 + ((int)(200*cimg::rand())%16);
+        enemy = graphics[nn];
+        m_enemy = masks[nn];
         enemy_x=cimg::rand(-1,1)*1e8; enemy_y=cimg::rand(-1,1)*1e8; enemy_z=cimg::rand(-1,1)*1e8;
         va = angle = 0;
       }

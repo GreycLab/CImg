@@ -600,8 +600,7 @@ void* item_virtual_landscape() {
 void* item_plasma() {
   CImg<float> plasma, camp(3), cfreq(3), namp(3), nfreq(3);
   CImgList<unsigned char> font = CImgList<unsigned char>::font(53);
-  CImg<unsigned char>
-    visu(400,300,1,3,0), letter,
+  CImg<unsigned char> visu(400,300,1,3,0),
     scroll(visu.width() + 2*font[(int)'W'].width(),font[(int)'W'].height(),1,1,0);
   const char *text = "   * The CImg Library : C++ Template Image Processing Toolkit *";
   CImgDisplay disp(visu,"[#13] - Plasma Effect");
@@ -871,9 +870,9 @@ void* item_blobs_editor() {
         for (unsigned int y = y0; y<=y1; ++y) {
           float dx = x0 - xb;
           for (unsigned int x = x0; x<=x1; ++x) {
-            float dist = dx*dx + dy*dy;
-            if (dist<precision) {
-              const float val = (float)std::exp(-dist/sigma2);
+            float _dist = dx*dx + dy*dy;
+            if (_dist<precision) {
+              const float val = (float)std::exp(-_dist/sigma2);
               *ptr+=(unsigned int)(val*col1);
               *(ptr + wh)+=(unsigned int)(val*col2);
               *(ptr + 2*wh)+=(unsigned int)(val*col3);
@@ -1080,14 +1079,14 @@ void* item_fireworks() {
       if (t<0 && t>=-1) {
         if ((speed*=0.9f)<10) speed=10.0f;
         const unsigned char
-          r = (unsigned char)std::min(50 + 3*(unsigned char)(100*cimg::rand()), 255),
-          g = (unsigned char)std::min(50 + 3*(unsigned char)(100*cimg::rand()), 255),
-          b = (unsigned char)std::min(50 + 3*(unsigned char)(100*cimg::rand()), 255);
+          cr = (unsigned char)std::min(50 + 3*(unsigned char)(100*cimg::rand()), 255),
+          cg = (unsigned char)std::min(50 + 3*(unsigned char)(100*cimg::rand()), 255),
+          cb = (unsigned char)std::min(50 + 3*(unsigned char)(100*cimg::rand()), 255);
         const float di = 10 + (float)cimg::rand()*60, nr = (float)cimg::rand()*30;
         for (float i=0; i<360; i+=di) {
           const float rad = i*(float)cimg::PI/180, c = (float)std::cos(rad), s = (float)std::sin(rad);
           particles.insert(CImg<>::vector(x,y,2*c + vx/1.5f,2*s + vy/1.5f,-2.0f,nr));
-          colors.insert(CImg<unsigned char>::vector(r,g,b));
+          colors.insert(CImg<unsigned char>::vector(cr,cg,cb));
         }
         remove_particle = true;
       } else if (t<-1) { r*=0.95f; if (r<0.5f) remove_particle=true; }
@@ -1264,16 +1263,16 @@ void* item_breakout() {
         if (cimg::abs(vxb)>8) vxb*=8/cimg::abs(vxb);
       }
       if (yb<board.height()*16) {
-        const int X = (int)xb/32, Y = (int)yb/16;
-        if (board(X,Y)) {
-          board(X,Y) = 0;
+        const int cX = (int)xb/32, cY = (int)yb/16;
+        if (board(cX,cY)) {
+          board(cX,cY) = 0;
           ++N;
           const unsigned int
-            x0 = X*brick.width(), y0 = Y*brick.height(),
-            x1 = (X + 1)*brick.width() - 1, y1 = (Y + 1)*brick.height() - 1;
+            x0 = cX*brick.width(), y0 = cY*brick.height(),
+            x1 = (cX + 1)*brick.width() - 1, y1 = (cY + 1)*brick.height() - 1;
           visu0.draw_image(x0,y0,background.get_crop(x0,y0,x1,y1));
-          if (oxb<(X<<5) || oxb>=((X + 1)<<5)) vxb=-vxb;
-          else if (oyb<(Y<<4) || oyb>=((Y + 1)<<4)) vyb=-vyb;
+          if (oxb<(cX<<5) || oxb>=((cX + 1)<<5)) vxb=-vxb;
+          else if (oyb<(cY<<4) || oyb>=((cY + 1)<<4)) vyb=-vyb;
         }
       }
       disp.set_title("[#24] - Breakout : %u/%u",N,N0);
@@ -1530,10 +1529,10 @@ void* item_word_puzzle() {
           cimg_forX(current,i) if (!current(i,5) && solution(j)==current(i)) {
             const int xc = current(i,1), yc = current(i,2), dx = cimg::abs(x - xc), dy = cimg::abs(y - yc);
             if (dx<=12 && dy<=12) {
-              cimg_forC(background,k) cimg_forY(letters[0],y)
-                background.get_shared_row(solution(j,2) + y,0,k).
+              cimg_forC(background,k) cimg_forY(letters[0],ly)
+                background.get_shared_row(solution(j,2) + ly,0,k).
                 draw_image(solution(j,1),0,
-                           (CImg<>(cletters(solution(j) - 'A').get_shared_row(y,0,k))*=2.0*std::cos((y - 30.0f)/18)).
+                           (CImg<>(cletters(solution(j) - 'A').get_shared_row(ly,0,k))*=2.0*std::cos((ly - 30.0f)/18)).
                            cut(0,255),0.8f);
               current(i,5) = solution(j,3) = 1; refresh_canvas = true;
             }

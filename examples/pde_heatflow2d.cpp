@@ -70,7 +70,7 @@ int main(int argc,char **argv) {
             (cil::CImgDisplay::screen_height() - disp.height())/2);
 
   profile.move(disp.window_x() + 8 + disp.window_width(), disp.window_y());
-  const float white[] = { 255,255,255 };
+  const float fwhite[] = { 255,255,255 };
   bool run_PDE = true;
 
   // Begin PDE iteration loop
@@ -85,7 +85,7 @@ int main(int argc,char **argv) {
       float m, M = veloc.max_min(m);
       const double xdt = dt/(M - m);
       img += veloc*xdt;
-      cil::CImg<>(img).draw_text(2,2,"iter = %d",white,0,1,13,iter).display(disp.wait(25));
+      cil::CImg<>(img).draw_text(2,2,"iter = %d",fwhite,0,1,13,iter).display(disp.wait(25));
     }
 
     // Plot (R,G,B) intensity profiles and display it

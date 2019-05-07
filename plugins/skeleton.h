@@ -119,7 +119,7 @@ class _compare_point {
   bool curve;
 
  public:
-  _compare_point(const bool curve=false) { this->curve = curve; }
+  _compare_point(const bool _curve=false) { this->curve = _curve; }
 
   bool operator()(const _PointFlux & p1, const _PointFlux & p2) const {
     if (curve) {

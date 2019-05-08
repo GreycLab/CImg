@@ -23540,15 +23540,15 @@ namespace cimg_library_suffixed {
           const bool print_char = (bool)mp.opcode[3];
           cimg_pragma_openmp(critical(mp_print))
           {
-            CImg<charT> expr(mp.opcode[2] - 4);
+            CImg<charT> _expr(mp.opcode[2] - 4);
             const ulongT *ptrs = mp.opcode._data + 4;
-            cimg_for(expr,ptrd,char) *ptrd = (char)*(ptrs++);
-            cimg::strellipsize(expr);
+            cimg_for(_expr,ptrd,char) *ptrd = (char)*(ptrs++);
+            cimg::strellipsize(_expr);
             cimg::mutex(6);
             if (print_char)
-              std::fprintf(cimg::output(),"\n[" cimg_appname "_math_parser] %s = %g = '%c'",expr._data,val,(int)val);
+              std::fprintf(cimg::output(),"\n[" cimg_appname "_math_parser] %s = %g = '%c'",_expr._data,val,(int)val);
             else
-              std::fprintf(cimg::output(),"\n[" cimg_appname "_math_parser] %s = %g",expr._data,val);
+              std::fprintf(cimg::output(),"\n[" cimg_appname "_math_parser] %s = %g",_expr._data,val);
             std::fflush(cimg::output());
             cimg::mutex(6,0);
           }
@@ -24227,16 +24227,16 @@ namespace cimg_library_suffixed {
         const bool print_string = (bool)mp.opcode[4];
         cimg_pragma_openmp(critical(mp_vector_print))
         {
-          CImg<charT> expr(mp.opcode[2] - 5);
+          CImg<charT> _expr(mp.opcode[2] - 5);
           const ulongT *ptrs = mp.opcode._data + 5;
-          cimg_for(expr,ptrd,char) *ptrd = (char)*(ptrs++);
-          cimg::strellipsize(expr);
+          cimg_for(_expr,ptrd,char) *ptrd = (char)*(ptrs++);
+          cimg::strellipsize(_expr);
           unsigned int
             ptr = (unsigned int)mp.opcode[1] + 1,
             siz0 = (unsigned int)mp.opcode[3],
             siz = siz0;
           cimg::mutex(6);
-          std::fprintf(cimg::output(),"\n[" cimg_appname "_math_parser] %s = [ ",expr._data);
+          std::fprintf(cimg::output(),"\n[" cimg_appname "_math_parser] %s = [ ",_expr._data);
           unsigned int count = 0;
           while (siz-->0) {
             if (count>=64 && siz>=64) {

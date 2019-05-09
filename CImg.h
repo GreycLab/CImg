@@ -46114,14 +46114,13 @@ namespace cimg_library_suffixed {
       std::va_list ap; va_start(ap,is_down);
       cimg_vsnprintf(tmp,tmp._width,text,ap); va_end(ap);
       CImg<ucharT> a_label, a_labelmask;
-      const unsigned char a_labelcolor = 127;
-      const unsigned int fsize = 13;
-      a_label.draw_text(0,0,"%s",&a_labelcolor,0,1,fsize,tmp._data);
+      const unsigned char a_labelcolor = 255;
+      const unsigned int fsize = 14;
+      a_label.draw_text(0,0,"%s",&a_labelcolor,0,1,fsize,tmp._data).normalize(0,255);
       if (a_label) {
-        a_label.crop(2,0,a_label.width() - 1,a_label.height());
-        ((a_labelmask = a_label)+=a_label.get_dilate(5)).max(80);
-        (a_label*=2).resize(-100,-100,1,3,1);
-        return draw_image(0,is_down?height() - fsize:0,a_label,a_labelmask,1,254);
+        a_label+=(255 - a_label.get_dilate(3)).normalize(0,80);
+        a_label.resize(-100,-100,1,3,1);
+        return draw_image(0,is_down?height() - 1 - a_label.height():0,a_label,0.85f);
       }
       return *this;
     }
@@ -49106,30 +49105,30 @@ namespace cimg_library_suffixed {
                   length = cimg::round(cimg::hypot(dX,dY,dZ),0.1);
                 if (_depth>1 || force_display_z_coord)
                   cimg_snprintf(text,text._width,
-                                " Box (%d,%d,%d)-(%d,%d,%d), Size = (%d,%d,%d), Length = %g ",
+                                " Box ( %d,%d,%d ) - ( %d,%d,%d )\n Size = ( %d,%d,%d ), Length = %g ",
                                 origX + (X0<X1?X0:X1),origY + (Y0<Y1?Y0:Y1),origZ + (Z0<Z1?Z0:Z1),
                                 origX + (X0<X1?X1:X0),origY + (Y0<Y1?Y1:Y0),origZ + (Z0<Z1?Z1:Z0),
                                 1 + cimg::abs(X0 - X1),1 + cimg::abs(Y0 - Y1),1 + cimg::abs(Z0 - Z1),length);
                 else if (_width!=1 && _height!=1)
                   cimg_snprintf(text,text._width,
-                                " Box (%d,%d)-(%d,%d), Size = (%d,%d), Length = %g, Angle = %g\260 ",
+                                " Box ( %d,%d ) - ( %d,%d )\n Size = ( %d,%d ), Length = %g \n Angle = %g\260 ",
                                 origX + (X0<X1?X0:X1),origY + (Y0<Y1?Y0:Y1),
                                 origX + (X0<X1?X1:X0),origY + (Y0<Y1?Y1:Y0),
                                 1 + cimg::abs(X0 - X1),1 + cimg::abs(Y0 - Y1),length,
                                 cimg::round(cimg::mod(180*std::atan2(-dY,-dX)/cimg::PI,360.),0.1));
                 else
                   cimg_snprintf(text,text._width,
-                                " Box (%d,%d)-(%d,%d), Size = (%d,%d), Length = %g ",
+                                " Box ( %d,%d ) - ( %d,%d )\n Size = (%d,%d), Length = %g ",
                                 origX + (X0<X1?X0:X1),origY + (Y0<Y1?Y0:Y1),
                                 origX + (X0<X1?X1:X0),origY + (Y0<Y1?Y1:Y0),
                                 1 + cimg::abs(X0 - X1),1 + cimg::abs(Y0 - Y1),length);
               } break;
               default :
                 if (_depth>1 || force_display_z_coord)
-                  cimg_snprintf(text,text._width," Ellipse (%d,%d,%d)-(%d,%d,%d), Radii = (%d,%d,%d) ",
+                  cimg_snprintf(text,text._width," Ellipse ( %d,%d,%d ) - ( %d,%d,%d ), Radii = ( %d,%d,%d ) ",
                                 origX + X0,origY + Y0,origZ + Z0,origX + X1,origY + Y1,origZ + Z1,
                                 1 + cimg::abs(X0 - X1),1 + cimg::abs(Y0 - Y1),1 + cimg::abs(Z0 - Z1));
-                else cimg_snprintf(text,text._width," Ellipse (%d,%d)-(%d,%d), Radii = (%d,%d) ",
+                else cimg_snprintf(text,text._width," Ellipse ( %d,%d ) - ( %d,%d ), Radii = ( %d,%d ) ",
                                    origX + X0,origY + Y0,origX + X1,origY + Y1,
                                    1 + cimg::abs(X0 - X1),1 + cimg::abs(Y0 - Y1));
               }

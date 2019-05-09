@@ -48639,7 +48639,7 @@ namespace cimg_library_suffixed {
           if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) { disp.set_wheel(1); key = 0; } break;
         case cimg::keyPAGEDOWN :
           if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) { disp.set_wheel(-1); key = 0; } break;
-        case cimg::keyA : if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) {
+        case cimg::keyX : if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) {
             is_axes = !is_axes; disp.set_key(key,false); key = 0; visu0.assign();
           } break;
         case cimg::keyD : if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) {

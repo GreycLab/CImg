@@ -46120,7 +46120,7 @@ namespace cimg_library_suffixed {
       if (a_label) {
         a_label+=(255 - a_label.get_dilate(3)).normalize(0,80);
         a_label.resize(-100,-100,1,3,1);
-        return draw_image(0,is_down?height() - 1 - a_label.height():0,a_label,0.85f);
+        return draw_image(0,is_down?height() - a_label.height():0,a_label,0.85f);
       }
       return *this;
     }
@@ -49069,16 +49069,16 @@ namespace cimg_library_suffixed {
                   cimg_snprintf(text,text._width," Point (%d,%d,%d) = [ ",origX + (int)X,origY + (int)Y,origZ + (int)Z);
                 else cimg_snprintf(text,text._width," Point (%d,%d) = [ ",origX + (int)X,origY + (int)Y);
                 CImg<T> values = get_vector_at((int)X,(int)Y,(int)Z);
-                const bool is_large_spectrum = values._height>16;
+                const bool is_large_spectrum = values._height>8;
                 if (is_large_spectrum)
-                  values.draw_image(0,8,values.get_rows(values._height - 8,values._height - 1)).resize(1,16,1,1,0);
+                  values.draw_image(0,4,values.get_rows(values._height - 4,values._height - 1)).resize(1,8,1,1,0);
                 char *ctext = text._data + std::strlen(text), *const ltext = text._data + 512;
                 for (unsigned int c = 0; c<values._height && ctext<ltext; ++c) {
                   cimg_snprintf(ctext,24,cimg::type<T>::format_s(),
                                 cimg::type<T>::format(values[c]));
                   ctext += std::strlen(ctext);
-                  if (c==7 && is_large_spectrum) {
-                    cimg_snprintf(ctext,24," (...)");
+                  if (c==3 && is_large_spectrum) {
+                    cimg_snprintf(ctext,24," ...");
                     ctext += std::strlen(ctext);
                   }
                   *(ctext++) = ' '; *ctext = 0;

@@ -58635,9 +58635,9 @@ namespace cimg_library_suffixed {
                   visu.draw_rectangle(positions(ind,0),positions(ind,1),positions(ind,2),positions(ind,3),
                                       foreground_color,0.9f,0xAAAAAAAA);
               }
-            if (is_clicked) visu.__draw_text(" Images #%u - #%u, Size = %u",(int)text_down,
+            if (is_clicked) visu.__draw_text(" Images #%u - #%u, Size = %u ",(int)text_down,
                                              orig + indm,orig + indM,indM - indm + 1);
-            else visu.__draw_text(" Image #%u (%u,%u,%u,%u)",(int)text_down,
+            else visu.__draw_text(" Image #%u (%u,%u,%u,%u) ",(int)text_down,
                                   orig + index0,
                                   _data[index0]._width,
                                   _data[index0]._height,

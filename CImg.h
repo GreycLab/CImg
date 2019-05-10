@@ -422,7 +422,7 @@
 #endif
 #include <cstddef>
 #include <opencv2/opencv.hpp>
-#if CV_MAJOR_VERSION >=3
+#if CV_MAJOR_VERSION>=3
 #define _cimg_fourcc cv::VideoWriter::fourcc
 #define _cimg_cap_prop_frame_width cv::VideoCaptureProperties::CAP_PROP_FRAME_WIDTH
 #define _cimg_cap_prop_frame_height cv::VideoCaptureProperties::CAP_PROP_FRAME_HEIGHT

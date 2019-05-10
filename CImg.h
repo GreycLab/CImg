@@ -424,8 +424,14 @@
 #include <opencv2/opencv.hpp>
 #if CV_MAJOR_VERSION >=3
 #define _cimg_fourcc cv::VideoWriter::fourcc
+#define _cimg_cap_prop_frame_width cv::VideoCaptureProperties::CAP_PROP_FRAME_WIDTH
+#define _cimg_cap_prop_frame_height cv::VideoCaptureProperties::CAP_PROP_FRAME_HEIGHT
+#define _cimg_cap_prop_frame_count cv::VideoCaptureProperties::CAP_PROP_FRAME_COUNT
 #else
 #define _cimg_fourcc CV_FOURCC
+#define _cimg_cap_prop_frame_width CV_CAP_PROP_FRAME_WIDTH
+#define _cimg_cap_prop_frame_height CV_CAP_PROP_FRAME_HEIGHT
+#define _cimg_cap_prop_frame_count CV_CAP_PROP_FRAME_COUNT
 #endif
 #endif
 
@@ -52689,11 +52695,11 @@ namespace cimg_library_suffixed {
       }
       cimg::mutex(9);
       if (capture_width!=captures_w[camera_index]) {
-        captures[camera_index]->set(CV_CAP_PROP_FRAME_WIDTH,capture_width);
+        captures[camera_index]->set(_cimg_cap_prop_frame_width,capture_width);
         captures_w[camera_index] = capture_width;
       }
       if (capture_height!=captures_h[camera_index]) {
-        captures[camera_index]->set(CV_CAP_PROP_FRAME_HEIGHT,capture_height);
+        captures[camera_index]->set(_cimg_cap_prop_frame_height,capture_height);
         captures_h[camera_index] = capture_height;
       }
       for (unsigned int i = 0; i<skip_frames; ++i) captures[camera_index]->grab();
@@ -53557,7 +53563,7 @@ namespace cimg_library_suffixed {
             else zbuffer.assign(visu0.width(),visu0.height(),1,1,0);
             disp.set_key(key,false); key = 0; redraw = true;
           } break;
-        case cimg::keyA : if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) { // Show/hide 3D axes
+        case cimg::keyX : if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) { // Show/hide 3D axes
             ndisplay_axes = !ndisplay_axes;
             disp.set_key(key,false); key = 0; redraw = true;
           } break;
@@ -59579,7 +59585,7 @@ namespace cimg_library_suffixed {
       }
 
       cimg::mutex(9);
-      const unsigned int nb_frames = (unsigned int)std::max(0.,captures[index]->get(CV_CAP_PROP_FRAME_COUNT));
+      const unsigned int nb_frames = (unsigned int)std::max(0.,captures[index]->get(_cimg_cap_prop_frame_count));
       cimg::mutex(9,0);
       assign();
 

@@ -32787,13 +32787,13 @@ namespace cimg_library_suffixed {
             case 1 : // Neumann
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = p_warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = _atX(x - (int)*(ptrs0++),y,z,c);
+                cimg_forX(res,x) *(ptrd++) = _atX(x - (int)cimg::round(*(ptrs0++)),y,z,c);
               }
               break;
             default : // Dirichlet
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = p_warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = atX(x - (int)*(ptrs0++),y,z,c,(T)0);
+                cimg_forX(res,x) *(ptrd++) = atX(x - (int)cimg::round(*(ptrs0++)),y,z,c,(T)0);
               }
             }
         }
@@ -32888,13 +32888,13 @@ namespace cimg_library_suffixed {
             case 1 : // Neumann
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = p_warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = _atX((int)*(ptrs0++),0,0,c);
+                cimg_forX(res,x) *(ptrd++) = _atX((int)cimg::round(*(ptrs0++)),0,0,c);
               }
               break;
             default : // Dirichlet
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = p_warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = atX((int)*(ptrs0++),0,0,c,(T)0);
+                cimg_forX(res,x) *(ptrd++) = atX((int)cimg::round(*(ptrs0++)),0,0,c,(T)0);
               }
             }
         }
@@ -33032,13 +33032,15 @@ namespace cimg_library_suffixed {
             case 1 : // Neumann
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = _atXY(x - (int)*(ptrs0++),y - (int)*(ptrs1++),z,c);
+                cimg_forX(res,x) *(ptrd++) = _atXY(x - (int)cimg::round(*(ptrs0++)),
+                                                   y - (int)cimg::round(*(ptrs1++)),z,c);
               }
               break;
             default : // Dirichlet
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = atXY(x - (int)*(ptrs0++),y - (int)*(ptrs1++),z,c,(T)0);
+                cimg_forX(res,x) *(ptrd++) = atXY(x - (int)cimg::round(*(ptrs0++)),
+                                                  y - (int)cimg::round(*(ptrs1++)),z,c,(T)0);
               }
             }
         } else { // Backward-absolute warp
@@ -33141,13 +33143,15 @@ namespace cimg_library_suffixed {
             case 1 : // Neumann
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = _atXY((int)*(ptrs0++),(int)*(ptrs1++),0,c);
+                cimg_forX(res,x) *(ptrd++) = _atXY((int)cimg::round(*(ptrs0++)),
+                                                   (int)cimg::round(*(ptrs1++)),0,c);
               }
               break;
             default : // Dirichlet
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = atXY((int)*(ptrs0++),(int)*(ptrs1++),0,c,(T)0);
+                cimg_forX(res,x) *(ptrd++) = atXY((int)cimg::round(*(ptrs0++)),
+                                                  (int)cimg::round(*(ptrs1++)),0,c,(T)0);
               }
             }
         }
@@ -33323,14 +33327,18 @@ namespace cimg_library_suffixed {
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = _atXYZ(x - (int)*(ptrs0++),y - (int)*(ptrs1++),z - (int)*(ptrs2++),c);
+                cimg_forX(res,x) *(ptrd++) = _atXYZ(x - (int)cimg::round(*(ptrs0++)),
+                                                    y - (int)cimg::round(*(ptrs1++)),
+                                                    z - (int)cimg::round(*(ptrs2++)),c);
               }
               break;
             default : // Dirichlet
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = atXYZ(x - (int)*(ptrs0++),y - (int)*(ptrs1++),z - (int)*(ptrs2++),c,(T)0);
+                cimg_forX(res,x) *(ptrd++) = atXYZ(x - (int)cimg::round(*(ptrs0++)),
+                                                   y - (int)cimg::round(*(ptrs1++)),
+                                                   z - (int)cimg::round(*(ptrs2++)),c,(T)0);
               }
             }
         } else { // Backward-absolute warp
@@ -33458,14 +33466,18 @@ namespace cimg_library_suffixed {
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = _atXYZ((int)*(ptrs0++),(int)*(ptrs1++),(int)*(ptrs2++),c);
+                cimg_forX(res,x) *(ptrd++) = _atXYZ((int)cimg::round(*(ptrs0++)),
+                                                    (int)cimg::round(*(ptrs1++)),
+                                                    (int)cimg::round(*(ptrs2++)),c);
               }
               break;
             default : // Dirichlet
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = atXYZ((int)*(ptrs0++),(int)*(ptrs1++),(int)*(ptrs2++),c,(T)0);
+                cimg_forX(res,x) *(ptrd++) = atXYZ((int)cimg::round(*(ptrs0++)),
+                                                   (int)cimg::round(*(ptrs1++)),
+                                                   (int)cimg::round(*(ptrs2++)),c,(T)0);
               }
             }
         }

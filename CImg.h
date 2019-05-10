@@ -52860,7 +52860,7 @@ namespace cimg_library_suffixed {
 
     const CImg<T>& _display(CImgDisplay &disp, const char *const title, const bool display_info,
                             unsigned int *const XYZ, const bool exit_on_anykey,
-                            const bool exit_on_simpleclick) const {
+                            const bool exit_on_singleclick) const {
       unsigned int oldw = 0, oldh = 0, _XYZ[3] = { 0 }, key = 0;
       int x0 = 0, y0 = 0, z0 = 0, x1 = width() - 1, y1 = height() - 1, z1 = depth() - 1,
         old_mouse_x = -1, old_mouse_y = -1;
@@ -52943,7 +52943,7 @@ namespace cimg_library_suffixed {
           x1 = x0 + sx1; y1 = y0 + sy1; z1 = z0 + sz1;
           x0+=sx0; y0+=sy0; z0+=sz0;
           if ((sx0==sx1 && sy0==sy1) || (_depth>1 && sx0==sx1 && sz0==sz1) || (_depth>1 && sy0==sy1 && sz0==sz1)) {
-            if (exit_on_simpleclick && (!zoom || is_empty())) break; else reset_view = true;
+            if (exit_on_singleclick && (!zoom || is_empty())) break; else reset_view = true;
           }
           resize_disp = true;
         } else switch (key = disp.key()) {

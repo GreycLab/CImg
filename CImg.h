@@ -29740,7 +29740,7 @@ namespace cimg_library_suffixed {
         if (theta>0) H = B<=G?theta:360 - theta;
         if (sum>0) S = 1 - 3*m/sum;
         I = sum/(3*255);
-        p1[N] = (T)cimg::cut(H,0,360);
+        p1[N] = (T)H;
         p2[N] = (T)cimg::cut(S,0,1);
         p3[N] = (T)cimg::cut(I,0,1);
       }

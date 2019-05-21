@@ -15306,9 +15306,9 @@ namespace cimg_library_suffixed {
 
     Tfloat _cubic_atXYZ_p(const float fx, const float fy, const float fz, const int c=0) const {
       const float
-        nfx = cimg::type<float>::is_nan(fx)?0:cimg::mod(fx,_width),
-        nfy = cimg::type<float>::is_nan(fy)?0:cimg::mod(fy,_height),
-        nfz = cimg::type<float>::is_nan(fz)?0:cimg::mod(fz,_depth);
+        nfx = cimg::type<float>::is_nan(fx)?0:cimg::mod(fx,(float)_width),
+        nfy = cimg::type<float>::is_nan(fy)?0:cimg::mod(fy,(float)_height),
+        nfz = cimg::type<float>::is_nan(fz)?0:cimg::mod(fz,(float)_depth);
       const int x = (int)nfx, y = (int)nfy, z = (int)nfz;
       const float dx = nfx - x, dy = nfy - y, dz = nfz - z;
       const int

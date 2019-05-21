@@ -29732,14 +29732,13 @@ namespace cimg_library_suffixed {
           R = (Tfloat)p1[N],
           G = (Tfloat)p2[N],
           B = (Tfloat)p3[N],
-          theta = (Tfloat)(std::acos(0.5f*((R - G) + (R - B))/
-                                     std::sqrt(cimg::sqr(R - G) + (R - B)*(G - B)))*180/cimg::PI),
           m = cimg::min(R,G,B),
-          sum = R + G + B;
-        Tfloat H = 0, S = 0, I = 0;
-        if (theta>0) H = B<=G?theta:360 - theta;
-        if (sum>0) S = 1 - 3*m/sum;
-        I = sum/(3*255);
+          M = cimg::max(R,G,B),
+          C = M - m,
+          sum = R + G + B,
+          H = 60*(C==0?0:M==R?cimg::mod((G - B)/C,(Tfloat)6):M==G?(B - R)/C + 2:(R - G)/C + 4),
+          S = sum<=0?0:1 - 3*m/sum,
+          I = sum/(3*255);
         p1[N] = (T)H;
         p2[N] = (T)S;
         p3[N] = (T)I;
@@ -29763,30 +29762,26 @@ namespace cimg_library_suffixed {
       const longT whd = (longT)width()*height()*depth();
       cimg_pragma_openmp(parallel for cimg_openmp_if_size(whd,256))
       for (longT N = 0; N<whd; ++N) {
-        Tfloat
-          H = cimg::mod((Tfloat)p1[N],(Tfloat)360),
+        const Tfloat
+          H = cimg::mod((Tfloat)p1[N]/60,(Tfloat)6),
           S = (Tfloat)p2[N],
           I = (Tfloat)p3[N],
-          a = I*(1 - S),
-          R = 0, G = 0, B = 0;
-        if (H<120) {
-          B = a;
-          R = (Tfloat)(I*(1 + S*std::cos(H*cimg::PI/180)/std::cos((60 - H)*cimg::PI/180)));
-          G = 3*I - (R + B);
-        } else if (H<240) {
-          H-=120;
-          R = a;
-          G = (Tfloat)(I*(1 + S*std::cos(H*cimg::PI/180)/std::cos((60 - H)*cimg::PI/180)));
-          B = 3*I - (R + G);
-        } else {
-          H-=240;
-          G = a;
-          B = (Tfloat)(I*(1 + S*std::cos(H*cimg::PI/180)/std::cos((60 - H)*cimg::PI/180)));
-          R = 3*I - (G + B);
+          Z = 1 - cimg::abs(cimg::mod(H,(Tfloat)2) - 1),
+          C = I*S/(1 + Z),
+          X = C*Z,
+          m = I*(1 - S)/3;
+        Tfloat R, G, B;
+        switch ((int)H) {
+        case 0 : R = C; G = X; B = 0; break;
+        case 1 : R = X; G = C; B = 0; break;
+        case 2 : R = 0; G = C; B = X; break;
+        case 3 : R = 0; G = X; B = C; break;
+        case 4 : R = X; G = 0; B = C; break;
+        default : R = C; G = 0; B = X;
         }
-        p1[N] = (T)(R*255);
-        p2[N] = (T)(G*255);
-        p3[N] = (T)(B*255);
+        p1[N] = (T)((R + m)*3*255);
+        p2[N] = (T)((G + m)*3*255);
+        p3[N] = (T)((B + m)*3*255);
       }
       return *this;
     }
@@ -29813,17 +29808,10 @@ namespace cimg_library_suffixed {
           B = (Tfloat)p3[N],
           m = cimg::min(R,G,B),
           M = cimg::max(R,G,B),
-          L = (m + M)/(2*255);
-        Tfloat H = 0, S = 0;
-        if (M!=m) {
-          const Tfloat
-            f = R==m?G - B:G==m?B - R:R - G,
-            i = R==m?3:G==m?5:1;
-          H = i - f/(M - m);
-          if (H>=6) H-=6;
-          H*=60;
-          S = 2*L<=1?(M - m)/(M + m):(M - m)/(2*255 - M - m);
-        }
+          C = M - m,
+          H = 60*(C==0?0:M==R?cimg::mod((G - B)/C,(Tfloat)6):M==G?(B - R)/C + 2:(R - G)/C + 4),
+          L = 0.5f*(m + M)/255,
+          S = L==1 || L==0?0:C/(1 - cimg::abs(2*L - 1))/255;
         p1[N] = (T)H;
         p2[N] = (T)S;
         p3[N] = (T)L;
@@ -29848,24 +29836,24 @@ namespace cimg_library_suffixed {
       cimg_pragma_openmp(parallel for cimg_openmp_if_size(whd,256))
       for (longT N = 0; N<whd; ++N) {
         const Tfloat
-          H = cimg::mod((Tfloat)p1[N],(Tfloat)360),
+          H = cimg::mod((Tfloat)p1[N]/60,(Tfloat)6),
           S = (Tfloat)p2[N],
           L = (Tfloat)p3[N],
-          q = 2*L<1?L*(1 + S):L + S - L*S,
-          p = 2*L - q,
-          h = H/360,
-          tr = h + (Tfloat)1/3,
-          tg = h,
-          tb = h - (Tfloat)1/3,
-          ntr = tr<0?tr + 1:tr>1?tr - 1:(Tfloat)tr,
-          ntg = tg<0?tg + 1:tg>1?tg - 1:(Tfloat)tg,
-          ntb = tb<0?tb + 1:tb>1?tb - 1:(Tfloat)tb,
-          R = 6*ntr<1?p + (q - p)*6*ntr:2*ntr<1?q:3*ntr<2?p + (q - p)*6*(2.f/3 - ntr):p,
-          G = 6*ntg<1?p + (q - p)*6*ntg:2*ntg<1?q:3*ntg<2?p + (q - p)*6*(2.f/3 - ntg):p,
-          B = 6*ntb<1?p + (q - p)*6*ntb:2*ntb<1?q:3*ntb<2?p + (q - p)*6*(2.f/3 - ntb):p;
-        p1[N] = (T)(255*R);
-        p2[N] = (T)(255*G);
-        p3[N] = (T)(255*B);
+          C = (1 - cimg::abs(2*L - 1))*S,
+          X = C*(1 - cimg::abs(cimg::mod(H,(Tfloat)2) - 1)),
+          m = L - C/2;
+        Tfloat R, G, B;
+        switch ((int)H) {
+        case 0 : R = C; G = X; B = 0; break;
+        case 1 : R = X; G = C; B = 0; break;
+        case 2 : R = 0; G = C; B = X; break;
+        case 3 : R = 0; G = X; B = C; break;
+        case 4 : R = X; G = 0; B = C; break;
+        default : R = C; G = 0; B = X;
+        }
+        p1[N] = (T)((R + m)*255);
+        p2[N] = (T)((G + m)*255);
+        p3[N] = (T)((B + m)*255);
       }
       return *this;
     }
@@ -29890,18 +29878,10 @@ namespace cimg_library_suffixed {
           R = (Tfloat)p1[N],
           G = (Tfloat)p2[N],
           B = (Tfloat)p3[N],
-          m = cimg::min(R,G,B),
-          M = cimg::max(R,G,B);
-        Tfloat H = 0, S = 0;
-        if (M!=m) {
-          const Tfloat
-            f = R==m?G - B:G==m?B - R:R - G,
-            i = R==m?3:G==m?5:1;
-          H = i - f/(M - m);
-          if (H>=6) H-=6;
-          H*=60;
-          S = (M - m)/M;
-        }
+          M = cimg::max(R,G,B),
+          C = M - cimg::min(R,G,B),
+          H = 60*(C==0?0:M==R?cimg::mod((G-B)/C,(Tfloat)6):M==G?(B - R)/C + 2:(R - G)/C + 4),
+          S = M<=0?0:C/M;
         p1[N] = (T)H;
         p2[N] = (T)S;
         p3[N] = (T)(M/255);
@@ -29926,31 +29906,24 @@ namespace cimg_library_suffixed {
       cimg_pragma_openmp(parallel for cimg_openmp_if_size(whd,256))
       for (longT N = 0; N<whd; ++N) {
         Tfloat
-          H = cimg::mod((Tfloat)p1[N],(Tfloat)360),
+          H = cimg::mod((Tfloat)p1[N]/60,(Tfloat)6),
           S = (Tfloat)p2[N],
           V = (Tfloat)p3[N],
-          R = 0, G = 0, B = 0;
-        if (H==0 && S==0) R = G = B = V;
-        else {
-          H/=60;
-          const int i = (int)std::floor(H);
-          const Tfloat
-            f = (i&1)?H - i:1 - H + i,
-            m = V*(1 - S),
-            n = V*(1 - S*f);
-          switch (i) {
-          case 6 :
-          case 0 : R = V; G = n; B = m; break;
-          case 1 : R = n; G = V; B = m; break;
-          case 2 : R = m; G = V; B = n; break;
-          case 3 : R = m; G = n; B = V; break;
-          case 4 : R = n; G = m; B = V; break;
-          case 5 : R = V; G = m; B = n; break;
-          }
+          C = V*S,
+          X = C*(1 - cimg::abs(cimg::mod(H,(Tfloat)2) - 1)),
+          m = V - C;
+        Tfloat R, G, B;
+        switch ((int)H) {
+        case 0 : R = C; G = X; B = 0; break;
+        case 1 : R = X; G = C; B = 0; break;
+        case 2 : R = 0; G = C; B = X; break;
+        case 3 : R = 0; G = X; B = C; break;
+        case 4 : R = X; G = 0; B = C; break;
+        default : R = C; G = 0; B = X;
         }
-        p1[N] = (T)(R*255);
-        p2[N] = (T)(G*255);
-        p3[N] = (T)(B*255);
+        p1[N] = (T)((R + m)*255);
+        p2[N] = (T)((G + m)*255);
+        p3[N] = (T)((B + m)*255);
       }
       return *this;
     }

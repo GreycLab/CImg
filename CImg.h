@@ -29741,8 +29741,8 @@ namespace cimg_library_suffixed {
         if (sum>0) S = 1 - 3*m/sum;
         I = sum/(3*255);
         p1[N] = (T)H;
-        p2[N] = (T)cimg::cut(S,0,1);
-        p3[N] = (T)cimg::cut(I,0,1);
+        p2[N] = (T)S;
+        p3[N] = (T)I;
       }
       return *this;
     }
@@ -29784,9 +29784,9 @@ namespace cimg_library_suffixed {
           B = (Tfloat)(I*(1 + S*std::cos(H*cimg::PI/180)/std::cos((60 - H)*cimg::PI/180)));
           R = 3*I - (G + B);
         }
-        p1[N] = (T)cimg::cut(R*255,0,255);
-        p2[N] = (T)cimg::cut(G*255,0,255);
-        p3[N] = (T)cimg::cut(B*255,0,255);
+        p1[N] = (T)(R*255);
+        p2[N] = (T)(G*255);
+        p3[N] = (T)(B*255);
       }
       return *this;
     }
@@ -29824,9 +29824,9 @@ namespace cimg_library_suffixed {
           H*=60;
           S = 2*L<=1?(M - m)/(M + m):(M - m)/(2*255 - M - m);
         }
-        p1[N] = (T)cimg::cut(H,0,360);
-        p2[N] = (T)cimg::cut(S,0,1);
-        p3[N] = (T)cimg::cut(L,0,1);
+        p1[N] = (T)H;
+        p2[N] = (T)S;
+        p3[N] = (T)L;
       }
       return *this;
     }
@@ -29863,9 +29863,9 @@ namespace cimg_library_suffixed {
           R = 6*ntr<1?p + (q - p)*6*ntr:2*ntr<1?q:3*ntr<2?p + (q - p)*6*(2.f/3 - ntr):p,
           G = 6*ntg<1?p + (q - p)*6*ntg:2*ntg<1?q:3*ntg<2?p + (q - p)*6*(2.f/3 - ntg):p,
           B = 6*ntb<1?p + (q - p)*6*ntb:2*ntb<1?q:3*ntb<2?p + (q - p)*6*(2.f/3 - ntb):p;
-        p1[N] = (T)cimg::cut(255*R,0,255);
-        p2[N] = (T)cimg::cut(255*G,0,255);
-        p3[N] = (T)cimg::cut(255*B,0,255);
+        p1[N] = (T)(255*R);
+        p2[N] = (T)(255*G);
+        p3[N] = (T)(255*B);
       }
       return *this;
     }
@@ -29902,9 +29902,9 @@ namespace cimg_library_suffixed {
           H*=60;
           S = (M - m)/M;
         }
-        p1[N] = (T)cimg::cut(H,0,360);
-        p2[N] = (T)cimg::cut(S,0,1);
-        p3[N] = (T)cimg::cut(M/255,0,1);
+        p1[N] = (T)H;
+        p2[N] = (T)S;
+        p3[N] = (T)(M/255);
       }
       return *this;
     }
@@ -29948,9 +29948,9 @@ namespace cimg_library_suffixed {
           case 5 : R = V; G = m; B = n; break;
           }
         }
-        p1[N] = (T)cimg::cut(R*255,0,255);
-        p2[N] = (T)cimg::cut(G*255,0,255);
-        p3[N] = (T)cimg::cut(B*255,0,255);
+        p1[N] = (T)(R*255);
+        p2[N] = (T)(G*255);
+        p3[N] = (T)(B*255);
       }
       return *this;
     }

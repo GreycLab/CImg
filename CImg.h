@@ -33749,9 +33749,8 @@ namespace cimg_library_suffixed {
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (T)_linear_atXYZ_p(x - (float)*(ptrs0++),
-                                                                y - (float)*(ptrs1++),
-                                                                z - (float)*(ptrs2++));
+                cimg_forX(res,x) *(ptrd++) = (T)_linear_atXYZ_p(x - (float)*(ptrs0++),y - (float)*(ptrs1++),
+                                                                z - (float)*(ptrs2++),c);
               }
               break;
             case 1 : // Neumann

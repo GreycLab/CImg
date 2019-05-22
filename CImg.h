@@ -22707,10 +22707,10 @@ namespace cimg_library_suffixed {
                                mc<img.spectrum()?mc:s2 - mc - 1);
           }
           case 2 : // Periodic
-            return (double)img(cimg::mod((int)x,img.width()),
-                               cimg::mod((int)y,img.height()),
-                               cimg::mod((int)z,img.depth()),
-                               cimg::mod((int)c,img.spectrum()));
+            return (double)img((int)cimg::mod(x,(double)img._width),
+                               (int)cimg::mod(y,(double)img._height),
+                               (int)cimg::mod(z,(double)img._depth),
+                               (int)cimg::mod(c,(double)img._spectrum));
           case 1 : // Neumann
             return (double)img._atXYZC((int)x,(int)y,(int)z,(int)c);
           default : // Dirichlet
@@ -22813,10 +22813,10 @@ namespace cimg_library_suffixed {
                                mc<img.spectrum()?mc:s2 - mc - 1);
           }
           case 2 : // Periodic
-            return (double)img(cimg::mod((int)x,img.width()),
-                               cimg::mod((int)y,img.height()),
-                               cimg::mod((int)z,img.depth()),
-                               cimg::mod((int)c,img.spectrum()));
+            return (double)img((int)cimg::mod(x,(double)img._width),
+                               (int)cimg::mod(y,(double)img._height),
+                               (int)cimg::mod(z,(double)img._depth),
+                               (int)cimg::mod(c,(double)img._spectrum));
           case 1 : // Neumann
             return (double)img._atXYZC((int)x,(int)y,(int)z,(int)c);
           default : // Dirichlet
@@ -23022,10 +23022,10 @@ namespace cimg_library_suffixed {
                                mc<img.spectrum()?mc:s2 - mc - 1);
           }
           case 2 : // Periodic
-            return (double)img(cimg::mod((int)x,img.width()),
-                               cimg::mod((int)y,img.height()),
-                               cimg::mod((int)z,img.depth()),
-                               cimg::mod((int)c,img.spectrum()));
+            return (double)img((int)cimg::mod(x,(double)img._width),
+                               (int)cimg::mod(y,(double)img._height),
+                               (int)cimg::mod(z,(double)img._depth),
+                               (int)cimg::mod(c,(double)img._spectrum));
           case 1 : // Neumann
             return (double)img._atXYZC((int)x,(int)y,(int)z,(int)c);
           default : // Dirichlet
@@ -23130,10 +23130,10 @@ namespace cimg_library_suffixed {
                                mc<img.spectrum()?mc:s2 - mc - 1);
           }
           case 2 : // Periodic
-            return (double)img(cimg::mod((int)x,img.width()),
-                               cimg::mod((int)y,img.height()),
-                               cimg::mod((int)z,img.depth()),
-                               cimg::mod((int)c,img.spectrum()));
+            return (double)img((int)cimg::mod(x,(double)img._width),
+                               (int)cimg::mod(y,(double)img._height),
+                               (int)cimg::mod(z,(double)img._depth),
+                               (int)cimg::mod(c,(double)img._spectrum));
           case 1 : // Neumann
             return (double)img._atXYZC((int)x,(int)y,(int)z,(int)c);
           default : // Dirichlet
@@ -23478,9 +23478,9 @@ namespace cimg_library_suffixed {
           } break;
           case 2 : { // Periodic
             const int
-              cx = cimg::mod((int)x,img.width()),
-              cy = cimg::mod((int)y,img.height()),
-              cz = cimg::mod((int)z,img.depth());
+              cx = (int)cimg::mod(x,(double)img._width),
+              cy = (int)cimg::mod(y,(double)img._height),
+              cz = (int)cimg::mod(z,(double)img._depth);
             ptrs = &img(cx,cy,cz);
             cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
           } break;
@@ -23607,9 +23607,9 @@ namespace cimg_library_suffixed {
           } break;
           case 2 : { // Periodic
             const int
-              cx = cimg::mod((int)x,img.width()),
-              cy = cimg::mod((int)y,img.height()),
-              cz = cimg::mod((int)z,img.depth());
+              cx = (int)cimg::mod(x,(double)img._width),
+              cy = (int)cimg::mod(y,(double)img._height),
+              cz = (int)cimg::mod(z,(double)img._depth);
             ptrs = &img(cx,cy,cz);
             cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
           } break;
@@ -24957,9 +24957,9 @@ namespace cimg_library_suffixed {
           } break;
           case 2 : { // Periodic
             const int
-              cx = cimg::mod((int)x,img.width()),
-              cy = cimg::mod((int)y,img.height()),
-              cz = cimg::mod((int)z,img.depth());
+              cx = (int)cimg::mod(x,(double)img._width),
+              cy = (int)cimg::mod(y,(double)img._height),
+              cz = (int)cimg::mod(z,(double)img._depth);
             ptrs = &img(cx,cy,cz);
             cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
           } break;
@@ -25086,9 +25086,9 @@ namespace cimg_library_suffixed {
           } break;
           case 2 : { // Periodic
             const int
-              cx = cimg::mod((int)x,img.width()),
-              cy = cimg::mod((int)y,img.height()),
-              cz = cimg::mod((int)z,img.depth());
+              cx = (int)cimg::mod(x,(double)img._width),
+              cy = (int)cimg::mod(y,(dobule)img._height),
+              cz = (int)cimg::mod(z,(double)img._depth);
             ptrs = &img(cx,cy,cz);
             cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
           } break;
@@ -33283,7 +33283,7 @@ namespace cimg_library_suffixed {
             case 2 : // Periodic
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = p_warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (*this)(cimg::mod(x - (int)cimg::round(*(ptrs0++)),(int)_width),y,z,c);
+                cimg_forX(res,x) *(ptrd++) = (*this)(cimg::mod(x - (int)cimg::round(*(ptrs0++)),width()),y,z,c);
               }
               break;
             case 1 : // Neumann
@@ -33384,7 +33384,7 @@ namespace cimg_library_suffixed {
             case 2 : // Periodic
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = p_warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (*this)(cimg::mod((int)cimg::round(*(ptrs0++)),(int)_width),0,0,c);
+                cimg_forX(res,x) *(ptrd++) = (*this)(cimg::mod((int)cimg::round(*(ptrs0++)),width()),0,0,c);
               }
               break;
             case 1 : // Neumann
@@ -33525,8 +33525,8 @@ namespace cimg_library_suffixed {
             case 2 : // Periodic
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (*this)(cimg::mod(x - (int)cimg::round(*(ptrs0++)),(int)_width),
-                                                     cimg::mod(y - (int)cimg::round(*(ptrs1++)),(int)_height),z,c);
+                cimg_forX(res,x) *(ptrd++) = (*this)(cimg::mod(x - (int)cimg::round(*(ptrs0++)),width()),
+                                                     cimg::mod(y - (int)cimg::round(*(ptrs1++)),height()),z,c);
               }
               break;
             case 1 : // Neumann
@@ -33634,8 +33634,8 @@ namespace cimg_library_suffixed {
             case 2 : // Periodic
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1); T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (*this)(cimg::mod((int)cimg::round(*(ptrs0++)),(int)_width),
-                                                     cimg::mod((int)cimg::round(*(ptrs1++)),(int)_height),0,c);
+                cimg_forX(res,x) *(ptrd++) = (*this)(cimg::mod((int)cimg::round(*(ptrs0++)),width()),
+                                                     cimg::mod((int)cimg::round(*(ptrs1++)),height()),0,c);
               }
               break;
             case 1 : // Neumann
@@ -33814,9 +33814,9 @@ namespace cimg_library_suffixed {
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (*this)(cimg::mod(x - (int)cimg::round(*(ptrs0++)),(int)_width),
-                                                     cimg::mod(y - (int)cimg::round(*(ptrs1++)),(int)_height),
-                                                     cimg::mod(z - (int)cimg::round(*(ptrs2++)),(int)_depth),c);
+                cimg_forX(res,x) *(ptrd++) = (*this)(cimg::mod(x - (int)cimg::round(*(ptrs0++)),width()),
+                                                     cimg::mod(y - (int)cimg::round(*(ptrs1++)),height()),
+                                                     cimg::mod(z - (int)cimg::round(*(ptrs2++)),depth()),c);
               }
               break;
             case 1 : // Neumann
@@ -33950,9 +33950,9 @@ namespace cimg_library_suffixed {
               cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = p_warp.data(0,y,z,0), *ptrs1 = p_warp.data(0,y,z,1), *ptrs2 = p_warp.data(0,y,z,2);
                 T *ptrd = res.data(0,y,z,c);
-                cimg_forX(res,x) *(ptrd++) = (*this)(cimg::mod((int)cimg::round(*(ptrs0++)),(int)_width),
-                                                     cimg::mod((int)cimg::round(*(ptrs1++)),(int)_height),
-                                                     cimg::mod((int)cimg::round(*(ptrs2++)),(int)_depth),c);
+                cimg_forX(res,x) *(ptrd++) = (*this)(cimg::mod((int)cimg::round(*(ptrs0++)),width()),
+                                                     cimg::mod((int)cimg::round(*(ptrs1++)),height()),
+                                                     cimg::mod((int)cimg::round(*(ptrs2++)),depth()),c);
               }
               break;
             case 1 : // Neumann
@@ -57745,12 +57745,12 @@ namespace cimg_library_suffixed {
        \note <tt>list.atNXYZC(p,x,y,z,c);</tt> is equivalent to <tt>list[p].atXYZC(x,y,z,c);</tt>.
     **/
     T& atNXYZC(const int pos, const int x, const int y, const int z, const int c, const T& out_value) {
-      return (pos<0 || pos>=(int)_width)?(cimg::temporary(out_value)=out_value):_data[pos].atXYZC(x,y,z,c,out_value);
+      return (pos<0 || pos>=width())?(cimg::temporary(out_value)=out_value):_data[pos].atXYZC(x,y,z,c,out_value);
     }
 
     //! Access to pixel value with Dirichlet boundary conditions \const.
     T atNXYZC(const int pos, const int x, const int y, const int z, const int c, const T& out_value) const {
-      return (pos<0 || pos>=(int)_width)?out_value:_data[pos].atXYZC(x,y,z,c,out_value);
+      return (pos<0 || pos>=width())?out_value:_data[pos].atXYZC(x,y,z,c,out_value);
     }
 
     //! Access to pixel value with Neumann boundary conditions.
@@ -57800,12 +57800,12 @@ namespace cimg_library_suffixed {
        \note <tt>list.atNXYZ(p,x,y,z,c);</tt> is equivalent to <tt>list[p].atXYZ(x,y,z,c);</tt>.
     **/
     T& atNXYZ(const int pos, const int x, const int y, const int z, const int c, const T& out_value) {
-      return (pos<0 || pos>=(int)_width)?(cimg::temporary(out_value)=out_value):_data[pos].atXYZ(x,y,z,c,out_value);
+      return (pos<0 || pos>=width())?(cimg::temporary(out_value)=out_value):_data[pos].atXYZ(x,y,z,c,out_value);
     }
 
     //! Access pixel value with Dirichlet boundary conditions for the 3 coordinates (\c pos, \c x,\c y,\c z) \const.
     T atNXYZ(const int pos, const int x, const int y, const int z, const int c, const T& out_value) const {
-      return (pos<0 || pos>=(int)_width)?out_value:_data[pos].atXYZ(x,y,z,c,out_value);
+      return (pos<0 || pos>=width())?out_value:_data[pos].atXYZ(x,y,z,c,out_value);
     }
 
     //! Access to pixel value with Neumann boundary conditions for the 4 coordinates (\c pos, \c x,\c y,\c z).
@@ -57855,12 +57855,12 @@ namespace cimg_library_suffixed {
        \note <tt>list.atNXYZ(p,x,y,z,c);</tt> is equivalent to <tt>list[p].atXYZ(x,y,z,c);</tt>.
     **/
     T& atNXY(const int pos, const int x, const int y, const int z, const int c, const T& out_value) {
-      return (pos<0 || pos>=(int)_width)?(cimg::temporary(out_value)=out_value):_data[pos].atXY(x,y,z,c,out_value);
+      return (pos<0 || pos>=width())?(cimg::temporary(out_value)=out_value):_data[pos].atXY(x,y,z,c,out_value);
     }
 
     //! Access to pixel value with Dirichlet boundary conditions for the 3 coordinates (\c pos, \c x,\c y) \const.
     T atNXY(const int pos, const int x, const int y, const int z, const int c, const T& out_value) const {
-      return (pos<0 || pos>=(int)_width)?out_value:_data[pos].atXY(x,y,z,c,out_value);
+      return (pos<0 || pos>=width())?out_value:_data[pos].atXY(x,y,z,c,out_value);
     }
 
     //! Access to pixel value with Neumann boundary conditions for the 3 coordinates (\c pos, \c x,\c y).
@@ -57910,12 +57910,12 @@ namespace cimg_library_suffixed {
        \note <tt>list.atNXYZ(p,x,y,z,c);</tt> is equivalent to <tt>list[p].atXYZ(x,y,z,c);</tt>.
     **/
     T& atNX(const int pos, const int x, const int y, const int z, const int c, const T& out_value) {
-      return (pos<0 || pos>=(int)_width)?(cimg::temporary(out_value)=out_value):_data[pos].atX(x,y,z,c,out_value);
+      return (pos<0 || pos>=width())?(cimg::temporary(out_value)=out_value):_data[pos].atX(x,y,z,c,out_value);
     }
 
     //! Access to pixel value with Dirichlet boundary conditions for the 2 coordinates (\c pos,\c x) \const.
     T atNX(const int pos, const int x, const int y, const int z, const int c, const T& out_value) const {
-      return (pos<0 || pos>=(int)_width)?out_value:_data[pos].atX(x,y,z,c,out_value);
+      return (pos<0 || pos>=width())?out_value:_data[pos].atX(x,y,z,c,out_value);
     }
 
     //! Access to pixel value with Neumann boundary conditions for the 2 coordinates (\c pos, \c x).
@@ -57965,12 +57965,12 @@ namespace cimg_library_suffixed {
        \note <tt>list.atNXYZ(p,x,y,z,c);</tt> is equivalent to <tt>list[p].atXYZ(x,y,z,c);</tt>.
     **/
     T& atN(const int pos, const int x, const int y, const int z, const int c, const T& out_value) {
-      return (pos<0 || pos>=(int)_width)?(cimg::temporary(out_value)=out_value):(*this)(pos,x,y,z,c);
+      return (pos<0 || pos>=width())?(cimg::temporary(out_value)=out_value):(*this)(pos,x,y,z,c);
     }
 
     //! Access to pixel value with Dirichlet boundary conditions for the coordinate (\c pos) \const.
     T atN(const int pos, const int x, const int y, const int z, const int c, const T& out_value) const {
-      return (pos<0 || pos>=(int)_width)?out_value:(*this)(pos,x,y,z,c);
+      return (pos<0 || pos>=width())?out_value:(*this)(pos,x,y,z,c);
     }
 
     //! Return pixel value with Neumann boundary conditions for the coordinate (\c pos).
@@ -58147,7 +58147,7 @@ namespace cimg_library_suffixed {
     **/
     bool containsNXYZC(const int n, const int x=0, const int y=0, const int z=0, const int c=0) const {
       if (is_empty()) return false;
-      return n>=0 && n<(int)_width && x>=0 && x<_data[n].width() && y>=0 && y<_data[n].height() &&
+      return n>=0 && n<width() && x>=0 && x<_data[n].width() && y>=0 && y<_data[n].height() &&
         z>=0 && z<_data[n].depth() && c>=0 && c<_data[n].spectrum();
     }
 
@@ -58157,7 +58157,7 @@ namespace cimg_library_suffixed {
     **/
     bool containsN(const int n) const {
       if (is_empty()) return false;
-      return n>=0 && n<(int)_width;
+      return n>=0 && n<width();
     }
 
     //! Test if one image of the list contains the specified referenced value.

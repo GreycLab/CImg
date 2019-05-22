@@ -25087,7 +25087,7 @@ namespace cimg_library_suffixed {
           case 2 : { // Periodic
             const int
               cx = (int)cimg::mod(x,(double)img._width),
-              cy = (int)cimg::mod(y,(dobule)img._height),
+              cy = (int)cimg::mod(y,(double)img._height),
               cz = (int)cimg::mod(z,(double)img._depth);
             ptrs = &img(cx,cy,cz);
             cimg_for_inC(img,0,vsiz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }

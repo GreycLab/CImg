@@ -7179,7 +7179,7 @@ namespace cimg_library_suffixed {
     inline const char *split_filename(const char *const filename, char *const body=0) {
       if (!filename) { if (body) *body = 0; return 0; }
       const char *p = 0; for (const char *np = filename; np>=filename && (p=np); np = std::strchr(np,'.') + 1) {}
-      if (p==filename) {
+      if (p==filename || std::strchr(p,'/') || std::strchr(p,'\\')) {
         if (body) std::strcpy(body,filename);
         return filename + std::strlen(filename);
       }
@@ -54436,8 +54436,14 @@ namespace cimg_library_suffixed {
                !cimg::strcasecmp(ext,"tiff")) return save_tiff(fn);
 
       // 3D binary formats
-      else if (!cimg::strcasecmp(ext,"cimgz")) return save_cimg(fn,true);
-      else if (!cimg::strcasecmp(ext,"cimg") || !*ext) return save_cimg(fn,false);
+      else if (!*ext) {
+#ifdef cimg_use_zlib
+        return save_cimg(fn,true);
+#else
+        return save_cimg(fn,false);
+#endif
+      } else if (!cimg::strcasecmp(ext,"cimgz")) return save_cimg(fn,true);
+      else if (!cimg::strcasecmp(ext,"cimg")) return save_cimg(fn,false);
       else if (!cimg::strcasecmp(ext,"dcm")) return save_medcon_external(fn);
       else if (!cimg::strcasecmp(ext,"hdr") ||
                !cimg::strcasecmp(ext,"nii")) return save_analyze(fn);

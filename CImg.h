@@ -48839,18 +48839,15 @@ namespace cimg_library_suffixed {
             tx1 = (int)primitive[6], ty1 = (int)primitive[7],
             tx2 = (int)primitive[8], ty2 = (int)primitive[9],
             tx3 = (int)primitive[10], ty3 = (int)primitive[11],
-            txc = (tx0 + tx1 + tx2 + tx3)/4, tyc = (ty0 + ty1 + ty2 + ty3)/4,
             x0 = (int)projections(n0,0), y0 = (int)projections(n0,1),
             x1 = (int)projections(n1,0), y1 = (int)projections(n1,1),
             x2 = (int)projections(n2,0), y2 = (int)projections(n2,1),
-            x3 = (int)projections(n3,0), y3 = (int)projections(n3,1),
-            xc = (x0 + x1 + x2 + x3)/4, yc = (y0 + y1 + y2 + y3)/4;
+            x3 = (int)projections(n3,0), y3 = (int)projections(n3,1);
           const float
             z0 = vertices(n0,2) + Z + _focale,
             z1 = vertices(n1,2) + Z + _focale,
             z2 = vertices(n2,2) + Z + _focale,
-            z3 = vertices(n3,2) + Z + _focale,
-            zc = (z0 + z1 + z2 + z3)/4;
+            z3 = vertices(n3,2) + Z + _focale;
 
           switch (render_type) {
           case 0 :
@@ -48942,26 +48939,17 @@ namespace cimg_library_suffixed {
           case 4 : {
             const float
               lightprop0 = lightprops(n0), lightprop1 = lightprops(n1),
-              lightprop2 = lightprops(n2), lightprop3 = lightprops(n3),
-              lightpropc = (lightprop0 + lightprop1 + lightprop2 + lightprop3)/4;
+              lightprop2 = lightprops(n2), lightprop3 = lightprops(n3);
             if (zbuffer)
-              draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,xc,yc,zc,color,tx0,ty0,tx1,ty1,txc,tyc,
-                            lightprop0,lightprop1,lightpropc,opacity).
-                draw_triangle(zbuffer,x1,y1,z1,x2,y2,z2,xc,yc,zc,color,tx1,ty1,tx2,ty2,txc,tyc,
-                              lightprop1,lightprop2,lightpropc,opacity).
-                draw_triangle(zbuffer,x2,y2,z2,x3,y3,z3,xc,yc,zc,color,tx2,ty2,tx3,ty3,txc,tyc,
-                              lightprop2,lightprop3,lightpropc,opacity).
-                draw_triangle(zbuffer,x3,y3,z3,x0,y0,z0,xc,yc,zc,color,tx3,ty3,tx0,ty0,txc,tyc,
-                              lightprop3,lightprop0,lightpropc,opacity);
+              draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,color,tx0,ty0,tx1,ty1,tx2,ty2,
+                            lightprop0,lightprop1,lightprop2,opacity).
+                draw_triangle(zbuffer,x0,y0,z0,x2,y2,z2,x3,y3,z3,color,tx0,ty0,tx2,ty2,tx3,ty3,
+                              lightprop0,lightprop2,lightprop3,opacity);
             else
-              draw_triangle(x0,y0,z0,x1,y1,z1,xc,yc,zc,color,tx0,ty0,tx1,ty1,txc,tyc,
-                            lightprop0,lightprop1,lightpropc,opacity).
-                draw_triangle(x1,y1,z1,x2,y2,z2,xc,yc,zc,color,tx1,ty1,tx2,ty2,txc,tyc,
-                              lightprop1,lightprop2,lightpropc,opacity).
-                draw_triangle(x2,y2,z2,x3,y3,z3,xc,yc,zc,color,tx2,ty2,tx3,ty3,txc,tyc,
-                              lightprop2,lightprop3,lightpropc,opacity).
-                draw_triangle(x3,y3,z3,x0,y0,z0,xc,yc,zc,color,tx3,ty3,tx0,ty0,txc,tyc,
-                              lightprop3,lightprop0,lightpropc,opacity);
+              draw_triangle(x0,y0,z0,x1,y1,z1,x2,y2,z2,color,tx0,ty0,tx1,ty1,tx2,ty2,
+                            lightprop0,lightprop1,lightprop2,opacity).
+                draw_triangle(x0,y0,z0,x2,y2,z2,x3,y3,z3,color,tx0,ty0,tx2,ty2,tx3,ty3,
+                              lightprop0,lightprop2,lightprop3,opacity);
 
 #ifdef cimg_use_board
             if (pboard) {
@@ -48980,27 +48968,17 @@ namespace cimg_library_suffixed {
               lx0 = (unsigned int)lightprops(n0,0), ly0 = (unsigned int)lightprops(n0,1),
               lx1 = (unsigned int)lightprops(n1,0), ly1 = (unsigned int)lightprops(n1,1),
               lx2 = (unsigned int)lightprops(n2,0), ly2 = (unsigned int)lightprops(n2,1),
-              lx3 = (unsigned int)lightprops(n3,0), ly3 = (unsigned int)lightprops(n3,1),
-              lxc = (lx0 + lx1 + lx2 + lx3)/4, lyc = (ly0 + ly1 + ly2 + ly3)/4;
+              lx3 = (unsigned int)lightprops(n3,0), ly3 = (unsigned int)lightprops(n3,1);
             if (zbuffer)
-              draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,xc,yc,zc,color,tx0,ty0,tx1,ty1,txc,tyc,
-                            light_texture,lx0,ly0,lx1,ly1,lxc,lyc,opacity).
-                draw_triangle(zbuffer,x1,y1,z1,x2,y2,z2,xc,yc,zc,color,tx1,ty1,tx2,ty2,txc,tyc,
-                              light_texture,lx1,ly1,lx2,ly2,lxc,lyc,opacity).
-                draw_triangle(zbuffer,x2,y2,z2,x3,y3,z3,xc,yc,zc,color,tx2,ty2,tx3,ty3,txc,tyc,
-                              light_texture,lx2,ly2,lx3,ly3,lxc,lyc,opacity).
-                draw_triangle(zbuffer,x3,y3,z3,x0,y0,z0,xc,yc,zc,color,tx3,ty3,tx0,ty0,txc,tyc,
-                              light_texture,lx3,ly3,lx0,ly0,lxc,lyc,opacity);
+              draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,color,tx0,ty0,tx1,ty1,tx2,ty2,
+                            light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity).
+                draw_triangle(zbuffer,x0,y0,z0,x2,y2,z2,x3,y3,z3,color,tx0,ty0,tx2,ty2,tx3,ty3,
+                            light_texture,lx0,ly0,lx2,ly2,lx3,ly3,opacity);
             else
-              draw_triangle(x0,y0,z0,x1,y1,z1,xc,yc,zc,color,tx0,ty0,tx1,ty1,txc,tyc,
-                            light_texture,lx0,ly0,lx1,ly1,lxc,lyc,opacity).
-                draw_triangle(x1,y1,z1,x2,y2,z2,xc,yc,zc,color,tx1,ty1,tx2,ty2,txc,tyc,
-                              light_texture,lx1,ly1,lx2,ly2,lxc,lyc,opacity).
-                draw_triangle(x2,y2,z2,x3,y3,z3,xc,yc,zc,color,tx2,ty2,tx3,ty3,txc,tyc,
-                              light_texture,lx2,ly2,lx3,ly3,lxc,lyc,opacity).
-                draw_triangle(x3,y3,z3,x0,y0,z0,xc,yc,zc,color,tx3,ty3,tx0,ty0,txc,tyc,
-                              light_texture,lx3,ly3,lx0,ly0,lxc,lyc,opacity);
-
+              draw_triangle(x0,y0,z0,x1,y1,z1,x2,y2,z2,color,tx0,ty0,tx1,ty1,tx2,ty2,
+                            light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity).
+                draw_triangle(x0,y0,z0,x2,y2,z2,x3,y3,z3,color,tx0,ty0,tx2,ty2,tx3,ty3,
+                            light_texture,lx0,ly0,lx2,ly2,lx3,ly3,opacity);
 #ifdef cimg_use_board
             if (pboard) {
               const float

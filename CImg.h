@@ -43918,22 +43918,24 @@ namespace cimg_library_suffixed {
       if (y2<0 || y0>=height()) return *this;
       cimg_init_scanline(color,opacity);
       const float nbrightness = cimg::cut(brightness,0,2);
-      const float
-        dx01 = (float)x1 - x0,
-        dx02 = (float)x2 - x0,
-        dx12 = (float)x2 - x1;
       const int
         h1 = height() - 1,
+        dx01 = x1 - x0,
+        dx02 = x2 - x0,
+        dx12 = x2 - x1,
         dy01 = std::max(1,y1 - y0),
         dy02 = std::max(1,y2 - y0),
         dy12 = std::max(1,y2 - y1),
         cy0 = cimg::cut(y0,0,h1),
-        cy2 = cimg::cut(y2,0,h1);
+        cy2 = cimg::cut(y2,0,h1),
+        hdy02 = dy02/2,
+        hdy01 = dy01/2,
+        hdy12 = dy12/2;
       for (int y = cy0; y<=cy2; ++y) {
+        const int yy0 = y - y0;
         int
-          yy0 = y - y0,
-          xM = (int)cimg::round(x0 + yy0*dx02/dy02),
-          xm = (int)cimg::round(y<y1?(x0 + yy0*dx01/dy01):(x1 + (y - y1)*dx12/dy12));
+          xM = (x0*dy02 + yy0*dx02 + hdy02)/dy02,
+          xm = y<y1?(x0*dy01 + yy0*dx01 + hdy01)/dy01:(x1*dy12 + (y - y1)*dx12 + hdy12)/dy12;
         if (xm>xM) cimg::swap(xm,xM);
         cimg_draw_scanline(xm,xM,y,color,opacity,nbrightness);
       }

@@ -43882,7 +43882,7 @@ namespace cimg_library_suffixed {
                 _errl=_errn, _dxl=_dxn, _dyl=_dyn, _sxl=_sxn, _rxl=_rxn, x1 - xl))
 
     // [internal] Draw a filled triangle.
-    template<typename tc>
+/*    template<typename tc>
     CImg<T>& _draw_triangle(const int x0, const int y0,
                             const int x1, const int y1,
                             const int x2, const int y2,
@@ -43901,6 +43901,41 @@ namespace cimg_library_suffixed {
         else
           _cimg_for_triangle1(*this,xl,xr,y,nx0,ny0,nx1,ny1,nx2,ny2)
             cimg_draw_scanline(xr,xl,y,color,opacity,nbrightness);
+      }
+      return *this;
+    }
+*/
+
+    template<typename tc>
+    CImg<T>& _draw_triangle(int x0, int y0,
+                            int x1, int y1,
+                            int x2, int y2,
+                            const tc *const color, const float opacity,
+                            const float brightness) {
+      if (y0>y1) cimg::swap(x0,x1,y0,y1);
+      if (y0>y2) cimg::swap(x0,x2,y0,y2);
+      if (y1>y2) cimg::swap(x1,x2,y1,y2);
+      if (y2<0 || y0>=height()) return *this;
+      cimg_init_scanline(color,opacity);
+      const float nbrightness = cimg::cut(brightness,0,2);
+      const float
+        dx01 = (float)x1 - x0,
+        dx02 = (float)x2 - x0,
+        dx12 = (float)x2 - x1;
+      const int
+        h1 = height() - 1,
+        dy01 = std::max(1,y1 - y0),
+        dy02 = std::max(1,y2 - y0),
+        dy12 = std::max(1,y2 - y1),
+        cy0 = cimg::cut(y0,0,h1),
+        cy2 = cimg::cut(y2,0,h1);
+      for (int y = cy0; y<=cy2; ++y) {
+        int
+          yy0 = y - y0,
+          xM = (int)cimg::round(x0 + yy0*dx02/dy02),
+          xm = (int)cimg::round(y<y1?(x0 + yy0*dx01/dy01):(x1 + (y - y1)*dx12/dy12));
+        if (xm>xM) cimg::swap(xm,xM);
+        cimg_draw_scanline(xm,xM,y,color,opacity,nbrightness);
       }
       return *this;
     }

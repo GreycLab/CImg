@@ -43882,30 +43882,6 @@ namespace cimg_library_suffixed {
                 _errl=_errn, _dxl=_dxn, _dyl=_dyn, _sxl=_sxn, _rxl=_rxn, x1 - xl))
 
     // [internal] Draw a filled triangle.
-/*    template<typename tc>
-    CImg<T>& _draw_triangle(const int x0, const int y0,
-                            const int x1, const int y1,
-                            const int x2, const int y2,
-                            const tc *const color, const float opacity,
-                            const float brightness) {
-      cimg_init_scanline(color,opacity);
-      const float nbrightness = cimg::cut(brightness,0,2);
-      int nx0 = x0, ny0 = y0, nx1 = x1, ny1 = y1, nx2 = x2, ny2 = y2;
-      if (ny0>ny1) cimg::swap(nx0,nx1,ny0,ny1);
-      if (ny0>ny2) cimg::swap(nx0,nx2,ny0,ny2);
-      if (ny1>ny2) cimg::swap(nx1,nx2,ny1,ny2);
-      if (ny0<height() && ny2>=0) {
-        if ((nx1 - nx0)*(ny2 - ny0) - (nx2 - nx0)*(ny1 - ny0)<0)
-          _cimg_for_triangle1(*this,xl,xr,y,nx0,ny0,nx1,ny1,nx2,ny2)
-            cimg_draw_scanline(xl,xr,y,color,opacity,nbrightness);
-        else
-          _cimg_for_triangle1(*this,xl,xr,y,nx0,ny0,nx1,ny1,nx2,ny2)
-            cimg_draw_scanline(xr,xl,y,color,opacity,nbrightness);
-      }
-      return *this;
-    }
-*/
-
     template<typename tc>
     CImg<T>& _draw_triangle(int x0, int y0,
                             int x1, int y1,
@@ -43916,21 +43892,14 @@ namespace cimg_library_suffixed {
       if (y0>y2) cimg::swap(x0,x2,y0,y2);
       if (y1>y2) cimg::swap(x1,x2,y1,y2);
       if (y2<0 || y0>=height()) return *this;
-      cimg_init_scanline(color,opacity);
-      const float nbrightness = cimg::cut(brightness,0,2);
       const int
         h1 = height() - 1,
-        dx01 = x1 - x0,
-        dx02 = x2 - x0,
-        dx12 = x2 - x1,
-        dy01 = std::max(1,y1 - y0),
-        dy02 = std::max(1,y2 - y0),
-        dy12 = std::max(1,y2 - y1),
-        cy0 = cimg::cut(y0,0,h1),
-        cy2 = cimg::cut(y2,0,h1),
-        hdy02 = dy02/2,
-        hdy01 = dy01/2,
-        hdy12 = dy12/2;
+        dx01 = x1 - x0, dx02 = x2 - x0, dx12 = x2 - x1,
+        dy01 = std::max(1,y1 - y0), dy02 = std::max(1,y2 - y0), dy12 = std::max(1,y2 - y1),
+        cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
+        hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2;
+      const float nbrightness = cimg::cut(brightness,0,2);
+      cimg_init_scanline(color,opacity);
       for (int y = cy0; y<=cy2; ++y) {
         const int yy0 = y - y0;
         int
@@ -44014,9 +43983,9 @@ namespace cimg_library_suffixed {
     **/
     template<typename tz, typename tc>
     CImg<T>& draw_triangle(CImg<tz>& zbuffer,
-                           const int x0, const int y0, const float z0,
-                           const int x1, const int y1, const float z1,
-                           const int x2, const int y2, const float z2,
+                           int x0, int y0, float z0,
+                           int x1, int y1, float z1,
+                           int x2, int y2, float z2,
                            const tc *const color, const float opacity=1,
                            const float brightness=1) {
       typedef typename cimg::superset<tz,float>::type tzfloat;
@@ -44031,90 +44000,62 @@ namespace cimg_library_suffixed {
                                     "different dimensions.",
                                     cimg_instance,
                                     zbuffer._width,zbuffer._height,zbuffer._depth,zbuffer._spectrum,zbuffer._data);
+      tzfloat iz0 = 1/(tzfloat)z0, iz1 = 1/(tzfloat)z1, iz2 = 1/(tzfloat)z2;
+
+      if (y0>y1) cimg::swap(x0,x1,y0,y1,iz0,iz1);
+      if (y0>y2) cimg::swap(x0,x2,y0,y2,iz0,iz2);
+      if (y1>y2) cimg::swap(x1,x2,y1,y2,iz1,iz2);
+      if (y2<0 || y0>=height()) return *this;
+
+      const int
+        w1 = width() - 1, h1 = height() - 1,
+        dx01 = x1 - x0, dx02 = x2 - x0, dx12 = x2 - x1,
+        dy01 = std::max(1,y1 - y0), dy02 = std::max(1,y2 - y0), dy12 = std::max(1,y2 - y1),
+        cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
+        hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2;
+      const tzfloat diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1;
+
       static const T maxval = (T)std::min(cimg::type<T>::max(),(T)cimg::type<tc>::max());
-      const float
-        nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.f),
-        nbrightness = cimg::cut(brightness,0,2);
-      const longT whd = (longT)width()*height()*depth(), offx = spectrum()*whd;
-      int nx0 = x0, ny0 = y0, nx1 = x1, ny1 = y1, nx2 = x2, ny2 = y2;
-      tzfloat nz0 = 1/(tzfloat)z0, nz1 = 1/(tzfloat)z1, nz2 = 1/(tzfloat)z2;
-      if (ny0>ny1) cimg::swap(nx0,nx1,ny0,ny1,nz0,nz1);
-      if (ny0>ny2) cimg::swap(nx0,nx2,ny0,ny2,nz0,nz2);
-      if (ny1>ny2) cimg::swap(nx1,nx2,ny1,ny2,nz1,nz2);
-      if (ny0>=height() || ny2<0) return *this;
-      tzfloat
-        pzl = (nz1 - nz0)/(ny1 - ny0),
-        pzr = (nz2 - nz0)/(ny2 - ny0),
-        pzn = (nz2 - nz1)/(ny2 - ny1),
-        zr = ny0>=0?nz0:(nz0 - ny0*(nz2 - nz0)/(ny2 - ny0)),
-        zl = ny1>=0?(ny0>=0?nz0:(nz0 - ny0*(nz1 - nz0)/(ny1 - ny0))):(pzl=pzn,(nz1 - ny1*(nz2 - nz1)/(ny2 - ny1)));
-      _cimg_for_triangle1(*this,xleft0,xright0,y,nx0,ny0,nx1,ny1,nx2,ny2) {
-        if (y==ny1) { zl = nz1; pzl = pzn; }
-        int xleft = xleft0, xright = xright0;
-        tzfloat zleft = zl, zright = zr;
-        if (xright<xleft) cimg::swap(xleft,xright,zleft,zright);
-        const int dx = xright - xleft;
-        const tzfloat pentez = (zright - zleft)/dx;
-        if (xleft<0 && dx) zleft-=xleft*(zright - zleft)/dx;
-        if (xleft<0) xleft = 0;
-        if (xright>=width() - 1) xright = width() - 1;
-        T* ptrd = data(xleft,y,0,0);
-        tz *ptrz = xleft<=xright?zbuffer.data(xleft,y):0;
-        if (opacity>=1) {
-          if (nbrightness==1) for (int x = xleft; x<=xright; ++x, ++ptrz, ++ptrd) {
-              if (zleft>=(tzfloat)*ptrz) {
-                *ptrz = (tz)zleft;
-              const tc *col = color; cimg_forC(*this,c) { *ptrd = (T)*(col++); ptrd+=whd; }
-              ptrd-=offx;
-            }
-            zleft+=pentez;
-          } else if (nbrightness<1) for (int x = xleft; x<=xright; ++x, ++ptrz, ++ptrd) {
-              if (zleft>=(tzfloat)*ptrz) {
-                *ptrz = (tz)zleft;
-              const tc *col = color; cimg_forC(*this,c) { *ptrd = (T)(nbrightness*(*col++)); ptrd+=whd; }
-              ptrd-=offx;
-            }
-            zleft+=pentez;
-          } else for (int x = xleft; x<=xright; ++x, ++ptrz, ++ptrd) {
-              if (zleft>=(tzfloat)*ptrz) {
-                *ptrz = (tz)zleft;
-              const tc *col = color;
-              cimg_forC(*this,c) { *ptrd = (T)((2 - nbrightness)**(col++) + (nbrightness - 1)*maxval); ptrd+=whd; }
-              ptrd-=offx;
-            }
-            zleft+=pentez;
-          }
-        } else {
-          if (nbrightness==1) for (int x = xleft; x<=xright; ++x, ++ptrz, ++ptrd) {
-              if (zleft>=(tzfloat)*ptrz) {
-                *ptrz = (tz)zleft;
-              const tc *col = color; cimg_forC(*this,c) { *ptrd = (T)(nopacity**(col++) + *ptrd*copacity); ptrd+=whd; }
-              ptrd-=offx;
-            }
-            zleft+=pentez;
-          } else if (nbrightness<1) for (int x = xleft; x<=xright; ++x, ++ptrz, ++ptrd) {
-              if (zleft>=(tzfloat)*ptrz) {
-                *ptrz = (tz)zleft;
-              const tc *col = color;
-              cimg_forC(*this,c) { *ptrd = (T)(nopacity*nbrightness**(col++) + *ptrd*copacity); ptrd+=whd; }
-              ptrd-=offx;
-            }
-            zleft+=pentez;
-          } else for (int x = xleft; x<=xright; ++x, ++ptrz, ++ptrd) {
-              if (zleft>=(tzfloat)*ptrz) {
-                *ptrz = (tz)zleft;
-              const tc *col = color;
-              cimg_forC(*this,c) {
-                const T val = (T)((2 - nbrightness)**(col++) + (nbrightness - 1)*maxval);
-                *ptrd = (T)(nopacity*val + *ptrd*copacity);
-                ptrd+=whd;
+      const float nbrightness = cimg::cut(brightness,0,2);
+      cimg_init_scanline(color,opacity);
+
+      for (int y = cy0; y<=cy2; ++y) {
+        const int yy0 = y - y0;
+        int
+          xM = (x0*dy02 + yy0*dx02 + hdy02)/dy02,
+          xm = y<y1?(x0*dy01 + yy0*dx01 + hdy01)/dy01:(x1*dy12 + (y - y1)*dx12 + hdy12)/dy12;
+        tzfloat
+          izM = iz0 + yy0*diz02/dy02,
+          izm = y<y1?(iz0 + yy0*diz01/dy01):(iz1 + (y - y1)*diz12/dy12);
+        if (xm>xM) cimg::swap(xm,xM,izm,izM);
+        if (xM>=0 || xm<=w1) {
+          const int
+            cxm = cimg::cut(xm,0,w1),
+            cxM = cimg::cut(xM,0,w1);
+          T *ptrd = data(cxm,y);
+          tz *ptrz = zbuffer.data(cxm,y);
+          const int dxmM = xM - xm;
+          const tzfloat dizmM = izM - izm;
+          for (int x = cxm; x<cxM; ++x) {
+            const tzfloat iz = izm + (x - xm)*dizmM/dxmM;
+            if (iz>=*ptrz) {
+              *ptrz = (tz)iz;
+              if (opacity>=1) {
+                if (brightness<=1)
+                  cimg_forC(*this,c) ptrd[c*_sc_whd] = (T)(nbrightness*color[c]);
+                else
+                  cimg_forC(*this,c) ptrd[c*_sc_whd] = (T)((2 - nbrightness)*color[c] + (nbrightness - 1)*maxval);
+              } else {
+                if (brightness<=1)
+                  cimg_forC(*this,c) ptrd[c*_sc_whd] = (T)(nbrightness*color[c]*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
+                else
+                  cimg_forC(*this,c) ptrd[c*_sc_whd] = (T)((((2 - nbrightness)*color[c] + (nbrightness - 1)*maxval)*
+                                                            _sc_nopacity) + ptrd[c*_sc_whd]*_sc_copacity);
               }
-              ptrd-=offx;
             }
-            zleft+=pentez;
+            ++ptrd; ++ptrz;
           }
         }
-        zr+=pzr; zl+=pzl;
       }
       return *this;
     }

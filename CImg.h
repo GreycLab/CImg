@@ -43892,14 +43892,17 @@ namespace cimg_library_suffixed {
       if (y0>y2) cimg::swap(x0,x2,y0,y2);
       if (y1>y2) cimg::swap(x1,x2,y1,y2);
       if (y2<0 || y0>=height()) return *this;
+
       const int
         h1 = height() - 1,
         dx01 = x1 - x0, dx02 = x2 - x0, dx12 = x2 - x1,
         dy01 = std::max(1,y1 - y0), dy02 = std::max(1,y2 - y0), dy12 = std::max(1,y2 - y1),
         cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
         hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2;
+
       const float nbrightness = cimg::cut(brightness,0,2);
       cimg_init_scanline(color,opacity);
+
       for (int y = cy0; y<=cy2; ++y) {
         const int yy0 = y - y0;
         int
@@ -44033,7 +44036,7 @@ namespace cimg_library_suffixed {
             cxM = cimg::cut(xM,0,w1);
           T *ptrd = data(cxm,y);
           tz *ptrz = zbuffer.data(cxm,y);
-          const int dxmM = xM - xm;
+          const int dxmM = std::max(1,xM - xm);
           const tzfloat dizmM = izM - izm;
           for (int x = cxm; x<cxM; ++x) {
             const tzfloat iz = izm + (x - xm)*dizmM/dxmM;
@@ -44117,9 +44120,9 @@ namespace cimg_library_suffixed {
             cxm = cimg::cut(xm,0,w1),
             cxM = cimg::cut(xM,0,w1);
           T *ptrd = data(cxm,y);
-          const int dxmM = xM - xm;
+          const int dxmM = std::max(1,xM - xm);
           const float dbsmM = bsM - bsm;
-          for (int x = cxm; x<cxM; ++x) {
+          for (int x = cxm; x<=cxM; ++x) {
             const float brightness = cimg::cut(bsm + (x - xm)*dbsmM/dxmM,0,2);
             if (opacity>=1) {
               if (brightness<=1)
@@ -44199,10 +44202,10 @@ namespace cimg_library_suffixed {
             cxM = cimg::cut(xM,0,w1);
           T *ptrd = data(cxm,y);
           tz *ptrz = zbuffer.data(cxm,y);
-          const int dxmM = xM - xm;
+          const int dxmM = std::max(1,xM - xm);
           const tzfloat dizmM = izM - izm;
           const float dbsmM = bsM - bsm;
-          for (int x = cxm; x<cxM; ++x) {
+          for (int x = cxm; x<=cxM; ++x) {
             const tzfloat iz = izm + (x - xm)*dizmM/dxmM;
             const float brightness = cimg::cut(bsm + (x - xm)*dbsmM/dxmM,0,2);
             if (iz>=*ptrz) {
@@ -44324,8 +44327,8 @@ namespace cimg_library_suffixed {
             cxm = cimg::cut(xm,0,w1),
             cxM = cimg::cut(xM,0,w1);
           T *ptrd = data(cxm,y);
-          const int dxmM = xM - xm, dtxmM = txM - txm, dtymM = tyM - tym, hdxmM = dxmM/2;
-          for (int x = cxm; x<cxM; ++x) {
+          const int dxmM = std::max(1,xM - xm), dtxmM = txM - txm, dtymM = tyM - tym, hdxmM = dxmM/2;
+          for (int x = cxm; x<=cxM; ++x) {
             const int
               tx = (txm*dxmM + (x - xm)*dtxmM + hdxmM)/dxmM,
               ty = (tym*dxmM + (x - xm)*dtymM + hdxmM)/dxmM;

@@ -43597,7 +43597,7 @@ namespace cimg_library_suffixed {
       if (y0>y1) cimg::swap(x0,x1,y0,y1);
       if (y0>y2) cimg::swap(x0,x2,y0,y2);
       if (y1>y2) cimg::swap(x1,x2,y1,y2);
-      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0) return *this;
+      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0 || !opacity) return *this;
 
       const int
         h1 = height() - 1,
@@ -43713,7 +43713,7 @@ namespace cimg_library_suffixed {
       if (y0>y1) cimg::swap(x0,x1,y0,y1,iz0,iz1);
       if (y0>y2) cimg::swap(x0,x2,y0,y2,iz0,iz2);
       if (y1>y2) cimg::swap(x1,x2,y1,y2,iz1,iz2);
-      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0) return *this;
+      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0 || !opacity) return *this;
 
       const int
         w1 = width() - 1, h1 = height() - 1,
@@ -43793,7 +43793,7 @@ namespace cimg_library_suffixed {
       if (y0>y1) cimg::swap(x0,x1,y0,y1,bs0,bs1);
       if (y0>y2) cimg::swap(x0,x2,y0,y2,bs0,bs2);
       if (y1>y2) cimg::swap(x1,x2,y1,y2,bs1,bs2);
-      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0) return *this;
+      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0 || !opacity) return *this;
 
       const int
         w1 = width() - 1, h1 = height() - 1,
@@ -43863,7 +43863,7 @@ namespace cimg_library_suffixed {
       if (y0>y1) cimg::swap(x0,x1,y0,y1,iz0,iz1,bs0,bs1);
       if (y0>y2) cimg::swap(x0,x2,y0,y2,iz0,iz2,bs0,bs2);
       if (y1>y2) cimg::swap(x1,x2,y1,y2,iz1,iz2,bs1,bs2);
-      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0) return *this;
+      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0 || !opacity) return *this;
 
       const int
         w1 = width() - 1, h1 = height() - 1,
@@ -43982,7 +43982,7 @@ namespace cimg_library_suffixed {
       if (y0>y1) cimg::swap(x0,x1,y0,y1,tx0,tx1,ty0,ty1);
       if (y0>y2) cimg::swap(x0,x2,y0,y2,tx0,tx2,ty0,ty2);
       if (y1>y2) cimg::swap(x1,x2,y1,y2,tx1,ty1,tx2,ty2);
-      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0) return *this;
+      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0 || !opacity) return *this;
 
       const int
         w1 = width() - 1, h1 = height() - 1,
@@ -44057,7 +44057,7 @@ namespace cimg_library_suffixed {
       if (y0>y1) cimg::swap(x0,x1,y0,y1,iz0,iz1,tx0,tx1,ty0,ty1);
       if (y0>y2) cimg::swap(x0,x2,y0,y2,iz0,iz2,tx0,tx2,ty0,ty2);
       if (y1>y2) cimg::swap(x1,x2,y1,y2,iz1,iz2,tx1,tx2,ty1,ty2);
-      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0) return *this;
+      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0 || !opacity) return *this;
 
       const int
         w1 = width() - 1, h1 = height() - 1,
@@ -44150,7 +44150,7 @@ namespace cimg_library_suffixed {
       if (y0>y1) cimg::swap(x0,x1,y0,y1,iz0,iz1,tx0,tx1,ty0,ty1);
       if (y0>y2) cimg::swap(x0,x2,y0,y2,iz0,iz2,tx0,tx2,ty0,ty2);
       if (y1>y2) cimg::swap(x1,x2,y1,y2,iz1,iz2,tx1,tx2,ty1,ty2);
-      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0) return *this;
+      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0 || !opacity) return *this;
 
       const int
         w1 = width() - 1, h1 = height() - 1,
@@ -44256,7 +44256,7 @@ namespace cimg_library_suffixed {
       if (y0>y1) cimg::swap(x0,x1,y0,y1,lx0,lx1,ly0,ly1);
       if (y0>y2) cimg::swap(x0,x2,y0,y2,lx0,lx2,ly0,ly2);
       if (y1>y2) cimg::swap(x1,x2,y1,y2,lx1,lx2,ly1,ly2);
-      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0) return *this;
+      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0 || !opacity) return *this;
 
       const int
         w1 = width() - 1, h1 = height() - 1,
@@ -44342,7 +44342,7 @@ namespace cimg_library_suffixed {
       if (y0>y1) cimg::swap(x0,x1,y0,y1,iz0,iz1,lx0,lx1,ly0,ly1);
       if (y0>y2) cimg::swap(x0,x2,y0,y2,iz0,iz2,lx0,lx2,ly0,ly2);
       if (y1>y2) cimg::swap(x1,x2,y1,y2,iz1,iz2,lx1,lx2,ly1,ly2);
-      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0) return *this;
+      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0 || !opacity) return *this;
 
       const int
         w1 = width() - 1, h1 = height() - 1,
@@ -44450,7 +44450,7 @@ namespace cimg_library_suffixed {
       if (y0>y1) cimg::swap(x0,x1,y0,y1,tx0,tx1,ty0,ty1,bs0,bs1);
       if (y0>y2) cimg::swap(x0,x2,y0,y2,tx0,tx2,ty0,ty2,bs0,bs2);
       if (y1>y2) cimg::swap(x1,x2,y1,y2,tx1,tx2,ty1,ty2,bs1,bs2);
-      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0) return *this;
+      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0 || !opacity) return *this;
 
       const int
         w1 = width() - 1, h1 = height() - 1,
@@ -44533,7 +44533,7 @@ namespace cimg_library_suffixed {
       if (y0>y1) cimg::swap(x0,x1,y0,y1,iz0,iz1,tx0,tx1,ty0,ty1,bs0,bs1);
       if (y0>y2) cimg::swap(x0,x2,y0,y2,iz0,iz2,tx0,tx2,ty0,ty2,bs0,bs2);
       if (y1>y2) cimg::swap(x1,x2,y1,y2,iz1,iz2,tx1,tx2,ty1,ty2,bs1,bs2);
-      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0) return *this;
+      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0 || !opacity) return *this;
 
       const int
         w1 = width() - 1, h1 = height() - 1,
@@ -44631,7 +44631,7 @@ namespace cimg_library_suffixed {
       if (y0>y1) cimg::swap(x0,x1,y0,y1,iz0,iz1,tx0,tx1,ty0,ty1,bs0,bs1);
       if (y0>y2) cimg::swap(x0,x2,y0,y2,iz0,iz2,tx0,tx2,ty0,ty2,bs0,bs2);
       if (y1>y2) cimg::swap(x1,x2,y1,y2,iz1,iz2,tx1,tx2,ty1,ty2,bs1,bs2);
-      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0) return *this;
+      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0 || !opacity) return *this;
 
       const int
         w1 = width() - 1, h1 = height() - 1,
@@ -44755,7 +44755,7 @@ namespace cimg_library_suffixed {
       if (y0>y1) cimg::swap(x0,x1,y0,y1,tx0,tx1,ty0,ty1,lx0,lx1,ly0,ly1);
       if (y0>y2) cimg::swap(x0,x2,y0,y2,tx0,tx2,ty0,ty2,lx0,lx2,ly0,ly2);
       if (y1>y2) cimg::swap(x1,x2,y1,y2,tx1,tx2,ty1,ty2,lx1,lx2,ly1,ly2);
-      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0) return *this;
+      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0 || !opacity) return *this;
 
       const int
         w1 = width() - 1, h1 = height() - 1,
@@ -44854,7 +44854,7 @@ namespace cimg_library_suffixed {
       if (y0>y1) cimg::swap(x0,x1,y0,y1,iz0,iz1,tx0,tx1,ty0,ty1,lx0,lx1,ly0,ly1);
       if (y0>y2) cimg::swap(x0,x2,y0,y2,iz0,iz2,tx0,tx2,ty0,ty2,lx0,lx2,ly0,ly2);
       if (y1>y2) cimg::swap(x1,x2,y1,y2,iz1,iz2,tx1,tx2,ty1,ty2,lx1,lx2,ly1,ly2);
-      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0) return *this;
+      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0 || !opacity) return *this;
 
       const int
         w1 = width() - 1, h1 = height() - 1,
@@ -44976,7 +44976,7 @@ namespace cimg_library_suffixed {
       if (y0>y1) cimg::swap(x0,x1,y0,y1,iz0,iz1,tx0,tx1,ty0,ty1,lx0,lx1,ly0,ly1);
       if (y0>y2) cimg::swap(x0,x2,y0,y2,iz0,iz2,tx0,tx2,ty0,ty2,lx0,lx2,ly0,ly2);
       if (y1>y2) cimg::swap(x1,x2,y1,y2,iz1,iz2,tx1,tx2,ty1,ty2,lx1,lx2,ly1,ly2);
-      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0) return *this;
+      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0 || !opacity) return *this;
 
       const int
         w1 = width() - 1, h1 = height() - 1,

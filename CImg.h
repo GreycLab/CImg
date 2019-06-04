@@ -44193,9 +44193,10 @@ namespace cimg_library_suffixed {
 
           for (int x = cxm; x<=cxM; ++x) {
             const int xxm = x - xm;
-            const float iz = izm + dizmM*xxm/dxmM, cbs = cimg::cut(bsm + dbsmM*xxm/dxmM,0,2);
+            const float iz = izm + dizmM*xxm/dxmM;
             if (iz>=*ptrz) {
               *ptrz = (tz)iz;
+              const float cbs = cimg::cut(bsm + dbsmM*xxm/dxmM,0,2);
               cimg_forC(*this,c) {
                 const Tfloat val = cbs<=1?color[c]*cbs:(2 - cbs)*color[c] + (cbs - 1)*_sc_maxval;
                 ptrd[c*_sc_whd] = (T)(opacity>=1?val:val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
@@ -44484,15 +44485,15 @@ namespace cimg_library_suffixed {
 
           for (int x = cxm; x<cxM; ++x) {
             const int xxm = x - xm;
-            const float
-              txz = txzm + dtxzmM*xxm/dxmM,
-              tyz = tyzm + dtyzmM*xxm/dxmM,
-              iz = izm + dizmM*xxm/dxmM;
-            const int
-              tx = (int)cimg::round(txz/iz),
-              ty = (int)cimg::round(tyz/iz);
+            const float iz = izm + dizmM*xxm/dxmM;
             if (iz>=*ptrz) {
               *ptrz = (tz)iz;
+              const float
+                txz = txzm + dtxzmM*xxm/dxmM,
+                tyz = tyzm + dtyzmM*xxm/dxmM;
+              const int
+                tx = (int)cimg::round(txz/iz),
+                ty = (int)cimg::round(tyz/iz);
               const tc *const color = &texture._atXY(tx,ty);
               cimg_forC(*this,c) {
                 const Tfloat val = cbs<=1?color[c*twhd]*cbs:(2 - cbs)*color[c*twhd] + (cbs - 1)*_sc_maxval;
@@ -44671,13 +44672,13 @@ namespace cimg_library_suffixed {
           const float dizmM = izM - izm;
 
           for (int x = cxm; x<cxM; ++x) {
-            const int
-              xxm = x - xm,
-              lx = (lxm*dxmM + dlxmM*xxm + hdxmM)/dxmM,
-              ly = (lym*dxmM + dlymM*xxm + hdxmM)/dxmM;
+            const int xxm = x - xm;
             const float iz = izm + dizmM*xxm/dxmM;
             if (iz>=*ptrz) {
               *ptrz = (tz)iz;
+              const int
+                lx = (lxm*dxmM + dlxmM*xxm + hdxmM)/dxmM,
+                ly = (lym*dxmM + dlymM*xxm + hdxmM)/dxmM;
               const tl *const lig = &light._atXY(lx,ly);
               cimg_forC(*this,c) {
                 const float cbs = cimg::cut((float)lig[c*lwhd],0,2);
@@ -44898,7 +44899,6 @@ namespace cimg_library_suffixed {
                            float bs1,
                            float bs2,
                            const float opacity=1) {
-      typedef typename cimg::superset<tz,float>::type tzfloat;
       if (is_empty() || z0<=0 || z1<=0 || z2<=0) return *this;
       if (!is_sameXY(zbuffer))
         throw CImgArgumentException(_cimg_instance
@@ -44913,98 +44913,76 @@ namespace cimg_library_suffixed {
                                     texture._width,texture._height,texture._depth,texture._spectrum,texture._data);
       if (is_overlapped(texture))
         return draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,+texture,tx0,ty0,tx1,ty1,tx2,ty2,bs0,bs1,bs2,opacity);
-      static const T maxval = (T)std::min(cimg::type<T>::max(),(T)cimg::type<tc>::max());
-      const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.f);
-      const ulongT
-        whd = (ulongT)_width*_height*_depth,
-        twh = (ulongT)texture._width*texture._height,
-        offx = _spectrum*whd;
-      int nx0 = x0, ny0 = y0, nx1 = x1, ny1 = y1, nx2 = x2, ny2 = y2,
-        nc0 = (int)((bs0<0.f?0.f:(bs0>2.f?2.f:bs0))*256.f),
-        nc1 = (int)((bs1<0.f?0.f:(bs1>2.f?2.f:bs1))*256.f),
-        nc2 = (int)((bs2<0.f?0.f:(bs2>2.f?2.f:bs2))*256.f);
-      float
-        ntx0 = tx0/z0, nty0 = ty0/z0,
-        ntx1 = tx1/z1, nty1 = ty1/z1,
-        ntx2 = tx2/z2, nty2 = ty2/z2;
-      tzfloat nz0 = 1/(tzfloat)z0, nz1 = 1/(tzfloat)z1, nz2 = 1/(tzfloat)z2;
-      if (ny0>ny1) cimg::swap(nx0,nx1,ny0,ny1,ntx0,ntx1,nty0,nty1,nz0,nz1,nc0,nc1);
-      if (ny0>ny2) cimg::swap(nx0,nx2,ny0,ny2,ntx0,ntx2,nty0,nty2,nz0,nz2,nc0,nc2);
-      if (ny1>ny2) cimg::swap(nx1,nx2,ny1,ny2,ntx1,ntx2,nty1,nty2,nz1,nz2,nc1,nc2);
-      if (ny0>=height() || ny2<0) return *this;
-      float
-        ptxl = (ntx1 - ntx0)/(ny1 - ny0),
-        ptxr = (ntx2 - ntx0)/(ny2 - ny0),
-        ptxn = (ntx2 - ntx1)/(ny2 - ny1),
-        ptyl = (nty1 - nty0)/(ny1 - ny0),
-        ptyr = (nty2 - nty0)/(ny2 - ny0),
-        ptyn = (nty2 - nty1)/(ny2 - ny1),
-        txr = ny0>=0?ntx0:(ntx0 - ny0*(ntx2 - ntx0)/(ny2 - ny0)),
-        tyr = ny0>=0?nty0:(nty0 - ny0*(nty2 - nty0)/(ny2 - ny0)),
-        txl = ny1>=0?(ny0>=0?ntx0:(ntx0 - ny0*(ntx1 - ntx0)/(ny1 - ny0))):
-          (ptxl=ptxn,(ntx1 - ny1*(ntx2 - ntx1)/(ny2 - ny1))),
-        tyl = ny1>=0?(ny0>=0?nty0:(nty0 - ny0*(nty1 - nty0)/(ny1 - ny0))):
-          (ptyl=ptyn,(nty1 - ny1*(nty2 - nty1)/(ny2 - ny1)));
-      tzfloat
-        pzl = (nz1 - nz0)/(ny1 - ny0),
-        pzr = (nz2 - nz0)/(ny2 - ny0),
-        pzn = (nz2 - nz1)/(ny2 - ny1),
-        zr = ny0>=0?nz0:(nz0 - ny0*(nz2 - nz0)/(ny2 - ny0)),
-        zl = ny1>=0?(ny0>=0?nz0:(nz0 - ny0*(nz1 - nz0)/(ny1 - ny0))):(pzl=pzn,(nz1 - ny1*(nz2 - nz1)/(ny2 - ny1)));
-      _cimg_for_triangle2(*this,xleft0,cleft0,xright0,cright0,y,nx0,ny0,nc0,nx1,ny1,nc1,nx2,ny2,nc2) {
-        if (y==ny1) { zl = nz1; txl = ntx1; tyl = nty1; pzl = pzn; ptxl = ptxn; ptyl = ptyn; }
-        int xleft = xleft0, xright = xright0, cleft = cleft0, cright = cright0;
-        float txleft = txl, txright = txr, tyleft = tyl, tyright = tyr;
-        tzfloat zleft = zl, zright = zr;
-        if (xright<xleft) cimg::swap(xleft,xright,zleft,zright,txleft,txright,tyleft,tyright,cleft,cright);
-        const int
-          dx = xright - xleft,
-          dc = cright>cleft?cright - cleft:cleft - cright,
-          rc = dx?(cright - cleft)/dx:0,
-          sc = cright>cleft?1:-1,
-          ndc = dc - (dx?dx*(dc/dx):0);
-        float pentetx = (txright - txleft)/dx, pentety = (tyright - tyleft)/dx;
-        const tzfloat pentez = (zright - zleft)/dx;
-        int errc = dx>>1;
-        if (xleft<0 && dx) {
-          cleft-=xleft*(cright - cleft)/dx;
-          zleft-=xleft*(zright - zleft)/dx;
-          txleft-=xleft*(txright - txleft)/dx;
-          tyleft-=xleft*(tyright - tyleft)/dx;
-        }
-        if (xleft<0) xleft = 0;
-        if (xright>=width() - 1) xright = width() - 1;
-        T* ptrd = data(xleft,y);
-        tz *ptrz = zbuffer.data(xleft,y);
-        if (opacity>=1) for (int x = xleft; x<=xright; ++x, ++ptrd, ++ptrz) {
-            if (zleft>=(tzfloat)*ptrz) {
-              *ptrz = (tz)zleft;
-              const tzfloat invz = 1/zleft;
-              const tc *col = &texture._atXY((int)(txleft*invz),(int)(tyleft*invz));
+
+      float iz0 = 1.0f/z0, iz1 = 1.0f/z1, iz2 = 1.0f/z2;
+      if (y0>y1) cimg::swap(x0,x1,y0,y1,iz0,iz1,tx0,tx1,ty0,ty1,bs0,bs1);
+      if (y0>y2) cimg::swap(x0,x2,y0,y2,iz0,iz2,tx0,tx2,ty0,ty2,bs0,bs2);
+      if (y1>y2) cimg::swap(x1,x2,y1,y2,iz1,iz2,tx1,tx2,ty1,ty2,bs1,bs2);
+      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0) return *this;
+
+      const int
+        w1 = width() - 1, h1 = height() - 1,
+        dx01 = x1 - x0, dx02 = x2 - x0, dx12 = x2 - x1,
+        dy01 = std::max(1,y1 - y0), dy02 = std::max(1,y2 - y0), dy12 = std::max(1,y2 - y1),
+        cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
+        hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2;
+      const float
+        txz0 = tx0*iz0, txz1 = tx1*iz1, txz2 = tx2*iz2,
+        tyz0 = ty0*iz0, tyz1 = ty1*iz1, tyz2 = ty2*iz2,
+        dtxz01 = txz1 - txz0, dtxz02 = txz2 - txz0, dtxz12 = txz2 - txz1,
+        dtyz01 = tyz1 - tyz0, dtyz02 = tyz2 - tyz0, dtyz12 = tyz2 - tyz1,
+        diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1;
+      const float dbs01 = bs1 - bs0, dbs02 = bs2 - bs0, dbs12 = bs2 - bs1;
+
+      const ulongT twhd = (ulongT)texture._width*texture._height*texture._depth;
+      cimg_init_scanline(opacity);
+
+      for (int y = cy0; y<=cy2; ++y) {
+        const int yy0 = y - y0;
+        int
+          xm = y<y1?(x0*dy01 + dx01*yy0 + hdy01)/dy01:(x1*dy12 + dx12*(y - y1) + hdy12)/dy12,
+          xM = (x0*dy02 + dx02*yy0 + hdy02)/dy02;
+        float
+          txzm = y<y1?(txz0 + dtxz01*yy0/dy01):(txz1 + dtxz12*(y - y1)/dy12),
+          txzM = txz0 + dtxz02*yy0/dy02,
+          tyzm = y<y1?(tyz0 + dtyz01*yy0/dy01):(tyz1 + dtyz12*(y - y1)/dy12),
+          tyzM = tyz0 + dtyz02*yy0/dy02,
+          izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*(y - y1)/dy12),
+          izM = iz0 + diz02*yy0/dy02,
+          bsm = y<y1?(bs0 + dbs01*yy0/dy01):(bs1 + dbs12*(y - y1)/dy12),
+          bsM = bs0 + dbs02*yy0/dy02;
+        if (xm>xM) cimg::swap(xm,xM,txzm,txzM,tyzm,tyzM,izm,izM,bsm,bsM);
+        if (xM>=0 || xm<=w1) {
+          const int
+            cxm = cimg::cut(xm,0,w1),
+            cxM = cimg::cut(xM,0,w1);
+          T *ptrd = data(cxm,y);
+          tz *ptrz = zbuffer.data(cxm,y);
+          const int dxmM = std::max(1,xM - xm);
+          const float dtxzmM = txzM - txzm, dtyzmM = tyzM - tyzm, dizmM = izM - izm, dbsmM = bsM - bsm;
+
+          for (int x = cxm; x<cxM; ++x) {
+            const int xxm = x - xm;
+            const float iz = izm + dizmM*xxm/dxmM;
+            if (iz>=*ptrz) {
+              *ptrz = (tz)iz;
+              const float
+                txz = txzm + dtxzmM*xxm/dxmM,
+                tyz = tyzm + dtyzmM*xxm/dxmM,
+                cbs = cimg::cut(bsm + dbsmM*xxm/dxmM,0,2);
+              const int
+                tx = (int)cimg::round(txz/iz),
+                ty = (int)cimg::round(tyz/iz);
+              const tc *const color = &texture._atXY(tx,ty);
               cimg_forC(*this,c) {
-                *ptrd = (T)(cleft<256?cleft**col/256:((512 - cleft)**col + (cleft - 256)*maxval)/256);
-                ptrd+=whd; col+=twh;
+                const tc col = color[c*twhd];
+                const Tfloat val = cbs<=1?cbs*col:(2 - cbs)*col + (cbs - 1)*_sc_maxval;
+                ptrd[c*_sc_whd] = (T)(opacity>=1?val:val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
               }
-              ptrd-=offx;
             }
-            zleft+=pentez; txleft+=pentetx; tyleft+=pentety;
-            cleft+=rc+((errc-=ndc)<0?errc+=dx,sc:0);
-          } else for (int x = xleft; x<=xright; ++x, ++ptrd, ++ptrz) {
-            if (zleft>=(tzfloat)*ptrz) {
-              *ptrz = (tz)zleft;
-              const tzfloat invz = 1/zleft;
-              const tc *col = &texture._atXY((int)(txleft*invz),(int)(tyleft*invz));
-              cimg_forC(*this,c) {
-                const T val = (T)(cleft<256?cleft**col/256:((512 - cleft)**col + (cleft - 256)*maxval)/256);
-                *ptrd = (T)(nopacity*val + *ptrd*copacity);
-                ptrd+=whd; col+=twh;
-              }
-              ptrd-=offx;
-            }
-            zleft+=pentez; txleft+=pentetx; tyleft+=pentety;
-            cleft+=rc+((errc-=ndc)<0?errc+=dx,sc:0);
+            ++ptrd; ++ptrz;
           }
-        zr+=pzr; txr+=ptxr; tyr+=ptyr; zl+=pzl; txl+=ptxl; tyl+=ptyl;
+        }
       }
       return *this;
     }

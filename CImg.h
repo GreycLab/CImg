@@ -44273,13 +44273,13 @@ namespace cimg_library_suffixed {
        \param brightness Brightness factor of the drawing (in [0,2]).
     **/
     template<typename tc>
-    CImg<T>& draw_triangle(const int x0, const int y0,
-                           const int x1, const int y1,
-                           const int x2, const int y2,
+    CImg<T>& draw_triangle(int x0, int y0,
+                           int x1, int y1,
+                           int x2, int y2,
                            const CImg<tc>& texture,
-                           const int tx0, const int ty0,
-                           const int tx1, const int ty1,
-                           const int tx2, const int ty2,
+                           int tx0, int ty0,
+                           int tx1, int ty1,
+                           int tx2, int ty2,
                            const float opacity=1,
                            const float brightness=1) {
       if (is_empty()) return *this;
@@ -44290,103 +44290,59 @@ namespace cimg_library_suffixed {
                                     texture._width,texture._height,texture._depth,texture._spectrum,texture._data);
       if (is_overlapped(texture))
         return draw_triangle(x0,y0,x1,y1,x2,y2,+texture,tx0,ty0,tx1,ty1,tx2,ty2,opacity,brightness);
-      static const T maxval = (T)std::min(cimg::type<T>::max(),cimg::type<tc>::max());
-      const float
-        nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.f),
-        nbrightness = cimg::cut(brightness,0,2);
-      const ulongT
-        whd = (ulongT)_width*_height*_depth,
-        twh = (ulongT)texture._width*texture._height,
-        offx = _spectrum*whd - 1;
-      int nx0 = x0, ny0 = y0, nx1 = x1, ny1 = y1, nx2 = x2, ny2 = y2,
-        ntx0 = tx0, nty0 = ty0, ntx1 = tx1, nty1 = ty1, ntx2 = tx2, nty2 = ty2;
-      if (ny0>ny1) cimg::swap(nx0,nx1,ny0,ny1,ntx0,ntx1,nty0,nty1);
-      if (ny0>ny2) cimg::swap(nx0,nx2,ny0,ny2,ntx0,ntx2,nty0,nty2);
-      if (ny1>ny2) cimg::swap(nx1,nx2,ny1,ny2,ntx1,ntx2,nty1,nty2);
-      if (ny0>=height() || ny2<0) return *this;
-      _cimg_for_triangle3(*this,xleft0,txleft0,tyleft0,xright0,txright0,tyright0,y,
-                          nx0,ny0,ntx0,nty0,nx1,ny1,ntx1,nty1,nx2,ny2,ntx2,nty2) {
+
+      if (y0>y1) cimg::swap(x0,x1,y0,y1,tx0,tx1,ty0,ty1);
+      if (y0>y2) cimg::swap(x0,x2,y0,y2,tx0,tx2,ty0,ty2);
+      if (y1>y2) cimg::swap(x1,x2,y1,y2,tx1,ty1,tx2,ty2);
+      if (y2<0 || y0>=height()) return *this;
+
+      const int
+        w1 = width() - 1, h1 = height() - 1,
+        dx01 = x1 - x0, dx02 = x2 - x0, dx12 = x2 - x1,
+        dy01 = std::max(1,y1 - y0), dy02 = std::max(1,y2 - y0), dy12 = std::max(1,y2 - y1),
+        cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
+        hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2,
+        dtx01 = tx1 - tx0, dtx02 = tx2 - tx0, dtx12 = tx2 - tx1,
+        dty01 = ty1 - ty0, dty02 = ty2 - ty0, dty12 = ty2 - ty1;
+
+      const ulongT twhd = (ulongT)texture._width*texture._height*texture._depth;
+      const float nbrightness = cimg::cut(brightness,0,2);
+      cimg_init_scanline(color,opacity);
+
+      for (int y = cy0; y<=cy2; ++y) {
+        const int yy0 = y - y0;
         int
-          xleft = xleft0, xright = xright0,
-          txleft = txleft0, txright = txright0,
-          tyleft = tyleft0, tyright = tyright0;
-        if (xright<xleft) cimg::swap(xleft,xright,txleft,txright,tyleft,tyright);
-        const int
-          dx = xright - xleft,
-          dtx = txright>txleft?txright - txleft:txleft - txright,
-          dty = tyright>tyleft?tyright - tyleft:tyleft - tyright,
-          rtx = dx?(txright - txleft)/dx:0,
-          rty = dx?(tyright - tyleft)/dx:0,
-          stx = txright>txleft?1:-1,
-          sty = tyright>tyleft?1:-1,
-          ndtx = dtx - (dx?dx*(dtx/dx):0),
-          ndty = dty - (dx?dx*(dty/dx):0);
-        int errtx = dx>>1, errty = errtx;
-        if (xleft<0 && dx) {
-          txleft-=xleft*(txright - txleft)/dx;
-          tyleft-=xleft*(tyright - tyleft)/dx;
-        }
-        if (xleft<0) xleft = 0;
-        if (xright>=width() - 1) xright = width() - 1;
-        T* ptrd = data(xleft,y,0,0);
-        if (opacity>=1) {
-          if (nbrightness==1) for (int x = xleft; x<=xright; ++x) {
-            const tc *col = &texture._atXY(txleft,tyleft);
-            cimg_forC(*this,c) {
-              *ptrd = (T)*col;
-              ptrd+=whd; col+=twh;
+          xM = (x0*dy02 + yy0*dx02 + hdy02)/dy02,
+          xm = y<y1?(x0*dy01 + yy0*dx01 + hdy01)/dy01:(x1*dy12 + (y - y1)*dx12 + hdy12)/dy12,
+          txM = (tx0*dy02 + yy0*dtx02 + hdy02)/dy02,
+          txm = y<y1?(tx0*dy01 + yy0*dtx01 + hdy01)/dy01:(tx1*dy12 + (y - y1)*dtx12 + hdy12)/dy12,
+          tyM = (ty0*dy02 + yy0*dty02 + hdy02)/dy02,
+          tym = y<y1?(ty0*dy01 + yy0*dty01 + hdy01)/dy01:(ty1*dy12 + (y - y1)*dty12 + hdy12)/dy12;
+        if (xm>xM) cimg::swap(xm,xM,txm,txM,tym,tyM);
+        if (xM>=0 || xm<=w1) {
+          const int
+            cxm = cimg::cut(xm,0,w1),
+            cxM = cimg::cut(xM,0,w1);
+          T *ptrd = data(cxm,y);
+          const int dxmM = xM - xm, dtxmM = txM - txm, dtymM = tyM - tym, hdxmM = dxmM/2;
+          for (int x = cxm; x<cxM; ++x) {
+            const int
+              tx = (txm*dxmM + (x - xm)*dtxmM + hdxmM)/dxmM,
+              ty = (tym*dxmM + (x - xm)*dtymM + hdxmM)/dxmM;
+            const tc *const color = &texture._atXY(tx,ty);
+            if (opacity>=1) {
+              if (brightness<=1)
+                cimg_forC(*this,c) ptrd[c*_sc_whd] = (T)(brightness*color[c*twhd]);
+              else
+                cimg_forC(*this,c) ptrd[c*_sc_whd] = (T)((2 - brightness)*color[c*twhd] + (brightness - 1)*_sc_maxval);
+            } else {
+              if (brightness<=1)
+                cimg_forC(*this,c) ptrd[c*_sc_whd] = (T)(brightness*color[c*twhd]*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
+              else
+                cimg_forC(*this,c) ptrd[c*_sc_whd] = (T)((((2 - brightness)*color[c*twhd] + (brightness - 1)*_sc_maxval)*
+                                                          _sc_nopacity) + ptrd[c*_sc_whd]*_sc_copacity);
             }
-            ptrd-=offx;
-            txleft+=rtx+((errtx-=ndtx)<0?errtx+=dx,stx:0);
-            tyleft+=rty+((errty-=ndty)<0?errty+=dx,sty:0);
-          } else if (nbrightness<1) for (int x = xleft; x<=xright; ++x) {
-            const tc *col = &texture._atXY(txleft,tyleft);
-            cimg_forC(*this,c) {
-              *ptrd = (T)(nbrightness**col);
-              ptrd+=whd; col+=twh;
-            }
-            ptrd-=offx;
-            txleft+=rtx+((errtx-=ndtx)<0?errtx+=dx,stx:0);
-            tyleft+=rty+((errty-=ndty)<0?errty+=dx,sty:0);
-          } else for (int x = xleft; x<=xright; ++x) {
-            const tc *col = &texture._atXY(txleft,tyleft);
-            cimg_forC(*this,c) {
-              *ptrd = (T)((2 - nbrightness)**(col++) + (nbrightness - 1)*maxval);
-              ptrd+=whd; col+=twh;
-            }
-            ptrd-=offx;
-            txleft+=rtx+((errtx-=ndtx)<0?errtx+=dx,stx:0);
-            tyleft+=rty+((errty-=ndty)<0?errty+=dx,sty:0);
-          }
-        } else {
-          if (nbrightness==1) for (int x = xleft; x<=xright; ++x) {
-            const tc *col = &texture._atXY(txleft,tyleft);
-            cimg_forC(*this,c) {
-              *ptrd = (T)(nopacity**col + *ptrd*copacity);
-              ptrd+=whd; col+=twh;
-            }
-            ptrd-=offx;
-            txleft+=rtx+((errtx-=ndtx)<0?errtx+=dx,stx:0);
-            tyleft+=rty+((errty-=ndty)<0?errty+=dx,sty:0);
-          } else if (nbrightness<1) for (int x = xleft; x<=xright; ++x) {
-            const tc *col = &texture._atXY(txleft,tyleft);
-            cimg_forC(*this,c) {
-              *ptrd = (T)(nopacity*nbrightness**col + *ptrd*copacity);
-              ptrd+=whd; col+=twh;
-            }
-            ptrd-=offx;
-            txleft+=rtx+((errtx-=ndtx)<0?errtx+=dx,stx:0);
-            tyleft+=rty+((errty-=ndty)<0?errty+=dx,sty:0);
-          } else for (int x = xleft; x<=xright; ++x) {
-            const tc *col = &texture._atXY(txleft,tyleft);
-            cimg_forC(*this,c) {
-              const T val = (T)((2 - nbrightness)**(col++) + (nbrightness - 1)*maxval);
-              *ptrd = (T)(nopacity*val + *ptrd*copacity);
-              ptrd+=whd; col+=twh;
-            }
-            ptrd-=offx;
-            txleft+=rtx+((errtx-=ndtx)<0?errtx+=dx,stx:0);
-            tyleft+=rty+((errty-=ndty)<0?errty+=dx,sty:0);
+            ++ptrd;
           }
         }
       }

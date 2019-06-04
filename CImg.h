@@ -43587,300 +43587,6 @@ namespace cimg_library_suffixed {
       return draw_spline(points,tangents,color,opacity,is_closed_set,precision,pattern,init_hatch);
     }
 
-    // Inner macro for drawing triangles.
-#define _cimg_for_triangle1(img,xl,xr,y,x0,y0,x1,y1,x2,y2) \
-        for (int y = y0<0?0:y0, \
-               xr = y0>=0?x0:(x0 - y0*(x2 - x0)/(y2 - y0)), \
-               xl = y1>=0?(y0>=0?(y0==y1?x1:x0):(x0 - y0*(x1 - x0)/(y1 - y0))):(x1 - y1*(x2 - x1)/(y2 - y1)), \
-               _sxn=1, \
-               _sxr=1, \
-               _sxl=1, \
-               _dxn = x2>x1?x2-x1:(_sxn=-1,x1 - x2), \
-               _dxr = x2>x0?x2-x0:(_sxr=-1,x0 - x2), \
-               _dxl = x1>x0?x1-x0:(_sxl=-1,x0 - x1), \
-               _dyn = y2-y1, \
-               _dyr = y2-y0, \
-               _dyl = y1-y0, \
-               _counter = (_dxn-=_dyn?_dyn*(_dxn/_dyn):0, \
-                           _dxr-=_dyr?_dyr*(_dxr/_dyr):0, \
-                           _dxl-=_dyl?_dyl*(_dxl/_dyl):0, \
-                           std::min((int)(img)._height - y - 1,y2 - y)), \
-               _errn = _dyn/2, \
-               _errr = _dyr/2, \
-               _errl = _dyl/2, \
-               _rxn = _dyn?(x2-x1)/_dyn:0, \
-               _rxr = _dyr?(x2-x0)/_dyr:0, \
-               _rxl = (y0!=y1 && y1>0)?(_dyl?(x1-x0)/_dyl:0): \
-                                       (_errl=_errn, _dxl=_dxn, _dyl=_dyn, _sxl=_sxn, _rxn); \
-             _counter>=0; --_counter, ++y, \
-               xr+=_rxr+((_errr-=_dxr)<0?_errr+=_dyr,_sxr:0), \
-               xl+=(y!=y1)?_rxl+((_errl-=_dxl)<0?(_errl+=_dyl,_sxl):0): \
-                           (_errl=_errn, _dxl=_dxn, _dyl=_dyn, _sxl=_sxn, _rxl=_rxn, x1-xl))
-
-#define _cimg_for_triangle2(img,xl,cl,xr,cr,y,x0,y0,c0,x1,y1,c1,x2,y2,c2) \
-        for (int y = y0<0?0:y0, \
-               xr = y0>=0?x0:(x0 - y0*(x2 - x0)/(y2 - y0)), \
-               cr = y0>=0?c0:(c0 - y0*(c2 - c0)/(y2 - y0)), \
-               xl = y1>=0?(y0>=0?(y0==y1?x1:x0):(x0 - y0*(x1 - x0)/(y1 - y0))):(x1 - y1*(x2 - x1)/(y2 - y1)), \
-               cl = y1>=0?(y0>=0?(y0==y1?c1:c0):(c0 - y0*(c1 - c0)/(y1 - y0))):(c1 - y1*(c2 - c1)/(y2 - y1)), \
-               _sxn=1, _scn=1, \
-               _sxr=1, _scr=1, \
-               _sxl=1, _scl=1, \
-               _dxn = x2>x1?x2-x1:(_sxn=-1,x1 - x2), \
-               _dxr = x2>x0?x2-x0:(_sxr=-1,x0 - x2), \
-               _dxl = x1>x0?x1-x0:(_sxl=-1,x0 - x1), \
-               _dcn = c2>c1?c2-c1:(_scn=-1,c1 - c2), \
-               _dcr = c2>c0?c2-c0:(_scr=-1,c0 - c2), \
-               _dcl = c1>c0?c1-c0:(_scl=-1,c0 - c1), \
-               _dyn = y2-y1, \
-               _dyr = y2-y0, \
-               _dyl = y1-y0, \
-               _counter =(_dxn-=_dyn?_dyn*(_dxn/_dyn):0, \
-                          _dxr-=_dyr?_dyr*(_dxr/_dyr):0, \
-                          _dxl-=_dyl?_dyl*(_dxl/_dyl):0, \
-                          _dcn-=_dyn?_dyn*(_dcn/_dyn):0, \
-                          _dcr-=_dyr?_dyr*(_dcr/_dyr):0, \
-                          _dcl-=_dyl?_dyl*(_dcl/_dyl):0, \
-                          std::min((int)(img)._height - y - 1,y2 - y)), \
-               _errn = _dyn/2, _errcn = _errn, \
-               _errr = _dyr/2, _errcr = _errr, \
-               _errl = _dyl/2, _errcl = _errl, \
-               _rxn = _dyn?(x2 - x1)/_dyn:0, \
-               _rcn = _dyn?(c2 - c1)/_dyn:0, \
-               _rxr = _dyr?(x2 - x0)/_dyr:0, \
-               _rcr = _dyr?(c2 - c0)/_dyr:0, \
-               _rxl = (y0!=y1 && y1>0)?(_dyl?(x1-x0)/_dyl:0): \
-                                       (_errl=_errn, _dxl=_dxn, _dyl=_dyn, _sxl=_sxn, _rxn), \
-               _rcl = (y0!=y1 && y1>0)?(_dyl?(c1-c0)/_dyl:0): \
-                                       (_errcl=_errcn, _dcl=_dcn, _dyl=_dyn, _scl=_scn, _rcn ); \
-             _counter>=0; --_counter, ++y, \
-               xr+=_rxr+((_errr-=_dxr)<0?_errr+=_dyr,_sxr:0), \
-               cr+=_rcr+((_errcr-=_dcr)<0?_errcr+=_dyr,_scr:0), \
-               xl+=(y!=y1)?(cl+=_rcl+((_errcl-=_dcl)<0?(_errcl+=_dyl,_scl):0), \
-      	                   _rxl+((_errl-=_dxl)<0?(_errl+=_dyl,_sxl):0)): \
-               (_errcl=_errcn, _dcl=_dcn, _dyl=_dyn, _scl=_scn, _rcl=_rcn, cl=c1, \
-                _errl=_errn, _dxl=_dxn, _dyl=_dyn, _sxl=_sxn, _rxl=_rxn, x1-xl))
-
-#define _cimg_for_triangle3(img,xl,txl,tyl,xr,txr,tyr,y,x0,y0,tx0,ty0,x1,y1,tx1,ty1,x2,y2,tx2,ty2) \
-        for (int y = y0<0?0:y0, \
-               xr = y0>=0?x0:(x0 - y0*(x2 - x0)/(y2 - y0)), \
-               txr = y0>=0?tx0:(tx0 - y0*(tx2 - tx0)/(y2 - y0)), \
-               tyr = y0>=0?ty0:(ty0 - y0*(ty2 - ty0)/(y2 - y0)), \
-               xl = y1>=0?(y0>=0?(y0==y1?x1:x0):(x0 - y0*(x1 - x0)/(y1 - y0))):(x1 - y1*(x2 - x1)/(y2 - y1)), \
-               txl = y1>=0?(y0>=0?(y0==y1?tx1:tx0):(tx0 - y0*(tx1 - tx0)/(y1 - y0))):(tx1 - y1*(tx2 - tx1)/(y2 - y1)), \
-               tyl = y1>=0?(y0>=0?(y0==y1?ty1:ty0):(ty0 - y0*(ty1 - ty0)/(y1 - y0))):(ty1 - y1*(ty2 - ty1)/(y2 - y1)), \
-               _sxn=1, _stxn=1, _styn=1, \
-               _sxr=1, _stxr=1, _styr=1, \
-               _sxl=1, _stxl=1, _styl=1, \
-               _dxn = x2>x1?x2 - x1:(_sxn=-1,x1 - x2), \
-               _dxr = x2>x0?x2 - x0:(_sxr=-1,x0 - x2), \
-               _dxl = x1>x0?x1 - x0:(_sxl=-1,x0 - x1), \
-               _dtxn = tx2>tx1?tx2 - tx1:(_stxn=-1,tx1 - tx2), \
-               _dtxr = tx2>tx0?tx2 - tx0:(_stxr=-1,tx0 - tx2), \
-               _dtxl = tx1>tx0?tx1 - tx0:(_stxl=-1,tx0 - tx1), \
-               _dtyn = ty2>ty1?ty2 - ty1:(_styn=-1,ty1 - ty2), \
-               _dtyr = ty2>ty0?ty2 - ty0:(_styr=-1,ty0 - ty2), \
-               _dtyl = ty1>ty0?ty1 - ty0:(_styl=-1,ty0 - ty1), \
-               _dyn = y2-y1, \
-               _dyr = y2-y0, \
-               _dyl = y1-y0, \
-               _counter =(_dxn-=_dyn?_dyn*(_dxn/_dyn):0, \
-                          _dxr-=_dyr?_dyr*(_dxr/_dyr):0, \
-                          _dxl-=_dyl?_dyl*(_dxl/_dyl):0, \
-                          _dtxn-=_dyn?_dyn*(_dtxn/_dyn):0, \
-                          _dtxr-=_dyr?_dyr*(_dtxr/_dyr):0, \
-                          _dtxl-=_dyl?_dyl*(_dtxl/_dyl):0, \
-                          _dtyn-=_dyn?_dyn*(_dtyn/_dyn):0, \
-                          _dtyr-=_dyr?_dyr*(_dtyr/_dyr):0, \
-                          _dtyl-=_dyl?_dyl*(_dtyl/_dyl):0, \
-                          std::min((int)(img)._height - y - 1,y2 - y)), \
-               _errn = _dyn/2, _errtxn = _errn, _errtyn = _errn, \
-               _errr = _dyr/2, _errtxr = _errr, _errtyr = _errr, \
-               _errl = _dyl/2, _errtxl = _errl, _errtyl = _errl, \
-               _rxn = _dyn?(x2 - x1)/_dyn:0, \
-               _rtxn = _dyn?(tx2 - tx1)/_dyn:0, \
-               _rtyn = _dyn?(ty2 - ty1)/_dyn:0, \
-               _rxr = _dyr?(x2 - x0)/_dyr:0, \
-               _rtxr = _dyr?(tx2 - tx0)/_dyr:0, \
-               _rtyr = _dyr?(ty2 - ty0)/_dyr:0, \
-               _rxl = (y0!=y1 && y1>0)?(_dyl?(x1 - x0)/_dyl:0): \
-                                       (_errl=_errn, _dxl=_dxn, _dyl=_dyn, _sxl=_sxn, _rxn), \
-               _rtxl = (y0!=y1 && y1>0)?(_dyl?(tx1 - tx0)/_dyl:0): \
-                                       (_errtxl=_errtxn, _dtxl=_dtxn, _dyl=_dyn, _stxl=_stxn, _rtxn ), \
-               _rtyl = (y0!=y1 && y1>0)?(_dyl?(ty1 - ty0)/_dyl:0): \
-                                       (_errtyl=_errtyn, _dtyl=_dtyn, _dyl=_dyn, _styl=_styn, _rtyn ); \
-             _counter>=0; --_counter, ++y, \
-               xr+=_rxr+((_errr-=_dxr)<0?_errr+=_dyr,_sxr:0), \
-               txr+=_rtxr+((_errtxr-=_dtxr)<0?_errtxr+=_dyr,_stxr:0), \
-               tyr+=_rtyr+((_errtyr-=_dtyr)<0?_errtyr+=_dyr,_styr:0), \
-               xl+=(y!=y1)?(txl+=_rtxl+((_errtxl-=_dtxl)<0?(_errtxl+=_dyl,_stxl):0), \
-                            tyl+=_rtyl+((_errtyl-=_dtyl)<0?(_errtyl+=_dyl,_styl):0), \
-                           _rxl+((_errl-=_dxl)<0?(_errl+=_dyl,_sxl):0)): \
-               (_errtxl=_errtxn, _dtxl=_dtxn, _dyl=_dyn, _stxl=_stxn, _rtxl=_rtxn, txl=tx1, \
-                _errtyl=_errtyn, _dtyl=_dtyn, _dyl=_dyn, _styl=_styn, _rtyl=_rtyn, tyl=ty1,\
-                _errl=_errn, _dxl=_dxn, _dyl=_dyn, _sxl=_sxn, _rxl=_rxn, x1 - xl))
-
-#define _cimg_for_triangle4(img,xl,cl,txl,tyl,xr,cr,txr,tyr,y,x0,y0,c0,tx0,ty0,x1,y1,c1,tx1,ty1,x2,y2,c2,tx2,ty2) \
-        for (int y = y0<0?0:y0, \
-               xr = y0>=0?x0:(x0 - y0*(x2 - x0)/(y2 - y0)), \
-               cr = y0>=0?c0:(c0 - y0*(c2 - c0)/(y2 - y0)), \
-               txr = y0>=0?tx0:(tx0 - y0*(tx2 - tx0)/(y2 - y0)), \
-               tyr = y0>=0?ty0:(ty0 - y0*(ty2 - ty0)/(y2 - y0)), \
-               xl = y1>=0?(y0>=0?(y0==y1?x1:x0):(x0 - y0*(x1 - x0)/(y1 - y0))):(x1 - y1*(x2 - x1)/(y2 - y1)), \
-               cl = y1>=0?(y0>=0?(y0==y1?c1:c0):(c0 - y0*(c1 - c0)/(y1 - y0))):(c1 - y1*(c2 - c1)/(y2 - y1)), \
-               txl = y1>=0?(y0>=0?(y0==y1?tx1:tx0):(tx0 - y0*(tx1 - tx0)/(y1 - y0))):(tx1 - y1*(tx2 - tx1)/(y2 - y1)), \
-               tyl = y1>=0?(y0>=0?(y0==y1?ty1:ty0):(ty0 - y0*(ty1 - ty0)/(y1 - y0))):(ty1 - y1*(ty2 - ty1)/(y2 - y1)), \
-               _sxn=1, _scn=1, _stxn=1, _styn=1, \
-               _sxr=1, _scr=1, _stxr=1, _styr=1, \
-               _sxl=1, _scl=1, _stxl=1, _styl=1, \
-               _dxn = x2>x1?x2 - x1:(_sxn=-1,x1 - x2), \
-               _dxr = x2>x0?x2 - x0:(_sxr=-1,x0 - x2), \
-               _dxl = x1>x0?x1 - x0:(_sxl=-1,x0 - x1), \
-               _dcn = c2>c1?c2 - c1:(_scn=-1,c1 - c2), \
-               _dcr = c2>c0?c2 - c0:(_scr=-1,c0 - c2), \
-               _dcl = c1>c0?c1 - c0:(_scl=-1,c0 - c1), \
-               _dtxn = tx2>tx1?tx2 - tx1:(_stxn=-1,tx1 - tx2), \
-               _dtxr = tx2>tx0?tx2 - tx0:(_stxr=-1,tx0 - tx2), \
-               _dtxl = tx1>tx0?tx1 - tx0:(_stxl=-1,tx0 - tx1), \
-               _dtyn = ty2>ty1?ty2 - ty1:(_styn=-1,ty1 - ty2), \
-               _dtyr = ty2>ty0?ty2 - ty0:(_styr=-1,ty0 - ty2), \
-               _dtyl = ty1>ty0?ty1 - ty0:(_styl=-1,ty0 - ty1), \
-               _dyn = y2 - y1, \
-               _dyr = y2 - y0, \
-               _dyl = y1 - y0, \
-               _counter =(_dxn-=_dyn?_dyn*(_dxn/_dyn):0, \
-                          _dxr-=_dyr?_dyr*(_dxr/_dyr):0, \
-                          _dxl-=_dyl?_dyl*(_dxl/_dyl):0, \
-                          _dcn-=_dyn?_dyn*(_dcn/_dyn):0, \
-                          _dcr-=_dyr?_dyr*(_dcr/_dyr):0, \
-                          _dcl-=_dyl?_dyl*(_dcl/_dyl):0, \
-                          _dtxn-=_dyn?_dyn*(_dtxn/_dyn):0, \
-                          _dtxr-=_dyr?_dyr*(_dtxr/_dyr):0, \
-                          _dtxl-=_dyl?_dyl*(_dtxl/_dyl):0, \
-                          _dtyn-=_dyn?_dyn*(_dtyn/_dyn):0, \
-                          _dtyr-=_dyr?_dyr*(_dtyr/_dyr):0, \
-                          _dtyl-=_dyl?_dyl*(_dtyl/_dyl):0, \
-                          std::min((int)(img)._height - y - 1,y2 - y)), \
-               _errn = _dyn/2, _errcn = _errn, _errtxn = _errn, _errtyn = _errn, \
-               _errr = _dyr/2, _errcr = _errr, _errtxr = _errr, _errtyr = _errr, \
-               _errl = _dyl/2, _errcl = _errl, _errtxl = _errl, _errtyl = _errl, \
-               _rxn = _dyn?(x2 - x1)/_dyn:0, \
-               _rcn = _dyn?(c2 - c1)/_dyn:0, \
-               _rtxn = _dyn?(tx2 - tx1)/_dyn:0, \
-               _rtyn = _dyn?(ty2 - ty1)/_dyn:0, \
-               _rxr = _dyr?(x2 - x0)/_dyr:0, \
-               _rcr = _dyr?(c2 - c0)/_dyr:0, \
-               _rtxr = _dyr?(tx2 - tx0)/_dyr:0, \
-               _rtyr = _dyr?(ty2 - ty0)/_dyr:0, \
-               _rxl = (y0!=y1 && y1>0)?(_dyl?(x1 - x0)/_dyl:0): \
-                                       (_errl=_errn, _dxl=_dxn, _dyl=_dyn, _sxl=_sxn, _rxn), \
-               _rcl = (y0!=y1 && y1>0)?(_dyl?(c1 - c0)/_dyl:0): \
-                                       (_errcl=_errcn, _dcl=_dcn, _dyl=_dyn, _scl=_scn, _rcn ), \
-               _rtxl = (y0!=y1 && y1>0)?(_dyl?(tx1 - tx0)/_dyl:0): \
-                                        (_errtxl=_errtxn, _dtxl=_dtxn, _dyl=_dyn, _stxl=_stxn, _rtxn ), \
-               _rtyl = (y0!=y1 && y1>0)?(_dyl?(ty1 - ty0)/_dyl:0): \
-                                        (_errtyl=_errtyn, _dtyl=_dtyn, _dyl=_dyn, _styl=_styn, _rtyn ); \
-             _counter>=0; --_counter, ++y, \
-               xr+=_rxr+((_errr-=_dxr)<0?_errr+=_dyr,_sxr:0), \
-               cr+=_rcr+((_errcr-=_dcr)<0?_errcr+=_dyr,_scr:0), \
-               txr+=_rtxr+((_errtxr-=_dtxr)<0?_errtxr+=_dyr,_stxr:0), \
-               tyr+=_rtyr+((_errtyr-=_dtyr)<0?_errtyr+=_dyr,_styr:0), \
-               xl+=(y!=y1)?(cl+=_rcl+((_errcl-=_dcl)<0?(_errcl+=_dyl,_scl):0), \
-                            txl+=_rtxl+((_errtxl-=_dtxl)<0?(_errtxl+=_dyl,_stxl):0), \
-                            tyl+=_rtyl+((_errtyl-=_dtyl)<0?(_errtyl+=_dyl,_styl):0), \
-                            _rxl+((_errl-=_dxl)<0?(_errl+=_dyl,_sxl):0)): \
-               (_errcl=_errcn, _dcl=_dcn, _dyl=_dyn, _scl=_scn, _rcl=_rcn, cl=c1, \
-                _errtxl=_errtxn, _dtxl=_dtxn, _dyl=_dyn, _stxl=_stxn, _rtxl=_rtxn, txl=tx1, \
-                _errtyl=_errtyn, _dtyl=_dtyn, _dyl=_dyn, _styl=_styn, _rtyl=_rtyn, tyl=ty1, \
-                _errl=_errn, _dxl=_dxn, _dyl=_dyn, _sxl=_sxn, _rxl=_rxn, x1 - xl))
-
-#define _cimg_for_triangle5(img,xl,txl,tyl,lxl,lyl,xr,txr,tyr,lxr,lyr,y,x0,y0,\
-                            tx0,ty0,lx0,ly0,x1,y1,tx1,ty1,lx1,ly1,x2,y2,tx2,ty2,lx2,ly2) \
-        for (int y = y0<0?0:y0, \
-               xr = y0>=0?x0:(x0 - y0*(x2 - x0)/(y2 - y0)), \
-               txr = y0>=0?tx0:(tx0 - y0*(tx2 - tx0)/(y2 - y0)), \
-               tyr = y0>=0?ty0:(ty0 - y0*(ty2 - ty0)/(y2 - y0)), \
-               lxr = y0>=0?lx0:(lx0 - y0*(lx2 - lx0)/(y2 - y0)), \
-               lyr = y0>=0?ly0:(ly0 - y0*(ly2 - ly0)/(y2 - y0)), \
-               xl = y1>=0?(y0>=0?(y0==y1?x1:x0):(x0 - y0*(x1 - x0)/(y1 - y0))):(x1 - y1*(x2 - x1)/(y2 - y1)), \
-               txl = y1>=0?(y0>=0?(y0==y1?tx1:tx0):(tx0 - y0*(tx1 - tx0)/(y1 - y0))):(tx1 - y1*(tx2 - tx1)/(y2 - y1)), \
-               tyl = y1>=0?(y0>=0?(y0==y1?ty1:ty0):(ty0 - y0*(ty1 - ty0)/(y1 - y0))):(ty1 - y1*(ty2 - ty1)/(y2 - y1)), \
-               lxl = y1>=0?(y0>=0?(y0==y1?lx1:lx0):(lx0 - y0*(lx1 - lx0)/(y1 - y0))):(lx1 - y1*(lx2 - lx1)/(y2 - y1)), \
-               lyl = y1>=0?(y0>=0?(y0==y1?ly1:ly0):(ly0 - y0*(ly1 - ly0)/(y1 - y0))):(ly1 - y1*(ly2 - ly1)/(y2 - y1)), \
-               _sxn=1, _stxn=1, _styn=1, _slxn=1, _slyn=1, \
-               _sxr=1, _stxr=1, _styr=1, _slxr=1, _slyr=1, \
-               _sxl=1, _stxl=1, _styl=1, _slxl=1, _slyl=1, \
-               _dxn = x2>x1?x2 - x1:(_sxn=-1,x1 - x2), _dyn = y2 - y1, \
-               _dxr = x2>x0?x2 - x0:(_sxr=-1,x0 - x2), _dyr = y2 - y0, \
-               _dxl = x1>x0?x1 - x0:(_sxl=-1,x0 - x1), _dyl = y1 - y0, \
-               _dtxn = tx2>tx1?tx2 - tx1:(_stxn=-1,tx1 - tx2), \
-               _dtxr = tx2>tx0?tx2 - tx0:(_stxr=-1,tx0 - tx2), \
-               _dtxl = tx1>tx0?tx1 - tx0:(_stxl=-1,tx0 - tx1), \
-               _dtyn = ty2>ty1?ty2 - ty1:(_styn=-1,ty1 - ty2), \
-               _dtyr = ty2>ty0?ty2 - ty0:(_styr=-1,ty0 - ty2), \
-               _dtyl = ty1>ty0?ty1 - ty0:(_styl=-1,ty0 - ty1), \
-               _dlxn = lx2>lx1?lx2 - lx1:(_slxn=-1,lx1 - lx2), \
-               _dlxr = lx2>lx0?lx2 - lx0:(_slxr=-1,lx0 - lx2), \
-               _dlxl = lx1>lx0?lx1 - lx0:(_slxl=-1,lx0 - lx1), \
-               _dlyn = ly2>ly1?ly2 - ly1:(_slyn=-1,ly1 - ly2), \
-               _dlyr = ly2>ly0?ly2 - ly0:(_slyr=-1,ly0 - ly2), \
-               _dlyl = ly1>ly0?ly1 - ly0:(_slyl=-1,ly0 - ly1), \
-               _counter =(_dxn-=_dyn?_dyn*(_dxn/_dyn):0, \
-                          _dxr-=_dyr?_dyr*(_dxr/_dyr):0, \
-                          _dxl-=_dyl?_dyl*(_dxl/_dyl):0, \
-                          _dtxn-=_dyn?_dyn*(_dtxn/_dyn):0, \
-                          _dtxr-=_dyr?_dyr*(_dtxr/_dyr):0, \
-                          _dtxl-=_dyl?_dyl*(_dtxl/_dyl):0, \
-                          _dtyn-=_dyn?_dyn*(_dtyn/_dyn):0, \
-                          _dtyr-=_dyr?_dyr*(_dtyr/_dyr):0, \
-                          _dtyl-=_dyl?_dyl*(_dtyl/_dyl):0, \
-                          _dlxn-=_dyn?_dyn*(_dlxn/_dyn):0, \
-                          _dlxr-=_dyr?_dyr*(_dlxr/_dyr):0, \
-                          _dlxl-=_dyl?_dyl*(_dlxl/_dyl):0, \
-                          _dlyn-=_dyn?_dyn*(_dlyn/_dyn):0, \
-                          _dlyr-=_dyr?_dyr*(_dlyr/_dyr):0, \
-                          _dlyl-=_dyl?_dyl*(_dlyl/_dyl):0, \
-                          std::min((int)(img)._height - y - 1,y2 - y)), \
-               _errn = _dyn/2, _errtxn = _errn, _errtyn = _errn, _errlxn = _errn, _errlyn = _errn, \
-               _errr = _dyr/2, _errtxr = _errr, _errtyr = _errr, _errlxr = _errr, _errlyr = _errr, \
-               _errl = _dyl/2, _errtxl = _errl, _errtyl = _errl, _errlxl = _errl, _errlyl = _errl, \
-               _rxn = _dyn?(x2 - x1)/_dyn:0, \
-               _rtxn = _dyn?(tx2 - tx1)/_dyn:0, \
-               _rtyn = _dyn?(ty2 - ty1)/_dyn:0, \
-               _rlxn = _dyn?(lx2 - lx1)/_dyn:0, \
-               _rlyn = _dyn?(ly2 - ly1)/_dyn:0, \
-               _rxr = _dyr?(x2 - x0)/_dyr:0, \
-               _rtxr = _dyr?(tx2 - tx0)/_dyr:0, \
-               _rtyr = _dyr?(ty2 - ty0)/_dyr:0, \
-               _rlxr = _dyr?(lx2 - lx0)/_dyr:0, \
-               _rlyr = _dyr?(ly2 - ly0)/_dyr:0, \
-               _rxl = (y0!=y1 && y1>0)?(_dyl?(x1 - x0)/_dyl:0): \
-                                       (_errl=_errn, _dxl=_dxn, _dyl=_dyn, _sxl=_sxn, _rxn), \
-               _rtxl = (y0!=y1 && y1>0)?(_dyl?(tx1 - tx0)/_dyl:0): \
-                                        (_errtxl=_errtxn, _dtxl=_dtxn, _dyl=_dyn, _stxl=_stxn, _rtxn ), \
-               _rtyl = (y0!=y1 && y1>0)?(_dyl?(ty1 - ty0)/_dyl:0): \
-                                        (_errtyl=_errtyn, _dtyl=_dtyn, _dyl=_dyn, _styl=_styn, _rtyn ), \
-               _rlxl = (y0!=y1 && y1>0)?(_dyl?(lx1 - lx0)/_dyl:0): \
-                                        (_errlxl=_errlxn, _dlxl=_dlxn, _dyl=_dyn, _slxl=_slxn, _rlxn ), \
-               _rlyl = (y0!=y1 && y1>0)?(_dyl?(ly1 - ly0)/_dyl:0): \
-                                        (_errlyl=_errlyn, _dlyl=_dlyn, _dyl=_dyn, _slyl=_slyn, _rlyn ); \
-             _counter>=0; --_counter, ++y, \
-               xr+=_rxr+((_errr-=_dxr)<0?_errr+=_dyr,_sxr:0), \
-               txr+=_rtxr+((_errtxr-=_dtxr)<0?_errtxr+=_dyr,_stxr:0), \
-               tyr+=_rtyr+((_errtyr-=_dtyr)<0?_errtyr+=_dyr,_styr:0), \
-               lxr+=_rlxr+((_errlxr-=_dlxr)<0?_errlxr+=_dyr,_slxr:0), \
-               lyr+=_rlyr+((_errlyr-=_dlyr)<0?_errlyr+=_dyr,_slyr:0), \
-               xl+=(y!=y1)?(txl+=_rtxl+((_errtxl-=_dtxl)<0?(_errtxl+=_dyl,_stxl):0), \
-                            tyl+=_rtyl+((_errtyl-=_dtyl)<0?(_errtyl+=_dyl,_styl):0), \
-                            lxl+=_rlxl+((_errlxl-=_dlxl)<0?(_errlxl+=_dyl,_slxl):0), \
-                            lyl+=_rlyl+((_errlyl-=_dlyl)<0?(_errlyl+=_dyl,_slyl):0), \
-                            _rxl+((_errl-=_dxl)<0?(_errl+=_dyl,_sxl):0)): \
-               (_errtxl=_errtxn, _dtxl=_dtxn, _dyl=_dyn, _stxl=_stxn, _rtxl=_rtxn, txl=tx1, \
-                _errtyl=_errtyn, _dtyl=_dtyn, _dyl=_dyn, _styl=_styn, _rtyl=_rtyn, tyl=ty1, \
-                _errlxl=_errlxn, _dlxl=_dlxn, _dyl=_dyn, _slxl=_slxn, _rlxl=_rlxn, lxl=lx1, \
-                _errlyl=_errlyn, _dlyl=_dlyn, _dyl=_dyn, _slyl=_slyn, _rlyl=_rlyn, lyl=ly1, \
-                _errl=_errn, _dxl=_dxn, _dyl=_dyn, _sxl=_sxn, _rxl=_rxn, x1 - xl))
-
     // [internal] Draw a filled triangle.
     template<typename tc>
     CImg<T>& _draw_triangle(int x0, int y0,
@@ -44166,8 +43872,8 @@ namespace cimg_library_suffixed {
         cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
         hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2;
       const float
-        dbs01 = bs1 - bs0, dbs02 = bs2 - bs0, dbs12 = bs2 - bs1,
-        diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1;
+        diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1,
+        dbs01 = bs1 - bs0, dbs02 = bs2 - bs0, dbs12 = bs2 - bs1;
 
       cimg_init_scanline(opacity);
 
@@ -44306,7 +44012,9 @@ namespace cimg_library_suffixed {
             cxm = cimg::cut(xm,0,w1),
             cxM = cimg::cut(xM,0,w1);
           T *ptrd = data(cxm,y);
-          const int dxmM = std::max(1,xM - xm), dtxmM = txM - txm, dtymM = tyM - tym, hdxmM = dxmM/2;
+          const int
+            dxmM = std::max(1,xM - xm), hdxmM = dxmM/2,
+            dtxmM = txM - txm, dtymM = tyM - tym;
 
           for (int x = cxm; x<=cxM; ++x) {
             const int
@@ -44358,11 +44066,11 @@ namespace cimg_library_suffixed {
         cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
         hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2;
       const float
+        diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1,
         txz0 = tx0*iz0, txz1 = tx1*iz1, txz2 = tx2*iz2,
         tyz0 = ty0*iz0, tyz1 = ty1*iz1, tyz2 = ty2*iz2,
         dtxz01 = txz1 - txz0, dtxz02 = txz2 - txz0, dtxz12 = txz2 - txz1,
-        dtyz01 = tyz1 - tyz0, dtyz02 = tyz2 - tyz0, dtyz12 = tyz2 - tyz1,
-        diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1;
+        dtyz01 = tyz1 - tyz0, dtyz02 = tyz2 - tyz0, dtyz12 = tyz2 - tyz1;
 
       const ulongT twhd = (ulongT)texture._width*texture._height*texture._depth;
       const float cbs = cimg::cut(brightness,0,2);
@@ -44374,12 +44082,12 @@ namespace cimg_library_suffixed {
           xm = y<y1?(x0*dy01 + dx01*yy0 + hdy01)/dy01:(x1*dy12 + dx12*(y - y1) + hdy12)/dy12,
           xM = (x0*dy02 + dx02*yy0 + hdy02)/dy02;
         float
+          izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*(y - y1)/dy12),
+          izM = iz0 + diz02*yy0/dy02,
           txzm = y<y1?(txz0 + dtxz01*yy0/dy01):(txz1 + dtxz12*(y - y1)/dy12),
           txzM = txz0 + dtxz02*yy0/dy02,
           tyzm = y<y1?(tyz0 + dtyz01*yy0/dy01):(tyz1 + dtyz12*(y - y1)/dy12),
-          tyzM = tyz0 + dtyz02*yy0/dy02,
-          izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*(y - y1)/dy12),
-          izM = iz0 + diz02*yy0/dy02;
+          tyzM = tyz0 + dtyz02*yy0/dy02;
         if (xm>xM) cimg::swap(xm,xM,txzm,txzM,tyzm,tyzM,izm,izM);
         if (xM>=0 || xm<=w1) {
           const int
@@ -44387,14 +44095,14 @@ namespace cimg_library_suffixed {
             cxM = cimg::cut(xM,0,w1);
           T *ptrd = data(cxm,y);
           const int dxmM = std::max(1,xM - xm);
-          const float dtxzmM = txzM - txzm, dtyzmM = tyzM - tyzm, dizmM = izM - izm;
+          const float dizmM = izM - izm, dtxzmM = txzM - txzm, dtyzmM = tyzM - tyzm;
 
           for (int x = cxm; x<cxM; ++x) {
             const int xxm = x - xm;
             const float
+              iz = izm + dizmM*xxm/dxmM,
               txz = txzm + dtxzmM*xxm/dxmM,
-              tyz = tyzm + dtyzmM*xxm/dxmM,
-              iz = izm + dizmM*xxm/dxmM;
+              tyz = tyzm + dtyzmM*xxm/dxmM;
             const int
               tx = (int)cimg::round(txz/iz),
               ty = (int)cimg::round(tyz/iz);
@@ -44451,11 +44159,11 @@ namespace cimg_library_suffixed {
         cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
         hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2;
       const float
+        diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1,
         txz0 = tx0*iz0, txz1 = tx1*iz1, txz2 = tx2*iz2,
         tyz0 = ty0*iz0, tyz1 = ty1*iz1, tyz2 = ty2*iz2,
         dtxz01 = txz1 - txz0, dtxz02 = txz2 - txz0, dtxz12 = txz2 - txz1,
-        dtyz01 = tyz1 - tyz0, dtyz02 = tyz2 - tyz0, dtyz12 = tyz2 - tyz1,
-        diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1;
+        dtyz01 = tyz1 - tyz0, dtyz02 = tyz2 - tyz0, dtyz12 = tyz2 - tyz1;
 
       const ulongT twhd = (ulongT)texture._width*texture._height*texture._depth;
       const float cbs = cimg::cut(brightness,0,2);
@@ -44467,12 +44175,12 @@ namespace cimg_library_suffixed {
           xm = y<y1?(x0*dy01 + dx01*yy0 + hdy01)/dy01:(x1*dy12 + dx12*(y - y1) + hdy12)/dy12,
           xM = (x0*dy02 + dx02*yy0 + hdy02)/dy02;
         float
+          izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*(y - y1)/dy12),
+          izM = iz0 + diz02*yy0/dy02,
           txzm = y<y1?(txz0 + dtxz01*yy0/dy01):(txz1 + dtxz12*(y - y1)/dy12),
           txzM = txz0 + dtxz02*yy0/dy02,
           tyzm = y<y1?(tyz0 + dtyz01*yy0/dy01):(tyz1 + dtyz12*(y - y1)/dy12),
-          tyzM = tyz0 + dtyz02*yy0/dy02,
-          izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*(y - y1)/dy12),
-          izM = iz0 + diz02*yy0/dy02;
+          tyzM = tyz0 + dtyz02*yy0/dy02;
         if (xm>xM) cimg::swap(xm,xM,txzm,txzM,tyzm,tyzM,izm,izM);
         if (xM>=0 || xm<=w1) {
           const int
@@ -44481,7 +44189,7 @@ namespace cimg_library_suffixed {
           T *ptrd = data(cxm,y);
           tz *ptrz = zbuffer.data(cxm,y);
           const int dxmM = std::max(1,xM - xm);
-          const float dtxzmM = txzM - txzm, dtyzmM = tyzM - tyzm, dizmM = izM - izm;
+          const float dizmM = izM - izm, dtxzmM = txzM - txzm, dtyzmM = tyzM - tyzm;
 
           for (int x = cxm; x<cxM; ++x) {
             const int xxm = x - xm;
@@ -44577,7 +44285,9 @@ namespace cimg_library_suffixed {
             cxm = cimg::cut(xm,0,w1),
             cxM = cimg::cut(xM,0,w1);
           T *ptrd = data(cxm,y);
-          const int dxmM = std::max(1,xM - xm), dlxmM = lxM - lxm, dlymM = lyM - lym, hdxmM = dxmM/2;
+          const int
+            dxmM = std::max(1,xM - xm), hdxmM = dxmM/2,
+            dlxmM = lxM - lxm, dlymM = lyM - lym;
 
           for (int x = cxm; x<cxM; ++x) {
             const int
@@ -44642,8 +44352,7 @@ namespace cimg_library_suffixed {
         hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2,
         dlx01 = lx1 - lx0, dlx02 = lx2 - lx0, dlx12 = lx2 - lx1,
         dly01 = ly1 - ly0, dly02 = ly2 - ly0, dly12 = ly2 - ly1;
-      const float
-        diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1;
+      const float diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1;
 
       const ulongT lwhd = (ulongT)light._width*light._height*light._depth;
       cimg_init_scanline(opacity);
@@ -44668,7 +44377,9 @@ namespace cimg_library_suffixed {
             cxM = cimg::cut(xM,0,w1);
           T *ptrd = data(cxm,y);
           tz *ptrz = zbuffer.data(cxm,y);
-          const int dxmM = std::max(1,xM - xm), dlxmM = lxM - lxm, dlymM = lyM - lym, hdxmM = dxmM/2;
+          const int
+            dxmM = std::max(1,xM - xm), hdxmM = dxmM/2,
+            dlxmM = lxM - lxm, dlymM = lyM - lym;
           const float dizmM = izM - izm;
 
           for (int x = cxm; x<cxM; ++x) {
@@ -44772,7 +44483,9 @@ namespace cimg_library_suffixed {
             cxm = cimg::cut(xm,0,w1),
             cxM = cimg::cut(xM,0,w1);
           T *ptrd = data(cxm,y);
-          const int dxmM = std::max(1,xM - xm), dtxmM = txM - txm, dtymM = tyM - tym, hdxmM = dxmM/2;
+          const int
+            dxmM = std::max(1,xM - xm), hdxmM = dxmM/2,
+            dtxmM = txM - txm, dtymM = tyM - tym;
           const float dbsmM = bsM - bsm;
 
           for (int x = cxm; x<cxM; ++x) {
@@ -44829,12 +44542,12 @@ namespace cimg_library_suffixed {
         cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
         hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2;
       const float
+        diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1,
         txz0 = tx0*iz0, txz1 = tx1*iz1, txz2 = tx2*iz2,
         tyz0 = ty0*iz0, tyz1 = ty1*iz1, tyz2 = ty2*iz2,
         dtxz01 = txz1 - txz0, dtxz02 = txz2 - txz0, dtxz12 = txz2 - txz1,
         dtyz01 = tyz1 - tyz0, dtyz02 = tyz2 - tyz0, dtyz12 = tyz2 - tyz1,
-        diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1;
-      const float dbs01 = bs1 - bs0, dbs02 = bs2 - bs0, dbs12 = bs2 - bs1;
+        dbs01 = bs1 - bs0, dbs02 = bs2 - bs0, dbs12 = bs2 - bs1;
 
       const ulongT twhd = (ulongT)texture._width*texture._height*texture._depth;
       cimg_init_scanline(opacity);
@@ -44845,12 +44558,12 @@ namespace cimg_library_suffixed {
           xm = y<y1?(x0*dy01 + dx01*yy0 + hdy01)/dy01:(x1*dy12 + dx12*(y - y1) + hdy12)/dy12,
           xM = (x0*dy02 + dx02*yy0 + hdy02)/dy02;
         float
+          izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*(y - y1)/dy12),
+          izM = iz0 + diz02*yy0/dy02,
           txzm = y<y1?(txz0 + dtxz01*yy0/dy01):(txz1 + dtxz12*(y - y1)/dy12),
           txzM = txz0 + dtxz02*yy0/dy02,
           tyzm = y<y1?(tyz0 + dtyz01*yy0/dy01):(tyz1 + dtyz12*(y - y1)/dy12),
           tyzM = tyz0 + dtyz02*yy0/dy02,
-          izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*(y - y1)/dy12),
-          izM = iz0 + diz02*yy0/dy02,
           bsm = y<y1?(bs0 + dbs01*yy0/dy01):(bs1 + dbs12*(y - y1)/dy12),
           bsM = bs0 + dbs02*yy0/dy02;
         if (xm>xM) cimg::swap(xm,xM,txzm,txzM,tyzm,tyzM,izm,izM,bsm,bsM);
@@ -44860,14 +44573,14 @@ namespace cimg_library_suffixed {
             cxM = cimg::cut(xM,0,w1);
           T *ptrd = data(cxm,y);
           const int dxmM = std::max(1,xM - xm);
-          const float dtxzmM = txzM - txzm, dtyzmM = tyzM - tyzm, dizmM = izM - izm, dbsmM = bsM - bsm;
+          const float dizmM = izM - izm, dtxzmM = txzM - txzm, dtyzmM = tyzM - tyzm, dbsmM = bsM - bsm;
 
           for (int x = cxm; x<cxM; ++x) {
             const int xxm = x - xm;
             const float
+              iz = izm + dizmM*xxm/dxmM,
               txz = txzm + dtxzmM*xxm/dxmM,
               tyz = tyzm + dtyzmM*xxm/dxmM,
-              iz = izm + dizmM*xxm/dxmM,
               cbs = cimg::cut(bsm + dbsmM*xxm/dxmM,0,2);
             const int
               tx = (int)cimg::round(txz/iz),
@@ -44927,12 +44640,12 @@ namespace cimg_library_suffixed {
         cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
         hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2;
       const float
+        diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1,
         txz0 = tx0*iz0, txz1 = tx1*iz1, txz2 = tx2*iz2,
         tyz0 = ty0*iz0, tyz1 = ty1*iz1, tyz2 = ty2*iz2,
         dtxz01 = txz1 - txz0, dtxz02 = txz2 - txz0, dtxz12 = txz2 - txz1,
         dtyz01 = tyz1 - tyz0, dtyz02 = tyz2 - tyz0, dtyz12 = tyz2 - tyz1,
-        diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1;
-      const float dbs01 = bs1 - bs0, dbs02 = bs2 - bs0, dbs12 = bs2 - bs1;
+        dbs01 = bs1 - bs0, dbs02 = bs2 - bs0, dbs12 = bs2 - bs1;
 
       const ulongT twhd = (ulongT)texture._width*texture._height*texture._depth;
       cimg_init_scanline(opacity);
@@ -44943,12 +44656,12 @@ namespace cimg_library_suffixed {
           xm = y<y1?(x0*dy01 + dx01*yy0 + hdy01)/dy01:(x1*dy12 + dx12*(y - y1) + hdy12)/dy12,
           xM = (x0*dy02 + dx02*yy0 + hdy02)/dy02;
         float
+          izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*(y - y1)/dy12),
+          izM = iz0 + diz02*yy0/dy02,
           txzm = y<y1?(txz0 + dtxz01*yy0/dy01):(txz1 + dtxz12*(y - y1)/dy12),
           txzM = txz0 + dtxz02*yy0/dy02,
           tyzm = y<y1?(tyz0 + dtyz01*yy0/dy01):(tyz1 + dtyz12*(y - y1)/dy12),
           tyzM = tyz0 + dtyz02*yy0/dy02,
-          izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*(y - y1)/dy12),
-          izM = iz0 + diz02*yy0/dy02,
           bsm = y<y1?(bs0 + dbs01*yy0/dy01):(bs1 + dbs12*(y - y1)/dy12),
           bsM = bs0 + dbs02*yy0/dy02;
         if (xm>xM) cimg::swap(xm,xM,txzm,txzM,tyzm,tyzM,izm,izM,bsm,bsM);
@@ -44959,7 +44672,7 @@ namespace cimg_library_suffixed {
           T *ptrd = data(cxm,y);
           tz *ptrz = zbuffer.data(cxm,y);
           const int dxmM = std::max(1,xM - xm);
-          const float dtxzmM = txzM - txzm, dtyzmM = tyzM - tyzm, dizmM = izM - izm, dbsmM = bsM - bsm;
+          const float dizmM = izM - izm, dtxzmM = txzM - txzm, dtyzmM = tyzM - tyzm, dbsmM = bsM - bsm;
 
           for (int x = cxm; x<cxM; ++x) {
             const int xxm = x - xm;
@@ -45150,6 +44863,7 @@ namespace cimg_library_suffixed {
         cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
         hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2;
       const float
+        diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1,
         txz0 = tx0*iz0, txz1 = tx1*iz1, txz2 = tx2*iz2,
         tyz0 = ty0*iz0, tyz1 = ty1*iz1, tyz2 = ty2*iz2,
         dtxz01 = txz1 - txz0, dtxz02 = txz2 - txz0, dtxz12 = txz2 - txz1,
@@ -45157,8 +44871,7 @@ namespace cimg_library_suffixed {
         lxz0 = lx0*iz0, lxz1 = lx1*iz1, lxz2 = lx2*iz2,
         lyz0 = ly0*iz0, lyz1 = ly1*iz1, lyz2 = ly2*iz2,
         dlxz01 = lxz1 - lxz0, dlxz02 = lxz2 - lxz0, dlxz12 = lxz2 - lxz1,
-        dlyz01 = lyz1 - lyz0, dlyz02 = lyz2 - lyz0, dlyz12 = lyz2 - lyz1,
-        diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1;
+        dlyz01 = lyz1 - lyz0, dlyz02 = lyz2 - lyz0, dlyz12 = lyz2 - lyz1;
 
       const ulongT
         twhd = (ulongT)texture._width*texture._height*texture._depth,
@@ -45171,6 +44884,8 @@ namespace cimg_library_suffixed {
           xm = y<y1?(x0*dy01 + dx01*yy0 + hdy01)/dy01:(x1*dy12 + dx12*(y - y1) + hdy12)/dy12,
           xM = (x0*dy02 + dx02*yy0 + hdy02)/dy02;
         float
+          izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*(y - y1)/dy12),
+          izM = iz0 + diz02*yy0/dy02,
           txzm = y<y1?(txz0 + dtxz01*yy0/dy01):(txz1 + dtxz12*(y - y1)/dy12),
           txzM = txz0 + dtxz02*yy0/dy02,
           tyzm = y<y1?(tyz0 + dtyz01*yy0/dy01):(tyz1 + dtyz12*(y - y1)/dy12),
@@ -45178,9 +44893,7 @@ namespace cimg_library_suffixed {
           lxzm = y<y1?(lxz0 + dlxz01*yy0/dy01):(lxz1 + dlxz12*(y - y1)/dy12),
           lxzM = lxz0 + dlxz02*yy0/dy02,
           lyzm = y<y1?(lyz0 + dlyz01*yy0/dy01):(lyz1 + dlyz12*(y - y1)/dy12),
-          lyzM = lyz0 + dlyz02*yy0/dy02,
-          izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*(y - y1)/dy12),
-          izM = iz0 + diz02*yy0/dy02;
+          lyzM = lyz0 + dlyz02*yy0/dy02;
         if (xm>xM) cimg::swap(xm,xM,izm,izM,txzm,txzM,tyzm,tyzM,lxzm,lxzM,lyzm,lyzM);
         if (xM>=0 || xm<=w1) {
           const int
@@ -45189,18 +44902,18 @@ namespace cimg_library_suffixed {
           T *ptrd = data(cxm,y);
           const int dxmM = std::max(1,xM - xm);
           const float
+            dizmM = izM - izm,
             dtxzmM = txzM - txzm, dtyzmM = tyzM - tyzm,
-            dlxzmM = lxzM - lxzm, dlyzmM = lyzM - lyzm,
-            dizmM = izM - izm;
+            dlxzmM = lxzM - lxzm, dlyzmM = lyzM - lyzm;
 
           for (int x = cxm; x<cxM; ++x) {
             const int xxm = x - xm;
             const float
+              iz = izm + dizmM*xxm/dxmM,
               txz = txzm + dtxzmM*xxm/dxmM,
               tyz = tyzm + dtyzmM*xxm/dxmM,
               lxz = lxzm + dlxzmM*xxm/dxmM,
-              lyz = lyzm + dlyzmM*xxm/dxmM,
-              iz = izm + dizmM*xxm/dxmM;
+              lyz = lyzm + dlyzmM*xxm/dxmM;
             const int
               tx = (int)cimg::round(txz/iz),
               ty = (int)cimg::round(tyz/iz),
@@ -45272,6 +44985,7 @@ namespace cimg_library_suffixed {
         cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
         hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2;
       const float
+        diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1,
         txz0 = tx0*iz0, txz1 = tx1*iz1, txz2 = tx2*iz2,
         tyz0 = ty0*iz0, tyz1 = ty1*iz1, tyz2 = ty2*iz2,
         dtxz01 = txz1 - txz0, dtxz02 = txz2 - txz0, dtxz12 = txz2 - txz1,
@@ -45279,8 +44993,7 @@ namespace cimg_library_suffixed {
         lxz0 = lx0*iz0, lxz1 = lx1*iz1, lxz2 = lx2*iz2,
         lyz0 = ly0*iz0, lyz1 = ly1*iz1, lyz2 = ly2*iz2,
         dlxz01 = lxz1 - lxz0, dlxz02 = lxz2 - lxz0, dlxz12 = lxz2 - lxz1,
-        dlyz01 = lyz1 - lyz0, dlyz02 = lyz2 - lyz0, dlyz12 = lyz2 - lyz1,
-        diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1;
+        dlyz01 = lyz1 - lyz0, dlyz02 = lyz2 - lyz0, dlyz12 = lyz2 - lyz1;
 
       const ulongT
         twhd = (ulongT)texture._width*texture._height*texture._depth,
@@ -45293,6 +45006,8 @@ namespace cimg_library_suffixed {
           xm = y<y1?(x0*dy01 + dx01*yy0 + hdy01)/dy01:(x1*dy12 + dx12*(y - y1) + hdy12)/dy12,
           xM = (x0*dy02 + dx02*yy0 + hdy02)/dy02;
         float
+          izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*(y - y1)/dy12),
+          izM = iz0 + diz02*yy0/dy02,
           txzm = y<y1?(txz0 + dtxz01*yy0/dy01):(txz1 + dtxz12*(y - y1)/dy12),
           txzM = txz0 + dtxz02*yy0/dy02,
           tyzm = y<y1?(tyz0 + dtyz01*yy0/dy01):(tyz1 + dtyz12*(y - y1)/dy12),
@@ -45300,9 +45015,7 @@ namespace cimg_library_suffixed {
           lxzm = y<y1?(lxz0 + dlxz01*yy0/dy01):(lxz1 + dlxz12*(y - y1)/dy12),
           lxzM = lxz0 + dlxz02*yy0/dy02,
           lyzm = y<y1?(lyz0 + dlyz01*yy0/dy01):(lyz1 + dlyz12*(y - y1)/dy12),
-          lyzM = lyz0 + dlyz02*yy0/dy02,
-          izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*(y - y1)/dy12),
-          izM = iz0 + diz02*yy0/dy02;
+          lyzM = lyz0 + dlyz02*yy0/dy02;
         if (xm>xM) cimg::swap(xm,xM,izm,izM,txzm,txzM,tyzm,tyzM,lxzm,lxzM,lyzm,lyzM);
         if (xM>=0 || xm<=w1) {
           const int
@@ -45312,9 +45025,9 @@ namespace cimg_library_suffixed {
           tz *ptrz = zbuffer.data(cxm,y);
           const int dxmM = std::max(1,xM - xm);
           const float
+            dizmM = izM - izm,
             dtxzmM = txzM - txzm, dtyzmM = tyzM - tyzm,
-            dlxzmM = lxzM - lxzm, dlyzmM = lyzM - lyzm,
-            dizmM = izM - izm;
+            dlxzmM = lxzM - lxzm, dlyzmM = lyzM - lyzm;
 
           for (int x = cxm; x<cxM; ++x) {
             const int xxm = x - xm;

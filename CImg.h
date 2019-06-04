@@ -42292,7 +42292,8 @@ namespace cimg_library_suffixed {
 #define cimg_init_scanline(opacity) \
     static const T _sc_maxval = (T)std::min(cimg::type<T>::max(),(T)cimg::type<tc>::max()); \
     const float _sc_nopacity = cimg::abs((float)opacity), _sc_copacity = 1 - std::max((float)opacity,0.f); \
-    const ulongT _sc_whd = (ulongT)_width*_height*_depth
+    const ulongT _sc_whd = (ulongT)_width*_height*_depth; \
+    cimg::unused(_sc_maxval);
 
 #define cimg_draw_scanline(x0,x1,y,color,opacity,brightness) \
     _draw_scanline(x0,x1,y,color,opacity,brightness,_sc_nopacity,_sc_copacity,_sc_whd,_sc_maxval)
@@ -42456,6 +42457,63 @@ namespace cimg_library_suffixed {
        \endcode
     **/
     template<typename tc>
+    CImg<T>& draw_line(int x0, int y0,
+                       int x1, int y1,
+                       const tc *const color, const float opacity=1,
+                       const unsigned int pattern=~0U, const bool init_hatch=true) {
+      if (y0>y1) cimg::swap(x0,x1,y0,y1);
+      if (y1<0 || y0>=height() || std::min(x0,x1)>=width() || std::max(x0,x1)<0 || !opacity || !pattern) return *this;
+
+      const int w1 = width() - 1, h1 = height() - 1;
+      int dx01 = x1 - x0, dy01 = y1 - y0;
+
+      static unsigned int hatch = ~0U - (~0U>>1);
+      if (init_hatch) hatch = ~0U - (~0U>>1);
+      cimg_init_scanline(opacity);
+
+      if (cimg::abs(dx01)>=dy01) { // Horizontal line
+        if (x0>x1) cimg::swap(x0,x1,y0,y1);
+        const int
+          hdx01 = dx01/2,
+          cx0 = cimg::cut(x0,0,w1), cx1 = cimg::cut(x1,0,w1);
+        dx01+=dx01?0:1;
+        for (int x = cx0; x<=cx1; ++x) {
+          const int
+            xx0 = x - x0,
+            y = (y0*dx01 + dy01*xx0 + hdx01)/dx01;
+          if (y>=0 && y<=h1 && pattern&hatch) {
+            T *const ptrd = data(x,y);
+            cimg_forC(*this,c) {
+              const T val = color[c];
+              ptrd[c*_sc_whd] = (T)(opacity>=1?val:val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
+            }
+          }
+          hatch>>=1; if (!hatch) hatch = ~0U - (~0U>>1);
+        }
+      } else { // Vertical line
+        const int
+          hdy01 = dy01/2,
+          cy0 = cimg::cut(y0,0,h1), cy1 = cimg::cut(y1,0,h1);
+        dy01+=dy01?0:1;
+        for (int y = cy0; y<=cy1; ++y) {
+          const int
+            yy0 = y - y0,
+            x = (x0*dy01 + dx01*yy0 + hdy01)/dy01;
+          if (x>=0 && x<=w1 && pattern&hatch) {
+            T *const ptrd = data(x,y);
+            cimg_forC(*this,c) {
+              const T val = color[c];
+              ptrd[c*_sc_whd] = (T)(opacity>=1?val:val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
+            }
+          }
+          hatch>>=1; if (!hatch) hatch = ~0U - (~0U>>1);
+        }
+      }
+      return *this;
+    }
+
+/*
+    template<typename tc>
     CImg<T>& draw_line(const int x0, const int y0,
                        const int x1, const int y1,
                        const tc *const color, const float opacity=1,
@@ -42527,6 +42585,7 @@ namespace cimg_library_suffixed {
       }
       return *this;
     }
+*/
 
     //! Draw a 2D line, with z-buffering.
     /**

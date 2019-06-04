@@ -42290,11 +42290,12 @@ namespace cimg_library_suffixed {
     //---------------------------
 
 #define cimg_init_scanline(color,opacity) \
+    static const T _sc_maxval = (T)std::min(cimg::type<T>::max(),(T)cimg::type<tc>::max()); \
     const float _sc_nopacity = cimg::abs((float)opacity), _sc_copacity = 1 - std::max((float)opacity,0.f); \
     const ulongT _sc_whd = (ulongT)_width*_height*_depth
 
 #define cimg_draw_scanline(x0,x1,y,color,opacity,brightness) \
-    _draw_scanline(x0,x1,y,color,opacity,brightness,_sc_nopacity,_sc_copacity,_sc_whd)
+    _draw_scanline(x0,x1,y,color,opacity,brightness,_sc_nopacity,_sc_copacity,_sc_whd,_sc_maxval)
 
     // [internal] The following _draw_scanline() routines are *non user-friendly functions*,
     // used only for internal purpose.
@@ -42303,8 +42304,7 @@ namespace cimg_library_suffixed {
     CImg<T>& _draw_scanline(const int x0, const int x1, const int y,
                             const tc *const color, const float opacity,
                             const float brightness,
-                            const float nopacity, const float copacity, const ulongT whd) {
-      static const T maxval = (T)std::min(cimg::type<T>::max(),(T)cimg::type<tc>::max());
+                            const float nopacity, const float copacity, const ulongT whd, const T _sc_maxval) {
       const int nx0 = x0>0?x0:0, nx1 = x1<width()?x1:width() - 1, dx = nx1 - nx0;
       if (dx>=0) {
         const tc *col = color;
@@ -42333,11 +42333,11 @@ namespace cimg_library_suffixed {
               }
           } else { // Brightness>1
             if (sizeof(T)!=1) cimg_forC(*this,c) {
-                const T val = (T)((2-brightness)**(col++) + (brightness - 1)*maxval);
+                const T val = (T)((2-brightness)**(col++) + (brightness - 1)*_sc_maxval);
                 for (int x = dx; x>=0; --x) *(ptrd++) = val;
                 ptrd+=off;
               } else cimg_forC(*this,c) {
-                const T val = (T)((2-brightness)**(col++) + (brightness - 1)*maxval);
+                const T val = (T)((2-brightness)**(col++) + (brightness - 1)*_sc_maxval);
                 std::memset(ptrd,(int)val,dx + 1);
                 ptrd+=whd;
               }
@@ -42357,7 +42357,7 @@ namespace cimg_library_suffixed {
             }
           } else { // Brightness>1
             cimg_forC(*this,c) {
-              const Tfloat val = ((2-brightness)**(col++) + (brightness - 1)*maxval)*nopacity;
+              const Tfloat val = ((2-brightness)**(col++) + (brightness - 1)*_sc_maxval)*nopacity;
               for (int x = dx; x>=0; --x) { *ptrd = (T)(val + *ptrd*copacity); ++ptrd; }
               ptrd+=off;
             }
@@ -43983,9 +43983,9 @@ namespace cimg_library_suffixed {
     **/
     template<typename tz, typename tc>
     CImg<T>& draw_triangle(CImg<tz>& zbuffer,
-                           int x0, int y0, float z0,
-                           int x1, int y1, float z1,
-                           int x2, int y2, float z2,
+                           int x0, int y0, const float z0,
+                           int x1, int y1, const float z1,
+                           int x2, int y2, const float z2,
                            const tc *const color, const float opacity=1,
                            const float brightness=1) {
       typedef typename cimg::superset<tz,float>::type tzfloat;
@@ -44015,7 +44015,6 @@ namespace cimg_library_suffixed {
         hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2;
       const tzfloat diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1;
 
-      static const T maxval = (T)std::min(cimg::type<T>::max(),(T)cimg::type<tc>::max());
       const float nbrightness = cimg::cut(brightness,0,2);
       cimg_init_scanline(color,opacity);
 
@@ -44044,12 +44043,12 @@ namespace cimg_library_suffixed {
                 if (brightness<=1)
                   cimg_forC(*this,c) ptrd[c*_sc_whd] = (T)(nbrightness*color[c]);
                 else
-                  cimg_forC(*this,c) ptrd[c*_sc_whd] = (T)((2 - nbrightness)*color[c] + (nbrightness - 1)*maxval);
+                  cimg_forC(*this,c) ptrd[c*_sc_whd] = (T)((2 - nbrightness)*color[c] + (nbrightness - 1)*_sc_maxval);
               } else {
                 if (brightness<=1)
                   cimg_forC(*this,c) ptrd[c*_sc_whd] = (T)(nbrightness*color[c]*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
                 else
-                  cimg_forC(*this,c) ptrd[c*_sc_whd] = (T)((((2 - nbrightness)*color[c] + (nbrightness - 1)*maxval)*
+                  cimg_forC(*this,c) ptrd[c*_sc_whd] = (T)((((2 - nbrightness)*color[c] + (nbrightness - 1)*_sc_maxval)*
                                                             _sc_nopacity) + ptrd[c*_sc_whd]*_sc_copacity);
               }
             }
@@ -44102,7 +44101,6 @@ namespace cimg_library_suffixed {
         hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2;
       const float dbs01 = bs1 - bs0, dbs02 = bs2 - bs0, dbs12 = bs2 - bs1;
 
-      static const T maxval = (T)std::min(cimg::type<T>::max(),(T)cimg::type<tc>::max());
       cimg_init_scanline(color,opacity);
 
       for (int y = cy0; y<=cy2; ++y) {
@@ -44127,12 +44125,12 @@ namespace cimg_library_suffixed {
               if (brightness<=1)
                 cimg_forC(*this,c) ptrd[c*_sc_whd] = (T)(brightness*color[c]);
               else
-                cimg_forC(*this,c) ptrd[c*_sc_whd] = (T)((2 - brightness)*color[c] + (brightness - 1)*maxval);
+                cimg_forC(*this,c) ptrd[c*_sc_whd] = (T)((2 - brightness)*color[c] + (brightness - 1)*_sc_maxval);
             } else {
               if (brightness<=1)
                 cimg_forC(*this,c) ptrd[c*_sc_whd] = (T)(brightness*color[c]*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
               else
-                cimg_forC(*this,c) ptrd[c*_sc_whd] = (T)((((2 - brightness)*color[c] + (brightness - 1)*maxval)*
+                cimg_forC(*this,c) ptrd[c*_sc_whd] = (T)((((2 - brightness)*color[c] + (brightness - 1)*_sc_maxval)*
                                                           _sc_nopacity) + ptrd[c*_sc_whd]*_sc_copacity);
             }
             ++ptrd;
@@ -44145,14 +44143,14 @@ namespace cimg_library_suffixed {
     //! Draw a Gouraud-shaded 2D triangle, with z-buffering \overloading.
     template<typename tz, typename tc>
     CImg<T>& draw_triangle(CImg<tz>& zbuffer,
-                           const int x0, const int y0, const float z0,
-                           const int x1, const int y1, const float z1,
-                           const int x2, const int y2, const float z2,
+                           int x0, int y0, const float z0,
+                           int x1, int y1, const float z1,
+                           int x2, int y2, const float z2,
                            const tc *const color,
-                           const float brightness0,
-                           const float brightness1,
-                           const float brightness2,
-                           const float opacity=1) {
+                           float bs0,
+                           float bs1,
+                           float bs2,
+                           float opacity=1) {
       typedef typename cimg::superset<tz,float>::type tzfloat;
       if (is_empty() || z0<=0 || z1<=0 || z2<=0) return *this;
       if (!color)
@@ -44165,72 +44163,66 @@ namespace cimg_library_suffixed {
                                     "different dimensions.",
                                     cimg_instance,
                                     zbuffer._width,zbuffer._height,zbuffer._depth,zbuffer._spectrum,zbuffer._data);
-      static const T maxval = (T)std::min(cimg::type<T>::max(),(T)cimg::type<tc>::max());
-      const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.f);
-      const longT whd = (longT)width()*height()*depth(), offx = spectrum()*whd;
-      int nx0 = x0, ny0 = y0, nx1 = x1, ny1 = y1, nx2 = x2, ny2 = y2,
-        nc0 = (int)((brightness0<0.f?0.f:(brightness0>2.f?2.f:brightness0))*256.f),
-        nc1 = (int)((brightness1<0.f?0.f:(brightness1>2.f?2.f:brightness1))*256.f),
-        nc2 = (int)((brightness2<0.f?0.f:(brightness2>2.f?2.f:brightness2))*256.f);
-      tzfloat nz0 = 1/(tzfloat)z0, nz1 = 1/(tzfloat)z1, nz2 = 1/(tzfloat)z2;
-      if (ny0>ny1) cimg::swap(nx0,nx1,ny0,ny1,nz0,nz1,nc0,nc1);
-      if (ny0>ny2) cimg::swap(nx0,nx2,ny0,ny2,nz0,nz2,nc0,nc2);
-      if (ny1>ny2) cimg::swap(nx1,nx2,ny1,ny2,nz1,nz2,nc1,nc2);
-      if (ny0>=height() || ny2<0) return *this;
-      tzfloat
-        pzl = (nz1 - nz0)/(ny1 - ny0),
-        pzr = (nz2 - nz0)/(ny2 - ny0),
-        pzn = (nz2 - nz1)/(ny2 - ny1),
-        zr = ny0>=0?nz0:(nz0 - ny0*(nz2 - nz0)/(ny2 - ny0)),
-        zl = ny1>=0?(ny0>=0?nz0:(nz0 - ny0*(nz1 - nz0)/(ny1 - ny0))):(pzl=pzn,(nz1 - ny1*(nz2 - nz1)/(ny2 - ny1)));
-      _cimg_for_triangle2(*this,xleft0,cleft0,xright0,cright0,y,nx0,ny0,nc0,nx1,ny1,nc1,nx2,ny2,nc2) {
-        if (y==ny1) { zl = nz1; pzl = pzn; }
-        int xleft = xleft0, xright = xright0, cleft = cleft0, cright = cright0;
-        tzfloat zleft = zl, zright = zr;
-        if (xright<xleft) cimg::swap(xleft,xright,zleft,zright,cleft,cright);
-        const int
-          dx = xright - xleft,
-          dc = cright>cleft?cright - cleft:cleft - cright,
-          rc = dx?(cright - cleft)/dx:0,
-          sc = cright>cleft?1:-1,
-          ndc = dc - (dx?dx*(dc/dx):0);
-        const tzfloat pentez = (zright - zleft)/dx;
-        int errc = dx>>1;
-        if (xleft<0 && dx) {
-          cleft-=xleft*(cright - cleft)/dx;
-          zleft-=xleft*(zright - zleft)/dx;
-        }
-        if (xleft<0) xleft = 0;
-        if (xright>=width() - 1) xright = width() - 1;
-        T *ptrd = data(xleft,y);
-        tz *ptrz = xleft<=xright?zbuffer.data(xleft,y):0;
-        if (opacity>=1) for (int x = xleft; x<=xright; ++x, ++ptrd, ++ptrz) {
-            if (zleft>=(tzfloat)*ptrz) {
-              *ptrz = (tz)zleft;
-              const tc *col = color;
-              cimg_forC(*this,c) {
-                *ptrd = (T)(cleft<256?cleft**(col++)/256:((512 - cleft)**(col++)+(cleft - 256)*maxval)/256);
-                ptrd+=whd;
+      tzfloat iz0 = 1/(tzfloat)z0, iz1 = 1/(tzfloat)z1, iz2 = 1/(tzfloat)z2;
+
+      if (y0>y1) cimg::swap(x0,x1,y0,y1,iz0,iz1,bs0,bs1);
+      if (y0>y2) cimg::swap(x0,x2,y0,y2,iz0,iz2,bs0,bs2);
+      if (y1>y2) cimg::swap(x1,x2,y1,y2,iz1,iz2,bs1,bs2);
+      if (y2<0 || y0>=height()) return *this;
+
+      const int
+        w1 = width() - 1, h1 = height() - 1,
+        dx01 = x1 - x0, dx02 = x2 - x0, dx12 = x2 - x1,
+        dy01 = std::max(1,y1 - y0), dy02 = std::max(1,y2 - y0), dy12 = std::max(1,y2 - y1),
+        cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
+        hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2;
+      const float dbs01 = bs1 - bs0, dbs02 = bs2 - bs0, dbs12 = bs2 - bs1;
+      const tzfloat diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1;
+
+      cimg_init_scanline(color,opacity);
+
+      for (int y = cy0; y<=cy2; ++y) {
+        const int yy0 = y - y0;
+        int
+          xM = (x0*dy02 + yy0*dx02 + hdy02)/dy02,
+          xm = y<y1?(x0*dy01 + yy0*dx01 + hdy01)/dy01:(x1*dy12 + (y - y1)*dx12 + hdy12)/dy12;
+        tzfloat
+          izM = iz0 + yy0*diz02/dy02,
+          izm = y<y1?(iz0 + yy0*diz01/dy01):(iz1 + (y - y1)*diz12/dy12);
+        float
+          bsM = bs0 + yy0*dbs02/dy02,
+          bsm = y<y1?(bs0 + yy0*dbs01/dy01):(bs1 + (y - y1)*dbs12/dy12);
+        if (xm>xM) cimg::swap(xm,xM,izm,izM,bsm,bsM);
+        if (xM>=0 || xm<=w1) {
+          const int
+            cxm = cimg::cut(xm,0,w1),
+            cxM = cimg::cut(xM,0,w1);
+          T *ptrd = data(cxm,y);
+          tz *ptrz = zbuffer.data(cxm,y);
+          const int dxmM = xM - xm;
+          const tzfloat dizmM = izM - izm;
+          const float dbsmM = bsM - bsm;
+          for (int x = cxm; x<cxM; ++x) {
+            const tzfloat iz = izm + (x - xm)*dizmM/dxmM;
+            const float brightness = cimg::cut(bsm + (x - xm)*dbsmM/dxmM,0,2);
+            if (iz>=*ptrz) {
+              *ptrz = (tz)iz;
+              if (opacity>=1) {
+                if (brightness<=1)
+                  cimg_forC(*this,c) ptrd[c*_sc_whd] = (T)(brightness*color[c]);
+                else
+                  cimg_forC(*this,c) ptrd[c*_sc_whd] = (T)((2 - brightness)*color[c] + (brightness - 1)*_sc_maxval);
+              } else {
+                if (brightness<=1)
+                  cimg_forC(*this,c) ptrd[c*_sc_whd] = (T)(brightness*color[c]*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
+                else
+                  cimg_forC(*this,c) ptrd[c*_sc_whd] = (T)((((2 - brightness)*color[c] + (brightness - 1)*_sc_maxval)*
+                                                            _sc_nopacity) + ptrd[c*_sc_whd]*_sc_copacity);
               }
-              ptrd-=offx;
             }
-            zleft+=pentez;
-            cleft+=rc+((errc-=ndc)<0?errc+=dx,sc:0);
-          } else for (int x = xleft; x<=xright; ++x, ++ptrd, ++ptrz) {
-            if (zleft>=(tzfloat)*ptrz) {
-              *ptrz = (tz)zleft;
-              const tc *col = color;
-              cimg_forC(*this,c) {
-                const T val = (T)(cleft<256?cleft**(col++)/256:((512 - cleft)**(col++)+(cleft - 256)*maxval)/256);
-                *ptrd = (T)(nopacity*val + *ptrd*copacity);
-                ptrd+=whd;
-              }
-              ptrd-=offx;
-            }
-            zleft+=pentez;
-            cleft+=rc+((errc-=ndc)<0?errc+=dx,sc:0);
+            ++ptrd; ++ptrz;
           }
-        zr+=pzr; zl+=pzl;
+        }
       }
       return *this;
     }

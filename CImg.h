@@ -44069,67 +44069,74 @@ namespace cimg_library_suffixed {
        \param x2 X-coordinate of the third vertex in the image instance.
        \param y2 Y-coordinate of the third vertex in the image instance.
        \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
-       \param brightness0 Brightness factor of the first vertex (in [0,2]).
-       \param brightness1 brightness factor of the second vertex (in [0,2]).
-       \param brightness2 brightness factor of the third vertex (in [0,2]).
+       \param bs0 Brightness factor of the first vertex (in [0,2]).
+       \param bs1 brightness factor of the second vertex (in [0,2]).
+       \param bs2 brightness factor of the third vertex (in [0,2]).
        \param opacity Drawing opacity.
     **/
     template<typename tc>
-    CImg<T>& draw_triangle(const int x0, const int y0,
-                           const int x1, const int y1,
-                           const int x2, const int y2,
+    CImg<T>& draw_triangle(int x0, int y0,
+                           int x1, int y1,
+                           int x2, int y2,
                            const tc *const color,
-                           const float brightness0,
-                           const float brightness1,
-                           const float brightness2,
+                           float bs0,
+                           float bs1,
+                           float bs2,
                            const float opacity=1) {
       if (is_empty()) return *this;
       if (!color)
         throw CImgArgumentException(_cimg_instance
                                     "draw_triangle(): Specified color is (null).",
                                     cimg_instance);
+
+      if (y0>y1) cimg::swap(x0,x1,y0,y1,bs0,bs1);
+      if (y0>y2) cimg::swap(x0,x2,y0,y2,bs0,bs2);
+      if (y1>y2) cimg::swap(x1,x2,y1,y2,bs1,bs2);
+      if (y2<0 || y0>=height()) return *this;
+
+      const int
+        w1 = width() - 1, h1 = height() - 1,
+        dx01 = x1 - x0, dx02 = x2 - x0, dx12 = x2 - x1,
+        dy01 = std::max(1,y1 - y0), dy02 = std::max(1,y2 - y0), dy12 = std::max(1,y2 - y1),
+        cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
+        hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2;
+      const float dbs01 = bs1 - bs0, dbs02 = bs2 - bs0, dbs12 = bs2 - bs1;
+
       static const T maxval = (T)std::min(cimg::type<T>::max(),(T)cimg::type<tc>::max());
-      const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.f);
-      const longT whd = (longT)width()*height()*depth(), offx = spectrum()*whd - 1;
-      int nx0 = x0, ny0 = y0, nx1 = x1, ny1 = y1, nx2 = x2, ny2 = y2,
-        nc0 = (int)((brightness0<0.f?0.f:(brightness0>2.f?2.f:brightness0))*256.f),
-        nc1 = (int)((brightness1<0.f?0.f:(brightness1>2.f?2.f:brightness1))*256.f),
-        nc2 = (int)((brightness2<0.f?0.f:(brightness2>2.f?2.f:brightness2))*256.f);
-      if (ny0>ny1) cimg::swap(nx0,nx1,ny0,ny1,nc0,nc1);
-      if (ny0>ny2) cimg::swap(nx0,nx2,ny0,ny2,nc0,nc2);
-      if (ny1>ny2) cimg::swap(nx1,nx2,ny1,ny2,nc1,nc2);
-      if (ny0>=height() || ny2<0) return *this;
-      _cimg_for_triangle2(*this,xleft0,cleft0,xright0,cright0,y,nx0,ny0,nc0,nx1,ny1,nc1,nx2,ny2,nc2) {
-        int xleft = xleft0, xright = xright0, cleft = cleft0, cright = cright0;
-        if (xright<xleft) cimg::swap(xleft,xright,cleft,cright);
-        const int
-          dx = xright - xleft,
-          dc = cright>cleft?cright - cleft:cleft - cright,
-          rc = dx?(cright - cleft)/dx:0,
-          sc = cright>cleft?1:-1,
-          ndc = dc - (dx?dx*(dc/dx):0);
-        int errc = dx>>1;
-        if (xleft<0 && dx) cleft-=xleft*(cright - cleft)/dx;
-        if (xleft<0) xleft = 0;
-        if (xright>=width() - 1) xright = width() - 1;
-        T* ptrd = data(xleft,y);
-        if (opacity>=1) for (int x = xleft; x<=xright; ++x) {
-          const tc *col = color;
-          cimg_forC(*this,c) {
-            *ptrd = (T)(cleft<256?cleft**(col++)/256:((512 - cleft)**(col++)+(cleft - 256)*maxval)/256);
-            ptrd+=whd;
+      cimg_init_scanline(color,opacity);
+
+      for (int y = cy0; y<=cy2; ++y) {
+        const int yy0 = y - y0;
+        int
+          xM = (x0*dy02 + yy0*dx02 + hdy02)/dy02,
+          xm = y<y1?(x0*dy01 + yy0*dx01 + hdy01)/dy01:(x1*dy12 + (y - y1)*dx12 + hdy12)/dy12;
+        float
+          bsM = bs0 + yy0*dbs02/dy02,
+          bsm = y<y1?(bs0 + yy0*dbs01/dy01):(bs1 + (y - y1)*dbs12/dy12);
+        if (xm>xM) cimg::swap(xm,xM,bsm,bsM);
+        if (xM>=0 || xm<=w1) {
+          const int
+            cxm = cimg::cut(xm,0,w1),
+            cxM = cimg::cut(xM,0,w1);
+          T *ptrd = data(cxm,y);
+          const int dxmM = xM - xm;
+          const float dbsmM = bsM - bsm;
+          for (int x = cxm; x<cxM; ++x) {
+            const float brightness = cimg::cut(bsm + (x - xm)*dbsmM/dxmM,0,2);
+            if (opacity>=1) {
+              if (brightness<=1)
+                cimg_forC(*this,c) ptrd[c*_sc_whd] = (T)(brightness*color[c]);
+              else
+                cimg_forC(*this,c) ptrd[c*_sc_whd] = (T)((2 - brightness)*color[c] + (brightness - 1)*maxval);
+            } else {
+              if (brightness<=1)
+                cimg_forC(*this,c) ptrd[c*_sc_whd] = (T)(brightness*color[c]*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
+              else
+                cimg_forC(*this,c) ptrd[c*_sc_whd] = (T)((((2 - brightness)*color[c] + (brightness - 1)*maxval)*
+                                                          _sc_nopacity) + ptrd[c*_sc_whd]*_sc_copacity);
+            }
+            ++ptrd;
           }
-          ptrd-=offx;
-          cleft+=rc+((errc-=ndc)<0?errc+=dx,sc:0);
-        } else for (int x = xleft; x<=xright; ++x) {
-          const tc *col = color;
-          cimg_forC(*this,c) {
-            const T val = (T)(cleft<256?cleft**(col++)/256:((512 - cleft)**(col++)+(cleft - 256)*maxval)/256);
-            *ptrd = (T)(nopacity*val + *ptrd*copacity);
-            ptrd+=whd;
-          }
-          ptrd-=offx;
-          cleft+=rc+((errc-=ndc)<0?errc+=dx,sc:0);
         }
       }
       return *this;

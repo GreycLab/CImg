@@ -42596,8 +42596,8 @@ namespace cimg_library_suffixed {
     CImg<T>& draw_line(int x0, int y0,
                        int x1, int y1,
                        const CImg<tc>& texture,
-                       int tx0, int ty0,
-                       int tx1, int ty1,
+                       const int tx0, const int ty0,
+                       const int tx1, const int ty1,
                        const float opacity=1,
                        const unsigned int pattern=~0U, const bool init_hatch=true) {
 

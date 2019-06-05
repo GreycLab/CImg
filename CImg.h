@@ -42469,25 +42469,24 @@ namespace cimg_library_suffixed {
         w1 = width() - 1, h1 = height() - 1,
         dx01 = x1 - x0, dy01 = y1 - y0;
 
-      const bool is_vertical = cimg::abs(dx01)<cimg::abs(dy01);
-      if (is_vertical) cimg::swap(x0,y0,x1,y1,w1,h1,dx01,dy01);
+      const bool is_horizontal = cimg::abs(dx01)>cimg::abs(dy01);
+      if (is_horizontal) cimg::swap(x0,y0,x1,y1,w1,h1,dx01,dy01);
 
       static unsigned int hatch = ~0U - (~0U>>1);
       if (init_hatch) hatch = ~0U - (~0U>>1);
       cimg_init_scanline(opacity);
 
       const int
-        hdx01 = dx01/2,
-        cx0 = cimg::cut(x0,0,w1), cx1 = cimg::cut(x1,0,w1),
-        step = cx0<=cx1?1:-1;
-      dx01+=dx01?0:1;
+        hdy01 = dy01/2, step = y0<=y1?1:-1,
+        cy0 = cimg::cut(y0,0,h1), cy1 = cimg::cut(y1,0,h1) + step;
+      dy01+=dy01?0:1;
 
-      for (int x = cx0; x!=cx1 + step; x+=step) {
+      for (int y = cy0; y!=cy1; y+=step) {
         const int
-          xx0 = x - x0,
-          y = (y0*dx01 + dy01*xx0 + hdx01)/dx01;
-        if (y>=0 && y<=h1 && pattern&hatch) {
-          T *const ptrd = is_vertical?data(y,x):data(x,y);
+          yy0 = y - y0,
+          x = (x0*dy01 + dx01*yy0 + hdy01)/dy01;
+        if (x>=0 && x<=w1 && pattern&hatch) {
+          T *const ptrd = is_horizontal?data(y,x):data(x,y);
           cimg_forC(*this,c) {
             const T val = color[c];
             ptrd[c*_sc_whd] = (T)(opacity>=1?val:val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);

@@ -42850,7 +42850,7 @@ namespace cimg_library_suffixed {
                                     cimg_instance,
                                     points._width,points._height,points._depth,points._spectrum,points._data);
 
-      case 2 : {
+      default : {
         const int x0 = (int)points(0,0), y0 = (int)points(0,1);
         int ox = x0, oy = y0;
         for (unsigned int i = 1; i<points._width; ++i) {
@@ -42858,16 +42858,6 @@ namespace cimg_library_suffixed {
           draw_line(ox,oy,x,y,color,opacity,pattern,ninit_hatch);
           ninit_hatch = false;
           ox = x; oy = y;
-        }
-      } break;
-      default : {
-        const int x0 = (int)points(0,0), y0 = (int)points(0,1), z0 = (int)points(0,2);
-        int ox = x0, oy = y0, oz = z0;
-        for (unsigned int i = 1; i<points._width; ++i) {
-          const int x = (int)points(i,0), y = (int)points(i,1), z = (int)points(i,2);
-          draw_line(ox,oy,oz,x,y,z,color,opacity,pattern,ninit_hatch);
-          ninit_hatch = false;
-          ox = x; oy = y; oz = z;
         }
       }
       }

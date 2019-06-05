@@ -42461,8 +42461,8 @@ namespace cimg_library_suffixed {
                        int x1, int y1,
                        const tc *const color, const float opacity=1,
                        const unsigned int pattern=~0U, const bool init_hatch=true) {
-      if (y0>y1) cimg::swap(x0,x1,y0,y1);
-      if (y1<0 || y0>=height() || std::min(x0,x1)>=width() || std::max(x0,x1)<0 || !opacity || !pattern) return *this;
+      if (std::min(y0,y1)>=height() || std::max(y0,y1)<0 ||
+          std::min(x0,x1)>=width() || std::max(x0,x1)<0 || !opacity || !pattern) return *this;
 
       const int w1 = width() - 1, h1 = height() - 1;
       int dx01 = x1 - x0, dy01 = y1 - y0;
@@ -42471,13 +42471,14 @@ namespace cimg_library_suffixed {
       if (init_hatch) hatch = ~0U - (~0U>>1);
       cimg_init_scanline(opacity);
 
-      if (cimg::abs(dx01)>=dy01) { // Horizontal line
-        if (x0>x1) cimg::swap(x0,x1,y0,y1);
+      if (cimg::abs(dx01)>=cimg::abs(dy01)) { // Horizontal line
         const int
           hdx01 = dx01/2,
-          cx0 = cimg::cut(x0,0,w1), cx1 = cimg::cut(x1,0,w1);
-        dx01+=dx01?0:1;
-        for (int x = cx0; x<=cx1; ++x) {
+          cx0 = cimg::cut(x0,0,w1), cx1 = cimg::cut(x1,0,w1),
+          step = cx0<=cx1?1:-1;
+        dx01+=dx01?0:step;
+
+        for (int x = cx0; x!=cx1 + step; x+=step) {
           const int
             xx0 = x - x0,
             y = (y0*dx01 + dy01*xx0 + hdx01)/dx01;
@@ -42493,9 +42494,10 @@ namespace cimg_library_suffixed {
       } else { // Vertical line
         const int
           hdy01 = dy01/2,
-          cy0 = cimg::cut(y0,0,h1), cy1 = cimg::cut(y1,0,h1);
-        dy01+=dy01?0:1;
-        for (int y = cy0; y<=cy1; ++y) {
+          cy0 = cimg::cut(y0,0,h1), cy1 = cimg::cut(y1,0,h1),
+          step = cy0<=cy1?1:-1;
+        dy01+=dy01?0:step;
+        for (int y = cy0; y!=cy1 + step; y+=step) {
           const int
             yy0 = y - y0,
             x = (x0*dy01 + dx01*yy0 + hdy01)/dy01;

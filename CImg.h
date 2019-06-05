@@ -42488,7 +42488,7 @@ namespace cimg_library_suffixed {
               ptrd[c*_sc_whd] = (T)(opacity>=1?val:val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
             }
           }
-          hatch>>=1; if (!hatch) hatch = ~0U - (~0U>>1);
+          if (!(hatch>>=1)) hatch = ~0U - (~0U>>1);
         }
       } else { // Vertical line
         const int
@@ -42506,7 +42506,7 @@ namespace cimg_library_suffixed {
               ptrd[c*_sc_whd] = (T)(opacity>=1?val:val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
             }
           }
-          hatch>>=1; if (!hatch) hatch = ~0U - (~0U>>1);
+          if (!(hatch>>=1)) hatch = ~0U - (~0U>>1);
         }
       }
       return *this;

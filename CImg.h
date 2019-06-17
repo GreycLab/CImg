@@ -42484,14 +42484,16 @@ namespace cimg_library_suffixed {
       if (init_hatch) hatch = ~0U - (~0U>>1);
       cimg_init_scanline(opacity);
 
-      const int step = y0<=y1?1:-1, cy0 = cimg::cut(y0,0,h1), cy1 = cimg::cut(y1,0,h1) + step;
-      int hdy01 = dy01/2;
+      const int
+        hdy01 = dy01/2, step = y0<=y1?1:-1,
+        cy0 = cimg::cut(y0,0,h1), cy1 = cimg::cut(y1,0,h1) + step;
       dy01+=dy01?0:1;
-      hdy01*=hdy01<0?-1:1;
 
       for (int y = cy0; y!=cy1; y+=step) {
         const int
           yy0 = y - y0,
+//          x = x0 + (dx01*yy0 + hdy01)/dy01;
+//          x = cimg::round(x0 + (float)dx01*yy0/dy01);
           x = x0 + (dx01*yy0 + hdy01)/dy01;
         if (x>=0 && x<=w1 && pattern&hatch) {
           T *const ptrd = is_horizontal?data(y,x):data(x,y);

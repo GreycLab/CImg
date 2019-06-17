@@ -42479,6 +42479,10 @@ namespace cimg_library_suffixed {
 
       const bool is_horizontal = cimg::abs(dx01)>cimg::abs(dy01);
       if (is_horizontal) cimg::swap(x0,y0,x1,y1,w1,h1,dx01,dy01);
+      if (pattern==~0U && y0>y1) {
+        cimg::swap(x0,x1,y0,y1);
+        dx01*=-1; dy01*=-1;
+      }
 
       static unsigned int hatch = ~0U - (~0U>>1);
       if (init_hatch) hatch = ~0U - (~0U>>1);
@@ -42537,14 +42541,18 @@ namespace cimg_library_suffixed {
 
       if (std::min(y0,y1)>=height() || std::max(y0,y1)<0 || std::min(x0,x1)>=width() || std::max(x0,x1)<0) return *this;
 
-      const float iz0 = 1/z0, iz1 = 1/z1;
+      float iz0 = 1/z0, iz1 = 1/z1;
       int
         w1 = width() - 1, h1 = height() - 1,
         dx01 = x1 - x0, dy01 = y1 - y0;
-      const float diz01 = iz1 - iz0;
+      float diz01 = iz1 - iz0;
 
       const bool is_horizontal = cimg::abs(dx01)>cimg::abs(dy01);
       if (is_horizontal) cimg::swap(x0,y0,x1,y1,w1,h1,dx01,dy01);
+      if (pattern==~0U && y0>y1) {
+        cimg::swap(x0,x1,y0,y1,iz0,iz1);
+        dx01*=-1; dy01*=-1; diz01*=-1;
+      }
 
       static unsigned int hatch = ~0U - (~0U>>1);
       if (init_hatch) hatch = ~0U - (~0U>>1);
@@ -42602,8 +42610,8 @@ namespace cimg_library_suffixed {
     CImg<T>& draw_line(int x0, int y0,
                        int x1, int y1,
                        const CImg<tc>& texture,
-                       const int tx0, const int ty0,
-                       const int tx1, const int ty1,
+                       int tx0, int ty0,
+                       int tx1, int ty1,
                        const float opacity=1,
                        const unsigned int pattern=~0U, const bool init_hatch=true) {
 
@@ -42625,6 +42633,10 @@ namespace cimg_library_suffixed {
 
       const bool is_horizontal = cimg::abs(dx01)>cimg::abs(dy01);
       if (is_horizontal) cimg::swap(x0,y0,x1,y1,w1,h1,dx01,dy01);
+      if (pattern==~0U && y0>y1) {
+        cimg::swap(x0,x1,y0,y1,tx0,tx1,ty0,ty1);
+        dx01*=-1; dy01*=-1; dtx01*=-1; dty01*=-1;
+      }
 
       const ulongT twhd = (ulongT)texture._width*texture._height*texture._depth;
       static unsigned int hatch = ~0U - (~0U>>1);
@@ -42692,11 +42704,11 @@ namespace cimg_library_suffixed {
 
       if (std::min(y0,y1)>=height() || std::max(y0,y1)<0 || std::min(x0,x1)>=width() || std::max(x0,x1)<0) return *this;
 
-      const float iz0 = 1/z0, iz1 = 1/z1;
+      float iz0 = 1/z0, iz1 = 1/z1;
       int
         w1 = width() - 1, h1 = height() - 1,
         dx01 = x1 - x0, dy01 = y1 - y0;
-      const float
+      float
         diz01 = iz1 - iz0,
         txz0 = tx0*iz0, txz1 = tx1*iz1,
         tyz0 = ty0*iz0, tyz1 = ty1*iz1,
@@ -42704,6 +42716,10 @@ namespace cimg_library_suffixed {
 
       const bool is_horizontal = cimg::abs(dx01)>cimg::abs(dy01);
       if (is_horizontal) cimg::swap(x0,y0,x1,y1,w1,h1,dx01,dy01);
+      if (pattern==~0U && y0>y1) {
+        cimg::swap(x0,x1,y0,y1,iz0,iz1,txz0,txz1,tyz0,tyz1);
+        dx01*=-1; dy01*=-1; diz01*=-1; dtxz01*=-1; dtyz01*=-1;
+      }
 
       const ulongT twhd = (ulongT)texture._width*texture._height*texture._depth;
       static unsigned int hatch = ~0U - (~0U>>1);
@@ -42783,11 +42799,11 @@ namespace cimg_library_suffixed {
 
       if (std::min(y0,y1)>=height() || std::max(y0,y1)<0 || std::min(x0,x1)>=width() || std::max(x0,x1)<0) return *this;
 
-      const float iz0 = 1/z0, iz1 = 1/z1;
+      float iz0 = 1/z0, iz1 = 1/z1;
       int
         w1 = width() - 1, h1 = height() - 1,
         dx01 = x1 - x0, dy01 = y1 - y0;
-      const float
+      float
         diz01 = iz1 - iz0,
         txz0 = tx0*iz0, txz1 = tx1*iz1,
         tyz0 = ty0*iz0, tyz1 = ty1*iz1,
@@ -42795,6 +42811,10 @@ namespace cimg_library_suffixed {
 
       const bool is_horizontal = cimg::abs(dx01)>cimg::abs(dy01);
       if (is_horizontal) cimg::swap(x0,y0,x1,y1,w1,h1,dx01,dy01);
+      if (pattern==~0U && y0>y1) {
+        cimg::swap(x0,x1,y0,y1,iz0,iz1,txz0,txz1,tyz0,tyz1);
+        dx01*=-1; dy01*=-1; diz01*=-1; dtxz01*=-1; dtyz01*=-1;
+      }
 
       const ulongT twhd = (ulongT)texture._width*texture._height*texture._depth;
       static unsigned int hatch = ~0U - (~0U>>1);

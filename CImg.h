@@ -6191,6 +6191,10 @@ namespace cimg_library_suffixed {
       return (int)(x + 0.5f);
     }
 
+    inline int uiround(const int x) {
+      return x;
+    }
+
     //! Return rounded value.
     /**
        \param x Value to be rounded.
@@ -44790,12 +44794,12 @@ namespace cimg_library_suffixed {
                                     "draw_polygon(): Invalid specified point set (%u,%u,%u,%u).",
                                     cimg_instance,
                                     points._width,points._height,points._depth,points._spectrum);
-      if (points._width==1) return draw_point((int)points(0,0),(int)points(0,1),color,opacity);
-      if (points._width==2) return draw_line((int)points(0,0),(int)points(0,1),
-                                             (int)points(1,0),(int)points(1,1),color,opacity);
-      if (points._width==3) return draw_triangle((int)points(0,0),(int)points(0,1),
-                                                 (int)points(1,0),(int)points(1,1),
-                                                 (int)points(2,0),(int)points(2,1),color,opacity);
+      if (points._width==1) return draw_point(cimg::uiround(points(0,0)),cimg::uiround(points(0,1)),color,opacity);
+      if (points._width==2) return draw_line(cimg::uiround(points(0,0)),cimg::uiround(points(0,1)),
+                                             cimg::uiround(points(1,0)),cimg::uiround(points(1,1)),color,opacity);
+      if (points._width==3) return draw_triangle(cimg::uiround(points(0,0)),cimg::uiround(points(0,1)),
+                                                 cimg::uiround(points(1,0)),cimg::uiround(points(1,1)),
+                                                 cimg::uiround(points(2,0)),cimg::uiround(points(2,1)),color,opacity);
       cimg_init_scanline(opacity);
       int
         xmin = 0, ymin = 0,
@@ -44814,26 +44818,27 @@ namespace cimg_library_suffixed {
       while (go_on) {
         unsigned int an = (nn + 1)%points._width;
         const int
-          x0 = (int)points(n,0),
-          y0 = (int)points(n,1);
+          x0 = cimg::uiround(points(n,0)),
+          y0 = cimg::uiround(points(n,1));
         if (points(nn,1)==y0) while (points(an,1)==y0) { nn = an; (an+=1)%=points._width; }
         const int
-          x1 = (int)points(nn,0),
-          y1 = (int)points(nn,1);
+          x1 = cimg::uiround(points(nn,0)),
+          y1 = cimg::uiround(points(nn,1));
         unsigned int tn = an;
         while (points(tn,1)==y1) (tn+=1)%=points._width;
 
         if (y0!=y1) {
           const int
-            y2 = (int)points(tn,1),
+            y2 = cimg::uiround(points(tn,1)),
             x01 = x1 - x0, y01 = y1 - y0, y12 = y2 - y1,
             dy = cimg::sign(y01),
-            tmax = std::max(1,cimg::abs(y01)),
-            htmax = tmax/2,
-            tend = tmax - (dy==cimg::sign(y12));
+            //            tmax = std::max(1,cimg::abs(y01)), htmax = tmax/2,
+            tend = std::max(1,cimg::abs(y01)) - (dy==cimg::sign(y12)),
+            htend = tend/2;
           unsigned int y = (unsigned int)y0 - ymin;
           for (int t = 0; t<=tend; ++t, y+=dy)
-            if (y<Xs._height) Xs(count[y]++,y) = x0 + (t*x01 + htmax)/tmax;
+            //            if (y<Xs._height) Xs(count[y]++,y) = x0 + (t*x01 + htmax)/tmax; // Old version
+          if (y<Xs._height) Xs(count[y]++,y) = x0 + (t*x01 + htend)/tend;
         }
         go_on = nn>n;
         n = nn;

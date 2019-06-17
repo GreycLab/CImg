@@ -44829,12 +44829,12 @@ namespace cimg_library_suffixed {
             x01 = x1 - x0, y01 = y1 - y0, y12 = y2 - y1,
             dy = cimg::sign(y01),
             tmax = std::max(1,cimg::abs(y01)),
+            htmax = tmax/2,
             tend = tmax - (dy==cimg::sign(y12));
           unsigned int y = (unsigned int)y0 - ymin;
           for (int t = 0; t<=tend; ++t, y+=dy)
-            if (y<Xs._height) Xs(count[y]++,y) = x0 + t*x01/tmax;
+            if (y<Xs._height) Xs(count[y]++,y) = x0 + (t*x01 + htmax)/tmax;
         }
-
         go_on = nn>n;
         n = nn;
         nn = an;

@@ -42629,7 +42629,7 @@ namespace cimg_library_suffixed {
       int
         w1 = width() - 1, h1 = height() - 1,
         dx01 = x1 - x0, dy01 = y1 - y0;
-      const int
+      int
         dtx01 = tx1 - tx0, dty01 = ty1 - ty0;
 
       const bool is_horizontal = cimg::abs(dx01)>cimg::abs(dy01);

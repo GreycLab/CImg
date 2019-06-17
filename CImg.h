@@ -42483,16 +42483,14 @@ namespace cimg_library_suffixed {
       static unsigned int hatch = ~0U - (~0U>>1);
       if (init_hatch) hatch = ~0U - (~0U>>1);
       cimg_init_scanline(opacity);
-
       const int
-        step = y0<=y1?1:-1, hdy01 = dy01*step/2,
+        step = y0<=y1?1:-1, hdy01 = dy01*cimg::sign(dx01)/2,
         cy0 = cimg::cut(y0,0,h1), cy1 = cimg::cut(y1,0,h1) + step;
       dy01+=dy01?0:1;
-
       for (int y = cy0; y!=cy1; y+=step) {
         const int
           yy0 = y - y0,
-          x = x0 + (dx01*yy0 - hdy01)/dy01;
+          x = x0 + (dx01*yy0 + hdy01)/dy01;
         if (x>=0 && x<=w1 && pattern&hatch) {
           T *const ptrd = is_horizontal?data(y,x):data(x,y);
           cimg_forC(*this,c) {
@@ -42553,14 +42551,14 @@ namespace cimg_library_suffixed {
       cimg_init_scanline(opacity);
 
       const int
-        step = y0<=y1?1:-1, hdy01 = dy01*step/2,
+        step = y0<=y1?1:-1, hdy01 = dy01*cimg::sign(dx01)/2,
         cy0 = cimg::cut(y0,0,h1), cy1 = cimg::cut(y1,0,h1) + step;
       dy01+=dy01?0:1;
 
       for (int y = cy0; y!=cy1; y+=step) {
         const int
           yy0 = y - y0,
-          x = x0 + (dx01*yy0 - hdy01)/dy01;
+          x = x0 + (dx01*yy0 + hdy01)/dy01;
         const float iz = iz0 + diz01*yy0/dy01;
         tz *const ptrz = is_horizontal?zbuffer.data(y,x):zbuffer.data(x,y);
 
@@ -42634,16 +42632,17 @@ namespace cimg_library_suffixed {
       cimg_init_scanline(opacity);
 
       const int
-        step = y0<=y1?1:-1, hdy01 = dy01*step/2,
+        step = y0<=y1?1:-1, hdy01 = dy01*cimg::sign(dx01)/2,
+        hdy01tx = dy01*cimg::sign(dtx01)/2, hdy01ty = dy01*cimg::sign(dty01)/2,
         cy0 = cimg::cut(y0,0,h1), cy1 = cimg::cut(y1,0,h1) + step;
       dy01+=dy01?0:1;
 
       for (int y = cy0; y!=cy1; y+=step) {
         const int
           yy0 = y - y0,
-          x = x0 + (dx01*yy0 - hdy01)/dy01,
-          tx = tx0 + (dtx01*yy0 - hdy01)/dy01,
-          ty = ty0 + (dty01*yy0 - hdy01)/dy01;
+          x = x0 + (dx01*yy0 + hdy01)/dy01,
+          tx = tx0 + (dtx01*yy0 + hdy01tx)/dy01,
+          ty = ty0 + (dty01*yy0 + hdy01ty)/dy01;
         if (x>=0 && x<=w1 && pattern&hatch) {
           T *const ptrd = is_horizontal?data(y,x):data(x,y);
           const tc *const color = &texture._atXY(tx,ty);
@@ -42712,14 +42711,14 @@ namespace cimg_library_suffixed {
       cimg_init_scanline(opacity);
 
       const int
-        step = y0<=y1?1:-1, hdy01 = dy01*step/2,
+        step = y0<=y1?1:-1, hdy01 = dy01*cimg::sign(dx01)/2,
         cy0 = cimg::cut(y0,0,h1), cy1 = cimg::cut(y1,0,h1) + step;
       dy01+=dy01?0:1;
 
       for (int y = cy0; y!=cy1; y+=step) {
         const int
           yy0 = y - y0,
-          x = x0 + (dx01*yy0 - hdy01)/dy01;
+          x = x0 + (dx01*yy0 + hdy01)/dy01;
         const float
           iz = iz0 + diz01*yy0/dy01,
           txz = txz0 + dtxz01*yy0/dy01,
@@ -42803,14 +42802,14 @@ namespace cimg_library_suffixed {
       cimg_init_scanline(opacity);
 
       const int
-        step = y0<=y1?1:-1, hdy01 = dy01*step/2,
+        step = y0<=y1?1:-1, hdy01 = dy01*cimg::sign(dx01)/2,
         cy0 = cimg::cut(y0,0,h1), cy1 = cimg::cut(y1,0,h1) + step;
       dy01+=dy01?0:1;
 
       for (int y = cy0; y!=cy1; y+=step) {
         const int
           yy0 = y - y0,
-          x = x0 + (dx01*yy0 - hdy01)/dy01;
+          x = x0 + (dx01*yy0 + hdy01)/dy01;
         const float
           iz = iz0 + diz01*yy0/dy01,
           txz = txz0 + dtxz01*yy0/dy01,
@@ -43190,7 +43189,7 @@ namespace cimg_library_suffixed {
         dx01 = x1 - x0, dx02 = x2 - x0, dx12 = x2 - x1,
         dy01 = std::max(1,y1 - y0), dy02 = std::max(1,y2 - y0), dy12 = std::max(1,y2 - y1),
         cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
-        hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2;
+        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2;
 
       const float cbs = cimg::cut(brightness,0,2);
       cimg_init_scanline(opacity);
@@ -43306,7 +43305,7 @@ namespace cimg_library_suffixed {
         dx01 = x1 - x0, dx02 = x2 - x0, dx12 = x2 - x1,
         dy01 = std::max(1,y1 - y0), dy02 = std::max(1,y2 - y0), dy12 = std::max(1,y2 - y1),
         cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
-        hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2;
+        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2;
       const float diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1;
 
       const float cbs = cimg::cut(brightness,0,2);
@@ -43386,7 +43385,7 @@ namespace cimg_library_suffixed {
         dx01 = x1 - x0, dx02 = x2 - x0, dx12 = x2 - x1,
         dy01 = std::max(1,y1 - y0), dy02 = std::max(1,y2 - y0), dy12 = std::max(1,y2 - y1),
         cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
-        hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2;
+        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2;
       const float dbs01 = bs1 - bs0, dbs02 = bs2 - bs0, dbs12 = bs2 - bs1;
 
       cimg_init_scanline(opacity);
@@ -43456,7 +43455,7 @@ namespace cimg_library_suffixed {
         dx01 = x1 - x0, dx02 = x2 - x0, dx12 = x2 - x1,
         dy01 = std::max(1,y1 - y0), dy02 = std::max(1,y2 - y0), dy12 = std::max(1,y2 - y1),
         cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
-        hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2;
+        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2;
       const float
         diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1,
         dbs01 = bs1 - bs0, dbs02 = bs2 - bs0, dbs12 = bs2 - bs1;
@@ -43575,10 +43574,11 @@ namespace cimg_library_suffixed {
         dx01 = x1 - x0, dx02 = x2 - x0, dx12 = x2 - x1,
         dy01 = std::max(1,y1 - y0), dy02 = std::max(1,y2 - y0), dy12 = std::max(1,y2 - y1),
         cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
-        hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2,
+        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2,
         dtx01 = tx1 - tx0, dtx02 = tx2 - tx0, dtx12 = tx2 - tx1,
-        dty01 = ty1 - ty0, dty02 = ty2 - ty0, dty12 = ty2 - ty1;
-
+        dty01 = ty1 - ty0, dty02 = ty2 - ty0, dty12 = ty2 - ty1,
+        hdy01tx = dy01*cimg::sign(dtx01)/2, hdy02tx = dy02*cimg::sign(dtx02)/2, hdy12tx = dy12*cimg::sign(dtx12)/2,
+        hdy01ty = dy01*cimg::sign(dty01)/2, hdy02ty = dy02*cimg::sign(dty02)/2, hdy12ty = dy12*cimg::sign(dty12)/2;
       const ulongT twhd = (ulongT)texture._width*texture._height*texture._depth;
       const float cbs = cimg::cut(brightness,0,2);
       cimg_init_scanline(opacity);
@@ -43588,10 +43588,10 @@ namespace cimg_library_suffixed {
         int
           xm = y<y1?x0 + (dx01*yy0 + hdy01)/dy01:x1 + (dx12*yy1 + hdy12)/dy12,
           xM = x0 + (dx02*yy0 + hdy02)/dy02,
-          txm = y<y1?tx0 + (dtx01*yy0 + hdy01)/dy01:tx1 + (dtx12*yy1 + hdy12)/dy12,
-          txM = tx0 + (dtx02*yy0 + hdy02)/dy02,
-          tym = y<y1?ty0 + (dty01*yy0 + hdy01)/dy01:ty1 + (dty12*yy1 + hdy12)/dy12,
-          tyM = ty0 + (dty02*yy0 + hdy02)/dy02;
+          txm = y<y1?tx0 + (dtx01*yy0 + hdy01tx)/dy01:tx1 + (dtx12*yy1 + hdy12tx)/dy12,
+          txM = tx0 + (dtx02*yy0 + hdy02tx)/dy02,
+          tym = y<y1?ty0 + (dty01*yy0 + hdy01ty)/dy01:ty1 + (dty12*yy1 + hdy12ty)/dy12,
+          tyM = ty0 + (dty02*yy0 + hdy02ty)/dy02;
         if (xm>xM) cimg::swap(xm,xM,txm,txM,tym,tyM);
         if (xM>=0 || xm<=w1) {
           const int
@@ -43650,7 +43650,7 @@ namespace cimg_library_suffixed {
         dx01 = x1 - x0, dx02 = x2 - x0, dx12 = x2 - x1,
         dy01 = std::max(1,y1 - y0), dy02 = std::max(1,y2 - y0), dy12 = std::max(1,y2 - y1),
         cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
-        hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2;
+        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2;
       const float
         diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1,
         txz0 = tx0*iz0, txz1 = tx1*iz1, txz2 = tx2*iz2,
@@ -43743,7 +43743,7 @@ namespace cimg_library_suffixed {
         dx01 = x1 - x0, dx02 = x2 - x0, dx12 = x2 - x1,
         dy01 = std::max(1,y1 - y0), dy02 = std::max(1,y2 - y0), dy12 = std::max(1,y2 - y1),
         cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
-        hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2;
+        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2;
       const float
         diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1,
         txz0 = tx0*iz0, txz1 = tx1*iz1, txz2 = tx2*iz2,
@@ -43849,9 +43849,11 @@ namespace cimg_library_suffixed {
         dx01 = x1 - x0, dx02 = x2 - x0, dx12 = x2 - x1,
         dy01 = std::max(1,y1 - y0), dy02 = std::max(1,y2 - y0), dy12 = std::max(1,y2 - y1),
         cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
-        hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2,
+        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2,
         dlx01 = lx1 - lx0, dlx02 = lx2 - lx0, dlx12 = lx2 - lx1,
-        dly01 = ly1 - ly0, dly02 = ly2 - ly0, dly12 = ly2 - ly1;
+        dly01 = ly1 - ly0, dly02 = ly2 - ly0, dly12 = ly2 - ly1,
+        hdy01lx = dy01*cimg::sign(dlx01)/2, hdy02lx = dy02*cimg::sign(dlx02)/2, hdy12lx = dy12*cimg::sign(dlx12)/2,
+        hdy01ly = dy01*cimg::sign(dly01)/2, hdy02ly = dy02*cimg::sign(dly02)/2, hdy12ly = dy12*cimg::sign(dly12)/2;
 
       const ulongT lwhd = (ulongT)light._width*light._height*light._depth;
       cimg_init_scanline(opacity);
@@ -43861,10 +43863,10 @@ namespace cimg_library_suffixed {
         int
           xm = y<y1?x0 + (dx01*yy0 + hdy01)/dy01:x1 + (dx12*yy1 + hdy12)/dy12,
           xM = x0 + (dx02*yy0 + hdy02)/dy02,
-          lxm = y<y1?lx0 + (dlx01*yy0 + hdy01)/dy01:lx1 + (dlx12*yy1 + hdy12)/dy12,
-          lxM = lx0 + (dlx02*yy0 + hdy02)/dy02,
-          lym = y<y1?ly0 + (dly01*yy0 + hdy01)/dy01:ly1 + (dly12*yy1 + hdy12)/dy12,
-          lyM = ly0 + (dly02*yy0 + hdy02)/dy02;
+          lxm = y<y1?lx0 + (dlx01*yy0 + hdy01lx)/dy01:lx1 + (dlx12*yy1 + hdy12lx)/dy12,
+          lxM = lx0 + (dlx02*yy0 + hdy02lx)/dy02,
+          lym = y<y1?ly0 + (dly01*yy0 + hdy01ly)/dy01:ly1 + (dly12*yy1 + hdy12ly)/dy12,
+          lyM = ly0 + (dly02*yy0 + hdy02ly)/dy02;
         if (xm>xM) cimg::swap(xm,xM,lxm,lxM,lym,lyM);
         if (xM>=0 || xm<=w1) {
           const int
@@ -43935,9 +43937,11 @@ namespace cimg_library_suffixed {
         dx01 = x1 - x0, dx02 = x2 - x0, dx12 = x2 - x1,
         dy01 = std::max(1,y1 - y0), dy02 = std::max(1,y2 - y0), dy12 = std::max(1,y2 - y1),
         cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
-        hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2,
+        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2,
         dlx01 = lx1 - lx0, dlx02 = lx2 - lx0, dlx12 = lx2 - lx1,
-        dly01 = ly1 - ly0, dly02 = ly2 - ly0, dly12 = ly2 - ly1;
+        dly01 = ly1 - ly0, dly02 = ly2 - ly0, dly12 = ly2 - ly1,
+        hdy01lx = dy01*cimg::sign(dlx01)/2, hdy02lx = dy02*cimg::sign(dlx02)/2, hdy12lx = dy12*cimg::sign(dlx12)/2,
+        hdy01ly = dy01*cimg::sign(dly01)/2, hdy02ly = dy02*cimg::sign(dly02)/2, hdy12ly = dy12*cimg::sign(dly12)/2;
       const float diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1;
 
       const ulongT lwhd = (ulongT)light._width*light._height*light._depth;
@@ -43948,10 +43952,10 @@ namespace cimg_library_suffixed {
         int
           xm = y<y1?x0 + (dx01*yy0 + hdy01)/dy01:x1 + (dx12*yy1 + hdy12)/dy12,
           xM = x0 + (dx02*yy0 + hdy02)/dy02,
-          lxm = y<y1?lx0 + (dlx01*yy0 + hdy01)/dy01:lx1 + (dlx12*yy1 + hdy12)/dy12,
-          lxM = lx0 + (dlx02*yy0 + hdy02)/dy02,
-          lym = y<y1?ly0 + (dly01*yy0 + hdy01)/dy01:ly1 + (dly12*yy1 + hdy12)/dy12,
-          lyM = ly0 + (dly02*yy0 + hdy02)/dy02;
+          lxm = y<y1?lx0 + (dlx01*yy0 + hdy01lx)/dy01:lx1 + (dlx12*yy1 + hdy12lx)/dy12,
+          lxM = lx0 + (dlx02*yy0 + hdy02lx)/dy02,
+          lym = y<y1?ly0 + (dly01*yy0 + hdy01ly)/dy01:ly1 + (dly12*yy1 + hdy12ly)/dy12,
+          lyM = ly0 + (dly02*yy0 + hdy02ly)/dy02;
         float
           izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*yy1/dy12),
           izM = iz0 + diz02*yy0/dy02;
@@ -44043,9 +44047,11 @@ namespace cimg_library_suffixed {
         dx01 = x1 - x0, dx02 = x2 - x0, dx12 = x2 - x1,
         dy01 = std::max(1,y1 - y0), dy02 = std::max(1,y2 - y0), dy12 = std::max(1,y2 - y1),
         cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
-        hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2,
+        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2,
         dtx01 = tx1 - tx0, dtx02 = tx2 - tx0, dtx12 = tx2 - tx1,
-        dty01 = ty1 - ty0, dty02 = ty2 - ty0, dty12 = ty2 - ty1;
+        dty01 = ty1 - ty0, dty02 = ty2 - ty0, dty12 = ty2 - ty1,
+        hdy01tx = dy01*cimg::sign(dtx01)/2, hdy02tx = dy02*cimg::sign(dtx02)/2, hdy12tx = dy12*cimg::sign(dtx12)/2,
+        hdy01ty = dy01*cimg::sign(dty01)/2, hdy02ty = dy02*cimg::sign(dty02)/2, hdy12ty = dy12*cimg::sign(dty12)/2;
       const float dbs01 = bs1 - bs0, dbs02 = bs2 - bs0, dbs12 = bs2 - bs1;
 
       const ulongT twhd = (ulongT)texture._width*texture._height*texture._depth;
@@ -44056,10 +44062,10 @@ namespace cimg_library_suffixed {
         int
           xm = y<y1?x0 + (dx01*yy0 + hdy01)/dy01:x1 + (dx12*yy1 + hdy12)/dy12,
           xM = x0 + (dx02*yy0 + hdy02)/dy02,
-          txm = y<y1?tx0 + (dtx01*yy0 + hdy01)/dy01:tx1 + (dtx12*yy1 + hdy12)/dy12,
-          txM = tx0 + (dtx02*yy0 + hdy02)/dy02,
-          tym = y<y1?ty0 + (dty01*yy0 + hdy01)/dy01:ty1 + (dty12*yy1 + hdy12)/dy12,
-          tyM = ty0 + (dty02*yy0 + hdy02)/dy02;
+          txm = y<y1?tx0 + (dtx01*yy0 + hdy01tx)/dy01:tx1 + (dtx12*yy1 + hdy12tx)/dy12,
+          txM = tx0 + (dtx02*yy0 + hdy02tx)/dy02,
+          tym = y<y1?ty0 + (dty01*yy0 + hdy01ty)/dy01:ty1 + (dty12*yy1 + hdy12ty)/dy12,
+          tyM = ty0 + (dty02*yy0 + hdy02ty)/dy02;
         float
           bsm = y<y1?(bs0 + dbs01*yy0/dy01):(bs1 + dbs12*yy1/dy12),
           bsM = bs0 + dbs02*yy0/dy02;
@@ -44126,7 +44132,7 @@ namespace cimg_library_suffixed {
         dx01 = x1 - x0, dx02 = x2 - x0, dx12 = x2 - x1,
         dy01 = std::max(1,y1 - y0), dy02 = std::max(1,y2 - y0), dy12 = std::max(1,y2 - y1),
         cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
-        hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2;
+        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2;
       const float
         diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1,
         txz0 = tx0*iz0, txz1 = tx1*iz1, txz2 = tx2*iz2,
@@ -44224,7 +44230,7 @@ namespace cimg_library_suffixed {
         dx01 = x1 - x0, dx02 = x2 - x0, dx12 = x2 - x1,
         dy01 = std::max(1,y1 - y0), dy02 = std::max(1,y2 - y0), dy12 = std::max(1,y2 - y1),
         cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
-        hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2;
+        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2;
       const float
         diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1,
         txz0 = tx0*iz0, txz1 = tx1*iz1, txz2 = tx2*iz2,
@@ -44348,11 +44354,15 @@ namespace cimg_library_suffixed {
         dx01 = x1 - x0, dx02 = x2 - x0, dx12 = x2 - x1,
         dy01 = std::max(1,y1 - y0), dy02 = std::max(1,y2 - y0), dy12 = std::max(1,y2 - y1),
         cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
-        hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2,
+        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2,
         dtx01 = tx1 - tx0, dtx02 = tx2 - tx0, dtx12 = tx2 - tx1,
         dty01 = ty1 - ty0, dty02 = ty2 - ty0, dty12 = ty2 - ty1,
+        hdy01tx = dy01*cimg::sign(dtx01)/2, hdy02tx = dy02*cimg::sign(dtx02)/2, hdy12tx = dy12*cimg::sign(dtx12)/2,
+        hdy01ty = dy01*cimg::sign(dty01)/2, hdy02ty = dy02*cimg::sign(dty02)/2, hdy12ty = dy12*cimg::sign(dty12)/2,
         dlx01 = lx1 - lx0, dlx02 = lx2 - lx0, dlx12 = lx2 - lx1,
-        dly01 = ly1 - ly0, dly02 = ly2 - ly0, dly12 = ly2 - ly1;
+        dly01 = ly1 - ly0, dly02 = ly2 - ly0, dly12 = ly2 - ly1,
+        hdy01lx = dy01*cimg::sign(dlx01)/2, hdy02lx = dy02*cimg::sign(dlx02)/2, hdy12lx = dy12*cimg::sign(dlx12)/2,
+        hdy01ly = dy01*cimg::sign(dly01)/2, hdy02ly = dy02*cimg::sign(dly02)/2, hdy12ly = dy12*cimg::sign(dly12)/2;
 
       const ulongT
         twhd = (ulongT)texture._width*texture._height*texture._depth,
@@ -44364,14 +44374,14 @@ namespace cimg_library_suffixed {
         int
           xm = y<y1?x0 + (dx01*yy0 + hdy01)/dy01:x1 + (dx12*yy1 + hdy12)/dy12,
           xM = x0 + (dx02*yy0 + hdy02)/dy02,
-          txm = y<y1?tx0 + (dtx01*yy0 + hdy01)/dy01:tx1 + (dtx12*yy1 + hdy12)/dy12,
-          txM = tx0 + (dtx02*yy0 + hdy02)/dy02,
-          tym = y<y1?ty0 + (dty01*yy0 + hdy01)/dy01:ty1 + (dty12*yy1 + hdy12)/dy12,
-          tyM = ty0 + (dty02*yy0 + hdy02)/dy02,
-          lxm = y<y1?lx0 + (dlx01*yy0 + hdy01)/dy01:lx1 + (dlx12*yy1 + hdy12)/dy12,
-          lxM = lx0 + (dlx02*yy0 + hdy02)/dy02,
-          lym = y<y1?ly0 + (dly01*yy0 + hdy01)/dy01:ly1 + (dly12*yy1 + hdy12)/dy12,
-          lyM = ly0 + (dly02*yy0 + hdy02)/dy02;
+          txm = y<y1?tx0 + (dtx01*yy0 + hdy01tx)/dy01:tx1 + (dtx12*yy1 + hdy12tx)/dy12,
+          txM = tx0 + (dtx02*yy0 + hdy02tx)/dy02,
+          tym = y<y1?ty0 + (dty01*yy0 + hdy01ty)/dy01:ty1 + (dty12*yy1 + hdy12ty)/dy12,
+          tyM = ty0 + (dty02*yy0 + hdy02ty)/dy02,
+          lxm = y<y1?lx0 + (dlx01*yy0 + hdy01lx)/dy01:lx1 + (dlx12*yy1 + hdy12lx)/dy12,
+          lxM = lx0 + (dlx02*yy0 + hdy02lx)/dy02,
+          lym = y<y1?ly0 + (dly01*yy0 + hdy01ly)/dy01:ly1 + (dly12*yy1 + hdy12ly)/dy12,
+          lyM = ly0 + (dly02*yy0 + hdy02ly)/dy02;
         if (xm>xM) cimg::swap(xm,xM,txm,txM,tym,tyM,lxm,lxM,lym,lyM);
         if (xM>=0 || xm<=w1) {
           const int
@@ -44447,7 +44457,7 @@ namespace cimg_library_suffixed {
         dx01 = x1 - x0, dx02 = x2 - x0, dx12 = x2 - x1,
         dy01 = std::max(1,y1 - y0), dy02 = std::max(1,y2 - y0), dy12 = std::max(1,y2 - y1),
         cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
-        hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2;
+        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2;
       const float
         diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1,
         txz0 = tx0*iz0, txz1 = tx1*iz1, txz2 = tx2*iz2,
@@ -44569,7 +44579,7 @@ namespace cimg_library_suffixed {
         dx01 = x1 - x0, dx02 = x2 - x0, dx12 = x2 - x1,
         dy01 = std::max(1,y1 - y0), dy02 = std::max(1,y2 - y0), dy12 = std::max(1,y2 - y1),
         cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
-        hdy02 = dy02/2, hdy01 = dy01/2, hdy12 = dy12/2;
+        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2;
       const float
         diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1,
         txz0 = tx0*iz0, txz1 = tx1*iz1, txz2 = tx2*iz2,
@@ -44832,7 +44842,7 @@ namespace cimg_library_suffixed {
             y2 = cimg::uiround(points(tn,1)),
             x01 = x1 - x0, y01 = y1 - y0, y12 = y2 - y1,
             step = cimg::sign(y01),
-            tmax = std::max(1,cimg::abs(y01)), htmax = tmax*step/2,
+            tmax = std::max(1,cimg::abs(y01)), htmax = tmax*cimg::sign(x01)/2,
             tend = tmax - (step==cimg::sign(y12));
           unsigned int y = (unsigned int)y0 - ymin;
           for (int t = 0; t<=tend; ++t, y+=step)

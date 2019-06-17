@@ -42485,8 +42485,7 @@ namespace cimg_library_suffixed {
       cimg_init_scanline(opacity);
 
       const int
-        step = y0<=y1?1:-1,
-        hdy01 = dy01*step/2,
+        step = y0<=y1?1:-1, hdy01 = dy01*step/2,
         cy0 = cimg::cut(y0,0,h1), cy1 = cimg::cut(y1,0,h1) + step;
       dy01+=dy01?0:1;
 
@@ -42554,14 +42553,14 @@ namespace cimg_library_suffixed {
       cimg_init_scanline(opacity);
 
       const int
-        hdy01 = dy01/2, step = y0<=y1?1:-1,
+        step = y0<=y1?1:-1, hdy01 = dy01*step/2,
         cy0 = cimg::cut(y0,0,h1), cy1 = cimg::cut(y1,0,h1) + step;
       dy01+=dy01?0:1;
 
       for (int y = cy0; y!=cy1; y+=step) {
         const int
           yy0 = y - y0,
-          x = x0 + (dx01*yy0 + hdy01)/dy01;
+          x = x0 + (dx01*yy0 - hdy01)/dy01;
         const float iz = iz0 + diz01*yy0/dy01;
         tz *const ptrz = is_horizontal?zbuffer.data(y,x):zbuffer.data(x,y);
 
@@ -42635,16 +42634,16 @@ namespace cimg_library_suffixed {
       cimg_init_scanline(opacity);
 
       const int
-        hdy01 = dy01/2, step = y0<=y1?1:-1,
+        step = y0<=y1?1:-1, hdy01 = dy01*step/2,
         cy0 = cimg::cut(y0,0,h1), cy1 = cimg::cut(y1,0,h1) + step;
       dy01+=dy01?0:1;
 
       for (int y = cy0; y!=cy1; y+=step) {
         const int
           yy0 = y - y0,
-          x = x0 + (dx01*yy0 + hdy01)/dy01,
-          tx = tx0 + (dtx01*yy0 + hdy01)/dy01,
-          ty = ty0 + (dty01*yy0 + hdy01)/dy01;
+          x = x0 + (dx01*yy0 - hdy01)/dy01,
+          tx = tx0 + (dtx01*yy0 - hdy01)/dy01,
+          ty = ty0 + (dty01*yy0 - hdy01)/dy01;
         if (x>=0 && x<=w1 && pattern&hatch) {
           T *const ptrd = is_horizontal?data(y,x):data(x,y);
           const tc *const color = &texture._atXY(tx,ty);
@@ -42713,14 +42712,14 @@ namespace cimg_library_suffixed {
       cimg_init_scanline(opacity);
 
       const int
-        hdy01 = dy01/2, step = y0<=y1?1:-1,
+        step = y0<=y1?1:-1, hdy01 = dy01*step/2,
         cy0 = cimg::cut(y0,0,h1), cy1 = cimg::cut(y1,0,h1) + step;
       dy01+=dy01?0:1;
 
       for (int y = cy0; y!=cy1; y+=step) {
         const int
           yy0 = y - y0,
-          x = x0 + (dx01*yy0 + hdy01)/dy01;
+          x = x0 + (dx01*yy0 - hdy01)/dy01;
         const float
           iz = iz0 + diz01*yy0/dy01,
           txz = txz0 + dtxz01*yy0/dy01,
@@ -42804,14 +42803,14 @@ namespace cimg_library_suffixed {
       cimg_init_scanline(opacity);
 
       const int
-        hdy01 = dy01/2, step = y0<=y1?1:-1,
+        step = y0<=y1?1:-1, hdy01 = dy01*step/2,
         cy0 = cimg::cut(y0,0,h1), cy1 = cimg::cut(y1,0,h1) + step;
       dy01+=dy01?0:1;
 
       for (int y = cy0; y!=cy1; y+=step) {
         const int
           yy0 = y - y0,
-          x = x0 + (dx01*yy0 + hdy01)/dy01;
+          x = x0 + (dx01*yy0 - hdy01)/dy01;
         const float
           iz = iz0 + diz01*yy0/dy01,
           txz = txz0 + dtxz01*yy0/dy01,
@@ -44832,14 +44831,12 @@ namespace cimg_library_suffixed {
           const int
             y2 = cimg::uiround(points(tn,1)),
             x01 = x1 - x0, y01 = y1 - y0, y12 = y2 - y1,
-            dy = cimg::sign(y01),
-            //            tmax = std::max(1,cimg::abs(y01)), htmax = tmax/2,
-            tend = std::max(1,cimg::abs(y01)) - (dy==cimg::sign(y12)),
-            htend = tend/2;
+            step = cimg::sign(y01),
+            tmax = std::max(1,cimg::abs(y01)), htmax = tmax*step/2,
+            tend = tmax - (step==cimg::sign(y12));
           unsigned int y = (unsigned int)y0 - ymin;
-          for (int t = 0; t<=tend; ++t, y+=dy)
-            //            if (y<Xs._height) Xs(count[y]++,y) = x0 + (t*x01 + htmax)/tmax; // Old version
-          if (y<Xs._height) Xs(count[y]++,y) = x0 + (t*x01 + htend)/tend;
+          for (int t = 0; t<=tend; ++t, y+=step)
+            if (y<Xs._height) Xs(count[y]++,y) = x0 + (t*x01 + htmax)/tmax;
         }
         go_on = nn>n;
         n = nn;

@@ -42491,6 +42491,7 @@ namespace cimg_library_suffixed {
         step = y0<=y1?1:-1, hdy01 = dy01*cimg::sign(dx01)/2,
         cy0 = cimg::cut(y0,0,h1), cy1 = cimg::cut(y1,0,h1) + step;
       dy01+=dy01?0:1;
+
       for (int y = cy0; y!=cy1; y+=step) {
         const int
           yy0 = y - y0,

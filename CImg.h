@@ -45656,7 +45656,7 @@ namespace cimg_library_suffixed {
     CImg<T>& draw_axis(const CImg<t>& values_x, const int y,
                        const tc *const color, const float opacity=1,
                        const unsigned int pattern=~0U, const unsigned int font_height=13,
-                       const bool allow_zero=true) {
+                       const bool allow_zero=true, const float round_x=0.001f) {
       if (is_empty()) return *this;
       const int yt = (y + 3 + font_height)<_height?y + 3:y - 2 - (int)font_height;
       const int siz = (int)values_x.size() - 1;
@@ -45665,7 +45665,7 @@ namespace cimg_library_suffixed {
       if (siz<=0) { // Degenerated case
         draw_line(0,y,_width - 1,y,color,opacity,pattern);
         if (!siz) {
-          cimg_snprintf(txt,txt._width,"%g",(double)*values_x);
+          cimg_snprintf(txt,txt._width,"%g",cimg::round(*values_x,round_x));
           a_label.assign().draw_text(0,0,txt,color,(tc*)0,opacity,font_height);
           const int
             _xt = (width() - a_label.width())/2,
@@ -45678,7 +45678,7 @@ namespace cimg_library_suffixed {
         if (values_x[0]<values_x[siz]) draw_arrow(0,y,_width - 1,y,color,opacity,30,5,pattern);
         else draw_arrow(_width - 1,y,0,y,color,opacity,30,5,pattern);
         cimg_foroff(values_x,x) {
-          cimg_snprintf(txt,txt._width,"%g",(double)values_x(x));
+          cimg_snprintf(txt,txt._width,"%g",cimg::round(values_x(x),round_x));
           a_label.assign().draw_text(0,0,txt,color,(tc*)0,opacity,font_height);
           const int
             xi = (int)(x*(_width - 1)/siz),
@@ -45706,7 +45706,7 @@ namespace cimg_library_suffixed {
     CImg<T>& draw_axis(const int x, const CImg<t>& values_y,
                        const tc *const color, const float opacity=1,
                        const unsigned int pattern=~0U, const unsigned int font_height=13,
-                       const bool allow_zero=true) {
+                       const bool allow_zero=true, const float round_y=0.001f) {
       if (is_empty()) return *this;
       int siz = (int)values_y.size() - 1;
       CImg<charT> txt(32);
@@ -45714,7 +45714,7 @@ namespace cimg_library_suffixed {
       if (siz<=0) { // Degenerated case
         draw_line(x,0,x,_height - 1,color,opacity,pattern);
         if (!siz) {
-          cimg_snprintf(txt,txt._width,"%g",(double)*values_y);
+          cimg_snprintf(txt,txt._width,"%g",cimg::round(*values_y,round_y));
           a_label.assign().draw_text(0,0,txt,color,(tc*)0,opacity,font_height);
           const int
             _yt = (height() - a_label.height())/2,
@@ -45729,7 +45729,7 @@ namespace cimg_library_suffixed {
         if (values_y[0]<values_y[siz]) draw_arrow(x,0,x,_height - 1,color,opacity,30,5,pattern);
         else draw_arrow(x,_height - 1,x,0,color,opacity,30,5,pattern);
         cimg_foroff(values_y,y) {
-          cimg_snprintf(txt,txt._width,"%g",(double)values_y(y));
+          cimg_snprintf(txt,txt._width,"%g",cimg::round(values_y(y),round_y));
           a_label.assign().draw_text(0,0,txt,color,(tc*)0,opacity,font_height);
           const int
             yi = (int)(y*(_height - 1)/siz),
@@ -45760,7 +45760,8 @@ namespace cimg_library_suffixed {
     CImg<T>& draw_axes(const CImg<tx>& values_x, const CImg<ty>& values_y,
                        const tc *const color, const float opacity=1,
                        const unsigned int pattern_x=~0U, const unsigned int pattern_y=~0U,
-                       const unsigned int font_height=13, const bool allow_zero=true) {
+                       const unsigned int font_height=13, const bool allow_zero=true,
+                       const float round_x=0.001f, const float round_y=0.001f) {
       if (is_empty()) return *this;
       const CImg<tx> nvalues_x(values_x._data,values_x.size(),1,1,1,true);
       const int sizx = (int)values_x.size() - 1, wm1 = width() - 1;
@@ -45768,7 +45769,10 @@ namespace cimg_library_suffixed {
         float ox = (float)*nvalues_x;
         for (unsigned int x = sizx?1U:0U; x<_width; ++x) {
           const float nx = (float)nvalues_x._linear_atX((float)x*sizx/wm1);
-          if (nx*ox<=0) { draw_axis(nx==0?x:x - 1,values_y,color,opacity,pattern_y,font_height,allow_zero); break; }
+          if (nx*ox<=0) {
+            draw_axis(nx==0?x:x - 1,values_y,color,opacity,pattern_y,font_height,allow_zero,round_y);
+            break;
+          }
           ox = nx;
         }
       }
@@ -45778,7 +45782,10 @@ namespace cimg_library_suffixed {
         float oy = (float)nvalues_y[0];
         for (unsigned int y = sizy?1U:0U; y<_height; ++y) {
           const float ny = (float)nvalues_y._linear_atX((float)y*sizy/hm1);
-          if (ny*oy<=0) { draw_axis(values_x,ny==0?y:y - 1,color,opacity,pattern_x,font_height,allow_zero); break; }
+          if (ny*oy<=0) {
+            draw_axis(values_x,ny==0?y:y - 1,color,opacity,pattern_x,font_height,allow_zero,round_x);
+            break;
+          }
           oy = ny;
         }
       }
@@ -45800,15 +45807,15 @@ namespace cimg_library_suffixed {
         px = dx<=0?1:precisionx==0?(float)std::pow(10.,(int)std::log10(dx) - 2.):precisionx,
         py = dy<=0?1:precisiony==0?(float)std::pow(10.,(int)std::log10(dy) - 2.):precisiony;
       if (x0!=x1 && y0!=y1)
-        draw_axes(CImg<floatT>::sequence(subdivisionx>0?subdivisionx:1-width()/subdivisionx,x0,x1).round(px),
-                  CImg<floatT>::sequence(subdivisiony>0?subdivisiony:1-height()/subdivisiony,y0,y1).round(py),
-                  color,opacity,pattern_x,pattern_y,font_height,allow_zero);
+        draw_axes(CImg<floatT>::sequence(subdivisionx>0?subdivisionx:1-width()/subdivisionx,x0,x1),
+                  CImg<floatT>::sequence(subdivisiony>0?subdivisiony:1-height()/subdivisiony,y0,y1),
+                  color,opacity,pattern_x,pattern_y,font_height,allow_zero,px,py);
       else if (x0==x1 && y0!=y1)
-        draw_axis((int)x0,CImg<floatT>::sequence(subdivisiony>0?subdivisiony:1-height()/subdivisiony,y0,y1).round(py),
-                  color,opacity,pattern_y,font_height);
+        draw_axis((int)x0,CImg<floatT>::sequence(subdivisiony>0?subdivisiony:1-height()/subdivisiony,y0,y1),
+                  color,opacity,pattern_y,font_height,py);
       else if (x0!=x1 && y0==y1)
-        draw_axis(CImg<floatT>::sequence(subdivisionx>0?subdivisionx:1-width()/subdivisionx,x0,x1).round(px),(int)y0,
-                  color,opacity,pattern_x,font_height);
+        draw_axis(CImg<floatT>::sequence(subdivisionx>0?subdivisionx:1-width()/subdivisionx,x0,x1),(int)y0,
+                  color,opacity,pattern_x,font_height,px);
       return *this;
     }
 
@@ -48733,15 +48740,15 @@ namespace cimg_library_suffixed {
               py = (float)std::pow(10.,(int)std::log10(dy?dy:1) - 2.);
             const CImg<Tdouble>
               seqx = dx<=0?CImg<Tdouble>::vector(nxmin):
-                CImg<Tdouble>::sequence(1 + gdimx/60,nxmin,one?nxmax:nxmin + (nxmax - nxmin)*(siz + 1)/siz).round(px),
-              seqy = CImg<Tdouble>::sequence(1 + gdimy/60,nymax,nymin).round(py);
+                CImg<Tdouble>::sequence(1 + gdimx/60,nxmin,one?nxmax:nxmin + (nxmax - nxmin)*(siz + 1)/siz),
+              seqy = CImg<Tdouble>::sequence(1 + gdimy/60,nymax,nymin);
 
             const bool allow_zero = (nxmin*nxmax>0) || (nymin*nymax>0);
-            axes.draw_axes(seqx,seqy,white,1,~0U,~0U,13,allow_zero);
-            if (nymin>0) axes.draw_axis(seqx,gdimy - 1,gray,1,~0U,13,allow_zero);
-            if (nymax<0) axes.draw_axis(seqx,0,gray,1,~0U,13,allow_zero);
-	    if (nxmin>0) axes.draw_axis(0,seqy,gray,1,~0U,13,allow_zero);
-	    if (nxmax<0) axes.draw_axis(gdimx - 1,seqy,gray,1,~0U,13,allow_zero);
+            axes.draw_axes(seqx,seqy,white,1,~0U,~0U,13,allow_zero,px,py);
+            if (nymin>0) axes.draw_axis(seqx,gdimy - 1,gray,1,~0U,13,allow_zero,px);
+            if (nymax<0) axes.draw_axis(seqx,0,gray,1,~0U,13,allow_zero,px);
+	    if (nxmin>0) axes.draw_axis(0,seqy,gray,1,~0U,13,allow_zero,py);
+	    if (nxmax<0) axes.draw_axis(gdimx - 1,seqy,gray,1,~0U,13,allow_zero,py);
 
             cimg_for3x3(axes,x,y,0,0,I,unsigned char)
               if (Icc) {

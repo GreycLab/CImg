@@ -45656,7 +45656,7 @@ namespace cimg_library_suffixed {
     CImg<T>& draw_axis(const CImg<t>& values_x, const int y,
                        const tc *const color, const float opacity=1,
                        const unsigned int pattern=~0U, const unsigned int font_height=13,
-                       const bool allow_zero=true, const float round_x=0.001f) {
+                       const bool allow_zero=true, const float round_x=0) {
       if (is_empty()) return *this;
       const int yt = (y + 3 + font_height)<_height?y + 3:y - 2 - (int)font_height;
       const int siz = (int)values_x.size() - 1;
@@ -45665,7 +45665,7 @@ namespace cimg_library_suffixed {
       if (siz<=0) { // Degenerated case
         draw_line(0,y,_width - 1,y,color,opacity,pattern);
         if (!siz) {
-          cimg_snprintf(txt,txt._width,"%g",cimg::round(*values_x,round_x));
+          cimg_snprintf(txt,txt._width,"%g",round_x?cimg::round(*values_x,round_x):*values_x);
           a_label.assign().draw_text(0,0,txt,color,(tc*)0,opacity,font_height);
           const int
             _xt = (width() - a_label.width())/2,
@@ -45678,7 +45678,7 @@ namespace cimg_library_suffixed {
         if (values_x[0]<values_x[siz]) draw_arrow(0,y,_width - 1,y,color,opacity,30,5,pattern);
         else draw_arrow(_width - 1,y,0,y,color,opacity,30,5,pattern);
         cimg_foroff(values_x,x) {
-          cimg_snprintf(txt,txt._width,"%g",cimg::round(values_x(x),round_x));
+          cimg_snprintf(txt,txt._width,"%g",round_x?cimg::round(values_x(x),round_x):values_x(x));
           a_label.assign().draw_text(0,0,txt,color,(tc*)0,opacity,font_height);
           const int
             xi = (int)(x*(_width - 1)/siz),
@@ -45706,7 +45706,7 @@ namespace cimg_library_suffixed {
     CImg<T>& draw_axis(const int x, const CImg<t>& values_y,
                        const tc *const color, const float opacity=1,
                        const unsigned int pattern=~0U, const unsigned int font_height=13,
-                       const bool allow_zero=true, const float round_y=0.001f) {
+                       const bool allow_zero=true, const float round_y=0) {
       if (is_empty()) return *this;
       int siz = (int)values_y.size() - 1;
       CImg<charT> txt(32);
@@ -45714,7 +45714,7 @@ namespace cimg_library_suffixed {
       if (siz<=0) { // Degenerated case
         draw_line(x,0,x,_height - 1,color,opacity,pattern);
         if (!siz) {
-          cimg_snprintf(txt,txt._width,"%g",cimg::round(*values_y,round_y));
+          cimg_snprintf(txt,txt._width,"%g",round_y?cimg::round(*values_y,round_y):*values_y);
           a_label.assign().draw_text(0,0,txt,color,(tc*)0,opacity,font_height);
           const int
             _yt = (height() - a_label.height())/2,
@@ -45729,7 +45729,7 @@ namespace cimg_library_suffixed {
         if (values_y[0]<values_y[siz]) draw_arrow(x,0,x,_height - 1,color,opacity,30,5,pattern);
         else draw_arrow(x,_height - 1,x,0,color,opacity,30,5,pattern);
         cimg_foroff(values_y,y) {
-          cimg_snprintf(txt,txt._width,"%g",cimg::round(values_y(y),round_y));
+          cimg_snprintf(txt,txt._width,"%g",round_y?cimg::round(values_y(y),round_y):values_y(y));
           a_label.assign().draw_text(0,0,txt,color,(tc*)0,opacity,font_height);
           const int
             yi = (int)(y*(_height - 1)/siz),
@@ -45761,7 +45761,7 @@ namespace cimg_library_suffixed {
                        const tc *const color, const float opacity=1,
                        const unsigned int pattern_x=~0U, const unsigned int pattern_y=~0U,
                        const unsigned int font_height=13, const bool allow_zero=true,
-                       const float round_x=0.001f, const float round_y=0.001f) {
+                       const float round_x=0, const float round_y=0) {
       if (is_empty()) return *this;
       const CImg<tx> nvalues_x(values_x._data,values_x.size(),1,1,1,true);
       const int sizx = (int)values_x.size() - 1, wm1 = width() - 1;

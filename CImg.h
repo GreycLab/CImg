@@ -46020,7 +46020,7 @@ namespace cimg_library_suffixed {
           const int
             X = (int)(off*fx + wb2),
             Y = (int)((data[off]-m)/ca);
-          draw_circle(X,Y,3,color,opacity,0U);
+          draw_circle(X,Y,3,color,opacity,~0U);
         }
       } break;
       case 6 : { // Square

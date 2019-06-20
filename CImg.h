@@ -55609,7 +55609,7 @@ namespace cimg_library_suffixed {
     }
 
     //@}
-  };
+  }; // struct CImg<T> { ...
 
   /*
    #-----------------------------------------

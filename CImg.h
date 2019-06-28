@@ -61462,16 +61462,24 @@ namespace cimg_library_suffixed {
         header._load_raw(file,filename,512,1,1,1,false,false,0);
         const unsigned char *const uheader = (unsigned char*)header._data;
         if (!std::strncmp(header,"OFF\n",4)) f_type = _off; // OFF
-        else if (!std::strncmp(header,"#INRIMAGE",9)) f_type = _inr; // INRIMAGE
-        else if (!std::strncmp(header,"PANDORE",7)) f_type = _pan; // PANDORE
-        else if (!std::strncmp(header.data() + 128,"DICM",4)) f_type = _dcm; // DICOM
-        else if (uheader[0]==0xFF && uheader[1]==0xD8 && uheader[2]==0xFF) f_type = _jpg;  // JPEG
-        else if (header[0]=='B' && header[1]=='M') f_type = _bmp;  // BMP
-        else if (header[0]=='G' && header[1]=='I' && header[2]=='F' && header[3]=='8' && header[5]=='a' && // GIF
-                 (header[4]=='7' || header[4]=='9')) f_type = _gif;
-        else if (uheader[0]==0x89 && uheader[1]==0x50 && uheader[2]==0x4E && uheader[3]==0x47 && // PNG
-                 uheader[4]==0x0D && uheader[5]==0x0A && uheader[6]==0x1A && uheader[7]==0x0A) f_type = _png;
-        else if ((uheader[0]==0x49 && uheader[1]==0x49) || (uheader[0]==0x4D && uheader[1]==0x4D)) f_type = _tif; // TIFF
+        else if (!std::strncmp(header,"#INRIMAGE",9)) // INRIMAGE
+          f_type = _inr;
+        else if (!std::strncmp(header,"PANDORE",7)) // PANDORE
+          f_type = _pan;
+        else if (!std::strncmp(header.data() + 128,"DICM",4)) // DICOM
+          f_type = _dcm;
+        else if (uheader[0]==0xFF && uheader[1]==0xD8 && uheader[2]==0xFF) // JPEG
+          f_type = _jpg;
+        else if (header[0]=='B' && header[1]=='M') // BMP
+          f_type = _bmp;
+        else if (header[0]=='G' && header[1]=='I' && header[2]=='F' && header[3]=='8' && header[5]=='a' &&
+                 (header[4]=='7' || header[4]=='9')) // GIF
+          f_type = _gif;
+        else if (uheader[0]==0x89 && uheader[1]==0x50 && uheader[2]==0x4E && uheader[3]==0x47 &&
+                 uheader[4]==0x0D && uheader[5]==0x0A && uheader[6]==0x1A && uheader[7]==0x0A) // PNG
+          f_type = _png;
+        else if ((uheader[0]==0x49 && uheader[1]==0x49) || (uheader[0]==0x4D && uheader[1]==0x4D)) // TIFF
+          f_type = _tif;
         else { // PNM or PFM
           CImgList<char> _header = header.get_split(CImg<char>::vector('\n'),0,false);
           cimglist_for(_header,l) {
@@ -61728,12 +61736,18 @@ namespace cimg_library_suffixed {
 
       // Create buttons and canvas graphics
       CImgList<unsigned char> buttons, cbuttons, sbuttons;
-      if (button1_label) { CImg<unsigned char>().draw_text(0,0,button1_label,black,gray,1,13).move_to(buttons);
-        if (button2_label) { CImg<unsigned char>().draw_text(0,0,button2_label,black,gray,1,13).move_to(buttons);
-          if (button3_label) { CImg<unsigned char>().draw_text(0,0,button3_label,black,gray,1,13).move_to(buttons);
-            if (button4_label) { CImg<unsigned char>().draw_text(0,0,button4_label,black,gray,1,13).move_to(buttons);
-              if (button5_label) { CImg<unsigned char>().draw_text(0,0,button5_label,black,gray,1,13).move_to(buttons);
-                if (button6_label) { CImg<unsigned char>().draw_text(0,0,button6_label,black,gray,1,13).move_to(buttons);
+      if (button1_label) {
+        CImg<unsigned char>().draw_text(0,0,button1_label,black,gray,1,13).move_to(buttons);
+        if (button2_label) {
+          CImg<unsigned char>().draw_text(0,0,button2_label,black,gray,1,13).move_to(buttons);
+          if (button3_label) {
+            CImg<unsigned char>().draw_text(0,0,button3_label,black,gray,1,13).move_to(buttons);
+            if (button4_label) {
+              CImg<unsigned char>().draw_text(0,0,button4_label,black,gray,1,13).move_to(buttons);
+              if (button5_label) {
+                CImg<unsigned char>().draw_text(0,0,button5_label,black,gray,1,13).move_to(buttons);
+                if (button6_label) {
+                  CImg<unsigned char>().draw_text(0,0,button6_label,black,gray,1,13).move_to(buttons);
                 }}}}}}
       if (!buttons._width)
         throw CImgArgumentException("cimg::dialog(): No buttons have been defined.");
@@ -61759,13 +61773,17 @@ namespace cimg_library_suffixed {
       sbutton.draw_line(1,1,bw - 2,1,white).draw_line(1,bh - 2,1,1,white);
       sbutton.draw_line(bw - 2,1,bw - 2,bh - 2,black).draw_line(bw - 2,bh - 2,1,bh - 2,black);
       sbutton.draw_line(2,bh - 3,bw - 3,bh - 3,gray2).draw_line(bw - 3,bh - 3,bw - 3,2,gray2);
-      sbutton.draw_line(4,4,bw - 5,4,black,1,0xAAAAAAAA,true).draw_line(bw - 5,4,bw - 5,bh - 5,black,1,0xAAAAAAAA,false);
-      sbutton.draw_line(bw - 5,bh - 5,4,bh - 5,black,1,0xAAAAAAAA,false).draw_line(4,bh - 5,4,4,black,1,0xAAAAAAAA,false);
+      sbutton.draw_line(4,4,bw - 5,4,black,1,0xAAAAAAAA,true).
+        draw_line(bw - 5,4,bw - 5,bh - 5,black,1,0xAAAAAAAA,false);
+      sbutton.draw_line(bw - 5,bh - 5,4,bh - 5,black,1,0xAAAAAAAA,false).
+        draw_line(4,bh - 5,4,4,black,1,0xAAAAAAAA,false);
       CImg<unsigned char> cbutton(bw,bh,1,3);
       cbutton.draw_rectangle(0,0,bw - 1,bh - 1,black).draw_rectangle(1,1,bw - 2,bh - 2,gray2).
         draw_rectangle(2,2,bw - 3,bh - 3,gray);
-      cbutton.draw_line(4,4,bw - 5,4,black,1,0xAAAAAAAA,true).draw_line(bw - 5,4,bw - 5,bh - 5,black,1,0xAAAAAAAA,false);
-      cbutton.draw_line(bw - 5,bh - 5,4,bh - 5,black,1,0xAAAAAAAA,false).draw_line(4,bh - 5,4,4,black,1,0xAAAAAAAA,false);
+      cbutton.draw_line(4,4,bw - 5,4,black,1,0xAAAAAAAA,true).
+        draw_line(bw - 5,4,bw - 5,bh - 5,black,1,0xAAAAAAAA,false);
+      cbutton.draw_line(bw - 5,bh - 5,4,bh - 5,black,1,0xAAAAAAAA,false).
+        draw_line(4,bh - 5,4,4,black,1,0xAAAAAAAA,false);
 
       cimglist_for(buttons,ll) {
         CImg<unsigned char>(cbutton).
@@ -61808,7 +61826,10 @@ namespace cimg_library_suffixed {
       if (logo._data) canvas.draw_image(lx,ly,logo);
 
       unsigned int xbuttons[6] = { 0 };
-      cimglist_for(buttons,lll) { xbuttons[lll] = bx + (bw + 12)*lll; canvas.draw_image(xbuttons[lll],by,buttons[lll]); }
+      cimglist_for(buttons,lll) {
+        xbuttons[lll] = bx + (bw + 12)*lll;
+        canvas.draw_image(xbuttons[lll],by,buttons[lll]);
+      }
 
       // Open window and enter events loop
       CImgDisplay disp(canvas,title?title:" ",0,false,is_centered?true:false);

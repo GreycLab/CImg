@@ -52734,7 +52734,7 @@ namespace cimg_library_suffixed {
       bool ndisplay_axes = display_axes;
       const CImg<T>
         background_color(1,1,1,_spectrum,0),
-        foreground_color(1,1,1,_spectrum,255);
+        foreground_color(1,1,1,_spectrum,(T)std::min((int)cimg::type<T>::max(),255));
       float
         Xoff = 0, Yoff = 0, Zoff = 0, sprite_scale = 1,
         xm = 0, xM = vertices?vertices.get_shared_row(0).max_min(xm):0,
@@ -55198,7 +55198,7 @@ namespace cimg_library_suffixed {
                                     cimg_instance,
                                     filename?filename:"(FILE*)",error_message.data());
 
-      const CImg<tc> default_color(1,3,1,1,200);
+      const CImg<tc> default_color(1,3,1,1,(tc)std::min((int)cimg::type<tc>::max(),200));
       std::FILE *const nfile = file?file:cimg::fopen(filename,"w");
       unsigned int supported_primitives = 0;
       cimglist_for(primitives,l) if (primitives[l].size()!=5) ++supported_primitives;

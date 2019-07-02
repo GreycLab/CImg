@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 267
+#define cimg_version 268
 
 /*-----------------------------------------------------------
  #
@@ -27303,6 +27303,8 @@ namespace cimg_library_suffixed {
     template<typename t>
     const CImg<T>& SVD(CImg<t>& U, CImg<t>& S, CImg<t>& V, const bool sorting=true,
                        const unsigned int max_iteration=40, const float lambda=0) const {
+      typedef _cimg_Ttfloat Ttfloat;
+
       if (is_empty()) { U.assign(); S.assign(); V.assign(); }
       else {
         U = *this;
@@ -27313,7 +27315,7 @@ namespace cimg_library_suffixed {
         if (S.size()<_width) S.assign(1,_width);
         if (V._width<_width || V._height<_height) V.assign(_width,_width);
         CImg<t> rv1(_width);
-        t anorm = 0, c, f, g = 0, h, s, scale = 0;
+        Ttfloat anorm = 0, c, f, g = 0, h, s, scale = 0;
         int l = 0, nm = 0;
 
         cimg_forX(U,i) {
@@ -27322,7 +27324,7 @@ namespace cimg_library_suffixed {
             for (int k = i; k<height(); ++k) scale+=cimg::abs(U(i,k));
             if (scale) {
               for (int k = i; k<height(); ++k) { U(i,k)/=scale; s+=U(i,k)*U(i,k); }
-              f = U(i,i); g = (t)((f>=0?-1:1)*std::sqrt(s)); h=f*g-s; U(i,i) = f-g;
+              f = U(i,i); g = (Ttfloat)((f>=0?-1:1)*std::sqrt(s)); h=f*g-s; U(i,i) = f-g;
               for (int j = l; j<width(); ++j) {
                 s = 0;
                 for (int k=i; k<height(); ++k) s+=U(i,k)*U(j,k);
@@ -27339,7 +27341,7 @@ namespace cimg_library_suffixed {
             for (int k = l; k<width(); ++k) scale+=cimg::abs(U(k,i));
             if (scale) {
               for (int k = l; k<width(); ++k) { U(k,i)/= scale; s+=U(k,i)*U(k,i); }
-              f = U(l,i); g = (t)((f>=0?-1:1)*std::sqrt(s)); h = f*g-s; U(l,i) = f-g;
+              f = U(l,i); g = (Ttfloat)((f>=0?-1:1)*std::sqrt(s)); h = f*g-s; U(l,i) = f-g;
               for (int k = l; k<width(); ++k) rv1[k]=U(k,i)/h;
               for (int j = l; j<height(); ++j) {
                 s = 0;
@@ -27349,7 +27351,7 @@ namespace cimg_library_suffixed {
               for (int k = l; k<width(); ++k) U(k,i)*=scale;
             }
           }
-          anorm = (t)std::max((float)anorm,(float)(cimg::abs(S[i]) + cimg::abs(rv1[i])));
+          anorm = (Ttfloat)std::max((float)anorm,(float)(cimg::abs(S[i]) + cimg::abs(rv1[i])));
         }
 
         for (int i = width() - 1; i>=0; --i) {
@@ -27405,20 +27407,20 @@ namespace cimg_library_suffixed {
             nm = k - 1;
             t x = S[l], y = S[nm];
             g = rv1[nm]; h = rv1[k];
-            f = ((y - z)*(y + z)+(g - h)*(g + h))/std::max((t)1e-25,2*h*y);
-            g = cimg::_hypot(f,(t)1);
-            f = ((x - z)*(x + z)+h*((y/(f + (f>=0?g:-g))) - h))/std::max((t)1e-25,x);
+            f = ((y - z)*(y + z)+(g - h)*(g + h))/std::max((Ttfloat)1e-25,(Ttfloat)2*h*y);
+            g = cimg::_hypot(f,(Ttfloat)1);
+            f = ((x - z)*(x + z)+h*((y/(f + (f>=0?g:-g))) - h))/std::max((Ttfloat)1e-25,(Ttfloat)x);
             c = s = 1;
             for (int j = l; j<=nm; ++j) {
               const int i = j + 1;
               g = rv1[i]; h = s*g; g = c*g;
               t y1 = S[i];
               t z1 = cimg::_hypot(f,h);
-              rv1[j] = z1; c = f/std::max((t)1e-25,z1); s = h/std::max((t)1e-25,z1);
+              rv1[j] = z1; c = f/std::max((Ttfloat)1e-25,(Ttfloat)z1); s = h/std::max((Ttfloat)1e-25,(Ttfloat)z1);
               f = x*c + g*s; g = g*c - x*s; h = y1*s; y1*=c;
               cimg_forX(U,jj) { const t x2 = V(j,jj), z2 = V(i,jj); V(j,jj) = x2*c + z2*s; V(i,jj) = z2*c - x2*s; }
               z1 = cimg::_hypot(f,h); S[j] = z1;
-              if (z1) { z1 = 1/std::max((t)1e-25,z1); c = f*z1; s = h*z1; }
+              if (z1) { z1 = 1/std::max((Ttfloat)1e-25,(Ttfloat)z1); c = f*z1; s = h*z1; }
               f = c*g + s*y1; x = c*y1 - s*g;
               cimg_forY(U,jj) { const t y2 = U(j,jj), z2 = U(i,jj); U(j,jj) = y2*c + z2*s; U(i,jj) = z2*c - y2*s; }
             }
@@ -34215,12 +34217,12 @@ namespace cimg_library_suffixed {
     }
 
     //! Autocrop image region, regarding the specified background color \overloading.
-    template<typename t> CImg<T>& autocrop(const CImg<t>& color, const char *const axes="zyx") {
+    CImg<T>& autocrop(const CImg<T>& color, const char *const axes="zyx") {
       return get_autocrop(color,axes).move_to(*this);
     }
 
     //! Autocrop image region, regarding the specified background color \newinstance.
-    template<typename t> CImg<T> get_autocrop(const CImg<t>& color, const char *const axes="zyx") const {
+    CImg<T> get_autocrop(const CImg<T>& color, const char *const axes="zyx") const {
       return get_autocrop(color._data,axes);
     }
 

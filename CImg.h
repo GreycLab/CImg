@@ -6194,8 +6194,28 @@ namespace cimg_library_suffixed {
       return (int)(x + 0.5f);
     }
 
+    inline int uiround(const short x) {
+      return (int)x;
+    }
+
+    inline int uiround(const unsigned short x) {
+      return (int)x;
+    }
+
     inline int uiround(const int x) {
       return x;
+    }
+
+    inline int uiround(const unsigned int x) {
+      return (int)x;
+    }
+
+    inline int uiround(const long x) {
+      return (int)x;
+    }
+
+    inline int uiround(const unsigned long x) {
+      return (int)x;
     }
 
     //! Return rounded value.

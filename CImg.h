@@ -34216,16 +34216,6 @@ namespace cimg_library_suffixed {
       return (+*this).autocrop(color,axes);
     }
 
-    //! Autocrop image region, regarding the specified background color \overloading.
-    CImg<T>& autocrop(const CImg<T>& color, const char *const axes="zyx") {
-      return get_autocrop(color,axes).move_to(*this);
-    }
-
-    //! Autocrop image region, regarding the specified background color \newinstance.
-    CImg<T> get_autocrop(const CImg<T>& color, const char *const axes="zyx") const {
-      return get_autocrop(color._data,axes);
-    }
-
     CImg<intT> _autocrop(const T& value, const char axis) const {
       CImg<intT> res;
       switch (cimg::lowercase(axis)) {

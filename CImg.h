@@ -38977,8 +38977,9 @@ namespace cimg_library_suffixed {
                               const unsigned int nb_randoms=5,
                               const float occ_penalization=0,
                               const CImg<t> &guide=CImg<t>::const_empty()) const {
+      CImg<T> matching_score;
       return _matchpatch(patch_image,patch_width,patch_height,patch_depth,
-                         nb_iterations,nb_randoms,guide,occ_penalization,false,CImg<T>::empty());
+                         nb_iterations,nb_randoms,occ_penalization,guide,false,matching_score);
     }
 
     template<typename t1, typename t2>

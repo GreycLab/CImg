@@ -44101,7 +44101,7 @@ namespace cimg_library_suffixed {
             const float cbs = cimg::cut(bsm + dbsmM*xxm/dxmM,0,2);
             const tc *const color = &texture._atXY(tx,ty);
             cimg_forC(*this,c) {
-              const tc col = color[c];
+              const tc col = color[c*twhd];
               const Tfloat val = cbs<=1?cbs*col:(2 - cbs)*col + (cbs - 1)*_sc_maxval;
               ptrd[c*_sc_whd] = (T)(opacity>=1?val:val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
             }

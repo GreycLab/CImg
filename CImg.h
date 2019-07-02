@@ -43025,7 +43025,8 @@ namespace cimg_library_suffixed {
         return draw_spline(x0,y0,u0,v0,x1,y1,u1,v1,+texture,tx0,ty0,tx1,ty1,precision,opacity,pattern,init_hatch);
       if (x0==x1 && y0==y1)
         return draw_point(x0,y0,texture.get_vector_at(x0<=0?0:x0>=texture.width()?texture.width() - 1:x0,
-                                                      y0<=0?0:y0>=texture.height()?texture.height() - 1:y0),opacity);
+                                                      y0<=0?0:y0>=texture.height()?texture.height() - 1:y0).data(),
+                          opacity);
       bool ninit_hatch = init_hatch;
       const float
         ax = u0 + u1 + 2*(x0 - x1),

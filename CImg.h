@@ -6191,31 +6191,7 @@ namespace cimg_library_suffixed {
 
     template<typename T>
     inline int uiround(const T x) {
-      return (int)(x + 0.5f);
-    }
-
-    inline int uiround(const short x) {
-      return (int)x;
-    }
-
-    inline int uiround(const unsigned short x) {
-      return (int)x;
-    }
-
-    inline int uiround(const int x) {
-      return x;
-    }
-
-    inline int uiround(const unsigned int x) {
-      return (int)x;
-    }
-
-    inline int uiround(const long x) {
-      return (int)x;
-    }
-
-    inline int uiround(const unsigned long x) {
-      return (int)x;
+      return cimg::type<T>::is_float()?(int)(x + 0.5f):(int)x;
     }
 
     //! Return rounded value.

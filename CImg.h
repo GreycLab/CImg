@@ -6189,7 +6189,8 @@ namespace cimg_library_suffixed {
       return (T)std::floor((_cimg_Tfloat)x + 0.5f);
     }
 
-    inline int uiround(const float x) {
+    template<typename T>
+    inline int uiround(const T x) {
       return (int)(x + 0.5f);
     }
 

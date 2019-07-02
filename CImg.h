@@ -36478,7 +36478,7 @@ namespace cimg_library_suffixed {
       (*this)(siz - 1,1) = (T)x;
       (*this)(siz - 1,2) = (T)y;
       (*this)(siz - 1,3) = (T)z;
-      for (unsigned int pos = siz - 1, par = 0; pos && value>(*this)(par=(pos + 1)/2 - 1,0); pos = par) {
+      for (unsigned int pos = siz - 1, par = 0; pos && value>(tv)(*this)(par=(pos + 1)/2 - 1,0); pos = par) {
         cimg::swap((*this)(pos,0),(*this)(par,0));
         cimg::swap((*this)(pos,1),(*this)(par,1));
         cimg::swap((*this)(pos,2),(*this)(par,2));

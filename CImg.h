@@ -34999,6 +34999,8 @@ namespace cimg_library_suffixed {
      **/
     template<typename t>
     CImgList<T> get_split(const CImg<t>& values, const char axis=0, const bool keep_values=true) const {
+      typedef _cimg_Tt Tt;
+
       CImgList<T> res;
       if (is_empty()) return res;
       const ulongT vsiz = values.size();
@@ -35060,9 +35062,9 @@ namespace cimg_library_suffixed {
         case 'x' : {
           unsigned int i0 = 0, i1 = 0, i = 0;
           do {
-            if ((*this)(i)==*values) {
+            if ((Tt)(*this)(i)==(Tt)*values) {
               i1 = i; j = 0;
-              while (i<_width && (*this)(i)==values[j]) { ++i; if (++j>=vsiz) j = 0; }
+              while (i<_width && (Tt)(*this)(i)==(Tt)values[j]) { ++i; if (++j>=vsiz) j = 0; }
               i-=j;
               if (i>i1) {
                 if (i1>i0) get_columns(i0,i1 - 1).move_to(res);
@@ -35076,9 +35078,9 @@ namespace cimg_library_suffixed {
         case 'y' : {
           unsigned int i0 = 0, i1 = 0, i = 0;
           do {
-            if ((*this)(0,i)==*values) {
+            if ((Tt)(*this)(0,i)==(Tt)*values) {
               i1 = i; j = 0;
-              while (i<_height && (*this)(0,i)==values[j]) { ++i; if (++j>=vsiz) j = 0; }
+              while (i<_height && (Tt)(*this)(0,i)==(Tt)values[j]) { ++i; if (++j>=vsiz) j = 0; }
               i-=j;
               if (i>i1) {
                 if (i1>i0) get_rows(i0,i1 - 1).move_to(res);
@@ -35092,9 +35094,9 @@ namespace cimg_library_suffixed {
         case 'z' : {
           unsigned int i0 = 0, i1 = 0, i = 0;
           do {
-            if ((*this)(0,0,i)==*values) {
+            if ((Tt)(*this)(0,0,i)==(Tt)*values) {
               i1 = i; j = 0;
-              while (i<_depth && (*this)(0,0,i)==values[j]) { ++i; if (++j>=vsiz) j = 0; }
+              while (i<_depth && (Tt)(*this)(0,0,i)==(Tt)values[j]) { ++i; if (++j>=vsiz) j = 0; }
               i-=j;
               if (i>i1) {
                 if (i1>i0) get_slices(i0,i1 - 1).move_to(res);
@@ -35108,9 +35110,9 @@ namespace cimg_library_suffixed {
         case 'c' : {
           unsigned int i0 = 0, i1 = 0, i = 0;
           do {
-            if ((*this)(0,0,0,i)==*values) {
+            if ((Tt)(*this)(0,0,0,i)==(Tt)*values) {
               i1 = i; j = 0;
-              while (i<_spectrum && (*this)(0,0,0,i)==values[j]) { ++i; if (++j>=vsiz) j = 0; }
+              while (i<_spectrum && (Tt)(*this)(0,0,0,i)==(Tt)values[j]) { ++i; if (++j>=vsiz) j = 0; }
               i-=j;
               if (i>i1) {
                 if (i1>i0) get_channels(i0,i1 - 1).move_to(res);
@@ -35125,9 +35127,9 @@ namespace cimg_library_suffixed {
           ulongT i0 = 0, i1 = 0, i = 0;
           const ulongT siz = size();
           do {
-            if ((*this)[i]==*values) {
+            if ((Tt)(*this)[i]==(Tt)*values) {
               i1 = i; j = 0;
-              while (i<siz && (*this)[i]==values[j]) { ++i; if (++j>=vsiz) j = 0; }
+              while (i<siz && (Tt)(*this)[i]==(Tt)values[j]) { ++i; if (++j>=vsiz) j = 0; }
               i-=j;
               if (i>i1) {
                 if (i1>i0) CImg<T>(_data + i0,1,(unsigned int)(i1 - i0)).move_to(res);
@@ -35842,7 +35844,7 @@ namespace cimg_library_suffixed {
                   for (int ym = -my1; ym<=my2; ++ym)
                     for (int xm = -mx1; xm<=mx2; ++xm)
                       if (K(mx1 + xm,my1 + ym,mz1 + zm)) {
-                        const T cval = (Tt)img._atXYZ(x + xm,y + ym,z + zm);
+                        const Tt cval = (Tt)img._atXYZ(x + xm,y + ym,z + zm);
                         if (cval<min_val) min_val = cval;
                       }
                 res(x,y,z,c) = min_val;
@@ -35858,7 +35860,7 @@ namespace cimg_library_suffixed {
                   for (int ym = -my1; ym<=my2; ++ym)
                     for (int xm = -mx1; xm<=mx2; ++xm)
                       if (K(mx1 + xm,my1 + ym,mz1 + zm)) {
-                        const T cval = (Tt)img.atXYZ(x + xm,y + ym,z + zm,0,(T)0);
+                        const Tt cval = (Tt)img.atXYZ(x + xm,y + ym,z + zm,0,(T)0);
                         if (cval<min_val) min_val = cval;
                       }
                 res(x,y,z,c) = min_val;
@@ -36131,7 +36133,7 @@ namespace cimg_library_suffixed {
                   for (int ym = -my1; ym<=my2; ++ym)
                     for (int xm = -mx1; xm<=mx2; ++xm)
                       if (K(mx2 - xm,my2 - ym,mz2 - zm)) {
-                        const T cval = (Tt)img._atXYZ(x + xm,y + ym,z + zm);
+                        const Tt cval = (Tt)img._atXYZ(x + xm,y + ym,z + zm);
                         if (cval>max_val) max_val = cval;
                       }
                 res(x,y,z,c) = max_val;
@@ -36147,7 +36149,7 @@ namespace cimg_library_suffixed {
                   for (int ym = -my1; ym<=my2; ++ym)
                     for (int xm = -mx1; xm<=mx2; ++xm)
                       if (K(mx2 - xm,my2 - ym,mz2 - zm)) {
-                        const T cval = (Tt)img.atXYZ(x + xm,y + ym,z + zm,0,(T)0);
+                        const Tt cval = (Tt)img.atXYZ(x + xm,y + ym,z + zm,0,(T)0);
                         if (cval>max_val) max_val = cval;
                       }
                 res(x,y,z,c) = max_val;
@@ -40006,7 +40008,7 @@ namespace cimg_library_suffixed {
       state(x,y,z) = 0;
       if (++siz>=_width) { if (!is_empty()) resize(_width*2,4,1,1,0); else assign(64,4); }
       (*this)(siz - 1,0) = (T)value; (*this)(siz - 1,1) = (T)x; (*this)(siz - 1,2) = (T)y; (*this)(siz - 1,3) = (T)z;
-      for (unsigned int pos = siz - 1, par = 0; pos && value>(*this)(par=(pos + 1)/2 - 1,0); pos = par) {
+      for (unsigned int pos = siz - 1, par = 0; pos && value>(t)(*this)(par=(pos + 1)/2 - 1,0); pos = par) {
         cimg::swap((*this)(pos,0),(*this)(par,0)); cimg::swap((*this)(pos,1),(*this)(par,1));
         cimg::swap((*this)(pos,2),(*this)(par,2)); cimg::swap((*this)(pos,3),(*this)(par,3));
       }

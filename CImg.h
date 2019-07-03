@@ -43073,7 +43073,7 @@ namespace cimg_library_suffixed {
                                     cimg_instance,
                                     points._width,points._height,points._depth,points._spectrum,points._data);
 
-      case 2 : {
+      default : {
         const int x0 = (int)points(0,0), y0 = (int)points(0,1);
         const float u0 = (float)tangents(0,0), v0 = (float)tangents(0,1);
         int ox = x0, oy = y0;
@@ -43086,20 +43086,6 @@ namespace cimg_library_suffixed {
           ox = x; oy = y; ou = u; ov = v;
         }
         if (is_closed_set) draw_spline(ox,oy,ou,ov,x0,y0,u0,v0,color,precision,opacity,pattern,false);
-      } break;
-      default : {
-        const int x0 = (int)points(0,0), y0 = (int)points(0,1), z0 = (int)points(0,2);
-        const float u0 = (float)tangents(0,0), v0 = (float)tangents(0,1), w0 = (float)tangents(0,2);
-        int ox = x0, oy = y0, oz = z0;
-        float ou = u0, ov = v0, ow = w0;
-        for (unsigned int i = 1; i<points._width; ++i) {
-          const int x = (int)points(i,0), y = (int)points(i,1), z = (int)points(i,2);
-          const float u = (float)tangents(i,0), v = (float)tangents(i,1), w = (float)tangents(i,2);
-          draw_spline(ox,oy,oz,ou,ov,ow,x,y,z,u,v,w,color,opacity,pattern,ninit_hatch);
-          ninit_hatch = false;
-          ox = x; oy = y; oz = z; ou = u; ov = v; ow = w;
-        }
-        if (is_closed_set) draw_spline(ox,oy,oz,ou,ov,ow,x0,y0,z0,u0,v0,w0,color,precision,opacity,pattern,false);
       }
       }
       return *this;
@@ -43126,8 +43112,8 @@ namespace cimg_library_suffixed {
         tangents.assign(points._width,points._height);
         cimg_forX(points,p) {
           const unsigned int
-            p0 = is_closed_set?(p + points._width - 1)%points._width:(p?p - 1:0),
-            p1 = is_closed_set?(p + 1)%points._width:(p + 1<points._width?p + 1:p);
+            p0 = is_closed_set?(p + points.width() - 1)%points.width():(p?p - 1:0),
+            p1 = is_closed_set?(p + 1)%points.width():(p + 1<points.width()?p + 1:p);
           const float
             x = (float)points(p,0),
             y = (float)points(p,1),
@@ -43153,8 +43139,8 @@ namespace cimg_library_suffixed {
         tangents.assign(points._width,points._height);
         cimg_forX(points,p) {
           const unsigned int
-            p0 = is_closed_set?(p + points._width - 1)%points._width:(p?p - 1:0),
-            p1 = is_closed_set?(p + 1)%points._width:(p + 1<points._width?p + 1:p);
+            p0 = is_closed_set?(p + points.width() - 1)%points.width():(p?p - 1:0),
+            p1 = is_closed_set?(p + 1)%points.width():(p + 1<points.width()?p + 1:p);
           const float
             x = (float)points(p,0),
             y = (float)points(p,1),

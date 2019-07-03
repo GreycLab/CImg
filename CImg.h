@@ -59213,26 +59213,6 @@ namespace cimg_library_suffixed {
       return CImgList<T>().load_gzip_external(filename);
     }
 
-    //! Load a 3D object from a .OFF file.
-    /**
-      \param filename Filename to read data from.
-      \param[out] primitives At return, contains the list of 3D object primitives.
-      \param[out] colors At return, contains the list of 3D object colors.
-      \return List of 3D object vertices.
-    **/
-    template<typename tf, typename tc>
-    CImgList<T>& load_off(const char *const filename,
-			  CImgList<tf>& primitives, CImgList<tc>& colors) {
-      return get_load_off(filename,primitives,colors).move_to(*this);
-    }
-
-    //! Load a 3D object from a .OFF file \newinstance.
-    template<typename tf, typename tc>
-      static CImgList<T> get_load_off(const char *const filename,
-                                      CImgList<tf>& primitives, CImgList<tc>& colors) {
-      return CImg<T>().load_off(primitives,colors,filename)<'x';
-    }
-
     //! Load images from a TIFF file.
     /**
         \param filename Filename to read data from.

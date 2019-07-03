@@ -45639,7 +45639,7 @@ namespace cimg_library_suffixed {
       if (siz<=0) { // Degenerated case
         draw_line(0,y,_width - 1,y,color,opacity,pattern);
         if (!siz) {
-          cimg_snprintf(txt,txt._width,"%g",round_x?cimg::round(*values_x,round_x):*values_x);
+          cimg_snprintf(txt,txt._width,"%g",round_x?cimg::round((double)*values_x,round_x):(double)*values_x);
           a_label.assign().draw_text(0,0,txt,color,(tc*)0,opacity,font_height);
           const int
             _xt = (width() - a_label.width())/2,
@@ -45652,7 +45652,7 @@ namespace cimg_library_suffixed {
         if (values_x[0]<values_x[siz]) draw_arrow(0,y,_width - 1,y,color,opacity,30,5,pattern);
         else draw_arrow(_width - 1,y,0,y,color,opacity,30,5,pattern);
         cimg_foroff(values_x,x) {
-          cimg_snprintf(txt,txt._width,"%g",round_x?cimg::round(values_x(x),round_x):values_x(x));
+          cimg_snprintf(txt,txt._width,"%g",round_x?cimg::round((double)values_x(x),round_x):(double)values_x(x));
           a_label.assign().draw_text(0,0,txt,color,(tc*)0,opacity,font_height);
           const int
             xi = (int)(x*(_width - 1)/siz),

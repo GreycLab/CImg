@@ -59230,7 +59230,7 @@ namespace cimg_library_suffixed {
     template<typename tf, typename tc>
       static CImgList<T> get_load_off(const char *const filename,
                                       CImgList<tf>& primitives, CImgList<tc>& colors) {
-      return CImg<T>().load_off(filename,primitives,colors)<'x';
+      return CImg<T>().load_off(primitives,colors,filename)<'x';
     }
 
     //! Load images from a TIFF file.

@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 268
+#define cimg_version 270
 
 /*-----------------------------------------------------------
  #
@@ -16957,7 +16957,6 @@ namespace cimg_library_suffixed {
                   if (_cimg_mp_is_comp(arg1)) memtype[arg1] = -2;
                 }
 
-
                 if (p1!=~0U) {
                   if (!listout) _cimg_mp_return(arg2);
                   if (*ss>='i')
@@ -18354,7 +18353,7 @@ namespace cimg_library_suffixed {
                                       s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
         }
 
-        // Array-like access to vectors and  image values 'i/j/I/J[_#ind,offset,_boundary]' and 'vector[offset]'.
+        // Array-like access to vectors and image values 'i/j/I/J[_#ind,offset,_boundary]' and 'vector[offset]'.
         if (*se1==']' && *ss!='[') {
           _cimg_mp_op("Value accessor '[]'");
           is_relative = *ss=='j' || *ss=='J';
@@ -19125,6 +19124,35 @@ namespace cimg_library_suffixed {
               }
               _cimg_mp_scalar3(mp_cut,arg1,arg2,arg3);
             }
+
+/*            if (!std::strncmp(ss,"convolve(",9) ||
+                !std::strncmp(ss,"correlate(",10)) { // Convolve & Correlate
+              is_sth = *ss2=='n'; // is_convolve?
+              _cimg_mp_op(is_sth?"Function 'convolve()'":"Function 'correlate()'");
+              s0 = ss + (is_sth?9:10);
+              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(s0,s1,depth1,0,is_single);
+              s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg2 = compile(++s1,s2,depth1,0,is_single);
+              arg3 = _cimg_mp_boundary;
+              arg4 = 0;
+              if (s2<se1) {
+                s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                arg3 = compile(++s2,s1,depth1,0,is_single);
+                arg4 = s1<se1?compile(++s1,se1,depth1,0,is_single):0;
+              }
+              _cimg_mp_check_type(arg1,1,2,0);
+              _cimg_mp_check_type(arg2,2,2,0);
+              _cimg_mp_check_type(arg3,3,1,0);
+              _cimg_mp_check_type(arg4,4,1,0);
+              p1 = _cimg_mp_size(arg1);
+              p2 = _cimg_mp_size(arg2);
+              pos = vector(p1);
+              CImg<ulongT>::vector((ulongT)is_convolve?mp_matrix_convolve:mp_matrix_correlate,pos,
+                                   arg1,arg2,arg4,p1,p2).move_to(code);
+              _cimg_mp_return(pos);
+            }
+*/
             break;
 
           case 'd' :

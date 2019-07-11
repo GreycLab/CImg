@@ -49303,7 +49303,8 @@ namespace cimg_library_suffixed {
 
       CImg<ucharT> buffer;
       if (buf_size<cimg_iobuffer) {
-        buffer.assign(cimg::abs(dy)*(dx_bytes + align_bytes),1,1,1,0);
+//        buffer.assign(cimg::abs(dy)*(dx_bytes + align_bytes),1,1,1,0);
+        buffer.assign(buf_size,1,1,1,0);
         cimg::fread(buffer._data,buf_size,nfile);
       } else buffer.assign(dx_bytes + align_bytes);
       unsigned char *ptrs = buffer;

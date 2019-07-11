@@ -35220,6 +35220,7 @@ namespace cimg_library_suffixed {
        \param kernel = the correlation kernel.
        \param boundary_conditions boundary conditions can be (false=dirichlet, true=neumann)
        \param is_normalized = enable local normalization.
+       \param padding = padding
        \note
        - The correlation of the image instance \p *this by the kernel \p kernel is defined to be:
        res(x,y,z) = sum_{i,j,k} (*this)(x + i,y + j,z + k)*kernel(i,j,k).
@@ -35671,6 +35672,7 @@ namespace cimg_library_suffixed {
        \param kernel = the correlation kernel.
        \param boundary_conditions boundary conditions can be (false=dirichlet, true=neumann)
        \param is_normalized = enable local normalization.
+       \param padding = padding
        \note
        - The result \p res of the convolution of an image \p img by a kernel \p kernel is defined to be:
        res(x,y,z) = sum_{i,j,k} img(x-i,y-j,z-k)*kernel(i,j,k)

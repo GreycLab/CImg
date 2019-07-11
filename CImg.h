@@ -35441,8 +35441,10 @@ namespace cimg_library_suffixed {
                   cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(_res.size(),16384))
                     cimg_forXYZ(res,x,y,z) {
                     const int
-                      px = x>padding?x - padding:x, nx = x + padding<res.width()?x + padding:x, ax = nx + padding<res.width()?nx + padding:nx,
-                      py = y>padding?y - padding:y, ny = y + padding<res.height()?y + padding:y, ay = ny + padding<res.height()?ny + padding:ny;
+                      px = x>padding?x - padding:x, nx = x + padding<res.width()?x + padding:x,
+                      ax = nx + padding<res.width()?nx + padding:nx,
+                      py = y>padding?y - padding:y, ny = y + padding<res.height()?y + padding:y,
+                      ay = ny + padding<res.height()?ny + padding:ny;
                     const Ttfloat N = M2*(cimg::sqr(I(px,py,z)) + cimg::sqr(I(x,py,z)) +
                                           cimg::sqr(I(nx,py,z)) + cimg::sqr(I(ax,py,z)) +
                                           cimg::sqr(I(px,y,z)) + cimg::sqr(I(x,y,z)) +
@@ -35464,8 +35466,10 @@ namespace cimg_library_suffixed {
                   cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if_size(_res.size(),16384))
                     cimg_forXYZ(res,x,y,z) {
                     const int
-                      px = x>padding?x - padding:x, nx = x + padding<res.width()?x + padding:x, ax = nx + padding<res.width()?nx + padding:nx,
-                      py = y>padding?y - padding:y, ny = y + padding<res.height()?y + padding:y, ay = ny + padding<res.height()?ny + padding:ny;
+                      px = x>padding?x - padding:x, nx = x + padding<res.width()?x + padding:x,
+                      ax = nx + padding<res.width()?nx + padding:nx,
+                      py = y>padding?y - padding:y, ny = y + padding<res.height()?y + padding:y,
+                      ay = ny + padding<res.height()?ny + padding:ny;
                     _res(x,y,z) = (Ttfloat)(K[0]*I(px,py,z) + K[1]*I(x,py,z) +
                                             K[2]*I(nx,py,z) + K[3]*I(ax,py,z) +
                                             K[4]*I(px,y,z) + K[5]*I(x,y,z) +

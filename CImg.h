@@ -35198,21 +35198,22 @@ namespace cimg_library_suffixed {
     **/
     template<typename t>
     CImg<T>& correlate(const CImg<t>& kernel, const bool boundary_conditions=true,
-                       const bool is_normalized=false) {
+                       const bool is_normalized=false, const int padding=1) {
       if (is_empty() || !kernel) return *this;
-      return get_correlate(kernel,boundary_conditions,is_normalized).move_to(*this);
+      return get_correlate(kernel,boundary_conditions,is_normalized,padding).move_to(*this);
     }
 
     template<typename t>
     CImg<_cimg_Ttfloat> get_correlate(const CImg<t>& kernel, const bool boundary_conditions=true,
-                                      const bool is_normalized=false) const {
-      return _correlate(kernel,boundary_conditions,is_normalized,false);
+                                      const bool is_normalized=false, const int padding=1) const {
+      return _correlate(kernel,boundary_conditions,is_normalized,padding,false);
     }
 
     //! Correlate image by a kernel \newinstance.
     template<typename t>
     CImg<_cimg_Ttfloat> _correlate(const CImg<t>& kernel, const bool boundary_conditions,
-                                   const bool is_normalized, const bool is_convolution) const {
+                                   const bool is_normalized, const int padding,
+                                   const bool is_convolution) const {
       if (is_empty() || !kernel) return *this;
       typedef _cimg_Ttfloat Ttfloat;
       CImg<Ttfloat> res;
@@ -35232,7 +35233,7 @@ namespace cimg_library_suffixed {
         if (!boundary_conditions && res_whd<=3000*3000) { // Dirichlet boundaries
           // For relatively small images, adding a zero border then use optimized NxN convolution loops is faster.
           res = (kernel._depth==1?get_crop(-1,-1,_width,_height):get_crop(-1,-1,-1,_width,_height,_depth)).
-            _correlate(kernel,true,is_normalized,is_convolution);
+            _correlate(kernel,true,is_normalized,padding,is_convolution);
           if (kernel._depth==1) res.crop(1,1,res._width - 2,res._height - 2);
           else res.crop(1,1,1,res._width - 2,res._height - 2,res._depth - 2);
 
@@ -35260,9 +35261,9 @@ namespace cimg_library_suffixed {
                 cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(_res.size(),16384))
                   cimg_forXYZ(res,x,y,z) {
                   const int
-                    px = x>0?x - 1:x, nx = x + 1<res.width()?x + 1:x,
-                    py = y>0?y - 1:y, ny = y + 1<res.height()?y + 1:y,
-                    pz = z>0?z - 1:z, nz = z + 1<res.depth()?z + 1:z;
+                    px = x>padding?x - padding:x, nx = x + padding<res.width()?x + padding:x,
+                    py = y>padding?y - padding:y, ny = y + padding<res.height()?y + padding:y,
+                    pz = z>padding?z - padding:z, nz = z + padding<res.depth()?z + padding:z;
                   const Ttfloat N = M2*(cimg::sqr(I(px,py,pz)) + cimg::sqr(I(x,py,pz)) + cimg::sqr(I(nx,py,pz)) +
                                         cimg::sqr(I(px,y,pz)) + cimg::sqr(I(x,y,pz)) + cimg::sqr(I(nx,y,pz)) +
                                         cimg::sqr(I(px,ny,pz)) + cimg::sqr(I(x,ny,pz)) + cimg::sqr(I(nx,ny,pz)) +
@@ -35286,9 +35287,9 @@ namespace cimg_library_suffixed {
                 cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if_size(_res.size(),16384))
                   cimg_forXYZ(res,x,y,z) {
                   const int
-                    px = x>0?x - 1:x, nx = x + 1<res.width()?x + 1:x,
-                    py = y>0?y - 1:y, ny = y + 1<res.height()?y + 1:y,
-                    pz = z>0?z - 1:z, nz = z + 1<res.depth()?z + 1:z;
+                    px = x>padding?x - padding:x, nx = x + padding<res.width()?x + padding:x,
+                    py = y>padding?y - padding:y, ny = y + padding<res.height()?y + padding:y,
+                    pz = z>padding?z - padding:z, nz = z + padding<res.depth()?z + padding:z;
                   _res(x,y,z) = (Ttfloat)(K[0]*I(px,py,pz) + K[1]*I(x,py,pz) + K[2]*I(nx,py,pz) +
                                           K[3]*I(px,y,pz) + K[4]*I(x,y,pz) + K[5]*I(nx,y,pz) +
                                           K[6]*I(px,ny,pz) + K[7]*I(x,ny,pz) + K[8]*I(nx,ny,pz) +
@@ -35352,10 +35353,10 @@ namespace cimg_library_suffixed {
                   cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(_res.size(),16384))
                     cimg_forXYZ(res,x,y,z) {
                     const int
-                      px = x>0?x - 1:x, nx = x + 1<res.width()?x + 1:x,
-                      bx = px>0?px - 1:px, ax = nx + 1<res.width()?nx + 1:nx,
-                      py = y>0?y - 1:y, ny = y + 1<res.height()?y + 1:y,
-                      by = py>0?py - 1:py, ay = ny + 1<res.height()?ny + 1:ny;
+                      px = x>padding?x - padding:x, nx = x + padding<res.width()?x + padding:x,
+                      bx = px>padding?px - padding:px, ax = nx + padding<res.width()?nx + padding:nx,
+                      py = y>padding?y - padding:y, ny = y + padding<res.height()?y + padding:y,
+                      by = py>padding?py - padding:py, ay = ny + padding<res.height()?ny + padding:ny;
                     const Ttfloat N = M2*(cimg::sqr(I(bx,by,z)) + cimg::sqr(I(px,by,z)) + cimg::sqr(I(x,by,z)) +
                                           cimg::sqr(I(nx,by,z)) + cimg::sqr(I(ax,by,z)) +
                                           cimg::sqr(I(bx,py,z)) + cimg::sqr(I(px,py,z)) + cimg::sqr(I(x,py,z)) +
@@ -35381,10 +35382,10 @@ namespace cimg_library_suffixed {
                   cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if_size(_res.size(),16384))
                     cimg_forXYZ(res,x,y,z) {
                     const int
-                      px = x>0?x - 1:x, nx = x + 1<res.width()?x + 1:x,
-                      bx = px>0?px - 1:px, ax = nx + 1<res.width()?nx + 1:nx,
-                      py = y>0?y - 1:y, ny = y + 1<res.height()?y + 1:y,
-                      by = py>0?py - 1:py, ay = ny + 1<res.height()?ny + 1:ny;
+                      px = x>padding?x - padding:x, nx = x + padding<res.width()?x + padding:x,
+                      bx = px>padding?px - padding:px, ax = nx + padding<res.width()?nx + padding:nx,
+                      py = y>padding?y - padding:y, ny = y + padding<res.height()?y + padding:y,
+                      by = py>padding?py - padding:py, ay = ny + padding<res.height()?ny + padding:ny;
                     _res(x,y,z) = (Ttfloat)(K[0]*I(bx,by,z) + K[1]*I(px,by,z) + K[2]*I(x,by,z) +
                                             K[3]*I(nx,by,z) + K[4]*I(ax,by,z) +
                                             K[5]*I(bx,py,z) + K[6]*I(px,py,z) + K[7]*I(x,py,z) +
@@ -35411,8 +35412,8 @@ namespace cimg_library_suffixed {
                   cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(_res.size(),16384))
                     cimg_forXYZ(res,x,y,z) {
                     const int
-                      px = x>0?x - 1:x, nx = x + 1<res.width()?x + 1:x, ax = nx + 1<res.width()?nx + 1:nx,
-                      py = y>0?y - 1:y, ny = y + 1<res.height()?y + 1:y, ay = ny + 1<res.height()?ny + 1:ny;
+                      px = x>padding?x - padding:x, nx = x + padding<res.width()?x + padding:x, ax = nx + padding<res.width()?nx + padding:nx,
+                      py = y>padding?y - padding:y, ny = y + padding<res.height()?y + padding:y, ay = ny + padding<res.height()?ny + padding:ny;
                     const Ttfloat N = M2*(cimg::sqr(I(px,py,z)) + cimg::sqr(I(x,py,z)) +
                                           cimg::sqr(I(nx,py,z)) + cimg::sqr(I(ax,py,z)) +
                                           cimg::sqr(I(px,y,z)) + cimg::sqr(I(x,y,z)) +
@@ -35434,8 +35435,8 @@ namespace cimg_library_suffixed {
                   cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if_size(_res.size(),16384))
                     cimg_forXYZ(res,x,y,z) {
                     const int
-                      px = x>0?x - 1:x, nx = x + 1<res.width()?x + 1:x, ax = nx + 1<res.width()?nx + 1:nx,
-                      py = y>0?y - 1:y, ny = y + 1<res.height()?y + 1:y, ay = ny + 1<res.height()?ny + 1:ny;
+                      px = x>padding?x - padding:x, nx = x + padding<res.width()?x + padding:x, ax = nx + padding<res.width()?nx + padding:nx,
+                      py = y>padding?y - padding:y, ny = y + padding<res.height()?y + padding:y, ay = ny + padding<res.height()?ny + padding:ny;
                     _res(x,y,z) = (Ttfloat)(K[0]*I(px,py,z) + K[1]*I(x,py,z) +
                                             K[2]*I(nx,py,z) + K[3]*I(ax,py,z) +
                                             K[4]*I(px,y,z) + K[5]*I(x,y,z) +
@@ -35460,8 +35461,8 @@ namespace cimg_library_suffixed {
                   cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(_res.size(),16384))
                     cimg_forXYZ(res,x,y,z) {
                     const int
-                      px = x>0?x - 1:x, nx = x + 1<res.width()?x + 1:x,
-                      py = y>0?y - 1:y, ny = y + 1<res.height()?y + 1:y;
+                      px = x>padding?x - padding:x, nx = x + padding<res.width()?x + padding:x,
+                      py = y>padding?y - padding:y, ny = y + padding<res.height()?y + padding:y;
                     const Ttfloat N = M2*(cimg::sqr(I(px,py,z)) + cimg::sqr(I(x,py,z)) + cimg::sqr(I(nx,py,z)) +
                                           cimg::sqr(I(px,y,z)) + cimg::sqr(I(x,y,z)) + cimg::sqr(I(nx,y,z)) +
                                           cimg::sqr(I(px,ny,z)) + cimg::sqr(I(x,ny,z)) + cimg::sqr(I(nx,ny,z)));
@@ -35473,8 +35474,8 @@ namespace cimg_library_suffixed {
                   cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if_size(_res.size(),16384))
                     cimg_forXYZ(res,x,y,z) {
                     const int
-                      px = x>0?x - 1:x, nx = x + 1<res.width()?x + 1:x,
-                      py = y>0?y - 1:y, ny = y + 1<res.height()?y + 1:y;
+                      px = x>padding?x - padding:x, nx = x + padding<res.width()?x + padding:x,
+                      py = y>padding?y - padding:y, ny = y + padding<res.height()?y + padding:y;
                     _res(x,y,z) = (Ttfloat)(K[0]*I(px,py,z) + K[1]*I(x,py,z) + K[2]*I(nx,py,z) +
                                             K[3]*I(px,y,z) + K[4]*I(x,y,z) + K[5]*I(nx,y,z) +
                                             K[6]*I(px,ny,z) + K[7]*I(x,ny,z) + K[8]*I(nx,ny,z));
@@ -35647,17 +35648,18 @@ namespace cimg_library_suffixed {
        res(x,y,z) = sum_{i,j,k} img(x-i,y-j,z-k)*kernel(i,j,k)
     **/
     template<typename t>
-    CImg<T>& convolve(const CImg<t>& kernel, const bool boundary_conditions=true, const bool is_normalized=false) {
+    CImg<T>& convolve(const CImg<t>& kernel, const bool boundary_conditions=true,
+                      const bool is_normalized=false, const int padding=1) {
       if (is_empty() || !kernel) return *this;
-      return get_convolve(kernel,boundary_conditions,is_normalized).move_to(*this);
+      return get_convolve(kernel,boundary_conditions,is_normalized,padding).move_to(*this);
     }
 
     //! Convolve image by a kernel \newinstance.
     template<typename t>
     CImg<_cimg_Ttfloat> get_convolve(const CImg<t>& kernel, const bool boundary_conditions=true,
-                                     const bool is_normalized=false) const {
+                                     const bool is_normalized=false, const int padding=1) const {
       return _correlate(CImg<t>(kernel._data,kernel.size()/kernel._spectrum,1,1,kernel._spectrum,true).
-                        get_mirror('x').resize(kernel,-1),boundary_conditions,is_normalized,true);
+                        get_mirror('x').resize(kernel,-1),boundary_conditions,is_normalized,padding,true);
     }
 
     //! Cumulate image values, optionally along specified axis.

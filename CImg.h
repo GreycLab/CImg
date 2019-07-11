@@ -35243,9 +35243,6 @@ namespace cimg_library_suffixed {
     CImg<_cimg_Ttfloat> _correlate(const CImg<t>& kernel, const bool boundary_conditions,
                                    const bool is_normalized, const int padding,
                                    const bool is_convolution) const {
-
-      std::fprintf(stderr,"\nDEBUG : padding = %u\n",padding);
-
       if (is_empty() || !kernel) return *this;
       typedef _cimg_Ttfloat Ttfloat;
       CImg<Ttfloat> res;
@@ -35566,7 +35563,8 @@ namespace cimg_library_suffixed {
           mx1 = kernel.width() - mx2 - 1, my1 = kernel.height() - my2 - 1, mz1 = kernel.depth() - mz2 - 1;
         if (is_convolution) cimg::swap(mx1,mx2,my1,my2,mz1,mz2); // Shift kernel center in case of convolution
         const int
-          mxe = width() - mx2, mye = height() - my2, mze = depth() - mz2;
+          mxs = padding*mx1, mys = padding*my1, mzs = padding*mz1,
+          mxe = width() - padding*mx2, mye = height() - padding*my2, mze = depth() - padding*mz2;
         cimg_pragma_openmp(parallel for cimg_openmp_if(!is_inner_parallel && is_outer_parallel))
         cimg_forC(res,c) _cimg_abort_try_omp {
           cimg_abort_test;
@@ -35575,15 +35573,15 @@ namespace cimg_library_suffixed {
           if (is_normalized) { // Normalized correlation
             const Ttfloat M = (Ttfloat)K.magnitude(2), M2 = M*M;
             cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
-            for (int z = mz1; z<mze; ++z)
-              for (int y = my1; y<mye; ++y)
-                for (int x = mx1; x<mxe; ++x) _cimg_abort_try_omp2 {
+            for (int z = mzs; z<mze; ++z)
+              for (int y = mys; y<mye; ++y)
+                for (int x = mxs; x<mxe; ++x) _cimg_abort_try_omp2 {
                   cimg_abort_test2;
                   Ttfloat val = 0, N = 0;
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
                       for (int xm = -mx1; xm<=mx2; ++xm) {
-                        const Ttfloat _val = (Ttfloat)img(x + xm,y + ym,z + zm);
+                        const Ttfloat _val = (Ttfloat)img(x + padding*xm,y + padding*ym,z + padding*zm);
                         val+=_val*K(mx1 + xm,my1 + ym,mz1 + zm);
                         N+=_val*_val;
                       }
@@ -35595,12 +35593,12 @@ namespace cimg_library_suffixed {
               cimg_forYZ(res,y,z) _cimg_abort_try_omp2 {
                 cimg_abort_test2;
                 for (int x = 0; x<width();
-                     (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
+                     (y<mys || y>=mye || z<mzs || z>=mze)?++x:((x<mxs - 1 || x>=mxe)?++x:(x=mxe))) {
                   Ttfloat val = 0, N = 0;
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
                       for (int xm = -mx1; xm<=mx2; ++xm) {
-                        const Ttfloat _val = (Ttfloat)img._atXYZ(x + xm,y + ym,z + zm);
+                        const Ttfloat _val = (Ttfloat)img._atXYZ(x + padding*xm,y + padding*ym,z + padding*zm);
                         val+=_val*K(mx1 + xm,my1 + ym,mz1 + zm);
                         N+=_val*_val;
                       }
@@ -35613,12 +35611,12 @@ namespace cimg_library_suffixed {
               cimg_forYZ(res,y,z) _cimg_abort_try_omp2 {
                 cimg_abort_test2;
                 for (int x = 0; x<width();
-                     (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
+                     (y<mys || y>=mye || z<mzs || z>=mze)?++x:((x<mxs - 1 || x>=mxe)?++x:(x=mxe))) {
                   Ttfloat val = 0, N = 0;
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
                       for (int xm = -mx1; xm<=mx2; ++xm) {
-                        const Ttfloat _val = (Ttfloat)img.atXYZ(x + xm,y + ym,z + zm,0,(T)0);
+                        const Ttfloat _val = (Ttfloat)img.atXYZ(x + padding*xm,y + padding*ym,z + padding*zm,0,(T)0);
                         val+=_val*K(mx1 + xm,my1 + ym,mz1 + zm);
                         N+=_val*_val;
                       }
@@ -35628,15 +35626,15 @@ namespace cimg_library_suffixed {
               } _cimg_abort_catch_omp2
           } else { // Classical correlation
             cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
-              for (int z = mz1; z<mze; ++z)
-              for (int y = my1; y<mye; ++y)
-                for (int x = mx1; x<mxe; ++x) _cimg_abort_try_omp2 {
+            for (int z = mzs; z<mze; ++z)
+              for (int y = mys; y<mye; ++y)
+                for (int x = mxs; x<mxe; ++x) _cimg_abort_try_omp2 {
                   cimg_abort_test2;
                   Ttfloat val = 0;
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
                       for (int xm = -mx1; xm<=mx2; ++xm)
-                        val+=img(x + xm,y + ym,z + zm)*K(mx1 + xm,my1 + ym,mz1 + zm);
+                        val+=img(x + padding*xm,y + padding*ym,z + padding*zm)*K(mx1 + xm,my1 + ym,mz1 + zm);
                   res(x,y,z,c) = (Ttfloat)val;
                 } _cimg_abort_catch_omp2
             if (boundary_conditions)
@@ -35644,12 +35642,12 @@ namespace cimg_library_suffixed {
               cimg_forYZ(res,y,z) _cimg_abort_try_omp2 {
                 cimg_abort_test2;
                 for (int x = 0; x<width();
-                     (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
+                     (y<mys || y>=mye || z<mzs || z>=mze)?++x:((x<mxs - 1 || x>=mxe)?++x:(x=mxe))) {
                   Ttfloat val = 0;
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
                       for (int xm = -mx1; xm<=mx2; ++xm)
-                        val+=img._atXYZ(x + xm,y + ym,z + zm)*K(mx1 + xm,my1 + ym,mz1 + zm);
+                        val+=img._atXYZ(x + padding*xm,y + padding*ym,z + padding*zm)*K(mx1 + xm,my1 + ym,mz1 + zm);
                   res(x,y,z,c) = (Ttfloat)val;
                 }
               } _cimg_abort_catch_omp2
@@ -35658,12 +35656,12 @@ namespace cimg_library_suffixed {
               cimg_forYZ(res,y,z) _cimg_abort_try_omp2 {
                 cimg_abort_test2;
                 for (int x = 0; x<width();
-                     (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
+                     (y<mys || y>=mye || z<mzs || z>=mze)?++x:((x<mxs - 1 || x>=mxe)?++x:(x=mxe))) {
                   Ttfloat val = 0;
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
                       for (int xm = -mx1; xm<=mx2; ++xm)
-                        val+=img.atXYZ(x + xm,y + ym,z + zm,0,(T)0)*K(mx1 + xm,my1 + ym,mz1 + zm);
+                        val+=img.atXYZ(x + padding*xm,y + padding*ym,z + padding*zm,0,(T)0)*K(mx1 + xm,my1 + ym,mz1 + zm);
                   res(x,y,z,c) = (Ttfloat)val;
                 }
               } _cimg_abort_catch_omp2

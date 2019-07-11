@@ -35661,7 +35661,8 @@ namespace cimg_library_suffixed {
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
                       for (int xm = -mx1; xm<=mx2; ++xm)
-                        val+=img.atXYZ(x + padding*xm,y + padding*ym,z + padding*zm,0,(T)0)*K(mx1 + xm,my1 + ym,mz1 + zm);
+                        val+=img.atXYZ(x + padding*xm,y + padding*ym,z + padding*zm,0,(T)0)*
+                          K(mx1 + xm,my1 + ym,mz1 + zm);
                   res(x,y,z,c) = (Ttfloat)val;
                 }
               } _cimg_abort_catch_omp2

@@ -35243,7 +35243,7 @@ namespace cimg_library_suffixed {
     CImg<_cimg_Ttfloat> _correlate(const CImg<t>& kernel, const bool boundary_conditions,
                                    const bool is_normalized, const int padding,
                                    const bool is_convolution) const {
-      if (is_empty() || !kernel) return *this;
+      if (is_empty() || !kernel || padding<0) return *this;
       typedef _cimg_Ttfloat Ttfloat;
       CImg<Ttfloat> res;
       const ulongT

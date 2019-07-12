@@ -35282,7 +35282,7 @@ namespace cimg_library_suffixed {
                                    const unsigned int zcenter, const unsigned int zstart, const unsigned int zend,
                                    const float zstride, const float zdilation,
                                    const bool is_convolve) const {
-      if (is_empty() || !kernel || xdilation<0 || ydilation<0 || zdilation<0) return *this;
+      if (is_empty() || !kernel) return *this;
       typedef _cimg_Ttfloat Ttfloat;
       CImg<Ttfloat> res;
       const ulongT
@@ -35291,40 +35291,79 @@ namespace cimg_library_suffixed {
       const bool
         is_inner_parallel = _width*_height*_depth>=(cimg_openmp_sizefactor)*32768,
         is_outer_parallel = res_size>=(cimg_openmp_sizefactor)*32768;
+      cimg::unused(is_inner_parallel,is_outer_parallel);
       _cimg_abort_init_omp;
       cimg_abort_init;
 
+      if (xstride<=0 || ystride<=0 || zstride<=0)
+        throw CImgArgumentException(_cimg_instance
+                                    "%s(): Invalid stride arguments (%g,%g,%g).",
+                                    cimg_instance,
+                                    is_convolve?"convolve":"correlate",
+                                    xstride,ystride,zstride);
       const int
-        _xcenter = xcenter==~0U?kernel.width()/2 - (is_convolve?0:1 - (kernel.width()%2)):(int)std::min(xcenter,kernel._width - 1),
-        _ycenter = ycenter==~0U?kernel.height()/2 - (is_convolve?0:1 - (kernel.height()%2)):(int)std::min(ycenter,kernel._height - 1),
-        _zcenter = zcenter==~0U?kernel.depth()/2 - (is_convolve?0:1 - (kernel.depth()%2)):(int)std::min(zcenter,kernel._depth - 1);
+        _xstart = (int)std::min(xstart,_width - 1),
+        _ystart = (int)std::min(ystart,_height - 1),
+        _zstart = (int)std::min(zstart,_depth - 1),
+        _xend = (int)std::min(xend,_width - 1),
+        _yend = (int)std::min(yend,_height - 1),
+        _zend = (int)std::min(zend,_depth - 1);
 
+      if (_xstart>_xend || _ystart>_yend || _zstart>_zend)
+        throw CImgArgumentException(_cimg_instance
+                                    "%s(): Invalid xyz-start/end arguments. Start = (%u,%u,%u), End = (%u,%u,%u).",
+                                    cimg_instance,
+                                    is_convolve?"convolve":"correlate",
+                                    xstart,ystart,zstart,xend,yend,zend);
+      const int
+        nwidth = 1 + std::floor((_xend - _xstart)/xstride),
+        nheight = 1 + std::floor((_yend - _ystart)/ystride),
+        ndepth = 1 + std::floor((_zend + _zstart)/zstride),
+        _xstride = (int)cimg::round(xstride),
+        _ystride = (int)cimg::round(ystride),
+        _zstride = (int)cimg::round(zstride);
+
+      int
+        _xcenter = xcenter==~0U?kernel.width()/2:(int)std::min(xcenter,kernel._width - 1),
+        _ycenter = ycenter==~0U?kernel.height()/2:(int)std::min(ycenter,kernel._height - 1),
+        _zcenter = zcenter==~0U?kernel.depth()/2:(int)std::min(zcenter,kernel._depth - 1),
+        _xdilation = (int)cimg::round(xdilation),
+        _ydilation = (int)cimg::round(ydilation),
+        _zdilation = (int)cimg::round(zdilation);
+
+      CImg<t> _kernel;
+
+      // Special optimization done for centered 2x2, 3x3, 4x4, 5x5, 2x2x2 and 3x3x3 kernels.
       if (kernel._width==kernel._height &&
-          ((kernel._depth==1 && kernel._width<=5) || (kernel._depth==kernel._width && kernel._width<=3))) {
+          ((kernel._depth==1 && kernel._width<=5) || (kernel._depth==kernel._width && kernel._width<=3)) &&
+          _xcenter==kernel.width()/2 - (is_convolve?0:!(kernel.width()%2)) &&
+          _ycenter==kernel.height()/2 - (is_convolve?0:!(kernel.height()%2)) &&
+          _zcenter==kernel.depth()/2 - (is_convolve?0:!(kernel.depth()%2))) {
 
-        // Special optimization done for 2x2, 3x3, 4x4, 5x5, 6x6, 2x2x2 and 3x3x3 kernel.
-        if (!boundary_conditions && res_whd<=3000*3000) { // Dirichlet boundaries
-          // For relatively small images, adding a zero border then use optimized NxN convolution loops is faster.
-          res = (kernel._depth==1?get_crop(-1,-1,_width,_height):get_crop(-1,-1,-1,_width,_height,_depth)).
-            _correlate(kernel,true,is_normalized,sum_processed_channels,
-                       xcenter,xstart,xend,xstride,xdilation,
-                       ycenter,ystart,yend,ystride,ydilation,
-                       zcenter,zstart,zend,zstride,zdilation,
+        const int dw = !(kernel.width()%2), dh = !(kernel.height()%2), dd = !(kernel.depth()%2);
+        if (dw || dh || dd) // Force kernel size to be odd
+          _kernel = kernel.get_resize(kernel.width() + dw,kernel.height() + dh,kernel.depth() + dd,kernel.spectrum(),0);
+        else _kernel = kernel.get_shared();
+
+        if (!boundary_conditions) { // Dirichlet -> Add a 1px zero border to instance, then use _correlate() w/ Neumann
+          const int
+            dx = _kernel._width==1?0:1,
+            dy = _kernel._height==1?0:1,
+            dz = _kernel._depth==1?0:1;
+          return get_crop(-dx,-dy,-dz,width() - 1 + dx,height() - 1 + dy,depth() - 1 + dz).
+            _correlate(_kernel,true,is_normalized,sum_processed_channels,
+                       _xcenter,_xstart + dx,_xend - dx,xstride,xdilation,
+                       _ycenter,_ystart + dy,_yend - dy,ystride,ydilation,
+                       _zcenter,_zstart + dz,_zend - dz,zstride,zdilation,
                        is_convolve);
-          if (kernel._depth==1) res.crop(1,1,res._width - 2,res._height - 2);
-          else res.crop(1,1,1,res._width - 2,res._height - 2,res._depth - 2);
 
         } else { // Neumann boundaries
-          res.assign(_width,_height,_depth,std::max(_spectrum,kernel._spectrum));
-          cimg::unused(is_inner_parallel,is_outer_parallel);
-          CImg<t> _kernel;
-          if (is_convolve) { // Add empty column/row/slice to shift kernel center in case of convolution
-            const int dw = !(kernel.width()%2), dh = !(kernel.height()%2), dd = !(kernel.depth()%2);
-            if (dw || dh || dd)
-              kernel.get_resize(kernel.width() + dw,kernel.height() + dh,kernel.depth() + dd,-100,0,0).
-                move_to(_kernel);
+          res.assign(nwidth,nheight,ndepth,std::max(_spectrum,kernel._spectrum));
+
+          if (is_convolve) { // Mirror kernel
+            _kernel = CImg<t>(_kernel._data,kernel.size()/kernel._spectrum,1,1,kernel._spectrum,true).
+              get_mirror('x').resize(_kernel,-1); // Rot180(Kernel)
           }
-          if (!_kernel) _kernel = kernel.get_shared();
 
           switch (_kernel._depth) {
           case 3 : { // 3x3x3 kernel
@@ -35336,11 +35375,12 @@ namespace cimg_library_suffixed {
               if (is_normalized) {
                 const Ttfloat M = (Ttfloat)K.magnitude(2), M2 = M*M;
                 cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(_res.size(),16384))
-                  cimg_forXYZ(res,x,y,z) {
+                  cimg_forXYZ(res,X,Y,Z) {
                   const int
-                    px = x>xdilation?x - xdilation:x, nx = x + xdilation<res.width()?x + xdilation:x,
-                    py = y>ydilation?y - ydilation:y, ny = y + ydilation<res.height()?y + ydilation:y,
-                    pz = z>zdilation?z - zdilation:z, nz = z + zdilation<res.depth()?z + zdilation:z;
+                    x = _xstart + _xstride*X, y = _ystart + _ystride*Y, z = _zstart + _zstride*Z,
+                    px = x>_xdilation?x - _xdilation:x, nx = x + _xdilation<res.width()?x + _xdilation:x,
+                    py = y>_ydilation?y - _ydilation:y, ny = y + _ydilation<res.height()?y + _ydilation:y,
+                    pz = z>_zdilation?z - _zdilation:z, nz = z + _zdilation<res.depth()?z + _zdilation:z;
                   const Ttfloat N = M2*(cimg::sqr(I(px,py,pz)) + cimg::sqr(I(x,py,pz)) + cimg::sqr(I(nx,py,pz)) +
                                         cimg::sqr(I(px,y,pz)) + cimg::sqr(I(x,y,pz)) + cimg::sqr(I(nx,y,pz)) +
                                         cimg::sqr(I(px,ny,pz)) + cimg::sqr(I(x,ny,pz)) + cimg::sqr(I(nx,ny,pz)) +
@@ -35350,7 +35390,7 @@ namespace cimg_library_suffixed {
                                         cimg::sqr(I(px,py,nz)) + cimg::sqr(I(x,py,nz)) + cimg::sqr(I(nx,py,nz)) +
                                         cimg::sqr(I(px,y,nz)) + cimg::sqr(I(x,y,nz)) + cimg::sqr(I(nx,y,nz)) +
                                         cimg::sqr(I(px,ny,nz)) + cimg::sqr(I(x,ny,nz)) + cimg::sqr(I(nx,ny,nz)));
-                  _res(x,y,z) = (Ttfloat)(N?(K[0]*I(px,py,pz) + K[1]*I(x,py,pz) + K[2]*I(nx,py,pz) +
+                  _res(X,Y,Z) = (Ttfloat)(N?(K[0]*I(px,py,pz) + K[1]*I(x,py,pz) + K[2]*I(nx,py,pz) +
                                              K[3]*I(px,y,pz) + K[4]*I(x,y,pz) + K[5]*I(nx,y,pz) +
                                              K[6]*I(px,ny,pz) + K[7]*I(x,ny,pz) + K[8]*I(nx,ny,pz) +
                                              K[9]*I(px,py,z) + K[10]*I(x,py,z) + K[11]*I(nx,py,z) +
@@ -35362,12 +35402,13 @@ namespace cimg_library_suffixed {
                 }
               } else {
                 cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if_size(_res.size(),16384))
-                  cimg_forXYZ(res,x,y,z) {
+                  cimg_forXYZ(res,X,Y,Z) {
                   const int
-                    px = x>xdilation?x - xdilation:x, nx = x + xdilation<res.width()?x + xdilation:x,
-                    py = y>ydilation?y - ydilation:y, ny = y + ydilation<res.height()?y + ydilation:y,
-                    pz = z>zdilation?z - zdilation:z, nz = z + zdilation<res.depth()?z + zdilation:z;
-                  _res(x,y,z) = (Ttfloat)(K[0]*I(px,py,pz) + K[1]*I(x,py,pz) + K[2]*I(nx,py,pz) +
+                    x = _xstart + _xstride*X, y = _ystart + _ystride*Y, z = _zstart + _zstride*Z,
+                    px = x>_xdilation?x - _xdilation:x, nx = x + _xdilation<res.width()?x + _xdilation:x,
+                    py = y>_ydilation?y - _ydilation:y, ny = y + _ydilation<res.height()?y + _ydilation:y,
+                    pz = z>_zdilation?z - _zdilation:z, nz = z + _zdilation<res.depth()?z + _zdilation:z;
+                  _res(X,Y,Z) = (Ttfloat)(K[0]*I(px,py,pz) + K[1]*I(x,py,pz) + K[2]*I(nx,py,pz) +
                                           K[3]*I(px,y,pz) + K[4]*I(x,y,pz) + K[5]*I(nx,y,pz) +
                                           K[6]*I(px,ny,pz) + K[7]*I(x,ny,pz) + K[8]*I(nx,ny,pz) +
                                           K[9]*I(px,py,z) + K[10]*I(x,py,z) + K[11]*I(nx,py,z) +
@@ -35376,41 +35417,6 @@ namespace cimg_library_suffixed {
                                           K[18]*I(px,py,nz) + K[19]*I(x,py,nz) + K[20]*I(nx,py,nz) +
                                           K[21]*I(px,y,nz) + K[22]*I(x,y,nz) + K[23]*I(nx,y,nz) +
                                           K[24]*I(px,ny,nz) + K[25]*I(x,ny,nz) + K[26]*I(nx,ny,nz));
-                }
-              }
-            }
-          } break;
-
-          case 2 : { // 2x2x2 kernel
-            cimg_forC(res,c) {
-              cimg_abort_test;
-              const CImg<T> I = get_shared_channel(c%_spectrum);
-              const CImg<t> K = _kernel.get_shared_channel(c%kernel._spectrum);
-              CImg<T> _res = res.get_shared_channel(c);
-              if (is_normalized) {
-                const Ttfloat M = (Ttfloat)K.magnitude(2), M2 = M*M;
-                cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(_res.size(),16384))
-                  cimg_forXYZ(res,x,y,z) {
-                  const int nx = x + 1<res.width()?x + 1:x, ny = y + 1<res.height()?y + 1:y,
-                            nz = z + 1<res.depth()?z + 1:z;
-                  const Ttfloat N = M2*(cimg::sqr(I(x,y,z)) + cimg::sqr(I(nx,y,z)) +
-                                        cimg::sqr(I(x,ny,z)) + cimg::sqr(I(nx,ny,z)) +
-                                        cimg::sqr(I(x,y,nz)) + cimg::sqr(I(nx,y,nz)) +
-                                        cimg::sqr(I(x,ny,nz)) + cimg::sqr(I(nx,ny,nz)));
-                  _res(x,y,z) = (Ttfloat)(N?(K[0]*I(x,y,z) + K[1]*I(nx,y,z) +
-                                             K[2]*I(x,ny,z) + K[3]*I(nx,ny,z) +
-                                             K[4]*I(x,y,nz) + K[5]*I(nx,y,nz) +
-                                             K[6]*I(x,ny,nz) + K[7]*I(nx,ny,nz))/std::sqrt(N):0);
-                }
-              } else {
-                cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if_size(_res.size(),16384))
-                  cimg_forXYZ(res,x,y,z) {
-                  const int nx = x + 1<res.width()?x + 1:x, ny = y + 1<res.height()?y + 1:y,
-                            nz = z + 1<res.depth()?z + 1:z;
-                  _res(x,y,z) = (Ttfloat)(K[0]*I(x,y,z) + K[1]*I(nx,y,z) +
-                                          K[2]*I(x,ny,z) + K[3]*I(nx,ny,z) +
-                                          K[4]*I(x,y,nz) + K[5]*I(nx,y,nz) +
-                                          K[6]*I(x,ny,nz) + K[7]*I(nx,ny,nz));
                 }
               }
             }
@@ -35428,12 +35434,13 @@ namespace cimg_library_suffixed {
                 if (is_normalized) {
                   const Ttfloat M = (Ttfloat)K.magnitude(2), M2 = M*M;
                   cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(_res.size(),16384))
-                    cimg_forXYZ(res,x,y,z) {
+                    cimg_forXYZ(res,X,Y,Z) {
                     const int
-                      px = x>xdilation?x - xdilation:x, nx = x + xdilation<res.width()?x + xdilation:x,
-                      bx = px>xdilation?px - xdilation:px, ax = nx + xdilation<res.width()?nx + xdilation:nx,
-                      py = y>ydilation?y - ydilation:y, ny = y + xdilation<res.height()?y + ydilation:y,
-                      by = py>ydilation?py - ydilation:py, ay = ny + ydilation<res.height()?ny + ydilation:ny;
+                      x = _xstart + _xstride*X, y = _ystart + _ystride*Y, z = _zstart + _zstride*Z,
+                      px = x>_xdilation?x - _xdilation:x, nx = x + _xdilation<res.width()?x + _xdilation:x,
+                      bx = px>_xdilation?px - _xdilation:px, ax = nx + _xdilation<res.width()?nx + _xdilation:nx,
+                      py = y>_ydilation?y - _ydilation:y, ny = y + _xdilation<res.height()?y + _ydilation:y,
+                      by = py>_ydilation?py - _ydilation:py, ay = ny + ydilation<res.height()?ny + _ydilation:ny;
                     const Ttfloat N = M2*(cimg::sqr(I(bx,by,z)) + cimg::sqr(I(px,by,z)) + cimg::sqr(I(x,by,z)) +
                                           cimg::sqr(I(nx,by,z)) + cimg::sqr(I(ax,by,z)) +
                                           cimg::sqr(I(bx,py,z)) + cimg::sqr(I(px,py,z)) + cimg::sqr(I(x,py,z)) +
@@ -35444,7 +35451,7 @@ namespace cimg_library_suffixed {
                                           cimg::sqr(I(nx,ny,z)) + cimg::sqr(I(ax,ny,z)) +
                                           cimg::sqr(I(bx,ay,z)) + cimg::sqr(I(px,ay,z)) + cimg::sqr(I(x,ay,z)) +
                                           cimg::sqr(I(nx,ay,z)) + cimg::sqr(I(ax,ay,z)));
-                    _res(x,y,z) = (Ttfloat)(N?(K[0]*I(bx,by,z) + K[1]*I(px,by,z) + K[2]*I(x,by,z) +
+                    _res(X,Y,Z) = (Ttfloat)(N?(K[0]*I(bx,by,z) + K[1]*I(px,by,z) + K[2]*I(x,by,z) +
                                                K[3]*I(nx,by,z) + K[4]*I(ax,by,z) +
                                                K[5]*I(bx,py,z) + K[6]*I(px,py,z) + K[7]*I(x,py,z) +
                                                K[8]*I(nx,py,z) + K[9]*I(ax,py,z) +
@@ -35457,13 +35464,14 @@ namespace cimg_library_suffixed {
                   }
                 } else {
                   cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if_size(_res.size(),16384))
-                    cimg_forXYZ(res,x,y,z) {
+                    cimg_forXYZ(res,X,Y,Z) {
                     const int
-                      px = x>xdilation?x - xdilation:x, nx = x + xdilation<res.width()?x + xdilation:x,
-                      bx = px>xdilation?px - xdilation:px, ax = nx + xdilation<res.width()?nx + xdilation:nx,
-                      py = y>ydilation?y - ydilation:y, ny = y + ydilation<res.height()?y + ydilation:y,
-                      by = py>ydilation?py - ydilation:py, ay = ny + ydilation<res.height()?ny + ydilation:ny;
-                    _res(x,y,z) = (Ttfloat)(K[0]*I(bx,by,z) + K[1]*I(px,by,z) + K[2]*I(x,by,z) +
+                      x = _xstart + _xstride*X, y = _ystart + _ystride*Y, z = _zstart + _zstride*Z,
+                      px = x>_xdilation?x - _xdilation:x, nx = x + _xdilation<res.width()?x + _xdilation:x,
+                      bx = px>_xdilation?px - _xdilation:px, ax = nx + _xdilation<res.width()?nx + _xdilation:nx,
+                      py = y>_ydilation?y - _ydilation:y, ny = y + _ydilation<res.height()?y + _ydilation:y,
+                      by = py>_ydilation?py - _ydilation:py, ay = ny + _ydilation<res.height()?ny + _ydilation:ny;
+                    _res(X,Y,Z) = (Ttfloat)(K[0]*I(bx,by,z) + K[1]*I(px,by,z) + K[2]*I(x,by,z) +
                                             K[3]*I(nx,by,z) + K[4]*I(ax,by,z) +
                                             K[5]*I(bx,py,z) + K[6]*I(px,py,z) + K[7]*I(x,py,z) +
                                             K[8]*I(nx,py,z) + K[9]*I(ax,py,z) +
@@ -35478,60 +35486,11 @@ namespace cimg_library_suffixed {
               }
             } break;
 
-            case 4 : { // 4x4 kernel
-              cimg_forC(res,c) {
-                cimg_abort_test;
-                const CImg<T> I = get_shared_channel(c%_spectrum);
-                const CImg<t> K = _kernel.get_shared_channel(c%kernel._spectrum);
-                CImg<T> _res = res.get_shared_channel(c);
-                if (is_normalized) {
-                  const Ttfloat M = (Ttfloat)K.magnitude(2), M2 = M*M;
-                  cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(_res.size(),16384))
-                    cimg_forXYZ(res,x,y,z) {
-                    const int
-                      px = x>xdilation?x - xdilation:x, nx = x + xdilation<res.width()?x + xdilation:x,
-                      ax = nx + xdilation<res.width()?nx + xdilation:nx,
-                      py = y>ydilation?y - ydilation:y, ny = y + ydilation<res.height()?y + ydilation:y,
-                      ay = ny + ydilation<res.height()?ny + ydilation:ny;
-                    const Ttfloat N = M2*(cimg::sqr(I(px,py,z)) + cimg::sqr(I(x,py,z)) +
-                                          cimg::sqr(I(nx,py,z)) + cimg::sqr(I(ax,py,z)) +
-                                          cimg::sqr(I(px,y,z)) + cimg::sqr(I(x,y,z)) +
-                                          cimg::sqr(I(nx,y,z)) + cimg::sqr(I(ax,y,z)) +
-                                          cimg::sqr(I(px,ny,z)) + cimg::sqr(I(x,ny,z)) +
-                                          cimg::sqr(I(nx,ny,z)) + cimg::sqr(I(ax,ny,z)) +
-                                          cimg::sqr(I(px,ay,z)) + cimg::sqr(I(x,ay,z)) +
-                                          cimg::sqr(I(nx,ay,z)) + cimg::sqr(I(ax,ay,z)));
-                    _res(x,y,z) = (Ttfloat)(N?(K[0]*I(px,py,z) + K[1]*I(x,py,z) +
-                                               K[2]*I(nx,py,z) + K[3]*I(ax,py,z) +
-                                               K[4]*I(px,y,z) + K[5]*I(x,y,z) +
-                                               K[6]*I(nx,y,z) + K[7]*I(ax,y,z) +
-                                               K[8]*I(px,ny,z) + K[9]*I(x,ny,z) +
-                                               K[10]*I(nx,ny,z) + K[11]*I(ax,ny,z) +
-                                               K[12]*I(px,ay,z) + K[13]*I(x,ay,z) +
-                                               K[14]*I(nx,ay,z) + K[15]*I(ax,ay,z))/std::sqrt(N):0);
-                  }
-                } else {
-                  cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if_size(_res.size(),16384))
-                    cimg_forXYZ(res,x,y,z) {
-                    const int
-                      px = x>xdilation?x - xdilation:x, nx = x + xdilation<res.width()?x + xdilation:x,
-                      ax = nx + xdilation<res.width()?nx + xdilation:nx,
-                      py = y>ydilation?y - ydilation:y, ny = y + ydilation<res.height()?y + ydilation:y,
-                      ay = ny + ydilation<res.height()?ny + ydilation:ny;
-                    _res(x,y,z) = (Ttfloat)(K[0]*I(px,py,z) + K[1]*I(x,py,z) +
-                                            K[2]*I(nx,py,z) + K[3]*I(ax,py,z) +
-                                            K[4]*I(px,y,z) + K[5]*I(x,y,z) +
-                                            K[6]*I(nx,y,z) + K[7]*I(ax,y,z) +
-                                            K[8]*I(px,ny,z) + K[9]*I(x,ny,z) +
-                                            K[10]*I(nx,ny,z) + K[11]*I(ax,ny,z) +
-                                            K[12]*I(px,ay,z) + K[13]*I(x,ay,z) +
-                                            K[14]*I(nx,ay,z) + K[15]*I(ax,ay,z));
-                  }
-                }
-              }
-            } break;
-
             case 3 : { // 3x3 kernel
+
+              std::fprintf(stderr,"\nDEBUG : (%d,%d,%d) (%d,%d,%d) (%d,%d,%d)\n",_xstart,_ystart,_zstart,_xstride,_ystride,_zstride,_xcenter,_ycenter,_zcenter);
+              res.print("DEBUG");
+
               cimg_forC(res,c) {
                 cimg_abort_test;
                 const CImg<T> I = get_shared_channel(c%_spectrum);
@@ -35540,53 +35499,28 @@ namespace cimg_library_suffixed {
                 if (is_normalized) {
                   const Ttfloat M = (Ttfloat)K.magnitude(2), M2 = M*M;
                   cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(_res.size(),16384))
-                    cimg_forXYZ(res,x,y,z) {
+                    cimg_forXYZ(res,X,Y,Z) {
                     const int
-                      px = x>xdilation?x - xdilation:x, nx = x + xdilation<res.width()?x + xdilation:x,
-                      py = y>ydilation?y - ydilation:y, ny = y + ydilation<res.height()?y + ydilation:y;
+                      x = _xstart + _xstride*X, y = _ystart + _ystride*Y, z = _zstart + _zstride*Z,
+                      px = x>_xdilation?x - _xdilation:x, nx = x + _xdilation<res.width()?x + _xdilation:x,
+                      py = y>_ydilation?y - _ydilation:y, ny = y + _ydilation<res.height()?y + _ydilation:y;
                     const Ttfloat N = M2*(cimg::sqr(I(px,py,z)) + cimg::sqr(I(x,py,z)) + cimg::sqr(I(nx,py,z)) +
                                           cimg::sqr(I(px,y,z)) + cimg::sqr(I(x,y,z)) + cimg::sqr(I(nx,y,z)) +
                                           cimg::sqr(I(px,ny,z)) + cimg::sqr(I(x,ny,z)) + cimg::sqr(I(nx,ny,z)));
-                    _res(x,y,z) = (Ttfloat)(N?(K[0]*I(px,py,z) + K[1]*I(x,py,z) + K[2]*I(nx,py,z) +
+                    _res(X,Y,Z) = (Ttfloat)(N?(K[0]*I(px,py,z) + K[1]*I(x,py,z) + K[2]*I(nx,py,z) +
                                                K[3]*I(px,y,z) + K[4]*I(x,y,z) + K[5]*I(nx,y,z) +
                                                K[6]*I(px,ny,z) + K[7]*I(x,ny,z) + K[8]*I(nx,ny,z))/std::sqrt(N):0);
                   }
                 } else {
                   cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if_size(_res.size(),16384))
-                    cimg_forXYZ(res,x,y,z) {
+                    cimg_forXYZ(res,X,Y,Z) {
                     const int
-                      px = x>xdilation?x - xdilation:x, nx = x + xdilation<res.width()?x + xdilation:x,
-                      py = y>ydilation?y - ydilation:y, ny = y + ydilation<res.height()?y + ydilation:y;
-                    _res(x,y,z) = (Ttfloat)(K[0]*I(px,py,z) + K[1]*I(x,py,z) + K[2]*I(nx,py,z) +
+                      x = _xstart + _xstride*X, y = _ystart + _ystride*Y, z = _zstart + _zstride*Z,
+                      px = x>_xdilation?x - _xdilation:x, nx = x + _xdilation<res.width()?x + _xdilation:x,
+                      py = y>_ydilation?y - _ydilation:y, ny = y + _ydilation<res.height()?y + _ydilation:y;
+                    _res(X,Y,Z) = (Ttfloat)(K[0]*I(px,py,z) + K[1]*I(x,py,z) + K[2]*I(nx,py,z) +
                                             K[3]*I(px,y,z) + K[4]*I(x,y,z) + K[5]*I(nx,y,z) +
                                             K[6]*I(px,ny,z) + K[7]*I(x,ny,z) + K[8]*I(nx,ny,z));
-                  }
-                }
-              }
-            } break;
-
-            case 2 : { // 2x2 kernel
-              cimg_forC(res,c) {
-                cimg_abort_test;
-                const CImg<T> I = get_shared_channel(c%_spectrum);
-                const CImg<t> K = _kernel.get_shared_channel(c%kernel._spectrum);
-                CImg<T> _res = res.get_shared_channel(c);
-                if (is_normalized) {
-                  const Ttfloat M = (Ttfloat)K.magnitude(2), M2 = M*M;
-                  cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(_res.size(),16384))
-                    cimg_forXYZ(res,x,y,z) {
-                    const int nx = x + 1<res.width()?x + 1:x, ny = y + 1<res.height()?y + 1:y;
-                    const Ttfloat N = M2*(cimg::sqr(I(x,y,z)) + cimg::sqr(I(nx,y,z)) +
-                                          cimg::sqr(I(x,ny,z)) + cimg::sqr(I(nx,ny,z)));
-                    _res(x,y,z) = (Ttfloat)(N?(K[0]*I(x,y,z) + K[1]*I(nx,y,z) +
-                                               K[2]*I(x,ny,z) + K[3]*I(nx,ny,z))/std::sqrt(N):0);
-                  }
-                } else {
-                  cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if_size(_res.size(),16384))
-                    cimg_forXYZ(res,x,y,z) {
-                    const int nx = x + 1<res.width()?x + 1:x, ny = y + 1<res.height()?y + 1:y;
-                    _res(x,y,z) = (Ttfloat)(K[0]*I(x,y,z) + K[1]*I(nx,y,z) +
-                                            K[2]*I(x,ny,z) + K[3]*I(nx,ny,z));
                   }
                 }
               }
@@ -35605,16 +35539,17 @@ namespace cimg_library_suffixed {
           }
         }
       } else { // Generic version for other kernels and boundary conditions
-        res.assign(_width,_height,_depth,std::max(_spectrum,kernel._spectrum));
+        res.assign(nwidth,nheight,ndepth,std::max(_spectrum,kernel._spectrum));
 
-        int
-          _xstride = (int)cimg::round(xstride),
-          _ystride = (int)cimg::round(ystride),
-          _zstride = (int)cimg::round(zstride),
-          _xdilation = (int)cimg::round(xdilation),
-          _ydilation = (int)cimg::round(ydilation),
-          _zdilation = (int)cimg::round(zdilation);
-        if (is_convolve) { _xdilation*=-1; _ydilation*=-1; _zdilation*=-1; }
+        std::fprintf(stderr,"\nDEBUG : Generic\n");
+        kernel.print("DEBUG : KERNEL");
+
+        if (is_convolve) {
+          _xdilation*=-1; _ydilation*=-1; _zdilation*=-1;
+          _xcenter = kernel.width() - 1 - _xcenter;
+          _ycenter = kernel.height() - 1 - _ycenter;
+          _zcenter = kernel.depth() - 1 - _zcenter;
+        }
         cimg_pragma_openmp(parallel for cimg_openmp_if(!is_inner_parallel && is_outer_parallel))
         cimg_forC(res,c) _cimg_abort_try_omp {
           cimg_abort_test;

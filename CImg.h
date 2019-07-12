@@ -35282,7 +35282,7 @@ namespace cimg_library_suffixed {
                                    const unsigned int zcenter, const unsigned int zstart, const unsigned int zend,
                                    const float zstride, const float zdilation,
                                    const bool is_convolution) const {
-      if (is_empty() || !kernel || xdilation || ydilation<0 || zdilation<0) return *this;
+      if (is_empty() || !kernel || xdilation<0 || ydilation<0 || zdilation<0) return *this;
       typedef _cimg_Ttfloat Ttfloat;
       CImg<Ttfloat> res;
       const ulongT
@@ -35293,6 +35293,11 @@ namespace cimg_library_suffixed {
         is_outer_parallel = res_size>=(cimg_openmp_sizefactor)*32768;
       _cimg_abort_init_omp;
       cimg_abort_init;
+
+      const int
+        _xcenter = xcenter==~0U?kernel.width()/2 + (is_convolution?1 - (kernel.width()%2)):(int)std::min(xcenter,kernel._width - 1),
+        _ycenter = ycenter==~0U?kernel.height()/2 + (is_convolution?1 - (kernel.height()%2)):(int)std::min(ycenter,kernel._height - 1),
+        _zcenter = zcenter==~0U?kernel.depth()/2 + (is_convolution?1 - (kernel.depth()%2)):(int)std::min(zcenter,kernel._depth - 1);
 
       if (kernel._width==kernel._height &&
           ((kernel._depth==1 && kernel._width<=5) || (kernel._depth==kernel._width && kernel._width<=3))) {
@@ -35601,6 +35606,28 @@ namespace cimg_library_suffixed {
         }
       } else { // Generic version for other kernels and boundary conditions
         res.assign(_width,_height,_depth,std::max(_spectrum,kernel._spectrum));
+        cimg_pragma_openmp(parallel for cimg_openmp_if(!is_inner_parallel && is_outer_parallel))
+        cimg_forC(res,c) _cimg_abort_try_omp {
+          cimg_abort_test;
+          const CImg<T> img = get_shared_channel(c%_spectrum);
+          const CImg<t> K = kernel.get_shared_channel(c%kernel._spectrum);
+          cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
+          cimg_forXYZ(res,x,y,z) {
+            Ttfloat val = 0;
+            cimg_forXYZ(kernel,p,q,r) {
+              const Ttfloat
+                _val = img._atXYZ(xstart + xstride*x + xdilation*(p - _xcenter),
+                                  ystart + ystride*y + ydilation*(q - _ycenter),
+                                  zstart + zstride*z + zdilation*(r - _zcenter));
+              val+=_val*K(p,q,r);
+            }
+            res(x,y,z,c) = val;
+          }
+        } _cimg_abort_catch_omp
+      }
+
+/*
+        res.assign(_width,_height,_depth,std::max(_spectrum,kernel._spectrum));
         int
           mx2 = kernel.width()/2, my2 = kernel.height()/2, mz2 = kernel.depth()/2,
           mx1 = kernel.width() - mx2 - 1, my1 = kernel.height() - my2 - 1, mz1 = kernel.depth() - mz2 - 1;
@@ -35713,6 +35740,8 @@ namespace cimg_library_suffixed {
         } _cimg_abort_catch_omp
       }
       cimg_abort_test;
+*/
+
       return res;
     }
 

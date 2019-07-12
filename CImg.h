@@ -35218,7 +35218,7 @@ namespace cimg_library_suffixed {
     //! Correlate image by a kernel.
     /**
        \param kernel = the correlation kernel.
-       \param boundary_conditions boundary conditions can be (false=dirichlet, true=neumann)
+       \param boundary_conditions Boundary conditions can be { false=Dirichlet | true=Neumann }
        \param is_normalized = enable local normalization.
        \param sum_processed_channels
        \param xcenter X-coordinate of the kernel center (~0U means 'centered').
@@ -35369,7 +35369,7 @@ namespace cimg_library_suffixed {
           res.assign(nwidth,nheight,ndepth,std::max(_spectrum,_kernel._spectrum));
 
           switch (_kernel._depth) {
-          case 3 : { // 3x3x3 kernel
+          case 3 : { // 3x3x3 centerd kernel
             cimg_forC(res,c) {
               cimg_abort_test;
               const CImg<T> I = get_shared_channel(c%_spectrum);
@@ -35429,7 +35429,7 @@ namespace cimg_library_suffixed {
           default :
           case 1 :
             switch (_kernel._width) {
-            case 5 : { // 5x5 kernel
+            case 5 : { // 5x5 centered kernel
               cimg_forC(res,c) {
                 cimg_abort_test;
                 const CImg<T> I = get_shared_channel(c%_spectrum);
@@ -35491,7 +35491,7 @@ namespace cimg_library_suffixed {
               }
             } break;
 
-            case 3 : { // 3x3 kernel
+            case 3 : { // 3x3 centered kernel
               cimg_forC(res,c) {
                 cimg_abort_test;
                 const CImg<T> I = get_shared_channel(c%_spectrum);
@@ -35543,151 +35543,78 @@ namespace cimg_library_suffixed {
       } else { // Generic version for other kernels and boundary conditions
         res.assign(nwidth,nheight,ndepth,std::max(_spectrum,kernel._spectrum));
 
-//        std::fprintf(stderr,"\nDEBUG : Generic\n");
-//        kernel.print("DEBUG : KERNEL");
-
-        if (is_convolve) {
-          _xdilation*=-1; _ydilation*=-1; _zdilation*=-1;
-          _xcenter = kernel.width() - 1 - _xcenter;
-          _ycenter = kernel.height() - 1 - _ycenter;
-          _zcenter = kernel.depth() - 1 - _zcenter;
-        }
         cimg_pragma_openmp(parallel for cimg_openmp_if(!is_inner_parallel && is_outer_parallel))
         cimg_forC(res,c) _cimg_abort_try_omp {
           cimg_abort_test;
           const CImg<T> img = get_shared_channel(c%_spectrum);
           const CImg<t> K = kernel.get_shared_channel(c%kernel._spectrum);
-          cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
-          cimg_forXYZ(res,x,y,z) {
-            Ttfloat val = 0;
-            cimg_forXYZ(kernel,p,q,r) {
-              const Ttfloat
-                _val = img._atXYZ((int)xstart + _xstride*x + _xdilation*(p - _xcenter),
-                                  (int)ystart + _ystride*y + _ydilation*(q - _ycenter),
-                                  (int)zstart + _zstride*z + _zdilation*(r - _zcenter));
-              val+=_val*K(p,q,r);
+
+          if (!boundary_conditions) { // Dirichlet
+            if (is_normalized) {
+              const Ttfloat M = (Ttfloat)K.magnitude(2), M2 = M*M;
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
+                cimg_forXYZ(res,x,y,z) {
+                Ttfloat val = 0, N = 0;
+                cimg_forXYZ(kernel,p,q,r) {
+                  const Ttfloat
+                    _val = img.atXYZ((int)xstart + _xstride*x + _xdilation*(p - _xcenter),
+                                     (int)ystart + _ystride*y + _ydilation*(q - _ycenter),
+                                     (int)zstart + _zstride*z + _zdilation*(r - _zcenter),0,0);
+                  val+=_val*K(p,q,r);
+                  N+=_val*_val;
+                }
+                N*=M2;
+                res(x,y,z,c) = (Ttfloat)(N?val/std::sqrt(N):0);
+              }
+            } else {
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
+                cimg_forXYZ(res,x,y,z) {
+                Ttfloat val = 0;
+                cimg_forXYZ(kernel,p,q,r) {
+                  const Ttfloat
+                    _val = img.atXYZ((int)xstart + _xstride*x + _xdilation*(p - _xcenter),
+                                     (int)ystart + _ystride*y + _ydilation*(q - _ycenter),
+                                     (int)zstart + _zstride*z + _zdilation*(r - _zcenter),0,0);
+                  val+=_val*K(p,q,r);
+                }
+                res(x,y,z,c) = val;
+              }
             }
-            res(x,y,z,c) = val;
-          }
-        } _cimg_abort_catch_omp
-      }
-
-/*
-        res.assign(_width,_height,_depth,std::max(_spectrum,kernel._spectrum));
-        int
-          mx2 = kernel.width()/2, my2 = kernel.height()/2, mz2 = kernel.depth()/2,
-          mx1 = kernel.width() - mx2 - 1, my1 = kernel.height() - my2 - 1, mz1 = kernel.depth() - mz2 - 1;
-        if (is_convolve) cimg::swap(mx1,mx2,my1,my2,mz1,mz2); // Shift kernel center in case of convolution
-        const int
-          mxs = xdilation*mx1, mys = ydilation*my1, mzs = zdilation*mz1,
-          mxe = width() - xdilation*mx2, mye = height() - ydilation*my2, mze = depth() - zdilation*mz2;
-        cimg_pragma_openmp(parallel for cimg_openmp_if(!is_inner_parallel && is_outer_parallel))
-        cimg_forC(res,c) _cimg_abort_try_omp {
-          cimg_abort_test;
-          const CImg<T> img = get_shared_channel(c%_spectrum);
-          const CImg<t> K = kernel.get_shared_channel(c%kernel._spectrum);
-          if (is_normalized) { // Normalized correlation
-            const Ttfloat M = (Ttfloat)K.magnitude(2), M2 = M*M;
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
-            for (int z = mzs; z<mze; ++z)
-              for (int y = mys; y<mye; ++y)
-                for (int x = mxs; x<mxe; ++x) _cimg_abort_try_omp2 {
-                  cimg_abort_test2;
-                  Ttfloat val = 0, N = 0;
-                  for (int zm = -mz1; zm<=mz2; ++zm)
-                    for (int ym = -my1; ym<=my2; ++ym)
-                      for (int xm = -mx1; xm<=mx2; ++xm) {
-                        const Ttfloat _val = (Ttfloat)img(x + xdilation*xm,y + ydilation*ym,z + zdilation*zm);
-                        val+=_val*K(mx1 + xm,my1 + ym,mz1 + zm);
-                        N+=_val*_val;
-                      }
-                  N*=M2;
-                  res(x,y,z,c) = (Ttfloat)(N?val/std::sqrt(N):0);
-                } _cimg_abort_catch_omp2
-            if (boundary_conditions)
-              cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
-              cimg_forYZ(res,y,z) _cimg_abort_try_omp2 {
-                cimg_abort_test2;
-                for (int x = 0; x<width();
-                     (y<mys || y>=mye || z<mzs || z>=mze)?++x:((x<mxs - 1 || x>=mxe)?++x:(x=mxe))) {
-                  Ttfloat val = 0, N = 0;
-                  for (int zm = -mz1; zm<=mz2; ++zm)
-                    for (int ym = -my1; ym<=my2; ++ym)
-                      for (int xm = -mx1; xm<=mx2; ++xm) {
-                        const Ttfloat _val = (Ttfloat)img._atXYZ(x + xdilation*xm,y + xdilation*ym,z + zdilation*zm);
-                        val+=_val*K(mx1 + xm,my1 + ym,mz1 + zm);
-                        N+=_val*_val;
-                      }
-                  N*=M2;
-                  res(x,y,z,c) = (Ttfloat)(N?val/std::sqrt(N):0);
+          } else { // Neumann
+            if (is_normalized) {
+              const Ttfloat M = (Ttfloat)K.magnitude(2), M2 = M*M;
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
+                cimg_forXYZ(res,x,y,z) {
+                Ttfloat val = 0, N = 0;
+                cimg_forXYZ(kernel,p,q,r) {
+                  const Ttfloat
+                    _val = img._atXYZ((int)xstart + _xstride*x + _xdilation*(p - _xcenter),
+                                      (int)ystart + _ystride*y + _ydilation*(q - _ycenter),
+                                      (int)zstart + _zstride*z + _zdilation*(r - _zcenter));
+                  val+=_val*K(p,q,r);
+                  N+=_val*_val;
                 }
-              } _cimg_abort_catch_omp2
-            else
-              cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
-              cimg_forYZ(res,y,z) _cimg_abort_try_omp2 {
-                cimg_abort_test2;
-                for (int x = 0; x<width();
-                     (y<mys || y>=mye || z<mzs || z>=mze)?++x:((x<mxs - 1 || x>=mxe)?++x:(x=mxe))) {
-                  Ttfloat val = 0, N = 0;
-                  for (int zm = -mz1; zm<=mz2; ++zm)
-                    for (int ym = -my1; ym<=my2; ++ym)
-                      for (int xm = -mx1; xm<=mx2; ++xm) {
-                        const Ttfloat _val = (Ttfloat)img.atXYZ(x + xdilation*xm,y + ydilation*ym,z + zdilation*zm,0,(T)0);
-                        val+=_val*K(mx1 + xm,my1 + ym,mz1 + zm);
-                        N+=_val*_val;
-                      }
-                  N*=M2;
-                  res(x,y,z,c) = (Ttfloat)(N?val/std::sqrt(N):0);
+                N*=M2;
+                res(x,y,z,c) = (Ttfloat)(N?val/std::sqrt(N):0);
+              }
+            } else {
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
+                cimg_forXYZ(res,x,y,z) {
+                Ttfloat val = 0;
+                cimg_forXYZ(kernel,p,q,r) {
+                  const Ttfloat
+                    _val = img._atXYZ((int)xstart + _xstride*x + _xdilation*(p - _xcenter),
+                                      (int)ystart + _ystride*y + _ydilation*(q - _ycenter),
+                                      (int)zstart + _zstride*z + _zdilation*(r - _zcenter));
+                  val+=_val*K(p,q,r);
                 }
-              } _cimg_abort_catch_omp2
-          } else { // Classical correlation
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
-            for (int z = mzs; z<mze; ++z)
-              for (int y = mys; y<mye; ++y)
-                for (int x = mxs; x<mxe; ++x) _cimg_abort_try_omp2 {
-                  cimg_abort_test2;
-                  Ttfloat val = 0;
-                  for (int zm = -mz1; zm<=mz2; ++zm)
-                    for (int ym = -my1; ym<=my2; ++ym)
-                      for (int xm = -mx1; xm<=mx2; ++xm)
-                        val+=img(x + xdilation*xm,y + ydilation*ym,z + zdilation*zm)*K(mx1 + xm,my1 + ym,mz1 + zm);
-                  res(x,y,z,c) = (Ttfloat)val;
-                } _cimg_abort_catch_omp2
-            if (boundary_conditions)
-              cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
-              cimg_forYZ(res,y,z) _cimg_abort_try_omp2 {
-                cimg_abort_test2;
-                for (int x = 0; x<width();
-                     (y<mys || y>=mye || z<mzs || z>=mze)?++x:((x<mxs - 1 || x>=mxe)?++x:(x=mxe))) {
-                  Ttfloat val = 0;
-                  for (int zm = -mz1; zm<=mz2; ++zm)
-                    for (int ym = -my1; ym<=my2; ++ym)
-                      for (int xm = -mx1; xm<=mx2; ++xm)
-                        val+=img._atXYZ(x + xdilation*xm,y + ydilation*ym,z + zdilation*zm)*K(mx1 + xm,my1 + ym,mz1 + zm);
-                  res(x,y,z,c) = (Ttfloat)val;
-                }
-              } _cimg_abort_catch_omp2
-            else
-              cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
-              cimg_forYZ(res,y,z) _cimg_abort_try_omp2 {
-                cimg_abort_test2;
-                for (int x = 0; x<width();
-                     (y<mys || y>=mye || z<mzs || z>=mze)?++x:((x<mxs - 1 || x>=mxe)?++x:(x=mxe))) {
-                  Ttfloat val = 0;
-                  for (int zm = -mz1; zm<=mz2; ++zm)
-                    for (int ym = -my1; ym<=my2; ++ym)
-                      for (int xm = -mx1; xm<=mx2; ++xm)
-                        val+=img.atXYZ(x + xdilation*xm,y + ydilation*ym,z + zdilation*zm,0,(T)0)*
-                          K(mx1 + xm,my1 + ym,mz1 + zm);
-                  res(x,y,z,c) = (Ttfloat)val;
-                }
-              } _cimg_abort_catch_omp2
+                res(x,y,z,c) = val;
+              }
+            }
           }
         } _cimg_abort_catch_omp
       }
       cimg_abort_test;
-*/
-
       return res;
     }
 

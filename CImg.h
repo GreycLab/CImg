@@ -35552,9 +35552,6 @@ namespace cimg_library_suffixed {
           if (!boundary_conditions) { // Dirichlet
             if (is_normalized) {
               const Ttfloat M = (Ttfloat)K.magnitude(2), M2 = M*M;
-
-              std::fprintf(stderr,"\nDEBUG : %g %g\n",M,M2);
-
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
                 cimg_forXYZ(res,x,y,z) {
                 Ttfloat val = 0, N = 0;

@@ -39068,6 +39068,7 @@ namespace cimg_library_suffixed {
                                        x - cx1,y - cy1,z - cz1,
                                        u - cx1,v - cy1,w - cz1,
                                        u,v,w,0,cimg::type<float>::inf());
+            if (occ_penalization) cimg_pragma_openmp(atomic) ++occ(u,v,w);
           } else cimg_pragma_openmp(parallel cimg_openmp_if_size(_width,64)) {
             ulongT _rng = (cimg::_rand(),cimg::rng());
 
@@ -39090,6 +39091,7 @@ namespace cimg_library_suffixed {
                                          x - cx1,y - cy1,z - cz1,
                                          u - cx1,v - cy1,w - cz1,
                                          u,v,w,0,cimg::type<float>::inf());
+              if (occ_penalization) cimg_pragma_openmp(atomic) ++occ(u,v,w);
             }
             cimg::srand(_rng);
           }
@@ -39266,6 +39268,7 @@ namespace cimg_library_suffixed {
             score(x,y) = _matchpatch(in_this,in_patch,occ,patch_width,patch_height,_spectrum,
                                      x - cx1,y - cy1,u - cx1,v - cy1,
                                      u,v,0,cimg::type<float>::inf());
+            if (occ_penalization) cimg_pragma_openmp(atomic) ++occ(u,v);
           } else cimg_pragma_openmp(parallel cimg_openmp_if_size(_width,64)) {
             ulongT _rng = (cimg::_rand(),cimg::rng());
 
@@ -39284,6 +39287,7 @@ namespace cimg_library_suffixed {
               score(x,y) = _matchpatch(in_this,in_patch,occ,patch_width,patch_height,_spectrum,
                                        x - cx1,y - cy1,u - cx1,v - cy1,
                                        u,v,0,cimg::type<float>::inf());
+              if (occ_penalization) cimg_pragma_openmp(atomic) ++occ(u,v);
             }
             cimg::srand(_rng);
           }

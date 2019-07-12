@@ -35220,35 +35220,69 @@ namespace cimg_library_suffixed {
        \param kernel = the correlation kernel.
        \param boundary_conditions boundary conditions can be (false=dirichlet, true=neumann)
        \param is_normalized = enable local normalization.
-       \param dilation = dilation
+       \param sum_processed_channels
+       \param xcenter X-coordinate of the kernel center (~0U means 'centered').
+       \param xstart Starting X-coordinate of the instance image.
+       \param xend Ending X-coordinate of the instance image.
+       \param xstride Stride along the X-axis.
+       \param xdilation Dilation along the X-axis.
+       \param ycenter Y-coordinate of the kernel center (~0U means 'centered').
+       \param ystart Starting Y-coordinate of the instance image.
+       \param yend Ending Y-coordinate of the instance image.
+       \param ystride Stride along the Y-axis.
+       \param ydilation Dilation along the Y-axis.
+       \param zcenter Z-coordinate of the kernel center (~0U means 'centered').
+       \param zstart Starting Z-coordinate of the instance image.
+       \param zend Ending Z-coordinate of the instance image.
+       \param zstride Stride along the Z-axis.
+       \param zdilation Dilation along the Z-axis.
        \note
        - The correlation of the image instance \p *this by the kernel \p kernel is defined to be:
-       res(x,y,z) = sum_{i,j,k} (*this)(x + i,y + j,z + k)*kernel(i,j,k).
+       res(x,y,z) = sum_{i,j,k} (*this)(\alpha_x\;x + \beta_x\;(i - c_x),\alpha_y\;y + \beta_y\;(j - c_y),\alpha_z\;z + \beta_z\;(k - c_z))*kernel(i,j,k).
     **/
     template<typename t>
     CImg<T>& correlate(const CImg<t>& kernel, const bool boundary_conditions=true,
-                       const bool is_normalized=false, const int dilation=1) {
+                       const bool is_normalized=false, const bool sum_processed_channels=false,
+                       const unsigned int xcenter=~0U, const unsigned int xstart=0, const unsigned int xend=~0U,
+                       const float xstride=1, const float xdilation=1,
+                       const unsigned int ycenter=~0U, const unsigned int ystart=0, const unsigned int yend=~0U,
+                       const float ystride=1, const float ydilation=1,
+                       const unsigned int zcenter=~0U, const unsigned int zstart=0, const unsigned int zend=~0U,
+                       const float zstride=1, const float zdilation=1) {
       if (is_empty() || !kernel) return *this;
-      return get_correlate(kernel,boundary_conditions,is_normalized,dilation).move_to(*this);
+      return get_correlate(kernel,boundary_conditions,is_normalized,sum_processed_channels,
+                           xcenter,xstart,xend,xstride,xdilation,
+                           ycenter,ystart,yend,ystride,ydilation,
+                           zcenter,zstart,zend,zstride,zdilation).move_to(*this);
     }
 
     template<typename t>
     CImg<_cimg_Ttfloat> get_correlate(const CImg<t>& kernel, const bool boundary_conditions=true,
-                                      const bool is_normalized=false, const int dilation=1) const {
-      return _correlate(kernel,boundary_conditions,is_normalized,dilation,false);
+                                      const bool is_normalized=false, const bool sum_processed_channels=false,
+                                      const unsigned int xcenter=~0U, const unsigned int xstart=0, const unsigned int xend=~0U,
+                                      const float xstride=1, const float xdilation=1,
+                                      const unsigned int ycenter=~0U, const unsigned int ystart=0, const unsigned int yend=~0U,
+                                      const float ystride=1, const float ydilation=1,
+                                      const unsigned int zcenter=~0U, const unsigned int zstart=0, const unsigned int zend=~0U,
+                                      const float zstride=1, const float zdilation=1) const {
+      return _correlate(kernel,boundary_conditions,is_normalized,sum_processed_channels,
+                        xcenter,xstart,xend,xstride,xdilation,
+                        ycenter,ystart,yend,ystride,ydilation,
+                        zcenter,zstart,zend,zstride,zdilation,false);
     }
 
     //! Correlate image by a kernel \newinstance.
     template<typename t>
     CImg<_cimg_Ttfloat> _correlate(const CImg<t>& kernel, const bool boundary_conditions,
-                                   const bool is_normalized,
-/*                                   const int x0, const int y0, const int z0,
-                                   const int x1, const int y1, const int z1,
-                                   const int xstep, const int ystep, const int zstep,
-*/
-                                   const int dilation,
+                                   const bool is_normalized, const bool sum_processed_channels,
+                                   const unsigned int xcenter, const unsigned int xstart, const unsigned int xend,
+                                   const float xstride, const float xdilation,
+                                   const unsigned int ycenter, const unsigned int ystart, const unsigned int yend,
+                                   const float ystride, const float ydilation,
+                                   const unsigned int zcenter, const unsigned int zstart, const unsigned int zend,
+                                   const float zstride, const float zdilation,
                                    const bool is_convolution) const {
-      if (is_empty() || !kernel || dilation<0) return *this;
+      if (is_empty() || !kernel || xdilation || ydilation<0 || zdilation<0) return *this;
       typedef _cimg_Ttfloat Ttfloat;
       CImg<Ttfloat> res;
       const ulongT
@@ -35267,7 +35301,11 @@ namespace cimg_library_suffixed {
         if (!boundary_conditions && res_whd<=3000*3000) { // Dirichlet boundaries
           // For relatively small images, adding a zero border then use optimized NxN convolution loops is faster.
           res = (kernel._depth==1?get_crop(-1,-1,_width,_height):get_crop(-1,-1,-1,_width,_height,_depth)).
-            _correlate(kernel,true,is_normalized,dilation,is_convolution);
+            _correlate(kernel,true,is_normalized,sum_processed_channels,
+                       xcenter,xstart,xend,xstride,xdilation,
+                       ycenter,ystart,yend,ystride,ydilation,
+                       zcenter,zstart,zend,zstride,zdilation,
+                       is_convolution);
           if (kernel._depth==1) res.crop(1,1,res._width - 2,res._height - 2);
           else res.crop(1,1,1,res._width - 2,res._height - 2,res._depth - 2);
 
@@ -35295,9 +35333,9 @@ namespace cimg_library_suffixed {
                 cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(_res.size(),16384))
                   cimg_forXYZ(res,x,y,z) {
                   const int
-                    px = x>dilation?x - dilation:x, nx = x + dilation<res.width()?x + dilation:x,
-                    py = y>dilation?y - dilation:y, ny = y + dilation<res.height()?y + dilation:y,
-                    pz = z>dilation?z - dilation:z, nz = z + dilation<res.depth()?z + dilation:z;
+                    px = x>xdilation?x - xdilation:x, nx = x + xdilation<res.width()?x + xdilation:x,
+                    py = y>ydilation?y - ydilation:y, ny = y + ydilation<res.height()?y + ydilation:y,
+                    pz = z>zdilation?z - zdilation:z, nz = z + zdilation<res.depth()?z + zdilation:z;
                   const Ttfloat N = M2*(cimg::sqr(I(px,py,pz)) + cimg::sqr(I(x,py,pz)) + cimg::sqr(I(nx,py,pz)) +
                                         cimg::sqr(I(px,y,pz)) + cimg::sqr(I(x,y,pz)) + cimg::sqr(I(nx,y,pz)) +
                                         cimg::sqr(I(px,ny,pz)) + cimg::sqr(I(x,ny,pz)) + cimg::sqr(I(nx,ny,pz)) +
@@ -35321,9 +35359,9 @@ namespace cimg_library_suffixed {
                 cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if_size(_res.size(),16384))
                   cimg_forXYZ(res,x,y,z) {
                   const int
-                    px = x>dilation?x - dilation:x, nx = x + dilation<res.width()?x + dilation:x,
-                    py = y>dilation?y - dilation:y, ny = y + dilation<res.height()?y + dilation:y,
-                    pz = z>dilation?z - dilation:z, nz = z + dilation<res.depth()?z + dilation:z;
+                    px = x>xdilation?x - xdilation:x, nx = x + xdilation<res.width()?x + xdilation:x,
+                    py = y>ydilation?y - ydilation:y, ny = y + ydilation<res.height()?y + ydilation:y,
+                    pz = z>zdilation?z - zdilation:z, nz = z + zdilation<res.depth()?z + zdilation:z;
                   _res(x,y,z) = (Ttfloat)(K[0]*I(px,py,pz) + K[1]*I(x,py,pz) + K[2]*I(nx,py,pz) +
                                           K[3]*I(px,y,pz) + K[4]*I(x,y,pz) + K[5]*I(nx,y,pz) +
                                           K[6]*I(px,ny,pz) + K[7]*I(x,ny,pz) + K[8]*I(nx,ny,pz) +
@@ -35387,10 +35425,10 @@ namespace cimg_library_suffixed {
                   cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(_res.size(),16384))
                     cimg_forXYZ(res,x,y,z) {
                     const int
-                      px = x>dilation?x - dilation:x, nx = x + dilation<res.width()?x + dilation:x,
-                      bx = px>dilation?px - dilation:px, ax = nx + dilation<res.width()?nx + dilation:nx,
-                      py = y>dilation?y - dilation:y, ny = y + dilation<res.height()?y + dilation:y,
-                      by = py>dilation?py - dilation:py, ay = ny + dilation<res.height()?ny + dilation:ny;
+                      px = x>xdilation?x - xdilation:x, nx = x + xdilation<res.width()?x + xdilation:x,
+                      bx = px>xdilation?px - xdilation:px, ax = nx + xdilation<res.width()?nx + xdilation:nx,
+                      py = y>ydilation?y - ydilation:y, ny = y + xdilation<res.height()?y + ydilation:y,
+                      by = py>ydilation?py - ydilation:py, ay = ny + ydilation<res.height()?ny + ydilation:ny;
                     const Ttfloat N = M2*(cimg::sqr(I(bx,by,z)) + cimg::sqr(I(px,by,z)) + cimg::sqr(I(x,by,z)) +
                                           cimg::sqr(I(nx,by,z)) + cimg::sqr(I(ax,by,z)) +
                                           cimg::sqr(I(bx,py,z)) + cimg::sqr(I(px,py,z)) + cimg::sqr(I(x,py,z)) +
@@ -35416,10 +35454,10 @@ namespace cimg_library_suffixed {
                   cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if_size(_res.size(),16384))
                     cimg_forXYZ(res,x,y,z) {
                     const int
-                      px = x>dilation?x - dilation:x, nx = x + dilation<res.width()?x + dilation:x,
-                      bx = px>dilation?px - dilation:px, ax = nx + dilation<res.width()?nx + dilation:nx,
-                      py = y>dilation?y - dilation:y, ny = y + dilation<res.height()?y + dilation:y,
-                      by = py>dilation?py - dilation:py, ay = ny + dilation<res.height()?ny + dilation:ny;
+                      px = x>xdilation?x - xdilation:x, nx = x + xdilation<res.width()?x + xdilation:x,
+                      bx = px>xdilation?px - xdilation:px, ax = nx + xdilation<res.width()?nx + xdilation:nx,
+                      py = y>ydilation?y - ydilation:y, ny = y + ydilation<res.height()?y + ydilation:y,
+                      by = py>ydilation?py - ydilation:py, ay = ny + ydilation<res.height()?ny + ydilation:ny;
                     _res(x,y,z) = (Ttfloat)(K[0]*I(bx,by,z) + K[1]*I(px,by,z) + K[2]*I(x,by,z) +
                                             K[3]*I(nx,by,z) + K[4]*I(ax,by,z) +
                                             K[5]*I(bx,py,z) + K[6]*I(px,py,z) + K[7]*I(x,py,z) +
@@ -35446,10 +35484,10 @@ namespace cimg_library_suffixed {
                   cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(_res.size(),16384))
                     cimg_forXYZ(res,x,y,z) {
                     const int
-                      px = x>dilation?x - dilation:x, nx = x + dilation<res.width()?x + dilation:x,
-                      ax = nx + dilation<res.width()?nx + dilation:nx,
-                      py = y>dilation?y - dilation:y, ny = y + dilation<res.height()?y + dilation:y,
-                      ay = ny + dilation<res.height()?ny + dilation:ny;
+                      px = x>xdilation?x - xdilation:x, nx = x + xdilation<res.width()?x + xdilation:x,
+                      ax = nx + xdilation<res.width()?nx + xdilation:nx,
+                      py = y>ydilation?y - ydilation:y, ny = y + ydilation<res.height()?y + ydilation:y,
+                      ay = ny + ydilation<res.height()?ny + ydilation:ny;
                     const Ttfloat N = M2*(cimg::sqr(I(px,py,z)) + cimg::sqr(I(x,py,z)) +
                                           cimg::sqr(I(nx,py,z)) + cimg::sqr(I(ax,py,z)) +
                                           cimg::sqr(I(px,y,z)) + cimg::sqr(I(x,y,z)) +
@@ -35471,10 +35509,10 @@ namespace cimg_library_suffixed {
                   cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if_size(_res.size(),16384))
                     cimg_forXYZ(res,x,y,z) {
                     const int
-                      px = x>dilation?x - dilation:x, nx = x + dilation<res.width()?x + dilation:x,
-                      ax = nx + dilation<res.width()?nx + dilation:nx,
-                      py = y>dilation?y - dilation:y, ny = y + dilation<res.height()?y + dilation:y,
-                      ay = ny + dilation<res.height()?ny + dilation:ny;
+                      px = x>xdilation?x - xdilation:x, nx = x + xdilation<res.width()?x + xdilation:x,
+                      ax = nx + xdilation<res.width()?nx + xdilation:nx,
+                      py = y>ydilation?y - ydilation:y, ny = y + ydilation<res.height()?y + ydilation:y,
+                      ay = ny + ydilation<res.height()?ny + ydilation:ny;
                     _res(x,y,z) = (Ttfloat)(K[0]*I(px,py,z) + K[1]*I(x,py,z) +
                                             K[2]*I(nx,py,z) + K[3]*I(ax,py,z) +
                                             K[4]*I(px,y,z) + K[5]*I(x,y,z) +
@@ -35499,8 +35537,8 @@ namespace cimg_library_suffixed {
                   cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(_res.size(),16384))
                     cimg_forXYZ(res,x,y,z) {
                     const int
-                      px = x>dilation?x - dilation:x, nx = x + dilation<res.width()?x + dilation:x,
-                      py = y>dilation?y - dilation:y, ny = y + dilation<res.height()?y + dilation:y;
+                      px = x>xdilation?x - xdilation:x, nx = x + xdilation<res.width()?x + xdilation:x,
+                      py = y>ydilation?y - ydilation:y, ny = y + ydilation<res.height()?y + ydilation:y;
                     const Ttfloat N = M2*(cimg::sqr(I(px,py,z)) + cimg::sqr(I(x,py,z)) + cimg::sqr(I(nx,py,z)) +
                                           cimg::sqr(I(px,y,z)) + cimg::sqr(I(x,y,z)) + cimg::sqr(I(nx,y,z)) +
                                           cimg::sqr(I(px,ny,z)) + cimg::sqr(I(x,ny,z)) + cimg::sqr(I(nx,ny,z)));
@@ -35512,8 +35550,8 @@ namespace cimg_library_suffixed {
                   cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if_size(_res.size(),16384))
                     cimg_forXYZ(res,x,y,z) {
                     const int
-                      px = x>dilation?x - dilation:x, nx = x + dilation<res.width()?x + dilation:x,
-                      py = y>dilation?y - dilation:y, ny = y + dilation<res.height()?y + dilation:y;
+                      px = x>xdilation?x - xdilation:x, nx = x + xdilation<res.width()?x + xdilation:x,
+                      py = y>ydilation?y - ydilation:y, ny = y + ydilation<res.height()?y + ydilation:y;
                     _res(x,y,z) = (Ttfloat)(K[0]*I(px,py,z) + K[1]*I(x,py,z) + K[2]*I(nx,py,z) +
                                             K[3]*I(px,y,z) + K[4]*I(x,y,z) + K[5]*I(nx,y,z) +
                                             K[6]*I(px,ny,z) + K[7]*I(x,ny,z) + K[8]*I(nx,ny,z));
@@ -35568,8 +35606,8 @@ namespace cimg_library_suffixed {
           mx1 = kernel.width() - mx2 - 1, my1 = kernel.height() - my2 - 1, mz1 = kernel.depth() - mz2 - 1;
         if (is_convolution) cimg::swap(mx1,mx2,my1,my2,mz1,mz2); // Shift kernel center in case of convolution
         const int
-          mxs = dilation*mx1, mys = dilation*my1, mzs = dilation*mz1,
-          mxe = width() - dilation*mx2, mye = height() - dilation*my2, mze = depth() - dilation*mz2;
+          mxs = xdilation*mx1, mys = ydilation*my1, mzs = zdilation*mz1,
+          mxe = width() - xdilation*mx2, mye = height() - ydilation*my2, mze = depth() - zdilation*mz2;
         cimg_pragma_openmp(parallel for cimg_openmp_if(!is_inner_parallel && is_outer_parallel))
         cimg_forC(res,c) _cimg_abort_try_omp {
           cimg_abort_test;
@@ -35586,7 +35624,7 @@ namespace cimg_library_suffixed {
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
                       for (int xm = -mx1; xm<=mx2; ++xm) {
-                        const Ttfloat _val = (Ttfloat)img(x + dilation*xm,y + dilation*ym,z + dilation*zm);
+                        const Ttfloat _val = (Ttfloat)img(x + xdilation*xm,y + ydilation*ym,z + zdilation*zm);
                         val+=_val*K(mx1 + xm,my1 + ym,mz1 + zm);
                         N+=_val*_val;
                       }
@@ -35603,7 +35641,7 @@ namespace cimg_library_suffixed {
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
                       for (int xm = -mx1; xm<=mx2; ++xm) {
-                        const Ttfloat _val = (Ttfloat)img._atXYZ(x + dilation*xm,y + dilation*ym,z + dilation*zm);
+                        const Ttfloat _val = (Ttfloat)img._atXYZ(x + xdilation*xm,y + xdilation*ym,z + zdilation*zm);
                         val+=_val*K(mx1 + xm,my1 + ym,mz1 + zm);
                         N+=_val*_val;
                       }
@@ -35621,7 +35659,7 @@ namespace cimg_library_suffixed {
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
                       for (int xm = -mx1; xm<=mx2; ++xm) {
-                        const Ttfloat _val = (Ttfloat)img.atXYZ(x + dilation*xm,y + dilation*ym,z + dilation*zm,0,(T)0);
+                        const Ttfloat _val = (Ttfloat)img.atXYZ(x + xdilation*xm,y + ydilation*ym,z + zdilation*zm,0,(T)0);
                         val+=_val*K(mx1 + xm,my1 + ym,mz1 + zm);
                         N+=_val*_val;
                       }
@@ -35639,7 +35677,7 @@ namespace cimg_library_suffixed {
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
                       for (int xm = -mx1; xm<=mx2; ++xm)
-                        val+=img(x + dilation*xm,y + dilation*ym,z + dilation*zm)*K(mx1 + xm,my1 + ym,mz1 + zm);
+                        val+=img(x + xdilation*xm,y + ydilation*ym,z + zdilation*zm)*K(mx1 + xm,my1 + ym,mz1 + zm);
                   res(x,y,z,c) = (Ttfloat)val;
                 } _cimg_abort_catch_omp2
             if (boundary_conditions)
@@ -35652,7 +35690,7 @@ namespace cimg_library_suffixed {
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
                       for (int xm = -mx1; xm<=mx2; ++xm)
-                        val+=img._atXYZ(x + dilation*xm,y + dilation*ym,z + dilation*zm)*K(mx1 + xm,my1 + ym,mz1 + zm);
+                        val+=img._atXYZ(x + xdilation*xm,y + ydilation*ym,z + zdilation*zm)*K(mx1 + xm,my1 + ym,mz1 + zm);
                   res(x,y,z,c) = (Ttfloat)val;
                 }
               } _cimg_abort_catch_omp2
@@ -35666,7 +35704,7 @@ namespace cimg_library_suffixed {
                   for (int zm = -mz1; zm<=mz2; ++zm)
                     for (int ym = -my1; ym<=my2; ++ym)
                       for (int xm = -mx1; xm<=mx2; ++xm)
-                        val+=img.atXYZ(x + dilation*xm,y + dilation*ym,z + dilation*zm,0,(T)0)*
+                        val+=img.atXYZ(x + xdilation*xm,y + ydilation*ym,z + zdilation*zm,0,(T)0)*
                           K(mx1 + xm,my1 + ym,mz1 + zm);
                   res(x,y,z,c) = (Ttfloat)val;
                 }
@@ -35683,24 +35721,57 @@ namespace cimg_library_suffixed {
        \param kernel = the correlation kernel.
        \param boundary_conditions boundary conditions can be (false=dirichlet, true=neumann)
        \param is_normalized = enable local normalization.
-       \param dilation = dilation
+       \param sum_processed_channels
+       \param xcenter X-coordinate of the kernel center (~0U means 'centered').
+       \param xstart Starting X-coordinate of the instance image.
+       \param xend Ending X-coordinate of the instance image.
+       \param xstride Stride along the X-axis.
+       \param xdilation Dilation along the X-axis.
+       \param ycenter Y-coordinate of the kernel center (~0U means 'centered').
+       \param ystart Starting Y-coordinate of the instance image.
+       \param yend Ending Y-coordinate of the instance image.
+       \param ystride Stride along the Y-axis.
+       \param ydilation Dilation along the Y-axis.
+       \param zcenter Z-coordinate of the kernel center (~0U means 'centered').
+       \param zstart Starting Z-coordinate of the instance image.
+       \param zend Ending Z-coordinate of the instance image.
+       \param zstride Stride along the Z-axis.
+       \param zdilation Dilation along the Z-axis.
        \note
-       - The result \p res of the convolution of an image \p img by a kernel \p kernel is defined to be:
-       res(x,y,z) = sum_{i,j,k} img(x-i,y-j,z-k)*kernel(i,j,k)
+       - The convolution of the image instance \p *this by the kernel \p kernel is defined to be:
+       res(x,y,z) = sum_{i,j,k} (*this)(\alpha_x\;x - \beta_x\;(i - c_x),\alpha_y\;y - \beta_y\;(j - c_y),\alpha_z\;z - \beta_z\;(k - c_z))*kernel(i,j,k).
     **/
     template<typename t>
     CImg<T>& convolve(const CImg<t>& kernel, const bool boundary_conditions=true,
-                      const bool is_normalized=false, const int dilation=1) {
+                      const bool is_normalized=false, const bool sum_processed_channels=false,
+                      const unsigned int xcenter=~0U, const unsigned int xstart=0, const unsigned int xend=~0U,
+                      const float xstride=1, const float xdilation=1,
+                      const unsigned int ycenter=~0U, const unsigned int ystart=0, const unsigned int yend=~0U,
+                      const float ystride=1, const float ydilation=1,
+                      const unsigned int zcenter=~0U, const unsigned int zstart=0, const unsigned int zend=~0U,
+                      const float zstride=1, const float zdilation=1) {
       if (is_empty() || !kernel) return *this;
-      return get_convolve(kernel,boundary_conditions,is_normalized,dilation).move_to(*this);
+      return get_convolve(kernel,boundary_conditions,is_normalized,sum_processed_channels,
+                          xcenter,xstart,xend,xstride,xdilation,
+                          ycenter,ystart,yend,ystride,ydilation,
+                          zcenter,zstart,zend,zstride,zdilation).move_to(*this);
     }
 
     //! Convolve image by a kernel \newinstance.
     template<typename t>
     CImg<_cimg_Ttfloat> get_convolve(const CImg<t>& kernel, const bool boundary_conditions=true,
-                                     const bool is_normalized=false, const int dilation=1) const {
+                                     const bool is_normalized=false, const bool sum_processed_channels=false,
+                                     const unsigned int xcenter=~0U, const unsigned int xstart=0, const unsigned int xend=~0U,
+                                     const float xstride=1, const float xdilation=1,
+                                     const unsigned int ycenter=~0U, const unsigned int ystart=0, const unsigned int yend=~0U,
+                                     const float ystride=1, const float ydilation=1,
+                                     const unsigned int zcenter=~0U, const unsigned int zstart=0, const unsigned int zend=~0U,
+                                     const float zstride=1, const float zdilation=1) const {
       return _correlate(CImg<t>(kernel._data,kernel.size()/kernel._spectrum,1,1,kernel._spectrum,true).
-                        get_mirror('x').resize(kernel,-1),boundary_conditions,is_normalized,dilation,true);
+                        get_mirror('x').resize(kernel,-1),boundary_conditions,is_normalized,sum_processed_channels,
+                        xcenter,xstart,xend,xstride,xdilation,
+                        ycenter,ystart,yend,ystride,ydilation,
+                        zcenter,zstart,zend,zstride,zdilation,true);
     }
 
     //! Cumulate image values, optionally along specified axis.

@@ -15056,7 +15056,7 @@ namespace cimg_library_suffixed {
       return cimg::type<T>::cut(_cubic_atXY(fx,fy,z,c));
     }
 
-    //! Return pixel value, using cubic interpolation and mirror boundary conditions for the X and Y-coordinates.
+    //! Return pixel value, using cubic interpolation and periodic boundary conditions for the X and Y-coordinates.
     Tfloat cubic_atXY_p(const float fx, const float fy, const int z=0, const int c=0) const {
       if (is_empty())
         throw CImgInstanceException(_cimg_instance
@@ -29696,7 +29696,7 @@ namespace cimg_library_suffixed {
     //! Map predefined colormap on the scalar (indexed) image instance.
     /**
        \param colormap Multi-valued colormap used for mapping the indexes.
-       \param boundary_conditions The border condition type { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
+       \param boundary_conditions Boundary conditions. Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
        \par Example
        \code
        const CImg<float> img("reference.jpg"),
@@ -32260,7 +32260,7 @@ namespace cimg_library_suffixed {
        \param delta_y Amount of displacement along the Y-axis.
        \param delta_z Amount of displacement along the Z-axis.
        \param delta_c Amount of displacement along the C-axis.
-       \param boundary_conditions Border condition. Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
+       \param boundary_conditions Boundary conditions. Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
     **/
     CImg<T>& shift(const int delta_x, const int delta_y=0, const int delta_z=0, const int delta_c=0,
                    const unsigned int boundary_conditions=0) {
@@ -35218,7 +35218,7 @@ namespace cimg_library_suffixed {
     //! Correlate image by a kernel.
     /**
        \param kernel = the correlation kernel.
-       \param boundary_conditions Boundary conditions can be { false=Dirichlet | true=Neumann }
+       \param boundary_conditions Boundary condition. Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
        \param is_normalized = enable local normalization.
        \param sum_processed_channels
        \param xcenter X-coordinate of the kernel center (~0U means 'centered').
@@ -35241,7 +35241,7 @@ namespace cimg_library_suffixed {
        res(x,y,z) = sum_{i,j,k} (*this)(\alpha_x\;x + \beta_x\;(i - c_x),\alpha_y\;y + \beta_y\;(j - c_y),\alpha_z\;z + \beta_z\;(k - c_z))*kernel(i,j,k).
     **/
     template<typename t>
-    CImg<T>& correlate(const CImg<t>& kernel, const bool boundary_conditions=true,
+    CImg<T>& correlate(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                        const bool is_normalized=false, const bool sum_processed_channels=false,
                        const unsigned int xcenter=~0U, const unsigned int xstart=0, const unsigned int xend=~0U,
                        const float xstride=1, const float xdilation=1,
@@ -35257,7 +35257,7 @@ namespace cimg_library_suffixed {
     }
 
     template<typename t>
-    CImg<_cimg_Ttfloat> get_correlate(const CImg<t>& kernel, const bool boundary_conditions=true,
+    CImg<_cimg_Ttfloat> get_correlate(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                                       const bool is_normalized=false, const bool sum_processed_channels=false,
                                       const unsigned int xcenter=~0U, const unsigned int xstart=0, const unsigned int xend=~0U,
                                       const float xstride=1, const float xdilation=1,
@@ -35273,7 +35273,7 @@ namespace cimg_library_suffixed {
 
     //! Correlate image by a kernel \newinstance.
     template<typename t>
-    CImg<_cimg_Ttfloat> _correlate(const CImg<t>& kernel, const bool boundary_conditions,
+    CImg<_cimg_Ttfloat> _correlate(const CImg<t>& kernel, const unsigned int boundary_conditions,
                                    const bool is_normalized, const bool sum_processed_channels,
                                    const unsigned int xcenter, const unsigned int xstart, const unsigned int xend,
                                    const float xstride, const float xdilation,
@@ -35343,6 +35343,7 @@ namespace cimg_library_suffixed {
       // Special optimization done for centered 2x2, 3x3, 4x4, 5x5, 2x2x2 and 3x3x3 kernels and no dilation.
       if (_kernel._width==_kernel._height &&
           ((_kernel._depth==1 && _kernel._width<=5) || (_kernel._depth==_kernel._width && _kernel._width<=3)) &&
+          boundary_conditions<=1 &&
           _xcenter==_kernel.width()/2 - 1 + (_kernel.width()%2) &&
           _ycenter==_kernel.height()/2 - 1 + (_kernel.height()%2) &&
           _zcenter==_kernel.depth()/2 - 1 + (_kernel.depth()%2) &&
@@ -35546,45 +35547,38 @@ namespace cimg_library_suffixed {
         cimg_pragma_openmp(parallel for cimg_openmp_if(!is_inner_parallel && is_outer_parallel))
         cimg_forC(res,c) _cimg_abort_try_omp {
           cimg_abort_test;
-          const CImg<T> img = get_shared_channel(c%_spectrum);
+          const CImg<T> I = get_shared_channel(c%_spectrum);
           const CImg<t> K = kernel.get_shared_channel(c%kernel._spectrum);
-          if (is_normalized) { // Normalized correlation
-            const Ttfloat M = (Ttfloat)K.magnitude(2), M2 = M*M;
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
-              cimg_forXYZ(res,x,y,z) {
-              Ttfloat _val, val = 0, N = 0;
-              cimg_forXYZ(kernel,p,q,r) {
-                if (boundary_conditions) // Neumann
-                  _val = img.atXYZ((int)xstart + _xstride*x + _xdilation*(p - _xcenter),
-                                   (int)ystart + _ystride*y + _ydilation*(q - _ycenter),
-                                   (int)zstart + _zstride*z + _zdilation*(r - _zcenter));
-                else // Dirichlet
-                  _val = img.atXYZ((int)xstart + _xstride*x + _xdilation*(p - _xcenter),
-                                   (int)ystart + _ystride*y + _ydilation*(q - _ycenter),
-                                   (int)zstart + _zstride*z + _zdilation*(r - _zcenter),0,0);
-                val+=_val*K(p,q,r);
-                N+=_val*_val;
+          int w2, h2, d2;
+          Ttfloat M, M2;
+          if (is_normalized) { M = (Ttfloat)K.magnitude(2); M2 = M*M; }
+          if (boundary_conditions==3) { w2 = 2*I.width(); h2 = 2*I.height(); d2 = 2*I.depth(); }
+
+          cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
+            cimg_forXYZ(res,x,y,z) {
+            Ttfloat _val, val = 0, N = 0;
+            cimg_forXYZ(kernel,p,q,r) {
+              const int
+                ix = (int)xstart + _xstride*x + _xdilation*(p - _xcenter),
+                iy = (int)ystart + _ystride*y + _ydilation*(q - _ycenter),
+                iz = (int)zstart + _zstride*z + _zdilation*(r - _zcenter);
+              switch (boundary_conditions) {
+              case 0 : _val = I.atXYZ(ix,iy,iz,0,0); break; // Dirichlet
+              case 1 : _val = I._atXYZ(ix,iy,iz); break; // Neumann
+              case 2 : _val = I(cimg::mod(ix,I.width()),cimg::mod(iy,I.height()), // Periodic
+                                cimg::mod(iz,I.depth())); break;
+              default : { // Mirror
+                const int mx = cimg::mod(x,w2), my = cimg::mod(y,h2), mz = cimg::mod(z,d2);
+                _val = I(mx<I.width()?mx:w2 - mx - 1,
+                         my<I.height()?my:h2 - my - 1,
+                         mz<I.depth()?mz:d2 - mz - 1);
               }
-              N*=M2;
-              res(x,y,z,c) = (Ttfloat)(N?val/std::sqrt(N):0);
-            }
-          } else { // Standard correlation
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
-              cimg_forXYZ(res,x,y,z) {
-              Ttfloat _val, val = 0;
-              cimg_forXYZ(kernel,p,q,r) {
-                if (boundary_conditions) // Neumann
-                  _val = img.atXYZ((int)xstart + _xstride*x + _xdilation*(p - _xcenter),
-                                   (int)ystart + _ystride*y + _ydilation*(q - _ycenter),
-                                   (int)zstart + _zstride*z + _zdilation*(r - _zcenter),0,0);
-                else // Dirichlet
-                  _val = img.atXYZ((int)xstart + _xstride*x + _xdilation*(p - _xcenter),
-                                   (int)ystart + _ystride*y + _ydilation*(q - _ycenter),
-                                   (int)zstart + _zstride*z + _zdilation*(r - _zcenter));
-                val+=_val*K(p,q,r);
               }
-              res(x,y,z,c) = val;
+              val+=_val*K(p,q,r);
+              if (is_normalized) N+=_val*_val;
             }
+            N*=M2;
+            res(x,y,z,c) = is_normalized?(Ttfloat)(N?val/std::sqrt(N):0):val;
           }
         } _cimg_abort_catch_omp
       }
@@ -35595,7 +35589,7 @@ namespace cimg_library_suffixed {
     //! Convolve image by a kernel.
     /**
        \param kernel = the correlation kernel.
-       \param boundary_conditions boundary conditions can be (false=dirichlet, true=neumann)
+       \param boundary_conditions Boundary condition. Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
        \param is_normalized = enable local normalization.
        \param sum_processed_channels
        \param xcenter X-coordinate of the kernel center (~0U means 'centered').
@@ -35618,7 +35612,7 @@ namespace cimg_library_suffixed {
        res(x,y,z) = sum_{i,j,k} (*this)(\alpha_x\;x - \beta_x\;(i - c_x),\alpha_y\;y - \beta_y\;(j - c_y),\alpha_z\;z - \beta_z\;(k - c_z))*kernel(i,j,k).
     **/
     template<typename t>
-    CImg<T>& convolve(const CImg<t>& kernel, const bool boundary_conditions=true,
+    CImg<T>& convolve(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                       const bool is_normalized=false, const bool sum_processed_channels=false,
                       const unsigned int xcenter=~0U, const unsigned int xstart=0, const unsigned int xend=~0U,
                       const float xstride=1, const float xdilation=1,
@@ -35635,7 +35629,7 @@ namespace cimg_library_suffixed {
 
     //! Convolve image by a kernel \newinstance.
     template<typename t>
-    CImg<_cimg_Ttfloat> get_convolve(const CImg<t>& kernel, const bool boundary_conditions=true,
+    CImg<_cimg_Ttfloat> get_convolve(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                                      const bool is_normalized=false, const bool sum_processed_channels=false,
                                      const unsigned int xcenter=~0U, const unsigned int xstart=0, const unsigned int xend=~0U,
                                      const float xstride=1, const float xdilation=1,

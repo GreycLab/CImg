@@ -35549,10 +35549,10 @@ namespace cimg_library_suffixed {
           cimg_abort_test;
           const CImg<T> I = get_shared_channel(c%_spectrum);
           const CImg<t> K = kernel.get_shared_channel(c%kernel._spectrum);
-          int w2, h2, d2;
-          Ttfloat M, M2;
+          int w2 = 0, h2 = 0, d2 = 0;
+          Ttfloat M = 0, M2 = 0;
           if (is_normalized) { M = (Ttfloat)K.magnitude(2); M2 = M*M; }
-          if (boundary_conditions==3) { w2 = 2*I.width(); h2 = 2*I.height(); d2 = 2*I.depth(); }
+          if (boundary_conditions>=3) { w2 = 2*I.width(); h2 = 2*I.height(); d2 = 2*I.depth(); }
           cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
             cimg_forXYZ(res,x,y,z) {
             Ttfloat _val, val = 0, N = 0;
@@ -39102,7 +39102,7 @@ namespace cimg_library_suffixed {
           cimg_abort_test;
           const bool is_odd = iter%2;
           const unsigned int cmask = is_odd?1:2, nmask = 3 - cmask;
-          if (iter) occ.fill(0);
+//          if (iter) occ.fill(0);
 
           cimg_pragma_openmp(parallel cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64 &&
                                                      iter<nb_iterations-2)) {
@@ -39298,7 +39298,7 @@ namespace cimg_library_suffixed {
           cimg_abort_test;
           const bool is_odd = iter%2;
           const unsigned int cmask = is_odd?1:2, nmask = 3 - cmask;
-          if (iter) occ.fill(0);
+//          if (iter) occ.fill(0);
 
           cimg_pragma_openmp(parallel cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64 &&
                                                      iter<nb_iterations-2)) {

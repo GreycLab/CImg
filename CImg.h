@@ -35295,9 +35295,9 @@ namespace cimg_library_suffixed {
       cimg_abort_init;
 
       const int
-        _xcenter = xcenter==~0U?kernel.width()/2 + (is_convolution?1 - (kernel.width()%2)):(int)std::min(xcenter,kernel._width - 1),
-        _ycenter = ycenter==~0U?kernel.height()/2 + (is_convolution?1 - (kernel.height()%2)):(int)std::min(ycenter,kernel._height - 1),
-        _zcenter = zcenter==~0U?kernel.depth()/2 + (is_convolution?1 - (kernel.depth()%2)):(int)std::min(zcenter,kernel._depth - 1);
+        _xcenter = xcenter==~0U?kernel.width()/2 - (is_convolution?0:1 - (kernel.width()%2)):(int)std::min(xcenter,kernel._width - 1),
+        _ycenter = ycenter==~0U?kernel.height()/2 - (is_convolution?0:1 - (kernel.height()%2)):(int)std::min(ycenter,kernel._height - 1),
+        _zcenter = zcenter==~0U?kernel.depth()/2 - (is_convolution?0:1 - (kernel.depth()%2)):(int)std::min(zcenter,kernel._depth - 1);
 
       if (kernel._width==kernel._height &&
           ((kernel._depth==1 && kernel._width<=5) || (kernel._depth==kernel._width && kernel._width<=3))) {

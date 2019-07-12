@@ -35281,7 +35281,7 @@ namespace cimg_library_suffixed {
                                    const float ystride, const float ydilation,
                                    const unsigned int zcenter, const unsigned int zstart, const unsigned int zend,
                                    const float zstride, const float zdilation,
-                                   const bool is_convolution) const {
+                                   const bool is_convolve) const {
       if (is_empty() || !kernel || xdilation<0 || ydilation<0 || zdilation<0) return *this;
       typedef _cimg_Ttfloat Ttfloat;
       CImg<Ttfloat> res;
@@ -35295,9 +35295,9 @@ namespace cimg_library_suffixed {
       cimg_abort_init;
 
       const int
-        _xcenter = xcenter==~0U?kernel.width()/2 - (is_convolution?0:1 - (kernel.width()%2)):(int)std::min(xcenter,kernel._width - 1),
-        _ycenter = ycenter==~0U?kernel.height()/2 - (is_convolution?0:1 - (kernel.height()%2)):(int)std::min(ycenter,kernel._height - 1),
-        _zcenter = zcenter==~0U?kernel.depth()/2 - (is_convolution?0:1 - (kernel.depth()%2)):(int)std::min(zcenter,kernel._depth - 1);
+        _xcenter = xcenter==~0U?kernel.width()/2 - (is_convolve?0:1 - (kernel.width()%2)):(int)std::min(xcenter,kernel._width - 1),
+        _ycenter = ycenter==~0U?kernel.height()/2 - (is_convolve?0:1 - (kernel.height()%2)):(int)std::min(ycenter,kernel._height - 1),
+        _zcenter = zcenter==~0U?kernel.depth()/2 - (is_convolve?0:1 - (kernel.depth()%2)):(int)std::min(zcenter,kernel._depth - 1);
 
       if (kernel._width==kernel._height &&
           ((kernel._depth==1 && kernel._width<=5) || (kernel._depth==kernel._width && kernel._width<=3))) {
@@ -35310,7 +35310,7 @@ namespace cimg_library_suffixed {
                        xcenter,xstart,xend,xstride,xdilation,
                        ycenter,ystart,yend,ystride,ydilation,
                        zcenter,zstart,zend,zstride,zdilation,
-                       is_convolution);
+                       is_convolve);
           if (kernel._depth==1) res.crop(1,1,res._width - 2,res._height - 2);
           else res.crop(1,1,1,res._width - 2,res._height - 2,res._depth - 2);
 
@@ -35318,7 +35318,7 @@ namespace cimg_library_suffixed {
           res.assign(_width,_height,_depth,std::max(_spectrum,kernel._spectrum));
           cimg::unused(is_inner_parallel,is_outer_parallel);
           CImg<t> _kernel;
-          if (is_convolution) { // Add empty column/row/slice to shift kernel center in case of convolution
+          if (is_convolve) { // Add empty column/row/slice to shift kernel center in case of convolution
             const int dw = !(kernel.width()%2), dh = !(kernel.height()%2), dd = !(kernel.depth()%2);
             if (dw || dh || dd)
               kernel.get_resize(kernel.width() + dw,kernel.height() + dh,kernel.depth() + dd,-100,0,0).
@@ -35606,6 +35606,15 @@ namespace cimg_library_suffixed {
         }
       } else { // Generic version for other kernels and boundary conditions
         res.assign(_width,_height,_depth,std::max(_spectrum,kernel._spectrum));
+
+        int
+          _xstride = (int)cimg::round(xstride),
+          _ystride = (int)cimg::round(ystride),
+          _zstride = (int)cimg::round(zstride),
+          _xdilation = (int)cimg::round(xdilation),
+          _ydilation = (int)cimg::round(ydilation),
+          _zdilation = (int)cimg::round(zdilation);
+        if (is_convolve) { _xdilation*=-1; _ydilation*=-1; _zdilation*=-1; }
         cimg_pragma_openmp(parallel for cimg_openmp_if(!is_inner_parallel && is_outer_parallel))
         cimg_forC(res,c) _cimg_abort_try_omp {
           cimg_abort_test;
@@ -35616,9 +35625,9 @@ namespace cimg_library_suffixed {
             Ttfloat val = 0;
             cimg_forXYZ(kernel,p,q,r) {
               const Ttfloat
-                _val = img._atXYZ(xstart + xstride*x + xdilation*(p - _xcenter),
-                                  ystart + ystride*y + ydilation*(q - _ycenter),
-                                  zstart + zstride*z + zdilation*(r - _zcenter));
+                _val = img._atXYZ((int)xstart + _xstride*x + _xdilation*(p - _xcenter),
+                                  (int)ystart + _ystride*y + _ydilation*(q - _ycenter),
+                                  (int)zstart + _zstride*z + _zdilation*(r - _zcenter));
               val+=_val*K(p,q,r);
             }
             res(x,y,z,c) = val;
@@ -35631,7 +35640,7 @@ namespace cimg_library_suffixed {
         int
           mx2 = kernel.width()/2, my2 = kernel.height()/2, mz2 = kernel.depth()/2,
           mx1 = kernel.width() - mx2 - 1, my1 = kernel.height() - my2 - 1, mz1 = kernel.depth() - mz2 - 1;
-        if (is_convolution) cimg::swap(mx1,mx2,my1,my2,mz1,mz2); // Shift kernel center in case of convolution
+        if (is_convolve) cimg::swap(mx1,mx2,my1,my2,mz1,mz2); // Shift kernel center in case of convolution
         const int
           mxs = xdilation*mx1, mys = ydilation*my1, mzs = zdilation*mz1,
           mxe = width() - xdilation*mx2, mye = height() - ydilation*my2, mze = depth() - zdilation*mz2;
@@ -35796,8 +35805,7 @@ namespace cimg_library_suffixed {
                                      const float ystride=1, const float ydilation=1,
                                      const unsigned int zcenter=~0U, const unsigned int zstart=0, const unsigned int zend=~0U,
                                      const float zstride=1, const float zdilation=1) const {
-      return _correlate(CImg<t>(kernel._data,kernel.size()/kernel._spectrum,1,1,kernel._spectrum,true).
-                        get_mirror('x').resize(kernel,-1),boundary_conditions,is_normalized,sum_processed_channels,
+      return _correlate(kernel,boundary_conditions,is_normalized,sum_processed_channels,
                         xcenter,xstart,xend,xstride,xdilation,
                         ycenter,ystart,yend,ystride,ydilation,
                         zcenter,zstart,zend,zstride,zdilation,true);

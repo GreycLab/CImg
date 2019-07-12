@@ -35553,7 +35553,6 @@ namespace cimg_library_suffixed {
           Ttfloat M, M2;
           if (is_normalized) { M = (Ttfloat)K.magnitude(2); M2 = M*M; }
           if (boundary_conditions==3) { w2 = 2*I.width(); h2 = 2*I.height(); d2 = 2*I.depth(); }
-
           cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
             cimg_forXYZ(res,x,y,z) {
             Ttfloat _val, val = 0, N = 0;
@@ -35568,7 +35567,7 @@ namespace cimg_library_suffixed {
               case 2 : _val = I(cimg::mod(ix,I.width()),cimg::mod(iy,I.height()), // Periodic
                                 cimg::mod(iz,I.depth())); break;
               default : { // Mirror
-                const int mx = cimg::mod(x,w2), my = cimg::mod(y,h2), mz = cimg::mod(z,d2);
+                const int mx = cimg::mod(ix,w2), my = cimg::mod(iy,h2), mz = cimg::mod(iz,d2);
                 _val = I(mx<I.width()?mx:w2 - mx - 1,
                          my<I.height()?my:h2 - my - 1,
                          mz<I.depth()?mz:d2 - mz - 1);
@@ -39242,6 +39241,7 @@ namespace cimg_library_suffixed {
                 a_map(x,y,z,1) = best_v;
                 a_map(x,y,z,2) = best_w;
                 score(x,y,z) = best_score;
+                if (occ_penalization!=0) --occ(a_map(x,y,z,0),a_map(x,y,z,1),a_map(x,y,z,2));
                 is_updated(x,y,z) = 3;
               } else is_updated(x,y,z)&=~nmask;
               if (occ_penalization!=0) cimg_pragma_openmp(atomic) ++occ(best_u,best_v,best_w);
@@ -39393,6 +39393,7 @@ namespace cimg_library_suffixed {
                 a_map(x,y,0) = best_u;
                 a_map(x,y,1) = best_v;
                 score(x,y) = best_score;
+                if (occ_penalization!=0) cimg_pragma_openmp(atomic) --occ(a_map(x,y,0),a_map(x,y,1));
                 is_updated(x,y) = 3;
               } else is_updated(x,y)&=~nmask;
               if (occ_penalization!=0) cimg_pragma_openmp(atomic) ++occ(best_u,best_v);

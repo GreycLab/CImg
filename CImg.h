@@ -35316,9 +35316,9 @@ namespace cimg_library_suffixed {
         _xend = (int)std::min(xend,_width - 1),
         _yend = (int)std::min(yend,_height - 1),
         _zend = (int)std::min(zend,_depth - 1),
-        nwidth = 1 + std::floor((_xend - _xstart)/xstride),
-        nheight = 1 + std::floor((_yend - _ystart)/ystride),
-        ndepth = 1 + std::floor((_zend + _zstart)/zstride),
+        nwidth = std::max(1,(int)std::floor((1 + _xend - _xstart)/xstride)),
+        nheight = std::max(1,(int)std::floor((1 + _yend - _ystart)/ystride)),
+        ndepth = std::max(1,(int)std::floor((_zend + _zstart)/zstride)),
         _xstride = (int)cimg::round(xstride),
         _ystride = (int)cimg::round(ystride),
         _zstride = (int)cimg::round(zstride);
@@ -35330,6 +35330,10 @@ namespace cimg_library_suffixed {
         _xdilation = (int)cimg::round(xdilation),
         _ydilation = (int)cimg::round(ydilation),
         _zdilation = (int)cimg::round(zdilation);
+
+      const bool is_int_stride_dilation =
+        xstride==_xstride && ystride==_ystride && zstride==_zstride &&
+        xdilation==_xdilation && ydilation==_ydilation && zdilation==_zdilation;
 
       CImg<t> _kernel;
       if (is_convolve) { // If convolution, go back to correlation
@@ -35347,7 +35351,7 @@ namespace cimg_library_suffixed {
           _xcenter==_kernel.width()/2 - 1 + (_kernel.width()%2) &&
           _ycenter==_kernel.height()/2 - 1 + (_kernel.height()%2) &&
           _zcenter==_kernel.depth()/2 - 1 + (_kernel.depth()%2) &&
-          _xdilation>=1 && _ydilation>=1 && _zdilation>=1) {
+          is_int_stride_dilation) {
 
         const int dw = 1 - (_kernel.width()%2), dh = 1 - (_kernel.height()%2), dd = 1 - (_kernel.depth()%2);
         if (dw || dh || dd) // Force kernel size to be odd
@@ -35556,26 +35560,32 @@ namespace cimg_library_suffixed {
           cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
             cimg_forXYZ(res,x,y,z) {
             Ttfloat _val, val = 0, N = 0;
-            cimg_forXYZ(kernel,p,q,r) {
-              const int
-                ix = (int)xstart + _xstride*x + _xdilation*(p - _xcenter),
-                iy = (int)ystart + _ystride*y + _ydilation*(q - _ycenter),
-                iz = (int)zstart + _zstride*z + _zdilation*(r - _zcenter);
-              switch (boundary_conditions) {
-              case 0 : _val = I.atXYZ(ix,iy,iz,0,0); break; // Dirichlet
-              case 1 : _val = I._atXYZ(ix,iy,iz); break; // Neumann
-              case 2 : _val = I(cimg::mod(ix,I.width()),cimg::mod(iy,I.height()), // Periodic
-                                cimg::mod(iz,I.depth())); break;
-              default : { // Mirror
-                const int mx = cimg::mod(ix,w2), my = cimg::mod(iy,h2), mz = cimg::mod(iz,d2);
-                _val = I(mx<I.width()?mx:w2 - mx - 1,
-                         my<I.height()?my:h2 - my - 1,
-                         mz<I.depth()?mz:d2 - mz - 1);
+
+            if (is_int_stride_dilation)
+              cimg_forXYZ(kernel,p,q,r) {
+                const int
+                  ix = (int)xstart + _xstride*x + _xdilation*(p - _xcenter),
+                  iy = (int)ystart + _ystride*y + _ydilation*(q - _ycenter),
+                  iz = (int)zstart + _zstride*z + _zdilation*(r - _zcenter);
+                switch (boundary_conditions) {
+                case 0 : _val = I.atXYZ(ix,iy,iz,0,0); break; // Dirichlet
+                case 1 : _val = I._atXYZ(ix,iy,iz); break; // Neumann
+                case 2 : _val = I(cimg::mod(ix,I.width()),cimg::mod(iy,I.height()), // Periodic
+                                  cimg::mod(iz,I.depth())); break;
+                default : { // Mirror
+                  const int mx = cimg::mod(ix,w2), my = cimg::mod(iy,h2), mz = cimg::mod(iz,d2);
+                  _val = I(mx<I.width()?mx:w2 - mx - 1,
+                           my<I.height()?my:h2 - my - 1,
+                           mz<I.depth()?mz:d2 - mz - 1);
+                }
+                }
+                val+=_val*K(p,q,r);
+                if (is_normalized) N+=_val*_val;
               }
+            else
+              cimg_forXYZ(kernel,p,q,r) {
+                // TODO!
               }
-              val+=_val*K(p,q,r);
-              if (is_normalized) N+=_val*_val;
-            }
             N*=M2;
             res(x,y,z,c) = is_normalized?(Ttfloat)(N?val/std::sqrt(N):0):val;
           }

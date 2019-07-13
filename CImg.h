@@ -35584,7 +35584,23 @@ namespace cimg_library_suffixed {
               }
             else
               cimg_forXYZ(kernel,p,q,r) {
-                // TODO!
+                const float
+                  ix = xstart + xstride*x + xdilation*(p - _xcenter),
+                  iy = ystart + ystride*y + ydilation*(q - _ycenter),
+                  iz = zstart + zstride*z + zdilation*(r - _zcenter);
+                switch (boundary_conditions) {
+                case 0 : _val = I.linear_atXYZ(ix,iy,iz,0,0); break; // Dirichlet
+                case 1 : _val = I._linear_atXYZ(ix,iy,iz); break; // Neumann
+                case 2 : _val = I._linear_atXYZ_p(ix,iy,iz); break; // Periodic
+                default : { // Mirror
+                  const int mx = cimg::mod(ix,w2), my = cimg::mod(iy,h2), mz = cimg::mod(iz,d2);
+                  _val = I.linear_atXYZ(mx<I.width()?mx:w2 - mx - 1,
+                                        my<I.height()?my:h2 - my - 1,
+                                        mz<I.depth()?mz:d2 - mz - 1);
+                }
+                }
+                val+=_val*K(p,q,r);
+                if (is_normalized) N+=_val*_val;
               }
             N*=M2;
             res(x,y,z,c) = is_normalized?(Ttfloat)(N?val/std::sqrt(N):0):val;

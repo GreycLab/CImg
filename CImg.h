@@ -35244,45 +35244,41 @@ namespace cimg_library_suffixed {
     template<typename t>
     CImg<T>& correlate(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                        const bool is_normalized=false, const bool sum_input_channels=false,
-                       const unsigned int xcenter=~0U, const unsigned int xstart=0,
-                       const unsigned int xend=~0U, const float xstride=1, const float xdilation=1,
-                       const unsigned int ycenter=~0U, const unsigned int ystart=0,
-                       const unsigned int yend=~0U, const float ystride=1, const float ydilation=1,
-                       const unsigned int zcenter=~0U, const unsigned int zstart=0,
-                       const unsigned int zend=~0U, const float zstride=1, const float zdilation=1) {
+                       const unsigned int xcenter=~0U, const unsigned int ycenter=~0U, const unsigned int zcenter=~0U,
+                       const unsigned int xstart=0, const unsigned int ystart=0, const unsigned zstart=0,
+                       const unsigned int xend=~0U, const unsigned int yend=~0U, const unsigned int zend=~0U,
+                       const float xstride=1, const float ystride=1, const float zstride=1,
+                       const float xdilation=1, const float ydilation=1, const float zdilation=1) {
       if (is_empty() || !kernel) return *this;
       return get_correlate(kernel,boundary_conditions,is_normalized,sum_input_channels,
-                           xcenter,xstart,xend,xstride,xdilation,
-                           ycenter,ystart,yend,ystride,ydilation,
-                           zcenter,zstart,zend,zstride,zdilation).move_to(*this);
+                           xcenter,ycenter,zcenter,xstart,ystart,zstart,xend,yend,zend,
+                           xstride,ystride,zstride,xdilation,ydilation,zdilation).move_to(*this);
     }
 
     template<typename t>
     CImg<_cimg_Ttfloat> get_correlate(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                                       const bool is_normalized=false, const bool sum_input_channels=false,
-                                      const unsigned int xcenter=~0U, const unsigned int xstart=0,
-                                      const unsigned int xend=~0U, const float xstride=1, const float xdilation=1,
-                                      const unsigned int ycenter=~0U, const unsigned int ystart=0,
-                                      const unsigned int yend=~0U, const float ystride=1, const float ydilation=1,
-                                      const unsigned int zcenter=~0U, const unsigned int zstart=0,
-                                      const unsigned int zend=~0U, const float zstride=1,
-                                      const float zdilation=1) const {
+                                      const unsigned int xcenter=~0U, const unsigned int ycenter=~0U,
+                                      const unsigned int zcenter=~0U,
+                                      const unsigned int xstart=0, const unsigned int ystart=0, const unsigned zstart=0,
+                                      const unsigned int xend=~0U, const unsigned int yend=~0U,
+                                      const unsigned int zend=~0U,
+                                      const float xstride=1, const float ystride=1, const float zstride=1,
+                                      const float xdilation=1, const float ydilation=1, const float zdilation=1) const {
       return _correlate(kernel,boundary_conditions,is_normalized,sum_input_channels,
-                        xcenter,xstart,xend,xstride,xdilation,
-                        ycenter,ystart,yend,ystride,ydilation,
-                        zcenter,zstart,zend,zstride,zdilation,false);
+                        xcenter,ycenter,zcenter,xstart,ystart,zstart,xend,yend,zend,
+                        xstride,ystride,zstride,xdilation,ydilation,zdilation,false);
     }
 
     //! Correlate image by a kernel \newinstance.
     template<typename t>
     CImg<_cimg_Ttfloat> _correlate(const CImg<t>& kernel, const unsigned int boundary_conditions,
                                    const bool is_normalized, const bool sum_input_channels,
-                                   const unsigned int xcenter, const unsigned int xstart,
-                                   const unsigned int xend, const float xstride, const float xdilation,
-                                   const unsigned int ycenter, const unsigned int ystart,
-                                   const unsigned int yend, const float ystride, const float ydilation,
-                                   const unsigned int zcenter, const unsigned int zstart,
-                                   const unsigned int zend, const float zstride, const float zdilation,
+                                   const unsigned int xcenter, const unsigned int ycenter, const unsigned int zcenter,
+                                   const unsigned int xstart, const unsigned int ystart, const unsigned zstart,
+                                   const unsigned int xend, const unsigned int yend, const unsigned int zend,
+                                   const float xstride, const float ystride, const float zstride,
+                                   const float xdilation, const float ydilation, const float zdilation,
                                    const bool is_convolve) const {
       if (is_empty() || !kernel) return *this;
       typedef _cimg_Ttfloat Ttfloat;
@@ -35364,11 +35360,9 @@ namespace cimg_library_suffixed {
             dy = _kernel._height==1?0:1,
             dz = _kernel._depth==1?0:1;
           return get_crop(-dx,-dy,-dz,width() - 1 + dx,height() - 1 + dy,depth() - 1 + dz).
-            _correlate(_kernel,true,is_normalized,sum_input_channels,
-                       _xcenter,_xstart + dx,_xend - dx,xstride,xdilation,
-                       _ycenter,_ystart + dy,_yend - dy,ystride,ydilation,
-                       _zcenter,_zstart + dz,_zend - dz,zstride,zdilation,
-                       false);
+            _correlate(_kernel,true,is_normalized,sum_input_channels,_xcenter,_ycenter,_zcenter,
+                       _xstart + dx,_ystart + dy,_zstart + dz,_xend - dx,_yend - dy,_zend - dz,
+                       xstride,ystride,zstride,xdilation,ydilation,zdilation,false);
 
         } else { // Neumann boundaries
           res.assign(nwidth,nheight,ndepth,std::max(_spectrum,_kernel._spectrum));
@@ -35704,34 +35698,31 @@ namespace cimg_library_suffixed {
     template<typename t>
     CImg<T>& convolve(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                       const bool is_normalized=false, const bool sum_input_channels=false,
-                      const unsigned int xcenter=~0U, const unsigned int xstart=0,
-                      const unsigned int xend=~0U, const float xstride=1, const float xdilation=1,
-                      const unsigned int ycenter=~0U, const unsigned int ystart=0,
-                      const unsigned int yend=~0U, const float ystride=1, const float ydilation=1,
-                      const unsigned int zcenter=~0U, const unsigned int zstart=0,
-                      const unsigned int zend=~0U, const float zstride=1, const float zdilation=1) {
+                      const unsigned int xcenter=~0U, const unsigned int ycenter=~0U, const unsigned int zcenter=~0U,
+                      const unsigned int xstart=0, const unsigned int ystart=0, const unsigned zstart=0,
+                      const unsigned int xend=~0U, const unsigned int yend=~0U, const unsigned int zend=~0U,
+                      const float xstride=1, const float ystride=1, const float zstride=1,
+                      const float xdilation=1, const float ydilation=1, const float zdilation=1) {
       if (is_empty() || !kernel) return *this;
       return get_convolve(kernel,boundary_conditions,is_normalized,sum_input_channels,
-                          xcenter,xstart,xend,xstride,xdilation,
-                          ycenter,ystart,yend,ystride,ydilation,
-                          zcenter,zstart,zend,zstride,zdilation).move_to(*this);
+                          xcenter,ycenter,zcenter,xstart,ystart,zstart,xend,yend,zend,
+                          xstride,ystride,zstride,xdilation,ydilation,zdilation).move_to(*this);
     }
 
     //! Convolve image by a kernel \newinstance.
     template<typename t>
     CImg<_cimg_Ttfloat> get_convolve(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                                      const bool is_normalized=false, const bool sum_input_channels=false,
-                                     const unsigned int xcenter=~0U, const unsigned int xstart=0,
-                                     const unsigned int xend=~0U, const float xstride=1, const float xdilation=1,
-                                     const unsigned int ycenter=~0U, const unsigned int ystart=0,
-                                     const unsigned int yend=~0U, const float ystride=1, const float ydilation=1,
-                                     const unsigned int zcenter=~0U, const unsigned int zstart=0,
-                                     const unsigned int zend=~0U, const float zstride=1,
-                                     const float zdilation=1) const {
+                                      const unsigned int xcenter=~0U, const unsigned int ycenter=~0U,
+                                      const unsigned int zcenter=~0U,
+                                      const unsigned int xstart=0, const unsigned int ystart=0, const unsigned zstart=0,
+                                      const unsigned int xend=~0U, const unsigned int yend=~0U,
+                                      const unsigned int zend=~0U,
+                                      const float xstride=1, const float ystride=1, const float zstride=1,
+                                      const float xdilation=1, const float ydilation=1, const float zdilation=1) const {
       return _correlate(kernel,boundary_conditions,is_normalized,sum_input_channels,
-                        xcenter,xstart,xend,xstride,xdilation,
-                        ycenter,ystart,yend,ystride,ydilation,
-                        zcenter,zstart,zend,zstride,zdilation,true);
+                        xcenter,ycenter,zcenter,xstart,ystart,zstart,xend,yend,zend,
+                        xstride,ystride,zstride,xdilation,ydilation,zdilation,true);
     }
 
     //! Cumulate image values, optionally along specified axis.

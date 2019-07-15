@@ -35220,7 +35220,7 @@ namespace cimg_library_suffixed {
        \param kernel = the correlation kernel.
        \param boundary_conditions Boundary condition. Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
        \param is_normalized = enable local normalization.
-       \param sum_input_channels
+       \param channel mode Channel processing mode. Can be { 0=sum inputs | 1=one-for-one | 2=expand }
        \param xcenter X-coordinate of the kernel center (~0U means 'centered').
        \param xstart Starting X-coordinate of the instance image.
        \param xend Ending X-coordinate of the instance image.
@@ -35243,21 +35243,21 @@ namespace cimg_library_suffixed {
     **/
     template<typename t>
     CImg<T>& correlate(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
-                       const bool is_normalized=false, const bool sum_input_channels=false,
+                       const bool is_normalized=false, const unsigned int channel_mode=1,
                        const unsigned int xcenter=~0U, const unsigned int ycenter=~0U, const unsigned int zcenter=~0U,
                        const unsigned int xstart=0, const unsigned int ystart=0, const unsigned zstart=0,
                        const unsigned int xend=~0U, const unsigned int yend=~0U, const unsigned int zend=~0U,
                        const float xstride=1, const float ystride=1, const float zstride=1,
                        const float xdilation=1, const float ydilation=1, const float zdilation=1) {
       if (is_empty() || !kernel) return *this;
-      return get_correlate(kernel,boundary_conditions,is_normalized,sum_input_channels,
+      return get_correlate(kernel,boundary_conditions,is_normalized,channel_mode,
                            xcenter,ycenter,zcenter,xstart,ystart,zstart,xend,yend,zend,
                            xstride,ystride,zstride,xdilation,ydilation,zdilation).move_to(*this);
     }
 
     template<typename t>
     CImg<_cimg_Ttfloat> get_correlate(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
-                                      const bool is_normalized=false, const bool sum_input_channels=false,
+                                      const bool is_normalized=false, const unsigned int channel_mode=1,
                                       const unsigned int xcenter=~0U, const unsigned int ycenter=~0U,
                                       const unsigned int zcenter=~0U,
                                       const unsigned int xstart=0, const unsigned int ystart=0, const unsigned zstart=0,
@@ -35265,7 +35265,7 @@ namespace cimg_library_suffixed {
                                       const unsigned int zend=~0U,
                                       const float xstride=1, const float ystride=1, const float zstride=1,
                                       const float xdilation=1, const float ydilation=1, const float zdilation=1) const {
-      return _correlate(kernel,boundary_conditions,is_normalized,sum_input_channels,
+      return _correlate(kernel,boundary_conditions,is_normalized,channel_mode,
                         xcenter,ycenter,zcenter,xstart,ystart,zstart,xend,yend,zend,
                         xstride,ystride,zstride,xdilation,ydilation,zdilation,false);
     }
@@ -35273,7 +35273,7 @@ namespace cimg_library_suffixed {
     //! Correlate image by a kernel \newinstance.
     template<typename t>
     CImg<_cimg_Ttfloat> _correlate(const CImg<t>& kernel, const unsigned int boundary_conditions,
-                                   const bool is_normalized, const bool sum_input_channels,
+                                   const bool is_normalized, const unsigned int channel_mode,
                                    const unsigned int xcenter, const unsigned int ycenter, const unsigned int zcenter,
                                    const unsigned int xstart, const unsigned int ystart, const unsigned zstart,
                                    const unsigned int xend, const unsigned int yend, const unsigned int zend,
@@ -35283,13 +35283,6 @@ namespace cimg_library_suffixed {
       if (is_empty() || !kernel) return *this;
       typedef _cimg_Ttfloat Ttfloat;
       CImg<Ttfloat> res;
-      const ulongT
-        res_whd = (ulongT)_width*_height*_depth,
-        res_size = res_whd*std::max(_spectrum,kernel._spectrum);
-      const bool
-        is_inner_parallel = _width*_height*_depth>=(cimg_openmp_sizefactor)*32768,
-        is_outer_parallel = res_size>=(cimg_openmp_sizefactor)*32768;
-      cimg::unused(is_inner_parallel,is_outer_parallel);
       _cimg_abort_init_omp;
       cimg_abort_init;
 
@@ -35347,7 +35340,7 @@ namespace cimg_library_suffixed {
           _xcenter==_kernel.width()/2 - 1 + (_kernel.width()%2) &&
           _ycenter==_kernel.height()/2 - 1 + (_kernel.height()%2) &&
           _zcenter==_kernel.depth()/2 - 1 + (_kernel.depth()%2) &&
-          is_int_stride_dilation && !sum_input_channels) {
+          is_int_stride_dilation && channel_mode) {
 
         const int dw = 1 - (_kernel.width()%2), dh = 1 - (_kernel.height()%2), dd = 1 - (_kernel.depth()%2);
         if (dw || dh || dd) // Force kernel size to be odd
@@ -35360,7 +35353,7 @@ namespace cimg_library_suffixed {
             dy = _kernel._height==1?0:1,
             dz = _kernel._depth==1?0:1;
           return get_crop(-dx,-dy,-dz,width() - 1 + dx,height() - 1 + dy,depth() - 1 + dz).
-            _correlate(_kernel,true,is_normalized,sum_input_channels,_xcenter,_ycenter,_zcenter,
+            _correlate(_kernel,true,is_normalized,channel_mode,_xcenter,_ycenter,_zcenter,
                        _xstart + dx,_ystart + dy,_zstart + dz,_xend - dx,_yend - dy,_zend - dz,
                        xstride,ystride,zstride,xdilation,ydilation,zdilation,false);
 
@@ -35541,9 +35534,19 @@ namespace cimg_library_suffixed {
         }
       } else { // Generic version for other kernels and boundary conditions
         res.assign(nwidth,nheight,ndepth,
-                   sum_input_channels?kernel._spectrum:std::max(_spectrum,kernel._spectrum));
+                   channel_mode==0?kernel._spectrum:
+                   channel_mode==1?std::max(_spectrum,kernel._spectrum):
+                   _spectrum*kernel._spectrum);
 
-        if (sum_input_channels) {
+        const ulongT
+          res_whd = (ulongT)nwidth*nheight*ndepth,
+          res_size = res_whd*res._spectrum;
+        const bool
+          is_inner_parallel = res_whd>=(cimg_openmp_sizefactor)*32768,
+          is_outer_parallel = res_size>=(cimg_openmp_sizefactor)*32768;
+        cimg::unused(is_inner_parallel,is_outer_parallel);
+
+        if (!channel_mode) { // Channel mode: Sum inputs
           cimg_pragma_openmp(parallel for cimg_openmp_if(!is_inner_parallel && is_outer_parallel))
           cimg_forC(kernel,kc) _cimg_abort_try_omp {
             cimg_abort_test;
@@ -35604,12 +35607,12 @@ namespace cimg_library_suffixed {
           } _cimg_abort_catch_omp
           cimg_abort_test;
 
-        } else {
+        } else { // Channel mode: one-for-one & expand
           cimg_pragma_openmp(parallel for cimg_openmp_if(!is_inner_parallel && is_outer_parallel))
             cimg_forC(res,c) _cimg_abort_try_omp {
             cimg_abort_test;
             const CImg<T> I = get_shared_channel(c%_spectrum);
-            const CImg<t> K = kernel.get_shared_channel(c%kernel._spectrum);
+            const CImg<t> K = kernel.get_shared_channel(channel_mode==1?c%kernel._spectrum:c/_spectrum);
             int w2 = 0, h2 = 0, d2 = 0;
             Ttfloat M = 0, M2 = 0;
             if (is_normalized) { M = (Ttfloat)K.magnitude(2); M2 = M*M; }
@@ -35674,7 +35677,7 @@ namespace cimg_library_suffixed {
        \param kernel = the correlation kernel.
        \param boundary_conditions Boundary condition. Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
        \param is_normalized = enable local normalization.
-       \param sum_input_channels
+       \param channel mode Channel processing mode. Can be { 0=sum inputs | 1=one-for-one | 2=expand }
        \param xcenter X-coordinate of the kernel center (~0U means 'centered').
        \param xstart Starting X-coordinate of the instance image.
        \param xend Ending X-coordinate of the instance image.
@@ -35697,14 +35700,14 @@ namespace cimg_library_suffixed {
     **/
     template<typename t>
     CImg<T>& convolve(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
-                      const bool is_normalized=false, const bool sum_input_channels=false,
+                      const bool is_normalized=false, const unsigned int channel_mode=1,
                       const unsigned int xcenter=~0U, const unsigned int ycenter=~0U, const unsigned int zcenter=~0U,
                       const unsigned int xstart=0, const unsigned int ystart=0, const unsigned zstart=0,
                       const unsigned int xend=~0U, const unsigned int yend=~0U, const unsigned int zend=~0U,
                       const float xstride=1, const float ystride=1, const float zstride=1,
                       const float xdilation=1, const float ydilation=1, const float zdilation=1) {
       if (is_empty() || !kernel) return *this;
-      return get_convolve(kernel,boundary_conditions,is_normalized,sum_input_channels,
+      return get_convolve(kernel,boundary_conditions,is_normalized,channel_mode,
                           xcenter,ycenter,zcenter,xstart,ystart,zstart,xend,yend,zend,
                           xstride,ystride,zstride,xdilation,ydilation,zdilation).move_to(*this);
     }
@@ -35712,7 +35715,7 @@ namespace cimg_library_suffixed {
     //! Convolve image by a kernel \newinstance.
     template<typename t>
     CImg<_cimg_Ttfloat> get_convolve(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
-                                     const bool is_normalized=false, const bool sum_input_channels=false,
+                                     const bool is_normalized=false, const unsigned int channel_mode=1,
                                       const unsigned int xcenter=~0U, const unsigned int ycenter=~0U,
                                       const unsigned int zcenter=~0U,
                                       const unsigned int xstart=0, const unsigned int ystart=0, const unsigned zstart=0,
@@ -35720,7 +35723,7 @@ namespace cimg_library_suffixed {
                                       const unsigned int zend=~0U,
                                       const float xstride=1, const float ystride=1, const float zstride=1,
                                       const float xdilation=1, const float ydilation=1, const float zdilation=1) const {
-      return _correlate(kernel,boundary_conditions,is_normalized,sum_input_channels,
+      return _correlate(kernel,boundary_conditions,is_normalized,channel_mode,
                         xcenter,ycenter,zcenter,xstart,ystart,zstart,xend,yend,zend,
                         xstride,ystride,zstride,xdilation,ydilation,zdilation,true);
     }

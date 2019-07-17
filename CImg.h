@@ -19125,34 +19125,137 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar3(mp_cut,arg1,arg2,arg3);
             }
 
-/*            if (!std::strncmp(ss,"convolve(",9) ||
-                !std::strncmp(ss,"correlate(",10)) { // Convolve & Correlate
+            if (!std::strncmp(ss,"convolve(",9) || !std::strncmp(ss,"correlate(",10)) { // Convolve & Correlate
               is_sth = *ss2=='n'; // is_convolve?
               _cimg_mp_op(is_sth?"Function 'convolve()'":"Function 'correlate()'");
-              s0 = ss + (is_sth?9:10);
-              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(s0,s1,depth1,0,is_single);
-              s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-              arg2 = compile(++s1,s2,depth1,0,is_single);
-              arg3 = _cimg_mp_boundary;
-              arg4 = 0;
-              if (s2<se1) {
-                s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                arg3 = compile(++s2,s1,depth1,0,is_single);
-                arg4 = s1<se1?compile(++s1,se1,depth1,0,is_single):0;
+              op = is_sth?mp_convolve:mp_correlate;
+              const ulongT default_params[] = { (ulongT)op,0, // [0]=function, [1]=result vector
+                                                0,0,0,0,0, // [2]=A, [3]=wA, [4]=hA, [5]=dA, [6]=sA
+                                                0,0,0,0,0, // [7]=M, [8]=wM, [9]=hM, [10]=dM, [11]=sM
+                                                1,0,1, // [12]=boundary_conditions, [13]=is_normalized, [14]=channel_mode
+                                                11,11,11, // [15]=xcenter, [16]=ycenter, [17]=zcenter (default value:-1)
+                                                0,0,0, // [18]=xstart, [19]=ystart, [20]=zstart
+                                                11,11,11, // [21]=xend, [22]=yend, [23]=zend (default value: -1)
+                                                1,1,1, // [24]=xstride, [25]=ystride, [26]=zstride
+                                                1,1,1 }; // [27]=xdilation, [28]=ydilation, [29]=zdilation
+              opcode.assign(default_params,1,sizeof(default_params)/sizeof(ulongT));
+
+              arg1 = 2;
+              for (s = std::strchr(ss,'(') + 1; s<se && arg1<opcode._height; ++s) {
+                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                opcode[arg1++] = compile(s,ns,depth1,0,is_single);
+                s = ns;
               }
-              _cimg_mp_check_type(arg1,1,2,0);
-              _cimg_mp_check_type(arg2,2,2,0);
-              _cimg_mp_check_type(arg3,3,1,0);
-              _cimg_mp_check_type(arg4,4,1,0);
-              p1 = _cimg_mp_size(arg1);
-              p2 = _cimg_mp_size(arg2);
-              pos = vector(p1);
-              CImg<ulongT>::vector((ulongT)is_convolve?mp_matrix_convolve:mp_matrix_correlate,pos,
-                                   arg1,arg2,arg4,p1,p2).move_to(code);
+              if (arg1<12 || arg1>=opcode._height) {
+                *se = saved_char;
+                s0 = ss - 4>expr._data?ss - 4:expr._data;
+                cimg::strellipsize(s0,64);
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: %s arguments provided, in expression '%s%s%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            arg1<12?"Not enough":"Too much",
+                                            s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
+              }
+              _cimg_mp_check_type(opcode[2],1,2,0); // A
+              _cimg_mp_check_constant(opcode[3],2,3); // wA
+              _cimg_mp_check_constant(opcode[4],3,3); // hA
+              _cimg_mp_check_constant(opcode[5],4,3); // dA
+              _cimg_mp_check_constant(opcode[6],5,3); // sA
+              _cimg_mp_check_type(opcode[7],6,2,0); // M
+              _cimg_mp_check_constant(opcode[8],7,3); // wM
+              _cimg_mp_check_constant(opcode[9],8,3); // hM
+              _cimg_mp_check_constant(opcode[10],9,3); // dM
+              _cimg_mp_check_constant(opcode[11],10,3); // sM
+              _cimg_mp_check_type(opcode[12],11,1,0); // boundary_conditions
+              _cimg_mp_check_type(opcode[13],12,1,0); // is_normalized
+              _cimg_mp_check_constant(opcode[14],13,1); // channel_mode
+              _cimg_mp_check_type(opcode[15],14,1,0); // xcenter
+              _cimg_mp_check_type(opcode[16],15,1,0); // ycenter
+              _cimg_mp_check_type(opcode[17],16,1,0); // zcenter
+              _cimg_mp_check_constant(opcode[18],17,1); // xstart
+              _cimg_mp_check_constant(opcode[19],18,1); // ystart
+              _cimg_mp_check_constant(opcode[20],19,1); // zstart
+              _cimg_mp_check_constant(opcode[21],20,1); // xend
+              _cimg_mp_check_constant(opcode[22],21,1); // yend
+              _cimg_mp_check_constant(opcode[23],22,1); // zend
+              _cimg_mp_check_constant(opcode[24],23,3); // xstride
+              _cimg_mp_check_constant(opcode[25],24,3); // ystride
+              _cimg_mp_check_constant(opcode[26],25,3); // zstride
+              _cimg_mp_check_type(opcode[27],26,1,0); // xdilation
+              _cimg_mp_check_type(opcode[28],27,1,0); // ydilation
+              _cimg_mp_check_type(opcode[29],28,1,0); // zdilation
+
+              const unsigned int
+                wA = (unsigned int)mem[opcode[3]],
+                hA = (unsigned int)mem[opcode[4]],
+                dA = (unsigned int)mem[opcode[5]],
+                sA = (unsigned int)mem[opcode[6]],
+                wM = (unsigned int)mem[opcode[8]],
+                hM = (unsigned int)mem[opcode[9]],
+                dM = (unsigned int)mem[opcode[10]],
+                sM = (unsigned int)mem[opcode[11]],
+                channel_mode = (unsigned int)mem[opcode[14]],
+                xstart = std::min((unsigned int)mem[opcode[18]],wA - 1),
+                ystart = std::min((unsigned int)mem[opcode[19]],hA - 1),
+                zstart = std::min((unsigned int)mem[opcode[20]],dA - 1),
+                xend = std::min((unsigned int)mem[opcode[21]],wA - 1),
+                yend = std::min((unsigned int)mem[opcode[22]],hA - 1),
+                zend = std::min((unsigned int)mem[opcode[23]],dA - 1);
+
+              if (xstart>xend || ystart>yend || zstart>zend) {
+                *se = saved_char;
+                s0 = ss - 4>expr._data?ss - 4:expr._data;
+                cimg::strellipsize(s0,64);
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: Invalid xyz-start/end arguments "
+                                            "(start = (%u,%u,%u), end = (%u,%u,%u)), in expression '%s%s%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            xstart,ystart,zstart,xend,yend,zend,
+                                            s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
+              }
+
+              const float
+                xstride = (float)mem[opcode[24]],
+                ystride = (float)mem[opcode[25]],
+                zstride = (float)mem[opcode[26]];
+
+              if (xstride<=0 || ystride<=0 || zstride<=0) {
+                *se = saved_char;
+                s0 = ss - 4>expr._data?ss - 4:expr._data;
+                cimg::strellipsize(s0,64);
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: Invalid stride arguments (%g,%g,%g), "
+                                            "in expression '%s%s%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            xstride,ystride,zstride,
+                                            s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
+              }
+
+              arg2 = 1 + (unsigned int)std::floor((xend - xstart)/xstride);
+              arg3 = 1 + (unsigned int)std::floor((yend - ystart)/ystride);
+              arg4 = 1 + (unsigned int)std::floor((zend + zstart)/zstride);
+              arg5 = channel_mode==0?sM:channel_mode==1?std::max(sA,sM):sA*sM;
+
+              opcode[1] = pos = vector(arg2*arg3*arg4*arg5);
+              opcode[3] = (ulongT)wA;
+              opcode[4] = (ulongT)hA;
+              opcode[5] = (ulongT)dA;
+              opcode[6] = (ulongT)sA;
+              opcode[8] = (ulongT)wM;
+              opcode[9] = (ulongT)hM;
+              opcode[10] = (ulongT)dM;
+              opcode[11] = (ulongT)sM;
+              opcode[14] = (ulongT)channel_mode;
+              opcode[18] = (ulongT)xstart;
+              opcode[19] = (ulongT)ystart;
+              opcode[20] = (ulongT)zstart;
+              opcode[21] = (ulongT)xend;
+              opcode[22] = (ulongT)yend;
+              opcode[23] = (ulongT)zend;
+              opcode.move_to(code);
               _cimg_mp_return(pos);
             }
-*/
             break;
 
           case 'd' :
@@ -21460,6 +21563,14 @@ namespace cimg_library_suffixed {
         return pos;
       }
 
+      static const char *s_argth(const unsigned int n_arg) {
+        const char
+          *_s_arg[] = { "", "First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eighth","Ninth",
+                        "10th", "11th", "12th", "13th", "14th", "15th", "16th", "17th", "18th", "19th",
+                        "20th", "21st", "22nd", "23rd", "24th", "25th", "26th", "27th", "28th", "One of the" };
+        return _s_arg[n_arg<sizeof(_s_arg)/sizeof(char*)?n_arg:sizeof(_s_arg)/sizeof(char*)-1];
+      }
+
       // Check if a memory slot is a positive integer constant scalar value.
       // 'mode' can be:
       // { 0=constant | 1=integer constant | 2=positive integer constant | 3=strictly-positive integer constant }
@@ -21470,9 +21581,7 @@ namespace cimg_library_suffixed {
         if (!(_cimg_mp_is_constant(arg) &&
               (!mode || (double)(int)mem[arg]==mem[arg]) &&
               (mode<2 || mem[arg]>=(mode==3)))) {
-          const char *s_arg = !n_arg?"":n_arg==1?"First ":n_arg==2?"Second ":n_arg==3?"Third ":
-            n_arg==4?"Fourth ":n_arg==5?"Fifth ":n_arg==6?"Sixth ":n_arg==7?"Seventh ":n_arg==8?"Eighth ":
-            n_arg==9?"Ninth ":"One of the ";
+          const char *const s_arg = s_argth(n_arg);
           *se = saved_char;
           char *const s0 = ss - 4>expr._data?ss - 4:expr._data;
           cimg::strellipsize(s0,64);
@@ -21480,7 +21589,7 @@ namespace cimg_library_suffixed {
                                       "CImg<%s>::%s: %s%s %s%s (of type '%s') is not a%s constant, "
                                       "in expression '%s%s%s'.",
                                       pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",
-                                      s_arg,*s_arg?"argument":"Argument",s_type(arg)._data,
+                                      s_arg,*s_arg?" argument":" Argument",s_type(arg)._data,
                                       !mode?"":mode==1?"n integer":
                                       mode==2?" positive integer":" strictly positive integer",
                                       s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
@@ -21496,8 +21605,8 @@ namespace cimg_library_suffixed {
           n = (unsigned int)cimg::round(std::sqrt((float)siz));
         if (n*n!=siz) {
           const char *s_arg;
-          if (*s_op!='F') s_arg = !n_arg?"":n_arg==1?"Left-hand ":"Right-hand ";
-          else s_arg = !n_arg?"":n_arg==1?"First ":n_arg==2?"Second ":n_arg==3?"Third ":"One ";
+          if (*s_op!='F') s_arg = !n_arg?"":n_arg==1?"Left-hand":"Right-hand";
+          else s_arg = !n_arg?"":n_arg==1?"First":n_arg==2?"Second":n_arg==3?"Third":"One";
           *se = saved_char;
           char *const s0 = ss - 4>expr._data?ss - 4:expr._data;
           cimg::strellipsize(s0,64);
@@ -21505,7 +21614,7 @@ namespace cimg_library_suffixed {
                                       "CImg<%s>::%s: %s%s %s%s (of type '%s') "
                                       "cannot be considered as a square matrix, in expression '%s%s%s'.",
                                       pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",
-                                      s_arg,*s_op=='F'?(*s_arg?"argument":"Argument"):(*s_arg?"operand":"Operand"),
+                                      s_arg,*s_op=='F'?(*s_arg?" argument":" Argument"):(*s_arg?" operand":" Operand"),
                                       s_type(arg)._data,
                                       s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
         }
@@ -21526,10 +21635,8 @@ namespace cimg_library_suffixed {
         if (mode&2) cond|=is_vector;
         if (!cond) {
           const char *s_arg;
-          if (*s_op!='F') s_arg = !n_arg?"":n_arg==1?"Left-hand ":"Right-hand ";
-          else s_arg = !n_arg?"":n_arg==1?"First ":n_arg==2?"Second ":n_arg==3?"Third ":
-                 n_arg==4?"Fourth ":n_arg==5?"Fifth ":n_arg==6?"Sixth ":n_arg==7?"Seventh ":n_arg==8?"Eighth":
-                 n_arg==9?"Ninth":"One of the ";
+          if (*s_op!='F') s_arg = !n_arg?"":n_arg==1?"Left-hand":"Right-hand";
+          else s_arg = s_argth(n_arg);
           CImg<charT> sb_type(32);
           if (mode==1) cimg_snprintf(sb_type,sb_type._width,"'scalar'");
           else if (mode==2) {
@@ -21546,7 +21653,7 @@ namespace cimg_library_suffixed {
                                       "CImg<%s>::%s: %s%s %s%s has invalid type '%s' (should be %s), "
                                       "in expression '%s%s%s'.",
                                       pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",
-                                      s_arg,*s_op=='F'?(*s_arg?"argument":"Argument"):(*s_arg?"operand":"Operand"),
+                                      s_arg,*s_op=='F'?(*s_arg?" argument":" Argument"):(*s_arg?" operand":" Operand"),
                                       s_type(arg)._data,sb_type._data,
                                       s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
         }
@@ -21859,6 +21966,67 @@ namespace cimg_library_suffixed {
       static double mp_continue(_cimg_math_parser& mp) {
         mp.break_type = 2;
         mp.p_code = mp.p_break - 1;
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_convolve(_cimg_math_parser &mp) {
+        return _mp_correlate(mp,true);
+      }
+
+      static double mp_correlate(_cimg_math_parser &mp) {
+        return _mp_correlate(mp,false);
+      }
+
+      static double _mp_correlate(_cimg_math_parser &mp, bool is_convolve) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const double *const ptrA = &_mp_arg(2) + 1, *const ptrM = &_mp_arg(7) + 1;
+        const unsigned int
+          wA = (unsigned int)mp.opcode[3],
+          hA = (unsigned int)mp.opcode[4],
+          dA = (unsigned int)mp.opcode[5],
+          sA = (unsigned int)mp.opcode[6],
+          wM = (unsigned int)mp.opcode[8],
+          hM = (unsigned int)mp.opcode[9],
+          dM = (unsigned int)mp.opcode[10],
+          sM = (unsigned int)mp.opcode[11],
+          boundary_conditions = (unsigned int)_mp_arg(12),
+          channel_mode = (unsigned int)mp.opcode[14],
+          xcenter = (unsigned int)_mp_arg(15),
+          ycenter = (unsigned int)_mp_arg(16),
+          zcenter = (unsigned int)_mp_arg(17),
+          xstart = (unsigned int)mp.opcode[18],
+          ystart = (unsigned int)mp.opcode[19],
+          zstart = (unsigned int)mp.opcode[20],
+          xend = (unsigned int)mp.opcode[21],
+          yend = (unsigned int)mp.opcode[22],
+          zend = (unsigned int)mp.opcode[23];
+        const bool
+          is_normalized = (bool)_mp_arg(13);
+        const float
+          xstride = (float)_mp_arg(24),
+          ystride = (float)_mp_arg(25),
+          zstride = (float)_mp_arg(26),
+          xdilation = (float)_mp_arg(27),
+          ydilation = (float)_mp_arg(28),
+          zdilation = (float)_mp_arg(29);
+        CImg<doubleT> res;
+        if (is_convolve) res = CImg<doubleT>(ptrA,wA,hA,dA,sA,true).
+                           get_convolve(CImg<doubleT>(ptrM,wM,hM,dM,sM,true),
+                                        boundary_conditions,is_normalized,channel_mode,
+                                        xcenter,ycenter,zcenter,
+                                        xstart,ystart,zstart,
+                                        xend,yend,zend,
+                                        xstride,ystride,zstride,
+                                        xdilation,ydilation,zdilation);
+        else res = CImg<doubleT>(ptrA,wA,hA,dA,sA,true).
+               get_correlate(CImg<doubleT>(ptrM,wM,hM,dM,sM,true),
+                             boundary_conditions,is_normalized,channel_mode,
+                             xcenter,ycenter,zcenter,
+                             xstart,ystart,zstart,
+                             xend,yend,zend,
+                             xstride,ystride,zstride,
+                             xdilation,ydilation,zdilation);
+        CImg<doubleT>(ptrd,res._width,res._height,res._depth,res._spectrum,true) = res;
         return cimg::type<double>::nan();
       }
 
@@ -23729,8 +23897,8 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_matrix_inv(_cimg_math_parser& mp) {
-        double *ptrd = &_mp_arg(1) + 1;
-        const double *ptr1 = &_mp_arg(2) + 1;
+        double *const ptrd = &_mp_arg(1) + 1;
+        const double *const ptr1 = &_mp_arg(2) + 1;
         const unsigned int k = (unsigned int)mp.opcode[3];
         CImg<doubleT>(ptrd,k,k,1,1,true) = CImg<doubleT>(ptr1,k,k,1,1,true).get_invert();
         return cimg::type<double>::nan();
@@ -35286,18 +35454,18 @@ namespace cimg_library_suffixed {
       _cimg_abort_init_omp;
       cimg_abort_init;
 
+      if (xstart>xend || ystart>yend || zstart>zend)
+        throw CImgArgumentException(_cimg_instance
+                                    "%s(): Invalid xyz-start/end arguments (start = (%u,%u,%u), end = (%u,%u,%u)).",
+                                    cimg_instance,
+                                    is_convolve?"convolve":"correlate",
+                                    xstart,ystart,zstart,xend,yend,zend);
       if (xstride<=0 || ystride<=0 || zstride<=0)
         throw CImgArgumentException(_cimg_instance
                                     "%s(): Invalid stride arguments (%g,%g,%g).",
                                     cimg_instance,
                                     is_convolve?"convolve":"correlate",
                                     xstride,ystride,zstride);
-      if (xstart>xend || ystart>yend || zstart>zend)
-        throw CImgArgumentException(_cimg_instance
-                                    "%s(): Invalid xyz-start/end arguments. Start = (%u,%u,%u), End = (%u,%u,%u).",
-                                    cimg_instance,
-                                    is_convolve?"convolve":"correlate",
-                                    xstart,ystart,zstart,xend,yend,zend);
       const int
         _xstart = (int)std::min(xstart,_width - 1),
         _ystart = (int)std::min(ystart,_height - 1),

@@ -19138,15 +19138,19 @@ namespace cimg_library_suffixed {
                                                 11,11,11, // [21]=xend, [22]=yend, [23]=zend (default value: -1)
                                                 1,1,1, // [24]=xstride, [25]=ystride, [26]=zstride
                                                 1,1,1 }; // [27]=xdilation, [28]=ydilation, [29]=zdilation
-              opcode.assign(default_params,1,sizeof(default_params)/sizeof(ulongT));
+
+              l_opcode.assign(); // Don't use 'opcode': it could be modified by further calls to 'compile()'!
+              CImg<ulongT>(default_params,1,sizeof(default_params)/sizeof(ulongT)).move_to(l_opcode);
 
               arg1 = 2;
-              for (s = std::strchr(ss,'(') + 1; s<se && arg1<opcode._height; ++s) {
+              for (s = std::strchr(ss,'(') + 1; s<se && arg1<l_opcode[0]._height; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
-                opcode[arg1++] = compile(s,ns,depth1,0,is_single);
+                l_opcode(0,arg1++) = compile(s,ns,depth1,0,is_single);
                 s = ns;
               }
+              l_opcode[0].move_to(opcode);
+
               if (arg1<12 || arg1>=opcode._height) {
                 *se = saved_char;
                 s0 = ss - 4>expr._data?ss - 4:expr._data;
@@ -19466,7 +19470,7 @@ namespace cimg_library_suffixed {
                 }
               }
 
-              l_opcode.assign(); // Don't use 'opcode': it can be modified by further calls to 'compile()'!
+              l_opcode.assign(); // Don't use 'opcode': it could be modified by further calls to 'compile()'!
               CImg<ulongT>::vector((ulongT)mp_draw,arg1,(ulongT)_cimg_mp_size(arg1),p1,arg2,arg3,arg4,arg5,
                                    0,0,0,0,1,(ulongT)~0U,0,1).move_to(l_opcode);
 

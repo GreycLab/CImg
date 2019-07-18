@@ -18057,7 +18057,7 @@ namespace cimg_library_suffixed {
             arg1 = compile(ss,s,depth1,0,is_single);
             arg2 = compile(s + 1,se,depth1,0,is_single);
             p2 = _cimg_mp_size(arg2);
-            if (p2>0 && _cimg_mp_size(arg1)==p2*p2) { // Particular case of matrix multiplication
+            if (p2>0 && (ulongT)_cimg_mp_size(arg1)==(ulongT)p2*p2) { // Particular case of matrix multiplication
               pos = vector(p2);
               CImg<ulongT>::vector((ulongT)mp_matrix_mul,pos,arg1,arg2,p2,p2,1).move_to(code);
               _cimg_mp_return(pos);

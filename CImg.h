@@ -35541,7 +35541,7 @@ namespace cimg_library_suffixed {
           res.assign(nwidth,nheight,ndepth,std::max(_spectrum,_kernel._spectrum));
 
           switch (_kernel._depth) {
-          case 3 : { // 3x3x3 centerd kernel
+          case 3 : { // 3x3x3 centered kernel
             cimg_forC(res,c) {
               cimg_abort_test;
               const CImg<T> I = get_shared_channel(c%_spectrum);

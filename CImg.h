@@ -35534,7 +35534,7 @@ namespace cimg_library_suffixed {
             dz = _kernel._depth==1?0:1;
           return get_crop(-dx,-dy,-dz,width() - 1 + dx,height() - 1 + dy,depth() - 1 + dz).
             _correlate(_kernel,true,is_normalized,channel_mode,_xcenter,_ycenter,_zcenter,
-                       _xstart + dx,_ystart + dy,_zstart + dz,_xend - dx,_yend - dy,_zend - dz,
+                       _xstart + dx,_ystart + dy,_zstart + dz,_xend + dx,_yend + dy,_zend + dz,
                        xstride,ystride,zstride,xdilation,ydilation,zdilation,false);
 
         } else { // Neumann boundaries

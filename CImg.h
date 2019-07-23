@@ -51265,7 +51265,7 @@ namespace cimg_library_suffixed {
       if (ret) throw CImgIOException(_cimg_instance
                                      "load_exr(): Unable to load EXR file '%s'.",
                                      cimg_instance,filename);
-      CImg<floatT>(out,4,width,height,1,true).get_permute_axes("yzcx").move_to(*this);
+      CImg<floatT>(res,4,width,height,1,true).get_permute_axes("yzcx").move_to(*this);
       std::free(res);
 #else
       return load_other(filename);

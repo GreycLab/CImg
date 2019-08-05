@@ -19133,7 +19133,7 @@ namespace cimg_library_suffixed {
               const ulongT default_params[] = { (ulongT)op,0, // [0]=function, [1]=result vector
                                                 0,0,0,0,0, // [2]=A, [3]=wA, [4]=hA, [5]=dA, [6]=sA
                                                 0,0,0,0,0, // [7]=M, [8]=wM, [9]=hM, [10]=dM, [11]=sM
-                                                1,0,1, // [12]=boundary_conditions, [13]=is_normalized, [14]=channel_mode
+                                                1,0,1, // [12]=boundary_conditions, [13]=is_normalized, [14]=chan._mode
                                                 11,11,11, // [15]=xcenter, [16]=ycenter, [17]=zcenter (default value:-1)
                                                 0,0,0, // [18]=xstart, [19]=ystart, [20]=zstart
                                                 11,11,11, // [21]=xend, [22]=yend, [23]=zend (default value: -1)

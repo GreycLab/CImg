@@ -45338,7 +45338,7 @@ namespace cimg_library_suffixed {
       if (!iradius1 && !iradius2) return draw_point(x0,y0,color,opacity);
       if (iradius1==iradius2) {
         if (is_filled) return draw_circle(x0,y0,iradius1,color,opacity);
-        else return draw_circle(x0,y0,iradius1,color,opacity,pattern);
+        else if (pattern==~0U) return draw_circle(x0,y0,iradius1,color,opacity,pattern);
       }
       const float ang = (float)(angle*cimg::PI/180);
 

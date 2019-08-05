@@ -3027,6 +3027,7 @@ namespace cimg_library_suffixed {
 
 #define _cimg_Tt typename cimg::superset<T,t>::type
 #define _cimg_Tfloat typename cimg::superset<T,float>::type
+#define _cimg_tfloat typename cimg::superset<t,float>::type
 #define _cimg_Ttfloat typename cimg::superset2<T,t,float>::type
 #define _cimg_Ttdouble typename cimg::superset2<T,t,double>::type
 
@@ -37860,6 +37861,7 @@ namespace cimg_library_suffixed {
 
     //! Blur image using patch-based space.
     /**
+       \param guide Image used to model the smoothing weights.
        \param sigma_s Amount of blur along the XYZ-axes.
        \param sigma_p Amount of blur along the value axis.
        \param patch_size Size of the patches.
@@ -37867,105 +37869,113 @@ namespace cimg_library_suffixed {
        \param smoothness Smoothness for the patch comparison.
        \param is_fast_approx Tells if a fast approximation of the gaussian function is used or not.
     **/
-    CImg<T>& blur_patch(const float sigma_s, const float sigma_p, const unsigned int patch_size=3,
+    template<typename t>
+    CImg<T>& blur_patch(const CImg<t>& guide,
+                        const float sigma_s, const float sigma_p, const unsigned int patch_size=3,
                         const unsigned int lookup_size=4, const float smoothness=0, const bool is_fast_approx=true) {
       if (is_empty() || !patch_size || !lookup_size) return *this;
-      return get_blur_patch(sigma_s,sigma_p,patch_size,lookup_size,smoothness,is_fast_approx).move_to(*this);
+      return get_blur_patch(guide,sigma_s,sigma_p,patch_size,lookup_size,smoothness,is_fast_approx).move_to(*this);
     }
 
     //! Blur image using patch-based space \newinstance.
-    CImg<Tfloat> get_blur_patch(const float sigma_s, const float sigma_p, const unsigned int patch_size=3,
+    template<typename t>
+    CImg<Tfloat> get_blur_patch(const CImg<t>& guide,
+                                const float sigma_s, const float sigma_p, const unsigned int patch_size=3,
                                 const unsigned int lookup_size=4, const float smoothness=0,
                                 const bool is_fast_approx=true) const {
 
 #define _cimg_blur_patch3d_fast(N) \
       cimg_for##N##XYZ(res,x,y,z) { \
-        T *pP = P._data; cimg_forC(res,c) { cimg_get##N##x##N##x##N(img,x,y,z,c,pP,T); pP+=N3; } \
+        tfloat *pP = P._data; cimg_forC(res,c) { cimg_get##N##x##N##x##N(_guide,x,y,z,c,pP,tfloat); pP+=N3; } \
         const int x0 = x - rsize1, y0 = y - rsize1, z0 = z - rsize1, \
-          x1 = x + rsize2, y1 = y + rsize2, z1 = z + rsize2; \
-        float sum_weights = 0; \
+                  x1 = x + rsize2, y1 = y + rsize2, z1 = z + rsize2; \
+        tfloat sum_weights = 0; \
         cimg_for_in##N##XYZ(res,x0,y0,z0,x1,y1,z1,p,q,r) \
-          if (cimg::abs((Tfloat)img(x,y,z,0) - (Tfloat)img(p,q,r,0))<sigma_p3) { \
-            T *pQ = Q._data; cimg_forC(res,c) { cimg_get##N##x##N##x##N(img,p,q,r,c,pQ,T); pQ+=N3; } \
-            float distance2 = 0; \
-            pQ = Q._data; cimg_for(P,_pP,T) { const float dI = (float)*_pP - (float)*(pQ++); distance2+=dI*dI; } \
+          if (cimg::abs(_guide(x,y,z,0) - _guide(p,q,r,0))<sigma_p3) { \
+            tfloat *pQ = Q._data; cimg_forC(res,c) { cimg_get##N##x##N##x##N(_guide,p,q,r,c,pQ,tfloat); pQ+=N3; } \
+            tfloat distance2 = 0; \
+            pQ = Q._data; cimg_for(P,_pP,tfloat) { const tfloat dI = *_pP - *(pQ++); distance2+=dI*dI; } \
             distance2/=Pnorm; \
-            const float dx = (float)p - x, dy = (float)q - y, dz = (float)r - z, \
-              alldist = distance2 + (dx*dx + dy*dy + dz*dz)/sigma_s2, weight = alldist>3?0.f:1.f; \
+            const tfloat dx = (tfloat)p - x, dy = (tfloat)q - y, dz = (tfloat)r - z, \
+              alldist = distance2 + (dx*dx + dy*dy + dz*dz)/sigma_s2, weight = alldist>3?0:1; \
             sum_weights+=weight; \
-            cimg_forC(res,c) res(x,y,z,c)+=weight*(*this)(p,q,r,c); \
+            cimg_forC(res,c) res(x,y,z,c)+=(Tfloat)weight*(*this)(p,q,r,c); \
           } \
-        if (sum_weights>0) cimg_forC(res,c) res(x,y,z,c)/=sum_weights; \
+        if (sum_weights>0) cimg_forC(res,c) res(x,y,z,c)/=(Tfloat)sum_weights; \
         else cimg_forC(res,c) res(x,y,z,c) = (Tfloat)((*this)(x,y,z,c)); \
     }
 
 #define _cimg_blur_patch3d(N) \
       cimg_for##N##XYZ(res,x,y,z) { \
-        T *pP = P._data; cimg_forC(res,c) { cimg_get##N##x##N##x##N(img,x,y,z,c,pP,T); pP+=N3; } \
+        tfloat *pP = P._data; cimg_forC(res,c) { cimg_get##N##x##N##x##N(_guide,x,y,z,c,pP,tfloat); pP+=N3; } \
         const int x0 = x - rsize1, y0 = y - rsize1, z0 = z - rsize1, \
-          x1 = x + rsize2, y1 = y + rsize2, z1 = z + rsize2; \
-        float sum_weights = 0, weight_max = 0; \
+                  x1 = x + rsize2, y1 = y + rsize2, z1 = z + rsize2; \
+        tfloat sum_weights = 0, weight_max = 0; \
         cimg_for_in##N##XYZ(res,x0,y0,z0,x1,y1,z1,p,q,r) if (p!=x || q!=y || r!=z) { \
-          T *pQ = Q._data; cimg_forC(res,c) { cimg_get##N##x##N##x##N(img,p,q,r,c,pQ,T); pQ+=N3; } \
-          float distance2 = 0; \
-          pQ = Q._data; cimg_for(P,_pP,T) { const float dI = (float)*_pP - (float)*(pQ++); distance2+=dI*dI; } \
+          tfloat *pQ = Q._data; cimg_forC(res,c) { cimg_get##N##x##N##x##N(_guide,p,q,r,c,pQ,tfloat); pQ+=N3; } \
+          tfloat distance2 = 0; \
+          pQ = Q._data; cimg_for(P,_pP,tfloat) { const tfloat dI = *_pP - *(pQ++); distance2+=dI*dI; } \
           distance2/=Pnorm; \
-          const float dx = (float)p - x, dy = (float)q - y, dz = (float)r - z, \
-            alldist = distance2 + (dx*dx + dy*dy + dz*dz)/sigma_s2, weight = (float)std::exp(-alldist); \
+          const tfloat dx = (tfloat)p - x, dy = (tfloat)q - y, dz = (tfloat)r - z, \
+            alldist = distance2 + (dx*dx + dy*dy + dz*dz)/sigma_s2, weight = std::exp(-alldist); \
           if (weight>weight_max) weight_max = weight; \
           sum_weights+=weight; \
-          cimg_forC(res,c) res(x,y,z,c)+=weight*(*this)(p,q,r,c); \
+          cimg_forC(res,c) res(x,y,z,c)+=(Tfloat)weight*(*this)(p,q,r,c); \
         } \
-        sum_weights+=weight_max; cimg_forC(res,c) res(x,y,z,c)+=weight_max*(*this)(x,y,z,c); \
-        if (sum_weights>0) cimg_forC(res,c) res(x,y,z,c)/=sum_weights; \
+        sum_weights+=weight_max; cimg_forC(res,c) res(x,y,z,c)+=(Tfloat)weight_max*(*this)(x,y,z,c); \
+        if (sum_weights>0) cimg_forC(res,c) res(x,y,z,c)/=(Tfloat)sum_weights; \
         else cimg_forC(res,c) res(x,y,z,c) = (Tfloat)((*this)(x,y,z,c)); \
       }
 
 #define _cimg_blur_patch2d_fast(N) \
         cimg_for##N##XY(res,x,y) { \
-          T *pP = P._data; cimg_forC(res,c) { cimg_get##N##x##N(img,x,y,0,c,pP,T); pP+=N2; } \
+          tfloat *pP = P._data; cimg_forC(res,c) { cimg_get##N##x##N(_guide,x,y,0,c,pP,tfloat); pP+=N2; } \
           const int x0 = x - rsize1, y0 = y - rsize1, x1 = x + rsize2, y1 = y + rsize2; \
-          float sum_weights = 0; \
+          tfloat sum_weights = 0; \
           cimg_for_in##N##XY(res,x0,y0,x1,y1,p,q) \
-            if (cimg::abs((Tfloat)img(x,y,0,0) - (Tfloat)img(p,q,0,0))<sigma_p3) { \
-              T *pQ = Q._data; cimg_forC(res,c) { cimg_get##N##x##N(img,p,q,0,c,pQ,T); pQ+=N2; } \
-              float distance2 = 0; \
-              pQ = Q._data; cimg_for(P,_pP,T) { const float dI = (float)*_pP - (float)*(pQ++); distance2+=dI*dI; } \
+            if (cimg::abs(_guide(x,y,0,0) - _guide(p,q,0,0))<sigma_p3) { \
+              tfloat *pQ = Q._data; cimg_forC(res,c) { cimg_get##N##x##N(_guide,p,q,0,c,pQ,tfloat); pQ+=N2; } \
+              tfloat distance2 = 0; \
+              pQ = Q._data; cimg_for(P,_pP,tfloat) { const tfloat dI = *_pP - *(pQ++); distance2+=dI*dI; } \
               distance2/=Pnorm; \
-              const float dx = (float)p - x, dy = (float)q - y, \
-                alldist = distance2 + (dx*dx+dy*dy)/sigma_s2, weight = alldist>3?0.f:1.f; \
+              const tfloat dx = (tfloat)p - x, dy = (tfloat)q - y, \
+                alldist = distance2 + (dx*dx+dy*dy)/sigma_s2, weight = alldist>3?0:1; \
               sum_weights+=weight; \
-              cimg_forC(res,c) res(x,y,c)+=weight*(*this)(p,q,c); \
+              cimg_forC(res,c) res(x,y,c)+=(Tfloat)weight*(*this)(p,q,c); \
             } \
-          if (sum_weights>0) cimg_forC(res,c) res(x,y,c)/=sum_weights; \
+          if (sum_weights>0) cimg_forC(res,c) res(x,y,c)/=(Tfloat)sum_weights; \
           else cimg_forC(res,c) res(x,y,c) = (Tfloat)((*this)(x,y,c)); \
         }
 
 #define _cimg_blur_patch2d(N) \
         cimg_for##N##XY(res,x,y) { \
-          T *pP = P._data; cimg_forC(res,c) { cimg_get##N##x##N(img,x,y,0,c,pP,T); pP+=N2; } \
+          tfloat *pP = P._data; cimg_forC(res,c) { cimg_get##N##x##N(_guide,x,y,0,c,pP,tfloat); pP+=N2; } \
           const int x0 = x - rsize1, y0 = y - rsize1, x1 = x + rsize2, y1 = y + rsize2; \
-          float sum_weights = 0, weight_max = 0; \
+          tfloat sum_weights = 0, weight_max = 0; \
           cimg_for_in##N##XY(res,x0,y0,x1,y1,p,q) if (p!=x || q!=y) { \
-            T *pQ = Q._data; cimg_forC(res,c) { cimg_get##N##x##N(img,p,q,0,c,pQ,T); pQ+=N2; } \
-            float distance2 = 0; \
-            pQ = Q._data; cimg_for(P,_pP,T) { const float dI = (float)*_pP - (float)*(pQ++); distance2+=dI*dI; } \
+            tfloat *pQ = Q._data; cimg_forC(res,c) { cimg_get##N##x##N(_guide,p,q,0,c,pQ,tfloat); pQ+=N2; } \
+            tfloat distance2 = 0; \
+            pQ = Q._data; cimg_for(P,_pP,T) { const tfloat dI = *_pP - *(pQ++); distance2+=dI*dI; } \
             distance2/=Pnorm; \
-            const float dx = (float)p - x, dy = (float)q - y, \
-              alldist = distance2 + (dx*dx+dy*dy)/sigma_s2, weight = (float)std::exp(-alldist); \
+            const tfloat dx = (tfloat)p - x, dy = (tfloat)q - y, \
+              alldist = distance2 + (dx*dx+dy*dy)/sigma_s2, weight = std::exp(-alldist); \
             if (weight>weight_max) weight_max = weight; \
             sum_weights+=weight; \
-            cimg_forC(res,c) res(x,y,c)+=weight*(*this)(p,q,c); \
+            cimg_forC(res,c) res(x,y,c)+=(Tfloat)weight*(*this)(p,q,c); \
           } \
-          sum_weights+=weight_max; cimg_forC(res,c) res(x,y,c)+=weight_max*(*this)(x,y,c); \
-          if (sum_weights>0) cimg_forC(res,c) res(x,y,c)/=sum_weights; \
+          sum_weights+=weight_max; cimg_forC(res,c) res(x,y,c)+=(Tfloat)weight_max*(*this)(x,y,c); \
+          if (sum_weights>0) cimg_forC(res,c) res(x,y,c)/=(Tfloat)sum_weights; \
           else cimg_forC(res,c) res(x,y,c) = (Tfloat)((*this)(x,y,c)); \
     }
 
+      typedef _cimg_tfloat tfloat;
       if (is_empty() || !patch_size || !lookup_size) return +*this;
       CImg<Tfloat> res(_width,_height,_depth,_spectrum,0);
-      const CImg<T> _img = smoothness>0?get_blur(smoothness):CImg<Tfloat>(),&img = smoothness>0?_img:*this;
-      CImg<T> P(patch_size*patch_size*_spectrum), Q(P);
+      const CImg<tfloat>
+        __guide = guide?CImg<tfloat>(guide,cimg::type<t>::string()==cimg::type<tfloat>::string()):
+                        CImg<tfloat>(*this,cimg::type<T>::string()==cimg::type<tfloat>::string()),
+        _guide = smoothness>0?__guide.get_blur(smoothness):__guide.get_shared();
+      CImg<tfloat> P(patch_size*patch_size*_spectrum), Q(P);
       const float
         nsigma_s = sigma_s>=0?sigma_s:-sigma_s*cimg::max(_width,_height,_depth)/100,
         sigma_s2 = nsigma_s*nsigma_s, sigma_p2 = sigma_p*sigma_p, sigma_p3 = 3*sigma_p,
@@ -37983,42 +37993,42 @@ namespace cimg_library_suffixed {
                                cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*32 && res._height*res._depth>=4)
                                private(P,Q))
             cimg_forXYZ(res,x,y,z) { // Fast
-              P = img.get_crop(x - psize1,y - psize1,z - psize1,x + psize2,y + psize2,z + psize2,true);
+              P = _guide.get_crop(x - psize1,y - psize1,z - psize1,x + psize2,y + psize2,z + psize2,true);
               const int x0 = x - rsize1, y0 = y - rsize1, z0 = z - rsize1,
                 x1 = x + rsize2, y1 = y + rsize2, z1 = z + rsize2;
-              float sum_weights = 0;
+              tfloat sum_weights = 0;
               cimg_for_inXYZ(res,x0,y0,z0,x1,y1,z1,p,q,r)
-                if (cimg::abs((Tfloat)img(x,y,z,0) - (Tfloat)img(p,q,r,0))<sigma_p3) {
-                  (Q = img.get_crop(p - psize1,q - psize1,r - psize1,p + psize2,q + psize2,r + psize2,true))-=P;
-                  const float
-                    dx = (float)x - p, dy = (float)y - q, dz = (float)z - r,
-                    distance2 = (float)(Q.pow(2).sum()/Pnorm + (dx*dx + dy*dy + dz*dz)/sigma_s2),
-                    weight = distance2>3?0.f:1.f;
+                if (cimg::abs(_guide(x,y,z,0) - _guide(p,q,r,0))<sigma_p3) {
+                  (Q = _guide.get_crop(p - psize1,q - psize1,r - psize1,p + psize2,q + psize2,r + psize2,true))-=P;
+                  const tfloat
+                    dx = (tfloat)x - p, dy = (tfloat)y - q, dz = (tfloat)z - r,
+                    distance2 = (tfloat)(Q.pow(2).sum()/Pnorm + (dx*dx + dy*dy + dz*dz)/sigma_s2),
+                    weight = distance2>3?0:1;
                   sum_weights+=weight;
-                  cimg_forC(res,c) res(x,y,z,c)+=weight*(*this)(p,q,r,c);
+                  cimg_forC(res,c) res(x,y,z,c)+=(Tfloat)weight*(*this)(p,q,r,c);
                 }
-              if (sum_weights>0) cimg_forC(res,c) res(x,y,z,c)/=sum_weights;
+              if (sum_weights>0) cimg_forC(res,c) res(x,y,z,c)/=(Tfloat)sum_weights;
               else cimg_forC(res,c) res(x,y,z,c) = (Tfloat)((*this)(x,y,z,c));
             } else
             cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
                                if (res._width>=32 && res._height*res._depth>=4) firstprivate(P,Q))
             cimg_forXYZ(res,x,y,z) { // Exact
-              P = img.get_crop(x - psize1,y - psize1,z - psize1,x + psize2,y + psize2,z + psize2,true);
+              P = _guide.get_crop(x - psize1,y - psize1,z - psize1,x + psize2,y + psize2,z + psize2,true);
               const int x0 = x - rsize1, y0 = y - rsize1, z0 = z - rsize1,
-                x1 = x + rsize2, y1 = y + rsize2, z1 = z + rsize2;
-              float sum_weights = 0, weight_max = 0;
+                        x1 = x + rsize2, y1 = y + rsize2, z1 = z + rsize2;
+              tfloat sum_weights = 0, weight_max = 0;
               cimg_for_inXYZ(res,x0,y0,z0,x1,y1,z1,p,q,r) if (p!=x || q!=y || r!=z) {
-                (Q = img.get_crop(p - psize1,q - psize1,r - psize1,p + psize2,q + psize2,r + psize2,true))-=P;
-                const float
-                  dx = (float)x - p, dy = (float)y - q, dz = (float)z - r,
-                  distance2 = (float)(Q.pow(2).sum()/Pnorm + (dx*dx + dy*dy + dz*dz)/sigma_s2),
-                  weight = (float)std::exp(-distance2);
+                (Q = _guide.get_crop(p - psize1,q - psize1,r - psize1,p + psize2,q + psize2,r + psize2,true))-=P;
+                const tfloat
+                  dx = (tfloat)x - p, dy = (tfloat)y - q, dz = (tfloat)z - r,
+                  distance2 = (tfloat)(Q.pow(2).sum()/Pnorm + (dx*dx + dy*dy + dz*dz)/sigma_s2),
+                  weight = std::exp(-distance2);
                 if (weight>weight_max) weight_max = weight;
                 sum_weights+=weight;
-                cimg_forC(res,c) res(x,y,z,c)+=weight*(*this)(p,q,r,c);
+                cimg_forC(res,c) res(x,y,z,c)+=(Tfloat)weight*(*this)(p,q,r,c);
               }
-              sum_weights+=weight_max; cimg_forC(res,c) res(x,y,z,c)+=weight_max*(*this)(x,y,z,c);
-              if (sum_weights>0) cimg_forC(res,c) res(x,y,z,c)/=sum_weights;
+              sum_weights+=weight_max; cimg_forC(res,c) res(x,y,z,c)+=(Tfloat)weight_max*(*this)(x,y,z,c);
+              if (sum_weights>0) cimg_forC(res,c) res(x,y,z,c)/=(Tfloat)sum_weights;
               else cimg_forC(res,c) res(x,y,z,c) = (Tfloat)((*this)(x,y,z,c));
             }
         }
@@ -38037,45 +38047,58 @@ namespace cimg_library_suffixed {
             cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*32 && res._height>=4)
                                firstprivate(P,Q))
             cimg_forXY(res,x,y) { // Fast
-              P = img.get_crop(x - psize1,y - psize1,x + psize2,y + psize2,true);
+              P = _guide.get_crop(x - psize1,y - psize1,x + psize2,y + psize2,true);
               const int x0 = x - rsize1, y0 = y - rsize1, x1 = x + rsize2, y1 = y + rsize2;
-              float sum_weights = 0;
+              tfloat sum_weights = 0;
               cimg_for_inXY(res,x0,y0,x1,y1,p,q)
-                if ((Tfloat)cimg::abs(img(x,y,0) - (Tfloat)img(p,q,0))<sigma_p3) {
-                  (Q = img.get_crop(p - psize1,q - psize1,p + psize2,q + psize2,true))-=P;
-                  const float
-                    dx = (float)x - p, dy = (float)y - q,
-                    distance2 = (float)(Q.pow(2).sum()/Pnorm + (dx*dx + dy*dy)/sigma_s2),
-                    weight = distance2>3?0.f:1.f;
+                if (cimg::abs(_guide(x,y,0) - _guide(p,q,0))<sigma_p3) {
+                  (Q = _guide.get_crop(p - psize1,q - psize1,p + psize2,q + psize2,true))-=P;
+                  const tfloat
+                    dx = (tfloat)x - p, dy = (tfloat)y - q,
+                    distance2 = (tfloat)(Q.pow(2).sum()/Pnorm + (dx*dx + dy*dy)/sigma_s2),
+                    weight = distance2>3?0:1;
                   sum_weights+=weight;
-                  cimg_forC(res,c) res(x,y,c)+=weight*(*this)(p,q,c);
+                  cimg_forC(res,c) res(x,y,c)+=(Tfloat)weight*(*this)(p,q,c);
                 }
-              if (sum_weights>0) cimg_forC(res,c) res(x,y,c)/=sum_weights;
+              if (sum_weights>0) cimg_forC(res,c) res(x,y,c)/=(Tfloat)sum_weights;
               else cimg_forC(res,c) res(x,y,c) = (Tfloat)((*this)(x,y,c));
             } else
             cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*32 && res._height>=4)
                                firstprivate(P,Q))
             cimg_forXY(res,x,y) { // Exact
-              P = img.get_crop(x - psize1,y - psize1,x + psize2,y + psize2,true);
+              P = _guide.get_crop(x - psize1,y - psize1,x + psize2,y + psize2,true);
               const int x0 = x - rsize1, y0 = y - rsize1, x1 = x + rsize2, y1 = y + rsize2;
-              float sum_weights = 0, weight_max = 0;
+              tfloat sum_weights = 0, weight_max = 0;
               cimg_for_inXY(res,x0,y0,x1,y1,p,q) if (p!=x || q!=y) {
-                (Q = img.get_crop(p - psize1,q - psize1,p + psize2,q + psize2,true))-=P;
-                const float
-                  dx = (float)x - p, dy = (float)y - q,
-                  distance2 = (float)(Q.pow(2).sum()/Pnorm + (dx*dx + dy*dy)/sigma_s2),
-                  weight = (float)std::exp(-distance2);
+                (Q = _guide.get_crop(p - psize1,q - psize1,p + psize2,q + psize2,true))-=P;
+                const tfloat
+                  dx = (tfloat)x - p, dy = (tfloat)y - q,
+                  distance2 = (tfloat)(Q.pow(2).sum()/Pnorm + (dx*dx + dy*dy)/sigma_s2),
+                  weight = std::exp(-distance2);
                 if (weight>weight_max) weight_max = weight;
                 sum_weights+=weight;
-                cimg_forC(res,c) res(x,y,c)+=weight*(*this)(p,q,c);
+                cimg_forC(res,c) res(x,y,c)+=(Tfloat)weight*(*this)(p,q,c);
               }
-              sum_weights+=weight_max; cimg_forC(res,c) res(x,y,c)+=weight_max*(*this)(x,y,c);
-              if (sum_weights>0) cimg_forC(res,c) res(x,y,c)/=sum_weights;
+              sum_weights+=weight_max; cimg_forC(res,c) res(x,y,c)+=(Tfloat)weight_max*(*this)(x,y,c);
+              if (sum_weights>0) cimg_forC(res,c) res(x,y,c)/=(Tfloat)sum_weights;
               else cimg_forC(res,c) res(x,y,0,c) = (Tfloat)((*this)(x,y,c));
             }
         }
         }
       return res;
+    }
+
+    //! Blur image using patch-based space \simplification.
+    CImg<T>& blur_patch(const float sigma_s, const float sigma_p, const unsigned int patch_size=3,
+                        const unsigned int lookup_size=4, const float smoothness=0, const bool is_fast_approx=true) {
+      return blur_patch(*this,sigma_s,sigma_p,patch_size,lookup_size,smoothness,is_fast_approx);
+    }
+
+    //! Blur image using patch-based space \simplification \newinstance.
+    CImg<Tfloat> get_blur_patch(const float sigma_s, const float sigma_p, const unsigned int patch_size=3,
+                                const unsigned int lookup_size=4, const float smoothness=0,
+                                const bool is_fast_approx=true) const {
+      return get_blur_patch(*this,sigma_s,sigma_p,patch_size,lookup_size,smoothness,is_fast_approx);
     }
 
     //! Blur image with the median filter.

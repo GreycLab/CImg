@@ -12388,6 +12388,14 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
+    //! Construct image from memory buffer with specified size and pixel ordering scheme.
+    template<typename t>
+    CImg<T>& assign(const t *const values, const unsigned int size_x, const unsigned int size_y,
+                    const unsigned int size_z, const unsigned int size_c,
+                    const char *const axes_order) {
+      CImg<T>(values,size_x,size_y,size_z,size_c,axes_order).move_to(*this);
+    }
+
     //! Construct image from reading an image file \inplace.
     /**
        In-place version of the constructor CImg(const char*).

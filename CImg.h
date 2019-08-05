@@ -37886,13 +37886,13 @@ namespace cimg_library_suffixed {
 
 #define _cimg_blur_patch3d_fast(N) \
       cimg_for##N##XYZ(res,x,y,z) { \
-        tfloat *pP = P._data; cimg_forC(res,c) { cimg_get##N##x##N##x##N(_guide,x,y,z,c,pP,tfloat); pP+=N3; } \
+        tfloat *pP = P._data; cimg_forC(_guide,c) { cimg_get##N##x##N##x##N(_guide,x,y,z,c,pP,tfloat); pP+=N3; } \
         const int x0 = x - rsize1, y0 = y - rsize1, z0 = z - rsize1, \
                   x1 = x + rsize2, y1 = y + rsize2, z1 = z + rsize2; \
         tfloat sum_weights = 0; \
         cimg_for_in##N##XYZ(res,x0,y0,z0,x1,y1,z1,p,q,r) \
           if (cimg::abs(_guide(x,y,z,0) - _guide(p,q,r,0))<sigma_p3) { \
-            tfloat *pQ = Q._data; cimg_forC(res,c) { cimg_get##N##x##N##x##N(_guide,p,q,r,c,pQ,tfloat); pQ+=N3; } \
+            tfloat *pQ = Q._data; cimg_forC(_guide,c) { cimg_get##N##x##N##x##N(_guide,p,q,r,c,pQ,tfloat); pQ+=N3; } \
             tfloat distance2 = 0; \
             pQ = Q._data; cimg_for(P,_pP,tfloat) { const tfloat dI = *_pP - *(pQ++); distance2+=dI*dI; } \
             distance2/=Pnorm; \
@@ -37907,12 +37907,12 @@ namespace cimg_library_suffixed {
 
 #define _cimg_blur_patch3d(N) \
       cimg_for##N##XYZ(res,x,y,z) { \
-        tfloat *pP = P._data; cimg_forC(res,c) { cimg_get##N##x##N##x##N(_guide,x,y,z,c,pP,tfloat); pP+=N3; } \
+        tfloat *pP = P._data; cimg_forC(_guide,c) { cimg_get##N##x##N##x##N(_guide,x,y,z,c,pP,tfloat); pP+=N3; } \
         const int x0 = x - rsize1, y0 = y - rsize1, z0 = z - rsize1, \
                   x1 = x + rsize2, y1 = y + rsize2, z1 = z + rsize2; \
         tfloat sum_weights = 0, weight_max = 0; \
         cimg_for_in##N##XYZ(res,x0,y0,z0,x1,y1,z1,p,q,r) if (p!=x || q!=y || r!=z) { \
-          tfloat *pQ = Q._data; cimg_forC(res,c) { cimg_get##N##x##N##x##N(_guide,p,q,r,c,pQ,tfloat); pQ+=N3; } \
+          tfloat *pQ = Q._data; cimg_forC(_guide,c) { cimg_get##N##x##N##x##N(_guide,p,q,r,c,pQ,tfloat); pQ+=N3; } \
           tfloat distance2 = 0; \
           pQ = Q._data; cimg_for(P,_pP,tfloat) { const tfloat dI = *_pP - *(pQ++); distance2+=dI*dI; } \
           distance2/=Pnorm; \
@@ -37929,12 +37929,12 @@ namespace cimg_library_suffixed {
 
 #define _cimg_blur_patch2d_fast(N) \
         cimg_for##N##XY(res,x,y) { \
-          tfloat *pP = P._data; cimg_forC(res,c) { cimg_get##N##x##N(_guide,x,y,0,c,pP,tfloat); pP+=N2; } \
+          tfloat *pP = P._data; cimg_forC(_guide,c) { cimg_get##N##x##N(_guide,x,y,0,c,pP,tfloat); pP+=N2; } \
           const int x0 = x - rsize1, y0 = y - rsize1, x1 = x + rsize2, y1 = y + rsize2; \
           tfloat sum_weights = 0; \
           cimg_for_in##N##XY(res,x0,y0,x1,y1,p,q) \
             if (cimg::abs(_guide(x,y,0,0) - _guide(p,q,0,0))<sigma_p3) { \
-              tfloat *pQ = Q._data; cimg_forC(res,c) { cimg_get##N##x##N(_guide,p,q,0,c,pQ,tfloat); pQ+=N2; } \
+              tfloat *pQ = Q._data; cimg_forC(_guide,c) { cimg_get##N##x##N(_guide,p,q,0,c,pQ,tfloat); pQ+=N2; } \
               tfloat distance2 = 0; \
               pQ = Q._data; cimg_for(P,_pP,tfloat) { const tfloat dI = *_pP - *(pQ++); distance2+=dI*dI; } \
               distance2/=Pnorm; \
@@ -37949,11 +37949,11 @@ namespace cimg_library_suffixed {
 
 #define _cimg_blur_patch2d(N) \
         cimg_for##N##XY(res,x,y) { \
-          tfloat *pP = P._data; cimg_forC(res,c) { cimg_get##N##x##N(_guide,x,y,0,c,pP,tfloat); pP+=N2; } \
+          tfloat *pP = P._data; cimg_forC(_guide,c) { cimg_get##N##x##N(_guide,x,y,0,c,pP,tfloat); pP+=N2; } \
           const int x0 = x - rsize1, y0 = y - rsize1, x1 = x + rsize2, y1 = y + rsize2; \
           tfloat sum_weights = 0, weight_max = 0; \
           cimg_for_in##N##XY(res,x0,y0,x1,y1,p,q) if (p!=x || q!=y) { \
-            tfloat *pQ = Q._data; cimg_forC(res,c) { cimg_get##N##x##N(_guide,p,q,0,c,pQ,tfloat); pQ+=N2; } \
+            tfloat *pQ = Q._data; cimg_forC(_guide,c) { cimg_get##N##x##N(_guide,p,q,0,c,pQ,tfloat); pQ+=N2; } \
             tfloat distance2 = 0; \
             pQ = Q._data; cimg_for(P,_pP,T) { const tfloat dI = *_pP - *(pQ++); distance2+=dI*dI; } \
             distance2/=Pnorm; \
@@ -37969,13 +37969,18 @@ namespace cimg_library_suffixed {
     }
 
       typedef _cimg_tfloat tfloat;
+      if (!is_sameXYZ(guide))
+        throw CImgArgumentException(_cimg_instance
+                                    "blur_patch(): Invalid size for specified guide image (%u,%u,%u,%u,%p).",
+                                    cimg_instance,
+                                    guide._width,guide._height,guide._depth,guide._spectrum,guide._data);
       if (is_empty() || !patch_size || !lookup_size) return +*this;
       CImg<Tfloat> res(_width,_height,_depth,_spectrum,0);
       const CImg<tfloat>
         __guide = guide?CImg<tfloat>(guide,cimg::type<t>::string()==cimg::type<tfloat>::string()):
                         CImg<tfloat>(*this,cimg::type<T>::string()==cimg::type<tfloat>::string()),
         _guide = smoothness>0?__guide.get_blur(smoothness):__guide.get_shared();
-      CImg<tfloat> P(patch_size*patch_size*_spectrum), Q(P);
+      CImg<tfloat> P(_guide._spectrum*patch_size*patch_size*(_depth>1?patch_size:1)), Q(P);
       const float
         nsigma_s = sigma_s>=0?sigma_s:-sigma_s*cimg::max(_width,_height,_depth)/100,
         sigma_s2 = nsigma_s*nsigma_s, sigma_p2 = sigma_p*sigma_p, sigma_p3 = 3*sigma_p,

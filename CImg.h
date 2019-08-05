@@ -11960,7 +11960,7 @@ namespace cimg_library_suffixed {
     template<typename t>
     CImg(const t *const values, const unsigned int size_x, const unsigned int size_y,
          const unsigned int size_z, const unsigned int size_c,
-         const char *const axes_order):_width(0),_height(0),_depth(0),_data(0),_is_shared(false) {
+         const char *const axes_order):_is_shared(false) {
       const size_t siz = (size_t)size_x*size_y*size_z*size_c;
       if (values && siz) {
         unsigned char s_code[4] = { 0,1,2,3 }, n_code[4] = { 0 };
@@ -12008,12 +12008,14 @@ namespace cimg_library_suffixed {
             }
             *(ptr++) = (T)values[off];
           }
-        } else
+        } else {
+          _width = _height = _depth = _spectrum = 0; _data = 0;
           throw CImgArgumentException(_cimg_instance
                                       "CImg(): Invalid specified axes order '%s'.",
                                       cimg_instance,
                                       axes_order);
-      }
+        }
+      } else { _width = _height = _depth = _spectrum = 0; _is_shared = false; _data = 0; }
     }
 
     //! Construct image from reading an image file.

@@ -11971,43 +11971,35 @@ namespace cimg_library_suffixed {
         }
         if (*axes_order && *s_code<4 && *n_code<=1 && n_code[1]<=1 && n_code[2]<=1 && n_code[3]<=1) {
           const unsigned int code = (s_code[0]<<12) | (s_code[1]<<8) | (s_code[2]<<4) | (s_code[3]);
-          const ulongT
-            sx = (ulongT)size_x, sy = (ulongT)size_y, sz = (ulongT)size_z, sc = (ulongT)size_c,
-            sxy = sx*sy, sxz = sx*sz, sxc = sx*sc, syz = sy*sz, syc = sy*sc, szc = sz*sc,
-            sxyz = sxy*size_z, sxyc = sxy*size_c, sxzc = sxz*size_c, syzc = syz*size_c,
-            sxyzc = sxyz*size_c;
-          _width = size_x; _height = size_y; _depth = size_z; _spectrum = size_c;
-          T *ptr = _data = new T[siz];
-          ulongT off;
-          cimg_forXYZC(*this,x,y,z,c) {
-            switch (code) {
-            case 0x0123 : off = x + y*sx + z*sxy + c*sxyz; break; // xyzc
-            case 0x0132 : off = x + y*sx + c*sxy + z*sxyc; break; // xycz
-            case 0x0213 : off = x + z*sx + y*sxz + c*sxyz; break; // xzyc
-            case 0x0231 : off = x + z*sx + c*sxz + y*sxzc; break; // xzcy
-            case 0x0312 : off = x + c*sx + y*sxc + z*sxyc; break; // xcyz
-            case 0x0321 : off = x + c*sx + z*sxc + y*sxzc; break; // xczy
-            case 0x1023 : off = y + x*sy + z*sxy + c*sxyz; break; // yxzc
-            case 0x1032 : off = y + x*sy + c*sxy + z*sxyc; break; // yxcz
-            case 0x1203 : off = y + z*sy + x*syz + c*sxyz; break; // yzxc
-            case 0x1230 : off = y + z*sy + c*syz + x*syzc; break; // yzcx
-            case 0x1302 : off = y + c*sy + x*syc + z*sxyc; break; // ycxz
-            case 0x1320 : off = y + c*sy + z*syc + x*syzc; break; // yczx
-            case 0x2013 : off = z + x*sz + y*sxz + c*sxyz; break; // zxyc
-            case 0x2031 : off = z + x*sz + c*sxz + y*sxzc; break; // zxcy
-            case 0x2103 : off = z + y*sz + x*syz + c*sxyz; break; // zyxc
-            case 0x2130 : off = z + y*sz + c*syz + x*syzc; break; // zycx
-            case 0x2301 : off = z + c*sz + x*szc + y*sxzc; break; // zcxy
-            case 0x2310 : off = z + c*sz + y*szc + x*syzc; break; // zcyx
-            case 0x3012 : off = c + x*sc + y*sxc + z*sxyc; break; // cxyz
-            case 0x3021 : off = c + x*sc + z*sxc + y*sxzc; break; // cxzy
-            case 0x3102 : off = c + y*sc + x*syc + z*sxyc; break; // cyxz
-            case 0x3120 : off = c + y*sc + z*syc + c*syzc; break; // cyzx
-            case 0x3201 : off = c + z*sc + c*szc + y*sxzc; break; // czxy
-            case 0x3210 : off = c + z*sc + y*szc + x*syzc; break; // czyx
-            }
-            *(ptr++) = (T)values[off];
+          int s0 = 0, s1 = 0, s2 = 0, s3 = 0;
+          const char *order = 0;
+          switch (code) {
+            case 0x0123 : order = "xyzc"; s0 = size_x; s1 = size_y; s2 = size_z; s3 = size_c; break; // xyzc
+            case 0x0132 : order = "xyzc"; s0 = size_x; s1 = size_y; s2 = size_c; s3 = size_z; break; // xycz
+            case 0x0213 : order = "xzyc"; s0 = size_x; s1 = size_z; s2 = size_y; s3 = size_c; break; // xzyc
+            case 0x0231 : order = "xcyz"; s0 = size_x; s1 = size_z; s2 = size_c; s3 = size_y; break; // xzcy
+            case 0x0312 : order = "xzcy"; s0 = size_x; s1 = size_c; s2 = size_y; s3 = size_z; break; // xcyz
+            case 0x0321 : order = "xczy"; s0 = size_x; s1 = size_c; s2 = size_z; s3 = size_y; break; // xczy
+            case 0x1023 : order = "yxzc"; s0 = size_y; s1 = size_x; s2 = size_z; s3 = size_c; break; // yxzc
+            case 0x1032 : order = "yxcz"; s0 = size_y; s1 = size_x; s2 = size_c; s3 = size_z; break; // yxcz
+            case 0x1203 : order = "zxyc"; s0 = size_y; s1 = size_z; s2 = size_x; s3 = size_c; break; // yzxc
+            case 0x1230 : order = "cxyz"; s0 = size_y; s1 = size_z; s2 = size_c; s3 = size_x; break; // yzcx
+            case 0x1302 : order = "zxcy"; s0 = size_y; s1 = size_c; s2 = size_x; s3 = size_z; break; // ycxz
+            case 0x1320 : order = "cxzy"; s0 = size_y; s1 = size_c; s2 = size_z; s3 = size_x; break; // yczx
+            case 0x2013 : order = "yzxc"; s0 = size_z; s1 = size_x; s2 = size_y; s3 = size_c; break; // zxyc
+            case 0x2031 : order = "ycxz"; s0 = size_z; s1 = size_x; s2 = size_c; s3 = size_y; break; // zxcy
+            case 0x2103 : order = "zyxc"; s0 = size_z; s1 = size_y; s2 = size_x; s3 = size_c; break; // zyxc
+            case 0x2130 : order = "cyxz"; s0 = size_z; s1 = size_y; s2 = size_c; s3 = size_x; break; // zycx
+            case 0x2301 : order = "zcxy"; s0 = size_z; s1 = size_c; s2 = size_x; s3 = size_y; break; // zcxy
+            case 0x2310 : order = "czxy"; s0 = size_z; s1 = size_c; s2 = size_y; s3 = size_x; break; // zcyx
+            case 0x3012 : order = "yzcx"; s0 = size_c; s1 = size_x; s2 = size_y; s3 = size_z; break; // cxyz
+            case 0x3021 : order = "yczx"; s0 = size_c; s1 = size_x; s2 = size_z; s3 = size_y; break; // cxzy
+            case 0x3102 : order = "zycx"; s0 = size_c; s1 = size_y; s2 = size_x; s3 = size_z; break; // cyxz
+            case 0x3120 : order = "cyzx"; s0 = size_c; s1 = size_y; s2 = size_z; s3 = size_x; break; // cyzx
+            case 0x3201 : order = "zcyx"; s0 = size_c; s1 = size_z; s2 = size_x; s3 = size_y; break; // czxy
+            case 0x3210 : order = "czyx"; s0 = size_c; s1 = size_z; s2 = size_y; s3 = size_x; break; // czyx
           }
+          CImg<t>(values,s0,s1,s2,s3,true).get_permute_axes(axes_order).move_to(*this);
         } else {
           _width = _height = _depth = _spectrum = 0; _data = 0;
           throw CImgArgumentException(_cimg_instance

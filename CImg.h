@@ -718,6 +718,55 @@ extern "C" {
                       I##pcn = I##ccn = I##ncn = \
                       I##pnn = I##cnn = I##nnn = 0
 
+#define cimg_def2x2(img,x,y) \
+  int _n1##x = x<img.width() - 1?x + 1:img.width() - 1, \
+      _n1##y = y<img.height() - 1?y + 1:img.height() - 1
+
+#define cimg_def3x3(img,x,y) \
+  cimg_def2x2(img,x,y); \
+  int _p1##x = x>1?x - 1:0, \
+      _p1##y = y>1?y - 1:0
+
+#define cimg_def4x4(img,x,y) \
+  cimg_def3x3(img,x,y); \
+  int _n2##x = x<img.width() - 2?x + 2:img.width() - 1, \
+      _n2##y = y<img.height() - 2?y + 2:img.height() - 1
+
+#define cimg_def5x5(img,x,y) \
+  cimg_def4x4(img,x,y); \
+  int _p2##x = x>2?x - 2:0, \
+      _p2##y = y>2?y - 2:0
+
+#define cimg_def6x6(img,x,y) \
+  cimg_def5x5(img,x,y); \
+  int _n3##x = x<img.width() - 3?x + 3:img.width() - 1, \
+      _n3##y = y<img.height() - 3?y + 3:img.height() - 1
+
+#define cimg_def7x7(img,x,y) \
+  cimg_def6x6(img,x,y); \
+  int _p3##x = x>3?x - 3:0, \
+      _p3##y = y>3?y - 3:0
+
+#define cimg_def8x8(img,x,y) \
+  cimg_def7x7(img,x,y); \
+  int _n4##x = x<img.width() - 4?x + 4:img.width() - 1, \
+      _n4##y = y<img.height() - 4?y + 4:img.height() - 1
+
+#define cimg_def9x9(img,x,y) \
+  cimg_def8x8(img,x,y); \
+  int _p4##x = x>4?x - 4:0, \
+      _p4##y = y>4?y - 4:0
+
+#define cimg_def2x2x2(img,x,y,z) \
+  cimg_def2x2(img,x,y); \
+  int _n1##z = z<img.depth() - 1?z + 1:img.depth() - 1
+
+#define cimg_def3x3x3(img,x,y,z) \
+  cimg_def2x2x2(img,x,y,z); \
+  int _p1##x = x>1?x - 1:0, \
+      _p1##y = y>1?y - 1:0, \
+      _p1##z = z>1?z - 1:0
+
 #define cimg_get2x2(img,x,y,z,c,I,T) \
   I[0] = (T)(img)(x,y,z,c), I[1] = (T)(img)(_n1##x,y,z,c), I[2] = (T)(img)(x,_n1##y,z,c), \
   I[3] = (T)(img)(_n1##x,_n1##y,z,c)
@@ -37885,7 +37934,11 @@ namespace cimg_library_suffixed {
                                 const bool is_fast_approx=true) const {
 
 #define _cimg_blur_patch3d_fast(N) \
-      cimg_for##N##XYZ(res,x,y,z) { \
+      cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) \
+                         cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*32 && res._height*res._depth>=4) \
+                         firstprivate(P,Q)) \
+      cimg_forXYZ(res,x,y,z) { \
+        cimg_def##N##x##N##x##N(res,x,y,z); \
         tfloat *pP = P._data; cimg_forC(_guide,c) { cimg_get##N##x##N##x##N(_guide,x,y,z,c,pP,tfloat); pP+=N3; } \
         const int x0 = x - rsize1, y0 = y - rsize1, z0 = z - rsize1, \
                   x1 = x + rsize2, y1 = y + rsize2, z1 = z + rsize2; \
@@ -37906,7 +37959,11 @@ namespace cimg_library_suffixed {
     }
 
 #define _cimg_blur_patch3d(N) \
-      cimg_for##N##XYZ(res,x,y,z) { \
+      cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) \
+                         cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*32 && res._height*res._depth>=4) \
+                         firstprivate(P,Q)) \
+      cimg_forXYZ(res,x,y,z) { \
+        cimg_def##N##x##N##x##N(res,x,y,z); \
         tfloat *pP = P._data; cimg_forC(_guide,c) { cimg_get##N##x##N##x##N(_guide,x,y,z,c,pP,tfloat); pP+=N3; } \
         const int x0 = x - rsize1, y0 = y - rsize1, z0 = z - rsize1, \
                   x1 = x + rsize2, y1 = y + rsize2, z1 = z + rsize2; \
@@ -37928,7 +37985,10 @@ namespace cimg_library_suffixed {
       }
 
 #define _cimg_blur_patch2d_fast(N) \
-        cimg_for##N##XY(res,x,y) { \
+        cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*32 && res._height>=4) \
+                           firstprivate(P,Q)) \
+        cimg_forXY(res,x,y) { \
+          cimg_def##N##x##N(res,x,y); \
           tfloat *pP = P._data; cimg_forC(_guide,c) { cimg_get##N##x##N(_guide,x,y,0,c,pP,tfloat); pP+=N2; } \
           const int x0 = x - rsize1, y0 = y - rsize1, x1 = x + rsize2, y1 = y + rsize2; \
           tfloat sum_weights = 0; \
@@ -37948,7 +38008,10 @@ namespace cimg_library_suffixed {
         }
 
 #define _cimg_blur_patch2d(N) \
-        cimg_for##N##XY(res,x,y) { \
+        cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*32 && res._height>=4) \
+                           firstprivate(P,Q)) \
+        cimg_forXY(res,x,y) { \
+          cimg_def##N##x##N(res,x,y); \
           tfloat *pP = P._data; cimg_forC(_guide,c) { cimg_get##N##x##N(_guide,x,y,0,c,pP,tfloat); pP+=N2; } \
           const int x0 = x - rsize1, y0 = y - rsize1, x1 = x + rsize2, y1 = y + rsize2; \
           tfloat sum_weights = 0, weight_max = 0; \
@@ -37996,7 +38059,7 @@ namespace cimg_library_suffixed {
           if (is_fast_approx)
             cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
                                cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*32 && res._height*res._depth>=4)
-                               private(P,Q))
+                               firstprivate(P,Q))
             cimg_forXYZ(res,x,y,z) { // Fast
               P = _guide.get_crop(x - psize1,y - psize1,z - psize1,x + psize2,y + psize2,z + psize2,true);
               const int x0 = x - rsize1, y0 = y - rsize1, z0 = z - rsize1,
@@ -38016,7 +38079,8 @@ namespace cimg_library_suffixed {
               else cimg_forC(res,c) res(x,y,z,c) = (Tfloat)((*this)(x,y,z,c));
             } else
             cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
-                               if (res._width>=32 && res._height*res._depth>=4) firstprivate(P,Q))
+                               cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*32 && res._height*res._depth>=4)
+                               firstprivate(P,Q))
             cimg_forXYZ(res,x,y,z) { // Exact
               P = _guide.get_crop(x - psize1,y - psize1,z - psize1,x + psize2,y + psize2,z + psize2,true);
               const int x0 = x - rsize1, y0 = y - rsize1, z0 = z - rsize1,

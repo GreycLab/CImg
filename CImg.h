@@ -37564,7 +37564,7 @@ namespace cimg_library_suffixed {
         _sigma_x = sigma_x>=0?sigma_x:-sigma_x*_width/100,
         _sigma_y = sigma_y>=0?sigma_y:-sigma_y*_height/100,
         _sigma_z = sigma_z>=0?sigma_z:-sigma_z*_depth/100,
-        _sigma_r = sigma_r>=0?sigma_r:-sigma_r*(edge_max - edge_min)/100,
+        _sigma_r = sigma_r>=0?sigma_r:-sigma_r*edge_delta/100,
         _sampling_x = sampling_x?sampling_x:std::max(_sigma_x,1.f),
         _sampling_y = sampling_y?sampling_y:std::max(_sigma_y,1.f),
         _sampling_z = sampling_z?sampling_z:std::max(_sigma_z,1.f),
@@ -37912,7 +37912,7 @@ namespace cimg_library_suffixed {
     /**
        \param guide Image used to model the smoothing weights.
        \param sigma_s Amount of blur along the XYZ-axes.
-       \param sigma_p Amount of blur along the value axis.
+       \param sigma_r Amount of blur along the value axis.
        \param patch_size Size of the patches.
        \param lookup_size Size of the window to search similar patches.
        \param smoothness Smoothness for the patch comparison.
@@ -37920,16 +37920,16 @@ namespace cimg_library_suffixed {
     **/
     template<typename t>
     CImg<T>& blur_patch(const CImg<t>& guide,
-                        const float sigma_s, const float sigma_p, const unsigned int patch_size=3,
+                        const float sigma_s, const float sigma_r, const unsigned int patch_size=3,
                         const unsigned int lookup_size=4, const float smoothness=0, const bool is_fast_approx=true) {
       if (is_empty() || !patch_size || !lookup_size) return *this;
-      return get_blur_patch(guide,sigma_s,sigma_p,patch_size,lookup_size,smoothness,is_fast_approx).move_to(*this);
+      return get_blur_patch(guide,sigma_s,sigma_r,patch_size,lookup_size,smoothness,is_fast_approx).move_to(*this);
     }
 
     //! Blur image using patch-based space \newinstance.
     template<typename t>
     CImg<Tfloat> get_blur_patch(const CImg<t>& guide,
-                                const float sigma_s, const float sigma_p, const unsigned int patch_size=3,
+                                const float sigma_s, const float sigma_r, const unsigned int patch_size=3,
                                 const unsigned int lookup_size=4, const float smoothness=0,
                                 const bool is_fast_approx=true) const {
 
@@ -37944,7 +37944,7 @@ namespace cimg_library_suffixed {
                   x1 = x + rsize2, y1 = y + rsize2, z1 = z + rsize2; \
         tfloat sum_weights = 0; \
         cimg_for_in##N##XYZ(res,x0,y0,z0,x1,y1,z1,p,q,r) \
-          if (cimg::abs(_guide(x,y,z,0) - _guide(p,q,r,0))<sigma_p3) { \
+          if (cimg::abs(_guide(x,y,z,0) - _guide(p,q,r,0))<sigma_r3) { \
             tfloat *pQ = Q._data; cimg_forC(_guide,c) { cimg_get##N##x##N##x##N(_guide,p,q,r,c,pQ,tfloat); pQ+=N3; } \
             tfloat distance2 = 0; \
             pQ = Q._data; cimg_for(P,_pP,tfloat) { const tfloat dI = *_pP - *(pQ++); distance2+=dI*dI; } \
@@ -37993,7 +37993,7 @@ namespace cimg_library_suffixed {
           const int x0 = x - rsize1, y0 = y - rsize1, x1 = x + rsize2, y1 = y + rsize2; \
           tfloat sum_weights = 0; \
           cimg_for_in##N##XY(res,x0,y0,x1,y1,p,q) \
-            if (cimg::abs(_guide(x,y,0,0) - _guide(p,q,0,0))<sigma_p3) { \
+            if (cimg::abs(_guide(x,y,0,0) - _guide(p,q,0,0))<sigma_r3) { \
               tfloat *pQ = Q._data; cimg_forC(_guide,c) { cimg_get##N##x##N(_guide,p,q,0,c,pQ,tfloat); pQ+=N2; } \
               tfloat distance2 = 0; \
               pQ = Q._data; cimg_for(P,_pP,tfloat) { const tfloat dI = *_pP - *(pQ++); distance2+=dI*dI; } \
@@ -38044,10 +38044,17 @@ namespace cimg_library_suffixed {
                         CImg<tfloat>(*this,cimg::type<T>::string()==cimg::type<tfloat>::string()),
         _guide = smoothness>0?__guide.get_blur(smoothness):__guide.get_shared();
       CImg<tfloat> P(_guide._spectrum*patch_size*patch_size*(_depth>1?patch_size:1)), Q(P);
+
+      t guide_min = (t)0, guide_max = (t)0;
+      if (sigma_r<0) guide_max = guide.max_min(guide_min);
       const float
-        nsigma_s = sigma_s>=0?sigma_s:-sigma_s*cimg::max(_width,_height,_depth)/100,
-        sigma_s2 = nsigma_s*nsigma_s, sigma_p2 = sigma_p*sigma_p, sigma_p3 = 3*sigma_p,
-        Pnorm = P.size()*sigma_p2;
+        guide_delta = (float)(guide_max - guide_min),
+        _sigma_s = sigma_s>=0?sigma_s:-sigma_s*cimg::max(_width,_height,_depth)/100,
+        _sigma_r = sigma_r>=0?sigma_r:-sigma_r*guide_delta/100,
+        sigma_s2 = _sigma_s*_sigma_s,
+        sigma_r2 = _sigma_r*_sigma_r,
+        sigma_r3 = 3*_sigma_r,
+        Pnorm = P.size()*sigma_r2;
       const int rsize2 = (int)lookup_size/2, rsize1 = (int)lookup_size - rsize2 - 1;
       const unsigned int N2 = patch_size*patch_size, N3 = N2*patch_size;
       cimg::unused(N2,N3);
@@ -38066,7 +38073,7 @@ namespace cimg_library_suffixed {
                 x1 = x + rsize2, y1 = y + rsize2, z1 = z + rsize2;
               tfloat sum_weights = 0;
               cimg_for_inXYZ(res,x0,y0,z0,x1,y1,z1,p,q,r)
-                if (cimg::abs(_guide(x,y,z,0) - _guide(p,q,r,0))<sigma_p3) {
+                if (cimg::abs(_guide(x,y,z,0) - _guide(p,q,r,0))<sigma_r3) {
                   (Q = _guide.get_crop(p - psize1,q - psize1,r - psize1,p + psize2,q + psize2,r + psize2,true))-=P;
                   const tfloat
                     dx = (tfloat)x - p, dy = (tfloat)y - q, dz = (tfloat)z - r,
@@ -38120,7 +38127,7 @@ namespace cimg_library_suffixed {
               const int x0 = x - rsize1, y0 = y - rsize1, x1 = x + rsize2, y1 = y + rsize2;
               tfloat sum_weights = 0;
               cimg_for_inXY(res,x0,y0,x1,y1,p,q)
-                if (cimg::abs(_guide(x,y,0) - _guide(p,q,0))<sigma_p3) {
+                if (cimg::abs(_guide(x,y,0) - _guide(p,q,0))<sigma_r3) {
                   (Q = _guide.get_crop(p - psize1,q - psize1,p + psize2,q + psize2,true))-=P;
                   const tfloat
                     dx = (tfloat)x - p, dy = (tfloat)y - q,
@@ -38158,16 +38165,16 @@ namespace cimg_library_suffixed {
     }
 
     //! Blur image using patch-based space \simplification.
-    CImg<T>& blur_patch(const float sigma_s, const float sigma_p, const unsigned int patch_size=3,
+    CImg<T>& blur_patch(const float sigma_s, const float sigma_r, const unsigned int patch_size=3,
                         const unsigned int lookup_size=4, const float smoothness=0, const bool is_fast_approx=true) {
-      return blur_patch(*this,sigma_s,sigma_p,patch_size,lookup_size,smoothness,is_fast_approx);
+      return blur_patch(*this,sigma_s,sigma_r,patch_size,lookup_size,smoothness,is_fast_approx);
     }
 
     //! Blur image using patch-based space \simplification \newinstance.
-    CImg<Tfloat> get_blur_patch(const float sigma_s, const float sigma_p, const unsigned int patch_size=3,
+    CImg<Tfloat> get_blur_patch(const float sigma_s, const float sigma_r, const unsigned int patch_size=3,
                                 const unsigned int lookup_size=4, const float smoothness=0,
                                 const bool is_fast_approx=true) const {
-      return get_blur_patch(*this,sigma_s,sigma_p,patch_size,lookup_size,smoothness,is_fast_approx);
+      return get_blur_patch(*this,sigma_s,sigma_r,patch_size,lookup_size,smoothness,is_fast_approx);
     }
 
     //! Blur image with the median filter.

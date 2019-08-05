@@ -11972,34 +11972,34 @@ namespace cimg_library_suffixed {
         if (*axes_order && *s_code<4 && *n_code<=1 && n_code[1]<=1 && n_code[2]<=1 && n_code[3]<=1) {
           const unsigned int code = (s_code[0]<<12) | (s_code[1]<<8) | (s_code[2]<<4) | (s_code[3]);
           int s0 = 0, s1 = 0, s2 = 0, s3 = 0;
-          const char *order = 0;
+          const char *inv_order = 0;
           switch (code) {
-            case 0x0123 : order = "xyzc"; s0 = size_x; s1 = size_y; s2 = size_z; s3 = size_c; break; // xyzc
-            case 0x0132 : order = "xyzc"; s0 = size_x; s1 = size_y; s2 = size_c; s3 = size_z; break; // xycz
-            case 0x0213 : order = "xzyc"; s0 = size_x; s1 = size_z; s2 = size_y; s3 = size_c; break; // xzyc
-            case 0x0231 : order = "xcyz"; s0 = size_x; s1 = size_z; s2 = size_c; s3 = size_y; break; // xzcy
-            case 0x0312 : order = "xzcy"; s0 = size_x; s1 = size_c; s2 = size_y; s3 = size_z; break; // xcyz
-            case 0x0321 : order = "xczy"; s0 = size_x; s1 = size_c; s2 = size_z; s3 = size_y; break; // xczy
-            case 0x1023 : order = "yxzc"; s0 = size_y; s1 = size_x; s2 = size_z; s3 = size_c; break; // yxzc
-            case 0x1032 : order = "yxcz"; s0 = size_y; s1 = size_x; s2 = size_c; s3 = size_z; break; // yxcz
-            case 0x1203 : order = "zxyc"; s0 = size_y; s1 = size_z; s2 = size_x; s3 = size_c; break; // yzxc
-            case 0x1230 : order = "cxyz"; s0 = size_y; s1 = size_z; s2 = size_c; s3 = size_x; break; // yzcx
-            case 0x1302 : order = "zxcy"; s0 = size_y; s1 = size_c; s2 = size_x; s3 = size_z; break; // ycxz
-            case 0x1320 : order = "cxzy"; s0 = size_y; s1 = size_c; s2 = size_z; s3 = size_x; break; // yczx
-            case 0x2013 : order = "yzxc"; s0 = size_z; s1 = size_x; s2 = size_y; s3 = size_c; break; // zxyc
-            case 0x2031 : order = "ycxz"; s0 = size_z; s1 = size_x; s2 = size_c; s3 = size_y; break; // zxcy
-            case 0x2103 : order = "zyxc"; s0 = size_z; s1 = size_y; s2 = size_x; s3 = size_c; break; // zyxc
-            case 0x2130 : order = "cyxz"; s0 = size_z; s1 = size_y; s2 = size_c; s3 = size_x; break; // zycx
-            case 0x2301 : order = "zcxy"; s0 = size_z; s1 = size_c; s2 = size_x; s3 = size_y; break; // zcxy
-            case 0x2310 : order = "czxy"; s0 = size_z; s1 = size_c; s2 = size_y; s3 = size_x; break; // zcyx
-            case 0x3012 : order = "yzcx"; s0 = size_c; s1 = size_x; s2 = size_y; s3 = size_z; break; // cxyz
-            case 0x3021 : order = "yczx"; s0 = size_c; s1 = size_x; s2 = size_z; s3 = size_y; break; // cxzy
-            case 0x3102 : order = "zycx"; s0 = size_c; s1 = size_y; s2 = size_x; s3 = size_z; break; // cyxz
-            case 0x3120 : order = "cyzx"; s0 = size_c; s1 = size_y; s2 = size_z; s3 = size_x; break; // cyzx
-            case 0x3201 : order = "zcyx"; s0 = size_c; s1 = size_z; s2 = size_x; s3 = size_y; break; // czxy
-            case 0x3210 : order = "czyx"; s0 = size_c; s1 = size_z; s2 = size_y; s3 = size_x; break; // czyx
+            case 0x0123 : inv_order = "xyzc"; s0 = size_x; s1 = size_y; s2 = size_z; s3 = size_c; break; // xyzc
+            case 0x0132 : inv_order = "xyzc"; s0 = size_x; s1 = size_y; s2 = size_c; s3 = size_z; break; // xycz
+            case 0x0213 : inv_order = "xzyc"; s0 = size_x; s1 = size_z; s2 = size_y; s3 = size_c; break; // xzyc
+            case 0x0231 : inv_order = "xcyz"; s0 = size_x; s1 = size_z; s2 = size_c; s3 = size_y; break; // xzcy
+            case 0x0312 : inv_order = "xzcy"; s0 = size_x; s1 = size_c; s2 = size_y; s3 = size_z; break; // xcyz
+            case 0x0321 : inv_order = "xczy"; s0 = size_x; s1 = size_c; s2 = size_z; s3 = size_y; break; // xczy
+            case 0x1023 : inv_order = "yxzc"; s0 = size_y; s1 = size_x; s2 = size_z; s3 = size_c; break; // yxzc
+            case 0x1032 : inv_order = "yxcz"; s0 = size_y; s1 = size_x; s2 = size_c; s3 = size_z; break; // yxcz
+            case 0x1203 : inv_order = "zxyc"; s0 = size_y; s1 = size_z; s2 = size_x; s3 = size_c; break; // yzxc
+            case 0x1230 : inv_order = "cxyz"; s0 = size_y; s1 = size_z; s2 = size_c; s3 = size_x; break; // yzcx
+            case 0x1302 : inv_order = "zxcy"; s0 = size_y; s1 = size_c; s2 = size_x; s3 = size_z; break; // ycxz
+            case 0x1320 : inv_order = "cxzy"; s0 = size_y; s1 = size_c; s2 = size_z; s3 = size_x; break; // yczx
+            case 0x2013 : inv_order = "yzxc"; s0 = size_z; s1 = size_x; s2 = size_y; s3 = size_c; break; // zxyc
+            case 0x2031 : inv_order = "ycxz"; s0 = size_z; s1 = size_x; s2 = size_c; s3 = size_y; break; // zxcy
+            case 0x2103 : inv_order = "zyxc"; s0 = size_z; s1 = size_y; s2 = size_x; s3 = size_c; break; // zyxc
+            case 0x2130 : inv_order = "cyxz"; s0 = size_z; s1 = size_y; s2 = size_c; s3 = size_x; break; // zycx
+            case 0x2301 : inv_order = "zcxy"; s0 = size_z; s1 = size_c; s2 = size_x; s3 = size_y; break; // zcxy
+            case 0x2310 : inv_order = "czxy"; s0 = size_z; s1 = size_c; s2 = size_y; s3 = size_x; break; // zcyx
+            case 0x3012 : inv_order = "yzcx"; s0 = size_c; s1 = size_x; s2 = size_y; s3 = size_z; break; // cxyz
+            case 0x3021 : inv_order = "yczx"; s0 = size_c; s1 = size_x; s2 = size_z; s3 = size_y; break; // cxzy
+            case 0x3102 : inv_order = "zycx"; s0 = size_c; s1 = size_y; s2 = size_x; s3 = size_z; break; // cyxz
+            case 0x3120 : inv_order = "cyzx"; s0 = size_c; s1 = size_y; s2 = size_z; s3 = size_x; break; // cyzx
+            case 0x3201 : inv_order = "zcyx"; s0 = size_c; s1 = size_z; s2 = size_x; s3 = size_y; break; // czxy
+            case 0x3210 : inv_order = "czyx"; s0 = size_c; s1 = size_z; s2 = size_y; s3 = size_x; break; // czyx
           }
-          CImg<t>(values,s0,s1,s2,s3,true).get_permute_axes(axes_order).move_to(*this);
+          CImg<t>(values,s0,s1,s2,s3,true).get_permute_axes(inv_order).move_to(*this);
         } else {
           _width = _height = _depth = _spectrum = 0; _data = 0;
           throw CImgArgumentException(_cimg_instance

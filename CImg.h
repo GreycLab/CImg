@@ -11956,6 +11956,66 @@ namespace cimg_library_suffixed {
       } else { _width = _height = _depth = _spectrum = 0; _is_shared = false; _data = 0; }
     }
 
+    //! Construct image from memory buffer with specified size and pixel ordering scheme.
+    template<typename t>
+    CImg(const t *const values, const unsigned int size_x, const unsigned int size_y,
+         const unsigned int size_z, const unsigned int size_c,
+         const char *const axes_order):_width(0),_height(0),_depth(0),_data(0),_is_shared(false) {
+      const size_t siz = (size_t)size_x*size_y*size_z*size_c;
+      if (values && siz) {
+        unsigned char s_code[4] = { 0,1,2,3 }, n_code[4] = { 0 };
+        for (unsigned int l = 0; axes_order[l]; ++l) {
+          int c = cimg::lowercase(axes_order[l]);
+          if (l>=4 || (c!='x' && c!='y' && c!='z' && c!='c')) { *s_code = 4; break; }
+          else { ++n_code[c%=4]; s_code[l] = c; }
+        }
+        if (*axes_order && *s_code<4 && *n_code<=1 && n_code[1]<=1 && n_code[2]<=1 && n_code[3]<=1) {
+          const unsigned int code = (s_code[0]<<12) | (s_code[1]<<8) | (s_code[2]<<4) | (s_code[3]);
+          const ulongT
+            sx = (ulongT)size_x, sy = (ulongT)size_y, sz = (ulongT)size_z, sc = (ulongT)size_c,
+            sxy = sx*sy, sxz = sx*sz, sxc = sx*sc, syz = sy*sz, syc = sy*sc, szc = sz*sc,
+            sxyz = sxy*size_z, sxyc = sxy*size_c, sxzc = sxz*size_c, syzc = syz*size_c,
+            sxyzc = sxyz*size_c;
+          _width = size_x; _height = size_y; _depth = size_z; _spectrum = size_c;
+          T *ptr = _data = new T[siz];
+          ulongT off;
+          cimg_forXYZC(*this,x,y,z,c) {
+            switch (code) {
+            case 0x0123 : off = x + y*sx + z*sxy + c*sxyz; break; // xyzc
+            case 0x0132 : off = x + y*sx + c*sxy + z*sxyc; break; // xycz
+            case 0x0213 : off = x + z*sx + y*sxz + c*sxyz; break; // xzyc
+            case 0x0231 : off = x + z*sx + c*sxz + y*sxzc; break; // xzcy
+            case 0x0312 : off = x + c*sx + y*sxc + z*sxyc; break; // xcyz
+            case 0x0321 : off = x + c*sx + z*sxc + y*sxzc; break; // xczy
+            case 0x1023 : off = y + x*sy + z*sxy + c*sxyz; break; // yxzc
+            case 0x1032 : off = y + x*sy + c*sxy + z*sxyc; break; // yxcz
+            case 0x1203 : off = y + z*sy + x*syz + c*sxyz; break; // yzxc
+            case 0x1230 : off = y + z*sy + c*syz + x*syzc; break; // yzcx
+            case 0x1302 : off = y + c*sy + x*syc + z*sxyc; break; // ycxz
+            case 0x1320 : off = y + c*sy + z*syc + x*syzc; break; // yczx
+            case 0x2013 : off = z + x*sz + y*sxz + c*sxyz; break; // zxyc
+            case 0x2031 : off = z + x*sz + c*sxz + y*sxzc; break; // zxcy
+            case 0x2103 : off = z + y*sz + x*syz + c*sxyz; break; // zyxc
+            case 0x2130 : off = z + y*sz + c*syz + x*syzc; break; // zycx
+            case 0x2301 : off = z + c*sz + x*szc + y*sxzc; break; // zcxy
+            case 0x2310 : off = z + c*sz + y*szc + x*syzc; break; // zcyx
+            case 0x3012 : off = c + x*sc + y*sxc + z*sxyc; break; // cxyz
+            case 0x3021 : off = c + x*sc + z*sxc + y*sxzc; break; // cxzy
+            case 0x3102 : off = c + y*sc + x*syc + z*sxyc; break; // cyxz
+            case 0x3120 : off = c + y*sc + z*syc + c*syzc; break; // cyzx
+            case 0x3201 : off = c + z*sc + c*szc + y*sxzc; break; // czxy
+            case 0x3210 : off = c + z*sc + y*szc + x*syzc; break; // czyx
+            }
+            *(ptr++) = (T)values[off];
+          }
+        } else
+          throw CImgArgumentException(_cimg_instance
+                                      "CImg(): Invalid specified axes order '%s'.",
+                                      cimg_instance,
+                                      axes_order);
+      }
+    }
+
     //! Construct image from reading an image file.
     /**
        Construct a new image instance with pixels of type \c T, and initialize pixel values with the data read from
@@ -32693,31 +32753,31 @@ namespace cimg_library_suffixed {
 
     //! Permute axes order.
     /**
-       \param order Axes permutations, as a C-string of 4 characters.
+       \param axes_order Axes permutations, as a C-string of 4 characters.
        This function permutes image content regarding the specified axes permutation.
     **/
-    CImg<T>& permute_axes(const char *const order) {
-      return get_permute_axes(order).move_to(*this);
+    CImg<T>& permute_axes(const char *const axes_order) {
+      return get_permute_axes(axes_order).move_to(*this);
     }
 
     //! Permute axes order \newinstance.
-    CImg<T> get_permute_axes(const char *const order) const {
+    CImg<T> get_permute_axes(const char *const axes_order) const {
       const T foo = (T)0;
-      return _permute_axes(order,foo);
+      return _permute_axes(axes_order,foo);
     }
 
     template<typename t>
-    CImg<t> _permute_axes(const char *const order, const t&) const {
-      if (is_empty() || !order) return CImg<t>(*this,false);
+    CImg<t> _permute_axes(const char *const axes_order, const t&) const {
+      if (is_empty() || !axes_order) return CImg<t>(*this,false);
       CImg<t> res;
       const T* ptrs = _data;
       unsigned char s_code[4] = { 0,1,2,3 }, n_code[4] = { 0 };
-      for (unsigned int l = 0; order[l]; ++l) {
-        int c = cimg::lowercase(order[l]);
-        if (c!='x' && c!='y' && c!='z' && c!='c') { *s_code = 4; break; }
+      for (unsigned int l = 0; axes_order[l]; ++l) {
+        int c = cimg::lowercase(axes_order[l]);
+        if (l>=4 || (c!='x' && c!='y' && c!='z' && c!='c')) { *s_code = 4; break; }
         else { ++n_code[c%=4]; s_code[l] = c; }
       }
-      if (*order && *s_code<4 && *n_code<=1 && n_code[1]<=1 && n_code[2]<=1 && n_code[3]<=1) {
+      if (*axes_order && *s_code<4 && *n_code<=1 && n_code[1]<=1 && n_code[2]<=1 && n_code[3]<=1) {
         const unsigned int code = (s_code[0]<<12) | (s_code[1]<<8) | (s_code[2]<<4) | (s_code[3]);
         ulongT wh, whd;
         switch (code) {
@@ -32921,9 +32981,9 @@ namespace cimg_library_suffixed {
       }
       if (!res)
         throw CImgArgumentException(_cimg_instance
-                                    "permute_axes(): Invalid specified permutation '%s'.",
+                                    "permute_axes(): Invalid specified axes order '%s'.",
                                     cimg_instance,
-                                    order);
+                                    axes_order);
       return res;
     }
 

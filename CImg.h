@@ -38017,7 +38017,7 @@ namespace cimg_library_suffixed {
             sum_weights+=weight; \
             cimg_forC(res,c) res(x,y,z,c)+=(Tfloat)weight*(*this)(p,q,r,c); \
           } \
-        if (sum_weights>0) cimg_forC(res,c) res(x,y,z,c)/=(Tfloat)sum_weights; \
+        if (sum_weights>1e-10) cimg_forC(res,c) res(x,y,z,c)/=(Tfloat)sum_weights; \
         else cimg_forC(res,c) res(x,y,z,c) = (Tfloat)((*this)(x,y,z,c)); \
     } _cimg_abort_catch_omp }
 
@@ -38044,7 +38044,7 @@ namespace cimg_library_suffixed {
           cimg_forC(res,c) res(x,y,z,c)+=(Tfloat)weight*(*this)(p,q,r,c); \
         } \
         sum_weights+=weight_max; cimg_forC(res,c) res(x,y,z,c)+=(Tfloat)weight_max*(*this)(x,y,z,c); \
-        if (sum_weights>0) cimg_forC(res,c) res(x,y,z,c)/=(Tfloat)sum_weights; \
+        if (sum_weights>1e-10) cimg_forC(res,c) res(x,y,z,c)/=(Tfloat)sum_weights; \
         else cimg_forC(res,c) res(x,y,z,c) = (Tfloat)((*this)(x,y,z,c)); \
       } _cimg_abort_catch_omp }
 
@@ -38068,7 +38068,7 @@ namespace cimg_library_suffixed {
               sum_weights+=weight; \
               cimg_forC(res,c) res(x,y,c)+=(Tfloat)weight*(*this)(p,q,c); \
             } \
-          if (sum_weights>0) cimg_forC(res,c) res(x,y,c)/=(Tfloat)sum_weights; \
+          if (sum_weights>1e-10) cimg_forC(res,c) res(x,y,c)/=(Tfloat)sum_weights; \
           else cimg_forC(res,c) res(x,y,c) = (Tfloat)((*this)(x,y,c)); \
         } _cimg_abort_catch_omp }
 
@@ -38093,7 +38093,7 @@ namespace cimg_library_suffixed {
             cimg_forC(res,c) res(x,y,c)+=(Tfloat)weight*(*this)(p,q,c); \
           } \
           sum_weights+=weight_max; cimg_forC(res,c) res(x,y,c)+=(Tfloat)weight_max*(*this)(x,y,c); \
-          if (sum_weights>0) cimg_forC(res,c) res(x,y,c)/=(Tfloat)sum_weights; \
+          if (sum_weights>1e-10) cimg_forC(res,c) res(x,y,c)/=(Tfloat)sum_weights; \
           else cimg_forC(res,c) res(x,y,c) = (Tfloat)((*this)(x,y,c)); \
     } _cimg_abort_catch_omp }
 
@@ -38153,7 +38153,7 @@ namespace cimg_library_suffixed {
                   sum_weights+=weight;
                   cimg_forC(res,c) res(x,y,z,c)+=(Tfloat)weight*(*this)(p,q,r,c);
                 }
-              if (sum_weights>0) cimg_forC(res,c) res(x,y,z,c)/=(Tfloat)sum_weights;
+              if (sum_weights>1e-10) cimg_forC(res,c) res(x,y,z,c)/=(Tfloat)sum_weights;
               else cimg_forC(res,c) res(x,y,z,c) = (Tfloat)((*this)(x,y,z,c));
             } _cimg_abort_catch_omp
           } else {
@@ -38177,7 +38177,7 @@ namespace cimg_library_suffixed {
                 cimg_forC(res,c) res(x,y,z,c)+=(Tfloat)weight*(*this)(p,q,r,c);
               }
               sum_weights+=weight_max; cimg_forC(res,c) res(x,y,z,c)+=(Tfloat)weight_max*(*this)(x,y,z,c);
-              if (sum_weights>0) cimg_forC(res,c) res(x,y,z,c)/=(Tfloat)sum_weights;
+              if (sum_weights>1e-10) cimg_forC(res,c) res(x,y,z,c)/=(Tfloat)sum_weights;
               else cimg_forC(res,c) res(x,y,z,c) = (Tfloat)((*this)(x,y,z,c));
             } _cimg_abort_catch_omp
           }
@@ -38211,7 +38211,7 @@ namespace cimg_library_suffixed {
                   sum_weights+=weight;
                   cimg_forC(res,c) res(x,y,c)+=(Tfloat)weight*(*this)(p,q,c);
                 }
-              if (sum_weights>0) cimg_forC(res,c) res(x,y,c)/=(Tfloat)sum_weights;
+              if (sum_weights>1e-10) cimg_forC(res,c) res(x,y,c)/=(Tfloat)sum_weights;
               else cimg_forC(res,c) res(x,y,c) = (Tfloat)((*this)(x,y,c));
             } _cimg_abort_catch_omp
           } else {
@@ -38233,8 +38233,8 @@ namespace cimg_library_suffixed {
                 cimg_forC(res,c) res(x,y,c)+=(Tfloat)weight*(*this)(p,q,c);
               }
               sum_weights+=weight_max; cimg_forC(res,c) res(x,y,c)+=(Tfloat)weight_max*(*this)(x,y,c);
-              if (sum_weights>0) cimg_forC(res,c) res(x,y,c)/=(Tfloat)sum_weights;
-              else cimg_forC(res,c) res(x,y,0,c) = (Tfloat)((*this)(x,y,c));
+              if (sum_weights>1e-10) cimg_forC(res,c) res(x,y,c)/=(Tfloat)sum_weights;
+              else cimg_forC(res,c) res(x,y,c) = (Tfloat)((*this)(x,y,c));
             } _cimg_abort_catch_omp
           }
         }

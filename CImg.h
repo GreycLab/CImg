@@ -38017,8 +38017,7 @@ namespace cimg_library_suffixed {
             sum_weights+=weight; \
             cimg_forC(res,c) res(x,y,z,c)+=(Tfloat)weight*(*this)(p,q,r,c); \
           } \
-        if (sum_weights>0) cimg_forC(res,c) \
-          res(x,y,z,c)=(Tfloat)cimg::cut(res(x,y,z,c)/sum_weights,val_min,val_max); \
+        if (sum_weights>0) cimg_forC(res,c) res(x,y,z,c)/=(Tfloat)sum_weights; \
         else cimg_forC(res,c) res(x,y,z,c) = (Tfloat)((*this)(x,y,z,c)); \
     } _cimg_abort_catch_omp }
 
@@ -38240,7 +38239,7 @@ namespace cimg_library_suffixed {
           }
         }
         }
-      return res;
+      return res.cut(val_min,val_max);
     }
 
     //! Blur image using patch-based space \simplification.

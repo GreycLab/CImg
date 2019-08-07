@@ -37995,11 +37995,12 @@ namespace cimg_library_suffixed {
                                 const unsigned int lookup_size=4, const float smoothness=0,
                                 const bool is_fast_approx=true) const {
 
-#define _cimg_blur_patch3d_fast(N) \
+#define _cimg_blur_patch3d_fast(N) { \
       cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) \
                          cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*32 && res._height*res._depth>=4) \
                          firstprivate(P,Q)) \
-      cimg_forXYZ(res,x,y,z) { \
+      cimg_forXYZ(res,x,y,z) _cimg_abort_try_omp { \
+        cimg_abort_test; \
         cimg_def##N##x##N##x##N(res,x,y,z); \
         tfloat *pP = P._data; cimg_forC(_guide,c) { cimg_get##N##x##N##x##N(_guide,x,y,z,c,pP,tfloat); pP+=N3; } \
         const int x0 = x - rsize1, y0 = y - rsize1, z0 = z - rsize1, \
@@ -38016,15 +38017,17 @@ namespace cimg_library_suffixed {
             sum_weights+=weight; \
             cimg_forC(res,c) res(x,y,z,c)+=(Tfloat)weight*(*this)(p,q,r,c); \
           } \
-        if (sum_weights>0) cimg_forC(res,c) res(x,y,z,c)/=(Tfloat)sum_weights; \
+        if (sum_weights>0) cimg_forC(res,c) \
+          res(x,y,z,c)=(Tfloat)cimg::cut(res(x,y,z,c)/sum_weights,val_min,val_max); \
         else cimg_forC(res,c) res(x,y,z,c) = (Tfloat)((*this)(x,y,z,c)); \
-    }
+    } _cimg_abort_catch_omp }
 
-#define _cimg_blur_patch3d(N) \
+#define _cimg_blur_patch3d(N) { \
       cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) \
                          cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*32 && res._height*res._depth>=4) \
                          firstprivate(P,Q)) \
-      cimg_forXYZ(res,x,y,z) { \
+      cimg_forXYZ(res,x,y,z) _cimg_abort_try_omp { \
+        cimg_abort_test; \
         cimg_def##N##x##N##x##N(res,x,y,z); \
         tfloat *pP = P._data; cimg_forC(_guide,c) { cimg_get##N##x##N##x##N(_guide,x,y,z,c,pP,tfloat); pP+=N3; } \
         const int x0 = x - rsize1, y0 = y - rsize1, z0 = z - rsize1, \
@@ -38044,12 +38047,13 @@ namespace cimg_library_suffixed {
         sum_weights+=weight_max; cimg_forC(res,c) res(x,y,z,c)+=(Tfloat)weight_max*(*this)(x,y,z,c); \
         if (sum_weights>0) cimg_forC(res,c) res(x,y,z,c)/=(Tfloat)sum_weights; \
         else cimg_forC(res,c) res(x,y,z,c) = (Tfloat)((*this)(x,y,z,c)); \
-      }
+      } _cimg_abort_catch_omp }
 
-#define _cimg_blur_patch2d_fast(N) \
+#define _cimg_blur_patch2d_fast(N) { \
         cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*32 && res._height>=4) \
                            firstprivate(P,Q)) \
-        cimg_forXY(res,x,y) { \
+        cimg_forXY(res,x,y) _cimg_abort_try_omp { \
+          cimg_abort_test; \
           cimg_def##N##x##N(res,x,y); \
           tfloat *pP = P._data; cimg_forC(_guide,c) { cimg_get##N##x##N(_guide,x,y,0,c,pP,tfloat); pP+=N2; } \
           const int x0 = x - rsize1, y0 = y - rsize1, x1 = x + rsize2, y1 = y + rsize2; \
@@ -38067,12 +38071,13 @@ namespace cimg_library_suffixed {
             } \
           if (sum_weights>0) cimg_forC(res,c) res(x,y,c)/=(Tfloat)sum_weights; \
           else cimg_forC(res,c) res(x,y,c) = (Tfloat)((*this)(x,y,c)); \
-        }
+        } _cimg_abort_catch_omp }
 
-#define _cimg_blur_patch2d(N) \
+#define _cimg_blur_patch2d(N) { \
         cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*32 && res._height>=4) \
                            firstprivate(P,Q)) \
-        cimg_forXY(res,x,y) { \
+        cimg_forXY(res,x,y) _cimg_abort_try_omp { \
+          cimg_abort_test; \
           cimg_def##N##x##N(res,x,y); \
           tfloat *pP = P._data; cimg_forC(_guide,c) { cimg_get##N##x##N(_guide,x,y,0,c,pP,tfloat); pP+=N2; } \
           const int x0 = x - rsize1, y0 = y - rsize1, x1 = x + rsize2, y1 = y + rsize2; \
@@ -38091,7 +38096,7 @@ namespace cimg_library_suffixed {
           sum_weights+=weight_max; cimg_forC(res,c) res(x,y,c)+=(Tfloat)weight_max*(*this)(x,y,c); \
           if (sum_weights>0) cimg_forC(res,c) res(x,y,c)/=(Tfloat)sum_weights; \
           else cimg_forC(res,c) res(x,y,c) = (Tfloat)((*this)(x,y,c)); \
-    }
+    } _cimg_abort_catch_omp }
 
       typedef _cimg_tfloat tfloat;
       if (!is_sameXYZ(guide))
@@ -38100,6 +38105,10 @@ namespace cimg_library_suffixed {
                                     cimg_instance,
                                     guide._width,guide._height,guide._depth,guide._spectrum,guide._data);
       if (is_empty() || !patch_size || !lookup_size) return +*this;
+      Tfloat val_min, val_max = (Tfloat)max_min(val_min);
+      _cimg_abort_init_omp;
+      cimg_abort_init;
+
       CImg<Tfloat> res(_width,_height,_depth,_spectrum,0);
       const CImg<tfloat>
         __guide = guide?CImg<tfloat>(guide,cimg::type<t>::string()==cimg::type<tfloat>::string()):
@@ -38125,11 +38134,12 @@ namespace cimg_library_suffixed {
         case 3 : if (is_fast_approx) _cimg_blur_patch3d_fast(3) else _cimg_blur_patch3d(3) break;
         default : {
           const int psize2 = (int)patch_size/2, psize1 = (int)patch_size - psize2 - 1;
-          if (is_fast_approx)
+          if (is_fast_approx) {
             cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
                                cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*32 && res._height*res._depth>=4)
                                firstprivate(P,Q))
-            cimg_forXYZ(res,x,y,z) { // Fast
+            cimg_forXYZ(res,x,y,z) _cimg_abort_try_omp { // Fast
+              cimg_abort_test;
               P = _guide.get_crop(x - psize1,y - psize1,z - psize1,x + psize2,y + psize2,z + psize2,true);
               const int x0 = x - rsize1, y0 = y - rsize1, z0 = z - rsize1,
                 x1 = x + rsize2, y1 = y + rsize2, z1 = z + rsize2;
@@ -38146,11 +38156,13 @@ namespace cimg_library_suffixed {
                 }
               if (sum_weights>0) cimg_forC(res,c) res(x,y,z,c)/=(Tfloat)sum_weights;
               else cimg_forC(res,c) res(x,y,z,c) = (Tfloat)((*this)(x,y,z,c));
-            } else
+            } _cimg_abort_catch_omp
+          } else {
             cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
                                cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*32 && res._height*res._depth>=4)
                                firstprivate(P,Q))
-            cimg_forXYZ(res,x,y,z) { // Exact
+            cimg_forXYZ(res,x,y,z) _cimg_abort_try_omp { // Exact
+              cimg_abort_test;
               P = _guide.get_crop(x - psize1,y - psize1,z - psize1,x + psize2,y + psize2,z + psize2,true);
               const int x0 = x - rsize1, y0 = y - rsize1, z0 = z - rsize1,
                         x1 = x + rsize2, y1 = y + rsize2, z1 = z + rsize2;
@@ -38168,7 +38180,8 @@ namespace cimg_library_suffixed {
               sum_weights+=weight_max; cimg_forC(res,c) res(x,y,z,c)+=(Tfloat)weight_max*(*this)(x,y,z,c);
               if (sum_weights>0) cimg_forC(res,c) res(x,y,z,c)/=(Tfloat)sum_weights;
               else cimg_forC(res,c) res(x,y,z,c) = (Tfloat)((*this)(x,y,z,c));
-            }
+            } _cimg_abort_catch_omp
+          }
         }
         } else switch (patch_size) { // 2D
         case 2 : if (is_fast_approx) _cimg_blur_patch2d_fast(2) else _cimg_blur_patch2d(2) break;
@@ -38181,10 +38194,11 @@ namespace cimg_library_suffixed {
         case 9 : if (is_fast_approx) _cimg_blur_patch2d_fast(9) else _cimg_blur_patch2d(9) break;
         default : { // Fast
           const int psize2 = (int)patch_size/2, psize1 = (int)patch_size - psize2 - 1;
-          if (is_fast_approx)
+          if (is_fast_approx) {
             cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*32 && res._height>=4)
                                firstprivate(P,Q))
-            cimg_forXY(res,x,y) { // Fast
+            cimg_forXY(res,x,y) _cimg_abort_try_omp { // Fast
+              cimg_abort_test;
               P = _guide.get_crop(x - psize1,y - psize1,x + psize2,y + psize2,true);
               const int x0 = x - rsize1, y0 = y - rsize1, x1 = x + rsize2, y1 = y + rsize2;
               tfloat sum_weights = 0;
@@ -38200,10 +38214,12 @@ namespace cimg_library_suffixed {
                 }
               if (sum_weights>0) cimg_forC(res,c) res(x,y,c)/=(Tfloat)sum_weights;
               else cimg_forC(res,c) res(x,y,c) = (Tfloat)((*this)(x,y,c));
-            } else
+            } _cimg_abort_catch_omp
+          } else {
             cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*32 && res._height>=4)
                                firstprivate(P,Q))
-            cimg_forXY(res,x,y) { // Exact
+            cimg_forXY(res,x,y) _cimg_abort_try_omp { // Exact
+              cimg_abort_test;
               P = _guide.get_crop(x - psize1,y - psize1,x + psize2,y + psize2,true);
               const int x0 = x - rsize1, y0 = y - rsize1, x1 = x + rsize2, y1 = y + rsize2;
               tfloat sum_weights = 0, weight_max = 0;
@@ -38220,7 +38236,8 @@ namespace cimg_library_suffixed {
               sum_weights+=weight_max; cimg_forC(res,c) res(x,y,c)+=(Tfloat)weight_max*(*this)(x,y,c);
               if (sum_weights>0) cimg_forC(res,c) res(x,y,c)/=(Tfloat)sum_weights;
               else cimg_forC(res,c) res(x,y,0,c) = (Tfloat)((*this)(x,y,c));
-            }
+            } _cimg_abort_catch_omp
+          }
         }
         }
       return res;

@@ -45566,39 +45566,26 @@ namespace cimg_library_suffixed {
       if (is_overlapped(sprite)) return draw_image(x0,y0,z0,c0,+sprite,opacity);
       if (x0==0 && y0==0 && z0==0 && c0==0 && is_sameXYZC(sprite) && opacity>=1 && !is_shared())
         return assign(sprite,false);
-      const bool bx = (x0<0), by = (y0<0), bz = (z0<0), bc = (c0<0);
+      const bool bx = x0<0, by = y0<0, bz = z0<0, bc = c0<0;
       const int
-        lX = sprite.width() - (x0 + sprite.width()>width()?x0 + sprite.width() - width():0) + (bx?x0:0),
-        lY = sprite.height() - (y0 + sprite.height()>height()?y0 + sprite.height() - height():0) + (by?y0:0),
-        lZ = sprite.depth() - (z0 + sprite.depth()>depth()?z0 + sprite.depth() - depth():0) + (bz?z0:0),
-        lC = sprite.spectrum() - (c0 + sprite.spectrum()>spectrum()?c0 + sprite.spectrum() - spectrum():0) + (bc?c0:0);
-      const t
-        *ptrs = sprite._data +
-        (bx?-x0:0) +
-        (by?-y0*(ulongT)sprite.width():0) +
-        (bz?-z0*(ulongT)sprite.width()*sprite.height():0) +
-        (bc?-c0*(ulongT)sprite.width()*sprite.height()*sprite.depth():0);
-      const ulongT
-        offX = (ulongT)_width - lX,
-        soffX = (ulongT)sprite._width - lX,
-        offY = (ulongT)_width*(_height - lY),
-        soffY = (ulongT)sprite._width*(sprite._height - lY),
-        offZ = (ulongT)_width*_height*(_depth - lZ),
-        soffZ = (ulongT)sprite._width*sprite._height*(sprite._depth - lZ);
+        dx0 = bx?0:x0, dy0 = by?0:y0, dz0 = bz?0:z0, dc0 = bc?0:c0,
+        sx0 = dx0 - x0,  sy0 = dy0 - y0, sz0 = dz0 - z0, sc0 = dc0 - c0,
+        lx = sprite.width() - sx0 - (x0 + sprite.width()>width()?x0 + sprite.width() - width():0),
+        ly = sprite.height() - sy0 - (y0 + sprite.height()>height()?y0 + sprite.height() - height():0),
+        lz = sprite.depth() - sz0 - (z0 + sprite.depth()>depth()?z0 + sprite.depth() - depth():0),
+        lc = sprite.spectrum() - sc0 - (c0 + sprite.spectrum()>spectrum()?c0 + sprite.spectrum() - spectrum():0);
+
       const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.f);
-      if (lX>0 && lY>0 && lZ>0 && lC>0) {
-        T *ptrd = data(x0<0?0:x0,y0<0?0:y0,z0<0?0:z0,c0<0?0:c0);
-        for (int v = 0; v<lC; ++v) {
-          for (int z = 0; z<lZ; ++z) {
-            for (int y = 0; y<lY; ++y) {
-              if (opacity>=1) for (int x = 0; x<lX; ++x) *(ptrd++) = (T)*(ptrs++);
-              else for (int x = 0; x<lX; ++x) { *ptrd = (T)(nopacity*(*(ptrs++)) + *ptrd*copacity); ++ptrd; }
-              ptrd+=offX; ptrs+=soffX;
+      if (lx>0 && ly>0 && lz>0 && lc>0) {
+        cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(ly*lz*lc,64*64))
+        for (int c = 0; c<lc; ++c)
+          for (int z = 0; z<lz; ++z)
+            for (int y = 0; y<ly; ++y) {
+              T *ptrd = data(dx0,dy0 + y,dz0 + z,dc0 + c);
+              const t *ptrs = sprite.data(sx0,sy0 + y,sz0 + z,sc0 + c);
+              if (opacity>=1) for (int x = 0; x<lx; ++x) *(ptrd++) = (T)*(ptrs++);
+              else for (int x = 0; x<lx; ++x) { *ptrd = (T)(nopacity*(*(ptrs++)) + *ptrd*copacity); ++ptrd; }
             }
-            ptrd+=offY; ptrs+=soffY;
-          }
-          ptrd+=offZ; ptrs+=soffZ;
-        }
       }
       return *this;
     }
@@ -45610,41 +45597,27 @@ namespace cimg_library_suffixed {
       if (is_overlapped(sprite)) return draw_image(x0,y0,z0,c0,+sprite,opacity);
       if (x0==0 && y0==0 && z0==0 && c0==0 && is_sameXYZC(sprite) && opacity>=1 && !is_shared())
         return assign(sprite,false);
-      const bool bx = (x0<0), by = (y0<0), bz = (z0<0), bc = (c0<0);
+      const bool bx = x0<0, by = y0<0, bz = z0<0, bc = c0<0;
       const int
-        lX = sprite.width() - (x0 + sprite.width()>width()?x0 + sprite.width() - width():0) + (bx?x0:0),
-        lY = sprite.height() - (y0 + sprite.height()>height()?y0 + sprite.height() - height():0) + (by?y0:0),
-        lZ = sprite.depth() - (z0 + sprite.depth()>depth()?z0 + sprite.depth() - depth():0) + (bz?z0:0),
-        lC = sprite.spectrum() - (c0 + sprite.spectrum()>spectrum()?c0 + sprite.spectrum() - spectrum():0) + (bc?c0:0);
-      const T
-        *ptrs = sprite._data +
-        (bx?-x0:0) +
-        (by?-y0*(ulongT)sprite.width():0) +
-        (bz?-z0*(ulongT)sprite.width()*sprite.height():0) +
-        (bc?-c0*(ulongT)sprite.width()*sprite.height()*sprite.depth():0);
-      const ulongT
-        offX = (ulongT)_width - lX,
-        soffX = (ulongT)sprite._width - lX,
-        offY = (ulongT)_width*(_height - lY),
-        soffY = (ulongT)sprite._width*(sprite._height - lY),
-        offZ = (ulongT)_width*_height*(_depth - lZ),
-        soffZ = (ulongT)sprite._width*sprite._height*(sprite._depth - lZ),
-        slX = lX*sizeof(T);
+        dx0 = bx?0:x0, dy0 = by?0:y0, dz0 = bz?0:z0, dc0 = bc?0:c0,
+        sx0 = dx0 - x0,  sy0 = dy0 - y0, sz0 = dz0 - z0, sc0 = dc0 - c0,
+        lx = sprite.width() - sx0 - (x0 + sprite.width()>width()?x0 + sprite.width() - width():0),
+        ly = sprite.height() - sy0 - (y0 + sprite.height()>height()?y0 + sprite.height() - height():0),
+        lz = sprite.depth() - sz0 - (z0 + sprite.depth()>depth()?z0 + sprite.depth() - depth():0),
+        lc = sprite.spectrum() - sc0 - (c0 + sprite.spectrum()>spectrum()?c0 + sprite.spectrum() - spectrum():0);
+      const ulongT slx = lx*sizeof(T);
+
       const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.f);
-      if (lX>0 && lY>0 && lZ>0 && lC>0) {
-        T *ptrd = data(x0<0?0:x0,y0<0?0:y0,z0<0?0:z0,c0<0?0:c0);
-        for (int v = 0; v<lC; ++v) {
-          for (int z = 0; z<lZ; ++z) {
-            if (opacity>=1)
-              for (int y = 0; y<lY; ++y) { std::memcpy(ptrd,ptrs,slX); ptrd+=_width; ptrs+=sprite._width; }
-            else for (int y = 0; y<lY; ++y) {
-                for (int x = 0; x<lX; ++x) { *ptrd = (T)(nopacity*(*(ptrs++)) + *ptrd*copacity); ++ptrd; }
-                ptrd+=offX; ptrs+=soffX;
-              }
-            ptrd+=offY; ptrs+=soffY;
-          }
-          ptrd+=offZ; ptrs+=soffZ;
-        }
+      if (lx>0 && ly>0 && lz>0 && lc>0) {
+        cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(ly*lz*lc,64*64))
+        for (int c = 0; c<lc; ++c)
+          for (int z = 0; z<lz; ++z)
+            for (int y = 0; y<ly; ++y) {
+              T *ptrd = data(dx0,dy0 + y,dz0 + z,dc0 + c);
+              const T *ptrs = sprite.data(sx0,sy0 + y,sz0 + z,sc0 + c);
+              if (opacity>=1) std::memcpy(ptrd,ptrs,slx);
+              else for (int x = 0; x<lx; ++x) { *ptrd = (T)(nopacity*(*(ptrs++)) + *ptrd*copacity); ++ptrd; }
+            }
       }
       return *this;
     }
@@ -45705,45 +45678,31 @@ namespace cimg_library_suffixed {
                                     sprite._width,sprite._height,sprite._depth,sprite._spectrum,sprite._data,
                                     mask._width,mask._height,mask._depth,mask._spectrum,mask._data);
 
-      const bool bx = (x0<0), by = (y0<0), bz = (z0<0), bc = (c0<0);
+      const bool bx = x0<0, by = y0<0, bz = z0<0, bc = c0<0;
       const int
-        lX = sprite.width() - (x0 + sprite.width()>width()?x0 + sprite.width() - width():0) + (bx?x0:0),
-        lY = sprite.height() - (y0 + sprite.height()>height()?y0 + sprite.height() - height():0) + (by?y0:0),
-        lZ = sprite.depth() - (z0 + sprite.depth()>depth()?z0 + sprite.depth() - depth():0) + (bz?z0:0),
-        lC = sprite.spectrum() - (c0 + sprite.spectrum()>spectrum()?c0 + sprite.spectrum() - spectrum():0) + (bc?c0:0);
-      const ulongT
-        coff = (bx?-x0:0) +
-        (by?-y0*(ulongT)mask.width():0) +
-        (bz?-z0*(ulongT)mask.width()*mask.height():0) +
-        (bc?-c0*(ulongT)mask.width()*mask.height()*mask.depth():0),
-        ssize = (ulongT)mask.width()*mask.height()*mask.depth()*mask.spectrum();
-      const ti *ptrs = sprite._data + coff;
-      const tm *ptrm = mask._data + coff;
-      const ulongT
-        offX = (ulongT)_width - lX,
-        soffX = (ulongT)sprite._width - lX,
-        offY = (ulongT)_width*(_height - lY),
-        soffY = (ulongT)sprite._width*(sprite._height - lY),
-        offZ = (ulongT)_width*_height*(_depth - lZ),
-        soffZ = (ulongT)sprite._width*sprite._height*(sprite._depth - lZ);
-      if (lX>0 && lY>0 && lZ>0 && lC>0) {
-	T *ptrd = data(x0<0?0:x0,y0<0?0:y0,z0<0?0:z0,c0<0?0:c0);
-        for (int c = 0; c<lC; ++c) {
-          ptrm = mask._data + (ptrm - mask._data)%ssize;
-          for (int z = 0; z<lZ; ++z) {
-            for (int y = 0; y<lY; ++y) {
-              for (int x = 0; x<lX; ++x) {
+        dx0 = bx?0:x0, dy0 = by?0:y0, dz0 = bz?0:z0, dc0 = bc?0:c0,
+        sx0 = dx0 - x0,  sy0 = dy0 - y0, sz0 = dz0 - z0, sc0 = dc0 - c0,
+        lx = sprite.width() - sx0 - (x0 + sprite.width()>width()?x0 + sprite.width() - width():0),
+        ly = sprite.height() - sy0 - (y0 + sprite.height()>height()?y0 + sprite.height() - height():0),
+        lz = sprite.depth() - sz0 - (z0 + sprite.depth()>depth()?z0 + sprite.depth() - depth():0),
+        lc = sprite.spectrum() - sc0 - (c0 + sprite.spectrum()>spectrum()?c0 + sprite.spectrum() - spectrum():0);
+      const ulongT msize = mask.size();
+
+      if (lx>0 && ly>0 && lz>0 && lc>0) {
+        cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(ly*lz,64*64))
+        for (int c = 0; c<lc; ++c)
+          for (int z = 0; z<lz; ++z)
+            for (int y = 0; y<ly; ++y) {
+              T *ptrd = data(dx0,dy0 + y,dz0 + z,dc0 + c);
+              const ti *ptrs = sprite.data(sx0,sy0 + y,sz0 + z,sc0 + c);
+              const tm *ptrm = mask._data + (mask.offset(sx0,sy0 + y,sz0 + z,sc0 + c)%msize);
+              for (int x = 0; x<lx; ++x) {
                 const float mopacity = (float)(*(ptrm++)*opacity),
                   nopacity = cimg::abs(mopacity), copacity = mask_max_value - std::max(mopacity,0.f);
                 *ptrd = (T)((nopacity*(*(ptrs++)) + *ptrd*copacity)/mask_max_value);
                 ++ptrd;
               }
-              ptrd+=offX; ptrs+=soffX; ptrm+=soffX;
             }
-            ptrd+=offY; ptrs+=soffY; ptrm+=soffY;
-          }
-          ptrd+=offZ; ptrs+=soffZ; ptrm+=soffZ;
-        }
       }
       return *this;
     }

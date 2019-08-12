@@ -39519,7 +39519,6 @@ namespace cimg_library_suffixed {
                                        x - cx1,y - cy1,z - cz1,
                                        u - cx1,v - cy1,w - cz1,
                                        u,v,w,0,cimg::type<float>::inf());
-            if (occ_penalization) cimg_pragma_openmp(atomic) ++occ(u,v,w);
           } else cimg_pragma_openmp(parallel cimg_openmp_if_size(_width,64)) {
             ulongT _rng = (cimg::_rand(),cimg::rng());
 
@@ -39542,7 +39541,6 @@ namespace cimg_library_suffixed {
                                          x - cx1,y - cy1,z - cz1,
                                          u - cx1,v - cy1,w - cz1,
                                          u,v,w,0,cimg::type<float>::inf());
-              if (occ_penalization) cimg_pragma_openmp(atomic) ++occ(u,v,w);
             }
             cimg::srand(_rng);
           }
@@ -39553,7 +39551,7 @@ namespace cimg_library_suffixed {
           cimg_abort_test;
           const bool is_odd = iter%2;
           const unsigned int cmask = is_odd?1:2, nmask = 3 - cmask;
-//          if (iter) occ.fill(0);
+          if (iter) occ.fill(0);
 
           cimg_pragma_openmp(parallel cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64 &&
                                                      iter<nb_iterations-2)) {
@@ -39719,7 +39717,6 @@ namespace cimg_library_suffixed {
             score(x,y) = _matchpatch(in_this,in_patch,occ,patch_width,patch_height,_spectrum,
                                      x - cx1,y - cy1,u - cx1,v - cy1,
                                      u,v,0,cimg::type<float>::inf());
-            if (occ_penalization) cimg_pragma_openmp(atomic) ++occ(u,v);
           } else cimg_pragma_openmp(parallel cimg_openmp_if_size(_width,64)) {
             ulongT _rng = (cimg::_rand(),cimg::rng());
 
@@ -39738,7 +39735,6 @@ namespace cimg_library_suffixed {
               score(x,y) = _matchpatch(in_this,in_patch,occ,patch_width,patch_height,_spectrum,
                                        x - cx1,y - cy1,u - cx1,v - cy1,
                                        u,v,0,cimg::type<float>::inf());
-              if (occ_penalization) cimg_pragma_openmp(atomic) ++occ(u,v);
             }
             cimg::srand(_rng);
           }
@@ -39749,7 +39745,7 @@ namespace cimg_library_suffixed {
           cimg_abort_test;
           const bool is_odd = iter%2;
           const unsigned int cmask = is_odd?1:2, nmask = 3 - cmask;
-//          if (iter) occ.fill(0);
+          if (iter) occ.fill(0);
 
           cimg_pragma_openmp(parallel cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64 &&
                                                      iter<nb_iterations-2)) {
@@ -45577,7 +45573,7 @@ namespace cimg_library_suffixed {
 
       const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.f);
       if (lx>0 && ly>0 && lz>0 && lc>0) {
-        cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(ly*lz*lc,1024*1024))
+        cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(ly*lz*lc,512*512))
         for (int c = 0; c<lc; ++c)
           for (int z = 0; z<lz; ++z)
             for (int y = 0; y<ly; ++y) {
@@ -45609,7 +45605,7 @@ namespace cimg_library_suffixed {
 
       const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.f);
       if (lx>0 && ly>0 && lz>0 && lc>0) {
-        cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(ly*lz*lc,1024*1024))
+        cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(ly*lz*lc,512*512))
         for (int c = 0; c<lc; ++c)
           for (int z = 0; z<lz; ++z)
             for (int y = 0; y<ly; ++y) {
@@ -45689,7 +45685,7 @@ namespace cimg_library_suffixed {
       const ulongT msize = mask.size();
 
       if (lx>0 && ly>0 && lz>0 && lc>0) {
-        cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(ly*lz*lc,1024*1024))
+        cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(ly*lz*lc,512*512))
         for (int c = 0; c<lc; ++c)
           for (int z = 0; z<lz; ++z)
             for (int y = 0; y<ly; ++y) {

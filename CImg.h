@@ -45577,7 +45577,7 @@ namespace cimg_library_suffixed {
 
       const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.f);
       if (lx>0 && ly>0 && lz>0 && lc>0) {
-        cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(ly*lz*lc,256*256))
+        cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(ly*lz*lc,320*320))
         for (int c = 0; c<lc; ++c)
           for (int z = 0; z<lz; ++z)
             for (int y = 0; y<ly; ++y) {
@@ -45609,7 +45609,7 @@ namespace cimg_library_suffixed {
 
       const float nopacity = cimg::abs(opacity), copacity = 1 - std::max(opacity,0.f);
       if (lx>0 && ly>0 && lz>0 && lc>0) {
-        cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(ly*lz*lc,256*256))
+        cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(ly*lz*lc,320*320))
         for (int c = 0; c<lc; ++c)
           for (int z = 0; z<lz; ++z)
             for (int y = 0; y<ly; ++y) {
@@ -45689,7 +45689,7 @@ namespace cimg_library_suffixed {
       const ulongT msize = mask.size();
 
       if (lx>0 && ly>0 && lz>0 && lc>0) {
-        cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(ly*lz*lc,256*256))
+        cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(ly*lz*lc,320*320))
         for (int c = 0; c<lc; ++c)
           for (int z = 0; z<lz; ++z)
             for (int y = 0; y<ly; ++y) {

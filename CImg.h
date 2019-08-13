@@ -35822,8 +35822,7 @@ namespace cimg_library_suffixed {
         switch (channel_mode) {
         case 0 : { // Sum input channels
           CImg<T> res0 = res.get_shared_channel(0);
-          cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
-          for (unsigned int c = 1; c<res._spectrum; ++c) res0+=res.get_shared_channel(c);
+          for (int c = 1; c<res._spectrum; ++c) res0+=res.get_shared_channel(c);
           res.channel(0).resize(-100,-100,-100,_kernel._spectrum,0,2);
           cimg_forC(res,c) res.get_shared_channel(c)*=_kernel[c];
         } break;

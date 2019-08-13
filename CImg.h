@@ -39691,7 +39691,8 @@ namespace cimg_library_suffixed {
                 a_map(x,y,z,1) = best_v;
                 a_map(x,y,z,2) = best_w;
                 score(x,y,z) = best_score;
-                if (occ_penalization!=0) --occ(a_map(x,y,z,0),a_map(x,y,z,1),a_map(x,y,z,2));
+                if (occ_penalization!=0 && occ(a_map(x,y,z,0),a_map(x,y,z,1),a_map(x,y,z,2))>0)
+                  cimg_pragma_openmp(atomic) --occ(a_map(x,y,z,0),a_map(x,y,z,1),a_map(x,y,z,2));
                 is_updated(x,y,z) = 3;
               } else is_updated(x,y,z)&=~nmask;
               if (occ_penalization!=0) cimg_pragma_openmp(atomic) ++occ(best_u,best_v,best_w);
@@ -39843,7 +39844,8 @@ namespace cimg_library_suffixed {
                 a_map(x,y,0) = best_u;
                 a_map(x,y,1) = best_v;
                 score(x,y) = best_score;
-                if (occ_penalization!=0) cimg_pragma_openmp(atomic) --occ(a_map(x,y,0),a_map(x,y,1));
+                if (occ_penalization!=0 && occ(a_map(x,y,0),a_map(x,y,1))>0)
+                  cimg_pragma_openmp(atomic) --occ(a_map(x,y,0),a_map(x,y,1));
                 is_updated(x,y) = 3;
               } else is_updated(x,y)&=~nmask;
               if (occ_penalization!=0) cimg_pragma_openmp(atomic) ++occ(best_u,best_v);

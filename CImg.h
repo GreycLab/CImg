@@ -39677,6 +39677,7 @@ namespace cimg_library_suffixed {
               } else is_updated(x,y,z)&=~nmask;
               if (occ_penalization!=0) cimg_pragma_openmp(atomic) ++nocc(best_u,best_v,best_w);
             }
+            nocc.swap(occ);
             cimg::srand(_rng);
           }
         }
@@ -39828,6 +39829,7 @@ namespace cimg_library_suffixed {
               if (occ_penalization!=0) cimg_pragma_openmp(atomic) ++nocc(best_u,best_v);
             }
           }
+          nocc.swap(occ);
           cimg::srand(rng);
         }
       }

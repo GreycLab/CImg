@@ -39725,6 +39725,7 @@ namespace cimg_library_suffixed {
           cimg_abort_test;
           const bool is_odd = iter%2;
           const unsigned int cmask = is_odd?1:2, nmask = 3 - cmask;
+          nocc = occ;
 
           cimg_pragma_openmp(parallel cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64 &&
                                                      iter<nb_iterations-2)) {

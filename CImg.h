@@ -39462,10 +39462,7 @@ namespace cimg_library_suffixed {
       CImg<ucharT> is_updated(_width,_height,_depth,1,3);
       CImg<floatT> score(_width,_height,_depth);
       CImg<uintT> occ, nocc;
-      if (occ_penalization!=0) {
-        occ.assign(patch_image._width,patch_image._height,patch_image._depth,1,0);
-        nocc.assign(occ._width,occ._height,occ._depth,1,0);
-      }
+      if (occ_penalization!=0) occ.assign(patch_image._width,patch_image._height,patch_image._depth,1,0);
 
       const int
         psizew = (int)patch_width,  psizew1 = psizew/2, psizew2 = psizew - psizew1 - 1,
@@ -39535,7 +39532,7 @@ namespace cimg_library_suffixed {
           cimg_abort_test;
           const bool is_odd = iter%2;
           const unsigned int cmask = is_odd?1:2, nmask = 3 - cmask;
-          nocc.fill(0);
+          nocc = occ;
 
           cimg_pragma_openmp(parallel cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64 &&
                                                      iter<nb_iterations-2)) {
@@ -39666,6 +39663,10 @@ namespace cimg_library_suffixed {
               }
 
               if (best_score<best_score0) {
+                if (occ_penalization!=0) {
+                  uintT &n_occ = nocc(a_map(x,y,z,0),a_map(x,y,z,1),a_map(x,y,z,2));
+                  if (n_occ) cimg_pragma_openmp(atomic) --n_occ;
+                }
                 a_map(x,y,z,0) = best_u;
                 a_map(x,y,z,1) = best_v;
                 a_map(x,y,z,2) = best_w;
@@ -39723,7 +39724,7 @@ namespace cimg_library_suffixed {
           cimg_abort_test;
           const bool is_odd = iter%2;
           const unsigned int cmask = is_odd?1:2, nmask = 3 - cmask;
-          nocc.fill(0);
+          nocc = occ;
 
           cimg_pragma_openmp(parallel cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64 &&
                                                      iter<nb_iterations-2)) {
@@ -39814,6 +39815,10 @@ namespace cimg_library_suffixed {
               }
 
               if (best_score<best_score0) {
+                if (occ_penalization!=0) {
+                  uintT &n_occ = nocc(a_map(x,y,0),a_map(x,y,1));
+                  if (n_occ) cimg_pragma_openmp(atomic) --n_occ;
+                }
                 a_map(x,y,0) = best_u;
                 a_map(x,y,1) = best_v;
                 score(x,y) = best_score;

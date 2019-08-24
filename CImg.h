@@ -39463,10 +39463,8 @@ namespace cimg_library_suffixed {
       CImg<floatT> score(_width,_height,_depth);
       CImg<uintT> occ, nocc;
       ulongT rng = (cimg::_rand(),cimg::rng());
-      if (occ_penalization!=0) {
-        occ.assign(patch_image._width,patch_image._height,patch_image._depth,1,0);
-        nocc.assign(occ._width,occ._height,occ._depth);
-      }
+      if (occ_penalization!=0) occ.assign(patch_image._width,patch_image._height,patch_image._depth,1,0);
+
       const int
         psizew = (int)patch_width,  psizew1 = psizew/2, psizew2 = psizew - psizew1 - 1,
         psizeh = (int)patch_height, psizeh1 = psizeh/2, psizeh2 = psizeh - psizeh1 - 1,
@@ -39536,7 +39534,7 @@ namespace cimg_library_suffixed {
           cimg_abort_test;
           const bool is_odd = iter%2;
           const unsigned int cmask = is_odd?1:2, nmask = 3 - cmask;
-          nocc.fill(0);
+          nocc = occ;
 
           cimg_pragma_openmp(parallel cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64 &&
                                                      iter<nb_iterations-2)) {
@@ -39679,7 +39677,6 @@ namespace cimg_library_suffixed {
               } else is_updated(x,y,z)&=~nmask;
               if (occ_penalization!=0) cimg_pragma_openmp(atomic) ++nocc(best_u,best_v,best_w);
             }
-            nocc.swap(occ);
             cimg::srand(_rng);
           }
         }
@@ -39728,7 +39725,6 @@ namespace cimg_library_suffixed {
           cimg_abort_test;
           const bool is_odd = iter%2;
           const unsigned int cmask = is_odd?1:2, nmask = 3 - cmask;
-          nocc.fill(0);
 
           cimg_pragma_openmp(parallel cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64 &&
                                                      iter<nb_iterations-2)) {
@@ -39831,7 +39827,6 @@ namespace cimg_library_suffixed {
               if (occ_penalization!=0) cimg_pragma_openmp(atomic) ++nocc(best_u,best_v);
             }
           }
-          nocc.swap(occ);
           cimg::srand(rng);
         }
       }

@@ -39719,7 +39719,6 @@ namespace cimg_library_suffixed {
                                        x - cx1,y - cy1,u - cx1,v - cy1,
                                        u,v,0,cimg::type<float>::inf());
             }
-            nocc.swap(occ);
             cimg::srand(_rng);
           }
 
@@ -39832,6 +39831,7 @@ namespace cimg_library_suffixed {
               if (occ_penalization!=0) cimg_pragma_openmp(atomic) ++nocc(best_u,best_v);
             }
           }
+          nocc.swap(occ);
           cimg::srand(rng);
         }
       }

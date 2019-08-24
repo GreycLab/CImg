@@ -39465,7 +39465,7 @@ namespace cimg_library_suffixed {
       ulongT rng = (cimg::_rand(),cimg::rng());
       if (occ_penalization!=0) {
         occ.assign(patch_image._width,patch_image._height,patch_image._depth,1,0);
-        nocc.assign(occ._width,occ._height,occ._depth,1,0);
+        nocc.assign(occ._width,occ._height,occ._depth);
       }
       const int
         psizew = (int)patch_width,  psizew1 = psizew/2, psizew2 = psizew - psizew1 - 1,

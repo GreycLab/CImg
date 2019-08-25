@@ -39759,6 +39759,8 @@ namespace cimg_library_suffixed {
             is_propagation = occ_penalization!=0?!is_randomization:true;
           const unsigned int cmask = is_backward?1:2, nmask = 3 - cmask;
 
+//          if (!is_propagation) occ.fill(0);
+
           cimg_pragma_openmp(parallel cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64 &&
                                                      iter<nb_iterations-2)) {
             ulongT rng = (cimg::_rand(),cimg::rng());

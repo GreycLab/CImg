@@ -38083,7 +38083,7 @@ namespace cimg_library_suffixed {
           cimg_for_in##N##XY(res,x0,y0,x1,y1,p,q) if (p!=x || q!=y) { \
             tfloat *pQ = Q._data; cimg_forC(_guide,c) { cimg_get##N##x##N(_guide,p,q,0,c,pQ,tfloat); pQ+=N2; } \
             tfloat distance2 = 0; \
-            pQ = Q._data; cimg_for(P,_pP,T) { const tfloat dI = *_pP - *(pQ++); distance2+=dI*dI; } \
+            pQ = Q._data; cimg_for(P,_pP,tfloat) { const tfloat dI = *_pP - *(pQ++); distance2+=dI*dI; } \
             distance2/=Pnorm; \
             const tfloat dx = (tfloat)p - x, dy = (tfloat)q - y, \
               alldist = distance2 + (dx*dx+dy*dy)/sigma_s2, weight = std::exp(-alldist); \
@@ -42896,7 +42896,7 @@ namespace cimg_library_suffixed {
           T *const ptrd = is_horizontal?data(y,x):data(x,y);
           cimg_forC(*this,c) {
             const T val = color[c];
-            ptrd[c*_sc_whd] = (T)(opacity>=1?val:val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
+            ptrd[c*_sc_whd] = opacity>=1?val:(T)(val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
           }
         }
         if (!(hatch>>=1)) hatch = ~0U - (~0U>>1);
@@ -42972,7 +42972,7 @@ namespace cimg_library_suffixed {
           T *const ptrd = is_horizontal?data(y,x):data(x,y);
           cimg_forC(*this,c) {
             const T val = color[c];
-            ptrd[c*_sc_whd] = (T)(opacity>=1?val:val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
+            ptrd[c*_sc_whd] = opacity>=1?val:(T)(val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
           }
         }
         if (!(hatch>>=1)) hatch = ~0U - (~0U>>1);
@@ -43144,7 +43144,7 @@ namespace cimg_library_suffixed {
           const tc *const color = &texture._atXY(tx,ty);
           cimg_forC(*this,c) {
             const T val = color[c*twhd];
-            ptrd[c*_sc_whd] = (T)(opacity>=1?val:val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
+            ptrd[c*_sc_whd] = opacity>=1?val:(T)(val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
           }
         }
         if (!(hatch>>=1)) hatch = ~0U - (~0U>>1);
@@ -43242,7 +43242,7 @@ namespace cimg_library_suffixed {
           const tc *const color = &texture._atXY(tx,ty);
           cimg_forC(*this,c) {
             const T val = color[c*twhd];
-            ptrd[c*_sc_whd] = (T)(opacity>=1?val:val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
+            ptrd[c*_sc_whd] = opacity>=1?val:(T)(val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
           }
         }
         if (!(hatch>>=1)) hatch = ~0U - (~0U>>1);

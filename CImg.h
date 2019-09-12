@@ -60699,13 +60699,11 @@ namespace cimg_library_suffixed {
             CImg<Tss> raw; \
             CImg<T> &img = res._data[l]; \
             if (err==5) _cimgz_unserialize_case(Tss) \
-            else if (sizeof(Tss)==sizeof(t) && cimg::type<Tss>::is_float()==cimg::type<t>::is_float()) { \
-              raw.assign((Tss*)stream,W,H,D,C,true); \
-              stream+=raw.size(); \
-            } else { \
+            else { \
               raw.assign(W,H,D,C); \
               CImg<ucharT> _raw((unsigned char*)raw._data,W*sizeof(Tss),H,D,C,true); \
-              cimg_for(_raw,p,unsigned char) *p = (unsigned char)*(stream++); \
+              if (sizeof(t)==1) { std::memcpy(_raw,stream,_raw.size()); stream+=_raw.size(); } \
+              else cimg_for(_raw,p,unsigned char) *p = (unsigned char)*(stream++); \
             } \
             if (endian!=cimg::endianness()) cimg::invert_endianness(raw._data,raw.size()); \
             raw.move_to(img); \

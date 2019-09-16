@@ -58086,11 +58086,17 @@ namespace cimg_library_suffixed {
         res.assign(dx,dy,dz,dc,(T)0);
         if (res) cimglist_for(*this,l) {
             const CImg<T>& img = (*this)[l];
-            if (img) res.draw_image(pos,
-                                    (int)(align*(dy - img._height)),
-                                    (int)(align*(dz - img._depth)),
-                                    (int)(align*(dc - img._spectrum)),
-                                    img);
+            if (img) {
+              if (img._height==1 && img._depth==1 && img._spectrum==1 &&
+                  res._height==1 && res._depth==1 && res._spectrum==1)
+                std::memcpy(&res[pos],img._data,sizeof(T)*img._width);
+              else
+                res.draw_image(pos,
+                               (int)(align*(dy - img._height)),
+                               (int)(align*(dz - img._depth)),
+                               (int)(align*(dc - img._spectrum)),
+                               img);
+            }
             pos+=img._width;
           }
       } break;
@@ -58110,7 +58116,7 @@ namespace cimg_library_suffixed {
             if (img) {
               if (img._width==1 && img._depth==1 && img._spectrum==1 &&
                   res._width==1 && res._depth==1 && res._spectrum==1)
-                std::memcpy(&res[pos],img._data,sizeof(T)*img.height());
+                std::memcpy(&res[pos],img._data,sizeof(T)*img._height);
               else
                 res.draw_image((int)(align*(dx - img._width)),
                                pos,
@@ -58134,11 +58140,17 @@ namespace cimg_library_suffixed {
         res.assign(dx,dy,dz,dc,(T)0);
         if (res) cimglist_for(*this,l) {
             const CImg<T>& img = (*this)[l];
-            if (img) res.draw_image((int)(align*(dx - img._width)),
-                                    (int)(align*(dy - img._height)),
-                                    pos,
-                                    (int)(align*(dc - img._spectrum)),
-                                    img);
+            if (img) {
+              if (img._width==1 && img._height==1 && img._spectrum==1 &&
+                  res._width==1 && res._height==1 && res._spectrum==1)
+                std::memcpy(&res[pos],img._data,sizeof(T)*img._depth);
+              else
+                res.draw_image((int)(align*(dx - img._width)),
+                               (int)(align*(dy - img._height)),
+                               pos,
+                               (int)(align*(dc - img._spectrum)),
+                               img);
+            }
             pos+=img._depth;
           }
       } break;
@@ -58155,11 +58167,17 @@ namespace cimg_library_suffixed {
         res.assign(dx,dy,dz,dc,(T)0);
         if (res) cimglist_for(*this,l) {
             const CImg<T>& img = (*this)[l];
-            if (img) res.draw_image((int)(align*(dx - img._width)),
-                                    (int)(align*(dy - img._height)),
-                                    (int)(align*(dz - img._depth)),
-                                    pos,
-                                    img);
+            if (img) {
+              if (img._width==1 && img._height==1 && img._depth==1 &&
+                  res._width==1 && res._height==1 && res._depth==1)
+                std::memcpy(&res[pos],img._data,sizeof(T)*img._spectrum);
+              else
+                res.draw_image((int)(align*(dx - img._width)),
+                               (int)(align*(dy - img._height)),
+                               (int)(align*(dz - img._depth)),
+                               pos,
+                               img);
+            }
             pos+=img._spectrum;
           }
       }

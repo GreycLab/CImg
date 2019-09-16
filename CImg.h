@@ -58107,11 +58107,17 @@ namespace cimg_library_suffixed {
         res.assign(dx,dy,dz,dc,(T)0);
         if (res) cimglist_for(*this,l) {
             const CImg<T>& img = (*this)[l];
-            if (img) res.draw_image((int)(align*(dx - img._width)),
-                                    pos,
-                                    (int)(align*(dz - img._depth)),
-                                    (int)(align*(dc - img._spectrum)),
-                                    img);
+            if (img) {
+              if (img._width==1 && img._depth==1 && img._spectrum==1 &&
+                  res._width==1 && res._depth==1 && res._spectrum==1)
+                std::memcpy(&res[pos],img._data,sizeof(T)*img.height());
+              else
+                res.draw_image((int)(align*(dx - img._width)),
+                               pos,
+                               (int)(align*(dz - img._depth)),
+                               (int)(align*(dc - img._spectrum)),
+                               img);
+            }
             pos+=img._height;
           }
       } break;

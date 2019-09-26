@@ -7925,7 +7925,8 @@ namespace cimg_library_suffixed {
       _title(0),
       _window_width(0),_window_height(0),_button(0),
       _keys(new unsigned int[128]),_released_keys(new unsigned int[128]),
-      _window_x(0),_window_y(0),_mouse_x(-1),_mouse_y(-1),_wheel(0),
+      _window_x(cimg::type<int>::min()),_window_y(cimg::type<int>::min()),
+      _mouse_x(-1),_mouse_y(-1),_wheel(0),
       _is_closed(true),_is_resized(false),_is_moved(false),_is_event(false) {
       assign();
     }
@@ -7949,7 +7950,8 @@ namespace cimg_library_suffixed {
       _title(0),
       _window_width(0),_window_height(0),_button(0),
       _keys(new unsigned int[128]),_released_keys(new unsigned int[128]),
-      _window_x(0),_window_y(0),_mouse_x(-1),_mouse_y(-1),_wheel(0),
+      _window_x(cimg::type<int>::min()),_window_y(cimg::type<int>::min()),
+      _mouse_x(-1),_mouse_y(-1),_wheel(0),
       _is_closed(true),_is_resized(false),_is_moved(false),_is_event(false) {
       assign(width,height,title,normalization,is_fullscreen,is_closed);
     }
@@ -7973,7 +7975,8 @@ namespace cimg_library_suffixed {
       _title(0),
       _window_width(0),_window_height(0),_button(0),
       _keys(new unsigned int[128]),_released_keys(new unsigned int[128]),
-      _window_x(0),_window_y(0),_mouse_x(-1),_mouse_y(-1),_wheel(0),
+      _window_x(cimg::type<int>::min()),_window_y(cimg::type<int>::min()),
+      _mouse_x(-1),_mouse_y(-1),_wheel(0),
       _is_closed(true),_is_resized(false),_is_moved(false),_is_event(false) {
       assign(img,title,normalization,is_fullscreen,is_closed);
     }
@@ -7997,7 +8000,8 @@ namespace cimg_library_suffixed {
       _title(0),
       _window_width(0),_window_height(0),_button(0),
       _keys(new unsigned int[128]),_released_keys(new unsigned int[128]),
-      _window_x(0),_window_y(0),_mouse_x(-1),_mouse_y(-1),_wheel(0),
+      _window_x(cimg::type<int>::min()),_window_y(cimg::type<int>::min()),
+      _mouse_x(-1),_mouse_y(-1),_wheel(0),
       _is_closed(true),_is_resized(false),_is_moved(false),_is_event(false) {
       assign(list,title,normalization,is_fullscreen,is_closed);
     }
@@ -8014,7 +8018,8 @@ namespace cimg_library_suffixed {
       _title(0),
       _window_width(0),_window_height(0),_button(0),
       _keys(new unsigned int[128]),_released_keys(new unsigned int[128]),
-      _window_x(0),_window_y(0),_mouse_x(-1),_mouse_y(-1),_wheel(0),
+      _window_x(cimg::type<int>::min()),_window_y(cimg::type<int>::min()),
+      _mouse_x(-1),_mouse_y(-1),_wheel(0),
       _is_closed(true),_is_resized(false),_is_moved(false),_is_event(false) {
       assign(disp);
     }
@@ -9408,7 +9413,9 @@ namespace cimg_library_suffixed {
           pthread_cond_broadcast(&cimg::X11_attr().wait_event);
         }
         if (nx!=_window_x || ny!=_window_y) {
-          _window_x = nx; _window_y = ny; _is_moved = _is_event = true;
+          _window_x = nx;
+          _window_y = ny;
+          _is_moved = _is_event = true;
           pthread_cond_broadcast(&cimg::X11_attr().wait_event);
         }
       } break;
@@ -9799,7 +9806,7 @@ namespace cimg_library_suffixed {
       _height = std::min(dimh,(unsigned int)screen_height());
       _normalization = normalization_type<4?normalization_type:3;
       _is_fullscreen = fullscreen_flag;
-      _window_x = _window_y = 0;
+      _window_x = _window_y = cimg::type<int>::min();
       _is_closed = closed_flag;
       _title = tmp_title;
       flush();
@@ -9882,7 +9889,7 @@ namespace cimg_library_suffixed {
 
       if (_is_fullscreen) XGrabKeyboard(dpy,_window,1,GrabModeAsync,GrabModeAsync,CurrentTime);
       cimg::X11_attr().wins[cimg::X11_attr().nb_wins++]=this;
-      if (!_is_closed) _map_window(); else { _window_x = _window_y = cimg::type<int>::min(); }
+      if (!_is_closed) _map_window(); else _window_x = _window_y = cimg::type<int>::min();
       cimg_unlock_display();
       cimg::mutex(14,0);
     }
@@ -9921,7 +9928,7 @@ namespace cimg_library_suffixed {
       // Reset display variables.
       delete[] _title;
       _width = _height = _normalization = _window_width = _window_height = 0;
-      _window_x = _window_y = 0;
+      _window_x = _window_y = cimg::type<int>::min();
       _is_fullscreen = false;
       _is_closed = true;
       _min = _max = 0;
@@ -10047,7 +10054,7 @@ namespace cimg_library_suffixed {
       cimg_lock_display();
       if (_is_fullscreen) _desinit_fullscreen();
       XUnmapWindow(dpy,_window);
-      _window_x = _window_y = -1;
+      _window_x = _window_y = cimg::type<int>::min();
       _is_closed = true;
       cimg_unlock_display();
       return *this;
@@ -10055,12 +10062,13 @@ namespace cimg_library_suffixed {
 
     CImgDisplay& move(const int posx, const int posy) {
       if (is_empty()) return *this;
+      show();
       if (_window_x!=posx || _window_y!=posy) {
-        show();
         Display *const dpy = cimg::X11_attr().display;
         cimg_lock_display();
         XMoveWindow(dpy,_window,posx,posy);
-        _window_x = posx; _window_y = posy;
+        _window_x = posx;
+        _window_y = posy;
         cimg_unlock_display();
       }
       _is_moved = false;
@@ -10682,7 +10690,7 @@ namespace cimg_library_suffixed {
       switch (msg) {
       case WM_CLOSE :
         disp->_mouse_x = disp->_mouse_y = -1;
-        disp->_window_x = disp->_window_y = 0;
+        disp->_window_x = disp->_window_y = cimg::type<int>::min();
         disp->set_button().set_key(0).set_key(0,false)._is_closed = true;
         ReleaseMutex(disp->_mutex);
         ShowWindow(disp->_window,SW_HIDE);
@@ -10832,7 +10840,7 @@ namespace cimg_library_suffixed {
           GetWindowRect(disp->_window,&rect);
           disp->_window_x = rect.left + border1;
           disp->_window_y = rect.top + border2;
-        } else disp->_window_x = disp->_window_y = 0;
+        } else disp->_window_x = disp->_window_y = cimg::type<int>::min();
       } else { // Fullscreen window
         const unsigned int
           sx = (unsigned int)screen_width(),
@@ -10862,7 +10870,7 @@ namespace cimg_library_suffixed {
     }
 
     CImgDisplay& _update_window_pos() {
-      if (_is_closed) _window_x = _window_y = -1;
+      if (_is_closed) _window_x = _window_y = cimg::type<int>::min();
       else {
         RECT rect;
         rect.left = rect.top = 0; rect.right = (LONG)_width - 1; rect.bottom = (LONG)_height - 1;
@@ -10935,7 +10943,7 @@ namespace cimg_library_suffixed {
       _height = std::min(dimh,(unsigned int)screen_height());
       _normalization = normalization_type<4?normalization_type:3;
       _is_fullscreen = fullscreen_flag;
-      _window_x = _window_y = 0;
+      _window_x = _window_y = cimg::type<int>::min();
       _is_closed = closed_flag;
       _is_cursor_visible = true;
       _is_mouse_tracked = false;
@@ -10964,7 +10972,7 @@ namespace cimg_library_suffixed {
       _title = 0;
       if (_is_fullscreen) _desinit_fullscreen();
       _width = _height = _normalization = _window_width = _window_height = 0;
-      _window_x = _window_y = 0;
+      _window_x = _window_y = cimg::type<int>::min();
       _is_fullscreen = false;
       _is_closed = true;
       _min = _max = 0;
@@ -11083,7 +11091,7 @@ namespace cimg_library_suffixed {
       _is_closed = true;
       if (_is_fullscreen) _desinit_fullscreen();
       ShowWindow(_window,SW_HIDE);
-      _window_x = _window_y = 0;
+      _window_x = _window_y = cimg::type<int>::min();
       return *this;
     }
 
@@ -11101,8 +11109,8 @@ namespace cimg_library_suffixed {
         } else SetWindowPos(_window,0,posx,posy,0,0,SWP_NOSIZE | SWP_NOZORDER);
         _window_x = posx;
         _window_y = posy;
-        show();
       }
+      show();
       _is_moved = false;
       return *this;
     }
@@ -11121,9 +11129,11 @@ namespace cimg_library_suffixed {
 
     CImgDisplay& set_mouse(const int posx, const int posy) {
       if (is_empty() || _is_closed || posx<0 || posy<0) return *this;
-      _update_window_pos();
-      const int res = (int)SetCursorPos(_window_x + posx,_window_y + posy);
-      if (res) { _mouse_x = posx; _mouse_y = posy; }
+      if (!_is_closed) {
+        _update_window_pos();
+        const int res = (int)SetCursorPos(_window_x + posx,_window_y + posy);
+        if (res) { _mouse_x = posx; _mouse_y = posy; }
+      }
       return *this;
     }
 

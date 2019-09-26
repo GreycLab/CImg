@@ -9417,8 +9417,10 @@ namespace cimg_library_suffixed {
         _paint(false);
         if (_is_fullscreen) {
           XWindowAttributes attr;
-          XGetWindowAttributes(dpy,_window,&attr);
-          while (attr.map_state!=IsViewable) XSync(dpy,0);
+          do {
+            XGetWindowAttributes(dpy,_window,&attr);
+            if (attr.map_state!=IsViewable) { XSync(dpy,0); cimg::sleep(10); }
+          } while (attr.map_state!=IsViewable);
           XSetInputFocus(dpy,_window,RevertToParent,CurrentTime);
         }
       } break;
@@ -9716,8 +9718,10 @@ namespace cimg_library_suffixed {
       XPutImage(dpy,_background_window,gc,background_image,0,0,0,0,sx,sy);
 #endif
       XWindowAttributes attr;
-      XGetWindowAttributes(dpy,_background_window,&attr);
-      while (attr.map_state!=IsViewable) XSync(dpy,0);
+      do {
+        XGetWindowAttributes(dpy,_background_window,&attr);
+        if (attr.map_state!=IsViewable) { XSync(dpy,0); cimg::sleep(10); }
+      } while (attr.map_state!=IsViewable);
       XDestroyImage(background_image);
     }
 
@@ -10030,9 +10034,9 @@ namespace cimg_library_suffixed {
     CImgDisplay& show() {
       if (is_empty() || !_is_closed) return *this;
       cimg_lock_display();
+      _is_closed = false;
       if (_is_fullscreen) _init_fullscreen();
       _map_window();
-      _is_closed = false;
       cimg_unlock_display();
       return paint();
     }

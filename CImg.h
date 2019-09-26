@@ -9701,10 +9701,11 @@ namespace cimg_library_suffixed {
 
       const unsigned int sx = screen_width(), sy = screen_height();
       if (sx==_width && sy==_height) return;
-      XSetWindowAttributes winattr;
-      winattr.override_redirect = 1;
+      XSetWindowAttributes attr_set;
+      attr_set.override_redirect = 1;
       _background_window = XCreateWindow(dpy,DefaultRootWindow(dpy),0,0,sx,sy,0,0,
-                                         InputOutput,CopyFromParent,CWOverrideRedirect,&winattr);
+                                         InputOutput,CopyFromParent,CWOverrideRedirect,&attr_set);
+
       const cimg_ulong buf_size = (cimg_ulong)sx*sy*(cimg::X11_attr().nb_bits==8?1:
                                                      (cimg::X11_attr().nb_bits==16?2:4));
       void *background_data = std::malloc(buf_size);
@@ -9815,10 +9816,10 @@ namespace cimg_library_suffixed {
       if (_is_fullscreen) {
         if (!_is_closed) _init_fullscreen();
         const unsigned int sx = screen_width(), sy = screen_height();
-        XSetWindowAttributes winattr;
-        winattr.override_redirect = 1;
+        XSetWindowAttributes attr_set;
+        attr_set.override_redirect = 1;
         _window = XCreateWindow(dpy,DefaultRootWindow(dpy),(sx - _width)/2,(sy - _height)/2,_width,_height,0,0,
-                                InputOutput,CopyFromParent,CWOverrideRedirect,&winattr);
+                                InputOutput,CopyFromParent,CWOverrideRedirect,&attr_set);
       } else
         _window = XCreateSimpleWindow(dpy,DefaultRootWindow(dpy),0,0,_width,_height,0,0L,0L);
 

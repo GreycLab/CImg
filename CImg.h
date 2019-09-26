@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 272
+#define cimg_version 273
 
 /*-----------------------------------------------------------
  #
@@ -9896,24 +9896,23 @@ namespace cimg_library_suffixed {
 
       // Destroy window, image, colormap and title.
       if (_is_fullscreen && !_is_closed) _desinit_fullscreen();
-      XDestroyWindow(dpy,_window);
-      _window = 0;
+
 
 #ifdef cimg_use_xshm
       if (_shminfo) {
         XShmDetach(dpy,_shminfo);
-        XDestroyImage(_image);
         shmdt(_shminfo->shmaddr);
         shmctl(_shminfo->shmid,IPC_RMID,0);
         delete _shminfo;
         _shminfo = 0;
-      } else
+      }
 #endif
-        XDestroyImage(_image);
-      _data = 0; _image = 0;
+
+      XDestroyImage(_image);
       if (cimg::X11_attr().nb_bits==8) XFreeColormap(dpy,_colormap);
-      _colormap = 0;
+      XDestroyWindow(dpy,_window);
       XSync(dpy,0);
+      _window = 0; _colormap = 0; _data = 0; _image = 0;
 
       // Reset display variables.
       delete[] _title;

@@ -14575,7 +14575,7 @@ namespace cimg_library_suffixed {
 
     Tfloat _linear_atX_p(const float fx, const int y=0, const int z=0, const int c=0) const {
       const float
-        nfx = cimg::mod(fx,(float)_width);
+        nfx = cimg::mod(fx,_width - 0.5f);
       const unsigned int
         x = (unsigned int)nfx;
       const float
@@ -14653,8 +14653,8 @@ namespace cimg_library_suffixed {
 
     Tfloat _linear_atXY_p(const float fx, const float fy, const int z=0, const int c=0) const {
       const float
-        nfx = cimg::mod(fx,(float)_width),
-        nfy = cimg::mod(fy,(float)_height);
+        nfx = cimg::mod(fx,_width - 0.5f),
+        nfy = cimg::mod(fy,_height - 0.5f);
       const unsigned int
         x = (unsigned int)nfx,
         y = (unsigned int)nfy;
@@ -14760,9 +14760,9 @@ namespace cimg_library_suffixed {
 
     Tfloat _linear_atXYZ_p(const float fx, const float fy=0, const float fz=0, const int c=0) const {
       const float
-        nfx = cimg::mod(fx,(float)_width),
-        nfy = cimg::mod(fy,(float)_height),
-        nfz = cimg::mod(fz,(float)_depth);
+        nfx = cimg::mod(fx,_width - 0.5f),
+        nfy = cimg::mod(fy,_height - 0.5f),
+        nfz = cimg::mod(fz,_depth - 0.5f);
       const unsigned int
         x = (unsigned int)nfx,
         y = (unsigned int)nfy,
@@ -14912,10 +14912,10 @@ namespace cimg_library_suffixed {
 
     Tfloat _linear_atXYZC_p(const float fx, const float fy=0, const float fz=0, const float fc=0) const {
       const float
-        nfx = cimg::mod(fx,(float)_width),
-        nfy = cimg::mod(fy,(float)_height),
-        nfz = cimg::mod(fz,(float)_depth),
-        nfc = cimg::mod(fc,(float)_spectrum);
+        nfx = cimg::mod(fx,_width - 0.5f),
+        nfy = cimg::mod(fy,_height - 0.5f),
+        nfz = cimg::mod(fz,_depth - 0.5f),
+        nfc = cimg::mod(fc,_spectrum - 0.5f);
       const unsigned int
         x = (unsigned int)nfx,
         y = (unsigned int)nfy,
@@ -15060,7 +15060,7 @@ namespace cimg_library_suffixed {
 
     Tfloat _cubic_atX_p(const float fx, const int y=0, const int z=0, const int c=0) const {
       const float
-        nfx = cimg::type<float>::is_nan(fx)?0:cimg::mod(fx,(float)_width);
+        nfx = cimg::type<float>::is_nan(fx)?0:cimg::mod(fx,_width - 0.5f);
       const int
         x = (int)nfx;
       const float
@@ -15181,8 +15181,8 @@ namespace cimg_library_suffixed {
 
     Tfloat _cubic_atXY_p(const float fx, const float fy, const int z=0, const int c=0) const {
       const float
-        nfx = cimg::type<float>::is_nan(fx)?0:cimg::mod(fx,(float)_width),
-        nfy = cimg::type<float>::is_nan(fy)?0:cimg::mod(fy,(float)_height);
+        nfx = cimg::type<float>::is_nan(fx)?0:cimg::mod(fx,_width - 0.5f),
+        nfy = cimg::type<float>::is_nan(fy)?0:cimg::mod(fy,_height - 0.5f);
       const int x = (int)nfx, y = (int)nfy;
       const float dx = nfx - x, dy = nfy - y;
       const int
@@ -15442,9 +15442,9 @@ namespace cimg_library_suffixed {
 
     Tfloat _cubic_atXYZ_p(const float fx, const float fy, const float fz, const int c=0) const {
       const float
-        nfx = cimg::type<float>::is_nan(fx)?0:cimg::mod(fx,(float)_width),
-        nfy = cimg::type<float>::is_nan(fy)?0:cimg::mod(fy,(float)_height),
-        nfz = cimg::type<float>::is_nan(fz)?0:cimg::mod(fz,(float)_depth);
+        nfx = cimg::type<float>::is_nan(fx)?0:cimg::mod(fx,_width - 0.5f),
+        nfy = cimg::type<float>::is_nan(fy)?0:cimg::mod(fy,_height - 0.5f),
+        nfz = cimg::type<float>::is_nan(fz)?0:cimg::mod(fz,_depth - 0.5f);
       const int x = (int)nfx, y = (int)nfy, z = (int)nfz;
       const float dx = nfx - x, dy = nfy - y, dz = nfz - z;
       const int

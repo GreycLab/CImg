@@ -9703,7 +9703,6 @@ namespace cimg_library_suffixed {
       if (sx==_width && sy==_height) return;
       XSetWindowAttributes attr_set;
 
-
       attr_set.background_pixel = XBlackPixel(dpy,XDefaultScreen(dpy));
       attr_set.override_redirect = 1;
       _background_window = XCreateWindow(dpy,DefaultRootWindow(dpy),0,0,sx,sy,0,0,

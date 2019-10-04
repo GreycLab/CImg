@@ -38558,7 +38558,6 @@ namespace cimg_library_suffixed {
                                       "get_gradient(): Invalid specified axes '%s'.",
                                       cimg_instance,
                                       axes);
-
         const longT off = axis=='x'?1:axis=='y'?_width:_width*_height;
         if ((axis=='x' && _width==1) || (axis=='y' && _height==1) || (axis=='z' && _depth==1)) {
           grad.assign(_width,_height,_depth,_spectrum,0).move_to(res);
@@ -38663,121 +38662,82 @@ namespace cimg_library_suffixed {
     **/
     CImgList<Tfloat> get_hessian(const char *const axes=0) const {
       CImgList<Tfloat> res;
-      const char *naxes = axes, *const def_axes2d = "xxxyyy", *const def_axes3d = "xxxyxzyyyzzz";
-      if (!axes) naxes = _depth>1?def_axes3d:def_axes2d;
-      const unsigned int lmax = (unsigned int)std::strlen(naxes);
-      if (lmax%2)
+      char __axes[12] = { 0 };
+      const char *_axes = axes?axes:__axes;
+      if (!axes) {
+        unsigned int k = 0;
+        if (_width>1) { __axes[k++] = 'x'; __axes[k++] = 'x'; }
+        if (_width>1 && _height>1) { __axes[k++] = 'x'; __axes[k++] = 'y'; }
+        if (_width>1 && _depth>1) { __axes[k++] = 'x'; __axes[k++] = 'z'; }
+        if (_height>1) { __axes[k++] = 'y'; __axes[k++] = 'y'; }
+        if (_height>1 && _depth>1) { __axes[k++] = 'y'; __axes[k++] = 'z'; }
+        if (_depth>1) { __axes[k++] = 'z'; __axes[k++] = 'z'; }
+      }
+      const unsigned int len = (unsigned int)std::strlen(_axes);
+      if (len%2)
         throw CImgArgumentException(_cimg_instance
                                     "get_hessian(): Invalid specified axes '%s'.",
                                     cimg_instance,
-                                    naxes);
+                                    axes);
+      CImg<Tfloat> hess;
+      for (unsigned int k = 0; k<len; k+=2) {
+        const char
+          _axis1 = cimg::lowercase(_axes[k]),
+          _axis2 = cimg::lowercase(_axes[k + 1]),
+          axis1 = std::min(_axis1,_axis2),
+          axis2 = std::max(_axis2,_axis2);
+        if (axis1!='x' && axis1!='y' && axis1!='z' &&
+            axis2!='x' && axis2!='y' && axis2!='z')
+          throw CImgArgumentException(_cimg_instance
+                                      "get_hessian(): Invalid specified axes '%s'.",
+                                      cimg_instance,
+                                      axes);
+        const longT off = axis1=='x'?1:axis1=='y'?_width:_width*_height;
 
-      res.assign(lmax/2,_width,_height,_depth,_spectrum);
-      if (!cimg::strcasecmp(naxes,def_axes3d)) { // 3D
+        hess.assign(_width,_height,_depth,_spectrum);
 
-        cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height*_depth>=(cimg_openmp_sizefactor)*1048576 &&
-                                                       _spectrum>=2))
-        cimg_forC(*this,c) {
-          const ulongT off = (ulongT)c*_width*_height*_depth;
-          Tfloat
-            *ptrd0 = res[0]._data + off, *ptrd1 = res[1]._data + off, *ptrd2 = res[2]._data + off,
-            *ptrd3 = res[3]._data + off, *ptrd4 = res[4]._data + off, *ptrd5 = res[5]._data + off;
-          CImg_3x3x3(I,Tfloat);
-          cimg_for3x3x3(*this,x,y,z,c,I,Tfloat) {
-            *(ptrd0++) = Ipcc + Incc - 2*Iccc;          // Ixx
-            *(ptrd1++) = (Ippc + Innc - Ipnc - Inpc)/4; // Ixy
-            *(ptrd2++) = (Ipcp + Incn - Ipcn - Incp)/4; // Ixz
-            *(ptrd3++) = Icpc + Icnc - 2*Iccc;          // Iyy
-            *(ptrd4++) = (Icpp + Icnn - Icpn - Icnp)/4; // Iyz
-            *(ptrd5++) = Iccn + Iccp - 2*Iccc;          // Izz
-          }
+        if (((axis1=='x' || axis2=='x') && _width==1) ||
+            ((axis1=='y' || axis2=='y') && _height==1) ||
+            ((axis1=='z' || axis2=='z') && _depth==1)) {
+          hess.fill(0).move_to(res);
+          continue;
         }
-      } else if (!cimg::strcasecmp(naxes,def_axes2d)) { // 2D
-        cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
-                           cimg_openmp_if(_width*_height>=(cimg_openmp_sizefactor)*1048576 && _depth*_spectrum>=2))
-        cimg_forZC(*this,z,c) {
-          const ulongT off = (ulongT)c*_width*_height*_depth + z*_width*_height;
-          Tfloat *ptrd0 = res[0]._data + off, *ptrd1 = res[1]._data + off, *ptrd2 = res[2]._data + off;
-          CImg_3x3(I,Tfloat);
-          cimg_for3x3(*this,x,y,z,c,I,Tfloat) {
-            *(ptrd0++) = Ipc + Inc - 2*Icc;         // Ixx
-            *(ptrd1++) = (Ipp + Inn - Ipn - Inp)/4; // Ixy
-            *(ptrd2++) = Icp + Icn - 2*Icc;         // Iyy
+
+        if (axis1==axis2) // Ixx, Iyy, Izz
+          cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(size(),16384))
+          cimg_forXYZC(*this,x,y,z,c) {
+            const ulongT pos = offset(x,y,z,c);
+            if ((axis1=='x' && !x) || (axis1=='y' && !y) || (axis1=='z' && !z))
+              hess[pos] = (Tfloat)_data[pos + off] - _data[pos];
+            else if ((axis1=='x' && x==width() - 1) || (axis1=='y' && y==height() - 1) || (axis1=='z' && z==depth() - 1))
+              hess[pos] = (Tfloat)_data[pos - off] - _data[pos];
+            else
+              hess[pos] = (Tfloat)_data[pos + off] + _data[pos - off] - 2*_data[pos];
           }
-        }
-      } else for (unsigned int l = 0; l<lmax; ) { // Version with custom axes
-          const unsigned int l2 = l/2;
-          char axis1 = naxes[l++], axis2 = naxes[l++];
-          if (axis1>axis2) cimg::swap(axis1,axis2);
-          bool valid_axis = false;
-          if (axis1=='x' && axis2=='x') { // Ixx
-            valid_axis = true;
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
-                               cimg_openmp_if(_width*_height>=(cimg_openmp_sizefactor)*1048576 && _depth*_spectrum>=2))
-            cimg_forZC(*this,z,c) {
-              Tfloat *ptrd = res[l2].data(0,0,z,c);
-              CImg_3x3(I,Tfloat);
-              cimg_for3x3(*this,x,y,z,c,I,Tfloat) *(ptrd++) = Ipc + Inc - 2*Icc;
-            }
+        else if (axis1=='x' && axis2=='y') // Ixy
+          cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
+                             cimg_openmp_if(_width*_height>=(cimg_openmp_sizefactor)*16384 &&
+                                            _depth*_spectrum>=2))
+          cimg_forZC(*this,z,c) {
+            CImg_3x3(I,Tfloat);
+            cimg_for3x3(*this,x,y,z,c,I,Tfloat) hess(x,y,z,c) = (Inn + Ipp - Inp - Ipn)/4;
           }
-          else if (axis1=='x' && axis2=='y') { // Ixy
-            valid_axis = true;
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
-                               cimg_openmp_if(_width*_height>=(cimg_openmp_sizefactor)*1048576 &&
-                                              _depth*_spectrum>=2))
-            cimg_forZC(*this,z,c) {
-              Tfloat *ptrd = res[l2].data(0,0,z,c);
-              CImg_3x3(I,Tfloat);
-              cimg_for3x3(*this,x,y,z,c,I,Tfloat) *(ptrd++) = (Ipp + Inn - Ipn - Inp)/4;
-            }
+        else if (axis1=='x' && axis2=='z') // Ixz
+          cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height*_depth>=(cimg_openmp_sizefactor)*16384 &&
+                                                         _spectrum>=2))
+          cimg_forC(*this,c) {
+            CImg_3x3x3(I,Tfloat);
+            cimg_for3x3x3(*this,x,y,z,c,I,Tfloat) hess(x,y,z,c) = (Incn + Ipcp - Incp - Ipcn)/4;
           }
-          else if (axis1=='x' && axis2=='z') { // Ixz
-            valid_axis = true;
-            cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height*_depth>=(cimg_openmp_sizefactor)*1048576 &&
-                                                           _spectrum>=2))
-            cimg_forC(*this,c) {
-              Tfloat *ptrd = res[l2].data(0,0,0,c);
-              CImg_3x3x3(I,Tfloat);
-              cimg_for3x3x3(*this,x,y,z,c,I,Tfloat) *(ptrd++) = (Ipcp + Incn - Ipcn - Incp)/4;
-            }
+        else // Iyz
+          cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height*_depth>=(cimg_openmp_sizefactor)*16384 &&
+                                                         _spectrum>=2))
+          cimg_forC(*this,c) {
+            CImg_3x3x3(I,Tfloat);
+            cimg_for3x3x3(*this,x,y,z,c,I,Tfloat) hess(x,y,z,c) = (Icnn + Icpp - Icnp - Icpn)/4;
           }
-          else if (axis1=='y' && axis2=='y') { // Iyy
-            valid_axis = true;
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
-                               cimg_openmp_if(_width*_height>=(cimg_openmp_sizefactor)*1048576 &&
-                                              _depth*_spectrum>=2))
-            cimg_forZC(*this,z,c) {
-              Tfloat *ptrd = res[l2].data(0,0,z,c);
-              CImg_3x3(I,Tfloat);
-              cimg_for3x3(*this,x,y,z,c,I,Tfloat) *(ptrd++) = Icp + Icn - 2*Icc;
-            }
-          }
-          else if (axis1=='y' && axis2=='z') { // Iyz
-            valid_axis = true;
-            cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height*_depth>=(cimg_openmp_sizefactor)*1048576 &&
-                                                           _spectrum>=2))
-            cimg_forC(*this,c) {
-              Tfloat *ptrd = res[l2].data(0,0,0,c);
-              CImg_3x3x3(I,Tfloat);
-              cimg_for3x3x3(*this,x,y,z,c,I,Tfloat) *(ptrd++) = (Icpp + Icnn - Icpn - Icnp)/4;
-            }
-          }
-          else if (axis1=='z' && axis2=='z') { // Izz
-            valid_axis = true;
-            cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height*_depth>=(cimg_openmp_sizefactor)*1048576 &&
-                                                           _spectrum>=2))
-            cimg_forC(*this,c) {
-              Tfloat *ptrd = res[l2].data(0,0,0,c);
-              CImg_3x3x3(I,Tfloat);
-              cimg_for3x3x3(*this,x,y,z,c,I,Tfloat) *(ptrd++) = Iccn + Iccp - 2*Iccc;
-            }
-          }
-          else if (!valid_axis)
-            throw CImgArgumentException(_cimg_instance
-                                        "get_hessian(): Invalid specified axes '%s'.",
-                                        cimg_instance,
-                                        naxes);
-        }
+        hess.move_to(res);
+      }
       return res;
     }
 

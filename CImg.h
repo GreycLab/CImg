@@ -38541,121 +38541,117 @@ namespace cimg_library_suffixed {
     **/
     CImgList<Tfloat> get_gradient(const char *const axes=0, const int scheme=0) const {
       CImgList<Tfloat> res;
-      bool is_xyz[] = { false, false, false };
-      if (axes) {
-        for (unsigned int a = 0; axes[a]; ++a) {
-          const char axis = cimg::lowercase(axes[a]);
-          switch (axis) {
-          case 'x' : is_xyz[0] = true; break;
-          case 'y' : is_xyz[1] = true; break;
-          case 'z' : is_xyz[2] = true; break;
-          default :
-            throw CImgArgumentException(_cimg_instance
-                                        "get_gradient(): Invalid specified axis '%c'.",
-                                        cimg_instance,
-                                        axis);
-          }
-        }
-      } else { is_xyz[0] = _width>1; is_xyz[1] = _height>1; is_xyz[2] = _depth>1; }
+      char __axes[4] = { 0 };
+      const char *_axes = axes?axes:__axes;
+      if (!axes) {
+        unsigned int k = 0;
+        if (_width>1) __axes[k++] = 'x';
+        if (_height>1) __axes[k++] = 'y';
+        if (_depth>1) __axes[k++] = 'z';
+      }
 
       CImg<Tfloat> grad;
-      for (unsigned int k = 0; k<3; ++k) {
-        const longT off = k==0?1:k==1?_width:_width*_height;
-        const char axis = 'x' + k;
-        if (is_xyz[k]) {
-          if ((!k && _width==1) || (k==1 && _height==1) || (k==2 && _depth==1)) {
-            grad.assign(_width,_height,_depth,_spectrum,0).move_to(res);
-            continue;
-          }
+      while (*_axes) {
+        const char axis = cimg::lowercase(*(_axes++));
+        if (axis!='x' && axis!='y' && axis!='z')
+          throw CImgArgumentException(_cimg_instance
+                                      "get_gradient(): Invalid specified axes '%s'.",
+                                      cimg_instance,
+                                      axes);
 
-          const int _scheme = k==2 && (scheme==2 || scheme==3)?0:scheme;
-          switch (_scheme) {
-          case -1 : { // Backward finite differences
-            grad.assign(_width,_height,_depth,_spectrum);
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(size(),16384))
-            cimg_forXYZC(*this,x,y,z,c) {
-              const ulongT pos = offset(x,y,z,c);
-              if ((!k && !x) || (k==1 && !y) || (k==2 && !z))
-                grad[pos] = 0;
-              else
-                grad[pos] = (Tfloat)_data[pos] - _data[pos - off];
-            }
-            grad.move_to(res);
-          } break;
-          case 1 : { // Forward finite differences
-            grad.assign(_width,_height,_depth,_spectrum);
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(size(),16384))
-            cimg_forXYZC(*this,x,y,z,c) {
-              const ulongT pos = offset(x,y,z,c);
-              if ((!k && x==width() - 1) || (k==1 && y==height() - 1) || (k==2 && z==depth() - 1))
-                grad[pos] = 0;
-              else
-                grad[pos] = (Tfloat)_data[pos + off] - _data[pos];
-            }
-            grad.move_to(res);
-          } break;
-          case 2 : { // Sobel scheme
-            grad.assign(_width,_height,_depth,_spectrum);
-            if (k==0) // X-axis
-              cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
-                                 cimg_openmp_if(_width*_height>=(cimg_openmp_sizefactor)*16384 &&
-                                                _depth*_spectrum>=2))
-              cimg_forZC(*this,z,c) {
-                CImg_3x3(I,Tfloat);
-                cimg_for3x3(*this,x,y,z,c,I,Tfloat) grad(x,y,z,c) = - Ipp + Inp - 2*Ipc + 2*Inc - Ipn + Inn;
-              }
-            else // Y-axis
-              cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
-                                 cimg_openmp_if(_width*_height>=(cimg_openmp_sizefactor)*16384 &&
-                                                _depth*_spectrum>=2))
-              cimg_forZC(*this,z,c) {
-                CImg_3x3(I,Tfloat);
-                cimg_for3x3(*this,x,y,z,c,I,Tfloat) grad(x,y,z,c) = - Ipp - 2*Icp - Inp + Ipn + 2*Icn + Inn;
-              }
-            grad.move_to(res);
-          } break;
-          case 3 : { // Rotation invariant scheme
-            const Tfloat a = (Tfloat)(0.25f*(2 - std::sqrt(2.f))), b = (Tfloat)(0.5f*(std::sqrt(2.f) - 1));
-            grad.assign(_width,_height,_depth,_spectrum);
-            if (k==0) // X-axis
-              cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
-                                 cimg_openmp_if(_width*_height>=(cimg_openmp_sizefactor)*16384 &&
-                                                _depth*_spectrum>=2))
-              cimg_forZC(*this,z,c) {
-                CImg_3x3(I,Tfloat);
-                cimg_for3x3(*this,x,y,z,c,I,Tfloat) grad(x,y,z,c) = -a*Ipp - b*Ipc - a*Ipn + a*Inp + b*Inc + a*Inn;
-              }
-            else // Y-axis
-              cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
-                                 cimg_openmp_if(_width*_height>=(cimg_openmp_sizefactor)*16384 &&
-                                                _depth*_spectrum>=2))
-              cimg_forZC(*this,z,c) {
-                CImg_3x3(I,Tfloat);
-                cimg_for3x3(*this,x,y,z,c,I,Tfloat) grad(x,y,z,c) = -a*Ipp - b*Icp - a*Inp + a*Ipn + b*Icn + a*Inn;
-              }
-            grad.move_to(res);
-          } break;
-          case 4 : // Deriche filter
-            get_deriche(0,1,axis).move_to(res);
-            break;
-          case 5 : // Van Vliet filter
-            get_vanvliet(0,1,axis).move_to(res);
-            break;
-          default : { // Central finite differences
-            grad.assign(_width,_height,_depth,_spectrum);
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(size(),16384))
-            cimg_forXYZC(*this,x,y,z,c) {
-              const ulongT pos = offset(x,y,z,c);
-              if ((!k && !x) || (k==1 && !y) || (k==2 && !z))
-                grad[pos] = ((Tfloat)_data[pos + off] - _data[pos])/2;
-              else if ((!k && x==width() - 1) || (k==1 && y==height() - 1) || (k==2 && z==depth() - 1))
-                grad[pos] = ((Tfloat)_data[pos] - _data[pos - off])/2;
-              else
-                grad[pos] = ((Tfloat)_data[pos + off] - _data[pos - off])/2;
-            }
-            grad.move_to(res);
-          } break;
+        const longT off = axis=='x'?1:axis=='y'?_width:_width*_height;
+        if ((axis=='x' && _width==1) || (axis=='y' && _height==1) || (axis=='z' && _depth==1)) {
+          grad.assign(_width,_height,_depth,_spectrum,0).move_to(res);
+          continue;
+        }
+
+        const int _scheme = axis=='z' && (scheme==2 || scheme==3)?0:scheme;
+        switch (_scheme) {
+        case -1 : { // Backward finite differences
+          grad.assign(_width,_height,_depth,_spectrum);
+          cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(size(),16384))
+          cimg_forXYZC(*this,x,y,z,c) {
+            const ulongT pos = offset(x,y,z,c);
+            if ((axis=='x' && !x) || (axis=='y' && !y) || (axis=='z' && !z))
+              grad[pos] = 0;
+            else
+              grad[pos] = (Tfloat)_data[pos] - _data[pos - off];
           }
+          grad.move_to(res);
+        } break;
+        case 1 : { // Forward finite differences
+          grad.assign(_width,_height,_depth,_spectrum);
+          cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(size(),16384))
+          cimg_forXYZC(*this,x,y,z,c) {
+            const ulongT pos = offset(x,y,z,c);
+            if ((axis=='x' && x==width() - 1) || (axis=='y' && y==height() - 1) || (axis=='z' && z==depth() - 1))
+              grad[pos] = 0;
+            else
+              grad[pos] = (Tfloat)_data[pos + off] - _data[pos];
+          }
+          grad.move_to(res);
+        } break;
+        case 2 : { // Sobel scheme
+          grad.assign(_width,_height,_depth,_spectrum);
+          if (axis=='x') // X-axis
+            cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
+                               cimg_openmp_if(_width*_height>=(cimg_openmp_sizefactor)*16384 &&
+                                              _depth*_spectrum>=2))
+            cimg_forZC(*this,z,c) {
+              CImg_3x3(I,Tfloat);
+              cimg_for3x3(*this,x,y,z,c,I,Tfloat) grad(x,y,z,c) = - Ipp + Inp - 2*Ipc + 2*Inc - Ipn + Inn;
+            }
+          else // Y-axis
+            cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
+                               cimg_openmp_if(_width*_height>=(cimg_openmp_sizefactor)*16384 &&
+                                              _depth*_spectrum>=2))
+            cimg_forZC(*this,z,c) {
+              CImg_3x3(I,Tfloat);
+              cimg_for3x3(*this,x,y,z,c,I,Tfloat) grad(x,y,z,c) = - Ipp - 2*Icp - Inp + Ipn + 2*Icn + Inn;
+            }
+          grad.move_to(res);
+        } break;
+        case 3 : { // Rotation invariant scheme
+          const Tfloat a = (Tfloat)(0.25f*(2 - std::sqrt(2.f))), b = (Tfloat)(0.5f*(std::sqrt(2.f) - 1));
+          grad.assign(_width,_height,_depth,_spectrum);
+          if (axis=='x') // X-axis
+            cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
+                               cimg_openmp_if(_width*_height>=(cimg_openmp_sizefactor)*16384 &&
+                                              _depth*_spectrum>=2))
+            cimg_forZC(*this,z,c) {
+              CImg_3x3(I,Tfloat);
+              cimg_for3x3(*this,x,y,z,c,I,Tfloat) grad(x,y,z,c) = -a*Ipp - b*Ipc - a*Ipn + a*Inp + b*Inc + a*Inn;
+            }
+          else // Y-axis
+            cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
+                               cimg_openmp_if(_width*_height>=(cimg_openmp_sizefactor)*16384 &&
+                                              _depth*_spectrum>=2))
+            cimg_forZC(*this,z,c) {
+              CImg_3x3(I,Tfloat);
+              cimg_for3x3(*this,x,y,z,c,I,Tfloat) grad(x,y,z,c) = -a*Ipp - b*Icp - a*Inp + a*Ipn + b*Icn + a*Inn;
+            }
+          grad.move_to(res);
+        } break;
+        case 4 : // Deriche filter
+          get_deriche(0,1,axis).move_to(res);
+          break;
+        case 5 : // Van Vliet filter
+          get_vanvliet(0,1,axis).move_to(res);
+          break;
+        default : { // Central finite differences
+          grad.assign(_width,_height,_depth,_spectrum);
+          cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(size(),16384))
+          cimg_forXYZC(*this,x,y,z,c) {
+            const ulongT pos = offset(x,y,z,c);
+            if ((axis=='x' && !x) || (axis=='y' && !y) || (axis=='z' && !z))
+              grad[pos] = ((Tfloat)_data[pos + off] - _data[pos])/2;
+            else if ((axis=='x' && x==width() - 1) || (axis=='y' && y==height() - 1) || (axis=='z' && z==depth() - 1))
+              grad[pos] = ((Tfloat)_data[pos] - _data[pos - off])/2;
+            else
+              grad[pos] = ((Tfloat)_data[pos + off] - _data[pos - off])/2;
+          }
+          grad.move_to(res);
+        } break;
         }
       }
       return res;

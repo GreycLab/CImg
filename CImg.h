@@ -38572,6 +38572,7 @@ namespace cimg_library_suffixed {
           switch (_scheme) {
           case -1 : { // Backward finite differences
             grad.assign(_width,_height,_depth,_spectrum);
+            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(size(),16384))
             cimg_forXYZC(*this,x,y,z,c) {
               const ulongT pos = offset(x,y,z,c);
               if ((!k && !x) || (k==1 && !y) || (k==2 && !z))
@@ -38583,6 +38584,7 @@ namespace cimg_library_suffixed {
           } break;
           case 1 : { // Forward finite differences
             grad.assign(_width,_height,_depth,_spectrum);
+            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(size(),16384))
             cimg_forXYZC(*this,x,y,z,c) {
               const ulongT pos = offset(x,y,z,c);
               if ((!k && x==width() - 1) || (k==1 && y==height() - 1) || (k==2 && z==depth() - 1))
@@ -38595,11 +38597,17 @@ namespace cimg_library_suffixed {
           case 2 : { // Sobel scheme
             grad.assign(_width,_height,_depth,_spectrum);
             if (k==0) // X-axis
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
+                                 cimg_openmp_if(_width*_height>=(cimg_openmp_sizefactor)*16384 &&
+                                                _depth*_spectrum>=2))
               cimg_forZC(*this,z,c) {
                 CImg_3x3(I,Tfloat);
                 cimg_for3x3(*this,x,y,z,c,I,Tfloat) grad(x,y,z,c) = - Ipp + Inp - 2*Ipc + 2*Inc - Ipn + Inn;
               }
             else // Y-axis
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
+                                 cimg_openmp_if(_width*_height>=(cimg_openmp_sizefactor)*16384 &&
+                                                _depth*_spectrum>=2))
               cimg_forZC(*this,z,c) {
                 CImg_3x3(I,Tfloat);
                 cimg_for3x3(*this,x,y,z,c,I,Tfloat) grad(x,y,z,c) = - Ipp - 2*Icp - Inp + Ipn + 2*Icn + Inn;
@@ -38610,11 +38618,17 @@ namespace cimg_library_suffixed {
             const Tfloat a = (Tfloat)(0.25f*(2 - std::sqrt(2.f))), b = (Tfloat)(0.5f*(std::sqrt(2.f) - 1));
             grad.assign(_width,_height,_depth,_spectrum);
             if (k==0) // X-axis
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
+                                 cimg_openmp_if(_width*_height>=(cimg_openmp_sizefactor)*16384 &&
+                                                _depth*_spectrum>=2))
               cimg_forZC(*this,z,c) {
                 CImg_3x3(I,Tfloat);
                 cimg_for3x3(*this,x,y,z,c,I,Tfloat) grad(x,y,z,c) = -a*Ipp - b*Ipc - a*Ipn + a*Inp + b*Inc + a*Inn;
               }
             else // Y-axis
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
+                                 cimg_openmp_if(_width*_height>=(cimg_openmp_sizefactor)*16384 &&
+                                                _depth*_spectrum>=2))
               cimg_forZC(*this,z,c) {
                 CImg_3x3(I,Tfloat);
                 cimg_for3x3(*this,x,y,z,c,I,Tfloat) grad(x,y,z,c) = -a*Ipp - b*Icp - a*Inp + a*Ipn + b*Icn + a*Inn;
@@ -38629,6 +38643,7 @@ namespace cimg_library_suffixed {
             break;
           default : { // Central finite differences
             grad.assign(_width,_height,_depth,_spectrum);
+            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(size(),16384))
             cimg_forXYZC(*this,x,y,z,c) {
               const ulongT pos = offset(x,y,z,c);
               if ((!k && !x) || (k==1 && !y) || (k==2 && !z))

@@ -18,17 +18,17 @@
  #
  #                    CeCILL-C
  #                    The CeCILL-C license is close to the GNU LGPL.
- #                    ( http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html )
+ #                    ( http://cecill.info/licences/Licence_CeCILL-C_V1-en.html )
  #
  #                or  CeCILL v2.1
  #                    The CeCILL license is compatible with the GNU GPL.
- #                    ( http://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html )
+ #                    ( http://cecill.info/licences/Licence_CeCILL_V2.1-en.html )
  #
  #  This software is governed either by the CeCILL or the CeCILL-C license
  #  under French law and abiding by the rules of distribution of free software.
  #  You can  use, modify and or redistribute the software under the terms of
  #  the CeCILL or CeCILL-C licenses as circulated by CEA, CNRS and INRIA
- #  at the following URL: "http://www.cecill.info".
+ #  at the following URL: "http://cecill.info".
  #
  #  As a counterpart to the access to the source code and  rights to copy,
  #  modify and redistribute granted by the license, users are provided only

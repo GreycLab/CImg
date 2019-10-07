@@ -38709,7 +38709,9 @@ namespace cimg_library_suffixed {
             const ulongT pos = offset(x,y,z,c);
             if ((axis1=='x' && !x) || (axis1=='y' && !y) || (axis1=='z' && !z))
               hess[pos] = (Tfloat)_data[pos + off] - _data[pos];
-            else if ((axis1=='x' && x==width() - 1) || (axis1=='y' && y==height() - 1) || (axis1=='z' && z==depth() - 1))
+            else if ((axis1=='x' && x==width() - 1) ||
+                     (axis1=='y' && y==height() - 1) ||
+                     (axis1=='z' && z==depth() - 1))
               hess[pos] = (Tfloat)_data[pos - off] - _data[pos];
             else
               hess[pos] = (Tfloat)_data[pos + off] + _data[pos - off] - 2*_data[pos];

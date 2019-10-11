@@ -8595,7 +8595,7 @@ namespace cimg_library_suffixed {
        - The returned value can be positive or negative depending on whether the mouse wheel has been scrolled
        forward or backward.
        - Scrolling the wheel forward add \c 1 to the wheel value.
-       - Scrolling the wheel backward substract \c 1 to the wheel value.
+       - Scrolling the wheel backward subtract \c 1 to the wheel value.
        - The returned value cumulates the number of forward of backward scrolls since the creation of the display,
        or since the last reset of the wheel value (using set_wheel()). It is strongly recommended to quickly reset
        the wheel counter when an action has been performed regarding the current wheel value.
@@ -12515,7 +12515,7 @@ namespace cimg_library_suffixed {
        \param list Destination list.
        \param pos Position of the newly inserted image in the list.
        \note
-       - When optional parameter \c pos is omited, the image instance is transferred as a new
+       - When optional parameter \c pos is omitted, the image instance is transferred as a new
          image at the end of the specified \c list.
        - It is convenient to sequentially insert new images into image lists, with no
          additional copies of memory buffer.
@@ -16684,7 +16684,7 @@ namespace cimg_library_suffixed {
         // [8] = is, [9] = ip, [10] = ic, [11] = xm, [12] = ym, [13] = zm, [14] = cm, [15] = xM,
         // [16] = yM, [17] = zM, [18]=cM, [19]=i0...[28]=i9, [29] = interpolation, [30] = boundary
 
-        // Compile expression into a serie of opcodes.
+        // Compile expression into a sequence of opcodes.
         s_op = ""; ss_op = expr._data;
         const unsigned int ind_result = compile(expr._data,expr._data + expr._width - 1,0,0,false);
         if (!_cimg_mp_is_constant(ind_result)) {
@@ -17998,7 +17998,7 @@ namespace cimg_library_suffixed {
           }
 
         for (s = se2, ns = se1, ps = se3; s>ss; --s, --ns, --ps)
-          if (*s=='>' && *ns!='>' && *ps!='>' && level[s - expr._data]==clevel) { // Greather than ('>')
+          if (*s=='>' && *ns!='>' && *ps!='>' && level[s - expr._data]==clevel) { // Greater than ('>')
             _cimg_mp_op("Operator '>'");
             arg1 = compile(ss,s,depth1,0,is_single);
             arg2 = compile(s + 1,se,depth1,0,is_single);
@@ -26350,7 +26350,7 @@ namespace cimg_library_suffixed {
     /**
        \param variance_method Method used to compute the variance (see variance(const unsigned int) const).
        \note Because of structures such as edges in images it is
-       recommanded to use a robust variance estimation. The variance of the
+       recommended to use a robust variance estimation. The variance of the
        noise is estimated by computing the variance of the Laplacian \f$(\Delta
        I)^2 \f$ scaled by a factor \f$c\f$ insuring \f$ c E[(\Delta I)^2]=
        \sigma^2\f$ where \f$\sigma\f$ is the noise variance.
@@ -28148,7 +28148,7 @@ namespace cimg_library_suffixed {
        \param a5 Sixth matrix value.
        \param a6 Seventh matrix value.
        \param a7 Eighth matrix value.
-       \param a8 Nineth matrix value.
+       \param a8 Ninth matrix value.
     **/
     static CImg<T> matrix(const T& a0, const T& a1, const T& a2,
 			  const T& a3, const T& a4, const T& a5,
@@ -29169,7 +29169,7 @@ namespace cimg_library_suffixed {
     /**
        \param val_min Minimal authorized random value.
        \param val_max Maximal authorized random value.
-       \note Random variables are uniformely distributed in [val_min,val_max].
+       \note Random variables are uniformly distributed in [val_min,val_max].
      **/
     CImg<T>& rand(const T& val_min, const T& val_max) {
       const float delta = (float)val_max - (float)val_min + (cimg::type<T>::is_float()?0:1);
@@ -32240,7 +32240,7 @@ namespace cimg_library_suffixed {
         return resc._is_shared?(resz._is_shared?(resy._is_shared?(resx._is_shared?(+(*this)):resx):resy):resz):resc;
       } break;
 
-        // Unknow interpolation.
+        // Unknown interpolation.
         //
       default :
         throw CImgArgumentException(_cimg_instance
@@ -54988,7 +54988,7 @@ namespace cimg_library_suffixed {
         \param dc Number of channels of the image.
         \note
         - All pixel values of the saved image are set to \c 0.
-        - Use this method to save large images without having to instanciate and allocate them.
+        - Use this method to save large images without having to instantiate and allocate them.
     **/
     static void save_empty_cimg(const char *const filename,
                                 const unsigned int dx, const unsigned int dy=1,
@@ -58106,7 +58106,7 @@ namespace cimg_library_suffixed {
     //! Return a list where each image has been split along the specified axis.
     /**
         \param axis Axis to split images along.
-        \param nb Number of spliting parts for each image.
+        \param nb Number of split parts for each image.
     **/
     CImgList<T>& split(const char axis, const int nb=-1) {
       return get_split(axis,nb).move_to(*this);
@@ -59610,7 +59610,7 @@ namespace cimg_library_suffixed {
     /**
        \param disp Reference to an existing CImgDisplay instance, where the current image list will be displayed.
        \param axis Appending axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
-       \param align Appending alignmenet.
+       \param align Appending alignment.
        \note This function displays the list images of the current CImgList instance into an existing
          CImgDisplay window.
        Images of the list are appended in a single temporary image for visualization purposes.

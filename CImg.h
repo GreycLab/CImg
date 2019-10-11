@@ -649,7 +649,7 @@ extern "C" {
 // Macros to define program usage, and retrieve command line arguments.
 #define cimg_usage(usage) cimg_library_suffixed::cimg::option((char*)0,argc,argv,(char*)0,usage,false)
 #define cimg_help(str) cimg_library_suffixed::cimg::option((char*)0,argc,argv,str,(char*)0)
-#define cimg_option(name,defaut,usage) cimg_library_suffixed::cimg::option(name,argc,argv,defaut,usage)
+#define cimg_option(name,_default,usage) cimg_library_suffixed::cimg::option(name,argc,argv,_default,usage)
 
 // Macros to define and manipulate local neighborhoods.
 #define CImg_2x2(I,T) T I[4]; \
@@ -2260,7 +2260,7 @@ extern "C" {
 /**
    This namespace is defined to avoid functions and class names collisions
    that could happen with the inclusion of other C++ header files.
-   Anyway, it should not happen often and you should reasonnably start most of your
+   Anyway, it should not happen often and you should reasonably start most of your
    \CImg-based programs with
    \code
    #include "CImg.h"
@@ -2277,7 +2277,7 @@ namespace cimg_library_suffixed {
   struct CImgException;
 
   // Declare cimg:: namespace.
-  // This is an uncomplete namespace definition here. It only contains some
+  // This is an incomplete namespace definition here. It only contains some
   // necessary stuff to ensure a correct declaration order of the classes and functions
   // defined afterwards.
   namespace cimg {
@@ -2504,7 +2504,7 @@ namespace cimg_library_suffixed {
       const float value = img.at(0);   // Try to read first pixel value (does not exist)
       \endcode
 
-      - \b CImgIOException: Thrown when an error occured when trying to load or save image files.
+      - \b CImgIOException: Thrown when an error occurred when trying to load or save image files.
       This happens when trying to read files that do not exist or with invalid formats.
       For instance, the following example throws a \c CImgIOException:
       \code
@@ -5856,7 +5856,7 @@ namespace cimg_library_suffixed {
     //! Sleep for a given numbers of milliseconds.
     /**
        \param milliseconds Number of milliseconds to wait for.
-       \note This function frees the CPU ressources during the sleeping time.
+       \note This function frees the CPU resources during the sleeping time.
        It can be used to temporize your program properly, without wasting CPU time.
     **/
     inline void sleep(const unsigned int milliseconds) {
@@ -7093,7 +7093,7 @@ namespace cimg_library_suffixed {
        \param path Specified path to get attributes from.
        \param[in,out] attr Type of requested time attributes.
                       Can be { 0=year | 1=month | 2=day | 3=day of week | 4=hour | 5=minute | 6=second }
-                      Replaced by read attributes after return (or -1 if an error occured).
+                      Replaced by read attributes after return (or -1 if an error occurred).
        \param nb_attr Number of attributes to read/write.
        \return Latest read attribute.
     **/
@@ -7140,7 +7140,7 @@ namespace cimg_library_suffixed {
        \param path Specified path to get attributes from.
        \param attr Type of requested time attributes.
                    Can be { 0=year | 1=month | 2=day | 3=day of week | 4=hour | 5=minute | 6=second }
-       \return Specified attribute or -1 if an error occured.
+       \return Specified attribute or -1 if an error occurred.
     **/
     inline int fdate(const char *const path, unsigned int attr) {
       int out = (int)attr;
@@ -7151,7 +7151,7 @@ namespace cimg_library_suffixed {
     /**
        \param[in,out] attr Type of requested time attributes.
                            Can be { 0=year | 1=month | 2=day | 3=day of week | 4=hour | 5=minute | 6=second }
-                           Replaced by read attributes after return (or -1 if an error occured).
+                           Replaced by read attributes after return (or -1 if an error occurred).
        \param nb_attr Number of attributes to read/write.
        \return Latest read attribute.
     **/
@@ -7187,7 +7187,7 @@ namespace cimg_library_suffixed {
     /**
        \param attr Type of requested time attribute.
                    Can be { 0=year | 1=month | 2=day | 3=day of week | 4=hour | 5=minute | 6=second }
-       \return Specified attribute or -1 if an error occured.
+       \return Specified attribute or -1 if an error occurred.
     **/
     inline int date(unsigned int attr) {
       int out = (int)attr;
@@ -7336,7 +7336,7 @@ namespace cimg_library_suffixed {
 
     //! Return options specified on the command line.
     inline const char* option(const char *const name, const int argc, const char *const *const argv,
-                              const char *const defaut, const char *const usage, const bool reset_static) {
+                              const char *const _default, const char *const usage, const bool reset_static) {
       static bool first = true, visu = false;
       if (reset_static) { first = true; return 0; }
       const char *res = 0;
@@ -7352,14 +7352,14 @@ namespace cimg_library_suffixed {
           std::fprintf(cimg::output(),": %s",usage);
           std::fprintf(cimg::output()," (%s, %s)\n\n",cimg_date,cimg_time);
         }
-        if (defaut) std::fprintf(cimg::output(),"%s\n",defaut);
+        if (_default) std::fprintf(cimg::output(),"%s\n",_default);
       }
       if (name) {
         if (argc>0) {
           int k = 0;
           while (k<argc && std::strcmp(argv[k],name)) ++k;
-          res = (k++==argc?defaut:(k==argc?argv[--k]:argv[k]));
-        } else res = defaut;
+          res = (k++==argc?_default:(k==argc?argv[--k]:argv[k]));
+        } else res = _default;
         if (visu && usage) std::fprintf(cimg::output(),"    %s%-16s%s %-24s %s%s%s\n",
                                         cimg::t_bold,name,cimg::t_normal,res?res:"0",
                                         cimg::t_green,usage,cimg::t_normal);
@@ -7368,22 +7368,22 @@ namespace cimg_library_suffixed {
     }
 
     inline const char* option(const char *const name, const int argc, const char *const *const argv,
-                              const char *const defaut, const char *const usage=0) {
-      return option(name,argc,argv,defaut,usage,false);
+                              const char *const _default, const char *const usage=0) {
+      return option(name,argc,argv,_default,usage,false);
     }
 
     inline bool option(const char *const name, const int argc, const char *const *const argv,
-                       const bool defaut, const char *const usage=0) {
+                       const bool _default, const char *const usage=0) {
       const char *const s = cimg::option(name,argc,argv,(char*)0);
-      const bool res = s?(cimg::strcasecmp(s,"false") && cimg::strcasecmp(s,"off") && cimg::strcasecmp(s,"0")):defaut;
+      const bool res = s?(cimg::strcasecmp(s,"false") && cimg::strcasecmp(s,"off") && cimg::strcasecmp(s,"0")):_default;
       cimg::option(name,0,0,res?"true":"false",usage);
       return res;
     }
 
     inline int option(const char *const name, const int argc, const char *const *const argv,
-                      const int defaut, const char *const usage=0) {
+                      const int _default, const char *const usage=0) {
       const char *const s = cimg::option(name,argc,argv,(char*)0);
-      const int res = s?std::atoi(s):defaut;
+      const int res = s?std::atoi(s):_default;
       char *const tmp = new char[256];
       cimg_snprintf(tmp,256,"%d",res);
       cimg::option(name,0,0,tmp,usage);
@@ -7392,9 +7392,9 @@ namespace cimg_library_suffixed {
     }
 
     inline char option(const char *const name, const int argc, const char *const *const argv,
-                       const char defaut, const char *const usage=0) {
+                       const char _default, const char *const usage=0) {
       const char *const s = cimg::option(name,argc,argv,(char*)0);
-      const char res = s?*s:defaut;
+      const char res = s?*s:_default;
       char tmp[8];
       *tmp = res; tmp[1] = 0;
       cimg::option(name,0,0,tmp,usage);
@@ -7402,9 +7402,9 @@ namespace cimg_library_suffixed {
     }
 
     inline float option(const char *const name, const int argc, const char *const *const argv,
-                        const float defaut, const char *const usage=0) {
+                        const float _default, const char *const usage=0) {
       const char *const s = cimg::option(name,argc,argv,(char*)0);
-      const float res = s?(float)cimg::atof(s):defaut;
+      const float res = s?(float)cimg::atof(s):_default;
       char *const tmp = new char[256];
       cimg_snprintf(tmp,256,"%g",res);
       cimg::option(name,0,0,tmp,usage);
@@ -7413,9 +7413,9 @@ namespace cimg_library_suffixed {
     }
 
     inline double option(const char *const name, const int argc, const char *const *const argv,
-                         const double defaut, const char *const usage=0) {
+                         const double _default, const char *const usage=0) {
       const char *const s = cimg::option(name,argc,argv,(char*)0);
-      const double res = s?cimg::atof(s):defaut;
+      const double res = s?cimg::atof(s):_default;
       char *const tmp = new char[256];
       cimg_snprintf(tmp,256,"%g",res);
       cimg::option(name,0,0,tmp,usage);
@@ -7423,7 +7423,7 @@ namespace cimg_library_suffixed {
       return res;
     }
 
-    //! Print information about \CImg environement variables.
+    //! Print information about \CImg environment variables.
     /**
        \note Output is done on the default output stream.
     **/
@@ -7434,7 +7434,7 @@ namespace cimg_library_suffixed {
 
       std::fprintf(cimg::output(),"  > Operating System:       %s%-13s%s %s('cimg_OS'=%d)%s\n",
                    cimg::t_bold,
-                   cimg_OS==1?"Unix":(cimg_OS==2?"Windows":"Unknow"),
+                   cimg_OS==1?"Unix":(cimg_OS==2?"Windows":"Unknown"),
                    cimg::t_normal,cimg::t_green,
                    cimg_OS,
                    cimg::t_normal);
@@ -7821,7 +7821,7 @@ namespace cimg_library_suffixed {
      CImgDisplay methods rely on a low-level graphic library to perform: it can be either \b X-Window
      (X11, for Unix-based systems) or \b GDI32 (for Windows-based systems).
      If both libraries are missing, CImgDisplay will not be able to display images on screen, and will enter
-     a minimal mode where warning messages will be outputed each time the program is trying to call one of the
+     a minimal mode where warning messages will be outputted each time the program is trying to call one of the
      CImgDisplay method.
 
      The configuration variable \c cimg_display tells about the graphic library used.
@@ -8214,7 +8214,7 @@ namespace cimg_library_suffixed {
       return _is_moved;
     }
 
-    //! Return \c true if any event has occured on the associated window, \c false otherwise.
+    //! Return \c true if any event has occurred on the associated window, \c false otherwise.
     /**
     **/
     bool is_event() const {
@@ -9159,7 +9159,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Wait for any user event occuring on the current display.
+    //! Wait for any user event occurring on the current display.
     CImgDisplay& wait() {
       wait(*this);
       return *this;
@@ -9175,34 +9175,34 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Wait for any event occuring on the display \c disp1.
+    //! Wait for any event occurring on the display \c disp1.
     static void wait(CImgDisplay& disp1) {
       disp1._is_event = false;
       while (!disp1._is_closed && !disp1._is_event) wait_all();
     }
 
-    //! Wait for any event occuring either on the display \c disp1 or \c disp2.
+    //! Wait for any event occurring either on the display \c disp1 or \c disp2.
     static void wait(CImgDisplay& disp1, CImgDisplay& disp2) {
       disp1._is_event = disp2._is_event = false;
       while ((!disp1._is_closed || !disp2._is_closed) &&
              !disp1._is_event && !disp2._is_event) wait_all();
     }
 
-    //! Wait for any event occuring either on the display \c disp1, \c disp2 or \c disp3.
+    //! Wait for any event occurring either on the display \c disp1, \c disp2 or \c disp3.
     static void wait(CImgDisplay& disp1, CImgDisplay& disp2, CImgDisplay& disp3) {
       disp1._is_event = disp2._is_event = disp3._is_event = false;
       while ((!disp1._is_closed || !disp2._is_closed || !disp3._is_closed) &&
              !disp1._is_event && !disp2._is_event && !disp3._is_event) wait_all();
     }
 
-    //! Wait for any event occuring either on the display \c disp1, \c disp2, \c disp3 or \c disp4.
+    //! Wait for any event occurring either on the display \c disp1, \c disp2, \c disp3 or \c disp4.
     static void wait(CImgDisplay& disp1, CImgDisplay& disp2, CImgDisplay& disp3, CImgDisplay& disp4) {
       disp1._is_event = disp2._is_event = disp3._is_event = disp4._is_event = false;
       while ((!disp1._is_closed || !disp2._is_closed || !disp3._is_closed || !disp4._is_closed) &&
              !disp1._is_event && !disp2._is_event && !disp3._is_event && !disp4._is_event) wait_all();
     }
 
-    //! Wait for any event occuring either on the display \c disp1, \c disp2, \c disp3, \c disp4 or \c disp5.
+    //! Wait for any event occurring either on the display \c disp1, \c disp2, \c disp3, \c disp4 or \c disp5.
     static void wait(CImgDisplay& disp1, CImgDisplay& disp2, CImgDisplay& disp3, CImgDisplay& disp4,
                      CImgDisplay& disp5) {
       disp1._is_event = disp2._is_event = disp3._is_event = disp4._is_event = disp5._is_event = false;
@@ -9211,7 +9211,7 @@ namespace cimg_library_suffixed {
         wait_all();
     }
 
-    //! Wait for any event occuring either on the display \c disp1, \c disp2, \c disp3, \c disp4, ... \c disp6.
+    //! Wait for any event occurring either on the display \c disp1, \c disp2, \c disp3, \c disp4, ... \c disp6.
     static void wait(CImgDisplay& disp1, CImgDisplay& disp2, CImgDisplay& disp3, CImgDisplay& disp4, CImgDisplay& disp5,
                      CImgDisplay& disp6) {
       disp1._is_event = disp2._is_event = disp3._is_event = disp4._is_event = disp5._is_event =
@@ -9222,7 +9222,7 @@ namespace cimg_library_suffixed {
              !disp6._is_event) wait_all();
     }
 
-    //! Wait for any event occuring either on the display \c disp1, \c disp2, \c disp3, \c disp4, ... \c disp7.
+    //! Wait for any event occurring either on the display \c disp1, \c disp2, \c disp3, \c disp4, ... \c disp7.
     static void wait(CImgDisplay& disp1, CImgDisplay& disp2, CImgDisplay& disp3, CImgDisplay& disp4, CImgDisplay& disp5,
                      CImgDisplay& disp6, CImgDisplay& disp7) {
       disp1._is_event = disp2._is_event = disp3._is_event = disp4._is_event = disp5._is_event =
@@ -9233,7 +9233,7 @@ namespace cimg_library_suffixed {
              !disp6._is_event && !disp7._is_event) wait_all();
     }
 
-    //! Wait for any event occuring either on the display \c disp1, \c disp2, \c disp3, \c disp4, ... \c disp8.
+    //! Wait for any event occurring either on the display \c disp1, \c disp2, \c disp3, \c disp4, ... \c disp8.
     static void wait(CImgDisplay& disp1, CImgDisplay& disp2, CImgDisplay& disp3, CImgDisplay& disp4, CImgDisplay& disp5,
                      CImgDisplay& disp6, CImgDisplay& disp7, CImgDisplay& disp8) {
       disp1._is_event = disp2._is_event = disp3._is_event = disp4._is_event = disp5._is_event =
@@ -9244,7 +9244,7 @@ namespace cimg_library_suffixed {
              !disp6._is_event && !disp7._is_event && !disp8._is_event) wait_all();
     }
 
-    //! Wait for any event occuring either on the display \c disp1, \c disp2, \c disp3, \c disp4, ... \c disp9.
+    //! Wait for any event occurring either on the display \c disp1, \c disp2, \c disp3, \c disp4, ... \c disp9.
     static void wait(CImgDisplay& disp1, CImgDisplay& disp2, CImgDisplay& disp3, CImgDisplay& disp4, CImgDisplay& disp5,
                      CImgDisplay& disp6, CImgDisplay& disp7, CImgDisplay& disp8, CImgDisplay& disp9) {
       disp1._is_event = disp2._is_event = disp3._is_event = disp4._is_event = disp5._is_event =
@@ -9255,7 +9255,7 @@ namespace cimg_library_suffixed {
              !disp6._is_event && !disp7._is_event && !disp8._is_event && !disp9._is_event) wait_all();
     }
 
-    //! Wait for any event occuring either on the display \c disp1, \c disp2, \c disp3, \c disp4, ... \c disp10.
+    //! Wait for any event occurring either on the display \c disp1, \c disp2, \c disp3, \c disp4, ... \c disp10.
     static void wait(CImgDisplay& disp1, CImgDisplay& disp2, CImgDisplay& disp3, CImgDisplay& disp4, CImgDisplay& disp5,
                      CImgDisplay& disp6, CImgDisplay& disp7, CImgDisplay& disp8, CImgDisplay& disp9,
                      CImgDisplay& disp10) {
@@ -9270,7 +9270,7 @@ namespace cimg_library_suffixed {
 
 #if cimg_display==0
 
-    //! Wait for any window event occuring in any opened CImgDisplay.
+    //! Wait for any window event occurring in any opened CImgDisplay.
     static void wait_all() {
       return _no_display_exception();
     }
@@ -12019,7 +12019,7 @@ namespace cimg_library_suffixed {
        \note
        - Similar to CImg(unsigned int,unsigned int,unsigned int,unsigned int), but it reads the image
          dimensions and pixel values from the specified image file.
-       - The recognition of the image file format by %CImg higly depends on the tools installed on your system
+       - The recognition of the image file format by %CImg higlhy depends on the tools installed on your system
          and on the external libraries you used to link your code against.
        - Considered pixel type \c T should better fit the file format specification, or data loss may occur during
          file load (e.g. constructing a \c CImg<unsigned char> from a float-valued image file).
@@ -12245,7 +12245,7 @@ namespace cimg_library_suffixed {
       if (siz!=curr_siz) {
 	if (_is_shared)
           throw CImgArgumentException(_cimg_instance
-                                      "assign(): Invalid assignement request of shared instance from specified "
+                                      "assign(): Invalid assignment request of shared instance from specified "
                                       "image (%u,%u,%u,%u).",
                                       cimg_instance,
                                       size_x,size_y,size_z,size_c);
@@ -12515,7 +12515,7 @@ namespace cimg_library_suffixed {
        \param list Destination list.
        \param pos Position of the newly inserted image in the list.
        \note
-       - When optional parameter \c pos is ommited, the image instance is transfered as a new
+       - When optional parameter \c pos is omited, the image instance is transferred as a new
          image at the end of the specified \c list.
        - It is convenient to sequentially insert new images into image lists, with no
          additional copies of memory buffer.
@@ -12599,7 +12599,7 @@ namespace cimg_library_suffixed {
        \warning
        - There is \e no boundary checking done in this operator, to make it as fast as possible.
          You \e must take care of out-of-bounds access by yourself, if necessary.
-         For debuging purposes, you may want to define macro \c 'cimg_verbosity'>=3 to enable additional boundary
+         For debugging purposes, you may want to define macro \c 'cimg_verbosity'>=3 to enable additional boundary
          checking operations in this operator. In that case, warning messages will be printed on the error output
          when accessing out-of-bounds pixels.
        \par Example
@@ -12712,9 +12712,9 @@ namespace cimg_library_suffixed {
     }
 #endif
 
-    //! Implicitely cast an image into a \c T*.
+    //! Implicitly cast an image into a \c T*.
     /**
-       Implicitely cast a \c CImg<T> instance into a \c T* or \c const \c T* pointer, whether the image instance
+       Implicitly cast a \c CImg<T> instance into a \c T* or \c const \c T* pointer, whether the image instance
        is \e const or not. The returned pointer points on the first value of the image pixel buffer.
        \note
        - It simply returns the pointer data() to the pixel buffer.
@@ -12738,7 +12738,7 @@ namespace cimg_library_suffixed {
       return _data;
     }
 
-    //! Implicitely cast an image into a \c T* \const.
+    //! Implicitly cast an image into a \c T* \const.
     operator const T*() const {
       return _data;
     }
@@ -12773,7 +12773,7 @@ namespace cimg_library_suffixed {
            replace the image instance. The image size is modified if necessary.
        \par Example
        \code
-       CImg<float> img1(100,100), img2(img1), img3(img1); // Declare 3 scalar images 100x100 with unitialized values
+       CImg<float> img1(100,100), img2(img1), img3(img1); // Declare 3 scalar images 100x100 with uninitialized values
        img1 = "0,50,100,150,200,250,200,150,100,50"; // Set pixel values of 'img1' from a value sequence
        img2 = "10*((x*y)%25)";                       // Set pixel values of 'img2' from a formula
        img3 = "reference.jpg";                       // Set pixel values of 'img3' from a file (image size is modified)
@@ -12965,9 +12965,9 @@ namespace cimg_library_suffixed {
       return CImg<_cimg_Tt>(*this,false)+=img;
     }
 
-    //! In-place substraction operator.
+    //! In-place subtraction operator.
     /**
-       Similar to operator+=(const t), except that it performs a substraction instead of an addition.
+       Similar to operator+=(const t), except that it performs a subtraction instead of an addition.
      **/
     template<typename t>
     CImg<T>& operator-=(const t value) {
@@ -12976,17 +12976,17 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! In-place substraction operator.
+    //! In-place subtraction operator.
     /**
-       Similar to operator+=(const char*), except that it performs a substraction instead of an addition.
+       Similar to operator+=(const char*), except that it performs a subtraction instead of an addition.
      **/
     CImg<T>& operator-=(const char *const expression) {
       return *this-=(+*this)._fill(expression,true,1,0,0,"operator-=",this);
     }
 
-    //! In-place substraction operator.
+    //! In-place subtraction operator.
     /**
-       Similar to operator+=(const CImg<t>&), except that it performs a substraction instead of an addition.
+       Similar to operator+=(const CImg<t>&), except that it performs a subtraction instead of an addition.
      **/
     template<typename t>
     CImg<T>& operator-=(const CImg<t>& img) {
@@ -13040,7 +13040,7 @@ namespace cimg_library_suffixed {
       return CImg<T>(_width,_height,_depth,_spectrum,(T)0)-=*this;
     }
 
-    //! Substraction operator.
+    //! Subtraction operator.
     /**
        Similar to operator-=(const t), except that it returns a new image instance instead of operating in-place.
        The pixel type of the returned image may be a superset of the initial pixel type \c T, if necessary.
@@ -13050,7 +13050,7 @@ namespace cimg_library_suffixed {
       return CImg<_cimg_Tt>(*this,false)-=value;
     }
 
-    //! Substraction operator.
+    //! Subtraction operator.
     /**
        Similar to operator-=(const char*), except that it returns a new image instance instead of operating in-place.
        The pixel type of the returned image may be a superset of the initial pixel type \c T, if necessary.
@@ -13059,7 +13059,7 @@ namespace cimg_library_suffixed {
       return CImg<Tfloat>(*this,false)-=expression;
     }
 
-    //! Substraction operator.
+    //! Subtraction operator.
     /**
        Similar to operator-=(const CImg<t>&), except that it returns a new image instance instead of operating in-place.
        The pixel type of the returned image may be a superset of the initial pixel type \c T, if necessary.
@@ -13939,7 +13939,7 @@ namespace cimg_library_suffixed {
 
     //! Split image along specified axis.
     /**
-       Return a new list of images (\c CImgList instance) containing the splitted components
+       Return a new list of images (\c CImgList instance) containing the split components
        of the instance image along the specified axis.
        \param axis Splitting axis (can be '\c x','\c y','\c z' or '\c c')
        \note
@@ -35162,11 +35162,11 @@ namespace cimg_library_suffixed {
     //! Split image into a list along specified axis.
     /**
        \param axis Splitting axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
-       \param nb Number of splitted parts.
+       \param nb Number of split parts.
        \note
-       - If \c nb==0, instance image is splitted into blocs of egal values along the specified axis.
-       - If \c nb<=0, instance image is splitted into blocs of -\c nb pixel wide.
-       - If \c nb>0, instance image is splitted into \c nb blocs.
+       - If \c nb==0, instance image is split into blocs of egal values along the specified axis.
+       - If \c nb<=0, instance image is split into blocs of -\c nb pixel wide.
+       - If \c nb>0, instance image is split into \c nb blocs.
     **/
     CImgList<T> get_split(const char axis, const int nb=-1) const {
       CImgList<T> res;
@@ -35308,7 +35308,7 @@ namespace cimg_library_suffixed {
     /**
        \param values Splitting value sequence.
        \param axis Axis along which the splitting is performed. Can be '0' to ignore axis.
-       \param keep_values Tells if the splitting sequence must be kept in the splitted blocs.
+       \param keep_values Tells if the splitting sequence must be kept in the split blocs.
      **/
     template<typename t>
     CImgList<T> get_split(const CImg<t>& values, const char axis=0, const bool keep_values=true) const {
@@ -36993,7 +36993,7 @@ namespace cimg_library_suffixed {
        \param filter the coefficient of the filter in the following order [n,n - 1,n - 2,n - 3].
        \param N size of the data
        \param off the offset between two data point
-       \param order the order of the filter 0 (smoothing), 1st derivtive, 2nd derivative, 3rd derivative
+       \param order the order of the filter 0 (smoothing), 1st derivative, 2nd derivative, 3rd derivative
        \param boundary_conditions Boundary conditions. Can be <tt>{ 0=dirichlet | 1=neumann }</tt>.
        \note Boundary condition using B. Triggs method (IEEE trans on Sig Proc 2005).
     */
@@ -37752,7 +37752,7 @@ namespace cimg_library_suffixed {
       \param N size of the data
       \param boxsize Size of the box filter (can be subpixel).
       \param off the offset between two data point
-      \param order the order of the filter 0 (smoothing), 1st derivtive and 2nd derivative.
+      \param order the order of the filter 0 (smoothing), 1st derivative and 2nd derivative.
       \param boundary_conditions Boundary conditions. Can be <tt>{ 0=dirichlet | 1=neumann }</tt>.
     */
     static void _cimg_blur_box_apply(T *ptr, const float boxsize, const int N, const ulongT off,
@@ -38536,8 +38536,8 @@ namespace cimg_library_suffixed {
        - 1 = Forward finite differences
        - 2 = Using Sobel kernels
        - 3 = Using rotation invariant kernels
-       - 4 = Using Deriche recusrsive filter.
-       - 5 = Using Van Vliet recusrsive filter.
+       - 4 = Using Deriche recursive filter.
+       - 5 = Using Van Vliet recursive filter.
     **/
     CImgList<Tfloat> get_gradient(const char *const axes=0, const int scheme=0) const {
       CImgList<Tfloat> res;
@@ -43259,7 +43259,7 @@ namespace cimg_library_suffixed {
        \note
        - The curve is a 2D cubic Bezier spline, from the set of specified starting/ending points
        and corresponding velocity vectors.
-       - The spline is drawn as a serie of connected segments. The \p precision parameter sets the
+       - The spline is drawn as a sequence of connected segments. The \p precision parameter sets the
        average number of pixels in each drawn segment.
        - A cubic Bezier curve is sometimes defined by a set of 4 points { (\p x0,\p y0), (\p xa,\p ya),
          (\p xb,\p yb), (\p x1,\p y1) } where (\p x0,\p y0) is the starting point, (\p x1,\p y1) is the ending point
@@ -51914,7 +51914,7 @@ namespace cimg_library_suffixed {
       \param last_frame Index of the last frame to read.
       \param step_frame Step value for frame reading.
       \param axis Alignment axis.
-      \param align Apending alignment.
+      \param align Appending alignment.
     **/
     CImg<T>& load_video(const char *const filename,
                         const unsigned int first_frame=0, const unsigned int last_frame=~0U,
@@ -52311,7 +52311,7 @@ namespace cimg_library_suffixed {
        \param capture_width Width of the desired image ('0' stands for default value).
        \param capture_height Height of the desired image ('0' stands for default value).
        \param skip_frames Number of frames to skip before the capture.
-       \param release_camera Tells if the camera ressource must be released at the end of the method.
+       \param release_camera Tells if the camera resource must be released at the end of the method.
     **/
     CImg<T>& load_camera(const unsigned int camera_index=0,
                          const unsigned int capture_width=0, const unsigned int capture_height=0,
@@ -59613,7 +59613,7 @@ namespace cimg_library_suffixed {
        \param align Appending alignmenet.
        \note This function displays the list images of the current CImgList instance into an existing
          CImgDisplay window.
-       Images of the list are appended in a single temporarly image for visualization purposes.
+       Images of the list are appended in a single temporary image for visualization purposes.
        The function returns immediately.
     **/
     const CImgList<T>& display(CImgDisplay &disp, const char axis='x', const float align=0) const {
@@ -59626,12 +59626,12 @@ namespace cimg_library_suffixed {
         \param disp Display window.
         \param display_info Tells if image information are displayed on the standard output.
         \param axis Alignment axis for images viewing.
-        \param align Apending alignment.
+        \param align Appending alignment.
         \param[in,out] XYZ Contains the XYZ coordinates at start / exit of the function.
         \param exit_on_anykey Exit function when any key is pressed.
         \note This function opens a new window with a specific title and displays the list images of the
           current CImgList instance into it.
-        Images of the list are appended in a single temporarly image for visualization purposes.
+        Images of the list are appended in a single temporary image for visualization purposes.
         The function returns when a key is pressed or the display window is closed by the user.
     **/
     const CImgList<T>& display(CImgDisplay &disp, const bool display_info,
@@ -61955,7 +61955,7 @@ namespace cimg_library_suffixed {
        \note
        - Up to 6 buttons can be defined in the dialog window.
        - The function returns when a user clicked one of the button or closed the dialog window.
-       - If a button text is set to 0, the corresponding button (and the followings) will not appear in the dialog box.
+       - If a button text is set to 0, the corresponding button (and the following) will not appear in the dialog box.
        At least one button must be specified.
     **/
     template<typename t>

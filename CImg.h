@@ -7670,7 +7670,7 @@ namespace cimg_library_suffixed {
    #
    -------------------------------------------------*/
 
-#define _cimg_create_ext_operators(typ) \
+#define _cimg_create_operator(typ) \
   template<typename T> \
   inline CImg<typename cimg::superset<T,typ>::type> operator+(const typ val, const CImg<T>& img) { \
     return img + val; \
@@ -7709,19 +7709,19 @@ namespace cimg_library_suffixed {
     return img != val; \
   }
 
-  _cimg_create_ext_operators(bool)
-  _cimg_create_ext_operators(unsigned char)
-  _cimg_create_ext_operators(char)
-  _cimg_create_ext_operators(signed char)
-  _cimg_create_ext_operators(unsigned short)
-  _cimg_create_ext_operators(short)
-  _cimg_create_ext_operators(unsigned int)
-  _cimg_create_ext_operators(int)
-  _cimg_create_ext_operators(cimg_uint64)
-  _cimg_create_ext_operators(cimg_int64)
-  _cimg_create_ext_operators(float)
-  _cimg_create_ext_operators(double)
-  _cimg_create_ext_operators(long double)
+  _cimg_create_operator(bool)
+  _cimg_create_operator(unsigned char)
+  _cimg_create_operator(char)
+  _cimg_create_operator(signed char)
+  _cimg_create_operator(unsigned short)
+  _cimg_create_operator(short)
+  _cimg_create_operator(unsigned int)
+  _cimg_create_operator(int)
+  _cimg_create_operator(cimg_uint64)
+  _cimg_create_operator(cimg_int64)
+  _cimg_create_operator(float)
+  _cimg_create_operator(double)
+  _cimg_create_operator(long double)
 
   template<typename T>
   inline CImg<_cimg_Tfloat> operator+(const char *const expression, const CImg<T>& img) {
@@ -7783,33 +7783,33 @@ namespace cimg_library_suffixed {
     return instance.get_pseudoinvert();
   }
 
-#define _cimg_create_ext_pointwise_function(name) \
+#define _cimg_create_pointwise_function(name) \
   template<typename T> \
   inline CImg<_cimg_Tfloat> name(const CImg<T>& instance) { \
     return instance.get_##name(); \
   }
 
-  _cimg_create_ext_pointwise_function(sqr)
-  _cimg_create_ext_pointwise_function(sqrt)
-  _cimg_create_ext_pointwise_function(exp)
-  _cimg_create_ext_pointwise_function(log)
-  _cimg_create_ext_pointwise_function(log2)
-  _cimg_create_ext_pointwise_function(log10)
-  _cimg_create_ext_pointwise_function(abs)
-  _cimg_create_ext_pointwise_function(sign)
-  _cimg_create_ext_pointwise_function(cos)
-  _cimg_create_ext_pointwise_function(sin)
-  _cimg_create_ext_pointwise_function(sinc)
-  _cimg_create_ext_pointwise_function(tan)
-  _cimg_create_ext_pointwise_function(acos)
-  _cimg_create_ext_pointwise_function(asin)
-  _cimg_create_ext_pointwise_function(atan)
-  _cimg_create_ext_pointwise_function(cosh)
-  _cimg_create_ext_pointwise_function(sinh)
-  _cimg_create_ext_pointwise_function(tanh)
-  _cimg_create_ext_pointwise_function(acosh)
-  _cimg_create_ext_pointwise_function(asinh)
-  _cimg_create_ext_pointwise_function(atanh)
+  _cimg_create_pointwise_function(sqr)
+  _cimg_create_pointwise_function(sqrt)
+  _cimg_create_pointwise_function(exp)
+  _cimg_create_pointwise_function(log)
+  _cimg_create_pointwise_function(log2)
+  _cimg_create_pointwise_function(log10)
+  _cimg_create_pointwise_function(abs)
+  _cimg_create_pointwise_function(sign)
+  _cimg_create_pointwise_function(cos)
+  _cimg_create_pointwise_function(sin)
+  _cimg_create_pointwise_function(sinc)
+  _cimg_create_pointwise_function(tan)
+  _cimg_create_pointwise_function(acos)
+  _cimg_create_pointwise_function(asin)
+  _cimg_create_pointwise_function(atan)
+  _cimg_create_pointwise_function(cosh)
+  _cimg_create_pointwise_function(sinh)
+  _cimg_create_pointwise_function(tanh)
+  _cimg_create_pointwise_function(acosh)
+  _cimg_create_pointwise_function(asinh)
+  _cimg_create_pointwise_function(atanh)
 
   /*-----------------------------------
    #
@@ -18928,6 +18928,28 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar2(mp_complex_abs,arg1 + 1,arg1 + 2);
             }
 
+#ifdef cimg_mp_call_function
+            if (!std::strncmp(ss,"call(",5)) { // Extern
+              _cimg_mp_op("Function 'call()'");
+              if (!is_single) is_parallelizable = false;
+              CImg<ulongT>::vector((ulongT)mp_call,0,0).move_to(l_opcode);
+              pos = 1;
+              for (s = ss5; s<se; ++s) {
+                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                arg1 = compile(s,ns,depth1,0,is_single);
+                CImg<ulongT>::vector(arg1,_cimg_mp_size(arg1)).move_to(l_opcode);
+                s = ns;
+              }
+              (l_opcode>'y').move_to(opcode);
+              pos = scalar();
+              opcode[1] = pos;
+              opcode[2] = opcode._height;
+              opcode.move_to(code);
+              _cimg_mp_return(pos);
+            }
+#endif
+
             if (!std::strncmp(ss,"carg(",5)) { // Complex argument
               _cimg_mp_op("Function 'carg()'");
               arg1 = compile(ss5,se1,depth1,0,is_single);
@@ -19699,28 +19721,6 @@ namespace cimg_library_suffixed {
               opcode.move_to(code);
               _cimg_mp_return_nan();
             }
-
-#ifdef cimg_mp_ext_function
-            if (!std::strncmp(ss,"ext(",4)) { // Extern
-              _cimg_mp_op("Function 'ext()'");
-              if (!is_single) is_parallelizable = false;
-              CImg<ulongT>::vector((ulongT)mp_ext,0,0).move_to(l_opcode);
-              pos = 1;
-              for (s = ss4; s<se; ++s) {
-                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
-                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
-                arg1 = compile(s,ns,depth1,0,is_single);
-                CImg<ulongT>::vector(arg1,_cimg_mp_size(arg1)).move_to(l_opcode);
-                s = ns;
-              }
-              (l_opcode>'y').move_to(opcode);
-              pos = scalar();
-              opcode[1] = pos;
-              opcode[2] = opcode._height;
-              opcode.move_to(code);
-              _cimg_mp_return(pos);
-            }
-#endif
 
             if (!std::strncmp(ss,"exp(",4)) { // Exponential
               _cimg_mp_op("Function 'exp()'");
@@ -22573,8 +22573,8 @@ namespace cimg_library_suffixed {
         return (double)(_mp_arg(2)==_mp_arg(3));
       }
 
-#ifdef cimg_mp_ext_function
-      static double mp_ext(_cimg_math_parser& mp) {
+#ifdef cimg_mp_call_function
+      static double mp_call(_cimg_math_parser& mp) {
         const unsigned int nb_args = (unsigned int)(mp.opcode[2] - 3)/2;
         CImgList<charT> _str;
         CImg<charT> it;
@@ -22593,7 +22593,7 @@ namespace cimg_library_suffixed {
         }
         CImg(1,1,1,1,0).move_to(_str);
         CImg<charT> str = _str>'x';
-        cimg_mp_ext_function(str._data);
+        cimg_mp_call_function(str._data);
         return cimg::type<double>::nan();
       }
 #endif
@@ -55716,18 +55716,18 @@ namespace cimg_library_suffixed {
                    cimg_instance,filename);
 
 #ifdef cimg_use_png
-#define _cimg_sge_ext1 "png"
-#define _cimg_sge_ext2 "png"
+#define _cimg_sge_extension1 "png"
+#define _cimg_sge_extension2 "png"
 #else
-#define _cimg_sge_ext1 "pgm"
-#define _cimg_sge_ext2 "ppm"
+#define _cimg_sge_extension1 "pgm"
+#define _cimg_sge_extension2 "ppm"
 #endif
       CImg<charT> command(1024), filename_tmp(256);
       std::FILE *file;
       do {
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",
                       cimg::temporary_path(),cimg_file_separator,cimg::filenamerand(),
-                      _spectrum==1?_cimg_sge_ext1:_cimg_sge_ext2);
+                      _spectrum==1?_cimg_sge_extension1:_cimg_sge_extension2);
         if ((file=cimg::std_fopen(filename_tmp,"rb"))!=0) cimg::fclose(file);
       } while (file);
 
@@ -55773,17 +55773,17 @@ namespace cimg_library_suffixed {
                    "ImageMagick only writes the first image slice.",
                    cimg_instance,filename);
 #ifdef cimg_use_png
-#define _cimg_sie_ext1 "png"
-#define _cimg_sie_ext2 "png"
+#define _cimg_sie_extension1 "png"
+#define _cimg_sie_extension2 "png"
 #else
-#define _cimg_sie_ext1 "pgm"
-#define _cimg_sie_ext2 "ppm"
+#define _cimg_sie_extension1 "pgm"
+#define _cimg_sie_extension2 "ppm"
 #endif
       CImg<charT> command(1024), filename_tmp(256);
       std::FILE *file;
       do {
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",cimg::temporary_path(),
-                      cimg_file_separator,cimg::filenamerand(),_spectrum==1?_cimg_sie_ext1:_cimg_sie_ext2);
+                      cimg_file_separator,cimg::filenamerand(),_spectrum==1?_cimg_sie_extension1:_cimg_sie_extension2);
         if ((file=cimg::std_fopen(filename_tmp,"rb"))!=0) cimg::fclose(file);
       } while (file);
 #ifdef cimg_use_png
@@ -59982,19 +59982,19 @@ namespace cimg_library_suffixed {
       std::FILE *file = 0;
 
 #ifdef cimg_use_png
-#define _cimg_save_gif_ext "png"
+#define _cimg_save_gif_extension "png"
 #else
-#define _cimg_save_gif_ext "ppm"
+#define _cimg_save_gif_extension "ppm"
 #endif
 
       do {
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s",
                       cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
-        cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_000001." _cimg_save_gif_ext,filename_tmp._data);
+        cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_000001." _cimg_save_gif_extension,filename_tmp._data);
         if ((file=cimg::std_fopen(filename_tmp2,"rb"))!=0) cimg::fclose(file);
       } while (file);
       cimglist_for(*this,l) {
-        cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_%.6u." _cimg_save_gif_ext,filename_tmp._data,l + 1);
+        cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_%.6u." _cimg_save_gif_extension,filename_tmp._data,l + 1);
         CImg<charT>::string(filename_tmp2).move_to(filenames);
         if (_data[l]._depth>1 || _data[l]._spectrum!=3) _data[l].get_resize(-100,-100,1,3).save(filename_tmp2);
         else _data[l].save(filename_tmp2);

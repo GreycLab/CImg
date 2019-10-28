@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 275
+#define cimg_version 280
 
 /*-----------------------------------------------------------
  #
@@ -19700,6 +19700,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_return_nan();
             }
 
+#ifdef cimg_mp_ext_function
             if (!std::strncmp(ss,"ext(",4)) { // Extern
               _cimg_mp_op("Function 'ext()'");
               if (!is_single) is_parallelizable = false;
@@ -19719,6 +19720,7 @@ namespace cimg_library_suffixed {
               opcode.move_to(code);
               _cimg_mp_return(pos);
             }
+#endif
 
             if (!std::strncmp(ss,"exp(",4)) { // Exponential
               _cimg_mp_op("Function 'exp()'");
@@ -20619,6 +20621,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
+#ifdef cimg_mp_store_function
             if (!std::strncmp(ss,"store(",6)) { // Store to variable
               _cimg_mp_op("Function 'store()'");
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -20669,6 +20672,7 @@ namespace cimg_library_suffixed {
                                    arg3,arg4,arg5,arg6).move_to(code);
               _cimg_mp_return_nan();
             }
+#endif
 
             if (!std::strncmp(ss,"stov(",5)) { // String to double
               _cimg_mp_op("Function 'stov()'");
@@ -22569,6 +22573,7 @@ namespace cimg_library_suffixed {
         return (double)(_mp_arg(2)==_mp_arg(3));
       }
 
+#ifdef cimg_mp_ext_function
       static double mp_ext(_cimg_math_parser& mp) {
         const unsigned int nb_args = (unsigned int)(mp.opcode[2] - 3)/2;
         CImgList<charT> _str;
@@ -22588,11 +22593,10 @@ namespace cimg_library_suffixed {
         }
         CImg(1,1,1,1,0).move_to(_str);
         CImg<charT> str = _str>'x';
-#ifdef cimg_mp_ext_function
         cimg_mp_ext_function(str._data);
-#endif
         return cimg::type<double>::nan();
       }
+#endif
 
       static double mp_exp(_cimg_math_parser& mp) {
         return std::exp(_mp_arg(2));
@@ -24810,7 +24814,7 @@ namespace cimg_library_suffixed {
         return cimg::type<double>::nan();
       }
 
-      // store(A,var_name,_w,_h,_d,_s);
+#ifdef cimg_mp_store_function
       static double mp_store(_cimg_math_parser& mp) {
         const double
           *ptr1 = &_mp_arg(2),
@@ -24831,12 +24835,10 @@ namespace cimg_library_suffixed {
         CImg<doubleT> img;
         if (siz1) img.assign(ptr1 + 1,w,h,d,s,true);
         else img.assign(ptr1,1,1,1,1,true);
-
-#ifdef cimg_mp_store_function
         cimg_mp_store_function(img,ss._data);
-#endif
         return cimg::type<double>::nan();
       }
+#endif
 
       static double mp_stov(_cimg_math_parser& mp) {
         const double *ptrs = &_mp_arg(2);

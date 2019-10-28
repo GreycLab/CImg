@@ -20633,20 +20633,20 @@ namespace cimg_library_suffixed {
               if (s2<se1) {
                 s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                 arg3 = compile(++s2,s1,depth1,0,is_single);
-                _cimg_mp_check_constant(arg3,2,3);
+                _cimg_mp_check_constant(arg3,3,3);
                 arg3 = (unsigned int)mem[arg3];
                 arg4 = arg5 = arg6 = 1U;
                 if (s1<se1) {
                   s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
                   arg4 = compile(++s1,s2,depth1,0,is_single);
-                  _cimg_mp_check_constant(arg4,3,3);
+                  _cimg_mp_check_constant(arg4,4,3);
                   arg4 = (unsigned int)mem[arg4];
                   if (s2<se1) {
                     s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                     arg5 = compile(++s2,s1,depth1,0,is_single);
                     arg6 = s1<se1?compile(++s1,se1,depth1,0,is_single):1;
-                    _cimg_mp_check_constant(arg5,4,3);
-                    _cimg_mp_check_constant(arg6,5,3);
+                    _cimg_mp_check_constant(arg5,5,3);
+                    _cimg_mp_check_constant(arg6,6,3);
                     arg5 = (unsigned int)mem[arg5];
                     arg6 = (unsigned int)mem[arg6];
                   }

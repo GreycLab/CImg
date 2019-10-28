@@ -22589,7 +22589,7 @@ namespace cimg_library_suffixed {
         CImg(1,1,1,1,0).move_to(_str);
         CImg<charT> str = _str>'x';
 #ifdef cimg_mp_ext_function
-        cimg_mp_ext_function(str);
+        cimg_mp_ext_function(str._data);
 #endif
         return cimg::type<double>::nan();
       }
@@ -24833,7 +24833,7 @@ namespace cimg_library_suffixed {
         else img.assign(ptr1,1,1,1,1,true);
 
 #ifdef cimg_mp_store_function
-        cimg_mp_store_function(img,ss.data());
+        cimg_mp_store_function(img,ss._data);
 #endif
         return cimg::type<double>::nan();
       }

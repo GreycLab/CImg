@@ -20619,6 +20619,57 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
+            if (!std::strncmp(ss,"store(",6)) { // Store to variable
+              _cimg_mp_op("Function 'store()'");
+              s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss6,s1,depth1,0,is_single);
+              p1 = _cimg_mp_size(arg1);
+              p3 = std::max(1U,p1);
+              s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg2 = compile(++s1,s2,depth1,0,is_single);
+              _cimg_mp_check_type(arg2,2,2,0);
+              p2 = _cimg_mp_size(arg2);
+              arg3 = arg5 = arg6 = 1U; arg4 = p3;
+              if (s2<se1) {
+                s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                arg3 = compile(++s2,s1,depth1,0,is_single);
+                _cimg_mp_check_constant(arg3,2,3);
+                arg3 = (unsigned int)mem[arg3];
+                arg4 = arg5 = arg6 = 1U;
+                if (s1<se1) {
+                  s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                  arg4 = compile(++s1,s2,depth1,0,is_single);
+                  _cimg_mp_check_constant(arg4,3,3);
+                  arg4 = (unsigned int)mem[arg4];
+                  if (s2<se1) {
+                    s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                    arg5 = compile(++s2,s1,depth1,0,is_single);
+                    arg6 = s1<se1?compile(++s1,se1,depth1,0,is_single):1;
+                    _cimg_mp_check_constant(arg5,4,3);
+                    _cimg_mp_check_constant(arg6,5,3);
+                    arg5 = (unsigned int)mem[arg5];
+                    arg6 = (unsigned int)mem[arg6];
+                  }
+                }
+              }
+
+              if (arg3*arg4*arg5*arg6!=p3) {
+                *se = saved_char;
+                s0 = ss - 4>expr._data?ss - 4:expr._data;
+                cimg::strellipsize(s0,64);
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: Specified dimensions (%u,%u,%u,%u) "
+                                            "does not match data size (%u), "
+                                            "in expression '%s%s%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            arg3,arg4,arg5,arg6,p3,
+                                            s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
+              }
+              CImg<ulongT>::vector((ulongT)mp_store,_cimg_mp_slot_nan,arg1,p1,arg2,p2,
+                                   arg3,arg4,arg5,arg6).move_to(code);
+              _cimg_mp_return_nan();
+            }
+
             if (!std::strncmp(ss,"stov(",5)) { // String to double
               _cimg_mp_op("Function 'stov()'");
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -24756,6 +24807,34 @@ namespace cimg_library_suffixed {
           ptrd = (unsigned int)mp.opcode[1] + 1,
           siz = (unsigned int)mp.opcode[2];
         while (siz-->0) mp.mem[ptrd++] = (double)*(ptrs++);
+        return cimg::type<double>::nan();
+      }
+
+      // store(A,var_name,_w,_h,_d,_s);
+      static double mp_store(_cimg_math_parser& mp) {
+        const double
+          *ptr1 = &_mp_arg(2),
+          *ptr2 = &_mp_arg(4) + 1;
+        const ulongT
+          siz1 = (ulongT)mp.opcode[3],
+          siz2 = (ulongT)mp.opcode[5];
+        const unsigned int
+          w = (unsigned int)mp.opcode[6],
+          h = (unsigned int)mp.opcode[7],
+          d = (unsigned int)mp.opcode[8],
+          s = (unsigned int)mp.opcode[9];
+
+        CImg<charT> ss(siz2 + 1);
+        cimg_for_inX(ss,0,ss.width() - 1,i) ss[i] = (char)ptr2[i];
+        ss.back() = 0;
+
+        CImg<doubleT> img;
+        if (siz1) img.assign(ptr1 + 1,w,h,d,s,true);
+        else img.assign(ptr1,1,1,1,1,true);
+
+#ifdef cimg_mp_store_function
+        cimg_mp_store_function(img,ss.data());
+#endif
         return cimg::type<double>::nan();
       }
 

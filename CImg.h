@@ -20622,7 +20622,7 @@ namespace cimg_library_suffixed {
             }
 
 #ifdef cimg_mp_store_function
-            if (!std::strncmp(ss,"store(",6)) { // Store to variable
+            if (!std::strncmp(ss,"store(",6)) { // Store vector to variable
               _cimg_mp_op("Function 'store()'");
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss6,s1,depth1,0,is_single);

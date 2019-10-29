@@ -24819,10 +24819,9 @@ namespace cimg_library_suffixed {
         const double
           *ptr1 = &_mp_arg(2),
           *ptr2 = &_mp_arg(4) + 1;
-        const ulongT
-          siz1 = (ulongT)mp.opcode[3],
-          siz2 = (ulongT)mp.opcode[5];
         const unsigned int
+          siz1 = (unsigned int)mp.opcode[3],
+          siz2 = (unsigned int)mp.opcode[5],
           w = (unsigned int)mp.opcode[6],
           h = (unsigned int)mp.opcode[7],
           d = (unsigned int)mp.opcode[8],

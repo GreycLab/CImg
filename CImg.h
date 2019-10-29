@@ -24833,9 +24833,8 @@ namespace cimg_library_suffixed {
         ss.back() = 0;
 
         CImg<doubleT> img;
-        if (siz1) img.assign(ptr1 + 1,w,h,d,s,true);
-        else img.assign(ptr1,1,1,1,1,true);
-        cimg_mp_store_function(img,ss._data);
+        if (siz1) cimg_mp_store_function(ptr1 + 1,w,h,d,s,ss._data);
+        else cimg_mp_store_function(ptr1,1,1,1,1,ss._data);
         return cimg::type<double>::nan();
       }
 #endif

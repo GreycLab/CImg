@@ -19201,9 +19201,9 @@ namespace cimg_library_suffixed {
                   opcode[6]==(ulongT)~0U || opcode[7]==(ulongT)~0U) {
                 if (p1!=~0U) {
                   _cimg_mp_check_constant(p1,1,1);
-                  p1 = (unsigned int)cimg::mod((int)mem[p1],listin.width());
+                  p2 = (unsigned int)cimg::mod((int)mem[p1],listin.width());
                 }
-                const CImg<T> &img = p1!=~0U?listin[p1]:imgin;
+                const CImg<T> &img = p1!=~0U?listin[p2]:imgin;
                 if (!img) {
                   *se = saved_char;
                   s0 = ss - 4>expr._data?ss - 4:expr._data;

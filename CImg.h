@@ -22211,7 +22211,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_critical(_cimg_math_parser& mp) {
-        const double res = _mp_arg(1);
+        const ulongT g_target = mp.opcode[1];
         cimg_pragma_openmp(critical(mp_critical))
         {
           for (const CImg<ulongT> *const p_end = ++mp.p_code + mp.opcode[2];
@@ -22222,7 +22222,7 @@ namespace cimg_library_suffixed {
           }
         }
         --mp.p_code;
-        return res;
+        return mp.mem[g_target];
       }
 
       static double mp_crop(_cimg_math_parser& mp) {
@@ -22311,7 +22311,7 @@ namespace cimg_library_suffixed {
           std::fflush(cimg::output());
           mp.debug_indent+=3;
         }
-        const CImg<ulongT> *const p_end = (++mp.p_code) + mp.opcode[3];
+        const CImg<ulongT> *const p_end = ++mp.p_code + mp.opcode[3];
         CImg<ulongT> _op;
         for ( ; mp.p_code<p_end; ++mp.p_code) {
           const CImg<ulongT> &op = *mp.p_code;

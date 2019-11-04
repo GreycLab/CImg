@@ -16543,7 +16543,8 @@ namespace cimg_library_suffixed {
     struct _cimg_math_parser {
       CImg<doubleT> mem;
       CImg<intT> memtype;
-      CImgList<ulongT> _code, &code, code_begin, code_begin_t, code_end, code_end_t;
+      CImgList<ulongT> _code, &code, code_begin, code_end,
+        _code_begin_t, &code_begin_t, _code_end_t, &code_end_t;
       CImg<ulongT> opcode;
       const CImg<ulongT> *p_code_end, *p_code;
       const CImg<ulongT> *const p_break;
@@ -16609,7 +16610,8 @@ namespace cimg_library_suffixed {
                         const CImg<T>& img_input=CImg<T>::const_empty(), CImg<T> *const img_output=0,
                         const CImgList<T> *const list_inputs=0, CImgList<T> *const list_outputs=0,
                         const bool _is_fill=false):
-        code(_code),p_break((CImg<ulongT>*)(cimg_ulong)-2),
+        code(_code),code_begin_t(_code_begin_t),code_end_t(_code_end_t),
+        p_break((CImg<ulongT>*)(cimg_ulong)-2),
         imgin(img_input),listin(list_inputs?*list_inputs:CImgList<T>::const_empty()),
         imgout(img_output?*img_output:CImg<T>::empty()),listout(list_outputs?*list_outputs:CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),user_macro(0),
@@ -16723,7 +16725,8 @@ namespace cimg_library_suffixed {
       }
 
       _cimg_math_parser():
-        code(_code),p_code_end(0),p_break((CImg<ulongT>*)(cimg_ulong)-2),
+        code(_code),code_begin_t(_code_begin_t),code_end_t(_code_end_t),
+        p_code_end(0),p_break((CImg<ulongT>*)(cimg_ulong)-2),
         imgin(CImg<T>::const_empty()),listin(CImgList<T>::const_empty()),
         imgout(CImg<T>::empty()),listout(CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),debug_indent(0),
@@ -16734,11 +16737,12 @@ namespace cimg_library_suffixed {
       }
 
       _cimg_math_parser(const _cimg_math_parser& mp):
-        mem(mp.mem),code(mp.code),p_code_end(mp.p_code_end),p_break(mp.p_break),
-        imgin(mp.imgin),listin(mp.listin),imgout(mp.imgout),listout(mp.listout),img_stats(mp.img_stats),
-        list_stats(mp.list_stats),list_median(mp.list_median),debug_indent(0),result_dim(mp.result_dim),
-        break_type(0),constcache_size(0),is_parallelizable(mp.is_parallelizable),is_fill(mp.is_fill),
-        need_input_copy(mp.need_input_copy), result(mem._data + (mp.result - mp.mem._data)),
+        mem(mp.mem),code(mp.code),code_begin_t(mp.code_begin_t),code_end_t(mp.code_end_t),
+        p_code_end(mp.p_code_end),p_break(mp.p_break),
+        imgin(mp.imgin),listin(mp.listin),imgout(mp.imgout),listout(mp.listout),
+        img_stats(mp.img_stats),list_stats(mp.list_stats),list_median(mp.list_median),debug_indent(0),
+        result_dim(mp.result_dim),break_type(0),constcache_size(0),is_parallelizable(mp.is_parallelizable),
+        is_fill(mp.is_fill),need_input_copy(mp.need_input_copy), result(mem._data + (mp.result - mp.mem._data)),
         rng((cimg::_rand(),cimg::rng())),calling_function(0) {
 
 #if cimg_use_openmp!=0

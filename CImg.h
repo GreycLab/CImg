@@ -16543,7 +16543,7 @@ namespace cimg_library_suffixed {
     struct _cimg_math_parser {
       CImg<doubleT> mem;
       CImg<intT> memtype;
-      CImgList<ulongT> _code, &code, code_begin, code_end;
+      CImgList<ulongT> _code, &code, code_begin, code_begin_t, code_end, code_end_t;
       CImg<ulongT> opcode;
       const CImg<ulongT> *p_code_end, *p_code;
       const CImg<ulongT> *const p_break;
@@ -18918,6 +18918,14 @@ namespace cimg_library_suffixed {
               code.swap(code_begin);
               _cimg_mp_return(arg1);
             }
+
+            if (!std::strncmp(ss,"begin_t(",8)) { // Begin thread
+              _cimg_mp_op("Function 'begin_t()'");
+              code.swap(code_begin_t);
+              arg1 = compile(ss8,se1,depth1,p_ref,true);
+              code.swap(code_begin_t);
+              _cimg_mp_return(arg1);
+            }
             break;
 
           case 'c' :
@@ -19687,14 +19695,6 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
-            if (!std::strncmp(ss,"end(",4)) { // End
-              _cimg_mp_op("Function 'end()'");
-              code.swap(code_end);
-              compile(ss4,se1,depth1,p_ref,true);
-              code.swap(code_end);
-              _cimg_mp_return_nan();
-            }
-
             if (!std::strncmp(ss,"ellipse(",8)) { // Ellipse/circle drawing
               if (!is_single) is_parallelizable = false;
               _cimg_mp_op("Function 'ellipse()'");
@@ -19738,6 +19738,22 @@ namespace cimg_library_suffixed {
               pos = vector(p1*p1);
               CImg<ulongT>::vector((ulongT)mp_eye,pos,p1).move_to(code);
               _cimg_mp_return(pos);
+            }
+
+            if (!std::strncmp(ss,"end(",4)) { // End
+              _cimg_mp_op("Function 'end()'");
+              code.swap(code_end);
+              compile(ss4,se1,depth1,p_ref,true);
+              code.swap(code_end);
+              _cimg_mp_return_nan();
+            }
+
+            if (!std::strncmp(ss,"end_t(",6)) { // End thread
+              _cimg_mp_op("Function 'end_t()'");
+              code.swap(code_end_t);
+              compile(ss6,se1,depth1,p_ref,true);
+              code.swap(code_end_t);
+              _cimg_mp_return_nan();
             }
             break;
 
@@ -21414,6 +21430,23 @@ namespace cimg_library_suffixed {
         } else mem[_cimg_mp_slot_x] = mem[_cimg_mp_slot_y] = mem[_cimg_mp_slot_z] = mem[_cimg_mp_slot_c] = 0;
         p_code_end = code_end.end();
         for (p_code = code_end; p_code<p_code_end; ++p_code) {
+          opcode._data = p_code->_data;
+          const ulongT target = opcode[1];
+          mem[target] = _cimg_mp_defunc(*this);
+        }
+      }
+
+      // Evaluation procedure for the end_t() blocks.
+      void end_t() {
+        if (code_end_t.is_empty()) return;
+        if (imgin) {
+          mem[_cimg_mp_slot_x] = imgin._width - 1.;
+          mem[_cimg_mp_slot_y] = imgin._height - 1.;
+          mem[_cimg_mp_slot_z] = imgin._depth - 1.;
+          mem[_cimg_mp_slot_c] = imgin._spectrum - 1.;
+        } else mem[_cimg_mp_slot_x] = mem[_cimg_mp_slot_y] = mem[_cimg_mp_slot_z] = mem[_cimg_mp_slot_c] = 0;
+        p_code_end = code_end_t.end();
+        for (p_code = code_end_t; p_code<p_code_end; ++p_code) {
           opcode._data = p_code->_data;
           const ulongT target = opcode[1];
           mem[target] = _cimg_mp_defunc(*this);
@@ -26568,6 +26601,7 @@ namespace cimg_library_suffixed {
                                          *expression=='*' || *expression==':'),"eval",
                            *this,img_output,list_inputs,list_outputs,false);
       const double val = mp(x,y,z,c);
+      mp.end_t();
       mp.end();
       return val;
     }
@@ -26616,6 +26650,7 @@ namespace cimg_library_suffixed {
                            *this,img_output,list_inputs,list_outputs,false);
       output.assign(1,std::max(1U,mp.result_dim));
       mp(x,y,z,c,output._data);
+      mp.end_t();
       mp.end();
     }
 
@@ -26660,13 +26695,15 @@ namespace cimg_library_suffixed {
               z = (double)xyzc[i4 + 2], c = (double)xyzc[i4 + 3];
             res[i] = lmp(x,y,z,c);
           }
-        }
+        lmp.end_t();
+      }
 #else
       const t *ps = xyzc._data;
       cimg_for(res,pd,double) {
         const double x = (double)*(ps++), y = (double)*(ps++), z = (double)*(ps++), c = (double)*(ps++);
         *pd = mp(x,y,z,c);
       }
+      mp.end_t();
 #endif
       mp.end();
       return res;
@@ -28887,6 +28924,8 @@ namespace cimg_library_suffixed {
                       T *_ptrd = ptrd--; for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
                     }
                 }
+                mp.end_t();
+
               } else if (*expression=='>' || !do_in_parallel) {
                 CImg<doubleT> res(1,mp.result_dim);
                 cimg_forYZ(*this,y,z) {
@@ -28898,7 +28937,9 @@ namespace cimg_library_suffixed {
                       T *_ptrd = ptrd++; for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
                     }
                 }
-             } else {
+                mp.end_t();
+
+              } else {
 
 #if cimg_use_openmp!=0
                 cimg_pragma_openmp(parallel)
@@ -28921,6 +28962,7 @@ namespace cimg_library_suffixed {
                       }
                     }
                   } _cimg_abort_catch_openmp _cimg_abort_catch_fill_openmp
+                  lmp.end_t();
                 }
 #endif
               }
@@ -28930,9 +28972,13 @@ namespace cimg_library_suffixed {
               if (*expression=='<') {
                 if (formula_mode==2) cimg_rofYZC(*this,y,z,c) { cimg_abort_test; cimg_rofX(*this,x) mp(x,y,z,c); }
                 else cimg_rofYZC(*this,y,z,c) { cimg_abort_test; cimg_rofX(*this,x) *(ptrd--) = (T)mp(x,y,z,c); }
+                mp.end_t();
+
               } else if (*expression=='>' || !do_in_parallel) {
                 if (formula_mode==2) cimg_forYZC(*this,y,z,c) { cimg_abort_test; cimg_forX(*this,x) mp(x,y,z,c); }
                 else cimg_forYZC(*this,y,z,c) { cimg_abort_test; cimg_forX(*this,x) *(ptrd++) = (T)mp(x,y,z,c); }
+                mp.end_t();
+
               } else {
 
 #if cimg_use_openmp!=0
@@ -28951,6 +28997,7 @@ namespace cimg_library_suffixed {
                       cimg_forX(*this,x) *(_ptrd++) = (T)lmp(x,y,z,c);
                     }
                   } _cimg_abort_catch_openmp _cimg_abort_catch_fill_openmp
+                  lmp.end_t();
                 }
 #endif
               }

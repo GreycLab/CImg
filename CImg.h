@@ -28992,6 +28992,9 @@ namespace cimg_library_suffixed {
                     _mp = omp_get_thread_num()?mp:_cimg_math_parser(),
                     &lmp = omp_get_thread_num()?_mp:mp;
                   lmp.is_fill = true;
+
+//                  std::fprintf(stderr,"\nDEBUG : lmp = %p\n",lmp.code_end_t.data());
+
                   cimg_pragma_openmp(for cimg_openmp_collapse(3))
                     cimg_forYZC(*this,y,z,c) _cimg_abort_try_openmp {
                     cimg_abort_test;

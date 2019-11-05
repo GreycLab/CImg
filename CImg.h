@@ -20770,6 +20770,9 @@ namespace cimg_library_suffixed {
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
               }
+              memsync.resize(2,memsync._height + 1,1,1,0,0);
+              memsync(0,memsync._height - 1) = (int)pos;
+              memsync(1,memsync._height - 1) = (int)arg1;
               _cimg_mp_return(pos);
             }
             break;

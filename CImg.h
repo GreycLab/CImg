@@ -21522,9 +21522,6 @@ namespace cimg_library_suffixed {
             pos = (unsigned int)mp.memsync(0,k),
             siz = (unsigned int)mp.memsync(1,k),
             iop = (unsigned int)mp.memsync(2,k);
-
-          std::fprintf(stderr,"\nDEBUG : pos = %u, val = %g\n",pos,mem[pos+1]);
-
           if (!siz) switch (iop) { // Scalar
             case 0 : mp.mem[pos] = mem[pos]; break;  // Assignment
             case 1 : mp.mem[pos]+=mem[pos]; break;   // Operator+

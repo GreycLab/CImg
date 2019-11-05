@@ -20149,7 +20149,7 @@ namespace cimg_library_suffixed {
               if (s1<se1) {
                 ++s1;
                 char st_op[4] = { 0 };
-                is_sth = false;
+                is_sth = false; // blank after operator?
                 if (cimg_sscanf(s1," %3[=+-*/minax]%c",st_op,&sep)==2 && (sep==')' || (is_sth=cimg::is_blank(sep)))) {
                   if (!is_sth || (is_sth && cimg_sscanf(s1," %*[=+-*/minax ]%c",&sep)==1 && sep==')')) {
                     cimg::strpare(st_op,' ',false,true);

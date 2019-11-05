@@ -26803,7 +26803,7 @@ namespace cimg_library_suffixed {
             res[i] = lmp(x,y,z,c);
           }
         lmp.end_t();
-        cimg_pragma_openmp(critical) { lmp.merge(mp); }
+        cimg_pragma_openmp(barrier) cimg_pragma_openmp(critical) { lmp.merge(mp); }
       }
 #else
       mp.begin_t();
@@ -29076,7 +29076,7 @@ namespace cimg_library_suffixed {
                     }
                   } _cimg_abort_catch_openmp _cimg_abort_catch_fill_openmp
                   lmp.end_t();
-                  cimg_pragma_openmp(critical) { lmp.merge(mp); }
+                  cimg_pragma_openmp(barrier) cimg_pragma_openmp(critical) { lmp.merge(mp); }
                 }
 #endif
               }
@@ -29116,7 +29116,7 @@ namespace cimg_library_suffixed {
                     }
                   } _cimg_abort_catch_openmp _cimg_abort_catch_fill_openmp
                   lmp.end_t();
-                  cimg_pragma_openmp(critical) { lmp.merge(mp); }
+                  cimg_pragma_openmp(barrier) cimg_pragma_openmp(critical) { lmp.merge(mp); }
                 }
 #endif
               }

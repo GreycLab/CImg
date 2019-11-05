@@ -20770,9 +20770,10 @@ namespace cimg_library_suffixed {
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
               }
-              memsync.resize(2,memsync._height + 1,1,1,0,0);
+              memsync.resize(3,memsync._height + 1,1,1,0,0);
               memsync(0,memsync._height - 1) = (int)pos;
-              memsync(1,memsync._height - 1) = (int)arg1;
+              memsync(1,memsync._height - 1) = (int)_cimg_mp_size(pos);
+              memsync(2,memsync._height - 1) = (int)arg1;
               _cimg_mp_return(pos);
             }
             break;
@@ -21513,21 +21514,45 @@ namespace cimg_library_suffixed {
       }
 
       // Synchronisation of inter-thread variables.
+      // (argument 'mp' is the master instance).
       void sync(_cimg_math_parser& mp) {
         if (&mp==this) return;
         cimg_forY(mp.memsync,k) {
           const unsigned int
             pos = (unsigned int)mp.memsync(0,k),
-            iop = (unsigned int)mp.memsync(1,k);
-          switch (iop) {
-          case 0 : mp.mem[pos] = mem[pos]; break;  // Assignment
-          case 1 : mp.mem[pos]+=mem[pos]; break;   // Operator+
-          case 2 : mp.mem[pos]-=mem[pos]; break;   // Operator-
-          case 3 : mp.mem[pos]*=mem[pos]; break;   // Operator*
-          case 4 : mp.mem[pos]/=mem[pos]; break;   // Operator/
-          case 5 : mp.mem[pos] = std::min(mp.mem[pos],mem[pos]); break; // Operator 'min'
-          case 6 : mp.mem[pos] = std::max(mp.mem[pos],mem[pos]); break; // Operator 'max'
-          }
+            siz = (unsigned int)mp.memsync(1,k),
+            iop = (unsigned int)mp.memsync(2,k);
+          if (!siz) switch (iop) { // Scalar
+            case 0 : mp.mem[pos] = mem[pos]; break;  // Assignment
+            case 1 : mp.mem[pos]+=mem[pos]; break;   // Operator+
+            case 2 : mp.mem[pos]-=mem[pos]; break;   // Operator-
+            case 3 : mp.mem[pos]*=mem[pos]; break;   // Operator*
+            case 4 : mp.mem[pos]/=mem[pos]; break;   // Operator/
+            case 5 : mp.mem[pos] = std::min(mp.mem[pos],mem[pos]); break; // Operator 'min'
+            case 6 : mp.mem[pos] = std::max(mp.mem[pos],mem[pos]); break; // Operator 'max'
+            } else switch (iop) { // Vector
+            case 0 :
+              std::memcpy(mp.mem + pos + 1,mem + pos + 1,siz*sizeof(doubleT));
+              break;
+            case 1 :
+              CImg<doubleT>(mp.mem + pos + 1,siz,1,1,1,true)+=CImg<doubleT>(mem + pos + 1,siz,1,1,1,true);
+              break;
+            case 2 :
+              CImg<doubleT>(mp.mem + pos + 1,siz,1,1,1,true)-=CImg<doubleT>(mem + pos + 1,siz,1,1,1,true);
+              break;
+            case 3 :
+              CImg<doubleT>(mp.mem + pos + 1,siz,1,1,1,true)*=CImg<doubleT>(mem + pos + 1,siz,1,1,1,true);
+              break;
+            case 4 :
+              CImg<doubleT>(mp.mem + pos + 1,siz,1,1,1,true)/=CImg<doubleT>(mem + pos + 1,siz,1,1,1,true);
+              break;
+            case 5 :
+              CImg<doubleT>(mp.mem + pos + 1,siz,1,1,1,true).min(CImg<doubleT>(mem + pos + 1,siz,1,1,1,true));
+              break;
+            case 6 :
+              CImg<doubleT>(mp.mem + pos + 1,siz,1,1,1,true).max(CImg<doubleT>(mem + pos + 1,siz,1,1,1,true));
+              break;
+            }
         }
       }
 
@@ -26778,7 +26803,7 @@ namespace cimg_library_suffixed {
             res[i] = lmp(x,y,z,c);
           }
         lmp.end_t();
-        lmp.sync(mp);
+        cimg_pragma_openmp(critical) { lmp.sync(mp); }
       }
 #else
       mp.begin_t();
@@ -29051,7 +29076,7 @@ namespace cimg_library_suffixed {
                     }
                   } _cimg_abort_catch_openmp _cimg_abort_catch_fill_openmp
                   lmp.end_t();
-                  lmp.sync(mp);
+                  cimg_pragma_openmp(critical) { lmp.sync(mp); }
                 }
 #endif
               }
@@ -29091,7 +29116,7 @@ namespace cimg_library_suffixed {
                     }
                   } _cimg_abort_catch_openmp _cimg_abort_catch_fill_openmp
                   lmp.end_t();
-                  lmp.sync(mp);
+                  cimg_pragma_openmp(critical) { lmp.sync(mp); }
                 }
 #endif
               }

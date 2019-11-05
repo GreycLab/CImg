@@ -21512,6 +21512,12 @@ namespace cimg_library_suffixed {
         p_code_end = code.end();
       }
 
+
+      // Synchronisation of inter-thread variables.
+      void sync(const _cimg_math_parser& mp) {
+//        std::fprintf(stderr,"\nDEBUG : Sync\n");
+      }
+
       // Return type of a memory element as a string.
       CImg<charT> s_type(const unsigned int arg) const {
         CImg<charT> res;
@@ -26758,6 +26764,7 @@ namespace cimg_library_suffixed {
             res[i] = lmp(x,y,z,c);
           }
         lmp.end_t();
+        lmp.sync(mp);
       }
 #else
       mp.begin_t();
@@ -29029,6 +29036,7 @@ namespace cimg_library_suffixed {
                     }
                   } _cimg_abort_catch_openmp _cimg_abort_catch_fill_openmp
                   lmp.end_t();
+                  lmp.sync(mp);
                 }
 #endif
               }
@@ -29067,6 +29075,7 @@ namespace cimg_library_suffixed {
                     }
                   } _cimg_abort_catch_openmp _cimg_abort_catch_fill_openmp
                   lmp.end_t();
+                  lmp.sync(mp);
                 }
 #endif
               }

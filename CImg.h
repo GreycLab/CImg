@@ -6738,7 +6738,7 @@ namespace cimg_library_suffixed {
 
     //! Return \c true if input character is blank (space, tab, or non-printable character).
     inline bool is_blank(const char c) {
-      return c>=0 && c<=' ';
+      return c>=0 && (unsigned char)c<=' ';
     }
 
     //! Read value in a C-string.
@@ -16542,7 +16542,7 @@ namespace cimg_library_suffixed {
     // Define the math formula parser/compiler and expression evaluator.
     struct _cimg_math_parser {
       CImg<doubleT> mem;
-      CImg<intT> memtype;
+      CImg<intT> memtype, memsync;
       CImgList<ulongT> _code, &code, code_begin, code_end,
         _code_begin_t, &code_begin_t, _code_end_t, &code_end_t;
       CImg<ulongT> opcode;
@@ -20738,6 +20738,38 @@ namespace cimg_library_suffixed {
               }
               pos = vector(p1 + p2 + p2*p2);
               CImg<ulongT>::vector((ulongT)mp_matrix_svd,pos,arg1,p2,p3).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
+            if (!std::strncmp(ss,"sync(",5)) { // Synchronization of inter-thread variables
+              _cimg_mp_op("Function 'sync()'");
+              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              pos = compile(ss5,s1,depth1,0,is_single);
+              arg1 = ~0U; // Synchronization operator (0='=',1='+',2='-',3='*',4='/',5='min',6='max')
+              if (s1<se1) {
+                ++s1;
+                char st_op[4] = { 0 };
+                is_sth = false;
+                if (cimg_sscanf(s1," %3[=+-*/minax]%c",st_op,&sep)==2 && (sep==')' || (is_sth=cimg::is_blank(sep)))) {
+                  if (!is_sth || (is_sth && cimg_sscanf(s1," %*[=+-*/minax ]%c",&sep)==1 && sep==')')) {
+                    cimg::strpare(st_op,' ',false,true);
+                    if (!st_op[1]) arg1 = *st_op=='='?0:*st_op=='+'?1:*st_op=='-'?2:*st_op=='*'?3:*st_op=='/'?4:~0U;
+                    if (*st_op=='m' && st_op[1]=='i' && st_op[2]=='n' && !st_op[3]) arg1 = 5;
+                    if (*st_op=='m' && st_op[1]=='a' && st_op[2]=='x' && !st_op[3]) arg1 = 6;
+                  }
+                }
+              }
+              if (arg1==~0U) {
+                *se = saved_char;
+                s0 = ss - 4>expr._data?ss - 4:expr._data;
+                cimg::strellipsize(s0,64);
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: Invalid specified operator "
+                                            "(should be one of '=,+,-,*,/,min,max'), "
+                                            "in expression '%s%s%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
+              }
               _cimg_mp_return(pos);
             }
             break;

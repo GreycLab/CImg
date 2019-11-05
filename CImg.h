@@ -20159,6 +20159,17 @@ namespace cimg_library_suffixed {
                   }
                 }
               }
+              cimg_forY(memmerge,k) if (memmerge(0,k)==(int)pos) {
+                *se = saved_char;
+                s0 = ss - 4>expr._data?ss - 4:expr._data;
+                cimg::strellipsize(s0,64);
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: Merge has already been requested before "
+                                            "for specified variable "
+                                            "in expression '%s%s%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
+              }
               if (arg1==~0U) {
                 *se = saved_char;
                 s0 = ss - 4>expr._data?ss - 4:expr._data;

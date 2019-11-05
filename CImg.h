@@ -21522,15 +21522,15 @@ namespace cimg_library_suffixed {
             pos = (unsigned int)mp.memsync(0,k),
             siz = (unsigned int)mp.memsync(1,k),
             iop = (unsigned int)mp.memsync(2,k);
-          if (!siz) switch (iop) { // Scalar
-            case 0 : mp.mem[pos] = mem[pos]; break;  // Assignment
-            case 1 : mp.mem[pos]+=mem[pos]; break;   // Operator+
-            case 2 : mp.mem[pos]-=mem[pos]; break;   // Operator-
-            case 3 : mp.mem[pos]*=mem[pos]; break;   // Operator*
-            case 4 : mp.mem[pos]/=mem[pos]; break;   // Operator/
+          if (!siz) switch (iop) { // Scalar value
+            case 0 : mp.mem[pos] = mem[pos]; break;                       // Assignment
+            case 1 : mp.mem[pos]+=mem[pos]; break;                        // Operator+
+            case 2 : mp.mem[pos]-=mem[pos]; break;                        // Operator-
+            case 3 : mp.mem[pos]*=mem[pos]; break;                        // Operator*
+            case 4 : mp.mem[pos]/=mem[pos]; break;                        // Operator/
             case 5 : mp.mem[pos] = std::min(mp.mem[pos],mem[pos]); break; // Operator 'min'
             case 6 : mp.mem[pos] = std::max(mp.mem[pos],mem[pos]); break; // Operator 'max'
-            } else switch (iop) { // Vector
+            } else switch (iop) { // Vector value
             case 0 :
               CImg<doubleT>(&mp.mem[pos + 1],siz,1,1,1,true) = CImg<doubleT>(&mem[pos + 1],siz,1,1,1,true);
               break;

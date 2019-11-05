@@ -17013,7 +17013,7 @@ namespace cimg_library_suffixed {
             arg1 = code_end._width;
             arg2 = code_end_t._width;
             arg3 = compile(s0,s++,depth,0,is_single);
-            if (code_end._width==arg1 && code_end._width==arg2) pos = arg3; // makes 'end()' and 'end_t()' return void
+            if (code_end._width==arg1 && code_end_t._width==arg2) pos = arg3; // makes 'end()' and 'end_t()' return void
             is_sth = true;
             while (*s && (cimg::is_blank(*s) || *s==';')) ++s;
             s0 = s;
@@ -17022,7 +17022,7 @@ namespace cimg_library_suffixed {
           arg1 = code_end._width;
           arg2 = code_end_t._width;
           arg3 = compile(s0,se,depth,p_ref,is_single);
-          if (code_end._width==arg1 && code_end._width==arg2) pos = arg3; // makes 'end()' and 'end_t()' return void
+          if (code_end._width==arg1 && code_end_t._width==arg2) pos = arg3; // makes 'end()' and 'end_t()' return void
           _cimg_mp_return(pos);
         }
 

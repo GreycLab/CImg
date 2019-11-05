@@ -16542,7 +16542,7 @@ namespace cimg_library_suffixed {
     // Define the math formula parser/compiler and expression evaluator.
     struct _cimg_math_parser {
       CImg<doubleT> mem;
-      CImg<intT> memtype, memsync;
+      CImg<intT> memtype, memmerge;
       CImgList<ulongT> _code, &code, code_begin, code_end,
         _code_begin_t, &code_begin_t, _code_end_t, &code_end_t;
       CImg<ulongT> opcode;
@@ -20140,6 +20140,42 @@ namespace cimg_library_suffixed {
               CImg<ulongT>::vector((ulongT)mp_matrix_mul,pos,arg1,arg2,arg4,arg5,p3).move_to(code);
               _cimg_mp_return(pos);
             }
+
+            if (!std::strncmp(ss,"merge(",6)) { // Merge inter-thread variables
+              _cimg_mp_op("Function 'merge()'");
+              s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              pos = compile(ss6,s1,depth1,0,is_single);
+              arg1 = ~0U; // Merge operator (0='=',1='+',2='-',3='*',4='/',5='min',6='max')
+              if (s1<se1) {
+                ++s1;
+                char st_op[4] = { 0 };
+                is_sth = false;
+                if (cimg_sscanf(s1," %3[=+-*/minax]%c",st_op,&sep)==2 && (sep==')' || (is_sth=cimg::is_blank(sep)))) {
+                  if (!is_sth || (is_sth && cimg_sscanf(s1," %*[=+-*/minax ]%c",&sep)==1 && sep==')')) {
+                    cimg::strpare(st_op,' ',false,true);
+                    if (!st_op[1]) arg1 = *st_op=='='?0:*st_op=='+'?1:*st_op=='-'?2:*st_op=='*'?3:*st_op=='/'?4:~0U;
+                    if (*st_op=='m' && st_op[1]=='i' && st_op[2]=='n' && !st_op[3]) arg1 = 5;
+                    if (*st_op=='m' && st_op[1]=='a' && st_op[2]=='x' && !st_op[3]) arg1 = 6;
+                  }
+                }
+              }
+              if (arg1==~0U) {
+                *se = saved_char;
+                s0 = ss - 4>expr._data?ss - 4:expr._data;
+                cimg::strellipsize(s0,64);
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: Invalid specified operator "
+                                            "(should be one of '=,+,-,*,/,min,max'), "
+                                            "in expression '%s%s%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
+              }
+              memmerge.resize(3,memmerge._height + 1,1,1,0,0);
+              memmerge(0,memmerge._height - 1) = (int)pos;
+              memmerge(1,memmerge._height - 1) = (int)_cimg_mp_size(pos);
+              memmerge(2,memmerge._height - 1) = (int)arg1;
+              _cimg_mp_return(pos);
+            }
             break;
 
           case 'n' :
@@ -20738,42 +20774,6 @@ namespace cimg_library_suffixed {
               }
               pos = vector(p1 + p2 + p2*p2);
               CImg<ulongT>::vector((ulongT)mp_matrix_svd,pos,arg1,p2,p3).move_to(code);
-              _cimg_mp_return(pos);
-            }
-
-            if (!std::strncmp(ss,"sync(",5)) { // Synchronization of inter-thread variables
-              _cimg_mp_op("Function 'sync()'");
-              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              pos = compile(ss5,s1,depth1,0,is_single);
-              arg1 = ~0U; // Synchronization operator (0='=',1='+',2='-',3='*',4='/',5='min',6='max')
-              if (s1<se1) {
-                ++s1;
-                char st_op[4] = { 0 };
-                is_sth = false;
-                if (cimg_sscanf(s1," %3[=+-*/minax]%c",st_op,&sep)==2 && (sep==')' || (is_sth=cimg::is_blank(sep)))) {
-                  if (!is_sth || (is_sth && cimg_sscanf(s1," %*[=+-*/minax ]%c",&sep)==1 && sep==')')) {
-                    cimg::strpare(st_op,' ',false,true);
-                    if (!st_op[1]) arg1 = *st_op=='='?0:*st_op=='+'?1:*st_op=='-'?2:*st_op=='*'?3:*st_op=='/'?4:~0U;
-                    if (*st_op=='m' && st_op[1]=='i' && st_op[2]=='n' && !st_op[3]) arg1 = 5;
-                    if (*st_op=='m' && st_op[1]=='a' && st_op[2]=='x' && !st_op[3]) arg1 = 6;
-                  }
-                }
-              }
-              if (arg1==~0U) {
-                *se = saved_char;
-                s0 = ss - 4>expr._data?ss - 4:expr._data;
-                cimg::strellipsize(s0,64);
-                throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                            "CImg<%s>::%s: %s: Invalid specified operator "
-                                            "(should be one of '=,+,-,*,/,min,max'), "
-                                            "in expression '%s%s%s'.",
-                                            pixel_type(),_cimg_mp_calling_function,s_op,
-                                            s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
-              }
-              memsync.resize(3,memsync._height + 1,1,1,0,0);
-              memsync(0,memsync._height - 1) = (int)pos;
-              memsync(1,memsync._height - 1) = (int)_cimg_mp_size(pos);
-              memsync(2,memsync._height - 1) = (int)arg1;
               _cimg_mp_return(pos);
             }
             break;
@@ -21513,15 +21513,15 @@ namespace cimg_library_suffixed {
         p_code_end = code.end();
       }
 
-      // Synchronisation of inter-thread variables.
+      // Merge inter-thread variables.
       // (argument 'mp' is the master instance).
-      void sync(_cimg_math_parser& mp) {
+      void merge(_cimg_math_parser& mp) {
         if (&mp==this) return;
-        cimg_forY(mp.memsync,k) {
+        cimg_forY(mp.memmerge,k) {
           const unsigned int
-            pos = (unsigned int)mp.memsync(0,k),
-            siz = (unsigned int)mp.memsync(1,k),
-            iop = (unsigned int)mp.memsync(2,k);
+            pos = (unsigned int)mp.memmerge(0,k),
+            siz = (unsigned int)mp.memmerge(1,k),
+            iop = (unsigned int)mp.memmerge(2,k);
           if (!siz) switch (iop) { // Scalar value
             case 0 : mp.mem[pos] = mem[pos]; break;                       // Assignment
             case 1 : mp.mem[pos]+=mem[pos]; break;                        // Operator+
@@ -26803,7 +26803,7 @@ namespace cimg_library_suffixed {
             res[i] = lmp(x,y,z,c);
           }
         lmp.end_t();
-        cimg_pragma_openmp(critical) { lmp.sync(mp); }
+        cimg_pragma_openmp(critical) { lmp.merge(mp); }
       }
 #else
       mp.begin_t();
@@ -29076,7 +29076,7 @@ namespace cimg_library_suffixed {
                     }
                   } _cimg_abort_catch_openmp _cimg_abort_catch_fill_openmp
                   lmp.end_t();
-                  cimg_pragma_openmp(critical) { lmp.sync(mp); }
+                  cimg_pragma_openmp(critical) { lmp.merge(mp); }
                 }
 #endif
               }
@@ -29116,7 +29116,7 @@ namespace cimg_library_suffixed {
                     }
                   } _cimg_abort_catch_openmp _cimg_abort_catch_fill_openmp
                   lmp.end_t();
-                  cimg_pragma_openmp(critical) { lmp.sync(mp); }
+                  cimg_pragma_openmp(critical) { lmp.merge(mp); }
                 }
 #endif
               }

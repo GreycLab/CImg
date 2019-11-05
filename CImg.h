@@ -21423,9 +21423,9 @@ namespace cimg_library_suffixed {
         } else *output = (t)*result;
       }
 
-      // Evaluation procedure for the end() blocks.
+      // Evaluation procedure for the end() blocs.
       void end() {
-        if (code_end.is_empty()) return;
+        if (!code_end) return;
         if (imgin) {
           mem[_cimg_mp_slot_x] = imgin._width - 1.;
           mem[_cimg_mp_slot_y] = imgin._height - 1.;
@@ -21440,9 +21440,9 @@ namespace cimg_library_suffixed {
         }
       }
 
-      // Evaluation procedure for the end_t() blocks.
+      // Evaluation procedure for the end_t() blocs.
       void end_t() {
-        if (code_end_t.is_empty()) return;
+        if (!code_end_t) return;
         if (imgin) {
           mem[_cimg_mp_slot_x] = imgin._width - 1.;
           mem[_cimg_mp_slot_y] = imgin._height - 1.;
@@ -21455,6 +21455,24 @@ namespace cimg_library_suffixed {
           const ulongT target = opcode[1];
           mem[target] = _cimg_mp_defunc(*this);
         }
+      }
+
+      // Evaluation procedure for the begin_t() blocs.
+      void begin_t() {
+        if (!code_begin_t) return;
+        if (imgin) {
+          mem[_cimg_mp_slot_x] = imgin._width - 1.;
+          mem[_cimg_mp_slot_y] = imgin._height - 1.;
+          mem[_cimg_mp_slot_z] = imgin._depth - 1.;
+          mem[_cimg_mp_slot_c] = imgin._spectrum - 1.;
+        } else mem[_cimg_mp_slot_x] = mem[_cimg_mp_slot_y] = mem[_cimg_mp_slot_z] = mem[_cimg_mp_slot_c] = 0;
+        p_code_end = code_begin_t.end();
+        for (p_code = code_begin_t; p_code<p_code_end; ++p_code) {
+          opcode._data = p_code->_data;
+          const ulongT target = opcode[1];
+          mem[target] = _cimg_mp_defunc(*this);
+        }
+        p_code_end = code.end();
       }
 
       // Return type of a memory element as a string.
@@ -26604,6 +26622,7 @@ namespace cimg_library_suffixed {
       _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' ||
                                          *expression=='*' || *expression==':'),"eval",
                            *this,img_output,list_inputs,list_outputs,false);
+      mp.begin_t();
       const double val = mp(x,y,z,c);
       mp.end_t();
       mp.end();
@@ -26653,6 +26672,7 @@ namespace cimg_library_suffixed {
                                          *expression=='*' || *expression==':'),"eval",
                            *this,img_output,list_inputs,list_outputs,false);
       output.assign(1,std::max(1U,mp.result_dim));
+      mp.begin_t();
       mp(x,y,z,c,output._data);
       mp.end_t();
       mp.end();
@@ -26691,6 +26711,7 @@ namespace cimg_library_suffixed {
         _cimg_math_parser
           _mp = omp_get_thread_num()?mp:_cimg_math_parser(),
           &lmp = omp_get_thread_num()?_mp:mp;
+        lmp.begin_t();
         cimg_pragma_openmp(for)
           for (int i = 0; i<res.height(); ++i) {
             const unsigned int i4 = 4*i;
@@ -26702,6 +26723,7 @@ namespace cimg_library_suffixed {
         lmp.end_t();
       }
 #else
+      mp.begin_t();
       const t *ps = xyzc._data;
       cimg_for(res,pd,double) {
         const double x = (double)*(ps++), y = (double)*(ps++), z = (double)*(ps++), c = (double)*(ps++);
@@ -28919,6 +28941,7 @@ namespace cimg_library_suffixed {
               T *ptrd = *expression=='<'?_data + _width*_height*_depth - 1:_data;
               if (*expression=='<') {
                 CImg<doubleT> res(1,mp.result_dim);
+                mp.begin_t();
                 cimg_rofYZ(*this,y,z) {
                   cimg_abort_test;
                   if (formula_mode==2) cimg_rofX(*this,x) mp(x,y,z,0);
@@ -28932,6 +28955,7 @@ namespace cimg_library_suffixed {
 
               } else if (*expression=='>' || !do_in_parallel) {
                 CImg<doubleT> res(1,mp.result_dim);
+                mp.begin_t();
                 cimg_forYZ(*this,y,z) {
                   cimg_abort_test;
                   if (formula_mode==2) cimg_forX(*this,x) mp(x,y,z,0);
@@ -28952,6 +28976,7 @@ namespace cimg_library_suffixed {
                     _mp = omp_get_thread_num()?mp:_cimg_math_parser(),
                     &lmp = omp_get_thread_num()?_mp:mp;
                   lmp.is_fill = true;
+                  lmp.begin_t();
                   cimg_pragma_openmp(for cimg_openmp_collapse(2))
                     cimg_forYZ(*this,y,z) _cimg_abort_try_openmp {
                     cimg_abort_test;
@@ -28974,11 +28999,13 @@ namespace cimg_library_suffixed {
             } else { // Scalar-valued expression
               T *ptrd = *expression=='<'?end() - 1:_data;
               if (*expression=='<') {
+                mp.begin_t();
                 if (formula_mode==2) cimg_rofYZC(*this,y,z,c) { cimg_abort_test; cimg_rofX(*this,x) mp(x,y,z,c); }
                 else cimg_rofYZC(*this,y,z,c) { cimg_abort_test; cimg_rofX(*this,x) *(ptrd--) = (T)mp(x,y,z,c); }
                 mp.end_t();
 
               } else if (*expression=='>' || !do_in_parallel) {
+                mp.begin_t();
                 if (formula_mode==2) cimg_forYZC(*this,y,z,c) { cimg_abort_test; cimg_forX(*this,x) mp(x,y,z,c); }
                 else cimg_forYZC(*this,y,z,c) { cimg_abort_test; cimg_forX(*this,x) *(ptrd++) = (T)mp(x,y,z,c); }
                 mp.end_t();
@@ -28992,9 +29019,7 @@ namespace cimg_library_suffixed {
                     _mp = omp_get_thread_num()?mp:_cimg_math_parser(),
                     &lmp = omp_get_thread_num()?_mp:mp;
                   lmp.is_fill = true;
-
-//                  std::fprintf(stderr,"\nDEBUG : lmp = %p\n",lmp.code_end_t.data());
-
+                  lmp.begin_t();
                   cimg_pragma_openmp(for cimg_openmp_collapse(3))
                     cimg_forYZC(*this,y,z,c) _cimg_abort_try_openmp {
                     cimg_abort_test;

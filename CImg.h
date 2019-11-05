@@ -21460,7 +21460,7 @@ namespace cimg_library_suffixed {
         } else *output = (t)*result;
       }
 
-      // Evaluation procedure for the end() blocs.
+      // Evaluation procedure the end() bloc.
       void end() {
         if (!code_end) return;
         if (imgin) {
@@ -21477,7 +21477,7 @@ namespace cimg_library_suffixed {
         }
       }
 
-      // Evaluation procedure for the end_t() blocs.
+      // Evaluation procedure for end_t() bloc.
       void end_t() {
         if (!code_end_t) return;
         if (imgin) {
@@ -21494,7 +21494,7 @@ namespace cimg_library_suffixed {
         }
       }
 
-      // Evaluation procedure for the begin_t() blocs.
+      // Evaluation procedure for begin_t() bloc.
       void begin_t() {
         if (!code_begin_t) return;
         if (imgin) {
@@ -21512,10 +21512,23 @@ namespace cimg_library_suffixed {
         p_code_end = code.end();
       }
 
-
       // Synchronisation of inter-thread variables.
-      void sync(const _cimg_math_parser& mp) {
-//        std::fprintf(stderr,"\nDEBUG : Sync\n");
+      void sync(_cimg_math_parser& mp) {
+        if (&mp==this) return;
+        cimg_forY(mp.memsync,k) {
+          const unsigned int
+            pos = (unsigned int)mp.memsync(0,k),
+            iop = (unsigned int)mp.memsync(1,k);
+          switch (iop) {
+          case 0 : mp.mem[pos] = mem[pos]; break;  // Assignment
+          case 1 : mp.mem[pos]+=mem[pos]; break;   // Operator+
+          case 2 : mp.mem[pos]-=mem[pos]; break;   // Operator-
+          case 3 : mp.mem[pos]*=mem[pos]; break;   // Operator*
+          case 4 : mp.mem[pos]/=mem[pos]; break;   // Operator/
+          case 5 : mp.mem[pos] = std::min(mp.mem[pos],mem[pos]); break; // Operator 'min'
+          case 6 : mp.mem[pos] = std::max(mp.mem[pos],mem[pos]); break; // Operator 'max'
+          }
+        }
       }
 
       // Return type of a memory element as a string.
@@ -26754,6 +26767,7 @@ namespace cimg_library_suffixed {
         _cimg_math_parser
           _mp = omp_get_thread_num()?mp:_cimg_math_parser(),
           &lmp = omp_get_thread_num()?_mp:mp;
+        cimg_pragma_openmp(barrier)
         lmp.begin_t();
         cimg_pragma_openmp(for)
           for (int i = 0; i<res.height(); ++i) {
@@ -29020,6 +29034,7 @@ namespace cimg_library_suffixed {
                     _mp = omp_get_thread_num()?mp:_cimg_math_parser(),
                     &lmp = omp_get_thread_num()?_mp:mp;
                   lmp.is_fill = true;
+                  cimg_pragma_openmp(barrier)
                   lmp.begin_t();
                   cimg_pragma_openmp(for cimg_openmp_collapse(2))
                     cimg_forYZ(*this,y,z) _cimg_abort_try_openmp {
@@ -29064,6 +29079,7 @@ namespace cimg_library_suffixed {
                     _mp = omp_get_thread_num()?mp:_cimg_math_parser(),
                     &lmp = omp_get_thread_num()?_mp:mp;
                   lmp.is_fill = true;
+                  cimg_pragma_openmp(barrier)
                   lmp.begin_t();
                   cimg_pragma_openmp(for cimg_openmp_collapse(3))
                     cimg_forYZC(*this,y,z,c) _cimg_abort_try_openmp {

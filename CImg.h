@@ -21522,6 +21522,9 @@ namespace cimg_library_suffixed {
             pos = (unsigned int)mp.memsync(0,k),
             siz = (unsigned int)mp.memsync(1,k),
             iop = (unsigned int)mp.memsync(2,k);
+
+          std::fprintf(stderr,"\nDEBUG : pos = %u, val = %g\n",pos,mem[pos+1]);
+
           if (!siz) switch (iop) { // Scalar
             case 0 : mp.mem[pos] = mem[pos]; break;  // Assignment
             case 1 : mp.mem[pos]+=mem[pos]; break;   // Operator+
@@ -21532,25 +21535,25 @@ namespace cimg_library_suffixed {
             case 6 : mp.mem[pos] = std::max(mp.mem[pos],mem[pos]); break; // Operator 'max'
             } else switch (iop) { // Vector
             case 0 :
-              std::memcpy(mp.mem + pos + 1,mem + pos + 1,siz*sizeof(doubleT));
+              CImg<doubleT>(&mp.mem[pos + 1],siz,1,1,1,true) = CImg<doubleT>(&mem[pos + 1],siz,1,1,1,true);
               break;
             case 1 :
-              CImg<doubleT>(mp.mem + pos + 1,siz,1,1,1,true)+=CImg<doubleT>(mem + pos + 1,siz,1,1,1,true);
+              CImg<doubleT>(&mp.mem[pos + 1],siz,1,1,1,true)+=CImg<doubleT>(&mem[pos + 1],siz,1,1,1,true);
               break;
             case 2 :
-              CImg<doubleT>(mp.mem + pos + 1,siz,1,1,1,true)-=CImg<doubleT>(mem + pos + 1,siz,1,1,1,true);
+              CImg<doubleT>(&mp.mem[pos + 1],siz,1,1,1,true)-=CImg<doubleT>(&mem[pos + 1],siz,1,1,1,true);
               break;
             case 3 :
-              CImg<doubleT>(mp.mem + pos + 1,siz,1,1,1,true)*=CImg<doubleT>(mem + pos + 1,siz,1,1,1,true);
+              CImg<doubleT>(&mp.mem[pos + 1],siz,1,1,1,true)*=CImg<doubleT>(&mem[pos + 1],siz,1,1,1,true);
               break;
             case 4 :
-              CImg<doubleT>(mp.mem + pos + 1,siz,1,1,1,true)/=CImg<doubleT>(mem + pos + 1,siz,1,1,1,true);
+              CImg<doubleT>(&mp.mem[pos + 1],siz,1,1,1,true)/=CImg<doubleT>(&mem[pos + 1],siz,1,1,1,true);
               break;
             case 5 :
-              CImg<doubleT>(mp.mem + pos + 1,siz,1,1,1,true).min(CImg<doubleT>(mem + pos + 1,siz,1,1,1,true));
+              CImg<doubleT>(&mp.mem[pos + 1],siz,1,1,1,true).min(CImg<doubleT>(&mem[pos + 1],siz,1,1,1,true));
               break;
             case 6 :
-              CImg<doubleT>(mp.mem + pos + 1,siz,1,1,1,true).max(CImg<doubleT>(mem + pos + 1,siz,1,1,1,true));
+              CImg<doubleT>(&mp.mem[pos + 1],siz,1,1,1,true).max(CImg<doubleT>(&mem[pos + 1],siz,1,1,1,true));
               break;
             }
         }

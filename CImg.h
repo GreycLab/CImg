@@ -16565,7 +16565,7 @@ namespace cimg_library_suffixed {
       char *user_macro;
 
       unsigned int mempos, mem_img_median, debug_indent, result_dim, break_type, constcache_size;
-      bool is_parallelizable, is_fill, need_input_copy;
+      bool is_parallelizable, is_end_code, is_fill, need_input_copy;
       double *result;
       ulongT rng;
       const char *const calling_function, *s_op, *ss_op;
@@ -17010,19 +17010,17 @@ namespace cimg_library_suffixed {
         is_sth = false;
         for (s0 = ss, s = ss1; s<se1; ++s)
           if (*s==';' && level[s - expr._data]==clevel) { // Separator ';'
-            arg1 = code_end._width;
-            arg2 = code_end_t._width;
-            arg3 = compile(s0,s++,depth,0,is_single);
-            if (code_end._width==arg1 && code_end_t._width==arg2) pos = arg3; // makes 'end()' and 'end_t()' return void
+            is_end_code = false;
+            arg1 = compile(s0,s++,depth,0,is_single);
+            if (!is_end_code) pos = arg1; // 'end()' and 'end_t()' return void
             is_sth = true;
             while (*s && (cimg::is_blank(*s) || *s==';')) ++s;
             s0 = s;
           }
         if (is_sth) {
-          arg1 = code_end._width;
-          arg2 = code_end_t._width;
-          arg3 = compile(s0,se,depth,p_ref,is_single);
-          if (code_end._width==arg1 && code_end_t._width==arg2) pos = arg3; // makes 'end()' and 'end_t()' return void
+          is_end_code = false;
+          arg1 = compile(s0,se,depth,p_ref,is_single);
+          if (!is_end_code) pos = arg1; // 'end()' and 'end_t()' return void
           _cimg_mp_return(pos);
         }
 
@@ -19751,6 +19749,7 @@ namespace cimg_library_suffixed {
               code.swap(code_end);
               compile(ss4,se1,depth1,p_ref,true);
               code.swap(code_end);
+              is_end_code = true;
               _cimg_mp_return_nan();
             }
 
@@ -19759,6 +19758,7 @@ namespace cimg_library_suffixed {
               code.swap(code_end_t);
               compile(ss6,se1,depth1,p_ref,true);
               code.swap(code_end_t);
+              is_end_code = true;
               _cimg_mp_return_nan();
             }
             break;

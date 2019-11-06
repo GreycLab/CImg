@@ -20159,7 +20159,7 @@ namespace cimg_library_suffixed {
                   }
                 }
               }
-              cimg_forY(memmerge,k) if (memmerge(0,k)==(int)pos) {
+              cimg_rofY(memmerge,k) if (memmerge(0,k)==(int)pos) {
                 *se = saved_char;
                 s0 = ss - 4>expr._data?ss - 4:expr._data;
                 cimg::strellipsize(s0,64);
@@ -21528,7 +21528,7 @@ namespace cimg_library_suffixed {
       // (argument 'mp' is the master instance).
       void merge(_cimg_math_parser& mp) {
         if (&mp==this) return;
-        cimg_forY(mp.memmerge,k) {
+        cimg_rofY(mp.memmerge,k) {
           const unsigned int
             pos = (unsigned int)mp.memmerge(0,k),
             siz = (unsigned int)mp.memmerge(1,k),

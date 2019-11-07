@@ -49799,7 +49799,7 @@ namespace cimg_library_suffixed {
       unsigned char *ptrs = buffer;
 
       // Decompress buffer (if necessary)
-      if (compression) {
+      if (compression==1 || compression==2) {
         if (file)
           throw CImgIOException(_cimg_instance
                                 "load_bmp(): Unable to load compressed data from '(*FILE)' inputs.",
@@ -49873,10 +49873,10 @@ namespace cimg_library_suffixed {
           }
           cimg_forX(*this,x) {
             const unsigned char c1 = *(ptrs++), c2 = *(ptrs++);
-            const unsigned short col = (unsigned short)(c1|(c2<<8));
-            (*this)(x,y,2) = (T)(col&0x1F);
-            (*this)(x,y,1) = (T)((col>>5)&0x1F);
-            (*this)(x,y,0) = (T)((col>>10)&0x1F);
+            const unsigned short col = (unsigned short)c2<<8 | c1;
+            (*this)(x,y,2) = (T)((col&0x1F)<<3);
+            (*this)(x,y,1) = (T)(((col>>5)&0x3F)<<3);
+            (*this)(x,y,0) = (T)(((col>>11)&0x1F)<<3);
           }
           ptrs+=align_bytes;
         }

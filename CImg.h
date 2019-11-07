@@ -49865,7 +49865,7 @@ namespace cimg_library_suffixed {
           ptrs+=align_bytes;
         }
       } break;
-      case 16 : { // 16 bits colors
+      case 16 : { // 16 bits colors (RGB565)
         for (int y = height() - 1; y>=0; --y) {
           if (buf_size>=cimg_iobuffer) {
             if (!cimg::fread(ptrs=buffer._data,dx_bytes,nfile)) break;

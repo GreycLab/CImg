@@ -19764,6 +19764,14 @@ namespace cimg_library_suffixed {
             break;
 
           case 'f' :
+            if (!std::strncmp(ss,"f2ui(",5)) { // Special float->uint conversion
+              _cimg_mp_op("Function 'f2ui()'");
+              arg1 = compile(ss5,se1,depth1,0,is_single);
+              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_f2ui,arg1);
+              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant((double)cimg::float2uint((float)mem[arg1]));
+              _cimg_mp_scalar1(mp_f2ui,arg1);
+            }
+
             if (!std::strncmp(ss,"fact(",5)) { // Factorial
               _cimg_mp_op("Function 'fact()'");
               arg1 = compile(ss5,se1,depth1,0,is_single);
@@ -20853,6 +20861,14 @@ namespace cimg_library_suffixed {
               if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2)) _cimg_mp_vector2_vs(mp_u,arg1,arg2);
               if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2)) _cimg_mp_vector2_sv(mp_u,arg1,arg2);
               _cimg_mp_scalar2(mp_u,arg1,arg2);
+            }
+
+            if (!std::strncmp(ss,"ui2f(",5)) { // Special uint->float conversion
+              _cimg_mp_op("Function 'ui2f()'");
+              arg1 = compile(ss5,se1,depth1,0,is_single);
+              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_ui2f,arg1);
+              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant((double)cimg::uint2float((unsigned int)mem[arg1]));
+              _cimg_mp_scalar1(mp_ui2f,arg1);
             }
 
             if (!std::strncmp(ss,"unref(",6)) { // Un-reference variable
@@ -22130,6 +22146,31 @@ namespace cimg_library_suffixed {
         return cimg::type<double>::nan();
       }
 
+#ifdef cimg_mp_call_function
+      static double mp_call(_cimg_math_parser& mp) {
+        const unsigned int nb_args = (unsigned int)(mp.opcode[2] - 3)/2;
+        CImgList<charT> _str;
+        CImg<charT> it;
+        for (unsigned int n = 0; n<nb_args; ++n) {
+          const unsigned int siz = (unsigned int)mp.opcode[4 + 2*n];
+          if (siz) { // Vector argument -> string
+            const double *ptr = &_mp_arg(3 + 2*n) + 1;
+            unsigned int l = 0;
+            while (l<siz && ptr[l]) ++l;
+            CImg<doubleT>(ptr,l,1,1,1,true).move_to(_str);
+          } else { // Scalar argument -> number
+            it.assign(256);
+            cimg_snprintf(it,it._width,"%.17g",_mp_arg(3 + 2*n));
+            CImg<charT>::string(it,false,true).move_to(_str);
+          }
+        }
+        CImg(1,1,1,1,0).move_to(_str);
+        CImg<charT> str = _str>'x';
+        cimg_mp_call_function(str._data);
+        return cimg::type<double>::nan();
+      }
+#endif
+
       static double mp_cats(_cimg_math_parser& mp) {
         const double *ptrd = &_mp_arg(1) + 1;
         const unsigned int
@@ -22720,31 +22761,6 @@ namespace cimg_library_suffixed {
         return (double)(_mp_arg(2)==_mp_arg(3));
       }
 
-#ifdef cimg_mp_call_function
-      static double mp_call(_cimg_math_parser& mp) {
-        const unsigned int nb_args = (unsigned int)(mp.opcode[2] - 3)/2;
-        CImgList<charT> _str;
-        CImg<charT> it;
-        for (unsigned int n = 0; n<nb_args; ++n) {
-          const unsigned int siz = (unsigned int)mp.opcode[4 + 2*n];
-          if (siz) { // Vector argument -> string
-            const double *ptr = &_mp_arg(3 + 2*n) + 1;
-            unsigned int l = 0;
-            while (l<siz && ptr[l]) ++l;
-            CImg<doubleT>(ptr,l,1,1,1,true).move_to(_str);
-          } else { // Scalar argument -> number
-            it.assign(256);
-            cimg_snprintf(it,it._width,"%.17g",_mp_arg(3 + 2*n));
-            CImg<charT>::string(it,false,true).move_to(_str);
-          }
-        }
-        CImg(1,1,1,1,0).move_to(_str);
-        CImg<charT> str = _str>'x';
-        cimg_mp_call_function(str._data);
-        return cimg::type<double>::nan();
-      }
-#endif
-
       static double mp_exp(_cimg_math_parser& mp) {
         return std::exp(_mp_arg(2));
       }
@@ -22754,6 +22770,10 @@ namespace cimg_library_suffixed {
         const unsigned int k = (unsigned int)mp.opcode[2];
         CImg<doubleT>(ptrd,k,k,1,1,true).identity_matrix();
         return cimg::type<double>::nan();
+      }
+
+      static double mp_f2ui(_cimg_math_parser& mp) {
+        return (double)cimg::float2uint((float)_mp_arg(2));
       }
 
       static double mp_factorial(_cimg_math_parser& mp) {
@@ -25063,6 +25083,10 @@ namespace cimg_library_suffixed {
 
       static double mp_u(_cimg_math_parser& mp) {
         return cimg::rand(_mp_arg(2),_mp_arg(3),&mp.rng);
+      }
+
+      static double mp_ui2f(_cimg_math_parser& mp) {
+        return (double)cimg::uint2float((unsigned int)_mp_arg(2));
       }
 
       static double mp_uppercase(_cimg_math_parser& mp) {

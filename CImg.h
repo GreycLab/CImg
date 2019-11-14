@@ -7175,11 +7175,9 @@ namespace cimg_library_suffixed {
         attr[i] = (T)res;
       }
 #else
-      time_t _st;
-      std::time(&_st);
-      struct tm *st = std::localtime(&_st);
-      struct timeval _st_ms;
-      gettimeofday(&_st_ms,0);
+      struct timeval _st;
+      gettimeofday(&_st,0);
+      struct tm *st = std::localtime(&_st.tv_sec);
       for (unsigned int i = 0; i<nb_attr; ++i) {
         res = (int)(attr[i]==0?st->tm_year + 1900:
                     attr[i]==1?st->tm_mon + 1:
@@ -7188,7 +7186,7 @@ namespace cimg_library_suffixed {
                     attr[i]==4?st->tm_hour:
                     attr[i]==5?st->tm_min:
                     attr[i]==6?st->tm_sec:
-                    attr[i]==7?_st_ms.tv_usec/1000:-1);
+                    attr[i]==7?_st.tv_usec/1000:-1);
         attr[i] = (T)res;
       }
 #endif
@@ -7199,7 +7197,8 @@ namespace cimg_library_suffixed {
     //! Get current local time (single-attribute version).
     /**
        \param attr Type of requested time attribute.
-                   Can be { 0=year | 1=month | 2=day | 3=day of week | 4=hour | 5=minute | 6=second }
+                   Can be { 0=year | 1=month | 2=day | 3=day of week | 4=hour | 5=minute | 6=second |
+                            7=millisecond }
        \return Specified attribute or -1 if an error occurred.
     **/
     inline int date(unsigned int attr) {

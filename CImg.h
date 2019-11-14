@@ -7150,7 +7150,8 @@ namespace cimg_library_suffixed {
     //! Get current local time (multiple-attributes version).
     /**
        \param[in,out] attr Type of requested time attributes.
-                           Can be { 0=year | 1=month | 2=day | 3=day of week | 4=hour | 5=minute | 6=second }
+                           Can be { 0=year | 1=month | 2=day | 3=day of week | 4=hour | 5=minute | 6=second |
+                                    7=millisecond }
                            Replaced by read attributes after return (or -1 if an error occurred).
        \param nb_attr Number of attributes to read/write.
        \return Latest read attribute.
@@ -7163,19 +7164,31 @@ namespace cimg_library_suffixed {
       SYSTEMTIME st;
       GetLocalTime(&st);
       for (unsigned int i = 0; i<nb_attr; ++i) {
-        res = (int)(attr[i]==0?st.wYear:attr[i]==1?st.wMonth:attr[i]==2?st.wDay:
-                    attr[i]==3?st.wDayOfWeek:attr[i]==4?st.wHour:attr[i]==5?st.wMinute:
-                    attr[i]==6?st.wSecond:-1);
+        res = (int)(attr[i]==0?st.wYear:
+                    attr[i]==1?st.wMonth:
+                    attr[i]==2?st.wDay:
+                    attr[i]==3?st.wDayOfWeek:
+                    attr[i]==4?st.wHour:
+                    attr[i]==5?st.wMinute:
+                    attr[i]==6?st.wSecond:
+                    attr[i]==7?st.wMilliseconds:-1);
         attr[i] = (T)res;
       }
 #else
       time_t _st;
       std::time(&_st);
       struct tm *st = std::localtime(&_st);
+      struct timeval _st_ms;
+      gettimeofday(&_st_ms,0);
       for (unsigned int i = 0; i<nb_attr; ++i) {
-        res = (int)(attr[i]==0?st->tm_year + 1900:attr[i]==1?st->tm_mon + 1:attr[i]==2?st->tm_mday:
-                    attr[i]==3?st->tm_wday:attr[i]==4?st->tm_hour:attr[i]==5?st->tm_min:
-                    attr[i]==6?st->tm_sec:-1);
+        res = (int)(attr[i]==0?st->tm_year + 1900:
+                    attr[i]==1?st->tm_mon + 1:
+                    attr[i]==2?st->tm_mday:
+                    attr[i]==3?st->tm_wday:
+                    attr[i]==4?st->tm_hour:
+                    attr[i]==5?st->tm_min:
+                    attr[i]==6?st->tm_sec:
+                    attr[i]==7?_st_ms.tv_usec/1000:-1);
         attr[i] = (T)res;
       }
 #endif

@@ -61846,7 +61846,7 @@ namespace cimg_library_suffixed {
       const char *const ext = cimg::split_filename(filename,body);
       if (*ext) cimg_snprintf(format,1024,"%%s_%%.%ud.%%s",digits);
       else cimg_snprintf(format,1024,"%%s_%%.%ud",digits);
-      cimg_snprintf(str,1024,format,body,number,ext);
+      cimg_snprintf(str,1024,format._data,body._data,number,ext);
       return str;
     }
 

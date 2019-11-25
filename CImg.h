@@ -2460,10 +2460,11 @@ namespace cimg_library_suffixed {
 #endif
 
     // Display a simple dialog box, and wait for the user's response.
-    inline int dialog(const char *const title, const char *const msg, const char *const button1_label="OK",
-                      const char *const button2_label=0, const char *const button3_label=0,
-                      const char *const button4_label=0, const char *const button5_label=0,
-                      const char *const button6_label=0, const bool centering=false);
+    inline int dialog(const char *const title, const char *const msg,
+                      const char *const button1_label="OK", const char *const button2_label=0,
+                      const char *const button3_label=0, const char *const button4_label=0,
+                      const char *const button5_label=0, const char *const button6_label=0,
+                      const bool centering=false);
 
     // Evaluate math expression.
     inline double eval(const char *const expression,
@@ -7257,18 +7258,9 @@ namespace cimg_library_suffixed {
       return p;
     }
 
-    //! Generate a numbered version of a filename.
+    // Generate a numbered version of a filename.
     inline char* number_filename(const char *const filename, const int number,
-                                 const unsigned int digits, char *const str) {
-      if (!filename) { if (str) *str = 0; return 0; }
-      char *const format = new char[1024], *const body = new char[1024];
-      const char *const ext = cimg::split_filename(filename,body);
-      if (*ext) cimg_snprintf(format,1024,"%%s_%%.%ud.%%s",digits);
-      else cimg_snprintf(format,1024,"%%s_%%.%ud",digits);
-      cimg_sprintf(str,format,body,number,ext);
-      delete[] format; delete[] body;
-      return str;
-    }
+                                 const unsigned int digits, char *const str);
 
     //! Read data from file.
     /**
@@ -61846,6 +61838,18 @@ namespace cimg_library_suffixed {
       return std::strcmp(sa._data,sb._data);
     }
 
+    //! Generate a numbered version of a filename.
+    inline char* number_filename(const char *const filename, const int number,
+                                 const unsigned int digits, char *const str) {
+      if (!filename) { if (str) *str = 0; return 0; }
+      CImg<char> format(1024), body(1024);
+      const char *const ext = cimg::split_filename(filename,body);
+      if (*ext) cimg_snprintf(format,1024,"%%s_%%.%ud.%%s",digits);
+      else cimg_snprintf(format,1024,"%%s_%%.%ud",digits);
+      cimg_snprintf(str,1024,format,body,number,ext);
+      return str;
+    }
+
     //! Return list of files/directories in specified directory.
     /**
        \param path Path to the directory. Set to 0 for current directory.
@@ -62415,8 +62419,9 @@ namespace cimg_library_suffixed {
 
     //! Display a simple dialog box, and wait for the user's response \specialization.
     inline int dialog(const char *const title, const char *const msg,
-                      const char *const button1_label, const char *const button2_label, const char *const button3_label,
-                      const char *const button4_label, const char *const button5_label, const char *const button6_label,
+                      const char *const button1_label, const char *const button2_label,
+                      const char *const button3_label, const char *const button4_label,
+                      const char *const button5_label, const char *const button6_label,
                       const bool is_centered) {
       return dialog(title,msg,button1_label,button2_label,button3_label,button4_label,button5_label,button6_label,
                     CImg<unsigned char>::_logo40x38(),is_centered);

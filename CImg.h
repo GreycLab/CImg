@@ -3083,7 +3083,7 @@ namespace cimg_library_suffixed {
 
     // Define variables used internally by CImg.
 #if cimg_display==1
-    struct X11_info {
+    struct X11_static {
       unsigned int nb_wins;
       pthread_t *events_thread;
       pthread_cond_t wait_event;
@@ -3101,7 +3101,7 @@ namespace cimg_library_suffixed {
       unsigned int curr_resolution;
       unsigned int nb_resolutions;
 #endif
-      X11_info():nb_wins(0),events_thread(0),display(0),
+      X11_static():nb_wins(0),events_thread(0),display(0),
                  nb_bits(0),is_blue_first(false),is_shm_enabled(false),byte_order(false) {
 #ifdef __FreeBSD__
         XInitThreads();
@@ -3117,7 +3117,7 @@ namespace cimg_library_suffixed {
 #endif
       }
 
-      ~X11_info() {
+      ~X11_static() {
         delete[] wins;
         /*
           if (events_thread) {
@@ -3130,75 +3130,75 @@ namespace cimg_library_suffixed {
           pthread_mutex_destroy(&wait_event_mutex);
         */
       }
-    }; // struct X11_info { ...
+    }; // struct X11_static { ...
 #if defined(cimg_module)
-    X11_info& X11_attr();
+    X11_static& X11_attr();
 #elif defined(cimg_main)
-    X11_info& X11_attr() { static X11_info val; return val; }
+    X11_static& X11_attr() { static X11_static val; return val; }
 #else
-    inline X11_info& X11_attr() { static X11_info val; return val; }
+    inline X11_static& X11_attr() { static X11_static val; return val; }
 #endif
 
 #elif cimg_display==2
-    struct Win32_info {
+    struct Win32_static {
       HANDLE wait_event;
-      Win32_info() { wait_event = CreateEvent(0,FALSE,FALSE,0); }
-    }; // struct Win32_info { ...
+      Win32_static() { wait_event = CreateEvent(0,FALSE,FALSE,0); }
+    }; // struct Win32_static { ...
 #if defined(cimg_module)
-    Win32_info& Win32_attr();
+    Win32_static& Win32_attr();
 #elif defined(cimg_main)
-    Win32_info& Win32_attr() { static Win32_info val; return val; }
+    Win32_static& Win32_attr() { static Win32_static val; return val; }
 #else
-    inline Win32_info& Win32_attr() { static Win32_info val; return val; }
+    inline Win32_static& Win32_attr() { static Win32_static val; return val; }
 #endif
 #endif
 #define cimg_lock_display() cimg::mutex(15)
 #define cimg_unlock_display() cimg::mutex(15,0)
 
-    struct Mutex_info {
+    struct Mutex_static {
 #ifdef _PTHREAD_H
       pthread_mutex_t mutex[32];
-      Mutex_info() { for (unsigned int i = 0; i<32; ++i) pthread_mutex_init(&mutex[i],0); }
+      Mutex_static() { for (unsigned int i = 0; i<32; ++i) pthread_mutex_init(&mutex[i],0); }
       void lock(const unsigned int n) { pthread_mutex_lock(&mutex[n]); }
       void unlock(const unsigned int n) { pthread_mutex_unlock(&mutex[n]); }
       int trylock(const unsigned int n) { return pthread_mutex_trylock(&mutex[n]); }
 #elif cimg_OS==2
       HANDLE mutex[32];
-      Mutex_info() { for (unsigned int i = 0; i<32; ++i) mutex[i] = CreateMutex(0,FALSE,0); }
+      Mutex_static() { for (unsigned int i = 0; i<32; ++i) mutex[i] = CreateMutex(0,FALSE,0); }
       void lock(const unsigned int n) { WaitForSingleObject(mutex[n],INFINITE); }
       void unlock(const unsigned int n) { ReleaseMutex(mutex[n]); }
       int trylock(const unsigned int) { return 0; }
 #else
-      Mutex_info() {}
+      Mutex_static() {}
       void lock(const unsigned int) {}
       void unlock(const unsigned int) {}
       int trylock(const unsigned int) { return 0; }
 #endif
-    }; // struct Mutex_info { ...
+    }; // struct Mutex_static { ...
 #if defined(cimg_module)
-    Mutex_info& Mutex_attr();
+    Mutex_static& Mutex_attr();
 #elif defined(cimg_main)
-    Mutex_info& Mutex_attr() { static Mutex_info val; return val; }
+    Mutex_static& Mutex_attr() { static Mutex_static val; return val; }
 #else
-    inline Mutex_info& Mutex_attr() { static Mutex_info val; return val; }
+    inline Mutex_static& Mutex_attr() { static Mutex_static val; return val; }
 #endif
 
 #if defined(cimg_use_magick)
-    struct Magick_info {
-      Magick_info() {
+    struct Magick_static {
+      Magick_static() {
         Magick::InitializeMagick("");
       }
-    }; // struct Magick_info { ...
-    static Magick_info _Magick_info;
+    }; // struct Magick_static { ...
+    static Magick_static _Magick_static;
 #endif
 
-#if defined(cimg_use_fftw3)
-    struct FFTW3_info {
-      FFTW3_info() {
+#if defined(cimg_use_fftw3) && !defined(cimg_use_fftw3_singlethread)
+    struct FFTW3_static {
+      FFTW3_static() {
         fftw_init_threads();
       }
-    }; // struct FFTW3_info { ...
-    static FFTW3_info _FFTW3_info;
+    }; // struct FFTW3_static { ...
+    static FFTW3_static _FFTW3_static;
 #endif
 
 #if cimg_display==1

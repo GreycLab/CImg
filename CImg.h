@@ -7333,6 +7333,17 @@ namespace cimg_library_suffixed {
     // Try to guess format from an image file.
     inline const char *ftype(std::FILE *const file, const char *const filename);
 
+    // Get or set load from network mode (can be { 0=disabled | 1=enabled }).
+    inline bool& network_mode(const bool value, const bool is_set) {
+      static bool mode = true;
+      if (is_set) { cimg::mutex(0); mode = value; cimg::mutex(0,0); }
+      return mode;
+    }
+
+    inline bool& network_mode() {
+      return network_mode(false,false);
+    }
+
     // Load file from network as a local temporary file.
     inline char *load_network(const char *const url, char *const filename_local,
                               const unsigned int timeout=0, const bool try_fallback=false,
@@ -62048,6 +62059,8 @@ namespace cimg_library_suffixed {
         throw CImgArgumentException("cimg::load_network(): Specified URL is (null).");
       if (!filename_local)
         throw CImgArgumentException("cimg::load_network(): Specified destination string is (null).");
+      if (!network_mode())
+        throw CImgIOException("cimg::load_network(): Loading files from network is disabled.");
 
       const char *const __ext = cimg::split_filename(url), *const _ext = (*__ext && __ext>url)?__ext - 1:__ext;
       CImg<char> ext = CImg<char>::string(_ext);

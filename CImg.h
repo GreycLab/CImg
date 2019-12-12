@@ -40064,7 +40064,7 @@ namespace cimg_library_suffixed {
         }
         p1+=offy1; p2+=offy2;
       }
-      return occ_penalization==0?ssd:cimg::sqr(std::sqrt(ssd) + occ_penalization*occ(xc,yc,zc));
+      return occ_penalization==0?ssd:cimg::sqr(std::sqrt(ssd) + occ_penalization*psizewc*psizeh*psized*occ(xc,yc,zc));
     }
 
     static float _matchpatch(const CImg<T>& img1, const CImg<T>& img2, const CImg<uintT>& occ,
@@ -40086,7 +40086,7 @@ namespace cimg_library_suffixed {
         if (ssd>max_score) return max_score;
         p1+=offx1; p2+=offx2;
       }
-      return occ_penalization==0?ssd:cimg::sqr(std::sqrt(ssd) + occ_penalization*occ(xc,yc));
+      return occ_penalization==0?ssd:cimg::sqr(std::sqrt(ssd) + occ_penalization*psizewc*psizeh*occ(xc,yc));
     }
 
     //! Compute Euclidean distance function to a specified value.

@@ -16661,6 +16661,7 @@ namespace cimg_library_suffixed {
         // Init constant values.
 #define _cimg_mp_interpolation (reserved_label[29]!=~0U?reserved_label[29]:0)
 #define _cimg_mp_boundary (reserved_label[30]!=~0U?reserved_label[30]:0)
+#define _cimg_mp_slot_t 17
 #define _cimg_mp_slot_nan 29
 #define _cimg_mp_slot_x 30
 #define _cimg_mp_slot_y 31
@@ -16671,7 +16672,7 @@ namespace cimg_library_suffixed {
         for (unsigned int i = 0; i<=10; ++i) mem[i] = (double)i; // mem[0-10] = 0...10
         for (unsigned int i = 1; i<=5; ++i) mem[i + 10] = -(double)i; // mem[11-15] = -1...-5
         mem[16] = 0.5;
-        mem[17] = 0; // thread_id
+        mem[_cimg_mp_slot_t] = 0; // thread_id
         mem[18] = (double)imgin._width; // w
         mem[19] = (double)imgin._height; // h
         mem[20] = (double)imgin._depth; // d
@@ -16690,13 +16691,13 @@ namespace cimg_library_suffixed {
         //    1 = compile-time constant | N>1 = constant ptr to vector[N-1] }.
         memtype.assign(mem._width,1,1,1,0);
         for (unsigned int i = 0; i<_cimg_mp_slot_x; ++i) memtype[i] = 1;
-        memtype[17] = -1;
+        memtype[_cimg_mp_slot_t] = -2;
         memtype[_cimg_mp_slot_x] = memtype[_cimg_mp_slot_y] = memtype[_cimg_mp_slot_z] = memtype[_cimg_mp_slot_c] = -2;
         mempos = _cimg_mp_slot_c + 1;
         variable_pos.assign(8);
 
         reserved_label.assign(128,1,1,1,~0U);
-        // reserved_label[4-28] are used to store these two-char variables:
+        // reserved_label[4-28] are used to store these variables:
         // [0] = wh, [1] = whd, [2] = whds, [3] = pi, [4] = im, [5] = iM, [6] = ia, [7] = iv,
         // [8] = is, [9] = ip, [10] = ic, [11] = xm, [12] = ym, [13] = zm, [14] = cm, [15] = xM,
         // [16] = yM, [17] = zM, [18]=cM, [19]=i0...[28]=i9, [29] = interpolation, [30] = boundary
@@ -16708,7 +16709,7 @@ namespace cimg_library_suffixed {
           if (_cimg_mp_is_vector(ind_result))
             CImg<doubleT>(&mem[ind_result] + 1,_cimg_mp_size(ind_result),1,1,1,true).
               fill(cimg::type<double>::nan());
-          else mem[ind_result] = cimg::type<double>::nan();
+          else if (ind_result!=_cimg_mp_slot_t) mem[ind_result] = cimg::type<double>::nan();
         }
 
         // Free resources used for compiling expression and prepare evaluation.
@@ -16761,7 +16762,7 @@ namespace cimg_library_suffixed {
         rng((cimg::_rand(),cimg::rng())),calling_function(0) {
 
 #if cimg_use_openmp!=0
-        mem[17] = omp_get_thread_num();
+        mem[_cimg_mp_slot_t] = omp_get_thread_num();
         rng+=omp_get_thread_num();
 #endif
         opcode.assign();
@@ -16926,7 +16927,7 @@ namespace cimg_library_suffixed {
           case 'l' : _cimg_mp_return(reserved_label[(int)'l']!=~0U?reserved_label[(int)'l']:26);
           case 'r' : _cimg_mp_return(reserved_label[(int)'r']!=~0U?reserved_label[(int)'r']:22);
           case 's' : _cimg_mp_return(reserved_label[(int)'s']!=~0U?reserved_label[(int)'s']:21);
-          case 't' : _cimg_mp_return(reserved_label[(int)'t']!=~0U?reserved_label[(int)'t']:17);
+          case 't' : _cimg_mp_return(reserved_label[(int)'t']!=~0U?reserved_label[(int)'t']:_cimg_mp_slot_t);
           case 'w' : _cimg_mp_return(reserved_label[(int)'w']!=~0U?reserved_label[(int)'w']:18);
           case 'x' : _cimg_mp_return(reserved_label[(int)'x']!=~0U?reserved_label[(int)'x']:_cimg_mp_slot_x);
           case 'y' : _cimg_mp_return(reserved_label[(int)'y']!=~0U?reserved_label[(int)'y']:_cimg_mp_slot_y);

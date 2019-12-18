@@ -561,11 +561,16 @@ extern "C" {
 // OpenEXR library may be used to get a native support of '.exr' files.
 // (see methods 'CImg<T>::{load,save}_exr()').
 #ifdef cimg_use_openexr
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated"
+#pragma GCC diagnostic ignored "-Wdeprecated-copy"
+#pragma GCC diagnostic ignored "-Wshadow"
 #include "ImfRgbaFile.h"
 #include "ImfInputFile.h"
 #include "ImfChannelList.h"
 #include "ImfMatrixAttribute.h"
 #include "ImfArray.h"
+#pragma GCC diagnostic pop
 #endif
 
 // Configure TinyEXR support.
@@ -55397,7 +55402,9 @@ namespace cimg_library_suffixed {
       switch (_spectrum) {
       case 1 : { // Grayscale image
         for (const T *ptr_r = data(), *const ptr_e = ptr_r + (ulongT)_width*_height; ptr_r<ptr_e;) {
-          rgba.r = rgba.g = rgba.b = (half)(*(ptr_r++));
+          rgba.r = (half)(*(ptr_r));
+          rgba.g = (half)(*(ptr_r));
+          rgba.b = (half)(*(ptr_r++));
           rgba.a = (half)1;
           *(ptrd++) = rgba;
         }

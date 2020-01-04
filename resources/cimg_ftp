@@ -1,0 +1,37 @@
+#!/usr/bin/gmic
+
+skip "${1=}"
+
+# Retrieve relative path
+x "pwd >/tmp/pwd.txt"
+i raw:/tmp/pwd.txt,uchar autocrop 10
+s +,{'/'} repeat $! if ['{$>,t}']=='html' rm[0-$>] break fi done
+if $! if '{0,t}'=='/' rm[0] fi a y fi
+if $! pwd={t} rm else pwd= fi
+
+# Upload file or directory.
+if !narg("$1") # Synchronize current directory
+
+  e[] "Synchronize current directory '"$pwd"'.\n"
+  com="lftp ftp://"$GMIC_LOGIN":"$GMIC_PASSWD"@"$GMIC_FTP" -e \"mirror -RL . /www/CImg/"$pwd"/ ; quit\""
+  x $com
+
+elif isdir(['"$1"']) # Synchronize specified directory
+
+  e[] "Synchronize directory '$1' with 'SERVER/"$pwd"/$1/'.\n"
+  com="lftp ftp://"$GMIC_LOGIN":"$GMIC_PASSWD"@"$GMIC_FTP" -e \"mirror -RL \\\"$1\\\" \\\"/www/CImg/"$pwd"/$1\\\" ; quit\""
+  x $com
+
+elif isfile(['"$1"']) # Upload file
+
+  e[] "Upload file '$1' to 'SERVER/"$pwd"/'.\n"
+  com="lftp ftp://"$GMIC_LOGIN":"$GMIC_PASSWD"@"$GMIC_FTP" -e \"put -O \\\"/www/CImg/"$pwd"\\\" \\\"$1\\\"; quit\""
+  x $com
+
+fi
+
+# Local Variables:
+# mode: sh
+# End:
+#
+# (End of G'MIC custom commands)

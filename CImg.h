@@ -14625,7 +14625,7 @@ namespace cimg_library_suffixed {
       const Tfloat
         Icc = (Tfloat)atXY(x,y,z,c,out_value),  Inc = (Tfloat)atXY(nx,y,z,c,out_value),
         Icn = (Tfloat)atXY(x,ny,z,c,out_value), Inn = (Tfloat)atXY(nx,ny,z,c,out_value);
-      return Icc + dx*(Inc - Icc + dy*(Icc + Inn - Icn - Inc)) + dy*(Icn - Icc);
+      return Icc + (Inc - Icc + (Icc + Inn - Icn - Inc)*dy)*dx + (Icn - Icc)*dy;
     }
 
     //! Return pixel value, using linear interpolation and Neumann boundary conditions for the X and Y-coordinates.
@@ -14661,7 +14661,7 @@ namespace cimg_library_suffixed {
       const Tfloat
         Icc = (Tfloat)(*this)(x,y,z,c),  Inc = (Tfloat)(*this)(nx,y,z,c),
         Icn = (Tfloat)(*this)(x,ny,z,c), Inn = (Tfloat)(*this)(nx,ny,z,c);
-      return Icc + dx*(Inc - Icc + dy*(Icc + Inn - Icn - Inc)) + dy*(Icn - Icc);
+      return Icc + (Inc - Icc + (Icc + Inn - Icn - Inc)*dy)*dx + (Icn - Icc)*dy;
     }
 
     //! Return pixel value, using linear interpolation and periodic boundary conditions for the X and Y-coordinates.
@@ -14690,7 +14690,7 @@ namespace cimg_library_suffixed {
       const Tfloat
         Icc = (Tfloat)(*this)(x,y,z,c),  Inc = (Tfloat)(*this)(nx,y,z,c),
         Icn = (Tfloat)(*this)(x,ny,z,c), Inn = (Tfloat)(*this)(nx,ny,z,c);
-      return Icc + dx*(Inc - Icc + dy*(Icc + Inn - Icn - Inc)) + dy*(Icn - Icc);
+      return Icc + (Inc - Icc + (Icc + Inn - Icn - Inc)*dy)*dx + (Icn - Icc)*dy;
     }
 
     //! Return pixel value, using linear interpolation and Dirichlet boundary conditions for the X,Y and Z-coordinates.
@@ -14713,13 +14713,13 @@ namespace cimg_library_suffixed {
         Iccn = (Tfloat)atXYZ(x,y,nz,c,out_value), Incn = (Tfloat)atXYZ(nx,y,nz,c,out_value),
         Icnn = (Tfloat)atXYZ(x,ny,nz,c,out_value), Innn = (Tfloat)atXYZ(nx,ny,nz,c,out_value);
       return Iccc +
-        dx*(Incc - Iccc +
-            dy*(Iccc + Innc - Icnc - Incc +
-                dz*(Iccn + Innn + Icnc + Incc - Icnn - Incn - Iccc - Innc)) +
-            dz*(Iccc + Incn - Iccn - Incc)) +
-        dy*(Icnc - Iccc +
-            dz*(Iccc + Icnn - Iccn - Icnc)) +
-        dz*(Iccn - Iccc);
+        (Incc - Iccc +
+         (Iccc + Innc - Icnc - Incc +
+          (Iccn + Innn + Icnc + Incc - Icnn - Incn - Iccc - Innc)*dz)*dy +
+         (Iccc + Incn - Iccn - Incc)*dz)*dx +
+        (Icnc - Iccc +
+         (Iccc + Icnn - Iccn - Icnc)*dz)*dy +
+        (Iccn - Iccc)*dz;
     }
 
     //! Return pixel value, using linear interpolation and Neumann boundary conditions for the X,Y and Z-coordinates.
@@ -14762,13 +14762,13 @@ namespace cimg_library_suffixed {
         Iccn = (Tfloat)(*this)(x,y,nz,c), Incn = (Tfloat)(*this)(nx,y,nz,c),
         Icnn = (Tfloat)(*this)(x,ny,nz,c), Innn = (Tfloat)(*this)(nx,ny,nz,c);
       return Iccc +
-        dx*(Incc - Iccc +
-            dy*(Iccc + Innc - Icnc - Incc +
-                dz*(Iccn + Innn + Icnc + Incc - Icnn - Incn - Iccc - Innc)) +
-            dz*(Iccc + Incn - Iccn - Incc)) +
-        dy*(Icnc - Iccc +
-            dz*(Iccc + Icnn - Iccn - Icnc)) +
-        dz*(Iccn - Iccc);
+        (Incc - Iccc +
+         (Iccc + Innc - Icnc - Incc +
+          (Iccn + Innn + Icnc + Incc - Icnn - Incn - Iccc - Innc)*dz)*dy +
+         (Iccc + Incn - Iccn - Incc)*dz)*dx +
+        (Icnc - Iccc +
+         (Iccc + Icnn - Iccn - Icnc)*dz)*dy +
+        (Iccn - Iccc)*dz;
     }
 
     //! Return pixel value, using linear interpolation and periodic boundary conditions for the X,Y and Z-coordinates.
@@ -14804,13 +14804,13 @@ namespace cimg_library_suffixed {
         Iccn = (Tfloat)(*this)(x,y,nz,c), Incn = (Tfloat)(*this)(nx,y,nz,c),
         Icnn = (Tfloat)(*this)(x,ny,nz,c), Innn = (Tfloat)(*this)(nx,ny,nz,c);
       return Iccc +
-        dx*(Incc - Iccc +
-            dy*(Iccc + Innc - Icnc - Incc +
-                dz*(Iccn + Innn + Icnc + Incc - Icnn - Incn - Iccc - Innc)) +
-            dz*(Iccc + Incn - Iccn - Incc)) +
-        dy*(Icnc - Iccc +
-            dz*(Iccc + Icnn - Iccn - Icnc)) +
-        dz*(Iccn - Iccc);
+        (Incc - Iccc +
+         (Iccc + Innc - Icnc - Incc +
+          (Iccn + Innn + Icnc + Incc - Icnn - Incn - Iccc - Innc)*dz)*dy +
+         (Iccc + Incn - Iccn - Incc)*dz)*dx +
+        (Icnc - Iccc +
+         (Iccc + Icnn - Iccn - Icnc)*dz)*dy +
+        (Iccn - Iccc)*dz;
     }
 
     //! Return pixel value, using linear interpolation and Dirichlet boundary conditions for all X,Y,Z,C-coordinates.

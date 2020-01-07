@@ -70,6 +70,14 @@ echo " - Build directory : $DEST_DIR/"
 echo " - ZIP package filename : $ZIP_FILE"
 echo " - LOG file : $LOG_FILE"
 
+# Merge 'develop' and 'master' branches.
+echo " - Merge 'develop' and 'master' branches."
+cd $SRC_DIR
+git checkout master
+git merge develop
+git checkout develop
+cd ..
+
 # Create clean archive structure.
 echo " - Create package structure."
 rm -rf $DEST_DIR

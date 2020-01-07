@@ -37,7 +37,7 @@
   <tr><td><img src="img/item_simplicity.jpg" alt="Simplicity"></img></td>
     <td><hr noshade="noshade" size="1" width="100%"></hr>
       <font color="#000066"><b>CImg</b></font> is <i>lightweight</i>. It is made of a single header file
-      <a href="https://framagit.org/dtschump/CImg/raw/master/CImg.h"><tt style="font-family:monospace;">CImg.h</tt></a>
+      <a href="https://github.com/dtschump/CImg/raw/master/CImg.h"><tt style="font-family:monospace;">CImg.h</tt></a>
       that must be included in your C++ source. It defines only <i>four</i> different classes, encapsulated
       in the namespace <tt style="font-family:monospace;">cimg_library</tt>.
       It can be compiled using a minimal set of standard C++ and system libraries only.<br/>
@@ -238,7 +238,7 @@
       <a href="CImg_flyer.pdf">CImg Flyer</a> at work, in your lab or school
       (available in <a href="CImg_flyer.pdf">.PDF</a> or <a href="img/CImg_flyer.jpg">.JPEG</a> formats).</li>
     <li>You can report bugs, propose patches or new functionalities, using the <font color="#000066"><b>CImg</b></font>
-      <a href="https://framagit.org/dtschump/CImg/issues">forum</a>.</li>
+      <a href="https://github.com/dtschump/CImg/issues">forum</a>.</li>
     <li>You can write
       <a href="reference/group__cimg__tutorial.html">tutorials</a>
       or parts of the <a href="reference/index.html">documentation</a>.</li>

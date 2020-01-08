@@ -19087,6 +19087,33 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
+            if (!std::strncmp(ss,"ccosh(",6)) { // Complex hyperbolic cosine
+              _cimg_mp_op("Function 'ccosh()'");
+              arg1 = compile(ss6,se1,depth1,0,is_single);
+              _cimg_mp_check_type(arg1,0,2,2);
+              pos = vector(2);
+              CImg<ulongT>::vector((ulongT)mp_complex_cosh,pos,arg1).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
+            if (!std::strncmp(ss,"csinh(",6)) { // Complex hyperbolic sine
+              _cimg_mp_op("Function 'csinh()'");
+              arg1 = compile(ss6,se1,depth1,0,is_single);
+              _cimg_mp_check_type(arg1,0,2,2);
+              pos = vector(2);
+              CImg<ulongT>::vector((ulongT)mp_complex_sinh,pos,arg1).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
+            if (!std::strncmp(ss,"ctanh(",6)) { // Complex hyperbolic tangent
+              _cimg_mp_op("Function 'ctanh()'");
+              arg1 = compile(ss6,se1,depth1,0,is_single);
+              _cimg_mp_check_type(arg1,0,2,2);
+              pos = vector(2);
+              CImg<ulongT>::vector((ulongT)mp_complex_tanh,pos,arg1).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"continue(",9)) { // Complex absolute value
               if (pexpr[se2 - expr._data]=='(') { // no arguments?
                 CImg<ulongT>::vector((ulongT)mp_continue,_cimg_mp_slot_nan).move_to(code);
@@ -22397,6 +22424,31 @@ namespace cimg_library_suffixed {
           denom = std::cos(2*r) + std::cosh(2*i);
         *(ptrd++) = std::sin(2*r)/denom;
         *(ptrd++) = std::sinh(2*i)/denom;
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_complex_cosh(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const double *ptrs = &_mp_arg(2) + 1, r = *(ptrs++), i = *(ptrs);
+        *(ptrd++) = std::cosh(r)*std::cos(i);
+        *(ptrd++) = std::sinh(r)*std::sin(i);
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_complex_sinh(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const double *ptrs = &_mp_arg(2) + 1, r = *(ptrs++), i = *(ptrs);
+        *(ptrd++) = std::sinh(r)*std::cos(i);
+        *(ptrd++) = std::cosh(r)*std::sin(i);
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_complex_tanh(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const double *ptrs = &_mp_arg(2) + 1, r = *(ptrs++), i = *(ptrs),
+          denom = std::cosh(2*r) + std::cos(2*i);
+        *(ptrd++) = std::sinh(2*r)/denom;
+        *(ptrd++) = std::sin(2*i)/denom;
         return cimg::type<double>::nan();
       }
 

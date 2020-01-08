@@ -19114,7 +19114,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
-            if (!std::strncmp(ss,"continue(",9)) { // Complex absolute value
+            if (!std::strncmp(ss,"continue(",9)) { // Continue loop
               if (pexpr[se2 - expr._data]=='(') { // no arguments?
                 CImg<ulongT>::vector((ulongT)mp_continue,_cimg_mp_slot_nan).move_to(code);
                 _cimg_mp_return_nan();

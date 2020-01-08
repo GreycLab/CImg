@@ -19060,6 +19060,24 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
+            if (!std::strncmp(ss,"csin(",5)) { // Complex sine
+              _cimg_mp_op("Function 'csin()'");
+              arg1 = compile(ss5,se1,depth1,0,is_single);
+              _cimg_mp_check_type(arg1,0,2,2);
+              pos = vector(2);
+              CImg<ulongT>::vector((ulongT)mp_complex_sin,pos,arg1).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
+            if (!std::strncmp(ss,"ccos(",5)) { // Complex cosine
+              _cimg_mp_op("Function 'ccos()'");
+              arg1 = compile(ss5,se1,depth1,0,is_single);
+              _cimg_mp_check_type(arg1,0,2,2);
+              pos = vector(2);
+              CImg<ulongT>::vector((ulongT)mp_complex_cos,pos,arg1).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"continue(",9)) { // Complex absolute value
               if (pexpr[se2 - expr._data]=='(') { // no arguments?
                 CImg<ulongT>::vector((ulongT)mp_continue,_cimg_mp_slot_nan).move_to(code);
@@ -22345,6 +22363,22 @@ namespace cimg_library_suffixed {
         const double *ptr1 = &_mp_arg(2) + 1, *ptr2 = &_mp_arg(3) + 1;
         double *ptrd = &_mp_arg(1) + 1;
         _mp_complex_pow(ptr1[0],ptr1[1],ptr2[0],ptr2[1],ptrd);
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_complex_sin(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const double *ptrs = &_mp_arg(2) + 1, r = *(ptrs++), i = *(ptrs);
+        *(ptrd++) = std::sin(r)*std::cosh(i);
+        *(ptrd++) = std::cos(r)*std::sinh(i);
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_complex_cos(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const double *ptrs = &_mp_arg(2) + 1, r = *(ptrs++), i = *(ptrs);
+        *(ptrd++) = std::cos(r)*std::cosh(i);
+        *(ptrd++) = -std::sin(r)*std::sinh(i);
         return cimg::type<double>::nan();
       }
 

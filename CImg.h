@@ -19060,6 +19060,15 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
+            if (!std::strncmp(ss,"ccos(",5)) { // Complex cosine
+              _cimg_mp_op("Function 'ccos()'");
+              arg1 = compile(ss5,se1,depth1,0,is_single);
+              _cimg_mp_check_type(arg1,0,2,2);
+              pos = vector(2);
+              CImg<ulongT>::vector((ulongT)mp_complex_cos,pos,arg1).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"csin(",5)) { // Complex sine
               _cimg_mp_op("Function 'csin()'");
               arg1 = compile(ss5,se1,depth1,0,is_single);
@@ -19069,12 +19078,12 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
-            if (!std::strncmp(ss,"ccos(",5)) { // Complex cosine
-              _cimg_mp_op("Function 'ccos()'");
+            if (!std::strncmp(ss,"ctan(",5)) { // Complex tangent
+              _cimg_mp_op("Function 'ctan()'");
               arg1 = compile(ss5,se1,depth1,0,is_single);
               _cimg_mp_check_type(arg1,0,2,2);
               pos = vector(2);
-              CImg<ulongT>::vector((ulongT)mp_complex_cos,pos,arg1).move_to(code);
+              CImg<ulongT>::vector((ulongT)mp_complex_tan,pos,arg1).move_to(code);
               _cimg_mp_return(pos);
             }
 
@@ -22366,6 +22375,14 @@ namespace cimg_library_suffixed {
         return cimg::type<double>::nan();
       }
 
+      static double mp_complex_cos(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const double *ptrs = &_mp_arg(2) + 1, r = *(ptrs++), i = *(ptrs);
+        *(ptrd++) = std::cos(r)*std::cosh(i);
+        *(ptrd++) = -std::sin(r)*std::sinh(i);
+        return cimg::type<double>::nan();
+      }
+
       static double mp_complex_sin(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
         const double *ptrs = &_mp_arg(2) + 1, r = *(ptrs++), i = *(ptrs);
@@ -22374,11 +22391,12 @@ namespace cimg_library_suffixed {
         return cimg::type<double>::nan();
       }
 
-      static double mp_complex_cos(_cimg_math_parser& mp) {
+      static double mp_complex_tan(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
-        const double *ptrs = &_mp_arg(2) + 1, r = *(ptrs++), i = *(ptrs);
-        *(ptrd++) = std::cos(r)*std::cosh(i);
-        *(ptrd++) = -std::sin(r)*std::sinh(i);
+        const double *ptrs = &_mp_arg(2) + 1, r = *(ptrs++), i = *(ptrs),
+          denom = std::cos(2*r) + std::cosh(2*i);
+        *(ptrd++) = std::sin(2*r)/denom;
+        *(ptrd++) = std::sinh(2*i)/denom;
         return cimg::type<double>::nan();
       }
 

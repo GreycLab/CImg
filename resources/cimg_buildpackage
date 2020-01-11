@@ -74,7 +74,7 @@ echo " - LOG file : $LOG_FILE"
 echo " - Merge 'develop' and 'master' branches."
 cd $SRC_DIR
 git checkout master
-git merge develop
+git merge develop -m "."
 git checkout develop
 cd ..
 

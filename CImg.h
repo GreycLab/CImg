@@ -29757,6 +29757,7 @@ namespace cimg_library_suffixed {
     /**
        \param min_value Minimum desired value of the resulting image.
        \param max_value Maximum desired value of the resulting image.
+       \param ratio_if_constant_image
        \par Example
        \code
        const CImg<float> img("reference.jpg"), res = img.get_normalize(160,220);
@@ -29764,19 +29765,24 @@ namespace cimg_library_suffixed {
        \endcode
        \image html ref_normalize2.jpg
     **/
-    CImg<T>& normalize(const T& min_value, const T& max_value) {
+    CImg<T>& normalize(const T& min_value, const T& max_value,
+                       const float constant_case_ratio=0) {
       if (is_empty()) return *this;
       const T a = min_value<max_value?min_value:max_value, b = min_value<max_value?max_value:min_value;
       T m, M = max_min(m);
       const Tfloat fm = (Tfloat)m, fM = (Tfloat)M;
-      if (m==M) return fill(min_value);
+      if (m==M)
+        return fill(constant_case_ratio==0?a:
+                    constant_case_ratio==1?b:
+                    (T)((1 - constant_case_ratio)*a + constant_case_ratio*b));
       if (m!=a || M!=b) cimg_rof(*this,ptrd,T) *ptrd = (T)((*ptrd - fm)/(fM - fm)*(b - a) + a);
       return *this;
     }
 
     //! Linearly normalize pixel values \newinstance.
-    CImg<Tfloat> get_normalize(const T& min_value, const T& max_value) const {
-      return CImg<Tfloat>(*this,false).normalize((Tfloat)min_value,(Tfloat)max_value);
+    CImg<Tfloat> get_normalize(const T& min_value, const T& max_value,
+                               const float ratio_if_constant_image=0) const {
+      return CImg<Tfloat>(*this,false).normalize((Tfloat)min_value,(Tfloat)max_value,ratio_if_constant_image);
     }
 
     //! Normalize multi-valued pixels of the image instance, with respect to their L2-norm.

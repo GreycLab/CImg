@@ -29757,7 +29757,9 @@ namespace cimg_library_suffixed {
     /**
        \param min_value Minimum desired value of the resulting image.
        \param max_value Maximum desired value of the resulting image.
-       \param ratio_if_constant_image
+       \param constant_case_ratio In case of instance image having a constant value, tell what ratio
+              of [min_value,max_value] is used to fill the normalized image
+              (=0 for min_value, =1 for max_value, =0.5 for (min_value + max_value)/2).
        \par Example
        \code
        const CImg<float> img("reference.jpg"), res = img.get_normalize(160,220);

@@ -3165,7 +3165,7 @@ namespace cimg_library_suffixed {
 #define cimg_unlock_display() cimg::mutex(15,0)
 
     struct Mutex_static {
-#ifdef _PTHREAD_H
+#if cimg_OS==1 && (defined(cimg_use_pthread) || cimg_display==1)
       pthread_mutex_t mutex[32];
       Mutex_static() { for (unsigned int i = 0; i<32; ++i) pthread_mutex_init(&mutex[i],0); }
       void lock(const unsigned int n) { pthread_mutex_lock(&mutex[n]); }

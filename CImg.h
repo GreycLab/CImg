@@ -13851,8 +13851,8 @@ namespace cimg_library_suffixed {
 
     //! Test if two images have the same size and values.
     /**
-       Return \c true if the image instance and the input image \c img have the same dimensions and pixel values,
-       and \c false otherwise.
+       Return \c true if the image instance and the input image \c img have the same pixel values,
+       even if the dimensions of the two images do not match. It returns \c false otherwise.
        \param img Input image to compare with.
        \note
        - The pixel buffer pointers data() of the two compared images do not have to be the same for operator==()

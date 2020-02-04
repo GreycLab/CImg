@@ -16588,7 +16588,7 @@ namespace cimg_library_suffixed {
       CImgList<boolT> macro_body_is_string;
       char *user_macro;
 
-      unsigned int mempos, mem_img_median, debug_indent, result_dim, break_type, constcache_size;
+      unsigned int mempos, mem_img_median, mem_img_index, debug_indent, result_dim, break_type, constcache_size;
       bool is_parallelizable, is_end_code, is_fill, need_input_copy;
       double *result;
       ulongT rng;
@@ -16639,7 +16639,7 @@ namespace cimg_library_suffixed {
         imgin(img_input),listin(list_inputs?*list_inputs:CImgList<T>::const_empty()),
         imgout(img_output?*img_output:CImg<T>::empty()),listout(list_outputs?*list_outputs:CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),user_macro(0),
-        mem_img_median(~0U),debug_indent(0),result_dim(0),break_type(0),constcache_size(0),
+        mem_img_median(~0U),mem_img_index(~0U),debug_indent(0),result_dim(0),break_type(0),constcache_size(0),
         is_parallelizable(true),is_fill(_is_fill),need_input_copy(false),
         rng((cimg::_rand(),cimg::rng())),calling_function(funcname?funcname:"cimg_math_parser") {
 
@@ -16706,7 +16706,7 @@ namespace cimg_library_suffixed {
         variable_pos.assign(8);
 
         reserved_label.assign(128,1,1,1,~0U);
-        // reserved_label[4-28] are used to store these variables:
+        // reserved_label[4-30] are used to store these variables:
         // [0] = wh, [1] = whd, [2] = whds, [3] = pi, [4] = im, [5] = iM, [6] = ia, [7] = iv,
         // [8] = is, [9] = ip, [10] = ic, [11] = xm, [12] = ym, [13] = zm, [14] = cm, [15] = xM,
         // [16] = yM, [17] = zM, [18]=cM, [19]=i0...[28]=i9, [29] = interpolation, [30] = boundary
@@ -16933,6 +16933,10 @@ namespace cimg_library_suffixed {
           case 'd' : _cimg_mp_return(reserved_label[(int)'d']!=~0U?reserved_label[(int)'d']:20);
           case 'e' : _cimg_mp_return(reserved_label[(int)'e']!=~0U?reserved_label[(int)'e']:27);
           case 'h' : _cimg_mp_return(reserved_label[(int)'h']!=~0U?reserved_label[(int)'h']:19);
+          case 'k' :
+            if (reserved_label[(int)'k']!=~0U) _cimg_mp_return(reserved_label[(int)'k']);
+            if (mem_img_index==~0U) mem_img_index = constant(1976);
+            _cimg_mp_return(mem_img_index);
           case 'l' : _cimg_mp_return(reserved_label[(int)'l']!=~0U?reserved_label[(int)'l']:26);
           case 'r' : _cimg_mp_return(reserved_label[(int)'r']!=~0U?reserved_label[(int)'r']:22);
           case 's' : _cimg_mp_return(reserved_label[(int)'s']!=~0U?reserved_label[(int)'s']:21);
@@ -16999,7 +17003,6 @@ namespace cimg_library_suffixed {
               if (reserved_label[10]!=~0U) _cimg_mp_return(reserved_label[10]);
               if (mem_img_median==~0U) mem_img_median = imgin?constant(imgin.median()):0;
               _cimg_mp_return(mem_img_median);
-              break;
             }
           }
           else if (*ss1=='m') switch (*ss) {

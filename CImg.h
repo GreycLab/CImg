@@ -16935,7 +16935,12 @@ namespace cimg_library_suffixed {
           case 'h' : _cimg_mp_return(reserved_label[(int)'h']!=~0U?reserved_label[(int)'h']:19);
           case 'k' :
             if (reserved_label[(int)'k']!=~0U) _cimg_mp_return(reserved_label[(int)'k']);
-            if (mem_img_index==~0U) mem_img_index = constant(1976);
+            if (mem_img_index==~0U) {
+              pos  = 0;
+              cimglist_for(listin,l)
+                if (imgin.is_sameXYZC(listin[l]) && imgin._data==listin[l]._data) { pos = l; break; }
+              mem_img_index = constant(pos);
+            }
             _cimg_mp_return(mem_img_index);
           case 'l' : _cimg_mp_return(reserved_label[(int)'l']!=~0U?reserved_label[(int)'l']:26);
           case 'r' : _cimg_mp_return(reserved_label[(int)'r']!=~0U?reserved_label[(int)'r']:22);

@@ -39692,6 +39692,7 @@ namespace cimg_library_suffixed {
         \param nb_iterations Number of patch-match iterations.
         \param nb_randoms Number of randomization attempts (per pixel).
         \param occ_penalization Penalization factor in score related patch occurrences.
+               if negative, also tells that identity result is not avoided.
         \param guide Image used as the initial correspondence estimate for the algorithm.
           'guide' may have a last channel with boolean values (0=false | other=true) that
           tells for each pixel if its correspondence vector is constrained to its initial value (constraint mask).
@@ -39805,7 +39806,9 @@ namespace cimg_library_suffixed {
       CImg<ucharT> is_updated(_width,_height,_depth,1,3);
       CImg<floatT> score(_width,_height,_depth);
       CImg<uintT> occ;
-      if (occ_penalization!=0) occ.assign(patch_image._width,patch_image._height,patch_image._depth,1,0);
+      const float _occ_penalization = cimg::abs(occ_penalization);
+      const bool allow_identity = occ_penalization>=0;
+      if (_occ_penalization!=0) occ.assign(patch_image._width,patch_image._height,patch_image._depth,1,0);
       const int
         psizew = (int)patch_width,  psizew1 = psizew/2, psizew2 = psizew - psizew1 - 1,
         psizeh = (int)patch_height, psizeh1 = psizeh/2, psizeh2 = psizeh - psizeh1 - 1,
@@ -39842,7 +39845,7 @@ namespace cimg_library_suffixed {
             score(x,y,z) = _matchpatch(in_this,in_patch,occ,patch_width,patch_height,patch_depth,_spectrum,
                                        x - cx1,y - cy1,z - cz1,
                                        u - cx1,v - cy1,w - cz1,
-                                       u,v,w,0,cimg::type<float>::inf());
+                                       u,v,w,0,allow_identity,cimg::type<float>::inf());
           } else cimg_pragma_openmp(parallel cimg_openmp_if_size(_width,64)) {
             ulongT rng = (cimg::_rand(),cimg::rng());
 #if cimg_use_openmp!=0
@@ -39863,7 +39866,7 @@ namespace cimg_library_suffixed {
               score(x,y,z) = _matchpatch(in_this,in_patch,occ,patch_width,patch_height,patch_depth,_spectrum,
                                          x - cx1,y - cy1,z - cz1,
                                          u - cx1,v - cy1,w - cz1,
-                                         u,v,w,0,cimg::type<float>::inf());
+                                         u,v,w,0,allow_identity,cimg::type<float>::inf());
             }
             cimg::srand(rng);
           }
@@ -39910,7 +39913,7 @@ namespace cimg_library_suffixed {
                     w>=cz1 && w<patch_image.depth() - cz2) {
                   s = _matchpatch(in_this,in_patch,occ,patch_width,patch_height,patch_depth,_spectrum,
                                   xp,yp,zp,u + 1 - cx1,v - cy1,w - cz1,
-                                  u,v,w,occ_penalization,best_score);
+                                  u,v,w,_occ_penalization,allow_identity,best_score);
                   if (s<best_score) { best_u = u + 1; best_v = v; best_w = w; best_score = s; }
                 }
               }
@@ -39923,7 +39926,7 @@ namespace cimg_library_suffixed {
                     w>=cz1 && w<patch_image.depth() - cz2) {
                   s = _matchpatch(in_this,in_patch,occ,patch_width,patch_height,patch_depth,_spectrum,
                                   xp,yp,zp,u - cx1,v + 1 - cy1,w - cz1,
-                                  u,v,w,occ_penalization,best_score);
+                                  u,v,w,_occ_penalization,allow_identity,best_score);
                   if (s<best_score) { best_u = u; best_v = v + 1; best_w = w; best_score = s; }
                 }
               }
@@ -39936,7 +39939,7 @@ namespace cimg_library_suffixed {
                     w>=cz1 - 1 && w<patch_image.depth() - 1 - cz2) {
                   s = _matchpatch(in_this,in_patch,occ,patch_width,patch_height,patch_depth,_spectrum,
                                   xp,yp,zp,u - cx1,v - cy1,w + 1 - cz1,
-                                  u,v,w,occ_penalization,best_score);
+                                  u,v,w,_occ_penalization,allow_identity,best_score);
                   if (s<best_score) { best_u = u; best_v = v; best_w = w + 1; best_score = s; }
                 }
               }
@@ -39949,7 +39952,7 @@ namespace cimg_library_suffixed {
                     w>=cz1 && w<patch_image.depth() - cz2) {
                   s = _matchpatch(in_this,in_patch,occ,patch_width,patch_height,patch_depth,_spectrum,
                                   xp,yp,zp,u - 1 - cx1,v - cy1,w - cz1,
-                                  u,v,w,occ_penalization,best_score);
+                                  u,v,w,_occ_penalization,allow_identity,best_score);
                   if (s<best_score) { best_u = u - 1; best_v = v; best_w = w; best_score = s; }
                 }
               }
@@ -39962,7 +39965,7 @@ namespace cimg_library_suffixed {
                     w>=cz1 && w<patch_image.depth() - cz2) {
                   s = _matchpatch(in_this,in_patch,occ,patch_width,patch_height,patch_depth,_spectrum,
                                   xp,yp,zp,u - cx1,v - 1 - cy1,w - cz1,
-                                  u,v,w,occ_penalization,best_score);
+                                  u,v,w,_occ_penalization,allow_identity,best_score);
                   if (s<best_score) { best_u = u; best_v = v - 1; best_w = w; best_score = s; }
                 }
               }
@@ -39975,7 +39978,7 @@ namespace cimg_library_suffixed {
                     w>=cz1 + 1 && w<patch_image.depth() + 1 - cz2) {
                   s = _matchpatch(in_this,in_patch,occ,patch_width,patch_height,patch_depth,_spectrum,
                                   xp,yp,zp,u - cx1,v - cy1,w - 1 - cz1,
-                                  u,v,w,occ_penalization,best_score);
+                                  u,v,w,_occ_penalization,allow_identity,best_score);
                   if (s<best_score) { best_u = u; best_v = v; best_w = w - 1; best_score = s; }
                 }
               }
@@ -39994,14 +39997,14 @@ namespace cimg_library_suffixed {
                 if (u!=best_u || v!=best_v || w!=best_w) {
                   s = _matchpatch(in_this,in_patch,occ,patch_width,patch_height,patch_depth,_spectrum,
                                   xp,yp,zp,u - cx1,v - cy1,w - cz1,
-                                  u,v,w,occ_penalization,best_score);
+                                  u,v,w,_occ_penalization,allow_identity,best_score);
                   if (s<best_score) { best_u = u; best_v = v; best_w = w; best_score = s; }
                   dw = std::max(5.f,dw*0.5f); dh = std::max(5.f,dh*0.5f); dd = std::max(5.f,dd*0.5f);
                 }
               }
 
               if (best_score<best_score0) {
-                if (occ_penalization!=0) {
+                if (_occ_penalization!=0) {
                   uintT &n_occ = occ(a_map(x,y,z,0),a_map(x,y,z,1),a_map(x,y,z,2));
                   if (n_occ) cimg_pragma_openmp(atomic) --n_occ;
                 }
@@ -40011,7 +40014,7 @@ namespace cimg_library_suffixed {
                 score(x,y,z) = best_score;
                 is_updated(x,y,z) = 3;
               } else is_updated(x,y,z)&=~nmask;
-              if (occ_penalization!=0) cimg_pragma_openmp(atomic) ++occ(best_u,best_v,best_w);
+              if (_occ_penalization!=0) cimg_pragma_openmp(atomic) ++occ(best_u,best_v,best_w);
             }
             cimg::srand(rng);
           }
@@ -40032,7 +40035,7 @@ namespace cimg_library_suffixed {
             a_map(x,y,1) = v;
             score(x,y) = _matchpatch(in_this,in_patch,occ,patch_width,patch_height,_spectrum,
                                      x - cx1,y - cy1,u - cx1,v - cy1,
-                                     u,v,0,cimg::type<float>::inf());
+                                     u,v,0,allow_identity,cimg::type<float>::inf());
           } else cimg_pragma_openmp(parallel cimg_openmp_if_size(_width,64)) {
             ulongT rng = (cimg::_rand(),cimg::rng());
 
@@ -40050,7 +40053,7 @@ namespace cimg_library_suffixed {
               a_map(x,y,1) = v;
               score(x,y) = _matchpatch(in_this,in_patch,occ,patch_width,patch_height,_spectrum,
                                        x - cx1,y - cy1,u - cx1,v - cy1,
-                                       u,v,0,cimg::type<float>::inf());
+                                       u,v,0,allow_identity,cimg::type<float>::inf());
             }
             cimg::srand(rng);
           }
@@ -40092,7 +40095,7 @@ namespace cimg_library_suffixed {
                     v>=cy1 && v<patch_image.height() - cy2) {
                   s = _matchpatch(in_this,in_patch,occ,patch_width,patch_height,_spectrum,
                                   xp,yp,u + 1 - cx1,v - cy1,
-                                  u,v,occ_penalization,best_score);
+                                  u,v,_occ_penalization,allow_identity,best_score);
                   if (s<best_score) { best_u = u + 1; best_v = v; best_score = s; }
                 }
               }
@@ -40103,7 +40106,7 @@ namespace cimg_library_suffixed {
                     v>=cy1 - 1 && v<patch_image.height() - 1 - cy2) {
                   s = _matchpatch(in_this,in_patch,occ,patch_width,patch_height,_spectrum,
                                   xp,yp,u - cx1,v + 1 - cy1,
-                                  u,v,occ_penalization,best_score);
+                                  u,v,_occ_penalization,allow_identity,best_score);
                   if (s<best_score) { best_u = u; best_v = v + 1; best_score = s; }
                 }
               }
@@ -40114,7 +40117,7 @@ namespace cimg_library_suffixed {
                     v>=cy1 && v<patch_image.height() - cy2) {
                   s = _matchpatch(in_this,in_patch,occ,patch_width,patch_height,_spectrum,
                                   xp,yp,u - 1 - cx1,v - cy1,
-                                  u,v,occ_penalization,best_score);
+                                  u,v,_occ_penalization,allow_identity,best_score);
                   if (s<best_score) { best_u = u - 1; best_v = v; best_score = s; }
                 }
               }
@@ -40125,7 +40128,7 @@ namespace cimg_library_suffixed {
                     v>=cy1 + 1 && v<patch_image.height() + 1 - cy2) {
                   s = _matchpatch(in_this,in_patch,occ,patch_width,patch_height,_spectrum,
                                   xp,yp,u - cx1,v - 1 - cy1,
-                                  u,v,occ_penalization,best_score);
+                                  u,v,_occ_penalization,allow_identity,best_score);
                   if (s<best_score) { best_u = u; best_v = v - 1; best_score = s; }
                 }
               }
@@ -40141,14 +40144,14 @@ namespace cimg_library_suffixed {
                 if (u!=best_u || v!=best_v) {
                   s = _matchpatch(in_this,in_patch,occ,patch_width,patch_height,_spectrum,
                                   xp,yp,u - cx1,v - cy1,
-                                  u,v,occ_penalization,best_score);
+                                  u,v,_occ_penalization,allow_identity,best_score);
                   if (s<best_score) { best_u = u; best_v = v; best_score = s; }
                   dw = std::max(5.f,dw*0.5f); dh = std::max(5.f,dh*0.5f);
                 }
               }
 
               if (best_score<best_score0) {
-                if (occ_penalization!=0) {
+                if (_occ_penalization!=0) {
                   uintT &n_occ = occ(a_map(x,y,0),a_map(x,y,1));
                   if (n_occ) cimg_pragma_openmp(atomic) --n_occ;
                 }
@@ -40157,7 +40160,7 @@ namespace cimg_library_suffixed {
                 score(x,y) = best_score;
                 is_updated(x,y) = 3;
               } else is_updated(x,y)&=~nmask;
-              if (occ_penalization!=0) cimg_pragma_openmp(atomic) ++occ(best_u,best_v);
+              if (_occ_penalization!=0) cimg_pragma_openmp(atomic) ++occ(best_u,best_v);
             }
             cimg::srand(rng);
           }
@@ -40176,7 +40179,9 @@ namespace cimg_library_suffixed {
                              const int x2, const int y2, const int z2,
                              const int xc, const int yc, const int zc,
                              const float occ_penalization,
+                             const bool allow_identity,
                              const float max_score) { // 3D version
+      if (!allow_identity && x1==x2 && y1==y2 && z1==z2) return cimg::type<float>::inf();
       const T *p1 = img1.data(x1*psizec,y1,z1), *p2 = img2.data(x2*psizec,y2,z2);
       const unsigned int psizewc = psizew*psizec;
       const ulongT
@@ -40204,7 +40209,9 @@ namespace cimg_library_suffixed {
                              const int x2, const int y2,
                              const int xc, const int yc,
                              const float occ_penalization,
+                             const bool allow_identity,
                              const float max_score) { // 2D version
+      if (!allow_identity && x1==x2 && y1==y2) return cimg::type<float>::inf();
       const T *p1 = img1.data(x1*psizec,y1), *p2 = img2.data(x2*psizec,y2);
       const unsigned int psizewc = psizew*psizec;
       const ulongT

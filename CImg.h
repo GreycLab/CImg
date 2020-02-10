@@ -183,14 +183,14 @@
 #ifndef _WIN32_IE
 #define _WIN32_IE 0x0400
 #endif
+#include <shlobj.h>
+#include <process.h>
+#include <io.h>
 #ifdef FALSE
 enum {FALSE_WIN = FALSE};
 #define _cimg_redefine_FALSE
 #undef FALSE
 #endif
-#include <shlobj.h>
-#include <process.h>
-#include <io.h>
 #endif
 
 // Look for C++11 features.

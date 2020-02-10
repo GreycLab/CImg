@@ -183,6 +183,11 @@
 #ifndef _WIN32_IE
 #define _WIN32_IE 0x0400
 #endif
+#ifdef FALSE
+enum {FALSE_WIN = FALSE};
+#define _cimg_redefine_FALSE
+#undef FALSE
+#endif
 #include <shlobj.h>
 #include <process.h>
 #include <io.h>
@@ -3151,7 +3156,7 @@ namespace cimg_library_suffixed {
 #elif cimg_display==2
     struct Win32_static {
       HANDLE wait_event;
-      Win32_static() { wait_event = CreateEvent(0,FALSE,FALSE,0); }
+      Win32_static() { wait_event = CreateEvent(0,FALSE_WIN,FALSE_WIN,0); }
     }; // struct Win32_static { ...
 #if defined(cimg_module)
     Win32_static& Win32_attr();
@@ -3173,7 +3178,7 @@ namespace cimg_library_suffixed {
       int trylock(const unsigned int n) { return pthread_mutex_trylock(&mutex[n]); }
 #elif cimg_OS==2
       HANDLE mutex[32];
-      Mutex_static() { for (unsigned int i = 0; i<32; ++i) mutex[i] = CreateMutex(0,FALSE,0); }
+      Mutex_static() { for (unsigned int i = 0; i<32; ++i) mutex[i] = CreateMutex(0,FALSE_WIN,0); }
       void lock(const unsigned int n) { WaitForSingleObject(mutex[n],INFINITE); }
       void unlock(const unsigned int n) { ReleaseMutex(mutex[n]); }
       int trylock(const unsigned int) { return 0; }
@@ -5678,7 +5683,7 @@ namespace cimg_library_suffixed {
       si.cb = sizeof(si);
       si.wShowWindow = SW_HIDE;
       si.dwFlags |= SW_HIDE | STARTF_USESHOWWINDOW;
-      const BOOL res = CreateProcess((LPCTSTR)module_name,(LPTSTR)command,0,0,FALSE,0,0,0,&si,&pi);
+      const BOOL res = CreateProcess((LPCTSTR)module_name,(LPTSTR)command,0,0,FALSE_WIN,0,0,0,&si,&pi);
       if (res) {
         WaitForSingleObject(pi.hProcess,INFINITE);
         CloseHandle(pi.hThread);
@@ -10737,7 +10742,7 @@ namespace cimg_library_suffixed {
       case WM_PAINT :
         disp->paint();
         cimg_lock_display();
-        if (disp->_is_cursor_visible) while (ShowCursor(TRUE)<0); else while (ShowCursor(FALSE)>=0);
+        if (disp->_is_cursor_visible) while (ShowCursor(TRUE)<0); else while (ShowCursor(FALSE_WIN)>=0);
         cimg_unlock_display();
         break;
       case WM_ERASEBKGND :
@@ -10769,7 +10774,7 @@ namespace cimg_library_suffixed {
         disp->_is_event = true;
         SetEvent(cimg::Win32_attr().wait_event);
         cimg_lock_display();
-	if (disp->_is_cursor_visible) while (ShowCursor(TRUE)<0); else while (ShowCursor(FALSE)>=0);
+	if (disp->_is_cursor_visible) while (ShowCursor(TRUE)<0); else while (ShowCursor(FALSE_WIN)>=0);
         cimg_unlock_display();
       }	break;
       case WM_MOUSELEAVE : {
@@ -10967,8 +10972,8 @@ namespace cimg_library_suffixed {
       void *const arg = (void*)(new void*[2]);
       ((void**)arg)[0] = (void*)this;
       ((void**)arg)[1] = (void*)_title;
-      _mutex = CreateMutex(0,FALSE,0);
-      _is_created = CreateEvent(0,FALSE,FALSE,0);
+      _mutex = CreateMutex(0,FALSE_WIN,0);
+      _is_created = CreateEvent(0,FALSE_WIN,FALSE_WIN,0);
       _thread = CreateThread(0,0,_events_thread,arg,0,0);
       WaitForSingleObject(_is_created,INFINITE);
       return *this;
@@ -62616,6 +62621,9 @@ namespace cimg_library_suffixed {
 //! Short alias name.
 namespace cil = cimg_library_suffixed;
 
+#ifdef _cimg_redefine_FALSE
+#define FALSE 0
+#endif
 #ifdef _cimg_redefine_False
 #define False 0
 #endif

@@ -62621,8 +62621,10 @@ namespace cimg_library_suffixed {
 //! Short alias name.
 namespace cil = cimg_library_suffixed;
 
+#ifndef cimg_use_r
 #ifdef _cimg_redefine_FALSE
 #define FALSE 0
+#endif
 #endif
 #ifdef _cimg_redefine_False
 #define False 0

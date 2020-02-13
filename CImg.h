@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 284
+#define cimg_version 285
 
 /*-----------------------------------------------------------
  #
@@ -18520,6 +18520,7 @@ namespace cimg_library_suffixed {
             if (*ss2=='#') { // Index specified
               s0 = ss3; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
               p1 = compile(ss3,s0++,depth1,0,is_single);
+              _cimg_mp_check_constant(p1,1,1);
               _cimg_mp_check_list(false);
             } else { p1 = ~0U; s0 = ss2; }
             s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -18536,12 +18537,11 @@ namespace cimg_library_suffixed {
               p_ref[1] = p1;
               p_ref[2] = (unsigned int)is_relative;
               p_ref[3] = arg1;
-              if (p1!=~0U && _cimg_mp_is_comp(p1)) memtype[p1] = -2; // Prevent from being used in further optimization
               if (_cimg_mp_is_comp(arg1)) memtype[arg1] = -2;
             }
             p2 = ~0U; // 'p2' must be the dimension of the vector-valued operand if any
             if (p1==~0U) p2 = imgin._spectrum;
-            else if (_cimg_mp_is_constant(p1)) {
+            else {
               p3 = (unsigned int)cimg::mod((int)mem[p1],listin.width());
               p2 = listin[p3]._spectrum;
             }

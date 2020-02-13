@@ -16610,6 +16610,7 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_op(s) s_op = s; ss_op = ss
 #define _cimg_mp_check_type(arg,n_arg,mode,N) check_type(arg,n_arg,mode,N,ss,se,saved_char)
 #define _cimg_mp_check_constant(arg,n_arg,mode) check_constant(arg,n_arg,mode,ss,se,saved_char)
+#define _cimg_mp_check_constant_index(arg) check_constant_index(arg,ss,se,saved_char)
 #define _cimg_mp_check_matrix_square(arg,n_arg) check_matrix_square(arg,n_arg,ss,se,saved_char)
 #define _cimg_mp_check_list(is_out) check_list(is_out,ss,se,saved_char)
 #define _cimg_mp_defunc(mp) (*(mp_func)(*(mp).opcode))(mp)
@@ -17090,9 +17091,9 @@ namespace cimg_library_suffixed {
                 _cimg_mp_check_type(arg1,0,1,0);
                 arg2 = compile(s + 1,se,depth1,0,is_single); // Value to assign
                 if (_cimg_mp_is_vector(arg2)) {
-                  p2 = ~0U; // 'p2' must be the dimension of the vector-valued operand if any
-                  if (p1==~0U) p2 = imgin._spectrum;
-                  else if (_cimg_mp_is_constant(p1)) {
+                  _cimg_mp_check_constant_index(p1);
+                  p2 = imgin._spectrum; // 'p2' must be the dimension of the vector-valued operand if any
+                  if (p1!=~0U) {
                     p3 = (unsigned int)cimg::mod((int)mem[p1],listin.width());
                     p2 = listin[p3]._spectrum;
                   }
@@ -17108,7 +17109,6 @@ namespace cimg_library_suffixed {
                   if (_cimg_mp_is_vector(arg2))
                     set_variable_vector(arg2); // Prevent from being used in further optimization
                   else if (_cimg_mp_is_comp(arg2)) memtype[arg2] = -2;
-                  if (p1!=~0U && _cimg_mp_is_comp(p1)) memtype[p1] = -2;
                   if (_cimg_mp_is_comp(arg1)) memtype[arg1] = -2;
                 }
 
@@ -17175,9 +17175,9 @@ namespace cimg_library_suffixed {
                 }
 
                 if (_cimg_mp_is_vector(arg5)) {
-                  p2 = ~0U; // 'p2' must be the dimension of the vector-valued operand if any
-                  if (p1==~0U) p2 = imgin._spectrum;
-                  else if (_cimg_mp_is_constant(p1)) {
+                  _cimg_mp_check_constant_index(p1);
+                  p2 = imgin._spectrum; // 'p2' must be the dimension of the vector-valued operand if any
+                  if (p1!=~0U) {
                     p3 = (unsigned int)cimg::mod((int)mem[p1],listin.width());
                     p2 = listin[p3]._spectrum;
                   }
@@ -22019,6 +22019,21 @@ namespace cimg_library_suffixed {
                                       s_arg,*s_arg?" argument":" Argument",s_type(arg)._data,
                                       !mode?"":mode==1?"n integer":
                                       mode==2?" positive integer":" strictly positive integer",
+                                      s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
+        }
+      }
+
+      // Check if an image index is a constant value.
+      void check_constant_index(const unsigned int arg,
+                                char *const ss, char *const se, const char saved_char) {
+        if (arg!=~0U && !_cimg_mp_is_constant(arg)) {
+          *se = saved_char;
+          char *const s0 = ss - 4>expr._data?ss - 4:expr._data;
+          cimg::strellipsize(s0,64);
+          throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                      "CImg<%s>::%s: %s%s Specified image index is not a constant, "
+                                      "in expression '%s%s%s'.",
+                                      pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",
                                       s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
         }
       }

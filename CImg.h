@@ -17090,16 +17090,16 @@ namespace cimg_library_suffixed {
                 arg1 = compile(s0,ve1,depth1,0,is_single); // Offset
                 _cimg_mp_check_type(arg1,0,1,0);
                 arg2 = compile(s + 1,se,depth1,0,is_single); // Value to assign
+                _cimg_mp_check_type(arg2,2,*ss>='i'?1:3,0);
                 if (_cimg_mp_is_vector(arg2)) {
-                  _cimg_mp_check_constant_index(p1);
-                  p2 = imgin._spectrum; // 'p2' must be the dimension of the vector-valued operand if any
                   if (p1!=~0U) {
+                    _cimg_mp_check_constant_index(p1);
                     p3 = (unsigned int)cimg::mod((int)mem[p1],listin.width());
                     p2 = listin[p3]._spectrum;
-                  }
+                  } else p2 = imgin._spectrum;
                   if (!p2) _cimg_mp_return(0);
+                  _cimg_mp_check_type(arg2,2,2,p2);
                 } else p2 = 0;
-                _cimg_mp_check_type(arg2,2,*ss>='i'?1:3,p2);
 
                 if (p_ref) {
                   *p_ref = _cimg_mp_is_vector(arg2)?4:2;
@@ -17150,6 +17150,7 @@ namespace cimg_library_suffixed {
                 arg3 = is_relative?0U:(unsigned int)_cimg_mp_slot_z;
                 arg4 = is_relative?0U:(unsigned int)_cimg_mp_slot_c;
                 arg5 = compile(s + 1,se,depth1,0,is_single); // Value to assign
+                _cimg_mp_check_type(arg5,2,*ss>='i'?1:3,0);
                 if (s0<ve1) { // X or [ X,_Y,_Z,_C ]
                   s1 = s0; while (s1<ve1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                   arg1 = compile(s0,s1,depth1,0,is_single);
@@ -17175,15 +17176,15 @@ namespace cimg_library_suffixed {
                 }
 
                 if (_cimg_mp_is_vector(arg5)) {
-                  _cimg_mp_check_constant_index(p1);
-                  p2 = imgin._spectrum; // 'p2' must be the dimension of the vector-valued operand if any
                   if (p1!=~0U) {
+                    _cimg_mp_check_constant_index(p1);
                     p3 = (unsigned int)cimg::mod((int)mem[p1],listin.width());
                     p2 = listin[p3]._spectrum;
-                  }
+                  } else p2 = imgin._spectrum;
                   if (!p2) _cimg_mp_return(0);
+                  _cimg_mp_check_type(arg5,2,2,p2);
                 } else p2 = 0;
-                _cimg_mp_check_type(arg5,2,*ss>='i'?1:3,p2);
+
 
                 if (p_ref) {
                   *p_ref = _cimg_mp_is_vector(arg5)?5:3;
@@ -17684,6 +17685,7 @@ namespace cimg_library_suffixed {
               arg3 = ref[3]; // Offset
               if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
               if (p1!=~0U) {
+                _cimg_mp_check_constant_index(p1);
                 if (!listout) _cimg_mp_return(arg1);
                 CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Joff_v:mp_list_set_Ioff_v),
                                     arg1,p1,arg3,_cimg_mp_size(arg1)).move_to(code);
@@ -17702,6 +17704,7 @@ namespace cimg_library_suffixed {
               arg5 = ref[5]; // Z
               if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
               if (p1!=~0U) {
+                _cimg_mp_check_constant_index(p1);
                 if (!listout) _cimg_mp_return(arg1);
                 CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Jxyz_v:mp_list_set_Ixyz_v),
                                     arg1,p1,arg3,arg4,arg5,_cimg_mp_size(arg1)).move_to(code);
@@ -17809,7 +17812,11 @@ namespace cimg_library_suffixed {
               is_relative = (bool)ref[2];
               arg3 = ref[3]; // Offset
               if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
-              if (_cimg_mp_is_scalar(arg2)) self_vector_s(arg1,op,arg2); else self_vector_v(arg1,op,arg2);
+              if (_cimg_mp_is_scalar(arg2)) self_vector_s(arg1,op,arg2);
+              else {
+                _cimg_mp_check_constant_index(p1);
+                self_vector_v(arg1,op,arg2);
+              }
               if (p1!=~0U) {
                 if (!listout) _cimg_mp_return(arg1);
                 CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Joff_v:mp_list_set_Ioff_v),
@@ -17831,7 +17838,11 @@ namespace cimg_library_suffixed {
               arg4 = ref[4]; // Y
               arg5 = ref[5]; // Z
               if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
-              if (_cimg_mp_is_scalar(arg2)) self_vector_s(arg1,op,arg2); else self_vector_v(arg1,op,arg2);
+              if (_cimg_mp_is_scalar(arg2)) self_vector_s(arg1,op,arg2);
+              else {
+                _cimg_mp_check_constant_index(p1);
+                self_vector_v(arg1,op,arg2);
+              }
               if (p1!=~0U) {
                 if (!listout) _cimg_mp_return(arg1);
                 CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Jxyz_v:mp_list_set_Ixyz_v),

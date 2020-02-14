@@ -17685,8 +17685,8 @@ namespace cimg_library_suffixed {
               arg3 = ref[3]; // Offset
               if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
               if (p1!=~0U) {
-                _cimg_mp_check_constant_index(p1);
                 if (!listout) _cimg_mp_return(arg1);
+                _cimg_mp_check_constant_index(p1);
                 CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Joff_v:mp_list_set_Ioff_v),
                                     arg1,p1,arg3,_cimg_mp_size(arg1)).move_to(code);
               } else {
@@ -17704,8 +17704,8 @@ namespace cimg_library_suffixed {
               arg5 = ref[5]; // Z
               if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
               if (p1!=~0U) {
-                _cimg_mp_check_constant_index(p1);
                 if (!listout) _cimg_mp_return(arg1);
+                _cimg_mp_check_constant_index(p1);
                 CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Jxyz_v:mp_list_set_Ixyz_v),
                                     arg1,p1,arg3,arg4,arg5,_cimg_mp_size(arg1)).move_to(code);
               } else {
@@ -17812,11 +17812,7 @@ namespace cimg_library_suffixed {
               is_relative = (bool)ref[2];
               arg3 = ref[3]; // Offset
               if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
-              if (_cimg_mp_is_scalar(arg2)) self_vector_s(arg1,op,arg2);
-              else {
-                _cimg_mp_check_constant_index(p1);
-                self_vector_v(arg1,op,arg2);
-              }
+              if (_cimg_mp_is_scalar(arg2)) self_vector_s(arg1,op,arg2); else self_vector_v(arg1,op,arg2);
               if (p1!=~0U) {
                 if (!listout) _cimg_mp_return(arg1);
                 CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Joff_v:mp_list_set_Ioff_v),
@@ -17838,11 +17834,7 @@ namespace cimg_library_suffixed {
               arg4 = ref[4]; // Y
               arg5 = ref[5]; // Z
               if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
-              if (_cimg_mp_is_scalar(arg2)) self_vector_s(arg1,op,arg2);
-              else {
-                _cimg_mp_check_constant_index(p1);
-                self_vector_v(arg1,op,arg2);
-              }
+              if (_cimg_mp_is_scalar(arg2)) self_vector_s(arg1,op,arg2); else self_vector_v(arg1,op,arg2);
               if (p1!=~0U) {
                 if (!listout) _cimg_mp_return(arg1);
                 CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Jxyz_v:mp_list_set_Ixyz_v),

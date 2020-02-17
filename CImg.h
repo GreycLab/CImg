@@ -19909,8 +19909,8 @@ namespace cimg_library_suffixed {
               s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg2 = compile(s0,s1,depth1,0,is_single);
 
-              // Third and fourth arguments: search direction and starting index.
-              arg3 = 1; arg4 = _cimg_mp_slot_nan;
+              // Third and fourth arguments: starting index and search direction.
+              arg3 = _cimg_mp_slot_nan; arg4 = 1;
               if (s1<se1) {
                 s0 = s1 + 1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                 arg3 = compile(++s1,s0,depth1,0,is_single);
@@ -22952,9 +22952,9 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_find(_cimg_math_parser& mp) {
-        const bool is_forward = (bool)_mp_arg(5);
+        const bool is_forward = (bool)_mp_arg(6);
         const ulongT siz = (ulongT)mp.opcode[3];
-        longT ind = (longT)(mp.opcode[6]!=_cimg_mp_slot_nan?_mp_arg(6):is_forward?0:siz - 1);
+        longT ind = (longT)(mp.opcode[5]!=_cimg_mp_slot_nan?_mp_arg(5):is_forward?0:siz - 1);
         if (ind<0 || ind>=(longT)siz) return -1.;
         const double
           *const ptrb = &_mp_arg(2) + 1,
@@ -23565,9 +23565,9 @@ namespace cimg_library_suffixed {
         const unsigned int
           indi = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         const CImg<T> &img = mp.listin[indi];
-        const bool is_forward = (bool)_mp_arg(4);
+        const bool is_forward = (bool)_mp_arg(5);
         const ulongT siz = (ulongT)img.size();
-        longT ind = (longT)(mp.opcode[5]!=_cimg_mp_slot_nan?_mp_arg(5):is_forward?0:siz - 1);
+        longT ind = (longT)(mp.opcode[4]!=_cimg_mp_slot_nan?_mp_arg(4):is_forward?0:siz - 1);
         if (ind<0 || ind>=(longT)siz) return -1.;
         const T
           *const ptrb = img.data(),

@@ -20835,13 +20835,13 @@ namespace cimg_library_suffixed {
                 }
               }
 
-              if (arg3*arg4*arg5*arg6!=p3) {
+              if (arg3*arg4*arg5*arg6>p3) {
                 *se = saved_char;
                 s0 = ss - 4>expr._data?ss - 4:expr._data;
                 cimg::strellipsize(s0,64);
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                             "CImg<%s>::%s: %s: Specified dimensions (%u,%u,%u,%u) "
-                                            "does not match data size (%u), "
+                                            "are too large for data size (%u), "
                                             "in expression '%s%s%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             arg3,arg4,arg5,arg6,p3,

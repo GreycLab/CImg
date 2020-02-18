@@ -22974,11 +22974,11 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_find_seq(_cimg_math_parser& mp) {
-        const bool is_forward = (bool)_mp_arg(6);
+        const bool is_forward = (bool)_mp_arg(7);
         const ulongT
           siz1 = (ulongT)mp.opcode[3],
           siz2 = (ulongT)mp.opcode[5];
-        longT ind = (longT)(mp.opcode[7]!=_cimg_mp_slot_nan?_mp_arg(7):is_forward?0:siz1 - 1);
+        longT ind = (longT)(mp.opcode[6]!=_cimg_mp_slot_nan?_mp_arg(6):is_forward?0:siz1 - 1);
         if (ind<0 || ind>=(longT)siz1) return -1.;
         const double
           *const ptr1b = &_mp_arg(2) + 1,
@@ -23590,11 +23590,11 @@ namespace cimg_library_suffixed {
         const unsigned int
           indi = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         const CImg<T> &img = mp.listin[indi];
-        const bool is_forward = (bool)_mp_arg(5);
+        const bool is_forward = (bool)_mp_arg(6);
         const ulongT
           siz1 = (ulongT)img.size(),
           siz2 = (ulongT)mp.opcode[4];
-        longT ind = (longT)(mp.opcode[6]!=_cimg_mp_slot_nan?_mp_arg(6):is_forward?0:siz1 - 1);
+        longT ind = (longT)(mp.opcode[5]!=_cimg_mp_slot_nan?_mp_arg(5):is_forward?0:siz1 - 1);
         if (ind<0 || ind>=(longT)siz1) return -1.;
         const T
           *const ptr1b = img.data(),

@@ -186,11 +186,11 @@
 #include <shlobj.h>
 #include <process.h>
 #include <io.h>
-#ifdef FALSE
 enum {FALSE_WIN = FALSE};
-#define _cimg_redefine_FALSE
-#undef FALSE
-#endif
+//#ifdef FALSE
+//#define _cimg_redefine_FALSE
+//#undef FALSE
+//#endif
 #endif
 
 // Look for C++11 features.
@@ -62662,9 +62662,9 @@ namespace cimg_library_suffixed {
 namespace cil = cimg_library_suffixed;
 
 #ifndef cimg_use_r
-#ifdef _cimg_redefine_FALSE
-#define FALSE 0
-#endif
+//#ifdef _cimg_redefine_FALSE
+//#define FALSE 0
+//#endif
 #endif
 #ifdef _cimg_redefine_False
 #define False 0

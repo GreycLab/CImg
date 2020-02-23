@@ -22978,11 +22978,11 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_find_seq(_cimg_math_parser& mp) {
-        const bool is_forward = (bool)_mp_arg(7);
+        const int _step = (int)_mp_arg(7), step = _step?_step:-1;
         const ulongT
           siz1 = (ulongT)mp.opcode[3],
           siz2 = (ulongT)mp.opcode[5];
-        longT ind = (longT)(mp.opcode[6]!=_cimg_mp_slot_nan?_mp_arg(6):is_forward?0:siz1 - 1);
+        longT ind = (longT)(mp.opcode[6]!=_cimg_mp_slot_nan?_mp_arg(6):step>0?0:siz1 - 1);
         if (ind<0 || ind>=(longT)siz1) return -1.;
         const double
           *const ptr1b = &_mp_arg(2) + 1,
@@ -22994,25 +22994,25 @@ namespace cimg_library_suffixed {
           *p2 = 0;
 
         // Forward search.
-        if (is_forward) {
+        if (step>0) {
           do {
-            while (ptr1<ptr1e && *ptr1!=*ptr2b) ++ptr1;
+            while (ptr1<ptr1e && *ptr1!=*ptr2b) ptr1+=step;
             if (ptr1>=ptr1e) return -1.;
             p1 = ptr1 + 1;
             p2 = ptr2b + 1;
             while (p1<ptr1e && p2<ptr2e && *p1==*p2) { ++p1; ++p2; }
-          } while (p2<ptr2e && ++ptr1<ptr1e);
+          } while (p2<ptr2e && (ptr1+=step)<ptr1e);
           return p2<ptr2e?-1.:(double)(ptr1 - ptr1b);
         }
 
         // Backward search.
         do {
-          while (ptr1>=ptr1b && *ptr1!=*ptr2b) --ptr1;
+          while (ptr1>=ptr1b && *ptr1!=*ptr2b) ptr1-=step;
           if (ptr1<ptr1b) return -1.;
           p1 = ptr1 + 1;
           p2 = ptr2b + 1;
           while (p1<ptr1e && p2<ptr2e && *p1==*p2) { ++p1; ++p2; }
-        } while (p2<ptr2e && --ptr1>=ptr1b);
+        } while (p2<ptr2e && (ptr1-=step)>=ptr1b);
         return p2<ptr2e?-1.:(double)(ptr1 - ptr1b);
       }
 
@@ -23594,11 +23594,11 @@ namespace cimg_library_suffixed {
         const unsigned int
           indi = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         const CImg<T> &img = mp.listin[indi];
-        const bool is_forward = (bool)_mp_arg(6);
+        const int _step = (bool)_mp_arg(6), step = _step?_step:-1;
         const ulongT
           siz1 = (ulongT)img.size(),
           siz2 = (ulongT)mp.opcode[4];
-        longT ind = (longT)(mp.opcode[5]!=_cimg_mp_slot_nan?_mp_arg(5):is_forward?0:siz1 - 1);
+        longT ind = (longT)(mp.opcode[5]!=_cimg_mp_slot_nan?_mp_arg(5):step>0?0:siz1 - 1);
         if (ind<0 || ind>=(longT)siz1) return -1.;
         const T
           *const ptr1b = img.data(),
@@ -23611,25 +23611,25 @@ namespace cimg_library_suffixed {
           *p2 = 0;
 
         // Forward search.
-        if (is_forward) {
+        if (step>0) {
           do {
-            while (ptr1<ptr1e && *ptr1!=*ptr2b) ++ptr1;
+            while (ptr1<ptr1e && *ptr1!=*ptr2b) ptr1+=step;
             if (ptr1>=ptr1e) return -1.;
             p1 = ptr1 + 1;
             p2 = ptr2b + 1;
             while (p1<ptr1e && p2<ptr2e && *p1==*p2) { ++p1; ++p2; }
-          } while (p2<ptr2e && ++ptr1<ptr1e);
+          } while (p2<ptr2e && (ptr1+=step)<ptr1e);
           return p2<ptr2e?-1.:(double)(ptr1 - ptr1b);
         }
 
         // Backward search.
         do {
-          while (ptr1>=ptr1b && *ptr1!=*ptr2b) --ptr1;
+          while (ptr1>=ptr1b && *ptr1!=*ptr2b) ptr1-=step;
           if (ptr1<ptr1b) return -1.;
           p1 = ptr1 + 1;
           p2 = ptr2b + 1;
           while (p1<ptr1e && p2<ptr2e && *p1==*p2) { ++p1; ++p2; }
-        } while (p2<ptr2e && --ptr1>=ptr1b);
+        } while (p2<ptr2e && (ptr1-=step)>=ptr1b);
         return p2<ptr2e?-1.:(double)(ptr1 - ptr1b);
       }
 

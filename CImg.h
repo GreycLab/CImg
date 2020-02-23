@@ -22973,7 +22973,7 @@ namespace cimg_library_suffixed {
         }
 
         // Backward search.
-        while (ptr>=ptrb && *ptr!=val) ptr-=step;
+        while (ptr>=ptrb && *ptr!=val) ptr+=step;
         return ptr<ptrb?-1.:(double)(ptr - ptrb);
       }
 
@@ -23007,12 +23007,12 @@ namespace cimg_library_suffixed {
 
         // Backward search.
         do {
-          while (ptr1>=ptr1b && *ptr1!=*ptr2b) ptr1-=step;
+          while (ptr1>=ptr1b && *ptr1!=*ptr2b) ptr1+=step;
           if (ptr1<ptr1b) return -1.;
           p1 = ptr1 + 1;
           p2 = ptr2b + 1;
           while (p1<ptr1e && p2<ptr2e && *p1==*p2) { ++p1; ++p2; }
-        } while (p2<ptr2e && (ptr1-=step)>=ptr1b);
+        } while (p2<ptr2e && (ptr1+=step)>=ptr1b);
         return p2<ptr2e?-1.:(double)(ptr1 - ptr1b);
       }
 
@@ -23586,7 +23586,7 @@ namespace cimg_library_suffixed {
         }
 
         // Backward search.
-        while (ptr>=ptrb && (double)*ptr!=val) ptr-=step;
+        while (ptr>=ptrb && (double)*ptr!=val) ptr+=step;
         return ptr<ptrb?-1.:(double)(ptr - ptrb);
       }
 
@@ -23624,12 +23624,12 @@ namespace cimg_library_suffixed {
 
         // Backward search.
         do {
-          while (ptr1>=ptr1b && *ptr1!=*ptr2b) ptr1-=step;
+          while (ptr1>=ptr1b && *ptr1!=*ptr2b) ptr1+=step;
           if (ptr1<ptr1b) return -1.;
           p1 = ptr1 + 1;
           p2 = ptr2b + 1;
           while (p1<ptr1e && p2<ptr2e && *p1==*p2) { ++p1; ++p2; }
-        } while (p2<ptr2e && (ptr1-=step)>=ptr1b);
+        } while (p2<ptr2e && (ptr1+=step)>=ptr1b);
         return p2<ptr2e?-1.:(double)(ptr1 - ptr1b);
       }
 

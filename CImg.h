@@ -19921,13 +19921,13 @@ namespace cimg_library_suffixed {
                 }
               }
               if (p1!=~0U) {
-                if (_cimg_mp_is_vector(arg2))
+                if (_cimg_mp_size(arg2)>1)
                   _cimg_mp_scalar5(mp_list_find_seq,p1,arg2,_cimg_mp_size(arg2),arg3,arg4);
-                _cimg_mp_scalar4(mp_list_find,p1,arg2,arg3,arg4);
+                _cimg_mp_scalar4(mp_list_find,p1,arg2 + (_cimg_mp_size(arg2)?1:0),arg3,arg4);
               }
-              if (_cimg_mp_is_vector(arg2))
+              if (_cimg_mp_size(arg2)>1)
                 _cimg_mp_scalar6(mp_find_seq,arg1,_cimg_mp_size(arg1),arg2,_cimg_mp_size(arg2),arg3,arg4);
-              _cimg_mp_scalar5(mp_find,arg1,_cimg_mp_size(arg1),arg2,arg3,arg4);
+              _cimg_mp_scalar5(mp_find,arg1,_cimg_mp_size(arg1),arg2 + (_cimg_mp_size(arg2)?1:0),arg3,arg4);
             }
 
             if (*ss1=='o' && *ss2=='r' && *ss3=='(') { // For loop

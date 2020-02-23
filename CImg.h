@@ -23569,9 +23569,9 @@ namespace cimg_library_suffixed {
         const unsigned int
           indi = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         const CImg<T> &img = mp.listin[indi];
-        const bool is_forward = (bool)_mp_arg(5);
+        const int _step = (int)_mp_arg(5), step = _step?_step:-1;
         const ulongT siz = (ulongT)img.size();
-        longT ind = (longT)(mp.opcode[4]!=_cimg_mp_slot_nan?_mp_arg(4):is_forward?0:siz - 1);
+        longT ind = (longT)(mp.opcode[4]!=_cimg_mp_slot_nan?_mp_arg(4):step>0?0:siz - 1);
         if (ind<0 || ind>=(longT)siz) return -1.;
         const T
           *const ptrb = img.data(),
@@ -23580,13 +23580,13 @@ namespace cimg_library_suffixed {
         const double val = _mp_arg(3);
 
         // Forward search
-        if (is_forward) {
-          while (ptr<ptre && (double)*ptr!=val) ++ptr;
-          return ptr==ptre?-1.:(double)(ptr - ptrb);
+        if (step>0) {
+          while (ptr<ptre && (double)*ptr!=val) ptr+=step;
+          return ptr>=ptre?-1.:(double)(ptr - ptrb);
         }
 
         // Backward search.
-        while (ptr>=ptrb && (double)*ptr!=val) --ptr;
+        while (ptr>=ptrb && (double)*ptr!=val) ptr-=step;
         return ptr<ptrb?-1.:(double)(ptr - ptrb);
       }
 

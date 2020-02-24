@@ -186,7 +186,7 @@
 #include <shlobj.h>
 #include <process.h>
 #include <io.h>
-enum {FALSE_WIN = FALSE};
+enum {FALSE_WIN = 0};
 #endif
 
 // Look for C++11 features.

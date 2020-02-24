@@ -187,10 +187,6 @@
 #include <process.h>
 #include <io.h>
 enum {FALSE_WIN = FALSE};
-//#ifdef FALSE
-//#define _cimg_redefine_FALSE
-//#undef FALSE
-//#endif
 #endif
 
 // Look for C++11 features.
@@ -62661,11 +62657,6 @@ namespace cimg_library_suffixed {
 //! Short alias name.
 namespace cil = cimg_library_suffixed;
 
-#ifndef cimg_use_r
-//#ifdef _cimg_redefine_FALSE
-//#define FALSE 0
-//#endif
-#endif
 #ifdef _cimg_redefine_False
 #define False 0
 #endif

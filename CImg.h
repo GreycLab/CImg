@@ -59889,11 +59889,11 @@ namespace cimg_library_suffixed {
         else cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s-0.png",filename_tmp._data);
         if ((file=cimg::std_fopen(filename_tmp2,"rb"))!=0) cimg::fclose(file);
       } while (file);
-      if (use_graphicsmagick) cimg_snprintf(command,command._width,"%s convert \"%s\" \"%s.png\"",
+      if (use_graphicsmagick) cimg_snprintf(command,command._width,"%s convert -coalesce \"%s\" \"%s.png\"",
                                             cimg::graphicsmagick_path(),
                                             CImg<charT>::string(filename)._system_strescape().data(),
                                             CImg<charT>::string(filename_tmp)._system_strescape().data());
-      else cimg_snprintf(command,command._width,"%s \"%s\" \"%s.png\"",
+      else cimg_snprintf(command,command._width,"%s -coalesce \"%s\" \"%s.png\"",
                          cimg::imagemagick_path(),
                          CImg<charT>::string(filename)._system_strescape().data(),
                          CImg<charT>::string(filename_tmp)._system_strescape().data());

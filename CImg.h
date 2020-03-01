@@ -20181,6 +20181,21 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar0(mp_list_l);
             }
 
+            if (!std::strncmp(ss,"lerp(",5)) { // Linear interpolation
+              _cimg_mp_op("Function 'lerp()'");
+              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss5,s1,depth1,0,is_single);
+              s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg2 = compile(++s1,s2,depth1,0,is_single);
+              s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              _cimg_mp_check_type(arg1,1,3,0);
+              _cimg_mp_check_type(arg2,2,3,_cimg_mp_size(arg1));
+//              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector3_vss(mp_round,arg1,arg2,arg3);
+//              if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2) && _cimg_mp_is_constant(arg3))
+//                _cimg_mp_constant(cimg::round(mem[arg1],mem[arg2],(int)mem[arg3]));
+//              _cimg_mp_scalar3(mp_round,arg1,arg2,arg3);
+            }
+
             if (!std::strncmp(ss,"log(",4)) { // Natural logarithm
               _cimg_mp_op("Function 'log()'");
               arg1 = compile(ss4,se1,depth1,0,is_single);

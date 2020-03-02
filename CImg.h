@@ -20187,8 +20187,7 @@ namespace cimg_library_suffixed {
               arg1 = compile(ss5,s1,depth1,0,is_single);
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(++s1,s2,depth1,0,is_single);
-              s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg3 = s1<se1?compile(++s2,se1,depth1,0,is_single):16; // Default value is 0.5
+              arg3 = s2<se1?compile(++s2,se1,depth1,0,is_single):16; // Default value is 0.5
               _cimg_mp_check_type(arg3,3,1,0);
               if (_cimg_mp_is_scalar(arg1)) {
                 _cimg_mp_check_type(arg2,2,1,0);

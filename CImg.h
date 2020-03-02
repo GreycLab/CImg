@@ -20188,12 +20188,17 @@ namespace cimg_library_suffixed {
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(++s1,s2,depth1,0,is_single);
               s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              _cimg_mp_check_type(arg1,1,3,0);
-              _cimg_mp_check_type(arg2,2,3,_cimg_mp_size(arg1));
-//              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector3_vss(mp_round,arg1,arg2,arg3);
-//              if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2) && _cimg_mp_is_constant(arg3))
-//                _cimg_mp_constant(cimg::round(mem[arg1],mem[arg2],(int)mem[arg3]));
-//              _cimg_mp_scalar3(mp_round,arg1,arg2,arg3);
+              arg3 = s1<se1?compile(++s2,se1,depth1,0,is_single):16; // Default value is 0.5
+              _cimg_mp_check_type(arg3,3,1,0);
+              if (_cimg_mp_is_scalar(arg1)) {
+                _cimg_mp_check_type(arg2,2,1,0);
+                _cimg_mp_scalar3(mp_lerp,arg1,arg2,arg3);
+              }
+              p1 = _cimg_mp_size(arg1);
+              _cimg_mp_check_type(arg2,2,2,p1);
+              pos = vector(p1);
+              CImg<ulongT>::vector((ulongT)mp_vector_lerp,pos,p1,arg1,arg2,arg3).move_to(code);
+              _cimg_mp_return(pos);
             }
 
             if (!std::strncmp(ss,"log(",4)) { // Natural logarithm
@@ -23559,6 +23564,11 @@ namespace cimg_library_suffixed {
         return vals.kth_smallest(ind - 1);
       }
 
+      static double mp_lerp(_cimg_math_parser& mp) {
+        const double t = _mp_arg(4);
+        return _mp_arg(2)*(1-t) + _mp_arg(3)*t;
+      }
+
       static double mp_linear_add(_cimg_math_parser& mp) {
         return _mp_arg(2)*_mp_arg(3) + _mp_arg(4);
       }
@@ -25391,6 +25401,17 @@ namespace cimg_library_suffixed {
         }  // Scalar == scalar
         if (case_sensitive) return _mp_arg(2)==_mp_arg(4);
         return cimg::lowercase(_mp_arg(2))==cimg::lowercase(_mp_arg(4));
+      }
+
+      static double mp_vector_lerp(_cimg_math_parser& mp) {
+        unsigned int siz = (unsigned int)mp.opcode[2];
+        double *ptrd = &_mp_arg(1) + 1;
+        const double
+          *ptrs1 = &_mp_arg(3) + 1,
+          *ptrs2 = &_mp_arg(4) + 1,
+          t = _mp_arg(5);
+        for (unsigned int k = 0; k<siz; ++k) ptrd[k] = ptrs1[k]*(1-t) + ptrs2[k]*t;
+        return cimg::type<double>::nan();
       }
 
       static double mp_vector_off(_cimg_math_parser& mp) {

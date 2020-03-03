@@ -41227,7 +41227,7 @@ namespace cimg_library_suffixed {
         throw CImgInstanceException("CImgList<%s>::FFT(): Failed to allocate memory (%s) "
                                     "for computing FFT of image (%u,%u,%u,%u) along the X-axis.",
                                     pixel_type(),
-                                    cimg::strbuffersize(sizeof(fftw_complex)*real._width),
+                                    cimg::strbuffersize(sizeof(fftw_complex)*real._width*real._height*real._depth),
                                     real._width,real._height,real._depth,real._spectrum);
       double *const ptrf = (double*)data_in;
       fftw_plan data_plan =
@@ -41236,26 +41236,83 @@ namespace cimg_library_suffixed {
                                       data_in,0,1,real.width(),
                                       is_inverse?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE):
         _axis=='y'?fftw_plan_many_dft(1,(int*)&real._height,real.width()*real.depth(),
-                                      data_in,0,real.width(),1,
-                                      data_in,0,real.width(),1,
+                                      data_in,0,1,real.height(),
+                                      data_in,0,1,real.height(),
                                       is_inverse?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE):
         fftw_plan_many_dft(1,(int*)&real._depth,real.width()*real.height(),
-                           data_in,0,real.width()*real.height(),1,
-                           data_in,0,real.width()*real.height(),1,
+                           data_in,0,1,real.depth(),
+                           data_in,0,1,real.depth(),
                            is_inverse?FFTW_BACKWARD:FFTW_FORWARD,FFTW_ESTIMATE);
       cimg_forC(real,c) {
         CImg<T> realc = real.get_shared_channel(c), imagc = imag.get_shared_channel(c);
-        cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height()*real.depth(),125000))
-          cimg_rofoff(realc,i) { const ulongT i2 = 2*i; ptrf[i2] = (double)realc[i]; ptrf[i2 + 1] = (double)imagc[i]; }
+        switch (_axis) {
+        case 'x' :
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height()*real.depth(),125000))
+            cimg_forXYZ(realc,x,y,z) {
+            const ulongT
+              i = realc.offset(x,y,z),
+              j = 2*(x + (ulongT)y*realc._width + (ulongT)z*realc._width*realc._height);
+            ptrf[j] = (double)realc[i];
+            ptrf[j + 1] = (double)imagc[i];
+          }
+          break;
+        case 'y' :
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height()*real.depth(),125000))
+            cimg_forXYZ(realc,x,y,z) {
+            const ulongT
+              i = realc.offset(x,y,z),
+              j = 2*(y + (ulongT)x*realc._height + (ulongT)z*realc._width*realc._height);
+            ptrf[j] = (double)realc[i];
+            ptrf[j + 1] = (double)imagc[i];
+          }
+          break;
+        default :
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height()*real.depth(),125000))
+            cimg_forXYZ(realc,x,y,z) {
+            const ulongT
+              i = realc.offset(x,y,z),
+              j = 2*(z + (ulongT)x*realc._depth + (ulongT)y*realc._width*realc._depth);
+            ptrf[j] = (double)realc[i];
+            ptrf[j + 1] = (double)imagc[i];
+          }
+        }
+
         fftw_execute(data_plan);
-        if (is_inverse) {
-          const double a = 1.0/(_axis=='x'?real.width():_axis=='y'?real.height():real.depth());
+
+        const double a = is_inverse?1.0/(_axis=='x'?real.width():_axis=='y'?real.height():real.depth()):1.0;
+        switch (_axis) {
+        case 'x' :
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height()*real.depth(),125000))
-            cimg_rofoff(realc,i) { const ulongT i2 = 2*i; realc[i] = (T)(a*ptrf[i2]); imagc[i] = (T)(a*ptrf[i2 + 1]); }
-        } else
+            cimg_forXYZ(realc,x,y,z) {
+            const ulongT
+              i = 2*(x + (ulongT)y*realc._width + (ulongT)z*realc._width*realc._height),
+              j = realc.offset(x,y,z);
+            realc[j] = (T)(a*ptrf[i]);
+            imagc[j] = (T)(a*ptrf[i + 1]);
+          }
+          break;
+        case 'y' :
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height()*real.depth(),125000))
-            cimg_rofoff(realc,i) { const ulongT i2 = 2*i; realc[i] = (T)ptrf[i2]; imagc[i] = (T)ptrf[i2 + 1]; }
+            cimg_forXYZ(realc,x,y,z) {
+            const ulongT
+              i = 2*(y + (ulongT)x*realc._height + (ulongT)z*realc._width*realc._height),
+              j = realc.offset(x,y,z);
+            realc[j] = (T)(a*ptrf[i]);
+            imagc[j] = (T)(a*ptrf[i + 1]);
+          }
+          break;
+        default :
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height()*real.depth(),125000))
+            cimg_forXYZ(realc,x,y,z) {
+            const ulongT
+              i = 2*(z + (ulongT)x*realc._depth + (ulongT)y*realc._width*realc._depth),
+              j = realc.offset(x,y,z);
+            realc[j] = (T)(a*ptrf[i]);
+            imagc[j] = (T)(a*ptrf[i + 1]);
+          }
+        }
       }
+
       fftw_destroy_plan(data_plan);
       fftw_free(data_in);
 #ifndef cimg_use_fftw3_singlethread
@@ -61369,7 +61426,6 @@ namespace cimg_library_suffixed {
         cimg::warn(_cimglist_instance
                    "FFT(): Instance has more than 2 images",
                    cimglist_instance);
-
       CImg<T>::FFT(_data[0],_data[1],axis,invert);
       return *this;
     }

@@ -5839,7 +5839,7 @@ namespace cimg_library_suffixed {
 #elif cimg_OS==2
       SYSTEMTIME st_time;
       GetLocalTime(&st_time);
-      return (cimg_ulong)(st_time.wMilliseconds + 1000*(st_time.wSecond + 60*(st_time.wMinute + 60*st_time.wHour)));
+      return st_time.wMilliseconds + 1000*(st_time.wSecond + 60*(st_time.wMinute + 60*(cimg_ulong)st_time.wHour));
 #else
       return 0;
 #endif

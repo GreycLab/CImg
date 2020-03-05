@@ -5886,7 +5886,7 @@ namespace cimg_library_suffixed {
     inline unsigned int wait(const unsigned int milliseconds, cimg_ulong *const p_timer) {
       if (!*p_timer) *p_timer = cimg::time();
       const cimg_ulong current_time = cimg::time();
-      if (current_time>=*p_timer + milliseconds) { *p_timer = current_time; return 0; }
+      if (current_time<*p_timer || current_time>=*p_timer + milliseconds) { *p_timer = current_time; return 0; }
       const unsigned int time_diff = (unsigned int)(*p_timer + milliseconds - current_time);
       *p_timer = current_time + time_diff;
       cimg::sleep(time_diff);
@@ -8723,7 +8723,7 @@ namespace cimg_library_suffixed {
     **/
     float frames_per_second() {
       if (!_fps_timer) _fps_timer = cimg::time();
-      const float delta = (cimg::time() - _fps_timer)/1000.f;
+      const float delta = std::max((cimg::time() - _fps_timer)/1000.f,1.0f);
       ++_fps_frames;
       if (delta>=1) {
         _fps_fps = _fps_frames/delta;

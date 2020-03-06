@@ -20057,6 +20057,46 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
+            if (!std::strncmp(ss,"inrange(",8)) { // Check value range
+              _cimg_mp_op("Function 'inrange()'");
+              s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss8,s1,depth1,0,is_single);
+              s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg2 = compile(++s1,s2,depth1,0,is_single);
+              s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg3 = compile(++s2,s1,depth1,0,is_single);
+              arg4 = s1<se1?compile(++s1,se1,depth1,0,is_single):1;
+              _cimg_mp_check_type(arg4,4,1,0);
+
+/*              if (_cimg_mp_is_constant(arg3)) { // Optimize constant cases
+                if (!arg3) _cimg_mp_return(arg1);
+                if (arg3==1) _cimg_mp_return(arg2);
+                if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2)) {
+                  const bool include_boundaries = (bool)mem[arg3];
+                  if (include_boundaries)
+                    _cimg_mp_constant(mem[arg1]*(1-t) + mem[arg2]*t);
+                  else
+                }
+              }
+*/
+              p1 = _cimg_mp_size(arg1);
+              p2 = _cimg_mp_size(arg2);
+              p3 = _cimg_mp_size(arg3);
+              arg5 = ~0U; // Size of return value
+              if (!p1) {
+                arg5 = p2?p2:p3;
+                if (arg5) _cimg_mp_check_type(arg3,3,3,arg5);
+              } else {
+                arg5 = p1;
+                _cimg_mp_check_type(arg2,2,3,arg5);
+                _cimg_mp_check_type(arg3,3,3,arg5);
+              }
+              pos = arg5?vector(arg5):scalar();
+              CImg<ulongT>::vector((ulongT)mp_inrange,pos,arg5,arg1,p1,arg2,p2,arg3,p3,arg4).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
+
             if (!std::strncmp(ss,"int(",4)) { // Integer cast
               _cimg_mp_op("Function 'int()'");
               arg1 = compile(ss4,se1,depth1,0,is_single);
@@ -23306,6 +23346,41 @@ namespace cimg_library_suffixed {
 
       static double mp_increment(_cimg_math_parser& mp) {
         return _mp_arg(2) + 1;
+      }
+
+      static double mp_inrange(_cimg_math_parser& mp) {
+        const unsigned int sizd = (unsigned int)mp.opcode[2];
+        const bool include_boundaries = (bool)_mp_arg(9);
+        if (!sizd) { // Scalar result
+          const double val = _mp_arg(3);
+          double m = _mp_arg(5), M = _mp_arg(7);
+          if (m>M) cimg::swap(m,M);
+          return include_boundaries?(val>=m && val<=M):(val>m && val<M);
+        }
+
+        // Vector result
+        const unsigned int
+          siz1 = (unsigned int)mp.opcode[4],
+          siz2 = (unsigned int)mp.opcode[6],
+          siz3 = (unsigned int)mp.opcode[8],
+          off1 = siz1?1:0,
+          off2 = siz2?1:0,
+          off3 = siz3?1:0;
+        double *ptrd = &_mp_arg(1) + 1;
+        const double
+          *ptr1 = &_mp_arg(3) + off1,
+          *ptr2 = &_mp_arg(5) + off2,
+          *ptr3 = &_mp_arg(7) + off3;
+        for (unsigned int k = 0; k<sizd; ++k) {
+          const double val = *ptr1;
+          double m = *ptr2, M = *ptr3;
+          if (m>M) cimg::swap(m,M);
+          ptrd[k] = (double)(include_boundaries?(val>=m && val<=M):(val>m && val<M));
+          ptr1+=off1;
+          ptr2+=off2;
+          ptr3+=off3;
+        }
+        return cimg::type<double>::nan();
       }
 
       static double mp_int(_cimg_math_parser& mp) {

@@ -5850,7 +5850,8 @@ namespace cimg_library_suffixed {
       const cimg_ulong
         sec = time/10000000L,
         usec = system_time.wMilliseconds*1000;
-      return usec/1000 + sec*1000;
+//      return usec/1000 + sec*1000;
+      return usec/1000; // + sec*1000;
 
 /*      ULARGE_INTEGER ul;
       FILETIME ft;

@@ -5835,8 +5835,23 @@ namespace cimg_library_suffixed {
 #if cimg_OS==1
       struct timeval st_time;
       gettimeofday(&st_time,0);
-      return (cimg_ulong)st_time.tv_usec/1000 + st_time.tv_sec*1000;
+
+      const cimg_ulong usec = st_time.tv_usec, sec = st_time.tv_sec;
+
+      return usec/1000 + sec*1000;
+
 #elif cimg_OS==2
+      SYSTEMTIME system_time;
+      FILETIME file_time;
+      cimg_ulong time;
+      GetSystemTime(&system_time);
+      SystemTimeToFileTime(&system_time,&file_time);
+      time = (cimg_ulong)file_time.dwLowDateTime;
+      time+=((cimg_ulong)file_time.dwHighDateTime)<<32;
+      sec = time/10000000L;
+      usec = system_time.wMilliseconds*1000;
+      return usec/1000 + sec*1000;
+
 /*      ULARGE_INTEGER ul;
       FILETIME ft;
       GetSystemTimeAsFileTime(&ft);
@@ -5845,11 +5860,12 @@ namespace cimg_library_suffixed {
       return (cimg_ulong)ul.QuadPart/10;
 */
 
-      SYSTEMTIME st_time;
+/*      SYSTEMTIME st_time;
       GetLocalTime(&st_time);
       return (cimg_ulong)st_time.wMilliseconds +
         1000*((cimg_ulong)st_time.wSecond + 60*((cimg_ulong)st_time.wMinute + 60*((cimg_ulong)st_time.wHour +
                                                                                   24*(cimg_ulong)st_time.wDay)));
+*/
 #else
       return 0;
 #endif

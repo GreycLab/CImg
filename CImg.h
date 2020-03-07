@@ -5841,7 +5841,7 @@ namespace cimg_library_suffixed {
       return usec/1000 + sec*1000;
 
 #elif cimg_OS==2
-      SYSTEMTIME system_time;
+/*      SYSTEMTIME system_time;
       FILETIME file_time;
       GetSystemTime(&system_time);
       SystemTimeToFileTime(&system_time,&file_time);
@@ -5849,17 +5849,16 @@ namespace cimg_library_suffixed {
       time+=((cimg_ulong)file_time.dwHighDateTime)<<32;
       const cimg_ulong
         sec = time/10000000L,
-        usec = system_time.wMilliseconds*1000;
-//      return usec/1000 + sec*1000;
-      return usec/1000; // + sec*1000;
+        usec = (system_time.wMilliseconds*1000)%1000;
+      return usec/1000 + sec*1000;
+*/
 
-/*      ULARGE_INTEGER ul;
+      ULARGE_INTEGER ul;
       FILETIME ft;
       GetSystemTimeAsFileTime(&ft);
       ul.LowPart = ft.dwLowDateTime;
       ul.HighPart = ft.dwHighDateTime;
-      return (cimg_ulong)ul.QuadPart/10;
-*/
+      return (cimg_ulong)ul.QuadPart/10000;
 
 /*      SYSTEMTIME st_time;
       GetLocalTime(&st_time);

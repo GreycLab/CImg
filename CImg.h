@@ -5837,18 +5837,19 @@ namespace cimg_library_suffixed {
       gettimeofday(&st_time,0);
       return (cimg_ulong)st_time.tv_usec/1000 + st_time.tv_sec*1000;
 #elif cimg_OS==2
-      ULARGE_INTEGER ul;
+/*      ULARGE_INTEGER ul;
       FILETIME ft;
       GetSystemTimeAsFileTime(&ft);
       ul.LowPart = ft.dwLowDateTime;
       ul.HighPart = ft.dwHighDateTime;
       return (cimg_ulong)ul.QuadPart/10;
-/*      SYSTEMTIME st_time;
+*/
+
+      SYSTEMTIME st_time;
       GetLocalTime(&st_time);
       return (cimg_ulong)st_time.wMilliseconds +
         1000*((cimg_ulong)st_time.wSecond + 60*((cimg_ulong)st_time.wMinute + 60*((cimg_ulong)st_time.wHour +
                                                                                   24*(cimg_ulong)st_time.wDay)));
-*/
 #else
       return 0;
 #endif

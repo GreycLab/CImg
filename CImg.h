@@ -5831,54 +5831,31 @@ namespace cimg_library_suffixed {
     /**
        \note The timer does not necessarily starts from \c 0.
     **/
-    inline cimg_ulong time() {
+    inline cimg_uint64 time() {
 #if cimg_OS==1
       struct timeval st_time;
       gettimeofday(&st_time,0);
-      const cimg_ulong
-        usec = (cimg_ulong)st_time.tv_usec,
-        sec = (cimg_ulong)st_time.tv_sec;
-      return usec/1000 + sec*1000;
-
+      return (cimg_uint64)st_time.tv_sec*1000 + (cimg_uint64)st_time.tv_usec/1000;
 #elif cimg_OS==2
-/*      SYSTEMTIME system_time;
-      FILETIME file_time;
-      GetSystemTime(&system_time);
-      SystemTimeToFileTime(&system_time,&file_time);
-      cimg_ulong time = (cimg_ulong)file_time.dwLowDateTime;
-      time+=((cimg_ulong)file_time.dwHighDateTime)<<32;
-      const cimg_ulong
-        sec = time/10000000L,
-        usec = (system_time.wMilliseconds*1000)%1000;
-      return usec/1000 + sec*1000;
-*/
-
       ULARGE_INTEGER ul;
       FILETIME ft;
       GetSystemTimeAsFileTime(&ft);
       ul.LowPart = ft.dwLowDateTime;
       ul.HighPart = ft.dwHighDateTime;
-      return (cimg_ulong)ul.QuadPart/10000;
-
-/*      SYSTEMTIME st_time;
-      GetLocalTime(&st_time);
-      return (cimg_ulong)st_time.wMilliseconds +
-        1000*((cimg_ulong)st_time.wSecond + 60*((cimg_ulong)st_time.wMinute + 60*((cimg_ulong)st_time.wHour +
-                                                                                  24*(cimg_ulong)st_time.wDay)));
-*/
+      return (cimg_uint64)ul.QuadPart/10000;
 #else
       return 0;
 #endif
     }
 
     // Implement a tic/toc mechanism to display elapsed time of algorithms.
-    inline cimg_ulong tictoc(const bool is_tic);
+    inline cimg_uint64 tictoc(const bool is_tic);
 
     //! Start tic/toc timer for time measurement between code instructions.
     /**
        \return Current value of the timer (same value as time()).
     **/
-    inline cimg_ulong tic() {
+    inline cimg_uint64 tic() {
       return cimg::tictoc(true);
     }
 
@@ -5886,7 +5863,7 @@ namespace cimg_library_suffixed {
     /**
        \return Time elapsed (in ms) since last call to tic().
     **/
-    inline cimg_ulong toc() {
+    inline cimg_uint64 toc() {
       return cimg::tictoc(false);
     }
 
@@ -5909,9 +5886,9 @@ namespace cimg_library_suffixed {
 #endif
     }
 
-    inline unsigned int wait(const unsigned int milliseconds, cimg_ulong *const p_timer) {
+    inline unsigned int wait(const unsigned int milliseconds, cimg_uint64 *const p_timer) {
       if (!*p_timer) *p_timer = cimg::time();
-      const cimg_ulong current_time = cimg::time();
+      const cimg_uint64 current_time = cimg::time();
       if (current_time<*p_timer || current_time>=*p_timer + milliseconds) { *p_timer = current_time; return 0; }
       const unsigned int time_diff = (unsigned int)(*p_timer + milliseconds - current_time);
       *p_timer = current_time + time_diff;
@@ -5926,20 +5903,20 @@ namespace cimg_library_suffixed {
        \note Same as sleep() with a waiting time computed with regard to the last call
        of wait(). It may be used to temporize your program properly, without wasting CPU time.
     **/
-    inline cimg_long wait(const unsigned int milliseconds) {
+    inline unsigned int wait(const unsigned int milliseconds) {
       cimg::mutex(3);
-      static cimg_ulong timer = cimg::time();
+      static cimg_uint64 timer = cimg::time();
       cimg::mutex(3,0);
       return cimg::wait(milliseconds,&timer);
     }
 
     // Custom random number generator (allow re-entrance).
-    inline cimg_ulong& rng() { // Used as a shared global number for rng
-      static cimg_ulong rng = 0xB16B00B5U;
+    inline cimg_uint64& rng() { // Used as a shared global number for rng
+      static cimg_uint64 rng = 0xB16B00B5U;
       return rng;
     }
 
-    inline unsigned int _rand(cimg_ulong *const p_rng) {
+    inline unsigned int _rand(cimg_uint64 *const p_rng) {
       *p_rng = *p_rng*1103515245 + 12345U;
       return (unsigned int)*p_rng;
     }
@@ -5951,11 +5928,11 @@ namespace cimg_library_suffixed {
       return res;
     }
 
-    inline void srand(cimg_ulong *const p_rng) {
+    inline void srand(cimg_uint64 *const p_rng) {
 #if cimg_OS==1
-      *p_rng = cimg::time() + (cimg_ulong)getpid();
+      *p_rng = cimg::time() + (cimg_uint64)getpid();
 #elif cimg_OS==2
-      *p_rng = cimg::time() + (cimg_ulong)_getpid();
+      *p_rng = cimg::time() + (cimg_uint64)_getpid();
 #endif
     }
 
@@ -5965,13 +5942,13 @@ namespace cimg_library_suffixed {
       cimg::mutex(4,0);
     }
 
-    inline void srand(const cimg_ulong seed) {
+    inline void srand(const cimg_uint64 seed) {
       cimg::mutex(4);
       cimg::rng() = seed;
       cimg::mutex(4,0);
     }
 
-    inline double rand(const double val_min, const double val_max, cimg_ulong *const p_rng) {
+    inline double rand(const double val_min, const double val_max, cimg_uint64 *const p_rng) {
       const double val = cimg::_rand(p_rng)/(double)~0U;
       return val_min + (val_max - val_min)*val;
     }
@@ -5983,7 +5960,7 @@ namespace cimg_library_suffixed {
       return res;
     }
 
-    inline double rand(const double val_max, cimg_ulong *const p_rng) {
+    inline double rand(const double val_max, cimg_uint64 *const p_rng) {
       const double val = cimg::_rand(p_rng)/(double)~0U;
       return val_max*val;
     }
@@ -5995,7 +5972,7 @@ namespace cimg_library_suffixed {
       return res;
     }
 
-    inline double grand(cimg_ulong *const p_rng) {
+    inline double grand(cimg_uint64 *const p_rng) {
       double x1, w;
       do {
         const double x2 = cimg::rand(-1,1,p_rng);
@@ -6012,7 +5989,7 @@ namespace cimg_library_suffixed {
       return res;
     }
 
-    inline unsigned int prand(const double z, cimg_ulong *const p_rng) {
+    inline unsigned int prand(const double z, cimg_uint64 *const p_rng) {
       if (z<=1.e-10) return 0;
       if (z>100) return (unsigned int)((std::sqrt(z) * cimg::grand(p_rng)) + z);
       unsigned int k = 0;
@@ -6211,8 +6188,8 @@ namespace cimg_library_suffixed {
 
     //! Return the nearest power of 2 higher than given value.
     template<typename T>
-    inline cimg_ulong nearest_pow2(const T& x) {
-      cimg_ulong i = 1;
+    inline cimg_uint64 nearest_pow2(const T& x) {
+      cimg_uint64 i = 1;
       while (x>i) i<<=1;
       return i;
     }
@@ -7885,7 +7862,7 @@ namespace cimg_library_suffixed {
      Remember to link your program against \b X11 or \b GDI32 libraries if you use CImgDisplay.
   **/
   struct CImgDisplay {
-    cimg_ulong _timer, _fps_frames, _fps_timer;
+    cimg_uint64 _timer, _fps_frames, _fps_timer;
     unsigned int _width, _height, _normalization;
     float _fps_fps, _min, _max;
     bool _is_fullscreen;
@@ -62567,11 +62544,11 @@ namespace cimg_library_suffixed {
     }
 
     // Implement a tic/toc mechanism to display elapsed time of algorithms.
-    inline cimg_ulong tictoc(const bool is_tic) {
+    inline cimg_uint64 tictoc(const bool is_tic) {
       cimg::mutex(2);
-      static CImg<cimg_ulong> times(64);
+      static CImg<cimg_uint64> times(64);
       static unsigned int pos = 0;
-      const cimg_ulong t1 = cimg::time();
+      const cimg_uint64 t1 = cimg::time();
       if (is_tic) {
         // Tic
         times[pos++] = t1;
@@ -62584,9 +62561,9 @@ namespace cimg_library_suffixed {
       // Toc
       if (!pos)
         throw CImgArgumentException("cimg::toc(): No previous call to 'cimg::tic()' has been made.");
-      const cimg_ulong
+      const cimg_uint64
         t0 = times[--pos],
-        dt = t1>=t0?(t1 - t0):cimg::type<cimg_ulong>::max();
+        dt = t1>=t0?(t1 - t0):cimg::type<cimg_uint64>::max();
       const unsigned int
         edays = (unsigned int)(dt/86400000.),
         ehours = (unsigned int)((dt - edays*86400000.)/3600000.),

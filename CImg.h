@@ -6932,10 +6932,68 @@ namespace cimg_library_suffixed {
                 ++ns;
               }
               *nd = val;
-            } else *ns = c;
+            } else *nd = c;
           } break;
-          default :
-            *nd = *(ns++);
+          case 'u' : { // UTF-8 BMP
+            char c1, c2, c3, c4;
+            if ((((c1 = lowercase(ns[1]))>='0' && c1<='9') || (c1>='a' && c1<='f')) &&
+                (((c2 = lowercase(ns[2]))>='0' && c2<='9') || (c2>='a' && c2<='f')) &&
+                (((c3 = lowercase(ns[3]))>='0' && c3<='9') || (c3>='a' && c3<='f')) &&
+                (((c4 = lowercase(ns[4]))>='0' && c4<='9') || (c4>='a' && c4<='f'))) {
+              c1 = (c1<='9'?c1 - '0':c1 - 'a' + 10);
+              c2 = (c2<='9'?c2 - '0':c2 - 'a' + 10);
+              c3 = (c3<='9'?c3 - '0':c3 - 'a' + 10);
+              c4 = (c4<='9'?c4 - '0':c4 - 'a' + 10);
+              const unsigned int ival = (c1<<12) | (c2<<8) | (c3<<4) | c4;
+              if (ival<=0x007f) *nd = (char)ival;
+              else if (ival<=0x07ff) {
+                *(nd++) = (char)((ival>>6)|0xc0);
+                *nd = (char)((ival&0x3f)|0x80);
+              } else {
+                *(nd++) = (char)((ival>>12)|0xe0);
+                *(nd++) = (char)(((ival>>6)&0x3f)|0x80);
+                *nd = (char)((ival&0x3f)|0x80);
+              }
+              ns+=5;
+            } else *nd = *(ns++);
+          } break;
+          case 'U' : { // UTF-8 astral planes
+            char c1, c2, c3, c4, c5, c6, c7, c8;
+            if ((((c1 = lowercase(ns[1]))>='0' && c1<='9') || (c1>='a' && c1<='f')) &&
+                (((c2 = lowercase(ns[2]))>='0' && c2<='9') || (c2>='a' && c2<='f')) &&
+                (((c3 = lowercase(ns[3]))>='0' && c3<='9') || (c3>='a' && c3<='f')) &&
+                (((c4 = lowercase(ns[4]))>='0' && c4<='9') || (c4>='a' && c4<='f')) &&
+                (((c5 = lowercase(ns[5]))>='0' && c5<='9') || (c5>='a' && c5<='f')) &&
+                (((c6 = lowercase(ns[6]))>='0' && c6<='9') || (c6>='a' && c6<='f')) &&
+                (((c7 = lowercase(ns[7]))>='0' && c7<='9') || (c7>='a' && c7<='f')) &&
+                (((c8 = lowercase(ns[8]))>='0' && c8<='9') || (c8>='a' && c8<='f'))) {
+              c1 = (c1<='9'?c1 - '0':c1 - 'a' + 10);
+              c2 = (c2<='9'?c2 - '0':c2 - 'a' + 10);
+              c3 = (c3<='9'?c3 - '0':c3 - 'a' + 10);
+              c4 = (c4<='9'?c4 - '0':c4 - 'a' + 10);
+              c5 = (c5<='9'?c5 - '0':c5 - 'a' + 10);
+              c6 = (c6<='9'?c6 - '0':c6 - 'a' + 10);
+              c7 = (c7<='9'?c7 - '0':c7 - 'a' + 10);
+              c8 = (c8<='9'?c8 - '0':c8 - 'a' + 10);
+              const unsigned int ival = (c1<<28) | (c2<<24) | (c3<<20) | (c4<<16) | (c5<<12) | (c6<<8) | (c7<<4) | c8;
+              if (ival<=0x007f) *nd = (char)ival;
+              else if (ival<=0x07ff) {
+                *(nd++) = (char)((ival>>6)|0xc0);
+                *nd = (char)((ival&0x3f)|0x80);
+              } else if (ival<=0xffff) {
+                *(nd++) = (char)((ival>>12)|0xe0);
+                *(nd++) = (char)(((ival>>6)&0x3f)|0x80);
+                *nd = (char)((ival&0x3f)|0x80);
+              } else {
+                *(nd++) = (char)((ival>>18)|0xf0);
+                *(nd++) = (char)(((ival>>12)&0x3f)|0x80);
+                *(nd++) = (char)(((ival>>6)&0x3f)|0x80);
+                *nd = (char)((ival&0x3f)|0x80);
+              }
+              ns+=9;
+            } else *nd = *(ns++);
+          } break;
+          default : *nd = *(ns++);
           }
         else *nd = *(ns++);
     }

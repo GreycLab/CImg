@@ -6902,6 +6902,7 @@ namespace cimg_library_suffixed {
     **/
     inline void strunescape(char *const str) {
 #define cimg_strunescape(ci,co) case ci : *nd = co; ++ns; break;
+
       unsigned char val = 0;
       for (char *ns = str, *nd = str; *ns || (bool)(*nd = 0); ++nd) if (*ns=='\\') switch (*(++ns)) {
             cimg_strunescape('a','\a');

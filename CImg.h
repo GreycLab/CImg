@@ -6945,7 +6945,8 @@ namespace cimg_library_suffixed {
               c2 = (c2<='9'?c2 - '0':c2 - 'a' + 10);
               c3 = (c3<='9'?c3 - '0':c3 - 'a' + 10);
               c4 = (c4<='9'?c4 - '0':c4 - 'a' + 10);
-              const unsigned int ival = (c1<<12) | (c2<<8) | (c3<<4) | c4;
+              const unsigned int ival =
+                ((unsigned int)c1<<12) | ((unsigned int)c2<<8) | ((unsigned int)c3<<4) | c4;
               if (ival<=0x007f) *nd = (char)ival;
               else if (ival<=0x07ff) {
                 *(nd++) = (char)((ival>>6)|0xc0);
@@ -6976,7 +6977,9 @@ namespace cimg_library_suffixed {
               c6 = (c6<='9'?c6 - '0':c6 - 'a' + 10);
               c7 = (c7<='9'?c7 - '0':c7 - 'a' + 10);
               c8 = (c8<='9'?c8 - '0':c8 - 'a' + 10);
-              const unsigned int ival = (c1<<28) | (c2<<24) | (c3<<20) | (c4<<16) | (c5<<12) | (c6<<8) | (c7<<4) | c8;
+              const unsigned int ival =
+                ((unsigned int)c1<<28) | ((unsigned int)c2<<24) | ((unsigned int)c3<<20) | ((unsigned int)c4<<16) |
+                ((unsigned int)c5<<12) | ((unsigned int)c6<<8) | ((unsigned int)c7<<4) | (unsigned int)c8;
               if (ival<=0x007f) *nd = (char)ival;
               else if (ival<=0x07ff) {
                 *(nd++) = (char)((ival>>6)|0xc0);

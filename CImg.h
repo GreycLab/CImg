@@ -2292,7 +2292,7 @@ namespace cimg_library_suffixed {
   // defined afterwards.
   namespace cimg {
 
-    // Define Ascii sequences for colored terminal output.
+    // Define ascii sequences for colored terminal output.
 #ifdef cimg_use_vt100
     static const char t_normal[] = { 0x1b, '[', '0', ';', '0', ';', '0', 'm', 0 };
     static const char t_black[] = { 0x1b, '[', '0', ';', '3', '0', ';', '5', '9', 'm', 0 };
@@ -6723,7 +6723,7 @@ namespace cimg_library_suffixed {
       return b;
     }
 
-    //! Convert Ascii character to lower case.
+    //! Convert ascii character to lower case.
     inline char lowercase(const char x) {
       return (char)((x<'A'||x>'Z')?x:x - 'A' + 'a');
     }
@@ -6736,7 +6736,7 @@ namespace cimg_library_suffixed {
       if (str) for (char *ptr = str; *ptr; ++ptr) *ptr = lowercase(*ptr);
     }
 
-    //! Convert Ascii character to upper case.
+    //! Convert ascii character to upper case.
     inline char uppercase(const char x) {
       return (char)((x<'a'||x>'z')?x:x - 'a' + 'A');
     }
@@ -6896,14 +6896,14 @@ namespace cimg_library_suffixed {
       }
     }
 
-    //! Replace escape sequences in C-strings by their binary Ascii values.
+    //! Replace escape sequences in C-strings by their binary ascii values.
     /**
        \param[in,out] str C-string to work with (modified at output).
     **/
     inline void strunescape(char *const str) {
 #define cimg_strunescape(ci,co) case ci : *nd = co; ++ns; break;
-      unsigned int val = 0;
-      for (char *ns = str, *nd = str; *ns || (bool)(*nd=0); ++nd) if (*ns=='\\') switch (*(++ns)) {
+      unsigned char val = 0;
+      for (char *ns = str, *nd = str; *ns || (bool)(*nd = 0); ++nd) if (*ns=='\\') switch (*(++ns)) {
             cimg_strunescape('a','\a');
             cimg_strunescape('b','\b');
             cimg_strunescape('e',0x1B);
@@ -6916,16 +6916,28 @@ namespace cimg_library_suffixed {
             cimg_strunescape('\'','\'');
             cimg_strunescape('\"','\"');
             cimg_strunescape('\?','\?');
-          case 0 : *nd = 0; break;
           case '0' : case '1' : case '2' : case '3' : case '4' : case '5' : case '6' : case '7' :
-            cimg_sscanf(ns,"%o",&val); while (*ns>='0' && *ns<='7') ++ns;
-            *nd = (char)val; break;
-          case 'x' :
-            cimg_sscanf(++ns,"%x",&val);
-            while ((*ns>='0' && *ns<='9') || (*ns>='a' && *ns<='f') || (*ns>='A' && *ns<='F')) ++ns;
-            *nd = (char)val; break;
-          default : *nd = *(ns++);
-          } else *nd = *(ns++);
+            val = *(ns++) - '0';
+            if (*ns>='0' && *ns<='7') (val<<=3)|=*(ns++) - '0';
+            if (*ns>='0' && *ns<='7') (val<<=3)|=*(ns++) - '0';
+            *nd = (char)val;
+            break;
+          case 'x' : {
+            char c = lowercase(*(++ns));
+            if ((c>='0' && c<='9') || (c>='a' && c<='f')) {
+              val = (c<='9'?c - '0':c - 'a' + 10);
+              c = lowercase(*(++ns));
+              if ((c>='0' && c<='9') || (c>='a' && c<='f')) {
+                (val<<=4)|=(c<='9'?c - '0':c - 'a' + 10);
+                ++ns;
+              }
+              *nd = val;
+            } else *ns = c;
+          } break;
+          default :
+            *nd = *(ns++);
+          }
+        else *nd = *(ns++);
     }
 
     // Return a temporary string describing the size of a memory buffer.
@@ -15704,7 +15716,7 @@ namespace cimg_library_suffixed {
        of the image instance (written in base 10), separated by specified \c separator character.
        \param separator A \c char character which specifies the separator between values in the returned C-string.
        \param max_size Maximum size of the returned image (or \c 0 if no limits are set).
-       \param format For float/double-values, tell the printf format used to generate the Ascii representation
+       \param format For float/double-values, tell the printf format used to generate the ascii representation
          of the numbers (or \c 0 for default representation).
        \note
        - The returned image is never empty.
@@ -28488,7 +28500,7 @@ namespace cimg_library_suffixed {
       return get_dijkstra(starting_node,ending_node,foo);
     }
 
-    //! Return an image containing the Ascii codes of the specified  string.
+    //! Return an image containing the ascii codes of the specified  string.
     /**
        \param str input C-string to encode as an image.
        \param is_last_zero Tells if the ending \c '0' character appear in the resulting image.
@@ -49999,7 +50011,7 @@ namespace cimg_library_suffixed {
       return CImg<T>().load(filename);
     }
 
-    //! Load image from an Ascii file.
+    //! Load image from an ascii file.
     /**
        \param filename Filename, as a C -string.
     **/
@@ -50007,17 +50019,17 @@ namespace cimg_library_suffixed {
       return _load_ascii(0,filename);
     }
 
-    //! Load image from an Ascii file \inplace.
+    //! Load image from an ascii file \inplace.
     static CImg<T> get_load_ascii(const char *const filename) {
       return CImg<T>().load_ascii(filename);
     }
 
-    //! Load image from an Ascii file \overloading.
+    //! Load image from an ascii file \overloading.
     CImg<T>& load_ascii(std::FILE *const file) {
       return _load_ascii(file,0);
     }
 
-    //! Loadimage from an Ascii file \newinstance.
+    //! Loadimage from an ascii file \newinstance.
     static CImg<T> get_load_ascii(std::FILE *const file) {
       return CImg<T>().load_ascii(file);
     }
@@ -50037,7 +50049,7 @@ namespace cimg_library_suffixed {
       if (!dx || !dy || !dz || !dc) {
         if (!file) cimg::fclose(nfile);
         throw CImgIOException(_cimg_instance
-                              "load_ascii(): Invalid Ascii header in file '%s', image dimensions are set "
+                              "load_ascii(): Invalid ascii header in file '%s', image dimensions are set "
                               "to (%u,%u,%u,%u).",
                               cimg_instance,
                               filename?filename:"(FILE*)",dx,dy,dz,dc);
@@ -50778,17 +50790,17 @@ namespace cimg_library_suffixed {
       std::fgetc(nfile);
 
       switch (ppm_type) {
-      case 1 : { // 2D b&w Ascii
+      case 1 : { // 2D b&w ascii
         assign(W,H,1,1);
         T* ptrd = _data;
         cimg_foroff(*this,off) { if (std::fscanf(nfile,"%d",&rval)>0) *(ptrd++) = (T)(rval?0:255); else break; }
       } break;
-      case 2 : { // 2D grey Ascii
+      case 2 : { // 2D grey ascii
         assign(W,H,1,1);
         T* ptrd = _data;
         cimg_foroff(*this,off) { if (std::fscanf(nfile,"%d",&rval)>0) *(ptrd++) = (T)rval; else break; }
       } break;
-      case 3 : { // 2D color Ascii
+      case 3 : { // 2D color ascii
         assign(W,H,1,3);
         T *ptrd = data(0,0,0,0), *ptr_g = data(0,0,0,1), *ptr_b = data(0,0,0,2);
         cimg_forXY(*this,x,y) {
@@ -54289,7 +54301,7 @@ namespace cimg_library_suffixed {
       return save_other(fn);
     }
 
-    //! Save image as an Ascii file.
+    //! Save image as an ascii file.
     /**
       \param filename Filename, as a C-string.
     **/

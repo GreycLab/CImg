@@ -20951,7 +20951,7 @@ namespace cimg_library_suffixed {
               arg2 = compile(++s1,s2,depth1,0,is_single);
               _cimg_mp_check_type(arg2,2,2,0);
               p2 = _cimg_mp_size(arg2);
-              arg3 = arg5 = arg6 = 1U; arg4 = p3;
+              arg3 = arg5 = arg6 = 1U; arg4 = p3; p3 = 0;
               if (s2<se1) {
                 s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                 arg3 = compile(++s2,s1,depth1,0,is_single);
@@ -20965,8 +20965,13 @@ namespace cimg_library_suffixed {
                     s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                     arg5 = compile(++s2,s1,depth1,0,is_single);
                     _cimg_mp_check_type(arg5,5,1,0);
-                    arg6 = s1<se1?compile(++s1,se1,depth1,0,is_single):1;
-                    _cimg_mp_check_type(arg6,6,1,0);
+                    if (s1<se1) {
+                      s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                      arg6 = compile(++s1,s2,depth1,0,is_single);
+                      p3 = s2<se1?compile(++s2,se1,depth1,0,is_single):0;
+                      _cimg_mp_check_type(arg6,6,1,0);
+                      _cimg_mp_check_type(p3,7,1,0);
+                    }
                   }
                 }
               }
@@ -20992,7 +20997,7 @@ namespace cimg_library_suffixed {
                 }
               }
               CImg<ulongT>::vector((ulongT)mp_store,_cimg_mp_slot_nan,arg1,p1,arg2,p2,
-                                   arg3,arg4,arg5,arg6).move_to(code);
+                                   arg3,arg4,arg5,arg6,p3).move_to(code);
               _cimg_mp_return_nan();
             }
 #endif
@@ -25346,6 +25351,7 @@ namespace cimg_library_suffixed {
           h = (int)_mp_arg(7),
           d = (int)_mp_arg(8),
           s = (int)_mp_arg(9);
+        const bool is_compressed = (bool)_mp_arg(10);
         if (w<0 || h<0 || d<0 || s<0)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'store()': "
                                       "Specified image dimensions (%d,%d,%d,%d) are invalid.",
@@ -25361,8 +25367,8 @@ namespace cimg_library_suffixed {
         CImg<doubleT> img;
         if (siz1) cimg_mp_store_function(ptr1 + 1,
                                          (unsigned int)w,(unsigned int)h,(unsigned int)d,(unsigned int)s,
-                                         ss._data);
-        else cimg_mp_store_function(ptr1,1,1,1,1,ss._data);
+                                         is_compressed,ss._data);
+        else cimg_mp_store_function(ptr1,1,1,1,1,is_compressed,ss._data);
         return cimg::type<double>::nan();
       }
 #endif

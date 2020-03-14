@@ -21491,7 +21491,7 @@ namespace cimg_library_suffixed {
           }
           if (!arg1) _cimg_mp_return(0); // Empty string -> 0
           if (*ss=='_') {
-            if (arg1==1) _cimg_mp_constant((unsigned int)*variable_name);
+            if (arg1==1) _cimg_mp_constant((unsigned char)*variable_name);
             *se = saved_char;
             cimg::strellipsize(variable_name,64);
             s0 = ss - 4>expr._data?ss - 4:expr._data;

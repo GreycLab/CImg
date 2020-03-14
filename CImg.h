@@ -2292,7 +2292,7 @@ namespace cimg_library_suffixed {
   // defined afterwards.
   namespace cimg {
 
-    // Define ascii sequences for colored terminal output.
+    // Define character sequences for colored terminal output.
 #ifdef cimg_use_vt100
     static const char t_normal[] = { 0x1b, '[', '0', ';', '0', ';', '0', 'm', 0 };
     static const char t_black[] = { 0x1b, '[', '0', ';', '3', '0', ';', '5', '9', 'm', 0 };
@@ -6723,7 +6723,7 @@ namespace cimg_library_suffixed {
       return b;
     }
 
-    //! Convert ascii character to lower case.
+    //! Convert character to lower case.
     inline char lowercase(const char x) {
       return (char)((x<'A'||x>'Z')?x:x - 'A' + 'a');
     }
@@ -6736,7 +6736,7 @@ namespace cimg_library_suffixed {
       if (str) for (char *ptr = str; *ptr; ++ptr) *ptr = lowercase(*ptr);
     }
 
-    //! Convert ascii character to upper case.
+    //! Convert character to upper case.
     inline char uppercase(const char x) {
       return (char)((x<'a'||x>'z')?x:x - 'a' + 'A');
     }
@@ -6896,7 +6896,7 @@ namespace cimg_library_suffixed {
       }
     }
 
-    //! Replace escape sequences in C-strings by their binary ascii values.
+    //! Replace escape sequences in C-strings by character values.
     /**
        \param[in,out] str C-string to work with (modified at output).
     **/
@@ -15778,7 +15778,7 @@ namespace cimg_library_suffixed {
        of the image instance (written in base 10), separated by specified \c separator character.
        \param separator A \c char character which specifies the separator between values in the returned C-string.
        \param max_size Maximum size of the returned image (or \c 0 if no limits are set).
-       \param format For float/double-values, tell the printf format used to generate the ascii representation
+       \param format For float/double-values, tell the printf format used to generate the text representation
          of the numbers (or \c 0 for default representation).
        \note
        - The returned image is never empty.
@@ -21491,13 +21491,13 @@ namespace cimg_library_suffixed {
           }
           if (!arg1) _cimg_mp_return(0); // Empty string -> 0
           if (*ss=='_') {
-            if (arg1==1) _cimg_mp_constant(*variable_name);
+            if (arg1==1) _cimg_mp_constant((unsigned int)*variable_name);
             *se = saved_char;
             cimg::strellipsize(variable_name,64);
             s0 = ss - 4>expr._data?ss - 4:expr._data;
             cimg::strellipsize(s0,64);
             throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                        "CImg<%s>::%s: %s: Literal %s contains more than one character, "
+                                        "CImg<%s>::%s: %s: Literal %s contains more than one byte, "
                                         "in expression '%s%s%s'.",
                                         pixel_type(),_cimg_mp_calling_function,s_op,
                                         ss1,
@@ -25330,7 +25330,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_string_init(_cimg_math_parser& mp) {
-        const char *ptrs = (char*)&mp.opcode[3];
+        const unsigned char *ptrs = (unsigned char*)&mp.opcode[3];
         unsigned int
           ptrd = (unsigned int)mp.opcode[1] + 1,
           siz = (unsigned int)mp.opcode[2];
@@ -28570,7 +28570,7 @@ namespace cimg_library_suffixed {
       return get_dijkstra(starting_node,ending_node,foo);
     }
 
-    //! Return an image containing the ascii codes of the specified  string.
+    //! Return an image containing the character codes of specified string.
     /**
        \param str input C-string to encode as an image.
        \param is_last_zero Tells if the ending \c '0' character appear in the resulting image.
@@ -49953,7 +49953,7 @@ namespace cimg_library_suffixed {
 #ifdef cimg_load_plugin8
         cimg_load_plugin8(filename);
 #endif
-        // Ascii formats
+        // Text formats
         if (!cimg::strcasecmp(ext,"asc")) load_ascii(filename);
         else if (!cimg::strcasecmp(ext,"dlm") ||
                  !cimg::strcasecmp(ext,"txt")) load_dlm(filename);
@@ -50860,7 +50860,7 @@ namespace cimg_library_suffixed {
       std::fgetc(nfile);
 
       switch (ppm_type) {
-      case 1 : { // 2D b&w ascii
+      case 1 : { // 2D B&W ascii
         assign(W,H,1,1);
         T* ptrd = _data;
         cimg_foroff(*this,off) { if (std::fscanf(nfile,"%d",&rval)>0) *(ptrd++) = (T)(rval?0:255); else break; }
@@ -54295,7 +54295,7 @@ namespace cimg_library_suffixed {
 #ifdef cimg_save_plugin8
       cimg_save_plugin8(fn);
 #endif
-      // Ascii formats
+      // Text formats
       if (!cimg::strcasecmp(ext,"asc")) return save_ascii(fn);
       else if (!cimg::strcasecmp(ext,"dlm") ||
                !cimg::strcasecmp(ext,"txt")) return save_dlm(fn);

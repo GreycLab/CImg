@@ -8800,7 +8800,7 @@ namespace cimg_library_suffixed {
     **/
     float frames_per_second() {
       if (!_fps_timer) _fps_timer = cimg::time();
-      const float delta = std::max((cimg::time() - _fps_timer)/1000.f,1.0f);
+      const float delta = (cimg::time() - _fps_timer)/1000;
       ++_fps_frames;
       if (delta>=1) {
         _fps_fps = _fps_frames/delta;

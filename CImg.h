@@ -11761,7 +11761,15 @@ namespace cimg_library_suffixed {
                                       size_x,size_y,size_z,size_c);
         }
         fill(value);
-      } else { _width = _height = _depth = _spectrum = 0; _data = 0; }
+      } else {
+        _width = _height = _depth = _spectrum = 0; _data = 0;
+        if (size_x || size_y || size_z || size_c)
+          throw CImgArgumentException(_cimg_instance
+                                      "CImg(): Invalid specified dimensions (%u,%u,%u,%u) "
+                                      "(one dimension is =0 while others are !=0).",
+                                      cimg_instance,
+                                      size_x,size_y,size_z,size_c);
+      }
     }
 
     //! Construct image with specified size and initialize pixel values from a sequence of integers.
@@ -11986,7 +11994,15 @@ namespace cimg_library_suffixed {
                                       size_x,size_y,size_z,size_c);
         }
         fill(values,repeat_values);
-      } else { _width = _height = _depth = _spectrum = 0; _data = 0; }
+      } else {
+        _width = _height = _depth = _spectrum = 0; _data = 0;
+        if (size_x || size_y || size_z || size_c)
+          throw CImgArgumentException(_cimg_instance
+                                      "CImg(): Invalid specified dimensions (%u,%u,%u,%u) "
+                                      "(one dimension is =0 while others are !=0).",
+                                      cimg_instance,
+                                      size_x,size_y,size_z,size_c);
+      }
     }
 
     //! Construct image with specified size and initialize pixel values from a memory buffer.

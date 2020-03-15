@@ -11722,7 +11722,7 @@ namespace cimg_library_suffixed {
         }
       } else {
         _width = _height = _depth = _spectrum = 0; _data = 0;
-        if (size_x || size_y || size_z || size_c)
+        if (size_x || size_y>1 || size_z>1 || size_c>1)
           throw CImgArgumentException(_cimg_instance
                                       "CImg(): Invalid specified dimensions (%u,%u,%u,%u) "
                                       "(one dimension is =0 while others are !=0).",
@@ -12061,7 +12061,7 @@ namespace cimg_library_suffixed {
         const t *ptrs = values; cimg_for(*this,ptrd,T) *ptrd = (T)*(ptrs++);
       } else {
         _width = _height = _depth = _spectrum = 0; _data = 0;
-        if (size_x || size_y || size_z || size_c)
+        if (size_x || size_y>1 || size_z>1 || size_c>1)
           throw CImgArgumentException(_cimg_instance
                                       "CImg(): Invalid specified dimensions (%u,%u,%u,%u) "
                                       "(one dimension is =0 while others are !=0).",
@@ -12090,7 +12090,7 @@ namespace cimg_library_suffixed {
         }
       } else {
         _width = _height = _depth = _spectrum = 0; _is_shared = false; _data = 0;
-        if (size_x || size_y || size_z || size_c)
+        if (size_x || size_y>1 || size_z>1 || size_c>1)
           throw CImgArgumentException(_cimg_instance
                                       "CImg(): Invalid specified dimensions (%u,%u,%u,%u) "
                                       "(one dimension is =0 while others are !=0).",
@@ -12391,7 +12391,7 @@ namespace cimg_library_suffixed {
                     const unsigned int size_z=1, const unsigned int size_c=1) {
       const size_t siz = (size_t)size_x*size_y*size_z*size_c;
       if (!siz) {
-        if (size_x || size_y || size_z || size_c)
+        if (size_x || size_y>1 || size_z>1 || size_c>1)
           throw CImgArgumentException(_cimg_instance
                                       "assign(): Invalid specified dimensions (%u,%u,%u,%u) "
                                       "(one dimension is =0 while others are !=0).",
@@ -12475,7 +12475,7 @@ namespace cimg_library_suffixed {
                     const unsigned int size_z=1, const unsigned int size_c=1) {
       const size_t siz = (size_t)size_x*size_y*size_z*size_c;
       if (!values || !siz) {
-        if (!siz & (size_x || size_y || size_z || size_c))
+        if (!siz & (size_x || size_y>1 || size_z>1 || size_c>1))
           throw CImgArgumentException(_cimg_instance
                                       "assign(): Invalid specified dimensions (%u,%u,%u,%u) "
                                       "(one dimension is =0 while others are !=0).",
@@ -12493,7 +12493,7 @@ namespace cimg_library_suffixed {
                     const unsigned int size_z=1, const unsigned int size_c=1) {
       const size_t siz = (size_t)size_x*size_y*size_z*size_c;
       if (!values || !siz) {
-        if (!siz & (size_x || size_y || size_z || size_c))
+        if (!siz & (size_x || size_y>1 || size_z>1 || size_c>1))
           throw CImgArgumentException(_cimg_instance
                                       "assign(): Invalid specified dimensions (%u,%u,%u,%u) "
                                       "(one dimension is =0 while others are !=0).",

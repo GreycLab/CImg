@@ -8800,7 +8800,7 @@ namespace cimg_library_suffixed {
     **/
     float frames_per_second() {
       if (!_fps_timer) _fps_timer = cimg::time();
-      const float delta = (cimg::time() - _fps_timer)/1000;
+      const float delta = (float)((cimg::time() - _fps_timer)/1000.f);
       ++_fps_frames;
       if (delta>=1) {
         _fps_fps = _fps_frames/delta;
@@ -11720,15 +11720,7 @@ namespace cimg_library_suffixed {
                                       cimg::strbuffersize(sizeof(T)*size_x*size_y*size_z*size_c),
                                       size_x,size_y,size_z,size_c);
         }
-      } else {
-        _width = _height = _depth = _spectrum = 0; _data = 0;
-        if (size_x || size_y>1 || size_z>1 || size_c>1)
-          throw CImgArgumentException(_cimg_instance
-                                      "CImg(): Invalid specified dimensions (%u,%u,%u,%u) "
-                                      "(one dimension is =0 while others are !=0).",
-                                      cimg_instance,
-                                      size_x,size_y,size_z,size_c);
-      }
+      } else { _width = _height = _depth = _spectrum = 0; _data = 0; }
     }
 
     //! Construct image with specified size and initialize pixel values.
@@ -11761,15 +11753,7 @@ namespace cimg_library_suffixed {
                                       size_x,size_y,size_z,size_c);
         }
         fill(value);
-      } else {
-        _width = _height = _depth = _spectrum = 0; _data = 0;
-        if (size_x || size_y || size_z || size_c)
-          throw CImgArgumentException(_cimg_instance
-                                      "CImg(): Invalid specified dimensions (%u,%u,%u,%u) "
-                                      "(one dimension is =0 while others are !=0).",
-                                      cimg_instance,
-                                      size_x,size_y,size_z,size_c);
-      }
+      } else { _width = _height = _depth = _spectrum = 0; _data = 0; }
     }
 
     //! Construct image with specified size and initialize pixel values from a sequence of integers.
@@ -11994,15 +11978,7 @@ namespace cimg_library_suffixed {
                                       size_x,size_y,size_z,size_c);
         }
         fill(values,repeat_values);
-      } else {
-        _width = _height = _depth = _spectrum = 0; _data = 0;
-        if (size_x || size_y || size_z || size_c)
-          throw CImgArgumentException(_cimg_instance
-                                      "CImg(): Invalid specified dimensions (%u,%u,%u,%u) "
-                                      "(one dimension is =0 while others are !=0).",
-                                      cimg_instance,
-                                      size_x,size_y,size_z,size_c);
-      }
+      } else { _width = _height = _depth = _spectrum = 0; _data = 0; }
     }
 
     //! Construct image with specified size and initialize pixel values from a memory buffer.
@@ -12059,15 +12035,7 @@ namespace cimg_library_suffixed {
 
         }
         const t *ptrs = values; cimg_for(*this,ptrd,T) *ptrd = (T)*(ptrs++);
-      } else {
-        _width = _height = _depth = _spectrum = 0; _data = 0;
-        if (size_x || size_y>1 || size_z>1 || size_c>1)
-          throw CImgArgumentException(_cimg_instance
-                                      "CImg(): Invalid specified dimensions (%u,%u,%u,%u) "
-                                      "(one dimension is =0 while others are !=0).",
-                                      cimg_instance,
-                                      size_x,size_y,size_z,size_c);
-      }
+      } else { _width = _height = _depth = _spectrum = 0; _data = 0; }
     }
 
     //! Construct image with specified size and initialize pixel values from a memory buffer \specialization.
@@ -12088,15 +12056,7 @@ namespace cimg_library_suffixed {
           }
           std::memcpy(_data,values,siz*sizeof(T));
         }
-      } else {
-        _width = _height = _depth = _spectrum = 0; _is_shared = false; _data = 0;
-        if (size_x || size_y>1 || size_z>1 || size_c>1)
-          throw CImgArgumentException(_cimg_instance
-                                      "CImg(): Invalid specified dimensions (%u,%u,%u,%u) "
-                                      "(one dimension is =0 while others are !=0).",
-                                      cimg_instance,
-                                      size_x,size_y,size_z,size_c);
-      }
+      } else { _width = _height = _depth = _spectrum = 0; _is_shared = false; _data = 0; }
     }
 
     //! Construct image from memory buffer with specified size and pixel ordering scheme.
@@ -12150,15 +12110,7 @@ namespace cimg_library_suffixed {
                                       cimg_instance,
                                       axes_order);
         }
-      } else {
-        _width = _height = _depth = _spectrum = 0; _is_shared = false; _data = 0;
-        if (size_x || size_y || size_z || size_c)
-          throw CImgArgumentException(_cimg_instance
-                                      "CImg(): Invalid specified dimensions (%u,%u,%u,%u) "
-                                      "(one dimension is =0 while others are !=0).",
-                                      cimg_instance,
-                                      size_x,size_y,size_z,size_c);
-      }
+      } else { _width = _height = _depth = _spectrum = 0; _is_shared = false; _data = 0; }
     }
 
     //! Construct image from reading an image file.
@@ -12390,15 +12342,7 @@ namespace cimg_library_suffixed {
     CImg<T>& assign(const unsigned int size_x, const unsigned int size_y=1,
                     const unsigned int size_z=1, const unsigned int size_c=1) {
       const size_t siz = (size_t)size_x*size_y*size_z*size_c;
-      if (!siz) {
-        if (size_x || size_y>1 || size_z>1 || size_c>1)
-          throw CImgArgumentException(_cimg_instance
-                                      "assign(): Invalid specified dimensions (%u,%u,%u,%u) "
-                                      "(one dimension is =0 while others are !=0).",
-                                      cimg_instance,
-                                      size_x,size_y,size_z,size_c);
-        return assign();
-      }
+      if (!siz) return assign();
       const size_t curr_siz = (size_t)size();
       if (siz!=curr_siz) {
 	if (_is_shared)
@@ -12474,15 +12418,7 @@ namespace cimg_library_suffixed {
     CImg<T>& assign(const t *const values, const unsigned int size_x, const unsigned int size_y=1,
                     const unsigned int size_z=1, const unsigned int size_c=1) {
       const size_t siz = (size_t)size_x*size_y*size_z*size_c;
-      if (!values || !siz) {
-        if (!siz & (size_x || size_y>1 || size_z>1 || size_c>1))
-          throw CImgArgumentException(_cimg_instance
-                                      "assign(): Invalid specified dimensions (%u,%u,%u,%u) "
-                                      "(one dimension is =0 while others are !=0).",
-                                      cimg_instance,
-                                      size_x,size_y,size_z,size_c);
-        return assign();
-      }
+      if (!values || !siz) return assign();
       assign(size_x,size_y,size_z,size_c);
       const t *ptrs = values; cimg_for(*this,ptrd,T) *ptrd = (T)*(ptrs++);
       return *this;
@@ -12492,15 +12428,7 @@ namespace cimg_library_suffixed {
     CImg<T>& assign(const T *const values, const unsigned int size_x, const unsigned int size_y=1,
                     const unsigned int size_z=1, const unsigned int size_c=1) {
       const size_t siz = (size_t)size_x*size_y*size_z*size_c;
-      if (!values || !siz) {
-        if (!siz & (size_x || size_y>1 || size_z>1 || size_c>1))
-          throw CImgArgumentException(_cimg_instance
-                                      "assign(): Invalid specified dimensions (%u,%u,%u,%u) "
-                                      "(one dimension is =0 while others are !=0).",
-                                      cimg_instance,
-                                      size_x,size_y,size_z,size_c);
-        return assign();
-      }
+      if (!values || !siz) return assign();
       const size_t curr_siz = (size_t)size();
       if (values==_data && siz==curr_siz) return assign(size_x,size_y,size_z,size_c);
       if (_is_shared || values + siz<_data || values>=_data + size()) {
@@ -12540,15 +12468,7 @@ namespace cimg_library_suffixed {
     CImg<T>& assign(const T *const values, const unsigned int size_x, const unsigned int size_y,
                     const unsigned int size_z, const unsigned int size_c, const bool is_shared) {
       const size_t siz = (size_t)size_x*size_y*size_z*size_c;
-      if (!values || !siz) {
-        if (!siz & (size_x || size_y || size_z || size_c))
-          throw CImgArgumentException(_cimg_instance
-                                      "assign(): Invalid specified dimensions (%u,%u,%u,%u) "
-                                      "(one dimension is =0 while others are !=0).",
-                                      cimg_instance,
-                                      size_x,size_y,size_z,size_c);
-        return assign();
-      }
+      if (!values || !siz) return assign();
       if (!is_shared) { if (_is_shared) assign(); assign(values,size_x,size_y,size_z,size_c); }
       else {
 	if (!_is_shared) {

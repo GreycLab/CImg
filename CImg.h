@@ -20614,6 +20614,24 @@ namespace cimg_library_suffixed {
               if (s1>=se1 || !*s1) compile(s1,s1,depth1,0,is_single); // Will throw missing argument error
               arg3 = compile(ss4,s1++,depth1,0,is_single);
               *se1 = 0;
+              is_sth = true;
+              if (*s1>='0' && *s1<='9') is_sth = false;
+              else for (ns = s1; *ns; ++ns) if (!is_varchar(*ns)) { is_sth = false; break; }
+              if (!is_sth) {
+                variable_name.assign(s1,(unsigned int)(se1 + 1 - s1)).back() = 0;
+                cimg::strellipsize(variable_name,64);
+                *se1 = ')';
+                *se = saved_char;
+                s0 = ss - 4>expr._data?ss - 4:expr._data;
+                cimg::strellipsize(s0,64);
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: Invalid specified variable name '%s', "
+                                            "in expression '%s%s%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            variable_name._data,
+                                            s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
+
+              }
               get_variable_pos(s1,arg1,arg2);
               if (arg2!=~0U) reserved_label[arg2] = arg3;
               else if (arg1!=~0U) variable_pos[arg1] = arg3;
@@ -21675,19 +21693,20 @@ namespace cimg_library_suffixed {
         if (!std::strcmp(ss,"boundary")) _cimg_mp_return(_cimg_mp_boundary); // boundary
 
         // No known item found, assuming this is an already initialized variable.
-        variable_name.assign(ss,(unsigned int)(se - ss + 1)).back() = 0;
-        if (variable_name[1]) { // Multi-char variable
-          cimglist_for(variable_def,i) if (!std::strcmp(variable_name,variable_def[i]))
-            _cimg_mp_return(variable_pos[i]);
-        } else if (reserved_label[(int)*variable_name]!=~0U) // Single-char variable
-          _cimg_mp_return(reserved_label[(int)*variable_name]);
+        variable_name.assign(ss,(unsigned int)(se + 1 - ss)).back() = 0;
+        is_sth = true; // is_valid_variable_name?
+        if (*variable_name>='0' && *variable_name<='9') is_sth = false;
+        else for (ns = variable_name; *ns; ++ns)
+               if (!is_varchar(*ns)) { is_sth = false; break; }
+        if (is_sth) {
+          if (variable_name[1]) { // Multi-char variable
+            cimglist_for(variable_def,i) if (!std::strcmp(variable_name,variable_def[i]))
+              _cimg_mp_return(variable_pos[i]);
+          } else if (reserved_label[(int)*variable_name]!=~0U) // Single-char variable
+            _cimg_mp_return(reserved_label[(int)*variable_name]);
+        }
 
         // Reached an unknown item -> error.
-        is_sth = true; // is_valid_variable_name
-        if (*variable_name>='0' && *variable_name<='9') is_sth = false;
-        else for (ns = variable_name._data; *ns; ++ns)
-               if (!is_varchar(*ns)) { is_sth = false; break; }
-
         *se = saved_char;
         c1 = *se1;
         cimg::strellipsize(variable_name,64);

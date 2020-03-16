@@ -20615,9 +20615,6 @@ namespace cimg_library_suffixed {
               arg3 = compile(ss4,s1++,depth1,0,is_single);
               *se1 = 0;
               get_variable_pos(s1,arg1,arg2);
-
-              std::fprintf(stderr,"\nDEBUG : %s\n",s1);
-
               if (arg2!=~0U) reserved_label[arg2] = arg3;
               else if (arg1!=~0U) variable_pos[arg1] = arg3;
               else { // New variable

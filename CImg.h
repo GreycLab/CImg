@@ -20601,6 +20601,17 @@ namespace cimg_library_suffixed {
             break;
 
           case 'r' :
+            if (!std::strncmp(ss,"ref(",4)) { // Vector reverse
+              _cimg_mp_op("Function 'ref()'");
+              s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              if (s1>=se1) compile(s1,s1,depth1,0,is_single); // Will throw missing argument error
+              arg1 = compile(ss4,s1++,depth1,0,is_single);
+              *se1 = 0;
+              std::fprintf(stderr,"\nDEBUG : arg1 = %u, variable_name = '%s'\n",arg1,s1);
+              *se1 = ')';
+              _cimg_mp_return(arg1);
+            }
+
             if (!std::strncmp(ss,"resize(",7)) { // Vector or image resize
               _cimg_mp_op("Function 'resize()'");
               if (*ss7!='#') { // Vector

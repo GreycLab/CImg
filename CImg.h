@@ -16918,7 +16918,7 @@ namespace cimg_library_suffixed {
       }
 
       // Return indices for accessing math parser variables.
-      void get_variable_positions(const char *variable_name, unsigned int &pos, unsigned int &rpos) {
+      void get_variable_pos(const char *variable_name, unsigned int &pos, unsigned int &rpos) {
         char c1, c2, c3, c4;
         pos = rpos = ~0U;
         if (!variable_name || !*variable_name) return;
@@ -17519,8 +17519,7 @@ namespace cimg_library_suffixed {
 
             // Assign variable (direct).
             if (is_sth) {
-              get_variable_positions(variable_name,arg1,arg2);
-
+              get_variable_pos(variable_name,arg1,arg2);
               arg3 = compile(s + 1,se,depth1,0,is_single);
               if (is_const) _cimg_mp_check_constant(arg3,2,0);
               arg1 = arg2!=~0U?reserved_label[arg2]:arg1!=~0U?variable_pos[arg1]:~0U;
@@ -21149,7 +21148,7 @@ namespace cimg_library_suffixed {
                 c1 = *s1;
                 if (s1>s0) {
                   *s1 = 0;
-                  get_variable_positions(s0,arg1,arg2);
+                  get_variable_pos(s0,arg1,arg2);
                   if (arg2!=~0U) reserved_label[arg2] = ~0U;
                   else if (arg1!=~0U) {
                     variable_def.remove(arg1);

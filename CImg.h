@@ -20622,6 +20622,9 @@ namespace cimg_library_suffixed {
                 variable_pos[variable_def._width] = arg3;
                 CImg<char>::string(s1).move_to(variable_def);
               }
+              if (_cimg_mp_is_vector(arg3))
+                set_variable_vector(arg3); // Prevent from being used in further optimization
+              else if (_cimg_mp_is_comp(arg3)) memtype[arg3] = -2;
               *se1 = ')';
               _cimg_mp_return(arg3);
             }

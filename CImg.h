@@ -20624,7 +20624,7 @@ namespace cimg_library_suffixed {
               }
               if (_cimg_mp_is_vector(arg3))
                 set_variable_vector(arg3); // Prevent from being used in further optimization
-              else if (_cimg_mp_is_comp(arg3)) memtype[arg3] = -2;
+              else if (_cimg_mp_is_comp(arg3)) memtype[arg3] = -1;
               *se1 = ')';
               _cimg_mp_return(arg3);
             }

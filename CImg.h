@@ -21143,53 +21143,20 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"unref(",6)) { // Un-reference variable
               _cimg_mp_op("Function 'unref()'");
-              arg1 = ~0U;
               for (s0 = ss6; s0<se1; s0 = s1) {
                 if (s0>ss6 && *s0==',') ++s0;
                 s1 = s0; while (s1<se1 && *s1!=',') ++s1;
                 c1 = *s1;
                 if (s1>s0) {
                   *s1 = 0;
-                  arg2 = arg3 = ~0U;
-                  if (s0[0]=='w' && s0[1]=='h' && !s0[2]) arg1 = reserved_label[arg3 = 0];
-                  else if (s0[0]=='w' && s0[1]=='h' && s0[2]=='d' && !s0[3]) arg1 = reserved_label[arg3 = 1];
-                  else if (s0[0]=='w' && s0[1]=='h' && s0[2]=='d' && s0[3]=='s' && !s0[4])
-                    arg1 = reserved_label[arg3 = 2];
-                  else if (s0[0]=='p' && s0[1]=='i' && !s0[2]) arg1 = reserved_label[arg3 = 3];
-                  else if (s0[0]=='i' && s0[1]=='m' && !s0[2]) arg1 = reserved_label[arg3 = 4];
-                  else if (s0[0]=='i' && s0[1]=='M' && !s0[2]) arg1 = reserved_label[arg3 = 5];
-                  else if (s0[0]=='i' && s0[1]=='a' && !s0[2]) arg1 = reserved_label[arg3 = 6];
-                  else if (s0[0]=='i' && s0[1]=='v' && !s0[2]) arg1 = reserved_label[arg3 = 7];
-                  else if (s0[0]=='i' && s0[1]=='s' && !s0[2]) arg1 = reserved_label[arg3 = 8];
-                  else if (s0[0]=='i' && s0[1]=='p' && !s0[2]) arg1 = reserved_label[arg3 = 9];
-                  else if (s0[0]=='i' && s0[1]=='c' && !s0[2]) arg1 = reserved_label[arg3 = 10];
-                  else if (s0[0]=='x' && s0[1]=='m' && !s0[2]) arg1 = reserved_label[arg3 = 11];
-                  else if (s0[0]=='y' && s0[1]=='m' && !s0[2]) arg1 = reserved_label[arg3 = 12];
-                  else if (s0[0]=='z' && s0[1]=='m' && !s0[2]) arg1 = reserved_label[arg3 = 13];
-                  else if (s0[0]=='c' && s0[1]=='m' && !s0[2]) arg1 = reserved_label[arg3 = 14];
-                  else if (s0[0]=='x' && s0[1]=='M' && !s0[2]) arg1 = reserved_label[arg3 = 15];
-                  else if (s0[0]=='y' && s0[1]=='M' && !s0[2]) arg1 = reserved_label[arg3 = 16];
-                  else if (s0[0]=='z' && s0[1]=='M' && !s0[2]) arg1 = reserved_label[arg3 = 17];
-                  else if (s0[0]=='c' && s0[1]=='M' && !s0[2]) arg1 = reserved_label[arg3 = 18];
-                  else if (s0[0]=='i' && s0[1]>='0' && s0[1]<='9' && !s0[2])
-                    arg1 = reserved_label[arg3 = 19 + s0[1] - '0'];
-                  else if (!std::strcmp(s0,"interpolation")) arg1 = reserved_label[arg3 = 29];
-                  else if (!std::strcmp(s0,"boundary")) arg1 = reserved_label[arg3 = 30];
-                  else if (s0[1]) { // Multi-char variable
-                    cimglist_for(variable_def,i) if (!std::strcmp(s0,variable_def[i])) {
-                      arg1 = variable_pos[i]; arg2 = i; break;
-                    }
-                  } else arg1 = reserved_label[arg3 = *s0]; // Single-char variable
-
-                  if (arg1!=~0U) {
-                    if (arg2==~0U) { if (arg3!=~0U) reserved_label[arg3] = ~0U; }
-                    else {
-                      variable_def.remove(arg2);
-                      if (arg2<variable_pos._width - 1)
-                        std::memmove(variable_pos._data + arg2,variable_pos._data + arg2 + 1,
-                                     sizeof(uintT)*(variable_pos._width - arg2 - 1));
-                      --variable_pos._width;
-                    }
+                  get_variable_positions(s0,arg1,arg2);
+                  if (arg2!=~0U) reserved_label[arg2] = ~0U;
+                  else if (arg1!=~0U) {
+                    variable_def.remove(arg1);
+                    if (arg1<variable_pos._width - 1)
+                      std::memmove(variable_pos._data + arg1,variable_pos._data + arg1 + 1,
+                                   sizeof(uintT)*(variable_pos._width - arg1 - 1));
+                    --variable_pos._width;
                   }
                   *s1 = c1;
                 } else compile(s0,s1,depth1,0,is_single); // Will throw a 'missing argument' exception

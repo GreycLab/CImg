@@ -16785,7 +16785,7 @@ namespace cimg_library_suffixed {
         variable_pos.assign(8);
 
         reserved_label.assign(128,1,1,1,~0U);
-        // reserved_label[4-30] are used to store these variables:
+        // reserved_label[0-30] are used to store these variables:
         // [0] = wh, [1] = whd, [2] = whds, [3] = pi, [4] = im, [5] = iM, [6] = ia, [7] = iv,
         // [8] = is, [9] = ip, [10] = ic, [11] = xm, [12] = ym, [13] = zm, [14] = cm, [15] = xM,
         // [16] = yM, [17] = zM, [18]=cM, [19]=i0...[28]=i9, [29] = interpolation, [30] = boundary
@@ -16917,6 +16917,60 @@ namespace cimg_library_suffixed {
         return res;
       }
 
+      // Return indices for accessing math parser variables.
+      void get_variable_positions(const char *variable_name, unsigned int &pos, unsigned int &rpos) {
+        char c1, c2, c3, c4;
+        pos = rpos = ~0U;
+        if (!variable_name || !*variable_name) return;
+
+        unsigned int rp = variable_name[1]?~0U:*variable_name; // One-char variable
+        if (variable_name[1] && !variable_name[2]) { // Two-chars variable
+          c1 = variable_name[0];
+          c2 = variable_name[1];
+          if (c1=='w' && c2=='h') rp = 0; // wh
+          else if (c1=='p' && c2=='i') rp = 3; // pi
+          else if (c1=='i') {
+            if (c2>='0' && c2<='9') rp = 19 + c2 - '0'; // i0...i9
+            else if (c2=='m') rp = 4; // im
+            else if (c2=='M') rp = 5; // iM
+            else if (c2=='a') rp = 6; // ia
+            else if (c2=='v') rp = 7; // iv
+            else if (c2=='s') rp = 8; // is
+            else if (c2=='p') rp = 9; // ip
+            else if (c2=='c') rp = 10; // ic
+          } else if (c2=='m') {
+            if (c1=='x') rp = 11; // xm
+            else if (c1=='y') rp = 12; // ym
+            else if (c1=='z') rp = 13; // zm
+            else if (c1=='c') rp = 14; // cm
+          } else if (c2=='M') {
+            if (c1=='x') rp = 15; // xM
+            else if (c1=='y') rp = 16; // yM
+            else if (c1=='z') rp = 17; // zM
+            else if (c1=='c') rp = 18; // cM
+          }
+        } else if (variable_name[1] && variable_name[2] && !variable_name[3]) { // Three-chars variable
+          c1 = variable_name[0];
+          c2 = variable_name[1];
+          c3 = variable_name[2];
+          if (c1=='w' && c2=='h' && c3=='d') rp = 1; // whd
+        } else if (variable_name[1] && variable_name[2] && variable_name[3] &&
+                   !variable_name[4]) { // Four-chars variable
+          c1 = variable_name[0];
+          c2 = variable_name[1];
+          c3 = variable_name[2];
+          c4 = variable_name[3];
+          if (c1=='w' && c2=='h' && c3=='d' && c4=='s') rp = 2; // whds
+        } else if (!std::strcmp(variable_name,"interpolation")) rp = 29; // interpolation
+        else if (!std::strcmp(variable_name,"boundary")) rp = 30; // boundary
+
+        if (rp!=~0U) { rpos = rp; return; } // One of the reserved labels
+
+        // Multi-char variable name : check for existing variable with same name
+        cimglist_for(variable_def,i)
+          if (!std::strcmp(variable_name,variable_def[i])) { pos = i; break; }
+      }
+
       // Compilation procedure.
       unsigned int compile(char *ss, char *se, const unsigned int depth, unsigned int *const p_ref,
                            const bool is_single) {
@@ -16930,7 +16984,7 @@ namespace cimg_library_suffixed {
                                       (ss - 4)>expr._data?ss - 4:expr._data,
                                       se<&expr.back()?"...":"");
         }
-        char c1, c2, c3, c4;
+        char c1, c2;
 
         // Simplify expression when possible.
         do {
@@ -17465,70 +17519,24 @@ namespace cimg_library_suffixed {
 
             // Assign variable (direct).
             if (is_sth) {
-              arg3 = variable_name[1]?~0U:*variable_name; // One-char variable
-              if (variable_name[1] && !variable_name[2]) { // Two-chars variable
-                c1 = variable_name[0];
-                c2 = variable_name[1];
-                if (c1=='w' && c2=='h') arg3 = 0; // wh
-                else if (c1=='p' && c2=='i') arg3 = 3; // pi
-                else if (c1=='i') {
-                  if (c2>='0' && c2<='9') arg3 = 19 + c2 - '0'; // i0...i9
-                  else if (c2=='m') arg3 = 4; // im
-                  else if (c2=='M') arg3 = 5; // iM
-                  else if (c2=='a') arg3 = 6; // ia
-                  else if (c2=='v') arg3 = 7; // iv
-                  else if (c2=='s') arg3 = 8; // is
-                  else if (c2=='p') arg3 = 9; // ip
-                  else if (c2=='c') arg3 = 10; // ic
-                } else if (c2=='m') {
-                  if (c1=='x') arg3 = 11; // xm
-                  else if (c1=='y') arg3 = 12; // ym
-                  else if (c1=='z') arg3 = 13; // zm
-                  else if (c1=='c') arg3 = 14; // cm
-                } else if (c2=='M') {
-                  if (c1=='x') arg3 = 15; // xM
-                  else if (c1=='y') arg3 = 16; // yM
-                  else if (c1=='z') arg3 = 17; // zM
-                  else if (c1=='c') arg3 = 18; // cM
-                }
-              } else if (variable_name[1] && variable_name[2] && !variable_name[3]) { // Three-chars variable
-                c1 = variable_name[0];
-                c2 = variable_name[1];
-                c3 = variable_name[2];
-                if (c1=='w' && c2=='h' && c3=='d') arg3 = 1; // whd
-              } else if (variable_name[1] && variable_name[2] && variable_name[3] &&
-                         !variable_name[4]) { // Four-chars variable
-                c1 = variable_name[0];
-                c2 = variable_name[1];
-                c3 = variable_name[2];
-                c4 = variable_name[3];
-                if (c1=='w' && c2=='h' && c3=='d' && c4=='s') arg3 = 2; // whds
-              } else if (!std::strcmp(variable_name,"interpolation")) arg3 = 29; // interpolation
-              else if (!std::strcmp(variable_name,"boundary")) arg3 = 30; // boundary
+              get_variable_positions(variable_name,arg1,arg2);
 
-              arg1 = ~0U;
-              arg2 = compile(s + 1,se,depth1,0,is_single);
-              if (is_const) _cimg_mp_check_constant(arg2,2,0);
-
-              if (arg3!=~0U) // One-char variable, or variable in reserved_labels
-                arg1 = reserved_label[arg3];
-              else // Multi-char variable name : check for existing variable with same name
-                cimglist_for(variable_def,i)
-                  if (!std::strcmp(variable_name,variable_def[i])) { arg1 = variable_pos[i]; break; }
+              arg3 = compile(s + 1,se,depth1,0,is_single);
+              if (is_const) _cimg_mp_check_constant(arg3,2,0);
+              arg1 = arg2!=~0U?reserved_label[arg2]:arg1!=~0U?variable_pos[arg1]:~0U;
 
               if (arg1==~0U) { // Create new variable
-                if (_cimg_mp_is_vector(arg2)) { // Vector variable
-                  arg1 = is_comp_vector(arg2)?arg2:vector_copy(arg2);
+                if (_cimg_mp_is_vector(arg3)) { // Vector variable
+                  arg1 = is_comp_vector(arg3)?arg3:vector_copy(arg3);
                   set_variable_vector(arg1);
                 } else { // Scalar variable
-                  if (is_const) arg1 = arg2;
+                  if (is_const) arg1 = arg3;
                   else {
-                    arg1 = _cimg_mp_is_comp(arg2)?arg2:scalar1(mp_copy,arg2);
+                    arg1 = _cimg_mp_is_comp(arg3)?arg3:scalar1(mp_copy,arg3);
                     memtype[arg1] = -1;
                   }
                 }
-
-                if (arg3!=~0U) reserved_label[arg3] = arg1;
+                if (arg2!=~0U) reserved_label[arg2] = arg1;
                 else {
                   if (variable_def._width>=variable_pos._width) variable_pos.resize(-200,1,1,1,0);
                   variable_pos[variable_def._width] = arg1;
@@ -17550,16 +17558,16 @@ namespace cimg_library_suffixed {
                                               !_cimg_mp_is_constant(arg1) && is_const?" as a new const variable":"",
                                               s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
                 }
-                _cimg_mp_check_type(arg2,2,_cimg_mp_is_vector(arg1)?3:1,_cimg_mp_size(arg1));
+                _cimg_mp_check_type(arg3,2,_cimg_mp_is_vector(arg1)?3:1,_cimg_mp_size(arg1));
                 if (_cimg_mp_is_vector(arg1)) { // Vector
-                  if (_cimg_mp_is_vector(arg2)) // From vector
-                    CImg<ulongT>::vector((ulongT)mp_vector_copy,arg1,arg2,(ulongT)_cimg_mp_size(arg1)).
+                  if (_cimg_mp_is_vector(arg3)) // From vector
+                    CImg<ulongT>::vector((ulongT)mp_vector_copy,arg1,arg3,(ulongT)_cimg_mp_size(arg1)).
                       move_to(code);
                   else // From scalar
-                    CImg<ulongT>::vector((ulongT)mp_vector_init,arg1,1,(ulongT)_cimg_mp_size(arg1),arg2).
+                    CImg<ulongT>::vector((ulongT)mp_vector_init,arg1,1,(ulongT)_cimg_mp_size(arg1),arg3).
                       move_to(code);
                 } else // Scalar
-                  CImg<ulongT>::vector((ulongT)mp_copy,arg1,arg2).move_to(code);
+                  CImg<ulongT>::vector((ulongT)mp_copy,arg1,arg3).move_to(code);
               }
               _cimg_mp_return(arg1);
             }
@@ -20604,10 +20612,9 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"ref(",4)) { // Vector reverse
               _cimg_mp_op("Function 'ref()'");
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              if (s1>=se1) compile(s1,s1,depth1,0,is_single); // Will throw missing argument error
+              if (s1>=se1 || !*s1) compile(s1,s1,depth1,0,is_single); // Will throw missing argument error
               arg1 = compile(ss4,s1++,depth1,0,is_single);
               *se1 = 0;
-              std::fprintf(stderr,"\nDEBUG : arg1 = %u, variable_name = '%s'\n",arg1,s1);
               *se1 = ')';
               _cimg_mp_return(arg1);
             }

@@ -20615,6 +20615,9 @@ namespace cimg_library_suffixed {
               arg3 = compile(ss4,s1++,depth1,0,is_single);
               *se1 = 0;
               get_variable_pos(s1,arg1,arg2);
+
+              std::fprintf(stderr,"\nDEBUG : %s\n",s1);
+
               if (arg2!=~0U) reserved_label[arg2] = arg3;
               else if (arg1!=~0U) variable_pos[arg1] = arg3;
               else { // New variable
@@ -20623,7 +20626,7 @@ namespace cimg_library_suffixed {
                 CImg<char>::string(s1).move_to(variable_def);
               }
               *se1 = ')';
-              _cimg_mp_return(arg1);
+              _cimg_mp_return(arg3);
             }
 
             if (!std::strncmp(ss,"resize(",7)) { // Vector or image resize

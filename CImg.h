@@ -20608,12 +20608,20 @@ namespace cimg_library_suffixed {
             break;
 
           case 'r' :
-            if (!std::strncmp(ss,"ref(",4)) { // Vector reverse
+            if (!std::strncmp(ss,"ref(",4)) { // Variable declaration
               _cimg_mp_op("Function 'ref()'");
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               if (s1>=se1 || !*s1) compile(s1,s1,depth1,0,is_single); // Will throw missing argument error
-              arg1 = compile(ss4,s1++,depth1,0,is_single);
+              arg3 = compile(ss4,s1++,depth1,0,is_single);
               *se1 = 0;
+              get_variable_pos(s1,arg1,arg2);
+              if (arg2!=~0U) reserved_label[arg2] = arg3;
+              else if (arg1!=~0U) variable_pos[arg1] = arg3;
+              else { // New variable
+                if (variable_def._width>=variable_pos._width) variable_pos.resize(-200,1,1,1,0);
+                variable_pos[variable_def._width] = arg3;
+                CImg<char>::string(s1).move_to(variable_def);
+              }
               *se1 = ')';
               _cimg_mp_return(arg1);
             }

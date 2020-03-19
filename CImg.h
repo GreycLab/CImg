@@ -7335,7 +7335,7 @@ namespace cimg_library_suffixed {
     **/
     inline const char *split_filename(const char *const filename, char *const body=0) {
       if (!filename) { if (body) *body = 0; return 0; }
-      const char *p = 0; for (const char *np = filename; np>=filename && (p=np); np = std::strchr(np,'.') + 1) {}
+      const char *p = filename; for (const char *np = std::strchr(p,'.'); np != 0; p = np + 1, np = std::strchr(p,'.')) {}
       if (p==filename || std::strchr(p,'/') || std::strchr(p,'\\')) {
         if (body) std::strcpy(body,filename);
         return filename + std::strlen(filename);

@@ -19068,28 +19068,6 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar2(mp_complex_abs,arg1 + 1,arg1 + 2);
             }
 
-#ifdef cimg_mp_call_function
-            if (!std::strncmp(ss,"call(",5)) { // Extern
-              _cimg_mp_op("Function 'call()'");
-              if (!is_single) is_parallelizable = false;
-              CImg<ulongT>::vector((ulongT)mp_call,0,0).move_to(l_opcode);
-              pos = 1;
-              for (s = ss5; s<se; ++s) {
-                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
-                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
-                arg1 = compile(s,ns,depth1,0,is_single);
-                CImg<ulongT>::vector(arg1,_cimg_mp_size(arg1)).move_to(l_opcode);
-                s = ns;
-              }
-              (l_opcode>'y').move_to(opcode);
-              pos = scalar();
-              opcode[1] = pos;
-              opcode[2] = opcode._height;
-              opcode.move_to(code);
-              _cimg_mp_return(pos);
-            }
-#endif
-
             if (!std::strncmp(ss,"carg(",5)) { // Complex argument
               _cimg_mp_op("Function 'carg()'");
               arg1 = compile(ss5,se1,depth1,0,is_single);
@@ -20781,6 +20759,28 @@ namespace cimg_library_suffixed {
                 _cimg_mp_constant(cimg::round(mem[arg1],mem[arg2],(int)mem[arg3]));
               _cimg_mp_scalar3(mp_round,arg1,arg2,arg3);
             }
+
+#ifdef cimg_mp_run_function
+            if (!std::strncmp(ss,"run(",4)) { // Run external command
+              _cimg_mp_op("Function 'run()'");
+              if (!is_single) is_parallelizable = false;
+              CImg<ulongT>::vector((ulongT)mp_run,0,0).move_to(l_opcode);
+              pos = 1;
+              for (s = ss4; s<se; ++s) {
+                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                arg1 = compile(s,ns,depth1,0,is_single);
+                CImg<ulongT>::vector(arg1,_cimg_mp_size(arg1)).move_to(l_opcode);
+                s = ns;
+              }
+              (l_opcode>'y').move_to(opcode);
+              pos = scalar();
+              opcode[1] = pos;
+              opcode[2] = opcode._height;
+              opcode.move_to(code);
+              _cimg_mp_return(pos);
+            }
+#endif
             break;
 
           case 's' :
@@ -22427,8 +22427,8 @@ namespace cimg_library_suffixed {
         return cimg::type<double>::nan();
       }
 
-#ifdef cimg_mp_call_function
-      static double mp_call(_cimg_math_parser& mp) {
+#ifdef cimg_mp_run_function
+      static double mp_run(_cimg_math_parser& mp) {
         const unsigned int nb_args = (unsigned int)(mp.opcode[2] - 3)/2;
         CImgList<charT> _str;
         CImg<charT> it;
@@ -22447,7 +22447,7 @@ namespace cimg_library_suffixed {
         }
         CImg(1,1,1,1,0).move_to(_str);
         CImg<charT> str = _str>'x';
-        cimg_mp_call_function(str._data);
+        cimg_mp_run_function(str._data);
         return cimg::type<double>::nan();
       }
 #endif

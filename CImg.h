@@ -20774,7 +20774,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar3(mp_round,arg1,arg2,arg3);
             }
 
-#ifdef cimg_mp_run_function
+#ifdef cimg_mp_func_run
             if (!std::strncmp(ss,"run(",4)) { // Run external command
               _cimg_mp_op("Function 'run()'");
               if (!is_single) is_parallelizable = false;
@@ -22441,7 +22441,7 @@ namespace cimg_library_suffixed {
         return cimg::type<double>::nan();
       }
 
-#ifdef cimg_mp_run_function
+#ifdef cimg_mp_func_run
       static double mp_run(_cimg_math_parser& mp) {
         const unsigned int nb_args = (unsigned int)(mp.opcode[2] - 3)/2;
         CImgList<charT> _str;
@@ -22461,7 +22461,7 @@ namespace cimg_library_suffixed {
         }
         CImg(1,1,1,1,0).move_to(_str);
         CImg<charT> str = _str>'x';
-        cimg_mp_run_function(str._data);
+        cimg_mp_func_run(str._data);
         return cimg::type<double>::nan();
       }
 #endif
@@ -23275,12 +23275,11 @@ namespace cimg_library_suffixed {
 
 #ifdef cimg_mp_func_name
       static double mp_name(_cimg_math_parser& mp) {
+        double *const ptr = &_mp_arg(1) + 1;
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         const unsigned int siz = (unsigned int)mp.opcode[3];
-
-        std::fprintf(stderr,"\nDEBUG : ind = %u, siz = %u\n",ind,siz);
-
+        cimg_mp_func_name(ptr,ind,siz);
         return cimg::type<double>::nan();
       }
 #endif

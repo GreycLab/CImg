@@ -20127,18 +20127,13 @@ namespace cimg_library_suffixed {
               arg3 = compile(++s2,s1,depth1,0,is_single);
               arg4 = s1<se1?compile(++s1,se1,depth1,0,is_single):1;
               _cimg_mp_check_type(arg4,4,1,0);
-
-/*              if (_cimg_mp_is_constant(arg3)) { // Optimize constant cases
-                if (!arg3) _cimg_mp_return(arg1);
-                if (arg3==1) _cimg_mp_return(arg2);
-                if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2)) {
-                  const bool include_boundaries = (bool)mem[arg3];
-                  if (include_boundaries)
-                    _cimg_mp_constant(mem[arg1]*(1-t) + mem[arg2]*t);
-                  else
-                }
+              if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2) &&
+                  _cimg_mp_is_constant(arg3) && _cimg_mp_is_constant(arg4)) { // Optimize constant case
+                val = mem[arg1]; val1 = mem[arg2]; val2 = mem[arg3];
+                if (val1>val2) cimg::swap(val1,val2);
+                is_sth = mem[arg4]?(val>=val1 && val<=val2):(val>val1 && val<val2);
+                _cimg_mp_return(is_sth?1:0);
               }
-*/
               p1 = _cimg_mp_size(arg1);
               p2 = _cimg_mp_size(arg2);
               p3 = _cimg_mp_size(arg3);

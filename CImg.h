@@ -20067,23 +20067,6 @@ namespace cimg_library_suffixed {
                 _cimg_mp_constant(cimg::gcd((long)mem[arg1],(long)mem[arg2]));
               _cimg_mp_scalar2(mp_gcd,arg1,arg2);
             }
-
-#ifdef cimg_mp_getname_function
-            if (!std::strncmp(ss,"getname(",8)) { // Get image name as a string
-              _cimg_mp_op("Function 'getname()'");
-              if (*ss8=='#') { // Index specified
-                s0 = ss9; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
-                p1 = compile(ss9,s0++,depth1,0,is_single);
-                _cimg_mp_check_list(false);
-              } else { p1 = ~0U; s0 = ss8; }
-              arg1 = s0<se1?compile(s0,se1,depth1,0,is_single):constant(1024);
-              _cimg_mp_check_constant(arg1);
-              arg1 = (unsigned int)mem[arg1];
-              pos = vector(arg1);
-              CImg<ulongT>::vector((ulongT)mp_getname,pos,p1,arg1).move_to(code);
-              _cimg_mp_return(pos);
-            }
-#endif
             break;
 
           case 'h' :
@@ -20442,6 +20425,25 @@ namespace cimg_library_suffixed {
             break;
 
           case 'n' :
+#ifdef cimg_mp_func_name
+            if (!std::strncmp(ss,"name(",5)) { // Get image name as a string
+              _cimg_mp_op("Function 'name()'");
+              if (*ss5=='#') { // Index specified
+                s0 = ss6; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                p1 = compile(ss6,s0++,depth1,0,is_single);
+                _cimg_mp_check_list(false);
+              } else { p1 = ~0U; s0 = ss6; }
+              arg1 = s0<se1?compile(s0,se1,depth1,0,is_single):~0U;
+              if (arg1!=~0U) {
+                _cimg_mp_check_constant(arg1,p1==~0U?1:2,3);
+                arg1 = (unsigned int)mem[arg1];
+              } else arg1 = 1024;
+              pos = vector(arg1);
+              CImg<ulongT>::vector((ulongT)mp_name,pos,p1,arg1).move_to(code);
+              _cimg_mp_return(pos);
+            }
+#endif
+
             if (!std::strncmp(ss,"narg(",5)) { // Number of arguments
               _cimg_mp_op("Function 'narg()'");
               if (ss5>=se1) _cimg_mp_return(0);
@@ -22985,7 +22987,6 @@ namespace cimg_library_suffixed {
       static double mp_draw(_cimg_math_parser& mp) {
         const int x = (int)_mp_arg(4), y = (int)_mp_arg(5), z = (int)_mp_arg(6), c = (int)_mp_arg(7);
         unsigned int ind = (unsigned int)mp.opcode[3];
-
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.listin.width());
         CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
         unsigned int
@@ -23277,8 +23278,14 @@ namespace cimg_library_suffixed {
         return cimg::gcd((long)_mp_arg(2),(long)_mp_arg(3));
       }
 
-#ifdef cimg_mp_func_getname
-      static double mp_getname(_cimg_math_parser& mp) {
+#ifdef cimg_mp_func_name
+      static double mp_name(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        const unsigned int siz = (unsigned int)mp.opcode[3];
+
+        std::fprintf(stderr,"\nDEBUG : ind = %u, siz = %u\n",ind,siz);
+
         return cimg::type<double>::nan();
       }
 #endif

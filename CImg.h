@@ -20067,6 +20067,23 @@ namespace cimg_library_suffixed {
                 _cimg_mp_constant(cimg::gcd((long)mem[arg1],(long)mem[arg2]));
               _cimg_mp_scalar2(mp_gcd,arg1,arg2);
             }
+
+#ifdef cimg_mp_getname_function
+            if (!std::strncmp(ss,"getname(",8)) { // Get image name as a string
+              _cimg_mp_op("Function 'getname()'");
+              if (*ss8=='#') { // Index specified
+                s0 = ss9; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                p1 = compile(ss9,s0++,depth1,0,is_single);
+                _cimg_mp_check_list(false);
+              } else { p1 = ~0U; s0 = ss8; }
+              arg1 = s0<se1?compile(s0,se1,depth1,0,is_single):constant(1024);
+              _cimg_mp_check_constant(arg1);
+              arg1 = (unsigned int)mem[arg1];
+              pos = vector(arg1);
+              CImg<ulongT>::vector((ulongT)mp_getname,pos,p1,arg1).move_to(code);
+              _cimg_mp_return(pos);
+            }
+#endif
             break;
 
           case 'h' :
@@ -20986,7 +21003,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
-#ifdef cimg_mp_store_function
+#ifdef cimg_mp_func_store
             if (!std::strncmp(ss,"store(",6)) { // Store vector to variable
               _cimg_mp_op("Function 'store()'");
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -23260,6 +23277,12 @@ namespace cimg_library_suffixed {
         return cimg::gcd((long)_mp_arg(2),(long)_mp_arg(3));
       }
 
+#ifdef cimg_mp_func_getname
+      static double mp_getname(_cimg_math_parser& mp) {
+        return cimg::type<double>::nan();
+      }
+#endif
+
       static double mp_gt(_cimg_math_parser& mp) {
         return (double)(_mp_arg(2)>_mp_arg(3));
       }
@@ -25352,7 +25375,7 @@ namespace cimg_library_suffixed {
         return cimg::type<double>::nan();
       }
 
-#ifdef cimg_mp_store_function
+#ifdef cimg_mp_func_store
       static double mp_store(_cimg_math_parser& mp) {
         const double
           *ptr1 = &_mp_arg(2),
@@ -25381,10 +25404,10 @@ namespace cimg_library_suffixed {
         ss.back() = 0;
 
         CImg<doubleT> img;
-        if (siz1) cimg_mp_store_function(ptr1 + 1,
-                                         (unsigned int)w,(unsigned int)h,(unsigned int)d,(unsigned int)s,
-                                         is_compressed,ss._data);
-        else cimg_mp_store_function(ptr1,1,1,1,1,is_compressed,ss._data);
+        if (siz1) cimg_mp_func_store(ptr1 + 1,
+                                     (unsigned int)w,(unsigned int)h,(unsigned int)d,(unsigned int)s,
+                                     is_compressed,ss._data);
+        else cimg_mp_func_store(ptr1,1,1,1,1,is_compressed,ss._data);
         return cimg::type<double>::nan();
       }
 #endif

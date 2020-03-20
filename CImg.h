@@ -20427,7 +20427,7 @@ namespace cimg_library_suffixed {
                 s0 = ss6; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                 p1 = compile(ss6,s0++,depth1,0,is_single);
                 _cimg_mp_check_list(false);
-              } else { p1 = ~0U; s0 = ss6; }
+              } else { p1 = ~0U; s0 = ss5; }
               arg1 = s0<se1?compile(s0,se1,depth1,0,is_single):~0U;
               if (arg1!=~0U) {
                 _cimg_mp_check_constant(arg1,p1==~0U?1:2,3);

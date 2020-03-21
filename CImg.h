@@ -20846,7 +20846,7 @@ namespace cimg_library_suffixed {
               arg1 = compile(s0,se1,depth1,0,is_single);
               p2 = _cimg_mp_size(arg1);
               CImg<ulongT>::vector((ulongT)mp_setname,_cimg_mp_slot_nan,p1,arg1,p2).move_to(code);
-              _cimg_mp_return(pos);
+              _cimg_mp_return_nan();
             }
 #endif
 

@@ -25312,7 +25312,8 @@ namespace cimg_library_suffixed {
         const unsigned int
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width()),
           siz = (unsigned int)mp.opcode[4];
-        double *const ptr = &_mp_arg(3) + 1;
+        double *ptr = &_mp_arg(3);
+        if (siz) ++ptr;
         cimg_mp_func_setname(ind,ptr,siz);
         return cimg::type<double>::nan();
       }

@@ -23298,8 +23298,9 @@ namespace cimg_library_suffixed {
 #ifdef cimg_mp_func_name
       static double mp_name(_cimg_math_parser& mp) {
         double *const ptr = &_mp_arg(1) + 1;
-        unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
-        const unsigned int siz = (unsigned int)mp.opcode[3];
+        const unsigned int
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width()),
+          siz = (unsigned int)mp.opcode[3];
         cimg_mp_func_name(ind,ptr,siz);
         return cimg::type<double>::nan();
       }
@@ -25308,10 +25309,10 @@ namespace cimg_library_suffixed {
 
 #ifdef cimg_mp_func_setname
       static double mp_setname(_cimg_math_parser& mp) {
-        unsigned int ind = (unsigned int)mp.opcode[2];
-        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        const unsigned int
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width()),
+          siz = (unsigned int)mp.opcode[4];
         double *const ptr = &_mp_arg(3) + 1;
-        const unsigned int siz = (unsigned int)mp.opcode[4];
         cimg_mp_func_setname(ind,ptr,siz);
         return cimg::type<double>::nan();
       }

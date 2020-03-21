@@ -17069,7 +17069,7 @@ namespace cimg_library_suffixed {
           case 'k' :
             if (reserved_label[(int)'k']!=~0U) _cimg_mp_return(reserved_label[(int)'k']);
             if (mem_img_index==~0U) {
-              pos  = 0;
+              pos = 0;
               cimglist_for(listin,l)
                 if (imgin._data==listin[l]._data && imgin.is_sameXYZC(listin[l])) { pos = l; break; }
               mem_img_index = constant(pos);
@@ -20421,13 +20421,21 @@ namespace cimg_library_suffixed {
 
           case 'n' :
 #ifdef cimg_mp_func_name
-            if (!std::strncmp(ss,"name(",5)) { // Get image name as a string
+            if (!std::strncmp(ss,"name(",5)) { // Get image name as a string vector
               _cimg_mp_op("Function 'name()'");
               if (*ss5=='#') { // Index specified
                 s0 = ss6; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                 p1 = compile(ss6,s0++,depth1,0,is_single);
                 _cimg_mp_check_list(false);
-              } else { p1 = ~0U; s0 = ss5; }
+              } else {
+                s0 = ss5;
+                if (mem_img_index==~0U) {
+                  p1 = 0;
+                  cimglist_for(listin,l)
+                    if (imgin._data==listin[l]._data && imgin.is_sameXYZC(listin[l])) { p1 = l; break; }
+                  mem_img_index = constant(p1);
+                }
+              }
               arg1 = s0<se1?compile(s0,se1,depth1,0,is_single):~0U;
               if (arg1!=~0U) {
                 _cimg_mp_check_constant(arg1,p1==~0U?1:2,3);
@@ -20827,6 +20835,21 @@ namespace cimg_library_suffixed {
               p2 = _cimg_mp_size(arg2);
               _cimg_mp_scalar6(mp_vector_eq,arg1,p1,arg2,p2,arg3,arg4);
             }
+
+#ifdef cimg_mp_func_setname
+            if (!std::strncmp(ss,"setname(",8)) { // Set image name from a string vector
+              _cimg_mp_op("Function 'setname()'");
+              if (*ss8=='#') { // Index specified
+                s0 = ss8 + 1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                p1 = compile(ss8 + 1,s0++,depth1,0,is_single);
+                _cimg_mp_check_list(true);
+              } else { p1 = ~0U; s0 = ss8; }
+              arg1 = compile(s0,se1,depth1,0,is_single);
+              p2 = _cimg_mp_size(arg1);
+              CImg<ulongT>::vector((ulongT)mp_setname,_cimg_mp_slot_nan,p1,arg1,p2).move_to(code);
+              _cimg_mp_return(pos);
+            }
+#endif
 
             if (!std::strncmp(ss,"shift(",6)) { // Shift vector
               _cimg_mp_op("Function 'shift()'");
@@ -25284,6 +25307,17 @@ namespace cimg_library_suffixed {
         }
         return cimg::type<double>::nan();
       }
+
+#ifdef cimg_mp_func_setname
+      static double mp_setname(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        double *const ptr = &_mp_arg(3) + 1;
+        const unsigned int siz = (unsigned int)mp.opcode[4];
+        cimg_mp_func_setname(ind,ptr,siz);
+        return cimg::type<double>::nan();
+      }
+#endif
 
       static double mp_shift(_cimg_math_parser& mp) {
         double *const ptrd = &_mp_arg(1) + 1;

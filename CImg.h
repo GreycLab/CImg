@@ -16917,6 +16917,18 @@ namespace cimg_library_suffixed {
         return res;
       }
 
+      // Find and return index of current image 'imgin' within image list 'listin'.
+      unsigned int get_mem_img_index() {
+        if (mem_img_index==~0U) {
+          unsigned int pos = 0;
+          cimglist_for(listin,l)
+            if (imgin._data==listin[l]._data && imgin.is_sameXYZC(listin[l]) &&
+                !listin[l]._is_shared) { pos = l; break; }
+          mem_img_index = constant(pos);
+        }
+        return mem_img_index;
+      }
+
       // Return indices for accessing math parser variables.
       void get_variable_pos(const char *variable_name, unsigned int &pos, unsigned int &rpos) {
         char c1, c2, c3, c4;
@@ -17068,13 +17080,7 @@ namespace cimg_library_suffixed {
           case 'h' : _cimg_mp_return(reserved_label[(int)'h']!=~0U?reserved_label[(int)'h']:19);
           case 'k' :
             if (reserved_label[(int)'k']!=~0U) _cimg_mp_return(reserved_label[(int)'k']);
-            if (mem_img_index==~0U) {
-              pos = 0;
-              cimglist_for(listin,l)
-                if (imgin._data==listin[l]._data && imgin.is_sameXYZC(listin[l])) { pos = l; break; }
-              mem_img_index = constant(pos);
-            }
-            _cimg_mp_return(mem_img_index);
+            _cimg_mp_return(get_mem_img_index());
           case 'l' : _cimg_mp_return(reserved_label[(int)'l']!=~0U?reserved_label[(int)'l']:26);
           case 'r' : _cimg_mp_return(reserved_label[(int)'r']!=~0U?reserved_label[(int)'r']:22);
           case 's' : _cimg_mp_return(reserved_label[(int)'s']!=~0U?reserved_label[(int)'s']:21);
@@ -20427,16 +20433,7 @@ namespace cimg_library_suffixed {
                 s0 = ss6; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                 p1 = compile(ss6,s0++,depth1,0,is_single);
                 _cimg_mp_check_list(false);
-              } else {
-                s0 = ss5;
-                if (mem_img_index==~0U) {
-                  p1 = 0;
-                  cimglist_for(listin,l)
-                    if (imgin._data==listin[l]._data && imgin.is_sameXYZC(listin[l])) { p1 = l; break; }
-                  mem_img_index = constant(p1);
-                }
-              }
-              arg1 = s0<se1?compile(s0,se1,depth1,0,is_single):~0U;
+              } else { s0 = ss5; p1 = get_mem_img_index(); }
               if (arg1!=~0U) {
                 _cimg_mp_check_constant(arg1,p1==~0U?1:2,3);
                 arg1 = (unsigned int)mem[arg1];
@@ -20843,7 +20840,7 @@ namespace cimg_library_suffixed {
                 s0 = ss8 + 1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                 p1 = compile(ss8 + 1,s0++,depth1,0,is_single);
                 _cimg_mp_check_list(true);
-              } else { p1 = ~0U; s0 = ss8; }
+              } else { s0 = ss8; p1 = get_mem_img_index(); }
               arg1 = compile(s0,se1,depth1,0,is_single);
               p2 = _cimg_mp_size(arg1);
               CImg<ulongT>::vector((ulongT)mp_setname,_cimg_mp_slot_nan,p1,arg1,p2).move_to(code);
@@ -23299,8 +23296,7 @@ namespace cimg_library_suffixed {
 #ifdef cimg_mp_func_name
       static double mp_name(_cimg_math_parser& mp) {
         double *const ptr = &_mp_arg(1) + 1;
-        unsigned int ind = (unsigned int)mp.opcode[2];
-        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         const unsigned int siz = (unsigned int)mp.opcode[3];
         cimg_mp_func_name(ind,ptr,siz);
         return cimg::type<double>::nan();
@@ -25314,7 +25310,7 @@ namespace cimg_library_suffixed {
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         double *const ptr = &_mp_arg(3) + 1;
         const unsigned int siz = (unsigned int)mp.opcode[4];
-        cimg_mp_func_setname(ptr,ind,siz);
+        cimg_mp_func_setname(ind,ptr,siz);
         return cimg::type<double>::nan();
       }
 #endif

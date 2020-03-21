@@ -16922,8 +16922,7 @@ namespace cimg_library_suffixed {
         if (mem_img_index==~0U) {
           unsigned int pos = 0;
           cimglist_for(listin,l)
-            if (imgin._data==listin[l]._data && imgin.is_sameXYZC(listin[l]) &&
-                !listin[l]._is_shared) { pos = l; break; }
+            if (imgin._data==listin[l]._data && imgin.is_sameXYZC(listin[l])) { pos = l; break; }
           mem_img_index = constant(pos);
         }
         return mem_img_index;

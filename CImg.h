@@ -20432,10 +20432,12 @@ namespace cimg_library_suffixed {
               if (*ss5=='#') { // Index specified
                 s0 = ss6; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                 p1 = compile(ss6,s0++,depth1,0,is_single);
+                is_sth = true; // is_index_specified?
                 _cimg_mp_check_list(false);
-              } else { s0 = ss5; p1 = get_mem_img_index(); }
+              } else { s0 = ss5; p1 = get_mem_img_index(); is_sth = false; }
+              arg1 = s0<se1?compile(s0,se1,depth1,0,is_single):~0U;
               if (arg1!=~0U) {
-                _cimg_mp_check_constant(arg1,p1==~0U?1:2,3);
+                _cimg_mp_check_constant(arg1,is_sth?2:1,3);
                 arg1 = (unsigned int)mem[arg1];
               } else arg1 = 1024;
               pos = vector(arg1);

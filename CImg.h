@@ -20848,9 +20848,18 @@ namespace cimg_library_suffixed {
                 p1 = compile(ss8 + 1,s0++,depth1,0,is_single);
                 _cimg_mp_check_list(true);
               } else { s0 = ss8; p1 = get_mem_img_index(); }
-              arg1 = compile(s0,se1,depth1,0,is_single);
-              p2 = _cimg_mp_size(arg1);
-              CImg<ulongT>::vector((ulongT)mp_setname,_cimg_mp_slot_nan,p1,arg1,p2).move_to(code);
+
+              CImg<ulongT>::vector((ulongT)mp_setname,_cimg_mp_slot_nan,0,p1).move_to(l_opcode);
+              for (s = s0; s<se; ++s) {
+                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                arg1 = compile(s,ns,depth1,0,is_single);
+                CImg<ulongT>::vector(arg1,_cimg_mp_size(arg1)).move_to(l_opcode);
+                s = ns;
+              }
+              (l_opcode>'y').move_to(opcode);
+              opcode[2] = opcode._height;
+              opcode.move_to(code);
               _cimg_mp_return_nan();
             }
 #endif
@@ -25317,11 +25326,11 @@ namespace cimg_library_suffixed {
 
 #ifdef cimg_mp_func_setname
       static double mp_setname(_cimg_math_parser& mp) {
-        unsigned int ind = (unsigned int)mp.opcode[2];
+        unsigned int ind = (unsigned int)mp.opcode[3];
         if (ind!=~0U) {
-          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
-          double *ptr = &_mp_arg(3);
-          const unsigned int siz = (unsigned int)mp.opcode[4];
+          ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.listin.width());
+          double *ptr = &_mp_arg(4);
+          const unsigned int siz = (unsigned int)mp.opcode[5];
           if (siz) ++ptr;
           cimg_mp_func_setname(ind,ptr,siz);
         }

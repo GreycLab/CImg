@@ -16920,10 +16920,14 @@ namespace cimg_library_suffixed {
       // Find and return index of current image 'imgin' within image list 'listin'.
       unsigned int get_mem_img_index() {
         if (mem_img_index==~0U) {
-          unsigned int pos = ~0U;
-          cimglist_for(listin,l)
-            if (imgin._data==listin[l]._data && imgin.is_sameXYZC(listin[l])) { pos = l; break; }
-          if (pos!=~0U) mem_img_index = constant(pos);
+          if (&imgout>listout.data() && &imgout<listout.end())
+            mem_img_index = constant((double)(&imgout - listout.data()));
+          else {
+            unsigned int pos = ~0U;
+            cimglist_for(listout,l)
+              if (imgout._data==listout[l]._data && imgout.is_sameXYZC(listout[l])) { pos = l; break; }
+            if (pos!=~0U) mem_img_index = constant((double)pos);
+          }
         }
         return mem_img_index;
       }

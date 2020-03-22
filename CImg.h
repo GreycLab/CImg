@@ -25329,10 +25329,25 @@ namespace cimg_library_suffixed {
         unsigned int ind = (unsigned int)mp.opcode[3];
         if (ind!=~0U) {
           ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.listin.width());
-          double *ptr = &_mp_arg(4);
-          const unsigned int siz = (unsigned int)mp.opcode[5];
-          if (siz) ++ptr;
-          cimg_mp_func_setname(ind,ptr,siz);
+          const unsigned int nb_args = (unsigned int)(mp.opcode[2] - 3)/2;
+          CImgList<charT> _str;
+          CImg<charT> it;
+          for (unsigned int n = 0; n<nb_args; ++n) {
+            const unsigned int siz = (unsigned int)mp.opcode[5 + 2*n];
+            if (siz) { // Vector argument -> string
+              const double *ptr = &_mp_arg(4 + 2*n) + 1;
+              unsigned int l = 0;
+              while (l<siz && ptr[l]) ++l;
+              CImg<doubleT>(ptr,l,1,1,1,true).move_to(_str);
+            } else { // Scalar argument -> number
+              it.assign(256);
+              cimg_snprintf(it,it._width,"%.17g",_mp_arg(4 + 2*n));
+              CImg<charT>::string(it,false,true).move_to(_str);
+            }
+          }
+          CImg(1,1,1,1,0).move_to(_str);
+          const CImg<charT> str = _str>'x';
+          cimg_mp_func_setname(ind,str);
         }
         return cimg::type<double>::nan();
       }

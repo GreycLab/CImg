@@ -18609,10 +18609,22 @@ namespace cimg_library_suffixed {
         }
 
         // Array-like access to vectors and image values 'i/j/I/J[_#ind,offset,_boundary]' and 'vector[offset]'.
-        if (*se1==']' && *ss!='[') {
+        is_sth = *se1==']'; // is_valid_expr[] ?
+        if (is_sth) {
+          bool is_string = false;
+          int count = 0;
+          for (s0 = se1; s0>=ss; --s0)
+            if (*s0==']' && !is_string) ++count;
+            else if (*s0=='[' && !is_string) { --count; if (!count) break; }
+            else if (*s0=='\'') is_string = !is_string;
+          is_sth = !count && s0>ss;
+          // Here, s0 is the pointer to the opening bracket for the offset.
+        }
+
+        if (is_sth) {
           _cimg_mp_op("Value accessor '[]'");
           is_relative = *ss=='j' || *ss=='J';
-          s0 = s1 = std::strchr(ss,'['); if (s0) { do { --s1; } while (cimg::is_blank(*s1)); cimg::swap(*s0,*++s1); }
+          s1 = s0; do { --s1; } while (cimg::is_blank(*s1)); cimg::swap(*s0,*++s1);
 
           if ((*ss=='I' || *ss=='J') && *ss1=='[' &&
               (reserved_label[(int)*ss]==~0U ||
@@ -18689,7 +18701,7 @@ namespace cimg_library_suffixed {
           }
 
           s0 = se1; while (s0>ss && (*s0!='[' || level[s0 - expr._data]!=clevel)) --s0;
-          if (s0>ss) { // Vector value
+          if (s0>ss) { // Vector element
             arg1 = compile(ss,s0,depth1,0,is_single);
             if (_cimg_mp_is_scalar(arg1)) {
               variable_name.assign(ss,(unsigned int)(s0 - ss + 1)).back() = 0;

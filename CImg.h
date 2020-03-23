@@ -18611,13 +18611,16 @@ namespace cimg_library_suffixed {
         // Array-like access to vectors and image values 'i/j/I/J[_#ind,offset,_boundary]' and 'vector[offset]'.
         is_sth = *se1==']'; // is_valid_expr[] ?
         if (is_sth) {
-          bool is_string = false;
-          int count = 0;
-          for (s0 = se1; s0>=ss; --s0)
-            if (*s0==']' && !is_string) ++count;
-            else if (*s0=='[' && !is_string) { --count; if (!count) break; }
-            else if (*s0=='\'') is_string = !is_string;
-          is_sth = !count && s0>ss;
+          if (*ss!='[') { s0 = std::strchr(ss,'['); is_sth = s0!=0; }
+          else {
+            bool is_string = false;
+            int count = 0;
+            for (s0 = se1; s0>=ss; --s0)
+              if (*s0==']' && !is_string) ++count;
+              else if (*s0=='[' && !is_string) { --count; if (!count) break; }
+              else if (*s0=='\'') is_string = !is_string;
+            is_sth = !count && s0>ss;
+          }
           // Here, s0 is the pointer to the opening bracket for the offset.
         }
 

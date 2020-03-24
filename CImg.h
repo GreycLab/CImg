@@ -19397,6 +19397,7 @@ namespace cimg_library_suffixed {
 
               if (opcode[4]==(ulongT)~0U || opcode[5]==(ulongT)~0U ||
                   opcode[6]==(ulongT)~0U || opcode[7]==(ulongT)~0U) {
+                p2 = 0;
                 if (p1!=~0U) {
                   _cimg_mp_check_constant(p1,1,1);
                   p2 = (unsigned int)cimg::mod((int)mem[p1],listin.width());
@@ -21240,6 +21241,7 @@ namespace cimg_library_suffixed {
                 if (s0>ss6 && *s0==',') ++s0;
                 s1 = s0; while (s1<se1 && *s1!=',') ++s1;
                 c1 = *s1;
+                arg1=~0U;
                 if (s1>s0) {
                   *s1 = 0;
                   get_variable_pos(s0,arg1,arg2);
@@ -52130,6 +52132,7 @@ namespace cimg_library_suffixed {
         *(ptr_b++) = (T)pixels[y][x].b;
         *(ptr_a++) = (T)pixels[y][x].a;
       }
+      return *this;
 #elif defined(cimg_use_tinyexr)
       float *res;
       const char *err = 0;
@@ -52140,10 +52143,10 @@ namespace cimg_library_suffixed {
                                      cimg_instance,filename);
       CImg<floatT>(res,4,width,height,1,true).get_permute_axes("yzcx").move_to(*this);
       std::free(res);
+      return *this;
 #else
       return load_other(filename);
 #endif
-      return *this;
     }
 
     //! Load image from a EXR file \newinstance.

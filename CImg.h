@@ -16669,7 +16669,7 @@ namespace cimg_library_suffixed {
       unsigned int mempos, mem_img_median, mem_img_index, debug_indent, result_dim, break_type, constcache_size;
       bool is_parallelizable, is_end_code, is_fill, need_input_copy;
       double *result;
-      ulongT rng;
+      cimg_uint64 rng;
       const char *const calling_function, *s_op, *ss_op;
       typedef double (*mp_func)(_cimg_math_parser&);
 
@@ -25429,7 +25429,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_srand(_cimg_math_parser& mp) {
-        mp.rng = (ulongT)_mp_arg(2);
+        mp.rng = (cimg_uint64)_mp_arg(2);
         return cimg::type<double>::nan();
       }
 
@@ -29956,7 +29956,7 @@ namespace cimg_library_suffixed {
     CImg<T>& rand(const T& val_min, const T& val_max) {
       const float delta = (float)val_max - (float)val_min + (cimg::type<T>::is_float()?0:1);
       if (cimg::type<T>::is_float()) cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),524288)) {
-          ulongT rng = (cimg::_rand(),cimg::rng());
+          cimg_uint64 rng = (cimg::_rand(),cimg::rng());
 
 #if cimg_use_openmp!=0
           rng+=omp_get_thread_num();
@@ -29965,7 +29965,7 @@ namespace cimg_library_suffixed {
             cimg_rofoff(*this,off) _data[off] = (T)(val_min + delta*cimg::rand(1,&rng));
           cimg::srand(rng);
         } else cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),524288)) {
-          ulongT rng = (cimg::_rand(),cimg::rng());
+          cimg_uint64 rng = (cimg::_rand(),cimg::rng());
 
 #if cimg_use_openmp!=0
           rng+=omp_get_thread_num();
@@ -30028,7 +30028,7 @@ namespace cimg_library_suffixed {
       switch (noise_type) {
       case 0 : { // Gaussian noise
         cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),131072)) {
-          ulongT rng = (cimg::_rand(),cimg::rng());
+          cimg_uint64 rng = (cimg::_rand(),cimg::rng());
 
 #if cimg_use_openmp!=0
           rng+=omp_get_thread_num();
@@ -30045,7 +30045,7 @@ namespace cimg_library_suffixed {
       } break;
       case 1 : { // Uniform noise
         cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),131072)) {
-          ulongT rng = (cimg::_rand(),cimg::rng());
+          cimg_uint64 rng = (cimg::_rand(),cimg::rng());
 
 #if cimg_use_openmp!=0
           rng+=omp_get_thread_num();
@@ -30067,7 +30067,7 @@ namespace cimg_library_suffixed {
           else { m = (Tfloat)cimg::type<T>::min(); M = (Tfloat)cimg::type<T>::max(); }
         }
         cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),131072)) {
-          ulongT rng = (cimg::_rand(),cimg::rng());
+          cimg_uint64 rng = (cimg::_rand(),cimg::rng());
 
 #if cimg_use_openmp!=0
           rng+=omp_get_thread_num();
@@ -30079,7 +30079,7 @@ namespace cimg_library_suffixed {
       } break;
       case 3 : { // Poisson Noise
         cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),131072)) {
-          ulongT rng = (cimg::_rand(),cimg::rng());
+          cimg_uint64 rng = (cimg::_rand(),cimg::rng());
 
 #if cimg_use_openmp!=0
           rng+=omp_get_thread_num();
@@ -30092,7 +30092,7 @@ namespace cimg_library_suffixed {
       case 4 : { // Rice noise
         const Tfloat sqrt2 = (Tfloat)std::sqrt(2.);
         cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),131072)) {
-          ulongT rng = (cimg::_rand(),cimg::rng());
+          cimg_uint64 rng = (cimg::_rand(),cimg::rng());
 
 #if cimg_use_openmp!=0
           rng+=omp_get_thread_num();
@@ -40212,7 +40212,7 @@ namespace cimg_library_suffixed {
                                        u - cx1,v - cy1,w - cz1,
                                        u,v,w,0,allow_identity,cimg::type<float>::inf());
           } else cimg_pragma_openmp(parallel cimg_openmp_if_size(_width,64)) {
-            ulongT rng = (cimg::_rand(),cimg::rng());
+            cimg_uint64 rng = (cimg::_rand(),cimg::rng());
 #if cimg_use_openmp!=0
             rng+=omp_get_thread_num();
 #endif
@@ -40245,7 +40245,7 @@ namespace cimg_library_suffixed {
 
           cimg_pragma_openmp(parallel cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64 &&
                                                      iter<nb_iterations-2)) {
-            ulongT rng = (cimg::_rand(),cimg::rng());
+            cimg_uint64 rng = (cimg::_rand(),cimg::rng());
 
 #if cimg_use_openmp!=0
             rng+=omp_get_thread_num();
@@ -40402,7 +40402,7 @@ namespace cimg_library_suffixed {
                                      x - cx1,y - cy1,u - cx1,v - cy1,
                                      u,v,0,allow_identity,cimg::type<float>::inf());
           } else cimg_pragma_openmp(parallel cimg_openmp_if_size(_width,64)) {
-            ulongT rng = (cimg::_rand(),cimg::rng());
+            cimg_uint64 rng = (cimg::_rand(),cimg::rng());
 
 #if cimg_use_openmp!=0
             rng+=omp_get_thread_num();
@@ -40432,7 +40432,7 @@ namespace cimg_library_suffixed {
 
           cimg_pragma_openmp(parallel cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64 &&
                                                      iter<nb_iterations-2)) {
-            ulongT rng = (cimg::_rand(),cimg::rng());
+            cimg_uint64 rng = (cimg::_rand(),cimg::rng());
 
 #if cimg_use_openmp!=0
             rng+=omp_get_thread_num();
@@ -47321,7 +47321,7 @@ namespace cimg_library_suffixed {
       if (is_empty()) return *this;
       const int w = width(), h = height();
       const Tfloat m = (Tfloat)cimg::type<T>::min(), M = (Tfloat)cimg::type<T>::max();
-      ulongT rng = (cimg::_rand(),cimg::rng());
+      cimg_uint64 rng = (cimg::_rand(),cimg::rng());
       cimg_forZC(*this,z,c) {
         CImg<T> ref = get_shared_slice(z,c);
         for (int delta = 1<<std::min(scale,31U); delta>1; delta>>=1) {
@@ -49794,7 +49794,7 @@ namespace cimg_library_suffixed {
         if (_spectrum>4) { colormap(0,4) = 220; colormap(1,4) = 10;  colormap(2,4) = 220; }
         if (_spectrum>5) { colormap(0,5) = 10;  colormap(1,5) = 220; colormap(2,5) = 220; }
         if (_spectrum>6) {
-          ulongT rng = 10;
+          cimg_uint64 rng = 10;
           cimg_for_inY(colormap,6,colormap.height()-1,k) {
             colormap(0,k) = (unsigned char)(120 + cimg::rand(-100.f,100.f,&rng));
             colormap(1,k) = (unsigned char)(120 + cimg::rand(-100.f,100.f,&rng));

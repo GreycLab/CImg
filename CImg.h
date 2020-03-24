@@ -11314,7 +11314,10 @@ namespace cimg_library_suffixed {
       } else {
         if (_normalization==3) {
           if (cimg::type<T>::is_float()) _min = (float)img.min_max(_max);
-          else { _min = (float)cimg::type<T>::min(); _max = (float)cimg::type<T>::max(); }
+          else {
+            _min = (float)cimg::type<T>::min();
+            _max = (float)cimg::type<T>::max();
+          }
         } else if ((_min>_max) || _normalization==1) _min = (float)img.min_max(_max);
         const float delta = _max - _min, mm = 255/(delta?delta:1.f);
         switch (img._spectrum) {
@@ -49754,7 +49757,9 @@ namespace cimg_library_suffixed {
       case 3 :
         if (cimg::type<T>::is_float()) img2d.normalize((ucharT)0,(ucharT)255);
         else {
-          const float m = (float)cimg::type<T>::min(), M = (float)cimg::type<T>::max();
+          const float
+            m = (float)cimg::type<T>::min(),
+            M = (float)cimg::type<T>::max();
           (img2d-=m)*=255.f/(M - m>0?M - m:1);
         } break;
       }

@@ -97,10 +97,10 @@ int main(int argc,char **argv) {
 
   // Apply the filter
   //---------------------
-  long tic = cimg::time();
+  cimg_uint64 tic = cimg::time();
   CImg<> dest;
   dest = img.get_nlmeans(patch_size,lambda,alpha,sigma,sampling);
-  long tac = cimg::time();
+  cimg_uint64 tac = cimg::time();
 
   // Save result
   //-----------------

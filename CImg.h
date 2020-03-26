@@ -6171,7 +6171,12 @@ namespace cimg_library_suffixed {
     //! Return the minabs between two values.
     template<typename t>
     inline t minabs(const t& a, const t& b) {
-      return std::abs(a)<=std::abs(b)?a:b;
+      return std::abs(b)<std::abs(a)?b:a;
+    }
+
+    template<typename t>
+    inline t minabs(const t& a, const t& b, const t& abs_b) {
+      return abs_b<std::abs(a)?b:a;
     }
 
     //! Return the maximum between three values.
@@ -6189,7 +6194,12 @@ namespace cimg_library_suffixed {
     //! Return the maxabs between two values.
     template<typename t>
     inline t maxabs(const t& a, const t& b) {
-      return std::abs(a)>=std::abs(b)?a:b;
+      return std::abs(b)>std::abs(a)?b:a;
+    }
+
+    template<typename t>
+    inline t maxabs(const t& a, const t& b, const t& abs_b) {
+      return abs_b>std::abs(a)?b:a;
     }
 
     //! Return the sign of a value.
@@ -26856,7 +26866,8 @@ namespace cimg_library_suffixed {
      **/
     CImg<T>& minabs(const T& value) {
       if (is_empty()) return *this;
-      cimg_openmp_for(*this,cimg::minabs(*ptr,value),65536);
+      const T abs_value = cimg::abs(value);
+      cimg_openmp_for(*this,cimg::minabs(*ptr,value,abs_value),65536);
       return *this;
     }
 
@@ -26914,7 +26925,8 @@ namespace cimg_library_suffixed {
      **/
     CImg<T>& maxabs(const T& value) {
       if (is_empty()) return *this;
-      cimg_openmp_for(*this,cimg::maxabs(*ptr,value),65536);
+      const T abs_value = cimg::abs(value);
+      cimg_openmp_for(*this,cimg::maxabs(*ptr,value,abs_value),65536);
       return *this;
     }
 

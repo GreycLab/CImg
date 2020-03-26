@@ -21445,11 +21445,14 @@ namespace cimg_library_suffixed {
               !std::strncmp(ss,"std(",4) || !std::strncmp(ss,"var(",4) ||
               !std::strncmp(ss,"prod(",5) ||
               !std::strncmp(ss,"argmin(",7) || !std::strncmp(ss,"argmax(",7) ||
+              !std::strncmp(ss,"argminabs(",10) || !std::strncmp(ss,"argmaxabs(",10) ||
               !std::strncmp(ss,"argkth(",7)) { // Multi-argument functions
             _cimg_mp_op(*ss=='a'?(ss[1]=='v'?"Function 'avg()'":
                                   ss[3]=='k'?"Function 'argkth()'":
-                                  ss[4]=='i'?"Function 'argmin()'":
-                                  "Function 'argmax()'"):
+                                  ss[4]=='i' && ss[6]=='('?"Function 'argmin()'":
+                                  ss[4]=='i'?"Function argminabs()'":
+                                  ss[6]!='('?"Function 'argmax()'":
+                                  "Function 'argmaxabs()'"):
                         *ss=='s'?(ss[1]=='u'?"Function 'sum()'":"Function 'std()'"):
                         *ss=='k'?"Function 'kth()'":
                         *ss=='p'?"Function 'prod()'":
@@ -21459,7 +21462,11 @@ namespace cimg_library_suffixed {
                         ss[1]=='a'?(ss[3]=='('?"Function 'max()'":
                                     "Function 'maxabs()'"):
                         "Function 'med()'");
-            op = *ss=='a'?(ss[1]=='v'?mp_avg:ss[3]=='k'?mp_argkth:ss[4]=='i'?mp_argmin:mp_argmax):
+            op = *ss=='a'?(ss[1]=='v'?mp_avg:
+                           ss[3]=='k'?mp_argkth:
+                           ss[4]=='i' && ss[6]=='('?mp_argmin:
+                           ss[4]=='i'?mp_argminabs:
+                           ss[6]!='('?mp_argmax:mp_argmaxabs):
               *ss=='s'?(ss[1]=='u'?mp_sum:mp_std):
               *ss=='k'?mp_kth:
               *ss=='p'?mp_prod:
@@ -22451,6 +22458,17 @@ namespace cimg_library_suffixed {
         return (double)argval;
       }
 
+      static double mp_argminabs(_cimg_math_parser& mp) {
+        const unsigned int i_end = (unsigned int)mp.opcode[2];
+        double val = _mp_arg(3), absval = cimg::abs(val);
+        unsigned int argval = 0;
+        for (unsigned int i = 4; i<i_end; ++i) {
+          const double _val = _mp_arg(i), _absval = cimg::abs(_val);
+          if (_absval<absval) { val = _val; absval = _absval; argval = i - 3; }
+        }
+        return (double)argval;
+      }
+
       static double mp_argmax(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
         double val = _mp_arg(3);
@@ -22458,6 +22476,17 @@ namespace cimg_library_suffixed {
         for (unsigned int i = 4; i<i_end; ++i) {
           const double _val = _mp_arg(i);
           if (_val>val) { val = _val; argval = i - 3; }
+        }
+        return (double)argval;
+      }
+
+      static double mp_argmaxabs(_cimg_math_parser& mp) {
+        const unsigned int i_end = (unsigned int)mp.opcode[2];
+        double val = _mp_arg(3), absval = cimg::abs(val);
+        unsigned int argval = 0;
+        for (unsigned int i = 4; i<i_end; ++i) {
+          const double _val = _mp_arg(i), _absval = cimg::abs(_val);
+          if (_absval>absval) { val = _val; absval = _absval; argval = i - 3; }
         }
         return (double)argval;
       }
@@ -24771,8 +24800,8 @@ namespace cimg_library_suffixed {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
         double val = _mp_arg(3), absval = cimg::abs(val);
         for (unsigned int i = 4; i<i_end; ++i) {
-          const double nval = _mp_arg(i), nabsval = cimg::abs(nval);
-          if (nabsval>absval) { val = nval; absval = nabsval; }
+          const double _val = _mp_arg(i), _absval = cimg::abs(_val);
+          if (_absval>absval) { val = _val; absval = _absval; }
         }
         return val;
       }
@@ -24898,8 +24927,8 @@ namespace cimg_library_suffixed {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
         double val = _mp_arg(3), absval = cimg::abs(val);
         for (unsigned int i = 4; i<i_end; ++i) {
-          const double nval = _mp_arg(i), nabsval = cimg::abs(nval);
-          if (nabsval<absval) { val = nval; absval = nabsval; }
+          const double _val = _mp_arg(i), _absval = cimg::abs(_val);
+          if (_absval<absval) { val = _val; absval = _absval; }
         }
         return val;
       }
@@ -26866,8 +26895,8 @@ namespace cimg_library_suffixed {
      **/
     CImg<T>& minabs(const T& value) {
       if (is_empty()) return *this;
-      const T abs_value = cimg::abs(value);
-      cimg_openmp_for(*this,cimg::minabs(*ptr,value,abs_value),65536);
+      const T absvalue = cimg::abs(value);
+      cimg_openmp_for(*this,cimg::minabs(*ptr,value,absvalue),65536);
       return *this;
     }
 
@@ -26925,8 +26954,8 @@ namespace cimg_library_suffixed {
      **/
     CImg<T>& maxabs(const T& value) {
       if (is_empty()) return *this;
-      const T abs_value = cimg::abs(value);
-      cimg_openmp_for(*this,cimg::maxabs(*ptr,value,abs_value),65536);
+      const T absvalue = cimg::abs(value);
+      cimg_openmp_for(*this,cimg::maxabs(*ptr,value,absvalue),65536);
       return *this;
     }
 

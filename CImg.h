@@ -25946,6 +25946,7 @@ namespace cimg_library_suffixed {
         const unsigned int
           sizd = (unsigned int)mp.opcode[2],
           sizs = (unsigned int)mp.opcode[4];
+        std::memset(ptrd,0,sizd*sizeof(double));
         const int nb_digits = (int)_mp_arg(5);
         CImg<charT> format(8);
         switch (nb_digits) {

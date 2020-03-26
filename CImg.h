@@ -6168,6 +6168,12 @@ namespace cimg_library_suffixed {
       return std::min(std::min(a,b),std::min(c,d));
     }
 
+    //! Return the minabs between two values.
+    template<typename t>
+    inline t minabs(const t& a, const t& b) {
+      return std::abs(a)<=std::abs(b)?a:b;
+    }
+
     //! Return the maximum between three values.
     template<typename t>
     inline t max(const t& a, const t& b, const t& c) {
@@ -6178,6 +6184,12 @@ namespace cimg_library_suffixed {
     template<typename t>
     inline t max(const t& a, const t& b, const t& c, const t& d) {
       return std::max(std::max(a,b),std::max(c,d));
+    }
+
+    //! Return the maxabs between two values.
+    template<typename t>
+    inline t maxabs(const t& a, const t& b) {
+      return std::abs(a)>=std::abs(b)?a:b;
     }
 
     //! Return the sign of a value.
@@ -21417,6 +21429,7 @@ namespace cimg_library_suffixed {
           }
 
           if (!std::strncmp(ss,"min(",4) || !std::strncmp(ss,"max(",4) ||
+              !std::strncmp(ss,"minabs(",7) || !std::strncmp(ss,"maxabs(",7) ||
               !std::strncmp(ss,"med(",4) || !std::strncmp(ss,"kth(",4) ||
               !std::strncmp(ss,"sum(",4) || !std::strncmp(ss,"avg(",4) ||
               !std::strncmp(ss,"std(",4) || !std::strncmp(ss,"var(",4) ||
@@ -21431,15 +21444,18 @@ namespace cimg_library_suffixed {
                         *ss=='k'?"Function 'kth()'":
                         *ss=='p'?"Function 'prod()'":
                         *ss=='v'?"Function 'var()'":
-                        ss[1]=='i'?"Function 'min()'":
-                        ss[1]=='a'?"Function 'max()'":"Function 'med()'");
+                        ss[1]=='i'?(ss[3]=='('?"Function 'min()'":
+                                    "Function 'minabs()'"):
+                        ss[1]=='a'?(ss[3]=='('?"Function 'max()'":
+                                    "Function 'maxabs()'"):
+                        "Function 'med()'");
             op = *ss=='a'?(ss[1]=='v'?mp_avg:ss[3]=='k'?mp_argkth:ss[4]=='i'?mp_argmin:mp_argmax):
               *ss=='s'?(ss[1]=='u'?mp_sum:mp_std):
               *ss=='k'?mp_kth:
               *ss=='p'?mp_prod:
               *ss=='v'?mp_var:
-              ss[1]=='i'?mp_min:
-              ss[1]=='a'?mp_max:
+              ss[1]=='i'?(ss[3]=='('?mp_min:mp_minabs):
+              ss[1]=='a'?(ss[3]=='('?mp_max:mp_maxabs):
               ss[2]=='a'?mp_avg:
               mp_median;
             is_sth = true; // Tell if all arguments are constant
@@ -24741,6 +24757,16 @@ namespace cimg_library_suffixed {
         return val;
       }
 
+      static double mp_maxabs(_cimg_math_parser& mp) {
+        const unsigned int i_end = (unsigned int)mp.opcode[2];
+        double val = _mp_arg(3), absval = cimg::abs(val);
+        for (unsigned int i = 4; i<i_end; ++i) {
+          const double nval = _mp_arg(i), nabsval = cimg::abs(nval);
+          if (nabsval>absval) { val = nval; absval = nabsval; }
+        }
+        return val;
+      }
+
       static double* _mp_memcopy_double(_cimg_math_parser& mp, const unsigned int ind, const ulongT *const p_ref,
                                         const longT siz, const long inc) {
         const longT
@@ -24855,6 +24881,16 @@ namespace cimg_library_suffixed {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
         double val = _mp_arg(3);
         for (unsigned int i = 4; i<i_end; ++i) val = std::min(val,_mp_arg(i));
+        return val;
+      }
+
+      static double mp_minabs(_cimg_math_parser& mp) {
+        const unsigned int i_end = (unsigned int)mp.opcode[2];
+        double val = _mp_arg(3), absval = cimg::abs(val);
+        for (unsigned int i = 4; i<i_end; ++i) {
+          const double nval = _mp_arg(i), nabsval = cimg::abs(nval);
+          if (nabsval<absval) { val = nval; absval = nabsval; }
+        }
         return val;
       }
 
@@ -26810,6 +26846,122 @@ namespace cimg_library_suffixed {
     //! Pointwise max operator between an image and an expression \newinstance.
     CImg<Tfloat> get_max(const char *const expression) const {
       return CImg<Tfloat>(*this,false).max(expression);
+    }
+
+    //! Pointwise minabs operator between instance image and a value.
+    /**
+       \param val Value used as the reference argument of the minabs operator.
+       \note Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by
+       \f$\mathrm{minabs}(I_{(x,y,z,c)},\mathrm{val})\f$.
+     **/
+    CImg<T>& minabs(const T& value) {
+      if (is_empty()) return *this;
+      cimg_openmp_for(*this,cimg::minabs(*ptr,value),65536);
+      return *this;
+    }
+
+    //! Pointwise minabs operator between instance image and a value \newinstance.
+    CImg<T> get_minabs(const T& value) const {
+      return (+*this).minabs(value);
+    }
+
+    //! Pointwise minabs operator between two images.
+    /**
+       \param img Image used as the reference argument of the minabs operator.
+       \note Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by
+       \f$\mathrm{minabs}(I_{(x,y,z,c)},\mathrm{img}_{(x,y,z,c)})\f$.
+     **/
+    template<typename t>
+    CImg<T>& minabs(const CImg<t>& img) {
+      const ulongT siz = size(), isiz = img.size();
+      if (siz && isiz) {
+        if (is_overlapped(img)) return minabs(+img);
+        T *ptrd = _data, *const ptre = _data + siz;
+        if (siz>isiz) for (ulongT n = siz/isiz; n; --n)
+          for (const t *ptrs = img._data, *ptrs_end = ptrs + isiz; ptrs<ptrs_end; ++ptrd)
+            *ptrd = cimg::minabs((T)*(ptrs++),*ptrd);
+        for (const t *ptrs = img._data; ptrd<ptre; ++ptrd) *ptrd = cimg::minabs((T)*(ptrs++),*ptrd);
+      }
+      return *this;
+    }
+
+    //! Pointwise minabs operator between two images \newinstance.
+    template<typename t>
+    CImg<_cimg_Tt> get_minabs(const CImg<t>& img) const {
+      return CImg<_cimg_Tt>(*this,false).minabs(img);
+    }
+
+    //! Pointwise minabs operator between an image and an expression.
+    /**
+       \param expression Math formula as a C-string.
+       \note Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by
+       \f$\mathrm{minabs}(I_{(x,y,z,c)},\mathrm{expr}_{(x,y,z,c)})\f$.
+    **/
+    CImg<T>& minabs(const char *const expression) {
+      return minabs((+*this)._fill(expression,true,1,0,0,"minabs",this));
+    }
+
+    //! Pointwise minabs operator between an image and an expression \newinstance.
+    CImg<Tfloat> get_minabs(const char *const expression) const {
+      return CImg<Tfloat>(*this,false).minabs(expression);
+    }
+
+    //! Pointwise maxabs operator between instance image and a value.
+    /**
+       \param val Value used as the reference argument of the maxabs operator.
+       \note Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by
+       \f$\mathrm{maxabs}(I_{(x,y,z,c)},\mathrm{val})\f$.
+     **/
+    CImg<T>& maxabs(const T& value) {
+      if (is_empty()) return *this;
+      cimg_openmp_for(*this,cimg::maxabs(*ptr,value),65536);
+      return *this;
+    }
+
+    //! Pointwise maxabs operator between instance image and a value \newinstance.
+    CImg<T> get_maxabs(const T& value) const {
+      return (+*this).maxabs(value);
+    }
+
+    //! Pointwise maxabs operator between two images.
+    /**
+       \param img Image used as the reference argument of the maxabs operator.
+       \note Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by
+       \f$\mathrm{maxabs}(I_{(x,y,z,c)},\mathrm{img}_{(x,y,z,c)})\f$.
+     **/
+    template<typename t>
+    CImg<T>& maxabs(const CImg<t>& img) {
+      const ulongT siz = size(), isiz = img.size();
+      if (siz && isiz) {
+        if (is_overlapped(img)) return maxabs(+img);
+        T *ptrd = _data, *const ptre = _data + siz;
+        if (siz>isiz) for (ulongT n = siz/isiz; n; --n)
+          for (const t *ptrs = img._data, *ptrs_end = ptrs + isiz; ptrs<ptrs_end; ++ptrd)
+            *ptrd = cimg::maxabs((T)*(ptrs++),*ptrd);
+        for (const t *ptrs = img._data; ptrd<ptre; ++ptrd) *ptrd = cimg::maxabs((T)*(ptrs++),*ptrd);
+      }
+      return *this;
+    }
+
+    //! Pointwise maxabs operator between two images \newinstance.
+    template<typename t>
+    CImg<_cimg_Tt> get_maxabs(const CImg<t>& img) const {
+      return CImg<_cimg_Tt>(*this,false).maxabs(img);
+    }
+
+    //! Pointwise maxabs operator between an image and an expression.
+    /**
+       \param expression Math formula as a C-string.
+       \note Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by
+       \f$\mathrm{maxabs}(I_{(x,y,z,c)},\mathrm{expr}_{(x,y,z,c)})\f$.
+    **/
+    CImg<T>& maxabs(const char *const expression) {
+      return maxabs((+*this)._fill(expression,true,1,0,0,"maxabs",this));
+    }
+
+    //! Pointwise maxabs operator between an image and an expression \newinstance.
+    CImg<Tfloat> get_maxabs(const char *const expression) const {
+      return CImg<Tfloat>(*this,false).maxabs(expression);
     }
 
     //! Return a reference to the minimum pixel value.

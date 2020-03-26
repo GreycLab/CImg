@@ -30018,8 +30018,8 @@ namespace cimg_library_suffixed {
 
     template<typename t>
     CImg<T> get_discard(const CImg<t>& values, const char axis=0) const {
-      CImg<T> res;
       if (!values) return +*this;
+      CImg<T> res;
       if (is_empty()) return res;
       const ulongT vsiz = values.size();
       const char _axis = cimg::lowercase(axis);
@@ -30074,16 +30074,25 @@ namespace cimg_library_suffixed {
       } break;
       default : {
         res.unroll('y');
-        cimg_foroff(*this,i) {
-          if ((*this)[i]!=(T)values[j]) {
-            if (j) --i;
-            std::memcpy(res._data + k,_data + i0,(i - i0 + 1)*sizeof(T));
-            k+=i - i0 + 1; i0 = (int)i + 1; j = 0;
-          } else { ++j; if (j>=vsiz) { j = 0; i0 = (int)i + 1; }}
+        if (vsiz==1) { // Optimized version for a single discard value
+          const T val = (T)values[0];
+          cimg_foroff(*this,i) {
+            const T _val = (T)_data[i];
+            if (_val!=val) res[k++] = _val;
+          }
+          res.resize(1,k,1,1,0);
+        } else { // Generic version
+          cimg_foroff(*this,i) {
+            if ((*this)[i]!=(T)values[j]) {
+              if (j) --i;
+              std::memcpy(res._data + k,_data + i0,(i - i0 + 1)*sizeof(T));
+              k+=i - i0 + 1; i0 = (int)i + 1; j = 0;
+            } else { ++j; if (j>=vsiz) { j = 0; i0 = (int)i + 1; }}
+          }
+          const ulongT siz = size();
+          if ((ulongT)i0<siz) { std::memcpy(res._data + k,_data + i0,(siz - i0)*sizeof(T)); k+=siz - i0; }
+          res.resize(1,k,1,1,0);
         }
-        const ulongT siz = size();
-        if ((ulongT)i0<siz) { std::memcpy(res._data + k,_data + i0,(siz - i0)*sizeof(T)); k+=siz - i0; }
-        res.resize(1,k,1,1,0);
       }
       }
       return res;
@@ -30125,8 +30134,10 @@ namespace cimg_library_suffixed {
       } break;
       default : {
         res.unroll('y');
-        cimg_foroff(*this,i)
-          if ((*this)[i]!=current) res[j++] = current = (*this)[i];
+        cimg_foroff(*this,i) {
+          const T val = (*this)[i];
+          if (val!=current) res[j++] = current = val;
+        }
         res.resize(-100,j,-100,-100,0);
       }
       }

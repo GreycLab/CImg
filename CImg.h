@@ -10950,8 +10950,8 @@ namespace cimg_library_suffixed {
                                       wx,wy,ww,wh,0,0,0,&(disp->_ccs));
         if (!disp->_is_closed) {
           GetWindowRect(disp->_window,&rect);
-          disp->_window_x = rect.left + border1;
-          disp->_window_y = rect.top + border2;
+          disp->_window_x = rect.left;
+          disp->_window_y = rect.top;
         } else disp->_window_x = disp->_window_y = cimg::type<int>::min();
       } else { // Fullscreen window
         const unsigned int
@@ -10987,12 +10987,9 @@ namespace cimg_library_suffixed {
         RECT rect;
         rect.left = rect.top = 0; rect.right = (LONG)_width - 1; rect.bottom = (LONG)_height - 1;
         AdjustWindowRect(&rect,WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,false);
-        const int
-          border1 = (int)((rect.right - rect.left + 1 - _width)/2),
-          border2 = (int)(rect.bottom - rect.top + 1 - _height - border1);
         GetWindowRect(_window,&rect);
-        _window_x = rect.left + border1;
-        _window_y = rect.top + border2;
+        _window_x = rect.left;
+        _window_y = rect.top;
       }
       return *this;
     }

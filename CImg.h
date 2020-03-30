@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 290
+#define cimg_version 291
 
 /*-----------------------------------------------------------
  #
@@ -18623,27 +18623,16 @@ namespace cimg_library_suffixed {
         }
 
         // Array-like access to vectors and image values 'i/j/I/J[_#ind,offset,_boundary]' and 'vector[offset]'.
-        is_sth = *se1==']'; // is_valid_expr[] ?
-        if (is_sth) {
-          if (*ss!='[') { s0 = std::strchr(ss,'['); is_sth = s0!=0; }
-          else {
-            bool is_string = false;
-            int count = 0;
-            for (s0 = se1; s0>=ss; --s0)
-              if (*s0==']' && !is_string) ++count;
-              else if (*s0=='[' && !is_string) { --count; if (!count) break; }
-              else if (*s0=='\'') is_string = !is_string;
-            is_sth = !count && s0>ss;
-          }
-          // Here, s0 is the pointer to the opening bracket for the offset.
-        }
-
-        if (is_sth) {
+        if (*se1==']') {
           _cimg_mp_op("Value accessor '[]'");
-          is_relative = *ss=='j' || *ss=='J';
-          s1 = s0; do { --s1; } while (cimg::is_blank(*s1)); cimg::swap(*s0,*++s1);
 
-          if ((*ss=='I' || *ss=='J') && *ss1=='[' &&
+          // Find opening bracket for the offset.
+          s0 = se1; while (s0>ss && (*s0!='[' || level[s0 - expr._data]!=clevel)) --s0;
+          if (s0>ss) { s1 = s0; do { --s1; } while (cimg::is_blank(*s1)); cimg::swap(*s0,*++s1); }
+          is_sth=s0>ss && *(s0-1)==']';  // Particular case s.a. '..[..][..]' ?
+          is_relative = *ss=='j' || *ss=='J';
+
+          if (!is_sth && (*ss=='I' || *ss=='J') && *ss1=='[' &&
               (reserved_label[(int)*ss]==~0U ||
                !_cimg_mp_is_vector(reserved_label[(int)*ss]))) { // Image value as a vector
             if (*ss2=='#') { // Index specified
@@ -18687,7 +18676,7 @@ namespace cimg_library_suffixed {
             _cimg_mp_return(pos);
           }
 
-          if ((*ss=='i' || *ss=='j') && *ss1=='[' &&
+          if (!is_sth && (*ss=='i' || *ss=='j') && *ss1=='[' &&
               (reserved_label[(int)*ss]==~0U ||
                !_cimg_mp_is_vector(reserved_label[(int)*ss]))) { // Image value as a scalar
             if (*ss2=='#') { // Index specified

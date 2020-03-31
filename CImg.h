@@ -6265,7 +6265,9 @@ namespace cimg_library_suffixed {
     template<typename T>
     inline T mod(const T& x, const T& m) {
       const double dx = (double)x, dm = (double)m;
-      return (T)(dx - dm * std::floor(dx / dm));
+      if (!cimg::type<double>::is_finite(dm)) return x;
+      if (cimg::type<double>::is_finite(dx)) return (T)(dx - dm * std::floor(dx / dm));
+      return (T)0;
     }
     inline int mod(const bool x, const bool m) {
       return m?(x?1:0):0;
@@ -24489,12 +24491,6 @@ namespace cimg_library_suffixed {
           vsiz = (unsigned int)mp.opcode[8];
         const CImg<T> &img = mp.listin[ind];
         const double x = _mp_arg(3), y = _mp_arg(4), z = _mp_arg(5);
-        if (!cimg::type<double>::is_finite(x) || !cimg::type<double>::is_finite(y) ||
-            !cimg::type<double>::is_finite(z)) {
-          cimg_for_inC(img,0,vsiz - 1,c) *(ptrd++) = cimg::type<double>::nan();
-          return cimg::type<double>::nan();
-        }
-
         const ulongT whd = (ulongT)img._width*img._height*img._depth;
         const T *ptrs;
         switch (interpolation) {

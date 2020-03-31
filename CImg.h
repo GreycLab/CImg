@@ -2674,6 +2674,7 @@ namespace cimg_library_suffixed {
       static bool is_float() { return false; }
       static bool is_inf(const T) { return false; }
       static bool is_nan(const T) { return false; }
+      static bool is_finite(const T) { return true; }
       static T min() { return ~max(); }
       static T max() { return (T)1<<(8*sizeof(T) - 1); }
       static T inf() { return max(); }
@@ -2688,6 +2689,7 @@ namespace cimg_library_suffixed {
       static bool is_float() { return false; }
       static bool is_inf(const bool) { return false; }
       static bool is_nan(const bool) { return false; }
+      static bool is_finite(const bool) { return true; }
       static bool min() { return false; }
       static bool max() { return true; }
       static bool inf() { return max(); }
@@ -2703,6 +2705,7 @@ namespace cimg_library_suffixed {
       static bool is_float() { return false; }
       static bool is_inf(const unsigned char) { return false; }
       static bool is_nan(const unsigned char) { return false; }
+      static bool is_finite(const unsigned char) { return true; }
       static unsigned char min() { return 0; }
       static unsigned char max() { return (unsigned char)-1; }
       static unsigned char inf() { return max(); }
@@ -2719,6 +2722,7 @@ namespace cimg_library_suffixed {
       static bool is_float() { return false; }
       static bool is_inf(const char) { return false; }
       static bool is_nan(const char) { return false; }
+      static bool is_finite(const char) { return true; }
       static char min() { return 0; }
       static char max() { return (char)-1; }
       static char inf() { return max(); }
@@ -2734,6 +2738,7 @@ namespace cimg_library_suffixed {
       static bool is_float() { return false; }
       static bool is_inf(const char) { return false; }
       static bool is_nan(const char) { return false; }
+      static bool is_finite(const char) { return true; }
       static char min() { return ~max(); }
       static char max() { return (char)((unsigned char)-1>>1); }
       static char inf() { return max(); }
@@ -2749,6 +2754,7 @@ namespace cimg_library_suffixed {
       static bool is_float() { return false; }
       static bool is_inf(const signed char) { return false; }
       static bool is_nan(const signed char) { return false; }
+      static bool is_finite(const signed char) { return true; }
       static signed char min() { return ~max(); }
       static signed char max() { return (signed char)((unsigned char)-1>>1); }
       static signed char inf() { return max(); }
@@ -2764,6 +2770,7 @@ namespace cimg_library_suffixed {
       static bool is_float() { return false; }
       static bool is_inf(const unsigned short) { return false; }
       static bool is_nan(const unsigned short) { return false; }
+      static bool is_finite(const unsigned short) { return true; }
       static unsigned short min() { return 0; }
       static unsigned short max() { return (unsigned short)-1; }
       static unsigned short inf() { return max(); }
@@ -2779,6 +2786,7 @@ namespace cimg_library_suffixed {
       static bool is_float() { return false; }
       static bool is_inf(const short) { return false; }
       static bool is_nan(const short) { return false; }
+      static bool is_finite(const short) { return true; }
       static short min() { return ~max(); }
       static short max() { return (short)((unsigned short)-1>>1); }
       static short inf() { return max(); }
@@ -2793,6 +2801,7 @@ namespace cimg_library_suffixed {
       static bool is_float() { return false; }
       static bool is_inf(const unsigned int) { return false; }
       static bool is_nan(const unsigned int) { return false; }
+      static bool is_finite(const unsigned int) { return true; }
       static unsigned int min() { return 0; }
       static unsigned int max() { return (unsigned int)-1; }
       static unsigned int inf() { return max(); }
@@ -2808,6 +2817,7 @@ namespace cimg_library_suffixed {
       static bool is_float() { return false; }
       static bool is_inf(const int) { return false; }
       static bool is_nan(const int) { return false; }
+      static bool is_finite(const int) { return true; }
       static int min() { return ~max(); }
       static int max() { return (int)((unsigned int)-1>>1); }
       static int inf() { return max(); }
@@ -2822,6 +2832,7 @@ namespace cimg_library_suffixed {
       static bool is_float() { return false; }
       static bool is_inf(const cimg_uint64) { return false; }
       static bool is_nan(const cimg_uint64) { return false; }
+      static bool is_finite(const cimg_uint64) { return true; }
       static cimg_uint64 min() { return 0; }
       static cimg_uint64 max() { return (cimg_uint64)-1; }
       static cimg_uint64 inf() { return max(); }
@@ -2837,6 +2848,7 @@ namespace cimg_library_suffixed {
       static bool is_float() { return false; }
       static bool is_inf(const cimg_int64) { return false; }
       static bool is_nan(const cimg_int64) { return false; }
+      static bool is_finite(const cimg_int64) { return true; }
       static cimg_int64 min() { return ~max(); }
       static cimg_int64 max() { return (cimg_int64)((cimg_uint64)-1>>1); }
       static cimg_int64 inf() { return max(); }
@@ -2868,6 +2880,13 @@ namespace cimg_library_suffixed {
         return (bool)isnan(val);
 #else
         return !(val==val);
+#endif
+      }
+      static bool is_finite(const double val) {
+#ifdef isfinite
+        return (bool)isfinite(val);
+#else
+        return !is_nan(val) && !is_inf(val);
 #endif
       }
       static double min() { return -DBL_MAX; }
@@ -2914,6 +2933,13 @@ namespace cimg_library_suffixed {
         return !(val==val);
 #endif
       }
+      static bool is_finite(const float val) {
+#ifdef isfinite
+        return (bool)isfinite(val);
+#else
+        return !is_nan(val) && !is_inf(val);
+#endif
+      }
       static float min() { return -FLT_MAX; }
       static float max() { return FLT_MAX; }
       static float inf() { return (float)cimg::type<double>::inf(); }
@@ -2940,6 +2966,13 @@ namespace cimg_library_suffixed {
         return (bool)isnan(val);
 #else
         return !(val==val);
+#endif
+      }
+      static bool is_finite(const long double val) {
+#ifdef isfinite
+        return (bool)isfinite(val);
+#else
+        return !is_nan(val) && !is_inf(val);
 #endif
       }
       static long double min() { return -LDBL_MAX; }
@@ -2970,6 +3003,13 @@ namespace cimg_library_suffixed {
           return (bool)((u&0x7fff)>0x7c00);
         }
         return cimg::type<float>::is_nan((float)val);
+      }
+      static bool is_finite(const half val) {
+#ifdef isfinite
+        return (bool)isfinite(val);
+#else
+        return !is_nan(val) && !is_inf(val);
+#endif
       }
       static half min() { return (half)-65504; }
       static half max() { return (half)65504; }
@@ -6225,7 +6265,9 @@ namespace cimg_library_suffixed {
     template<typename T>
     inline T mod(const T& x, const T& m) {
       const double dx = (double)x, dm = (double)m;
-      return (T)(dx - dm * std::floor(dx / dm));
+      if (!cimg::type<double>::is_finite(dm)) return x;
+      if (cimg::type<double>::is_finite(dx)) return (T)(dx - dm * std::floor(dx / dm));
+      return (T)0;
     }
     inline int mod(const bool x, const bool m) {
       return m?(x?1:0):0;
@@ -36638,7 +36680,7 @@ namespace cimg_library_suffixed {
               const CImg<T> I = get_shared_channel(c%_spectrum);
               const CImg<t> K = _kernel.get_shared_channel(c%kernel._spectrum);
               const int w1 = I.width() - 1, h1 = I.height() - 1, d1 = I.depth() - 1;
-              CImg<T> _res = res.get_shared_channel(c);
+              CImg<Ttfloat> _res = res.get_shared_channel(c);
               if (is_normalized) {
                 const Ttfloat M = (Ttfloat)K.magnitude(2), M2 = M*M;
                 cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(_res.size(),16384))
@@ -36698,7 +36740,7 @@ namespace cimg_library_suffixed {
                 const CImg<T> I = get_shared_channel(c%_spectrum);
                 const CImg<t> K = _kernel.get_shared_channel(c%kernel._spectrum);
                 const int w1 = I.width() - 1, h1 = I.height() - 1;
-                CImg<T> _res = res.get_shared_channel(c);
+                CImg<Ttfloat> _res = res.get_shared_channel(c);
                 if (is_normalized) {
                   const Ttfloat M = (Ttfloat)K.magnitude(2), M2 = M*M;
                   cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(_res.size(),16384))
@@ -36759,7 +36801,7 @@ namespace cimg_library_suffixed {
                 cimg_abort_test;
                 const CImg<T> I = get_shared_channel(c%_spectrum);
                 const CImg<t> K = _kernel.get_shared_channel(c%kernel._spectrum);
-                CImg<T> _res = res.get_shared_channel(c);
+                CImg<Ttfloat> _res = res.get_shared_channel(c);
                 const int w1 = I.width() - 1, h1 = I.height() - 1;
                 if (is_normalized) {
                   const Ttfloat M = (Ttfloat)K.magnitude(2), M2 = M*M;

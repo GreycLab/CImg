@@ -50616,7 +50616,7 @@ namespace cimg_library_suffixed {
         align_bytes = (4 - dx_bytes%4)%4;
       const ulongT
         cimg_iobuffer = (ulongT)24*1024*1024,
-        buf_size = std::min((ulongT)cimg::abs(dy)*(dx_bytes + align_bytes),(ulongT)file_size - offset);
+        buf_size = (ulongT)cimg::abs(dy)*(dx_bytes + align_bytes);
 
       CImg<intT> colormap;
       if (bpp<16) { if (!nb_colors) nb_colors = 1<<bpp; } else nb_colors = 0;
@@ -50629,6 +50629,7 @@ namespace cimg_library_suffixed {
         buffer.assign(buf_size,1,1,1,0);
         cimg::fread(buffer._data,buf_size,nfile);
       } else buffer.assign(dx_bytes + align_bytes);
+
       unsigned char *ptrs = buffer;
 
       // Decompress buffer (if necessary)

@@ -49337,7 +49337,6 @@ namespace cimg_library_suffixed {
       disp.show().set_key(0).set_wheel().show_mouse();
 
       static const unsigned char foreground_color[] = { 255,255,255 }, background_color[] = { 0,0,0 };
-
       int area = 0, area_started = 0, area_clicked = 0, phase = 0,
         X0 = (int)((XYZ?XYZ[0]:_width/2)%_width),
         Y0 = (int)((XYZ?XYZ[1]:_height/2)%_height),

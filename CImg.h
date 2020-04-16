@@ -16734,7 +16734,7 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_is_comp(arg) (!memtype[arg]) // Is computation value?
 #define _cimg_mp_is_variable(arg) (memtype[arg]==-1) // Is scalar variable?
 #define _cimg_mp_is_vector(arg) (memtype[arg]>1) // Is vector?
-#define _cimg_mp_size(arg) (_cimg_mp_is_scalar(arg)?0U:(unsigned int)memtype[arg]/2) // Size (0=scalar, N>0=vectorN)
+#define _cimg_mp_size(arg) (_cimg_mp_is_scalar(arg)?0U:(unsigned int)memtype[arg] - 1) // Size (0=scalar, N>0=vectorN)
 #define _cimg_mp_calling_function calling_function_s()._data
 #define _cimg_mp_op(s) s_op = s; ss_op = ss
 #define _cimg_mp_check_type(arg,n_arg,mode,N) check_type(arg,n_arg,mode,N,ss,se,saved_char)
@@ -22181,7 +22181,7 @@ namespace cimg_library_suffixed {
         }
         const unsigned int pos = mempos++;
         mem[pos] = cimg::type<double>::nan();
-        memtype[pos] = 2*siz;
+        memtype[pos] = siz + 1;
         mempos+=siz;
         return pos;
       }
@@ -50629,7 +50629,6 @@ namespace cimg_library_suffixed {
         buffer.assign(buf_size,1,1,1,0);
         cimg::fread(buffer._data,buf_size,nfile);
       } else buffer.assign(dx_bytes + align_bytes);
-
       unsigned char *ptrs = buffer;
 
       // Decompress buffer (if necessary)

@@ -17465,7 +17465,7 @@ namespace cimg_library_suffixed {
               if (arg1==~0U) { // Create new variable
                 if (_cimg_mp_is_vector(arg3)) { // Vector variable
                   arg1 = is_comp_vector(arg3)?arg3:vector_copy(arg3);
-                  set_variable_vector(arg1);
+                  set_variable_vector(arg1); // Prevent from being used in further optimization
                 } else { // Scalar variable
                   if (is_const) arg1 = arg3;
                   else {

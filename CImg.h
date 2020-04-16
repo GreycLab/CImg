@@ -50629,6 +50629,7 @@ namespace cimg_library_suffixed {
         buffer.assign(buf_size,1,1,1,0);
         cimg::fread(buffer._data,buf_size,nfile);
       } else buffer.assign(dx_bytes + align_bytes);
+
       unsigned char *ptrs = buffer;
 
       // Decompress buffer (if necessary)

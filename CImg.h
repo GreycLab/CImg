@@ -3,7 +3,7 @@
  #  File            : CImg.h
  #                    ( C++ header file )
  #
- #  Description     : The C++ Template Image Processing Toolkit.
+ #  Description     : C++ Template Image Processing Toolkit.
  #                    This file is the main component of the CImg Library project.
  #                    ( http://cimg.eu )
  #

@@ -21234,29 +21234,6 @@ namespace cimg_library_suffixed {
               opcode.move_to(code);
               _cimg_mp_return(pos);
             }
-
-            if (!std::strncmp(ss,"vtos(",5)) { // Double(s) to string
-              _cimg_mp_op("Function 'vtos()'");
-              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss5,s1,depth1,0,is_single);
-              arg2 = 0; arg3 = ~0U;
-              if (s1<se1) {
-                s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-                arg2 = compile(++s1,s2,depth1,0,is_single);
-                arg3 = s2<se1?compile(++s2,se1,depth1,0,is_single):~0U;
-              }
-              _cimg_mp_check_type(arg2,2,1,0);
-              if (arg3==~0U) { // Auto-guess best output vector size
-                p1 = _cimg_mp_size(arg1);
-                p1 = p1?22*p1 - 1:18;
-              } else {
-                _cimg_mp_check_constant(arg3,3,3);
-                p1 = (unsigned int)mem[arg3];
-              }
-              pos = vector(p1);
-              CImg<ulongT>::vector((ulongT)mp_vtos,pos,p1,arg1,_cimg_mp_size(arg1),arg2).move_to(code);
-              _cimg_mp_return(pos);
-            }
             break;
 
           case 'w' :
@@ -25977,32 +25954,6 @@ namespace cimg_library_suffixed {
         const int off = (int)_mp_arg(4);
         if (off>=0 && off<(int)siz) mp.mem[ptr + off] = _mp_arg(5);
         return _mp_arg(5);
-      }
-
-      static double mp_vtos(_cimg_math_parser& mp) {
-        double *ptrd = &_mp_arg(1) + 1;
-        const unsigned int
-          sizd = (unsigned int)mp.opcode[2],
-          sizs = (unsigned int)mp.opcode[4];
-        std::memset(ptrd,0,sizd*sizeof(double));
-        const int nb_digits = (int)_mp_arg(5);
-        CImg<charT> format(8);
-        switch (nb_digits) {
-        case -1 : std::strcpy(format,"%g"); break;
-        case 0 : std::strcpy(format,"%.17g"); break;
-        default : cimg_snprintf(format,format._width,"%%.%dg",nb_digits);
-        }
-        CImg<charT> str;
-        if (sizs) { // Vector expression
-          const double *ptrs = &_mp_arg(3) + 1;
-          CImg<doubleT>(ptrs,sizs,1,1,1,true).value_string(',',sizd + 1,format).move_to(str);
-        } else { // Scalar expression
-          str.assign(sizd + 1);
-          cimg_snprintf(str,sizd + 1,format,_mp_arg(3));
-        }
-        const unsigned int l = std::min(sizd,(unsigned int)std::strlen(str) + 1);
-        CImg<doubleT>(ptrd,l,1,1,1,true) = str.get_shared_points(0,l - 1);
-        return cimg::type<double>::nan();
       }
 
       static double mp_while(_cimg_math_parser& mp) {

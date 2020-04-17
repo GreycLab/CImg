@@ -21048,7 +21048,6 @@ namespace cimg_library_suffixed {
                 CImg<ulongT>::vector(arg2,p2).move_to(l_opcode);
                 s = ns;
               }
-              ++p1;
               if (arg1==~0U) arg1 = p1;
               pos = vector(arg1,0);
               (l_opcode>'y').move_to(opcode);
@@ -25626,9 +25625,8 @@ namespace cimg_library_suffixed {
           }
         }
         const CImg<charT> str = _str>'x';
-        const unsigned int sizd = std::min(str._width,(unsigned int)mp.opcode[2]-1);
+        const unsigned int sizd = std::min(str._width,(unsigned int)mp.opcode[2]);
         for (unsigned int k = 0; k<sizd; ++k) ptrd[k] = (double)str[k];
-        ptrd[sizd] = 0;
         return cimg::type<double>::nan();
       }
 

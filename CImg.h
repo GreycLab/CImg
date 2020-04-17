@@ -21029,21 +21029,31 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"string(",7)) { // Construct string from list of arguments
               _cimg_mp_op("Function 'string()'");
               CImg<ulongT>::vector((ulongT)mp_string,0,0,0).move_to(l_opcode);
-              p2 = 0;
-              for (s = ss7; s<se; ++s) {
+
+              if (*ss7=='#') { // Output vector size specified, with '#'
+                s0 = ss8; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                arg1 = compile(ss8,s0++,depth1,0,is_single);
+                _cimg_mp_check_constant(arg1,1,3);
+                arg1 = (unsigned int)mem[arg1];
+                s = s0;
+              } else { arg1=~0U; s = ss7; }
+
+              p1 = 0;
+              for (; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
-                arg1 = compile(s,ns,depth1,0,is_single);
-                p1 = _cimg_mp_size(arg1);
-                p2+=p1?p1:18;
-                CImg<ulongT>::vector(arg1,_cimg_mp_size(arg1)).move_to(l_opcode);
+                arg2 = compile(s,ns,depth1,0,is_single);
+                p2 = _cimg_mp_size(arg2);
+                p1+=p2?p2:18;
+                CImg<ulongT>::vector(arg2,p2).move_to(l_opcode);
                 s = ns;
               }
-              ++p2;
-              pos = vector(p2,0);
+              ++p1;
+              if (arg1==~0U) arg1 = p1;
+              pos = vector(arg1,0);
               (l_opcode>'y').move_to(opcode);
               opcode[1] = pos;
-              opcode[2] = p2;
+              opcode[2] = arg1;
               opcode[3] = opcode._height;
               opcode.move_to(code);
               _cimg_mp_return(pos);
@@ -25622,9 +25632,7 @@ namespace cimg_library_suffixed {
 
       static double mp_string(_cimg_math_parser& mp) {
         double *const ptrd = &_mp_arg(1) + 1;
-        const unsigned int
-          sizd = mp.opcode[2],
-          nb_args = (unsigned int)(mp.opcode[3] - 3)/2;
+        const unsigned int nb_args = (unsigned int)(mp.opcode[3] - 3)/2;
         CImgList<charT> _str;
         CImg<charT> it;
         for (unsigned int n = 0; n<nb_args; ++n) {
@@ -25640,9 +25648,10 @@ namespace cimg_library_suffixed {
             CImg<charT>::string(it,false,true).move_to(_str);
           }
         }
-        CImg(1,1,1,1,0).move_to(_str);
         const CImg<charT> str = _str>'x';
+        const unsigned int sizd = std::min(str._width,(unsigned int)mp.opcode[2]-1);
         for (unsigned int k = 0; k<sizd; ++k) ptrd[k] = (double)str[k];
+        ptrd[sizd] = 0;
         return cimg::type<double>::nan();
       }
 

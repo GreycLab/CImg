@@ -729,8 +729,8 @@ extern "C" {
                       I##pnn = I##cnn = I##nnn = 0
 
 #define cimg_def2x2(img,x,y) \
-  int _n1##x = x<img.width() - 1?x + 1:img.width() - 1, \
-      _n1##y = y<img.height() - 1?y + 1:img.height() - 1
+  int _n1##x = x<(img).width() - 1?x + 1:(img).width() - 1, \
+      _n1##y = y<(img).height() - 1?y + 1:(img).height() - 1
 
 #define cimg_def3x3(img,x,y) \
   cimg_def2x2(img,x,y); \
@@ -739,8 +739,8 @@ extern "C" {
 
 #define cimg_def4x4(img,x,y) \
   cimg_def3x3(img,x,y); \
-  int _n2##x = x<img.width() - 2?x + 2:img.width() - 1, \
-      _n2##y = y<img.height() - 2?y + 2:img.height() - 1
+  int _n2##x = x<(img).width() - 2?x + 2:(img).width() - 1, \
+      _n2##y = y<(img).height() - 2?y + 2:(img).height() - 1
 
 #define cimg_def5x5(img,x,y) \
   cimg_def4x4(img,x,y); \
@@ -749,8 +749,8 @@ extern "C" {
 
 #define cimg_def6x6(img,x,y) \
   cimg_def5x5(img,x,y); \
-  int _n3##x = x<img.width() - 3?x + 3:img.width() - 1, \
-      _n3##y = y<img.height() - 3?y + 3:img.height() - 1
+  int _n3##x = x<(img).width() - 3?x + 3:(img).width() - 1, \
+      _n3##y = y<(img).height() - 3?y + 3:(img).height() - 1
 
 #define cimg_def7x7(img,x,y) \
   cimg_def6x6(img,x,y); \
@@ -759,8 +759,8 @@ extern "C" {
 
 #define cimg_def8x8(img,x,y) \
   cimg_def7x7(img,x,y); \
-  int _n4##x = x<img.width() - 4?x + 4:img.width() - 1, \
-      _n4##y = y<img.height() - 4?y + 4:img.height() - 1
+  int _n4##x = x<(img).width() - 4?x + 4:(img).width() - 1, \
+      _n4##y = y<(img).height() - 4?y + 4:(img).height() - 1
 
 #define cimg_def9x9(img,x,y) \
   cimg_def8x8(img,x,y); \
@@ -769,7 +769,7 @@ extern "C" {
 
 #define cimg_def2x2x2(img,x,y,z) \
   cimg_def2x2(img,x,y); \
-  int _n1##z = z<img.depth() - 1?z + 1:img.depth() - 1
+  int _n1##z = z<(img).depth() - 1?z + 1:(img).depth() - 1
 
 #define cimg_def3x3x3(img,x,y,z) \
   cimg_def2x2x2(img,x,y,z); \

@@ -42069,6 +42069,28 @@ namespace cimg_library_suffixed {
     //@{
     //-------------------------------------
 
+    //! Rotate 3D object's vertices.
+    /**
+       \param x X-coordinate of the rotation axis, or first quaternion coordinate.
+       \param y Y-coordinate of the rotation axis, or second quaternion coordinate.
+       \param z Z-coordinate of the rotation axis, or second quaternion coordinate.
+       \param w Angle of the rotation axis (in degree), or fourth quaternion coordinate.
+       \param is_quaternion Tell is the four arguments denotes a set { axis + angle } or a quaternion (x,y,z,w).
+    **/
+    CImg<T>& rotate_object3d(const float x, const float y, const float z, const float w,
+                             const bool is_quaternion=false) {
+      return get_rotate_object3d(x,y,z,w,is_quaternion).move_to(*this);
+    }
+
+    CImg<Tfloat> get_rotate_object3d(const float x, const float y, const float z, const float w,
+                                     const bool is_quaternion=false) const {
+      if (_height!=3 || _depth>1 || _spectrum>1)
+        throw CImgInstanceException(_cimg_instance
+                                    "rotate_object3d(): Instance is not a set of 3D vertices.",
+                                    cimg_instance);
+      return CImg<Tfloat>::rotation_matrix(x,y,z,w,is_quaternion)**this;
+    }
+
     //! Shift 3D object's vertices.
     /**
        \param tx X-coordinate of the 3D displacement vector.

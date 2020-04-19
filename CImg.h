@@ -54257,7 +54257,7 @@ namespace cimg_library_suffixed {
         }
 
         // Handle user interaction
-        disp.wait();
+        if (!redraw) disp.wait();
         if ((disp.button() || disp.wheel()) && disp.mouse_x()>=0 && disp.mouse_y()>=0) {
           redraw = true;
           if (!clicked) { x0 = x1 = disp.mouse_x(); y0 = y1 = disp.mouse_y(); if (!disp.wheel()) clicked = true; }

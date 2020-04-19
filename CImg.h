@@ -54262,7 +54262,8 @@ namespace cimg_library_suffixed {
           redraw = true;
           if (!clicked) { x0 = x1 = disp.mouse_x(); y0 = y1 = disp.mouse_y(); if (!disp.wheel()) clicked = true; }
           else { x1 = disp.mouse_x(); y1 = disp.mouse_y(); }
-          if (disp.button()&1) {
+          const bool is_keyCTRL = disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT();
+          if (disp.button()&1 && !is_keyCTRL) {
             const float
               R = 0.45f*std::min(disp.width(),disp.height()),
               R2 = R*R,
@@ -54286,7 +54287,7 @@ namespace cimg_library_suffixed {
             (CImg<floatT>::rotation_matrix(u,v,w,-alpha)*pose).move_to(pose);
             x0 = x1; y0 = y1;
           }
-          if (disp.button()&2) {
+          if (disp.button()&2 && !is_keyCTRL) {
             if (focale>0) Zoff-=(y0 - y1)*focale/400;
             else { const float s = std::exp((y0 - y1)/400.f); pose*=s; sprite_scale*=s; }
             x0 = x1; y0 = y1;
@@ -54296,8 +54297,10 @@ namespace cimg_library_suffixed {
             else { const float s = std::exp(disp.wheel()/20.f); pose*=s; sprite_scale*=s; }
             disp.set_wheel();
           }
-          if (disp.button()&4) { Xoff+=(x1 - x0); Yoff+=(y1 - y0); x0 = x1; y0 = y1; }
-          if ((disp.button()&1) && (disp.button()&2)) {
+          if (disp.button()&4 || (disp.button()&1 && is_keyCTRL)) {
+            Xoff+=(x1 - x0); Yoff+=(y1 - y0); x0 = x1; y0 = y1;
+          }
+          if ((disp.button()&1) && (disp.button()&2) && !is_keyCTRL) {
             init_pose = true; disp.set_button(); x0 = x1; y0 = y1;
             pose = CImg<floatT>(4,3,1,1, 1,0,0,0, 0,1,0,0, 0,0,1,0);
           }

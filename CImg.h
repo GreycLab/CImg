@@ -729,8 +729,8 @@ extern "C" {
                       I##pnn = I##cnn = I##nnn = 0
 
 #define cimg_def2x2(img,x,y) \
-  int _n1##x = x<img.width() - 1?x + 1:img.width() - 1, \
-      _n1##y = y<img.height() - 1?y + 1:img.height() - 1
+  int _n1##x = x<(img).width() - 1?x + 1:(img).width() - 1, \
+      _n1##y = y<(img).height() - 1?y + 1:(img).height() - 1
 
 #define cimg_def3x3(img,x,y) \
   cimg_def2x2(img,x,y); \
@@ -739,8 +739,8 @@ extern "C" {
 
 #define cimg_def4x4(img,x,y) \
   cimg_def3x3(img,x,y); \
-  int _n2##x = x<img.width() - 2?x + 2:img.width() - 1, \
-      _n2##y = y<img.height() - 2?y + 2:img.height() - 1
+  int _n2##x = x<(img).width() - 2?x + 2:(img).width() - 1, \
+      _n2##y = y<(img).height() - 2?y + 2:(img).height() - 1
 
 #define cimg_def5x5(img,x,y) \
   cimg_def4x4(img,x,y); \
@@ -749,8 +749,8 @@ extern "C" {
 
 #define cimg_def6x6(img,x,y) \
   cimg_def5x5(img,x,y); \
-  int _n3##x = x<img.width() - 3?x + 3:img.width() - 1, \
-      _n3##y = y<img.height() - 3?y + 3:img.height() - 1
+  int _n3##x = x<(img).width() - 3?x + 3:(img).width() - 1, \
+      _n3##y = y<(img).height() - 3?y + 3:(img).height() - 1
 
 #define cimg_def7x7(img,x,y) \
   cimg_def6x6(img,x,y); \
@@ -759,8 +759,8 @@ extern "C" {
 
 #define cimg_def8x8(img,x,y) \
   cimg_def7x7(img,x,y); \
-  int _n4##x = x<img.width() - 4?x + 4:img.width() - 1, \
-      _n4##y = y<img.height() - 4?y + 4:img.height() - 1
+  int _n4##x = x<(img).width() - 4?x + 4:(img).width() - 1, \
+      _n4##y = y<(img).height() - 4?y + 4:(img).height() - 1
 
 #define cimg_def9x9(img,x,y) \
   cimg_def8x8(img,x,y); \
@@ -769,7 +769,7 @@ extern "C" {
 
 #define cimg_def2x2x2(img,x,y,z) \
   cimg_def2x2(img,x,y); \
-  int _n1##z = z<img.depth() - 1?z + 1:img.depth() - 1
+  int _n1##z = z<(img).depth() - 1?z + 1:(img).depth() - 1
 
 #define cimg_def3x3x3(img,x,y,z) \
   cimg_def2x2x2(img,x,y,z); \
@@ -39487,6 +39487,8 @@ namespace cimg_library_suffixed {
             _veloc_max[c] = veloc_max;
           }
         } else  // Inverse diffusion
+          cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height*_depth>=(cimg_openmp_sizefactor)*512 &&
+                                                         _spectrum>=2))
           cimg_forC(*this,c) {
             Tfloat *ptrd = velocity.data(0,0,0,c), veloc_max = 0;
             CImg_3x3x3(I,Tfloat);
@@ -39541,6 +39543,8 @@ namespace cimg_library_suffixed {
             _veloc_max[c] = veloc_max;
           }
         } else // Inverse diffusion
+          cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height>=(cimg_openmp_sizefactor)*512 &&
+                                                         _spectrum>=2))
           cimg_forC(*this,c) {
             Tfloat *ptrd = velocity.data(0,0,0,c), veloc_max = 0;
             CImg_3x3(I,Tfloat);
@@ -42064,6 +42068,28 @@ namespace cimg_library_suffixed {
     //! \name 3D Objects Management
     //@{
     //-------------------------------------
+
+    //! Rotate 3D object's vertices.
+    /**
+       \param x X-coordinate of the rotation axis, or first quaternion coordinate.
+       \param y Y-coordinate of the rotation axis, or second quaternion coordinate.
+       \param z Z-coordinate of the rotation axis, or second quaternion coordinate.
+       \param w Angle of the rotation axis (in degree), or fourth quaternion coordinate.
+       \param is_quaternion Tell is the four arguments denotes a set { axis + angle } or a quaternion (x,y,z,w).
+    **/
+    CImg<T>& rotate_object3d(const float x, const float y, const float z, const float w,
+                             const bool is_quaternion=false) {
+      return get_rotate_object3d(x,y,z,w,is_quaternion).move_to(*this);
+    }
+
+    CImg<Tfloat> get_rotate_object3d(const float x, const float y, const float z, const float w,
+                                     const bool is_quaternion=false) const {
+      if (_height!=3 || _depth>1 || _spectrum>1)
+        throw CImgInstanceException(_cimg_instance
+                                    "rotate_object3d(): Instance is not a set of 3D vertices.",
+                                    cimg_instance);
+      return CImg<Tfloat>::rotation_matrix(x,y,z,w,is_quaternion)**this;
+    }
 
     //! Shift 3D object's vertices.
     /**
@@ -54236,7 +54262,8 @@ namespace cimg_library_suffixed {
           redraw = true;
           if (!clicked) { x0 = x1 = disp.mouse_x(); y0 = y1 = disp.mouse_y(); if (!disp.wheel()) clicked = true; }
           else { x1 = disp.mouse_x(); y1 = disp.mouse_y(); }
-          if (disp.button()&1) {
+          const bool is_keyCTRL = disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT();
+          if (disp.button()&1 && !is_keyCTRL) {
             const float
               R = 0.45f*std::min(disp.width(),disp.height()),
               R2 = R*R,
@@ -54260,7 +54287,7 @@ namespace cimg_library_suffixed {
             (CImg<floatT>::rotation_matrix(u,v,w,-alpha)*pose).move_to(pose);
             x0 = x1; y0 = y1;
           }
-          if (disp.button()&2) {
+          if (disp.button()&2 && !is_keyCTRL) {
             if (focale>0) Zoff-=(y0 - y1)*focale/400;
             else { const float s = std::exp((y0 - y1)/400.f); pose*=s; sprite_scale*=s; }
             x0 = x1; y0 = y1;
@@ -54270,8 +54297,10 @@ namespace cimg_library_suffixed {
             else { const float s = std::exp(disp.wheel()/20.f); pose*=s; sprite_scale*=s; }
             disp.set_wheel();
           }
-          if (disp.button()&4) { Xoff+=(x1 - x0); Yoff+=(y1 - y0); x0 = x1; y0 = y1; }
-          if ((disp.button()&1) && (disp.button()&2)) {
+          if (disp.button()&4 || (disp.button()&1 && is_keyCTRL)) {
+            Xoff+=(x1 - x0); Yoff+=(y1 - y0); x0 = x1; y0 = y1;
+          }
+          if ((disp.button()&1) && (disp.button()&2) && !is_keyCTRL) {
             init_pose = true; disp.set_button(); x0 = x1; y0 = y1;
             pose = CImg<floatT>(4,3,1,1, 1,0,0,0, 0,1,0,0, 0,0,1,0);
           }

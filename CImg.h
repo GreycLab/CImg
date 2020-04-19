@@ -39487,6 +39487,8 @@ namespace cimg_library_suffixed {
             _veloc_max[c] = veloc_max;
           }
         } else  // Inverse diffusion
+          cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height*_depth>=(cimg_openmp_sizefactor)*512 &&
+                                                         _spectrum>=2))
           cimg_forC(*this,c) {
             Tfloat *ptrd = velocity.data(0,0,0,c), veloc_max = 0;
             CImg_3x3x3(I,Tfloat);
@@ -39541,6 +39543,8 @@ namespace cimg_library_suffixed {
             _veloc_max[c] = veloc_max;
           }
         } else // Inverse diffusion
+          cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height>=(cimg_openmp_sizefactor)*512 &&
+                                                         _spectrum>=2))
           cimg_forC(*this,c) {
             Tfloat *ptrd = velocity.data(0,0,0,c), veloc_max = 0;
             CImg_3x3(I,Tfloat);

@@ -5855,13 +5855,13 @@ namespace cimg_library_suffixed {
       unsigned int u;
       // use memcpy instead of assignment to avoid undesired optimizations by C++-compiler.
       std::memcpy(&u,&f,sizeof(float));
-      return ((u)<<1)>>1; // set sign bit to 0
+      return ((u)<<2)>>2; // set sign & exponent bit to 0
     }
 
     inline float uint2float(const unsigned int u) {
       if (u<(1U<<19)) return (float)u;  // Consider safe storage of unsigned int as floats until 19bits (i.e 524287)
       float f;
-      const unsigned int v = u|(1U<<(8*sizeof(unsigned int)-1)); // set sign bit to 1
+      const unsigned int v = u|(3U<<(8*sizeof(unsigned int)-2)); // set sign & exponent bit to 1
       // use memcpy instead of simple assignment to avoid undesired optimizations by C++-compiler.
       std::memcpy(&f,&v,sizeof(float));
       return f;
@@ -22984,7 +22984,7 @@ namespace cimg_library_suffixed {
           {
             std::fprintf(cimg::output(),
                          "\n[" cimg_appname "_math_parser] %p[thread #%u]:%*c"
-                         "Opcode %p = [ %p,%s ] -> mem[%u] = %g",
+                         "Opcode %p = [ %p,%s ] -> mem[%u] = %.17g",
                          (void*)&mp,n_thread,mp.debug_indent,' ',
                          (void*)mp.opcode._data,(void*)*mp.opcode,_op.value_string().data(),
                          (unsigned int)target,mp.mem[target]);
@@ -22996,7 +22996,7 @@ namespace cimg_library_suffixed {
           mp.debug_indent-=3;
           std::fprintf(cimg::output(),
             "\n[" cimg_appname "_math_parser] %p[thread #%u]:%*c"
-            "End debugging expression '%s' -> mem[%u] = %g (memsize: %u)",
+            "End debugging expression '%s' -> mem[%u] = %.17g (memsize: %u)",
             (void*)&mp,n_thread,mp.debug_indent,' ',
             expr._data,(unsigned int)g_target,mp.mem[g_target],mp.mem._width);
           std::fflush(cimg::output());

@@ -25123,9 +25123,9 @@ namespace cimg_library_suffixed {
             cimg::strellipsize(_expr);
             cimg::mutex(6);
             if (print_char)
-              std::fprintf(cimg::output(),"\n[" cimg_appname "_math_parser] %s = %g = '%c'",_expr._data,val,(int)val);
+              std::fprintf(cimg::output(),"\n[" cimg_appname "_math_parser] %s = %.17g = '%c'",_expr._data,val,(int)val);
             else
-              std::fprintf(cimg::output(),"\n[" cimg_appname "_math_parser] %s = %g",_expr._data,val);
+              std::fprintf(cimg::output(),"\n[" cimg_appname "_math_parser] %s = %.17g",_expr._data,val);
             std::fflush(cimg::output());
             cimg::mutex(6,0);
           }
@@ -25925,7 +25925,7 @@ namespace cimg_library_suffixed {
               std::fprintf(cimg::output(),"...,");
               ptr = (unsigned int)mp.opcode[1] + 1 + siz0 - 64;
               siz = 64;
-            } else std::fprintf(cimg::output(),"%g%s",mp.mem[ptr++],siz?",":"");
+            } else std::fprintf(cimg::output(),"%.17g%s",mp.mem[ptr++],siz?",":"");
             ++count;
           }
           if (print_string) {

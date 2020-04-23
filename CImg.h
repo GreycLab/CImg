@@ -61564,7 +61564,7 @@ namespace cimg_library_suffixed {
                                       "save_video(): Frame [0] is an empty image.",
                                       cimglist_instance);
         const char
-          *const _codec = codec && *codec?codec:cimg_OS==2?"mpeg":"mp4v",
+          *const _codec = codec && *codec?codec:cimg_OS==2?"mpeg":"fmp4",
           codec0 = cimg::uppercase(_codec[0]),
           codec1 = _codec[0]?cimg::uppercase(_codec[1]):0,
           codec2 = _codec[1]?cimg::uppercase(_codec[2]):0,

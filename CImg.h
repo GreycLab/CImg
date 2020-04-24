@@ -28115,7 +28115,7 @@ namespace cimg_library_suffixed {
           CImg<Tfloat> A(*this,false), indx;
           bool d;
           A._LU(indx,d);
-          cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height>=64))
+          cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height>=16*16))
           cimg_forX(*this,j) {
             CImg<Tfloat> col(1,_width,1,1,0);
             col(j) = 1;
@@ -28236,13 +28236,12 @@ namespace cimg_library_suffixed {
         CImg<Ttfloat> indx;
         bool d;
         lu._LU(indx,d);
-        if (_width*_height>=64) {
+        if (_width*_height>=16) {
           CImg<T> res(_width,A._width);
           cimg_pragma_openmp(parallel for)
             cimg_forX(*this,i) res.draw_image(i,get_column(i)._solve(lu,indx));
           res.move_to(*this);
-        }
-        else _solve(lu,indx);
+        } else _solve(lu,indx);
 #endif
       } else { // Least-square solution for non-square systems
 

@@ -27463,29 +27463,37 @@ namespace cimg_library_suffixed {
       return _eval(0,expression,x,y,z,c,list_inputs,list_outputs);
     }
 
+
+    // Pre-functions to evaluate simple expressions (return 'true' i case of success).
+    template<typename t>
+    bool __eval(const char *const expression, t &res) const {
+      const char c = *expression;
+      bool is_success = false;
+      double val = 0;
+      char sep = 0;
+      if (c>='0' && c<='9') {
+        if (!expression[1]) { res = (t)(c - '0'); is_success = true; } // Single integer value in [0,9]
+        if (std::sscanf(expression,"%lf%c",&val,&sep)==1) { res = (t)val; is_success = true; } // Single real value
+      } else if ((c=='+' || c=='-' || c=='!') && // +Value, -Value or !Value
+                 std::sscanf(expression + 1,"%lf%c",&val,&sep)==1) {
+        res = (t)(c=='+'?val:c=='-'?-val:(double)!val);
+        is_success = true;
+      } else if (!expression[1]) switch (*expression) { // Other common single-char expressions
+        case 'w' : res = (t)_width; is_success = true; break;
+        case 'h' : res = (t)_height; is_success = true; break;
+        case 'd' : res = (t)_depth; is_success = true; break;
+        case 's' : res = (t)_spectrum; is_success = true; break;
+        case 'r' : res = (t)_is_shared; is_success = true; break;
+        }
+      return is_success;
+    }
+
     double _eval(CImg<T> *const img_output, const char *const expression,
                  const double x, const double y, const double z, const double c,
                  const CImgList<T> *const list_inputs, CImgList<T> *const list_outputs) const {
       if (!expression || !*expression) return 0;
-
-      // Check for simple common expressions to get faster evaluation.
-      const char _c = *expression;
-      char _sep = 0;
       double _val = 0;
-      if (_c>='0' && _c<='9') {
-        if (!expression[1]) return (double)(_c - '0');
-        if (std::sscanf(expression,"%lf%c",&_val,&_sep)==1) return _val;
-      }
-      if ((_c=='+' || _c=='-' || _c=='!') &&
-          std::sscanf(expression + 1,"%lf%c",&_val,&_sep)==1)
-        return _c=='+'?_val:_c=='-'?-_val:(double)!_val;
-      if (!expression[1]) switch (*expression) { // Single-char optimization
-        case 'w' : return (double)_width;
-        case 'h' : return (double)_height;
-        case 'd' : return (double)_depth;
-        case 's' : return (double)_spectrum;
-        case 'r' : return (double)_is_shared;
-        }
+      if (__eval(expression,_val)) return _val;
       _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' ||
                                          *expression=='*' || *expression==':'),"eval",
                            *this,img_output,list_inputs,list_outputs,false);
@@ -27527,14 +27535,9 @@ namespace cimg_library_suffixed {
     void _eval(CImg<t>& output, CImg<T> *const img_output, const char *const expression,
                const double x, const double y, const double z, const double c,
                const CImgList<T> *const list_inputs, CImgList<T> *const list_outputs) const {
-      if (!expression || !*expression) { output.assign(1); *output = 0; }
-      if (!expression[1]) switch (*expression) { // Single-char optimization
-        case 'w' : output.assign(1); *output = (t)_width; break;
-        case 'h' : output.assign(1); *output = (t)_height; break;
-        case 'd' : output.assign(1); *output = (t)_depth; break;
-        case 's' : output.assign(1); *output = (t)_spectrum; break;
-        case 'r' : output.assign(1); *output = (t)_is_shared; break;
-        }
+      if (!expression || !*expression) { output.assign(1); *output = 0; return; }
+      double _val = 0;
+      if (__eval(expression,_val)) { output.assign(1); *output = _val; return; }
       _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' ||
                                          *expression=='*' || *expression==':'),"eval",
                            *this,img_output,list_inputs,list_outputs,false);

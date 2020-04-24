@@ -27474,11 +27474,11 @@ namespace cimg_library_suffixed {
       if (c>='0' && c<='9') {
         if (!expression[1]) { res = (t)(c - '0'); is_success = true; } // Single integer value in [0,9]
         else if (std::sscanf(expression,"%lf%c",&val,&end)==1) { res = (t)val; is_success = true; } // Single real value
-        else if (std::sscanf(expression,"%lf%c%lf%c",&val,&sep,&val2,&end)==3 && // Value comparison with < or >
+        else if (std::sscanf(expression,"%lf%c%lf%c",&val,&sep,&val2,&end)==3 && // Value comparison: < or >
                  (sep=='<' || sep=='>')) {
           res = (t)(sep=='<'?(val<val2):(val>val2));
           is_success = true;
-        } else if (std::sscanf(expression,"%lf%c=%lf%c",&val,&sep,&val2,&end)==3 && // Value comparison with ==, <= or >=
+        } else if (std::sscanf(expression,"%lf%c=%lf%c",&val,&sep,&val2,&end)==3 && // Value comparison: ==, <= or >=
                    (sep=='<' || sep=='>' || sep=='=')) {
           res = (t)(sep=='<'?(val<=val2):sep=='>'?(val>=val2):(val==val2));
           is_success = true;

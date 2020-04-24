@@ -27467,6 +27467,18 @@ namespace cimg_library_suffixed {
                  const double x, const double y, const double z, const double c,
                  const CImgList<T> *const list_inputs, CImgList<T> *const list_outputs) const {
       if (!expression || !*expression) return 0;
+
+      // Check for simple common expressions to get faster evaluation.
+      const char _c = *expression;
+      char _sep = 0;
+      double _val = 0;
+      if (_c>='0' && _c<='9') {
+        if (!expression[1]) return (double)(_c - '0');
+        if (std::sscanf(expression,"%lf%c",&_val,&_sep)==1) return _val;
+      }
+      if ((_c=='+' || _c=='-' || _c=='!') &&
+          std::sscanf(expression + 1,"%lf%c",&_val,&_sep)==1)
+        return _c=='+'?_val:_c=='-'?-_val:(double)!_val;
       if (!expression[1]) switch (*expression) { // Single-char optimization
         case 'w' : return (double)_width;
         case 'h' : return (double)_height;

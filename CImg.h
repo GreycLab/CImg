@@ -5855,13 +5855,13 @@ namespace cimg_library_suffixed {
       unsigned int u;
       // use memcpy instead of assignment to avoid undesired optimizations by C++-compiler.
       std::memcpy(&u,&f,sizeof(float));
-      return ((u)<<1)>>1; // set sign bit to 0
+      return ((u)<<2)>>2; // set sign & exponent bit to 0
     }
 
     inline float uint2float(const unsigned int u) {
       if (u<(1U<<19)) return (float)u;  // Consider safe storage of unsigned int as floats until 19bits (i.e 524287)
       float f;
-      const unsigned int v = u|(1U<<(8*sizeof(unsigned int)-1)); // set sign bit to 1
+      const unsigned int v = u|(3U<<(8*sizeof(unsigned int)-2)); // set sign & exponent bit to 1
       // use memcpy instead of simple assignment to avoid undesired optimizations by C++-compiler.
       std::memcpy(&f,&v,sizeof(float));
       return f;
@@ -22984,7 +22984,7 @@ namespace cimg_library_suffixed {
           {
             std::fprintf(cimg::output(),
                          "\n[" cimg_appname "_math_parser] %p[thread #%u]:%*c"
-                         "Opcode %p = [ %p,%s ] -> mem[%u] = %g",
+                         "Opcode %p = [ %p,%s ] -> mem[%u] = %.17g",
                          (void*)&mp,n_thread,mp.debug_indent,' ',
                          (void*)mp.opcode._data,(void*)*mp.opcode,_op.value_string().data(),
                          (unsigned int)target,mp.mem[target]);
@@ -22996,7 +22996,7 @@ namespace cimg_library_suffixed {
           mp.debug_indent-=3;
           std::fprintf(cimg::output(),
             "\n[" cimg_appname "_math_parser] %p[thread #%u]:%*c"
-            "End debugging expression '%s' -> mem[%u] = %g (memsize: %u)",
+            "End debugging expression '%s' -> mem[%u] = %.17g (memsize: %u)",
             (void*)&mp,n_thread,mp.debug_indent,' ',
             expr._data,(unsigned int)g_target,mp.mem[g_target],mp.mem._width);
           std::fflush(cimg::output());
@@ -25123,9 +25123,11 @@ namespace cimg_library_suffixed {
             cimg::strellipsize(_expr);
             cimg::mutex(6);
             if (print_char)
-              std::fprintf(cimg::output(),"\n[" cimg_appname "_math_parser] %s = %g = '%c'",_expr._data,val,(int)val);
+              std::fprintf(cimg::output(),"\n[" cimg_appname "_math_parser] %s = %.17g = '%c'",
+                           _expr._data,val,(int)val);
             else
-              std::fprintf(cimg::output(),"\n[" cimg_appname "_math_parser] %s = %g",_expr._data,val);
+              std::fprintf(cimg::output(),"\n[" cimg_appname "_math_parser] %s = %.17g",
+                           _expr._data,val);
             std::fflush(cimg::output());
             cimg::mutex(6,0);
           }
@@ -25925,7 +25927,7 @@ namespace cimg_library_suffixed {
               std::fprintf(cimg::output(),"...,");
               ptr = (unsigned int)mp.opcode[1] + 1 + siz0 - 64;
               siz = 64;
-            } else std::fprintf(cimg::output(),"%g%s",mp.mem[ptr++],siz?",":"");
+            } else std::fprintf(cimg::output(),"%.17g%s",mp.mem[ptr++],siz?",":"");
             ++count;
           }
           if (print_string) {
@@ -27461,17 +27463,46 @@ namespace cimg_library_suffixed {
       return _eval(0,expression,x,y,z,c,list_inputs,list_outputs);
     }
 
+
+    // Fast function to evaluate simple common expressions (return 'true' in case of success).
+    template<typename t>
+    bool __eval(const char *const expression, t &res) const {
+      const char c = *expression;
+      bool is_success = false;
+      double val, val2;
+      char end, sep;
+      if (c>='0' && c<='9') {
+        if (!expression[1]) { res = (t)(c - '0'); is_success = true; } // Single integer value in [0,9]
+        else if (std::sscanf(expression,"%lf%c",&val,&end)==1) { res = (t)val; is_success = true; } // Single real value
+        else if (std::sscanf(expression,"%lf%c%lf%c",&val,&sep,&val2,&end)==3 && // Value comparison with < or >
+                 (sep=='<' || sep=='>')) {
+          res = (t)(sep=='<'?(val<val2):(val>val2));
+          is_success = true;
+        } else if (std::sscanf(expression,"%lf%c=%lf%c",&val,&sep,&val2,&end)==3 && // Value comparison with ==, <= or >=
+                   (sep=='<' || sep=='>' || sep=='=')) {
+          res = (t)(sep=='<'?(val<=val2):sep=='>'?(val>=val2):(val==val2));
+          is_success = true;
+        }
+      } else if ((c=='+' || c=='-' || c=='!') && // +Value, -Value or !Value
+                 std::sscanf(expression + 1,"%lf%c",&val,&end)==1) {
+        res = (t)(c=='+'?val:c=='-'?-val:(double)!val);
+        is_success = true;
+      } else if (!expression[1]) switch (*expression) { // Other common single-char expressions
+        case 'w' : res = (t)_width; is_success = true; break;
+        case 'h' : res = (t)_height; is_success = true; break;
+        case 'd' : res = (t)_depth; is_success = true; break;
+        case 's' : res = (t)_spectrum; is_success = true; break;
+        case 'r' : res = (t)_is_shared; is_success = true; break;
+        }
+      return is_success;
+    }
+
     double _eval(CImg<T> *const img_output, const char *const expression,
                  const double x, const double y, const double z, const double c,
                  const CImgList<T> *const list_inputs, CImgList<T> *const list_outputs) const {
       if (!expression || !*expression) return 0;
-      if (!expression[1]) switch (*expression) { // Single-char optimization
-        case 'w' : return (double)_width;
-        case 'h' : return (double)_height;
-        case 'd' : return (double)_depth;
-        case 's' : return (double)_spectrum;
-        case 'r' : return (double)_is_shared;
-        }
+      double _val = 0;
+      if (__eval(expression,_val)) return _val;
       _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' ||
                                          *expression=='*' || *expression==':'),"eval",
                            *this,img_output,list_inputs,list_outputs,false);
@@ -27513,14 +27544,9 @@ namespace cimg_library_suffixed {
     void _eval(CImg<t>& output, CImg<T> *const img_output, const char *const expression,
                const double x, const double y, const double z, const double c,
                const CImgList<T> *const list_inputs, CImgList<T> *const list_outputs) const {
-      if (!expression || !*expression) { output.assign(1); *output = 0; }
-      if (!expression[1]) switch (*expression) { // Single-char optimization
-        case 'w' : output.assign(1); *output = (t)_width; break;
-        case 'h' : output.assign(1); *output = (t)_height; break;
-        case 'd' : output.assign(1); *output = (t)_depth; break;
-        case 's' : output.assign(1); *output = (t)_spectrum; break;
-        case 'r' : output.assign(1); *output = (t)_is_shared; break;
-        }
+      if (!expression || !*expression) { output.assign(1); *output = 0; return; }
+      double _val = 0;
+      if (__eval(expression,_val)) { output.assign(1); *output = _val; return; }
       _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' ||
                                          *expression=='*' || *expression==':'),"eval",
                            *this,img_output,list_inputs,list_outputs,false);
@@ -54257,7 +54283,7 @@ namespace cimg_library_suffixed {
         }
 
         // Handle user interaction
-        disp.wait();
+        if (!redraw) disp.wait();
         if ((disp.button() || disp.wheel()) && disp.mouse_x()>=0 && disp.mouse_y()>=0) {
           redraw = true;
           if (!clicked) { x0 = x1 = disp.mouse_x(); y0 = y1 = disp.mouse_y(); if (!disp.wheel()) clicked = true; }
@@ -61564,7 +61590,7 @@ namespace cimg_library_suffixed {
                                       "save_video(): Frame [0] is an empty image.",
                                       cimglist_instance);
         const char
-          *const _codec = codec && *codec?codec:cimg_OS==2?"mpeg":"mp4v",
+          *const _codec = codec && *codec?codec:cimg_OS==2?"mpeg":"fmp4",
           codec0 = cimg::uppercase(_codec[0]),
           codec1 = _codec[0]?cimg::uppercase(_codec[1]):0,
           codec2 = _codec[1]?cimg::uppercase(_codec[2]):0,

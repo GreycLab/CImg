@@ -28112,11 +28112,12 @@ namespace cimg_library_suffixed {
         delete[] IPIV; delete[] lapA; delete[] WORK;
 #else
         if (use_LU) { // LU-based inverse computation
-          CImg<Tfloat> A(*this,false), indx, col(1,_width);
+          CImg<Tfloat> A(*this,false), indx;
           bool d;
           A._LU(indx,d);
+          cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height>=64))
           cimg_forX(*this,j) {
-            col.fill(0);
+            CImg<Tfloat> col(1,_width,1,1,0);
             col(j) = 1;
             col._solve(A,indx);
             cimg_forX(*this,i) (*this)(j,i) = (T)col(i);

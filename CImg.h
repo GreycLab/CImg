@@ -27469,24 +27469,26 @@ namespace cimg_library_suffixed {
     bool __eval(const char *const expression, t &res) const {
       const char c = *expression;
       bool is_success = false;
-      double val, val2;
-      char end, sep;
-      if (c>='0' && c<='9') {
-        if (!expression[1]) { res = (t)(c - '0'); is_success = true; } // Single integer value in [0,9]
-        else if (std::sscanf(expression,"%lf%c",&val,&end)==1) { res = (t)val; is_success = true; } // Single real value
-        else if (std::sscanf(expression,"%lf%c%lf%c",&val,&sep,&val2,&end)==3 && // Value comparison: < or >
-                 (sep=='<' || sep=='>')) {
-          res = (t)(sep=='<'?(val<val2):(val>val2));
+      char c1, end;
+      double val;
+      if (c>='0' && c<='9') { // Possible value
+        if (!expression[1]) { // Single digit
+          res = (t)(c - '0');
           is_success = true;
-        } else if (std::sscanf(expression,"%lf%c=%lf%c",&val,&sep,&val2,&end)==3 && // Value comparison: ==, <= or >=
-                   (sep=='<' || sep=='>' || sep=='=')) {
-          res = (t)(sep=='<'?(val<=val2):sep=='>'?(val>=val2):(val==val2));
+        } else if (std::sscanf(expression,"%lf%c",&val,&end)==1) { // Single value
+          res = (t)val;
           is_success = true;
         }
       } else if ((c=='+' || c=='-' || c=='!') && // +Value, -Value or !Value
-                 std::sscanf(expression + 1,"%lf%c",&val,&end)==1) {
-        res = (t)(c=='+'?val:c=='-'?-val:(double)!val);
-        is_success = true;
+                 (c1=expression[1])>='0' && c1<='0') {
+        if (!expression[2]) { // [+-!] + Single digit
+          const int ival = c1 - '0';
+          res = (t)(c=='+'?ival:c=='-'?-ival:!ival);
+          is_success = true;
+        } else if (std::sscanf(expression + 1,"%lf%c",&val,&end)==1) { // [+-!] Single value
+          res = (t)(c=='+'?val:c=='-'?-val:(double)!val);
+          is_success = true;
+        }
       } else if (!expression[1]) switch (*expression) { // Other common single-char expressions
         case 'w' : res = (t)_width; is_success = true; break;
         case 'h' : res = (t)_height; is_success = true; break;

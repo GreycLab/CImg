@@ -16951,6 +16951,7 @@ namespace cimg_library_suffixed {
                                       ss_op + std::strlen(ss_op)<&expr.back()?"...":"");
         }
 
+        static const size_t siz_ref = 7*sizeof(unsigned int);
         const char *const previous_s_op = s_op, *const previous_ss_op = ss_op;
         const unsigned int depth1 = depth + 1;
         unsigned int pos, p1, p2, p3, arg1, arg2, arg3, arg4, arg5, arg6;
@@ -17335,8 +17336,7 @@ namespace cimg_library_suffixed {
                     if (_cimg_mp_is_comp(arg3)) memtype[arg3] = -2; // Prevent from being used in further optimization
                     if (_cimg_mp_is_comp(arg2)) memtype[arg2] = -2;
                   }
-                  CImg<ulongT>::vector((ulongT)mp_vector_set_off,arg3,arg1,(ulongT)_cimg_mp_size(arg1),
-                                       arg2,arg3).
+                  CImg<ulongT>::vector((ulongT)mp_vector_set_off,arg3,arg1,(ulongT)_cimg_mp_size(arg1),arg2).
                     move_to(code);
                   _cimg_mp_return(arg3);
                 }
@@ -17523,8 +17523,8 @@ namespace cimg_library_suffixed {
                 _cimg_mp_check_type(arg2,2,1,0);
                 arg3 = ref[1]; // Vector slot
                 arg4 = ref[2]; // Index
-                if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
-                CImg<ulongT>::vector((ulongT)mp_vector_set_off,arg2,arg3,(ulongT)_cimg_mp_size(arg3),arg4,arg2).
+                if (p_ref) std::memcpy(p_ref,ref,siz_ref);
+                CImg<ulongT>::vector((ulongT)mp_vector_set_off,arg2,arg3,(ulongT)_cimg_mp_size(arg3),arg4).
                   move_to(code);
                 _cimg_mp_return(arg2);
               }
@@ -17535,7 +17535,7 @@ namespace cimg_library_suffixed {
                 p1 = ref[1]; // Index
                 is_relative = (bool)ref[2];
                 arg3 = ref[3]; // Offset
-                if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
+                if (p_ref) std::memcpy(p_ref,ref,siz_ref);
                 if (p1!=~0U) {
                   if (!listout) _cimg_mp_return(arg2);
                   CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_joff:mp_list_set_ioff),
@@ -17557,7 +17557,7 @@ namespace cimg_library_suffixed {
                 arg4 = ref[4]; // Y
                 arg5 = ref[5]; // Z
                 arg6 = ref[6]; // C
-                if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
+                if (p_ref) std::memcpy(p_ref,ref,siz_ref);
                 if (p1!=~0U) {
                   if (!listout) _cimg_mp_return(arg2);
                   CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_jxyzc:mp_list_set_ixyzc),
@@ -17576,7 +17576,7 @@ namespace cimg_library_suffixed {
                 p1 = ref[1]; // Index
                 is_relative = (bool)ref[2];
                 arg3 = ref[3]; // Offset
-                if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
+                if (p_ref) std::memcpy(p_ref,ref,siz_ref);
                 if (p1!=~0U) {
                   if (!listout) _cimg_mp_return(arg2);
                   if (_cimg_mp_is_scalar(arg2))
@@ -17608,7 +17608,7 @@ namespace cimg_library_suffixed {
                 arg3 = ref[3]; // X
                 arg4 = ref[4]; // Y
                 arg5 = ref[5]; // Z
-                if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
+                if (p_ref) std::memcpy(p_ref,ref,siz_ref);
                 if (p1!=~0U) {
                   if (!listout) _cimg_mp_return(arg2);
                   if (_cimg_mp_is_scalar(arg2))
@@ -17700,7 +17700,7 @@ namespace cimg_library_suffixed {
               p1 = ref[1]; // Index
               is_relative = (bool)ref[2];
               arg3 = ref[3]; // Offset
-              if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
+              if (p_ref) std::memcpy(p_ref,ref,siz_ref);
               if (p1!=~0U) {
                 if (!listout) _cimg_mp_return(arg1);
                 _cimg_mp_check_constant_index(p1);
@@ -17719,7 +17719,7 @@ namespace cimg_library_suffixed {
               arg3 = ref[3]; // X
               arg4 = ref[4]; // Y
               arg5 = ref[5]; // Z
-              if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
+              if (p_ref) std::memcpy(p_ref,ref,siz_ref);
               if (p1!=~0U) {
                 if (!listout) _cimg_mp_return(arg1);
                 _cimg_mp_check_constant_index(p1);
@@ -17772,9 +17772,9 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_type(arg2,2,1,0);
               arg3 = ref[1]; // Vector slot
               arg4 = ref[2]; // Index
-              if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
+              if (p_ref) std::memcpy(p_ref,ref,siz_ref);
               CImg<ulongT>::vector((ulongT)op,arg1,arg2).move_to(code);
-              CImg<ulongT>::vector((ulongT)mp_vector_set_off,arg1,arg3,(ulongT)_cimg_mp_size(arg3),arg4,arg1).
+              CImg<ulongT>::vector((ulongT)mp_vector_set_off,arg1,arg3,(ulongT)_cimg_mp_size(arg3),arg4).
                 move_to(code);
               _cimg_mp_return(arg1);
             }
@@ -17785,7 +17785,7 @@ namespace cimg_library_suffixed {
               p1 = ref[1]; // Index
               is_relative = (bool)ref[2];
               arg3 = ref[3]; // Offset
-              if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
+              if (p_ref) std::memcpy(p_ref,ref,siz_ref);
               CImg<ulongT>::vector((ulongT)op,arg1,arg2).move_to(code);
               if (p1!=~0U) {
                 if (!listout) _cimg_mp_return(arg1);
@@ -17808,7 +17808,7 @@ namespace cimg_library_suffixed {
               arg4 = ref[4]; // Y
               arg5 = ref[5]; // Z
               arg6 = ref[6]; // C
-              if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
+              if (p_ref) std::memcpy(p_ref,ref,siz_ref);
               CImg<ulongT>::vector((ulongT)op,arg1,arg2).move_to(code);
               if (p1!=~0U) {
                 if (!listout) _cimg_mp_return(arg1);
@@ -17828,7 +17828,7 @@ namespace cimg_library_suffixed {
               p1 = ref[1]; // Index
               is_relative = (bool)ref[2];
               arg3 = ref[3]; // Offset
-              if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
+              if (p_ref) std::memcpy(p_ref,ref,siz_ref);
               if (_cimg_mp_is_scalar(arg2)) self_vector_s(arg1,op,arg2); else self_vector_v(arg1,op,arg2);
               if (p1!=~0U) {
                 if (!listout) _cimg_mp_return(arg1);
@@ -17850,7 +17850,7 @@ namespace cimg_library_suffixed {
               arg3 = ref[3]; // X
               arg4 = ref[4]; // Y
               arg5 = ref[5]; // Z
-              if (p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
+              if (p_ref) std::memcpy(p_ref,ref,siz_ref);
               if (_cimg_mp_is_scalar(arg2)) self_vector_s(arg1,op,arg2); else self_vector_v(arg1,op,arg2);
               if (p1!=~0U) {
                 if (!listout) _cimg_mp_return(arg1);
@@ -18421,7 +18421,7 @@ namespace cimg_library_suffixed {
             arg4 = ref[2]; // Index
             if (is_sth && p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
             CImg<ulongT>::vector((ulongT)op,arg1,1).move_to(code);
-            CImg<ulongT>::vector((ulongT)mp_vector_set_off,arg1,arg3,(ulongT)_cimg_mp_size(arg3),arg4,arg1).
+            CImg<ulongT>::vector((ulongT)mp_vector_set_off,arg1,arg3,(ulongT)_cimg_mp_size(arg3),arg4).
               move_to(code);
             _cimg_mp_return(pos);
           }
@@ -21104,6 +21104,102 @@ namespace cimg_library_suffixed {
                                             s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
               }
               CImg<ulongT>::vector((ulongT)mp_swap,arg1,arg2,p1).move_to(code);
+
+              // Write back value of linked arg1.
+              if (*ref==1) { // arg1: V[k]
+                arg3 = ref[1]; // Vector slot
+                arg4 = ref[2]; // Index
+                if (p_ref) std::memcpy(p_ref,ref,siz_ref);
+                CImg<ulongT>::vector((ulongT)mp_vector_set_off,arg1,arg3,(ulongT)_cimg_mp_size(arg3),arg4).
+                  move_to(code);
+              } else if (*ref==2) { // arg1: i/j[_#ind,off]
+                if (!is_single) is_parallelizable = false;
+                p1 = ref[1]; // Index
+                is_relative = (bool)ref[2];
+                arg3 = ref[3]; // Offset
+                if (p_ref) std::memcpy(p_ref,ref,siz_ref);
+                if (p1!=~0U) {
+                  if (!listout) _cimg_mp_return(arg1);
+                  CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_joff:mp_list_set_ioff),
+                                       arg1,p1,arg3).move_to(code);
+                } else {
+                  if (!imgout) _cimg_mp_return(arg1);
+                  CImg<ulongT>::vector((ulongT)(is_relative?mp_set_joff:mp_set_ioff),
+                                       arg1,arg3).move_to(code);
+                }
+              } else if (*ref==3) { // arg1: i/j(_#ind,_x,_y,_z,_c)
+                if (!is_single) is_parallelizable = false;
+                p1 = ref[1]; // Index
+                is_relative = (bool)ref[2];
+                arg3 = ref[3]; // X
+                arg4 = ref[4]; // Y
+                arg5 = ref[5]; // Z
+                arg6 = ref[6]; // C
+                if (p_ref) std::memcpy(p_ref,ref,siz_ref);
+                if (p1!=~0U) {
+                  if (!listout) _cimg_mp_return(arg1);
+                  CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_jxyzc:mp_list_set_ixyzc),
+                                      arg1,p1,arg3,arg4,arg5,arg6).move_to(code);
+                } else {
+                  if (!imgout) _cimg_mp_return(arg1);
+                  CImg<ulongT>::vector((ulongT)(is_relative?mp_set_jxyzc:mp_set_ixyzc),
+                                      arg1,arg3,arg4,arg5,arg6).move_to(code);
+                }
+              } else if (*ref==4) { // arg1: I/J[_#ind,off]
+                if (!is_single) is_parallelizable = false;
+                p1 = ref[1]; // Index
+                is_relative = (bool)ref[2];
+                arg3 = ref[3]; // Offset
+                if (p_ref) std::memcpy(p_ref,ref,siz_ref);
+                if (p1!=~0U) {
+                  if (!listout) _cimg_mp_return(arg1);
+                  if (_cimg_mp_is_scalar(arg1))
+                    CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Joff_s:mp_list_set_Ioff_s),
+                                         arg1,p1,arg3).move_to(code);
+                  else {
+                    _cimg_mp_check_constant_index(p1);
+                    CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Joff_v:mp_list_set_Ioff_v),
+                                         arg1,p1,arg3,_cimg_mp_size(arg1)).move_to(code);
+                  }
+                } else {
+                  if (!imgout) _cimg_mp_return(arg1);
+                  if (_cimg_mp_is_scalar(arg1))
+                    CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Joff_s:mp_set_Ioff_s),
+                                         arg1,arg3).move_to(code);
+                  else
+                    CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Joff_v:mp_set_Ioff_v),
+                                         arg1,arg3,_cimg_mp_size(arg1)).move_to(code);
+                }
+              } else if (*ref==5) { // arg1: I/J(_#ind,_x,_y,_z,_c)
+                if (!is_single) is_parallelizable = false;
+                p1 = ref[1]; // Index
+                is_relative = (bool)ref[2];
+                arg3 = ref[3]; // X
+                arg4 = ref[4]; // Y
+                arg5 = ref[5]; // Z
+                if (p_ref) std::memcpy(p_ref,ref,siz_ref);
+                if (p1!=~0U) {
+                  if (!listout) _cimg_mp_return(arg1);
+                  if (_cimg_mp_is_scalar(arg1))
+                    CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Jxyz_s:mp_list_set_Ixyz_s),
+                                        arg1,p1,arg3,arg4,arg5).move_to(code);
+                  else {
+                    _cimg_mp_check_constant_index(p1);
+                    CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Jxyz_v:mp_list_set_Ixyz_v),
+                                         arg1,p1,arg3,arg4,arg5,_cimg_mp_size(arg1)).move_to(code);
+                  }
+
+                } else {
+                  if (!imgout) _cimg_mp_return(arg1);
+                  if (_cimg_mp_is_scalar(arg1))
+                    CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Jxyz_s:mp_set_Ixyz_s),
+                                        arg1,arg3,arg4,arg5).move_to(code);
+                  else
+                    CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Jxyz_v:mp_set_Ixyz_v),
+                                        arg1,arg3,arg4,arg5,_cimg_mp_size(arg1)).move_to(code);
+                }
+              }
+
               _cimg_mp_return(arg1);
             }
             break;
@@ -26009,8 +26105,8 @@ namespace cimg_library_suffixed {
           ptr = (unsigned int)mp.opcode[2] + 1,
           siz = (unsigned int)mp.opcode[3];
         const int off = (int)_mp_arg(4);
-        if (off>=0 && off<(int)siz) mp.mem[ptr + off] = _mp_arg(5);
-        return _mp_arg(5);
+        if (off>=0 && off<(int)siz) mp.mem[ptr + off] = _mp_arg(1);
+        return _mp_arg(1);
       }
 
       static double mp_vtos(_cimg_math_parser& mp) {

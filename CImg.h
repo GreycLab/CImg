@@ -18534,6 +18534,21 @@ namespace cimg_library_suffixed {
                                       s0!=expr._data?"...":"",s0,se<&expr.back()?"...":"");
         }
 
+        // Address operator '&'.
+        if (*ss=='&') {
+          _cimg_mp_op("Address operator '&'");
+          arg1 = compile(ss + 1,se,depth1,0,is_single);
+          _cimg_mp_constant(arg1);
+        }
+
+        // Dereference operator '*'.
+/*        if (*ss=='*') {
+          _cimg_mp_op("Dereference operator '*'");
+          arg1 = compile(ss + 1,se,depth1,0,is_single);
+          _cimg_mp_return(5);
+        }
+*/
+
         // Array-like access to vectors and image values 'i/j/I/J[_#ind,offset,_boundary]' and 'vector[offset]'.
         if (*se1==']') {
           _cimg_mp_op("Value accessor '[]'");
@@ -20524,7 +20539,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_op("Function 'ref()'");
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               if (s1>=se1 || !*s1) compile(s1,s1,depth1,0,is_single); // Will throw missing argument error
-              arg3 = compile(ss4,s1++,depth1,0,is_single);
+              arg3 = compile(ss4,s1++,depth1,p_ref,is_single);
               *se1 = 0;
               is_sth = true;
               if (*s1>='0' && *s1<='9') is_sth = false;
@@ -21086,14 +21101,13 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"swap(",5)) { // Swap values
               _cimg_mp_op("Function 'swap()'");
-              if (!is_swap) {
-                // Small hack : insert macro 'swap()'
+              if (!is_swap) { // Small hack : insert macro 'swap()'
                 CImg<char>("swap\0\2",6,1,1,1,true).move_to(macro_def);
-                CImg<char>::string("tmp=\1;\1=\2;\2=tmp").move_to(macro_body);
+                CImg<char>::string("unref(__mp_swap__);__mp_swap__=\1;\1=\2;\2=__mp_swap__").move_to(macro_body);
                 CImg<bool>(macro_body.back().width(),1,1,1,false).move_to(macro_body_is_string);
                 is_swap = true;
               }
-              // Do not return to allow further macro evaluation.
+              // Do not return to allow macro evaluation afterwards.
             }
             break;
 

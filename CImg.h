@@ -21084,6 +21084,18 @@ namespace cimg_library_suffixed {
               CImg<ulongT>::vector((ulongT)mp_matrix_svd,pos,arg1,p2,p3).move_to(code);
               _cimg_mp_return(pos);
             }
+
+            if (!std::strncmp(ss,"swap(",5)) { // Swap values
+              _cimg_mp_op("Function 'swap()'");
+              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss5,s1,depth1,0,is_single);
+              arg2 = compile(++s1,se1,depth1,0,is_single);
+              p1 = _cimg_mp_size(arg1);
+              p2 = _cimg_mp_size(arg2);
+              _cimg_mp_check_type(arg2,2,p1>0?2:1,p1);
+              CImg<ulongT>::vector((ulongT)mp_swap,arg1,arg2,p1,p2).move_to(code);
+              _cimg_mp_return(arg1);
+            }
             break;
 
           case 't' :
@@ -25664,6 +25676,18 @@ namespace cimg_library_suffixed {
         double val = _mp_arg(3);
         for (unsigned int i = 4; i<i_end; ++i) val+=_mp_arg(i);
         return val;
+      }
+
+      static double mp_swap(_cimg_math_parser& mp) {
+        const unsigned int siz = (unsigned int)mp.opcode[3];
+        if (!siz) { // Scalar
+          double &arg1 = _mp_arg(1), &arg2 = _mp_arg(2);
+          cimg::swap(arg1,arg2);
+        } else { // Vector
+          double *ptr1 = &_mp_arg(1) + 1, *ptr2 = &_mp_arg(2) + 1;
+          for (unsigned int k = 0; k<siz; ++k) cimg::swap(ptr1[k],ptr2[k]);
+        }
+        return _mp_arg(1);
       }
 
       static double mp_tan(_cimg_math_parser& mp) {

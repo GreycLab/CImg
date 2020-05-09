@@ -21119,13 +21119,13 @@ namespace cimg_library_suffixed {
                 arg3 = ref[3]; // Offset
                 if (p_ref) std::memcpy(p_ref,ref,siz_ref);
                 if (p1!=~0U) {
-                  if (!listout) _cimg_mp_return(arg1);
-                  CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_joff:mp_list_set_ioff),
-                                       arg1,p1,arg3).move_to(code);
+                  if (listout)
+                    CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_joff:mp_list_set_ioff),
+                                         arg1,p1,arg3).move_to(code);
                 } else {
-                  if (!imgout) _cimg_mp_return(arg1);
-                  CImg<ulongT>::vector((ulongT)(is_relative?mp_set_joff:mp_set_ioff),
-                                       arg1,arg3).move_to(code);
+                  if (imgout)
+                    CImg<ulongT>::vector((ulongT)(is_relative?mp_set_joff:mp_set_ioff),
+                                         arg1,arg3).move_to(code);
                 }
               } else if (*ref==3) { // arg1: i/j(_#ind,_x,_y,_z,_c)
                 if (!is_single) is_parallelizable = false;
@@ -21137,13 +21137,13 @@ namespace cimg_library_suffixed {
                 arg6 = ref[6]; // C
                 if (p_ref) std::memcpy(p_ref,ref,siz_ref);
                 if (p1!=~0U) {
-                  if (!listout) _cimg_mp_return(arg1);
-                  CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_jxyzc:mp_list_set_ixyzc),
-                                      arg1,p1,arg3,arg4,arg5,arg6).move_to(code);
+                  if (listout)
+                    CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_jxyzc:mp_list_set_ixyzc),
+                                         arg1,p1,arg3,arg4,arg5,arg6).move_to(code);
                 } else {
-                  if (!imgout) _cimg_mp_return(arg1);
-                  CImg<ulongT>::vector((ulongT)(is_relative?mp_set_jxyzc:mp_set_ixyzc),
-                                      arg1,arg3,arg4,arg5,arg6).move_to(code);
+                  if (imgout)
+                    CImg<ulongT>::vector((ulongT)(is_relative?mp_set_jxyzc:mp_set_ixyzc),
+                                         arg1,arg3,arg4,arg5,arg6).move_to(code);
                 }
               } else if (*ref==4) { // arg1: I/J[_#ind,off]
                 if (!is_single) is_parallelizable = false;
@@ -21152,23 +21152,25 @@ namespace cimg_library_suffixed {
                 arg3 = ref[3]; // Offset
                 if (p_ref) std::memcpy(p_ref,ref,siz_ref);
                 if (p1!=~0U) {
-                  if (!listout) _cimg_mp_return(arg1);
-                  if (_cimg_mp_is_scalar(arg1))
-                    CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Joff_s:mp_list_set_Ioff_s),
-                                         arg1,p1,arg3).move_to(code);
-                  else {
-                    _cimg_mp_check_constant_index(p1);
-                    CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Joff_v:mp_list_set_Ioff_v),
-                                         arg1,p1,arg3,_cimg_mp_size(arg1)).move_to(code);
+                  if (listout) {
+                    if (_cimg_mp_is_scalar(arg1))
+                      CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Joff_s:mp_list_set_Ioff_s),
+                                           arg1,p1,arg3).move_to(code);
+                    else {
+                      _cimg_mp_check_constant_index(p1);
+                      CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Joff_v:mp_list_set_Ioff_v),
+                                           arg1,p1,arg3,_cimg_mp_size(arg1)).move_to(code);
+                    }
                   }
                 } else {
-                  if (!imgout) _cimg_mp_return(arg1);
-                  if (_cimg_mp_is_scalar(arg1))
-                    CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Joff_s:mp_set_Ioff_s),
-                                         arg1,arg3).move_to(code);
-                  else
-                    CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Joff_v:mp_set_Ioff_v),
-                                         arg1,arg3,_cimg_mp_size(arg1)).move_to(code);
+                  if (imgout) {
+                    if (_cimg_mp_is_scalar(arg1))
+                      CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Joff_s:mp_set_Ioff_s),
+                                           arg1,arg3).move_to(code);
+                    else
+                      CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Joff_v:mp_set_Ioff_v),
+                                           arg1,arg3,_cimg_mp_size(arg1)).move_to(code);
+                  }
                 }
               } else if (*ref==5) { // arg1: I/J(_#ind,_x,_y,_z,_c)
                 if (!is_single) is_parallelizable = false;
@@ -21179,26 +21181,28 @@ namespace cimg_library_suffixed {
                 arg5 = ref[5]; // Z
                 if (p_ref) std::memcpy(p_ref,ref,siz_ref);
                 if (p1!=~0U) {
-                  if (!listout) _cimg_mp_return(arg1);
-                  if (_cimg_mp_is_scalar(arg1))
-                    CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Jxyz_s:mp_list_set_Ixyz_s),
-                                        arg1,p1,arg3,arg4,arg5).move_to(code);
-                  else {
-                    _cimg_mp_check_constant_index(p1);
-                    CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Jxyz_v:mp_list_set_Ixyz_v),
-                                         arg1,p1,arg3,arg4,arg5,_cimg_mp_size(arg1)).move_to(code);
+                  if (listout) {
+                    if (_cimg_mp_is_scalar(arg1))
+                      CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Jxyz_s:mp_list_set_Ixyz_s),
+                                           arg1,p1,arg3,arg4,arg5).move_to(code);
+                    else {
+                      _cimg_mp_check_constant_index(p1);
+                      CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Jxyz_v:mp_list_set_Ixyz_v),
+                                           arg1,p1,arg3,arg4,arg5,_cimg_mp_size(arg1)).move_to(code);
+                    }
                   }
-
                 } else {
-                  if (!imgout) _cimg_mp_return(arg1);
-                  if (_cimg_mp_is_scalar(arg1))
-                    CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Jxyz_s:mp_set_Ixyz_s),
-                                        arg1,arg3,arg4,arg5).move_to(code);
-                  else
-                    CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Jxyz_v:mp_set_Ixyz_v),
-                                        arg1,arg3,arg4,arg5,_cimg_mp_size(arg1)).move_to(code);
+                  if (imgout) {
+                    if (_cimg_mp_is_scalar(arg1))
+                      CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Jxyz_s:mp_set_Ixyz_s),
+                                           arg1,arg3,arg4,arg5).move_to(code);
+                    else
+                      CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Jxyz_v:mp_set_Ixyz_v),
+                                           arg1,arg3,arg4,arg5,_cimg_mp_size(arg1)).move_to(code);
+                  }
                 }
               }
+
 
               _cimg_mp_return(arg1);
             }

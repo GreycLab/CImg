@@ -21088,9 +21088,8 @@ namespace cimg_library_suffixed {
               _cimg_mp_op("Function 'swap()'");
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               ref.assign(14);
-              unsigned int *const _ref = ref._data + 7;
               arg1 = compile(ss5,s1,depth1,ref,is_single);
-              arg2 = compile(++s1,se1,depth1,_ref,is_single);
+              arg2 = compile(++s1,se1,depth1,ref._data + 7,is_single);
               p1 = _cimg_mp_size(arg1);
               _cimg_mp_check_type(arg2,2,p1?2:1,p1);
               if (_cimg_mp_is_constant(arg1) || _cimg_mp_is_constant(arg2)) {
@@ -21106,56 +21105,55 @@ namespace cimg_library_suffixed {
               }
               CImg<ulongT>::vector((ulongT)mp_swap,arg1,arg2,p1).move_to(code);
 
-              // Write back value of linked arg1.
-              switch (*ref) {
-              case 1 : // arg1: V[k]
-                arg3 = ref[1]; // Vector slot
-                arg4 = ref[2]; // Index
-                if (p_ref) std::memcpy(p_ref,ref,siz_ref);
-                CImg<ulongT>::vector((ulongT)mp_vector_set_off,arg1,arg3,(ulongT)_cimg_mp_size(arg3),arg4).
-                  move_to(code);
-                break;
-              case 2 : // arg1: i/j[_#ind,off]
-                if (!is_single) is_parallelizable = false;
-                p1 = ref[1]; // Index
-                is_relative = (bool)ref[2];
-                arg3 = ref[3]; // Offset
-                if (p_ref) std::memcpy(p_ref,ref,siz_ref);
-                if (p1!=~0U) {
-                  if (listout)
-                    CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_joff:mp_list_set_ioff),
-                                         arg1,p1,arg3).move_to(code);
-                } else {
-                  if (imgout)
-                    CImg<ulongT>::vector((ulongT)(is_relative?mp_set_joff:mp_set_ioff),
-                                         arg1,arg3).move_to(code);
-                }
-                break;
-              case 3 : // arg1: i/j(_#ind,_x,_y,_z,_c)
-                if (!is_single) is_parallelizable = false;
-                p1 = ref[1]; // Index
-                is_relative = (bool)ref[2];
-                arg3 = ref[3]; // X
-                arg4 = ref[4]; // Y
-                arg5 = ref[5]; // Z
-                arg6 = ref[6]; // C
-                if (p_ref) std::memcpy(p_ref,ref,siz_ref);
-                if (p1!=~0U) {
-                  if (listout)
-                    CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_jxyzc:mp_list_set_ixyzc),
-                                         arg1,p1,arg3,arg4,arg5,arg6).move_to(code);
-                } else {
-                  if (imgout)
-                    CImg<ulongT>::vector((ulongT)(is_relative?mp_set_jxyzc:mp_set_ixyzc),
-                                         arg1,arg3,arg4,arg5,arg6).move_to(code);
-                }
-                break;
+              // Write back values of linked arg1 and arg2.
+              const unsigned int *_ref = ref;
+              is_sth = true; // Is first argument?
+              do {
+                switch (*_ref) {
+                case 1 : // arg1: V[k]
+                  arg3 = _ref[1]; // Vector slot
+                  arg4 = _ref[2]; // Index
+                  CImg<ulongT>::vector((ulongT)mp_vector_set_off,arg1,arg3,(ulongT)_cimg_mp_size(arg3),arg4).
+                    move_to(code);
+                  break;
+                case 2 : // arg1: i/j[_#ind,off]
+                  if (!is_single) is_parallelizable = false;
+                  p1 = _ref[1]; // Index
+                  is_relative = (bool)_ref[2];
+                  arg3 = _ref[3]; // Offset
+                  if (p1!=~0U) {
+                    if (listout)
+                      CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_joff:mp_list_set_ioff),
+                                           arg1,p1,arg3).move_to(code);
+                  } else {
+                    if (imgout)
+                      CImg<ulongT>::vector((ulongT)(is_relative?mp_set_joff:mp_set_ioff),
+                                           arg1,arg3).move_to(code);
+                  }
+                  break;
+                case 3 : // arg1: i/j(_#ind,_x,_y,_z,_c)
+                  if (!is_single) is_parallelizable = false;
+                  p1 = _ref[1]; // Index
+                  is_relative = (bool)_ref[2];
+                  arg3 = _ref[3]; // X
+                  arg4 = _ref[4]; // Y
+                  arg5 = _ref[5]; // Z
+                  arg6 = _ref[6]; // C
+                  if (p1!=~0U) {
+                    if (listout)
+                      CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_jxyzc:mp_list_set_ixyzc),
+                                           arg1,p1,arg3,arg4,arg5,arg6).move_to(code);
+                  } else {
+                    if (imgout)
+                      CImg<ulongT>::vector((ulongT)(is_relative?mp_set_jxyzc:mp_set_ixyzc),
+                                           arg1,arg3,arg4,arg5,arg6).move_to(code);
+                  }
+                  break;
               case 4: // arg1: I/J[_#ind,off]
                 if (!is_single) is_parallelizable = false;
-                p1 = ref[1]; // Index
-                is_relative = (bool)ref[2];
-                arg3 = ref[3]; // Offset
-                if (p_ref) std::memcpy(p_ref,ref,siz_ref);
+                p1 = _ref[1]; // Index
+                is_relative = (bool)_ref[2];
+                arg3 = _ref[3]; // Offset
                 if (p1!=~0U) {
                   if (listout) {
                     if (_cimg_mp_is_scalar(arg1))
@@ -21178,137 +21176,43 @@ namespace cimg_library_suffixed {
                   }
                 }
                 break;
-              case 5 : // arg1: I/J(_#ind,_x,_y,_z,_c)
-                if (!is_single) is_parallelizable = false;
-                p1 = ref[1]; // Index
-                is_relative = (bool)ref[2];
-                arg3 = ref[3]; // X
-                arg4 = ref[4]; // Y
-                arg5 = ref[5]; // Z
-                if (p_ref) std::memcpy(p_ref,ref,siz_ref);
-                if (p1!=~0U) {
-                  if (listout) {
-                    if (_cimg_mp_is_scalar(arg1))
-                      CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Jxyz_s:mp_list_set_Ixyz_s),
-                                           arg1,p1,arg3,arg4,arg5).move_to(code);
-                    else {
-                      _cimg_mp_check_constant_index(p1);
-                      CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Jxyz_v:mp_list_set_Ixyz_v),
-                                           arg1,p1,arg3,arg4,arg5,_cimg_mp_size(arg1)).move_to(code);
+                case 5 : // arg1: I/J(_#ind,_x,_y,_z,_c)
+                  if (!is_single) is_parallelizable = false;
+                  p1 = _ref[1]; // Index
+                  is_relative = (bool)_ref[2];
+                  arg3 = _ref[3]; // X
+                  arg4 = _ref[4]; // Y
+                  arg5 = _ref[5]; // Z
+                  if (p1!=~0U) {
+                    if (listout) {
+                      if (_cimg_mp_is_scalar(arg1))
+                        CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Jxyz_s:mp_list_set_Ixyz_s),
+                                             arg1,p1,arg3,arg4,arg5).move_to(code);
+                      else {
+                        _cimg_mp_check_constant_index(p1);
+                        CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Jxyz_v:mp_list_set_Ixyz_v),
+                                             arg1,p1,arg3,arg4,arg5,_cimg_mp_size(arg1)).move_to(code);
+                      }
+                    }
+                  } else {
+                    if (imgout) {
+                      if (_cimg_mp_is_scalar(arg1))
+                        CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Jxyz_s:mp_set_Ixyz_s),
+                                             arg1,arg3,arg4,arg5).move_to(code);
+                      else
+                        CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Jxyz_v:mp_set_Ixyz_v),
+                                             arg1,arg3,arg4,arg5,_cimg_mp_size(arg1)).move_to(code);
                     }
                   }
-                } else {
-                  if (imgout) {
-                    if (_cimg_mp_is_scalar(arg1))
-                      CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Jxyz_s:mp_set_Ixyz_s),
-                                           arg1,arg3,arg4,arg5).move_to(code);
-                    else
-                      CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Jxyz_v:mp_set_Ixyz_v),
-                                           arg1,arg3,arg4,arg5,_cimg_mp_size(arg1)).move_to(code);
-                  }
+                  break;
                 }
-                break;
-              }
 
-              // Write back value of linked arg2.
-              switch (*_ref) {
-              case 1 : // arg2: V[k]
-                arg3 = _ref[1]; // Vector slot
-                arg4 = _ref[2]; // Index
-                CImg<ulongT>::vector((ulongT)mp_vector_set_off,arg2,arg3,(ulongT)_cimg_mp_size(arg3),arg4).
-                  move_to(code);
-                break;
-              case 2 : // arg2: i/j[_#ind,off]
-                if (!is_single) is_parallelizable = false;
-                p1 = _ref[1]; // Index
-                is_relative = (bool)_ref[2];
-                arg3 = _ref[3]; // Offset
-                if (p1!=~0U) {
-                  if (listout)
-                    CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_joff:mp_list_set_ioff),
-                                         arg2,p1,arg3).move_to(code);
-                } else {
-                  if (imgout)
-                    CImg<ulongT>::vector((ulongT)(is_relative?mp_set_joff:mp_set_ioff),
-                                         arg2,arg3).move_to(code);
-                }
-                break;
-              case 3 : // arg2: i/j(_#ind,_x,_y,_z,_c)
-                if (!is_single) is_parallelizable = false;
-                p1 = _ref[1]; // Index
-                is_relative = (bool)_ref[2];
-                arg3 = _ref[3]; // X
-                arg4 = _ref[4]; // Y
-                arg5 = _ref[5]; // Z
-                arg6 = _ref[6]; // C
-                if (p1!=~0U) {
-                  if (listout)
-                    CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_jxyzc:mp_list_set_ixyzc),
-                                         arg2,p1,arg3,arg4,arg5,arg6).move_to(code);
-                } else {
-                  if (imgout)
-                    CImg<ulongT>::vector((ulongT)(is_relative?mp_set_jxyzc:mp_set_ixyzc),
-                                         arg2,arg3,arg4,arg5,arg6).move_to(code);
-                }
-                break;
-              case 4 : // arg2: I/J[_#ind,off]
-                if (!is_single) is_parallelizable = false;
-                p1 = _ref[1]; // Index
-                is_relative = (bool)_ref[2];
-                arg3 = _ref[3]; // Offset
-                if (p1!=~0U) {
-                  if (listout) {
-                    if (_cimg_mp_is_scalar(arg2))
-                      CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Joff_s:mp_list_set_Ioff_s),
-                                           arg2,p1,arg3).move_to(code);
-                    else {
-                      _cimg_mp_check_constant_index(p1);
-                      CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Joff_v:mp_list_set_Ioff_v),
-                                           arg2,p1,arg3,_cimg_mp_size(arg2)).move_to(code);
-                    }
-                  }
-                } else {
-                  if (imgout) {
-                    if (_cimg_mp_is_scalar(arg2))
-                      CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Joff_s:mp_set_Ioff_s),
-                                           arg2,arg3).move_to(code);
-                    else
-                      CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Joff_v:mp_set_Ioff_v),
-                                           arg2,arg3,_cimg_mp_size(arg2)).move_to(code);
-                  }
-                }
-                break;
-              case 5 : // arg2: I/J(_#ind,_x,_y,_z,_c)
-                if (!is_single) is_parallelizable = false;
-                p1 = _ref[1]; // Index
-                is_relative = (bool)_ref[2];
-                arg3 = _ref[3]; // X
-                arg4 = _ref[4]; // Y
-                arg5 = _ref[5]; // Z
-                if (p1!=~0U) {
-                  if (listout) {
-                    if (_cimg_mp_is_scalar(arg2))
-                      CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Jxyz_s:mp_list_set_Ixyz_s),
-                                           arg2,p1,arg3,arg4,arg5).move_to(code);
-                    else {
-                      _cimg_mp_check_constant_index(p1);
-                      CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Jxyz_v:mp_list_set_Ixyz_v),
-                                           arg2,p1,arg3,arg4,arg5,_cimg_mp_size(arg2)).move_to(code);
-                    }
-                  }
-                } else {
-                  if (imgout) {
-                    if (_cimg_mp_is_scalar(arg2))
-                      CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Jxyz_s:mp_set_Ixyz_s),
-                                           arg2,arg3,arg4,arg5).move_to(code);
-                    else
-                      CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Jxyz_v:mp_set_Ixyz_v),
-                                           arg2,arg3,arg4,arg5,_cimg_mp_size(arg2)).move_to(code);
-                  }
-                }
-                break;
-              }
+                _ref+=7;
+                arg1 = arg2;
+                is_sth = !is_sth;
+              } while (!is_sth);
 
+              if (p_ref) std::memcpy(p_ref,ref,siz_ref);
               _cimg_mp_return(arg1);
             }
             break;

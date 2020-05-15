@@ -27702,7 +27702,7 @@ namespace cimg_library_suffixed {
     }
 
     //! Compute statistics vector from the pixel values.
-    /*
+    /**
        \param variance_method Method used to compute the variance (see variance(const unsigned int) const).
        \return Statistics vector as
          <tt>[min, max, mean, variance, xmin, ymin, zmin, cmin, xmax, ymax, zmax, cmax, sum, product]</tt>.

@@ -20140,7 +20140,7 @@ namespace cimg_library_suffixed {
                 try { arg1 = compile(ss6,se1,depth1,0,is_single); }
                 catch(CImgException&) { _cimg_mp_return(0); }
                 if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_isint,arg1);
-                if (_cimg_mp_is_constant(arg1)) _cimg_mp_return((unsigned int)((double)(int)mem[arg1]==mem[arg1]));
+                if (_cimg_mp_is_constant(arg1)) _cimg_mp_return((unsigned int)((double)(longT)mem[arg1]==mem[arg1]));
                 _cimg_mp_scalar1(mp_isint,arg1);
               }
 
@@ -23753,7 +23753,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_isint(_cimg_math_parser& mp) {
-        return (double)((double)(int)_mp_arg(2)==_mp_arg(2));
+        return (double)((double)(longT)_mp_arg(2)==_mp_arg(2));
       }
 
       static double mp_isfile(_cimg_math_parser& mp) {

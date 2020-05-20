@@ -25650,6 +25650,7 @@ namespace cimg_library_suffixed {
           }
         }
         const CImg<charT> str = _str>'x';
+        std::memset(ptrd,0,mp.opcode[2]*sizeof(double));
         const unsigned int sizd = std::min(str._width,(unsigned int)mp.opcode[2]);
         for (unsigned int k = 0; k<sizd; ++k) ptrd[k] = (double)str[k];
         return cimg::type<double>::nan();

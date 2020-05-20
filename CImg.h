@@ -35515,9 +35515,14 @@ namespace cimg_library_suffixed {
         ny0 = y0<y1?y0:y1, ny1 = y0^y1^ny0,
         nz0 = z0<z1?z0:z1, nz1 = z0^z1^nz0,
         nc0 = c0<c1?c0:c1, nc1 = c0^c1^nc0;
+      const unsigned int
+        _boundary_conditions = nx0>=0 && nx1<width() &&
+                               ny0>=0 && ny1<height() &&
+                               nz0>=0 && nz1<depth() &&
+                               nc0>=0 && nc1<spectrum()?0:boundary_conditions;
       CImg<T> res(1U + nx1 - nx0,1U + ny1 - ny0,1U + nz1 - nz0,1U + nc1 - nc0);
       if (nx0<0 || nx1>=width() || ny0<0 || ny1>=height() || nz0<0 || nz1>=depth() || nc0<0 || nc1>=spectrum())
-        switch (boundary_conditions) {
+        switch (_boundary_conditions) {
         case 3 : { // Mirror
           const int w2 = 2*width(), h2 = 2*height(), d2 = 2*depth(), s2 = 2*spectrum();
           cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*16 &&

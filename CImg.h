@@ -47049,14 +47049,17 @@ namespace cimg_library_suffixed {
       CImg<ucharT> a_label, a_labelmask;
       const unsigned char a_labelcolor = 255;
       unsigned int ofs = font_size, fs = ofs;
-      do {
-        a_label.assign().draw_text(0,0,"%s",&a_labelcolor,0,1,fs,tmp._data).normalize(0,255);
-        if ((a_label._width>7*_width/10 || a_label._height>45*_height/100) && fs>13 && ofs>=fs) {
+      do { // Determine best font size
+        a_label.assign().draw_text(0,0,"%s",&a_labelcolor,0,1,fs,tmp._data);
+        if (a_label._width<7*_width/10 && a_label._height>_height/20 && a_label._height<_height/5) {
+          font_size = fs; break;
+        } else if ((a_label._width>7*_width/10 || a_label._height>_height/5) && fs>13 && ofs>=fs) {
           ofs = fs; fs = std::max(13U,(unsigned int)cimg::round(fs/1.25f));
-        } else if (a_label._width<3*_width/10 && a_label._height<45*_height/100 && fs<64 && ofs<=fs) {
+        } else if (a_label._width<3*_width/10 && a_label._height<_height/20 && fs<64 && ofs<=fs) {
           ofs = fs; fs = std::min(64U,(unsigned int)cimg::round(fs*1.25f));
         } else { font_size = fs; break; }
       } while (true);
+      a_label.normalize(0,255);
       a_label+=(255 - a_label.get_dilate(3)).normalize(0,80);
       a_label.resize(-100,-100,1,3,1);
       return draw_image(0,is_down?height() - a_label.height():0,a_label,0.85f);

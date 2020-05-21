@@ -50475,7 +50475,8 @@ namespace cimg_library_suffixed {
 #endif
         // Text formats
         if (!cimg::strcasecmp(ext,"asc")) load_ascii(filename);
-        else if (!cimg::strcasecmp(ext,"dlm") ||
+        else if (!cimg::strcasecmp(ext,"csv") ||
+                 !cimg::strcasecmp(ext,"dlm") ||
                  !cimg::strcasecmp(ext,"txt")) load_dlm(filename);
 
         // 2D binary formats
@@ -54821,7 +54822,8 @@ namespace cimg_library_suffixed {
 #endif
       // Text formats
       if (!cimg::strcasecmp(ext,"asc")) return save_ascii(fn);
-      else if (!cimg::strcasecmp(ext,"dlm") ||
+      else if (!cimg::strcasecmp(ext,"csv") ||
+               !cimg::strcasecmp(ext,"dlm") ||
                !cimg::strcasecmp(ext,"txt")) return save_dlm(fn);
       else if (!cimg::strcasecmp(ext,"cpp") ||
                !cimg::strcasecmp(ext,"hpp") ||

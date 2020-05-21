@@ -47042,20 +47042,24 @@ namespace cimg_library_suffixed {
     }
 
     // [internal] Version used to display text in interactive viewers.
-    CImg<T>& __draw_text(const char *const text, const int is_down, ...) {
+    CImg<T>& __draw_text(const char *const text, const int is_down, unsigned int &font_size, ...) {
       CImg<charT> tmp(2048);
-      std::va_list ap; va_start(ap,is_down);
+      std::va_list ap; va_start(ap,font_size);
       cimg_vsnprintf(tmp,tmp._width,text,ap); va_end(ap);
       CImg<ucharT> a_label, a_labelmask;
       const unsigned char a_labelcolor = 255;
-      const unsigned int fsize = 14;
-      a_label.draw_text(0,0,"%s",&a_labelcolor,0,1,fsize,tmp._data).normalize(0,255);
-      if (a_label) {
-        a_label+=(255 - a_label.get_dilate(3)).normalize(0,80);
-        a_label.resize(-100,-100,1,3,1);
-        return draw_image(0,is_down?height() - a_label.height():0,a_label,0.85f);
-      }
-      return *this;
+      unsigned int ofs = font_size, fs = ofs;
+      do {
+        a_label.assign().draw_text(0,0,"%s",&a_labelcolor,0,1,fs,tmp._data).normalize(0,255);
+        if ((a_label._width>7*_width/10 || a_label._height>45*_height/100) && fs>13 && ofs>=fs) {
+          ofs = fs; fs = std::max(13U,(unsigned int)cimg::round(fs/1.25f));
+        } else if (a_label._width<3*_width/10 && a_label._height<45*_height/100 && fs<64 && ofs<=fs) {
+          ofs = fs; fs = std::min(64U,(unsigned int)cimg::round(fs*1.25f));
+        } else { font_size = fs; break; }
+      } while (true);
+      a_label+=(255 - a_label.get_dilate(3)).normalize(0,80);
+      a_label.resize(-100,-100,1,3,1);
+      return draw_image(0,is_down?height() - a_label.height():0,a_label,0.85f);
     }
 
     //! Draw a 2D vector field.
@@ -49514,7 +49518,7 @@ namespace cimg_library_suffixed {
         oX3d = X3d, oY3d = -1,
         omx = -1, omy = -1;
       float X = -1, Y = -1, Z = -1;
-      unsigned int key = 0;
+      unsigned int key = 0, font_size = 16;
 
       bool is_deep_selection = is_deep_selection_default,
         shape_selected = false, text_down = false, visible_cursor = true;
@@ -49590,9 +49594,9 @@ namespace cimg_library_suffixed {
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
             if (visu0) {
-              (+visu0).__draw_text(" Saving snapshot...",(int)text_down).display(disp);
+              (+visu0).__draw_text(" Saving snapshot...",(int)text_down,font_size).display(disp);
               visu0.save(filename);
-              (+visu0).__draw_text(" Snapshot '%s' saved. ",(int)text_down,filename._data).display(disp);
+              (+visu0).__draw_text(" Snapshot '%s' saved. ",(int)text_down,font_size,filename._data).display(disp);
             }
             disp.set_key(key,false); key = 0;
           } break;
@@ -49608,9 +49612,9 @@ namespace cimg_library_suffixed {
 #endif
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
-            (+visu0).__draw_text(" Saving instance... ",(int)text_down).display(disp);
+            (+visu0).__draw_text(" Saving instance... ",(int)text_down,font_size).display(disp);
             save(filename);
-            (+visu0).__draw_text(" Instance '%s' saved. ",(int)text_down,filename._data).display(disp);
+            (+visu0).__draw_text(" Instance '%s' saved. ",(int)text_down,font_size,filename._data).display(disp);
             disp.set_key(key,false); key = 0;
           } break;
         }
@@ -50052,7 +50056,7 @@ namespace cimg_library_suffixed {
                                    origX + X0,origY + Y0,origX + X1,origY + Y1,
                                    1 + cimg::abs(X0 - X1),1 + cimg::abs(Y0 - Y1));
               }
-            if (phase || (mx>=0 && my>=0)) visu.__draw_text("%s",(int)text_down,text._data);
+            if (phase || (mx>=0 && my>=0)) visu.__draw_text("%s",(int)text_down,font_size,text._data);
           }
 
           disp.display(visu);
@@ -50205,7 +50209,7 @@ namespace cimg_library_suffixed {
       CImg<ucharT> visu0, visu, graph, text, axes;
       int x0 = -1, x1 = -1, y0 = -1, y1 = -1, omouse_x = -2, omouse_y = -2;
       const unsigned int one = plot_type==3?0U:1U;
-      unsigned int okey = 0, obutton = 0;
+      unsigned int okey = 0, obutton = 0, font_size = 16;
       CImg<charT> message(1024);
       CImg_3x3(I,unsigned char);
 
@@ -50359,9 +50363,9 @@ namespace cimg_library_suffixed {
                 cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.bmp",snap_number++);
                 if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
               } while (file);
-              (+screen).__draw_text(" Saving snapshot... ",0).display(disp);
+              (+screen).__draw_text(" Saving snapshot... ",0,font_size).display(disp);
               screen.save(filename);
-              (+screen).__draw_text(" Snapshot '%s' saved. ",0,filename._data).display(disp);
+              (+screen).__draw_text(" Snapshot '%s' saved. ",0,font_size,filename._data).display(disp);
             }
             disp.set_key(key,false); okey = 0;
           } break;
@@ -50379,9 +50383,9 @@ namespace cimg_library_suffixed {
 #endif
                 if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
               } while (file);
-              (+screen).__draw_text(" Saving instance... ",0).display(disp);
+              (+screen).__draw_text(" Saving instance... ",0,font_size).display(disp);
               save(filename);
-              (+screen).__draw_text(" Instance '%s' saved. ",0,filename._data).display(disp);
+              (+screen).__draw_text(" Instance '%s' saved. ",0,font_size,filename._data).display(disp);
             }
             disp.set_key(key,false); okey = 0;
           } break;
@@ -54285,7 +54289,7 @@ namespace cimg_library_suffixed {
       CImg<T> visu0(*this,false), visu;
       CImg<tpfloat> zbuffer(visu0.width(),visu0.height(),1,1,0);
       bool init_pose = true, clicked = false, redraw = true;
-      unsigned int key = 0;
+      unsigned int key = 0, font_size = 16;
       int
         x0 = 0, y0 = 0, x1 = 0, y1 = 0,
         nrender_static = render_static,
@@ -54517,9 +54521,9 @@ namespace cimg_library_suffixed {
               cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.bmp",snap_number++);
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
-            (+visu).__draw_text(" Saving snapshot... ",0).display(disp);
+            (+visu).__draw_text(" Saving snapshot... ",0,font_size).display(disp);
             visu.save(filename);
-            (+visu).__draw_text(" Snapshot '%s' saved. ",0,filename._data).display(disp);
+            (+visu).__draw_text(" Snapshot '%s' saved. ",0,font_size,filename._data).display(disp);
             disp.set_key(key,false); key = 0;
           } break;
         case cimg::keyG : if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) { // Save object as a .off file
@@ -54529,9 +54533,9 @@ namespace cimg_library_suffixed {
               cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.off",snap_number++);
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
-            (+visu).__draw_text(" Saving object... ",0).display(disp);
+            (+visu).__draw_text(" Saving object... ",0,font_size).display(disp);
             vertices.save_off(reverse_primitives?reverse_primitives:primitives,colors,filename);
-            (+visu).__draw_text(" Object '%s' saved. ",0,filename._data).display(disp);
+            (+visu).__draw_text(" Object '%s' saved. ",0,font_size,filename._data).display(disp);
             disp.set_key(key,false); key = 0;
           } break;
         case cimg::keyO : if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) { // Save object as a .cimg file
@@ -54546,10 +54550,10 @@ namespace cimg_library_suffixed {
 #endif
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
-            (+visu).__draw_text(" Saving object... ",0).display(disp);
+            (+visu).__draw_text(" Saving object... ",0,font_size).display(disp);
             vertices.get_object3dtoCImg3d(reverse_primitives?reverse_primitives:primitives,colors,opacities).
               save(filename);
-            (+visu).__draw_text(" Object '%s' saved. ",0,filename._data).display(disp);
+            (+visu).__draw_text(" Object '%s' saved. ",0,font_size,filename._data).display(disp);
             disp.set_key(key,false); key = 0;
           } break;
 
@@ -54561,7 +54565,7 @@ namespace cimg_library_suffixed {
               cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.eps",snap_number++);
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
-            (+visu).__draw_text(" Saving EPS snapshot... ",0).display(disp);
+            (+visu).__draw_text(" Saving EPS snapshot... ",0,font_size).display(disp);
             LibBoard::Board board;
             (+visu)._draw_object3d(&board,zbuffer.fill(0),
                                    Xoff + visu._width/2.f,Yoff + visu._height/2.f,Zoff,
@@ -54572,7 +54576,7 @@ namespace cimg_library_suffixed {
                                    specular_lightness,specular_shininess,1,
                                    sprite_scale);
             board.saveEPS(filename);
-            (+visu).__draw_text(" Object '%s' saved. ",0,filename._data).display(disp);
+            (+visu).__draw_text(" Object '%s' saved. ",0,font_size,filename._data).display(disp);
             disp.set_key(key,false); key = 0;
           } break;
         case cimg::keyV : if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) { // Save object as a .SVG file
@@ -54582,7 +54586,7 @@ namespace cimg_library_suffixed {
               cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.svg",snap_number++);
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
-            (+visu).__draw_text(" Saving SVG snapshot... ",0,13).display(disp);
+            (+visu).__draw_text(" Saving SVG snapshot... ",0,font_size).display(disp);
             LibBoard::Board board;
             (+visu)._draw_object3d(&board,zbuffer.fill(0),
                                    Xoff + visu._width/2.f,Yoff + visu._height/2.f,Zoff,
@@ -54593,7 +54597,7 @@ namespace cimg_library_suffixed {
                                    specular_lightness,specular_shininess,1,
                                    sprite_scale);
             board.saveSVG(filename);
-            (+visu).__draw_text(" Object '%s' saved. ",0,filename._data).display(disp);
+            (+visu).__draw_text(" Object '%s' saved. ",0,font_size,filename._data).display(disp);
             disp.set_key(key,false); key = 0;
           } break;
 #endif
@@ -59531,7 +59535,7 @@ namespace cimg_library_suffixed {
       CImg<intT> positions(_width,4,1,1,-1);
       int oindex0 = -1, oindex1 = -1, index0 = -1, index1 = -1;
       bool is_clicked = false, is_selected = false, text_down = false, update_display = true;
-      unsigned int key = 0;
+      unsigned int key = 0, font_size = 16;
 
       while (!is_selected && !disp.is_closed() && !key) {
 
@@ -59595,9 +59599,9 @@ namespace cimg_library_suffixed {
                   visu.draw_rectangle(positions(ind,0),positions(ind,1),positions(ind,2),positions(ind,3),
                                       foreground_color,0.9f,0xAAAAAAAA);
               }
-            if (is_clicked) visu.__draw_text(" Images #%u - #%u, Size = %u ",(int)text_down,
+            if (is_clicked) visu.__draw_text(" Images #%u - #%u, Size = %u ",(int)text_down,font_size,
                                              orig + indm,orig + indM,indM - indm + 1);
-            else visu.__draw_text(" Image #%u (%u,%u,%u,%u) ",(int)text_down,
+            else visu.__draw_text(" Image #%u (%u,%u,%u,%u) ",(int)text_down,font_size,
                                   orig + index0,
                                   _data[index0]._width,
                                   _data[index0]._height,
@@ -59671,9 +59675,9 @@ namespace cimg_library_suffixed {
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
             if (visu0) {
-              (+visu0).__draw_text(" Saving snapshot... ",(int)text_down).display(disp);
+              (+visu0).__draw_text(" Saving snapshot... ",(int)text_down,font_size).display(disp);
               visu0.save(filename);
-              (+visu0).__draw_text(" Snapshot '%s' saved. ",(int)text_down,filename._data).display(disp);
+              (+visu0).__draw_text(" Snapshot '%s' saved. ",(int)text_down,font_size,filename._data).display(disp);
             }
             disp.set_key(key,false).wait(); key = 0;
           } break;
@@ -59689,9 +59693,9 @@ namespace cimg_library_suffixed {
 #endif
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
-            (+visu0).__draw_text(" Saving instance... ",(int)text_down).display(disp);
+            (+visu0).__draw_text(" Saving instance... ",(int)text_down,font_size).display(disp);
             save(filename);
-            (+visu0).__draw_text(" Instance '%s' saved. ",(int)text_down,filename._data).display(disp);
+            (+visu0).__draw_text(" Instance '%s' saved. ",(int)text_down,font_size,filename._data).display(disp);
             disp.set_key(key,false).wait(); key = 0;
           } break;
         }

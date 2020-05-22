@@ -8276,8 +8276,8 @@ namespace cimg_library_suffixed {
       return _empty;
     }
 
-#define cimg_fitscreen(dx,dy,dz) CImgDisplay::_fitscreen(dx,dy,dz,128,-85,false), \
-                                 CImgDisplay::_fitscreen(dx,dy,dz,128,-85,true)
+#define cimg_fitscreen(dx,dy,dz) CImgDisplay::_fitscreen(dx,dy,dz,-25,-85,false), \
+                                 CImgDisplay::_fitscreen(dx,dy,dz,-25,-85,true)
     static unsigned int _fitscreen(const unsigned int dx, const unsigned int dy, const unsigned int dz,
                                    const int dmin, const int dmax, const bool return_y) {
       const int
@@ -49521,7 +49521,7 @@ namespace cimg_library_suffixed {
         oX3d = X3d, oY3d = -1,
         omx = -1, omy = -1;
       float X = -1, Y = -1, Z = -1;
-      unsigned int key = 0, font_size = 16;
+      unsigned int key = 0, font_size = 32;
 
       bool is_deep_selection = is_deep_selection_default,
         shape_selected = false, text_down = false, visible_cursor = true;
@@ -50212,7 +50212,7 @@ namespace cimg_library_suffixed {
       CImg<ucharT> visu0, visu, graph, text, axes;
       int x0 = -1, x1 = -1, y0 = -1, y1 = -1, omouse_x = -2, omouse_y = -2;
       const unsigned int one = plot_type==3?0U:1U;
-      unsigned int okey = 0, obutton = 0, font_size = 16;
+      unsigned int okey = 0, obutton = 0, font_size = 32;
       CImg<charT> message(1024);
       CImg_3x3(I,unsigned char);
 
@@ -54292,7 +54292,7 @@ namespace cimg_library_suffixed {
       CImg<T> visu0(*this,false), visu;
       CImg<tpfloat> zbuffer(visu0.width(),visu0.height(),1,1,0);
       bool init_pose = true, clicked = false, redraw = true;
-      unsigned int key = 0, font_size = 16;
+      unsigned int key = 0, font_size = 32;
       int
         x0 = 0, y0 = 0, x1 = 0, y1 = 0,
         nrender_static = render_static,
@@ -59538,7 +59538,7 @@ namespace cimg_library_suffixed {
       CImg<intT> positions(_width,4,1,1,-1);
       int oindex0 = -1, oindex1 = -1, index0 = -1, index1 = -1;
       bool is_clicked = false, is_selected = false, text_down = false, update_display = true;
-      unsigned int key = 0, font_size = 16;
+      unsigned int key = 0, font_size = 32;
 
       while (!is_selected && !disp.is_closed() && !key) {
 

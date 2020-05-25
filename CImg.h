@@ -42806,9 +42806,9 @@ namespace cimg_library_suffixed {
                                      const float x1, const float y1, const float z1,
                                      const int size_x=32, const int size_y=32, const int size_z=32) {
         CImgList<floatT> vertices;
-        auto addVert = [&vertices](floatT x, floatT y, floatT z) { CImg<floatT>::vector(x,y,z).move_to(vertices); return (int)(vertices.size()-1); };
+        auto addVert = [&vertices](const floatT x, const floatT y, const floatT z) { CImg<floatT>::vector(x,y,z).move_to(vertices); return (int)(vertices.size()-1); };
 
-        auto addFace = [&primitives](tf i, tf j, tf k) { CImg<tf>::vector(i,j,k).move_to(primitives); };
+        auto addFace = [&primitives](const tf i, const tf j, const tf k) { CImg<tf>::vector(i,j,k).move_to(primitives); };
 
         isosurface3d(addVert, addFace, func, isovalue, x0, y0, z0, x1, y1, z1, size_x, size_y, size_z);
 
@@ -42816,6 +42816,23 @@ namespace cimg_library_suffixed {
     }
 
 
+    //! Compute isosurface of a function, as a custom 3D object.
+    /**
+       \param addVert Vertex creation function. Is of type <tt>tf (*func)(const float x, const float y, const float z)</tt> or equivalent.
+       \param addFace Face creation function. Is of type <tt>void (*func)(const int i, const int j, const int k)</tt> or equivalent.
+       \param func Implicit function. Is of type <tt>float (*func)(const float x, const float y, const float z)</tt>.
+       \param isovalue Isovalue to extract.
+       \param x0 X-coordinate of the starting point.
+       \param y0 Y-coordinate of the starting point.
+       \param z0 Z-coordinate of the starting point.
+       \param x1 X-coordinate of the ending point.
+       \param y1 Y-coordinate of the ending point.
+       \param z1 Z-coordinate of the ending point.
+       \param size_x Resolution of the elevation function along the X-axis.
+       \param size_y Resolution of the elevation function along the Y-axis.
+       \param size_z Resolution of the elevation function along the Z-axis.
+       \note Use the marching cubes algorithm for extracting the isosurface.
+     **/
    template<typename taddvert, typename taddface, typename tfunc>
    static void isosurface3d(const taddvert& addVert, const taddface& addFace, const tfunc& func, const float isovalue,
                                     const float x0, const float y0, const float z0,

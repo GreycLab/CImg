@@ -7197,6 +7197,10 @@ namespace cimg_library_suffixed {
 #endif
     }
 
+#if cimg_OS==2
+    inline DWORD win_getfileattributes(const char *const path);
+#endif
+
     //! Check if a path is a directory.
     /**
        \param path Specified path to test.
@@ -7207,8 +7211,8 @@ namespace cimg_library_suffixed {
       struct stat st_buf;
       return (!stat(path,&st_buf) && S_ISDIR(st_buf.st_mode));
 #elif cimg_OS==2
-      const unsigned int res = (unsigned int)GetFileAttributesA(path);
-      return res==INVALID_FILE_ATTRIBUTES?false:(res&16);
+      const DWORD res = cimg::win_getfileattributes(path);
+      return res!=INVALID_FILE_ATTRIBUTES && (res&FILE_ATTRIBUTE_DIRECTORY);
 #else
       return false;
 #endif
@@ -7220,10 +7224,15 @@ namespace cimg_library_suffixed {
     **/
     inline bool is_file(const char *const path) {
       if (!path || !*path) return false;
+#if cimg_OS==2
+      const DWORD res = cimg::win_getfileattributes(path);
+      return res!=INVALID_FILE_ATTRIBUTES && !(res&FILE_ATTRIBUTE_DIRECTORY);
+#else
       std::FILE *const file = cimg::std_fopen(path,"rb");
       if (!file) return false;
       cimg::fclose(file);
       return !is_directory(path);
+#endif
     }
 
     //! Get file size.
@@ -62201,6 +62210,25 @@ namespace cimg_library_suffixed {
       cimg::mutex(7,0);
       return s_path;
     }
+
+    //! Gets the file or directory attributes with support for UTF-8 paths (Windows only).
+#if cimg_OS==2
+    inline DWORD win_getfileattributes(const char *const path)
+    {
+        DWORD res = GetFileAttributesA(path);
+        if (res==INVALID_FILE_ATTRIBUTES) {
+          // Try alternative method, with wide-character string.
+          int err = MultiByteToWideChar(CP_UTF8, 0, path, -1, 0, 0);
+          if (err) {
+            CImg<wchar_t> wpath(err);
+            if (MultiByteToWideChar(CP_UTF8, 0, path, -1, wpath, err)) {
+              res = GetFileAttributesW(wpath);
+            }
+          }
+        }
+        return res;
+    }
+#endif // cimg_OS==2
 
     //! Get/set path to the <i>Program Files/</i> directory (Windows only).
     /**

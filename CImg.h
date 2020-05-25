@@ -7197,20 +7197,9 @@ namespace cimg_library_suffixed {
 #endif
     }
 
-    //! Gets the file or directory attributes with support for UTF-8 paths (Windows only).
+    // Get the file or directory attributes with support for UTF-8 paths (Windows only).
 #if cimg_OS==2
-    inline DWORD win_getfileattributes(const char *const path) {
-      DWORD res = GetFileAttributesA(path);
-      if (res==INVALID_FILE_ATTRIBUTES) {
-        // Try alternative method, with wide-character string.
-        int err = MultiByteToWideChar(CP_UTF8,0,path,-1,0,0);
-        if (err) {
-          CImg<wchar_t> wpath(err);
-          if (MultiByteToWideChar(CP_UTF8,0,path,-1,wpath,err)) res = GetFileAttributesW(wpath);
-        }
-      }
-      return res;
-    }
+    inline DWORD win_getfileattributes(const char *const path);
 #endif
 
     //! Check if a path is a directory.
@@ -62270,6 +62259,22 @@ namespace cimg_library_suffixed {
 #endif
       return 0;
     }
+
+    //! Get the file or directory attributes with support for UTF-8 paths (Windows only).
+#if cimg_OS==2
+    inline DWORD win_getfileattributes(const char *const path) {
+      DWORD res = GetFileAttributesA(path);
+      if (res==INVALID_FILE_ATTRIBUTES) {
+        // Try alternative method, with wide-character string.
+        int err = MultiByteToWideChar(CP_UTF8,0,path,-1,0,0);
+        if (err) {
+          CImg<wchar_t> wpath(err);
+          if (MultiByteToWideChar(CP_UTF8,0,path,-1,wpath,err)) res = GetFileAttributesW(wpath);
+        }
+      }
+      return res;
+    }
+#endif
 
     //! Get/set path to store temporary files.
     /**

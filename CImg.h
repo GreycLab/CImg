@@ -21448,7 +21448,7 @@ namespace cimg_library_suffixed {
                                   ss[3]=='k'?"Function 'argkth()'":
                                   ss[4]=='i' && ss[6]=='('?"Function 'argmin()'":
                                   ss[4]=='i'?"Function argminabs()'":
-                                  ss[6]!='('?"Function 'argmax()'":
+                                  ss[6]=='('?"Function 'argmax()'":
                                   "Function 'argmaxabs()'"):
                         *ss=='s'?(ss[1]=='u'?"Function 'sum()'":"Function 'std()'"):
                         *ss=='k'?"Function 'kth()'":
@@ -21463,7 +21463,7 @@ namespace cimg_library_suffixed {
                            ss[3]=='k'?mp_argkth:
                            ss[4]=='i' && ss[6]=='('?mp_argmin:
                            ss[4]=='i'?mp_argminabs:
-                           ss[6]!='('?mp_argmax:mp_argmaxabs):
+                           ss[6]=='('?mp_argmax:mp_argmaxabs):
               *ss=='s'?(ss[1]=='u'?mp_sum:mp_std):
               *ss=='k'?mp_kth:
               *ss=='p'?mp_prod:

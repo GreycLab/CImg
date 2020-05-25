@@ -42612,6 +42612,7 @@ namespace cimg_library_suffixed {
       for (unsigned int yi = 0, nyi = 1; yi<nym1; ++yi, ++nyi, Y=nY, nY+=dy) {
         X = x0; nX = X + dx;
         indices2.fill(-1);
+        values2(0) = (float)func(X,nY),
         for (unsigned int xi = 0, nxi = 1; xi<nxm1; ++xi, ++nxi, X=nX, nX+=dx) {
 
           // Determine square configuration
@@ -42619,7 +42620,7 @@ namespace cimg_library_suffixed {
             val0 = values1(xi),
             val1 = values1(nxi),
             val2 = values2(nxi) = (float)func(nX,nY),
-            val3 = values2(xi) = (float)func(X,nY);
+            val3 = values2(xi);
           const unsigned int
             configuration = (val0<isovalue?1U:0U) | (val1<isovalue?2U:0U) |
             (val2<isovalue?4U:0U) | (val3<isovalue?8U:0U),

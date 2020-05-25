@@ -43114,8 +43114,12 @@ namespace cimg_library_suffixed {
       for (unsigned int zi = 0; zi<nzm1; ++zi, Z = nZ, nZ+=dz) {
         Y = y0; nY = Y + dy;
         indices2.fill(-1);
+        X = x0; for (unsigned int xi = 0; xi<nx; ++xi) { values2(xi,0) = (float)func(X,Y,nZ); X += dx; }
+
         for (unsigned int yi = 0, nyi = 1; yi<nym1; ++yi, ++nyi, Y = nY, nY+=dy) {
           X = x0; nX = X + dx;
+          values2(0,nyi) = (float)func(X,nY,nZ);
+
           for (unsigned int xi = 0, nxi = 1; xi<nxm1; ++xi, ++nxi, X = nX, nX+=dx) {
 
             // Determine cube configuration
@@ -43124,10 +43128,10 @@ namespace cimg_library_suffixed {
               val1 = values1(nxi,yi),
               val2 = values1(nxi,nyi),
               val3 = values1(xi,nyi),
-              val4 = values2(xi,yi) = (float)func(X,Y,nZ),
-              val5 = values2(nxi,yi) = (float)func(nX,Y,nZ),
+              val4 = values2(xi,yi),
+              val5 = values2(nxi,yi),
               val6 = values2(nxi,nyi) = (float)func(nX,nY,nZ),
-              val7 = values2(xi,nyi) = (float)func(X,nY,nZ);
+              val7 = values2(xi,nyi);
 
             const unsigned int configuration =
               (val0<isovalue?1U:0U)  | (val1<isovalue?2U:0U)  | (val2<isovalue?4U:0U)  | (val3<isovalue?8U:0U) |

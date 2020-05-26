@@ -7,7 +7,7 @@
  #                    This file is the main component of the CImg Library project.
  #                    ( http://cimg.eu )
  #
- #  Project manager : David Tschumperle.
+ #  Project manager : David Tschumperlé
  #                    ( http://tschumperle.users.greyc.fr/ )
  #
  #                    A complete list of contributors is available in file 'README.txt'

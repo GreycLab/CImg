@@ -31,7 +31,7 @@
 # Authors and contributors :
 #----------------------------
 
-  - David Tschumperle (project leader) ( http://tschumperle.users.greyc.fr/ )
+  - David Tschumperlé (project leader) ( http://tschumperle.users.greyc.fr/ )
 
   - Maksim Aizenshtein
   - Alberto Albiol

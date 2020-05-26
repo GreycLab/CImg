@@ -3,22 +3,22 @@
  #  File        : pde_TschumperleDeriche2d.cpp
  #                ( C++ source file )
  #
- #  Description : Implementation of the Tschumperle-Deriche's Regularization
+ #  Description : Implementation of the Tschumperlé-Deriche's Regularization
  #                PDE, for 2D multivalued images, as described in the articles below.
  #                This file is a part of the CImg Library project.
  #                ( http://cimg.eu )
  #
  #  (1) PDE-Based Regularization of Multivalued Images and Applications.
- #               (D. Tschumperle). PhD Thesis. University of Nice-Sophia Antipolis, December 2002.
+ #               (D. Tschumperlé). PhD Thesis. University of Nice-Sophia Antipolis, December 2002.
  #  (2) Diffusion PDE's on Vector-valued Images : Local Approach and Geometric Viewpoint.
- #               (D. Tschumperle and R. Deriche). IEEE Signal Processing Magazine, October 2002.
+ #               (D. Tschumperlé and R. Deriche). IEEE Signal Processing Magazine, October 2002.
  #  (3) Vector-Valued Image Regularization with PDE's : A Common Framework for Different Applications.
- #               (D. Tschumperle and R. Deriche). CVPR'2003, Computer Vision and Pattern Recognition,
+ #               (D. Tschumperlé and R. Deriche). CVPR'2003, Computer Vision and Pattern Recognition,
  #                                                Madison, United States, June 2003.
  #
  #  This code can be used to perform image restoration, inpainting, magnification or flow visualization.
  #
- #  Copyright   : David Tschumperle
+ #  Copyright   : David Tschumperlé
  #                ( http://tschumperle.users.greyc.fr/ )
  #
  #  License     : CeCILL v2.0
@@ -66,7 +66,7 @@ int main(int argc,char **argv) {
 
   // Read command line arguments
   //-----------------------------
-  cimg_usage("Tschumperle-Deriche's flow for 2D Image Restoration, Inpainting, Magnification or Flow visualization");
+  cimg_usage("Tschumperlé-Deriche's flow for 2D Image Restoration, Inpainting, Magnification or Flow visualization");
   const char *file_i  = cimg_option("-i",cimg_imagepath "milla.bmp","Input image");
   const char *file_m  = cimg_option("-m",(char*)NULL,"Mask image (if Inpainting)");
   const char *file_f  = cimg_option("-f",(char*)NULL,"Flow image (if Flow visualization)");

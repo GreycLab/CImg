@@ -7,7 +7,7 @@
  #                This file is a part of the CImg Library project.
  #                ( http://cimg.eu )
  #
- #  Copyright   : David Tschumperle
+ #  Copyright   : David Tschumperlé
  #                ( http://tschumperle.users.greyc.fr/ )
  #
  #  License     : CeCILL v2.0
@@ -51,7 +51,7 @@ using namespace cimg_library;
 int main(int argc, char **argv) {
 
   // Display help (if option '-h' or '--help' specified) and retrieve program arguments
-  cimg_usage("A small and funny game featuring colored balls.\n             (by David Tschumperle).");
+  cimg_usage("A small and funny game featuring colored balls.\n             (by David Tschumperlé).");
   const char *score_file = cimg_option("-s",(char*)0,"Specify score file to use (0=default file).");
   cimg_help("\n"
             "** Quick Help *********************************************************\n\n"

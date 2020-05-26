@@ -42676,7 +42676,7 @@ namespace cimg_library_suffixed {
       return elevation3d(primitives,func,x0,y0,x1,y1,size_x,size_y);
     }
 
-    //! Compute 0-isolines of a function, as a 3D object.
+    //! Compute isolines of a function, as a 3D object.
     /**
        \param[out] primitives Primitives data of the resulting 3D object.
        \param func Elevation function. Is of type <tt>float (*func)(const float x,const float y)</tt>.

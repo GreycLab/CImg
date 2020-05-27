@@ -42596,8 +42596,9 @@ namespace cimg_library_suffixed {
                                   const int size_x=256, const int size_y=256) {
       CImgList<floatT> vertices;
       primitives.assign();
-      typename CImg<tf>::_functor_isoline3d add_item(vertices,primitives);
-      isoline3d(add_item,add_item,func,isovalue,x0,y0,x1,y1,size_x,size_y);
+      typename CImg<floatT>::_functor_isoline3d add_vertex(vertices);
+      typename CImg<tf>::_functor_isoline3d add_segment(primitives);
+      isoline3d(add_vertex,add_segment,func,isovalue,x0,y0,x1,y1,size_x,size_y);
       return vertices>'x';
     }
 
@@ -42618,7 +42619,7 @@ namespace cimg_library_suffixed {
     template<typename tv, typename tf, typename tfunc>
     static void isoline3d(tv& add_vertex, tf& add_segment, const tfunc& func, const float isovalue,
                           const float x0, const float y0, const float x1, const float y1,
-                          const int size_x=256, const int size_y=256) {
+                          const int size_x, const int size_y) {
       static const unsigned int edges[16] = { 0x0, 0x9, 0x3, 0xa, 0x6, 0xf, 0x5, 0xc, 0xc,
                                               0x5, 0xf, 0x6, 0xa, 0x3, 0x9, 0x0 };
       static const int segments[16][4] = { { -1,-1,-1,-1 }, { 0,3,-1,-1 }, { 0,1,-1,-1 }, { 1,3,-1,-1 },
@@ -42783,7 +42784,7 @@ namespace cimg_library_suffixed {
                                      const int size_x=32, const int size_y=32, const int size_z=32) {
       CImgList<floatT> vertices;
       primitives.assign();
-      typename CImg<T>::_functor_isosurface3d add_vertex(vertices);
+      typename CImg<floatT>::_functor_isosurface3d add_vertex(vertices);
       typename CImg<tf>::_functor_isosurface3d add_triangle(primitives);
       isosurface3d(add_vertex,add_triangle,func,isovalue,x0,y0,z0,x1,y1,z1,size_x,size_y,size_z);
       return vertices>'x';
@@ -42810,7 +42811,7 @@ namespace cimg_library_suffixed {
     static void isosurface3d(tv& add_vertex, tf& add_triangle, const tfunc& func, const float isovalue,
                              const float x0, const float y0, const float z0,
                              const float x1, const float y1, const float z1,
-                             const int size_x=32, const int size_y=32, const int size_z=32) {
+                             const int size_x, const int size_y, const int size_z) {
       static const unsigned int edges[256] = {
         0x000, 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c, 0x80c, 0x905, 0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09, 0xf00,
         0x190, 0x99 , 0x393, 0x29a, 0x596, 0x49f, 0x795, 0x69c, 0x99c, 0x895, 0xb9f, 0xa96, 0xd9a, 0xc93, 0xf99, 0xe90,
@@ -43321,14 +43322,12 @@ namespace cimg_library_suffixed {
     };
 
     struct _functor_isoline3d {
-      CImgList<floatT>& vertices;
-      CImgList<T>& primitives;
-      _functor_isoline3d(CImgList<floatT>& _vertices, CImgList<T>& _primitives):
-        vertices(_vertices),primitives(_primitives) {}
+      CImgList<T>& list;
+      _functor_isoline3d(CImgList<T>& _list):list(_list) {}
       template<typename t>
-      void operator()(const t x, const t y, const t z) { CImg<T>::vector((T)x,(T)y,(T)z).move_to(vertices); }
+      void operator()(const t x, const t y, const t z) { CImg<T>::vector((T)x,(T)y,(T)z).move_to(list); }
       template<typename t>
-      void operator()(const t i0, const t i1) { CImg<T>::vector((T)i0,(T)i1).move_to(primitives); }
+      void operator()(const t i, const t j) { CImg<T>::vector((T)i,(T)j).move_to(list); }
     };
 
     struct _functor_isosurface3d {

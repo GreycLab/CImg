@@ -6,7 +6,7 @@
 #		 Used by doxygen to generate the reference documentation.
 #		 ( http://cimg.eu )
 #
-#  Copyright   : David Tschumperle
+#  Copyright   : David Tschumperlé
 #		 ( http://tschumperle.users.greyc.fr/ )
 #
 #
@@ -284,7 +284,7 @@
   \subsection ssf16 1.6. Who is behind CImg ?
 
   CImg has been started by
-  <a href="http://tschumperle.users.greyc.fr/">David Tschumperle</a> at the beginning of his PhD thesis, in October 1999.
+  <a href="http://tschumperle.users.greyc.fr/">David Tschumperlé</a> at the beginning of his PhD thesis, in October 1999.
   He is still the main coordinator of the project.
   Since the first release, a growing number of contributors has appeared.
   Due to the very simple and compact form of the library, submitting a contribution is quite easy and can be

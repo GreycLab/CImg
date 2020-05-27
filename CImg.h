@@ -42580,7 +42580,7 @@ namespace cimg_library_suffixed {
     //! Compute isolines of a function, as a 3D object.
     /**
        \param[out] primitives Primitives data of the resulting 3D object.
-       \param func Elevation function. Is of type <tt>float (*func)(const float x,const float y)</tt>.
+       \param func Elevation functor. Must have <tt>operator()(x,y)</tt> defined.
        \param isovalue Isovalue to extract from function.
        \param x0 X-coordinate of the starting point.
        \param y0 Y-coordinate of the starting point.

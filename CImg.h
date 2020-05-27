@@ -27561,6 +27561,7 @@ namespace cimg_library_suffixed {
     // Fast function to evaluate simple common expressions (return 'true' in case of success).
     template<typename t>
     bool __eval(const char *const expression, t &res) const {
+      if (!expression || !*expression) { res = (t)0; return true; }
       const char c = *expression;
       bool is_success = false;
       char c1, end;

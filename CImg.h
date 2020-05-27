@@ -42577,116 +42577,6 @@ namespace cimg_library_suffixed {
       return vertices;
     }
 
-    //! Generate an isosurface of the image instance as a 3D object.
-    /**
-       \param[out] primitives The returned list of the 3D object primitives
-                              (template type \e tf should be at least \e unsigned \e int).
-       \param isovalue The returned list of the 3D object colors.
-       \param size_x Number of subdivisions along the X-axis.
-       \param size_y Number of subdisivions along the Y-axis.
-       \param size_z Number of subdisivions along the Z-axis.
-       \return The N vertices (xi,yi,zi) of the 3D object as a Nx3 CImg<float> image (0<=i<=N - 1).
-       \par Example
-       \code
-       const CImg<float> img = CImg<unsigned char>("reference.jpg").resize(-100,-100,20);
-       CImgList<unsigned int> faces3d;
-       const CImg<float> points3d = img.get_isosurface3d(faces3d,100);
-       CImg<unsigned char>().display_object3d("Isosurface3d",points3d,faces3d,colors3d);
-       \endcode
-       \image html ref_isosurface3d.jpg
-    **/
-    template<typename tf>
-    CImg<floatT> get_isosurface3d(CImgList<tf>& primitives, const float isovalue,
-                                  const int size_x=-100, const int size_y=-100, const int size_z=-100) const {
-      if (_spectrum>1)
-        throw CImgInstanceException(_cimg_instance
-                                    "get_isosurface3d(): Instance is not a scalar image.",
-                                    cimg_instance);
-      primitives.assign();
-      if (is_empty()) return *this;
-      CImg<floatT> vertices;
-      if ((size_x==-100 && size_y==-100 && size_z==-100) || (size_x==width() && size_y==height() && size_z==depth())) {
-        const _functor3d_int func(*this);
-        vertices = isosurface3d(primitives,func,isovalue,0,0,0,width() - 1.f,height() - 1.f,depth() - 1.f,
-                                width(),height(),depth());
-      } else {
-        const _functor3d_float func(*this);
-        vertices = isosurface3d(primitives,func,isovalue,0,0,0,width() - 1.f,height() - 1.f,depth() - 1.f,
-                                size_x,size_y,size_z);
-      }
-      return vertices;
-    }
-
-    //! Compute 3D elevation of a function as a 3D object.
-    /**
-       \param[out] primitives Primitives data of the resulting 3D object.
-       \param func Elevation function. Is of type <tt>float (*func)(const float x,const float y)</tt>.
-       \param x0 X-coordinate of the starting point.
-       \param y0 Y-coordinate of the starting point.
-       \param x1 X-coordinate of the ending point.
-       \param y1 Y-coordinate of the ending point.
-       \param size_x Resolution of the function along the X-axis.
-       \param size_y Resolution of the function along the Y-axis.
-    **/
-    template<typename tf, typename tfunc>
-    static CImg<floatT> elevation3d(CImgList<tf>& primitives, const tfunc& func,
-                                    const float x0, const float y0, const float x1, const float y1,
-                                    const int size_x=256, const int size_y=256) {
-      const float
-        nx0 = x0<x1?x0:x1, ny0 = y0<y1?y0:y1,
-        nx1 = x0<x1?x1:x0, ny1 = y0<y1?y1:y0;
-      const unsigned int
-        _nsize_x = (unsigned int)(size_x>=0?size_x:(nx1-nx0)*-size_x/100),
-        nsize_x = _nsize_x?_nsize_x:1, nsize_x1 = nsize_x - 1,
-        _nsize_y = (unsigned int)(size_y>=0?size_y:(ny1-ny0)*-size_y/100),
-        nsize_y = _nsize_y?_nsize_y:1, nsize_y1 = nsize_y - 1;
-      if (nsize_x<2 || nsize_y<2)
-        throw CImgArgumentException("CImg<%s>::elevation3d(): Invalid specified size (%d,%d).",
-                                    pixel_type(),
-                                    nsize_x,nsize_y);
-
-      CImg<floatT> vertices(nsize_x*nsize_y,3);
-      floatT *ptr_x = vertices.data(0,0), *ptr_y = vertices.data(0,1), *ptr_z = vertices.data(0,2);
-      for (unsigned int y = 0; y<nsize_y; ++y) {
-        const float Y = ny0 + y*(ny1-ny0)/nsize_y1;
-        for (unsigned int x = 0; x<nsize_x; ++x) {
-          const float X = nx0 + x*(nx1-nx0)/nsize_x1;
-          *(ptr_x++) = (float)x;
-          *(ptr_y++) = (float)y;
-          *(ptr_z++) = (float)func(X,Y);
-        }
-      }
-      primitives.assign(nsize_x1*nsize_y1,1,4);
-      for (unsigned int p = 0, y = 0; y<nsize_y1; ++y) {
-        const unsigned int yw = y*nsize_x;
-        for (unsigned int x = 0; x<nsize_x1; ++x) {
-          const unsigned int xpyw = x + yw, xpyww = xpyw + nsize_x;
-          primitives[p++].fill(xpyw,xpyww,xpyww + 1,xpyw + 1);
-        }
-      }
-      return vertices;
-    }
-
-    //! Compute 3D elevation of a function, as a 3D object \overloading.
-    template<typename tf>
-    static CImg<floatT> elevation3d(CImgList<tf>& primitives, const char *const expression,
-                                    const float x0, const float y0, const float x1, const float y1,
-                                    const int size_x=256, const int size_y=256) {
-      const _functor2d_expr func(expression);
-      return elevation3d(primitives,func,x0,y0,x1,y1,size_x,size_y);
-    }
-
-    struct _functor_isoline3d {
-      CImgList<floatT>& vertices;
-      CImgList<T>& primitives;
-      _functor_isoline3d(CImgList<floatT>& _vertices, CImgList<T>& _primitives):
-        vertices(_vertices),primitives(_primitives) {}
-      template<typename t>
-      void operator()(const t x, const t y, const t z) { CImg<T>::vector((T)x,(T)y,(T)z).move_to(vertices); }
-      template<typename t>
-      void operator()(const t i0, const t i1) { CImg<T>::vector((T)i0,(T)i1).move_to(primitives); }
-    };
-
     //! Compute isolines of a function, as a 3D object.
     /**
        \param[out] primitives Primitives data of the resulting 3D object.
@@ -42706,15 +42596,15 @@ namespace cimg_library_suffixed {
                                   const int size_x=256, const int size_y=256) {
       CImgList<floatT> vertices;
       primitives.assign();
-      typename CImg<tf>::_functor_isoline3d func_isoline3d(vertices,primitives);
-      isoline3d(func_isoline3d,func_isoline3d,func,isovalue,x0,y0,x1,y1,size_x,size_y);
+      typename CImg<tf>::_functor_isoline3d add_item(vertices,primitives);
+      isoline3d(add_item,add_item,func,isovalue,x0,y0,x1,y1,size_x,size_y);
       return vertices>'x';
     }
 
     //! Compute isolines of a function, as a 3D object.
     /**
-       \param[out] add_vertice : Object with operator()(x,y,z) defined for adding new vertex.
-       \param[out] add_primitive : Object with operator()(i,j) defined for adding new segment.
+       \param[out] add_vertex : Functor with operator()(x,y,z) defined for adding new vertex.
+       \param[out] add_segment : Functor with operator()(i,j) defined for adding new segment.
        \param func Elevation function. Is of type <tt>float (*func)(const float x,const float y)</tt>.
        \param isovalue Isovalue to extract from function.
        \param x0 X-coordinate of the starting point.
@@ -42726,7 +42616,7 @@ namespace cimg_library_suffixed {
        \note Use the marching squares algorithm for extracting the isolines.
      **/
     template<typename tv, typename tf, typename tfunc>
-    static void isoline3d(tv& add_vertice, tf& add_primitive, const tfunc& func, const float isovalue,
+    static void isoline3d(tv& add_vertex, tf& add_segment, const tfunc& func, const float isovalue,
                           const float x0, const float y0, const float x1, const float y1,
                           const int size_x=256, const int size_y=256) {
       static const unsigned int edges[16] = { 0x0, 0x9, 0x3, 0xa, 0x6, 0xf, 0x5, 0xc, 0xc,
@@ -42776,22 +42666,22 @@ namespace cimg_library_suffixed {
             if ((edge&1) && indices1(xi,0)<0) {
               const float Xi = X + (isovalue-val0)*dx/(val1-val0);
               indices1(xi,0) = nb_vertices++;
-              add_vertice(Xi,Y,0.0f);
+              add_vertex(Xi,Y,0.0f);
             }
             if ((edge&2) && indices1(nxi,1)<0) {
               const float Yi = Y + (isovalue-val1)*dy/(val2-val1);
               indices1(nxi,1) = nb_vertices++;
-              add_vertice(nX,Yi,0.0f);
+              add_vertex(nX,Yi,0.0f);
             }
             if ((edge&4) && indices2(xi,0)<0) {
               const float Xi = X + (isovalue-val3)*dx/(val2-val3);
               indices2(xi,0) = nb_vertices++;
-              add_vertice(Xi,nY,0.0f);
+              add_vertex(Xi,nY,0.0f);
             }
             if ((edge&8) && indices1(xi,1)<0) {
               const float Yi = Y + (isovalue-val0)*dy/(val3-val0);
               indices1(xi,1) = nb_vertices++;
-              add_vertice(X,Yi,0.0f);
+              add_vertex(X,Yi,0.0f);
             }
 
             // Create segments
@@ -42800,7 +42690,7 @@ namespace cimg_library_suffixed {
               const int
                 i0 = _isoline3d_index(p0,indices1,indices2,xi,nxi),
                 i1 = _isoline3d_index(p1,indices1,indices2,xi,nxi);
-              add_primitive(i0,i1);
+              add_segment(i0,i1);
             }
           }
         }
@@ -42830,6 +42720,46 @@ namespace cimg_library_suffixed {
       return 0;
     }
 
+    //! Generate an isosurface of the image instance as a 3D object.
+    /**
+       \param[out] primitives The returned list of the 3D object primitives
+                              (template type \e tf should be at least \e unsigned \e int).
+       \param isovalue The returned list of the 3D object colors.
+       \param size_x Number of subdivisions along the X-axis.
+       \param size_y Number of subdisivions along the Y-axis.
+       \param size_z Number of subdisivions along the Z-axis.
+       \return The N vertices (xi,yi,zi) of the 3D object as a Nx3 CImg<float> image (0<=i<=N - 1).
+       \par Example
+       \code
+       const CImg<float> img = CImg<unsigned char>("reference.jpg").resize(-100,-100,20);
+       CImgList<unsigned int> faces3d;
+       const CImg<float> points3d = img.get_isosurface3d(faces3d,100);
+       CImg<unsigned char>().display_object3d("Isosurface3d",points3d,faces3d,colors3d);
+       \endcode
+       \image html ref_isosurface3d.jpg
+    **/
+    template<typename tf>
+    CImg<floatT> get_isosurface3d(CImgList<tf>& primitives, const float isovalue,
+                                  const int size_x=-100, const int size_y=-100, const int size_z=-100) const {
+      if (_spectrum>1)
+        throw CImgInstanceException(_cimg_instance
+                                    "get_isosurface3d(): Instance is not a scalar image.",
+                                    cimg_instance);
+      primitives.assign();
+      if (is_empty()) return *this;
+      CImg<floatT> vertices;
+      if ((size_x==-100 && size_y==-100 && size_z==-100) || (size_x==width() && size_y==height() && size_z==depth())) {
+        const _functor3d_int func(*this);
+        vertices = isosurface3d(primitives,func,isovalue,0,0,0,width() - 1.f,height() - 1.f,depth() - 1.f,
+                                width(),height(),depth());
+      } else {
+        const _functor3d_float func(*this);
+        vertices = isosurface3d(primitives,func,isovalue,0,0,0,width() - 1.f,height() - 1.f,depth() - 1.f,
+                                size_x,size_y,size_z);
+      }
+      return vertices;
+    }
+
     //! Compute isosurface of a function, as a 3D object.
     /**
        \param[out] primitives Primitives data of the resulting 3D object.
@@ -42851,6 +42781,36 @@ namespace cimg_library_suffixed {
                                      const float x0, const float y0, const float z0,
                                      const float x1, const float y1, const float z1,
                                      const int size_x=32, const int size_y=32, const int size_z=32) {
+      CImgList<floatT> vertices;
+      primitives.assign();
+      typename CImg<T>::_functor_isosurface3d add_vertex(vertices);
+      typename CImg<tf>::_functor_isosurface3d add_triangle(primitives);
+      isosurface3d(add_vertex,add_triangle,func,isovalue,x0,y0,z0,x1,y1,z1,size_x,size_y,size_z);
+      return vertices>'x';
+    }
+
+    //! Compute isosurface of a function, as a 3D object.
+    /**
+       \param[out] add_vertex : Functor with operator()(x,y,z) defined for adding new vertex.
+       \param[out] add_triangle : Functor with operator()(i,j) defined for adding new segment.
+       \param func Implicit function. Is of type <tt>float (*func)(const float x, const float y, const float z)</tt>.
+       \param isovalue Isovalue to extract.
+       \param x0 X-coordinate of the starting point.
+       \param y0 Y-coordinate of the starting point.
+       \param z0 Z-coordinate of the starting point.
+       \param x1 X-coordinate of the ending point.
+       \param y1 Y-coordinate of the ending point.
+       \param z1 Z-coordinate of the ending point.
+       \param size_x Resolution of the elevation function along the X-axis.
+       \param size_y Resolution of the elevation function along the Y-axis.
+       \param size_z Resolution of the elevation function along the Z-axis.
+       \note Use the marching cubes algorithm for extracting the isosurface.
+     **/
+    template<typename tv, typename tf, typename tfunc>
+    static void isosurface3d(tv& add_vertex, tf& add_triangle, const tfunc& func, const float isovalue,
+                             const float x0, const float y0, const float z0,
+                             const float x1, const float y1, const float z1,
+                             const int size_x=32, const int size_y=32, const int size_z=32) {
       static const unsigned int edges[256] = {
         0x000, 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c, 0x80c, 0x905, 0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09, 0xf00,
         0x190, 0x99 , 0x393, 0x29a, 0x596, 0x49f, 0x795, 0x69c, 0x99c, 0x895, 0xb9f, 0xa96, 0xd9a, 0xc93, 0xf99, 0xe90,
@@ -43139,13 +43099,12 @@ namespace cimg_library_suffixed {
         nxm1 = nx - 1,
         nym1 = ny - 1,
         nzm1 = nz - 1;
-      primitives.assign();
-      if (!nxm1 || !nym1 || !nzm1) return CImg<floatT>();
+      if (!nxm1 || !nym1 || !nzm1) return;
       const float dx = (x1 - x0)/nxm1, dy = (y1 - y0)/nym1, dz = (z1 - z0)/nzm1;
-      CImgList<floatT> vertices;
       CImg<intT> indices1(nx,ny,1,3,-1), indices2(indices1);
       CImg<floatT> values1(nx,ny), values2(nx,ny);
       float X = 0, Y = 0, Z = 0, nX = 0, nY = 0, nZ = 0;
+      int nb_vertices = 0;
 
       // Fill the first plane with function values
       Y = y0;
@@ -43188,63 +43147,63 @@ namespace cimg_library_suffixed {
             if (edge) {
               if ((edge&1) && indices1(xi,yi,0)<0) {
                 const float Xi = X + (isovalue-val0)*dx/(val1-val0);
-                indices1(xi,yi,0) = vertices.width();
-                CImg<floatT>::vector(Xi,Y,Z).move_to(vertices);
+                indices1(xi,yi,0) = nb_vertices++;
+                add_vertex(Xi,Y,Z);
               }
               if ((edge&2) && indices1(nxi,yi,1)<0) {
                 const float Yi = Y + (isovalue-val1)*dy/(val2-val1);
-                indices1(nxi,yi,1) = vertices.width();
-                CImg<floatT>::vector(nX,Yi,Z).move_to(vertices);
+                indices1(nxi,yi,1) = nb_vertices++;
+                add_vertex(nX,Yi,Z);
               }
               if ((edge&4) && indices1(xi,nyi,0)<0) {
                 const float Xi = X + (isovalue-val3)*dx/(val2-val3);
-                indices1(xi,nyi,0) = vertices.width();
-                CImg<floatT>::vector(Xi,nY,Z).move_to(vertices);
+                indices1(xi,nyi,0) = nb_vertices++;
+                add_vertex(Xi,nY,Z);
               }
               if ((edge&8) && indices1(xi,yi,1)<0) {
                 const float Yi = Y + (isovalue-val0)*dy/(val3-val0);
-                indices1(xi,yi,1) = vertices.width();
-                CImg<floatT>::vector(X,Yi,Z).move_to(vertices);
+                indices1(xi,yi,1) = nb_vertices++;
+                add_vertex(X,Yi,Z);
               }
               if ((edge&16) && indices2(xi,yi,0)<0) {
                 const float Xi = X + (isovalue-val4)*dx/(val5-val4);
-                indices2(xi,yi,0) = vertices.width();
-                CImg<floatT>::vector(Xi,Y,nZ).move_to(vertices);
+                indices2(xi,yi,0) = nb_vertices++;
+                add_vertex(Xi,Y,nZ);
               }
               if ((edge&32) && indices2(nxi,yi,1)<0) {
                 const float Yi = Y + (isovalue-val5)*dy/(val6-val5);
-                indices2(nxi,yi,1) = vertices.width();
-                CImg<floatT>::vector(nX,Yi,nZ).move_to(vertices);
+                indices2(nxi,yi,1) = nb_vertices++;
+                add_vertex(nX,Yi,nZ);
               }
               if ((edge&64) && indices2(xi,nyi,0)<0) {
                 const float Xi = X + (isovalue-val7)*dx/(val6-val7);
-                indices2(xi,nyi,0) = vertices.width();
-                CImg<floatT>::vector(Xi,nY,nZ).move_to(vertices);
+                indices2(xi,nyi,0) = nb_vertices++;
+                add_vertex(Xi,nY,nZ);
               }
               if ((edge&128) && indices2(xi,yi,1)<0)  {
                 const float Yi = Y + (isovalue-val4)*dy/(val7-val4);
-                indices2(xi,yi,1) = vertices.width();
-                CImg<floatT>::vector(X,Yi,nZ).move_to(vertices);
+                indices2(xi,yi,1) = nb_vertices++;
+                add_vertex(X,Yi,nZ);
               }
               if ((edge&256) && indices1(xi,yi,2)<0) {
                 const float Zi = Z+ (isovalue-val0)*dz/(val4-val0);
-                indices1(xi,yi,2) = vertices.width();
-                CImg<floatT>::vector(X,Y,Zi).move_to(vertices);
+                indices1(xi,yi,2) = nb_vertices++;
+                add_vertex(X,Y,Zi);
               }
               if ((edge&512) && indices1(nxi,yi,2)<0)  {
                 const float Zi = Z + (isovalue-val1)*dz/(val5-val1);
-                indices1(nxi,yi,2) = vertices.width();
-                CImg<floatT>::vector(nX,Y,Zi).move_to(vertices);
+                indices1(nxi,yi,2) = nb_vertices++;
+                add_vertex(nX,Y,Zi);
               }
               if ((edge&1024) && indices1(nxi,nyi,2)<0) {
                 const float Zi = Z + (isovalue-val2)*dz/(val6-val2);
-                indices1(nxi,nyi,2) = vertices.width();
-                CImg<floatT>::vector(nX,nY,Zi).move_to(vertices);
+                indices1(nxi,nyi,2) = nb_vertices++;
+                add_vertex(nX,nY,Zi);
               }
               if ((edge&2048) && indices1(xi,nyi,2)<0) {
                 const float Zi = Z + (isovalue-val3)*dz/(val7-val3);
-                indices1(xi,nyi,2) = vertices.width();
-                CImg<floatT>::vector(X,nY,Zi).move_to(vertices);
+                indices1(xi,nyi,2) = nb_vertices++;
+                add_vertex(X,nY,Zi);
               }
 
               // Create triangles
@@ -43253,11 +43212,11 @@ namespace cimg_library_suffixed {
                   p0 = (unsigned int)*(triangle++),
                   p1 = (unsigned int)*(triangle++),
                   p2 = (unsigned int)*(triangle++);
-                const tf
-                  i0 = (tf)(_isosurface3d_index(p0,indices1,indices2,xi,yi,nxi,nyi)),
-                  i1 = (tf)(_isosurface3d_index(p1,indices1,indices2,xi,yi,nxi,nyi)),
-                  i2 = (tf)(_isosurface3d_index(p2,indices1,indices2,xi,yi,nxi,nyi));
-                CImg<tf>::vector(i0,i2,i1).move_to(primitives);
+                const int
+                  i0 = _isosurface3d_index(p0,indices1,indices2,xi,yi,nxi,nyi),
+                  i1 = _isosurface3d_index(p1,indices1,indices2,xi,yi,nxi,nyi),
+                  i2 = _isosurface3d_index(p2,indices1,indices2,xi,yi,nxi,nyi);
+                add_triangle(i0,i2,i1);
               }
             }
           }
@@ -43265,7 +43224,6 @@ namespace cimg_library_suffixed {
         cimg::swap(values1,values2);
         cimg::swap(indices1,indices2);
       }
-      return vertices>'x';
     }
 
     //! Compute isosurface of a function, as a 3D object \overloading.
@@ -43361,6 +43319,83 @@ namespace cimg_library_suffixed {
         return (float)ref((int)x,(int)y,(int)z,c);
       }
     };
+
+    struct _functor_isoline3d {
+      CImgList<floatT>& vertices;
+      CImgList<T>& primitives;
+      _functor_isoline3d(CImgList<floatT>& _vertices, CImgList<T>& _primitives):
+        vertices(_vertices),primitives(_primitives) {}
+      template<typename t>
+      void operator()(const t x, const t y, const t z) { CImg<T>::vector((T)x,(T)y,(T)z).move_to(vertices); }
+      template<typename t>
+      void operator()(const t i0, const t i1) { CImg<T>::vector((T)i0,(T)i1).move_to(primitives); }
+    };
+
+    struct _functor_isosurface3d {
+      CImgList<T>& list;
+      _functor_isosurface3d(CImgList<T>& _list):list(_list) {}
+      template<typename t>
+      void operator()(const t x, const t y, const t z) { CImg<T>::vector((T)x,(T)y,(T)z).move_to(list); }
+    };
+
+    //! Compute 3D elevation of a function as a 3D object.
+    /**
+       \param[out] primitives Primitives data of the resulting 3D object.
+       \param func Elevation function. Is of type <tt>float (*func)(const float x,const float y)</tt>.
+       \param x0 X-coordinate of the starting point.
+       \param y0 Y-coordinate of the starting point.
+       \param x1 X-coordinate of the ending point.
+       \param y1 Y-coordinate of the ending point.
+       \param size_x Resolution of the function along the X-axis.
+       \param size_y Resolution of the function along the Y-axis.
+    **/
+    template<typename tf, typename tfunc>
+    static CImg<floatT> elevation3d(CImgList<tf>& primitives, const tfunc& func,
+                                    const float x0, const float y0, const float x1, const float y1,
+                                    const int size_x=256, const int size_y=256) {
+      const float
+        nx0 = x0<x1?x0:x1, ny0 = y0<y1?y0:y1,
+        nx1 = x0<x1?x1:x0, ny1 = y0<y1?y1:y0;
+      const unsigned int
+        _nsize_x = (unsigned int)(size_x>=0?size_x:(nx1-nx0)*-size_x/100),
+        nsize_x = _nsize_x?_nsize_x:1, nsize_x1 = nsize_x - 1,
+        _nsize_y = (unsigned int)(size_y>=0?size_y:(ny1-ny0)*-size_y/100),
+        nsize_y = _nsize_y?_nsize_y:1, nsize_y1 = nsize_y - 1;
+      if (nsize_x<2 || nsize_y<2)
+        throw CImgArgumentException("CImg<%s>::elevation3d(): Invalid specified size (%d,%d).",
+                                    pixel_type(),
+                                    nsize_x,nsize_y);
+
+      CImg<floatT> vertices(nsize_x*nsize_y,3);
+      floatT *ptr_x = vertices.data(0,0), *ptr_y = vertices.data(0,1), *ptr_z = vertices.data(0,2);
+      for (unsigned int y = 0; y<nsize_y; ++y) {
+        const float Y = ny0 + y*(ny1-ny0)/nsize_y1;
+        for (unsigned int x = 0; x<nsize_x; ++x) {
+          const float X = nx0 + x*(nx1-nx0)/nsize_x1;
+          *(ptr_x++) = (float)x;
+          *(ptr_y++) = (float)y;
+          *(ptr_z++) = (float)func(X,Y);
+        }
+      }
+      primitives.assign(nsize_x1*nsize_y1,1,4);
+      for (unsigned int p = 0, y = 0; y<nsize_y1; ++y) {
+        const unsigned int yw = y*nsize_x;
+        for (unsigned int x = 0; x<nsize_x1; ++x) {
+          const unsigned int xpyw = x + yw, xpyww = xpyw + nsize_x;
+          primitives[p++].fill(xpyw,xpyww,xpyww + 1,xpyw + 1);
+        }
+      }
+      return vertices;
+    }
+
+    //! Compute 3D elevation of a function, as a 3D object \overloading.
+    template<typename tf>
+    static CImg<floatT> elevation3d(CImgList<tf>& primitives, const char *const expression,
+                                    const float x0, const float y0, const float x1, const float y1,
+                                    const int size_x=256, const int size_y=256) {
+      const _functor2d_expr func(expression);
+      return elevation3d(primitives,func,x0,y0,x1,y1,size_x,size_y);
+    }
 
     //! Generate a 3D box object.
     /**

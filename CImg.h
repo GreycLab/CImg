@@ -16777,7 +16777,6 @@ namespace cimg_library_suffixed {
 
       // Constructors / Destructors.
       ~_cimg_math_parser() {
-        opcode._data = 0;
         cimg::srand(rng);
       }
 

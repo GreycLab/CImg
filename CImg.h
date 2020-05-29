@@ -28335,12 +28335,10 @@ namespace cimg_library_suffixed {
         CImg<Ttfloat> indx;
         bool d;
         lu._LU(indx,d);
-        if (_width*_height>=16) {
-          CImg<T> res(_width,A._width);
-          cimg_pragma_openmp(parallel for)
-            cimg_forX(*this,i) res.draw_image(i,get_column(i)._solve(lu,indx));
-          res.move_to(*this);
-        } else _solve(lu,indx);
+        CImg<T> res(_width,A._width);
+        cimg_pragma_openmp(parallel for cimg_openmp_if_size(_width*_height,16))
+          cimg_forX(*this,i) res.draw_image(i,get_column(i)._solve(lu,indx));
+        res.move_to(*this);
 #endif
       } else { // Least-square solution for non-square systems
 
@@ -28385,7 +28383,7 @@ namespace cimg_library_suffixed {
     template<typename t, typename ti>
     CImg<T>& _solve(const CImg<t>& A, const CImg<ti>& indx) {
       typedef _cimg_Ttfloat Ttfloat;
-      const int N = (int)size();
+      const int N = height();
       int ii = -1;
       Ttfloat sum;
       for (int i = 0; i<N; ++i) {

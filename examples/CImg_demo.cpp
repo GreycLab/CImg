@@ -321,7 +321,7 @@ void* item_mandelbrot_explorer() {
       }
 
       // Get rectangular shape from the user to define the zoomed region.
-      const CImg<int> selection = img.get_select(disp,2,0);
+      const CImg<int> selection = img.get_select(disp,2,0,true);
       const int xs0 = selection[0], ys0 = selection[1], xs1 = selection[3], ys1 = selection[4];
 
       // If the user has selected a region with the mouse, then zoom-in !

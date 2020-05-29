@@ -27561,6 +27561,7 @@ namespace cimg_library_suffixed {
     // Fast function to evaluate simple common expressions (return 'true' in case of success).
     template<typename t>
     bool __eval(const char *const expression, t &res) const {
+      if (!expression || !*expression) { res = (t)0; return true; }
       const char c = *expression;
       bool is_success = false;
       char c1, end;
@@ -27681,11 +27682,12 @@ namespace cimg_library_suffixed {
       _cimg_math_parser mp(expression,"eval",*this,output,list_inputs,list_outputs,false);
 
 #if cimg_use_openmp!=0
+      unsigned int tid = 0;
       cimg_pragma_openmp(parallel if (res._height>=512))
       {
-        _cimg_math_parser
-          _mp = omp_get_thread_num()?mp:_cimg_math_parser(),
-          &lmp = omp_get_thread_num()?_mp:mp;
+        _cimg_math_parser *_mp = 0;
+        cimg_pragma_openmp(critical(_eval)) { _mp = !tid?&mp:new _cimg_math_parser(mp); ++tid; }
+        _cimg_math_parser &lmp = *_mp;
         cimg_pragma_openmp(barrier)
         lmp.begin_t();
         cimg_pragma_openmp(for)
@@ -27698,6 +27700,7 @@ namespace cimg_library_suffixed {
           }
         lmp.end_t();
         cimg_pragma_openmp(barrier) cimg_pragma_openmp(critical) { lmp.merge(mp); }
+        if (&lmp!=&mp) delete &mp;
       }
 #else
       mp.begin_t();
@@ -29956,11 +29959,12 @@ namespace cimg_library_suffixed {
               } else {
 
 #if cimg_use_openmp!=0
+                unsigned int tid = 0;
                 cimg_pragma_openmp(parallel)
                 {
-                  _cimg_math_parser
-                    _mp = omp_get_thread_num()?mp:_cimg_math_parser(),
-                    &lmp = omp_get_thread_num()?_mp:mp;
+                  _cimg_math_parser *_mp = 0;
+                  cimg_pragma_openmp(critical(_fill)) { _mp = !tid?&mp:new _cimg_math_parser(mp); ++tid; }
+                  _cimg_math_parser &lmp = *_mp;
                   lmp.is_fill = true;
                   cimg_pragma_openmp(barrier)
                   lmp.begin_t();
@@ -29980,6 +29984,7 @@ namespace cimg_library_suffixed {
                   } _cimg_abort_catch_openmp _cimg_abort_catch_fill_openmp
                   lmp.end_t();
                   cimg_pragma_openmp(barrier) cimg_pragma_openmp(critical) { lmp.merge(mp); }
+                  if (&lmp!=&mp) delete &lmp;
                 }
 #endif
               }
@@ -30001,11 +30006,12 @@ namespace cimg_library_suffixed {
               } else {
 
 #if cimg_use_openmp!=0
+                unsigned int tid = 0;
                 cimg_pragma_openmp(parallel)
                 {
-                  _cimg_math_parser
-                    _mp = omp_get_thread_num()?mp:_cimg_math_parser(),
-                    &lmp = omp_get_thread_num()?_mp:mp;
+                  _cimg_math_parser *_mp = 0;
+                  cimg_pragma_openmp(critical(_fill)) { _mp = !tid?&mp:new _cimg_math_parser(mp); ++tid; }
+                  _cimg_math_parser &lmp = *_mp;
                   lmp.is_fill = true;
                   cimg_pragma_openmp(barrier)
                   lmp.begin_t();
@@ -30020,6 +30026,7 @@ namespace cimg_library_suffixed {
                   } _cimg_abort_catch_openmp _cimg_abort_catch_fill_openmp
                   lmp.end_t();
                   cimg_pragma_openmp(barrier) cimg_pragma_openmp(critical) { lmp.merge(mp); }
+                  if (&lmp!=&mp) delete &lmp;
                 }
 #endif
               }

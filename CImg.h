@@ -29885,7 +29885,7 @@ namespace cimg_library_suffixed {
     }
 
     // 'formula_mode' = { 0 = does not allow formula | 1 = allow formula |
-    //                    2 = allow formula but do not fill image values }.
+    //                    2 = allow formula and do not fill image values }.
     CImg<T>& _fill(const char *const expression, const bool repeat_values, const unsigned int formula_mode,
                    const CImgList<T> *const list_inputs, CImgList<T> *const list_outputs,
                    const char *const calling_function, const CImg<T> *provides_copy) {
@@ -29903,7 +29903,7 @@ namespace cimg_library_suffixed {
         char sep;
         const int err = cimg_sscanf(expression,"%lf %c",&value,&sep);
         if (err==1 || (err==2 && sep==',')) {
-          if (err==1) return fill((T)value);
+          if (err==1) { if (formula_mode==2) return *this; return fill((T)value); }
           else is_value_sequence = true;
         }
 

@@ -21335,9 +21335,12 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
-            if (!std::strncmp(ss,"vmax(",5) || !std::strncmp(ss,"vmin(",5)) { // Min/max for vectors.
-              _cimg_mp_op(ss[2]=='a'?"Function 'vmax()'":"Function 'vmin()'");
-              op = ss[2]=='a'?mp_vmax:mp_vmin;
+            if (!std::strncmp(ss,"vmax(",5) || !std::strncmp(ss,"vmin(",5) ||
+                !std::strncmp(ss,"vmaxabs(",8) || !std::strncmp(ss,"vminabs(",8)) { // Multi-argument vector functions
+              _cimg_mp_op(ss[2]=='a'?(ss[4]=='a'?"Function 'vmaxabs()'":"Function 'vmax()'"):
+                                     (ss[4]=='a'?"Function 'vminabs()'":"Function 'vmin()'"));
+              op = ss[2]=='a'?(ss[4]=='a'?mp_vmaxabs:mp_vmax):
+                              (ss[4]=='a'?mp_vminabs:mp_vmin);
               CImg<ulongT>::vector((ulongT)op,0,0,0).move_to(l_opcode);
               p1 = ~0U;
               p3 = 1;
@@ -21465,8 +21468,8 @@ namespace cimg_library_suffixed {
             break;
           }
 
-          if (!std::strncmp(ss,"min(",4) || !std::strncmp(ss,"max(",4) ||
-              !std::strncmp(ss,"minabs(",7) || !std::strncmp(ss,"maxabs(",7) ||
+          if (!std::strncmp(ss,"max(",4) || !std::strncmp(ss,"min(",4) ||
+              !std::strncmp(ss,"maxabs(",7) || !std::strncmp(ss,"minabs(",7) ||
               !std::strncmp(ss,"med(",4) || !std::strncmp(ss,"kth(",4) ||
               !std::strncmp(ss,"sum(",4) || !std::strncmp(ss,"avg(",4) ||
               !std::strncmp(ss,"std(",4) || !std::strncmp(ss,"var(",4) ||
@@ -26107,15 +26110,32 @@ namespace cimg_library_suffixed {
         const unsigned int
           sizd = (unsigned int)mp.opcode[2],
           sizd1 = sizd?sizd:1,
-          nend = (unsigned int)mp.opcode[3];
+          nbargs = (unsigned int)(mp.opcode[3] - 4)/2;
         double *const ptrd = &_mp_arg(1) + (sizd?1:0);
-        for (unsigned int n = 4; n<nend; n+=2) {
-          const unsigned int
-            sizs = (unsigned int)mp.opcode[n + 1],
-            offs = sizs?1:0;
-          const double *ptrs = &_mp_arg(n) + offs;
-          if (n==4) for (unsigned int k = 0; k<sizd1; ++k) ptrd[k] = ptrs[k*offs];
-          else for (unsigned int k = 0; k<sizd1; ++k) ptrd[k] = std::max(ptrd[k],ptrs[k*offs]);
+        CImg<doubleT> vec(nbargs);
+        for (unsigned int k = 0; k<sizd1; ++k) {
+          cimg_forX(vec,n) {
+            const unsigned int sizs = (unsigned int)mp.opcode[4 + 2*n + 1], offs = sizs?1:0;
+            vec[n] = *(&_mp_arg(4 + 2*n) + offs + k*offs);
+          }
+          ptrd[k] = vec.max();
+        }
+        return sizd?cimg::type<double>::nan():*ptrd;
+      }
+
+      static double mp_vmaxabs(_cimg_math_parser& mp) {
+        const unsigned int
+          sizd = (unsigned int)mp.opcode[2],
+          sizd1 = sizd?sizd:1,
+          nbargs = (unsigned int)(mp.opcode[3] - 4)/2;
+        double *const ptrd = &_mp_arg(1) + (sizd?1:0);
+        CImg<doubleT> vec(nbargs);
+        for (unsigned int k = 0; k<sizd1; ++k) {
+          cimg_forX(vec,n) {
+            const unsigned int sizs = (unsigned int)mp.opcode[4 + 2*n + 1], offs = sizs?1:0;
+            vec[n] = *(&_mp_arg(4 + 2*n) + offs + k*offs);
+          }
+          ptrd[k] = vec.maxabs();
         }
         return sizd?cimg::type<double>::nan():*ptrd;
       }
@@ -26124,15 +26144,32 @@ namespace cimg_library_suffixed {
         const unsigned int
           sizd = (unsigned int)mp.opcode[2],
           sizd1 = sizd?sizd:1,
-          nend = (unsigned int)mp.opcode[3];
+          nbargs = (unsigned int)(mp.opcode[3] - 4)/2;
         double *const ptrd = &_mp_arg(1) + (sizd?1:0);
-        for (unsigned int n = 4; n<nend; n+=2) {
-          const unsigned int
-            sizs = (unsigned int)mp.opcode[n + 1],
-            offs = sizs?1:0;
-          const double *ptrs = &_mp_arg(n) + offs;
-          if (n==4) for (unsigned int k = 0; k<sizd1; ++k) ptrd[k] = ptrs[k*offs];
-          else for (unsigned int k = 0; k<sizd1; ++k) ptrd[k] = std::min(ptrd[k],ptrs[k*offs]);
+        CImg<doubleT> vec(nbargs);
+        for (unsigned int k = 0; k<sizd1; ++k) {
+          cimg_forX(vec,n) {
+            const unsigned int sizs = (unsigned int)mp.opcode[4 + 2*n + 1], offs = sizs?1:0;
+            vec[n] = *(&_mp_arg(4 + 2*n) + offs + k*offs);
+          }
+          ptrd[k] = vec.min();
+        }
+        return sizd?cimg::type<double>::nan():*ptrd;
+      }
+
+      static double mp_vminabs(_cimg_math_parser& mp) {
+        const unsigned int
+          sizd = (unsigned int)mp.opcode[2],
+          sizd1 = sizd?sizd:1,
+          nbargs = (unsigned int)(mp.opcode[3] - 4)/2;
+        double *const ptrd = &_mp_arg(1) + (sizd?1:0);
+        CImg<doubleT> vec(nbargs);
+        for (unsigned int k = 0; k<sizd1; ++k) {
+          cimg_forX(vec,n) {
+            const unsigned int sizs = (unsigned int)mp.opcode[4 + 2*n + 1], offs = sizs?1:0;
+            vec[n] = *(&_mp_arg(4 + 2*n) + offs + k*offs);
+          }
+          ptrd[k] = vec.minabs();
         }
         return sizd?cimg::type<double>::nan():*ptrd;
       }
@@ -27228,6 +27265,38 @@ namespace cimg_library_suffixed {
       return *ptr_min;
     }
 
+    //! Return a reference to the minium pixel value in absolute value.
+    /**
+     **/
+    T& minabs() {
+      if (is_empty())
+        throw CImgInstanceException(_cimg_instance
+                                    "minabs(): Empty instance.",
+                                    cimg_instance);
+      T *ptr_minabs = _data;
+      T minabs_value = *ptr_minabs;
+      cimg_for(*this,ptrs,T) {
+        const T ma = cimg::abs(*ptrs);
+        if (ma<minabs_value) { minabs_value = ma; ptr_minabs = ptrs; }
+      }
+      return *ptr_minabs;
+    }
+
+    //! Return a reference to the minimum pixel value in absolute value \const.
+    const T& minabs() const {
+      if (is_empty())
+        throw CImgInstanceException(_cimg_instance
+                                    "minabs(): Empty instance.",
+                                    cimg_instance);
+      const T *ptr_minabs = _data;
+      T minabs_value = *ptr_minabs;
+      cimg_for(*this,ptrs,T) {
+        const T ma = cimg::abs(*ptrs);
+        if (ma<minabs_value) { minabs_value = ma; ptr_minabs = ptrs; }
+      }
+      return *ptr_minabs;
+    }
+
     //! Return a reference to the maximum pixel value.
     /**
      **/
@@ -27252,6 +27321,38 @@ namespace cimg_library_suffixed {
       T max_value = *ptr_max;
       cimg_for(*this,ptrs,T) if (*ptrs>max_value) max_value = *(ptr_max=ptrs);
       return *ptr_max;
+    }
+
+    //! Return a reference to the maximum pixel value in absolute value.
+    /**
+     **/
+    T& maxabs() {
+      if (is_empty())
+        throw CImgInstanceException(_cimg_instance
+                                    "maxabs(): Empty instance.",
+                                    cimg_instance);
+      T *ptr_maxabs = _data;
+      T maxabs_value = *ptr_maxabs;
+      cimg_for(*this,ptrs,T) {
+        const T ma = cimg::abs(*ptrs);
+        if (ma>maxabs_value) { maxabs_value = ma; ptr_maxabs = ptrs; }
+      }
+      return *ptr_maxabs;
+    }
+
+    //! Return a reference to the maximum pixel value in absolute value \const.
+    const T& maxabs() const {
+      if (is_empty())
+        throw CImgInstanceException(_cimg_instance
+                                    "maxabs(): Empty instance.",
+                                    cimg_instance);
+      const T *ptr_maxabs = _data;
+      T maxabs_value = *ptr_maxabs;
+      cimg_for(*this,ptrs,T) {
+        const T ma = cimg::abs(*ptrs);
+        if (ma>maxabs_value) { maxabs_value = ma; ptr_maxabs = ptrs; }
+      }
+      return *ptr_maxabs;
     }
 
     //! Return a reference to the minimum pixel value as well as the maximum pixel value.

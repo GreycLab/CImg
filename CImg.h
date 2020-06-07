@@ -21335,6 +21335,31 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
+            if (!std::strncmp(ss,"vmin(",5)) { // Min for vectors.
+              _cimg_mp_op("Function 'vmin()'");
+              CImg<ulongT>::vector((ulongT)mp_vmin,0,0,0).move_to(l_opcode);
+              p1 = ~0U;
+              p3 = 1;
+              for (s = std::strchr(ss,'(') + 1; s<se; ++s) {
+                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                arg2 = compile(s,ns,depth1,0,is_single);
+                p2 = _cimg_mp_size(arg2);
+                if (p1==~0U) { if (_cimg_mp_is_vector(arg2)) p1 = p2; }
+                else _cimg_mp_check_type(arg2,p3,3,p1);
+                CImg<ulongT>::vector(arg2,p2).move_to(l_opcode);
+                s = ns;
+                ++p3;
+              }
+              (l_opcode>'y').move_to(opcode);
+              if (p1==~0U) { pos = scalar(); p1 = 0; } else pos = vector(p1);
+              opcode[1] = pos;
+              opcode[2] = p1;
+              opcode[3] = opcode._height;
+              opcode.move_to(code);
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"vtos(",5)) { // Double(s) to string
               _cimg_mp_op("Function 'vtos()'");
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -26075,6 +26100,10 @@ namespace cimg_library_suffixed {
         const int off = (int)_mp_arg(4);
         if (off>=0 && off<(int)siz) mp.mem[ptr + off] = _mp_arg(1);
         return _mp_arg(1);
+      }
+
+      static double mp_vmin(_cimg_math_parser& mp) {
+        return cimg::type<double>::nan();
       }
 
       static double mp_vtos(_cimg_math_parser& mp) {

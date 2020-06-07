@@ -21335,9 +21335,10 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
-            if (!std::strncmp(ss,"vmin(",5)) { // Min for vectors.
-              _cimg_mp_op("Function 'vmin()'");
-              CImg<ulongT>::vector((ulongT)mp_vmin,0,0,0).move_to(l_opcode);
+            if (!std::strncmp(ss,"vmax(",5) || !std::strncmp(ss,"vmin(",5)) { // Min/max for vectors.
+              _cimg_mp_op(ss[2]=='a'?"Function 'vmax()'":"Function 'vmin()'");
+              op = ss[2]=='a'?mp_vmax:mp_vmin;
+              CImg<ulongT>::vector((ulongT)op,0,0,0).move_to(l_opcode);
               p1 = ~0U;
               p3 = 1;
               for (s = std::strchr(ss,'(') + 1; s<se; ++s) {
@@ -26100,6 +26101,23 @@ namespace cimg_library_suffixed {
         const int off = (int)_mp_arg(4);
         if (off>=0 && off<(int)siz) mp.mem[ptr + off] = _mp_arg(1);
         return _mp_arg(1);
+      }
+
+      static double mp_vmax(_cimg_math_parser& mp) {
+        const unsigned int
+          sizd = (unsigned int)mp.opcode[2],
+          sizd1 = sizd?sizd:1,
+          nend = (unsigned int)mp.opcode[3];
+        double *const ptrd = &_mp_arg(1) + (sizd?1:0);
+        for (unsigned int n = 4; n<nend; n+=2) {
+          const unsigned int
+            sizs = (unsigned int)mp.opcode[n + 1],
+            offs = sizs?1:0;
+          const double *ptrs = &_mp_arg(n) + offs;
+          if (n==4) for (unsigned int k = 0; k<sizd1; ++k) ptrd[k] = ptrs[k*offs];
+          else for (unsigned int k = 0; k<sizd1; ++k) ptrd[k] = std::max(ptrd[k],ptrs[k*offs]);
+        }
+        return sizd?cimg::type<double>::nan():*ptrd;
       }
 
       static double mp_vmin(_cimg_math_parser& mp) {

@@ -26103,7 +26103,20 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_vmin(_cimg_math_parser& mp) {
-        return cimg::type<double>::nan();
+        const unsigned int
+          sizd = (unsigned int)mp.opcode[2],
+          sizd1 = sizd?sizd:1,
+          nend = (unsigned int)mp.opcode[3];
+        double *const ptrd = &_mp_arg(1) + (sizd?1:0);
+        for (unsigned int n = 4; n<nend; n+=2) {
+          const unsigned int
+            sizs = (unsigned int)mp.opcode[n + 1],
+            offs = sizs?1:0;
+          const double *ptrs = &_mp_arg(n) + offs;
+          if (n==4) for (unsigned int k = 0; k<sizd1; ++k) ptrd[k] = ptrs[k*offs];
+          else for (unsigned int k = 0; k<sizd1; ++k) ptrd[k] = std::min(ptrd[k],ptrs[k*offs]);
+        }
+        return sizd?cimg::type<double>::nan():*ptrd;
       }
 
       static double mp_vtos(_cimg_math_parser& mp) {

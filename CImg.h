@@ -26139,10 +26139,13 @@ namespace cimg_library_suffixed {
       const longT sizd = (longT)mp.opcode[2];\
       const unsigned int nbargs = (unsigned int)(mp.opcode[3] - 4)/2; \
       double *const ptrd = &_mp_arg(1) + (sizd?1:0), res; \
-      CImg<doubleT> vec(nbargs); \
-      for (longT k = sizd?sizd - 1:0; k>=0; --k) { \
-        cimg_forX(vec,n) vec[n] = *(&_mp_arg(4 + 2*n) + (k+1)*(mp.opcode[4 + 2*n + 1]?1:0)); \
-        func; ptrd[k] = res; \
+      cimg_pragma_openmp(parallel cimg_openmp_if_size(sizd,256)) \
+      { \
+        CImg<doubleT> vec(nbargs); \
+        cimg_pragma_openmp(for) for (longT k = sizd?sizd - 1:0; k>=0; --k) { \
+          cimg_forX(vec,n) vec[n] = *(&_mp_arg(4 + 2*n) + (k+1)*(mp.opcode[4 + 2*n + 1]?1:0)); \
+          func; ptrd[k] = res; \
+        } \
       } \
       return sizd?cimg::type<double>::nan():*ptrd;
 

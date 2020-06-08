@@ -26148,8 +26148,8 @@ namespace cimg_library_suffixed {
       return sizd?cimg::type<double>::nan():*ptrd;
 
       static double _mp_vargkth(CImg<doubleT>& vec) {
-        const double val = (+vec).get_shared_points(1,vec.width() - 1).sort()
-          [cimg::cut((int)*vec - 1,0,vec.width() - 2)];
+        const double val = (+vec).get_shared_points(1,vec.width() - 1).
+          kth_smallest((ulongT)cimg::cut((longT)*vec - 1,(longT)0,(longT)vec.width() - 2));
         cimg_for_inX(vec,1,vec.width()-1,ind) if (vec[ind]==val) return ind - 1.;
         return 1.;
       }

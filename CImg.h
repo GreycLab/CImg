@@ -21336,11 +21336,41 @@ namespace cimg_library_suffixed {
             }
 
             if (!std::strncmp(ss,"vmax(",5) || !std::strncmp(ss,"vmin(",5) ||
-                !std::strncmp(ss,"vmaxabs(",8) || !std::strncmp(ss,"vminabs(",8)) { // Multi-argument vector functions
-              _cimg_mp_op(ss[2]=='a'?(ss[4]=='a'?"Function 'vmaxabs()'":"Function 'vmax()'"):
-                                     (ss[4]=='a'?"Function 'vminabs()'":"Function 'vmin()'"));
-              op = ss[2]=='a'?(ss[4]=='a'?mp_vmaxabs:mp_vmax):
-                              (ss[4]=='a'?mp_vminabs:mp_vmin);
+                !std::strncmp(ss,"vmaxabs(",8) || !std::strncmp(ss,"vminabs(",8) ||
+                !std::strncmp(ss,"vmed(",5) || !std::strncmp(ss,"vkth(",5) ||
+                !std::strncmp(ss,"vsum(",5) || !std::strncmp(ss,"vavg(",5) ||
+                !std::strncmp(ss,"vstd(",5) || !std::strncmp(ss,"vvar(",5) ||
+                !std::strncmp(ss,"vprod(",6) ||
+                !std::strncmp(ss,"vargmin(",8) || !std::strncmp(ss,"vargmax(",8) ||
+                !std::strncmp(ss,"vargminabs(",11) || !std::strncmp(ss,"vargmaxabs(",11) ||
+                !std::strncmp(ss,"vargkth(",8)) { // Multi-argument vector functions
+              _cimg_mp_op(ss[1]=='a'?(ss[2]=='v'?"Function 'avg()'":
+                                      ss[4]=='k'?"Function 'argkth()'":
+                                      ss[5]=='i' && ss[7]=='('?"Function 'argmin()'":
+                                      ss[5]=='i'?"Function argminabs()'":
+                                      ss[7]=='('?"Function 'argmax()'":
+                                      "Function 'argmaxabs()'"):
+                          ss[1]=='s'?(ss[2]=='u'?"Function 'sum()'":"Function 'std()'"):
+                          ss[1]=='k'?"Function 'kth()'":
+                          ss[1]=='p'?"Function 'prod()'":
+                          ss[1]=='v'?"Function 'var()'":
+                          ss[2]=='i'?(ss[4]=='('?"Function 'min()'":
+                                      "Function 'minabs()'"):
+                          ss[2]=='a'?(ss[4]=='('?"Function 'max()'":
+                                      "Function 'maxabs()'"):
+                          "Function 'med()'");
+              op = ss[1]=='a'?(ss[2]=='v'?mp_avg:
+                               ss[4]=='k'?mp_argkth:
+                               ss[5]=='i' && ss[7]=='('?mp_argmin:
+                               ss[5]=='i'?mp_argminabs:
+                               ss[7]=='('?mp_argmax:mp_argmaxabs):
+                ss[1]=='s'?(ss[2]=='u'?mp_sum:mp_std):
+                ss[1]=='k'?mp_kth:
+                ss[1]=='p'?mp_prod:
+                ss[1]=='v'?mp_var:
+                ss[2]=='i'?(ss[4]=='('?mp_vmin:mp_vminabs):
+                ss[2]=='a'?(ss[4]=='('?mp_vmax:mp_vmaxabs):
+                mp_median;
               CImg<ulongT>::vector((ulongT)op,0,0,0).move_to(l_opcode);
               p1 = ~0U;
               p3 = 1;
@@ -21503,7 +21533,6 @@ namespace cimg_library_suffixed {
               *ss=='v'?mp_var:
               ss[1]=='i'?(ss[3]=='('?mp_min:mp_minabs):
               ss[1]=='a'?(ss[3]=='('?mp_max:mp_maxabs):
-              ss[2]=='a'?mp_avg:
               mp_median;
             is_sth = true; // Tell if all arguments are constant
             pos = scalar();
@@ -26107,13 +26136,11 @@ namespace cimg_library_suffixed {
       }
 
 #define _cimg_mp_vfunc(func) \
-      const unsigned int \
-        sizd = (unsigned int)mp.opcode[2], \
-        sizd1 = sizd?sizd:1, \
-        nbargs = (unsigned int)(mp.opcode[3] - 4)/2; \
+      const longT sizd = (longT)mp.opcode[2];\
+      const unsigned int nbargs = (unsigned int)(mp.opcode[3] - 4)/2; \
       double *const ptrd = &_mp_arg(1) + (sizd?1:0), res; \
       CImg<doubleT> vec(nbargs); \
-      for (unsigned int k = 0; k<sizd1; ++k) { \
+      for (longT k = sizd?sizd - 1:0; k>=0; --k) { \
         cimg_forX(vec,n) vec[n] = *(&_mp_arg(4 + 2*n) + (k+1)*(mp.opcode[4 + 2*n + 1]?1:0)); \
         func; ptrd[k] = res; \
       } \
@@ -26125,6 +26152,10 @@ namespace cimg_library_suffixed {
 
       static double mp_vmaxabs(_cimg_math_parser& mp) {
         _cimg_mp_vfunc(res = vec.maxabs());
+      }
+
+      static double mp_vmed(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = vec.median());
       }
 
       static double mp_vmin(_cimg_math_parser& mp) {

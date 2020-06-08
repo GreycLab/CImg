@@ -24030,10 +24030,10 @@ namespace cimg_library_suffixed {
         CImg<doubleT> vals(i_end - 4);
         double *p = vals.data();
         for (unsigned int i = 4; i<i_end; ++i) *(p++) = _mp_arg(i);
-        int ind = (int)cimg::round(_mp_arg(3));
+        longT ind = (longT)cimg::round(_mp_arg(3));
         if (ind<0) ind+=vals.width() + 1;
-        ind = std::max(1,std::min(vals.width(),ind));
-        return vals.kth_smallest(ind - 1);
+        ind = cimg::cut(ind,(longT)1,(longT)vals.width());
+        return vals.kth_smallest((ulongT)(ind - 1));
       }
 
       static double mp_lerp(_cimg_math_parser& mp) {
@@ -26138,15 +26138,13 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_vfunc(func) \
       const longT sizd = (longT)mp.opcode[2];\
       const unsigned int nbargs = (unsigned int)(mp.opcode[3] - 4)/2; \
-      double *const ptrd = &_mp_arg(1) + (sizd?1:0), res; \
+      double *const ptrd = &_mp_arg(1) + (sizd?1:0); \
       cimg_pragma_openmp(parallel cimg_openmp_if_size(sizd,256)) \
-      { \
-        CImg<doubleT> vec(nbargs); \
+      { CImg<doubleT> vec(nbargs); double res; \
         cimg_pragma_openmp(for) for (longT k = sizd?sizd - 1:0; k>=0; --k) { \
           cimg_forX(vec,n) vec[n] = *(&_mp_arg(4 + 2*n) + (k+1)*(mp.opcode[4 + 2*n + 1]?1:0)); \
           func; ptrd[k] = res; \
-        } \
-      } \
+      }} \
       return sizd?cimg::type<double>::nan():*ptrd;
 
       static double _mp_vargkth(CImg<doubleT>& vec) {
@@ -26177,12 +26175,12 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_vavg(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(res = vec.sum()/vec.width());
+        _cimg_mp_vfunc(res = vec.mean());
       }
 
       static double mp_vkth(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(res = vec.get_shared_points(1,vec.width() - 1).sort()
-                       [cimg::cut((int)*vec - 1,0,vec.width() - 2)]);
+        _cimg_mp_vfunc(res = vec.get_shared_points(1,vec.width() - 1).
+                       kth_smallest((ulongT)cimg::cut((longT)*vec - 1,(longT)0,(longT)vec.width() - 2)));
       }
 
       static double mp_vmax(_cimg_math_parser& mp) {
@@ -26206,7 +26204,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_vprod(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(res = vec.get_stats()[13]);
+        _cimg_mp_vfunc(res = vec.product());
       }
 
       static double mp_vstd(_cimg_math_parser& mp) {
@@ -27482,13 +27480,14 @@ namespace cimg_library_suffixed {
 
     //! Return the kth smallest pixel value.
     /**
-       \param k Rank of the search smallest element.
+       \param k Rank of the smallest element searched.
     **/
     T kth_smallest(const ulongT k) const {
       if (is_empty())
         throw CImgInstanceException(_cimg_instance
                                     "kth_smallest(): Empty instance.",
                                     cimg_instance);
+      if (k>=size()) return max();
       CImg<T> arr(*this,false);
       ulongT l = 0, ir = size() - 1;
       for ( ; ; ) {

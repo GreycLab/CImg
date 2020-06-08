@@ -21361,9 +21361,9 @@ namespace cimg_library_suffixed {
                           "Function 'vmed()'");
               op = ss[1]=='a'?(ss[2]=='v'?mp_vavg:
                                ss[4]=='k'?mp_argkth:
-                               ss[5]=='i' && ss[7]=='('?mp_argmin:
-                               ss[5]=='i'?mp_argminabs:
-                               ss[7]=='('?mp_argmax:mp_argmaxabs):
+                               ss[5]=='i' && ss[7]=='('?mp_vargmin:
+                               ss[5]=='i'?mp_vargminabs:
+                               ss[7]=='('?mp_vargmax:mp_vargmaxabs):
                 ss[1]=='s'?(ss[2]=='u'?mp_vsum:mp_vstd):
                 ss[1]=='k'?mp_kth:
                 ss[1]=='p'?mp_vprod:
@@ -26145,6 +26145,22 @@ namespace cimg_library_suffixed {
         func; ptrd[k] = res; \
       } \
       return sizd?cimg::type<double>::nan():*ptrd;
+
+      static double mp_vargmax(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = (double)(&vec.max() - vec.data()));
+      }
+
+      static double mp_vargmaxabs(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = (double)(&vec.maxabs() - vec.data()));
+      }
+
+      static double mp_vargmin(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = (double)(&vec.min() - vec.data()));
+      }
+
+      static double mp_vargminabs(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = (double)(&vec.minabs() - vec.data()));
+      }
 
       static double mp_vavg(_cimg_math_parser& mp) {
         _cimg_mp_vfunc(res = vec.sum()/vec.width());

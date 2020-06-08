@@ -21370,7 +21370,7 @@ namespace cimg_library_suffixed {
                 ss[1]=='v'?mp_var:
                 ss[2]=='i'?(ss[4]=='('?mp_vmin:mp_vminabs):
                 ss[2]=='a'?(ss[4]=='('?mp_vmax:mp_vmaxabs):
-                mp_median;
+                mp_vmedian;
               CImg<ulongT>::vector((ulongT)op,0,0,0).move_to(l_opcode);
               p1 = ~0U;
               p3 = 1;
@@ -26154,7 +26154,7 @@ namespace cimg_library_suffixed {
         _cimg_mp_vfunc(res = vec.maxabs());
       }
 
-      static double mp_vmed(_cimg_math_parser& mp) {
+      static double mp_vmedian(_cimg_math_parser& mp) {
         _cimg_mp_vfunc(res = vec.median());
       }
 

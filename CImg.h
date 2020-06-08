@@ -21360,12 +21360,12 @@ namespace cimg_library_suffixed {
                                       "Function 'vmaxabs()'"):
                           "Function 'vmed()'");
               op = ss[1]=='a'?(ss[2]=='v'?mp_vavg:
-                               ss[4]=='k'?mp_argkth:
+                               ss[4]=='k'?mp_vargkth:
                                ss[5]=='i' && ss[7]=='('?mp_vargmin:
                                ss[5]=='i'?mp_vargminabs:
                                ss[7]=='('?mp_vargmax:mp_vargmaxabs):
                 ss[1]=='s'?(ss[2]=='u'?mp_vsum:mp_vstd):
-                ss[1]=='k'?mp_kth:
+                ss[1]=='k'?mp_vkth:
                 ss[1]=='p'?mp_vprod:
                 ss[1]=='v'?mp_vvar:
                 ss[2]=='i'?(ss[4]=='('?mp_vmin:mp_vminabs):
@@ -22621,7 +22621,7 @@ namespace cimg_library_suffixed {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
         const double val = mp_kth(mp);
         for (unsigned int i = 4; i<i_end; ++i) if (val==_mp_arg(i)) return i - 3.;
-        return 1;
+        return 1.;
       }
 
       static double mp_argmin(_cimg_math_parser& mp) {
@@ -26146,6 +26146,17 @@ namespace cimg_library_suffixed {
       } \
       return sizd?cimg::type<double>::nan():*ptrd;
 
+      static double _mp_vargkth(CImg<doubleT>& vec) {
+        const double val = (+vec).get_shared_points(1,vec.width() - 1).sort()
+          [cimg::cut((int)*vec - 1,0,vec.width() - 2)];
+        cimg_for_inX(vec,1,vec.width()-1,ind) if (vec[ind]==val) return ind - 1.;
+        return 1.;
+      }
+
+      static double mp_vargkth(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = _mp_vargkth(vec));
+      }
+
       static double mp_vargmax(_cimg_math_parser& mp) {
         _cimg_mp_vfunc(res = (double)(&vec.max() - vec.data()));
       }
@@ -26164,6 +26175,11 @@ namespace cimg_library_suffixed {
 
       static double mp_vavg(_cimg_math_parser& mp) {
         _cimg_mp_vfunc(res = vec.sum()/vec.width());
+      }
+
+      static double mp_vkth(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = vec.get_shared_points(1,vec.width() - 1).sort()
+                       [cimg::cut((int)*vec - 1,0,vec.width() - 2)]);
       }
 
       static double mp_vmax(_cimg_math_parser& mp) {

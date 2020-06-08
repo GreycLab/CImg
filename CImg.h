@@ -21344,21 +21344,21 @@ namespace cimg_library_suffixed {
                 !std::strncmp(ss,"vargmin(",8) || !std::strncmp(ss,"vargmax(",8) ||
                 !std::strncmp(ss,"vargminabs(",11) || !std::strncmp(ss,"vargmaxabs(",11) ||
                 !std::strncmp(ss,"vargkth(",8)) { // Multi-argument vector functions
-              _cimg_mp_op(ss[1]=='a'?(ss[2]=='v'?"Function 'avg()'":
-                                      ss[4]=='k'?"Function 'argkth()'":
-                                      ss[5]=='i' && ss[7]=='('?"Function 'argmin()'":
-                                      ss[5]=='i'?"Function argminabs()'":
-                                      ss[7]=='('?"Function 'argmax()'":
-                                      "Function 'argmaxabs()'"):
-                          ss[1]=='s'?(ss[2]=='u'?"Function 'sum()'":"Function 'std()'"):
-                          ss[1]=='k'?"Function 'kth()'":
-                          ss[1]=='p'?"Function 'prod()'":
-                          ss[1]=='v'?"Function 'var()'":
-                          ss[2]=='i'?(ss[4]=='('?"Function 'min()'":
-                                      "Function 'minabs()'"):
-                          ss[2]=='a'?(ss[4]=='('?"Function 'max()'":
-                                      "Function 'maxabs()'"):
-                          "Function 'med()'");
+              _cimg_mp_op(ss[1]=='a'?(ss[2]=='v'?"Function 'vavg()'":
+                                      ss[4]=='k'?"Function 'vargkth()'":
+                                      ss[5]=='i' && ss[7]=='('?"Function 'vargmin()'":
+                                      ss[5]=='i'?"Function vargminabs()'":
+                                      ss[7]=='('?"Function 'vargmax()'":
+                                      "Function 'vargmaxabs()'"):
+                          ss[1]=='s'?(ss[2]=='u'?"Function 'vsum()'":"Function 'vstd()'"):
+                          ss[1]=='k'?"Function 'vkth()'":
+                          ss[1]=='p'?"Function 'vprod()'":
+                          ss[1]=='v'?"Function 'vvar()'":
+                          ss[2]=='i'?(ss[4]=='('?"Function 'vmin()'":
+                                      "Function 'vminabs()'"):
+                          ss[2]=='a'?(ss[4]=='('?"Function 'vmax()'":
+                                      "Function 'vmaxabs()'"):
+                          "Function 'vmed()'");
               op = ss[1]=='a'?(ss[2]=='v'?mp_avg:
                                ss[4]=='k'?mp_argkth:
                                ss[5]=='i' && ss[7]=='('?mp_argmin:

@@ -26106,72 +26106,33 @@ namespace cimg_library_suffixed {
         return _mp_arg(1);
       }
 
+#define _cimg_mp_vfunc(func) \
+      const unsigned int \
+        sizd = (unsigned int)mp.opcode[2], \
+        sizd1 = sizd?sizd:1, \
+        nbargs = (unsigned int)(mp.opcode[3] - 4)/2; \
+      double *const ptrd = &_mp_arg(1) + (sizd?1:0), res; \
+      CImg<doubleT> vec(nbargs); \
+      for (unsigned int k = 0; k<sizd1; ++k) { \
+        cimg_forX(vec,n) vec[n] = *(&_mp_arg(4 + 2*n) + (k+1)*(mp.opcode[4 + 2*n + 1]?1:0)); \
+        func; ptrd[k] = res; \
+      } \
+      return sizd?cimg::type<double>::nan():*ptrd;
+
       static double mp_vmax(_cimg_math_parser& mp) {
-        const unsigned int
-          sizd = (unsigned int)mp.opcode[2],
-          sizd1 = sizd?sizd:1,
-          nbargs = (unsigned int)(mp.opcode[3] - 4)/2;
-        double *const ptrd = &_mp_arg(1) + (sizd?1:0);
-        CImg<doubleT> vec(nbargs);
-        for (unsigned int k = 0; k<sizd1; ++k) {
-          cimg_forX(vec,n) {
-            const unsigned int sizs = (unsigned int)mp.opcode[4 + 2*n + 1], offs = sizs?1:0;
-            vec[n] = *(&_mp_arg(4 + 2*n) + offs + k*offs);
-          }
-          ptrd[k] = vec.max();
-        }
-        return sizd?cimg::type<double>::nan():*ptrd;
+        _cimg_mp_vfunc(res = vec.max());
       }
 
       static double mp_vmaxabs(_cimg_math_parser& mp) {
-        const unsigned int
-          sizd = (unsigned int)mp.opcode[2],
-          sizd1 = sizd?sizd:1,
-          nbargs = (unsigned int)(mp.opcode[3] - 4)/2;
-        double *const ptrd = &_mp_arg(1) + (sizd?1:0);
-        CImg<doubleT> vec(nbargs);
-        for (unsigned int k = 0; k<sizd1; ++k) {
-          cimg_forX(vec,n) {
-            const unsigned int sizs = (unsigned int)mp.opcode[4 + 2*n + 1], offs = sizs?1:0;
-            vec[n] = *(&_mp_arg(4 + 2*n) + offs + k*offs);
-          }
-          ptrd[k] = vec.maxabs();
-        }
-        return sizd?cimg::type<double>::nan():*ptrd;
+        _cimg_mp_vfunc(res = vec.maxabs());
       }
 
       static double mp_vmin(_cimg_math_parser& mp) {
-        const unsigned int
-          sizd = (unsigned int)mp.opcode[2],
-          sizd1 = sizd?sizd:1,
-          nbargs = (unsigned int)(mp.opcode[3] - 4)/2;
-        double *const ptrd = &_mp_arg(1) + (sizd?1:0);
-        CImg<doubleT> vec(nbargs);
-        for (unsigned int k = 0; k<sizd1; ++k) {
-          cimg_forX(vec,n) {
-            const unsigned int sizs = (unsigned int)mp.opcode[4 + 2*n + 1], offs = sizs?1:0;
-            vec[n] = *(&_mp_arg(4 + 2*n) + offs + k*offs);
-          }
-          ptrd[k] = vec.min();
-        }
-        return sizd?cimg::type<double>::nan():*ptrd;
+        _cimg_mp_vfunc(res = vec.min());
       }
 
       static double mp_vminabs(_cimg_math_parser& mp) {
-        const unsigned int
-          sizd = (unsigned int)mp.opcode[2],
-          sizd1 = sizd?sizd:1,
-          nbargs = (unsigned int)(mp.opcode[3] - 4)/2;
-        double *const ptrd = &_mp_arg(1) + (sizd?1:0);
-        CImg<doubleT> vec(nbargs);
-        for (unsigned int k = 0; k<sizd1; ++k) {
-          cimg_forX(vec,n) {
-            const unsigned int sizs = (unsigned int)mp.opcode[4 + 2*n + 1], offs = sizs?1:0;
-            vec[n] = *(&_mp_arg(4 + 2*n) + offs + k*offs);
-          }
-          ptrd[k] = vec.minabs();
-        }
-        return sizd?cimg::type<double>::nan():*ptrd;
+        _cimg_mp_vfunc(res = vec.minabs());
       }
 
       static double mp_vtos(_cimg_math_parser& mp) {

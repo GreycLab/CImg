@@ -21364,10 +21364,10 @@ namespace cimg_library_suffixed {
                                ss[5]=='i' && ss[7]=='('?mp_argmin:
                                ss[5]=='i'?mp_argminabs:
                                ss[7]=='('?mp_argmax:mp_argmaxabs):
-                ss[1]=='s'?(ss[2]=='u'?mp_sum:mp_std):
+                ss[1]=='s'?(ss[2]=='u'?mp_vsum:mp_vstd):
                 ss[1]=='k'?mp_kth:
                 ss[1]=='p'?mp_prod:
-                ss[1]=='v'?mp_var:
+                ss[1]=='v'?mp_vvar:
                 ss[2]=='i'?(ss[4]=='('?mp_vmin:mp_vminabs):
                 ss[2]=='a'?(ss[4]=='('?mp_vmax:mp_vmaxabs):
                 mp_vmedian;
@@ -26164,6 +26164,18 @@ namespace cimg_library_suffixed {
 
       static double mp_vminabs(_cimg_math_parser& mp) {
         _cimg_mp_vfunc(res = vec.minabs());
+      }
+
+      static double mp_vstd(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = std::sqrt(vec.get_stats()[3]));
+      }
+
+      static double mp_vsum(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = vec.sum());
+      }
+
+      static double mp_vvar(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = vec.get_stats()[3]);
       }
 
       static double mp_vtos(_cimg_math_parser& mp) {

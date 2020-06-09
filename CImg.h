@@ -47735,16 +47735,16 @@ namespace cimg_library_suffixed {
       // Draw graph edges
       switch (plot_type%4) {
       case 1 : { // Segments
-        int oX = 0, oY = (int)((data[0] - m)/ca);
+        int oX = 0, oY = (int)cimg::round((data[0] - m)/ca);
         if (siz==1) {
-          const int Y = (int)((*data - m)/ca);
+          const int Y = (int)cimg::round((*data - m)/ca);
           draw_line(0,Y,width() - 1,Y,color,opacity,pattern);
         } else {
           const float fx = (float)_width/siz1;
           for (ulongT off = 1; off<siz; ++off) {
             const int
-              X = (int)(off*fx) - 1,
-              Y = (int)((data[off]-m)/ca);
+              X = (int)cimg::round(off*fx) - 1,
+              Y = (int)cimg::round((data[off]-m)/ca);
             draw_line(oX,oY,X,Y,color,opacity,pattern,init_hatch);
             oX = X; oY = Y;
             init_hatch = false;
@@ -47753,22 +47753,22 @@ namespace cimg_library_suffixed {
       } break;
       case 2 : { // Spline
         const CImg<t> ndata(data._data,siz,1,1,1,true);
-        int oY = (int)((data[0] - m)/ca);
+        int oY = (int)cimg::round((data[0] - m)/ca);
         cimg_forX(*this,x) {
-          const int Y = (int)((ndata._cubic_atX((float)x*siz1/width1)-m)/ca);
+          const int Y = (int)cimg::round((ndata._cubic_atX((float)x*siz1/width1)-m)/ca);
           if (x>0) draw_line(x,oY,x + 1,Y,color,opacity,pattern,init_hatch);
           init_hatch = false;
           oY = Y;
         }
       } break;
       case 3 : { // Bars
-        const int Y0 = (int)(-m/ca);
+        const int Y0 = (int)cimg::round(-m/ca);
         const float fx = (float)_width/siz1;
         int oX = 0;
         cimg_foroff(data,off) {
           const int
-            X = (int)((off + 1)*fx) - 1,
-            Y = (int)((data[off] - m)/ca);
+            X = (int)cimg::round((off + 1)*fx) - 1,
+            Y = (int)cimg::round((data[off] - m)/ca);
           draw_rectangle(oX,Y0,X,Y,color,opacity).
             draw_line(oX,Y,oX,Y0,color2.data(),opacity).
             draw_line(oX,Y0,X,Y0,Y<=Y0?color2.data():color1.data(),opacity).
@@ -47787,56 +47787,56 @@ namespace cimg_library_suffixed {
       case 1 : { // Point
         cimg_foroff(data,off) {
           const int
-            X = (int)(off*fx + wb2),
-            Y = (int)((data[off]-m)/ca);
+            X = (int)cimg::round(off*fx + wb2),
+            Y = (int)cimg::round((data[off]-m)/ca);
           draw_point(X,Y,color,opacity);
         }
       } break;
       case 2 : { // Straight Cross
         cimg_foroff(data,off) {
           const int
-            X = (int)(off*fx + wb2),
-            Y = (int)((data[off]-m)/ca);
+            X = (int)cimg::round(off*fx + wb2),
+            Y = (int)cimg::round((data[off]-m)/ca);
           draw_line(X - 3,Y,X + 3,Y,color,opacity).draw_line(X,Y - 3,X,Y + 3,color,opacity);
         }
       } break;
       case 3 : { // Diagonal Cross
         cimg_foroff(data,off) {
           const int
-            X = (int)(off*fx + wb2),
-            Y = (int)((data[off]-m)/ca);
+            X = (int)cimg::round(off*fx + wb2),
+            Y = (int)cimg::round((data[off]-m)/ca);
           draw_line(X - 3,Y - 3,X + 3,Y + 3,color,opacity).draw_line(X - 3,Y + 3,X + 3,Y - 3,color,opacity);
         }
       } break;
       case 4 : { // Filled Circle
         cimg_foroff(data,off) {
           const int
-            X = (int)(off*fx + wb2),
-            Y = (int)((data[off]-m)/ca);
+            X = (int)cimg::round(off*fx + wb2),
+            Y = (int)cimg::round((data[off]-m)/ca);
           draw_circle(X,Y,3,color,opacity);
         }
       } break;
       case 5 : { // Outlined circle
         cimg_foroff(data,off) {
           const int
-            X = (int)(off*fx + wb2),
-            Y = (int)((data[off]-m)/ca);
+            X = (int)cimg::round(off*fx + wb2),
+            Y = (int)cimg::round((data[off]-m)/ca);
           draw_circle(X,Y,3,color,opacity,~0U);
         }
       } break;
       case 6 : { // Square
         cimg_foroff(data,off) {
           const int
-            X = (int)(off*fx + wb2),
-            Y = (int)((data[off]-m)/ca);
+            X = (int)cimg::round(off*fx + wb2),
+            Y = (int)cimg::round((data[off]-m)/ca);
           draw_rectangle(X - 3,Y - 3,X + 3,Y + 3,color,opacity,~0U);
         }
       } break;
       case 7 : { // Diamond
         cimg_foroff(data,off) {
           const int
-            X = (int)(off*fx + wb2),
-            Y = (int)((data[off]-m)/ca);
+            X = (int)cimg::round(off*fx + wb2),
+            Y = (int)cimg::round((data[off]-m)/ca);
           draw_line(X,Y - 4,X + 4,Y,color,opacity).
             draw_line(X + 4,Y,X,Y + 4,color,opacity).
             draw_line(X,Y + 4,X - 4,Y,color,opacity).

@@ -321,17 +321,17 @@ enum {FALSE_WIN = 0};
 #ifndef _cimg_abort_catch_openmp
 #define _cimg_abort_catch_openmp catch (CImgAbortException&) { cimg_pragma(omp atomic) _cimg_abort_go_openmp&=false; }
 #endif
+#ifndef _cimg_abort_catch_fill_openmp
+#define _cimg_abort_catch_fill_openmp \
+  catch (CImgException& e) { cimg_pragma(omp critical(abort)) CImg<charT>::string(e._message).move_to(is_error); \
+                             cimg_pragma(omp atomic) _cimg_abort_go_openmp&=false; }
+#endif
 #ifdef cimg_abort_test2
 #ifndef _cimg_abort_try_openmp2
 #define _cimg_abort_try_openmp2 _cimg_abort_try_openmp
 #endif
 #ifndef _cimg_abort_catch_openmp2
 #define _cimg_abort_catch_openmp2 _cimg_abort_catch_openmp
-#endif
-#ifndef _cimg_abort_catch_fill_openmp
-#define _cimg_abort_catch_fill_openmp \
-  catch (CImgException& e) { cimg_pragma(omp critical(abort)) CImg<charT>::string(e._message).move_to(is_error); \
-                             cimg_pragma(omp atomic) _cimg_abort_go_openmp&=false; }
 #endif
 #endif
 #endif
@@ -21335,6 +21335,65 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
+            if (!std::strncmp(ss,"vmax(",5) || !std::strncmp(ss,"vmin(",5) ||
+                !std::strncmp(ss,"vmaxabs(",8) || !std::strncmp(ss,"vminabs(",8) ||
+                !std::strncmp(ss,"vmed(",5) || !std::strncmp(ss,"vkth(",5) ||
+                !std::strncmp(ss,"vsum(",5) || !std::strncmp(ss,"vavg(",5) ||
+                !std::strncmp(ss,"vstd(",5) || !std::strncmp(ss,"vvar(",5) ||
+                !std::strncmp(ss,"vprod(",6) ||
+                !std::strncmp(ss,"vargmin(",8) || !std::strncmp(ss,"vargmax(",8) ||
+                !std::strncmp(ss,"vargminabs(",11) || !std::strncmp(ss,"vargmaxabs(",11) ||
+                !std::strncmp(ss,"vargkth(",8)) { // Multi-argument vector functions
+              _cimg_mp_op(ss[1]=='a'?(ss[2]=='v'?"Function 'vavg()'":
+                                      ss[4]=='k'?"Function 'vargkth()'":
+                                      ss[5]=='i' && ss[7]=='('?"Function 'vargmin()'":
+                                      ss[5]=='i'?"Function vargminabs()'":
+                                      ss[7]=='('?"Function 'vargmax()'":
+                                      "Function 'vargmaxabs()'"):
+                          ss[1]=='s'?(ss[2]=='u'?"Function 'vsum()'":"Function 'vstd()'"):
+                          ss[1]=='k'?"Function 'vkth()'":
+                          ss[1]=='p'?"Function 'vprod()'":
+                          ss[1]=='v'?"Function 'vvar()'":
+                          ss[2]=='i'?(ss[4]=='('?"Function 'vmin()'":
+                                      "Function 'vminabs()'"):
+                          ss[2]=='a'?(ss[4]=='('?"Function 'vmax()'":
+                                      "Function 'vmaxabs()'"):
+                          "Function 'vmed()'");
+              op = ss[1]=='a'?(ss[2]=='v'?mp_vavg:
+                               ss[4]=='k'?mp_vargkth:
+                               ss[5]=='i' && ss[7]=='('?mp_vargmin:
+                               ss[5]=='i'?mp_vargminabs:
+                               ss[7]=='('?mp_vargmax:mp_vargmaxabs):
+                ss[1]=='s'?(ss[2]=='u'?mp_vsum:mp_vstd):
+                ss[1]=='k'?mp_vkth:
+                ss[1]=='p'?mp_vprod:
+                ss[1]=='v'?mp_vvar:
+                ss[2]=='i'?(ss[4]=='('?mp_vmin:mp_vminabs):
+                ss[2]=='a'?(ss[4]=='('?mp_vmax:mp_vmaxabs):
+                mp_vmedian;
+              CImg<ulongT>::vector((ulongT)op,0,0,0).move_to(l_opcode);
+              p1 = ~0U;
+              p3 = 1;
+              for (s = std::strchr(ss,'(') + 1; s<se; ++s) {
+                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                arg2 = compile(s,ns,depth1,0,is_single);
+                p2 = _cimg_mp_size(arg2);
+                if (p1==~0U) { if (_cimg_mp_is_vector(arg2)) p1 = p2; }
+                else _cimg_mp_check_type(arg2,p3,3,p1);
+                CImg<ulongT>::vector(arg2,p2).move_to(l_opcode);
+                s = ns;
+                ++p3;
+              }
+              (l_opcode>'y').move_to(opcode);
+              if (p1==~0U) { pos = scalar(); p1 = 0; } else pos = vector(p1);
+              opcode[1] = pos;
+              opcode[2] = p1;
+              opcode[3] = opcode._height;
+              opcode.move_to(code);
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"vtos(",5)) { // Double(s) to string
               _cimg_mp_op("Function 'vtos()'");
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -21439,8 +21498,8 @@ namespace cimg_library_suffixed {
             break;
           }
 
-          if (!std::strncmp(ss,"min(",4) || !std::strncmp(ss,"max(",4) ||
-              !std::strncmp(ss,"minabs(",7) || !std::strncmp(ss,"maxabs(",7) ||
+          if (!std::strncmp(ss,"max(",4) || !std::strncmp(ss,"min(",4) ||
+              !std::strncmp(ss,"maxabs(",7) || !std::strncmp(ss,"minabs(",7) ||
               !std::strncmp(ss,"med(",4) || !std::strncmp(ss,"kth(",4) ||
               !std::strncmp(ss,"sum(",4) || !std::strncmp(ss,"avg(",4) ||
               !std::strncmp(ss,"std(",4) || !std::strncmp(ss,"var(",4) ||
@@ -21474,7 +21533,6 @@ namespace cimg_library_suffixed {
               *ss=='v'?mp_var:
               ss[1]=='i'?(ss[3]=='('?mp_min:mp_minabs):
               ss[1]=='a'?(ss[3]=='('?mp_max:mp_maxabs):
-              ss[2]=='a'?mp_avg:
               mp_median;
             is_sth = true; // Tell if all arguments are constant
             pos = scalar();
@@ -22563,7 +22621,7 @@ namespace cimg_library_suffixed {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
         const double val = mp_kth(mp);
         for (unsigned int i = 4; i<i_end; ++i) if (val==_mp_arg(i)) return i - 3.;
-        return 1;
+        return 1.;
       }
 
       static double mp_argmin(_cimg_math_parser& mp) {
@@ -23972,10 +24030,10 @@ namespace cimg_library_suffixed {
         CImg<doubleT> vals(i_end - 4);
         double *p = vals.data();
         for (unsigned int i = 4; i<i_end; ++i) *(p++) = _mp_arg(i);
-        int ind = (int)cimg::round(_mp_arg(3));
+        longT ind = (longT)cimg::round(_mp_arg(3));
         if (ind<0) ind+=vals.width() + 1;
-        ind = std::max(1,std::min(vals.width(),ind));
-        return vals.kth_smallest(ind - 1);
+        ind = cimg::cut(ind,(longT)1,(longT)vals.width());
+        return vals.kth_smallest((ulongT)(ind - 1));
       }
 
       static double mp_lerp(_cimg_math_parser& mp) {
@@ -26077,6 +26135,90 @@ namespace cimg_library_suffixed {
         return _mp_arg(1);
       }
 
+#define _cimg_mp_vfunc(func) \
+      const longT sizd = (longT)mp.opcode[2];\
+      const unsigned int nbargs = (unsigned int)(mp.opcode[3] - 4)/2; \
+      double *const ptrd = &_mp_arg(1) + (sizd?1:0); \
+      cimg_pragma_openmp(parallel cimg_openmp_if_size(sizd,256)) \
+      { CImg<doubleT> vec(nbargs); double res; \
+        cimg_pragma_openmp(for) for (longT k = sizd?sizd - 1:0; k>=0; --k) { \
+          cimg_forX(vec,n) vec[n] = *(&_mp_arg(4 + 2*n) + (k+1)*(mp.opcode[4 + 2*n + 1]?1:0)); \
+          func; ptrd[k] = res; \
+      }} \
+      return sizd?cimg::type<double>::nan():*ptrd;
+
+      static double _mp_vargkth(CImg<doubleT>& vec) {
+        const double val = (+vec).get_shared_points(1,vec.width() - 1).
+          kth_smallest((ulongT)cimg::cut((longT)*vec - 1,(longT)0,(longT)vec.width() - 2));
+        cimg_for_inX(vec,1,vec.width()-1,ind) if (vec[ind]==val) return ind - 1.;
+        return 1.;
+      }
+
+      static double mp_vargkth(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = _mp_vargkth(vec));
+      }
+
+      static double mp_vargmax(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = (double)(&vec.max() - vec.data()));
+      }
+
+      static double mp_vargmaxabs(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = (double)(&vec.maxabs() - vec.data()));
+      }
+
+      static double mp_vargmin(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = (double)(&vec.min() - vec.data()));
+      }
+
+      static double mp_vargminabs(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = (double)(&vec.minabs() - vec.data()));
+      }
+
+      static double mp_vavg(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = vec.mean());
+      }
+
+      static double mp_vkth(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = vec.get_shared_points(1,vec.width() - 1).
+                       kth_smallest((ulongT)cimg::cut((longT)*vec - 1,(longT)0,(longT)vec.width() - 2)));
+      }
+
+      static double mp_vmax(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = vec.max());
+      }
+
+      static double mp_vmaxabs(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = vec.maxabs());
+      }
+
+      static double mp_vmedian(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = vec.median());
+      }
+
+      static double mp_vmin(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = vec.min());
+      }
+
+      static double mp_vminabs(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = vec.minabs());
+      }
+
+      static double mp_vprod(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = vec.product());
+      }
+
+      static double mp_vstd(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = std::sqrt(vec.get_stats()[3]));
+      }
+
+      static double mp_vsum(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = vec.sum());
+      }
+
+      static double mp_vvar(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = vec.get_stats()[3]);
+      }
+
       static double mp_vtos(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
         const unsigned int
@@ -27168,6 +27310,38 @@ namespace cimg_library_suffixed {
       return *ptr_min;
     }
 
+    //! Return a reference to the minium pixel value in absolute value.
+    /**
+     **/
+    T& minabs() {
+      if (is_empty())
+        throw CImgInstanceException(_cimg_instance
+                                    "minabs(): Empty instance.",
+                                    cimg_instance);
+      T *ptr_minabs = _data;
+      T minabs_value = *ptr_minabs;
+      cimg_for(*this,ptrs,T) {
+        const T ma = cimg::abs(*ptrs);
+        if (ma<minabs_value) { minabs_value = ma; ptr_minabs = ptrs; }
+      }
+      return *ptr_minabs;
+    }
+
+    //! Return a reference to the minimum pixel value in absolute value \const.
+    const T& minabs() const {
+      if (is_empty())
+        throw CImgInstanceException(_cimg_instance
+                                    "minabs(): Empty instance.",
+                                    cimg_instance);
+      const T *ptr_minabs = _data;
+      T minabs_value = *ptr_minabs;
+      cimg_for(*this,ptrs,T) {
+        const T ma = cimg::abs(*ptrs);
+        if (ma<minabs_value) { minabs_value = ma; ptr_minabs = ptrs; }
+      }
+      return *ptr_minabs;
+    }
+
     //! Return a reference to the maximum pixel value.
     /**
      **/
@@ -27192,6 +27366,38 @@ namespace cimg_library_suffixed {
       T max_value = *ptr_max;
       cimg_for(*this,ptrs,T) if (*ptrs>max_value) max_value = *(ptr_max=ptrs);
       return *ptr_max;
+    }
+
+    //! Return a reference to the maximum pixel value in absolute value.
+    /**
+     **/
+    T& maxabs() {
+      if (is_empty())
+        throw CImgInstanceException(_cimg_instance
+                                    "maxabs(): Empty instance.",
+                                    cimg_instance);
+      T *ptr_maxabs = _data;
+      T maxabs_value = *ptr_maxabs;
+      cimg_for(*this,ptrs,T) {
+        const T ma = cimg::abs(*ptrs);
+        if (ma>maxabs_value) { maxabs_value = ma; ptr_maxabs = ptrs; }
+      }
+      return *ptr_maxabs;
+    }
+
+    //! Return a reference to the maximum pixel value in absolute value \const.
+    const T& maxabs() const {
+      if (is_empty())
+        throw CImgInstanceException(_cimg_instance
+                                    "maxabs(): Empty instance.",
+                                    cimg_instance);
+      const T *ptr_maxabs = _data;
+      T maxabs_value = *ptr_maxabs;
+      cimg_for(*this,ptrs,T) {
+        const T ma = cimg::abs(*ptrs);
+        if (ma>maxabs_value) { maxabs_value = ma; ptr_maxabs = ptrs; }
+      }
+      return *ptr_maxabs;
     }
 
     //! Return a reference to the minimum pixel value as well as the maximum pixel value.
@@ -27274,13 +27480,14 @@ namespace cimg_library_suffixed {
 
     //! Return the kth smallest pixel value.
     /**
-       \param k Rank of the search smallest element.
+       \param k Rank of the smallest element searched.
     **/
     T kth_smallest(const ulongT k) const {
       if (is_empty())
         throw CImgInstanceException(_cimg_instance
                                     "kth_smallest(): Empty instance.",
                                     cimg_instance);
+      if (k>=size()) return max();
       CImg<T> arr(*this,false);
       ulongT l = 0, ir = size() - 1;
       for ( ; ; ) {
@@ -29885,7 +30092,7 @@ namespace cimg_library_suffixed {
     }
 
     // 'formula_mode' = { 0 = does not allow formula | 1 = allow formula |
-    //                    2 = allow formula but do not fill image values }.
+    //                    2 = allow formula and do not fill image values }.
     CImg<T>& _fill(const char *const expression, const bool repeat_values, const unsigned int formula_mode,
                    const CImgList<T> *const list_inputs, CImgList<T> *const list_outputs,
                    const char *const calling_function, const CImg<T> *provides_copy) {
@@ -29903,7 +30110,7 @@ namespace cimg_library_suffixed {
         char sep;
         const int err = cimg_sscanf(expression,"%lf %c",&value,&sep);
         if (err==1 || (err==2 && sep==',')) {
-          if (err==1) return fill((T)value);
+          if (err==1) { if (formula_mode==2) return *this; return fill((T)value); }
           else is_value_sequence = true;
         }
 
@@ -47528,16 +47735,16 @@ namespace cimg_library_suffixed {
       // Draw graph edges
       switch (plot_type%4) {
       case 1 : { // Segments
-        int oX = 0, oY = (int)((data[0] - m)/ca);
+        int oX = 0, oY = (int)cimg::round((data[0] - m)/ca);
         if (siz==1) {
-          const int Y = (int)((*data - m)/ca);
+          const int Y = (int)cimg::round((*data - m)/ca);
           draw_line(0,Y,width() - 1,Y,color,opacity,pattern);
         } else {
           const float fx = (float)_width/siz1;
           for (ulongT off = 1; off<siz; ++off) {
             const int
-              X = (int)(off*fx) - 1,
-              Y = (int)((data[off]-m)/ca);
+              X = (int)cimg::round(off*fx) - 1,
+              Y = (int)cimg::round((data[off]-m)/ca);
             draw_line(oX,oY,X,Y,color,opacity,pattern,init_hatch);
             oX = X; oY = Y;
             init_hatch = false;
@@ -47546,22 +47753,22 @@ namespace cimg_library_suffixed {
       } break;
       case 2 : { // Spline
         const CImg<t> ndata(data._data,siz,1,1,1,true);
-        int oY = (int)((data[0] - m)/ca);
+        int oY = (int)cimg::round((data[0] - m)/ca);
         cimg_forX(*this,x) {
-          const int Y = (int)((ndata._cubic_atX((float)x*siz1/width1)-m)/ca);
+          const int Y = (int)cimg::round((ndata._cubic_atX((float)x*siz1/width1)-m)/ca);
           if (x>0) draw_line(x,oY,x + 1,Y,color,opacity,pattern,init_hatch);
           init_hatch = false;
           oY = Y;
         }
       } break;
       case 3 : { // Bars
-        const int Y0 = (int)(-m/ca);
+        const int Y0 = (int)cimg::round(-m/ca);
         const float fx = (float)_width/siz1;
         int oX = 0;
         cimg_foroff(data,off) {
           const int
-            X = (int)((off + 1)*fx) - 1,
-            Y = (int)((data[off] - m)/ca);
+            X = (int)cimg::round((off + 1)*fx) - 1,
+            Y = (int)cimg::round((data[off] - m)/ca);
           draw_rectangle(oX,Y0,X,Y,color,opacity).
             draw_line(oX,Y,oX,Y0,color2.data(),opacity).
             draw_line(oX,Y0,X,Y0,Y<=Y0?color2.data():color1.data(),opacity).
@@ -47580,56 +47787,56 @@ namespace cimg_library_suffixed {
       case 1 : { // Point
         cimg_foroff(data,off) {
           const int
-            X = (int)(off*fx + wb2),
-            Y = (int)((data[off]-m)/ca);
+            X = (int)cimg::round(off*fx + wb2),
+            Y = (int)cimg::round((data[off]-m)/ca);
           draw_point(X,Y,color,opacity);
         }
       } break;
       case 2 : { // Straight Cross
         cimg_foroff(data,off) {
           const int
-            X = (int)(off*fx + wb2),
-            Y = (int)((data[off]-m)/ca);
+            X = (int)cimg::round(off*fx + wb2),
+            Y = (int)cimg::round((data[off]-m)/ca);
           draw_line(X - 3,Y,X + 3,Y,color,opacity).draw_line(X,Y - 3,X,Y + 3,color,opacity);
         }
       } break;
       case 3 : { // Diagonal Cross
         cimg_foroff(data,off) {
           const int
-            X = (int)(off*fx + wb2),
-            Y = (int)((data[off]-m)/ca);
+            X = (int)cimg::round(off*fx + wb2),
+            Y = (int)cimg::round((data[off]-m)/ca);
           draw_line(X - 3,Y - 3,X + 3,Y + 3,color,opacity).draw_line(X - 3,Y + 3,X + 3,Y - 3,color,opacity);
         }
       } break;
       case 4 : { // Filled Circle
         cimg_foroff(data,off) {
           const int
-            X = (int)(off*fx + wb2),
-            Y = (int)((data[off]-m)/ca);
+            X = (int)cimg::round(off*fx + wb2),
+            Y = (int)cimg::round((data[off]-m)/ca);
           draw_circle(X,Y,3,color,opacity);
         }
       } break;
       case 5 : { // Outlined circle
         cimg_foroff(data,off) {
           const int
-            X = (int)(off*fx + wb2),
-            Y = (int)((data[off]-m)/ca);
+            X = (int)cimg::round(off*fx + wb2),
+            Y = (int)cimg::round((data[off]-m)/ca);
           draw_circle(X,Y,3,color,opacity,~0U);
         }
       } break;
       case 6 : { // Square
         cimg_foroff(data,off) {
           const int
-            X = (int)(off*fx + wb2),
-            Y = (int)((data[off]-m)/ca);
+            X = (int)cimg::round(off*fx + wb2),
+            Y = (int)cimg::round((data[off]-m)/ca);
           draw_rectangle(X - 3,Y - 3,X + 3,Y + 3,color,opacity,~0U);
         }
       } break;
       case 7 : { // Diamond
         cimg_foroff(data,off) {
           const int
-            X = (int)(off*fx + wb2),
-            Y = (int)((data[off]-m)/ca);
+            X = (int)cimg::round(off*fx + wb2),
+            Y = (int)cimg::round((data[off]-m)/ca);
           draw_line(X,Y - 4,X + 4,Y,color,opacity).
             draw_line(X + 4,Y,X,Y + 4,color,opacity).
             draw_line(X,Y + 4,X - 4,Y,color,opacity).

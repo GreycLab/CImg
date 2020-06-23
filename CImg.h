@@ -49042,17 +49042,31 @@ namespace cimg_library_suffixed {
           const unsigned int
             n0 = (unsigned int)primitive[0],
             n1 = (unsigned int)primitive[1],
-            is_wireframe = (unsigned int)primitive[2];
-          const float
-            Xc = 0.5f*((float)vertices(n0,0) + (float)vertices(n1,0)),
-            Yc = 0.5f*((float)vertices(n0,1) + (float)vertices(n1,1)),
-            Zc = 0.5f*((float)vertices(n0,2) + (float)vertices(n1,2)),
-            zc = Z + Zc + _focale,
-            xc = X + Xc*(absfocale?absfocale/zc:1),
-            yc = Y + Yc*(absfocale?absfocale/zc:1),
+            is_wireframe = (unsigned int)primitive[2],
+            is_radius = (unsigned int)primitive[3];
+          float Xc,Yc,Zc,radius;
+          if (is_radius) {
+            Xc = (float)vertices(n0,0);
+            Yc = (float)vertices(n0,1);
+            Zc = (float)vertices(n0,2);
+            radius = cimg::hypot(vertices(n1,0) - vertices(n0,0),
+                                 vertices(n1,1) - vertices(n0,1),
+                                 vertices(n1,2) - vertices(n0,2));
+          } else {
+            Xc = 0.5f*((float)vertices(n0,0) + (float)vertices(n1,0));
+            Yc = 0.5f*((float)vertices(n0,1) + (float)vertices(n1,1));
+            Zc = 0.5f*((float)vertices(n0,2) + (float)vertices(n1,2));
             radius = 0.5f*cimg::hypot(vertices(n1,0) - vertices(n0,0),
                                       vertices(n1,1) - vertices(n0,1),
-                                      vertices(n1,2) - vertices(n0,2))*(absfocale?absfocale/zc:1);
+                                      vertices(n1,2) - vertices(n0,2));
+          }
+          const float
+            zc = Z + Zc + _focale,
+            af = absfocale?absfocale/zc:1,
+            xc = X + Xc*af,
+            yc = Y + Yc*af;
+          radius*=af;
+
           switch (render_type) {
           case 0 :
             draw_point((int)xc,(int)yc,pcolor,opacity);

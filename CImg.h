@@ -47369,7 +47369,7 @@ namespace cimg_library_suffixed {
     //! Draw a 2D vector field.
     /**
        \param flow Image of 2D vectors used as input data.
-       \param color Image of spectrum()-D vectors corresponding to the color of each arrow.
+       \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
        \param opacity Drawing opacity.
        \param sampling Length (in pixels) between each arrow.
        \param factor Length factor of each arrow (if <0, computed as a percentage of the maximum length).

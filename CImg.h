@@ -25641,7 +25641,7 @@ namespace cimg_library_suffixed {
           k = (unsigned int)mp.opcode[4],
           l = (unsigned int)mp.opcode[5],
           m = (unsigned int)mp.opcode[6];
-        CImg<doubleT>(ptrd,m,k,1,1,true) = CImg<doubleT>(ptr2,m,l,1,1,true).get_solve(CImg<doubleT>(ptr1,k,l,1,1,true));
+        CImg<doubleT>(ptrd,m,k,1,1,true) = CImg<doubleT>(ptr2,m,l,1,1,false).solve(CImg<doubleT>(ptr1,k,l,1,1,true));
         return cimg::type<double>::nan();
       }
 

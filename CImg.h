@@ -30393,7 +30393,7 @@ namespace cimg_library_suffixed {
           if ((ulongT)i0<siz) { std::memcpy(res._data + k,_data + i0,(siz - i0)*sizeof(T)); k+=siz - i0; }
         }
         res.resize(1,k,1,1,0);
-//        if (uaxis!='y') res.unroll(uaxis);
+        if (uaxis!='y') res.unroll(uaxis);
       }
       }
       return res;
@@ -30442,7 +30442,7 @@ namespace cimg_library_suffixed {
           if (val!=current) res[j++] = current = val;
         }
         res.resize(-100,j,-100,-100,0);
-//        if (uaxis!='y') res.unroll(uaxis);
+        if (uaxis!='y') res.unroll(uaxis);
       }
       }
       return res;
@@ -36680,7 +36680,7 @@ namespace cimg_library_suffixed {
             while (i<siz && (*this)[i]!=value) ++i;
             if (i>i0) { CImg<T>(_data + i0,1,(unsigned int)(i - i0)).move_to(res); i0 = i; }
           } while (i<siz);
-//          if (uaxis!='y') cimglist_for(res,l) res[l].unroll(uaxis);
+          if (uaxis!='y') cimglist_for(res,l) res[l].unroll(uaxis);
         }
         }
       } else { // Split according to multiple values
@@ -36767,7 +36767,7 @@ namespace cimg_library_suffixed {
             } else ++i;
           } while (i<siz);
           if (i0<siz) CImg<T>(_data + i0,1,(unsigned int)(siz - i0)).move_to(res);
-//          if (uaxis!='y') cimglist_for(res,l) res[l].unroll(uaxis);
+          if (uaxis!='y') cimglist_for(res,l) res[l].unroll(uaxis);
         } break;
         }
       }

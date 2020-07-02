@@ -30392,7 +30392,8 @@ namespace cimg_library_suffixed {
           }
           if ((ulongT)i0<siz) { std::memcpy(res._data + k,_data + i0,(siz - i0)*sizeof(T)); k+=siz - i0; }
         }
-        res.resize(1,k,1,1,0).unroll(uaxis);
+        res.resize(1,k,1,1,0);
+        if (uaxis!='y') res.unroll(uaxis);
       }
       }
       return res;
@@ -30440,7 +30441,8 @@ namespace cimg_library_suffixed {
           const T val = (*this)[i];
           if (val!=current) res[j++] = current = val;
         }
-        res.resize(-100,j,-100,-100,0).unroll(uaxis);
+        res.resize(-100,j,-100,-100,0);
+        if (uaxis!='y') res.unroll(uaxis);
       }
       }
       return res;
@@ -36672,12 +36674,13 @@ namespace cimg_library_suffixed {
           do {
             while (i<siz && (*this)[i]==value) ++i;
             if (i>i0) {
-              if (keep_values) CImg<T>(_data + i0,(unsigned int)(i - i0)).unroll(uaxis).move_to(res);
+              if (keep_values) CImg<T>(_data + i0,1,(unsigned int)(i - i0)).move_to(res);
               i0 = i;
             }
             while (i<siz && (*this)[i]!=value) ++i;
-            if (i>i0) { CImg<T>(_data + i0,(unsigned int)(i - i0)).unroll(uaxis).move_to(res); i0 = i; }
+            if (i>i0) { CImg<T>(_data + i0,1,(unsigned int)(i - i0)).move_to(res); i0 = i; }
           } while (i<siz);
+          if (uaxis!='y') cimglist_for(res,l) res[l].unroll(uaxis);
         }
         }
       } else { // Split according to multiple values
@@ -36757,13 +36760,14 @@ namespace cimg_library_suffixed {
               while (i<siz && (Tt)(*this)[i]==(Tt)values[j]) { ++i; if (++j>=vsiz) j = 0; }
               i-=j;
               if (i>i1) {
-                if (i1>i0) CImg<T>(_data + i0,(unsigned int)(i1 - i0)).unroll(uaxis).move_to(res);
-                if (keep_values) CImg<T>(_data + i1,(unsigned int)(i - i1)).unroll(uaxis).move_to(res);
+                if (i1>i0) CImg<T>(_data + i0,1,(unsigned int)(i1 - i0)).move_to(res);
+                if (keep_values) CImg<T>(_data + i1,1,(unsigned int)(i - i1)).move_to(res);
                 i0 = i;
               } else ++i;
             } else ++i;
           } while (i<siz);
-          if (i0<siz) CImg<T>(_data + i0,(unsigned int)(siz - i0)).unroll(uaxis).move_to(res);
+          if (i0<siz) CImg<T>(_data + i0,1,(unsigned int)(siz - i0)).move_to(res);
+          if (uaxis!='y') cimglist_for(res,l) res[l].unroll(uaxis);
         } break;
         }
       }

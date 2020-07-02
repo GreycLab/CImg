@@ -30456,6 +30456,8 @@ namespace cimg_library_suffixed {
         res.resize(-100,-100,-100,k,0);
       } break;
       default : {
+        const ulongT siz = size();
+        const char uaxis = (ulongT)_width==siz?'x':(ulongT)_depth==siz?'z':(ulongT)_spectrum==siz?'c':'y';
         res.unroll('y');
         if (vsiz==1) { // Optimized version for a single discard value
           const T val = (T)values[0];
@@ -30463,7 +30465,6 @@ namespace cimg_library_suffixed {
             const T _val = (T)_data[i];
             if (_val!=val) res[k++] = _val;
           }
-          res.resize(1,k,1,1,0);
         } else { // Generic version
           cimg_foroff(*this,i) {
             if ((*this)[i]!=(T)values[j]) {
@@ -30472,10 +30473,9 @@ namespace cimg_library_suffixed {
               k+=i - i0 + 1; i0 = (int)i + 1; j = 0;
             } else { ++j; if (j>=vsiz) { j = 0; i0 = (int)i + 1; }}
           }
-          const ulongT siz = size();
           if ((ulongT)i0<siz) { std::memcpy(res._data + k,_data + i0,(siz - i0)*sizeof(T)); k+=siz - i0; }
-          res.resize(1,k,1,1,0);
         }
+        res.resize(1,k,1,1,0).unroll(uaxis);
       }
       }
       return res;
@@ -30516,12 +30516,14 @@ namespace cimg_library_suffixed {
         res.resize(-100,-100,-100,j,0);
       } break;
       default : {
+        const ulongT siz = size();
+        const char uaxis = (ulongT)_width==siz?'x':(ulongT)_depth==siz?'z':(ulongT)_spectrum==siz?'c':'y';
         res.unroll('y');
         cimg_foroff(*this,i) {
           const T val = (*this)[i];
           if (val!=current) res[j++] = current = val;
         }
-        res.resize(-100,j,-100,-100,0);
+        res.resize(-100,j,-100,-100,0).unroll(uaxis);
       }
       }
       return res;

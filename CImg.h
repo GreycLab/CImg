@@ -7061,7 +7061,7 @@ namespace cimg_library_suffixed {
               ns+=9;
             } else *nd = *(ns++);
           } break;
-          default : *nd = *(ns++);
+          default : if (*ns) *nd = *(ns++);
           }
         else *nd = *(ns++);
     }

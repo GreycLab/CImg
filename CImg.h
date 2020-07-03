@@ -63262,7 +63262,7 @@ namespace cimg_library_suffixed {
           CImgList<char> _header = header.get_split(CImg<char>::vector('\n'),0,false);
           cimglist_for(_header,l) {
             if (_header(l,0)=='#') continue;
-            if (_header[l]._height==2 && _header(l,0)=='P') {
+            if (_header[l]._width==2 && _header(l,0)=='P') {
               const char c = _header(l,1);
               if (c=='f' || c=='F') { f_type = _pfm; break; }
               if (c>='1' && c<='9') { f_type = _pnm; break; }

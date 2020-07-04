@@ -29197,6 +29197,148 @@ namespace cimg_library_suffixed {
       return CImg<T>(str,(unsigned int)std::strlen(str) + (is_last_zero?1:0),1,1,1,is_shared);
     }
 
+    //! Return a \c 2x1 image containing specified values.
+    /**
+       \param a0 First vector value.
+       \param a1 Second vector value.
+    **/
+    static CImg<T> row_vector(const T& a0, const T& a1) {
+      CImg<T> res = vector(a0,a1);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
+    //! Return a \c 3x1 image containing specified values.
+    /**
+       \param a0 First vector value.
+       \param a1 Second vector value.
+       \param a2 Third vector value.
+    **/
+    static CImg<T> row_vector(const T& a0, const T& a1, const T& a2) {
+      CImg<T> res = vector(a0,a1,a2);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
+    //! Return a \c 4x1 image containing specified values.
+    /**
+       \param a0 First vector value.
+       \param a1 Second vector value.
+       \param a2 Third vector value.
+       \param a3 Fourth vector value.
+    **/
+    static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3) {
+      CImg<T> res = vector(a0,a1,a2,a3);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
+    //! Return a \c 5x1 image containing specified values.
+    static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3, const T& a4) {
+      CImg<T> res = vector(a0,a1,a2,a3,a4);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
+    //! Return a \c 6x1 image containing specified values.
+    static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3, const T& a4, const T& a5) {
+      CImg<T> res = vector(a0,a1,a2,a3,a4,a5);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
+    //! Return a \c 7x1 image containing specified values.
+    static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3,
+                              const T& a4, const T& a5, const T& a6) {
+      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
+    //! Return a \c 8x1 image containing specified values.
+    static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3,
+                              const T& a4, const T& a5, const T& a6, const T& a7) {
+      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6,a7);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
+    //! Return a \c 9x1 image containing specified values.
+    static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3,
+                              const T& a4, const T& a5, const T& a6, const T& a7,
+                              const T& a8) {
+      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6,a7,a8);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
+    //! Return a \c 10x1 image containing specified values.
+    static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3,
+                              const T& a4, const T& a5, const T& a6, const T& a7,
+                              const T& a8, const T& a9) {
+      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6,a7,a8,a9);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
+    //! Return a \c 11x1 image containing specified values.
+    static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3,
+                              const T& a4, const T& a5, const T& a6, const T& a7,
+                              const T& a8, const T& a9, const T& a10) {
+      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
+    //! Return a \c 12x1 image containing specified values.
+    static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3,
+                              const T& a4, const T& a5, const T& a6, const T& a7,
+                              const T& a8, const T& a9, const T& a10, const T& a11) {
+      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
+    //! Return a \c 13x1 image containing specified values.
+    static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3,
+                              const T& a4, const T& a5, const T& a6, const T& a7,
+                              const T& a8, const T& a9, const T& a10, const T& a11,
+                              const T& a12) {
+      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
+    //! Return a \c 14x1 image containing specified values.
+    static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3,
+                              const T& a4, const T& a5, const T& a6, const T& a7,
+                              const T& a8, const T& a9, const T& a10, const T& a11,
+                              const T& a12, const T& a13) {
+      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
+    //! Return a \c 15x1 image containing specified values.
+    static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3,
+                              const T& a4, const T& a5, const T& a6, const T& a7,
+                              const T& a8, const T& a9, const T& a10, const T& a11,
+                              const T& a12, const T& a13, const T& a14) {
+      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
+    //! Return a \c 16x1 image containing specified values.
+    static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3,
+                              const T& a4, const T& a5, const T& a6, const T& a7,
+                              const T& a8, const T& a9, const T& a10, const T& a11,
+                              const T& a12, const T& a13, const T& a14, const T& a15) {
+      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
     //! Return a \c 1x1 image containing specified value.
     /**
        \param a0 First vector value.
@@ -34304,7 +34446,7 @@ namespace cimg_library_suffixed {
       case 'x' : _width = siz; _height = _depth = _spectrum = 1; break;
       case 'y' : _height = siz; _width = _depth = _spectrum = 1; break;
       case 'z' : _depth = siz; _width = _height = _spectrum = 1; break;
-      default : _spectrum = siz; _width = _height = _depth = 1;
+      case 'c' : _spectrum = siz; _width = _height = _depth = 1; break;
       }
       return *this;
     }

@@ -7061,7 +7061,7 @@ namespace cimg_library_suffixed {
               ns+=9;
             } else *nd = *(ns++);
           } break;
-          default : *nd = *(ns++);
+          default : if (*ns) *nd = *(ns++);
           }
         else *nd = *(ns++);
     }
@@ -25641,7 +25641,7 @@ namespace cimg_library_suffixed {
           k = (unsigned int)mp.opcode[4],
           l = (unsigned int)mp.opcode[5],
           m = (unsigned int)mp.opcode[6];
-        CImg<doubleT>(ptrd,m,k,1,1,true) = CImg<doubleT>(ptr2,m,l,1,1,true).get_solve(CImg<doubleT>(ptr1,k,l,1,1,true));
+        CImg<doubleT>(ptrd,m,k,1,1,true) = CImg<doubleT>(ptr2,m,l,1,1,false).solve(CImg<doubleT>(ptr1,k,l,1,1,true));
         return cimg::type<double>::nan();
       }
 
@@ -28190,89 +28190,6 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Unroll pixel values along axis \c y.
-    /**
-       \note Equivalent to \code unroll('y'); \endcode.
-    **/
-    CImg<T>& vector() {
-      return unroll('y');
-    }
-
-    //! Unroll pixel values along axis \c y \newinstance.
-    CImg<T> get_vector() const {
-      return get_unroll('y');
-    }
-
-    //! Resize image to become a scalar square matrix.
-    /**
-     **/
-    CImg<T>& matrix() {
-      const ulongT siz = size();
-      switch (siz) {
-      case 1 : break;
-      case 4 : _width = _height = 2; break;
-      case 9 : _width = _height = 3; break;
-      case 16 : _width = _height = 4; break;
-      case 25 : _width = _height = 5; break;
-      case 36 : _width = _height = 6; break;
-      case 49 : _width = _height = 7; break;
-      case 64 : _width = _height = 8; break;
-      case 81 : _width = _height = 9; break;
-      case 100 : _width = _height = 10; break;
-      default : {
-        ulongT i = 11, i2 = i*i;
-        while (i2<siz) { i2+=2*i + 1; ++i; }
-        if (i2==siz) _width = _height = i;
-        else throw CImgInstanceException(_cimg_instance
-                                         "matrix(): Invalid instance size %u (should be a square integer).",
-                                         cimg_instance,
-                                         siz);
-      }
-      }
-      return *this;
-    }
-
-    //! Resize image to become a scalar square matrix \newinstance.
-    CImg<T> get_matrix() const {
-      return (+*this).matrix();
-    }
-
-    //! Resize image to become a symmetric tensor.
-    /**
-     **/
-    CImg<T>& tensor() {
-      return get_tensor().move_to(*this);
-    }
-
-    //! Resize image to become a symmetric tensor \newinstance.
-    CImg<T> get_tensor() const {
-      CImg<T> res;
-      const ulongT siz = size();
-      switch (siz) {
-      case 1 : break;
-      case 3 :
-        res.assign(2,2);
-        res(0,0) = (*this)(0);
-        res(1,0) = res(0,1) = (*this)(1);
-        res(1,1) = (*this)(2);
-        break;
-      case 6 :
-        res.assign(3,3);
-        res(0,0) = (*this)(0);
-        res(1,0) = res(0,1) = (*this)(1);
-        res(2,0) = res(0,2) = (*this)(2);
-        res(1,1) = (*this)(3);
-        res(2,1) = res(1,2) = (*this)(4);
-        res(2,2) = (*this)(5);
-        break;
-      default :
-        throw CImgInstanceException(_cimg_instance
-                                    "tensor(): Invalid instance size (does not define a 1x1, 2x2 or 3x3 tensor).",
-                                    cimg_instance);
-      }
-      return res;
-    }
-
     //! Resize image to become a diagonal matrix.
     /**
        \note Transform the image as a diagonal matrix so that each of its initial value becomes a diagonal coefficient.
@@ -29278,6 +29195,148 @@ namespace cimg_library_suffixed {
     static CImg<T> string(const char *const str, const bool is_last_zero=true, const bool is_shared=false) {
       if (!str) return CImg<T>();
       return CImg<T>(str,(unsigned int)std::strlen(str) + (is_last_zero?1:0),1,1,1,is_shared);
+    }
+
+    //! Return a \c 2x1 image containing specified values.
+    /**
+       \param a0 First vector value.
+       \param a1 Second vector value.
+    **/
+    static CImg<T> row_vector(const T& a0, const T& a1) {
+      CImg<T> res = vector(a0,a1);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
+    //! Return a \c 3x1 image containing specified values.
+    /**
+       \param a0 First vector value.
+       \param a1 Second vector value.
+       \param a2 Third vector value.
+    **/
+    static CImg<T> row_vector(const T& a0, const T& a1, const T& a2) {
+      CImg<T> res = vector(a0,a1,a2);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
+    //! Return a \c 4x1 image containing specified values.
+    /**
+       \param a0 First vector value.
+       \param a1 Second vector value.
+       \param a2 Third vector value.
+       \param a3 Fourth vector value.
+    **/
+    static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3) {
+      CImg<T> res = vector(a0,a1,a2,a3);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
+    //! Return a \c 5x1 image containing specified values.
+    static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3, const T& a4) {
+      CImg<T> res = vector(a0,a1,a2,a3,a4);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
+    //! Return a \c 6x1 image containing specified values.
+    static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3, const T& a4, const T& a5) {
+      CImg<T> res = vector(a0,a1,a2,a3,a4,a5);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
+    //! Return a \c 7x1 image containing specified values.
+    static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3,
+                              const T& a4, const T& a5, const T& a6) {
+      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
+    //! Return a \c 8x1 image containing specified values.
+    static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3,
+                              const T& a4, const T& a5, const T& a6, const T& a7) {
+      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6,a7);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
+    //! Return a \c 9x1 image containing specified values.
+    static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3,
+                              const T& a4, const T& a5, const T& a6, const T& a7,
+                              const T& a8) {
+      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6,a7,a8);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
+    //! Return a \c 10x1 image containing specified values.
+    static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3,
+                              const T& a4, const T& a5, const T& a6, const T& a7,
+                              const T& a8, const T& a9) {
+      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6,a7,a8,a9);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
+    //! Return a \c 11x1 image containing specified values.
+    static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3,
+                              const T& a4, const T& a5, const T& a6, const T& a7,
+                              const T& a8, const T& a9, const T& a10) {
+      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
+    //! Return a \c 12x1 image containing specified values.
+    static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3,
+                              const T& a4, const T& a5, const T& a6, const T& a7,
+                              const T& a8, const T& a9, const T& a10, const T& a11) {
+      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
+    //! Return a \c 13x1 image containing specified values.
+    static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3,
+                              const T& a4, const T& a5, const T& a6, const T& a7,
+                              const T& a8, const T& a9, const T& a10, const T& a11,
+                              const T& a12) {
+      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
+    //! Return a \c 14x1 image containing specified values.
+    static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3,
+                              const T& a4, const T& a5, const T& a6, const T& a7,
+                              const T& a8, const T& a9, const T& a10, const T& a11,
+                              const T& a12, const T& a13) {
+      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
+    //! Return a \c 15x1 image containing specified values.
+    static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3,
+                              const T& a4, const T& a5, const T& a6, const T& a7,
+                              const T& a8, const T& a9, const T& a10, const T& a11,
+                              const T& a12, const T& a13, const T& a14) {
+      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14);
+      cimg::swap(res._width,res._height);
+      return res;
+    }
+
+    //! Return a \c 16x1 image containing specified values.
+    static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3,
+                              const T& a4, const T& a5, const T& a6, const T& a7,
+                              const T& a8, const T& a9, const T& a10, const T& a11,
+                              const T& a12, const T& a13, const T& a14, const T& a15) {
+      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15);
+      cimg::swap(res._width,res._height);
+      return res;
     }
 
     //! Return a \c 1x1 image containing specified value.
@@ -30456,6 +30515,8 @@ namespace cimg_library_suffixed {
         res.resize(-100,-100,-100,k,0);
       } break;
       default : {
+        const ulongT siz = size();
+        const char uaxis = (ulongT)_width==siz?'x':(ulongT)_depth==siz?'z':(ulongT)_spectrum==siz?'c':'y';
         res.unroll('y');
         if (vsiz==1) { // Optimized version for a single discard value
           const T val = (T)values[0];
@@ -30463,7 +30524,6 @@ namespace cimg_library_suffixed {
             const T _val = (T)_data[i];
             if (_val!=val) res[k++] = _val;
           }
-          res.resize(1,k,1,1,0);
         } else { // Generic version
           cimg_foroff(*this,i) {
             if ((*this)[i]!=(T)values[j]) {
@@ -30472,10 +30532,10 @@ namespace cimg_library_suffixed {
               k+=i - i0 + 1; i0 = (int)i + 1; j = 0;
             } else { ++j; if (j>=vsiz) { j = 0; i0 = (int)i + 1; }}
           }
-          const ulongT siz = size();
           if ((ulongT)i0<siz) { std::memcpy(res._data + k,_data + i0,(siz - i0)*sizeof(T)); k+=siz - i0; }
-          res.resize(1,k,1,1,0);
         }
+        res.resize(1,k,1,1,0);
+        if (uaxis!='y') res.unroll(uaxis);
       }
       }
       return res;
@@ -30516,12 +30576,15 @@ namespace cimg_library_suffixed {
         res.resize(-100,-100,-100,j,0);
       } break;
       default : {
+        const ulongT siz = size();
+        const char uaxis = (ulongT)_width==siz?'x':(ulongT)_depth==siz?'z':(ulongT)_spectrum==siz?'c':'y';
         res.unroll('y');
         cimg_foroff(*this,i) {
           const T val = (*this)[i];
           if (val!=current) res[j++] = current = val;
         }
         res.resize(-100,j,-100,-100,0);
+        if (uaxis!='y') res.unroll(uaxis);
       }
       }
       return res;
@@ -34383,7 +34446,7 @@ namespace cimg_library_suffixed {
       case 'x' : _width = siz; _height = _depth = _spectrum = 1; break;
       case 'y' : _height = siz; _width = _depth = _spectrum = 1; break;
       case 'z' : _depth = siz; _width = _height = _spectrum = 1; break;
-      default : _spectrum = siz; _width = _height = _depth = 1;
+      case 'c' : _spectrum = siz; _width = _height = _depth = 1; break;
       }
       return *this;
     }
@@ -36748,13 +36811,18 @@ namespace cimg_library_suffixed {
         } break;
         default : {
           const ulongT siz = size();
+          const char uaxis = (ulongT)_width==siz?'x':(ulongT)_depth==siz?'z':(ulongT)_spectrum==siz?'c':'y';
           ulongT i0 = 0, i = 0;
           do {
             while (i<siz && (*this)[i]==value) ++i;
-            if (i>i0) { if (keep_values) CImg<T>(_data + i0,1,(unsigned int)(i - i0)).move_to(res); i0 = i; }
+            if (i>i0) {
+              if (keep_values) CImg<T>(_data + i0,1,(unsigned int)(i - i0)).move_to(res);
+              i0 = i;
+            }
             while (i<siz && (*this)[i]!=value) ++i;
             if (i>i0) { CImg<T>(_data + i0,1,(unsigned int)(i - i0)).move_to(res); i0 = i; }
           } while (i<siz);
+          if (uaxis!='y') cimglist_for(res,l) res[l].unroll(uaxis);
         }
         }
       } else { // Split according to multiple values
@@ -36825,8 +36893,9 @@ namespace cimg_library_suffixed {
           if (i0<_spectrum) get_channels(i0,spectrum() - 1).move_to(res);
         } break;
         default : {
-          ulongT i0 = 0, i1 = 0, i = 0;
           const ulongT siz = size();
+          const char uaxis = (ulongT)_width==siz?'x':(ulongT)_depth==siz?'z':(ulongT)_spectrum==siz?'c':'y';
+          ulongT i0 = 0, i1 = 0, i = 0;
           do {
             if ((Tt)(*this)[i]==(Tt)*values) {
               i1 = i; j = 0;
@@ -36840,6 +36909,7 @@ namespace cimg_library_suffixed {
             } else ++i;
           } while (i<siz);
           if (i0<siz) CImg<T>(_data + i0,1,(unsigned int)(siz - i0)).move_to(res);
+          if (uaxis!='y') cimglist_for(res,l) res[l].unroll(uaxis);
         } break;
         }
       }
@@ -47369,7 +47439,7 @@ namespace cimg_library_suffixed {
     //! Draw a 2D vector field.
     /**
        \param flow Image of 2D vectors used as input data.
-       \param color Image of spectrum()-D vectors corresponding to the color of each arrow.
+       \param color Pointer to \c spectrum() consecutive values, defining the drawing color.
        \param opacity Drawing opacity.
        \param sampling Length (in pixels) between each arrow.
        \param factor Length factor of each arrow (if <0, computed as a percentage of the maximum length).
@@ -53188,7 +53258,7 @@ namespace cimg_library_suffixed {
                                                 cimg_instance,filename?filename:"(FILE*)");
         cimg::fseek(nfile,0,SEEK_END);
         siz = cimg::ftell(nfile)/sizeof(T);
-		_size_y = (unsigned int)siz;
+        _size_y = (unsigned int)siz;
         _size_x = _size_z = _size_c = 1;
         cimg::fseek(nfile,fpos,SEEK_SET);
       }
@@ -63334,7 +63404,7 @@ namespace cimg_library_suffixed {
           CImgList<char> _header = header.get_split(CImg<char>::vector('\n'),0,false);
           cimglist_for(_header,l) {
             if (_header(l,0)=='#') continue;
-            if (_header[l]._height==2 && _header(l,0)=='P') {
+            if (_header[l]._width==2 && _header(l,0)=='P') {
               const char c = _header(l,1);
               if (c=='f' || c=='F') { f_type = _pfm; break; }
               if (c>='1' && c<='9') { f_type = _pnm; break; }

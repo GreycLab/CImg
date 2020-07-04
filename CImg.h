@@ -29197,15 +29197,23 @@ namespace cimg_library_suffixed {
       return CImg<T>(str,(unsigned int)std::strlen(str) + (is_last_zero?1:0),1,1,1,is_shared);
     }
 
+    //! Return a \c 1x1 image containing specified value.
+    /**
+       \param a0 First vector value.
+    **/
+    static CImg<T> row_vector(const T& a0) {
+      return vector(a0);
+    }
+
     //! Return a \c 2x1 image containing specified values.
     /**
        \param a0 First vector value.
        \param a1 Second vector value.
     **/
     static CImg<T> row_vector(const T& a0, const T& a1) {
-      CImg<T> res = vector(a0,a1);
-      cimg::swap(res._width,res._height);
-      return res;
+      CImg<T> r(2,1);
+      r[0] = a0; r[1] = a1;
+      return r;
     }
 
     //! Return a \c 3x1 image containing specified values.
@@ -29215,9 +29223,9 @@ namespace cimg_library_suffixed {
        \param a2 Third vector value.
     **/
     static CImg<T> row_vector(const T& a0, const T& a1, const T& a2) {
-      CImg<T> res = vector(a0,a1,a2);
-      cimg::swap(res._width,res._height);
-      return res;
+      CImg<T> r(3,1);
+      r[0] = a0; r[1] = a1; r[2] = a2;
+      return r;
     }
 
     //! Return a \c 4x1 image containing specified values.
@@ -29228,75 +29236,77 @@ namespace cimg_library_suffixed {
        \param a3 Fourth vector value.
     **/
     static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3) {
-      CImg<T> res = vector(a0,a1,a2,a3);
-      cimg::swap(res._width,res._height);
-      return res;
+      CImg<T> r(4,1);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3;
+      return r;
     }
 
     //! Return a \c 5x1 image containing specified values.
     static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3, const T& a4) {
-      CImg<T> res = vector(a0,a1,a2,a3,a4);
-      cimg::swap(res._width,res._height);
-      return res;
+      CImg<T> r(5,1);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4;
+      return r;
     }
 
     //! Return a \c 6x1 image containing specified values.
     static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3, const T& a4, const T& a5) {
-      CImg<T> res = vector(a0,a1,a2,a3,a4,a5);
-      cimg::swap(res._width,res._height);
-      return res;
+      CImg<T> r(6,1);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4; r[5] = a5;
+      return r;
     }
 
     //! Return a \c 7x1 image containing specified values.
     static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3,
                               const T& a4, const T& a5, const T& a6) {
-      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6);
-      cimg::swap(res._width,res._height);
-      return res;
+      CImg<T> r(7,1);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4; r[5] = a5; r[6] = a6;
+      return r;
     }
 
     //! Return a \c 8x1 image containing specified values.
     static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3,
                               const T& a4, const T& a5, const T& a6, const T& a7) {
-      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6,a7);
-      cimg::swap(res._width,res._height);
-      return res;
+      CImg<T> r(8,1);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4; r[5] = a5; r[6] = a6; r[7] = a7;
+      return r;
     }
 
     //! Return a \c 9x1 image containing specified values.
     static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3,
                               const T& a4, const T& a5, const T& a6, const T& a7,
                               const T& a8) {
-      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6,a7,a8);
-      cimg::swap(res._width,res._height);
-      return res;
+      CImg<T> r(9,1);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4; r[5] = a5; r[6] = a6; r[7] = a7; r[8] = a8;
+      return r;
     }
 
     //! Return a \c 10x1 image containing specified values.
     static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3,
                               const T& a4, const T& a5, const T& a6, const T& a7,
                               const T& a8, const T& a9) {
-      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6,a7,a8,a9);
-      cimg::swap(res._width,res._height);
-      return res;
+      CImg<T> r(10,1);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4; r[5] = a5; r[6] = a6; r[7] = a7; r[8] = a8; r[9] = a9;
+      return r;
     }
 
     //! Return a \c 11x1 image containing specified values.
     static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3,
                               const T& a4, const T& a5, const T& a6, const T& a7,
                               const T& a8, const T& a9, const T& a10) {
-      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10);
-      cimg::swap(res._width,res._height);
-      return res;
+      CImg<T> r(11,1);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4; r[5] = a5; r[6] = a6; r[7] = a7; r[8] = a8; r[9] = a9;
+      r[10] = a10;
+      return r;
     }
 
     //! Return a \c 12x1 image containing specified values.
     static CImg<T> row_vector(const T& a0, const T& a1, const T& a2, const T& a3,
                               const T& a4, const T& a5, const T& a6, const T& a7,
                               const T& a8, const T& a9, const T& a10, const T& a11) {
-      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11);
-      cimg::swap(res._width,res._height);
-      return res;
+      CImg<T> r(12,1);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4; r[5] = a5; r[6] = a6; r[7] = a7; r[8] = a8; r[9] = a9;
+      r[10] = a10; r[11] = a11;
+      return r;
     }
 
     //! Return a \c 13x1 image containing specified values.
@@ -29304,9 +29314,10 @@ namespace cimg_library_suffixed {
                               const T& a4, const T& a5, const T& a6, const T& a7,
                               const T& a8, const T& a9, const T& a10, const T& a11,
                               const T& a12) {
-      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12);
-      cimg::swap(res._width,res._height);
-      return res;
+      CImg<T> r(13,1);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4; r[5] = a5; r[6] = a6; r[7] = a7; r[8] = a8; r[9] = a9;
+      r[10] = a10; r[11] = a11; r[12] = a12;
+      return r;
     }
 
     //! Return a \c 14x1 image containing specified values.
@@ -29314,9 +29325,10 @@ namespace cimg_library_suffixed {
                               const T& a4, const T& a5, const T& a6, const T& a7,
                               const T& a8, const T& a9, const T& a10, const T& a11,
                               const T& a12, const T& a13) {
-      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13);
-      cimg::swap(res._width,res._height);
-      return res;
+      CImg<T> r(14,1);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4; r[5] = a5; r[6] = a6; r[7] = a7; r[8] = a8; r[9] = a9;
+      r[10] = a10; r[11] = a11; r[12] = a12; r[13] = a13;
+      return r;
     }
 
     //! Return a \c 15x1 image containing specified values.
@@ -29324,9 +29336,10 @@ namespace cimg_library_suffixed {
                               const T& a4, const T& a5, const T& a6, const T& a7,
                               const T& a8, const T& a9, const T& a10, const T& a11,
                               const T& a12, const T& a13, const T& a14) {
-      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14);
-      cimg::swap(res._width,res._height);
-      return res;
+      CImg<T> r(15,1);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4; r[5] = a5; r[6] = a6; r[7] = a7; r[8] = a8; r[9] = a9;
+      r[10] = a10; r[11] = a11; r[12] = a12; r[13] = a13; r[14] = a14;
+      return r;
     }
 
     //! Return a \c 16x1 image containing specified values.
@@ -29334,9 +29347,10 @@ namespace cimg_library_suffixed {
                               const T& a4, const T& a5, const T& a6, const T& a7,
                               const T& a8, const T& a9, const T& a10, const T& a11,
                               const T& a12, const T& a13, const T& a14, const T& a15) {
-      CImg<T> res = vector(a0,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,a13,a14,a15);
-      cimg::swap(res._width,res._height);
-      return res;
+      CImg<T> r(16,1);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4; r[5] = a5; r[6] = a6; r[7] = a7; r[8] = a8; r[9] = a9;
+      r[10] = a10; r[11] = a11; r[12] = a12; r[13] = a13; r[14] = a14; r[15] = a15;
+      return r;
     }
 
     //! Return a \c 1x1 image containing specified value.
@@ -29355,8 +29369,8 @@ namespace cimg_library_suffixed {
        \param a1 Second vector value.
     **/
     static CImg<T> vector(const T& a0, const T& a1) {
-      CImg<T> r(1,2); T *ptr = r._data;
-      *(ptr++) = a0; *(ptr++) = a1;
+      CImg<T> r(1,2);
+      r[0] = a0; r[1] = a1;
       return r;
     }
 
@@ -29367,8 +29381,8 @@ namespace cimg_library_suffixed {
        \param a2 Third vector value.
     **/
     static CImg<T> vector(const T& a0, const T& a1, const T& a2) {
-      CImg<T> r(1,3); T *ptr = r._data;
-      *(ptr++) = a0; *(ptr++) = a1; *(ptr++) = a2;
+      CImg<T> r(1,3);
+      r[0] = a0; r[1] = a1; r[2] = a2;
       return r;
     }
 
@@ -29380,40 +29394,38 @@ namespace cimg_library_suffixed {
        \param a3 Fourth vector value.
     **/
     static CImg<T> vector(const T& a0, const T& a1, const T& a2, const T& a3) {
-      CImg<T> r(1,4); T *ptr = r._data;
-      *(ptr++) = a0; *(ptr++) = a1; *(ptr++) = a2; *(ptr++) = a3;
+      CImg<T> r(1,4);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3;
       return r;
     }
 
     //! Return a \c 1x5 image containing specified values.
     static CImg<T> vector(const T& a0, const T& a1, const T& a2, const T& a3, const T& a4) {
-      CImg<T> r(1,5); T *ptr = r._data;
-      *(ptr++) = a0; *(ptr++) = a1; *(ptr++) = a2; *(ptr++) = a3; *(ptr++) = a4;
+      CImg<T> r(1,5);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4;
       return r;
     }
 
     //! Return a \c 1x6 image containing specified values.
     static CImg<T> vector(const T& a0, const T& a1, const T& a2, const T& a3, const T& a4, const T& a5) {
-      CImg<T> r(1,6); T *ptr = r._data;
-      *(ptr++) = a0; *(ptr++) = a1; *(ptr++) = a2; *(ptr++) = a3; *(ptr++) = a4; *(ptr++) = a5;
+      CImg<T> r(1,6);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4; r[5] = a5;
       return r;
     }
 
     //! Return a \c 1x7 image containing specified values.
     static CImg<T> vector(const T& a0, const T& a1, const T& a2, const T& a3,
 			  const T& a4, const T& a5, const T& a6) {
-      CImg<T> r(1,7); T *ptr = r._data;
-      *(ptr++) = a0; *(ptr++) = a1; *(ptr++) = a2; *(ptr++) = a3;
-      *(ptr++) = a4; *(ptr++) = a5; *(ptr++) = a6;
+      CImg<T> r(1,7);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4; r[5] = a5; r[6] = a6;
       return r;
     }
 
     //! Return a \c 1x8 image containing specified values.
     static CImg<T> vector(const T& a0, const T& a1, const T& a2, const T& a3,
 			  const T& a4, const T& a5, const T& a6, const T& a7) {
-      CImg<T> r(1,8); T *ptr = r._data;
-      *(ptr++) = a0; *(ptr++) = a1; *(ptr++) = a2; *(ptr++) = a3;
-      *(ptr++) = a4; *(ptr++) = a5; *(ptr++) = a6; *(ptr++) = a7;
+      CImg<T> r(1,8);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4; r[5] = a5; r[6] = a6; r[7] = a7;
       return r;
     }
 
@@ -29421,10 +29433,8 @@ namespace cimg_library_suffixed {
     static CImg<T> vector(const T& a0, const T& a1, const T& a2, const T& a3,
 			  const T& a4, const T& a5, const T& a6, const T& a7,
 			  const T& a8) {
-      CImg<T> r(1,9); T *ptr = r._data;
-      *(ptr++) = a0; *(ptr++) = a1; *(ptr++) = a2; *(ptr++) = a3;
-      *(ptr++) = a4; *(ptr++) = a5; *(ptr++) = a6; *(ptr++) = a7;
-      *(ptr++) = a8;
+      CImg<T> r(1,9);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4; r[5] = a5; r[6] = a6; r[7] = a7; r[8] = a8;
       return r;
     }
 
@@ -29432,10 +29442,8 @@ namespace cimg_library_suffixed {
     static CImg<T> vector(const T& a0, const T& a1, const T& a2, const T& a3,
                           const T& a4, const T& a5, const T& a6, const T& a7,
                           const T& a8, const T& a9) {
-      CImg<T> r(1,10); T *ptr = r._data;
-      *(ptr++) = a0; *(ptr++) = a1; *(ptr++) = a2; *(ptr++) = a3;
-      *(ptr++) = a4; *(ptr++) = a5; *(ptr++) = a6; *(ptr++) = a7;
-      *(ptr++) = a8; *(ptr++) = a9;
+      CImg<T> r(1,10);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4; r[5] = a5; r[6] = a6; r[7] = a7; r[8] = a8; r[9] = a9;
       return r;
     }
 
@@ -29443,10 +29451,9 @@ namespace cimg_library_suffixed {
     static CImg<T> vector(const T& a0, const T& a1, const T& a2, const T& a3,
                           const T& a4, const T& a5, const T& a6, const T& a7,
                           const T& a8, const T& a9, const T& a10) {
-      CImg<T> r(1,11); T *ptr = r._data;
-      *(ptr++) = a0; *(ptr++) = a1; *(ptr++) = a2; *(ptr++) = a3;
-      *(ptr++) = a4; *(ptr++) = a5; *(ptr++) = a6; *(ptr++) = a7;
-      *(ptr++) = a8; *(ptr++) = a9; *(ptr++) = a10;
+      CImg<T> r(1,11);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4; r[5] = a5; r[6] = a6; r[7] = a7; r[8] = a8; r[9] = a9;
+      r[10] = a10;
       return r;
     }
 
@@ -29454,10 +29461,9 @@ namespace cimg_library_suffixed {
     static CImg<T> vector(const T& a0, const T& a1, const T& a2, const T& a3,
                           const T& a4, const T& a5, const T& a6, const T& a7,
                           const T& a8, const T& a9, const T& a10, const T& a11) {
-      CImg<T> r(1,12); T *ptr = r._data;
-      *(ptr++) = a0; *(ptr++) = a1; *(ptr++) = a2; *(ptr++) = a3;
-      *(ptr++) = a4; *(ptr++) = a5; *(ptr++) = a6; *(ptr++) = a7;
-      *(ptr++) = a8; *(ptr++) = a9; *(ptr++) = a10; *(ptr++) = a11;
+      CImg<T> r(1,12);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4; r[5] = a5; r[6] = a6; r[7] = a7; r[8] = a8; r[9] = a9;
+      r[10] = a10; r[11] = a11;
       return r;
     }
 
@@ -29466,11 +29472,9 @@ namespace cimg_library_suffixed {
                           const T& a4, const T& a5, const T& a6, const T& a7,
                           const T& a8, const T& a9, const T& a10, const T& a11,
 			  const T& a12) {
-      CImg<T> r(1,13); T *ptr = r._data;
-      *(ptr++) = a0; *(ptr++) = a1; *(ptr++) = a2; *(ptr++) = a3;
-      *(ptr++) = a4; *(ptr++) = a5; *(ptr++) = a6; *(ptr++) = a7;
-      *(ptr++) = a8; *(ptr++) = a9; *(ptr++) = a10; *(ptr++) = a11;
-      *(ptr++) = a12;
+      CImg<T> r(1,13);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4; r[5] = a5; r[6] = a6; r[7] = a7; r[8] = a8; r[9] = a9;
+      r[10] = a10; r[11] = a11; r[12] = a12;
       return r;
     }
 
@@ -29479,11 +29483,9 @@ namespace cimg_library_suffixed {
                           const T& a4, const T& a5, const T& a6, const T& a7,
                           const T& a8, const T& a9, const T& a10, const T& a11,
 			  const T& a12, const T& a13) {
-      CImg<T> r(1,14); T *ptr = r._data;
-      *(ptr++) = a0; *(ptr++) = a1; *(ptr++) = a2; *(ptr++) = a3;
-      *(ptr++) = a4; *(ptr++) = a5; *(ptr++) = a6; *(ptr++) = a7;
-      *(ptr++) = a8; *(ptr++) = a9; *(ptr++) = a10; *(ptr++) = a11;
-      *(ptr++) = a12; *(ptr++) = a13;
+      CImg<T> r(1,14);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4; r[5] = a5; r[6] = a6; r[7] = a7; r[8] = a8; r[9] = a9;
+      r[10] = a10; r[11] = a11; r[12] = a12; r[13] = a13;
       return r;
     }
 
@@ -29492,11 +29494,9 @@ namespace cimg_library_suffixed {
                           const T& a4, const T& a5, const T& a6, const T& a7,
                           const T& a8, const T& a9, const T& a10, const T& a11,
 			  const T& a12, const T& a13, const T& a14) {
-      CImg<T> r(1,15); T *ptr = r._data;
-      *(ptr++) = a0; *(ptr++) = a1; *(ptr++) = a2; *(ptr++) = a3;
-      *(ptr++) = a4; *(ptr++) = a5; *(ptr++) = a6; *(ptr++) = a7;
-      *(ptr++) = a8; *(ptr++) = a9; *(ptr++) = a10; *(ptr++) = a11;
-      *(ptr++) = a12; *(ptr++) = a13; *(ptr++) = a14;
+      CImg<T> r(1,15);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4; r[5] = a5; r[6] = a6; r[7] = a7; r[8] = a8; r[9] = a9;
+      r[10] = a10; r[11] = a11; r[12] = a12; r[13] = a13; r[14] = a14;
       return r;
     }
 
@@ -29505,11 +29505,9 @@ namespace cimg_library_suffixed {
                           const T& a4, const T& a5, const T& a6, const T& a7,
                           const T& a8, const T& a9, const T& a10, const T& a11,
 			  const T& a12, const T& a13, const T& a14, const T& a15) {
-      CImg<T> r(1,16); T *ptr = r._data;
-      *(ptr++) = a0; *(ptr++) = a1; *(ptr++) = a2; *(ptr++) = a3;
-      *(ptr++) = a4; *(ptr++) = a5; *(ptr++) = a6; *(ptr++) = a7;
-      *(ptr++) = a8; *(ptr++) = a9; *(ptr++) = a10; *(ptr++) = a11;
-      *(ptr++) = a12; *(ptr++) = a13; *(ptr++) = a14; *(ptr++) = a15;
+      CImg<T> r(1,16);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4; r[5] = a5; r[6] = a6; r[7] = a7; r[8] = a8; r[9] = a9;
+      r[10] = a10; r[11] = a11; r[12] = a12; r[13] = a13; r[14] = a14; r[15] = a15;
       return r;
     }
 

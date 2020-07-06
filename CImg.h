@@ -31652,6 +31652,7 @@ namespace cimg_library_suffixed {
        The submitted code has then been modified to fit CImg coding style and constraints.
     **/
     CImg<T>& label(const bool is_high_connectivity=false, const Tfloat tolerance=0) {
+      if (is_empty()) return *this;
       return get_label(is_high_connectivity,tolerance).move_to(*this);
     }
 
@@ -31692,6 +31693,7 @@ namespace cimg_library_suffixed {
     **/
     template<typename t>
     CImg<T>& label(const CImg<t>& connectivity_mask, const Tfloat tolerance=0) {
+      if (is_empty()) return *this;
       return get_label(connectivity_mask,tolerance).move_to(*this);
     }
 
@@ -31699,6 +31701,7 @@ namespace cimg_library_suffixed {
     template<typename t>
     CImg<ulongT> get_label(const CImg<t>& connectivity_mask,
                            const Tfloat tolerance=0) const {
+      if (is_empty()) return CImg<ulongT>();
       int nb = 0;
       cimg_for(connectivity_mask,ptr,t) if (*ptr) ++nb;
       CImg<intT> dx(nb,1,1,1,0), dy(nb,1,1,1,0), dz(nb,1,1,1,0);
@@ -31713,61 +31716,85 @@ namespace cimg_library_suffixed {
     CImg<ulongT> _label(const unsigned int nb, const int *const dx,
                         const int *const dy, const int *const dz,
                         const Tfloat tolerance) const {
-      CImg<ulongT> res(_width,_height,_depth,_spectrum);
-      cimg_forC(*this,c) {
-        CImg<ulongT> _res = res.get_shared_channel(c);
+      CImg<ulongT> res(_width,_height,_depth);
 
-        // Init label numbers.
-        ulongT *ptr = _res.data();
-        cimg_foroff(_res,p) *(ptr++) = p;
+      // Init label numbers.
+      ulongT *ptr = res.data();
+      cimg_foroff(res,p) *(ptr++) = p;
 
-        // For each neighbour-direction, label.
-        for (unsigned int n = 0; n<nb; ++n) {
-          const int _dx = dx[n], _dy = dy[n], _dz = dz[n];
-          if (_dx || _dy || _dz) {
-            const int
-              x0 = _dx<0?-_dx:0,
-              x1 = _dx<0?width():width() - _dx,
-              y0 = _dy<0?-_dy:0,
-              y1 = _dy<0?height():height() - _dy,
-              z0 = _dz<0?-_dz:0,
-              z1 = _dz<0?depth():depth() - _dz;
-            const longT
-              wh = (longT)width()*height(),
-              whd = (longT)width()*height()*depth(),
-              offset = _dz*wh + _dy*width() + _dx;
-            for (longT z = z0, nz = z0 + _dz, pz = z0*wh; z<z1; ++z, ++nz, pz+=wh) {
-              for (longT y = y0, ny = y0 + _dy, py = y0*width() + pz; y<y1; ++y, ++ny, py+=width()) {
-                for (longT x = x0, nx = x0 + _dx, p = x0 + py; x<x1; ++x, ++nx, ++p) {
-                  if (cimg::abs((Tfloat)(*this)(x,y,z,c,wh,whd) - (Tfloat)(*this)(nx,ny,nz,c,wh,whd))<=tolerance) {
-                    const longT q = p + offset;
-                    ulongT xk, yk;
-                    for (xk = (ulongT)(p<q?q:p), yk = (ulongT)(p<q?p:q); xk!=yk && _res[xk]!=xk; ) {
-                      xk = _res[xk]; if (xk<yk) cimg::swap(xk,yk);
-                    }
-                    if (xk!=yk) _res[xk] = (ulongT)yk;
-                    for (ulongT _p = (ulongT)p; _p!=yk; ) {
-                      const ulongT h = _res[_p];
-                      _res[_p] = (ulongT)yk;
-                      _p = h;
-                    }
-                    for (ulongT _q = (ulongT)q; _q!=yk; ) {
-                      const ulongT h = _res[_q];
-                      _res[_q] = (ulongT)yk;
-                      _q = h;
-                    }
+      // For each neighbour-direction, label.
+      for (unsigned int n = 0; n<nb; ++n) {
+        const int _dx = dx[n], _dy = dy[n], _dz = dz[n];
+        if (_dx || _dy || _dz) {
+          const int
+            x0 = _dx<0?-_dx:0,
+            x1 = _dx<0?width():width() - _dx,
+            y0 = _dy<0?-_dy:0,
+            y1 = _dy<0?height():height() - _dy,
+            z0 = _dz<0?-_dz:0,
+            z1 = _dz<0?depth():depth() - _dz;
+          const longT
+            wh = (longT)width()*height(),
+            whd = (longT)width()*height()*depth(),
+            offset = _dz*wh + _dy*width() + _dx;
+          for (longT z = z0, nz = z0 + _dz, pz = z0*wh; z<z1; ++z, ++nz, pz+=wh) {
+            for (longT y = y0, ny = y0 + _dy, py = y0*width() + pz; y<y1; ++y, ++ny, py+=width()) {
+              for (longT x = x0, nx = x0 + _dx, p = x0 + py; x<x1; ++x, ++nx, ++p) {
+                Tfloat dist;
+                switch (_spectrum) {
+                case 1 :
+                  dist = cimg::abs((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd));
+                  break;
+                case 2 :
+                  dist = std::sqrt(cimg::sqr((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd)) +
+                                   cimg::sqr((Tfloat)(*this)(x,y,z,1,wh,whd) - (Tfloat)(*this)(nx,ny,nz,1,wh,whd)));
+                  break;
+                case 3 :
+                  dist = std::sqrt(cimg::sqr((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd)) +
+                                   cimg::sqr((Tfloat)(*this)(x,y,z,1,wh,whd) - (Tfloat)(*this)(nx,ny,nz,1,wh,whd)) +
+                                   cimg::sqr((Tfloat)(*this)(x,y,z,2,wh,whd) - (Tfloat)(*this)(nx,ny,nz,2,wh,whd)));
+                  break;
+                case 4 :
+                  dist = std::sqrt(cimg::sqr((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd)) +
+                                   cimg::sqr((Tfloat)(*this)(x,y,z,1,wh,whd) - (Tfloat)(*this)(nx,ny,nz,1,wh,whd)) +
+                                   cimg::sqr((Tfloat)(*this)(x,y,z,2,wh,whd) - (Tfloat)(*this)(nx,ny,nz,2,wh,whd)) +
+                                   cimg::sqr((Tfloat)(*this)(x,y,z,3,wh,whd) - (Tfloat)(*this)(nx,ny,nz,3,wh,whd)));
+                  break;
+                default :
+                  dist = 0;
+                  cimg_forC(*this,c)
+                    dist+=cimg::sqr((Tfloat)(*this)(x,y,z,c,wh,whd) - (Tfloat)(*this)(nx,ny,nz,c,wh,whd));
+                  dist = std::sqrt(dist);
+                }
+
+                if (dist<=tolerance) {
+                  const longT q = p + offset;
+                  ulongT xk, yk;
+                  for (xk = (ulongT)(p<q?q:p), yk = (ulongT)(p<q?p:q); xk!=yk && res[xk]!=xk; ) {
+                    xk = res[xk]; if (xk<yk) cimg::swap(xk,yk);
+                  }
+                  if (xk!=yk) res[xk] = (ulongT)yk;
+                  for (ulongT _p = (ulongT)p; _p!=yk; ) {
+                    const ulongT h = res[_p];
+                    res[_p] = (ulongT)yk;
+                    _p = h;
+                  }
+                  for (ulongT _q = (ulongT)q; _q!=yk; ) {
+                    const ulongT h = res[_q];
+                    res[_q] = (ulongT)yk;
+                    _q = h;
                   }
                 }
               }
             }
           }
         }
-
-        // Resolve equivalences.
-        ulongT counter = 0;
-        ptr = _res.data();
-        cimg_foroff(_res,p) { *ptr = *ptr==p?counter++:_res[*ptr]; ++ptr; }
       }
+
+      // Resolve equivalences.
+      ulongT counter = 0;
+      ptr = res.data();
+      cimg_foroff(res,p) { *ptr = *ptr==p?counter++:res[*ptr]; ++ptr; }
       return res;
     }
 

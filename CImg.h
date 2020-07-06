@@ -31645,20 +31645,22 @@ namespace cimg_library_suffixed {
        \param is_high_connectivity Boolean that choose between 4(false)- or 8(true)-connectivity
        in 2D case, and between 6(false)- or 26(true)-connectivity in 3D case.
        \param tolerance Tolerance used to determine if two neighboring pixels belong to the same region.
+       \param is_L2_norm If true, tolerance is compared against L2 difference, otherwise L1 is used.
        \note The algorithm of connected components computation has been primarily done
        by A. Meijster, according to the publication:
        'W.H. Hesselink, A. Meijster, C. Bron, "Concurrent Determination of Connected Components.",
        In: Science of Computer Programming 41 (2001), pp. 173--194'.
        The submitted code has then been modified to fit CImg coding style and constraints.
     **/
-    CImg<T>& label(const bool is_high_connectivity=false, const Tfloat tolerance=0) {
+    CImg<T>& label(const bool is_high_connectivity=false, const Tfloat tolerance=0,
+                   const bool is_L2_norm=true) {
       if (is_empty()) return *this;
-      return get_label(is_high_connectivity,tolerance).move_to(*this);
+      return get_label(is_high_connectivity,tolerance,is_L2_norm).move_to(*this);
     }
 
     //! Label connected components \newinstance.
-    CImg<ulongT> get_label(const bool is_high_connectivity=false,
-                           const Tfloat tolerance=0) const {
+    CImg<ulongT> get_label(const bool is_high_connectivity=false, const Tfloat tolerance=0,
+                           const bool is_L2_norm=true) const {
       if (is_empty()) return CImg<ulongT>();
 
       // Create neighborhood tables.
@@ -31683,24 +31685,26 @@ namespace cimg_library_suffixed {
           dx[nb] = 1; dy[nb] = 1; dz[nb++] = 1;
         }
       }
-      return _label(nb,dx,dy,dz,tolerance);
+      return _label(nb,dx,dy,dz,tolerance,is_L2_norm);
     }
 
     //! Label connected components \overloading.
     /**
        \param connectivity_mask Mask of the neighboring pixels.
        \param tolerance Tolerance used to determine if two neighboring pixels belong to the same region.
+       \param is_L2_norm If true, tolerance is compared against L2 difference, otherwise L1 is used.
     **/
     template<typename t>
-    CImg<T>& label(const CImg<t>& connectivity_mask, const Tfloat tolerance=0) {
+    CImg<T>& label(const CImg<t>& connectivity_mask, const Tfloat tolerance=0,
+                   const bool is_L2_norm=true) {
       if (is_empty()) return *this;
-      return get_label(connectivity_mask,tolerance).move_to(*this);
+      return get_label(connectivity_mask,tolerance,is_L2_norm).move_to(*this);
     }
 
     //! Label connected components \newinstance.
     template<typename t>
-    CImg<ulongT> get_label(const CImg<t>& connectivity_mask,
-                           const Tfloat tolerance=0) const {
+    CImg<ulongT> get_label(const CImg<t>& connectivity_mask, const Tfloat tolerance=0,
+                           const bool is_L2_norm=true) const {
       if (is_empty()) return CImg<ulongT>();
       int nb = 0;
       cimg_for(connectivity_mask,ptr,t) if (*ptr) ++nb;
@@ -31710,14 +31714,14 @@ namespace cimg_library_suffixed {
                                                connectivity_mask(x,y,z)) {
         dx[nb] = x; dy[nb] = y; dz[nb++] = z;
       }
-      return _label(nb,dx,dy,dz,tolerance);
+      return _label(nb,dx,dy,dz,tolerance,is_L2_norm);
     }
 
     CImg<ulongT> _label(const unsigned int nb, const int *const dx,
                         const int *const dy, const int *const dz,
-                        const Tfloat tolerance) const {
+                        const Tfloat tolerance, const bool is_L2_norm) const {
       CImg<ulongT> res(_width,_height,_depth);
-      const Tfloat _tolerance = _spectrum>1?cimg::sqr(tolerance):tolerance;
+      const Tfloat _tolerance = _spectrum>1 && is_L2_norm?cimg::sqr(tolerance):tolerance;
 
       // Init label numbers.
       ulongT *ptr = res.data();
@@ -31747,24 +31751,43 @@ namespace cimg_library_suffixed {
                   diff = cimg::abs((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd));
                   break;
                 case 2 :
-                  diff = cimg::sqr((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd)) +
-                    cimg::sqr((Tfloat)(*this)(x,y,z,1,wh,whd) - (Tfloat)(*this)(nx,ny,nz,1,wh,whd));
+                  if (is_L2_norm)
+                    diff = cimg::sqr((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd)) +
+                      cimg::sqr((Tfloat)(*this)(x,y,z,1,wh,whd) - (Tfloat)(*this)(nx,ny,nz,1,wh,whd));
+                  else
+                    diff = cimg::abs((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd)) +
+                      cimg::abs((Tfloat)(*this)(x,y,z,1,wh,whd) - (Tfloat)(*this)(nx,ny,nz,1,wh,whd));
                   break;
                 case 3 :
-                  diff = cimg::sqr((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd)) +
-                    cimg::sqr((Tfloat)(*this)(x,y,z,1,wh,whd) - (Tfloat)(*this)(nx,ny,nz,1,wh,whd)) +
-                    cimg::sqr((Tfloat)(*this)(x,y,z,2,wh,whd) - (Tfloat)(*this)(nx,ny,nz,2,wh,whd));
+                  if (is_L2_norm)
+                    diff = cimg::sqr((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd)) +
+                      cimg::sqr((Tfloat)(*this)(x,y,z,1,wh,whd) - (Tfloat)(*this)(nx,ny,nz,1,wh,whd)) +
+                      cimg::sqr((Tfloat)(*this)(x,y,z,2,wh,whd) - (Tfloat)(*this)(nx,ny,nz,2,wh,whd));
+                  else
+                    diff = cimg::abs((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd)) +
+                      cimg::abs((Tfloat)(*this)(x,y,z,1,wh,whd) - (Tfloat)(*this)(nx,ny,nz,1,wh,whd)) +
+                      cimg::abs((Tfloat)(*this)(x,y,z,2,wh,whd) - (Tfloat)(*this)(nx,ny,nz,2,wh,whd));
                   break;
                 case 4 :
-                  diff = cimg::sqr((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd)) +
-                    cimg::sqr((Tfloat)(*this)(x,y,z,1,wh,whd) - (Tfloat)(*this)(nx,ny,nz,1,wh,whd)) +
-                    cimg::sqr((Tfloat)(*this)(x,y,z,2,wh,whd) - (Tfloat)(*this)(nx,ny,nz,2,wh,whd)) +
-                    cimg::sqr((Tfloat)(*this)(x,y,z,3,wh,whd) - (Tfloat)(*this)(nx,ny,nz,3,wh,whd));
+                  if (is_L2_norm)
+                    diff = cimg::sqr((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd)) +
+                      cimg::sqr((Tfloat)(*this)(x,y,z,1,wh,whd) - (Tfloat)(*this)(nx,ny,nz,1,wh,whd)) +
+                      cimg::sqr((Tfloat)(*this)(x,y,z,2,wh,whd) - (Tfloat)(*this)(nx,ny,nz,2,wh,whd)) +
+                      cimg::sqr((Tfloat)(*this)(x,y,z,3,wh,whd) - (Tfloat)(*this)(nx,ny,nz,3,wh,whd));
+                  else
+                    diff = cimg::abs((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd)) +
+                      cimg::abs((Tfloat)(*this)(x,y,z,1,wh,whd) - (Tfloat)(*this)(nx,ny,nz,1,wh,whd)) +
+                      cimg::abs((Tfloat)(*this)(x,y,z,2,wh,whd) - (Tfloat)(*this)(nx,ny,nz,2,wh,whd)) +
+                      cimg::abs((Tfloat)(*this)(x,y,z,3,wh,whd) - (Tfloat)(*this)(nx,ny,nz,3,wh,whd));
                   break;
                 default :
                   diff = 0;
-                  cimg_forC(*this,c)
-                    diff+=cimg::sqr((Tfloat)(*this)(x,y,z,c,wh,whd) - (Tfloat)(*this)(nx,ny,nz,c,wh,whd));
+                  if (is_L2_norm)
+                    cimg_forC(*this,c)
+                      diff+=cimg::sqr((Tfloat)(*this)(x,y,z,c,wh,whd) - (Tfloat)(*this)(nx,ny,nz,c,wh,whd));
+                  else
+                    cimg_forC(*this,c)
+                      diff+=cimg::abs((Tfloat)(*this)(x,y,z,c,wh,whd) - (Tfloat)(*this)(nx,ny,nz,c,wh,whd));
                 }
 
                 if (diff<=_tolerance) {

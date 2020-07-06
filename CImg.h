@@ -28378,9 +28378,9 @@ namespace cimg_library_suffixed {
     CImg<Tfloat> get_pseudoinvert() const {
       CImg<Tfloat> U, S, V;
       SVD(U,S,V);
-      const Tfloat tolerance = (sizeof(Tfloat)<=4?5.96e-8f:1.11e-16f)*std::max(_width,_height)*S.max();
+      const Tfloat epsilon = (sizeof(Tfloat)<=4?5.96e-8f:1.11e-16f)*std::max(_width,_height)*S.max();
       cimg_forX(V,x) {
-	const Tfloat s = S(x), invs = s>tolerance?1/s:0;
+	const Tfloat s = S(x), invs = s>epsilon?1/s:0;
 	cimg_forY(V,y) V(x,y)*=invs;
       }
       return V*U.transpose();
@@ -31717,6 +31717,7 @@ namespace cimg_library_suffixed {
                         const int *const dy, const int *const dz,
                         const Tfloat tolerance) const {
       CImg<ulongT> res(_width,_height,_depth);
+      const Tfloat _tolerance = _spectrum>1?cimg::sqr(tolerance):tolerance;
 
       // Init label numbers.
       ulongT *ptr = res.data();
@@ -31740,34 +31741,33 @@ namespace cimg_library_suffixed {
           for (longT z = z0, nz = z0 + _dz, pz = z0*wh; z<z1; ++z, ++nz, pz+=wh) {
             for (longT y = y0, ny = y0 + _dy, py = y0*width() + pz; y<y1; ++y, ++ny, py+=width()) {
               for (longT x = x0, nx = x0 + _dx, p = x0 + py; x<x1; ++x, ++nx, ++p) {
-                Tfloat dist;
+                Tfloat diff;
                 switch (_spectrum) {
                 case 1 :
-                  dist = cimg::abs((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd));
+                  diff = cimg::abs((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd));
                   break;
                 case 2 :
-                  dist = std::sqrt(cimg::sqr((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd)) +
-                                   cimg::sqr((Tfloat)(*this)(x,y,z,1,wh,whd) - (Tfloat)(*this)(nx,ny,nz,1,wh,whd)));
+                  diff = cimg::sqr((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd)) +
+                    cimg::sqr((Tfloat)(*this)(x,y,z,1,wh,whd) - (Tfloat)(*this)(nx,ny,nz,1,wh,whd));
                   break;
                 case 3 :
-                  dist = std::sqrt(cimg::sqr((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd)) +
-                                   cimg::sqr((Tfloat)(*this)(x,y,z,1,wh,whd) - (Tfloat)(*this)(nx,ny,nz,1,wh,whd)) +
-                                   cimg::sqr((Tfloat)(*this)(x,y,z,2,wh,whd) - (Tfloat)(*this)(nx,ny,nz,2,wh,whd)));
+                  diff = cimg::sqr((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd)) +
+                    cimg::sqr((Tfloat)(*this)(x,y,z,1,wh,whd) - (Tfloat)(*this)(nx,ny,nz,1,wh,whd)) +
+                    cimg::sqr((Tfloat)(*this)(x,y,z,2,wh,whd) - (Tfloat)(*this)(nx,ny,nz,2,wh,whd));
                   break;
                 case 4 :
-                  dist = std::sqrt(cimg::sqr((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd)) +
-                                   cimg::sqr((Tfloat)(*this)(x,y,z,1,wh,whd) - (Tfloat)(*this)(nx,ny,nz,1,wh,whd)) +
-                                   cimg::sqr((Tfloat)(*this)(x,y,z,2,wh,whd) - (Tfloat)(*this)(nx,ny,nz,2,wh,whd)) +
-                                   cimg::sqr((Tfloat)(*this)(x,y,z,3,wh,whd) - (Tfloat)(*this)(nx,ny,nz,3,wh,whd)));
+                  diff = cimg::sqr((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd)) +
+                    cimg::sqr((Tfloat)(*this)(x,y,z,1,wh,whd) - (Tfloat)(*this)(nx,ny,nz,1,wh,whd)) +
+                    cimg::sqr((Tfloat)(*this)(x,y,z,2,wh,whd) - (Tfloat)(*this)(nx,ny,nz,2,wh,whd)) +
+                    cimg::sqr((Tfloat)(*this)(x,y,z,3,wh,whd) - (Tfloat)(*this)(nx,ny,nz,3,wh,whd));
                   break;
                 default :
-                  dist = 0;
+                  diff = 0;
                   cimg_forC(*this,c)
-                    dist+=cimg::sqr((Tfloat)(*this)(x,y,z,c,wh,whd) - (Tfloat)(*this)(nx,ny,nz,c,wh,whd));
-                  dist = std::sqrt(dist);
+                    diff+=cimg::sqr((Tfloat)(*this)(x,y,z,c,wh,whd) - (Tfloat)(*this)(nx,ny,nz,c,wh,whd));
                 }
 
-                if (dist<=tolerance) {
+                if (diff<=_tolerance) {
                   const longT q = p + offset;
                   ulongT xk, yk;
                   for (xk = (ulongT)(p<q?q:p), yk = (ulongT)(p<q?p:q); xk!=yk && res[xk]!=xk; ) {

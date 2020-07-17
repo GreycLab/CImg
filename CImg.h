@@ -28402,7 +28402,7 @@ namespace cimg_library_suffixed {
       typedef _cimg_Ttfloat Ttfloat;
 
       if (A.size()==1) return (*this)/=A[0];
-      if (A._width==2 && A._height==2 && _height==2) {
+      if (A._width==2 && A._height==2 && _height==2) { // 2x2 linear system
         const double a = (double)A[0], b = (double)A[1], c = (double)A[2], d = (double)A[3],
           fa = std::fabs(a), fb = std::fabs(b), fc = std::fabs(c), fd = std::fabs(d),
           det = a*d - b*c, fM = cimg::max(fa,fb,fc,fd);

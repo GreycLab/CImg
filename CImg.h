@@ -27911,7 +27911,7 @@ namespace cimg_library_suffixed {
           }
         lmp.end_t();
         cimg_pragma_openmp(barrier) cimg_pragma_openmp(critical) { lmp.merge(mp); }
-        if (&lmp!=&mp) delete &mp;
+        if (&lmp!=&mp) delete &lmp;
       }
 #else
       mp.begin_t();

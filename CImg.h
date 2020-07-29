@@ -27911,7 +27911,7 @@ namespace cimg_library_suffixed {
           }
         lmp.end_t();
         cimg_pragma_openmp(barrier) cimg_pragma_openmp(critical) { lmp.merge(mp); }
-        if (&lmp!=&mp) delete &mp;
+        if (&lmp!=&mp) delete &lmp;
       }
 #else
       mp.begin_t();
@@ -28378,9 +28378,9 @@ namespace cimg_library_suffixed {
     CImg<Tfloat> get_pseudoinvert() const {
       CImg<Tfloat> U, S, V;
       SVD(U,S,V);
-      const Tfloat tolerance = (sizeof(Tfloat)<=4?5.96e-8f:1.11e-16f)*std::max(_width,_height)*S.max();
+      const Tfloat epsilon = (sizeof(Tfloat)<=4?5.96e-8f:1.11e-16f)*std::max(_width,_height)*S.max();
       cimg_forX(V,x) {
-	const Tfloat s = S(x), invs = s>tolerance?1/s:0;
+	const Tfloat s = S(x), invs = s>epsilon?1/s:0;
 	cimg_forY(V,y) V(x,y)*=invs;
       }
       return V*U.transpose();
@@ -28402,7 +28402,7 @@ namespace cimg_library_suffixed {
       typedef _cimg_Ttfloat Ttfloat;
 
       if (A.size()==1) return (*this)/=A[0];
-      if (A._width==2 && A._height==2 && _height==2) {
+      if (A._width==2 && A._height==2 && _height==2) { // 2x2 linear system
         const double a = (double)A[0], b = (double)A[1], c = (double)A[2], d = (double)A[3],
           fa = std::fabs(a), fb = std::fabs(b), fc = std::fabs(c), fd = std::fabs(d),
           det = a*d - b*c, fM = cimg::max(fa,fb,fc,fd);
@@ -31645,19 +31645,22 @@ namespace cimg_library_suffixed {
        \param is_high_connectivity Boolean that choose between 4(false)- or 8(true)-connectivity
        in 2D case, and between 6(false)- or 26(true)-connectivity in 3D case.
        \param tolerance Tolerance used to determine if two neighboring pixels belong to the same region.
+       \param is_L2_norm If true, tolerance is compared against L2 difference, otherwise L1 is used.
        \note The algorithm of connected components computation has been primarily done
        by A. Meijster, according to the publication:
        'W.H. Hesselink, A. Meijster, C. Bron, "Concurrent Determination of Connected Components.",
        In: Science of Computer Programming 41 (2001), pp. 173--194'.
        The submitted code has then been modified to fit CImg coding style and constraints.
     **/
-    CImg<T>& label(const bool is_high_connectivity=false, const Tfloat tolerance=0) {
-      return get_label(is_high_connectivity,tolerance).move_to(*this);
+    CImg<T>& label(const bool is_high_connectivity=false, const Tfloat tolerance=0,
+                   const bool is_L2_norm=true) {
+      if (is_empty()) return *this;
+      return get_label(is_high_connectivity,tolerance,is_L2_norm).move_to(*this);
     }
 
     //! Label connected components \newinstance.
-    CImg<ulongT> get_label(const bool is_high_connectivity=false,
-                           const Tfloat tolerance=0) const {
+    CImg<ulongT> get_label(const bool is_high_connectivity=false, const Tfloat tolerance=0,
+                           const bool is_L2_norm=true) const {
       if (is_empty()) return CImg<ulongT>();
 
       // Create neighborhood tables.
@@ -31682,23 +31685,27 @@ namespace cimg_library_suffixed {
           dx[nb] = 1; dy[nb] = 1; dz[nb++] = 1;
         }
       }
-      return _label(nb,dx,dy,dz,tolerance);
+      return _label(nb,dx,dy,dz,tolerance,is_L2_norm);
     }
 
     //! Label connected components \overloading.
     /**
        \param connectivity_mask Mask of the neighboring pixels.
        \param tolerance Tolerance used to determine if two neighboring pixels belong to the same region.
+       \param is_L2_norm If true, tolerance is compared against L2 difference, otherwise L1 is used.
     **/
     template<typename t>
-    CImg<T>& label(const CImg<t>& connectivity_mask, const Tfloat tolerance=0) {
-      return get_label(connectivity_mask,tolerance).move_to(*this);
+    CImg<T>& label(const CImg<t>& connectivity_mask, const Tfloat tolerance=0,
+                   const bool is_L2_norm=true) {
+      if (is_empty()) return *this;
+      return get_label(connectivity_mask,tolerance,is_L2_norm).move_to(*this);
     }
 
     //! Label connected components \newinstance.
     template<typename t>
-    CImg<ulongT> get_label(const CImg<t>& connectivity_mask,
-                           const Tfloat tolerance=0) const {
+    CImg<ulongT> get_label(const CImg<t>& connectivity_mask, const Tfloat tolerance=0,
+                           const bool is_L2_norm=true) const {
+      if (is_empty()) return CImg<ulongT>();
       int nb = 0;
       cimg_for(connectivity_mask,ptr,t) if (*ptr) ++nb;
       CImg<intT> dx(nb,1,1,1,0), dy(nb,1,1,1,0), dz(nb,1,1,1,0);
@@ -31707,67 +31714,110 @@ namespace cimg_library_suffixed {
                                                connectivity_mask(x,y,z)) {
         dx[nb] = x; dy[nb] = y; dz[nb++] = z;
       }
-      return _label(nb,dx,dy,dz,tolerance);
+      return _label(nb,dx,dy,dz,tolerance,is_L2_norm);
     }
 
     CImg<ulongT> _label(const unsigned int nb, const int *const dx,
                         const int *const dy, const int *const dz,
-                        const Tfloat tolerance) const {
-      CImg<ulongT> res(_width,_height,_depth,_spectrum);
-      cimg_forC(*this,c) {
-        CImg<ulongT> _res = res.get_shared_channel(c);
+                        const Tfloat tolerance, const bool is_L2_norm) const {
+      CImg<ulongT> res(_width,_height,_depth);
+      const Tfloat _tolerance = _spectrum>1 && is_L2_norm?cimg::sqr(tolerance):tolerance;
 
-        // Init label numbers.
-        ulongT *ptr = _res.data();
-        cimg_foroff(_res,p) *(ptr++) = p;
+      // Init label numbers.
+      ulongT *ptr = res.data();
+      cimg_foroff(res,p) *(ptr++) = p;
 
-        // For each neighbour-direction, label.
-        for (unsigned int n = 0; n<nb; ++n) {
-          const int _dx = dx[n], _dy = dy[n], _dz = dz[n];
-          if (_dx || _dy || _dz) {
-            const int
-              x0 = _dx<0?-_dx:0,
-              x1 = _dx<0?width():width() - _dx,
-              y0 = _dy<0?-_dy:0,
-              y1 = _dy<0?height():height() - _dy,
-              z0 = _dz<0?-_dz:0,
-              z1 = _dz<0?depth():depth() - _dz;
-            const longT
-              wh = (longT)width()*height(),
-              whd = (longT)width()*height()*depth(),
-              offset = _dz*wh + _dy*width() + _dx;
-            for (longT z = z0, nz = z0 + _dz, pz = z0*wh; z<z1; ++z, ++nz, pz+=wh) {
-              for (longT y = y0, ny = y0 + _dy, py = y0*width() + pz; y<y1; ++y, ++ny, py+=width()) {
-                for (longT x = x0, nx = x0 + _dx, p = x0 + py; x<x1; ++x, ++nx, ++p) {
-                  if (cimg::abs((Tfloat)(*this)(x,y,z,c,wh,whd) - (Tfloat)(*this)(nx,ny,nz,c,wh,whd))<=tolerance) {
-                    const longT q = p + offset;
-                    ulongT xk, yk;
-                    for (xk = (ulongT)(p<q?q:p), yk = (ulongT)(p<q?p:q); xk!=yk && _res[xk]!=xk; ) {
-                      xk = _res[xk]; if (xk<yk) cimg::swap(xk,yk);
-                    }
-                    if (xk!=yk) _res[xk] = (ulongT)yk;
-                    for (ulongT _p = (ulongT)p; _p!=yk; ) {
-                      const ulongT h = _res[_p];
-                      _res[_p] = (ulongT)yk;
-                      _p = h;
-                    }
-                    for (ulongT _q = (ulongT)q; _q!=yk; ) {
-                      const ulongT h = _res[_q];
-                      _res[_q] = (ulongT)yk;
-                      _q = h;
-                    }
+      // For each neighbour-direction, label.
+      for (unsigned int n = 0; n<nb; ++n) {
+        const int _dx = dx[n], _dy = dy[n], _dz = dz[n];
+        if (_dx || _dy || _dz) {
+          const int
+            x0 = _dx<0?-_dx:0,
+            x1 = _dx<0?width():width() - _dx,
+            y0 = _dy<0?-_dy:0,
+            y1 = _dy<0?height():height() - _dy,
+            z0 = _dz<0?-_dz:0,
+            z1 = _dz<0?depth():depth() - _dz;
+          const longT
+            wh = (longT)width()*height(),
+            whd = (longT)width()*height()*depth(),
+            offset = _dz*wh + _dy*width() + _dx;
+          for (longT z = z0, nz = z0 + _dz, pz = z0*wh; z<z1; ++z, ++nz, pz+=wh) {
+            for (longT y = y0, ny = y0 + _dy, py = y0*width() + pz; y<y1; ++y, ++ny, py+=width()) {
+              for (longT x = x0, nx = x0 + _dx, p = x0 + py; x<x1; ++x, ++nx, ++p) {
+                Tfloat diff;
+                switch (_spectrum) {
+                case 1 :
+                  diff = cimg::abs((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd));
+                  break;
+                case 2 :
+                  if (is_L2_norm)
+                    diff = cimg::sqr((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd)) +
+                      cimg::sqr((Tfloat)(*this)(x,y,z,1,wh,whd) - (Tfloat)(*this)(nx,ny,nz,1,wh,whd));
+                  else
+                    diff = cimg::abs((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd)) +
+                      cimg::abs((Tfloat)(*this)(x,y,z,1,wh,whd) - (Tfloat)(*this)(nx,ny,nz,1,wh,whd));
+                  break;
+                case 3 :
+                  if (is_L2_norm)
+                    diff = cimg::sqr((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd)) +
+                      cimg::sqr((Tfloat)(*this)(x,y,z,1,wh,whd) - (Tfloat)(*this)(nx,ny,nz,1,wh,whd)) +
+                      cimg::sqr((Tfloat)(*this)(x,y,z,2,wh,whd) - (Tfloat)(*this)(nx,ny,nz,2,wh,whd));
+                  else
+                    diff = cimg::abs((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd)) +
+                      cimg::abs((Tfloat)(*this)(x,y,z,1,wh,whd) - (Tfloat)(*this)(nx,ny,nz,1,wh,whd)) +
+                      cimg::abs((Tfloat)(*this)(x,y,z,2,wh,whd) - (Tfloat)(*this)(nx,ny,nz,2,wh,whd));
+                  break;
+                case 4 :
+                  if (is_L2_norm)
+                    diff = cimg::sqr((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd)) +
+                      cimg::sqr((Tfloat)(*this)(x,y,z,1,wh,whd) - (Tfloat)(*this)(nx,ny,nz,1,wh,whd)) +
+                      cimg::sqr((Tfloat)(*this)(x,y,z,2,wh,whd) - (Tfloat)(*this)(nx,ny,nz,2,wh,whd)) +
+                      cimg::sqr((Tfloat)(*this)(x,y,z,3,wh,whd) - (Tfloat)(*this)(nx,ny,nz,3,wh,whd));
+                  else
+                    diff = cimg::abs((Tfloat)(*this)(x,y,z,0,wh,whd) - (Tfloat)(*this)(nx,ny,nz,0,wh,whd)) +
+                      cimg::abs((Tfloat)(*this)(x,y,z,1,wh,whd) - (Tfloat)(*this)(nx,ny,nz,1,wh,whd)) +
+                      cimg::abs((Tfloat)(*this)(x,y,z,2,wh,whd) - (Tfloat)(*this)(nx,ny,nz,2,wh,whd)) +
+                      cimg::abs((Tfloat)(*this)(x,y,z,3,wh,whd) - (Tfloat)(*this)(nx,ny,nz,3,wh,whd));
+                  break;
+                default :
+                  diff = 0;
+                  if (is_L2_norm)
+                    cimg_forC(*this,c)
+                      diff+=cimg::sqr((Tfloat)(*this)(x,y,z,c,wh,whd) - (Tfloat)(*this)(nx,ny,nz,c,wh,whd));
+                  else
+                    cimg_forC(*this,c)
+                      diff+=cimg::abs((Tfloat)(*this)(x,y,z,c,wh,whd) - (Tfloat)(*this)(nx,ny,nz,c,wh,whd));
+                }
+
+                if (diff<=_tolerance) {
+                  const longT q = p + offset;
+                  ulongT xk, yk;
+                  for (xk = (ulongT)(p<q?q:p), yk = (ulongT)(p<q?p:q); xk!=yk && res[xk]!=xk; ) {
+                    xk = res[xk]; if (xk<yk) cimg::swap(xk,yk);
+                  }
+                  if (xk!=yk) res[xk] = (ulongT)yk;
+                  for (ulongT _p = (ulongT)p; _p!=yk; ) {
+                    const ulongT h = res[_p];
+                    res[_p] = (ulongT)yk;
+                    _p = h;
+                  }
+                  for (ulongT _q = (ulongT)q; _q!=yk; ) {
+                    const ulongT h = res[_q];
+                    res[_q] = (ulongT)yk;
+                    _q = h;
                   }
                 }
               }
             }
           }
         }
-
-        // Resolve equivalences.
-        ulongT counter = 0;
-        ptr = _res.data();
-        cimg_foroff(_res,p) { *ptr = *ptr==p?counter++:_res[*ptr]; ++ptr; }
       }
+
+      // Resolve equivalences.
+      ulongT counter = 0;
+      ptr = res.data();
+      cimg_foroff(res,p) { *ptr = *ptr==p?counter++:res[*ptr]; ++ptr; }
       return res;
     }
 
@@ -38342,52 +38392,52 @@ namespace cimg_library_suffixed {
     CImg<T>& deriche(const float sigma, const unsigned int order=0, const char axis='x',
                      const bool boundary_conditions=true) {
 #define _cimg_deriche_apply \
-  CImg<Tfloat> Y(N); \
-  Tfloat *ptrY = Y._data, yb = 0, yp = 0; \
+  CImg<doubleT> Y(N); \
+  double *ptrY = Y._data, yb = 0, yp = 0; \
   T xp = (T)0; \
-  if (boundary_conditions) { xp = *ptrX; yb = yp = (Tfloat)(coefp*xp); } \
+  if (boundary_conditions) { xp = *ptrX; yb = yp = (double)(coefp*xp); } \
   for (int m = 0; m<N; ++m) { \
     const T xc = *ptrX; ptrX+=off; \
-    const Tfloat yc = *(ptrY++) = (Tfloat)(a0*xc + a1*xp - b1*yp - b2*yb); \
+    const double yc = *(ptrY++) = (double)(a0*xc + a1*xp - b1*yp - b2*yb); \
     xp = xc; yb = yp; yp = yc; \
   } \
   T xn = (T)0, xa = (T)0; \
-  Tfloat yn = 0, ya = 0; \
-  if (boundary_conditions) { xn = xa = *(ptrX-off); yn = ya = (Tfloat)coefn*xn; } \
+  double yn = 0, ya = 0; \
+  if (boundary_conditions) { xn = xa = *(ptrX - off); yn = ya = (double)coefn*xn; } \
   for (int n = N - 1; n>=0; --n) { \
     const T xc = *(ptrX-=off); \
-    const Tfloat yc = (Tfloat)(a2*xn + a3*xa - b1*yn - b2*ya); \
+    const double yc = (double)(a2*xn + a3*xa - b1*yn - b2*ya); \
     xa = xn; xn = xc; ya = yn; yn = yc; \
     *ptrX = (T)(*(--ptrY)+yc); \
   }
       const char naxis = cimg::lowercase(axis);
-      const float nsigma = sigma>=0?sigma:-sigma*(naxis=='x'?_width:naxis=='y'?_height:naxis=='z'?_depth:_spectrum)/100;
+      const double nsigma = sigma>=0?sigma:-sigma*(naxis=='x'?_width:naxis=='y'?_height:naxis=='z'?_depth:_spectrum)/100;
       if (is_empty() || (nsigma<0.1f && !order)) return *this;
-      const float
+      const double
         nnsigma = nsigma<0.1f?0.1f:nsigma,
         alpha = 1.695f/nnsigma,
-        ema = (float)std::exp(-alpha),
-        ema2 = (float)std::exp(-2*alpha),
+        ema = std::exp(-alpha),
+        ema2 = std::exp(-2*alpha),
         b1 = -2*ema,
         b2 = ema2;
-      float a0 = 0, a1 = 0, a2 = 0, a3 = 0, coefp = 0, coefn = 0;
+      double a0 = 0, a1 = 0, a2 = 0, a3 = 0, coefp = 0, coefn = 0;
       switch (order) {
       case 0 : {
-        const float k = (1-ema)*(1-ema)/(1 + 2*alpha*ema-ema2);
+        const double k = (1-ema)*(1-ema)/(1 + 2*alpha*ema-ema2);
         a0 = k;
         a1 = k*(alpha - 1)*ema;
         a2 = k*(alpha + 1)*ema;
         a3 = -k*ema2;
       } break;
       case 1 : {
-        const float k = -(1-ema)*(1-ema)*(1-ema)/(2*(ema + 1)*ema);
+        const double k = -(1-ema)*(1-ema)*(1-ema)/(2*(ema + 1)*ema);
 	a0 = a3 = 0;
 	a1 = k*ema;
         a2 = -a1;
       } break;
       case 2 : {
-        const float
-          ea = (float)std::exp(-alpha),
+        const double
+          ea = std::exp(-alpha),
           k = -(ema2 - 1)/(2*alpha*ema),
           kn = (-2*(-1 + 3*ea - 3*ea*ea + ea*ea*ea)/(3*ea + 1 + 3*ea*ea + ea*ea*ea));
         a0 = kn;
@@ -38477,7 +38527,7 @@ namespace cimg_library_suffixed {
 	  if (!pass) {
 	    for (int k = 1; k<4; ++k) val[k] = (boundary_conditions?*data/sumsq:0);
 	  } else {
-	    // apply Triggs boundary conditions
+	    // Apply Triggs boundary conditions
 	    const double
 	      uplus = iplus/(1. - a1 - a2 - a3), vplus = uplus/(1. - a1 - a2 - a3),
 	      unp  = val[1] - uplus, unp1 = val[2] - uplus, unp2 = val[3] - uplus;
@@ -38506,7 +38556,7 @@ namespace cimg_library_suffixed {
 	    for (int k = 0; k<3; ++k) x[k] = (boundary_conditions?*data:(T)0);
 	    for (int k = 0; k<4; ++k) val[k] = 0;
 	  } else {
-	    // apply Triggs boundary conditions
+	    // Apply Triggs boundary conditions
 	    const double
 	      unp  = val[1], unp1 = val[2], unp2 = val[3];
 	    val[0] = (M[0] * unp + M[1] * unp1 + M[2] * unp2) * sum;
@@ -38539,7 +38589,7 @@ namespace cimg_library_suffixed {
 	    for (int k = 0; k<3; ++k) x[k] = (boundary_conditions?*data:(T)0);
 	    for (int k = 0; k<4; ++k) val[k] = 0;
 	  } else {
-	    // apply Triggs boundary conditions
+	    // Apply Triggs boundary conditions
 	    const double
 	      unp  = val[1], unp1 = val[2], unp2 = val[3];
 	    val[0] = (M[0] * unp + M[1] * unp1 + M[2] * unp2) * sum;
@@ -38568,7 +38618,7 @@ namespace cimg_library_suffixed {
 	    for (int k = 0; k<3; ++k) x[k] = (boundary_conditions?*data:(T)0);
 	    for (int k = 0; k<4; ++k) val[k] = 0;
 	  } else {
-	    // apply Triggs boundary conditions
+	    // Apply Triggs boundary conditions
 	    const double
 	      unp = val[1], unp1 = val[2], unp2 = val[3];
 	    val[0] = (M[0] * unp + M[1] * unp1 + M[2] * unp2) * sum;

@@ -38411,7 +38411,9 @@ namespace cimg_library_suffixed {
     *ptrX = (T)(*(--ptrY)+yc); \
   }
       const char naxis = cimg::lowercase(axis);
-      const double nsigma = sigma>=0?sigma:-sigma*(naxis=='x'?_width:naxis=='y'?_height:naxis=='z'?_depth:_spectrum)/100;
+      const double nsigma = sigma>=0?sigma:-sigma*(naxis=='x'?_width:
+                                                   naxis=='y'?_height:
+                                                   naxis=='z'?_depth:_spectrum)/100;
       if (is_empty() || (nsigma<0.1f && !order)) return *this;
       const double
         nnsigma = nsigma<0.1f?0.1f:nsigma,

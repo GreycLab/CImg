@@ -16732,7 +16732,8 @@ namespace cimg_library_suffixed {
       CImgList<boolT> macro_body_is_string;
       char *user_macro;
 
-      unsigned int mempos, mem_img_median, mem_img_index, debug_indent, result_dim, break_type, constcache_size;
+      unsigned int mempos, mem_img_norm, mem_img_median, mem_img_index, debug_indent, result_dim, break_type,
+        constcache_size;
       bool is_parallelizable, is_end_code, is_fill, need_input_copy;
       double *result;
       cimg_uint64 rng;
@@ -16789,8 +16790,8 @@ namespace cimg_library_suffixed {
         imgin(img_input),listin(list_inputs?*list_inputs:CImgList<T>::const_empty()),
         imgout(img_output?*img_output:CImg<T>::empty()),listout(list_outputs?*list_outputs:CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),user_macro(0),
-        mem_img_median(~0U),mem_img_index(~0U),debug_indent(0),result_dim(0),break_type(0),constcache_size(0),
-        is_parallelizable(true),is_fill(_is_fill),need_input_copy(false),
+        mem_img_norm(~0U),mem_img_median(~0U),mem_img_index(~0U),debug_indent(0),result_dim(0),break_type(0),
+        constcache_size(0),is_parallelizable(true),is_fill(_is_fill),need_input_copy(false),
         rng((cimg::_rand(),cimg::rng())),calling_function(funcname?funcname:"cimg_math_parser") {
 
 #if cimg_use_openmp!=0
@@ -17095,6 +17096,11 @@ namespace cimg_library_suffixed {
               if (reserved_label[10]!=~0U) _cimg_mp_return(reserved_label[10]);
               if (mem_img_median==~0U) mem_img_median = imgin?constant(imgin.median()):0;
               _cimg_mp_return(mem_img_median);
+              break;
+            case 'n' : // in
+              if (reserved_label[11]!=~0U) _cimg_mp_return(reserved_label[11]);
+              if (mem_img_norm==~0U) mem_img_norm = imgin?constant(imgin.magnitude()):0;
+              _cimg_mp_return(mem_img_norm);
             }
           }
           else if (*ss1=='m') switch (*ss) {

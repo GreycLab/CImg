@@ -16724,7 +16724,7 @@ namespace cimg_library_suffixed {
       CImgList<T>& listout;
 
       CImg<doubleT> _img_stats, &img_stats, constcache_vals;
-      CImgList<doubleT> _list_stats, &list_stats, _list_median, &list_median;
+      CImgList<doubleT> _list_stats, &list_stats, _list_median, &list_median, _list_norm, &list_norm;
       CImg<uintT> mem_img_stats, constcache_inds;
 
       CImg<uintT> level, variable_pos, reserved_label;
@@ -16732,7 +16732,7 @@ namespace cimg_library_suffixed {
       CImgList<boolT> macro_body_is_string;
       char *user_macro;
 
-      unsigned int mempos, mem_img_norm, mem_img_median, mem_img_index, debug_indent, result_dim, break_type,
+      unsigned int mempos, mem_img_median, mem_img_norm, mem_img_index, debug_indent, result_dim, break_type,
         constcache_size;
       bool is_parallelizable, is_end_code, is_fill, need_input_copy;
       double *result;
@@ -16789,8 +16789,8 @@ namespace cimg_library_suffixed {
         p_break((CImg<ulongT>*)(cimg_ulong)-2),
         imgin(img_input),listin(list_inputs?*list_inputs:CImgList<T>::const_empty()),
         imgout(img_output?*img_output:CImg<T>::empty()),listout(list_outputs?*list_outputs:CImgList<T>::empty()),
-        img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),user_macro(0),
-        mem_img_norm(~0U),mem_img_median(~0U),mem_img_index(~0U),debug_indent(0),result_dim(0),break_type(0),
+        img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),list_norm(_list_norm),user_macro(0),
+        mem_img_median(~0U),mem_img_norm(~0U),mem_img_index(~0U),debug_indent(0),result_dim(0),break_type(0),
         constcache_size(0),is_parallelizable(true),is_fill(_is_fill),need_input_copy(false),
         rng((cimg::_rand(),cimg::rng())),calling_function(funcname?funcname:"cimg_math_parser") {
 
@@ -16905,7 +16905,7 @@ namespace cimg_library_suffixed {
         p_code_end(0),p_break((CImg<ulongT>*)(cimg_ulong)-2),
         imgin(CImg<T>::const_empty()),listin(CImgList<T>::const_empty()),
         imgout(CImg<T>::empty()),listout(CImgList<T>::empty()),
-        img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),debug_indent(0),
+        img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),list_norm(_list_norm),debug_indent(0),
         result_dim(0),break_type(0),constcache_size(0),is_parallelizable(true),is_fill(false),
         need_input_copy(false),rng(0),calling_function(0) {
         mem.assign(1 + _cimg_mp_slot_c,1,1,1,0); // Allow to skip 'is_empty?' test in operator()()
@@ -16916,9 +16916,9 @@ namespace cimg_library_suffixed {
         mem(mp.mem),code(mp.code),code_begin_t(mp.code_begin_t),code_end_t(mp.code_end_t),
         p_code_end(mp.p_code_end),p_break(mp.p_break),
         imgin(mp.imgin),listin(mp.listin),imgout(mp.imgout),listout(mp.listout),
-        img_stats(mp.img_stats),list_stats(mp.list_stats),list_median(mp.list_median),debug_indent(0),
-        result_dim(mp.result_dim),break_type(0),constcache_size(0),is_parallelizable(mp.is_parallelizable),
-        is_fill(mp.is_fill),need_input_copy(mp.need_input_copy),
+        img_stats(mp.img_stats),list_stats(mp.list_stats),list_median(mp.list_median),list_norm(mp.list_norm),
+        debug_indent(0),result_dim(mp.result_dim),break_type(0),constcache_size(0),
+        is_parallelizable(mp.is_parallelizable),is_fill(mp.is_fill),need_input_copy(mp.need_input_copy),
         result(mem._data + (mp.result - mp.mem._data)),rng((cimg::_rand(),cimg::rng())),calling_function(0) {
 
 #if cimg_use_openmp!=0
@@ -21816,6 +21816,12 @@ namespace cimg_library_suffixed {
           arg2 = ~0U;
 
           if (*ss=='i') {
+            if (*ss1>='0' && *ss1<='9') { // i0#ind...i9#ind
+              if (!listin) _cimg_mp_return(0);
+              _cimg_mp_scalar7(mp_list_ixyzc,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,*ss1 - '0',
+                               0,_cimg_mp_boundary);
+            }
+
             if (*ss1=='c') { // ic#ind
               if (!listin) _cimg_mp_return(0);
               if (_cimg_mp_is_constant(arg1)) {
@@ -21825,11 +21831,17 @@ namespace cimg_library_suffixed {
               }
               _cimg_mp_scalar1(mp_list_median,arg1);
             }
-            if (*ss1>='0' && *ss1<='9') { // i0#ind...i9#ind
+
+            if (*ss1=='n') { // in#ind
               if (!listin) _cimg_mp_return(0);
-              _cimg_mp_scalar7(mp_list_ixyzc,arg1,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,*ss1 - '0',
-                               0,_cimg_mp_boundary);
+              if (_cimg_mp_is_constant(arg1)) {
+                if (!list_norm) list_norm.assign(listin._width);
+                if (!list_norm[p1]) CImg<doubleT>::vector(listin[p1].magnitude()).move_to(list_norm[p1]);
+                _cimg_mp_constant(*list_norm[p1]);
+              }
+              _cimg_mp_scalar1(mp_list_norm,arg1);
             }
+
             switch (*ss1) {
             case 'm' : arg2 = 0; break; // im#ind
             case 'M' : arg2 = 1; break; // iM#ind
@@ -24391,6 +24403,13 @@ namespace cimg_library_suffixed {
         if (!mp.list_median) mp.list_median.assign(mp.listin._width);
         if (!mp.list_median[ind]) CImg<doubleT>::vector(mp.listin[ind].median()).move_to(mp.list_median[ind]);
         return *mp.list_median[ind];
+      }
+
+      static double mp_list_norm(_cimg_math_parser& mp) {
+        const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        if (!mp.list_norm) mp.list_norm.assign(mp.listin._width);
+        if (!mp.list_norm[ind]) CImg<doubleT>::vector(mp.listin[ind].magnitude()).move_to(mp.list_norm[ind]);
+        return *mp.list_norm[ind];
       }
 
       static double mp_list_set_ioff(_cimg_math_parser& mp) {

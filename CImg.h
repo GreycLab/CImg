@@ -20003,6 +20003,28 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
+            if (*ss1=='c' && *ss2=='(') { // Image median
+              _cimg_mp_op("Function 'ic()'");
+              if (*ss3=='#') { // Index specified
+                p1 = compile(ss4,se1,depth1,0,is_single);
+                _cimg_mp_check_list(false);
+              } else { if (ss3!=se1) break; p1 = ~0U; }
+              pos = scalar();
+              CImg<ulongT>::vector((ulongT)mp_image_median,pos,p1).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
+            if (*ss1=='n' && *ss2=='(') { // Image norm
+              _cimg_mp_op("Function 'in()'");
+              if (*ss3=='#') { // Index specified
+                p1 = compile(ss4,se1,depth1,0,is_single);
+                _cimg_mp_check_list(false);
+              } else { if (ss3!=se1) break; p1 = ~0U; }
+              pos = scalar();
+              CImg<ulongT>::vector((ulongT)mp_image_norm,pos,p1).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
             if (*ss1=='f' && *ss2=='(') { // If..then[..else.]
               _cimg_mp_op("Function 'if()'");
               s1 = ss3; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -23622,6 +23644,13 @@ namespace cimg_library_suffixed {
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         const CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
         return (double)img.median();
+      }
+
+      static double mp_image_norm(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        const CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
+        return (double)img.magnitude();
       }
 
       static double mp_image_print(_cimg_math_parser& mp) {

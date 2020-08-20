@@ -16818,8 +16818,8 @@ namespace cimg_library_suffixed {
         level = get_level(expr);
 
         // Init constant values.
-#define _cimg_mp_interpolation (reserved_label[29]!=~0U?reserved_label[29]:0)
-#define _cimg_mp_boundary (reserved_label[30]!=~0U?reserved_label[30]:0)
+#define _cimg_mp_interpolation (reserved_label[30]!=~0U?reserved_label[30]:0)
+#define _cimg_mp_boundary (reserved_label[31]!=~0U?reserved_label[31]:0)
 #define _cimg_mp_slot_t 17
 #define _cimg_mp_slot_nan 29
 #define _cimg_mp_slot_x 30
@@ -16856,10 +16856,10 @@ namespace cimg_library_suffixed {
         variable_pos.assign(8);
 
         reserved_label.assign(128,1,1,1,~0U);
-        // reserved_label[0-30] are used to store these variables:
+        // reserved_label[0-31] are used to store the memory index of these variables:
         // [0] = wh, [1] = whd, [2] = whds, [3] = pi, [4] = im, [5] = iM, [6] = ia, [7] = iv,
-        // [8] = is, [9] = ip, [10] = ic, [11] = xm, [12] = ym, [13] = zm, [14] = cm, [15] = xM,
-        // [16] = yM, [17] = zM, [18]=cM, [19]=i0...[28]=i9, [29] = interpolation, [30] = boundary
+        // [8] = is, [9] = ip, [10] = ic, [11] = in, [12] = xm, [13] = ym, [14] = zm, [15] = cm, [16] = xM,
+        // [17] = yM, [18] = zM, [19] = cM, [20] = i0...[29] = i9, [30] = interpolation, [31] = boundary
 
         // Compile expression into a sequence of opcodes.
         s_op = ""; ss_op = expr._data;
@@ -17079,7 +17079,7 @@ namespace cimg_library_suffixed {
             _cimg_mp_return(reserved_label[3]!=~0U?reserved_label[3]:28);
           if (*ss=='i') {
             if (*ss1>='0' && *ss1<='9') { // i0...i9
-              pos = 19 + *ss1 - '0';
+              pos = 20 + *ss1 - '0';
               if (reserved_label[pos]!=~0U) _cimg_mp_return(reserved_label[pos]);
               need_input_copy = true;
               _cimg_mp_scalar6(mp_ixyzc,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,pos - 19,0,0);
@@ -17098,16 +17098,16 @@ namespace cimg_library_suffixed {
             }
           }
           else if (*ss1=='m') switch (*ss) {
-            case 'x' : arg1 = 11; arg2 = 4; break; // xm
-            case 'y' : arg1 = 12; arg2 = 5; break; // ym
-            case 'z' : arg1 = 13; arg2 = 6; break; // zm
-            case 'c' : arg1 = 14; arg2 = 7; break; // cm
+            case 'x' : arg1 = 12; arg2 = 4; break; // xm
+            case 'y' : arg1 = 13; arg2 = 5; break; // ym
+            case 'z' : arg1 = 14; arg2 = 6; break; // zm
+            case 'c' : arg1 = 15; arg2 = 7; break; // cm
             }
           else if (*ss1=='M') switch (*ss) {
-            case 'x' : arg1 = 15; arg2 = 8; break; // xM
-            case 'y' : arg1 = 16; arg2 = 9; break; // yM
-            case 'z' : arg1 = 17; arg2 = 10; break; // zM
-            case 'c' : arg1 = 18; arg2 = 11; break; // cM
+            case 'x' : arg1 = 16; arg2 = 8; break; // xM
+            case 'y' : arg1 = 17; arg2 = 9; break; // yM
+            case 'z' : arg1 = 18; arg2 = 10; break; // zM
+            case 'c' : arg1 = 19; arg2 = 11; break; // cM
             }
           if (arg1!=~0U) {
             if (reserved_label[arg1]!=~0U) _cimg_mp_return(reserved_label[arg1]);
@@ -22107,7 +22107,7 @@ namespace cimg_library_suffixed {
           if (c1=='w' && c2=='h') rp = 0; // wh
           else if (c1=='p' && c2=='i') rp = 3; // pi
           else if (c1=='i') {
-            if (c2>='0' && c2<='9') rp = 19 + c2 - '0'; // i0...i9
+            if (c2>='0' && c2<='9') rp = 20 + c2 - '0'; // i0...i9
             else if (c2=='m') rp = 4; // im
             else if (c2=='M') rp = 5; // iM
             else if (c2=='a') rp = 6; // ia
@@ -22116,15 +22116,15 @@ namespace cimg_library_suffixed {
             else if (c2=='p') rp = 9; // ip
             else if (c2=='c') rp = 10; // ic
           } else if (c2=='m') {
-            if (c1=='x') rp = 11; // xm
-            else if (c1=='y') rp = 12; // ym
-            else if (c1=='z') rp = 13; // zm
-            else if (c1=='c') rp = 14; // cm
+            if (c1=='x') rp = 12; // xm
+            else if (c1=='y') rp = 13; // ym
+            else if (c1=='z') rp = 14; // zm
+            else if (c1=='c') rp = 15; // cm
           } else if (c2=='M') {
-            if (c1=='x') rp = 15; // xM
-            else if (c1=='y') rp = 16; // yM
-            else if (c1=='z') rp = 17; // zM
-            else if (c1=='c') rp = 18; // cM
+            if (c1=='x') rp = 16; // xM
+            else if (c1=='y') rp = 17; // yM
+            else if (c1=='z') rp = 18; // zM
+            else if (c1=='c') rp = 19; // cM
           }
         } else if (variable_name[1] && variable_name[2] && !variable_name[3]) { // Three-chars variable
           c1 = variable_name[0];
@@ -22138,8 +22138,8 @@ namespace cimg_library_suffixed {
           c3 = variable_name[2];
           c4 = variable_name[3];
           if (c1=='w' && c2=='h' && c3=='d' && c4=='s') rp = 2; // whds
-        } else if (!std::strcmp(variable_name,"interpolation")) rp = 29; // interpolation
-        else if (!std::strcmp(variable_name,"boundary")) rp = 30; // boundary
+        } else if (!std::strcmp(variable_name,"interpolation")) rp = 30; // interpolation
+        else if (!std::strcmp(variable_name,"boundary")) rp = 31; // boundary
 
         if (rp!=~0U) { rpos = rp; return; } // One of the reserved labels
 

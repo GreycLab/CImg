@@ -29181,7 +29181,7 @@ namespace cimg_library_suffixed {
       const unsigned int proj_step = method<3?1:method - 2;
       bool is_orthoproj = false;
 
-      cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height>=32))
+      cimg_pragma_openmp(parallel for cimg_openmp_if(_width>=2 && _width*_height>=32))
         cimg_forX(*this,x) {
         CImg<Tfloat> S = get_column(x);
         const CImg<Tfloat> S0 = method<2?CImg<Tfloat>():S;

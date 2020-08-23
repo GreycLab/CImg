@@ -29210,7 +29210,7 @@ namespace cimg_library_suffixed {
           }
 
           if (!n || method<3 || n%proj_step) {
-            // Subtract component to signal.
+            // Matching Pursuit: Subtract component to signal.
             W(x,dmax)+=dotmax;
             residual = 0;
             cimg_forY(S,y) {
@@ -29221,8 +29221,8 @@ namespace cimg_library_suffixed {
             is_orthoproj = false;
 
           } else {
-            // Orthogonal projection step.
-            W(x,dmax) = 1;  // Used as a mark only.
+            // Orthogonal Matching Pursuit: Orthogonal projection step.
+            W(x,dmax) = 1; // Used as a marker only.
             unsigned int nbW = 0;
             cimg_forY(W,d) if (W(x,d)) ++nbW;
             CImg<Tfloat> sD(nbW,D._height);
@@ -29232,7 +29232,7 @@ namespace cimg_library_suffixed {
               cimg_forY(sD,y) sD(sd,y) = D(d,y);
               inds[sd++] = d;
             }
-            S0.get_solve(sD).move_to(sD);
+            S0.get_solve(sD).move_to(sD); // sD is now a one-column vector of weights
 
             // Recompute residual signal.
             S = S0;

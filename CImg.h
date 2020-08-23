@@ -29153,7 +29153,7 @@ namespace cimg_library_suffixed {
     template<typename t>
     CImg<T>& project_matrix(const CImg<t>& dictionnary, const unsigned int method=0,
                             const unsigned int max_iter=0, const double max_residual=0) {
-      return get_project_matrix().move_to(*this);
+      return get_project_matrix(dictionnary,method,max_iter,max_residual).move_to(*this);
     }
 
     template<typename t>

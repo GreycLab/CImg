@@ -29174,8 +29174,13 @@ namespace cimg_library_suffixed {
 
       // Compute dictionnary norm and normalize it.
       CImg<Tfloat> D(dictionnary,false), Dnorm(D._width);
-      cimg_forX(Dnorm,d) Dnorm[d] = std::max(1e-8,D.get_column(d).magnitude());
-      cimg_forXY(D,x,y) D(x,y)/=Dnorm[x];
+      cimg_pragma_openmp(parallel for cimg_openmp_if(_width>=2 && _width*_height>=32))
+      cimg_forX(Dnorm,d) {
+        Tfloat norm = 0;
+        cimg_forY(D,y) norm+=cimg::sqr(D(d,y));
+        Dnorm[d] = std::max((Tfloat)1e-8,std::sqrt(norm));
+      }
+      cimg_forXY(D,d,y) D(d,y)/=Dnorm[d];
 
       // Matching pursuit.
       const unsigned int proj_step = method<3?1:method - 2;

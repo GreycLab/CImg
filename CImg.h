@@ -29159,11 +29159,11 @@ namespace cimg_library_suffixed {
     template<typename t>
     CImg<Tfloat> get_project_matrix(const CImg<t>& dictionnary, const unsigned int method=0,
                                     const unsigned int max_iter=0, const double max_residual=0) const {
-      if (_depth>1 || _spectrum>1)
+      if (_depth!=1 || _spectrum!=1)
         throw CImgInstanceException(_cimg_instance
                                     "project_matrix(): Instance image is not a matrix.",
                                     cimg_instance);
-      if (dictionnary._height!=_height)
+      if (dictionnary._height!=_height || dictionnary._depth!=1 || dictionnary._spectrum!=1)
         throw CImgArgumentException(_cimg_instance
                                     "project_matrix(): Specified dictionnary (%u,%u,%u,%u) has an invalid size.",
                                     cimg_instance,

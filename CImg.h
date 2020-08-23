@@ -29130,6 +29130,139 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
+    //! Compute the projection of the instance matrix onto the specified dictionnary.
+    /**
+       Find the best matching projection of selected matrix onto the span of an over-complete dictionary D,
+       using the orthogonal projection or (opt. Orthogonal) Matching Pursuit algorithm.
+       Instance image must a 2D-matrix in which each column represent a signal to project.
+       \param dictionnary A matrix in which each column is an element of the dictionnary D.
+       \param method Tell what projection method is applied. It can be:
+         - 0 = orthogonal projection.
+         - 1 = matching pursuit.
+         - 2 = matching pursuit, with a single orthogonal projection step at the end.
+         - >=3 = orthogonal matching pursuit where an orthogonal projection step is performed
+                 every 'method-2' iterations.
+       \param max_iter Sets the max number of iterations processed for each signal.
+                       If set to '0' (default), 'max_iter' is set to the number of dictionnary columns.
+                       (only meaningful for matching pursuit and its variants).
+       \param max_residual Gives a stopping criterion on signal reconstruction accuracy.
+                           (only meaningful for matching pursuit and its variants).
+       \return A matrix W whose columns correspond to the sparse weights of associated to each input matrix column.
+               Thus, the matrix product D*W is an approximation of the input matrix.
+    **/
+    template<typename t>
+    CImg<T>& project_matrix(const CImg<t>& dictionnary, const unsigned int method=0,
+                            const unsigned int max_iter=0, const double max_residual=0) {
+      return get_project_matrix().move_to(*this);
+    }
+
+    template<typename t>
+    CImg<Tfloat> get_project_matrix(const CImg<t>& dictionnary, const unsigned int method=0,
+                                    const unsigned int max_iter=0, const double max_residual=0) const {
+      if (_depth>1 || _spectrum>1)
+        throw CImgInstanceException(_cimg_instance
+                                    "project_matrix(): Instance image is not a matrix.",
+                                    cimg_instance);
+      if (dictionnary._height!=_height)
+        throw CImgArgumentException(_cimg_instance
+                                    "project_matrix(): Specified dictionnary (%u,%u,%u,%u) has an invalid size.",
+                                    cimg_instance,
+                                    dictionnary._width,dictionnary._height,dictionnary._depth,dictionnary._spectrum);
+
+      if (!method) return get_solve(dictionnary);
+      CImg<Tfloat> W(_width,dictionnary._width,1,1,0);
+
+      // Compute dictionnary norm and normalize it.
+      CImg<Tfloat> D(dictionnary,false), Dnorm(D._width);
+      cimg_forX(Dnorm,d) Dnorm[d] = std::max(1e-8,D.get_column(d).magnitude());
+      cimg_forXY(D,x,y) D(x,y)/=Dnorm[x];
+
+      // Matching pursuit.
+      const unsigned int proj_step = method<3?1:method - 2;
+      bool is_orthoproj = false;
+
+      cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height>=32))
+        cimg_forX(*this,x) {
+        CImg<Tfloat> S = get_column(x);
+        const CImg<Tfloat> S0 = method<2?CImg<Tfloat>():S;
+        Tfloat residual = cimg::type<Tfloat>::inf();
+        const unsigned int nmax = max_iter?max_iter:D._width;
+
+        for (unsigned int n = 0; n<nmax && residual>max_residual; ++n) {
+
+          // Find best matching column in D.
+          int dmax = 0;
+          Tfloat absdotmax = 0, dotmax = 0;
+          cimg_forX(D,d) {
+            Tfloat dot = 0;
+            cimg_forY(D,y) dot+=S[y]*D(d,y);
+            Tfloat absdot = cimg::abs(dot);
+            if (absdot>absdotmax) {
+              absdotmax = absdot;
+              dotmax = dot;
+              dmax = d;
+            }
+          }
+
+          if (!n || method<3 || n%proj_step) {
+            // Subtract component to signal.
+            W(x,dmax)+=dotmax;
+            residual = 0;
+            cimg_forY(S,y) {
+              S[y]-=dotmax*D(dmax,y);
+              residual+=cimg::sqr(S[y]);
+            }
+            residual = std::sqrt(residual)/S._height;
+            is_orthoproj = false;
+
+          } else {
+            // Orthogonal projection step.
+            W(x,dmax) = 1;  // Used as a mark only.
+            unsigned int nbW = 0;
+            cimg_forY(W,d) if (W(x,d)) ++nbW;
+            CImg<Tfloat> sD(nbW,D._height);
+            CImg<uintT> inds(nbW);
+            int sd = 0;
+            cimg_forY(W,d) if (W(x,d)) {
+              cimg_forY(sD,y) sD(sd,y) = D(d,y);
+              inds[sd++] = d;
+            }
+            S0.get_solve(sD).move_to(sD);
+
+            // Recompute residual signal.
+            S = S0;
+            cimg_forY(sD,k) {
+              const Tfloat weight = sD[k];
+              const unsigned int ind = inds[k];
+              W(x,ind) = weight;
+              cimg_forY(S,y) S[y]-=weight*D(ind,y);
+            }
+            residual = S.magnitude()/S._height;
+            is_orthoproj = true;
+          }
+        }
+
+        // Perform last orthoprojection step if needed.
+        if (method>=2 && !is_orthoproj) {
+          unsigned int nbW = 0;
+          cimg_forY(W,d) if (W(x,d)) ++nbW;
+          CImg<Tfloat> sD(nbW,D._height);
+          CImg<uintT> inds(nbW);
+          int sd = 0;
+          cimg_forY(W,d) if (W(x,d)) {
+            cimg_forY(sD,y) sD(sd,y) = D(d,y);
+            inds[sd++] = d;
+          }
+          S0.get_solve(sD).move_to(sD);
+          cimg_forY(sD,k) W(x,inds[k]) = sD[k];
+        }
+      }
+
+      // Normalize resulting coefficients according to initial (non-normalized) dictionnary.
+      cimg_forXY(W,x,y) W(x,y)/=Dnorm[y];
+      return W;
+    }
+
     //! Compute minimal path in a graph, using the Dijkstra algorithm.
     /**
        \param distance An object having operator()(unsigned int i, unsigned int j) which returns distance

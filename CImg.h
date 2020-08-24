@@ -20309,30 +20309,70 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"mproj(",6)) { // Project matrix onto dictionnary
               _cimg_mp_op("Function 'mproj()'");
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss6,s1,depth1,0,is_single);
+              arg1 = compile(ss6,s1,depth1,0,is_single); // S
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-              arg2 = compile(++s1,s2,depth1,0,is_single);
-              arg3 = s2<se1?compile(++s2,se1,depth1,0,is_single):1;
+              arg2 = compile(++s1,s2,depth1,0,is_single); // ncolS
+              s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg3 = compile(++s2,s1,depth1,0,is_single); // D
+              s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg4 = compile(++s1,s2,depth1,0,is_single); // ncolD
+              arg5 = arg6 = p1 = 0;
+              if (s2<se1) {
+                s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                arg5 = compile(++s2,s1,depth1,0,is_single); // method
+                if (s1<se1) {
+                  s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                  arg6 = compile(++s1,s2,depth1,0,is_single); // max_iter
+                  p3 = s2<se1?compile(++s2,se1,depth1,0,is_single):0; // method
+                }
+              }
               _cimg_mp_check_type(arg1,1,2,0);
-              _cimg_mp_check_type(arg2,2,2,0);
-              _cimg_mp_check_constant(arg3,3,3);
+              _cimg_mp_check_constant(arg2,2,3);
+              _cimg_mp_check_type(arg3,3,2,0);
+              _cimg_mp_check_constant(arg4,4,3);
+              _cimg_mp_check_type(arg5,5,1,0);
+              _cimg_mp_check_type(arg6,6,1,0);
+              _cimg_mp_check_type(p3,7,1,0);
+
               p1 = _cimg_mp_size(arg1);
-              p2 = _cimg_mp_size(arg2);
-              p3 = (unsigned int)mem[arg3];
-              arg5 = p2/p3;
-              arg4 = p1/arg5;
-              if (arg4*arg5!=p1 || arg5*p3!=p2) {
+              p2 = _cimg_mp_size(arg3);
+              const unsigned int
+                wS = (unsigned int)mem[arg2],
+                wD = (unsigned int)mem[arg4],
+                hS = p1/arg2,
+                hD = p2/arg4;
+              if (wS*hS!=p1) {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                            "CImg<%s>::%s: %s: Types of first and second arguments ('%s' and '%s') "
-                                            "do not match with third argument 'nb_colsB=%u', "
+                                            "CImg<%s>::%s: %s: Type of first argument ('%s') "
+                                            "do not match with second argument 'nb_colsS=%u', "
                                             "in expression '%s%s%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
-                                            s_type(arg1)._data,s_type(arg2)._data,p3,
+                                            s_type(arg1)._data,wS,
                                             s0>expr._data?"...":"",s0,se<&expr.back()?"...":"");
               }
-              pos = vector(arg4*p3);
-              CImg<ulongT>::vector((ulongT)mp_mproj,pos,arg1,arg2,arg4,arg5,p3).move_to(code);
+              if (wD*hD!=p2) {
+                _cimg_mp_strerr;
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: Type of third argument ('%s') "
+                                            "do not match with fourth argument 'nb_colsD=%u', "
+                                            "in expression '%s%s%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            s_type(arg3)._data,wD,
+                                            s0>expr._data?"...":"",s0,se<&expr.back()?"...":"");
+              }
+              if (hS!=hD) {
+                _cimg_mp_strerr;
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: Type of first argument ('%s') "
+                                            "do not match with third argument ('%s'), "
+                                            "in expression '%s%s%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            s_type(arg1)._data,s_type(arg3)._data,
+                                            s0>expr._data?"...":"",s0,se<&expr.back()?"...":"");
+              }
+              pos = vector(wS*wD);
+              CImg<ulongT>::vector((ulongT)mp_mproj,pos,arg1,wS,hS,arg3,wD,arg5,arg6,p3).move_to(code);
               _cimg_mp_return(pos);
             }
 
@@ -29181,8 +29221,8 @@ namespace cimg_library_suffixed {
        Instance image must a 2D-matrix in which each column represent a signal to project.
        \param dictionnary A matrix in which each column is an element of the dictionnary D.
        \param method Tell what projection method is applied. It can be:
-         - 0 = orthogonal projection.
-         - 1 = matching pursuit (default).
+         - 0 = orthogonal projection (default).
+         - 1 = matching pursuit.
          - 2 = matching pursuit, with a single orthogonal projection step at the end.
          - >=3 = orthogonal matching pursuit where an orthogonal projection step is performed
                  every 'method-2' iterations.
@@ -29195,13 +29235,13 @@ namespace cimg_library_suffixed {
                Thus, the matrix product D*W is an approximation of the input matrix.
     **/
     template<typename t>
-    CImg<T>& project_matrix(const CImg<t>& dictionnary, const unsigned int method=1,
+    CImg<T>& project_matrix(const CImg<t>& dictionnary, const unsigned int method=0,
                             const unsigned int max_iter=0, const double max_residual=1e-6) {
       return get_project_matrix(dictionnary,method,max_iter,max_residual).move_to(*this);
     }
 
     template<typename t>
-    CImg<Tfloat> get_project_matrix(const CImg<t>& dictionnary, const unsigned int method=1,
+    CImg<Tfloat> get_project_matrix(const CImg<t>& dictionnary, const unsigned int method=0,
                                     const unsigned int max_iter=0, const double max_residual=1e-6) const {
       if (_depth!=1 || _spectrum!=1)
         throw CImgInstanceException(_cimg_instance

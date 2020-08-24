@@ -29288,14 +29288,17 @@ namespace cimg_library_suffixed {
           // Find best matching column in D.
           int dmax = 0;
           Tfloat absdotmax = 0, dotmax = 0;
+          cimg_pragma_openmp(parallel for cimg_openmp_if(D._width>=2 && D._width*D._height>=32))
           cimg_forX(D,d) {
             Tfloat dot = 0;
             cimg_forY(D,y) dot+=S[y]*D(d,y);
             Tfloat absdot = cimg::abs(dot);
-            if (absdot>absdotmax) {
-              absdotmax = absdot;
-              dotmax = dot;
-              dmax = d;
+            cimg_pragma_openmp(critical(get_project_matrix)) {
+              if (absdot>absdotmax) {
+                absdotmax = absdot;
+                dotmax = dot;
+                dmax = d;
+              }
             }
           }
 

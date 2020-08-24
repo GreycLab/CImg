@@ -20316,7 +20316,7 @@ namespace cimg_library_suffixed {
               arg3 = compile(++s2,s1,depth1,0,is_single); // D
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg4 = compile(++s1,s2,depth1,0,is_single); // ncolD
-              arg5 = arg6 = p1 = 0;
+              arg5 = arg6 = p3 = 0;
               if (s2<se1) {
                 s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                 arg5 = compile(++s2,s1,depth1,0,is_single); // method
@@ -20333,7 +20333,6 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_type(arg5,5,1,0);
               _cimg_mp_check_type(arg6,6,1,0);
               _cimg_mp_check_type(p3,7,1,0);
-
               p1 = _cimg_mp_size(arg1);
               p2 = _cimg_mp_size(arg3);
               const unsigned int
@@ -20373,7 +20372,6 @@ namespace cimg_library_suffixed {
                                             s0>expr._data?"...":"",s0,se<&expr.back()?"...":"");
               }
               pos = vector(wS*wD);
-
               CImg<ulongT>::vector((ulongT)mp_mproj,pos,arg1,wS,hS,arg3,wD,arg5,arg6,p3).move_to(code);
               _cimg_mp_return(pos);
             }
@@ -25244,14 +25242,20 @@ namespace cimg_library_suffixed {
       static double mp_mproj(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
         const double
-          *ptr1 = &_mp_arg(2) + 1,
-          *ptr2 = &_mp_arg(3) + 1;
+          *ptrS = &_mp_arg(2) + 1,
+          *ptrD = &_mp_arg(5) + 1;
         const unsigned int
-          k = (unsigned int)mp.opcode[4],
-          l = (unsigned int)mp.opcode[5],
-          m = (unsigned int)mp.opcode[6];
-        CImg<doubleT>(ptrd,m,k,1,1,true) = CImg<doubleT>(ptr2,m,l,1,1,false).
-          project_matrix(CImg<doubleT>(ptr1,k,l,1,1,true));
+          wS = (unsigned int)mp.opcode[3],
+          hS = (unsigned int)mp.opcode[4],
+          wD = (unsigned int)mp.opcode[6];
+        const int
+          method = std::max(0,(int)_mp_arg(7)),
+          max_iter = std::max(0,(int)_mp_arg(8));
+        const double
+          max_residual = std::max(0.,_mp_arg(9));
+
+        CImg<doubleT>(ptrd,wS,wD,1,1,true) = CImg<doubleT>(ptrS,wS,hS,1,1,false).
+          project_matrix(CImg<doubleT>(ptrD,wD,hS,1,1,true),method,max_iter,max_residual);
         return cimg::type<double>::nan();
       }
 

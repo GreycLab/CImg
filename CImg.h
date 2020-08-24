@@ -29138,7 +29138,7 @@ namespace cimg_library_suffixed {
        \param dictionnary A matrix in which each column is an element of the dictionnary D.
        \param method Tell what projection method is applied. It can be:
          - 0 = orthogonal projection.
-         - 1 = matching pursuit.
+         - 1 = matching pursuit (default).
          - 2 = matching pursuit, with a single orthogonal projection step at the end.
          - >=3 = orthogonal matching pursuit where an orthogonal projection step is performed
                  every 'method-2' iterations.
@@ -29151,14 +29151,14 @@ namespace cimg_library_suffixed {
                Thus, the matrix product D*W is an approximation of the input matrix.
     **/
     template<typename t>
-    CImg<T>& project_matrix(const CImg<t>& dictionnary, const unsigned int method=0,
-                            const unsigned int max_iter=0, const double max_residual=0) {
+    CImg<T>& project_matrix(const CImg<t>& dictionnary, const unsigned int method=1,
+                            const unsigned int max_iter=0, const double max_residual=1e-6) {
       return get_project_matrix(dictionnary,method,max_iter,max_residual).move_to(*this);
     }
 
     template<typename t>
-    CImg<Tfloat> get_project_matrix(const CImg<t>& dictionnary, const unsigned int method=0,
-                                    const unsigned int max_iter=0, const double max_residual=0) const {
+    CImg<Tfloat> get_project_matrix(const CImg<t>& dictionnary, const unsigned int method=1,
+                                    const unsigned int max_iter=0, const double max_residual=1e-6) const {
       if (_depth!=1 || _spectrum!=1)
         throw CImgInstanceException(_cimg_instance
                                     "project_matrix(): Instance image is not a matrix.",

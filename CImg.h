@@ -20339,8 +20339,9 @@ namespace cimg_library_suffixed {
               const unsigned int
                 wS = (unsigned int)mem[arg2],
                 wD = (unsigned int)mem[arg4],
-                hS = p1/arg2,
-                hD = p2/arg4;
+                hS = p1/wS,
+                hD = p2/wD;
+
               if (wS*hS!=p1) {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
@@ -20372,6 +20373,7 @@ namespace cimg_library_suffixed {
                                             s0>expr._data?"...":"",s0,se<&expr.back()?"...":"");
               }
               pos = vector(wS*wD);
+
               CImg<ulongT>::vector((ulongT)mp_mproj,pos,arg1,wS,hS,arg3,wD,arg5,arg6,p3).move_to(code);
               _cimg_mp_return(pos);
             }

@@ -29280,7 +29280,7 @@ namespace cimg_library_suffixed {
         cimg_forX(*this,x) {
         CImg<Tfloat> S = get_column(x);
         const CImg<Tfloat> S0 = method<2?CImg<Tfloat>():S;
-        Tfloat residual = cimg::type<Tfloat>::inf();
+        Tfloat residual = S.magnitude()/S._height;
         const unsigned int nmax = max_iter?max_iter:D._width;
 
         for (unsigned int n = 0; n<nmax && residual>max_residual; ++n) {
@@ -29344,15 +29344,17 @@ namespace cimg_library_suffixed {
         if (method>=2 && !is_orthoproj) {
           unsigned int nbW = 0;
           cimg_forY(W,d) if (W(x,d)) ++nbW;
-          CImg<Tfloat> sD(nbW,D._height);
-          CImg<uintT> inds(nbW);
-          int sd = 0;
-          cimg_forY(W,d) if (W(x,d)) {
-            cimg_forY(sD,y) sD(sd,y) = D(d,y);
-            inds[sd++] = d;
+          if (nbW) { // Avoid degenerated case where 0 coefs are used
+            CImg<Tfloat> sD(nbW,D._height);
+            CImg<uintT> inds(nbW);
+            int sd = 0;
+            cimg_forY(W,d) if (W(x,d)) {
+              cimg_forY(sD,y) sD(sd,y) = D(d,y);
+              inds[sd++] = d;
+            }
+            S0.get_solve(sD).move_to(sD);
+            cimg_forY(sD,k) W(x,inds[k]) = sD[k];
           }
-          S0.get_solve(sD).move_to(sD);
-          cimg_forY(sD,k) W(x,inds[k]) = sD[k];
         }
       }
 

@@ -30469,11 +30469,22 @@ namespace cimg_library_suffixed {
                 mp.need_input_copy)
               base.assign().assign(*this,false); // Needs input copy
 
+            // Determine 2nd largest image dimension (used as axis for inner loop in parallelized evaluation).
+            unsigned int M;
+            if (mp.result_dim) {
+              M = cimg::max(_width,_height,_depth);
+              M = M==_width?std::max(_height,_depth):M==_height?std::max(_width,_depth):std::max(_width,_height);
+            } else {
+              M = cimg::max(_width,_height,_depth,_spectrum);
+              M = M==_width?cimg::max(_height,_depth,_spectrum):
+                M==_height?cimg::max(_width,_depth,_spectrum):
+                M==_depth?cimg::max(_width,_height,_spectrum):cimg::max(_width,_height,_depth);
+            }
+
             bool do_in_parallel = false;
 #if cimg_use_openmp!=0
             cimg_openmp_if(*expression=='*' || *expression==':' ||
-                           (mp.is_parallelizable && _width>=(cimg_openmp_sizefactor)*320 &&
-                            _height*_depth*_spectrum>=2))
+                           (mp.is_parallelizable && M>=(cimg_openmp_sizefactor)*320 && size()/M>=2))
               do_in_parallel = true;
 #endif
             if (mp.result_dim) { // Vector-valued expression
@@ -30520,20 +30531,30 @@ namespace cimg_library_suffixed {
                   lmp.is_fill = true;
                   cimg_pragma_openmp(barrier)
                   lmp.begin_t();
-                  cimg_pragma_openmp(for cimg_openmp_collapse(2))
-                    cimg_forYZ(*this,y,z) _cimg_abort_try_openmp {
-                    cimg_abort_test;
-                    if (formula_mode==2) cimg_forX(*this,x) lmp(x,y,z,0);
-                    else {
-                      CImg<doubleT> res(1,lmp.result_dim);
-                      T *__ptrd = data(0,y,z,0);
-                      cimg_forX(*this,x) {
-                        lmp(x,y,z,0,res._data);
-                        const double *ptrs = res._data;
-                        T *_ptrd = __ptrd++; for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
-                      }
-                    }
-                  } _cimg_abort_catch_openmp _cimg_abort_catch_fill_openmp
+
+#define _cimg_fill_openmp_vector(_YZ,_y,_z,_X,_x,_sx,_sy,_sz,_off) \
+  cimg_pragma_openmp(for cimg_openmp_collapse(2)) \
+  cimg_for##_YZ(*this,_y,_z) _cimg_abort_try_openmp { \
+    cimg_abort_test; \
+    if (formula_mode==2) cimg_for##_X(*this,_x) lmp(x,y,z,0); \
+    else { \
+      CImg<doubleT> res(1,lmp.result_dim); \
+      T *__ptrd = data(_sx,_sy,_sz,0); \
+      const ulongT off = (ulongT)_off; \
+      cimg_for##_X(*this,_x) { \
+        lmp(x,y,z,0,res._data); \
+        const double *ptrs = res._data; \
+        T *_ptrd = __ptrd; \
+        for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; } \
+        __ptrd+=off; \
+      } \
+    } \
+  } _cimg_abort_catch_openmp _cimg_abort_catch_fill_openmp
+
+                  if (M==_width) { _cimg_fill_openmp_vector(YZ,y,z,X,x,0,y,z,1) }
+                  else if (M==_height) { _cimg_fill_openmp_vector(XZ,x,z,Y,y,x,0,z,_width) }
+                  else { _cimg_fill_openmp_vector(XY,x,y,Z,z,x,y,0,_width*_height) }
+
                   lmp.end_t();
                   cimg_pragma_openmp(barrier) cimg_pragma_openmp(critical) { lmp.merge(mp); }
                   if (&lmp!=&mp) delete &lmp;
@@ -30567,15 +30588,24 @@ namespace cimg_library_suffixed {
                   lmp.is_fill = true;
                   cimg_pragma_openmp(barrier)
                   lmp.begin_t();
-                  cimg_pragma_openmp(for cimg_openmp_collapse(3))
-                    cimg_forYZC(*this,y,z,c) _cimg_abort_try_openmp {
-                    cimg_abort_test;
-                    if (formula_mode==2) cimg_forX(*this,x) lmp(x,y,z,c);
-                    else {
-                      T *_ptrd = data(0,y,z,c);
-                      cimg_forX(*this,x) *(_ptrd++) = (T)lmp(x,y,z,c);
-                    }
-                  } _cimg_abort_catch_openmp _cimg_abort_catch_fill_openmp
+
+#define _cimg_fill_openmp_scalar(_YZC,_y,_z,_c,_X,_x,_sx,_sy,_sz,_sc,_off) \
+  cimg_pragma_openmp(for cimg_openmp_collapse(3)) \
+  cimg_for##_YZC(*this,_y,_z,_c) _cimg_abort_try_openmp { \
+    cimg_abort_test; \
+    if (formula_mode==2) cimg_for##_X(*this,_x) lmp(x,y,z,c); \
+    else { \
+      T *_ptrd = data(_sx,_sy,_sz,_sc); \
+      const ulongT off = (ulongT)_off; \
+      cimg_for##_X(*this,_x) { *_ptrd = (T)lmp(x,y,z,c); _ptrd+=off; } \
+    } \
+  } _cimg_abort_catch_openmp _cimg_abort_catch_fill_openmp
+
+                  if (M==_width) { _cimg_fill_openmp_scalar(YZC,y,z,c,X,x,0,y,z,c,1) }
+                  else if (M==_height) { _cimg_fill_openmp_scalar(XZC,x,z,c,Y,y,x,0,z,c,_width) }
+                  else if (M==_depth) { _cimg_fill_openmp_scalar(XYC,x,y,c,Z,z,x,y,0,c,_width*_height) }
+                  else { _cimg_fill_openmp_scalar(XYZ,x,y,z,C,c,x,y,z,0,_width*_height*_depth) }
+
                   lmp.end_t();
                   cimg_pragma_openmp(barrier) cimg_pragma_openmp(critical) { lmp.merge(mp); }
                   if (&lmp!=&mp) delete &lmp;

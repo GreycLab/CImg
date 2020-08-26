@@ -30470,7 +30470,6 @@ namespace cimg_library_suffixed {
               base.assign().assign(*this,false); // Needs input copy
 
             bool do_in_parallel = false;
-
 #if cimg_use_openmp!=0
             cimg_openmp_if(*expression=='*' || *expression==':' ||
                            (mp.is_parallelizable && _width>=(cimg_openmp_sizefactor)*320 &&

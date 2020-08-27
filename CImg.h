@@ -29021,12 +29021,20 @@ namespace cimg_library_suffixed {
         int l = 0, nm = 0;
 
         cimg_forX(U,i) {
-          l = i + 1; rv1[i] = scale*g; g = s = scale = 0;
+          l = i + 1;
+          rv1[i] = scale*g;
+          g = s = scale = 0;
           if (i<height()) {
             for (int k = i; k<height(); ++k) scale+=cimg::abs(U(i,k));
             if (scale) {
-              for (int k = i; k<height(); ++k) { U(i,k)/=scale; s+=U(i,k)*U(i,k); }
-              f = U(i,i); g = (Ttfloat)((f>=0?-1:1)*std::sqrt(s)); h=f*g-s; U(i,i) = f-g;
+              for (int k = i; k<height(); ++k) {
+                U(i,k)/=scale;
+                s+=U(i,k)*U(i,k);
+              }
+              f = U(i,i);
+              g = (Ttfloat)((f>=0?-1:1)*std::sqrt(s));
+              h = f*g - s;
+              U(i,i) = f - g;
               for (int j = l; j<width(); ++j) {
                 s = 0;
                 for (int k=i; k<height(); ++k) s+=U(i,k)*U(j,k);
@@ -29036,15 +29044,21 @@ namespace cimg_library_suffixed {
               for (int k = i; k<height(); ++k) U(i,k)*=scale;
             }
           }
-          S[i]=scale*g;
+          S[i] = scale*g;
 
           g = s = scale = 0;
           if (i<height() && i!=width() - 1) {
             for (int k = l; k<width(); ++k) scale+=cimg::abs(U(k,i));
             if (scale) {
-              for (int k = l; k<width(); ++k) { U(k,i)/= scale; s+=U(k,i)*U(k,i); }
-              f = U(l,i); g = (Ttfloat)((f>=0?-1:1)*std::sqrt(s)); h = f*g-s; U(l,i) = f-g;
-              for (int k = l; k<width(); ++k) rv1[k]=U(k,i)/h;
+              for (int k = l; k<width(); ++k) {
+                U(k,i)/=scale;
+                s+=U(k,i)*U(k,i);
+              }
+              f = U(l,i);
+              g = (Ttfloat)((f>=0?-1:1)*std::sqrt(s));
+              h = f*g - s;
+              U(l,i) = f - g;
+              for (int k = l; k<width(); ++k) rv1[k] = U(k,i)/h;
               for (int j = l; j<height(); ++j) {
                 s = 0;
                 for (int k = l; k<width(); ++k) s+=U(k,j)*U(k,i);
@@ -29057,7 +29071,7 @@ namespace cimg_library_suffixed {
         }
 
         for (int i = width() - 1; i>=0; --i) {
-          if (i<width()-1) {
+          if (i<width() - 1) {
             if (g) {
               for (int j = l; j<width(); ++j) V(i,j) =(U(j,i)/U(l,i))/g;
               for (int j = l; j<width(); ++j) {
@@ -29068,16 +29082,20 @@ namespace cimg_library_suffixed {
             }
             for (int j = l; j<width(); ++j) V(j,i) = V(i,j) = (t)0.;
           }
-          V(i,i) = (t)1.; g = rv1[i]; l = i;
+          V(i,i) = (t)1;
+          g = rv1[i];
+          l = i;
         }
 
         for (int i = std::min(width(),height()) - 1; i>=0; --i) {
-          l = i + 1; g = S[i];
+          l = i + 1;
+          g = S[i];
           for (int j = l; j<width(); ++j) U(j,i) = 0;
           if (g) {
             g = 1/g;
             for (int j = l; j<width(); ++j) {
-              s = 0; for (int k = l; k<height(); ++k) s+=U(i,k)*U(j,k);
+              s = 0;
+              for (int k = l; k<height(); ++k) s+=U(i,k)*U(j,k);
               f = (s/U(i,i))*g;
               for (int k = i; k<height(); ++k) U(j,k)+=f*U(i,k);
             }
@@ -29095,12 +29113,23 @@ namespace cimg_library_suffixed {
               if ((cimg::abs(S[nm]) + anorm)==anorm) break;
             }
             if (flag) {
-              c = 0; s = 1;
+              c = 0;
+              s = 1;
               for (int i = l; i<=k; ++i) {
-                f = s*rv1[i]; rv1[i] = c*rv1[i];
+                f = s*rv1[i];
+                rv1[i] = c*rv1[i];
                 if ((cimg::abs(f) + anorm)==anorm) break;
-                g = S[i]; h = cimg::_hypot(f,g); S[i] = h; h = 1/h; c = g*h; s = -f*h;
-                cimg_forY(U,j) { const t y = U(nm,j), z = U(i,j); U(nm,j) = y*c + z*s; U(i,j) = z*c - y*s; }
+                g = S[i];
+                h = cimg::_hypot(f,g);
+                S[i] = h;
+                h = 1/h;
+                c = g*h;
+                s = -f*h;
+                cimg_forY(U,j) {
+                  const t y = U(nm,j), z = U(i,j);
+                  U(nm,j) = y*c + z*s;
+                  U(i,j) = z*c - y*s;
+                }
               }
             }
 
@@ -29108,25 +29137,48 @@ namespace cimg_library_suffixed {
             if (l==k) { if (z<0) { S[k] = -z; cimg_forX(U,j) V(k,j) = -V(k,j); } break; }
             nm = k - 1;
             t x = S[l], y = S[nm];
-            g = rv1[nm]; h = rv1[k];
-            f = ((y - z)*(y + z)+(g - h)*(g + h))/std::max((Ttfloat)1e-25,(Ttfloat)2*h*y);
+            g = rv1[nm];
+            h = rv1[k];
+            f = ((y - z)*(y + z) + (g - h)*(g + h))/std::max((Ttfloat)1e-25,(Ttfloat)2*h*y);
             g = cimg::_hypot(f,(Ttfloat)1);
-            f = ((x - z)*(x + z)+h*((y/(f + (f>=0?g:-g))) - h))/std::max((Ttfloat)1e-25,(Ttfloat)x);
+            f = ((x - z)*(x + z) + h*((y/(f + (f>=0?g:-g))) - h))/std::max((Ttfloat)1e-25,(Ttfloat)x);
             c = s = 1;
             for (int j = l; j<=nm; ++j) {
               const int i = j + 1;
-              g = rv1[i]; h = s*g; g = c*g;
-              t y1 = S[i];
-              t z1 = cimg::_hypot(f,h);
-              rv1[j] = z1; c = f/std::max((Ttfloat)1e-25,(Ttfloat)z1); s = h/std::max((Ttfloat)1e-25,(Ttfloat)z1);
-              f = x*c + g*s; g = g*c - x*s; h = y1*s; y1*=c;
-              cimg_forX(U,jj) { const t x2 = V(j,jj), z2 = V(i,jj); V(j,jj) = x2*c + z2*s; V(i,jj) = z2*c - x2*s; }
-              z1 = cimg::_hypot(f,h); S[j] = z1;
-              if (z1) { z1 = 1/std::max((Ttfloat)1e-25,(Ttfloat)z1); c = f*z1; s = h*z1; }
-              f = c*g + s*y1; x = c*y1 - s*g;
-              cimg_forY(U,jj) { const t y2 = U(j,jj), z2 = U(i,jj); U(j,jj) = y2*c + z2*s; U(i,jj) = z2*c - y2*s; }
+              g = rv1[i];
+              h = s*g;
+              g = c*g;
+              t y1 = S[i], z1 = cimg::_hypot(f,h);
+              rv1[j] = z1;
+              c = f/std::max((Ttfloat)1e-25,(Ttfloat)z1);
+              s = h/std::max((Ttfloat)1e-25,(Ttfloat)z1);
+              f = x*c + g*s;
+              g = g*c - x*s;
+              h = y1*s;
+              y1*=c;
+              cimg_forX(U,jj) {
+                const t x2 = V(j,jj), z2 = V(i,jj);
+                V(j,jj) = x2*c + z2*s;
+                V(i,jj) = z2*c - x2*s;
+              }
+              z1 = cimg::_hypot(f,h);
+              S[j] = z1;
+              if (z1) {
+                z1 = 1/std::max((Ttfloat)1e-25,(Ttfloat)z1);
+                c = f*z1;
+                s = h*z1;
+              }
+              f = c*g + s*y1;
+              x = c*y1 - s*g;
+              cimg_forY(U,jj) {
+                const t y2 = U(j,jj), z2 = U(i,jj);
+                U(j,jj) = y2*c + z2*s;
+                U(i,jj) = z2*c - y2*s;
+              }
             }
-            rv1[l] = 0; rv1[k] = f; S[k] = x;
+            rv1[l] = 0;
+            rv1[k] = f;
+            S[k] = x;
           }
         }
 

@@ -7950,8 +7950,8 @@ namespace cimg_library_suffixed {
   }
 
   template<typename T>
-  inline CImg<_cimg_Tfloat> invert(const CImg<T>& instance) {
-    return instance.get_invert();
+  inline CImg<_cimg_Tfloat> invert(const CImg<T>& instance, const bool use_LU=true) {
+    return instance.get_invert(use_LU);
   }
 
   template<typename T>
@@ -25062,9 +25062,9 @@ namespace cimg_library_suffixed {
           l = (unsigned int)mp.opcode[4];
         CImg<doubleT> U, S, V;
         CImg<doubleT>(ptr1,k,l,1,1,true).SVD(U,S,V);
-        CImg<doubleT>(ptrd,1,k,1,1,true) = S;
-        CImg<doubleT>(ptrd + k,k,l,1,1,true) = U;
-        CImg<doubleT>(ptrd + k + k*l,k,k,1,1,true) = V;
+        CImg<doubleT>(ptrd,k,l,1,1,true) = U;
+        CImg<doubleT>(ptrd + k*l,1,k,1,1,true) = S;
+        CImg<doubleT>(ptrd + k*l + k,k,k,1,1,true) = V;
         return cimg::type<double>::nan();
       }
 
@@ -28482,7 +28482,7 @@ namespace cimg_library_suffixed {
         if (!INFO) cimg_forXY(*this,k,l) (*this)(k,l) = (T)(lapA[k*N + l]); else fill(0);
         delete[] IPIV; delete[] lapA; delete[] WORK;
 #else
-        if (use_LU) { // LU-based inverse computation
+        if (use_LU) { // LU-based
           CImg<Tfloat> A(*this,false), indx;
           bool d;
           A._LU(indx,d);
@@ -28493,14 +28493,7 @@ namespace cimg_library_suffixed {
             col._solve(A,indx);
             cimg_forX(*this,i) (*this)(j,i) = (T)col(i);
           }
-        } else { // SVD-based inverse computation
-          CImg<Tfloat> U(_width,_width), S(1,_width), V(_width,_width);
-          SVD(U,S,V,false);
-          U.transpose();
-          cimg_forY(S,k) if (S[k]!=0) S[k]=1/S[k];
-          S.diagonal();
-          *this = V*S*U;
-        }
+        } else pseudoinvert(); // SVD-based
 #endif
       }
       return *this;
@@ -28521,7 +28514,7 @@ namespace cimg_library_suffixed {
     //! Compute the Moore-Penrose pseudo-inverse of the instance image, viewed as a matrix \newinstance.
     CImg<Tfloat> get_pseudoinvert() const {
       CImg<Tfloat> U, S, V;
-      SVD(U,S,V);
+      SVD(U,S,V,false);
       const Tfloat epsilon = (sizeof(Tfloat)<=4?5.96e-8f:1.11e-16f)*std::max(_width,_height)*S.max();
       cimg_forX(V,x) {
 	const Tfloat s = S(x), invs = s>epsilon?1/s:0;
@@ -28633,13 +28626,11 @@ namespace cimg_library_suffixed {
                      cimg_instance,
                      INFO);
 	assign(NRHS, N);
-        if (!INFO)
-          cimg_forXY(*this,k,l) (*this)(k,l) = (T)lapB[k*M + l];
-        else
-          assign(A.get_pseudoinvert()*(*this));
+        if (!INFO) cimg_forXY(*this,k,l) (*this)(k,l) = (T)lapB[k*M + l];
+        else (A.get_pseudoinvert()*(*this)).move_to(*this);
         delete[] lapA; delete[] lapB; delete[] WORK;
 #else
-	assign(A.get_pseudoinvert()*(*this));
+        (A.get_pseudoinvert()*(*this)).move_to(*this);
 #endif
       }
       return *this;

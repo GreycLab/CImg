@@ -29006,6 +29006,7 @@ namespace cimg_library_suffixed {
     const CImg<T>& SVD(CImg<t>& U, CImg<t>& S, CImg<t>& V, const bool sorting=true,
                        const unsigned int max_iteration=40, const float lambda=0) const {
       typedef _cimg_Ttfloat Ttfloat;
+      const Ttfloat epsilon = (Ttfloat)1e-25;
 
       if (is_empty()) { U.assign(); S.assign(); V.assign(); }
       else {
@@ -29139,9 +29140,9 @@ namespace cimg_library_suffixed {
             t x = S[l], y = S[nm];
             g = rv1[nm];
             h = rv1[k];
-            f = ((y - z)*(y + z) + (g - h)*(g + h))/std::max((Ttfloat)1e-25,(Ttfloat)2*h*y);
+            f = ((y - z)*(y + z) + (g - h)*(g + h))/std::max(epsilon,(Ttfloat)2*h*y);
             g = cimg::_hypot(f,(Ttfloat)1);
-            f = ((x - z)*(x + z) + h*((y/(f + (f>=0?g:-g))) - h))/std::max((Ttfloat)1e-25,(Ttfloat)x);
+            f = ((x - z)*(x + z) + h*((y/(f + (f>=0?g:-g))) - h))/std::max(epsilon,(Ttfloat)x);
             c = s = 1;
             for (int j = l; j<=nm; ++j) {
               const int i = j + 1;
@@ -29150,8 +29151,8 @@ namespace cimg_library_suffixed {
               g = c*g;
               t y1 = S[i], z1 = cimg::_hypot(f,h);
               rv1[j] = z1;
-              c = f/std::max((Ttfloat)1e-25,(Ttfloat)z1);
-              s = h/std::max((Ttfloat)1e-25,(Ttfloat)z1);
+              c = f/std::max(epsilon,(Ttfloat)z1);
+              s = h/std::max(epsilon,(Ttfloat)z1);
               f = x*c + g*s;
               g = g*c - x*s;
               h = y1*s;
@@ -29164,7 +29165,7 @@ namespace cimg_library_suffixed {
               z1 = cimg::_hypot(f,h);
               S[j] = z1;
               if (z1) {
-                z1 = 1/std::max((Ttfloat)1e-25,(Ttfloat)z1);
+                z1 = 1/std::max(epsilon,(Ttfloat)z1);
                 c = f*z1;
                 s = h*z1;
               }

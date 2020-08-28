@@ -13480,12 +13480,16 @@ namespace cimg_library_suffixed {
                          cimg_openmp_if(size()>(cimg_openmp_sizefactor)*1024 &&
                                         img.size()>(cimg_openmp_sizefactor)*1024))
         cimg_forXY(res,i,j) {
-          Ttdouble value = 0; cimg_forX(*this,k) value+=(*this)(k,j)*img(i,k); res(i,j) = (Tt)value;
+          Ttdouble value = 0;
+          cimg_forX(*this,k) value+=(*this)(k,j)*img(i,k);
+          res(i,j) = (Tt)value;
       }
 #else
       Tt *ptrd = res._data;
       cimg_forXY(res,i,j) {
-        Ttdouble value = 0; cimg_forX(*this,k) value+=(*this)(k,j)*img(i,k); *(ptrd++) = (Tt)value;
+        Ttdouble value = 0;
+        cimg_forX(*this,k) value+=(*this)(k,j)*img(i,k);
+        *(ptrd++) = (Tt)value;
       }
 #endif
       return res;

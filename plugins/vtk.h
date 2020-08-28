@@ -54,7 +54,7 @@ template<typename tf, typename tc, typename to>
   CImgList<T>& save_vtk(const char* const filename,
                         const CImgList<tf>& faces,
                         const CImgList<tc>& colors,
-                        const CImgList<to<& opacities) {
+                        const CImgList<to>& opacities) {
   // Open file
   std::FILE *const nfile = cimg::fopen(filename,"w");
 

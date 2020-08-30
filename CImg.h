@@ -13333,6 +13333,7 @@ namespace cimg_library_suffixed {
             return res;
           default : {
             Ttdouble val = 0;
+            cimg_pragma_openmp(parallel for reduction(+:val) cimg_openmp_if(size()>4096))
             cimg_forX(*this,i) val+=(Ttdouble)_data[i]*img[i];
             res[0] = val;
             return res;

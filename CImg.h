@@ -13309,7 +13309,7 @@ namespace cimg_library_suffixed {
       if (_width!=img._height || _depth!=1 || _spectrum!=1)
         throw CImgArgumentException(_cimg_instance
                                     "operator*(): Invalid multiplication of instance by specified "
-                                    "matrix (%u,%u,%u,%u,%p)",
+                                    "matrix (%u,%u,%u,%u,%p).",
                                     cimg_instance,
                                     img._width,img._height,img._depth,img._spectrum,img._data);
       CImg<Tt> res(img._width,_height);
@@ -13426,49 +13426,55 @@ namespace cimg_library_suffixed {
             return res;
           } else switch (_width) { // Square_matrix * Matrix
           case 2 : { // 2x2_matrix * Matrix
-            const t *ps0 = img.data(), *ps1 = img.data(0,1);
-            Tt *pd0 = res.data(), *pd1 = res.data(0,1);
+            const t *const ps0 = img.data(), *const ps1 = img.data(0,1);
+            Tt *const pd0 = res.data(), *const pd1 = res.data(0,1);
             const Ttdouble
               a0 = (Ttdouble)_data[0], a1 = (Ttdouble)_data[1],
               a2 = (Ttdouble)_data[2], a3 = (Ttdouble)_data[3];
+            cimg_pragma_openmp(parallel for cimg_openmp_if(img.width()>(cimg_openmp_sizefactor)*4096))
             cimg_forX(img,i) {
-              const Ttdouble x = (Ttdouble)*(ps0++), y = (Ttdouble)*(ps1++);
-              *(pd0++) = (Tt)(a0*x + a1*y);
-              *(pd1++) = (Tt)(a2*x + a3*y);
+              const Ttdouble x = (Ttdouble)ps0[i], y = (Ttdouble)ps1[i];
+              pd0[i] = (Tt)(a0*x + a1*y);
+              pd1[i] = (Tt)(a2*x + a3*y);
             }
             return res;
           }
           case 3 : { // 3x3_matrix * Matrix
-            const t *ps0 = img.data(), *ps1 = img.data(0,1), *ps2 = img.data(0,2);
-            Tt *pd0 = res.data(), *pd1 = res.data(0,1), *pd2 = res.data(0,2);
+            const t *const ps0 = img.data(), *const ps1 = img.data(0,1), *const ps2 = img.data(0,2);
+            Tt *const pd0 = res.data(), *const pd1 = res.data(0,1), *const pd2 = res.data(0,2);
             const Ttdouble
               a0 = (Ttdouble)_data[0], a1 = (Ttdouble)_data[1], a2 = (Ttdouble)_data[2],
               a3 = (Ttdouble)_data[3], a4 = (Ttdouble)_data[4], a5 = (Ttdouble)_data[5],
               a6 = (Ttdouble)_data[6], a7 = (Ttdouble)_data[7], a8 = (Ttdouble)_data[8];
+            cimg_pragma_openmp(parallel for cimg_openmp_if(img.width()>(cimg_openmp_sizefactor)*1024))
             cimg_forX(img,i) {
-              const Ttdouble x = (Ttdouble)*(ps0++), y = (Ttdouble)*(ps1++), z = (Ttdouble)*(ps2++);
-              *(pd0++) = (Tt)(a0*x + a1*y + a2*z);
-              *(pd1++) = (Tt)(a3*x + a4*y + a5*z);
-              *(pd2++) = (Tt)(a6*x + a7*y + a8*z);
+              const Ttdouble x = (Ttdouble)ps0[i], y = (Ttdouble)ps1[i], z = (Ttdouble)ps2[i];
+              pd0[i] = (Tt)(a0*x + a1*y + a2*z);
+              pd1[i] = (Tt)(a3*x + a4*y + a5*z);
+              pd2[i] = (Tt)(a6*x + a7*y + a8*z);
             }
             return res;
           }
           case 4 : { // 4x4_matrix * Matrix
-            const t *ps0 = img.data(), *ps1 = img.data(0,1), *ps2 = img.data(0,2), *ps3 = img.data(0,3);
-            Tt *pd0 = res.data(), *pd1 = res.data(0,1), *pd2 = res.data(0,2), *pd3 = res.data(0,3);
+            const t
+              *const ps0 = img.data(), *const ps1 = img.data(0,1),
+              *const ps2 = img.data(0,2), *const ps3 = img.data(0,3);
+            Tt
+              *const pd0 = res.data(), *const pd1 = res.data(0,1),
+              *const pd2 = res.data(0,2), *const pd3 = res.data(0,3);
             const Ttdouble
               a0 = (Ttdouble)_data[0], a1 = (Ttdouble)_data[1], a2 = (Ttdouble)_data[2], a3 = (Ttdouble)_data[3],
               a4 = (Ttdouble)_data[4], a5 = (Ttdouble)_data[5], a6 = (Ttdouble)_data[6], a7 = (Ttdouble)_data[7],
               a8 = (Ttdouble)_data[8], a9 = (Ttdouble)_data[9], a10 = (Ttdouble)_data[10], a11 = (Ttdouble)_data[11],
               a12 = (Ttdouble)_data[12], a13 = (Ttdouble)_data[13], a14 = (Ttdouble)_data[14],
               a15 = (Ttdouble)_data[15];
-            cimg_forX(img,col) {
-              const Ttdouble x = (Ttdouble)*(ps0++), y = (Ttdouble)*(ps1++), z = (Ttdouble)*(ps2++),
-                c = (Ttdouble)*(ps3++);
-              *(pd0++) = (Tt)(a0*x + a1*y + a2*z + a3*c);
-              *(pd1++) = (Tt)(a4*x + a5*y + a6*z + a7*c);
-              *(pd2++) = (Tt)(a8*x + a9*y + a10*z + a11*c);
-              *(pd3++) = (Tt)(a12*x + a13*y + a14*z + a15*c);
+            cimg_pragma_openmp(parallel for cimg_openmp_if(img.width()>(cimg_openmp_sizefactor)*512))
+            cimg_forX(img,i) {
+              const Ttdouble x = (Ttdouble)ps0[i], y = (Ttdouble)ps1[i], z = (Ttdouble)ps2[i], c = (Ttdouble)ps3[i];
+              pd0[i] = (Tt)(a0*x + a1*y + a2*z + a3*c);
+              pd1[i] = (Tt)(a4*x + a5*y + a6*z + a7*c);
+              pd2[i] = (Tt)(a8*x + a9*y + a10*z + a11*c);
+              pd3[i] = (Tt)(a12*x + a13*y + a14*z + a15*c);
             }
             return res;
           }

@@ -55130,13 +55130,20 @@ namespace cimg_library_suffixed {
             r00 = pose(0,0), r10 = pose(1,0), r20 = pose(2,0), r30 = pose(3,0),
             r01 = pose(0,1), r11 = pose(1,1), r21 = pose(2,1), r31 = pose(3,1),
             r02 = pose(0,2), r12 = pose(1,2), r22 = pose(2,2), r32 = pose(3,2);
-          if ((clicked && nrender_motion>=0) || (!clicked && nrender_static>=0))
+          if ((clicked && nrender_motion>=0) || (!clicked && nrender_static>=0)) {
+            const tp *const pv0 = vertices.data(), *const pv1 = vertices.data(0,1), *const pv2 = vertices.data(0,2);
+            float
+              *const prv0 = rotated_vertices.data(),
+              *const prv1 = rotated_vertices.data(0,1),
+              *const prv2 = rotated_vertices.data(0,2);
+            cimg_pragma_openmp(parallel for cimg_openmp_if(vertices.width()>(cimg_openmp_sizefactor)*1024))
             cimg_forX(vertices,l) {
-              const float x = (float)vertices(l,0), y = (float)vertices(l,1), z = (float)vertices(l,2);
-              rotated_vertices(l,0) = r00*x + r10*y + r20*z + r30;
-              rotated_vertices(l,1) = r01*x + r11*y + r21*z + r31;
-              rotated_vertices(l,2) = r02*x + r12*y + r22*z + r32;
+              const float x = (float)pv0[l], y = (float)pv1[l], z = (float)pv2[l];
+              prv0[l] = r00*x + r10*y + r20*z + r30;
+              prv1[l] = r01*x + r11*y + r21*z + r31;
+              prv2[l] = r02*x + r12*y + r22*z + r32;
             }
+          }
           else cimg_forX(bbox_vertices,l) {
               const float x = bbox_vertices(l,0), y = bbox_vertices(l,1), z = bbox_vertices(l,2);
               rotated_bbox_vertices(l,0) = r00*x + r10*y + r20*z + r30;

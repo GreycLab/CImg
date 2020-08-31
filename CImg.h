@@ -29030,7 +29030,7 @@ namespace cimg_library_suffixed {
         if (V._width<_width || V._height<_height) V.assign(_width,_width);
         CImg<t> rv1(_width);
         Ttfloat anorm = 0, c, f, g = 0, h, s, scale = 0;
-        int l = 0, nm = 0;
+        int l = 0;
 
         cimg_forX(U,i) {
           l = i + 1;
@@ -29117,6 +29117,7 @@ namespace cimg_library_suffixed {
         }
 
         for (int k = width() - 1; k>=0; --k) {
+          int nm = 0;
           for (unsigned int its = 0; its<max_iteration; ++its) {
             bool flag = true;
             for (l = k; l>=1; --l) {

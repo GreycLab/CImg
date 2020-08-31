@@ -13333,7 +13333,7 @@ namespace cimg_library_suffixed {
             return res;
           default : {
             Ttdouble val = 0;
-            cimg_pragma_openmp(parallel for reduction(+:val) cimg_openmp_if(size()>(cimg_openmp_sizefactor)*4096))
+            cimg_pragma_openmp(parallel for reduction(+:val) cimg_openmp_if_size(size(),4096))
             cimg_forX(*this,i) val+=(Ttdouble)_data[i]*img[i];
             res[0] = val;
             return res;
@@ -13431,7 +13431,7 @@ namespace cimg_library_suffixed {
             const Ttdouble
               a0 = (Ttdouble)_data[0], a1 = (Ttdouble)_data[1],
               a2 = (Ttdouble)_data[2], a3 = (Ttdouble)_data[3];
-            cimg_pragma_openmp(parallel for cimg_openmp_if(img.width()>(cimg_openmp_sizefactor)*4096))
+            cimg_pragma_openmp(parallel for cimg_openmp_if_size(img.width(),4096))
             cimg_forX(img,i) {
               const Ttdouble x = (Ttdouble)ps0[i], y = (Ttdouble)ps1[i];
               pd0[i] = (Tt)(a0*x + a1*y);
@@ -13446,7 +13446,7 @@ namespace cimg_library_suffixed {
               a0 = (Ttdouble)_data[0], a1 = (Ttdouble)_data[1], a2 = (Ttdouble)_data[2],
               a3 = (Ttdouble)_data[3], a4 = (Ttdouble)_data[4], a5 = (Ttdouble)_data[5],
               a6 = (Ttdouble)_data[6], a7 = (Ttdouble)_data[7], a8 = (Ttdouble)_data[8];
-            cimg_pragma_openmp(parallel for cimg_openmp_if(img.width()>(cimg_openmp_sizefactor)*1024))
+            cimg_pragma_openmp(parallel for cimg_openmp_if_size(img.width(),1024))
             cimg_forX(img,i) {
               const Ttdouble x = (Ttdouble)ps0[i], y = (Ttdouble)ps1[i], z = (Ttdouble)ps2[i];
               pd0[i] = (Tt)(a0*x + a1*y + a2*z);
@@ -13468,7 +13468,7 @@ namespace cimg_library_suffixed {
               a8 = (Ttdouble)_data[8], a9 = (Ttdouble)_data[9], a10 = (Ttdouble)_data[10], a11 = (Ttdouble)_data[11],
               a12 = (Ttdouble)_data[12], a13 = (Ttdouble)_data[13], a14 = (Ttdouble)_data[14],
               a15 = (Ttdouble)_data[15];
-            cimg_pragma_openmp(parallel for cimg_openmp_if(img.width()>(cimg_openmp_sizefactor)*512))
+            cimg_pragma_openmp(parallel for cimg_openmp_if_size(img.width(),512))
             cimg_forX(img,i) {
               const Ttdouble x = (Ttdouble)ps0[i], y = (Ttdouble)ps1[i], z = (Ttdouble)ps2[i], c = (Ttdouble)ps3[i];
               pd0[i] = (Tt)(a0*x + a1*y + a2*z + a3*c);
@@ -28162,10 +28162,12 @@ namespace cimg_library_suffixed {
         cimg_for(*this,ptrs,T) { const double val = (double)cimg::abs(*ptrs); if (val>res) res = val; }
       } break;
       case 1 : {
-        cimg_for(*this,ptrs,T) res+=(double)cimg::abs(*ptrs);
+        cimg_pragma_openmp(parallel for reduction(+:res) cimg_openmp_if_size(size(),8192))
+        cimg_rof(*this,ptrs,T) res+=(double)cimg::abs(*ptrs);
       } break;
       default : {
-        cimg_for(*this,ptrs,T) res+=(double)cimg::sqr(*ptrs);
+        cimg_pragma_openmp(parallel for reduction(+:res) cimg_openmp_if_size(size(),8192))
+        cimg_rof(*this,ptrs,T) res+=(double)cimg::sqr(*ptrs);
         res = (double)std::sqrt(res);
       }
       }

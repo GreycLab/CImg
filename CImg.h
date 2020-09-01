@@ -28529,7 +28529,7 @@ namespace cimg_library_suffixed {
             cimg_forY(*this,k) res+=(*this)(i,k)*(*this)(j,k);
             AtA(j,i) = AtA(i,j) = (Tfloat)res;
           }
-        AtA.invert();
+        AtA.invert(false);
         return AtA*get_transpose();
       }
 

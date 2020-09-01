@@ -11965,7 +11965,7 @@ namespace cimg_library_suffixed {
     }
 
     template<typename t>
-    CImg<T> & operator=(std::initializer_list<t> values) {
+    CImg<T>& operator=(std::initializer_list<t> values) {
       _cimg_constructor_cpp11(siz>values.size());
       return *this;
     }
@@ -12385,6 +12385,7 @@ namespace cimg_library_suffixed {
     CImg(CImg<T>&& img):_width(0),_height(0),_depth(0),_spectrum(0),_is_shared(false),_data(0) {
       swap(img);
     }
+
     CImg<T>& operator=(CImg<T>&& img) {
       if (_is_shared) return assign(img);
       return img.swap(*this);
@@ -21323,10 +21324,10 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar2(mp_trace,arg1,p1);
             }
 
-            if (!std::strncmp(ss,"transp(",7)) { // Matrix transpose
-              _cimg_mp_op("Function 'transp()'");
-              s1 = ss7; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss7,s1,depth1,0,is_single);
+            if (!std::strncmp(ss,"transpose(",10)) { // Matrix transpose
+              _cimg_mp_op("Function 'transpose()'");
+              s1 = ss + 10; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss + 10,s1,depth1,0,is_single);
               arg2 = compile(++s1,se1,depth1,0,is_single);
               _cimg_mp_check_type(arg1,1,2,0);
               _cimg_mp_check_constant(arg2,2,3);
@@ -28491,7 +28492,7 @@ namespace cimg_library_suffixed {
           CImg<Tfloat> A(*this,false), indx;
           bool d;
           A._LU(indx,d);
-          cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height>=16*16))
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(_width*_height,16*16))
           cimg_forX(*this,j) {
             CImg<Tfloat> col(1,_width,1,1,0);
             col(j) = 1;
@@ -28512,12 +28513,28 @@ namespace cimg_library_suffixed {
     //! Compute the Moore-Penrose pseudo-inverse of the instance image, viewed as a matrix.
     /**
     **/
-    CImg<T>& pseudoinvert() {
-      return get_pseudoinvert().move_to(*this);
+    CImg<T>& pseudoinvert(const bool use_LU=false) {
+      return get_pseudoinvert(use_LU).move_to(*this);
     }
 
     //! Compute the Moore-Penrose pseudo-inverse of the instance image, viewed as a matrix \newinstance.
-    CImg<Tfloat> get_pseudoinvert() const {
+    CImg<Tfloat> get_pseudoinvert(const bool use_LU=false) const {
+
+      // LU-based method.
+      if (use_LU) {
+        CImg<Tfloat> AtA(width(),width());
+        cimg_pragma_openmp(parallel for cimg_openmp_if_size(_width*_height,128*128))
+          cimg_forY(AtA,i)
+          for (int j = 0; j<=i; ++j) {
+            double res = 0;
+            cimg_forY(*this,k) res+=(*this)(i,k)*(*this)(j,k);
+            AtA(j,i) = AtA(i,j) = (Tfloat)res;
+          }
+        AtA.invert(false);
+        return AtA*get_transpose();
+      }
+
+      // SVD-based method.
       CImg<Tfloat> U, S, V;
       SVD(U,S,V,false);
       const Tfloat epsilon = (sizeof(Tfloat)<=4?5.96e-8f:1.11e-16f)*std::max(_width,_height)*S.max();
@@ -28531,10 +28548,13 @@ namespace cimg_library_suffixed {
     //! Solve a system of linear equations.
     /**
        \param A Matrix of the linear system.
+       \param use_LU In case of non square system (least-square solution),
+                     choose between SVD-based (\c false) or LU-based (\c true) method.
+                     LU method is faster for large matrices, but numerically less stable.
        \note Solve \c AX = B where \c B=*this.
     **/
     template<typename t>
-    CImg<T>& solve(const CImg<t>& A) {
+    CImg<T>& solve(const CImg<t>& A, const bool use_LU=false) {
       if (_depth!=1 || _spectrum!=1 || _height!=A._height || A._depth!=1 || A._spectrum!=1)
         throw CImgArgumentException(_cimg_instance
                                     "solve(): Instance and specified matrix (%u,%u,%u,%u,%p) have "
@@ -28635,7 +28655,7 @@ namespace cimg_library_suffixed {
         else (A.get_pseudoinvert()*(*this)).move_to(*this);
         delete[] lapA; delete[] lapB; delete[] WORK;
 #else
-        (A.get_pseudoinvert()*(*this)).move_to(*this);
+        (A.get_pseudoinvert(use_LU)*(*this)).move_to(*this);
 #endif
       }
       return *this;
@@ -28643,9 +28663,9 @@ namespace cimg_library_suffixed {
 
     //! Solve a system of linear equations \newinstance.
     template<typename t>
-    CImg<_cimg_Ttfloat> get_solve(const CImg<t>& A) const {
+    CImg<_cimg_Ttfloat> get_solve(const CImg<t>& A, const bool use_LU=false) const {
       typedef _cimg_Ttfloat Ttfloat;
-      return CImg<Ttfloat>(*this,false).solve(A);
+      return CImg<Ttfloat>(*this,false).solve(A,use_LU);
     }
 
     template<typename t, typename ti>
@@ -29309,7 +29329,7 @@ namespace cimg_library_suffixed {
                                     cimg_instance,
                                     dictionnary._width,dictionnary._height,dictionnary._depth,dictionnary._spectrum);
 
-      if (!method) return get_solve(dictionnary);
+      if (!method) return get_solve(dictionnary,true);
       CImg<Tfloat> W(_width,dictionnary._width,1,1,0);
 
       // Compute dictionnary norm and normalize it.
@@ -29375,7 +29395,7 @@ namespace cimg_library_suffixed {
               cimg_forY(sD,y) sD(sd,y) = D(d,y);
               inds[sd++] = d;
             }
-            S0.get_solve(sD).move_to(sD); // sD is now a one-column vector of weights
+            S0.get_solve(sD,true).move_to(sD); // sD is now a one-column vector of weights
 
             // Recompute residual signal.
             S = S0;
@@ -29402,7 +29422,7 @@ namespace cimg_library_suffixed {
               cimg_forY(sD,y) sD(sd,y) = D(d,y);
               inds[sd++] = d;
             }
-            S0.get_solve(sD).move_to(sD);
+            S0.get_solve(sD,true).move_to(sD);
             cimg_forY(sD,k) W(x,inds[k]) = sD[k];
           }
         }

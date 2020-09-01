@@ -21323,10 +21323,10 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar2(mp_trace,arg1,p1);
             }
 
-            if (!std::strncmp(ss,"transp(",7)) { // Matrix transpose
-              _cimg_mp_op("Function 'transp()'");
-              s1 = ss7; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss7,s1,depth1,0,is_single);
+            if (!std::strncmp(ss,"transpose(",10)) { // Matrix transpose
+              _cimg_mp_op("Function 'transpose()'");
+              s1 = ss + 10; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss + 10,s1,depth1,0,is_single);
               arg2 = compile(++s1,se1,depth1,0,is_single);
               _cimg_mp_check_type(arg1,1,2,0);
               _cimg_mp_check_constant(arg2,2,3);

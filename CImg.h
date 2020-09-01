@@ -11965,7 +11965,7 @@ namespace cimg_library_suffixed {
     }
 
     template<typename t>
-    CImg<T> & operator=(std::initializer_list<t> values) {
+    CImg<T>& operator=(std::initializer_list<t> values) {
       _cimg_constructor_cpp11(siz>values.size());
       return *this;
     }
@@ -12385,6 +12385,7 @@ namespace cimg_library_suffixed {
     CImg(CImg<T>&& img):_width(0),_height(0),_depth(0),_spectrum(0),_is_shared(false),_data(0) {
       swap(img);
     }
+
     CImg<T>& operator=(CImg<T>&& img) {
       if (_is_shared) return assign(img);
       return img.swap(*this);

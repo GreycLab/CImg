@@ -63016,8 +63016,8 @@ namespace cimg_library_suffixed {
   //--------------------------------------------
   namespace cimg {
 
-  // Functions to return standard streams 'stdin', 'stdout' and 'stderr'.
-  // (throw a CImgIOException when macro 'cimg_use_r' is defined).
+    // Functions to return standard streams 'stdin', 'stdout' and 'stderr'.
+    // (throw a CImgIOException when macro 'cimg_use_r' is defined).
     inline FILE* _stdin(const bool throw_exception) {
 #ifndef cimg_use_r
       cimg::unused(throw_exception);

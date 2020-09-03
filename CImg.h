@@ -7955,8 +7955,8 @@ namespace cimg_library_suffixed {
   }
 
   template<typename T>
-  inline CImg<_cimg_Tfloat> pseudoinvert(const CImg<T>& instance) {
-    return instance.get_pseudoinvert();
+  inline CImg<_cimg_Tfloat> pseudoinvert(const CImg<T>& instance, const bool use_LU=false) {
+    return instance.get_pseudoinvert(use_LU);
   }
 
 #define _cimg_create_pointwise_function(name) \
@@ -20109,14 +20109,17 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar1(mp_int,arg1);
             }
 
-            if (!std::strncmp(ss,"inv(",4)) { // Matrix/scalar inversion
-              _cimg_mp_op("Function 'inv()'");
-              arg1 = compile(ss4,se1,depth1,0,is_single);
+            if (!std::strncmp(ss,"invert(",7)) { // Matrix/scalar inversion
+              _cimg_mp_op("Function 'invert()'");
+              s1 = ss7; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss7,s1,depth1,0,is_single);
+              arg2 = s1<se1?compile(++s1,se1,depth1,0,is_single):1;
+              _cimg_mp_check_type(arg2,2,1,0);
               if (_cimg_mp_is_vector(arg1)) {
                 _cimg_mp_check_matrix_square(arg1,1);
                 p1 = (unsigned int)cimg::round(std::sqrt((float)_cimg_mp_size(arg1)));
                 pos = vector(p1*p1);
-                CImg<ulongT>::vector((ulongT)mp_matrix_inv,pos,arg1,p1).move_to(code);
+                CImg<ulongT>::vector((ulongT)mp_matrix_invert,pos,arg1,p1,arg2).move_to(code);
                 _cimg_mp_return(pos);
               }
               if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(1/mem[arg1]);
@@ -20585,13 +20588,20 @@ namespace cimg_library_suffixed {
               }
             }
 
-            if (!std::strncmp(ss,"pseudoinv(",10)) { // Matrix/scalar pseudo-inversion
-              _cimg_mp_op("Function 'pseudoinv()'");
-              s1 = ss + 10; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss + 10,s1,depth1,0,is_single);
-              arg2 = s1<se1?compile(++s1,se1,depth1,0,is_single):1;
+            if (!std::strncmp(ss,"pseudoinvert(",13)) { // Matrix/scalar pseudo-inversion
+              _cimg_mp_op("Function 'pseudoinvert()'");
+              s1 = ss + 13; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss + 13,s1,depth1,0,is_single);
+              arg2 = 1;
+              arg3 = 0;
+              if (s1<se1) {
+                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                arg2 = compile(s1,s2,depth1,0,is_single);
+                arg3 = s2<se1?compile(++s2,se1,depth1,0,is_single):0;
+              }
               _cimg_mp_check_type(arg1,1,2,0);
               _cimg_mp_check_constant(arg2,2,3);
+              _cimg_mp_check_type(arg3,3,1,0);
               p1 = _cimg_mp_size(arg1);
               p2 = (unsigned int)mem[arg2];
               p3 = p1/p2;
@@ -20606,7 +20616,7 @@ namespace cimg_library_suffixed {
                                             s0>expr._data?"...":"",s0,se<&expr.back()?"...":"");
               }
               pos = vector(p1);
-              CImg<ulongT>::vector((ulongT)mp_matrix_pseudoinv,pos,arg1,p2,p3).move_to(code);
+              CImg<ulongT>::vector((ulongT)mp_matrix_pseudoinvert,pos,arg1,p2,p3,arg3).move_to(code);
               _cimg_mp_return(pos);
             }
             break;
@@ -25035,11 +25045,12 @@ namespace cimg_library_suffixed {
         return cimg::type<double>::nan();
       }
 
-      static double mp_matrix_inv(_cimg_math_parser& mp) {
+      static double mp_matrix_invert(_cimg_math_parser& mp) {
         double *const ptrd = &_mp_arg(1) + 1;
         const double *const ptr1 = &_mp_arg(2) + 1;
         const unsigned int k = (unsigned int)mp.opcode[3];
-        CImg<doubleT>(ptrd,k,k,1,1,true) = CImg<doubleT>(ptr1,k,k,1,1,true).get_invert();
+        const bool use_LU = (bool)_mp_arg(4);
+        CImg<doubleT>(ptrd,k,k,1,1,true) = CImg<doubleT>(ptr1,k,k,1,1,true).get_invert(use_LU);
         return cimg::type<double>::nan();
       }
 
@@ -25056,13 +25067,14 @@ namespace cimg_library_suffixed {
         return cimg::type<double>::nan();
       }
 
-      static double mp_matrix_pseudoinv(_cimg_math_parser& mp) {
+      static double mp_matrix_pseudoinvert(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
         const double *ptr1 = &_mp_arg(2) + 1;
         const unsigned int
           k = (unsigned int)mp.opcode[3],
           l = (unsigned int)mp.opcode[4];
-        CImg<doubleT>(ptrd,l,k,1,1,true) = CImg<doubleT>(ptr1,k,l,1,1,true).get_pseudoinvert();
+        const bool use_LU = (bool)_mp_arg(5);
+        CImg<doubleT>(ptrd,l,k,1,1,true) = CImg<doubleT>(ptr1,k,l,1,1,true).get_pseudoinvert(use_LU);
         return cimg::type<double>::nan();
       }
 
@@ -28499,7 +28511,7 @@ namespace cimg_library_suffixed {
             col._solve(A,indx);
             cimg_forX(*this,i) (*this)(j,i) = (T)col(i);
           }
-        } else pseudoinvert(); // SVD-based
+        } else pseudoinvert(false); // SVD-based
 #endif
       }
       return *this;
@@ -28524,13 +28536,13 @@ namespace cimg_library_suffixed {
       if (use_LU) {
         CImg<Tfloat> AtA(width(),width());
         cimg_pragma_openmp(parallel for cimg_openmp_if_size(_width*_height,128*128))
-          cimg_forY(AtA,i)
+        cimg_forY(AtA,i)
           for (int j = 0; j<=i; ++j) {
             double res = 0;
             cimg_forY(*this,k) res+=(*this)(i,k)*(*this)(j,k);
             AtA(j,i) = AtA(i,j) = (Tfloat)res;
           }
-        AtA.invert(false);
+        AtA.invert(true);
         return AtA*get_transpose();
       }
 
@@ -28652,7 +28664,7 @@ namespace cimg_library_suffixed {
                      INFO);
 	assign(NRHS, N);
         if (!INFO) cimg_forXY(*this,k,l) (*this)(k,l) = (T)lapB[k*M + l];
-        else (A.get_pseudoinvert()*(*this)).move_to(*this);
+        else (A.get_pseudoinvert(use_LU)*(*this)).move_to(*this);
         delete[] lapA; delete[] lapB; delete[] WORK;
 #else
         (A.get_pseudoinvert(use_LU)*(*this)).move_to(*this);
@@ -63004,8 +63016,8 @@ namespace cimg_library_suffixed {
   //--------------------------------------------
   namespace cimg {
 
-  // Functions to return standard streams 'stdin', 'stdout' and 'stderr'.
-  // (throw a CImgIOException when macro 'cimg_use_r' is defined).
+    // Functions to return standard streams 'stdin', 'stdout' and 'stderr'.
+    // (throw a CImgIOException when macro 'cimg_use_r' is defined).
     inline FILE* _stdin(const bool throw_exception) {
 #ifndef cimg_use_r
       cimg::unused(throw_exception);

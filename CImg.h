@@ -28536,7 +28536,7 @@ namespace cimg_library_suffixed {
       if (use_LU) {
         CImg<Tfloat> AtA(width(),width());
         cimg_pragma_openmp(parallel for cimg_openmp_if_size(_width*_height,128*128))
-          cimg_forY(AtA,i)
+        cimg_forY(AtA,i)
           for (int j = 0; j<=i; ++j) {
             double res = 0;
             cimg_forY(*this,k) res+=(*this)(i,k)*(*this)(j,k);

@@ -7955,8 +7955,8 @@ namespace cimg_library_suffixed {
   }
 
   template<typename T>
-  inline CImg<_cimg_Tfloat> pseudoinvert(const CImg<T>& instance) {
-    return instance.get_pseudoinvert();
+  inline CImg<_cimg_Tfloat> pseudoinvert(const CImg<T>& instance, const bool use_LU=false) {
+    return instance.get_pseudoinvert(use_LU);
   }
 
 #define _cimg_create_pointwise_function(name) \
@@ -28511,7 +28511,7 @@ namespace cimg_library_suffixed {
             col._solve(A,indx);
             cimg_forX(*this,i) (*this)(j,i) = (T)col(i);
           }
-        } else pseudoinvert(); // SVD-based
+        } else pseudoinvert(false); // SVD-based
 #endif
       }
       return *this;
@@ -28542,7 +28542,7 @@ namespace cimg_library_suffixed {
             cimg_forY(*this,k) res+=(*this)(i,k)*(*this)(j,k);
             AtA(j,i) = AtA(i,j) = (Tfloat)res;
           }
-        AtA.invert(false);
+        AtA.invert(true);
         return AtA*get_transpose();
       }
 
@@ -28664,7 +28664,7 @@ namespace cimg_library_suffixed {
                      INFO);
 	assign(NRHS, N);
         if (!INFO) cimg_forXY(*this,k,l) (*this)(k,l) = (T)lapB[k*M + l];
-        else (A.get_pseudoinvert()*(*this)).move_to(*this);
+        else (A.get_pseudoinvert(use_LU)*(*this)).move_to(*this);
         delete[] lapA; delete[] lapB; delete[] WORK;
 #else
         (A.get_pseudoinvert(use_LU)*(*this)).move_to(*this);

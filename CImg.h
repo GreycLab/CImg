@@ -20321,7 +20321,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
-            if (!std::strncmp(ss,"mproj(",6)) { // Project matrix onto dictionnary
+            if (!std::strncmp(ss,"mproj(",6)) { // Project matrix onto dictionary
               _cimg_mp_op("Function 'mproj()'");
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss6,s1,depth1,0,is_single); // S
@@ -27478,7 +27478,7 @@ namespace cimg_library_suffixed {
       return *ptr_min;
     }
 
-    //! Return a reference to the minium pixel value in absolute value.
+    //! Return a reference to the minimum pixel value in absolute value.
     /**
      **/
     T& minabs() {
@@ -29302,12 +29302,12 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Compute the projection of the instance matrix onto the specified dictionnary.
+    //! Compute the projection of the instance matrix onto the specified dictionary.
     /**
        Find the best matching projection of selected matrix onto the span of an over-complete dictionary D,
        using the orthogonal projection or (opt. Orthogonal) Matching Pursuit algorithm.
        Instance image must a 2D-matrix in which each column represent a signal to project.
-       \param dictionnary A matrix in which each column is an element of the dictionnary D.
+       \param dictionary A matrix in which each column is an element of the dictionary D.
        \param method Tell what projection method is applied. It can be:
          - 0 = orthogonal projection (default).
          - 1 = matching pursuit.
@@ -29315,7 +29315,7 @@ namespace cimg_library_suffixed {
          - >=3 = orthogonal matching pursuit where an orthogonal projection step is performed
                  every 'method-2' iterations.
        \param max_iter Sets the max number of iterations processed for each signal.
-                       If set to '0' (default), 'max_iter' is set to the number of dictionnary columns.
+                       If set to '0' (default), 'max_iter' is set to the number of dictionary columns.
                        (only meaningful for matching pursuit and its variants).
        \param max_residual Gives a stopping criterion on signal reconstruction accuracy.
                            (only meaningful for matching pursuit and its variants).
@@ -29323,29 +29323,29 @@ namespace cimg_library_suffixed {
                Thus, the matrix product D*W is an approximation of the input matrix.
     **/
     template<typename t>
-    CImg<T>& project_matrix(const CImg<t>& dictionnary, const unsigned int method=0,
+    CImg<T>& project_matrix(const CImg<t>& dictionary, const unsigned int method=0,
                             const unsigned int max_iter=0, const double max_residual=1e-6) {
-      return get_project_matrix(dictionnary,method,max_iter,max_residual).move_to(*this);
+      return get_project_matrix(dictionary,method,max_iter,max_residual).move_to(*this);
     }
 
     template<typename t>
-    CImg<Tfloat> get_project_matrix(const CImg<t>& dictionnary, const unsigned int method=0,
+    CImg<Tfloat> get_project_matrix(const CImg<t>& dictionary, const unsigned int method=0,
                                     const unsigned int max_iter=0, const double max_residual=1e-6) const {
       if (_depth!=1 || _spectrum!=1)
         throw CImgInstanceException(_cimg_instance
                                     "project_matrix(): Instance image is not a matrix.",
                                     cimg_instance);
-      if (dictionnary._height!=_height || dictionnary._depth!=1 || dictionnary._spectrum!=1)
+      if (dictionary._height!=_height || dictionary._depth!=1 || dictionary._spectrum!=1)
         throw CImgArgumentException(_cimg_instance
-                                    "project_matrix(): Specified dictionnary (%u,%u,%u,%u) has an invalid size.",
+                                    "project_matrix(): Specified dictionary (%u,%u,%u,%u) has an invalid size.",
                                     cimg_instance,
-                                    dictionnary._width,dictionnary._height,dictionnary._depth,dictionnary._spectrum);
+                                    dictionary._width,dictionary._height,dictionary._depth,dictionary._spectrum);
 
-      if (!method) return get_solve(dictionnary,true);
-      CImg<Tfloat> W(_width,dictionnary._width,1,1,0);
+      if (!method) return get_solve(dictionary,true);
+      CImg<Tfloat> W(_width,dictionary._width,1,1,0);
 
-      // Compute dictionnary norm and normalize it.
-      CImg<Tfloat> D(dictionnary,false), Dnorm(D._width);
+      // Compute dictionary norm and normalize it.
+      CImg<Tfloat> D(dictionary,false), Dnorm(D._width);
       cimg_pragma_openmp(parallel for cimg_openmp_if(_width>=2 && _width*_height>=32))
       cimg_forX(Dnorm,d) {
         Tfloat norm = 0;
@@ -29440,7 +29440,7 @@ namespace cimg_library_suffixed {
         }
       }
 
-      // Normalize resulting coefficients according to initial (non-normalized) dictionnary.
+      // Normalize resulting coefficients according to initial (non-normalized) dictionary.
       cimg_forXY(W,x,y) W(x,y)/=Dnorm[y];
       return W;
     }

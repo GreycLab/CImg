@@ -28241,7 +28241,7 @@ namespace cimg_library_suffixed {
       const ulongT nb = std::min(size(),img.size());
       double res = 0;
       cimg_pragma_openmp(parallel for reduction(+:res) cimg_openmp_if_size(nb,8192))
-      for (longT off = 0; off<nb; ++off) res+=(double)_data[off]*(double)img[off];
+      for (longT off = 0; off<(longT)nb; ++off) res+=(double)_data[off]*(double)img[off];
       return res;
     }
 

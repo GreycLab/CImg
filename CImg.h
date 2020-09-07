@@ -28176,11 +28176,11 @@ namespace cimg_library_suffixed {
       } break;
       case 1 : {
         cimg_pragma_openmp(parallel for reduction(+:res) cimg_openmp_if_size(size(),8192))
-        cimg_rof(*this,ptrs,T) res+=(double)cimg::abs(*ptrs);
+        cimg_foroff(*this,off) res+=(double)cimg::abs(_data[off]);
       } break;
       default : {
         cimg_pragma_openmp(parallel for reduction(+:res) cimg_openmp_if_size(size(),8192))
-        cimg_rof(*this,ptrs,T) res+=(double)cimg::sqr(*ptrs);
+        cimg_foroff(*this,off) res+=(double)cimg::sqr(_data[off]);
         res = (double)std::sqrt(res);
       }
       }
@@ -28240,7 +28240,7 @@ namespace cimg_library_suffixed {
       const ulongT nb = std::min(size(),img.size());
       double res = 0;
       cimg_pragma_openmp(parallel for reduction(+:res) cimg_openmp_if_size(nb,8192))
-      for (ulongT off = 0; off<nb; ++off) res+=(double)_data[off]*(double)img[off];
+      for (longT off = 0; off<nb; ++off) res+=(double)_data[off]*(double)img[off];
       return res;
     }
 

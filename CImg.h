@@ -28169,6 +28169,7 @@ namespace cimg_library_suffixed {
         throw CImgInstanceException(_cimg_instance
                                     "magnitude(): Empty instance.",
                                     cimg_instance);
+      const ulongT siz = size();
       double res = 0;
       switch (magnitude_type) {
       case -1 : {
@@ -28176,11 +28177,11 @@ namespace cimg_library_suffixed {
       } break;
       case 1 : {
         cimg_pragma_openmp(parallel for reduction(+:res) cimg_openmp_if_size(size(),8192))
-        cimg_foroff(*this,off) res+=(double)cimg::abs(_data[off]);
+        for (longT off = 0; off<(longT)siz; ++off) res+=(double)cimg::abs(_data[off]);
       } break;
       default : {
         cimg_pragma_openmp(parallel for reduction(+:res) cimg_openmp_if_size(size(),8192))
-        cimg_foroff(*this,off) res+=(double)cimg::sqr(_data[off]);
+        for (longT off = 0; off<(longT)siz; ++off) res+=(double)cimg::sqr(_data[off]);
         res = (double)std::sqrt(res);
       }
       }

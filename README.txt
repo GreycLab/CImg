@@ -89,6 +89,7 @@
   - Adrien Reboisson
   - Klaus Schneider
   - Jakob Schluttig
+  - Jamie Smith
   - Veronique Souchaud
   - Konstantin Spirin
   - David G. Starkweather

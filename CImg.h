@@ -36883,30 +36883,28 @@ namespace cimg_library_suffixed {
      **/
     CImg<T> get_shared_points(const unsigned int x0, const unsigned int x1,
                               const unsigned int y0=0, const unsigned int z0=0, const unsigned int c0=0) {
-      const unsigned int
-        beg = (unsigned int)offset(x0,y0,z0,c0),
-        end = (unsigned int)offset(x1,y0,z0,c0);
+      const ulongT
+        beg = (ulongT)offset(x0,y0,z0,c0),
+        end = (ulongT)offset(x1,y0,z0,c0);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
                                     "get_shared_points(): Invalid request of a shared-memory subset (%u->%u,%u,%u,%u).",
                                     cimg_instance,
                                     x0,x1,y0,z0,c0);
-
       return CImg<T>(_data + beg,x1 - x0 + 1,1,1,1,true);
     }
 
     //! Return a shared-memory image referencing a range of pixels of the image instance \const.
     const CImg<T> get_shared_points(const unsigned int x0, const unsigned int x1,
                                     const unsigned int y0=0, const unsigned int z0=0, const unsigned int c0=0) const {
-      const unsigned int
-        beg = (unsigned int)offset(x0,y0,z0,c0),
-        end = (unsigned int)offset(x1,y0,z0,c0);
+      const ulongT
+        beg = (ulongT)offset(x0,y0,z0,c0),
+        end = (ulongT)offset(x1,y0,z0,c0);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
                                     "get_shared_points(): Invalid request of a shared-memory subset (%u->%u,%u,%u,%u).",
                                     cimg_instance,
                                     x0,x1,y0,z0,c0);
-
       return CImg<T>(_data + beg,x1 - x0 + 1,1,1,1,true);
     }
 
@@ -36919,32 +36917,30 @@ namespace cimg_library_suffixed {
     **/
     CImg<T> get_shared_rows(const unsigned int y0, const unsigned int y1,
                              const unsigned int z0=0, const unsigned int c0=0) {
-      const unsigned int
-        beg = (unsigned int)offset(0,y0,z0,c0),
-        end = (unsigned int)offset(0,y1,z0,c0);
+      const ulongT
+        beg = (ulongT)offset(0,y0,z0,c0),
+        end = (ulongT)offset(0,y1,z0,c0);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
                                     "get_shared_rows(): Invalid request of a shared-memory subset "
                                     "(0->%u,%u->%u,%u,%u).",
                                     cimg_instance,
                                     _width - 1,y0,y1,z0,c0);
-
       return CImg<T>(_data + beg,_width,y1 - y0 + 1,1,1,true);
     }
 
     //! Return a shared-memory image referencing a range of rows of the image instance \const.
     const CImg<T> get_shared_rows(const unsigned int y0, const unsigned int y1,
                                    const unsigned int z0=0, const unsigned int c0=0) const {
-      const unsigned int
-        beg = (unsigned int)offset(0,y0,z0,c0),
-        end = (unsigned int)offset(0,y1,z0,c0);
+      const ulongT
+        beg = (ulongT)offset(0,y0,z0,c0),
+        end = (ulongT)offset(0,y1,z0,c0);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
                                     "get_shared_rows(): Invalid request of a shared-memory subset "
                                     "(0->%u,%u->%u,%u,%u).",
                                     cimg_instance,
                                     _width - 1,y0,y1,z0,c0);
-
       return CImg<T>(_data + beg,_width,y1 - y0 + 1,1,1,true);
     }
 
@@ -36970,31 +36966,29 @@ namespace cimg_library_suffixed {
        \param c0 C-coordinate.
     **/
     CImg<T> get_shared_slices(const unsigned int z0, const unsigned int z1, const unsigned int c0=0) {
-      const unsigned int
-        beg = (unsigned int)offset(0,0,z0,c0),
-        end = (unsigned int)offset(0,0,z1,c0);
+      const ulongT
+        beg = (ulongT)offset(0,0,z0,c0),
+        end = (ulongT)offset(0,0,z1,c0);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
                                     "get_shared_slices(): Invalid request of a shared-memory subset "
                                     "(0->%u,0->%u,%u->%u,%u).",
                                     cimg_instance,
                                     _width - 1,_height - 1,z0,z1,c0);
-
       return CImg<T>(_data + beg,_width,_height,z1 - z0 + 1,1,true);
     }
 
     //! Return a shared memory image referencing a range of slices of the image instance \const.
     const CImg<T> get_shared_slices(const unsigned int z0, const unsigned int z1, const unsigned int c0=0) const {
-      const unsigned int
-        beg = (unsigned int)offset(0,0,z0,c0),
-        end = (unsigned int)offset(0,0,z1,c0);
+      const ulongT
+        beg = (ulongT)offset(0,0,z0,c0),
+        end = (ulongT)offset(0,0,z1,c0);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
                                     "get_shared_slices(): Invalid request of a shared-memory subset "
                                     "(0->%u,0->%u,%u->%u,%u).",
                                     cimg_instance,
                                     _width - 1,_height - 1,z0,z1,c0);
-
       return CImg<T>(_data + beg,_width,_height,z1 - z0 + 1,1,true);
     }
 
@@ -37018,31 +37012,29 @@ namespace cimg_library_suffixed {
        \param c1 C-coordinate of the ending channel.
     **/
     CImg<T> get_shared_channels(const unsigned int c0, const unsigned int c1) {
-      const unsigned int
-        beg = (unsigned int)offset(0,0,0,c0),
-        end = (unsigned int)offset(0,0,0,c1);
+      const ulongT
+        beg = (ulongT)offset(0,0,0,c0),
+        end = (ulongT)offset(0,0,0,c1);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
                                     "get_shared_channels(): Invalid request of a shared-memory subset "
                                     "(0->%u,0->%u,0->%u,%u->%u).",
                                     cimg_instance,
                                     _width - 1,_height - 1,_depth - 1,c0,c1);
-
       return CImg<T>(_data + beg,_width,_height,_depth,c1 - c0 + 1,true);
     }
 
     //! Return a shared-memory image referencing a range of channels of the image instance \const.
     const CImg<T> get_shared_channels(const unsigned int c0, const unsigned int c1) const {
-      const unsigned int
-        beg = (unsigned int)offset(0,0,0,c0),
-        end = (unsigned int)offset(0,0,0,c1);
+      const ulongT
+        beg = (ulongT)offset(0,0,0,c0),
+        end = (ulongT)offset(0,0,0,c1);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
                                     "get_shared_channels(): Invalid request of a shared-memory subset "
                                     "(0->%u,0->%u,0->%u,%u->%u).",
                                     cimg_instance,
                                     _width - 1,_height - 1,_depth - 1,c0,c1);
-
       return CImg<T>(_data + beg,_width,_height,_depth,c1 - c0 + 1,true);
     }
 

@@ -5712,20 +5712,32 @@ namespace cimg_library_suffixed {
       } else return -1;
 #elif cimg_OS==2
       PROCESS_INFORMATION pi;
-      STARTUPINFO si;
+      STARTUPINFOA si;
       std::memset(&pi,0,sizeof(PROCESS_INFORMATION));
       std::memset(&si,0,sizeof(STARTUPINFO));
-      GetStartupInfo(&si);
+      GetStartupInfoA(&si);
       si.cb = sizeof(si);
       si.wShowWindow = SW_HIDE;
       si.dwFlags |= SW_HIDE | STARTF_USESHOWWINDOW;
-      const BOOL res = CreateProcess((LPCTSTR)module_name,(LPTSTR)command,0,0,FALSE_WIN,0,0,0,&si,&pi);
+      const BOOL res = CreateProcessA((LPCSTR)module_name,(LPSTR)command,0,0,FALSE,0,0,0,&si,&pi);
       if (res) {
         WaitForSingleObject(pi.hProcess,INFINITE);
         CloseHandle(pi.hThread);
         CloseHandle(pi.hProcess);
         return 0;
-      } else return std::system(command);
+      } else {
+        char* lpMsgBuf;
+
+        // Get the error message.
+        DWORD errorCode = GetLastError();
+        FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                       0,errorCode,MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),(LPSTR)&lpMsgBuf,0,0);
+        cimg::warn("cimg::system() : Command '%s' (module name '%s) failed with error %lu: %s",
+                   module_name==0?"(null)":module_name,
+                   command==0?"(null)":command,
+                   errorCode,lpMsgBuf);
+        return -1;
+      }
 #else
       return std::system(command);
 #endif
@@ -36871,30 +36883,28 @@ namespace cimg_library_suffixed {
      **/
     CImg<T> get_shared_points(const unsigned int x0, const unsigned int x1,
                               const unsigned int y0=0, const unsigned int z0=0, const unsigned int c0=0) {
-      const unsigned int
-        beg = (unsigned int)offset(x0,y0,z0,c0),
-        end = (unsigned int)offset(x1,y0,z0,c0);
+      const ulongT
+        beg = (ulongT)offset(x0,y0,z0,c0),
+        end = (ulongT)offset(x1,y0,z0,c0);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
                                     "get_shared_points(): Invalid request of a shared-memory subset (%u->%u,%u,%u,%u).",
                                     cimg_instance,
                                     x0,x1,y0,z0,c0);
-
       return CImg<T>(_data + beg,x1 - x0 + 1,1,1,1,true);
     }
 
     //! Return a shared-memory image referencing a range of pixels of the image instance \const.
     const CImg<T> get_shared_points(const unsigned int x0, const unsigned int x1,
                                     const unsigned int y0=0, const unsigned int z0=0, const unsigned int c0=0) const {
-      const unsigned int
-        beg = (unsigned int)offset(x0,y0,z0,c0),
-        end = (unsigned int)offset(x1,y0,z0,c0);
+      const ulongT
+        beg = (ulongT)offset(x0,y0,z0,c0),
+        end = (ulongT)offset(x1,y0,z0,c0);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
                                     "get_shared_points(): Invalid request of a shared-memory subset (%u->%u,%u,%u,%u).",
                                     cimg_instance,
                                     x0,x1,y0,z0,c0);
-
       return CImg<T>(_data + beg,x1 - x0 + 1,1,1,1,true);
     }
 
@@ -36907,32 +36917,30 @@ namespace cimg_library_suffixed {
     **/
     CImg<T> get_shared_rows(const unsigned int y0, const unsigned int y1,
                              const unsigned int z0=0, const unsigned int c0=0) {
-      const unsigned int
-        beg = (unsigned int)offset(0,y0,z0,c0),
-        end = (unsigned int)offset(0,y1,z0,c0);
+      const ulongT
+        beg = (ulongT)offset(0,y0,z0,c0),
+        end = (ulongT)offset(0,y1,z0,c0);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
                                     "get_shared_rows(): Invalid request of a shared-memory subset "
                                     "(0->%u,%u->%u,%u,%u).",
                                     cimg_instance,
                                     _width - 1,y0,y1,z0,c0);
-
       return CImg<T>(_data + beg,_width,y1 - y0 + 1,1,1,true);
     }
 
     //! Return a shared-memory image referencing a range of rows of the image instance \const.
     const CImg<T> get_shared_rows(const unsigned int y0, const unsigned int y1,
                                    const unsigned int z0=0, const unsigned int c0=0) const {
-      const unsigned int
-        beg = (unsigned int)offset(0,y0,z0,c0),
-        end = (unsigned int)offset(0,y1,z0,c0);
+      const ulongT
+        beg = (ulongT)offset(0,y0,z0,c0),
+        end = (ulongT)offset(0,y1,z0,c0);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
                                     "get_shared_rows(): Invalid request of a shared-memory subset "
                                     "(0->%u,%u->%u,%u,%u).",
                                     cimg_instance,
                                     _width - 1,y0,y1,z0,c0);
-
       return CImg<T>(_data + beg,_width,y1 - y0 + 1,1,1,true);
     }
 
@@ -36958,31 +36966,29 @@ namespace cimg_library_suffixed {
        \param c0 C-coordinate.
     **/
     CImg<T> get_shared_slices(const unsigned int z0, const unsigned int z1, const unsigned int c0=0) {
-      const unsigned int
-        beg = (unsigned int)offset(0,0,z0,c0),
-        end = (unsigned int)offset(0,0,z1,c0);
+      const ulongT
+        beg = (ulongT)offset(0,0,z0,c0),
+        end = (ulongT)offset(0,0,z1,c0);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
                                     "get_shared_slices(): Invalid request of a shared-memory subset "
                                     "(0->%u,0->%u,%u->%u,%u).",
                                     cimg_instance,
                                     _width - 1,_height - 1,z0,z1,c0);
-
       return CImg<T>(_data + beg,_width,_height,z1 - z0 + 1,1,true);
     }
 
     //! Return a shared memory image referencing a range of slices of the image instance \const.
     const CImg<T> get_shared_slices(const unsigned int z0, const unsigned int z1, const unsigned int c0=0) const {
-      const unsigned int
-        beg = (unsigned int)offset(0,0,z0,c0),
-        end = (unsigned int)offset(0,0,z1,c0);
+      const ulongT
+        beg = (ulongT)offset(0,0,z0,c0),
+        end = (ulongT)offset(0,0,z1,c0);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
                                     "get_shared_slices(): Invalid request of a shared-memory subset "
                                     "(0->%u,0->%u,%u->%u,%u).",
                                     cimg_instance,
                                     _width - 1,_height - 1,z0,z1,c0);
-
       return CImg<T>(_data + beg,_width,_height,z1 - z0 + 1,1,true);
     }
 
@@ -37006,31 +37012,29 @@ namespace cimg_library_suffixed {
        \param c1 C-coordinate of the ending channel.
     **/
     CImg<T> get_shared_channels(const unsigned int c0, const unsigned int c1) {
-      const unsigned int
-        beg = (unsigned int)offset(0,0,0,c0),
-        end = (unsigned int)offset(0,0,0,c1);
+      const ulongT
+        beg = (ulongT)offset(0,0,0,c0),
+        end = (ulongT)offset(0,0,0,c1);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
                                     "get_shared_channels(): Invalid request of a shared-memory subset "
                                     "(0->%u,0->%u,0->%u,%u->%u).",
                                     cimg_instance,
                                     _width - 1,_height - 1,_depth - 1,c0,c1);
-
       return CImg<T>(_data + beg,_width,_height,_depth,c1 - c0 + 1,true);
     }
 
     //! Return a shared-memory image referencing a range of channels of the image instance \const.
     const CImg<T> get_shared_channels(const unsigned int c0, const unsigned int c1) const {
-      const unsigned int
-        beg = (unsigned int)offset(0,0,0,c0),
-        end = (unsigned int)offset(0,0,0,c1);
+      const ulongT
+        beg = (ulongT)offset(0,0,0,c0),
+        end = (ulongT)offset(0,0,0,c1);
       if (beg>end || beg>=size() || end>=size())
         throw CImgArgumentException(_cimg_instance
                                     "get_shared_channels(): Invalid request of a shared-memory subset "
                                     "(0->%u,0->%u,0->%u,%u->%u).",
                                     cimg_instance,
                                     _width - 1,_height - 1,_depth - 1,c0,c1);
-
       return CImg<T>(_data + beg,_width,_height,_depth,c1 - c0 + 1,true);
     }
 
@@ -54103,7 +54107,7 @@ namespace cimg_library_suffixed {
                       cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
         if ((file=cimg::std_fopen(filename_tmp,"rb"))!=0) cimg::fclose(file);
       } while (file);
-      cimg_snprintf(command,command._width,"%s convert \"%s\" \"%s\"",
+      cimg_snprintf(command,command._width,"\"%s\" convert \"%s\" \"%s\"",
                     cimg::graphicsmagick_path(),s_filename.data(),
                     CImg<charT>::string(filename_tmp)._system_strescape().data());
       cimg::system(command,cimg::graphicsmagick_path());
@@ -54155,7 +54159,7 @@ namespace cimg_library_suffixed {
         }
         if ((file=cimg::std_fopen(filename_tmp,"rb"))!=0) cimg::fclose(file);
       } while (file);
-      cimg_snprintf(command,command._width,"%s -c \"%s\" > \"%s\"",
+      cimg_snprintf(command,command._width,"\"%s\" -c \"%s\" > \"%s\"",
                     cimg::gunzip_path(),
                     CImg<charT>::string(filename)._system_strescape().data(),
                     CImg<charT>::string(filename_tmp)._system_strescape().data());
@@ -54220,7 +54224,7 @@ namespace cimg_library_suffixed {
                       cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
         if ((file=cimg::std_fopen(filename_tmp,"rb"))!=0) cimg::fclose(file);
       } while (file);
-      cimg_snprintf(command,command._width,"%s%s \"%s\" \"%s\"",
+      cimg_snprintf(command,command._width,"\"%s\"%s \"%s\" \"%s\"",
                     cimg::imagemagick_path(),
                     !cimg::strcasecmp(cimg::split_filename(filename),"pdf")?" -density 400x400":"",
                     s_filename.data(),CImg<charT>::string(filename_tmp)._system_strescape().data());
@@ -54261,11 +54265,11 @@ namespace cimg_library_suffixed {
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s.hdr",cimg::filenamerand());
         if ((file=cimg::std_fopen(filename_tmp,"rb"))!=0) cimg::fclose(file);
       } while (file);
-      cimg_snprintf(command,command._width,"%s -w -c anlz -o \"%s\" -f \"%s\"",
+      cimg_snprintf(command,command._width,"\"%s\" -w -c anlz -o \"%s\" -f \"%s\"",
                     cimg::medcon_path(),
                     CImg<charT>::string(filename_tmp)._system_strescape().data(),
                     CImg<charT>::string(filename)._system_strescape().data());
-      cimg::system(command);
+      cimg::system(command, cimg::medcon_path());
       cimg::split_filename(filename_tmp,body);
 
       cimg_snprintf(command,command._width,"%s.hdr",body._data);
@@ -54331,7 +54335,7 @@ namespace cimg_library_suffixed {
                       cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
         if ((file=cimg::std_fopen(filename_tmp,"rb"))!=0) cimg::fclose(file);
       } while (file);
-      cimg_snprintf(command,command._width,"%s -w -4 -c \"%s\" > \"%s\"",
+      cimg_snprintf(command,command._width,"\"%s\" -w -4 -c \"%s\" > \"%s\"",
                     cimg::dcraw_path(),s_filename.data(),CImg<charT>::string(filename_tmp)._system_strescape().data());
       cimg::system(command,cimg::dcraw_path());
       if (!(file=cimg::std_fopen(filename_tmp,"rb"))) {
@@ -57708,11 +57712,11 @@ namespace cimg_library_suffixed {
         if ((file=cimg::std_fopen(filename_tmp,"rb"))!=0) cimg::fclose(file);
       } while (file);
       save(filename_tmp);
-      cimg_snprintf(command,command._width,"%s -c \"%s\" > \"%s\"",
+      cimg_snprintf(command,command._width,"\"%s\" -c \"%s\" > \"%s\"",
                     cimg::gzip_path(),
                     CImg<charT>::string(filename_tmp)._system_strescape().data(),
                     CImg<charT>::string(filename)._system_strescape().data());
-      cimg::system(command);
+      cimg::system(command, cimg::gzip_path());
       file = cimg::std_fopen(filename,"rb");
       if (!file)
         throw CImgIOException(_cimg_instance
@@ -57766,11 +57770,11 @@ namespace cimg_library_suffixed {
 #else
       save_pnm(filename_tmp);
 #endif
-      cimg_snprintf(command,command._width,"%s convert -quality %u \"%s\" \"%s\"",
+      cimg_snprintf(command,command._width,"\"%s\" convert -quality %u \"%s\" \"%s\"",
                     cimg::graphicsmagick_path(),quality,
                     CImg<charT>::string(filename_tmp)._system_strescape().data(),
                     CImg<charT>::string(filename)._system_strescape().data());
-      cimg::system(command);
+      cimg::system(command, cimg::graphicsmagick_path());
       file = cimg::std_fopen(filename,"rb");
       if (!file)
         throw CImgIOException(_cimg_instance
@@ -57821,11 +57825,11 @@ namespace cimg_library_suffixed {
 #else
       save_pnm(filename_tmp);
 #endif
-      cimg_snprintf(command,command._width,"%s -quality %u \"%s\" \"%s\"",
+      cimg_snprintf(command,command._width,"\"%s\" -quality %u \"%s\" \"%s\"",
                     cimg::imagemagick_path(),quality,
                     CImg<charT>::string(filename_tmp)._system_strescape().data(),
                     CImg<charT>::string(filename)._system_strescape().data());
-      cimg::system(command);
+      cimg::system(command, cimg::imagemagick_path());
       file = cimg::std_fopen(filename,"rb");
       if (!file)
         throw CImgIOException(_cimg_instance
@@ -57860,11 +57864,11 @@ namespace cimg_library_suffixed {
         if ((file=cimg::std_fopen(filename_tmp,"rb"))!=0) cimg::fclose(file);
       } while (file);
       save_analyze(filename_tmp);
-      cimg_snprintf(command,command._width,"%s -w -c dicom -o \"%s\" -f \"%s\"",
+      cimg_snprintf(command,command._width,"\"%s\" -w -c dicom -o \"%s\" -f \"%s\"",
                     cimg::medcon_path(),
                     CImg<charT>::string(filename)._system_strescape().data(),
                     CImg<charT>::string(filename_tmp)._system_strescape().data());
-      cimg::system(command);
+      cimg::system(command, cimg::medcon_path());
       std::remove(filename_tmp);
       cimg::split_filename(filename_tmp,body);
       cimg_snprintf(filename_tmp,filename_tmp._width,"%s.img",body._data);
@@ -61461,11 +61465,11 @@ namespace cimg_library_suffixed {
         if ((file=cimg::std_fopen(filename_tmp2,"rb"))!=0) cimg::fclose(file);
       } while (file);
       cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_%%6d.ppm",filename_tmp._data);
-      cimg_snprintf(command,command._width,"%s -i \"%s\" \"%s\"",
+      cimg_snprintf(command,command._width,"\"%s\" -i \"%s\" \"%s\"",
                     cimg::ffmpeg_path(),
                     CImg<charT>::string(filename)._system_strescape().data(),
                     CImg<charT>::string(filename_tmp2)._system_strescape().data());
-      cimg::system(command,0);
+      cimg::system(command, cimg::ffmpeg_path());
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
       assign();
@@ -61525,11 +61529,11 @@ namespace cimg_library_suffixed {
                                             cimg::graphicsmagick_path(),
                                             CImg<charT>::string(filename)._system_strescape().data(),
                                             CImg<charT>::string(filename_tmp)._system_strescape().data());
-      else cimg_snprintf(command,command._width,"%s -coalesce \"%s\" \"%s.png\"",
+      else cimg_snprintf(command,command._width,"\"%s\" -coalesce \"%s\" \"%s.png\"",
                          cimg::imagemagick_path(),
                          CImg<charT>::string(filename)._system_strescape().data(),
                          CImg<charT>::string(filename_tmp)._system_strescape().data());
-      cimg::system(command,0);
+      cimg::system(command, cimg::imagemagick_path());
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
       assign();
@@ -61588,11 +61592,11 @@ namespace cimg_library_suffixed {
         }
         if ((file=cimg::std_fopen(filename_tmp,"rb"))!=0) cimg::fclose(file);
       } while (file);
-      cimg_snprintf(command,command._width,"%s -c \"%s\" > \"%s\"",
+      cimg_snprintf(command,command._width,"\"%s\" -c \"%s\" > \"%s\"",
                     cimg::gunzip_path(),
                     CImg<charT>::string(filename)._system_strescape().data(),
                     CImg<charT>::string(filename_tmp)._system_strescape().data());
-      cimg::system(command);
+      cimg::system(command, cimg::gunzip_path());
       if (!(file=cimg::std_fopen(filename_tmp,"rb"))) {
         cimg::fclose(cimg::fopen(filename,"r"));
         throw CImgIOException(_cimglist_instance
@@ -62029,7 +62033,7 @@ namespace cimg_library_suffixed {
         if (_data[l]._depth>1 || _data[l]._spectrum!=3) _data[l].get_resize(-100,-100,1,3).save(filename_tmp2);
         else _data[l].save(filename_tmp2);
       }
-      cimg_snprintf(command,command._width,"%s -delay %u -loop %u",
+      cimg_snprintf(command,command._width,"\"%s\" -delay %u -loop %u",
                     cimg::imagemagick_path(),(unsigned int)std::max(0.f,cimg::round(100/fps)),nb_loops);
       CImg<ucharT>::string(command).move_to(filenames,0);
       cimg_snprintf(command,command._width,"\"%s\"",
@@ -62039,7 +62043,7 @@ namespace cimg_library_suffixed {
       cimg_for(_command,p,char) if (!*p) *p = ' ';
       _command.back() = 0;
 
-      cimg::system(_command);
+      cimg::system(_command, cimg::imagemagick_path());
       file = cimg::std_fopen(filename,"rb");
       if (!file)
         throw CImgIOException(_cimglist_instance
@@ -62460,11 +62464,11 @@ namespace cimg_library_suffixed {
 
       if (is_saveable(body)) {
         save(filename_tmp);
-        cimg_snprintf(command,command._width,"%s -c \"%s\" > \"%s\"",
+        cimg_snprintf(command,command._width,"\"%s\" -c \"%s\" > \"%s\"",
                       cimg::gzip_path(),
                       CImg<charT>::string(filename_tmp)._system_strescape().data(),
                       CImg<charT>::string(filename)._system_strescape().data());
-        cimg::system(command);
+        cimg::system(command, cimg::gzip_path());
         file = cimg::std_fopen(filename,"rb");
         if (!file)
           throw CImgIOException(_cimglist_instance
@@ -62639,12 +62643,12 @@ namespace cimg_library_suffixed {
         if (_data[l]._depth>1 || _data[l]._spectrum!=3) _data[l].get_resize(-100,-100,1,3).save_pnm(filename_tmp2);
         else _data[l].save_pnm(filename_tmp2);
       }
-      cimg_snprintf(command,command._width,"%s -i \"%s_%%6d.ppm\" -vcodec %s -b %uk -r %u -y \"%s\"",
+      cimg_snprintf(command,command._width,"\"%s\" -i \"%s_%%6d.ppm\" -vcodec %s -b %uk -r %u -y \"%s\"",
                     cimg::ffmpeg_path(),
                     CImg<charT>::string(filename_tmp)._system_strescape().data(),
                     _codec,bitrate,fps,
                     CImg<charT>::string(filename)._system_strescape().data());
-      cimg::system(command);
+      cimg::system(command, cimg::ffmpeg_path());
       file = cimg::std_fopen(filename,"rb");
       if (!file)
         throw CImgIOException(_cimglist_instance
@@ -63944,48 +63948,48 @@ namespace cimg_library_suffixed {
       // Try with 'curl' first.
       if (timeout) {
         if (referer)
-          cimg_snprintf(command,command._width,"%s -e %s -m %u -f --silent --compressed -o \"%s\" \"%s\"",
+          cimg_snprintf(command,command._width,"\"%s\" -e %s -m %u -f --silent --compressed -o \"%s\" \"%s\"",
                         cimg::curl_path(),referer,timeout,filename_local,
                         CImg<char>::string(url)._system_strescape().data());
         else
-          cimg_snprintf(command,command._width,"%s -m %u -f --silent --compressed -o \"%s\" \"%s\"",
+          cimg_snprintf(command,command._width,"\"%s\" -m %u -f --silent --compressed -o \"%s\" \"%s\"",
                         cimg::curl_path(),timeout,filename_local,
                         CImg<char>::string(url)._system_strescape().data());
       } else {
         if (referer)
-          cimg_snprintf(command,command._width,"%s -e %s -f --silent --compressed -o \"%s\" \"%s\"",
+          cimg_snprintf(command,command._width,"\"%s\" -e %s -f --silent --compressed -o \"%s\" \"%s\"",
                         cimg::curl_path(),referer,filename_local,
                         CImg<char>::string(url)._system_strescape().data());
         else
-          cimg_snprintf(command,command._width,"%s -f --silent --compressed -o \"%s\" \"%s\"",
+          cimg_snprintf(command,command._width,"\"%s\" -f --silent --compressed -o \"%s\" \"%s\"",
                         cimg::curl_path(),filename_local,
                         CImg<char>::string(url)._system_strescape().data());
       }
-      cimg::system(command);
+      cimg::system(command, cimg::curl_path());
 
       if (!(file=cimg::std_fopen(filename_local,"rb"))) {
 
         // Try with 'wget' otherwise.
         if (timeout) {
           if (referer)
-            cimg_snprintf(command,command._width,"%s --referer=%s -T %u -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
+            cimg_snprintf(command,command._width,"\"%s\" --referer=%s -T %u -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
                           cimg::wget_path(),referer,timeout,filename_local,
                           CImg<char>::string(url)._system_strescape().data());
           else
-            cimg_snprintf(command,command._width,"%s -T %u -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
+            cimg_snprintf(command,command._width,"\"%s\" -T %u -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
                           cimg::wget_path(),timeout,filename_local,
                           CImg<char>::string(url)._system_strescape().data());
         } else {
           if (referer)
-            cimg_snprintf(command,command._width,"%s --referer=%s -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
+            cimg_snprintf(command,command._width,"\"%s\" --referer=%s -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
                           cimg::wget_path(),referer,filename_local,
                           CImg<char>::string(url)._system_strescape().data());
           else
-            cimg_snprintf(command,command._width,"%s -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
+            cimg_snprintf(command,command._width,"\"%s\" -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
                           cimg::wget_path(),filename_local,
                           CImg<char>::string(url)._system_strescape().data());
         }
-        cimg::system(command);
+        cimg::system(command, cimg::wget_path());
 
         if (!(file=cimg::std_fopen(filename_local,"rb")))
           throw CImgIOException("cimg::load_network(): Failed to load file '%s' with external commands "
@@ -63995,9 +63999,9 @@ namespace cimg_library_suffixed {
         // Try gunzip it.
         cimg_snprintf(command,command._width,"%s.gz",filename_local);
         std::rename(filename_local,command);
-        cimg_snprintf(command,command._width,"%s --quiet \"%s.gz\"",
+        cimg_snprintf(command,command._width,"\"%s\" --quiet \"%s.gz\"",
                       gunzip_path(),filename_local);
-        cimg::system(command);
+        cimg::system(command, gunzip_path());
         file = cimg::std_fopen(filename_local,"rb");
         if (!file) {
           cimg_snprintf(command,command._width,"%s.gz",filename_local);

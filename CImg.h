@@ -8819,8 +8819,10 @@ namespace cimg_library_suffixed {
        - Keycode constants are defined in the cimg namespace and are architecture-dependent. Use them to ensure
        your code stay portable (see cimg::keyESC).
     **/
-    unsigned int key(const unsigned int pos=0) const {
-      return pos<128?_keys[pos]:0;
+    unsigned int& key(const unsigned int pos=0) const {
+      static unsigned int key0;
+      return pos<128?_keys[pos]:(key0 = 0);
+
     }
 
     //! Return one entry from the released keys history.
@@ -8836,8 +8838,9 @@ namespace cimg_library_suffixed {
        - Keycode constants are defined in the cimg namespace and are architecture-dependent. Use them to ensure
        your code stay portable (see cimg::keyESC).
     **/
-    unsigned int released_key(const unsigned int pos=0) const {
-      return pos<128?_released_keys[pos]:0;
+    unsigned int& released_key(const unsigned int pos=0) const {
+      static unsigned int key0;
+      return pos<128?_released_keys[pos]:(key0 = 0);
     }
 
     //! Return keycode corresponding to the specified string.

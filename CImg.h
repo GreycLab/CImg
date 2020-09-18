@@ -20021,6 +20021,15 @@ namespace cimg_library_suffixed {
               arg2 = compile(++s1,s2,depth1,0,is_single);
               _cimg_mp_check_constant(arg2,2,2);
               arg2 = (unsigned int)mem[arg2];
+              if (!arg2 && s2<se1) { // If w==0, no additional arguments allowed
+                _cimg_mp_strerr;
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: Arguments 'height', 'depth' and 'spectrum' cannot be "
+                                            "specified for scalar stored values ('width=0'), "
+                                            "in expression '%s%s%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            s0>expr._data?"...":"",s0,se<&expr.back()?"...":"");
+              }
               arg3 = arg4 = arg5 = 1U;
               if (s2<se1) {
                 s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -20037,7 +20046,7 @@ namespace cimg_library_suffixed {
                   arg5 = (unsigned int)mem[arg5];
                 }
               }
-              pos = vector(arg2*arg3*arg4*arg5);
+              if (arg2*arg3*arg4*arg5!=0) pos = vector(arg2*arg3*arg4*arg5); else pos = scalar();
               CImg<ulongT>::vector((ulongT)mp_get,pos,arg1,p1,arg2,arg3,arg4,arg5).move_to(code);
               _cimg_mp_return(pos);
             }
@@ -23717,37 +23726,19 @@ namespace cimg_library_suffixed {
 
 #ifdef cimg_mp_func_get
       static double mp_get(_cimg_math_parser& mp) {
-        const double
-          *ptr1 = &_mp_arg(2),
-          *ptr2 = &_mp_arg(4) + 1;
+        const double *ptrs = &_mp_arg(2) + 1;
+        double *ptrd = &_mp_arg(1);
         const unsigned int
-          siz1 = (unsigned int)mp.opcode[3],
-          siz2 = (unsigned int)mp.opcode[5],
-          sizM = std::max(siz1,1U);
-        const int
-          w = (int)_mp_arg(6),
-          h = (int)_mp_arg(7),
-          d = (int)_mp_arg(8),
-          s = (int)_mp_arg(9);
-
-        const bool is_compressed = (bool)_mp_arg(10);
-        if (w<0 || h<0 || d<0 || s<0)
-          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'get()': "
-                                      "Specified image dimensions (%d,%d,%d,%d) are invalid.",
-                                      cimg::type<T>::string(),w,h,d,s);
-        if ((unsigned int)w*h*d*s>sizM)
-          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'get()': "
-                                      "Specified image dimensions (%d,%d,%d,%d) are too large for vector size (%u).",
-                                      cimg::type<T>::string(),w,h,d,s,sizM);
-        CImg<charT> ss(siz2 + 1);
-        cimg_for_inX(ss,0,ss.width() - 1,i) ss[i] = (char)ptr2[i];
+          siz = (unsigned int)mp.opcode[3],
+          w = (unsigned int)mp.opcode[4],
+          h = (unsigned int)mp.opcode[5],
+          d = (unsigned int)mp.opcode[6],
+          s = (unsigned int)mp.opcode[7];
+        CImg<charT> ss(siz + 1);
+        cimg_for_inX(ss,0,ss.width() - 1,i) ss[i] = (char)ptrs[i];
         ss.back() = 0;
-
-        CImg<doubleT> img;
-        if (siz1) cimg_mp_func_get(ptr1 + 1,
-                                     (unsigned int)w,(unsigned int)h,(unsigned int)d,(unsigned int)s,
-                                     is_compressed,ss._data);
-        else cimg_mp_func_get(ptr1,1,1,1,1,is_compressed,ss._data);
+        if (w*h*d*s!=0) cimg_mp_func_get(ptrd + 1,w,h,d,s,ss._data);
+        else cimg_mp_func_get(ptrd,1,1,1,1,ss._data);
         return cimg::type<double>::nan();
       }
 #endif
@@ -25976,8 +25967,6 @@ namespace cimg_library_suffixed {
         CImg<charT> ss(siz2 + 1);
         cimg_for_inX(ss,0,ss.width() - 1,i) ss[i] = (char)ptr2[i];
         ss.back() = 0;
-
-        CImg<doubleT> img;
         if (siz1) cimg_mp_func_store(ptr1 + 1,
                                      (unsigned int)w,(unsigned int)h,(unsigned int)d,(unsigned int)s,
                                      is_compressed,ss._data);

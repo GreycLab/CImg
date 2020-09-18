@@ -19836,6 +19836,41 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar1(mp_exp,arg1);
             }
 
+            if (!std::strncmp(ss,"expr(",5)) { // Fill with expression
+              _cimg_mp_op("Function 'expr()'");
+              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss5,s1,depth1,0,is_single);
+              _cimg_mp_check_type(arg1,1,2,0);
+              p1 = _cimg_mp_size(arg1);
+              arg2 = arg3 = arg4 = arg5 = 0;
+              if (s1<se1) {
+                s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                arg2 = compile(++s1,s2,depth1,0,is_single);
+                _cimg_mp_check_constant(arg2,2,2);
+                arg2 = (unsigned int)mem[arg2];
+                if (arg2) arg3 = arg4 = arg5 = 1;
+                if (s2<se1) {
+                  s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                  arg3 = compile(++s2,s1,depth1,0,is_single);
+                  _cimg_mp_check_constant(arg3,3,3);
+                  arg3 = (unsigned int)mem[arg3];
+                  if (s1<se1) {
+                    s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                    arg4 = compile(++s1,s2,depth1,0,is_single);
+                    _cimg_mp_check_constant(arg4,4,3);
+                    arg4 = (unsigned int)mem[arg4];
+                    arg5 = s2<se1?compile(++s2,se1,depth1,0,is_single):0;
+                    _cimg_mp_check_constant(arg5,5,3);
+                    arg5 = (unsigned int)mem[arg5];
+                  }
+                }
+              }
+              p2 = arg2*arg3*arg4*arg5;
+              if (p2) pos = vector(p2); else pos = scalar();
+              CImg<ulongT>::vector((ulongT)mp_expr,pos,arg1,p1,arg2,arg3,arg4,arg5).move_to(code);
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"eye(",4)) { // Identity matrix
               _cimg_mp_op("Function 'eye()'");
               arg1 = compile(ss4,se1,depth1,0,is_single);
@@ -23536,6 +23571,27 @@ namespace cimg_library_suffixed {
 
       static double mp_exp(_cimg_math_parser& mp) {
         return std::exp(_mp_arg(2));
+      }
+
+      static double mp_expr(_cimg_math_parser& mp) {
+        const unsigned int
+          sizs = (unsigned int)mp.opcode[3],
+          w = (unsigned int)mp.opcode[4],
+          h = (unsigned int)mp.opcode[5],
+          d = (unsigned int)mp.opcode[6],
+          s = (unsigned int)mp.opcode[7],
+          sizd = w*h*d*s;
+        const double *ptrs = &_mp_arg(2) + 1;
+        double *ptrd = &_mp_arg(1);
+        CImg<charT> ss(sizs + 1);
+        cimg_for_inX(ss,0,ss.width() - 1,i) ss[i] = (char)ptrs[i];
+        ss.back() = 0;
+
+        std::fprintf(stderr,"\nDEBUG : %u %u %u %u\n,",w,h,d,s);
+
+        if (!sizd) return cimg::eval(ss); // Scalar result
+        CImg<doubleT>(++ptrd,w,h,d,s,true).fill(ss,true,true);
+        return cimg::type<double>::nan();
       }
 
       static double mp_eye(_cimg_math_parser& mp) {

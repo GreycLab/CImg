@@ -23586,9 +23586,6 @@ namespace cimg_library_suffixed {
         CImg<charT> ss(sizs + 1);
         cimg_for_inX(ss,0,ss.width() - 1,i) ss[i] = (char)ptrs[i];
         ss.back() = 0;
-
-        std::fprintf(stderr,"\nDEBUG : %u %u %u %u\n,",w,h,d,s);
-
         if (!sizd) return cimg::eval(ss); // Scalar result
         CImg<doubleT>(++ptrd,w,h,d,s,true).fill(ss,true,true);
         return cimg::type<double>::nan();

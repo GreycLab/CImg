@@ -20009,6 +20009,63 @@ namespace cimg_library_suffixed {
                 _cimg_mp_constant(cimg::gcd((long)mem[arg1],(long)mem[arg2]));
               _cimg_mp_scalar2(mp_gcd,arg1,arg2);
             }
+
+#ifdef cimg_mp_func_get
+            if (!std::strncmp(ss,"get(",4)) { // Get vector from stored variable
+              _cimg_mp_op("Function 'get()'");
+              s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss4,s1,depth1,0,is_single);
+              _cimg_mp_check_type(arg1,1,2,0);
+              p1 = _cimg_mp_size(arg1);
+              arg2 = arg4 = arg5 = 1U; arg3 = ~0U; pos = 0;
+              if (s1<se1) {
+                s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                arg2 = compile(++s1,s2,depth1,0,is_single);
+                _cimg_mp_check_type(arg2,2,1,0);
+                arg3 = arg4 = arg5 = 1U;
+                if (s2<se1) {
+                  s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                  arg3 = compile(++s2,s1,depth1,0,is_single);
+                  _cimg_mp_check_type(arg3,3,1,0);
+                  if (s1<se1) {
+                    s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                    arg4 = compile(++s1,s2,depth1,0,is_single);
+                    _cimg_mp_check_type(arg4,4,1,0);
+                    if (s2<se1) {
+                      s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                      arg5 = compile(++s2,s1,depth1,0,is_single);
+                      pos = s1<se1?compile(++s1,se1,depth1,0,is_single):0;
+                      _cimg_mp_check_type(arg5,5,1,0);
+                      _cimg_mp_check_type(pos,6,1,0);
+                    }
+                  }
+                }
+              }
+              if (arg3==~0U) arg3 = constant(p1);
+
+              if (_cimg_mp_is_constant(arg2) && _cimg_mp_is_constant(arg3) &&
+                  _cimg_mp_is_constant(arg4) && _cimg_mp_is_constant(arg5)) {
+                const unsigned int
+                  varg2 = (unsigned int)mem[arg2],
+                  varg3 = (unsigned int)mem[arg3],
+                  varg4 = (unsigned int)mem[arg4],
+                  varg5 = (unsigned int)mem[arg5];
+                if (varg2*varg3*varg4*varg5>p1) {
+                  _cimg_mp_strerr;
+                  throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                              "CImg<%s>::%s: %s: Specified dimensions (%u,%u,%u,%u) "
+                                              "are too large for vector size (%u), "
+                                              "in expression '%s%s%s'.",
+                                              pixel_type(),_cimg_mp_calling_function,s_op,
+                                              varg2,varg3,varg4,varg5,p1,
+                                              s0>expr._data?"...":"",s0,se<&expr.back()?"...":"");
+                }
+              }
+              CImg<ulongT>::vector((ulongT)mp_get,_cimg_mp_slot_nan,arg1,p1,
+                                   arg2,arg3,arg4,arg5,pos).move_to(code);
+              _cimg_mp_return_nan();
+            }
+#endif
             break;
 
           case 'h' :
@@ -23681,6 +23738,43 @@ namespace cimg_library_suffixed {
         const double x = _mp_arg(2), s = _mp_arg(3);
         return std::exp(-x*x/(2*s*s))/(_mp_arg(4)?std::sqrt(2*s*s*cimg::PI):1);
       }
+
+#ifdef cimg_mp_func_get
+      static double mp_get(_cimg_math_parser& mp) {
+        const double
+          *ptr1 = &_mp_arg(2),
+          *ptr2 = &_mp_arg(4) + 1;
+        const unsigned int
+          siz1 = (unsigned int)mp.opcode[3],
+          siz2 = (unsigned int)mp.opcode[5],
+          sizM = std::max(siz1,1U);
+        const int
+          w = (int)_mp_arg(6),
+          h = (int)_mp_arg(7),
+          d = (int)_mp_arg(8),
+          s = (int)_mp_arg(9);
+
+        const bool is_compressed = (bool)_mp_arg(10);
+        if (w<0 || h<0 || d<0 || s<0)
+          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'get()': "
+                                      "Specified image dimensions (%d,%d,%d,%d) are invalid.",
+                                      cimg::type<T>::string(),w,h,d,s);
+        if ((unsigned int)w*h*d*s>sizM)
+          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'get()': "
+                                      "Specified image dimensions (%d,%d,%d,%d) are too large for vector size (%u).",
+                                      cimg::type<T>::string(),w,h,d,s,sizM);
+        CImg<charT> ss(siz2 + 1);
+        cimg_for_inX(ss,0,ss.width() - 1,i) ss[i] = (char)ptr2[i];
+        ss.back() = 0;
+
+        CImg<doubleT> img;
+        if (siz1) cimg_mp_func_get(ptr1 + 1,
+                                     (unsigned int)w,(unsigned int)h,(unsigned int)d,(unsigned int)s,
+                                     is_compressed,ss._data);
+        else cimg_mp_func_get(ptr1,1,1,1,1,is_compressed,ss._data);
+        return cimg::type<double>::nan();
+      }
+#endif
 
       static double mp_gcd(_cimg_math_parser& mp) {
         return cimg::gcd((long)_mp_arg(2),(long)_mp_arg(3));

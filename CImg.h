@@ -23738,7 +23738,7 @@ namespace cimg_library_suffixed {
         cimg_for_inX(ss,0,ss.width() - 1,i) ss[i] = (char)ptrs[i];
         ss.back() = 0;
         if (w*h*d*s!=0) cimg_mp_func_get(ptrd + 1,w,h,d,s,ss._data);
-        else cimg_mp_func_get(ptrd,1,1,1,1,ss._data);
+        else cimg_mp_func_get(ptrd,0,0,0,0,ss._data);
         return cimg::type<double>::nan();
       }
 #endif

@@ -20019,9 +20019,9 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_type(arg1,1,2,0);
               _cimg_mp_check_constant(arg2,2,2);
               p1 = _cimg_mp_size(arg1);
-              const ulongT siz = (ulongT)mem[arg2];
-              if (siz) pos = vector(siz); else pos = scalar();
-              CImg<ulongT>::vector((ulongT)mp_get,pos,arg1,p1,siz).move_to(code);
+              arg2 = (unsigned int)mem[arg2];
+              if (arg2) pos = vector(arg2); else pos = scalar();
+              CImg<ulongT>::vector((ulongT)mp_get,pos,arg1,p1,arg2).move_to(code);
               _cimg_mp_return(pos);
             }
 #endif
@@ -23702,8 +23702,9 @@ namespace cimg_library_suffixed {
       static double mp_get(_cimg_math_parser& mp) {
         const double *ptrs = &_mp_arg(2) + 1;
         double *ptrd = &_mp_arg(1);
-        const unsigned int sizs = (unsigned int)mp.opcode[3];
-        const ulongT sizd = (ulongT)mp.opcode[4];
+        const unsigned int
+          sizs = (unsigned int)mp.opcode[3],
+          sizd = (unsigned int)mp.opcode[4];
         CImg<charT> ss(sizs + 1);
         cimg_for_inX(ss,0,ss.width() - 1,i) ss[i] = (char)ptrs[i];
         ss.back() = 0;

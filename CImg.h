@@ -20017,36 +20017,39 @@ namespace cimg_library_suffixed {
               arg1 = compile(ss4,s1,depth1,0,is_single);
               _cimg_mp_check_type(arg1,1,2,0);
               p1 = _cimg_mp_size(arg1);
-              s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-              arg2 = compile(++s1,s2,depth1,0,is_single);
-              _cimg_mp_check_constant(arg2,2,2);
-              arg2 = (unsigned int)mem[arg2];
-              if (!arg2 && s2<se1) { // If w==0, no additional arguments allowed
-                _cimg_mp_strerr;
-                throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                            "CImg<%s>::%s: %s: Arguments 'height', 'depth' and 'spectrum' cannot be "
-                                            "specified for scalar stored values ('width=0'), "
-                                            "in expression '%s%s%s'.",
-                                            pixel_type(),_cimg_mp_calling_function,s_op,
-                                            s0>expr._data?"...":"",s0,se<&expr.back()?"...":"");
-              }
-              arg3 = arg4 = arg5 = 1U;
-              if (s2<se1) {
-                s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                arg3 = compile(++s2,s1,depth1,0,is_single);
-                _cimg_mp_check_constant(arg3,3,3);
-                arg3 = (unsigned int)mem[arg3];
-                if (s1<se1) {
-                  s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-                  arg4 = compile(++s1,s2,depth1,0,is_single);
-                  _cimg_mp_check_constant(arg4,4,3);
-                  arg4 = (unsigned int)mem[arg4];
-                  arg5 = s2<se1?compile(++s2,se1,depth1,0,is_single):1U;
-                  _cimg_mp_check_constant(arg5,5,3);
-                  arg5 = (unsigned int)mem[arg5];
+              arg2 = arg3 = arg4 = arg5 = 0;
+              if (s1<se1) {
+                s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                arg2 = compile(++s1,s2,depth1,0,is_single);
+                _cimg_mp_check_constant(arg2,2,2);
+                arg2 = (unsigned int)mem[arg2];
+                if (!arg2 && s2<se1) { // If w==0, no additional arguments allowed
+                  _cimg_mp_strerr;
+                  throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                              "CImg<%s>::%s: %s: Arguments 'height', 'depth' and 'spectrum' cannot be "
+                                              "specified for scalar stored values ('width=0'), "
+                                              "in expression '%s%s%s'.",
+                                              pixel_type(),_cimg_mp_calling_function,s_op,
+                                              s0>expr._data?"...":"",s0,se<&expr.back()?"...":"");
+                }
+                if (arg2) arg3 = arg4 = arg5 = 1U;
+                if (s2<se1) {
+                  s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                  arg3 = compile(++s2,s1,depth1,0,is_single);
+                  _cimg_mp_check_constant(arg3,3,3);
+                  arg3 = (unsigned int)mem[arg3];
+                  if (s1<se1) {
+                    s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                    arg4 = compile(++s1,s2,depth1,0,is_single);
+                    _cimg_mp_check_constant(arg4,4,3);
+                    arg4 = (unsigned int)mem[arg4];
+                    arg5 = s2<se1?compile(++s2,se1,depth1,0,is_single):1U;
+                    _cimg_mp_check_constant(arg5,5,3);
+                    arg5 = (unsigned int)mem[arg5];
+                  }
                 }
               }
-              if (arg2*arg3*arg4*arg5!=0) pos = vector(arg2*arg3*arg4*arg5); else pos = scalar();
+              if (arg2) pos = vector(arg2*arg3*arg4*arg5); else pos = scalar();
               CImg<ulongT>::vector((ulongT)mp_get,pos,arg1,p1,arg2,arg3,arg4,arg5).move_to(code);
               _cimg_mp_return(pos);
             }

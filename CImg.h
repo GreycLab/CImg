@@ -23586,8 +23586,8 @@ namespace cimg_library_suffixed {
         CImg<charT> ss(sizs + 1);
         cimg_for_inX(ss,0,ss.width() - 1,i) ss[i] = (char)ptrs[i];
         ss.back() = 0;
-        if (!sizd) return mp.imgout.eval(ss,0,0,0,0,&mp.listin,&mp.listout); // Scalar result
-        CImg<doubleT>(++ptrd,w,h,d,s,true) = mp.imgout.get_fill(ss,true,true,&mp.listin,&mp.listout);
+        if (!sizd) return CImg<T>(w,h,d,s,0).eval(ss,0,0,0,0,&mp.listin,&mp.listout); // Scalar result
+        CImg<doubleT>(++ptrd,w,h,d,s,true) = CImg<T>(w,h,d,s,0).fill(ss,true,true,&mp.listin,&mp.listout);
         return cimg::type<double>::nan();
       }
 

@@ -19836,7 +19836,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar1(mp_exp,arg1);
             }
 
-            if (!std::strncmp(ss,"expr(",5)) { // Fill with expression
+            if (!std::strncmp(ss,"expr(",5)) { // Vector from expression
               _cimg_mp_op("Function 'expr()'");
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss5,s1,depth1,0,is_single);

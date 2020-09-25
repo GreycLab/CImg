@@ -6223,12 +6223,12 @@ namespace cimg_library_suffixed {
     //! Return the minabs between two values.
     template<typename t>
     inline t minabs(const t& a, const t& b) {
-      return std::abs(b)<std::abs(a)?b:a;
+      return cimg::abs(b)<cimg::abs(a)?b:a;
     }
 
     template<typename t>
     inline t minabs(const t& a, const t& b, const t& abs_b) {
-      return abs_b<std::abs(a)?b:a;
+      return abs_b<cimg::abs(a)?b:a;
     }
 
     //! Return the maximum between three values.
@@ -6246,12 +6246,12 @@ namespace cimg_library_suffixed {
     //! Return the maxabs between two values.
     template<typename t>
     inline t maxabs(const t& a, const t& b) {
-      return std::abs(b)>std::abs(a)?b:a;
+      return cimg::abs(b)>cimg::abs(a)?b:a;
     }
 
     template<typename t>
     inline t maxabs(const t& a, const t& b, const t& abs_b) {
-      return abs_b>std::abs(a)?b:a;
+      return abs_b>cimg::abs(a)?b:a;
     }
 
     //! Return the sign of a value.

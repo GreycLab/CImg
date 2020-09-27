@@ -20861,7 +20861,7 @@ namespace cimg_library_suffixed {
 #ifdef cimg_mp_func_run
             if (!std::strncmp(ss,"run(",4)) { // Run external command
               _cimg_mp_op("Function 'run()'");
-//              if (!is_critical) is_parallelizable = false;
+              if (!is_critical) is_parallelizable = false;
               CImg<ulongT>::vector((ulongT)mp_run,0,0).move_to(l_opcode);
               pos = 1;
               for (s = ss4; s<se; ++s) {

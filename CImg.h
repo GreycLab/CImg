@@ -47915,7 +47915,7 @@ namespace cimg_library_suffixed {
           }
         }
         if (x!=0 || c=='\n') {
-          if (x>w) w=x;
+          if (x>w) w = x;
           y+=font[0]._height;
         }
         assign(x0 + w,y0 + y,1,is_native_font?1:font[0]._spectrum,(T)0);

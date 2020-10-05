@@ -47921,7 +47921,11 @@ namespace cimg_library_suffixed {
         assign(x0 + w,y0 + y,1,is_native_font?1:font[0]._spectrum,(T)0);
       }
 
+      const int padding_x = font[0]._height<=48?1U:font[0]._height<=128?2U:3U;
+      t o_right_opacity = 0, right_opacity = 0;
+      unsigned char o_ch = 0;
       int x = x0, y = y0;
+
       for (unsigned int i = 0; i<text_length; ++i) {
         const unsigned char ch = (unsigned char)text[i];
         switch (ch) {
@@ -47930,6 +47934,22 @@ namespace cimg_library_suffixed {
         default : if (ch<font._width) {
             CImg<T> letter = font[ch];
             if (letter) {
+              int compensate_padding = 0;
+              if (is_native_font) { // Try to compensate fixed padding for native font
+                if ((o_ch=='l' || o_ch=='i') && (ch=='l' || ch=='i')) compensate_padding = 1;
+                else {
+                  t left_opacity = right_opacity = 0;
+                  const CImg<t>& mask = font[ch + 256];
+                  const unsigned int mw1 = mask._width - 1 - padding_x;
+                  cimg_forY(mask,q) {
+                    left_opacity = std::max(left_opacity,mask(0,q));
+                    right_opacity = std::max(right_opacity,mask(mw1,q));
+                  }
+                  if (i && o_right_opacity<64 && o_ch!='i' && o_ch!='l') compensate_padding-=padding_x;
+                  if (i && ch!='i' && ch!='l' && left_opacity<64) --compensate_padding;
+                }
+              }
+              const int posx = x + compensate_padding;
               if (is_native_font && _spectrum>letter._spectrum) letter.resize(-100,-100,1,_spectrum,0,2);
               const unsigned int cmin = std::min(_spectrum,letter._spectrum);
               if (foreground_color)
@@ -47938,11 +47958,13 @@ namespace cimg_library_suffixed {
               if (ch + 256<font.width()) { // Letter has mask
                 if (background_color)
                   for (unsigned int c = 0; c<cmin; ++c)
-                    draw_rectangle(x,y,0,c,x + letter._width - 1,y + letter._height - 1,0,c,
+                    draw_rectangle(posx,y,0,c,posx + letter._width - 1,y + letter._height - 1,0,c,
                                    background_color[c],opacity);
-                draw_image(x,y,letter,font[ch + 256],opacity,255.f);
-              } else draw_image(x,y,letter,opacity); // Letter has no mask
-              x+=letter._width;
+                draw_image(posx,y,letter,font[ch + 256],opacity,255.f);
+              } else draw_image(posx,y,letter,opacity); // Letter has no mask
+              x = posx + letter._width;
+              o_right_opacity = right_opacity;
+              o_ch = ch;
             }
           }
         }
@@ -63020,15 +63042,20 @@ namespace cimg_library_suffixed {
           cimglist_for(font,l) {
             CImg<ucharT>& letter = font[l];
             int xmin = letter.width(), xmax = 0;
-            cimg_forXY(letter,x,y) if (letter(x,y)) { if (x<xmin) xmin = x; if (x>xmax) xmax = x; }
+            cimg_forX(letter,x) { // Find xmin
+              cimg_forY(letter,y) if (letter(x,y)) { xmin = x; break; }
+              if (xmin!=letter.width()) break;
+            }
+            cimg_rofX(letter,x) { // Find xmax
+              cimg_forY(letter,y) if (letter(x,y)) { xmax = x; break; }
+              if (xmax) break;
+            }
             if (xmin<=xmax) letter.crop(xmin,0,xmax,letter._height - 1);
           }
           font[(int)' '].resize(font[(int)'f']._width,-100,-100,-100,0);
           if (' ' + 256<font.size()) font[' ' + 256].resize(font[(int)'f']._width,-100,-100,-100,0);
-          cimglist_for(font,l)
-            font[l].resize(std::max(font[(int)';']._width,font[l]._width) + padding_x,
-                           -100,1,1,0,0,0.55f);
-        } else cimglist_for(font,l) font[l].resize(font[l]._width + padding_x,-100,1,1,0,0,0.55f);
+          cimglist_for(font,l) font[l].resize(font[l]._width + padding_x,-100,1,1,0,0);
+        } else cimglist_for(font,l) font[l].resize(font[l]._width + padding_x,-100,1,1,0,0);
         font.insert(256,0);
         cimglist_for_in(font,0,255,l) font[l].assign(font[l + 256]._width,font[l + 256]._height,1,3,1);
       }

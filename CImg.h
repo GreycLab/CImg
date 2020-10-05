@@ -47936,7 +47936,10 @@ namespace cimg_library_suffixed {
             if (letter) {
               int compensate_padding = 0;
               if (is_native_font) { // Try to compensate fixed padding for native font
-                if ((o_ch=='l' || o_ch=='i') && (ch=='l' || ch=='i')) compensate_padding = 1;
+                const bool
+                  is_och = o_ch=='l' || o_ch=='i' || o_ch=='I' || o_ch=='!' || o_ch=='\'',
+                  is_ch = ch=='l' || ch=='i' || ch=='I' || ch=='!' || ch=='\'';
+                if (is_och && is_ch) compensate_padding = 1;
                 else {
                   t left_opacity = right_opacity = 0;
                   const CImg<t>& mask = font[ch + 256];
@@ -47945,8 +47948,10 @@ namespace cimg_library_suffixed {
                     left_opacity = std::max(left_opacity,mask(0,q));
                     right_opacity = std::max(right_opacity,mask(mw1,q));
                   }
-                  if (i && o_right_opacity<64 && o_ch!='i' && o_ch!='l') compensate_padding-=padding_x;
-                  if (i && ch!='-' && ch!='i' && ch!='l' && left_opacity<64) --compensate_padding;
+                  if (i && !is_ch && !is_och) {
+                    if (o_right_opacity<64) compensate_padding-=padding_x;
+                    if (left_opacity<64) --compensate_padding;
+                  }
                 }
               }
               const int posx = x + compensate_padding;

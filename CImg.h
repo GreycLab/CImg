@@ -47946,7 +47946,7 @@ namespace cimg_library_suffixed {
                     right_opacity = std::max(right_opacity,mask(mw1,q));
                   }
                   if (i && o_right_opacity<64 && o_ch!='i' && o_ch!='l') compensate_padding-=padding_x;
-                  if (i && ch!='i' && ch!='l' && left_opacity<64) --compensate_padding;
+                  if (i && ch!='-' && ch!='i' && ch!='l' && left_opacity<64) --compensate_padding;
                 }
               }
               const int posx = x + compensate_padding;
@@ -63054,8 +63054,8 @@ namespace cimg_library_suffixed {
           }
           font[(int)' '].resize(font[(int)'f']._width,-100,-100,-100,0);
           if (' ' + 256<font.size()) font[' ' + 256].resize(font[(int)'f']._width,-100,-100,-100,0);
-          cimglist_for(font,l) font[l].resize(font[l]._width + padding_x,-100,1,1,0,0);
-        } else cimglist_for(font,l) font[l].resize(font[l]._width + padding_x,-100,1,1,0,0);
+          cimglist_for(font,l) font[l].resize(font[l]._width + padding_x,-100,1,1,0,0,0.5f);
+        } else cimglist_for(font,l) font[l].resize(font[l]._width + padding_x,-100,1,1,0,0,0.5f);
         font.insert(256,0);
         cimglist_for_in(font,0,255,l) font[l].assign(font[l + 256]._width,font[l + 256]._height,1,3,1);
       }

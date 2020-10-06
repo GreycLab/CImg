@@ -47903,7 +47903,7 @@ namespace cimg_library_suffixed {
 
       const unsigned int text_length = (unsigned int)std::strlen(text);
       const int padding_x = font[0]._height<=48?1U:font[0]._height<=128?2U:3U;
-      t o_right_opacity, right_opacity, left_opacity;
+      t o_right_opacity = 0, right_opacity = 0, left_opacity = 0;
       unsigned char o_ch, ch = 0;
       int x, y, w;
 

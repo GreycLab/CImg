@@ -19083,7 +19083,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_type(arg1,0,3,2);
               pos = vector(2);
               if (_cimg_mp_is_scalar(arg1)) CImg<ulongT>::vector((ulongT)mp_complex_exp,pos,arg1,0).move_to(code);
-              CImg<ulongT>::vector((ulongT)mp_complex_exp,pos,arg1 + 1,arg1 + 2).move_to(code);
+              else CImg<ulongT>::vector((ulongT)mp_complex_exp,pos,arg1 + 1,arg1 + 2).move_to(code);
               _cimg_mp_return(pos);
             }
 

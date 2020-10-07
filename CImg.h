@@ -18994,7 +18994,7 @@ namespace cimg_library_suffixed {
             break;
 
           case 'b' :
-            if (!std::strncmp(ss,"break(",6)) { // Complex absolute value
+            if (!std::strncmp(ss,"break(",6)) { // Break current loop
               if (pexpr[se2 - expr._data]=='(') { // no arguments?
                 CImg<ulongT>::vector((ulongT)mp_break,_cimg_mp_slot_nan).move_to(code);
                 _cimg_mp_return_nan();
@@ -19038,14 +19038,16 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"cabs(",5)) { // Complex absolute value
               _cimg_mp_op("Function 'cabs()'");
               arg1 = compile(ss5,se1,depth1,0,is_critical);
-              _cimg_mp_check_type(arg1,0,2,2);
+              _cimg_mp_check_type(arg1,0,3,2);
+              if (_cimg_mp_is_scalar(arg1)) _cimg_mp_scalar2(mp_complex_abs,arg1,0);
               _cimg_mp_scalar2(mp_complex_abs,arg1 + 1,arg1 + 2);
             }
 
             if (!std::strncmp(ss,"carg(",5)) { // Complex argument
               _cimg_mp_op("Function 'carg()'");
               arg1 = compile(ss5,se1,depth1,0,is_critical);
-              _cimg_mp_check_type(arg1,0,2,2);
+              _cimg_mp_check_type(arg1,0,3,2);
+              if (_cimg_mp_is_scalar(arg1)) _cimg_mp_scalar2(mp_atan2,0,arg1);
               _cimg_mp_scalar2(mp_atan2,arg1 + 2,arg1 + 1);
             }
 
@@ -19060,9 +19062,10 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"cconj(",6)) { // Complex conjugate
               _cimg_mp_op("Function 'cconj()'");
               arg1 = compile(ss6,se1,depth1,0,is_critical);
-              _cimg_mp_check_type(arg1,0,2,2);
+              _cimg_mp_check_type(arg1,0,3,2);
               pos = vector(2);
-              CImg<ulongT>::vector((ulongT)mp_complex_conj,pos,arg1).move_to(code);
+              if (_cimg_mp_is_scalar(arg1)) CImg<ulongT>::vector((ulongT)mp_complex_conj,pos,arg1,0).move_to(code);
+              else CImg<ulongT>::vector((ulongT)mp_complex_conj,pos,arg1 + 1,arg1 + 2).move_to(code);
               _cimg_mp_return(pos);
             }
 
@@ -22965,10 +22968,10 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_complex_conj(_cimg_math_parser& mp) {
-        const double *ptrs = &_mp_arg(2) + 1;
+        const double real = _mp_arg(2), imag = _mp_arg(3);
         double *ptrd = &_mp_arg(1) + 1;
-        *(ptrd++) = *(ptrs++);
-        *ptrd = -*(ptrs);
+        ptrd[0] = real;
+        ptrd[1] = -imag;
         return cimg::type<double>::nan();
       }
 

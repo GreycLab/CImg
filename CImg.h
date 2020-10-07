@@ -19080,9 +19080,10 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"cexp(",5)) { // Complex exponential
               _cimg_mp_op("Function 'cexp()'");
               arg1 = compile(ss5,se1,depth1,0,is_critical);
-              _cimg_mp_check_type(arg1,0,2,2);
+              _cimg_mp_check_type(arg1,0,3,2);
               pos = vector(2);
-              CImg<ulongT>::vector((ulongT)mp_complex_exp,pos,arg1).move_to(code);
+              if (_cimg_mp_is_scalar(arg1)) CImg<ulongT>::vector((ulongT)mp_complex_exp,pos,arg1,0).move_to(code);
+              CImg<ulongT>::vector((ulongT)mp_complex_exp,pos,arg1 + 1,arg1 + 2).move_to(code);
               _cimg_mp_return(pos);
             }
 
@@ -23000,10 +23001,10 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_complex_exp(_cimg_math_parser& mp) {
+        const double real = _mp_arg(2), imag = _mp_arg(3), exp_real = std::exp(real);
         double *ptrd = &_mp_arg(1) + 1;
-        const double *ptrs = &_mp_arg(2) + 1, r = *(ptrs++), i = *(ptrs), er = std::exp(r);
-        *(ptrd++) = er*std::cos(i);
-        *(ptrd++) = er*std::sin(i);
+        ptrd[0] = exp_real*std::cos(imag);
+        ptrd[1] = exp_real*std::sin(imag);
         return cimg::type<double>::nan();
       }
 

@@ -19090,9 +19090,10 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"clog(",5)) { // Complex logarithm
               _cimg_mp_op("Function 'clog()'");
               arg1 = compile(ss5,se1,depth1,0,is_critical);
-              _cimg_mp_check_type(arg1,0,2,2);
+              _cimg_mp_check_type(arg1,0,3,2);
               pos = vector(2);
-              CImg<ulongT>::vector((ulongT)mp_complex_log,pos,arg1).move_to(code);
+              if (_cimg_mp_is_scalar(arg1)) CImg<ulongT>::vector((ulongT)mp_complex_log,pos,arg1,0).move_to(code);
+              else CImg<ulongT>::vector((ulongT)mp_complex_log,pos,arg1 + 1,arg1 + 2).move_to(code);
               _cimg_mp_return(pos);
             }
 
@@ -23009,10 +23010,10 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_complex_log(_cimg_math_parser& mp) {
+        const double real = _mp_arg(2), imag = _mp_arg(3);
         double *ptrd = &_mp_arg(1) + 1;
-        const double *ptrs = &_mp_arg(2) + 1, r = *(ptrs++), i = *(ptrs);
-        *(ptrd++) = 0.5*std::log(r*r + i*i);
-        *(ptrd++) = std::atan2(i,r);
+        ptrd[0] = 0.5*std::log(real*real + imag*imag);
+        ptrd[1] = std::atan2(imag,real);
         return cimg::type<double>::nan();
       }
 

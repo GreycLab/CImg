@@ -30954,7 +30954,7 @@ namespace cimg_library_suffixed {
        \param axis Axis along which the values are discarded. If set to \c 0 (default value)
          the method does it for all the buffer values and returns a one-column vector.
        \note Discarded values will change the image geometry, so the resulting image
-       is returned as a one-column vector.
+         is returned as a one-column vector.
     **/
     template<typename t>
     CImg<T>& discard(const CImg<t>& values, const char axis=0) {
@@ -31020,7 +31020,6 @@ namespace cimg_library_suffixed {
       } break;
       default : {
         const ulongT siz = size();
-        const char uaxis = (ulongT)_width==siz?'x':(ulongT)_depth==siz?'z':(ulongT)_spectrum==siz?'c':'y';
         res.unroll('y');
         if (vsiz==1) { // Optimized version for a single discard value
           const T val = (T)values[0];
@@ -31039,7 +31038,6 @@ namespace cimg_library_suffixed {
           if ((ulongT)i0<siz) { std::memcpy(res._data + k,_data + i0,(siz - i0)*sizeof(T)); k+=siz - i0; }
         }
         res.resize(1,k,1,1,0);
-        if (uaxis!='y') res.unroll(uaxis);
       }
       }
       return res;
@@ -31080,15 +31078,12 @@ namespace cimg_library_suffixed {
         res.resize(-100,-100,-100,j,0);
       } break;
       default : {
-        const ulongT siz = size();
-        const char uaxis = (ulongT)_width==siz?'x':(ulongT)_depth==siz?'z':(ulongT)_spectrum==siz?'c':'y';
         res.unroll('y');
         cimg_foroff(*this,i) {
           const T val = (*this)[i];
           if (val!=current) res[j++] = current = val;
         }
         res.resize(-100,j,-100,-100,0);
-        if (uaxis!='y') res.unroll(uaxis);
       }
       }
       return res;
@@ -37357,7 +37352,6 @@ namespace cimg_library_suffixed {
         } break;
         default : {
           const ulongT siz = size();
-          const char uaxis = (ulongT)_width==siz?'x':(ulongT)_depth==siz?'z':(ulongT)_spectrum==siz?'c':'y';
           ulongT i0 = 0, i = 0;
           do {
             while (i<siz && (*this)[i]==value) ++i;
@@ -37368,7 +37362,6 @@ namespace cimg_library_suffixed {
             while (i<siz && (*this)[i]!=value) ++i;
             if (i>i0) { CImg<T>(_data + i0,1,(unsigned int)(i - i0)).move_to(res); i0 = i; }
           } while (i<siz);
-          if (uaxis!='y') cimglist_for(res,l) res[l].unroll(uaxis);
         }
         }
       } else { // Split according to multiple values
@@ -37440,7 +37433,6 @@ namespace cimg_library_suffixed {
         } break;
         default : {
           const ulongT siz = size();
-          const char uaxis = (ulongT)_width==siz?'x':(ulongT)_depth==siz?'z':(ulongT)_spectrum==siz?'c':'y';
           ulongT i0 = 0, i1 = 0, i = 0;
           do {
             if ((Tt)(*this)[i]==(Tt)*values) {
@@ -37455,7 +37447,6 @@ namespace cimg_library_suffixed {
             } else ++i;
           } while (i<siz);
           if (i0<siz) CImg<T>(_data + i0,1,(unsigned int)(siz - i0)).move_to(res);
-          if (uaxis!='y') cimglist_for(res,l) res[l].unroll(uaxis);
         } break;
         }
       }

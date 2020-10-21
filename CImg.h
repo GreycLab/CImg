@@ -2244,6 +2244,7 @@ extern "C" {
    _p1##x = x++, ++_n1##x)
 
 #define cimglist_for(list,l) for (int l = 0; l<(int)(list)._width; ++l)
+#define cimglist_rof(list,l) for (int l = (int)(list)._width - 1; l>=0; --l)
 #define cimglist_for_in(list,l0,l1,l) \
   for (int l = (int)(l0)<0?0:(int)(l0), _max##l = (unsigned int)l1<(list)._width?(int)(l1):(int)(list)._width - 1; \
   l<=_max##l; ++l)

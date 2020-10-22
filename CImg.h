@@ -52367,6 +52367,14 @@ namespace cimg_library_suffixed {
       }
       std::fgetc(nfile);
 
+      const cimg_uint64 size_limit = (cimg_uint64)2 * 1024 * 1024 * 1024;
+      if ((cimg_uint64)W * (cimg_uint64)H >= size_limit) {
+          throw CImgIOException(_cimg_instance
+              "load_pnm(): WIDTH * HEIGHT exceeds limit of" cimg_fuint64 " in file '%s'.",
+              cimg_instance,
+              (cimg_uint64)W * (cimg_uint64)H, filename ? filename : "(FILE*)");
+      }
+
       switch (ppm_type) {
       case 1 : { // 2D B&W ascii
         assign(W,H,1,1);

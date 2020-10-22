@@ -11764,6 +11764,27 @@ namespace cimg_library_suffixed {
     **/
     CImg():_width(0),_height(0),_depth(0),_spectrum(0),_is_shared(false),_data(0) {}
 
+    size_t _safe_size(const unsigned int size_x, const unsigned int size_y,
+                      const unsigned int size_z, const unsigned int size_c) const
+    {
+        const unsigned int dim[4] = {size_x, size_y, size_z, size_c};
+        size_t size = 1;
+        int overflows = 0;
+        for (int d = 0; d < sizeof(dim)/sizeof(dim[0]); d++) {
+            if (dim[d]>1 && size*dim[d] <= size) { overflows++; }
+            size *= dim[d];
+        }
+        if (sizeof(T)>1 && size*sizeof(T) <= size) { overflows++; }
+        if (overflows != 0) {
+            throw CImgArgumentException(_cimg_instance
+                "_safe_size(): Invalid size - size_t overflow"
+                "(%u,%u,%u,%u).",
+                cimg_instance,
+                size_x, size_y, size_z, size_c);
+        }
+        return size;
+    }
+
     //! Construct image with specified size.
     /**
        \param size_x Image width().
@@ -11790,7 +11811,7 @@ namespace cimg_library_suffixed {
     explicit CImg(const unsigned int size_x, const unsigned int size_y=1,
                   const unsigned int size_z=1, const unsigned int size_c=1):
       _is_shared(false) {
-      size_t siz = (size_t)size_x*size_y*size_z*size_c;
+      size_t siz = _safe_size(size_x,size_y,size_z,size_c);
       if (siz) {
         _width = size_x; _height = size_y; _depth = size_z; _spectrum = size_c;
         try { _data = new T[siz]; } catch (...) {
@@ -11822,7 +11843,7 @@ namespace cimg_library_suffixed {
     CImg(const unsigned int size_x, const unsigned int size_y,
          const unsigned int size_z, const unsigned int size_c, const T& value):
       _is_shared(false) {
-      const size_t siz = (size_t)size_x*size_y*size_z*size_c;
+      const size_t siz = _safe_size(size_x,size_y,size_z,size_c);
       if (siz) {
         _width = size_x; _height = size_y; _depth = size_z; _spectrum = size_c;
         try { _data = new T[siz]; } catch (...) {
@@ -11883,7 +11904,7 @@ namespace cimg_library_suffixed {
         } \
       }
       assign(size_x,size_y,size_z,size_c);
-      _CImg_stdarg(*this,value0,value1,(size_t)size_x*size_y*size_z*size_c,int);
+      _CImg_stdarg(*this,value0,value1,_safe_size(size_x,size_y,size_z,size_c),int);
     }
 
 #if cimg_use_cpp11==1
@@ -12012,7 +12033,7 @@ namespace cimg_library_suffixed {
          const double value0, const double value1, ...):
       _width(0),_height(0),_depth(0),_spectrum(0),_is_shared(false),_data(0) {
       assign(size_x,size_y,size_z,size_c);
-      _CImg_stdarg(*this,value0,value1,(size_t)size_x*size_y*size_z*size_c,double);
+      _CImg_stdarg(*this,value0,value1,_safe_size(size_x,size_y,size_z,size_c),double);
     }
 
     //! Construct image with specified size and initialize pixel values from a value string.
@@ -12047,7 +12068,7 @@ namespace cimg_library_suffixed {
      **/
     CImg(const unsigned int size_x, const unsigned int size_y, const unsigned int size_z, const unsigned int size_c,
          const char *const values, const bool repeat_values):_is_shared(false) {
-      const size_t siz = (size_t)size_x*size_y*size_z*size_c;
+      const size_t siz = _safe_size(size_x,size_y,size_z,size_c);
       if (siz) {
         _width = size_x; _height = size_y; _depth = size_z; _spectrum = size_c;
         try { _data = new T[siz]; } catch (...) {
@@ -12103,7 +12124,7 @@ namespace cimg_library_suffixed {
                                     cimg_instance,
                                     size_x,size_y,size_z,size_c,CImg<t>::pixel_type());
       }
-      const size_t siz = (size_t)size_x*size_y*size_z*size_c;
+      const size_t siz = _safe_size(size_x,size_y,size_z,size_c);
       if (values && siz) {
         _width = size_x; _height = size_y; _depth = size_z; _spectrum = size_c;
         try { _data = new T[siz]; } catch (...) {
@@ -12122,7 +12143,7 @@ namespace cimg_library_suffixed {
     //! Construct image with specified size and initialize pixel values from a memory buffer \specialization.
     CImg(const T *const values, const unsigned int size_x, const unsigned int size_y=1,
          const unsigned int size_z=1, const unsigned int size_c=1, const bool is_shared=false) {
-      const size_t siz = (size_t)size_x*size_y*size_z*size_c;
+      const size_t siz = _safe_size(size_x,size_y,size_z,size_c);
       if (values && siz) {
         _width = size_x; _height = size_y; _depth = size_z; _spectrum = size_c; _is_shared = is_shared;
         if (_is_shared) _data = const_cast<T*>(values);
@@ -12145,7 +12166,7 @@ namespace cimg_library_suffixed {
     CImg(const t *const values, const unsigned int size_x, const unsigned int size_y,
          const unsigned int size_z, const unsigned int size_c,
          const char *const axes_order):_data(0),_is_shared(false) {
-      const size_t siz = (size_t)size_x*size_y*size_z*size_c;
+      const size_t siz = _safe_size(size_x,size_y,size_z,size_c);
       if (values && siz) {
         unsigned char s_code[4] = { 0,1,2,3 }, n_code[4] = { 0 };
         for (unsigned int l = 0; axes_order[l]; ++l) {
@@ -12423,7 +12444,7 @@ namespace cimg_library_suffixed {
     **/
     CImg<T>& assign(const unsigned int size_x, const unsigned int size_y=1,
                     const unsigned int size_z=1, const unsigned int size_c=1) {
-      const size_t siz = (size_t)size_x*size_y*size_z*size_c;
+      const size_t siz = _safe_size(size_x,size_y,size_z,size_c);
       if (!siz) return assign();
       const size_t curr_siz = (size_t)size();
       if (siz!=curr_siz) {
@@ -12466,7 +12487,7 @@ namespace cimg_library_suffixed {
                     const unsigned int size_z, const unsigned int size_c,
                     const int value0, const int value1, ...) {
       assign(size_x,size_y,size_z,size_c);
-      _CImg_stdarg(*this,value0,value1,(size_t)size_x*size_y*size_z*size_c,int);
+      _CImg_stdarg(*this,value0,value1,_safe_size(size_x,size_y,size_z,size_c),int);
       return *this;
     }
 
@@ -12478,7 +12499,7 @@ namespace cimg_library_suffixed {
                     const unsigned int size_z, const unsigned int size_c,
                     const double value0, const double value1, ...) {
       assign(size_x,size_y,size_z,size_c);
-      _CImg_stdarg(*this,value0,value1,(size_t)size_x*size_y*size_z*size_c,double);
+      _CImg_stdarg(*this,value0,value1,_safe_size(size_x,size_y,size_z,size_c),double);
       return *this;
     }
 
@@ -12499,7 +12520,7 @@ namespace cimg_library_suffixed {
     template<typename t>
     CImg<T>& assign(const t *const values, const unsigned int size_x, const unsigned int size_y=1,
                     const unsigned int size_z=1, const unsigned int size_c=1) {
-      const size_t siz = (size_t)size_x*size_y*size_z*size_c;
+      const size_t siz = _safe_size(size_x,size_y,size_z,size_c);
       if (!values || !siz) return assign();
       assign(size_x,size_y,size_z,size_c);
       const t *ptrs = values; cimg_for(*this,ptrd,T) *ptrd = (T)*(ptrs++);
@@ -12509,7 +12530,7 @@ namespace cimg_library_suffixed {
     //! Construct image with specified size and initialize pixel values from a memory buffer \specialization.
     CImg<T>& assign(const T *const values, const unsigned int size_x, const unsigned int size_y=1,
                     const unsigned int size_z=1, const unsigned int size_c=1) {
-      const size_t siz = (size_t)size_x*size_y*size_z*size_c;
+      const size_t siz = _safe_size(size_x,size_y,size_z,size_c);
       if (!values || !siz) return assign();
       const size_t curr_siz = (size_t)size();
       if (values==_data && siz==curr_siz) return assign(size_x,size_y,size_z,size_c);
@@ -12549,7 +12570,7 @@ namespace cimg_library_suffixed {
     //! Construct image with specified size and initialize pixel values from a memory buffer \overloading.
     CImg<T>& assign(const T *const values, const unsigned int size_x, const unsigned int size_y,
                     const unsigned int size_z, const unsigned int size_c, const bool is_shared) {
-      const size_t siz = (size_t)size_x*size_y*size_z*size_c;
+      const size_t siz = _safe_size(size_x,size_y,size_z,size_c);
       if (!values || !siz) return assign();
       if (!is_shared) { if (_is_shared) assign(); assign(values,size_x,size_y,size_z,size_c); }
       else {

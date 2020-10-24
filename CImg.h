@@ -20945,30 +20945,6 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar6(mp_vector_eq,arg1,p1,arg2,p2,arg3,arg4);
             }
 
-#ifdef cimg_mp_func_setname
-            if (!std::strncmp(ss,"setname(",8)) { // Set image name from a string vector
-              _cimg_mp_op("Function 'setname()'");
-              if (*ss8=='#') { // Index specified
-                s0 = ss8 + 1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
-                p1 = compile(ss8 + 1,s0++,depth1,0,is_critical);
-                _cimg_mp_check_list(true);
-              } else { s0 = ss8; p1 = get_mem_img_index(); }
-
-              CImg<ulongT>::vector((ulongT)mp_setname,_cimg_mp_slot_nan,0,p1).move_to(l_opcode);
-              for (s = s0; s<se; ++s) {
-                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
-                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
-                arg1 = compile(s,ns,depth1,0,is_critical);
-                CImg<ulongT>::vector(arg1,_cimg_mp_size(arg1)).move_to(l_opcode);
-                s = ns;
-              }
-              (l_opcode>'y').move_to(opcode);
-              opcode[2] = opcode._height;
-              opcode.move_to(code);
-              _cimg_mp_return_nan();
-            }
-#endif
-
             if (!std::strncmp(ss,"shift(",6)) { // Shift vector
               _cimg_mp_op("Function 'shift()'");
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -25875,35 +25851,6 @@ namespace cimg_library_suffixed {
         }
         return cimg::type<double>::nan();
       }
-
-#ifdef cimg_mp_func_setname
-      static double mp_setname(_cimg_math_parser& mp) {
-        unsigned int ind = (unsigned int)mp.opcode[3];
-        if (ind!=~0U) {
-          ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.listin.width());
-          const unsigned int nb_args = (unsigned int)(mp.opcode[2] - 3)/2;
-          CImgList<charT> _str;
-          CImg<charT> it;
-          for (unsigned int n = 0; n<nb_args; ++n) {
-            const unsigned int siz = (unsigned int)mp.opcode[5 + 2*n];
-            if (siz) { // Vector argument -> string
-              const double *ptr = &_mp_arg(4 + 2*n) + 1;
-              unsigned int l = 0;
-              while (l<siz && ptr[l]) ++l;
-              CImg<doubleT>(ptr,l,1,1,1,true).move_to(_str);
-            } else { // Scalar argument -> number
-              it.assign(24);
-              cimg_snprintf(it,it._width,"%.17g",_mp_arg(4 + 2*n));
-              CImg<charT>::string(it,false,true).move_to(_str);
-            }
-          }
-          CImg(1,1,1,1,0).move_to(_str);
-          const CImg<charT> str = _str>'x';
-          cimg_mp_func_setname(ind,str);
-        }
-        return cimg::type<double>::nan();
-      }
-#endif
 
       static double mp_shift(_cimg_math_parser& mp) {
         double *const ptrd = &_mp_arg(1) + 1;

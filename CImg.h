@@ -63803,10 +63803,11 @@ namespace cimg_library_suffixed {
     inline char* number_filename(const char *const filename, const int number,
                                  const unsigned int digits, char *const str) {
       if (!filename) { if (str) *str = 0; return 0; }
-      CImg<char> format(1024), body(1024);
+      const unsigned int siz = (unsigned int)std::strlen(filename);
+      CImg<char> format(16), body(siz + 32);
       const char *const ext = cimg::split_filename(filename,body);
-      if (*ext) cimg_snprintf(format,1024,"%%s_%%.%ud.%%s",digits);
-      else cimg_snprintf(format,1024,"%%s_%%.%ud",digits);
+      if (*ext) cimg_snprintf(format,format.width(),"%%s_%%.%ud.%%s",digits);
+      else cimg_snprintf(format,format.width(),"%%s_%%.%ud",digits);
       cimg_snprintf(str,1024,format._data,body._data,number,ext);
       return str;
     }

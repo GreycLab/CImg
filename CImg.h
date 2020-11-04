@@ -18941,16 +18941,19 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar1(mp_atanh,arg1);
             }
 
-            if (!std::strncmp(ss,"arg(",4)) { // Nth argument
-              _cimg_mp_op("Function 'arg()'");
-              s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss4,s1,depth1,0,is_critical);
+            if (!std::strncmp(ss,"arg(",4) ||
+                !std::strncmp(ss,"arg0(",5) ||
+                !std::strncmp(ss,"arg1(",5)) { // Nth argument
+              _cimg_mp_op(*ss3=='('?"Function 'arg()'":*ss3=='0'?"Function 'arg0()'":"Function 'arg1()'");
+              s0 = ss4 + (*ss3!='('?1:0);
+              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(s0,s1,depth1,0,is_critical);
               _cimg_mp_check_type(arg1,1,1,0);
               s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(s1,s2,depth1,0,is_critical);
               p2 = _cimg_mp_size(arg2);
               p3 = 3;
-              CImg<ulongT>::vector((ulongT)mp_arg,0,0,p2,arg1,arg2).move_to(l_opcode);
+              CImg<ulongT>::vector((ulongT)(*ss3=='0'?mp_arg0:mp_arg),0,0,p2,arg1,arg2).move_to(l_opcode);
               for (s = ++s2; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
@@ -18964,7 +18967,8 @@ namespace cimg_library_suffixed {
               opcode[2] = opcode._height;
               if (_cimg_mp_is_constant(arg1)) {
                 p3-=1; // Number of args
-                arg1 = (unsigned int)(mem[arg1]<0?mem[arg1] + p3:mem[arg1]);
+                if (*ss3=='0') arg1 = (unsigned int)(mem[arg1]<0?mem[arg1] + p3:mem[arg1] + 1);
+                else arg1 = (unsigned int)(mem[arg1]<0?mem[arg1] + p3:mem[arg1]);
                 if (arg1<p3) _cimg_mp_return(opcode[4 + arg1]);
                 if (p2) {
                   pos = vector(p2);
@@ -22814,6 +22818,21 @@ namespace cimg_library_suffixed {
         const unsigned int
           nb_args = (unsigned int)mp.opcode[2] - 4,
           ind = _ind<0?_ind + nb_args:(unsigned int)_ind,
+          siz = (unsigned int)mp.opcode[3];
+        if (siz>0) {
+          if (ind>=nb_args) std::memset(&_mp_arg(1) + 1,0,siz*sizeof(double));
+          else std::memcpy(&_mp_arg(1) + 1,&_mp_arg(ind + 4) + 1,siz*sizeof(double));
+          return cimg::type<double>::nan();
+        }
+        if (ind>=nb_args) return 0;
+        return _mp_arg(ind + 4);
+      }
+
+      static double mp_arg0(_cimg_math_parser& mp) {
+        const int _ind = (int)_mp_arg(4);
+        const unsigned int
+          nb_args = (unsigned int)mp.opcode[2] - 4,
+          ind = _ind<0?_ind + nb_args:_ind + 1U,
           siz = (unsigned int)mp.opcode[3];
         if (siz>0) {
           if (ind>=nb_args) std::memset(&_mp_arg(1) + 1,0,siz*sizeof(double));

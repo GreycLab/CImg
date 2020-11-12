@@ -20177,29 +20177,38 @@ namespace cimg_library_suffixed {
               arg2 = compile(++s1,s2,depth1,0,is_critical);
               s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg3 = compile(++s2,s1,depth1,0,is_critical);
-              arg4 = s1<se1?compile(++s1,se1,depth1,0,is_critical):1;
-              _cimg_mp_check_type(arg4,4,1,0);
+              arg4 = arg5 = 1;
+              if (s1<se1) {
+                s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                arg4 = compile(++s1,s2,depth1,0,is_critical);
+                arg5 = s2<se1?compile(++s2,se1,depth1,0,is_critical):arg4;
+                _cimg_mp_check_type(arg4,4,1,0);
+                _cimg_mp_check_type(arg5,5,1,0);
+              }
               if (_cimg_mp_is_constant(arg1) && _cimg_mp_is_constant(arg2) &&
-                  _cimg_mp_is_constant(arg3) && _cimg_mp_is_constant(arg4)) { // Optimize constant case
+                  _cimg_mp_is_constant(arg3) && _cimg_mp_is_constant(arg4) &&
+                  _cimg_mp_is_constant(arg5)) { // Optimize constant case
                 val = mem[arg1]; val1 = mem[arg2]; val2 = mem[arg3];
-                if (val1>val2) cimg::swap(val1,val2);
-                is_sth = mem[arg4]?(val>=val1 && val<=val2):(val>val1 && val<val2);
+                if (val2>=val1)
+                  is_sth = (mem[arg4]?(val>=val1):(val>val1)) && (mem[arg5]?(val<=val2):(val<val2));
+                else
+                  is_sth = (mem[arg5]?(val>=val2):(val>val2)) && (mem[arg4]?(val<=val1):(val<val1));
                 _cimg_mp_return(is_sth?1:0);
               }
               p1 = _cimg_mp_size(arg1);
               p2 = _cimg_mp_size(arg2);
               p3 = _cimg_mp_size(arg3);
-              arg5 = ~0U; // Size of return value
+              arg6 = ~0U; // Size of return value
               if (!p1) {
-                arg5 = p2?p2:p3;
-                if (arg5) _cimg_mp_check_type(arg3,3,3,arg5);
+                arg6 = p2?p2:p3;
+                if (arg6) _cimg_mp_check_type(arg3,3,3,arg6);
               } else {
-                arg5 = p1;
-                _cimg_mp_check_type(arg2,2,3,arg5);
-                _cimg_mp_check_type(arg3,3,3,arg5);
+                arg6 = p1;
+                _cimg_mp_check_type(arg2,2,3,arg6);
+                _cimg_mp_check_type(arg3,3,3,arg6);
               }
-              pos = arg5?vector(arg5):scalar();
-              CImg<ulongT>::vector((ulongT)mp_inrange,pos,arg5,arg1,p1,arg2,p2,arg3,p3,arg4).move_to(code);
+              pos = arg6?vector(arg6):scalar();
+              CImg<ulongT>::vector((ulongT)mp_inrange,pos,arg6,arg1,p1,arg2,p2,arg3,p3,arg4,arg5).move_to(code);
               _cimg_mp_return(pos);
             }
 
@@ -24004,12 +24013,14 @@ namespace cimg_library_suffixed {
 
       static double mp_inrange(_cimg_math_parser& mp) {
         const unsigned int sizd = (unsigned int)mp.opcode[2];
-        const bool include_boundaries = (bool)_mp_arg(9);
+        const bool
+          include_m = (bool)_mp_arg(9),
+          include_M = (bool)_mp_arg(10);
         if (!sizd) { // Scalar result
           const double val = _mp_arg(3);
-          double m = _mp_arg(5), M = _mp_arg(7);
-          if (m>M) cimg::swap(m,M);
-          return include_boundaries?(val>=m && val<=M):(val>m && val<M);
+          const double m = _mp_arg(5), M = _mp_arg(7);
+          if (M>=m) return (double)((include_m?(val>=m):(val>m)) && (include_M?(val<=M):(val<M)));
+          else return (double)((include_M?(val>=M):(val>M)) && (include_m?(val<=m):(val<m)));
         }
 
         // Vector result
@@ -24027,9 +24038,11 @@ namespace cimg_library_suffixed {
           *ptr3 = &_mp_arg(7) + off3;
         for (unsigned int k = 0; k<sizd; ++k) {
           const double val = *ptr1;
-          double m = *ptr2, M = *ptr3;
-          if (m>M) cimg::swap(m,M);
-          ptrd[k] = (double)(include_boundaries?(val>=m && val<=M):(val>m && val<M));
+          const double m = *ptr2, M = *ptr3;
+          if (M>=m)
+            ptrd[k] = (double)((include_m?(val>=m):(val>m)) && (include_M?(val<=M):(val<M)));
+          else
+            ptrd[k] = (double)((include_M?(val>=M):(val>M)) && (include_m?(val<=m):(val<m)));
           ptr1+=off1;
           ptr2+=off2;
           ptr3+=off3;

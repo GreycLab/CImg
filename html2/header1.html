@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>G'MIC - GREYC's Magic for Image Computing: A Full-Featured Open-Source Framework for Image Processing</title>
+    <meta charset="utf-8">
+    <meta name="author" content="David Tschumperlé"></meta>
+    <meta name="description" content="A full-featured open-source framework for processing generic image (2D,3D,3D+t) with multiple interfaces: command-line (cli), gimp plug-in, web service, Qt plug-in, C++ library"></meta>
+    <meta name="keywords" content="open-source, image processing, command-line tool, GIMP plug-in, Krita plug-in, Paint.NET plug-in, C++ library, Zart"></meta>
+    <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico"></link>
+    <link rel="icon" type="image/png" href="../favicon.png"></link>
+    <link rel="stylesheet" href="../style.css">
+
+    <!-- Begin Cookie Consent plugin by Silktide - http://silktide.com/cookieconsent -->
+    <!-- <script src="script.js"></script> -->
+    <script type="text/javascript">
+      window.cookieconsent_options = {"message":"This website uses cookies to ensure you get the best experience on our website","dismiss":"Got it!","learnMore":"More info","link":null,"theme":"dark-bottom"};
+    </script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/1.0.9/cookieconsent.min.js"></script>
+    <!-- End Cookie Consent plugin -->
+  </head>
+  <body>
+
+    <!-- Logo and caption -->
+    <div class="header">
+      <a href="../index.html"><img src="../img/logo_header.jpg" alt="" class="center_image" /></a>
+      <img src="../img/logo_instit.jpg" alt="" class="header_instit" usemap="#logomap"/>
+      <map name="logomap">
+        <area shape="rect" coords="0,0,98,30" alt="GREYC" href="https://www.greyc.fr/?page_id=443&lang=en">
+        <area shape="rect" coords="104,0,147,43" alt="CNRS" href="https://www.cnrs.fr/index.php">
+        <area shape="rect" coords="13,32,59,76" alt="ENSICAEN" href="https://www.ensicaen.fr">
+        <area shape="rect" coords="76,47,139,71" alt="UNICAEN" href="https://www.unicaen.fr/home-578581.kjsp?RH=1291198060074&RF=UNIV-EN">
+      </map>
+      <h1>A Full-Featured Open-Source Framework for Image Processing</h1>
+      <hr/>
+
+      <!-- Menu bar -->
+      <div id='cssmenu'>
+        <ul>
+          <li><a href='../index.html'><span>
+                <img src='../img/menu_home.png' />&nbsp;&nbsp;
+                Home</span></a></li>
+          <li><a href='https://twitter.com/gmic_eu' target='_blank'><span>
+                <img src='../img/menu_news.png ' />&nbsp;&nbsp;
+                News</span></a></li>
+          <li><a href='../download.html'><span>
+                <img src='../img/menu_download.png' />&nbsp;&nbsp;
+                Download</span></a></li>
+          <li class='has-sub'><a href='#'><span>
+                <img src='../img/menu_resources.png' />&nbsp;&nbsp;
+                Resources</span></a>
+            <ul>
+              <li><a href='../bouncing_balls3d/'><span>
+                    <img src='../img/menu_question.png' />&nbsp;&nbsp;
+                    An Example of G'MIC Scripting</span></a></li>
+              <li><a href='../tutorial/basics.shtml'><span>
+                    <img src='../img/menu_question.png' />&nbsp;&nbsp;
+                    G'MIC Scripting Tutorial</span></a></li>
+              <li><a href='../reference'><span>
+                    <img src='../img/menu_info.png' />&nbsp;&nbsp;
+                    G'MIC Technical Reference</span></a></li>
+              <li><a href='https://www.youtube.com/playlist?list=PLxhZWW4XG2XEJqfGmGWiG7EfttWtpQvyu' target='_blank'><span>
+                    <img src='../img/menu_video.png' />&nbsp;&nbsp;
+                    Video Tutorials</span></a></li>
+              <li><a href='https://github.com/dtschump/gmic-community/wiki' target='_blank'><span>
+                    <img src='../img/menu_wiki.png' />&nbsp;&nbsp;
+                    Wiki Pages</span></a></li>
+              <li><a href='../gallery/'><span>
+                    <img src='../img/menu_gallery.png' />&nbsp;&nbsp;
+                    Image Gallery</span></a></li>
+              <li><a href='../color_presets/'><span>
+                    <img src='../img/menu_presets.png' />&nbsp;&nbsp;
+                    Color Presets</span></a></li>
+              <li><a href='../libgmic.html'><span>
+                    <img src='../img/menu_tools.png' />&nbsp;&nbsp;
+                    Using libgmic</span></a></li>
+              <li><a href='https://gmicol.greyc.fr/' target='_blank'><span>
+                    <img src='../img/menu_online.png' />&nbsp;&nbsp;
+                    G'MIC Online</span></a></li>
+            </ul>
+          </li>
+          <li class='has-sub'><a href='#'><span>
+                <img src='../img/menu_community.png' />&nbsp;&nbsp;
+                Community</span></a>
+            <ul>
+              <li><a href='https://discuss.pixls.us/c/software/gmic' target='_blank'><span>
+                    <img src='../img/menu_forum.png' />&nbsp;&nbsp;
+                    Discussion Forum (Pixls.us)</span></a></li>
+              <li><a href='https://twitter.com/gmic_eu' target='_blank'><span>
+                    <img src='../img/menu_news.png' />&nbsp;&nbsp;
+                    Twitter</span></a></li>
+              <li><a href='https://www.reddit.com/r/gmic' target='_blank'><span>
+                    <img src='../img/menu_reddit.png' />&nbsp;&nbsp;
+                    Reddit</span></a></li>
+              <li><a href='http://gimpchat.com/viewforum.php?f=28' target='_blank'><span>
+                    <img src='../img/menu_gimpchat.png' />&nbsp;&nbsp;
+                    GimpChat</span></a></li>
+              <li><a href='https://webchat.freenode.net/?channels=#pixls.us' target='_blank'><span>
+                    <img src='../img/menu_irc.png' />&nbsp;&nbsp;
+                    IRC</span></a></li>
+            </ul>
+          </li>
+          <li><a href='https://github.com/dtschump/gmic/issues' target='_blank'><span>
+                <img src='../img/menu_report.png' />&nbsp;&nbsp;
+                Report Issue</span></a></li>
+          <li class='has-sub'><a href='#'><span>
+                <img src='../img/menu_supportus.png' />&nbsp;&nbsp;
+                Support Us</span></a>
+            <ul>
+              <li><a href='https://libreart.info/en/projects/gmic' target='_blank'><span>
+                    <img src='../img/menu_paypal.png' />&nbsp;&nbsp;
+                    Paypal (Through the LILA Association)</span></a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      <hr/>
+
+      <h2>
+        Latest stable version: <b><a href="https://gmic.eu/download.html">2.9.2</a></b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Current pre-release: <b><a href="https://gmic.eu/files/prerelease">2.9.3</a></b>
+      </h2>
+
+    </div>
+  </body>
+</html>

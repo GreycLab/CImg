@@ -163,7 +163,7 @@
   - <b>Dev-Cpp</b> : Use the project file provided in the CImg library package to see how it works.
 
   If you are using other compilers and encounter problems, please
-  <a href="http://www.greyc.ensicaen.fr/~dtschump">write me</a> since maintaining compatibility is one
+  <a href="https://github.com/dtschump/CImg/issues">write me</a> since maintaining compatibility is one
   of the priorities of the %CImg Library. Nevertheless, old compilers that do not respect the C++ standard will not
   support the %CImg Library.
 

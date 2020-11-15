@@ -11702,7 +11702,6 @@ namespace cimg_library_suffixed {
           ((osiz = siz), sizeof(T)==1 || (siz*sizeof(T))>osiz)) return siz;
       throw CImgArgumentException("CImg<%s>::safe_size(): Specified size (%u,%u,%u,%u) overflows 'size_t'.",
                                   pixel_type(),dx,dy,dz,dc);
-      return 0;
     }
 
     //@}

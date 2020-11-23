@@ -63050,7 +63050,6 @@ namespace cimg_library_suffixed {
       // Render requested font.
       if (!font) {
         is_variable_widths[ind] = is_variable_width;
-//        font = basef.get_split('x',256);
         basef.get_split('x',256).move_to(font);
         if (requested_height!=font[0]._height)
           cimglist_for(font,l) {

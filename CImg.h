@@ -94,7 +94,7 @@
  || defined(BSD)         || defined(__OpenBSD__) || defined(__NetBSD__) \
  || defined(__FreeBSD__) || defined (__DragonFly__) \
  || defined(sgi)         || defined(__sgi) \
- || defined(__MACOSX__)  || defined(__APPLE__) \
+ || defined(__OSX__)     || defined(__MACOSX__)  || defined(__APPLE__) \
  || defined(__CYGWIN__)
 #define cimg_OS 1
 #elif defined(_MSC_VER) || defined(WIN32)  || defined(_WIN32) || defined(__WIN32__) \

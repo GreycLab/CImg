@@ -11087,7 +11087,7 @@ namespace cimg_library_suffixed {
           sx = (unsigned int)screen_width(),
           sy = (unsigned int)screen_height();
         if (sx!=_width || sy!=_height) {
-          CLIENTCREATESTRUCT background_ccs;
+          CLIENTCREATESTRUCT background_ccs = { 0 };
           _background_window = CreateWindowA("MDICLIENT","",WS_POPUP | WS_VISIBLE, 0,0,sx,sy,0,0,0,&background_ccs);
           SetForegroundWindow(_background_window);
         }

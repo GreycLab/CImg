@@ -11087,8 +11087,7 @@ namespace cimg_library_suffixed {
           sx = (unsigned int)screen_width(),
           sy = (unsigned int)screen_height();
         if (sx!=_width || sy!=_height) {
-          CLIENTCREATESTRUCT background_ccs;
-          _background_window = CreateWindowA("MDICLIENT","",WS_POPUP | WS_VISIBLE, 0,0,sx,sy,0,0,0,&background_ccs);
+          _background_window = CreateWindowA("MDICLIENT","",WS_POPUP | WS_VISIBLE, 0,0,sx,sy,0,0,0,(CLIENTCREATESTRUCT*)0);
           SetForegroundWindow(_background_window);
         }
       }
@@ -37797,7 +37796,7 @@ namespace cimg_library_suffixed {
           }
         }
       } else if (_kernel._width==1 && _kernel._height==1 && _kernel._depth==1 &&
-                 xstride==1 && ystride==1 && ystride==1) {
+                 xstride==1 && ystride==1 && zstride==1) {
 
         // Special optimization for 1x1 kernel.
         res = get_crop(_xstart,_ystart,_zstart,_xend,_yend,_zend);

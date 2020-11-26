@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 294
+#define cimg_version 295
 
 /*-----------------------------------------------------------
  #
@@ -80,6 +80,8 @@
 #include <ctime>
 #include <exception>
 #include <algorithm>
+#define cimg_str(x) #x
+#define cimg_str2(x) cimg_str(x)
 
 // Detect/configure OS variables.
 //

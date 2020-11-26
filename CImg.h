@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 294
+#define cimg_version 295
 
 /*-----------------------------------------------------------
  #
@@ -80,6 +80,8 @@
 #include <ctime>
 #include <exception>
 #include <algorithm>
+#define cimg_str(x) #x
+#define cimg_str2(x) cimg_str(x)
 
 // Detect/configure OS variables.
 //
@@ -94,7 +96,7 @@
  || defined(BSD)         || defined(__OpenBSD__) || defined(__NetBSD__) \
  || defined(__FreeBSD__) || defined (__DragonFly__) \
  || defined(sgi)         || defined(__sgi) \
- || defined(__MACOSX__)  || defined(__APPLE__) \
+ || defined(__OSX__)     || defined(__MACOSX__)  || defined(__APPLE__) \
  || defined(__CYGWIN__)
 #define cimg_OS 1
 #elif defined(_MSC_VER) || defined(WIN32)  || defined(_WIN32) || defined(__WIN32__) \
@@ -11087,7 +11089,7 @@ namespace cimg_library_suffixed {
           sx = (unsigned int)screen_width(),
           sy = (unsigned int)screen_height();
         if (sx!=_width || sy!=_height) {
-          CLIENTCREATESTRUCT background_ccs;
+          CLIENTCREATESTRUCT background_ccs = { 0 };
           _background_window = CreateWindowA("MDICLIENT","",WS_POPUP | WS_VISIBLE, 0,0,sx,sy,0,0,0,&background_ccs);
           SetForegroundWindow(_background_window);
         }
@@ -37797,7 +37799,7 @@ namespace cimg_library_suffixed {
           }
         }
       } else if (_kernel._width==1 && _kernel._height==1 && _kernel._depth==1 &&
-                 xstride==1 && ystride==1 && ystride==1) {
+                 xstride==1 && ystride==1 && zstride==1) {
 
         // Special optimization for 1x1 kernel.
         res = get_crop(_xstart,_ystart,_zstart,_xend,_yend,_zend);

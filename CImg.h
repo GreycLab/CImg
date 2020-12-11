@@ -57626,7 +57626,13 @@ namespace cimg_library_suffixed {
       if (cimg::type<T>::string()==cimg::type<bool>::string()) { // Boolean data (bitwise)
         const ulongT _siz = size(), siz = _siz/8 + (_siz%8?1:0);
         unsigned char *const buf = new unsigned char[siz], *ptrd = buf, val = 0, bit = 0;
-        cimg_for(*this,ptrs,T) { (val<<=1)|=(*ptrs?1:0); if (++bit==8) { *(ptrd++) = val; val = bit = 0; }}
+
+        if (!is_multiplexed)
+          cimg_for(*this,ptrs,T) { (val<<=1)|=(*ptrs?1:0); if (++bit==8) { *(ptrd++) = val; val = bit = 0; }}
+        else
+          cimg_forXYZ(*this,x,y,z) cimg_forC(*this,c) {
+            (val<<=1)|=((*this)(x,y,z,c)?1:0); if (++bit==8) { *(ptrd++) = val; val = bit = 0; }
+          }
         if (bit) *ptrd = val;
         cimg::fwrite(buf,siz,nfile);
         delete[] buf;

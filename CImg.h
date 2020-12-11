@@ -53842,8 +53842,8 @@ namespace cimg_library_suffixed {
                                                 cimg_instance,filename?filename:"(FILE*)");
         cimg::fseek(nfile,0,SEEK_END);
         siz = cimg::ftell(nfile);
-        if (!is_bool) siz/=sizeof(T); else siz*=8;
-        _size_y = (unsigned int)siz;
+        if (!is_bool) { siz/=sizeof(T); _size_y = (unsigned int)siz; }
+        else _size_y = (unsigned int)(siz*8);
         _size_x = _size_z = _size_c = 1;
         cimg::fseek(nfile,fpos,SEEK_SET);
       }
@@ -53851,8 +53851,17 @@ namespace cimg_library_suffixed {
       assign(_size_x,_size_y,_size_z,_size_c,0);
 
       if (is_bool) { // Boolean data (bitwise)
-
-        std::fprintf(stderr,"\nBOOL RAW\n");
+        if (!is_multiplexed) {
+          unsigned char *const buf = new unsigned char[siz], *ptrs = buf, val = 0, mask = 0;
+          T *ptrd = _data;
+          cimg::fread(buf,siz,nfile);
+          siz = std::min(siz*8,size());
+          for (ulongT off = 0; off<siz; ++off) {
+            if (!(mask>>=1)) { val = *(ptrs++); mask = 128; }
+            *(ptrd++) = (T)((val&mask)?1:0);
+          }
+          delete[] buf;
+        }
 
       } else { // Non-boolean data
         if (siz && (!is_multiplexed || size_c==1)) {
@@ -57634,7 +57643,6 @@ namespace cimg_library_suffixed {
       if (cimg::type<T>::string()==cimg::type<bool>::string()) { // Boolean data (bitwise)
         const ulongT _siz = size(), siz = _siz/8 + (_siz%8?1:0);
         unsigned char *const buf = new unsigned char[siz], *ptrd = buf, val = 0, bit = 0;
-
         if (!is_multiplexed)
           cimg_for(*this,ptrs,T) { (val<<=1)|=(*ptrs?1:0); if (++bit==8) { *(ptrd++) = val; val = bit = 0; }}
         else

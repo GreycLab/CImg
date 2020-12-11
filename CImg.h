@@ -57623,14 +57623,14 @@ namespace cimg_library_suffixed {
       if (is_empty()) { cimg::fempty(file,filename); return *this; }
 
       std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
-      if (cimg::type<T>::string()==cimg::type<bool>::string()) {
+      if (cimg::type<T>::string()==cimg::type<bool>::string()) { // Boolean data (bitwise)
         const ulongT _siz = size(), siz = _siz/8 + (_siz%8?1:0);
         unsigned char *const buf = new unsigned char[siz], *ptrd = buf, val = 0, bit = 0;
         cimg_for(*this,ptrs,T) { (val<<=1)|=(*ptrs?1:0); if (++bit==8) { *(ptrd++) = val; val = bit = 0; }}
         if (bit) *ptrd = val;
         cimg::fwrite(buf,siz,nfile);
         delete[] buf;
-      } else { // Non boolean
+      } else { // Non boolean data
         if (!is_multiplexed) cimg::fwrite(_data,size(),nfile);
         else {
           CImg<T> buf(_spectrum);

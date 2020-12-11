@@ -16816,7 +16816,8 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_strerr \
   *se = saved_char; \
   for (s0 = ss; s0>expr._data && *s0!=';'; --s0) {} \
-  if (*s0==';') ++s0; while (cimg::is_blank(*s0)) ++s0; \
+  if (*s0==';') ++s0; \
+  while (cimg::is_blank(*s0)) ++s0; \
   cimg::strellipsize(s0,64)
 
       // Constructors / Destructors.

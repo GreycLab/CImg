@@ -53851,23 +53851,30 @@ namespace cimg_library_suffixed {
       assign(_size_x,_size_y,_size_z,_size_c,0);
 
       if (is_bool) { // Boolean data (bitwise)
-        if (!is_multiplexed) {
-          unsigned char *const buf = new unsigned char[siz], *ptrs = buf, val = 0, mask = 0;
-          T *ptrd = _data;
-          cimg::fread(buf,siz,nfile);
-          siz = std::min(siz*8,size());
-          for (ulongT off = 0; off<siz; ++off) {
-            if (!(mask>>=1)) { val = *(ptrs++); mask = 128; }
+        unsigned char *const buf = new unsigned char[siz], *ptrs = buf, val = 0, mask = 0;
+        T *ptrd = _data;
+        cimg::fread(buf,siz,nfile);
+        siz = std::min(siz*8,size());
+        if (siz && (!is_multiplexed || size_c==1)) for (ulongT off = 0; off<siz; ++off) { // Non-multiplexed
+            if (!(mask>>=1)) { val = *(ptrs++); mask = 128; if (invert_endianness) cimg::invert_endianness(val); }
             *(ptrd++) = (T)((val&mask)?1:0);
           }
-          delete[] buf;
+        else if (siz) { // Multiplexed
+          ulongT off = 0;
+          for (int z = 0; z<depth() && off<=siz; ++z)
+            for (int y = 0; y<height() && off<=siz; ++y)
+              for (int x = 0; x<width() && off<=siz; ++x)
+                for (int c = 0; c<spectrum() && off<=siz; ++c) {
+                  if (!(mask>>=1)) { val = *(ptrs++); ++off; mask = 128; if (invert_endianness) cimg::invert_endianness(val); }
+                  (*this)(x,y,z,c) = (T)((val&mask)?1:0);
+                }
         }
-
+        delete[] buf;
       } else { // Non-boolean data
-        if (siz && (!is_multiplexed || size_c==1)) {
+        if (siz && (!is_multiplexed || size_c==1)) { // Non-multiplexed
           cimg::fread(_data,siz,nfile);
           if (invert_endianness) cimg::invert_endianness(_data,siz);
-        } else if (siz) {
+        } else if (siz) { // Multiplexed
           CImg<T> buf(1,1,1,_size_c);
           cimg_forXYZ(*this,x,y,z) {
             cimg::fread(buf._data,_size_c,nfile);
@@ -57643,9 +57650,9 @@ namespace cimg_library_suffixed {
       if (cimg::type<T>::string()==cimg::type<bool>::string()) { // Boolean data (bitwise)
         const ulongT _siz = size(), siz = _siz/8 + (_siz%8?1:0);
         unsigned char *const buf = new unsigned char[siz], *ptrd = buf, val = 0, bit = 0;
-        if (!is_multiplexed)
+        if (!is_multiplexed || _spectrum==1) // Non-multiplexed
           cimg_for(*this,ptrs,T) { (val<<=1)|=(*ptrs?1:0); if (++bit==8) { *(ptrd++) = val; val = bit = 0; }}
-        else
+        else // Multiplexed
           cimg_forXYZ(*this,x,y,z) cimg_forC(*this,c) {
             (val<<=1)|=((*this)(x,y,z,c)?1:0); if (++bit==8) { *(ptrd++) = val; val = bit = 0; }
           }
@@ -57653,8 +57660,8 @@ namespace cimg_library_suffixed {
         cimg::fwrite(buf,siz,nfile);
         delete[] buf;
       } else { // Non boolean data
-        if (!is_multiplexed) cimg::fwrite(_data,size(),nfile);
-        else {
+        if (!is_multiplexed || _spectrum==1) cimg::fwrite(_data,size(),nfile); // Non-multiplexed
+        else { // Multiplexed
           CImg<T> buf(_spectrum);
           cimg_forXYZ(*this,x,y,z) {
             cimg_forC(*this,c) buf[c] = (*this)(x,y,z,c);

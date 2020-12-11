@@ -57458,11 +57458,14 @@ namespace cimg_library_suffixed {
         nbdims = _save_pandore_header_length((*iheader=id),dims,colorspace); \
         cimg::fwrite(header,36,nfile); \
         if (sizeof(unsigned long)==4) { CImg<ulongT> ndims(5); \
-          for (int d = 0; d<5; ++d) ndims[d] = (unsigned long)dims[d]; cimg::fwrite(ndims._data,nbdims,nfile); } \
+          for (int d = 0; d<5; ++d) ndims[d] = (unsigned long)dims[d]; \
+          cimg::fwrite(ndims._data,nbdims,nfile); } \
         else if (sizeof(unsigned int)==4) { CImg<uintT> ndims(5); \
-          for (int d = 0; d<5; ++d) ndims[d] = (unsigned int)dims[d]; cimg::fwrite(ndims._data,nbdims,nfile); } \
+          for (int d = 0; d<5; ++d) ndims[d] = (unsigned int)dims[d]; \
+          cimg::fwrite(ndims._data,nbdims,nfile); } \
         else if (sizeof(unsigned short)==4) { CImg<ushortT> ndims(5); \
-          for (int d = 0; d<5; ++d) ndims[d] = (unsigned short)dims[d]; cimg::fwrite(ndims._data,nbdims,nfile); } \
+          for (int d = 0; d<5; ++d) ndims[d] = (unsigned short)dims[d]; \
+          cimg::fwrite(ndims._data,nbdims,nfile); } \
         else throw CImgIOException(_cimg_instance \
                                    "save_pandore(): Unsupported datatype for file '%s'.",\
                                    cimg_instance, \
@@ -59446,7 +59449,8 @@ namespace cimg_library_suffixed {
 #define _cimglist_def_is_same1(axis) \
     bool is_same##axis(const unsigned int val) const { \
       bool res = true; \
-      for (unsigned int l = 0; l<_width && res; ++l) res = _data[l].is_same##axis(val); return res; \
+      for (unsigned int l = 0; l<_width && res; ++l) res = _data[l].is_same##axis(val); \
+      return res; \
     } \
     bool is_sameN##axis(const unsigned int n, const unsigned int val) const { \
       return is_sameN(n) && is_same##axis(val); \
@@ -59455,7 +59459,8 @@ namespace cimg_library_suffixed {
 #define _cimglist_def_is_same2(axis1,axis2) \
     bool is_same##axis1##axis2(const unsigned int val1, const unsigned int val2) const { \
       bool res = true; \
-      for (unsigned int l = 0; l<_width && res; ++l) res = _data[l].is_same##axis1##axis2(val1,val2); return res; \
+      for (unsigned int l = 0; l<_width && res; ++l) res = _data[l].is_same##axis1##axis2(val1,val2); \
+      return res; \
     } \
     bool is_sameN##axis1##axis2(const unsigned int n, const unsigned int val1, const unsigned int val2) const { \
       return is_sameN(n) && is_same##axis1##axis2(val1,val2); \
@@ -59475,11 +59480,15 @@ namespace cimg_library_suffixed {
 
 #define _cimglist_def_is_same(axis) \
     template<typename t> bool is_same##axis(const CImg<t>& img) const { \
-      bool res = true; for (unsigned int l = 0; l<_width && res; ++l) res = _data[l].is_same##axis(img); return res; \
+      bool res = true; \
+      for (unsigned int l = 0; l<_width && res; ++l) res = _data[l].is_same##axis(img); \
+      return res; \
     } \
     template<typename t> bool is_same##axis(const CImgList<t>& list) const { \
       const unsigned int lmin = std::min(_width,list._width); \
-      bool res = true; for (unsigned int l = 0; l<lmin && res; ++l) res = _data[l].is_same##axis(list[l]); return res; \
+      bool res = true; \
+      for (unsigned int l = 0; l<lmin && res; ++l) res = _data[l].is_same##axis(list[l]); \
+      return res; \
     } \
     template<typename t> bool is_sameN##axis(const unsigned int n, const CImg<t>& img) const { \
       return (is_sameN(n) && is_same##axis(img)); \

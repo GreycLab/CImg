@@ -53851,26 +53851,9 @@ namespace cimg_library_suffixed {
       assign(_size_x,_size_y,_size_z,_size_c,0);
 
       if (is_bool) { // Boolean data (bitwise)
-        unsigned char *const buf = new unsigned char[siz], *ptrs = buf, val = 0, mask = 0;
-        T *ptrd = _data;
+        unsigned char *const buf = new unsigned char[siz];
         cimg::fread(buf,siz,nfile);
-        siz = std::min(siz*8,size());
-        if (siz && (!is_multiplexed || size_c==1)) for (ulongT off = 0; off<siz; ++off) { // Non-multiplexed
-            if (!(mask>>=1)) { val = *(ptrs++); mask = 128; if (invert_endianness) cimg::invert_endianness(val); }
-            *(ptrd++) = (T)((val&mask)?1:0);
-          }
-        else if (siz) { // Multiplexed
-          ulongT off = 0;
-          for (int z = 0; z<depth() && off<=siz; ++z)
-            for (int y = 0; y<height() && off<=siz; ++y)
-              for (int x = 0; x<width() && off<=siz; ++x)
-                for (int c = 0; c<spectrum() && off<=siz; ++c) {
-                  if (!(mask>>=1)) {
-                    val = *(ptrs++); ++off; mask = 128; if (invert_endianness) cimg::invert_endianness(val);
-                  }
-                  (*this)(x,y,z,c) = (T)((val&mask)?1:0);
-                }
-        }
+        _uchar2bool(buf,siz,is_multiplexed);
         delete[] buf;
       } else { // Non-boolean data
         if (siz && (!is_multiplexed || size_c==1)) { // Non-multiplexed
@@ -57683,6 +57666,29 @@ namespace cimg_library_suffixed {
         }
       if (bit) *ptrd = val;
       return buf;
+    }
+
+    // Fill CImg<T> instance from bitwise data encoded in an unsigned char buffer.
+    void _uchar2bool(const unsigned char *buf, const ulongT siz, const bool is_multiplexed) {
+      const ulongT S = std::min(siz*8,size());
+      const unsigned char *ptrs = buf;
+      unsigned char val = 0, mask = 0;
+      T *ptrd = _data;
+      if (S && (!is_multiplexed || _spectrum==1)) // Non-multiplexed
+        for (ulongT off = 0; off<S; ++off) {
+          if (!(mask>>=1)) { val = *(ptrs++); mask = 128; }
+          *(ptrd++) = (T)((val&mask)?1:0);
+        }
+      else if (S) { // Multiplexed
+        ulongT off = 0;
+        for (int z = 0; z<depth() && off<=S; ++z)
+          for (int y = 0; y<height() && off<=S; ++y)
+            for (int x = 0; x<width() && off<=S; ++x)
+              for (int c = 0; c<spectrum() && off<=S; ++c) {
+                if (!(mask>>=1)) { val = *(ptrs++); ++off; mask = 128; }
+                (*this)(x,y,z,c) = (T)((val&mask)?1:0);
+              }
+      }
     }
 
     //! Save image as a .yuv video file.

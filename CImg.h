@@ -57648,15 +57648,8 @@ namespace cimg_library_suffixed {
 
       std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
       if (pixel_type()==cimg::type<bool>::string()) { // Boolean data (bitwise)
-        const ulongT _siz = size(), siz = _siz/8 + (_siz%8?1:0);
-        unsigned char *const buf = new unsigned char[siz], *ptrd = buf, val = 0, bit = 0;
-        if (!is_multiplexed || _spectrum==1) // Non-multiplexed
-          cimg_for(*this,ptrs,T) { (val<<=1)|=(*ptrs?1:0); if (++bit==8) { *(ptrd++) = val; val = bit = 0; }}
-        else // Multiplexed
-          cimg_forXYZ(*this,x,y,z) cimg_forC(*this,c) {
-            (val<<=1)|=((*this)(x,y,z,c)?1:0); if (++bit==8) { *(ptrd++) = val; val = bit = 0; }
-          }
-        if (bit) *ptrd = val;
+        ulongT siz;
+        const unsigned char *const buf = _bool2uchar(siz,is_multiplexed);
         cimg::fwrite(buf,siz,nfile);
         delete[] buf;
       } else { // Non boolean data
@@ -57671,6 +57664,23 @@ namespace cimg_library_suffixed {
       }
       if (!file) cimg::fclose(nfile);
       return *this;
+    }
+
+    // Return unsigned char buffer that encodes data of a CImg<bool> instance bitwise.
+    // (buffer needs to be deallocated afterwards, with delete[]).
+    const unsigned char *_bool2uchar(ulongT &siz, const bool is_multiplexed) const {
+      const ulongT _siz = size();
+      siz = _siz/8 + (_siz%8?1:0);
+      unsigned char *const buf = new unsigned char[siz], *ptrd = buf, val = 0, bit = 0;
+
+      if (!is_multiplexed || _spectrum==1) // Non-multiplexed
+        cimg_for(*this,ptrs,T) { (val<<=1)|=(*ptrs?1:0); if (++bit==8) { *(ptrd++) = val; val = bit = 0; }}
+      else // Multiplexed
+        cimg_forXYZ(*this,x,y,z) cimg_forC(*this,c) {
+          (val<<=1)|=((*this)(x,y,z,c)?1:0); if (++bit==8) { *(ptrd++) = val; val = bit = 0; }
+        }
+      if (bit) *ptrd = val;
+      return buf;
     }
 
     //! Save image as a .yuv video file.
@@ -62330,7 +62340,8 @@ namespace cimg_library_suffixed {
       const bool is_bool = ptype==cimg::type<bool>::string();
       if (!is_bool && std::strstr(ptype,"unsigned")==ptype)
         std::fprintf(nfile,"%u unsigned_%s %s_endian\n",_width,ptype + 9,etype);
-      else std::fprintf(nfile,"%u %s %s_endian\n",_width,ptype,etype);
+      else
+        std::fprintf(nfile,"%u %s %s_endian\n",_width,ptype,etype);
 
       cimglist_for(*this,l) {
         const CImg<T>& img = _data[l];
@@ -62346,10 +62357,8 @@ namespace cimg_library_suffixed {
             uLongf csiz = 0;
 
             if (is_bool) { // Boolean data (bitwise)
-              const ulongT _siz = ref.size(), siz = _siz/8 + (_siz%8?1:0);
-              unsigned char *const buf = new unsigned char[siz], *ptrd = buf, val = 0, bit = 0;
-              cimg_for(ref,ptrs,T) { (val<<=1)|=(*ptrs?1:0); if (++bit==8) { *(ptrd++) = val; val = bit = 0; }}
-              if (bit) *ptrd = val;
+              ulongT siz;
+              const unsigned char *const buf = ref._bool2uchar(siz,false);
               csiz = siz + siz/100 + 16;
               cbuf = new Bytef[csiz];
               failed_to_compress = (bool)compress(cbuf,&csiz,(Bytef*)buf,siz);
@@ -62379,10 +62388,8 @@ namespace cimg_library_suffixed {
           if (failed_to_compress) { // Write non-compressed
             std::fputc('\n',nfile);
             if (is_bool) { // Boolean data (bitwise)
-              const ulongT _siz = ref.size(), siz = _siz/8 + (_siz%8?1:0);
-              unsigned char *const buf = new unsigned char[siz], *ptrd = buf, val = 0, bit = 0;
-              cimg_for(ref,ptrs,T) { (val<<=1)|=(*ptrs?1:0); if (++bit==8) { *(ptrd++) = val; val = bit = 0; }}
-              if (bit) *ptrd = val;
+              ulongT siz;
+              const unsigned char *const buf = ref._bool2uchar(siz,false);
               cimg::fwrite(buf,siz,nfile);
               delete[] buf;
             } else cimg::fwrite(ref._data,ref.size(),nfile); // Non-boolean data

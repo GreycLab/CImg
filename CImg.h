@@ -5850,6 +5850,9 @@ namespace cimg_library_suffixed {
         }
         }
     }
+    inline void invert_endianness(bool* const, const cimg_ulong) {}
+    inline void invert_endianness(unsigned char* const, const cimg_ulong) {}
+    inline void invert_endianness(char* const, const cimg_ulong) {}
 
     //! Reverse endianness of a single variable.
     /**

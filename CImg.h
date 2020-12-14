@@ -60924,11 +60924,14 @@ namespace cimg_library_suffixed {
    Bytef *const cbuf = new Bytef[csiz]; \
    cimg::fread(cbuf,csiz,nfile); \
    CImg<Tss> raw(W,H,D,C); \
-   uLongf destlen = (ulongT)raw.size()*sizeof(Tss); \
-   uncompress((Bytef*)raw._data,&destlen,cbuf,csiz); \
-   delete[] cbuf; \
-   if (endian!=cimg::endianness()) cimg::invert_endianness(raw._data,raw.size()); \
+   if (is_bool) { \
+   } else { \
+     uLongf destlen = (ulongT)raw.size()*sizeof(Tss); \
+     uncompress((Bytef*)raw._data,&destlen,cbuf,csiz); \
+     if (endian!=cimg::endianness()) cimg::invert_endianness(raw._data,raw.size()); \
+   } \
    raw.move_to(img); \
+   delete[] cbuf; \
 }
 #else
 #define _cimgz_load_cimg_case(Tss) \

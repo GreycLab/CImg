@@ -62342,19 +62342,37 @@ namespace cimg_library_suffixed {
           bool failed_to_compress = true;
           if (is_compressed) {
 #ifdef cimg_use_zlib
-            const ulongT siz = sizeof(T)*ref.size();
-            uLongf csiz = siz + siz/100 + 16;
-            Bytef *const cbuf = new Bytef[csiz];
-            if (compress(cbuf,&csiz,(Bytef*)ref._data,siz))
+            Bytef *cbuf = 0;
+            uLongf csiz = 0;
+
+            if (is_bool) { // Boolean data (bitwise)
+              const ulongT _siz = ref.size(), siz = _siz/8 + (_siz%8?1:0);
+              unsigned char *const buf = new unsigned char[siz], *ptrd = buf, val = 0, bit = 0;
+              cimg_for(ref,ptrs,T) { (val<<=1)|=(*ptrs?1:0); if (++bit==8) { *(ptrd++) = val; val = bit = 0; }}
+              if (bit) *ptrd = val;
+              csiz = siz + siz/100 + 16;
+              cbuf = new Bytef[csiz];
+              failed_to_compress = (bool)compress(cbuf,&csiz,(Bytef*)buf,siz);
+              if (!failed_to_compress) {
+                std::fprintf(nfile," #%lu\n",csiz);
+                cimg::fwrite(cbuf,csiz,nfile);
+              }
+              delete[] buf;
+            } else { // Non-boolean data
+              const ulongT siz = sizeof(T)*ref.size();
+              csiz = siz + siz/100 + 16;
+              cbuf = new Bytef[csiz];
+              failed_to_compress = (bool)compress(cbuf,&csiz,(Bytef*)ref._data,siz);
+              if (!failed_to_compress) {
+                std::fprintf(nfile," #%lu\n",csiz);
+                cimg::fwrite(cbuf,csiz,nfile);
+              }
+            }
+            if (failed_to_compress)
               cimg::warn(_cimglist_instance
                          "save_cimg(): Failed to save compressed data for file '%s', saving them uncompressed.",
                          cimglist_instance,
                          filename?filename:"(FILE*)");
-            else {
-              std::fprintf(nfile," #%lu\n",csiz);
-              cimg::fwrite(cbuf,csiz,nfile);
-              failed_to_compress = false;
-            }
             delete[] cbuf;
 #endif
           }

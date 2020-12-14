@@ -62325,10 +62325,13 @@ namespace cimg_library_suffixed {
                    cimglist_instance,
                    filename?filename:"(FILE*)");
 #endif
-      std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
       const char *const ptype = pixel_type(), *const etype = cimg::endianness()?"big":"little";
-      if (std::strstr(ptype,"unsigned")==ptype) std::fprintf(nfile,"%u unsigned_%s %s_endian\n",_width,ptype + 9,etype);
+      std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
+      const bool is_bool = ptype==cimg::type<bool>::string();
+      if (!is_bool && std::strstr(ptype,"unsigned")==ptype)
+        std::fprintf(nfile,"%u unsigned_%s %s_endian\n",_width,ptype + 9,etype);
       else std::fprintf(nfile,"%u %s %s_endian\n",_width,ptype,etype);
+
       cimglist_for(*this,l) {
         const CImg<T>& img = _data[l];
         std::fprintf(nfile,"%u %u %u %u",img._width,img._height,img._depth,img._spectrum);
@@ -62355,9 +62358,16 @@ namespace cimg_library_suffixed {
             }
 #endif
           }
-          if (failed_to_compress) { // Write in a non-compressed way
+          if (failed_to_compress) { // Write non-compressed
             std::fputc('\n',nfile);
-            cimg::fwrite(ref._data,ref.size(),nfile);
+            if (is_bool) { // Boolean data (bitwise)
+              const ulongT _siz = ref.size(), siz = _siz/8 + (_siz%8?1:0);
+              unsigned char *const buf = new unsigned char[siz], *ptrd = buf, val = 0, bit = 0;
+              cimg_for(ref,ptrs,T) { (val<<=1)|=(*ptrs?1:0); if (++bit==8) { *(ptrd++) = val; val = bit = 0; }}
+              if (bit) *ptrd = val;
+              cimg::fwrite(buf,siz,nfile);
+              delete[] buf;
+            } else cimg::fwrite(ref._data,ref.size(),nfile); // Non-boolean data
           }
         } else std::fputc('\n',nfile);
       }

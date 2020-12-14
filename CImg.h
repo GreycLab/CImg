@@ -60953,16 +60953,27 @@ namespace cimg_library_suffixed {
             CImg<T> &img = _data[l]; \
             if (err==5) _cimgz_load_cimg_case(Tss) \
             else { \
-              CImg<Tss> raw; \
               img.assign(W,H,D,C); \
               T *ptrd = img._data; \
-              for (ulongT to_read = img.size(); to_read; ) { \
-                raw.assign((unsigned int)std::min(to_read,cimg_iobuffer)); \
-                cimg::fread(raw._data,raw._width,nfile); \
-                if (endian!=cimg::endianness()) cimg::invert_endianness(raw._data,raw.size()); \
-                const Tss *ptrs = raw._data; \
-                for (ulongT off = (ulongT)raw._width; off; --off) *(ptrd++) = (T)*(ptrs++); \
-                to_read-=raw._width; \
+              if (is_bool) { \
+                CImg<ucharT> raw; \
+                for (ulongT to_read = img.size(); to_read; ) { \
+                  raw.assign((unsigned int)std::min(to_read,cimg_iobuffer)); \
+                  cimg::fread(raw._data,raw._width,nfile); \
+                  CImg<T>(ptrd,std::min((ulongT)8*raw._width,(ulongT)(img.end() - ptrd)),1,1,1,true).\
+                    _uchar2bool(raw,raw._width,false); \
+                  to_read-=raw._width; \
+                } \
+              } else { \
+                CImg<Tss> raw; \
+                for (ulongT to_read = img.size(); to_read; ) { \
+                  raw.assign((unsigned int)std::min(to_read,cimg_iobuffer)); \
+                  cimg::fread(raw._data,raw._width,nfile); \
+                  if (endian!=cimg::endianness()) cimg::invert_endianness(raw._data,raw.size()); \
+                  const Tss *ptrs = raw._data; \
+                  for (ulongT off = (ulongT)raw._width; off; --off) *(ptrd++) = (T)*(ptrs++); \
+                  to_read-=raw._width; \
+                } \
               } \
             } \
           } \

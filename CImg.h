@@ -60923,14 +60923,19 @@ namespace cimg_library_suffixed {
 #define _cimgz_load_cimg_case(Tss) { \
    Bytef *const cbuf = new Bytef[csiz]; \
    cimg::fread(cbuf,csiz,nfile); \
-   CImg<Tss> raw(W,H,D,C); \
    if (is_bool) { \
+     CImg<ucharT> raw(W*H*D*C/8); \
+     uLongf destlen = (ulongT)raw.size(); \
+     uncompress((Bytef*)raw._data,&destlen,cbuf,csiz); \
+     img.assign(W,H,D,C); \
+     img._uchar2bool(raw,raw.size(),false); \
    } else { \
+     CImg<Tss> raw(W,H,D,C); \
      uLongf destlen = (ulongT)raw.size()*sizeof(Tss); \
      uncompress((Bytef*)raw._data,&destlen,cbuf,csiz); \
      if (endian!=cimg::endianness()) cimg::invert_endianness(raw._data,raw.size()); \
+     raw.move_to(img); \
    } \
-   raw.move_to(img); \
    delete[] cbuf; \
 }
 #else

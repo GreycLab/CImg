@@ -62353,9 +62353,9 @@ namespace cimg_library_suffixed {
             else {
               std::fprintf(nfile," #%lu\n",csiz);
               cimg::fwrite(cbuf,csiz,nfile);
-              delete[] cbuf;
               failed_to_compress = false;
             }
+            delete[] cbuf;
 #endif
           }
           if (failed_to_compress) { // Write non-compressed

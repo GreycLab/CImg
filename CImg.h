@@ -53865,7 +53865,9 @@ namespace cimg_library_suffixed {
             for (int y = 0; y<height() && off<=siz; ++y)
               for (int x = 0; x<width() && off<=siz; ++x)
                 for (int c = 0; c<spectrum() && off<=siz; ++c) {
-                  if (!(mask>>=1)) { val = *(ptrs++); ++off; mask = 128; if (invert_endianness) cimg::invert_endianness(val); }
+                  if (!(mask>>=1)) {
+                    val = *(ptrs++); ++off; mask = 128; if (invert_endianness) cimg::invert_endianness(val);
+                  }
                   (*this)(x,y,z,c) = (T)((val&mask)?1:0);
                 }
         }

@@ -60923,7 +60923,7 @@ namespace cimg_library_suffixed {
 #define _cimgz_load_cimg_case(Tss) { \
    Bytef *const cbuf = new Bytef[csiz]; \
    cimg::fread(cbuf,csiz,nfile); \
-   raw.assign(W,H,D,C); \
+   CImg<Tss> raw(W,H,D,C); \
    uLongf destlen = (ulongT)raw.size()*sizeof(Tss); \
    uncompress((Bytef*)raw._data,&destlen,cbuf,csiz); \
    delete[] cbuf; \
@@ -60940,6 +60940,7 @@ namespace cimg_library_suffixed {
 
 #define _cimg_load_cimg_case(Ts,Tss) \
       if (!loaded && !cimg::strcasecmp(Ts,str_pixeltype)) { \
+        const bool is_bool = cimg::type<Tss>::string()==cimg::type<bool>::string(); \
         for (unsigned int l = 0; l<N; ++l) { \
           j = 0; while ((i=std::fgetc(nfile))!='\n' && i>=0 && j<255) tmp[j++] = (char)i; tmp[j] = 0; \
           W = H = D = C = 0; csiz = 0; \
@@ -60949,10 +60950,10 @@ namespace cimg_library_suffixed {
                                   cimglist_instance, \
                                   W,H,D,C,l,filename?filename:("(FILE*)")); \
           if (W*H*D*C>0) { \
-            CImg<Tss> raw; \
             CImg<T> &img = _data[l]; \
             if (err==5) _cimgz_load_cimg_case(Tss) \
             else { \
+              CImg<Tss> raw; \
               img.assign(W,H,D,C); \
               T *ptrd = img._data; \
               for (ulongT to_read = img.size(); to_read; ) { \

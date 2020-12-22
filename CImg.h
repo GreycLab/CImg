@@ -5850,6 +5850,9 @@ namespace cimg_library_suffixed {
         }
         }
     }
+    inline void invert_endianness(bool* const, const cimg_ulong) {}
+    inline void invert_endianness(unsigned char* const, const cimg_ulong) {}
+    inline void invert_endianness(char* const, const cimg_ulong) {}
 
     //! Reverse endianness of a single variable.
     /**
@@ -16816,7 +16819,8 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_strerr \
   *se = saved_char; \
   for (s0 = ss; s0>expr._data && *s0!=';'; --s0) {} \
-  if (*s0==';') ++s0; while (cimg::is_blank(*s0)) ++s0; \
+  if (*s0==';') ++s0; \
+  while (cimg::is_blank(*s0)) ++s0; \
   cimg::strellipsize(s0,64)
 
       // Constructors / Destructors.
@@ -25980,11 +25984,11 @@ namespace cimg_library_suffixed {
         if (w<0 || h<0 || d<0 || s<0)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'store()': "
                                       "Specified image dimensions (%d,%d,%d,%d) are invalid.",
-                                      cimg::type<T>::string(),w,h,d,s);
+                                      pixel_type(),w,h,d,s);
         if ((unsigned int)w*h*d*s>sizM)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'store()': "
                                       "Specified image dimensions (%d,%d,%d,%d) are too large for vector size (%u).",
-                                      cimg::type<T>::string(),w,h,d,s,sizM);
+                                      pixel_type(),w,h,d,s,sizM);
         CImg<charT> ss(siz2 + 1);
         cimg_for_inX(ss,0,ss.width() - 1,i) ss[i] = (char)ptr2[i];
         ss.back() = 0;
@@ -40095,8 +40099,8 @@ namespace cimg_library_suffixed {
 
       CImg<Tfloat> res(_width,_height,_depth,_spectrum,0);
       const CImg<tfloat>
-        __guide = guide?CImg<tfloat>(guide,cimg::type<t>::string()==cimg::type<tfloat>::string()):
-                        CImg<tfloat>(*this,cimg::type<T>::string()==cimg::type<tfloat>::string()),
+        __guide = guide?CImg<tfloat>(guide,guide.pixel_type()==cimg::type<tfloat>::string()):
+                        CImg<tfloat>(*this,pixel_type()==cimg::type<tfloat>::string()),
         _guide = smoothness>0?__guide.get_blur(smoothness):__guide.get_shared();
       CImg<tfloat> P(_guide._spectrum*patch_size*patch_size*(_depth>1?patch_size:1)), Q(P);
 
@@ -41808,7 +41812,7 @@ namespace cimg_library_suffixed {
     **/
     CImg<T>& distance(const T& value, const unsigned int metric=2) {
       if (is_empty()) return *this;
-      if (cimg::type<Tint>::string()!=cimg::type<T>::string()) // For datatype < int
+      if (cimg::type<Tint>::string()!=pixel_type()) // For datatype < int
         return CImg<Tint>(*this,false).distance((Tint)value,metric).
           cut((Tint)cimg::type<T>::min(),(Tint)cimg::type<T>::max()).move_to(*this);
       bool is_value = false;
@@ -53091,11 +53095,11 @@ namespace cimg_library_suffixed {
              rdr.ndim(2)?rdr.ndim(2):1,
              rdr.ndim(3)?rdr.ndim(3):1,
              rdr.ndim(4)?rdr.ndim(4):1);
-      if (cimg::type<T>::string()==cimg::type<unsigned char>::string())
+      if (pixel_type()==cimg::type<unsigned char>::string())
         rdr.setup_read_byte();
-      else if (cimg::type<T>::string()==cimg::type<int>::string())
+      else if (pixel_type()==cimg::type<int>::string())
         rdr.setup_read_int();
-      else if (cimg::type<T>::string()==cimg::type<double>::string())
+      else if (pixel_type()==cimg::type<double>::string())
         rdr.setup_read_double();
       else
         rdr.setup_read_float();
@@ -53826,7 +53830,7 @@ namespace cimg_library_suffixed {
         throw CImgArgumentException(_cimg_instance
                                     "load_raw(): Specified filename '%s' is a directory.",
                                     cimg_instance,filename);
-
+      const bool is_bool = pixel_type()==cimg::type<bool>::string();
       ulongT siz = (ulongT)size_x*size_y*size_z*size_c;
       unsigned int
         _size_x = size_x,
@@ -53840,22 +53844,31 @@ namespace cimg_library_suffixed {
                                                 "load_raw(): Cannot determine size of input file '%s'.",
                                                 cimg_instance,filename?filename:"(FILE*)");
         cimg::fseek(nfile,0,SEEK_END);
-        siz = cimg::ftell(nfile)/sizeof(T);
-        _size_y = (unsigned int)siz;
+        siz = cimg::ftell(nfile);
+        if (!is_bool) { siz/=sizeof(T); _size_y = (unsigned int)siz; }
+        else _size_y = (unsigned int)(siz*8);
         _size_x = _size_z = _size_c = 1;
         cimg::fseek(nfile,fpos,SEEK_SET);
       }
       cimg::fseek(nfile,offset,SEEK_SET);
       assign(_size_x,_size_y,_size_z,_size_c,0);
-      if (siz && (!is_multiplexed || size_c==1)) {
-        cimg::fread(_data,siz,nfile);
-        if (invert_endianness) cimg::invert_endianness(_data,siz);
-      } else if (siz) {
-        CImg<T> buf(1,1,1,_size_c);
-        cimg_forXYZ(*this,x,y,z) {
-          cimg::fread(buf._data,_size_c,nfile);
-          if (invert_endianness) cimg::invert_endianness(buf._data,_size_c);
-          set_vector_at(buf,x,y,z);
+
+      if (is_bool) { // Boolean data (bitwise)
+        unsigned char *const buf = new unsigned char[siz];
+        cimg::fread(buf,siz,nfile);
+        _uchar2bool(buf,siz,is_multiplexed);
+        delete[] buf;
+      } else { // Non-boolean data
+        if (siz && (!is_multiplexed || size_c==1)) { // Non-multiplexed
+          cimg::fread(_data,siz,nfile);
+          if (invert_endianness) cimg::invert_endianness(_data,siz);
+        } else if (siz) { // Multiplexed
+          CImg<T> buf(1,1,1,_size_c);
+          cimg_forXYZ(*this,x,y,z) {
+            cimg::fread(buf._data,_size_c,nfile);
+            if (invert_endianness) cimg::invert_endianness(buf._data,_size_c);
+            set_vector_at(buf,x,y,z);
+          }
         }
       }
       if (!file) cimg::fclose(nfile);
@@ -54516,13 +54529,13 @@ namespace cimg_library_suffixed {
                                     "_cimg2cvmat() : Invalid number of slices (should be '1').",
                                     cimg_instance);
       int mat_type = -1;
-      if (cimg::type<T>::string()==cimg::type<unsigned char>::string()) mat_type = CV_8UC1;
-      if (cimg::type<T>::string()==cimg::type<char>::string()) mat_type = CV_8SC1;
-      if (cimg::type<T>::string()==cimg::type<unsigned short>::string()) mat_type = CV_16UC1;
-      if (cimg::type<T>::string()==cimg::type<short>::string()) mat_type = CV_16SC1;
-      if (cimg::type<T>::string()==cimg::type<int>::string()) mat_type = CV_32SC1;
-      if (cimg::type<T>::string()==cimg::type<float>::string()) mat_type = CV_32FC1;
-      if (cimg::type<T>::string()==cimg::type<double>::string()) mat_type = CV_64FC1;
+      if (pixel_type()==cimg::type<unsigned char>::string()) mat_type = CV_8UC1;
+      if (pixel_type()==cimg::type<char>::string()) mat_type = CV_8SC1;
+      if (pixel_type()==cimg::type<unsigned short>::string()) mat_type = CV_16UC1;
+      if (pixel_type()==cimg::type<short>::string()) mat_type = CV_16SC1;
+      if (pixel_type()==cimg::type<int>::string()) mat_type = CV_32SC1;
+      if (pixel_type()==cimg::type<float>::string()) mat_type = CV_32FC1;
+      if (pixel_type()==cimg::type<double>::string()) mat_type = CV_64FC1;
       if (mat_type<0)
         throw CImgInstanceException(_cimg_instance
                                     "_cvmat2cimg() : pixel type '%s' is not supported.",
@@ -57086,11 +57099,11 @@ namespace cimg_library_suffixed {
        if (spectrum()) di.push_back(minc::dim_info(spectrum(),spectrum()*0.5,-1,minc::dim_info::DIM_TIME));
        wtr.open(filename,di,1,NC_FLOAT,0);
      }
-     if (cimg::type<T>::string()==cimg::type<unsigned char>::string())
+     if (pixel_type()==cimg::type<unsigned char>::string())
        wtr.setup_write_byte();
-     else if (cimg::type<T>::string()==cimg::type<int>::string())
+     else if (pixel_type()==cimg::type<int>::string())
        wtr.setup_write_int();
-     else if (cimg::type<T>::string()==cimg::type<double>::string())
+     else if (pixel_type()==cimg::type<double>::string())
        wtr.setup_write_double();
      else
        wtr.setup_write_float();
@@ -57457,11 +57470,14 @@ namespace cimg_library_suffixed {
         nbdims = _save_pandore_header_length((*iheader=id),dims,colorspace); \
         cimg::fwrite(header,36,nfile); \
         if (sizeof(unsigned long)==4) { CImg<ulongT> ndims(5); \
-          for (int d = 0; d<5; ++d) ndims[d] = (unsigned long)dims[d]; cimg::fwrite(ndims._data,nbdims,nfile); } \
+          for (int d = 0; d<5; ++d) ndims[d] = (unsigned long)dims[d]; \
+          cimg::fwrite(ndims._data,nbdims,nfile); } \
         else if (sizeof(unsigned int)==4) { CImg<uintT> ndims(5); \
-          for (int d = 0; d<5; ++d) ndims[d] = (unsigned int)dims[d]; cimg::fwrite(ndims._data,nbdims,nfile); } \
+          for (int d = 0; d<5; ++d) ndims[d] = (unsigned int)dims[d]; \
+          cimg::fwrite(ndims._data,nbdims,nfile); } \
         else if (sizeof(unsigned short)==4) { CImg<ushortT> ndims(5); \
-          for (int d = 0; d<5; ++d) ndims[d] = (unsigned short)dims[d]; cimg::fwrite(ndims._data,nbdims,nfile); } \
+          for (int d = 0; d<5; ++d) ndims[d] = (unsigned short)dims[d]; \
+          cimg::fwrite(ndims._data,nbdims,nfile); } \
         else throw CImgIOException(_cimg_instance \
                                    "save_pandore(): Unsupported datatype for file '%s'.",\
                                    cimg_instance, \
@@ -57619,16 +57635,63 @@ namespace cimg_library_suffixed {
       if (is_empty()) { cimg::fempty(file,filename); return *this; }
 
       std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
-      if (!is_multiplexed) cimg::fwrite(_data,size(),nfile);
-      else {
-        CImg<T> buf(_spectrum);
-        cimg_forXYZ(*this,x,y,z) {
-          cimg_forC(*this,c) buf[c] = (*this)(x,y,z,c);
-          cimg::fwrite(buf._data,_spectrum,nfile);
+      if (pixel_type()==cimg::type<bool>::string()) { // Boolean data (bitwise)
+        ulongT siz;
+        const unsigned char *const buf = _bool2uchar(siz,is_multiplexed);
+        cimg::fwrite(buf,siz,nfile);
+        delete[] buf;
+      } else { // Non boolean data
+        if (!is_multiplexed || _spectrum==1) cimg::fwrite(_data,size(),nfile); // Non-multiplexed
+        else { // Multiplexed
+          CImg<T> buf(_spectrum);
+          cimg_forXYZ(*this,x,y,z) {
+            cimg_forC(*this,c) buf[c] = (*this)(x,y,z,c);
+            cimg::fwrite(buf._data,_spectrum,nfile);
+          }
         }
       }
       if (!file) cimg::fclose(nfile);
       return *this;
+    }
+
+    // Return unsigned char buffer that encodes data of a CImg<bool> instance bitwise.
+    // (buffer needs to be deallocated afterwards, with delete[]).
+    const unsigned char *_bool2uchar(ulongT &siz, const bool is_multiplexed) const {
+      const ulongT _siz = size();
+      siz = _siz/8 + (_siz%8?1:0);
+      unsigned char *const buf = new unsigned char[siz], *ptrd = buf, val = 0, bit = 0;
+
+      if (!is_multiplexed || _spectrum==1) // Non-multiplexed
+        cimg_for(*this,ptrs,T) { (val<<=1)|=(*ptrs?1:0); if (++bit==8) { *(ptrd++) = val; val = bit = 0; }}
+      else // Multiplexed
+        cimg_forXYZ(*this,x,y,z) cimg_forC(*this,c) {
+          (val<<=1)|=((*this)(x,y,z,c)?1:0); if (++bit==8) { *(ptrd++) = val; val = bit = 0; }
+        }
+      if (bit) *ptrd = val;
+      return buf;
+    }
+
+    // Fill CImg<T> instance from bitwise data encoded in an unsigned char buffer.
+    void _uchar2bool(const unsigned char *buf, const ulongT siz, const bool is_multiplexed) {
+      const ulongT S = std::min(siz*8,size());
+      const unsigned char *ptrs = buf;
+      unsigned char val = 0, mask = 0;
+      T *ptrd = _data;
+      if (S && (!is_multiplexed || _spectrum==1)) // Non-multiplexed
+        for (ulongT off = 0; off<S; ++off) {
+          if (!(mask>>=1)) { val = *(ptrs++); mask = 128; }
+          *(ptrd++) = (T)((val&mask)?1:0);
+        }
+      else if (S) { // Multiplexed
+        ulongT off = 0;
+        for (int z = 0; z<depth() && off<=S; ++z)
+          for (int y = 0; y<height() && off<=S; ++y)
+            for (int x = 0; x<width() && off<=S; ++x)
+              for (int c = 0; c<spectrum() && off<=S; ++c) {
+                if (!(mask>>=1)) { val = *(ptrs++); ++off; mask = 128; }
+                (*this)(x,y,z,c) = (T)((val&mask)?1:0);
+              }
+      }
     }
 
     //! Save image as a .yuv video file.
@@ -59445,7 +59508,8 @@ namespace cimg_library_suffixed {
 #define _cimglist_def_is_same1(axis) \
     bool is_same##axis(const unsigned int val) const { \
       bool res = true; \
-      for (unsigned int l = 0; l<_width && res; ++l) res = _data[l].is_same##axis(val); return res; \
+      for (unsigned int l = 0; l<_width && res; ++l) res = _data[l].is_same##axis(val); \
+      return res; \
     } \
     bool is_sameN##axis(const unsigned int n, const unsigned int val) const { \
       return is_sameN(n) && is_same##axis(val); \
@@ -59454,7 +59518,8 @@ namespace cimg_library_suffixed {
 #define _cimglist_def_is_same2(axis1,axis2) \
     bool is_same##axis1##axis2(const unsigned int val1, const unsigned int val2) const { \
       bool res = true; \
-      for (unsigned int l = 0; l<_width && res; ++l) res = _data[l].is_same##axis1##axis2(val1,val2); return res; \
+      for (unsigned int l = 0; l<_width && res; ++l) res = _data[l].is_same##axis1##axis2(val1,val2); \
+      return res; \
     } \
     bool is_sameN##axis1##axis2(const unsigned int n, const unsigned int val1, const unsigned int val2) const { \
       return is_sameN(n) && is_same##axis1##axis2(val1,val2); \
@@ -59474,11 +59539,15 @@ namespace cimg_library_suffixed {
 
 #define _cimglist_def_is_same(axis) \
     template<typename t> bool is_same##axis(const CImg<t>& img) const { \
-      bool res = true; for (unsigned int l = 0; l<_width && res; ++l) res = _data[l].is_same##axis(img); return res; \
+      bool res = true; \
+      for (unsigned int l = 0; l<_width && res; ++l) res = _data[l].is_same##axis(img); \
+      return res; \
     } \
     template<typename t> bool is_same##axis(const CImgList<t>& list) const { \
       const unsigned int lmin = std::min(_width,list._width); \
-      bool res = true; for (unsigned int l = 0; l<lmin && res; ++l) res = _data[l].is_same##axis(list[l]); return res; \
+      bool res = true; \
+      for (unsigned int l = 0; l<lmin && res; ++l) res = _data[l].is_same##axis(list[l]); \
+      return res; \
     } \
     template<typename t> bool is_sameN##axis(const unsigned int n, const CImg<t>& img) const { \
       return (is_sameN(n) && is_same##axis(img)); \
@@ -60854,12 +60923,20 @@ namespace cimg_library_suffixed {
 #define _cimgz_load_cimg_case(Tss) { \
    Bytef *const cbuf = new Bytef[csiz]; \
    cimg::fread(cbuf,csiz,nfile); \
-   raw.assign(W,H,D,C); \
-   uLongf destlen = (ulongT)raw.size()*sizeof(Tss); \
-   uncompress((Bytef*)raw._data,&destlen,cbuf,csiz); \
+   if (is_bool) { \
+     CImg<ucharT> raw(W*H*D*C/8); \
+     uLongf destlen = (ulongT)raw.size(); \
+     uncompress((Bytef*)raw._data,&destlen,cbuf,csiz); \
+     img.assign(W,H,D,C); \
+     img._uchar2bool(raw,raw.size(),false); \
+   } else { \
+     CImg<Tss> raw(W,H,D,C); \
+     uLongf destlen = (ulongT)raw.size()*sizeof(Tss); \
+     uncompress((Bytef*)raw._data,&destlen,cbuf,csiz); \
+     if (endian!=cimg::endianness()) cimg::invert_endianness(raw._data,raw.size()); \
+     raw.move_to(img); \
+   } \
    delete[] cbuf; \
-   if (endian!=cimg::endianness()) cimg::invert_endianness(raw._data,raw.size()); \
-   raw.move_to(img); \
 }
 #else
 #define _cimgz_load_cimg_case(Tss) \
@@ -60871,6 +60948,7 @@ namespace cimg_library_suffixed {
 
 #define _cimg_load_cimg_case(Ts,Tss) \
       if (!loaded && !cimg::strcasecmp(Ts,str_pixeltype)) { \
+        const bool is_bool = cimg::type<Tss>::string()==cimg::type<bool>::string(); \
         for (unsigned int l = 0; l<N; ++l) { \
           j = 0; while ((i=std::fgetc(nfile))!='\n' && i>=0 && j<255) tmp[j++] = (char)i; tmp[j] = 0; \
           W = H = D = C = 0; csiz = 0; \
@@ -60880,19 +60958,30 @@ namespace cimg_library_suffixed {
                                   cimglist_instance, \
                                   W,H,D,C,l,filename?filename:("(FILE*)")); \
           if (W*H*D*C>0) { \
-            CImg<Tss> raw; \
             CImg<T> &img = _data[l]; \
             if (err==5) _cimgz_load_cimg_case(Tss) \
             else { \
               img.assign(W,H,D,C); \
               T *ptrd = img._data; \
-              for (ulongT to_read = img.size(); to_read; ) { \
-                raw.assign((unsigned int)std::min(to_read,cimg_iobuffer)); \
-                cimg::fread(raw._data,raw._width,nfile); \
-                if (endian!=cimg::endianness()) cimg::invert_endianness(raw._data,raw.size()); \
-                const Tss *ptrs = raw._data; \
-                for (ulongT off = (ulongT)raw._width; off; --off) *(ptrd++) = (T)*(ptrs++); \
-                to_read-=raw._width; \
+              if (is_bool) { \
+                CImg<ucharT> raw; \
+                for (ulongT to_read = img.size(); to_read; ) { \
+                  raw.assign((unsigned int)std::min(to_read,cimg_iobuffer)); \
+                  cimg::fread(raw._data,raw._width,nfile); \
+                  CImg<T>(ptrd,std::min((ulongT)8*raw._width,(ulongT)(img.end() - ptrd)),1,1,1,true).\
+                    _uchar2bool(raw,raw._width,false); \
+                  to_read-=raw._width; \
+                } \
+              } else { \
+                CImg<Tss> raw; \
+                for (ulongT to_read = img.size(); to_read; ) { \
+                  raw.assign((unsigned int)std::min(to_read,cimg_iobuffer)); \
+                  cimg::fread(raw._data,raw._width,nfile); \
+                  if (endian!=cimg::endianness()) cimg::invert_endianness(raw._data,raw.size()); \
+                  const Tss *ptrs = raw._data; \
+                  for (ulongT off = (ulongT)raw._width; off; --off) *(ptrd++) = (T)*(ptrs++); \
+                  to_read-=raw._width; \
+                } \
               } \
             } \
           } \
@@ -62277,10 +62366,14 @@ namespace cimg_library_suffixed {
                    cimglist_instance,
                    filename?filename:"(FILE*)");
 #endif
-      std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
       const char *const ptype = pixel_type(), *const etype = cimg::endianness()?"big":"little";
-      if (std::strstr(ptype,"unsigned")==ptype) std::fprintf(nfile,"%u unsigned_%s %s_endian\n",_width,ptype + 9,etype);
-      else std::fprintf(nfile,"%u %s %s_endian\n",_width,ptype,etype);
+      std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
+      const bool is_bool = ptype==cimg::type<bool>::string();
+      if (!is_bool && std::strstr(ptype,"unsigned")==ptype)
+        std::fprintf(nfile,"%u unsigned_%s %s_endian\n",_width,ptype + 9,etype);
+      else
+        std::fprintf(nfile,"%u %s %s_endian\n",_width,ptype,etype);
+
       cimglist_for(*this,l) {
         const CImg<T>& img = _data[l];
         std::fprintf(nfile,"%u %u %u %u",img._width,img._height,img._depth,img._spectrum);
@@ -62291,25 +62384,46 @@ namespace cimg_library_suffixed {
           bool failed_to_compress = true;
           if (is_compressed) {
 #ifdef cimg_use_zlib
-            const ulongT siz = sizeof(T)*ref.size();
-            uLongf csiz = siz + siz/100 + 16;
-            Bytef *const cbuf = new Bytef[csiz];
-            if (compress(cbuf,&csiz,(Bytef*)ref._data,siz))
+            Bytef *cbuf = 0;
+            uLongf csiz = 0;
+
+            if (is_bool) { // Boolean data (bitwise)
+              ulongT siz;
+              const unsigned char *const buf = ref._bool2uchar(siz,false);
+              csiz = siz + siz/100 + 16;
+              cbuf = new Bytef[csiz];
+              failed_to_compress = (bool)compress(cbuf,&csiz,(Bytef*)buf,siz);
+              if (!failed_to_compress) {
+                std::fprintf(nfile," #%lu\n",csiz);
+                cimg::fwrite(cbuf,csiz,nfile);
+              }
+              delete[] buf;
+            } else { // Non-boolean data
+              const ulongT siz = sizeof(T)*ref.size();
+              csiz = siz + siz/100 + 16;
+              cbuf = new Bytef[csiz];
+              failed_to_compress = (bool)compress(cbuf,&csiz,(Bytef*)ref._data,siz);
+              if (!failed_to_compress) {
+                std::fprintf(nfile," #%lu\n",csiz);
+                cimg::fwrite(cbuf,csiz,nfile);
+              }
+            }
+            if (failed_to_compress)
               cimg::warn(_cimglist_instance
                          "save_cimg(): Failed to save compressed data for file '%s', saving them uncompressed.",
                          cimglist_instance,
                          filename?filename:"(FILE*)");
-            else {
-              std::fprintf(nfile," #%lu\n",csiz);
-              cimg::fwrite(cbuf,csiz,nfile);
-              delete[] cbuf;
-              failed_to_compress = false;
-            }
+            delete[] cbuf;
 #endif
           }
-          if (failed_to_compress) { // Write in a non-compressed way
+          if (failed_to_compress) { // Write non-compressed
             std::fputc('\n',nfile);
-            cimg::fwrite(ref._data,ref.size(),nfile);
+            if (is_bool) { // Boolean data (bitwise)
+              ulongT siz;
+              const unsigned char *const buf = ref._bool2uchar(siz,false);
+              cimg::fwrite(buf,siz,nfile);
+              delete[] buf;
+            } else cimg::fwrite(ref._data,ref.size(),nfile); // Non-boolean data
           }
         } else std::fputc('\n',nfile);
       }
@@ -62855,7 +62969,7 @@ namespace cimg_library_suffixed {
 #ifdef cimg_use_zlib
 #define _cimgz_unserialize_case(Tss) { \
         Bytef *cbuf = 0; \
-        if (sizeof(t)!=1 || cimg::type<t>::string()==cimg::type<bool>::string()) { \
+        if (sizeof(t)!=1 || buffer.pixel_type()==cimg::type<bool>::string()) { \
           cbuf = new Bytef[csiz]; Bytef *_cbuf = cbuf; \
           for (ulongT k = 0; k<csiz; ++k) *(_cbuf++) = (Bytef)*(stream++); \
           is_bytef = false; \

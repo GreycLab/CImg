@@ -146,19 +146,19 @@
   \endcode
   - <b>g++ (MingW windows version)</b> : Use the following command to compile a CImg-based program with g++, on Windows :
   \code
-  g++ -o hello_word.exe hello_word.cpp -O2 -lgdi32
+  g++ -o hello_world.exe hello_world.cpp -O2 -lgdi32
   \endcode
   - <b>g++ (Linux version)</b> : Use the following command to compile a CImg-based program with g++, on Linux :
   \code
-  g++ -o hello_word.exe hello_world.cpp -O2 -L/usr/X11R6/lib -lm -lpthread -lX11
+  g++ -o hello_world.exe hello_world.cpp -O2 -L/usr/X11R6/lib -lm -lpthread -lX11
   \endcode
   - <b>g++ (Solaris version)</b> : Use the following command to compile a CImg-based program with g++, on Solaris :
   \code
-  g++ -o hello_word.exe hello_world.cpp -O2 -lm -lpthread -R/usr/X11R6/lib -lrt -lnsl -lsocket
+  g++ -o hello_world.exe hello_world.cpp -O2 -lm -lpthread -R/usr/X11R6/lib -lrt -lnsl -lsocket
   \endcode
   - <b>g++ (Mac OS X version)</b> : Use the following command to compile a CImg-based program with g++, on Mac OS X :
   \code
-  g++ -o hello_word.exe hello_world.cpp -O2 -lm -lpthread -I/usr/X11R6/include -L/usr/X11R6/lib -lm -lpthread -lX11
+  g++ -o hello_world.exe hello_world.cpp -O2 -lm -lpthread -I/usr/X11R6/include -L/usr/X11R6/lib -lm -lpthread -lX11
   \endcode
   - <b>Dev-Cpp</b> : Use the project file provided in the CImg library package to see how it works.
 

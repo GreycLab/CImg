@@ -22317,6 +22317,7 @@ namespace cimg_library_suffixed {
             else if (c2=='s') rp = 8; // is
             else if (c2=='p') rp = 9; // ip
             else if (c2=='c') rp = 10; // ic
+            else if (c2=='n') rp = 11; // in
           } else if (c2=='m') {
             if (c1=='x') rp = 12; // xm
             else if (c1=='y') rp = 13; // ym

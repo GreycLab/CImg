@@ -29147,6 +29147,10 @@ namespace cimg_library_suffixed {
       const Ttfloat epsilon = (Ttfloat)1e-25;
 
       if (is_empty()) { U.assign(); S.assign(); V.assign(); }
+      else if (_depth!=1 || _spectrum!=1)
+        throw CImgInstanceException(_cimg_instance
+                                    "SVD(): Instance has invalid dimensions (depth or channels different from 1).",
+                                    cimg_instance);
       else {
         U = *this;
         if (lambda!=0) {

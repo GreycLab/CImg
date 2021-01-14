@@ -60188,12 +60188,12 @@ namespace cimg_library_suffixed {
         for (unsigned int k = npos1; k<=npos2; ++k) _data[k].assign();
         const unsigned int nb = 1 + npos2 - npos1;
         if (!(_width-=nb)) return assign();
-        if (_width>(_allocated_width>>2) || _allocated_width<=16) { // Removing items without reallocation
+        if (_width>(_allocated_width>>4) || _allocated_width<=16) { // Removing items without reallocation
           if (npos1!=_width)
             std::memmove((void*)(_data + npos1),(void*)(_data + npos2 + 1),sizeof(CImg<T>)*(_width - npos1));
           std::memset((void*)(_data + _width),0,sizeof(CImg<T>)*nb);
         } else { // Removing items with reallocation
-          _allocated_width>>=2;
+          _allocated_width>>=4;
           while (_allocated_width>16 && _width<(_allocated_width>>1)) _allocated_width>>=1;
           CImg<T> *const new_data = new CImg<T>[_allocated_width];
           if (npos1) std::memcpy((void*)new_data,(void*)_data,sizeof(CImg<T>)*npos1);

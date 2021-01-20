@@ -579,9 +579,6 @@ extern "C" {
 #pragma GCC diagnostic pop
 #endif
 #endif
-#ifdef cimg_use_half
-#include "half.h"
-#endif
 
 // Configure TinyEXR support.
 // (https://github.com/syoyo/tinyexr)

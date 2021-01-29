@@ -47917,23 +47917,29 @@ namespace cimg_library_suffixed {
           case ' ' : x+=font[(int)' ']._width; break;
           default : if (ch<font._width) {
               int left_padding = 0;
-              if (is_native_font) { // Determine left padding.
-                const CImg<t> &mask = ch + 256U<font._width?font[ch + 256]:empty;
-                if (o_ch && ch>' ' && o_ch>' ' && mask._height>13) {
-                  const CImg<t> &o_mask = o_ch + 256U<font._width?font[o_ch + 256]:empty;
-                  if (o_mask._height>13) {
-                    const int w1 = mask.width()>0?o_mask.width() - 1:0, w2 = w1>1?w1 - 1:0, w3 = w2>1?w2 - 1:0;
-                    left_padding = -10;
-                    cimg_forY(mask,k) {
-                      const int
-                        lpad = o_mask(w1,k)>=16?0:o_mask(w2,k)>=16?-1:o_mask(w3,k)>=16?-2:-3,
-                        rpad = mask(0,k)>=16?0:mask(1,k)>=16?-1:mask(2,k)>=16?-2:-3;
-                      left_padding = std::max(left_padding,lpad + rpad);
+              if (is_native_font) { // Determine left padding from various rules
+                if (ch==':' || ch=='!' || ch=='.' || ch==';')
+                  left_padding = 2*padding_x;
+                else if (o_ch=='l' || o_ch=='i' || o_ch=='j' || o_ch=='d' || o_ch=='I' || o_ch=='J' ||
+                         (o_ch=='.' && (ch<'0' || ch>'9')))
+                  left_padding = padding_x;
+                else if (o_ch==',' || o_ch=='.' || o_ch==';' || o_ch==':' || o_ch=='!')
+                  left_padding = 4*padding_x;
+                else if (o_ch<'0' || o_ch>'9') {
+                  const CImg<t> &mask = ch + 256U<font._width?font[ch + 256]:empty;
+                  if (o_ch && ch>' ' && o_ch>' ' && mask._height>13) {
+                    const CImg<t> &o_mask = o_ch + 256U<font._width?font[o_ch + 256]:empty;
+                    if (o_mask._height>13) {
+                      const int w1 = mask.width()>0?o_mask.width() - 1:0, w2 = w1>1?w1 - 1:0, w3 = w2>1?w2 - 1:0;
+                      left_padding = -10;
+                      cimg_forY(mask,k) {
+                        const int
+                          lpad = o_mask(w1,k)>=16?0:o_mask(w2,k)>=16?-1:o_mask(w3,k)>=16?-2:-3,
+                          rpad = mask(0,k)>=16?0:mask(1,k)>=16?-1:mask(2,k)>=16?-2:-3;
+                        left_padding = std::max(left_padding,lpad + rpad);
+                      }
                     }
                   }
-                  if (o_ch=='l' || o_ch=='i' || o_ch=='j' || o_ch=='d' || o_ch=='I' || o_ch=='J' ||
-                      o_ch=='!' || o_ch==':' || o_ch=='\'' || o_ch==';' || o_ch=='|') left_padding+=padding_x;
-                  if (o_ch=='.') left_padding-=padding_x;
                 }
                 left_paddings[i] = left_padding;
               }

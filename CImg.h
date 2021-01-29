@@ -47899,7 +47899,7 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
 
       const unsigned int text_length = (unsigned int)std::strlen(text);
-      const int padding_x = font[0]._height<48?1:(int)std::ceil(font[0]._height/51.0f + 0.745f);
+      const int padding_x = font[0]._height<48?1:font[0]._height<128?(int)std::ceil(font[0]._height/51.0f + 0.745f):4;
       unsigned char o_ch, ch = 0;
       int x, y, w;
       CImg<intT> left_paddings(text_length,1,1,1,0);
@@ -47917,7 +47917,7 @@ namespace cimg_library_suffixed {
           case ' ' : x+=font[(int)' ']._width; break;
           default : if (ch<font._width) {
               int left_padding = 0;
-              if (is_native_font) { // Determine left padding from various rules
+              if (is_native_font && font[0]._height<128) { // Determine left padding from various rules
                 if (ch==':' || ch=='!' || ch=='.' || ch==';')
                   left_padding = 2*padding_x;
                 else if (o_ch=='l' || o_ch=='i' || o_ch=='j' || o_ch=='d' || o_ch=='I' || o_ch=='J' ||

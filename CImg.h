@@ -28036,8 +28036,8 @@ namespace cimg_library_suffixed {
       return _eval(0,expression,x,y,z,c,list_inputs,list_outputs);
     }
 
-
-    // Fast function to evaluate simple common expressions (return 'true' in case of success).
+    // Fast function to pre-evaluate common expressions.
+    // (return 'true' in case of success, and set value of 'res').
     template<typename t>
     bool __eval(const char *const expression, t &res) const {
       if (!expression || !*expression) { res = (t)0; return true; }
@@ -47899,94 +47899,79 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
 
       const unsigned int text_length = (unsigned int)std::strlen(text);
-      const int padding_x = font[0]._height<=48?1U:font[0]._height<=128?2U:3U;
-      t o_right_opacity = 0, right_opacity = 0, left_opacity = 0;
+      const int padding_x = font[0]._height<48?1:(int)std::ceil(font[0]._height/51.0f + 0.745f);
       unsigned char o_ch, ch = 0;
       int x, y, w;
+      CImg<intT> left_paddings(text_length,1,1,1,0);
+      const CImg<t> empty = CImg<t>::empty();
 
-      if (is_empty()) {
-        // If needed, pre-compute necessary size of the image.
-        o_right_opacity = 0;
-        o_ch = 0;
+      if (is_empty() || is_native_font) {
+        // Pre-compute necessary size of the image as well as left paddings of each character.
         x = y = w = 0;
+        o_ch = 0;
         for (unsigned int i = 0; i<text_length; ++i) {
           ch = (unsigned char)text[i];
           switch (ch) {
           case '\n' : y+=font[0]._height; if (x>w) w = x; x = 0; break;
           case '\t' : x+=4*font[(int)' ']._width; break;
+          case ' ' : x+=font[(int)' ']._width; break;
           default : if (ch<font._width) {
-              int compensate_padding = padding_x;
-              if (is_native_font && font[ch]) {
-                const bool
-                  is_och = o_ch=='l' || o_ch=='i' || o_ch=='j' || o_ch=='I' || o_ch=='J' || o_ch=='!' || o_ch==':' ||
-                           o_ch=='\'' || o_ch==';' || o_ch==',' || o_ch=='.' || o_ch=='|',
-                  is_ch = ch=='l' || ch=='i' || ch=='j' || ch=='I' || ch=='J' || ch=='!' || ch==':' ||
-                          ch=='\'' || ch==';' || ch==',' || ch=='.' || ch=='|';
-                if (is_och || is_ch) compensate_padding+=padding_x*((is_och?1:0) + (is_ch?1:0));
-                else {
-                  left_opacity = right_opacity = 0;
-                  const CImg<t>& mask = font[ch + 256];
-                  const unsigned int mw1 = mask._width - 1;
-                  cimg_forY(mask,q) {
-                    left_opacity = std::max(left_opacity,mask(0,q));
-                    right_opacity = std::max(right_opacity,mask(mw1,q));
+              int left_padding = 0;
+              if (is_native_font) { // Determine left padding from various rules
+                if (ch==':' || ch=='!' || ch=='.' || ch==';')
+                  left_padding = 2*padding_x;
+                else if (o_ch=='l' || o_ch=='i' || o_ch=='j' || o_ch=='d' || o_ch=='I' || o_ch=='J' ||
+                         (o_ch=='.' && (ch<'0' || ch>'9')))
+                  left_padding = padding_x;
+                else if (o_ch==',' || o_ch=='.' || o_ch==';' || o_ch==':' || o_ch=='!')
+                  left_padding = 4*padding_x;
+                else if (o_ch<'0' || o_ch>'9') {
+                  const CImg<t> &mask = ch + 256U<font._width?font[ch + 256]:empty;
+                  if (o_ch && ch>' ' && o_ch>' ' && mask._height>13) {
+                    const CImg<t> &o_mask = o_ch + 256U<font._width?font[o_ch + 256]:empty;
+                    if (o_mask._height>13) {
+                      const int w1 = mask.width()>0?o_mask.width() - 1:0, w2 = w1>1?w1 - 1:0, w3 = w2>1?w2 - 1:0;
+                      left_padding = -10;
+                      cimg_forY(mask,k) {
+                        const int
+                          lpad = o_mask(w1,k)>=16?0:o_mask(w2,k)>=16?-1:o_mask(w3,k)>=16?-2:-3,
+                          rpad = mask(0,k)>=16?0:mask(1,k)>=16?-1:mask(2,k)>=16?-2:-3;
+                        left_padding = std::max(left_padding,lpad + rpad);
+                      }
+                    }
                   }
-                  if (i && !is_ch && !is_och && ch!=' ' && (o_right_opacity<64 || left_opacity<64))
-                    compensate_padding-=o_right_opacity<64 && left_opacity<64?padding_x:(padding_x + 1)/2;
                 }
+                left_paddings[i] = left_padding;
               }
-              x+=compensate_padding + font[ch]._width;
-              o_right_opacity = right_opacity;
+              x+=left_padding + font[ch]._width + padding_x;
               o_ch = ch;
             }
           }
         }
-        if (x!=0 || ch=='\n') {
-          if (x>w) w = x;
-          y+=font[0]._height;
-        }
-        assign(x0 + w,y0 + y,1,is_native_font?1:font[0]._spectrum,(T)0);
+        if (x!=0 || ch=='\n') { if (x>w) w = x; y+=font[0]._height; }
+        if (is_empty()) assign(x0 + w,y0 + y,1,is_native_font?1:font[0]._spectrum,(T)0);
       }
 
-      o_right_opacity = right_opacity = 0;
-      o_ch = ch = 0;
-      x = x0;
-      y = y0;
+      // Draw font characters on image.
+      x = x0; y = y0;
       for (unsigned int i = 0; i<text_length; ++i) {
         ch = (unsigned char)text[i];
         switch (ch) {
         case '\n' : y+=font[0]._height; x = x0; break;
         case '\t' : x+=4*font[(int)' ']._width; break;
+        case ' ' : x+=font[(int)' ']._width; break;
         default : if (ch<font._width) {
             CImg<T> letter = font[ch];
             if (letter) {
-              int compensate_padding = padding_x;
-              if (is_native_font) {
-                const bool
-                  is_och = o_ch=='l' || o_ch=='i' || o_ch=='j' || o_ch=='I' || o_ch=='J' || o_ch=='!' || o_ch==':' ||
-                           o_ch=='\'' || o_ch==';' || o_ch==',' || o_ch=='.' || o_ch=='|',
-                  is_ch = ch=='l' || ch=='i' || ch=='j' || ch=='I' || ch=='J' || ch=='!' || ch==':' ||
-                          ch=='\'' || ch==';' || ch==',' || ch=='.' || ch=='|';
-                if (is_och || is_ch) compensate_padding+=padding_x*((is_och?1:0) + (is_ch?1:0));
-                else {
-                  right_opacity = left_opacity = 0;
-                  const CImg<t>& mask = font[ch + 256];
-                  const unsigned int mw1 = mask._width - 1;
-                  cimg_forY(mask,q) {
-                    left_opacity = std::max(left_opacity,mask(0,q));
-                    right_opacity = std::max(right_opacity,mask(mw1,q));
-                  }
-                  if (i && !is_ch && !is_och && ch!=' ' && (o_right_opacity<64 || left_opacity<64))
-                    compensate_padding-=o_right_opacity<64 && left_opacity<64?padding_x:(padding_x + 1)/2;
-                }
-              }
-              const int posx = x + compensate_padding;
-              if (is_native_font && _spectrum>letter._spectrum) letter.resize(-100,-100,1,_spectrum,0,2);
+              const CImg<t> &mask = ch + 256U<font._width?font[ch + 256]:empty;
+              const int posx = x + left_paddings[i] + padding_x;
+              if (is_native_font && _spectrum>letter._spectrum)
+                letter.assign(letter.get_resize(-100,-100,1,_spectrum,0,2),false);
               const unsigned int cmin = std::min(_spectrum,letter._spectrum);
               if (foreground_color)
                 for (unsigned int c = 0; c<cmin; ++c)
                   if (foreground_color[c]!=1) letter.get_shared_channel(c)*=foreground_color[c];
-              if (ch + 256<font.width()) { // Letter has mask
+              if (mask) { // Letter has mask
                 if (background_color)
                   for (unsigned int c = 0; c<cmin; ++c)
                     draw_rectangle(x,y,0,c,posx + letter._width - 1,y + letter._height - 1,0,c,
@@ -47994,8 +47979,6 @@ namespace cimg_library_suffixed {
                 draw_image(posx,y,letter,font[ch + 256],opacity,255.f);
               } else draw_image(posx,y,letter,opacity); // Letter has no mask
               x = posx + letter._width;
-              o_right_opacity = right_opacity;
-              o_ch = ch;
             }
           }
         }

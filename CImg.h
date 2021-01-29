@@ -47899,7 +47899,7 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
 
       const unsigned int text_length = (unsigned int)std::strlen(text);
-      const int padding_x = font[0]._height<=48?1U:font[0]._height<=128?2U:3U;
+      const int padding_x = font[0]._height<48?1:(int)std::ceil(font[0]._height/51.0f + 0.745f);
       unsigned char o_ch, ch = 0;
       int x, y, w;
       CImg<intT> left_paddings(text_length,1,1,1,0);

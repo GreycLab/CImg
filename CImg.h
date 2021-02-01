@@ -18914,6 +18914,12 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar1(mp_abs,arg1);
             }
 
+            if (!std::strncmp(ss,"addr(",5)) { // Pointer address
+              _cimg_mp_op("Function 'addr()'");
+              arg1 = compile(ss5,se1,depth1,0,is_critical);
+              _cimg_mp_constant((double)arg1);
+            }
+
             if (!std::strncmp(ss,"acos(",5)) { // Arccos
               _cimg_mp_op("Function 'acos()'");
               arg1 = compile(ss5,se1,depth1,0,is_critical);
@@ -20582,7 +20588,7 @@ namespace cimg_library_suffixed {
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                 ++arg1; s = ns;
               }
-              _cimg_mp_constant(arg1);
+              _cimg_mp_constant((double)arg1);
             }
 
             if ((cimg_sscanf(ss,"norm%u%c",&(arg1=~0U),&sep)==2 && sep=='(') ||

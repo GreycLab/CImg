@@ -17373,41 +17373,36 @@ namespace cimg_library_suffixed {
                      if (!is_varchar(*ns)) { is_sth = false; break; }
               if (is_sth && s0>ss) {
                 variable_name[s0 - ss] = 0; // Remove brackets in variable name
-                arg1 = ~0U; // Vector slot
+                get_variable_pos(variable_name,arg1,arg2);
+                arg1 = arg2!=~0U?reserved_label[arg2]:arg1!=~0U?variable_pos[arg1]:~0U; // Vector slot
+                if (arg1==~0U || _cimg_mp_is_scalar(arg1))
+                  compile(ss,s0 - 1,depth1,0,is_critical); // Variable does not exist or is not a vector -> error
+
                 arg2 = compile(++s0,ve1,depth1,0,is_critical); // Index
                 arg3 = compile(s + 1,se,depth1,0,is_critical); // Value to assign
                 _cimg_mp_check_type(arg3,2,1,0);
 
-                if (variable_name[1]) { // Multi-char variable
-                  cimglist_for(variable_def,i) if (!std::strcmp(variable_name,variable_def[i])) {
-                    arg1 = variable_pos[i]; break;
+                if (_cimg_mp_is_constant(arg2)) { // Constant index -> return corresponding variable slot directly
+                  nb = (int)mem[arg2];
+                  if (nb>=0 && nb<(int)_cimg_mp_size(arg1)) {
+                    arg1+=nb + 1;
+                    CImg<ulongT>::vector((ulongT)mp_copy,arg1,arg3).move_to(code);
+                    _cimg_mp_return(arg1);
                   }
-                } else arg1 = reserved_label[(int)*variable_name]; // Single-char variable
-                if (arg1==~0U) compile(ss,s0 - 1,depth1,0,is_critical); // Variable does not exist -> error
-                else { // Variable already exists
-                  if (_cimg_mp_is_scalar(arg1)) compile(ss,s,depth1,0,is_critical); // Variable is not a vector -> error
-                  if (_cimg_mp_is_constant(arg2)) { // Constant index -> return corresponding variable slot directly
-                    nb = (int)mem[arg2];
-                    if (nb>=0 && nb<(int)_cimg_mp_size(arg1)) {
-                      arg1+=nb + 1;
-                      CImg<ulongT>::vector((ulongT)mp_copy,arg1,arg3).move_to(code);
-                      _cimg_mp_return(arg1);
-                    }
-                    compile(ss,s,depth1,0,is_critical); // Out-of-bounds reference -> error
-                  }
-
-                  // Case of non-constant index -> return assigned value + linked reference
-                  if (p_ref) {
-                    *p_ref = 1;
-                    p_ref[1] = arg1;
-                    p_ref[2] = arg2;
-                    if (_cimg_mp_is_comp(arg3)) memtype[arg3] = -2; // Prevent from being used in further optimization
-                    if (_cimg_mp_is_comp(arg2)) memtype[arg2] = -2;
-                  }
-                  CImg<ulongT>::vector((ulongT)mp_vector_set_off,arg3,arg1,(ulongT)_cimg_mp_size(arg1),arg2).
-                    move_to(code);
-                  _cimg_mp_return(arg3);
+                  compile(ss,s,depth1,0,is_critical); // Out-of-bounds reference -> error
                 }
+
+                // Case of non-constant index -> return assigned value + linked reference
+                if (p_ref) {
+                  *p_ref = 1;
+                  p_ref[1] = arg1;
+                  p_ref[2] = arg2;
+                  if (_cimg_mp_is_comp(arg3)) memtype[arg3] = -2; // Prevent from being used in further optimization
+                  if (_cimg_mp_is_comp(arg2)) memtype[arg2] = -2;
+                }
+                CImg<ulongT>::vector((ulongT)mp_vector_set_off,arg3,arg1,(ulongT)_cimg_mp_size(arg1),arg2).
+                  move_to(code);
+                _cimg_mp_return(arg3);
               }
             }
 
@@ -22065,11 +22060,9 @@ namespace cimg_library_suffixed {
         else for (ns = variable_name; *ns; ++ns)
                if (!is_varchar(*ns)) { is_sth = false; break; }
         if (is_sth) {
-          if (variable_name[1]) { // Multi-char variable
-            cimglist_for(variable_def,i) if (!std::strcmp(variable_name,variable_def[i]))
-              _cimg_mp_return(variable_pos[i]);
-          } else if (reserved_label[(int)*variable_name]!=~0U) // Single-char variable
-            _cimg_mp_return(reserved_label[(int)*variable_name]);
+          get_variable_pos(variable_name,arg1,arg2);
+          arg1 = arg2!=~0U?reserved_label[arg2]:arg1!=~0U?variable_pos[arg1]:~0U;
+          if (arg1!=~0U) _cimg_mp_return(arg1);
         }
 
         // Reached an unknown item -> error.

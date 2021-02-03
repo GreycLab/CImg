@@ -47920,14 +47920,14 @@ namespace cimg_library_suffixed {
                 // Determine left padding from various rules.
                 if (ch==':' || ch=='!' || ch=='.' || ch==';')
                   left_padding = 2*padding_x;
+                else if (o_ch==',' || (o_ch=='.' && (ch<'0' || ch>'9')) || o_ch==';' || o_ch==':' || o_ch=='!')
+                  left_padding = 4*padding_x;
                 else if (((o_ch=='i' || o_ch=='l' || o_ch=='I' || o_ch=='J' || o_ch=='M' || o_ch=='N') &&
                           ((ch>='0' && ch<='9') ||
                            (ch>='a' && ch<='z' && ch!='v' && ch!='x' && ch!='y') ||
                            (ch>='B' && ch<='Z' && ch!='J' && ch!='T' && ch!='V' && ch!='X' && ch!='Y'))) ||
-                         (o_ch=='.' && (ch<'0' || ch>'9')))
+                         o_ch=='.' || o_ch=='\'' || ch=='\'')
                   left_padding = padding_x;
-                else if (o_ch==',' || o_ch=='.' || o_ch==';' || o_ch==':' || o_ch=='!')
-                  left_padding = 4*padding_x;
                 else if (o_ch<'0' || o_ch>'9') {
                   const CImg<t> &mask = ch + 256U<font._width?font[ch + 256]:empty;
                   if (o_ch && ch>' ' && o_ch>' ' && mask._height>13) {

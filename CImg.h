@@ -47928,7 +47928,7 @@ namespace cimg_library_suffixed {
                            (ch>='B' && ch<='Z' && ch!='J' && ch!='T' && ch!='V' && ch!='X' && ch!='Y'))) ||
                          o_ch=='.' || o_ch=='\'' || ch=='\'')
                   left_padding = padding_x;
-                else if (o_ch<'0' || o_ch>'9') {
+                else if ((o_ch<'0' || o_ch>'9') && ch!='-') {
                   const CImg<t> &mask = ch + 256U<font._width?font[ch + 256]:empty;
                   if (o_ch && ch>' ' && o_ch>' ' && mask._height>13) {
                     const CImg<t> &o_mask = o_ch + 256U<font._width?font[o_ch + 256]:empty;

@@ -3105,6 +3105,8 @@ namespace cimg_library_suffixed {
     template<> struct superset<cimg_uint64,double> { typedef double type; };
     template<> struct superset<cimg_int64,float> { typedef double type; };
     template<> struct superset<cimg_int64,double> { typedef double type; };
+    template<> struct superset<float,cimg_uint64> { typedef double type; };
+    template<> struct superset<float,cimg_int64> { typedef double type; };
     template<> struct superset<float,double> { typedef double type; };
 
 #ifdef cimg_use_half

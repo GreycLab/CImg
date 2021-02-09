@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 295
+#define cimg_version 296
 
 /*-----------------------------------------------------------
  #
@@ -11094,7 +11094,7 @@ namespace cimg_library_suffixed {
           sx = (unsigned int)screen_width(),
           sy = (unsigned int)screen_height();
         if (sx!=_width || sy!=_height) {
-          CLIENTCREATESTRUCT background_ccs = { 0 };
+          CLIENTCREATESTRUCT background_ccs = { 0,0 };
           _background_window = CreateWindowA("MDICLIENT","",WS_POPUP | WS_VISIBLE, 0,0,sx,sy,0,0,0,&background_ccs);
           SetForegroundWindow(_background_window);
         }

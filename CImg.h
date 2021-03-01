@@ -23386,7 +23386,9 @@ namespace cimg_library_suffixed {
       static double mp_display_memory(_cimg_math_parser& mp) {
         cimg::unused(mp);
         std::fputc('\n',cimg::output());
-        mp.mem.display("[" cimg_appname "_math_parser] Memory snapshot");
+        CImg<charT> title(128);
+        cimg_snprintf(title,title._width,"%s (%u)","[" cimg_appname "_math_parser] Memory snapshot",mp.mem._width);
+        mp.mem.display(title);
         return cimg::type<double>::nan();
       }
 

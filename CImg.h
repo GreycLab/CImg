@@ -482,6 +482,17 @@ extern "C" {
 }
 #endif
 
+// Configure HEIC support
+// (https://github.com/strukturag/libheif)
+//
+// Define 'cimg_use_heic' to enable HEIC support.
+//
+// HEIF library may be used to get a native support of '.heic' and '.avif' files.
+// (see method 'CImg<T>::load_heic()').
+#ifdef cimg_use_heic
+#include <libheif/heif_cxx.h>
+#endif
+
 // Configure LibMINC2 support.
 // (http://en.wikibooks.org/wiki/MINC/Reference/MINC2.0_File_Format_Reference)
 //
@@ -616,10 +627,6 @@ extern "C" {
   extern void dgels_(char*, int*,int*,int*,double*,int*,double*,int*,double*,int*,int*);
   extern void sgels_(char*, int*,int*,int*,float*,int*,float*,int*,float*,int*,int*);
 }
-#endif
-
-#ifdef cimg_use_heic
-#include <libheif/heif_cxx.h>
 #endif
 
 // Check if min/max/PI macros are defined.
@@ -52360,6 +52367,15 @@ namespace cimg_library_suffixed {
       }
       std::fgetc(nfile);
 
+      if (filename) { // Check that dimensions specified in file does not exceed the buffer dimension
+        const cimg_int64 siz = cimg::fsize(filename);
+        if (W*H*D>siz)
+          throw CImgIOException(_cimg_instance
+                                "load_pnm(): Specified image dimensions in file '%s' exceed file size.",
+                                cimg_instance,
+                                filename);
+      }
+
       switch (ppm_type) {
       case 1 : { // 2D B&W ascii
         assign(W,H,1,1);
@@ -54235,51 +54251,40 @@ namespace cimg_library_suffixed {
         heif::Context ctx;
         ctx.read_from_file(filename);
 
-        auto handle = ctx.get_primary_image_handle();
-        auto image = handle.decode_image(heif_colorspace_RGB, handle.has_alpha_channel() ? heif_chroma_interleaved_RGBA : heif_chroma_interleaved_RGB);
-
-        int width = image.get_width(heif_channel_interleaved);
-        int height = image.get_height(heif_channel_interleaved);
-        int depth = 1;
-        int spectrum = handle.has_alpha_channel() ? 4 : 3;
+        heif::ImageHandle handle = ctx.get_primary_image_handle();
+        const heif::Image image =
+          handle.decode_image(heif_colorspace_RGB,handle.has_alpha_channel()?heif_chroma_interleaved_RGBA:
+                              heif_chroma_interleaved_RGB);
+        const int
+          W = image.get_width(heif_channel_interleaved),
+          H = image.get_height(heif_channel_interleaved),
+          S = handle.has_alpha_channel()?4:3;
+        assign(W,H,1,S);
 
         int stride;
-        uint8_t* data = image.get_plane(heif_channel_interleaved, &stride);
-
-        CImg<uint8_t> buffer(data, width, height, depth, spectrum);
-        assign(width, height, depth, spectrum);
-
-        T *ptr_r = _data, *ptr_g = _data + 1UL*_width*_height, *ptr_b = _data + 2UL*_width*_height,
-          *ptr_a = _data + 3UL*_width*_height;
-        for (size_t i = 0; i < height; ++i)
-        {
-          const uint8_t *ptrs = buffer._data + i * stride;
-          switch (_spectrum) {
-          case 3 : {
-            cimg_forX(*this,x) {
-              *(ptr_r++) = (T)*(ptrs++);
-              *(ptr_g++) = (T)*(ptrs++);
-              *(ptr_b++) = (T)*(ptrs++);
-            }
-          } break;
-          case 4 : {
-            cimg_forX(*this,x) {
+        const unsigned char *const buffer = image.get_plane(heif_channel_interleaved,&stride);
+        T *ptr_r = _data, *ptr_g = data(0,0,0,1), *ptr_b = data(0,0,0,2), *ptr_a = S>3?data(0,0,0,3):0;
+        cimg_forY(*this,y) {
+          const unsigned char *ptrs = buffer + y*stride;
+          if (ptr_a) cimg_forX(*this,x) { // RGBA
               *(ptr_r++) = (T)*(ptrs++);
               *(ptr_g++) = (T)*(ptrs++);
               *(ptr_b++) = (T)*(ptrs++);
               *(ptr_a++) = (T)*(ptrs++);
             }
-          } break;
-          }
+          else cimg_forX(*this,x) { // RGB
+              *(ptr_r++) = (T)*(ptrs++);
+              *(ptr_g++) = (T)*(ptrs++);
+              *(ptr_b++) = (T)*(ptrs++);
+            }
         }
       } catch (const heif::Error& e) {
         throw CImgInstanceException(_cimg_instance
-                                   "load_heic(): Unable to decode image: %s",
-                                   cimg_instance, e.get_message());
+                                    "load_heic(): Unable to decode image: %s",
+                                    cimg_instance, e.get_message());
       } catch (...) {
         throw;
       }
-
       return *this;
 #endif
     }

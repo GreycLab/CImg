@@ -54243,7 +54243,9 @@ namespace cimg_library_suffixed {
         ctx.read_from_file(filename);
 
         heif::ImageHandle handle = ctx.get_primary_image_handle();
-        const heif::Image image = handle.decode_image(heif_colorspace_RGB,handle.has_alpha_channel()?heif_chroma_interleaved_RGBA:heif_chroma_interleaved_RGB);
+        const heif::Image image =
+          handle.decode_image(heif_colorspace_RGB,handle.has_alpha_channel()?heif_chroma_interleaved_RGBA:
+                              heif_chroma_interleaved_RGB);
         const int
           W = image.get_width(heif_channel_interleaved),
           H = image.get_height(heif_channel_interleaved),

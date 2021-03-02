@@ -54281,7 +54281,8 @@ namespace cimg_library_suffixed {
       } catch (const heif::Error& e) {
         throw CImgInstanceException(_cimg_instance
                                     "load_heif(): Unable to decode image: %s",
-                                    cimg_instance, e.get_message());
+                                    cimg_instance,
+                                    e.get_message().c_str());
       } catch (...) {
         throw;
       }

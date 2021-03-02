@@ -52367,6 +52367,15 @@ namespace cimg_library_suffixed {
       }
       std::fgetc(nfile);
 
+      if (filename) { // Check that dimensions specified in file does not exceed the buffer dimension
+        const cimg_int64 siz = cimg::fsize(filename);
+        if (W*H*D>siz)
+          throw CImgIOException(_cimg_instance
+                                "load_pnm(): Specified image dimensions in file '%s' exceed file size.",
+                                cimg_instance,
+                                filename);
+      }
+
       switch (ppm_type) {
       case 1 : { // 2D B&W ascii
         assign(W,H,1,1);

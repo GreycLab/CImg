@@ -482,6 +482,17 @@ extern "C" {
 }
 #endif
 
+// Configure HEIC support
+// (https://github.com/strukturag/libheif)
+//
+// Define 'cimg_use_heic' to enable HEIC support.
+//
+// HEIF library may be used to get a native support of '.heic' and '.avif' files.
+// (see method 'CImg<T>::load_heic()').
+#ifdef cimg_use_heic
+#include <libheif/heif_cxx.h>
+#endif
+
 // Configure LibMINC2 support.
 // (http://en.wikibooks.org/wiki/MINC/Reference/MINC2.0_File_Format_Reference)
 //
@@ -51481,6 +51492,8 @@ namespace cimg_library_suffixed {
                  !cimg::strcasecmp(ext,"raf") ||
                  !cimg::strcasecmp(ext,"srf")) load_dcraw_external(filename);
         else if (!cimg::strcasecmp(ext,"gif")) load_gif_external(filename);
+        else if (!cimg::strcasecmp(ext,"heic") ||
+                 !cimg::strcasecmp(ext,"avif")) load_heic(filename);
 
         // 3D binary formats
         else if (!cimg::strcasecmp(ext,"dcm") ||
@@ -54203,6 +54216,66 @@ namespace cimg_library_suffixed {
     static CImg<T> get_load_gif_external(const char *const filename,
                                          const char axis='z', const float align=0) {
       return CImgList<T>().load_gif_external(filename).get_append(axis,align);
+    }
+
+    //! Load image from a HEIC file.
+    /**
+       \param filename Filename, as a C-string.
+    **/
+    CImg<T>& load_heic(const char *const filename) {
+      return _load_heic(filename);
+    }
+
+    //! Load image from a HEIC file \newinstance.
+    static CImg<T> get_load_heic(const char *const filename) {
+      return CImg<T>().load_heic(filename);
+    }
+
+    CImg<T>& _load_heic(const char *const filename) {
+#ifndef cimg_use_heic
+      throw CImgArgumentException(_cimg_instance
+                                  "load_heic(): Specified filename is (null).",
+                                  cimg_instance);
+      return load_other(filename);
+#else
+      try {
+        heif::Context ctx;
+        ctx.read_from_file(filename);
+
+        heif::ImageHandle handle = ctx.get_primary_image_handle();
+        const heif::Image image = handle.decode_image(heif_colorspace_RGB,handle.has_alpha_channel()?heif_chroma_interleaved_RGBA:heif_chroma_interleaved_RGB);
+        const int
+          W = image.get_width(heif_channel_interleaved),
+          H = image.get_height(heif_channel_interleaved),
+          S = handle.has_alpha_channel()?4:3;
+        assign(W,H,1,S);
+
+        int stride;
+        const unsigned char *const buffer = image.get_plane(heif_channel_interleaved,&stride);
+        T *ptr_r = _data, *ptr_g = data(0,0,0,1), *ptr_b = data(0,0,0,2), *ptr_a = S>3?data(0,0,0,3):0;
+        cimg_forY(*this,y) {
+          const unsigned char *ptrs = buffer + y*stride;
+          if (ptr_a) cimg_forX(*this,x) { // RGBA
+              *(ptr_r++) = (T)*(ptrs++);
+              *(ptr_g++) = (T)*(ptrs++);
+              *(ptr_b++) = (T)*(ptrs++);
+              *(ptr_a++) = (T)*(ptrs++);
+            }
+          else cimg_forX(*this,x) { // RGB
+              *(ptr_r++) = (T)*(ptrs++);
+              *(ptr_g++) = (T)*(ptrs++);
+              *(ptr_b++) = (T)*(ptrs++);
+            }
+        }
+      } catch (const heif::Error& e) {
+        throw CImgInstanceException(_cimg_instance
+                                    "load_heic(): Unable to decode image: %s",
+                                    cimg_instance, e.get_message());
+      } catch (...) {
+        throw;
+      }
+      return *this;
+#endif
     }
 
     //! Load image using GraphicsMagick's external tool 'gm'.

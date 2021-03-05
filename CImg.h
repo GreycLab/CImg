@@ -482,6 +482,7 @@ extern "C" {
 }
 #endif
 
+<<<<<<< HEAD
 // Configure HEIC support
 // (https://github.com/strukturag/libheif)
 //
@@ -490,6 +491,16 @@ extern "C" {
 // HEIF library may be used to get a native support of '.heic' and '.avif' files.
 // (see method 'CImg<T>::load_heic()').
 #ifdef cimg_use_heic
+=======
+// Configure HEIF support
+// (https://github.com/strukturag/libheif)
+//
+// Define 'cimg_use_heif' to enable HEIF support.
+//
+// HEIF library may be used to get a native support of '.heic' and '.avif' files.
+// (see method 'CImg<T>::load_heif()').
+#ifdef cimg_use_heif
+>>>>>>> develop
 #include <libheif/heif_cxx.h>
 #endif
 
@@ -51493,7 +51504,11 @@ namespace cimg_library_suffixed {
                  !cimg::strcasecmp(ext,"srf")) load_dcraw_external(filename);
         else if (!cimg::strcasecmp(ext,"gif")) load_gif_external(filename);
         else if (!cimg::strcasecmp(ext,"heic") ||
+<<<<<<< HEAD
                  !cimg::strcasecmp(ext,"avif")) load_heic(filename);
+=======
+                 !cimg::strcasecmp(ext,"avif")) load_heif(filename);
+>>>>>>> develop
 
         // 3D binary formats
         else if (!cimg::strcasecmp(ext,"dcm") ||
@@ -54231,6 +54246,7 @@ namespace cimg_library_suffixed {
     /**
        \param filename Filename, as a C-string.
     **/
+<<<<<<< HEAD
     CImg<T>& load_heic(const char *const filename) {
       return _load_heic(filename);
     }
@@ -54244,6 +54260,21 @@ namespace cimg_library_suffixed {
 #ifndef cimg_use_heic
       throw CImgArgumentException(_cimg_instance
                                   "load_heic(): Specified filename is (null).",
+=======
+    CImg<T>& load_heif(const char *const filename) {
+      return _load_heif(filename);
+    }
+
+    //! Load image from a HEIC file \newinstance.
+    static CImg<T> get_load_heif(const char *const filename) {
+      return CImg<T>().load_heif(filename);
+    }
+
+    CImg<T>& _load_heif(const char *const filename) {
+#ifndef cimg_use_heif
+      throw CImgArgumentException(_cimg_instance
+                                  "load_heif(): Specified filename is (null).",
+>>>>>>> develop
                                   cimg_instance);
       return load_other(filename);
 #else
@@ -54280,8 +54311,14 @@ namespace cimg_library_suffixed {
         }
       } catch (const heif::Error& e) {
         throw CImgInstanceException(_cimg_instance
+<<<<<<< HEAD
                                     "load_heic(): Unable to decode image: %s",
                                     cimg_instance, e.get_message());
+=======
+                                    "load_heif(): Unable to decode image: %s",
+                                    cimg_instance,
+                                    e.get_message().c_str());
+>>>>>>> develop
       } catch (...) {
         throw;
       }

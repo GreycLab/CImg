@@ -54522,7 +54522,6 @@ namespace cimg_library_suffixed {
       return CImg<T>().load_medcon_external(filename);
     }
 
-
     //! Load image from a .pdf file.
     /**
        \param filename Filename, as a C-string.
@@ -54573,6 +54572,11 @@ namespace cimg_library_suffixed {
       load_pnm(filename_tmp);
       std::remove(filename_tmp);
       return *this;
+    }
+
+    //! Load image from a .pdf file \newinstance.
+    static CImg<T> get_load_pdf_external(const char *const filename, const unsigned int resolution=400) {
+      return CImg<T>().load_pdf_external(filename,resolution);
     }
 
     //! Load image from a RAW Color Camera file, using external tool 'dcraw'.

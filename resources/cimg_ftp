@@ -17,22 +17,20 @@ pwd={`"
   is_pwd={['$pwd']!=0}
 
 # Upload file or directory.
-if !narg("$1")" && "$is_pwd # Synchronize current directory
-
-  e[] "Synchronize current directory '"$pwd"'.\n"
-  com="lftp ftp://"$GMIC_LOGIN":"$GMIC_PASSWD"@"$GMIC_FTP" -e \"mirror -RL . /www/CImg/"$pwd" ; quit\""
+if "s = ['$1']; "$is_pwd" && (s==0 || s=='.')" # Synchronize current directory
+  e[] "Synchronize current directory '"${pwd}"' with 'SERVER"${pwd}"'.\n"
+  com="lftp ftp://"$GMIC_LOGIN":"$GMIC_PASSWD"@"$GMIC_FTP" -e \"mirror -RL . /www/CImg"${pwd}" ; quit\""
   x $com
 
-elif isdir(['"$1"'])" && "$is_pwd # Synchronize specified directory
-
-  e[] "Synchronize directory '$1' with 'SERVER/"$pwd"$1/'.\n"
-  com="lftp ftp://"$GMIC_LOGIN":"$GMIC_PASSWD"@"$GMIC_FTP" -e \"mirror -RL \\\"$1\\\" \\\"/www/CImg/"$pwd"$1\\\" ; quit\""
+elif $is_pwd" && isdir(['"$1"'])" # Synchronize specified directory
+  e[] "Synchronize directory '$1' with 'SERVER"${pwd}"$1'.\n"
+  com="lftp ftp://"$GMIC_LOGIN":"$GMIC_PASSWD"@"$GMIC_FTP" -e \"mirror -RL \\\"$1\\\" \\\"/www/CImg"${pwd}"$1\\\" ; quit\""
   x $com
 
-elif isfile(['"$1"']) # Upload file
-
-  e[] "Upload file '$1' to 'SERVER/"$pwd"'.\n"
-  com="lftp ftp://"$GMIC_LOGIN":"$GMIC_PASSWD"@"$GMIC_FTP" -e \"put -O \\\"/www/CImg/"$pwd"\\\" \\\"$1\\\"; quit\""
+elif isfile(['"$1"']) # Upload single file
+  if !$is_pwd pwd="/" fi
+  e[] "Upload file '$1' to 'SERVER"${pwd}"'.\n"
+  com="lftp ftp://"$GMIC_LOGIN":"$GMIC_PASSWD"@"$GMIC_FTP" -e \"put -O \\\"/www/CImg"${pwd}"\\\" \\\"$1\\\"; quit\""
   x $com
 
 fi

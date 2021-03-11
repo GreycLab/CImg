@@ -51534,6 +51534,7 @@ namespace cimg_library_suffixed {
                  !cimg::strcasecmp(ext,"qt") ||
                  !cimg::strcasecmp(ext,"rm") ||
                  !cimg::strcasecmp(ext,"vob") ||
+                 !cimg::strcasecmp(ext,"webm") ||
                  !cimg::strcasecmp(ext,"wmv") ||
                  !cimg::strcasecmp(ext,"xvid") ||
                  !cimg::strcasecmp(ext,"mpeg")) load_video(filename);
@@ -56022,6 +56023,7 @@ namespace cimg_library_suffixed {
                !cimg::strcasecmp(ext,"qt") ||
                !cimg::strcasecmp(ext,"rm") ||
                !cimg::strcasecmp(ext,"vob") ||
+               !cimg::strcasecmp(ext,"webm") ||
                !cimg::strcasecmp(ext,"wmv") ||
                !cimg::strcasecmp(ext,"xvid") ||
                !cimg::strcasecmp(ext,"mpeg")) return save_video(fn);
@@ -60980,6 +60982,7 @@ namespace cimg_library_suffixed {
                  !cimg::strcasecmp(ext,"qt") ||
                  !cimg::strcasecmp(ext,"rm") ||
                  !cimg::strcasecmp(ext,"vob") ||
+                 !cimg::strcasecmp(ext,"webm") ||
                  !cimg::strcasecmp(ext,"wmv") ||
                  !cimg::strcasecmp(ext,"xvid") ||
                  !cimg::strcasecmp(ext,"mpeg")) load_video(filename);
@@ -62306,6 +62309,7 @@ namespace cimg_library_suffixed {
                !cimg::strcasecmp(ext,"qt") ||
                !cimg::strcasecmp(ext,"rm") ||
                !cimg::strcasecmp(ext,"vob") ||
+               !cimg::strcasecmp(ext,"webm") ||
                !cimg::strcasecmp(ext,"wmv") ||
                !cimg::strcasecmp(ext,"xvid") ||
                !cimg::strcasecmp(ext,"mpeg")) return save_video(fn);
@@ -62354,6 +62358,7 @@ namespace cimg_library_suffixed {
           !cimg::strcasecmp(ext,"qt") ||
           !cimg::strcasecmp(ext,"rm") ||
           !cimg::strcasecmp(ext,"vob") ||
+          !cimg::strcasecmp(ext,"webm") ||
           !cimg::strcasecmp(ext,"wmv") ||
           !cimg::strcasecmp(ext,"xvid") ||
           !cimg::strcasecmp(ext,"mpeg")) return true;

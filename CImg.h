@@ -51534,6 +51534,7 @@ namespace cimg_library_suffixed {
                  !cimg::strcasecmp(ext,"qt") ||
                  !cimg::strcasecmp(ext,"rm") ||
                  !cimg::strcasecmp(ext,"vob") ||
+                 !cimg::strcasecmp(ext,"webm") ||
                  !cimg::strcasecmp(ext,"wmv") ||
                  !cimg::strcasecmp(ext,"xvid") ||
                  !cimg::strcasecmp(ext,"mpeg")) load_video(filename);
@@ -56022,6 +56023,7 @@ namespace cimg_library_suffixed {
                !cimg::strcasecmp(ext,"qt") ||
                !cimg::strcasecmp(ext,"rm") ||
                !cimg::strcasecmp(ext,"vob") ||
+               !cimg::strcasecmp(ext,"webm") ||
                !cimg::strcasecmp(ext,"wmv") ||
                !cimg::strcasecmp(ext,"xvid") ||
                !cimg::strcasecmp(ext,"mpeg")) return save_video(fn);
@@ -60980,6 +60982,7 @@ namespace cimg_library_suffixed {
                  !cimg::strcasecmp(ext,"qt") ||
                  !cimg::strcasecmp(ext,"rm") ||
                  !cimg::strcasecmp(ext,"vob") ||
+                 !cimg::strcasecmp(ext,"webm") ||
                  !cimg::strcasecmp(ext,"wmv") ||
                  !cimg::strcasecmp(ext,"xvid") ||
                  !cimg::strcasecmp(ext,"mpeg")) load_video(filename);
@@ -62306,6 +62309,7 @@ namespace cimg_library_suffixed {
                !cimg::strcasecmp(ext,"qt") ||
                !cimg::strcasecmp(ext,"rm") ||
                !cimg::strcasecmp(ext,"vob") ||
+               !cimg::strcasecmp(ext,"webm") ||
                !cimg::strcasecmp(ext,"wmv") ||
                !cimg::strcasecmp(ext,"xvid") ||
                !cimg::strcasecmp(ext,"mpeg")) return save_video(fn);
@@ -62354,6 +62358,7 @@ namespace cimg_library_suffixed {
           !cimg::strcasecmp(ext,"qt") ||
           !cimg::strcasecmp(ext,"rm") ||
           !cimg::strcasecmp(ext,"vob") ||
+          !cimg::strcasecmp(ext,"webm") ||
           !cimg::strcasecmp(ext,"wmv") ||
           !cimg::strcasecmp(ext,"xvid") ||
           !cimg::strcasecmp(ext,"mpeg")) return true;
@@ -62924,7 +62929,7 @@ namespace cimg_library_suffixed {
                                       "save_video(): Frame [0] is an empty image.",
                                       cimglist_instance);
         const char
-          *const _codec = codec && *codec?codec:cimg_OS==2?"mpeg":"fmp4",
+          *const _codec = codec && *codec?codec:"h264",
           codec0 = cimg::uppercase(_codec[0]),
           codec1 = _codec[0]?cimg::uppercase(_codec[1]):0,
           codec2 = _codec[1]?cimg::uppercase(_codec[2]):0,
@@ -63003,7 +63008,9 @@ namespace cimg_library_suffixed {
 
       const char
         *const ext = cimg::split_filename(filename),
-        *const _codec = codec?codec:!cimg::strcasecmp(ext,"flv")?"flv":"mpeg2video";
+        *const _codec = codec?codec:
+        !cimg::strcasecmp(ext,"flv")?"flv":
+        !cimg::strcasecmp(ext,"mp4")?"h264":"mpeg2video";
 
       CImg<charT> command(1024), filename_tmp(256), filename_tmp2(256);
       CImgList<charT> filenames;
@@ -63025,7 +63032,7 @@ namespace cimg_library_suffixed {
         if (_data[l]._depth>1 || _data[l]._spectrum!=3) _data[l].get_resize(-100,-100,1,3).save_pnm(filename_tmp2);
         else _data[l].save_pnm(filename_tmp2);
       }
-      cimg_snprintf(command,command._width,"\"%s\" -i \"%s_%%6d.ppm\" -vcodec %s -b %uk -r %u -y \"%s\"",
+      cimg_snprintf(command,command._width,"\"%s\" -i \"%s_%%6d.ppm\" -pix_fmt yuv420p -vcodec %s -b %uk -r %u -y \"%s\"",
                     cimg::ffmpeg_path(),
                     CImg<charT>::string(filename_tmp)._system_strescape().data(),
                     _codec,bitrate,fps,

@@ -63033,7 +63033,7 @@ namespace cimg_library_suffixed {
         else _data[l].save_pnm(filename_tmp2);
       }
       cimg_snprintf(command,command._width,
-                    "\"%s\" -y -i \"%s_%%6d.ppm\" -pix_fmt yuv420p -vcodec %s -b %uk -r %u -y \"%s\"",
+                    "\"%s\" -y -i \"%s_%%6d.ppm\" -pix_fmt yuv420p -vcodec %s -b %uk -r %u \"%s\"",
                     cimg::ffmpeg_path(),
                     CImg<charT>::string(filename_tmp)._system_strescape().data(),
                     _codec,bitrate,fps,

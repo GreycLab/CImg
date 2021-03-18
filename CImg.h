@@ -45827,7 +45827,7 @@ namespace cimg_library_suffixed {
           const int dxmM = std::max(1,xM - xm);
           const float dizmM = izM - izm;
 
-          for (int x = cxm; x<cxM; ++x) {
+          for (int x = cxm; x<=cxM; ++x) {
             const int xxm = x - xm;
             const float iz = izm + dizmM*xxm/dxmM;
             if (iz>=*ptrz) {
@@ -46181,7 +46181,7 @@ namespace cimg_library_suffixed {
           const int dxmM = std::max(1,xM - xm);
           const float dizmM = izM - izm, dtxzmM = txzM - txzm, dtyzmM = tyzM - tyzm;
 
-          for (int x = cxm; x<cxM; ++x) {
+          for (int x = cxm; x<=cxM; ++x) {
             const int xxm = x - xm;
             const float
               iz = izm + dizmM*xxm/dxmM,
@@ -46275,7 +46275,7 @@ namespace cimg_library_suffixed {
           const int dxmM = std::max(1,xM - xm);
           const float dizmM = izM - izm, dtxzmM = txzM - txzm, dtyzmM = tyzM - tyzm;
 
-          for (int x = cxm; x<cxM; ++x) {
+          for (int x = cxm; x<=cxM; ++x) {
             const int xxm = x - xm;
             const float iz = izm + dizmM*xxm/dxmM;
             if (iz>=*ptrz) {
@@ -46375,7 +46375,7 @@ namespace cimg_library_suffixed {
             dxmM = std::max(1,xM - xm), hdxmM = dxmM/2,
             dlxmM = lxM - lxm, dlymM = lyM - lym;
 
-          for (int x = cxm; x<cxM; ++x) {
+          for (int x = cxm; x<=cxM; ++x) {
             const int
               xxm = x - xm,
               lx = (lxm*dxmM + dlxmM*xxm + hdxmM)/dxmM,
@@ -46470,7 +46470,7 @@ namespace cimg_library_suffixed {
             dlxmM = lxM - lxm, dlymM = lyM - lym;
           const float dizmM = izM - izm;
 
-          for (int x = cxm; x<cxM; ++x) {
+          for (int x = cxm; x<=cxM; ++x) {
             const int xxm = x - xm;
             const float iz = izm + dizmM*xxm/dxmM;
             if (iz>=*ptrz) {
@@ -46578,7 +46578,7 @@ namespace cimg_library_suffixed {
             dtxmM = txM - txm, dtymM = tyM - tym;
           const float dbsmM = bsM - bsm;
 
-          for (int x = cxm; x<cxM; ++x) {
+          for (int x = cxm; x<=cxM; ++x) {
             const int
               xxm = x - xm,
               tx = (txm*dxmM + dtxmM*xxm + hdxmM)/dxmM,
@@ -46665,7 +46665,7 @@ namespace cimg_library_suffixed {
           const int dxmM = std::max(1,xM - xm);
           const float dizmM = izM - izm, dtxzmM = txzM - txzm, dtyzmM = tyzM - tyzm, dbsmM = bsM - bsm;
 
-          for (int x = cxm; x<cxM; ++x) {
+          for (int x = cxm; x<=cxM; ++x) {
             const int xxm = x - xm;
             const float
               iz = izm + dizmM*xxm/dxmM,
@@ -46764,7 +46764,7 @@ namespace cimg_library_suffixed {
           const int dxmM = std::max(1,xM - xm);
           const float dizmM = izM - izm, dtxzmM = txzM - txzm, dtyzmM = tyzM - tyzm, dbsmM = bsM - bsm;
 
-          for (int x = cxm; x<cxM; ++x) {
+          for (int x = cxm; x<=cxM; ++x) {
             const int xxm = x - xm;
             const float iz = izm + dizmM*xxm/dxmM;
             if (iz>=*ptrz) {
@@ -46891,7 +46891,7 @@ namespace cimg_library_suffixed {
             dtxmM = txM - txm, dtymM = tyM - tym,
             dlxmM = lxM - lxm, dlymM = lyM - lym;
 
-          for (int x = cxm; x<cxM; ++x) {
+          for (int x = cxm; x<=cxM; ++x) {
             const int
               xxm = x - xm,
               tx = (txm*dxmM + dtxmM*xxm + hdxmM)/dxmM,
@@ -47000,7 +47000,7 @@ namespace cimg_library_suffixed {
             dtxzmM = txzM - txzm, dtyzmM = tyzM - tyzm,
             dlxzmM = lxzM - lxzm, dlyzmM = lyzM - lyzm;
 
-          for (int x = cxm; x<cxM; ++x) {
+          for (int x = cxm; x<=cxM; ++x) {
             const int xxm = x - xm;
             const float
               iz = izm + dizmM*xxm/dxmM,
@@ -47123,7 +47123,7 @@ namespace cimg_library_suffixed {
             dtxzmM = txzM - txzm, dtyzmM = tyzM - tyzm,
             dlxzmM = lxzM - lxzm, dlyzmM = lyzM - lyzm;
 
-          for (int x = cxm; x<cxM; ++x) {
+          for (int x = cxm; x<=cxM; ++x) {
             const int xxm = x - xm;
             const float iz = izm + dizmM*xxm/dxmM;
             if (iz>=*ptrz) {

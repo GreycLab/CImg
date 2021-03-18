@@ -47331,7 +47331,7 @@ namespace cimg_library_suffixed {
         nn = an;
       }
 
-      cimg_pragma_openmp(parallel for cimg_openmp_if(Xs._height>=(cimg_openmp_sizefactor)*32))
+      cimg_pragma_openmp(parallel for cimg_openmp_if(Xs._height>=(cimg_openmp_sizefactor)*512))
       cimg_forY(Xs,y) {
         const CImg<intT> Xsy = Xs.get_shared_points(0,count[y] - 1,y).sort();
         int px = width();
@@ -63033,7 +63033,7 @@ namespace cimg_library_suffixed {
         else _data[l].save_pnm(filename_tmp2);
       }
       cimg_snprintf(command,command._width,
-                    "\"%s\" -i \"%s_%%6d.ppm\" -pix_fmt yuv420p -vcodec %s -b %uk -r %u -y \"%s\"",
+                    "\"%s\" -y -i \"%s_%%6d.ppm\" -pix_fmt yuv420p -vcodec %s -b %uk -r %u \"%s\"",
                     cimg::ffmpeg_path(),
                     CImg<charT>::string(filename_tmp)._system_strescape().data(),
                     _codec,bitrate,fps,

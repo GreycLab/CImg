@@ -45818,7 +45818,7 @@ namespace cimg_library_suffixed {
           izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*yy1/dy12),
           izM = iz0 + diz02*yy0/dy02;
         if (xm>xM) cimg::swap(xm,xM,izm,izM);
-        if (xM>=0 || xm<=w1) {
+        if (xM>=0 && xm<=w1) {
           const int
             cxm = cimg::cut(xm,0,w1),
             cxM = cimg::cut(xM,0,w1);
@@ -45897,7 +45897,7 @@ namespace cimg_library_suffixed {
           bsm = y<y1?(bs0 + dbs01*yy0/dy01):(bs1 + dbs12*yy1/dy12),
           bsM = bs0 + dbs02*yy0/dy02;
         if (xm>xM) cimg::swap(xm,xM,bsm,bsM);
-        if (xM>=0 || xm<=w1) {
+        if (xM>=0 && xm<=w1) {
           const int
             cxm = cimg::cut(xm,0,w1),
             cxM = cimg::cut(xM,0,w1);
@@ -45971,7 +45971,7 @@ namespace cimg_library_suffixed {
           bsm = y<y1?(bs0 + dbs01*yy0/dy01):(bs1 + dbs12*yy1/dy12),
           bsM = bs0 + dbs02*yy0/dy02;
         if (xm>xM) cimg::swap(xm,xM,izm,izM,bsm,bsM);
-        if (xM>=0 || xm<=w1) {
+        if (xM>=0 && xm<=w1) {
           const int
             cxm = cimg::cut(xm,0,w1),
             cxM = cimg::cut(xM,0,w1);
@@ -46091,7 +46091,7 @@ namespace cimg_library_suffixed {
           tym = y<y1?ty0 + (dty01*yy0 + hdy01ty)/dy01:ty1 + (dty12*yy1 + hdy12ty)/dy12,
           tyM = ty0 + (dty02*yy0 + hdy02ty)/dy02;
         if (xm>xM) cimg::swap(xm,xM,txm,txM,tym,tyM);
-        if (xM>=0 || xm<=w1) {
+        if (xM>=0 && xm<=w1) {
           const int
             cxm = cimg::cut(xm,0,w1),
             cxM = cimg::cut(xM,0,w1);
@@ -46173,7 +46173,7 @@ namespace cimg_library_suffixed {
           tyzm = y<y1?(tyz0 + dtyz01*yy0/dy01):(tyz1 + dtyz12*yy1/dy12),
           tyzM = tyz0 + dtyz02*yy0/dy02;
         if (xm>xM) cimg::swap(xm,xM,txzm,txzM,tyzm,tyzM,izm,izM);
-        if (xM>=0 || xm<=w1) {
+        if (xM>=0 && xm<=w1) {
           const int
             cxm = cimg::cut(xm,0,w1),
             cxM = cimg::cut(xM,0,w1);
@@ -46266,7 +46266,7 @@ namespace cimg_library_suffixed {
           tyzm = y<y1?(tyz0 + dtyz01*yy0/dy01):(tyz1 + dtyz12*yy1/dy12),
           tyzM = tyz0 + dtyz02*yy0/dy02;
         if (xm>xM) cimg::swap(xm,xM,txzm,txzM,tyzm,tyzM,izm,izM);
-        if (xM>=0 || xm<=w1) {
+        if (xM>=0 && xm<=w1) {
           const int
             cxm = cimg::cut(xm,0,w1),
             cxM = cimg::cut(xM,0,w1);
@@ -46366,7 +46366,7 @@ namespace cimg_library_suffixed {
           lym = y<y1?ly0 + (dly01*yy0 + hdy01ly)/dy01:ly1 + (dly12*yy1 + hdy12ly)/dy12,
           lyM = ly0 + (dly02*yy0 + hdy02ly)/dy02;
         if (xm>xM) cimg::swap(xm,xM,lxm,lxM,lym,lyM);
-        if (xM>=0 || xm<=w1) {
+        if (xM>=0 && xm<=w1) {
           const int
             cxm = cimg::cut(xm,0,w1),
             cxM = cimg::cut(xM,0,w1);
@@ -46459,7 +46459,7 @@ namespace cimg_library_suffixed {
           izM = iz0 + diz02*yy0/dy02;
 
         if (xm>xM) cimg::swap(xm,xM,lxm,lxM,lym,lyM,izm,izM);
-        if (xM>=0 || xm<=w1) {
+        if (xM>=0 && xm<=w1) {
           const int
             cxm = cimg::cut(xm,0,w1),
             cxM = cimg::cut(xM,0,w1);
@@ -46568,7 +46568,7 @@ namespace cimg_library_suffixed {
           bsm = y<y1?(bs0 + dbs01*yy0/dy01):(bs1 + dbs12*yy1/dy12),
           bsM = bs0 + dbs02*yy0/dy02;
         if (xm>xM) cimg::swap(xm,xM,txm,txM,tym,tyM,bsm,bsM);
-        if (xM>=0 || xm<=w1) {
+        if (xM>=0 && xm<=w1) {
           const int
             cxm = cimg::cut(xm,0,w1),
             cxM = cimg::cut(xM,0,w1);
@@ -46657,7 +46657,7 @@ namespace cimg_library_suffixed {
           bsm = y<y1?(bs0 + dbs01*yy0/dy01):(bs1 + dbs12*yy1/dy12),
           bsM = bs0 + dbs02*yy0/dy02;
         if (xm>xM) cimg::swap(xm,xM,txzm,txzM,tyzm,tyzM,izm,izM,bsm,bsM);
-        if (xM>=0 || xm<=w1) {
+        if (xM>=0 && xm<=w1) {
           const int
             cxm = cimg::cut(xm,0,w1),
             cxM = cimg::cut(xM,0,w1);
@@ -46755,7 +46755,7 @@ namespace cimg_library_suffixed {
           bsm = y<y1?(bs0 + dbs01*yy0/dy01):(bs1 + dbs12*yy1/dy12),
           bsM = bs0 + dbs02*yy0/dy02;
         if (xm>xM) cimg::swap(xm,xM,txzm,txzM,tyzm,tyzM,izm,izM,bsm,bsM);
-        if (xM>=0 || xm<=w1) {
+        if (xM>=0 && xm<=w1) {
           const int
             cxm = cimg::cut(xm,0,w1),
             cxM = cimg::cut(xM,0,w1);
@@ -46881,7 +46881,7 @@ namespace cimg_library_suffixed {
           lym = y<y1?ly0 + (dly01*yy0 + hdy01ly)/dy01:ly1 + (dly12*yy1 + hdy12ly)/dy12,
           lyM = ly0 + (dly02*yy0 + hdy02ly)/dy02;
         if (xm>xM) cimg::swap(xm,xM,txm,txM,tym,tyM,lxm,lxM,lym,lyM);
-        if (xM>=0 || xm<=w1) {
+        if (xM>=0 && xm<=w1) {
           const int
             cxm = cimg::cut(xm,0,w1),
             cxM = cimg::cut(xM,0,w1);
@@ -46989,7 +46989,7 @@ namespace cimg_library_suffixed {
           lyzm = y<y1?(lyz0 + dlyz01*yy0/dy01):(lyz1 + dlyz12*yy1/dy12),
           lyzM = lyz0 + dlyz02*yy0/dy02;
         if (xm>xM) cimg::swap(xm,xM,izm,izM,txzm,txzM,tyzm,tyzM,lxzm,lxzM,lyzm,lyzM);
-        if (xM>=0 || xm<=w1) {
+        if (xM>=0 && xm<=w1) {
           const int
             cxm = cimg::cut(xm,0,w1),
             cxM = cimg::cut(xM,0,w1);
@@ -47111,7 +47111,7 @@ namespace cimg_library_suffixed {
           lyzm = y<y1?(lyz0 + dlyz01*yy0/dy01):(lyz1 + dlyz12*yy1/dy12),
           lyzM = lyz0 + dlyz02*yy0/dy02;
         if (xm>xM) cimg::swap(xm,xM,izm,izM,txzm,txzM,tyzm,tyzM,lxzm,lxzM,lyzm,lyzM);
-        if (xM>=0 || xm<=w1) {
+        if (xM>=0 && xm<=w1) {
           const int
             cxm = cimg::cut(xm,0,w1),
             cxM = cimg::cut(xM,0,w1);

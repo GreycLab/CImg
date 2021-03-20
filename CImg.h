@@ -20099,12 +20099,11 @@ namespace cimg_library_suffixed {
               _cimg_mp_op("Function 'get()'");
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss4,s1,depth1,0,is_critical);
-              arg2 = 0;
-              arg3 = 1;
+              arg2 = arg3 = 0;
               if (s1<se1) {
                 s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
                 arg2 = compile(++s1,s2,depth1,0,is_critical);
-                arg3 = s2<se1?compile(++s2,se1,depth1,0,is_critical):1;
+                arg3 = s2<se1?compile(++s2,se1,depth1,0,is_critical):0;
               }
               _cimg_mp_check_type(arg1,1,2,0);
               _cimg_mp_check_constant(arg2,2,2);
@@ -23790,12 +23789,12 @@ namespace cimg_library_suffixed {
         const unsigned int
           sizs = (unsigned int)mp.opcode[3],
           sizd = (unsigned int)mp.opcode[4];
-        const bool to_numbers = (bool)mp.opcode[5];
+        const bool to_string = (bool)mp.opcode[5];
         CImg<charT> ss(sizs + 1);
         cimg_for_inX(ss,0,ss.width() - 1,i) ss[i] = (char)ptrs[i];
         ss.back() = 0;
-        if (sizd) cimg_mp_func_get(ptrd + 1,sizd,to_numbers,ss._data);
-        else cimg_mp_func_get(ptrd,0,to_numbers,ss._data);
+        if (sizd) cimg_mp_func_get(ptrd + 1,sizd,to_string,ss._data);
+        else cimg_mp_func_get(ptrd,0,to_string,ss._data);
         return cimg::type<double>::nan();
       }
 #endif

@@ -63599,7 +63599,7 @@ namespace cimg_library_suffixed {
        \return Path containing the program files.
     **/
 #if cimg_OS==2
-    inline const char* win_programfiles_path(const char *const user_path, const bool reinit_path) {
+    inline const char* win_programfiles_path(const char *const user_path=0, const bool reinit_path=false) {
       static CImg<char> s_path;
       cimg::mutex(7);
       if (reinit_path) s_path.assign();

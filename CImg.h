@@ -7399,40 +7399,35 @@ namespace cimg_library_suffixed {
       return date(&out,1);
     }
 
-    // Get/set path to store temporary files.
-    inline const char* temporary_path(const char *const user_path=0, const bool reinit_path=false);
-
-    // Get/set path to the <i>Program Files/</i> directory (Windows only).
-#if cimg_OS==2
-    inline const char* win_programfiles_path(const char *const user_path=0, const bool reinit_path=false);
-#endif
-
-    // Get/set path to the ImageMagick's \c convert binary.
-    inline const char* imagemagick_path(const char *const user_path=0, const bool reinit_path=false);
-
-    // Get/set path to the GraphicsMagick's \c gm binary.
-    inline const char* graphicsmagick_path(const char *const user_path=0, const bool reinit_path=false);
-
-    // Get/set path to the XMedcon's \c medcon binary.
-    inline const char* medcon_path(const char *const user_path=0, const bool reinit_path=false);
-
-    // Get/set path to the FFMPEG's \c ffmpeg binary.
-    inline const char *ffmpeg_path(const char *const user_path=0, const bool reinit_path=false);
-
-    // Get/set path to the \c gzip binary.
-    inline const char *gzip_path(const char *const user_path=0, const bool reinit_path=false);
-
-    // Get/set path to the \c gunzip binary.
-    inline const char *gunzip_path(const char *const user_path=0, const bool reinit_path=false);
+    // Get/set path to the \c curl binary.
+    inline const char *curl_path(const char *const user_path=0, const bool reinit_path=false);
 
     // Get/set path to the \c dcraw binary.
     inline const char *dcraw_path(const char *const user_path=0, const bool reinit_path=false);
 
+    // Get/set path to the FFMPEG's \c ffmpeg binary.
+    inline const char *ffmpeg_path(const char *const user_path=0, const bool reinit_path=false);
+
+    // Get/set path to the GraphicsMagick's \c gm binary.
+    inline const char* graphicsmagick_path(const char *const user_path=0, const bool reinit_path=false);
+
+    // Get/set path to the \c gunzip binary.
+    inline const char *gunzip_path(const char *const user_path=0, const bool reinit_path=false);
+
+    // Get/set path to the \c gzip binary.
+    inline const char *gzip_path(const char *const user_path=0, const bool reinit_path=false);
+
+    // Get/set path to the ImageMagick's \c convert binary.
+    inline const char* imagemagick_path(const char *const user_path=0, const bool reinit_path=false);
+
+    // Get/set path to the XMedcon's \c medcon binary.
+    inline const char* medcon_path(const char *const user_path=0, const bool reinit_path=false);
+
+    // Get/set path to store temporary files.
+    inline const char* temporary_path(const char *const user_path=0, const bool reinit_path=false);
+
     // Get/set path to the \c wget binary.
     inline const char *wget_path(const char *const user_path=0, const bool reinit_path=false);
-
-    // Get/set path to the \c curl binary.
-    inline const char *curl_path(const char *const user_path=0, const bool reinit_path=false);
 
     //! Split filename into two C-strings \c body and \c extension.
     /**
@@ -7774,14 +7769,45 @@ namespace cimg_library_suffixed {
                    cimg::t_normal);
 
       char *const tmp = new char[1024];
-      cimg_snprintf(tmp,1024,"\"%.1020s\"",cimg::imagemagick_path());
-      std::fprintf(cimg::output(),"  > Path of ImageMagick:    %s%-13s%s\n",
+
+      cimg_snprintf(tmp,1024,"\"%.1020s\"",cimg::curl_path());
+      std::fprintf(cimg::output(),"  > Path of 'curl':       %s%-13s%s\n",
+                   cimg::t_bold,
+                   tmp,
+                   cimg::t_normal);
+
+      cimg_snprintf(tmp,1024,"\"%.1020s\"",cimg::dcraw_path());
+      std::fprintf(cimg::output(),"  > Path of 'dcraw':       %s%-13s%s\n",
+                   cimg::t_bold,
+                   tmp,
+                   cimg::t_normal);
+
+      cimg_snprintf(tmp,1024,"\"%.1020s\"",cimg::ffmpeg_path());
+      std::fprintf(cimg::output(),"  > Path of 'ffmpeg':       %s%-13s%s\n",
                    cimg::t_bold,
                    tmp,
                    cimg::t_normal);
 
       cimg_snprintf(tmp,1024,"\"%.1020s\"",cimg::graphicsmagick_path());
-      std::fprintf(cimg::output(),"  > Path of GraphicsMagick: %s%-13s%s\n",
+      std::fprintf(cimg::output(),"  > Path of 'graphicsmagick gm': %s%-13s%s\n",
+                   cimg::t_bold,
+                   tmp,
+                   cimg::t_normal);
+
+      cimg_snprintf(tmp,1024,"\"%.1020s\"",cimg::gunzip_path());
+      std::fprintf(cimg::output(),"  > Path of 'gunzip':    %s%-13s%s\n",
+                   cimg::t_bold,
+                   tmp,
+                   cimg::t_normal);
+
+      cimg_snprintf(tmp,1024,"\"%.1020s\"",cimg::gzip_path());
+      std::fprintf(cimg::output(),"  > Path of 'gzip':    %s%-13s%s\n",
+                   cimg::t_bold,
+                   tmp,
+                   cimg::t_normal);
+
+      cimg_snprintf(tmp,1024,"\"%.1020s\"",cimg::imagemagick_path());
+      std::fprintf(cimg::output(),"  > Path of 'imagemagick convert':    %s%-13s%s\n",
                    cimg::t_bold,
                    tmp,
                    cimg::t_normal);
@@ -7794,6 +7820,12 @@ namespace cimg_library_suffixed {
 
       cimg_snprintf(tmp,1024,"\"%.1020s\"",cimg::temporary_path());
       std::fprintf(cimg::output(),"  > Temporary path:         %s%-13s%s\n",
+                   cimg::t_bold,
+                   tmp,
+                   cimg::t_normal);
+
+      cimg_snprintf(tmp,1024,"\"%.1020s\"",cimg::wget_path());
+      std::fprintf(cimg::output(),"  > Path of 'wget':       %s%-13s%s\n",
                    cimg::t_bold,
                    tmp,
                    cimg::t_normal);
@@ -63480,6 +63512,15 @@ namespace cimg_library_suffixed {
       return 0;
     }
 
+    //! Search path of an executable (Windows only).
+#if cimg_OS==2
+    inline bool win_searchpath(const char *const exec_name, char *const res, const unsigned int size_res) {
+      char *ptr = 0;
+      DWORD err = SearchPathA(0,exec_name,0,size_res,res,&ptr);
+      return err!=0;
+    }
+#endif
+
     //! Get the file or directory attributes with support for UTF-8 paths (Windows only).
 #if cimg_OS==2
     inline DWORD win_getfileattributes(const char *const path) {
@@ -63602,6 +63643,7 @@ namespace cimg_library_suffixed {
         bool path_found = false;
         std::FILE *file = 0;
 #if cimg_OS==2
+        if (win_searchpath("magick.exe",s_path,s_path._width)) path_found = true;
         const char *const pf_path = win_programfiles_path();
         for (int l = 0; l<2 && !path_found; ++l) {
           const char *const s_exe = l?"convert":"magick";
@@ -63714,6 +63756,7 @@ namespace cimg_library_suffixed {
         bool path_found = false;
         std::FILE *file = 0;
 #if cimg_OS==2
+        if (win_searchpath("gm.exe",s_path,s_path._width)) path_found = true;
         const char *const pf_path = win_programfiles_path();
         if (!path_found) {
           std::strcpy(s_path,".\\gm.exe");
@@ -63823,6 +63866,7 @@ namespace cimg_library_suffixed {
         bool path_found = false;
         std::FILE *file = 0;
 #if cimg_OS==2
+        if (win_searchpath("medcon.exe",s_path,s_path._width)) path_found = true;
         const char *const pf_path = win_programfiles_path();
         if (!path_found) {
           std::strcpy(s_path,".\\medcon.exe");
@@ -63872,6 +63916,7 @@ namespace cimg_library_suffixed {
         bool path_found = false;
         std::FILE *file = 0;
 #if cimg_OS==2
+        if (win_searchpath("medcon.exe",s_path,s_path._width)) path_found = true;
         if (!path_found) {
           std::strcpy(s_path,".\\ffmpeg.exe");
           if ((file=cimg::std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
@@ -63908,6 +63953,7 @@ namespace cimg_library_suffixed {
         bool path_found = false;
         std::FILE *file = 0;
 #if cimg_OS==2
+        if (win_searchpath("gzip.exe",s_path,s_path._width)) path_found = true;
         if (!path_found) {
           std::strcpy(s_path,".\\gzip.exe");
           if ((file=cimg::std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
@@ -63944,6 +63990,7 @@ namespace cimg_library_suffixed {
         bool path_found = false;
         std::FILE *file = 0;
 #if cimg_OS==2
+        if (win_searchpath("gunzip.exe",s_path,s_path._width)) path_found = true;
         if (!path_found) {
           std::strcpy(s_path,".\\gunzip.exe");
           if ((file=cimg::std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
@@ -63980,6 +64027,7 @@ namespace cimg_library_suffixed {
         bool path_found = false;
         std::FILE *file = 0;
 #if cimg_OS==2
+        if (win_searchpath("dcraw.exe",s_path,s_path._width)) path_found = true;
         if (!path_found) {
           std::strcpy(s_path,".\\dcraw.exe");
           if ((file=cimg::std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
@@ -64016,6 +64064,7 @@ namespace cimg_library_suffixed {
         bool path_found = false;
         std::FILE *file = 0;
 #if cimg_OS==2
+        if (win_searchpath("wget.exe",s_path,s_path._width)) path_found = true;
         if (!path_found) {
           std::strcpy(s_path,".\\wget.exe");
           if ((file=cimg::std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
@@ -64052,6 +64101,7 @@ namespace cimg_library_suffixed {
         bool path_found = false;
         std::FILE *file = 0;
 #if cimg_OS==2
+        if (win_searchpath("curl.exe",s_path,s_path._width)) path_found = true;
         if (!path_found) {
           std::strcpy(s_path,".\\curl.exe");
           if ((file=cimg::std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }

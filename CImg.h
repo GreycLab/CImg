@@ -7404,7 +7404,7 @@ namespace cimg_library_suffixed {
 
     // Get/set path to the <i>Program Files/</i> directory (Windows only).
 #if cimg_OS==2
-    inline const char* programfiles_path(const char *const user_path=0, const bool reinit_path=false);
+    inline const char* win_programfiles_path(const char *const user_path=0, const bool reinit_path=false);
 #endif
 
     // Get/set path to the ImageMagick's \c convert binary.
@@ -63558,7 +63558,7 @@ namespace cimg_library_suffixed {
        \return Path containing the program files.
     **/
 #if cimg_OS==2
-    inline const char* programfiles_path(const char *const user_path, const bool reinit_path) {
+    inline const char* win_programfiles_path(const char *const user_path, const bool reinit_path) {
       static CImg<char> s_path;
       cimg::mutex(7);
       if (reinit_path) s_path.assign();
@@ -63602,7 +63602,7 @@ namespace cimg_library_suffixed {
         bool path_found = false;
         std::FILE *file = 0;
 #if cimg_OS==2
-        const char *const pf_path = programfiles_path();
+        const char *const pf_path = win_programfiles_path();
         for (int l = 0; l<2 && !path_found; ++l) {
           const char *const s_exe = l?"convert":"magick";
           cimg_snprintf(s_path,s_path._width,".\\%s.exe",s_exe);
@@ -63714,7 +63714,7 @@ namespace cimg_library_suffixed {
         bool path_found = false;
         std::FILE *file = 0;
 #if cimg_OS==2
-        const char *const pf_path = programfiles_path();
+        const char *const pf_path = win_programfiles_path();
         if (!path_found) {
           std::strcpy(s_path,".\\gm.exe");
           if ((file=cimg::std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
@@ -63823,7 +63823,7 @@ namespace cimg_library_suffixed {
         bool path_found = false;
         std::FILE *file = 0;
 #if cimg_OS==2
-        const char *const pf_path = programfiles_path();
+        const char *const pf_path = win_programfiles_path();
         if (!path_found) {
           std::strcpy(s_path,".\\medcon.exe");
           if ((file=cimg::std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }

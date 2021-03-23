@@ -57999,7 +57999,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Save volumetric image as a video, using the OpenCV library.
+    //! Save volumetric image as a video (using the OpenCV library when available).
     /**
       \param filename Filename to write data to.
       \param fps Number of frames per second.
@@ -62906,7 +62906,7 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
-    //! Save image sequence, using the OpenCV library.
+    //! Save image sequence (using the OpenCV library when available).
     /**
        \param filename Filename to write data to.
        \param fps Number of frames per second.
@@ -62920,104 +62920,108 @@ namespace cimg_library_suffixed {
       cimg::unused(codec,keep_open);
       return save_ffmpeg_external(filename,fps);
 #else
-      static cv::VideoWriter *writers[32] = { 0 };
-      static CImgList<charT> filenames(32);
-      static CImg<intT> sizes(32,2,1,1,0);
-      static int last_used_index = -1;
+      try {
+        static cv::VideoWriter *writers[32] = { 0 };
+        static CImgList<charT> filenames(32);
+        static CImg<intT> sizes(32,2,1,1,0);
+        static int last_used_index = -1;
 
-      // Detect if a video writer already exists for the specified filename.
-      cimg::mutex(9);
-      int index = -1;
-      if (filename) {
-        if (last_used_index>=0 && !std::strcmp(filename,filenames[last_used_index])) {
-          index = last_used_index;
-        } else cimglist_for(filenames,l) if (filenames[l] && !std::strcmp(filename,filenames[l])) {
-            index = l; break;
-          }
-      } else index = last_used_index;
-      cimg::mutex(9,0);
-
-      // Find empty slot for capturing video stream.
-      if (index<0) {
-        if (!filename)
-          throw CImgArgumentException(_cimglist_instance
-                                      "save_video(): No already open video writer found. You must specify a "
-                                      "non-(null) filename argument for the first call.",
-                                      cimglist_instance);
-        else { cimg::mutex(9); cimglist_for(filenames,l) if (!filenames[l]) { index = l; break; } cimg::mutex(9,0); }
-        if (index<0)
-          throw CImgIOException(_cimglist_instance
-                                "save_video(): File '%s', no video writer slots available. "
-                                "You have to release some of your previously opened videos.",
-                                cimglist_instance,filename);
-        if (is_empty())
-          throw CImgInstanceException(_cimglist_instance
-                                      "save_video(): Instance list is empty.",
-                                      cimglist_instance);
-        const unsigned int W = _data?_data[0]._width:0, H = _data?_data[0]._height:0;
-        if (!W || !H)
-          throw CImgInstanceException(_cimglist_instance
-                                      "save_video(): Frame [0] is an empty image.",
-                                      cimglist_instance);
-        const char
-          *const _codec = codec && *codec?codec:"h264",
-          codec0 = cimg::uppercase(_codec[0]),
-          codec1 = _codec[0]?cimg::uppercase(_codec[1]):0,
-          codec2 = _codec[1]?cimg::uppercase(_codec[2]):0,
-          codec3 = _codec[2]?cimg::uppercase(_codec[3]):0;
+        // Detect if a video writer already exists for the specified filename.
         cimg::mutex(9);
-        writers[index] = new cv::VideoWriter(filename,_cimg_fourcc(codec0,codec1,codec2,codec3),fps,cv::Size(W,H));
-        if (!writers[index]->isOpened()) {
+        int index = -1;
+        if (filename) {
+          if (last_used_index>=0 && !std::strcmp(filename,filenames[last_used_index])) {
+            index = last_used_index;
+          } else cimglist_for(filenames,l) if (filenames[l] && !std::strcmp(filename,filenames[l])) {
+              index = l; break;
+            }
+        } else index = last_used_index;
+        cimg::mutex(9,0);
+
+        // Find empty slot for capturing video stream.
+        if (index<0) {
+          if (!filename)
+            throw CImgArgumentException(_cimglist_instance
+                                        "save_video(): No already open video writer found. You must specify a "
+                                        "non-(null) filename argument for the first call.",
+                                        cimglist_instance);
+          else { cimg::mutex(9); cimglist_for(filenames,l) if (!filenames[l]) { index = l; break; } cimg::mutex(9,0); }
+          if (index<0)
+            throw CImgIOException(_cimglist_instance
+                                  "save_video(): File '%s', no video writer slots available. "
+                                  "You have to release some of your previously opened videos.",
+                                  cimglist_instance,filename);
+          if (is_empty())
+            throw CImgInstanceException(_cimglist_instance
+                                        "save_video(): Instance list is empty.",
+                                        cimglist_instance);
+          const unsigned int W = _data?_data[0]._width:0, H = _data?_data[0]._height:0;
+          if (!W || !H)
+            throw CImgInstanceException(_cimglist_instance
+                                        "save_video(): Frame [0] is an empty image.",
+                                        cimglist_instance);
+          const char
+            *const _codec = codec && *codec?codec:"h264",
+            codec0 = cimg::uppercase(_codec[0]),
+            codec1 = _codec[0]?cimg::uppercase(_codec[1]):0,
+            codec2 = _codec[1]?cimg::uppercase(_codec[2]):0,
+            codec3 = _codec[2]?cimg::uppercase(_codec[3]):0;
+          cimg::mutex(9);
+          writers[index] = new cv::VideoWriter(filename,_cimg_fourcc(codec0,codec1,codec2,codec3),fps,cv::Size(W,H));
+          if (!writers[index]->isOpened()) {
+            delete writers[index];
+            writers[index] = 0;
+            cimg::mutex(9,0);
+            throw CImgIOException(_cimglist_instance
+                                  "save_video(): File '%s', unable to initialize video writer with codec '%c%c%c%c'.",
+                                  cimglist_instance,filename,
+                                  codec0,codec1,codec2,codec3);
+          }
+          CImg<charT>::string(filename).move_to(filenames[index]);
+          sizes(index,0) = W;
+          sizes(index,1) = H;
+          cimg::mutex(9,0);
+        }
+
+        if (!is_empty()) {
+          const unsigned int W = sizes(index,0), H = sizes(index,1);
+          cimg::mutex(9);
+          cimglist_for(*this,l) {
+            CImg<T> &src = _data[l];
+            if (src.is_empty())
+              cimg::warn(_cimglist_instance
+                         "save_video(): Skip empty frame %d for file '%s'.",
+                         cimglist_instance,l,filename);
+            if (src._depth>1 || src._spectrum>3)
+              cimg::warn(_cimglist_instance
+                         "save_video(): Frame %u has incompatible dimension (%u,%u,%u,%u). "
+                         "Some image data may be ignored when writing frame into video file '%s'.",
+                         cimglist_instance,l,src._width,src._height,src._depth,src._spectrum,filename);
+            if (src._width==W && src._height==H && src._spectrum==3)
+              writers[index]->write(CImg<ucharT>(src)._cimg2cvmat());
+            else {
+              CImg<ucharT> _src(src,false);
+              _src.channels(0,std::min(_src._spectrum - 1,2U)).resize(W,H);
+              _src.resize(W,H,1,3,_src._spectrum==1);
+              writers[index]->write(_src._cimg2cvmat());
+            }
+          }
+          cimg::mutex(9,0);
+        }
+
+        cimg::mutex(9);
+        if (!keep_open) {
           delete writers[index];
           writers[index] = 0;
-          cimg::mutex(9,0);
-          throw CImgIOException(_cimglist_instance
-                                "save_video(): File '%s', unable to initialize video writer with codec '%c%c%c%c'.",
-                                cimglist_instance,filename,
-                                codec0,codec1,codec2,codec3);
-        }
-        CImg<charT>::string(filename).move_to(filenames[index]);
-        sizes(index,0) = W;
-        sizes(index,1) = H;
+          filenames[index].assign();
+          sizes(index,0) = sizes(index,1) = 0;
+          last_used_index = -1;
+        } else last_used_index = index;
         cimg::mutex(9,0);
+      } catch (CImgIOException &e) {
+        if (!keep_open) return save_ffmpeg_external(filename,fps);
+        throw e;
       }
-
-      if (!is_empty()) {
-        const unsigned int W = sizes(index,0), H = sizes(index,1);
-        cimg::mutex(9);
-        cimglist_for(*this,l) {
-          CImg<T> &src = _data[l];
-          if (src.is_empty())
-            cimg::warn(_cimglist_instance
-                       "save_video(): Skip empty frame %d for file '%s'.",
-                       cimglist_instance,l,filename);
-          if (src._depth>1 || src._spectrum>3)
-            cimg::warn(_cimglist_instance
-                       "save_video(): Frame %u has incompatible dimension (%u,%u,%u,%u). "
-                       "Some image data may be ignored when writing frame into video file '%s'.",
-                       cimglist_instance,l,src._width,src._height,src._depth,src._spectrum,filename);
-          if (src._width==W && src._height==H && src._spectrum==3)
-            writers[index]->write(CImg<ucharT>(src)._cimg2cvmat());
-          else {
-            CImg<ucharT> _src(src,false);
-            _src.channels(0,std::min(_src._spectrum - 1,2U)).resize(W,H);
-            _src.resize(W,H,1,3,_src._spectrum==1);
-            writers[index]->write(_src._cimg2cvmat());
-          }
-        }
-        cimg::mutex(9,0);
-      }
-
-      cimg::mutex(9);
-      if (!keep_open) {
-        delete writers[index];
-        writers[index] = 0;
-        filenames[index].assign();
-        sizes(index,0) = sizes(index,1) = 0;
-        last_used_index = -1;
-      } else last_used_index = index;
-      cimg::mutex(9,0);
-
       return *this;
 #endif
     }

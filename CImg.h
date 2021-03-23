@@ -61856,7 +61856,7 @@ namespace cimg_library_suffixed {
         if ((file=cimg::std_fopen(filename_tmp2,"rb"))!=0) cimg::fclose(file);
       } while (file);
       cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_%%6d.ppm",filename_tmp._data);
-      cimg_snprintf(command,command._width,"\"%s\" -i \"%s\" \"%s\"",
+      cimg_snprintf(command,command._width,"\"%s\" -v -8 -i \"%s\" \"%s\"",
                     cimg::ffmpeg_path(),
                     CImg<charT>::string(filename)._system_strescape().data(),
                     CImg<charT>::string(filename_tmp2)._system_strescape().data());
@@ -63064,7 +63064,7 @@ namespace cimg_library_suffixed {
         else _data[l].save_pnm(filename_tmp2);
       }
       cimg_snprintf(command,command._width,
-                    "\"%s\" -y -i \"%s_%%6d.ppm\" -pix_fmt yuv420p -vcodec %s -b %uk -r %u \"%s\"",
+                    "\"%s\" -v -8 -y -i \"%s_%%6d.ppm\" -pix_fmt yuv420p -vcodec %s -b %uk -r %u \"%s\"",
                     cimg::ffmpeg_path(),
                     CImg<charT>::string(filename_tmp)._system_strescape().data(),
                     _codec,bitrate,fps,

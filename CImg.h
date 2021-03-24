@@ -54784,8 +54784,8 @@ namespace cimg_library_suffixed {
 #else
       cimg::unused(camera_index,skip_frames,release_camera,capture_width,capture_height);
       throw CImgIOException(_cimg_instance
-                            "load_camera(): This function requires the OpenCV library to run "
-                            "(macro 'cimg_use_opencv' must be defined).",
+                            "load_camera(): This function requires features from the OpenCV library "
+                            "('-Dcimg_use_opencv' must be defined).",
                             cimg_instance);
 #endif
     }
@@ -61701,8 +61701,8 @@ namespace cimg_library_suffixed {
       if (first_frame || last_frame!=~0U || step_frame>1)
         throw CImgArgumentException(_cimglist_instance
                                     "load_video() : File '%s', arguments 'first_frame', 'last_frame' "
-                                    "and 'step_frame' can be only set when using OpenCV "
-                                    "(-Dcimg_use_opencv must be enabled).",
+                                    "and 'step_frame' requires features from the OpenCV library "
+                                    "('-Dcimg_use_opencv' must be defined).",
                                     cimglist_instance,filename);
       return load_ffmpeg_external(filename);
 #else

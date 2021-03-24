@@ -54275,9 +54275,6 @@ namespace cimg_library_suffixed {
 
     CImg<T>& _load_heif(const char *const filename) {
 #ifndef cimg_use_heif
-      throw CImgArgumentException(_cimg_instance
-                                  "load_heif(): Specified filename is (null).",
-                                  cimg_instance);
       return load_other(filename);
 #else
       try {

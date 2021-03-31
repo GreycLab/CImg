@@ -63061,8 +63061,12 @@ namespace cimg_library_suffixed {
       cimglist_for(*this,l) {
         cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_%.6u.ppm",filename_tmp._data,l + 1);
         CImg<charT>::string(filename_tmp2).move_to(filenames);
-        if (_data[l]._depth>1 || _data[l]._spectrum!=3) _data[l].get_resize(-100,-100,1,3).save_pnm(filename_tmp2);
-        else _data[l].save_pnm(filename_tmp2);
+        CImg<T> tmp = _data[l].get_shared();
+        if (tmp._width%2 || tmp._height%2) // Force output to have an even number of columns and rows
+          tmp.assign(tmp.get_resize(tmp._width + (tmp._width%2),tmp._height + (tmp._height%2),1,-100,0),false);
+        if (tmp._depth>1 || tmp._spectrum!=3) // Force output to be one slice, in color
+          tmp.assign(tmp.get_resize(-100,-100,1,3),false);
+        tmp.save_pnm(filename_tmp2);
       }
       cimg_snprintf(command,command._width,
                     "\"%s\" -v -8 -y -i \"%s_%%6d.ppm\" -pix_fmt yuv420p -vcodec %s -b %uk -r %u \"%s\"",

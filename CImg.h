@@ -47983,8 +47983,12 @@ namespace cimg_library_suffixed {
                       left_padding = -10;
                       cimg_forY(mask,k) {
                         const int
-                          lpad = o_mask(w1,k)>=8?0:o_mask(w2,k)>=8?-1:o_mask(w3,k)>=8?-2:-3,
-                          rpad = mask(0,k)>=8?0:mask(1,k)>=8?-1:mask(2,k)>=8?-2:-3;
+                          lpad = o_mask(w1,k)>=8?0:
+                                 o_mask._width<=2 || o_mask(w2,k)>=8?-1:
+                                 o_mask._width<=3 || o_mask(w3,k)>=8?-2:-3,
+                          rpad = mask(0,k)>=8?0:
+                                 mask._width<=2 || mask(1,k)>=8?-1:
+                                 mask._width<=3 || mask(2,k)>=8?-2:-3;
                         left_padding = std::max(left_padding,lpad + rpad);
                       }
                     }

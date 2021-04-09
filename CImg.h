@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 297
+#define cimg_version 298
 
 /*-----------------------------------------------------------
  #
@@ -54339,13 +54339,26 @@ namespace cimg_library_suffixed {
       const CImg<charT> s_filename = CImg<charT>::string(filename)._system_strescape();
 #if cimg_OS==1
       if (!cimg::system("which gm")) {
-        cimg_snprintf(command,command._width,"%s convert \"%s\" pnm:-",
-                      cimg::graphicsmagick_path(),s_filename.data());
+        cimg_snprintf(command,command._width,"%s convert \"%s\" %s:-",
+                      cimg::graphicsmagick_path(),
+                      s_filename.data(),
+#ifdef cimg_use_png
+                      "png"
+#else
+                      "pnm"
+#endif
+                      );
         file = popen(command,"r");
         if (file) {
           const unsigned int omode = cimg::exception_mode();
           cimg::exception_mode(0);
-          try { load_pnm(file); } catch (...) {
+          try {
+#ifdef cimg_use_png
+            load_png(file);
+#else
+            load_pnm(file);
+#endif
+          } catch (...) {
             pclose(file);
             cimg::exception_mode(omode);
             throw CImgIOException(_cimg_instance
@@ -54360,12 +54373,21 @@ namespace cimg_library_suffixed {
       }
 #endif
       do {
-        cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.pnm",
-                      cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+        cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",
+                      cimg::temporary_path(),
+                      cimg_file_separator,
+                      cimg::filenamerand(),
+#ifdef cimg_use_png
+                      "png"
+#else
+                      "pnm"
+#endif
+                      );
         if ((file=cimg::std_fopen(filename_tmp,"rb"))!=0) cimg::fclose(file);
       } while (file);
       cimg_snprintf(command,command._width,"\"%s\" convert \"%s\" \"%s\"",
-                    cimg::graphicsmagick_path(),s_filename.data(),
+                    cimg::graphicsmagick_path(),
+                    s_filename.data(),
                     CImg<charT>::string(filename_tmp)._system_strescape().data());
       cimg::system(command,cimg::graphicsmagick_path());
       if (!(file=cimg::std_fopen(filename_tmp,"rb"))) {
@@ -54376,7 +54398,11 @@ namespace cimg_library_suffixed {
                               filename);
 
       } else cimg::fclose(file);
+#ifdef cimg_use_png
+      load_png(filename_tmp);
+#else
       load_pnm(filename_tmp);
+#endif
       std::remove(filename_tmp);
       return *this;
     }
@@ -54454,15 +54480,27 @@ namespace cimg_library_suffixed {
       const CImg<charT> s_filename = CImg<charT>::string(filename)._system_strescape();
 #if cimg_OS==1
       if (!cimg::system("which convert")) {
-        cimg_snprintf(command,command._width,"%s%s \"%s\" pnm:-",
+        cimg_snprintf(command,command._width,"%s%s \"%s\" %s:-",
                       cimg::imagemagick_path(),
                       !cimg::strcasecmp(cimg::split_filename(filename),"pdf")?" -density 400x400":"",
-                      s_filename.data());
+                      s_filename.data(),
+#ifdef cimg_use_png
+                      "png"
+#else
+                      "pnm"
+#endif
+                      );
         file = popen(command,"r");
         if (file) {
           const unsigned int omode = cimg::exception_mode();
           cimg::exception_mode(0);
-          try { load_pnm(file); } catch (...) {
+          try {
+#ifdef cimg_use_png
+            load_png(file);
+#else
+            load_pnm(file);
+#endif
+          } catch (...) {
             pclose(file);
             cimg::exception_mode(omode);
             throw CImgIOException(_cimg_instance
@@ -54477,14 +54515,23 @@ namespace cimg_library_suffixed {
       }
 #endif
       do {
-        cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.pnm",
-                      cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
+        cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s.%s",
+                      cimg::temporary_path(),
+                      cimg_file_separator,
+                      cimg::filenamerand(),
+#ifdef cimg_use_png
+                      "png"
+#else
+                      "pnm"
+#endif
+                      );
         if ((file=cimg::std_fopen(filename_tmp,"rb"))!=0) cimg::fclose(file);
       } while (file);
       cimg_snprintf(command,command._width,"\"%s\"%s \"%s\" \"%s\"",
                     cimg::imagemagick_path(),
                     !cimg::strcasecmp(cimg::split_filename(filename),"pdf")?" -density 400x400":"",
-                    s_filename.data(),CImg<charT>::string(filename_tmp)._system_strescape().data());
+                    s_filename.data(),
+                    CImg<charT>::string(filename_tmp)._system_strescape().data());
       cimg::system(command,cimg::imagemagick_path());
       if (!(file=cimg::std_fopen(filename_tmp,"rb"))) {
         cimg::fclose(cimg::fopen(filename,"r"));
@@ -54495,7 +54542,11 @@ namespace cimg_library_suffixed {
                               filename);
 
       } else cimg::fclose(file);
+#ifdef cimg_use_png
+      load_png(filename_tmp);
+#else
       load_pnm(filename_tmp);
+#endif
       std::remove(filename_tmp);
       return *this;
     }

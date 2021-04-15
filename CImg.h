@@ -17768,7 +17768,9 @@ namespace cimg_library_suffixed {
         }
 
         // Apply unary/binary/ternary operators. The operator precedences should be the same as in C++.
-        for (s = se2, ps = se3, ns = ps - 1; s>ss1; --s, --ps, --ns) // Here, ns = ps - 1
+        for (s = se2; s>ss1; --s) {
+          ps = s - 1;
+          ns = ps - 1; // Here, ns = ps - 1 !
           if (*s=='=' && (*ps=='*' || *ps=='/' || *ps=='^') && *ns==*ps &&
               level[s - expr._data]==clevel) { // Self-operators for complex numbers only (**=,//=,^^=)
             _cimg_mp_op(*ps=='*'?"Operator '**='":*ps=='/'?"Operator '//='":"Operator '^^='");
@@ -17837,8 +17839,11 @@ namespace cimg_library_suffixed {
 
             _cimg_mp_return(arg1);
           }
+        }
 
-        for (s = se2, ps = se3, ns = ps - 1; s>ss1; --s, --ps, --ns) // Here, ns = ps - 1
+        for (s = se2; s>ss1; --s) {
+          ps = s - 1;
+          ns = ps - 1; // Here, ns = ps - 1 !
           if (*s=='=' && (*ps=='+' || *ps=='-' || *ps=='*' || *ps=='/' || *ps=='%' ||
                           *ps=='&' || *ps=='^' || *ps=='|' ||
                           (*ps=='>' && *ns=='>') || (*ps=='<' && *ns=='<')) &&
@@ -17992,6 +17997,7 @@ namespace cimg_library_suffixed {
                                         variable_name._data,
                                         s0>expr._data?"...":"",s0,se<&expr.back()?"...":"");
           }
+        }
 
         for (s = ss1; s<se1; ++s)
           if (*s=='?' && level[s - expr._data]==clevel) { // Ternary operator 'cond?expr1:expr2'

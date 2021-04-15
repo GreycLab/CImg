@@ -17243,8 +17243,10 @@ namespace cimg_library_suffixed {
         }
 
         // Declare / assign variable, vector value or image value.
-        for (s = ss1, ps = ss, ns = ss2; s<se1; ++s, ++ps, ++ns)
-          if (*s=='=' && *ns!='=' && *ps!='=' && *ps!='>' && *ps!='<' && *ps!='!' &&
+        for (s = std::strchr(ss1,'='); s && s<se1; s = std::strchr(s + 1,'=')) {
+          ps = s - 1;
+          ns = s + 1;
+          if (*ns!='=' && *ps!='=' && *ps!='>' && *ps!='<' && *ps!='!' &&
               *ps!='+' && *ps!='-' && *ps!='*' && *ps!='/' && *ps!='%' &&
               *ps!='>' && *ps!='<' && *ps!='&' && *ps!='|' && *ps!='^' &&
               level[s - expr._data]==clevel) {
@@ -17763,6 +17765,7 @@ namespace cimg_library_suffixed {
                                         variable_name._data,
                                         s0>expr._data?"...":"",s0,se<&expr.back()?"...":"");
           }
+        }
 
         // Apply unary/binary/ternary operators. The operator precedences should be the same as in C++.
         for (s = se2, ps = se3, ns = ps - 1; s>ss1; --s, --ps, --ns) // Here, ns = ps - 1

@@ -21189,25 +21189,6 @@ namespace cimg_library_suffixed {
                 }
               }
               if (arg4==~0U) arg4 = constant(p3);
-
-              if (_cimg_mp_is_constant(arg3) && _cimg_mp_is_constant(arg4) &&
-                  _cimg_mp_is_constant(arg5) && _cimg_mp_is_constant(arg6)) {
-                const unsigned int
-                  varg3 = (unsigned int)mem[arg3],
-                  varg4 = (unsigned int)mem[arg4],
-                  varg5 = (unsigned int)mem[arg5],
-                  varg6 = (unsigned int)mem[arg6];
-                if (varg3*varg4*varg5*varg6>p3) {
-                  _cimg_mp_strerr;
-                  throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                              "CImg<%s>::%s: %s: Specified dimensions (%u,%u,%u,%u) "
-                                              "are too large for vector size (%u), "
-                                              "in expression '%s%s%s'.",
-                                              pixel_type(),_cimg_mp_calling_function,s_op,
-                                              varg3,varg4,varg5,varg6,p3,
-                                              s0>expr._data?"...":"",s0,se<&expr.back()?"...":"");
-                }
-              }
               CImg<ulongT>::vector((ulongT)mp_store,_cimg_mp_slot_nan,arg1,p1,arg2,p2,
                                    arg3,arg4,arg5,arg6,pos).move_to(code);
               _cimg_mp_return_nan();
@@ -26018,8 +25999,7 @@ namespace cimg_library_suffixed {
           *ptr2 = &_mp_arg(4) + 1;
         const unsigned int
           siz1 = (unsigned int)mp.opcode[3],
-          siz2 = (unsigned int)mp.opcode[5],
-          sizM = std::max(siz1,1U);
+          siz2 = (unsigned int)mp.opcode[5];
         const int
           w = (int)_mp_arg(6),
           h = (int)_mp_arg(7),
@@ -26031,17 +26011,14 @@ namespace cimg_library_suffixed {
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'store()': "
                                       "Specified image dimensions (%d,%d,%d,%d) are invalid.",
                                       pixel_type(),w,h,d,s);
-        if ((unsigned int)w*h*d*s>sizM)
-          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'store()': "
-                                      "Specified image dimensions (%d,%d,%d,%d) are too large for vector size (%u).",
-                                      pixel_type(),w,h,d,s,sizM);
         CImg<charT> ss(siz2 + 1);
         cimg_for_inX(ss,0,ss.width() - 1,i) ss[i] = (char)ptr2[i];
         ss.back() = 0;
-        if (siz1) cimg_mp_func_store(ptr1 + 1,
+        if (siz1) cimg_mp_func_store(ptr1 + 1,siz1,
                                      (unsigned int)w,(unsigned int)h,(unsigned int)d,(unsigned int)s,
                                      is_compressed,ss._data);
-        else cimg_mp_func_store(ptr1,1,1,1,1,is_compressed,ss._data);
+        else cimg_mp_func_store(ptr1,1,(unsigned int)w,(unsigned int)h,(unsigned int)d,(unsigned int)s,
+                                is_compressed,ss._data);
         return cimg::type<double>::nan();
       }
 #endif

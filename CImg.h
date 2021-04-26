@@ -2854,7 +2854,7 @@ namespace cimg_library_suffixed {
         return val<(double)min()?min():val>(double)max()?max():(cimg_uint64)val; }
       static const char* format() { return cimg_fuint64; }
       static const char* format_s() { return cimg_fuint64; }
-      static unsigned long format(const cimg_uint64 val) { return (unsigned long)val; }
+      static cimg_uint64 format(const cimg_uint64 val) { return val; }
     };
 
     template<> struct type<cimg_int64> {
@@ -48532,7 +48532,7 @@ namespace cimg_library_suffixed {
     bool _draw_fill(const int x, const int y, const int z,
                     const CImg<T>& ref, const float tolerance2) const {
       const T *ptr1 = data(x,y,z), *ptr2 = ref._data;
-      const unsigned long off = _width*_height*_depth;
+      const ulongT off = _width*_height*_depth;
       float diff = 0;
       cimg_forC(*this,c) { diff += cimg::sqr(*ptr1 - *(ptr2++)); ptr1+=off; }
       return diff<=tolerance2;
@@ -61132,14 +61132,14 @@ namespace cimg_library_suffixed {
    cimg::fread(cbuf,csiz,nfile); \
    if (is_bool) { \
      CImg<ucharT> raw(W*H*D*C/8); \
-     uLongf destlen = (ulongT)raw.size(); \
+     uLongf destlen = (uLongf)raw.size(); \
      uncompress((Bytef*)raw._data,&destlen,cbuf,csiz); \
      img.assign(W,H,D,C); \
      img._uchar2bool(raw,raw.size(),false); \
    } else { \
      CImg<Tss> raw(W,H,D,C); \
-     uLongf destlen = (ulongT)raw.size()*sizeof(Tss); \
-     uncompress((Bytef*)raw._data,&destlen,cbuf,csiz); \
+     uLongf destlen = (uLongf)raw.size()*sizeof(Tss); \
+     uncompress((Bytef*)raw._data,&destlen,cbuf,(uLong)csiz); \
      if (endian!=cimg::endianness()) cimg::invert_endianness(raw._data,raw.size()); \
      raw.move_to(img); \
    } \
@@ -61207,7 +61207,7 @@ namespace cimg_library_suffixed {
       CImg<charT> tmp(256), str_pixeltype(256), str_endian(256);
       *tmp = *str_pixeltype = *str_endian = 0;
       unsigned int j, N = 0, W, H, D, C;
-      unsigned long csiz;
+      ulongT csiz;
       int i, err;
       do {
         j = 0; while ((i=std::fgetc(nfile))!='\n' && i>=0 && j<255) tmp[j++] = (char)i; tmp[j] = 0;

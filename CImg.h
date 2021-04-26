@@ -33557,7 +33557,7 @@ namespace cimg_library_suffixed {
           if (sx>_width) get_resize(sx,_height,_depth,_spectrum,1).move_to(res);
           else {
             CImg<Tfloat> tmp(sx,_height,_depth,_spectrum,0);
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(std::max(sx,_width),128))
+            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(sx,16))
             cimg_forYZC(tmp,y,z,v) {
               for (unsigned int a = _width*sx, b = _width, c = sx, s = 0, t = 0; a; ) {
                 const unsigned int d = std::min(b,c);
@@ -33576,7 +33576,7 @@ namespace cimg_library_suffixed {
           if (sy>_height) get_resize(sx,sy,_depth,_spectrum,1).move_to(res);
           else {
             CImg<Tfloat> tmp(sx,sy,_depth,_spectrum,0);
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(std::max(sy,_height),128))
+            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(sy,16))
             cimg_forXZC(tmp,x,z,v) {
               for (unsigned int a = _height*sy, b = _height, c = sy, s = 0, t = 0; a; ) {
                 const unsigned int d = std::min(b,c);
@@ -33596,7 +33596,7 @@ namespace cimg_library_suffixed {
           if (sz>_depth) get_resize(sx,sy,sz,_spectrum,1).move_to(res);
           else {
             CImg<Tfloat> tmp(sx,sy,sz,_spectrum,0);
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(std::max(sz,_depth),128))
+            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(sz,16))
             cimg_forXYC(tmp,x,y,v) {
               for (unsigned int a = _depth*sz, b = _depth, c = sz, s = 0, t = 0; a; ) {
                 const unsigned int d = std::min(b,c);
@@ -33616,7 +33616,7 @@ namespace cimg_library_suffixed {
           if (sc>_spectrum) get_resize(sx,sy,sz,sc,1).move_to(res);
           else {
             CImg<Tfloat> tmp(sx,sy,sz,sc,0);
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(std::max(sc,_spectrum),128))
+            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(sc,16))
             cimg_forXYZ(tmp,x,y,z) {
               for (unsigned int a = _spectrum*sc, b = _spectrum, c = sc, s = 0, t = 0; a; ) {
                 const unsigned int d = std::min(b,c);

@@ -61133,7 +61133,7 @@ namespace cimg_library_suffixed {
    if (is_bool) { \
      CImg<ucharT> raw(W*H*D*C/8); \
      uLongf destlen = (uLongf)raw.size(); \
-     uncompress((Bytef*)raw._data,&destlen,cbuf,csiz); \
+     uncompress((Bytef*)raw._data,&destlen,cbuf,(uLong)csiz); \
      img.assign(W,H,D,C); \
      img._uchar2bool(raw,raw.size(),false); \
    } else { \
@@ -61159,7 +61159,7 @@ namespace cimg_library_suffixed {
         for (unsigned int l = 0; l<N; ++l) { \
           j = 0; while ((i=std::fgetc(nfile))!='\n' && i>=0 && j<255) tmp[j++] = (char)i; tmp[j] = 0; \
           W = H = D = C = 0; csiz = 0; \
-          if ((err = cimg_sscanf(tmp,"%u %u %u %u #%lu",&W,&H,&D,&C,&csiz))<4) \
+          if ((err = cimg_sscanf(tmp,"%u %u %u %u #" cimg_fuint64,&W,&H,&D,&C,&csiz))<4) \
             throw CImgIOException(_cimglist_instance \
                                   "load_cimg(): Invalid specified size (%u,%u,%u,%u) of image %u in file '%s'.", \
                                   cimglist_instance, \
@@ -61207,7 +61207,7 @@ namespace cimg_library_suffixed {
       CImg<charT> tmp(256), str_pixeltype(256), str_endian(256);
       *tmp = *str_pixeltype = *str_endian = 0;
       unsigned int j, N = 0, W, H, D, C;
-      ulongT csiz;
+      cimg_uint64 csiz;
       int i, err;
       do {
         j = 0; while ((i=std::fgetc(nfile))!='\n' && i>=0 && j<255) tmp[j++] = (char)i; tmp[j] = 0;

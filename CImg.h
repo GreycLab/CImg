@@ -61129,7 +61129,7 @@ namespace cimg_library_suffixed {
 #ifdef cimg_use_zlib
 #define _cimgz_load_cimg_case(Tss) { \
    Bytef *const cbuf = new Bytef[csiz]; \
-   cimg::fread(cbuf,csiz,nfile); \
+   cimg::fread(cbuf,(size_t)csiz,nfile); \
    if (is_bool) { \
      CImg<ucharT> raw(W*H*D*C/8); \
      uLongf destlen = (uLongf)raw.size(); \
@@ -61138,7 +61138,7 @@ namespace cimg_library_suffixed {
      img._uchar2bool(raw,raw.size(),false); \
    } else { \
      CImg<Tss> raw(W,H,D,C); \
-     uLongf destlen = (uLongf)raw.size()*sizeof(Tss); \
+     uLongf destlen = (uLongf)(raw.size()*sizeof(Tss)); \
      uncompress((Bytef*)raw._data,&destlen,cbuf,(uLong)csiz); \
      if (endian!=cimg::endianness()) cimg::invert_endianness(raw._data,raw.size()); \
      raw.move_to(img); \

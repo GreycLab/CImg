@@ -14440,8 +14440,24 @@ namespace cimg_library_suffixed {
        const float val = img[off];              // Get the blue value of this pixel
        \endcode
     **/
-    longT offset(const int x, const int y=0, const int z=0, const int c=0) const {
-      return x + (longT)y*_width + (longT)z*_width*_height + (longT)c*_width*_height*_depth;
+    template<typename tx, typename ty, typename tz, typename tc>
+    longT offset(const tx x, const ty y, const tz z, const tc c) const {
+      return (longT)x + (longT)y*width() + (longT)z*width()*height() + (longT)c*width()*height()*depth();
+    }
+
+    template<typename tx, typename ty, typename tz>
+    longT offset(const tx x, const ty y, const tz z) const {
+      return (longT)x + (longT)y*width() + (longT)z*width()*height();
+    }
+
+    template<typename tx, typename ty>
+    longT offset(const tx x, const ty y) const {
+      return (longT)x + (longT)y*width();
+    }
+
+    template<typename tx>
+    longT offset(const tx x) const {
+      return (longT)x;
     }
 
     //! Return a CImg<T>::iterator pointing to the first pixel value.

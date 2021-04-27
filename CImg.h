@@ -53942,13 +53942,13 @@ namespace cimg_library_suffixed {
                                                 "load_raw(): Cannot determine size of input file '%s'.",
                                                 cimg_instance,filename?filename:"(FILE*)");
         cimg::fseek(nfile,0,SEEK_END);
-        siz = cimg::ftell(nfile);
+        siz = (ulongT)cimg::ftell(nfile);
         if (!is_bool) { siz/=sizeof(T); _size_y = (unsigned int)siz; }
         else _size_y = (unsigned int)(siz*8);
         _size_x = _size_z = _size_c = 1;
         cimg::fseek(nfile,fpos,SEEK_SET);
       }
-      cimg::fseek(nfile,offset,SEEK_SET);
+      cimg::fseek(nfile,(longT)offset,SEEK_SET);
       assign(_size_x,_size_y,_size_z,_size_c,0);
 
       if (is_bool) { // Boolean data (bitwise)
@@ -59172,24 +59172,26 @@ namespace cimg_library_suffixed {
     /**
        \param pos Index of the image element.
     **/
-    CImg<T>& operator()(const unsigned int pos) {
+    template<typename t>
+    CImg<T>& operator()(const t pos) {
 #if cimg_verbosity>=3
-      if (pos>=_width) {
+      if ((unsigned int)pos>=_width) {
         cimg::warn(_cimglist_instance
                    "operator(): Invalid image request, at position [%u].",
                    cimglist_instance,
-                   pos);
+                   (unsigned int)pos);
         return *_data;
       }
 #endif
-      return _data[pos];
+      return _data[(int)pos];
     }
 
     //! Return a reference to one image of the list.
     /**
        \param pos Index of the image element.
     **/
-    const CImg<T>& operator()(const unsigned int pos) const {
+    template<typename t>
+    const CImg<T>& operator()(const t pos) const {
       return const_cast<CImgList<T>*>(this)->operator()(pos);
     }
 
@@ -59202,15 +59204,45 @@ namespace cimg_library_suffixed {
        \param c C-coordinate of the pixel value.
        \note <tt>list(n,x,y,z,c)</tt> is equivalent to <tt>list[n](x,y,z,c)</tt>.
     **/
-    T& operator()(const unsigned int pos, const unsigned int x, const unsigned int y=0,
-                  const unsigned int z=0, const unsigned int c=0) {
-      return (*this)[pos](x,y,z,c);
+    template<typename t, typename tx, typename ty, typename tz, typename tc>
+    T& operator()(const t pos, const tx x, const ty y, const tz z, const tc c) {
+      return (*this)[(int)pos](x,y,z,c);
+    }
+
+    template<typename t, typename tx, typename ty, typename tz>
+    T& operator()(const t pos, const tx x, const ty y, const tz z) {
+      return (*this)[(int)pos](x,y,z);
+    }
+
+    template<typename t, typename tx, typename ty>
+    T& operator()(const t pos, const tx x, const ty y) {
+      return (*this)[(int)pos](x,y);
+    }
+
+    template<typename t, typename tx>
+    T& operator()(const t pos, const tx x) {
+      return (*this)[(int)pos](x);
     }
 
     //! Return a reference to one pixel value of one image of the list \const.
-    const T& operator()(const unsigned int pos, const unsigned int x, const unsigned int y=0,
-                        const unsigned int z=0, const unsigned int c=0) const {
-      return (*this)[pos](x,y,z,c);
+    template<typename t, typename tx, typename ty, typename tz, typename tc>
+    const T& operator()(const t pos, const tx x, const ty y, const tz z, const tc c) const {
+      return (*this)[(int)pos](x,y,z,c);
+    }
+
+    template<typename t, typename tx, typename ty, typename tz>
+    const T& operator()(const t pos, const tx x, const ty y, const tz z) const {
+      return (*this)[(int)pos](x,y,z);
+    }
+
+    template<typename t, typename tx, typename ty>
+    const T& operator()(const t pos, const tx x, const ty y) const {
+      return (*this)[(int)pos](x,y);
+    }
+
+    template<typename t, typename tx>
+    const T& operator()(const t pos, const tx x) const {
+      return (*this)[(int)pos](x);
     }
 
     //! Return pointer to the first image of the list.
@@ -59382,27 +59414,37 @@ namespace cimg_library_suffixed {
        \note <tt>list.data(n);</tt> is equivalent to <tt>list.data + n;</tt>.
     **/
 #if cimg_verbosity>=3
-    CImg<T> *data(const unsigned int pos) {
-      if (pos>=size())
+
+    template<typename t>
+    CImg<T> *data(const t pos) {
+      if ((unsigned int)pos>=size()) {
         cimg::warn(_cimglist_instance
                    "data(): Invalid pointer request, at position [%u].",
                    cimglist_instance,
-                   pos);
-      return _data + pos;
+                   (unsigned int)pos);
+        return *_data;
+      }
+      return _data + (int)pos;
     }
 
-    const CImg<T> *data(const unsigned int l) const {
-      return const_cast<CImgList<T>*>(this)->data(l);
+    template<typename t>
+    const CImg<T> *data(const t pos) const {
+      return const_cast<CImgList<T>*>(this)->data(pos);
     }
+
 #else
-    CImg<T> *data(const unsigned int l) {
-      return _data + l;
+
+    template<typename t>
+    CImg<T> *data(const t pos) {
+      return _data + (int)pos;
     }
 
     //! Return pointer to the pos-th image of the list \const.
-    const CImg<T> *data(const unsigned int l) const {
-      return _data + l;
+    template<typename t>
+    const CImg<T> *data(const t pos) const {
+      return _data + (int)pos;
     }
+
 #endif
 
     //! Return iterator to the first image of the list.

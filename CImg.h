@@ -34798,7 +34798,7 @@ namespace cimg_library_suffixed {
       for (unsigned int l = 0; axes_order[l]; ++l) {
         int c = cimg::lowercase(axes_order[l]);
         if (l>=4 || (c!='x' && c!='y' && c!='z' && c!='c')) { *s_code = 4; break; }
-        else { ++n_code[c%=4]; s_code[l] = c; }
+        else { ++n_code[c%=4]; s_code[l] = (unsigned char)c; }
       }
       if (*axes_order && *s_code<4 && *n_code<=1 && n_code[1]<=1 && n_code[2]<=1 && n_code[3]<=1) {
         const unsigned int code = (s_code[0]<<12) | (s_code[1]<<8) | (s_code[2]<<4) | (s_code[3]);

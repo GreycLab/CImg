@@ -2573,8 +2573,8 @@ namespace cimg_library_suffixed {
   int size = cimg_vsnprintf(0,0,format,ap2); \
   if (size++>=0) { \
     delete[] _message; \
-    _message = new char[size]; \
-    cimg_vsnprintf(_message,size,format,ap); \
+    _message = new char[(size_t)size]; \
+    cimg_vsnprintf(_message,(size_t)size,format,ap); \
     if (cimg::exception_mode()) { \
       std::fprintf(cimg::output(),"\n%s[CImg] *** %s ***%s %s\n",cimg::t_red,etype,cimg::t_normal,_message); \
       if (cimg_display && disp_flag && !(cimg::exception_mode()%2)) try { cimg::dialog(etype,_message,"Abort"); } \
@@ -6314,22 +6314,22 @@ namespace cimg_library_suffixed {
 #endif
     }
     inline int mod(const unsigned short x, const unsigned short m) {
-      return x%m;
+      return (int)(x%m);
     }
     inline int mod(const short x, const short m) {
-      return x>=0?x%m:(x%m?m + x%m:0);
+      return (int)(x>=0?x%m:(x%m?m + x%m:0));
     }
     inline int mod(const unsigned int x, const unsigned int m) {
       return (int)(x%m);
     }
     inline int mod(const int x, const int m) {
-      return x>=0?x%m:(x%m?m + x%m:0);
+      return (int)(x>=0?x%m:(x%m?m + x%m:0));
     }
     inline cimg_int64 mod(const cimg_uint64 x, const cimg_uint64 m) {
-      return x%m;
+      return (cimg_int64)(x%m);
     }
     inline cimg_int64 mod(const cimg_int64 x, const cimg_int64 m) {
-      return x>=0?x%m:(x%m?m + x%m:0);
+      return (cimg_int64)(x>=0?x%m:(x%m?m + x%m:0));
     }
 
     //! Return the min-mod of two values.
@@ -7013,7 +7013,7 @@ namespace cimg_library_suffixed {
             cimg_strunescape('\"','\"');
             cimg_strunescape('\?','\?');
           case '0' : case '1' : case '2' : case '3' : case '4' : case '5' : case '6' : case '7' :
-            val = *(ns++) - '0';
+            val = (unsigned char)(*(ns++) - '0');
             if (*ns>='0' && *ns<='7') (val<<=3)|=*(ns++) - '0';
             if (*ns>='0' && *ns<='7') (val<<=3)|=*(ns++) - '0';
             *nd = (char)val;
@@ -7021,13 +7021,13 @@ namespace cimg_library_suffixed {
           case 'x' : {
             char c = lowercase(*(++ns));
             if ((c>='0' && c<='9') || (c>='a' && c<='f')) {
-              val = (c<='9'?c - '0':c - 'a' + 10);
+              val = (unsigned char)(c<='9'?c - '0':c - 'a' + 10);
               c = lowercase(*(++ns));
               if ((c>='0' && c<='9') || (c>='a' && c<='f')) {
                 (val<<=4)|=(c<='9'?c - '0':c - 'a' + 10);
                 ++ns;
               }
-              *nd = val;
+              *nd = (char)val;
             } else *nd = c;
           } break;
           case 'u' : { // UTF-8 BMP
@@ -11052,8 +11052,8 @@ namespace cimg_library_suffixed {
         const int
           border1 = (int)((rect.right - rect.left + 1 - disp->_width)/2),
           border2 = (int)(rect.bottom - rect.top + 1 - disp->_height - border1),
-          ww = disp->_width + 2*border1,
-          wh = disp->_height + border1 + border2,
+          ww = disp->width() + 2*border1,
+          wh = disp->height() + border1 + border2,
           sw = CImgDisplay::screen_width(),
           sh = CImgDisplay::screen_height();
         int
@@ -11064,7 +11064,7 @@ namespace cimg_library_suffixed {
         if (wx<0) wx = 0;
         if (wy<0) wy = 0;
         disp->_window = CreateWindowA("MDICLIENT",title?title:" ",
-                                      WS_OVERLAPPEDWINDOW | (disp->_is_closed?0:WS_VISIBLE),
+                                      (DWORD)(WS_OVERLAPPEDWINDOW | (disp->_is_closed?0:WS_VISIBLE)),
                                       wx,wy,ww,wh,0,0,0,&(disp->_ccs));
         if (!disp->_is_closed) {
           GetWindowRect(disp->_window,&rect);
@@ -11076,10 +11076,10 @@ namespace cimg_library_suffixed {
           sx = (unsigned int)screen_width(),
           sy = (unsigned int)screen_height();
         disp->_window = CreateWindowA("MDICLIENT",title?title:" ",
-                                     WS_POPUP | (disp->_is_closed?0:WS_VISIBLE),
-                                      (sx - disp->_width)/2,
-                                      (sy - disp->_height)/2,
-                                     disp->_width,disp->_height,0,0,0,&(disp->_ccs));
+                                      (DWORD)(WS_POPUP | (disp->_is_closed?0:WS_VISIBLE)),
+                                      (int)(sx - disp->_width)/2,
+                                      (int)(sy - disp->_height)/2,
+                                      disp->width(),disp->height(),0,0,0,&(disp->_ccs));
         disp->_window_x = disp->_window_y = 0;
       }
       SetForegroundWindow(disp->_window);
@@ -11138,7 +11138,8 @@ namespace cimg_library_suffixed {
           sy = (unsigned int)screen_height();
         if (sx!=_width || sy!=_height) {
           CLIENTCREATESTRUCT background_ccs = { 0,0 };
-          _background_window = CreateWindowA("MDICLIENT","",WS_POPUP | WS_VISIBLE, 0,0,sx,sy,0,0,0,&background_ccs);
+          _background_window = CreateWindowA("MDICLIENT","",WS_POPUP | WS_VISIBLE,
+                                             0,0,(int)sx,(int)sy,0,0,0,&background_ccs);
           SetForegroundWindow(_background_window);
         }
       }
@@ -11255,7 +11256,7 @@ namespace cimg_library_suffixed {
 
     CImgDisplay& resize(const int nwidth, const int nheight, const bool force_redraw=true) {
       if (!nwidth || !nheight || (is_empty() && (nwidth<0 || nheight<0))) return assign();
-      if (is_empty()) return assign(nwidth,nheight);
+      if (is_empty()) return assign((unsigned int)nwidth,(unsigned int)nheight);
       const unsigned int
         tmpdimx = (nwidth>0)?nwidth:(-nwidth*_width/100),
         tmpdimy = (nheight>0)?nheight:(-nheight*_height/100),
@@ -63540,12 +63541,12 @@ namespace cimg_library_suffixed {
       // Try alternative method, with wide-character string.
       int err = MultiByteToWideChar(CP_UTF8,0,path,-1,0,0);
       if (err) {
-        CImg<wchar_t> wpath(err);
+        CImg<wchar_t> wpath((unsigned int)err);
         err = MultiByteToWideChar(CP_UTF8,0,path,-1,wpath,err);
         if (err) { // Convert 'mode' to a wide-character string
           err = MultiByteToWideChar(CP_UTF8,0,mode,-1,0,0);
           if (err) {
-            CImg<wchar_t> wmode(err);
+            CImg<wchar_t> wmode((unsigned int)err);
             if (MultiByteToWideChar(CP_UTF8,0,mode,-1,wmode,err))
               return _wfopen(wpath,wmode);
           }
@@ -63572,7 +63573,7 @@ namespace cimg_library_suffixed {
         // Try alternative method, with wide-character string.
         int err = MultiByteToWideChar(CP_UTF8,0,path,-1,0,0);
         if (err) {
-          CImg<wchar_t> wpath(err);
+          CImg<wchar_t> wpath((unsigned int)err);
           if (MultiByteToWideChar(CP_UTF8,0,path,-1,wpath,err)) res = GetFileAttributesW(wpath);
         }
       }
@@ -64080,7 +64081,7 @@ namespace cimg_library_suffixed {
     inline const char* temporary_path(const char *const user_path, const bool reinit_path) {
 #define _cimg_test_temporary_path(p) \
       if (!path_found) { \
-        cimg_snprintf(s_path,s_path.width(),"%s",p); \
+        cimg_snprintf(s_path,s_path._width,"%s",p); \
         cimg_snprintf(tmp,tmp._width,"%s%c%s",s_path.data(),cimg_file_separator,filename_tmp._data); \
         if ((file=cimg::std_fopen(tmp,"wb"))!=0) { cimg::fclose(file); std::remove(tmp); path_found = true; } \
       }
@@ -64177,8 +64178,8 @@ namespace cimg_library_suffixed {
       const unsigned int siz = (unsigned int)std::strlen(filename);
       CImg<char> format(16), body(siz + 32);
       const char *const ext = cimg::split_filename(filename,body);
-      if (*ext) cimg_snprintf(format,format.width(),"%%s_%%.%ud.%%s",digits);
-      else cimg_snprintf(format,format.width(),"%%s_%%.%ud",digits);
+      if (*ext) cimg_snprintf(format,format._width,"%%s_%%.%ud.%%s",digits);
+      else cimg_snprintf(format,format._width,"%%s_%%.%ud",digits);
       cimg_snprintf(str,1024,format._data,body._data,number,ext);
       return str;
     }

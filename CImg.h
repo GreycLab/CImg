@@ -2582,7 +2582,7 @@ namespace cimg_library_suffixed {
       if (cimg::exception_mode()>=3) cimg_library_suffixed::cimg::info(); \
     } \
   } \
-  va_end(ap); va_end(ap2); \
+  va_end(ap); va_end(ap2);
 
     char *_message;
     CImgException() { _message = new char[1]; *_message = 0; }

@@ -14362,29 +14362,67 @@ namespace cimg_library_suffixed {
          properties as operator()(unsigned int,unsigned int,unsigned int,unsigned int).
      **/
 #if cimg_verbosity>=3
-    T *data(const unsigned int x, const unsigned int y=0, const unsigned int z=0, const unsigned int c=0) {
+
+    template<typename tx, typename ty, typename tz, typename tc>
+    T *data(const tx x, const ty y, const tz z, const tc c) {
       const ulongT off = (ulongT)offset(x,y,z,c);
       if (off>=size())
         cimg::warn(_cimg_instance
-                   "data(): Invalid pointer request, at coordinates (%u,%u,%u,%u) [offset=%u].",
+                   "data(): Invalid pointer request, at coordinates (%d,%d,%d,%d) [offset=%lu].",
                    cimg_instance,
-                   x,y,z,c,off);
+                   (int)x,(int)y,(int)z,(int)c,(unsigned long)off);
       return _data + off;
     }
 
     //! Return a pointer to a located pixel value \const.
-    const T* data(const unsigned int x, const unsigned int y=0, const unsigned int z=0, const unsigned int c=0) const {
+    template<typename tx, typename ty, typename tz, typename tc>
+    const T* data(const tx x, const ty y, const tz z, const tc c) const {
       return const_cast<CImg<T>*>(this)->data(x,y,z,c);
     }
+
 #else
-    T* data(const unsigned int x, const unsigned int y=0, const unsigned int z=0, const unsigned int c=0) {
-      return _data + x + (ulongT)y*_width + (ulongT)z*_width*_height + (ulongT)c*_width*_height*_depth;
+
+    template<typename tx, typename ty, typename tz, typename tc>
+    T* data(const tx x, const ty y, const tz z, const tc c) {
+      return _data + (longT)x + (longT)y*width() + (longT)z*width()*height() + (longT)c*width()*height()*depth();
     }
 
-    const T* data(const unsigned int x, const unsigned int y=0, const unsigned int z=0, const unsigned int c=0) const {
-      return _data + x + (ulongT)y*_width + (ulongT)z*_width*_height + (ulongT)c*_width*_height*_depth;
+    template<typename tx, typename ty, typename tz, typename tc>
+    const T* data(const tx x, const ty y, const tz z, const tc c) const {
+      return _data + (longT)x + (longT)y*width() + (longT)z*width()*height() + (longT)c*width()*height()*depth();
     }
+
 #endif
+
+    template<typename tx, typename ty, typename tz>
+    T *data(const tx x, const ty y, const tz z) {
+      return data(x,y,z,0);
+    }
+
+    template<typename tx, typename ty>
+    T *data(const tx x, const ty y) {
+      return data(x,y,0,0);
+    }
+
+    template<typename tx>
+    T *data(const tx x) {
+      return data(x,0,0,0);
+    }
+
+    template<typename tx, typename ty, typename tz>
+    const T *data(const tx x, const ty y, const tz z) const {
+      return data(x,y,z,0);
+    }
+
+    template<typename tx, typename ty>
+    const T *data(const tx x, const ty y) const {
+      return data(x,y,0,0);
+    }
+
+    template<typename tx>
+    const T *data(const tx x) const {
+      return data(x,0,0,0);
+    }
 
     //! Return the offset to a located pixel value, with respect to the beginning of the pixel buffer.
     /**

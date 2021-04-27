@@ -12863,8 +12863,9 @@ namespace cimg_library_suffixed {
        \endcode
     **/
 #if cimg_verbosity>=3
-    T& operator()(const unsigned int x, const unsigned int y=0,
-                  const unsigned int z=0, const unsigned int c=0) {
+
+    template<typename tx, typename ty, typename tz, typename tc>
+    T& operator()(const tx x, const ty y, const tz z, const tc c) {
       const ulongT off = (ulongT)offset(x,y,z,c);
       if (!_data || off>=size()) {
         cimg::warn(_cimg_instance
@@ -12877,8 +12878,8 @@ namespace cimg_library_suffixed {
     }
 
     //! Access to a pixel value \const.
-    const T& operator()(const unsigned int x, const unsigned int y=0,
-                        const unsigned int z=0, const unsigned int c=0) const {
+    template<typename tx, typename ty, typename tz, typename tc>
+    const T& operator()(const tx x, const ty y, const tz z, const tc c) const {
       return const_cast<CImg<T>*>(this)->operator()(x,y,z,c);
     }
 
@@ -12895,71 +12896,76 @@ namespace cimg_library_suffixed {
          It uses precomputed offsets to optimize memory access. You may use it to optimize
          the reading/writing of several pixel values in the same image (e.g. in a loop).
      **/
-    T& operator()(const unsigned int x, const unsigned int y, const unsigned int z, const unsigned int c,
+    template<typename tx, typename ty, typename tz, typename tc>
+    T& operator()(const tx x, const ty y, const tz z, const tc c,
                   const ulongT wh, const ulongT whd=0) {
       cimg::unused(wh,whd);
       return (*this)(x,y,z,c);
     }
 
     //! Access to a pixel value \const.
-    const T& operator()(const unsigned int x, const unsigned int y, const unsigned int z, const unsigned int c,
+    template<typename tx, typename ty, typename tz, typename tc>
+    const T& operator()(const tx x, const ty y, const tz z, const tc c,
                         const ulongT wh, const ulongT whd=0) const {
       cimg::unused(wh,whd);
       return (*this)(x,y,z,c);
     }
+
 #else
-    T& operator()(const unsigned int x) {
-      return _data[x];
+
+    template<typename tx, typename ty, typename tz, typename tc>
+    T& operator()(const tx x, const ty y, const tz z, const tc c) {
+      return _data[(longT)x + (longT)y*width() + (longT)z*width()*height() + (longT)c*width()*height()*depth()];
     }
 
-    const T& operator()(const unsigned int x) const {
-      return _data[x];
+    template<typename tx, typename ty, typename tz, typename tc>
+    const T& operator()(const tx x, const ty y, const tz z, const tc c) const {
+      return _data[(longT)x + (longT)y*width() + (longT)z*width()*height() + (longT)c*width()*height()*depth()];
     }
 
-    T& operator()(const unsigned int x, const unsigned int y) {
-      return _data[x + y*_width];
+    template<typename tx, typename ty, typename tz, typename tc>
+    T& operator()(const tx x, const ty y, const tz z, const tc c,
+                  const ulongT wh, const ulongT whd=0) {
+      return _data[(longT)x + (longT)y*width() + (longT)z*(longT)wh + (longT)c*(longT)whd];
     }
 
-    const T& operator()(const unsigned int x, const unsigned int y) const {
-      return _data[x + y*_width];
+    template<typename tx, typename ty, typename tz, typename tc>
+    const T& operator()(const tx x, const ty y, const tz z, const tc c,
+                        const ulongT wh, const ulongT whd=0) const {
+      return _data[(longT)x + (longT)y*width() + (longT)z*(longT)wh + (longT)c*(longT)whd];
     }
 
-    T& operator()(const unsigned int x, const unsigned int y, const unsigned int z) {
-      return _data[x + y*(ulongT)_width + z*(ulongT)_width*_height];
-   }
-
-    const T& operator()(const unsigned int x, const unsigned int y, const unsigned int z) const {
-      return _data[x + y*(ulongT)_width + z*(ulongT)_width*_height];
-    }
-
-    T& operator()(const unsigned int x, const unsigned int y, const unsigned int z, const unsigned int c) {
-      return _data[x + y*(ulongT)_width + z*(ulongT)_width*_height + c*(ulongT)_width*_height*_depth];
-    }
-
-    const T& operator()(const unsigned int x, const unsigned int y, const unsigned int z, const unsigned int c) const {
-      return _data[x + y*(ulongT)_width + z*(ulongT)_width*_height + c*(ulongT)_width*_height*_depth];
-    }
-
-    T& operator()(const unsigned int x, const unsigned int y, const unsigned int z, const unsigned int,
-                  const ulongT wh) {
-      return _data[x + y*_width + z*wh];
-    }
-
-    const T& operator()(const unsigned int x, const unsigned int y, const unsigned int z, const unsigned int,
-                        const ulongT wh) const {
-      return _data[x + y*_width + z*wh];
-    }
-
-    T& operator()(const unsigned int x, const unsigned int y, const unsigned int z, const unsigned int c,
-                  const ulongT wh, const ulongT whd) {
-      return _data[x + y*_width + z*wh + c*whd];
-    }
-
-    const T& operator()(const unsigned int x, const unsigned int y, const unsigned int z, const unsigned int c,
-                        const ulongT wh, const ulongT whd) const {
-      return _data[x + y*_width + z*wh + c*whd];
-    }
 #endif
+
+    template<typename tx, typename ty, typename tz>
+    T& operator()(const tx x, const ty y, const tz z) {
+      return (*this)(x,y,z,0);
+    }
+
+    template<typename tx, typename ty>
+    T& operator()(const tx x, const ty y) {
+      return (*this)(x,y,0,0);
+    }
+
+    template<typename tx>
+    T& operator()(const tx x) {
+      return (*this)(x,0,0,0);
+    }
+
+    template<typename tx, typename ty, typename tz>
+    const T& operator()(const tx x, const ty y, const tz z) const {
+      return (*this)(x,y,z,0);
+    }
+
+    template<typename tx, typename ty>
+    const T& operator()(const tx x, const ty y) const {
+      return (*this)(x,y,0,0);
+    }
+
+    template<typename tx>
+    const T& operator()(const tx x) const {
+      return (*this)(x,0,0,0);
+    }
 
     //! Implicitly cast an image into a \c T*.
     /**

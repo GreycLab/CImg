@@ -61278,7 +61278,7 @@ namespace cimg_library_suffixed {
                 for (ulongT to_read = img.size(); to_read; ) { \
                   raw.assign((unsigned int)std::min(to_read,cimg_iobuffer)); \
                   cimg::fread(raw._data,raw._width,nfile); \
-                  CImg<T>(ptrd,std::min((ulongT)8*raw._width,(ulongT)(img.end() - ptrd)),1,1,1,true).\
+                  CImg<T>(ptrd,std::min(8*raw._width,(unsigned int)(img.end() - ptrd)),1,1,1,true).\
                     _uchar2bool(raw,raw._width,false); \
                   to_read-=raw._width; \
                 } \

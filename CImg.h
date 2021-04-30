@@ -17422,7 +17422,7 @@ namespace cimg_library_suffixed {
                 get_variable_pos(variable_name,arg1,arg2);
                 arg1 = arg2!=~0U?reserved_label[arg2]:arg1!=~0U?variable_pos[arg1]:~0U; // Vector slot
                 if (arg1==~0U || _cimg_mp_is_scalar(arg1))
-                  compile(ss,s0 - 1,depth1,0,is_critical); // Variable does not exist or is not a vector -> error
+                  compile(ss,s0,depth1,0,is_critical); // Variable does not exist or is not a vector -> error
 
                 arg2 = compile(++s0,ve1,depth1,0,is_critical); // Index
                 arg3 = compile(s + 1,se,depth1,0,is_critical); // Value to assign

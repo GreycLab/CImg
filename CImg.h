@@ -21165,7 +21165,7 @@ namespace cimg_library_suffixed {
               arg2 = compile(++s1,s2,depth1,0,is_critical);
               _cimg_mp_check_type(arg2,2,2,0);
               p2 = _cimg_mp_size(arg2);
-              arg3 = arg5 = arg6 = 1U; arg4 = ~0U; pos = 0;
+              arg3 = ~0U; arg4 = arg5 = arg6 = 1U; pos = 0;
               if (s2<se1) {
                 s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                 arg3 = compile(++s2,s1,depth1,0,is_critical);
@@ -21189,7 +21189,7 @@ namespace cimg_library_suffixed {
                   }
                 }
               }
-              if (arg4==~0U) arg4 = constant(p3);
+              if (arg3==~0U) arg3 = constant(p3);
               CImg<ulongT>::vector((ulongT)mp_store,_cimg_mp_slot_nan,arg1,p1,arg2,p2,
                                    arg3,arg4,arg5,arg6,pos).move_to(code);
               _cimg_mp_return_nan();

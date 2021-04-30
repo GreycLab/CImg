@@ -12863,9 +12863,8 @@ namespace cimg_library_suffixed {
        \endcode
     **/
 #if cimg_verbosity>=3
-
-    template<typename tx, typename ty, typename tz, typename tc>
-    T& operator()(const tx x, const ty y, const tz z, const tc c) {
+    T& operator()(const unsigned int x, const unsigned int y=0,
+                  const unsigned int z=0, const unsigned int c=0) {
       const ulongT off = (ulongT)offset(x,y,z,c);
       if (!_data || off>=size()) {
         cimg::warn(_cimg_instance
@@ -12878,8 +12877,8 @@ namespace cimg_library_suffixed {
     }
 
     //! Access to a pixel value \const.
-    template<typename tx, typename ty, typename tz, typename tc>
-    const T& operator()(const tx x, const ty y, const tz z, const tc c) const {
+    const T& operator()(const unsigned int x, const unsigned int y=0,
+                        const unsigned int z=0, const unsigned int c=0) const {
       return const_cast<CImg<T>*>(this)->operator()(x,y,z,c);
     }
 
@@ -12896,76 +12895,71 @@ namespace cimg_library_suffixed {
          It uses precomputed offsets to optimize memory access. You may use it to optimize
          the reading/writing of several pixel values in the same image (e.g. in a loop).
      **/
-    template<typename tx, typename ty, typename tz, typename tc>
-    T& operator()(const tx x, const ty y, const tz z, const tc c,
+    T& operator()(const unsigned int x, const unsigned int y, const unsigned int z, const unsigned int c,
                   const ulongT wh, const ulongT whd=0) {
       cimg::unused(wh,whd);
       return (*this)(x,y,z,c);
     }
 
     //! Access to a pixel value \const.
-    template<typename tx, typename ty, typename tz, typename tc>
-    const T& operator()(const tx x, const ty y, const tz z, const tc c,
+    const T& operator()(const unsigned int x, const unsigned int y, const unsigned int z, const unsigned int c,
                         const ulongT wh, const ulongT whd=0) const {
       cimg::unused(wh,whd);
       return (*this)(x,y,z,c);
     }
-
 #else
-
-    template<typename tx, typename ty, typename tz, typename tc>
-    T& operator()(const tx x, const ty y, const tz z, const tc c) {
-      return _data[(longT)x + (longT)y*width() + (longT)z*width()*height() + (longT)c*width()*height()*depth()];
+    T& operator()(const unsigned int x) {
+      return _data[x];
     }
 
-    template<typename tx, typename ty, typename tz, typename tc>
-    const T& operator()(const tx x, const ty y, const tz z, const tc c) const {
-      return _data[(longT)x + (longT)y*width() + (longT)z*width()*height() + (longT)c*width()*height()*depth()];
+    const T& operator()(const unsigned int x) const {
+      return _data[x];
     }
 
-    template<typename tx, typename ty, typename tz, typename tc>
-    T& operator()(const tx x, const ty y, const tz z, const tc c,
-                  const ulongT wh, const ulongT whd=0) {
-      return _data[(longT)x + (longT)y*width() + (longT)z*(longT)wh + (longT)c*(longT)whd];
+    T& operator()(const unsigned int x, const unsigned int y) {
+      return _data[x + y*_width];
     }
 
-    template<typename tx, typename ty, typename tz, typename tc>
-    const T& operator()(const tx x, const ty y, const tz z, const tc c,
-                        const ulongT wh, const ulongT whd=0) const {
-      return _data[(longT)x + (longT)y*width() + (longT)z*(longT)wh + (longT)c*(longT)whd];
+    const T& operator()(const unsigned int x, const unsigned int y) const {
+      return _data[x + y*_width];
     }
 
+    T& operator()(const unsigned int x, const unsigned int y, const unsigned int z) {
+      return _data[x + y*(ulongT)_width + z*(ulongT)_width*_height];
+   }
+
+    const T& operator()(const unsigned int x, const unsigned int y, const unsigned int z) const {
+      return _data[x + y*(ulongT)_width + z*(ulongT)_width*_height];
+    }
+
+    T& operator()(const unsigned int x, const unsigned int y, const unsigned int z, const unsigned int c) {
+      return _data[x + y*(ulongT)_width + z*(ulongT)_width*_height + c*(ulongT)_width*_height*_depth];
+    }
+
+    const T& operator()(const unsigned int x, const unsigned int y, const unsigned int z, const unsigned int c) const {
+      return _data[x + y*(ulongT)_width + z*(ulongT)_width*_height + c*(ulongT)_width*_height*_depth];
+    }
+
+    T& operator()(const unsigned int x, const unsigned int y, const unsigned int z, const unsigned int,
+                  const ulongT wh) {
+      return _data[x + y*_width + z*wh];
+    }
+
+    const T& operator()(const unsigned int x, const unsigned int y, const unsigned int z, const unsigned int,
+                        const ulongT wh) const {
+      return _data[x + y*_width + z*wh];
+    }
+
+    T& operator()(const unsigned int x, const unsigned int y, const unsigned int z, const unsigned int c,
+                  const ulongT wh, const ulongT whd) {
+      return _data[x + y*_width + z*wh + c*whd];
+    }
+
+    const T& operator()(const unsigned int x, const unsigned int y, const unsigned int z, const unsigned int c,
+                        const ulongT wh, const ulongT whd) const {
+      return _data[x + y*_width + z*wh + c*whd];
+    }
 #endif
-
-    template<typename tx, typename ty, typename tz>
-    T& operator()(const tx x, const ty y, const tz z) {
-      return (*this)(x,y,z,0);
-    }
-
-    template<typename tx, typename ty>
-    T& operator()(const tx x, const ty y) {
-      return (*this)(x,y,0,0);
-    }
-
-    template<typename tx>
-    T& operator()(const tx x) {
-      return (*this)(x,0,0,0);
-    }
-
-    template<typename tx, typename ty, typename tz>
-    const T& operator()(const tx x, const ty y, const tz z) const {
-      return (*this)(x,y,z,0);
-    }
-
-    template<typename tx, typename ty>
-    const T& operator()(const tx x, const ty y) const {
-      return (*this)(x,y,0,0);
-    }
-
-    template<typename tx>
-    const T& operator()(const tx x) const {
-      return (*this)(x,0,0,0);
-    }
 
     //! Implicitly cast an image into a \c T*.
     /**
@@ -14362,67 +14356,29 @@ namespace cimg_library_suffixed {
          properties as operator()(unsigned int,unsigned int,unsigned int,unsigned int).
      **/
 #if cimg_verbosity>=3
-
-    template<typename tx, typename ty, typename tz, typename tc>
-    T *data(const tx x, const ty y, const tz z, const tc c) {
+    T *data(const unsigned int x, const unsigned int y=0, const unsigned int z=0, const unsigned int c=0) {
       const ulongT off = (ulongT)offset(x,y,z,c);
       if (off>=size())
         cimg::warn(_cimg_instance
-                   "data(): Invalid pointer request, at coordinates (%d,%d,%d,%d) [offset=%lu].",
+                   "data(): Invalid pointer request, at coordinates (%u,%u,%u,%u) [offset=%u].",
                    cimg_instance,
-                   (int)x,(int)y,(int)z,(int)c,(unsigned long)off);
+                   x,y,z,c,off);
       return _data + off;
     }
 
     //! Return a pointer to a located pixel value \const.
-    template<typename tx, typename ty, typename tz, typename tc>
-    const T* data(const tx x, const ty y, const tz z, const tc c) const {
+    const T* data(const unsigned int x, const unsigned int y=0, const unsigned int z=0, const unsigned int c=0) const {
       return const_cast<CImg<T>*>(this)->data(x,y,z,c);
     }
-
 #else
-
-    template<typename tx, typename ty, typename tz, typename tc>
-    T* data(const tx x, const ty y, const tz z, const tc c) {
-      return _data + (longT)x + (longT)y*width() + (longT)z*width()*height() + (longT)c*width()*height()*depth();
+    T* data(const unsigned int x, const unsigned int y=0, const unsigned int z=0, const unsigned int c=0) {
+      return _data + x + (ulongT)y*_width + (ulongT)z*_width*_height + (ulongT)c*_width*_height*_depth;
     }
 
-    template<typename tx, typename ty, typename tz, typename tc>
-    const T* data(const tx x, const ty y, const tz z, const tc c) const {
-      return _data + (longT)x + (longT)y*width() + (longT)z*width()*height() + (longT)c*width()*height()*depth();
+    const T* data(const unsigned int x, const unsigned int y=0, const unsigned int z=0, const unsigned int c=0) const {
+      return _data + x + (ulongT)y*_width + (ulongT)z*_width*_height + (ulongT)c*_width*_height*_depth;
     }
-
 #endif
-
-    template<typename tx, typename ty, typename tz>
-    T *data(const tx x, const ty y, const tz z) {
-      return data(x,y,z,0);
-    }
-
-    template<typename tx, typename ty>
-    T *data(const tx x, const ty y) {
-      return data(x,y,0,0);
-    }
-
-    template<typename tx>
-    T *data(const tx x) {
-      return data(x,0,0,0);
-    }
-
-    template<typename tx, typename ty, typename tz>
-    const T *data(const tx x, const ty y, const tz z) const {
-      return data(x,y,z,0);
-    }
-
-    template<typename tx, typename ty>
-    const T *data(const tx x, const ty y) const {
-      return data(x,y,0,0);
-    }
-
-    template<typename tx>
-    const T *data(const tx x) const {
-      return data(x,0,0,0);
-    }
 
     //! Return the offset to a located pixel value, with respect to the beginning of the pixel buffer.
     /**
@@ -14440,24 +14396,8 @@ namespace cimg_library_suffixed {
        const float val = img[off];              // Get the blue value of this pixel
        \endcode
     **/
-    template<typename tx, typename ty, typename tz, typename tc>
-    longT offset(const tx x, const ty y, const tz z, const tc c) const {
-      return (longT)x + (longT)y*width() + (longT)z*width()*height() + (longT)c*width()*height()*depth();
-    }
-
-    template<typename tx, typename ty, typename tz>
-    longT offset(const tx x, const ty y, const tz z) const {
-      return (longT)x + (longT)y*width() + (longT)z*width()*height();
-    }
-
-    template<typename tx, typename ty>
-    longT offset(const tx x, const ty y) const {
-      return (longT)x + (longT)y*width();
-    }
-
-    template<typename tx>
-    longT offset(const tx x) const {
-      return (longT)x;
+    longT offset(const int x, const int y=0, const int z=0, const int c=0) const {
+      return x + (longT)y*_width + (longT)z*_width*_height + (longT)c*_width*_height*_depth;
     }
 
     //! Return a CImg<T>::iterator pointing to the first pixel value.
@@ -17482,7 +17422,7 @@ namespace cimg_library_suffixed {
                 get_variable_pos(variable_name,arg1,arg2);
                 arg1 = arg2!=~0U?reserved_label[arg2]:arg1!=~0U?variable_pos[arg1]:~0U; // Vector slot
                 if (arg1==~0U || _cimg_mp_is_scalar(arg1))
-                  compile(ss,s0 - 1,depth1,0,is_critical); // Variable does not exist or is not a vector -> error
+                  compile(ss,s0,depth1,0,is_critical); // Variable does not exist or is not a vector -> error
 
                 arg2 = compile(++s0,ve1,depth1,0,is_critical); // Index
                 arg3 = compile(s + 1,se,depth1,0,is_critical); // Value to assign
@@ -21225,7 +21165,7 @@ namespace cimg_library_suffixed {
               arg2 = compile(++s1,s2,depth1,0,is_critical);
               _cimg_mp_check_type(arg2,2,2,0);
               p2 = _cimg_mp_size(arg2);
-              arg3 = arg5 = arg6 = 1U; arg4 = ~0U; pos = 0;
+              arg3 = ~0U; arg4 = arg5 = arg6 = 1U; pos = 0;
               if (s2<se1) {
                 s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                 arg3 = compile(++s2,s1,depth1,0,is_critical);
@@ -21249,7 +21189,7 @@ namespace cimg_library_suffixed {
                   }
                 }
               }
-              if (arg4==~0U) arg4 = constant(p3);
+              if (arg3==~0U) arg3 = constant(p3);
               CImg<ulongT>::vector((ulongT)mp_store,_cimg_mp_slot_nan,arg1,p1,arg2,p2,
                                    arg3,arg4,arg5,arg6,pos).move_to(code);
               _cimg_mp_return_nan();
@@ -48055,8 +47995,12 @@ namespace cimg_library_suffixed {
         ch = (unsigned char)text[i];
         switch (ch) {
         case '\n' : y+=font[0]._height; x = x0; break;
-        case '\t' : x+=4*font[(int)' ']._width; break;
-        case ' ' : x+=font[(int)' ']._width; break;
+        case '\t' :
+        case ' ' : {
+          const unsigned int lw = (ch=='\t'?4:1)*font[(int)' ']._width, lh = font[(int)' ']._height;
+          if (background_color) draw_rectangle(x,y,x + lw - 1,y + lh - 1,background_color,opacity);
+          x+=lw;
+        } break;
         default : if (ch<font._width) {
             CImg<T> letter = font[ch];
             if (letter) {
@@ -59172,26 +59116,24 @@ namespace cimg_library_suffixed {
     /**
        \param pos Index of the image element.
     **/
-    template<typename t>
-    CImg<T>& operator()(const t pos) {
+    CImg<T>& operator()(const unsigned int pos) {
 #if cimg_verbosity>=3
-      if ((unsigned int)pos>=_width) {
+      if (pos>=_width) {
         cimg::warn(_cimglist_instance
                    "operator(): Invalid image request, at position [%u].",
                    cimglist_instance,
-                   (unsigned int)pos);
+                   pos);
         return *_data;
       }
 #endif
-      return _data[(int)pos];
+      return _data[pos];
     }
 
     //! Return a reference to one image of the list.
     /**
        \param pos Index of the image element.
     **/
-    template<typename t>
-    const CImg<T>& operator()(const t pos) const {
+    const CImg<T>& operator()(const unsigned int pos) const {
       return const_cast<CImgList<T>*>(this)->operator()(pos);
     }
 
@@ -59204,45 +59146,15 @@ namespace cimg_library_suffixed {
        \param c C-coordinate of the pixel value.
        \note <tt>list(n,x,y,z,c)</tt> is equivalent to <tt>list[n](x,y,z,c)</tt>.
     **/
-    template<typename t, typename tx, typename ty, typename tz, typename tc>
-    T& operator()(const t pos, const tx x, const ty y, const tz z, const tc c) {
-      return (*this)[(int)pos](x,y,z,c);
-    }
-
-    template<typename t, typename tx, typename ty, typename tz>
-    T& operator()(const t pos, const tx x, const ty y, const tz z) {
-      return (*this)[(int)pos](x,y,z);
-    }
-
-    template<typename t, typename tx, typename ty>
-    T& operator()(const t pos, const tx x, const ty y) {
-      return (*this)[(int)pos](x,y);
-    }
-
-    template<typename t, typename tx>
-    T& operator()(const t pos, const tx x) {
-      return (*this)[(int)pos](x);
+    T& operator()(const unsigned int pos, const unsigned int x, const unsigned int y=0,
+                  const unsigned int z=0, const unsigned int c=0) {
+      return (*this)[pos](x,y,z,c);
     }
 
     //! Return a reference to one pixel value of one image of the list \const.
-    template<typename t, typename tx, typename ty, typename tz, typename tc>
-    const T& operator()(const t pos, const tx x, const ty y, const tz z, const tc c) const {
-      return (*this)[(int)pos](x,y,z,c);
-    }
-
-    template<typename t, typename tx, typename ty, typename tz>
-    const T& operator()(const t pos, const tx x, const ty y, const tz z) const {
-      return (*this)[(int)pos](x,y,z);
-    }
-
-    template<typename t, typename tx, typename ty>
-    const T& operator()(const t pos, const tx x, const ty y) const {
-      return (*this)[(int)pos](x,y);
-    }
-
-    template<typename t, typename tx>
-    const T& operator()(const t pos, const tx x) const {
-      return (*this)[(int)pos](x);
+    const T& operator()(const unsigned int pos, const unsigned int x, const unsigned int y=0,
+                        const unsigned int z=0, const unsigned int c=0) const {
+      return (*this)[pos](x,y,z,c);
     }
 
     //! Return pointer to the first image of the list.
@@ -59414,37 +59326,27 @@ namespace cimg_library_suffixed {
        \note <tt>list.data(n);</tt> is equivalent to <tt>list.data + n;</tt>.
     **/
 #if cimg_verbosity>=3
-
-    template<typename t>
-    CImg<T> *data(const t pos) {
-      if ((unsigned int)pos>=size()) {
+    CImg<T> *data(const unsigned int pos) {
+      if (pos>=size())
         cimg::warn(_cimglist_instance
                    "data(): Invalid pointer request, at position [%u].",
                    cimglist_instance,
-                   (unsigned int)pos);
-        return *_data;
-      }
-      return _data + (int)pos;
+                   pos);
+      return _data + pos;
     }
 
-    template<typename t>
-    const CImg<T> *data(const t pos) const {
-      return const_cast<CImgList<T>*>(this)->data(pos);
+    const CImg<T> *data(const unsigned int l) const {
+      return const_cast<CImgList<T>*>(this)->data(l);
     }
-
 #else
-
-    template<typename t>
-    CImg<T> *data(const t pos) {
-      return _data + (int)pos;
+    CImg<T> *data(const unsigned int l) {
+      return _data + l;
     }
 
     //! Return pointer to the pos-th image of the list \const.
-    template<typename t>
-    const CImg<T> *data(const t pos) const {
-      return _data + (int)pos;
+    const CImg<T> *data(const unsigned int l) const {
+      return _data + l;
     }
-
 #endif
 
     //! Return iterator to the first image of the list.

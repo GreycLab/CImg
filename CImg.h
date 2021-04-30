@@ -47995,8 +47995,12 @@ namespace cimg_library_suffixed {
         ch = (unsigned char)text[i];
         switch (ch) {
         case '\n' : y+=font[0]._height; x = x0; break;
-        case '\t' : x+=4*font[(int)' ']._width; break;
-        case ' ' : x+=font[(int)' ']._width; break;
+        case '\t' :
+        case ' ' : {
+          const unsigned int lw = (ch=='\t'?4:1)*font[(int)' ']._width, lh = font[(int)' ']._height;
+          if (background_color) draw_rectangle(x,y,x + lw - 1,y + lh - 1,background_color,opacity);
+          x+=lw;
+        } break;
         default : if (ch<font._width) {
             CImg<T> letter = font[ch];
             if (letter) {

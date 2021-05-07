@@ -20007,6 +20007,36 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar1(mp_fibonacci,arg1);
             }
 
+            if (!std::strncmp(ss,"fill(",5)) { // Fill
+              _cimg_mp_op("Function 'fill()'");
+              s0 = ss5; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+              arg1 = compile(ss5,s0,depth1,0,is_critical); // Object to fill
+              s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              if (s1<se1) { // Version with 3 arguments
+                variable_name.assign(s0,(unsigned int)(s1 + 1 - s0)).back() = 0;
+                cimg::strpare(variable_name,false,true);
+                get_variable_pos(variable_name,arg2,arg3);
+                arg2 = arg3!=~0U?reserved_label[arg3]:arg2!=~0U?variable_pos[arg2]:~0U; // Variable slot
+                if (arg2!=~0U && (!_cimg_mp_is_scalar(arg2) ||
+                                  _cimg_mp_is_constant(arg2))) { // Variable is not a vector or is a constant -> error
+                  cimg::strellipsize(variable_name,64);
+                  throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                              "CImg<%s>::%s: %s: Invalid type '%s' for variable '%s' (expected 'scalar'), "
+                                              "in expression '%s%s%s'.",
+                                              pixel_type(),_cimg_mp_calling_function,s_op,
+                                              s_type(arg2)._data,variable_name._data,
+                                              s0>expr._data?"...":"",s0,se<&expr.back()?"...":"");
+                } else if (arg2==~0U) { // Variable does not exist -> create it
+
+                }
+
+                arg3 = compile(++s1,se1,depth1,0,is_critical); // Fill expression
+              } else { // Version with 2 arguments
+                arg2 = compile(s0,se1,depth1,0,is_critical); // Fill expression
+              }
+              _cimg_mp_return(arg1);
+            }
+
             if (!std::strncmp(ss,"find(",5)) { // Find
               _cimg_mp_op("Function 'find()'");
 
@@ -22263,7 +22293,8 @@ namespace cimg_library_suffixed {
         if (_cimg_mp_is_vector(arg)) { // Vector
           CImg<charT>::string("vectorXXXXXXXXXXXXXXXX").move_to(res);
           cimg_sprintf(res._data + 6,"%u",_cimg_mp_size(arg));
-        } else CImg<charT>::string("scalar").move_to(res);
+        } else if (_cimg_mp_is_constant(arg)) CImg<charT>::string("const scalar").move_to(res); // Const scalar
+        else CImg<charT>::string("scalar").move_to(res); // Scalar
         return res;
       }
 

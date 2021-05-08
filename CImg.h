@@ -23713,6 +23713,41 @@ namespace cimg_library_suffixed {
         return cimg::fibonacci((int)_mp_arg(2));
       }
 
+      static double mp_fill(_cimg_math_parser& mp) {
+        unsigned int siz = (unsigned int)mp.opcode[2];
+        double
+          *ptrd = &_mp_arg(1),
+          *const ptrc = mp.opcode[3]!=~0U?&_mp_arg(3):0,
+          *const ptrs = &_mp_arg(4);
+        if (siz) ++ptrd; else ++siz; // Fill vector value
+        const CImg<ulongT>
+          *const p_body = ++mp.p_code,
+          *const p_end = p_body + mp.opcode[5];
+
+        if (ptrc) // Version with 3 arguments (with loop variable)
+          for (unsigned int it = 0; it<siz; ++it) {
+            *ptrc = (double)it;
+            for (mp.p_code = p_body; mp.p_code<p_end; ++mp.p_code) {
+              mp.opcode._data = mp.p_code->_data;
+              const ulongT target = mp.opcode[1];
+              mp.mem[target] = _cimg_mp_defunc(mp);
+            }
+            ptrd[it] = *ptrs;
+          }
+        else // Version with 2 arguments (without loop variable)
+          for (unsigned int it = 0; it<siz; ++it) {
+            for (mp.p_code = p_body; mp.p_code<p_end; ++mp.p_code) {
+              mp.opcode._data = mp.p_code->_data;
+              const ulongT target = mp.opcode[1];
+              mp.mem[target] = _cimg_mp_defunc(mp);
+            }
+            ptrd[it] = *ptrs;
+          }
+
+        mp.p_code = p_end - 1;
+        return *ptrd;
+      }
+
       static double mp_find(_cimg_math_parser& mp) {
         const int _step = (int)_mp_arg(6), step = _step?_step:-1;
         const ulongT siz = (ulongT)mp.opcode[3];
@@ -26593,31 +26628,6 @@ namespace cimg_library_suffixed {
         CImg<doubleT>(ptrd,l,1,1,1,true) = str.get_shared_points(0,l - 1);
         return cimg::type<double>::nan();
      }
-
-      static double mp_fill(_cimg_math_parser& mp) { // Version with 3 arguments
-        unsigned int siz = (unsigned int)mp.opcode[2];
-        double
-          *ptrd = &_mp_arg(1),
-          *const ptrc = &_mp_arg(3),
-          *const ptrs = &_mp_arg(4);
-        if (siz) ++ptrd; else ++siz; // Fill vector value
-        const CImg<ulongT>
-          *const p_body = ++mp.p_code,
-          *const p_end = p_body + mp.opcode[5];
-        for (unsigned int it = 0; it<siz; ++it) {
-          *ptrc = (double)it;
-
-          for (mp.p_code = p_body; mp.p_code<p_end; ++mp.p_code) {
-            mp.opcode._data = mp.p_code->_data;
-            const ulongT target = mp.opcode[1];
-            mp.mem[target] = _cimg_mp_defunc(mp);
-          }
-
-          ptrd[it] = *ptrs;
-        }
-        mp.p_code = p_end - 1;
-        return *ptrd;
-      }
 
       static double mp_while(_cimg_math_parser& mp) {
         const ulongT

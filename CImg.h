@@ -20932,7 +20932,6 @@ namespace cimg_library_suffixed {
                 }
                 // arg2 = variable slot.
                 arg3 = compile(++s1,se1,depth1,0,is_critical);
-                _cimg_mp_check_type(arg3,3,1,0);
               } else { // Version with 2 arguments
                 arg2 = ~0U;
                 arg3 = compile(s0,se1,depth1,0,is_critical);

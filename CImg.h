@@ -20039,7 +20039,8 @@ namespace cimg_library_suffixed {
                 // Here, arg2 = variable slot set to zero.
                 p1 = code._width;
                 arg3 = compile(++s1,se1,depth1,0,is_critical); // Fill expression
-//                CImg<ulongT>::vector((ulongT)mp_fill,arg1,arg2,code._width - p1).move_to(code,p1);
+                _cimg_mp_check_type(arg3,3,1,0);
+                CImg<ulongT>::vector((ulongT)mp_fill3,arg1,_cimg_mp_size(arg1),arg2,arg3,code._width - p1).move_to(code,p1);
                 _cimg_mp_return(arg1);
               } else { // Version with 2 arguments
                 arg2 = compile(s0,se1,depth1,0,is_critical); // Fill expression
@@ -26576,6 +26577,26 @@ namespace cimg_library_suffixed {
         CImg<doubleT>(ptrd,l,1,1,1,true) = str.get_shared_points(0,l - 1);
         return cimg::type<double>::nan();
      }
+
+      static double mp_fill3(_cimg_math_parser& mp) { // Version with 3 arguments
+        unsigned int siz = (unsigned int)mp.opcode[2];
+        double
+          *ptrd = &_mp_arg(1),
+          *const ptrs = &_mp_arg(4),
+          *const ptrc = &_mp_arg(3);
+        const double ret = *ptrd;
+        if (siz) ++ptrd; else ++siz; // Fill vector value
+        const CImg<ulongT>
+          *const p_body = ++mp.p_code,
+          *const p_end = p_body + mp.opcode[5];
+        for (unsigned int it = 0; it<siz; ++it) {
+//          std::fprintf(stderr,"\nDEBUG : it = %u",it);
+          *ptrc = (double)it;
+          ptrd[it] = (double)*ptrs;
+        }
+        mp.p_code = p_end - 1;
+        return ret;
+      }
 
       static double mp_while(_cimg_math_parser& mp) {
         const ulongT

@@ -20057,14 +20057,13 @@ namespace cimg_library_suffixed {
                   }
                   memtype[arg2] = -1;
                 }
-                // arg2 = variable slot.
                 arg3 = compile(++s1,se1,depth1,0,is_critical);
                 _cimg_mp_check_type(arg3,3,1,0);
               } else { // Version with 2 arguments
                 arg2 = ~0U;
                 arg3 = compile(s0,se1,depth1,0,is_critical);
               }
-              // arg3 = fill expression.
+              // arg2 = variable slot, arg3 = fill expression.
               _cimg_mp_check_type(arg3,3,1,0);
               CImg<ulongT>::vector((ulongT)mp_fill,arg1,_cimg_mp_size(arg1),arg2,arg3,code._width - p1).
                 move_to(code,p1);
@@ -20931,13 +20930,12 @@ namespace cimg_library_suffixed {
                   }
                   memtype[arg2] = -1;
                 }
-                // arg2 = variable slot.
                 arg3 = compile(++s1,se1,depth1,0,is_critical);
               } else { // Version with 2 arguments
                 arg2 = ~0U;
                 arg3 = compile(s0,se1,depth1,0,is_critical);
               }
-              // arg3 = fill expression.
+              // arg2 = variable slot, arg3 = fill expression.
               CImg<ulongT>::vector((ulongT)mp_repeat,arg3,arg1,arg2,code._width - p1).move_to(code,p1);
               _cimg_mp_return(arg3);
             }

@@ -23719,12 +23719,12 @@ namespace cimg_library_suffixed {
           *ptrd = &_mp_arg(1),
           *const ptrc = mp.opcode[3]!=~0U?&_mp_arg(3):0,
           *const ptrs = &_mp_arg(4);
-        if (siz) ++ptrd; else ++siz; // Fill vector value
+        if (siz) ++ptrd; else ++siz; // Fill vector-valued slot
         const CImg<ulongT>
           *const p_body = ++mp.p_code,
           *const p_end = p_body + mp.opcode[5];
 
-        if (ptrc) // Version with 3 arguments (with loop variable)
+        if (ptrc) // Version with with loop variable (3 arguments)
           for (unsigned int it = 0; it<siz; ++it) {
             *ptrc = (double)it;
             for (mp.p_code = p_body; mp.p_code<p_end; ++mp.p_code) {
@@ -23734,7 +23734,7 @@ namespace cimg_library_suffixed {
             }
             ptrd[it] = *ptrs;
           }
-        else // Version with 2 arguments (without loop variable)
+        else // Version without loop variable (2 arguments)
           for (unsigned int it = 0; it<siz; ++it) {
             for (mp.p_code = p_body; mp.p_code<p_end; ++mp.p_code) {
               mp.opcode._data = mp.p_code->_data;

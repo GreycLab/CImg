@@ -20012,6 +20012,8 @@ namespace cimg_library_suffixed {
               s0 = ss5; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
               arg1 = compile(ss5,s0,depth1,0,is_critical); // Object to fill
               s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              p1 = code._width;
+
               if (s1<se1) { // Version with 3 arguments
                 variable_name.assign(s0,(unsigned int)(s1 + 1 - s0)).back() = 0;
                 cimg::strpare(variable_name,false,true);
@@ -20049,15 +20051,16 @@ namespace cimg_library_suffixed {
                   }
                   memtype[arg2] = -1;
                 }
-                // Here, arg2 = variable slot set to zero.
-                p1 = code._width;
-                arg3 = compile(++s1,se1,depth1,0,is_critical); // Fill expression
+                // arg2 = variable slot.
+                arg3 = compile(++s1,se1,depth1,0,is_critical);
                 _cimg_mp_check_type(arg3,3,1,0);
-                CImg<ulongT>::vector((ulongT)mp_fill3,arg1,_cimg_mp_size(arg1),arg2,arg3,code._width - p1).move_to(code,p1);
-                _cimg_mp_return(arg1);
               } else { // Version with 2 arguments
-                arg2 = compile(s0,se1,depth1,0,is_critical); // Fill expression
+                arg2 = ~0U;
+                arg3 = compile(s0,se1,depth1,0,is_critical);
               }
+              // arg3 = fill expression.
+              _cimg_mp_check_type(arg3,3,1,0);
+              CImg<ulongT>::vector((ulongT)mp_fill,arg1,_cimg_mp_size(arg1),arg2,arg3,code._width - p1).move_to(code,p1);
               _cimg_mp_return(arg1);
             }
 
@@ -26591,7 +26594,7 @@ namespace cimg_library_suffixed {
         return cimg::type<double>::nan();
      }
 
-      static double mp_fill3(_cimg_math_parser& mp) { // Version with 3 arguments
+      static double mp_fill(_cimg_math_parser& mp) { // Version with 3 arguments
         unsigned int siz = (unsigned int)mp.opcode[2];
         double
           *ptrd = &_mp_arg(1),

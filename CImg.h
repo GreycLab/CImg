@@ -26603,13 +26603,14 @@ namespace cimg_library_suffixed {
           *const p_body = ++mp.p_code,
           *const p_end = p_body + mp.opcode[5];
         for (unsigned int it = 0; it<siz; ++it) {
+          *ptrc = (double)it;
+
           for (mp.p_code = p_body; mp.p_code<p_end; ++mp.p_code) {
             mp.opcode._data = mp.p_code->_data;
             const ulongT target = mp.opcode[1];
             mp.mem[target] = _cimg_mp_defunc(mp);
-            std::fprintf(stderr,"\nmem[%u] = %g\n",(unsigned int)target,mp.mem[target]);
           }
-          *ptrc = (double)it;
+
           ptrd[it] = *ptrs;
         }
         mp.p_code = p_end - 1;

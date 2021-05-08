@@ -23724,7 +23724,7 @@ namespace cimg_library_suffixed {
           *const p_body = ++mp.p_code,
           *const p_end = p_body + mp.opcode[5];
 
-        if (ptrc) // Version with with loop variable (3 arguments)
+        if (ptrc) // Version with loop variable (3 arguments)
           for (unsigned int it = 0; it<siz; ++it) {
             *ptrc = (double)it;
             for (mp.p_code = p_body; mp.p_code<p_end; ++mp.p_code) {

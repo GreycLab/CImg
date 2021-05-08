@@ -20027,10 +20027,20 @@ namespace cimg_library_suffixed {
                                               s_type(arg2)._data,variable_name._data,
                                               s0>expr._data?"...":"",s0,se<&expr.back()?"...":"");
                 } else if (arg2==~0U) { // Variable does not exist -> create it
-
+                  arg2 = scalar();
+                  if (arg3!=~0U) reserved_label[arg3] = arg2;
+                  else {
+                    if (variable_def._width>=variable_pos._width) variable_pos.resize(-200,1,1,1,0);
+                    variable_pos[variable_def._width] = arg2;
+                    variable_name.move_to(variable_def);
+                  }
+                  memtype[arg2] = -1;
                 }
-
+                // Here, arg2 = variable slot set to zero.
+                p1 = code._width;
                 arg3 = compile(++s1,se1,depth1,0,is_critical); // Fill expression
+//                CImg<ulongT>::vector((ulongT)mp_fill,arg1,arg2,code._width - p1).move_to(code,p1);
+                _cimg_mp_return(arg1);
               } else { // Version with 2 arguments
                 arg2 = compile(s0,se1,depth1,0,is_critical); // Fill expression
               }

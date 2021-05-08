@@ -26600,7 +26600,6 @@ namespace cimg_library_suffixed {
           *ptrd = &_mp_arg(1),
           *const ptrc = &_mp_arg(3),
           *const ptrs = &_mp_arg(4);
-        const double ret = *ptrd;
         if (siz) ++ptrd; else ++siz; // Fill vector value
         const CImg<ulongT>
           *const p_body = ++mp.p_code,
@@ -26617,7 +26616,7 @@ namespace cimg_library_suffixed {
           ptrd[it] = *ptrs;
         }
         mp.p_code = p_end - 1;
-        return ret;
+        return *ptrd;
       }
 
       static double mp_while(_cimg_math_parser& mp) {

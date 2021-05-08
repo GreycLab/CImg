@@ -20015,6 +20015,19 @@ namespace cimg_library_suffixed {
               if (s1<se1) { // Version with 3 arguments
                 variable_name.assign(s0,(unsigned int)(s1 + 1 - s0)).back() = 0;
                 cimg::strpare(variable_name,false,true);
+                is_sth = true; // is_valid_variable_name?
+                if (*variable_name>='0' && *variable_name<='9') is_sth = false;
+                else for (ns = variable_name; *ns; ++ns)
+                       if (!is_varchar(*ns)) { is_sth = false; break; }
+                if (!is_sth) { // Invalid variable name
+                  cimg::strellipsize(variable_name,64);
+                  throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                              "CImg<%s>::%s: %s: Invalid loop variable name '%s', "
+                                              "in expression '%s%s%s'.",
+                                              pixel_type(),_cimg_mp_calling_function,s_op,
+                                              variable_name._data,
+                                              s0>expr._data?"...":"",s0,se<&expr.back()?"...":"");
+                }
                 get_variable_pos(variable_name,arg2,arg3);
                 arg2 = arg3!=~0U?reserved_label[arg3]:arg2!=~0U?variable_pos[arg2]:~0U; // Variable slot
                 if (arg2!=~0U && (!_cimg_mp_is_scalar(arg2) ||
@@ -26582,17 +26595,22 @@ namespace cimg_library_suffixed {
         unsigned int siz = (unsigned int)mp.opcode[2];
         double
           *ptrd = &_mp_arg(1),
-          *const ptrs = &_mp_arg(4),
-          *const ptrc = &_mp_arg(3);
+          *const ptrc = &_mp_arg(3),
+          *const ptrs = &_mp_arg(4);
         const double ret = *ptrd;
         if (siz) ++ptrd; else ++siz; // Fill vector value
         const CImg<ulongT>
           *const p_body = ++mp.p_code,
           *const p_end = p_body + mp.opcode[5];
         for (unsigned int it = 0; it<siz; ++it) {
-//          std::fprintf(stderr,"\nDEBUG : it = %u",it);
+          for (mp.p_code = p_body; mp.p_code<p_end; ++mp.p_code) {
+            mp.opcode._data = mp.p_code->_data;
+            const ulongT target = mp.opcode[1];
+            mp.mem[target] = _cimg_mp_defunc(mp);
+            std::fprintf(stderr,"\nmem[%u] = %g\n",(unsigned int)target,mp.mem[target]);
+          }
           *ptrc = (double)it;
-          ptrd[it] = (double)*ptrs;
+          ptrd[it] = *ptrs;
         }
         mp.p_code = p_end - 1;
         return ret;

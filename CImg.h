@@ -20007,6 +20007,69 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar1(mp_fibonacci,arg1);
             }
 
+            if (!std::strncmp(ss,"fill(",5)) { // Fill
+              _cimg_mp_op("Function 'fill()'");
+              s0 = ss5; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+              arg1 = compile(ss5,s0,depth1,0,is_critical); // Object to fill
+              if (_cimg_mp_is_constant(arg1))
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: Target scalar is constant, "
+                                            "in expression '%s%s%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            ss>expr._data?"...":"",ss,se<&expr.back()?"...":"");
+              s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              p1 = code._width;
+
+              if (s1<se1) { // Version with 3 arguments
+                variable_name.assign(s0,(unsigned int)(s1 + 1 - s0)).back() = 0;
+                cimg::strpare(variable_name,false,true);
+                is_sth = true; // is_valid_variable_name?
+                if (*variable_name>='0' && *variable_name<='9') is_sth = false;
+                else for (ns = variable_name; *ns; ++ns)
+                       if (!is_varchar(*ns)) { is_sth = false; break; }
+                if (!is_sth) { // Invalid variable name
+                  cimg::strellipsize(variable_name,64);
+                  throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                              "CImg<%s>::%s: %s: Invalid loop variable name '%s', "
+                                              "in expression '%s%s%s'.",
+                                              pixel_type(),_cimg_mp_calling_function,s_op,
+                                              variable_name._data,
+                                              s0>expr._data?"...":"",s0,se<&expr.back()?"...":"");
+                }
+                get_variable_pos(variable_name,arg2,arg3);
+                arg2 = arg3!=~0U?reserved_label[arg3]:arg2!=~0U?variable_pos[arg2]:~0U; // Variable slot
+                if (arg2!=~0U && (!_cimg_mp_is_scalar(arg2) ||
+                                  _cimg_mp_is_constant(arg2))) { // Variable is not a vector or is a constant -> error
+                  cimg::strellipsize(variable_name,64);
+                  throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                              "CImg<%s>::%s: %s: Invalid type '%s' for variable '%s' "
+                                              "(expected 'scalar'), in expression '%s%s%s'.",
+                                              pixel_type(),_cimg_mp_calling_function,s_op,
+                                              s_type(arg2)._data,variable_name._data,
+                                              s0>expr._data?"...":"",s0,se<&expr.back()?"...":"");
+                } else if (arg2==~0U) { // Variable does not exist -> create it
+                  arg2 = scalar();
+                  if (arg3!=~0U) reserved_label[arg3] = arg2;
+                  else {
+                    if (variable_def._width>=variable_pos._width) variable_pos.resize(-200,1,1,1,0);
+                    variable_pos[variable_def._width] = arg2;
+                    variable_name.move_to(variable_def);
+                  }
+                  memtype[arg2] = -1;
+                }
+                arg3 = compile(++s1,se1,depth1,0,is_critical);
+                _cimg_mp_check_type(arg3,3,1,0);
+              } else { // Version with 2 arguments
+                arg2 = ~0U;
+                arg3 = compile(s0,se1,depth1,0,is_critical);
+              }
+              // arg2 = variable slot, arg3 = fill expression.
+              _cimg_mp_check_type(arg3,3,1,0);
+              CImg<ulongT>::vector((ulongT)mp_fill,arg1,_cimg_mp_size(arg1),arg2,arg3,code._width - p1).
+                move_to(code,p1);
+              _cimg_mp_return(arg1);
+            }
+
             if (!std::strncmp(ss,"find(",5)) { // Find
               _cimg_mp_op("Function 'find()'");
 
@@ -20819,6 +20882,61 @@ namespace cimg_library_suffixed {
                 set_variable_vector(arg3); // Prevent from being used in further optimization
               else if (_cimg_mp_is_comp(arg3)) memtype[arg3] = -1;
               *se1 = ')';
+              _cimg_mp_return(arg3);
+            }
+
+            if (!std::strncmp(ss,"repeat(",7)) { // Repeat
+              _cimg_mp_op("Function 'repeat()'");
+              s0 = ss7; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+              arg1 = compile(ss7,s0,depth1,0,is_critical); // Number of iterations
+              _cimg_mp_check_type(arg1,1,1,0);
+              s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              p1 = code._width;
+
+              if (s1<se1) { // Version with 3 arguments
+                variable_name.assign(s0,(unsigned int)(s1 + 1 - s0)).back() = 0;
+                cimg::strpare(variable_name,false,true);
+                is_sth = true; // is_valid_variable_name?
+                if (*variable_name>='0' && *variable_name<='9') is_sth = false;
+                else for (ns = variable_name; *ns; ++ns)
+                       if (!is_varchar(*ns)) { is_sth = false; break; }
+                if (!is_sth) { // Invalid variable name
+                  cimg::strellipsize(variable_name,64);
+                  throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                              "CImg<%s>::%s: %s: Invalid loop variable name '%s', "
+                                              "in expression '%s%s%s'.",
+                                              pixel_type(),_cimg_mp_calling_function,s_op,
+                                              variable_name._data,
+                                              s0>expr._data?"...":"",s0,se<&expr.back()?"...":"");
+                }
+                get_variable_pos(variable_name,arg2,arg3);
+                arg2 = arg3!=~0U?reserved_label[arg3]:arg2!=~0U?variable_pos[arg2]:~0U; // Variable slot
+                if (arg2!=~0U && (!_cimg_mp_is_scalar(arg2) ||
+                                  _cimg_mp_is_constant(arg2))) { // Variable is not a vector or is a constant -> error
+                  cimg::strellipsize(variable_name,64);
+                  throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                              "CImg<%s>::%s: %s: Invalid type '%s' for variable '%s' "
+                                              "(expected 'scalar'), in expression '%s%s%s'.",
+                                              pixel_type(),_cimg_mp_calling_function,s_op,
+                                              s_type(arg2)._data,variable_name._data,
+                                              s0>expr._data?"...":"",s0,se<&expr.back()?"...":"");
+                } else if (arg2==~0U) { // Variable does not exist -> create it
+                  arg2 = scalar();
+                  if (arg3!=~0U) reserved_label[arg3] = arg2;
+                  else {
+                    if (variable_def._width>=variable_pos._width) variable_pos.resize(-200,1,1,1,0);
+                    variable_pos[variable_def._width] = arg2;
+                    variable_name.move_to(variable_def);
+                  }
+                  memtype[arg2] = -1;
+                }
+                arg3 = compile(++s1,se1,depth1,0,is_critical);
+              } else { // Version with 2 arguments
+                arg2 = ~0U;
+                arg3 = compile(s0,se1,depth1,0,is_critical);
+              }
+              // arg2 = variable slot, arg3 = fill expression.
+              CImg<ulongT>::vector((ulongT)mp_repeat,arg3,arg1,arg2,code._width - p1).move_to(code,p1);
               _cimg_mp_return(arg3);
             }
 
@@ -22263,7 +22381,8 @@ namespace cimg_library_suffixed {
         if (_cimg_mp_is_vector(arg)) { // Vector
           CImg<charT>::string("vectorXXXXXXXXXXXXXXXX").move_to(res);
           cimg_sprintf(res._data + 6,"%u",_cimg_mp_size(arg));
-        } else CImg<charT>::string("scalar").move_to(res);
+        } else if (_cimg_mp_is_constant(arg)) CImg<charT>::string("const scalar").move_to(res); // Const scalar
+        else CImg<charT>::string("scalar").move_to(res); // Scalar
         return res;
       }
 
@@ -23185,6 +23304,10 @@ namespace cimg_library_suffixed {
         return _mp_correlate(mp,true);
       }
 
+      static double mp_copy(_cimg_math_parser& mp) {
+        return _mp_arg(2);
+      }
+
       static double mp_correlate(_cimg_math_parser &mp) {
         return _mp_correlate(mp,false);
       }
@@ -23653,6 +23776,50 @@ namespace cimg_library_suffixed {
 
       static double mp_fibonacci(_cimg_math_parser& mp) {
         return cimg::fibonacci((int)_mp_arg(2));
+      }
+
+      static double mp_fill(_cimg_math_parser& mp) {
+        unsigned int siz = (unsigned int)mp.opcode[2];
+        double
+          *ptrd = &_mp_arg(1),
+          *const ptrc = mp.opcode[3]!=~0U?&_mp_arg(3):0,
+          *const ptrs = &_mp_arg(4);
+        if (siz) ++ptrd; else ++siz; // Fill vector-valued slot
+        const CImg<ulongT>
+          *const p_body = ++mp.p_code,
+          *const p_end = p_body + mp.opcode[5];
+        const unsigned int _break_type = mp.break_type;
+        mp.break_type = 0;
+
+        unsigned int it = 0;
+        if (ptrc) { // Version with loop variable (3 arguments)
+          while (it<siz) {
+            *ptrc = (double)it;
+            for (mp.p_code = p_body; mp.p_code<p_end; ++mp.p_code) {
+              mp.opcode._data = mp.p_code->_data;
+              const ulongT target = mp.opcode[1];
+              mp.mem[target] = _cimg_mp_defunc(mp);
+            }
+            if (mp.break_type==1) break; else if (mp.break_type==2) mp.break_type = 0;
+            else ptrd[it] = *ptrs;
+            ++it;
+          }
+          *ptrc = (double)it;
+        } else // Version without loop variable (2 arguments)
+          while (it<siz) {
+            for (mp.p_code = p_body; mp.p_code<p_end; ++mp.p_code) {
+              mp.opcode._data = mp.p_code->_data;
+              const ulongT target = mp.opcode[1];
+              mp.mem[target] = _cimg_mp_defunc(mp);
+            }
+            if (mp.break_type==1) break; else if (mp.break_type==2) mp.break_type = 0;
+            else ptrd[it] = *ptrs;
+            ++it;
+          }
+
+        mp.break_type = _break_type;
+        mp.p_code = p_end - 1;
+        return *ptrd;
       }
 
       static double mp_find(_cimg_math_parser& mp) {
@@ -25602,8 +25769,47 @@ namespace cimg_library_suffixed {
         return val;
       }
 
-      static double mp_copy(_cimg_math_parser& mp) {
-        return _mp_arg(2);
+      static double mp_repeat(_cimg_math_parser& mp) {
+        const double nb_it = _mp_arg(2);
+        double
+          *const ptrc = mp.opcode[3]!=~0U?&_mp_arg(3):0,
+          *const ptrs = &_mp_arg(1);
+        const CImg<ulongT>
+          *const p_body = ++mp.p_code,
+          *const p_end = p_body + mp.opcode[4];
+
+        if (nb_it>0) {
+          const unsigned int _break_type = mp.break_type;
+          mp.break_type = 0;
+
+          double it = 0;
+          if (ptrc) { // Version with loop variable (3 arguments)
+            while (it<nb_it) {
+              *ptrc = it;
+              for (mp.p_code = p_body; mp.p_code<p_end; ++mp.p_code) {
+                mp.opcode._data = mp.p_code->_data;
+                const ulongT target = mp.opcode[1];
+                mp.mem[target] = _cimg_mp_defunc(mp);
+              }
+              if (mp.break_type==1) break; else if (mp.break_type==2) mp.break_type = 0;
+              ++it;
+            }
+            *ptrc = it;
+          } else // Version without loop variable (2 arguments)
+            while (it<nb_it) {
+              for (mp.p_code = p_body; mp.p_code<p_end; ++mp.p_code) {
+                mp.opcode._data = mp.p_code->_data;
+                const ulongT target = mp.opcode[1];
+                mp.mem[target] = _cimg_mp_defunc(mp);
+              }
+              if (mp.break_type==1) break; else if (mp.break_type==2) mp.break_type = 0;
+              ++it;
+            }
+          mp.break_type = _break_type;
+        }
+
+        mp.p_code = p_end - 1;
+        return *ptrs;
       }
 
       static double mp_rol(_cimg_math_parser& mp) {

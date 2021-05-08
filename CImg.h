@@ -20042,8 +20042,8 @@ namespace cimg_library_suffixed {
                                   _cimg_mp_is_constant(arg2))) { // Variable is not a vector or is a constant -> error
                   cimg::strellipsize(variable_name,64);
                   throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                              "CImg<%s>::%s: %s: Invalid type '%s' for variable '%s' (expected 'scalar'), "
-                                              "in expression '%s%s%s'.",
+                                              "CImg<%s>::%s: %s: Invalid type '%s' for variable '%s' "
+                                              "(expected 'scalar'), in expression '%s%s%s'.",
                                               pixel_type(),_cimg_mp_calling_function,s_op,
                                               s_type(arg2)._data,variable_name._data,
                                               s0>expr._data?"...":"",s0,se<&expr.back()?"...":"");
@@ -20066,7 +20066,8 @@ namespace cimg_library_suffixed {
               }
               // arg3 = fill expression.
               _cimg_mp_check_type(arg3,3,1,0);
-              CImg<ulongT>::vector((ulongT)mp_fill,arg1,_cimg_mp_size(arg1),arg2,arg3,code._width - p1).move_to(code,p1);
+              CImg<ulongT>::vector((ulongT)mp_fill,arg1,_cimg_mp_size(arg1),arg2,arg3,code._width - p1).
+                move_to(code,p1);
               _cimg_mp_return(arg1);
             }
 
@@ -20915,8 +20916,8 @@ namespace cimg_library_suffixed {
                                   _cimg_mp_is_constant(arg2))) { // Variable is not a vector or is a constant -> error
                   cimg::strellipsize(variable_name,64);
                   throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                              "CImg<%s>::%s: %s: Invalid type '%s' for variable '%s' (expected 'scalar'), "
-                                              "in expression '%s%s%s'.",
+                                              "CImg<%s>::%s: %s: Invalid type '%s' for variable '%s' "
+                                              "(expected 'scalar'), in expression '%s%s%s'.",
                                               pixel_type(),_cimg_mp_calling_function,s_op,
                                               s_type(arg2)._data,variable_name._data,
                                               s0>expr._data?"...":"",s0,se<&expr.back()?"...":"");
@@ -23792,28 +23793,30 @@ namespace cimg_library_suffixed {
         const unsigned int _break_type = mp.break_type;
         mp.break_type = 0;
 
-        if (ptrc) // Version with loop variable (3 arguments)
-          for (unsigned int it = 0; it<siz; ++it) {
+        unsigned int it = 0;
+        if (ptrc) { // Version with loop variable (3 arguments)
+          while (it<siz) {
             *ptrc = (double)it;
             for (mp.p_code = p_body; mp.p_code<p_end; ++mp.p_code) {
               mp.opcode._data = mp.p_code->_data;
               const ulongT target = mp.opcode[1];
               mp.mem[target] = _cimg_mp_defunc(mp);
             }
-            if (mp.break_type==1) break;
-            else if (mp.break_type==2) mp.break_type = 0;
+            if (mp.break_type==1) break; else if (mp.break_type==2) mp.break_type = 0;
             else ptrd[it] = *ptrs;
+            ++it;
           }
-        else // Version without loop variable (2 arguments)
-          for (unsigned int it = 0; it<siz; ++it) {
+          *ptrc = (double)it;
+        } else // Version without loop variable (2 arguments)
+          while (it<siz) {
             for (mp.p_code = p_body; mp.p_code<p_end; ++mp.p_code) {
               mp.opcode._data = mp.p_code->_data;
               const ulongT target = mp.opcode[1];
               mp.mem[target] = _cimg_mp_defunc(mp);
             }
-            if (mp.break_type==1) break;
-            else if (mp.break_type==2) mp.break_type = 0;
+            if (mp.break_type==1) break; else if (mp.break_type==2) mp.break_type = 0;
             else ptrd[it] = *ptrs;
+            ++it;
           }
 
         mp.break_type = _break_type;
@@ -25781,24 +25784,28 @@ namespace cimg_library_suffixed {
           const unsigned int _break_type = mp.break_type;
           mp.break_type = 0;
 
-          if (ptrc) // Version with loop variable (3 arguments)
-            for (double it = 0; it<nb_it; ++it) {
-              *ptrc = (double)it;
+          double it = 0;
+          if (ptrc) { // Version with loop variable (3 arguments)
+            while (it<nb_it) {
+              *ptrc = it;
               for (mp.p_code = p_body; mp.p_code<p_end; ++mp.p_code) {
                 mp.opcode._data = mp.p_code->_data;
                 const ulongT target = mp.opcode[1];
                 mp.mem[target] = _cimg_mp_defunc(mp);
               }
               if (mp.break_type==1) break; else if (mp.break_type==2) mp.break_type = 0;
+              ++it;
             }
-          else // Version without loop variable (2 arguments)
-            for (double it = 0; it<nb_it; ++it) {
+            *ptrc = it;
+          } else // Version without loop variable (2 arguments)
+            while (it<nb_it) {
               for (mp.p_code = p_body; mp.p_code<p_end; ++mp.p_code) {
                 mp.opcode._data = mp.p_code->_data;
                 const ulongT target = mp.opcode[1];
                 mp.mem[target] = _cimg_mp_defunc(mp);
               }
               if (mp.break_type==1) break; else if (mp.break_type==2) mp.break_type = 0;
+              ++it;
             }
           mp.break_type = _break_type;
         }

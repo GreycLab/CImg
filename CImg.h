@@ -25789,8 +25789,7 @@ namespace cimg_library_suffixed {
                 const ulongT target = mp.opcode[1];
                 mp.mem[target] = _cimg_mp_defunc(mp);
               }
-              if (mp.break_type==1) break;
-              else if (mp.break_type==2) mp.break_type = 0;
+              if (mp.break_type==1) break; else if (mp.break_type==2) mp.break_type = 0;
             }
           else // Version without loop variable (2 arguments)
             for (double it = 0; it<nb_it; ++it) {
@@ -25799,8 +25798,7 @@ namespace cimg_library_suffixed {
                 const ulongT target = mp.opcode[1];
                 mp.mem[target] = _cimg_mp_defunc(mp);
               }
-              if (mp.break_type==1) break;
-              else if (mp.break_type==2) mp.break_type = 0;
+              if (mp.break_type==1) break; else if (mp.break_type==2) mp.break_type = 0;
             }
           mp.break_type = _break_type;
         }

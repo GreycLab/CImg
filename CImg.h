@@ -23723,6 +23723,8 @@ namespace cimg_library_suffixed {
         const CImg<ulongT>
           *const p_body = ++mp.p_code,
           *const p_end = p_body + mp.opcode[5];
+        const unsigned int _break_type = mp.break_type;
+        mp.break_type = 0;
 
         if (ptrc) // Version with loop variable (3 arguments)
           for (unsigned int it = 0; it<siz; ++it) {
@@ -23732,7 +23734,9 @@ namespace cimg_library_suffixed {
               const ulongT target = mp.opcode[1];
               mp.mem[target] = _cimg_mp_defunc(mp);
             }
-            ptrd[it] = *ptrs;
+            if (mp.break_type==1) break;
+            else if (mp.break_type==2) mp.break_type = 0;
+            else ptrd[it] = *ptrs;
           }
         else // Version without loop variable (2 arguments)
           for (unsigned int it = 0; it<siz; ++it) {
@@ -23741,9 +23745,12 @@ namespace cimg_library_suffixed {
               const ulongT target = mp.opcode[1];
               mp.mem[target] = _cimg_mp_defunc(mp);
             }
-            ptrd[it] = *ptrs;
+            if (mp.break_type==1) break;
+            else if (mp.break_type==2) mp.break_type = 0;
+            else ptrd[it] = *ptrs;
           }
 
+        mp.break_type = _break_type;
         mp.p_code = p_end - 1;
         return *ptrd;
       }

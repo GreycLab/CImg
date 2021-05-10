@@ -22529,8 +22529,9 @@ namespace cimg_library_suffixed {
         bool is_tmp = true;
         while (siz-->0) if (*(ptr++)) { is_tmp = false; break; }
 
-        if (!is_tmp && ptr!=memtype.data(arg + 2))
+/*        if (!is_tmp && ptr!=memtype.data(arg + 2))
           std::fprintf(stderr,"\nDEBUG : holala!\n");
+*/
 
         return is_tmp;
       }

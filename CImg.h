@@ -16945,7 +16945,7 @@ namespace cimg_library_suffixed {
         memtype.assign(mem._width,1,1,1,0);
         for (unsigned int i = 0; i<_cimg_mp_slot_x; ++i) memtype[i] = 1;
         memtype[_cimg_mp_slot_t] = memtype[_cimg_mp_slot_x] = memtype[_cimg_mp_slot_y] =
-          memtype[_cimg_mp_slot_z] = memtype[_cimg_mp_slot_c] = -2;
+          memtype[_cimg_mp_slot_z] = memtype[_cimg_mp_slot_c] = -1;
         mempos = _cimg_mp_slot_c + 1;
         variable_pos.assign(8);
 
@@ -17288,8 +17288,8 @@ namespace cimg_library_suffixed {
                   p_ref[3] = arg1;
                   if (_cimg_mp_is_vector(arg2))
                     set_variable_vector(arg2); // Prevent from being used in further optimization
-                  else if (_cimg_mp_is_comp(arg2)) memtype[arg2] = -2;
-                  if (_cimg_mp_is_comp(arg1)) memtype[arg1] = -2;
+                  else if (_cimg_mp_is_comp(arg2)) memtype[arg2] = -1;
+                  if (_cimg_mp_is_comp(arg1)) memtype[arg1] = -1;
                 }
 
                 if (p1!=~0U) {
@@ -17376,12 +17376,12 @@ namespace cimg_library_suffixed {
                   p_ref[6] = arg4;
                   if (_cimg_mp_is_vector(arg5))
                     set_variable_vector(arg5); // Prevent from being used in further optimization
-                  else if (_cimg_mp_is_comp(arg5)) memtype[arg5] = -2;
-                  if (p1!=~0U && _cimg_mp_is_comp(p1)) memtype[p1] = -2;
-                  if (_cimg_mp_is_comp(arg1)) memtype[arg1] = -2;
-                  if (_cimg_mp_is_comp(arg2)) memtype[arg2] = -2;
-                  if (_cimg_mp_is_comp(arg3)) memtype[arg3] = -2;
-                  if (_cimg_mp_is_comp(arg4)) memtype[arg4] = -2;
+                  else if (_cimg_mp_is_comp(arg5)) memtype[arg5] = -1;
+                  if (p1!=~0U && _cimg_mp_is_comp(p1)) memtype[p1] = -1;
+                  if (_cimg_mp_is_comp(arg1)) memtype[arg1] = -1;
+                  if (_cimg_mp_is_comp(arg2)) memtype[arg2] = -1;
+                  if (_cimg_mp_is_comp(arg3)) memtype[arg3] = -1;
+                  if (_cimg_mp_is_comp(arg4)) memtype[arg4] = -1;
                 }
                 if (p1!=~0U) {
                   if (!listout) _cimg_mp_return(arg5);
@@ -17443,8 +17443,8 @@ namespace cimg_library_suffixed {
                   *p_ref = 1;
                   p_ref[1] = arg1;
                   p_ref[2] = arg2;
-                  if (_cimg_mp_is_comp(arg3)) memtype[arg3] = -2; // Prevent from being used in further optimization
-                  if (_cimg_mp_is_comp(arg2)) memtype[arg2] = -2;
+                  if (_cimg_mp_is_comp(arg3)) memtype[arg3] = -1; // Prevent from being used in further optimization
+                  if (_cimg_mp_is_comp(arg2)) memtype[arg2] = -1;
                 }
                 CImg<ulongT>::vector((ulongT)mp_vector_set_off,arg3,arg1,(ulongT)_cimg_mp_size(arg1),arg2).
                   move_to(code);
@@ -18665,7 +18665,7 @@ namespace cimg_library_suffixed {
               p_ref[1] = p1;
               p_ref[2] = (unsigned int)is_relative;
               p_ref[3] = arg1;
-              if (_cimg_mp_is_comp(arg1)) memtype[arg1] = -2;
+              if (_cimg_mp_is_comp(arg1)) memtype[arg1] = -1;
             }
             p2 = ~0U; // 'p2' must be the dimension of the vector-valued operand if any
             if (p1==~0U) p2 = imgin._spectrum;
@@ -18701,8 +18701,8 @@ namespace cimg_library_suffixed {
               p_ref[1] = p1;
               p_ref[2] = (unsigned int)is_relative;
               p_ref[3] = arg1;
-              if (p1!=~0U && _cimg_mp_is_comp(p1)) memtype[p1] = -2; // Prevent from being used in further optimization
-              if (_cimg_mp_is_comp(arg1)) memtype[arg1] = -2;
+              if (p1!=~0U && _cimg_mp_is_comp(p1)) memtype[p1] = -1; // Prevent from being used in further optimization
+              if (_cimg_mp_is_comp(arg1)) memtype[arg1] = -1;
             }
             if (p1!=~0U) {
               if (!listin) _cimg_mp_return(0);
@@ -18712,7 +18712,7 @@ namespace cimg_library_suffixed {
               need_input_copy = true;
               pos = scalar2(is_relative?mp_joff:mp_ioff,arg1,arg2==~0U?_cimg_mp_boundary:arg2);
             }
-            memtype[pos] = -2; // Prevent from being used in further optimization
+            memtype[pos] = -1; // Prevent from being used in further optimization
             _cimg_mp_return(pos);
           }
 
@@ -18767,10 +18767,10 @@ namespace cimg_library_suffixed {
               *p_ref = 1;
               p_ref[1] = arg1;
               p_ref[2] = arg2;
-              if (_cimg_mp_is_comp(arg2)) memtype[arg2] = -2; // Prevent from being used in further optimization
+              if (_cimg_mp_is_comp(arg2)) memtype[arg2] = -1; // Prevent from being used in further optimization
             }
             pos = scalar3(mp_vector_off,arg1,_cimg_mp_size(arg1),arg2);
-            memtype[pos] = -2; // Prevent from being used in further optimization
+            memtype[pos] = -1; // Prevent from being used in further optimization
             _cimg_mp_return(pos);
           }
         }
@@ -18830,10 +18830,10 @@ namespace cimg_library_suffixed {
               p_ref[3] = arg1;
               p_ref[4] = arg2;
               p_ref[5] = arg3;
-              if (p1!=~0U && _cimg_mp_is_comp(p1)) memtype[p1] = -2; // Prevent from being used in further optimization
-              if (_cimg_mp_is_comp(arg1)) memtype[arg1] = -2;
-              if (_cimg_mp_is_comp(arg2)) memtype[arg2] = -2;
-              if (_cimg_mp_is_comp(arg3)) memtype[arg3] = -2;
+              if (p1!=~0U && _cimg_mp_is_comp(p1)) memtype[p1] = -1; // Prevent from being used in further optimization
+              if (_cimg_mp_is_comp(arg1)) memtype[arg1] = -1;
+              if (_cimg_mp_is_comp(arg2)) memtype[arg2] = -1;
+              if (_cimg_mp_is_comp(arg3)) memtype[arg3] = -1;
             }
             p2 = ~0U; // 'p2' must be the dimension of the vector-valued operand if any
             if (p1==~0U) p2 = imgin._spectrum;
@@ -18913,11 +18913,11 @@ namespace cimg_library_suffixed {
               p_ref[4] = arg2;
               p_ref[5] = arg3;
               p_ref[6] = arg4;
-              if (p1!=~0U && _cimg_mp_is_comp(p1)) memtype[p1] = -2; // Prevent from being used in further optimization
-              if (_cimg_mp_is_comp(arg1)) memtype[arg1] = -2;
-              if (_cimg_mp_is_comp(arg2)) memtype[arg2] = -2;
-              if (_cimg_mp_is_comp(arg3)) memtype[arg3] = -2;
-              if (_cimg_mp_is_comp(arg4)) memtype[arg4] = -2;
+              if (p1!=~0U && _cimg_mp_is_comp(p1)) memtype[p1] = -1; // Prevent from being used in further optimization
+              if (_cimg_mp_is_comp(arg1)) memtype[arg1] = -1;
+              if (_cimg_mp_is_comp(arg2)) memtype[arg2] = -1;
+              if (_cimg_mp_is_comp(arg3)) memtype[arg3] = -1;
+              if (_cimg_mp_is_comp(arg4)) memtype[arg4] = -1;
             }
 
             if (p1!=~0U) {
@@ -18934,7 +18934,7 @@ namespace cimg_library_suffixed {
                             arg5==~0U?_cimg_mp_interpolation:arg5,
                             arg6==~0U?_cimg_mp_boundary:arg6);
             }
-            memtype[pos] = -2; // Prevent from being used in further optimization
+            memtype[pos] = -1; // Prevent from being used in further optimization
             _cimg_mp_return(pos);
           }
 

@@ -22524,7 +22524,7 @@ namespace cimg_library_suffixed {
       // Return true if all values of a vector are computation values.
       bool is_comp_vector(const unsigned int arg) const {
         unsigned int siz = _cimg_mp_size(arg);
-        if (siz>8) return false;
+        if (siz>1024) return false;
         const int *ptr = memtype.data(arg + 1);
         bool is_tmp = true;
         while (siz-->0) if (*(ptr++)) { is_tmp = false; break; }

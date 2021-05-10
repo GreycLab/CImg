@@ -17287,7 +17287,7 @@ namespace cimg_library_suffixed {
                   p_ref[2] = (unsigned int)is_relative;
                   p_ref[3] = arg1;
                   if (_cimg_mp_is_vector(arg2))
-                    set_variable_vector(arg2); // Prevent from being used in further optimization
+                    set_reserved_vector(arg2); // Prevent from being used in further optimization
                   else if (_cimg_mp_is_comp(arg2)) memtype[arg2] = -1;
                   if (_cimg_mp_is_comp(arg1)) memtype[arg1] = -1;
                 }
@@ -17375,7 +17375,7 @@ namespace cimg_library_suffixed {
                   p_ref[5] = arg3;
                   p_ref[6] = arg4;
                   if (_cimg_mp_is_vector(arg5))
-                    set_variable_vector(arg5); // Prevent from being used in further optimization
+                    set_reserved_vector(arg5); // Prevent from being used in further optimization
                   else if (_cimg_mp_is_comp(arg5)) memtype[arg5] = -1;
                   if (p1!=~0U && _cimg_mp_is_comp(p1)) memtype[p1] = -1;
                   if (_cimg_mp_is_comp(arg1)) memtype[arg1] = -1;
@@ -17570,7 +17570,7 @@ namespace cimg_library_suffixed {
               if (arg1==~0U) { // Create new variable
                 if (_cimg_mp_is_vector(arg3)) { // Vector variable
                   arg1 = is_comp_vector(arg3)?arg3:vector_copy(arg3);
-                  set_variable_vector(arg1); // Prevent from being used in further optimization
+                  set_reserved_vector(arg1); // Prevent from being used in further optimization
                 } else { // Scalar variable
                   if (is_const) arg1 = arg3;
                   else {
@@ -20879,7 +20879,7 @@ namespace cimg_library_suffixed {
                 CImg<char>::string(s1).move_to(variable_def);
               }
               if (_cimg_mp_is_vector(arg3))
-                set_variable_vector(arg3); // Prevent from being used in further optimization
+                set_reserved_vector(arg3); // Prevent from being used in further optimization
               else if (_cimg_mp_is_comp(arg3)) memtype[arg3] = -1;
               *se1 = ')';
               _cimg_mp_return(arg3);
@@ -22738,8 +22738,8 @@ namespace cimg_library_suffixed {
         return pos;
       }
 
-      // Set variable status to all values of a vector.
-      void set_variable_vector(const unsigned int arg) {
+      // Set reserved status to all values of a vector.
+      void set_reserved_vector(const unsigned int arg) {
         unsigned int siz = _cimg_mp_size(arg);
         int *ptr = memtype.data(arg + 1);
         while (siz-->0) *(ptr++) = -1;

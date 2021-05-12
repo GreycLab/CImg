@@ -16846,8 +16846,9 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_check_matrix_square(arg,n_arg) check_matrix_square(arg,n_arg,ss,se,saved_char)
 #define _cimg_mp_check_list(is_out) check_list(is_out,ss,se,saved_char)
 #define _cimg_mp_defunc(mp) (*(mp_func)(*(mp).opcode))(mp)
-#define _cimg_mp_return(x) { *se = saved_char; s_op = previous_s_op; ss_op = previous_ss_op; \
-                             return_mempos = x; if (return_mempos>mempos0) return_new = true; return return_mempos; }
+#define _cimg_mp_return(x) { *se = saved_char; s_op = previous_s_op; ss_op = previous_ss_op; return_mempos = x; \
+                             if (return_mempos>=mempos0 && !_cimg_mp_is_constant(return_mempos)) return_new = true; \
+                             return return_mempos; }
 #define _cimg_mp_return_nan() _cimg_mp_return(_cimg_mp_slot_nan)
 #define _cimg_mp_constant(val) _cimg_mp_return(constant((double)(val)))
 #define _cimg_mp_scalar0(op) _cimg_mp_return(scalar0(op))
@@ -17571,6 +17572,7 @@ namespace cimg_library_suffixed {
               get_variable_pos(variable_name,arg1,arg2);
               arg3 = compile(s + 1,se,depth1,0,is_critical);
               is_sth = return_new; // is arg3 a new object?
+
               if (is_const) _cimg_mp_check_constant(arg3,2,0);
               arg1 = arg2!=~0U?reserved_label[arg2]:arg1!=~0U?variable_pos[arg1]:~0U;
 

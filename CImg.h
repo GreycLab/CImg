@@ -17573,6 +17573,7 @@ namespace cimg_library_suffixed {
               if (arg1==~0U) { // Create new variable
                 if (_cimg_mp_is_vector(arg3)) { // Vector variable
                   arg1 = is_sth || is_comp_vector(arg3)?arg3:vector_copy(arg3);
+                  is_new_vector = false;
                   set_reserved_vector(arg1); // Prevent from being used in further optimization
                 } else { // Scalar variable
                   if (is_const) arg1 = arg3;
@@ -21670,7 +21671,7 @@ namespace cimg_library_suffixed {
               (l_opcode>'y').move_to(opcode);
               opcode[2] = opcode._height;
               opcode.move_to(code);
-//              is_new_vector = true;
+              is_new_vector = true;
               _cimg_mp_return(pos);
             }
 
@@ -22058,7 +22059,7 @@ namespace cimg_library_suffixed {
             (l_opcode>'y').move_to(opcode);
             opcode[2] = opcode._height;
             opcode.move_to(code);
-//            is_new_vector = true;
+            is_new_vector = true;
           }
           _cimg_mp_return(pos);
         }

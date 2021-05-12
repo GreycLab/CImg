@@ -16846,7 +16846,8 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_check_matrix_square(arg,n_arg) check_matrix_square(arg,n_arg,ss,se,saved_char)
 #define _cimg_mp_check_list(is_out) check_list(is_out,ss,se,saved_char)
 #define _cimg_mp_defunc(mp) (*(mp_func)(*(mp).opcode))(mp)
-#define _cimg_mp_return(x) { *se = saved_char; s_op = previous_s_op; ss_op = previous_ss_op; return x; }
+#define _cimg_mp_return(x) { *se = saved_char; s_op = previous_s_op; ss_op = previous_ss_op; \
+                             return_mempos = x; if (return_mempos>mempos0) return_new = true; return return_mempos; }
 #define _cimg_mp_return_nan() _cimg_mp_return(_cimg_mp_slot_nan)
 #define _cimg_mp_constant(val) _cimg_mp_return(constant((double)(val)))
 #define _cimg_mp_scalar0(op) _cimg_mp_return(scalar0(op))
@@ -17072,6 +17073,8 @@ namespace cimg_library_suffixed {
           *s, *ps, *ns, *s0, *s1, *s2, *s3, sep = 0, end = 0;
         double val = 0, val1, val2;
         mp_func op;
+        const unsigned int mempos0 = mempos;
+        unsigned int return_mempos = ~0U;
         return_new = false;
 
         // 'p_ref' is a 'unsigned int[7]' used to return a reference to an image or vector value

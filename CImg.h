@@ -16847,7 +16847,7 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_check_list(is_out) check_list(is_out,ss,se,saved_char)
 #define _cimg_mp_defunc(mp) (*(mp_func)(*(mp).opcode))(mp)
 #define _cimg_mp_return(x) { *se = saved_char; s_op = previous_s_op; ss_op = previous_ss_op; return_mempos = x; \
-                             if (return_mempos>=mempos0 && !_cimg_mp_is_constant(return_mempos)) return_new = true; \
+/*                             if (return_mempos>=mempos0 && !_cimg_mp_is_constant(return_mempos)) return_new = true; */ \
                              return return_mempos; }
 #define _cimg_mp_return_nan() _cimg_mp_return(_cimg_mp_slot_nan)
 #define _cimg_mp_constant(val) _cimg_mp_return(constant((double)(val)))

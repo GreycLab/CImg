@@ -16884,7 +16884,7 @@ namespace cimg_library_suffixed {
         imgout(img_output?*img_output:CImg<T>::empty()),listout(list_outputs?*list_outputs:CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),list_norm(_list_norm),user_macro(0),
         mem_img_median(~0U),mem_img_norm(~0U),mem_img_index(~0U),debug_indent(0),result_dim(0),break_type(0),
-        constcache_size(0),is_parallelizable(true),is_fill(_is_fill),return_new(false),need_input_copy(false),
+        constcache_size(0),is_parallelizable(true),is_fill(_is_fill),need_input_copy(false),
         rng((cimg::_rand(),cimg::rng())),calling_function(funcname?funcname:"cimg_math_parser") {
 
 #if cimg_use_openmp!=0
@@ -16999,7 +16999,7 @@ namespace cimg_library_suffixed {
         imgin(CImg<T>::const_empty()),listin(CImgList<T>::const_empty()),
         imgout(CImg<T>::empty()),listout(CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),list_norm(_list_norm),debug_indent(0),
-        result_dim(0),break_type(0),constcache_size(0),is_parallelizable(true),is_fill(false),return_new(false),
+        result_dim(0),break_type(0),constcache_size(0),is_parallelizable(true),is_fill(false),
         need_input_copy(false),rng(0),calling_function(0) {
         mem.assign(1 + _cimg_mp_slot_c,1,1,1,0); // Allow to skip 'is_empty?' test in operator()()
         result = mem._data;
@@ -17011,7 +17011,7 @@ namespace cimg_library_suffixed {
         imgin(mp.imgin),listin(mp.listin),imgout(mp.imgout),listout(mp.listout),
         img_stats(mp.img_stats),list_stats(mp.list_stats),list_median(mp.list_median),list_norm(mp.list_norm),
         debug_indent(0),result_dim(mp.result_dim),break_type(0),constcache_size(0),
-        is_parallelizable(mp.is_parallelizable),is_fill(mp.is_fill),return_new(false),
+        is_parallelizable(mp.is_parallelizable),is_fill(mp.is_fill),
         need_input_copy(mp.need_input_copy),result(mem._data + (mp.result - mp.mem._data)),
         rng((cimg::_rand(),cimg::rng())),calling_function(0) {
 
@@ -19628,10 +19628,7 @@ namespace cimg_library_suffixed {
                 p1 = compile(ss3,se1,depth1,0,is_critical);
                 _cimg_mp_check_list(false);
               } else { if (ss2!=se1) break; p1 = ~0U; }
-              pos = scalar();
-              CImg<ulongT>::vector((ulongT)mp_image_d,pos,p1).move_to(code);
-              return_new = true;
-              _cimg_mp_return(pos);
+              _cimg_mp_scalar1(mp_image_d,p1);
             }
 
             if (!std::strncmp(ss,"date(",5)) { // Current date or file date
@@ -20256,10 +20253,7 @@ namespace cimg_library_suffixed {
                 p1 = compile(ss3,se1,depth1,0,is_critical);
                 _cimg_mp_check_list(false);
               } else { if (ss2!=se1) break; p1 = ~0U; }
-              pos = scalar();
-              CImg<ulongT>::vector((ulongT)mp_image_h,pos,p1).move_to(code);
-              return_new = true;
-              _cimg_mp_return(pos);
+              _cimg_mp_scalar1(mp_image_h,p1);
             }
             break;
 
@@ -21146,10 +21140,7 @@ namespace cimg_library_suffixed {
                 p1 = compile(ss3,se1,depth1,0,is_critical);
                 _cimg_mp_check_list(false);
               } else { if (ss2!=se1) break; p1 = ~0U; }
-              pos = scalar();
-              CImg<ulongT>::vector((ulongT)mp_image_s,pos,p1).move_to(code);
-              return_new = true;
-              _cimg_mp_return(pos);
+              _cimg_mp_scalar1(mp_image_s,p1);
             }
 
             if (!std::strncmp(ss,"same(",5)) { // Test if operands have the same values
@@ -21815,10 +21806,7 @@ namespace cimg_library_suffixed {
                 p1 = compile(ss3,se1,depth1,0,is_critical);
                 _cimg_mp_check_list(false);
               } else { if (ss2!=se1) break; p1 = ~0U; }
-              pos = scalar();
-              CImg<ulongT>::vector((ulongT)mp_image_w,pos,p1).move_to(code);
-              return_new = true;
-              _cimg_mp_return(pos);
+              _cimg_mp_scalar1(mp_image_w,p1);
             }
 
             if (*ss1=='h' && *ss2=='(') { // Image width*height
@@ -21827,10 +21815,7 @@ namespace cimg_library_suffixed {
                 p1 = compile(ss4,se1,depth1,0,is_critical);
                 _cimg_mp_check_list(false);
               } else { if (ss3!=se1) break; p1 = ~0U; }
-              pos = scalar();
-              CImg<ulongT>::vector((ulongT)mp_image_wh,pos,p1).move_to(code);
-              return_new = true;
-              _cimg_mp_return(pos);
+              _cimg_mp_scalar1(mp_image_wh,p1);
             }
 
             if (*ss1=='h' && *ss2=='d' && *ss3=='(') { // Image width*height*depth
@@ -21839,10 +21824,7 @@ namespace cimg_library_suffixed {
                 p1 = compile(ss5,se1,depth1,0,is_critical);
                 _cimg_mp_check_list(false);
               } else { if (ss4!=se1) break; p1 = ~0U; }
-              pos = scalar();
-              CImg<ulongT>::vector((ulongT)mp_image_whd,pos,p1).move_to(code);
-              return_new = true;
-              _cimg_mp_return(pos);
+              _cimg_mp_scalar1(mp_image_whd,p1);
             }
 
             if (*ss1=='h' && *ss2=='d' && *ss3=='s' && *ss4=='(') { // Image width*height*depth*spectrum
@@ -21851,10 +21833,7 @@ namespace cimg_library_suffixed {
                 p1 = compile(ss6,se1,depth1,0,is_critical);
                 _cimg_mp_check_list(false);
               } else { if (ss5!=se1) break; p1 = ~0U; }
-              pos = scalar();
-              CImg<ulongT>::vector((ulongT)mp_image_whds,pos,p1).move_to(code);
-              return_new = true;
-              _cimg_mp_return(pos);
+              _cimg_mp_scalar1(mp_image_whds,p1);
             }
 
             if (!std::strncmp(ss,"while(",6)) { // While...do

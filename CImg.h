@@ -16846,9 +16846,7 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_check_matrix_square(arg,n_arg) check_matrix_square(arg,n_arg,ss,se,saved_char)
 #define _cimg_mp_check_list(is_out) check_list(is_out,ss,se,saved_char)
 #define _cimg_mp_defunc(mp) (*(mp_func)(*(mp).opcode))(mp)
-#define _cimg_mp_return(x) { *se = saved_char; s_op = previous_s_op; ss_op = previous_ss_op; return_mempos = x; \
-/*                             if (return_mempos>=mempos0 && !_cimg_mp_is_constant(return_mempos)) return_new = true; */ \
-                             return return_mempos; }
+#define _cimg_mp_return(x) { *se = saved_char; s_op = previous_s_op; ss_op = previous_ss_op; return x; }
 #define _cimg_mp_return_nan() _cimg_mp_return(_cimg_mp_slot_nan)
 #define _cimg_mp_constant(val) _cimg_mp_return(constant((double)(val)))
 #define _cimg_mp_scalar0(op) _cimg_mp_return(scalar0(op))
@@ -17074,8 +17072,6 @@ namespace cimg_library_suffixed {
           *s, *ps, *ns, *s0, *s1, *s2, *s3, sep = 0, end = 0;
         double val = 0, val1, val2;
         mp_func op;
-        const unsigned int mempos0 = mempos;
-        unsigned int return_mempos = ~0U;
         return_new = false;
 
         // 'p_ref' is a 'unsigned int[7]' used to return a reference to an image or vector value
@@ -17571,8 +17567,7 @@ namespace cimg_library_suffixed {
             if (is_sth) {
               get_variable_pos(variable_name,arg1,arg2);
               arg3 = compile(s + 1,se,depth1,0,is_critical);
-              is_sth = return_new; // is arg3 a new object?
-
+              is_sth = return_new; // is arg3 a new blank object?
               if (is_const) _cimg_mp_check_constant(arg3,2,0);
               arg1 = arg2!=~0U?reserved_label[arg2]:arg1!=~0U?variable_pos[arg1]:~0U;
 
@@ -17580,15 +17575,14 @@ namespace cimg_library_suffixed {
                 if (_cimg_mp_is_vector(arg3)) { // Vector variable
                   arg1 = is_sth || is_comp_vector(arg3)?arg3:vector_copy(arg3);
                   set_reserved_vector(arg1); // Prevent from being used in further optimization
-                  return_new = false;
                 } else { // Scalar variable
                   if (is_const) arg1 = arg3;
                   else {
                     arg1 = is_sth || _cimg_mp_is_comp(arg3)?arg3:scalar1(mp_copy,arg3);
                     memtype[arg1] = -1;
-                    return_new = false;
                   }
                 }
+
                 if (arg2!=~0U) reserved_label[arg2] = arg1;
                 else {
                   if (variable_def._width>=variable_pos._width) variable_pos.resize(-200,1,1,1,0);
@@ -17620,6 +17614,7 @@ namespace cimg_library_suffixed {
                 } else // Scalar
                   CImg<ulongT>::vector((ulongT)mp_copy,arg1,arg3).move_to(code);
               }
+              return_new = false;
               _cimg_mp_return(arg1);
             }
 

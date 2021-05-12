@@ -21670,7 +21670,7 @@ namespace cimg_library_suffixed {
               (l_opcode>'y').move_to(opcode);
               opcode[2] = opcode._height;
               opcode.move_to(code);
-              is_new_vector = true;
+//              is_new_vector = true;
               _cimg_mp_return(pos);
             }
 
@@ -22058,7 +22058,7 @@ namespace cimg_library_suffixed {
             (l_opcode>'y').move_to(opcode);
             opcode[2] = opcode._height;
             opcode.move_to(code);
-            is_new_vector = true;
+//            is_new_vector = true;
           }
           _cimg_mp_return(pos);
         }

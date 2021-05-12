@@ -16826,7 +16826,7 @@ namespace cimg_library_suffixed {
 
       unsigned int mempos, mem_img_median, mem_img_norm, mem_img_index, debug_indent, result_dim, break_type,
         constcache_size;
-      bool is_parallelizable, is_end_code, is_fill, need_input_copy;
+      bool is_parallelizable, is_end_code, is_fill, is_new_vector, need_input_copy;
       double *result;
       cimg_uint64 rng;
       const char *const calling_function, *s_op, *ss_op;
@@ -16884,7 +16884,7 @@ namespace cimg_library_suffixed {
         imgout(img_output?*img_output:CImg<T>::empty()),listout(list_outputs?*list_outputs:CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),list_norm(_list_norm),user_macro(0),
         mem_img_median(~0U),mem_img_norm(~0U),mem_img_index(~0U),debug_indent(0),result_dim(0),break_type(0),
-        constcache_size(0),is_parallelizable(true),is_fill(_is_fill),need_input_copy(false),
+        constcache_size(0),is_parallelizable(true),is_fill(_is_fill),is_new_vector(false),need_input_copy(false),
         rng((cimg::_rand(),cimg::rng())),calling_function(funcname?funcname:"cimg_math_parser") {
 
 #if cimg_use_openmp!=0
@@ -16999,7 +16999,7 @@ namespace cimg_library_suffixed {
         imgin(CImg<T>::const_empty()),listin(CImgList<T>::const_empty()),
         imgout(CImg<T>::empty()),listout(CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),list_norm(_list_norm),debug_indent(0),
-        result_dim(0),break_type(0),constcache_size(0),is_parallelizable(true),is_fill(false),
+        result_dim(0),break_type(0),constcache_size(0),is_parallelizable(true),is_fill(false),is_new_vector(false),
         need_input_copy(false),rng(0),calling_function(0) {
         mem.assign(1 + _cimg_mp_slot_c,1,1,1,0); // Allow to skip 'is_empty?' test in operator()()
         result = mem._data;
@@ -17011,8 +17011,9 @@ namespace cimg_library_suffixed {
         imgin(mp.imgin),listin(mp.listin),imgout(mp.imgout),listout(mp.listout),
         img_stats(mp.img_stats),list_stats(mp.list_stats),list_median(mp.list_median),list_norm(mp.list_norm),
         debug_indent(0),result_dim(mp.result_dim),break_type(0),constcache_size(0),
-        is_parallelizable(mp.is_parallelizable),is_fill(mp.is_fill),need_input_copy(mp.need_input_copy),
-        result(mem._data + (mp.result - mp.mem._data)),rng((cimg::_rand(),cimg::rng())),calling_function(0) {
+        is_parallelizable(mp.is_parallelizable),is_fill(mp.is_fill),is_new_vector(false),
+        need_input_copy(mp.need_input_copy),result(mem._data + (mp.result - mp.mem._data)),
+        rng((cimg::_rand(),cimg::rng())),calling_function(0) {
 
 #if cimg_use_openmp!=0
         mem[_cimg_mp_slot_t] = omp_get_thread_num();
@@ -17092,6 +17093,7 @@ namespace cimg_library_suffixed {
         CImg<uintT> ref;
         CImg<charT> variable_name;
         CImgList<ulongT> l_opcode;
+        is_new_vector = false;
 
         // Look for a single value or a pre-defined variable.
         int nb = 0;
@@ -17564,12 +17566,13 @@ namespace cimg_library_suffixed {
             if (is_sth) {
               get_variable_pos(variable_name,arg1,arg2);
               arg3 = compile(s + 1,se,depth1,0,is_critical);
+              is_sth = is_new_vector;
               if (is_const) _cimg_mp_check_constant(arg3,2,0);
               arg1 = arg2!=~0U?reserved_label[arg2]:arg1!=~0U?variable_pos[arg1]:~0U;
 
               if (arg1==~0U) { // Create new variable
                 if (_cimg_mp_is_vector(arg3)) { // Vector variable
-                  arg1 = is_comp_vector(arg3)?arg3:vector_copy(arg3);
+                  arg1 = is_sth || is_comp_vector(arg3)?arg3:vector_copy(arg3);
                   set_reserved_vector(arg1); // Prevent from being used in further optimization
                 } else { // Scalar variable
                   if (is_const) arg1 = arg3;
@@ -21667,6 +21670,7 @@ namespace cimg_library_suffixed {
               (l_opcode>'y').move_to(opcode);
               opcode[2] = opcode._height;
               opcode.move_to(code);
+              is_new_vector = true;
               _cimg_mp_return(pos);
             }
 
@@ -22054,6 +22058,7 @@ namespace cimg_library_suffixed {
             (l_opcode>'y').move_to(opcode);
             opcode[2] = opcode._height;
             opcode.move_to(code);
+            is_new_vector = true;
           }
           _cimg_mp_return(pos);
         }
@@ -22524,7 +22529,7 @@ namespace cimg_library_suffixed {
       // Return true if all values of a vector are computation values.
       bool is_comp_vector(const unsigned int arg) const {
         unsigned int siz = _cimg_mp_size(arg);
-        if (siz>1024) return false;
+        if (siz>128) return false;
         const int *ptr = memtype.data(arg + 1);
         bool is_tmp = true;
         while (siz-->0) if (*(ptr++)) { is_tmp = false; break; }

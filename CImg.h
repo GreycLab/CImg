@@ -19888,8 +19888,8 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"echo(",5)) { // Echo
               _cimg_mp_op("Function 'echo()'");
               CImg<ulongT>::vector((ulongT)mp_echo,_cimg_mp_slot_nan,0).move_to(l_opcode);
-              for (s = ss5; s<se; ++s) {
-                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+              for (s = ss5; s<se1; ++s) {
+                ns = s; while (ns<se1 && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                 arg1 = compile(s,ns,depth1,0,is_critical);
                 CImg<ulongT>::vector(arg1,_cimg_mp_size(arg1)).move_to(l_opcode);
@@ -23707,6 +23707,7 @@ namespace cimg_library_suffixed {
 
       static double mp_echo(_cimg_math_parser& mp) {
         const unsigned int nb_args = (unsigned int)(mp.opcode[2] - 3)/2;
+        if (!nb_args) { std::fputc('\n',cimg::output()); return cimg::type<double>::nan(); } // No arguments
         CImgList<charT> _str;
         CImg<charT> it;
         for (unsigned int n = 0; n<nb_args; ++n) {

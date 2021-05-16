@@ -22217,9 +22217,8 @@ namespace cimg_library_suffixed {
 #ifdef cimg_mp_operator_dollar
         // External variable '$varname'.
         variable_name.assign(ss,(unsigned int)(se + 1 - ss)).back() = 0;
-        if (*ss=='$' && is_varname(variable_name._data + 1)) {
-          _cimg_mp_constant(0);
-        }
+        if (*ss=='$' && is_varname(variable_name._data + 1))
+          _cimg_mp_constant(cimg_mp_operator_dollar(variable_name._data + 1));
 #endif
 
         // No known item found, assuming this is an already initialized variable.

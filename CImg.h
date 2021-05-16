@@ -22214,8 +22214,15 @@ namespace cimg_library_suffixed {
         if (!std::strcmp(ss,"interpolation")) _cimg_mp_return(_cimg_mp_interpolation); // interpolation
         if (!std::strcmp(ss,"boundary")) _cimg_mp_return(_cimg_mp_boundary); // boundary
 
-        // No known item found, assuming this is an already initialized variable.
+#ifdef cimg_mp_operator_dollar
+        // External variable '$varname'.
         variable_name.assign(ss,(unsigned int)(se + 1 - ss)).back() = 0;
+        if (*ss=='$' && is_varname(variable_name._data + 1)) {
+          _cimg_mp_constant(0);
+        }
+#endif
+
+        // No known item found, assuming this is an already initialized variable.
         if (is_varname(variable_name)) { // Valid variable name
           get_variable_pos(variable_name,arg1,arg2);
           arg1 = arg2!=~0U?reserved_label[arg2]:arg1!=~0U?variable_pos[arg1]:~0U;

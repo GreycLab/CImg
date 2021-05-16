@@ -17454,13 +17454,8 @@ namespace cimg_library_suffixed {
             // Assign user-defined macro.
             if (l_variable_name>2 && *ve1==')' && *ss!='(') {
               s0 = ve1; while (s0>ss && *s0!='(') --s0;
-              is_sth = std::strncmp(variable_name,"debug(",6) &&
-                std::strncmp(variable_name,"print(",6); // is_valid_function_name?
-              if (*ss>='0' && *ss<='9') is_sth = false;
-              else for (ns = ss; ns<s0; ++ns)
-                     if (!is_varchar(*ns)) { is_sth = false; break; }
-
-              if (is_sth && s0>ss) { // Looks like a valid function declaration
+              if (is_varname(ss,s0 - ss) && std::strncmp(variable_name,"debug(",6) &&
+                  std::strncmp(variable_name,"print(",6)) { // is_valid_function_name?
                 s0 = variable_name._data + (s0 - ss);
                 *s0 = 0;
                 s1 = variable_name._data + l_variable_name - 1; // Pointer to closing parenthesis
@@ -17546,21 +17541,16 @@ namespace cimg_library_suffixed {
             }
 
             // Check if the variable name could be valid. If not, this is probably an lvalue assignment.
-            is_sth = true; // is_valid_variable_name?
             const bool is_const = l_variable_name>6 && !std::strncmp(variable_name,"const ",6);
-
             s0 = variable_name._data;
             if (is_const) {
               s0+=6; while (cimg::is_blank(*s0)) ++s0;
               variable_name.resize(variable_name.end() - s0,1,1,1,0,0,1);
             }
 
-            if (*variable_name>='0' && *variable_name<='9') is_sth = false;
-            else for (ns = variable_name._data; *ns; ++ns)
-                   if (!is_varchar(*ns)) { is_sth = false; break; }
+            if (is_varname(variable_name)) {
 
-            // Assign variable (direct).
-            if (is_sth) {
+              // Assign variable (direct).
               get_variable_pos(variable_name,arg1,arg2);
               arg3 = compile(s + 1,se,depth1,0,is_critical);
               is_sth = return_new_comp; // is arg3 a new blank object?
@@ -17580,11 +17570,11 @@ namespace cimg_library_suffixed {
                 }
 
                 if (arg2!=~0U) reserved_label[arg2] = arg1;
-                else {
-                  if (variable_def._width>=variable_pos._width) variable_pos.resize(-200,1,1,1,0);
-                  variable_pos[variable_def._width] = arg1;
-                  variable_name.move_to(variable_def);
-                }
+                  else {
+                    if (variable_def._width>=variable_pos._width) variable_pos.resize(-200,1,1,1,0);
+                    variable_pos[variable_def._width] = arg1;
+                    variable_name.move_to(variable_def);
+                  }
 
               } else { // Variable already exists -> assign a new value
                 if (is_const || _cimg_mp_is_constant(arg1)) {
@@ -20050,11 +20040,7 @@ namespace cimg_library_suffixed {
               if (s1<se1) { // Version with 3 arguments
                 variable_name.assign(s0,(unsigned int)(s1 + 1 - s0)).back() = 0;
                 cimg::strpare(variable_name,false,true);
-                is_sth = true; // is_valid_variable_name?
-                if (*variable_name>='0' && *variable_name<='9') is_sth = false;
-                else for (ns = variable_name; *ns; ++ns)
-                       if (!is_varchar(*ns)) { is_sth = false; break; }
-                if (!is_sth) { // Invalid variable name
+                if (!is_varname(variable_name)) { // Invalid variable name
                   cimg::strellipsize(variable_name,64);
                   throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                               "CImg<%s>::%s: %s: Invalid loop variable name '%s', "
@@ -20883,10 +20869,8 @@ namespace cimg_library_suffixed {
               if (s1>=se1 || !*s1) compile(s1,s1,depth1,0,is_critical); // Will throw missing argument error
               arg3 = compile(ss4,s1++,depth1,p_ref,is_critical);
               *se1 = 0;
-              is_sth = true;
-              if (*s1>='0' && *s1<='9') is_sth = false;
-              else for (ns = s1; *ns; ++ns) if (!is_varchar(*ns)) { is_sth = false; break; }
-              if (!is_sth) {
+
+              if (!is_varname(s1)) {
                 variable_name.assign(s1,(unsigned int)(se1 + 1 - s1)).back() = 0;
                 cimg::strellipsize(variable_name,64);
                 *se1 = ')';
@@ -20925,11 +20909,7 @@ namespace cimg_library_suffixed {
               if (s1<se1) { // Version with 3 arguments
                 variable_name.assign(s0,(unsigned int)(s1 + 1 - s0)).back() = 0;
                 cimg::strpare(variable_name,false,true);
-                is_sth = true; // is_valid_variable_name?
-                if (*variable_name>='0' && *variable_name<='9') is_sth = false;
-                else for (ns = variable_name; *ns; ++ns)
-                       if (!is_varchar(*ns)) { is_sth = false; break; }
-                if (!is_sth) { // Invalid variable name
+                if (!is_varname(variable_name)) {
                   cimg::strellipsize(variable_name,64);
                   throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                               "CImg<%s>::%s: %s: Invalid loop variable name '%s', "
@@ -22237,11 +22217,7 @@ namespace cimg_library_suffixed {
 
         // No known item found, assuming this is an already initialized variable.
         variable_name.assign(ss,(unsigned int)(se + 1 - ss)).back() = 0;
-        is_sth = true; // is_valid_variable_name?
-        if (*variable_name>='0' && *variable_name<='9') is_sth = false;
-        else for (ns = variable_name; *ns; ++ns)
-               if (!is_varchar(*ns)) { is_sth = false; break; }
-        if (is_sth) {
+        if (is_varname(variable_name)) {
           get_variable_pos(variable_name,arg1,arg2);
           arg1 = arg2!=~0U?reserved_label[arg2]:arg1!=~0U?variable_pos[arg1]:~0U;
           if (arg1!=~0U) _cimg_mp_return(arg1);

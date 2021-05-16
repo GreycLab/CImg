@@ -17455,7 +17455,7 @@ namespace cimg_library_suffixed {
             if (l_variable_name>2 && *ve1==')' && *ss!='(') {
               s0 = ve1; while (s0>ss && *s0!='(') --s0;
               if (is_varname(ss,s0 - ss) && std::strncmp(variable_name,"debug(",6) &&
-                  std::strncmp(variable_name,"print(",6)) { // is_valid_function_name?
+                  std::strncmp(variable_name,"print(",6)) { // Valid macro name
                 s0 = variable_name._data + (s0 - ss);
                 *s0 = 0;
                 s1 = variable_name._data + l_variable_name - 1; // Pointer to closing parenthesis
@@ -17547,8 +17547,7 @@ namespace cimg_library_suffixed {
               s0+=6; while (cimg::is_blank(*s0)) ++s0;
               variable_name.resize(variable_name.end() - s0,1,1,1,0,0,1);
             }
-
-            if (is_varname(variable_name)) {
+            if (is_varname(variable_name)) { // Valid variable name
 
               // Assign variable (direct).
               get_variable_pos(variable_name,arg1,arg2);
@@ -20870,7 +20869,7 @@ namespace cimg_library_suffixed {
               arg3 = compile(ss4,s1++,depth1,p_ref,is_critical);
               *se1 = 0;
 
-              if (!is_varname(s1)) {
+              if (!is_varname(s1)) { // Invalid variable name
                 variable_name.assign(s1,(unsigned int)(se1 + 1 - s1)).back() = 0;
                 cimg::strellipsize(variable_name,64);
                 *se1 = ')';
@@ -20909,7 +20908,7 @@ namespace cimg_library_suffixed {
               if (s1<se1) { // Version with 3 arguments
                 variable_name.assign(s0,(unsigned int)(s1 + 1 - s0)).back() = 0;
                 cimg::strpare(variable_name,false,true);
-                if (!is_varname(variable_name)) {
+                if (!is_varname(variable_name)) { // Invalid variable name
                   cimg::strellipsize(variable_name,64);
                   throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                               "CImg<%s>::%s: %s: Invalid loop variable name '%s', "
@@ -22217,7 +22216,7 @@ namespace cimg_library_suffixed {
 
         // No known item found, assuming this is an already initialized variable.
         variable_name.assign(ss,(unsigned int)(se + 1 - ss)).back() = 0;
-        if (is_varname(variable_name)) {
+        if (is_varname(variable_name)) { // Valid variable name
           get_variable_pos(variable_name,arg1,arg2);
           arg1 = arg2!=~0U?reserved_label[arg2]:arg1!=~0U?variable_pos[arg1]:~0U;
           if (arg1!=~0U) _cimg_mp_return(arg1);

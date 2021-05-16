@@ -17416,11 +17416,7 @@ namespace cimg_library_suffixed {
             // Assign vector value (direct).
             if (l_variable_name>3 && *ve1==']' && *ss!='[') {
               s0 = ve1; while (s0>ss && (*s0!='[' || level[s0 - expr._data]!=clevel)) --s0;
-              is_sth = true; // is_valid_variable_name?
-              if (*ss>='0' && *ss<='9') is_sth = false;
-              else for (ns = ss; ns<s0; ++ns)
-                     if (!is_varchar(*ns)) { is_sth = false; break; }
-              if (is_sth && s0>ss) {
+              if (s0>ss && is_varname(ss,s0 - ss)) {
                 variable_name[s0 - ss] = 0; // Remove brackets in variable name
                 get_variable_pos(variable_name,arg1,arg2);
                 arg1 = arg2!=~0U?reserved_label[arg2]:arg1!=~0U?variable_pos[arg1]:~0U; // Vector slot
@@ -22561,6 +22557,14 @@ namespace cimg_library_suffixed {
       // Return true if specified argument can be a part of an allowed  variable name.
       bool is_varchar(const char c) const {
         return (c>='a' && c<='z') || (c>='A' && c<='Z') || (c>='0' && c<='9') || c=='_';
+      }
+
+      // Return true if specified argument can be considered as a variable name.
+      bool is_varname(const char *const str, const unsigned int length=~0U) const {
+        if (*str>='0' && *str<='9') return false;
+        for (unsigned int l = 0; l<length && str[l]; ++l)
+          if (!is_varchar(str[l])) return false;
+        return true;
       }
 
       // Return true if all values of a vector are computation values.

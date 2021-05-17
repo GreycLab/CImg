@@ -99,6 +99,7 @@ int main(int argc, char **argv) {
   CImg<unsigned char> board, previous_board, selected_board, shape, img(background);
   CImgDisplay disp(img.width(),img.height(),"Jawbreaker",0);
   bool redraw = true, gameover = false, title = true;
+
   for (float opac = 0.0f; !disp.is_closed(); ) {
 
     // Init board
@@ -113,10 +114,12 @@ int main(int argc, char **argv) {
     if (redraw) {
       (img=background).draw_text(2,2,"Score : %u",yellow,0,0.7f,24,score).
         draw_text(Wi - 90,2,"Best : %u",orange,0,0.9f,17,best_score);
+
       if (selected_board) {
         cimg_forXY(selected_board,x,y) if (selected_board(x,y))
           img.draw_image(x<<5,y<<5,balls[selected_board(x,y)],mask);
       } else cimg_forXY(board,x,y) if (board(x,y)) img.draw_image(x<<5,y<<5,balls[board(x,y)],mask);
+
       if (title) {
         CImg<unsigned char> text1, text2;
         text1.draw_text(0,0,"- Jawbreaker -",white,0,1,48).resize(-100,-100,1,3);

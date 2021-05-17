@@ -33646,7 +33646,7 @@ namespace cimg_library_suffixed {
         case 3 : { // Mirror
           res.assign(sx,sy,sz,sc);
           const int w2 = 2*width(), h2 = 2*height(), d2 = 2*depth(), s2 = 2*spectrum();
-          cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),65536))
+//          cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),65536))
           cimg_forXYZC(res,x,y,z,c) {
             const int
               mx = cimg::mod(x - xc,w2), my = cimg::mod(y - yc,h2),
@@ -33665,7 +33665,7 @@ namespace cimg_library_suffixed {
             z0 = ((int)zc%depth()) - depth(),
             c0 = ((int)cc%spectrum()) - spectrum(),
             dx = width(), dy = height(), dz = depth(), dc = spectrum();
-          cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),65536))
+//          cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),65536))
           for (int c = c0; c<(int)sc; c+=dc)
             for (int z = z0; z<(int)sz; z+=dz)
               for (int y = y0; y<(int)sy; y+=dy)
@@ -33805,7 +33805,7 @@ namespace cimg_library_suffixed {
           if (sx>_width) get_resize(sx,_height,_depth,_spectrum,1).move_to(res);
           else {
             CImg<Tfloat> tmp(sx,_height,_depth,_spectrum,0);
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(sx,16))
+//            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(sx,16))
             cimg_forYZC(tmp,y,z,v) {
               for (unsigned int a = _width*sx, b = _width, c = sx, s = 0, t = 0; a; ) {
                 const unsigned int d = std::min(b,c);
@@ -33824,7 +33824,7 @@ namespace cimg_library_suffixed {
           if (sy>_height) get_resize(sx,sy,_depth,_spectrum,1).move_to(res);
           else {
             CImg<Tfloat> tmp(sx,sy,_depth,_spectrum,0);
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(sy,16))
+//            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(sy,16))
             cimg_forXZC(tmp,x,z,v) {
               for (unsigned int a = _height*sy, b = _height, c = sy, s = 0, t = 0; a; ) {
                 const unsigned int d = std::min(b,c);
@@ -33844,7 +33844,7 @@ namespace cimg_library_suffixed {
           if (sz>_depth) get_resize(sx,sy,sz,_spectrum,1).move_to(res);
           else {
             CImg<Tfloat> tmp(sx,sy,sz,_spectrum,0);
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(sz,16))
+//            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(sz,16))
             cimg_forXYC(tmp,x,y,v) {
               for (unsigned int a = _depth*sz, b = _depth, c = sz, s = 0, t = 0; a; ) {
                 const unsigned int d = std::min(b,c);
@@ -33864,7 +33864,7 @@ namespace cimg_library_suffixed {
           if (sc>_spectrum) get_resize(sx,sy,sz,sc,1).move_to(res);
           else {
             CImg<Tfloat> tmp(sx,sy,sz,sc,0);
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(sc,16))
+//            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(sc,16))
             cimg_forXYZ(tmp,x,y,z) {
               for (unsigned int a = _spectrum*sc, b = _spectrum, c = sc, s = 0, t = 0; a; ) {
                 const unsigned int d = std::min(b,c);
@@ -33908,7 +33908,7 @@ namespace cimg_library_suffixed {
                 *(poff++) = (unsigned int)curr - (unsigned int)old;
               }
             }
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(resx.size(),65536))
+//            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(resx.size(),65536))
               cimg_forYZC(resx,y,z,c) {
               const T *ptrs = data(0,y,z,c), *const ptrsmax = ptrs + _width - 1;
               T *ptrd = resx.data(0,y,z,c);
@@ -33943,7 +33943,7 @@ namespace cimg_library_suffixed {
                   *(poff++) = sx*((unsigned int)curr - (unsigned int)old);
                 }
               }
-              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(resy.size(),65536))
+//              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(resy.size(),65536))
               cimg_forXZC(resy,x,z,c) {
                 const T *ptrs = resx.data(x,0,z,c), *const ptrsmax = ptrs + (_height - 1)*sx;
                 T *ptrd = resy.data(x,0,z,c);
@@ -33982,7 +33982,7 @@ namespace cimg_library_suffixed {
                   *(poff++) = sxy*((unsigned int)curr - (unsigned int)old);
                 }
               }
-              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(resz.size(),65536))
+//              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(resz.size(),65536))
               cimg_forXYC(resz,x,y,c) {
                 const T *ptrs = resy.data(x,y,0,c), *const ptrsmax = ptrs + (_depth - 1)*sxy;
                 T *ptrd = resz.data(x,y,0,c);
@@ -34021,7 +34021,7 @@ namespace cimg_library_suffixed {
                   *(poff++) = sxyz*((unsigned int)curr - (unsigned int)old);
                 }
               }
-              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(resc.size(),65536))
+//              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(resc.size(),65536))
               cimg_forXYZ(resc,x,y,z) {
                 const T *ptrs = resz.data(x,y,z,0), *const ptrsmax = ptrs + (_spectrum - 1)*sxyz;
                 T *ptrd = resc.data(x,y,z,0);
@@ -34136,7 +34136,7 @@ namespace cimg_library_suffixed {
                   *(poff++) = (unsigned int)curr - (unsigned int)old;
                 }
               }
-              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(resx.size(),65536))
+//              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(resx.size(),65536))
               cimg_forYZC(resx,y,z,c) {
                 const T *const ptrs0 = data(0,y,z,c), *ptrs = ptrs0, *const ptrsmax = ptrs + (_width - 2);
                 T *ptrd = resx.data(0,y,z,c);
@@ -34178,7 +34178,7 @@ namespace cimg_library_suffixed {
                   *(poff++) = sx*((unsigned int)curr - (unsigned int)old);
                 }
               }
-              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(resy.size(),65536))
+//              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(resy.size(),65536))
               cimg_forXZC(resy,x,z,c) {
                 const T *const ptrs0 = resx.data(x,0,z,c), *ptrs = ptrs0, *const ptrsmax = ptrs + (_height - 2)*sx;
                 T *ptrd = resy.data(x,0,z,c);
@@ -34223,7 +34223,7 @@ namespace cimg_library_suffixed {
                   *(poff++) = sxy*((unsigned int)curr - (unsigned int)old);
                 }
               }
-              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(resz.size(),65536))
+//              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(resz.size(),65536))
               cimg_forXYC(resz,x,y,c) {
                 const T *const ptrs0 = resy.data(x,y,0,c), *ptrs = ptrs0, *const ptrsmax = ptrs + (_depth - 2)*sxy;
                 T *ptrd = resz.data(x,y,0,c);
@@ -34268,7 +34268,7 @@ namespace cimg_library_suffixed {
                   *(poff++) = sxyz*((unsigned int)curr - (unsigned int)old);
                 }
               }
-              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(resc.size(),65536))
+//              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(resc.size(),65536))
               cimg_forXYZ(resc,x,y,z) {
                 const T *const ptrs0 = resz.data(x,y,z,0), *ptrs = ptrs0, *const ptrsmax = ptrs + (_spectrum - 2)*sxyz;
                 T *ptrd = resc.data(x,y,z,0);
@@ -34324,7 +34324,7 @@ namespace cimg_library_suffixed {
                   *(poff++) = (unsigned int)curr - (unsigned int)old;
                 }
               }
-              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(resx.size(),65536))
+//              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(resx.size(),65536))
               cimg_forYZC(resx,y,z,c) {
                 const T *const ptrs0 = data(0,y,z,c), *ptrs = ptrs0, *const ptrsmin = ptrs0 + 1,
                   *const ptrsmax = ptrs0 + (_width - 2);
@@ -34372,7 +34372,7 @@ namespace cimg_library_suffixed {
                   *(poff++) = sx*((unsigned int)curr - (unsigned int)old);
                 }
               }
-              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(resy.size(),65536))
+//              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(resy.size(),65536))
               cimg_forXZC(resy,x,z,c) {
                 const T *const ptrs0 = resx.data(x,0,z,c), *ptrs = ptrs0, *const ptrsmin = ptrs0 + sx,
                   *const ptrsmax = ptrs0 + (_height - 2)*sx;
@@ -34423,7 +34423,7 @@ namespace cimg_library_suffixed {
                   *(poff++) = sxy*((unsigned int)curr - (unsigned int)old);
                 }
               }
-              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(resz.size(),65536))
+//              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(resz.size(),65536))
               cimg_forXYC(resz,x,y,c) {
                 const T *const ptrs0 = resy.data(x,y,0,c), *ptrs = ptrs0, *const ptrsmin = ptrs0 + sxy,
                   *const ptrsmax = ptrs0 + (_depth - 2)*sxy;
@@ -34474,7 +34474,7 @@ namespace cimg_library_suffixed {
                   *(poff++) = sxyz*((unsigned int)curr - (unsigned int)old);
                 }
               }
-              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(resc.size(),65536))
+//              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(resc.size(),65536))
               cimg_forXYZ(resc,x,y,z) {
                 const T *const ptrs0 = resz.data(x,y,z,0), *ptrs = ptrs0, *const ptrsmin = ptrs0 + sxyz,
                   *const ptrsmax = ptrs + (_spectrum - 2)*sxyz;
@@ -63639,12 +63639,18 @@ namespace cimg_library_suffixed {
       if (!font) {
         is_variable_widths[ind] = is_variable_width;
         basef.get_split('x',256).move_to(font);
+
+//        cimg::tic();
+
         if (requested_height!=font[0]._height)
           cimglist_for(font,l) {
-            font[l].resize(std::max(1U,font[l]._width*requested_height/font[l]._height),requested_height,-100,-100,
-                           font[0]._height>requested_height?2:5);
+            font[l].resize(std::max(1U,font[l]._width*requested_height/font[l]._height),requested_height,-100,-100,5);
             cimg_for(font[l],ptr,ucharT) *ptr = font_resizemap[*ptr];
           }
+
+//        cimg::toc();
+//        std::exit(0);
+
         if (is_variable_width) { // Crop font
           cimglist_for(font,l) {
             CImg<ucharT>& letter = font[l];

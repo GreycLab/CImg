@@ -52396,36 +52396,36 @@ namespace cimg_library_suffixed {
     //! Load image from a PNG file.
     /**
        \param filename Filename, as a C-string.
-       \param[out] bits_per_pixel Number of bits per pixels used to store pixel values in the image file.
+       \param[out] bits_per_value Number of bits used to store a scalar value in the image file.
     **/
-    CImg<T>& load_png(const char *const filename, unsigned int *const bits_per_pixel=0) {
-      return _load_png(0,filename,bits_per_pixel);
+    CImg<T>& load_png(const char *const filename, unsigned int *const bits_per_value=0) {
+      return _load_png(0,filename,bits_per_value);
     }
 
     //! Load image from a PNG file \newinstance.
-    static CImg<T> get_load_png(const char *const filename, unsigned int *const bits_per_pixel=0) {
-      return CImg<T>().load_png(filename,bits_per_pixel);
+    static CImg<T> get_load_png(const char *const filename, unsigned int *const bits_per_value=0) {
+      return CImg<T>().load_png(filename,bits_per_value);
     }
 
     //! Load image from a PNG file \overloading.
-    CImg<T>& load_png(std::FILE *const file, unsigned int *const bits_per_pixel=0) {
-      return _load_png(file,0,bits_per_pixel);
+    CImg<T>& load_png(std::FILE *const file, unsigned int *const bits_per_value=0) {
+      return _load_png(file,0,bits_per_value);
     }
 
     //! Load image from a PNG file \newinstance.
-    static CImg<T> get_load_png(std::FILE *const file, unsigned int *const bits_per_pixel=0) {
-      return CImg<T>().load_png(file,bits_per_pixel);
+    static CImg<T> get_load_png(std::FILE *const file, unsigned int *const bits_per_value=0) {
+      return CImg<T>().load_png(file,bits_per_value);
     }
 
     // (Note: Most of this function has been written by Eric Fausett)
-    CImg<T>& _load_png(std::FILE *const file, const char *const filename, unsigned int *const bits_per_pixel) {
+    CImg<T>& _load_png(std::FILE *const file, const char *const filename, unsigned int *const bits_per_value) {
       if (!file && !filename)
         throw CImgArgumentException(_cimg_instance
                                     "load_png(): Specified filename is (null).",
                                     cimg_instance);
 
 #ifndef cimg_use_png
-      cimg::unused(bits_per_pixel);
+      cimg::unused(bits_per_value);
       if (file)
         throw CImgIOException(_cimg_instance
                               "load_png(): Unable to load data from '(FILE*)' unless libpng is enabled.",
@@ -52499,7 +52499,7 @@ namespace cimg_library_suffixed {
       int bit_depth, color_type, interlace_type;
       bool is_gray = false;
       png_get_IHDR(png_ptr,info_ptr,&W,&H,&bit_depth,&color_type,&interlace_type,(int*)0,(int*)0);
-      if (bits_per_pixel) *bits_per_pixel = (unsigned int)bit_depth;
+      if (bits_per_value) *bits_per_value = (unsigned int)bit_depth;
 
       // Transforms to unify image data
       if (color_type==PNG_COLOR_TYPE_PALETTE) {
@@ -53261,9 +53261,9 @@ namespace cimg_library_suffixed {
           break;
         case 3 :
           cimg_forXY(*this,x,y) {
-            (*this)(x,y,0) = (T)(float)TIFFGetR(raster[nx*(ny - 1 -y) + x]);
-            (*this)(x,y,1) = (T)(float)TIFFGetG(raster[nx*(ny - 1 -y) + x]);
-            (*this)(x,y,2) = (T)(float)TIFFGetB(raster[nx*(ny - 1 -y) + x]);
+            (*this)(x,y,0) = (T)(float)TIFFGetR(raster[nx*(ny - 1 - y) + x]);
+            (*this)(x,y,1) = (T)(float)TIFFGetG(raster[nx*(ny - 1 - y) + x]);
+            (*this)(x,y,2) = (T)(float)TIFFGetB(raster[nx*(ny - 1 - y) + x]);
           }
           break;
         case 4 :

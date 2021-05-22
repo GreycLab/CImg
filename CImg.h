@@ -53019,6 +53019,7 @@ namespace cimg_library_suffixed {
        \param first_frame First frame to read (for multi-pages tiff).
        \param last_frame Last frame to read (for multi-pages tiff).
        \param step_frame Step value of frame reading.
+       \param[out] bits_per_value Number of bits used to store a scalar value in the image file.
        \param[out] voxel_size Voxel size, as stored in the filename.
        \param[out] description Description, as stored in the filename.
        \note
@@ -53032,9 +53033,8 @@ namespace cimg_library_suffixed {
      **/
     CImg<T>& load_tiff(const char *const filename,
                        const unsigned int first_frame=0, const unsigned int last_frame=~0U,
-                       const unsigned int step_frame=1,
-                       float *const voxel_size=0,
-                       CImg<charT> *const description=0) {
+                       const unsigned int step_frame=1, unsigned int *const bits_per_value=0,
+                       float *const voxel_size=0, CImg<charT> *const description=0) {
       if (!filename)
         throw CImgArgumentException(_cimg_instance
                                     "load_tiff(): Specified filename is (null).",
@@ -53046,7 +53046,7 @@ namespace cimg_library_suffixed {
       unsigned int nlast_frame = first_frame<last_frame?last_frame:first_frame;
 
 #ifndef cimg_use_tiff
-      cimg::unused(voxel_size,description);
+      cimg::unused(bits_per_value,voxel_size,description);
       if (nfirst_frame || nlast_frame!=~0U || nstep_frame>1)
         throw CImgArgumentException(_cimg_instance
                                     "load_tiff(): Unable to read sub-images from file '%s' unless libtiff is enabled.",
@@ -53073,7 +53073,7 @@ namespace cimg_library_suffixed {
         TIFFSetDirectory(tif,0);
         CImg<T> frame;
         for (unsigned int l = nfirst_frame; l<=nlast_frame; l+=nstep_frame) {
-          frame._load_tiff(tif,l,voxel_size,description);
+          frame._load_tiff(tif,l,bits_per_value,voxel_size,description);
           if (l==nfirst_frame)
             assign(frame._width,frame._height,1 + (nlast_frame - nfirst_frame)/nstep_frame,frame._spectrum);
           if (frame._width>_width || frame._height>_height || frame._spectrum>_spectrum)
@@ -53094,10 +53094,9 @@ namespace cimg_library_suffixed {
     //! Load image from a TIFF file \newinstance.
     static CImg<T> get_load_tiff(const char *const filename,
                                  const unsigned int first_frame=0, const unsigned int last_frame=~0U,
-                                 const unsigned int step_frame=1,
-                                 float *const voxel_size=0,
-                                 CImg<charT> *const description=0) {
-      return CImg<T>().load_tiff(filename,first_frame,last_frame,step_frame,voxel_size,description);
+                                 const unsigned int step_frame=1, unsigned int *const bits_per_value=0,
+                                 float *const voxel_size=0, CImg<charT> *const description=0) {
+      return CImg<T>().load_tiff(filename,first_frame,last_frame,step_frame,bits_per_value,voxel_size,description);
     }
 
     // (Original contribution by Jerome Boulanger).
@@ -53201,7 +53200,7 @@ namespace cimg_library_suffixed {
       }
     }
 
-    CImg<T>& _load_tiff(TIFF *const tif, const unsigned int directory,
+    CImg<T>& _load_tiff(TIFF *const tif, const unsigned int directory, unsigned int *const bits_per_value,
                         float *const voxel_size, CImg<charT> *const description) {
       if (!TIFFSetDirectory(tif,directory)) return assign();
       uint16 samplesperpixel = 1, bitspersample = 8, photo = 0;
@@ -53214,6 +53213,7 @@ namespace cimg_library_suffixed {
       TIFFGetField(tif, TIFFTAG_SAMPLEFORMAT, &sampleformat);
       TIFFGetFieldDefaulted(tif,TIFFTAG_BITSPERSAMPLE,&bitspersample);
       TIFFGetField(tif,TIFFTAG_PHOTOMETRIC,&photo);
+      if (bits_per_value) *bits_per_value = (unsigned int)bitspersample;
       if (voxel_size) {
         const char *s_description = 0;
         float vx = 0, vy = 0, vz = 0;
@@ -57414,8 +57414,8 @@ namespace cimg_library_suffixed {
     /**
        \param filename Filename, as a C-string.
        \param compression_type Type of data compression. Can be <tt>{ 0=None | 1=LZW | 2=JPEG }</tt>.
-       \param voxel_size Voxel size, to be stored in the filename.
-       \param description Description, to be stored in the filename.
+       \param[out] voxel_size Voxel size, to be stored in the filename.
+       \param[out] description Description, to be stored in the filename.
        \param use_bigtiff Allow to save big tiff files (>4Gb).
        \note
        - libtiff support is enabled by defining the precompilation
@@ -57427,6 +57427,7 @@ namespace cimg_library_suffixed {
         function uses CImg<T>&save_other(const char*).
      **/
     const CImg<T>& save_tiff(const char *const filename, const unsigned int compression_type=0,
+
                              const float *const voxel_size=0, const char *const description=0,
                              const bool use_bigtiff=true) const {
       if (!filename)
@@ -62315,20 +62316,20 @@ namespace cimg_library_suffixed {
         \param first_frame Index of first image frame to read.
         \param last_frame Index of last image frame to read.
         \param step_frame Step applied between each frame.
+        \param[out] bits_per_value Number of bits used to store a scalar value in the image file.
         \param[out] voxel_size Voxel size, as stored in the filename.
         \param[out] description Description, as stored in the filename.
     **/
     CImgList<T>& load_tiff(const char *const filename,
                            const unsigned int first_frame=0, const unsigned int last_frame=~0U,
-                           const unsigned int step_frame=1,
-                           float *const voxel_size=0,
-                           CImg<charT> *const description=0) {
+                           const unsigned int step_frame=1, unsigned int *const bits_per_value=0,
+                           float *const voxel_size=0, CImg<charT> *const description=0) {
       const unsigned int
         nfirst_frame = first_frame<last_frame?first_frame:last_frame,
         nstep_frame = step_frame?step_frame:1;
       unsigned int nlast_frame = first_frame<last_frame?last_frame:first_frame;
 #ifndef cimg_use_tiff
-      cimg::unused(voxel_size,description);
+      cimg::unused(bits_per_value,voxel_size,description);
       if (nfirst_frame || nlast_frame!=~0U || nstep_frame!=1)
         throw CImgArgumentException(_cimglist_instance
                                     "load_tiff(): Unable to load sub-images from file '%s' unless libtiff is enabled.",
@@ -62356,7 +62357,8 @@ namespace cimg_library_suffixed {
         if (nlast_frame>=nb_images) nlast_frame = nb_images - 1;
         assign(1 + (nlast_frame - nfirst_frame)/nstep_frame);
         TIFFSetDirectory(tif,0);
-        cimglist_for(*this,l) _data[l]._load_tiff(tif,nfirst_frame + l*nstep_frame,voxel_size,description);
+        cimglist_for(*this,l)
+          _data[l]._load_tiff(tif,nfirst_frame + l*nstep_frame,bits_per_value,voxel_size,description);
         TIFFClose(tif);
       } else throw CImgIOException(_cimglist_instance
                                    "load_tiff(): Failed to open file '%s'.",
@@ -62369,10 +62371,9 @@ namespace cimg_library_suffixed {
     //! Load a multi-page TIFF file \newinstance.
     static CImgList<T> get_load_tiff(const char *const filename,
                                      const unsigned int first_frame=0, const unsigned int last_frame=~0U,
-                                     const unsigned int step_frame=1,
-                                     float *const voxel_size=0,
-                                     CImg<charT> *const description=0) {
-      return CImgList<T>().load_tiff(filename,first_frame,last_frame,step_frame,voxel_size,description);
+                                     const unsigned int step_frame=1, unsigned int *const bits_per_value=0,
+                                     float *const voxel_size=0, CImg<charT> *const description=0) {
+      return CImgList<T>().load_tiff(filename,first_frame,last_frame,step_frame,bits_per_value,voxel_size,description);
     }
 
     //@}

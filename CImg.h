@@ -53028,7 +53028,7 @@ namespace cimg_library_suffixed {
        - When libtiff is enabled, 2D and 3D (multipage) several
         channel per pixel are supported for
         <tt>char,uchar,short,ushort,float</tt> and \c double pixel types.
-       - If \c cimg_use_tif is not defined at compile time the
+       - If \c cimg_use_tiff is not defined at compile time the
         function uses CImg<T>& load_other(const char*).
      **/
     CImg<T>& load_tiff(const char *const filename,
@@ -57423,7 +57423,7 @@ namespace cimg_library_suffixed {
        - When libtiff is enabled, 2D and 3D (multipage) several
         channel per pixel are supported for
         <tt>char,uchar,short,ushort,float</tt> and \c double pixel types.
-       - If \c cimg_use_tif is not defined at compile time the
+       - If \c cimg_use_tiff is not defined at compile time the
         function uses CImg<T>&save_other(const char*).
      **/
     const CImg<T>& save_tiff(const char *const filename, const unsigned int compression_type=0,

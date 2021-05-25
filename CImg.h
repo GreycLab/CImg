@@ -19924,6 +19924,14 @@ namespace cimg_library_suffixed {
               _cimg_mp_return_nan();
             }
 
+            if (!std::strncmp(ss,"erf(",4)) { // Error function
+              _cimg_mp_op("Function 'erf()'");
+              arg1 = compile(ss4,se1,depth1,0,is_critical);
+              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_erf,arg1);
+              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(std::erf(mem[arg1]));
+              _cimg_mp_scalar1(mp_erf,arg1);
+            }
+
             if (!std::strncmp(ss,"exp(",4)) { // Exponential
               _cimg_mp_op("Function 'exp()'");
               arg1 = compile(ss4,se1,depth1,0,is_critical);
@@ -23776,6 +23784,10 @@ namespace cimg_library_suffixed {
 
       static double mp_eq(_cimg_math_parser& mp) {
         return (double)(_mp_arg(2)==_mp_arg(3));
+      }
+
+      static double mp_erf(_cimg_math_parser& mp) {
+        return std::erf(_mp_arg(2));
       }
 
       static double mp_exp(_cimg_math_parser& mp) {

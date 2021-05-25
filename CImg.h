@@ -6208,6 +6208,18 @@ namespace cimg_library_suffixed {
       return val*val;
     }
 
+    // Return inverse of error function.
+    template<typename T>
+    inline T erfinv(const T& val) {
+      const T
+        sgn = val<0?-1:1,
+        x = (1 - val)*(1 + val),
+        lnx = std::log(x),
+        tt1 = (T)(2/(cimg::PI*0.147) + 0.5*lnx),
+        tt2 = lnx/(T)0.147;
+      return sgn*std::sqrt(-tt1 + std::sqrt(tt1*tt1 - tt2));
+    }
+
     //! Return cubic root of a value.
     template<typename T>
     inline double cbrt(const T& x) {
@@ -19932,6 +19944,14 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar1(mp_erf,arg1);
             }
 
+            if (!std::strncmp(ss,"erfinv(",7)) { // Inverse of error function
+              _cimg_mp_op("Function 'erfinv()'");
+              arg1 = compile(ss7,se1,depth1,0,is_critical);
+              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_erfinv,arg1);
+              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(cimg::erfinv(mem[arg1]));
+              _cimg_mp_scalar1(mp_erfinv,arg1);
+            }
+
             if (!std::strncmp(ss,"exp(",4)) { // Exponential
               _cimg_mp_op("Function 'exp()'");
               arg1 = compile(ss4,se1,depth1,0,is_critical);
@@ -23788,6 +23808,10 @@ namespace cimg_library_suffixed {
 
       static double mp_erf(_cimg_math_parser& mp) {
         return std::erf(_mp_arg(2));
+      }
+
+      static double mp_erfinv(_cimg_math_parser& mp) {
+        return cimg::erfinv(_mp_arg(2));
       }
 
       static double mp_exp(_cimg_math_parser& mp) {

@@ -19642,6 +19642,14 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
+            if (!std::strncmp(ss,"deg2rad(",8)) { // Degrees to radians
+              _cimg_mp_op("Function 'deg2rad()'");
+              arg1 = compile(ss8,se1,depth1,0,is_critical);
+              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_deg2rad,arg1);
+              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(mem[arg1]*cimg::PI/180);
+              _cimg_mp_scalar1(mp_deg2rad,arg1);
+            }
+
             if (!std::strncmp(ss,"debug(",6)) { // Print debug info
               _cimg_mp_op("Function 'debug()'");
               p1 = code._width;
@@ -20890,6 +20898,14 @@ namespace cimg_library_suffixed {
             break;
 
           case 'r' :
+            if (!std::strncmp(ss,"rad2deg(",8)) { // Degrees to radians
+              _cimg_mp_op("Function 'rad2deg()'");
+              arg1 = compile(ss8,se1,depth1,0,is_critical);
+              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_rad2deg,arg1);
+              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(mem[arg1]*180/cimg::PI);
+              _cimg_mp_scalar1(mp_rad2deg,arg1);
+            }
+
             if (!std::strncmp(ss,"ref(",4)) { // Variable declaration
               _cimg_mp_op("Function 'ref()'");
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -23584,6 +23600,10 @@ namespace cimg_library_suffixed {
         return _mp_arg(2) - 1;
       }
 
+      static double mp_deg2rad(_cimg_math_parser& mp) {
+        return _mp_arg(2)*cimg::PI/180;
+      }
+
       static double mp_det(_cimg_math_parser& mp) {
         const double *ptrs = &_mp_arg(2) + 1;
         const unsigned int k = (unsigned int)mp.opcode[3];
@@ -25844,6 +25864,10 @@ namespace cimg_library_suffixed {
         double val = _mp_arg(3);
         for (unsigned int i = 4; i<i_end; ++i) val*=_mp_arg(i);
         return val;
+      }
+
+      static double mp_rad2deg(_cimg_math_parser& mp) {
+        return _mp_arg(2)*180/cimg::PI;
       }
 
       static double mp_repeat(_cimg_math_parser& mp) {

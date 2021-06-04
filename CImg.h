@@ -19651,14 +19651,6 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
-            if (!std::strncmp(ss,"deg2rad(",8)) { // Degrees to radians
-              _cimg_mp_op("Function 'deg2rad()'");
-              arg1 = compile(ss8,se1,depth1,0,is_critical);
-              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_deg2rad,arg1);
-              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(mem[arg1]*cimg::PI/180);
-              _cimg_mp_scalar1(mp_deg2rad,arg1);
-            }
-
             if (!std::strncmp(ss,"debug(",6)) { // Print debug info
               _cimg_mp_op("Function 'debug()'");
               p1 = code._width;
@@ -19672,6 +19664,14 @@ namespace cimg_library_suffixed {
               opcode.move_to(code,p1);
               *se1 = ')';
               _cimg_mp_return(arg1);
+            }
+
+            if (!std::strncmp(ss,"deg2rad(",8)) { // Degrees to radians
+              _cimg_mp_op("Function 'deg2rad()'");
+              arg1 = compile(ss8,se1,depth1,0,is_critical);
+              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_deg2rad,arg1);
+              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(mem[arg1]*cimg::PI/180);
+              _cimg_mp_scalar1(mp_deg2rad,arg1);
             }
 
             if (!std::strncmp(ss,"display(",8)) { // Display memory, vector or image

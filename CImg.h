@@ -18499,8 +18499,17 @@ namespace cimg_library_suffixed {
           _cimg_mp_scalar2(mp_div,arg1,arg2);
         }
 
+        // Degree to radian postfix operator ('°' in UTF-8).
+        if ((unsigned char)*se2==0xC2 && (unsigned char)*se1==0xB0) {
+          arg1 = compile(ss,se2,depth1,0,is_critical);
+          if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_deg2rad,arg1);
+          if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(mem[arg1]*cimg::PI/180);
+          _cimg_mp_scalar1(mp_deg2rad,arg1);
+        }
+
+        // Pre/post-decrement and increment.
         is_sth = ss1<se1 && (*ss=='+' || *ss=='-') && *ss1==*ss; // is pre-?
-        if (is_sth || (se2>ss && (*se1=='+' || *se1=='-') && *se2==*se1)) { // Pre/post-decrement and increment
+        if (is_sth || (se2>ss && (*se1=='+' || *se1=='-') && *se2==*se1)) {
           if ((is_sth && *ss=='+') || (!is_sth && *se1=='+')) {
             _cimg_mp_op("Operator '++'");
             op = mp_self_increment;

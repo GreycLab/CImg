@@ -23794,7 +23794,7 @@ namespace cimg_library_suffixed {
               else {
                 r2 = (float)_mp_arg(i++);
                 if (i<i_end) {
-                  angle = (float)_mp_arg(i++);
+                  angle = (float)(_mp_arg(i++)*180/cimg::PI);
                   if (i<i_end) {
                     opacity = (float)_mp_arg(i++);
                     if (r1<0 && r2<0) {

@@ -25933,7 +25933,7 @@ namespace cimg_library_suffixed {
       static double mp_rot2d(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
         const float
-          theta = (float)_mp_arg(2)*cimg::PI/180,
+          theta = (float)_mp_arg(2),
           ca = std::cos(theta),
           sa = std::sin(theta);
         *(ptrd++) = ca;
@@ -25950,7 +25950,7 @@ namespace cimg_library_suffixed {
           y = (float)_mp_arg(3),
           z = (float)_mp_arg(4),
           theta = (float)_mp_arg(5);
-        CImg<doubleT>(ptrd,3,3,1,1,true) = CImg<doubleT>::rotation_matrix(x,y,z,theta);
+        CImg<doubleT>(ptrd,3,3,1,1,true) = CImg<doubleT>::rotation_matrix(x,y,z,theta*180/cimg::PI);
         return cimg::type<double>::nan();
       }
 

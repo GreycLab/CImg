@@ -8042,6 +8042,7 @@ namespace cimg_library_suffixed {
 
   _cimg_create_pointwise_function(sqr)
   _cimg_create_pointwise_function(sqrt)
+  _cimg_create_pointwise_function(erf)
   _cimg_create_pointwise_function(exp)
   _cimg_create_pointwise_function(log)
   _cimg_create_pointwise_function(log2)
@@ -27199,6 +27200,15 @@ namespace cimg_library_suffixed {
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(exp,std::exp,4096)
+
+    //! Compute the error function of each pixel value.
+    /**
+       Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its error function.
+       \note
+       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
+    **/
+    _cimg_create_pointwise_functions(erf,std::erf,4096)
 
     //! Compute the logarithm of each pixel value.
     /**

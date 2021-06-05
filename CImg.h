@@ -27155,7 +27155,7 @@ namespace cimg_library_suffixed {
 #define _cimg_create_pointwise_functions(name,func,min_size) \
     CImg<T>& name() { \
       if (is_empty()) return *this; \
-      cimg_openmp_for(*this,func((double)*ptr),min_size); \
+      cimg_openmp_for(*this,func((typename cimg::superset<T,float>::type)*ptr),min_size); \
       return *this; \
     } \
     CImg<Tfloat> get_##name() const { \

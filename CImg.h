@@ -8042,6 +8042,7 @@ namespace cimg_library_suffixed {
 
   _cimg_create_pointwise_function(sqr)
   _cimg_create_pointwise_function(sqrt)
+  _cimg_create_pointwise_function(erf)
   _cimg_create_pointwise_function(exp)
   _cimg_create_pointwise_function(log)
   _cimg_create_pointwise_function(log2)
@@ -19651,14 +19652,6 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
-            if (!std::strncmp(ss,"deg2rad(",8)) { // Degrees to radians
-              _cimg_mp_op("Function 'deg2rad()'");
-              arg1 = compile(ss8,se1,depth1,0,is_critical);
-              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_deg2rad,arg1);
-              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(mem[arg1]*cimg::PI/180);
-              _cimg_mp_scalar1(mp_deg2rad,arg1);
-            }
-
             if (!std::strncmp(ss,"debug(",6)) { // Print debug info
               _cimg_mp_op("Function 'debug()'");
               p1 = code._width;
@@ -19672,6 +19665,14 @@ namespace cimg_library_suffixed {
               opcode.move_to(code,p1);
               *se1 = ')';
               _cimg_mp_return(arg1);
+            }
+
+            if (!std::strncmp(ss,"deg2rad(",8)) { // Degrees to radians
+              _cimg_mp_op("Function 'deg2rad()'");
+              arg1 = compile(ss8,se1,depth1,0,is_critical);
+              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_deg2rad,arg1);
+              if (_cimg_mp_is_constant(arg1)) _cimg_mp_constant(mem[arg1]*cimg::PI/180);
+              _cimg_mp_scalar1(mp_deg2rad,arg1);
             }
 
             if (!std::strncmp(ss,"display(",8)) { // Display memory, vector or image
@@ -27154,7 +27155,7 @@ namespace cimg_library_suffixed {
 #define _cimg_create_pointwise_functions(name,func,min_size) \
     CImg<T>& name() { \
       if (is_empty()) return *this; \
-      cimg_openmp_for(*this,func((double)*ptr),min_size); \
+      cimg_openmp_for(*this,func((typename cimg::superset<T,float>::type)*ptr),min_size); \
       return *this; \
     } \
     CImg<Tfloat> get_##name() const { \
@@ -27199,6 +27200,15 @@ namespace cimg_library_suffixed {
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
     _cimg_create_pointwise_functions(exp,std::exp,4096)
+
+    //! Compute the error function of each pixel value.
+    /**
+       Replace each pixel value \f$I_{(x,y,z,c)}\f$ of the image instance by its error function.
+       \note
+       - The \inplace of this method statically casts the computed values to the pixel type \c T.
+       - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
+    **/
+    _cimg_create_pointwise_functions(erf,std::erf,4096)
 
     //! Compute the logarithm of each pixel value.
     /**

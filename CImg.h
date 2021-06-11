@@ -17142,6 +17142,13 @@ namespace cimg_library_suffixed {
           case 'r' : _cimg_mp_return(reserved_label[(int)'r']!=~0U?reserved_label[(int)'r']:22);
           case 's' : _cimg_mp_return(reserved_label[(int)'s']!=~0U?reserved_label[(int)'s']:21);
           case 't' : _cimg_mp_return(reserved_label[(int)'t']!=~0U?reserved_label[(int)'t']:_cimg_mp_slot_t);
+          case 'n' :
+            if (reserved_label[(int)'n']!=~0U) _cimg_mp_return(reserved_label[(int)'n']);
+#if cimg_use_openmp!=0
+            _cimg_mp_constant((double)omp_get_max_threads());
+#else
+            _cimg_mp_return(1);
+#endif
           case 'w' : _cimg_mp_return(reserved_label[(int)'w']!=~0U?reserved_label[(int)'w']:18);
           case 'x' : _cimg_mp_return(reserved_label[(int)'x']!=~0U?reserved_label[(int)'x']:_cimg_mp_slot_x);
           case 'y' : _cimg_mp_return(reserved_label[(int)'y']!=~0U?reserved_label[(int)'y']:_cimg_mp_slot_y);
@@ -17180,13 +17187,6 @@ namespace cimg_library_suffixed {
             if (reserved_label[(int)'A']!=~0U) _cimg_mp_return(reserved_label[(int)'A']);
             need_input_copy = true;
             _cimg_mp_scalar6(mp_ixyzc,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,3,0,0);
-          case 'T' :
-            if (reserved_label[(int)'T']!=~0U) _cimg_mp_return(reserved_label[(int)'T']);
-#if cimg_use_openmp!=0
-            _cimg_mp_constant((double)omp_get_max_threads());
-#else
-            _cimg_mp_return(1);
-#endif
           }
         else if (ss2==se) { // Two-chars reserved variable
           arg1 = arg2 = ~0U;

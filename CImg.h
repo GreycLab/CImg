@@ -17029,7 +17029,7 @@ namespace cimg_library_suffixed {
         rng((cimg::_rand(),cimg::rng())),calling_function(0) {
 
 #if cimg_use_openmp!=0
-        mem[_cimg_mp_slot_t] = omp_get_thread_num();
+        mem[_cimg_mp_slot_t] = (double)omp_get_thread_num();
         rng+=omp_get_thread_num();
 #endif
         opcode.assign();
@@ -22338,12 +22338,7 @@ namespace cimg_library_suffixed {
       // Evaluation procedure for begin_t() bloc.
       void begin_t() {
         if (!code_begin_t) return;
-        if (imgin) {
-          mem[_cimg_mp_slot_x] = imgin._width - 1.;
-          mem[_cimg_mp_slot_y] = imgin._height - 1.;
-          mem[_cimg_mp_slot_z] = imgin._depth - 1.;
-          mem[_cimg_mp_slot_c] = imgin._spectrum - 1.;
-        } else mem[_cimg_mp_slot_x] = mem[_cimg_mp_slot_y] = mem[_cimg_mp_slot_z] = mem[_cimg_mp_slot_c] = 0;
+        mem[_cimg_mp_slot_x] = mem[_cimg_mp_slot_y] = mem[_cimg_mp_slot_z] = mem[_cimg_mp_slot_c] = 0;
         p_code_end = code_begin_t.end();
         for (p_code = code_begin_t; p_code<p_code_end; ++p_code) {
           opcode._data = p_code->_data;
@@ -28521,12 +28516,11 @@ namespace cimg_library_suffixed {
       _cimg_math_parser mp(expression,"eval",*this,output,list_inputs,list_outputs,false);
 
 #if cimg_use_openmp!=0
-      unsigned int tid = 0;
       cimg_pragma_openmp(parallel if (res._height>=512))
       {
-        _cimg_math_parser *_mp = 0;
-        cimg_pragma_openmp(critical(_eval)) { _mp = !tid?&mp:new _cimg_math_parser(mp); ++tid; }
-        _cimg_math_parser &lmp = *_mp;
+        _cimg_math_parser
+          *const _mp = omp_get_thread_num()?new _cimg_math_parser(mp):&mp,
+          &lmp = *_mp;
         cimg_pragma_openmp(barrier)
         lmp.begin_t();
         cimg_pragma_openmp(for)
@@ -31069,12 +31063,11 @@ namespace cimg_library_suffixed {
               } else {
 
 #if cimg_use_openmp!=0
-                unsigned int tid = 0;
                 cimg_pragma_openmp(parallel)
                 {
-                  _cimg_math_parser *_mp = 0;
-                  cimg_pragma_openmp(critical(_fill)) { _mp = !tid?&mp:new _cimg_math_parser(mp); ++tid; }
-                  _cimg_math_parser &lmp = *_mp;
+                  _cimg_math_parser
+                    *const _mp = omp_get_thread_num()?new _cimg_math_parser(mp):&mp,
+                    &lmp = *_mp;
                   lmp.is_fill = true;
                   cimg_pragma_openmp(barrier)
                   lmp.begin_t();
@@ -31126,12 +31119,11 @@ namespace cimg_library_suffixed {
               } else {
 
 #if cimg_use_openmp!=0
-                unsigned int tid = 0;
                 cimg_pragma_openmp(parallel)
                 {
-                  _cimg_math_parser *_mp = 0;
-                  cimg_pragma_openmp(critical(_fill)) { _mp = !tid?&mp:new _cimg_math_parser(mp); ++tid; }
-                  _cimg_math_parser &lmp = *_mp;
+                  _cimg_math_parser
+                    *const _mp = omp_get_thread_num()?new _cimg_math_parser(mp):&mp,
+                    &lmp = *_mp;
                   lmp.is_fill = true;
                   cimg_pragma_openmp(barrier)
                   lmp.begin_t();
@@ -53192,8 +53184,8 @@ namespace cimg_library_suffixed {
     // (Original contribution by Jerome Boulanger).
 #ifdef cimg_use_tiff
     template<typename t>
-    void _load_tiff_tiled_contig(TIFF *const tif, const uint16 samplesperpixel,
-                                 const uint32 nx, const uint32 ny, const uint32 tw, const uint32 th) {
+    void _load_tiff_tiled_contig(TIFF *const tif, const uint16_t samplesperpixel,
+                                 const uint32_t nx, const uint32_t ny, const uint32_t tw, const uint32_t th) {
       t *const buf = (t*)_TIFFmalloc(TIFFTileSize(tif));
       if (buf) {
         for (unsigned int row = 0; row<ny; row+=th)
@@ -53216,8 +53208,8 @@ namespace cimg_library_suffixed {
     }
 
     template<typename t>
-    void _load_tiff_tiled_separate(TIFF *const tif, const uint16 samplesperpixel,
-                                   const uint32 nx, const uint32 ny, const uint32 tw, const uint32 th) {
+    void _load_tiff_tiled_separate(TIFF *const tif, const uint16_t samplesperpixel,
+                                   const uint32_t nx, const uint32_t ny, const uint32_t tw, const uint32_t th) {
       t *const buf = (t*)_TIFFmalloc(TIFFTileSize(tif));
       if (buf) {
         for (unsigned int vv = 0; vv<samplesperpixel; ++vv)
@@ -53240,13 +53232,13 @@ namespace cimg_library_suffixed {
     }
 
     template<typename t>
-    void _load_tiff_contig(TIFF *const tif, const uint16 samplesperpixel, const uint32 nx, const uint32 ny) {
+    void _load_tiff_contig(TIFF *const tif, const uint16_t samplesperpixel, const uint32_t nx, const uint32_t ny) {
       t *const buf = (t*)_TIFFmalloc(TIFFStripSize(tif));
       if (buf) {
-        uint32 row, rowsperstrip = (uint32)-1;
+        uint32_t row, rowsperstrip = (uint32_t)-1;
         TIFFGetField(tif,TIFFTAG_ROWSPERSTRIP,&rowsperstrip);
         for (row = 0; row<ny; row+= rowsperstrip) {
-          uint32 nrow = (row + rowsperstrip>ny?ny - row:rowsperstrip);
+          uint32_t nrow = (row + rowsperstrip>ny?ny - row:rowsperstrip);
           tstrip_t strip = TIFFComputeStrip(tif, row, 0);
           if ((TIFFReadEncodedStrip(tif,strip,buf,-1))<0) {
             _TIFFfree(buf); TIFFClose(tif);
@@ -53265,14 +53257,14 @@ namespace cimg_library_suffixed {
     }
 
     template<typename t>
-    void _load_tiff_separate(TIFF *const tif, const uint16 samplesperpixel, const uint32 nx, const uint32 ny) {
+    void _load_tiff_separate(TIFF *const tif, const uint16_t samplesperpixel, const uint32_t nx, const uint32_t ny) {
       t *buf = (t*)_TIFFmalloc(TIFFStripSize(tif));
       if (buf) {
-        uint32 row, rowsperstrip = (uint32)-1;
+        uint32_t row, rowsperstrip = (uint32_t)-1;
         TIFFGetField(tif,TIFFTAG_ROWSPERSTRIP,&rowsperstrip);
         for (unsigned int vv = 0; vv<samplesperpixel; ++vv)
           for (row = 0; row<ny; row+= rowsperstrip) {
-            uint32 nrow = (row + rowsperstrip>ny?ny - row:rowsperstrip);
+            uint32_t nrow = (row + rowsperstrip>ny?ny - row:rowsperstrip);
             tstrip_t strip = TIFFComputeStrip(tif, row, vv);
             if ((TIFFReadEncodedStrip(tif,strip,buf,-1))<0) {
               _TIFFfree(buf); TIFFClose(tif);
@@ -53293,9 +53285,9 @@ namespace cimg_library_suffixed {
     CImg<T>& _load_tiff(TIFF *const tif, const unsigned int directory, unsigned int *const bits_per_value,
                         float *const voxel_size, CImg<charT> *const description) {
       if (!TIFFSetDirectory(tif,directory)) return assign();
-      uint16 samplesperpixel = 1, bitspersample = 8, photo = 0;
-      uint16 sampleformat = 1;
-      uint32 nx = 1, ny = 1;
+      uint16_t samplesperpixel = 1, bitspersample = 8, photo = 0;
+      uint16_t sampleformat = 1;
+      uint32_t nx = 1, ny = 1;
       const char *const filename = TIFFFileName(tif);
       const bool is_spp = (bool)TIFFGetField(tif,TIFFTAG_SAMPLESPERPIXEL,&samplesperpixel);
       TIFFGetField(tif,TIFFTAG_IMAGEWIDTH,&nx);
@@ -53335,13 +53327,13 @@ namespace cimg_library_suffixed {
            (samplesperpixel==1 || samplesperpixel==3 || samplesperpixel==4)) ||
           (bitspersample==1 && samplesperpixel==1)) {
         // Special case for unsigned color images.
-        uint32 *const raster = (uint32*)_TIFFmalloc(nx*ny*sizeof(uint32));
+        uint32_t *const raster = (uint32_t*)_TIFFmalloc(nx*ny*sizeof(uint32_t));
         if (!raster) {
           _TIFFfree(raster); TIFFClose(tif);
           throw CImgException(_cimg_instance
                               "load_tiff(): Failed to allocate memory (%s) for file '%s'.",
                               cimg_instance,
-                              cimg::strbuffersize(nx*ny*sizeof(uint32)),filename);
+                              cimg::strbuffersize(nx*ny*sizeof(uint32_t)),filename);
         }
         TIFFReadRGBAImage(tif,nx,ny,raster,0);
         switch (spectrum) {
@@ -53367,10 +53359,10 @@ namespace cimg_library_suffixed {
         }
         _TIFFfree(raster);
       } else { // Other cases
-        uint16 config;
+        uint16_t config;
         TIFFGetField(tif,TIFFTAG_PLANARCONFIG,&config);
         if (TIFFIsTiled(tif)) {
-          uint32 tw = 1, th = 1;
+          uint32_t tw = 1, th = 1;
           TIFFGetField(tif,TIFFTAG_TILEWIDTH,&tw);
           TIFFGetField(tif,TIFFTAG_TILELENGTH,&th);
           if (config==PLANARCONFIG_CONTIG) switch (bitspersample) {
@@ -57556,8 +57548,8 @@ namespace cimg_library_suffixed {
                               const char *const description) const {
       if (is_empty() || !tif || pixel_t) return *this;
       const char *const filename = TIFFFileName(tif);
-      uint32 rowsperstrip = (uint32)-1;
-      uint16 spp = _spectrum, bpp = sizeof(t)*8, photometric;
+      uint32_t rowsperstrip = (uint32_t)-1;
+      uint16_t spp = _spectrum, bpp = sizeof(t)*8, photometric;
       if (spp==3 || spp==4) photometric = PHOTOMETRIC_RGB;
       else photometric = PHOTOMETRIC_MINISBLACK;
       TIFFSetDirectory(tif,directory);
@@ -57594,7 +57586,7 @@ namespace cimg_library_suffixed {
       t *const buf = (t*)_TIFFmalloc(TIFFStripSize(tif));
       if (buf) {
         for (unsigned int row = 0; row<_height; row+=rowsperstrip) {
-          uint32 nrow = (row + rowsperstrip>_height?_height - row:rowsperstrip);
+          uint32_t nrow = (row + rowsperstrip>_height?_height - row:rowsperstrip);
           tstrip_t strip = TIFFComputeStrip(tif,row,0);
           tsize_t i = 0;
           for (unsigned int rr = 0; rr<nrow; ++rr)

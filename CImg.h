@@ -17263,7 +17263,7 @@ namespace cimg_library_suffixed {
           is_end_code = false;
           arg1 = compile(s0,se,depth,p_ref,is_critical);
           if (!is_end_code) pos = arg1; // 'end()' and 'end_t()' return void
-          _cimg_mp_return(pos);
+          _cimg_mp_return(pos!=~0U?pos:_cimg_mp_slot_nan);
         }
 
         // Declare / assign variable, vector value or image value.
@@ -19120,18 +19120,22 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"begin(",6)) { // Begin
               _cimg_mp_op("Function 'begin()'");
-              code.swap(code_begin);
-              arg1 = compile(ss6,se1,depth1,p_ref,true);
-              code.swap(code_begin);
-              _cimg_mp_return(arg1);
+              if (ss6!=se1) {
+                code.swap(code_begin);
+                arg1 = compile(ss6,se1,depth1,p_ref,true);
+                code.swap(code_begin);
+                _cimg_mp_return(arg1);
+              } else _cimg_mp_return_nan();
             }
 
             if (!std::strncmp(ss,"begin_t(",8)) { // Begin thread
               _cimg_mp_op("Function 'begin_t()'");
-              code.swap(code_begin_t);
-              arg1 = compile(ss8,se1,depth1,p_ref,true);
-              code.swap(code_begin_t);
-              _cimg_mp_return(arg1);
+              if (ss8!=se1) {
+                code.swap(code_begin_t);
+                arg1 = compile(ss8,se1,depth1,p_ref,true);
+                code.swap(code_begin_t);
+                _cimg_mp_return(arg1);
+              } else _cimg_mp_return_nan();
             }
             break;
 
@@ -20035,18 +20039,22 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"end(",4)) { // End
               _cimg_mp_op("Function 'end()'");
               code.swap(code_end);
-              compile(ss4,se1,depth1,p_ref,true);
-              code.swap(code_end);
-              is_end_code = true;
+              if (ss4!=se1) {
+                compile(ss4,se1,depth1,p_ref,true);
+                code.swap(code_end);
+                is_end_code = true;
+              }
               _cimg_mp_return_nan();
             }
 
             if (!std::strncmp(ss,"end_t(",6)) { // End thread
               _cimg_mp_op("Function 'end_t()'");
               code.swap(code_end_t);
-              compile(ss6,se1,depth1,p_ref,true);
-              code.swap(code_end_t);
-              is_end_code = true;
+              if (ss6!=se1) {
+                compile(ss6,se1,depth1,p_ref,true);
+                code.swap(code_end_t);
+                is_end_code = true;
+              }
               _cimg_mp_return_nan();
             }
             break;

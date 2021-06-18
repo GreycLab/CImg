@@ -38010,7 +38010,7 @@ namespace cimg_library_suffixed {
 
       if (_kernel._width==_kernel._height && _kernel._width>1 && _kernel._height>1 &&
           ((_kernel._depth==1 && _kernel._width<=5) || (_kernel._depth==_kernel._width && _kernel._width<=3)) &&
-          boundary_conditions<=1 && channel_mode &&
+          boundary_conditions<=1 && channel_mode==1 &&
           _xcenter==_kernel.width()/2 - 1 + (_kernel.width()%2) &&
           _ycenter==_kernel.height()/2 - 1 + (_kernel.height()%2) &&
           _zcenter==_kernel.depth()/2 - 1 + (_kernel.depth()%2) &&

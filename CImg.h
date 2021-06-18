@@ -19621,7 +19621,7 @@ namespace cimg_library_suffixed {
               arg2 = 1 + (unsigned int)std::floor((xend - xstart)/xstride);
               arg3 = 1 + (unsigned int)std::floor((yend - ystart)/ystride);
               arg4 = 1 + (unsigned int)std::floor((zend + zstart)/zstride);
-              arg5 = channel_mode==0?sM:channel_mode==1?std::max(sA,sM):sA*sM;
+              arg5 = channel_mode==0?1U:channel_mode==1?std::max(sA,sM):sA*sM;
 
               opcode[1] = pos = vector(arg2*arg3*arg4*arg5);
               opcode[3] = (ulongT)wA;
@@ -37947,11 +37947,20 @@ namespace cimg_library_suffixed {
                                    const float xstride, const float ystride, const float zstride,
                                    const float xdilation, const float ydilation, const float zdilation,
                                    const bool is_convolve) const {
-      if (is_empty() || !kernel) return *this;
       typedef _cimg_Ttfloat Ttfloat;
       CImg<Ttfloat> res;
       _cimg_abort_init_openmp;
       cimg_abort_init;
+
+      if (is_empty() || !kernel) return *this;
+      if (!channel_mode) {
+        res = _correlate(kernel,boundary_conditions,is_normalized,1,
+                         xcenter,ycenter,zcenter,xstart,ystart,zstart,xend,yend,zend,xstride,ystride,zstride,
+                         xdilation,ydilation,zdilation,is_convolve);
+        CImg<Ttfloat> res0 = res.get_shared_channel(0);
+        cimg_for_inC(res,1,res.spectrum()-1,c) res0+=res.get_shared_channel(c);
+        return res.channel(0);
+      }
 
       if (xstart>xend || ystart>yend || zstart>zend)
         throw CImgArgumentException(_cimg_instance
@@ -37965,15 +37974,6 @@ namespace cimg_library_suffixed {
                                     cimg_instance,
                                     is_convolve?"convolve":"correlate",
                                     xstride,ystride,zstride);
-
-      if (!channel_mode) {
-        res = _correlate(kernel,boundary_conditions,is_normalized,1,
-                         xcenter,ycenter,zcenter,xstart,ystart,zstart,xend,yend,zend,xstride,ystride,zstride,
-                         xdilation,ydilation,zdilation,is_convolve);
-        CImg<Ttfloat> res0 = res.get_shared_channel(0);
-        cimg_for_inC(res,1,res.spectrum()-1,c) res0+=res.get_shared_channel(c);
-        return res.resize(-100,-100,-100,1,0);
-      }
 
       const int
         _xstart = (int)std::min(xstart,_width - 1),
@@ -38212,17 +38212,14 @@ namespace cimg_library_suffixed {
 
         // Special optimization for 1x1 kernel.
         res = get_crop(_xstart,_ystart,_zstart,_xend,_yend,_zend);
-        switch (channel_mode) {
-        case 1 : { // One-for-one
+        if (channel_mode==1) { // One-for-one
           res.resize(-100,-100,-100,std::max(res._spectrum,_kernel._spectrum),0,2);
           cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
           cimg_forC(res,c) res.get_shared_channel(c)*=_kernel[c%_kernel._spectrum];
-        } break;
-        default: { // Expand
+        } else { // Expand
           res.resize(-100,-100,-100,res._spectrum*_kernel._spectrum,0,2);
           cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
           cimg_forC(res,c) res.get_shared_channel(c)*=_kernel[c/res._spectrum];
-        }
         }
       } else {
 

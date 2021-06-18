@@ -19621,7 +19621,7 @@ namespace cimg_library_suffixed {
               arg2 = 1 + (unsigned int)std::floor((xend - xstart)/xstride);
               arg3 = 1 + (unsigned int)std::floor((yend - ystart)/ystride);
               arg4 = 1 + (unsigned int)std::floor((zend + zstart)/zstride);
-              arg5 = channel_mode==0?sM:channel_mode==1?std::max(sA,sM):sA*sM;
+              arg5 = channel_mode==0?1U:channel_mode==1?std::max(sA,sM):sA*sM;
 
               opcode[1] = pos = vector(arg2*arg3*arg4*arg5);
               opcode[3] = (ulongT)wA;
@@ -37947,11 +37947,20 @@ namespace cimg_library_suffixed {
                                    const float xstride, const float ystride, const float zstride,
                                    const float xdilation, const float ydilation, const float zdilation,
                                    const bool is_convolve) const {
-      if (is_empty() || !kernel) return *this;
       typedef _cimg_Ttfloat Ttfloat;
       CImg<Ttfloat> res;
       _cimg_abort_init_openmp;
       cimg_abort_init;
+
+      if (is_empty() || !kernel) return *this;
+      if (!channel_mode) {
+        res = _correlate(kernel,boundary_conditions,is_normalized,1,
+                         xcenter,ycenter,zcenter,xstart,ystart,zstart,xend,yend,zend,xstride,ystride,zstride,
+                         xdilation,ydilation,zdilation,is_convolve);
+        CImg<Ttfloat> res0 = res.get_shared_channel(0);
+        cimg_for_inC(res,1,res.spectrum()-1,c) res0+=res.get_shared_channel(c);
+        return res.channel(0);
+      }
 
       if (xstart>xend || ystart>yend || zstart>zend)
         throw CImgArgumentException(_cimg_instance
@@ -37965,6 +37974,7 @@ namespace cimg_library_suffixed {
                                     cimg_instance,
                                     is_convolve?"convolve":"correlate",
                                     xstride,ystride,zstride);
+
       const int
         _xstart = (int)std::min(xstart,_width - 1),
         _ystart = (int)std::min(ystart,_height - 1),
@@ -38010,7 +38020,7 @@ namespace cimg_library_suffixed {
 
       if (_kernel._width==_kernel._height && _kernel._width>1 && _kernel._height>1 &&
           ((_kernel._depth==1 && _kernel._width<=5) || (_kernel._depth==_kernel._width && _kernel._width<=3)) &&
-          boundary_conditions<=1 && channel_mode &&
+          boundary_conditions<=1 && channel_mode==1 &&
           _xcenter==_kernel.width()/2 - 1 + (_kernel.width()%2) &&
           _ycenter==_kernel.height()/2 - 1 + (_kernel.height()%2) &&
           _zcenter==_kernel.depth()/2 - 1 + (_kernel.depth()%2) &&
@@ -38202,154 +38212,81 @@ namespace cimg_library_suffixed {
 
         // Special optimization for 1x1 kernel.
         res = get_crop(_xstart,_ystart,_zstart,_xend,_yend,_zend);
-        switch (channel_mode) {
-        case 0 : { // Sum input channels
-          CImg<T> res0 = res.get_shared_channel(0);
-          for (int c = 1; c<res.spectrum(); ++c) res0+=res.get_shared_channel(c);
-          res.channel(0).resize(-100,-100,-100,_kernel._spectrum,0,2);
-          cimg_forC(res,c) res.get_shared_channel(c)*=_kernel[c];
-        } break;
-        case 1 : { // One-for-one
+        if (channel_mode==1) { // One-for-one
           res.resize(-100,-100,-100,std::max(res._spectrum,_kernel._spectrum),0,2);
           cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
           cimg_forC(res,c) res.get_shared_channel(c)*=_kernel[c%_kernel._spectrum];
-        } break;
-        default: { // Expand
+        } else { // Expand
           res.resize(-100,-100,-100,res._spectrum*_kernel._spectrum,0,2);
           cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
           cimg_forC(res,c) res.get_shared_channel(c)*=_kernel[c/res._spectrum];
-        }
         }
       } else {
 
         // Generic version for other kernels and boundary conditions.
         res.assign(nwidth,nheight,ndepth,
-                   channel_mode==0?_kernel._spectrum:
                    channel_mode==1?std::max(_spectrum,_kernel._spectrum):
                    _spectrum*_kernel._spectrum);
 
-        if (!channel_mode) { // Channel mode: Sum inputs
-          cimg_pragma_openmp(parallel for cimg_openmp_if(!is_inner_parallel && is_outer_parallel))
-          cimg_forC(_kernel,kc) _cimg_abort_try_openmp {
-            cimg_abort_test;
-            const CImg<t> K = _kernel.get_shared_channel(kc%_kernel._spectrum);
-            int w2 = 0, h2 = 0, d2 = 0;
-            Ttfloat M = 0, M2 = 0;
-            if (is_normalized) { M = (Ttfloat)K.magnitude(2); M2 = M*M; }
-            if (boundary_conditions>=3) { w2 = 2*width(); h2 = 2*height(); d2 = 2*depth(); }
-            res.fill(0);
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
-              cimg_forXYZC(res,x,y,z,c) {
-              Ttfloat _val, val = 0, N = 0;
-
-              if (is_int_stride_dilation)
-                cimg_forXYZ(_kernel,p,q,r) {
-                  const int
-                    ix = (int)xstart + _xstride*x + _xdilation*(p - _xcenter),
-                    iy = (int)ystart + _ystride*y + _ydilation*(q - _ycenter),
-                    iz = (int)zstart + _zstride*z + _zdilation*(r - _zcenter);
-                  switch (boundary_conditions) {
-                  case 0 : _val = atXYZ(ix,iy,iz,c,0); break; // Dirichlet
-                  case 1 : _val = _atXYZ(ix,iy,iz,c); break; // Neumann
-                  case 2 : _val = (*this)(cimg::mod(ix,width()),cimg::mod(iy,height()), // Periodic
-                                          cimg::mod(iz,depth()),c); break;
-                  default : { // Mirror
-                    const int mx = cimg::mod(ix,w2), my = cimg::mod(iy,h2), mz = cimg::mod(iz,d2);
-                    _val = (*this)(mx<width()?mx:w2 - mx - 1,
-                                   my<height()?my:h2 - my - 1,
-                                   mz<depth()?mz:d2 - mz - 1);
-                  }
-                  }
-                  val+=_val*K(p,q,r);
-                  if (is_normalized) N+=_val*_val;
-                }
-              else
-                cimg_forXYZ(_kernel,p,q,r) {
-                  const float
-                    ix = xstart + xstride*x + xdilation*(p - _xcenter),
-                    iy = ystart + ystride*y + ydilation*(q - _ycenter),
-                    iz = zstart + zstride*z + zdilation*(r - _zcenter);
-                  switch (boundary_conditions) {
-                  case 0 : _val = linear_atXYZ(ix,iy,iz,c,0); break; // Dirichlet
-                  case 1 : _val = _linear_atXYZ(ix,iy,iz,c); break; // Neumann
-                  case 2 : _val = _linear_atXYZ_p(ix,iy,iz,c); break; // Periodic
-                  default : { // Mirror
-                    const int mx = cimg::mod(ix,w2), my = cimg::mod(iy,h2), mz = cimg::mod(iz,d2);
-                    _val = linear_atXYZ(mx<width()?mx:w2 - mx - 1,
-                                        my<height()?my:h2 - my - 1,
-                                        mz<depth()?mz:d2 - mz - 1,c);
-                  }
-                  }
-                  val+=_val*K(p,q,r);
-                  if (is_normalized) N+=_val*_val;
-                }
-              N*=M2;
-              res(x,y,z,c) += is_normalized?(Ttfloat)(N?val/std::sqrt(N):0):val;
-            }
-          } _cimg_abort_catch_openmp
+        cimg_pragma_openmp(parallel for cimg_openmp_if(!is_inner_parallel && is_outer_parallel))
+          cimg_forC(res,c) _cimg_abort_try_openmp {
           cimg_abort_test;
+          const CImg<T> I = get_shared_channel(c%_spectrum);
+          const CImg<t> K = _kernel.get_shared_channel(channel_mode==1?c%_kernel._spectrum:c/_spectrum);
+          int w2 = 0, h2 = 0, d2 = 0;
+          Ttfloat M = 0, M2 = 0;
+          if (is_normalized) { M = (Ttfloat)K.magnitude(2); M2 = M*M; }
+          if (boundary_conditions>=3) { w2 = 2*I.width(); h2 = 2*I.height(); d2 = 2*I.depth(); }
+          cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
+            cimg_forXYZ(res,x,y,z) {
+            Ttfloat _val, val = 0, N = 0;
 
-        } else { // Channel mode: one-for-one & expand
-          cimg_pragma_openmp(parallel for cimg_openmp_if(!is_inner_parallel && is_outer_parallel))
-            cimg_forC(res,c) _cimg_abort_try_openmp {
+            if (is_int_stride_dilation)
+              cimg_forXYZ(_kernel,p,q,r) {
+                const int
+                  ix = (int)xstart + _xstride*x + _xdilation*(p - _xcenter),
+                  iy = (int)ystart + _ystride*y + _ydilation*(q - _ycenter),
+                  iz = (int)zstart + _zstride*z + _zdilation*(r - _zcenter);
+                switch (boundary_conditions) {
+                case 0 : _val = I.atXYZ(ix,iy,iz,0,0); break; // Dirichlet
+                case 1 : _val = I._atXYZ(ix,iy,iz); break; // Neumann
+                case 2 : _val = I(cimg::mod(ix,I.width()),cimg::mod(iy,I.height()), // Periodic
+                                  cimg::mod(iz,I.depth())); break;
+                default : { // Mirror
+                  const int mx = cimg::mod(ix,w2), my = cimg::mod(iy,h2), mz = cimg::mod(iz,d2);
+                  _val = I(mx<I.width()?mx:w2 - mx - 1,
+                           my<I.height()?my:h2 - my - 1,
+                           mz<I.depth()?mz:d2 - mz - 1);
+                }
+                }
+                val+=_val*K(p,q,r);
+                if (is_normalized) N+=_val*_val;
+              }
+            else
+              cimg_forXYZ(_kernel,p,q,r) {
+                const float
+                  ix = xstart + xstride*x + xdilation*(p - _xcenter),
+                  iy = ystart + ystride*y + ydilation*(q - _ycenter),
+                  iz = zstart + zstride*z + zdilation*(r - _zcenter);
+                switch (boundary_conditions) {
+                case 0 : _val = I.linear_atXYZ(ix,iy,iz,0,0); break; // Dirichlet
+                case 1 : _val = I._linear_atXYZ(ix,iy,iz); break; // Neumann
+                case 2 : _val = I._linear_atXYZ_p(ix,iy,iz); break; // Periodic
+                default : { // Mirror
+                  const int mx = cimg::mod(ix,w2), my = cimg::mod(iy,h2), mz = cimg::mod(iz,d2);
+                  _val = I.linear_atXYZ(mx<I.width()?mx:w2 - mx - 1,
+                                        my<I.height()?my:h2 - my - 1,
+                                        mz<I.depth()?mz:d2 - mz - 1);
+                }
+                }
+                val+=_val*K(p,q,r);
+                if (is_normalized) N+=_val*_val;
+              }
+            N*=M2;
+            res(x,y,z,c) = is_normalized?(Ttfloat)(N?val/std::sqrt(N):0):val;
+          }
+        } _cimg_abort_catch_openmp
             cimg_abort_test;
-            const CImg<T> I = get_shared_channel(c%_spectrum);
-            const CImg<t> K = _kernel.get_shared_channel(channel_mode==1?c%_kernel._spectrum:c/_spectrum);
-            int w2 = 0, h2 = 0, d2 = 0;
-            Ttfloat M = 0, M2 = 0;
-            if (is_normalized) { M = (Ttfloat)K.magnitude(2); M2 = M*M; }
-            if (boundary_conditions>=3) { w2 = 2*I.width(); h2 = 2*I.height(); d2 = 2*I.depth(); }
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
-              cimg_forXYZ(res,x,y,z) {
-              Ttfloat _val, val = 0, N = 0;
-
-              if (is_int_stride_dilation)
-                cimg_forXYZ(_kernel,p,q,r) {
-                  const int
-                    ix = (int)xstart + _xstride*x + _xdilation*(p - _xcenter),
-                    iy = (int)ystart + _ystride*y + _ydilation*(q - _ycenter),
-                    iz = (int)zstart + _zstride*z + _zdilation*(r - _zcenter);
-                  switch (boundary_conditions) {
-                  case 0 : _val = I.atXYZ(ix,iy,iz,0,0); break; // Dirichlet
-                  case 1 : _val = I._atXYZ(ix,iy,iz); break; // Neumann
-                  case 2 : _val = I(cimg::mod(ix,I.width()),cimg::mod(iy,I.height()), // Periodic
-                                    cimg::mod(iz,I.depth())); break;
-                  default : { // Mirror
-                    const int mx = cimg::mod(ix,w2), my = cimg::mod(iy,h2), mz = cimg::mod(iz,d2);
-                    _val = I(mx<I.width()?mx:w2 - mx - 1,
-                             my<I.height()?my:h2 - my - 1,
-                             mz<I.depth()?mz:d2 - mz - 1);
-                  }
-                  }
-                  val+=_val*K(p,q,r);
-                  if (is_normalized) N+=_val*_val;
-                }
-              else
-                cimg_forXYZ(_kernel,p,q,r) {
-                  const float
-                    ix = xstart + xstride*x + xdilation*(p - _xcenter),
-                    iy = ystart + ystride*y + ydilation*(q - _ycenter),
-                    iz = zstart + zstride*z + zdilation*(r - _zcenter);
-                  switch (boundary_conditions) {
-                  case 0 : _val = I.linear_atXYZ(ix,iy,iz,0,0); break; // Dirichlet
-                  case 1 : _val = I._linear_atXYZ(ix,iy,iz); break; // Neumann
-                  case 2 : _val = I._linear_atXYZ_p(ix,iy,iz); break; // Periodic
-                  default : { // Mirror
-                    const int mx = cimg::mod(ix,w2), my = cimg::mod(iy,h2), mz = cimg::mod(iz,d2);
-                    _val = I.linear_atXYZ(mx<I.width()?mx:w2 - mx - 1,
-                                          my<I.height()?my:h2 - my - 1,
-                                          mz<I.depth()?mz:d2 - mz - 1);
-                  }
-                  }
-                  val+=_val*K(p,q,r);
-                  if (is_normalized) N+=_val*_val;
-                }
-              N*=M2;
-              res(x,y,z,c) = is_normalized?(Ttfloat)(N?val/std::sqrt(N):0):val;
-            }
-          } _cimg_abort_catch_openmp
-          cimg_abort_test;
-        }
       }
       return res;
     }

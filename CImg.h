@@ -37953,7 +37953,7 @@ namespace cimg_library_suffixed {
       cimg_abort_init;
 
       if (is_empty() || !kernel) return *this;
-      if (!channel_mode) {
+      if (!channel_mode) { // Channel-mode: Sum
         res = _correlate(kernel,boundary_conditions,is_normalized,1,
                          xcenter,ycenter,zcenter,xstart,ystart,zstart,xend,yend,zend,xstride,ystride,zstride,
                          xdilation,ydilation,zdilation,is_convolve);

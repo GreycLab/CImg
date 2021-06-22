@@ -19618,9 +19618,9 @@ namespace cimg_library_suffixed {
                                             s0>expr._data?"...":"",s0,se<&expr.back()?"...":"");
               }
 
-              arg2 = 1 + (unsigned int)std::floor((xend - xstart)/xstride);
-              arg3 = 1 + (unsigned int)std::floor((yend - ystart)/ystride);
-              arg4 = 1 + (unsigned int)std::floor((zend + zstart)/zstride);
+              arg2 = (unsigned int)std::floor((xend - xstart + 1)/xstride);
+              arg3 = (unsigned int)std::floor((yend - ystart + 1)/ystride);
+              arg4 = (unsigned int)std::floor((zend + zstart + 1)/zstride);
               arg5 = channel_mode==0?1U:channel_mode==1?std::max(sA,sM):sA*sM;
 
               opcode[1] = pos = vector(arg2*arg3*arg4*arg5);

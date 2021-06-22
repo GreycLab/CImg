@@ -19569,9 +19569,9 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_constant(opcode[21],20,1); // xend
               _cimg_mp_check_constant(opcode[22],21,1); // yend
               _cimg_mp_check_constant(opcode[23],22,1); // zend
-              _cimg_mp_check_constant(opcode[24],23,3); // xstride
-              _cimg_mp_check_constant(opcode[25],24,3); // ystride
-              _cimg_mp_check_constant(opcode[26],25,3); // zstride
+              _cimg_mp_check_constant(opcode[24],23,0); // xstride
+              _cimg_mp_check_constant(opcode[25],24,0); // ystride
+              _cimg_mp_check_constant(opcode[26],25,0); // zstride
               _cimg_mp_check_type(opcode[27],26,1,0); // xdilation
               _cimg_mp_check_type(opcode[28],27,1,0); // ydilation
               _cimg_mp_check_type(opcode[29],28,1,0); // zdilation

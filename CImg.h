@@ -19539,7 +19539,7 @@ namespace cimg_library_suffixed {
               }
               l_opcode[0].move_to(opcode);
 
-              if (arg1<12 || arg1>=opcode._height) {
+              if (arg1<12 || arg1>opcode._height) {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                             "CImg<%s>::%s: %s: %s arguments provided, in expression '%s%s%s'.",

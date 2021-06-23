@@ -38264,20 +38264,19 @@ namespace cimg_library_suffixed {
               }
             else
               cimg_forXYZ(_kernel,p,q,r) {
-                const int
-                  ix = (int)(xstart + xstride*x + xdilation*(p - _xcenter)),
-                  iy = (int)(ystart + ystride*y + ydilation*(q - _ycenter)),
-                  iz = (int)(zstart + zstride*z + zdilation*(r - _zcenter));
-                switch (boundary_conditions) {
-                case 0 : _val = I.atXYZ(ix,iy,iz,0,0); break; // Dirichlet
-                case 1 : _val = I._atXYZ(ix,iy,iz); break; // Neumann
-                case 2 : _val = I(cimg::mod(ix,I.width()),cimg::mod(iy,I.height()), // Periodic
-                                  cimg::mod(iz,I.depth())); break;
+                const float
+                  ix = xstart + xstride*x + xdilation*(p - _xcenter),
+                  iy = ystart + ystride*y + ydilation*(q - _ycenter),
+                  iz = zstart + zstride*z + zdilation*(r - _zcenter);
+              switch (boundary_conditions) {
+                case 0 : _val = I.linear_atXYZ(ix,iy,iz,0,0); break; // Dirichlet
+                case 1 : _val = I._linear_atXYZ(ix,iy,iz); break; // Neumann
+                case 2 : _val = I._linear_atXYZ_p(ix,iy,iz); break; // Periodic
                 default : { // Mirror
                   const int mx = cimg::mod(ix,w2), my = cimg::mod(iy,h2), mz = cimg::mod(iz,d2);
-                  _val = I(mx<I.width()?mx:w2 - mx - 1,
-                           my<I.height()?my:h2 - my - 1,
-                           mz<I.depth()?mz:d2 - mz - 1);
+                  _val = I.linear_atXYZ(mx<I.width()?mx:w2 - mx - 1,
+                                        my<I.height()?my:h2 - my - 1,
+                                        mz<I.depth()?mz:d2 - mz - 1);
                 }
                 }
                 val+=_val*K(p,q,r);

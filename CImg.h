@@ -19539,7 +19539,7 @@ namespace cimg_library_suffixed {
               }
               l_opcode[0].move_to(opcode);
 
-              if (arg1<12 || arg1>=opcode._height) {
+              if (arg1<12 || arg1>opcode._height) {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                             "CImg<%s>::%s: %s: %s arguments provided, in expression '%s%s%s'.",
@@ -37988,7 +37988,6 @@ namespace cimg_library_suffixed {
         _xstride = (int)cimg::round(xstride),
         _ystride = (int)cimg::round(ystride),
         _zstride = (int)cimg::round(zstride);
-
         const ulongT
           res_whd = (ulongT)nwidth*nheight*ndepth,
           res_size = res_whd*res._spectrum;
@@ -38019,6 +38018,7 @@ namespace cimg_library_suffixed {
       } else _kernel = kernel.get_shared();
 
       if (_kernel._width==_kernel._height && _kernel._width>1 && _kernel._height>1 &&
+          (_kernel._width%2) && (_kernel._height%2) && (_kernel._depth%2) &&
           ((_kernel._depth==1 && _kernel._width<=5) || (_kernel._depth==_kernel._width && _kernel._width<=3)) &&
           boundary_conditions<=1 && channel_mode==1 &&
           _xcenter==_kernel.width()/2 - 1 + (_kernel.width()%2) &&
@@ -38026,17 +38026,12 @@ namespace cimg_library_suffixed {
           _zcenter==_kernel.depth()/2 - 1 + (_kernel.depth()%2) &&
           is_int_stride_dilation && _xdilation>=0 && _ydilation>=0 && _zdilation>=0) {
 
-        // Optimized versions for centered 2x2, 3x3, 4x4, 5x5, 2x2x2 and 3x3x3 kernels.
-        const int dw = 1 - (_kernel.width()%2), dh = 1 - (_kernel.height()%2), dd = 1 - (_kernel.depth()%2);
-        if (dw || dh || dd) // Force kernel size to be odd
-          _kernel.get_resize(_kernel.width() + dw,_kernel.height() + dh,_kernel.depth() + dd,_kernel.spectrum(),
-                             0,0,1,1,1).move_to(_kernel.assign());
-
+        // Optimized versions for centered 3x3, 5x5 and 3x3x3 kernels.
         if (!boundary_conditions) { // Dirichlet -> Add a 1px zero border, then use _correlate() with Neumann
           const int
-            dx = _kernel._width==1?0:1,
-            dy = _kernel._height==1?0:1,
-            dz = _kernel._depth==1?0:1;
+            dx = (_kernel._width%2)==1?0:1,
+            dy = (_kernel._height%2)==1?0:1,
+            dz = (_kernel._depth%2)==1?0:1;
           return get_crop(-dx,-dy,-dz,width() - 1 + dx,height() - 1 + dy,depth() - 1 + dz).
             _correlate(_kernel,true,is_normalized,channel_mode,_xcenter,_ycenter,_zcenter,
                        _xstart + dx,_ystart + dy,_zstart + dz,_xend + dx,_yend + dy,_zend + dz,
@@ -38237,6 +38232,7 @@ namespace cimg_library_suffixed {
           Ttfloat M = 0, M2 = 0;
           if (is_normalized) { M = (Ttfloat)K.magnitude(2); M2 = M*M; }
           if (boundary_conditions>=3) { w2 = 2*I.width(); h2 = 2*I.height(); d2 = 2*I.depth(); }
+
           cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
             cimg_forXYZ(res,x,y,z) {
             Ttfloat _val, val = 0, N = 0;
@@ -38264,20 +38260,19 @@ namespace cimg_library_suffixed {
               }
             else
               cimg_forXYZ(_kernel,p,q,r) {
-                const int
-                  ix = (int)(xstart + xstride*x + xdilation*(p - _xcenter)),
-                  iy = (int)(ystart + ystride*y + ydilation*(q - _ycenter)),
-                  iz = (int)(zstart + zstride*z + zdilation*(r - _zcenter));
-                switch (boundary_conditions) {
-                case 0 : _val = I.atXYZ(ix,iy,iz,0,0); break; // Dirichlet
-                case 1 : _val = I._atXYZ(ix,iy,iz); break; // Neumann
-                case 2 : _val = I(cimg::mod(ix,I.width()),cimg::mod(iy,I.height()), // Periodic
-                                  cimg::mod(iz,I.depth())); break;
+                const float
+                  ix = xstart + xstride*x + xdilation*(p - _xcenter),
+                  iy = ystart + ystride*y + ydilation*(q - _ycenter),
+                  iz = zstart + zstride*z + zdilation*(r - _zcenter);
+              switch (boundary_conditions) {
+                case 0 : _val = I.linear_atXYZ(ix,iy,iz,0,0); break; // Dirichlet
+                case 1 : _val = I._linear_atXYZ(ix,iy,iz); break; // Neumann
+                case 2 : _val = I._linear_atXYZ_p(ix,iy,iz); break; // Periodic
                 default : { // Mirror
                   const int mx = cimg::mod(ix,w2), my = cimg::mod(iy,h2), mz = cimg::mod(iz,d2);
-                  _val = I(mx<I.width()?mx:w2 - mx - 1,
-                           my<I.height()?my:h2 - my - 1,
-                           mz<I.depth()?mz:d2 - mz - 1);
+                  _val = I.linear_atXYZ(mx<I.width()?mx:w2 - mx - 1,
+                                        my<I.height()?my:h2 - my - 1,
+                                        mz<I.depth()?mz:d2 - mz - 1);
                 }
                 }
                 val+=_val*K(p,q,r);

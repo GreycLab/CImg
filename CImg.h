@@ -19124,10 +19124,11 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"begin(",6)) { // Begin
               _cimg_mp_op("Function 'begin()'");
-              if (ss6!=se1) {
+              s1 = ss6; while (s1<se1 && cimg::is_blank(*s1)) ++s1;
+              if (s1!=se1) {
                 const bool is_inside_begin = (bool)(bloc_flags&2);
                 if (!is_inside_begin) code.swap(code_begin);
-                arg1 = compile(ss6,se1,depth1,p_ref,2);
+                arg1 = compile(s1,se1,depth1,p_ref,2);
                 if (!is_inside_begin) code.swap(code_begin);
                 _cimg_mp_return(arg1);
               } else _cimg_mp_return_nan();
@@ -19135,10 +19136,11 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"begin_t(",8)) { // Begin thread
               _cimg_mp_op("Function 'begin_t()'");
-              if (ss8!=se1) {
+              s1 = ss8; while (s1<se1 && cimg::is_blank(*s1)) ++s1;
+              if (s1!=se1) {
                 const bool is_inside_begin_t = (bool)(bloc_flags&4);
                 if (!is_inside_begin_t) code.swap(code_begin_t);
-                arg1 = compile(ss8,se1,depth1,p_ref,4);
+                arg1 = compile(s1,se1,depth1,p_ref,4);
                 if (!is_inside_begin_t) code.swap(code_begin_t);
                 _cimg_mp_return(arg1);
               } else _cimg_mp_return_nan();
@@ -20044,10 +20046,11 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"end(",4)) { // End
               _cimg_mp_op("Function 'end()'");
-              if (ss4!=se1) {
+              s1 = ss4; while (s1<se1 && cimg::is_blank(*s1)) ++s1;
+              if (s1!=se1) {
                 const bool is_inside_end = (bool)(bloc_flags&8);
                 if (!is_inside_end) code.swap(code_end);
-                compile(ss4,se1,depth1,p_ref,8);
+                compile(s1,se1,depth1,p_ref,8);
                 if (!is_inside_end) code.swap(code_end);
                 is_end_code = true;
               }
@@ -20056,10 +20059,11 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"end_t(",6)) { // End thread
               _cimg_mp_op("Function 'end_t()'");
-              if (ss6!=se1) {
+              s1 = ss6; while (s1<se1 && cimg::is_blank(*s1)) ++s1;
+              if (ss1!=se1) {
                 const bool is_inside_end = (bool)(bloc_flags&16);
                 if (!is_inside_end) code.swap(code_end_t);
-                compile(ss6,se1,depth1,p_ref,16);
+                compile(ss1,se1,depth1,p_ref,16);
                 if (!is_inside_end) code.swap(code_end_t);
                 is_end_code = true;
               }

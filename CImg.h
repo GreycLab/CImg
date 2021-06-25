@@ -20060,10 +20060,10 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"end_t(",6)) { // End thread
               _cimg_mp_op("Function 'end_t()'");
               s1 = ss6; while (s1<se1 && cimg::is_blank(*s1)) ++s1;
-              if (ss1!=se1) {
+              if (s1!=se1) {
                 const bool is_inside_end = (bool)(bloc_flags&16);
                 if (!is_inside_end) code.swap(code_end_t);
-                compile(ss1,se1,depth1,p_ref,16);
+                compile(s1,se1,depth1,p_ref,16);
                 if (!is_inside_end) code.swap(code_end_t);
                 is_end_code = true;
               }

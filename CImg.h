@@ -19124,10 +19124,11 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"begin(",6)) { // Begin
               _cimg_mp_op("Function 'begin()'");
-              if (ss6!=se1) {
+              s1 = ss6; while (s1<se1 && cimg::is_blank(*s1)) ++s1;
+              if (s1!=se1) {
                 const bool is_inside_begin = (bool)(bloc_flags&2);
                 if (!is_inside_begin) code.swap(code_begin);
-                arg1 = compile(ss6,se1,depth1,p_ref,2);
+                arg1 = compile(s1,se1,depth1,p_ref,2);
                 if (!is_inside_begin) code.swap(code_begin);
                 _cimg_mp_return(arg1);
               } else _cimg_mp_return_nan();
@@ -19135,10 +19136,11 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"begin_t(",8)) { // Begin thread
               _cimg_mp_op("Function 'begin_t()'");
-              if (ss8!=se1) {
+              s1 = ss8; while (s1<se1 && cimg::is_blank(*s1)) ++s1;
+              if (s1!=se1) {
                 const bool is_inside_begin_t = (bool)(bloc_flags&4);
                 if (!is_inside_begin_t) code.swap(code_begin_t);
-                arg1 = compile(ss8,se1,depth1,p_ref,4);
+                arg1 = compile(s1,se1,depth1,p_ref,4);
                 if (!is_inside_begin_t) code.swap(code_begin_t);
                 _cimg_mp_return(arg1);
               } else _cimg_mp_return_nan();
@@ -20044,10 +20046,11 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"end(",4)) { // End
               _cimg_mp_op("Function 'end()'");
-              if (ss4!=se1) {
+              s1 = ss4; while (s1<se1 && cimg::is_blank(*s1)) ++s1;
+              if (s1!=se1) {
                 const bool is_inside_end = (bool)(bloc_flags&8);
                 if (!is_inside_end) code.swap(code_end);
-                compile(ss4,se1,depth1,p_ref,8);
+                compile(s1,se1,depth1,p_ref,8);
                 if (!is_inside_end) code.swap(code_end);
                 is_end_code = true;
               }
@@ -20056,10 +20059,11 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"end_t(",6)) { // End thread
               _cimg_mp_op("Function 'end_t()'");
-              if (ss6!=se1) {
+              s1 = ss6; while (s1<se1 && cimg::is_blank(*s1)) ++s1;
+              if (s1!=se1) {
                 const bool is_inside_end = (bool)(bloc_flags&16);
                 if (!is_inside_end) code.swap(code_end_t);
-                compile(ss6,se1,depth1,p_ref,16);
+                compile(s1,se1,depth1,p_ref,16);
                 if (!is_inside_end) code.swap(code_end_t);
                 is_end_code = true;
               }
@@ -37974,7 +37978,6 @@ namespace cimg_library_suffixed {
                                     cimg_instance,
                                     is_convolve?"convolve":"correlate",
                                     xstride,ystride,zstride);
-
       const int
         _xstart = (int)std::min(xstart,_width - 1),
         _ystart = (int)std::min(ystart,_height - 1),
@@ -38028,13 +38031,11 @@ namespace cimg_library_suffixed {
 
         // Optimized versions for centered 3x3, 5x5 and 3x3x3 kernels.
         if (!boundary_conditions) { // Dirichlet -> Add a 1px zero border, then use _correlate() with Neumann
-          const int
-            dx = (_kernel._width%2)==1?0:1,
-            dy = (_kernel._height%2)==1?0:1,
-            dz = (_kernel._depth%2)==1?0:1;
-          return get_crop(-dx,-dy,-dz,width() - 1 + dx,height() - 1 + dy,depth() - 1 + dz).
+          const int dz = kernel.depth()>1?1:0;
+          return get_crop(-1,-1,dz?-1:0,width(),height(),depth() - 1 + dz).
             _correlate(_kernel,true,is_normalized,channel_mode,_xcenter,_ycenter,_zcenter,
-                       _xstart + dx,_ystart + dy,_zstart + dz,_xend + dx,_yend + dy,_zend + dz,
+                       _xstart + 1,_ystart + 1,_zstart + dz,
+                       _xend + 1,_yend + 1,_zend + dz,
                        xstride,ystride,zstride,xdilation,ydilation,zdilation,false);
 
         } else { // Neumann boundaries

@@ -22641,16 +22641,27 @@ namespace cimg_library_suffixed {
                           const unsigned int mode,
                           char *const ss, char *const se, const char saved_char) {
         _cimg_mp_check_type(arg,n_arg,1,0);
-        if (!(_cimg_mp_is_constant(arg) &&
-              (!mode || (double)(int)mem[arg]==mem[arg]) &&
+        if (!_cimg_mp_is_constant(arg)) {
+          const char *const s_arg = s_argth(n_arg);
+          char *s0; _cimg_mp_strerr;
+          throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                      "CImg<%s>::%s: %s%s %s%s (of type '%s') is not a constant, "
+                                      "in expression '%s%s%s'.",
+                                      pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",
+                                      s_arg,*s_arg?" argument":" Argument",s_type(arg)._data,
+                                      s0>expr._data?"...":"",s0,se<&expr.back()?"...":"");
+        }
+        const double val = mem[arg];
+
+        if (!((!mode || (double)(int)mem[arg]==mem[arg]) &&
               (mode<2 || mem[arg]>=(mode==3)))) {
           const char *const s_arg = s_argth(n_arg);
           char *s0; _cimg_mp_strerr;
           throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                      "CImg<%s>::%s: %s%s %s%s (of type '%s') is not a%s constant, "
+                                      "CImg<%s>::%s: %s%s %s%s (of type '%s' and value '%g') is not a%s constant, "
                                       "in expression '%s%s%s'.",
                                       pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",
-                                      s_arg,*s_arg?" argument":" Argument",s_type(arg)._data,
+                                      s_arg,*s_arg?" argument":" Argument",s_type(arg)._data,val,
                                       !mode?"":mode==1?"n integer":
                                       mode==2?" positive integer":" strictly positive integer",
                                       s0>expr._data?"...":"",s0,se<&expr.back()?"...":"");

@@ -19620,9 +19620,9 @@ namespace cimg_library_suffixed {
                                             s0>expr._data?"...":"",s0,se<&expr.back()?"...":"");
               }
 
-              arg2 = (unsigned int)std::floor((xend - xstart + 1)/xstride);
-              arg3 = (unsigned int)std::floor((yend - ystart + 1)/ystride);
-              arg4 = (unsigned int)std::floor((zend + zstart + 1)/zstride);
+              arg2 = std::max(1U,(unsigned int)std::floor((xend - xstart + 1)/xstride));
+              arg3 = std::max(1U,(unsigned int)std::floor((yend - ystart + 1)/ystride));
+              arg4 = std::max(1U,(unsigned int)std::floor((zend + zstart + 1)/zstride));
               arg5 = channel_mode==0?1U:channel_mode==1?std::max(sA,sM):sA*sM;
 
               opcode[1] = pos = vector(arg2*arg3*arg4*arg5);
@@ -37985,19 +37985,21 @@ namespace cimg_library_suffixed {
         _xend = (int)std::min(xend,_width - 1),
         _yend = (int)std::min(yend,_height - 1),
         _zend = (int)std::min(zend,_depth - 1),
-        nwidth = (int)std::floor((_xend - _xstart + 1)/xstride),
-        nheight = (int)std::floor((_yend - _ystart + 1)/ystride),
-        ndepth = (int)std::floor((_zend + _zstart + 1)/zstride),
+        nwidth = std::max(1,(int)std::floor((_xend - _xstart + 1)/xstride)),
+        nheight = std::max(1,(int)std::floor((_yend - _ystart + 1)/ystride)),
+        ndepth = std::max(1,(int)std::floor((_zend + _zstart + 1)/zstride)),
         _xstride = (int)cimg::round(xstride),
         _ystride = (int)cimg::round(ystride),
         _zstride = (int)cimg::round(zstride);
-        const ulongT
-          res_whd = (ulongT)nwidth*nheight*ndepth,
-          res_size = res_whd*res._spectrum;
-        const bool
-          is_inner_parallel = res_whd>=(cimg_openmp_sizefactor)*32768,
-          is_outer_parallel = res_size>=(cimg_openmp_sizefactor)*32768;
-        cimg::unused(is_inner_parallel,is_outer_parallel);
+      const ulongT
+        res_whd = (ulongT)nwidth*nheight*ndepth,
+        res_size = res_whd*res._spectrum;
+      const bool
+        is_inner_parallel = res_whd>=(cimg_openmp_sizefactor)*32768,
+        is_outer_parallel = res_size>=(cimg_openmp_sizefactor)*32768;
+      cimg::unused(is_inner_parallel,is_outer_parallel);
+
+      if (!res_whd) return CImg<Ttfloat>();
 
       int
         _xcenter = xcenter==~0U?kernel.width()/2 - 1 + (kernel.width()%2):(int)std::min(xcenter,kernel._width - 1),

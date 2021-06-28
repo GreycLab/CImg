@@ -38007,7 +38007,7 @@ namespace cimg_library_suffixed {
         res_size = res_whd*res._spectrum;
       const bool
         is_inner_parallel = res_whd>=(cimg_openmp_sizefactor)*32768,
-        is_outer_parallel = res_size>=(cimg_openmp_sizefactor)*32768;
+        is_outer_parallel = res._spectrum>1 && res_size>=(cimg_openmp_sizefactor)*32768;
       cimg::unused(is_inner_parallel,is_outer_parallel);
 
       if (!res_whd) return CImg<Ttfloat>();
@@ -38056,6 +38056,7 @@ namespace cimg_library_suffixed {
 
           switch (_kernel._depth) {
           case 3 : { // 3x3x3 centered kernel
+            cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
             cimg_forC(res,c) {
               cimg_abort_test;
               const CImg<T> I = get_shared_channel(c%_spectrum);
@@ -38064,7 +38065,7 @@ namespace cimg_library_suffixed {
               CImg<Ttfloat> _res = res.get_shared_channel(c);
               if (is_normalized) {
                 const Ttfloat M = (Ttfloat)K.magnitude(2), M2 = M*M;
-                cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(_res.size(),16384))
+                cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
                   cimg_forXYZ(res,X,Y,Z) {
                   const int
                     x = _xstart + _xstride*X, y = _ystart + _ystride*Y, z = _zstart + _zstride*Z,
@@ -38091,7 +38092,7 @@ namespace cimg_library_suffixed {
                                              K[24]*I(px,ny,nz) + K[25]*I(x,ny,nz) + K[26]*I(nx,ny,nz))/std::sqrt(N):0);
                 }
               } else {
-                cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if_size(_res.size(),16384))
+                cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
                   cimg_forXYZ(res,X,Y,Z) {
                   const int
                     x = _xstart + _xstride*X, y = _ystart + _ystride*Y, z = _zstart + _zstride*Z,
@@ -38116,6 +38117,7 @@ namespace cimg_library_suffixed {
           case 1 :
             switch (_kernel._width) {
             case 5 : { // 5x5 centered kernel
+              cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
               cimg_forC(res,c) {
                 cimg_abort_test;
                 const CImg<T> I = get_shared_channel(c%_spectrum);
@@ -38124,7 +38126,7 @@ namespace cimg_library_suffixed {
                 CImg<Ttfloat> _res = res.get_shared_channel(c);
                 if (is_normalized) {
                   const Ttfloat M = (Ttfloat)K.magnitude(2), M2 = M*M;
-                  cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(_res.size(),16384))
+                  cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
                   cimg_forXYZ(res,X,Y,z) {
                     const int
                       x = _xstart + _xstride*X, y = _ystart + _ystride*Y,
@@ -38154,7 +38156,7 @@ namespace cimg_library_suffixed {
                                                K[23]*I(nx,ay,z) + K[24]*I(ax,ay,z))/std::sqrt(N):0);
                   }
                 } else {
-                  cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if_size(_res.size(),16384))
+                  cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
                     cimg_forXYZ(res,X,Y,z) {
                     const int
                       x = _xstart + _xstride*X, y = _ystart + _ystride*Y,
@@ -38178,6 +38180,7 @@ namespace cimg_library_suffixed {
             } break;
 
             case 3 : { // 3x3 centered kernel
+              cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
               cimg_forC(res,c) {
                 cimg_abort_test;
                 const CImg<T> I = get_shared_channel(c%_spectrum);
@@ -38186,7 +38189,7 @@ namespace cimg_library_suffixed {
                 const int w1 = I.width() - 1, h1 = I.height() - 1;
                 if (is_normalized) {
                   const Ttfloat M = (Ttfloat)K.magnitude(2), M2 = M*M;
-                  cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(_res.size(),16384))
+                  cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
                   cimg_forXYZ(res,X,Y,z) {
                     const int
                       x = _xstart + _xstride*X, y = _ystart + _ystride*Y,
@@ -38200,7 +38203,7 @@ namespace cimg_library_suffixed {
                                                K[6]*I(px,ny,z) + K[7]*I(x,ny,z) + K[8]*I(nx,ny,z))/std::sqrt(N):0);
                   }
                 } else {
-                  cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if_size(_res.size(),16384))
+                  cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
                   cimg_forXYZ(res,X,Y,z) {
                     const int
                       x = _xstart + _xstride*X, y = _ystart + _ystride*Y,
@@ -38237,7 +38240,7 @@ namespace cimg_library_suffixed {
                    channel_mode==1?std::max(_spectrum,_kernel._spectrum):
                    _spectrum*_kernel._spectrum);
 
-        cimg_pragma_openmp(parallel for cimg_openmp_if(!is_inner_parallel && is_outer_parallel))
+        cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
           cimg_forC(res,c) _cimg_abort_try_openmp {
           cimg_abort_test;
           const CImg<T> I = get_shared_channel(c%_spectrum);

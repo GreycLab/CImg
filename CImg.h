@@ -37977,7 +37977,7 @@ namespace cimg_library_suffixed {
                          xcenter,ycenter,zcenter,xstart,ystart,zstart,xend,yend,zend,xstride,ystride,zstride,
                          xdilation,ydilation,zdilation,is_convolve);
         CImg<Ttfloat> res0 = res.get_shared_channel(0);
-        cimg_for_inC(res,1,res.spectrum()-1,c) res0+=res.get_shared_channel(c);
+        cimg_for_inC(res,1,res.spectrum() - 1,c) res0+=res.get_shared_channel(c);
         return res.channel(0);
       }
 
@@ -38260,7 +38260,7 @@ namespace cimg_library_suffixed {
             cimg_forXYZ(res,x,y,z) {
             Ttfloat _val, val = 0, N = 0;
 
-            if (is_int_stride_dilation)
+            if (is_int_stride_dilation) // Integer stride and dilation
               cimg_forXYZ(_kernel,p,q,r) {
                 const int
                   ix = _xstart + _xstride*x + _xdilation*(p - _xcenter),
@@ -38281,13 +38281,13 @@ namespace cimg_library_suffixed {
                 val+=_val*K(p,q,r);
                 if (is_normalized) N+=_val*_val;
               }
-            else
+            else // Non-integer stride or dilation
               cimg_forXYZ(_kernel,p,q,r) {
                 const float
                   ix = _xstart + xstride*x + xdilation*(p - _xcenter),
                   iy = _ystart + ystride*y + ydilation*(q - _ycenter),
                   iz = _zstart + zstride*z + zdilation*(r - _zcenter);
-              switch (boundary_conditions) {
+                switch (boundary_conditions) {
                 case 0 : _val = I.linear_atXYZ(ix,iy,iz,0,0); break; // Dirichlet
                 case 1 : _val = I._linear_atXYZ(ix,iy,iz); break; // Neumann
                 case 2 : _val = I._linear_atXYZ_p(ix,iy,iz); break; // Periodic

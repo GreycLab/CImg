@@ -38039,6 +38039,27 @@ namespace cimg_library_suffixed {
         _zcenter = kernel.depth() - 1 - _zcenter;
       } else _kernel = kernel.get_shared();
 
+
+      // Determine out-of-boundary accesses.
+/*
+      const int
+        x0 = (int)std::floor(_xstart + std::min(-xdilation*_xcenter,xdilation*(kernel.width() - 1 -_xcenter))),
+        y0 = (int)std::floor(_ystart + std::min(-ydilation*_ycenter,ydilation*(kernel.height() - 1 -_ycenter))),
+        z0 = (int)std::floor(_zstart + std::min(-zdilation*_zcenter,zdilation*(kernel.depth() - 1 -_zcenter))),
+        x1 = (int)std::ceil(_xstart + xstride*(width() - 1) + std::max(-xdilation*_xcenter,xdilation*(kernel.width() - 1 -_xcenter))),
+        y1 = (int)std::ceil(_ystart + ystride*(height() - 1) + std::max(-ydilation*_ycenter,ydilation*(kernel.height() - 1 -_ycenter))),
+        z1 = (int)std::ceil(_zstart + zstride*(depth() - 1) + std::max(-zdilation*_zcenter,zdilation*(kernel.depth() - 1 -_zcenter)));
+      if (x0<0 || y0<0 || z0<0 || x1>=width() || y1>=height() || z1>=depth()) {
+        const int
+        nw = x1 - x0 + 1,
+          nh = y1 - y0 + 1,
+          nd = z1 - z0 + 1;
+        std::fprintf(stderr,"\nDEBUG : min = (%d,%d,%d), max = (%d,%d,%d) -> (%d,%d,%d)\n",
+                     x0,y0,z0,x1,y1,z1,nw,nh,nd);
+      }
+*/
+
+
       if (_kernel._width==_kernel._height && _kernel._width>1 && _kernel._height>1 &&
           (_kernel._width%2) && (_kernel._height%2) && (_kernel._depth%2) &&
           ((_kernel._depth==1 && _kernel._width<=5) || (_kernel._depth==_kernel._width && _kernel._width<=3)) &&

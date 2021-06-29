@@ -38048,6 +38048,7 @@ namespace cimg_library_suffixed {
           _zcenter==_kernel.depth()/2 - 1 + (_kernel.depth()%2) &&
           is_int_stride_dilation && _xdilation>=0 && _ydilation>=0 && _zdilation>=0) {
 
+//      if (false) {
         // Optimized versions for centered 3x3, 5x5 and 3x3x3 kernels.
         if (!boundary_conditions) { // Dirichlet -> Add a 1px zero border, then use _correlate() with Neumann
           const int dz = kernel.depth()>1?1:0;

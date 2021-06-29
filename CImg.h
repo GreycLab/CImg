@@ -38005,24 +38005,24 @@ namespace cimg_library_suffixed {
       const ulongT
         res_whd = (ulongT)nwidth*nheight*ndepth,
         res_size = res_whd*res._spectrum;
-      const bool
-        is_inner_parallel = res_whd>=(cimg_openmp_sizefactor)*32768,
-        is_outer_parallel = res._spectrum>1 && res_size>=(cimg_openmp_sizefactor)*32768;
-      cimg::unused(is_inner_parallel,is_outer_parallel);
 
       if (!res_whd) return CImg<Ttfloat>();
+
+      const int
+        _xdilation = (int)cimg::round(xdilation),
+        _ydilation = (int)cimg::round(ydilation),
+        _zdilation = (int)cimg::round(zdilation);
+      const bool
+        is_inner_parallel = res_whd>=(cimg_openmp_sizefactor)*32768,
+        is_outer_parallel = res._spectrum>1 && res_size>=(cimg_openmp_sizefactor)*32768,
+        is_int_stride_dilation = xstride==_xstride && ystride==_ystride && zstride==_zstride &&
+        xdilation==_xdilation && ydilation==_ydilation && zdilation==_zdilation;
+      cimg::unused(is_inner_parallel,is_outer_parallel);
 
       int
         _xcenter = xcenter==~0U?kernel.width()/2 - 1 + (kernel.width()%2):(int)std::min(xcenter,kernel._width - 1),
         _ycenter = ycenter==~0U?kernel.height()/2 - 1 + (kernel.height()%2):(int)std::min(ycenter,kernel._height - 1),
-        _zcenter = zcenter==~0U?kernel.depth()/2 - 1 + (kernel.depth()%2):(int)std::min(zcenter,kernel._depth - 1),
-        _xdilation = (int)cimg::round(xdilation),
-        _ydilation = (int)cimg::round(ydilation),
-        _zdilation = (int)cimg::round(zdilation);
-
-      const bool is_int_stride_dilation =
-        xstride==_xstride && ystride==_ystride && zstride==_zstride &&
-        xdilation==_xdilation && ydilation==_ydilation && zdilation==_zdilation;
+        _zcenter = zcenter==~0U?kernel.depth()/2 - 1 + (kernel.depth()%2):(int)std::min(zcenter,kernel._depth - 1);
 
       CImg<t> _kernel;
       if (is_convolve) { // If convolution, go back to correlation

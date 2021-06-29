@@ -153,11 +153,11 @@ VT100_CFLAGS = -Dcimg_use_vt100
 # Flags to enable code optimization by the compiler.
 OPT_CFLAGS = -Ofast
 ifdef IS_GCC
-#if !defined(__loongarch__)
-OPT_CFLAGS = -Ofast -mtune=generic
-#else
-OPT_CFLAGS = -Ofast 
-#endif
+# Add -mtune=generic for GCC if supported.
+NO_MTUNE_GENERIC = $(shell $(CXX) -mtune=generic -E - < /dev/null > /dev/null 2>&1; echo $$?)
+ifeq ($(NO_MTUNE_GENERIC),0)
+OPT_CFLAGS += -mtune=generic
+endif
 endif
 ifdef IS_ICPC
 OPT_CFLAGS = -fast

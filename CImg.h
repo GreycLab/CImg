@@ -19523,7 +19523,7 @@ namespace cimg_library_suffixed {
                                                 0,0,0,0,0, // [2]=A, [3]=wA, [4]=hA, [5]=dA, [6]=sA
                                                 0,0,0,0,0, // [7]=M, [8]=wM, [9]=hM, [10]=dM, [11]=sM
                                                 1,0,1, // [12]=boundary_conditions, [13]=is_normalized, [14]=chan._mode
-                                                11,11,11, // [15]=xcenter, [16]=ycenter, [17]=zcenter (default value:-1)
+                                                ~0U,~0U,~0U, // [15]=xcenter, [16]=ycenter, [17]=zcenter
                                                 0,0,0, // [18]=xstart, [19]=ystart, [20]=zstart
                                                 11,11,11, // [21]=xend, [22]=yend, [23]=zend (default value: -1)
                                                 1,1,1, // [24]=xstride, [25]=ystride, [26]=zstride
@@ -19588,12 +19588,12 @@ namespace cimg_library_suffixed {
                 dM = (unsigned int)mem[opcode[10]],
                 sM = (unsigned int)mem[opcode[11]],
                 channel_mode = (unsigned int)mem[opcode[14]],
-                xstart = std::min((unsigned int)mem[opcode[18]],wA - 1),
-                ystart = std::min((unsigned int)mem[opcode[19]],hA - 1),
-                zstart = std::min((unsigned int)mem[opcode[20]],dA - 1),
-                xend = std::min((unsigned int)mem[opcode[21]],wA - 1),
-                yend = std::min((unsigned int)mem[opcode[22]],hA - 1),
-                zend = std::min((unsigned int)mem[opcode[23]],dA - 1);
+                xstart = (unsigned int)std::max(mem[opcode[18]],0.),
+                ystart = (unsigned int)std::max(mem[opcode[19]],0.),
+                zstart = (unsigned int)std::max(mem[opcode[20]],0.),
+                xend = std::max((int)mem[opcode[21]],0),
+                yend = std::max((int)mem[opcode[22]],0),
+                zend = std::max((int)mem[opcode[23]],0);
 
               if (xstart>xend || ystart>yend || zstart>zend) {
                 _cimg_mp_strerr;
@@ -23453,9 +23453,6 @@ namespace cimg_library_suffixed {
           sM = (unsigned int)mp.opcode[11],
           boundary_conditions = (unsigned int)_mp_arg(12),
           channel_mode = (unsigned int)mp.opcode[14],
-          xcenter = (unsigned int)_mp_arg(15),
-          ycenter = (unsigned int)_mp_arg(16),
-          zcenter = (unsigned int)_mp_arg(17),
           xstart = (unsigned int)mp.opcode[18],
           ystart = (unsigned int)mp.opcode[19],
           zstart = (unsigned int)mp.opcode[20],
@@ -23464,6 +23461,10 @@ namespace cimg_library_suffixed {
           zend = (unsigned int)mp.opcode[23];
         const bool
           is_normalized = (bool)_mp_arg(13);
+        const int
+          xcenter = mp.opcode[15]!=~0U?(int)_mp_arg(15):(int)(wM/2 - 1 + (wM%2)),
+          ycenter = mp.opcode[16]!=~0U?(int)_mp_arg(16):(int)(hM/2 - 1 + (hM%2)),
+          zcenter = mp.opcode[17]!=~0U?(int)_mp_arg(17):(int)(dM/2 - 1 + (dM%2));
         const float
           xstride = (float)_mp_arg(24),
           ystride = (float)_mp_arg(25),
@@ -37926,7 +37927,9 @@ namespace cimg_library_suffixed {
     template<typename t>
     CImg<T>& correlate(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                        const bool is_normalized=false, const unsigned int channel_mode=1,
-                       const unsigned int xcenter=~0U, const unsigned int ycenter=~0U, const unsigned int zcenter=~0U,
+                       const int xcenter=cimg::type<int>::min(),
+                       const int ycenter=cimg::type<int>::min(),
+                       const int zcenter=cimg::type<int>::min(),
                        const unsigned int xstart=0, const unsigned int ystart=0, const unsigned zstart=0,
                        const unsigned int xend=~0U, const unsigned int yend=~0U, const unsigned int zend=~0U,
                        const float xstride=1, const float ystride=1, const float zstride=1,
@@ -37940,8 +37943,9 @@ namespace cimg_library_suffixed {
     template<typename t>
     CImg<_cimg_Ttfloat> get_correlate(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                                       const bool is_normalized=false, const unsigned int channel_mode=1,
-                                      const unsigned int xcenter=~0U, const unsigned int ycenter=~0U,
-                                      const unsigned int zcenter=~0U,
+                                      const int xcenter=cimg::type<int>::min(),
+                                      const int ycenter=cimg::type<int>::min(),
+                                      const int zcenter=cimg::type<int>::min(),
                                       const unsigned int xstart=0, const unsigned int ystart=0, const unsigned zstart=0,
                                       const unsigned int xend=~0U, const unsigned int yend=~0U,
                                       const unsigned int zend=~0U,
@@ -37956,7 +37960,7 @@ namespace cimg_library_suffixed {
     template<typename t>
     CImg<_cimg_Ttfloat> _correlate(const CImg<t>& kernel, const unsigned int boundary_conditions,
                                    const bool is_normalized, const unsigned int channel_mode,
-                                   const unsigned int xcenter, const unsigned int ycenter, const unsigned int zcenter,
+                                   const int xcenter, const int ycenter, const int zcenter,
                                    const unsigned int xstart, const unsigned int ystart, const unsigned zstart,
                                    const unsigned int xend, const unsigned int yend, const unsigned int zend,
                                    const float xstride, const float ystride, const float zstride,
@@ -37990,18 +37994,19 @@ namespace cimg_library_suffixed {
                                     is_convolve?"convolve":"correlate",
                                     xstride,ystride,zstride);
       const int
-        _xstart = (int)std::min(xstart,_width - 1),
-        _ystart = (int)std::min(ystart,_height - 1),
-        _zstart = (int)std::min(zstart,_depth - 1),
-        _xend = (int)std::min(xend,_width - 1),
-        _yend = (int)std::min(yend,_height - 1),
-        _zend = (int)std::min(zend,_depth - 1),
+        _xstart = (int)xstart,
+        _ystart = (int)ystart,
+        _zstart = (int)zstart,
+        _xend = xend==~0U?width() - 1:xend,
+        _yend = yend==~0U?height() - 1:yend,
+        _zend = zend==~0U?depth() - 1:zend,
         nwidth = std::max(1,(int)std::floor((_xend - _xstart + 1)/xstride)),
         nheight = std::max(1,(int)std::floor((_yend - _ystart + 1)/ystride)),
         ndepth = std::max(1,(int)std::floor((_zend + _zstart + 1)/zstride)),
         _xstride = (int)cimg::round(xstride),
         _ystride = (int)cimg::round(ystride),
         _zstride = (int)cimg::round(zstride);
+
       const ulongT
         res_whd = (ulongT)nwidth*nheight*ndepth,
         res_size = res_whd*res._spectrum;
@@ -38020,9 +38025,12 @@ namespace cimg_library_suffixed {
       cimg::unused(is_inner_parallel,is_outer_parallel);
 
       int
-        _xcenter = xcenter==~0U?kernel.width()/2 - 1 + (kernel.width()%2):(int)std::min(xcenter,kernel._width - 1),
-        _ycenter = ycenter==~0U?kernel.height()/2 - 1 + (kernel.height()%2):(int)std::min(ycenter,kernel._height - 1),
-        _zcenter = zcenter==~0U?kernel.depth()/2 - 1 + (kernel.depth()%2):(int)std::min(zcenter,kernel._depth - 1);
+        _xcenter = xcenter==cimg::type<int>::min()?kernel.width()/2 - 1 + (kernel.width()%2):
+        std::min(xcenter,kernel.width() - 1),
+        _ycenter = ycenter==cimg::type<int>::min()?kernel.height()/2 - 1 + (kernel.height()%2):
+        std::min(ycenter,kernel.height() - 1),
+        _zcenter = zcenter==cimg::type<int>::min()?kernel.depth()/2 - 1 + (kernel.depth()%2):
+        std::min(zcenter,kernel.depth() - 1);
 
       CImg<t> _kernel;
       if (is_convolve) { // If convolution, go back to correlation
@@ -38333,7 +38341,9 @@ namespace cimg_library_suffixed {
     template<typename t>
     CImg<T>& convolve(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                       const bool is_normalized=false, const unsigned int channel_mode=1,
-                      const unsigned int xcenter=~0U, const unsigned int ycenter=~0U, const unsigned int zcenter=~0U,
+                      const int xcenter=cimg::type<int>::min(),
+                      const int ycenter=cimg::type<int>::min(),
+                      const int zcenter=cimg::type<int>::min(),
                       const unsigned int xstart=0, const unsigned int ystart=0, const unsigned zstart=0,
                       const unsigned int xend=~0U, const unsigned int yend=~0U, const unsigned int zend=~0U,
                       const float xstride=1, const float ystride=1, const float zstride=1,
@@ -38348,13 +38358,14 @@ namespace cimg_library_suffixed {
     template<typename t>
     CImg<_cimg_Ttfloat> get_convolve(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                                      const bool is_normalized=false, const unsigned int channel_mode=1,
-                                      const unsigned int xcenter=~0U, const unsigned int ycenter=~0U,
-                                      const unsigned int zcenter=~0U,
-                                      const unsigned int xstart=0, const unsigned int ystart=0, const unsigned zstart=0,
-                                      const unsigned int xend=~0U, const unsigned int yend=~0U,
-                                      const unsigned int zend=~0U,
-                                      const float xstride=1, const float ystride=1, const float zstride=1,
-                                      const float xdilation=1, const float ydilation=1, const float zdilation=1) const {
+                                     const int xcenter=cimg::type<int>::min(),
+                                     const int ycenter=cimg::type<int>::min(),
+                                     const int zcenter=cimg::type<int>::min(),
+                                     const unsigned int xstart=0, const unsigned int ystart=0, const unsigned zstart=0,
+                                     const unsigned int xend=~0U, const unsigned int yend=~0U,
+                                     const unsigned int zend=~0U,
+                                     const float xstride=1, const float ystride=1, const float zstride=1,
+                                     const float xdilation=1, const float ydilation=1, const float zdilation=1) const {
       return _correlate(kernel,boundary_conditions,is_normalized,channel_mode,
                         xcenter,ycenter,zcenter,xstart,ystart,zstart,xend,yend,zend,
                         xstride,ystride,zstride,xdilation,ydilation,zdilation,true);

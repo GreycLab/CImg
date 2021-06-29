@@ -19525,7 +19525,7 @@ namespace cimg_library_suffixed {
                                                 1,0,1, // [12]=boundary_conditions, [13]=is_normalized, [14]=chan._mode
                                                 ~0U,~0U,~0U, // [15]=xcenter, [16]=ycenter, [17]=zcenter
                                                 0,0,0, // [18]=xstart, [19]=ystart, [20]=zstart
-                                                11,11,11, // [21]=xend, [22]=yend, [23]=zend (default value: -1)
+                                                ~0U,~0U,~0U, // [21]=xend, [22]=yend, [23]=zend
                                                 1,1,1, // [24]=xstride, [25]=ystride, [26]=zstride
                                                 1,1,1 }; // [27]=xdilation, [28]=ydilation, [29]=zdilation
 
@@ -19562,15 +19562,15 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_type(opcode[12],11,1,0); // boundary_conditions
               _cimg_mp_check_type(opcode[13],12,1,0); // is_normalized
               _cimg_mp_check_constant(opcode[14],13,1); // channel_mode
-              _cimg_mp_check_type(opcode[15],14,1,0); // xcenter
-              _cimg_mp_check_type(opcode[16],15,1,0); // ycenter
-              _cimg_mp_check_type(opcode[17],16,1,0); // zcenter
+              if (opcode[15]!=~0U) _cimg_mp_check_type(opcode[15],14,1,0); // xcenter
+              if (opcode[16]!=~0U) _cimg_mp_check_type(opcode[16],15,1,0); // ycenter
+              if (opcode[17]!=~0U) _cimg_mp_check_type(opcode[17],16,1,0); // zcenter
               _cimg_mp_check_constant(opcode[18],17,1); // xstart
               _cimg_mp_check_constant(opcode[19],18,1); // ystart
               _cimg_mp_check_constant(opcode[20],19,1); // zstart
-              _cimg_mp_check_constant(opcode[21],20,1); // xend
-              _cimg_mp_check_constant(opcode[22],21,1); // yend
-              _cimg_mp_check_constant(opcode[23],22,1); // zend
+              if (opcode[21]!=~0U) _cimg_mp_check_constant(opcode[21],20,1); // xend
+              if (opcode[22]!=~0U) _cimg_mp_check_constant(opcode[22],21,1); // yend
+              if (opcode[23]!=~0U) _cimg_mp_check_constant(opcode[23],22,1); // zend
               _cimg_mp_check_constant(opcode[24],23,0); // xstride
               _cimg_mp_check_constant(opcode[25],24,0); // ystride
               _cimg_mp_check_constant(opcode[26],25,0); // zstride
@@ -19591,9 +19591,9 @@ namespace cimg_library_suffixed {
                 xstart = (unsigned int)std::max(mem[opcode[18]],0.),
                 ystart = (unsigned int)std::max(mem[opcode[19]],0.),
                 zstart = (unsigned int)std::max(mem[opcode[20]],0.),
-                xend = std::max((int)mem[opcode[21]],0),
-                yend = std::max((int)mem[opcode[22]],0),
-                zend = std::max((int)mem[opcode[23]],0);
+                xend = opcode[21]!=~0U?std::max((int)mem[opcode[21]],0):wA - 1,
+                yend = opcode[22]!=~0U?std::max((int)mem[opcode[22]],0):hA - 1,
+                zend = opcode[23]!=~0U?std::max((int)mem[opcode[23]],0):dA - 1;
 
               if (xstart>xend || ystart>yend || zstart>zend) {
                 _cimg_mp_strerr;
@@ -38023,7 +38023,6 @@ namespace cimg_library_suffixed {
         is_int_stride_dilation = xstride==_xstride && ystride==_ystride && zstride==_zstride &&
         xdilation==_xdilation && ydilation==_ydilation && zdilation==_zdilation;
       cimg::unused(is_inner_parallel,is_outer_parallel);
-
       int
         _xcenter = xcenter==cimg::type<int>::min()?kernel.width()/2 - 1 + (kernel.width()%2):
         std::min(xcenter,kernel.width() - 1),

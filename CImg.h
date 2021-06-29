@@ -38048,7 +38048,6 @@ namespace cimg_library_suffixed {
           _zcenter==_kernel.depth()/2 - 1 + (_kernel.depth()%2) &&
           is_int_stride_dilation && _xdilation>=0 && _ydilation>=0 && _zdilation>=0) {
 
-//      if (false) {
         // Optimized versions for centered 3x3, 5x5 and 3x3x3 kernels.
         if (!boundary_conditions) { // Dirichlet -> Add a 1px zero border, then use _correlate() with Neumann
           const int dz = kernel.depth()>1?1:0;
@@ -38227,8 +38226,7 @@ namespace cimg_library_suffixed {
           }
         }
       } else if (_kernel._width==1 && _kernel._height==1 && _kernel._depth==1 &&
-                 xstride==1 && ystride==1 && zstride==1 &&
-                 xdilation==1 && ydilation==1 && zdilation==1) {
+                 xstride==1 && ystride==1 && zstride==1) {
 
         // Special optimization for 1x1 kernel.
         res = get_crop(_xstart,_ystart,_zstart,_xend,_yend,_zend);
@@ -38265,9 +38263,9 @@ namespace cimg_library_suffixed {
             if (is_int_stride_dilation)
               cimg_forXYZ(_kernel,p,q,r) {
                 const int
-                  ix = (int)xstart + _xstride*x + _xdilation*(p - _xcenter),
-                  iy = (int)ystart + _ystride*y + _ydilation*(q - _ycenter),
-                  iz = (int)zstart + _zstride*z + _zdilation*(r - _zcenter);
+                  ix = _xstart + _xstride*x + _xdilation*(p - _xcenter),
+                  iy = _ystart + _ystride*y + _ydilation*(q - _ycenter),
+                  iz = _zstart + _zstride*z + _zdilation*(r - _zcenter);
                 switch (boundary_conditions) {
                 case 0 : _val = I.atXYZ(ix,iy,iz,0,0); break; // Dirichlet
                 case 1 : _val = I._atXYZ(ix,iy,iz); break; // Neumann
@@ -38286,9 +38284,9 @@ namespace cimg_library_suffixed {
             else
               cimg_forXYZ(_kernel,p,q,r) {
                 const float
-                  ix = xstart + xstride*x + xdilation*(p - _xcenter),
-                  iy = ystart + ystride*y + ydilation*(q - _ycenter),
-                  iz = zstart + zstride*z + zdilation*(r - _zcenter);
+                  ix = _xstart + xstride*x + xdilation*(p - _xcenter),
+                  iy = _ystart + ystride*y + ydilation*(q - _ycenter),
+                  iz = _zstart + zstride*z + zdilation*(r - _zcenter);
               switch (boundary_conditions) {
                 case 0 : _val = I.linear_atXYZ(ix,iy,iz,0,0); break; // Dirichlet
                 case 1 : _val = I._linear_atXYZ(ix,iy,iz); break; // Neumann

@@ -153,7 +153,11 @@ VT100_CFLAGS = -Dcimg_use_vt100
 # Flags to enable code optimization by the compiler.
 OPT_CFLAGS = -Ofast
 ifdef IS_GCC
+#if !defined(__loongarch__)
 OPT_CFLAGS = -Ofast -mtune=generic
+#else
+OPT_CFLAGS = -Ofast 
+#endif
 endif
 ifdef IS_ICPC
 OPT_CFLAGS = -fast

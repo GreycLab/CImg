@@ -2833,7 +2833,7 @@ namespace cimg_library_suffixed {
       static bool is_nan(const int) { return false; }
       static bool is_finite(const int) { return true; }
       static int min() { return ~max(); }
-      static int max() { return (int)((unsigned int)-1>>1); }
+      static int max() { return (int)(~0U>>1); }
       static int inf() { return max(); }
       static int cut(const double val) { return val<(double)min()?min():val>(double)max()?max():(int)val; }
       static const char* format() { return "%d"; }
@@ -23462,9 +23462,9 @@ namespace cimg_library_suffixed {
         const bool
           is_normalized = (bool)_mp_arg(13);
         const int
-          xcenter = mp.opcode[15]!=~0U?(int)_mp_arg(15):(int)(wM/2 - 1 + (wM%2)),
-          ycenter = mp.opcode[16]!=~0U?(int)_mp_arg(16):(int)(hM/2 - 1 + (hM%2)),
-          zcenter = mp.opcode[17]!=~0U?(int)_mp_arg(17):(int)(dM/2 - 1 + (dM%2));
+          xcenter = mp.opcode[15]!=~0U?(int)_mp_arg(15):(int)(~0U>>1),
+          ycenter = mp.opcode[16]!=~0U?(int)_mp_arg(16):(int)(~0U>>1),
+          zcenter = mp.opcode[17]!=~0U?(int)_mp_arg(17):(int)(~0U>>1);
         const float
           xstride = (float)_mp_arg(24),
           ystride = (float)_mp_arg(25),
@@ -37904,20 +37904,20 @@ namespace cimg_library_suffixed {
        \param boundary_conditions Boundary condition. Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
        \param is_normalized = enable local normalization.
        \param channel mode Channel processing mode. Can be { 0=sum inputs | 1=one-for-one | 2=expand }
-       \param xcenter X-coordinate of the kernel center (~0U means 'centered').
+       \param xcenter X-coordinate of the kernel center (~0U>>1 means 'centered').
+       \param ycenter Y-coordinate of the kernel center (~0U>>1 means 'centered').
+       \param zcenter Z-coordinate of the kernel center (~0U>>1 means 'centered').
        \param xstart Starting X-coordinate of the instance image.
-       \param xend Ending X-coordinate of the instance image.
-       \param xstride Stride along the X-axis.
-       \param xdilation Dilation along the X-axis.
-       \param ycenter Y-coordinate of the kernel center (~0U means 'centered').
        \param ystart Starting Y-coordinate of the instance image.
-       \param yend Ending Y-coordinate of the instance image.
-       \param ystride Stride along the Y-axis.
-       \param ydilation Dilation along the Y-axis.
-       \param zcenter Z-coordinate of the kernel center (~0U means 'centered').
        \param zstart Starting Z-coordinate of the instance image.
+       \param xend Ending X-coordinate of the instance image.
+       \param yend Ending Y-coordinate of the instance image.
        \param zend Ending Z-coordinate of the instance image.
+       \param xstride Stride along the X-axis.
+       \param ystride Stride along the Y-axis.
        \param zstride Stride along the Z-axis.
+       \param xdilation Dilation along the X-axis.
+       \param ydilation Dilation along the Y-axis.
        \param zdilation Dilation along the Z-axis.
        \note
        - The correlation of the image instance \p *this by the kernel \p kernel is defined to be:
@@ -37927,9 +37927,9 @@ namespace cimg_library_suffixed {
     template<typename t>
     CImg<T>& correlate(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                        const bool is_normalized=false, const unsigned int channel_mode=1,
-                       const int xcenter=cimg::type<int>::min(),
-                       const int ycenter=cimg::type<int>::min(),
-                       const int zcenter=cimg::type<int>::min(),
+                       const int xcenter=(int)(~0U>>1),
+                       const int ycenter=(int)(~0U>>1),
+                       const int zcenter=(int)(~0U>>1),
                        const unsigned int xstart=0, const unsigned int ystart=0, const unsigned zstart=0,
                        const unsigned int xend=~0U, const unsigned int yend=~0U, const unsigned int zend=~0U,
                        const float xstride=1, const float ystride=1, const float zstride=1,
@@ -37943,9 +37943,9 @@ namespace cimg_library_suffixed {
     template<typename t>
     CImg<_cimg_Ttfloat> get_correlate(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                                       const bool is_normalized=false, const unsigned int channel_mode=1,
-                                      const int xcenter=cimg::type<int>::min(),
-                                      const int ycenter=cimg::type<int>::min(),
-                                      const int zcenter=cimg::type<int>::min(),
+                                      const int xcenter=(int)(~0U>>1),
+                                      const int ycenter=(int)(~0U>>1),
+                                      const int zcenter=(int)(~0U>>1),
                                       const unsigned int xstart=0, const unsigned int ystart=0, const unsigned zstart=0,
                                       const unsigned int xend=~0U, const unsigned int yend=~0U,
                                       const unsigned int zend=~0U,
@@ -38005,7 +38005,10 @@ namespace cimg_library_suffixed {
         ndepth = std::max(1,(int)std::floor((_zend + _zstart + 1)/zstride)),
         _xstride = (int)cimg::round(xstride),
         _ystride = (int)cimg::round(ystride),
-        _zstride = (int)cimg::round(zstride);
+        _zstride = (int)cimg::round(zstride),
+        _xdilation = (int)cimg::round(xdilation),
+        _ydilation = (int)cimg::round(ydilation),
+        _zdilation = (int)cimg::round(zdilation);
 
       const ulongT
         res_whd = (ulongT)nwidth*nheight*ndepth,
@@ -38013,10 +38016,6 @@ namespace cimg_library_suffixed {
 
       if (!res_whd) return CImg<Ttfloat>();
 
-      const int
-        _xdilation = (int)cimg::round(xdilation),
-        _ydilation = (int)cimg::round(ydilation),
-        _zdilation = (int)cimg::round(zdilation);
       const bool
         is_inner_parallel = res_whd>=(cimg_openmp_sizefactor)*32768,
         is_outer_parallel = res._spectrum>1 && res_size>=(cimg_openmp_sizefactor)*32768,
@@ -38024,11 +38023,11 @@ namespace cimg_library_suffixed {
         xdilation==_xdilation && ydilation==_ydilation && zdilation==_zdilation;
       cimg::unused(is_inner_parallel,is_outer_parallel);
       int
-        _xcenter = xcenter==cimg::type<int>::min()?kernel.width()/2 - 1 + (kernel.width()%2):
+        _xcenter = xcenter==(int)(~0U>>1)?kernel.width()/2 - 1 + (kernel.width()%2):
         std::min(xcenter,kernel.width() - 1),
-        _ycenter = ycenter==cimg::type<int>::min()?kernel.height()/2 - 1 + (kernel.height()%2):
+        _ycenter = ycenter==(int)(~0U>>1)?kernel.height()/2 - 1 + (kernel.height()%2):
         std::min(ycenter,kernel.height() - 1),
-        _zcenter = zcenter==cimg::type<int>::min()?kernel.depth()/2 - 1 + (kernel.depth()%2):
+        _zcenter = zcenter==(int)(~0U>>1)?kernel.depth()/2 - 1 + (kernel.depth()%2):
         std::min(zcenter,kernel.depth() - 1);
 
       CImg<t> _kernel;
@@ -38227,7 +38226,8 @@ namespace cimg_library_suffixed {
           }
         }
       } else if (_kernel._width==1 && _kernel._height==1 && _kernel._depth==1 &&
-                 xstride==1 && ystride==1 && zstride==1) {
+                 xstride==1 && ystride==1 && zstride==1 &&
+                 xdilation==1 && ydilation==1 && zdilation==1) {
 
         // Special optimization for 1x1 kernel.
         res = get_crop(_xstart,_ystart,_zstart,_xend,_yend,_zend);
@@ -38318,19 +38318,19 @@ namespace cimg_library_suffixed {
        \param is_normalized = enable local normalization.
        \param channel mode Channel processing mode. Can be { 0=sum inputs | 1=one-for-one | 2=expand }
        \param xcenter X-coordinate of the kernel center (~0U means 'centered').
-       \param xstart Starting X-coordinate of the instance image.
-       \param xend Ending X-coordinate of the instance image.
-       \param xstride Stride along the X-axis.
-       \param xdilation Dilation along the X-axis.
        \param ycenter Y-coordinate of the kernel center (~0U means 'centered').
-       \param ystart Starting Y-coordinate of the instance image.
-       \param yend Ending Y-coordinate of the instance image.
-       \param ystride Stride along the Y-axis.
-       \param ydilation Dilation along the Y-axis.
        \param zcenter Z-coordinate of the kernel center (~0U means 'centered').
+       \param xstart Starting X-coordinate of the instance image.
+       \param ystart Starting Y-coordinate of the instance image.
        \param zstart Starting Z-coordinate of the instance image.
+       \param xend Ending X-coordinate of the instance image.
+       \param yend Ending Y-coordinate of the instance image.
        \param zend Ending Z-coordinate of the instance image.
+       \param xstride Stride along the X-axis.
+       \param ystride Stride along the Y-axis.
        \param zstride Stride along the Z-axis.
+       \param xdilation Dilation along the X-axis.
+       \param ydilation Dilation along the Y-axis.
        \param zdilation Dilation along the Z-axis.
        \note
        - The convolution of the image instance \p *this by the kernel \p kernel is defined to be:
@@ -38340,9 +38340,9 @@ namespace cimg_library_suffixed {
     template<typename t>
     CImg<T>& convolve(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                       const bool is_normalized=false, const unsigned int channel_mode=1,
-                      const int xcenter=cimg::type<int>::min(),
-                      const int ycenter=cimg::type<int>::min(),
-                      const int zcenter=cimg::type<int>::min(),
+                      const int xcenter=(int)(~0U>>1),
+                      const int ycenter=(int)(~0U>>1),
+                      const int zcenter=(int)(~0U>>1),
                       const unsigned int xstart=0, const unsigned int ystart=0, const unsigned zstart=0,
                       const unsigned int xend=~0U, const unsigned int yend=~0U, const unsigned int zend=~0U,
                       const float xstride=1, const float ystride=1, const float zstride=1,
@@ -38357,9 +38357,9 @@ namespace cimg_library_suffixed {
     template<typename t>
     CImg<_cimg_Ttfloat> get_convolve(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                                      const bool is_normalized=false, const unsigned int channel_mode=1,
-                                     const int xcenter=cimg::type<int>::min(),
-                                     const int ycenter=cimg::type<int>::min(),
-                                     const int zcenter=cimg::type<int>::min(),
+                                     const int xcenter=(int)(~0U>>1),
+                                     const int ycenter=(int)(~0U>>1),
+                                     const int zcenter=(int)(~0U>>1),
                                      const unsigned int xstart=0, const unsigned int ystart=0, const unsigned zstart=0,
                                      const unsigned int xend=~0U, const unsigned int yend=~0U,
                                      const unsigned int zend=~0U,

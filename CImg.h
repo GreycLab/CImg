@@ -38312,7 +38312,7 @@ namespace cimg_library_suffixed {
             res(x,y,z,c,res_wh,res_whd) = val; \
           }
 
-#define _cimg_correlate_normalized(type,boundary,access) \
+#define _cimg_correlate_n(type,boundary,access) \
           cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel)) \
           cimg_forXYZ(res,x,y,z) { \
             Ttfloat val = 0, N = 0; \
@@ -38328,38 +38328,38 @@ namespace cimg_library_suffixed {
             N*=M2; res(x,y,z,c,res_wh,res_whd) = N?val/std::sqrt(N):0; \
           }
 
-          if (is_normalized) { // Normalized convolution
+          if (is_normalized) { // Normalized convolution/correlation
             if (is_int_stride_dilation) // Integer stride and dilation
               switch (boundary_conditions) {
               case 0 : // Dirichlet
-                _cimg_correlate_normalized(int,dirichlet,is_in_x && is_in_y && is_in_z?I(ix,iy,iz,0,wh,whd):0);
+                _cimg_correlate_n(int,dirichlet,is_in_x && is_in_y && is_in_z?I(ix,iy,iz,0,wh,whd):0);
                 break;
               case 1 : // Neumann
-                _cimg_correlate_normalized(int,neumann,I(nix,niy,niz,0,wh,whd));
+                _cimg_correlate_n(int,neumann,I(nix,niy,niz,0,wh,whd));
                 break;
               case 2 : // Periodic
-                _cimg_correlate_normalized(int,periodic,I(nix,niy,niz,0,wh,whd));
+                _cimg_correlate_n(int,periodic,I(nix,niy,niz,0,wh,whd));
                 break;
               case 3 : // Mirror
-                _cimg_correlate_normalized(int,mirror,I(nix,niy,niz,0,wh,whd));
+                _cimg_correlate_n(int,mirror,I(nix,niy,niz,0,wh,whd));
                 break;
               }
             else // Non-integer stride or dilation
               switch (boundary_conditions) {
               case 0 : // Dirichlet
-                _cimg_correlate_normalized(float,dirichlet,is_in_x && is_in_y && is_in_z?I(ix,iy,iz,0,wh,whd):0);
+                _cimg_correlate_n(float,dirichlet,is_in_x && is_in_y && is_in_z?I.linear_atXYZ(ix,iy,iz,0,0):0);
                 break;
               case 1 : // Neumann
-                _cimg_correlate_normalized(float,neumann,I(nix,niy,niz,0,wh,whd));
+                _cimg_correlate_n(float,neumann,I._linear_atXYZ(nix,niy,niz,0));
                 break;
               case 2 : // Periodic
-                _cimg_correlate_normalized(float,periodic,I(nix,niy,niz,0,wh,whd));
+                _cimg_correlate_n(float,periodic,I._linear_atXYZ(nix,niy,niz,0));
                 break;
               case 3 : // Mirror
-                _cimg_correlate_normalized(float,mirror,I(nix,niy,niz,0,wh,whd));
+                _cimg_correlate_n(float,mirror,I._linear_atXYZ(nix,niy,niz,0));
                 break;
               }
-          } else { // Standard convolution
+          } else { // Standard convolution/correlation
             if (is_int_stride_dilation) // Integer stride and dilation
               switch (boundary_conditions) {
               case 0 : // Dirichlet
@@ -38378,16 +38378,16 @@ namespace cimg_library_suffixed {
             else // Non-integer stride or dilation
               switch (boundary_conditions) {
               case 0 : // Dirichlet
-                _cimg_correlate(float,dirichlet,is_in_x && is_in_y && is_in_z?I(ix,iy,iz,0,wh,whd):0);
+                _cimg_correlate(float,dirichlet,is_in_x && is_in_y && is_in_z?I.linear_atXYZ(ix,iy,iz,0,0):0);
                 break;
               case 1 : // Neumann
-                _cimg_correlate(float,neumann,I(nix,niy,niz,0,wh,whd));
+                _cimg_correlate(float,neumann,I._linear_atXYZ(nix,niy,niz,0));
                 break;
               case 2 : // Periodic
-                _cimg_correlate(float,periodic,I(nix,niy,niz,0,wh,whd));
+                _cimg_correlate(float,periodic,I._linear_atXYZ(nix,niy,niz,0));
                 break;
               case 3 : // Mirror
-                _cimg_correlate(float,mirror,I(nix,niy,niz,0,wh,whd));
+                _cimg_correlate(float,mirror,I._linear_atXYZ(nix,niy,niz,0));
                 break;
               }
           }

@@ -19620,9 +19620,9 @@ namespace cimg_library_suffixed {
                                             s0>expr._data?"...":"",s0,se<&expr.back()?"...":"");
               }
 
-              arg2 = std::max(1U,(unsigned int)std::floor((xend - xstart + 1)/xstride));
-              arg3 = std::max(1U,(unsigned int)std::floor((yend - ystart + 1)/ystride));
-              arg4 = std::max(1U,(unsigned int)std::floor((zend + zstart + 1)/zstride));
+              arg2 = xend - xstart + 1;
+              arg3 = yend - ystart + 1;
+              arg4 = zend + zstart + 1;
               arg5 = channel_mode==0?1U:channel_mode==1?std::max(sA,sM):sA*sM;
 
               opcode[1] = pos = vector(arg2*arg3*arg4*arg5);
@@ -38028,9 +38028,9 @@ namespace cimg_library_suffixed {
         i_xdilation = (int)cimg::round(_xdilation),
         i_ydilation = (int)cimg::round(_ydilation),
         i_zdilation = (int)cimg::round(_zdilation),
-        res_width = std::max(1,(int)std::floor((_xend - _xstart + 1)/xstride)),
-        res_height = std::max(1,(int)std::floor((_yend - _ystart + 1)/ystride)),
-        res_depth = std::max(1,(int)std::floor((_zend + _zstart + 1)/zstride));
+        res_width = _xend - _xstart + 1,
+        res_height = _yend - _ystart + 1,
+        res_depth = _zend + _zstart + 1;
 
       const ulongT
         res_wh = (ulongT)res_width*res_height,

@@ -38003,11 +38003,11 @@ namespace cimg_library_suffixed {
           _xcenter = kernel.width() - 1 - _xcenter;
           _ycenter = kernel.height() - 1 - _ycenter;
           _zcenter = kernel.depth() - 1 - _zcenter;
-        } else { _xdilation*=-1; _ydilation*=-1; _zdilation*=-1; }
+        } else { _kernel = kernel.get_shared(); _xdilation*=-1; _ydilation*=-1; _zdilation*=-1; }
       } else _kernel = kernel.get_shared();
 
       if (!channel_mode) { // Channel-mode: Sum
-        res = _correlate(kernel,boundary_conditions,is_normalized,1,
+        res = _correlate(_kernel,boundary_conditions,is_normalized,1,
                          xcenter,ycenter,zcenter,xstart,ystart,zstart,xend,yend,zend,xstride,ystride,zstride,
                          _xdilation,_ydilation,_zdilation,false);
         CImg<Ttfloat> res0 = res.get_shared_channel(0);
@@ -38031,7 +38031,6 @@ namespace cimg_library_suffixed {
         i_xdilation = (int)cimg::round(_xdilation),
         i_ydilation = (int)cimg::round(_ydilation),
         i_zdilation = (int)cimg::round(_zdilation);
-
       const ulongT
         res_whd = (ulongT)nwidth*nheight*ndepth,
         res_size = res_whd*res._spectrum;
@@ -38045,28 +38044,32 @@ namespace cimg_library_suffixed {
         _xdilation==i_xdilation && _ydilation==i_ydilation && _zdilation==i_zdilation;
       cimg::unused(is_inner_parallel,is_outer_parallel);
 
-
-
       // Determine out-of-boundary accesses.
-/*
-      const int
-        x0 = (int)std::floor(_xstart + std::min(-_xdilation*_xcenter,_xdilation*(kernel.width() - 1 -_xcenter))),
-        y0 = (int)std::floor(_ystart + std::min(-_ydilation*_ycenter,_ydilation*(kernel.height() - 1 -_ycenter))),
-        z0 = (int)std::floor(_zstart + std::min(-_zdilation*_zcenter,_zdilation*(kernel.depth() - 1 -_zcenter))),
-        x1 = (int)std::ceil(_xstart + xstride*(width() - 1) + std::max(-_xdilation*_xcenter,_xdilation*(kernel.width() - 1 -_xcenter))),
-        y1 = (int)std::ceil(_ystart + ystride*(height() - 1) + std::max(-_ydilation*_ycenter,_ydilation*(kernel.height() - 1 -_ycenter))),
-        z1 = (int)std::ceil(_zstart + zstride*(depth() - 1) + std::max(-_zdilation*_zcenter,_zdilation*(kernel.depth() - 1 -_zcenter)));
-      if (x0<0 || y0<0 || z0<0 || x1>=width() || y1>=height() || z1>=depth()) {
+/*      const int
+        x0 = (int)std::floor(_xstart + std::min(-_xdilation*_xcenter,_xdilation*(_kernel.width() - 1 -_xcenter))),
+        y0 = (int)std::floor(_ystart + std::min(-_ydilation*_ycenter,_ydilation*(_kernel.height() - 1 -_ycenter))),
+        z0 = (int)std::floor(_zstart + std::min(-_zdilation*_zcenter,_zdilation*(_kernel.depth() - 1 -_zcenter))),
+        x1 = (int)std::ceil(_xstart + xstride*(width() - 1) + std::max(-_xdilation*_xcenter,_xdilation*(_kernel.width() - 1 -_xcenter))),
+        y1 = (int)std::ceil(_ystart + ystride*(height() - 1) + std::max(-_ydilation*_ycenter,_ydilation*(_kernel.height() - 1 -_ycenter))),
+        z1 = (int)std::ceil(_zstart + zstride*(depth() - 1) + std::max(-_zdilation*_zcenter,_zdilation*(_kernel.depth() - 1 -_zcenter)));
+      if (!boundary_conditions && (x0<0 || y0<0 || z0<0 || x1>=width() || y1>=height() || z1>=depth())) {
         const int
-        nw = x1 - x0 + 1,
+          nw = x1 - x0 + 1,
           nh = y1 - y0 + 1,
           nd = z1 - z0 + 1;
+
+
         std::fprintf(stderr,"\nDEBUG : min = (%d,%d,%d), max = (%d,%d,%d) -> (%d,%d,%d)\n",
                      x0,y0,z0,x1,y1,z1,nw,nh,nd);
+
+        return CImg<T>(nw,nh,nd,spectrum(),0).draw_image(x0,y0,z0,0,*this)._correlate(_kernel,0,is_normalized,channel_mode,
+                                                                                      _xcenter,_ycenter,_zcenter,
+                                                                                      x0,y0,z0,x0 + width() - 1,y0 + height() - 1,z0 + depth() - 1,
+                                                                                      xstride,ystride,zstride,_xdilation,_ydilation,_zdilation,false);
       }
 */
 
-
+      // Optimized versions for centered 3x3, 5x5 and 3x3x3 kernels.
       if (_kernel._width==_kernel._height && _kernel._width>1 && _kernel._height>1 &&
           (_kernel._width%2) && (_kernel._height%2) && (_kernel._depth%2) &&
           ((_kernel._depth==1 && _kernel._width<=5) || (_kernel._depth==_kernel._width && _kernel._width<=3)) &&
@@ -38076,9 +38079,8 @@ namespace cimg_library_suffixed {
           _zcenter==_kernel.depth()/2 - 1 + (_kernel.depth()%2) &&
           is_int_stride_dilation && i_xdilation>=0 && i_ydilation>=0 && i_zdilation>=0) {
 
-        // Optimized versions for centered 3x3, 5x5 and 3x3x3 kernels.
         if (!boundary_conditions) { // Dirichlet -> Add a 1px zero border, then use _correlate() with Neumann
-          const int dz = kernel.depth()>1?1:0;
+          const int dz = _kernel.depth()>1?1:0;
           return get_crop(-1,-1,dz?-1:0,width(),height(),depth() - 1 + dz).
             _correlate(_kernel,true,is_normalized,channel_mode,_xcenter,_ycenter,_zcenter,
                        _xstart + 1,_ystart + 1,_zstart + dz,
@@ -38094,7 +38096,7 @@ namespace cimg_library_suffixed {
             cimg_forC(res,c) {
               cimg_abort_test;
               const CImg<T> I = get_shared_channel(c%_spectrum);
-              const CImg<t> K = _kernel.get_shared_channel(c%kernel._spectrum);
+              const CImg<t> K = _kernel.get_shared_channel(c%_kernel._spectrum);
               const int w1 = I.width() - 1, h1 = I.height() - 1, d1 = I.depth() - 1;
               CImg<Ttfloat> _res = res.get_shared_channel(c);
               if (is_normalized) {
@@ -38155,7 +38157,7 @@ namespace cimg_library_suffixed {
               cimg_forC(res,c) {
                 cimg_abort_test;
                 const CImg<T> I = get_shared_channel(c%_spectrum);
-                const CImg<t> K = _kernel.get_shared_channel(c%kernel._spectrum);
+                const CImg<t> K = _kernel.get_shared_channel(c%_kernel._spectrum);
                 const int w1 = I.width() - 1, h1 = I.height() - 1;
                 CImg<Ttfloat> _res = res.get_shared_channel(c);
                 if (is_normalized) {
@@ -38218,7 +38220,7 @@ namespace cimg_library_suffixed {
               cimg_forC(res,c) {
                 cimg_abort_test;
                 const CImg<T> I = get_shared_channel(c%_spectrum);
-                const CImg<t> K = _kernel.get_shared_channel(c%kernel._spectrum);
+                const CImg<t> K = _kernel.get_shared_channel(c%_kernel._spectrum);
                 CImg<Ttfloat> _res = res.get_shared_channel(c);
                 const int w1 = I.width() - 1, h1 = I.height() - 1;
                 if (is_normalized) {

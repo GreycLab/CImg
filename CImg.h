@@ -38252,16 +38252,19 @@ namespace cimg_library_suffixed {
                    channel_mode==1?std::max(_spectrum,_kernel._spectrum):
                    _spectrum*_kernel._spectrum);
 
+        const int
+          w = width(), h = height(), d = depth(),
+          w1 = w  - 1, h1 = h - 1, d1 = d - 1,
+          w2 = 2*w, h2 = 2*h, d2 = 2*h;
+        const ulongT wh = (ulongT)w*h, whd = wh*d;
+
         cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
           cimg_forC(res,c) _cimg_abort_try_openmp {
           cimg_abort_test;
           const CImg<T> I = get_shared_channel(c%_spectrum);
           const CImg<t> K = _kernel.get_shared_channel(channel_mode==1?c%_kernel._spectrum:c/_spectrum);
-          const int w = I.width(), h = I.height(), d = I.depth();
-          int w2 = 0, h2 = 0, d2 = 0;
           Ttfloat M = 0, M2 = 0;
-          if (is_normalized) { M = (Ttfloat)K.magnitude(2); M2 = M*M; }
-          if (boundary_conditions>=3) { w2 = 2*I.width(); h2 = 2*I.height(); d2 = 2*I.depth(); }
+          if (is_normalized) { M = (Ttfloat)K.magnitude(2); M2 = cimg::sqr(M); }
 
 #define _cimg_correlate_loop_int \
           const int \

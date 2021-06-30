@@ -38022,17 +38022,18 @@ namespace cimg_library_suffixed {
         _xend = xend==~0U?width() - 1:xend,
         _yend = yend==~0U?height() - 1:yend,
         _zend = zend==~0U?depth() - 1:zend,
-        nwidth = std::max(1,(int)std::floor((_xend - _xstart + 1)/xstride)),
-        nheight = std::max(1,(int)std::floor((_yend - _ystart + 1)/ystride)),
-        ndepth = std::max(1,(int)std::floor((_zend + _zstart + 1)/zstride)),
         i_xstride = (int)cimg::round(xstride),
         i_ystride = (int)cimg::round(ystride),
         i_zstride = (int)cimg::round(zstride),
         i_xdilation = (int)cimg::round(_xdilation),
         i_ydilation = (int)cimg::round(_ydilation),
-        i_zdilation = (int)cimg::round(_zdilation);
+        i_zdilation = (int)cimg::round(_zdilation),
+        res_width = std::max(1,(int)std::floor((_xend - _xstart + 1)/xstride)),
+        res_height = std::max(1,(int)std::floor((_yend - _ystart + 1)/ystride)),
+        res_depth = std::max(1,(int)std::floor((_zend + _zstart + 1)/zstride));
+
       const ulongT
-        res_whd = (ulongT)nwidth*nheight*ndepth,
+        res_whd = (ulongT)res_width*res_height*res_depth,
         res_size = res_whd*res._spectrum;
 
       if (!res_whd) return CImg<Ttfloat>();
@@ -38063,7 +38064,7 @@ namespace cimg_library_suffixed {
                        xstride,ystride,zstride,_xdilation,_ydilation,_zdilation,false);
 
         } else { // Neumann boundaries
-          res.assign(nwidth,nheight,ndepth,std::max(_spectrum,_kernel._spectrum));
+          res.assign(res_width,res_height,res_depth,std::max(_spectrum,_kernel._spectrum));
 
           switch (_kernel._depth) {
           case 3 : { // 3x3x3 centered kernel
@@ -38247,7 +38248,7 @@ namespace cimg_library_suffixed {
       } else {
 
         // Generic version for other kernels and boundary conditions.
-        res.assign(nwidth,nheight,ndepth,
+        res.assign(res_width,res_height,res_depth,
                    channel_mode==1?std::max(_spectrum,_kernel._spectrum):
                    _spectrum*_kernel._spectrum);
 

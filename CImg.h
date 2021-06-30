@@ -38044,31 +38044,6 @@ namespace cimg_library_suffixed {
         _xdilation==i_xdilation && _ydilation==i_ydilation && _zdilation==i_zdilation;
       cimg::unused(is_inner_parallel,is_outer_parallel);
 
-      // Determine out-of-boundary accesses.
-/*      const int
-        x0 = (int)std::floor(_xstart + std::min(-_xdilation*_xcenter,_xdilation*(_kernel.width() - 1 -_xcenter))),
-        y0 = (int)std::floor(_ystart + std::min(-_ydilation*_ycenter,_ydilation*(_kernel.height() - 1 -_ycenter))),
-        z0 = (int)std::floor(_zstart + std::min(-_zdilation*_zcenter,_zdilation*(_kernel.depth() - 1 -_zcenter))),
-        x1 = (int)std::ceil(_xstart + xstride*(width() - 1) + std::max(-_xdilation*_xcenter,_xdilation*(_kernel.width() - 1 -_xcenter))),
-        y1 = (int)std::ceil(_ystart + ystride*(height() - 1) + std::max(-_ydilation*_ycenter,_ydilation*(_kernel.height() - 1 -_ycenter))),
-        z1 = (int)std::ceil(_zstart + zstride*(depth() - 1) + std::max(-_zdilation*_zcenter,_zdilation*(_kernel.depth() - 1 -_zcenter)));
-      if (!boundary_conditions && (x0<0 || y0<0 || z0<0 || x1>=width() || y1>=height() || z1>=depth())) {
-        const int
-          nw = x1 - x0 + 1,
-          nh = y1 - y0 + 1,
-          nd = z1 - z0 + 1;
-
-
-        std::fprintf(stderr,"\nDEBUG : min = (%d,%d,%d), max = (%d,%d,%d) -> (%d,%d,%d)\n",
-                     x0,y0,z0,x1,y1,z1,nw,nh,nd);
-
-        return CImg<T>(nw,nh,nd,spectrum(),0).draw_image(x0,y0,z0,0,*this)._correlate(_kernel,0,is_normalized,channel_mode,
-                                                                                      _xcenter,_ycenter,_zcenter,
-                                                                                      x0,y0,z0,x0 + width() - 1,y0 + height() - 1,z0 + depth() - 1,
-                                                                                      xstride,ystride,zstride,_xdilation,_ydilation,_zdilation,false);
-      }
-*/
-
       // Optimized versions for centered 3x3, 5x5 and 3x3x3 kernels.
       if (_kernel._width==_kernel._height && _kernel._width>1 && _kernel._height>1 &&
           (_kernel._width%2) && (_kernel._height%2) && (_kernel._depth%2) &&

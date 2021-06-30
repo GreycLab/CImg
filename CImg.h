@@ -38257,10 +38257,60 @@ namespace cimg_library_suffixed {
           cimg_abort_test;
           const CImg<T> I = get_shared_channel(c%_spectrum);
           const CImg<t> K = _kernel.get_shared_channel(channel_mode==1?c%_kernel._spectrum:c/_spectrum);
+          const int w = I.width(), h = I.height(), d = I.depth();
           int w2 = 0, h2 = 0, d2 = 0;
           Ttfloat M = 0, M2 = 0;
           if (is_normalized) { M = (Ttfloat)K.magnitude(2); M2 = M*M; }
           if (boundary_conditions>=3) { w2 = 2*I.width(); h2 = 2*I.height(); d2 = 2*I.depth(); }
+
+#define _cimg_correlate_loop_int \
+          const int \
+            ix = _xstart + i_xstride*x + i_xdilation*(p - _xcenter), \
+            iy = _ystart + i_ystride*y + i_ydilation*(q - _ycenter), \
+            iz = _zstart + i_zstride*z + i_zdilation*(r - _zcenter)
+
+#define _cimg_correlate_loop_float \
+          const float \
+            ix = _xstart + xstride*x + _xdilation*(p - _xcenter), \
+            iy = _ystart + ystride*y + _ydilation*(q - _ycenter), \
+            iz = _zstart + zstride*z + _zdilation*(r - _zcenter)
+
+#define _cimg_correlate_loop(access,type) \
+          cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel)) \
+          cimg_forXYZ(res,x,y,z) { \
+            Ttfloat val = 0; \
+            cimg_forXYZ(_kernel,p,q,r) { \
+              _cimg_correlate_loop_#type; \
+              val+=K(p,q,r)*(access); \
+            } \
+            res(x,y,z,c) = val; \
+          }
+
+/*          if (is_int_stride_dilation) // Integer stride and dilation
+            switch (boundary_conditions) {
+            case 0 : // Dirichlet
+              _cimg_correlate_loop(I.atXYZ(ix,iy,iz,0,0),int);
+              break;
+            case 1 : // Neumann
+              _cimg_correlate_loop(I._atXYZ(ix,iy,iz),int);
+              break;
+            case 2 : // Periodic
+              _cimg_correlate_loop(I(cimg::mod(ix,w),cimg::mod(iy,h),cimg::mod(iz,d)),int);
+              break;
+            case 3 : // Mirror
+              _cimg_correlate_loop(I._atXYZ(cimg::mod(ix,w),cimg::mod(iy,h),cimg::mod(iz,d)),int);
+            }
+          else // Non-integer stride or dilation
+            switch (boundary_conditions) {
+            case 0 : // Dirichlet
+              break;
+            case 1 : // Neumann
+              break;
+            case 2 : // Periodic
+              break;
+            case 3 : // Mirror
+            }
+*/
 
           cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
             cimg_forXYZ(res,x,y,z) {

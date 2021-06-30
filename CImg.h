@@ -38266,27 +38266,25 @@ namespace cimg_library_suffixed {
           Ttfloat M = 0, M2 = 0;
           if (is_normalized) { M = (Ttfloat)K.magnitude(2); M2 = cimg::sqr(M); }
 
-#define _cimg_correlate_loop_int \
-          const int \
-            ix = _xstart + i_xstride*x + i_xdilation*(p - _xcenter), \
-            iy = _ystart + i_ystride*y + i_ydilation*(q - _ycenter), \
-            iz = _zstart + i_zstride*z + i_zdilation*(r - _zcenter)
+#define _cimg_correlate_ix_int const int ix = _xstart + i_xstride*x + i_xdilation*(p - _xcenter)
+#define _cimg_correlate_iy_int const int iy = _ystart + i_ystride*y + i_ydilation*(q - _ycenter)
+#define _cimg_correlate_iz_int const int iz = _zstart + i_zstride*z + i_zdilation*(r - _zcenter)
+#define _cimg_correlate_ix_float const float ix = _xstart + xstride*x + _xdilation*(p - _xcenter)
+#define _cimg_correlate_iy_float const float iy = _ystart + ystride*y + _ydilation*(q - _ycenter)
+#define _cimg_correlate_iz_float const float iz = _zstart + zstride*z + _zdilation*(r - _zcenter)
 
-#define _cimg_correlate_loop_float \
-          const float \
-            ix = _xstart + xstride*x + _xdilation*(p - _xcenter), \
-            iy = _ystart + ystride*y + _ydilation*(q - _ycenter), \
-            iz = _zstart + zstride*z + _zdilation*(r - _zcenter)
-
-#define _cimg_correlate_loop(access,type) \
+#define _cimg_correlate(access,type) \
           cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel)) \
           cimg_forXYZ(res,x,y,z) { \
             Ttfloat val = 0; \
-            cimg_forXYZ(_kernel,p,q,r) { \
-              _cimg_correlate_loop_#type; \
-              val+=K(p,q,r)*(access); \
+            cimg_forZ(_kernel,r) { _cimg_correlate_iz_#type; \
+              cimg_forY(_kernel,q) { _cimg_correlate_iy_#type; \
+                cimg_forX(_kernel,p) { _cimg_correlate_ix_#type; \
+                  val+=K(p,q,r)*(access); \
+                } \
+              } \
             } \
-            res(x,y,z,c) = val; \
+            res(x,y,z,c,wh,whd) = val; \
           }
 
 /*          if (is_int_stride_dilation) // Integer stride and dilation

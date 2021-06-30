@@ -38247,7 +38247,7 @@ namespace cimg_library_suffixed {
         }
       } else {
 
-        // Generic version for other kernels and boundary conditions.
+        // Generic version for other kernels, strides, dilations and boundary conditions.
         res.assign(res_width,res_height,res_depth,
                    channel_mode==1?std::max(_spectrum,_kernel._spectrum):
                    _spectrum*_kernel._spectrum);

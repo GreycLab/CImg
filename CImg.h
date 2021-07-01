@@ -38044,11 +38044,10 @@ namespace cimg_library_suffixed {
       if (!res_whd) return CImg<Ttfloat>();
 
       const bool
-        is_inner_parallel = res_whd>=(cimg_openmp_sizefactor)*32768,
-        is_outer_parallel = res._spectrum>1 && res_siz>=(cimg_openmp_sizefactor)*32768,
+        is_inner_parallel = res_whd>=(cimg_openmp_sizefactor)*4096,
         is_int_stride_dilation = xstride==i_xstride && ystride==i_ystride && zstride==i_zstride &&
         _xdilation==i_xdilation && _ydilation==i_ydilation && _zdilation==i_zdilation;
-      cimg::unused(is_inner_parallel,is_outer_parallel);
+      cimg::unused(is_inner_parallel);
       const int
         w = width(), h = height(), d = depth(),
         w1 = w  - 1, h1 = h - 1, d1 = d - 1,
@@ -38079,7 +38078,7 @@ namespace cimg_library_suffixed {
                                             _kernel._depth + 1 - (_kernel._depth%2),-100,0,0,1,1,1),false);
         switch (_kernel._depth) {
         case 3 : { // 3x3x3 centered kernel
-          cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
+          cimg_pragma_openmp(parallel for)
             cimg_forC(res,c) {
             cimg_abort_test;
             const CImg<T> I = get_shared_channel(c%_spectrum);
@@ -38139,7 +38138,7 @@ namespace cimg_library_suffixed {
         case 1 :
           switch (_kernel._width) {
           case 5 : { // 5x5 centered kernel
-            cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
+            cimg_pragma_openmp(parallel for)
               cimg_forC(res,c) {
               cimg_abort_test;
               const CImg<T> I = get_shared_channel(c%_spectrum);
@@ -38201,7 +38200,7 @@ namespace cimg_library_suffixed {
           } break;
 
           case 3 : { // 3x3 centered kernel
-            cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
+            cimg_pragma_openmp(parallel for)
               cimg_forC(res,c) {
               cimg_abort_test;
               const CImg<T> I = get_shared_channel(c%_spectrum);
@@ -38248,11 +38247,11 @@ namespace cimg_library_suffixed {
         get_crop(xstart,ystart,zstart,_xend,_yend,_zend).move_to(res);
         if (channel_mode==1) { // One-for-one
           res.resize(-100,-100,-100,std::max(res._spectrum,_kernel._spectrum),0,2);
-          cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
+          cimg_pragma_openmp(parallel for)
             cimg_forC(res,c) res.get_shared_channel(c)*=_kernel[c%_kernel._spectrum];
         } else { // Expand
           res.resize(-100,-100,-100,res._spectrum*_kernel._spectrum,0,2);
-          cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
+          cimg_pragma_openmp(parallel for)
             cimg_forC(res,c) res.get_shared_channel(c)*=_kernel[c/res._spectrum];
         }
 
@@ -38261,7 +38260,7 @@ namespace cimg_library_suffixed {
                    channel_mode==1?std::max(_spectrum,_kernel._spectrum):
                    _spectrum*_kernel._spectrum);
 
-        cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
+        cimg_pragma_openmp(parallel for)
           cimg_forC(res,c) _cimg_abort_try_openmp {
           cimg_abort_test;
           const CImg<T> I = get_shared_channel(c%_spectrum);
@@ -38567,13 +38566,11 @@ namespace cimg_library_suffixed {
         mx2 = kernel.width()/2, my2 = kernel.height()/2, mz2 = kernel.depth()/2,
         mx1 = kernel.width() - mx2 - 1, my1 = kernel.height() - my2 - 1, mz1 = kernel.depth() - mz2 - 1,
         mxe = width() - mx2, mye = height() - my2, mze = depth() - mz2;
-      const bool
-        is_inner_parallel = _width*_height*_depth>=(cimg_openmp_sizefactor)*32768,
-        is_outer_parallel = res.size()>=(cimg_openmp_sizefactor)*32768;
-      cimg::unused(is_inner_parallel,is_outer_parallel);
+      const bool is_inner_parallel = _width*_height*_depth>=(cimg_openmp_sizefactor)*4096;
+      cimg::unused(is_inner_parallel);
       _cimg_abort_init_openmp;
       cimg_abort_init;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(!is_inner_parallel && is_outer_parallel))
+      cimg_pragma_openmp(parallel for)
       cimg_forC(res,c) _cimg_abort_try_openmp {
         cimg_abort_test;
         const CImg<T> img = get_shared_channel(c%_spectrum);
@@ -38857,13 +38854,11 @@ namespace cimg_library_suffixed {
         mx1 = kernel.width()/2, my1 = kernel.height()/2, mz1 = kernel.depth()/2,
         mx2 = kernel.width() - mx1 - 1, my2 = kernel.height() - my1 - 1, mz2 = kernel.depth() - mz1 - 1,
         mxe = width() - mx2, mye = height() - my2, mze = depth() - mz2;
-      const bool
-        is_inner_parallel = _width*_height*_depth>=(cimg_openmp_sizefactor)*32768,
-        is_outer_parallel = res.size()>=(cimg_openmp_sizefactor)*32768;
-      cimg::unused(is_inner_parallel,is_outer_parallel);
+      const bool is_inner_parallel = _width*_height*_depth>=(cimg_openmp_sizefactor)*32768;
+      cimg::unused(is_inner_parallel);
       _cimg_abort_init_openmp;
       cimg_abort_init;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(!is_inner_parallel && is_outer_parallel))
+      cimg_pragma_openmp(parallel for)
       cimg_forC(res,c) _cimg_abort_try_openmp {
         cimg_abort_test;
         const CImg<T> img = get_shared_channel(c%_spectrum);

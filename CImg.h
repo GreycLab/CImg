@@ -38042,9 +38042,6 @@ namespace cimg_library_suffixed {
         res_siz = res_whd*res._spectrum;
 
       if (!res_whd) return CImg<Ttfloat>();
-      res.assign(res_width,res_height,res_depth,
-                 channel_mode==1?std::max(_spectrum,_kernel._spectrum):
-                 _spectrum*_kernel._spectrum);
 
       const bool
         is_inner_parallel = res_whd>=(cimg_openmp_sizefactor)*32768,
@@ -38068,12 +38065,13 @@ namespace cimg_library_suffixed {
           _ycenter==_kernel.height()/2 - 1 + (_kernel.height()%2) &&
           _zcenter==_kernel.depth()/2 - 1 + (_kernel.depth()%2) &&
           xstart>=0 && ystart>=0 && zstart>=0 &&
-          xend<width() && yend<height() && zend<depth() &&
+          _xend<width() && _yend<height() && _zend<depth() &&
           is_int_stride_dilation &&
           xstride==1 && ystride==1 && zstride==1 &&
           i_xdilation>=0 && i_ydilation>=0 && i_zdilation>=0) {
-
-        std::fprintf(stderr,"\n\nDEBUG : optimized version\n");
+        res.assign(res_width,res_height,res_depth,
+                   channel_mode==1?std::max(_spectrum,_kernel._spectrum):
+                   _spectrum*_kernel._spectrum);
 
         if (!(_kernel._width%2) || !(_kernel._height%2) || !(_kernel._depth%2)) // Even-sized kernel
           _kernel.assign(_kernel.get_resize(_kernel._width + 1 - (_kernel._width%2),
@@ -38247,7 +38245,7 @@ namespace cimg_library_suffixed {
                  xstride==1 && ystride==1 && zstride==1) {
 
         // Special optimization for 1x1 kernel.
-        res = get_crop(xstart,ystart,zstart,_xend,_yend,_zend);
+        get_crop(xstart,ystart,zstart,_xend,_yend,_zend).move_to(res);
         if (channel_mode==1) { // One-for-one
           res.resize(-100,-100,-100,std::max(res._spectrum,_kernel._spectrum),0,2);
           cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
@@ -38259,6 +38257,10 @@ namespace cimg_library_suffixed {
         }
 
       } else { // Generic version
+        res.assign(res_width,res_height,res_depth,
+                   channel_mode==1?std::max(_spectrum,_kernel._spectrum):
+                   _spectrum*_kernel._spectrum);
+
         cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
           cimg_forC(res,c) _cimg_abort_try_openmp {
           cimg_abort_test;

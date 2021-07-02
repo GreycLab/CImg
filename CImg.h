@@ -38014,15 +38014,6 @@ namespace cimg_library_suffixed {
         } else { _kernel = kernel.get_shared(); _xdilation*=-1; _ydilation*=-1; _zdilation*=-1; }
       } else _kernel = kernel.get_shared();
 
-      if (channel_mode==3) { // Channel-mode: Sum
-        res = _correlate(_kernel,boundary_conditions,is_normalized,1,
-                         xcenter,ycenter,zcenter,xstart,ystart,zstart,xend,yend,zend,xstride,ystride,zstride,
-                         _xdilation,_ydilation,_zdilation,false);
-        CImg<Ttfloat> res0 = res.get_shared_channel(0);
-        cimg_for_inC(res,1,res.spectrum() - 1,c) res0+=res.get_shared_channel(c);
-        return res.channel(0);
-      }
-
       const int
         _xend = xend==(int)(~0U>>1)?width() - 1:xend,
         _yend = yend==(int)(~0U>>1)?height() - 1:yend,
@@ -38035,7 +38026,9 @@ namespace cimg_library_suffixed {
         i_zdilation = (int)cimg::round(_zdilation),
         res_width = _xend - xstart + 1,
         res_height = _yend - ystart + 1,
-        res_depth = _zend + zstart + 1;
+        res_depth = _zend + zstart + 1,
+        smin = std::min(spectrum(),_kernel.spectrum()),
+        smax = std::max(spectrum(),_kernel.spectrum());
 
       const ulongT
         res_wh = (ulongT)res_width*res_height,
@@ -38043,6 +38036,11 @@ namespace cimg_library_suffixed {
         res_siz = res_whd*res._spectrum;
 
       if (!res_whd) return CImg<Ttfloat>();
+
+      res.assign(res_width,res_height,res_depth,
+                 !channel_mode?_spectrum*_kernel._spectrum:
+                 channel_mode==1?smax:
+                 channel_mode==2?(int)std::ceil((float)smax/smin):1);
 
       const bool
         is_inner_parallel = res_whd>=(cimg_openmp_sizefactor)*32768,
@@ -38070,8 +38068,6 @@ namespace cimg_library_suffixed {
           is_int_stride_dilation &&
           xstride==1 && ystride==1 && zstride==1 &&
           i_xdilation>=0 && i_ydilation>=0 && i_zdilation>=0) {
-        res.assign(res_width,res_height,res_depth,
-                   !channel_mode?_spectrum*_kernel._spectrum:std::max(_spectrum,_kernel._spectrum));
 
         if (!(_kernel._width%2) || !(_kernel._height%2) || !(_kernel._depth%2)) // Even-sized kernel
           _kernel.assign(_kernel.get_resize(_kernel._width + 1 - (_kernel._width%2),
@@ -38257,14 +38253,16 @@ namespace cimg_library_suffixed {
         }
 
       } else { // Generic version
-        res.assign(res_width,res_height,res_depth,
-                   !channel_mode?_spectrum*_kernel._spectrum:std::max(_spectrum,_kernel._spectrum));
+        const int cend = !channel_mode?spectrum()*_kernel.spectrum():smax;
+        if (channel_mode>=2) res.fill(0);
 
         cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
-          cimg_forC(res,c) _cimg_abort_try_openmp {
+          for (int c = 0; c<cend; ++c) _cimg_abort_try_openmp {
           cimg_abort_test;
+
           const CImg<T> I = get_shared_channel(c%_spectrum);
           const CImg<t> K = _kernel.get_shared_channel(!channel_mode?c/_spectrum:c%_kernel._spectrum);
+          CImg<Ttfloat> _res = channel_mode<=1?get_shared_channel(c):CImg<Ttfloat>(res.width(),res.height(),res.depth(),1);
           Ttfloat M = 0, M2 = 0;
           if (is_normalized) { M = (Ttfloat)K.magnitude(2); M2 = cimg::sqr(M); }
 
@@ -38314,7 +38312,7 @@ namespace cimg_library_suffixed {
                 } \
               } \
             } \
-            res(x,y,z,c,res_wh,res_whd) = val; \
+            _res(x,y,z,0,res_wh,res_whd) = val; \
           }
 
 #define _cimg_correlate_n(type,boundary,access) \
@@ -38330,7 +38328,7 @@ namespace cimg_library_suffixed {
                 } \
               } \
             } \
-            N*=M2; res(x,y,z,c,res_wh,res_whd) = N?val/std::sqrt(N):0; \
+            N*=M2; _res(x,y,z,0,res_wh,res_whd) = N?val/std::sqrt(N):0; \
           }
 
           if (is_normalized) { // Normalized convolution/correlation
@@ -38396,6 +38394,12 @@ namespace cimg_library_suffixed {
                 break;
               }
           }
+
+          if (channel_mode==2)
+            cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(c/smin)+=_res;
+          else if (channel_mode==3)
+            cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(0)+=_res;
+
         } _cimg_abort_catch_openmp
           cimg_abort_test;
       }

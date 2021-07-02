@@ -38034,9 +38034,17 @@ namespace cimg_library_suffixed {
         res_wh = (ulongT)res_width*res_height,
         res_whd = res_wh*res_depth,
         res_siz = res_whd*res._spectrum;
+
+      if (!res_whd) return CImg<Ttfloat>();
+      res.assign(res_width,res_height,res_depth,
+                 !channel_mode?_spectrum*_kernel._spectrum:
+                 channel_mode==1?smax:
+                 channel_mode==2?(int)std::ceil((float)smax/smin):1);
+      if (channel_mode>=2) res.fill(0);
+
       const bool
-        is_inner_parallel = res_whd>=(cimg_openmp_sizefactor)*32768,
-        is_outer_parallel = res._spectrum>1 && res_siz>=(cimg_openmp_sizefactor)*32768,
+        is_outer_parallel = true, //res._spectrum>1 && res_siz>=(cimg_openmp_sizefactor)*32768,
+        is_inner_parallel = true, //!is_outer_parallel && res_whd>=(cimg_openmp_sizefactor)*32768,
         is_int_stride_dilation = xstride==i_xstride && ystride==i_ystride && zstride==i_zstride &&
         _xdilation==i_xdilation && _ydilation==i_ydilation && _zdilation==i_zdilation;
       cimg::unused(is_inner_parallel,is_outer_parallel);
@@ -38047,13 +38055,6 @@ namespace cimg_library_suffixed {
       const ulongT
         wh = (ulongT)w*h, whd = wh*d,
         K_wh = (ulongT)kernel.width()*kernel.height(), K_whd = K_wh*kernel.depth();
-
-      if (!res_whd) return CImg<Ttfloat>();
-      res.assign(res_width,res_height,res_depth,
-                 !channel_mode?_spectrum*_kernel._spectrum:
-                 channel_mode==1?smax:
-                 channel_mode==2?(int)std::ceil((float)smax/smin):1);
-      if (channel_mode>=2) res.fill(0);
 
       // Reshape kernel to enable optimizations for a few cases.
       if (boundary_conditions==1 &&

@@ -19522,7 +19522,7 @@ namespace cimg_library_suffixed {
               const ulongT default_params[] = { (ulongT)op,0, // [0]=function, [1]=result vector
                                                 0,0,0,0,0, // [2]=A, [3]=wA, [4]=hA, [5]=dA, [6]=sA
                                                 0,0,0,0,0, // [7]=M, [8]=wM, [9]=hM, [10]=dM, [11]=sM
-                                                1,0,0, // [12]=boundary_conditions, [13]=is_normalized, [14]=chan._mode
+                                                1,0,1, // [12]=boundary_conditions, [13]=is_normalized, [14]=chan._mode
                                                 ~0U,~0U,~0U, // [15]=xcenter, [16]=ycenter, [17]=zcenter
                                                 0,0,0, // [18]=xstart, [19]=ystart, [20]=zstart
                                                 ~0U,~0U,~0U, // [21]=xend, [22]=yend, [23]=zend
@@ -37904,7 +37904,7 @@ namespace cimg_library_suffixed {
        \param kernel = the correlation kernel.
        \param boundary_conditions Boundary condition. Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
        \param is_normalized = enable local normalization.
-       \param channel_mode Channel processing mode. Can be { 0=all | 1=one for one | 2=partial sum | 3=full sum }.
+       \param channel_mode Channel processing mode. Can be { 0=all | 1=one for one (default) | 2=partial sum | 3=full sum }.
        \param xcenter X-coordinate of the kernel center (~0U>>1 means 'centered').
        \param ycenter Y-coordinate of the kernel center (~0U>>1 means 'centered').
        \param zcenter Z-coordinate of the kernel center (~0U>>1 means 'centered').
@@ -37927,7 +37927,7 @@ namespace cimg_library_suffixed {
     **/
     template<typename t>
     CImg<T>& correlate(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
-                       const bool is_normalized=false, const unsigned int channel_mode=0,
+                       const bool is_normalized=false, const unsigned int channel_mode=1,
                        const int xcenter=(int)(~0U>>1),
                        const int ycenter=(int)(~0U>>1),
                        const int zcenter=(int)(~0U>>1),
@@ -37947,7 +37947,7 @@ namespace cimg_library_suffixed {
 
     template<typename t>
     CImg<_cimg_Ttfloat> get_correlate(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
-                                      const bool is_normalized=false, const unsigned int channel_mode=0,
+                                      const bool is_normalized=false, const unsigned int channel_mode=1,
                                       const int xcenter=(int)(~0U>>1),
                                       const int ycenter=(int)(~0U>>1),
                                       const int zcenter=(int)(~0U>>1),
@@ -38010,7 +38010,7 @@ namespace cimg_library_suffixed {
             get_mirror('x').resize(kernel,-1);
           _xcenter = kernel.width() - 1 - _xcenter;
           _ycenter = kernel.height() - 1 - _ycenter;
-          _zcenter = kernel.depth() - 1 - _zcenter;
+          _zcenter = kernel.depth() - _zcenter - 1;
         } else { _kernel = kernel.get_shared(); _xdilation*=-1; _ydilation*=-1; _zdilation*=-1; }
       } else _kernel = kernel.get_shared();
 
@@ -38028,20 +38028,12 @@ namespace cimg_library_suffixed {
         res_height = _yend - ystart + 1,
         res_depth = _zend + zstart + 1,
         smin = std::min(spectrum(),_kernel.spectrum()),
-        smax = std::max(spectrum(),_kernel.spectrum());
-
+        smax = std::max(spectrum(),_kernel.spectrum()),
+        cend = !channel_mode?spectrum()*_kernel.spectrum():smax;
       const ulongT
         res_wh = (ulongT)res_width*res_height,
         res_whd = res_wh*res_depth,
         res_siz = res_whd*res._spectrum;
-
-      if (!res_whd) return CImg<Ttfloat>();
-
-      res.assign(res_width,res_height,res_depth,
-                 !channel_mode?_spectrum*_kernel._spectrum:
-                 channel_mode==1?smax:
-                 channel_mode==2?(int)std::ceil((float)smax/smin):1);
-
       const bool
         is_inner_parallel = res_whd>=(cimg_openmp_sizefactor)*32768,
         is_outer_parallel = res._spectrum>1 && res_siz>=(cimg_openmp_sizefactor)*32768,
@@ -38056,31 +38048,51 @@ namespace cimg_library_suffixed {
         wh = (ulongT)w*h, whd = wh*d,
         K_wh = (ulongT)kernel.width()*kernel.height(), K_whd = K_wh*kernel.depth();
 
-      // Optimized version for a few particular cases.
-      if (_kernel._width==_kernel._height && _kernel._width>1 && _kernel._height>1 &&
-          ((_kernel._depth==1 && _kernel._width<=5) || (_kernel._depth==_kernel._width && _kernel._width<=3)) &&
-          boundary_conditions==1 &&
-          _xcenter==_kernel.width()/2 - 1 + (_kernel.width()%2) &&
-          _ycenter==_kernel.height()/2 - 1 + (_kernel.height()%2) &&
-          _zcenter==_kernel.depth()/2 - 1 + (_kernel.depth()%2) &&
+      if (!res_whd) return CImg<Ttfloat>();
+      res.assign(res_width,res_height,res_depth,
+                 !channel_mode?_spectrum*_kernel._spectrum:
+                 channel_mode==1?smax:
+                 channel_mode==2?(int)std::ceil((float)smax/smin):1);
+      if (channel_mode>=2) res.fill(0);
+
+      // Reshape kernel to enable optimizations for a few cases.
+      if (boundary_conditions==1 &&
+          _kernel._width>1 && _kernel._height>1 &&
+          ((_kernel._depth==1 && _kernel._width<=5 && _kernel._height<=5) ||
+           (_kernel._depth<=3 && _kernel._width<=3 && _kernel._height<=3)) &&
+          xstart>=0 && ystart>=0 && zstart>=0 &&
+          _xend<width() && _yend<height() && _zend<depth() &&
+          is_int_stride_dilation &&
+          xstride==1 && ystride==1 && zstride==1 &&
+          i_xdilation>=0 && i_ydilation>=0 && i_zdilation>=0) {
+        const unsigned int M = cimg::max(_kernel._width,_kernel._height,_kernel._depth);
+        _kernel.assign(_kernel.get_resize(M + 1 - (M%2),M + 1 - (M%2),_kernel._depth>1?M + 1 - (M%2):1,-100,
+                                          0,0,
+                                          1,1,1),false);
+        _xcenter = _ycenter = (int)M/2;
+        if (_kernel._depth>1) _ycenter = (int)M/2;
+      }
+
+      // Optimized version for a few particular cases (3x3, 5x5 and 3x3x3 kernels, with a few other conditions).
+      if (boundary_conditions==1 &&
+          _kernel._width==_kernel._height &&
+          ((_kernel._depth==1 && (_kernel._width==3 || _kernel._width==5)) ||
+           (_kernel._depth==_kernel._width && _kernel._width==3)) &&
+          _xcenter==_kernel.width()/2 && _ycenter==_kernel.height()/2 && _zcenter==_kernel.depth()/2 &&
           xstart>=0 && ystart>=0 && zstart>=0 &&
           _xend<width() && _yend<height() && _zend<depth() &&
           is_int_stride_dilation &&
           xstride==1 && ystride==1 && zstride==1 &&
           i_xdilation>=0 && i_ydilation>=0 && i_zdilation>=0) {
 
-        if (!(_kernel._width%2) || !(_kernel._height%2) || !(_kernel._depth%2)) // Even-sized kernel
-          _kernel.assign(_kernel.get_resize(_kernel._width + 1 - (_kernel._width%2),
-                                            _kernel._height + 1 - (_kernel._height%2),
-                                            _kernel._depth + 1 - (_kernel._depth%2),-100,0,0,1,1,1),false);
         switch (_kernel._depth) {
         case 3 : { // 3x3x3 centered kernel
           cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
-            cimg_forC(res,c) {
+          for (int c = 0; c<cend; ++c) {
             cimg_abort_test;
             const CImg<T> I = get_shared_channel(c%_spectrum);
             const CImg<t> K = _kernel.get_shared_channel(!channel_mode?c/_spectrum:c%_kernel._spectrum);
-            CImg<Ttfloat> _res = res.get_shared_channel(c);
+            CImg<Ttfloat> _res = channel_mode<=1?res.get_shared_channel(c):CImg<Ttfloat>(res.width(),res.height(),res.depth(),1);
             if (is_normalized) {
               const Ttfloat M = (Ttfloat)K.magnitude(2), M2 = M*M;
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
@@ -38128,6 +38140,10 @@ namespace cimg_library_suffixed {
                                         K[24]*I(px,ny,nz) + K[25]*I(x,ny,nz) + K[26]*I(nx,ny,nz));
               }
             }
+            if (channel_mode==2)
+              cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(c/smin)+=_res;
+            else if (channel_mode==3)
+              cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(0)+=_res;
           }
         } break;
 
@@ -38136,11 +38152,11 @@ namespace cimg_library_suffixed {
           switch (_kernel._width) {
           case 5 : { // 5x5 centered kernel
             cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
-              cimg_forC(res,c) {
+            for (int c = 0; c<cend; ++c) {
               cimg_abort_test;
               const CImg<T> I = get_shared_channel(c%_spectrum);
               const CImg<t> K = _kernel.get_shared_channel(!channel_mode?c/_spectrum:c%_kernel._spectrum);
-              CImg<Ttfloat> _res = res.get_shared_channel(c);
+              CImg<Ttfloat> _res = channel_mode<=1?res.get_shared_channel(c):CImg<Ttfloat>(res.width(),res.height(),res.depth(),1);
               if (is_normalized) {
                 const Ttfloat M = (Ttfloat)K.magnitude(2), M2 = M*M;
                 cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
@@ -38193,16 +38209,20 @@ namespace cimg_library_suffixed {
                                           K[23]*I(nx,ay,z) + K[24]*I(ax,ay,z));
                 }
               }
+            if (channel_mode==2)
+              cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(c/smin)+=_res;
+            else if (channel_mode==3)
+              cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(0)+=_res;
             }
           } break;
 
           case 3 : { // 3x3 centered kernel
             cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
-              cimg_forC(res,c) {
+            for (int c = 0; c<cend; ++c) {
               cimg_abort_test;
               const CImg<T> I = get_shared_channel(c%_spectrum);
               const CImg<t> K = _kernel.get_shared_channel(!channel_mode?c/_spectrum:c%_kernel._spectrum);
-              CImg<Ttfloat> _res = res.get_shared_channel(c);
+              CImg<Ttfloat> _res = channel_mode<=1?res.get_shared_channel(c):CImg<Ttfloat>(res.width(),res.height(),res.depth(),1);
               if (is_normalized) {
                 const Ttfloat M = (Ttfloat)K.magnitude(2), M2 = M*M;
                 cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
@@ -38230,6 +38250,10 @@ namespace cimg_library_suffixed {
                                           K[6]*I(px,ny,z) + K[7]*I(x,ny,z) + K[8]*I(nx,ny,z));
                 }
               }
+            if (channel_mode==2)
+              cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(c/smin)+=_res;
+            else if (channel_mode==3)
+              cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(0)+=_res;
             }
           } break;
           }
@@ -38237,32 +38261,35 @@ namespace cimg_library_suffixed {
       } else if (_kernel._width==1 && _kernel._height==1 && _kernel._depth==1 &&
                  !_xcenter && !_ycenter && !_zcenter &&
                  xstart>=0 && ystart>=0 && zstart>=0 &&
-                 xend<width() && yend<height() && zend<depth() &&
+                 _xend<width() && _yend<height() && _zend<depth() &&
                  xstride==1 && ystride==1 && zstride==1) {
 
         // Special optimization for 1x1 kernel.
-        get_crop(xstart,ystart,zstart,_xend,_yend,_zend).move_to(res);
-        if (!channel_mode) { // Expand
-          res.resize(-100,-100,-100,res._spectrum*_kernel._spectrum,0,2);
-          cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
-            cimg_forC(res,c) res.get_shared_channel(c)*=_kernel[!channel_mode?c/_spectrum:c%_kernel._spectrum];
-        } else { // One for one
-          res.resize(-100,-100,-100,std::max(res._spectrum,_kernel._spectrum),0,2);
-          cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
-            cimg_forC(res,c) res.get_shared_channel(c)*=_kernel[!channel_mode?c/_spectrum:c%_kernel._spectrum];
+        cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
+        for (int c = 0; c<cend; ++c) {
+          const t valK = _kernel[!channel_mode?c/_spectrum:c%_kernel._spectrum];
+          CImg<T> I = get_channel(c%_spectrum)*=valK;
+          if (is_normalized) I.sign();
+          switch (channel_mode) {
+          case 0 : // All
+          case 1 : // One for one
+            res.get_shared_channel(c) = I;
+            break;
+          case 2 : // Partial sum
+            res.get_shared_channel(c/smin)+=I;
+            break;
+          case 3 : // Full sum
+            res.get_shared_channel(0)+=I;
+            break;
+          }
         }
-
       } else { // Generic version
-        const int cend = !channel_mode?spectrum()*_kernel.spectrum():smax;
-        if (channel_mode>=2) res.fill(0);
-
         cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
           for (int c = 0; c<cend; ++c) _cimg_abort_try_openmp {
           cimg_abort_test;
-
           const CImg<T> I = get_shared_channel(c%_spectrum);
           const CImg<t> K = _kernel.get_shared_channel(!channel_mode?c/_spectrum:c%_kernel._spectrum);
-          CImg<Ttfloat> _res = channel_mode<=1?get_shared_channel(c):CImg<Ttfloat>(res.width(),res.height(),res.depth(),1);
+          CImg<Ttfloat> _res = channel_mode<=1?res.get_shared_channel(c):CImg<Ttfloat>(res.width(),res.height(),res.depth(),1);
           Ttfloat M = 0, M2 = 0;
           if (is_normalized) { M = (Ttfloat)K.magnitude(2); M2 = cimg::sqr(M); }
 
@@ -38411,7 +38438,7 @@ namespace cimg_library_suffixed {
        \param kernel = the correlation kernel.
        \param boundary_conditions Boundary condition. Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
        \param is_normalized = enable local normalization.
-       \param channel_mode Channel processing mode. Can be { 0=all | 1=one for one | 2=partial sum | 3=full sum }.
+       \param channel_mode Channel processing mode. Can be { 0=all | 1=one for one (default) | 2=partial sum | 3=full sum }.
        \param xcenter X-coordinate of the kernel center (~0U means 'centered').
        \param ycenter Y-coordinate of the kernel center (~0U means 'centered').
        \param zcenter Z-coordinate of the kernel center (~0U means 'centered').
@@ -38434,7 +38461,7 @@ namespace cimg_library_suffixed {
     **/
     template<typename t>
     CImg<T>& convolve(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
-                      const bool is_normalized=false, const unsigned int channel_mode=0,
+                      const bool is_normalized=false, const unsigned int channel_mode=1,
                       const int xcenter=(int)(~0U>>1),
                       const int ycenter=(int)(~0U>>1),
                       const int zcenter=(int)(~0U>>1),
@@ -38455,7 +38482,7 @@ namespace cimg_library_suffixed {
     //! Convolve image by a kernel \newinstance.
     template<typename t>
     CImg<_cimg_Ttfloat> get_convolve(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
-                                     const bool is_normalized=false, const unsigned int channel_mode=0,
+                                     const bool is_normalized=false, const unsigned int channel_mode=1,
                                      const int xcenter=(int)(~0U>>1),
                                      const int ycenter=(int)(~0U>>1),
                                      const int zcenter=(int)(~0U>>1),

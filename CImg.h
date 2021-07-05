@@ -38277,10 +38277,10 @@ namespace cimg_library_suffixed {
             res.get_shared_channel(c) = I;
             break;
           case 2 : // Partial sum
-            cimg_pragma_openmp(critical(_correlate2)) res.get_shared_channel(c/smin)+=I;
+            cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(c/smin)+=I;
             break;
           case 3 : // Full sum
-            res.get_shared_channel(0)+=I;
+            cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(0)+=I;
             break;
           }
         }

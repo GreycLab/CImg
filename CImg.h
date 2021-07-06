@@ -38043,7 +38043,7 @@ namespace cimg_library_suffixed {
       if (channel_mode>=2) res.fill(0);
 
       const bool
-#ifdef cimg_use_openmp
+#if cimg_use_openmp==1
         is_master_thread = !omp_get_thread_num(),
 #else
         is_master_thread = true,

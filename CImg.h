@@ -38043,8 +38043,15 @@ namespace cimg_library_suffixed {
       if (channel_mode>=2) res.fill(0);
 
       const bool
-        is_outer_parallel = res._spectrum>=cimg::nb_cpus() || res_siz<=(cimg_openmp_sizefactor)*32768,
-        is_inner_parallel = !is_outer_parallel && res_whd>=(cimg_openmp_sizefactor)*32768,
+#ifdef cimg_use_openmp
+        is_master_thread = !omp_get_thread_num(),
+#else
+        is_master_thread = true,
+#endif
+        is_outer_parallel = is_master_thread &&
+        (res._spectrum>=cimg::nb_cpus() || res_siz<=(cimg_openmp_sizefactor)*32768),
+        is_inner_parallel = is_master_thread &&
+        (!is_outer_parallel && res_whd>=(cimg_openmp_sizefactor)*32768),
         is_int_stride_dilation = xstride==i_xstride && ystride==i_ystride && zstride==i_zstride &&
         _xdilation==i_xdilation && _ydilation==i_ydilation && _zdilation==i_zdilation;
       cimg::unused(is_inner_parallel,is_outer_parallel);

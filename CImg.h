@@ -37908,7 +37908,8 @@ namespace cimg_library_suffixed {
        \param kernel = the correlation kernel.
        \param boundary_conditions Boundary condition. Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
        \param is_normalized = enable local normalization.
-       \param channel_mode Channel processing mode. Can be { 0=all | 1=one for one (default) | 2=partial sum | 3=full sum }.
+       \param channel_mode Channel processing mode.
+                           Can be { 0=all | 1=one for one (default) | 2=partial sum | 3=full sum }.
        \param xcenter X-coordinate of the kernel center (~0U>>1 means 'centered').
        \param ycenter Y-coordinate of the kernel center (~0U>>1 means 'centered').
        \param zcenter Z-coordinate of the kernel center (~0U>>1 means 'centered').
@@ -38104,7 +38105,8 @@ namespace cimg_library_suffixed {
             cimg_abort_test;
             const CImg<T> I = get_shared_channel(c%_spectrum);
             const CImg<t> K = _kernel.get_shared_channel(!channel_mode?c/_spectrum:c%_kernel._spectrum);
-            CImg<Ttfloat> _res = channel_mode<=1?res.get_shared_channel(c):CImg<Ttfloat>(res.width(),res.height(),res.depth(),1);
+            CImg<Ttfloat> _res = channel_mode<=1?res.get_shared_channel(c):
+              CImg<Ttfloat>(res.width(),res.height(),res.depth(),1);
             if (is_normalized) {
               const Ttfloat M = (Ttfloat)K.magnitude(2), M2 = M*M;
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
@@ -38168,7 +38170,8 @@ namespace cimg_library_suffixed {
               cimg_abort_test;
               const CImg<T> I = get_shared_channel(c%_spectrum);
               const CImg<t> K = _kernel.get_shared_channel(!channel_mode?c/_spectrum:c%_kernel._spectrum);
-              CImg<Ttfloat> _res = channel_mode<=1?res.get_shared_channel(c):CImg<Ttfloat>(res.width(),res.height(),res.depth(),1);
+              CImg<Ttfloat> _res = channel_mode<=1?res.get_shared_channel(c):
+                CImg<Ttfloat>(res.width(),res.height(),res.depth(),1);
               if (is_normalized) {
                 const Ttfloat M = (Ttfloat)K.magnitude(2), M2 = M*M;
                 cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
@@ -38234,7 +38237,8 @@ namespace cimg_library_suffixed {
               cimg_abort_test;
               const CImg<T> I = get_shared_channel(c%_spectrum);
               const CImg<t> K = _kernel.get_shared_channel(!channel_mode?c/_spectrum:c%_kernel._spectrum);
-              CImg<Ttfloat> _res = channel_mode<=1?res.get_shared_channel(c):CImg<Ttfloat>(res.width(),res.height(),res.depth(),1);
+              CImg<Ttfloat> _res = channel_mode<=1?res.get_shared_channel(c):
+                CImg<Ttfloat>(res.width(),res.height(),res.depth(),1);
               if (is_normalized) {
                 const Ttfloat M = (Ttfloat)K.magnitude(2), M2 = M*M;
                 cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
@@ -38301,7 +38305,8 @@ namespace cimg_library_suffixed {
           cimg_abort_test;
           const CImg<T> I = get_shared_channel(c%_spectrum);
           const CImg<t> K = _kernel.get_shared_channel(!channel_mode?c/_spectrum:c%_kernel._spectrum);
-          CImg<Ttfloat> _res = channel_mode<=1?res.get_shared_channel(c):CImg<Ttfloat>(res.width(),res.height(),res.depth(),1);
+          CImg<Ttfloat> _res = channel_mode<=1?res.get_shared_channel(c):
+            CImg<Ttfloat>(res.width(),res.height(),res.depth(),1);
           Ttfloat M = 0, M2 = 0;
           if (is_normalized) { M = (Ttfloat)K.magnitude(2); M2 = cimg::sqr(M); }
 
@@ -38450,7 +38455,8 @@ namespace cimg_library_suffixed {
        \param kernel = the correlation kernel.
        \param boundary_conditions Boundary condition. Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
        \param is_normalized = enable local normalization.
-       \param channel_mode Channel processing mode. Can be { 0=all | 1=one for one (default) | 2=partial sum | 3=full sum }.
+       \param channel_mode Channel processing mode.
+                           Can be { 0=all | 1=one for one (default) | 2=partial sum | 3=full sum }.
        \param xcenter X-coordinate of the kernel center (~0U means 'centered').
        \param ycenter Y-coordinate of the kernel center (~0U means 'centered').
        \param zcenter Z-coordinate of the kernel center (~0U means 'centered').

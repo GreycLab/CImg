@@ -18982,11 +18982,6 @@ namespace cimg_library_suffixed {
           // Mathematical functions.
           switch (*ss) {
 
-          case '_' :
-            if (*ss1=='(') // Skip arguments
-              _cimg_mp_return_nan();
-            break;
-
           case 'a' :
             if (!std::strncmp(ss,"abs(",4)) { // Absolute value
               _cimg_mp_op("Function 'abs()'");

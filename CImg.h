@@ -17055,11 +17055,19 @@ namespace cimg_library_suffixed {
         do {
           c2 = 0;
           if (ss<se) {
-            while (*ss && (cimg::is_blank(*ss) || *ss==';')) ++ss;
-            while (se>ss && (cimg::is_blank(c1 = *(se - 1)) || c1==';')) --se;
+            while (*ss && (cimg::is_blank(*ss) || *ss==';')) ++ss; // Remove leading blanks and ';'
+            while (se>ss && (cimg::is_blank(c1 = *(se - 1)) || c1==';')) --se; // Remove trailing blanks and ';'
           }
-          while (*ss=='(' && *(se - 1)==')' && std::strchr(ss,')')==se - 1) {
+          while (*ss=='(' && *(se - 1)==')' && std::strchr(ss,')')==se - 1) { // Remove useless start/end parentheses
             ++ss; --se; c2 = 1;
+          }
+          if (*ss=='_' && ss + 1<se && ss[1]=='(') { // Remove leading '_(something)' comment.
+            const unsigned int clevel = level[ss - expr._data];
+            ss+=2;
+            while (ss<se && (*ss!=')' || level[ss - expr._data]!=clevel)) ++ss;
+            if (ss<se) ++ss;
+            if (ss>=se) return _cimg_mp_slot_nan;
+            c2 = 1;
           }
         } while (c2 && ss<se);
 
@@ -17254,6 +17262,7 @@ namespace cimg_library_suffixed {
 
         pos = ~0U;
         is_sth = false;
+
         for (s0 = ss, s = ss1; s<se1; ++s)
           if (*s==';' && level[s - expr._data]==clevel) { // Separator ';'
             is_end_code = false;

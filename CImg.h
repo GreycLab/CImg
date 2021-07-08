@@ -19531,7 +19531,8 @@ namespace cimg_library_suffixed {
                                                 0,0,0, // [18]=xstart, [19]=ystart, [20]=zstart
                                                 ~0U,~0U,~0U, // [21]=xend, [22]=yend, [23]=zend
                                                 1,1,1, // [24]=xstride, [25]=ystride, [26]=zstride
-                                                1,1,1 }; // [27]=xdilation, [28]=ydilation, [29]=zdilation
+                                                1,1,1, // [27]=xdilation, [28]=ydilation, [29]=zdilation,
+                                                0 }; // [30]=interpolation_type
 
               l_opcode.assign(); // Don't use 'opcode': it could be modified by further calls to 'compile()'!
               CImg<ulongT>(default_params,1,sizeof(default_params)/sizeof(ulongT)).move_to(l_opcode);
@@ -19581,6 +19582,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_type(opcode[27],26,1,0); // xdilation
               _cimg_mp_check_type(opcode[28],27,1,0); // ydilation
               _cimg_mp_check_type(opcode[29],28,1,0); // zdilation
+              _cimg_mp_check_type(opcode[30],29,1,0); // interpolation_type
 
               const unsigned int
                 wA = (unsigned int)mem[opcode[3]],
@@ -23459,7 +23461,9 @@ namespace cimg_library_suffixed {
           sM = (unsigned int)mp.opcode[11],
           boundary_conditions = (unsigned int)_mp_arg(12),
           channel_mode = (unsigned int)mp.opcode[14];
-        const bool is_normalized = (bool)_mp_arg(13);
+        const bool
+          is_normalized = (bool)_mp_arg(13),
+          interpolation_type = (bool)_mp_arg(30);
         const int
           xcenter = mp.opcode[15]!=~0U?(int)_mp_arg(15):(int)(~0U>>1),
           ycenter = mp.opcode[16]!=~0U?(int)_mp_arg(16):(int)(~0U>>1),
@@ -23485,7 +23489,8 @@ namespace cimg_library_suffixed {
                                         xstart,ystart,zstart,
                                         xend,yend,zend,
                                         xstride,ystride,zstride,
-                                        xdilation,ydilation,zdilation);
+                                        xdilation,ydilation,zdilation,
+                                        interpolation_type);
         else res = CImg<doubleT>(ptrA,wA,hA,dA,sA,true).
                get_correlate(CImg<doubleT>(ptrM,wM,hM,dM,sM,true),
                              boundary_conditions,is_normalized,channel_mode,
@@ -23493,7 +23498,8 @@ namespace cimg_library_suffixed {
                              xstart,ystart,zstart,
                              xend,yend,zend,
                              xstride,ystride,zstride,
-                             xdilation,ydilation,zdilation);
+                             xdilation,ydilation,zdilation,
+                             interpolation_type);
         CImg<doubleT>(ptrd,res._width,res._height,res._depth,res._spectrum,true) = res;
         return cimg::type<double>::nan();
       }
@@ -37925,6 +37931,7 @@ namespace cimg_library_suffixed {
        \param xdilation Dilation along the X-axis.
        \param ydilation Dilation along the Y-axis.
        \param zdilation Dilation along the Z-axis.
+       \param interpolation_type Can be { false=nearest | true=linear }.
        \note
        - The correlation of the image instance \p *this by the kernel \p kernel is defined to be:
        res(x,y,z) = sum_{i,j,k} (*this)(\alpha_x\;x + \beta_x\;(i - c_x),\alpha_y\;y + \beta_y\;(j -
@@ -37943,11 +37950,13 @@ namespace cimg_library_suffixed {
                        const int yend=(int)(~0U>>1),
                        const int zend=(int)(~0U>>1),
                        const float xstride=1, const float ystride=1, const float zstride=1,
-                       const float xdilation=1, const float ydilation=1, const float zdilation=1) {
+                       const float xdilation=1, const float ydilation=1, const float zdilation=1,
+                       const bool interpolation_type=false) {
       if (is_empty() || !kernel) return *this;
       return get_correlate(kernel,boundary_conditions,is_normalized,channel_mode,
                            xcenter,ycenter,zcenter,xstart,ystart,zstart,xend,yend,zend,
-                           xstride,ystride,zstride,xdilation,ydilation,zdilation).move_to(*this);
+                           xstride,ystride,zstride,xdilation,ydilation,zdilation,
+                           interpolation_type).move_to(*this);
     }
 
     template<typename t>
@@ -37963,10 +37972,12 @@ namespace cimg_library_suffixed {
                                       const int yend=(int)(~0U>>1),
                                       const int zend=(int)(~0U>>1),
                                       const float xstride=1, const float ystride=1, const float zstride=1,
-                                      const float xdilation=1, const float ydilation=1, const float zdilation=1) const {
+                                      const float xdilation=1, const float ydilation=1, const float zdilation=1,
+                                      const bool interpolation_type=false) const {
       return _correlate(kernel,boundary_conditions,is_normalized,channel_mode,
                         xcenter,ycenter,zcenter,xstart,ystart,zstart,xend,yend,zend,
-                        xstride,ystride,zstride,xdilation,ydilation,zdilation,false);
+                        xstride,ystride,zstride,xdilation,ydilation,zdilation,
+                        interpolation_type,false);
     }
 
     //! Correlate image by a kernel \newinstance.
@@ -37978,7 +37989,7 @@ namespace cimg_library_suffixed {
                                    const int xend, const int yend, const int zend,
                                    const float xstride, const float ystride, const float zstride,
                                    const float xdilation, const float ydilation, const float zdilation,
-                                   const bool is_convolve) const {
+                                   const bool interpolation_type, const bool is_convolve) const {
       typedef _cimg_Ttfloat Ttfloat;
       CImg<Ttfloat> res;
       _cimg_abort_init_openmp;
@@ -38391,7 +38402,7 @@ namespace cimg_library_suffixed {
                 _cimg_correlate_n(int,mirror,I(nix,niy,niz,0,wh,whd));
                 break;
               }
-            else // Non-integer stride or dilation
+            else if (interpolation_type) // Non-integer stride or dilation, linear interpolation
               switch (boundary_conditions) {
               case 0 : // Dirichlet
                 _cimg_correlate_n(float,dirichlet,is_in_x && is_in_y && is_in_z?I.linear_atXYZ(ix,iy,iz,0,0):0);
@@ -38404,6 +38415,21 @@ namespace cimg_library_suffixed {
                 break;
               case 3 : // Mirror
                 _cimg_correlate_n(float,mirror,I._linear_atXYZ(nix,niy,niz,0));
+                break;
+              }
+            else // Non-integer stride or dilation, nearest-neighbor interpolation
+              switch (boundary_conditions) {
+              case 0 : // Dirichlet
+                _cimg_correlate_n(float,dirichlet,is_in_x && is_in_y && is_in_z?I((int)ix,(int)iy,(int)iz,0,0):0);
+                break;
+              case 1 : // Neumann
+                _cimg_correlate_n(float,neumann,I((int)nix,(int)niy,(int)niz,0));
+                break;
+              case 2 : // Periodic
+                _cimg_correlate_n(float,periodic,I((int)nix,(int)niy,(int)niz,0));
+                break;
+              case 3 : // Mirror
+                _cimg_correlate_n(float,mirror,I((int)nix,(int)niy,(int)niz,0));
                 break;
               }
           } else { // Standard convolution/correlation
@@ -38422,7 +38448,7 @@ namespace cimg_library_suffixed {
                 _cimg_correlate(int,mirror,I(nix,niy,niz,0,wh,whd));
                 break;
               }
-            else // Non-integer stride or dilation
+            else if (interpolation_type) // Non-integer stride or dilation, linear interpolation
               switch (boundary_conditions) {
               case 0 : // Dirichlet
                 _cimg_correlate(float,dirichlet,is_in_x && is_in_y && is_in_z?I.linear_atXYZ(ix,iy,iz,0,0):0);
@@ -38437,8 +38463,22 @@ namespace cimg_library_suffixed {
                 _cimg_correlate(float,mirror,I._linear_atXYZ(nix,niy,niz,0));
                 break;
               }
+            else // Non-integer stride or dilation, nearest-neighbor interpolation
+              switch (boundary_conditions) {
+              case 0 : // Dirichlet
+                _cimg_correlate(float,dirichlet,is_in_x && is_in_y && is_in_z?I((int)ix,(int)iy,(int)iz,0,0):0);
+                break;
+              case 1 : // Neumann
+                _cimg_correlate(float,neumann,I((int)nix,(int)niy,(int)niz,0));
+                break;
+              case 2 : // Periodic
+                _cimg_correlate(float,periodic,I((int)nix,(int)niy,(int)niz,0));
+                break;
+              case 3 : // Mirror
+                _cimg_correlate(float,mirror,I((int)nix,(int)niy,(int)niz,0));
+                break;
+              }
           }
-
           if (channel_mode==2)
             cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(c/smin)+=_res;
           else if (channel_mode==3)
@@ -38472,6 +38512,7 @@ namespace cimg_library_suffixed {
        \param xdilation Dilation along the X-axis.
        \param ydilation Dilation along the Y-axis.
        \param zdilation Dilation along the Z-axis.
+       \param interpolation_type Can be { false=nearest | true=linear }.
        \note
        - The convolution of the image instance \p *this by the kernel \p kernel is defined to be:
        res(x,y,z) = sum_{i,j,k} (*this)(\alpha_x\;x - \beta_x\;(i - c_x),\alpha_y\;y
@@ -38490,11 +38531,13 @@ namespace cimg_library_suffixed {
                       const int yend=(int)(~0U>>1),
                       const int zend=(int)(~0U>>1),
                       const float xstride=1, const float ystride=1, const float zstride=1,
-                      const float xdilation=1, const float ydilation=1, const float zdilation=1) {
+                      const float xdilation=1, const float ydilation=1, const float zdilation=1,
+                      const bool interpolation_type=false) {
       if (is_empty() || !kernel) return *this;
       return get_convolve(kernel,boundary_conditions,is_normalized,channel_mode,
                           xcenter,ycenter,zcenter,xstart,ystart,zstart,xend,yend,zend,
-                          xstride,ystride,zstride,xdilation,ydilation,zdilation).move_to(*this);
+                          xstride,ystride,zstride,xdilation,ydilation,zdilation,
+                          interpolation_type).move_to(*this);
     }
 
     //! Convolve image by a kernel \newinstance.
@@ -38511,10 +38554,12 @@ namespace cimg_library_suffixed {
                                      const int yend=(int)(~0U>>1),
                                      const int zend=(int)(~0U>>1),
                                      const float xstride=1, const float ystride=1, const float zstride=1,
-                                     const float xdilation=1, const float ydilation=1, const float zdilation=1) const {
+                                     const float xdilation=1, const float ydilation=1, const float zdilation=1,
+                                     const bool interpolation_type=false) const {
       return _correlate(kernel,boundary_conditions,is_normalized,channel_mode,
                         xcenter,ycenter,zcenter,xstart,ystart,zstart,xend,yend,zend,
-                        xstride,ystride,zstride,xdilation,ydilation,zdilation,true);
+                        xstride,ystride,zstride,xdilation,ydilation,zdilation,
+                        interpolation_type,true);
     }
 
     //! Cumulate image values, optionally along specified axis.

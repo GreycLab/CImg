@@ -19531,7 +19531,8 @@ namespace cimg_library_suffixed {
                                                 0,0,0, // [18]=xstart, [19]=ystart, [20]=zstart
                                                 ~0U,~0U,~0U, // [21]=xend, [22]=yend, [23]=zend
                                                 1,1,1, // [24]=xstride, [25]=ystride, [26]=zstride
-                                                1,1,1 }; // [27]=xdilation, [28]=ydilation, [29]=zdilation
+                                                1,1,1, // [27]=xdilation, [28]=ydilation, [29]=zdilation,
+                                                0 }; // [30]=interpolation_type
 
               l_opcode.assign(); // Don't use 'opcode': it could be modified by further calls to 'compile()'!
               CImg<ulongT>(default_params,1,sizeof(default_params)/sizeof(ulongT)).move_to(l_opcode);
@@ -19581,6 +19582,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_type(opcode[27],26,1,0); // xdilation
               _cimg_mp_check_type(opcode[28],27,1,0); // ydilation
               _cimg_mp_check_type(opcode[29],28,1,0); // zdilation
+              _cimg_mp_check_type(opcode[30],29,1,0); // interpolation_type
 
               const unsigned int
                 wA = (unsigned int)mem[opcode[3]],
@@ -23459,7 +23461,9 @@ namespace cimg_library_suffixed {
           sM = (unsigned int)mp.opcode[11],
           boundary_conditions = (unsigned int)_mp_arg(12),
           channel_mode = (unsigned int)mp.opcode[14];
-        const bool is_normalized = (bool)_mp_arg(13);
+        const bool
+          is_normalized = (bool)_mp_arg(13),
+          interpolation_type = (bool)_mp_arg(30);
         const int
           xcenter = mp.opcode[15]!=~0U?(int)_mp_arg(15):(int)(~0U>>1),
           ycenter = mp.opcode[16]!=~0U?(int)_mp_arg(16):(int)(~0U>>1),
@@ -23485,7 +23489,8 @@ namespace cimg_library_suffixed {
                                         xstart,ystart,zstart,
                                         xend,yend,zend,
                                         xstride,ystride,zstride,
-                                        xdilation,ydilation,zdilation);
+                                        xdilation,ydilation,zdilation,
+                                        interpolation_type);
         else res = CImg<doubleT>(ptrA,wA,hA,dA,sA,true).
                get_correlate(CImg<doubleT>(ptrM,wM,hM,dM,sM,true),
                              boundary_conditions,is_normalized,channel_mode,
@@ -23493,7 +23498,8 @@ namespace cimg_library_suffixed {
                              xstart,ystart,zstart,
                              xend,yend,zend,
                              xstride,ystride,zstride,
-                             xdilation,ydilation,zdilation);
+                             xdilation,ydilation,zdilation,
+                             interpolation_type);
         CImg<doubleT>(ptrd,res._width,res._height,res._depth,res._spectrum,true) = res;
         return cimg::type<double>::nan();
       }

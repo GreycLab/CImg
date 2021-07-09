@@ -38009,7 +38009,6 @@ namespace cimg_library_suffixed {
                                     xstride,ystride,zstride);
 
       if (is_empty() || !kernel) return *this;
-
       int
         _xcenter = xcenter==(int)(~0U>>1)?kernel.width()/2 - 1 + (kernel.width()%2):
         std::min(xcenter,kernel.width() - 1),
@@ -38295,7 +38294,7 @@ namespace cimg_library_suffixed {
         cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
         for (int c = 0; c<cend; ++c) {
           const t valK = _kernel[!channel_mode?c/_spectrum:c%_kernel._spectrum];
-          CImg<T> I = get_channel(c%_spectrum)*=valK;
+          CImg<T> I = get_crop(xstart,ystart,zstart,c%_spectrum,_xend,_yend,_zend,c%_spectrum)*=valK;
           if (is_normalized) I.sign();
           switch (channel_mode) {
           case 0 : // All

@@ -21226,6 +21226,25 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar6(mp_vector_eq,arg1,p1,arg2,p2,arg3,arg4);
             }
 
+/*#ifdef cimg_mp_func_set
+            if (!std::strncmp(ss,"set(",4)) { // Set external variable
+              _cimg_mp_op("Function 'set()'");
+              s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss4,s1,depth1,0,bloc_flags);
+              arg2 = compile(++s1,s2,depth1,0,bloc_flags);
+              _cimg_mp_check_type(arg1,1,2,0);
+              _cimg_mp_check_constant(arg2,2,2);
+
+              p1 = _cimg_mp_size(arg1);
+              arg2 = (unsigned int)mem[arg2];
+              if (arg2) pos = vector(arg2); else pos = scalar();
+              CImg<ulongT>::vector((ulongT)mp_set,pos,arg1,p1,arg2,arg3).move_to(code);
+              return_new_comp = true;
+              _cimg_mp_return(pos);
+            }
+#endif
+*/
+
             if (!std::strncmp(ss,"shift(",6)) { // Shift vector
               _cimg_mp_op("Function 'shift()'");
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;

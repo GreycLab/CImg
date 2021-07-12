@@ -20285,7 +20285,7 @@ namespace cimg_library_suffixed {
             }
 
 #ifdef cimg_mp_func_get
-            if (!std::strncmp(ss,"get(",4)) { // Get vector from stored variable
+            if (!std::strncmp(ss,"get(",4)) { // Get value/vector from external variable
               _cimg_mp_op("Function 'get()'");
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss4,s1,depth1,0,bloc_flags);
@@ -21225,6 +21225,20 @@ namespace cimg_library_suffixed {
               p2 = _cimg_mp_size(arg2);
               _cimg_mp_scalar6(mp_vector_eq,arg1,p1,arg2,p2,arg3,arg4);
             }
+
+#ifdef cimg_mp_func_set
+            if (!std::strncmp(ss,"set(",4)) { // Set value/vector to external variable
+              _cimg_mp_op("Function 'set()'");
+              s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss4,s1,depth1,0,bloc_flags);
+              arg2 = compile(++s1,se1,depth1,0,bloc_flags);
+              _cimg_mp_check_type(arg2,2,2,0);
+              p1 = _cimg_mp_size(arg1);
+              p2 = _cimg_mp_size(arg2);
+              CImg<ulongT>::vector((ulongT)mp_set,arg1,p1,arg2,p2).move_to(code);
+              _cimg_mp_return(arg1);
+            }
+#endif
 
             if (!std::strncmp(ss,"shift(",6)) { // Shift vector
               _cimg_mp_op("Function 'shift()'");
@@ -26085,6 +26099,22 @@ namespace cimg_library_suffixed {
       static double mp_self_sub(_cimg_math_parser& mp) {
         return _mp_arg(1)-=_mp_arg(2);
       }
+
+#ifdef cimg_mp_func_set
+      static double mp_set(_cimg_math_parser& mp) {
+        const double *ptrs = &_mp_arg(1);
+        double *ptrd = &_mp_arg(3) + 1;
+        const unsigned int
+          sizs = (unsigned int)mp.opcode[2],
+          sizd = (unsigned int)mp.opcode[4];
+        CImg<charT> sd(sizd + 1);
+        cimg_for_inX(sd,0,sd.width() - 1,i) sd[i] = (char)ptrd[i];
+        sd.back() = 0;
+        if (sizs) cimg_mp_func_set(ptrs + 1,sizs,sd._data);
+        else cimg_mp_func_set(ptrs,0,sd._data);
+        return *ptrs;
+      }
+#endif
 
       static double mp_set_ioff(_cimg_math_parser& mp) {
         CImg<T> &img = mp.imgout;

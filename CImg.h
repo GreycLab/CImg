@@ -11143,7 +11143,7 @@ namespace cimg_library_suffixed {
           _curr_mode.dmSize = sizeof(DEVMODE); _curr_mode.dmDriverExtra = 0;
           EnumDisplaySettings(0,ENUM_CURRENT_SETTINGS,&_curr_mode);
           EnumDisplaySettings(0,ibest,&mode);
-          ChangeDisplaySettings(&mode,0);
+//          ChangeDisplaySettings(&mode,0);
         } else _curr_mode.dmSize = 0;
 
         const unsigned int

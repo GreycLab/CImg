@@ -11129,7 +11129,7 @@ namespace cimg_library_suffixed {
       _background_window = 0;
       if (!_is_fullscreen || _is_closed) _curr_mode.dmSize = 0;
       else {
-        DEVMODE mode;
+/*        DEVMODE mode;
         unsigned int imode = 0, ibest = 0, bestbpp = 0, bw = ~0U, bh = ~0U;
         for (mode.dmSize = sizeof(DEVMODE), mode.dmDriverExtra = 0; EnumDisplaySettings(0,imode,&mode); ++imode) {
           const unsigned int nw = mode.dmPelsWidth, nh = mode.dmPelsHeight;
@@ -11143,9 +11143,10 @@ namespace cimg_library_suffixed {
           _curr_mode.dmSize = sizeof(DEVMODE); _curr_mode.dmDriverExtra = 0;
           EnumDisplaySettings(0,ENUM_CURRENT_SETTINGS,&_curr_mode);
           EnumDisplaySettings(0,ibest,&mode);
-//          ChangeDisplaySettings(&mode,0);
+          ChangeDisplaySettings(&mode,0);
         } else _curr_mode.dmSize = 0;
-
+*/
+        _curr_mode.dmSize = 0;
         const unsigned int
           sx = (unsigned int)screen_width(),
           sy = (unsigned int)screen_height();

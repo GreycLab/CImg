@@ -11129,7 +11129,7 @@ namespace cimg_library_suffixed {
       _background_window = 0;
       if (!_is_fullscreen || _is_closed) _curr_mode.dmSize = 0;
       else {
-        DEVMODE mode;
+/*        DEVMODE mode;
         unsigned int imode = 0, ibest = 0, bestbpp = 0, bw = ~0U, bh = ~0U;
         for (mode.dmSize = sizeof(DEVMODE), mode.dmDriverExtra = 0; EnumDisplaySettings(0,imode,&mode); ++imode) {
           const unsigned int nw = mode.dmPelsWidth, nh = mode.dmPelsHeight;
@@ -11145,7 +11145,8 @@ namespace cimg_library_suffixed {
           EnumDisplaySettings(0,ibest,&mode);
           ChangeDisplaySettings(&mode,0);
         } else _curr_mode.dmSize = 0;
-
+*/
+        _curr_mode.dmSize = 0;
         const unsigned int
           sx = (unsigned int)screen_width(),
           sy = (unsigned int)screen_height();
@@ -51672,15 +51673,16 @@ namespace cimg_library_suffixed {
           Tint m0 = (Tint)cimg::type<T>::max(), M0 = (Tint)cimg::type<T>::min();
           if (!normalization) { m0 = 0; M0 = 255; }
           else if (normalization==2) { m0 = (Tint)disp._min; M0 = (Tint)disp._max; }
-          else
+          else {
             cimg_for(img2d,ptr,Tuchar)
               if (!cimg::type<T>::is_inf(*ptr) && !cimg::type<T>::is_nan(*ptr)) {
                 if (*ptr<(Tuchar)m0) m0 = *ptr;
                 if (*ptr>(Tuchar)M0) M0 = *ptr;
               }
+          }
           const T
-            val_minf = (T)(normalization==1 || normalization==3?m0 - (M0 - m0)*20 - 1:m0),
-            val_pinf = (T)(normalization==1 || normalization==3?M0 + (M0 - m0)*20 + 1:M0);
+            val_minf = (T)(normalization==1 || normalization==3?m0 - cimg::abs(m0):m0),
+            val_pinf = (T)(normalization==1 || normalization==3?M0 + cimg::abs(M0):M0);
           if (is_nan)
             cimg_for(img2d,ptr,Tuchar)
               if (cimg::type<T>::is_nan(*ptr)) *ptr = val_minf; // Replace NaN values

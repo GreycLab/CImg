@@ -39728,7 +39728,8 @@ namespace cimg_library_suffixed {
         return CImg<Tfloat>(*this,false).vanvliet(sigma,order,axis,boundary_conditions).move_to(*this);
       const char naxis = cimg::lowercase(axis);
       const float nsigma = sigma>=0?sigma:-sigma*(naxis=='x'?_width:naxis=='y'?_height:naxis=='z'?_depth:_spectrum)/100;
-      if (is_empty() || (nsigma<0.5f && !order)) return *this;
+      if (is_empty()) return *this;
+      if (nsigma<0.5f) return deriche(nsigma,order,axis,boundary_conditions);
       const double
         nnsigma = nsigma<0.5f?0.5f:nsigma,
         m0 = 1.16680, m1 = 1.10783, m2 = 1.40586,

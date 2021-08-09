@@ -38105,9 +38105,7 @@ namespace cimg_library_suffixed {
         w = width(), h = height(), d = depth(),
         w1 = w  - 1, h1 = h - 1, d1 = d - 1,
         w2 = 2*w, h2 = 2*h, d2 = 2*h;
-      const ulongT
-        wh = (ulongT)w*h, whd = wh*d,
-        K_wh = (ulongT)kernel.width()*kernel.height(), K_whd = K_wh*kernel.depth();
+      const ulongT wh = (ulongT)w*h, whd = wh*d;
 
       // Reshape kernel to enable optimizations for a few cases.
       if (boundary_conditions==1 &&

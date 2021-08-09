@@ -38390,10 +38390,11 @@ namespace cimg_library_suffixed {
           cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel)) \
           cimg_forXYZ(res,x,y,z) { \
             Ttfloat val = 0; \
+            const t *pK = K._data; \
             cimg_forZ(_kernel,r) { _cimg_correlate_z_##type; _cimg_correlate_z_##type##_##boundary; \
               cimg_forY(_kernel,q) { _cimg_correlate_y_##type; _cimg_correlate_y_##type##_##boundary; \
                 cimg_forX(_kernel,p) { _cimg_correlate_x_##type; _cimg_correlate_x_##type##_##boundary; \
-                  val+=K(p,q,r,0,K_wh,K_whd)*(access); \
+                  val+=*(pK++)*(access); \
                 } \
               } \
             } \
@@ -38404,11 +38405,12 @@ namespace cimg_library_suffixed {
           cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel)) \
           cimg_forXYZ(res,x,y,z) { \
             Ttfloat val = 0, N = 0; \
+            const t *pK = K._data; \
             cimg_forZ(_kernel,r) { _cimg_correlate_z_##type; _cimg_correlate_z_##type##_##boundary; \
               cimg_forY(_kernel,q) { _cimg_correlate_y_##type; _cimg_correlate_y_##type##_##boundary; \
                 cimg_forX(_kernel,p) { _cimg_correlate_x_##type; _cimg_correlate_x_##type##_##boundary; \
                   Ttfloat _val = access; \
-                  val+=K(p,q,r,0,K_wh,K_whd)*_val; \
+                  val+=*(pK++)*_val; \
                   _val*=_val; N+=_val; \
                 } \
               } \

@@ -28482,7 +28482,7 @@ namespace cimg_library_suffixed {
         } else if ((err = std::sscanf(expression,"%lf %c %lf %c",&val,&sep,&val2,&end))==1) { // Single value
           res = (t)val;
           is_success = true;
-        } else if (err==3) { // Arithmetic with two operands
+        } else if (err==3) { // Operator with two values
           switch (sep) {
           case '+' : res = (t)(val + val2); is_success = true; break;
           case '-' : res = (t)(val - val2); is_success = true; break;

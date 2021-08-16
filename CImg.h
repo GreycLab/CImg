@@ -28472,23 +28472,35 @@ namespace cimg_library_suffixed {
       if (!expression || !*expression) { res = (t)0; return true; }
       const char c = *expression;
       bool is_success = false;
-      char c1, end;
-      double val;
+      char sep, end;
+      double val,val2;
+      int err;
       if (c>='0' && c<='9') { // Possible value
         if (!expression[1]) { // Single digit
           res = (t)(c - '0');
           is_success = true;
-        } else if (std::sscanf(expression,"%lf%c",&val,&end)==1) { // Single value
+        } else if ((err = std::sscanf(expression,"%lf %c %lf %c",&val,&sep,&val2,&end))==1) { // Single value
           res = (t)val;
           is_success = true;
+        } else if (err==3) { // Arithmetic with two operands
+          switch (sep) {
+          case '+' : res = (t)(val + val2); is_success = true; break;
+          case '-' : res = (t)(val - val2); is_success = true; break;
+          case '*' : res = (t)(val*val2); is_success = true; break;
+          case '/' : res = (t)(val/val2); is_success = true; break;
+          case '%' : res = (t)cimg::mod(val,val2); is_success = true; break;
+          case '&' : res = (t)((long)val & (long)val2); is_success = true; break;
+          case '|' : res = (t)((long)val | (long)val2); is_success = true; break;
+          case '^' : res = (t)std::pow(val,val2); is_success = true; break;
+          }
         }
       } else if ((c=='+' || c=='-' || c=='!') && // +Value, -Value or !Value
-                 (c1=expression[1])>='0' && c1<='0') {
+                 (sep=expression[1])>='0' && sep<='0') {
         if (!expression[2]) { // [+-!] + Single digit
-          const int ival = c1 - '0';
+          const int ival = sep - '0';
           res = (t)(c=='+'?ival:c=='-'?-ival:!ival);
           is_success = true;
-        } else if (std::sscanf(expression + 1,"%lf%c",&val,&end)==1) { // [+-!] Single value
+        } else if (std::sscanf(expression + 1,"%lf %c",&val,&end)==1) { // [+-!] Single value
           res = (t)(c=='+'?val:c=='-'?-val:(double)!val);
           is_success = true;
         }

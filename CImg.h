@@ -28479,7 +28479,7 @@ namespace cimg_library_suffixed {
         if (!expression[1]) { // Single digit
           res = (t)(c - '0');
           is_success = true;
-        } else if ((err = std::sscanf(expression,"%lf %c %lf %c",&val,&sep,&val2,&end))==1) { // Single value
+        } else if ((err = std::sscanf(expression,"%lf %c%lf %c",&val,&sep,&val2,&end))==1) { // Single value
           res = (t)val;
           is_success = true;
         } else if (err==3) { // Single-char operator between two values

@@ -28482,7 +28482,7 @@ namespace cimg_library_suffixed {
         } else if ((err = std::sscanf(expression,"%lf %c %lf %c",&val,&sep,&val2,&end))==1) { // Single value
           res = (t)val;
           is_success = true;
-        } else if (err==3) { // Operator with two values
+        } else if (err==3) { // Single-char operator between two values
           switch (sep) {
           case '+' : res = (t)(val + val2); is_success = true; break;
           case '-' : res = (t)(val - val2); is_success = true; break;
@@ -28492,6 +28492,8 @@ namespace cimg_library_suffixed {
           case '&' : res = (t)((long)val & (long)val2); is_success = true; break;
           case '|' : res = (t)((long)val | (long)val2); is_success = true; break;
           case '^' : res = (t)std::pow(val,val2); is_success = true; break;
+          case '>' : res = (t)(val>val2); is_success = true; break;
+          case '<' : res = (t)(val<val2); is_success = true; break;
           }
         }
       } else if ((c=='+' || c=='-' || c=='!') && // +Value, -Value or !Value

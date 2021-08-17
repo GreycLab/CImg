@@ -28475,14 +28475,14 @@ namespace cimg_library_suffixed {
       char sep, end;
       double val,val2;
       int err;
-      if (c>='0' && c<='9') { // Possible value
+      if ((c>='0' && c<='9') || c=='.') { // Possible value
         if (!expression[1]) { // Single digit
           res = (t)(c - '0');
           is_success = true;
         } else if ((err = std::sscanf(expression,"%lf %c%lf %c",&val,&sep,&val2,&end))==1) { // Single value
           res = (t)val;
           is_success = true;
-        } else if (err==3) { // Single-char operator between two values
+        } else if (err==3) { // Value1 Operator Value2
           switch (sep) {
           case '+' : res = (t)(val + val2); is_success = true; break;
           case '-' : res = (t)(val - val2); is_success = true; break;
@@ -28491,21 +28491,36 @@ namespace cimg_library_suffixed {
           case '%' : res = (t)cimg::mod(val,val2); is_success = true; break;
           case '&' : res = (t)((long)val & (long)val2); is_success = true; break;
           case '|' : res = (t)((long)val | (long)val2); is_success = true; break;
-          case '^' : res = (t)std::pow(val,val2); is_success = true; break;
           case '>' : res = (t)(val>val2); is_success = true; break;
           case '<' : res = (t)(val<val2); is_success = true; break;
           case ';' : res = (t)val2; is_success = true; break;
+          case '^' : res = (t)std::pow(val,val2); is_success = true; break;
           }
         }
       } else if ((c=='+' || c=='-' || c=='!') && // +Value, -Value or !Value
-                 (sep=expression[1])>='0' && sep<='0') {
+                 (((sep = expression[1])>='0' && sep<='9') || sep=='.')) {
         if (!expression[2]) { // [+-!] + Single digit
           const int ival = sep - '0';
           res = (t)(c=='+'?ival:c=='-'?-ival:!ival);
           is_success = true;
-        } else if (std::sscanf(expression + 1,"%lf %c",&val,&end)==1) { // [+-!] Single value
+        } else if ((err = std::sscanf(expression + 1,"%lf %c%lf %c",&val,&sep,&val2,&end))==1) { // [+-!] Single value
           res = (t)(c=='+'?val:c=='-'?-val:(double)!val);
           is_success = true;
+        } else if (err==3) { // [+-!] Value1 Operator Value2
+          const double val1 = c=='+'?val:c=='-'?-val:(double)!val;
+          switch (sep) {
+          case '+' : res = (t)(val1 + val2); is_success = true; break;
+          case '-' : res = (t)(val1 - val2); is_success = true; break;
+          case '*' : res = (t)(val1*val2); is_success = true; break;
+          case '/' : res = (t)(val1/val2); is_success = true; break;
+          case '%' : res = (t)cimg::mod(val1,val2); is_success = true; break;
+          case '&' : res = (t)((long)val1 & (long)val2); is_success = true; break;
+          case '|' : res = (t)((long)val1 | (long)val2); is_success = true; break;
+          case '>' : res = (t)(val1>val2); is_success = true; break;
+          case '<' : res = (t)(val1<val2); is_success = true; break;
+          case ';' : res = (t)val2; is_success = true; break;
+//          case '^' : res = (t)c=='+'?val:c=='-'?std::pow(val,val2); is_success = true; break;
+          }
         }
       } else if (!expression[1]) switch (*expression) { // Other common single-char expressions
         case 'w' : res = (t)_width; is_success = true; break;
@@ -28515,7 +28530,7 @@ namespace cimg_library_suffixed {
         case 'r' : res = (t)_is_shared; is_success = true; break;
         }
 
-//      if (is_success) std::fprintf(stderr,"\nDEBUG : Optimize '%s' -> %g",expression,res);
+      if (is_success) std::fprintf(stderr,"\nDEBUG : Optimize '%s' -> %g",expression,res);
 
       return is_success;
     }

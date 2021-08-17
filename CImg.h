@@ -28494,6 +28494,7 @@ namespace cimg_library_suffixed {
           case '^' : res = (t)std::pow(val,val2); is_success = true; break;
           case '>' : res = (t)(val>val2); is_success = true; break;
           case '<' : res = (t)(val<val2); is_success = true; break;
+          case ';' : res = (t)val2; is_success = true; break;
           }
         }
       } else if ((c=='+' || c=='-' || c=='!') && // +Value, -Value or !Value
@@ -28513,6 +28514,9 @@ namespace cimg_library_suffixed {
         case 's' : res = (t)_spectrum; is_success = true; break;
         case 'r' : res = (t)_is_shared; is_success = true; break;
         }
+
+//      if (is_success) std::fprintf(stderr,"\nDEBUG : Optimize '%s' -> %g",expression,res);
+
       return is_success;
     }
 

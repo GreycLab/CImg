@@ -28519,7 +28519,7 @@ namespace cimg_library_suffixed {
           case '>' : res = (t)(val1>val2); is_success = true; break;
           case '<' : res = (t)(val1<val2); is_success = true; break;
           case ';' : res = (t)val2; is_success = true; break;
-//          case '^' : res = (t)c=='+'?val:c=='-'?std::pow(val,val2); is_success = true; break;
+          case '^' : val = std::pow(val,val2); res = (t)(c=='+'?val:c=='-'?-val:!val); is_success = true; break;
           }
         }
       } else if (!expression[1]) switch (*expression) { // Other common single-char expressions
@@ -28529,9 +28529,6 @@ namespace cimg_library_suffixed {
         case 's' : res = (t)_spectrum; is_success = true; break;
         case 'r' : res = (t)_is_shared; is_success = true; break;
         }
-
-      if (is_success) std::fprintf(stderr,"\nDEBUG : Optimize '%s' -> %g",expression,res);
-
       return is_success;
     }
 

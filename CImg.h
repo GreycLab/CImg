@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 299
+#define cimg_version 300
 
 /*-----------------------------------------------------------
  #
@@ -46273,17 +46273,17 @@ namespace cimg_library_suffixed {
 
       const int
         h1 = height() - 1,
-        dx01 = x1 - x0, dx02 = x2 - x0, dx12 = x2 - x1,
-        dy01 = std::max(1,y1 - y0), dy02 = std::max(1,y2 - y0), dy12 = std::max(1,y2 - y1),
-        cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
+        cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1);
+      const longT
+        dx01 = (longT)x1 - x0, dx02 = (longT)x2 - x0, dx12 = (longT)x2 - x1,
+        dy01 = std::max(1L,(longT)y1 - y0), dy02 = std::max(1L,(longT)y2 - y0), dy12 = std::max(1L,(longT)y2 - y1),
         hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2;
-
       const float cbs = cimg::cut(brightness,0,2);
       cimg_init_scanline(opacity);
 
       for (int y = cy0; y<=cy2; ++y) {
-        const int yy0 = y - y0, yy1 = y - y1;
-        int
+        const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
+        longT
           xm = y<y1?x0 + (dx01*yy0 + hdy01)/dy01:x1 + (dx12*yy1 + hdy12)/dy12,
           xM = x0 + (dx02*yy0 + hdy02)/dy02;
         if (xm>xM) cimg::swap(xm,xM);

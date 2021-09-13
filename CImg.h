@@ -52083,9 +52083,11 @@ namespace cimg_library_suffixed {
         else if (!cimg::strcasecmp(ext,"tif") ||
                  !cimg::strcasecmp(ext,"tiff")) load_tiff(filename);
         else if (!cimg::strcasecmp(ext,"exr")) load_exr(filename);
-        else if (!cimg::strcasecmp(ext,"cr2") ||
+        else if (!cimg::strcasecmp(ext,"arw") ||
+                 !cimg::strcasecmp(ext,"cr2") ||
                  !cimg::strcasecmp(ext,"crw") ||
                  !cimg::strcasecmp(ext,"dcr") ||
+                 !cimg::strcasecmp(ext,"dng") ||
                  !cimg::strcasecmp(ext,"mrw") ||
                  !cimg::strcasecmp(ext,"nef") ||
                  !cimg::strcasecmp(ext,"orf") ||
@@ -61656,7 +61658,9 @@ namespace cimg_library_suffixed {
         is_loaded = true;
         try {
           if (!cimg::strcasecmp(f_type,"gif")) load_gif_external(filename);
-          else if (!cimg::strcasecmp(f_type,"tif")) load_tiff(filename);
+          else if (!cimg::strcasecmp(f_type,"tif") &&
+                   cimg::strcasecmp(ext,"nef") &&
+                   cimg::strcasecmp(ext,"dng")) load_tiff(filename);
           else is_loaded = false;
         } catch (CImgIOException&) { is_loaded = false; }
       }
@@ -64900,17 +64904,19 @@ namespace cimg_library_suffixed {
       if (!file && !filename)
         throw CImgArgumentException("cimg::ftype(): Specified filename is (null).");
       static const char
-        *const _pnm = "pnm",
-        *const _pfm = "pfm",
         *const _bmp = "bmp",
+        *const _cr2 = "cr2",
+        *const _dcm = "dcm",
         *const _gif = "gif",
+        *const _inr = "inr",
         *const _jpg = "jpg",
         *const _off = "off",
         *const _pan = "pan",
+        *const _pfm = "pfm",
         *const _png = "png",
-        *const _tif = "tif",
-        *const _inr = "inr",
-        *const _dcm = "dcm";
+        *const _pnm = "pnm",
+        *const _tif = "tif";
+
       const char *f_type = 0;
       CImg<char> header;
       const unsigned int omode = cimg::exception_mode();
@@ -64935,7 +64941,12 @@ namespace cimg_library_suffixed {
         else if (uheader[0]==0x89 && uheader[1]==0x50 && uheader[2]==0x4E && uheader[3]==0x47 &&
                  uheader[4]==0x0D && uheader[5]==0x0A && uheader[6]==0x1A && uheader[7]==0x0A) // PNG
           f_type = _png;
-        else if ((uheader[0]==0x49 && uheader[1]==0x49) || (uheader[0]==0x4D && uheader[1]==0x4D)) // TIFF
+        else if (uheader[0]==0x49 && uheader[1]==0x49 && uheader[2]==0x2A && uheader[3]==0x00 && // CR2
+                 uheader[4]==0x10 && uheader[5]==0x00 && uheader[6]==0x00 && uheader[7]==0x00 &&
+                 uheader[8]==0x43 && uheader[9]==0x52)
+          f_type = _cr2;
+        else if ((uheader[0]==0x49 && uheader[1]==0x49 && uheader[2]==0x2A && uheader[3]==0x00) ||
+                 (uheader[0]==0x4D && uheader[1]==0x4D && uheader[2]==0x00 && uheader[3]==0x2A)) // TIFF
           f_type = _tif;
         else { // PNM or PFM
           CImgList<char> _header = header.get_split(CImg<char>::vector('\n'),0,false);

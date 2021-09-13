@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 299
+#define cimg_version 300
 
 /*-----------------------------------------------------------
  #
@@ -45705,11 +45705,10 @@ namespace cimg_library_suffixed {
 
       if (std::min(y0,y1)>=height() || std::max(y0,y1)<0 || std::min(x0,x1)>=width() || std::max(x0,x1)<0) return *this;
 
-      int
-        w1 = width() - 1, h1 = height() - 1,
-        dx01 = x1 - x0, dy01 = y1 - y0;
-      int
-        dtx01 = tx1 - tx0, dty01 = ty1 - ty0;
+      int w1 = width() - 1, h1 = height() - 1;
+      longT
+        dx01 = (longT)x1 - x0, dy01 = (longT)y1 - y0,
+        dtx01 = (longT)tx1 - tx0, dty01 = (longT)ty1 - ty0;
 
       const bool is_horizontal = cimg::abs(dx01)>cimg::abs(dy01);
       if (is_horizontal) cimg::swap(x0,y0,x1,y1,w1,h1,dx01,dy01);
@@ -45723,15 +45722,17 @@ namespace cimg_library_suffixed {
       if (init_hatch) hatch = ~0U - (~0U>>1);
       cimg_init_scanline(opacity);
 
-      const int
-        step = y0<=y1?1:-1, hdy01 = dy01*cimg::sign(dx01)/2,
-        hdy01tx = dy01*cimg::sign(dtx01)/2, hdy01ty = dy01*cimg::sign(dty01)/2,
-        cy0 = cimg::cut(y0,0,h1), cy1 = cimg::cut(y1,0,h1) + step;
+      const int step = y0<=y1?1:-1, cy0 = cimg::cut(y0,0,h1), cy1 = cimg::cut(y1,0,h1) + step;
+      const longT
+        hdy01 = dy01*cimg::sign(dx01)/2,
+        hdy01tx = dy01*cimg::sign(dtx01)/2,
+        hdy01ty = dy01*cimg::sign(dty01)/2;
+
       dy01+=dy01?0:1;
 
       for (int y = cy0; y!=cy1; y+=step) {
-        const int
-          yy0 = y - y0,
+        const longT
+          yy0 = (longT)y - y0,
           x = x0 + (dx01*yy0 + hdy01)/dy01,
           tx = tx0 + (dtx01*yy0 + hdy01tx)/dy01,
           ty = ty0 + (dty01*yy0 + hdy01ty)/dy01;
@@ -45785,9 +45786,8 @@ namespace cimg_library_suffixed {
       if (std::min(y0,y1)>=height() || std::max(y0,y1)<0 || std::min(x0,x1)>=width() || std::max(x0,x1)<0) return *this;
 
       float iz0 = 1/z0, iz1 = 1/z1;
-      int
-        w1 = width() - 1, h1 = height() - 1,
-        dx01 = x1 - x0, dy01 = y1 - y0;
+      int w1 = width() - 1, h1 = height() - 1;
+      longT dx01 = (longT)x1 - x0, dy01 = (longT)y1 - y0;
       float
         diz01 = iz1 - iz0,
         txz0 = tx0*iz0, txz1 = tx1*iz1,
@@ -45806,14 +45806,14 @@ namespace cimg_library_suffixed {
       if (init_hatch) hatch = ~0U - (~0U>>1);
       cimg_init_scanline(opacity);
 
-      const int
-        step = y0<=y1?1:-1, hdy01 = dy01*cimg::sign(dx01)/2,
-        cy0 = cimg::cut(y0,0,h1), cy1 = cimg::cut(y1,0,h1) + step;
+      const int step = y0<=y1?1:-1, cy0 = cimg::cut(y0,0,h1), cy1 = cimg::cut(y1,0,h1) + step;
+      const longT hdy01 = dy01*cimg::sign(dx01)/2;
+
       dy01+=dy01?0:1;
 
       for (int y = cy0; y!=cy1; y+=step) {
-        const int
-          yy0 = y - y0,
+        const longT
+          yy0 = (longT)y - y0,
           x = x0 + (dx01*yy0 + hdy01)/dy01;
         const float
           iz = iz0 + diz01*yy0/dy01,
@@ -45880,9 +45880,8 @@ namespace cimg_library_suffixed {
       if (std::min(y0,y1)>=height() || std::max(y0,y1)<0 || std::min(x0,x1)>=width() || std::max(x0,x1)<0) return *this;
 
       float iz0 = 1/z0, iz1 = 1/z1;
-      int
-        w1 = width() - 1, h1 = height() - 1,
-        dx01 = x1 - x0, dy01 = y1 - y0;
+      int w1 = width() - 1, h1 = height() - 1;
+      longT dx01 = (longT)x1 - x0, dy01 = (longT)y1 - y0;
       float
         diz01 = iz1 - iz0,
         txz0 = tx0*iz0, txz1 = tx1*iz1,
@@ -45901,14 +45900,14 @@ namespace cimg_library_suffixed {
       if (init_hatch) hatch = ~0U - (~0U>>1);
       cimg_init_scanline(opacity);
 
-      const int
-        step = y0<=y1?1:-1, hdy01 = dy01*cimg::sign(dx01)/2,
-        cy0 = cimg::cut(y0,0,h1), cy1 = cimg::cut(y1,0,h1) + step;
+      const int step = y0<=y1?1:-1, cy0 = cimg::cut(y0,0,h1), cy1 = cimg::cut(y1,0,h1) + step;
+      const longT hdy01 = dy01*cimg::sign(dx01)/2;
+
       dy01+=dy01?0:1;
 
       for (int y = cy0; y!=cy1; y+=step) {
-        const int
-          yy0 = y - y0,
+        const longT
+          yy0 = (longT)y - y0,
           x = x0 + (dx01*yy0 + hdy01)/dy01;
         const float
           iz = iz0 + diz01*yy0/dy01,
@@ -46273,17 +46272,19 @@ namespace cimg_library_suffixed {
 
       const int
         h1 = height() - 1,
-        dx01 = x1 - x0, dx02 = x2 - x0, dx12 = x2 - x1,
-        dy01 = std::max(1,y1 - y0), dy02 = std::max(1,y2 - y0), dy12 = std::max(1,y2 - y1),
-        cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
+        cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1);
+      const longT
+        dx01 = (longT)x1 - x0, dx02 = (longT)x2 - x0, dx12 = (longT)x2 - x1,
+        dy01 = std::max((longT)1,(longT)y1 - y0),
+        dy02 = std::max((longT)1,(longT)y2 - y0),
+        dy12 = std::max((longT)1,(longT)y2 - y1),
         hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2;
-
       const float cbs = cimg::cut(brightness,0,2);
       cimg_init_scanline(opacity);
 
       for (int y = cy0; y<=cy2; ++y) {
-        const int yy0 = y - y0, yy1 = y - y1;
-        int
+        const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
+        longT
           xm = y<y1?x0 + (dx01*yy0 + hdy01)/dy01:x1 + (dx12*yy1 + hdy12)/dy12,
           xM = x0 + (dx02*yy0 + hdy02)/dy02;
         if (xm>xM) cimg::swap(xm,xM);
@@ -46387,11 +46388,12 @@ namespace cimg_library_suffixed {
       if (y1>y2) cimg::swap(x1,x2,y1,y2,iz1,iz2);
       if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0 || !opacity) return *this;
 
-      const int
-        w1 = width() - 1, h1 = height() - 1,
-        dx01 = x1 - x0, dx02 = x2 - x0, dx12 = x2 - x1,
-        dy01 = std::max(1,y1 - y0), dy02 = std::max(1,y2 - y0), dy12 = std::max(1,y2 - y1),
-        cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
+      const int w1 = width() - 1, h1 = height() - 1, cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1);
+      const longT
+        dx01 = (longT)x1 - x0, dx02 = (longT)x2 - x0, dx12 = (longT)x2 - x1,
+        dy01 = std::max((longT)1,(longT)y1 - y0),
+        dy02 = std::max((longT)1,(longT)y2 - y0),
+        dy12 = std::max((longT)1,(longT)y2 - y1),
         hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2;
       const float diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1;
 
@@ -46399,8 +46401,8 @@ namespace cimg_library_suffixed {
       cimg_init_scanline(opacity);
 
       for (int y = cy0; y<=cy2; ++y) {
-        const int yy0 = y - y0, yy1 = y - y1;
-        int
+        const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
+        longT
           xm = y<y1?x0 + (dx01*yy0 + hdy01)/dy01:x1 + (dx12*yy1 + hdy12)/dy12,
           xM = x0 + (dx02*yy0 + hdy02)/dy02;
         float
@@ -46409,15 +46411,15 @@ namespace cimg_library_suffixed {
         if (xm>xM) cimg::swap(xm,xM,izm,izM);
         if (xM>=0 && xm<=w1) {
           const int
-            cxm = cimg::cut(xm,0,w1),
-            cxM = cimg::cut(xM,0,w1);
+            cxm = (int)cimg::cut(xm,(longT)0,(longT)w1),
+            cxM = (int)cimg::cut(xM,(longT)0,(longT)w1);
           T *ptrd = data(cxm,y);
           tz *ptrz = zbuffer.data(cxm,y);
-          const int dxmM = std::max(1,xM - xm);
+          const longT dxmM = std::max((longT)1,xM - xm);
           const float dizmM = izM - izm;
 
           for (int x = cxm; x<=cxM; ++x) {
-            const int xxm = x - xm;
+            const longT xxm = x - xm;
             const float iz = izm + dizmM*xxm/dxmM;
             if (iz>=*ptrz) {
               *ptrz = (tz)iz;
@@ -46467,19 +46469,20 @@ namespace cimg_library_suffixed {
       if (y1>y2) cimg::swap(x1,x2,y1,y2,bs1,bs2);
       if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0 || !opacity) return *this;
 
-      const int
-        w1 = width() - 1, h1 = height() - 1,
-        dx01 = x1 - x0, dx02 = x2 - x0, dx12 = x2 - x1,
-        dy01 = std::max(1,y1 - y0), dy02 = std::max(1,y2 - y0), dy12 = std::max(1,y2 - y1),
-        cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1),
+      const int w1 = width() - 1, h1 = height() - 1, cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1);
+      const longT
+        dx01 = (longT)x1 - x0, dx02 = (longT)x2 - x0, dx12 = (longT)x2 - x1,
+        dy01 = std::max((longT)1,(longT)y1 - y0),
+        dy02 = std::max((longT)1,(longT)y2 - y0),
+        dy12 = std::max((longT)1,(longT)y2 - y1),
         hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2;
       const float dbs01 = bs1 - bs0, dbs02 = bs2 - bs0, dbs12 = bs2 - bs1;
 
       cimg_init_scanline(opacity);
 
       for (int y = cy0; y<=cy2; ++y) {
-        const int yy0 = y - y0, yy1 = y - y1;
-        int
+        const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
+        longT
           xm = y<y1?x0 + (dx01*yy0 + hdy01)/dy01:x1 + (dx12*yy1 + hdy12)/dy12,
           xM = x0 + (dx02*yy0 + hdy02)/dy02;
         float
@@ -46488,14 +46491,14 @@ namespace cimg_library_suffixed {
         if (xm>xM) cimg::swap(xm,xM,bsm,bsM);
         if (xM>=0 && xm<=w1) {
           const int
-            cxm = cimg::cut(xm,0,w1),
-            cxM = cimg::cut(xM,0,w1);
+            cxm = (int)cimg::cut(xm,(longT)0,(longT)w1),
+            cxM = (int)cimg::cut(xM,(longT)0,(longT)w1);
           T *ptrd = data(cxm,y);
-          const int dxmM = std::max(1,xM - xm);
+          const longT dxmM = std::max((longT)1,xM - xm);
           const float dbsmM = bsM - bsm;
 
           for (int x = cxm; x<=cxM; ++x) {
-            const int xxm = x - xm;
+            const longT xxm = (longT)x - xm;
             const float cbs = cimg::cut(bsm + dbsmM*xxm/dxmM,0,2);
             cimg_forC(*this,c) {
               const Tfloat val = cbs<=1?color[c]*cbs:(2 - cbs)*color[c] + (cbs - 1)*_sc_maxval;
@@ -52080,9 +52083,11 @@ namespace cimg_library_suffixed {
         else if (!cimg::strcasecmp(ext,"tif") ||
                  !cimg::strcasecmp(ext,"tiff")) load_tiff(filename);
         else if (!cimg::strcasecmp(ext,"exr")) load_exr(filename);
-        else if (!cimg::strcasecmp(ext,"cr2") ||
+        else if (!cimg::strcasecmp(ext,"arw") ||
+                 !cimg::strcasecmp(ext,"cr2") ||
                  !cimg::strcasecmp(ext,"crw") ||
                  !cimg::strcasecmp(ext,"dcr") ||
+                 !cimg::strcasecmp(ext,"dng") ||
                  !cimg::strcasecmp(ext,"mrw") ||
                  !cimg::strcasecmp(ext,"nef") ||
                  !cimg::strcasecmp(ext,"orf") ||
@@ -61653,7 +61658,9 @@ namespace cimg_library_suffixed {
         is_loaded = true;
         try {
           if (!cimg::strcasecmp(f_type,"gif")) load_gif_external(filename);
-          else if (!cimg::strcasecmp(f_type,"tif")) load_tiff(filename);
+          else if (!cimg::strcasecmp(f_type,"tif") &&
+                   cimg::strcasecmp(ext,"nef") &&
+                   cimg::strcasecmp(ext,"dng")) load_tiff(filename);
           else is_loaded = false;
         } catch (CImgIOException&) { is_loaded = false; }
       }
@@ -64897,17 +64904,19 @@ namespace cimg_library_suffixed {
       if (!file && !filename)
         throw CImgArgumentException("cimg::ftype(): Specified filename is (null).");
       static const char
-        *const _pnm = "pnm",
-        *const _pfm = "pfm",
         *const _bmp = "bmp",
+        *const _cr2 = "cr2",
+        *const _dcm = "dcm",
         *const _gif = "gif",
+        *const _inr = "inr",
         *const _jpg = "jpg",
         *const _off = "off",
         *const _pan = "pan",
+        *const _pfm = "pfm",
         *const _png = "png",
-        *const _tif = "tif",
-        *const _inr = "inr",
-        *const _dcm = "dcm";
+        *const _pnm = "pnm",
+        *const _tif = "tif";
+
       const char *f_type = 0;
       CImg<char> header;
       const unsigned int omode = cimg::exception_mode();
@@ -64932,7 +64941,12 @@ namespace cimg_library_suffixed {
         else if (uheader[0]==0x89 && uheader[1]==0x50 && uheader[2]==0x4E && uheader[3]==0x47 &&
                  uheader[4]==0x0D && uheader[5]==0x0A && uheader[6]==0x1A && uheader[7]==0x0A) // PNG
           f_type = _png;
-        else if ((uheader[0]==0x49 && uheader[1]==0x49) || (uheader[0]==0x4D && uheader[1]==0x4D)) // TIFF
+        else if (uheader[0]==0x49 && uheader[1]==0x49 && uheader[2]==0x2A && uheader[3]==0x00 && // CR2
+                 uheader[4]==0x10 && uheader[5]==0x00 && uheader[6]==0x00 && uheader[7]==0x00 &&
+                 uheader[8]==0x43 && uheader[9]==0x52)
+          f_type = _cr2;
+        else if ((uheader[0]==0x49 && uheader[1]==0x49 && uheader[2]==0x2A && uheader[3]==0x00) ||
+                 (uheader[0]==0x4D && uheader[1]==0x4D && uheader[2]==0x00 && uheader[3]==0x2A)) // TIFF
           f_type = _tif;
         else { // PNM or PFM
           CImgList<char> _header = header.get_split(CImg<char>::vector('\n'),0,false);

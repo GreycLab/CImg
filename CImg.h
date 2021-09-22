@@ -52816,6 +52816,7 @@ namespace cimg_library_suffixed {
       int bit_depth, color_type, interlace_type;
       bool is_gray = false;
       png_get_IHDR(png_ptr,info_ptr,&W,&H,&bit_depth,&color_type,&interlace_type,(int*)0,(int*)0);
+      png_set_interlace_handling(png_ptr);
       if (bits_per_value) *bits_per_value = (unsigned int)bit_depth;
 
       // Transforms to unify image data

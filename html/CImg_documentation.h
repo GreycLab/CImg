@@ -136,7 +136,7 @@
 
   The CImg library is a very light and user-friendly library : only standard system libraries are used.
   It avoids handling complex dependencies and problems with library compatibility.
-  The only thing you need is a (quite modern) C++ compiler :
+  The only thing you need is a C++ compiler :
 
   - <b>Microsoft Visual Studio.NET and Visual Express Edition</b> : Use the project files and solution files provided in the
   %CImg Library package (directory 'compilation/') to see how it works.

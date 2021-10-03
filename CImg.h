@@ -22136,7 +22136,7 @@ namespace cimg_library_suffixed {
                                         pixel_type(),_cimg_mp_calling_function,s_op,
                                         ss1,s0);
           }
-          pos = vector(arg1);
+          pos = const_vector(arg1);
           CImg<ulongT>::vector((ulongT)mp_string_init,pos,arg1).move_to(l_opcode);
           CImg<ulongT>(1,arg1/sizeof(ulongT) + (arg1%sizeof(ulongT)?1:0)).move_to(l_opcode);
           std::memcpy((char*)l_opcode[1]._data,variable_name,arg1);
@@ -22858,6 +22858,20 @@ namespace cimg_library_suffixed {
         const unsigned int pos = mempos++;
         mem[pos] = cimg::type<double>::nan();
         memtype[pos] = -(int)(siz + 1);
+        mempos+=siz;
+        return pos;
+      }
+
+      // Insert new const vector of specified size in memory.
+      unsigned int const_vector(const unsigned int siz) {
+        if (mempos + siz>=mem._width) {
+          mem.resize(2*mem._width + siz,1,1,1,0);
+          memtype.resize(mem._width,1,1,1,0);
+        }
+        const unsigned int pos = mempos++;
+        mem[pos] = cimg::type<double>::nan();
+        memtype[pos] = (int)(siz + 1);
+        for (unsigned int k = 0; k<siz; ++k) memtype[pos + k] = 1;
         mempos+=siz;
         return pos;
       }

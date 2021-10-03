@@ -17611,9 +17611,9 @@ namespace cimg_library_suffixed {
                                               "CImg<%s>::%s: %s: Invalid assignment of %sconst variable '%s'%s, "
                                               "in expression '%s'.",
                                               pixel_type(),_cimg_mp_calling_function,s_op,
-                                              _cimg_mp_is_const_scalar(arg1)?"already-defined ":"non-",
+                                              _cimg_mp_is_const_scalar(arg1)?"":"non-",
                                               variable_name._data,
-                                              !_cimg_mp_is_const_scalar(arg1) && is_const?" as a new const variable":"",
+                                              !_cimg_mp_is_const_scalar(arg1) && is_const?" as a const variable":"",
                                               s0);
                 }
                 _cimg_mp_check_type(arg3,2,_cimg_mp_is_vector(arg1)?3:1,_cimg_mp_size(arg1));

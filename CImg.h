@@ -16846,12 +16846,13 @@ namespace cimg_library_suffixed {
       const char *const calling_function, *s_op, *ss_op;
       typedef double (*mp_func)(_cimg_math_parser&);
 
-#define _cimg_mp_is_const_scalar(arg) (memtype[arg]==1) // Is constant value?
 #define _cimg_mp_is_scalar(arg) (cimg::abs(memtype[arg])<2) // Is scalar value?
-#define _cimg_mp_is_comp(arg) (!memtype[arg]) // Is computation value?
-#define _cimg_mp_is_reserved(arg) (memtype[arg]==-1) // Is scalar and reserved (e.g. variable)?
+#define _cimg_mp_is_const_scalar(arg) (memtype[arg]==1) // Is const scalar?
 #define _cimg_mp_is_vector(arg) (cimg::abs(memtype[arg])>1) // Is vector?
 #define _cimg_mp_is_const_vector(arg) (memtype[arg]>1) // Is const vector?
+#define _cimg_mp_is_const(arg) (memtype[arg]>0) // Is const scalar or const vector?
+#define _cimg_mp_is_comp(arg) (!memtype[arg]) // Is computation value?
+#define _cimg_mp_is_reserved(arg) (memtype[arg]==-1) // Is scalar and reserved (e.g. variable)?
 #define _cimg_mp_size(arg) \
   (_cimg_mp_is_scalar(arg)?0U:(unsigned int)cimg::abs(memtype[arg]) - 1) // Size (0=scalar, N>0=vectorN)
 #define _cimg_mp_calling_function s_calling_function()._data
@@ -16974,7 +16975,7 @@ namespace cimg_library_suffixed {
         // Compile expression into a sequence of opcodes.
         s_op = ""; ss_op = expr._data;
         const unsigned int ind_result = compile(expr._data,expr._data + expr._width - 1,0,0,0);
-        if (!_cimg_mp_is_const_scalar(ind_result)) {
+        if (!_cimg_mp_is_const(ind_result)) {
           if (_cimg_mp_is_vector(ind_result))
             CImg<doubleT>(&mem[ind_result] + 1,_cimg_mp_size(ind_result),1,1,1,true).
               fill(cimg::type<double>::nan());
@@ -17583,19 +17584,17 @@ namespace cimg_library_suffixed {
               get_variable_pos(variable_name,arg1,arg2);
               arg3 = compile(s + 1,se,depth1,0,bloc_flags);
               is_sth = return_new_comp; // is arg3 a new blank object?
-              if (is_const) _cimg_mp_check_const_scalar(arg3,2,0);
+//              if (is_const) _cimg_mp_check_const_scalar(arg3,2,0);
               arg1 = arg2!=~0U?reserved_label[arg2]:arg1!=~0U?variable_pos[arg1]:~0U;
 
               if (arg1==~0U) { // Create new variable
-                if (_cimg_mp_is_vector(arg3)) { // Vector variable
+                if (is_const) arg1 = arg3; // Const scalar or vector variable
+                else if (_cimg_mp_is_vector(arg3)) { // Vector variable
                   arg1 = is_sth || is_comp_vector(arg3)?arg3:vector_copy(arg3);
                   set_reserved_vector(arg1); // Prevent from being used in further optimization
                 } else { // Scalar variable
-                  if (is_const) arg1 = arg3;
-                  else {
-                    arg1 = is_sth || _cimg_mp_is_comp(arg3)?arg3:scalar1(mp_copy,arg3);
-                    memtype[arg1] = -1;
-                  }
+                  arg1 = is_sth || _cimg_mp_is_comp(arg3)?arg3:scalar1(mp_copy,arg3);
+                  memtype[arg1] = -1;
                 }
 
                 if (arg2!=~0U) reserved_label[arg2] = arg1;
@@ -17606,14 +17605,14 @@ namespace cimg_library_suffixed {
                   }
 
               } else { // Variable already exists -> assign a new value
-                if (is_const || _cimg_mp_is_const_scalar(arg1)) {
+                if (is_const || _cimg_mp_is_const(arg1)) {
                   _cimg_mp_strerr;
                   cimg::strellipsize(variable_name,64);
                   throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                               "CImg<%s>::%s: %s: Invalid assignment of %sconst variable '%s'%s, "
                                               "in expression '%s'.",
                                               pixel_type(),_cimg_mp_calling_function,s_op,
-                                              _cimg_mp_is_const_scalar(arg1)?"already-defined ":"non-",
+                                              _cimg_mp_is_const(arg1)?"already-defined ":"non-",
                                               variable_name._data,
                                               !_cimg_mp_is_const_scalar(arg1) && is_const?" as a new const variable":"",
                                               s0);
@@ -22137,11 +22136,13 @@ namespace cimg_library_suffixed {
                                         ss1,s0);
           }
           pos = const_vector(arg1);
-          CImg<ulongT>::vector((ulongT)mp_string_init,pos,arg1).move_to(l_opcode);
-          CImg<ulongT>(1,arg1/sizeof(ulongT) + (arg1%sizeof(ulongT)?1:0)).move_to(l_opcode);
-          std::memcpy((char*)l_opcode[1]._data,variable_name,arg1);
-          (l_opcode>'y').move_to(code);
-          return_new_comp = true;
+          for (unsigned int k = 0; k<arg1; ++k) mem[pos + 1 + k] = (double)variable_name[k];
+
+//          CImg<ulongT>::vector((ulongT)mp_string_init,pos,arg1).move_to(l_opcode);
+//          CImg<ulongT>(1,arg1/sizeof(ulongT) + (arg1%sizeof(ulongT)?1:0)).move_to(l_opcode);
+//          std::memcpy((char*)l_opcode[1]._data,variable_name,arg1);
+//          (l_opcode>'y').move_to(code);
+//          return_new_comp = true;
           _cimg_mp_return(pos);
         }
 
@@ -22868,10 +22869,10 @@ namespace cimg_library_suffixed {
           mem.resize(2*mem._width + siz,1,1,1,0);
           memtype.resize(mem._width,1,1,1,0);
         }
-        const unsigned int pos = mempos++;
+        unsigned int pos = mempos++;
         mem[pos] = cimg::type<double>::nan();
         memtype[pos] = (int)(siz + 1);
-        for (unsigned int k = 0; k<siz; ++k) memtype[pos + k] = 1;
+        for (unsigned int k = 1; k<=siz; ++k) memtype[pos + k] = 1;
         mempos+=siz;
         return pos;
       }

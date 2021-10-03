@@ -17584,7 +17584,6 @@ namespace cimg_library_suffixed {
               get_variable_pos(variable_name,arg1,arg2);
               arg3 = compile(s + 1,se,depth1,0,bloc_flags);
               is_sth = return_new_comp; // is arg3 a new blank object?
-//              if (is_const) _cimg_mp_check_const_scalar(arg3,2,0);
               arg1 = arg2!=~0U?reserved_label[arg2]:arg1!=~0U?variable_pos[arg1]:~0U;
 
               if (arg1==~0U) { // Create new variable
@@ -17614,7 +17613,7 @@ namespace cimg_library_suffixed {
                                               pixel_type(),_cimg_mp_calling_function,s_op,
                                               _cimg_mp_is_const(arg1)?"already-defined ":"non-",
                                               variable_name._data,
-                                              !_cimg_mp_is_const_scalar(arg1) && is_const?" as a new const variable":"",
+                                              !_cimg_mp_is_const(arg1) && is_const?" as a new const variable":"",
                                               s0);
                 }
                 _cimg_mp_check_type(arg3,2,_cimg_mp_is_vector(arg1)?3:1,_cimg_mp_size(arg1));

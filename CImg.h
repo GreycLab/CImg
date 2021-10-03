@@ -16847,11 +16847,12 @@ namespace cimg_library_suffixed {
       typedef double (*mp_func)(_cimg_math_parser&);
 
 #define _cimg_mp_is_const(arg) (memtype[arg]==1) // Is constant value?
-#define _cimg_mp_is_scalar(arg) (memtype[arg]<2) // Is scalar value?
+#define _cimg_mp_is_scalar(arg) (cimg::abs(memtype[arg])<2) // Is scalar value?
 #define _cimg_mp_is_comp(arg) (!memtype[arg]) // Is computation value?
 #define _cimg_mp_is_reserved(arg) (memtype[arg]==-1) // Is scalar and reserved (e.g. variable)?
-#define _cimg_mp_is_vector(arg) (memtype[arg]>1) // Is vector?
-#define _cimg_mp_size(arg) (_cimg_mp_is_scalar(arg)?0U:(unsigned int)memtype[arg] - 1) // Size (0=scalar, N>0=vectorN)
+#define _cimg_mp_is_vector(arg) (cimg::abs(memtype[arg])>1) // Is vector?
+#define _cimg_mp_size(arg) \
+  (_cimg_mp_is_scalar(arg)?0U:(unsigned int)cimg::abs(memtype[arg]) - 1) // Size (0=scalar, N>0=vectorN)
 #define _cimg_mp_calling_function s_calling_function()._data
 #define _cimg_mp_op(s) s_op = s; ss_op = ss
 #define _cimg_mp_check_type(arg,n_arg,mode,N) check_type(arg,n_arg,mode,N,ss,se,saved_char)

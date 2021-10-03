@@ -22136,11 +22136,6 @@ namespace cimg_library_suffixed {
           }
           pos = const_vector(arg1);
           for (unsigned int k = 0; k<arg1; ++k) mem[pos + 1 + k] = (double)variable_name[k];
-
-//          CImg<ulongT>::vector((ulongT)mp_string_init,pos,arg1).move_to(l_opcode);
-//          CImg<ulongT>(1,arg1/sizeof(ulongT) + (arg1%sizeof(ulongT)?1:0)).move_to(l_opcode);
-//          std::memcpy((char*)l_opcode[1]._data,variable_name,arg1);
-//          (l_opcode>'y').move_to(code);
 //          return_new_comp = true;
           _cimg_mp_return(pos);
         }
@@ -22158,11 +22153,8 @@ namespace cimg_library_suffixed {
               arg1 = (unsigned int)std::strlen(variable_name);
             }
             if (!arg1) _cimg_mp_return(0); // Empty string -> 0
-            pos = vector(arg1);
-            CImg<ulongT>::vector((ulongT)mp_string_init,pos,arg1).move_to(l_opcode);
-            CImg<ulongT>(1,arg1/sizeof(ulongT) + (arg1%sizeof(ulongT)?1:0)).move_to(l_opcode);
-            std::memcpy((char*)l_opcode[1]._data,variable_name,arg1);
-            (l_opcode>'y').move_to(code);
+            pos = const_vector(arg1);
+            for (unsigned int k = 0; k<arg1; ++k) mem[pos + 1 + k] = (double)variable_name[k];
           } else { // Vector values provided as list of items
             arg1 = 0; // Number of specified values
             if (*ss1!=']') for (s = ss1; s<se; ++s) {
@@ -22183,7 +22175,7 @@ namespace cimg_library_suffixed {
             opcode[2] = opcode._height;
             opcode.move_to(code);
           }
-          return_new_comp = true;
+//          return_new_comp = true;
           _cimg_mp_return(pos);
         }
 

@@ -16851,6 +16851,7 @@ namespace cimg_library_suffixed {
 #define _cimg_mp_is_comp(arg) (!memtype[arg]) // Is computation value?
 #define _cimg_mp_is_reserved(arg) (memtype[arg]==-1) // Is scalar and reserved (e.g. variable)?
 #define _cimg_mp_is_vector(arg) (cimg::abs(memtype[arg])>1) // Is vector?
+#define _cimg_mp_is_const_vector(arg) (memtype[arg]>1) // Is const vector?
 #define _cimg_mp_size(arg) \
   (_cimg_mp_is_scalar(arg)?0U:(unsigned int)cimg::abs(memtype[arg]) - 1) // Size (0=scalar, N>0=vectorN)
 #define _cimg_mp_calling_function s_calling_function()._data
@@ -22807,7 +22808,7 @@ namespace cimg_library_suffixed {
         }
         const unsigned int pos = mempos++;
         mem[pos] = cimg::type<double>::nan();
-        memtype[pos] = siz + 1;
+        memtype[pos] = -(int)(siz + 1);
         mempos+=siz;
         return pos;
       }

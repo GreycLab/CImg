@@ -17076,7 +17076,7 @@ namespace cimg_library_suffixed {
                                       "CImg<%s>::%s: %s%s Missing %s, in expression '%s'.",
                                       pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",
                                       *s_op=='F'?"argument":"item",
-                                      (ss_op - 4)>expr._data?ss_op - 4:expr._data);
+                                      ss_op);
         }
 
         static const size_t siz_ref = 7*sizeof(unsigned int);
@@ -19661,9 +19661,45 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar1(mp_image_d,p1);
             }
 
+            if (!std::strncmp(ss,"dar_insert(",11)) { // Insert element(s) in dynamic array
+              if (!is_inside_critical) is_parallelizable = false;
+              _cimg_mp_op("Function 'dar_insert()'");
+              if (ss[11]=='#') { // Index specified
+                s0 = ss + 12; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                p1 = compile(ss + 12,s0++,depth1,0,bloc_flags);
+                _cimg_mp_check_list(true);
+              } else { p1 = ~0U; s0 = ss + 11; }
+              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(s0,s1,depth1,0,bloc_flags); // Position
+
+              CImg<ulongT>::vector((ulongT)mp_dar_insert,_cimg_mp_slot_nan,p1,arg1,0,0).move_to(l_opcode);
+              p3 = p1==~0U?2:3;
+              p1 = ~0U;
+              for (s = s1 + 1; s<se; ++s) {
+                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                arg2 = compile(s,ns,depth1,0,bloc_flags); // Element
+                p2 = _cimg_mp_size(arg2);
+                if (p1==~0U) p1 = p2;
+                else {
+                  if (!p1) _cimg_mp_check_type(arg2,p3,1,0);
+                  else _cimg_mp_check_type(arg2,p3,2,p1);
+                }
+                CImg<ulongT>::vector(arg2).move_to(l_opcode);
+                s = ns;
+                ++p3;
+              }
+              if (p1==~0U) compile(s1 + 1,se1,depth1,0,bloc_flags); // Missing element -> error
+              (l_opcode>'y').move_to(opcode);
+              opcode[4] = p1;
+              opcode[5] = opcode._height;
+              opcode.move_to(code);
+              _cimg_mp_return_nan();
+            }
+
             if (!std::strncmp(ss,"dar_size(",9)) { // Size of dynamic array
               if (!is_inside_critical) is_parallelizable = false;
-              _cimg_mp_op("Function 'draw()'");
+              _cimg_mp_op("Function 'dar_size()'");
               if (ss[9]=='#') { // Index specified
                 s0 = ss + 10; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                 p1 = compile(ss + 10,s0++,depth1,0,bloc_flags);
@@ -23557,6 +23593,37 @@ namespace cimg_library_suffixed {
       static double mp_cut(_cimg_math_parser& mp) {
         double val = _mp_arg(2), cmin = _mp_arg(3), cmax = _mp_arg(4);
         return val<cmin?cmin:val>cmax?cmax:val;
+      }
+
+      static double mp_dar_insert(_cimg_math_parser& mp) {
+        const int pos0 = (int)_mp_arg(3);
+        const unsigned int
+          dim = (unsigned int)mp.opcode[4],
+          _dim = std::max(1U,dim),
+          nb_elts = (unsigned int)mp.opcode[5] - 6;
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
+
+        const int pos = pos0<0?pos0 + img.height():pos0;
+        if (pos<0 || pos>img.height())
+          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'dar_insert()': "
+                                      "Invalid position '%d' (not in range -%d...%d).",
+                                      mp.imgin.pixel_type(),pos0,img.height(),img.height());
+        if (img && _dim!=img._spectrum)
+          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'dar_insert()': "
+                                      "Invalid element size '%u' (should be '%u').",
+                                      mp.imgin.pixel_type(),_dim,img._spectrum);
+
+        const unsigned int siz = img?(unsigned int)img[img._height - 1]:0;
+        if (pos + nb_elts + 1>=img._height)
+          img.resize(1,2*siz + nb_elts + 1,1,_dim,0);
+
+        for (unsigned int k = 0; k<nb_elts; ++k)
+          std::fprintf(stderr,"\nDEBUG :   elt[%u] = %u",k,(unsigned int)mp.opcode[6 + k]);
+
+        img[img._height - 1] = siz + nb_elts;
+        return cimg::type<double>::nan();
       }
 
       static double mp_dar_size(_cimg_math_parser& mp) {

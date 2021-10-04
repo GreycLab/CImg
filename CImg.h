@@ -19661,14 +19661,14 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar1(mp_image_d,p1);
             }
 
-            if (!std::strncmp(ss,"dar_insert(",11)) { // Insert element(s) in dynamic array
+            if (!std::strncmp(ss,"da_insert(",10)) { // Insert element(s) in a dynamic array
               if (!is_inside_critical) is_parallelizable = false;
-              _cimg_mp_op("Function 'dar_insert()'");
-              if (ss[11]=='#') { // Index specified
-                s0 = ss + 12; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
-                p1 = compile(ss + 12,s0++,depth1,0,bloc_flags);
+              _cimg_mp_op("Function 'da_insert()'");
+              if (ss[10]=='#') { // Index specified
+                s0 = ss + 11; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                p1 = compile(ss + 11,s0++,depth1,0,bloc_flags);
                 _cimg_mp_check_list(true);
-              } else { p1 = ~0U; s0 = ss + 11; }
+              } else { p1 = ~0U; s0 = ss + 10; }
               s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(s0,s1,depth1,0,bloc_flags); // Position
 
@@ -19697,14 +19697,14 @@ namespace cimg_library_suffixed {
               _cimg_mp_return_nan();
             }
 
-            if (!std::strncmp(ss,"dar_size(",9)) { // Size of dynamic array
+            if (!std::strncmp(ss,"da_size(",8)) { // Size of a dynamic array
               if (!is_inside_critical) is_parallelizable = false;
-              _cimg_mp_op("Function 'dar_size()'");
-              if (ss[9]=='#') { // Index specified
-                s0 = ss + 10; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
-                p1 = compile(ss + 10,s0++,depth1,0,bloc_flags);
+              _cimg_mp_op("Function 'da_size()'");
+              if (ss[8]=='#') { // Index specified
+                s0 = ss + 9; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                p1 = compile(ss + 9,s0++,depth1,0,bloc_flags);
                 _cimg_mp_check_list(true);
-              } else { p1 = ~0U; s0 = ss + 9; }
+              } else { p1 = ~0U; s0 = ss + 8; }
               _cimg_mp_scalar1(mp_dar_size,p1);
             }
 

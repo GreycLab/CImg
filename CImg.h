@@ -23604,25 +23604,34 @@ namespace cimg_library_suffixed {
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
+        const int
+          pos = pos0<0?pos0 + img.height():pos0,
+          siz = img?(int)img[img._height - 1]:0;
 
-        const int pos = pos0<0?pos0 + img.height():pos0;
-        if (pos<0 || pos>img.height())
+        if (img && (img._width!=1 || img._depth!=1 || siz<0))
+          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'dar_insert()': "
+                                      "Invalid image (%d,%d,%d,%d) used as dynamic array.",
+                                      mp.imgin.pixel_type(),img.width(),img.height(),img.depth(),img.spectrum());
+        if (pos<0 || pos>siz)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'dar_insert()': "
                                       "Invalid position '%d' (not in range -%d...%d).",
-                                      mp.imgin.pixel_type(),pos0,img.height(),img.height());
+                                      mp.imgin.pixel_type(),pos0,siz,siz);
         if (img && _dim!=img._spectrum)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'dar_insert()': "
                                       "Invalid element size '%u' (should be '%u').",
                                       mp.imgin.pixel_type(),_dim,img._spectrum);
 
-        const unsigned int siz = img?(unsigned int)img[img._height - 1]:0;
-        if (pos + nb_elts + 1>=img._height)
-          img.resize(1,2*siz + nb_elts + 1,1,_dim,0);
+        if (siz + nb_elts + 1>=img._height) img.resize(1,2*siz + nb_elts + 1,1,_dim,0);
 
-        for (unsigned int k = 0; k<nb_elts; ++k)
-          std::fprintf(stderr,"\nDEBUG :   elt[%u] = %u",k,(unsigned int)mp.opcode[6 + k]);
+        if (pos!=siz) // Move existing data in dynamic array
+          cimg_forC(img,c) std::memmove(img.data(0,pos + nb_elts,0,c),img.data(0,pos,0,c),(siz - pos)*sizeof(T));
 
-        img[img._height - 1] = siz + nb_elts;
+        if (!dim) for (unsigned int k = 0; k<nb_elts; ++k) img[pos + k] = (T)_mp_arg(6 + k);
+        else for (unsigned int k = 0; k<nb_elts; ++k) {
+            double *ptrs = &_mp_arg(6 + k) + 1;
+            cimg_forC(img,c) img(0,pos + k,0,c) = *(ptrs++);
+          }
+        img[img._height - 1] = (T)(siz + nb_elts);
         return cimg::type<double>::nan();
       }
 

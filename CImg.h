@@ -23559,7 +23559,6 @@ namespace cimg_library_suffixed {
         return val<cmin?cmin:val>cmax?cmax:val;
       }
 
-
       static double mp_dar_size(_cimg_math_parser& mp) {
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());

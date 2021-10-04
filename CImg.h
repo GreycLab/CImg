@@ -22705,7 +22705,7 @@ namespace cimg_library_suffixed {
           const char *const s_arg = s_argth(n_arg);
           char *s0; _cimg_mp_strerr;
           throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                      "CImg<%s>::%s: %s%s %s%s (of type '%s' and value '%g') is not a%s constant, "
+                                      "CImg<%s>::%s: %s%s %s%s (of type '%s' and value %g) is not a%s constant, "
                                       "in expression '%s'.",
                                       pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",
                                       s_arg,*s_arg?" argument":" Argument",s_type(arg)._data,val,
@@ -23608,18 +23608,19 @@ namespace cimg_library_suffixed {
           pos = pos0<0?pos0 + img.height():pos0,
           siz = img?(int)img[img._height - 1]:0;
 
-        if (img && (img._width!=1 || img._depth!=1 || siz<0))
-          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'dar_insert()': "
-                                      "Invalid image (%d,%d,%d,%d) used as dynamic array.",
-                                      mp.imgin.pixel_type(),img.width(),img.height(),img.depth(),img.spectrum());
-        if (pos<0 || pos>siz)
-          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'dar_insert()': "
-                                      "Invalid position '%d' (not in range -%d...%d).",
-                                      mp.imgin.pixel_type(),pos0,siz,siz);
         if (img && _dim!=img._spectrum)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'dar_insert()': "
-                                      "Invalid element size '%u' (should be '%u').",
+                                      "Invalid specified element of size %u (should be %u).",
                                       mp.imgin.pixel_type(),_dim,img._spectrum);
+        if (img && (img._width!=1 || img._depth!=1 || siz<0 || siz>img.height() - 1))
+          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'dar_insert()': "
+                                      "Invalid image (%d,%d,%d,%d), used as dynamic array%s.",
+                                      mp.imgin.pixel_type(),img.width(),img.height(),img.depth(),img.spectrum(),
+                                      img._width==1 && img._depth==1?"":" (contains invalid elements counter)");
+        if (pos<0 || pos>siz)
+          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'dar_insert()': "
+                                      "Invalid position %d (not in range -%d...%d).",
+                                      mp.imgin.pixel_type(),pos0,siz,siz);
 
         if (siz + nb_elts + 1>=img._height) // Resize dynamic array if necessary
           img.resize(1,2*siz + nb_elts + 1,1,_dim,0);
@@ -62275,7 +62276,7 @@ namespace cimg_library_suffixed {
                                     cimglist_instance);
       if (chroma_subsampling!=420 && chroma_subsampling!=422 && chroma_subsampling!=444)
         throw CImgArgumentException(_cimglist_instance
-                                    "load_yuv(): Specified chroma subsampling '%u' is invalid, for file '%s'.",
+                                    "load_yuv(): Specified chroma subsampling %u is invalid, for file '%s'.",
                                     cimglist_instance,
                                     chroma_subsampling,filename?filename:"(FILE*)");
       const unsigned int

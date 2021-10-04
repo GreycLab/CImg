@@ -19672,7 +19672,7 @@ namespace cimg_library_suffixed {
               s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(s0,s1,depth1,0,bloc_flags); // Position
 
-              CImg<ulongT>::vector((ulongT)mp_dar_insert,_cimg_mp_slot_nan,p1,arg1,0,0).move_to(l_opcode);
+              CImg<ulongT>::vector((ulongT)mp_da_insert,_cimg_mp_slot_nan,p1,arg1,0,0).move_to(l_opcode);
               p3 = p1==~0U?2:3;
               p1 = ~0U;
               for (s = s1 + 1; s<se; ++s) {
@@ -19705,7 +19705,7 @@ namespace cimg_library_suffixed {
                 p1 = compile(ss + 9,s0++,depth1,0,bloc_flags);
                 _cimg_mp_check_list(true);
               } else { p1 = ~0U; s0 = ss + 8; }
-              CImg<ulongT>::vector((ulongT)mp_dar_insert,_cimg_mp_slot_nan,p1,~0U,0,0).move_to(l_opcode);
+              CImg<ulongT>::vector((ulongT)mp_da_insert,_cimg_mp_slot_nan,p1,~0U,0,0).move_to(l_opcode);
               p3 = p1==~0U?2:3;
               p1 = ~0U;
               for (s = s0; s<se; ++s) {
@@ -19738,7 +19738,7 @@ namespace cimg_library_suffixed {
                 p1 = compile(ss + 9,s0++,depth1,0,bloc_flags);
                 _cimg_mp_check_list(true);
               } else { p1 = ~0U; s0 = ss + 8; }
-              _cimg_mp_scalar1(mp_dar_size,p1);
+              _cimg_mp_scalar1(mp_da_size,p1);
             }
 
             if (!std::strncmp(ss,"date(",5)) { // Current date or file date
@@ -23628,7 +23628,7 @@ namespace cimg_library_suffixed {
         return val<cmin?cmin:val>cmax?cmax:val;
       }
 
-      static double mp_dar_insert(_cimg_math_parser& mp) {
+      static double mp_da_insert(_cimg_math_parser& mp) {
         const unsigned int
           dim = (unsigned int)mp.opcode[4],
           _dim = std::max(1U,dim),
@@ -23672,7 +23672,7 @@ namespace cimg_library_suffixed {
         return cimg::type<double>::nan();
       }
 
-      static double mp_dar_size(_cimg_math_parser& mp) {
+      static double mp_da_size(_cimg_math_parser& mp) {
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];

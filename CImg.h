@@ -19661,6 +19661,17 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar1(mp_image_d,p1);
             }
 
+            if (!std::strncmp(ss,"dar_size(",9)) { // Size of dynamic array
+              if (!is_inside_critical) is_parallelizable = false;
+              _cimg_mp_op("Function 'draw()'");
+              if (ss[9]=='#') { // Index specified
+                s0 = ss + 10; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                p1 = compile(ss + 10,s0++,depth1,0,bloc_flags);
+                _cimg_mp_check_list(true);
+              } else { p1 = ~0U; s0 = ss + 9; }
+              _cimg_mp_scalar1(mp_dar_size,p1);
+            }
+
             if (!std::strncmp(ss,"date(",5)) { // Current date or file date
               _cimg_mp_op("Function 'date()'");
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -23546,6 +23557,14 @@ namespace cimg_library_suffixed {
       static double mp_cut(_cimg_math_parser& mp) {
         double val = _mp_arg(2), cmin = _mp_arg(3), cmax = _mp_arg(4);
         return val<cmin?cmin:val>cmax?cmax:val;
+      }
+
+
+      static double mp_dar_size(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
+        return img?(double)img[img._height - 1]:0;
       }
 
       static double mp_date(_cimg_math_parser& mp) {

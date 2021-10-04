@@ -23596,7 +23596,6 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_dar_insert(_cimg_math_parser& mp) {
-        const int pos0 = (int)_mp_arg(3);
         const unsigned int
           dim = (unsigned int)mp.opcode[4],
           _dim = std::max(1U,dim),
@@ -23605,6 +23604,7 @@ namespace cimg_library_suffixed {
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
         const int
+          pos0 = (int)_mp_arg(3),
           pos = pos0<0?pos0 + img.height():pos0,
           siz = img?(int)img[img._height - 1]:0;
 
@@ -23621,15 +23621,18 @@ namespace cimg_library_suffixed {
                                       "Invalid element size '%u' (should be '%u').",
                                       mp.imgin.pixel_type(),_dim,img._spectrum);
 
-        if (siz + nb_elts + 1>=img._height) img.resize(1,2*siz + nb_elts + 1,1,_dim,0);
+        if (siz + nb_elts + 1>=img._height) // Resize dynamic array if necessary
+          img.resize(1,2*siz + nb_elts + 1,1,_dim,0);
 
         if (pos!=siz) // Move existing data in dynamic array
           cimg_forC(img,c) std::memmove(img.data(0,pos + nb_elts,0,c),img.data(0,pos,0,c),(siz - pos)*sizeof(T));
 
-        if (!dim) for (unsigned int k = 0; k<nb_elts; ++k) img[pos + k] = (T)_mp_arg(6 + k);
-        else for (unsigned int k = 0; k<nb_elts; ++k) {
+        if (!dim) // Scalar or vector1() elements
+          for (unsigned int k = 0; k<nb_elts; ++k) img[pos + k] = (T)_mp_arg(6 + k);
+        else // vectorN() elements, with N>1
+          for (unsigned int k = 0; k<nb_elts; ++k) {
             double *ptrs = &_mp_arg(6 + k) + 1;
-            cimg_forC(img,c) img(0,pos + k,0,c) = *(ptrs++);
+            cimg_forC(img,c) img(0,pos + k,0,c) = ptrs[c];
           }
         img[img._height - 1] = (T)(siz + nb_elts);
         return cimg::type<double>::nan();

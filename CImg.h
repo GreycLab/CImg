@@ -23621,7 +23621,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_da_insert(_cimg_math_parser& mp) {
-        const char *const s_op = mp.opcode[3]==~0U?"dar_push":"dar_insert";
+        const char *const s_op = mp.opcode[3]==~0U?"da_push":"da_insert";
         const unsigned int
           dim = (unsigned int)mp.opcode[4],
           _dim = std::max(1U,dim),

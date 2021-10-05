@@ -19703,6 +19703,25 @@ namespace cimg_library_suffixed {
               _cimg_mp_return_nan();
             }
 
+            if (!std::strncmp(ss,"da_remove(",10)) { // Remove element(s) in a dynamic array
+              if (!is_inside_critical) is_parallelizable = false;
+              _cimg_mp_op("Function 'da_remove()'");
+              if (ss[10]=='#') { // Index specified
+                s0 = ss + 11; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                p1 = compile(ss + 11,s0++,depth1,0,bloc_flags);
+                _cimg_mp_check_list(true);
+              } else { p1 = ~0U; s0 = ss + 10; }
+
+              arg1 = arg2 = ~0U;
+              if (s0<se1) {
+                s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                arg1 = compile(s0,s1,depth1,0,bloc_flags); // Starting position
+                arg2 = s1<se1?compile(++s1,se1,depth1,0,bloc_flags):~0U; // Ending position
+              }
+              CImg<ulongT>::vector((ulongT)mp_da_remove,_cimg_mp_slot_nan,p1,arg1,arg2).move_to(code);
+              _cimg_mp_return_nan();
+            }
+
             if (!std::strncmp(ss,"da_size(",8)) { // Size of a dynamic array
               if (!is_inside_critical) is_parallelizable = false;
               _cimg_mp_op("Function 'da_size()'");
@@ -23614,7 +23633,7 @@ namespace cimg_library_suffixed {
         const int
           siz = img?(int)img[img._height - 1]:0,
           pos0 = mp.opcode[3]==~0U?siz:(int)_mp_arg(3),
-          pos = pos0<0?pos0 + img.height():pos0;
+          pos = pos0<0?pos0 + siz:pos0;
 
         if (img && _dim!=img._spectrum)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function '%s()': "
@@ -23644,6 +23663,36 @@ namespace cimg_library_suffixed {
             cimg_forC(img,c) img(0,pos + k,0,c) = ptrs[c];
           }
         img[img._height - 1] = (T)(siz + nb_elts);
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_da_remove(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
+        const int siz = img?(int)img[img._height - 1]:0;
+        if (img && (img._width!=1 || img._depth!=1 || siz<0 || siz>img.height() - 1))
+          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'da_remove()': "
+                                      "Specified image (%d,%d,%d,%d) cannot be used as dynamic array%s.",
+                                      mp.imgin.pixel_type(),img.width(),img.height(),img.depth(),img.spectrum(),
+                                      img._width==1 && img._depth==1?"":" (contains invalid element counter)");
+        if (img._height<2)
+          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'da_remove()': "
+                                      "Dynamic array is empty.",
+                                      mp.imgin.pixel_type());
+        int
+          start0 = mp.opcode[3]==~0U?siz - 1:_mp_arg(3),
+          end0 = mp.opcode[4]==~0U?start0:_mp_arg(4),
+          start = start0<0?start0 + siz:start0,
+          end = end0<0?end0 + siz:end0;
+        if (start<0 || start>=siz || end<0 || end>=siz || start>end)
+          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'da_remove()': "
+                                      "Invalid starting (%d) and ending (%d) positions "
+                                      "(not ordered, in range -%d...%d).",
+                                      mp.imgin.pixel_type(),start0,end0,siz,siz - 1);
+        if (end<siz - 1) // Move remaining data in dynamic array
+          cimg_forC(img,c) std::memmove(img.data(0,start,0,c),img.data(0,end + 1,0,c),(siz - 1 - end)*sizeof(T));
+        img[img._height - 1] = (T)(siz - 1 - end + start);
         return cimg::type<double>::nan();
       }
 

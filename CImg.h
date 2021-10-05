@@ -23649,7 +23649,7 @@ namespace cimg_library_suffixed {
                                       "Invalid position %d (not in range -%d...%d).",
                                       mp.imgin.pixel_type(),s_op,pos0,siz,siz);
 
-        if (siz + nb_elts + 1>=img._height) // Resize dynamic array if necessary
+        if (siz + nb_elts + 1>=img._height) // Increase size of dynamic array, if necessary
           img.resize(1,2*siz + nb_elts + 1,1,_dim,0);
 
         if (pos!=siz) // Move existing data in dynamic array
@@ -23670,7 +23670,7 @@ namespace cimg_library_suffixed {
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
         CImg<T> &img = ind==~0U?mp.imgout:mp.listout[ind];
-        const int siz = img?(int)img[img._height - 1]:0;
+        int siz = img?(int)img[img._height - 1]:0;
         if (img && (img._width!=1 || img._depth!=1 || siz<0 || siz>img.height() - 1))
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'da_remove()': "
                                       "Specified image (%d,%d,%d,%d) cannot be used as dynamic array%s.",
@@ -23692,7 +23692,9 @@ namespace cimg_library_suffixed {
                                       mp.imgin.pixel_type(),start0,end0,siz,siz - 1);
         if (end<siz - 1) // Move remaining data in dynamic array
           cimg_forC(img,c) std::memmove(img.data(0,start,0,c),img.data(0,end + 1,0,c),(siz - 1 - end)*sizeof(T));
-        img[img._height - 1] = (T)(siz - 1 - end + start);
+        siz-=end - start + 1;
+        if (siz>32 && siz<img.height()/4) img.resize(1,img.height()/2,1,1,0); // Reduce size of dynamic array
+        img[img._height - 1] = (T)siz;
         return cimg::type<double>::nan();
       }
 

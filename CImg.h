@@ -19661,54 +19661,27 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar1(mp_image_d,p1);
             }
 
-            if (!std::strncmp(ss,"da_insert(",10)) { // Insert element(s) in a dynamic array
+            if (!std::strncmp(ss,"da_insert(",10) ||
+                !std::strncmp(ss,"da_push(",8)) { // Insert element(s) in a dynamic array
               if (!is_inside_critical) is_parallelizable = false;
-              _cimg_mp_op("Function 'da_insert()'");
-              if (ss[10]=='#') { // Index specified
-                s0 = ss + 11; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
-                p1 = compile(ss + 11,s0++,depth1,0,bloc_flags);
+              const bool is_push = *ss3=='p';
+              _cimg_mp_op(is_push?"Function 'da_push()'":"Function 'da_insert()'");
+              s0 = ss + (is_push?8:10);
+              if (*s0=='#') { // Index specified
+                s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                p1 = compile(s0,s1++,depth1,0,bloc_flags);
                 _cimg_mp_check_list(true);
-              } else { p1 = ~0U; s0 = ss + 10; }
-              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(s0,s1,depth1,0,bloc_flags); // Position
+              } else { p1 = ~0U; s1 = s0; }
+
+              if (!is_push) {
+                s0 = s1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                arg1 = compile(s0,s1++,depth1,0,bloc_flags); // Position
+              } else arg1 = ~0U;
 
               CImg<ulongT>::vector((ulongT)mp_da_insert,_cimg_mp_slot_nan,p1,arg1,0,0).move_to(l_opcode);
               p3 = p1==~0U?2:3;
               p1 = ~0U;
-              for (s = s1 + 1; s<se; ++s) {
-                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
-                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
-                arg2 = compile(s,ns,depth1,0,bloc_flags); // Element
-                p2 = _cimg_mp_size(arg2);
-                if (p1==~0U) p1 = p2;
-                else {
-                  if (!p1) _cimg_mp_check_type(arg2,p3,1,0);
-                  else _cimg_mp_check_type(arg2,p3,2,p1);
-                }
-                CImg<ulongT>::vector(arg2).move_to(l_opcode);
-                s = ns;
-                ++p3;
-              }
-              if (p1==~0U) compile(s1 + 1,se1,depth1,0,bloc_flags); // Missing element -> error
-              (l_opcode>'y').move_to(opcode);
-              opcode[4] = p1;
-              opcode[5] = opcode._height;
-              opcode.move_to(code);
-              _cimg_mp_return_nan();
-            }
-
-            if (!std::strncmp(ss,"da_push(",8)) { // Insert element(s) at last position in a dynamic array
-              if (!is_inside_critical) is_parallelizable = false;
-              _cimg_mp_op("Function 'da_push()'");
-              if (ss[8]=='#') { // Index specified
-                s0 = ss + 9; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
-                p1 = compile(ss + 9,s0++,depth1,0,bloc_flags);
-                _cimg_mp_check_list(true);
-              } else { p1 = ~0U; s0 = ss + 8; }
-              CImg<ulongT>::vector((ulongT)mp_da_insert,_cimg_mp_slot_nan,p1,~0U,0,0).move_to(l_opcode);
-              p3 = p1==~0U?2:3;
-              p1 = ~0U;
-              for (s = s0; s<se; ++s) {
+              for (s = s1; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                 arg2 = compile(s,ns,depth1,0,bloc_flags); // Element

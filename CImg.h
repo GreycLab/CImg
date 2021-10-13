@@ -23691,7 +23691,8 @@ namespace cimg_library_suffixed {
         if (end<siz - 1) // Move remaining data in dynamic array
           cimg_forC(img,c) std::memmove(img.data(0,start,0,c),img.data(0,end + 1,0,c),(siz - 1 - end)*sizeof(T));
         siz-=end - start + 1;
-        if (siz>32 && siz<img.height()/4) img.resize(1,img.height()/2,1,1,0); // Reduce size of dynamic array
+        if (img.height()>32 && siz<2*img.height()/3) // Reduce size of dynamic array
+          img.resize(1,std::max(2*siz + 1,32),1,1,0);
         img[img._height - 1] = (T)siz;
         return cimg::type<double>::nan();
       }

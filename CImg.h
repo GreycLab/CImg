@@ -63748,18 +63748,21 @@ namespace cimg_library_suffixed {
               cimg::warn(_cimglist_instance
                          "save_video(): Skip empty frame %d for file '%s'.",
                          cimglist_instance,l,filename);
-            if (src._depth>1 || src._spectrum>3)
+            if (src._spectrum>3)
               cimg::warn(_cimglist_instance
                          "save_video(): Frame %u has incompatible dimension (%u,%u,%u,%u). "
                          "Some image data may be ignored when writing frame into video file '%s'.",
                          cimglist_instance,l,src._width,src._height,src._depth,src._spectrum,filename);
-            if (src._width==W && src._height==H && src._spectrum==3)
-              writers[index]->write(CImg<ucharT>(src)._cimg2cvmat());
-            else {
-              CImg<ucharT> _src(src,false);
-              _src.channels(0,std::min(_src._spectrum - 1,2U)).resize(W,H);
-              _src.resize(W,H,1,3,_src._spectrum==1);
-              writers[index]->write(_src._cimg2cvmat());
+            cimg_forZ(src,z) {
+              CImg<T> _src = src.depth()>1?src.get_slice(z):src.get_shared();
+              if (_src._width==W && _src._height==H && _src._spectrum==3)
+                writers[index]->write(CImg<ucharT>(_src)._cimg2cvmat());
+              else {
+                CImg<ucharT> __src(_src,false);
+                __src.channels(0,std::min(__src._spectrum - 1,2U)).resize(W,H);
+                __src.resize(W,H,1,3,__src._spectrum==1);
+                writers[index]->write(__src._cimg2cvmat());
+              }
             }
           }
           cimg::mutex(9,0);

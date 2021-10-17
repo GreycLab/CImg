@@ -63754,7 +63754,7 @@ namespace cimg_library_suffixed {
                          "Some image data may be ignored when writing frame into video file '%s'.",
                          cimglist_instance,l,src._width,src._height,src._depth,src._spectrum,filename);
             cimg_forZ(src,z) {
-              CImg<T> _src = src.depth()>1?src.get_slice(z):src.get_shared();
+              CImg<T> _src = src._depth>1?src.get_slice(z):src.get_shared();
               if (_src._width==W && _src._height==H && _src._spectrum==3)
                 writers[index]->write(CImg<ucharT>(_src)._cimg2cvmat());
               else {
@@ -63820,15 +63820,20 @@ namespace cimg_library_suffixed {
         cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_000001.ppm",filename_tmp._data);
         if ((file=cimg::std_fopen(filename_tmp2,"rb"))!=0) cimg::fclose(file);
       } while (file);
+      unsigned int frame = 1;
       cimglist_for(*this,l) {
-        cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_%.6u.ppm",filename_tmp._data,l + 1);
-        CImg<charT>::string(filename_tmp2).move_to(filenames);
-        CImg<T> tmp = _data[l].get_shared();
-        if (tmp._width%2 || tmp._height%2) // Force output to have an even number of columns and rows
-          tmp.assign(tmp.get_resize(tmp._width + (tmp._width%2),tmp._height + (tmp._height%2),1,-100,0),false);
-        if (tmp._depth>1 || tmp._spectrum!=3) // Force output to be one slice, in color
-          tmp.assign(tmp.get_resize(-100,-100,1,3),false);
-        tmp.save_pnm(filename_tmp2);
+        CImg<T>& src = _data[l];
+        cimg_forZ(src,z) {
+          cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_%.6u.ppm",filename_tmp._data,frame);
+          CImg<charT>::string(filename_tmp2).move_to(filenames);
+          CImg<T> _src = src._depth>1?src.get_slice(z):src.get_shared();
+          if (_src._width%2 || _src._height%2) // Force output to have an even number of columns and rows
+            _src.assign(_src.get_resize(_src._width + (_src._width%2),_src._height + (_src._height%2),1,-100,0),false);
+          if (_src._spectrum!=3) // Force output to be one slice, in color
+            _src.assign(_src.get_resize(-100,-100,1,3),false);
+          _src.save_pnm(filename_tmp2);
+          ++frame;
+        }
       }
       cimg_snprintf(command,command._width,
                     "\"%s\" -v -8 -y -i \"%s_%%6d.ppm\" -pix_fmt yuv420p -vcodec %s -b %uk -r %u \"%s\"",

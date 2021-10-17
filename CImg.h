@@ -17855,7 +17855,7 @@ namespace cimg_library_suffixed {
           }
 
         for (s = se2, ps = se3, ns = ps - 1; s>ss1; --s, --ps, --ns) // Here, ns = ps - 1
-          if (*s=='=' && (*ps=='+' || *ps=='-' || *ps=='*' || *ps=='/' || *ps=='%' ||
+          if (*s=='=' && (*ps=='+' || *ps=='-' || *ps=='*' || *ps=='/' || (*ps=='%' && s[1]!='=') ||
                           *ps=='&' || *ps=='^' || *ps=='|' ||
                           (*ps=='>' && *ns=='>') || (*ps=='<' && *ns=='<')) &&
               level[s - expr._data]==clevel) { // Self-operators (+=,-=,*=,/=,%=,>>=,<<=,&=,^=,|=)
@@ -23691,7 +23691,8 @@ namespace cimg_library_suffixed {
         if (end<siz - 1) // Move remaining data in dynamic array
           cimg_forC(img,c) std::memmove(img.data(0,start,0,c),img.data(0,end + 1,0,c),(siz - 1 - end)*sizeof(T));
         siz-=end - start + 1;
-        if (siz>32 && siz<img.height()/4) img.resize(1,img.height()/2,1,1,0); // Reduce size of dynamic array
+        if (img.height()>32 && siz<2*img.height()/3) // Reduce size of dynamic array
+          img.resize(1,std::max(2*siz + 1,32),1,1,0);
         img[img._height - 1] = (T)siz;
         return cimg::type<double>::nan();
       }
@@ -63748,18 +63749,21 @@ namespace cimg_library_suffixed {
               cimg::warn(_cimglist_instance
                          "save_video(): Skip empty frame %d for file '%s'.",
                          cimglist_instance,l,filename);
-            if (src._depth>1 || src._spectrum>3)
+            if (src._spectrum>3)
               cimg::warn(_cimglist_instance
                          "save_video(): Frame %u has incompatible dimension (%u,%u,%u,%u). "
                          "Some image data may be ignored when writing frame into video file '%s'.",
                          cimglist_instance,l,src._width,src._height,src._depth,src._spectrum,filename);
-            if (src._width==W && src._height==H && src._spectrum==3)
-              writers[index]->write(CImg<ucharT>(src)._cimg2cvmat());
-            else {
-              CImg<ucharT> _src(src,false);
-              _src.channels(0,std::min(_src._spectrum - 1,2U)).resize(W,H);
-              _src.resize(W,H,1,3,_src._spectrum==1);
-              writers[index]->write(_src._cimg2cvmat());
+            cimg_forZ(src,z) {
+              CImg<T> _src = src._depth>1?src.get_slice(z):src.get_shared();
+              if (_src._width==W && _src._height==H && _src._spectrum==3)
+                writers[index]->write(CImg<ucharT>(_src)._cimg2cvmat());
+              else {
+                CImg<ucharT> __src(_src,false);
+                __src.channels(0,std::min(__src._spectrum - 1,2U)).resize(W,H);
+                __src.resize(W,H,1,3,__src._spectrum==1);
+                writers[index]->write(__src._cimg2cvmat());
+              }
             }
           }
           cimg::mutex(9,0);
@@ -63817,15 +63821,20 @@ namespace cimg_library_suffixed {
         cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_000001.ppm",filename_tmp._data);
         if ((file=cimg::std_fopen(filename_tmp2,"rb"))!=0) cimg::fclose(file);
       } while (file);
+      unsigned int frame = 1;
       cimglist_for(*this,l) {
-        cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_%.6u.ppm",filename_tmp._data,l + 1);
-        CImg<charT>::string(filename_tmp2).move_to(filenames);
-        CImg<T> tmp = _data[l].get_shared();
-        if (tmp._width%2 || tmp._height%2) // Force output to have an even number of columns and rows
-          tmp.assign(tmp.get_resize(tmp._width + (tmp._width%2),tmp._height + (tmp._height%2),1,-100,0),false);
-        if (tmp._depth>1 || tmp._spectrum!=3) // Force output to be one slice, in color
-          tmp.assign(tmp.get_resize(-100,-100,1,3),false);
-        tmp.save_pnm(filename_tmp2);
+        CImg<T>& src = _data[l];
+        cimg_forZ(src,z) {
+          cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_%.6u.ppm",filename_tmp._data,frame);
+          CImg<charT>::string(filename_tmp2).move_to(filenames);
+          CImg<T> _src = src._depth>1?src.get_slice(z):src.get_shared();
+          if (_src._width%2 || _src._height%2) // Force output to have an even number of columns and rows
+            _src.assign(_src.get_resize(_src._width + (_src._width%2),_src._height + (_src._height%2),1,-100,0),false);
+          if (_src._spectrum!=3) // Force output to be one slice, in color
+            _src.assign(_src.get_resize(-100,-100,1,3),false);
+          _src.save_pnm(filename_tmp2);
+          ++frame;
+        }
       }
       cimg_snprintf(command,command._width,
                     "\"%s\" -v -8 -y -i \"%s_%%6d.ppm\" -pix_fmt yuv420p -vcodec %s -b %uk -r %u \"%s\"",

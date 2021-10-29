@@ -46736,18 +46736,71 @@ namespace cimg_library_suffixed {
        \param color3 Pointer to \c spectrum() consecutive values of type \c T, defining the color of the third vertex.
        \param opacity Drawing opacity.
      **/
-    template<typename tc1, typename tc2, typename tc3>
-    CImg<T>& draw_triangle(const int x0, const int y0,
-                           const int x1, const int y1,
-                           const int x2, const int y2,
-                           const tc1 *const color1,
-                           const tc2 *const color2,
-                           const tc3 *const color3,
+    template<typename tc>
+    CImg<T>& draw_triangle(int x0, int y0,
+                           int x1, int y1,
+                           int x2, int y2,
+                           const tc *color0,
+                           const tc *color1,
+                           const tc *color2,
                            const float opacity=1) {
-      const unsigned char one = 1;
+      typedef typename cimg::superset<tc,int>::type stc;
+      if (is_empty()) return *this;
+      if (!color0 || !color1 || !color2)
+        throw CImgArgumentException(_cimg_instance
+                                    "draw_triangle(): One of the specified color is (null).",
+                                    cimg_instance);
+
+      if (y0>y1) cimg::swap(x0,x1,y0,y1,color0,color1);
+      if (y0>y2) cimg::swap(x0,x2,y0,y2,color0,color2);
+      if (y1>y2) cimg::swap(x1,x2,y1,y2,color1,color2);
+      if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0 || !opacity) return *this;
+
+      const int w1 = width() - 1, h1 = height() - 1, cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1);
+      const longT
+        dx01 = (longT)x1 - x0, dx02 = (longT)x2 - x0, dx12 = (longT)x2 - x1,
+        dy01 = std::max((longT)1,(longT)y1 - y0),
+        dy02 = std::max((longT)1,(longT)y2 - y0),
+        dy12 = std::max((longT)1,(longT)y2 - y1),
+        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2;
+      cimg_init_scanline(opacity);
+
+      cimg_forC(*this,c) {
+        const stc dcolor01 = color1[c] - color0[c], dcolor02 = color2[c] - color0[c], dcolor12 = color2[c] - color1[c];
+
+        for (int y = cy0; y<=cy2; ++y) {
+          const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
+          longT
+            xm = y<y1?x0 + (dx01*yy0 + hdy01)/dy01:x1 + (dx12*yy1 + hdy12)/dy12,
+            xM = x0 + (dx02*yy0 + hdy02)/dy02;
+          stc
+            colorm = y<y1?(color0[c] + dcolor01*yy0/dy01):(color1[c] + dcolor12*yy1/dy12),
+            colorM = color0[c] + dcolor02*yy0/dy02;
+          if (xm>xM) cimg::swap(xm,xM,colorm,colorM);
+          if (xM>=0 && xm<=w1) {
+            const int
+              cxm = (int)cimg::cut(xm,(longT)0,(longT)w1),
+              cxM = (int)cimg::cut(xM,(longT)0,(longT)w1);
+            T *ptrd = data(cxm,y);
+            const longT dxmM = std::max((longT)1,xM - xm);
+            const stc dcolormM = colorM - colorm;
+
+            for (int x = cxm; x<=cxM; ++x) {
+              const longT xxm = (longT)x - xm;
+              const stc col = colorm + dcolormM*xxm/dxmM;
+              ptrd[c*_sc_whd] = (T)(opacity>=1?col:col*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
+              ++ptrd;
+            }
+          }
+        }
+      }
+      return *this;
+
+/*      const unsigned char one = 1;
       cimg_forC(*this,c)
         get_shared_channel(c).draw_triangle(x0,y0,x1,y1,x2,y2,&one,color1[c],color2[c],color3[c],opacity);
       return *this;
+*/
     }
 
     //! Draw a textured 2D triangle.

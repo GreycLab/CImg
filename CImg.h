@@ -46795,12 +46795,6 @@ namespace cimg_library_suffixed {
         }
       }
       return *this;
-
-/*      const unsigned char one = 1;
-      cimg_forC(*this,c)
-        get_shared_channel(c).draw_triangle(x0,y0,x1,y1,x2,y2,&one,color1[c],color2[c],color3[c],opacity);
-      return *this;
-*/
     }
 
     //! Draw a textured 2D triangle.

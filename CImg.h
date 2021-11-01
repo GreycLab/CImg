@@ -20603,6 +20603,16 @@ namespace cimg_library_suffixed {
                 catch (CImgException&) { _cimg_mp_return(0); }
                 _cimg_mp_return(1);
               }
+
+              if (!std::strncmp(ss,"isvarname(",10)) { // Is variable name?
+                _cimg_mp_op("Function 'isvarname()'");
+                arg1 = compile(ss + 10,se1,depth1,0,bloc_flags);
+                if (_cimg_mp_is_scalar(arg1)) _cimg_mp_return(0);
+                pos = scalar();
+                CImg<ulongT>::vector((ulongT)mp_isvarname,pos,arg1,(ulongT)_cimg_mp_size(arg1)).move_to(code);
+                return_new_comp = true;
+                _cimg_mp_return(pos);
+              }
             }
             break;
 
@@ -22685,12 +22695,12 @@ namespace cimg_library_suffixed {
       }
 
       // Return true if specified argument can be a part of an allowed  variable name.
-      bool is_varchar(const char c) const {
+      static bool is_varchar(const char c) {
         return (c>='a' && c<='z') || (c>='A' && c<='Z') || (c>='0' && c<='9') || c=='_';
       }
 
       // Return true if specified argument can be considered as a variable name.
-      bool is_varname(const char *const str, const unsigned int length=~0U) const {
+      static bool is_varname(const char *const str, const unsigned int length=~0U) {
         if (*str>='0' && *str<='9') return false;
         for (unsigned int l = 0; l<length && str[l]; ++l)
           if (!is_varchar(str[l])) return false;
@@ -24595,6 +24605,15 @@ namespace cimg_library_suffixed {
 
       static double mp_isnan(_cimg_math_parser& mp) {
         return (double)cimg::type<double>::is_nan(_mp_arg(2));
+      }
+
+      static double mp_isvarname(_cimg_math_parser& mp) {
+        const double *ptrs = &_mp_arg(2) + 1;
+        const ulongT siz = (ulongT)mp.opcode[3];
+        CImg<charT> ss(siz + 1);
+        cimg_forX(ss,i) ss[i] = (char)ptrs[i];
+        ss.back() = 0;
+        return (double)is_varname(ss);
       }
 
       static double mp_ixyzc(_cimg_math_parser& mp) {

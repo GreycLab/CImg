@@ -19604,7 +19604,7 @@ namespace cimg_library_suffixed {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                             "CImg<%s>::%s: %s: Invalid xyz-start/end arguments "
-                                            "(start = (%u,%u,%u), end = (%u,%u,%u)), in expression '%s'.",
+                                            "(start = (%d,%d,%d), end = (%d,%d,%d)), in expression '%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             xstart,ystart,zstart,xend,yend,zend,s0);
               }

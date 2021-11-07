@@ -38322,8 +38322,8 @@ namespace cimg_library_suffixed {
         switch (_kernel._depth) {
         case 3 : { // 3x3x3 centered kernel
           cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
-          for (int c = 0; c<cend; ++c) _cimg_abort_try_openmp {
-            cimg_abort_test;
+          for (int c = 0; c<cend; ++c) _cimg_abort_try_openmp2 {
+            cimg_abort_test2;
             const CImg<T> I = get_shared_channel(c%_spectrum);
             const CImg<t> K = _kernel.get_shared_channel(!channel_mode?c/_spectrum:c%_kernel._spectrum);
             CImg<Ttfloat> _res = channel_mode<=1?res.get_shared_channel(c):
@@ -38379,7 +38379,7 @@ namespace cimg_library_suffixed {
               cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(c/smin)+=_res;
             else if (channel_mode==3)
               cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(0)+=_res;
-          } _cimg_abort_catch_openmp
+          } _cimg_abort_catch_openmp2
         } break;
 
         default :
@@ -38387,8 +38387,8 @@ namespace cimg_library_suffixed {
           switch (_kernel._width) {
           case 5 : { // 5x5 centered kernel
             cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
-            for (int c = 0; c<cend; ++c) _cimg_abort_try_openmp {
-              cimg_abort_test;
+            for (int c = 0; c<cend; ++c) _cimg_abort_try_openmp2 {
+              cimg_abort_test2;
               const CImg<T> I = get_shared_channel(c%_spectrum);
               const CImg<t> K = _kernel.get_shared_channel(!channel_mode?c/_spectrum:c%_kernel._spectrum);
               CImg<Ttfloat> _res = channel_mode<=1?res.get_shared_channel(c):
@@ -38449,13 +38449,13 @@ namespace cimg_library_suffixed {
               cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(c/smin)+=_res;
             else if (channel_mode==3)
               cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(0)+=_res;
-            } _cimg_abort_catch_openmp
+            } _cimg_abort_catch_openmp2
           } break;
 
           case 3 : { // 3x3 centered kernel
             cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
-            for (int c = 0; c<cend; ++c) _cimg_abort_try_openmp {
-              cimg_abort_test;
+            for (int c = 0; c<cend; ++c) _cimg_abort_try_openmp2 {
+              cimg_abort_test2;
               const CImg<T> I = get_shared_channel(c%_spectrum);
               const CImg<t> K = _kernel.get_shared_channel(!channel_mode?c/_spectrum:c%_kernel._spectrum);
               CImg<Ttfloat> _res = channel_mode<=1?res.get_shared_channel(c):
@@ -38491,7 +38491,7 @@ namespace cimg_library_suffixed {
               cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(c/smin)+=_res;
             else if (channel_mode==3)
               cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(0)+=_res;
-            } _cimg_abort_catch_openmp
+            } _cimg_abort_catch_openmp2
           } break;
           }
         }
@@ -38522,8 +38522,8 @@ namespace cimg_library_suffixed {
         }
       } else { // Generic version
         cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
-        for (int c = 0; c<cend; ++c) _cimg_abort_try_openmp {
-          cimg_abort_test;
+        for (int c = 0; c<cend; ++c) _cimg_abort_try_openmp2 {
+          cimg_abort_test2;
           const CImg<T> I = get_shared_channel(c%_spectrum);
           const CImg<t> K = _kernel.get_shared_channel(!channel_mode?c/_spectrum:c%_kernel._spectrum);
           CImg<Ttfloat> _res = channel_mode<=1?res.get_shared_channel(c):
@@ -38696,7 +38696,7 @@ namespace cimg_library_suffixed {
           else if (channel_mode==3)
             cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(0)+=_res;
 
-        } _cimg_abort_catch_openmp
+        } _cimg_abort_catch_openmp2
       }
       cimg_abort_test;
       return res;
@@ -40748,8 +40748,8 @@ namespace cimg_library_suffixed {
       cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) \
                          cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*32 && res._height*res._depth>=4) \
                          firstprivate(P,Q)) \
-      cimg_forXYZ(res,x,y,z) _cimg_abort_try_openmp { \
-        cimg_abort_test; \
+      cimg_forXYZ(res,x,y,z) _cimg_abort_try_openmp2 { \
+        cimg_abort_test2; \
         cimg_def##N##x##N##x##N(res,x,y,z); \
         tfloat *pP = P._data; cimg_forC(_guide,c) { cimg_get##N##x##N##x##N(_guide,x,y,z,c,pP,tfloat); pP+=N3; } \
         const int x0 = x - rsize1, y0 = y - rsize1, z0 = z - rsize1, \
@@ -40768,14 +40768,14 @@ namespace cimg_library_suffixed {
           } \
         if (sum_weights>1e-10) cimg_forC(res,c) res(x,y,z,c)/=(Tfloat)sum_weights; \
         else cimg_forC(res,c) res(x,y,z,c) = (Tfloat)((*this)(x,y,z,c)); \
-    } _cimg_abort_catch_openmp }
+    } _cimg_abort_catch_openmp2 }
 
 #define _cimg_blur_patch3d(N) { \
       cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) \
                          cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*32 && res._height*res._depth>=4) \
                          firstprivate(P,Q)) \
-      cimg_forXYZ(res,x,y,z) _cimg_abort_try_openmp { \
-        cimg_abort_test; \
+      cimg_forXYZ(res,x,y,z) _cimg_abort_try_openmp2 { \
+        cimg_abort_test2; \
         cimg_def##N##x##N##x##N(res,x,y,z); \
         tfloat *pP = P._data; cimg_forC(_guide,c) { cimg_get##N##x##N##x##N(_guide,x,y,z,c,pP,tfloat); pP+=N3; } \
         const int x0 = x - rsize1, y0 = y - rsize1, z0 = z - rsize1, \
@@ -40795,13 +40795,13 @@ namespace cimg_library_suffixed {
         sum_weights+=weight_max; cimg_forC(res,c) res(x,y,z,c)+=(Tfloat)weight_max*(*this)(x,y,z,c); \
         if (sum_weights>1e-10) cimg_forC(res,c) res(x,y,z,c)/=(Tfloat)sum_weights; \
         else cimg_forC(res,c) res(x,y,z,c) = (Tfloat)((*this)(x,y,z,c)); \
-      } _cimg_abort_catch_openmp }
+      } _cimg_abort_catch_openmp2 }
 
 #define _cimg_blur_patch2d_fast(N) { \
         cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*32 && res._height>=4) \
                            firstprivate(P,Q)) \
-        cimg_forXY(res,x,y) _cimg_abort_try_openmp { \
-          cimg_abort_test; \
+        cimg_forXY(res,x,y) _cimg_abort_try_openmp2 { \
+          cimg_abort_test2; \
           cimg_def##N##x##N(res,x,y); \
           tfloat *pP = P._data; cimg_forC(_guide,c) { cimg_get##N##x##N(_guide,x,y,0,c,pP,tfloat); pP+=N2; } \
           const int x0 = x - rsize1, y0 = y - rsize1, x1 = x + rsize2, y1 = y + rsize2; \
@@ -40819,13 +40819,13 @@ namespace cimg_library_suffixed {
             } \
           if (sum_weights>1e-10) cimg_forC(res,c) res(x,y,c)/=(Tfloat)sum_weights; \
           else cimg_forC(res,c) res(x,y,c) = (Tfloat)((*this)(x,y,c)); \
-        } _cimg_abort_catch_openmp }
+        } _cimg_abort_catch_openmp2 }
 
 #define _cimg_blur_patch2d(N) { \
         cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*32 && res._height>=4) \
                            firstprivate(P,Q)) \
-        cimg_forXY(res,x,y) _cimg_abort_try_openmp { \
-          cimg_abort_test; \
+        cimg_forXY(res,x,y) _cimg_abort_try_openmp2 { \
+          cimg_abort_test2; \
           cimg_def##N##x##N(res,x,y); \
           tfloat *pP = P._data; cimg_forC(_guide,c) { cimg_get##N##x##N(_guide,x,y,0,c,pP,tfloat); pP+=N2; } \
           const int x0 = x - rsize1, y0 = y - rsize1, x1 = x + rsize2, y1 = y + rsize2; \
@@ -40844,7 +40844,7 @@ namespace cimg_library_suffixed {
           sum_weights+=weight_max; cimg_forC(res,c) res(x,y,c)+=(Tfloat)weight_max*(*this)(x,y,c); \
           if (sum_weights>1e-10) cimg_forC(res,c) res(x,y,c)/=(Tfloat)sum_weights; \
           else cimg_forC(res,c) res(x,y,c) = (Tfloat)((*this)(x,y,c)); \
-    } _cimg_abort_catch_openmp }
+    } _cimg_abort_catch_openmp2 }
 
       typedef _cimg_tfloat tfloat;
       if (!is_sameXYZ(guide))
@@ -40886,8 +40886,8 @@ namespace cimg_library_suffixed {
             cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
                                cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*32 && res._height*res._depth>=4)
                                firstprivate(P,Q))
-            cimg_forXYZ(res,x,y,z) _cimg_abort_try_openmp { // Fast
-              cimg_abort_test;
+            cimg_forXYZ(res,x,y,z) _cimg_abort_try_openmp2 { // Fast
+              cimg_abort_test2;
               P = _guide.get_crop(x - psize1,y - psize1,z - psize1,x + psize2,y + psize2,z + psize2,true);
               const int x0 = x - rsize1, y0 = y - rsize1, z0 = z - rsize1,
                 x1 = x + rsize2, y1 = y + rsize2, z1 = z + rsize2;
@@ -40904,13 +40904,13 @@ namespace cimg_library_suffixed {
                 }
               if (sum_weights>1e-10) cimg_forC(res,c) res(x,y,z,c)/=(Tfloat)sum_weights;
               else cimg_forC(res,c) res(x,y,z,c) = (Tfloat)((*this)(x,y,z,c));
-            } _cimg_abort_catch_openmp
+            } _cimg_abort_catch_openmp2
           } else {
             cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
                                cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*32 && res._height*res._depth>=4)
                                firstprivate(P,Q))
-            cimg_forXYZ(res,x,y,z) _cimg_abort_try_openmp { // Exact
-              cimg_abort_test;
+            cimg_forXYZ(res,x,y,z) _cimg_abort_try_openmp2 { // Exact
+              cimg_abort_test2;
               P = _guide.get_crop(x - psize1,y - psize1,z - psize1,x + psize2,y + psize2,z + psize2,true);
               const int x0 = x - rsize1, y0 = y - rsize1, z0 = z - rsize1,
                         x1 = x + rsize2, y1 = y + rsize2, z1 = z + rsize2;
@@ -40928,7 +40928,7 @@ namespace cimg_library_suffixed {
               sum_weights+=weight_max; cimg_forC(res,c) res(x,y,z,c)+=(Tfloat)weight_max*(*this)(x,y,z,c);
               if (sum_weights>1e-10) cimg_forC(res,c) res(x,y,z,c)/=(Tfloat)sum_weights;
               else cimg_forC(res,c) res(x,y,z,c) = (Tfloat)((*this)(x,y,z,c));
-            } _cimg_abort_catch_openmp
+            } _cimg_abort_catch_openmp2
           }
         }
         } else switch (patch_size) { // 2D
@@ -40945,8 +40945,8 @@ namespace cimg_library_suffixed {
           if (is_fast_approx) {
             cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*32 && res._height>=4)
                                firstprivate(P,Q))
-            cimg_forXY(res,x,y) _cimg_abort_try_openmp { // Fast
-              cimg_abort_test;
+            cimg_forXY(res,x,y) _cimg_abort_try_openmp2 { // Fast
+              cimg_abort_test2;
               P = _guide.get_crop(x - psize1,y - psize1,x + psize2,y + psize2,true);
               const int x0 = x - rsize1, y0 = y - rsize1, x1 = x + rsize2, y1 = y + rsize2;
               tfloat sum_weights = 0;
@@ -40962,12 +40962,12 @@ namespace cimg_library_suffixed {
                 }
               if (sum_weights>1e-10) cimg_forC(res,c) res(x,y,c)/=(Tfloat)sum_weights;
               else cimg_forC(res,c) res(x,y,c) = (Tfloat)((*this)(x,y,c));
-            } _cimg_abort_catch_openmp
+            } _cimg_abort_catch_openmp2
           } else {
             cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*32 && res._height>=4)
                                firstprivate(P,Q))
-            cimg_forXY(res,x,y) _cimg_abort_try_openmp { // Exact
-              cimg_abort_test;
+            cimg_forXY(res,x,y) _cimg_abort_try_openmp2 { // Exact
+              cimg_abort_test2;
               P = _guide.get_crop(x - psize1,y - psize1,x + psize2,y + psize2,true);
               const int x0 = x - rsize1, y0 = y - rsize1, x1 = x + rsize2, y1 = y + rsize2;
               tfloat sum_weights = 0, weight_max = 0;
@@ -40984,10 +40984,11 @@ namespace cimg_library_suffixed {
               sum_weights+=weight_max; cimg_forC(res,c) res(x,y,c)+=(Tfloat)weight_max*(*this)(x,y,c);
               if (sum_weights>1e-10) cimg_forC(res,c) res(x,y,c)/=(Tfloat)sum_weights;
               else cimg_forC(res,c) res(x,y,c) = (Tfloat)((*this)(x,y,c));
-            } _cimg_abort_catch_openmp
+            } _cimg_abort_catch_openmp2
           }
         }
         }
+      cimg_abort_test;
       return res.cut(val_min,val_max);
     }
 

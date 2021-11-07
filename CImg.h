@@ -38322,7 +38322,7 @@ namespace cimg_library_suffixed {
         switch (_kernel._depth) {
         case 3 : { // 3x3x3 centered kernel
           cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
-          for (int c = 0; c<cend; ++c) {
+          for (int c = 0; c<cend; ++c) _cimg_abort_try_openmp {
             cimg_abort_test;
             const CImg<T> I = get_shared_channel(c%_spectrum);
             const CImg<t> K = _kernel.get_shared_channel(!channel_mode?c/_spectrum:c%_kernel._spectrum);
@@ -38379,7 +38379,7 @@ namespace cimg_library_suffixed {
               cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(c/smin)+=_res;
             else if (channel_mode==3)
               cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(0)+=_res;
-          }
+          } _cimg_abort_catch_openmp
         } break;
 
         default :
@@ -38387,7 +38387,7 @@ namespace cimg_library_suffixed {
           switch (_kernel._width) {
           case 5 : { // 5x5 centered kernel
             cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
-            for (int c = 0; c<cend; ++c) {
+            for (int c = 0; c<cend; ++c) _cimg_abort_try_openmp {
               cimg_abort_test;
               const CImg<T> I = get_shared_channel(c%_spectrum);
               const CImg<t> K = _kernel.get_shared_channel(!channel_mode?c/_spectrum:c%_kernel._spectrum);
@@ -38449,12 +38449,12 @@ namespace cimg_library_suffixed {
               cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(c/smin)+=_res;
             else if (channel_mode==3)
               cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(0)+=_res;
-            }
+            } _cimg_abort_catch_openmp
           } break;
 
           case 3 : { // 3x3 centered kernel
             cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
-            for (int c = 0; c<cend; ++c) {
+            for (int c = 0; c<cend; ++c) _cimg_abort_try_openmp {
               cimg_abort_test;
               const CImg<T> I = get_shared_channel(c%_spectrum);
               const CImg<t> K = _kernel.get_shared_channel(!channel_mode?c/_spectrum:c%_kernel._spectrum);
@@ -38491,7 +38491,7 @@ namespace cimg_library_suffixed {
               cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(c/smin)+=_res;
             else if (channel_mode==3)
               cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(0)+=_res;
-            }
+            } _cimg_abort_catch_openmp
           } break;
           }
         }
@@ -38522,7 +38522,7 @@ namespace cimg_library_suffixed {
         }
       } else { // Generic version
         cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
-          for (int c = 0; c<cend; ++c) _cimg_abort_try_openmp {
+        for (int c = 0; c<cend; ++c) _cimg_abort_try_openmp {
           cimg_abort_test;
           const CImg<T> I = get_shared_channel(c%_spectrum);
           const CImg<t> K = _kernel.get_shared_channel(!channel_mode?c/_spectrum:c%_kernel._spectrum);
@@ -38697,8 +38697,8 @@ namespace cimg_library_suffixed {
             cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(0)+=_res;
 
         } _cimg_abort_catch_openmp
-          cimg_abort_test;
       }
+      cimg_abort_test;
       return res;
     }
 

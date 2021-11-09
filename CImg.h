@@ -62006,7 +62006,7 @@ namespace cimg_library_suffixed {
       if (err<2) {
         if (!file) cimg::fclose(nfile);
         throw CImgIOException(_cimglist_instance
-                              "load_cimg(): CImg header not found in file '%s'.",
+                              "load_cimg(): File or CImg header not found in file '%s'.",
                               cimglist_instance,
                               filename?filename:"(FILE*)");
       }

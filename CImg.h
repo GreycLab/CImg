@@ -21107,24 +21107,72 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"resize(",7)) { // Vector or image resize
               _cimg_mp_op("Function 'resize()'");
               if (*ss7!='#') { // Vector
-                s1 = ss7; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                arg1 = compile(ss7,s1,depth1,0,bloc_flags);
-                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-                arg2 = compile(s1,s2,depth1,0,bloc_flags);
-                arg3 = 1;
-                arg4 = 0;
-                if (s2<se1) {
-                  s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                  arg3 = compile(s2,s1,depth1,0,bloc_flags);
-                  arg4 = s1<se1?compile(++s1,se1,depth1,0,bloc_flags):0;
+                for (s = ss7; s<se; ++s) {
+                  ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                                 (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                  arg2 = compile(s,ns,depth1,0,bloc_flags);
+                  if (s!=ss7 && _cimg_mp_is_vector(arg2))
+                    CImg<ulongT>::sequence(_cimg_mp_size(arg2),arg2 + 1,
+                                           arg2 + (ulongT)_cimg_mp_size(arg2)).
+                      move_to(l_opcode);
+                  else CImg<ulongT>::vector(arg2).move_to(l_opcode);
+                  s = ns;
                 }
-                _cimg_mp_check_const_scalar(arg2,2,3);
-                arg2 = (unsigned int)mem[arg2];
-                _cimg_mp_check_type(arg3,3,1,0);
-                _cimg_mp_check_type(arg4,4,1,0);
-                pos = vector(arg2);
-                CImg<ulongT>::vector((ulongT)mp_vector_resize,pos,arg2,arg1,(ulongT)_cimg_mp_size(arg1),
-                                     arg3,arg4).move_to(code);
+                (l_opcode>'y').move_to(opcode);
+                if (opcode.height()<2) compile(s,se1,depth1,0,bloc_flags); // Not enough arguments -> throw exception
+                arg1 = (unsigned int)opcode[0]; // Vector to resize
+                p1 = _cimg_mp_size(arg1);
+
+                if (opcode.height()<=4) { // Simple vector resize
+                  arg2 = (unsigned int)opcode[1];
+                  _cimg_mp_check_const_scalar(arg2,2,3);
+                  arg2 = (unsigned int)mem[arg2];
+                  arg3 = opcode.height()<3?1U:(unsigned int)opcode[2];
+                  _cimg_mp_check_type(arg3,3,1,0);
+                  arg4 = opcode.height()<4?0U:(unsigned int)opcode[3];
+                  _cimg_mp_check_type(arg4,4,1,0);
+                  pos = vector(arg2);
+                  CImg<ulongT>::vector((ulongT)mp_vector_resize,pos,arg2,arg1,p1,arg3,arg4).move_to(code);
+                } else { // Advanced vector resize (vector viewed as an image)
+                  // opcode = [ A, ow,oh,od,os, nw,nh,nd,ns, interp, boundary_cond, ax,ay,az,ac ]
+                  //          [ 0   1  2  3  4   5  6  7  8       9             10  11 12 13 14 ]
+
+                  if (opcode.height()<6) compile(s,se1,depth1,0,bloc_flags); // Not enough arguments -> throw exception
+                  p2 = opcode.height();
+                  opcode.resize(1,15,1,1,0);
+                  if (p2<7) opcode[6] = opcode[2];
+                  if (p2<8) opcode[7] = opcode[3];
+                  if (p2<9) opcode[8] = opcode[4];
+                  if (p2<10) opcode[9] = 1;
+                  _cimg_mp_check_const_scalar(opcode[1],2,3);
+                  _cimg_mp_check_const_scalar(opcode[2],3,3);
+                  _cimg_mp_check_const_scalar(opcode[3],4,3);
+                  _cimg_mp_check_const_scalar(opcode[4],5,3);
+                  _cimg_mp_check_const_scalar(opcode[5],6,3);
+                  _cimg_mp_check_const_scalar(opcode[6],7,3);
+                  _cimg_mp_check_const_scalar(opcode[7],8,3);
+                  _cimg_mp_check_const_scalar(opcode[8],9,3);
+                  arg2 = (unsigned int)mem[opcode[1]]; opcode[1] = arg2;
+                  arg3 = (unsigned int)mem[opcode[2]]; opcode[2] = arg3;
+                  arg4 = (unsigned int)mem[opcode[3]]; opcode[3] = arg4;
+                  arg5 = (unsigned int)mem[opcode[4]]; opcode[4] = arg5;
+                  if (arg2*arg3*arg4*arg5!=std::max(1U,p1))
+                    throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                                "CImg<%s>::%s: %s: Input size (%lu values) and specified input vector "
+                                                "geometry (%u,%u,%u,%u) (%lu values) do not match.",
+                                                pixel_type(),_cimg_mp_calling_function,s_op,
+                                                std::max(p1,1U),arg2,arg3,arg4,arg5,(ulongT)arg2*arg3*arg4*arg5);
+                  arg2 = (unsigned int)mem[opcode[5]]; opcode[5] = arg2;
+                  arg3 = (unsigned int)mem[opcode[6]]; opcode[6] = arg3;
+                  arg4 = (unsigned int)mem[opcode[7]]; opcode[7] = arg4;
+                  arg5 = (unsigned int)mem[opcode[8]]; opcode[8] = arg5;
+                  pos = vector(arg2*arg3*arg4*arg5);
+                  opcode.resize(1,18,1,1,0,0,0,1);
+                  opcode[0] = (ulongT)mp_vector_resize_ext;
+                  opcode[1] = (ulongT)pos;
+                  opcode[2] = (ulongT)p1;
+                  opcode.move_to(code);
+                }
                 return_new_comp = true;
                 _cimg_mp_return(pos);
 
@@ -26954,6 +27002,38 @@ namespace cimg_library_suffixed {
           const double value = _mp_arg(3);
           CImg<doubleT>(ptrd,p1,1,1,1,true) = CImg<doubleT>(1,1,1,1,value).resize(p1,1,1,1,interpolation,
                                                                                   boundary_conditions);
+        }
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_vector_resize_ext(_cimg_math_parser& mp) {
+        double *const ptrd = &_mp_arg(1) + 1;
+        const unsigned int
+          siz = (unsigned int)mp.opcode[2],
+          ow = (unsigned int)mp.opcode[4],
+          oh = (unsigned int)mp.opcode[5],
+          od = (unsigned int)mp.opcode[6],
+          os = (unsigned int)mp.opcode[7],
+          nw = (unsigned int)mp.opcode[8],
+          nh = (unsigned int)mp.opcode[9],
+          nd = (unsigned int)mp.opcode[10],
+          ns = (unsigned int)mp.opcode[11];
+        const int
+          interpolation = (int)_mp_arg(12),
+          boundary_conditions = (int)_mp_arg(13);
+        const float
+          ax = (float)_mp_arg(14),
+          ay = (float)_mp_arg(15),
+          az = (float)_mp_arg(16),
+          ac = (float)_mp_arg(17);
+        if (siz) { // Resize vector
+          const double *const ptrs = &_mp_arg(3) + 1;
+          CImg<doubleT>(ptrd,nw,nh,nd,ns,true) = CImg<doubleT>(ptrs,ow,oh,od,os,true).
+            get_resize(nw,nh,nd,ns,interpolation,boundary_conditions,ax,ay,az,ac);
+        } else { // Resize scalar
+          const double value = _mp_arg(3);
+          CImg<doubleT>(ptrd,nw,nh,nd,ns,true) = CImg<doubleT>(1,1,1,1,value).
+            resize(nw,nh,nd,ns,interpolation,boundary_conditions,ax,ay,az,ac);
         }
         return cimg::type<double>::nan();
       }

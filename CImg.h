@@ -21107,24 +21107,32 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"resize(",7)) { // Vector or image resize
               _cimg_mp_op("Function 'resize()'");
               if (*ss7!='#') { // Vector
-                s1 = ss7; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                arg1 = compile(ss7,s1,depth1,0,bloc_flags);
-                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-                arg2 = compile(s1,s2,depth1,0,bloc_flags);
-                arg3 = 1;
-                arg4 = 0;
-                if (s2<se1) {
-                  s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                  arg3 = compile(s2,s1,depth1,0,bloc_flags);
-                  arg4 = s1<se1?compile(++s1,se1,depth1,0,bloc_flags):0;
+                for (s = ss7; s<se; ++s) {
+                  ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                                 (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                  arg2 = compile(s,ns,depth1,0,bloc_flags);
+                  if (s!=ss7 && _cimg_mp_is_vector(arg2))
+                    CImg<ulongT>::sequence(_cimg_mp_size(arg2),arg2 + 1,
+                                           arg2 + (ulongT)_cimg_mp_size(arg2)).
+                      move_to(l_opcode);
+                  else CImg<ulongT>::vector(arg2).move_to(l_opcode);
+                  s = ns;
                 }
-                _cimg_mp_check_const_scalar(arg2,2,3);
-                arg2 = (unsigned int)mem[arg2];
-                _cimg_mp_check_type(arg3,3,1,0);
-                _cimg_mp_check_type(arg4,4,1,0);
-                pos = vector(arg2);
-                CImg<ulongT>::vector((ulongT)mp_vector_resize,pos,arg2,arg1,(ulongT)_cimg_mp_size(arg1),
-                                     arg3,arg4).move_to(code);
+                (l_opcode>'y').move_to(opcode);
+                if (opcode.height()<2) compile(s,se1,depth1,0,bloc_flags); // Not enough arguments -> throw exception
+                if (opcode.height()<=4) { // Simple vector resize
+                  arg1 = (unsigned int)opcode[0];
+                  arg2 = (unsigned int)opcode[1];
+                  _cimg_mp_check_const_scalar(arg2,2,3);
+                  arg2 = (unsigned int)mem[arg2];
+                  arg3 = opcode.height()<3?1U:(unsigned int)opcode[2];
+                  _cimg_mp_check_type(arg3,3,1,0);
+                  arg4 = opcode.height()<4?0U:(unsigned int)opcode[3];
+                  _cimg_mp_check_type(arg4,4,1,0);
+                  pos = vector(arg2);
+                  CImg<ulongT>::vector((ulongT)mp_vector_resize,pos,arg2,arg1,(ulongT)_cimg_mp_size(arg1),
+                                       arg3,arg4).move_to(code);
+                }
                 return_new_comp = true;
                 _cimg_mp_return(pos);
 

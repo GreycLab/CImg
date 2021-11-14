@@ -22769,8 +22769,8 @@ namespace cimg_library_suffixed {
       // 'mode' can be:
       // { 0=constant | 1=integer constant | 2=positive integer constant | 3=strictly-positive integer constant }
       void check_const_scalar(const unsigned int arg, const unsigned int n_arg,
-                          const unsigned int mode,
-                          char *const ss, char *const se, const char saved_char) {
+                              const unsigned int mode,
+                              char *const ss, char *const se, const char saved_char) {
         _cimg_mp_check_type(arg,n_arg,1,0);
         if (!_cimg_mp_is_const_scalar(arg)) {
           const char *const s_arg = s_argth(n_arg);

@@ -23717,15 +23717,16 @@ namespace cimg_library_suffixed {
                                       "Specified dynamic array #%d contains no elements.",
                                       mp.imgin.pixel_type(),s_op,(int)_mp_arg(3));
 
-        if (dim<1) return img[siz - 1]; // Scalar element
-        cimg_forC(img,c) ptrd[c] = img(0,siz - 1,0,c); // Vector element
+        double ret = cimg::type<double>::nan();
+        if (dim<1) ret = img[siz - 1]; // Scalar element
+        else cimg_forC(img,c) ptrd[c] = img(0,siz - 1,0,c); // Vector element
         if (is_pop) { // Remove element from array
           --siz;
           if (img.height()>32 && siz<2*img.height()/3) // Reduce size of dynamic array
             img.resize(1,std::max(2*siz + 1,32),1,1,0);
           img[img._height - 1] = (T)siz;
         }
-        return cimg::type<double>::nan();
+        return ret;
       }
 
       static double mp_da_insert(_cimg_math_parser& mp) {

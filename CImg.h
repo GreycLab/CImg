@@ -19661,6 +19661,26 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar1(mp_image_d,p1);
             }
 
+            if (!std::strncmp(ss,"da_back(",8) ||
+                !std::strncmp(ss,"da_pop(",7)) { // Get latest element in a dynamic array
+              if (!is_inside_critical) is_parallelizable = false;
+              const bool is_pop = *ss3=='p';
+              _cimg_mp_op(is_pop?"Function 'da_pop()'":"Function 'da_back()'");
+              s0 = ss + (is_pop?7:8);
+              if (*s0=='#') { // Index specified
+                s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                p1 = compile(s0,s1++,depth1,0,bloc_flags);
+                _cimg_mp_check_list(true);
+              } else { p1 = 11; s1 = s0; }
+              _cimg_mp_check_const_scalar(p1,1,1);
+              p3 = (unsigned int)cimg::mod((int)mem[p1],listin.width());
+              p2 = listin[p3]._spectrum;
+              if (p2>1) pos = vector(p2); else pos = scalar(); // Return vector or scalar result
+              CImg<ulongT>::vector((ulongT)mp_da_back_or_pop,pos,p2,p1,is_pop).move_to(code);
+              return_new_comp = true;
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"da_insert(",10) ||
                 !std::strncmp(ss,"da_push(",8)) { // Insert element(s) in a dynamic array
               if (!is_inside_critical) is_parallelizable = false;
@@ -22769,8 +22789,8 @@ namespace cimg_library_suffixed {
       // 'mode' can be:
       // { 0=constant | 1=integer constant | 2=positive integer constant | 3=strictly-positive integer constant }
       void check_const_scalar(const unsigned int arg, const unsigned int n_arg,
-                          const unsigned int mode,
-                          char *const ss, char *const se, const char saved_char) {
+                              const unsigned int mode,
+                              char *const ss, char *const se, const char saved_char) {
         _cimg_mp_check_type(arg,n_arg,1,0);
         if (!_cimg_mp_is_const_scalar(arg)) {
           const char *const s_arg = s_argth(n_arg);
@@ -23678,13 +23698,44 @@ namespace cimg_library_suffixed {
         return val<cmin?cmin:val>cmax?cmax:val;
       }
 
+      static double mp_da_back_or_pop(_cimg_math_parser& mp) {
+        const bool is_pop = (bool)mp.opcode[4];
+        const char *const s_op = is_pop?"da_pop":"da_back";
+        const unsigned int
+          dim = (unsigned int)mp.opcode[2],
+          ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.listin.width());
+        double *const ptrd = &_mp_arg(1) + (dim>1?1:0);
+        CImg<T> &img = mp.listout[ind];
+        int siz = img?(int)img[img._height - 1]:0;
+        if (img && (img._width!=1 || img._depth!=1 || siz<0 || siz>img.height() - 1))
+          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function '%s()': "
+                                      "Specified image (%d,%d,%d,%d) cannot be used as dynamic array%s.",
+                                      mp.imgin.pixel_type(),s_op,img.width(),img.height(),img.depth(),img.spectrum(),
+                                      img._width==1 && img._depth==1?"":" (contains invalid element counter)");
+        if (!siz)
+          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function '%s()': "
+                                      "Specified dynamic array #%d contains no elements.",
+                                      mp.imgin.pixel_type(),s_op,(int)_mp_arg(3));
+
+        double ret = cimg::type<double>::nan();
+        if (dim<1) ret = img[siz - 1]; // Scalar element
+        else cimg_forC(img,c) ptrd[c] = img(0,siz - 1,0,c); // Vector element
+        if (is_pop) { // Remove element from array
+          --siz;
+          if (img.height()>32 && siz<2*img.height()/3) // Reduce size of dynamic array
+            img.resize(1,std::max(2*siz + 1,32),1,1,0);
+          img[img._height - 1] = (T)siz;
+        }
+        return ret;
+      }
+
       static double mp_da_insert(_cimg_math_parser& mp) {
         const char *const s_op = mp.opcode[3]==~0U?"da_push":"da_insert";
         const unsigned int
           dim = (unsigned int)mp.opcode[4],
           _dim = std::max(1U,dim),
-          nb_elts = (unsigned int)mp.opcode[5] - 6;
-        const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+          nb_elts = (unsigned int)mp.opcode[5] - 6,
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
 
         CImg<T> &img = mp.listout[ind];
         const int

@@ -20840,7 +20840,7 @@ namespace cimg_library_suffixed {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                             "CImg<%s>::%s: %s: Invalid specified operator "
-                                            "(should be one of '=,+,-,*,/,min,max'), "
+                                            "(should be one of '=,+,-,*,/,&,|,xor,&&,||,min,max'), "
                                             "in expression '%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,s0);
               }

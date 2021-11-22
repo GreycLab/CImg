@@ -20820,7 +20820,7 @@ namespace cimg_library_suffixed {
                     if (!st_op[1])
                       arg1 = *st_op=='='?0:*st_op=='+'?1:*st_op=='-'?2:*st_op=='*'?3:*st_op=='/'?4:
                         *st_op=='&'?5:*st_op=='|'?6:~0U;
-                    else if (*st_op=='x' && st_op[1]=='o' && st_op[2]=='r' && !!st_op[3]) arg1 = 7;
+                    else if (*st_op=='x' && st_op[1]=='o' && st_op[2]=='r' && !st_op[3]) arg1 = 7;
                     else if (*st_op=='&' && st_op[1]=='&' && !st_op[2]) arg1 = 8;
                     else if (*st_op=='|' && st_op[1]=='|' && !st_op[2]) arg1 = 9;
                     else if (*st_op=='m' && st_op[1]=='i' && st_op[2]=='n' && !st_op[3]) arg1 = 10;
@@ -20828,6 +20828,7 @@ namespace cimg_library_suffixed {
                   }
                 }
               }
+
               cimg_rofY(memmerge,k) if (memmerge(0,k)==(int)pos) {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
@@ -22570,18 +22571,18 @@ namespace cimg_library_suffixed {
             siz = (unsigned int)mp.memmerge(1,k),
             iop = (unsigned int)mp.memmerge(2,k);
           if (!siz) switch (iop) { // Scalar value
-            case 0 : mp.mem[pos] = mem[pos]; break;                        // Assignment
-            case 1 : mp.mem[pos]+=mem[pos]; break;                         // Operator+
-            case 2 : mp.mem[pos]-=mem[pos]; break;                         // Operator-
-            case 3 : mp.mem[pos]*=mem[pos]; break;                         // Operator*
-            case 4 : mp.mem[pos]/=mem[pos]; break;                         // Operator/
+            case 0 : mp.mem[pos] = mem[pos]; break;                                       // Assignment
+            case 1 : mp.mem[pos]+=mem[pos]; break;                                        // Operator+
+            case 2 : mp.mem[pos]-=mem[pos]; break;                                        // Operator-
+            case 3 : mp.mem[pos]*=mem[pos]; break;                                        // Operator*
+            case 4 : mp.mem[pos]/=mem[pos]; break;                                        // Operator/
             case 5 : mp.mem[pos] = (double)((longT)mp.mem[pos] & (longT)mem[pos]); break; // Operator&
             case 6 : mp.mem[pos] = (double)((longT)mp.mem[pos] | (longT)mem[pos]); break; // Operator|
             case 7 : mp.mem[pos] = (double)((longT)mp.mem[pos] ^ (longT)mem[pos]); break; // Operator 'xor'
-            case 8 : mp.mem[pos] = mp.mem[pos] && mem[pos]; break;         // Operator&&
-            case 9 : mp.mem[pos] = mp.mem[pos] || mem[pos]; break;         // Operator||
-            case 10 : mp.mem[pos] = std::min(mp.mem[pos],mem[pos]); break; // Operator 'min'
-            case 11 : mp.mem[pos] = std::max(mp.mem[pos],mem[pos]); break; // Operator 'max'
+            case 8 : mp.mem[pos] = mp.mem[pos] && mem[pos]; break;                        // Operator&&
+            case 9 : mp.mem[pos] = mp.mem[pos] || mem[pos]; break;                        // Operator||
+            case 10 : mp.mem[pos] = std::min(mp.mem[pos],mem[pos]); break;                // Operator 'min'
+            case 11 : mp.mem[pos] = std::max(mp.mem[pos],mem[pos]); break;                // Operator 'max'
             } else switch (iop) { // Vector value
             case 0 : // Assignment
               CImg<doubleT>(&mp.mem[pos + 1],siz,1,1,1,true) = CImg<doubleT>(&mem[pos + 1],siz,1,1,1,true);

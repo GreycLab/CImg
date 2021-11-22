@@ -21773,6 +21773,39 @@ namespace cimg_library_suffixed {
               if (p_ref) std::memcpy(p_ref,ref,siz_ref);
               _cimg_mp_return(arg1);
             }
+
+            if (!std::strncmp(ss,"serge(",6)) { // Merge inter-thread variables (new version)
+              _cimg_mp_op("Function 'serge()'");
+              s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              pos = compile(ss6,s1,depth1,0,bloc_flags);
+              p1 = _cimg_mp_size(pos);
+
+              arg1 = ~0U; // Merge operator (0='=',1='+',2='-',3='*',4='/',5='min',6='max')
+              if (s1<se1) {
+                ++s1;
+                char st_op[4] = { 0 };
+                is_sth = false; // blank after operator?
+                if (cimg_sscanf(s1," %3[=+-*/minax]%c",st_op,&sep)==2 && (sep==')' || (is_sth=cimg::is_blank(sep)))) {
+                  if (!is_sth || (is_sth && cimg_sscanf(s1," %*[=+-*/minax ]%c",&sep)==1 && sep==')')) {
+                    cimg::strpare(st_op,' ',false,true);
+                    if (!st_op[1]) arg1 = *st_op=='='?0:*st_op=='+'?1:*st_op=='-'?2:*st_op=='*'?3:*st_op=='/'?4:~0U;
+                    if (*st_op=='m' && st_op[1]=='i' && st_op[2]=='n' && !st_op[3]) arg1 = 5;
+                    if (*st_op=='m' && st_op[1]=='a' && st_op[2]=='x' && !st_op[3]) arg1 = 6;
+                  }
+                }
+              }
+              if (arg1==~0U) {
+                _cimg_mp_strerr;
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: Invalid specified operator "
+                                            "(should be one of '=,+,-,*,/,min,max'), "
+                                            "in expression '%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,s0);
+              }
+              double *const ptr = new double[std::max(1U,p1)];
+              CImg<ulongT>::vector((ulongT)mp_serge,pos,p1,arg1,(ulongT)ptr).move_to(code);
+              _cimg_mp_return(pos);
+            }
             break;
 
           case 't' :
@@ -26268,6 +26301,20 @@ namespace cimg_library_suffixed {
 
       static double mp_round(_cimg_math_parser& mp) {
         return cimg::round(_mp_arg(2),_mp_arg(3),(int)_mp_arg(4));
+      }
+
+      static double mp_serge(_cimg_math_parser& mp) {
+        const unsigned int
+          siz = (unsigned int)mp.opcode[2],
+          type = (unsigned int)mp.opcode[3];
+        double *const ptr = (double*)mp.opcode[4];
+        cimg_pragma_openmp(atomic)
+          *ptr+=_mp_arg(1);
+
+        std::fprintf(stderr,"\nDEBUG : %d/%d",omp_get_thread_num(),omp_get_num_threads());
+
+//        cimg_pragma_openmp(barrier);
+        return *ptr;
       }
 
       static double mp_self_add(_cimg_math_parser& mp) {

@@ -26304,17 +26304,26 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_serge(_cimg_math_parser& mp) {
-        const unsigned int
-          siz = (unsigned int)mp.opcode[2],
-          type = (unsigned int)mp.opcode[3];
-        double *const ptr = (double*)mp.opcode[4];
-        cimg_pragma_openmp(atomic)
-          *ptr+=_mp_arg(1);
+        unsigned int siz = (unsigned int)mp.opcode[2];
+        const unsigned int type = (unsigned int)mp.opcode[3];
+        double *const shared = (double*)mp.opcode[4], &sh = *shared;
+        cimg::unused(sh);
 
-        std::fprintf(stderr,"\nDEBUG : %d/%d",omp_get_thread_num(),omp_get_num_threads());
+        if (siz) { // Vector variable
+          double *const ptrs = &_mp_arg(1) + 1;
+          for (unsigned int k = 0; k<siz; ++k)
+            cimg_pragma_openmp(atomic)
+              shared[k]+=ptrs[k];
+          cimg_pragma_openmp(flush(sh));
+          std::memcpy(ptrs,shared,siz);
+          return cimg::type<double>::nan();
+        }
 
-//        cimg_pragma_openmp(barrier);
-        return *ptr;
+        // Scalar variable
+        *shared+=_mp_arg(1);
+        cimg_pragma_openmp(flush(sh));
+        _mp_arg(1) = *shared;
+        return _mp_arg(1);
       }
 
       static double mp_self_add(_cimg_math_parser& mp) {
@@ -31466,6 +31475,7 @@ namespace cimg_library_suffixed {
               const unsigned int N = std::min(mp.result_dim,_spectrum);
               const ulongT whd = (ulongT)_width*_height*_depth;
               T *ptrd = *expression=='<'?_data + _width*_height*_depth - 1:_data;
+
               if (*expression=='<') {
                 CImg<doubleT> res(1,mp.result_dim);
                 mp.begin_t();

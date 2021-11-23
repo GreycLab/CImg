@@ -20806,7 +20806,17 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"merge(",6)) { // Merge inter-thread variables
               _cimg_mp_op("Function 'merge()'");
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              pos = compile(ss6,s1,depth1,0,bloc_flags);
+              ref.assign(7);
+              pos = compile(ss6,s1,depth1,ref,bloc_flags);
+              if (*ref) {
+                _cimg_mp_strerr;
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: First argument cannot be a linked reference, "
+                                            "in expression '%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            s0);
+              }
+
               arg1 = ~0U; // Merge operator
                           // (0='=',1='+',2='-',3='*',4='/',5='&',6='|',7='xor',8='&&',9=='||',10='min',11='max')
               if (s1<se1) {

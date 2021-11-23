@@ -13800,7 +13800,7 @@ namespace cimg_library_suffixed {
     template<typename t>
     CImg<T>& operator|=(const t value) {
       if (is_empty()) return *this;
-      cimg_openmp_for(*this,(ulong)*ptr | (ulong)value,32768);
+      cimg_openmp_for(*this,(longT)*ptr | (longT)value,32768);
       return *this;
     }
 

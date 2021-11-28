@@ -40208,7 +40208,8 @@ namespace cimg_library_suffixed {
        \param sigma_x Standard deviation of the blur, along the X-axis.
        \param sigma_y Standard deviation of the blur, along the Y-axis.
        \param sigma_z Standard deviation of the blur, along the Z-axis.
-       \param boundary_conditions Boundary conditions. Can be <tt>{ false=dirichlet | true=neumann }</tt>.
+       \param boundary_conditions Boundary conditions.
+         Can be <tt>{ 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
        \param is_gaussian Tells if the blur uses a gaussian (\c true) or quasi-gaussian (\c false) kernel.
        \note
        - The blur is computed as a 0-order Vanvliet (gaussian) or Deriche filter (quasi-gaussian).
@@ -40216,7 +40217,7 @@ namespace cimg_library_suffixed {
        \see deriche(), vanvliet().
     **/
     CImg<T>& blur(const float sigma_x, const float sigma_y, const float sigma_z,
-                  const bool boundary_conditions=true, const bool is_gaussian=true) {
+                  const unsigned int boundary_conditions=1, const bool is_gaussian=true) {
       if (is_empty()) return *this;
       if (is_gaussian) {
         if (_width>1) vanvliet(sigma_x,0,'x',boundary_conditions);
@@ -40232,7 +40233,7 @@ namespace cimg_library_suffixed {
 
     //! Blur image \newinstance.
     CImg<Tfloat> get_blur(const float sigma_x, const float sigma_y, const float sigma_z,
-                          const bool boundary_conditions=true, const bool is_gaussian=true) const {
+                          const unsigned int boundary_conditions=1, const bool is_gaussian=true) const {
       return CImg<Tfloat>(*this,false).blur(sigma_x,sigma_y,sigma_z,boundary_conditions,is_gaussian);
     }
 
@@ -40243,13 +40244,14 @@ namespace cimg_library_suffixed {
        \param is_gaussian Use a gaussian kernel (VanVliet) is set, a quasi-gaussian (Deriche) otherwise.
        \see deriche(), vanvliet().
     **/
-    CImg<T>& blur(const float sigma, const bool boundary_conditions=true, const bool is_gaussian=true) {
+    CImg<T>& blur(const float sigma, const unsigned int boundary_conditions=1, const bool is_gaussian=true) {
       const float nsigma = sigma>=0?sigma:-sigma*cimg::max(_width,_height,_depth)/100;
       return blur(nsigma,nsigma,nsigma,boundary_conditions,is_gaussian);
     }
 
     //! Blur image isotropically \newinstance.
-    CImg<Tfloat> get_blur(const float sigma, const bool boundary_conditions=true, const bool is_gaussian=true) const {
+    CImg<Tfloat> get_blur(const float sigma, const unsigned int boundary_conditions=1,
+                          const bool is_gaussian=true) const {
       return CImg<Tfloat>(*this,false).blur(sigma,boundary_conditions,is_gaussian);
     }
 

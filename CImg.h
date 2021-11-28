@@ -39803,10 +39803,11 @@ namespace cimg_library_suffixed {
        \param sigma Standard deviation of the filter.
        \param order Order of the filter. Can be <tt>{ 0=smooth-filter | 1=1st-derivative | 2=2nd-derivative }</tt>.
        \param axis Axis along which the filter is computed. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
-       \param boundary_conditions Boundary conditions. Can be <tt>{ 0=dirichlet | 1=neumann }</tt>.
+       \param boundary_conditions Boundary conditions.
+         Can be <tt>{ 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
     **/
     CImg<T>& deriche(const float sigma, const unsigned int order=0, const char axis='x',
-                     const bool boundary_conditions=true) {
+                     const unsigned int boundary_conditions=1) {
 #define _cimg_deriche_apply \
   CImg<doubleT> Y(N); \
   double *ptrY = Y._data, yb = 0, yp = 0; \
@@ -39826,13 +39827,46 @@ namespace cimg_library_suffixed {
     xa = xn; xn = xc; ya = yn; yn = yc; \
     *ptrX = (T)(*(--ptrY)+yc); \
   }
+
+      if (order>2)
+        throw CImgArgumentException(_cimg_instance
+                                    "deriche(): Invalid specified order '%d' "
+                                    "('order' can be { 0=smoothing | 1=1st-derivative | 2=2nd-derivative }).",
+                                    cimg_instance,
+                                    order);
+
       const char naxis = cimg::lowercase(axis);
-      const double nsigma = sigma>=0?sigma:-sigma*(naxis=='x'?_width:
-                                                   naxis=='y'?_height:
-                                                   naxis=='z'?_depth:_spectrum)/100;
-      if (is_empty() || (nsigma<0.1f && !order)) return *this;
+      if (naxis!='x' && naxis!='y' && naxis!='z' && naxis!='c')
+        throw CImgArgumentException(_cimg_instance
+                                    "deriche(): Invalid specified axis '%c'.",
+                                    cimg_instance,
+                                    axis);
       const double
-        nnsigma = nsigma<0.1f?0.1f:nsigma,
+        nsigma = sigma>=0?sigma:-sigma*(naxis=='x'?_width:
+                                        naxis=='y'?_height:
+                                        naxis=='z'?_depth:_spectrum)/100,
+        nnsigma = nsigma<0.1f?0.1f:nsigma;
+
+      if (is_empty() || (nsigma<0.1f && !order)) return *this;
+      if (boundary_conditions>1) {
+        const int w = width(), h = height(), d = depth(), s = spectrum(), border = (int)cimg::round(1 + 3*nnsigma);
+        switch (naxis) {
+        case 'x' :
+          return resize(w + 2*border,h,d,s,0,boundary_conditions,0.5).
+            deriche(nnsigma,order,naxis,1).columns(border,w - 1 + border);
+        case 'y' :
+          return resize(w,h + 2*border,d,s,0,boundary_conditions,0,0.5).
+            deriche(nnsigma,order,naxis,1).rows(border,h - 1 + border);
+        case 'z' :
+          return resize(w,h,d + 2*border,s,0,boundary_conditions,0,0,0.5).
+            deriche(nnsigma,order,naxis,1).slices(border,d - 1 + border);
+        default :
+          return resize(w,h,d,s + 2*border,0,boundary_conditions,0,0,0,0.5).
+            deriche(nnsigma,order,naxis,1).channels(border,d - 1 + border);
+        }
+      }
+
+      const double
         alpha = 1.695f/nnsigma,
         ema = std::exp(-alpha),
         ema2 = std::exp(-2*alpha),
@@ -39853,7 +39887,7 @@ namespace cimg_library_suffixed {
         a1 = k*ema;
         a2 = -a1;
       } break;
-      case 2 : {
+      default : {
         const double
           ea = std::exp(-alpha),
           k = -(ema2 - 1)/(2*alpha*ema),
@@ -39863,13 +39897,8 @@ namespace cimg_library_suffixed {
         a2 = kn*(1 - k*alpha)*ema;
         a3 = -kn*ema2;
       } break;
-      default :
-        throw CImgArgumentException(_cimg_instance
-                                    "deriche(): Invalid specified filter order %u "
-                                    "(should be { 0=smoothing | 1=1st-derivative | 2=2nd-derivative }).",
-                                    cimg_instance,
-                                    order);
       }
+
       coefp = (a0 + a1)/(1 + b1 + b2);
       coefn = (a2 + a3)/(1 + b1 + b2);
       switch (naxis) {
@@ -39907,7 +39936,7 @@ namespace cimg_library_suffixed {
 
     //! Apply recursive Deriche filter \newinstance.
     CImg<Tfloat> get_deriche(const float sigma, const unsigned int order=0, const char axis='x',
-                             const bool boundary_conditions=true) const {
+                             const unsigned int boundary_conditions=1) const {
       return CImg<Tfloat>(*this,false).deriche(sigma,order,axis,boundary_conditions);
     }
 
@@ -40066,7 +40095,8 @@ namespace cimg_library_suffixed {
        \param sigma standard deviation of the Gaussian filter
        \param order the order of the filter 0,1,2,3
        \param axis  Axis along which the filter is computed. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
-       \param boundary_conditions Boundary conditions. Can be <tt>{ 0=dirichlet | 1=neumann }</tt>.
+       \param boundary_conditions Boundary conditions.
+         Can be <tt>{ 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
        \note dirichlet boundary condition has a strange behavior
 
        I.T. Young, L.J. van Vliet, M. van Ginkel, Recursive Gabor filtering.
@@ -40080,16 +40110,51 @@ namespace cimg_library_suffixed {
        vol. 54, pp. 2365-2367, 2006.
     **/
     CImg<T>& vanvliet(const float sigma, const unsigned int order, const char axis='x',
-                      const bool boundary_conditions=true) {
-      if (is_empty()) return *this;
+                      const unsigned int boundary_conditions=1) {
+
+      if (order>2)
+        throw CImgArgumentException(_cimg_instance
+                                    "deriche(): Invalid specified order '%d' "
+                                    "('order' can be { 0=smoothing | 1=1st-derivative | 2=2nd-derivative }).",
+                                    cimg_instance,
+                                    order);
+
+      const char naxis = cimg::lowercase(axis);
+      if (naxis!='x' && naxis!='y' && naxis!='z' && naxis!='c')
+        throw CImgArgumentException(_cimg_instance
+                                    "deriche(): Invalid specified axis '%c'.",
+                                    cimg_instance,
+                                    axis);
+      const double
+        nsigma = sigma>=0?sigma:-sigma*(naxis=='x'?_width:
+                                        naxis=='y'?_height:
+                                        naxis=='z'?_depth:_spectrum)/100,
+        nnsigma = nsigma<0.5f?0.5f:nsigma;
+
+      if (is_empty() || (nsigma<0.1f && !order)) return *this;
+      if (nsigma<0.5f) return deriche(nsigma,order,axis,boundary_conditions);
       if (!cimg::type<T>::is_float())
         return CImg<Tfloat>(*this,false).vanvliet(sigma,order,axis,boundary_conditions).move_to(*this);
-      const char naxis = cimg::lowercase(axis);
-      const float nsigma = sigma>=0?sigma:-sigma*(naxis=='x'?_width:naxis=='y'?_height:naxis=='z'?_depth:_spectrum)/100;
-      if (is_empty()) return *this;
-      if (nsigma<0.5f) return deriche(nsigma,order,axis,boundary_conditions);
+
+      if (boundary_conditions>1) {
+        const int w = width(), h = height(), d = depth(), s = spectrum(), border = (int)cimg::round(1 + 3*nnsigma);
+        switch (naxis) {
+        case 'x' :
+          return resize(w + 2*border,h,d,s,0,boundary_conditions,0.5).
+            vanvliet(nnsigma,order,naxis,1).columns(border,w - 1 + border);
+        case 'y' :
+          return resize(w,h + 2*border,d,s,0,boundary_conditions,0,0.5).
+            vanvliet(nnsigma,order,naxis,1).rows(border,h - 1 + border);
+        case 'z' :
+          return resize(w,h,d + 2*border,s,0,boundary_conditions,0,0,0.5).
+            vanvliet(nnsigma,order,naxis,1).slices(border,d - 1 + border);
+        default :
+          return resize(w,h,d,s + 2*border,0,boundary_conditions,0,0,0,0.5).
+            vanvliet(nnsigma,order,naxis,1).channels(border,d - 1 + border);
+        }
+      }
+
       const double
-        nnsigma = nsigma<0.5f?0.5f:nsigma,
         m0 = 1.16680, m1 = 1.10783, m2 = 1.40586,
         m1sq = m1 * m1, m2sq = m2 * m2,
         q = (nnsigma<3.556?-0.2568 + 0.5784*nnsigma + 0.0561*nnsigma*nnsigma:2.5091 + 0.9804*(nnsigma - 3.556)),
@@ -40134,7 +40199,7 @@ namespace cimg_library_suffixed {
 
     //! Blur image using Van Vliet recursive Gaussian filter. \newinstance.
     CImg<Tfloat> get_vanvliet(const float sigma, const unsigned int order, const char axis='x',
-                              const bool boundary_conditions=true) const {
+                              const unsigned int boundary_conditions=1) const {
       return CImg<Tfloat>(*this,false).vanvliet(sigma,order,axis,boundary_conditions);
     }
 

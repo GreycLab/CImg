@@ -32707,7 +32707,8 @@ namespace cimg_library_suffixed {
     //! Map predefined colormap on the scalar (indexed) image instance.
     /**
        \param colormap Multi-valued colormap used for mapping the indexes.
-       \param boundary_conditions Boundary conditions. Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
+       \param boundary_conditions Boundary conditions.
+         Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
        \par Example
        \code
        const CImg<float> img("reference.jpg"),
@@ -35056,6 +35057,7 @@ namespace cimg_library_suffixed {
        \param src Reference image used for dimensions.
        \param interpolation_type Interpolation method.
        \param boundary_conditions Boundary conditions.
+         Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
        \param centering_x Set centering type (only if \p interpolation_type=0).
        \param centering_y Set centering type (only if \p interpolation_type=0).
        \param centering_z Set centering type (only if \p interpolation_type=0).
@@ -35085,6 +35087,7 @@ namespace cimg_library_suffixed {
        \param disp Reference display window used for dimensions.
        \param interpolation_type Interpolation method.
        \param boundary_conditions Boundary conditions.
+         Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
        \param centering_x Set centering type (only if \p interpolation_type=0).
        \param centering_y Set centering type (only if \p interpolation_type=0).
        \param centering_z Set centering type (only if \p interpolation_type=0).
@@ -35343,7 +35346,8 @@ namespace cimg_library_suffixed {
        \param delta_y Amount of displacement along the Y-axis.
        \param delta_z Amount of displacement along the Z-axis.
        \param delta_c Amount of displacement along the C-axis.
-       \param boundary_conditions Boundary conditions. Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
+       \param boundary_conditions Boundary conditions.
+         Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
     **/
     CImg<T>& shift(const int delta_x, const int delta_y=0, const int delta_z=0, const int delta_c=0,
                    const unsigned int boundary_conditions=0) {
@@ -35813,7 +35817,7 @@ namespace cimg_library_suffixed {
        \param angle Rotation angle, in degrees.
        \param interpolation Type of interpolation. Can be <tt>{ 0=nearest | 1=linear | 2=cubic }</tt>.
        \param boundary_conditions Boundary conditions.
-              Can be <tt>{ 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
+         Can be <tt>{ 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
        \note The size of the image is modified.
     **/
     CImg<T>& rotate(const float angle, const unsigned int interpolation=1,
@@ -36021,7 +36025,7 @@ namespace cimg_library_suffixed {
        \param angle Rotation angle, in degrees.
        \param interpolation Type of interpolation. Can be <tt>{ 0=nearest | 1=linear | 2=cubic }</tt>.
        \param boundary_conditions Boundary conditions.
-              Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
+         Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
        \note Most of the time, size of the image is modified.
     **/
     CImg<T> rotate(const float u, const float v, const float w, const float angle,
@@ -36070,7 +36074,8 @@ namespace cimg_library_suffixed {
        \param cy Y-coordinate of the rotation center.
        \param cz Z-coordinate of the rotation center.
        \param interpolation Type of interpolation. Can be <tt>{ 0=nearest | 1=linear | 2=cubic | 3=mirror }</tt>.
-       \param boundary_conditions Boundary conditions. Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic }</tt>.
+       \param boundary_conditions Boundary conditions.
+         Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic }</tt>.
        \note Most of the time, size of the image is modified.
     **/
     CImg<T> rotate(const float u, const float v, const float w, const float angle,
@@ -39027,10 +39032,11 @@ namespace cimg_library_suffixed {
     /**
        \param kernel Structuring element.
        \param boundary_conditions Boundary conditions.
+         Can be <tt>{ 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
        \param is_real Do the erosion in real (a.k.a 'non-flat') mode (\c true) rather than binary mode (\c false).
     **/
     template<typename t>
-    CImg<T>& erode(const CImg<t>& kernel, const bool boundary_conditions=true,
+    CImg<T>& erode(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                    const bool is_real=false) {
       if (is_empty() || !kernel) return *this;
       return get_erode(kernel,boundary_conditions,is_real).move_to(*this);
@@ -39038,7 +39044,7 @@ namespace cimg_library_suffixed {
 
     //! Erode image by a structuring element \newinstance.
     template<typename t>
-    CImg<_cimg_Tt> get_erode(const CImg<t>& kernel, const bool boundary_conditions=true,
+    CImg<_cimg_Tt> get_erode(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                              const bool is_real=false) const {
       if (is_empty() || !kernel) return *this;
       if (!is_real && kernel==0) return CImg<T>(width(),height(),depth(),spectrum(),0);
@@ -39047,7 +39053,8 @@ namespace cimg_library_suffixed {
       const int
         mx2 = kernel.width()/2, my2 = kernel.height()/2, mz2 = kernel.depth()/2,
         mx1 = kernel.width() - mx2 - 1, my1 = kernel.height() - my2 - 1, mz1 = kernel.depth() - mz2 - 1,
-        mxe = width() - mx2, mye = height() - my2, mze = depth() - mz2;
+        mxe = width() - mx2, mye = height() - my2, mze = depth() - mz2,
+        w2 = 2*width(), h2 = 2*height(), d2 = 2*depth();
       const bool
         is_inner_parallel = _width*_height*_depth>=(cimg_openmp_sizefactor)*32768,
         is_outer_parallel = res.size()>=(cimg_openmp_sizefactor)*32768;
@@ -39075,38 +39082,43 @@ namespace cimg_library_suffixed {
                     }
                 res(x,y,z,c) = min_val;
               } _cimg_abort_catch_openmp2
-          if (boundary_conditions)
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
-            cimg_forYZ(res,y,z) _cimg_abort_try_openmp2 {
-              cimg_abort_test2;
-              for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
-                Tt min_val = cimg::type<Tt>::max();
-                for (int zm = -mz1; zm<=mz2; ++zm)
-                  for (int ym = -my1; ym<=my2; ++ym)
-                    for (int xm = -mx1; xm<=mx2; ++xm) {
-                      const t mval = K(mx1 + xm,my1 + ym,mz1 + zm);
-                      const Tt cval = (Tt)(img._atXYZ(x + xm,y + ym,z + zm) - mval);
-                      if (cval<min_val) min_val = cval;
+
+          cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
+          cimg_forYZ(res,y,z) _cimg_abort_try_openmp2 {
+            cimg_abort_test2;
+            for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
+              Tt min_val = cimg::type<Tt>::max();
+              for (int zm = -mz1; zm<=mz2; ++zm)
+                for (int ym = -my1; ym<=my2; ++ym)
+                  for (int xm = -mx1; xm<=mx2; ++xm) {
+                    const t mval = K(mx1 + xm,my1 + ym,mz1 + zm);
+                    Tt cval;
+                    switch (boundary_conditions) {
+                    case 0 : cval = (Tt)(img.atXYZ(x + xm,y + ym,z + zm,0,(T)0) - mval); break;
+                    case 1 : cval = (Tt)(img._atXYZ(x + xm,y + ym,z + zm) - mval); break;
+                    case 2 : {
+                      const int
+                        nx = cimg::mod(x + xm,width()),
+                        ny = cimg::mod(y + ym,height()),
+                        nz = cimg::mod(z + zm,depth());
+                      cval = img(nx,ny,nz) - mval;
+                    } break;
+                    default : {
+                      const int
+                        tx = cimg::mod(x + xm,w2),
+                        ty = cimg::mod(y + ym,h2),
+                        tz = cimg::mod(z + zm,d2),
+                        nx = tx<width()?tx:w2 - tx - 1,
+                        ny = ty<height()?ty:h2 - ty - 1,
+                        nz = tz<depth()?tz:d2 - tz - 1;
+                      cval = img(nx,ny,nz) - mval;
                     }
-                res(x,y,z,c) = min_val;
-              }
-            } _cimg_abort_catch_openmp2
-          else
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
-            cimg_forYZ(res,y,z) _cimg_abort_try_openmp2 {
-              cimg_abort_test2;
-              for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
-                Tt min_val = cimg::type<Tt>::max();
-                for (int zm = -mz1; zm<=mz2; ++zm)
-                  for (int ym = -my1; ym<=my2; ++ym)
-                    for (int xm = -mx1; xm<=mx2; ++xm) {
-                      const t mval = K(mx1 + xm,my1 + ym,mz1 + zm);
-                      const Tt cval = (Tt)(img.atXYZ(x + xm,y + ym,z + zm,0,(T)0) - mval);
-                      if (cval<min_val) min_val = cval;
                     }
-                res(x,y,z,c) = min_val;
-              }
-            } _cimg_abort_catch_openmp2
+                    if (cval<min_val) min_val = cval;
+                  }
+              res(x,y,z,c) = min_val;
+            }
+          } _cimg_abort_catch_openmp2
 
         } else { // Binary erosion
           cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
@@ -39124,38 +39136,45 @@ namespace cimg_library_suffixed {
                       }
                 res(x,y,z,c) = min_val;
               } _cimg_abort_catch_openmp2
-          if (boundary_conditions)
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
-            cimg_forYZ(res,y,z) _cimg_abort_try_openmp2 {
-              cimg_abort_test2;
-              for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
-                Tt min_val = cimg::type<Tt>::max();
-                for (int zm = -mz1; zm<=mz2; ++zm)
-                  for (int ym = -my1; ym<=my2; ++ym)
-                    for (int xm = -mx1; xm<=mx2; ++xm)
-                      if (K(mx1 + xm,my1 + ym,mz1 + zm)) {
-                        const Tt cval = (Tt)img._atXYZ(x + xm,y + ym,z + zm);
-                        if (cval<min_val) min_val = cval;
+
+          cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
+          cimg_forYZ(res,y,z) _cimg_abort_try_openmp2 {
+            cimg_abort_test2;
+            for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
+              Tt min_val = cimg::type<Tt>::max();
+              for (int zm = -mz1; zm<=mz2; ++zm)
+                for (int ym = -my1; ym<=my2; ++ym)
+                  for (int xm = -mx1; xm<=mx2; ++xm) {
+                    if (K(mx1 + xm,my1 + ym,mz1 + zm)) {
+                      Tt cval;
+                      switch (boundary_conditions) {
+                      case 0 : cval = (Tt)img.atXYZ(x + xm,y + ym,z + zm,0,(T)0); break;
+                      case 1 : cval = (Tt)img._atXYZ(x + xm,y + ym,z + zm); break;
+                      case 2 : {
+                        const int
+                          nx = cimg::mod(x + xm,width()),
+                          ny = cimg::mod(y + ym,height()),
+                          nz = cimg::mod(z + zm,depth());
+                        cval = img(nx,ny,nz);
+                      } break;
+                      default : {
+                        const int
+                          tx = cimg::mod(x + xm,w2),
+                          ty = cimg::mod(y + ym,h2),
+                          tz = cimg::mod(z + zm,d2),
+                          nx = tx<width()?tx:w2 - tx - 1,
+                          ny = ty<height()?ty:h2 - ty - 1,
+                          nz = tz<depth()?tz:d2 - tz - 1;
+                        cval = img(nx,ny,nz);
                       }
-                res(x,y,z,c) = min_val;
-              }
-            } _cimg_abort_catch_openmp2
-          else
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
-            cimg_forYZ(res,y,z) _cimg_abort_try_openmp2 {
-              cimg_abort_test2;
-              for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
-                Tt min_val = cimg::type<Tt>::max();
-                for (int zm = -mz1; zm<=mz2; ++zm)
-                  for (int ym = -my1; ym<=my2; ++ym)
-                    for (int xm = -mx1; xm<=mx2; ++xm)
-                      if (K(mx1 + xm,my1 + ym,mz1 + zm)) {
-                        const Tt cval = (Tt)img.atXYZ(x + xm,y + ym,z + zm,0,(T)0);
-                        if (cval<min_val) min_val = cval;
                       }
-                res(x,y,z,c) = min_val;
-              }
-            } _cimg_abort_catch_openmp2
+                      if (cval<min_val) min_val = cval;
+                    }
+                  }
+              res(x,y,z,c) = min_val;
+            }
+          } _cimg_abort_catch_openmp2
+
         }
       } _cimg_abort_catch_openmp
       cimg_abort_test;
@@ -39318,10 +39337,11 @@ namespace cimg_library_suffixed {
     /**
        \param kernel Structuring element.
        \param boundary_conditions Boundary conditions.
+         Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
        \param is_real Do the dilation in real (a.k.a 'non-flat') mode (\c true) rather than binary mode (\c false).
     **/
     template<typename t>
-    CImg<T>& dilate(const CImg<t>& kernel, const bool boundary_conditions=true,
+    CImg<T>& dilate(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                     const bool is_real=false) {
       if (is_empty() || !kernel) return *this;
       return get_dilate(kernel,boundary_conditions,is_real).move_to(*this);
@@ -39329,7 +39349,7 @@ namespace cimg_library_suffixed {
 
     //! Dilate image by a structuring element \newinstance.
     template<typename t>
-    CImg<_cimg_Tt> get_dilate(const CImg<t>& kernel, const bool boundary_conditions=true,
+    CImg<_cimg_Tt> get_dilate(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                               const bool is_real=false) const {
       if (is_empty() || !kernel || (!is_real && kernel==0)) return *this;
       typedef _cimg_Tt Tt;
@@ -39337,7 +39357,8 @@ namespace cimg_library_suffixed {
       const int
         mx1 = kernel.width()/2, my1 = kernel.height()/2, mz1 = kernel.depth()/2,
         mx2 = kernel.width() - mx1 - 1, my2 = kernel.height() - my1 - 1, mz2 = kernel.depth() - mz1 - 1,
-        mxe = width() - mx2, mye = height() - my2, mze = depth() - mz2;
+        mxe = width() - mx2, mye = height() - my2, mze = depth() - mz2,
+        w2 = 2*width(), h2 = 2*height(), d2 = 2*depth();
       const bool
         is_inner_parallel = _width*_height*_depth>=(cimg_openmp_sizefactor)*32768,
         is_outer_parallel = res.size()>=(cimg_openmp_sizefactor)*32768;
@@ -39365,38 +39386,44 @@ namespace cimg_library_suffixed {
                     }
                 res(x,y,z,c) = max_val;
               } _cimg_abort_catch_openmp2
-          if (boundary_conditions)
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
-            cimg_forYZ(res,y,z) _cimg_abort_try_openmp2 {
-              cimg_abort_test2;
-              for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
-                Tt max_val = cimg::type<Tt>::min();
-                for (int zm = -mz1; zm<=mz2; ++zm)
-                  for (int ym = -my1; ym<=my2; ++ym)
-                    for (int xm = -mx1; xm<=mx2; ++xm) {
-                      const t mval = K(mx2 - xm,my2 - ym,mz2 - zm);
-                      const Tt cval = (Tt)(img._atXYZ(x + xm,y + ym,z + zm) + mval);
-                      if (cval>max_val) max_val = cval;
+
+          cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
+          cimg_forYZ(res,y,z) _cimg_abort_try_openmp2 {
+            cimg_abort_test2;
+            for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
+              Tt max_val = cimg::type<Tt>::min();
+              for (int zm = -mz1; zm<=mz2; ++zm)
+                for (int ym = -my1; ym<=my2; ++ym)
+                  for (int xm = -mx1; xm<=mx2; ++xm) {
+                    const t mval = K(mx2 - xm,my2 - ym,mz2 - zm);
+                    Tt cval;
+                    switch (boundary_conditions) {
+                    case 0 : cval = (Tt)(img.atXYZ(x + xm,y + ym,z + zm,0,(T)0) + mval); break;
+                    case 1 : cval = (Tt)(img._atXYZ(x + xm,y + ym,z + zm) + mval); break;
+                    case 2 : {
+                      const int
+                        nx = cimg::mod(x + xm,width()),
+                        ny = cimg::mod(y + ym,height()),
+                        nz = cimg::mod(z + zm,depth());
+                      cval = img(nx,ny,nz) + mval;
+                    } break;
+                    default : {
+                      const int
+                        tx = cimg::mod(x + xm,w2),
+                        ty = cimg::mod(y + ym,h2),
+                        tz = cimg::mod(z + zm,d2),
+                        nx = tx<width()?tx:w2 - tx - 1,
+                        ny = ty<height()?ty:h2 - ty - 1,
+                        nz = tz<depth()?tz:d2 - tz - 1;
+                      cval = img(nx,ny,nz) + mval;
                     }
-                res(x,y,z,c) = max_val;
-              }
-            } _cimg_abort_catch_openmp2
-          else
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
-            cimg_forYZ(*this,y,z) _cimg_abort_try_openmp2 {
-              cimg_abort_test2;
-              for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
-                Tt max_val = cimg::type<Tt>::min();
-                for (int zm = -mz1; zm<=mz2; ++zm)
-                  for (int ym = -my1; ym<=my2; ++ym)
-                    for (int xm = -mx1; xm<=mx2; ++xm) {
-                      const t mval = K(mx2 - xm,my2 - ym,mz2 - zm);
-                      const Tt cval = (Tt)(img.atXYZ(x + xm,y + ym,z + zm,0,(T)0) + mval);
-                      if (cval>max_val) max_val = cval;
                     }
-                res(x,y,z,c) = max_val;
-              }
-            } _cimg_abort_catch_openmp2
+                    if (cval>max_val) max_val = cval;
+                  }
+              res(x,y,z,c) = max_val;
+            }
+          } _cimg_abort_catch_openmp2
+
         } else { // Binary dilation
           cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
           for (int z = mz1; z<mze; ++z)
@@ -39413,38 +39440,45 @@ namespace cimg_library_suffixed {
                       }
                 res(x,y,z,c) = max_val;
               } _cimg_abort_catch_openmp2
-          if (boundary_conditions)
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
-            cimg_forYZ(res,y,z) _cimg_abort_try_openmp2 {
-              cimg_abort_test2;
-              for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
-                Tt max_val = cimg::type<Tt>::min();
-                for (int zm = -mz1; zm<=mz2; ++zm)
-                  for (int ym = -my1; ym<=my2; ++ym)
-                    for (int xm = -mx1; xm<=mx2; ++xm)
-                      if (K(mx2 - xm,my2 - ym,mz2 - zm)) {
-                        const Tt cval = (Tt)img._atXYZ(x + xm,y + ym,z + zm);
-                        if (cval>max_val) max_val = cval;
+
+          cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
+          cimg_forYZ(res,y,z) _cimg_abort_try_openmp2 {
+            cimg_abort_test2;
+            for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
+              Tt max_val = cimg::type<Tt>::min();
+              for (int zm = -mz1; zm<=mz2; ++zm)
+                for (int ym = -my1; ym<=my2; ++ym)
+                  for (int xm = -mx1; xm<=mx2; ++xm) {
+                    if (K(mx2 - xm,my2 - ym,mz2 - zm)) {
+                      Tt cval;
+                      switch (boundary_conditions) {
+                      case 0 : cval = (Tt)img.atXYZ(x + xm,y + ym,z + zm,0,(T)0); break;
+                      case 1 : cval = (Tt)img._atXYZ(x + xm,y + ym,z + zm); break;
+                      case 2 : {
+                        const int
+                          nx = cimg::mod(x + xm,width()),
+                          ny = cimg::mod(y + ym,height()),
+                          nz = cimg::mod(z + zm,depth());
+                        cval = img(nx,ny,nz);
+                      } break;
+                      default : {
+                        const int
+                          tx = cimg::mod(x + xm,w2),
+                          ty = cimg::mod(y + ym,h2),
+                          tz = cimg::mod(z + zm,d2),
+                          nx = tx<width()?tx:w2 - tx - 1,
+                          ny = ty<height()?ty:h2 - ty - 1,
+                          nz = tz<depth()?tz:d2 - tz - 1;
+                        cval = img(nx,ny,nz);
                       }
-                res(x,y,z,c) = max_val;
-              }
-            } _cimg_abort_catch_openmp2
-          else
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
-            cimg_forYZ(res,y,z) _cimg_abort_try_openmp2 {
-              cimg_abort_test2;
-              for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
-                Tt max_val = cimg::type<Tt>::min();
-                for (int zm = -mz1; zm<=mz2; ++zm)
-                  for (int ym = -my1; ym<=my2; ++ym)
-                    for (int xm = -mx1; xm<=mx2; ++xm)
-                      if (K(mx2 - xm,my2 - ym,mz2 - zm)) {
-                        const Tt cval = (Tt)img.atXYZ(x + xm,y + ym,z + zm,0,(T)0);
-                        if (cval>max_val) max_val = cval;
                       }
-                res(x,y,z,c) = max_val;
-              }
-            } _cimg_abort_catch_openmp2
+                      if (cval>max_val) max_val = cval;
+                    }
+                  }
+              res(x,y,z,c) = max_val;
+            }
+          } _cimg_abort_catch_openmp2
+
         }
       } _cimg_abort_catch_openmp
       cimg_abort_test;
@@ -39947,7 +39981,8 @@ namespace cimg_library_suffixed {
        \param N size of the data
        \param off the offset between two data point
        \param order the order of the filter 0 (smoothing), 1st derivative, 2nd derivative, 3rd derivative
-       \param boundary_conditions Boundary conditions. Can be <tt>{ 0=dirichlet | 1=neumann }</tt>.
+       \param boundary_conditions Boundary conditions.
+         Can be <tt>{ 0=dirichlet | 1=neumann }</tt>.
        \note Boundary condition using B. Triggs method (IEEE trans on Sig Proc 2005).
     */
     static void _cimg_recursive_apply(T *data, const double filter[], const int N, const ulongT off,
@@ -40240,7 +40275,8 @@ namespace cimg_library_suffixed {
     //! Blur image isotropically.
     /**
        \param sigma Standard deviation of the blur.
-       \param boundary_conditions Boundary conditions. Can be <tt>{ 0=dirichlet | 1=neumann }</tt>.a
+       \param boundary_conditions Boundary conditions.
+         Can be <tt>{ 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.a
        \param is_gaussian Use a gaussian kernel (VanVliet) is set, a quasi-gaussian (Deriche) otherwise.
        \see deriche(), vanvliet().
     **/
@@ -40745,11 +40781,14 @@ namespace cimg_library_suffixed {
       \param boxsize Size of the box filter (can be subpixel).
       \param off the offset between two data point
       \param order the order of the filter 0 (smoothing), 1st derivative and 2nd derivative.
-      \param boundary_conditions Boundary conditions. Can be <tt>{ 0=dirichlet | 1=neumann }</tt>.
+      \param boundary_conditions Boundary conditions.
+        Can be <tt>{ 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
     */
     static void _cimg_blur_box_apply(T *ptr, const float boxsize, const int N, const ulongT off,
-                                     const int order, const bool boundary_conditions,
+                                     const int order, const unsigned int boundary_conditions,
                                      const unsigned int nb_iter) {
+      const int nboundary_conditions = boundary_conditions>1 && boxsize<=3?1:boundary_conditions;
+
       // Smooth.
       if (boxsize>1 && nb_iter) {
         const int w2 = (int)(boxsize - 1)/2;
@@ -40759,13 +40798,13 @@ namespace cimg_library_suffixed {
         for (unsigned int iter = 0; iter<nb_iter; ++iter) {
           Tdouble sum = 0; // window sum
           for (int x = -w2; x<=w2; ++x) {
-            win[x + w2] = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,x);
+            win[x + w2] = __cimg_blur_box_apply(ptr,N,off,nboundary_conditions,x);
             sum+=win[x + w2];
           }
           int ifirst = 0, ilast = 2*w2;
           T
-            prev = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,-w2 - 1),
-            next = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,w2 + 1);
+            prev = __cimg_blur_box_apply(ptr,N,off,nboundary_conditions,-w2 - 1),
+            next = __cimg_blur_box_apply(ptr,N,off,nboundary_conditions,w2 + 1);
           for (int x = 0; x < N - 1; ++x) {
             const double sum2 = sum + frac * (prev + next);
             ptr[x*off] = (T)(sum2/boxsize);
@@ -40775,7 +40814,7 @@ namespace cimg_library_suffixed {
             ilast = (int)((ilast + 1)%winsize);
             win[ilast] = next;
             sum+=next;
-            next = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,x + w2 + 2);
+            next = __cimg_blur_box_apply(ptr,N,off,nboundary_conditions,x + w2 + 2);
           }
           const double sum2 = sum + frac * (prev + next);
           ptr[(N - 1)*off] = (T)(sum2/boxsize);
@@ -40788,27 +40827,27 @@ namespace cimg_library_suffixed {
         break;
       case 1 : {
         Tfloat
-          p = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,-1),
-          c = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,0),
-          n = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,1);
+          p = __cimg_blur_box_apply(ptr,N,off,nboundary_conditions,-1),
+          c = __cimg_blur_box_apply(ptr,N,off,nboundary_conditions,0),
+          n = __cimg_blur_box_apply(ptr,N,off,nboundary_conditions,1);
         for (int x = 0; x<N - 1; ++x) {
           ptr[x*off] = (T)((n-p)/2.);
           p = c;
           c = n;
-          n = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,x + 2);
+          n = __cimg_blur_box_apply(ptr,N,off,nboundary_conditions,x + 2);
         }
         ptr[(N - 1)*off] = (T)((n-p)/2.);
       } break;
       case 2: {
         Tfloat
-          p = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,-1),
-          c = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,0),
-          n = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,1);
+          p = __cimg_blur_box_apply(ptr,N,off,nboundary_conditions,-1),
+          c = __cimg_blur_box_apply(ptr,N,off,nboundary_conditions,0),
+          n = __cimg_blur_box_apply(ptr,N,off,nboundary_conditions,1);
         for (int x = 0; x<N - 1; ++x) {
           ptr[x*off] = (T)(n - 2*c + p);
           p = c;
           c = n;
-          n = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,x + 2);
+          n = __cimg_blur_box_apply(ptr,N,off,nboundary_conditions,x + 2);
         }
         ptr[(N - 1)*off] = (T)(n - 2*c + p);
       } break;
@@ -40816,10 +40855,27 @@ namespace cimg_library_suffixed {
     }
 
     static T __cimg_blur_box_apply(T *ptr, const int N, const ulongT off,
-                                   const bool boundary_conditions, const int x) {
-      if (x<0) return boundary_conditions?ptr[0]:T();
-      if (x>=N) return boundary_conditions?ptr[(N - 1)*off]:T();
-      return ptr[x*off];
+                                   const unsigned int boundary_conditions, const int x) {
+      switch (boundary_conditions) {
+      case 0 : // Dirichlet
+        return x<0 || x>=N?(T)0:ptr[x*off];
+      case 1 : { // Neumann
+        const int nx = x<0?0:x>=N?N - 1:x;
+        return ptr[nx*off];
+      }
+      case 2 : { // Periodic
+        const int nx = cimg::mod(x,N);
+        return ptr[nx*off];
+      }
+      default : { // Mirror
+        const int
+          N2 = 2*N,
+          tx = cimg::mod(x,N2),
+          nx = tx<N?tx:N2 - tx - 1;
+        return ptr[nx*off];
+      }
+      }
+      return (T)0;
     }
 
     // Apply box filter of order 0,1,2.
@@ -40827,16 +40883,17 @@ namespace cimg_library_suffixed {
       \param boxsize Size of the box window (can be subpixel)
       \param order the order of the filter 0,1 or 2.
       \param axis  Axis along which the filter is computed. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
-      \param boundary_conditions Boundary conditions. Can be <tt>{ 0=dirichlet | 1=neumann }</tt>.
+      \param boundary_conditions Boundary conditions.
+        Can be <tt>{ 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
       \param nb_iter Number of filter iterations.
     **/
     CImg<T>& boxfilter(const float boxsize, const int order, const char axis='x',
-                       const bool boundary_conditions=true,
+                       const unsigned int boundary_conditions=1,
                        const unsigned int nb_iter=1) {
-      if (is_empty() || !boxsize || (boxsize<=1 && !order)) return *this;
       const char naxis = cimg::lowercase(axis);
       const float nboxsize = boxsize>=0?boxsize:-boxsize*
         (naxis=='x'?_width:naxis=='y'?_height:naxis=='z'?_depth:_spectrum)/100;
+      if (is_empty() || !nboxsize || (nboxsize<=1 && !order)) return *this;
       switch (naxis) {
       case 'x' : {
         cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*256 &&
@@ -40869,7 +40926,7 @@ namespace cimg_library_suffixed {
 
     // Apply box filter of order 0,1 or 2 \newinstance.
     CImg<Tfloat> get_boxfilter(const float boxsize, const int order, const char axis='x',
-                               const bool boundary_conditions=true,
+                               const unsigned int boundary_conditions=1,
                                const unsigned int nb_iter=1) const {
       return CImg<Tfloat>(*this,false).boxfilter(boxsize,order,axis,boundary_conditions,nb_iter);
     }
@@ -40879,14 +40936,15 @@ namespace cimg_library_suffixed {
        \param boxsize_x Size of the box window, along the X-axis (can be subpixel).
        \param boxsize_y Size of the box window, along the Y-axis (can be subpixel).
        \param boxsize_z Size of the box window, along the Z-axis (can be subpixel).
-       \param boundary_conditions Boundary conditions. Can be <tt>{ false=dirichlet | true=neumann }</tt>.
+       \param boundary_conditions Boundary conditions.
+         Can be <tt>{ false=dirichlet | true=neumann | 2=periodic | 3=mirror }</tt>.
        \param nb_iter Number of filter iterations.
        \note
        - This is a recursive algorithm, not depending on the values of the box kernel size.
        \see blur().
     **/
     CImg<T>& blur_box(const float boxsize_x, const float boxsize_y, const float boxsize_z,
-                      const bool boundary_conditions=true,
+                      const unsigned int boundary_conditions=1,
                       const unsigned int nb_iter=1) {
       if (is_empty()) return *this;
       if (_width>1) boxfilter(boxsize_x,0,'x',boundary_conditions,nb_iter);
@@ -40897,23 +40955,24 @@ namespace cimg_library_suffixed {
 
     //! Blur image with a box filter \newinstance.
     CImg<Tfloat> get_blur_box(const float boxsize_x, const float boxsize_y, const float boxsize_z,
-                              const bool boundary_conditions=true) const {
+                              const unsigned int boundary_conditions=1) const {
       return CImg<Tfloat>(*this,false).blur_box(boxsize_x,boxsize_y,boxsize_z,boundary_conditions);
     }
 
     //! Blur image with a box filter.
     /**
        \param boxsize Size of the box window (can be subpixel).
-       \param boundary_conditions Boundary conditions. Can be <tt>{ 0=dirichlet | 1=neumann }</tt>.a
+       \param boundary_conditions Boundary conditions.
+         Can be <tt>{ 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.a
        \see deriche(), vanvliet().
     **/
-    CImg<T>& blur_box(const float boxsize, const bool boundary_conditions=true) {
+    CImg<T>& blur_box(const float boxsize, const unsigned int boundary_conditions=1) {
       const float nboxsize = boxsize>=0?boxsize:-boxsize*cimg::max(_width,_height,_depth)/100;
       return blur_box(nboxsize,nboxsize,nboxsize,boundary_conditions);
     }
 
     //! Blur image with a box filter \newinstance.
-    CImg<Tfloat> get_blur_box(const float boxsize, const bool boundary_conditions=true) const {
+    CImg<Tfloat> get_blur_box(const float boxsize, const unsigned int boundary_conditions=1) const {
       return CImg<Tfloat>(*this,false).blur_box(boxsize,boundary_conditions);
     }
 

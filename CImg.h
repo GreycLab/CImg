@@ -40752,6 +40752,8 @@ namespace cimg_library_suffixed {
     static void _cimg_blur_box_apply(T *ptr, const float boxsize, const int N, const ulongT off,
                                      const int order, const unsigned int boundary_conditions,
                                      const unsigned int nb_iter) {
+      const int nboundary_conditions = boundary_conditions>1 && boxsize<=3?1:boundary_conditions;
+
       // Smooth.
       if (boxsize>1 && nb_iter) {
         const int w2 = (int)(boxsize - 1)/2;
@@ -40761,13 +40763,13 @@ namespace cimg_library_suffixed {
         for (unsigned int iter = 0; iter<nb_iter; ++iter) {
           Tdouble sum = 0; // window sum
           for (int x = -w2; x<=w2; ++x) {
-            win[x + w2] = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,x);
+            win[x + w2] = __cimg_blur_box_apply(ptr,N,off,nboundary_conditions,x);
             sum+=win[x + w2];
           }
           int ifirst = 0, ilast = 2*w2;
           T
-            prev = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,-w2 - 1),
-            next = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,w2 + 1);
+            prev = __cimg_blur_box_apply(ptr,N,off,nboundary_conditions,-w2 - 1),
+            next = __cimg_blur_box_apply(ptr,N,off,nboundary_conditions,w2 + 1);
           for (int x = 0; x < N - 1; ++x) {
             const double sum2 = sum + frac * (prev + next);
             ptr[x*off] = (T)(sum2/boxsize);
@@ -40777,7 +40779,7 @@ namespace cimg_library_suffixed {
             ilast = (int)((ilast + 1)%winsize);
             win[ilast] = next;
             sum+=next;
-            next = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,x + w2 + 2);
+            next = __cimg_blur_box_apply(ptr,N,off,nboundary_conditions,x + w2 + 2);
           }
           const double sum2 = sum + frac * (prev + next);
           ptr[(N - 1)*off] = (T)(sum2/boxsize);
@@ -40790,27 +40792,27 @@ namespace cimg_library_suffixed {
         break;
       case 1 : {
         Tfloat
-          p = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,-1),
-          c = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,0),
-          n = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,1);
+          p = __cimg_blur_box_apply(ptr,N,off,nboundary_conditions,-1),
+          c = __cimg_blur_box_apply(ptr,N,off,nboundary_conditions,0),
+          n = __cimg_blur_box_apply(ptr,N,off,nboundary_conditions,1);
         for (int x = 0; x<N - 1; ++x) {
           ptr[x*off] = (T)((n-p)/2.);
           p = c;
           c = n;
-          n = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,x + 2);
+          n = __cimg_blur_box_apply(ptr,N,off,nboundary_conditions,x + 2);
         }
         ptr[(N - 1)*off] = (T)((n-p)/2.);
       } break;
       case 2: {
         Tfloat
-          p = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,-1),
-          c = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,0),
-          n = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,1);
+          p = __cimg_blur_box_apply(ptr,N,off,nboundary_conditions,-1),
+          c = __cimg_blur_box_apply(ptr,N,off,nboundary_conditions,0),
+          n = __cimg_blur_box_apply(ptr,N,off,nboundary_conditions,1);
         for (int x = 0; x<N - 1; ++x) {
           ptr[x*off] = (T)(n - 2*c + p);
           p = c;
           c = n;
-          n = __cimg_blur_box_apply(ptr,N,off,boundary_conditions,x + 2);
+          n = __cimg_blur_box_apply(ptr,N,off,nboundary_conditions,x + 2);
         }
         ptr[(N - 1)*off] = (T)(n - 2*c + p);
       } break;

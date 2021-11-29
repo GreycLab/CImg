@@ -40240,7 +40240,8 @@ namespace cimg_library_suffixed {
     //! Blur image isotropically.
     /**
        \param sigma Standard deviation of the blur.
-       \param boundary_conditions Boundary conditions. Can be <tt>{ 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.a
+       \param boundary_conditions Boundary conditions.
+         Can be <tt>{ 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.a
        \param is_gaussian Use a gaussian kernel (VanVliet) is set, a quasi-gaussian (Deriche) otherwise.
        \see deriche(), vanvliet().
     **/

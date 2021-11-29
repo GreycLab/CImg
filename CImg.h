@@ -32707,7 +32707,8 @@ namespace cimg_library_suffixed {
     //! Map predefined colormap on the scalar (indexed) image instance.
     /**
        \param colormap Multi-valued colormap used for mapping the indexes.
-       \param boundary_conditions Boundary conditions. Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
+       \param boundary_conditions Boundary conditions.
+         Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
        \par Example
        \code
        const CImg<float> img("reference.jpg"),
@@ -35056,6 +35057,7 @@ namespace cimg_library_suffixed {
        \param src Reference image used for dimensions.
        \param interpolation_type Interpolation method.
        \param boundary_conditions Boundary conditions.
+         Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
        \param centering_x Set centering type (only if \p interpolation_type=0).
        \param centering_y Set centering type (only if \p interpolation_type=0).
        \param centering_z Set centering type (only if \p interpolation_type=0).
@@ -35085,6 +35087,7 @@ namespace cimg_library_suffixed {
        \param disp Reference display window used for dimensions.
        \param interpolation_type Interpolation method.
        \param boundary_conditions Boundary conditions.
+         Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
        \param centering_x Set centering type (only if \p interpolation_type=0).
        \param centering_y Set centering type (only if \p interpolation_type=0).
        \param centering_z Set centering type (only if \p interpolation_type=0).
@@ -35343,7 +35346,8 @@ namespace cimg_library_suffixed {
        \param delta_y Amount of displacement along the Y-axis.
        \param delta_z Amount of displacement along the Z-axis.
        \param delta_c Amount of displacement along the C-axis.
-       \param boundary_conditions Boundary conditions. Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
+       \param boundary_conditions Boundary conditions.
+         Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
     **/
     CImg<T>& shift(const int delta_x, const int delta_y=0, const int delta_z=0, const int delta_c=0,
                    const unsigned int boundary_conditions=0) {
@@ -35813,7 +35817,7 @@ namespace cimg_library_suffixed {
        \param angle Rotation angle, in degrees.
        \param interpolation Type of interpolation. Can be <tt>{ 0=nearest | 1=linear | 2=cubic }</tt>.
        \param boundary_conditions Boundary conditions.
-              Can be <tt>{ 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
+         Can be <tt>{ 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
        \note The size of the image is modified.
     **/
     CImg<T>& rotate(const float angle, const unsigned int interpolation=1,
@@ -36021,7 +36025,7 @@ namespace cimg_library_suffixed {
        \param angle Rotation angle, in degrees.
        \param interpolation Type of interpolation. Can be <tt>{ 0=nearest | 1=linear | 2=cubic }</tt>.
        \param boundary_conditions Boundary conditions.
-              Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
+         Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
        \note Most of the time, size of the image is modified.
     **/
     CImg<T> rotate(const float u, const float v, const float w, const float angle,
@@ -36070,7 +36074,8 @@ namespace cimg_library_suffixed {
        \param cy Y-coordinate of the rotation center.
        \param cz Z-coordinate of the rotation center.
        \param interpolation Type of interpolation. Can be <tt>{ 0=nearest | 1=linear | 2=cubic | 3=mirror }</tt>.
-       \param boundary_conditions Boundary conditions. Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic }</tt>.
+       \param boundary_conditions Boundary conditions.
+         Can be <tt>{  0=dirichlet | 1=neumann | 2=periodic }</tt>.
        \note Most of the time, size of the image is modified.
     **/
     CImg<T> rotate(const float u, const float v, const float w, const float angle,
@@ -39027,10 +39032,11 @@ namespace cimg_library_suffixed {
     /**
        \param kernel Structuring element.
        \param boundary_conditions Boundary conditions.
+         Can be <tt>{ 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }</tt>.
        \param is_real Do the erosion in real (a.k.a 'non-flat') mode (\c true) rather than binary mode (\c false).
     **/
     template<typename t>
-    CImg<T>& erode(const CImg<t>& kernel, const bool boundary_conditions=true,
+    CImg<T>& erode(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                    const bool is_real=false) {
       if (is_empty() || !kernel) return *this;
       return get_erode(kernel,boundary_conditions,is_real).move_to(*this);
@@ -39038,7 +39044,7 @@ namespace cimg_library_suffixed {
 
     //! Erode image by a structuring element \newinstance.
     template<typename t>
-    CImg<_cimg_Tt> get_erode(const CImg<t>& kernel, const bool boundary_conditions=true,
+    CImg<_cimg_Tt> get_erode(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                              const bool is_real=false) const {
       if (is_empty() || !kernel) return *this;
       if (!is_real && kernel==0) return CImg<T>(width(),height(),depth(),spectrum(),0);
@@ -39318,10 +39324,11 @@ namespace cimg_library_suffixed {
     /**
        \param kernel Structuring element.
        \param boundary_conditions Boundary conditions.
+         Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
        \param is_real Do the dilation in real (a.k.a 'non-flat') mode (\c true) rather than binary mode (\c false).
     **/
     template<typename t>
-    CImg<T>& dilate(const CImg<t>& kernel, const bool boundary_conditions=true,
+    CImg<T>& dilate(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                     const bool is_real=false) {
       if (is_empty() || !kernel) return *this;
       return get_dilate(kernel,boundary_conditions,is_real).move_to(*this);
@@ -39329,7 +39336,7 @@ namespace cimg_library_suffixed {
 
     //! Dilate image by a structuring element \newinstance.
     template<typename t>
-    CImg<_cimg_Tt> get_dilate(const CImg<t>& kernel, const bool boundary_conditions=true,
+    CImg<_cimg_Tt> get_dilate(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
                               const bool is_real=false) const {
       if (is_empty() || !kernel || (!is_real && kernel==0)) return *this;
       typedef _cimg_Tt Tt;
@@ -39947,7 +39954,8 @@ namespace cimg_library_suffixed {
        \param N size of the data
        \param off the offset between two data point
        \param order the order of the filter 0 (smoothing), 1st derivative, 2nd derivative, 3rd derivative
-       \param boundary_conditions Boundary conditions. Can be <tt>{ 0=dirichlet | 1=neumann }</tt>.
+       \param boundary_conditions Boundary conditions.
+         Can be <tt>{ 0=dirichlet | 1=neumann }</tt>.
        \note Boundary condition using B. Triggs method (IEEE trans on Sig Proc 2005).
     */
     static void _cimg_recursive_apply(T *data, const double filter[], const int N, const ulongT off,

@@ -39136,38 +39136,44 @@ namespace cimg_library_suffixed {
                       }
                 res(x,y,z,c) = min_val;
               } _cimg_abort_catch_openmp2
-          if (boundary_conditions)
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
-            cimg_forYZ(res,y,z) _cimg_abort_try_openmp2 {
-              cimg_abort_test2;
-              for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
-                Tt min_val = cimg::type<Tt>::max();
-                for (int zm = -mz1; zm<=mz2; ++zm)
-                  for (int ym = -my1; ym<=my2; ++ym)
-                    for (int xm = -mx1; xm<=mx2; ++xm)
-                      if (K(mx1 + xm,my1 + ym,mz1 + zm)) {
-                        const Tt cval = (Tt)img._atXYZ(x + xm,y + ym,z + zm);
-                        if (cval<min_val) min_val = cval;
+
+          cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
+          cimg_forYZ(res,y,z) _cimg_abort_try_openmp2 {
+            cimg_abort_test2;
+            for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
+              Tt min_val = cimg::type<Tt>::max();
+              for (int zm = -mz1; zm<=mz2; ++zm)
+                for (int ym = -my1; ym<=my2; ++ym)
+                  for (int xm = -mx1; xm<=mx2; ++xm) {
+                    if (K(mx1 + xm,my1 + ym,mz1 + zm)) {
+                      Tt cval;
+                      switch (boundary_conditions) {
+                      case 0 : cval = (Tt)img.atXYZ(x + xm,y + ym,z + zm,0,(T)0); break;
+                      case 1 : cval = (Tt)img._atXYZ(x + xm,y + ym,z + zm); break;
+                      case 2 : {
+                        const int
+                          nx = cimg::mod(x + xm,width()),
+                          ny = cimg::mod(y + ym,height()),
+                          nz = cimg::mod(z + zm,depth());
+                        cval = img(nx,ny,nz);
+                      } break;
+                      default : {
+                        const int
+                          tx = cimg::mod(x + xm,w2),
+                          ty = cimg::mod(y + ym,h2),
+                          tz = cimg::mod(z + zm,d2),
+                          nx = tx<width()?tx:w2 - tx - 1,
+                          ny = ty<height()?ty:h2 - ty - 1,
+                          nz = tz<depth()?tz:d2 - tz - 1;
+                        cval = img(nx,ny,nz);
                       }
-                res(x,y,z,c) = min_val;
-              }
-            } _cimg_abort_catch_openmp2
-          else
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
-            cimg_forYZ(res,y,z) _cimg_abort_try_openmp2 {
-              cimg_abort_test2;
-              for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
-                Tt min_val = cimg::type<Tt>::max();
-                for (int zm = -mz1; zm<=mz2; ++zm)
-                  for (int ym = -my1; ym<=my2; ++ym)
-                    for (int xm = -mx1; xm<=mx2; ++xm)
-                      if (K(mx1 + xm,my1 + ym,mz1 + zm)) {
-                        const Tt cval = (Tt)img.atXYZ(x + xm,y + ym,z + zm,0,(T)0);
-                        if (cval<min_val) min_val = cval;
                       }
-                res(x,y,z,c) = min_val;
-              }
-            } _cimg_abort_catch_openmp2
+                      if (cval<min_val) min_val = cval;
+                    }
+                  }
+              res(x,y,z,c) = min_val;
+            }
+          } _cimg_abort_catch_openmp2
         }
       } _cimg_abort_catch_openmp
       cimg_abort_test;

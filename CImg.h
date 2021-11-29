@@ -39445,7 +39445,7 @@ namespace cimg_library_suffixed {
           cimg_forYZ(res,y,z) _cimg_abort_try_openmp2 {
             cimg_abort_test2;
             for (int x = 0; x<width(); (y<my1 || y>=mye || z<mz1 || z>=mze)?++x:((x<mx1 - 1 || x>=mxe)?++x:(x=mxe))) {
-              Tt max_val = cimg::type<Tt>::max();
+              Tt max_val = cimg::type<Tt>::min();
               for (int zm = -mz1; zm<=mz2; ++zm)
                 for (int ym = -my1; ym<=my2; ++ym)
                   for (int xm = -mx1; xm<=mx2; ++xm) {

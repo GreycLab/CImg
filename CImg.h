@@ -42636,8 +42636,8 @@ namespace cimg_library_suffixed {
 
               if (best_score<best_score0) {
                 if (_patch_penalization!=0) {
-                  uintT &n_occ = occ(a_map(x,y,z,0),a_map(x,y,z,1),a_map(x,y,z,2));
-                  if (n_occ) cimg_pragma_openmp(atomic) --n_occ;
+                  uintT &p_occ = occ(a_map(x,y,z,0),a_map(x,y,z,1),a_map(x,y,z,2));
+                  if (p_occ) cimg_pragma_openmp(atomic) --p_occ;
                 }
                 a_map(x,y,z,0) = best_u;
                 a_map(x,y,z,1) = best_v;
@@ -42783,8 +42783,8 @@ namespace cimg_library_suffixed {
 
               if (best_score<best_score0) {
                 if (_patch_penalization!=0) {
-                  uintT &n_occ = occ(a_map(x,y,0),a_map(x,y,1));
-                  if (n_occ) cimg_pragma_openmp(atomic) --n_occ;
+                  uintT &p_occ = occ(a_map(x,y,0),a_map(x,y,1));
+                  if (p_occ) cimg_pragma_openmp(atomic) --p_occ;
                 }
                 a_map(x,y,0) = best_u;
                 a_map(x,y,1) = best_v;

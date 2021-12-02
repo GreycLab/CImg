@@ -42510,7 +42510,7 @@ namespace cimg_library_suffixed {
           const unsigned int cmask = is_backward?1:2, nmask = 3 - cmask;
 
           cimg_pragma_openmp(parallel cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64 &&
-                                                     iter<nb_iterations-2)) {
+                                                     iter<nb_iterations - 2)) {
             cimg_uint64 rng = (cimg::_rand(),cimg::rng());
 
 #if cimg_use_openmp!=0
@@ -42697,7 +42697,7 @@ namespace cimg_library_suffixed {
           const unsigned int cmask = is_backward?1:2, nmask = 3 - cmask;
 
           cimg_pragma_openmp(parallel cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64 &&
-                                                     iter<nb_iterations-2)) {
+                                                     iter<nb_iterations - 2)) {
             cimg_uint64 rng = (cimg::_rand(),cimg::rng());
 
 #if cimg_use_openmp!=0

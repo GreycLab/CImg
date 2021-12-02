@@ -42436,13 +42436,11 @@ namespace cimg_library_suffixed {
       CImg<intT> a_map(_width,_height,_depth,patch_image._depth>1?3:2);
       CImg<ucharT> is_updated(_width,_height,_depth,1,3);
       CImg<floatT> score(_width,_height,_depth), penalty;
-      CImg<uintT> occ;
       const float _patch_penalization = cimg::abs(patch_penalization);
       const bool allow_identity = patch_penalization>=0;
-      if (_patch_penalization!=0) {
-        occ.assign(patch_image._width,patch_image._height,patch_image._depth,1,0);
+      if (_patch_penalization!=0)
         penalty.assign(patch_image._width,patch_image._height,patch_image._depth,1,0);
-      }
+
       const int
         psizew = (int)patch_width,  psizew1 = psizew/2, psizew2 = psizew - psizew1 - 1,
         psizeh = (int)patch_height, psizeh1 = psizeh/2, psizeh2 = psizeh - psizeh1 - 1,
@@ -42512,8 +42510,7 @@ namespace cimg_library_suffixed {
           const bool is_backward = iter&1, is_forward = !is_backward;
           const unsigned int cmask = is_backward?1:2, nmask = 3 - cmask;
 
-          cimg_pragma_openmp(parallel cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64 &&
-                                                     iter<nb_iterations - 2)) {
+          cimg_pragma_openmp(parallel cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64)) {
             cimg_uint64 rng = (cimg::_rand(),cimg::rng());
 
 #if cimg_use_openmp!=0
@@ -42639,8 +42636,8 @@ namespace cimg_library_suffixed {
 
               if (best_score<best_score0) {
                 if (_patch_penalization!=0) {
-                  uintT &p_occ = occ(a_map(x,y,z,0),a_map(x,y,z,1),a_map(x,y,z,2));
-                  if (p_occ) cimg_pragma_openmp(atomic) --p_occ;
+                  float &p_penalty = penalty(a_map(x,y,z,0),a_map(x,y,z,1),a_map(x,y,z,2));
+                  if (p_penalty) cimg_pragma_openmp(atomic) --p_penalty;
                 }
                 a_map(x,y,z,0) = best_u;
                 a_map(x,y,z,1) = best_v;
@@ -42648,7 +42645,7 @@ namespace cimg_library_suffixed {
                 score(x,y,z) = best_score;
                 is_updated(x,y,z) = 3;
               } else is_updated(x,y,z)&=~nmask;
-              if (_patch_penalization!=0) cimg_pragma_openmp(atomic) ++occ(best_u,best_v,best_w);
+              if (_patch_penalization!=0) cimg_pragma_openmp(atomic) ++penalty(best_u,best_v,best_w);
             }
             cimg::srand(rng);
           }
@@ -42699,8 +42696,7 @@ namespace cimg_library_suffixed {
           const bool is_backward = iter&1, is_forward = !is_backward;
           const unsigned int cmask = is_backward?1:2, nmask = 3 - cmask;
 
-          cimg_pragma_openmp(parallel cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64 &&
-                                                     iter<nb_iterations - 2)) {
+          cimg_pragma_openmp(parallel cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64)) {
             cimg_uint64 rng = (cimg::_rand(),cimg::rng());
 
 #if cimg_use_openmp!=0
@@ -42786,36 +42782,18 @@ namespace cimg_library_suffixed {
 
               if (best_score<best_score0) {
                 if (_patch_penalization!=0) {
-                  uintT &p_occ = occ(a_map(x,y,0),a_map(x,y,1));
-                  if (p_occ) cimg_pragma_openmp(atomic) --p_occ;
+                  float &p_penalty = penalty(a_map(x,y,0),a_map(x,y,1));
+                  if (p_penalty) cimg_pragma_openmp(atomic) --p_penalty;
                 }
                 a_map(x,y,0) = best_u;
                 a_map(x,y,1) = best_v;
                 score(x,y) = best_score;
                 is_updated(x,y) = 3;
               } else is_updated(x,y)&=~nmask;
-              if (_patch_penalization!=0) cimg_pragma_openmp(atomic) ++occ(best_u,best_v);
+              if (_patch_penalization!=0) cimg_pragma_openmp(atomic) ++penalty(best_u,best_v);
             }
             cimg::srand(rng);
           }
-
-          if (penalty) {
-            cimg_forXY(penalty,x,y) penalty(x,y)+=occ(x,y);
-            cimg_forXY(score,x,y) {
-              const int
-                cx1 = x<=psizew1?x:(x<width()  - psizew2?psizew1:psizew + x - width()),
-                cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()),
-                xp = x - cx1,
-                yp = y - cy1,
-                u = a_map(x,y,0),
-                v = a_map(x,y,1);
-              score(x,y) = _matchpatch(in_this,in_patch,penalty,patch_width,patch_height,_spectrum,
-                                       xp,yp,u - cx1,v - cy1,
-                                       u,v,_patch_penalization,allow_identity,cimg::type<float>::inf());
-              is_updated(x,y) = 3;
-            }
-          }
-
         }
       }
 

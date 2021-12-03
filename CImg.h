@@ -42649,6 +42649,27 @@ namespace cimg_library_suffixed {
             }
             cimg::srand(rng);
           }
+
+          // Update score according to new penalties.
+          if (penalty)
+            cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64))
+              cimg_forXYZ(score,x,y,z) {
+              const float p_score = score(x,y,z);
+              const int
+                cx1 = x<=psizew1?x:(x<width()  - psizew2?psizew1:psizew + x - width()),
+                cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()),
+                cz1 = z<=psized1?z:(z<depth()  - psized2?psized1:psized + z - depth()),
+                xp = x - cx1,
+                yp = y - cy1,
+                zp = z - cz1,
+                u = a_map(x,y,z,0),
+                v = a_map(x,y,z,1),
+                w = a_map(x,y,z,2);
+              const float n_score = _matchpatch(in_this,in_patch,penalty,patch_width,patch_height,patch_depth,_spectrum,
+                                                xp,yp,zp,u - cx1,v - cy1,w - cz1,
+                                                u,v,w,_patch_penalization,allow_identity,cimg::type<float>::inf());
+              if (n_score!=p_score) { score(x,y,z) = n_score; is_updated(x,y) = 3; }
+            }
         }
 
       } else { // 2D version
@@ -42794,6 +42815,24 @@ namespace cimg_library_suffixed {
             }
             cimg::srand(rng);
           }
+
+          // Update score according to new penalties.
+          if (penalty)
+            cimg_pragma_openmp(parallel for cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64))
+              cimg_forXY(score,x,y) {
+              const float p_score = score(x,y);
+              const int
+                cx1 = x<=psizew1?x:(x<width()  - psizew2?psizew1:psizew + x - width()),
+                cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()),
+                xp = x - cx1,
+                yp = y - cy1,
+                u = a_map(x,y,0),
+                v = a_map(x,y,1);
+              const float n_score = _matchpatch(in_this,in_patch,penalty,patch_width,patch_height,_spectrum,
+                                                xp,yp,u - cx1,v - cy1,
+                                                u,v,_patch_penalization,allow_identity,cimg::type<float>::inf());
+              if (n_score!=p_score) { score(x,y) = n_score; is_updated(x,y) = 3; }
+            }
         }
       }
 

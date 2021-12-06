@@ -18526,7 +18526,7 @@ namespace cimg_library_suffixed {
         }
 
         // Degree to radian postfix operator ('°' in UTF-8).
-        if ((unsigned char)*se2==0xC2 && (unsigned char)*se1==0xB0) {
+        if (se2>ss && (unsigned char)*se2==0xC2 && (unsigned char)*se1==0xB0) {
           arg1 = compile(ss,se2,depth1,0,bloc_flags);
           if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_deg2rad,arg1);
           if (_cimg_mp_is_const_scalar(arg1)) _cimg_mp_const_scalar(mem[arg1]*cimg::PI/180);

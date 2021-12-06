@@ -20538,7 +20538,6 @@ namespace cimg_library_suffixed {
               if (!std::strncmp(ss,"isdir(",6)) { // Is directory?
                 _cimg_mp_op("Function 'isdir()'");
                 arg1 = compile(ss6,se1,depth1,0,bloc_flags);
-                if (_cimg_mp_is_scalar(arg1)) _cimg_mp_return(0);
                 pos = scalar();
                 CImg<ulongT>::vector((ulongT)mp_isdir,pos,arg1,(ulongT)_cimg_mp_size(arg1)).move_to(code);
                 return_new_comp = true;
@@ -20548,7 +20547,6 @@ namespace cimg_library_suffixed {
               if (!std::strncmp(ss,"isfile(",7)) { // Is file?
                 _cimg_mp_op("Function 'isfile()'");
                 arg1 = compile(ss7,se1,depth1,0,bloc_flags);
-                if (_cimg_mp_is_scalar(arg1)) _cimg_mp_return(0);
                 pos = scalar();
                 CImg<ulongT>::vector((ulongT)mp_isfile,pos,arg1,(ulongT)_cimg_mp_size(arg1)).move_to(code);
                 return_new_comp = true;
@@ -24712,8 +24710,9 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_isdir(_cimg_math_parser& mp) {
-        const double *ptrs = &_mp_arg(2) + 1;
-        const ulongT siz = (ulongT)mp.opcode[3];
+        const unsigned int siz = (unsigned int)mp.opcode[3];
+        const double *ptrs = &_mp_arg(2) + (siz?1:0);
+        if (!siz) { char str[2] = { 0 }; *str = *ptrs; return (double)cimg::is_directory(str); }
         CImg<charT> ss(siz + 1);
         cimg_forX(ss,i) ss[i] = (char)ptrs[i];
         ss.back() = 0;
@@ -24737,8 +24736,9 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_isfile(_cimg_math_parser& mp) {
-        const double *ptrs = &_mp_arg(2) + 1;
-        const ulongT siz = (ulongT)mp.opcode[3];
+        const unsigned int siz = (unsigned int)mp.opcode[3];
+        const double *ptrs = &_mp_arg(2) + (siz?1:0);
+        if (!siz) { char str[2] = { 0 }; *str = *ptrs; return (double)cimg::is_file(str); }
         CImg<charT> ss(siz + 1);
         cimg_forX(ss,i) ss[i] = (char)ptrs[i];
         ss.back() = 0;

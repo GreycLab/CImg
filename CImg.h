@@ -20627,7 +20627,6 @@ namespace cimg_library_suffixed {
               if (!std::strncmp(ss,"isvarname(",10)) { // Is variable name?
                 _cimg_mp_op("Function 'isvarname()'");
                 arg1 = compile(ss + 10,se1,depth1,0,bloc_flags);
-                if (_cimg_mp_is_scalar(arg1)) _cimg_mp_return(0);
                 pos = scalar();
                 CImg<ulongT>::vector((ulongT)mp_isvarname,pos,arg1,(ulongT)_cimg_mp_size(arg1)).move_to(code);
                 return_new_comp = true;
@@ -24751,12 +24750,15 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_isvarname(_cimg_math_parser& mp) {
-        const double *ptrs = &_mp_arg(2) + 1;
-        const ulongT siz = (ulongT)mp.opcode[3];
-        CImg<charT> ss(siz + 1);
-        cimg_forX(ss,i) ss[i] = (char)ptrs[i];
-        ss.back() = 0;
-        return (double)is_varname(ss);
+        const unsigned int siz = (unsigned int)mp.opcode[3];
+        const double *ptrs = &_mp_arg(2) + (siz?1:0);
+        if (!siz) {
+          const char c = (char)*ptrs;
+          return (c>='a' && c<='z') || (c>='A' && c<='Z') || c=='_';
+        }
+        if (*ptrs>='0' && *ptrs<='9') return 0;
+        for (unsigned int k = 0; k<siz; ++k) if (!is_varchar((char)ptrs[k])) return 0;
+        return 1;
       }
 
       static double mp_ixyzc(_cimg_math_parser& mp) {

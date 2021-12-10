@@ -17634,7 +17634,7 @@ namespace cimg_library_suffixed {
             // Assign lvalue (variable name was not valid for a direct assignment).
             arg1 = ~0U;
             is_sth = (bool)std::strchr(variable_name,'?'); // Contains_ternary_operator?
-            if (is_sth) break; // Do nothing and make ternary operator prioritary over assignment
+            if (is_sth) break; // Do nothing and make ternary operator priority over assignment
 
             if (l_variable_name>2 && (std::strchr(variable_name,'(') || std::strchr(variable_name,'['))) {
               ref.assign(7);
@@ -37966,7 +37966,7 @@ namespace cimg_library_suffixed {
        \param axis Splitting axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
        \param nb Number of split parts.
        \note
-       - If \c nb==0, instance image is split into blocs of egal values along the specified axis.
+       - If \c nb==0, instance image is split into blocs of equal values along the specified axis.
        - If \c nb<=0, instance image is split into blocs of -\c nb pixel wide.
        - If \c nb>0, instance image is split into \c nb blocs.
     **/
@@ -38065,7 +38065,7 @@ namespace cimg_library_suffixed {
           }
           }
         }
-      } else { // Split by egal values according to specified axis
+      } else { // Split by equal values according to specified axis
         T current = *_data;
         switch (_axis) {
         case 'x' : {

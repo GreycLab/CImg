@@ -19670,8 +19670,8 @@ namespace cimg_library_suffixed {
               if (*s0=='#') { // Index specified
                 s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                 p1 = compile(s0,s1++,depth1,0,bloc_flags);
-                _cimg_mp_check_list(true);
               } else { p1 = 11; s1 = s0; }
+              _cimg_mp_check_list(true);
               _cimg_mp_check_const_scalar(p1,1,1);
               p3 = (unsigned int)cimg::mod((int)mem[p1],listin.width());
               p2 = listin[p3]._spectrum;
@@ -19690,8 +19690,8 @@ namespace cimg_library_suffixed {
               if (*s0=='#') { // Index specified
                 s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                 p1 = compile(s0,s1++,depth1,0,bloc_flags);
-                _cimg_mp_check_list(true);
               } else { p1 = 11; s1 = s0; }
+              _cimg_mp_check_list(true);
 
               if (!is_push) {
                 s0 = s1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -19729,8 +19729,8 @@ namespace cimg_library_suffixed {
               if (ss[10]=='#') { // Index specified
                 s0 = ss + 11; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                 p1 = compile(ss + 11,s0++,depth1,0,bloc_flags);
-                _cimg_mp_check_list(true);
               } else { p1 = 11; s0 = ss + 10; }
+              _cimg_mp_check_list(true);
 
               arg1 = arg2 = ~0U;
               if (s0<se1) {
@@ -19748,8 +19748,8 @@ namespace cimg_library_suffixed {
               if (ss[8]=='#') { // Index specified
                 s0 = ss + 9; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                 p1 = compile(ss + 9,s0++,depth1,0,bloc_flags);
-                _cimg_mp_check_list(true);
               } else { p1 = 11; s0 = ss + 8; }
+              _cimg_mp_check_list(true);
               _cimg_mp_scalar1(mp_da_size,p1);
             }
 
@@ -23742,21 +23742,26 @@ namespace cimg_library_suffixed {
       static double mp_da_back_or_pop(_cimg_math_parser& mp) {
         const bool is_pop = (bool)mp.opcode[4];
         const char *const s_op = is_pop?"da_pop":"da_back";
-        const unsigned int
-          dim = (unsigned int)mp.opcode[2],
-          ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.listin.width());
+        const unsigned int dim = (unsigned int)mp.opcode[2];
+
+        if (!mp.listout.width())
+          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function '%s()': "
+                                      "Invalid call with an empty image list.",
+                                      mp.imgout.pixel_type(),s_op);
+
+        const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.listout.width());
         double *const ptrd = &_mp_arg(1) + (dim>1?1:0);
         CImg<T> &img = mp.listout[ind];
         int siz = img?(int)img[img._height - 1]:0;
         if (img && (img._width!=1 || img._depth!=1 || siz<0 || siz>img.height() - 1))
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function '%s()': "
                                       "Specified image (%d,%d,%d,%d) cannot be used as dynamic array%s.",
-                                      mp.imgin.pixel_type(),s_op,img.width(),img.height(),img.depth(),img.spectrum(),
+                                      mp.imgout.pixel_type(),s_op,img.width(),img.height(),img.depth(),img.spectrum(),
                                       img._width==1 && img._depth==1?"":" (contains invalid element counter)");
         if (!siz)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function '%s()': "
                                       "Specified dynamic array #%d contains no elements.",
-                                      mp.imgin.pixel_type(),s_op,(int)_mp_arg(3));
+                                      mp.imgout.pixel_type(),s_op,(int)_mp_arg(3));
 
         double ret = cimg::type<double>::nan();
         if (dim<1) ret = img[siz - 1]; // Scalar element
@@ -23775,8 +23780,14 @@ namespace cimg_library_suffixed {
         const unsigned int
           dim = (unsigned int)mp.opcode[4],
           _dim = std::max(1U,dim),
-          nb_elts = (unsigned int)mp.opcode[5] - 6,
-          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+          nb_elts = (unsigned int)mp.opcode[5] - 6;
+
+        if (!mp.listout.width())
+          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'da_insert()': "
+                                      "Invalid call with an empty image list.",
+                                      mp.imgout.pixel_type());
+
+        const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listout.width());
 
         CImg<T> &img = mp.listout[ind];
         const int
@@ -23787,16 +23798,16 @@ namespace cimg_library_suffixed {
         if (img && _dim!=img._spectrum)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function '%s()': "
                                       "Element to insert has invalid size %u (should be %u).",
-                                      mp.imgin.pixel_type(),s_op,_dim,img._spectrum);
+                                      mp.imgout.pixel_type(),s_op,_dim,img._spectrum);
         if (img && (img._width!=1 || img._depth!=1 || siz<0 || siz>img.height() - 1))
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function '%s()': "
                                       "Specified image (%d,%d,%d,%d) cannot be used as dynamic array%s.",
-                                      mp.imgin.pixel_type(),s_op,img.width(),img.height(),img.depth(),img.spectrum(),
+                                      mp.imgout.pixel_type(),s_op,img.width(),img.height(),img.depth(),img.spectrum(),
                                       img._width==1 && img._depth==1?"":" (contains invalid element counter)");
         if (pos<0 || pos>siz)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function '%s()': "
                                       "Invalid position %d (not in range -%d...%d).",
-                                      mp.imgin.pixel_type(),s_op,pos0,siz,siz);
+                                      mp.imgout.pixel_type(),s_op,pos0,siz,siz);
 
         if (siz + nb_elts + 1>=img._height) // Increase size of dynamic array, if necessary
           img.resize(1,2*siz + nb_elts + 1,1,_dim,0);
@@ -23816,18 +23827,23 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_da_remove(_cimg_math_parser& mp) {
-        const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        if (!mp.listout.width())
+          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'da_remove()': "
+                                      "Invalid call with an empty image list.",
+                                      mp.imgout.pixel_type());
+
+        const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listout.width());
         CImg<T> &img = mp.listout[ind];
         int siz = img?(int)img[img._height - 1]:0;
         if (img && (img._width!=1 || img._depth!=1 || siz<0 || siz>img.height() - 1))
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'da_remove()': "
                                       "Specified image (%d,%d,%d,%d) cannot be used as dynamic array%s.",
-                                      mp.imgin.pixel_type(),img.width(),img.height(),img.depth(),img.spectrum(),
+                                      mp.imgout.pixel_type(),img.width(),img.height(),img.depth(),img.spectrum(),
                                       img._width==1 && img._depth==1?"":" (contains invalid element counter)");
         if (img._height<2)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'da_remove()': "
                                       "Dynamic array is empty.",
-                                      mp.imgin.pixel_type());
+                                      mp.imgout.pixel_type());
         int
           start0 = mp.opcode[3]==~0U?siz - 1:_mp_arg(3),
           end0 = mp.opcode[4]==~0U?start0:_mp_arg(4),
@@ -23837,7 +23853,7 @@ namespace cimg_library_suffixed {
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'da_remove()': "
                                       "Invalid starting (%d) and ending (%d) positions "
                                       "(not ordered, in range -%d...%d).",
-                                      mp.imgin.pixel_type(),start0,end0,siz,siz - 1);
+                                      mp.imgout.pixel_type(),start0,end0,siz,siz - 1);
         if (end<siz - 1) // Move remaining data in dynamic array
           cimg_forC(img,c) std::memmove(img.data(0,start,0,c),img.data(0,end + 1,0,c),(siz - 1 - end)*sizeof(T));
         siz-=end - start + 1;
@@ -23848,13 +23864,18 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_da_size(_cimg_math_parser& mp) {
-        const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listin.width());
+        if (!mp.listout.width())
+          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'da_size()': "
+                                      "Invalid call with an empty image list.",
+                                      mp.imgout.pixel_type());
+
+        const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listout.width());
         CImg<T> &img = mp.listout[ind];
         const int siz = img?(int)img[img._height - 1]:0;
         if (img && (img._width!=1 || img._depth!=1 || siz<0 || siz>img.height() - 1))
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'da_size()': "
                                       "Specified image (%d,%d,%d,%d) cannot be used as dynamic array%s.",
-                                      mp.imgin.pixel_type(),img.width(),img.height(),img.depth(),img.spectrum(),
+                                      mp.imgout.pixel_type(),img.width(),img.height(),img.depth(),img.spectrum(),
                                       img._width==1 && img._depth==1?"":" (contains invalid element counter)");
         return siz;
       }

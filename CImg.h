@@ -6307,18 +6307,22 @@ namespace cimg_library_suffixed {
     **/
     template<typename T>
     inline T mod(const T& x, const T& m) {
+      if (!m) throw CImgArgumentException("cimg::mod(): Specified modulo value is 0.");
       const double dx = (double)x, dm = (double)m;
       if (!cimg::type<double>::is_finite(dm)) return x;
       if (cimg::type<double>::is_finite(dx)) return (T)(dx - dm * std::floor(dx / dm));
       return (T)0;
     }
     inline int mod(const bool x, const bool m) {
-      return m?(x?1:0):0;
+      if (!m) throw CImgArgumentException("cimg::mod(): Specified modulo value is 0.");
+      return x?1:0;
     }
     inline int mod(const unsigned char x, const unsigned char m) {
+      if (!m) throw CImgArgumentException("cimg::mod(): Specified modulo value is 0.");
       return x%m;
     }
     inline int mod(const char x, const char m) {
+      if (!m) throw CImgArgumentException("cimg::mod(): Specified modulo value is 0.");
 #if defined(CHAR_MAX) && CHAR_MAX==255
       return x%m;
 #else
@@ -6326,21 +6330,27 @@ namespace cimg_library_suffixed {
 #endif
     }
     inline int mod(const unsigned short x, const unsigned short m) {
+      if (!m) throw CImgArgumentException("cimg::mod(): Specified modulo value is 0.");
       return (int)(x%m);
     }
     inline int mod(const short x, const short m) {
+      if (!m) throw CImgArgumentException("cimg::mod(): Specified modulo value is 0.");
       return (int)(x>=0?x%m:(x%m?m + x%m:0));
     }
     inline int mod(const unsigned int x, const unsigned int m) {
+      if (!m) throw CImgArgumentException("cimg::mod(): Specified modulo value is 0.");
       return (int)(x%m);
     }
     inline int mod(const int x, const int m) {
+      if (!m) throw CImgArgumentException("cimg::mod(): Specified modulo value is 0.");
       return (int)(x>=0?x%m:(x%m?m + x%m:0));
     }
     inline cimg_int64 mod(const cimg_uint64 x, const cimg_uint64 m) {
+      if (!m) throw CImgArgumentException("cimg::mod(): Specified modulo value is 0.");
       return (cimg_int64)(x%m);
     }
     inline cimg_int64 mod(const cimg_int64 x, const cimg_int64 m) {
+      if (!m) throw CImgArgumentException("cimg::mod(): Specified modulo value is 0.");
       return (cimg_int64)(x>=0?x%m:(x%m?m + x%m:0));
     }
 
@@ -23742,14 +23752,9 @@ namespace cimg_library_suffixed {
       static double mp_da_back_or_pop(_cimg_math_parser& mp) {
         const bool is_pop = (bool)mp.opcode[4];
         const char *const s_op = is_pop?"da_pop":"da_back";
-        const unsigned int dim = (unsigned int)mp.opcode[2];
-
-        if (!mp.listout.width())
-          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function '%s()': "
-                                      "Invalid call with an empty image list.",
-                                      mp.imgout.pixel_type(),s_op);
-
-        const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.listout.width());
+        const unsigned int
+          dim = (unsigned int)mp.opcode[2],
+          ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.listout.width());
         double *const ptrd = &_mp_arg(1) + (dim>1?1:0);
         CImg<T> &img = mp.listout[ind];
         int siz = img?(int)img[img._height - 1]:0;
@@ -23780,15 +23785,8 @@ namespace cimg_library_suffixed {
         const unsigned int
           dim = (unsigned int)mp.opcode[4],
           _dim = std::max(1U,dim),
-          nb_elts = (unsigned int)mp.opcode[5] - 6;
-
-        if (!mp.listout.width())
-          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'da_insert()': "
-                                      "Invalid call with an empty image list.",
-                                      mp.imgout.pixel_type());
-
-        const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listout.width());
-
+          nb_elts = (unsigned int)mp.opcode[5] - 6,
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listout.width());
         CImg<T> &img = mp.listout[ind];
         const int
           siz = img?(int)img[img._height - 1]:0,
@@ -23827,11 +23825,6 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_da_remove(_cimg_math_parser& mp) {
-        if (!mp.listout.width())
-          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'da_remove()': "
-                                      "Invalid call with an empty image list.",
-                                      mp.imgout.pixel_type());
-
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listout.width());
         CImg<T> &img = mp.listout[ind];
         int siz = img?(int)img[img._height - 1]:0;
@@ -23864,11 +23857,6 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_da_size(_cimg_math_parser& mp) {
-        if (!mp.listout.width())
-          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'da_size()': "
-                                      "Invalid call with an empty image list.",
-                                      mp.imgout.pixel_type());
-
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.listout.width());
         CImg<T> &img = mp.listout[ind];
         const int siz = img?(int)img[img._height - 1]:0;

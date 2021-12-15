@@ -57644,7 +57644,7 @@ namespace cimg_library_suffixed {
         cimg::warn(_cimg_instance
                    "save_magick(): Instance has pixel values in [%g,%g], probable type overflow in file '%s'.",
                    cimg_instance,
-                   filename,stmin,stmax);
+                   stmin,stmax,filename);
 
       Magick::Image image(Magick::Geometry(_width,_height),"black");
       image.type(Magick::TrueColorType);
@@ -57744,7 +57744,7 @@ namespace cimg_library_suffixed {
         cimg::warn(_cimg_instance
                    "save_png(): Instance has pixel values in [%g,%g], probable type overflow in file '%s'.",
                    cimg_instance,
-                   filename,stmin,stmax);
+                   stmin,stmax,filename);
 
       // Setup PNG structures for write
       png_voidp user_error_ptr = 0;

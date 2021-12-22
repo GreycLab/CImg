@@ -20990,35 +20990,53 @@ namespace cimg_library_suffixed {
               _cimg_mp_return_nan();
             }
 
-            if (!std::strncmp(ss,"print(",6) || !std::strncmp(ss,"prints(",7)) { // Print expressions
-              is_sth = ss[5]=='s'; // is prints()
-              _cimg_mp_op(is_sth?"Function 'prints()'":"Function 'print()'");
-              s0 = is_sth?ss7:ss6;
-              if (*s0!='#' || is_sth) { // Regular expression
-                for (s = s0; s<se; ++s) {
-                  ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
-                                 (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
-                  pos = compile(s,ns,depth1,p_ref,bloc_flags);
-                  c1 = *ns; *ns = 0;
-                  variable_name.assign(CImg<charT>::string(s,true,true).unroll('y'),true);
-                  cimg::strpare(variable_name,false,true);
-                  if (_cimg_mp_is_vector(pos)) // Vector
-                    ((CImg<ulongT>::vector((ulongT)mp_vector_print,pos,0,(ulongT)_cimg_mp_size(pos),is_sth?1:0),
-                      variable_name)>'y').move_to(opcode);
-                  else // Scalar
-                    ((CImg<ulongT>::vector((ulongT)mp_print,pos,0,is_sth?1:0),
-                      variable_name)>'y').move_to(opcode);
-                  opcode[2] = opcode._height;
-                  opcode.move_to(code);
-                  *ns = c1; s = ns;
-                }
-                _cimg_mp_return(pos);
-              } else { // Image
+            if (!std::strncmp(ss,"print(",6) ||
+                !std::strncmp(ss,"printc(",7) ||
+                !std::strncmp(ss,"printcs(",8) ||
+                !std::strncmp(ss,"prints(",7)) { // Print expressions
+              s0 = std::strchr(ss5,'(');
+              is_sth = *(s0 - 1)=='s';  // string must be printed?
+              is_relative = ss[5]=='c'; // print at compile time?
+              _cimg_mp_op(is_sth?(is_relative?"Function 'printcs()'":"Function 'prints()'"):
+                          is_relative?"Function 'printc()'":"Function 'print()'");
+              ++s0;
+              if (!is_relative && !is_sth && *s0=='#') { // Image
                 p1 = compile(ss7,se1,depth1,0,bloc_flags);
                 _cimg_mp_check_list();
                 CImg<ulongT>::vector((ulongT)mp_image_print,_cimg_mp_slot_nan,p1).move_to(code);
                 _cimg_mp_return_nan();
               }
+
+              // Regular expression
+              for (s = s0; s<se; ++s) {
+                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                pos = compile(s,ns,depth1,p_ref,bloc_flags);
+                c1 = *ns; *ns = 0;
+                variable_name.assign(CImg<charT>::string(s,true,true).unroll('y'),true);
+                cimg::strpare(variable_name,false,true);
+
+                if (is_relative) { // Print at compile time
+                  if (_cimg_mp_is_const_scalar(pos)) // Const scalar
+                    std::fprintf(cimg::output(),"\n[" cimg_appname "_math_parser] %s = %g (%s)",
+                                 variable_name._data,mem[pos],s_type(pos)._data);
+                  else // Vector or non-const scalar
+                    std::fprintf(cimg::output(),"\n[" cimg_appname "_math_parser] %s = (uninitialized) (%s)",
+                                 variable_name._data,s_type(pos)._data);
+                }
+
+                if (_cimg_mp_is_vector(pos)) // Vector
+                  ((CImg<ulongT>::vector((ulongT)mp_vector_print,pos,0,(ulongT)_cimg_mp_size(pos),is_sth?1:0),
+                    variable_name)>'y').move_to(opcode);
+                else // Scalar
+                  ((CImg<ulongT>::vector((ulongT)mp_print,pos,0,is_sth?1:0),
+                    variable_name)>'y').move_to(opcode);
+
+                opcode[2] = opcode._height;
+                opcode.move_to(code);
+                *ns = c1; s = ns;
+              }
+              _cimg_mp_return(pos);
             }
 
             if (!std::strncmp(ss,"pseudoinvert(",13)) { // Matrix/scalar pseudo-inversion

@@ -23795,7 +23795,7 @@ namespace cimg_library_suffixed {
         if (is_pop) { // Remove element from array
           --siz;
           if (img.height()>32 && siz<2*img.height()/3) // Reduce size of dynamic array
-            img.resize(1,std::max(2*siz + 1,32),1,1,0);
+            img.resize(1,std::max(2*siz + 1,32),1,-100,0);
           img[img._height - 1] = (T)siz;
         }
         return ret;
@@ -23874,7 +23874,7 @@ namespace cimg_library_suffixed {
           cimg_forC(img,c) std::memmove(img.data(0,start,0,c),img.data(0,end + 1,0,c),(siz - 1 - end)*sizeof(T));
         siz-=end - start + 1;
         if (img.height()>32 && siz<2*img.height()/3) // Reduce size of dynamic array
-          img.resize(1,std::max(2*siz + 1,32),1,1,0);
+          img.resize(1,std::max(2*siz + 1,32),1,-100,0);
         img[img._height - 1] = (T)siz;
         return cimg::type<double>::nan();
       }

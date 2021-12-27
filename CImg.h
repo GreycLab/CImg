@@ -20991,16 +20991,11 @@ namespace cimg_library_suffixed {
             }
 
             if (!std::strncmp(ss,"print(",6) ||
-                !std::strncmp(ss,"printc(",7) ||
-                !std::strncmp(ss,"printcs(",8) ||
                 !std::strncmp(ss,"prints(",7)) { // Print expressions
-              s0 = std::strchr(ss5,'(');
-              is_sth = *(s0 - 1)=='s';  // string must be printed?
-              is_relative = ss[5]=='c'; // print at compile time?
-              _cimg_mp_op(is_sth?(is_relative?"Function 'printcs()'":"Function 'prints()'"):
-                          is_relative?"Function 'printc()'":"Function 'print()'");
-              ++s0;
-              if (!is_relative && !is_sth && *s0=='#') { // Image
+              s0 = ss6 + (*ss5=='('?0:1);
+              is_sth = *ss5=='s';  // string must be printed?
+              _cimg_mp_op(is_sth?"Function 'prints()'":"Function 'print()'");
+              if (!is_sth && *s0=='#') { // Image
                 p1 = compile(ss7,se1,depth1,0,bloc_flags);
                 _cimg_mp_check_list();
                 CImg<ulongT>::vector((ulongT)mp_image_print,_cimg_mp_slot_nan,p1).move_to(code);
@@ -21016,14 +21011,14 @@ namespace cimg_library_suffixed {
                 variable_name.assign(CImg<charT>::string(s,true,true).unroll('y'),true);
                 cimg::strpare(variable_name,false,true);
 
-                if (is_relative) { // Print at compile time
-                  if (_cimg_mp_is_const_scalar(pos)) // Const scalar
-                    std::fprintf(cimg::output(),"\n[" cimg_appname "_math_parser] %s = %g (%s)",
-                                 variable_name._data,mem[pos],s_type(pos)._data);
-                  else // Vector or non-const scalar
-                    std::fprintf(cimg::output(),"\n[" cimg_appname "_math_parser] %s = (uninitialized) (%s)",
-                                 variable_name._data,s_type(pos)._data);
-                }
+                if (_cimg_mp_is_const_scalar(pos)) // Const scalar
+                  std::fprintf(cimg::output(),"\n[" cimg_appname "_math_parser] %s = %g "
+                               "(compiled as '%s', memslot = %u)",
+                               variable_name._data,mem[pos],s_type(pos)._data,pos);
+                else // Vector or non-const scalar
+                  std::fprintf(cimg::output(),"\n[" cimg_appname "_math_parser] %s = (uninitialized) "
+                               "(compiled as '%s', memslot = %u)",
+                               variable_name._data,s_type(pos)._data,pos);
 
                 if (_cimg_mp_is_vector(pos)) // Vector
                   ((CImg<ulongT>::vector((ulongT)mp_vector_print,pos,0,(ulongT)_cimg_mp_size(pos),is_sth?1:0),

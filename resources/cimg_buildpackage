@@ -152,8 +152,9 @@ rm -rf ../latex
 echo " - Commit on GIT repository."
 cd $SRC_DIR
 if [ "$1" == "final" ]; then
-    git tag -d v.$SVERSION
     git push --delete origin v.$VERSION
+    git pull
+    git tag -d v.$SVERSION
     git tag v.$SVERSION
     git commit -m "Final release "${SVERSION} >>$LOG_FILE 2>&1
 else

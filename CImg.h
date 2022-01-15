@@ -19669,6 +19669,7 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"da_back(",8) ||
                 !std::strncmp(ss,"da_pop(",7)) { // Get latest element in a dynamic array
+              if (!is_inside_critical) is_parallelizable = false;
               const bool is_pop = *ss3=='p';
               _cimg_mp_op(is_pop?"Function 'da_pop()'":"Function 'da_back()'");
               s0 = ss + (is_pop?7:8);
@@ -19688,6 +19689,7 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"da_insert(",10) ||
                 !std::strncmp(ss,"da_push(",8)) { // Insert element(s) in a dynamic array
+              if (!is_inside_critical) is_parallelizable = false;
               const bool is_push = *ss3=='p';
               _cimg_mp_op(is_push?"Function 'da_push()'":"Function 'da_insert()'");
               s0 = ss + (is_push?8:10);
@@ -19728,6 +19730,7 @@ namespace cimg_library_suffixed {
             }
 
             if (!std::strncmp(ss,"da_remove(",10)) { // Remove element(s) in a dynamic array
+              if (!is_inside_critical) is_parallelizable = false;
               _cimg_mp_op("Function 'da_remove()'");
               if (ss[10]=='#') { // Index specified
                 s0 = ss + 11; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
@@ -19746,6 +19749,7 @@ namespace cimg_library_suffixed {
             }
 
             if (!std::strncmp(ss,"da_size(",8)) { // Size of a dynamic array
+              if (!is_inside_critical) is_parallelizable = false;
               _cimg_mp_op("Function 'da_size()'");
               if (ss[8]=='#') { // Index specified
                 s0 = ss + 9; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;

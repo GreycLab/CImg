@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 301
+#define cimg_version 302
 
 /*-----------------------------------------------------------
  #
@@ -19669,7 +19669,6 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"da_back(",8) ||
                 !std::strncmp(ss,"da_pop(",7)) { // Get latest element in a dynamic array
-              if (!is_inside_critical) is_parallelizable = false;
               const bool is_pop = *ss3=='p';
               _cimg_mp_op(is_pop?"Function 'da_pop()'":"Function 'da_back()'");
               s0 = ss + (is_pop?7:8);
@@ -19689,7 +19688,6 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"da_insert(",10) ||
                 !std::strncmp(ss,"da_push(",8)) { // Insert element(s) in a dynamic array
-              if (!is_inside_critical) is_parallelizable = false;
               const bool is_push = *ss3=='p';
               _cimg_mp_op(is_push?"Function 'da_push()'":"Function 'da_insert()'");
               s0 = ss + (is_push?8:10);
@@ -19730,7 +19728,6 @@ namespace cimg_library_suffixed {
             }
 
             if (!std::strncmp(ss,"da_remove(",10)) { // Remove element(s) in a dynamic array
-              if (!is_inside_critical) is_parallelizable = false;
               _cimg_mp_op("Function 'da_remove()'");
               if (ss[10]=='#') { // Index specified
                 s0 = ss + 11; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
@@ -19749,7 +19746,6 @@ namespace cimg_library_suffixed {
             }
 
             if (!std::strncmp(ss,"da_size(",8)) { // Size of a dynamic array
-              if (!is_inside_critical) is_parallelizable = false;
               _cimg_mp_op("Function 'da_size()'");
               if (ss[8]=='#') { // Index specified
                 s0 = ss + 9; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
@@ -23859,7 +23855,7 @@ namespace cimg_library_suffixed {
           start0 = mp.opcode[3]==~0U?siz - 1:_mp_arg(3),
           end0 = mp.opcode[4]==~0U?start0:_mp_arg(4),
           start = start0<0?start0 + siz:start0,
-          end = end0<0?end0 + siz:end0;
+                         end = end0<0?end0 + siz:end0;
         if (start<0 || start>=siz || end<0 || end>=siz || start>end)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'da_remove()': "
                                       "Invalid starting (%d) and ending (%d) positions "

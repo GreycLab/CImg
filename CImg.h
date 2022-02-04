@@ -39966,17 +39966,17 @@ namespace cimg_library_suffixed {
         const int w = width(), h = height(), d = depth(), s = spectrum(), border = (int)cimg::round(1 + 3*nnsigma);
         switch (naxis) {
         case 'x' :
-          return resize(w + 2*border,h,d,s,0,boundary_conditions,0.5).
-            deriche(nnsigma,order,naxis,1).columns(border,w - 1 + border);
+          return draw_image(get_resize(w + 2*border,h,d,s,0,boundary_conditions,0.5).
+                            deriche(nnsigma,order,naxis,1).columns(border,w - 1 + border));
         case 'y' :
-          return resize(w,h + 2*border,d,s,0,boundary_conditions,0,0.5).
-            deriche(nnsigma,order,naxis,1).rows(border,h - 1 + border);
+          return draw_image(get_resize(w,h + 2*border,d,s,0,boundary_conditions,0,0.5).
+                            deriche(nnsigma,order,naxis,1).rows(border,h - 1 + border));
         case 'z' :
-          return resize(w,h,d + 2*border,s,0,boundary_conditions,0,0,0.5).
-            deriche(nnsigma,order,naxis,1).slices(border,d - 1 + border);
+          return draw_image(get_resize(w,h,d + 2*border,s,0,boundary_conditions,0,0,0.5).
+                            deriche(nnsigma,order,naxis,1).slices(border,d - 1 + border));
         default :
-          return resize(w,h,d,s + 2*border,0,boundary_conditions,0,0,0,0.5).
-            deriche(nnsigma,order,naxis,1).channels(border,d - 1 + border);
+          return draw_image(get_resize(w,h,d,s + 2*border,0,boundary_conditions,0,0,0,0.5).
+                            deriche(nnsigma,order,naxis,1).channels(border,d - 1 + border));
         }
       }
 
@@ -40255,17 +40255,17 @@ namespace cimg_library_suffixed {
         const int w = width(), h = height(), d = depth(), s = spectrum(), border = (int)cimg::round(1 + 3*nnsigma);
         switch (naxis) {
         case 'x' :
-          return resize(w + 2*border,h,d,s,0,boundary_conditions,0.5).
-            vanvliet(nnsigma,order,naxis,1).columns(border,w - 1 + border);
+          return draw_image(get_resize(w + 2*border,h,d,s,0,boundary_conditions,0.5).
+                            vanvliet(nnsigma,order,naxis,1).columns(border,w - 1 + border));
         case 'y' :
-          return resize(w,h + 2*border,d,s,0,boundary_conditions,0,0.5).
-            vanvliet(nnsigma,order,naxis,1).rows(border,h - 1 + border);
+          return draw_image(get_resize(w,h + 2*border,d,s,0,boundary_conditions,0,0.5).
+                            vanvliet(nnsigma,order,naxis,1).rows(border,h - 1 + border));
         case 'z' :
-          return resize(w,h,d + 2*border,s,0,boundary_conditions,0,0,0.5).
-            vanvliet(nnsigma,order,naxis,1).slices(border,d - 1 + border);
+          return draw_image(get_resize(w,h,d + 2*border,s,0,boundary_conditions,0,0,0.5).
+                            vanvliet(nnsigma,order,naxis,1).slices(border,d - 1 + border));
         default :
-          return resize(w,h,d,s + 2*border,0,boundary_conditions,0,0,0,0.5).
-            vanvliet(nnsigma,order,naxis,1).channels(border,d - 1 + border);
+          return draw_image(get_resize(w,h,d,s + 2*border,0,boundary_conditions,0,0,0,0.5).
+                            vanvliet(nnsigma,order,naxis,1).channels(border,d - 1 + border));
         }
       }
 

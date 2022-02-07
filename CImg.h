@@ -38863,7 +38863,7 @@ namespace cimg_library_suffixed {
             if (is_int_stride_dilation) // Integer stride and dilation
               switch (boundary_conditions) {
               case 0 : // Dirichlet
-                _cimg_correlate_n(int,dirichlet,is_in_x && is_in_y && is_in_z?I(ix,iy,iz,0,wh,whd):0);
+                _cimg_correlate_n(int,dirichlet,is_in_x && is_in_y && is_in_z?I(ix,iy,iz,0,wh,whd):(T)0);
                 break;
               case 1 : // Neumann
                 _cimg_correlate_n(int,neumann,I(nix,niy,niz,0,wh,whd));
@@ -38893,7 +38893,7 @@ namespace cimg_library_suffixed {
             else // Non-integer stride or dilation, nearest-neighbor interpolation
               switch (boundary_conditions) {
               case 0 : // Dirichlet
-                _cimg_correlate_n(float,dirichlet,is_in_x && is_in_y && is_in_z?I((int)ix,(int)iy,(int)iz,0,0):0);
+                _cimg_correlate_n(float,dirichlet,is_in_x && is_in_y && is_in_z?I((int)ix,(int)iy,(int)iz,0,0):(T)0);
                 break;
               case 1 : // Neumann
                 _cimg_correlate_n(float,neumann,I((int)nix,(int)niy,(int)niz,0));
@@ -38909,7 +38909,7 @@ namespace cimg_library_suffixed {
             if (is_int_stride_dilation) // Integer stride and dilation
               switch (boundary_conditions) {
               case 0 : // Dirichlet
-                _cimg_correlate(int,dirichlet,is_in_x && is_in_y && is_in_z?I(ix,iy,iz,0,wh,whd):0);
+                _cimg_correlate(int,dirichlet,is_in_x && is_in_y && is_in_z?I(ix,iy,iz,0,wh,whd):(T)0);
                 break;
               case 1 : // Neumann
                 _cimg_correlate(int,neumann,I(nix,niy,niz,0,wh,whd));
@@ -38939,7 +38939,7 @@ namespace cimg_library_suffixed {
             else // Non-integer stride or dilation, nearest-neighbor interpolation
               switch (boundary_conditions) {
               case 0 : // Dirichlet
-                _cimg_correlate(float,dirichlet,is_in_x && is_in_y && is_in_z?I((int)ix,(int)iy,(int)iz,0,0):0);
+                _cimg_correlate(float,dirichlet,is_in_x && is_in_y && is_in_z?I((int)ix,(int)iy,(int)iz,0,0):(T)0);
                 break;
               case 1 : // Neumann
                 _cimg_correlate(float,neumann,I((int)nix,(int)niy,(int)niz,0));

@@ -41943,12 +41943,12 @@ namespace cimg_library_suffixed {
                 ix = (Incc - Ipcc)/2,
                 iy = (Icnc - Icpc)/2,
                 iz = (Iccn - Iccp)/2;
-              *(ptrd0++)+=ix*ix;
-              *(ptrd1++)+=ix*iy;
-              *(ptrd2++)+=ix*iz;
-              *(ptrd3++)+=iy*iy;
-              *(ptrd4++)+=iy*iz;
-              *(ptrd5++)+=iz*iz;
+              cimg_pragma_openmp(atomic) *(ptrd0++)+=ix*ix;
+              cimg_pragma_openmp(atomic) *(ptrd1++)+=ix*iy;
+              cimg_pragma_openmp(atomic) *(ptrd2++)+=ix*iz;
+              cimg_pragma_openmp(atomic) *(ptrd3++)+=iy*iy;
+              cimg_pragma_openmp(atomic) *(ptrd4++)+=iy*iz;
+              cimg_pragma_openmp(atomic) *(ptrd5++)+=iz*iz;
             }
           }
         } else { // Forward/backward finite differences
@@ -41964,12 +41964,12 @@ namespace cimg_library_suffixed {
                 ixf = Incc - Iccc, ixb = Iccc - Ipcc,
                 iyf = Icnc - Iccc, iyb = Iccc - Icpc,
                 izf = Iccn - Iccc, izb = Iccc - Iccp;
-              *(ptrd0++)+=(ixf*ixf + ixb*ixb)/2;
-              *(ptrd1++)+=(ixf*iyf + ixf*iyb + ixb*iyf + ixb*iyb)/4;
-              *(ptrd2++)+=(ixf*izf + ixf*izb + ixb*izf + ixb*izb)/4;
-              *(ptrd3++)+=(iyf*iyf + iyb*iyb)/2;
-              *(ptrd4++)+=(iyf*izf + iyf*izb + iyb*izf + iyb*izb)/4;
-              *(ptrd5++)+=(izf*izf + izb*izb)/2;
+              cimg_pragma_openmp(atomic) *(ptrd0++)+=(ixf*ixf + ixb*ixb)/2;
+              cimg_pragma_openmp(atomic) *(ptrd1++)+=(ixf*iyf + ixf*iyb + ixb*iyf + ixb*iyb)/4;
+              cimg_pragma_openmp(atomic) *(ptrd2++)+=(ixf*izf + ixf*izb + ixb*izf + ixb*izb)/4;
+              cimg_pragma_openmp(atomic) *(ptrd3++)+=(iyf*iyf + iyb*iyb)/2;
+              cimg_pragma_openmp(atomic) *(ptrd4++)+=(iyf*izf + iyf*izb + iyb*izf + iyb*izb)/4;
+              cimg_pragma_openmp(atomic) *(ptrd5++)+=(izf*izf + izb*izb)/2;
             }
           }
         }
@@ -41985,9 +41985,9 @@ namespace cimg_library_suffixed {
               const Tfloat
                 ix = (Inc - Ipc)/2,
                 iy = (Icn - Icp)/2;
-              *(ptrd0++)+=ix*ix;
-              *(ptrd1++)+=ix*iy;
-              *(ptrd2++)+=iy*iy;
+              cimg_pragma_openmp(atomic) *(ptrd0++)+=ix*ix;
+              cimg_pragma_openmp(atomic) *(ptrd1++)+=ix*iy;
+              cimg_pragma_openmp(atomic) *(ptrd2++)+=iy*iy;
             }
           }
         } else { // Forward/backward finite differences (version 2)
@@ -42000,9 +42000,9 @@ namespace cimg_library_suffixed {
               const Tfloat
                 ixf = Inc - Icc, ixb = Icc - Ipc,
                 iyf = Icn - Icc, iyb = Icc - Icp;
-              *(ptrd0++)+=(ixf*ixf + ixb*ixb)/2;
-              *(ptrd1++)+=(ixf*iyf + ixf*iyb + ixb*iyf + ixb*iyb)/4;
-              *(ptrd2++)+=(iyf*iyf + iyb*iyb)/2;
+              cimg_pragma_openmp(atomic) *(ptrd0++)+=(ixf*ixf + ixb*ixb)/2;
+              cimg_pragma_openmp(atomic) *(ptrd1++)+=(ixf*iyf + ixf*iyb + ixb*iyf + ixb*iyb)/4;
+              cimg_pragma_openmp(atomic) *(ptrd2++)+=(iyf*iyf + iyb*iyb)/2;
             }
           }
         }

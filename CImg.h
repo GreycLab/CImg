@@ -10607,8 +10607,7 @@ namespace cimg_library_suffixed {
         }
       } else {
         if (_normalization==3) {
-          if (cimg::type<T>::is_float() ||
-              (sizeof(T)>1 && cimg::type<T>::string()!=cimg::type<bool>::string())) _min = (float)img.min_max(_max);
+          if (sizeof(T)>1 && cimg::type<T>::string()!=cimg::type<bool>::string()) _min = (float)img.min_max(_max);
           else { _min = (float)cimg::type<T>::min(); _max = (float)cimg::type<T>::max(); }
         } else if ((_min>_max) || _normalization==1) _min = (float)img.min_max(_max);
         const float delta = _max - _min, mm = 255/(delta?delta:1.f);
@@ -41967,14 +41966,14 @@ namespace cimg_library_suffixed {
             CImg_3x3x3(I,Tfloat);
             cimg_for3x3x3(*this,x,y,z,c,I,Tfloat) {
               const Tfloat
-                ixf = Incc - Iccc, ixb = Iccc - Ipcc,
-                iyf = Icnc - Iccc, iyb = Iccc - Icpc,
-                izf = Iccn - Iccc, izb = Iccc - Iccp;
+                ixf = Incc - Iccc, ixb = Iccc - Ipcc, ixc = (Incc - Ipcc)/2,
+                iyf = Icnc - Iccc, iyb = Iccc - Icpc, iyc = (Icnc - Icpc)/2,
+                izf = Iccn - Iccc, izb = Iccc - Iccp, izc = (Iccn - Iccp)/2;
               cimg_pragma_openmp(atomic) *(ptrd0++)+=(ixf*ixf + ixb*ixb)/2;
-              cimg_pragma_openmp(atomic) *(ptrd1++)+=(ixf*iyf + ixf*iyb + ixb*iyf + ixb*iyb)/4;
-              cimg_pragma_openmp(atomic) *(ptrd2++)+=(ixf*izf + ixf*izb + ixb*izf + ixb*izb)/4;
+              cimg_pragma_openmp(atomic) *(ptrd1++)+=ixc*iyc;
+              cimg_pragma_openmp(atomic) *(ptrd2++)+=ixc*izc;
               cimg_pragma_openmp(atomic) *(ptrd3++)+=(iyf*iyf + iyb*iyb)/2;
-              cimg_pragma_openmp(atomic) *(ptrd4++)+=(iyf*izf + iyf*izb + iyb*izf + iyb*izb)/4;
+              cimg_pragma_openmp(atomic) *(ptrd4++)+=iyc*izc;
               cimg_pragma_openmp(atomic) *(ptrd5++)+=(izf*izf + izb*izb)/2;
             }
           }
@@ -42004,10 +42003,10 @@ namespace cimg_library_suffixed {
             CImg_3x3(I,Tfloat);
             cimg_for3x3(*this,x,y,0,c,I,Tfloat) {
               const Tfloat
-                ixf = Inc - Icc, ixb = Icc - Ipc,
-                iyf = Icn - Icc, iyb = Icc - Icp;
+                ixf = Inc - Icc, ixb = Icc - Ipc, ixc = (Inc - Ipc)/2,
+                iyf = Icn - Icc, iyb = Icc - Icp, iyc = (Icn - Icp)/2;
               cimg_pragma_openmp(atomic) *(ptrd0++)+=(ixf*ixf + ixb*ixb)/2;
-              cimg_pragma_openmp(atomic) *(ptrd1++)+=(ixf*iyf + ixf*iyb + ixb*iyf + ixb*iyb)/4;
+              cimg_pragma_openmp(atomic) *(ptrd1++)+=ixc*iyc;
               cimg_pragma_openmp(atomic) *(ptrd2++)+=(iyf*iyf + iyb*iyb)/2;
             }
           }

@@ -8462,6 +8462,11 @@ namespace cimg_library_suffixed {
       return _is_closed;
     }
 
+    //! Return \c true if display is visible (i.e. not closed by the user), \c false otherwise.
+    bool is_visible() const {
+      return !is_closed();
+    }
+
     //! Return \c true if associated window has been resized on the screen, \c false otherwise.
     /**
     **/
@@ -10602,7 +10607,8 @@ namespace cimg_library_suffixed {
         }
       } else {
         if (_normalization==3) {
-          if (cimg::type<T>::is_float()) _min = (float)img.min_max(_max);
+          if (cimg::type<T>::is_float() ||
+              (sizeof(T)>1 && cimg::type<T>::string()!=cimg::type<bool>::string())) _min = (float)img.min_max(_max);
           else { _min = (float)cimg::type<T>::min(); _max = (float)cimg::type<T>::max(); }
         } else if ((_min>_max) || _normalization==1) _min = (float)img.min_max(_max);
         const float delta = _max - _min, mm = 255/(delta?delta:1.f);

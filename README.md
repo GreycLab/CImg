@@ -1,4 +1,4 @@
-<a href="http://cimg.eu">![Logo](http://cimg.eu/img/CImgLogo2.jpg)</a>
+<a href="http://cimg.eu">![Logo](http://cimg.eu/img/logo_header.jpg)</a>
 ##### http://cimg.eu
 
 ------------------

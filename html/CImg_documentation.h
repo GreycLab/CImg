@@ -208,7 +208,7 @@
 
   \subsection ssf11 1.1. What is the CImg Library ?
 
-  The CImg Library is an <i>open-source C++ toolkit for image processing</i>.\n
+  The CImg Library is an <i>open-source C++ library for image processing</i>.\n
 
   It mainly consists in a (big) single header file
   <a href="https://github.com/dtschump/CImg/raw/master/CImg.h">CImg.h</a>

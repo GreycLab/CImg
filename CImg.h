@@ -22127,7 +22127,8 @@ namespace cimg_library_suffixed {
               !std::strncmp(ss,"prod(",5) ||
               !std::strncmp(ss,"argmin(",7) || !std::strncmp(ss,"argmax(",7) ||
               !std::strncmp(ss,"argminabs(",10) || !std::strncmp(ss,"argmaxabs(",10) ||
-              !std::strncmp(ss,"argkth(",7)) { // Multi-argument functions
+              !std::strncmp(ss,"argkth(",7) ||
+              !std::strncmp(ss,"concat(",7)) { // Multi-argument functions
             _cimg_mp_op(*ss=='a'?(ss[1]=='v'?"Function 'avg()'":
                                   ss[3]=='k'?"Function 'argkth()'":
                                   ss[4]=='i' && ss[6]=='('?"Function 'argmin()'":
@@ -22138,6 +22139,7 @@ namespace cimg_library_suffixed {
                         *ss=='k'?"Function 'kth()'":
                         *ss=='p'?"Function 'prod()'":
                         *ss=='v'?"Function 'var()'":
+                        *ss=='c'?"Function 'concat()'":
                         ss[1]=='i'?(ss[3]=='('?"Function 'min()'":
                                     "Function 'minabs()'"):
                         ss[1]=='a'?(ss[3]=='('?"Function 'max()'":
@@ -22152,6 +22154,7 @@ namespace cimg_library_suffixed {
               *ss=='k'?mp_kth:
               *ss=='p'?mp_prod:
               *ss=='v'?mp_var:
+              *ss=='c'?mp_concat:
               ss[1]=='i'?(ss[3]=='('?mp_min:mp_minabs):
               ss[1]=='a'?(ss[3]=='('?mp_max:mp_maxabs):
               mp_median;
@@ -23432,6 +23435,14 @@ namespace cimg_library_suffixed {
         cimg_abort_test;
         cimg::unused(mp);
         return cimg::type<double>::nan();
+      }
+
+      static double mp_concat(_cimg_math_parser& mp) {
+          const unsigned int i_end = (unsigned int)mp.opcode[2];
+          unsigned int val = (unsigned int)_mp_arg(3);
+          char str[2] = { 0 };
+          for (unsigned int i = 4; i < i_end; ++i) strcpy (str,_mp_arg(i));
+          return std::atof str;
       }
 
 #ifdef cimg_mp_func_run

@@ -23395,6 +23395,21 @@ namespace cimg_library_suffixed {
         return val/(i_end - 3);
       }
 
+      static double mp_concat(_cimg_math_parser& mp) {
+        const unsigned int i_end = (unsigned int)mp.opcode[2];
+        unsigned int lim = 39;
+        CImg<charT> it;
+        CImg<charT> ns;
+        it.assign(lim);
+        ns.assign(lim);
+        cimg_snprintf(it,it._width,"%f",_mp_arg(2));
+        for (unsigned int i = 4; i < i_end; ++i) {
+            cimg_snprintf(ns, ns._width,"%f",_mp_arg(i));
+            std::strncpy(it, ns, lim);
+        };
+        return std::atof(it);
+      }
+
       static double mp_bitwise_and(_cimg_math_parser& mp) {
         return (double)((longT)_mp_arg(2) & (longT)_mp_arg(3));
       }
@@ -23435,14 +23450,6 @@ namespace cimg_library_suffixed {
         cimg_abort_test;
         cimg::unused(mp);
         return cimg::type<double>::nan();
-      }
-
-      static double mp_concat(_cimg_math_parser& mp) {
-          const unsigned int i_end = (unsigned int)mp.opcode[2];
-          unsigned int val = (unsigned int)_mp_arg(3);
-          char str[2] = { 0 };
-          for (unsigned int i = 4; i < i_end; ++i) strcpy (str,_mp_arg(i));
-          return std::atof str;
       }
 
 #ifdef cimg_mp_func_run

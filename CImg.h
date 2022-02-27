@@ -23396,16 +23396,20 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_concat(_cimg_math_parser& mp) {
-        const unsigned int i_end = (unsigned int)mp.opcode[2];
+          const unsigned int i_end = (unsigned int)mp.opcode[2];
+          const unsigned int max_i_ind = i_end - 1;
 
-        //concat(a,b)=b+a*10^(ceil(log10(b+1))+ceil(abs(b-.5))-b);
+          double a = std::abs(_mp_arg(3));
+          bool use_neg = _mp_arg(3) < 0;
 
-        double a = _mp_arg(3);
-        for (unsigned int i = 4; i < i_end; ++i) {
-            double b = std::floor(_mp_arg(i));
-            a = b + a * std::pow(10, std::ceil(std::log10(b + 1)) + std::ceil(std::abs(b - .5)) - b);
-        };
-        return (double)(int)a;
+          for (unsigned int i = 4; i < i_end; ++i) {
+              double b = std::abs(_mp_arg(i));
+              double num_digits = (double)(int)(std::log10(b) + 1);
+              a = i != max_i_ind ? (double)(int)(a * std::pow(10, num_digits) + b) : (double)(int)(a * std::pow(10, num_digits)) + b;
+          };
+
+          return use_neg ? -a : a;
+
       }
 
       static double mp_bitwise_and(_cimg_math_parser& mp) {

@@ -23404,7 +23404,7 @@ namespace cimg_library_suffixed {
 
           for (unsigned int i = 4; i < i_end; ++i) {
               double b = std::abs(_mp_arg(i));
-              double num_digits = (double)(int)(std::log10(b) + 1);
+              double num_digits = (double)(int)((b>1?std::log10(b):0) + 1);
               a = i != max_i_ind ? (double)(int)(a * std::pow(10, num_digits) + b) : (double)(int)(a * std::pow(10, num_digits)) + b;
           };
 

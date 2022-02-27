@@ -23397,17 +23397,15 @@ namespace cimg_library_suffixed {
 
       static double mp_concat(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        unsigned int lim = 39;
-        CImg<charT> it;
-        CImg<charT> ns;
-        it.assign(lim);
-        ns.assign(lim);
-        cimg_snprintf(it,it._width,"%f",_mp_arg(2));
+
+        //concat(a,b)=b+a*10^(ceil(log10(b+1))+ceil(abs(b-.5))-b);
+
+        double a = _mp_arg(3);
         for (unsigned int i = 4; i < i_end; ++i) {
-            cimg_snprintf(ns, ns._width,"%f",_mp_arg(i));
-            std::strncpy(it, ns, lim);
+            double b = std::floor(_mp_arg(i));
+            a = b + a * std::pow(10, std::ceil(std::log10(b + 1)) + std::ceil(std::abs(b - .5)) - b);
         };
-        return std::atof(it);
+        return (double)(int)a;
       }
 
       static double mp_bitwise_and(_cimg_math_parser& mp) {

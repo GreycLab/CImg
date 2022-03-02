@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 303
+#define cimg_version 310
 
 /*-----------------------------------------------------------
  #
@@ -21017,7 +21017,7 @@ namespace cimg_library_suffixed {
                 cimg::strpare(variable_name,false,true);
 
                 if (_cimg_mp_is_const_scalar(pos)) // Const scalar
-                  std::fprintf(cimg::output(),"\n[" cimg_appname "_math_parser] %s = %g "
+                  std::fprintf(cimg::output(),"\n[" cimg_appname "_math_parser] %s = %.17g "
                                "(compiled as '%s', memslot = %u)",
                                variable_name._data,mem[pos],s_type(pos)._data,pos);
                 else // Vector or non-const scalar

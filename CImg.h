@@ -54048,7 +54048,8 @@ namespace cimg_library_suffixed {
 #ifdef cimg_use_tiff
     template<typename t>
     void _load_tiff_tiled_contig(TIFF *const tif, const cimg_uint16 samplesperpixel,
-                                 const cimg_uint32 nx, const cimg_uint32 ny, const cimg_uint32 tw, const cimg_uint32 th) {
+                                 const cimg_uint32 nx, const cimg_uint32 ny,
+                                 const cimg_uint32 tw, const cimg_uint32 th) {
       t *const buf = (t*)_TIFFmalloc(TIFFTileSize(tif));
       if (buf) {
         for (unsigned int row = 0; row<ny; row+=th)
@@ -54072,7 +54073,8 @@ namespace cimg_library_suffixed {
 
     template<typename t>
     void _load_tiff_tiled_separate(TIFF *const tif, const cimg_uint16 samplesperpixel,
-                                   const cimg_uint32 nx, const cimg_uint32 ny, const cimg_uint32 tw, const cimg_uint32 th) {
+                                   const cimg_uint32 nx, const cimg_uint32 ny,
+                                   const cimg_uint32 tw, const cimg_uint32 th) {
       t *const buf = (t*)_TIFFmalloc(TIFFTileSize(tif));
       if (buf) {
         for (unsigned int vv = 0; vv<samplesperpixel; ++vv)
@@ -54095,7 +54097,8 @@ namespace cimg_library_suffixed {
     }
 
     template<typename t>
-    void _load_tiff_contig(TIFF *const tif, const cimg_uint16 samplesperpixel, const cimg_uint32 nx, const cimg_uint32 ny) {
+    void _load_tiff_contig(TIFF *const tif, const cimg_uint16 samplesperpixel,
+                           const cimg_uint32 nx, const cimg_uint32 ny) {
       t *const buf = (t*)_TIFFmalloc(TIFFStripSize(tif));
       if (buf) {
         cimg_uint32 row, rowsperstrip = (cimg_uint32)-1;
@@ -54120,7 +54123,8 @@ namespace cimg_library_suffixed {
     }
 
     template<typename t>
-    void _load_tiff_separate(TIFF *const tif, const cimg_uint16 samplesperpixel, const cimg_uint32 nx, const cimg_uint32 ny) {
+    void _load_tiff_separate(TIFF *const tif, const cimg_uint16 samplesperpixel,
+                             const cimg_uint32 nx, const cimg_uint32 ny) {
       t *buf = (t*)_TIFFmalloc(TIFFStripSize(tif));
       if (buf) {
         cimg_uint32 row, rowsperstrip = (cimg_uint32)-1;

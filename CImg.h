@@ -17506,15 +17506,15 @@ namespace cimg_library_suffixed {
                 ++s; while (*s && cimg::is_blank(*s)) ++s;
                 CImg<charT>(s,(unsigned int)(se - s + 1)).move_to(macro_body,0);
 
-                bool is_vector_arg = false;
+                bool is_variadic = false;
                 p1 = 1; // Index of current parsed argument
                 for (s = s0 + 1; s<=s1; ++p1, s = ns + 1) { // Parse function arguments
-                  if (is_vector_arg && p1>1) {
+                  if (is_variadic && p1>1) {
                     _cimg_mp_strerr;
                     cimg::strellipsize(variable_name,64);
                     throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                                 "CImg<%s>::%s: %s: Multiple arguments not allowed when first one is "
-                                                "a vector argument, in macro definition '%s()', in expression '%s'.",
+                                                "variadic, in macro definition '%s()', in expression '%s'.",
                                                 pixel_type(),_cimg_mp_calling_function,s_op,
                                                 variable_name._data,s0);
                   }
@@ -17529,17 +17529,16 @@ namespace cimg_library_suffixed {
                   }
                   while (*s && cimg::is_blank(*s)) ++s;
                   if (*s==')' && p1==1) break; // Function has no arguments
-
-                  is_vector_arg = *s=='[';
-                  s2 = s + (is_vector_arg?1:0); // Start of the argument name
+                  s2 = s; // Start of the argument name
                   is_sth = true; // is_valid_argument_name?
                   if (*s2>='0' && *s2<='9') is_sth = false;
-                  else for (ns = s2; ns<s1 && *ns!=',' && (!is_vector_arg || *ns!=']') && !cimg::is_blank(*ns); ++ns)
+                  else for (ns = s2; ns<s1 && *ns!=',' && *ns!='.' && !cimg::is_blank(*ns); ++ns)
                          if (!is_varchar(*ns)) { is_sth = false; break; }
                   s3 = ns; // End of the argument name
-                  if (is_vector_arg) { if (*ns!=']') is_sth = false; else ++ns; }
-
+                  if (is_sth && *ns=='.' && ns[1]=='.' && ns[2]=='.') { is_variadic = true; ns+=3; }
+                  else if (*ns=='.') is_sth = false;
                   while (*ns && cimg::is_blank(*ns)) ++ns;
+
                   if (!is_sth || s2==s3 || (*ns!=',' && ns!=s1)) {
                     _cimg_mp_strerr;
                     cimg::strellipsize(variable_name,64);
@@ -17550,7 +17549,7 @@ namespace cimg_library_suffixed {
                                                 is_sth?"Empty":"Invalid",p1,
                                                 variable_name._data,s0);
                   }
-                  if (ns==s1 || *ns==',') { // New argument found
+                  if (ns==s1 || *ns==',' || (is_variadic && *ns=='.')) { // New argument found
                     *s3 = 0;
                     p2 = (unsigned int)(s3 - s2); // Argument length
                     for (ps = std::strstr(macro_body[0],s2); ps; ps = std::strstr(ps,s2)) { // Replace by arg number
@@ -17586,7 +17585,7 @@ namespace cimg_library_suffixed {
                 }
 
                 // Store number of arguments.
-                macro_def[0].resize(macro_def[0]._width + 1,1,1,1,0).back() = is_vector_arg?(char)-1:(char)(p1 - 1);
+                macro_def[0].resize(macro_def[0]._width + 1,1,1,1,0).back() = is_variadic?(char)-1:(char)(p1 - 1);
                 _cimg_mp_return_nan();
               }
             }

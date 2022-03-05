@@ -17533,12 +17533,12 @@ namespace cimg_library_suffixed {
                   is_vector_arg = *s=='[';
                   s2 = s + (is_vector_arg?1:0); // Start of the argument name
                   is_sth = true; // is_valid_argument_name?
-
                   if (*s2>='0' && *s2<='9') is_sth = false;
-                  else for (ns = s2; ns<s1 && *ns!=',' && !cimg::is_blank(*ns); ++ns)
+                  else for (ns = s2; ns<s1 && *ns!=',' && (!is_vector_arg || *ns!=']') && !cimg::is_blank(*ns); ++ns)
                          if (!is_varchar(*ns)) { is_sth = false; break; }
                   s3 = ns; // End of the argument name
                   if (is_vector_arg) { if (*ns!=']') is_sth = false; else ++ns; }
+
                   while (*ns && cimg::is_blank(*ns)) ++ns;
                   if (!is_sth || s2==s3 || (*ns!=',' && ns!=s1)) {
                     _cimg_mp_strerr;

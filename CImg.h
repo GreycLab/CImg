@@ -17586,7 +17586,7 @@ namespace cimg_library_suffixed {
                 }
 
                 // Store number of arguments.
-                macro_def[0].resize(macro_def[0]._width + 1,1,1,1,0).back() = (char)(p1 - 1);
+                macro_def[0].resize(macro_def[0]._width + 1,1,1,1,0).back() = is_vector_arg?(char)-1:(char)(p1 - 1);
                 _cimg_mp_return_nan();
               }
             }
@@ -22204,10 +22204,11 @@ namespace cimg_library_suffixed {
                              (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
             }
 
+            char mb = 0;
             arg3 = 0; // Number of possible name matches
             cimglist_for(macro_def,l) if (!std::strcmp(macro_def[l],variable_name) && ++arg3 &&
-                                          macro_def[l].back()==(char)p1) {
-              p2 = (unsigned int)macro_def[l].back(); // Number of required arguments
+                                          ((mb = macro_def[l].back())==(char)p1 || (p1==1 && mb==(char)-1))) {
+              p2 = mb==(char)-1?1U:(unsigned int)mb; // Number of requiread arguments
               CImg<charT> _expr = macro_body[l]; // Expression to be substituted
 
               p1 = 1; // Index of current parsed argument

@@ -16852,7 +16852,6 @@ namespace cimg_library_suffixed {
 
       CImg<uintT> level, variable_pos, reserved_label;
       CImgList<charT> variable_def, macro_def, macro_body;
-      CImgList<boolT> macro_body_is_string;
       char *user_macro;
 
       unsigned int mempos, mem_img_median, mem_img_norm, mem_img_index, debug_indent, result_dim, break_type,
@@ -17507,27 +17506,39 @@ namespace cimg_library_suffixed {
                 ++s; while (*s && cimg::is_blank(*s)) ++s;
                 CImg<charT>(s,(unsigned int)(se - s + 1)).move_to(macro_body,0);
 
+                bool is_variadic = false;
                 p1 = 1; // Index of current parsed argument
                 for (s = s0 + 1; s<=s1; ++p1, s = ns + 1) { // Parse function arguments
+                  if (is_variadic && p1>1) {
+                    _cimg_mp_strerr;
+                    cimg::strellipsize(variable_name,64);
+                    throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                                "CImg<%s>::%s: %s: Multiple arguments not allowed when first one is "
+                                                "variadic, in macro definition '%s()', in expression '%s'.",
+                                                pixel_type(),_cimg_mp_calling_function,s_op,
+                                                variable_name._data,s0);
+                  }
                   if (p1>24) {
                     _cimg_mp_strerr;
                     cimg::strellipsize(variable_name,64);
                     throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                                "CImg<%s>::%s: %s: Too much specified arguments (>24) in macro "
+                                                "CImg<%s>::%s: %s: Too much specified arguments (>24), in macro "
                                                 "definition '%s()', in expression '%s'.",
                                                 pixel_type(),_cimg_mp_calling_function,s_op,
                                                 variable_name._data,s0);
                   }
                   while (*s && cimg::is_blank(*s)) ++s;
                   if (*s==')' && p1==1) break; // Function has no arguments
-
                   s2 = s; // Start of the argument name
                   is_sth = true; // is_valid_argument_name?
-                  if (*s>='0' && *s<='9') is_sth = false;
-                  else for (ns = s; ns<s1 && *ns!=',' && !cimg::is_blank(*ns); ++ns)
+                  if (*s2>='0' && *s2<='9') is_sth = false;
+                  else for (ns = s2; ns<s1 && *ns!=',' && *ns!='.' && !cimg::is_blank(*ns); ++ns)
                          if (!is_varchar(*ns)) { is_sth = false; break; }
                   s3 = ns; // End of the argument name
+                  if (is_sth && *ns=='.' && ns[1]=='.' && ns[2]=='.') { is_variadic = true; ns+=3; }
+                  else if (*ns=='.') is_sth = false;
                   while (*ns && cimg::is_blank(*ns)) ++ns;
+
                   if (!is_sth || s2==s3 || (*ns!=',' && ns!=s1)) {
                     _cimg_mp_strerr;
                     cimg::strellipsize(variable_name,64);
@@ -17538,7 +17549,8 @@ namespace cimg_library_suffixed {
                                                 is_sth?"Empty":"Invalid",p1,
                                                 variable_name._data,s0);
                   }
-                  if (ns==s1 || *ns==',') { // New argument found
+
+                  if (ns==s1 || *ns==',' || (is_variadic && *ns=='.')) { // New argument found
                     *s3 = 0;
                     p2 = (unsigned int)(s3 - s2); // Argument length
                     for (ps = std::strstr(macro_body[0],s2); ps; ps = std::strstr(ps,s2)) { // Replace by arg number
@@ -17557,6 +17569,10 @@ namespace cimg_library_suffixed {
                           *(ps++) = (char)p1;
                           std::memmove(ps,ps + p2,macro_body[0].end() - ps - p2);
                           macro_body[0]._width-=p2;
+                        } else if (is_variadic) { // Replace variadic argument
+                          *(ps++) = (char)p1;
+                          std::memmove(ps,ps + p2 - 1,macro_body[0].end() - ps - p2 + 1);
+                          macro_body[0]._width-=p2 - 1;
                         } else { // Not near a number sign
                           if (p2<3) {
                             ps-=(ulongT)macro_body[0]._data;
@@ -17574,10 +17590,7 @@ namespace cimg_library_suffixed {
                 }
 
                 // Store number of arguments.
-                macro_def[0].resize(macro_def[0]._width + 1,1,1,1,0).back() = (char)(p1 - 1);
-
-                // Detect parts of function body inside a string.
-                is_inside_string(macro_body[0]).move_to(macro_body_is_string,0);
+                macro_def[0].resize(macro_def[0]._width + 1,1,1,1,0).back() = is_variadic?(char)-1:(char)(p1 - 1);
                 _cimg_mp_return_nan();
               }
             }
@@ -22195,10 +22208,12 @@ namespace cimg_library_suffixed {
                              (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
             }
 
+            char mb = 0;
             arg3 = 0; // Number of possible name matches
             cimglist_for(macro_def,l) if (!std::strcmp(macro_def[l],variable_name) && ++arg3 &&
-                                          macro_def[l].back()==(char)p1) {
-              p2 = (unsigned int)macro_def[l].back(); // Number of required arguments
+                                          ((mb = macro_def[l].back())==(char)p1 || mb==(char)-1)) {
+              const bool is_variadic = mb==(char)-1;
+              p2 = is_variadic?1U:(unsigned int)mb; // Number of required arguments
               CImg<charT> _expr = macro_body[l]; // Expression to be substituted
 
               p1 = 1; // Index of current parsed argument
@@ -22206,8 +22221,12 @@ namespace cimg_library_suffixed {
                 while (*s && cimg::is_blank(*s)) ++s;
                 if (*s==')' && p1==1) break; // Function has no arguments
                 if (p1>p2) { ++p1; break; }
-                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
-                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+
+                if (is_variadic) ns = se1;
+                else {
+                  ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                                 (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                }
                 variable_name.assign(s,(unsigned int)(ns - s + 1)).back() = 0; // Argument to write
                 arg2 = 0;
                 cimg_forX(_expr,k) {
@@ -22807,27 +22826,6 @@ namespace cimg_library_suffixed {
         // Multi-char variable name : check for existing variable with same name
         cimglist_for(variable_def,i)
           if (!std::strcmp(variable_name,variable_def[i])) { pos = i; break; }
-      }
-
-      // Tell for each character of an expression if it is inside a string or not.
-      CImg<boolT> is_inside_string(CImg<charT>& _expr) const {
-        bool is_escaped = false, next_is_escaped = false;
-        unsigned int mode = 0, next_mode = 0; // { 0=normal | 1=char-string | 2=vector-string
-        CImg<boolT> res = CImg<charT>::string(_expr);
-        bool *pd = res._data;
-        for (const char *ps = _expr._data; *ps; ++ps) {
-          if (!next_is_escaped && *ps=='\\') next_is_escaped = true;
-          if (!is_escaped && *ps=='\'') { // Non-escaped character
-            if (!mode && ps>_expr._data && *(ps - 1)=='[') next_mode = mode = 2; // Start vector-string
-            else if (mode==2 && *(ps + 1)==']') next_mode = !mode; // End vector-string
-            else if (mode<2) next_mode = mode?(mode = 0):1; // Start/end char-string
-          }
-          *(pd++) = mode>=1 || is_escaped;
-          mode = next_mode;
-          is_escaped = next_is_escaped;
-          next_is_escaped = false;
-        }
-        return res;
       }
 
       // Return true if specified argument can be a part of an allowed  variable name.

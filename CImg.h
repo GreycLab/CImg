@@ -17506,13 +17506,23 @@ namespace cimg_library_suffixed {
                 ++s; while (*s && cimg::is_blank(*s)) ++s;
                 CImg<charT>(s,(unsigned int)(se - s + 1)).move_to(macro_body,0);
 
+                bool is_vector_arg = false;
                 p1 = 1; // Index of current parsed argument
                 for (s = s0 + 1; s<=s1; ++p1, s = ns + 1) { // Parse function arguments
+                  if (is_vector_arg && p1>1) {
+                    _cimg_mp_strerr;
+                    cimg::strellipsize(variable_name,64);
+                    throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                                "CImg<%s>::%s: %s: Multiple arguments not allowed when first one is "
+                                                "a vector argument, in macro definition '%s()', in expression '%s'.",
+                                                pixel_type(),_cimg_mp_calling_function,s_op,
+                                                variable_name._data,s0);
+                  }
                   if (p1>24) {
                     _cimg_mp_strerr;
                     cimg::strellipsize(variable_name,64);
                     throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                                "CImg<%s>::%s: %s: Too much specified arguments (>24) in macro "
+                                                "CImg<%s>::%s: %s: Too much specified arguments (>24), in macro "
                                                 "definition '%s()', in expression '%s'.",
                                                 pixel_type(),_cimg_mp_calling_function,s_op,
                                                 variable_name._data,s0);
@@ -17520,12 +17530,15 @@ namespace cimg_library_suffixed {
                   while (*s && cimg::is_blank(*s)) ++s;
                   if (*s==')' && p1==1) break; // Function has no arguments
 
-                  s2 = s; // Start of the argument name
+                  is_vector_arg = *s=='[';
+                  s2 = s + (is_vector_arg?1:0); // Start of the argument name
                   is_sth = true; // is_valid_argument_name?
-                  if (*s>='0' && *s<='9') is_sth = false;
-                  else for (ns = s; ns<s1 && *ns!=',' && !cimg::is_blank(*ns); ++ns)
+
+                  if (*s2>='0' && *s2<='9') is_sth = false;
+                  else for (ns = s2; ns<s1 && *ns!=',' && !cimg::is_blank(*ns); ++ns)
                          if (!is_varchar(*ns)) { is_sth = false; break; }
                   s3 = ns; // End of the argument name
+                  if (is_vector_arg) { if (*ns!=']') is_sth = false; else ++ns; }
                   while (*ns && cimg::is_blank(*ns)) ++ns;
                   if (!is_sth || s2==s3 || (*ns!=',' && ns!=s1)) {
                     _cimg_mp_strerr;

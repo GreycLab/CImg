@@ -22208,7 +22208,8 @@ namespace cimg_library_suffixed {
             arg3 = 0; // Number of possible name matches
             cimglist_for(macro_def,l) if (!std::strcmp(macro_def[l],variable_name) && ++arg3 &&
                                           ((mb = macro_def[l].back())==(char)p1 || (p1==1 && mb==(char)-1))) {
-              p2 = mb==(char)-1?1U:(unsigned int)mb; // Number of requiread arguments
+              const bool is_vector_arg = mb==(char)-1;
+              p2 = is_vector_arg?1U:(unsigned int)mb; // Number of requiread arguments
               CImg<charT> _expr = macro_body[l]; // Expression to be substituted
 
               p1 = 1; // Index of current parsed argument

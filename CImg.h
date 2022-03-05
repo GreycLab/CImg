@@ -22209,7 +22209,7 @@ namespace cimg_library_suffixed {
             cimglist_for(macro_def,l) if (!std::strcmp(macro_def[l],variable_name) && ++arg3 &&
                                           ((mb = macro_def[l].back())==(char)p1 || (p1==1 && mb==(char)-1))) {
               const bool is_vector_arg = mb==(char)-1;
-              p2 = is_vector_arg?1U:(unsigned int)mb; // Number of requiread arguments
+              p2 = is_vector_arg?1U:(unsigned int)mb; // Number of required arguments
               CImg<charT> _expr = macro_body[l]; // Expression to be substituted
 
               p1 = 1; // Index of current parsed argument
@@ -22219,7 +22219,15 @@ namespace cimg_library_suffixed {
                 if (p1>p2) { ++p1; break; }
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
-                variable_name.assign(s,(unsigned int)(ns - s + 1)).back() = 0; // Argument to write
+
+                if (is_vector_arg) {
+                  variable_name.assign(ns - s + 3);
+                  *variable_name = '[';
+                  std::memcpy(variable_name._data + 1,s,ns - s);
+                  variable_name[ns - s + 1] = ']';
+                  variable_name.back() = 0;
+                } else variable_name.assign(s,(unsigned int)(ns - s + 1)).back() = 0; // Argument to write
+
                 arg2 = 0;
                 cimg_forX(_expr,k) {
                   if (_expr[k]==(char)p1) { // Perform argument substitution

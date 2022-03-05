@@ -22219,7 +22219,7 @@ namespace cimg_library_suffixed {
               p1 = 1; // Index of current parsed argument
               for (s = s0 + 1; s<=se1; ++p1, s = ns + 1) { // Parse function arguments
                 while (*s && cimg::is_blank(*s)) ++s;
-                if (*s==')' && p1==1) break; // Function has no arguments
+                if (!is_variadic && *s==')' && p1==1) break; // Function has no arguments
                 if (p1>p2) { ++p1; break; }
 
                 if (is_variadic) ns = se1;
@@ -22228,14 +22228,20 @@ namespace cimg_library_suffixed {
                                  (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                 }
                 variable_name.assign(s,(unsigned int)(ns - s + 1)).back() = 0; // Argument to write
+
                 arg2 = 0;
                 cimg_forX(_expr,k) {
                   if (_expr[k]==(char)p1) { // Perform argument substitution
                     arg1 = _expr._width;
-                    _expr.resize(arg1 + variable_name._width - 2,1,1,1,0);
-                    std::memmove(_expr._data + k + variable_name._width - 1,_expr._data + k + 1,arg1 - k - 1);
-                    std::memcpy(_expr._data + k,variable_name,variable_name._width - 1);
-                    k+=variable_name._width - 2;
+                    if (variable_name._width>1) {
+                      _expr.resize(arg1 + variable_name._width - 2,1,1,1,0);
+                      std::memmove(_expr._data + k + variable_name._width - 1,_expr._data + k + 1,arg1 - k - 1);
+                      std::memcpy(_expr._data + k,variable_name,variable_name._width - 1);
+                      k+=variable_name._width - 2;
+                    } else {
+                      std::memmove(_expr._data + k,_expr._data + k + 1,arg1 - k - 1);
+                      --k;
+                    }
                   }
                   ++arg2;
                 }

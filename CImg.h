@@ -16852,7 +16852,6 @@ namespace cimg_library_suffixed {
 
       CImg<uintT> level, variable_pos, reserved_label;
       CImgList<charT> variable_def, macro_def, macro_body;
-      CImgList<boolT> macro_body_is_string;
       char *user_macro;
 
       unsigned int mempos, mem_img_median, mem_img_norm, mem_img_index, debug_indent, result_dim, break_type,
@@ -17575,9 +17574,6 @@ namespace cimg_library_suffixed {
 
                 // Store number of arguments.
                 macro_def[0].resize(macro_def[0]._width + 1,1,1,1,0).back() = (char)(p1 - 1);
-
-                // Detect parts of function body inside a string.
-                is_inside_string(macro_body[0]).move_to(macro_body_is_string,0);
                 _cimg_mp_return_nan();
               }
             }
@@ -22807,27 +22803,6 @@ namespace cimg_library_suffixed {
         // Multi-char variable name : check for existing variable with same name
         cimglist_for(variable_def,i)
           if (!std::strcmp(variable_name,variable_def[i])) { pos = i; break; }
-      }
-
-      // Tell for each character of an expression if it is inside a string or not.
-      CImg<boolT> is_inside_string(CImg<charT>& _expr) const {
-        bool is_escaped = false, next_is_escaped = false;
-        unsigned int mode = 0, next_mode = 0; // { 0=normal | 1=char-string | 2=vector-string
-        CImg<boolT> res = CImg<charT>::string(_expr);
-        bool *pd = res._data;
-        for (const char *ps = _expr._data; *ps; ++ps) {
-          if (!next_is_escaped && *ps=='\\') next_is_escaped = true;
-          if (!is_escaped && *ps=='\'') { // Non-escaped character
-            if (!mode && ps>_expr._data && *(ps - 1)=='[') next_mode = mode = 2; // Start vector-string
-            else if (mode==2 && *(ps + 1)==']') next_mode = !mode; // End vector-string
-            else if (mode<2) next_mode = mode?(mode = 0):1; // Start/end char-string
-          }
-          *(pd++) = mode>=1 || is_escaped;
-          mode = next_mode;
-          is_escaped = next_is_escaped;
-          next_is_escaped = false;
-        }
-        return res;
       }
 
       // Return true if specified argument can be a part of an allowed  variable name.

@@ -17535,7 +17535,7 @@ namespace cimg_library_suffixed {
                   else for (ns = s2; ns<s1 && *ns!=',' && *ns!='.' && !cimg::is_blank(*ns); ++ns)
                          if (!is_varchar(*ns)) { is_sth = false; break; }
                   s3 = ns; // End of the argument name
-                  if (is_sth && *ns=='.' && ns[1]=='.' && ns[2]=='.') { is_variadic = true; ns+=3; }
+                  if (is_sth && ns>s2 && *ns=='.' && ns[1]=='.' && ns[2]=='.') { is_variadic = true; ns+=3; }
                   else if (*ns=='.') is_sth = false;
                   while (*ns && cimg::is_blank(*ns)) ++ns;
 

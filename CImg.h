@@ -17549,6 +17549,7 @@ namespace cimg_library_suffixed {
                                                 is_sth?"Empty":"Invalid",p1,
                                                 variable_name._data,s0);
                   }
+
                   if (ns==s1 || *ns==',' || (is_variadic && *ns=='.')) { // New argument found
                     *s3 = 0;
                     p2 = (unsigned int)(s3 - s2); // Argument length
@@ -17568,6 +17569,10 @@ namespace cimg_library_suffixed {
                           *(ps++) = (char)p1;
                           std::memmove(ps,ps + p2,macro_body[0].end() - ps - p2);
                           macro_body[0]._width-=p2;
+                        } else if (is_variadic) { // Replace variadic argument
+                          *(ps++) = (char)p1;
+                          std::memmove(ps,ps + p2 - 1,macro_body[0].end() - ps - p2 + 1);
+                          macro_body[0]._width-=p2 - 1;
                         } else { // Not near a number sign
                           if (p2<3) {
                             ps-=(ulongT)macro_body[0]._data;
@@ -22206,9 +22211,9 @@ namespace cimg_library_suffixed {
             char mb = 0;
             arg3 = 0; // Number of possible name matches
             cimglist_for(macro_def,l) if (!std::strcmp(macro_def[l],variable_name) && ++arg3 &&
-                                          ((mb = macro_def[l].back())==(char)p1 || (p1==1 && mb==(char)-1))) {
-              const bool is_vector_arg = mb==(char)-1;
-              p2 = is_vector_arg?1U:(unsigned int)mb; // Number of required arguments
+                                          ((mb = macro_def[l].back())==(char)p1 || mb==(char)-1)) {
+              const bool is_variadic = mb==(char)-1;
+              p2 = is_variadic?1U:(unsigned int)mb; // Number of required arguments
               CImg<charT> _expr = macro_body[l]; // Expression to be substituted
 
               p1 = 1; // Index of current parsed argument
@@ -22216,17 +22221,13 @@ namespace cimg_library_suffixed {
                 while (*s && cimg::is_blank(*s)) ++s;
                 if (*s==')' && p1==1) break; // Function has no arguments
                 if (p1>p2) { ++p1; break; }
-                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
-                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
 
-                if (is_vector_arg) {
-                  variable_name.assign(ns - s + 3);
-                  *variable_name = '[';
-                  std::memcpy(variable_name._data + 1,s,ns - s);
-                  variable_name[ns - s + 1] = ']';
-                  variable_name.back() = 0;
-                } else variable_name.assign(s,(unsigned int)(ns - s + 1)).back() = 0; // Argument to write
-
+                if (is_variadic) ns = se1;
+                else {
+                  ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                                 (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                }
+                variable_name.assign(s,(unsigned int)(ns - s + 1)).back() = 0; // Argument to write
                 arg2 = 0;
                 cimg_forX(_expr,k) {
                   if (_expr[k]==(char)p1) { // Perform argument substitution

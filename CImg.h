@@ -39730,6 +39730,10 @@ namespace cimg_library_suffixed {
       return (+*this).dilate(s);
     }
 
+    // Apply morphological closing by a square structuring element of specified size.
+//    CImg<T> closing(const unsigned int s)
+
+
     //! Compute watershed transform.
     /**
        \param priority Priority map.

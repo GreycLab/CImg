@@ -22518,10 +22518,8 @@ namespace cimg_library_suffixed {
         variable_name.assign(ss,(unsigned int)(se + 1 - ss)).back() = 0;
 
 #ifdef cimg_mp_operator_dollar
-        // External variable '$varname'.
-        if (*ss=='$') {
+        if (*ss=='$') // External variable '$varname'.
           _cimg_mp_const_scalar(cimg_mp_operator_dollar(variable_name._data + 1));
-        }
 #endif
 
         // No known item found, assuming this is an already initialized variable.

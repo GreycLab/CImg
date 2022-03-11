@@ -32385,6 +32385,33 @@ namespace cimg_library_suffixed {
       return (+*this).quantize(n,keep_range);
     }
 
+    //! Return the Otsu threshold.
+    /**
+       \param nb_levels Number of histogram levels used for the estimation.
+    **/
+    T otsu(const unsigned int nb_levels=256) const {
+      T m,M = max_min(m);
+      CImg<ulongT> hist = get_histogram(nb_levels,m,M);
+      ulongT sum = 0, sumB = 0, wB = 0;
+      double best_variance = 0;
+      unsigned int best_t = 0;
+      cimg_forX(hist,t) sum+=t*hist[t];
+      cimg_forX(hist,t) {
+        wB+=hist[t];
+        if (wB) {
+          const ulongT wF = size() - wB;
+          if (!wF) break;
+          sumB+=t*hist[t];
+          const double
+            mB = (double)sumB/wB,
+            mF = (double)(sum - sumB)/wF,
+            variance = wB*wF*cimg::sqr(mB - mF);
+          if (variance>best_variance) { best_variance = variance; best_t = t; }
+        }
+      }
+      return m + best_t*(M - m)/(hist.width() - 1);
+    }
+
     //! Threshold pixel values.
     /**
        \param value Threshold value

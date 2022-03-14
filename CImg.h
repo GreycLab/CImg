@@ -65928,20 +65928,26 @@ namespace cimg_library_suffixed {
         // Try with 'powershell' otherwise.
         if (timeout) {
           if (referer)
-            cimg_snprintf(command,command._width,"\"%s\" -NonInteractive -Command Invoke-WebRequest -Headers @{'Referer'='%s'} -TimeoutSec %u -OutFile \"%s\" -Uri \"%s\"",
+            cimg_snprintf(command,command._width,
+                          "\"%s\" -NonInteractive -Command Invoke-WebRequest -Headers @{'Referer'='%s'} "
+                          "-TimeoutSec %u -OutFile \"%s\" -Uri \"%s\"",
                           cimg::powershell_path(),referer,timeout,filename_local,
                           CImg<char>::string(url)._system_strescape().data());
           else
-            cimg_snprintf(command,command._width,"\"%s\" -NonInteractive -Command Invoke-WebRequest -TimeoutSec %u -OutFile \"%s\" -Uri \"%s\"",
+            cimg_snprintf(command,command._width,
+                          "\"%s\" -NonInteractive -Command Invoke-WebRequest "
+                          "-TimeoutSec %u -OutFile \"%s\" -Uri \"%s\"",
                           cimg::powershell_path(),timeout,filename_local,
                           CImg<char>::string(url)._system_strescape().data());
         } else {
           if (referer)
-            cimg_snprintf(command,command._width,"\"%s\" -NonInteractive -Command Invoke-WebRequest -Headers @{'Referer'='%s'} -OutFile \"%s\" -Uri \"%s\"",
+            cimg_snprintf(command,command._width,"\"%s\" -NonInteractive -Command Invoke-WebRequest "
+                          "-Headers @{'Referer'='%s'} -OutFile \"%s\" -Uri \"%s\"",
                           cimg::powershell_path(),referer,filename_local,
                           CImg<char>::string(url)._system_strescape().data());
           else
-            cimg_snprintf(command,command._width,"\"%s\" -NonInteractive -Command Invoke-WebRequest -OutFile \"%s\" -Uri \"%s\"",
+            cimg_snprintf(command,command._width,"\"%s\" -NonInteractive -Command Invoke-WebRequest "
+                          "-OutFile \"%s\" -Uri \"%s\"",
                           cimg::powershell_path(),filename_local,
                           CImg<char>::string(url)._system_strescape().data());
         }

@@ -7454,6 +7454,11 @@ namespace cimg_library_suffixed {
     // Get/set path to the \c wget binary.
     inline const char *wget_path(const char *const user_path=0, const bool reinit_path=false);
 
+#if cimg_OS==2
+    // Get/set path to the \c powershell binary.
+    inline const char *powershell_path(const char *const user_path=0, const bool reinit_path=false);
+#endif
+
     //! Split filename into two C-strings \c body and \c extension.
     /**
        filename and body must not overlap!
@@ -7854,6 +7859,13 @@ namespace cimg_library_suffixed {
                    cimg::t_bold,
                    tmp,
                    cimg::t_normal);
+#if cimg_OS==2
+      cimg_snprintf(tmp,1024,"\"%.1020s\"",cimg::powershell_path());
+      std::fprintf(cimg::output(),"  > Path of 'powershell_path':           %s%-13s%s\n",
+                   cimg::t_bold,
+                   tmp,
+                   cimg::t_normal);
+#endif
 
       std::fprintf(cimg::output(),"\n");
       delete[] tmp;
@@ -65583,6 +65595,36 @@ namespace cimg_library_suffixed {
       return s_path;
     }
 
+#if cimg_OS==2
+    //! Get/set path to the \c powershell binary.
+    /**
+       \param user_path Specified path, or \c 0 to get the path currently used.
+       \param reinit_path Force path to be recalculated (may take some time).
+       \return Path containing the \c wget binary.
+    **/
+    inline const char *powershell_path(const char *const user_path, const bool reinit_path) {
+      static CImg<char> s_path;
+      cimg::mutex(7);
+      if (reinit_path) s_path.assign();
+      if (user_path) {
+        if (!s_path) s_path.assign(1024);
+        std::strncpy(s_path,user_path,1023);
+      } else if (!s_path) {
+        s_path.assign(1024);
+        bool path_found = false;
+        std::FILE *file = 0;
+        if (win_searchpath("powershell.exe",s_path,s_path._width)) path_found = true;
+        if (!path_found) {
+          std::strcpy(s_path,".\\powershell.exe");
+          if ((file=cimg::std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
+        }
+        if (!path_found) std::strcpy(s_path,"powershell.exe");
+        winformat_string(s_path);
+      }
+      cimg::mutex(7,0);
+      return s_path;
+    }
+#endif
 
     // [internal] Sorting function, used by cimg::files().
     inline int _sort_files(const void* a, const void* b) {
@@ -65856,7 +65898,7 @@ namespace cimg_library_suffixed {
       if (!try_fallback) throw CImgIOException("cimg::load_network(): Failed to load file '%s' with libcurl.",url);
 #endif
 
-      CImg<char> command((unsigned int)std::strlen(url) + 64);
+      CImg<char> command((unsigned int)std::strlen(url) + 512);
       cimg::unused(try_fallback);
 
       // Try with 'curl' first.
@@ -65880,6 +65922,32 @@ namespace cimg_library_suffixed {
                         CImg<char>::string(url)._system_strescape().data());
       }
       cimg::system(command, cimg::curl_path());
+
+#if cimg_OS==2
+      if (!(file=cimg::std_fopen(filename_local,"rb"))) {
+        // Try with 'powershell' otherwise.
+        if (timeout) {
+          if (referer)
+            cimg_snprintf(command,command._width,"\"%s\" -NonInteractive -Command Invoke-WebRequest -Headers @{'Referer'='%s'} -TimeoutSec %u -OutFile \"%s\" -Uri \"%s\"",
+                          cimg::powershell_path(),referer,timeout,filename_local,
+                          CImg<char>::string(url)._system_strescape().data());
+          else
+            cimg_snprintf(command,command._width,"\"%s\" -NonInteractive -Command Invoke-WebRequest -TimeoutSec %u -OutFile \"%s\" -Uri \"%s\"",
+                          cimg::powershell_path(),timeout,filename_local,
+                          CImg<char>::string(url)._system_strescape().data());
+        } else {
+          if (referer)
+            cimg_snprintf(command,command._width,"\"%s\" -NonInteractive -Command Invoke-WebRequest -Headers @{'Referer'='%s'} -OutFile \"%s\" -Uri \"%s\"",
+                          cimg::powershell_path(),referer,filename_local,
+                          CImg<char>::string(url)._system_strescape().data());
+          else
+            cimg_snprintf(command,command._width,"\"%s\" -NonInteractive -Command Invoke-WebRequest -OutFile \"%s\" -Uri \"%s\"",
+                          cimg::powershell_path(),filename_local,
+                          CImg<char>::string(url)._system_strescape().data());
+        }
+        cimg::system(command, cimg::powershell_path());
+      }
+#endif
 
       if (!(file=cimg::std_fopen(filename_local,"rb"))) {
 
@@ -65907,7 +65975,11 @@ namespace cimg_library_suffixed {
 
         if (!(file=cimg::std_fopen(filename_local,"rb")))
           throw CImgIOException("cimg::load_network(): Failed to load file '%s' with external commands "
+#if cimg_OS==2
+                                "'wget', 'curl', or 'powershell'.",url);
+#else
                                 "'wget' or 'curl'.",url);
+#endif
         cimg::fclose(file);
 
         // Try gunzip it.

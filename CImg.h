@@ -39782,10 +39782,7 @@ namespace cimg_library_suffixed {
     CImg<T> get_closing(const CImg<t>& kernel, const bool is_real=false) const {
       const int sx = kernel.width(), sy = kernel.height(), sz = kernel.depth();
       if (is_empty() || (sx<=1 && sy<=1 && sz<=1)) return *this;
-      const int
-        sx1 = (int)(sx - 1)/2, sx2 = sx - sx1 - 1,
-        sy1 = (int)(sy - 1)/2, sy2 = sy - sy1 - 1,
-        sz1 = (int)(sz - 1)/2, sz2 = sz - sz1 - 1;
+      const int sx1 = (int)(sx - 1)/2, sy1 = (int)(sy - 1)/2, sz1 = (int)(sz - 1)/2;
       CImg<T> res;
       if (_depth>1) { // 3D
         CImg<T>(width() + sx + 1,height() + sy + 1,depth() + sz + 1,spectrum(),cimg::type<T>::min()).
@@ -39812,10 +39809,7 @@ namespace cimg_library_suffixed {
     //! Apply morphological closing by a rectangular structuring element of specified size \newinstance.
     CImg<T> get_closing(const unsigned int sx, const unsigned int sy, const unsigned int sz=1) const {
       if (is_empty() || (sx<=1 && sy<=1 && sz<=1)) return *this;
-      const int
-        sx1 = (int)(sx - 1)/2, sx2 = sx - sx1 - 1,
-        sy1 = (int)(sy - 1)/2, sy2 = sy - sy1 - 1,
-        sz1 = (int)(sz - 1)/2, sz2 = sz - sz1 - 1;
+      const int sx1 = (int)(sx - 1)/2, sy1 = (int)(sy - 1)/2, sz1 = (int)(sz - 1)/2;
       CImg<T> res;
       if (_depth>1) { // 3D
         CImg<T>(width() + sx + 1,height() + sy + 1,depth() + sz + 1,spectrum(),cimg::type<T>::min()).
@@ -39859,10 +39853,7 @@ namespace cimg_library_suffixed {
     CImg<T> get_opening(const CImg<t>& kernel, const bool is_real=false) const {
       const int sx = kernel.width(), sy = kernel.height(), sz = kernel.depth();
       if (is_empty() || (sx<=1 && sy<=1 && sz<=1)) return *this;
-      const int
-        sx1 = (int)(sx - 1)/2, sx2 = sx - sx1 - 1,
-        sy1 = (int)(sy - 1)/2, sy2 = sy - sy1 - 1,
-        sz1 = (int)(sz - 1)/2, sz2 = sz - sz1 - 1;
+      const int sx1 = (int)(sx - 1)/2, sy1 = (int)(sy - 1)/2, sz1 = (int)(sz - 1)/2;
       CImg<T> res;
       if (_depth>1) { // 3D
         CImg<T>(width() + sx + 1,height() + sy + 1,depth() + sz + 1,spectrum(),cimg::type<T>::max()).
@@ -39889,10 +39880,7 @@ namespace cimg_library_suffixed {
     //! Apply morphological opening by a rectangular structuring element of specified size \newinstance.
     CImg<T> get_opening(const unsigned int sx, const unsigned int sy, const unsigned int sz=1) const {
       if (is_empty() || (sx<=1 && sy<=1 && sz<=1)) return *this;
-      const int
-        sx1 = (int)(sx - 1)/2, sx2 = sx - sx1 - 1,
-        sy1 = (int)(sy - 1)/2, sy2 = sy - sy1 - 1,
-        sz1 = (int)(sz - 1)/2, sz2 = sz - sz1 - 1;
+      const int sx1 = (int)(sx - 1)/2, sy1 = (int)(sy - 1)/2, sz1 = (int)(sz - 1)/2;
       CImg<T> res;
       if (_depth>1) { // 3D
         CImg<T>(width() + sx + 1,height() + sy + 1,depth() + sz + 1,spectrum(),cimg::type<T>::max()).

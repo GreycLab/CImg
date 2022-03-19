@@ -64589,12 +64589,22 @@ namespace cimg_library_suffixed {
           if (failed_to_compress) { // Write in a non-compressed way
             CImg<charT>::string("\n",false).move_to(stream);
             stream.insert(1);
-            stream.back().assign((unsigned char*)ref._data,ref.size()*sizeof(T),1,1,1,true);
+            stream.back().assign((unsigned char*)ref._data,ref._width,ref._height,ref._depth,ref._spectrum*sizeof(T),true);
           }
         } else CImg<charT>::string("\n",false).move_to(stream);
       }
-      cimglist_apply(stream,unroll)('y');
-      return stream>'y';
+
+      // Determine best serialized image dimensions to store the whole buffer.
+      ulongT siz = 0;
+      cimglist_for(stream,l) siz+=stream[l].size();
+      const ulongT max_siz = (ulongT)cimg::type<int>::max();
+      const unsigned int
+        nd = (unsigned int)(siz/max_siz + ((siz%max_siz)?1:0)),
+        nh = (unsigned int)(siz/nd + (siz%nd?1:0));
+      CImg<ucharT> res(1,nh,nd,1,0);
+      unsigned char *ptr = res.data();
+      cimglist_for(stream,l) { siz = stream[l].size(); std::memcpy(ptr,stream[l]._data,siz); ptr+=siz; }
+      return res;
     }
 
     //! Unserialize a CImg<unsigned char> serialized buffer into a CImgList<T> list.

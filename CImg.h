@@ -39841,16 +39841,24 @@ namespace cimg_library_suffixed {
     }
 
     //! Apply morphological opening by a structuring element.
+    /**
+       \param kernel Structuring element.
+       \param boundary_conditions Boundary conditions.
+         Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
+       \param is_real Do the opening in real (a.k.a 'non-flat') mode (\c true) rather than binary mode (\c false).
+    **/
     template<typename t>
-    CImg<T>& opening(const CImg<t>& kernel, const bool is_real=false) {
+    CImg<T>& opening(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
+                     const bool is_real=false) {
       const int sx = kernel.width(), sy = kernel.height(), sz = kernel.depth();
       if (is_empty() || (sx<=1 && sy<=1 && sz<=1)) return *this;
-      return get_opening(kernel,is_real).move_to(*this);
+      return get_opening(kernel,boundary_conditions,is_real).move_to(*this);
     }
 
     //! Apply morphological opening by a structuring element \newinstance.
     template<typename t>
-    CImg<T> get_opening(const CImg<t>& kernel, const bool is_real=false) const {
+    CImg<T> get_opening(const CImg<t>& kernel, const unsigned int boundary_conditions=1,
+                        const bool is_real=false) const {
       const int sx = kernel.width(), sy = kernel.height(), sz = kernel.depth();
       if (is_empty() || (sx<=1 && sy<=1 && sz<=1)) return *this;
       const int sx1 = (int)(sx - 1)/2, sy1 = (int)(sy - 1)/2, sz1 = (int)(sz - 1)/2;
@@ -39860,9 +39868,15 @@ namespace cimg_library_suffixed {
           draw_image(sx1 + 1,sy1 + 1,sz1 + 1,*this).erode(kernel,1,is_real).dilate(kernel,1,is_real).
           crop(sx1 + 1,sy1 + 1,sz1 + 1,sx1 + width(),sy1 + height(),sz1 + depth()).move_to(res);
       } else if (_height>1) { // 2D
-        CImg<T>(width() + sx + 1,height() + sy + 1,1,spectrum(),cimg::type<T>::max()).
-          draw_image(sx1 + 1,sy1 + 1,*this).erode(kernel,1,is_real).dilate(kernel,1,is_real).
+        get_resize(width() + sx + 1,height() + sy + 1,1,spectrum(),0,boundary_conditions,0.5,0.5).
+          erode(kernel,1,is_real).dilate(kernel,1,is_real).
           crop(sx1 + 1,sy1 + 1,sx1 + width(),sy1 + height()).move_to(res);
+
+/*        CImg<T>(width() + sx + 1,height() + sy + 1,1,spectrum(),cimg::type<T>::max()).
+          draw_image(sx1 + 1,sy1 + 1,*this).
+*/
+
+
       } else if (_width>1) { // 1D
         CImg<T>(width() + sx + 1,1,1,spectrum(),cimg::type<T>::max()).
           draw_image(sx1 + 1,*this).erode(kernel,1,is_real).dilate(kernel,1,is_real).

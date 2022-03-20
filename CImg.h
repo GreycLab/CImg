@@ -64599,9 +64599,9 @@ namespace cimg_library_suffixed {
       cimglist_for(stream,l) siz+=stream[l].size();
       const ulongT max_siz = (ulongT)cimg::type<int>::max();
       const unsigned int
-        nd = (unsigned int)(siz/max_siz + ((siz%max_siz)?1:0)),
-        nh = (unsigned int)(siz/nd + (siz%nd?1:0));
-      CImg<ucharT> res(1,nh,nd,1,0);
+        nw = (unsigned int)(siz/max_siz + ((siz%max_siz)?1:0)),
+        nh = (unsigned int)(siz/nw + (siz%nw?1:0));
+      CImg<ucharT> res(nw,nh,1,1,0);
       unsigned char *ptr = res.data();
       cimglist_for(stream,l) { siz = stream[l].size(); std::memcpy(ptr,stream[l]._data,siz); ptr+=siz; }
       return res;

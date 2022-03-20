@@ -59746,9 +59746,10 @@ namespace cimg_library_suffixed {
     /**
        \param is_compressed tells if zlib compression must be used for serialization
        (this requires 'cimg_use_zlib' been enabled).
+       \param header_size Reserve empty bytes as a starting header.
     **/
-    CImg<ucharT> get_serialize(const bool is_compressed=false) const {
-      return CImgList<T>(*this,true).get_serialize(is_compressed);
+    CImg<ucharT> get_serialize(const bool is_compressed=false, const unsigned int header_size=0) const {
+      return CImgList<T>(*this,true).get_serialize(is_compressed,header_size);
     }
 
     // [internal] Return a 40x38 color logo of a 'danger' item.
@@ -64542,8 +64543,9 @@ namespace cimg_library_suffixed {
     /**
        \param is_compressed tells if zlib compression must be used for serialization
        (this requires 'cimg_use_zlib' been enabled).
+       \param header_size Reserve empty bytes as a starting header.
     **/
-    CImg<ucharT> get_serialize(const bool is_compressed=false) const {
+    CImg<ucharT> get_serialize(const bool is_compressed=false, const unsigned int header_size=0) const {
 #ifndef cimg_use_zlib
       if (is_compressed)
         cimg::warn(_cimglist_instance
@@ -64552,6 +64554,7 @@ namespace cimg_library_suffixed {
                    cimglist_instance);
 #endif
       CImgList<ucharT> stream;
+      if (header_size) CImg<ucharT>(1,header_size,1,1,0).move_to(stream);
       CImg<charT> tmpstr(128);
       const char *const ptype = pixel_type(), *const etype = cimg::endianness()?"big":"little";
       if (std::strstr(ptype,"unsigned")==ptype)
@@ -64609,7 +64612,7 @@ namespace cimg_library_suffixed {
 
     //! Unserialize a CImg<unsigned char> serialized buffer into a CImgList<T> list.
     template<typename t>
-    static CImgList<T> get_unserialize(const CImg<t>& buffer) {
+    static CImgList<T> get_unserialize(const CImg<t>& buffer, const unsigned int header_size=0) {
 #ifdef cimg_use_zlib
 #define _cimgz_unserialize_case(Tss) { \
         Bytef *cbuf = 0; \
@@ -64661,7 +64664,7 @@ namespace cimg_library_suffixed {
         throw CImgArgumentException("CImgList<%s>::get_unserialize(): Specified serialized buffer is (null).",
                                     pixel_type());
       CImgList<T> res;
-      const t *stream = buffer._data, *const estream = buffer._data + buffer.size();
+      const t *stream = buffer._data + header_size, *const estream = buffer._data + buffer.size();
       bool loaded = false, endian = cimg::endianness(), is_bytef = false;
       CImg<charT> tmp(256), str_pixeltype(256), str_endian(256);
       *tmp = *str_pixeltype = *str_endian = 0;

@@ -39820,16 +39820,16 @@ namespace cimg_library_suffixed {
       const int sx1 = (int)(sx - 1)/2, sy1 = (int)(sy - 1)/2, sz1 = (int)(sz - 1)/2;
       CImg<T> res;
       if (_depth>1) { // 3D
-        CImg<T>(width() + sx + 1,height() + sy + 1,depth() + sz + 1,spectrum(),cimg::type<T>::min()).
-          draw_image(sx1 + 1,sy1 + 1,sz1 + 1,*this).dilate(sx,sy,sz).erode(sx,sy,sz).
+        get_resize(width() + sx + 1,height() + sy + 1,depth() + sz + 1,spectrum(),0,1,0.5,0.5,0.5).
+          dilate(sx,sy,sz).erode(sx,sy,sz).
           crop(sx1 + 1,sy1 + 1,sz1 + 1,sx1 + width(),sy1 + height(),sz1 + depth()).move_to(res);
       } else if (_height>1) { // 2D
-        CImg<T>(width() + sx + 1,height() + sy + 1,1,spectrum(),cimg::type<T>::min()).
-          draw_image(sx1 + 1,sy1 + 1,*this).dilate(sx,sy).erode(sx,sy).
+        get_resize(width() + sx + 1,height() + sy + 1,1,spectrum(),0,1,0.5,0.5).
+          dilate(sx,sy).erode(sx,sy).
           crop(sx1 + 1,sy1 + 1,sx1 + width(),sy1 + height()).move_to(res);
       } else if (_width>1) { // 1D
-        CImg<T>(width() + sx + 1,1,1,spectrum(),cimg::type<T>::min()).
-          draw_image(sx1 + 1,*this).dilate(sx,1).erode(sx,1).
+        get_resize(width() + sx + 1,1,1,spectrum(),0,1,0.5).
+          dilate(sx,1).erode(sx,1).
           crop(sx1 + 1,sx1 + width()).move_to(res);
       }
       return res;
@@ -39899,16 +39899,16 @@ namespace cimg_library_suffixed {
       const int sx1 = (int)(sx - 1)/2, sy1 = (int)(sy - 1)/2, sz1 = (int)(sz - 1)/2;
       CImg<T> res;
       if (_depth>1) { // 3D
-        CImg<T>(width() + sx + 1,height() + sy + 1,depth() + sz + 1,spectrum(),cimg::type<T>::max()).
-          draw_image(sx1 + 1,sy1 + 1,sz1 + 1,*this).erode(sx,sy,sz).dilate(sx,sy,sz).
+        get_resize(width() + sx + 1,height() + sy + 1,depth() + sz + 1,spectrum(),0,1,0.5,0.5,0.5).
+          erode(sx,sy,sz).dilate(sx,sy,sz).
           crop(sx1 + 1,sy1 + 1,sz1 + 1,sx1 + width(),sy1 + height(),sz1 + depth()).move_to(res);
       } else if (_height>1) { // 2D
-        CImg<T>(width() + sx + 1,height() + sy + 1,1,spectrum(),cimg::type<T>::max()).
-          draw_image(sx1 + 1,sy1 + 1,*this).erode(sx,sy).dilate(sx,sy).
+        get_resize(width() + sx + 1,height() + sy + 1,1,spectrum(),0,1,0.5,0.5).
+          erode(sx,sy).dilate(sx,sy).
           crop(sx1 + 1,sy1 + 1,sx1 + width(),sy1 + height()).move_to(res);
       } else if (_width>1) { // 1D
-        CImg<T>(width() + sx + 1,1,1,spectrum(),cimg::type<T>::max()).
-          draw_image(sx1 + 1,*this).erode(sx,1).dilate(sx,1).
+        get_resize(width() + sx + 1,1,1,spectrum(),0,1,0.5).
+          erode(sx,1).dilate(sx,1).
           crop(sx1 + 1,sx1 + width()).move_to(res);
       }
       return res;

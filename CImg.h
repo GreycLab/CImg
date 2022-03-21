@@ -20423,6 +20423,14 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_const_scalar(arg2,2,2);
               _cimg_mp_check_type(arg3,3,1,0);
               p1 = _cimg_mp_size(arg1);
+
+              if (mem[arg2]>=2<<sizeof(int)) {
+                _cimg_mp_strerr;
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: Specified variable size %g is larger than 2^31.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            mem[arg2]);
+              }
               arg2 = (unsigned int)mem[arg2];
               if (arg2) pos = vector(arg2); else pos = scalar();
               CImg<ulongT>::vector((ulongT)mp_get,pos,arg1,p1,arg2,arg3).move_to(code);
@@ -64608,7 +64616,8 @@ namespace cimg_library_suffixed {
           if (failed_to_compress) { // Write in a non-compressed way
             CImg<charT>::string("\n",false).move_to(stream);
             stream.insert(1);
-            stream.back().assign((unsigned char*)ref._data,ref._width,ref._height,ref._depth,ref._spectrum*sizeof(T),true);
+            stream.back().
+              assign((unsigned char*)ref._data,ref._width,ref._height,ref._depth,ref._spectrum*sizeof(T),true);
           }
         } else CImg<charT>::string("\n",false).move_to(stream);
       }

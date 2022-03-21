@@ -20424,12 +20424,13 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_type(arg3,3,1,0);
               p1 = _cimg_mp_size(arg1);
 
-              if (mem[arg2]>=2<<sizeof(int)) {
+              const int siz_max = cimg::type<int>::max();
+              if (mem[arg2]>=siz_max) {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                            "CImg<%s>::%s: %s: Specified variable size %g is larger than 2^31.",
+                                            "CImg<%s>::%s: %s: Specified variable size %g is larger than %d.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
-                                            mem[arg2]);
+                                            mem[arg2],siz_max);
               }
               arg2 = (unsigned int)mem[arg2];
               if (arg2) pos = vector(arg2); else pos = scalar();

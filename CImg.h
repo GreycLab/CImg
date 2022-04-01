@@ -300,6 +300,9 @@ enum {FALSE_WIN = 0};
 #else
 #define cimg_use_openmp 0
 #endif
+#else
+#undef cimg_use_openmp
+#define cimg_use_openmp 1
 #endif
 #if cimg_use_openmp!=0
 #include <omp.h>
@@ -39335,7 +39338,7 @@ namespace cimg_library_suffixed {
         cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) firstprivate(buf) if (size()>524288))
         cimg_forYZC(*this,y,z,c) {
           T *const ptrdb = buf._data, *ptrd = buf._data, *const ptrde = buf._data + L - 1;
-          const T *const ptrsb = data(0,y,z,c), *ptrs = ptrsb, *const ptrse = ptrs + L*off - off;
+          const T *const ptrsb = data(0,y,z,c), *ptrs = ptrsb, *const ptrse = ptrs + (ulongT)L*off - off;
           T cur = *ptrs; ptrs+=off; bool is_first = true;
           for (int p = s2 - 1; p>0 && ptrs<=ptrse; --p) {
             const T val = *ptrs; ptrs+=off; if (val<=cur) { cur = val; is_first = false; }}
@@ -39376,7 +39379,7 @@ namespace cimg_library_suffixed {
         cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) firstprivate(buf) if (size()>524288))
         cimg_forXZC(*this,x,z,c) {
           T *const ptrdb = buf._data, *ptrd = ptrdb, *const ptrde = buf._data + L - 1;
-          const T *const ptrsb = data(x,0,z,c), *ptrs = ptrsb, *const ptrse = ptrs + L*off - off;
+          const T *const ptrsb = data(x,0,z,c), *ptrs = ptrsb, *const ptrse = ptrs + (ulongT)L*off - off;
           T cur = *ptrs; ptrs+=off; bool is_first = true;
           for (int p = s2 - 1; p>0 && ptrs<=ptrse; --p) {
             const T val = *ptrs; ptrs+=off; if (val<=cur) { cur = val; is_first = false; }
@@ -39418,7 +39421,7 @@ namespace cimg_library_suffixed {
         cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) firstprivate(buf) if (size()>524288))
         cimg_forXYC(*this,x,y,c) {
           T *const ptrdb = buf._data, *ptrd = ptrdb, *const ptrde = buf._data + L - 1;
-          const T *const ptrsb = data(x,y,0,c), *ptrs = ptrsb, *const ptrse = ptrs + L*off - off;
+          const T *const ptrsb = data(x,y,0,c), *ptrs = ptrsb, *const ptrse = ptrs + (ulongT)L*off - off;
           T cur = *ptrs; ptrs+=off; bool is_first = true;
           for (int p = s2 - 1; p>0 && ptrs<=ptrse; --p) {
             const T val = *ptrs; ptrs+=off; if (val<=cur) { cur = val; is_first = false; }
@@ -39639,7 +39642,7 @@ namespace cimg_library_suffixed {
         cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) firstprivate(buf) if (size()>524288))
         cimg_forYZC(*this,y,z,c) {
           T *const ptrdb = buf._data, *ptrd = ptrdb, *const ptrde = buf._data + L - 1;
-          const T *const ptrsb = data(0,y,z,c), *ptrs = ptrsb, *const ptrse = ptrs + L*off - off;
+          const T *const ptrsb = data(0,y,z,c), *ptrs = ptrsb, *const ptrse = ptrs + (ulongT)L*off - off;
           T cur = *ptrs; ptrs+=off; bool is_first = true;
           for (int p = s2 - 1; p>0 && ptrs<=ptrse; --p) {
             const T val = *ptrs; ptrs+=off; if (val>=cur) { cur = val; is_first = false; }
@@ -39681,7 +39684,7 @@ namespace cimg_library_suffixed {
         cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) firstprivate(buf) if (size()>524288))
         cimg_forXZC(*this,x,z,c) {
           T *const ptrdb = buf._data, *ptrd = ptrdb, *const ptrde = buf._data + L - 1;
-          const T *const ptrsb = data(x,0,z,c), *ptrs = ptrsb, *const ptrse = ptrs + L*off - off;
+          const T *const ptrsb = data(x,0,z,c), *ptrs = ptrsb, *const ptrse = ptrs + (ulongT)L*off - off;
           T cur = *ptrs; ptrs+=off; bool is_first = true;
           for (int p = s2 - 1; p>0 && ptrs<=ptrse; --p) {
             const T val = *ptrs; ptrs+=off; if (val>=cur) { cur = val; is_first = false; }
@@ -39723,7 +39726,7 @@ namespace cimg_library_suffixed {
         cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) firstprivate(buf) if (size()>524288))
         cimg_forXYC(*this,x,y,c) {
           T *const ptrdb = buf._data, *ptrd = ptrdb, *const ptrde = buf._data + L - 1;
-          const T *const ptrsb = data(x,y,0,c), *ptrs = ptrsb, *const ptrse = ptrs + L*off - off;
+          const T *const ptrsb = data(x,y,0,c), *ptrs = ptrsb, *const ptrse = ptrs + (ulongT)L*off - off;
           T cur = *ptrs; ptrs+=off; bool is_first = true;
           for (int p = s2 - 1; p>0 && ptrs<=ptrse; --p) {
             const T val = *ptrs; ptrs+=off; if (val>=cur) { cur = val; is_first = false; }

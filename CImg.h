@@ -254,6 +254,9 @@ enum {FALSE_WIN = 0};
 
 #endif
 
+#ifndef cimg_max_file_size
+#define cimg_max_file_size ((cimg_ulong)4*1024*1024*1024)
+
 // Configure filename separator.
 //
 // Filename separator is set by default to '/', except for Windows where it is '\'.
@@ -53184,7 +53187,7 @@ namespace cimg_library_suffixed {
                                     "load_bmp(): Specified filename is (null).",
                                     cimg_instance);
 
-      const ulongT fsiz = file?cimg::type<ulongT>::max():(ulongT)cimg::fsize(filename);
+      const ulongT fsiz = file?(ulongT)cimg_max_file_size:(ulongT)cimg::fsize(filename);
       std::FILE *const nfile = file?file:cimg::fopen(filename,"rb");
       CImg<ucharT> header(54);
       cimg::fread(header._data,54,nfile);
@@ -55064,7 +55067,7 @@ namespace cimg_library_suffixed {
                                     "load_pandore(): Specified filename is (null).",
                                     cimg_instance);
 
-      const ulongT fsiz = file?cimg::type<ulongT>::max():(ulongT)cimg::fsize(filename);
+      const ulongT fsiz = file?(ulongT)cimg_max_file_size:(ulongT)cimg::fsize(filename);
       std::FILE *const nfile = file?file:cimg::fopen(filename,"rb");
       CImg<charT> header(32);
       cimg::fread(header._data,12,nfile);

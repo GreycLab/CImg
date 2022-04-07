@@ -53184,6 +53184,7 @@ namespace cimg_library_suffixed {
                                     "load_bmp(): Specified filename is (null).",
                                     cimg_instance);
 
+      const ulongT fsiz = file?cimg::type<ulongT>::max():(ulongT)cimg::fsize(filename);
       std::FILE *const nfile = file?file:cimg::fopen(filename,"rb");
       CImg<ucharT> header(54);
       cimg::fread(header._data,54,nfile);
@@ -53219,6 +53220,12 @@ namespace cimg_library_suffixed {
       const ulongT
         cimg_iobuffer = (ulongT)24*1024*1024,
         buf_size = (ulongT)cimg::abs(dy)*(dx_bytes + align_bytes);
+
+      if (buf_size>fsiz)
+          throw CImgIOException(_cimg_instance
+                                "load_bmp(): File size %lu for filename '%s' does not match encoded image dimensions (%d,%d).",
+                                cimg_instance,
+                                (long)fsiz,filename?filename:"(FILE*)",dx,dy);
 
       CImg<intT> colormap;
       if (bpp<16) { if (!nb_colors) nb_colors = 1<<bpp; } else nb_colors = 0;
@@ -55026,6 +55033,11 @@ namespace cimg_library_suffixed {
 #define __cimg_load_pandore_case(nbdim,nwidth,nheight,ndepth,ndim,stype) \
         cimg::fread(dims,nbdim,nfile); \
         if (endian) cimg::invert_endianness(dims,nbdim); \
+        if ((ulongT)nwidth*nheight*ndepth*ndim>fsiz) \
+          throw CImgIOException(_cimg_instance \
+                                "load_pandore(): File size %lu for filename '%s' does not match encoded image dimensions (%d,%d,%d,%d).",\
+                                cimg_instance,\
+                                (long)fsiz,filename?filename:"(FILE*)",(int)nwidth,(int)nheight,(int)ndepth,(int)ndim); \
         assign(nwidth,nheight,ndepth,ndim); \
         const size_t siz = size(); \
         stype *buffer = new stype[siz]; \
@@ -55049,6 +55061,7 @@ namespace cimg_library_suffixed {
                                     "load_pandore(): Specified filename is (null).",
                                     cimg_instance);
 
+      const ulongT fsiz = file?cimg::type<ulongT>::max():(ulongT)cimg::fsize(filename);
       std::FILE *const nfile = file?file:cimg::fopen(filename,"rb");
       CImg<charT> header(32);
       cimg::fread(header._data,12,nfile);

@@ -53223,7 +53223,8 @@ namespace cimg_library_suffixed {
 
       if (buf_size>fsiz)
           throw CImgIOException(_cimg_instance
-                                "load_bmp(): File size %lu for filename '%s' does not match encoded image dimensions (%d,%d).",
+                                "load_bmp(): File size %lu for filename '%s' does not match "
+                                "encoded image dimensions (%d,%d).",
                                 cimg_instance,
                                 (long)fsiz,filename?filename:"(FILE*)",dx,dy);
 
@@ -55035,9 +55036,11 @@ namespace cimg_library_suffixed {
         if (endian) cimg::invert_endianness(dims,nbdim); \
         if ((ulongT)nwidth*nheight*ndepth*ndim>fsiz) \
           throw CImgIOException(_cimg_instance \
-                                "load_pandore(): File size %lu for filename '%s' does not match encoded image dimensions (%d,%d,%d,%d).",\
+                                "load_pandore(): File size %lu for filename '%s' does not match "\
+                                "encoded image dimensions (%d,%d,%d,%d).",\
                                 cimg_instance,\
-                                (long)fsiz,filename?filename:"(FILE*)",(int)nwidth,(int)nheight,(int)ndepth,(int)ndim); \
+                                (long)fsiz,filename?filename:"(FILE*)",\
+                                (int)nwidth,(int)nheight,(int)ndepth,(int)ndim); \
         assign(nwidth,nheight,ndepth,ndim); \
         const size_t siz = size(); \
         stype *buffer = new stype[siz]; \

@@ -256,6 +256,7 @@ enum {FALSE_WIN = 0};
 
 #ifndef cimg_max_file_size
 #define cimg_max_file_size ((cimg_ulong)4*1024*1024*1024)
+#endif
 
 // Configure filename separator.
 //

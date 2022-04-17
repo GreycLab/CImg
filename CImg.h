@@ -223,6 +223,8 @@ enum {FALSE_WIN = 0};
 #define cimg_int16 short
 #define cimg_uint32 unsigned int
 #define cimg_int32 int
+#define cimg_float32 float
+#define cimg_float64 double
 
 #if cimg_OS==2
 
@@ -62616,8 +62618,10 @@ namespace cimg_library_suffixed {
                          filename?filename:"(FILE*)");
 #endif
 
-#define _cimg_load_cimg_case(Ts,Tss) \
-      if (!loaded && !cimg::strcasecmp(Ts,str_pixeltype)) { \
+#define _cimg_load_cimg_case(Ts1,Ts2,Ts3,Tss) \
+      if (!loaded && ((Ts1 && !cimg::strcasecmp(Ts1,str_pixeltype)) || \
+                      (Ts2 && !cimg::strcasecmp(Ts2,str_pixeltype)) || \
+                      (Ts3 && !cimg::strcasecmp(Ts3,str_pixeltype)))) { \
         const bool is_bool = cimg::type<Tss>::string()==cimg::type<bool>::string(); \
         for (unsigned int l = 0; l<N; ++l) { \
           j = 0; while ((i=std::fgetc(nfile))!='\n' && i>=0 && j<255) tmp[j++] = (char)i; tmp[j] = 0; \
@@ -62687,31 +62691,20 @@ namespace cimg_library_suffixed {
       if (!cimg::strncasecmp("little",str_endian,6)) endian = false;
       else if (!cimg::strncasecmp("big",str_endian,3)) endian = true;
       assign(N);
-      _cimg_load_cimg_case("bool",bool);
-      _cimg_load_cimg_case("uint8",cimg_uint8);
-      _cimg_load_cimg_case("unsigned_char",unsigned char);
-      _cimg_load_cimg_case("uchar",unsigned char);
-      _cimg_load_cimg_case("int8",cimg_int8);
-      _cimg_load_cimg_case("char",char);
-      _cimg_load_cimg_case("uint16",cimg_uint16);
-      _cimg_load_cimg_case("unsigned_short",unsigned short);
-      _cimg_load_cimg_case("ushort",unsigned short);
-      _cimg_load_cimg_case("int16",cimg_int16);
-      _cimg_load_cimg_case("short",short);
-      _cimg_load_cimg_case("uint32",cimg_uint32);
-      _cimg_load_cimg_case("unsigned_int",unsigned int);
-      _cimg_load_cimg_case("uint",unsigned int);
-      _cimg_load_cimg_case("int32",cimg_int32);
-      _cimg_load_cimg_case("int",int);
-      _cimg_load_cimg_case("unsigned_long",ulongT);
-      _cimg_load_cimg_case("ulong",ulongT);
-      _cimg_load_cimg_case("long",longT);
-      _cimg_load_cimg_case("uint64",cimg_uint64);
-      _cimg_load_cimg_case("int64",cimg_int64);
-      _cimg_load_cimg_case("float",float);
-      _cimg_load_cimg_case("float32",float);
-      _cimg_load_cimg_case("double",double);
-      _cimg_load_cimg_case("float64",double);
+      _cimg_load_cimg_case("bool",0,0,bool);
+      _cimg_load_cimg_case("uint8","unsigned_char","uchar",cimg_uint8);
+      _cimg_load_cimg_case("int8",0,0,cimg_int8);
+      _cimg_load_cimg_case("char",0,0,char);
+      _cimg_load_cimg_case("uint16","unsigned_short","ushort",cimg_uint16);
+      _cimg_load_cimg_case("int16","short",0,cimg_int16);
+      _cimg_load_cimg_case("uint32","unsigned_int","uint",cimg_uint32);
+      _cimg_load_cimg_case("int32","int",0,cimg_int32);
+      _cimg_load_cimg_case("unsigned_long","ulong",0,cimg_ulong);
+      _cimg_load_cimg_case("long",0,0,cimg_long);
+      _cimg_load_cimg_case("uint64",0,0,cimg_uint64);
+      _cimg_load_cimg_case("int64",0,0,cimg_int64);
+      _cimg_load_cimg_case("float32","float",0,cimg_float32);
+      _cimg_load_cimg_case("float64","double",0,cimg_float64);
 
       if (!loaded) {
         if (!file) cimg::fclose(nfile);

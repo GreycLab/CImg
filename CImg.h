@@ -58718,16 +58718,16 @@ namespace cimg_library_suffixed {
                               const unsigned int compression_type, const float *const voxel_size,
                               const char *const description) const {
       _cimg_save_tiff("bool",unsigned char);
-      _cimg_save_tiff("unsigned char",unsigned char);
-      _cimg_save_tiff("char",signed char);
-      _cimg_save_tiff("unsigned short",unsigned short);
-      _cimg_save_tiff("short",short);
-      _cimg_save_tiff("unsigned int",unsigned int);
-      _cimg_save_tiff("int",int);
-      _cimg_save_tiff("unsigned int64",unsigned int);
+      _cimg_save_tiff("uint8",unsigned char);
+      _cimg_save_tiff("int8",signed char);
+      _cimg_save_tiff("uint16",unsigned short);
+      _cimg_save_tiff("int16",short);
+      _cimg_save_tiff("uint32",unsigned int);
+      _cimg_save_tiff("int32",int);
+      _cimg_save_tiff("uint64",unsigned int);
       _cimg_save_tiff("int64",int);
-      _cimg_save_tiff("float",float);
-      _cimg_save_tiff("double",float);
+      _cimg_save_tiff("float32",float);
+      _cimg_save_tiff("float64",float);
       const char *const filename = TIFFFileName(tif);
       throw CImgInstanceException(_cimg_instance
                                   "save_tiff(): Unsupported pixel type '%s' for file '%s'.",
@@ -62709,7 +62709,9 @@ namespace cimg_library_suffixed {
       _cimg_load_cimg_case("uint64",cimg_uint64);
       _cimg_load_cimg_case("int64",cimg_int64);
       _cimg_load_cimg_case("float",float);
+      _cimg_load_cimg_case("float32",float);
       _cimg_load_cimg_case("double",double);
+      _cimg_load_cimg_case("float64",double);
 
       if (!loaded) {
         if (!file) cimg::fclose(nfile);
@@ -62901,7 +62903,9 @@ namespace cimg_library_suffixed {
       _cimg_load_cimg_case2("uint64",cimg_uint64);
       _cimg_load_cimg_case2("int64",cimg_int64);
       _cimg_load_cimg_case2("float",float);
+      _cimg_load_cimg_case2("float32",float);
       _cimg_load_cimg_case2("double",double);
+      _cimg_load_cimg_case2("float64",double);
       if (!loaded) {
         if (!file) cimg::fclose(nfile);
         throw CImgIOException(_cimglist_instance
@@ -64209,20 +64213,27 @@ namespace cimg_library_suffixed {
       else if (!cimg::strncasecmp("big",str_endian,3)) endian = true;
       const unsigned int lmax = std::min(N,n0 + _width);
       _cimg_save_cimg_case("bool",bool);
+      _cimg_save_cimg_case("uint8",cimg_uint8);
       _cimg_save_cimg_case("unsigned_char",unsigned char);
       _cimg_save_cimg_case("uchar",unsigned char);
+      _cimg_save_cimg_case("int8",cimg_int8);
       _cimg_save_cimg_case("char",char);
+      _cimg_save_cimg_case("uint16",cimg_uint16);
       _cimg_save_cimg_case("unsigned_short",unsigned short);
       _cimg_save_cimg_case("ushort",unsigned short);
+      _cimg_save_cimg_case("int16",cimg_int16);
       _cimg_save_cimg_case("short",short);
+      _cimg_save_cimg_case("uint32",cimg_uint32);
       _cimg_save_cimg_case("unsigned_int",unsigned int);
       _cimg_save_cimg_case("uint",unsigned int);
+      _cimg_save_cimg_case("int32",cimg_int32);
       _cimg_save_cimg_case("int",int);
-      _cimg_save_cimg_case("unsigned_int64",uint64T);
-      _cimg_save_cimg_case("uint64",uint64T);
-      _cimg_save_cimg_case("int64",int64T);
+      _cimg_save_cimg_case("uint64",cimg_uint64);
+      _cimg_save_cimg_case("int64",cimg_int64);
       _cimg_save_cimg_case("float",float);
+      _cimg_save_cimg_case("float32",float);
       _cimg_save_cimg_case("double",double);
+      _cimg_save_cimg_case("float64",double);
       if (!saved) {
         if (!file) cimg::fclose(nfile);
         throw CImgIOException(_cimglist_instance

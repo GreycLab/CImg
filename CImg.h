@@ -14289,7 +14289,7 @@ namespace cimg_library_suffixed {
        Return a \c char* string containing the usual type name of the image pixel values
        (i.e. a stringified version of the template parameter \c T).
        \note
-       - The returned string may contain spaces (as in \c "unsigned char").
+       - The returned string does not contain any spaces.
        - If the pixel type \c T does not correspond to a registered type, the string <tt>"unknown"</tt> is returned.
     **/
     static const char* pixel_type() {
@@ -60742,7 +60742,7 @@ namespace cimg_library_suffixed {
        Return a \c char* string containing the usual type name of the image pixel values
        (i.e. a stringified version of the template parameter \c T).
        \note
-       - The returned string may contain spaces (as in \c "unsigned char").
+       - The returned string does not contain any spaces.
        - If the pixel type \c T does not correspond to a registered type, the string <tt>"unknown"</tt> is returned.
     **/
     static const char* pixel_type() {
@@ -62701,7 +62701,7 @@ namespace cimg_library_suffixed {
       _cimg_load_cimg_case("int32","int",0,cimg_int32);
       _cimg_load_cimg_case("unsigned_long","ulong",0,cimg_ulong);
       _cimg_load_cimg_case("long",0,0,cimg_long);
-      _cimg_load_cimg_case("uint64",0,0,cimg_uint64);
+      _cimg_load_cimg_case("uint64","unsigned_int64",0,cimg_uint64);
       _cimg_load_cimg_case("int64",0,0,cimg_int64);
       _cimg_load_cimg_case("float32","float",0,cimg_float32);
       _cimg_load_cimg_case("float64","double",0,cimg_float64);
@@ -62776,8 +62776,10 @@ namespace cimg_library_suffixed {
                             const unsigned int z0, const unsigned int c0,
                             const unsigned int x1, const unsigned int y1,
                             const unsigned int z1, const unsigned int c1) {
-#define _cimg_load_cimg_case2(Ts,Tss) \
-      if (!loaded && !cimg::strcasecmp(Ts,str_pixeltype)) { \
+#define _cimg_load_cimg_case2(Ts1,Ts2,Ts3,Tss) \
+      if (!loaded && ((Ts1 && !cimg::strcasecmp(Ts1,str_pixeltype)) || \
+                      (Ts2 && !cimg::strcasecmp(Ts2,str_pixeltype)) || \
+                      (Ts3 && !cimg::strcasecmp(Ts3,str_pixeltype)))) { \
         for (unsigned int l = 0; l<=nn1; ++l) { \
           j = 0; while ((i=std::fgetc(nfile))!='\n' && i>=0) tmp[j++] = (char)i; tmp[j] = 0; \
           W = H = D = C = 0; \
@@ -62874,31 +62876,20 @@ namespace cimg_library_suffixed {
                                     cimglist_instance,
                                     n0,x0,y0,z0,c0,n1,x1,y1,z1,c1,filename?filename:"(FILE*)",N);
       assign(1 + nn1 - n0);
-      _cimg_load_cimg_case2("bool",bool);
-      _cimg_load_cimg_case2("uint8",cimg_uint8);
-      _cimg_load_cimg_case2("unsigned_char",unsigned char);
-      _cimg_load_cimg_case2("uchar",unsigned char);
-      _cimg_load_cimg_case2("int8",cimg_int8);
-      _cimg_load_cimg_case2("char",char);
-      _cimg_load_cimg_case2("uint16",cimg_uint16);
-      _cimg_load_cimg_case2("unsigned_short",unsigned short);
-      _cimg_load_cimg_case2("ushort",unsigned short);
-      _cimg_load_cimg_case2("int16",cimg_int16);
-      _cimg_load_cimg_case2("short",short);
-      _cimg_load_cimg_case2("uint32",cimg_uint32);
-      _cimg_load_cimg_case2("unsigned_int",unsigned int);
-      _cimg_load_cimg_case2("uint",unsigned int);
-      _cimg_load_cimg_case2("int32",cimg_int32);
-      _cimg_load_cimg_case2("int",int);
-      _cimg_load_cimg_case2("unsigned_long",ulongT);
-      _cimg_load_cimg_case2("ulong",ulongT);
-      _cimg_load_cimg_case2("long",longT);
-      _cimg_load_cimg_case2("uint64",cimg_uint64);
-      _cimg_load_cimg_case2("int64",cimg_int64);
-      _cimg_load_cimg_case2("float",float);
-      _cimg_load_cimg_case2("float32",float);
-      _cimg_load_cimg_case2("double",double);
-      _cimg_load_cimg_case2("float64",double);
+      _cimg_load_cimg_case2("bool",0,0,bool);
+      _cimg_load_cimg_case2("uint8","unsigned char","uchar",cimg_uint8);
+      _cimg_load_cimg_case2("int8",0,0,cimg_int8);
+      _cimg_load_cimg_case2("char",0,0,char);
+      _cimg_load_cimg_case2("uint16","unsigned_short","ushort",cimg_uint16);
+      _cimg_load_cimg_case2("int16","short",0,cimg_int16);
+      _cimg_load_cimg_case2("uint32","unsigned_int","uint",cimg_uint32);
+      _cimg_load_cimg_case2("int32","int",0,cimg_int32);
+      _cimg_load_cimg_case2("unsigned_long","ulong",0,cimg_ulong);
+      _cimg_load_cimg_case2("long",0,0,cimg_long);
+      _cimg_load_cimg_case2("uint64","unsigned_int64",0,cimg_uint64);
+      _cimg_load_cimg_case2("int64",0,0,cimg_int64);
+      _cimg_load_cimg_case2("float32","float",0,cimg_float32);
+      _cimg_load_cimg_case2("float64","double",0,cimg_float64);
       if (!loaded) {
         if (!file) cimg::fclose(nfile);
         throw CImgIOException(_cimglist_instance
@@ -64120,8 +64111,10 @@ namespace cimg_library_suffixed {
                                  const unsigned int n0,
                                  const unsigned int x0, const unsigned int y0,
                                  const unsigned int z0, const unsigned int c0) const {
-#define _cimg_save_cimg_case(Ts,Tss) \
-      if (!saved && !cimg::strcasecmp(Ts,str_pixeltype)) { \
+#define _cimg_save_cimg_case(Ts1,Ts2,Ts3,Tss) \
+      if (!saved && ((Ts1 && !cimg::strcasecmp(Ts1,str_pixeltype)) || \
+                     (Ts2 && !cimg::strcasecmp(Ts2,str_pixeltype)) || \
+                     (Ts3 && !cimg::strcasecmp(Ts3,str_pixeltype)))) { \
         for (unsigned int l = 0; l<lmax; ++l) { \
           j = 0; while ((i=std::fgetc(nfile))!='\n') tmp[j++]=(char)i; tmp[j] = 0; \
           W = H = D = C = 0; \
@@ -64205,28 +64198,19 @@ namespace cimg_library_suffixed {
       if (!cimg::strncasecmp("little",str_endian,6)) endian = false;
       else if (!cimg::strncasecmp("big",str_endian,3)) endian = true;
       const unsigned int lmax = std::min(N,n0 + _width);
-      _cimg_save_cimg_case("bool",bool);
-      _cimg_save_cimg_case("uint8",cimg_uint8);
-      _cimg_save_cimg_case("unsigned_char",unsigned char);
-      _cimg_save_cimg_case("uchar",unsigned char);
-      _cimg_save_cimg_case("int8",cimg_int8);
-      _cimg_save_cimg_case("char",char);
-      _cimg_save_cimg_case("uint16",cimg_uint16);
-      _cimg_save_cimg_case("unsigned_short",unsigned short);
-      _cimg_save_cimg_case("ushort",unsigned short);
-      _cimg_save_cimg_case("int16",cimg_int16);
-      _cimg_save_cimg_case("short",short);
-      _cimg_save_cimg_case("uint32",cimg_uint32);
-      _cimg_save_cimg_case("unsigned_int",unsigned int);
-      _cimg_save_cimg_case("uint",unsigned int);
-      _cimg_save_cimg_case("int32",cimg_int32);
-      _cimg_save_cimg_case("int",int);
-      _cimg_save_cimg_case("uint64",cimg_uint64);
-      _cimg_save_cimg_case("int64",cimg_int64);
-      _cimg_save_cimg_case("float",float);
-      _cimg_save_cimg_case("float32",float);
-      _cimg_save_cimg_case("double",double);
-      _cimg_save_cimg_case("float64",double);
+      _cimg_save_cimg_case("bool",0,0,bool);
+      _cimg_save_cimg_case("uint8","unsigned_char","uchar",cimg_uint8);
+      _cimg_save_cimg_case("int8",0,0,cimg_int8);
+      _cimg_save_cimg_case("char",0,0,char);
+      _cimg_save_cimg_case("uint16","unsigned_short","ushort",cimg_uint16);
+      _cimg_save_cimg_case("int16","short",0,cimg_int16);
+      _cimg_save_cimg_case("uint32","unsigned_int","uint",cimg_uint32);
+      _cimg_save_cimg_case("int32","int",0,cimg_int32);
+      _cimg_save_cimg_case("uint64","unsigned_int64",0,cimg_uint64);
+      _cimg_save_cimg_case("int64",0,0,cimg_int64);
+      _cimg_save_cimg_case("float","float32",0,cimg_float32);
+      _cimg_save_cimg_case("float64","double",0,cimg_float64);
+
       if (!saved) {
         if (!file) cimg::fclose(nfile);
         throw CImgIOException(_cimglist_instance
@@ -64624,10 +64608,7 @@ namespace cimg_library_suffixed {
       if (header_size) CImg<ucharT>(1,header_size,1,1,0).move_to(stream);
       CImg<charT> tmpstr(128);
       const char *const ptype = pixel_type(), *const etype = cimg::endianness()?"big":"little";
-      if (std::strstr(ptype,"unsigned")==ptype)
-        cimg_snprintf(tmpstr,tmpstr._width,"%u unsigned_%s %s_endian\n",_width,ptype + 9,etype);
-      else
-        cimg_snprintf(tmpstr,tmpstr._width,"%u %s %s_endian\n",_width,ptype,etype);
+      cimg_snprintf(tmpstr,tmpstr._width,"%u %s %s_endian\n",_width,ptype,etype);
       CImg<ucharT>::string(tmpstr,false).move_to(stream);
       cimglist_for(*this,l) {
         const CImg<T>& img = _data[l];

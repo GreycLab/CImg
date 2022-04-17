@@ -64682,8 +64682,10 @@ namespace cimg_library_suffixed {
                                   pixel_type());
 #endif
 
-#define _cimg_unserialize_case(Ts,Tss) \
-      if (!loaded && !cimg::strcasecmp(Ts,str_pixeltype)) { \
+#define _cimg_unserialize_case(Ts1,Ts2,Ts3,Tss) \
+      if (!loaded && ((Ts1 && !cimg::strcasecmp(Ts1,str_pixeltype)) || \
+                      (Ts2 && !cimg::strcasecmp(Ts2,str_pixeltype)) || \
+                      (Ts3 && !cimg::strcasecmp(Ts3,str_pixeltype)))) { \
         for (unsigned int l = 0; l<N; ++l) { \
           j = 0; while ((i=(int)*stream)!='\n' && stream<estream && j<255) { ++stream; tmp[j++] = (char)i; } \
           ++stream; tmp[j] = 0; \
@@ -64733,21 +64735,18 @@ namespace cimg_library_suffixed {
       if (!cimg::strncasecmp("little",str_endian,6)) endian = false;
       else if (!cimg::strncasecmp("big",str_endian,3)) endian = true;
       res.assign(N);
-      _cimg_unserialize_case("bool",bool);
-      _cimg_unserialize_case("unsigned_char",unsigned char);
-      _cimg_unserialize_case("uchar",unsigned char);
-      _cimg_unserialize_case("char",char);
-      _cimg_unserialize_case("unsigned_short",unsigned short);
-      _cimg_unserialize_case("ushort",unsigned short);
-      _cimg_unserialize_case("short",short);
-      _cimg_unserialize_case("unsigned_int",unsigned int);
-      _cimg_unserialize_case("uint",unsigned int);
-      _cimg_unserialize_case("int",int);
-      _cimg_unserialize_case("unsigned_int64",uint64T);
-      _cimg_unserialize_case("uint64",uint64T);
-      _cimg_unserialize_case("int64",int64T);
-      _cimg_unserialize_case("float",float);
-      _cimg_unserialize_case("double",double);
+      _cimg_unserialize_case("bool",0,0,bool);
+      _cimg_unserialize_case("uint8","unsigned_char","uchar",cimg_uint8);
+      _cimg_unserialize_case("int8",0,0,cimg_int8);
+      _cimg_unserialize_case("char",0,0,char);
+      _cimg_unserialize_case("uint16","unsigned_short","ushort",cimg_uint16);
+      _cimg_unserialize_case("int16","short",0,cimg_int16);
+      _cimg_unserialize_case("uint32","unsigned_int","uint",cimg_uint32);
+      _cimg_unserialize_case("int32","int",0,cimg_int32);
+      _cimg_unserialize_case("uint64","unsigned_int64",0,cimg_uint64);
+      _cimg_unserialize_case("int64",0,0,cimg_int64);
+      _cimg_unserialize_case("float32","float",0,cimg_float32);
+      _cimg_unserialize_case("float64","double",0,cimg_float64);
       if (!loaded)
         throw CImgArgumentException("CImgList<%s>::get_unserialize(): Unsupported pixel type '%s' defined "
                                     "in serialized buffer.",

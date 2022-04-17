@@ -2733,7 +2733,7 @@ namespace cimg_library_suffixed {
     };
 
     template<> struct type<unsigned char> {
-      static const char* string() { static const char *const s = "unsigned char"; return s; }
+      static const char* string() { static const char *const s = "uint8"; return s; }
       static bool is_float() { return false; }
       static bool is_inf(const unsigned char) { return false; }
       static bool is_nan(const unsigned char) { return false; }
@@ -2750,7 +2750,7 @@ namespace cimg_library_suffixed {
 
 #if defined(CHAR_MAX) && CHAR_MAX==255
     template<> struct type<char> {
-      static const char* string() { static const char *const s = "char"; return s; }
+      static const char* string() { static const char *const s = "uint8"; return s; }
       static bool is_float() { return false; }
       static bool is_inf(const char) { return false; }
       static bool is_nan(const char) { return false; }
@@ -2766,7 +2766,7 @@ namespace cimg_library_suffixed {
     };
 #else
     template<> struct type<char> {
-      static const char* string() { static const char *const s = "char"; return s; }
+      static const char* string() { static const char *const s = "int8"; return s; }
       static bool is_float() { return false; }
       static bool is_inf(const char) { return false; }
       static bool is_nan(const char) { return false; }
@@ -2782,7 +2782,7 @@ namespace cimg_library_suffixed {
 #endif
 
     template<> struct type<signed char> {
-      static const char* string() { static const char *const s = "signed char"; return s; }
+      static const char* string() { static const char *const s = "int8"; return s; }
       static bool is_float() { return false; }
       static bool is_inf(const signed char) { return false; }
       static bool is_nan(const signed char) { return false; }
@@ -2798,7 +2798,7 @@ namespace cimg_library_suffixed {
     };
 
     template<> struct type<unsigned short> {
-      static const char* string() { static const char *const s = "unsigned short"; return s; }
+      static const char* string() { static const char *const s = "uint16"; return s; }
       static bool is_float() { return false; }
       static bool is_inf(const unsigned short) { return false; }
       static bool is_nan(const unsigned short) { return false; }
@@ -2814,7 +2814,7 @@ namespace cimg_library_suffixed {
     };
 
     template<> struct type<short> {
-      static const char* string() { static const char *const s = "short"; return s; }
+      static const char* string() { static const char *const s = "int16"; return s; }
       static bool is_float() { return false; }
       static bool is_inf(const short) { return false; }
       static bool is_nan(const short) { return false; }
@@ -2829,7 +2829,7 @@ namespace cimg_library_suffixed {
     };
 
     template<> struct type<unsigned int> {
-      static const char* string() { static const char *const s = "unsigned int"; return s; }
+      static const char* string() { static const char *const s = "uint32"; return s; }
       static bool is_float() { return false; }
       static bool is_inf(const unsigned int) { return false; }
       static bool is_nan(const unsigned int) { return false; }
@@ -2845,7 +2845,7 @@ namespace cimg_library_suffixed {
     };
 
     template<> struct type<int> {
-      static const char* string() { static const char *const s = "int"; return s; }
+      static const char* string() { static const char *const s = "int32"; return s; }
       static bool is_float() { return false; }
       static bool is_inf(const int) { return false; }
       static bool is_nan(const int) { return false; }
@@ -2860,7 +2860,7 @@ namespace cimg_library_suffixed {
     };
 
     template<> struct type<cimg_uint64> {
-      static const char* string() { static const char *const s = "unsigned int64"; return s; }
+      static const char* string() { static const char *const s = "uint64"; return s; }
       static bool is_float() { return false; }
       static bool is_inf(const cimg_uint64) { return false; }
       static bool is_nan(const cimg_uint64) { return false; }
@@ -2893,7 +2893,7 @@ namespace cimg_library_suffixed {
     };
 
     template<> struct type<double> {
-      static const char* string() { static const char *const s = "double"; return s; }
+      static const char* string() { static const char *const s = "float64"; return s; }
       static bool is_float() { return true; }
       static bool is_inf(const double val) {
 #ifdef isinf
@@ -2944,7 +2944,7 @@ namespace cimg_library_suffixed {
     };
 
     template<> struct type<float> {
-      static const char* string() { static const char *const s = "float"; return s; }
+      static const char* string() { static const char *const s = "float32"; return s; }
       static bool is_float() { return true; }
       static bool is_inf(const float val) {
 #ifdef isinf
@@ -2984,7 +2984,7 @@ namespace cimg_library_suffixed {
     };
 
     template<> struct type<long double> {
-      static const char* string() { static const char *const s = "long double"; return s; }
+      static const char* string() { static const char *const s = "float128"; return s; }
       static bool is_float() { return true; }
       static bool is_inf(const long double val) {
 #ifdef isinf
@@ -3019,7 +3019,7 @@ namespace cimg_library_suffixed {
 
 #ifdef cimg_use_half
     template<> struct type<half> {
-      static const char* string() { static const char *const s = "half"; return s; }
+      static const char* string() { static const char *const s = "float16"; return s; }
       static bool is_float() { return true; }
       static bool is_inf(const long double val) {
 #ifdef isinf
@@ -58719,7 +58719,7 @@ namespace cimg_library_suffixed {
                               const char *const description) const {
       _cimg_save_tiff("bool",unsigned char);
       _cimg_save_tiff("unsigned char",unsigned char);
-      _cimg_save_tiff("char",char);
+      _cimg_save_tiff("char",signed char);
       _cimg_save_tiff("unsigned short",unsigned short);
       _cimg_save_tiff("short",short);
       _cimg_save_tiff("unsigned int",unsigned int);
@@ -58824,17 +58824,17 @@ namespace cimg_library_suffixed {
       ((short*)&(header[40]))[2] = (short)_height;
       ((short*)&(header[40]))[3] = (short)_depth;
       ((short*)&(header[40]))[4] = (short)_spectrum;
-      if (!cimg::strcasecmp(pixel_type(),"bool")) datatype = 2;
-      if (!cimg::strcasecmp(pixel_type(),"unsigned char")) datatype = 2;
-      if (!cimg::strcasecmp(pixel_type(),"char")) datatype = 2;
-      if (!cimg::strcasecmp(pixel_type(),"unsigned short")) datatype = 4;
-      if (!cimg::strcasecmp(pixel_type(),"short")) datatype = 4;
-      if (!cimg::strcasecmp(pixel_type(),"unsigned int")) datatype = 8;
-      if (!cimg::strcasecmp(pixel_type(),"int")) datatype = 8;
-      if (!cimg::strcasecmp(pixel_type(),"unsigned int64")) datatype = 8;
-      if (!cimg::strcasecmp(pixel_type(),"int64")) datatype = 8;
-      if (!cimg::strcasecmp(pixel_type(),"float")) datatype = 16;
-      if (!cimg::strcasecmp(pixel_type(),"double")) datatype = 64;
+      if (!cimg::strcasecmp(pixel_type(),"bool") ||
+          !cimg::strcasecmp(pixel_type(),"uint8") ||
+          !cimg::strcasecmp(pixel_type(),"int8")) datatype = 2;
+      if (!cimg::strcasecmp(pixel_type(),"uint16") ||
+          !cimg::strcasecmp(pixel_type(),"int16")) datatype = 4;
+      if (!cimg::strcasecmp(pixel_type(),"uint32") ||
+          !cimg::strcasecmp(pixel_type(),"int32")) datatype = 8;
+      if (!cimg::strcasecmp(pixel_type(),"uint64") ||
+          !cimg::strcasecmp(pixel_type(),"int64")) datatype = 8;
+      if (!cimg::strcasecmp(pixel_type(),"float32")) datatype = 16;
+      if (!cimg::strcasecmp(pixel_type(),"float64")) datatype = 64;
       if (datatype<0)
         throw CImgIOException(_cimg_instance
                               "save_analyze(): Unsupported pixel type '%s' for file '%s'.",
@@ -58952,28 +58952,28 @@ namespace cimg_library_suffixed {
 
       int inrpixsize = -1;
       const char *inrtype = "unsigned fixed\nPIXSIZE=8 bits\nSCALE=2**0";
-      if (!cimg::strcasecmp(pixel_type(),"unsigned char")) {
+      if (!cimg::strcasecmp(pixel_type(),"uint8")) {
         inrtype = "unsigned fixed\nPIXSIZE=8 bits\nSCALE=2**0"; inrpixsize = 1;
       }
-      if (!cimg::strcasecmp(pixel_type(),"char")) {
+      if (!cimg::strcasecmp(pixel_type(),"int8")) {
         inrtype = "fixed\nPIXSIZE=8 bits\nSCALE=2**0"; inrpixsize = 1;
       }
-      if (!cimg::strcasecmp(pixel_type(),"unsigned short")) {
+      if (!cimg::strcasecmp(pixel_type(),"uint16")) {
         inrtype = "unsigned fixed\nPIXSIZE=16 bits\nSCALE=2**0";inrpixsize = 2;
       }
-      if (!cimg::strcasecmp(pixel_type(),"short")) {
+      if (!cimg::strcasecmp(pixel_type(),"int16")) {
         inrtype = "fixed\nPIXSIZE=16 bits\nSCALE=2**0"; inrpixsize = 2;
       }
-      if (!cimg::strcasecmp(pixel_type(),"unsigned int")) {
+      if (!cimg::strcasecmp(pixel_type(),"uint32")) {
         inrtype = "unsigned fixed\nPIXSIZE=32 bits\nSCALE=2**0";inrpixsize = 4;
       }
-      if (!cimg::strcasecmp(pixel_type(),"int")) {
+      if (!cimg::strcasecmp(pixel_type(),"int32")) {
         inrtype = "fixed\nPIXSIZE=32 bits\nSCALE=2**0"; inrpixsize = 4;
       }
-      if (!cimg::strcasecmp(pixel_type(),"float")) {
+      if (!cimg::strcasecmp(pixel_type(),"float32")) {
         inrtype = "float\nPIXSIZE=32 bits"; inrpixsize = 4;
       }
-      if (!cimg::strcasecmp(pixel_type(),"double")) {
+      if (!cimg::strcasecmp(pixel_type(),"float64")) {
         inrtype = "float\nPIXSIZE=64 bits"; inrpixsize = 8;
       }
       if (inrpixsize<=0)
@@ -59181,93 +59181,93 @@ namespace cimg_library_suffixed {
                                    'N','o',' ','d','a','t','e',0,0,0,0 };
       unsigned int nbdims, dims[5] = { 0 };
       bool saved = false;
-      _cimg_save_pandore_case(1,1,1,"unsigned char",2);
-      _cimg_save_pandore_case(1,1,1,"char",3);
-      _cimg_save_pandore_case(1,1,1,"unsigned short",3);
-      _cimg_save_pandore_case(1,1,1,"short",3);
-      _cimg_save_pandore_case(1,1,1,"unsigned int",3);
-      _cimg_save_pandore_case(1,1,1,"int",3);
-      _cimg_save_pandore_case(1,1,1,"unsigned int64",3);
+      _cimg_save_pandore_case(1,1,1,"uint8",2);
+      _cimg_save_pandore_case(1,1,1,"int8",3);
+      _cimg_save_pandore_case(1,1,1,"uint16",3);
+      _cimg_save_pandore_case(1,1,1,"int16",3);
+      _cimg_save_pandore_case(1,1,1,"uint32",3);
+      _cimg_save_pandore_case(1,1,1,"int32",3);
+      _cimg_save_pandore_case(1,1,1,"uint64",3);
       _cimg_save_pandore_case(1,1,1,"int64",3);
-      _cimg_save_pandore_case(1,1,1,"float",4);
-      _cimg_save_pandore_case(1,1,1,"double",4);
+      _cimg_save_pandore_case(1,1,1,"float32",4);
+      _cimg_save_pandore_case(1,1,1,"float64",4);
 
-      _cimg_save_pandore_case(0,1,1,"unsigned char",5);
-      _cimg_save_pandore_case(0,1,1,"char",6);
-      _cimg_save_pandore_case(0,1,1,"unsigned short",6);
-      _cimg_save_pandore_case(0,1,1,"short",6);
-      _cimg_save_pandore_case(0,1,1,"unsigned int",6);
-      _cimg_save_pandore_case(0,1,1,"int",6);
-      _cimg_save_pandore_case(0,1,1,"unsigned int64",6);
+      _cimg_save_pandore_case(0,1,1,"uint8",5);
+      _cimg_save_pandore_case(0,1,1,"int8",6);
+      _cimg_save_pandore_case(0,1,1,"uint16",6);
+      _cimg_save_pandore_case(0,1,1,"int16",6);
+      _cimg_save_pandore_case(0,1,1,"uint32",6);
+      _cimg_save_pandore_case(0,1,1,"int32",6);
+      _cimg_save_pandore_case(0,1,1,"uint64",6);
       _cimg_save_pandore_case(0,1,1,"int64",6);
-      _cimg_save_pandore_case(0,1,1,"float",7);
-      _cimg_save_pandore_case(0,1,1,"double",7);
+      _cimg_save_pandore_case(0,1,1,"float32",7);
+      _cimg_save_pandore_case(0,1,1,"float64",7);
 
-      _cimg_save_pandore_case(0,0,1,"unsigned char",8);
-      _cimg_save_pandore_case(0,0,1,"char",9);
-      _cimg_save_pandore_case(0,0,1,"unsigned short",9);
-      _cimg_save_pandore_case(0,0,1,"short",9);
-      _cimg_save_pandore_case(0,0,1,"unsigned int",9);
-      _cimg_save_pandore_case(0,0,1,"int",9);
-      _cimg_save_pandore_case(0,0,1,"unsigned int64",9);
+      _cimg_save_pandore_case(0,0,1,"uint8",8);
+      _cimg_save_pandore_case(0,0,1,"int8",9);
+      _cimg_save_pandore_case(0,0,1,"uint16",9);
+      _cimg_save_pandore_case(0,0,1,"int16",9);
+      _cimg_save_pandore_case(0,0,1,"uint32",9);
+      _cimg_save_pandore_case(0,0,1,"int32",9);
+      _cimg_save_pandore_case(0,0,1,"uint64",9);
       _cimg_save_pandore_case(0,0,1,"int64",9);
-      _cimg_save_pandore_case(0,0,1,"float",10);
-      _cimg_save_pandore_case(0,0,1,"double",10);
+      _cimg_save_pandore_case(0,0,1,"float32",10);
+      _cimg_save_pandore_case(0,0,1,"float64",10);
 
-      _cimg_save_pandore_case(0,1,3,"unsigned char",16);
-      _cimg_save_pandore_case(0,1,3,"char",17);
-      _cimg_save_pandore_case(0,1,3,"unsigned short",17);
-      _cimg_save_pandore_case(0,1,3,"short",17);
-      _cimg_save_pandore_case(0,1,3,"unsigned int",17);
-      _cimg_save_pandore_case(0,1,3,"int",17);
-      _cimg_save_pandore_case(0,1,3,"unsigned int64",17);
+      _cimg_save_pandore_case(0,1,3,"uint8",16);
+      _cimg_save_pandore_case(0,1,3,"int8",17);
+      _cimg_save_pandore_case(0,1,3,"uint16",17);
+      _cimg_save_pandore_case(0,1,3,"int16",17);
+      _cimg_save_pandore_case(0,1,3,"uint32",17);
+      _cimg_save_pandore_case(0,1,3,"int32",17);
+      _cimg_save_pandore_case(0,1,3,"uint64",17);
       _cimg_save_pandore_case(0,1,3,"int64",17);
-      _cimg_save_pandore_case(0,1,3,"float",18);
-      _cimg_save_pandore_case(0,1,3,"double",18);
+      _cimg_save_pandore_case(0,1,3,"float32",18);
+      _cimg_save_pandore_case(0,1,3,"float64",18);
 
-      _cimg_save_pandore_case(0,0,3,"unsigned char",19);
-      _cimg_save_pandore_case(0,0,3,"char",20);
-      _cimg_save_pandore_case(0,0,3,"unsigned short",20);
-      _cimg_save_pandore_case(0,0,3,"short",20);
-      _cimg_save_pandore_case(0,0,3,"unsigned int",20);
-      _cimg_save_pandore_case(0,0,3,"int",20);
-      _cimg_save_pandore_case(0,0,3,"unsigned int64",20);
+      _cimg_save_pandore_case(0,0,3,"uint8",19);
+      _cimg_save_pandore_case(0,0,3,"int8",20);
+      _cimg_save_pandore_case(0,0,3,"uint16",20);
+      _cimg_save_pandore_case(0,0,3,"int16",20);
+      _cimg_save_pandore_case(0,0,3,"uint32",20);
+      _cimg_save_pandore_case(0,0,3,"int32",20);
+      _cimg_save_pandore_case(0,0,3,"uint64",20);
       _cimg_save_pandore_case(0,0,3,"int64",20);
-      _cimg_save_pandore_case(0,0,3,"float",21);
-      _cimg_save_pandore_case(0,0,3,"double",21);
+      _cimg_save_pandore_case(0,0,3,"float32",21);
+      _cimg_save_pandore_case(0,0,3,"float64",21);
 
-      _cimg_save_pandore_case(1,1,0,"unsigned char",22);
-      _cimg_save_pandore_case(1,1,0,"char",23);
-      _cimg_save_pandore_case(1,1,0,"unsigned short",23);
-      _cimg_save_pandore_case(1,1,0,"short",23);
-      _cimg_save_pandore_case(1,1,0,"unsigned int",23);
-      _cimg_save_pandore_case(1,1,0,"int",23);
-      _cimg_save_pandore_case(1,1,0,"unsigned int64",23);
+      _cimg_save_pandore_case(1,1,0,"uint8",22);
+      _cimg_save_pandore_case(1,1,0,"int8",23);
+      _cimg_save_pandore_case(1,1,0,"uint16",23);
+      _cimg_save_pandore_case(1,1,0,"int16",23);
+      _cimg_save_pandore_case(1,1,0,"uint32",23);
+      _cimg_save_pandore_case(1,1,0,"int32",23);
+      _cimg_save_pandore_case(1,1,0,"uint64",23);
       _cimg_save_pandore_case(1,1,0,"int64",23);
-      _cimg_save_pandore_case(1,1,0,"float",25);
-      _cimg_save_pandore_case(1,1,0,"double",25);
+      _cimg_save_pandore_case(1,1,0,"float32",25);
+      _cimg_save_pandore_case(1,1,0,"float64",25);
 
-      _cimg_save_pandore_case(0,1,0,"unsigned char",26);
-      _cimg_save_pandore_case(0,1,0,"char",27);
-      _cimg_save_pandore_case(0,1,0,"unsigned short",27);
-      _cimg_save_pandore_case(0,1,0,"short",27);
-      _cimg_save_pandore_case(0,1,0,"unsigned int",27);
-      _cimg_save_pandore_case(0,1,0,"int",27);
-      _cimg_save_pandore_case(0,1,0,"unsigned int64",27);
+      _cimg_save_pandore_case(0,1,0,"uint8",26);
+      _cimg_save_pandore_case(0,1,0,"int8",27);
+      _cimg_save_pandore_case(0,1,0,"uint16",27);
+      _cimg_save_pandore_case(0,1,0,"int16",27);
+      _cimg_save_pandore_case(0,1,0,"uint32",27);
+      _cimg_save_pandore_case(0,1,0,"int32",27);
+      _cimg_save_pandore_case(0,1,0,"uint64",27);
       _cimg_save_pandore_case(0,1,0,"int64",27);
-      _cimg_save_pandore_case(0,1,0,"float",29);
-      _cimg_save_pandore_case(0,1,0,"double",29);
+      _cimg_save_pandore_case(0,1,0,"float32",29);
+      _cimg_save_pandore_case(0,1,0,"float64",29);
 
-      _cimg_save_pandore_case(0,0,0,"unsigned char",30);
-      _cimg_save_pandore_case(0,0,0,"char",31);
-      _cimg_save_pandore_case(0,0,0,"unsigned short",31);
-      _cimg_save_pandore_case(0,0,0,"short",31);
-      _cimg_save_pandore_case(0,0,0,"unsigned int",31);
-      _cimg_save_pandore_case(0,0,0,"int",31);
-      _cimg_save_pandore_case(0,0,0,"unsigned int64",31);
+      _cimg_save_pandore_case(0,0,0,"uint8",30);
+      _cimg_save_pandore_case(0,0,0,"int8",31);
+      _cimg_save_pandore_case(0,0,0,"uint16",31);
+      _cimg_save_pandore_case(0,0,0,"int16",31);
+      _cimg_save_pandore_case(0,0,0,"uint32",31);
+      _cimg_save_pandore_case(0,0,0,"int32",31);
+      _cimg_save_pandore_case(0,0,0,"uint64",31);
       _cimg_save_pandore_case(0,0,0,"int64",31);
-      _cimg_save_pandore_case(0,0,0,"float",33);
-      _cimg_save_pandore_case(0,0,0,"double",33);
+      _cimg_save_pandore_case(0,0,0,"float32",33);
+      _cimg_save_pandore_case(0,0,0,"float64",33);
 
       if (!file) cimg::fclose(nfile);
       return *this;
@@ -62675,7 +62675,7 @@ namespace cimg_library_suffixed {
       do {
         j = 0; while ((i=std::fgetc(nfile))!='\n' && i>=0 && j<255) tmp[j++] = (char)i; tmp[j] = 0;
       } while (*tmp=='#' && i>=0);
-      err = cimg_sscanf(tmp,"%u%*c%255[A-Za-z64_]%*c%255[sA-Za-z_ ]",
+      err = cimg_sscanf(tmp,"%u%*c%255[A-Za-z1468_]%*c%255[sA-Za-z_ ]",
                         &N,str_pixeltype._data,str_endian._data);
       if (err<2) {
         if (!file) cimg::fclose(nfile);
@@ -64051,10 +64051,7 @@ namespace cimg_library_suffixed {
       const char *const ptype = pixel_type(), *const etype = cimg::endianness()?"big":"little";
       std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
       const bool is_bool = ptype==cimg::type<bool>::string();
-      if (!is_bool && std::strstr(ptype,"unsigned")==ptype)
-        std::fprintf(nfile,"%u unsigned_%s %s_endian\n",_width,ptype + 9,etype);
-      else
-        std::fprintf(nfile,"%u %s %s_endian\n",_width,ptype,etype);
+      std::fprintf(nfile,"%u %s %s_endian\n",_width,ptype,etype);
 
       cimglist_for(*this,l) {
         const CImg<T>& img = _data[l];

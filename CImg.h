@@ -225,9 +225,6 @@ enum {FALSE_WIN = 0};
 #define cimg_int32 int
 #define cimg_float32 float
 #define cimg_float64 double
-#define cimg_bool8 cimg_uint8
-#define cimg_bool16 cimg_uint16
-#define cimg_bool32 cimg_uint32
 
 #if cimg_OS==2
 
@@ -58725,7 +58722,7 @@ namespace cimg_library_suffixed {
     const CImg<T>& _save_tiff(TIFF *tif, const unsigned int directory, const unsigned int z,
                               const unsigned int compression_type, const float *const voxel_size,
                               const char *const description) const {
-      _cimg_save_tiff("bool8",cimg_bool8);
+      _cimg_save_tiff("bool8",cimg_uint8);
       _cimg_save_tiff("uint8",cimg_uint8);
       _cimg_save_tiff("int8",cimg_int8);
       _cimg_save_tiff("uint16",cimg_uint16);
@@ -62697,7 +62694,7 @@ namespace cimg_library_suffixed {
       if (!cimg::strncasecmp("little",str_endian,6)) endian = false;
       else if (!cimg::strncasecmp("big",str_endian,3)) endian = true;
       assign(N);
-      _cimg_load_cimg_case("bool8",0,0,cimg_bool8);
+      _cimg_load_cimg_case("bool8",0,0,cimg_uint8);
       _cimg_load_cimg_case("uint8","unsigned_char","uchar",cimg_uint8);
       _cimg_load_cimg_case("int8",0,0,cimg_int8);
       _cimg_load_cimg_case("char",0,0,char);
@@ -62882,7 +62879,7 @@ namespace cimg_library_suffixed {
                                     cimglist_instance,
                                     n0,x0,y0,z0,c0,n1,x1,y1,z1,c1,filename?filename:"(FILE*)",N);
       assign(1 + nn1 - n0);
-      _cimg_load_cimg_case2("bool8",0,0,cimg_bool8);
+      _cimg_load_cimg_case2("bool8",0,0,cimg_uint8);
       _cimg_load_cimg_case2("uint8","unsigned char","uchar",cimg_uint8);
       _cimg_load_cimg_case2("int8",0,0,cimg_int8);
       _cimg_load_cimg_case2("char",0,0,char);
@@ -64204,7 +64201,7 @@ namespace cimg_library_suffixed {
       if (!cimg::strncasecmp("little",str_endian,6)) endian = false;
       else if (!cimg::strncasecmp("big",str_endian,3)) endian = true;
       const unsigned int lmax = std::min(N,n0 + _width);
-      _cimg_save_cimg_case("bool8",0,0,cimg_bool8);
+      _cimg_save_cimg_case("bool8",0,0,cimg_uint8);
       _cimg_save_cimg_case("uint8","unsigned_char","uchar",cimg_uint8);
       _cimg_save_cimg_case("int8",0,0,cimg_int8);
       _cimg_save_cimg_case("char",0,0,char);
@@ -64741,7 +64738,7 @@ namespace cimg_library_suffixed {
       if (!cimg::strncasecmp("little",str_endian,6)) endian = false;
       else if (!cimg::strncasecmp("big",str_endian,3)) endian = true;
       res.assign(N);
-      _cimg_unserialize_case("bool8",0,0,cimg_bool8);
+      _cimg_unserialize_case("bool8",0,0,cimg_uint8);
       _cimg_unserialize_case("uint8","unsigned_char","uchar",cimg_uint8);
       _cimg_unserialize_case("int8",0,0,cimg_int8);
       _cimg_unserialize_case("char",0,0,char);

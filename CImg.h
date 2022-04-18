@@ -62685,7 +62685,7 @@ namespace cimg_library_suffixed {
       do {
         j = 0; while ((i=std::fgetc(nfile))!='\n' && i>=0 && j<255) tmp[j++] = (char)i; tmp[j] = 0;
       } while (*tmp=='#' && i>=0);
-      err = cimg_sscanf(tmp,"%u%*c%255[A-Za-z12468_]%*c%255[sA-Za-z_ ]",
+      err = cimg_sscanf(tmp,"%u%*c%255[A-Za-z123468_]%*c%255[sA-Za-z_ ]",
                         &N,str_pixeltype._data,str_endian._data);
       if (err<2) {
         if (!file) cimg::fclose(nfile);
@@ -62863,7 +62863,7 @@ namespace cimg_library_suffixed {
       unsigned int j, N, W, H, D, C;
       int i, err;
       j = 0; while ((i=std::fgetc(nfile))!='\n' && i!=EOF && j<256) tmp[j++] = (char)i; tmp[j] = 0;
-      err = cimg_sscanf(tmp,"%u%*c%255[A-Za-z12468_]%*c%255[sA-Za-z_ ]",
+      err = cimg_sscanf(tmp,"%u%*c%255[A-Za-z123468_]%*c%255[sA-Za-z_ ]",
                         &N,str_pixeltype._data,str_endian._data);
       if (err<2) {
         if (!file) cimg::fclose(nfile);
@@ -64193,7 +64193,7 @@ namespace cimg_library_suffixed {
       unsigned int j, N, W, H, D, C;
       int i, err;
       j = 0; while ((i=std::fgetc(nfile))!='\n' && i!=EOF && j<256) tmp[j++] = (char)i; tmp[j] = 0;
-      err = cimg_sscanf(tmp,"%u%*c%255[A-Za-z12468_]%*c%255[sA-Za-z_ ]",&N,str_pixeltype._data,str_endian._data);
+      err = cimg_sscanf(tmp,"%u%*c%255[A-Za-z123468_]%*c%255[sA-Za-z_ ]",&N,str_pixeltype._data,str_endian._data);
       if (err<2) {
         if (!file) cimg::fclose(nfile);
         throw CImgIOException(_cimglist_instance
@@ -64733,7 +64733,7 @@ namespace cimg_library_suffixed {
         j = 0; while ((i=(int)*stream)!='\n' && stream<estream && j<255) { ++stream; tmp[j++] = (char)i; }
         ++stream; tmp[j] = 0;
       } while (*tmp=='#' && stream<estream);
-      err = cimg_sscanf(tmp,"%u%*c%255[A-Za-z12468_]%*c%255[sA-Za-z_ ]",
+      err = cimg_sscanf(tmp,"%u%*c%255[A-Za-z123468_]%*c%255[sA-Za-z_ ]",
                         &N,str_pixeltype._data,str_endian._data);
       if (err<2)
         throw CImgArgumentException("CImgList<%s>::get_unserialize(): CImg header not found in serialized buffer.",

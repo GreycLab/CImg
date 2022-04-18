@@ -211,8 +211,8 @@ enum {FALSE_WIN = 0};
 #define cimg_pragma(x) _Pragma(#x)
 #endif
 
-// Define own types 'cimg_long/ulong' and 'cimg_int64/uint64' to ensure portability.
-// ( constrained to 'sizeof(cimg_ulong/cimg_long) = sizeof(void*)' and 'sizeof(cimg_int64/cimg_uint64)=8' ).
+// Define own datatypes to ensure portability.
+// ( 'sizeof(cimg_ulong/cimg_long) = sizeof(void*)' ).
 #define cimg_uint8 unsigned char
 #if defined(CHAR_MAX) && CHAR_MAX==255
 #define cimg_int8 signed char
@@ -225,6 +225,9 @@ enum {FALSE_WIN = 0};
 #define cimg_int32 int
 #define cimg_float32 float
 #define cimg_float64 double
+#define cimg_bool8 cimg_uint8
+#define cimg_bool16 cimg_uint16
+#define cimg_bool32 cimg_uint32
 
 #if cimg_OS==2
 
@@ -2719,7 +2722,10 @@ namespace cimg_library_suffixed {
     };
 
     template<> struct type<bool> {
-      static const char* string() { static const char *const s = "bool"; return s; }
+      static const char* string() {
+        static const char *const s = sizeof(bool)==1?"bool8":sizeof(bool)==2?"bool16":sizeof(bool)==4?"bool32":"bool";
+        return s;
+      }
       static bool is_float() { return false; }
       static bool is_inf(const bool) { return false; }
       static bool is_nan(const bool) { return false; }
@@ -58719,17 +58725,17 @@ namespace cimg_library_suffixed {
     const CImg<T>& _save_tiff(TIFF *tif, const unsigned int directory, const unsigned int z,
                               const unsigned int compression_type, const float *const voxel_size,
                               const char *const description) const {
-      _cimg_save_tiff("bool",unsigned char);
-      _cimg_save_tiff("uint8",unsigned char);
-      _cimg_save_tiff("int8",signed char);
-      _cimg_save_tiff("uint16",unsigned short);
-      _cimg_save_tiff("int16",short);
-      _cimg_save_tiff("uint32",unsigned int);
-      _cimg_save_tiff("int32",int);
-      _cimg_save_tiff("uint64",unsigned int);
-      _cimg_save_tiff("int64",int);
-      _cimg_save_tiff("float32",float);
-      _cimg_save_tiff("float64",float);
+      _cimg_save_tiff("bool8",cimg_bool8);
+      _cimg_save_tiff("uint8",cimg_uint8);
+      _cimg_save_tiff("int8",cimg_int8);
+      _cimg_save_tiff("uint16",cimg_uint16);
+      _cimg_save_tiff("int16",cimg_int16);
+      _cimg_save_tiff("uint32",cimg_uint32);
+      _cimg_save_tiff("int32",cimg_int32);
+      _cimg_save_tiff("uint64",cimg_uint32); // Does not support 'int64'
+      _cimg_save_tiff("int64",cimg_int32);
+      _cimg_save_tiff("float32",cimg_float32);
+      _cimg_save_tiff("float64",cimg_float32); // Does not support 'float64'
       const char *const filename = TIFFFileName(tif);
       throw CImgInstanceException(_cimg_instance
                                   "save_tiff(): Unsupported pixel type '%s' for file '%s'.",
@@ -58826,7 +58832,7 @@ namespace cimg_library_suffixed {
       ((short*)&(header[40]))[2] = (short)_height;
       ((short*)&(header[40]))[3] = (short)_depth;
       ((short*)&(header[40]))[4] = (short)_spectrum;
-      if (!cimg::strcasecmp(pixel_type(),"bool") ||
+      if (!cimg::strcasecmp(pixel_type(),"bool8") ||
           !cimg::strcasecmp(pixel_type(),"uint8") ||
           !cimg::strcasecmp(pixel_type(),"int8")) datatype = 2;
       if (!cimg::strcasecmp(pixel_type(),"uint16") ||
@@ -62691,7 +62697,7 @@ namespace cimg_library_suffixed {
       if (!cimg::strncasecmp("little",str_endian,6)) endian = false;
       else if (!cimg::strncasecmp("big",str_endian,3)) endian = true;
       assign(N);
-      _cimg_load_cimg_case("bool",0,0,bool);
+      _cimg_load_cimg_case("bool8",0,0,cimg_bool8);
       _cimg_load_cimg_case("uint8","unsigned_char","uchar",cimg_uint8);
       _cimg_load_cimg_case("int8",0,0,cimg_int8);
       _cimg_load_cimg_case("char",0,0,char);
@@ -62876,7 +62882,7 @@ namespace cimg_library_suffixed {
                                     cimglist_instance,
                                     n0,x0,y0,z0,c0,n1,x1,y1,z1,c1,filename?filename:"(FILE*)",N);
       assign(1 + nn1 - n0);
-      _cimg_load_cimg_case2("bool",0,0,bool);
+      _cimg_load_cimg_case2("bool8",0,0,cimg_bool8);
       _cimg_load_cimg_case2("uint8","unsigned char","uchar",cimg_uint8);
       _cimg_load_cimg_case2("int8",0,0,cimg_int8);
       _cimg_load_cimg_case2("char",0,0,char);
@@ -64198,7 +64204,7 @@ namespace cimg_library_suffixed {
       if (!cimg::strncasecmp("little",str_endian,6)) endian = false;
       else if (!cimg::strncasecmp("big",str_endian,3)) endian = true;
       const unsigned int lmax = std::min(N,n0 + _width);
-      _cimg_save_cimg_case("bool",0,0,bool);
+      _cimg_save_cimg_case("bool8",0,0,cimg_bool8);
       _cimg_save_cimg_case("uint8","unsigned_char","uchar",cimg_uint8);
       _cimg_save_cimg_case("int8",0,0,cimg_int8);
       _cimg_save_cimg_case("char",0,0,char);
@@ -64735,7 +64741,7 @@ namespace cimg_library_suffixed {
       if (!cimg::strncasecmp("little",str_endian,6)) endian = false;
       else if (!cimg::strncasecmp("big",str_endian,3)) endian = true;
       res.assign(N);
-      _cimg_unserialize_case("bool",0,0,bool);
+      _cimg_unserialize_case("bool8",0,0,cimg_bool8);
       _cimg_unserialize_case("uint8","unsigned_char","uchar",cimg_uint8);
       _cimg_unserialize_case("int8",0,0,cimg_int8);
       _cimg_unserialize_case("char",0,0,char);

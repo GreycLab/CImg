@@ -264,8 +264,8 @@ enum {FALSE_WIN = 0};
 
 #endif
 
-#ifndef cimg_max_file_size
-#define cimg_max_file_size ((cimg_ulong)4*1024*1024*1024)
+#ifndef cimg_max_buf_size
+#define cimg_max_buf_size ((cimg_ulong)4*1024*1024*1024)
 #endif
 
 // Configure filename separator.
@@ -11814,7 +11814,14 @@ namespace cimg_library_suffixed {
       if ((dy==1 || (siz*=dy)>osiz) &&
           ((osiz = siz), dz==1 || (siz*=dz)>osiz) &&
           ((osiz = siz), dc==1 || (siz*=dc)>osiz) &&
-          ((osiz = siz), sizeof(T)==1 || (siz*sizeof(T))>osiz)) return siz;
+          ((osiz = siz), sizeof(T)==1 || (siz*sizeof(T))>osiz)) {
+            
+            if (siz > cimg_max_buf_size){
+              throw CImgArgumentException("CImg<%s>::safe_size(): Specified size (%u,%u,%u,%u) exceeds maximum allowed buffer size of %lu ",
+                                  pixel_type(),dx,dy,dz,dc,cimg_max_buf_size);
+            }
+            return siz;
+          }
       throw CImgArgumentException("CImg<%s>::safe_size(): Specified size (%u,%u,%u,%u) overflows 'size_t'.",
                                   pixel_type(),dx,dy,dz,dc);
     }
@@ -53201,7 +53208,7 @@ namespace cimg_library_suffixed {
                                     "load_bmp(): Specified filename is (null).",
                                     cimg_instance);
 
-      const ulongT fsiz = file?(ulongT)cimg_max_file_size:(ulongT)cimg::fsize(filename);
+      const ulongT fsiz = file?(ulongT)cimg_max_buf_size:(ulongT)cimg::fsize(filename);
       std::FILE *const nfile = file?file:cimg::fopen(filename,"rb");
       CImg<ucharT> header(54);
       cimg::fread(header._data,54,nfile);
@@ -55081,7 +55088,7 @@ namespace cimg_library_suffixed {
                                     "load_pandore(): Specified filename is (null).",
                                     cimg_instance);
 
-      const ulongT fsiz = file?(ulongT)cimg_max_file_size:(ulongT)cimg::fsize(filename);
+      const ulongT fsiz = file?(ulongT)cimg_max_buf_size:(ulongT)cimg::fsize(filename);
       std::FILE *const nfile = file?file:cimg::fopen(filename,"rb");
       CImg<charT> header(32);
       cimg::fread(header._data,12,nfile);

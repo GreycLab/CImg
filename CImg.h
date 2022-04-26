@@ -65983,6 +65983,7 @@ namespace cimg_library_suffixed {
 
 #if cimg_OS==2
       if (!(file=cimg::std_fopen(filename_local,"rb"))) {
+
         // Try with 'powershell' otherwise.
         if (timeout) {
           if (referer)

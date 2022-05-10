@@ -31127,8 +31127,8 @@ namespace cimg_library_suffixed {
       for (ptrd = _data; ptrd<ptre; ) { *(ptrd++) = val0; *(ptrd++) = val1; *(ptrd++) = val2; }
       ptre+=2;
       switch (ptre - ptrd) {
-      case 2 : *(--ptre) = val1; // fallthrough
-      case 1 : *(--ptre) = val0; // fallthrough
+      case 2 : *(--ptre) = val1; // Fallthrough
+      case 1 : *(--ptre) = val0; // Fallthrough
       }
       return *this;
     }
@@ -31145,9 +31145,9 @@ namespace cimg_library_suffixed {
       for (ptrd = _data; ptrd<ptre; ) { *(ptrd++) = val0; *(ptrd++) = val1; *(ptrd++) = val2; *(ptrd++) = val3; }
       ptre+=3;
       switch (ptre - ptrd) {
-      case 3 : *(--ptre) = val2; // fallthrough
-      case 2 : *(--ptre) = val1; // fallthrough
-      case 1 : *(--ptre) = val0; // fallthrough
+      case 3 : *(--ptre) = val2; // Fallthrough
+      case 2 : *(--ptre) = val1; // Fallthrough
+      case 1 : *(--ptre) = val0; // Fallthrough
       }
       return *this;
     }
@@ -31166,10 +31166,10 @@ namespace cimg_library_suffixed {
       }
       ptre+=4;
       switch (ptre - ptrd) {
-      case 4 : *(--ptre) = val3; // fallthrough
-      case 3 : *(--ptre) = val2; // fallthrough
-      case 2 : *(--ptre) = val1; // fallthrough
-      case 1 : *(--ptre) = val0; // fallthrough
+      case 4 : *(--ptre) = val3; // Fallthrough
+      case 3 : *(--ptre) = val2; // Fallthrough
+      case 2 : *(--ptre) = val1; // Fallthrough
+      case 1 : *(--ptre) = val0; // Fallthrough
       }
       return *this;
     }
@@ -31188,11 +31188,11 @@ namespace cimg_library_suffixed {
       }
       ptre+=5;
       switch (ptre - ptrd) {
-      case 5 : *(--ptre) = val4; // fallthrough
-      case 4 : *(--ptre) = val3; // fallthrough
-      case 3 : *(--ptre) = val2; // fallthrough
-      case 2 : *(--ptre) = val1; // fallthrough
-      case 1 : *(--ptre) = val0; // fallthrough
+      case 5 : *(--ptre) = val4; // Fallthrough
+      case 4 : *(--ptre) = val3; // Fallthrough
+      case 3 : *(--ptre) = val2; // Fallthrough
+      case 2 : *(--ptre) = val1; // Fallthrough
+      case 1 : *(--ptre) = val0; // Fallthrough
       }
       return *this;
     }
@@ -31213,12 +31213,12 @@ namespace cimg_library_suffixed {
       }
       ptre+=6;
       switch (ptre - ptrd) {
-      case 6 : *(--ptre) = val5; // fallthrough
-      case 5 : *(--ptre) = val4; // fallthrough
-      case 4 : *(--ptre) = val3; // fallthrough
-      case 3 : *(--ptre) = val2; // fallthrough
-      case 2 : *(--ptre) = val1; // fallthrough
-      case 1 : *(--ptre) = val0; // fallthrough
+      case 6 : *(--ptre) = val5; // Fallthrough
+      case 5 : *(--ptre) = val4; // Fallthrough
+      case 4 : *(--ptre) = val3; // Fallthrough
+      case 3 : *(--ptre) = val2; // Fallthrough
+      case 2 : *(--ptre) = val1; // Fallthrough
+      case 1 : *(--ptre) = val0; // Fallthrough
       }
       return *this;
     }
@@ -31240,13 +31240,13 @@ namespace cimg_library_suffixed {
       }
       ptre+=7;
       switch (ptre - ptrd) {
-      case 7 : *(--ptre) = val6; // fallthrough
-      case 6 : *(--ptre) = val5; // fallthrough
-      case 5 : *(--ptre) = val4; // fallthrough
-      case 4 : *(--ptre) = val3; // fallthrough
-      case 3 : *(--ptre) = val2; // fallthrough
-      case 2 : *(--ptre) = val1; // fallthrough
-      case 1 : *(--ptre) = val0; // fallthrough
+      case 7 : *(--ptre) = val6; // Fallthrough
+      case 6 : *(--ptre) = val5; // Fallthrough
+      case 5 : *(--ptre) = val4; // Fallthrough
+      case 4 : *(--ptre) = val3; // Fallthrough
+      case 3 : *(--ptre) = val2; // Fallthrough
+      case 2 : *(--ptre) = val1; // Fallthrough
+      case 1 : *(--ptre) = val0; // Fallthrough
       }
       return *this;
     }
@@ -31269,14 +31269,14 @@ namespace cimg_library_suffixed {
       }
       ptre+=8;
       switch (ptre - ptrd) {
-      case 8 : *(--ptre) = val7; // fallthrough
-      case 7 : *(--ptre) = val6; // fallthrough
-      case 6 : *(--ptre) = val5; // fallthrough
-      case 5 : *(--ptre) = val4; // fallthrough
-      case 4 : *(--ptre) = val3; // fallthrough
-      case 3 : *(--ptre) = val2; // fallthrough
-      case 2 : *(--ptre) = val1; // fallthrough
-      case 1 : *(--ptre) = val0; // fallthrough
+      case 8 : *(--ptre) = val7; // Fallthrough
+      case 7 : *(--ptre) = val6; // Fallthrough
+      case 6 : *(--ptre) = val5; // Fallthrough
+      case 5 : *(--ptre) = val4; // Fallthrough
+      case 4 : *(--ptre) = val3; // Fallthrough
+      case 3 : *(--ptre) = val2; // Fallthrough
+      case 2 : *(--ptre) = val1; // Fallthrough
+      case 1 : *(--ptre) = val0; // Fallthrough
       }
       return *this;
     }
@@ -31298,15 +31298,15 @@ namespace cimg_library_suffixed {
       }
       ptre+=9;
       switch (ptre - ptrd) {
-      case 9 : *(--ptre) = val8; // fallthrough
-      case 8 : *(--ptre) = val7; // fallthrough
-      case 7 : *(--ptre) = val6; // fallthrough
-      case 6 : *(--ptre) = val5; // fallthrough
-      case 5 : *(--ptre) = val4; // fallthrough
-      case 4 : *(--ptre) = val3; // fallthrough
-      case 3 : *(--ptre) = val2; // fallthrough
-      case 2 : *(--ptre) = val1; // fallthrough
-      case 1 : *(--ptre) = val0; // fallthrough
+      case 9 : *(--ptre) = val8; // Fallthrough
+      case 8 : *(--ptre) = val7; // Fallthrough
+      case 7 : *(--ptre) = val6; // Fallthrough
+      case 6 : *(--ptre) = val5; // Fallthrough
+      case 5 : *(--ptre) = val4; // Fallthrough
+      case 4 : *(--ptre) = val3; // Fallthrough
+      case 3 : *(--ptre) = val2; // Fallthrough
+      case 2 : *(--ptre) = val1; // Fallthrough
+      case 1 : *(--ptre) = val0; // Fallthrough
       }
       return *this;
     }
@@ -31329,16 +31329,16 @@ namespace cimg_library_suffixed {
       }
       ptre+=10;
       switch (ptre - ptrd) {
-      case 10 : *(--ptre) = val9; // fallthrough
-      case 9 : *(--ptre) = val8; // fallthrough
-      case 8 : *(--ptre) = val7; // fallthrough
-      case 7 : *(--ptre) = val6; // fallthrough
-      case 6 : *(--ptre) = val5; // fallthrough
-      case 5 : *(--ptre) = val4; // fallthrough
-      case 4 : *(--ptre) = val3; // fallthrough
-      case 3 : *(--ptre) = val2; // fallthrough
-      case 2 : *(--ptre) = val1; // fallthrough
-      case 1 : *(--ptre) = val0; // fallthrough
+      case 10 : *(--ptre) = val9; // Fallthrough
+      case 9 : *(--ptre) = val8; // Fallthrough
+      case 8 : *(--ptre) = val7; // Fallthrough
+      case 7 : *(--ptre) = val6; // Fallthrough
+      case 6 : *(--ptre) = val5; // Fallthrough
+      case 5 : *(--ptre) = val4; // Fallthrough
+      case 4 : *(--ptre) = val3; // Fallthrough
+      case 3 : *(--ptre) = val2; // Fallthrough
+      case 2 : *(--ptre) = val1; // Fallthrough
+      case 1 : *(--ptre) = val0; // Fallthrough
       }
       return *this;
     }
@@ -31360,17 +31360,17 @@ namespace cimg_library_suffixed {
       }
       ptre+=11;
       switch (ptre - ptrd) {
-      case 11 : *(--ptre) = val10; // fallthrough
-      case 10 : *(--ptre) = val9; // fallthrough
-      case 9 : *(--ptre) = val8; // fallthrough
-      case 8 : *(--ptre) = val7; // fallthrough
-      case 7 : *(--ptre) = val6; // fallthrough
-      case 6 : *(--ptre) = val5; // fallthrough
-      case 5 : *(--ptre) = val4; // fallthrough
-      case 4 : *(--ptre) = val3; // fallthrough
-      case 3 : *(--ptre) = val2; // fallthrough
-      case 2 : *(--ptre) = val1; // fallthrough
-      case 1 : *(--ptre) = val0; // fallthrough
+      case 11 : *(--ptre) = val10; // Fallthrough
+      case 10 : *(--ptre) = val9; // Fallthrough
+      case 9 : *(--ptre) = val8; // Fallthrough
+      case 8 : *(--ptre) = val7; // Fallthrough
+      case 7 : *(--ptre) = val6; // Fallthrough
+      case 6 : *(--ptre) = val5; // Fallthrough
+      case 5 : *(--ptre) = val4; // Fallthrough
+      case 4 : *(--ptre) = val3; // Fallthrough
+      case 3 : *(--ptre) = val2; // Fallthrough
+      case 2 : *(--ptre) = val1; // Fallthrough
+      case 1 : *(--ptre) = val0; // Fallthrough
       }
       return *this;
     }
@@ -31395,18 +31395,18 @@ namespace cimg_library_suffixed {
       }
       ptre+=12;
       switch (ptre - ptrd) {
-      case 12 : *(--ptre) = val11; // fallthrough
-      case 11 : *(--ptre) = val10; // fallthrough
-      case 10 : *(--ptre) = val9; // fallthrough
-      case 9 : *(--ptre) = val8; // fallthrough
-      case 8 : *(--ptre) = val7; // fallthrough
-      case 7 : *(--ptre) = val6; // fallthrough
-      case 6 : *(--ptre) = val5; // fallthrough
-      case 5 : *(--ptre) = val4; // fallthrough
-      case 4 : *(--ptre) = val3; // fallthrough
-      case 3 : *(--ptre) = val2; // fallthrough
-      case 2 : *(--ptre) = val1; // fallthrough
-      case 1 : *(--ptre) = val0; // fallthrough
+      case 12 : *(--ptre) = val11; // Fallthrough
+      case 11 : *(--ptre) = val10; // Fallthrough
+      case 10 : *(--ptre) = val9; // Fallthrough
+      case 9 : *(--ptre) = val8; // Fallthrough
+      case 8 : *(--ptre) = val7; // Fallthrough
+      case 7 : *(--ptre) = val6; // Fallthrough
+      case 6 : *(--ptre) = val5; // Fallthrough
+      case 5 : *(--ptre) = val4; // Fallthrough
+      case 4 : *(--ptre) = val3; // Fallthrough
+      case 3 : *(--ptre) = val2; // Fallthrough
+      case 2 : *(--ptre) = val1; // Fallthrough
+      case 1 : *(--ptre) = val0; // Fallthrough
       }
       return *this;
     }
@@ -31432,19 +31432,19 @@ namespace cimg_library_suffixed {
       }
       ptre+=13;
       switch (ptre - ptrd) {
-      case 13 : *(--ptre) = val12; // fallthrough
-      case 12 : *(--ptre) = val11; // fallthrough
-      case 11 : *(--ptre) = val10; // fallthrough
-      case 10 : *(--ptre) = val9; // fallthrough
-      case 9 : *(--ptre) = val8; // fallthrough
-      case 8 : *(--ptre) = val7; // fallthrough
-      case 7 : *(--ptre) = val6; // fallthrough
-      case 6 : *(--ptre) = val5; // fallthrough
-      case 5 : *(--ptre) = val4; // fallthrough
-      case 4 : *(--ptre) = val3; // fallthrough
-      case 3 : *(--ptre) = val2; // fallthrough
-      case 2 : *(--ptre) = val1; // fallthrough
-      case 1 : *(--ptre) = val0; // fallthrough
+      case 13 : *(--ptre) = val12; // Fallthrough
+      case 12 : *(--ptre) = val11; // Fallthrough
+      case 11 : *(--ptre) = val10; // Fallthrough
+      case 10 : *(--ptre) = val9; // Fallthrough
+      case 9 : *(--ptre) = val8; // Fallthrough
+      case 8 : *(--ptre) = val7; // Fallthrough
+      case 7 : *(--ptre) = val6; // Fallthrough
+      case 6 : *(--ptre) = val5; // Fallthrough
+      case 5 : *(--ptre) = val4; // Fallthrough
+      case 4 : *(--ptre) = val3; // Fallthrough
+      case 3 : *(--ptre) = val2; // Fallthrough
+      case 2 : *(--ptre) = val1; // Fallthrough
+      case 1 : *(--ptre) = val0; // Fallthrough
       }
       return *this;
     }
@@ -31470,20 +31470,20 @@ namespace cimg_library_suffixed {
       }
       ptre+=14;
       switch (ptre - ptrd) {
-      case 14 : *(--ptre) = val13; // fallthrough
-      case 13 : *(--ptre) = val12; // fallthrough
-      case 12 : *(--ptre) = val11; // fallthrough
-      case 11 : *(--ptre) = val10; // fallthrough
-      case 10 : *(--ptre) = val9; // fallthrough
-      case 9 : *(--ptre) = val8; // fallthrough
-      case 8 : *(--ptre) = val7; // fallthrough
-      case 7 : *(--ptre) = val6; // fallthrough
-      case 6 : *(--ptre) = val5; // fallthrough
-      case 5 : *(--ptre) = val4; // fallthrough
-      case 4 : *(--ptre) = val3; // fallthrough
-      case 3 : *(--ptre) = val2; // fallthrough
-      case 2 : *(--ptre) = val1; // fallthrough
-      case 1 : *(--ptre) = val0; // fallthrough
+      case 14 : *(--ptre) = val13; // Fallthrough
+      case 13 : *(--ptre) = val12; // Fallthrough
+      case 12 : *(--ptre) = val11; // Fallthrough
+      case 11 : *(--ptre) = val10; // Fallthrough
+      case 10 : *(--ptre) = val9; // Fallthrough
+      case 9 : *(--ptre) = val8; // Fallthrough
+      case 8 : *(--ptre) = val7; // Fallthrough
+      case 7 : *(--ptre) = val6; // Fallthrough
+      case 6 : *(--ptre) = val5; // Fallthrough
+      case 5 : *(--ptre) = val4; // Fallthrough
+      case 4 : *(--ptre) = val3; // Fallthrough
+      case 3 : *(--ptre) = val2; // Fallthrough
+      case 2 : *(--ptre) = val1; // Fallthrough
+      case 1 : *(--ptre) = val0; // Fallthrough
       }
       return *this;
     }
@@ -31509,21 +31509,21 @@ namespace cimg_library_suffixed {
       }
       ptre+=15;
       switch (ptre - ptrd) {
-      case 15 : *(--ptre) = val14; // fallthrough
-      case 14 : *(--ptre) = val13; // fallthrough
-      case 13 : *(--ptre) = val12; // fallthrough
-      case 12 : *(--ptre) = val11; // fallthrough
-      case 11 : *(--ptre) = val10; // fallthrough
-      case 10 : *(--ptre) = val9; // fallthrough
-      case 9 : *(--ptre) = val8; // fallthrough
-      case 8 : *(--ptre) = val7; // fallthrough
-      case 7 : *(--ptre) = val6; // fallthrough
-      case 6 : *(--ptre) = val5; // fallthrough
-      case 5 : *(--ptre) = val4; // fallthrough
-      case 4 : *(--ptre) = val3; // fallthrough
-      case 3 : *(--ptre) = val2; // fallthrough
-      case 2 : *(--ptre) = val1; // fallthrough
-      case 1 : *(--ptre) = val0; // fallthrough
+      case 15 : *(--ptre) = val14; // Fallthrough
+      case 14 : *(--ptre) = val13; // Fallthrough
+      case 13 : *(--ptre) = val12; // Fallthrough
+      case 12 : *(--ptre) = val11; // Fallthrough
+      case 11 : *(--ptre) = val10; // Fallthrough
+      case 10 : *(--ptre) = val9; // Fallthrough
+      case 9 : *(--ptre) = val8; // Fallthrough
+      case 8 : *(--ptre) = val7; // Fallthrough
+      case 7 : *(--ptre) = val6; // Fallthrough
+      case 6 : *(--ptre) = val5; // Fallthrough
+      case 5 : *(--ptre) = val4; // Fallthrough
+      case 4 : *(--ptre) = val3; // Fallthrough
+      case 3 : *(--ptre) = val2; // Fallthrough
+      case 2 : *(--ptre) = val1; // Fallthrough
+      case 1 : *(--ptre) = val0; // Fallthrough
       }
       return *this;
     }
@@ -54910,12 +54910,12 @@ namespace cimg_library_suffixed {
         case 0 : break;
         case 2 :
           out[5] = cimg::strncasecmp(tmp1,"unsigned",8)?1:0;
-          std::strncpy(tmp1,tmp2,tmp1._width - 1); // fallthrough
+          std::strncpy(tmp1,tmp2,tmp1._width - 1); // Fallthrough
         case 1 :
           if (!cimg::strncasecmp(tmp1,"int",3) || !cimg::strncasecmp(tmp1,"fixed",5))  out[4] = 0;
           if (!cimg::strncasecmp(tmp1,"float",5) || !cimg::strncasecmp(tmp1,"double",6)) out[4] = 1;
           if (!cimg::strncasecmp(tmp1,"packed",6)) out[4] = 2;
-          if (out[4]>=0) break; // fallthrough
+          if (out[4]>=0) break; // Fallthrough
         default :
           throw CImgIOException("CImg<%s>::load_inr(): Invalid pixel type '%s' defined in header.",
                                 pixel_type(),

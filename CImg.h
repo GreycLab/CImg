@@ -16895,7 +16895,7 @@ namespace cimg_library_suffixed {
 
       unsigned int mempos, mem_img_median, mem_img_norm, mem_img_index, debug_indent, result_dim, break_type,
         constcache_size;
-      bool is_parallelizable, is_end_code, is_fill, return_new_comp, need_input_copy;
+      bool is_parallelizable, is_noncritical_run, is_end_code, is_fill, return_new_comp, need_input_copy;
       double *result;
       cimg_uint64 rng;
       const char *const calling_function, *s_op, *ss_op;
@@ -16951,7 +16951,7 @@ namespace cimg_library_suffixed {
         imgout(img_output?*img_output:CImg<T>::empty()),imglist(list_images?*list_images:CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),list_norm(_list_norm),user_macro(0),
         mem_img_median(~0U),mem_img_norm(~0U),mem_img_index(~0U),debug_indent(0),result_dim(0),break_type(0),
-        constcache_size(0),is_parallelizable(true),is_fill(_is_fill),need_input_copy(false),
+        constcache_size(0),is_parallelizable(true),is_noncritical_run(false),is_fill(_is_fill),need_input_copy(false),
         rng((cimg::_rand(),cimg::rng())),calling_function(funcname?funcname:"cimg_math_parser") {
 
 #if cimg_use_openmp!=0
@@ -17065,7 +17065,7 @@ namespace cimg_library_suffixed {
         p_code_end(0),p_break((CImg<ulongT>*)(cimg_ulong)-2),
         imgin(CImg<T>::const_empty()),imgout(CImg<T>::empty()),imglist(CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),list_norm(_list_norm),debug_indent(0),
-        result_dim(0),break_type(0),constcache_size(0),is_parallelizable(true),is_fill(false),
+        result_dim(0),break_type(0),constcache_size(0),is_parallelizable(true),is_noncritical_run(false),is_fill(false),
         need_input_copy(false),rng(0),calling_function(0) {
         mem.assign(1 + _cimg_mp_slot_c,1,1,1,0); // Allow to skip 'is_empty?' test in operator()()
         result = mem._data;
@@ -17077,7 +17077,7 @@ namespace cimg_library_suffixed {
         imgin(mp.imgin),imgout(mp.imgout),imglist(mp.imglist),
         img_stats(mp.img_stats),list_stats(mp.list_stats),list_median(mp.list_median),list_norm(mp.list_norm),
         debug_indent(0),result_dim(mp.result_dim),break_type(0),constcache_size(0),
-        is_parallelizable(mp.is_parallelizable),is_fill(mp.is_fill),
+        is_parallelizable(mp.is_parallelizable),is_noncritical_run(mp.is_noncritical_run),is_fill(mp.is_fill),
         need_input_copy(mp.need_input_copy),result(mem._data + (mp.result - mp.mem._data)),
         rng((cimg::_rand(),cimg::rng())),calling_function(0) {
 
@@ -21413,7 +21413,7 @@ namespace cimg_library_suffixed {
 #ifdef cimg_mp_func_run
             if (!std::strncmp(ss,"run(",4)) { // Run external command
               _cimg_mp_op("Function 'run()'");
-              if (!is_inside_critical) is_parallelizable = false;
+              if (!is_inside_critical) { is_parallelizable = false; is_noncritical_run = true; }
               CImg<ulongT>::vector((ulongT)mp_run,0,0).move_to(l_opcode);
               pos = 1;
               for (s = ss4; s<se; ++s) {
@@ -31595,8 +31595,9 @@ namespace cimg_library_suffixed {
 
             bool do_in_parallel = false;
 #if cimg_use_openmp!=0
-            cimg_openmp_if(*expression=='*' || *expression==':' ||
-                           (mp.is_parallelizable && M>=(cimg_openmp_sizefactor)*320 && size()/M>=2))
+            cimg_openmp_if(!mp.is_noncritical_run &&
+                           (*expression=='*' || *expression==':' ||
+                            (mp.is_parallelizable && M>=(cimg_openmp_sizefactor)*320 && size()/M>=2)))
               do_in_parallel = true;
 #endif
             if (mp.result_dim) { // Vector-valued expression

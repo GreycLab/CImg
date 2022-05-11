@@ -266,7 +266,7 @@ enum {FALSE_WIN = 0};
 
 #ifndef cimg_max_buf_size
 #if UINTPTR_MAX==0xffffffff
-#define cimg_max_buf_size ((cimg_ulong)4*1024*1024*1024)
+#define cimg_max_buf_size ((cimg_ulong)4*1024*1024*1024-1)
 #else
 #define cimg_max_buf_size ((cimg_ulong)16*1024*1024*1024)
 #endif

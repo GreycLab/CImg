@@ -339,7 +339,7 @@ enum {FALSE_WIN = 0};
 
 // Define abort macros to be used with OpenMP.
 #ifndef _cimg_abort_init_openmp
-#define _cimg_abort_init_openmp unsigned _cimg_abort_go_openmp = 1; cimg::unused(_cimg_abort_go_openmp)
+#define _cimg_abort_init_openmp unsigned int _cimg_abort_go_openmp = 1; cimg::unused(_cimg_abort_go_openmp)
 #endif
 #ifndef _cimg_abort_try_openmp
 #define _cimg_abort_try_openmp if (_cimg_abort_go_openmp) try

@@ -346,13 +346,13 @@ enum {FALSE_WIN = 0};
 #endif
 #ifndef _cimg_abort_catch_openmp
 #define _cimg_abort_catch_openmp catch (CImgAbortException&) { \
-  cimg_pragma_openmp(atomic) _cimg_abort_go_openmp&=false; \
+  cimg_pragma_openmp(atomic) _cimg_abort_go_openmp&=0; \
 }
 #endif
 #ifndef _cimg_abort_catch_fill_openmp
 #define _cimg_abort_catch_fill_openmp \
   catch (CImgException& e) { cimg_pragma(omp critical(abort)) CImg<charT>::string(e._message).move_to(is_error); \
-                             cimg_pragma_openmp(atomic) _cimg_abort_go_openmp&=false; }
+                             cimg_pragma_openmp(atomic) _cimg_abort_go_openmp&=0; }
 #endif
 #ifdef cimg_abort_test2
 #ifndef _cimg_abort_try_openmp2

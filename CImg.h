@@ -66345,8 +66345,8 @@ namespace cimg_library_suffixed {
        \par Example
        \code
        const double
-       res1 = cimg::eval("cos(x)^2 + sin(y)^2",2,2),  // will return '1'
-       res2 = cimg::eval(0,1,1);                    // will return '1' too
+       res1 = cimg::eval("cos(x)^2 + sin(y)^2",2,2), // will return '1'
+       res2 = cimg::eval(0,1,1);                     // will return '1' too
        \endcode
     **/
     inline double eval(const char *const expression, const double x, const double y, const double z, const double c) {

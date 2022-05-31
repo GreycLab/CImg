@@ -31767,6 +31767,30 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
+    // Try to fill values according to a value sequence.
+    // Return 'false' if an error occured.
+    bool _fill_from_values(const char *const values, const bool repeat_values) {
+      CImg<charT> item(256);
+      const char *nvalues = values;
+      const ulongT siz = size();
+      T *ptrd = _data;
+      ulongT nb = 0;
+      char sep = 0;
+      for (double val = 0; *nvalues && nb<siz; ++nb) {
+        sep = 0;
+        const int err = cimg_sscanf(nvalues,"%255[ \n\t0-9.eEinfa+-]%c",item._data,&sep);
+        if (err>0 && cimg_sscanf(item,"%lf",&val)==1 && (sep==',' || sep==';' || err==1)) {
+          nvalues+=std::strlen(item) + (err>1);
+          *(ptrd++) = (T)val;
+        } else break;
+      }
+
+      if (nb<siz && (sep || *nvalues)) return false;
+      if (repeat_values && nb && nb<siz)
+        for (T *ptrs = _data, *const ptre = _data + siz; ptrd<ptre; ++ptrs) *(ptrd++) = *ptrs;
+      return *this;
+    }
+
     //! Fill sequentially pixel values according to a given expression \newinstance.
     CImg<T> get_fill(const char *const expression, const bool repeat_values, const bool allow_formula=true,
                      CImgList<T> *const list_images=0) const {

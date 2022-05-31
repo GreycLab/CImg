@@ -351,7 +351,7 @@ enum {FALSE_WIN = 0};
 #endif
 #ifndef _cimg_abort_catch_fill_openmp
 #define _cimg_abort_catch_fill_openmp \
-  catch (CImgException& e) { cimg_pragma(omp critical(abort)) CImg<charT>::string(e._message).move_to(is_error); \
+  catch (CImgException& e) { cimg_pragma(omp critical(abort)) CImg<charT>::string(e._message).move_to(is_error_expr); \
                              cimg_pragma_openmp(atomic) _cimg_abort_go_openmp&=0; }
 #endif
 #ifdef cimg_abort_test2
@@ -31561,8 +31561,8 @@ namespace cimg_library_suffixed {
       if (is_empty() || !expression || !*expression) return *this;
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
-      CImg<charT> is_error;
-      bool is_value_sequence = false;
+      CImg<charT> is_error_expr;
+      bool is_error_seq = false, is_value_sequence = false;
       cimg_abort_init;
 
       if (formula_mode) {
@@ -31732,12 +31732,15 @@ namespace cimg_library_suffixed {
               }
             }
             mp.end();
-          } catch (CImgException& e) { CImg<charT>::string(e._message).move_to(is_error); }
+          } catch (CImgException& e) { CImg<charT>::string(e._message).move_to(is_error_expr); }
       }
 
       // Try to fill values according to a value sequence.
-      if (!formula_mode || is_value_sequence || is_error) {
-        CImg<charT> item(256);
+      if (!formula_mode || is_value_sequence || is_error_expr) {
+        is_error_seq = _fill_from_values(expression,repeat_values);
+
+
+/*        CImg<charT> item(256);
         char sep = 0;
         const char *nexpression = expression;
         ulongT nb = 0;
@@ -31751,24 +31754,23 @@ namespace cimg_library_suffixed {
             *(ptrd++) = (T)val;
           } else break;
         }
+*/
+
         cimg::exception_mode(omode);
-        if (nb<siz && (sep || *nexpression)) {
-          if (is_error) throw CImgArgumentException("%s",is_error._data);
+        if (is_error_seq) {
+          if (is_error_expr) throw CImgArgumentException("%s",is_error_expr._data);
           else throw CImgArgumentException(_cimg_instance
                                            "%s(): Invalid sequence of filling values '%s'.",
                                            cimg_instance,calling_function,expression);
         }
-        if (repeat_values && nb && nb<siz)
-          for (T *ptrs = _data, *const ptre = _data + siz; ptrd<ptre; ++ptrs) *(ptrd++) = *ptrs;
       }
-
       cimg::exception_mode(omode);
       cimg_abort_test;
       return *this;
     }
 
-    // Try to fill values according to a value sequence.
-    // Return 'false' if an error occured.
+    // Fill image according to a value sequence, given as a string.
+    // Return 'true' if an error occured.
     bool _fill_from_values(const char *const values, const bool repeat_values) {
       CImg<charT> item(256);
       const char *nvalues = values;
@@ -31784,11 +31786,10 @@ namespace cimg_library_suffixed {
           *(ptrd++) = (T)val;
         } else break;
       }
-
-      if (nb<siz && (sep || *nvalues)) return false;
+      if (nb<siz && (sep || *nvalues)) return true;
       if (repeat_values && nb && nb<siz)
         for (T *ptrs = _data, *const ptre = _data + siz; ptrd<ptre; ++ptrs) *(ptrd++) = *ptrs;
-      return *this;
+      return false;
     }
 
     //! Fill sequentially pixel values according to a given expression \newinstance.

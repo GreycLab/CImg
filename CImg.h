@@ -21636,12 +21636,13 @@ namespace cimg_library_suffixed {
               _cimg_mp_op("Function 'store()'");
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss6,s1,depth1,0,bloc_flags);
+              _cimg_mp_check_type(arg1,2,2,0);
               p1 = _cimg_mp_size(arg1);
-              p3 = std::max(1U,p1);
               s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(++s1,s2,depth1,0,bloc_flags);
-              _cimg_mp_check_type(arg2,2,2,0);
               p2 = _cimg_mp_size(arg2);
+              p3 = std::max(1U,p2);
+
               arg3 = ~0U; arg4 = arg5 = arg6 = 1U; pos = 0;
               if (s2<se1) {
                 s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -21667,7 +21668,7 @@ namespace cimg_library_suffixed {
                 }
               }
               if (arg3==~0U) arg3 = const_scalar(p3);
-              CImg<ulongT>::vector((ulongT)mp_store,_cimg_mp_slot_nan,arg1,p1,arg2,p2,
+              CImg<ulongT>::vector((ulongT)mp_store,_cimg_mp_slot_nan,arg2,p2,arg1,p1,
                                    arg3,arg4,arg5,arg6,pos).move_to(code);
               _cimg_mp_return_nan();
             }

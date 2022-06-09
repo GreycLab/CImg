@@ -21479,7 +21479,7 @@ namespace cimg_library_suffixed {
               p1 = _cimg_mp_size(arg1);
               p2 = _cimg_mp_size(arg2);
               CImg<ulongT>::vector((ulongT)mp_set,arg2,p2,arg1,p1).move_to(code);
-              _cimg_mp_return(arg2);
+              _cimg_mp_return_nan();
             }
 #endif
 

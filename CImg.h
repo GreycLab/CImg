@@ -21881,7 +21881,7 @@ namespace cimg_library_suffixed {
               } while (!is_sth);
 
               if (p_ref) std::memcpy(p_ref,ref,siz_ref);
-              _cimg_mp_return(arg1);
+              _cimg_mp_return_nan();
             }
             break;
 

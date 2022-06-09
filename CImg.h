@@ -19403,7 +19403,7 @@ namespace cimg_library_suffixed {
               CImg<ulongT>(1,22).move_to(code);
               code.back().get_shared_rows(0,7).fill((ulongT)mp_memcopy,p1,arg1,arg2,arg3,arg4,arg5,arg6);
               code.back().get_shared_rows(8,21).fill(ref);
-              _cimg_mp_return(p1);
+              _cimg_mp_return_nan();
             }
 
             if (!std::strncmp(ss,"cos(",4)) { // Cosine

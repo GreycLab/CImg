@@ -20081,7 +20081,7 @@ namespace cimg_library_suffixed {
                 }
               }
               l_opcode[0].move_to(code);
-              _cimg_mp_return(arg1);
+              _cimg_mp_return_nan();
             }
 
             break;
@@ -20317,7 +20317,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_type(arg3,3,1,0);
               CImg<ulongT>::vector((ulongT)mp_fill,arg1,_cimg_mp_size(arg1),arg2,arg3,code._width - p1).
                 move_to(code,p1);
-              _cimg_mp_return(arg1);
+              _cimg_mp_return_nan();
             }
 
             if (!std::strncmp(ss,"find(",5)) { // Find
@@ -20937,7 +20937,7 @@ namespace cimg_library_suffixed {
               memmerge(0,memmerge._height - 1) = (int)pos;
               memmerge(1,memmerge._height - 1) = (int)_cimg_mp_size(pos);
               memmerge(2,memmerge._height - 1) = (int)arg1;
-              _cimg_mp_return(pos);
+              _cimg_mp_return_nan();
             }
             break;
 
@@ -21230,7 +21230,7 @@ namespace cimg_library_suffixed {
               }
               // arg2 = variable slot, arg3 = fill expression.
               CImg<ulongT>::vector((ulongT)mp_repeat,arg3,arg1,arg2,code._width - p1).move_to(code,p1);
-              _cimg_mp_return(arg3);
+              _cimg_mp_return_nan();
             }
 
             if (!std::strncmp(ss,"resize(",7)) { // Vector or image resize

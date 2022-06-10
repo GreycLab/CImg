@@ -31739,24 +31739,6 @@ namespace cimg_library_suffixed {
       // Try to fill values according to a value sequence.
       if (!formula_mode || is_value_sequence || is_error_expr) {
         is_error_seq = _fill_from_values(expression,repeat_values);
-
-
-/*        CImg<charT> item(256);
-        char sep = 0;
-        const char *nexpression = expression;
-        ulongT nb = 0;
-        const ulongT siz = size();
-        T *ptrd = _data;
-        for (double val = 0; *nexpression && nb<siz; ++nb) {
-          sep = 0;
-          const int err = cimg_sscanf(nexpression,"%255[ \n\t0-9.eEinfa+-]%c",item._data,&sep);
-          if (err>0 && cimg_sscanf(item,"%lf",&val)==1 && (sep==',' || sep==';' || err==1)) {
-            nexpression+=std::strlen(item) + (err>1);
-            *(ptrd++) = (T)val;
-          } else break;
-        }
-*/
-
         cimg::exception_mode(omode);
         if (is_error_seq) {
           if (is_error_expr) throw CImgArgumentException("%s",is_error_expr._data);

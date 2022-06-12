@@ -31752,6 +31752,30 @@ namespace cimg_library_suffixed {
       return *this;
     }
 
+    //! Fill sequentially pixel values according to a given expression \newinstance.
+    CImg<T> get_fill(const char *const expression, const bool repeat_values, const bool allow_formula=true,
+                     CImgList<T> *const list_images=0) const {
+      return (+*this).fill(expression,repeat_values,allow_formula?1:0,list_images);
+    }
+
+    //! Fill sequentially pixel values according to a value sequence, given as a string.
+    /**
+       \param values C-string describing a sequence of values.
+       \param repeat_values Tells if this sequence must be repeated when filling.
+    **/
+    CImg<T>& fill_from_values(const char *const values, const bool repeat_values) {
+      if (_fill_from_values(values,repeat_values))
+        throw CImgArgumentException(_cimg_instance
+                                    "Invalid sequence of filling values '%s'.",
+                                    cimg_instance,values);
+      return *this;
+    }
+
+    //! Fill sequentially pixel values according to a value sequence, given as a string \newinstance.
+    CImg<T> get_fill_from_values(const char *const values, const bool repeat_values) const {
+      return (+*this).fill_from_values(values,repeat_values);
+    }
+
     // Fill image according to a value sequence, given as a string.
     // Return 'true' if an error occured.
     bool _fill_from_values(const char *const values, const bool repeat_values) {
@@ -31773,12 +31797,6 @@ namespace cimg_library_suffixed {
       if (repeat_values && nb && nb<siz)
         for (T *ptrs = _data, *const ptre = _data + siz; ptrd<ptre; ++ptrs) *(ptrd++) = *ptrs;
       return false;
-    }
-
-    //! Fill sequentially pixel values according to a given expression \newinstance.
-    CImg<T> get_fill(const char *const expression, const bool repeat_values, const bool allow_formula=true,
-                     CImgList<T> *const list_images=0) const {
-      return (+*this).fill(expression,repeat_values,allow_formula?1:0,list_images);
     }
 
     //! Fill sequentially pixel values according to the values found in another image.

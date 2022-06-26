@@ -49347,7 +49347,7 @@ namespace cimg_library_suffixed {
        \param background_color Array of spectrum() values of type \c T,
          defining the background color (0 means 'transparent').
        \param opacity Drawing opacity.
-       \param font_height Height of the text font (exact match for 13,23,53,103, interpolated otherwise).
+       \param font_height Height of the text font (exact match for 13,32,64,128, interpolated otherwise).
     **/
     template<typename tc1, typename tc2>
     CImg<T>& draw_text(const int x0, const int y0,

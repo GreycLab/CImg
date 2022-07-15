@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 315
+#define cimg_version 316
 
 /*-----------------------------------------------------------
  #
@@ -19422,6 +19422,19 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar1(mp_cosh,arg1);
             }
 
+            if (!std::strncmp(ss,"cov(",4)) { // Covariance
+              _cimg_mp_op("Function 'cov()'");
+              s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss4,s1,depth1,0,block_flags);
+              arg2 = compile(++s1,se1,depth1,0,block_flags);
+              if (_cimg_mp_is_vector(arg1) && _cimg_mp_size(arg1)>1) {
+                _cimg_mp_check_type(arg2,2,2,_cimg_mp_size(arg1));
+                _cimg_mp_scalar3(mp_cov,arg1,arg2,_cimg_mp_size(arg1));
+              }
+              _cimg_mp_check_type(arg2,2,3,_cimg_mp_size(arg1));
+              _cimg_mp_const_scalar(0);
+            }
+
             if (!std::strncmp(ss,"critical(",9)) { // Critical section (single thread at a time)
               _cimg_mp_op("Function 'critical()'");
               p1 = code._width;
@@ -23780,6 +23793,20 @@ namespace cimg_library_suffixed {
 
       static double mp_cosh(_cimg_math_parser& mp) {
         return std::cosh(_mp_arg(2));
+      }
+
+      static double mp_cov(_cimg_math_parser& mp) {
+        const unsigned int siz = (unsigned int)mp.opcode[4];
+        if (!siz) return 0;
+        const CImg<doubleT>
+          A(&_mp_arg(2) + 1,1,siz,1,1,true),
+          B(&_mp_arg(3) + 1,1,siz,1,1,true);
+        const double
+          avgA = A.mean(),
+          avgB = B.mean();
+        double res = 0;
+        cimg_forY(A,k) res+=(A[k] - avgA)*(B[k] - avgB);
+        return res/(siz - 1);
       }
 
       static double mp_critical(_cimg_math_parser& mp) {

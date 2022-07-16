@@ -20900,6 +20900,15 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
+            if (!std::strncmp(ss,"mse(",4)) { // Mean-squared error
+              _cimg_mp_op("Function 'mse()'");
+              s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss4,s1,depth1,0,block_flags);
+              arg2 = compile(++s1,se1,depth1,0,block_flags);
+              _cimg_mp_check_type(arg2,2,_cimg_mp_is_scalar(arg1)?1:2,_cimg_mp_size(arg1));
+              _cimg_mp_scalar3(mp_mse,arg1,arg2,_cimg_mp_size(arg1));
+            }
+
             if (!std::strncmp(ss,"merge(",6)) { // Merge inter-thread variables
               _cimg_mp_op("Function 'merge()'");
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -26245,6 +26254,15 @@ namespace cimg_library_suffixed {
         CImg<doubleT>(ptrd,wS,wD,1,1,true) = CImg<doubleT>(ptrS,wS,hS,1,1,false).
           project_matrix(CImg<doubleT>(ptrD,wD,hS,1,1,true),method,max_iter,max_residual);
         return cimg::type<double>::nan();
+      }
+
+      static double mp_mse(_cimg_math_parser& mp) {
+        const unsigned int
+          _siz = (unsigned int)mp.opcode[4],
+          siz = std::max(_siz,1U),
+          off = _siz?1:0;
+        return CImg<doubleT>(&_mp_arg(2) + off,1,siz,1,1,true).
+          MSE(CImg<doubleT>(&_mp_arg(3) + off,1,siz,1,1,true));
       }
 
       static double mp_mul(_cimg_math_parser& mp) {

@@ -19426,13 +19426,19 @@ namespace cimg_library_suffixed {
               _cimg_mp_op("Function 'cov()'");
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss4,s1,depth1,0,block_flags);
-              arg2 = compile(++s1,se1,depth1,0,block_flags);
-              if (_cimg_mp_is_vector(arg1) && _cimg_mp_size(arg1)>1) {
-                _cimg_mp_check_type(arg2,2,2,_cimg_mp_size(arg1));
-                _cimg_mp_scalar3(mp_cov,arg1,arg2,_cimg_mp_size(arg1));
+              s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg2 = compile(++s1,s2,depth1,0,block_flags);
+              arg3 = arg4 = ~0U;
+              if (s2<se1) {
+                s1 = s2 + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                arg3 = compile(++s2,s1,depth1,0,block_flags);
+                arg4 = s1<se1?compile(++s1,se1,depth1,0,block_flags):~0U;
               }
-              _cimg_mp_check_type(arg2,2,3,_cimg_mp_size(arg1));
-              _cimg_mp_const_scalar(0);
+              _cimg_mp_check_type(arg2,2,_cimg_mp_is_scalar(arg1)?1:2,_cimg_mp_size(arg1));
+              if (arg3!=~0U) _cimg_mp_check_type(arg3,3,1,0);
+              if (arg4!=~0U) _cimg_mp_check_type(arg4,4,1,0);
+              if (arg3==~0U && arg4==~0U && _cimg_mp_size(arg1)<2) _cimg_mp_const_scalar(0);
+              _cimg_mp_scalar5(mp_cov,arg1,arg2,_cimg_mp_size(arg1),arg3,arg4);
             }
 
             if (!std::strncmp(ss,"critical(",9)) { // Critical section (single thread at a time)
@@ -23796,17 +23802,20 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_cov(_cimg_math_parser& mp) {
-        const unsigned int siz = (unsigned int)mp.opcode[4];
-        if (!siz) return 0;
+        const unsigned int
+          _siz = (unsigned int)mp.opcode[4],
+          siz = std::max(_siz,1U),
+          off = _siz?1:0,
+          sizm1 = siz>1?siz - 1:1;
         const CImg<doubleT>
-          A(&_mp_arg(2) + 1,1,siz,1,1,true),
-          B(&_mp_arg(3) + 1,1,siz,1,1,true);
+          A(&_mp_arg(2) + off,1,siz,1,1,true),
+          B(&_mp_arg(3) + off,1,siz,1,1,true);
         const double
-          avgA = A.mean(),
-          avgB = B.mean();
+          avgA = (unsigned int)mp.opcode[5]==~0U?A.mean():_mp_arg(5),
+          avgB = (unsigned int)mp.opcode[6]==~0U?B.mean():_mp_arg(6);
         double res = 0;
         cimg_forY(A,k) res+=(A[k] - avgA)*(B[k] - avgB);
-        return res/(siz - 1);
+        return res/sizm1;
       }
 
       static double mp_critical(_cimg_math_parser& mp) {

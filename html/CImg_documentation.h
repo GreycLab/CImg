@@ -163,7 +163,7 @@
   - <b>Dev-Cpp</b> : Use the project file provided in the CImg library package to see how it works.
 
   If you are using other compilers and encounter problems, please
-  <a href="https://github.com/dtschump/CImg/issues">write me</a> since maintaining compatibility is one
+  <a href="https://github.com/GreycLab/CImg/issues">write me</a> since maintaining compatibility is one
   of the priorities of the %CImg Library. Nevertheless, old compilers that do not respect the C++ standard will not
   support the %CImg Library.
 
@@ -211,7 +211,7 @@
   The CImg Library is an <i>open-source C++ library for image processing</i>.\n
 
   It mainly consists in a (big) single header file
-  <a href="https://github.com/dtschump/CImg/raw/master/CImg.h">CImg.h</a>
+  <a href="https://github.com/GreycLab/CImg/raw/master/CImg.h">CImg.h</a>
   providing a set of C++ classes and functions that can be used in your own sources,
   to load/save, manage/process and display generic images.
   It's actually a very simple and pleasant toolkit for coding image processing stuff in C++ :
@@ -237,10 +237,10 @@
   The package is distributed under the <a href="http://www.cecill.info">CeCILL license</a>.
 
   This package contains :
-  - The main library file <a href="https://github.com/dtschump/CImg/raw/master/CImg.h">CImg.h</a> (C++ header file).
-  - Several C++ source code showing <a href="https://github.com/dtschump/CImg/tree/master/examples">examples of using CImg</a>.
+  - The main library file <a href="https://github.com/GreycLab/CImg/raw/master/CImg.h">CImg.h</a> (C++ header file).
+  - Several C++ source code showing <a href="https://github.com/GreycLab/CImg/tree/master/examples">examples of using CImg</a>.
   - A complete library documentation, in <a href="../CImg_reference.pdf">PDF</a> format.
-  - Additional <a href="https://github.com/dtschump/CImg/tree/master/plugins">library plug-ins</a> that can be used to extend
+  - Additional <a href="https://github.com/GreycLab/CImg/tree/master/plugins">library plug-ins</a> that can be used to extend
   library capabilities for specific uses.
 
   The CImg Library is a quite lightweight library which is easy to maintain (due to its particular structure), and thus
@@ -266,10 +266,10 @@
   corresponding to different constraints on the source files :
   - The <a href="http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html">CeCILL-C</a> license is the most permissive one, close to
   the <i>GNU LGPL license</i>, and <i>applies <b>only</b> on the main library file
-  <a href="https://github.com/dtschump/CImg/raw/master/CImg.h">CImg.h</a></i>.
-  Basically, this license allows to use <a href="https://github.com/dtschump/CImg/raw/master/CImg.h">CImg.h</a>
+  <a href="https://github.com/GreycLab/CImg/raw/master/CImg.h">CImg.h</a></i>.
+  Basically, this license allows to use <a href="https://github.com/GreycLab/CImg/raw/master/CImg.h">CImg.h</a>
   in a closed-source product without forcing you to redistribute the entire software source code. Anyway,
-  if one modifies the <a href="https://github.com/dtschump/CImg/raw/master/CImg.h">CImg.h</a> source file, one has to redistribute
+  if one modifies the <a href="https://github.com/GreycLab/CImg/raw/master/CImg.h">CImg.h</a> source file, one has to redistribute
   the modified version of the file that must be governed by the same <a href="http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html">CeCILL-C</a> license.
 
   - The <a href="http://www.cecill.info/licences/Licence_CeCILL_V2-en.html">CeCILL</a> license applies to all other files
@@ -314,7 +314,7 @@
   \subsection ssf23 2.3 Why is CImg entirely contained in a single header file ?
 
   People are often surprised to see that the complete code of the library is contained in a single (big) C++ header file
-  <a href="https://github.com/dtschump/CImg/raw/master/CImg.h">CImg.h</a>.
+  <a href="https://github.com/GreycLab/CImg/raw/master/CImg.h">CImg.h</a>.
   There are good practical and technical reasons to do that. Some arguments are listed below to justify this approach,
   so (I hope) you won't think this is a awkwardly C++ design of the CImg library :\n
 

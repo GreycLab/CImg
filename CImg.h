@@ -31689,6 +31689,11 @@ namespace cimg_library_suffixed {
 
             bool do_in_parallel = false;
 #if cimg_use_openmp!=0
+            if (mp.is_noncritical_run && (*expression=='*' || *expression==':'))
+              throw CImgArgumentException(_cimg_instance
+                                          "%s(): Cannot evaluate expression '%s' in parallel, "
+                                          "as 'run()' is used outside a 'critical()' section.",
+                                          cimg_instance,calling_function,expression);
             cimg_openmp_if(!mp.is_noncritical_run &&
                            (*expression=='*' || *expression==':' ||
                             (mp.is_parallelizable && M>=(cimg_openmp_sizefactor)*320 && size()/M>=2)))

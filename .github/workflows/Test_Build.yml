@@ -27,7 +27,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Install dependencies
-      run: brew install libheif libpng fftw libjpeg gcc g++ clang zlib libmagick++ libgraphicsmagick++ openexr
+      run: brew install libheif libpng fftw libjpeg gcc clang zlib libmagick++ libgraphicsmagick++ openexr
     - name: Install make
       run: brew install automake
     - name: build

@@ -22910,7 +22910,7 @@ namespace cimg_library_suffixed {
             else if (c1=='c') rp = 16; // cm
           } else if (c2=='M') {
             if (c1=='x') rp = 17; // xM
-            else if (c1=='y') rp = 17; // yM
+            else if (c1=='y') rp = 18; // yM
             else if (c1=='z') rp = 19; // zM
             else if (c1=='c') rp = 20; // cM
           }

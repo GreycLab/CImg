@@ -16985,8 +16985,8 @@ namespace cimg_library_suffixed {
         level = get_level(expr);
 
         // Init constant values.
-#define _cimg_mp_interpolation (reserved_label[30]!=~0U?reserved_label[30]:0)
-#define _cimg_mp_boundary (reserved_label[31]!=~0U?reserved_label[31]:0)
+#define _cimg_mp_interpolation (reserved_label[31]!=~0U?reserved_label[31]:0)
+#define _cimg_mp_boundary (reserved_label[32]!=~0U?reserved_label[32]:0)
 #define _cimg_mp_slot_t 17
 #define _cimg_mp_slot_nan 29
 #define _cimg_mp_slot_x 30
@@ -17023,10 +17023,10 @@ namespace cimg_library_suffixed {
         variable_pos.assign(8);
 
         reserved_label.assign(128,1,1,1,~0U);
-        // reserved_label[0-31] are used to store the memory index of these variables:
-        // [0] = wh, [1] = whd, [2] = whds, [3] = pi, [4] = im, [5] = iM, [6] = ia, [7] = iv,
-        // [8] = is, [9] = ip, [10] = ic, [11] = in, [12] = xm, [13] = ym, [14] = zm, [15] = cm, [16] = xM,
-        // [17] = yM, [18] = zM, [19] = cM, [20] = i0...[29] = i9, [30] = interpolation, [31] = boundary
+        // reserved_label[0-32] are used to store the memory index of these variables:
+        // [0] = wh, [1] = whd, [2] = whds, [3] = pi, [4] = im, [5] = iM, [6] = ia, [7] = iv, [8] = id,
+        // [9] = is, [10] = ip, [11] = ic, [12] = in, [13] = xm, [14] = ym, [15] = zm, [16] = cm, [17] = xM,
+        // [18] = yM, [19] = zM, [20] = cM, [21] = i0...[30] = i9, [31] = interpolation, [32] = boundary
 
         // Compile expression into a sequence of opcodes.
         s_op = ""; ss_op = expr._data;
@@ -17263,7 +17263,7 @@ namespace cimg_library_suffixed {
             _cimg_mp_return(reserved_label[3]!=~0U?reserved_label[3]:28);
           if (*ss=='i') {
             if (*ss1>='0' && *ss1<='9') { // i0...i9
-              pos = 20 + *ss1 - '0';
+              pos = 21 + *ss1 - '0';
               if (reserved_label[pos]!=~0U) _cimg_mp_return(reserved_label[pos]);
               need_input_copy = true;
               _cimg_mp_scalar6(mp_ixyzc,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,pos - 20,0,0);
@@ -17273,30 +17273,31 @@ namespace cimg_library_suffixed {
             case 'M' : arg1 = 5; arg2 = 1; break; // iM
             case 'a' : arg1 = 6; arg2 = 2; break; // ia
             case 'v' : arg1 = 7; arg2 = 3; break; // iv
-            case 's' : arg1 = 8; arg2 = 12; break; // is
-            case 'p' : arg1 = 9; arg2 = 13; break; // ip
+            case 'd' : arg1 = 8; arg2 = 3; break; // id
+            case 's' : arg1 = 9; arg2 = 12; break; // is
+            case 'p' : arg1 = 10; arg2 = 13; break; // ip
             case 'c' : // ic
-              if (reserved_label[10]!=~0U) _cimg_mp_return(reserved_label[10]);
+              if (reserved_label[11]!=~0U) _cimg_mp_return(reserved_label[11]);
               if (mem_img_median==~0U) mem_img_median = imgin?const_scalar(imgin.median()):0;
               _cimg_mp_return(mem_img_median);
               break;
             case 'n' : // in
-              if (reserved_label[11]!=~0U) _cimg_mp_return(reserved_label[11]);
+              if (reserved_label[12]!=~0U) _cimg_mp_return(reserved_label[12]);
               if (mem_img_norm==~0U) mem_img_norm = imgin?const_scalar(imgin.magnitude()):0;
               _cimg_mp_return(mem_img_norm);
             }
           }
           else if (*ss1=='m') switch (*ss) {
-            case 'x' : arg1 = 12; arg2 = 4; break; // xm
-            case 'y' : arg1 = 13; arg2 = 5; break; // ym
-            case 'z' : arg1 = 14; arg2 = 6; break; // zm
-            case 'c' : arg1 = 15; arg2 = 7; break; // cm
+            case 'x' : arg1 = 13; arg2 = 4; break; // xm
+            case 'y' : arg1 = 14; arg2 = 5; break; // ym
+            case 'z' : arg1 = 15; arg2 = 6; break; // zm
+            case 'c' : arg1 = 16; arg2 = 7; break; // cm
             }
           else if (*ss1=='M') switch (*ss) {
-            case 'x' : arg1 = 16; arg2 = 8; break; // xM
-            case 'y' : arg1 = 17; arg2 = 9; break; // yM
-            case 'z' : arg1 = 18; arg2 = 10; break; // zM
-            case 'c' : arg1 = 19; arg2 = 11; break; // cM
+            case 'x' : arg1 = 17; arg2 = 8; break; // xM
+            case 'y' : arg1 = 18; arg2 = 9; break; // yM
+            case 'z' : arg1 = 19; arg2 = 10; break; // zM
+            case 'c' : arg1 = 20; arg2 = 11; break; // cM
             }
           if (arg1!=~0U) {
             if (reserved_label[arg1]!=~0U) _cimg_mp_return(reserved_label[arg1]);
@@ -17305,6 +17306,7 @@ namespace cimg_library_suffixed {
               mem_img_stats.assign(1,14,1,1,~0U);
             }
             if (mem_img_stats[arg2]==~0U) mem_img_stats[arg2] = const_scalar(img_stats[arg2]);
+            if (arg1==8) _cimg_mp_const_scalar(std::sqrt(img_stats[arg2])); // id: std variation
             _cimg_mp_return(mem_img_stats[arg2]);
           }
         } else if (ss3==se) { // Three-chars reserved variable
@@ -22891,25 +22893,26 @@ namespace cimg_library_suffixed {
           if (c1=='w' && c2=='h') rp = 0; // wh
           else if (c1=='p' && c2=='i') rp = 3; // pi
           else if (c1=='i') {
-            if (c2>='0' && c2<='9') rp = 20 + c2 - '0'; // i0...i9
+            if (c2>='0' && c2<='9') rp = 21 + c2 - '0'; // i0...i9
             else if (c2=='m') rp = 4; // im
             else if (c2=='M') rp = 5; // iM
             else if (c2=='a') rp = 6; // ia
             else if (c2=='v') rp = 7; // iv
-            else if (c2=='s') rp = 8; // is
-            else if (c2=='p') rp = 9; // ip
-            else if (c2=='c') rp = 10; // ic
-            else if (c2=='n') rp = 11; // in
+            else if (c2=='d') rp = 8; // id
+            else if (c2=='s') rp = 9; // is
+            else if (c2=='p') rp = 10; // ip
+            else if (c2=='c') rp = 11; // ic
+            else if (c2=='n') rp = 12; // in
           } else if (c2=='m') {
-            if (c1=='x') rp = 12; // xm
-            else if (c1=='y') rp = 13; // ym
-            else if (c1=='z') rp = 14; // zm
-            else if (c1=='c') rp = 15; // cm
+            if (c1=='x') rp = 13; // xm
+            else if (c1=='y') rp = 14; // ym
+            else if (c1=='z') rp = 15; // zm
+            else if (c1=='c') rp = 16; // cm
           } else if (c2=='M') {
-            if (c1=='x') rp = 16; // xM
+            if (c1=='x') rp = 17; // xM
             else if (c1=='y') rp = 17; // yM
-            else if (c1=='z') rp = 18; // zM
-            else if (c1=='c') rp = 19; // cM
+            else if (c1=='z') rp = 19; // zM
+            else if (c1=='c') rp = 20; // cM
           }
         } else if (variable_name[1] && variable_name[2] && !variable_name[3]) { // Three-chars variable
           c1 = variable_name[0];
@@ -22923,8 +22926,8 @@ namespace cimg_library_suffixed {
           c3 = variable_name[2];
           c4 = variable_name[3];
           if (c1=='w' && c2=='h' && c3=='d' && c4=='s') rp = 2; // whds
-        } else if (!std::strcmp(variable_name,"interpolation")) rp = 30; // interpolation
-        else if (!std::strcmp(variable_name,"boundary")) rp = 31; // boundary
+        } else if (!std::strcmp(variable_name,"interpolation")) rp = 31; // interpolation
+        else if (!std::strcmp(variable_name,"boundary")) rp = 32; // boundary
 
         if (rp!=~0U) { rpos = rp; return; } // One of the reserved labels
 

@@ -2,7 +2,8 @@
 ##### http://cimg.eu
 
 ------------------
-
+![Build](https://github.com/GreycLab/CImg/workflows/Build%20then%20test/badge.svg)
+------------------
 The **CImg Library** is a **small** and **open-source** **C++ library** for **image processing**, designed with these properties in mind:
 
 ![Usefulness](http://cimg.eu/img/item_usefulness.jpg) **CImg** defines *classes* and *methods* to manage images in your own C++ code. You can use **CImg** to load/save various file formats, access pixel values, display/transform/filter images, draw primitives (text, faces, curves, 3d objects, ...), compute statistics, manage user interactions on images, and so on...

@@ -21,7 +21,7 @@ jobs:
        make clean
        make mlinux
        popd
-    - name: build
+    - name: test
       run:  |
        pushd examples
        ./image2ascii

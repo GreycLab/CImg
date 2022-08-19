@@ -20677,11 +20677,7 @@ namespace cimg_library_suffixed {
                   ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                  (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                   arg1 = compile(s,ns,depth1,0,block_flags);
-                  if (_cimg_mp_is_vector(arg1))
-                    CImg<ulongT>::sequence(_cimg_mp_size(arg1),arg1 + 1,
-                                           arg1 + (ulongT)_cimg_mp_size(arg1)).
-                      move_to(l_opcode);
-                  else CImg<ulongT>::vector(arg1).move_to(l_opcode);
+                  CImg<ulongT>::vector(arg1,_cimg_mp_size(arg1)).move_to(l_opcode);
                   s = ns;
                 }
                 (l_opcode>'y').move_to(opcode);
@@ -24939,11 +24935,24 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_isin(_cimg_math_parser& mp) {
-        const unsigned int i_end = (unsigned int)mp.opcode[2];
-        const double val = _mp_arg(3);
-        for (unsigned int i = 4; i<i_end; ++i)
-          if (val==_mp_arg(i)) return 1.;
-        return 0.;
+        const unsigned int
+          i_end = (unsigned int)mp.opcode[2],
+          siz_ref = (unsigned int)mp.opcode[4];
+        bool res = false;
+        if (siz_ref) { // Reference value is a vector
+          const CImg<doubleT> ref(&_mp_arg(3) + 1,siz_ref,1,1,1,true);
+          for (unsigned int i = 5; i<i_end; i+=2) {
+            const unsigned int siz = (unsigned int)mp.opcode[i + 1];
+            if (siz==siz_ref && CImg<doubleT>(&_mp_arg(i) + 1,siz,1,1,1,true)==ref) { res = true; break; }
+          }
+        } else { // Reference value is a scalar
+          const double ref = _mp_arg(3);
+          for (unsigned i = 5; i<i_end; i+=2) {
+            const unsigned int siz = (unsigned int)mp.opcode[i + 1];
+            if (!siz && _mp_arg(i)==ref) { res = true; break; }
+          }
+        }
+        return res?1.:0.;
       }
 
       static double mp_isinf(_cimg_math_parser& mp) {

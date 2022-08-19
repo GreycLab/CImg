@@ -24930,7 +24930,7 @@ namespace cimg_library_suffixed {
 
       static double mp_isdir(_cimg_math_parser& mp) {
         const unsigned int siz = (unsigned int)mp.opcode[3];
-        const double *ptrs = &_mp_arg(2) + (siz?1:0);
+        const double *const ptrs = &_mp_arg(2) + (siz?1:0);
         if (!siz) { char str[2] = { 0 }; *str = *ptrs; return (double)cimg::is_directory(str); }
         CImg<charT> ss(siz + 1);
         cimg_forX(ss,i) ss[i] = (char)ptrs[i];
@@ -24956,7 +24956,7 @@ namespace cimg_library_suffixed {
 
       static double mp_isfile(_cimg_math_parser& mp) {
         const unsigned int siz = (unsigned int)mp.opcode[3];
-        const double *ptrs = &_mp_arg(2) + (siz?1:0);
+        const double *const ptrs = &_mp_arg(2) + (siz?1:0);
         if (!siz) { char str[2] = { 0 }; *str = *ptrs; return (double)cimg::is_file(str); }
         CImg<charT> ss(siz + 1);
         cimg_forX(ss,i) ss[i] = (char)ptrs[i];

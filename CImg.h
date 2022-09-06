@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 316
+#define cimg_version 320
 
 /*-----------------------------------------------------------
  #
@@ -21716,10 +21716,10 @@ namespace cimg_library_suffixed {
             }
 #endif
 
-            if (!std::strncmp(ss,"stov(",5)) { // String to double
-              _cimg_mp_op("Function 'stov()'");
-              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss5,s1,depth1,0,block_flags);
+            if (!std::strncmp(ss,"s2v(",4)) { // String to double
+              _cimg_mp_op("Function 's2v()'");
+              s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss4,s1,depth1,0,block_flags);
               arg2 = arg3 = 0;
               if (s1<se1) {
                 s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
@@ -21730,7 +21730,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_check_type(arg3,3,1,0);
               p1 = _cimg_mp_size(arg1);
               pos = scalar();
-              CImg<ulongT>::vector((ulongT)mp_stov,pos,arg1,p1,arg2,arg3).move_to(code);
+              CImg<ulongT>::vector((ulongT)mp_s2v,pos,arg1,p1,arg2,arg3).move_to(code);
               return_new_comp = true;
               _cimg_mp_return(pos);
             }
@@ -22135,10 +22135,10 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(pos);
             }
 
-            if (!std::strncmp(ss,"vtos(",5)) { // Double(s) to string
-              _cimg_mp_op("Function 'vtos()'");
-              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss5,s1,depth1,0,block_flags);
+            if (!std::strncmp(ss,"v2s(",4)) { // Double(s) to string
+              _cimg_mp_op("Function 'v2s()'");
+              s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss4,s1,depth1,0,block_flags);
               arg2 = 0; arg3 = ~0U;
               if (s1<se1) {
                 s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
@@ -22154,7 +22154,7 @@ namespace cimg_library_suffixed {
                 p1 = (unsigned int)mem[arg3];
               }
               pos = vector(p1);
-              CImg<ulongT>::vector((ulongT)mp_vtos,pos,p1,arg1,_cimg_mp_size(arg1),arg2).move_to(code);
+              CImg<ulongT>::vector((ulongT)mp_v2s,pos,p1,arg1,_cimg_mp_size(arg1),arg2).move_to(code);
               return_new_comp = true;
               _cimg_mp_return(pos);
             }
@@ -26970,7 +26970,7 @@ namespace cimg_library_suffixed {
       }
 #endif
 
-      static double mp_stov(_cimg_math_parser& mp) {
+      static double mp_s2v(_cimg_math_parser& mp) {
         const double *ptrs = &_mp_arg(2);
         const ulongT siz = (ulongT)mp.opcode[3];
         longT ind = (longT)_mp_arg(4);
@@ -27488,7 +27488,7 @@ namespace cimg_library_suffixed {
         _cimg_mp_vfunc(res = vec.get_stats()[3]);
       }
 
-      static double mp_vtos(_cimg_math_parser& mp) {
+      static double mp_v2s(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
         const unsigned int
           sizd = (unsigned int)mp.opcode[2],

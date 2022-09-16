@@ -58842,7 +58842,7 @@ namespace cimg_library_suffixed {
       rowsperstrip = TIFFDefaultStripSize(tif,rowsperstrip);
       TIFFSetField(tif,TIFFTAG_ROWSPERSTRIP,rowsperstrip);
       TIFFSetField(tif,TIFFTAG_FILLORDER,FILLORDER_MSB2LSB);
-      TIFFSetField(tif,TIFFTAG_SOFTWARE,"CImg");
+      TIFFSetField(tif,TIFFTAG_SOFTWARE,cimg_appname);
 
       t *const buf = (t*)_TIFFmalloc(TIFFStripSize(tif));
       if (buf) {

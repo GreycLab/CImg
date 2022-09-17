@@ -56424,7 +56424,14 @@ namespace cimg_library_suffixed {
       for (unsigned int i = 0; i<skip_frames; ++i) captures[camera_index]->grab();
       cv::Mat cvimg;
       captures[camera_index]->read(cvimg);
-      if (cvimg.empty()) assign(); else _cvmat2cimg(cvimg).move_to(*this);
+      if (cvimg.empty()) {
+        cimg::mutex(9,0);
+        load_camera(camera_index,0,0,0,true); // Release camera
+        throw CImgIOException(_cimg_instance
+                              "load_camera(): Failed to retrieve a %ux%u frame from camera #%u.",
+                              cimg_instance,
+                              capture_width,capture_height,camera_index);
+      } else _cvmat2cimg(cvimg).move_to(*this);
       cimg::mutex(9,0);
       return *this;
 #else

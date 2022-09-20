@@ -26065,9 +26065,6 @@ namespace cimg_library_suffixed {
           h = (unsigned int)mp.opcode[4];
         const bool use_LU = (bool)_mp_arg(5);
         const float lambda = (float)_mp_arg(6);
-
-        std::fprintf(stderr,"\nDEBUG : (w,h) = (%u,%u)\n",w,h);
-
         CImg<doubleT>(ptrd,h,w,1,1,true) = CImg<doubleT>(ptr1,w,h,1,1,true).get_invert(use_LU,lambda);
         return cimg::type<double>::nan();
       }

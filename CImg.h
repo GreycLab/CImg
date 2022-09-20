@@ -8076,14 +8076,8 @@ namespace cimg_library_suffixed {
   }
 
   template<typename T>
-  inline CImg<_cimg_Tfloat> invert(const CImg<T>& instance, const bool use_LU=true) {
-    return instance.get_invert(use_LU);
-  }
-
-  template<typename T>
-  inline CImg<_cimg_Tfloat> pseudoinvert(const CImg<T>& instance,
-                                         const bool use_LU=false, const float lambda=0) {
-    return instance.get_pseudoinvert(use_LU,lambda);
+  inline CImg<_cimg_Tfloat> invert(const CImg<T>& instance, const bool use_LU=false, const float lambda=0) {
+    return instance.get_invert(use_LU,lambda);
   }
 
 #define _cimg_create_pointwise_function(name) \
@@ -20483,8 +20477,8 @@ namespace cimg_library_suffixed {
               arg1 = compile(ss4,s1,depth1,0,block_flags);
               arg2 = arg3 = 0;
               if (s1<se1) {
-                s2 = s1 + 1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-                arg2 = compile(++s1,s2,depth1,0,block_flags);
+                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                arg2 = compile(s1,s2,depth1,0,block_flags);
                 arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):0;
               }
               _cimg_mp_check_type(arg1,1,2,0);
@@ -20621,17 +20615,45 @@ namespace cimg_library_suffixed {
               _cimg_mp_scalar1(mp_int,arg1);
             }
 
-            if (!std::strncmp(ss,"invert(",7)) { // Matrix/scalar inversion
+            if (!std::strncmp(ss,"invert(",7)) { // Matrix/scalar inverse (or pseudoinverse)
               _cimg_mp_op("Function 'invert()'");
               s1 = ss7; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss7,s1,depth1,0,block_flags);
-              arg2 = s1<se1?compile(++s1,se1,depth1,0,block_flags):1;
-              _cimg_mp_check_type(arg2,2,1,0);
+              arg1 = compile(ss7,s1,depth1,0,block_flags); // A
+              arg2 = ~0U; // nb_colsA
+              arg3 = 0; // use_LU
+              arg4 = 0; // lambda
+              if (s1<se1) {
+                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                arg2 = compile(s1,s2,depth1,0,block_flags);
+                if (s2<se1) {
+                  s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                  arg3 = compile(s2,s1,depth1,0,block_flags);
+                  arg4 = s1<se1?compile(++s1,se1,depth1,0,block_flags):0;
+                }
+              }
+              if (arg2!=~0U) _cimg_mp_check_const_scalar(arg2,2,3);
+              _cimg_mp_check_type(arg3,2,1,0);
+              _cimg_mp_check_type(arg4,3,1,0);
               if (_cimg_mp_is_vector(arg1)) {
-                _cimg_mp_check_matrix_square(arg1,1);
-                p1 = (unsigned int)cimg::round(std::sqrt((float)_cimg_mp_size(arg1)));
-                pos = vector(p1*p1);
-                CImg<ulongT>::vector((ulongT)mp_matrix_invert,pos,arg1,p1,arg2).move_to(code);
+                p1 = _cimg_mp_size(arg1);
+                if (arg2==~0U) { // nb_colsA not specified: assuming square matrix
+                  _cimg_mp_check_matrix_square(arg1,1);
+                  p2 = p3 = (unsigned int)cimg::round(std::sqrt((float)p1));
+                } else {
+                  p2 = arg2;
+                  p3 = p1/p2;
+                  if (p3*p2!=p1) {
+                    _cimg_mp_strerr;
+                    throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                                "CImg<%s>::%s: %s: Type of first argument ('%s') "
+                                                "does not match with second argument 'nb_colsA=%u', "
+                                                "in expression '%s'.",
+                                                pixel_type(),_cimg_mp_calling_function,s_op,
+                                                s_type(arg1)._data,p2,s0);
+                  }
+                }
+                pos = vector(p1);
+                CImg<ulongT>::vector((ulongT)mp_matrix_invert,pos,arg1,p2,p3,arg3,arg4).move_to(code);
                 return_new_comp = true;
                 _cimg_mp_return(pos);
               }
@@ -21146,44 +21168,6 @@ namespace cimg_library_suffixed {
                 opcode.move_to(code);
                 *ns = c1; s = ns;
               }
-              _cimg_mp_return(pos);
-            }
-
-            if (!std::strncmp(ss,"pseudoinvert(",13)) { // Matrix/scalar pseudo-inversion
-              _cimg_mp_op("Function 'pseudoinvert()'");
-              s1 = ss + 13; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss + 13,s1,depth1,0,block_flags);
-              arg2 = 1; // nb_colsA
-              arg3 = 0; // solver
-              arg4 = 0; // lambda
-              if (s1<se1) {
-                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-                arg2 = compile(s1,s2,depth1,0,block_flags);
-                if (s2<se1) {
-                  s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                  arg3 = compile(s2,s1,depth1,0,block_flags);
-                  arg4 = s1<se1?compile(++s1,se1,depth1,0,block_flags):0;
-                }
-              }
-              _cimg_mp_check_type(arg1,1,2,0);
-              _cimg_mp_check_const_scalar(arg2,2,3);
-              _cimg_mp_check_type(arg3,3,1,0);
-              _cimg_mp_check_type(arg4,4,1,0);
-              p1 = _cimg_mp_size(arg1);
-              p2 = (unsigned int)mem[arg2];
-              p3 = p1/p2;
-              if (p3*p2!=p1) {
-                _cimg_mp_strerr;
-                throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                            "CImg<%s>::%s: %s: Type of first argument ('%s') "
-                                            "does not match with second argument 'nb_colsA=%u', "
-                                            "in expression '%s'.",
-                                            pixel_type(),_cimg_mp_calling_function,s_op,
-                                            s_type(arg1)._data,p2,s0);
-              }
-              pos = vector(p1);
-              CImg<ulongT>::vector((ulongT)mp_matrix_pseudoinvert,pos,arg1,p2,p3,arg3,arg4).move_to(code);
-              return_new_comp = true;
               _cimg_mp_return(pos);
             }
             break;
@@ -26076,9 +26060,15 @@ namespace cimg_library_suffixed {
       static double mp_matrix_invert(_cimg_math_parser& mp) {
         double *const ptrd = &_mp_arg(1) + 1;
         const double *const ptr1 = &_mp_arg(2) + 1;
-        const unsigned int k = (unsigned int)mp.opcode[3];
-        const bool use_LU = (bool)_mp_arg(4);
-        CImg<doubleT>(ptrd,k,k,1,1,true) = CImg<doubleT>(ptr1,k,k,1,1,true).get_invert(use_LU);
+        const unsigned int
+          w = (unsigned int)mp.opcode[3],
+          h = (unsigned int)mp.opcode[4];
+        const bool use_LU = (bool)_mp_arg(5);
+        const float lambda = (float)_mp_arg(6);
+
+        std::fprintf(stderr,"\nDEBUG : (w,h) = (%u,%u)\n",w,h);
+
+        CImg<doubleT>(ptrd,h,w,1,1,true) = CImg<doubleT>(ptr1,w,h,1,1,true).get_invert(use_LU,lambda);
         return cimg::type<double>::nan();
       }
 
@@ -26092,18 +26082,6 @@ namespace cimg_library_suffixed {
           l = (unsigned int)mp.opcode[5],
           m = (unsigned int)mp.opcode[6];
         CImg<doubleT>(ptrd,m,k,1,1,true) = CImg<doubleT>(ptr1,l,k,1,1,true)*CImg<doubleT>(ptr2,m,l,1,1,true);
-        return cimg::type<double>::nan();
-      }
-
-      static double mp_matrix_pseudoinvert(_cimg_math_parser& mp) {
-        double *ptrd = &_mp_arg(1) + 1;
-        const double *ptr1 = &_mp_arg(2) + 1;
-        const unsigned int
-          k = (unsigned int)mp.opcode[3],
-          l = (unsigned int)mp.opcode[4];
-        const bool use_LU = (bool)_mp_arg(5);
-        const float lambda = (float)_mp_arg(6);
-        CImg<doubleT>(ptrd,l,k,1,1,true) = CImg<doubleT>(ptr1,k,l,1,1,true).get_pseudoinvert(use_LU,lambda);
         return cimg::type<double>::nan();
       }
 
@@ -29596,15 +29574,25 @@ namespace cimg_library_suffixed {
 
     //! Invert the instance image, viewed as a matrix.
     /**
+       If the instance matrix is not square, the Moore-Penrose pseudo-inverse is computed instead.
        \param use_LU Choose the inverting algorithm. Can be:
-       - \c true: LU-based matrix inversion.
-       - \c false: SVD-based matrix inversion.
+       - \c true: LU solver (faster but less precise).
+       - \c false: SVD solver (more precise but slower).
+       \param In case of Moore-Penrose pseudo-inverse, set the lambda factor ( At.(At.A + lambda.Id)^-1 ).
     **/
-    CImg<T>& invert(const bool use_LU=true) {
-      if (_width!=_height || _depth!=1 || _spectrum!=1)
+    CImg<T>& invert(const bool use_LU=false, const float lambda=0) {
+      if (_depth!=1 || _spectrum!=1)
         throw CImgInstanceException(_cimg_instance
-                                    "invert(): Instance is not a square matrix.",
+                                    "invert(): Instance is not a matrix.",
                                     cimg_instance);
+      if (lambda<0)
+        throw CImgArgumentException(_cimg_instance
+                                    "invert(): Invalid lambda (%g) (should be >=0).",
+                                    cimg_instance);
+
+      if (_width!=_height) return get_invert(use_LU,lambda).move_to(*this); // Non-square matrix: Pseudoinverse
+
+      // Square matrix.
       const double dete = _width>3?-1.:det();
       if (dete!=0. && _width==2) {
         const double
@@ -29645,7 +29633,7 @@ namespace cimg_library_suffixed {
         if (!INFO) cimg_forXY(*this,k,l) (*this)(k,l) = (T)(lapA[k*N + l]); else fill(0);
         delete[] IPIV; delete[] lapA; delete[] WORK;
 #else
-        if (use_LU) { // LU-based
+        if (use_LU) { // LU solver
           CImg<Tfloat> A(*this,false), indx;
           bool d;
           A._LU(indx,d);
@@ -29656,32 +29644,21 @@ namespace cimg_library_suffixed {
             col._solve(A,indx);
             cimg_forX(*this,i) (*this)(j,i) = (T)col(i);
           }
-        } else pseudoinvert(false); // SVD-based
+        } else _get_invert_svd(false).move_to(*this); // SVD solver
 #endif
       }
       return *this;
     }
 
     //! Invert the instance image, viewed as a matrix \newinstance.
-    CImg<Tfloat> get_invert(const bool use_LU=true) const {
-      return CImg<Tfloat>(*this,false).invert(use_LU);
-    }
+    CImg<Tfloat> get_invert(const bool use_LU=false, const float lambda=0) const {
+      if (_width==_height) return CImg<Tfloat>(*this,false).invert(use_LU,lambda); // Square matrix
 
-    //! Compute the Moore-Penrose pseudo-inverse of the instance image, viewed as a matrix.
-    /**
-    **/
-    CImg<T>& pseudoinvert(const bool use_LU=false, const float lambda=0) {
-      return get_pseudoinvert(use_LU,lambda).move_to(*this);
-    }
-
-    //! Compute the Moore-Penrose pseudo-inverse of the instance image, viewed as a matrix \newinstance.
-    CImg<Tfloat> get_pseudoinvert(const bool use_LU=false, const float lambda=0) const {
-
-      // LU-based method.
+      // Non-square matrix: Pseudoinverse
       if (use_LU) {
         CImg<Tfloat> AtA(width(),width());
         cimg_pragma_openmp(parallel for cimg_openmp_if_size(_width*_height,128*128))
-        cimg_forY(AtA,i)
+          cimg_forY(AtA,i)
           for (int j = 0; j<=i; ++j) {
             double res = 0;
             cimg_forY(*this,k) res+=(*this)(i,k)*(*this)(j,k);
@@ -29691,8 +29668,11 @@ namespace cimg_library_suffixed {
         AtA.invert(true);
         return AtA*get_transpose();
       }
+      return _get_invert_svd(lambda);
+    }
 
-      // SVD-based method.
+    // SVD solver.
+    CImg<Tfloat> _get_invert_svd(const float lambda) const {
       CImg<Tfloat> U, S, V;
       SVD(U,S,V,false);
       const Tfloat epsilon = (sizeof(Tfloat)<=4?5.96e-8f:1.11e-16f)*std::max(_width,_height)*S.max();
@@ -29707,8 +29687,8 @@ namespace cimg_library_suffixed {
     /**
        \param A Matrix of the linear system.
        \param use_LU In case of non square system (least-square solution),
-                     choose between SVD-based (\c false) or LU-based (\c true) method.
-                     LU method is faster for large matrices, but numerically less stable.
+                     choose between SVD (\c false) or LU (\c true) solver.
+                     LU solver is faster for large matrices, but numerically less stable.
        \note Solve \c AX = B where \c B=*this.
     **/
     template<typename t>
@@ -29810,10 +29790,10 @@ namespace cimg_library_suffixed {
                      INFO);
         assign(NRHS, N);
         if (!INFO) cimg_forXY(*this,k,l) (*this)(k,l) = (T)lapB[k*M + l];
-        else (A.get_pseudoinvert(use_LU)*(*this)).move_to(*this);
+        else (A.get_invert(use_LU)*(*this)).move_to(*this);
         delete[] lapA; delete[] lapB; delete[] WORK;
 #else
-        (A.get_pseudoinvert(use_LU)*(*this)).move_to(*this);
+        (A.get_invert(use_LU)*(*this)).move_to(*this);
 #endif
       }
       return *this;

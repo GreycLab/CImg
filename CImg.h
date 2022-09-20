@@ -8081,8 +8081,9 @@ namespace cimg_library_suffixed {
   }
 
   template<typename T>
-  inline CImg<_cimg_Tfloat> pseudoinvert(const CImg<T>& instance, const bool use_LU=false) {
-    return instance.get_pseudoinvert(use_LU);
+  inline CImg<_cimg_Tfloat> pseudoinvert(const CImg<T>& instance,
+                                         const bool use_LU=false, const float lambda=0) {
+    return instance.get_pseudoinvert(use_LU,lambda);
   }
 
 #define _cimg_create_pointwise_function(name) \
@@ -21152,16 +21153,22 @@ namespace cimg_library_suffixed {
               _cimg_mp_op("Function 'pseudoinvert()'");
               s1 = ss + 13; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss + 13,s1,depth1,0,block_flags);
-              arg2 = 1;
-              arg3 = 0;
+              arg2 = 1; // nb_colsA
+              arg3 = 0; // solver
+              arg4 = 0; // lambda
               if (s1<se1) {
                 s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
                 arg2 = compile(s1,s2,depth1,0,block_flags);
-                arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):0;
+                if (s2<se1) {
+                  s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                  arg3 = compile(s2,s1,depth1,0,block_flags);
+                  arg4 = s1<se1?compile(++s1,se1,depth1,0,block_flags):0;
+                }
               }
               _cimg_mp_check_type(arg1,1,2,0);
               _cimg_mp_check_const_scalar(arg2,2,3);
               _cimg_mp_check_type(arg3,3,1,0);
+              _cimg_mp_check_type(arg4,4,1,0);
               p1 = _cimg_mp_size(arg1);
               p2 = (unsigned int)mem[arg2];
               p3 = p1/p2;
@@ -21175,7 +21182,7 @@ namespace cimg_library_suffixed {
                                             s_type(arg1)._data,p2,s0);
               }
               pos = vector(p1);
-              CImg<ulongT>::vector((ulongT)mp_matrix_pseudoinvert,pos,arg1,p2,p3,arg3).move_to(code);
+              CImg<ulongT>::vector((ulongT)mp_matrix_pseudoinvert,pos,arg1,p2,p3,arg3,arg4).move_to(code);
               return_new_comp = true;
               _cimg_mp_return(pos);
             }
@@ -26095,7 +26102,8 @@ namespace cimg_library_suffixed {
           k = (unsigned int)mp.opcode[3],
           l = (unsigned int)mp.opcode[4];
         const bool use_LU = (bool)_mp_arg(5);
-        CImg<doubleT>(ptrd,l,k,1,1,true) = CImg<doubleT>(ptr1,k,l,1,1,true).get_pseudoinvert(use_LU);
+        const float lambda = (float)_mp_arg(6);
+        CImg<doubleT>(ptrd,l,k,1,1,true) = CImg<doubleT>(ptr1,k,l,1,1,true).get_pseudoinvert(use_LU,lambda);
         return cimg::type<double>::nan();
       }
 
@@ -29662,12 +29670,12 @@ namespace cimg_library_suffixed {
     //! Compute the Moore-Penrose pseudo-inverse of the instance image, viewed as a matrix.
     /**
     **/
-    CImg<T>& pseudoinvert(const bool use_LU=false) {
-      return get_pseudoinvert(use_LU).move_to(*this);
+    CImg<T>& pseudoinvert(const bool use_LU=false, const float lambda=0) {
+      return get_pseudoinvert(use_LU,lambda).move_to(*this);
     }
 
     //! Compute the Moore-Penrose pseudo-inverse of the instance image, viewed as a matrix \newinstance.
-    CImg<Tfloat> get_pseudoinvert(const bool use_LU=false) const {
+    CImg<Tfloat> get_pseudoinvert(const bool use_LU=false, const float lambda=0) const {
 
       // LU-based method.
       if (use_LU) {
@@ -29679,6 +29687,7 @@ namespace cimg_library_suffixed {
             cimg_forY(*this,k) res+=(*this)(i,k)*(*this)(j,k);
             AtA(j,i) = AtA(i,j) = (Tfloat)res;
           }
+        if (lambda!=0) cimg_forY(AtA,i) AtA(i,i)+=lambda;
         AtA.invert(true);
         return AtA*get_transpose();
       }
@@ -29688,7 +29697,7 @@ namespace cimg_library_suffixed {
       SVD(U,S,V,false);
       const Tfloat epsilon = (sizeof(Tfloat)<=4?5.96e-8f:1.11e-16f)*std::max(_width,_height)*S.max();
       cimg_forX(V,x) {
-        const Tfloat s = S(x), invs = s>epsilon?1/s:0;
+        const Tfloat s = S(x), invs = lambda?1/(lambda + s):s>epsilon?1/s:0;
         cimg_forY(V,y) V(x,y)*=invs;
       }
       return V*U.transpose();

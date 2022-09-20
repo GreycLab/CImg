@@ -20632,8 +20632,8 @@ namespace cimg_library_suffixed {
                 }
               }
               if (arg2!=~0U) _cimg_mp_check_const_scalar(arg2,2,3);
-              _cimg_mp_check_type(arg3,2,1,0);
-              _cimg_mp_check_type(arg4,3,1,0);
+              _cimg_mp_check_type(arg3,3,1,0);
+              _cimg_mp_check_type(arg4,4,1,0);
               if (_cimg_mp_is_vector(arg1)) {
                 p1 = _cimg_mp_size(arg1);
                 if (arg2==~0U) { // nb_colsA not specified: assuming square matrix
@@ -29575,7 +29575,7 @@ namespace cimg_library_suffixed {
        \param use_LU Choose the inverting algorithm. Can be:
        - \c true: LU solver (faster but less precise).
        - \c false: SVD solver (more precise but slower).
-       \param In case of Moore-Penrose pseudo-inverse, set the lambda factor ( At.(At.A + lambda.Id)^-1 ).
+       \param lambda is used only in the Moore-Penrose pseudoinverse for estimating At.(At.A + lambda.Id)^-1.
     **/
     CImg<T>& invert(const bool use_LU=false, const float lambda=0) {
       if (_depth!=1 || _spectrum!=1)

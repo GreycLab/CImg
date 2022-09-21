@@ -29663,17 +29663,31 @@ namespace cimg_library_suffixed {
 
       // Non-square matrix: Pseudoinverse
       if (use_LU) {
-        CImg<Tfloat> AtA(width(),width());
-        cimg_pragma_openmp(parallel for cimg_openmp_if_size(_width*_height,128*128))
-          cimg_forY(AtA,i)
-          for (int j = 0; j<=i; ++j) {
-            double res = 0;
-            cimg_forY(*this,k) res+=(*this)(i,k)*(*this)(j,k);
-            AtA(j,i) = AtA(i,j) = (Tfloat)res;
-          }
-        if (lambda!=0) cimg_forY(AtA,i) AtA(i,i)+=lambda;
-        AtA.invert(true);
-        return AtA*get_transpose();
+        if (_width<_height) { // under-solved system -> (A^t.A)^-1.A^t
+          CImg<Tfloat> AtA(width(),width());
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(_width*_height,128*128))
+            cimg_forY(AtA,i)
+            for (int j = 0; j<=i; ++j) {
+              double res = 0;
+              cimg_forY(*this,k) res+=(*this)(i,k)*(*this)(j,k);
+              AtA(j,i) = AtA(i,j) = (Tfloat)res;
+            }
+          if (lambda!=0) cimg_forY(AtA,i) AtA(i,i)+=lambda;
+          AtA.invert(true);
+          return AtA*get_transpose();
+        } else { // over-resolved linear system -> A^t.(A.A^t)^-1
+          CImg<Tfloat> AAt(height(),height());
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(_width*_height,128*128))
+            cimg_forY(AAt,i)
+            for (int j = 0; j<=i; ++j) {
+              double res = 0;
+              cimg_forX(*this,k) res+=(*this)(k,i)*(*this)(k,j);
+              AAt(j,i) = AAt(i,j) = (Tfloat)res;
+            }
+          if (lambda!=0) cimg_forY(AAt,i) AAt(i,i)+=lambda;
+          AAt.invert(true);
+          return get_transpose()*AAt;
+        }
       }
       return _get_invert_svd(lambda);
     }

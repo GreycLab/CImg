@@ -29659,6 +29659,15 @@ namespace cimg_library_suffixed {
 
     //! Invert the instance image, viewed as a matrix \newinstance.
     CImg<Tfloat> get_invert(const bool use_LU=false, const float lambda=0) const {
+      if (_depth!=1 || _spectrum!=1)
+        throw CImgInstanceException(_cimg_instance
+                                    "invert(): Instance is not a matrix.",
+                                    cimg_instance);
+      if (lambda<0)
+        throw CImgArgumentException(_cimg_instance
+                                    "invert(): Specified lambda (%g) should be >=0.",
+                                    cimg_instance);
+
       if (_width==_height) return CImg<Tfloat>(*this,false).invert(use_LU,lambda); // Square matrix
 
       // Non-square matrix: Pseudoinverse

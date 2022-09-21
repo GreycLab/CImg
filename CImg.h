@@ -29575,7 +29575,7 @@ namespace cimg_library_suffixed {
        \param use_LU Choose the inverting algorithm. Can be:
        - \c true: LU solver (faster but less precise).
        - \c false: SVD solver (more precise but slower).
-       \param lambda is used only in the Moore-Penrose pseudoinverse for estimating At.(At.A + lambda.Id)^-1.
+       \param lambda is used only in the Moore-Penrose pseudoinverse for estimating A^t.(A^t.A + lambda.Id)^-1.
     **/
     CImg<T>& invert(const bool use_LU=false, const float lambda=0) {
       if (_depth!=1 || _spectrum!=1)
@@ -29584,7 +29584,7 @@ namespace cimg_library_suffixed {
                                     cimg_instance);
       if (lambda<0)
         throw CImgArgumentException(_cimg_instance
-                                    "invert(): Invalid lambda (%g) (should be >=0).",
+                                    "invert(): Specified lambda (%g) should be >=0.",
                                     cimg_instance);
 
       if (_width!=_height) return get_invert(use_LU,lambda).move_to(*this); // Non-square matrix: Pseudoinverse
@@ -29668,7 +29668,7 @@ namespace cimg_library_suffixed {
       return _get_invert_svd(lambda);
     }
 
-    // SVD solver.
+    // SVD solver, both used for inverse and pseudoinverse.
     CImg<Tfloat> _get_invert_svd(const float lambda) const {
       CImg<Tfloat> U, S, V;
       SVD(U,S,V,false);

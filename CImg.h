@@ -30505,7 +30505,7 @@ namespace cimg_library_suffixed {
                                     cimg_instance,
                                     dictionary._width,dictionary._height,dictionary._depth,dictionary._spectrum);
 
-      if (!method) return get_solve(dictionary,true);
+      if (!method) return get_solve(dictionary);
       CImg<Tfloat> W(_width,dictionary._width,1,1,0);
 
       // Compute dictionary norm and normalize it.
@@ -30571,7 +30571,7 @@ namespace cimg_library_suffixed {
               cimg_forY(sD,y) sD(sd,y) = D(d,y);
               inds[sd++] = d;
             }
-            S0.get_solve(sD,true).move_to(sD); // sD is now a one-column vector of weights
+            S0.get_solve(sD).move_to(sD); // sD is now a one-column vector of weights
 
             // Recompute residual signal.
             S = S0;
@@ -30598,7 +30598,7 @@ namespace cimg_library_suffixed {
               cimg_forY(sD,y) sD(sd,y) = D(d,y);
               inds[sd++] = d;
             }
-            S0.get_solve(sD,true).move_to(sD);
+            S0.get_solve(sD).move_to(sD);
             cimg_forY(sD,k) W(x,inds[k]) = sD[k];
           }
         }

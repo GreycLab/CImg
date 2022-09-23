@@ -38507,7 +38507,7 @@ namespace cimg_library_suffixed {
             if ((Tt)(*this)(i)==(Tt)*values) {
               i1 = i; j = 0;
               while (i<_width && (Tt)(*this)(i)==(Tt)values[j]) { ++i; if (++j>=vsiz) j = 0; }
-              i-=j;
+              i-=static_cast<unsigned_int>(j);
               if (i>i1) {
                 if (i1>i0) get_columns(i0,i1 - 1).move_to(res);
                 if (keep_values) get_columns(i1,i - 1).move_to(res);
@@ -38523,7 +38523,7 @@ namespace cimg_library_suffixed {
             if ((Tt)(*this)(0,i)==(Tt)*values) {
               i1 = i; j = 0;
               while (i<_height && (Tt)(*this)(0,i)==(Tt)values[j]) { ++i; if (++j>=vsiz) j = 0; }
-              i-=j;
+              i-=static_cast<unsigned_int>(j);
               if (i>i1) {
                 if (i1>i0) get_rows(i0,i1 - 1).move_to(res);
                 if (keep_values) get_rows(i1,i - 1).move_to(res);
@@ -38539,7 +38539,7 @@ namespace cimg_library_suffixed {
             if ((Tt)(*this)(0,0,i)==(Tt)*values) {
               i1 = i; j = 0;
               while (i<_depth && (Tt)(*this)(0,0,i)==(Tt)values[j]) { ++i; if (++j>=vsiz) j = 0; }
-              i-=j;
+              i-=static_cast<unsigned_int>(j);
               if (i>i1) {
                 if (i1>i0) get_slices(i0,i1 - 1).move_to(res);
                 if (keep_values) get_slices(i1,i - 1).move_to(res);
@@ -38555,7 +38555,7 @@ namespace cimg_library_suffixed {
             if ((Tt)(*this)(0,0,0,i)==(Tt)*values) {
               i1 = i; j = 0;
               while (i<_spectrum && (Tt)(*this)(0,0,0,i)==(Tt)values[j]) { ++i; if (++j>=vsiz) j = 0; }
-              i-=j;
+              i-=static_cast<unsigned_int>(j);
               if (i>i1) {
                 if (i1>i0) get_channels(i0,i1 - 1).move_to(res);
                 if (keep_values) get_channels(i1,i - 1).move_to(res);
@@ -38572,7 +38572,7 @@ namespace cimg_library_suffixed {
             if ((Tt)(*this)[i]==(Tt)*values) {
               i1 = i; j = 0;
               while (i<siz && (Tt)(*this)[i]==(Tt)values[j]) { ++i; if (++j>=vsiz) j = 0; }
-              i-=j;
+              i-=static_cast<unsigned_int>(j);
               if (i>i1) {
                 if (i1>i0) CImg<T>(_data + i0,1,(unsigned int)(i1 - i0)).move_to(res);
                 if (keep_values) CImg<T>(_data + i1,1,(unsigned int)(i - i1)).move_to(res);

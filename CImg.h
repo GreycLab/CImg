@@ -20631,9 +20631,13 @@ namespace cimg_library_suffixed {
                   arg4 = s1<se1?compile(++s1,se1,depth1,0,block_flags):0;
                 }
               }
-              if (arg2!=~0U) _cimg_mp_check_const_scalar(arg2,2,3);
+              if (arg2!=~0U) {
+                _cimg_mp_check_const_scalar(arg2,2,3);
+                arg2 = (unsigned int)mem[arg2];
+              }
               _cimg_mp_check_type(arg3,3,1,0);
               _cimg_mp_check_type(arg4,4,1,0);
+
               if (_cimg_mp_is_vector(arg1)) {
                 p1 = _cimg_mp_size(arg1);
                 if (arg2==~0U) { // nb_colsA not specified: assuming square matrix

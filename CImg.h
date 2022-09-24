@@ -22618,7 +22618,7 @@ namespace cimg_library_suffixed {
         variable_name.assign(ss,(unsigned int)(se + 1 - ss)).back() = 0;
 
 #ifdef cimg_mp_operator_dollar
-        if (*ss=='$') // External variable '$varname'.
+        if (*ss=='$' && ss1<se) // External variable '$varname'.
           _cimg_mp_const_scalar(cimg_mp_operator_dollar(variable_name._data + 1));
 #endif
 

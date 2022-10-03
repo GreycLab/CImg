@@ -10382,7 +10382,7 @@ namespace cimg_library_suffixed {
       if (is_empty()) return *this;
       Display *const dpy = cimg::X11_attr().display;
       cimg_lock_display();
-      static const char pix_data[8] = { 0 };
+      static const char pix_data[8] = {};
       XColor col;
       col.red = col.green = col.blue = 0;
       Pixmap pix = XCreateBitmapFromData(dpy,_window,pix_data,8,8);
@@ -12223,7 +12223,7 @@ namespace cimg_library_suffixed {
          (e.g. already deallocated).
        \par Example
        \code
-       unsigned char tab[256*256] = { 0 };
+       unsigned char tab[256*256] = {};
        CImg<unsigned char> img1(tab,256,256,1,1,false), // Construct new non-shared image from buffer 'tab'
                            img2(tab,256,256,1,1,true);  // Construct new shared-image from buffer 'tab'
        tab[1024] = 255;                                 // Here, 'img2' is indirectly modified, but not 'img1'
@@ -12284,7 +12284,7 @@ namespace cimg_library_suffixed {
          const char *const axes_order):_data(0),_is_shared(false) {
       const size_t siz = safe_size(size_x,size_y,size_z,size_c);
       if (values && siz) {
-        unsigned char s_code[4] = { 0,1,2,3 }, n_code[4] = { 0 };
+        unsigned char s_code[4] = { 0,1,2,3 }, n_code[4] = {};
         for (unsigned int l = 0; axes_order[l]; ++l) {
           int c = cimg::lowercase(axes_order[l]);
           if (l>=4 || (c!='x' && c!='y' && c!='z' && c!='c')) { *s_code = 4; break; }
@@ -20965,7 +20965,7 @@ namespace cimg_library_suffixed {
                           // (0='=',1='+',2='-',3='*',4='/',5='&',6='|',7='xor',8='&&',9=='||',10='min',11='max')
               if (s1<se1) {
                 ++s1;
-                char st_op[4] = { 0 };
+                char st_op[4] = {};
                 is_sth = false; // blank after operator?
                 if (cimg_sscanf(s1," %3[=+-*/&|minaxor]%c",st_op,&sep)==2 && (sep==')' ||
                                                                               (is_sth=cimg::is_blank(sep)))) {
@@ -24930,7 +24930,7 @@ namespace cimg_library_suffixed {
       static double mp_isdir(_cimg_math_parser& mp) {
         const unsigned int siz = (unsigned int)mp.opcode[3];
         const double *const ptrs = &_mp_arg(2) + (siz?1:0);
-        if (!siz) { char str[2] = { 0 }; *str = *ptrs; return (double)cimg::is_directory(str); }
+        if (!siz) { char str[2] = {}; *str = *ptrs; return (double)cimg::is_directory(str); }
         CImg<charT> ss(siz + 1);
         cimg_forX(ss,i) ss[i] = (char)ptrs[i];
         ss.back() = 0;
@@ -24969,7 +24969,7 @@ namespace cimg_library_suffixed {
       static double mp_isfile(_cimg_math_parser& mp) {
         const unsigned int siz = (unsigned int)mp.opcode[3];
         const double *const ptrs = &_mp_arg(2) + (siz?1:0);
-        if (!siz) { char str[2] = { 0 }; *str = *ptrs; return (double)cimg::is_file(str); }
+        if (!siz) { char str[2] = {}; *str = *ptrs; return (double)cimg::is_file(str); }
         CImg<charT> ss(siz + 1);
         cimg_forX(ss,i) ss[i] = (char)ptrs[i];
         ss.back() = 0;
@@ -35906,7 +35906,7 @@ namespace cimg_library_suffixed {
       if (is_empty() || !axes_order) return CImg<t>(*this,false);
       CImg<t> res;
       const T* ptrs = _data;
-      unsigned char s_code[4] = { 0,1,2,3 }, n_code[4] = { 0 };
+      unsigned char s_code[4] = { 0,1,2,3 }, n_code[4] = {};
       for (unsigned int l = 0; axes_order[l]; ++l) {
         int c = cimg::lowercase(axes_order[l]);
         if (l>=4 || (c!='x' && c!='y' && c!='z' && c!='c')) { *s_code = 4; break; }
@@ -40475,7 +40475,7 @@ namespace cimg_library_suffixed {
     */
     static void _cimg_recursive_apply(T *data, const double filter[], const int N, const ulongT off,
                                       const unsigned int order, const bool boundary_conditions) {
-      double val[4] = { 0 };  // res[n,n - 1,n - 2,n - 3,..] or res[n,n + 1,n + 2,n + 3,..]
+      double val[4] = {};  // res[n,n - 1,n - 2,n - 3,..] or res[n,n + 1,n + 2,n + 3,..]
       const double
         sumsq = filter[0], sum = sumsq * sumsq,
         a1 = filter[1], a2 = filter[2], a3 = filter[3],
@@ -42085,7 +42085,7 @@ namespace cimg_library_suffixed {
     **/
     CImgList<Tfloat> get_gradient(const char *const axes=0, const int scheme=0) const {
       CImgList<Tfloat> res;
-      char __axes[4] = { 0 };
+      char __axes[4] = {};
       const char *_axes = axes?axes:__axes;
       if (!axes) {
         unsigned int k = 0;
@@ -42206,7 +42206,7 @@ namespace cimg_library_suffixed {
     **/
     CImgList<Tfloat> get_hessian(const char *const axes=0) const {
       CImgList<Tfloat> res;
-      char __axes[12] = { 0 };
+      char __axes[12] = {};
       const char *_axes = axes?axes:__axes;
       if (!axes) {
         unsigned int k = 0;
@@ -50860,7 +50860,7 @@ namespace cimg_library_suffixed {
         if (colors._width>primitives._width) {
           static CImg<floatT> default_light_texture;
           static const tc *lptr = 0;
-          static tc ref_values[64] = { 0 };
+          static tc ref_values[64] = {};
           const CImg<tc>& img = colors.back();
           bool is_same_texture = (lptr==img._data);
           if (is_same_texture)
@@ -53794,7 +53794,7 @@ namespace cimg_library_suffixed {
       const char *nfilename = filename;
       std::FILE *nfile = file?file:cimg::fopen(nfilename,"rb");
 #endif
-      unsigned char pngCheck[8] = { 0 };
+      unsigned char pngCheck[8] = {};
       cimg::fread(pngCheck,8,(std::FILE*)nfile);
       if (png_sig_cmp(pngCheck,0,8)) {
         if (!file) cimg::fclose(nfile);
@@ -55262,8 +55262,8 @@ namespace cimg_library_suffixed {
                               cimg_instance,
                               filename?filename:"(FILE*)");
       }
-      unsigned int imageid, dims[8] = { 0 };
-      int ptbuf[4] = { 0 };
+      unsigned int imageid, dims[8] = {};
+      int ptbuf[4] = {};
       cimg::fread(&imageid,1,nfile);
       const bool endian = imageid>255;
       if (endian) cimg::invert_endianness(imageid);
@@ -56409,7 +56409,7 @@ namespace cimg_library_suffixed {
                                     "(no more than 100 cameras can be managed simultaneously).",
                                     cimg_instance,
                                     camera_index);
-      static cv::VideoCapture *captures[64] = { 0 };
+      static cv::VideoCapture *captures[64] = {};
       static unsigned int captures_w[64], captures_h[64];
       if (release_camera) {
         cimg::mutex(9);
@@ -56616,7 +56616,7 @@ namespace cimg_library_suffixed {
     const CImg<T>& _display(CImgDisplay &disp, const char *const title, const bool display_info,
                             unsigned int *const XYZ, const bool exit_on_anykey,
                             const bool exit_on_singleclick) const {
-      unsigned int oldw = 0, oldh = 0, _XYZ[3] = { 0 }, key = 0;
+      unsigned int oldw = 0, oldh = 0, _XYZ[3] = {}, key = 0;
       int x0 = 0, y0 = 0, z0 = 0, x1 = width() - 1, y1 = height() - 1, z1 = depth() - 1,
         old_mouse_x = -1, old_mouse_y = -1;
 
@@ -57875,7 +57875,7 @@ namespace cimg_library_suffixed {
 
       std::FILE *const nfile = file?file:cimg::fopen(filename,"wb");
       CImg<ucharT> header(54,1,1,1,0);
-      unsigned char align_buf[4] = { 0 };
+      unsigned char align_buf[4] = {};
       const unsigned int
         align = (4 - (3*_width)%4)%4,
         buf_size = (3*_width + align)*height(),
@@ -59360,7 +59360,7 @@ namespace cimg_library_suffixed {
       unsigned char header[36] = { 'P','A','N','D','O','R','E','0','4',0,0,0,
                                    0,0,0,0,'C','I','m','g',0,0,0,0,0,
                                    'N','o',' ','d','a','t','e',0,0,0,0 };
-      unsigned int nbdims, dims[5] = { 0 };
+      unsigned int nbdims, dims[5] = {};
       bool saved = false;
       _cimg_save_pandore_case(1,1,1,"uint8",2);
       _cimg_save_pandore_case(1,1,1,"int8",3);
@@ -63381,7 +63381,7 @@ namespace cimg_library_suffixed {
                                     cimglist_instance,filename);
       return load_ffmpeg_external(filename);
 #else
-      static cv::VideoCapture *captures[32] = { 0 };
+      static cv::VideoCapture *captures[32] = {};
       static CImgList<charT> filenames(32);
       static CImg<uintT> positions(32,1,1,1,0);
       static int last_used_index = -1;
@@ -63776,7 +63776,7 @@ namespace cimg_library_suffixed {
       if (_data) std::fprintf(cimg::output(),"..%p.\n",(void*)((char*)end() - 1));
       else std::fprintf(cimg::output(),".\n");
 
-      char tmp[16] = { 0 };
+      char tmp[16] = {};
       cimglist_for(*this,ll) {
         cimg_snprintf(tmp,sizeof(tmp),"[%d]",ll);
         std::fprintf(cimg::output(),"  ");
@@ -64593,7 +64593,7 @@ namespace cimg_library_suffixed {
       return save_ffmpeg_external(filename,fps);
 #else
       try {
-        static cv::VideoWriter *writers[32] = { 0 };
+        static cv::VideoWriter *writers[32] = {};
         static CImgList<charT> filenames(32);
         static CImg<intT> sizes(32,2,1,1,0);
         static int last_used_index = -1;
@@ -65023,7 +65023,7 @@ namespace cimg_library_suffixed {
 
       // Find optimal font cache location to return.
       static CImgList<ucharT> fonts[16];
-      static bool is_variable_widths[16] = { 0 };
+      static bool is_variable_widths[16] = {};
       ind = ~0U;
       for (int i = 0; i<16; ++i)
         if (!fonts[i] || (is_variable_widths[i]==is_variable_width && requested_height==fonts[i][0]._height)) {
@@ -66428,7 +66428,7 @@ namespace cimg_library_suffixed {
           draw_line(w - 1,0,w - 1,h - 1,black).draw_line(w - 1,h - 1,0,h - 1,black);
       if (logo._data) canvas.draw_image(lx,ly,logo);
 
-      unsigned int xbuttons[6] = { 0 };
+      unsigned int xbuttons[6] = {};
       cimglist_for(buttons,lll) {
         xbuttons[lll] = bx + (bw + 12)*lll;
         canvas.draw_image(xbuttons[lll],by,buttons[lll]);

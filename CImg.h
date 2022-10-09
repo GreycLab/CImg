@@ -66133,20 +66133,20 @@ namespace cimg_library_suffixed {
       // Try with 'curl' first.
       if (timeout) {
         if (referer)
-          cimg_snprintf(command,command._width,"\"%s\" -L -e %s -m %u -f --silent --compressed -o \"%s\" \"%s\"",
+          cimg_snprintf(command,command._width,"\"%s\" -L --max-redirs 5 -e %s -m %u -f --silent --compressed -o \"%s\" \"%s\"",
                         cimg::curl_path(),referer,timeout,filename_local,
                         CImg<char>::string(url)._system_strescape().data());
         else
-          cimg_snprintf(command,command._width,"\"%s\" -L -m %u -f --silent --compressed -o \"%s\" \"%s\"",
+          cimg_snprintf(command,command._width,"\"%s\" -L --max-redirs 5 -m %u -f --silent --compressed -o \"%s\" \"%s\"",
                         cimg::curl_path(),timeout,filename_local,
                         CImg<char>::string(url)._system_strescape().data());
       } else {
         if (referer)
-          cimg_snprintf(command,command._width,"\"%s\" -L -e %s -f --silent --compressed -o \"%s\" \"%s\"",
+          cimg_snprintf(command,command._width,"\"%s\" -L --max-redirs 5 -e %s -f --silent --compressed -o \"%s\" \"%s\"",
                         cimg::curl_path(),referer,filename_local,
                         CImg<char>::string(url)._system_strescape().data());
         else
-          cimg_snprintf(command,command._width,"\"%s\" -L -f --silent --compressed -o \"%s\" \"%s\"",
+          cimg_snprintf(command,command._width,"\"%s\" -L --max-redirs 5 -f --silent --compressed -o \"%s\" \"%s\"",
                         cimg::curl_path(),filename_local,
                         CImg<char>::string(url)._system_strescape().data());
       }

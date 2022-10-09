@@ -66151,8 +66151,8 @@ namespace cimg_library_suffixed {
         else s_timeout.assign(1,1,1,1,0);
         if (referer) cimg_snprintf(s_referer.assign(1024),1024,"-Headers @{'Referer'='%s'}",referer);
         else s_referer.assign(1,1,1,1,0);
-//        if (user_agent) cimg_snprintf(s_user_agent.assign(1024),1024,"-A \"%s\"",user_agent);
-//        else s_user_agent.assign(1,1,1,1,0);
+        if (user_agent) cimg_snprintf(s_user_agent.assign(1024),1024,"-UserAgent \"%s\"",user_agent);
+        else s_user_agent.assign(1,1,1,1,0);
         cimg_snprintf(command,command._width,
                       "\"%s\" -NonInteractive -Command Invoke-WebRequest %s %s -OutFile \"%s\" -Uri \"%s\"",
                       cimg::powershell_path(),s_timeout._data,s_referer._data,filename_local,
@@ -66166,7 +66166,7 @@ namespace cimg_library_suffixed {
         else s_timeout.assign(1,1,1,1,0);
         if (referer) cimg_snprintf(s_referer.assign(1024),1024,"--referer=%s",referer);
         else s_referer.assign(1,1,1,1,0);
-        if (user_agent) cimg_snprintf(s_user_agent.assign(1024),1024,"-U %s",user_agent);
+        if (user_agent) cimg_snprintf(s_user_agent.assign(1024),1024,"--user-agent=\"%s\"",user_agent);
         else s_user_agent.assign(1,1,1,1,0);
         cimg_snprintf(command,command._width,
                       "\"%s\" %s %s %s -q -r -l 0 --no-cache -O \"%s\" \"%s\"",

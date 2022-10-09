@@ -66152,9 +66152,7 @@ namespace cimg_library_suffixed {
       cimg::system(command,cimg::curl_path());
 
 #if cimg_OS==2
-      if (!(file=cimg::std_fopen(filename_local,"rb"))) {
-
-        // Try with 'powershell' otherwise.
+      if (cimg::fsize(filename_local)<=0) { // Try with 'powershell' otherwise.
         if (timeout) {
           if (referer)
             cimg_snprintf(command,command._width,
@@ -66184,9 +66182,7 @@ namespace cimg_library_suffixed {
       }
 #endif
 
-      if (!(file=cimg::std_fopen(filename_local,"rb"))) {
-
-        // Try with 'wget' otherwise.
+      if (cimg::fsize(filename_local)<=0) { // Try with 'wget' otherwise.
         if (timeout) {
           if (referer)
             cimg_snprintf(command,command._width,"\"%s\" --referer=%s -T %u -q -r -l 0 --no-cache -O \"%s\" \"%s\"",

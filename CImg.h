@@ -5744,6 +5744,7 @@ namespace cimg_library_suffixed {
 #ifdef cimg_no_system_calls
       return -1;
 #else
+
       if (is_verbose) return std::system(command);
 #if cimg_OS==1
       const unsigned int l = (unsigned int)std::strlen(command);
@@ -66090,7 +66091,7 @@ namespace cimg_library_suffixed {
       do {
         cimg_snprintf(filename_local,256,"%s%c%s%s",
                       cimg::temporary_path(),cimg_file_separator,cimg::filenamerand(),ext._data);
-        if ((file=cimg::std_fopen(filename_local,"rb"))!=0) cimg::fclose(file);
+        if ((file = cimg::std_fopen(filename_local,"rb"))!=0) cimg::fclose(file);
       } while (file);
 
 #ifdef cimg_use_curl
@@ -66132,20 +66133,20 @@ namespace cimg_library_suffixed {
       // Try with 'curl' first.
       if (timeout) {
         if (referer)
-          cimg_snprintf(command,command._width,"\"%s\" -e %s -m %u -f --silent --compressed -o \"%s\" \"%s\"",
+          cimg_snprintf(command,command._width,"\"%s\" -L -e %s -m %u -f --silent --compressed -o \"%s\" \"%s\"",
                         cimg::curl_path(),referer,timeout,filename_local,
                         CImg<char>::string(url)._system_strescape().data());
         else
-          cimg_snprintf(command,command._width,"\"%s\" -m %u -f --silent --compressed -o \"%s\" \"%s\"",
+          cimg_snprintf(command,command._width,"\"%s\" -L -m %u -f --silent --compressed -o \"%s\" \"%s\"",
                         cimg::curl_path(),timeout,filename_local,
                         CImg<char>::string(url)._system_strescape().data());
       } else {
         if (referer)
-          cimg_snprintf(command,command._width,"\"%s\" -e %s -f --silent --compressed -o \"%s\" \"%s\"",
+          cimg_snprintf(command,command._width,"\"%s\" -L -e %s -f --silent --compressed -o \"%s\" \"%s\"",
                         cimg::curl_path(),referer,filename_local,
                         CImg<char>::string(url)._system_strescape().data());
         else
-          cimg_snprintf(command,command._width,"\"%s\" -f --silent --compressed -o \"%s\" \"%s\"",
+          cimg_snprintf(command,command._width,"\"%s\" -L -f --silent --compressed -o \"%s\" \"%s\"",
                         cimg::curl_path(),filename_local,
                         CImg<char>::string(url)._system_strescape().data());
       }
@@ -66204,7 +66205,7 @@ namespace cimg_library_suffixed {
         }
         cimg::system(command,cimg::wget_path());
 
-        if (!(file=cimg::std_fopen(filename_local,"rb")))
+        if (cimg::fsize(filename_local)<=0)
           throw CImgIOException("cimg::load_network(): Failed to load file '%s' with external commands "
 #if cimg_OS==2
                                 "'wget', 'curl', or 'powershell'.",url);
@@ -66226,11 +66227,8 @@ namespace cimg_library_suffixed {
           file = cimg::std_fopen(filename_local,"rb");
         }
       }
-      cimg::fseek(file,0,SEEK_END); // Check if file size is 0
-      if (std::ftell(file)<=0)
-        throw CImgIOException("cimg::load_network(): Failed to load URL '%s' with external commands "
-                              "'wget' or 'curl'.",url);
-      cimg::fclose(file);
+
+      if (file) cimg::fclose(file);
       return filename_local;
     }
 

@@ -66135,12 +66135,12 @@ namespace cimg_library_suffixed {
       // Try with 'curl' first.
       if (timeout) cimg_snprintf(s_timeout.assign(64),64,"-m %u",timeout);
       else s_timeout.assign(1,1,1,1,0);
-      if (referer) cimg_snprintf(s_referer.assign(1024),1024,"-e \"%s\"",referer);
+      if (referer) cimg_snprintf(s_referer.assign(1024),1024,"-e %s",referer);
       else s_referer.assign(1,1,1,1,0);
       if (user_agent) cimg_snprintf(s_user_agent.assign(1024),1024,"-A \"%s\"",user_agent);
       else s_user_agent.assign(1,1,1,1,0);
       cimg_snprintf(command,command._width,
-                    "\"%s\" -L --max-redirs 5 %s %s %s -f --silent --compressed -o \"%s\" \"%s\"",
+                    "\"%s\" -L --max-redirs 20 %s %s %s -f --silent --compressed -o \"%s\" \"%s\"",
                     cimg::curl_path(),s_timeout._data,s_referer._data,s_user_agent._data,filename_local,
                     CImg<char>::string(url)._system_strescape().data());
       cimg::system(command,cimg::curl_path());
@@ -66169,7 +66169,7 @@ namespace cimg_library_suffixed {
         if (user_agent) cimg_snprintf(s_user_agent.assign(1024),1024,"--user-agent=\"%s\"",user_agent);
         else s_user_agent.assign(1,1,1,1,0);
         cimg_snprintf(command,command._width,
-                      "\"%s\" %s %s %s -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
+                      "\"%s\" %s %s %s --max-redirect=20 -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
                       cimg::wget_path(),s_timeout._data,s_referer._data,s_user_agent._data,filename_local,
                       CImg<char>::string(url)._system_strescape().data());
         cimg::system(command,cimg::wget_path());

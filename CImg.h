@@ -7591,7 +7591,7 @@ namespace cimg_library_suffixed {
     // Load file from network as a local temporary file.
     inline char *load_network(const char *const url, char *const filename_local,
                               const unsigned int timeout=0, const bool try_fallback=false,
-                              const char *const referer=0);
+                              const char *const referer=0, const char *const user_agent=0);
 
     //! Return options specified on the command line.
     inline const char* option(const char *const name, const int argc, const char *const *const argv,
@@ -66069,12 +66069,13 @@ namespace cimg_library_suffixed {
        \param timeout Maximum time (in seconds) authorized for downloading the file from the URL.
        \param try_fallback When using libcurl, tells using system calls as fallbacks in case of libcurl failure.
        \param referer Referer used, as a C-string.
+       \param user_agent User agent used, as a C-string.
        \return Value of \c filename_local.
        \note Use the \c libcurl library, or the external binaries \c wget or \c curl to perform the download.
     **/
     inline char *load_network(const char *const url, char *const filename_local,
                               const unsigned int timeout, const bool try_fallback,
-                              const char *const referer) {
+                              const char *const referer, const char *const user_agent) {
       if (!url)
         throw CImgArgumentException("cimg::load_network(): Specified URL is (null).");
       if (!filename_local)
@@ -66112,6 +66113,7 @@ namespace cimg_library_suffixed {
           if (timeout) curl_easy_setopt(curl,CURLOPT_TIMEOUT,(long)timeout);
           if (std::strchr(url,'?')) curl_easy_setopt(curl,CURLOPT_HTTPGET,1L);
           if (referer) curl_easy_setopt(curl,CURLOPT_REFERER,referer);
+          if (user_agent) curl_easy_setopt(curl,CURLOPT_USERAGENT,user_agent);
           res = curl_easy_perform(curl);
           curl_easy_cleanup(curl);
           cimg::fseek(file,0,SEEK_END); // Check if file size is 0
@@ -66127,90 +66129,49 @@ namespace cimg_library_suffixed {
       if (!try_fallback) throw CImgIOException("cimg::load_network(): Failed to load file '%s' with libcurl.",url);
 #endif
 
-      CImg<char> command((unsigned int)std::strlen(url) + 512);
+      CImg<char> command((unsigned int)std::strlen(url) + 1024), s_referer, s_user_agent, s_timeout;
       cimg::unused(try_fallback);
 
       // Try with 'curl' first.
-      if (timeout) {
-        if (referer)
-          cimg_snprintf(command,command._width,
-                        "\"%s\" -L --max-redirs 5 -e %s -m %u -f --silent --compressed -o \"%s\" \"%s\"",
-                        cimg::curl_path(),referer,timeout,filename_local,
-                        CImg<char>::string(url)._system_strescape().data());
-        else
-          cimg_snprintf(command,command._width,
-                        "\"%s\" -L --max-redirs 5 -m %u -f --silent --compressed -o \"%s\" \"%s\"",
-                        cimg::curl_path(),timeout,filename_local,
-                        CImg<char>::string(url)._system_strescape().data());
-      } else {
-        if (referer)
-          cimg_snprintf(command,command._width,
-                        "\"%s\" -L --max-redirs 5 -e %s -f --silent --compressed -o \"%s\" \"%s\"",
-                        cimg::curl_path(),referer,filename_local,
-                        CImg<char>::string(url)._system_strescape().data());
-        else
-          cimg_snprintf(command,command._width,
-                        "\"%s\" -L --max-redirs 5 -f --silent --compressed -o \"%s\" \"%s\"",
-                        cimg::curl_path(),filename_local,
-                        CImg<char>::string(url)._system_strescape().data());
-      }
+      if (timeout) cimg_snprintf(s_timeout.assign(64),64,"-m %u",timeout);
+      else s_timeout.assign(1,1,1,1,0);
+      if (referer) cimg_snprintf(s_referer.assign(1024),1024,"-e \"%s\"",referer);
+      else s_referer.assign(1,1,1,1,0);
+      if (user_agent) cimg_snprintf(s_user_agent.assign(1024),1024,"-A \"%s\"",user_agent);
+      else s_user_agent.assign(1,1,1,1,0);
+      cimg_snprintf(command,command._width,
+                    "\"%s\" -L --max-redirs 5 %s %s %s -f --silent --compressed -o \"%s\" \"%s\"",
+                    cimg::curl_path(),s_timeout._data,s_referer._data,s_user_agent._data,filename_local,
+                    CImg<char>::string(url)._system_strescape().data());
       cimg::system(command,cimg::curl_path());
 
 #if cimg_OS==2
       if (cimg::fsize(filename_local)<=0) { // Try with 'powershell' otherwise.
-        if (timeout) {
-          if (referer)
-            cimg_snprintf(command,command._width,
-                          "\"%s\" -NonInteractive -Command Invoke-WebRequest -Headers @{'Referer'='%s'} "
-                          "-TimeoutSec %u -OutFile \"%s\" -Uri \"%s\"",
-                          cimg::powershell_path(),referer,timeout,filename_local,
-                          CImg<char>::string(url)._system_strescape().data());
-          else
-            cimg_snprintf(command,command._width,
-                          "\"%s\" -NonInteractive -Command Invoke-WebRequest "
-                          "-TimeoutSec %u -OutFile \"%s\" -Uri \"%s\"",
-                          cimg::powershell_path(),timeout,filename_local,
-                          CImg<char>::string(url)._system_strescape().data());
-        } else {
-          if (referer)
-            cimg_snprintf(command,command._width,"\"%s\" -NonInteractive -Command Invoke-WebRequest "
-                          "-Headers @{'Referer'='%s'} -OutFile \"%s\" -Uri \"%s\"",
-                          cimg::powershell_path(),referer,filename_local,
-                          CImg<char>::string(url)._system_strescape().data());
-          else
-            cimg_snprintf(command,command._width,"\"%s\" -NonInteractive -Command Invoke-WebRequest "
-                          "-OutFile \"%s\" -Uri \"%s\"",
-                          cimg::powershell_path(),filename_local,
-                          CImg<char>::string(url)._system_strescape().data());
-        }
+        if (timeout) cimg_snprintf(s_timeout.assign(64),64,"-TimeoutSec %u",timeout);
+        else s_timeout.assign(1,1,1,1,0);
+        if (referer) cimg_snprintf(s_referer.assign(1024),1024,"-Headers @{'Referer'='%s'}",referer);
+        else s_referer.assign(1,1,1,1,0);
+//        if (user_agent) cimg_snprintf(s_user_agent.assign(1024),1024,"-A \"%s\"",user_agent);
+//        else s_user_agent.assign(1,1,1,1,0);
+        cimg_snprintf(command,command._width,
+                      "\"%s\" -NonInteractive -Command Invoke-WebRequest %s %s -OutFile \"%s\" -Uri \"%s\"",
+                      cimg::powershell_path(),s_timeout._data,s_referer._data,filename_local,
+                      CImg<char>::string(url)._system_strescape().data());
         cimg::system(command,cimg::powershell_path());
       }
 #endif
 
       if (cimg::fsize(filename_local)<=0) { // Try with 'wget' otherwise.
-        if (timeout) {
-          if (referer)
-            cimg_snprintf(command,command._width,
-                          "\"%s\" --referer=%s -T %u -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
-                          cimg::wget_path(),referer,timeout,filename_local,
-                          CImg<char>::string(url)._system_strescape().data());
-          else
-            cimg_snprintf(command,command._width,
-                          "\"%s\" -T %u -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
-                          cimg::wget_path(),timeout,filename_local,
-                          CImg<char>::string(url)._system_strescape().data());
-        } else {
-          if (referer)
-            cimg_snprintf(command,command._width,
-                          "\"%s\" --referer=%s -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
-                          cimg::wget_path(),referer,filename_local,
-                          CImg<char>::string(url)._system_strescape().data());
-          else
-            cimg_snprintf(command,command._width,
-                          "\"%s\" -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
-                          cimg::wget_path(),filename_local,
-                          CImg<char>::string(url)._system_strescape().data());
-        }
+        if (timeout) cimg_snprintf(s_timeout.assign(64),64,"-T %u",timeout);
+        else s_timeout.assign(1,1,1,1,0);
+        if (referer) cimg_snprintf(s_referer.assign(1024),1024,"--referer=%s",referer);
+        else s_referer.assign(1,1,1,1,0);
+        if (user_agent) cimg_snprintf(s_user_agent.assign(1024),1024,"-U %s",user_agent);
+        else s_user_agent.assign(1,1,1,1,0);
+        cimg_snprintf(command,command._width,
+                      "\"%s\" %s %s %s -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
+                      cimg::wget_path(),s_timeout._data,s_referer._data,s_user_agent._data,filename_local,
+                      CImg<char>::string(url)._system_strescape().data());
         cimg::system(command,cimg::wget_path());
 
         if (cimg::fsize(filename_local)<=0)

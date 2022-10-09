@@ -66133,20 +66133,24 @@ namespace cimg_library_suffixed {
       // Try with 'curl' first.
       if (timeout) {
         if (referer)
-          cimg_snprintf(command,command._width,"\"%s\" -L --max-redirs 5 -e %s -m %u -f --silent --compressed -o \"%s\" \"%s\"",
+          cimg_snprintf(command,command._width,
+                        "\"%s\" -L --max-redirs 5 -e %s -m %u -f --silent --compressed -o \"%s\" \"%s\"",
                         cimg::curl_path(),referer,timeout,filename_local,
                         CImg<char>::string(url)._system_strescape().data());
         else
-          cimg_snprintf(command,command._width,"\"%s\" -L --max-redirs 5 -m %u -f --silent --compressed -o \"%s\" \"%s\"",
+          cimg_snprintf(command,command._width,
+                        "\"%s\" -L --max-redirs 5 -m %u -f --silent --compressed -o \"%s\" \"%s\"",
                         cimg::curl_path(),timeout,filename_local,
                         CImg<char>::string(url)._system_strescape().data());
       } else {
         if (referer)
-          cimg_snprintf(command,command._width,"\"%s\" -L --max-redirs 5 -e %s -f --silent --compressed -o \"%s\" \"%s\"",
+          cimg_snprintf(command,command._width,
+                        "\"%s\" -L --max-redirs 5 -e %s -f --silent --compressed -o \"%s\" \"%s\"",
                         cimg::curl_path(),referer,filename_local,
                         CImg<char>::string(url)._system_strescape().data());
         else
-          cimg_snprintf(command,command._width,"\"%s\" -L --max-redirs 5 -f --silent --compressed -o \"%s\" \"%s\"",
+          cimg_snprintf(command,command._width,
+                        "\"%s\" -L --max-redirs 5 -f --silent --compressed -o \"%s\" \"%s\"",
                         cimg::curl_path(),filename_local,
                         CImg<char>::string(url)._system_strescape().data());
       }
@@ -66186,20 +66190,24 @@ namespace cimg_library_suffixed {
       if (cimg::fsize(filename_local)<=0) { // Try with 'wget' otherwise.
         if (timeout) {
           if (referer)
-            cimg_snprintf(command,command._width,"\"%s\" --referer=%s -T %u -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
+            cimg_snprintf(command,command._width,
+                          "\"%s\" --referer=%s -T %u -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
                           cimg::wget_path(),referer,timeout,filename_local,
                           CImg<char>::string(url)._system_strescape().data());
           else
-            cimg_snprintf(command,command._width,"\"%s\" -T %u -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
+            cimg_snprintf(command,command._width,
+                          "\"%s\" -T %u -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
                           cimg::wget_path(),timeout,filename_local,
                           CImg<char>::string(url)._system_strescape().data());
         } else {
           if (referer)
-            cimg_snprintf(command,command._width,"\"%s\" --referer=%s -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
+            cimg_snprintf(command,command._width,
+                          "\"%s\" --referer=%s -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
                           cimg::wget_path(),referer,filename_local,
                           CImg<char>::string(url)._system_strescape().data());
           else
-            cimg_snprintf(command,command._width,"\"%s\" -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
+            cimg_snprintf(command,command._width,
+                          "\"%s\" -q -r -l 0 --no-cache -O \"%s\" \"%s\"",
                           cimg::wget_path(),filename_local,
                           CImg<char>::string(url)._system_strescape().data());
         }

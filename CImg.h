@@ -66110,6 +66110,7 @@ namespace cimg_library_suffixed {
           curl_easy_setopt(curl,CURLOPT_SSL_VERIFYPEER,0L);
           curl_easy_setopt(curl,CURLOPT_SSL_VERIFYHOST,0L);
           curl_easy_setopt(curl,CURLOPT_FOLLOWLOCATION,1L);
+          curl_easy_setopt(curl,CURLOPT_MAXREDIRS,20L);
           if (timeout) curl_easy_setopt(curl,CURLOPT_TIMEOUT,(long)timeout);
           if (std::strchr(url,'?')) curl_easy_setopt(curl,CURLOPT_HTTPGET,1L);
           if (referer) curl_easy_setopt(curl,CURLOPT_REFERER,referer);

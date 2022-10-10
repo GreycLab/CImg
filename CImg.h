@@ -64847,7 +64847,7 @@ namespace cimg_library_suffixed {
         Bytef *cbuf = 0; \
         if (sizeof(t)!=1 || buffer.pixel_type()==cimg::type<bool>::string()) { \
           cbuf = new Bytef[csiz]; Bytef *_cbuf = cbuf; \
-          for (ulongT k = 0; k<csiz; ++k) *(_cbuf++) = (Bytef)*(stream++); \
+          for (ulongT k = 0; k<csiz && stream<estream; ++k) *(_cbuf++) = (Bytef)*(stream++); \
           is_bytef = false; \
         } else { cbuf = (Bytef*)stream; stream+=csiz; is_bytef = true; } \
         raw.assign(W,H,D,C); \

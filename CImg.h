@@ -19174,7 +19174,7 @@ namespace cimg_library_suffixed {
             break;
 
           case 'b' :
-            if (!std::strncmp(ss,"break(",6)) { // Break current loop
+            if (!std::strncmp(ss,"break(",6)) { // Break current block
               if (pexpr[se2 - expr._data]=='(') { // no arguments?
                 CImg<ulongT>::vector((ulongT)mp_break,_cimg_mp_slot_nan).move_to(code);
                 _cimg_mp_return_nan();

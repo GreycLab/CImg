@@ -64089,7 +64089,6 @@ namespace cimg_library_suffixed {
 #else
 #define _cimg_save_gif_extension "ppm"
 #endif
-
       do {
         cimg_snprintf(filename_tmp,filename_tmp._width,"%s%c%s",
                       cimg::temporary_path(),cimg_file_separator,cimg::filenamerand());
@@ -64099,11 +64098,14 @@ namespace cimg_library_suffixed {
       cimglist_for(*this,l) {
         cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_%.6u." _cimg_save_gif_extension,filename_tmp._data,l + 1);
         CImg<charT>::string(filename_tmp2).move_to(filenames);
-        if (_data[l]._depth>1 || _data[l]._spectrum!=3) _data[l].get_resize(-100,-100,1,3).save(filename_tmp2);
+        if (_data[l]._depth>1 || _data[l]._spectrum<3)
+          _data[l].get_resize(-100,-100,1,std::max(_data[l].spectrum(),3)).save(filename_tmp2);
         else _data[l].save(filename_tmp2);
       }
-      cimg_snprintf(command,command._width,"\"%s\" -delay %u -loop %u",
-                    cimg::imagemagick_path(),(unsigned int)std::max(0.f,cimg::round(100/fps)),nb_loops);
+      cimg_snprintf(command,command._width,"\"%s\" -delay %u -loop %u -dispose previous",
+                    cimg::imagemagick_path(),
+                    (unsigned int)std::max(0.f,cimg::round(100/fps)),
+                    nb_loops);
       CImg<ucharT>::string(command).move_to(filenames,0);
       cimg_snprintf(command,command._width,"\"%s\"",
                     CImg<charT>::string(filename)._system_strescape().data());

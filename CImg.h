@@ -64098,9 +64098,13 @@ namespace cimg_library_suffixed {
       cimglist_for(*this,l) {
         cimg_snprintf(filename_tmp2,filename_tmp2._width,"%s_%.6u." _cimg_save_gif_extension,filename_tmp._data,l + 1);
         CImg<charT>::string(filename_tmp2).move_to(filenames);
-        if (_data[l]._depth>1 || _data[l]._spectrum<3)
-          _data[l].get_resize(-100,-100,1,std::max(_data[l].spectrum(),3)).save(filename_tmp2);
-        else _data[l].save(filename_tmp2);
+        CImg<T> frame;
+        if (_data[l]._depth>1) _data[l].get_slice(0).move_to(frame); else frame.assign(_data[l],true);
+        if (frame._spectrum>4) frame.assign(frame.get_channels(0,3),false);
+        else if (frame._spectrum==1) frame.assign(frame.get_resize(-100,-100,1,3),false);
+        else if (frame._spectrum==2)
+          frame.assign(frame.get_resize(-100,-100,1,4).draw_image(0,0,0,2,frame.get_shared_channel(0)),false);
+        frame.save(filename_tmp2);
       }
       cimg_snprintf(command,command._width,"\"%s\" -delay %u -loop %u -dispose previous",
                     cimg::imagemagick_path(),

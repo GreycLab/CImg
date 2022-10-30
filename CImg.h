@@ -20019,10 +20019,10 @@ namespace cimg_library_suffixed {
               } else { p1 = ~0U; s0 = ss5; }
               s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(s0,s1,depth1,0,block_flags);
-              arg2 = is_relative?0U:(unsigned int)_cimg_mp_slot_x;
-              arg3 = is_relative?0U:(unsigned int)_cimg_mp_slot_y;
-              arg4 = is_relative?0U:(unsigned int)_cimg_mp_slot_z;
-              arg5 = is_relative?0U:(unsigned int)_cimg_mp_slot_c;
+              arg2 = (unsigned int)_cimg_mp_slot_x;
+              arg3 = (unsigned int)_cimg_mp_slot_y;
+              arg4 = (unsigned int)_cimg_mp_slot_z;
+              arg5 = (unsigned int)_cimg_mp_slot_c;
               s0 = se1;
               if (s1<se1) {
                 s0 = ++s1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;

@@ -20123,7 +20123,7 @@ namespace cimg_library_suffixed {
               }
               (l_opcode>'y').move_to(opcode);
 
-              if (opcode._height<5 || opcode._height>12) {
+              if (opcode._height<1 || opcode._height>12) {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                             "CImg<%s>::%s: %s: Too %s arguments specified, "
@@ -20132,17 +20132,17 @@ namespace cimg_library_suffixed {
                                             opcode._height<5?"few":"much",s0);
               }
 
-              if (opcode._height==5 || !_cimg_mp_is_vector((unsigned int)opcode[5])) { // Drawing in an image
+              if (opcode._height<=5 || !_cimg_mp_is_vector((unsigned int)opcode[5])) { // Drawing in an image
                 cimg_forY(opcode,k)
                   if (k && k!=10) _cimg_mp_check_type((unsigned int)opcode[k],k + 1,1,0);
                   else _cimg_mp_check_type((unsigned int)opcode[k],k + 1,2,0);
 
                 CImg<ulongT> opc = CImg<ulongT>::vector((ulongT)mp_image_draw, // 0-3: func,S,sizS,#ind
                                                         *opcode,_cimg_mp_size((unsigned int)*opcode),p1,
-                                                        opcode[1],opcode[2],opcode[3],opcode[4], // 4-7: x,y,z,c
+                                                        0,0,0,0, // 4-7: x,y,z,c
                                                         ~0U,~0U,~0U,~0U, // 8-11: dx,dy,dz,dc
                                                         1,~0U,1); // 12-14: opac,M,maxM
-                for (unsigned int k = 5; k<12 && k<opcode._height; ++k) if (opcode[k]) opc[k + 3] = opcode[k];
+                for (unsigned int k = 1; k<12 && k<opcode._height; ++k) if (opcode[k]) opc[k + 3] = opcode[k];
                 opc.move_to(code);
               }
               _cimg_mp_return_nan();

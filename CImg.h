@@ -19630,6 +19630,13 @@ namespace cimg_library_suffixed {
                 arg5 = (unsigned int)mem[opcode[3]]; // Depth
                 _cimg_mp_check_const_scalar((unsigned int)opcode[4],5,3);
                 arg6 = (unsigned int)mem[opcode[4]]; // Spectrum
+                p1 = _cimg_mp_size((unsigned int)opcode[0]);
+                if (arg3*arg4*arg5*arg6!=std::max(1U,p1))
+                  throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                              "CImg<%s>::%s: %s: Input size (%lu values) and specified input vector "
+                                              "geometry (%u,%u,%u,%u) (%lu values) do not match.",
+                                              pixel_type(),_cimg_mp_calling_function,s_op,
+                                              std::max(p1,1U),arg3,arg4,arg5,arg6,(ulongT)arg3*arg4*arg5*arg6);
 
                 if (opcode[9]!=(ulongT)~0U) {
                   _cimg_mp_check_const_scalar((unsigned int)opcode[9],arg1,3);
@@ -27214,7 +27221,38 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_vector_crop_ext(_cimg_math_parser& mp) {
+        double *const ptrd = &_mp_arg(1) + 1;
+        const double *const ptrs = &_mp_arg(2) + 1;
+        const unsigned int
+          w = (unsigned int)mp.opcode[3],
+          h = (unsigned int)mp.opcode[4],
+          d = (unsigned int)mp.opcode[5],
+          s = (unsigned int)mp.opcode[6],
+          dx = (unsigned int)mp.opcode[11],
+          dy = (unsigned int)mp.opcode[12],
+          dz = (unsigned int)mp.opcode[13],
+          dc = (unsigned int)mp.opcode[14];
+        const int
+          x = (int)_mp_arg(7),
+          y = (int)_mp_arg(8),
+          z = (int)_mp_arg(9),
+          c = (int)_mp_arg(10),
+          boundary_conditions = (int)_mp_arg(15);
+
+        CImg<doubleT>(ptrd,dx,dy,dz,dc,true) = CImg<doubleT>(ptrs,w,h,d,s,true).
+          get_crop(x,y,z,c,x + dx - 1,y + dy - 1,z + dz - 1,c + dc - 1,boundary_conditions);
+
         std::fprintf(stderr,"\nDEBUG : Extended Crop !\n");
+        std::fprintf(stderr,
+                     "Src: %u,%u,%u,%u\n"
+                     "Coords: %u,%u,%u,%u\n"
+                     "Dest: %u,%u,%u,%u\n"
+                     "Boundary: %u\n",
+                     w,h,d,s,
+                     x,y,z,c,
+                     dx,dy,dz,dc,
+                     boundary_conditions);
+
         return cimg::type<double>::nan();
       }
 

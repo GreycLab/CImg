@@ -20139,10 +20139,10 @@ namespace cimg_library_suffixed {
 
                 CImg<ulongT> opc = CImg<ulongT>::vector((ulongT)mp_draw,*opcode,_cimg_mp_size((unsigned int)*opcode),p1,
                                                         // 0-3: func,S,sizS,#ind
-                                                        opcode[1],opcode[2],opcode[3],opcode[4], // 4-7: S,x,y,z,c
+                                                        opcode[1],opcode[2],opcode[3],opcode[4], // 4-7: x,y,z,c
                                                         ~0U,~0U,~0U,~0U, // 8-11: dx,dy,dz,dc
                                                         1,~0U,1); // 12-14: opac,M,maxM
-                for (unsigned int k = 5; k<12; ++k) if (opcode[k]) opc[k + 3] = opcode[k];
+                for (unsigned int k = 5; k<12 && k<opcode._height; ++k) if (opcode[k]) opc[k + 3] = opcode[k];
                 opc.move_to(code);
               }
               _cimg_mp_return_nan();

@@ -19618,7 +19618,8 @@ namespace cimg_library_suffixed {
                   throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                               "CImg<%s>::%s: %s: Too %s arguments specified, "
                                               "in expression '%s'.",
-                                              pixel_type(),_cimg_mp_calling_function,s_op,opcode._height<5?"few":"much",s0);
+                                              pixel_type(),_cimg_mp_calling_function,s_op,
+                                              opcode._height<5?"few":"much",s0);
                 }
 
                 _cimg_mp_check_const_scalar((unsigned int)opcode[1],2,3);

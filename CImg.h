@@ -20137,8 +20137,8 @@ namespace cimg_library_suffixed {
                   if (k && k!=10) _cimg_mp_check_type((unsigned int)opcode[k],k + 1,1,0);
                   else _cimg_mp_check_type((unsigned int)opcode[k],k + 1,2,0);
 
-                CImg<ulongT> opc = CImg<ulongT>::vector((ulongT)mp_draw,*opcode,_cimg_mp_size((unsigned int)*opcode),p1,
-                                                        // 0-3: func,S,sizS,#ind
+                CImg<ulongT> opc = CImg<ulongT>::vector((ulongT)mp_image_draw, // 0-3: func,S,sizS,#ind
+                                                        *opcode,_cimg_mp_size((unsigned int)*opcode),p1,
                                                         opcode[1],opcode[2],opcode[3],opcode[4], // 4-7: x,y,z,c
                                                         ~0U,~0U,~0U,~0U, // 8-11: dx,dy,dz,dc
                                                         1,~0U,1); // 12-14: opac,M,maxM
@@ -24269,7 +24269,7 @@ namespace cimg_library_suffixed {
         return mp.mem[mem_body];
       }
 
-      static double mp_draw(_cimg_math_parser& mp) {
+      static double mp_image_draw(_cimg_math_parser& mp) {
         const int x = (int)_mp_arg(4), y = (int)_mp_arg(5), z = (int)_mp_arg(6), c = (int)_mp_arg(7);
         unsigned int ind = (unsigned int)mp.opcode[3];
         if (ind!=~0U) {

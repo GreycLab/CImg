@@ -19449,17 +19449,20 @@ namespace cimg_library_suffixed {
 
             if (!std::strncmp(ss,"crop(",5)) { // Image crop
               _cimg_mp_op("Function 'crop()'");
+              is_sth = false; // is image crop ?
               if (*ss5=='#') { // Index specified
                 s0 = ss6; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                 p1 = compile(ss6,s0++,depth1,0,block_flags);
                 pos = 2;
+                is_sth = true;
                 _cimg_mp_check_list();
               } else { p1 = ~0U; s0 = ss5; need_input_copy = true; pos = 1; }
               if (s0<se1) for (s = s0; s<se; ++s, ++pos) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                 arg1 = compile(s,ns,depth1,0,block_flags);
-                _cimg_mp_check_type(arg1,pos,1,0);
+                if (pos==1 && _cimg_mp_is_scalar(arg1)) is_sth = true;
+                else if (pos>1) _cimg_mp_check_type(arg1,pos,1,0);
                 CImg<ulongT>::vector(arg1).move_to(l_opcode);
                 s = ns;
               }

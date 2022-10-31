@@ -20151,14 +20151,12 @@ namespace cimg_library_suffixed {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                 arg2 = compile(s,ns,depth1,0,block_flags);
-                if (pos>6 && _cimg_mp_is_vector(arg2)) // Vector argument allowed to specify color
+                if (_cimg_mp_is_vector(arg2)) // Vector argument allowed to specify cordinates and color
                   CImg<ulongT>::sequence(_cimg_mp_size(arg2),arg2 + 1,
                                          arg2 + (ulongT)_cimg_mp_size(arg2)).
                     move_to(l_opcode);
-                else {
-                  _cimg_mp_check_type(arg2,pos,1,0);
+                else
                   CImg<ulongT>::vector(arg2).move_to(l_opcode);
-                }
                 s = ns;
               }
               (l_opcode>'y').move_to(opcode);
@@ -21116,7 +21114,7 @@ namespace cimg_library_suffixed {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                 arg2 = compile(s,ns,depth1,0,block_flags);
-                if (pos>4 && _cimg_mp_is_vector(arg2)) // Vector argument allowed to specify color
+                if (pos>1 && _cimg_mp_is_vector(arg2)) // Vector argument allowed to specify coordinates and color
                   CImg<ulongT>::sequence(_cimg_mp_size(arg2),arg2 + 1,
                                          arg2 + (ulongT)_cimg_mp_size(arg2)).
                     move_to(l_opcode);

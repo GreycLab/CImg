@@ -19623,37 +19623,42 @@ namespace cimg_library_suffixed {
                 }
 
                 _cimg_mp_check_const_scalar((unsigned int)opcode[1],2,3);
-                arg3 = (unsigned int)mem[opcode[1]]; // Width
+                opcode[1] = (ulongT)mem[opcode[1]]; // Width
                 _cimg_mp_check_const_scalar((unsigned int)opcode[2],3,3);
-                arg4 = (unsigned int)mem[opcode[2]]; // Height
+                opcode[2] = (ulongT)mem[opcode[2]]; // Height
                 _cimg_mp_check_const_scalar((unsigned int)opcode[3],4,3);
-                arg5 = (unsigned int)mem[opcode[3]]; // Depth
+                opcode[3] = (ulongT)mem[opcode[3]]; // Depth
                 _cimg_mp_check_const_scalar((unsigned int)opcode[4],5,3);
-                arg6 = (unsigned int)mem[opcode[4]]; // Spectrum
+                opcode[4] = (ulongT)mem[opcode[4]]; // Spectrum
+
                 p1 = _cimg_mp_size((unsigned int)opcode[0]);
-                if (arg3*arg4*arg5*arg6!=std::max(1U,p1))
+                arg2 = (unsigned int)opcode[1];
+                arg3 = (unsigned int)opcode[2];
+                arg4 = (unsigned int)opcode[3];
+                arg5 = (unsigned int)opcode[4];
+                if (arg2*arg3*arg4*arg5!=std::max(1U,p1))
                   throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                               "CImg<%s>::%s: %s: Input size (%lu values) and specified input vector "
                                               "geometry (%u,%u,%u,%u) (%lu values) do not match.",
                                               pixel_type(),_cimg_mp_calling_function,s_op,
-                                              std::max(p1,1U),arg3,arg4,arg5,arg6,(ulongT)arg3*arg4*arg5*arg6);
+                                              std::max(p1,1U),arg2,arg3,arg4,arg5,(ulongT)arg2*arg3*arg4*arg5);
 
                 if (opcode[9]!=(ulongT)~0U) {
                   _cimg_mp_check_const_scalar((unsigned int)opcode[9],arg1,3);
                   opcode[9] = (ulongT)mem[opcode[9]];
-                } else opcode[9] = (ulongT)arg3;
+                } else opcode[9] = opcode[1];
                 if (opcode[10]!=(ulongT)~0U) {
                   _cimg_mp_check_const_scalar((unsigned int)opcode[10],arg1 + 1,3);
                   opcode[10] = (ulongT)mem[opcode[10]];
-                } else opcode[10] = (ulongT)arg4;
+                } else opcode[10] = opcode[2];
                 if (opcode[11]!=(ulongT)~0U) {
                   _cimg_mp_check_const_scalar((unsigned int)opcode[11],arg1 + 2,3);
                   opcode[11] = (ulongT)mem[opcode[11]];
-                } else opcode[11] = (ulongT)arg5;
+                } else opcode[11] = opcode[3];
                 if (opcode[12]!=(ulongT)~0U) {
                   _cimg_mp_check_const_scalar((unsigned int)opcode[12],arg1 + 3,3);
                   opcode[12] = (ulongT)mem[opcode[12]];
-                } else opcode[12] = (ulongT)arg6;
+                } else opcode[12] = opcode[4];
                 _cimg_mp_check_type((unsigned int)opcode[13],arg1 + 4,1,0);
 
                 pos = vector((unsigned int)(opcode[9]*opcode[10]*opcode[11]*opcode[12]));

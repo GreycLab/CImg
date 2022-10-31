@@ -19447,7 +19447,7 @@ namespace cimg_library_suffixed {
               _cimg_mp_return(arg1);
             }
 
-            if (!std::strncmp(ss,"crop(",5)) { // Image crop
+            if (!std::strncmp(ss,"crop(",5)) { // Image or vector crop
               _cimg_mp_op("Function 'crop()'");
               is_sth = false; // is image crop ?
               if (*ss5=='#') { // Index specified
@@ -19561,7 +19561,7 @@ namespace cimg_library_suffixed {
               }
 
               pos = vector((unsigned int)(opcode[4]*opcode[5]*opcode[6]*opcode[7]));
-              CImg<ulongT>::vector((ulongT)mp_crop,
+              CImg<ulongT>::vector((ulongT)mp_image_crop,
                                   pos,p1,
                                   *opcode,opcode[1],opcode[2],opcode[3],
                                   opcode[4],opcode[5],opcode[6],opcode[7],
@@ -23860,7 +23860,7 @@ namespace cimg_library_suffixed {
         return mp.mem[g_target];
       }
 
-      static double mp_crop(_cimg_math_parser& mp) {
+      static double mp_image_crop(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
         const int x = (int)_mp_arg(3), y = (int)_mp_arg(4), z = (int)_mp_arg(5), c = (int)_mp_arg(6);
         const unsigned int

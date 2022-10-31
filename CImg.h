@@ -19468,7 +19468,7 @@ namespace cimg_library_suffixed {
               }
               (l_opcode>'y').move_to(opcode);
 
-              if (is_sth) { // Image crop
+              if (!opcode || is_sth) { // Image crop
                 arg1 = 0; arg2 = (p1!=~0U);
                 switch (opcode._height) {
                 case 0 : case 1 :
@@ -19565,14 +19565,6 @@ namespace cimg_library_suffixed {
                                      opcode[8]).move_to(code);
 
               } else { // Vector crop
-                _cimg_mp_check_const_scalar((unsigned int)opcode[1],2,3);
-                arg3 = (unsigned int)mem[opcode[1]]; // Width
-                _cimg_mp_check_const_scalar((unsigned int)opcode[2],3,3);
-                arg4 = (unsigned int)mem[opcode[2]]; // Height
-                _cimg_mp_check_const_scalar((unsigned int)opcode[3],4,3);
-                arg5 = (unsigned int)mem[opcode[3]]; // Depth
-                _cimg_mp_check_const_scalar((unsigned int)opcode[4],5,3);
-                arg6 = (unsigned int)mem[opcode[4]]; // Spectrum
                 switch (opcode._height) {
                 case 5 : case 6 :
                   CImg<ulongT>::vector(*opcode,opcode[1],opcode[2],opcode[3],opcode[4],
@@ -19629,6 +19621,14 @@ namespace cimg_library_suffixed {
                                               pixel_type(),_cimg_mp_calling_function,s_op,opcode._height<5?"few":"much",s0);
                 }
 
+                _cimg_mp_check_const_scalar((unsigned int)opcode[1],2,3);
+                arg3 = (unsigned int)mem[opcode[1]]; // Width
+                _cimg_mp_check_const_scalar((unsigned int)opcode[2],3,3);
+                arg4 = (unsigned int)mem[opcode[2]]; // Height
+                _cimg_mp_check_const_scalar((unsigned int)opcode[3],4,3);
+                arg5 = (unsigned int)mem[opcode[3]]; // Depth
+                _cimg_mp_check_const_scalar((unsigned int)opcode[4],5,3);
+                arg6 = (unsigned int)mem[opcode[4]]; // Spectrum
 
                 if (opcode[9]!=(ulongT)~0U) {
                   _cimg_mp_check_const_scalar((unsigned int)opcode[9],arg1,3);
@@ -19649,7 +19649,7 @@ namespace cimg_library_suffixed {
                 _cimg_mp_check_type((unsigned int)opcode[13],arg1 + 4,1,0);
 
                 pos = vector((unsigned int)(opcode[9]*opcode[10]*opcode[11]*opcode[12]));
-                CImg<ulongT>::vector((ulongT)mp_vector_crop,
+                CImg<ulongT>::vector((ulongT)mp_vector_crop_ext,
                                      pos,*opcode,opcode[1],opcode[2],opcode[3],opcode[4],opcode[5],opcode[6],opcode[7],
                                      opcode[8],opcode[9],opcode[10],opcode[11],opcode[12],opcode[13]).move_to(code);
 
@@ -27209,6 +27209,11 @@ namespace cimg_library_suffixed {
         ptrs+=start;
         if (step==1) std::memcpy(ptrd,ptrs,sublength*sizeof(double));
         else for (longT k = 0; k<sublength; ++k) { *(ptrd++) = *ptrs; ptrs+=step; }
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_vector_crop_ext(_cimg_math_parser& mp) {
+        std::fprintf(stderr,"\nDEBUG : Extended Crop !\n");
         return cimg::type<double>::nan();
       }
 

@@ -19452,23 +19452,15 @@ namespace cimg_library_suffixed {
               if (*ss5=='#') { // Index specified
                 s0 = ss6; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                 p1 = compile(ss6,s0++,depth1,0,block_flags);
+                pos = 2;
                 _cimg_mp_check_list();
-              } else { p1 = ~0U; s0 = ss5; need_input_copy = true; }
-              pos = 0;
-              is_sth = false; // Coordinates specified as a vector?
+              } else { p1 = ~0U; s0 = ss5; need_input_copy = true; pos = 1; }
               if (s0<se1) for (s = s0; s<se; ++s, ++pos) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                 arg1 = compile(s,ns,depth1,0,block_flags);
-                if (!pos && _cimg_mp_is_vector(arg1)) { // Coordinates specified as a vector
-                  opcode = CImg<ulongT>::sequence(_cimg_mp_size(arg1),arg1 + 1,
-                                                  arg1 + (ulongT)_cimg_mp_size(arg1));
-                  opcode.resize(1,std::min(opcode._height,4U),1,1,0).move_to(l_opcode);
-                  is_sth = true;
-                } else {
-                  _cimg_mp_check_type(arg1,pos + 1,1,0);
-                  CImg<ulongT>::vector(arg1).move_to(l_opcode);
-                }
+                _cimg_mp_check_type(arg1,pos,1,0);
+                CImg<ulongT>::vector(arg1).move_to(l_opcode);
                 s = ns;
               }
               (l_opcode>'y').move_to(opcode);
@@ -19489,30 +19481,30 @@ namespace cimg_library_suffixed {
               case 4 :
                 CImg<ulongT>::vector(*opcode,opcode[1],0,0,opcode[2],opcode[3],~0U,~0U,_cimg_mp_boundary).
                   move_to(opcode);
-                arg1 = arg2 + (is_sth?2:3);
+                arg1 = arg2 + 3;
                 break;
               case 5 :
                 CImg<ulongT>::vector(*opcode,opcode[1],0,0,opcode[2],opcode[3],~0U,~0U,opcode[4]).
                   move_to(opcode);
-                arg1 = arg2 + (is_sth?2:3);
+                arg1 = arg2 + 3;
                 break;
               case 6 :
                 CImg<ulongT>::vector(*opcode,opcode[1],opcode[2],0,opcode[3],opcode[4],opcode[5],~0U,
                                     _cimg_mp_boundary).move_to(opcode);
-                arg1 = arg2 + (is_sth?2:4);
+                arg1 = arg2 + 4;
                 break;
               case 7 :
                 CImg<ulongT>::vector(*opcode,opcode[1],opcode[2],0,opcode[3],opcode[4],opcode[5],~0U,
                                     opcode[6]).move_to(opcode);
-                arg1 = arg2 + (is_sth?2:4);
+                arg1 = arg2 + 4;
                 break;
               case 8 :
                 CImg<ulongT>::vector(*opcode,opcode[1],opcode[2],opcode[3],opcode[4],opcode[5],opcode[6],
                                     opcode[7],_cimg_mp_boundary).move_to(opcode);
-                arg1 = arg2 + (is_sth?2:5);
+                arg1 = arg2 + 5;
                 break;
               case 9 :
-                arg1 = arg2 + (is_sth?2:5);
+                arg1 = arg2 + 5;
                 break;
               default : // Error -> too much arguments
                 _cimg_mp_strerr;
@@ -19523,9 +19515,9 @@ namespace cimg_library_suffixed {
               }
 
               _cimg_mp_check_type((unsigned int)*opcode,arg2 + 1,1,0);
-              _cimg_mp_check_type((unsigned int)opcode[1],arg2 + 1 + (is_sth?0:1),1,0);
-              _cimg_mp_check_type((unsigned int)opcode[2],arg2 + 1 + (is_sth?0:2),1,0);
-              _cimg_mp_check_type((unsigned int)opcode[3],arg2 + 1 + (is_sth?0:3),1,0);
+              _cimg_mp_check_type((unsigned int)opcode[1],arg2 + 2,1,0);
+              _cimg_mp_check_type((unsigned int)opcode[2],arg2 + 3,1,0);
+              _cimg_mp_check_type((unsigned int)opcode[3],arg2 + 4,1,0);
               if (opcode[4]!=(ulongT)~0U) {
                 _cimg_mp_check_const_scalar((unsigned int)opcode[4],arg1,3);
                 opcode[4] = (ulongT)mem[opcode[4]];
@@ -20150,19 +20142,23 @@ namespace cimg_library_suffixed {
               if (*ss8=='#') { // Index specified
                 s0 = ss + 9; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                 p1 = compile(ss + 9,s0++,depth1,0,block_flags);
+                pos = 2;
                 _cimg_mp_check_list();
-              } else { p1 = ~0U; s0 = ss8; }
+              } else { p1 = ~0U; s0 = ss8; pos = 1; }
               if (s0==se1) compile(s0,se1,depth1,0,block_flags); // 'missing' argument error
               CImg<ulongT>::vector((ulongT)mp_ellipse,_cimg_mp_slot_nan,0,p1).move_to(l_opcode);
-              for (s = s0; s<se; ++s) {
+              for (s = s0; s<se; ++s, ++pos) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                 arg2 = compile(s,ns,depth1,0,block_flags);
-                if (_cimg_mp_is_vector(arg2))
+                if (pos>6 && _cimg_mp_is_vector(arg2)) // Vector argument allowed to specify color
                   CImg<ulongT>::sequence(_cimg_mp_size(arg2),arg2 + 1,
                                          arg2 + (ulongT)_cimg_mp_size(arg2)).
                     move_to(l_opcode);
-                else CImg<ulongT>::vector(arg2).move_to(l_opcode);
+                else {
+                  _cimg_mp_check_type(arg2,pos,1,0);
+                  CImg<ulongT>::vector(arg2).move_to(l_opcode);
+                }
                 s = ns;
               }
               (l_opcode>'y').move_to(opcode);
@@ -21111,19 +21107,23 @@ namespace cimg_library_suffixed {
               if (*ss8=='#') { // Index specified
                 s0 = ss + 9; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                 p1 = compile(ss + 9,s0++,depth1,0,block_flags);
+                pos = 2;
                 _cimg_mp_check_list();
-              } else { p1 = ~0U; s0 = ss8; }
+              } else { p1 = ~0U; s0 = ss8; pos = 1; }
               if (s0==se1) compile(s0,se1,depth1,0,block_flags); // 'missing' argument error
               CImg<ulongT>::vector((ulongT)mp_polygon,_cimg_mp_slot_nan,0,p1).move_to(l_opcode);
-              for (s = s0; s<se; ++s) {
+              for (s = s0; s<se; ++s, ++pos) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                 arg2 = compile(s,ns,depth1,0,block_flags);
-                if (_cimg_mp_is_vector(arg2))
+                if (pos>4 && _cimg_mp_is_vector(arg2)) // Vector argument allowed to specify color
                   CImg<ulongT>::sequence(_cimg_mp_size(arg2),arg2 + 1,
                                          arg2 + (ulongT)_cimg_mp_size(arg2)).
                     move_to(l_opcode);
-                else CImg<ulongT>::vector(arg2).move_to(l_opcode);
+                else {
+                  _cimg_mp_check_type(arg2,pos,1,0);
+                  CImg<ulongT>::vector(arg2).move_to(l_opcode);
+                }
                 s = ns;
               }
               (l_opcode>'y').move_to(opcode);
@@ -21271,15 +21271,13 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"resize(",7)) { // Vector or image resize
               _cimg_mp_op("Function 'resize()'");
               if (*ss7!='#') { // Vector
-                for (s = ss7; s<se; ++s) {
+                pos = 1;
+                for (s = ss7; s<se; ++s, ++pos) {
                   ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                  (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                   arg2 = compile(s,ns,depth1,0,block_flags);
-                  if (s!=ss7 && _cimg_mp_is_vector(arg2))
-                    CImg<ulongT>::sequence(_cimg_mp_size(arg2),arg2 + 1,
-                                           arg2 + (ulongT)_cimg_mp_size(arg2)).
-                      move_to(l_opcode);
-                  else CImg<ulongT>::vector(arg2).move_to(l_opcode);
+                  if (s!=ss7) _cimg_mp_check_type(arg2,pos,1,0);
+                  CImg<ulongT>::vector(arg2).move_to(l_opcode);
                   s = ns;
                 }
                 (l_opcode>'y').move_to(opcode);

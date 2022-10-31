@@ -27243,21 +27243,8 @@ namespace cimg_library_suffixed {
           z = (int)_mp_arg(9),
           c = (int)_mp_arg(10),
           boundary_conditions = (int)_mp_arg(15);
-
         CImg<doubleT>(ptrd,dx,dy,dz,dc,true) = CImg<doubleT>(ptrs,w,h,d,s,true).
           get_crop(x,y,z,c,x + dx - 1,y + dy - 1,z + dz - 1,c + dc - 1,boundary_conditions);
-
-        std::fprintf(stderr,"\nDEBUG : Extended Crop !\n");
-        std::fprintf(stderr,
-                     "Src: %u,%u,%u,%u\n"
-                     "Coords: %u,%u,%u,%u\n"
-                     "Dest: %u,%u,%u,%u\n"
-                     "Boundary: %u\n",
-                     w,h,d,s,
-                     x,y,z,c,
-                     dx,dy,dz,dc,
-                     boundary_conditions);
-
         return cimg::type<double>::nan();
       }
 

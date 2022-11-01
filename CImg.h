@@ -20123,7 +20123,7 @@ namespace cimg_library_suffixed {
               }
               (l_opcode>'y').move_to(opcode);
 
-              is_sth = opcode._height>5 && _cimg_mp_is_vector((unsigned int)opcode[5]); // Is vector drawing?
+              is_sth = p1==~0U && opcode._height>5 && _cimg_mp_is_vector((unsigned int)opcode[5]); // Is vector drawing?
               if ((is_sth && (opcode._height<6 || opcode._height>17)) ||
                   (!is_sth && (opcode._height<1 || opcode._height>12))) {
                 _cimg_mp_strerr;

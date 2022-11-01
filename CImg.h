@@ -20135,14 +20135,34 @@ namespace cimg_library_suffixed {
               }
 
               if (is_sth) { // Drawing in a vector
+                _cimg_mp_check_type((unsigned int)*opcode,1,2,0); // D
+                _cimg_mp_check_type((unsigned int)opcode[1],2,1,0); // w
+                _cimg_mp_check_type((unsigned int)opcode[2],3,2,0); // h
+                _cimg_mp_check_type((unsigned int)opcode[3],4,2,0); // d
+                _cimg_mp_check_type((unsigned int)opcode[4],5,2,0); // s
+                if (opcode._height<8 || (opcode._height<10 && _cimg_mp_is_vector((unsigned int)opcode[7]))) {
+                  // D,w,h,d,s,S[,opac,M,maxM]
+                  if (opcode._height>6) _cimg_mp_check_type((unsigned int)opcode[6],7,1,0); // opac
+                  if (opcode._height>8) _cimg_mp_check_type((unsigned int)opcode[8],9,1,0); // maxM
+                  CImg<ulongT>::vector((ulongT)mp_vector_draw,
+                                       *opcode,_cimg_mp_size((unsigned int)*opcode), // 1-2: D,sizD
+                                       opcode[1],opcode[2],opcode[3],opcode[4], // 3-6: w,h,d,s
+                                       opcode[5],_cimg_mp_size((unsigned int)opcode[5]), // 7-8: S,sizS
+                                       0,0,0,0, // 9-12: x,y,z,c
+                                       ~0U,~0U,~0U,~0U, // 13-16: dx,dy,dz,dc
+                                       opcode._height<7?1:opcode[6], // 17: opac
+                                       opcode._height<8?~0U:opcode[7], // 18: M
+                                       opcode._height<8?0:_cimg_mp_size((unsigned int)opcode[7]), // 19: sizM
+                                       opcode._height<9?1:opcode[8]).move_to(code); // 20: maxM
 
+                }
                 // TODO.
 
               } else { // Drawing in an image
                 arg1 = p1!=~0U;
-                _cimg_mp_check_type((unsigned int)*opcode,1 + arg1,2,0);
+                _cimg_mp_check_type((unsigned int)*opcode,1 + arg1,2,0); // S
                 if (opcode._height<3 || (opcode._height<5 && _cimg_mp_is_vector((unsigned int)opcode[2]))) {
-                  // S,[opac,M,maxM]
+                  // S[,opac,M,maxM]
                   if (opcode._height>1) _cimg_mp_check_type((unsigned int)opcode[1],2 + arg1,1,0); // opac
                   if (opcode._height>3) _cimg_mp_check_type((unsigned int)opcode[3],4 + arg1,1,0); // maxM
                   CImg<ulongT>::vector((ulongT)mp_image_draw,
@@ -20154,7 +20174,7 @@ namespace cimg_library_suffixed {
                                        opcode._height<3?0:_cimg_mp_size((unsigned int)opcode[2]), // 14: sizM
                                        opcode._height<4?1:opcode[3]).move_to(code); // 15: maxM
                 } else if (opcode._height<5 || (opcode._height<7 && _cimg_mp_is_vector((unsigned int)opcode[4]))) {
-                  // x,dx,S,[opac,M,maxM]
+                  // x,dx,S[,opac,M,maxM]
                   _cimg_mp_check_type((unsigned int)opcode[1],2 + arg1,1,0); // x
                   _cimg_mp_check_type((unsigned int)opcode[2],3 + arg1,1,0); // dx
                   if (opcode._height>3) _cimg_mp_check_type((unsigned int)opcode[3],4 + arg1,1,0); // opac
@@ -20168,7 +20188,7 @@ namespace cimg_library_suffixed {
                                        opcode._height<5?0:_cimg_mp_size((unsigned int)opcode[4]), // 14: sizM
                                        opcode._height<6?1:opcode[5]).move_to(code); // 15: maxM
                 } else if (opcode._height<7 || (opcode._height<9 && _cimg_mp_is_vector((unsigned int)opcode[6]))) {
-                  // x,y,dx,dy,S,[opac,M,maxM]
+                  // x,y,dx,dy,S[,opac,M,maxM]
                   _cimg_mp_check_type((unsigned int)opcode[1],2 + arg1,1,0); // x
                   _cimg_mp_check_type((unsigned int)opcode[2],3 + arg1,1,0); // y
                   _cimg_mp_check_type((unsigned int)opcode[3],4 + arg1,1,0); // dx
@@ -20184,7 +20204,7 @@ namespace cimg_library_suffixed {
                                        opcode._height<7?0:_cimg_mp_size((unsigned int)opcode[6]), // 14: sizM
                                        opcode._height<8?1:opcode[7]).move_to(code); // 15: maxM
                 } else if (opcode._height<9 || (opcode._height<11 && _cimg_mp_is_vector((unsigned int)opcode[8]))) {
-                  // x,y,z,dx,dy,dz,S,[opac,M,maxM]
+                  // x,y,z,dx,dy,dz,S[,opac,M,maxM]
                   _cimg_mp_check_type((unsigned int)opcode[1],2 + arg1,1,0); // x
                   _cimg_mp_check_type((unsigned int)opcode[2],3 + arg1,1,0); // y
                   _cimg_mp_check_type((unsigned int)opcode[3],4 + arg1,1,0); // z
@@ -20202,7 +20222,7 @@ namespace cimg_library_suffixed {
                                        opcode._height<9?0:_cimg_mp_size((unsigned int)opcode[8]), // 14: sizM
                                        opcode._height<10?1:opcode[9]).move_to(code); // 15: maxM
                 } else if (opcode._height<11 || (opcode._height<13 && _cimg_mp_is_vector((unsigned int)opcode[10]))) {
-                  // x,y,z,c,dx,dy,dz,dc,S,[opac,M,maxM]
+                  // x,y,z,c,dx,dy,dz,dc,S[,opac,M,maxM]
                   _cimg_mp_check_type((unsigned int)opcode[1],2 + arg1,1,0); // x
                   _cimg_mp_check_type((unsigned int)opcode[2],3 + arg1,1,0); // y
                   _cimg_mp_check_type((unsigned int)opcode[3],4 + arg1,1,0); // z
@@ -24352,48 +24372,6 @@ namespace cimg_library_suffixed {
         return mp.mem[mem_body];
       }
 
-      static double mp_image_draw(_cimg_math_parser& mp) {
-        const int x = (int)_mp_arg(4), y = (int)_mp_arg(5), z = (int)_mp_arg(6), c = (int)_mp_arg(7);
-        unsigned int ind = (unsigned int)mp.opcode[3];
-        if (ind!=~0U) {
-          if (!mp.imglist.width()) return cimg::type<double>::nan();
-          ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.imglist.width());
-        }
-        CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
-        unsigned int
-          dx = (unsigned int)mp.opcode[8],
-          dy = (unsigned int)mp.opcode[9],
-          dz = (unsigned int)mp.opcode[10],
-          dc = (unsigned int)mp.opcode[11];
-        dx = dx==~0U?img._width:(unsigned int)_mp_arg(8);
-        dy = dy==~0U?img._height:(unsigned int)_mp_arg(9);
-        dz = dz==~0U?img._depth:(unsigned int)_mp_arg(10);
-        dc = dc==~0U?img._spectrum:(unsigned int)_mp_arg(11);
-
-        const ulongT sizS = mp.opcode[2];
-        if (sizS<(ulongT)dx*dy*dz*dc)
-          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'draw()': "
-                                      "Sprite dimension (%lu values) and specified sprite geometry (%u,%u,%u,%u) "
-                                      "(%lu values) do not match.",
-                                      mp.imgin.pixel_type(),sizS,dx,dy,dz,dc,(ulongT)dx*dy*dz*dc);
-        CImg<doubleT> S(&_mp_arg(1) + 1,dx,dy,dz,dc,true);
-        const float opacity = (float)_mp_arg(12);
-
-        if (img._data) {
-          if (mp.opcode[13]!=~0U) { // Opacity mask specified
-            const ulongT sizM = mp.opcode[14];
-            if (sizM<(ulongT)dx*dy*dz)
-              throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'draw()': "
-                                          "Mask dimension (%lu values) and specified sprite geometry (%u,%u,%u,%u) "
-                                          "(%lu values) do not match.",
-                                          mp.imgin.pixel_type(),sizS,dx,dy,dz,dc,(ulongT)dx*dy*dz*dc);
-            const CImg<doubleT> M(&_mp_arg(13) + 1,dx,dy,dz,(unsigned int)(sizM/(dx*dy*dz)),true);
-            img.draw_image(x,y,z,c,S,M,opacity,(float)_mp_arg(15));
-          } else img.draw_image(x,y,z,c,S,opacity);
-        }
-        return cimg::type<double>::nan();
-      }
-
       static double mp_echo(_cimg_math_parser& mp) {
         const unsigned int nb_args = (unsigned int)(mp.opcode[2] - 3)/2;
         if (!nb_args) { std::fputc('\n',cimg::output()); return cimg::type<double>::nan(); } // No arguments
@@ -24813,6 +24791,48 @@ namespace cimg_library_suffixed {
         cimg_snprintf(title,title._width,"[ Image #%u ]",ind);
         img.display(title);
         cimg::mutex(6,0);
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_image_draw(_cimg_math_parser& mp) {
+        const int x = (int)_mp_arg(4), y = (int)_mp_arg(5), z = (int)_mp_arg(6), c = (int)_mp_arg(7);
+        unsigned int ind = (unsigned int)mp.opcode[3];
+        if (ind!=~0U) {
+          if (!mp.imglist.width()) return cimg::type<double>::nan();
+          ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.imglist.width());
+        }
+        CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
+        unsigned int
+          dx = (unsigned int)mp.opcode[8],
+          dy = (unsigned int)mp.opcode[9],
+          dz = (unsigned int)mp.opcode[10],
+          dc = (unsigned int)mp.opcode[11];
+        dx = dx==~0U?img._width:(unsigned int)_mp_arg(8);
+        dy = dy==~0U?img._height:(unsigned int)_mp_arg(9);
+        dz = dz==~0U?img._depth:(unsigned int)_mp_arg(10);
+        dc = dc==~0U?img._spectrum:(unsigned int)_mp_arg(11);
+
+        const ulongT sizS = mp.opcode[2];
+        if (sizS<(ulongT)dx*dy*dz*dc)
+          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'draw()': "
+                                      "Sprite dimension (%lu values) and specified sprite geometry (%u,%u,%u,%u) "
+                                      "(%lu values) do not match.",
+                                      mp.imgin.pixel_type(),sizS,dx,dy,dz,dc,(ulongT)dx*dy*dz*dc);
+        CImg<doubleT> S(&_mp_arg(1) + 1,dx,dy,dz,dc,true);
+        const float opacity = (float)_mp_arg(12);
+
+        if (img._data) {
+          if (mp.opcode[13]!=~0U) { // Opacity mask specified
+            const ulongT sizM = mp.opcode[14];
+            if (sizM<(ulongT)dx*dy*dz)
+              throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'draw()': "
+                                          "Mask dimension (%lu values) and specified sprite geometry (%u,%u,%u,%u) "
+                                          "(%lu values) do not match.",
+                                          mp.imgin.pixel_type(),sizS,dx,dy,dz,dc,(ulongT)dx*dy*dz*dc);
+            const CImg<doubleT> M(&_mp_arg(13) + 1,dx,dy,dz,(unsigned int)(sizM/(dx*dy*dz)),true);
+            img.draw_image(x,y,z,c,S,M,opacity,(float)_mp_arg(15));
+          } else img.draw_image(x,y,z,c,S,opacity);
+        }
         return cimg::type<double>::nan();
       }
 
@@ -27266,6 +27286,48 @@ namespace cimg_library_suffixed {
           boundary_conditions = (int)_mp_arg(15);
         CImg<doubleT>(ptrd,dx,dy,dz,dc,true) = CImg<doubleT>(ptrs,w,h,d,s,true).
           get_crop(x,y,z,c,x + dx - 1,y + dy - 1,z + dz - 1,c + dc - 1,boundary_conditions);
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_vector_draw(_cimg_math_parser& mp) {
+        const int x = (int)_mp_arg(4), y = (int)_mp_arg(5), z = (int)_mp_arg(6), c = (int)_mp_arg(7);
+        unsigned int ind = (unsigned int)mp.opcode[3];
+        if (ind!=~0U) {
+          if (!mp.imglist.width()) return cimg::type<double>::nan();
+          ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.imglist.width());
+        }
+        CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
+        unsigned int
+          dx = (unsigned int)mp.opcode[8],
+          dy = (unsigned int)mp.opcode[9],
+          dz = (unsigned int)mp.opcode[10],
+          dc = (unsigned int)mp.opcode[11];
+        dx = dx==~0U?img._width:(unsigned int)_mp_arg(8);
+        dy = dy==~0U?img._height:(unsigned int)_mp_arg(9);
+        dz = dz==~0U?img._depth:(unsigned int)_mp_arg(10);
+        dc = dc==~0U?img._spectrum:(unsigned int)_mp_arg(11);
+
+        const ulongT sizS = mp.opcode[2];
+        if (sizS<(ulongT)dx*dy*dz*dc)
+          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'draw()': "
+                                      "Sprite dimension (%lu values) and specified sprite geometry (%u,%u,%u,%u) "
+                                      "(%lu values) do not match.",
+                                      mp.imgin.pixel_type(),sizS,dx,dy,dz,dc,(ulongT)dx*dy*dz*dc);
+        CImg<doubleT> S(&_mp_arg(1) + 1,dx,dy,dz,dc,true);
+        const float opacity = (float)_mp_arg(12);
+
+        if (img._data) {
+          if (mp.opcode[13]!=~0U) { // Opacity mask specified
+            const ulongT sizM = mp.opcode[14];
+            if (sizM<(ulongT)dx*dy*dz)
+              throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'draw()': "
+                                          "Mask dimension (%lu values) and specified sprite geometry (%u,%u,%u,%u) "
+                                          "(%lu values) do not match.",
+                                          mp.imgin.pixel_type(),sizS,dx,dy,dz,dc,(ulongT)dx*dy*dz*dc);
+            const CImg<doubleT> M(&_mp_arg(13) + 1,dx,dy,dz,(unsigned int)(sizM/(dx*dy*dz)),true);
+            img.draw_image(x,y,z,c,S,M,opacity,(float)_mp_arg(15));
+          } else img.draw_image(x,y,z,c,S,opacity);
+        }
         return cimg::type<double>::nan();
       }
 
@@ -31186,6 +31248,70 @@ namespace cimg_library_suffixed {
       CImg<T> r(1,16);
       r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4; r[5] = a5; r[6] = a6; r[7] = a7; r[8] = a8; r[9] = a9;
       r[10] = a10; r[11] = a11; r[12] = a12; r[13] = a13; r[14] = a14; r[15] = a15;
+      return r;
+    }
+
+    //! Return a \c 1x17 image containing specified values.
+    static CImg<T> vector(const T& a0, const T& a1, const T& a2, const T& a3,
+                          const T& a4, const T& a5, const T& a6, const T& a7,
+                          const T& a8, const T& a9, const T& a10, const T& a11,
+                          const T& a12, const T& a13, const T& a14, const T& a15,
+                          const T& a16) {
+      CImg<T> r(1,17);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4; r[5] = a5; r[6] = a6; r[7] = a7; r[8] = a8; r[9] = a9;
+      r[10] = a10; r[11] = a11; r[12] = a12; r[13] = a13; r[14] = a14; r[15] = a15; r[16] = a16;
+      return r;
+    }
+
+    //! Return a \c 1x18 image containing specified values.
+    static CImg<T> vector(const T& a0, const T& a1, const T& a2, const T& a3,
+                          const T& a4, const T& a5, const T& a6, const T& a7,
+                          const T& a8, const T& a9, const T& a10, const T& a11,
+                          const T& a12, const T& a13, const T& a14, const T& a15,
+                          const T& a16, const T& a17) {
+      CImg<T> r(1,18);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4; r[5] = a5; r[6] = a6; r[7] = a7; r[8] = a8; r[9] = a9;
+      r[10] = a10; r[11] = a11; r[12] = a12; r[13] = a13; r[14] = a14; r[15] = a15; r[16] = a16; r[17] = a17;
+      return r;
+    }
+
+    //! Return a \c 1x19 image containing specified values.
+    static CImg<T> vector(const T& a0, const T& a1, const T& a2, const T& a3,
+                          const T& a4, const T& a5, const T& a6, const T& a7,
+                          const T& a8, const T& a9, const T& a10, const T& a11,
+                          const T& a12, const T& a13, const T& a14, const T& a15,
+                          const T& a16, const T& a17, const T& a18) {
+      CImg<T> r(1,19);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4; r[5] = a5; r[6] = a6; r[7] = a7; r[8] = a8; r[9] = a9;
+      r[10] = a10; r[11] = a11; r[12] = a12; r[13] = a13; r[14] = a14; r[15] = a15; r[16] = a16; r[17] = a17;
+      r[18] = a18;
+      return r;
+    }
+
+    //! Return a \c 1x20 image containing specified values.
+    static CImg<T> vector(const T& a0, const T& a1, const T& a2, const T& a3,
+                          const T& a4, const T& a5, const T& a6, const T& a7,
+                          const T& a8, const T& a9, const T& a10, const T& a11,
+                          const T& a12, const T& a13, const T& a14, const T& a15,
+                          const T& a16, const T& a17, const T& a18, const T& a19) {
+      CImg<T> r(1,20);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4; r[5] = a5; r[6] = a6; r[7] = a7; r[8] = a8; r[9] = a9;
+      r[10] = a10; r[11] = a11; r[12] = a12; r[13] = a13; r[14] = a14; r[15] = a15; r[16] = a16; r[17] = a17;
+      r[18] = a18; r[19] = a19;
+      return r;
+    }
+
+    //! Return a \c 1x21 image containing specified values.
+    static CImg<T> vector(const T& a0, const T& a1, const T& a2, const T& a3,
+                          const T& a4, const T& a5, const T& a6, const T& a7,
+                          const T& a8, const T& a9, const T& a10, const T& a11,
+                          const T& a12, const T& a13, const T& a14, const T& a15,
+                          const T& a16, const T& a17, const T& a18, const T& a19,
+                          const T& a20) {
+      CImg<T> r(1,21);
+      r[0] = a0; r[1] = a1; r[2] = a2; r[3] = a3; r[4] = a4; r[5] = a5; r[6] = a6; r[7] = a7; r[8] = a8; r[9] = a9;
+      r[10] = a10; r[11] = a11; r[12] = a12; r[13] = a13; r[14] = a14; r[15] = a15; r[16] = a16; r[17] = a17;
+      r[18] = a18; r[19] = a19; r[20] = a20;
       return r;
     }
 

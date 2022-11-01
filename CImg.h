@@ -19606,26 +19606,26 @@ namespace cimg_library_suffixed {
                                               opcode._height<5?"few":"much",s0);
                 }
 
-                _cimg_mp_check_const_scalar((unsigned int)opcode[1],2,3);
-                opcode[1] = (ulongT)mem[opcode[1]]; // Width
-                _cimg_mp_check_const_scalar((unsigned int)opcode[2],3,3);
-                opcode[2] = (ulongT)mem[opcode[2]]; // Height
-                _cimg_mp_check_const_scalar((unsigned int)opcode[3],4,3);
-                opcode[3] = (ulongT)mem[opcode[3]]; // Depth
-                _cimg_mp_check_const_scalar((unsigned int)opcode[4],5,3);
-                opcode[4] = (ulongT)mem[opcode[4]]; // Spectrum
+                _cimg_mp_check_const_scalar((unsigned int)opcode[1],2,3); // w
+                opcode[1] = (ulongT)mem[opcode[1]];
+                _cimg_mp_check_const_scalar((unsigned int)opcode[2],3,3); // h
+                opcode[2] = (ulongT)mem[opcode[2]];
+                _cimg_mp_check_const_scalar((unsigned int)opcode[3],4,3); // d
+                opcode[3] = (ulongT)mem[opcode[3]];
+                _cimg_mp_check_const_scalar((unsigned int)opcode[4],5,3); // s
+                opcode[4] = (ulongT)mem[opcode[4]];
 
                 p1 = _cimg_mp_size((unsigned int)opcode[0]);
                 arg2 = (unsigned int)opcode[1];
                 arg3 = (unsigned int)opcode[2];
                 arg4 = (unsigned int)opcode[3];
                 arg5 = (unsigned int)opcode[4];
-                if (arg2*arg3*arg4*arg5!=std::max(1U,p1))
+                if (arg2*arg3*arg4*arg5!=p1)
                   throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                               "CImg<%s>::%s: %s: Input size (%lu values) and specified input vector "
                                               "geometry (%u,%u,%u,%u) (%lu values) do not match.",
                                               pixel_type(),_cimg_mp_calling_function,s_op,
-                                              std::max(p1,1U),arg2,arg3,arg4,arg5,(ulongT)arg2*arg3*arg4*arg5);
+                                              p1,arg2,arg3,arg4,arg5,(ulongT)arg2*arg3*arg4*arg5);
 
                 if (opcode[9]!=(ulongT)~0U) {
                   _cimg_mp_check_const_scalar((unsigned int)opcode[9],arg1,3);
@@ -20126,6 +20126,7 @@ namespace cimg_library_suffixed {
                 _cimg_mp_check_type((unsigned int)opcode[2],3,1,0); // h
                 _cimg_mp_check_type((unsigned int)opcode[3],4,1,0); // d
                 _cimg_mp_check_type((unsigned int)opcode[4],5,1,0); // s
+
                 if (opcode._height<8 || (opcode._height<10 && _cimg_mp_is_vector((unsigned int)opcode[7]))) {
                   // D,w,h,d,s,S[,opac,M,maxM]
                   if (opcode._height>6) _cimg_mp_check_type((unsigned int)opcode[6],7,1,0); // opac
@@ -27361,18 +27362,20 @@ namespace cimg_library_suffixed {
         const unsigned int
           sizD = (unsigned int)mp.opcode[2],
           sizS = (unsigned int)mp.opcode[8];
-        const int
-          w = (int)_mp_arg(3), h = (int)_mp_arg(4), d = (int)_mp_arg(5), s = (int)_mp_arg(6),
-          x = (int)_mp_arg(9), y = (int)_mp_arg(10), z = (int)_mp_arg(11), c = (int)_mp_arg(12);
         unsigned int
+          w = (unsigned int)mp.opcode[3],
+          h = (unsigned int)mp.opcode[4],
+          d = (unsigned int)mp.opcode[5],
+          s = (unsigned int)mp.opcode[6],
           dx = (unsigned int)mp.opcode[13],
           dy = (unsigned int)mp.opcode[14],
           dz = (unsigned int)mp.opcode[15],
           dc = (unsigned int)mp.opcode[16];
-        dx = dx==~0U?(unsigned int)w:(unsigned int)_mp_arg(13);
-        dy = dy==~0U?(unsigned int)h:(unsigned int)_mp_arg(14);
-        dz = dz==~0U?(unsigned int)d:(unsigned int)_mp_arg(15);
-        dc = dc==~0U?(unsigned int)s:(unsigned int)_mp_arg(16);
+        dx = dx==~0U?w:(unsigned int)_mp_arg(13);
+        dy = dy==~0U?h:(unsigned int)_mp_arg(14);
+        dz = dz==~0U?d:(unsigned int)_mp_arg(15);
+        dc = dc==~0U?s:(unsigned int)_mp_arg(16);
+        const int x = (int)_mp_arg(9), y = (int)_mp_arg(10), z = (int)_mp_arg(11), c = (int)_mp_arg(12);
 
         if (sizD<(ulongT)w*h*d*s)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'draw()': "

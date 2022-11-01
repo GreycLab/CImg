@@ -19606,10 +19606,26 @@ namespace cimg_library_suffixed {
                                               opcode._height<5?"few":"much",s0);
                 }
 
-                _cimg_mp_check_type((unsigned int)opcode[1],2,1,0); // w
-                _cimg_mp_check_type((unsigned int)opcode[2],3,1,0); // h
-                _cimg_mp_check_type((unsigned int)opcode[3],4,1,0); // d
-                _cimg_mp_check_type((unsigned int)opcode[4],5,1,0); // s
+                _cimg_mp_check_const_scalar((unsigned int)opcode[1],2,3); // w
+                opcode[1] = (ulongT)mem[opcode[1]];
+                _cimg_mp_check_const_scalar((unsigned int)opcode[2],3,3); // h
+                opcode[2] = (ulongT)mem[opcode[2]];
+                _cimg_mp_check_const_scalar((unsigned int)opcode[3],4,3); // d
+                opcode[3] = (ulongT)mem[opcode[3]];
+                _cimg_mp_check_const_scalar((unsigned int)opcode[4],5,3); // s
+                opcode[4] = (ulongT)mem[opcode[4]];
+                p1 = _cimg_mp_size((unsigned int)opcode[0]);
+                arg2 = (unsigned int)opcode[1];
+                arg3 = (unsigned int)opcode[2];
+                arg4 = (unsigned int)opcode[3];
+                arg5 = (unsigned int)opcode[4];
+                if (arg2*arg3*arg4*arg5!=p1)
+                  throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                              "CImg<%s>::%s: %s: Input size (%lu values) and specified input vector "
+                                              "geometry (%u,%u,%u,%u) (%lu values) do not match.",
+                                              pixel_type(),_cimg_mp_calling_function,s_op,
+                                              p1,arg2,arg3,arg4,arg5,(ulongT)arg2*arg3*arg4*arg5);
+
                 if (opcode[9]!=(ulongT)~0U) {
                   _cimg_mp_check_const_scalar((unsigned int)opcode[9],arg1,3);
                   opcode[9] = (ulongT)mem[opcode[9]];
@@ -19630,11 +19646,11 @@ namespace cimg_library_suffixed {
 
                 pos = vector((unsigned int)(opcode[9]*opcode[10]*opcode[11]*opcode[12]));
                 CImg<ulongT>::vector((ulongT)mp_vector_crop_ext,
-                                     pos,*opcode,_cimg_mp_size(*opcode), // 1-3: res,S,sizS
-                                     opcode[1],opcode[2],opcode[3],opcode[4], // 4-7: w,h,d,s
-                                     opcode[5],opcode[6],opcode[7],opcode[8], // 8-11: x,y,z,c
-                                     opcode[9],opcode[10],opcode[11],opcode[12], // 12-15: dx,dy,dz,dc
-                                     opcode[13]).move_to(code); // 16: boundary conditions
+                                     pos,*opcode, // 1-2: res,S
+                                     opcode[1],opcode[2],opcode[3],opcode[4], // 3-6: w,h,d,s
+                                     opcode[5],opcode[6],opcode[7],opcode[8], // 7-10: x,y,z,c
+                                     opcode[9],opcode[10],opcode[11],opcode[12], // 11-14: dx,dy,dz,dc
+                                     opcode[13]).move_to(code); // 15: boundary conditions
               }
               return_new_comp = true;
               _cimg_mp_return(pos);
@@ -27319,25 +27335,17 @@ namespace cimg_library_suffixed {
       static double mp_vector_crop_ext(_cimg_math_parser& mp) {
         double *const ptrd = &_mp_arg(1) + 1;
         const double *const ptrs = &_mp_arg(2) + 1;
-        const int
-          w = (int)_mp_arg(4), h = (int)_mp_arg(5), d = (int)_mp_arg(6), s = (int)_mp_arg(7),
-          x = (int)_mp_arg(8), y = (int)_mp_arg(9), z = (int)_mp_arg(10), c = (int)_mp_arg(11);
         const unsigned int
-          sizS = (unsigned int)mp.opcode[3],
-          dx = (unsigned int)mp.opcode[12],
-          dy = (unsigned int)mp.opcode[13],
-          dz = (unsigned int)mp.opcode[14],
-          dc = (unsigned int)mp.opcode[15],
-          boundary_conditions = (int)_mp_arg(16);
-        if (w<=0 || h<=0 || d<=0 || s<=0)
-          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'crop()': "
-                                      "Invalid specified source vector geometry (%d,%d,%d,%d).",
-                                      mp.imgin.pixel_type(),w,h,d,s);
-        if (sizS<(ulongT)w*h*d*s)
-          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'crop()': "
-                                      "Source vector dimension (%lu values) and specified source geometry (%d,%d,%d,%d) "
-                                      "(%lu values) do not match.",
-                                      mp.imgin.pixel_type(),sizS,w,h,d,s,(ulongT)w*h*d*s);
+          w = (unsigned int)mp.opcode[3],
+          h = (unsigned int)mp.opcode[4],
+          d = (unsigned int)mp.opcode[5],
+          s = (unsigned int)mp.opcode[6],
+          dx = (unsigned int)mp.opcode[11],
+          dy = (unsigned int)mp.opcode[12],
+          dz = (unsigned int)mp.opcode[13],
+          dc = (unsigned int)mp.opcode[14],
+          boundary_conditions = (int)_mp_arg(15);
+        const int x = (int)_mp_arg(7), y = (int)_mp_arg(8), z = (int)_mp_arg(9), c = (int)_mp_arg(10);
         CImg<doubleT>(ptrd,dx,dy,dz,dc,true) = CImg<doubleT>(ptrs,w,h,d,s,true).
           get_crop(x,y,z,c,x + dx - 1,y + dy - 1,z + dz - 1,c + dc - 1,boundary_conditions);
         return cimg::type<double>::nan();

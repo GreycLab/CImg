@@ -21335,7 +21335,6 @@ namespace cimg_library_suffixed {
                   _cimg_mp_check_type((unsigned int)opcode[6],7,1,0); // d
                   _cimg_mp_scalar7(mp_offset5,opcode[0],opcode[1],opcode[2],opcode[3],opcode[4],opcode[5],opcode[6]);
                 }
-
               } else {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "

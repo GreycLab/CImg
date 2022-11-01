@@ -21295,10 +21295,6 @@ namespace cimg_library_suffixed {
             break;
 
           case 'o' :
-            // offset(x,y,z,c,w,h,d) = (x + w*(y + h*(z + d*c))); -> 7 arguments
-            // offset(x,y,z,w,h) = (x + w*(y + h*z)); -> 5 argumentss
-            // offset(x,y,w) = (x + w*y); -> 3 arguments
-
             if (!std::strncmp(ss,"offset(",7)) { // Image offset
               _cimg_mp_op("Function 'offset()'");
               if (ss7<se1) for (s = ss7; s<se; ++s, ++pos) {

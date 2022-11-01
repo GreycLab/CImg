@@ -20091,7 +20091,6 @@ namespace cimg_library_suffixed {
             }
 
             if (!std::strncmp(ss,"draw(",5)) { // Draw image
-              if (!is_inside_critical) is_parallelizable = false;
               _cimg_mp_op("Function 'draw()'");
               if (*ss5=='#') { // Index specified
                 s0 = ss6; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
@@ -20225,6 +20224,7 @@ namespace cimg_library_suffixed {
                 }
 
               } else { // Drawing in an image
+                if (!is_inside_critical) is_parallelizable = false;
                 arg1 = p1!=~0U;
                 _cimg_mp_check_type((unsigned int)*opcode,1 + arg1,2,0); // S
                 if (opcode._height<3 || (opcode._height<5 && _cimg_mp_is_vector((unsigned int)opcode[2]))) {
@@ -21291,6 +21291,31 @@ namespace cimg_library_suffixed {
               opcode.move_to(code);
               return_new_comp = true;
               _cimg_mp_return(pos);
+            }
+            break;
+
+          case 'o' :
+            // offset(x,y,z,c,w,h,d) = (x + w*(y + h*(z + d*c))); -> 7 arguments
+            // offset(x,y,z,w,h) = (x + w*(y + h*z)); -> 5 argumentss
+            // offset(x,y,w) = (x + w*y); -> 3 arguments
+
+            if (!std::strncmp(ss,"offset(",7)) { // Image offset
+              _cimg_mp_op("Function 'offset()'");
+              if (ss7<se1) for (s = ss7; s<se; ++s, ++pos) {
+                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                arg1 = compile(s,ns,depth1,0,block_flags);
+                if (pos==1 && _cimg_mp_is_scalar(arg1)) is_sth = true;
+                else if (pos>1) _cimg_mp_check_type(arg1,pos,1,0);
+                CImg<ulongT>::vector(arg1).move_to(l_opcode);
+                s = ns;
+              }
+              (l_opcode>'y').move_to(opcode);
+              if (opcode._height==3 || opcode._height==5 || opcode._height==7) {
+                p1 = _cimg_mp_size(arg1);
+              }
+              // TODO.
+
             }
             break;
 

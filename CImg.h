@@ -19476,40 +19476,32 @@ namespace cimg_library_suffixed {
                   break;
                 case 2 :
                   CImg<ulongT>::vector(*opcode,0,0,0,opcode[1],~0U,~0U,~0U,_cimg_mp_boundary).move_to(opcode);
-                  arg1 = 2 + arg2;
-                  break;
+                  arg1 = 2 + arg2; break;
                 case 3 :
                   CImg<ulongT>::vector(*opcode,0,0,0,opcode[1],~0U,~0U,~0U,opcode[2]).move_to(opcode);
-                  arg1 = 2 + arg2;
-                  break;
+                  arg1 = 2 + arg2; break;
                 case 4 :
                   CImg<ulongT>::vector(*opcode,opcode[1],0,0,opcode[2],opcode[3],~0U,~0U,_cimg_mp_boundary).
                     move_to(opcode);
-                  arg1 = 3 + arg2;
-                  break;
+                  arg1 = 3 + arg2; break;
                 case 5 :
                   CImg<ulongT>::vector(*opcode,opcode[1],0,0,opcode[2],opcode[3],~0U,~0U,opcode[4]).
                     move_to(opcode);
-                  arg1 = 3 + arg2;
-                  break;
+                  arg1 = 3 + arg2; break;
                 case 6 :
                   CImg<ulongT>::vector(*opcode,opcode[1],opcode[2],0,opcode[3],opcode[4],opcode[5],~0U,
                                        _cimg_mp_boundary).move_to(opcode);
-                  arg1 = 4 + arg2;
-                  break;
+                  arg1 = 4 + arg2; break;
                 case 7 :
                   CImg<ulongT>::vector(*opcode,opcode[1],opcode[2],0,opcode[3],opcode[4],opcode[5],~0U,
                                        opcode[6]).move_to(opcode);
-                  arg1 = 4 + arg2;
-                  break;
+                  arg1 = 4 + arg2; break;
                 case 8 :
                   CImg<ulongT>::vector(*opcode,opcode[1],opcode[2],opcode[3],opcode[4],opcode[5],opcode[6],
                                        opcode[7],_cimg_mp_boundary).move_to(opcode);
-                  arg1 = 5 + arg2;
-                  break;
+                  arg1 = 5 + arg2; break;
                 case 9 :
-                  arg1 = 5 + arg2;
-                  break;
+                  arg1 = 5 + arg2; break;
                 default : // Error -> too much arguments
                   _cimg_mp_strerr;
                   throw CImgArgumentException("[" cimg_appname "_math_parser] "
@@ -19559,10 +19551,10 @@ namespace cimg_library_suffixed {
 
                 pos = vector((unsigned int)(opcode[4]*opcode[5]*opcode[6]*opcode[7]));
                 CImg<ulongT>::vector((ulongT)mp_image_crop,
-                                     pos,p1,
-                                     *opcode,opcode[1],opcode[2],opcode[3],
-                                     opcode[4],opcode[5],opcode[6],opcode[7],
-                                     opcode[8]).move_to(code);
+                                     pos,p1, // 1-2: res,#ind
+                                     *opcode,opcode[1],opcode[2],opcode[3], // 3-6: x,y,z,c
+                                     opcode[4],opcode[5],opcode[6],opcode[7], // 7-10: dx,dy,dz,dc
+                                     opcode[8]).move_to(code); // 11: boundary conditions
 
               } else { // Vector crop
                 switch (opcode._height) {
@@ -19573,46 +19565,38 @@ namespace cimg_library_suffixed {
                 case 7 :
                   CImg<ulongT>::vector(*opcode,opcode[1],opcode[2],opcode[3],opcode[4],
                                        opcode[5],0,0,0,opcode[6],~0U,~0U,~0U,_cimg_mp_boundary).move_to(opcode);
-                  arg1 = 7;
-                  break;
+                  arg1 = 7; break;
                 case 8 :
                   CImg<ulongT>::vector(*opcode,opcode[1],opcode[2],opcode[3],opcode[4],
                                        opcode[5],0,0,0,opcode[6],~0U,~0U,~0U,opcode[7]).move_to(opcode);
-                  arg1 = 7;
-                  break;
+                  arg1 = 7; break;
                 case 9 :
                   CImg<ulongT>::vector(*opcode,opcode[1],opcode[2],opcode[3],opcode[4],
                                        opcode[5],opcode[6],0,0,opcode[7],opcode[8],~0U,~0U,_cimg_mp_boundary).
                     move_to(opcode);
-                  arg1 = 8;
-                  break;
+                  arg1 = 8; break;
                 case 10 :
                   CImg<ulongT>::vector(*opcode,opcode[1],opcode[2],opcode[3],opcode[4],
                                        opcode[5],opcode[6],0,0,opcode[7],opcode[8],~0U,~0U,opcode[9]).
                     move_to(opcode);
-                  arg1 = 8;
-                  break;
+                  arg1 = 8; break;
                 case 11 :
                   CImg<ulongT>::vector(*opcode,opcode[1],opcode[2],opcode[3],opcode[4],
                                        opcode[5],opcode[6],opcode[7],0,opcode[8],opcode[9],opcode[10],~0U,
                                        _cimg_mp_boundary).move_to(opcode);
-                  arg1 = 9;
-                  break;
+                  arg1 = 9; break;
                 case 12 :
                   CImg<ulongT>::vector(*opcode,opcode[1],opcode[2],opcode[3],opcode[4],
                                        opcode[5],opcode[6],opcode[7],0,opcode[8],opcode[9],opcode[10],~0U,
                                        opcode[11]).move_to(opcode);
-                  arg1 = 9;
-                  break;
+                  arg1 = 9; break;
                 case 13 :
                   CImg<ulongT>::vector(*opcode,opcode[1],opcode[2],opcode[3],opcode[4],
                                        opcode[5],opcode[6],opcode[7],opcode[8],opcode[9],opcode[10],opcode[11],
                                        opcode[12],_cimg_mp_boundary).move_to(opcode);
-                  arg1 = 10;
-                  break;
+                  arg1 = 10; break;
                 case 14 :
-                  arg1 = 10;
-                  break;
+                  arg1 = 10; break;
                 default : // Error -> too few or too much arguments
                   _cimg_mp_strerr;
                   throw CImgArgumentException("[" cimg_appname "_math_parser] "
@@ -19663,9 +19647,11 @@ namespace cimg_library_suffixed {
 
                 pos = vector((unsigned int)(opcode[9]*opcode[10]*opcode[11]*opcode[12]));
                 CImg<ulongT>::vector((ulongT)mp_vector_crop_ext,
-                                     pos,*opcode,opcode[1],opcode[2],opcode[3],opcode[4],opcode[5],opcode[6],opcode[7],
-                                     opcode[8],opcode[9],opcode[10],opcode[11],opcode[12],opcode[13]).move_to(code);
-
+                                     pos,*opcode, // 1-2: res,S
+                                     opcode[1],opcode[2],opcode[3],opcode[4], // 3-6: w,h,d,s
+                                     opcode[5],opcode[6],opcode[7],opcode[8], // 7-10: x,y,z,c
+                                     opcode[9],opcode[10],opcode[11],opcode[12], // 11-14: dx,dy,dz,dc
+                                     opcode[13]).move_to(code); // 15: boundary conditions
               }
               return_new_comp = true;
               _cimg_mp_return(pos);
@@ -24898,7 +24884,7 @@ namespace cimg_library_suffixed {
                                       "Sprite dimension (%lu values) and specified sprite geometry (%u,%u,%u,%u) "
                                       "(%lu values) do not match.",
                                       mp.imgin.pixel_type(),sizS,dx,dy,dz,dc,(ulongT)dx*dy*dz*dc);
-        CImg<doubleT> S(&_mp_arg(1) + 1,dx,dy,dz,dc,true);
+        const CImg<doubleT> S(&_mp_arg(1) + 1,dx,dy,dz,dc,true);
         const float opacity = (float)_mp_arg(12);
 
         if (img._data) {
@@ -27370,50 +27356,49 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_vector_draw(_cimg_math_parser& mp) {
-
-        std::fprintf(stderr,"\nDEBUG : DRAW VECTOR()\n"); cimg::unused(mp);
-
-
-/*
-        const int x = (int)_mp_arg(4), y = (int)_mp_arg(5), z = (int)_mp_arg(6), c = (int)_mp_arg(7);
-        unsigned int ind = (unsigned int)mp.opcode[3];
-        if (ind!=~0U) {
-          if (!mp.imglist.width()) return cimg::type<double>::nan();
-          ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.imglist.width());
-        }
-        CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
+        double *const ptrd = &_mp_arg(1) + 1;
+        const double *const ptrs = &_mp_arg(7) + 1;
+        const unsigned int
+          sizD = (unsigned int)mp.opcode[2],
+          sizS = (unsigned int)mp.opcode[8];
+        const int
+          w = (int)_mp_arg(3), h = (int)_mp_arg(4), d = (int)_mp_arg(5), s = (int)_mp_arg(6),
+          x = (int)_mp_arg(9), y = (int)_mp_arg(10), z = (int)_mp_arg(11), c = (int)_mp_arg(12);
         unsigned int
-          dx = (unsigned int)mp.opcode[8],
-          dy = (unsigned int)mp.opcode[9],
-          dz = (unsigned int)mp.opcode[10],
-          dc = (unsigned int)mp.opcode[11];
-        dx = dx==~0U?img._width:(unsigned int)_mp_arg(8);
-        dy = dy==~0U?img._height:(unsigned int)_mp_arg(9);
-        dz = dz==~0U?img._depth:(unsigned int)_mp_arg(10);
-        dc = dc==~0U?img._spectrum:(unsigned int)_mp_arg(11);
+          dx = (unsigned int)mp.opcode[13],
+          dy = (unsigned int)mp.opcode[14],
+          dz = (unsigned int)mp.opcode[15],
+          dc = (unsigned int)mp.opcode[16];
+        dx = dx==~0U?(unsigned int)w:(unsigned int)_mp_arg(13);
+        dy = dy==~0U?(unsigned int)h:(unsigned int)_mp_arg(14);
+        dz = dz==~0U?(unsigned int)d:(unsigned int)_mp_arg(15);
+        dc = dc==~0U?(unsigned int)s:(unsigned int)_mp_arg(16);
 
-        const ulongT sizS = mp.opcode[2];
+        if (sizD<(ulongT)w*h*d*s)
+          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'draw()': "
+                                      "Target vector dimension (%lu values) and specified target geometry (%u,%u,%u,%u) "
+                                      "(%lu values) do not match.",
+                                      mp.imgin.pixel_type(),sizD,w,h,d,s,(ulongT)w*h*d*s);
         if (sizS<(ulongT)dx*dy*dz*dc)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'draw()': "
                                       "Sprite dimension (%lu values) and specified sprite geometry (%u,%u,%u,%u) "
                                       "(%lu values) do not match.",
                                       mp.imgin.pixel_type(),sizS,dx,dy,dz,dc,(ulongT)dx*dy*dz*dc);
-        CImg<doubleT> S(&_mp_arg(1) + 1,dx,dy,dz,dc,true);
-        const float opacity = (float)_mp_arg(12);
 
-        if (img._data) {
-          if (mp.opcode[13]!=~0U) { // Opacity mask specified
-            const ulongT sizM = mp.opcode[14];
-            if (sizM<(ulongT)dx*dy*dz)
-              throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'draw()': "
-                                          "Mask dimension (%lu values) and specified sprite geometry (%u,%u,%u,%u) "
-                                          "(%lu values) do not match.",
-                                          mp.imgin.pixel_type(),sizS,dx,dy,dz,dc,(ulongT)dx*dy*dz*dc);
-            const CImg<doubleT> M(&_mp_arg(13) + 1,dx,dy,dz,(unsigned int)(sizM/(dx*dy*dz)),true);
-            img.draw_image(x,y,z,c,S,M,opacity,(float)_mp_arg(15));
-          } else img.draw_image(x,y,z,c,S,opacity);
-        }
-*/
+        CImg<doubleT> D(ptrd,w,h,d,s,true);
+        const CImg<doubleT> S(ptrs,dx,dy,dz,dc,true);
+        const float opacity = (float)_mp_arg(17);
+
+        if (mp.opcode[18]!=~0U) { // Opacity mask specified
+          const ulongT sizM = mp.opcode[19];
+          if (sizM<(ulongT)dx*dy*dz)
+            throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'draw()': "
+                                        "Mask dimension (%lu values) and specified sprite geometry (%u,%u,%u,%u) "
+                                        "(%lu values) do not match.",
+                                        mp.imgin.pixel_type(),sizS,dx,dy,dz,dc,(ulongT)dx*dy*dz*dc);
+          const CImg<doubleT> M(&_mp_arg(18) + 1,dx,dy,dz,(unsigned int)(sizM/(dx*dy*dz)),true);
+          D.draw_image(x,y,z,c,S,M,opacity,(float)_mp_arg(20));
+        } else D.draw_image(x,y,z,c,S,opacity);
 
         return cimg::type<double>::nan();
       }

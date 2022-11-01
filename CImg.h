@@ -20142,6 +20142,7 @@ namespace cimg_library_suffixed {
                 arg1 = p1!=~0U;
                 _cimg_mp_check_type((unsigned int)*opcode,1 + arg1,2,0);
                 if (opcode._height<3 || (opcode._height<5 && _cimg_mp_is_vector((unsigned int)opcode[2]))) {
+                  // S,[opac,M,maxM]
                   if (opcode._height>1) _cimg_mp_check_type((unsigned int)opcode[1],2 + arg1,1,0); // opac
                   if (opcode._height>3) _cimg_mp_check_type((unsigned int)opcode[3],4 + arg1,1,0); // maxM
                   CImg<ulongT>::vector((ulongT)mp_image_draw,
@@ -20152,6 +20153,7 @@ namespace cimg_library_suffixed {
                                        opcode._height<3?~0U:opcode[2], // 13: M
                                        opcode._height<4?1:opcode[3]).move_to(code); // 14: maxM
                 } else if (opcode._height<5 || (opcode._height<7 && _cimg_mp_is_vector((unsigned int)opcode[4]))) {
+                  // x,dx,S,[opac,M,maxM]
                   _cimg_mp_check_type((unsigned int)opcode[1],2 + arg1,1,0); // x
                   _cimg_mp_check_type((unsigned int)opcode[2],3 + arg1,1,0); // dx
                   if (opcode._height>3) _cimg_mp_check_type((unsigned int)opcode[3],4 + arg1,1,0); // opac
@@ -20164,6 +20166,7 @@ namespace cimg_library_suffixed {
                                        opcode._height<5?~0U:opcode[4], // 13: M
                                        opcode._height<6?1:opcode[5]).move_to(code); // 14: maxM
                 } else if (opcode._height<7 || (opcode._height<9 && _cimg_mp_is_vector((unsigned int)opcode[6]))) {
+                  // x,y,dx,dy,S,[opac,M,maxM]
                   _cimg_mp_check_type((unsigned int)opcode[1],2 + arg1,1,0); // x
                   _cimg_mp_check_type((unsigned int)opcode[2],3 + arg1,1,0); // y
                   _cimg_mp_check_type((unsigned int)opcode[3],4 + arg1,1,0); // dx
@@ -20178,6 +20181,7 @@ namespace cimg_library_suffixed {
                                        opcode._height<7?~0U:opcode[6], // 13: M
                                        opcode._height<8?1:opcode[7]).move_to(code); // 14: maxM
                 } else if (opcode._height<9 || (opcode._height<11 && _cimg_mp_is_vector((unsigned int)opcode[8]))) {
+                  // x,y,z,dx,dy,dz,S,[opac,M,maxM]
                   _cimg_mp_check_type((unsigned int)opcode[1],2 + arg1,1,0); // x
                   _cimg_mp_check_type((unsigned int)opcode[2],3 + arg1,1,0); // y
                   _cimg_mp_check_type((unsigned int)opcode[3],4 + arg1,1,0); // z
@@ -20194,6 +20198,7 @@ namespace cimg_library_suffixed {
                                        opcode._height<9?~0U:opcode[8], // 13: M
                                        opcode._height<10?1:opcode[9]).move_to(code); // 14: maxM
                 } else if (opcode._height<11 || (opcode._height<13 && _cimg_mp_is_vector((unsigned int)opcode[10]))) {
+                  // x,y,z,c,dx,dy,dz,dc,S,[opac,M,maxM]
                   _cimg_mp_check_type((unsigned int)opcode[1],2 + arg1,1,0); // x
                   _cimg_mp_check_type((unsigned int)opcode[2],3 + arg1,1,0); // y
                   _cimg_mp_check_type((unsigned int)opcode[3],4 + arg1,1,0); // z

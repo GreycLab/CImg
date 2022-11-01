@@ -21313,9 +21313,16 @@ namespace cimg_library_suffixed {
               (l_opcode>'y').move_to(opcode);
               if (opcode._height==3 || opcode._height==5 || opcode._height==7) {
                 p1 = _cimg_mp_size(arg1);
-              }
-              // TODO.
 
+                // TODO.
+
+              } else {
+                _cimg_mp_strerr;
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: Wrong number of arguments specified (%u, should be 3,5 or 7), "
+                                            "in expression '%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,opcode._height,s0);
+              }
             }
             break;
 

@@ -27320,10 +27320,7 @@ namespace cimg_library_suffixed {
         double *const ptrd = &_mp_arg(1) + 1;
         const double *const ptrs = &_mp_arg(2) + 1;
         const int
-          w = std::max(0,(int)_mp_arg(4)),
-          h = std::max(0,(int)_mp_arg(5)),
-          d = std::max(0,(int)_mp_arg(6)),
-          s = std::max(0,(int)_mp_arg(7)),
+          w = (int)_mp_arg(4), h = (int)_mp_arg(5), d = (int)_mp_arg(6), s = (int)_mp_arg(7),
           x = (int)_mp_arg(8), y = (int)_mp_arg(9), z = (int)_mp_arg(10), c = (int)_mp_arg(11);
         const unsigned int
           sizS = (unsigned int)mp.opcode[3],
@@ -27332,6 +27329,10 @@ namespace cimg_library_suffixed {
           dz = (unsigned int)mp.opcode[14],
           dc = (unsigned int)mp.opcode[15],
           boundary_conditions = (int)_mp_arg(16);
+        if (w<=0 || h<=0 || d<=0 || s<=0)
+          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'crop()': "
+                                      "Invalid specified source vector geometry (%d,%d,%d,%d).",
+                                      mp.imgin.pixel_type(),w,h,d,s);
         if (sizS<(ulongT)w*h*d*s)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'crop()': "
                                       "Source vector dimension (%lu values) and specified source geometry (%d,%d,%d,%d) "
@@ -27349,21 +27350,27 @@ namespace cimg_library_suffixed {
           sizD = (unsigned int)mp.opcode[2],
           sizS = (unsigned int)mp.opcode[8];
         const int
-          w = std::max(0,(int)_mp_arg(3)),
-          h = std::max(0,(int)_mp_arg(4)),
-          d = std::max(0,(int)_mp_arg(5)),
-          s = std::max(0,(int)_mp_arg(6)),
+          w = (int)_mp_arg(3), h = (int)_mp_arg(4), d = (int)_mp_arg(5), s = (int)_mp_arg(6),
           x = (int)_mp_arg(9), y = (int)_mp_arg(10), z = (int)_mp_arg(11), c = (int)_mp_arg(12);
         int dx = (int)mp.opcode[13], dy = (int)mp.opcode[14], dz = (int)mp.opcode[15], dc = (int)mp.opcode[16];
-        dx = (unsigned int)dx==~0U?w:std::max(0,(int)_mp_arg(13));
-        dy = (unsigned int)dy==~0U?h:std::max(0,(int)_mp_arg(14));
-        dz = (unsigned int)dz==~0U?d:std::max(0,(int)_mp_arg(15));
-        dc = (unsigned int)dc==~0U?s:std::max(0,(int)_mp_arg(16));
+        dx = (unsigned int)dx==~0U?w:(int)_mp_arg(13);
+        dy = (unsigned int)dy==~0U?h:(int)_mp_arg(14);
+        dz = (unsigned int)dz==~0U?d:(int)_mp_arg(15);
+        dc = (unsigned int)dc==~0U?s:(int)_mp_arg(16);
+
+        if (w<=0 || h<=0 || d<=0 || s<=0)
+          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'draw()': "
+                                      "Invalid specified target vector geometry (%d,%d,%d,%d).",
+                                      mp.imgin.pixel_type(),w,h,d,s);
         if (sizD<(ulongT)w*h*d*s)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'draw()': "
                                       "Target vector dimension (%lu values) and specified target geometry (%d,%d,%d,%d) "
                                       "(%lu values) do not match.",
                                       mp.imgin.pixel_type(),sizD,w,h,d,s,(ulongT)w*h*d*s);
+        if (dx<=0 || dy<=0 || dz<=0 || dc<=0)
+          throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'draw()': "
+                                      "Invalid specified sprite geometry (%d,%d,%d,%d).",
+                                      mp.imgin.pixel_type(),dx,dy,dz,dc);
         if (sizS<(ulongT)dx*dy*dz*dc)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'draw()': "
                                       "Sprite dimension (%lu values) and specified sprite geometry (%d,%d,%d,%d) "

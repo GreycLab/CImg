@@ -20151,7 +20151,8 @@ namespace cimg_library_suffixed {
                                        ~0U,~0U,~0U,~0U, // 8-11: dx,dy,dz,dc
                                        opcode._height<2?1:opcode[1], // 12: opac
                                        opcode._height<3?~0U:opcode[2], // 13: M
-                                       opcode._height<4?1:opcode[3]).move_to(code); // 14: maxM
+                                       opcode._height<3?0:_cimg_mp_size((unsigned int)opcode[2]), // 14: sizM
+                                       opcode._height<4?1:opcode[3]).move_to(code); // 15: maxM
                 } else if (opcode._height<5 || (opcode._height<7 && _cimg_mp_is_vector((unsigned int)opcode[4]))) {
                   // x,dx,S,[opac,M,maxM]
                   _cimg_mp_check_type((unsigned int)opcode[1],2 + arg1,1,0); // x
@@ -20164,7 +20165,8 @@ namespace cimg_library_suffixed {
                                        opcode[2],~0U,~0U,~0U, // 8-11: dx,dy,dz,dc
                                        opcode._height<4?1:opcode[3], // 12: opac
                                        opcode._height<5?~0U:opcode[4], // 13: M
-                                       opcode._height<6?1:opcode[5]).move_to(code); // 14: maxM
+                                       opcode._height<5?0:_cimg_mp_size((unsigned int)opcode[4]), // 14: sizM
+                                       opcode._height<6?1:opcode[5]).move_to(code); // 15: maxM
                 } else if (opcode._height<7 || (opcode._height<9 && _cimg_mp_is_vector((unsigned int)opcode[6]))) {
                   // x,y,dx,dy,S,[opac,M,maxM]
                   _cimg_mp_check_type((unsigned int)opcode[1],2 + arg1,1,0); // x
@@ -20179,7 +20181,8 @@ namespace cimg_library_suffixed {
                                        opcode[3],opcode[4],~0U,~0U, // 8-11: dx,dy,dz,dc
                                        opcode._height<6?1:opcode[5], // 12: opac
                                        opcode._height<7?~0U:opcode[6], // 13: M
-                                       opcode._height<8?1:opcode[7]).move_to(code); // 14: maxM
+                                       opcode._height<7?0:_cimg_mp_size((unsigned int)opcode[6]), // 14: sizM
+                                       opcode._height<8?1:opcode[7]).move_to(code); // 15: maxM
                 } else if (opcode._height<9 || (opcode._height<11 && _cimg_mp_is_vector((unsigned int)opcode[8]))) {
                   // x,y,z,dx,dy,dz,S,[opac,M,maxM]
                   _cimg_mp_check_type((unsigned int)opcode[1],2 + arg1,1,0); // x
@@ -20196,7 +20199,8 @@ namespace cimg_library_suffixed {
                                        opcode[4],opcode[5],opcode[6],~0U, // 8-11: dx,dy,dz,dc
                                        opcode._height<8?1:opcode[7], // 12: opac
                                        opcode._height<9?~0U:opcode[8], // 13: M
-                                       opcode._height<10?1:opcode[9]).move_to(code); // 14: maxM
+                                       opcode._height<9?0:_cimg_mp_size((unsigned int)opcode[8]), // 14: sizM
+                                       opcode._height<10?1:opcode[9]).move_to(code); // 15: maxM
                 } else if (opcode._height<11 || (opcode._height<13 && _cimg_mp_is_vector((unsigned int)opcode[10]))) {
                   // x,y,z,c,dx,dy,dz,dc,S,[opac,M,maxM]
                   _cimg_mp_check_type((unsigned int)opcode[1],2 + arg1,1,0); // x
@@ -20215,7 +20219,8 @@ namespace cimg_library_suffixed {
                                        opcode[5],opcode[6],opcode[7],opcode[8], // 8-11: dx,dy,dz,dc
                                        opcode._height<10?1:opcode[9], // 12: opac
                                        opcode._height<11?~0U:opcode[10], // 13: M
-                                       opcode._height<12?1:opcode[11]).move_to(code); // 14: maxM
+                                       opcode._height<11?0:_cimg_mp_size((unsigned int)opcode[10]), // 14: sizM
+                                       opcode._height<12?1:opcode[11]).move_to(code); // 15: maxM
                 } else {
                   _cimg_mp_strerr;
                   throw CImgArgumentException("[" cimg_appname "_math_parser] "

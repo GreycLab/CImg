@@ -20154,9 +20154,89 @@ namespace cimg_library_suffixed {
                                        opcode._height<8?~0U:opcode[7], // 18: M
                                        opcode._height<8?0:_cimg_mp_size((unsigned int)opcode[7]), // 19: sizM
                                        opcode._height<9?1:opcode[8]).move_to(code); // 20: maxM
-
+                } else if (opcode._height<10 || (opcode._height<12 && _cimg_mp_is_vector((unsigned int)opcode[9]))) {
+                  // D,w,h,d,s,S,x,dx[,opac,M,maxM]
+                  _cimg_mp_check_type((unsigned int)opcode[6],7,1,0); // x
+                  _cimg_mp_check_type((unsigned int)opcode[7],8,1,0); // dx
+                  if (opcode._height>8) _cimg_mp_check_type((unsigned int)opcode[8],9,1,0); // opac
+                  if (opcode._height>10) _cimg_mp_check_type((unsigned int)opcode[10],11,1,0); // maxM
+                  CImg<ulongT>::vector((ulongT)mp_vector_draw,
+                                       *opcode,_cimg_mp_size((unsigned int)*opcode), // 1-2: D,sizD
+                                       opcode[1],opcode[2],opcode[3],opcode[4], // 3-6: w,h,d,s
+                                       opcode[5],_cimg_mp_size((unsigned int)opcode[5]), // 7-8: S,sizS
+                                       opcode[6],0,0,0, // 9-12: x,y,z,c
+                                       opcode[7],~0U,~0U,~0U, // 13-16: dx,dy,dz,dc
+                                       opcode._height<9?1:opcode[8], // 17: opac
+                                       opcode._height<10?~0U:opcode[9], // 18: M
+                                       opcode._height<10?0:_cimg_mp_size((unsigned int)opcode[9]), // 19: sizM
+                                       opcode._height<11?1:opcode[10]).move_to(code); // 20: maxM
+                } else if (opcode._height<12 || (opcode._height<14 && _cimg_mp_is_vector((unsigned int)opcode[11]))) {
+                  // D,w,h,d,s,S,x,y,dx,dy[,opac,M,maxM]
+                  _cimg_mp_check_type((unsigned int)opcode[6],7,1,0); // x
+                  _cimg_mp_check_type((unsigned int)opcode[7],8,1,0); // y
+                  _cimg_mp_check_type((unsigned int)opcode[8],9,1,0); // dx
+                  _cimg_mp_check_type((unsigned int)opcode[9],10,1,0); // dy
+                  if (opcode._height>10) _cimg_mp_check_type((unsigned int)opcode[10],11,1,0); // opac
+                  if (opcode._height>12) _cimg_mp_check_type((unsigned int)opcode[12],13,1,0); // maxM
+                  CImg<ulongT>::vector((ulongT)mp_vector_draw,
+                                       *opcode,_cimg_mp_size((unsigned int)*opcode), // 1-2: D,sizD
+                                       opcode[1],opcode[2],opcode[3],opcode[4], // 3-6: w,h,d,s
+                                       opcode[5],_cimg_mp_size((unsigned int)opcode[5]), // 7-8: S,sizS
+                                       opcode[6],opcode[7],0,0, // 9-12: x,y,z,c
+                                       opcode[8],opcode[9],~0U,~0U, // 13-16: dx,dy,dz,dc
+                                       opcode._height<11?1:opcode[10], // 17: opac
+                                       opcode._height<12?~0U:opcode[11], // 18: M
+                                       opcode._height<12?0:_cimg_mp_size((unsigned int)opcode[11]), // 19: sizM
+                                       opcode._height<13?1:opcode[12]).move_to(code); // 20: maxM
+                } else if (opcode._height<14 || (opcode._height<16 && _cimg_mp_is_vector((unsigned int)opcode[13]))) {
+                  // D,w,h,d,s,S,x,y,z,dx,dy,dz[,opac,M,maxM]
+                  _cimg_mp_check_type((unsigned int)opcode[6],7,1,0); // x
+                  _cimg_mp_check_type((unsigned int)opcode[7],8,1,0); // y
+                  _cimg_mp_check_type((unsigned int)opcode[8],9,1,0); // z
+                  _cimg_mp_check_type((unsigned int)opcode[9],10,1,0); // dx
+                  _cimg_mp_check_type((unsigned int)opcode[10],11,1,0); // dy
+                  _cimg_mp_check_type((unsigned int)opcode[11],12,1,0); // dz
+                  if (opcode._height>12) _cimg_mp_check_type((unsigned int)opcode[12],13,1,0); // opac
+                  if (opcode._height>14) _cimg_mp_check_type((unsigned int)opcode[14],15,1,0); // maxM
+                  CImg<ulongT>::vector((ulongT)mp_vector_draw,
+                                       *opcode,_cimg_mp_size((unsigned int)*opcode), // 1-2: D,sizD
+                                       opcode[1],opcode[2],opcode[3],opcode[4], // 3-6: w,h,d,s
+                                       opcode[5],_cimg_mp_size((unsigned int)opcode[5]), // 7-8: S,sizS
+                                       opcode[6],opcode[7],opcode[8],0, // 9-12: x,y,z,c
+                                       opcode[9],opcode[10],opcode[11],~0U, // 13-16: dx,dy,dz,dc
+                                       opcode._height<13?1:opcode[12], // 17: opac
+                                       opcode._height<14?~0U:opcode[13], // 18: M
+                                       opcode._height<14?0:_cimg_mp_size((unsigned int)opcode[13]), // 19: sizM
+                                       opcode._height<15?1:opcode[14]).move_to(code); // 20: maxM
+                } else if (opcode._height<16 || (opcode._height<18 && _cimg_mp_is_vector((unsigned int)opcode[15]))) {
+                  // D,w,h,d,s,S,x,y,z,c,dx,dy,dz,dc[,opac,M,maxM]
+                  _cimg_mp_check_type((unsigned int)opcode[6],7,1,0); // x
+                  _cimg_mp_check_type((unsigned int)opcode[7],8,1,0); // y
+                  _cimg_mp_check_type((unsigned int)opcode[8],9,1,0); // z
+                  _cimg_mp_check_type((unsigned int)opcode[9],10,1,0); // c
+                  _cimg_mp_check_type((unsigned int)opcode[10],11,1,0); // dx
+                  _cimg_mp_check_type((unsigned int)opcode[11],12,1,0); // dy
+                  _cimg_mp_check_type((unsigned int)opcode[12],13,1,0); // dz
+                  _cimg_mp_check_type((unsigned int)opcode[13],14,1,0); // dc
+                  if (opcode._height>14) _cimg_mp_check_type((unsigned int)opcode[14],15,1,0); // opac
+                  if (opcode._height>16) _cimg_mp_check_type((unsigned int)opcode[16],17,1,0); // maxM
+                  CImg<ulongT>::vector((ulongT)mp_vector_draw,
+                                       *opcode,_cimg_mp_size((unsigned int)*opcode), // 1-2: D,sizD
+                                       opcode[1],opcode[2],opcode[3],opcode[4], // 3-6: w,h,d,s
+                                       opcode[5],_cimg_mp_size((unsigned int)opcode[5]), // 7-8: S,sizS
+                                       opcode[6],opcode[7],opcode[8],opcode[9], // 9-12: x,y,z,c
+                                       opcode[10],opcode[11],opcode[12],opcode[13], // 13-16: dx,dy,dz,dc
+                                       opcode._height<15?1:opcode[14], // 17: opac
+                                       opcode._height<16?~0U:opcode[15], // 18: M
+                                       opcode._height<16?0:_cimg_mp_size((unsigned int)opcode[15]), // 19: sizM
+                                       opcode._height<17?1:opcode[16]).move_to(code); // 20: maxM
+                } else {
+                  _cimg_mp_strerr;
+                  throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                              "CImg<%s>::%s: %s: Invalid types in specified arguments, "
+                                              "in expression '%s'.",
+                                              pixel_type(),_cimg_mp_calling_function,s_op,s0);
                 }
-                // TODO.
 
               } else { // Drawing in an image
                 arg1 = p1!=~0U;
@@ -27290,6 +27370,9 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_vector_draw(_cimg_math_parser& mp) {
+
+        std::fprintf(stderr,"\nDEBUG : DRAW VECTOR()\n");
+
         const int x = (int)_mp_arg(4), y = (int)_mp_arg(5), z = (int)_mp_arg(6), c = (int)_mp_arg(7);
         unsigned int ind = (unsigned int)mp.opcode[3];
         if (ind!=~0U) {

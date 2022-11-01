@@ -20123,31 +20123,98 @@ namespace cimg_library_suffixed {
               }
               (l_opcode>'y').move_to(opcode);
 
-              if (opcode._height<1 || opcode._height>12) {
+              is_sth = opcode._height<5 || _cimg_mp_is_vector((unsigned int)opcode[5]); // Is vector drawing?
+              if ((is_sth && (opcode._height<6 || opcode._height>17)) ||
+                  (!is_sth && (opcode._height<1 || opcode._height>12))) {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                             "CImg<%s>::%s: %s: Too %s arguments specified, "
                                             "in expression '%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
-                                            opcode._height<5?"few":"much",s0);
+                                            opcode._height>12?"much":"few",s0);
               }
 
-              if (opcode._height<=5 || !_cimg_mp_is_vector((unsigned int)opcode[5])) { // Drawing in an image
-                cimg_forY(opcode,k)
-                  if (k && k!=10) _cimg_mp_check_type((unsigned int)opcode[k],k + 1,1,0);
-                  else _cimg_mp_check_type((unsigned int)opcode[k],k + 1,2,0);
+              if (is_sth) { // Drawing in a vector
 
-                CImg<ulongT> opc = CImg<ulongT>::vector((ulongT)mp_image_draw, // 0-3: func,S,sizS,#ind
-                                                        *opcode,_cimg_mp_size((unsigned int)*opcode),p1,
-                                                        0,0,0,0, // 4-7: x,y,z,c
-                                                        ~0U,~0U,~0U,~0U, // 8-11: dx,dy,dz,dc
-                                                        1,~0U,1); // 12-14: opac,M,maxM
-                for (unsigned int k = 1; k<12 && k<opcode._height; ++k) if (opcode[k]) opc[k + 3] = opcode[k];
-                opc.move_to(code);
+                // TODO.
+
+              } else { // Drawing in an image
+                arg1 = p1!=~0U;
+                _cimg_mp_check_type((unsigned int)*opcode,1 + arg1,2,0);
+                if (opcode._height<11 || _cimg_mp_is_vector((unsigned int)opcode[10])) {
+                  _cimg_mp_check_type((unsigned int)opcode[1],2 + arg1,1,0); // x
+                  _cimg_mp_check_type((unsigned int)opcode[2],3 + arg1,1,0); // y
+                  _cimg_mp_check_type((unsigned int)opcode[3],4 + arg1,1,0); // z
+                  _cimg_mp_check_type((unsigned int)opcode[4],5 + arg1,1,0); // c
+                  _cimg_mp_check_type((unsigned int)opcode[5],6 + arg1,1,0); // dx
+                  _cimg_mp_check_type((unsigned int)opcode[6],7 + arg1,1,0); // dy
+                  _cimg_mp_check_type((unsigned int)opcode[7],8 + arg1,1,0); // dz
+                  _cimg_mp_check_type((unsigned int)opcode[8],9 + arg1,1,0); // dc
+                  if (opcode._height>9) _cimg_mp_check_type((unsigned int)opcode[9],10 + arg1,1,0); // opac
+                  if (opcode._height>11) _cimg_mp_check_type((unsigned int)opcode[11],12 + arg1,1,0); // maxM
+                  CImg<ulongT>::vector((ulongT)mp_image_draw,
+                                       *opcode,_cimg_mp_size((unsigned int)*opcode),p1, // 1-3: S,sizS,#ind
+                                       opcode[1],opcode[2],opcode[3],opcode[4], // 4-7: x,y,z,c
+                                       opcode[5],opcode[6],opcode[7],opcode[8], // 8-11: dx,dy,dz,dc
+                                       opcode._height<10?1:opcode[9], // 12: opac
+                                       opcode._height<11?~0U:opcode[10], // 13: M
+                                       opcode._height<12?1:opcode[11]).move_to(code); // 14: maxM
+                } else if (opcode._height<9 || _cimg_mp_is_vector((unsigned int)opcode[8])) {
+                  _cimg_mp_check_type((unsigned int)opcode[1],2 + arg1,1,0); // x
+                  _cimg_mp_check_type((unsigned int)opcode[2],3 + arg1,1,0); // y
+                  _cimg_mp_check_type((unsigned int)opcode[3],4 + arg1,1,0); // z
+                  _cimg_mp_check_type((unsigned int)opcode[4],5 + arg1,1,0); // dx
+                  _cimg_mp_check_type((unsigned int)opcode[5],6 + arg1,1,0); // dy
+                  _cimg_mp_check_type((unsigned int)opcode[6],7 + arg1,1,0); // dz
+                  if (opcode._height>7) _cimg_mp_check_type((unsigned int)opcode[7],8 + arg1,1,0); // opac
+                  if (opcode._height>9) _cimg_mp_check_type((unsigned int)opcode[9],10 + arg1,1,0); // maxM
+                  CImg<ulongT>::vector((ulongT)mp_image_draw,
+                                       *opcode,_cimg_mp_size((unsigned int)*opcode),p1, // 1-3: S,sizS,#ind
+                                       opcode[1],opcode[2],opcode[3],0, // 4-7: x,y,z,c
+                                       opcode[4],opcode[5],opcode[6],~0U, // 8-11: dx,dy,dz,dc
+                                       opcode._height<8?1:opcode[7], // 12: opac
+                                       opcode._height<9?~0U:opcode[8], // 13: M
+                                       opcode._height<10?1:opcode[9]).move_to(code); // 14: maxM
+                } else if (opcode._height<7 || _cimg_mp_is_vector((unsigned int)opcode[6])) {
+                  _cimg_mp_check_type((unsigned int)opcode[1],2 + arg1,1,0); // x
+                  _cimg_mp_check_type((unsigned int)opcode[2],3 + arg1,1,0); // y
+                  _cimg_mp_check_type((unsigned int)opcode[3],4 + arg1,1,0); // dx
+                  _cimg_mp_check_type((unsigned int)opcode[4],5 + arg1,1,0); // dy
+                  if (opcode._height>5) _cimg_mp_check_type((unsigned int)opcode[5],6 + arg1,1,0); // opac
+                  if (opcode._height>7) _cimg_mp_check_type((unsigned int)opcode[7],8 + arg1,1,0); // maxM
+                  CImg<ulongT>::vector((ulongT)mp_image_draw,
+                                       *opcode,_cimg_mp_size((unsigned int)*opcode),p1, // 1-3: S,sizS,#ind
+                                       opcode[1],opcode[2],0,0, // 4-7: x,y,z,c
+                                       opcode[3],opcode[4],~0U,~0U, // 8-11: dx,dy,dz,dc
+                                       opcode._height<6?1:opcode[5], // 12: opac
+                                       opcode._height<7?~0U:opcode[6], // 13: M
+                                       opcode._height<8?1:opcode[7]).move_to(code); // 14: maxM
+                } else if (opcode._height<5 || _cimg_mp_is_vector((unsigned int)opcode[4])) {
+                  _cimg_mp_check_type((unsigned int)opcode[1],2 + arg1,1,0); // x
+                  _cimg_mp_check_type((unsigned int)opcode[2],3 + arg1,1,0); // dx
+                  if (opcode._height>3) _cimg_mp_check_type((unsigned int)opcode[3],4 + arg1,1,0); // opac
+                  if (opcode._height>5) _cimg_mp_check_type((unsigned int)opcode[5],6 + arg1,1,0); // maxM
+                  CImg<ulongT>::vector((ulongT)mp_image_draw,
+                                       *opcode,_cimg_mp_size((unsigned int)*opcode),p1, // 1-3: S,sizS,#ind
+                                       opcode[1],0,0,0, // 4-7: x,y,z,c
+                                       opcode[2],~0U,~0U,~0U, // 8-11: dx,dy,dz,dc
+                                       opcode._height<4?1:opcode[3], // 12: opac
+                                       opcode._height<5?~0U:opcode[4], // 13: M
+                                       opcode._height<6?1:opcode[5]).move_to(code); // 14: maxM
+                } else {
+                  if (opcode._height>1) _cimg_mp_check_type((unsigned int)opcode[1],2 + arg1,1,0); // opac
+                  if (opcode._height>3) _cimg_mp_check_type((unsigned int)opcode[3],4 + arg1,1,0); // maxM
+                  CImg<ulongT>::vector((ulongT)mp_image_draw,
+                                       *opcode,_cimg_mp_size((unsigned int)*opcode),p1, // 1-3: S,sizS,#ind
+                                       0,0,0,0, // 4-7: x,y,z,c
+                                       ~0U,~0U,~0U,~0U, // 8-11: dx,dy,dz,dc
+                                       opcode._height<2?1:opcode[1], // 12: opac
+                                       opcode._height<3?~0U:opcode[2], // 13: M
+                                       opcode._height<4?1:opcode[3]).move_to(code); // 14: maxM
+                }
               }
               _cimg_mp_return_nan();
             }
-
             break;
 
           case 'e' :

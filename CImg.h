@@ -21339,8 +21339,8 @@ namespace cimg_library_suffixed {
               } else {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                            "CImg<%s>::%s: %s: Wrong number of arguments specified (%u, should be 3,5 or 7), "
-                                            "in expression '%s'.",
+                                            "CImg<%s>::%s: %s: Wrong number of arguments specified (%u, "
+                                            "should be 3,5 or 7), in expression '%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,opcode._height,s0);
               }
             }

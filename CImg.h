@@ -20137,9 +20137,9 @@ namespace cimg_library_suffixed {
               if (is_sth) { // Drawing in a vector
                 _cimg_mp_check_type((unsigned int)*opcode,1,2,0); // D
                 _cimg_mp_check_type((unsigned int)opcode[1],2,1,0); // w
-                _cimg_mp_check_type((unsigned int)opcode[2],3,2,0); // h
-                _cimg_mp_check_type((unsigned int)opcode[3],4,2,0); // d
-                _cimg_mp_check_type((unsigned int)opcode[4],5,2,0); // s
+                _cimg_mp_check_type((unsigned int)opcode[2],3,1,0); // h
+                _cimg_mp_check_type((unsigned int)opcode[3],4,1,0); // d
+                _cimg_mp_check_type((unsigned int)opcode[4],5,1,0); // s
                 if (opcode._height<8 || (opcode._height<10 && _cimg_mp_is_vector((unsigned int)opcode[7]))) {
                   // D,w,h,d,s,S[,opac,M,maxM]
                   if (opcode._height>6) _cimg_mp_check_type((unsigned int)opcode[6],7,1,0); // opac
@@ -27371,8 +27371,10 @@ namespace cimg_library_suffixed {
 
       static double mp_vector_draw(_cimg_math_parser& mp) {
 
-        std::fprintf(stderr,"\nDEBUG : DRAW VECTOR()\n");
+        std::fprintf(stderr,"\nDEBUG : DRAW VECTOR()\n"); cimg::unused(mp);
 
+
+/*
         const int x = (int)_mp_arg(4), y = (int)_mp_arg(5), z = (int)_mp_arg(6), c = (int)_mp_arg(7);
         unsigned int ind = (unsigned int)mp.opcode[3];
         if (ind!=~0U) {
@@ -27411,6 +27413,8 @@ namespace cimg_library_suffixed {
             img.draw_image(x,y,z,c,S,M,opacity,(float)_mp_arg(15));
           } else img.draw_image(x,y,z,c,S,opacity);
         }
+*/
+
         return cimg::type<double>::nan();
       }
 

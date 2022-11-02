@@ -177,12 +177,12 @@ mv $ZIP_FILE $BASE_DIR
 # Copy files to CImg server.
 cd $BASE_DIR
 if [ "$1" == "final" ]; then
-    lftp sftp://$GMIC_LOGIN:@ovh -e "put -O /www/CImg/files/ ${ZIP_FILE}; quit";
+    lftp sftp://$GMIC_LOGIN:@ovh -e "put -O /home/"$GMIC_LOGIN"/www/CImg/files/ ${ZIP_FILE}; quit";
 fi
-lftp sftp://$GMIC_LOGIN:@ovh -e "put -O /www/CImg/files/ ${ZIP_FILE} -o CImg_latest.zip; quit"
+lftp sftp://$GMIC_LOGIN:@ovh -e "put -O /home/"$GMIC_LOGIN"/www/CImg/files/ ${ZIP_FILE} -o CImg_latest.zip; quit"
 
 cd $SRC_DIR/html/
-lftp sftp://$GMIC_LOGIN:@ovh -e "mirror -RL . /www/CImg/ ; quit"
+lftp sftp://$GMIC_LOGIN:@ovh -e "mirror -RL . /home/"$GMIC_LOGIN"/www/CImg/ ; quit"
 
 # End of build script
 echo -e " - All done, you should look at the LOG file '$LOG_FILE'.\n"

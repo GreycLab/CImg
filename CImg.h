@@ -39114,8 +39114,7 @@ namespace cimg_library_suffixed {
         cend = !channel_mode?spectrum()*_kernel.spectrum():smax;
       const ulongT
         res_wh = (ulongT)res_width*res_height,
-        res_whd = res_wh*res_depth,
-        res_siz = res_whd*res._spectrum;
+        res_whd = res_wh*res_depth;
 
       if (!res_whd) return CImg<Ttfloat>();
       res.assign(res_width,res_height,res_depth,
@@ -39124,6 +39123,7 @@ namespace cimg_library_suffixed {
                  channel_mode==2?(int)std::ceil((float)smax/smin):1);
       if (channel_mode>=2) res.fill(0);
 
+      const ulongT res_siz = res_whd*res._spectrum;
       const bool
 #if cimg_use_openmp==1
         is_master_thread = !omp_get_thread_num(),
@@ -39131,7 +39131,7 @@ namespace cimg_library_suffixed {
         is_master_thread = true,
 #endif
         is_outer_parallel = is_master_thread &&
-        (res._spectrum>=cimg::nb_cpus() || res_siz<=(cimg_openmp_sizefactor)*32768),
+        (res._spectrum>=cimg::nb_cpus() || (res_siz<=(cimg_openmp_sizefactor)*32768 && res._spectrum>1)),
         is_inner_parallel = is_master_thread &&
         (!is_outer_parallel && res_whd>=(cimg_openmp_sizefactor)*32768),
         is_int_stride_dilation = xstride==i_xstride && ystride==i_ystride && zstride==i_zstride &&

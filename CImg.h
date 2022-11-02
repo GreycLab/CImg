@@ -19621,7 +19621,7 @@ namespace cimg_library_suffixed {
                 arg5 = (unsigned int)opcode[4];
                 if (arg2*arg3*arg4*arg5!=p1)
                   throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                              "CImg<%s>::%s: %s: Input size (%lu values) and specified input vector "
+                                              "CImg<%s>::%s: %s: Input vector size (%lu values) and its specified "
                                               "geometry (%u,%u,%u,%u) (%lu values) do not match.",
                                               pixel_type(),_cimg_mp_calling_function,s_op,
                                               p1,arg2,arg3,arg4,arg5,(ulongT)arg2*arg3*arg4*arg5);
@@ -21529,7 +21529,7 @@ namespace cimg_library_suffixed {
                   arg5 = (unsigned int)mem[opcode[4]]; opcode[4] = arg5;
                   if (arg2*arg3*arg4*arg5!=std::max(1U,p1))
                     throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                                "CImg<%s>::%s: %s: Input size (%lu values) and specified input vector "
+                                                "CImg<%s>::%s: %s: Input vector size (%lu values) and its specified "
                                                 "geometry (%u,%u,%u,%u) (%lu values) do not match.",
                                                 pixel_type(),_cimg_mp_calling_function,s_op,
                                                 std::max(p1,1U),arg2,arg3,arg4,arg5,(ulongT)arg2*arg3*arg4*arg5);
@@ -24881,7 +24881,7 @@ namespace cimg_library_suffixed {
         const ulongT sizS = mp.opcode[2];
         if (sizS<(ulongT)dx*dy*dz*dc)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'draw()': "
-                                      "Sprite vector (%lu values) and specified sprite geometry (%u,%u,%u,%u) "
+                                      "Sprite vector (%lu values) and its specified geometry (%u,%u,%u,%u) "
                                       "(%lu values) do not match.",
                                       mp.imgin.pixel_type(),sizS,dx,dy,dz,dc,(ulongT)dx*dy*dz*dc);
         const CImg<doubleT> S(&_mp_arg(1) + 1,dx,dy,dz,dc,true);
@@ -27372,7 +27372,7 @@ namespace cimg_library_suffixed {
                                       mp.imgin.pixel_type(),w,h,d,s);
         if (sizD<(ulongT)w*h*d*s)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'draw()': "
-                                      "Target vector (%lu values) and specified target geometry (%d,%d,%d,%d) "
+                                      "Target vector (%lu values) and its specified target geometry (%d,%d,%d,%d) "
                                       "(%lu values) do not match.",
                                       mp.imgin.pixel_type(),sizD,w,h,d,s,(ulongT)w*h*d*s);
         if (dx<=0 || dy<=0 || dz<=0 || dc<=0)
@@ -27381,7 +27381,7 @@ namespace cimg_library_suffixed {
                                       mp.imgin.pixel_type(),dx,dy,dz,dc);
         if (sizS<(ulongT)dx*dy*dz*dc)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'draw()': "
-                                      "Sprite vector (%lu values) and specified sprite geometry (%d,%d,%d,%d) "
+                                      "Sprite vector (%lu values) and its specified sprite geometry (%d,%d,%d,%d) "
                                       "(%lu values) do not match.",
                                       mp.imgin.pixel_type(),sizS,dx,dy,dz,dc,(ulongT)dx*dy*dz*dc);
 

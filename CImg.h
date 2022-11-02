@@ -21294,53 +21294,6 @@ namespace cimg_library_suffixed {
             }
             break;
 
-          case 'o' :
-            if (!std::strncmp(ss,"offset(",7)) { // Image offset
-              _cimg_mp_op("Function 'offset()'");
-              if (ss7<se1) for (s = ss7; s<se; ++s, ++pos) {
-                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
-                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
-                arg1 = compile(s,ns,depth1,0,block_flags);
-                if (pos==1 && _cimg_mp_is_scalar(arg1)) is_sth = true;
-                else if (pos>1) _cimg_mp_check_type(arg1,pos,1,0);
-                CImg<ulongT>::vector(arg1).move_to(l_opcode);
-                s = ns;
-              }
-              (l_opcode>'y').move_to(opcode);
-              if (opcode._height==3 || opcode._height==5 || opcode._height==7) {
-                p1 = _cimg_mp_size(arg1);
-                switch (opcode._height) {
-                case 3 : // x,y,w
-                  _cimg_mp_check_type((unsigned int)opcode[1],2,p1?2:1,p1); // y
-                  _cimg_mp_check_type((unsigned int)opcode[2],3,1,0); // w
-                  _cimg_mp_scalar3(mp_offset3,opcode[0],opcode[1],opcode[2]);
-                  break;
-                case 5 : // x,y,z,w,h
-                  _cimg_mp_check_type((unsigned int)opcode[1],2,p1?2:1,p1); // y
-                  _cimg_mp_check_type((unsigned int)opcode[2],3,p1?2:1,p1); // z
-                  _cimg_mp_check_type((unsigned int)opcode[3],4,1,0); // w
-                  _cimg_mp_check_type((unsigned int)opcode[4],5,1,0); // h
-                  _cimg_mp_scalar5(mp_offset5,opcode[0],opcode[1],opcode[2],opcode[3],opcode[4]);
-                  break;
-                default : // x,y,z,c,w,h,d
-                  _cimg_mp_check_type((unsigned int)opcode[1],2,p1?2:1,p1); // y
-                  _cimg_mp_check_type((unsigned int)opcode[2],3,p1?2:1,p1); // z
-                  _cimg_mp_check_type((unsigned int)opcode[3],4,p1?2:1,p1); // c
-                  _cimg_mp_check_type((unsigned int)opcode[4],5,1,0); // w
-                  _cimg_mp_check_type((unsigned int)opcode[5],6,1,0); // h
-                  _cimg_mp_check_type((unsigned int)opcode[6],7,1,0); // d
-                  _cimg_mp_scalar7(mp_offset5,opcode[0],opcode[1],opcode[2],opcode[3],opcode[4],opcode[5],opcode[6]);
-                }
-              } else {
-                _cimg_mp_strerr;
-                throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                            "CImg<%s>::%s: %s: Wrong number of arguments specified (%u, "
-                                            "should be 3,5 or 7), in expression '%s'.",
-                                            pixel_type(),_cimg_mp_calling_function,s_op,opcode._height,s0);
-              }
-            }
-            break;
-
           case 'p' :
             if (!std::strncmp(ss,"permut(",7)) { // Number of permutations
               _cimg_mp_op("Function 'permut()'");
@@ -26634,22 +26587,6 @@ namespace cimg_library_suffixed {
           res+=std::pow(cimg::abs(_mp_arg(i)),p);
         res = std::pow(res,1/p);
         return res>0?res:0.;
-      }
-
-      static double mp_offset3(_cimg_math_parser& mp) {
-        // [2] = x, [3] = y, [4] = w -> x + w*y
-        return (int)_mp_arg(2) + (int)_mp_arg(4)*(int)_mp_arg(3);
-      }
-
-      static double mp_offset5(_cimg_math_parser& mp) {
-        // [2] = x, [3] = y, [4] = z, [5] = w, [6] = h -> x + w*(y + h*z)
-        return (int)_mp_arg(2) + (int)_mp_arg(5)*((int)_mp_arg(3) + (int)_mp_arg(6)*(int)_mp_arg(4));
-      }
-
-      static double mp_offset7(_cimg_math_parser& mp) {
-        // [2] = x, [3] = y, [4] = z, [5] = c, [6] = w, [7] = h, [8] = d -> x + w*(y + h*(z + d*c))
-        return (int)_mp_arg(2) + (int)_mp_arg(6)*((int)_mp_arg(3) +
-                                                  (int)_mp_arg(7)*((int)_mp_arg(4) + (int)_mp_arg(8)*(int)_mp_arg(5)));
       }
 
       static double mp_permutations(_cimg_math_parser& mp) {

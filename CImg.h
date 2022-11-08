@@ -21258,19 +21258,15 @@ namespace cimg_library_suffixed {
                 _cimg_mp_check_const_scalar(arg1,0,2);
                 arg1 = (unsigned int)mem[arg1];
               } else s = std::strchr(ss4,'(') + 1;
+              is_sth = true; // Tell if all arguments are constant
               pos = scalar();
               switch (arg1) {
-              case 0 :
-                CImg<ulongT>::vector((ulongT)mp_norm0,pos,0).move_to(l_opcode); break;
-              case 1 :
-                CImg<ulongT>::vector((ulongT)mp_norm1,pos,0).move_to(l_opcode); break;
-              case 2 :
-                CImg<ulongT>::vector((ulongT)mp_norm2,pos,0).move_to(l_opcode); break;
-              case ~0U :
-                CImg<ulongT>::vector((ulongT)mp_norminf,pos,0).move_to(l_opcode); break;
-              default :
-                CImg<ulongT>::vector((ulongT)mp_normp,pos,0,(ulongT)(arg1==~0U?-1:(int)arg1)).
-                  move_to(l_opcode);
+              case 0 : op = mp_norm0; CImg<ulongT>::vector((ulongT)op,pos,0).move_to(l_opcode); break;
+              case 1 : op = mp_norm1; CImg<ulongT>::vector((ulongT)op,pos,0).move_to(l_opcode); break;
+              case 2 : op = mp_norm2; CImg<ulongT>::vector((ulongT)op,pos,0).move_to(l_opcode); break;
+              case ~0U : op = mp_norminf; CImg<ulongT>::vector((ulongT)op,pos,0).move_to(l_opcode); break;
+              default : op = mp_normp; CImg<ulongT>::vector((ulongT)op,pos,0,(ulongT)(arg1==~0U?-1:(int)arg1)).
+                                         move_to(l_opcode);
               }
               for ( ; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
@@ -21281,13 +21277,15 @@ namespace cimg_library_suffixed {
                                          arg2 + (ulongT)_cimg_mp_size(arg2)).
                     move_to(l_opcode);
                 else CImg<ulongT>::vector(arg2).move_to(l_opcode);
+                is_sth&=_cimg_mp_is_const_scalar(arg2);
                 s = ns;
               }
 
               (l_opcode>'y').move_to(opcode);
+              opcode[2] = opcode._height;
+              if (is_sth) _cimg_mp_const_scalar(op(*this));
               if (arg1>0 && opcode._height==4) // Special case with one argument and p>=1
                 _cimg_mp_scalar1(mp_abs,opcode[3]);
-              opcode[2] = opcode._height;
               opcode.move_to(code);
               return_new_comp = true;
               _cimg_mp_return(pos);

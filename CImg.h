@@ -21296,8 +21296,8 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"permut(",7)) { // Number of permutations
               _cimg_mp_op("Function 'permut()'");
               s1 = ss7; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg1 = compile(ss7,s1,depth1,0,block_flags);
+              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(s1,s2,depth1,0,block_flags);
               arg3 = compile(++s2,se1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,1,1,0);

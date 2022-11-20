@@ -17219,6 +17219,9 @@ namespace cimg_library_suffixed {
           case 'u' :
             if (reserved_label[(int)'u']!=~0U) _cimg_mp_return(reserved_label[(int)'u']);
             _cimg_mp_scalar2(mp_u,0,1);
+          case 'v' :
+            if (reserved_label[(int)'v']!=~0U) _cimg_mp_return(reserved_label[(int)'v']);
+            _cimg_mp_scalar2(mp_u,11,1);
           case 'g' :
             if (reserved_label[(int)'g']!=~0U) _cimg_mp_return(reserved_label[(int)'g']);
             _cimg_mp_scalar0(mp_g);

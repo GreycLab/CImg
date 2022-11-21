@@ -19798,7 +19798,7 @@ namespace cimg_library_suffixed {
 
               arg2 = xend - xstart + 1;
               arg3 = yend - ystart + 1;
-              arg4 = zend + zstart + 1;
+              arg4 = zend - zstart + 1;
               arg5 = !channel_mode?sA*sM:channel_mode==1?std::max(sA,sM):
                 channel_mode==2?std::max(sA,sM)/std::min(sA,sM):1U;
 
@@ -39109,7 +39109,7 @@ namespace cimg_library_suffixed {
         i_zdilation = (int)cimg::round(_zdilation),
         res_width = _xend - xstart + 1,
         res_height = _yend - ystart + 1,
-        res_depth = _zend + zstart + 1,
+        res_depth = _zend - zstart + 1,
         smin = std::min(spectrum(),_kernel.spectrum()),
         smax = std::max(spectrum(),_kernel.spectrum()),
         cend = !channel_mode?spectrum()*_kernel.spectrum():smax;

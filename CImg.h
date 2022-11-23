@@ -49966,7 +49966,7 @@ namespace cimg_library_suffixed {
               const unsigned int cmin = std::min(_spectrum,letter._spectrum);
               if (foreground_color)
                 for (unsigned int c = 0; c<cmin; ++c)
-                  if (foreground_color[c]!=1) letter.get_shared_channel(c)*=foreground_color[c];
+                  if (foreground_color[c]!=1) letter.get_shared_channel(c)*=foreground_color[c]/255;
               if (mask) { // Letter has mask
                 if (background_color)
                   for (unsigned int c = 0; c<cmin; ++c)
@@ -65420,7 +65420,7 @@ namespace cimg_library_suffixed {
           if (' ' + 256<font.size()) font[' ' + 256].resize(font[(int)'f']._width,-100,-100,-100,0);
         }
         font.insert(256,0);
-        cimglist_for_in(font,0,255,l) font[l].assign(font[l + 256]._width,font[l + 256]._height,1,3,1);
+        cimglist_for_in(font,0,255,l) font[l].assign(font[l + 256]._width,font[l + 256]._height,1,3,255);
       }
       cimg::mutex(11,0);
       return font;

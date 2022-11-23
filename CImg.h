@@ -49872,12 +49872,7 @@ namespace cimg_library_suffixed {
                         const tc1 *const foreground_color, const tc2 *const background_color,
                         const float opacity, const CImgList<t>& font,
                         const bool is_native_font) {
-      if (!text) return *this;
-      if (!font)
-        throw CImgArgumentException(_cimg_instance
-                                    "draw_text(): Empty specified font.",
-                                    cimg_instance);
-
+      if (!text || !font) return *this;
       const unsigned int text_length = (unsigned int)std::strlen(text);
       const int padding_x = font[0]._height<48?1:font[0]._height<128?(int)std::ceil(font[0]._height/51.0f + 0.745f):4;
       unsigned char o_ch, ch = 0;
@@ -49892,13 +49887,20 @@ namespace cimg_library_suffixed {
         for (unsigned int i = 0; i<text_length; ++i) {
           ch = (unsigned char)text[i];
           switch (ch) {
-          case '\n' : y+=font[0]._height; if (x>w) w = x; x = 0; break;
-          case '\t' : x+=4*font[(int)' ']._width; break;
-          case ' ' : x+=font[(int)' ']._width; break;
+          case '\n' :
+            if (font._width>10) y+=font[10]._height; else y+=font[0]._height;
+            if (x>w) w = x;
+            x = 0;
+            break;
+          case '\t' :
+            if (font._width>32) x+=4*font[32]._width; else x+=4*font[0]._width;
+            break;
+          case ' ' :
+            if (font._width>32) x+=font[32]._width; else x+=font[0]._width;
+            break;
           default : if (ch<font._width) {
               int left_padding = 0;
-              if (is_native_font && font[0]._height<128) {
-                // Determine left padding from various rules.
+              if (is_native_font && font[0]._height<128) { /// Determine left padding for native fonts.
                 if (ch==':' || ch=='!' || ch=='.' || ch==';')
                   left_padding = 2*padding_x;
                 else if (o_ch==',' || (o_ch=='.' && (ch<'0' || ch>'9')) || o_ch==';' || o_ch==':' || o_ch=='!')
@@ -49945,10 +49947,15 @@ namespace cimg_library_suffixed {
       for (unsigned int i = 0; i<text_length; ++i) {
         ch = (unsigned char)text[i];
         switch (ch) {
-        case '\n' : y+=font[0]._height; x = x0; break;
+        case '\n' :
+          if (font._width>10) y+=font[10]._height; else y+=font[0]._height;
+          x = x0;
+          break;
         case '\t' :
         case ' ' : {
-          const unsigned int lw = (ch=='\t'?4:1)*font[(int)' ']._width, lh = font[(int)' ']._height;
+          const unsigned int
+            lw = (ch=='\t'?4:1)*font[font._width>32?32:0]._width,
+            lh = font[font._width>32?32:0]._height;
           if (background_color) draw_rectangle(x,y,x + lw - 1,y + lh - 1,background_color,opacity);
           x+=lw;
         } break;

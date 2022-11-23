@@ -6902,6 +6902,19 @@ namespace cimg_library_suffixed {
       return (unsigned char)c<=' ';
     }
 
+    // Return \c true if specified argument is in set \c [a-zA-Z0-9_].
+    inline bool is_varchar(const char c) {
+      return (c>='a' && c<='z') || (c>='A' && c<='Z') || (c>='0' && c<='9') || c=='_';
+    }
+
+    //! Return \c true if argument \p str can be considered as a regular variable name.
+    inline bool is_varname(const char *const str, const unsigned int length=~0U) {
+      if (*str>='0' && *str<='9') return false;
+      for (unsigned int l = 0; l<length && str[l]; ++l)
+        if (!is_varchar(str[l])) return false;
+      return true;
+    }
+
     //! Read value in a C-string.
     /**
        \param str C-string containing the float value to read.
@@ -6914,20 +6927,21 @@ namespace cimg_library_suffixed {
       return str && cimg_sscanf(str,"%lf/%lf",&x,&y)>0?x/y:0;
     }
 
-    //! Compare the first \p l characters of two C-strings, ignoring the case.
+    //! Compare the first \p length characters of two C-strings, ignoring the case.
     /**
        \param str1 C-string.
        \param str2 C-string.
-       \param l Number of characters to compare.
+       \param length Number of characters to compare.
        \return \c 0 if the two strings are equal, something else otherwise.
        \note This function has to be defined since it is not provided by all C++-compilers (not ANSI).
     **/
-    inline int strncasecmp(const char *const str1, const char *const str2, const int l) {
-      if (!l) return 0;
+    inline int strncasecmp(const char *const str1, const char *const str2, const int length) {
+      if (!length) return 0;
       if (!str1) return str2?-1:0;
       const char *nstr1 = str1, *nstr2 = str2;
-      int k, diff = 0; for (k = 0; k<l && !(diff = lowercase(*nstr1) - lowercase(*nstr2)); ++k) { ++nstr1; ++nstr2; }
-      return k!=l?diff:0;
+      int k, diff = 0;
+      for (k = 0; k<length && !(diff = lowercase(*nstr1) - lowercase(*nstr2)); ++k) { ++nstr1; ++nstr2; }
+      return k!=length?diff:0;
     }
 
     //! Compare two C-strings, ignoring the case.
@@ -17505,7 +17519,7 @@ namespace cimg_library_suffixed {
             // Assign vector value (direct).
             if (l_variable_name>3 && *ve1==']' && *ss!='[') {
               s0 = ve1; while (s0>ss && (*s0!='[' || level[s0 - expr._data]!=clevel)) --s0;
-              if (s0>ss && is_varname(ss,s0 - ss)) {
+              if (s0>ss && cimg::is_varname(ss,s0 - ss)) {
                 variable_name[s0 - ss] = 0; // Remove brackets in variable name
                 get_variable_pos(variable_name,arg1,arg2);
                 arg1 = arg2!=~0U?reserved_label[arg2]:arg1!=~0U?variable_pos[arg1]:~0U; // Vector slot
@@ -17543,7 +17557,7 @@ namespace cimg_library_suffixed {
             // Assign user-defined macro.
             if (l_variable_name>2 && *ve1==')' && *ss!='(') {
               s0 = ve1; while (s0>ss && *s0!='(') --s0;
-              if (is_varname(ss,s0 - ss) && std::strncmp(variable_name,"debug(",6) &&
+              if (cimg::is_varname(ss,s0 - ss) && std::strncmp(variable_name,"debug(",6) &&
                   std::strncmp(variable_name,"print(",6)) { // Valid macro name
                 s0 = variable_name._data + (s0 - ss);
                 *s0 = 0;
@@ -17579,7 +17593,7 @@ namespace cimg_library_suffixed {
                   is_sth = true; // is_valid_argument_name?
                   if (*s2>='0' && *s2<='9') is_sth = false;
                   else for (ns = s2; ns<s1 && *ns!=',' && *ns!='.' && !cimg::is_blank(*ns); ++ns)
-                         if (!is_varchar(*ns)) { is_sth = false; break; }
+                         if (!cimg::is_varchar(*ns)) { is_sth = false; break; }
                   s3 = ns; // End of the argument name
                   if (is_sth && ns>s2 && *ns=='.' && ns[1]=='.' && ns[2]=='.') { is_variadic = true; ns+=3; }
                   else if (*ns=='.') is_sth = false;
@@ -17600,8 +17614,8 @@ namespace cimg_library_suffixed {
                     *s3 = 0;
                     p2 = (unsigned int)(s3 - s2); // Argument length
                     for (ps = std::strstr(macro_body[0],s2); ps; ps = std::strstr(ps,s2)) { // Replace by arg number
-                      if (!((ps>macro_body[0]._data && is_varchar(*(ps - 1))) ||
-                            (ps + p2<macro_body[0].end() && is_varchar(*(ps + p2))))) {
+                      if (!((ps>macro_body[0]._data && cimg::is_varchar(*(ps - 1))) ||
+                            (ps + p2<macro_body[0].end() && cimg::is_varchar(*(ps + p2))))) {
                         if (ps>macro_body[0]._data && *(ps - 1)=='#') { // Remove pre-number sign
                           *(ps - 1) = (char)p1;
                           if (ps + p2<macro_body[0].end() && *(ps + p2)=='#') { // Has pre & post number signs
@@ -17648,7 +17662,7 @@ namespace cimg_library_suffixed {
               s0+=6; while (cimg::is_blank(*s0)) ++s0;
               variable_name.resize(variable_name.end() - s0,1,1,1,0,0,1);
             }
-            if (is_varname(variable_name)) { // Valid variable name
+            if (cimg::is_varname(variable_name)) { // Valid variable name
 
               // Assign variable (direct).
               get_variable_pos(variable_name,arg1,arg2);
@@ -20517,7 +20531,7 @@ namespace cimg_library_suffixed {
               if (s1<se1) { // Version with 3 arguments
                 variable_name.assign(s0,(unsigned int)(s1 + 1 - s0)).back() = 0;
                 cimg::strpare(variable_name,false,true);
-                if (!is_varname(variable_name)) { // Invalid variable name
+                if (!cimg::is_varname(variable_name)) { // Invalid variable name
                   cimg::strellipsize(variable_name,64);
                   throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                               "CImg<%s>::%s: %s: Invalid loop variable name '%s', "
@@ -21403,7 +21417,7 @@ namespace cimg_library_suffixed {
               arg3 = compile(ss4,s1++,depth1,p_ref,block_flags);
               *se1 = 0;
 
-              if (!is_varname(s1)) { // Invalid variable name
+              if (!cimg::is_varname(s1)) { // Invalid variable name
                 variable_name.assign(s1,(unsigned int)(se1 + 1 - s1)).back() = 0;
                 cimg::strellipsize(variable_name,64);
                 *se1 = ')';
@@ -21440,7 +21454,7 @@ namespace cimg_library_suffixed {
               if (s1<se1) { // Version with 3 arguments
                 variable_name.assign(s0,(unsigned int)(s1 + 1 - s0)).back() = 0;
                 cimg::strpare(variable_name,false,true);
-                if (!is_varname(variable_name)) { // Invalid variable name
+                if (!cimg::is_varname(variable_name)) { // Invalid variable name
                   cimg::strellipsize(variable_name,64);
                   throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                               "CImg<%s>::%s: %s: Invalid loop variable name '%s', "
@@ -22832,7 +22846,7 @@ namespace cimg_library_suffixed {
 #endif
 
         // No known item found, assuming this is an already initialized variable.
-        if (is_varname(variable_name)) { // Valid variable name
+        if (cimg::is_varname(variable_name)) { // Valid variable name
           get_variable_pos(variable_name,arg1,arg2);
           arg1 = arg2!=~0U?reserved_label[arg2]:arg1!=~0U?variable_pos[arg1]:~0U;
           if (arg1!=~0U) _cimg_mp_return(arg1);
@@ -23142,19 +23156,6 @@ namespace cimg_library_suffixed {
         // Multi-char variable name : check for existing variable with same name
         cimglist_for(variable_def,i)
           if (!std::strcmp(variable_name,variable_def[i])) { pos = i; break; }
-      }
-
-      // Return true if specified argument can be a part of an allowed  variable name.
-      static bool is_varchar(const char c) {
-        return (c>='a' && c<='z') || (c>='A' && c<='Z') || (c>='0' && c<='9') || c=='_';
-      }
-
-      // Return true if specified argument can be considered as a variable name.
-      static bool is_varname(const char *const str, const unsigned int length=~0U) {
-        if (*str>='0' && *str<='9') return false;
-        for (unsigned int l = 0; l<length && str[l]; ++l)
-          if (!is_varchar(str[l])) return false;
-        return true;
       }
 
       // Return true if all values of a vector are computation values.
@@ -25197,7 +25198,7 @@ namespace cimg_library_suffixed {
           return (c>='a' && c<='z') || (c>='A' && c<='Z') || c=='_';
         }
         if (*ptrs>='0' && *ptrs<='9') return 0;
-        for (unsigned int k = 0; k<siz; ++k) if (!is_varchar((char)ptrs[k])) return 0;
+        for (unsigned int k = 0; k<siz; ++k) if (!cimg::is_varchar((char)ptrs[k])) return 0;
         return 1;
       }
 

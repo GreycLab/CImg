@@ -65397,18 +65397,11 @@ namespace cimg_library_suffixed {
       if (!font) {
         is_variable_widths[ind] = is_variable_width;
         basef.get_split('x',256).move_to(font);
-
-//        cimg::tic();
-
         if (requested_height!=font[0]._height)
           cimglist_for(font,l) {
             font[l].resize(std::max(1U,font[l]._width*requested_height/font[l]._height),requested_height,-100,-100,5);
             cimg_for(font[l],ptr,ucharT) *ptr = font_resizemap[*ptr];
           }
-
-//        cimg::toc();
-//        std::exit(0);
-
         if (is_variable_width) { // Crop font
           cimglist_for(font,l) {
             CImg<ucharT>& letter = font[l];

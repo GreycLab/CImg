@@ -39079,12 +39079,9 @@ namespace cimg_library_suffixed {
 
       if (is_empty() || !kernel) return *this;
       int
-        _xcenter = xcenter==(int)(~0U>>1)?kernel.width()/2 - 1 + (kernel.width()%2):
-        std::min(xcenter,kernel.width() - 1),
-        _ycenter = ycenter==(int)(~0U>>1)?kernel.height()/2 - 1 + (kernel.height()%2):
-        std::min(ycenter,kernel.height() - 1),
-        _zcenter = zcenter==(int)(~0U>>1)?kernel.depth()/2 - 1 + (kernel.depth()%2):
-        std::min(zcenter,kernel.depth() - 1);
+        _xcenter = xcenter==(int)(~0U>>1)?kernel.width()/2 - 1 + (kernel.width()%2):xcenter,
+        _ycenter = ycenter==(int)(~0U>>1)?kernel.height()/2 - 1 + (kernel.height()%2):ycenter,
+        _zcenter = zcenter==(int)(~0U>>1)?kernel.depth()/2 - 1 + (kernel.depth()%2):zcenter;
       float _xdilation = xdilation, _ydilation = ydilation, _zdilation = zdilation;
 
       CImg<t> _kernel;

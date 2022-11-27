@@ -17170,7 +17170,7 @@ namespace cimg_library_suffixed {
         // 'p_ref' is a 'unsigned int[7]' used to return a reference to an image or vector value
         // linked to the returned memory slot (reference that cannot be determined at compile time).
         // p_ref[0] can be { 0 = scalar (unlinked) | 1 = vector value | 2 = image value (offset) |
-        //                   3 = image value (coordinates) | 4 = image value as a vector (offsets) |
+        //                   3 = image value (coordinates) | 4 = image value as a vector (offset) |
         //                   5 = image value as a vector (coordinates) }.
         // Depending on p_ref[0], the remaining p_ref[k] have the following meaning:
         // When p_ref[0]==0, p_ref is actually unlinked.
@@ -21362,7 +21362,7 @@ namespace cimg_library_suffixed {
             if (!std::strncmp(ss,"print(",6) ||
                 !std::strncmp(ss,"prints(",7)) { // Print expressions
               s0 = ss6 + (*ss5=='('?0:1);
-              is_sth = *ss5=='s';  // string must be printed?
+              is_sth = *ss5=='s';  // corresponding string must be printed?
               _cimg_mp_op(is_sth?"Function 'prints()'":"Function 'print()'");
               if (!is_sth && *s0=='#') { // Image
                 p1 = compile(ss7,se1,depth1,0,block_flags);
@@ -21375,19 +21375,21 @@ namespace cimg_library_suffixed {
               for (s = s0; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
-                pos = compile(s,ns,depth1,p_ref,block_flags);
+                ref.assign(7);
+                pos = compile(s,ns,depth1,ref,block_flags);
                 c1 = *ns; *ns = 0;
                 variable_name.assign(CImg<charT>::string(s,true,true).unroll('y'),true);
                 cimg::strpare(variable_name,false,true);
-
                 if (_cimg_mp_is_const_scalar(pos)) // Const scalar
                   std::fprintf(cimg::output(),"\n[" cimg_appname "_math_parser] %s = %.17g "
-                               "(compiled as '%s', memslot = %u)",
-                               variable_name._data,mem[pos],s_type(pos)._data,pos);
+                               "(mem[%u]: %s%s)",
+                               variable_name._data,mem[pos],pos,s_type(pos)._data,s_ref(ref)._data);
                 else // Vector or non-const scalar
                   std::fprintf(cimg::output(),"\n[" cimg_appname "_math_parser] %s = (uninitialized) "
-                               "(compiled as '%s', memslot = %u)",
-                               variable_name._data,s_type(pos)._data,pos);
+                               "(mem[%u]: %s%s)",
+                               variable_name._data,pos,s_type(pos)._data,s_ref(ref)._data);
+
+                if (p_ref) std::memcpy(p_ref,ref,siz_ref);
 
                 if (_cimg_mp_is_vector(pos)) // Vector
                   ((CImg<ulongT>::vector((ulongT)mp_vector_print,pos,0,(ulongT)_cimg_mp_size(pos),is_sth?1:0),
@@ -23064,7 +23066,7 @@ namespace cimg_library_suffixed {
         return res;
       }
 
-      // Return type of a memory element as a string.
+      // Return type of a memory slot as a string.
       CImg<charT> s_type(const unsigned int arg) const {
         CImg<charT> res;
         if (_cimg_mp_is_vector(arg)) { // Vector
@@ -23072,6 +23074,52 @@ namespace cimg_library_suffixed {
           cimg_sprintf(res._data + 6,"%u",_cimg_mp_size(arg));
         } else if (_cimg_mp_is_const_scalar(arg)) CImg<charT>::string("const scalar").move_to(res); // Const scalar
         else CImg<charT>::string("scalar").move_to(res); // Scalar
+        return res;
+      }
+
+      // Return reference state of a memory slot as a string.
+      CImg<charT> s_ref(const unsigned int *const p_ref) const {
+        CImg<charT> res;
+        if (!p_ref || !*p_ref) return res.assign(1,1,1,1,0);
+        res.assign(32);
+        switch (p_ref[0]) {
+        case 1 : // Reference to vector value as a scalar
+          cimg_snprintf(res,res._width,"ref: (mem[%u])[mem[%u]]",
+                        p_ref[1],p_ref[2]);
+          break;
+        case 2 : // Reference to image value as a scalar (offset)
+          if (p_ref[1]==~0U)
+            cimg_snprintf(res,res._width,", ref: %c[mem[%u]]",
+                          p_ref[2]?'j':'i',p_ref[3]);
+          else
+            cimg_snprintf(res,res._width,", ref: %c[#mem[%u],mem[%u]]",
+                          p_ref[2]?'j':'i',p_ref[1],p_ref[3]);
+          break;
+        case 3 : // Reference to image value as a scalar (coordinates)
+          if (p_ref[1]==~0U)
+            cimg_snprintf(res,res._width,", ref: %c(mem[%u],mem[%u],mem[%u],mem[%u])",
+                          p_ref[2]?'j':'i',p_ref[3],p_ref[4],p_ref[5],p_ref[6]);
+          else
+            cimg_snprintf(res,res._width,", ref: %c(#mem[%u],mem[%u],mem[%u],mem[%u],mem[%u])",
+                          p_ref[2]?'j':'i',p_ref[1],p_ref[3],p_ref[4],p_ref[5],p_ref[6]);
+          break;
+        case 4 : // Reference to image value as a vector (offset)
+          if (p_ref[1]==~0U)
+            cimg_snprintf(res,res._width,", ref: %c[mem[%u]]",
+                          p_ref[2]?'J':'I',p_ref[3]);
+          else
+            cimg_snprintf(res,res._width,", ref: %c[#mem[%u],mem[%u]]",
+                          p_ref[2]?'J':'I',p_ref[1],p_ref[3]);
+          break;
+        case 5 : // Reference to image value as a vector (coordinates)
+          if (p_ref[1]==~0U)
+            cimg_snprintf(res,res._width,",ref: to %c(mem[%u],mem[%u],mem[%u],mem[%u])",
+                          p_ref[2]?'J':'I',p_ref[3],p_ref[4],p_ref[5],p_ref[6]);
+          else
+            cimg_snprintf(res,res._width,",ref: to %c(#mem[%u],mem[%u],mem[%u],mem[%u],mem[%u])",
+                          p_ref[2]?'J':'I',p_ref[1],p_ref[3],p_ref[4],p_ref[5],p_ref[6]);
+          break;
+        }
         return res;
       }
 
@@ -24371,7 +24419,7 @@ namespace cimg_library_suffixed {
         {
           std::fprintf(cimg::output(),
                        "\n[" cimg_appname "_math_parser] %p[thread #%u]:%*c"
-                       "Start debugging expression '%s', code length %u -> mem[%u] (memsize: %u)",
+                       "Start debugging '%s', code length: %u -> mem[%u] (memsize: %u)",
                        (void*)&mp,n_thread,mp.debug_indent,' ',
                        expr._data,(unsigned int)mp.opcode[3],(unsigned int)g_target,mp.mem._width);
           std::fflush(cimg::output());
@@ -24406,7 +24454,7 @@ namespace cimg_library_suffixed {
           mp.debug_indent-=3;
           std::fprintf(cimg::output(),
             "\n[" cimg_appname "_math_parser] %p[thread #%u]:%*c"
-            "End debugging expression '%s' -> mem[%u] = %.17g (memsize: %u)",
+            "End debugging '%s' -> mem[%u] = %.17g (memsize: %u)",
             (void*)&mp,n_thread,mp.debug_indent,' ',
             expr._data,(unsigned int)g_target,mp.mem[g_target],mp.mem._width);
           std::fflush(cimg::output());

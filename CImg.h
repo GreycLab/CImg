@@ -17731,6 +17731,8 @@ namespace cimg_library_suffixed {
               arg1 = compile(ss,s,depth1,ref,block_flags); // Lvalue slot
               arg2 = compile(s + 1,se,depth1,0,block_flags); // Value to assign
 
+              ref.print("DEBUG REF");
+
               if (*ref==1) { // Vector value (scalar): V[k] = scalar
                 _cimg_mp_check_type(arg2,2,1,0);
                 arg3 = ref[1]; // Vector slot
@@ -23084,40 +23086,40 @@ namespace cimg_library_suffixed {
         res.assign(32);
         switch (p_ref[0]) {
         case 1 : // Reference to vector value as a scalar
-          cimg_snprintf(res,res._width,", ref: (mem[%u])[mem[%u]]",
+          cimg_snprintf(res,res._width,", ref: ([%u])[%u]",
                         p_ref[1],p_ref[2]);
           break;
         case 2 : // Reference to image value as a scalar (offset)
           if (p_ref[1]==~0U)
-            cimg_snprintf(res,res._width,", ref: %c[mem[%u]]",
+            cimg_snprintf(res,res._width,", ref: %c[%u]",
                           p_ref[2]?'j':'i',p_ref[3]);
           else
-            cimg_snprintf(res,res._width,", ref: %c[#mem[%u],mem[%u]]",
+            cimg_snprintf(res,res._width,", ref: %c[#%u,%u]",
                           p_ref[2]?'j':'i',p_ref[1],p_ref[3]);
           break;
         case 3 : // Reference to image value as a scalar (coordinates)
           if (p_ref[1]==~0U)
-            cimg_snprintf(res,res._width,", ref: %c(mem[%u],mem[%u],mem[%u],mem[%u])",
+            cimg_snprintf(res,res._width,", ref: %c(%u,%u,%u,%u)",
                           p_ref[2]?'j':'i',p_ref[3],p_ref[4],p_ref[5],p_ref[6]);
           else
-            cimg_snprintf(res,res._width,", ref: %c(#mem[%u],mem[%u],mem[%u],mem[%u],mem[%u])",
+            cimg_snprintf(res,res._width,", ref: %c(#%u,%u,%u,%u,%u)",
                           p_ref[2]?'j':'i',p_ref[1],p_ref[3],p_ref[4],p_ref[5],p_ref[6]);
           break;
         case 4 : // Reference to image value as a vector (offset)
           if (p_ref[1]==~0U)
-            cimg_snprintf(res,res._width,", ref: %c[mem[%u]]",
+            cimg_snprintf(res,res._width,", ref: %c[%u]",
                           p_ref[2]?'J':'I',p_ref[3]);
           else
-            cimg_snprintf(res,res._width,", ref: %c[#mem[%u],mem[%u]]",
+            cimg_snprintf(res,res._width,", ref: %c[#%u,%u]",
                           p_ref[2]?'J':'I',p_ref[1],p_ref[3]);
           break;
         case 5 : // Reference to image value as a vector (coordinates)
           if (p_ref[1]==~0U)
-            cimg_snprintf(res,res._width,",ref: to %c(mem[%u],mem[%u],mem[%u],mem[%u])",
-                          p_ref[2]?'J':'I',p_ref[3],p_ref[4],p_ref[5],p_ref[6]);
+            cimg_snprintf(res,res._width,", ref: %c(%u,%u,%u)",
+                          p_ref[2]?'J':'I',p_ref[3],p_ref[4],p_ref[5]);
           else
-            cimg_snprintf(res,res._width,",ref: to %c(#mem[%u],mem[%u],mem[%u],mem[%u],mem[%u])",
-                          p_ref[2]?'J':'I',p_ref[1],p_ref[3],p_ref[4],p_ref[5],p_ref[6]);
+            cimg_snprintf(res,res._width,", ref: %c(#%u,%u,%u,%u)",
+                          p_ref[2]?'J':'I',p_ref[1],p_ref[3],p_ref[4],p_ref[5]);
           break;
         }
         return res;

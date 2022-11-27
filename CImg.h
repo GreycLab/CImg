@@ -23349,8 +23349,7 @@ namespace cimg_library_suffixed {
         if (!imglist) {
           char *s0; _cimg_mp_strerr;
           throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                      "CImg<%s>::%s: %s%s Invalid call with an empty image list, "
-                                      "in expression '%s'.",
+                                      "CImg<%s>::%s: %s%s Image list cannot be empty, for expression '%s'.",
                                       pixel_type(),_cimg_mp_calling_function,s_op,*s_op?":":"",s0);
         }
       }
@@ -23358,7 +23357,7 @@ namespace cimg_library_suffixed {
       static void mp_check_list(_cimg_math_parser& mp, const char *const funcname) {
         if (!mp.imglist)
           throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                      "CImg<%s>: Function '%s()': Invalid call with an empty image list.",
+                                      "CImg<%s>: Function '%s()': Images list cannot be empty.",
                                       pixel_type(),funcname);
       }
 

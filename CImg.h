@@ -27294,6 +27294,18 @@ namespace cimg_library_suffixed {
         return cimg::rand(_mp_arg(2),_mp_arg(3),&mp.rng);
       }
 
+      static double mp_u_ext(_cimg_math_parser& mp) { // Extended version with boundary control
+        const bool
+          include_min = (bool)_mp_arg(4),
+          include_max = (bool)_mp_arg(5);
+        double
+          value_min = _mp_arg(2),
+          value_max = _mp_arg(3);
+        if (!include_min) value_min+=value_min*1e-15;
+        if (!include_max) value_max-=value_max*1e-15;
+        return cimg::rand(value_min,value_max,&mp.rng);
+      }
+
       static double mp_ui2f(_cimg_math_parser& mp) {
         return (double)cimg::uint2float((unsigned int)_mp_arg(2));
       }

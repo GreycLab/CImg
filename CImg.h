@@ -23539,7 +23539,7 @@ namespace cimg_library_suffixed {
           siz = _cimg_mp_size(arg1),
           pos = is_comp_vector(arg1)?arg1:
           ((return_new_comp = true), vector(siz));
-        if (siz>24) CImg<ulongT>::vector((ulongT)mp_vector_map_v,pos,siz,(ulongT)op,arg1).move_to(code);
+        if (siz>24) CImg<ulongT>::vector((ulongT)mp_vector_map_v,pos,1,siz,(ulongT)op,arg1).move_to(code);
         else {
           code.insert(siz);
           for (unsigned int k = 1; k<=siz; ++k)
@@ -23567,7 +23567,7 @@ namespace cimg_library_suffixed {
           siz = _cimg_mp_size(arg1),
           pos = is_comp_vector(arg1)?arg1:
           ((return_new_comp = true), vector(siz));
-        if (siz>24) CImg<ulongT>::vector((ulongT)mp_vector_map_vs,pos,siz,(ulongT)op,arg1,arg2).move_to(code);
+        if (siz>24) CImg<ulongT>::vector((ulongT)mp_vector_map_v,pos,2,siz,(ulongT)op,arg1,arg2).move_to(code);
         else {
           code.insert(siz);
           for (unsigned int k = 1; k<=siz; ++k)
@@ -23581,7 +23581,7 @@ namespace cimg_library_suffixed {
           siz = _cimg_mp_size(arg2),
           pos = is_comp_vector(arg2)?arg2:
           ((return_new_comp = true), vector(siz));
-        if (siz>24) CImg<ulongT>::vector((ulongT)mp_vector_map_sv,pos,siz,(ulongT)op,arg1,arg2).move_to(code);
+        if (siz>24) CImg<ulongT>::vector((ulongT)mp_vector_map_sv,pos,2,siz,(ulongT)op,arg1,arg2).move_to(code);
         else {
           code.insert(siz);
           for (unsigned int k = 1; k<=siz; ++k)
@@ -23596,7 +23596,7 @@ namespace cimg_library_suffixed {
           siz = _cimg_mp_size(arg1),
           pos = is_comp_vector(arg1)?arg1:
           ((return_new_comp = true), vector(siz));
-        if (siz>24) CImg<ulongT>::vector((ulongT)mp_vector_map_vss,pos,siz,(ulongT)op,arg1,arg2,arg3).move_to(code);
+        if (siz>24) CImg<ulongT>::vector((ulongT)mp_vector_map_v,pos,3,siz,(ulongT)op,arg1,arg2,arg3).move_to(code);
         else {
           code.insert(siz);
           for (unsigned int k = 1; k<=siz; ++k)
@@ -23629,7 +23629,7 @@ namespace cimg_library_suffixed {
           pos = is_comp_vector(arg1)?arg1:
           ((return_new_comp = true), vector(siz));
         if (siz>24)
-          CImg<ulongT>::vector((ulongT)mp_vector_map_vs,pos,siz,(ulongT)op,arg1,arg2,arg3,arg4).move_to(code);
+          CImg<ulongT>::vector((ulongT)mp_vector_map_v,pos,4,siz,(ulongT)op,arg1,arg2,arg3,arg4).move_to(code);
         else {
           code.insert(siz);
           for (unsigned int k = 1; k<=siz; ++k)
@@ -23646,7 +23646,7 @@ namespace cimg_library_suffixed {
           pos = is_comp_vector(arg2)?arg2:
           ((return_new_comp = true), vector(siz));
         if (siz>24)
-          CImg<ulongT>::vector((ulongT)mp_vector_map_sv,pos,siz,(ulongT)op,arg1,arg2,arg3,arg4).move_to(code);
+          CImg<ulongT>::vector((ulongT)mp_vector_map_sv,pos,4,siz,(ulongT)op,arg1,arg2,arg3,arg4).move_to(code);
         else {
           code.insert(siz);
           for (unsigned int k = 1; k<=siz; ++k)
@@ -27594,12 +27594,13 @@ namespace cimg_library_suffixed {
 
       static double mp_vector_map_sv(_cimg_math_parser& mp) { // Operator(scalar,vector)
         unsigned int
-          siz_vector = (unsigned int)mp.opcode[2],
-          ptrs = (unsigned int)mp.opcode[5] + 1;
+          nb_args = (unsigned int)mp.opcode[2],
+          siz_vector = (unsigned int)mp.opcode[3],
+          ptrs = (unsigned int)mp.opcode[6] + 1;
         double *ptrd = &_mp_arg(1) + 1;
-        mp_func op = (mp_func)mp.opcode[3];
-        CImg<ulongT> l_opcode = mp.opcode;
-        l_opcode[2] = mp.opcode[4]; // Scalar argument1
+        mp_func op = (mp_func)mp.opcode[4];
+        CImg<ulongT> l_opcode(mp.opcode._data + 3,nb_args + 2);
+        l_opcode[0] = mp.opcode[1];
         l_opcode.swap(mp.opcode);
         ulongT &argument2 = mp.opcode[3];
         while (siz_vector-->0) { argument2 = ptrs++; *(ptrd++) = (*op)(mp); }
@@ -27609,29 +27610,16 @@ namespace cimg_library_suffixed {
 
       static double mp_vector_map_v(_cimg_math_parser& mp) { // Operator(vector)
         unsigned int
-          siz_vector = (unsigned int)mp.opcode[2],
-          ptrs = (unsigned int)mp.opcode[4] + 1;
+          nb_args = (unsigned int)mp.opcode[2],
+          siz_vector = (unsigned int)mp.opcode[3],
+          ptrs = (unsigned int)mp.opcode[5] + 1;
         double *ptrd = &_mp_arg(1) + 1;
-        mp_func op = (mp_func)mp.opcode[3];
-        CImg<ulongT> l_opcode(1,3);
+        mp_func op = (mp_func)mp.opcode[4];
+        CImg<ulongT> l_opcode(mp.opcode._data + 3,nb_args + 2);
+        l_opcode[0] = l_opcode[1];
         l_opcode.swap(mp.opcode);
         ulongT &argument = mp.opcode[2];
         while (siz_vector-->0) { argument = ptrs++; *(ptrd++) = (*op)(mp); }
-        l_opcode.swap(mp.opcode);
-        return cimg::type<double>::nan();
-      }
-
-      static double mp_vector_map_vs(_cimg_math_parser& mp) { // Operator(vector,scalar)
-        unsigned int
-          siz_vector = (unsigned int)mp.opcode[2],
-          ptrs = (unsigned int)mp.opcode[4] + 1;
-        double *ptrd = &_mp_arg(1) + 1;
-        mp_func op = (mp_func)mp.opcode[3];
-        CImg<ulongT> l_opcode(1,4);
-        l_opcode[3] = mp.opcode[5]; // Scalar argument2
-        l_opcode.swap(mp.opcode);
-        ulongT &argument1 = mp.opcode[2];
-        while (siz_vector-->0) { argument1 = ptrs++; *(ptrd++) = (*op)(mp); }
         l_opcode.swap(mp.opcode);
         return cimg::type<double>::nan();
       }
@@ -27649,22 +27637,6 @@ namespace cimg_library_suffixed {
         l_opcode.swap(mp.opcode);
         ulongT &argument1 = mp.opcode[2], &argument2 = mp.opcode[3];
         while (siz_vector-->0) { argument1 = ptrs1++; argument2 = ptrs2++; *(ptrd++) = (*op)(mp); }
-        l_opcode.swap(mp.opcode);
-        return cimg::type<double>::nan();
-      }
-
-      static double mp_vector_map_vss(_cimg_math_parser& mp) { // Operator(vector,scalar,scalar)
-        unsigned int
-          siz_vector = (unsigned int)mp.opcode[2],
-          ptrs = (unsigned int)mp.opcode[4] + 1;
-        double *ptrd = &_mp_arg(1) + 1;
-        mp_func op = (mp_func)mp.opcode[3];
-        CImg<ulongT> l_opcode(1,5);
-        l_opcode[3] = mp.opcode[5]; // Scalar argument2
-        l_opcode[4] = mp.opcode[6]; // Scalar argument3
-        l_opcode.swap(mp.opcode);
-        ulongT &argument1 = mp.opcode[2];
-        while (siz_vector-->0) { argument1 = ptrs++; *(ptrd++) = (*op)(mp); }
         l_opcode.swap(mp.opcode);
         return cimg::type<double>::nan();
       }

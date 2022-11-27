@@ -23084,7 +23084,7 @@ namespace cimg_library_suffixed {
         res.assign(32);
         switch (p_ref[0]) {
         case 1 : // Reference to vector value as a scalar
-          cimg_snprintf(res,res._width,"ref: (mem[%u])[mem[%u]]",
+          cimg_snprintf(res,res._width,", ref: (mem[%u])[mem[%u]]",
                         p_ref[1],p_ref[2]);
           break;
         case 2 : // Reference to image value as a scalar (offset)

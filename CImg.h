@@ -17391,7 +17391,7 @@ namespace cimg_library_suffixed {
                 } else p2 = 0;
 
                 if (p_ref) {
-                  *p_ref = _cimg_mp_is_vector(arg2)?4:2;
+                  *p_ref = *ss=='I' || *ss=='J'?4:2;
                   p_ref[1] = p1;
                   p_ref[2] = (unsigned int)is_relative;
                   p_ref[3] = arg1;
@@ -17476,7 +17476,7 @@ namespace cimg_library_suffixed {
 
 
                 if (p_ref) {
-                  *p_ref = _cimg_mp_is_vector(arg5)?5:3;
+                  *p_ref = *ss=='I' || *ss=='J'?5:3;
                   p_ref[1] = p1;
                   p_ref[2] = (unsigned int)is_relative;
                   p_ref[3] = arg1;
@@ -17730,8 +17730,6 @@ namespace cimg_library_suffixed {
               ref.assign(7);
               arg1 = compile(ss,s,depth1,ref,block_flags); // Lvalue slot
               arg2 = compile(s + 1,se,depth1,0,block_flags); // Value to assign
-
-              ref.print("DEBUG REF");
 
               if (*ref==1) { // Vector value (scalar): V[k] = scalar
                 _cimg_mp_check_type(arg2,2,1,0);

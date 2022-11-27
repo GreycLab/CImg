@@ -27592,7 +27592,7 @@ namespace cimg_library_suffixed {
         return off>=0 && off<(int)siz?mp.mem[ptr + off]:cimg::type<double>::nan();
       }
 
-      static double mp_vector_map_sv(_cimg_math_parser& mp) { // Operator(scalar,vector)
+      static double mp_vector_map_sv(_cimg_math_parser& mp) { // Operator(scalar,vector,[...])
         unsigned int
           nb_args = (unsigned int)mp.opcode[2],
           siz_vector = (unsigned int)mp.opcode[3],
@@ -27608,7 +27608,7 @@ namespace cimg_library_suffixed {
         return cimg::type<double>::nan();
       }
 
-      static double mp_vector_map_v(_cimg_math_parser& mp) { // Operator(vector)
+      static double mp_vector_map_v(_cimg_math_parser& mp) { // Operator(vector,[...])
         unsigned int
           nb_args = (unsigned int)mp.opcode[2],
           siz_vector = (unsigned int)mp.opcode[3],
@@ -27624,7 +27624,7 @@ namespace cimg_library_suffixed {
         return cimg::type<double>::nan();
       }
 
-      static double mp_vector_map_vv(_cimg_math_parser& mp) { // Operator(vector,vector)
+      static double mp_vector_map_vv(_cimg_math_parser& mp) { // Operator(vector,vector,[...])
         unsigned int
           nb_args = (unsigned int)mp.opcode[2],
           siz_vector = (unsigned int)mp.opcode[3],

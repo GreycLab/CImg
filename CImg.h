@@ -27372,10 +27372,7 @@ namespace cimg_library_suffixed {
         return cimg::rand(_mp_arg(2),_mp_arg(3),&mp.rng);
       }
 
-      static double mp_u_ext(_cimg_math_parser& mp) { // Extended version with boundary control
-
-//        std::fprintf(stderr,"\nDEBUG : %g %g %g %g\n",_mp_arg(2),_mp_arg(3),_mp_arg(4),_mp_arg(5));
-
+      static double mp_u_ext(_cimg_math_parser& mp) { // Extended version with extremum control
         const bool
           include_min = (bool)_mp_arg(4),
           include_max = (bool)_mp_arg(5);

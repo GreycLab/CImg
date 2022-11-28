@@ -27423,12 +27423,21 @@ namespace cimg_library_suffixed {
         const bool
           include_min = (bool)_mp_arg(4),
           include_max = (bool)_mp_arg(5);
-        double
+        const double
           value_min = _mp_arg(2),
           value_max = _mp_arg(3);
-        if (!include_min) value_min+=value_min*1e-15;
-        if (!include_max) value_max-=value_max*1e-15;
-        return cimg::rand(value_min,value_max,&mp.rng);
+        double value = cimg::rand(value_min,value_max,&mp.rng);
+
+        if (include_min) { // [m,M] or [m,M[
+          if (!include_max) // [m,M[
+            while (value==value_max)
+              value = cimg::rand(value_min,value_max,&mp.rng);
+        } else if (include_max) { // ]m,M]
+          while (value==value_min)
+            value = cimg::rand(value_min,value_max,&mp.rng);
+        } else while (value==value_min || value==value_max) // ]m,M[
+                 value = cimg::rand(value_min,value_max,&mp.rng);
+        return value;
       }
 
       static double mp_ui2f(_cimg_math_parser& mp) {

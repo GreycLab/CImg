@@ -27423,20 +27423,27 @@ namespace cimg_library_suffixed {
         const bool
           include_min = (bool)_mp_arg(4),
           include_max = (bool)_mp_arg(5);
-        const double
-          value_min = _mp_arg(2),
-          value_max = _mp_arg(3);
-        double value = cimg::rand(value_min,value_max,&mp.rng);
+        double
+          m = _mp_arg(2),
+          M = _mp_arg(3);
+        if (m>M) cimg::swap(m,M);
+        double epsm, epsM, value = cimg::rand(m,M,&mp.rng);
 
-        if (include_min) { // [m,M] or [m,M[
-          if (!include_max) // [m,M[
-            while (value==value_max)
-              value = cimg::rand(value_min,value_max,&mp.rng);
+        if (include_min) {
+          if (include_max) return value; // [m,M]
+          else { // [m,M[
+            epsM = std::max(1e-4,std::fabs(M*1e-5));
+            while (M - value<epsM) value = cimg::rand(m,M,&mp.rng);
+            return value;
+          }
         } else if (include_max) { // ]m,M]
-          while (value==value_min)
-            value = cimg::rand(value_min,value_max,&mp.rng);
-        } else while (value==value_min || value==value_max) // ]m,M[
-                 value = cimg::rand(value_min,value_max,&mp.rng);
+          epsm = std::max(1e-4,std::fabs(m*1e-5));
+          while (value - m<epsm) value = cimg::rand(m,M,&mp.rng);
+          return value;
+        }
+        epsm = std::max(1e-4,std::fabs(m*1e-5));
+        epsM = std::max(1e-4,std::fabs(M*1e-5));
+        while (value - m<epsm || M - value<epsM) value = cimg::rand(m,M,&mp.rng); // ]m,M[
         return value;
       }
 

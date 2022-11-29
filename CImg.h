@@ -27420,6 +27420,7 @@ namespace cimg_library_suffixed {
       }
 
       static double mp_u_ext(_cimg_math_parser& mp) { // Extended version with extremum control
+        const double eps = 1e-5;
         const bool
           include_min = (bool)_mp_arg(4),
           include_max = (bool)_mp_arg(5);
@@ -27427,24 +27428,9 @@ namespace cimg_library_suffixed {
           m = _mp_arg(2),
           M = _mp_arg(3);
         if (m>M) cimg::swap(m,M);
-        double epsm, epsM, value = cimg::rand(m,M,&mp.rng);
-
-        if (include_min) {
-          if (include_max) return value; // [m,M]
-          else { // [m,M[
-            epsM = 0; // std::max(1e-4,std::fabs(M*1e-5));
-            while (M - value<=epsM) value = cimg::rand(m,M,&mp.rng);
-            return value;
-          }
-        } else if (include_max) { // ]m,M]
-          epsm = 0; // std::max(1e-4,std::fabs(m*1e-5));
-          while (value - m<=epsm) value = cimg::rand(m,M,&mp.rng);
-          return value;
-        }
-        epsm = 0; // std::max(1e-4,std::fabs(m*1e-5));
-        epsM = 0; // std::max(1e-4,std::fabs(M*1e-5));
-        while (value - m<=epsm || M - value<=epsM) value = cimg::rand(m,M,&mp.rng); // ]m,M[
-        return value;
+        if (!include_min) m = m>0?m*(1 + eps):m<0?m*(1 - eps):eps;
+        if (!include_max) M = m>0?M*(1 - eps):M<0?M*(1 + eps):-eps;
+        return cimg::rand(m,M,&mp.rng);
       }
 
       static double mp_ui2f(_cimg_math_parser& mp) {

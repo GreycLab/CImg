@@ -27429,7 +27429,7 @@ namespace cimg_library_suffixed {
           M = _mp_arg(3);
         if (m>M) cimg::swap(m,M);
         if (!include_min) m = m>0?m*(1 + eps):m<0?m*(1 - eps):eps;
-        if (!include_max) M = m>0?M*(1 - eps):M<0?M*(1 + eps):-eps;
+        if (!include_max) M = M>0?M*(1 - eps):M<0?M*(1 + eps):-eps;
         return cimg::rand(m,M,&mp.rng);
       }
 

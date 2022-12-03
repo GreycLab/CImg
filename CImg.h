@@ -47038,7 +47038,7 @@ namespace cimg_library_suffixed {
        \param pattern An integer whose bits describe the line pattern.
        \param init_hatch Tells if a reinitialization of the hash state must be done.
     **/
-    template<typename tz,typename tc>
+    template<typename tz, typename tc>
     CImg<T>& draw_line(CImg<tz>& zbuffer,
                        int x0, int y0, const float z0,
                        int x1, int y1, const float z1,

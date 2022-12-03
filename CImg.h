@@ -674,18 +674,6 @@ extern "C" {
 #define _cimg_redefine_PI
 #endif
 
-// Define 'cimg_library' namespace suffix.
-//
-// You may want to add a suffix to the 'cimg_library' namespace, for instance if you need to work
-// with several versions of the library at the same time.
-#ifdef cimg_namespace_suffix
-#define __cimg_library_suffixed(s) cimg_library_##s
-#define _cimg_library_suffixed(s) __cimg_library_suffixed(s)
-#define cimg_library_suffixed _cimg_library_suffixed(cimg_namespace_suffix)
-#else
-#define cimg_library_suffixed cimg_library
-#endif
-
 /*------------------------------------------------------------------------------
   #
   # Define user-friendly macros.
@@ -696,9 +684,9 @@ extern "C" {
   ------------------------------------------------------------------------------*/
 
 // Macros to define program usage, and retrieve command line arguments.
-#define cimg_usage(usage) cimg_library_suffixed::cimg::option((char*)0,argc,argv,(char*)0,usage,false)
-#define cimg_help(str) cimg_library_suffixed::cimg::option((char*)0,argc,argv,str,(char*)0)
-#define cimg_option(name,_default,usage) cimg_library_suffixed::cimg::option(name,argc,argv,_default,usage)
+#define cimg_usage(usage) cimg_library::cimg::option((char*)0,argc,argv,(char*)0,usage,false)
+#define cimg_help(str) cimg_library::cimg::option((char*)0,argc,argv,str,(char*)0)
+#define cimg_option(name,_default,usage) cimg_library::cimg::option(name,argc,argv,_default,usage)
 
 // Macros to define and manipulate local neighborhoods.
 #define CImg_2x2(I,T) T I[4]; \
@@ -2318,7 +2306,7 @@ extern "C" {
    \endcode
    to simplify the declaration of \CImg Library objects afterwards.
 **/
-namespace cimg_library_suffixed {
+namespace cimg_library {
 
   // Declare the four classes of the CImg Library.
   template<typename T=float> struct CImg;
@@ -2605,7 +2593,7 @@ namespace cimg_library_suffixed {
       std::fprintf(cimg::output(),"\n%s[CImg] *** %s ***%s %s\n",cimg::t_red,etype,cimg::t_normal,_message); \
       if (cimg_display && disp_flag && !(cimg::exception_mode()%2)) try { cimg::dialog(etype,_message,"Abort"); } \
       catch (CImgException&) {} \
-      if (cimg::exception_mode()>=3) cimg_library_suffixed::cimg::info(); \
+      if (cimg::exception_mode()>=3) cimg_library::cimg::info(); \
     } \
   } \
   va_end(ap); va_end(ap2);
@@ -66952,7 +66940,7 @@ namespace cimg_library_suffixed {
 } // namespace cimg_library { ...
 
 //! Short alias name.
-namespace cil = cimg_library_suffixed;
+namespace cil = cimg_library;
 
 #ifdef _cimg_redefine_False
 #define False 0

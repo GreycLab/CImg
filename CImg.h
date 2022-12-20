@@ -24313,7 +24313,7 @@ namespace cimg_library {
                                       mp.imgout.pixel_type(),ind,
                                       img.width(),img.height(),img.depth(),img.spectrum(),
                                       img._width==1 && img._depth==1?"":" (contains invalid element counter)");
-        if (img._height<2)
+        if (!siz)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'da_remove()': "
                                       "Dynamic array is empty.",
                                       mp.imgout.pixel_type());

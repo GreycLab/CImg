@@ -16469,7 +16469,8 @@ namespace cimg_library {
        \param colors List of colors of the 3D object.
        \param opacities List (or image) of opacities of the 3D object.
        \param full_check Tells if full checking of the 3D object must be performed.
-       \param[out] error_message C-string to contain the error message, if the test does not succeed (at least 256 bytes).
+       \param[out] error_message C-string to contain the error message, if the test does not succeed
+                   (at least 256 bytes).
        \note
        - Set \c full_checking to \c false to speed-up the 3D object checking. In this case, only the size of
          each 3D object component is checked.

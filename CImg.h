@@ -49859,12 +49859,11 @@ namespace cimg_library {
     CImg<T>& draw_text(const int x0, const int y0,
                        const char *const text,
                        const tc1 *const foreground_color, const tc2 *const background_color,
-                       const float opacity, const CImgList<t>& font, ...) {
-      if (!font) return *this;
+                       const float opacity, const CImgList<t>* const font, ...) {
+      if (!font || !*font) return *this;
       CImg<charT> tmp(2048);
-      std::va_list ap; va_start(ap,font);
-      cimg_vsnprintf(tmp,tmp._width,text,ap); va_end(ap);
-      return _draw_text(x0,y0,tmp,foreground_color,background_color,opacity,font,false);
+      std::va_list ap; va_start(ap,font); cimg_vsnprintf(tmp,tmp._width,text,ap); va_end(ap);
+      return _draw_text(x0,y0,tmp,foreground_color,background_color,opacity,*font,false);
     }
 
     //! Draw a text string \overloading.
@@ -49875,12 +49874,11 @@ namespace cimg_library {
     CImg<T>& draw_text(const int x0, const int y0,
                        const char *const text,
                        const tc *const foreground_color, const int,
-                       const float opacity, const CImgList<t>& font, ...) {
-      if (!font) return *this;
+                       const float opacity, const CImgList<t>* const font, ...) {
+      if (!font || !*font) return *this;
       CImg<charT> tmp(2048);
-      std::va_list ap; va_start(ap,font);
-      cimg_vsnprintf(tmp,tmp._width,text,ap); va_end(ap);
-      return _draw_text(x0,y0,tmp,foreground_color,(tc*)0,opacity,font,false);
+      std::va_list ap; va_start(ap,font); cimg_vsnprintf(tmp,tmp._width,text,ap); va_end(ap);
+      return _draw_text(x0,y0,tmp,foreground_color,(tc*)0,opacity,*font,false);
     }
 
     //! Draw a text string \overloading.
@@ -49891,12 +49889,11 @@ namespace cimg_library {
     CImg<T>& draw_text(const int x0, const int y0,
                        const char *const text,
                        const int, const tc *const background_color,
-                       const float opacity, const CImgList<t>& font, ...) {
-      if (!font) return *this;
+                       const float opacity, const CImgList<t>* const font, ...) {
+      if (!font || !*font) return *this;
       CImg<charT> tmp(2048);
-      std::va_list ap; va_start(ap,font);
-      cimg_vsnprintf(tmp,tmp._width,text,ap); va_end(ap);
-      return _draw_text(x0,y0,tmp,(tc*)0,background_color,opacity,font,false);
+      std::va_list ap; va_start(ap,font); cimg_vsnprintf(tmp,tmp._width,text,ap); va_end(ap);
+      return _draw_text(x0,y0,tmp,(tc*)0,background_color,opacity,*font,false);
     }
 
     //! Draw a text string \overloading.
@@ -49918,8 +49915,7 @@ namespace cimg_library {
                        const float opacity=1, const unsigned int font_height=13, ...) {
       if (!font_height) return *this;
       CImg<charT> tmp(2048);
-      std::va_list ap; va_start(ap,font_height);
-      cimg_vsnprintf(tmp,tmp._width,text,ap); va_end(ap);
+      std::va_list ap; va_start(ap,font_height); cimg_vsnprintf(tmp,tmp._width,text,ap); va_end(ap);
       const CImgList<ucharT>& font = CImgList<ucharT>::font(font_height,true);
       _draw_text(x0,y0,tmp,foreground_color,background_color,opacity,font,true);
       return *this;
@@ -49934,8 +49930,7 @@ namespace cimg_library {
       if (!font_height) return *this;
       cimg::unused(background_color);
       CImg<charT> tmp(2048);
-      std::va_list ap; va_start(ap,font_height);
-      cimg_vsnprintf(tmp,tmp._width,text,ap); va_end(ap);
+      std::va_list ap; va_start(ap,font_height); cimg_vsnprintf(tmp,tmp._width,text,ap); va_end(ap);
       return draw_text(x0,y0,"%s",foreground_color,(const tc*)0,opacity,font_height,tmp._data);
     }
 
@@ -49947,8 +49942,7 @@ namespace cimg_library {
                        const float opacity=1, const unsigned int font_height=13, ...) {
       if (!font_height) return *this;
       CImg<charT> tmp(2048);
-      std::va_list ap; va_start(ap,font_height);
-      cimg_vsnprintf(tmp,tmp._width,text,ap); va_end(ap);
+      std::va_list ap; va_start(ap,font_height); cimg_vsnprintf(tmp,tmp._width,text,ap); va_end(ap);
       return draw_text(x0,y0,"%s",(tc*)0,background_color,opacity,font_height,tmp._data);
     }
 

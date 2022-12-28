@@ -26034,8 +26034,10 @@ namespace cimg_library {
         const unsigned int
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width()),
           k = (unsigned int)mp.opcode[3];
-        if (!mp.list_stats) mp.list_stats.assign(mp.imglist._width);
-        if (!mp.list_stats[ind]) mp.list_stats[ind].assign(1,14,1,1,0).fill(mp.imglist[ind].get_stats(),false);
+        cimg::mutex(13);
+        if (!mp.list_stats || mp.list_stats.size()!=mp.imglist._width) mp.list_stats.assign(mp.imglist._width);
+        if (!mp.list_stats[ind]) mp.imglist[ind].get_stats().move_to(mp.list_stats[ind]);
+        cimg::mutex(13,0);
         return mp.list_stats(ind,k);
       }
 

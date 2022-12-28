@@ -25549,7 +25549,7 @@ namespace cimg_library {
         const unsigned int
           indi = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
         const CImg<T> &img = mp.imglist[indi];
-        const int _step = (bool)_mp_arg(6), step = _step?_step:-1;
+        const int _step = (int)_mp_arg(6), step = _step?_step:-1;
         const ulongT
           siz1 = (ulongT)img.size(),
           siz2 = (ulongT)mp.opcode[4];

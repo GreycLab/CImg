@@ -21048,30 +21048,45 @@ namespace cimg_library {
               arg1 = compile(ss4,s1,depth1,0,block_flags);
               s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(s1,s2,depth1,0,block_flags);
-              arg3 = 1; arg4 = 0;
+              arg3 = arg4 = 1; arg5 = 0;
               if (s2<se1) {
                 s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                 arg3 = compile(s2,s1,depth1,0,block_flags);
-                arg4 = s1<se1?compile(++s1,se1,depth1,0,block_flags):0;
+                if (s1<se1) {
+                  s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                  arg4 = compile(s1,s2,depth1,0,block_flags);
+                  arg5 = s2<se1?compile(++s2,se1,depth1,0,block_flags):0;
+                }
               }
               _cimg_mp_check_type(arg1,1,2,0);
               _cimg_mp_check_type(arg2,2,2,0);
               _cimg_mp_check_const_scalar(arg3,3,3);
-              _cimg_mp_check_type(arg4,4,1,0);
+              _cimg_mp_check_const_scalar(arg4,4,3);
+              _cimg_mp_check_type(arg5,5,1,0);
               p1 = _cimg_mp_size(arg1);
               p2 = _cimg_mp_size(arg2);
-              p3 = (unsigned int)mem[arg3];
-              if (p2%p3) {
+              arg3 = (unsigned int)mem[arg3];
+              arg4 = (unsigned int)mem[arg4];
+              if (p1%arg3) {
+                _cimg_mp_strerr;
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: Type of first arguments ('%s') "
+                                            "does not match with third argument 'nb_channelsX=%u', "
+                                            "in expression '%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            s_type(arg1)._data,arg3,s0);
+              }
+              if (p2%arg4) {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                             "CImg<%s>::%s: %s: Type of second arguments ('%s') "
-                                            "do not match with third argument 'nb_channelsP=%u', "
+                                            "does not match with fourth argument 'nb_channelsP=%u', "
                                             "in expression '%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
-                                            s_type(arg1)._data,p3,s0);
+                                            s_type(arg2)._data,arg4,s0);
               }
-              pos = vector(p1*p3);
-              CImg<ulongT>::vector((ulongT)mp_map,pos,arg1,p1,arg2,p2,p3,arg4).move_to(code);
+              pos = vector(p1*arg4);
+              CImg<ulongT>::vector((ulongT)mp_map,pos,arg1,arg2,p1,p2,arg3,arg4,arg5).move_to(code);
               return_new_comp = true;
               _cimg_mp_return(pos);
             }
@@ -26417,15 +26432,16 @@ namespace cimg_library {
         double *ptrd = &_mp_arg(1) + 1;
         const double
           *ptrX = &_mp_arg(2) + 1,
-          *ptrP = &_mp_arg(4) + 1;
+          *ptrP = &_mp_arg(3) + 1;
         const unsigned int
-          sizX = (unsigned int)mp.opcode[3],
+          sizX = (unsigned int)mp.opcode[4],
           sizP = (unsigned int)mp.opcode[5],
-          nb_channelsP = (unsigned int)mp.opcode[6],
-          boundary_conditions = (unsigned int)_mp_arg(7);
-        CImg<doubleT>(ptrd,sizX,1,1,nb_channelsP,true) =
-          CImg<doubleT>(ptrX,sizX,1,1,1,true).get_map(CImg<doubleT>(ptrP,sizP/nb_channelsP,1,1,nb_channelsP,true),
-                                                      boundary_conditions);
+          nb_channelsX = (unsigned int)mp.opcode[6],
+          nb_channelsP = (unsigned int)mp.opcode[7],
+          boundary_conditions = (unsigned int)_mp_arg(8);
+        CImg<doubleT>(ptrd,sizX/nb_channelsX,1,1,nb_channelsX*nb_channelsP,true) =
+          CImg<doubleT>(ptrX,sizX/nb_channelsX,1,1,nb_channelsX,true).
+          get_map(CImg<doubleT>(ptrP,sizP/nb_channelsP,1,1,nb_channelsP,true),boundary_conditions);
         return cimg::type<double>::nan();
       }
 

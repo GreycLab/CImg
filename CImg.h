@@ -21042,6 +21042,40 @@ namespace cimg_library {
             break;
 
           case 'm' :
+            if (!std::strncmp(ss,"map(",4)) { // Map vector
+              _cimg_mp_op("Function 'map()'");
+              s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss4,s1,depth1,0,block_flags);
+              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg2 = compile(s1,s2,depth1,0,block_flags);
+              arg3 = 1; arg4 = 0;
+              if (s2<se1) {
+                s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                arg3 = compile(s2,s1,depth1,0,block_flags);
+                arg4 = s1<se1?compile(++s1,se1,depth1,0,block_flags):0;
+              }
+              _cimg_mp_check_type(arg1,1,2,0);
+              _cimg_mp_check_type(arg2,2,2,0);
+              _cimg_mp_check_const_scalar(arg3,3,3);
+              _cimg_mp_check_type(arg4,4,1,0);
+              p1 = _cimg_mp_size(arg1);
+              p2 = _cimg_mp_size(arg2);
+              p3 = (unsigned int)mem[arg3];
+              if (p2%p3) {
+                _cimg_mp_strerr;
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: Type of second arguments ('%s') "
+                                            "do not match with third argument 'nb_channelsP=%u', "
+                                            "in expression '%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            s_type(arg1)._data,p3,s0);
+              }
+              pos = vector(p1*p3);
+              CImg<ulongT>::vector((ulongT)mp_map,pos,arg1,p1,arg2,p2,p3,arg4).move_to(code);
+              return_new_comp = true;
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"mul(",4)) { // Matrix multiplication
               _cimg_mp_op("Function 'mul()'");
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -26377,6 +26411,22 @@ namespace cimg_library {
 
       static double mp_lte(_cimg_math_parser& mp) {
         return (double)(_mp_arg(2)<=_mp_arg(3));
+      }
+
+      static double mp_map(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const double
+          *ptrX = &_mp_arg(2) + 1,
+          *ptrP = &_mp_arg(4) + 1;
+        const unsigned int
+          sizX = (unsigned int)mp.opcode[3],
+          sizP = (unsigned int)mp.opcode[5],
+          nb_channelsP = (unsigned int)mp.opcode[6],
+          boundary_conditions = (unsigned int)_mp_arg(7);
+        CImg<doubleT>(ptrd,sizX,1,1,nb_channelsP,true) =
+          CImg<doubleT>(ptrX,sizX,1,1,1,true).get_map(CImg<doubleT>(ptrP,sizP/nb_channelsP,1,1,nb_channelsP,true),
+                                                      boundary_conditions);
+        return cimg::type<double>::nan();
       }
 
       static double mp_matrix_eig(_cimg_math_parser& mp) {
@@ -33206,7 +33256,7 @@ namespace cimg_library {
       return (+*this).equalize(nblevels);
     }
 
-    //! Index multi-valued pixels regarding to a specified colormap.
+    //! Index multi-valued pixels regarding to a specified palette.
     /**
        \param colormap Multi-valued colormap used as the basis for multi-valued pixel indexing.
        \param dithering Level of dithering (0=disable, 1=standard level).
@@ -33478,35 +33528,35 @@ namespace cimg_library {
       return res;
     }
 
-    //! Map predefined colormap on the scalar (indexed) image instance.
+    //! Map predefined palette on the scalar (indexed) image instance.
     /**
-       \param colormap Multi-valued colormap used for mapping the indexes.
+       \param palette Multi-valued palette used for mapping the indexes.
        \param boundary_conditions Boundary conditions.
          Can be { 0=dirichlet | 1=neumann | 2=periodic | 3=mirror }.
        \par Example
        \code
        const CImg<float> img("reference.jpg"),
-                         colormap1(3,1,1,3, 0,128,255, 0,128,255, 0,128,255),
-                         colormap2(3,1,1,3, 255,0,0, 0,255,0, 0,0,255),
-                         res = img.get_index(colormap1,0).map(colormap2);
+                         palette1(3,1,1,3, 0,128,255, 0,128,255, 0,128,255),
+                         palette2(3,1,1,3, 255,0,0, 0,255,0, 0,0,255),
+                         res = img.get_index(palette1,0).map(palette2);
        (img,res).display();
        \endcode
        \image html ref_map.jpg
     **/
     template<typename t>
-    CImg<T>& map(const CImg<t>& colormap, const unsigned int boundary_conditions=0) {
-      return get_map(colormap,boundary_conditions).move_to(*this);
+    CImg<T>& map(const CImg<t>& palette, const unsigned int boundary_conditions=0) {
+      return get_map(palette,boundary_conditions).move_to(*this);
     }
 
-    //! Map predefined colormap on the scalar (indexed) image instance \newinstance.
+    //! Map predefined palette on the scalar (indexed) image instance \newinstance.
     template<typename t>
-    CImg<t> get_map(const CImg<t>& colormap, const unsigned int boundary_conditions=0) const {
+    CImg<t> get_map(const CImg<t>& palette, const unsigned int boundary_conditions=0) const {
       const ulongT
         whd = (ulongT)_width*_height*_depth, siz = size(),
-        cwhd = (ulongT)colormap._width*colormap._height*colormap._depth,
+        cwhd = (ulongT)palette._width*palette._height*palette._depth,
         cwhd2 = 2*cwhd;
-      CImg<t> res(_width,_height,_depth,_spectrum*colormap._spectrum);
-      switch (colormap._spectrum) {
+      CImg<t> res(_width,_height,_depth,_spectrum*palette._spectrum);
+      switch (palette._spectrum) {
 
       case 1 : { // Optimized for scalars
         switch (boundary_conditions) {
@@ -33514,33 +33564,33 @@ namespace cimg_library {
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
           for (longT off = 0; off<(longT)siz; ++off) {
             const ulongT ind = ((ulongT)_data[off])%cwhd2;
-            res[off] = colormap[ind<cwhd?ind:cwhd2 - ind - 1];
+            res[off] = palette[ind<cwhd?ind:cwhd2 - ind - 1];
           }
           break;
         case 2 : // Periodic
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
           for (longT off = 0; off<(longT)siz; ++off) {
             const ulongT ind = (ulongT)_data[off];
-            res[off] = colormap[ind%cwhd];
+            res[off] = palette[ind%cwhd];
           }
           break;
         case 1 : // Neumann
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
           for (longT off = 0; off<(longT)siz; ++off) {
             const longT ind = (longT)_data[off];
-            res[off] = colormap[cimg::cut(ind,(longT)0,(longT)cwhd - 1)];
+            res[off] = palette[cimg::cut(ind,(longT)0,(longT)cwhd - 1)];
           } break;
         default : // Dirichlet
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
           for (longT off = 0; off<(longT)siz; ++off) {
             const ulongT ind = (ulongT)_data[off];
-            res[off] = ind<cwhd?colormap[ind]:(t)0;
+            res[off] = ind<cwhd?palette[ind]:(t)0;
           }
         }
       } break;
 
       case 2 : { // Optimized for 2D vectors
-        const t *const ptrp0 = colormap._data, *const ptrp1 = ptrp0 + cwhd;
+        const t *const ptrp0 = palette._data, *const ptrp1 = ptrp0 + cwhd;
         switch (boundary_conditions) {
         case 3 : // Mirror
           cimg_forC(*this,c) {
@@ -33589,7 +33639,7 @@ namespace cimg_library {
       } break;
 
       case 3 : { // Optimized for 3D vectors (colors)
-        const t *const ptrp0 = colormap._data, *ptrp1 = ptrp0 + cwhd, *ptrp2 = ptrp0 + 2*cwhd;
+        const t *const ptrp0 = palette._data, *ptrp1 = ptrp0 + cwhd, *ptrp2 = ptrp0 + 2*cwhd;
         switch (boundary_conditions) {
         case 3 : // Mirror
           cimg_forC(*this,c) {
@@ -33641,7 +33691,7 @@ namespace cimg_library {
         switch (boundary_conditions) {
         case 3 : // Mirror
           cimg_forC(*this,c) {
-            t *const ptrd = res.data(0,0,0,colormap._spectrum*c);
+            t *const ptrd = res.data(0,0,0,palette._spectrum*c);
             const T *const ptrs = data(0,0,0,c);
             cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
             for (longT off = 0; off<(longT)whd; ++off) {
@@ -33649,46 +33699,46 @@ namespace cimg_library {
                 _ind = ((ulongT)ptrs[off])%cwhd,
                 ind = _ind<cwhd?_ind:cwhd2 - _ind - 1;
               t *const _ptrd = ptrd + off;
-              const t *const ptrp = &colormap[ind];
-              cimg_forC(colormap,k) _ptrd[k*whd] = ptrp[k*cwhd];
+              const t *const ptrp = &palette[ind];
+              cimg_forC(palette,k) _ptrd[k*whd] = ptrp[k*cwhd];
             }
           } break;
         case 2 : // Periodic
           cimg_forC(*this,c) {
-            t *const ptrd = res.data(0,0,0,colormap._spectrum*c);
+            t *const ptrd = res.data(0,0,0,palette._spectrum*c);
             const T *const ptrs = data(0,0,0,c);
             cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
             for (longT off = 0; off<(longT)whd; ++off) {
               const ulongT ind = ((ulongT)ptrs[off])%cwhd;
               t *const _ptrd = ptrd + off;
-              const t *const ptrp = &colormap[ind];
-              cimg_forC(colormap,k) _ptrd[k*whd] = ptrp[k*cwhd];
+              const t *const ptrp = &palette[ind];
+              cimg_forC(palette,k) _ptrd[k*whd] = ptrp[k*cwhd];
             }
           } break;
         case 1 : // Neumann
           cimg_forC(*this,c) {
-            t *const ptrd = res.data(0,0,0,colormap._spectrum*c);
+            t *const ptrd = res.data(0,0,0,palette._spectrum*c);
             const T *const ptrs = data(0,0,0,c);
             cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
             for (longT off = 0; off<(longT)whd; ++off) {
               const longT ind = cimg::cut((longT)ptrs[off],(longT)0,(longT)cwhd - 1);
               t *const _ptrd = ptrd + off;
-              const t *const ptrp = &colormap[ind];
-              cimg_forC(colormap,k) _ptrd[k*whd] = ptrp[k*cwhd];
+              const t *const ptrp = &palette[ind];
+              cimg_forC(palette,k) _ptrd[k*whd] = ptrp[k*cwhd];
             }
           } break;
         default : // Dirichlet
           cimg_forC(*this,c) {
-            t *const ptrd = res.data(0,0,0,colormap._spectrum*c);
+            t *const ptrd = res.data(0,0,0,palette._spectrum*c);
             const T *const ptrs = data(0,0,0,c);
             cimg_pragma_openmp(parallel for cimg_openmp_if_size(size(),256))
             for (longT off = 0; off<(longT)whd; ++off) {
               const ulongT ind = (ulongT)ptrs[off];
               t *const _ptrd = ptrd + off;
               if (ind<cwhd) {
-                const t *const ptrp = &colormap[ind];
-                cimg_forC(colormap,k) _ptrd[k*whd] = ptrp[k*cwhd];
-              } else cimg_forC(colormap,k) _ptrd[k*whd] = (t)0;
+                const t *const ptrp = &palette[ind];
+                cimg_forC(palette,k) _ptrd[k*whd] = ptrp[k*cwhd];
+              } else cimg_forC(palette,k) _ptrd[k*whd] = (t)0;
             }
           }
         }
@@ -33903,48 +33953,48 @@ namespace cimg_library {
     //@{
     //---------------------------------
 
-    //! Return colormap \e "default", containing 256 colors entries in RGB.
+    //! Return palette \e "default", containing 256 colors entries in RGB.
     /**
-       \return The following \c 256x1x1x3 colormap is returned:
+       \return The following \c 256x1x1x3 palette is returned:
        \image html ref_colormap_default.jpg
     **/
     static const CImg<Tuchar>& default_LUT256() {
-      static CImg<Tuchar> colormap;
+      static CImg<Tuchar> palette;
       cimg::mutex(8);
-      if (!colormap) {
-        colormap.assign(1,256,1,3);
+      if (!palette) {
+        palette.assign(1,256,1,3);
         for (unsigned int index = 0, r = 16; r<256; r+=32)
           for (unsigned int g = 16; g<256; g+=32)
             for (unsigned int b = 32; b<256; b+=64) {
-              colormap(0,index,0) = (Tuchar)r;
-              colormap(0,index,1) = (Tuchar)g;
-              colormap(0,index++,2) = (Tuchar)b;
+              palette(0,index,0) = (Tuchar)r;
+              palette(0,index,1) = (Tuchar)g;
+              palette(0,index++,2) = (Tuchar)b;
             }
       }
       cimg::mutex(8,0);
-      return colormap;
+      return palette;
     }
 
-    //! Return colormap \e "HSV", containing 256 colors entries in RGB.
+    //! Return palette \e "HSV", containing 256 colors entries in RGB.
     /**
-       \return The following \c 256x1x1x3 colormap is returned:
+       \return The following \c 256x1x1x3 palette is returned:
        \image html ref_colormap_hsv.jpg
     **/
     static const CImg<Tuchar>& HSV_LUT256() {
-      static CImg<Tuchar> colormap;
+      static CImg<Tuchar> palette;
       cimg::mutex(8);
-      if (!colormap) {
+      if (!palette) {
         CImg<Tint> tmp(1,256,1,3,1);
         tmp.get_shared_channel(0).sequence(0,359);
-        colormap = tmp.HSVtoRGB();
+        palette = tmp.HSVtoRGB();
       }
       cimg::mutex(8,0);
-      return colormap;
+      return palette;
     }
 
-    //! Return colormap \e "lines", containing 256 colors entries in RGB.
+    //! Return palette \e "lines", containing 256 colors entries in RGB.
     /**
-       \return The following \c 256x1x1x3 colormap is returned:
+       \return The following \c 256x1x1x3 palette is returned:
        \image html ref_colormap_lines.jpg
     **/
     static const CImg<Tuchar>& lines_LUT256() {
@@ -33997,91 +34047,91 @@ namespace cimg_library {
         158,77,166,210,77,89,210,0,24,202,150,186,0,255,20,97,
         57,170,235,251,16,73,142,251,93,0,202,0,255,121,219,4,
         73,219,8,162,206,16,219,93,117,0,255,8,130,174,223,45 };
-      static const CImg<Tuchar> colormap(pal,1,256,1,3,false);
-      return colormap;
+      static const CImg<Tuchar> palette(pal,1,256,1,3,false);
+      return palette;
     }
 
-    //! Return colormap \e "hot", containing 256 colors entries in RGB.
+    //! Return palette \e "hot", containing 256 colors entries in RGB.
     /**
-       \return The following \c 256x1x1x3 colormap is returned:
+       \return The following \c 256x1x1x3 palette is returned:
        \image html ref_colormap_hot.jpg
     **/
     static const CImg<Tuchar>& hot_LUT256() {
-      static CImg<Tuchar> colormap;
+      static CImg<Tuchar> palette;
       cimg::mutex(8);
-      if (!colormap) {
-        colormap.assign(1,4,1,3,(T)0);
-        colormap[1] = colormap[2] = colormap[3] = colormap[6] = colormap[7] = colormap[11] = 255;
-        colormap.resize(1,256,1,3,3);
+      if (!palette) {
+        palette.assign(1,4,1,3,(T)0);
+        palette[1] = palette[2] = palette[3] = palette[6] = palette[7] = palette[11] = 255;
+        palette.resize(1,256,1,3,3);
       }
       cimg::mutex(8,0);
-      return colormap;
+      return palette;
     }
 
-    //! Return colormap \e "cool", containing 256 colors entries in RGB.
+    //! Return palette \e "cool", containing 256 colors entries in RGB.
     /**
-       \return The following \c 256x1x1x3 colormap is returned:
+       \return The following \c 256x1x1x3 palette is returned:
        \image html ref_colormap_cool.jpg
     **/
     static const CImg<Tuchar>& cool_LUT256() {
-      static CImg<Tuchar> colormap;
+      static CImg<Tuchar> palette;
       cimg::mutex(8);
-      if (!colormap) colormap.assign(1,2,1,3).fill((T)0,(T)255,(T)255,(T)0,(T)255,(T)255).resize(1,256,1,3,3);
+      if (!palette) palette.assign(1,2,1,3).fill((T)0,(T)255,(T)255,(T)0,(T)255,(T)255).resize(1,256,1,3,3);
       cimg::mutex(8,0);
-      return colormap;
+      return palette;
     }
 
-    //! Return colormap \e "jet", containing 256 colors entries in RGB.
+    //! Return palette \e "jet", containing 256 colors entries in RGB.
     /**
-       \return The following \c 256x1x1x3 colormap is returned:
+       \return The following \c 256x1x1x3 palette is returned:
        \image html ref_colormap_jet.jpg
     **/
     static const CImg<Tuchar>& jet_LUT256() {
-      static CImg<Tuchar> colormap;
+      static CImg<Tuchar> palette;
       cimg::mutex(8);
-      if (!colormap) {
-        colormap.assign(1,4,1,3,(T)0);
-        colormap[2] = colormap[3] = colormap[5] = colormap[6] = colormap[8] = colormap[9] = 255;
-        colormap.resize(1,256,1,3,3);
+      if (!palette) {
+        palette.assign(1,4,1,3,(T)0);
+        palette[2] = palette[3] = palette[5] = palette[6] = palette[8] = palette[9] = 255;
+        palette.resize(1,256,1,3,3);
       }
       cimg::mutex(8,0);
-      return colormap;
+      return palette;
     }
 
-    //! Return colormap \e "flag", containing 256 colors entries in RGB.
+    //! Return palette \e "flag", containing 256 colors entries in RGB.
     /**
        \return The following \c 256x1x1x3 colormap is returned:
-       \image html ref_colormap_flag.jpg
+       \image html ref_palette_flag.jpg
     **/
     static const CImg<Tuchar>& flag_LUT256() {
-      static CImg<Tuchar> colormap;
+      static CImg<Tuchar> palette;
       cimg::mutex(8);
-      if (!colormap) {
-        colormap.assign(1,4,1,3,(T)0);
-        colormap[0] = colormap[1] = colormap[5] = colormap[9] = colormap[10] = 255;
-        colormap.resize(1,256,1,3,0,2);
+      if (!palette) {
+        palette.assign(1,4,1,3,(T)0);
+        palette[0] = palette[1] = palette[5] = palette[9] = palette[10] = 255;
+        palette.resize(1,256,1,3,0,2);
       }
       cimg::mutex(8,0);
-      return colormap;
+      return palette;
     }
 
-    //! Return colormap \e "cube", containing 256 colors entries in RGB.
+    //! Return palette \e "cube", containing 256 colors entries in RGB.
     /**
-       \return The following \c 256x1x1x3 colormap is returned:
+       \return The following \c 256x1x1x3 palette is returned:
        \image html ref_colormap_cube.jpg
     **/
     static const CImg<Tuchar>& cube_LUT256() {
-      static CImg<Tuchar> colormap;
+      static CImg<Tuchar> palette;
       cimg::mutex(8);
-      if (!colormap) {
-        colormap.assign(1,8,1,3,(T)0);
-        colormap[1] = colormap[3] = colormap[5] = colormap[7] =
-          colormap[10] = colormap[11] = colormap[12] = colormap[13] =
-          colormap[20] = colormap[21] = colormap[22] = colormap[23] = 255;
-        colormap.resize(1,256,1,3,3);
+      if (!palette) {
+        palette.assign(1,8,1,3,(T)0);
+        palette[1] = palette[3] = palette[5] = palette[7] =
+          palette[10] = palette[11] = palette[12] = palette[13] =
+          palette[20] = palette[21] = palette[22] = palette[23] = 255;
+        palette.resize(1,256,1,3,3);
       }
       cimg::mutex(8,0);
-      return colormap;
+      return palette;
     }
 
     //! Convert pixel values from sRGB to RGB color spaces.
@@ -50814,7 +50864,7 @@ namespace cimg_library {
        \param y0 Y-coordinate of the upper-left pixel.
        \param x1 X-coordinate of the lower-right pixel.
        \param y1 Y-coordinate of the lower-right pixel.
-       \param colormap Colormap.
+       \param palette Colormap.
        \param opacity Drawing opacity.
        \param z0r Real part of the upper-left fractal vertex.
        \param z0i Imaginary part of the upper-left fractal vertex.

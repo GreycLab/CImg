@@ -29491,68 +29491,43 @@ namespace cimg_library {
     // Fast function to pre-evaluate common expressions.
     // (return 'true' in case of success, and set value of 'res').
     template<typename t>
-    bool __eval(const char *const expression, t &res) const {
-      if (!expression || !*expression) { res = (t)0; return true; }
-      const char c = *expression;
-      bool is_success = false;
-      char sep, end;
-      double val,val2;
-      int err;
-      if ((c>='0' && c<='9') || c=='.') { // Possible value
-        if (!expression[1]) { // Single digit
-          res = (t)(c - '0');
-          is_success = true;
-        } else if ((err = std::sscanf(expression,"%lf %c%lf %c",&val,&sep,&val2,&end))==1) { // Single value
-          res = (t)val;
-          is_success = true;
-        } else if (err==3) { // Value1 Operator Value2
-          switch (sep) {
-          case '+' : res = (t)(val + val2); is_success = true; break;
-          case '-' : res = (t)(val - val2); is_success = true; break;
-          case '*' : res = (t)(val*val2); is_success = true; break;
-          case '/' : res = (t)(val/val2); is_success = true; break;
-          case '%' : res = (t)cimg::mod(val,val2); is_success = true; break;
-          case '&' : res = (t)((long)val & (long)val2); is_success = true; break;
-          case '|' : res = (t)((long)val | (long)val2); is_success = true; break;
-          case '>' : res = (t)(val>val2); is_success = true; break;
-          case '<' : res = (t)(val<val2); is_success = true; break;
-          case ';' : res = (t)val2; is_success = true; break;
-          case '^' : res = (t)std::pow(val,val2); is_success = true; break;
-          }
+    bool __eval(const char *const expr, t &res) const {
+
+#define __eval_op(op) if (std::sscanf(++ptr,"%lf %c",&val2,&end)==1) { res = (t)(op); return true; } else return false;
+
+      double val1, val2;
+      char end;
+      int n;
+      if (!expr[1]) switch (*expr) {
+        case '0' : case '1' : case '2' : case '3' : case '4' :
+        case '5' : case '6' : case '7' : case '8' : case '9' : res = (t)(*expr - '0'); return true;
+        case 'w' : res = (t)_width; return true;
+        case 'h' : res = (t)_height; return true;
+        case 'd' : res = (t)_depth; return true;
+        case 's' : res = (t)_spectrum; return true;
+        case 'r' : res = (t)_is_shared; return true;
         }
-      } else if ((c=='+' || c=='-' || c=='!') && // +Value, -Value or !Value
-                 (((sep = expression[1])>='0' && sep<='9') || sep=='.')) {
-        if (!expression[2]) { // [+-!] + Single digit
-          const int ival = sep - '0';
-          res = (t)(c=='+'?ival:c=='-'?-ival:!ival);
-          is_success = true;
-        } else if ((err = std::sscanf(expression + 1,"%lf %c%lf %c",&val,&sep,&val2,&end))==1) { // [+-!] Single value
-          res = (t)(c=='+'?val:c=='-'?-val:(double)!val);
-          is_success = true;
-        } else if (err==3) { // [+-!] Value1 Operator Value2
-          const double val1 = c=='+'?val:c=='-'?-val:(double)!val;
-          switch (sep) {
-          case '+' : res = (t)(val1 + val2); is_success = true; break;
-          case '-' : res = (t)(val1 - val2); is_success = true; break;
-          case '*' : res = (t)(val1*val2); is_success = true; break;
-          case '/' : res = (t)(val1/val2); is_success = true; break;
-          case '%' : res = (t)cimg::mod(val1,val2); is_success = true; break;
-          case '&' : res = (t)((long)val1 & (long)val2); is_success = true; break;
-          case '|' : res = (t)((long)val1 | (long)val2); is_success = true; break;
-          case '>' : res = (t)(val1>val2); is_success = true; break;
-          case '<' : res = (t)(val1<val2); is_success = true; break;
-          case ';' : res = (t)val2; is_success = true; break;
-          case '^' : val = std::pow(val,val2); res = (t)(c=='+'?val:c=='-'?-val:!val); is_success = true; break;
-          }
+      else if (*expr=='!' && std::sscanf(expr + 1,"%lf %c",&val1,&end)==1) { res = (t)(!val1); return true; }
+      else if (std::sscanf(expr,"%lf %n",&val1,&n)==1) {
+        const char *ptr = expr + n;
+        switch (*ptr) {
+        case 0 : res = (t)val1; return true;
+        case '+' : __eval_op(val1 + val2);
+        case '-' : __eval_op(val1 - val2);
+        case '*' : __eval_op(val1 * val2);
+        case '/' : __eval_op(val1 / val2);
+        case '%' : __eval_op(cimg::mod(val1,val2));
+        case '&' : __eval_op((long)val1 & (long)val2);
+        case '|' : __eval_op((long)val1 | (long)val2);
+        case '>' : __eval_op(val1>val2);
+        case '<' : __eval_op(val1<val2);
+        case ';' : __eval_op(val2);
+        case '^' : __eval_op(std::pow(val1,val2));
+        case '=' : if (*++ptr=='=') { __eval_op(val1==val2); } else return false;
+        case '!' : if (*++ptr=='=') { __eval_op(val1!=val2); } else return false;
         }
-      } else if (!expression[1]) switch (*expression) { // Other common single-char expressions
-        case 'w' : res = (t)_width; is_success = true; break;
-        case 'h' : res = (t)_height; is_success = true; break;
-        case 'd' : res = (t)_depth; is_success = true; break;
-        case 's' : res = (t)_spectrum; is_success = true; break;
-        case 'r' : res = (t)_is_shared; is_success = true; break;
-        }
-      return is_success;
+      }
+      return false;
     }
 
     double _eval(CImg<T> *const img_output, const char *const expression,

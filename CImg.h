@@ -29506,7 +29506,6 @@ namespace cimg_library {
       return cond;
     }
 */
-
     template<typename t>
     bool __eval(const char *const expr, t &res) const {
 

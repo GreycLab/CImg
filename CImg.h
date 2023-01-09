@@ -29492,7 +29492,7 @@ namespace cimg_library {
     // (return 'true' in case of success, and set value of 'res').
 
     // Use the version below to get statistics on fast evaluation of expressions.
-/*    template<typename t>
+    template<typename t>
     bool __eval(const char *const expr, t &res) const {
       static int n_success = 0, n_total = 0;
       bool cond = __eval2(expr,res);
@@ -29505,15 +29505,15 @@ namespace cimg_library {
                           expr,cimg::type<T>::string(),n_success,cimg::round(n_success*100.0/n_total,0.1));
       return cond;
     }
-*/
+
     template<typename t>
-    bool __eval(const char *const expr, t &res) const {
+    bool __eval2(const char *const expr, t &res) const {
 
 #define __eval_op(op) if (std::sscanf(++ptr,"%lf %c",&val2,&end)==1) { res = (t)(op); return true; } else return false;
 
       double val1, val2;
       char end;
-      int n;
+      int n = 0;
       if (!expr || !*expr) return false;
       if (!expr[1]) switch (*expr) {
         case 'w' : res = (t)_width; return true;
@@ -29532,8 +29532,21 @@ namespace cimg_library {
         if (expr[2]=='s' && !expr[3]) { res = (t)(_width*_height*_spectrum); return true; }
       }
       if (*expr=='!' && std::sscanf(expr + 1,"%lf %c",&val1,&end)==1) { res = (t)(!val1); return true; }
-      if (std::sscanf(expr,"%lf %n",&val1,&n)==1) {
-        const char *ptr = expr + n;
+
+      const char *ptr = expr;
+      while (*ptr && cimg::is_blank(*ptr)) ++ptr;
+
+      if ((*ptr=='w' || *ptr=='h' || *ptr=='d' || *ptr=='s') || std::sscanf(expr,"%lf %n",&val1,&n)==1) {
+        if (!n) {
+          switch (*ptr) {
+          case 'w': val1 = (double)_width; break;
+          case 'h': val1 = (double)_height; break;
+          case 'd': val1 = (double)_depth; break;
+          case 's': val1 = (double)_spectrum; break;
+          }
+          ++ptr; while (*ptr && cimg::is_blank(*ptr)) ++ptr;
+        } else ptr+=n;
+
         switch (*ptr) {
         case 0 : res = (t)val1; return true;
         case '+' : __eval_op(val1 + val2);

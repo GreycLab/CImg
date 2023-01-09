@@ -29490,6 +29490,23 @@ namespace cimg_library {
 
     // Fast function to pre-evaluate common expressions.
     // (return 'true' in case of success, and set value of 'res').
+
+    // Use the version below to get statistics on fast evaluation of expressions.
+/*    template<typename t>
+    bool __eval(const char *const expr, t &res) const {
+      static int n_success = 0, n_total = 0;
+      bool cond = __eval2(expr,res);
+      ++n_total;
+      if (cond) {
+        ++n_success;
+        std::fprintf(stderr,"\nEVAL(%s) -> %g [%s: %d %g %%]",
+                     expr,res,cimg::type<T>::string(),n_success,cimg::round(n_success*100.0/n_total,0.1));
+      } else std::fprintf(stderr,"\nEVAL(%s) failed [%s: %d %g %%]",
+                          expr,cimg::type<T>::string(),n_success,cimg::round(n_success*100.0/n_total,0.1));
+      return cond;
+    }
+*/
+
     template<typename t>
     bool __eval(const char *const expr, t &res) const {
 
@@ -29498,17 +29515,25 @@ namespace cimg_library {
       double val1, val2;
       char end;
       int n;
+      if (!expr || !*expr) return false;
       if (!expr[1]) switch (*expr) {
-        case '0' : case '1' : case '2' : case '3' : case '4' :
-        case '5' : case '6' : case '7' : case '8' : case '9' : res = (t)(*expr - '0'); return true;
         case 'w' : res = (t)_width; return true;
         case 'h' : res = (t)_height; return true;
         case 'd' : res = (t)_depth; return true;
         case 's' : res = (t)_spectrum; return true;
         case 'r' : res = (t)_is_shared; return true;
+        default : if (*expr>='0' && *expr<='9') { res = (t)(*expr - '0'); return true; }
         }
-      else if (*expr=='!' && std::sscanf(expr + 1,"%lf %c",&val1,&end)==1) { res = (t)(!val1); return true; }
-      else if (std::sscanf(expr,"%lf %n",&val1,&n)==1) {
+      if (*expr=='w' && expr[1]=='h') {
+        if (!expr[2]) { res = (t)(_width*_height); return true; }
+        if (expr[2]=='d') {
+          if (!expr[3]) { res = (t)(_width*_height*_depth); return true; }
+          if (expr[3]=='s' && !expr[4]) { res = (t)(_width*_height*_depth*_spectrum); return true; }
+        }
+        if (expr[2]=='s' && !expr[3]) { res = (t)(_width*_height*_spectrum); return true; }
+      }
+      if (*expr=='!' && std::sscanf(expr + 1,"%lf %c",&val1,&end)==1) { res = (t)(!val1); return true; }
+      if (std::sscanf(expr,"%lf %n",&val1,&n)==1) {
         const char *ptr = expr + n;
         switch (*ptr) {
         case 0 : res = (t)val1; return true;
@@ -29517,10 +29542,10 @@ namespace cimg_library {
         case '*' : __eval_op(val1 * val2);
         case '/' : __eval_op(val1 / val2);
         case '%' : __eval_op(cimg::mod(val1,val2));
-        case '&' : __eval_op((long)val1 & (long)val2);
-        case '|' : __eval_op((long)val1 | (long)val2);
-        case '>' : __eval_op(val1>val2);
-        case '<' : __eval_op(val1<val2);
+        case '&' : if (ptr[1]=='&') { ++ptr; __eval_op(val1 && val2); } else { __eval_op((long)val1 & (long)val2); }
+        case '|' : if (ptr[1]=='|') { ++ptr; __eval_op(val1 || val2); } else { __eval_op((long)val1 | (long)val2); }
+        case '>' : if (ptr[1]=='=') { ++ptr; __eval_op(val1>=val2); } else { __eval_op(val1>val2); }
+        case '<' : if (ptr[1]=='=') { ++ptr; __eval_op(val1<=val2); } else { __eval_op(val1<val2); }
         case ';' : __eval_op(val2);
         case '^' : __eval_op(std::pow(val1,val2));
         case '=' : if (*++ptr=='=') { __eval_op(val1==val2); } else return false;

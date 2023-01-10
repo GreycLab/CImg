@@ -151,7 +151,7 @@ DEBUG_CFLAGS = -Dcimg_verbosity=3 -Dcimg_strict_warnings -g -fsanitize=address
 VT100_CFLAGS = -Dcimg_use_vt100
 
 # Flags to enable code optimization by the compiler.
-OPT_CFLAGS = -Ofast
+OPT_CFLAGS = -O3
 ifdef IS_GCC
 # Add -mtune=generic for GCC if supported.
 NO_MTUNE_GENERIC = $(shell $(CXX) -mtune=generic -E - < /dev/null > /dev/null 2>&1; echo $$?)

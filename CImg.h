@@ -23827,13 +23827,25 @@ namespace cimg_library {
 
       static double mp_argminabs(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        double val = _mp_arg(3), absval = cimg::abs(val);
-        unsigned int argval = 0;
-        for (unsigned int i = 4; i<i_end; ++i) {
-          const double _val = _mp_arg(i), _absval = cimg::abs(_val);
-          if (_absval<absval) { val = _val; absval = _absval; argval = i - 3; }
+        double val, abs_val, abs_valminabs = cimg::type<double>::inf();
+        unsigned int siz = 0, argminabs = 0;
+        for (unsigned int i = 3; i<i_end; i+=2) {
+          const unsigned int len = (unsigned int)mp.opcode[i + 1];
+          if (len>1) {
+            const double *ptr = &_mp_arg(i);
+            for (unsigned int k = 0; k<len; ++k) {
+              val = *(ptr++);
+              abs_val = cimg::abs(val);
+              if (abs_val<abs_valminabs) { abs_valminabs = abs_val; argminabs = siz + k; }
+            }
+          } else {
+            val = _mp_arg(i);
+            abs_val = cimg::abs(val);
+            if (abs_val<abs_valminabs) { abs_valminabs = abs_val; argminabs = siz; }
+          }
+          siz+=len;
         }
-        return (double)argval;
+        return (double)argminabs;
       }
 
       static double mp_argmax(_cimg_math_parser& mp) {
@@ -23853,13 +23865,25 @@ namespace cimg_library {
 
       static double mp_argmaxabs(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        double val = _mp_arg(3), absval = cimg::abs(val);
-        unsigned int argval = 0;
-        for (unsigned int i = 4; i<i_end; ++i) {
-          const double _val = _mp_arg(i), _absval = cimg::abs(_val);
-          if (_absval>absval) { val = _val; absval = _absval; argval = i - 3; }
+        double val, abs_val, abs_valmaxabs = 0;
+        unsigned int siz = 0, argmaxabs = 0;
+        for (unsigned int i = 3; i<i_end; i+=2) {
+          const unsigned int len = (unsigned int)mp.opcode[i + 1];
+          if (len>1) {
+            const double *ptr = &_mp_arg(i);
+            for (unsigned int k = 0; k<len; ++k) {
+              val = *(ptr++);
+              abs_val = cimg::abs(val);
+              if (abs_val>abs_valmaxabs) { abs_valmaxabs = abs_val; argmaxabs = siz + k; }
+            }
+          } else {
+            val = _mp_arg(i);
+            abs_val = cimg::abs(val);
+            if (abs_val>abs_valmaxabs) { abs_valmaxabs = abs_val; argmaxabs = siz; }
+          }
+          siz+=len;
         }
-        return (double)argval;
+        return (double)argmaxabs;
       }
 
       static double mp_asin(_cimg_math_parser& mp) {

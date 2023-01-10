@@ -22547,7 +22547,7 @@ namespace cimg_library {
               *ss=='v'?mp_var:
               ss[1]=='i'?(ss[3]=='('?mp_min:mp_minabs):
               ss[1]=='a'?(ss[3]=='('?mp_max:mp_maxabs):
-              mp_median;
+              mp_med;
             is_sth = true; // Tell if all arguments are constant
             pos = scalar();
             CImg<ulongT>::vector((ulongT)op,pos,0).move_to(l_opcode);
@@ -22555,11 +22555,8 @@ namespace cimg_library {
               ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                              (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
               arg2 = compile(s,ns,depth1,0,block_flags);
-              if (_cimg_mp_is_vector(arg2))
-                CImg<ulongT>::sequence(_cimg_mp_size(arg2),arg2 + 1,
-                                       arg2 + (ulongT)_cimg_mp_size(arg2)).
-                  move_to(l_opcode);
-              else CImg<ulongT>::vector(arg2).move_to(l_opcode);
+              if (_cimg_mp_is_vector(arg2)) CImg<ulongT>::vector(arg2 + 1,_cimg_mp_size(arg2)).move_to(l_opcode);
+              else CImg<ulongT>::vector(arg2,1).move_to(l_opcode);
               is_sth&=_cimg_mp_is_const_scalar(arg2);
               s = ns;
             }
@@ -23792,53 +23789,101 @@ namespace cimg_library {
 
       static double mp_argkth(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        const double val = mp_kth(mp);
-        for (unsigned int i = 4; i<i_end; ++i) if (val==_mp_arg(i)) return i - 3.;
-        return 1.;
+        unsigned int siz = 0;
+        for (unsigned int i = 4; i<i_end; i+=2) siz+=(unsigned int)mp.opcode[i];
+        CImg<double> values(siz);
+        double *ptr = values;
+        for (unsigned int i = 3; i<i_end; i+=2) {
+          const unsigned int len = (unsigned int)mp.opcode[i + 1];
+          if (len>1) std::memcpy(ptr,&_mp_arg(i),len*sizeof(double));
+          else *ptr = _mp_arg(i);
+          ptr+=len;
+        }
+        longT ind = (longT)cimg::round(_mp_arg(3));
+        ++values._data; --values._width; // Skip first value
+        if (ind<0) ind+=values.width() + 1;
+        ind = cimg::cut(ind,(longT)1,(longT)values.width());
+        const double kth = values.kth_smallest((ulongT)(ind - 1));
+        --values._data; ++values._width;
+        for (unsigned int argkth = 1; argkth<values._width; ++argkth)
+          if (values[argkth]==kth) return argkth;
+        return cimg::type<double>::nan();
       }
 
       static double mp_argmin(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        double val = _mp_arg(3);
-        unsigned int argval = 0;
-        for (unsigned int i = 4; i<i_end; ++i) {
-          const double _val = _mp_arg(i);
-          if (_val<val) { val = _val; argval = i - 3; }
+        double val, valmin = cimg::type<double>::inf();
+        unsigned int siz = 0, argmin = 0;
+        for (unsigned int i = 3; i<i_end; i+=2) {
+          const unsigned int len = (unsigned int)mp.opcode[i + 1];
+          if (len>1) {
+            const double *ptr = &_mp_arg(i);
+            for (unsigned int k = 0; k<len; ++k) { val = *(ptr++); if (val<valmin) { valmin = val; argmin = siz + k; } }
+          } else { val = _mp_arg(i); if (val<valmin) { valmin = val; argmin = siz; } }
+          siz+=len;
         }
-        return (double)argval;
+        return (double)argmin;
       }
 
       static double mp_argminabs(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        double val = _mp_arg(3), absval = cimg::abs(val);
-        unsigned int argval = 0;
-        for (unsigned int i = 4; i<i_end; ++i) {
-          const double _val = _mp_arg(i), _absval = cimg::abs(_val);
-          if (_absval<absval) { val = _val; absval = _absval; argval = i - 3; }
+        double val, abs_val, abs_valminabs = cimg::type<double>::inf();
+        unsigned int siz = 0, argminabs = 0;
+        for (unsigned int i = 3; i<i_end; i+=2) {
+          const unsigned int len = (unsigned int)mp.opcode[i + 1];
+          if (len>1) {
+            const double *ptr = &_mp_arg(i);
+            for (unsigned int k = 0; k<len; ++k) {
+              val = *(ptr++);
+              abs_val = cimg::abs(val);
+              if (abs_val<abs_valminabs) { abs_valminabs = abs_val; argminabs = siz + k; }
+            }
+          } else {
+            val = _mp_arg(i);
+            abs_val = cimg::abs(val);
+            if (abs_val<abs_valminabs) { abs_valminabs = abs_val; argminabs = siz; }
+          }
+          siz+=len;
         }
-        return (double)argval;
+        return (double)argminabs;
       }
 
       static double mp_argmax(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        double val = _mp_arg(3);
-        unsigned int argval = 0;
-        for (unsigned int i = 4; i<i_end; ++i) {
-          const double _val = _mp_arg(i);
-          if (_val>val) { val = _val; argval = i - 3; }
+        double val, valmax = -cimg::type<double>::inf();
+        unsigned int siz = 0, argmax = 0;
+        for (unsigned int i = 3; i<i_end; i+=2) {
+          const unsigned int len = (unsigned int)mp.opcode[i + 1];
+          if (len>1) {
+            const double *ptr = &_mp_arg(i);
+            for (unsigned int k = 0; k<len; ++k) { val = *(ptr++); if (val>valmax) { valmax = val; argmax = siz + k; } }
+          } else { val = _mp_arg(i); if (val>valmax) { valmax = val; argmax = siz; } }
+          siz+=len;
         }
-        return (double)argval;
+        return (double)argmax;
       }
 
       static double mp_argmaxabs(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        double val = _mp_arg(3), absval = cimg::abs(val);
-        unsigned int argval = 0;
-        for (unsigned int i = 4; i<i_end; ++i) {
-          const double _val = _mp_arg(i), _absval = cimg::abs(_val);
-          if (_absval>absval) { val = _val; absval = _absval; argval = i - 3; }
+        double val, abs_val, abs_valmaxabs = 0;
+        unsigned int siz = 0, argmaxabs = 0;
+        for (unsigned int i = 3; i<i_end; i+=2) {
+          const unsigned int len = (unsigned int)mp.opcode[i + 1];
+          if (len>1) {
+            const double *ptr = &_mp_arg(i);
+            for (unsigned int k = 0; k<len; ++k) {
+              val = *(ptr++);
+              abs_val = cimg::abs(val);
+              if (abs_val>abs_valmaxabs) { abs_valmaxabs = abs_val; argmaxabs = siz + k; }
+            }
+          } else {
+            val = _mp_arg(i);
+            abs_val = cimg::abs(val);
+            if (abs_val>abs_valmaxabs) { abs_valmaxabs = abs_val; argmaxabs = siz; }
+          }
+          siz+=len;
         }
-        return (double)argval;
+        return (double)argmaxabs;
       }
 
       static double mp_asin(_cimg_math_parser& mp) {
@@ -23855,9 +23900,17 @@ namespace cimg_library {
 
       static double mp_avg(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        double val = _mp_arg(3);
-        for (unsigned int i = 4; i<i_end; ++i) val+=_mp_arg(i);
-        return val/(i_end - 3);
+        unsigned int siz = 0;
+        double sum = 0;
+        for (unsigned int i = 3; i<i_end; i+=2) {
+          const unsigned int len = (unsigned int)mp.opcode[i + 1];
+          if (len>1) {
+            const double *ptr = &_mp_arg(i);
+            for (unsigned int k = 0; k<len; ++k) sum+=*(ptr++);
+          } else sum+=_mp_arg(i);
+          siz+=len;
+        }
+        return sum/siz;
       }
 
       static double mp_bitwise_and(_cimg_math_parser& mp) {
@@ -25538,13 +25591,23 @@ namespace cimg_library {
 
       static double mp_kth(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        CImg<doubleT> vals(i_end - 4);
-        double *p = vals.data();
-        for (unsigned int i = 4; i<i_end; ++i) *(p++) = _mp_arg(i);
+        unsigned int siz = 0;
+        for (unsigned int i = 4; i<i_end; i+=2) siz+=(unsigned int)mp.opcode[i];
+        CImg<double> values(siz);
+        double *ptr = values;
+        for (unsigned int i = 3; i<i_end; i+=2) {
+          const unsigned int len = (unsigned int)mp.opcode[i + 1];
+          if (len>1) std::memcpy(ptr,&_mp_arg(i),len*sizeof(double));
+          else *ptr = _mp_arg(i);
+          ptr+=len;
+        }
         longT ind = (longT)cimg::round(_mp_arg(3));
-        if (ind<0) ind+=vals.width() + 1;
-        ind = cimg::cut(ind,(longT)1,(longT)vals.width());
-        return vals.kth_smallest((ulongT)(ind - 1));
+        ++values._data; --values._width; // Skip first value
+        if (ind<0) ind+=values.width() + 1;
+        ind = cimg::cut(ind,(longT)1,(longT)values.width());
+        const double kth = values.kth_smallest((ulongT)(ind - 1));
+        --values._data; ++values._width;
+        return kth;
       }
 
       static double mp_lerp(_cimg_math_parser& mp) {
@@ -26497,19 +26560,36 @@ namespace cimg_library {
 
       static double mp_max(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        double val = _mp_arg(3);
-        for (unsigned int i = 4; i<i_end; ++i) val = std::max(val,_mp_arg(i));
-        return val;
+        double val, valmax = -cimg::type<double>::inf();
+        for (unsigned int i = 3; i<i_end; i+=2) {
+          const unsigned int len = (unsigned int)mp.opcode[i + 1];
+          if (len>1) {
+            const double *ptr = &_mp_arg(i);
+            for (unsigned int k = 0; k<len; ++k) { val = *(ptr++); if (val>valmax) valmax = val; }
+          } else { val = _mp_arg(i); if (val>valmax) valmax = val; }
+        }
+        return valmax;
       }
 
       static double mp_maxabs(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        double val = _mp_arg(3), absval = cimg::abs(val);
-        for (unsigned int i = 4; i<i_end; ++i) {
-          const double _val = _mp_arg(i), _absval = cimg::abs(_val);
-          if (_absval>absval) { val = _val; absval = _absval; }
+        double val, abs_val, valmaxabs = 0, abs_valmaxabs = 0;
+        for (unsigned int i = 3; i<i_end; i+=2) {
+          const unsigned int len = (unsigned int)mp.opcode[i + 1];
+          if (len>1) {
+            const double *ptr = &_mp_arg(i);
+            for (unsigned int k = 0; k<len; ++k) {
+              val = *(ptr++);
+              abs_val = cimg::abs(val);
+              if (abs_val>abs_valmaxabs) { valmaxabs = val; abs_valmaxabs = abs_val; }
+            }
+          } else {
+            val = _mp_arg(i);
+            abs_val = cimg::abs(val);
+            if (abs_val>abs_valmaxabs) { valmaxabs = val; abs_valmaxabs = abs_val; }
+          }
         }
-        return val;
+        return valmaxabs;
       }
 
       static double* _mp_memcopy_double(_cimg_math_parser& mp, const unsigned int ind, const ulongT *const p_ref,
@@ -26624,42 +26704,55 @@ namespace cimg_library {
 
       static double mp_min(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        double val = _mp_arg(3);
-        for (unsigned int i = 4; i<i_end; ++i) val = std::min(val,_mp_arg(i));
-        return val;
+        double val, valmin = cimg::type<double>::inf();
+        for (unsigned int i = 3; i<i_end; i+=2) {
+          const unsigned int len = (unsigned int)mp.opcode[i + 1];
+          if (len>1) {
+            const double *ptr = &_mp_arg(i);
+            for (unsigned int k = 0; k<len; ++k) { val = *(ptr++); if (val<valmin) valmin = val; }
+          } else { val = _mp_arg(i); if (val<valmin) valmin = val; }
+        }
+        return valmin;
       }
 
       static double mp_minabs(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        double val = _mp_arg(3), absval = cimg::abs(val);
-        for (unsigned int i = 4; i<i_end; ++i) {
-          const double _val = _mp_arg(i), _absval = cimg::abs(_val);
-          if (_absval<absval) { val = _val; absval = _absval; }
+        double val, abs_val, valminabs = cimg::type<double>::inf(), abs_valminabs = cimg::type<double>::inf();
+        for (unsigned int i = 3; i<i_end; i+=2) {
+          const unsigned int len = (unsigned int)mp.opcode[i + 1];
+          if (len>1) {
+            const double *ptr = &_mp_arg(i);
+            for (unsigned int k = 0; k<len; ++k) {
+              val = *(ptr++);
+              abs_val = cimg::abs(val);
+              if (abs_val<abs_valminabs) { valminabs = val; abs_valminabs = abs_val; }
+            }
+          } else {
+            val = _mp_arg(i);
+            abs_val = cimg::abs(val);
+            if (abs_val<abs_valminabs) { valminabs = val; abs_valminabs = abs_val; }
+          }
         }
-        return val;
+        return valminabs;
       }
 
       static double mp_minus(_cimg_math_parser& mp) {
         return -_mp_arg(2);
       }
 
-      static double mp_median(_cimg_math_parser& mp) {
+      static double mp_med(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        switch (i_end - 3) {
-        case 1 : return _mp_arg(3);
-        case 2 : return cimg::median(_mp_arg(3),_mp_arg(4));
-        case 3 : return cimg::median(_mp_arg(3),_mp_arg(4),_mp_arg(5));
-        case 5 : return cimg::median(_mp_arg(3),_mp_arg(4),_mp_arg(5),_mp_arg(6),_mp_arg(7));
-        case 7 : return cimg::median(_mp_arg(3),_mp_arg(4),_mp_arg(5),_mp_arg(6),_mp_arg(7),_mp_arg(8),_mp_arg(9));
-        case 9 : return cimg::median(_mp_arg(3),_mp_arg(4),_mp_arg(5),_mp_arg(6),_mp_arg(7),_mp_arg(8),_mp_arg(9),
-                                     _mp_arg(10),_mp_arg(11));
-        case 13 : return cimg::median(_mp_arg(3),_mp_arg(4),_mp_arg(5),_mp_arg(6),_mp_arg(7),_mp_arg(8),_mp_arg(9),
-                                      _mp_arg(10),_mp_arg(11),_mp_arg(12),_mp_arg(13),_mp_arg(14),_mp_arg(15));
+        unsigned int siz = 0;
+        for (unsigned int i = 4; i<i_end; i+=2) siz+=(unsigned int)mp.opcode[i];
+        CImg<double> values(siz);
+        double *ptr = values;
+        for (unsigned int i = 3; i<i_end; i+=2) {
+          const unsigned int len = (unsigned int)mp.opcode[i + 1];
+          if (len>1) std::memcpy(ptr,&_mp_arg(i),len*sizeof(double));
+          else *ptr = _mp_arg(i);
+          ptr+=len;
         }
-        CImg<doubleT> vals(i_end - 3);
-        double *p = vals.data();
-        for (unsigned int i = 3; i<i_end; ++i) *(p++) = _mp_arg(i);
-        return vals.median();
+        return values.median();
       }
 
       static double mp_modulo(_cimg_math_parser& mp) {
@@ -26862,9 +26955,17 @@ namespace cimg_library {
 
       static double mp_prod(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        double val = _mp_arg(3);
-        for (unsigned int i = 4; i<i_end; ++i) val*=_mp_arg(i);
-        return val;
+        unsigned int siz = 0;
+        double prod = 1;
+        for (unsigned int i = 3; i<i_end; i+=2) {
+          const unsigned int len = (unsigned int)mp.opcode[i + 1];
+          if (len>1) {
+            const double *ptr = &_mp_arg(i);
+            for (unsigned int k = 0; k<len; ++k) prod*=*(ptr++);
+          } else prod*=_mp_arg(i);
+          siz+=len;
+        }
+        return prod;
       }
 
       static double mp_rad2deg(_cimg_math_parser& mp) {
@@ -27307,11 +27408,7 @@ namespace cimg_library {
       }
 
       static double mp_std(_cimg_math_parser& mp) {
-        const unsigned int i_end = (unsigned int)mp.opcode[2];
-        CImg<doubleT> vals(i_end - 3);
-        double *p = vals.data();
-        for (unsigned int i = 3; i<i_end; ++i) *(p++) = _mp_arg(i);
-        return std::sqrt(vals.variance());
+        return std::sqrt(mp_var(mp));
       }
 
       static double mp_string_init(_cimg_math_parser& mp) {
@@ -27426,9 +27523,15 @@ namespace cimg_library {
 
       static double mp_sum(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        double val = _mp_arg(3);
-        for (unsigned int i = 4; i<i_end; ++i) val+=_mp_arg(i);
-        return val;
+        double sum = 0;
+        for (unsigned int i = 3; i<i_end; i+=2) {
+          const unsigned int len = (unsigned int)mp.opcode[i + 1];
+          if (len>1) {
+            const double *ptr = &_mp_arg(i);
+            for (unsigned int k = 0; k<len; ++k) sum+=*(ptr++);
+          } else sum+=_mp_arg(i);
+        }
+        return sum;
       }
 
       static double mp_swap(_cimg_math_parser& mp) {
@@ -27495,10 +27598,17 @@ namespace cimg_library {
 
       static double mp_var(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        CImg<doubleT> vals(i_end - 3);
-        double *p = vals.data();
-        for (unsigned int i = 3; i<i_end; ++i) *(p++) = _mp_arg(i);
-        return vals.variance();
+        unsigned int siz = 0;
+        double val, S = 0, S2 = 0;
+        for (unsigned int i = 3; i<i_end; i+=2) {
+          const unsigned int len = (unsigned int)mp.opcode[i + 1];
+          if (len>1) {
+            const double *ptr = &_mp_arg(i);
+            for (unsigned int k = 0; k<len; ++k) { val = *(ptr++); S+=val; S2+=val*val; }
+          } else { val = _mp_arg(i); S+=val; S2+=val*val; }
+          siz+=len;
+        }
+        return (S2 - S*S/siz)/(siz - 1);
       }
 
       static double mp_vector_copy(_cimg_math_parser& mp) {

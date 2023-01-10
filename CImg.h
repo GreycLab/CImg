@@ -23861,14 +23861,16 @@ namespace cimg_library {
       static double mp_avg(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
         unsigned int siz = 0;
-        double val = 0;
+        double sum = 0;
         for (unsigned int i = 3; i<i_end; i+=2) {
           const unsigned int len = (unsigned int)mp.opcode[i + 1];
-          if (len>1) val+=CImg<double>(&_mp_arg(i),len,1,1,1,true).sum();
-          else val+=_mp_arg(i);
+          if (len>1) {
+            const double *ptr = &_mp_arg(i);
+            for (unsigned int k = 0; k<len; ++k) sum+=*(ptr++);
+          } else sum+=_mp_arg(i);
           siz+=len;
         }
-        return val/siz;
+        return sum/siz;
       }
 
       static double mp_bitwise_and(_cimg_math_parser& mp) {
@@ -26518,21 +26520,23 @@ namespace cimg_library {
         double val, valmax = -cimg::type<double>::inf();
         for (unsigned int i = 3; i<i_end; i+=2) {
           const unsigned int len = (unsigned int)mp.opcode[i + 1];
-          if (len>1) val = CImg<double>(&_mp_arg(i),len,1,1,1,true).max();
-          else val = _mp_arg(i);
-          if (val>valmax) valmax = val;
+          if (len>1) {
+            const double *ptr = &_mp_arg(i);
+            for (unsigned int k = 0; k<len; ++k) { val = *(ptr++); if (val>valmax) valmax = val; }
+          } else { val = _mp_arg(i); if (val>valmax) valmax = val; }
         }
         return valmax;
       }
 
       static double mp_maxabs(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        double val, valmaxabs = 0;
+        double valmaxabs = 0;
         for (unsigned int i = 3; i<i_end; i+=2) {
           const unsigned int len = (unsigned int)mp.opcode[i + 1];
-          if (len>1) val = CImg<double>(&_mp_arg(i),len,1,1,1,true).maxabs();
-          else val = _mp_arg(i);
-          valmaxabs = cimg::maxabs(val,valmaxabs);
+          if (len>1) {
+            const double *ptr = &_mp_arg(i);
+            for (unsigned int k = 0; k<len; ++k) valmaxabs = cimg::maxabs(*(ptr++),valmaxabs);
+          } else valmaxabs = cimg::maxabs(_mp_arg(i),valmaxabs);
         }
         return valmaxabs;
       }
@@ -26652,21 +26656,23 @@ namespace cimg_library {
         double val, valmin = cimg::type<double>::inf();
         for (unsigned int i = 3; i<i_end; i+=2) {
           const unsigned int len = (unsigned int)mp.opcode[i + 1];
-          if (len>1) val = CImg<double>(&_mp_arg(i),len,1,1,1,true).min();
-          else val = _mp_arg(i);
-          if (val<valmin) valmin = val;
+          if (len>1) {
+            const double *ptr = &_mp_arg(i);
+            for (unsigned int k = 0; k<len; ++k) { val = *(ptr++); if (val<valmin) valmin = val; }
+          } else { val = _mp_arg(i); if (val<valmin) valmin = val; }
         }
         return valmin;
       }
 
       static double mp_minabs(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        double val, valminabs = cimg::type<double>::inf();
+        double valminabs = cimg::type<double>::inf();
         for (unsigned int i = 3; i<i_end; i+=2) {
           const unsigned int len = (unsigned int)mp.opcode[i + 1];
-          if (len>1) val = CImg<double>(&_mp_arg(i),len,1,1,1,true).minabs();
-          else val = _mp_arg(i);
-          valminabs = cimg::minabs(val,valminabs);
+          if (len>1) {
+            const double *ptr = &_mp_arg(i);
+            for (unsigned int k = 0; k<len; ++k) valminabs = cimg::minabs(*(ptr++),valminabs);
+          } else valminabs = cimg::minabs(_mp_arg(i),valminabs);
         }
         return valminabs;
       }
@@ -27461,8 +27467,10 @@ namespace cimg_library {
         double sum = 0;
         for (unsigned int i = 3; i<i_end; i+=2) {
           const unsigned int len = (unsigned int)mp.opcode[i + 1];
-          if (len>1) sum+=CImg<double>(&_mp_arg(i),len,1,1,1,true).sum();
-          else sum+=_mp_arg(i);
+          if (len>1) {
+            const double *ptr = &_mp_arg(i);
+            for (unsigned int k = 0; k<len; ++k) sum+=*(ptr++);
+          } else sum+=_mp_arg(i);
         }
         return sum;
       }

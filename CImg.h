@@ -29490,47 +29490,31 @@ namespace cimg_library {
 
     // Fast function to pre-evaluate common expressions.
     // (return 'true' in case of success, and set value of 'res').
-
-    // Use the version below to get statistics on fast evaluation of expressions.
-/*    template<typename t>
-    bool __eval(const char *const expr, t &res) const {
-      static int n_success = 0, n_total = 0;
-      bool cond = __eval2(expr,res);
-      ++n_total;
-      if (cond) {
-        ++n_success;
-        std::fprintf(stderr,"\nEVAL(%s) -> %g [%s: %d %g %%]",
-                     expr,res,cimg::type<T>::string(),n_success,cimg::round(n_success*100.0/n_total,0.1));
-      } else std::fprintf(stderr,"\nEVAL(%s) failed [%s: %d %g %%]",
-                          expr,cimg::type<T>::string(),n_success,cimg::round(n_success*100.0/n_total,0.1));
-      return cond;
-    }
-*/
     template<typename t>
-    bool __eval(const char *const expr, t &res) const {
+    bool __eval(const char *const expression, t &res) const {
 
 #define __eval_op(op) if (__eval_get(++ptr,val2) && !*ptr) { res = (t)(op); return true; } else return false;
 
       double val1, val2;
-      if (!expr || !*expr) return false;
-      if (!expr[1]) switch (*expr) {
+      if (!expression || !*expression) return false;
+      if (!expression[1]) switch (*expression) {
         case 'w' : res = (t)_width; return true;
         case 'h' : res = (t)_height; return true;
         case 'd' : res = (t)_depth; return true;
         case 's' : res = (t)_spectrum; return true;
         case 'r' : res = (t)_is_shared; return true;
-        default : if (*expr>='0' && *expr<='9') { res = (t)(*expr - '0'); return true; }
+        default : if (*expression>='0' && *expression<='9') { res = (t)(*expression - '0'); return true; }
         }
-      if (*expr=='w' && expr[1]=='h') {
-        if (!expr[2]) { res = (t)(_width*_height); return true; }
-        if (expr[2]=='d') {
-          if (!expr[3]) { res = (t)(_width*_height*_depth); return true; }
-          if (expr[3]=='s' && !expr[4]) { res = (t)(_width*_height*_depth*_spectrum); return true; }
+      if (*expression=='w' && expression[1]=='h') {
+        if (!expression[2]) { res = (t)(_width*_height); return true; }
+        if (expression[2]=='d') {
+          if (!expression[3]) { res = (t)(_width*_height*_depth); return true; }
+          if (expression[3]=='s' && !expression[4]) { res = (t)(_width*_height*_depth*_spectrum); return true; }
         }
-        if (expr[2]=='s' && !expr[3]) { res = (t)(_width*_height*_spectrum); return true; }
+        if (expression[2]=='s' && !expression[3]) { res = (t)(_width*_height*_spectrum); return true; }
       }
-      const char *ptr = expr;
-      if (*expr=='!') {
+      const char *ptr = expression;
+      if (*expression=='!') {
         if (__eval_get(++ptr,val1) && !*ptr) { res = (t)(!val1); return true; } else return false;
       }
       if (__eval_get(ptr,val1)) {

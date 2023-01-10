@@ -23790,8 +23790,16 @@ namespace cimg_library {
       static double mp_argkth(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
         const double val = mp_kth(mp);
-        for (unsigned int i = 4; i<i_end; ++i) if (val==_mp_arg(i)) return i - 3.;
-        return 1.;
+        unsigned int siz = 0;
+        for (unsigned int i = 5; i<i_end; i+=2) {
+          const unsigned int len = (unsigned int)mp.opcode[i + 1];
+          if (len>1) {
+            const double *const ptr = &_mp_arg(i);
+            for (unsigned int k = 0; k<len; ++k) if (ptr[k]==val) return siz + k + 1;
+          } else if (_mp_arg(i)==val) return siz + 1;
+          siz+=len;
+        }
+        return cimg::type<double>::nan();
       }
 
       static double mp_argmin(_cimg_math_parser& mp) {
@@ -26887,8 +26895,8 @@ namespace cimg_library {
         for (unsigned int i = 3; i<i_end; i+=2) {
           const unsigned int len = (unsigned int)mp.opcode[i + 1];
           if (len>1) {
-            CImg<double> img(&_mp_arg(i),len,1,1,1,true);
-            cimg_for(img,ptr,double) prod*=*ptr;
+            const double *ptr = &_mp_arg(i);
+            for (unsigned int k = 0; k<len; ++k) prod*=*(ptr++);
           } else prod*=_mp_arg(i);
           siz+=len;
         }
@@ -27528,8 +27536,8 @@ namespace cimg_library {
         for (unsigned int i = 3; i<i_end; i+=2) {
           const unsigned int len = (unsigned int)mp.opcode[i + 1];
           if (len>1) {
-            CImg<double> img(&_mp_arg(i),len,1,1,1,true);
-            cimg_for(img,ptr,double) { val = *ptr; S+=val; S2+=val*val; }
+            const double *ptr = &_mp_arg(i);
+            for (unsigned int k = 0; k<len; ++k) { val = *(ptr++); S+=val; S2+=val*val; }
           } else { val = _mp_arg(i); S+=val; S2+=val*val; }
           siz+=len;
         }

@@ -26742,6 +26742,10 @@ namespace cimg_library {
 
       static double mp_med(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
+        if (i_end==5) { // Only one argument
+          if ((unsigned)mp.opcode[4]==1) return _mp_arg(3); // Real value
+          else return CImg<double>(&_mp_arg(3),(unsigned int)mp.opcode[4],1,1,true).median(); // Vector value
+        }
         unsigned int siz = 0;
         for (unsigned int i = 4; i<i_end; i+=2) siz+=(unsigned int)mp.opcode[i];
         CImg<double> values(siz);

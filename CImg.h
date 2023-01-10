@@ -23791,7 +23791,7 @@ namespace cimg_library {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
         unsigned int siz = 0;
         for (unsigned int i = 4; i<i_end; i+=2) siz+=(unsigned int)mp.opcode[i];
-        CImg<double> values(--siz);
+        CImg<double> values(siz);
         double *ptr = values;
         for (unsigned int i = 3; i<i_end; i+=2) {
           const unsigned int len = (unsigned int)mp.opcode[i + 1];
@@ -25593,7 +25593,7 @@ namespace cimg_library {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
         unsigned int siz = 0;
         for (unsigned int i = 4; i<i_end; i+=2) siz+=(unsigned int)mp.opcode[i];
-        CImg<double> values(--siz);
+        CImg<double> values(siz);
         double *ptr = values;
         for (unsigned int i = 3; i<i_end; i+=2) {
           const unsigned int len = (unsigned int)mp.opcode[i + 1];

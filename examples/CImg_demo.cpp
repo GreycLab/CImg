@@ -1288,7 +1288,7 @@ void* item_breakout() {
       board.fill(0); visu0 = background;
       cimg_forXY(board,x,y) if (0.2f + cimg::rand(-1,1)>=0) {
         CImg<float> cbrick = CImg<double>::vector(100 + cimg::rand()*155,100 + cimg::rand()*155,100 + cimg::rand()*155).
-          unroll('v').resize(brick.width(),brick.height());
+          unroll('c').resize(brick.width(),brick.height());
         cimg_forC(cbrick,k) (cbrick.get_shared_channel(k).mul(brick))/=255;
         visu0.draw_image(x*32,y*16,cbrick);
         board(x,y) = 1;

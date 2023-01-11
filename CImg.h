@@ -19446,6 +19446,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"crop(",5)) { // Image or vector crop
               _cimg_mp_op("Function 'crop()'");
               is_sth = false; // is image crop ?
+              arg1 = 0;
               if (*ss5=='#') { // Index specified
                 s0 = ss6; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                 p1 = compile(ss6,s0++,depth1,0,block_flags);
@@ -20639,6 +20640,16 @@ namespace cimg_library {
             break;
 
           case 'g' :
+#if cimg_use_cpp11==1
+            if (!std::strncmp(ss,"gamma(",6)) { // Gamma
+              _cimg_mp_op("Function 'gamma()'");
+              arg1 = compile(ss6,se1,depth1,0,block_flags);
+              if (_cimg_mp_is_vector(arg1)) _cimg_mp_vector1_v(mp_gamma,arg1);
+              if (_cimg_mp_is_const_scalar(arg1)) _cimg_mp_const_scalar(std::tgamma(mem[arg1]));
+              _cimg_mp_scalar1(mp_gamma,arg1);
+            }
+#endif
+
             if (!std::strncmp(ss,"gauss(",6)) { // Gaussian function
               _cimg_mp_op("Function 'gauss()'");
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -23789,15 +23800,19 @@ namespace cimg_library {
 
       static double mp_argkth(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        unsigned int siz = 0;
-        for (unsigned int i = 4; i<i_end; i+=2) siz+=(unsigned int)mp.opcode[i];
-        CImg<double> values(siz);
-        double *ptr = values;
-        for (unsigned int i = 3; i<i_end; i+=2) {
-          const unsigned int len = (unsigned int)mp.opcode[i + 1];
-          if (len>1) std::memcpy(ptr,&_mp_arg(i),len*sizeof(double));
-          else *ptr = _mp_arg(i);
-          ptr+=len;
+        CImg<double> values;
+        if (i_end==5) values.assign(&_mp_arg(3),(unsigned int)mp.opcode[4],1,1,1,true); // Only a single argument
+        else {
+          unsigned int siz = 0;
+          for (unsigned int i = 4; i<i_end; i+=2) siz+=(unsigned int)mp.opcode[i];
+          values.assign(siz);
+          double *ptr = values;
+          for (unsigned int i = 3; i<i_end; i+=2) {
+            const unsigned int len = (unsigned int)mp.opcode[i + 1];
+            if (len>1) std::memcpy(ptr,&_mp_arg(i),len*sizeof(double));
+            else *ptr = _mp_arg(i);
+            ptr+=len;
+          }
         }
         longT ind = (longT)cimg::round(_mp_arg(3));
         ++values._data; --values._width; // Skip first value
@@ -24964,6 +24979,12 @@ namespace cimg_library {
         return cimg::grand(&mp.rng);
       }
 
+#if cimg_use_cpp11==1
+      static double mp_gamma(_cimg_math_parser& mp) {
+        return std::tgamma(_mp_arg(2));
+      }
+#endif
+
       static double mp_gauss(_cimg_math_parser& mp) {
         const double x = _mp_arg(2), s = _mp_arg(3);
         return std::exp(-x*x/(2*s*s))/(_mp_arg(4)?std::sqrt(2*s*s*cimg::PI):1);
@@ -25591,21 +25612,25 @@ namespace cimg_library {
 
       static double mp_kth(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        unsigned int siz = 0;
-        for (unsigned int i = 4; i<i_end; i+=2) siz+=(unsigned int)mp.opcode[i];
-        CImg<double> values(siz);
-        double *ptr = values;
-        for (unsigned int i = 3; i<i_end; i+=2) {
-          const unsigned int len = (unsigned int)mp.opcode[i + 1];
-          if (len>1) std::memcpy(ptr,&_mp_arg(i),len*sizeof(double));
-          else *ptr = _mp_arg(i);
-          ptr+=len;
+        CImg<double> values;
+        if (i_end==5) values.assign(&_mp_arg(3),(unsigned int)mp.opcode[4],1,1,1,true); // Only a single argument
+        else {
+          unsigned int siz = 0;
+          for (unsigned int i = 4; i<i_end; i+=2) siz+=(unsigned int)mp.opcode[i];
+          values.assign(siz);
+          double *ptr = values;
+          for (unsigned int i = 3; i<i_end; i+=2) {
+            const unsigned int len = (unsigned int)mp.opcode[i + 1];
+            if (len>1) std::memcpy(ptr,&_mp_arg(i),len*sizeof(double));
+            else *ptr = _mp_arg(i);
+            ptr+=len;
+          }
         }
-        longT ind = (longT)cimg::round(_mp_arg(3));
+        longT ind = (longT)values[0];
         ++values._data; --values._width; // Skip first value
         if (ind<0) ind+=values.width() + 1;
         ind = cimg::cut(ind,(longT)1,(longT)values.width());
-        const double kth = values.kth_smallest((ulongT)(ind - 1));
+        const double &kth = values.kth_smallest((ulongT)(ind - 1));
         --values._data; ++values._width;
         return kth;
       }
@@ -26742,15 +26767,21 @@ namespace cimg_library {
 
       static double mp_med(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        unsigned int siz = 0;
-        for (unsigned int i = 4; i<i_end; i+=2) siz+=(unsigned int)mp.opcode[i];
-        CImg<double> values(siz);
-        double *ptr = values;
-        for (unsigned int i = 3; i<i_end; i+=2) {
-          const unsigned int len = (unsigned int)mp.opcode[i + 1];
-          if (len>1) std::memcpy(ptr,&_mp_arg(i),len*sizeof(double));
-          else *ptr = _mp_arg(i);
-          ptr+=len;
+        CImg<double> values;
+        if (i_end==5) { // Only a single argument
+          if ((unsigned)mp.opcode[4]==1) return _mp_arg(3); // Real value
+          else values.assign(&_mp_arg(3),(unsigned int)mp.opcode[4],1,1,1,true); // Vector value
+        } else {
+          unsigned int siz = 0;
+          for (unsigned int i = 4; i<i_end; i+=2) siz+=(unsigned int)mp.opcode[i];
+          values.assign(siz);
+          double *ptr = values;
+          for (unsigned int i = 3; i<i_end; i+=2) {
+            const unsigned int len = (unsigned int)mp.opcode[i + 1];
+            if (len>1) std::memcpy(ptr,&_mp_arg(i),len*sizeof(double));
+            else *ptr = _mp_arg(i);
+            ptr+=len;
+          }
         }
         return values.median();
       }
@@ -26955,7 +26986,6 @@ namespace cimg_library {
 
       static double mp_prod(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        unsigned int siz = 0;
         double prod = 1;
         for (unsigned int i = 3; i<i_end; i+=2) {
           const unsigned int len = (unsigned int)mp.opcode[i + 1];
@@ -26963,7 +26993,6 @@ namespace cimg_library {
             const double *ptr = &_mp_arg(i);
             for (unsigned int k = 0; k<len; ++k) prod*=*(ptr++);
           } else prod*=_mp_arg(i);
-          siz+=len;
         }
         return prod;
       }
@@ -50238,7 +50267,7 @@ namespace cimg_library {
               const unsigned int cmin = std::min(_spectrum,letter._spectrum);
               if (foreground_color)
                 for (unsigned int c = 0; c<cmin; ++c)
-                  if (foreground_color[c]!=1) letter.get_shared_channel(c)*=foreground_color[c]/255;
+                  if (foreground_color[c]!=255) letter.get_shared_channel(c)*=foreground_color[c]/255.0;
               if (mask) { // Letter has mask
                 if (background_color)
                   for (unsigned int c = 0; c<cmin; ++c)
@@ -53533,7 +53562,7 @@ namespace cimg_library {
               unsigned int len = (unsigned int)std::strlen(message);
               cimg_forC(*this,c)
                 cimg_snprintf(message._data + len,message._width - len,"%g ",(double)(*this)(x,0,0,c));
-              len = std::strlen(message);
+              len = (unsigned int)std::strlen(message);
               cimg_snprintf(message._data + len,message._width - len,")");
             }
             if (x0>=0 && x1>=0) {

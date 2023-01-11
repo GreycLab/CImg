@@ -19446,6 +19446,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"crop(",5)) { // Image or vector crop
               _cimg_mp_op("Function 'crop()'");
               is_sth = false; // is image crop ?
+              arg1 = 0;
               if (*ss5=='#') { // Index specified
                 s0 = ss6; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                 p1 = compile(ss6,s0++,depth1,0,block_flags);
@@ -53561,7 +53562,7 @@ namespace cimg_library {
               unsigned int len = (unsigned int)std::strlen(message);
               cimg_forC(*this,c)
                 cimg_snprintf(message._data + len,message._width - len,"%g ",(double)(*this)(x,0,0,c));
-              len = std::strlen(message);
+              len = (unsigned int)std::strlen(message);
               cimg_snprintf(message._data + len,message._width - len,")");
             }
             if (x0>=0 && x1>=0) {

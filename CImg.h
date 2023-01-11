@@ -26969,7 +26969,6 @@ namespace cimg_library {
 
       static double mp_prod(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        unsigned int siz = 0;
         double prod = 1;
         for (unsigned int i = 3; i<i_end; i+=2) {
           const unsigned int len = (unsigned int)mp.opcode[i + 1];
@@ -26977,7 +26976,6 @@ namespace cimg_library {
             const double *ptr = &_mp_arg(i);
             for (unsigned int k = 0; k<len; ++k) prod*=*(ptr++);
           } else prod*=_mp_arg(i);
-          siz+=len;
         }
         return prod;
       }

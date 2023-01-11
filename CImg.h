@@ -50267,7 +50267,7 @@ namespace cimg_library {
               const unsigned int cmin = std::min(_spectrum,letter._spectrum);
               if (foreground_color)
                 for (unsigned int c = 0; c<cmin; ++c)
-                  if (foreground_color[c]!=255) letter.get_shared_channel(c)*=foreground_color[c]/255.0;
+                  if (foreground_color[c]!=255) letter.get_shared_channel(c)*=foreground_color[c]/255.0f;
               if (mask) { // Letter has mask
                 if (background_color)
                   for (unsigned int c = 0; c<cmin; ++c)

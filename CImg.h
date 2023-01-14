@@ -29653,19 +29653,33 @@ namespace cimg_library {
         if (expression[2]=='s' && !expression[3]) { res = (t)(_width*_height*_spectrum); return true; }
       }
       const char *ptr = expression;
-      if (*expression=='\'' && *(++ptr)) { // Detect 'stringA' op 'stringB' (op='==' or '!=')
-        const char *ptr2 = std::strchr(ptr,'\''), *const ptr3 = ptr2 + 1, *ptr4 = ptr3;
-        if (ptr2 && (*ptr3=='!' || *ptr3=='=') && *(++ptr4)=='=' && *(++ptr4)=='\'' && *(++ptr4)) {
-          const char *const ptr5 = std::strchr(ptr4,'\'');
-          if (ptr5 && !*(ptr5 + 1)) {
-            CImg<charT> str1(ptr,ptr2 - ptr,1,1,1,true), str2(ptr4,ptr5 - ptr4,1,1,1,true);
-            if (*ptr3=='!') res = (t)!(str1==str2); else res = (t)(str1==str2);
-            return true;
+      while (*ptr && cimg::is_blank(*ptr)) ++ptr;
+      if (*ptr=='\'' && *(++ptr)) { // Detect 'stringA' op 'stringB' (op='==' or '!=')
+        const char *ptr2 = std::strchr(ptr,'\'');
+        if (ptr2) {
+          const char *ptr3 = ptr2 + 1;
+          while (*ptr3 && cimg::is_blank(*ptr3)) ++ptr3;
+          const char *ptr4 = ptr3;
+          if ((*ptr3=='!' || *ptr3=='=') && *(++ptr4)=='=') {
+            ++ptr4;
+            while (*ptr4 && cimg::is_blank(*ptr4)) ++ptr4;
+            if (*ptr4=='\'' && *(++ptr4)) {
+              const char *const ptr5 = std::strchr(ptr4,'\'');
+              if (ptr5) {
+                const char *ptr6 = ptr5 + 1;
+                while (*ptr6 && cimg::is_blank(*ptr6)) ++ptr6;
+                if (!*ptr6) {
+                  CImg<charT> str1(ptr,ptr2 - ptr,1,1,1,true), str2(ptr4,ptr5 - ptr4,1,1,1,true);
+                  if (*ptr3=='!') res = (t)!(str1==str2); else res = (t)(str1==str2);
+                  return true;
+                }
+              }
+            }
           }
         }
         return false;
       }
-      if (*expression=='!') { // Detect !value
+      if (*ptr=='!') { // Detect !value
         if (__eval_get(++ptr,val1) && !*ptr) { res = (t)(!val1); return true; } else return false;
       }
       if (__eval_get(ptr,val1)) { // Detect value1 op value2

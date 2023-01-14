@@ -19050,6 +19050,17 @@ namespace cimg_library {
           switch (*ss) {
 
           case 'a' :
+
+#ifdef cimg_mp_func_abort
+            if (!std::strncmp(ss,"abort(",6)) { // Abort
+              _cimg_mp_op("Function 'abort()'");
+              if (pexpr[se2 - expr._data]=='(') { // no arguments?
+                CImg<ulongT>::vector((ulongT)mp_abort,_cimg_mp_slot_nan).move_to(code);
+                _cimg_mp_return_nan();
+              }
+            }
+#endif
+
             if (!std::strncmp(ss,"abs(",4)) { // Absolute value
               _cimg_mp_op("Function 'abs()'");
               arg1 = compile(ss4,se1,depth1,0,block_flags);
@@ -23743,6 +23754,14 @@ namespace cimg_library {
 #undef _mp_arg
 #endif
 #define _mp_arg(x) mp.mem[mp.opcode[x]]
+
+#ifdef cimg_mp_func_abort
+      static double mp_abort(_cimg_math_parser& mp) {
+        cimg::unused(mp);
+        cimg_mp_func_abort();
+        return cimg::type<double>::nan();
+      }
+#endif
 
       static double mp_abs(_cimg_math_parser& mp) {
         return cimg::abs(_mp_arg(2));

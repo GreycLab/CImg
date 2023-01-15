@@ -19050,6 +19050,17 @@ namespace cimg_library {
           switch (*ss) {
 
           case 'a' :
+
+#ifdef cimg_mp_func_abort
+            if (!std::strncmp(ss,"abort(",6)) { // Abort
+              _cimg_mp_op("Function 'abort()'");
+              if (pexpr[se2 - expr._data]=='(') { // no arguments?
+                CImg<ulongT>::vector((ulongT)mp_abort,_cimg_mp_slot_nan).move_to(code);
+                _cimg_mp_return_nan();
+              }
+            }
+#endif
+
             if (!std::strncmp(ss,"abs(",4)) { // Absolute value
               _cimg_mp_op("Function 'abs()'");
               arg1 = compile(ss4,se1,depth1,0,block_flags);
@@ -23743,6 +23754,14 @@ namespace cimg_library {
 #undef _mp_arg
 #endif
 #define _mp_arg(x) mp.mem[mp.opcode[x]]
+
+#ifdef cimg_mp_func_abort
+      static double mp_abort(_cimg_math_parser& mp) {
+        cimg::unused(mp);
+        cimg_mp_func_abort();
+        return cimg::type<double>::nan();
+      }
+#endif
 
       static double mp_abs(_cimg_math_parser& mp) {
         return cimg::abs(_mp_arg(2));
@@ -29635,7 +29654,7 @@ namespace cimg_library {
 #define __eval_op(op) if (__eval_get(++ptr,val2) && !*ptr) { res = (t)(op); return true; } else return false;
 
       double val1, val2;
-      if (!expression || !*expression) return false;
+      if (!expression || !*expression || *expression==';' || *expression=='[') return false;
       if (!expression[1]) switch (*expression) {
         case 'w' : res = (t)_width; return true;
         case 'h' : res = (t)_height; return true;
@@ -29653,10 +29672,36 @@ namespace cimg_library {
         if (expression[2]=='s' && !expression[3]) { res = (t)(_width*_height*_spectrum); return true; }
       }
       const char *ptr = expression;
-      if (*expression=='!') {
+      while (*ptr && cimg::is_blank(*ptr)) ++ptr;
+      if (*ptr=='\'' && *(++ptr)) { // Detect 'stringA' op 'stringB' (op='==' or '!=')
+        const char *ptr2 = std::strchr(ptr,'\'');
+        if (ptr2) {
+          const char *ptr3 = ptr2 + 1;
+          while (*ptr3 && cimg::is_blank(*ptr3)) ++ptr3;
+          const char *ptr4 = ptr3;
+          if ((*ptr3=='!' || *ptr3=='=') && *(++ptr4)=='=') {
+            ++ptr4;
+            while (*ptr4 && cimg::is_blank(*ptr4)) ++ptr4;
+            if (*ptr4=='\'' && *(++ptr4)) {
+              const char *const ptr5 = std::strchr(ptr4,'\'');
+              if (ptr5) {
+                const char *ptr6 = ptr5 + 1;
+                while (*ptr6 && cimg::is_blank(*ptr6)) ++ptr6;
+                if (!*ptr6) {
+                  CImg<charT> str1(ptr,ptr2 - ptr,1,1,1,true), str2(ptr4,ptr5 - ptr4,1,1,1,true);
+                  if (*ptr3=='!') res = (t)!(str1==str2); else res = (t)(str1==str2);
+                  return true;
+                }
+              }
+            }
+          }
+        }
+        return false;
+      }
+      if (*ptr=='!') { // Detect !value
         if (__eval_get(++ptr,val1) && !*ptr) { res = (t)(!val1); return true; } else return false;
       }
-      if (__eval_get(ptr,val1)) {
+      if (__eval_get(ptr,val1)) { // Detect value1 op value2
         switch (*ptr) {
         case 0 : res = (t)val1; return true;
         case '+' : __eval_op(val1 + val2);

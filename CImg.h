@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 320
+#define cimg_version 321
 
 /*-----------------------------------------------------------
  #
@@ -55078,7 +55078,7 @@ namespace cimg_library {
        \param[out] description Description, as stored in the filename.
        \note
        - libtiff support is enabled by defining the precompilation
-        directive \c cimg_use_tif.
+        directive \c cimg_use_tiff.
        - When libtiff is enabled, 2D and 3D (multipage) several
         channel per pixel are supported for
         <tt>char,uchar,short,ushort,float</tt> and \c double pixel types.

@@ -29646,22 +29646,10 @@ namespace cimg_library {
       return _eval(0,expression,x,y,z,c,list_images);
     }
 
-    template<typename t>
-    bool __eval(const char *const expression, t &res) const {
-      bool is_fast = __eval2(expression,res);
-      if (is_fast)
-        std::fprintf(stderr,"\nDEBUG : '%s' -> is_fast = %d -> %g\n",
-                     expression,(int)is_fast,(double)res);
-      else
-        std::fprintf(stderr,"\nDEBUG : '%s' -> is_fast = %d.\n",
-                     expression,(int)is_fast);
-      return is_fast;
-    }
-
     // Fast function to pre-evaluate common expressions.
     // (return 'true' in case of success, and set value of 'res').
     template<typename t>
-    bool __eval2(const char *const expression, t &res) const {
+    bool __eval(const char *const expression, t &res) const {
 
 #define __eval_op(op) if (__eval_get(++ptr,val2) && !*ptr) { res = (t)(op); return true; } else return false;
 

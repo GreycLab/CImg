@@ -29646,10 +29646,22 @@ namespace cimg_library {
       return _eval(0,expression,x,y,z,c,list_images);
     }
 
+    template<typename t>
+    bool __eval(const char *const expression, t &res) const {
+      bool is_fast = __eval2(expression,res);
+      if (is_fast)
+        std::fprintf(stderr,"\nDEBUG : '%s' -> is_fast = %d -> %g\n",
+                     expression,(int)is_fast,(double)res);
+      else
+        std::fprintf(stderr,"\nDEBUG : '%s' -> is_fast = %d.\n",
+                     expression,(int)is_fast);
+      return is_fast;
+    }
+
     // Fast function to pre-evaluate common expressions.
     // (return 'true' in case of success, and set value of 'res').
     template<typename t>
-    bool __eval(const char *const expression, t &res) const {
+    bool __eval2(const char *const expression, t &res) const {
 
 #define __eval_op(op) if (__eval_get(++ptr,val2) && !*ptr) { res = (t)(op); return true; } else return false;
 
@@ -29698,10 +29710,7 @@ namespace cimg_library {
         }
         return false;
       }
-      if (*ptr=='!') { // Detect !value
-        if (__eval_get(++ptr,val1) && !*ptr) { res = (t)(!val1); return true; } else return false;
-      }
-      if (__eval_get(ptr,val1)) { // Detect value1 op value2
+      if (__eval_get(ptr,val1)) { // Detect 'value1' op 'value2'
         switch (*ptr) {
         case 0 : res = (t)val1; return true;
         case '+' : __eval_op(val1 + val2);
@@ -29722,10 +29731,14 @@ namespace cimg_library {
       return false;
     }
 
-    // Return 'true' is a single 'value' has been succesfully read (double or { w,h,d,s }).
+    // Return 'true' is a single 'value' or '!value' has been succesfully read ('value' being a double or { w,h,d,s }).
     bool __eval_get(const char* &ptr, double &value) const {
       int n = 0;
       while (*ptr && cimg::is_blank(*ptr)) ++ptr;
+
+      bool is_not = false; // Detect preceding '!' operator
+      if (*ptr=='!') { is_not = true; ++ptr; while (*ptr && cimg::is_blank(*ptr)) ++ptr; }
+
       if ((*ptr=='w' || *ptr=='h' || *ptr=='d' || *ptr=='s' || *ptr=='r') || std::sscanf(ptr,"%lf %n",&value,&n)==1) {
         if (!n) {
           switch (*ptr) {
@@ -29736,8 +29749,9 @@ namespace cimg_library {
           case 'r': value = (double)_is_shared; break;
           }
           ++ptr; while (*ptr && cimg::is_blank(*ptr)) ++ptr;
-          return true;
-        } else { ptr+=n; return true; }
+        } else ptr+=n;
+        if (is_not) value = (double)!value;
+        return true;
       }
       return false;
     }

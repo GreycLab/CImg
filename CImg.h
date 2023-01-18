@@ -59493,7 +59493,7 @@ namespace cimg_library {
        \param use_bigtiff Allow to save big tiff files (>4Gb).
        \note
        - libtiff support is enabled by defining the precompilation
-        directive \c cimg_use_tif.
+        directive \c cimg_use_tiff.
        - When libtiff is enabled, 2D and 3D (multipage) several
         channel per pixel are supported for
         <tt>char,uchar,short,ushort,float</tt> and \c double pixel types.

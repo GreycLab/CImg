@@ -6005,7 +6005,7 @@ namespace cimg_library {
     }
 
     inline void srand(cimg_uint64 *const p_rng) {
-#if cimg_OS==1
+#if cimg_OS==1 || defined(__BORLANDC__)
       *p_rng = cimg::time() + (cimg_uint64)getpid();
 #elif cimg_OS==2
       *p_rng = cimg::time() + (cimg_uint64)_getpid();

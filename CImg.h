@@ -6005,7 +6005,7 @@ namespace cimg_library {
     }
 
     inline void srand(cimg_uint64 *const p_rng) {
-#if cimg_OS==1
+#if cimg_OS==1 || defined(__BORLANDC__)
       *p_rng = cimg::time() + (cimg_uint64)getpid();
 #elif cimg_OS==2
       *p_rng = cimg::time() + (cimg_uint64)_getpid();
@@ -19317,6 +19317,17 @@ namespace cimg_library {
               _cimg_mp_return(pos);
             }
 
+            if (!std::strncmp(ss,"csqrt(",6)) { // Complex square root
+              _cimg_mp_op("Function 'csqrt()'");
+              arg1 = compile(ss6,se1,depth1,0,block_flags);
+              _cimg_mp_check_type(arg1,0,3,2);
+              pos = vector(2);
+              if (_cimg_mp_is_scalar(arg1)) CImg<ulongT>::vector((ulongT)mp_complex_sqrt,pos,arg1,0).move_to(code);
+              else CImg<ulongT>::vector((ulongT)mp_complex_sqrt,pos,arg1 + 1,arg1 + 2).move_to(code);
+              return_new_comp = true;
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"ctan(",5)) { // Complex tangent
               _cimg_mp_op("Function 'ctan()'");
               arg1 = compile(ss5,se1,depth1,0,block_flags);
@@ -24157,6 +24168,17 @@ namespace cimg_library {
         double *ptrd = &_mp_arg(1) + 1;
         ptrd[0] = std::sin(real)*std::cosh(imag);
         ptrd[1] = std::cos(real)*std::sinh(imag);
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_complex_sqrt(_cimg_math_parser& mp) {
+        const double
+          real = _mp_arg(2), imag = _mp_arg(3),
+          r = std::sqrt(cimg::_hypot(real,imag)),
+          theta = std::atan2(imag,real)/2;
+        double *ptrd = &_mp_arg(1) + 1;
+        ptrd[0] = r*std::cos(theta);
+        ptrd[1] = r*std::sin(theta);
         return cimg::type<double>::nan();
       }
 

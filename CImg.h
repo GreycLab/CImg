@@ -65323,7 +65323,12 @@ namespace cimg_library {
                                   const char *codec=0, const bool keep_open=false) const {
 #ifndef cimg_use_opencv
       cimg::unused(codec,keep_open);
-      return save_ffmpeg_external(filename,fps);
+      if (keep_open) cimg::warn(_cimglist_instance
+                                "save_video(): Cannot output streamed video, as this requires features from the "
+                                "OpenCV library ('-Dcimg_use_opencv') must be defined).",
+                                cimglist_instance);
+      if (!is_empty()) return save_ffmpeg_external(filename,fps);
+      return *this;
 #else
       try {
         static cv::VideoWriter *writers[32] = {};

@@ -28169,17 +28169,17 @@ namespace cimg_library {
         case -1 : std::strcpy(format,"%g"); break;
         case 0 : std::strcpy(format,"%.17g"); break;
         default :
-          if (nb_digits>0) cimg_snprintf(format,format._width,"%%.%dg",nb_digits);
+          if (nb_digits>=-1) cimg_snprintf(format,format._width,"%%.%dg",nb_digits);
           else cimg_snprintf(format,format._width,"%%.%dld",-nb_digits);
         }
         CImg<charT> str;
         if (sizs) { // Vector expression
           const double *ptrs = &_mp_arg(3) + 1;
-          if (nb_digits>=0) CImg<doubleT>(ptrs,sizs,1,1,1,true).value_string(',',sizd + 1,format).move_to(str);
+          if (nb_digits>=-1) CImg<doubleT>(ptrs,sizs,1,1,1,true).value_string(',',sizd + 1,format).move_to(str);
           else CImg<longT>(ptrs,sizs,1,1,1).value_string(',',sizd + 1,format).move_to(str);
         } else { // Scalar expression
           str.assign(sizd + 1);
-          if (nb_digits>=0) cimg_snprintf(str,sizd + 1,format,_mp_arg(3));
+          if (nb_digits>=-1) cimg_snprintf(str,sizd + 1,format,_mp_arg(3));
           else cimg_snprintf(str,sizd + 1,format,(long)_mp_arg(3));
         }
         const unsigned int l = std::min(sizd,(unsigned int)std::strlen(str) + 1);

@@ -16788,7 +16788,7 @@ namespace cimg_library {
         if (*(ptrs++)!=(T)-128) ptrs+=2;
         else if ((ptrs+=3)<ptre) {
           const unsigned int
-            w = (unsigned int)*(ptrs - 3),
+            w = (unsigned int)cimg::float2uint((float)*(ptrs - 3)),
             h = (unsigned int)*(ptrs - 2),
             s = (unsigned int)*(ptrs - 1);
           if (!h && !s) {
@@ -16820,7 +16820,7 @@ namespace cimg_library {
       for (unsigned int o = 0; o<nb_primitives; ++o) {
         if (*(ptrs++)==(T)-128 && (ptrs+=3)<ptre) {
           const unsigned int
-            w = (unsigned int)*(ptrs - 3),
+            w = (unsigned int)cimg::float2uint((float)*(ptrs - 3)),
             h = (unsigned int)*(ptrs - 2),
             s = (unsigned int)*(ptrs - 1);
           if (!h && !s) {
@@ -46952,7 +46952,7 @@ namespace cimg_library {
             *(ptrd++) = (float)color._spectrum;
             cimg_foroff(color,l) *(ptrd++) = (float)*(ptrc++);
           } else {
-            *(ptrd++) = (float)shared_ind;
+            *(ptrd++) = (float)cimg::uint2float((unsigned int)shared_ind);
             *(ptrd++) = 0;
             *(ptrd++) = 0;
           }
@@ -46984,7 +46984,7 @@ namespace cimg_library {
             *(ptrd++) = (float)opacity._spectrum;
             cimg_foroff(opacity,l) *(ptrd++) = (float)*(ptro++);
           } else {
-            *(ptrd++) = (float)shared_ind;
+            *(ptrd++) = (float)cimg::uint2float((unsigned int)shared_ind);
             *(ptrd++) = 0;
             *(ptrd++) = 0;
           }
@@ -47102,7 +47102,10 @@ namespace cimg_library {
       cimglist_for(colors,c) {
         if (*ptrs==(T)-128) {
           ++ptrs;
-          const unsigned int w = (unsigned int)*(ptrs++), h = (unsigned int)*(ptrs++), s = (unsigned int)*(ptrs++);
+          const unsigned int
+            w = (unsigned int)cimg::float2uint(*(ptrs++)),
+            h = (unsigned int)*(ptrs++),
+            s = (unsigned int)*(ptrs++);
           if (!h && !s) colors[c].assign(colors[w],true);
           else { colors[c].assign(ptrs,w,h,1,s,false); ptrs+=w*h*s; }
         } else { colors[c].assign(ptrs,1,1,1,3,false); ptrs+=3; }
@@ -47111,7 +47114,10 @@ namespace cimg_library {
       cimglist_for(opacities,o) {
         if (*ptrs==(T)-128) {
           ++ptrs;
-          const unsigned int w = (unsigned int)*(ptrs++), h = (unsigned int)*(ptrs++), s = (unsigned int)*(ptrs++);
+          const unsigned int
+            w = (unsigned int)cimg::float2uint(*(ptrs++)),
+            h = (unsigned int)*(ptrs++),
+            s = (unsigned int)*(ptrs++);
           if (!h && !s) opacities[o].assign(opacities[w],true);
           else { opacities[o].assign(ptrs,w,h,1,s,false); ptrs+=w*h*s; }
         } else opacities[o].assign(1,1,1,1,*(ptrs++));

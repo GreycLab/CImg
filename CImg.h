@@ -5899,13 +5899,22 @@ namespace cimg_library {
       return ((u)<<2)>>2; // set sign & exponent bit to 0
     }
 
-    inline float uint2float(const unsigned int value) {
+    template<typename T>
+    inline float uint2T(const unsigned int value, const T) {
+      return (T)value;
+    }
+
+    inline float uint2T(const unsigned int value, const float) {
       if (value<(1U<<19)) return (float)value; // Consider 'uint32' safely stored as floats until 19bits (i.e 524287)
       float f;
       const unsigned int v = value | (3U<<(8*sizeof(unsigned int)-2)); // set sign & exponent bit to 1
       // use memcpy instead of simple assignment to avoid undesired optimizations by C++-compiler.
       std::memcpy(&f,&v,sizeof(float));
       return f;
+    }
+
+    inline float uint2float(const unsigned int value) {
+      return uint2T(value,0.0f);
     }
 
     //! Return the value of a system timer, with a millisecond precision.
@@ -24452,7 +24461,7 @@ namespace cimg_library {
         mp_check_list(mp,s_op);
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
         CImg<T> &img = mp.imglist[ind];
-        int siz = img?(int)img[img._height - 1]:0;
+        int siz = img?(int)cimg::T2uint(img[img._height - 1]):0;
         if (img && (img._width!=1 || img._depth!=1 || siz<0 || siz>img.height() - 1))
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function '%s()': "
                                       "Specified image #%u of size (%d,%d,%d,%d) cannot be used as dynamic array%s.",
@@ -24473,7 +24482,7 @@ namespace cimg_library {
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
         CImg<T> &img = mp.imglist[ind];
         const int
-          siz = img?(int)img[img._height - 1]:0,
+          siz = img?(int)cimg::T2uint(img[img._height - 1]):0,
           pos0 = mp.opcode[3]==~0U?siz:(int)_mp_arg(3),
           pos = pos0<0?pos0 + siz:pos0;
 
@@ -24505,7 +24514,7 @@ namespace cimg_library {
             double *ptrs = &_mp_arg(6 + k) + 1;
             cimg_forC(img,c) img(0,pos + k,0,c) = ptrs[c];
           }
-        img[img._height - 1] = (T)(siz + nb_elts);
+        img[img._height - 1] = cimg::uint2T(siz + nb_elts,(T)0);
         return cimg::type<double>::nan();
       }
 
@@ -24513,7 +24522,7 @@ namespace cimg_library {
         mp_check_list(mp,"da_remove");
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
         CImg<T> &img = mp.imglist[ind];
-        int siz = img?(int)img[img._height - 1]:0;
+        int siz = img?(int)cimg::T2uint(img[img._height - 1]):0;
         if (img && (img._width!=1 || img._depth!=1 || siz<0 || siz>img.height() - 1))
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'da_remove()': "
                                       "Specified image #%u of size (%d,%d,%d,%d) cannot be used as dynamic array%s.",
@@ -24539,7 +24548,7 @@ namespace cimg_library {
         siz-=end - start + 1;
         if (img.height()>32 && siz<2*img.height()/3) // Reduce size of dynamic array
           img.resize(1,std::max(2*siz + 1,32),1,-100,0);
-        img[img._height - 1] = (T)siz;
+        img[img._height - 1] = (T)cimg::uint2T(siz,(T)0);
         return cimg::type<double>::nan();
       }
 
@@ -24547,7 +24556,7 @@ namespace cimg_library {
         mp_check_list(mp,"da_size");
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
         CImg<T> &img = mp.imglist[ind];
-        const int siz = img?(int)img[img._height - 1]:0;
+        const int siz = img?(int)cimg::T2uint(img[img._height - 1]):0;
         if (img && (img._width!=1 || img._depth!=1 || siz<0 || siz>img.height() - 1))
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'da_size()': "
                                       "Specified image #%u of size (%d,%d,%d,%d) cannot be used as dynamic array%s.",

@@ -5894,22 +5894,13 @@ namespace cimg_library {
       return ((u)<<2)>>2; // set sign & exponent bit to 0
     }
 
-    template<typename T>
-    inline float uint2T(const unsigned int value, const T) {
-      return (T)value;
-    }
-
-    inline float uint2T(const unsigned int value, const float) {
+    inline float uint2float(const unsigned int value) {
       if (value<(1U<<19)) return (float)value; // Consider 'uint32' safely stored as floats until 19bits (i.e 524287)
       float f;
       const unsigned int v = value | (3U<<(8*sizeof(unsigned int)-2)); // set sign & exponent bit to 1
       // use memcpy instead of simple assignment to avoid undesired optimizations by C++-compiler.
       std::memcpy(&f,&v,sizeof(float));
       return f;
-    }
-
-    inline float uint2float(const unsigned int value) {
-      return uint2T(value,0.0f);
     }
 
     //! Return the value of a system timer, with a millisecond precision.
@@ -24509,7 +24500,7 @@ namespace cimg_library {
             double *ptrs = &_mp_arg(6 + k) + 1;
             cimg_forC(img,c) img(0,pos + k,0,c) = ptrs[c];
           }
-        img[img._height - 1] = cimg::uint2T(siz + nb_elts,(T)0);
+        img[img._height - 1] = (T)cimg::uint2float(siz + nb_elts);
         return cimg::type<double>::nan();
       }
 
@@ -24543,7 +24534,7 @@ namespace cimg_library {
         siz-=end - start + 1;
         if (img.height()>32 && siz<2*img.height()/3) // Reduce size of dynamic array
           img.resize(1,std::max(2*siz + 1,32),1,-100,0);
-        img[img._height - 1] = (T)cimg::uint2T(siz,(T)0);
+        img[img._height - 1] = (T)cimg::uint2float(siz);
         return cimg::type<double>::nan();
       }
 

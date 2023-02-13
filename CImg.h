@@ -47107,7 +47107,7 @@ namespace cimg_library {
             h = (unsigned int)*(ptrs++),
             s = (unsigned int)*(ptrs++);
           if (!h && !s) colors[c].assign(colors[w],true);
-          else { colors[c].assign(ptrs,w,h,1,s,false); ptrs+=w*h*s; }
+          else { colors[c].assign(ptrs,w,h,1,s,false); ptrs+=(ulongT)w*h*s; }
         } else { colors[c].assign(ptrs,1,1,1,3,false); ptrs+=3; }
       }
       opacities.assign(nb_primitives);
@@ -47119,7 +47119,7 @@ namespace cimg_library {
             h = (unsigned int)*(ptrs++),
             s = (unsigned int)*(ptrs++);
           if (!h && !s) opacities[o].assign(opacities[w],true);
-          else { opacities[o].assign(ptrs,w,h,1,s,false); ptrs+=w*h*s; }
+          else { opacities[o].assign(ptrs,w,h,1,s,false); ptrs+=(ulongT)w*h*s; }
         } else opacities[o].assign(1,1,1,1,*(ptrs++));
       }
       return points;

@@ -16885,10 +16885,10 @@ namespace cimg_library {
       CImgList<charT> variable_def, macro_def, macro_body;
       char *user_macro;
 
-      unsigned int mempos, mem_img_median, mem_img_norm, mem_img_index, debug_indent, result_dim, break_type,
-        constcache_size;
+      unsigned int mempos, mem_img_median, mem_img_norm, mem_img_index, debug_indent,
+        result_dim, result_end_dim, break_type, constcache_size;
       bool is_parallelizable, is_noncritical_run, is_end_code, is_fill, return_new_comp, need_input_copy;
-      double *result;
+      double *result, *result_end;
       cimg_uint64 rng;
       const char *const calling_function, *s_op, *ss_op;
       typedef double (*mp_func)(_cimg_math_parser&);
@@ -16947,9 +16947,9 @@ namespace cimg_library {
         p_break((CImg<ulongT>*)(cimg_ulong)-2),imgin(img_input),
         imgout(img_output?*img_output:CImg<T>::empty()),imglist(list_images?*list_images:CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),list_norm(_list_norm),user_macro(0),
-        mem_img_median(~0U),mem_img_norm(~0U),mem_img_index(~0U),debug_indent(0),result_dim(0),break_type(0),
-        constcache_size(0),is_parallelizable(true),is_noncritical_run(false),is_fill(_is_fill),need_input_copy(false),
-        rng((cimg::_rand(),cimg::rng())),calling_function(funcname?funcname:"cimg_math_parser") {
+        mem_img_median(~0U),mem_img_norm(~0U),mem_img_index(~0U),debug_indent(0),result_dim(0),result_end_dim(0),
+        break_type(0),constcache_size(0),is_parallelizable(true),is_noncritical_run(false),is_fill(_is_fill),
+        need_input_copy(false),rng((cimg::_rand(),cimg::rng())),calling_function(funcname?funcname:"cimg_math_parser") {
 
 #if cimg_use_openmp!=0
         rng+=omp_get_thread_num();
@@ -17062,8 +17062,8 @@ namespace cimg_library {
         p_code_end(0),p_break((CImg<ulongT>*)(cimg_ulong)-2),
         imgin(CImg<T>::const_empty()),imgout(CImg<T>::empty()),imglist(CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),list_norm(_list_norm),debug_indent(0),
-        result_dim(0),break_type(0),constcache_size(0),is_parallelizable(true),is_noncritical_run(false),is_fill(false),
-        need_input_copy(false),rng(0),calling_function(0) {
+        result_dim(0),result_end_dim(0),break_type(0),constcache_size(0),is_parallelizable(true),is_noncritical_run(false),
+        is_fill(false),need_input_copy(false),rng(0),calling_function(0) {
         mem.assign(1 + _cimg_mp_slot_c,1,1,1,0); // Allow to skip 'is_empty?' test in operator()()
         result = mem._data;
       }
@@ -17073,10 +17073,10 @@ namespace cimg_library {
         p_code_end(mp.p_code_end),p_break(mp.p_break),
         imgin(mp.imgin),imgout(mp.imgout),imglist(mp.imglist),
         img_stats(mp.img_stats),list_stats(mp.list_stats),list_median(mp.list_median),list_norm(mp.list_norm),
-        debug_indent(0),result_dim(mp.result_dim),break_type(0),constcache_size(0),
+        debug_indent(0),result_dim(mp.result_dim),result_end_dim(mp.result_end_dim),break_type(0),constcache_size(0),
         is_parallelizable(mp.is_parallelizable),is_noncritical_run(mp.is_noncritical_run),is_fill(mp.is_fill),
         need_input_copy(mp.need_input_copy),result(mem._data + (mp.result - mp.mem._data)),
-        rng((cimg::_rand(),cimg::rng())),calling_function(0) {
+        result_end(mem._data + (mp.result_end - mp.mem._data)),rng((cimg::_rand(),cimg::rng())),calling_function(0) {
 
 #if cimg_use_openmp!=0
         mem[_cimg_mp_slot_t] = (double)omp_get_thread_num();
@@ -20489,8 +20489,11 @@ namespace cimg_library {
               if (s1!=se1) {
                 const bool is_inside_end = (bool)(block_flags&8);
                 if (!is_inside_end) code.swap(code_end);
-                compile(s1,se1,depth1,p_ref,8);
+                pos = compile(s1,se1,depth1,p_ref,8);
                 if (!is_inside_end) code.swap(code_end);
+                arg1 = _cimg_mp_size(pos);
+                result_end_dim = arg1;
+                result_end = mem._data + pos + (arg1?1:0);
                 is_end_code = true;
               }
               _cimg_mp_return_nan();

@@ -13096,7 +13096,7 @@ namespace cimg_library {
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
       try {
-        _fill(expression,true,1,0,0,"operator=",0);
+        _fill(expression,true,3,0,0,"operator=",0,0);
       } catch (CImgException&) {
         cimg::exception_mode(omode);
         load(expression);
@@ -13171,7 +13171,7 @@ namespace cimg_library {
          instead of assigning them.
     **/
     CImg<T>& operator+=(const char *const expression) {
-      return *this+=(+*this)._fill(expression,true,1,0,0,"operator+=",this);
+      return *this+=(+*this)._fill(expression,true,3,0,0,"operator+=",this,0);
     }
 
     //! In-place addition operator.
@@ -13292,7 +13292,7 @@ namespace cimg_library {
        Similar to operator+=(const char*), except that it performs a subtraction instead of an addition.
      **/
     CImg<T>& operator-=(const char *const expression) {
-      return *this-=(+*this)._fill(expression,true,1,0,0,"operator-=",this);
+      return *this-=(+*this)._fill(expression,true,3,0,0,"operator-=",this,0);
     }
 
     //! In-place subtraction operator.
@@ -13396,7 +13396,7 @@ namespace cimg_library {
        Similar to operator+=(const char*), except that it performs a multiplication instead of an addition.
      **/
     CImg<T>& operator*=(const char *const expression) {
-      return mul((+*this)._fill(expression,true,1,0,0,"operator*=",this));
+      return mul((+*this)._fill(expression,true,3,0,0,"operator*=",this,0));
     }
 
     //! In-place multiplication operator.
@@ -13661,7 +13661,7 @@ namespace cimg_library {
        Similar to operator+=(const char*), except that it performs a division instead of an addition.
      **/
     CImg<T>& operator/=(const char *const expression) {
-      return div((+*this)._fill(expression,true,1,0,0,"operator/=",this));
+      return div((+*this)._fill(expression,true,3,0,0,"operator/=",this,0));
     }
 
     //! In-place division operator.
@@ -13725,7 +13725,7 @@ namespace cimg_library {
        Similar to operator+=(const char*), except that it performs a modulo operation instead of an addition.
     **/
     CImg<T>& operator%=(const char *const expression) {
-      return *this%=(+*this)._fill(expression,true,1,0,0,"operator%=",this);
+      return *this%=(+*this)._fill(expression,true,3,0,0,"operator%=",this,0);
     }
 
     //! In-place modulo operator.
@@ -13791,7 +13791,7 @@ namespace cimg_library {
        Similar to operator+=(const char*), except that it performs a bitwise AND operation instead of an addition.
     **/
     CImg<T>& operator&=(const char *const expression) {
-      return *this&=(+*this)._fill(expression,true,1,0,0,"operator&=",this);
+      return *this&=(+*this)._fill(expression,true,3,0,0,"operator&=",this,0);
     }
 
     //! In-place bitwise AND operator.
@@ -13857,7 +13857,7 @@ namespace cimg_library {
        Similar to operator+=(const char*), except that it performs a bitwise OR operation instead of an addition.
     **/
     CImg<T>& operator|=(const char *const expression) {
-      return *this|=(+*this)._fill(expression,true,1,0,0,"operator|=",this);
+      return *this|=(+*this)._fill(expression,true,3,0,0,"operator|=",this,0);
     }
 
     //! In-place bitwise OR operator.
@@ -13927,7 +13927,7 @@ namespace cimg_library {
        - It does \e not compute the \e power of pixel values. For this purpose, use pow(const char*) instead.
     **/
     CImg<T>& operator^=(const char *const expression) {
-      return *this^=(+*this)._fill(expression,true,1,0,0,"operator^=",this);
+      return *this^=(+*this)._fill(expression,true,3,0,0,"operator^=",this,0);
     }
 
     //! In-place bitwise XOR operator.
@@ -13995,7 +13995,7 @@ namespace cimg_library {
        Similar to operator+=(const char*), except that it performs a bitwise left shift instead of an addition.
     **/
     CImg<T>& operator<<=(const char *const expression) {
-      return *this<<=(+*this)._fill(expression,true,1,0,0,"operator<<=",this);
+      return *this<<=(+*this)._fill(expression,true,3,0,0,"operator<<=",this,0);
     }
 
     //! In-place bitwise left shift operator.
@@ -14062,7 +14062,7 @@ namespace cimg_library {
        Similar to operator+=(const char*), except that it performs a bitwise right shift instead of an addition.
     **/
     CImg<T>& operator>>=(const char *const expression) {
-      return *this>>=(+*this)._fill(expression,true,1,0,0,"operator>>=",this);
+      return *this>>=(+*this)._fill(expression,true,3,0,0,"operator>>=",this,0);
     }
 
     //! In-place bitwise right shift operator.
@@ -14144,7 +14144,7 @@ namespace cimg_library {
        \param expression Value string describing the way pixel values are compared.
     **/
     bool operator==(const char *const expression) const {
-      return *this==(+*this)._fill(expression,true,1,0,0,"operator==",this);
+      return *this==(+*this)._fill(expression,true,3,0,0,"operator==",this,0);
     }
 
     //! Test if two images have the same size and values.
@@ -16885,10 +16885,10 @@ namespace cimg_library {
       CImgList<charT> variable_def, macro_def, macro_body;
       char *user_macro;
 
-      unsigned int mempos, mem_img_median, mem_img_norm, mem_img_index, debug_indent, result_dim, break_type,
-        constcache_size;
+      unsigned int mempos, mem_img_median, mem_img_norm, mem_img_index, debug_indent,
+        result_dim, result_end_dim, break_type, constcache_size;
       bool is_parallelizable, is_noncritical_run, is_end_code, is_fill, return_new_comp, need_input_copy;
-      double *result;
+      double *result, *result_end;
       cimg_uint64 rng;
       const char *const calling_function, *s_op, *ss_op;
       typedef double (*mp_func)(_cimg_math_parser&);
@@ -16947,9 +16947,10 @@ namespace cimg_library {
         p_break((CImg<ulongT>*)(cimg_ulong)-2),imgin(img_input),
         imgout(img_output?*img_output:CImg<T>::empty()),imglist(list_images?*list_images:CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),list_norm(_list_norm),user_macro(0),
-        mem_img_median(~0U),mem_img_norm(~0U),mem_img_index(~0U),debug_indent(0),result_dim(0),break_type(0),
-        constcache_size(0),is_parallelizable(true),is_noncritical_run(false),is_fill(_is_fill),need_input_copy(false),
-        rng((cimg::_rand(),cimg::rng())),calling_function(funcname?funcname:"cimg_math_parser") {
+        mem_img_median(~0U),mem_img_norm(~0U),mem_img_index(~0U),debug_indent(0),result_dim(0),result_end_dim(0),
+        break_type(0),constcache_size(0),is_parallelizable(true),is_noncritical_run(false),is_fill(_is_fill),
+        need_input_copy(false),result_end(0),rng((cimg::_rand(),cimg::rng())),
+        calling_function(funcname?funcname:"cimg_math_parser") {
 
 #if cimg_use_openmp!=0
         rng+=omp_get_thread_num();
@@ -17028,11 +17029,11 @@ namespace cimg_library {
               fill(cimg::type<double>::nan());
           else if (ind_result!=_cimg_mp_slot_t) mem[ind_result] = cimg::type<double>::nan();
         }
+        if (mem._width>=256 && mem._width - mempos>=mem._width/2) mem.resize(mempos,1,1,1,-1);
+        result_dim = _cimg_mp_size(ind_result);
+        result = mem._data + ind_result;
 
         // Free resources used for compiling expression and prepare evaluation.
-        result_dim = _cimg_mp_size(ind_result);
-        if (mem._width>=256 && mem._width - mempos>=mem._width/2) mem.resize(mempos,1,1,1,-1);
-        result = mem._data + ind_result;
         memtype.assign();
         constcache_vals.assign();
         constcache_inds.assign();
@@ -17062,8 +17063,8 @@ namespace cimg_library {
         p_code_end(0),p_break((CImg<ulongT>*)(cimg_ulong)-2),
         imgin(CImg<T>::const_empty()),imgout(CImg<T>::empty()),imglist(CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),list_norm(_list_norm),debug_indent(0),
-        result_dim(0),break_type(0),constcache_size(0),is_parallelizable(true),is_noncritical_run(false),is_fill(false),
-        need_input_copy(false),rng(0),calling_function(0) {
+        result_dim(0),result_end_dim(0),break_type(0),constcache_size(0),is_parallelizable(true),
+        is_noncritical_run(false),is_fill(false),need_input_copy(false),result_end(0),rng(0),calling_function(0) {
         mem.assign(1 + _cimg_mp_slot_c,1,1,1,0); // Allow to skip 'is_empty?' test in operator()()
         result = mem._data;
       }
@@ -17073,9 +17074,11 @@ namespace cimg_library {
         p_code_end(mp.p_code_end),p_break(mp.p_break),
         imgin(mp.imgin),imgout(mp.imgout),imglist(mp.imglist),
         img_stats(mp.img_stats),list_stats(mp.list_stats),list_median(mp.list_median),list_norm(mp.list_norm),
-        debug_indent(0),result_dim(mp.result_dim),break_type(0),constcache_size(0),
+        debug_indent(0),result_dim(mp.result_dim),result_end_dim(mp.result_end_dim),break_type(0),constcache_size(0),
         is_parallelizable(mp.is_parallelizable),is_noncritical_run(mp.is_noncritical_run),is_fill(mp.is_fill),
-        need_input_copy(mp.need_input_copy),result(mem._data + (mp.result - mp.mem._data)),
+        need_input_copy(mp.need_input_copy),
+        result(mem._data + (mp.result - mp.mem._data)),
+        result_end(mp.result_end?mem._data + (mp.result_end - mp.mem._data):0),
         rng((cimg::_rand(),cimg::rng())),calling_function(0) {
 
 #if cimg_use_openmp!=0
@@ -20489,8 +20492,10 @@ namespace cimg_library {
               if (s1!=se1) {
                 const bool is_inside_end = (bool)(block_flags&8);
                 if (!is_inside_end) code.swap(code_end);
-                compile(s1,se1,depth1,p_ref,8);
+                pos = compile(s1,se1,depth1,p_ref,8);
                 if (!is_inside_end) code.swap(code_end);
+                result_end_dim = _cimg_mp_size(pos);
+                result_end = mem._data + pos;
                 is_end_code = true;
               }
               _cimg_mp_return_nan();
@@ -28865,7 +28870,7 @@ namespace cimg_library {
        Similar to operator+=(const char*), except it performs a pointwise exponentiation instead of an addition.
     **/
     CImg<T>& pow(const char *const expression) {
-      return pow((+*this)._fill(expression,true,1,0,0,"pow",this));
+      return pow((+*this)._fill(expression,true,3,0,0,"pow",this,0));
     }
 
     //! Raise each pixel value to a power, specified from an expression \newinstance.
@@ -28917,7 +28922,7 @@ namespace cimg_library {
        Similar to operator<<=(const char*), except that it performs a left rotation instead of a left shift.
     **/
     CImg<T>& rol(const char *const expression) {
-      return rol((+*this)._fill(expression,true,1,0,0,"rol",this));
+      return rol((+*this)._fill(expression,true,3,0,0,"rol",this,0));
     }
 
     //! Compute the bitwise left rotation of each pixel value \newinstance.
@@ -28969,7 +28974,7 @@ namespace cimg_library {
        Similar to operator>>=(const char*), except that it performs a right rotation instead of a right shift.
     **/
     CImg<T>& ror(const char *const expression) {
-      return ror((+*this)._fill(expression,true,1,0,0,"ror",this));
+      return ror((+*this)._fill(expression,true,3,0,0,"ror",this,0));
     }
 
     //! Compute the bitwise right rotation of each pixel value \newinstance.
@@ -29051,7 +29056,7 @@ namespace cimg_library {
        \f$\mathrm{min}(I_{(x,y,z,c)},\mathrm{expr}_{(x,y,z,c)})\f$.
     **/
     CImg<T>& min(const char *const expression) {
-      return min((+*this)._fill(expression,true,1,0,0,"min",this));
+      return min((+*this)._fill(expression,true,3,0,0,"min",this,0));
     }
 
     //! Pointwise min operator between an image and an expression \newinstance.
@@ -29109,7 +29114,7 @@ namespace cimg_library {
        \f$\mathrm{max}(I_{(x,y,z,c)},\mathrm{expr}_{(x,y,z,c)})\f$.
     **/
     CImg<T>& max(const char *const expression) {
-      return max((+*this)._fill(expression,true,1,0,0,"max",this));
+      return max((+*this)._fill(expression,true,3,0,0,"max",this,0));
     }
 
     //! Pointwise max operator between an image and an expression \newinstance.
@@ -29168,7 +29173,7 @@ namespace cimg_library {
        \f$\mathrm{minabs}(I_{(x,y,z,c)},\mathrm{expr}_{(x,y,z,c)})\f$.
     **/
     CImg<T>& minabs(const char *const expression) {
-      return minabs((+*this)._fill(expression,true,1,0,0,"minabs",this));
+      return minabs((+*this)._fill(expression,true,3,0,0,"minabs",this,0));
     }
 
     //! Pointwise minabs operator between an image and an expression \newinstance.
@@ -29227,7 +29232,7 @@ namespace cimg_library {
        \f$\mathrm{maxabs}(I_{(x,y,z,c)},\mathrm{expr}_{(x,y,z,c)})\f$.
     **/
     CImg<T>& maxabs(const char *const expression) {
-      return maxabs((+*this)._fill(expression,true,1,0,0,"maxabs",this));
+      return maxabs((+*this)._fill(expression,true,3,0,0,"maxabs",this,0));
     }
 
     //! Pointwise maxabs operator between an image and an expression \newinstance.
@@ -32448,103 +32453,108 @@ namespace cimg_library {
     **/
     CImg<T>& fill(const char *const expression, const bool repeat_values, const bool allow_formula=true,
                   CImgList<T> *const list_images=0) {
-      return _fill(expression,repeat_values,allow_formula?1:0,list_images,"fill",0);
+      return _fill(expression,repeat_values,allow_formula?3:1,list_images,"fill",0,0);
     }
 
-    // 'formula_mode' = { 0 = does not allow formula | 1 = allow formula |
-    //                    2 = allow formula and do not fill image values }.
-    CImg<T>& _fill(const char *const expression, const bool repeat_values, const unsigned int formula_mode,
-                   CImgList<T> *const list_images, const char *const calling_function, const CImg<T> *provides_copy) {
+    // bits of 'mode' can enable/disable these properties:
+    // . 1 = Allow list of values.
+    // . 2 = Allow formula.
+    // . 4 = Evaluate but does not fill image values.
+    CImg<T>& _fill(const char *const expression, const bool repeat_values, const unsigned int mode,
+                   CImgList<T> *const list_images, const char *const calling_function,
+                   const CImg<T> *provides_copy, CImg<doubleT> *const result_end) {
       if (is_empty() || !expression || !*expression) return *this;
-      const unsigned int omode = cimg::exception_mode();
+      const unsigned int excmode = cimg::exception_mode();
       cimg::exception_mode(0);
       CImg<charT> is_error_expr;
-      bool is_error_seq = false, is_value_sequence = false;
+      bool is_done = false, is_value_sequence = false;
       cimg_abort_init;
+      if (result_end) result_end->assign();
 
-      if (formula_mode) {
-
-        // Try to pre-detect regular value sequence to avoid exception thrown by _cimg_math_parser.
+      // Detect value sequence.
+      if (mode&1) {
         double value;
         char sep;
         const int err = cimg_sscanf(expression,"%lf %c",&value,&sep);
         if (err==1 || (err==2 && sep==',')) {
-          if (err==1) { if (formula_mode==2) return *this; return fill((T)value); }
+          if (err==1) { if (mode&4) return *this; return fill((T)value); }
           else is_value_sequence = true;
         }
+      }
 
-        // Try to fill values according to a formula.
+      // Try to fill values according to a formula.
+      if (mode&2 && !is_value_sequence) {
         _cimg_abort_init_openmp;
-        if (!is_value_sequence) try {
-            CImg<T> base = provides_copy?provides_copy->get_shared():get_shared();
-            _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' ||
-                                               *expression=='*' || *expression==':'),
-                                 calling_function,base,this,list_images,true);
-            if (!provides_copy && expression && *expression!='>' && *expression!='<' && *expression!=':' &&
-                mp.need_input_copy)
-              base.assign().assign(*this,false); // Needs input copy
+        try {
+          CImg<T> base = provides_copy?provides_copy->get_shared():get_shared();
+          _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' ||
+                                             *expression=='*' || *expression==':'),
+                               calling_function,base,this,list_images,true);
+          if (!provides_copy && expression && *expression!='>' && *expression!='<' && *expression!=':' &&
+              mp.need_input_copy)
+            base.assign().assign(*this,false); // Needs input copy
 
-            // Determine 2nd largest image dimension (used as axis for inner loop in parallelized evaluation).
-            unsigned int M;
-            if (mp.result_dim) {
-              M = cimg::max(_width,_height,_depth);
-              M = M==_width?std::max(_height,_depth):M==_height?std::max(_width,_depth):std::max(_width,_height);
-            } else {
-              M = cimg::max(_width,_height,_depth,_spectrum);
-              M = M==_width?cimg::max(_height,_depth,_spectrum):
-                M==_height?cimg::max(_width,_depth,_spectrum):
-                M==_depth?cimg::max(_width,_height,_spectrum):cimg::max(_width,_height,_depth);
-            }
+          // Determine 2nd largest image dimension (used as axis for inner loop in parallelized evaluation).
+          unsigned int M;
+          if (mp.result_dim) {
+            M = cimg::max(_width,_height,_depth);
+            M = M==_width?std::max(_height,_depth):M==_height?std::max(_width,_depth):std::max(_width,_height);
+          } else {
+            M = cimg::max(_width,_height,_depth,_spectrum);
+            M = M==_width?cimg::max(_height,_depth,_spectrum):
+              M==_height?cimg::max(_width,_depth,_spectrum):
+              M==_depth?cimg::max(_width,_height,_spectrum):cimg::max(_width,_height,_depth);
+          }
 
-            bool do_in_parallel = false;
+          bool do_in_parallel = false;
 #if cimg_use_openmp!=0
-            if (mp.is_noncritical_run && (*expression=='*' || *expression==':'))
-              throw CImgArgumentException(_cimg_instance
-                                          "%s(): Cannot evaluate expression '%s' in parallel, "
-                                          "as 'run()' is used outside a 'critical()' section.",
-                                          cimg_instance,calling_function,expression);
-            cimg_openmp_if(!mp.is_noncritical_run &&
-                           (*expression=='*' || *expression==':' ||
-                            (mp.is_parallelizable && M>=(cimg_openmp_sizefactor)*320 && size()/M>=2)))
-              do_in_parallel = true;
+          if (mp.is_noncritical_run && (*expression=='*' || *expression==':'))
+            throw CImgArgumentException(_cimg_instance
+                                        "%s(): Cannot evaluate expression '%s' in parallel, "
+                                        "as 'run()' is used outside a 'critical()' section.",
+                                        cimg_instance,calling_function,expression);
+          cimg_openmp_if(!mp.is_noncritical_run &&
+                         (*expression=='*' || *expression==':' ||
+                          (mp.is_parallelizable && M>=(cimg_openmp_sizefactor)*320 && size()/M>=2)))
+            do_in_parallel = true;
 #endif
-            if (mp.result_dim) { // Vector-valued expression
-              const unsigned int N = std::min(mp.result_dim,_spectrum);
-              const ulongT whd = (ulongT)_width*_height*_depth;
-              T *ptrd = *expression=='<'?_data + _width*_height*_depth - 1:_data;
+          if (mp.result_dim) { // Vector-valued expression
+            const unsigned int N = std::min(mp.result_dim,_spectrum);
+            const ulongT whd = (ulongT)_width*_height*_depth;
+            T *ptrd = *expression=='<'?_data + _width*_height*_depth - 1:_data;
 
-              if (*expression=='<') {
-                CImg<doubleT> res(1,mp.result_dim);
-                mp.begin_t();
-                cimg_rofYZ(*this,y,z) {
-                  cimg_abort_test;
-                  if (formula_mode==2) cimg_rofX(*this,x) mp(x,y,z,0);
-                  else cimg_rofX(*this,x) {
-                      mp(x,y,z,0,res._data);
-                      const double *ptrs = res._data;
-                      T *_ptrd = ptrd--; for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
-                    }
-                }
-                mp.end_t();
+            if (*expression=='<') {
+              CImg<doubleT> res(1,mp.result_dim);
+              mp.begin_t();
+              cimg_rofYZ(*this,y,z) {
+                cimg_abort_test;
+                if (mode&4) cimg_rofX(*this,x) mp(x,y,z,0);
+                else cimg_rofX(*this,x) {
+                    mp(x,y,z,0,res._data);
+                    const double *ptrs = res._data;
+                    T *_ptrd = ptrd--; for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
+                  }
+              }
+              mp.end_t();
 
-              } else if (*expression=='>' || !do_in_parallel) {
-                CImg<doubleT> res(1,mp.result_dim);
-                mp.begin_t();
-                cimg_forYZ(*this,y,z) {
-                  cimg_abort_test;
-                  if (formula_mode==2) cimg_forX(*this,x) mp(x,y,z,0);
-                  else cimg_forX(*this,x) {
-                      mp(x,y,z,0,res._data);
-                      const double *ptrs = res._data;
-                      T *_ptrd = ptrd++; for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
-                    }
-                }
-                mp.end_t();
+            } else if (*expression=='>' || !do_in_parallel) {
+              CImg<doubleT> res(1,mp.result_dim);
+              mp.begin_t();
+              cimg_forYZ(*this,y,z) {
+                cimg_abort_test;
+                if (mode&4) cimg_forX(*this,x) mp(x,y,z,0);
+                else cimg_forX(*this,x) {
+                    mp(x,y,z,0,res._data);
+                    const double *ptrs = res._data;
+                    T *_ptrd = ptrd++; for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
+                  }
+              }
+              mp.end_t();
 
-              } else {
+            } else {
 
 #if cimg_use_openmp!=0
-                cimg_pragma_openmp(parallel)
+              cimg_pragma_openmp(parallel)
                 {
                   _cimg_math_parser
                     *const _mp = omp_get_thread_num()?new _cimg_math_parser(mp):&mp,
@@ -32557,7 +32567,7 @@ namespace cimg_library {
   cimg_pragma_openmp(for cimg_openmp_collapse(2)) \
   cimg_for##_YZ(*this,_y,_z) _cimg_abort_try_openmp { \
     cimg_abort_test; \
-    if (formula_mode==2) cimg_for##_X(*this,_x) lmp(x,y,z,0); \
+    if (mode&4) cimg_for##_X(*this,_x) lmp(x,y,z,0); \
     else { \
       CImg<doubleT> res(1,lmp.result_dim); \
       T *__ptrd = data(_sx,_sy,_sz,0); \
@@ -32581,26 +32591,26 @@ namespace cimg_library {
                   if (&lmp!=&mp) delete &lmp;
                 }
 #endif
-              }
+            }
 
-            } else { // Scalar-valued expression
-              T *ptrd = *expression=='<'?end() - 1:_data;
-              if (*expression=='<') {
-                mp.begin_t();
-                if (formula_mode==2) cimg_rofYZC(*this,y,z,c) { cimg_abort_test; cimg_rofX(*this,x) mp(x,y,z,c); }
+          } else { // Scalar-valued expression
+            T *ptrd = *expression=='<'?end() - 1:_data;
+            if (*expression=='<') {
+              mp.begin_t();
+              if (mode&4) cimg_rofYZC(*this,y,z,c) { cimg_abort_test; cimg_rofX(*this,x) mp(x,y,z,c); }
                 else cimg_rofYZC(*this,y,z,c) { cimg_abort_test; cimg_rofX(*this,x) *(ptrd--) = (T)mp(x,y,z,c); }
-                mp.end_t();
+              mp.end_t();
 
-              } else if (*expression=='>' || !do_in_parallel) {
-                mp.begin_t();
-                if (formula_mode==2) cimg_forYZC(*this,y,z,c) { cimg_abort_test; cimg_forX(*this,x) mp(x,y,z,c); }
-                else cimg_forYZC(*this,y,z,c) { cimg_abort_test; cimg_forX(*this,x) *(ptrd++) = (T)mp(x,y,z,c); }
-                mp.end_t();
+            } else if (*expression=='>' || !do_in_parallel) {
+              mp.begin_t();
+              if (mode&4) cimg_forYZC(*this,y,z,c) { cimg_abort_test; cimg_forX(*this,x) mp(x,y,z,c); }
+              else cimg_forYZC(*this,y,z,c) { cimg_abort_test; cimg_forX(*this,x) *(ptrd++) = (T)mp(x,y,z,c); }
+              mp.end_t();
 
-              } else {
+            } else {
 
 #if cimg_use_openmp!=0
-                cimg_pragma_openmp(parallel)
+              cimg_pragma_openmp(parallel)
                 {
                   _cimg_math_parser
                     *const _mp = omp_get_thread_num()?new _cimg_math_parser(mp):&mp,
@@ -32613,7 +32623,7 @@ namespace cimg_library {
   cimg_pragma_openmp(for cimg_openmp_collapse(3)) \
   cimg_for##_YZC(*this,_y,_z,_c) _cimg_abort_try_openmp { \
     cimg_abort_test; \
-    if (formula_mode==2) cimg_for##_X(*this,_x) lmp(x,y,z,c); \
+    if (mode&4) cimg_for##_X(*this,_x) lmp(x,y,z,c); \
     else { \
       T *_ptrd = data(_sx,_sy,_sz,_sc); \
       const ulongT off = (ulongT)_off; \
@@ -32631,24 +32641,30 @@ namespace cimg_library {
                   if (&lmp!=&mp) delete &lmp;
                 }
 #endif
-              }
             }
-            mp.end();
-          } catch (CImgException& e) { CImg<charT>::string(e._message).move_to(is_error_expr); }
+          }
+          mp.end();
+
+          if (result_end && mp.result_end) // Transfer result of the end() block if requested.
+            result_end->assign(mp.result_end + (mp.result_end_dim?1:0),std::max(1U,mp.result_end_dim));
+
+          is_done = true;
+        } catch (CImgException& e) { CImg<charT>::string(e._message).move_to(is_error_expr); }
       }
 
       // Try to fill values according to a value sequence.
-      if (!formula_mode || is_value_sequence || is_error_expr) {
-        is_error_seq = _fill_from_values(expression,repeat_values);
-        cimg::exception_mode(omode);
-        if (is_error_seq) {
-          if (is_error_expr) throw CImgArgumentException("%s",is_error_expr._data);
-          else throw CImgArgumentException(_cimg_instance
-                                           "%s(): Invalid sequence of filling values '%s'.",
-                                           cimg_instance,calling_function,expression);
-        }
+      if (!is_done && mode&1) is_done = !_fill_from_values(expression,repeat_values);
+
+      if (!is_done) {
+        cimg::exception_mode(excmode);
+        if (is_error_expr) throw CImgArgumentException(_cimg_instance
+                                                       "%s",
+                                                       cimg_instance,is_error_expr._data);
+        else throw CImgArgumentException(_cimg_instance
+                                         "%s(): Invalid sequence of filling values '%s'.",
+                                         cimg_instance,calling_function,expression);
       }
-      cimg::exception_mode(omode);
+      cimg::exception_mode(excmode);
       cimg_abort_test;
       return *this;
     }
@@ -32678,7 +32694,7 @@ namespace cimg_library {
     }
 
     // Fill image according to a value sequence, given as a string.
-    // Return 'true' if an error occured.
+    // Return 'true' if an error occured, 'false' otherwise.
     bool _fill_from_values(const char *const values, const bool repeat_values) {
       CImg<charT> item(256);
       const char *nvalues = values;

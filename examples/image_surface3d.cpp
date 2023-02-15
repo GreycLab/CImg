@@ -119,9 +119,9 @@ int main(int argc,char **argv) {
                (rtype==4?"Gouraud-shaded faces":(rtype==5?"Phong-shaded faces":"Isophotes"))))));
     static bool first_time = true;
     if (rtype==6) visu.display_object3d(disp,isopoints,isoprimitives,isocolors,first_time,1,-1,true,
-                                        500.0f,0.0f,0.0f,-5000.0f,0.0f,0.0f,true,pose.data());
+                                        500.0f,0.0f,0.0f,-5000.0f,0.0f,0.0f,true,pose.data(),true);
     else visu.display_object3d(disp,points,primitives,colors,first_time,rtype,-1,true,
-                               500.0f,0.0f,0.0f,-5000.0f,0.0f,0.0f,true,pose.data());
+                               500.0f,0.0f,0.0f,-5000.0f,0.0f,0.0f,true,pose.data(),true);
     first_time = false;
     switch (disp.key()) {
     case 0: break;

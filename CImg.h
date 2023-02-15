@@ -32653,7 +32653,7 @@ namespace cimg_library {
       }
 
       // Try to fill values according to a value sequence.
-      if (!is_done && mode&1) is_done = _fill_from_values(expression,repeat_values);
+      if (!is_done && mode&1) is_done = !_fill_from_values(expression,repeat_values);
 
       if (!is_done) {
         cimg::exception_mode(excmode);
@@ -32681,7 +32681,7 @@ namespace cimg_library {
        \param repeat_values Tells if this sequence must be repeated when filling.
     **/
     CImg<T>& fill_from_values(const char *const values, const bool repeat_values) {
-      if (!_fill_from_values(values,repeat_values))
+      if (_fill_from_values(values,repeat_values))
         throw CImgArgumentException(_cimg_instance
                                     "Invalid sequence of filling values '%s'.",
                                     cimg_instance,values);
@@ -32694,7 +32694,7 @@ namespace cimg_library {
     }
 
     // Fill image according to a value sequence, given as a string.
-    // Return 'false' if an error occured, 'true' otherwise.
+    // Return 'true' if an error occured, 'false' otherwise.
     bool _fill_from_values(const char *const values, const bool repeat_values) {
       CImg<charT> item(256);
       const char *nvalues = values;
@@ -32710,10 +32710,10 @@ namespace cimg_library {
           *(ptrd++) = (T)val;
         } else break;
       }
-      if (nb<siz && (sep || *nvalues)) return false;
+      if (nb<siz && (sep || *nvalues)) return true;
       if (repeat_values && nb && nb<siz)
         for (T *ptrs = _data, *const ptre = _data + siz; ptrd<ptre; ++ptrs) *(ptrd++) = *ptrs;
-      return true;
+      return false;
     }
 
     //! Fill sequentially pixel values according to the values found in another image.

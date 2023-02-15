@@ -17029,11 +17029,11 @@ namespace cimg_library {
               fill(cimg::type<double>::nan());
           else if (ind_result!=_cimg_mp_slot_t) mem[ind_result] = cimg::type<double>::nan();
         }
+        if (mem._width>=256 && mem._width - mempos>=mem._width/2) mem.resize(mempos,1,1,1,-1);
         result_dim = _cimg_mp_size(ind_result);
         result = mem._data + ind_result;
 
         // Free resources used for compiling expression and prepare evaluation.
-        if (mem._width>=256 && mem._width - mempos>=mem._width/2) mem.resize(mempos,1,1,1,-1);
         memtype.assign();
         constcache_vals.assign();
         constcache_inds.assign();

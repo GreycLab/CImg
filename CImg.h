@@ -32524,7 +32524,7 @@ namespace cimg_library {
               mp.begin_t();
               cimg_rofYZ(*this,y,z) {
                 cimg_abort_test;
-                if (mode==2) cimg_rofX(*this,x) mp(x,y,z,0);
+                if (mode&4) cimg_rofX(*this,x) mp(x,y,z,0);
                 else cimg_rofX(*this,x) {
                     mp(x,y,z,0,res._data);
                     const double *ptrs = res._data;
@@ -32538,7 +32538,7 @@ namespace cimg_library {
               mp.begin_t();
               cimg_forYZ(*this,y,z) {
                 cimg_abort_test;
-                if (mode==2) cimg_forX(*this,x) mp(x,y,z,0);
+                if (mode&4) cimg_forX(*this,x) mp(x,y,z,0);
                 else cimg_forX(*this,x) {
                     mp(x,y,z,0,res._data);
                     const double *ptrs = res._data;
@@ -32563,7 +32563,7 @@ namespace cimg_library {
   cimg_pragma_openmp(for cimg_openmp_collapse(2)) \
   cimg_for##_YZ(*this,_y,_z) _cimg_abort_try_openmp { \
     cimg_abort_test; \
-    if (mode==2) cimg_for##_X(*this,_x) lmp(x,y,z,0); \
+    if (mode&4) cimg_for##_X(*this,_x) lmp(x,y,z,0); \
     else { \
       CImg<doubleT> res(1,lmp.result_dim); \
       T *__ptrd = data(_sx,_sy,_sz,0); \
@@ -32593,13 +32593,13 @@ namespace cimg_library {
             T *ptrd = *expression=='<'?end() - 1:_data;
             if (*expression=='<') {
               mp.begin_t();
-              if (mode==2) cimg_rofYZC(*this,y,z,c) { cimg_abort_test; cimg_rofX(*this,x) mp(x,y,z,c); }
+              if (mode&4) cimg_rofYZC(*this,y,z,c) { cimg_abort_test; cimg_rofX(*this,x) mp(x,y,z,c); }
                 else cimg_rofYZC(*this,y,z,c) { cimg_abort_test; cimg_rofX(*this,x) *(ptrd--) = (T)mp(x,y,z,c); }
               mp.end_t();
 
             } else if (*expression=='>' || !do_in_parallel) {
               mp.begin_t();
-              if (mode==2) cimg_forYZC(*this,y,z,c) { cimg_abort_test; cimg_forX(*this,x) mp(x,y,z,c); }
+              if (mode&4) cimg_forYZC(*this,y,z,c) { cimg_abort_test; cimg_forX(*this,x) mp(x,y,z,c); }
               else cimg_forYZC(*this,y,z,c) { cimg_abort_test; cimg_forX(*this,x) *(ptrd++) = (T)mp(x,y,z,c); }
               mp.end_t();
 
@@ -32619,7 +32619,7 @@ namespace cimg_library {
   cimg_pragma_openmp(for cimg_openmp_collapse(3)) \
   cimg_for##_YZC(*this,_y,_z,_c) _cimg_abort_try_openmp { \
     cimg_abort_test; \
-    if (mode==2) cimg_for##_X(*this,_x) lmp(x,y,z,c); \
+    if (mode&4) cimg_for##_X(*this,_x) lmp(x,y,z,c); \
     else { \
       T *_ptrd = data(_sx,_sy,_sz,_sc); \
       const ulongT off = (ulongT)_off; \

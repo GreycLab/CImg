@@ -3153,6 +3153,15 @@ namespace cimg_library {
     template<> struct superset<cimg_uint64,double> { typedef double type; };
     template<> struct superset<cimg_int64,float> { typedef double type; };
     template<> struct superset<cimg_int64,double> { typedef double type; };
+    template<> struct superset<unsigned long long,char> { typedef cimg_int64 type; };
+    template<> struct superset<unsigned long long,signed char> { typedef cimg_int64 type; };
+    template<> struct superset<unsigned long long,short> { typedef cimg_int64 type; };
+    template<> struct superset<unsigned long long,int> { typedef cimg_int64 type; };
+    template<> struct superset<unsigned long long,cimg_int64> { typedef cimg_int64 type; };
+    template<> struct superset<unsigned long long,float> { typedef double type; };
+    template<> struct superset<unsigned long long,double> { typedef double type; };
+    template<> struct superset<long long,float> { typedef double type; };
+    template<> struct superset<long long,double> { typedef double type; };
     template<> struct superset<float,cimg_uint64> { typedef double type; };
     template<> struct superset<float,cimg_int64> { typedef double type; };
     template<> struct superset<float,double> { typedef double type; };
@@ -53538,7 +53547,7 @@ namespace cimg_library {
       return res;
     }
 
-    // Return a visualizable uchar8 image for display routines.
+    // Return a visualizable 'uchar8' image for display routines.
     CImg<ucharT> _get_select(const CImgDisplay& disp, const int normalization,
                              const int x, const int y, const int z) const {
       if (is_empty()) return CImg<ucharT>(1,1,1,1,0);

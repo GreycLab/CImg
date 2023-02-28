@@ -2878,6 +2878,39 @@ namespace cimg_library {
       static long format(const long val) { return (long)val; }
     };
 
+    template<> struct type<unsigned long long> {
+      static const char* string() { static const char *const s = "uint64"; return s; }
+      static bool is_float() { return false; }
+      static bool is_inf(const cimg_uint64) { return false; }
+      static bool is_nan(const cimg_uint64) { return false; }
+      static bool is_finite(const cimg_uint64) { return true; }
+      static cimg_uint64 min() { return 0; }
+      static cimg_uint64 max() { return (cimg_uint64)-1; }
+      static cimg_uint64 inf() { return max(); }
+      static cimg_uint64 cut(const double val) {
+        return val<(double)min()?min():val>(double)max()?max():(cimg_uint64)val; }
+      static const char* format() { return cimg_fuint64; }
+      static const char* format_s() { return cimg_fuint64; }
+      static cimg_uint64 format(const cimg_uint64 val) { return val; }
+    };
+
+    template<> struct type<long long> {
+      static const char* string() { static const char *const s = "int64"; return s; }
+      static bool is_float() { return false; }
+      static bool is_inf(const cimg_int64) { return false; }
+      static bool is_nan(const cimg_int64) { return false; }
+      static bool is_finite(const cimg_int64) { return true; }
+      static cimg_int64 min() { return ~max(); }
+      static cimg_int64 max() { return (cimg_int64)((cimg_uint64)-1>>1); }
+      static cimg_int64 inf() { return max(); }
+      static cimg_int64 cut(const double val) {
+        return val<(double)min()?min():val>(double)max()?max():(cimg_int64)val;
+      }
+      static const char* format() { return cimg_fint64; }
+      static const char* format_s() { return cimg_fint64; }
+      static long format(const long val) { return (long)val; }
+    };
+
     template<> struct type<double> {
       static const char* string() { static const char *const s = "float64"; return s; }
       static bool is_float() { return true; }

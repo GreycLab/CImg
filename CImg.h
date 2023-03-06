@@ -2878,6 +2878,7 @@ namespace cimg_library {
       static long format(const long val) { return (long)val; }
     };
 
+#if !(UINTPTR_MAX==0xffffffff || defined(__arm__) || defined(_M_ARM) || ((ULONG_MAX)==(UINT_MAX)))
     template<> struct type<unsigned long long> {
       static const char* string() { static const char *const s = "uint64"; return s; }
       static bool is_float() { return false; }
@@ -2910,6 +2911,7 @@ namespace cimg_library {
       static const char* format_s() { return cimg_fint64; }
       static long format(const long val) { return (long)val; }
     };
+#endif
 
     template<> struct type<double> {
       static const char* string() { static const char *const s = "float64"; return s; }
@@ -3153,6 +3155,7 @@ namespace cimg_library {
     template<> struct superset<cimg_uint64,double> { typedef double type; };
     template<> struct superset<cimg_int64,float> { typedef double type; };
     template<> struct superset<cimg_int64,double> { typedef double type; };
+#if !(UINTPTR_MAX==0xffffffff || defined(__arm__) || defined(_M_ARM) || ((ULONG_MAX)==(UINT_MAX)))
     template<> struct superset<unsigned long long,char> { typedef cimg_int64 type; };
     template<> struct superset<unsigned long long,signed char> { typedef cimg_int64 type; };
     template<> struct superset<unsigned long long,short> { typedef cimg_int64 type; };
@@ -3162,6 +3165,7 @@ namespace cimg_library {
     template<> struct superset<unsigned long long,double> { typedef double type; };
     template<> struct superset<long long,float> { typedef double type; };
     template<> struct superset<long long,double> { typedef double type; };
+#endif
     template<> struct superset<float,cimg_uint64> { typedef double type; };
     template<> struct superset<float,cimg_int64> { typedef double type; };
     template<> struct superset<float,double> { typedef double type; };

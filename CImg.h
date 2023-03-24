@@ -19301,18 +19301,18 @@ namespace cimg_library {
               if (p2) { // Coordinates specified as a vector
                 if (s1!=se1) compile(s0,se1,depth1,0,block_flags); // -> Error too much arguments
                 if (p2>4) {
-                  _cimg_mp_strerr;
+                  *s1 = 0; s1 = s0; _cimg_mp_strerr;
                   throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                               "CImg<%s>::%s: %s: Argument '%s' is a vector of size %u (should be <=4), "
                                               "in expression '%s'.",
-                                              pixel_type(),_cimg_mp_calling_function,s_op,s0,p2);
+                                              pixel_type(),_cimg_mp_calling_function,s_op,s1,p2,s0);
                 }
                 arg1 = pos + 1;
                 arg2 = p2>1?pos + 2:0;
                 arg3 = p2>2?pos + 3:0;
                 arg4 = p2>3?pos + 4:0;
               } else { // Coordinates specified as scalars
-                arg1 = pos;
+                arg1 = pos; arg2 = arg3 = arg4 = 0;
                 if (s1<se1) {
                   s0 = ++s1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                   arg2 = compile(s1,s0,depth1,0,block_flags);

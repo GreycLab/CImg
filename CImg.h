@@ -21443,6 +21443,24 @@ namespace cimg_library {
             }
             break;
 
+          case 'o' :
+            if (!std::strncmp(ss,"o2c(",4)) { // Offset to coordinates
+              _cimg_mp_op("Function 'o2c()'");
+              if (*ss4=='#') { // Index specified
+                s0 = ss5; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                p1 = compile(ss5,s0++,depth1,0,block_flags);
+                _cimg_mp_check_notnan_index(p1);
+                _cimg_mp_check_list();
+              } else { p1 = ~0U; s0 = ss4; }
+              arg1 = compile(s0,se1,depth1,0,block_flags);
+              _cimg_mp_check_type(arg1,1,1,0);
+              pos = vector(4);
+              CImg<ulongT>::vector((ulongT)mp_o2c,pos,p1,arg1).move_to(code);
+              return_new_comp = true;
+              _cimg_mp_return(pos);
+            }
+            break;
+
           case 'p' :
             if (!std::strncmp(ss,"permut(",7)) { // Number of permutations
               _cimg_mp_op("Function 'permut()'");
@@ -24824,10 +24842,7 @@ namespace cimg_library {
         mp_check_list(mp,"ellipse");
         const unsigned int i_end = (unsigned int)mp.opcode[2];
         unsigned int ind = (unsigned int)mp.opcode[3];
-        if (ind!=~0U) {
-          if (!mp.imglist.width()) return cimg::type<double>::nan();
-          ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.imglist.width());
-        }
+        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.imglist.width());
         CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
         CImg<T> color(img._spectrum,1,1,1,0);
         bool is_invalid_arguments = false, is_outlined = false;
@@ -27028,6 +27043,25 @@ namespace cimg_library {
           res+=std::pow(cimg::abs(_mp_arg(i)),p);
         res = std::pow(res,1/p);
         return res>0?res:0.;
+      }
+
+      static double mp_o2c(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (ind!=~0U) {
+          if (!mp.imglist.width()) return cimg::type<double>::nan();
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        }
+        const CImg<T> &img = ind==~0U?mp.imgin:mp.imglist[ind];
+        longT offset = (longT)_mp_arg(3);
+        double *ptrd = &_mp_arg(1) + 1;
+        *(ptrd++) = (double)(offset%img.width());
+        offset/=img.width();
+        *(ptrd++) = (double)(offset%img.height());
+        offset/=img.height();
+        *(ptrd++) = (double)(offset%img.depth());
+        offset/=img.depth();
+        *ptrd = (double)(offset%img.spectrum());
+        return cimg::type<double>::nan();
       }
 
       static double mp_permutations(_cimg_math_parser& mp) {

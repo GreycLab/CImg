@@ -22446,6 +22446,17 @@ namespace cimg_library {
               _cimg_mp_scalar1(mp_ui2f,arg1);
             }
 
+            if (!std::strncmp(ss,"unit(",5)) { // Normalize vector to unit norm
+              _cimg_mp_op("Function 'unit()'");
+              arg1 = compile(ss5,se1,depth1,0,block_flags);
+              p1 = _cimg_mp_size(arg1);
+              _cimg_mp_check_type(arg1,0,2,0);
+              pos = vector(p1);
+              CImg<ulongT>::vector((ulongT)mp_vector_unit,pos,arg1,p1).move_to(code);
+              return_new_comp = true;
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"unref(",6)) { // Un-reference variable
               _cimg_mp_op("Function 'unref()'");
               arg1=~0U;
@@ -28209,6 +28220,18 @@ namespace cimg_library {
         const int off = (int)_mp_arg(4);
         if (off>=0 && off<(int)siz) mp.mem[ptr + off] = _mp_arg(1);
         return _mp_arg(1);
+      }
+
+      static double mp_vector_unit(_cimg_math_parser& mp) {
+        double *const ptrd = &_mp_arg(1) + 1;
+        const double *const ptrs = &_mp_arg(2) + 1;
+        const unsigned int p1 = (unsigned int)mp.opcode[3];
+        const CImg<doubleT> v_in(ptrs,p1,1,1,1,true);
+        CImg<doubleT> v_out(ptrd,p1,1,1,1,true);
+        const double mag = v_in.magnitude();
+        v_out = v_in;
+        if (mag>0) v_out/=mag;
+        return cimg::type<double>::nan();
       }
 
 #define _cimg_mp_vfunc(func) \

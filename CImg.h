@@ -21463,7 +21463,6 @@ namespace cimg_library {
                 is_sth&=_cimg_mp_is_const_scalar(arg2);
                 s = ns;
               }
-
               (l_opcode>'y').move_to(opcode);
               opcode[2] = opcode._height;
               if (is_sth) _cimg_mp_const_scalar(mp_vector_norm_ext(*this));

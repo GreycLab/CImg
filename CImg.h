@@ -22448,11 +22448,15 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"unitnorm(",9)) { // Normalize vector to unit norm
               _cimg_mp_op("Function 'unitnorm()'");
-              arg1 = compile(ss + 9,se1,depth1,0,block_flags);
+              s0 = ss + 9;
+              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(s0,s1,depth1,0,block_flags);
+              arg2 = s1<se1?compile(++s1,se1,depth1,0,block_flags):2;
               _cimg_mp_check_type(arg1,0,2,0);
+              _cimg_mp_check_type(arg2,0,1,0);
               p1 = _cimg_mp_size(arg1);
               pos = is_comp_vector(arg1)?arg1:((return_new_comp = true), vector(p1));
-              CImg<ulongT>::vector((ulongT)mp_vector_unitnorm,pos,arg1,p1).move_to(code);
+              CImg<ulongT>::vector((ulongT)mp_vector_unitnorm,pos,arg1,p1,arg2).move_to(code);
               _cimg_mp_return(pos);
             }
 
@@ -28223,11 +28227,12 @@ namespace cimg_library {
 
       static double mp_vector_unitnorm(_cimg_math_parser& mp) {
         double *const ptrd = &_mp_arg(1) + 1;
-        const double *const ptrs = &_mp_arg(2) + 1;
+        const double *const ptrs = &_mp_arg(2) + 1, _p = _mp_arg(4);
         const unsigned int siz = (unsigned int)mp.opcode[3];
+        const int p = cimg::type<double>::is_inf(_p)?-1:(int)_p;
         if (ptrd!=ptrs) std::memcpy(ptrd,ptrs,siz*sizeof(double));
-        CImg<doubleT> vec(ptrd,siz,1,1,1,true);
-        const double mag = vec.magnitude();
+        CImg<doubleT> vec(ptrd,1,1,1,siz,true);
+        const double mag = vec.magnitude(p);
         if (mag>0) vec/=mag;
         return cimg::type<double>::nan();
       }
@@ -30162,6 +30167,7 @@ namespace cimg_library {
        - \c 0: L0-norm
        - \c 1: L1-norm
        - \c 2: L2-norm
+       - \c p>2 : Lp-norm
     **/
     double magnitude(const int magnitude_type=2) const {
       if (is_empty())
@@ -30171,20 +30177,29 @@ namespace cimg_library {
       const ulongT siz = size();
       double res = 0;
       switch (magnitude_type) {
-      case -1 : {
+      case -1 : { // L-inf
         cimg_for(*this,ptrs,T) { const double val = (double)cimg::abs(*ptrs); if (val>res) res = val; }
       } break;
-      case 1 : {
+      case 0 : { // L0
+        cimg_pragma_openmp(parallel for reduction(+:res) cimg_openmp_if_size(size(),8192))
+        for (longT off = 0; off<(longT)siz; ++off) res+=(double)(_data[off]?1:0);
+      } break;
+      case 1 : { // L1
         cimg_pragma_openmp(parallel for reduction(+:res) cimg_openmp_if_size(size(),8192))
         for (longT off = 0; off<(longT)siz; ++off) res+=(double)cimg::abs(_data[off]);
       } break;
-      default : {
+      case 2 : { // L2
         cimg_pragma_openmp(parallel for reduction(+:res) cimg_openmp_if_size(size(),8192))
         for (longT off = 0; off<(longT)siz; ++off) res+=(double)cimg::sqr(_data[off]);
         res = (double)std::sqrt(res);
+      } break;
+      default : { // L-p
+        cimg_pragma_openmp(parallel for reduction(+:res) cimg_openmp_if_size(size(),8192))
+        for (longT off = 0; off<(longT)siz; ++off) res+=(double)std::pow(cimg::abs(_data[off]),magnitude_type);
+        res = (double)std::pow(res,1.0/magnitude_type);
       }
       }
-      return res;
+      return res>0?res:0;
     }
 
     //! Compute the trace of the image, viewed as a matrix.

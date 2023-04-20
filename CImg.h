@@ -22460,7 +22460,7 @@ namespace cimg_library {
                 pos = scalar();
                 if (_cimg_mp_is_const_scalar(arg1) && _cimg_mp_is_const_scalar(arg2)) {
                   val = mem[arg1];
-                  _cimg_mp_const_scalar(mem[arg2]!=0?cimg::abs(val):(val!=0));
+                  _cimg_mp_const_scalar(val?(mem[arg2]?1:val):0);
                 }
               }
               CImg<ulongT>::vector((ulongT)mp_unitnorm,pos,arg1,p1,arg2).move_to(code);
@@ -27881,7 +27881,7 @@ namespace cimg_library {
         }
         // Scalar-valued argument.
         const double val = _mp_arg(2);
-        return p!=0?cimg::abs(val):(val!=0);
+        return val?(_mp_arg(2)?1:val):0;
       }
 
       static double mp_uppercase(_cimg_math_parser& mp) {

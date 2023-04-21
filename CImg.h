@@ -21448,11 +21448,11 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"norm",4) && ss4<se1 && (s = std::strchr(ss4,'('))!=0) { // Lp norm (variant)
               _cimg_mp_op("Function 'norm()'");
-              arg1 = s++!=ss4?compile(ss4,s,depth1,0,block_flags):2;
+              arg1 = s!=ss4?compile(ss4,s,depth1,0,block_flags):2;
               _cimg_mp_check_const_scalar(arg1,0,0);
               is_sth = true; // Tell if all arguments are constant
               CImg<ulongT>::vector((ulongT)mp_vector_norm,0,0,arg1).move_to(l_opcode);
-              for ( ; s<se; ++s) {
+              for (++s; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                 arg2 = compile(s,ns,depth1,0,block_flags);

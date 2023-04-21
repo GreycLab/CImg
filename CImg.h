@@ -21436,22 +21436,22 @@ namespace cimg_library {
               _cimg_mp_const_scalar((double)arg1);
             }
 
-            if (!std::strncmp(ss,"norm(",5)) { // Lp norm
-              _cimg_mp_op("Function 'norm()'");
-              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss5,s1,depth1,0,block_flags);
+            if (!std::strncmp(ss,"normp(",6)) { // Lp norm, with variable argument p.
+              _cimg_mp_op("Function 'normp()'");
+              s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss6,s1,depth1,0,block_flags);
               arg2 = s1<se1?compile(++s1,se1,depth1,0,block_flags):2;
               _cimg_mp_check_type(arg2,0,1,0);
               p1 = _cimg_mp_size(arg1);
-              _cimg_mp_scalar3(mp_vector_norm,arg1,p1,arg2);
+              _cimg_mp_scalar3(mp_vector_normp,arg1,p1,arg2);
             }
 
-            if (!std::strncmp(ss,"norm",4) && ss5<se1 && (s = std::strchr(ss5,'('))!=0) { // Lp norm (variant)
-              _cimg_mp_op("Function 'normP()'");
-              arg1 = compile(ss4,s++,depth1,0,block_flags);
+            if (!std::strncmp(ss,"norm",4) && ss4<se1 && (s = std::strchr(ss4,'('))!=0) { // Lp norm (variant)
+              _cimg_mp_op("Function 'norm()'");
+              arg1 = s++!=ss4?compile(ss4,s,depth1,0,block_flags):2;
               _cimg_mp_check_const_scalar(arg1,0,0);
               is_sth = true; // Tell if all arguments are constant
-              CImg<ulongT>::vector((ulongT)mp_vector_norm_ext,0,0,arg1).move_to(l_opcode);
+              CImg<ulongT>::vector((ulongT)mp_vector_norm,0,0,arg1).move_to(l_opcode);
               for ( ; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
@@ -21465,7 +21465,7 @@ namespace cimg_library {
               }
               (l_opcode>'y').move_to(opcode);
               opcode[2] = opcode._height;
-              if (is_sth) _cimg_mp_const_scalar(mp_vector_norm_ext(*this));
+              if (is_sth) _cimg_mp_const_scalar(mp_vector_norm(*this));
               if (opcode._height==5) { // Single argument
                 if (arg1) { _cimg_mp_scalar1(mp_abs,opcode[4]); }
                 else { _cimg_mp_scalar2(mp_neq,opcode[4],0); }
@@ -28063,6 +28063,15 @@ namespace cimg_library {
       }
 
       static double mp_vector_norm(_cimg_math_parser& mp) {
+        const unsigned int siz = (unsigned int)mp.opcode[2];
+        const double p = _mp_arg(3);
+        CImg<doubleT> vec(siz - 4);
+        double *ptrd = vec.data();
+        for (unsigned int i = siz - 1; i>3; --i) *(ptrd++) = _mp_arg(i);
+        return vec.magnitude(p);
+      }
+
+      static double mp_vector_normp(_cimg_math_parser& mp) {
         const unsigned int siz = (unsigned int)mp.opcode[3];
         const double p = _mp_arg(4);
         if (siz>0) { // Vector-valued argument
@@ -28073,15 +28082,6 @@ namespace cimg_library {
         // Scalar-valued argument.
         const double val = _mp_arg(2);
         return p?cimg::abs(val):(val!=0);
-      }
-
-      static double mp_vector_norm_ext(_cimg_math_parser& mp) {
-        const unsigned int siz = (unsigned int)mp.opcode[2];
-        const double p = _mp_arg(3);
-        CImg<doubleT> vec(siz - 4);
-        double *ptrd = vec.data();
-        for (unsigned int i = siz - 1; i>3; --i) *(ptrd++) = _mp_arg(i);
-        return vec.magnitude(p);
       }
 
       static double mp_vector_print(_cimg_math_parser& mp) {

@@ -47456,7 +47456,6 @@ namespace cimg_library {
       if (is_empty() || !opacity || !pattern ||
           std::min(y0,y1)>=height() || std::max(y0,y1)<0 ||
           std::min(x0,x1)>=width() || std::max(x0,x1)<0) return *this;
-
       int
         w1 = width() - 1, h1 = height() - 1,
         dx01 = x1 - x0, dy01 = y1 - y0;
@@ -47472,8 +47471,10 @@ namespace cimg_library {
       if (init_hatch) hatch = ~0U - (~0U>>1);
       cimg_init_scanline(opacity);
       const int
-        step = y0<=y1?1:-1,hdy01 = dy01*cimg::sign(dx01)/2,
-        cy0 = cimg::cut(y0,0,h1), cy1 = cimg::cut(y1,0,h1) + step;
+        step = y0<=y1?1:-1,
+        hdy01 = dy01*cimg::sign(dx01)/2,
+        cy0 = cimg::cut(y0,0,h1),
+        cy1 = cimg::cut(y1,0,h1) + step;
       dy01+=dy01?0:1;
 
       for (int y = cy0; y!=cy1; y+=step) {
@@ -49854,22 +49855,18 @@ namespace cimg_library {
 
       while (go_on) {
         unsigned int an = (nn + 1)%ipoints._width;
-        const int
-          x0 = ipoints(n,0),
-          y0 = ipoints(n,1);
+        const int x0 = ipoints(n,0), y0 = ipoints(n,1);
         if (ipoints(nn,1)==y0) while (ipoints(an,1)==y0) { nn = an; (an+=1)%=ipoints._width; }
-        const int
-          x1 = ipoints(nn,0),
-          y1 = ipoints(nn,1);
+        const int x1 = ipoints(nn,0), y1 = ipoints(nn,1);
         unsigned int tn = an;
         while (ipoints(tn,1)==y1) (tn+=1)%=ipoints._width;
-
         if (y0!=y1) {
           const int
             y2 = ipoints(tn,1),
             x01 = x1 - x0, y01 = y1 - y0, y12 = y2 - y1,
             step = cimg::sign(y01),
-            tmax = std::max(1,cimg::abs(y01)), htmax = tmax*cimg::sign(x01)/2,
+            tmax = std::max(1,cimg::abs(y01)),
+            htmax = tmax*cimg::sign(x01)/2,
             tend = tmax - (step==cimg::sign(y12));
           unsigned int y = (unsigned int)y0 - ymin;
           for (int t = 0; t<=tend; ++t, y+=step)

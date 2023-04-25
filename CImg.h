@@ -30430,7 +30430,7 @@ namespace cimg_library {
     /**
        If the instance matrix is not square, the Moore-Penrose pseudo-inverse is computed instead.
        \param use_LU Choose the inverting algorithm. Can be:
-       - \c true: LU solver (faster but less precise).
+       - \c true: LU solver (faster but sometimes less precise).
        - \c false: SVD solver (more precise but slower).
        \param lambda is used only in the Moore-Penrose pseudoinverse for estimating A^t.(A^t.A + lambda.Id)^-1.
     **/

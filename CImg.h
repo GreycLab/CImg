@@ -49857,7 +49857,7 @@ namespace cimg_library {
           x1 = cimg::uiround(points(nn,0)),
           y1 = cimg::uiround(points(nn,1));
         unsigned int tn = an;
-        while (points(tn,1)==y1) (tn+=1)%=points._width;
+        while (cimg::uiround(points(tn,1))==y1) (tn+=1)%=points._width;
 
         if (y0!=y1) {
           const int
@@ -49876,7 +49876,7 @@ namespace cimg_library {
       }
 
       cimg_pragma_openmp(parallel for cimg_openmp_if(Xs._height>=(cimg_openmp_sizefactor)*512))
-      cimg_forY(Xs,y) if (count[y]) {
+      cimg_forY(Xs,y) {
         const CImg<intT> Xsy = Xs.get_shared_points(0,count[y] - 1,y).sort();
         int px = width();
         for (unsigned int k = 0; k<Xsy._width; k+=2) {

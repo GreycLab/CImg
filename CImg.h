@@ -30430,7 +30430,7 @@ namespace cimg_library {
     /**
        If the instance matrix is not square, the Moore-Penrose pseudo-inverse is computed instead.
        \param use_LU Choose the inverting algorithm. Can be:
-       - \c true: LU solver (faster but less precise).
+       - \c true: LU solver (faster but sometimes less precise).
        - \c false: SVD solver (more precise but slower).
        \param lambda is used only in the Moore-Penrose pseudoinverse for estimating A^t.(A^t.A + lambda.Id)^-1.
     **/
@@ -49876,7 +49876,7 @@ namespace cimg_library {
       }
 
       cimg_pragma_openmp(parallel for cimg_openmp_if(Xs._height>=(cimg_openmp_sizefactor)*512))
-      cimg_forY(Xs,y) {
+      cimg_forY(Xs,y) if (count[y]) {
         const CImg<intT> Xsy = Xs.get_shared_points(0,count[y] - 1,y).sort();
         int px = width();
         for (unsigned int k = 0; k<Xsy._width; k+=2) {

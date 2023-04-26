@@ -27157,7 +27157,7 @@ namespace cimg_library {
       }
 
       static double mp_repeat(_cimg_math_parser& mp) {
-        const double nb_it = _mp_arg(2);
+        const double nb_it = _mp_arg(2), nb_itm1 = nb_it - 1;
         double
           *const ptrc = mp.opcode[3]!=~0U?&_mp_arg(3):0,
           *const ptrs = &_mp_arg(1);
@@ -27165,13 +27165,13 @@ namespace cimg_library {
           *const p_body = ++mp.p_code,
           *const p_end = p_body + mp.opcode[4];
 
-        if (nb_it>0) {
+        if (nb_it>=1) {
           const unsigned int _break_type = mp.break_type;
           mp.break_type = 0;
 
           double it = 0;
           if (ptrc) { // Version with loop variable (3 arguments)
-            while (it<nb_it) {
+            while (it<=nb_itm1) {
               *ptrc = it;
               for (mp.p_code = p_body; mp.p_code<p_end; ++mp.p_code) {
                 mp.opcode._data = mp.p_code->_data;
@@ -27183,7 +27183,7 @@ namespace cimg_library {
             }
             *ptrc = it;
           } else // Version without loop variable (2 arguments)
-            while (it<nb_it) {
+            while (it<=nb_itm1) {
               for (mp.p_code = p_body; mp.p_code<p_end; ++mp.p_code) {
                 mp.opcode._data = mp.p_code->_data;
                 const ulongT target = mp.opcode[1];

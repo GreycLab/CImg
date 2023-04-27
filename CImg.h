@@ -47462,10 +47462,7 @@ namespace cimg_library {
 
       const bool is_horizontal = cimg::abs(dx01)>cimg::abs(dy01);
       if (is_horizontal) cimg::swap(x0,y0,x1,y1,w1,h1,dx01,dy01);
-      if (pattern==~0U && y0>y1) {
-        cimg::swap(x0,x1,y0,y1);
-        dx01*=-1; dy01*=-1;
-      }
+      if (pattern==~0U && y0>y1) { cimg::swap(x0,x1,y0,y1); dx01*=-1; dy01*=-1; }
 
       static unsigned int hatch = ~0U - (~0U>>1);
       if (init_hatch) hatch = ~0U - (~0U>>1);
@@ -49878,7 +49875,7 @@ namespace cimg_library {
       }
 
       cimg_pragma_openmp(parallel for cimg_openmp_if(Xs._height>=(cimg_openmp_sizefactor)*512))
-      cimg_forY(Xs,y) { // if (count[y]) {
+      cimg_forY(Xs,y) {
         const CImg<intT> Xsy = Xs.get_shared_points(0,count[y] - 1,y).sort();
         int px = width();
         for (unsigned int k = 0; k<Xsy._width; k+=2) {

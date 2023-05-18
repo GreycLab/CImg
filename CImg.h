@@ -30212,7 +30212,7 @@ namespace cimg_library {
         for (longT off = 0; off<(longT)siz; ++off) res+=(double)std::pow(cimg::abs(_data[off]),magnitude_type);
         res = (double)std::pow(res,1.0/magnitude_type);
       }
-      return res>0?res:0;
+      return res;
     }
 
     //! Compute the trace of the image, viewed as a matrix.

@@ -21465,11 +21465,8 @@ namespace cimg_library {
                 s = ns;
               }
               (l_opcode>'y').move_to(opcode);
-              op = !val?_mp_vector_norm0:
-                val==1?_mp_vector_norm1:
-                val==2?_mp_vector_norm2:
-                cimg::type<double>::is_inf(val)?_mp_vector_norminf:
-                _mp_vector_normp;
+              op = val==2?_mp_vector_norm2:val==1?_mp_vector_norm1:!val?_mp_vector_norm0:
+                cimg::type<double>::is_inf(val)?_mp_vector_norminf:_mp_vector_normp;
               opcode[0] = (ulongT)op;
               opcode[2] = opcode._height;
               if (is_sth) _cimg_mp_const_scalar(op(*this));
@@ -30198,16 +30195,16 @@ namespace cimg_library {
                                     cimg_instance);
       const ulongT siz = size();
       double res = 0;
-      if (!magnitude_type) { // L0
-        cimg_pragma_openmp(parallel for reduction(+:res) cimg_openmp_if_size(size(),8192))
-        for (longT off = 0; off<(longT)siz; ++off) res+=(double)(_data[off]?1:0);
-      } else if (magnitude_type==1) { // L1
-        cimg_pragma_openmp(parallel for reduction(+:res) cimg_openmp_if_size(size(),8192))
-        for (longT off = 0; off<(longT)siz; ++off) res+=(double)cimg::abs(_data[off]);
-      } else if (magnitude_type==2) { // L2
+      if (magnitude_type==2) { // L2
         cimg_pragma_openmp(parallel for reduction(+:res) cimg_openmp_if_size(size(),8192))
         for (longT off = 0; off<(longT)siz; ++off) res+=(double)cimg::sqr(_data[off]);
         res = (double)std::sqrt(res);
+      } else if (magnitude_type==1) { // L1
+        cimg_pragma_openmp(parallel for reduction(+:res) cimg_openmp_if_size(size(),8192))
+        for (longT off = 0; off<(longT)siz; ++off) res+=(double)cimg::abs(_data[off]);
+      } else if (!magnitude_type) { // L0
+        cimg_pragma_openmp(parallel for reduction(+:res) cimg_openmp_if_size(size(),8192))
+        for (longT off = 0; off<(longT)siz; ++off) res+=(double)(_data[off]?1:0);
       } else if (cimg::type<float>::is_inf(magnitude_type)) { // L-inf
         cimg_for(*this,ptrs,T) { const double val = (double)cimg::abs(*ptrs); if (val>res) res = val; }
       } else { // L-p

@@ -28074,7 +28074,10 @@ namespace cimg_library {
           for (unsigned int i = siz - 1; i>3; --i) res+=(double)cimg::sqr(_mp_arg(i));
           res = (double)std::sqrt(res);
         } else if (cimg::type<float>::is_inf(p)) { // L-inf
-          for (unsigned int i = siz - 1; i>3; --i) { const double val = (double)cimg::abs(_mp_arg(i)); if (val>res) res = val; }
+          for (unsigned int i = siz - 1; i>3; --i) {
+            const double val = (double)cimg::abs(_mp_arg(i));
+            if (val>res) res = val;
+          }
         } else { // L-p
           for (unsigned int i = siz - 1; i>3; --i) res+=(double)std::pow(cimg::abs(_mp_arg(i)),p);
           res = (double)std::pow(res,1.0/p);

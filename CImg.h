@@ -28066,11 +28066,11 @@ namespace cimg_library {
         const unsigned int siz = (unsigned int)mp.opcode[2];
         const double p = _mp_arg(3);
         double res = 0;
-        if (!p) { // L0
+        if (!p) // L0
           for (unsigned int i = siz - 1; i>3; --i) res+=(double)(_mp_arg(i)?1:0);
-        } else if (p==1) { // L1
+        else if (p==1) // L1
           for (unsigned int i = siz - 1; i>3; --i) res+=(double)cimg::abs(_mp_arg(i));
-        } else if (p==2) { // L2
+        else if (p==2) { // L2
           for (unsigned int i = siz - 1; i>3; --i) res+=(double)cimg::sqr(_mp_arg(i));
           res = (double)std::sqrt(res);
         } else if (cimg::type<float>::is_inf(p)) { // L-inf
@@ -28089,9 +28089,25 @@ namespace cimg_library {
         const unsigned int siz = (unsigned int)mp.opcode[3];
         const double p = _mp_arg(4);
         if (siz>0) { // Vector-valued argument
-          const double *const ptrs = &_mp_arg(2) + 1;
-          CImg<doubleT> vec(ptrs,siz,1,1,1,true);
-          return vec.magnitude(p);
+          const double *ptrs = &_mp_arg(2) + 1;
+          double res = 0;
+          if (!p) // L0
+            for (unsigned int i = 0; i<siz; ++i) res+=(double)(*(ptrs++)?1:0);
+          else if (p==1) { // L1
+            for (unsigned int i = 0; i<siz; ++i) res+=(double)cimg::abs(*(ptrs++));
+          } else if (p==2) { // L2
+            for (unsigned int i = 0; i<siz; ++i) res+=(double)cimg::sqr(*(ptrs++));
+            res = (double)std::sqrt(res);
+          } else if (cimg::type<float>::is_inf(p)) { // L-inf
+            for (unsigned int i = 0; i<siz; ++i) {
+              const double val = (double)cimg::abs(*(ptrs++));
+              if (val>res) res = val;
+            }
+          } else { // L-p
+            for (unsigned int i = 0; i<siz; ++i) res+=(double)std::pow(cimg::abs(*(ptrs++)),p);
+            res = (double)std::pow(res,1.0/p);
+          }
+          return res>0?res:0;
         }
         // Scalar-valued argument.
         const double val = _mp_arg(2);

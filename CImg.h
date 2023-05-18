@@ -28112,14 +28112,14 @@ namespace cimg_library {
         if (siz>0) { // Vector-valued argument
           const double *ptrs = &_mp_arg(2) + 1;
           double res = 0;
-          if (!p) // L0
-            for (unsigned int i = 0; i<siz; ++i) res+=(double)(*(ptrs++)?1:0);
-          else if (p==1) { // L1
-            for (unsigned int i = 0; i<siz; ++i) res+=(double)cimg::abs(*(ptrs++));
-          } else if (p==2) { // L2
+          if (p==2) { // L2
             for (unsigned int i = 0; i<siz; ++i) res+=(double)cimg::sqr(*(ptrs++));
             res = (double)std::sqrt(res);
-          } else if (cimg::type<float>::is_inf(p)) { // L-inf
+          } else if (p==1) // L1
+            for (unsigned int i = 0; i<siz; ++i) res+=(double)cimg::abs(*(ptrs++));
+          else if (!p) // L0
+            for (unsigned int i = 0; i<siz; ++i) res+=(double)(*(ptrs++)?1:0);
+          else if (cimg::type<float>::is_inf(p)) { // L-inf
             for (unsigned int i = 0; i<siz; ++i) {
               const double val = (double)cimg::abs(*(ptrs++));
               if (val>res) res = val;

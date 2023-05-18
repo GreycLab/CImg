@@ -21446,12 +21446,13 @@ namespace cimg_library {
               _cimg_mp_scalar3(mp_vector_normp,arg1,p1,arg2);
             }
 
-            if (!std::strncmp(ss,"norm",4) && ss4<se1 && (s = std::strchr(ss4,'('))!=0) { // Lp norm (variant)
+            if (!std::strncmp(ss,"norm",4) && ss4<se1 && (s = std::strchr(ss4,'('))!=0) { // Lp norm (constant p)
               _cimg_mp_op("Function 'norm()'");
               arg1 = s!=ss4?compile(ss4,s,depth1,0,block_flags):2;
               _cimg_mp_check_const_scalar(arg1,0,0);
+              val = mem[arg1];
               is_sth = true; // Tell if all arguments are constant
-              CImg<ulongT>::vector((ulongT)mp_vector_norm,0,0,arg1).move_to(l_opcode);
+              CImg<ulongT>::vector(0,0,0,arg1).move_to(l_opcode);
               for (++s; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
@@ -21464,8 +21465,14 @@ namespace cimg_library {
                 s = ns;
               }
               (l_opcode>'y').move_to(opcode);
+              op = !val?_mp_vector_norm0:
+                val==1?_mp_vector_norm1:
+                val==2?_mp_vector_norm2:
+                cimg::type<double>::is_inf(val)?_mp_vector_norminf:
+                _mp_vector_normp;
+              opcode[0] = (ulongT)op;
               opcode[2] = opcode._height;
-              if (is_sth) _cimg_mp_const_scalar(mp_vector_norm(*this));
+              if (is_sth) _cimg_mp_const_scalar(op(*this));
               if (opcode._height==5) { // Single argument
                 if (arg1) { _cimg_mp_scalar1(mp_abs,opcode[4]); }
                 else { _cimg_mp_scalar2(mp_neq,opcode[4],0); }
@@ -28062,27 +28069,44 @@ namespace cimg_library {
         return !mp_vector_eq(mp);
       }
 
-      static double mp_vector_norm(_cimg_math_parser& mp) {
+      static double _mp_vector_norm0(_cimg_math_parser& mp) {
+        const unsigned int siz = (unsigned int)mp.opcode[2];
+        double res = 0;
+        for (unsigned int i = siz - 1; i>3; --i) res+=(double)(_mp_arg(i)?1:0);
+        return res;
+      }
+
+      static double _mp_vector_norm1(_cimg_math_parser& mp) {
+        const unsigned int siz = (unsigned int)mp.opcode[2];
+        double res = 0;
+        for (unsigned int i = siz - 1; i>3; --i) res+=(double)cimg::abs(_mp_arg(i));
+        return res;
+      }
+
+      static double _mp_vector_norm2(_cimg_math_parser& mp) {
+        const unsigned int siz = (unsigned int)mp.opcode[2];
+        double res = 0;
+        for (unsigned int i = siz - 1; i>3; --i) res+=(double)cimg::sqr(_mp_arg(i));
+        return (double)std::sqrt(res);
+      }
+
+      static double _mp_vector_norminf(_cimg_math_parser& mp) {
+        const unsigned int siz = (unsigned int)mp.opcode[2];
+        double res = 0;
+        for (unsigned int i = siz - 1; i>3; --i) {
+          const double val = (double)cimg::abs(_mp_arg(i));
+          if (val>res) res = val;
+        }
+        return res;
+      }
+
+      static double _mp_vector_normp(_cimg_math_parser& mp) {
         const unsigned int siz = (unsigned int)mp.opcode[2];
         const double p = _mp_arg(3);
         double res = 0;
-        if (!p) // L0
-          for (unsigned int i = siz - 1; i>3; --i) res+=(double)(_mp_arg(i)?1:0);
-        else if (p==1) // L1
-          for (unsigned int i = siz - 1; i>3; --i) res+=(double)cimg::abs(_mp_arg(i));
-        else if (p==2) { // L2
-          for (unsigned int i = siz - 1; i>3; --i) res+=(double)cimg::sqr(_mp_arg(i));
-          res = (double)std::sqrt(res);
-        } else if (cimg::type<float>::is_inf(p)) { // L-inf
-          for (unsigned int i = siz - 1; i>3; --i) {
-            const double val = (double)cimg::abs(_mp_arg(i));
-            if (val>res) res = val;
-          }
-        } else { // L-p
-          for (unsigned int i = siz - 1; i>3; --i) res+=(double)std::pow(cimg::abs(_mp_arg(i)),p);
-          res = (double)std::pow(res,1.0/p);
-        }
-        return res>0?res:0;
+        for (unsigned int i = siz - 1; i>3; --i) res+=(double)std::pow(cimg::abs(_mp_arg(i)),p);
+        res = (double)std::pow(res,1.0/p);
+        return res;
       }
 
       static double mp_vector_normp(_cimg_math_parser& mp) {

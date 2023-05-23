@@ -26175,8 +26175,7 @@ namespace cimg_library {
       }
 
       static double mp_list_id(_cimg_math_parser& mp) {
-        const unsigned int
-          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
         bool get_stats = false;
         cimg::mutex(13);
         if (!mp.list_stats || mp.list_stats.size()!=mp.imglist._width) mp.list_stats.assign(mp.imglist._width);

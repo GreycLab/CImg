@@ -53197,7 +53197,13 @@ namespace cimg_library {
             static unsigned int snap_number = 0;
             std::FILE *file;
             do {
-              cimg_snprintf(filename,filename._width,cimg_appname "_%.6u.bmp",snap_number++);
+              cimg_snprintf(filename,filename._width,cimg_appname "_%.6u."
+#ifdef cimg_use_png
+                            "png",
+#else
+                            "bmp",
+#endif
+                            snap_number++);
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
             if (visu0) {
@@ -53972,7 +53978,13 @@ namespace cimg_library {
               CImg<ucharT> &screen = visu?visu:visu0;
               std::FILE *file;
               do {
-                cimg_snprintf(filename,filename._width,cimg_appname "_%.6u.bmp",snap_number++);
+                cimg_snprintf(filename,filename._width,cimg_appname "_%.6u."
+#ifdef cimg_use_png
+                              "png",
+#else
+                              "bmp",
+#endif
+                              snap_number++);
                 if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
               } while (file);
               (+screen).__draw_text(" Saving snapshot... ",font_size,0).display(disp);
@@ -58356,7 +58368,13 @@ namespace cimg_library {
             static unsigned int snap_number = 0;
             std::FILE *file;
             do {
-              cimg_snprintf(filename,filename._width,cimg_appname "_%.6u.bmp",snap_number++);
+              cimg_snprintf(filename,filename._width,cimg_appname "_%.6u."
+#ifdef cimg_use_png
+                            "png",
+#else
+                            "bmp",
+#endif
+                            snap_number++);
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
             (+visu).__draw_text(" Saving snapshot... ",font_size,0).display(disp);
@@ -63569,7 +63587,13 @@ namespace cimg_library {
             static unsigned int snap_number = 0;
             std::FILE *file;
             do {
-              cimg_snprintf(filename,filename._width,cimg_appname "_%.6u.bmp",snap_number++);
+              cimg_snprintf(filename,filename._width,cimg_appname "_%.6u."
+#ifdef cimg_use_png
+                            "png",
+#else
+                            "bmp",
+#endif
+                            snap_number++);
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
             if (visu0) {

@@ -17312,22 +17312,23 @@ namespace cimg_library {
               _cimg_mp_scalar6(mp_ixyzc,_cimg_mp_slot_x,_cimg_mp_slot_y,_cimg_mp_slot_z,pos - 21,0,0);
             }
             switch (*ss1) {
-            case 'm' : arg1 = 4; arg2 = 0; break; // im
-            case 'M' : arg1 = 5; arg2 = 1; break; // iM
             case 'a' : arg1 = 6; arg2 = 2; break; // ia
-            case 'v' : arg1 = 7; arg2 = 3; break; // iv
-            case 'd' : arg1 = 8; arg2 = 3; break; // id
-            case 's' : arg1 = 9; arg2 = 12; break; // is
-            case 'p' : arg1 = 10; arg2 = 13; break; // ip
             case 'c' : // ic
               if (reserved_label[11]!=~0U) _cimg_mp_return(reserved_label[11]);
               if (mem_img_median==~0U) mem_img_median = imgin?const_scalar(imgin.median()):0;
               _cimg_mp_return(mem_img_median);
               break;
+            case 'd' : arg1 = 8; arg2 = 3; break; // id
+            case 'm' : arg1 = 4; arg2 = 0; break; // im
+            case 'M' : arg1 = 5; arg2 = 1; break; // iM
             case 'n' : // in
               if (reserved_label[12]!=~0U) _cimg_mp_return(reserved_label[12]);
               if (mem_img_norm==~0U) mem_img_norm = imgin?const_scalar(imgin.magnitude(2)):0;
               _cimg_mp_return(mem_img_norm);
+              break;
+            case 'p' : arg1 = 10; arg2 = 13; break; // ip
+            case 's' : arg1 = 9; arg2 = 12; break; // is
+            case 'v' : arg1 = 7; arg2 = 3; break; // iv
             }
           }
           else if (*ss1=='m') switch (*ss) {
@@ -23019,7 +23020,17 @@ namespace cimg_library {
                 if (!list_median[p1]) CImg<doubleT>::vector(imglist[p1].median()).move_to(list_median[p1]);
                 _cimg_mp_const_scalar(*list_median[p1]);
               }
-              _cimg_mp_scalar1(mp_list_median,arg1);
+              _cimg_mp_scalar1(mp_list_id,arg1);
+            }
+
+            if (*ss1=='d') { // id#ind
+              if (!imglist) _cimg_mp_return(0);
+              if (_cimg_mp_is_const_scalar(arg1)) {
+                if (!list_stats) list_stats.assign(imglist._width);
+                if (!list_stats[p1]) list_stats[p1].assign(1,14,1,1,0).fill(imglist[p1].get_stats(),false);
+                _cimg_mp_const_scalar(std::sqrt(list_stats(p1,3)));
+              }
+              _cimg_mp_scalar1(mp_list_id,arg1);
             }
 
             if (*ss1=='n') { // in#ind
@@ -23033,12 +23044,12 @@ namespace cimg_library {
             }
 
             switch (*ss1) {
+            case 'a' : arg2 = 2; break; // ia#ind
             case 'm' : arg2 = 0; break; // im#ind
             case 'M' : arg2 = 1; break; // iM#ind
-            case 'a' : arg2 = 2; break; // ia#ind
-            case 'v' : arg2 = 3; break; // iv#ind
-            case 's' : arg2 = 12; break; // is#ind
             case 'p' : arg2 = 13; break; // ip#ind
+            case 's' : arg2 = 12; break; // is#ind
+            case 'v' : arg2 = 3; break; // iv#ind
             }
           } else if (*ss1=='m') switch (*ss) {
             case 'x' : arg2 = 4; break; // xm#ind
@@ -26161,6 +26172,23 @@ namespace cimg_library {
         if (!mp.list_norm) mp.list_norm.assign(mp.imglist._width);
         if (!mp.list_norm[ind]) CImg<doubleT>::vector(mp.imglist[ind].magnitude(2)).move_to(mp.list_norm[ind]);
         return *mp.list_norm[ind];
+      }
+
+      static double mp_list_id(_cimg_math_parser& mp) {
+        const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        bool get_stats = false;
+        cimg::mutex(13);
+        if (!mp.list_stats || mp.list_stats.size()!=mp.imglist._width) mp.list_stats.assign(mp.imglist._width);
+        if (!mp.list_stats[ind]) get_stats = true;
+        cimg::mutex(13,0);
+
+        if (get_stats) {
+          CImg<Tdouble> st = mp.imglist[ind].get_stats();
+          cimg::mutex(13);
+          st.move_to(mp.list_stats[ind]);
+          cimg::mutex(13,0);
+        }
+        return std::sqrt(mp.list_stats(ind,3));
       }
 
       static double mp_list_set_ioff(_cimg_math_parser& mp) {
@@ -53169,7 +53197,13 @@ namespace cimg_library {
             static unsigned int snap_number = 0;
             std::FILE *file;
             do {
-              cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.bmp",snap_number++);
+              cimg_snprintf(filename,filename._width,cimg_appname "_%.6u."
+#ifdef cimg_use_png
+                            "png",
+#else
+                            "bmp",
+#endif
+                            snap_number++);
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
             if (visu0) {
@@ -53185,9 +53219,9 @@ namespace cimg_library {
             do {
 
 #ifdef cimg_use_zlib
-              cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.cimgz",snap_number++);
+              cimg_snprintf(filename,filename._width,cimg_appname "_%.6u.cimgz",snap_number++);
 #else
-              cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.cimg",snap_number++);
+              cimg_snprintf(filename,filename._width,cimg_appname "_%.6u.cimg",snap_number++);
 #endif
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
@@ -53944,7 +53978,13 @@ namespace cimg_library {
               CImg<ucharT> &screen = visu?visu:visu0;
               std::FILE *file;
               do {
-                cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.bmp",snap_number++);
+                cimg_snprintf(filename,filename._width,cimg_appname "_%.6u."
+#ifdef cimg_use_png
+                              "png",
+#else
+                              "bmp",
+#endif
+                              snap_number++);
                 if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
               } while (file);
               (+screen).__draw_text(" Saving snapshot... ",font_size,0).display(disp);
@@ -53961,9 +54001,9 @@ namespace cimg_library {
               do {
 
 #ifdef cimg_use_zlib
-                cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.cimgz",snap_number++);
+                cimg_snprintf(filename,filename._width,cimg_appname "_%.6u.cimgz",snap_number++);
 #else
-                cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.cimg",snap_number++);
+                cimg_snprintf(filename,filename._width,cimg_appname "_%.6u.cimg",snap_number++);
 #endif
                 if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
               } while (file);
@@ -58328,7 +58368,13 @@ namespace cimg_library {
             static unsigned int snap_number = 0;
             std::FILE *file;
             do {
-              cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.bmp",snap_number++);
+              cimg_snprintf(filename,filename._width,cimg_appname "_%.6u."
+#ifdef cimg_use_png
+                            "png",
+#else
+                            "bmp",
+#endif
+                            snap_number++);
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
             (+visu).__draw_text(" Saving snapshot... ",font_size,0).display(disp);
@@ -58340,7 +58386,7 @@ namespace cimg_library {
             static unsigned int snap_number = 0;
             std::FILE *file;
             do {
-              cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.off",snap_number++);
+              cimg_snprintf(filename,filename._width,cimg_appname "_%.6u.off",snap_number++);
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
             (+visu).__draw_text(" Saving object... ",font_size,0).display(disp);
@@ -58354,9 +58400,9 @@ namespace cimg_library {
             do {
 
 #ifdef cimg_use_zlib
-              cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.cimgz",snap_number++);
+              cimg_snprintf(filename,filename._width,cimg_appname "_%.6u.cimgz",snap_number++);
 #else
-              cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.cimg",snap_number++);
+              cimg_snprintf(filename,filename._width,cimg_appname "_%.6u.cimg",snap_number++);
 #endif
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
@@ -58372,7 +58418,7 @@ namespace cimg_library {
             static unsigned int snap_number = 0;
             std::FILE *file;
             do {
-              cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.eps",snap_number++);
+              cimg_snprintf(filename,filename._width,cimg_appname "_%.6u.eps",snap_number++);
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
             (+visu).__draw_text(" Saving EPS snapshot... ",font_size,0).display(disp);
@@ -58393,7 +58439,7 @@ namespace cimg_library {
             static unsigned int snap_number = 0;
             std::FILE *file;
             do {
-              cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.svg",snap_number++);
+              cimg_snprintf(filename,filename._width,cimg_appname "_%.6u.svg",snap_number++);
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
             (+visu).__draw_text(" Saving SVG snapshot... ",font_size,0).display(disp);
@@ -63541,7 +63587,13 @@ namespace cimg_library {
             static unsigned int snap_number = 0;
             std::FILE *file;
             do {
-              cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.bmp",snap_number++);
+              cimg_snprintf(filename,filename._width,cimg_appname "_%.6u."
+#ifdef cimg_use_png
+                            "png",
+#else
+                            "bmp",
+#endif
+                            snap_number++);
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);
             if (visu0) {
@@ -63557,9 +63609,9 @@ namespace cimg_library {
             std::FILE *file;
             do {
 #ifdef cimg_use_zlib
-              cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.cimgz",snap_number++);
+              cimg_snprintf(filename,filename._width,cimg_appname "_%.6u.cimgz",snap_number++);
 #else
-              cimg_snprintf(filename,filename._width,cimg_appname "_%.4u.cimg",snap_number++);
+              cimg_snprintf(filename,filename._width,cimg_appname "_%.6u.cimg",snap_number++);
 #endif
               if ((file=cimg::std_fopen(filename,"r"))!=0) cimg::fclose(file);
             } while (file);

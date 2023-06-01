@@ -32708,7 +32708,7 @@ namespace cimg_library {
           // Determine 1st, and 2nd * 3rd largest image dimensions.
           const unsigned int
             M1 = cimg::max(_width,_height,_depth),
-            M2M3 = M1==_width?_height*_depth:M1==_height?_width*_depth:_width*_height;
+            M2M3 = (M1==_width?_height*_depth:M1==_height?_width*_depth:_width*_height)*(mp.result_dim?1:_spectrum);
 
           bool do_in_parallel = false;
 #if cimg_use_openmp!=0

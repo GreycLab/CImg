@@ -32704,7 +32704,8 @@ namespace cimg_library {
               mp.need_input_copy)
             base.assign().assign(*this,false); // Needs input copy
 
-          // Determine smallest image dimension (used as the axis for inner loop in parallelized loop).
+          // Determine M1, smallest image dimension (used as axis for the most inner loop in parallelized iterations).
+          // M2 is the total number of parallelized iterations.
           unsigned int M1, M2;
           if (mp.result_dim) {
             M2 = cimg::min(_width,_height,_depth);
@@ -32723,8 +32724,7 @@ namespace cimg_library {
                                         "as 'run()' is used outside a 'critical()' section.",
                                         cimg_instance,calling_function,expression);
           cimg_openmp_if(!mp.is_noncritical_run &&
-                         (*expression=='*' || *expression==':' ||
-                          (mp.is_parallelizable && M1>=2)))
+                         (*expression=='*' || *expression==':' || (mp.is_parallelizable && M1>=2 && M1*M2>=16)))
             do_in_parallel = true;
 #endif
           if (mp.result_dim) { // Vector-valued expression

@@ -6358,7 +6358,7 @@ namespace cimg_library {
     **/
     template<typename T>
     inline T mod(const T& x, const T& m) {
-      if (!m) throw CImgArgumentException("cimg::mod(): Specified modulo value is 0.");
+      if (!m) return cimg::type<T>::nan();
       const double dx = (double)x, dm = (double)m;
       if (!cimg::type<double>::is_finite(dm)) return x;
       if (cimg::type<double>::is_finite(dx)) return (T)(dx - dm * std::floor(dx / dm));

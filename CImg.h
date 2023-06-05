@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 325
+#define cimg_version 326
 
 /*-----------------------------------------------------------
  #
@@ -2693,6 +2693,7 @@ namespace cimg_library {
       static T min() { return ~max(); }
       static T max() { return (T)1<<(8*sizeof(T) - 1); }
       static T inf() { return max(); }
+      static T nan() { return inf(); }
       static T cut(const double val) { return val<(double)min()?min():val>(double)max()?max():(T)val; }
       static const char* format() { return "%s"; }
       static const char* format_s() { return "%s"; }
@@ -2711,6 +2712,7 @@ namespace cimg_library {
       static bool min() { return false; }
       static bool max() { return true; }
       static bool inf() { return max(); }
+      static bool nan() { return inf(); }
       static bool is_inf() { return false; }
       static bool cut(const double val) { return val<(double)min()?min():val>(double)max()?max():(bool)val; }
       static const char* format() { return "%s"; }
@@ -2727,6 +2729,7 @@ namespace cimg_library {
       static unsigned char min() { return 0; }
       static unsigned char max() { return (unsigned char)-1; }
       static unsigned char inf() { return max(); }
+      static unsigned char nan() { return inf(); }
       static unsigned char cut(const double val) {
         return val<(double)min()?min():val>(double)max()?max():(unsigned char)val; }
       static const char* format() { return "%u"; }
@@ -2744,6 +2747,7 @@ namespace cimg_library {
       static char min() { return 0; }
       static char max() { return (char)-1; }
       static char inf() { return max(); }
+      static char nan() { return inf(); }
       static char cut(const double val) {
         return val<(double)min()?min():val>(double)max()?max():(unsigned char)val; }
       static const char* format() { return "%u"; }
@@ -2760,6 +2764,7 @@ namespace cimg_library {
       static char min() { return ~max(); }
       static char max() { return (char)((unsigned char)-1>>1); }
       static char inf() { return max(); }
+      static char nan() { return inf(); }
       static char cut(const double val) { return val<(double)min()?min():val>(double)max()?max():(char)val; }
       static const char* format() { return "%d"; }
       static const char* format_s() { return "%d"; }
@@ -2776,6 +2781,7 @@ namespace cimg_library {
       static signed char min() { return ~max(); }
       static signed char max() { return (signed char)((unsigned char)-1>>1); }
       static signed char inf() { return max(); }
+      static signed char nan() { return inf(); }
       static signed char cut(const double val) {
         return val<(double)min()?min():val>(double)max()?max():(signed char)val; }
       static const char* format() { return "%d"; }
@@ -2792,6 +2798,7 @@ namespace cimg_library {
       static unsigned short min() { return 0; }
       static unsigned short max() { return (unsigned short)-1; }
       static unsigned short inf() { return max(); }
+      static unsigned short nan() { return inf(); }
       static unsigned short cut(const double val) {
         return val<(double)min()?min():val>(double)max()?max():(unsigned short)val; }
       static const char* format() { return "%u"; }
@@ -2808,6 +2815,7 @@ namespace cimg_library {
       static short min() { return ~max(); }
       static short max() { return (short)((unsigned short)-1>>1); }
       static short inf() { return max(); }
+      static short nan() { return inf(); }
       static short cut(const double val) { return val<(double)min()?min():val>(double)max()?max():(short)val; }
       static const char* format() { return "%d"; }
       static const char* format_s() { return "%d"; }
@@ -2823,6 +2831,7 @@ namespace cimg_library {
       static unsigned int min() { return 0; }
       static unsigned int max() { return (unsigned int)-1; }
       static unsigned int inf() { return max(); }
+      static unsigned int nan() { return inf(); }
       static unsigned int cut(const double val) {
         return val<(double)min()?min():val>(double)max()?max():(unsigned int)val; }
       static const char* format() { return "%u"; }
@@ -2839,6 +2848,7 @@ namespace cimg_library {
       static int min() { return ~max(); }
       static int max() { return (int)(~0U>>1); }
       static int inf() { return max(); }
+      static int nan() { return inf(); }
       static int cut(const double val) { return val<(double)min()?min():val>(double)max()?max():(int)val; }
       static const char* format() { return "%d"; }
       static const char* format_s() { return "%d"; }
@@ -2854,6 +2864,7 @@ namespace cimg_library {
       static cimg_uint64 min() { return 0; }
       static cimg_uint64 max() { return (cimg_uint64)-1; }
       static cimg_uint64 inf() { return max(); }
+      static cimg_uint64 nan() { return inf(); }
       static cimg_uint64 cut(const double val) {
         return val<(double)min()?min():val>(double)max()?max():(cimg_uint64)val; }
       static const char* format() { return cimg_fuint64; }
@@ -2870,6 +2881,7 @@ namespace cimg_library {
       static cimg_int64 min() { return ~max(); }
       static cimg_int64 max() { return (cimg_int64)((cimg_uint64)-1>>1); }
       static cimg_int64 inf() { return max(); }
+      static cimg_int64 nan() { return inf(); }
       static cimg_int64 cut(const double val) {
         return val<(double)min()?min():val>(double)max()?max():(cimg_int64)val;
       }
@@ -2888,6 +2900,7 @@ namespace cimg_library {
       static cimg_uint64 min() { return 0; }
       static cimg_uint64 max() { return (cimg_uint64)-1; }
       static cimg_uint64 inf() { return max(); }
+      static cimg_uint64 nan() { return inf(); }
       static cimg_uint64 cut(const double val) {
         return val<(double)min()?min():val>(double)max()?max():(cimg_uint64)val; }
       static const char* format() { return cimg_fuint64; }
@@ -2901,10 +2914,11 @@ namespace cimg_library {
       static bool is_inf(const cimg_int64) { return false; }
       static bool is_nan(const cimg_int64) { return false; }
       static bool is_finite(const cimg_int64) { return true; }
-      static cimg_int64 min() { return ~max(); }
-      static cimg_int64 max() { return (cimg_int64)((cimg_uint64)-1>>1); }
-      static cimg_int64 inf() { return max(); }
-      static cimg_int64 cut(const double val) {
+      static long long min() { return ~max(); }
+      static long long max() { return (cimg_int64)((cimg_uint64)-1>>1); }
+      static long long inf() { return max(); }
+      static long long nan() { return max(); }
+      static long long cut(const double val) {
         return val<(double)min()?min():val>(double)max()?max():(cimg_int64)val;
       }
       static const char* format() { return cimg_fint64; }
@@ -6358,7 +6372,10 @@ namespace cimg_library {
     **/
     template<typename T>
     inline T mod(const T& x, const T& m) {
-      if (!m) throw CImgArgumentException("cimg::mod(): Specified modulo value is 0.");
+      if (!m) {
+        if (cimg::type<T>::is_float()) return cimg::type<T>::nan();
+        else throw CImgArgumentException("cimg::mod(): Specified modulo value is 0.");
+      }
       const double dx = (double)x, dm = (double)m;
       if (!cimg::type<double>::is_finite(dm)) return x;
       if (cimg::type<double>::is_finite(dx)) return (T)(dx - dm * std::floor(dx / dm));
@@ -32704,16 +32721,16 @@ namespace cimg_library {
               mp.need_input_copy)
             base.assign().assign(*this,false); // Needs input copy
 
-          // Determine 2nd largest image dimension (used as axis for inner loop in parallelized evaluation).
-          unsigned int M;
+          // Determine M2, smallest image dimension (used as axis for the most inner loop in parallelized iterations).
+          // M1 is the total number of parallelized iterations.
+          unsigned int M1, M2;
           if (mp.result_dim) {
-            M = cimg::max(_width,_height,_depth);
-            M = M==_width?std::max(_height,_depth):M==_height?std::max(_width,_depth):std::max(_width,_height);
+            M2 = cimg::min(_width,_height,_depth);
+            M1 = M2==_width?_height*_depth:M2==_height?_width*_depth:_width*_height;
           } else {
-            M = cimg::max(_width,_height,_depth,_spectrum);
-            M = M==_width?cimg::max(_height,_depth,_spectrum):
-              M==_height?cimg::max(_width,_depth,_spectrum):
-              M==_depth?cimg::max(_width,_height,_spectrum):cimg::max(_width,_height,_depth);
+            M2 = cimg::min(_width,_height,_depth,_spectrum);
+            M1 = M2==_width?_height*_depth*_spectrum:M2==_height?_width*_depth*_spectrum:
+              M2==_depth?_width*_height*_spectrum:_width*_height*_depth;
           }
 
           bool do_in_parallel = false;
@@ -32724,8 +32741,7 @@ namespace cimg_library {
                                         "as 'run()' is used outside a 'critical()' section.",
                                         cimg_instance,calling_function,expression);
           cimg_openmp_if(!mp.is_noncritical_run &&
-                         (*expression=='*' || *expression==':' ||
-                          (mp.is_parallelizable && M>=(cimg_openmp_sizefactor)*320 && size()/M>=2)))
+                         (*expression=='*' || *expression==':' || (mp.is_parallelizable && M1>=2 && M1*M2>=16)))
             do_in_parallel = true;
 #endif
           if (mp.result_dim) { // Vector-valued expression
@@ -32792,8 +32808,8 @@ namespace cimg_library {
     } \
   } _cimg_abort_catch_openmp _cimg_abort_catch_fill_openmp
 
-                  if (M==_width) { _cimg_fill_openmp_vector(YZ,y,z,X,x,0,y,z,1) }
-                  else if (M==_height) { _cimg_fill_openmp_vector(XZ,x,z,Y,y,x,0,z,_width) }
+                  if (M2==_width) { _cimg_fill_openmp_vector(YZ,y,z,X,x,0,y,z,1) }
+                  else if (M2==_height) { _cimg_fill_openmp_vector(XZ,x,z,Y,y,x,0,z,_width) }
                   else { _cimg_fill_openmp_vector(XY,x,y,Z,z,x,y,0,_width*_height) }
 
                   lmp.end_t();
@@ -32841,9 +32857,9 @@ namespace cimg_library {
     } \
   } _cimg_abort_catch_openmp _cimg_abort_catch_fill_openmp
 
-                  if (M==_width) { _cimg_fill_openmp_scalar(YZC,y,z,c,X,x,0,y,z,c,1) }
-                  else if (M==_height) { _cimg_fill_openmp_scalar(XZC,x,z,c,Y,y,x,0,z,c,_width) }
-                  else if (M==_depth) { _cimg_fill_openmp_scalar(XYC,x,y,c,Z,z,x,y,0,c,_width*_height) }
+                  if (M2==_width) { _cimg_fill_openmp_scalar(YZC,y,z,c,X,x,0,y,z,c,1) }
+                  else if (M2==_height) { _cimg_fill_openmp_scalar(XZC,x,z,c,Y,y,x,0,z,c,_width) }
+                  else if (M2==_depth) { _cimg_fill_openmp_scalar(XYC,x,y,c,Z,z,x,y,0,c,_width*_height) }
                   else { _cimg_fill_openmp_scalar(XYZ,x,y,z,C,c,x,y,z,0,_width*_height*_depth) }
 
                   lmp.end_t();

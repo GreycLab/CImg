@@ -32724,6 +32724,7 @@ namespace cimg_library {
           // Determine M2, smallest image dimension (used as axis for the most inner loop in parallelized iterations).
           // M1 is the total number of parallelized iterations.
           unsigned int M1, M2;
+          cimg::unused(M1,M2);
           if (mp.result_dim) {
             M2 = cimg::min(_width,_height,_depth);
             M1 = M2==_width?_height*_depth:M2==_height?_width*_depth:_width*_height;

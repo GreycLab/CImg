@@ -20517,6 +20517,7 @@ namespace cimg_library {
               _cimg_mp_return_nan();
             }
 
+#ifdef cimg_use_cpp11
             if (!std::strncmp(ss,"erf(",4)) { // Error function
               _cimg_mp_op("Function 'erf()'");
               arg1 = compile(ss4,se1,depth1,0,block_flags);
@@ -20524,6 +20525,7 @@ namespace cimg_library {
               if (_cimg_mp_is_const_scalar(arg1)) _cimg_mp_const_scalar(std::erf(mem[arg1]));
               _cimg_mp_scalar1(mp_erf,arg1);
             }
+#endif
 
             if (!std::strncmp(ss,"erfinv(",7)) { // Inverse of error function
               _cimg_mp_op("Function 'erfinv()'");
@@ -24977,9 +24979,11 @@ namespace cimg_library {
         return (double)(_mp_arg(2)==_mp_arg(3));
       }
 
+#ifdef cimg_use_cpp11
       static double mp_erf(_cimg_math_parser& mp) {
         return std::erf(_mp_arg(2));
       }
+#endif
 
       static double mp_erfinv(_cimg_math_parser& mp) {
         return cimg::erfinv(_mp_arg(2));
@@ -28766,7 +28770,9 @@ namespace cimg_library {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
+#ifdef cimg_use_cpp11
     _cimg_create_pointwise_functions(erf,std::erf,4096)
+#endif
 
     //! Compute the logarithm of each pixel value.
     /**

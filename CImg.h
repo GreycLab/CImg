@@ -121,6 +121,7 @@
 #pragma warning(push)
 #pragma warning(disable:4127)
 #pragma warning(disable:4244)
+#pragma warning(disable:4307)
 #pragma warning(disable:4311)
 #pragma warning(disable:4312)
 #pragma warning(disable:4319)
@@ -132,6 +133,7 @@
 #pragma warning(disable:4800)
 #pragma warning(disable:4804)
 #pragma warning(disable:4820)
+#pragma warning(disable:4995)
 #pragma warning(disable:4996)
 
 #ifndef _CRT_SECURE_NO_DEPRECATE
@@ -30262,7 +30264,8 @@ namespace cimg_library {
         cimg_for(*this,ptrs,T) { const double val = (double)cimg::abs(*ptrs); if (val>res) res = val; }
       } else { // L-p
         cimg_pragma_openmp(parallel for reduction(+:res) cimg_openmp_if_size(size(),8192))
-        for (longT off = 0; off<(longT)siz; ++off) res+=(double)std::pow(cimg::abs(_data[off]),magnitude_type);
+        for (longT off = 0; off<(longT)siz; ++off)
+          res+=(double)std::pow((double)cimg::abs(_data[off]),(double)magnitude_type);
         res = (double)std::pow(res,1.0/magnitude_type);
       }
       return res;

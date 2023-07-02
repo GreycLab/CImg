@@ -1,0 +1,11 @@
+body {
+  margin: 0;
+  padding: 12px max(12px, min(20%, calc(50% - 600px))) 12px max(12px, min(20%, calc(50% - 600px)));
+  text-align: justify;
+  background: #dddded;
+}
+
+button {
+  position: fixed;
+  margin-left: calc(5px - max(12px, min(20%, calc(50% - 600px))));
+}

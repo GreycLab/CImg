@@ -17734,6 +17734,7 @@ namespace cimg_library {
                 if (_cimg_mp_is_vector(arg3)) { // Vector variable
                   arg1 = is_sth || is_comp_vector(arg3)?arg3:vector_copy(arg3);
                   set_reserved_vector(arg1); // Prevent from being used in further optimization
+                  if (is_inside_begin) is_parallelizable = false;
                 } else { // Scalar variable
                   if (is_const) arg1 = arg3;
                   else {

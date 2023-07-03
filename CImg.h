@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 326
+#define cimg_version 327
 
 /*-----------------------------------------------------------
  #
@@ -22528,6 +22528,9 @@ namespace cimg_library {
                 !std::strncmp(ss,"vector(",7) ||
                 (!std::strncmp(ss,"vector",6) && ss7<se1 && (s=std::strchr(ss7,'('))!=0)) { // Vector
               _cimg_mp_op("Function 'vector()'");
+              const bool is_inside_begin = (bool)(block_flags&2);
+              if (is_inside_begin) is_parallelizable = false;
+
               arg2 = 0; // Number of specified values
               if (arg1==~0U && *ss6!='(') {
                 arg1 = compile(ss6,s++,depth1,0,block_flags);
@@ -22892,6 +22895,9 @@ namespace cimg_library {
             (se1>ss1 && *ss=='_' && *ss1=='\''))) {
           if (*ss=='_') { _cimg_mp_op("Char initializer"); s1 = ss2; }
           else { _cimg_mp_op("String initializer"); s1 = ss1; }
+          const bool is_inside_begin = (bool)(block_flags&2);
+          if (is_inside_begin) is_parallelizable = false;
+
           arg1 = (unsigned int)(se1 - s1); // Original string length
           if (arg1) {
             CImg<charT>(s1,arg1 + 1).move_to(variable_name).back() = 0;
@@ -22921,6 +22927,9 @@ namespace cimg_library {
         // Vector initializer [ ... ].
         if (*ss=='[' && *se1==']') {
           _cimg_mp_op("Vector initializer");
+          const bool is_inside_begin = (bool)(block_flags&2);
+          if (is_inside_begin) is_parallelizable = false;
+
           s1 = ss1; while (s1<se2 && cimg::is_blank(*s1)) ++s1;
           s2 = se2; while (s2>s1 && cimg::is_blank(*s2)) --s2;
           if (s2>s1 && *s1=='\'' && *s2=='\'') { // Vector values provided as a string

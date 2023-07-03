@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 326
+#define cimg_version 327
 
 /*-----------------------------------------------------------
  #
@@ -121,6 +121,7 @@
 #pragma warning(push)
 #pragma warning(disable:4127)
 #pragma warning(disable:4244)
+#pragma warning(disable:4307)
 #pragma warning(disable:4311)
 #pragma warning(disable:4312)
 #pragma warning(disable:4319)
@@ -132,6 +133,7 @@
 #pragma warning(disable:4800)
 #pragma warning(disable:4804)
 #pragma warning(disable:4820)
+#pragma warning(disable:4995)
 #pragma warning(disable:4996)
 
 #ifndef _CRT_SECURE_NO_DEPRECATE
@@ -2890,7 +2892,8 @@ namespace cimg_library {
       static long format(const long val) { return (long)val; }
     };
 
-#if !(UINTPTR_MAX==0xffffffff || defined(__arm__) || defined(_M_ARM) || ((ULONG_MAX)==(UINT_MAX)))
+#if cimg_use_cpp11==1 && \
+    (!(UINTPTR_MAX==0xffffffff || defined(__arm__) || defined(_M_ARM) || ((ULONG_MAX)==(UINT_MAX))))
     template<> struct type<unsigned long long> {
       static const char* string() { static const char *const s = "uint64"; return s; }
       static bool is_float() { return false; }
@@ -3169,7 +3172,8 @@ namespace cimg_library {
     template<> struct superset<cimg_uint64,double> { typedef double type; };
     template<> struct superset<cimg_int64,float> { typedef double type; };
     template<> struct superset<cimg_int64,double> { typedef double type; };
-#if !(UINTPTR_MAX==0xffffffff || defined(__arm__) || defined(_M_ARM) || ((ULONG_MAX)==(UINT_MAX)))
+#if cimg_use_cpp11==1 && \
+    (!(UINTPTR_MAX==0xffffffff || defined(__arm__) || defined(_M_ARM) || ((ULONG_MAX)==(UINT_MAX))))
     template<> struct superset<unsigned long long,char> { typedef cimg_int64 type; };
     template<> struct superset<unsigned long long,signed char> { typedef cimg_int64 type; };
     template<> struct superset<unsigned long long,short> { typedef cimg_int64 type; };
@@ -20517,6 +20521,7 @@ namespace cimg_library {
               _cimg_mp_return_nan();
             }
 
+#if cimg_use_cpp11==1
             if (!std::strncmp(ss,"erf(",4)) { // Error function
               _cimg_mp_op("Function 'erf()'");
               arg1 = compile(ss4,se1,depth1,0,block_flags);
@@ -20524,6 +20529,7 @@ namespace cimg_library {
               if (_cimg_mp_is_const_scalar(arg1)) _cimg_mp_const_scalar(std::erf(mem[arg1]));
               _cimg_mp_scalar1(mp_erf,arg1);
             }
+#endif
 
             if (!std::strncmp(ss,"erfinv(",7)) { // Inverse of error function
               _cimg_mp_op("Function 'erfinv()'");
@@ -22522,6 +22528,9 @@ namespace cimg_library {
                 !std::strncmp(ss,"vector(",7) ||
                 (!std::strncmp(ss,"vector",6) && ss7<se1 && (s=std::strchr(ss7,'('))!=0)) { // Vector
               _cimg_mp_op("Function 'vector()'");
+              const bool is_inside_begin = (bool)(block_flags&2);
+              if (is_inside_begin) is_parallelizable = false;
+
               arg2 = 0; // Number of specified values
               if (arg1==~0U && *ss6!='(') {
                 arg1 = compile(ss6,s++,depth1,0,block_flags);
@@ -22886,6 +22895,9 @@ namespace cimg_library {
             (se1>ss1 && *ss=='_' && *ss1=='\''))) {
           if (*ss=='_') { _cimg_mp_op("Char initializer"); s1 = ss2; }
           else { _cimg_mp_op("String initializer"); s1 = ss1; }
+          const bool is_inside_begin = (bool)(block_flags&2);
+          if (is_inside_begin) is_parallelizable = false;
+
           arg1 = (unsigned int)(se1 - s1); // Original string length
           if (arg1) {
             CImg<charT>(s1,arg1 + 1).move_to(variable_name).back() = 0;
@@ -22915,6 +22927,9 @@ namespace cimg_library {
         // Vector initializer [ ... ].
         if (*ss=='[' && *se1==']') {
           _cimg_mp_op("Vector initializer");
+          const bool is_inside_begin = (bool)(block_flags&2);
+          if (is_inside_begin) is_parallelizable = false;
+
           s1 = ss1; while (s1<se2 && cimg::is_blank(*s1)) ++s1;
           s2 = se2; while (s2>s1 && cimg::is_blank(*s2)) --s2;
           if (s2>s1 && *s1=='\'' && *s2=='\'') { // Vector values provided as a string
@@ -24977,9 +24992,11 @@ namespace cimg_library {
         return (double)(_mp_arg(2)==_mp_arg(3));
       }
 
+#if cimg_use_cpp11==1
       static double mp_erf(_cimg_math_parser& mp) {
         return std::erf(_mp_arg(2));
       }
+#endif
 
       static double mp_erfinv(_cimg_math_parser& mp) {
         return cimg::erfinv(_mp_arg(2));
@@ -28766,7 +28783,9 @@ namespace cimg_library {
        - The \inplace of this method statically casts the computed values to the pixel type \c T.
        - The \newinstance returns a \c CImg<float> image, if the pixel type \c T is \e not float-valued.
     **/
+#if cimg_use_cpp11==1
     _cimg_create_pointwise_functions(erf,std::erf,4096)
+#endif
 
     //! Compute the logarithm of each pixel value.
     /**
@@ -30254,7 +30273,8 @@ namespace cimg_library {
         cimg_for(*this,ptrs,T) { const double val = (double)cimg::abs(*ptrs); if (val>res) res = val; }
       } else { // L-p
         cimg_pragma_openmp(parallel for reduction(+:res) cimg_openmp_if_size(size(),8192))
-        for (longT off = 0; off<(longT)siz; ++off) res+=(double)std::pow(cimg::abs(_data[off]),magnitude_type);
+        for (longT off = 0; off<(longT)siz; ++off)
+          res+=(double)std::pow((double)cimg::abs(_data[off]),(double)magnitude_type);
         res = (double)std::pow(res,1.0/magnitude_type);
       }
       return res;

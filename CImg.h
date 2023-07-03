@@ -17213,7 +17213,12 @@ namespace cimg_library {
 
         // Bits of 'block_flags' tell about in which code block we currently are:
         // 0: critical(), 1: begin(), 2: begin_t(), 3: end(), 4: end_t().
-        const bool is_inside_critical = (bool)(block_flags&1);
+        const bool
+          is_inside_critical = (bool)(block_flags&1),
+          is_inside_begin = (bool)(block_flags&2),
+          is_inside_begin_t = (bool)(block_flags&4),
+          is_inside_end = (bool)(block_flags&8),
+          is_inside_end_t = (bool)(block_flags&16);
 
         // 'p_ref' is a 'unsigned int[7]' used to return a reference to an image or vector value
         // linked to the returned memory slot (reference that cannot be determined at compile time).
@@ -19287,7 +19292,6 @@ namespace cimg_library {
               _cimg_mp_op("Function 'begin()'");
               s1 = ss6; while (s1<se1 && cimg::is_blank(*s1)) ++s1;
               if (s1!=se1) {
-                const bool is_inside_begin = (bool)(block_flags&2);
                 if (!is_inside_begin) code.swap(code_begin);
                 arg1 = compile(s1,se1,depth1,p_ref,2);
                 if (!is_inside_begin) code.swap(code_begin);
@@ -19299,7 +19303,6 @@ namespace cimg_library {
               _cimg_mp_op("Function 'begin_t()'");
               s1 = ss8; while (s1<se1 && cimg::is_blank(*s1)) ++s1;
               if (s1!=se1) {
-                const bool is_inside_begin_t = (bool)(block_flags&4);
                 if (!is_inside_begin_t) code.swap(code_begin_t);
                 arg1 = compile(s1,se1,depth1,p_ref,4);
                 if (!is_inside_begin_t) code.swap(code_begin_t);
@@ -20598,7 +20601,6 @@ namespace cimg_library {
               _cimg_mp_op("Function 'end()'");
               s1 = ss4; while (s1<se1 && cimg::is_blank(*s1)) ++s1;
               if (s1!=se1) {
-                const bool is_inside_end = (bool)(block_flags&8);
                 if (!is_inside_end) code.swap(code_end);
                 pos = compile(s1,se1,depth1,p_ref,8);
                 if (!is_inside_end) code.swap(code_end);
@@ -20613,10 +20615,9 @@ namespace cimg_library {
               _cimg_mp_op("Function 'end_t()'");
               s1 = ss6; while (s1<se1 && cimg::is_blank(*s1)) ++s1;
               if (s1!=se1) {
-                const bool is_inside_end = (bool)(block_flags&16);
-                if (!is_inside_end) code.swap(code_end_t);
+                if (!is_inside_end_t) code.swap(code_end_t);
                 compile(s1,se1,depth1,p_ref,16);
-                if (!is_inside_end) code.swap(code_end_t);
+                if (!is_inside_end_t) code.swap(code_end_t);
                 is_end_code = true;
               }
               _cimg_mp_return_nan();
@@ -21654,9 +21655,10 @@ namespace cimg_library {
                 variable_pos[variable_def._width] = arg3;
                 CImg<char>::string(s1).move_to(variable_def);
               }
-              if (_cimg_mp_is_vector(arg3))
+              if (_cimg_mp_is_vector(arg3)) {
                 set_reserved_vector(arg3); // Prevent from being used in further optimization
-              else if (_cimg_mp_is_comp(arg3)) memtype[arg3] = -1;
+                if (is_inside_begin) is_parallelizable = false;
+              } else if (_cimg_mp_is_comp(arg3)) memtype[arg3] = -1;
               *se1 = ')';
               _cimg_mp_return(arg3);
             }
@@ -21894,7 +21896,6 @@ namespace cimg_library {
 #ifdef cimg_mp_func_run
             if (!std::strncmp(ss,"run(",4)) { // Run external command
               _cimg_mp_op("Function 'run()'");
-              const bool is_inside_begin = (bool)(block_flags&2), is_inside_end = (bool)(block_flags&8);
               if (!is_inside_critical && !is_inside_begin && !is_inside_end) {
                 is_parallelizable = false; is_noncritical_run = true;
               }
@@ -22528,9 +22529,6 @@ namespace cimg_library {
                 !std::strncmp(ss,"vector(",7) ||
                 (!std::strncmp(ss,"vector",6) && ss7<se1 && (s=std::strchr(ss7,'('))!=0)) { // Vector
               _cimg_mp_op("Function 'vector()'");
-              const bool is_inside_begin = (bool)(block_flags&2);
-              if (is_inside_begin) is_parallelizable = false;
-
               arg2 = 0; // Number of specified values
               if (arg1==~0U && *ss6!='(') {
                 arg1 = compile(ss6,s++,depth1,0,block_flags);
@@ -22895,9 +22893,6 @@ namespace cimg_library {
             (se1>ss1 && *ss=='_' && *ss1=='\''))) {
           if (*ss=='_') { _cimg_mp_op("Char initializer"); s1 = ss2; }
           else { _cimg_mp_op("String initializer"); s1 = ss1; }
-          const bool is_inside_begin = (bool)(block_flags&2);
-          if (is_inside_begin) is_parallelizable = false;
-
           arg1 = (unsigned int)(se1 - s1); // Original string length
           if (arg1) {
             CImg<charT>(s1,arg1 + 1).move_to(variable_name).back() = 0;
@@ -22927,9 +22922,6 @@ namespace cimg_library {
         // Vector initializer [ ... ].
         if (*ss=='[' && *se1==']') {
           _cimg_mp_op("Vector initializer");
-          const bool is_inside_begin = (bool)(block_flags&2);
-          if (is_inside_begin) is_parallelizable = false;
-
           s1 = ss1; while (s1<se2 && cimg::is_blank(*s1)) ++s1;
           s2 = se2; while (s2>s1 && cimg::is_blank(*s2)) --s2;
           if (s2>s1 && *s1=='\'' && *s2=='\'') { // Vector values provided as a string

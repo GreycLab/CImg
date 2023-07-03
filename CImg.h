@@ -17734,7 +17734,6 @@ namespace cimg_library {
                 if (_cimg_mp_is_vector(arg3)) { // Vector variable
                   arg1 = is_sth || is_comp_vector(arg3)?arg3:vector_copy(arg3);
                   set_reserved_vector(arg1); // Prevent from being used in further optimization
-                  if (is_inside_begin) is_parallelizable = false;
                 } else { // Scalar variable
                   if (is_const) arg1 = arg3;
                   else {
@@ -21656,10 +21655,9 @@ namespace cimg_library {
                 variable_pos[variable_def._width] = arg3;
                 CImg<char>::string(s1).move_to(variable_def);
               }
-              if (_cimg_mp_is_vector(arg3)) {
+              if (_cimg_mp_is_vector(arg3))
                 set_reserved_vector(arg3); // Prevent from being used in further optimization
-                if (is_inside_begin) is_parallelizable = false;
-              } else if (_cimg_mp_is_comp(arg3)) memtype[arg3] = -1;
+              else if (_cimg_mp_is_comp(arg3)) memtype[arg3] = -1;
               *se1 = ')';
               _cimg_mp_return(arg3);
             }

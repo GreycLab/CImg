@@ -30060,7 +30060,7 @@ namespace cimg_library {
       if (!expression || !*expression) return 0;
       double _val = 0;
       if (__eval(expression,_val)) return _val;
-      _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' ||
+      _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='+' ||
                                          *expression=='*' || *expression==':'),"eval",
                            *this,img_output,list_images,false);
       mp.begin_t();
@@ -30103,7 +30103,7 @@ namespace cimg_library {
       if (!expression || !*expression) { output.assign(1); *output = 0; return; }
       double _val = 0;
       if (__eval(expression,_val)) { output.assign(1); *output = _val; return; }
-      _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' ||
+      _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='+' ||
                                          *expression=='*' || *expression==':'),"eval",
                            *this,img_output,list_images,false);
       output.assign(1,std::max(1U,mp.result_dim));
@@ -32725,10 +32725,11 @@ namespace cimg_library {
         _cimg_abort_init_openmp;
         try {
           CImg<T> base = provides_copy?provides_copy->get_shared():get_shared();
-          _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' ||
+          _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='+' ||
                                              *expression=='*' || *expression==':'),
                                calling_function,base,this,list_images,true);
-          if (!provides_copy && expression && *expression!='>' && *expression!='<' && *expression!=':' &&
+          if (!provides_copy && expression &&
+              *expression!='>' && *expression!='<' && *expression!=':' &&
               mp.need_input_copy)
             base.assign().assign(*this,false); // Needs input copy
 
@@ -32745,7 +32746,7 @@ namespace cimg_library {
               M2==_depth?_width*_height*_spectrum:_width*_height*_depth;
           }
 
-          bool do_in_parallel = false;
+          bool is_parallelizable = false;
 #if cimg_use_openmp!=0
           if (mp.is_noncritical_run && (*expression=='*' || *expression==':'))
             throw CImgArgumentException(_cimg_instance
@@ -32754,8 +32755,9 @@ namespace cimg_library {
                                         cimg_instance,calling_function,expression);
           cimg_openmp_if(!mp.is_noncritical_run &&
                          (*expression=='*' || *expression==':' || (mp.is_parallelizable && M1>=2 && M1*M2>=16)))
-            do_in_parallel = true;
+            is_parallelizable = true;
 #endif
+
           if (mp.result_dim) { // Vector-valued expression
             const unsigned int N = std::min(mp.result_dim,_spectrum);
             const ulongT whd = (ulongT)_width*_height*_depth;
@@ -32775,7 +32777,7 @@ namespace cimg_library {
               }
               mp.end_t();
 
-            } else if (*expression=='>' || !do_in_parallel) {
+            } else if (*expression=='>' || *expression=='+' || !is_parallelizable) {
               CImg<doubleT> res(1,mp.result_dim);
               mp.begin_t();
               cimg_forYZ(*this,y,z) {
@@ -32839,7 +32841,7 @@ namespace cimg_library {
                 else cimg_rofYZC(*this,y,z,c) { cimg_abort_test; cimg_rofX(*this,x) *(ptrd--) = (T)mp(x,y,z,c); }
               mp.end_t();
 
-            } else if (*expression=='>' || !do_in_parallel) {
+            } else if (*expression=='>' || *expression=='+' || !is_parallelizable) {
               mp.begin_t();
               if (mode&4) cimg_forYZC(*this,y,z,c) { cimg_abort_test; cimg_forX(*this,x) mp(x,y,z,c); }
               else cimg_forYZC(*this,y,z,c) { cimg_abort_test; cimg_forX(*this,x) *(ptrd++) = (T)mp(x,y,z,c); }

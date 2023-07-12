@@ -16954,7 +16954,7 @@ namespace cimg_library {
 
       unsigned int mempos, mem_img_median, mem_img_norm, mem_img_index, debug_indent,
         result_dim, result_end_dim, break_type, constcache_size;
-      bool is_parallelizable, is_noncritical_run, is_end_code, is_fill, return_new_comp, need_input_copy;
+      bool is_parallelizable, is_noncritical_run, is_end_code, is_fill, need_input_copy, return_new_comp;
       double *result, *result_end;
       cimg_uint64 rng;
       const char *const calling_function, *s_op, *ss_op;
@@ -17131,7 +17131,8 @@ namespace cimg_library {
         imgin(CImg<T>::const_empty()),imgout(CImg<T>::empty()),imglist(CImgList<T>::empty()),
         img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),list_norm(_list_norm),debug_indent(0),
         result_dim(0),result_end_dim(0),break_type(0),constcache_size(0),is_parallelizable(true),
-        is_noncritical_run(false),is_fill(false),need_input_copy(false),result_end(0),rng(0),calling_function(0) {
+        is_noncritical_run(false),is_fill(false),need_input_copy(false),
+        result_end(0),rng(0),calling_function(0) {
         mem.assign(1 + _cimg_mp_slot_c,1,1,1,0); // Allow to skip 'is_empty?' test in operator()()
         result = mem._data;
       }
@@ -27312,7 +27313,12 @@ namespace cimg_library {
         }
         CImg(1,1,1,1,0).move_to(_str);
         CImg<charT> str = _str>'x';
-        cimg_mp_func_run(str._data);
+#if cimg_use_openmp==0
+        const unsigned int n_thread = 0;
+#else
+        const unsigned int n_thread = omp_get_thread_num();
+#endif
+        cimg_mp_func_run(str._data,n_thread && mp.is_noncritical_run);
         return cimg::type<double>::nan();
       }
 #endif
@@ -32747,16 +32753,8 @@ namespace cimg_library {
           }
 
           bool is_parallelizable = false;
-#if cimg_use_openmp!=0
-          if (mp.is_noncritical_run && (*expression=='*' || *expression==':'))
-            throw CImgArgumentException(_cimg_instance
-                                        "%s(): Cannot evaluate expression '%s' in parallel, "
-                                        "as 'run()' is used outside a 'critical()' section.",
-                                        cimg_instance,calling_function,expression);
-          cimg_openmp_if(!mp.is_noncritical_run &&
-                         (*expression=='*' || *expression==':' || (mp.is_parallelizable && M1>=2 && M1*M2>=16)))
+          cimg_openmp_if(*expression=='*' || *expression==':' || (mp.is_parallelizable && M1>=2 && M1*M2>=16))
             is_parallelizable = true;
-#endif
 
           if (mp.result_dim) { // Vector-valued expression
             const unsigned int N = std::min(mp.result_dim,_spectrum);

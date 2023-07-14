@@ -24579,7 +24579,7 @@ namespace cimg_library {
                                       mp.imgout.pixel_type(),s_op,ind);
 
         double ret = cimg::type<double>::nan();
-        if (dim<1) ret = img[siz - 1]; // Scalar element
+        if (dim==1) ret = img[siz - 1]; // Scalar element
         else cimg_forC(img,c) ptrd[c] = img(0,siz - 1,0,c); // Vector element
         if (is_pop) { // Remove element from array
           --siz;

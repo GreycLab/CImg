@@ -32751,7 +32751,8 @@ namespace cimg_library {
           }
 
           bool is_parallelizable = false;
-          cimg_openmp_if(*expression=='*' || *expression==':' || (mp.is_parallelizable && M2>=2 && M1*M2>=16))
+          cimg_openmp_if(*expression=='*' || *expression==':' || (mp.is_parallelizable &&
+                                                                  (M2>=2 || M1>=4096) && M1*M2>=32))
             is_parallelizable = true;
 
           if (mp.result_dim) { // Vector-valued expression

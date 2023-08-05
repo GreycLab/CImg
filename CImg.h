@@ -32755,11 +32755,11 @@ namespace cimg_library {
           }
 
           bool is_parallelizable = false;
+#if cimg_use_openmp!=0
           cimg_openmp_if(*expression=='*' || *expression==':' || (mp.is_parallelizable &&
                                                                   (M2>=2 || M1>=4096) && M1*M2>=32))
             is_parallelizable = true;
-
-          std::fprintf(stderr,"\nDEBUG : is_parallel = %d\n",(int)is_parallelizable);
+#endif
 
           if (mp.result_dim) { // Vector-valued expression
             const unsigned int N = std::min(mp.result_dim,_spectrum);

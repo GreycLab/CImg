@@ -2445,11 +2445,12 @@ namespace cimg_library {
     inline unsigned int openmp_mode(const unsigned int value, const bool is_set) {
 #if cimg_use_openmp!=0
       static unsigned int mode = 2;
-#else
-      static unsigned int mode = 0;
-#endif
       if (is_set)  { cimg::mutex(0); mode = value<2?value:2; cimg::mutex(0,0); }
       return mode;
+#else
+      cimg::unused(value,is_set);
+      return 0;
+#endif
     }
 
     //! Set current \CImg openmp mode.
@@ -32755,11 +32756,9 @@ namespace cimg_library {
           }
 
           bool is_parallelizable = false;
-#if cimg_use_openmp!=0
           cimg_openmp_if(*expression=='*' || *expression==':' || (mp.is_parallelizable &&
                                                                   (M2>=2 || M1>=4096) && M1*M2>=32))
             is_parallelizable = true;
-#endif
 
           if (mp.result_dim) { // Vector-valued expression
             const unsigned int N = std::min(mp.result_dim,_spectrum);

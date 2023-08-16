@@ -54440,19 +54440,25 @@ namespace cimg_library {
         nb_colors = header[0x2E] + (header[0x2F]<<8) + (header[0x30]<<16) + (header[0x31]<<24),
         bpp = header[0x1C] + (header[0x1D]<<8);
 
-      if (header_size<0 || header_size>file_size)
+      if ((ulongT)file_size!=fsiz)
+        throw CImgIOException(_cimg_instance
+                              "load_bmp(): Invalid file_size %d specified in filename '%s' (expected %lu).",
+                              cimg_instance,
+                              file_size,filename?filename:"(FILE*)",fsiz);
+
+      if (header_size<0 || header_size>=file_size)
         throw CImgIOException(_cimg_instance
                               "load_bmp(): Invalid header size %d specified in filename '%s'.",
                               cimg_instance,
                               header_size,filename?filename:"(FILE*)");
 
-      if (!file_size || file_size==offset) {
-        cimg::fseek(nfile,0,SEEK_END);
-        file_size = (int)cimg::ftell(nfile);
-        cimg::fseek(nfile,54,SEEK_SET);
-      }
-      if (header_size>40) cimg::fseek(nfile,header_size - 40,SEEK_CUR);
+      if (offset<0 || offset>=file_size)
+        throw CImgIOException(_cimg_instance
+                              "load_bmp(): Invalid offset %d specified in filename '%s'.",
+                              cimg_instance,
+                              offset,filename?filename:"(FILE*)");
 
+      if (header_size>40) cimg::fseek(nfile,header_size - 40,SEEK_CUR);
       const int
         dx_bytes = (bpp==1)?(dx/8 + (dx%8?1:0)):((bpp==4)?(dx/2 + (dx%2)):(int)((longT)dx*bpp/8)),
         align_bytes = (4 - dx_bytes%4)%4;
@@ -54460,7 +54466,7 @@ namespace cimg_library {
         cimg_iobuffer = (ulongT)24*1024*1024,
         buf_size = (ulongT)cimg::abs(dy)*(dx_bytes + align_bytes);
 
-      if (buf_size>fsiz)
+      if (buf_size>=fsiz)
         throw CImgIOException(_cimg_instance
                               "load_bmp(): File size %lu for filename '%s' does not match "
                               "encoded image dimensions (%d,%d).",

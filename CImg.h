@@ -7385,11 +7385,17 @@ namespace cimg_library {
        \param filename Specified filename to get size from.
        \return File size or '-1' if file does not exist.
     **/
-    inline cimg_int64 fsize(const char *const filename) {
-      std::FILE *const file = cimg::std_fopen(filename,"rb");
+    inline cimg_int64 fsize(std::FILE *const file) {
       if (!file) return (cimg_int64)-1;
       std::fseek(file,0,SEEK_END);
       const cimg_int64 siz = (cimg_int64)std::ftell(file);
+      std::rewind(file);
+      return siz;
+    }
+
+    inline cimg_int64 fsize(const char *const filename) {
+      std::FILE *const file = cimg::std_fopen(filename,"rb");
+      const cimg_int64 siz = fsize(file);
       cimg::fclose(file);
       return siz;
     }
@@ -54417,7 +54423,7 @@ namespace cimg_library {
                                     "load_bmp(): Specified filename is (null).",
                                     cimg_instance);
 
-      const ulongT fsiz = file?(ulongT)cimg_max_buf_size:(ulongT)cimg::fsize(filename);
+      const ulongT fsiz = (ulongT)(file?cimg::fsize(file):cimg::fsize(filename));
       std::FILE *const nfile = file?file:cimg::fopen(filename,"rb");
       CImg<ucharT> header(54);
       cimg::fread(header._data,54,nfile);

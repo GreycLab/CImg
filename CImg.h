@@ -7387,9 +7387,10 @@ namespace cimg_library {
     **/
     inline cimg_int64 fsize(std::FILE *const file) {
       if (!file) return (cimg_int64)-1;
+      long pos = std::ftell(file)
       std::fseek(file,0,SEEK_END);
       const cimg_int64 siz = (cimg_int64)std::ftell(file);
-      std::rewind(file);
+      std::fseek(file,pos,SEEK_SET);
       return siz;
     }
 

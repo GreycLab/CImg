@@ -36928,6 +36928,17 @@ namespace cimg_library {
        This function permutes image content regarding the specified axes permutation.
     **/
     CImg<T>& permute_axes(const char *const axes_order) {
+      if (is_empty() || !axes_order) return *this;
+      const unsigned uicase = _permute_axes_uicase(axes_order);
+      if (_permute_axes_is_optim(uicase)) { // Data layout allow to do nothing but set the new dimensions
+        CImg<T> res(*this,true);
+        for (unsigned int i = 0; i<4; ++i) {
+          const unsigned int axis = (uicase>>(4*(3 - i)))&15, value = !axis?_width:axis==1?_height:axis==2?_depth:_spectrum;
+          if (!i) res._width = value; else if (i==1) res._height = value; else if (i==2) res._depth = value; else res._spectrum = value;
+        }
+        _width = res._width; _height = res._height; _depth = res._depth; _spectrum = res._spectrum;
+        return *this;
+      }
       return get_permute_axes(axes_order).move_to(*this);
     }
 
@@ -36937,7 +36948,7 @@ namespace cimg_library {
       return _permute_axes(axes_order,foo);
     }
 
-    unsigned int __permute_axes(const char *const axes_order) const { // Convert axes to integer case number
+    unsigned int _permute_axes_uicase(const char *const axes_order) const { // Convert axes to integer case number
       unsigned char s_axes[4] = { 0,1,2,3 }, n_axes[4] = { };
       bool is_error = false;
       if (axes_order) for (unsigned int l = 0; axes_order[l]; ++l) {
@@ -36954,13 +36965,54 @@ namespace cimg_library {
       return (s_axes[0]<<12) | (s_axes[1]<<8) | (s_axes[2]<<4) | (s_axes[3]);
     }
 
+    bool _permute_axes_is_optim(const unsigned int uicase) const { // Determine cases where nothing has to be done
+      const unsigned int co = ((_width>1)<<3)|((_height>1)<<2)|((_depth>1)<<1)|(_spectrum>1);
+      if (co<=2 || uicase==0x0123) return true;
+      switch (uicase) {
+      case (0x0132) : if ((co>=4 && co<=6) || (co>=8 && co<=10) || (co>=12 && co<=14)) return true; break;
+      case (0x0213) : if ((co>=3 && co<=5) || (co>=8 && co<=13)) return true; break;
+      case (0x0231) : if (co==3 || co==4 || (co>=8 && co<=12)) return true; break;
+      case (0x0312) : if (co==4 || co==6 || co==8 || co==9 || co==10 || co==12 || co==14) return true; break;
+      case (0x0321) : if (co==4 || (co>=8 && co<=10) || co==12) return true; break;
+      case (0x1023) : if (co>=3 && co<=11) return true; break;
+      case (0x1032) : if ((co>=4 && co<=6) || (co>=8 && co<=10)) return true; break;
+      case (0x1203) : if (co>=3 && co<=9) return true; break;
+      case (0x1230) : if (co>=3 && co<=8) return true; break;
+      case (0x1302) : if ((co>=4 && co<=6) || co==8 || co==10) return true; break;
+      case (0x1320) : if ((co>=4 && co<=6) || co==8) return true; break;
+      case (0x2013) : if ((co>=3 && co<=5) || co==8 || co==9 || co==12 || co==13) return true; break;
+      case (0x2031) : if (co==3 || co==4 || co==8 || co==9 || co==12) return true; break;
+      case (0x2103) : if ((co>=3 && co<=5) || co==8 || co==9) return true; break;
+      case (0x2130) : if ((co>=3 && co<=5) || co==8) return true; break;
+      case (0x2301) : if (co==3 || co==4 || co==8 || co==12) return true; break;
+      case (0x2310) : if (co==3 || co==4 || co==8) return true; break;
+      case (0x3012) : if (co==4 || co==6 || co==8 || co==10 || co==12 || co==14) return true; break;
+      case (0x3021) : if (co==4 || co==8 || co==10 || co==12) return true; break;
+      case (0x3102) : if (co==4 || co==6 || co==8 || co==10) return true; break;
+      case (0x3120) : if (co==4 || co==6 || co==8) return true; break;
+      case (0x3201) : if (co==4 || co==8 || co==12) return true; break;
+      case (0x3210) : if (co==4 || co==8) return true; break;
+      }
+      return false;
+    }
+
     template<typename t>
     CImg<t> _permute_axes(const char *const axes_order, const t&) const {
       if (is_empty() || !axes_order) return CImg<t>(*this,false);
-      const unsigned uicase = __permute_axes(axes_order);
+      CImg<t> res;
+      const unsigned uicase = _permute_axes_uicase(axes_order);
+
+      if (_permute_axes_is_optim(uicase)) { // Data layout allow to do nothing but set the new dimensions
+        res.assign(*this,false);
+        for (unsigned int i = 0; i<4; ++i) {
+          const unsigned int axis = (uicase>>(4*(3 - i)))&15, value = !axis?_width:axis==1?_height:axis==2?_depth:_spectrum;
+          if (!i) res._width = value; else if (i==1) res._height = value; else if (i==2) res._depth = value; else res._spectrum = value;
+        }
+        return res;
+      }
+
       const T* ptrs = _data;
       ulongT wh, whd;
-      CImg<t> res;
 
       switch (uicase) {
       case 0x0123 : // xyzc
@@ -37160,7 +37212,6 @@ namespace cimg_library {
         cimg_forXYZC(*this,x,y,z,c) res(c,z,y,x,wh,whd) = (t)*(ptrs++);
         break;
       }
-
       return res;
     }
 

@@ -36933,8 +36933,11 @@ namespace cimg_library {
       if (_permute_axes_is_optim(uicase)) { // Data layout allow to do nothing but set the new dimensions
         CImg<T> res(*this,true);
         for (unsigned int i = 0; i<4; ++i) {
-          const unsigned int axis = (uicase>>(4*(3 - i)))&15, value = !axis?_width:axis==1?_height:axis==2?_depth:_spectrum;
-          if (!i) res._width = value; else if (i==1) res._height = value; else if (i==2) res._depth = value; else res._spectrum = value;
+          const unsigned int
+            axis = (uicase>>(4*(3 - i)))&15,
+            value = !axis?_width:axis==1?_height:axis==2?_depth:_spectrum;
+          if (!i) res._width = value; else if (i==1) res._height = value;
+          else if (i==2) res._depth = value; else res._spectrum = value;
         }
         _width = res._width; _height = res._height; _depth = res._depth; _spectrum = res._spectrum;
         return *this;
@@ -37005,8 +37008,11 @@ namespace cimg_library {
       if (_permute_axes_is_optim(uicase)) { // Data layout allow to do nothing but set the new dimensions
         res.assign(*this,false);
         for (unsigned int i = 0; i<4; ++i) {
-          const unsigned int axis = (uicase>>(4*(3 - i)))&15, value = !axis?_width:axis==1?_height:axis==2?_depth:_spectrum;
-          if (!i) res._width = value; else if (i==1) res._height = value; else if (i==2) res._depth = value; else res._spectrum = value;
+          const unsigned int
+            axis = (uicase>>(4*(3 - i)))&15,
+            value = !axis?_width:axis==1?_height:axis==2?_depth:_spectrum;
+          if (!i) res._width = value; else if (i==1) res._height = value;
+          else if (i==2) res._depth = value; else res._spectrum = value;
         }
         return res;
       }

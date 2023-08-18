@@ -36937,32 +36937,32 @@ namespace cimg_library {
       return _permute_axes(axes_order,foo);
     }
 
-    unsigned int __permute_axes(const char *const axes_order) const { // Convert axes to integer code
-      unsigned char s_code[4] = { 0,1,2,3 }, n_code[4] = { };
+    unsigned int __permute_axes(const char *const axes_order) const { // Convert axes to integer case number
+      unsigned char s_axes[4] = { 0,1,2,3 }, n_axes[4] = { };
       bool is_error = false;
       if (axes_order) for (unsigned int l = 0; axes_order[l]; ++l) {
           int c = cimg::lowercase(axes_order[l]);
           if (l>=4 || (c!='x' && c!='y' && c!='z' && c!='c')) { is_error = true; break; }
-          else { ++n_code[c%=4]; s_code[l] = (unsigned char)c; }
+          else { ++n_axes[c%=4]; s_axes[l] = (unsigned char)c; }
         }
-      is_error|=(*n_code>1) || (n_code[1]>1) || (n_code[2]>1) || (n_code[3]>1);
+      is_error|=(*n_axes>1) || (n_axes[1]>1) || (n_axes[2]>1) || (n_axes[3]>1);
       if (is_error)
         throw CImgArgumentException(_cimg_instance
                                     "permute_axes(): Invalid specified axes order '%s'.",
                                     cimg_instance,
                                     axes_order);
-      return (s_code[0]<<12) | (s_code[1]<<8) | (s_code[2]<<4) | (s_code[3]);
+      return (s_axes[0]<<12) | (s_axes[1]<<8) | (s_axes[2]<<4) | (s_axes[3]);
     }
 
     template<typename t>
     CImg<t> _permute_axes(const char *const axes_order, const t&) const {
       if (is_empty() || !axes_order) return CImg<t>(*this,false);
-      const unsigned code = __permute_axes(axes_order);
+      const unsigned uicase = __permute_axes(axes_order);
       const T* ptrs = _data;
       ulongT wh, whd;
       CImg<t> res;
 
-      switch (code) {
+      switch (uicase) {
       case 0x0123 : // xyzc
         return +*this;
       case 0x0132 : // xycz

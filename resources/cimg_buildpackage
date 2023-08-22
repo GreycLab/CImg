@@ -52,7 +52,7 @@ VERSION=${RELEASE1}${RELEASE2}${RELEASE3}
 SVERSION=${RELEASE1}.${RELEASE2}.${RELEASE3}
 
 # Read command line options.
-if [ "$1" == "final" ]; then SUFFIX=""; SSUFFIX=""; else SUFFIX=_pre`date +%m%d%y`; SSUFFIX=_pre; fi
+if [ "$1" == "final" ]; then SUFFIX=""; SSUFFIX=""; else SUFFIX=_pre`date +%m%d%y%H`; SSUFFIX=_pre; fi
 
 # Define the different paths and filenames used in this script.
 BASE_DIR=`pwd`

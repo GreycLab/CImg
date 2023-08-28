@@ -16740,7 +16740,8 @@ namespace cimg_library {
         const ulongT minimal_size = 8UL + 3*nb_points + 6*nb_primitives;
         if (_data + minimal_size>ptre) {
           if (error_message) cimg_snprintf(error_message,256,
-                                           "CImg3d (%u,%u) has only %lu values, while at least %lu values were expected",
+                                           "CImg3d (%u,%u) has only %lu values, "
+                                           "while at least %lu values were expected",
                                            nb_points,nb_primitives,(unsigned long)size(),(unsigned long)minimal_size);
           return false;
         }

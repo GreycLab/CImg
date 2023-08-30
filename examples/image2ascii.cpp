@@ -7,7 +7,7 @@
  #                This file is a part of the CImg Library project.
  #                ( http://cimg.eu )
  #
- #  Copyright   : David Tschumperle
+ #  Copyright   : David Tschumperlé
  #                ( http://tschumperle.users.greyc.fr/ )
  #
  #  License     : CeCILL v2.0
@@ -71,7 +71,7 @@ int main(int argc,char **argv) {
   // Init fonts
   CImgList<> font_full = CImgList<>::font(13,false);
   font_full.remove(0,255);
-  const int fw = font_full['A'].width(), fh = font_full['A'].height();
+  const int fw = font_full[(int)'A'].width(), fh = font_full[(int)'A'].height();
   CImgList<> font, font_blur;
   CImgList<unsigned char> font_code;
 

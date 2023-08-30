@@ -6,7 +6,7 @@
 #		 Used by doxygen to generate the reference documentation.
 #		 ( http://cimg.eu )
 #
-#  Copyright   : David Tschumperle
+#  Copyright   : David Tschumperlé
 #		 ( http://tschumperle.users.greyc.fr/ )
 #
 #
@@ -44,7 +44,7 @@
 /** \addtogroup cimg_overview CImg Library Overview */
 /*@{*/
 /**
-  \page foo2
+  \page overview CImg Library Overview
 
   The <b>CImg Library</b> is an image processing library, designed for C++ programmers.
   It provides useful classes and functions to load/save, display and process various types of images.
@@ -136,7 +136,7 @@
 
   The CImg library is a very light and user-friendly library : only standard system libraries are used.
   It avoids handling complex dependencies and problems with library compatibility.
-  The only thing you need is a (quite modern) C++ compiler :
+  The only thing you need is a C++ compiler :
 
   - <b>Microsoft Visual Studio.NET and Visual Express Edition</b> : Use the project files and solution files provided in the
   %CImg Library package (directory 'compilation/') to see how it works.
@@ -146,24 +146,24 @@
   \endcode
   - <b>g++ (MingW windows version)</b> : Use the following command to compile a CImg-based program with g++, on Windows :
   \code
-  g++ -o hello_word.exe hello_word.cpp -O2 -lgdi32
+  g++ -o hello_world.exe hello_world.cpp -O2 -lgdi32
   \endcode
   - <b>g++ (Linux version)</b> : Use the following command to compile a CImg-based program with g++, on Linux :
   \code
-  g++ -o hello_word.exe hello_world.cpp -O2 -L/usr/X11R6/lib -lm -lpthread -lX11
+  g++ -o hello_world.exe hello_world.cpp -O2 -L/usr/X11R6/lib -lm -lpthread -lX11
   \endcode
   - <b>g++ (Solaris version)</b> : Use the following command to compile a CImg-based program with g++, on Solaris :
   \code
-  g++ -o hello_word.exe hello_world.cpp -O2 -lm -lpthread -R/usr/X11R6/lib -lrt -lnsl -lsocket
+  g++ -o hello_world.exe hello_world.cpp -O2 -lm -lpthread -R/usr/X11R6/lib -lrt -lnsl -lsocket
   \endcode
   - <b>g++ (Mac OS X version)</b> : Use the following command to compile a CImg-based program with g++, on Mac OS X :
   \code
-  g++ -o hello_word.exe hello_world.cpp -O2 -lm -lpthread -I/usr/X11R6/include -L/usr/X11R6/lib -lm -lpthread -lX11
+  g++ -o hello_world.exe hello_world.cpp -O2 -lm -lpthread -I/usr/X11R6/include -L/usr/X11R6/lib -lm -lpthread -lX11
   \endcode
   - <b>Dev-Cpp</b> : Use the project file provided in the CImg library package to see how it works.
 
   If you are using other compilers and encounter problems, please
-  <a href="http://www.greyc.ensicaen.fr/~dtschump">write me</a> since maintaining compatibility is one
+  <a href="https://github.com/GreycLab/CImg/issues">write me</a> since maintaining compatibility is one
   of the priorities of the %CImg Library. Nevertheless, old compilers that do not respect the C++ standard will not
   support the %CImg Library.
 
@@ -184,7 +184,7 @@
 /** \addtogroup cimg_faq FAQ : Frequently Asked Questions. */
 /*@{*/
 /**
-  \page foofaq
+  \page faq FAQ
 
   \section ssf0 FAQ Summary
 
@@ -208,10 +208,10 @@
 
   \subsection ssf11 1.1. What is the CImg Library ?
 
-  The CImg Library is an <i>open-source C++ toolkit for image processing</i>.\n
+  The CImg Library is an <i>open-source C++ library for image processing</i>.\n
 
   It mainly consists in a (big) single header file
-  <a href="https://framagit.org/dtschump/CImg/raw/master/CImg.h">CImg.h</a>
+  <a href="https://github.com/GreycLab/CImg/raw/master/CImg.h">CImg.h</a>
   providing a set of C++ classes and functions that can be used in your own sources,
   to load/save, manage/process and display generic images.
   It's actually a very simple and pleasant toolkit for coding image processing stuff in C++ :
@@ -223,10 +223,8 @@
   It is regularly tested on different architectures and compilers,
   and should also work on any decent OS having a decent C++ compiler.
   Before each release, the CImg Library is compiled under these different configurations :
-  \li PC Linux 32 bits, with g++.
-  \li PC Windows 32 bits, with Visual C++ Express Edition.
-  \li Sun SPARC Solaris 32 bits, with g++.
-  \li Mac PPC with OS X and g++.
+  \li PC Linux 32/64 bits, with g++.
+  \li PC Windows 32/64 bits, with Visual C++ Express Edition.
 
   CImg has a minimal number of dependencies. In its minimal version, it can be compiled only with standard C++ headers.
   Anyway, it has interesting extension capabilities and can use external libraries to perform specific tasks more
@@ -239,10 +237,10 @@
   The package is distributed under the <a href="http://www.cecill.info">CeCILL license</a>.
 
   This package contains :
-  - The main library file <a href="https://framagit.org/dtschump/CImg/raw/master/CImg.h">CImg.h</a> (C++ header file).
-  - Several C++ source code showing <a href="https://framagit.org/dtschump/CImg/tree/master/examples">examples of using CImg</a>.
+  - The main library file <a href="https://github.com/GreycLab/CImg/raw/master/CImg.h">CImg.h</a> (C++ header file).
+  - Several C++ source code showing <a href="https://github.com/GreycLab/CImg/tree/master/examples">examples of using CImg</a>.
   - A complete library documentation, in <a href="../CImg_reference.pdf">PDF</a> format.
-  - Additional <a href="https://framagit.org/dtschump/CImg/tree/master/plugins">library plug-ins</a> that can be used to extend
+  - Additional <a href="https://github.com/GreycLab/CImg/tree/master/plugins">library plug-ins</a> that can be used to extend
   library capabilities for specific uses.
 
   The CImg Library is a quite lightweight library which is easy to maintain (due to its particular structure), and thus
@@ -268,10 +266,10 @@
   corresponding to different constraints on the source files :
   - The <a href="http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html">CeCILL-C</a> license is the most permissive one, close to
   the <i>GNU LGPL license</i>, and <i>applies <b>only</b> on the main library file
-  <a href="https://framagit.org/dtschump/CImg/raw/master/CImg.h">CImg.h</a></i>.
-  Basically, this license allows to use <a href="https://framagit.org/dtschump/CImg/raw/master/CImg.h">CImg.h</a>
+  <a href="https://github.com/GreycLab/CImg/raw/master/CImg.h">CImg.h</a></i>.
+  Basically, this license allows to use <a href="https://github.com/GreycLab/CImg/raw/master/CImg.h">CImg.h</a>
   in a closed-source product without forcing you to redistribute the entire software source code. Anyway,
-  if one modifies the <a href="https://framagit.org/dtschump/CImg/raw/master/CImg.h">CImg.h</a> source file, one has to redistribute
+  if one modifies the <a href="https://github.com/GreycLab/CImg/raw/master/CImg.h">CImg.h</a> source file, one has to redistribute
   the modified version of the file that must be governed by the same <a href="http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.html">CeCILL-C</a> license.
 
   - The <a href="http://www.cecill.info/licences/Licence_CeCILL_V2-en.html">CeCILL</a> license applies to all other files
@@ -286,7 +284,7 @@
   \subsection ssf16 1.6. Who is behind CImg ?
 
   CImg has been started by
-  <a href="http://tschumperle.users.greyc.fr/">David Tschumperle</a> at the beginning of his PhD thesis, in October 1999.
+  <a href="http://tschumperle.users.greyc.fr/">David Tschumperlé</a> at the beginning of his PhD thesis, in October 1999.
   He is still the main coordinator of the project.
   Since the first release, a growing number of contributors has appeared.
   Due to the very simple and compact form of the library, submitting a contribution is quite easy and can be
@@ -316,7 +314,7 @@
   \subsection ssf23 2.3 Why is CImg entirely contained in a single header file ?
 
   People are often surprised to see that the complete code of the library is contained in a single (big) C++ header file
-  <a href="https://framagit.org/dtschump/CImg/raw/master/CImg.h">CImg.h</a>.
+  <a href="https://github.com/GreycLab/CImg/raw/master/CImg.h">CImg.h</a>.
   There are good practical and technical reasons to do that. Some arguments are listed below to justify this approach,
   so (I hope) you won't think this is a awkwardly C++ design of the CImg library :\n
 
@@ -375,7 +373,7 @@
 /** \addtogroup cimg_environment Setting Environment Variables */
 /*@{*/
 /**
-  \page foo1
+  \page environment_variables Setting Environment Variables
 
   The CImg library is a multiplatform library, working on a wide variety of systems.
   This implies the existence of some \e environment \e variables that must be correctly defined
@@ -437,7 +435,7 @@
 /** \addtogroup cimg_visual2005 How to use CImg library with Visual C++ 2005 Express Edition ?. */
 /*@{*/
 /**
-  \page foo89198
+  \page visual_cpp How to use CImg library with Visual C++ 2005 Express Edition ?
 
   \section s13968 How to use CImg library with Visual C++ 2005 Express Edition ?
 
@@ -469,7 +467,7 @@
 /** \addtogroup cimg_tutorial Tutorial : Getting Started. */
 /*@{*/
 /**
-  \page foo3
+  \page tutorial Tutorial : Getting Started.
 
   Let's start to write our first program to get the idea. This will demonstrate how to load and create images, as well as handle image
   display and mouse events.
@@ -569,37 +567,6 @@
 
 /*-----------------------------------
 
-   Using drawing functions
-
-  -------------------------------------*/
-
-/** \addtogroup cimg_drawing Using Drawing Functions. */
-/*@{*/
-/**
-  \page foo5
-
-  \section s5 Using Drawing Functions.
-
-  This section tells more about drawing features in CImg images.
-  Drawing functions list can be found in <a href="structCImg.html">the CImg functions list</a>
-  (section \b Drawing Functions),
-  and are all defined on a common basis. Here are the important points to understand before using
-  drawing functions :
-
-  - Drawing is performed on the instance image. Drawing functions parameters
-  are defined as \e const variables and return a reference to the current instance <tt>(*this)</tt>,
-  so that drawing functions can be pipelined (see examples below).
-  Drawing is usually done in 2D color images but can be performed in 3D images with any vector-valued dimension,
-  and with any possible pixel type.
-
-  - A color parameter is always needed to draw features in an image. The color must be defined as a C-style array
-  whose dimension is at least
-
-**/
-/*@}*/
-
-/*-----------------------------------
-
    Using image loops
 
   -------------------------------------*/
@@ -607,7 +574,7 @@
 /** \addtogroup cimg_loops Using Image Loops. */
 /*@{*/
 /**
-  \page foo_lo
+  \page loops_Using Image Loops.
   The %CImg Library provides different macros that define useful iterative loops over an image.
   Basically, it can be used to replace one or several <tt>for(..)</tt> instructions, but it also proposes
   interesting extensions to classical loops.
@@ -847,7 +814,7 @@
 /** \addtogroup cimg_displays Using Display Windows. */
 /*@{*/
 /**
-  \page foo_di
+  \page display Using Display Windows.
 
   When opening a display window, you can choose the way the pixel values will be normalized
   before being displayed on the screen. Screen displays only support color values between [0,255],
@@ -877,7 +844,7 @@
 /** \addtogroup cimg_storage How pixel data are stored with CImg. */
 /*@{*/
 /**
-  \page foo_store
+  \page storage How pixel data are stored with CImg?
 
   First, CImg<T> are *very* basic structures, which means that there are no memory tricks, weird memory alignments or
   disk caches used to store pixel data of images. When an image is instanced, all its pixel values are stored in memory at
@@ -934,7 +901,7 @@
 /** \addtogroup cimg_files_io Files IO in CImg. */
 /*@{*/
 /**
-  \page foo_fi
+  \page io Files IO in CImg.
 
   The %CImg Library can NATIVELY handle the following file formats :
   - RAW : consists in a very simple header (in ascii), then the image data.
@@ -960,7 +927,7 @@
 /** \addtogroup cimg_options Retrieving Command Line Arguments. */
 /*@{*/
 /**
-  \page foo_so
+  \page options Retrieving Command Line Arguments.
 
    The CImg library offers facilities to retrieve command line arguments in a console-based
    program, as it is a commonly needed operation.

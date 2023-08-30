@@ -7,7 +7,7 @@
  #                This file is a part of the CImg Library project.
  #                ( http://cimg.eu )
  #
- #  Copyright   : David Tschumperle
+ #  Copyright   : David Tschumperlé
  #                ( http://tschumperle.users.greyc.fr/ )
  #
  #  License     : CeCILL v2.0
@@ -51,7 +51,7 @@ using namespace cimg_library;
 int main(int argc, char **argv) {
 
   // Display help (if option '-h' or '--help' specified) and retrieve program arguments
-  cimg_usage("A small and funny game featuring colored balls.\n             (by David Tschumperle).");
+  cimg_usage("A small and funny game featuring colored balls.\n             (by David Tschumperlé).");
   const char *score_file = cimg_option("-s",(char*)0,"Specify score file to use (0=default file).");
   cimg_help("\n"
             "** Quick Help *********************************************************\n\n"
@@ -99,6 +99,7 @@ int main(int argc, char **argv) {
   CImg<unsigned char> board, previous_board, selected_board, shape, img(background);
   CImgDisplay disp(img.width(),img.height(),"Jawbreaker",0);
   bool redraw = true, gameover = false, title = true;
+
   for (float opac = 0.0f; !disp.is_closed(); ) {
 
     // Init board
@@ -113,10 +114,12 @@ int main(int argc, char **argv) {
     if (redraw) {
       (img=background).draw_text(2,2,"Score : %u",yellow,0,0.7f,24,score).
         draw_text(Wi - 90,2,"Best : %u",orange,0,0.9f,17,best_score);
+
       if (selected_board) {
         cimg_forXY(selected_board,x,y) if (selected_board(x,y))
           img.draw_image(x<<5,y<<5,balls[selected_board(x,y)],mask);
       } else cimg_forXY(board,x,y) if (board(x,y)) img.draw_image(x<<5,y<<5,balls[board(x,y)],mask);
+
       if (title) {
         CImg<unsigned char> text1, text2;
         text1.draw_text(0,0,"- Jawbreaker -",white,0,1,48).resize(-100,-100,1,3);
@@ -177,8 +180,8 @@ int main(int argc, char **argv) {
 
             // Test possible end of the game
             gameover = true;
-            cimg_forXY(board,x,y)
-              if (board(x,y) && ((y && board(x,y)==board(x,y - 1)) || (x && board(x,y)==board(x - 1,y))))
+            cimg_forXY(board,p,q)
+              if (board(p,q) && ((q && board(p,q)==board(p,q - 1)) || (p && board(p,q)==board(p - 1,q))))
                 gameover = false;
           }
         }

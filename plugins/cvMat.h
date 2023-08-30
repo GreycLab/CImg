@@ -7,23 +7,16 @@
 #                conversions for generic image types
 #                ( IPL = Intel Performance Library )
 #                This file is a part of the CImg Library project.
-#                ( http://cimg.eu )
+#                ( http://cimg.sourceforge.net )
 #
 #  Copyright   : Alberto Albiol
 #                alalbiol@iteam.upv.es
 #
 #  How to use  : In the main program include:
-#   OPENCV 2.4.x
 #        #include "cv.h"
 #        #include "highgui.h"
 #        #define cimg_plugin1 "cvMat.h"
 #        #include "CImg.h"
-#
-#   OPENCV 3.x.x
-#        #include <opencv2/core.hpp>
-#        #define cimg_plugin1 "cvMat.h"
-#        #include "CImg.h"
-
 */
 #ifndef cimg_plugin_cvMat
 #define cimg_plugin_cvMat
@@ -186,7 +179,7 @@ CImg<T>& assign(const cv::Mat & src) {
         std::vector<cv::Mat> channels;
         cv::split(src,channels);
         for (int c = 0; c<src.channels(); ++c) {
-          CImg<ucharT> plane = tmp.get_shared_channel(src.channels() - 1 - c);
+          CImg<ucharT> plane = tmp.get_shared_channel(src.channels()-1-c);
           for (int i = 0; i<size.height; ++i) {
             const unsigned char* row_i = channels[c].ptr<unsigned char>(i);
             unsigned char *row_o = plane.data(0,i);
@@ -210,7 +203,7 @@ CImg<T>& assign(const cv::Mat & src) {
         std::vector<cv::Mat> channels;
         cv::split(src,channels);
         for (int c = 0; c<src.channels(); ++c) {
-          CImg<charT> plane = tmp.get_shared_channel(src.channels() - 1 - c);
+          CImg<charT> plane = tmp.get_shared_channel(src.channels()-1-c);
           for (int i = 0; i<size.height; ++i) {
             const char* row_i = channels[c].ptr<char>(i);
             char *row_o = plane.data(0,i);
@@ -234,7 +227,7 @@ CImg<T>& assign(const cv::Mat & src) {
         std::vector<cv::Mat> channels;
         cv::split(src,channels);
         for (int c = 0; c<src.channels(); ++c) {
-          CImg<shortT> plane = tmp.get_shared_channel(src.channels() - 1 - c);
+          CImg<shortT> plane = tmp.get_shared_channel(src.channels()-1-c);
           for (int i = 0; i<size.height; ++i) {
             const short* row_i = channels[c].ptr<short>(i);
             short *row_o = plane.data(0,i);
@@ -258,7 +251,7 @@ CImg<T>& assign(const cv::Mat & src) {
         std::vector<cv::Mat> channels;
         cv::split(src,channels);
         for (int c = 0; c<src.channels(); ++c) {
-          CImg<floatT> plane = tmp.get_shared_channel(src.channels() - 1 - c);
+          CImg<floatT> plane = tmp.get_shared_channel(src.channels()-1-c);
           for (int i = 0; i<size.height; ++i) {
             const float* row_i = channels[c].ptr<float>(i);
             float *row_o = plane.data(0,i);
@@ -282,7 +275,7 @@ CImg<T>& assign(const cv::Mat & src) {
         std::vector<cv::Mat> channels;
         cv::split(src,channels);
         for (int c = 0; c<src.channels(); ++c) {
-          CImg<doubleT> plane = tmp.get_shared_channel(src.channels() - 1 - c);
+          CImg<doubleT> plane = tmp.get_shared_channel(src.channels()-1-c);
           for (int i = 0; i<size.height; ++i) {
             const double* row_i = channels[c].ptr<double>(i);
             double *row_o = plane.data(0,i);
@@ -326,12 +319,19 @@ cv::Mat get_MAT(const unsigned int z=0) const {
     matType=-1;
 
   if (!cimg::strcasecmp(buf.pixel_type(),"unsigned char")) matType = CV_8UC1;
+  if (!cimg::strcasecmp(buf.pixel_type(),"uint8")) matType = CV_8UC1;
   if (!cimg::strcasecmp(buf.pixel_type(),"char")) matType = CV_8SC1;
+  if (!cimg::strcasecmp(buf.pixel_type(),"int8")) matType = CV_8SC1;
   if (!cimg::strcasecmp(buf.pixel_type(),"unsigned short")) matType = CV_16UC1;
+  if (!cimg::strcasecmp(buf.pixel_type(),"uint16")) matType = CV_16UC1;
   if (!cimg::strcasecmp(buf.pixel_type(),"short")) matType = CV_16SC1;
+  if (!cimg::strcasecmp(buf.pixel_type(),"int16")) matType = CV_16SC1;
   if (!cimg::strcasecmp(buf.pixel_type(),"int")) matType = CV_32SC1;
+  if (!cimg::strcasecmp(buf.pixel_type(),"int32")) matType = CV_32SC1;
   if (!cimg::strcasecmp(buf.pixel_type(),"float")) matType = CV_32FC1;
+  if (!cimg::strcasecmp(buf.pixel_type(),"float32")) matType = CV_32FC1;
   if (!cimg::strcasecmp(buf.pixel_type(),"double")) matType = CV_64FC1;
+  if (!cimg::strcasecmp(buf.pixel_type(),"float64")) matType = CV_64FC1;
   if (matType<0)
     throw CImgInstanceException(_cimg_instance
                                 "get_MAT() : pixel type '%s' is not supported.",
@@ -340,7 +340,7 @@ cv::Mat get_MAT(const unsigned int z=0) const {
   std::vector<cv::Mat> channels(nchannels);
   if (nchannels>1) {
     for (int c = 0; c<nchannels; ++c) {
-      channels[c] = cv::Mat(rows,cols,matType,const_cast<T*>(buf.data() + rows*cols*(nchannels - 1 - c)));
+      channels[c] = cv::Mat(rows,cols,matType,const_cast<T*>(buf.data()+rows*cols*(nchannels-1-c)));
     } // for channels
     cv::merge(channels,out);
   } else out = cv::Mat(rows,cols,matType,const_cast<T*>(buf.data())).clone();

@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="highslide/highslide.css"/>
+    <title>The CImg Library - C++ Template Image Processing Library</title>
+    <script src="jquery-3.5.1.min.js"></script>
+    <script>var jQuery_3_5_1 = $.noConflict(true);</script>
+    <script>jQuery_3_5_1(function(){ jQuery_3_5_1("#include_header").load("header.html"); });</script>
+    <script>jQuery_3_5_1(function(){ jQuery_3_5_1("#include_footer").load("footer.html"); });</script>
+    <script src="highslide/highslide-full.js"></script>
+    <script>
+      hs.graphicsDir = 'highslide/graphics/';
+      hs.wrapperClassName = 'wide-border';
+      hs.showCredits = 'false';
+    </script>
+    <style>
+      table tr td { padding: 0.5em; }
+    </style>
+  </head>
+
+  <body>
+    <div id="include_header"></div>
+
+    <!-- ************* -->
+    <!-- What is CImg? -->
+    <!-- ************* -->
+    <div class="section_title"><p>What is CImg?</p></div><div class="section_content">
+
+      <p>
+        The <span class="gmd_cimg"></span> Library is a <b>small</b> and <b>open-source</b>
+        <b>C++ library</b> for <b>image processing</b>,
+        designed with these properties in mind :
+      </p>
+
+      <table>
+        <tr><td><img src="img/item_usefulness.jpg" alt="Usefulness"/></td>
+          <td><hr/>
+            <span class="gmd_cimg"></span> defines <i>classes</i> and <i>methods</i>
+            to manage images in your own C++ code. You can use <span class="gmd_cimg"></span>
+            to load/save various file formats, access pixel values,
+            display/transform/filter images, draw primitives (text, faces, curves, 3d objects, ...), compute statistics,
+            manage user interactions on images, and so on...
+        </td></tr>
+        <tr><td><img src="img/item_genericity.jpg" alt="Genericity"/></td>
+          <td><hr/>
+            <span class="gmd_cimg"></span> defines a single image class able to represent datasets having up to
+            <i>4-dimensions</i> (from 1d scalar signals to 3d hyperspectral volumetric images),
+            with <i>template pixel types</i> (<span class="gmd_mono">bool,char,int,float,...</span>).<br/>
+            It also handles image <i>collections</i> and <i>sequences</i>.
+        </td></tr>
+        <tr><td><img src="img/item_portability.jpg" alt="Portability"/></td>
+          <td><hr/>
+            <span class="gmd_cimg"></span> is <i>self-contained</i>, <i>thread-safe</i> and <i>highly portable</i>. It fully works on
+            <i>different operating systems</i> (<span class="gmd_mono">Unix,Windows,MacOS X,*BSD,...</span>) and is compatible
+            with <i>various C++ compilers</i> (<span class="gmd_mono">Visual C++,g++,clang++,icc,...</span>).
+        </td></tr>
+        <tr><td><img src="img/item_simplicity.jpg" alt="Simplicity"/></td>
+          <td><hr/>
+            <span class="gmd_cimg"></span> is <i>lightweight</i>. It is made of a single header file
+            <a href="https://github.com/GreycLab/CImg/raw/master/CImg.h"><span class="gmd_monobold">CImg.h</span></a>
+            that must be included in your C++ source. It defines only <i>four</i> different classes, encapsulated
+            in the namespace <span class="gmd_mono">cimg_library</span>.
+            It can be compiled using a minimal set of standard C++ and system libraries only.<br/>
+            <i>No need for exotic or complex dependencies</i>.
+        </td></tr>
+        <tr><td><img src="img/item_extensibility.jpg" alt="Extensibility"/></td>
+          <td><hr/>
+            Although not mandatory, <span class="gmd_cimg"></span> can use functionalities of external tools/libraries such as
+            <a href="http://libboard.sourceforge.net/">Board</a>,
+            <a href="http://ffmpeg.mplayerhq.hu/">FFMPEG</a>,
+            <a href="http://www.fftw.org/">FFTW3</a>.
+            <a href="http://www.graphicsmagick.org/">GraphicsMagick</a>,
+            <a href="http://www.imagemagick.org/">ImageMagick</a>,
+            <a href="http://www.netlib.org/lapack/">Lapack</a>,
+            <a href="http://curl.haxx.se/libcurl/">libcurl</a>,
+            <a href="http://www.ijg.org/">libjpeg</a>,
+            <a href="http://www.libpng.org/pub/png/libpng.html">libpng</a>,
+            <a href="http://www.libtiff.org/">libtiff</a>,
+            <a href="http://www.imagemagick.org/Magick++/">Magick++</a>,
+            <a href="http://www.openexr.com/">OpenEXR</a>
+            <a href="http://http://opencv.willowgarage.com/wiki/">OpenCV</a>
+            <a href="http://www.openmp.org/">OpenMP</a>
+            or
+            <a href="http://xmedcon.sourceforge.net/">XMedCon</a>.
+            Moreover, a simple <i>plug-in</i> mechanism allows any user to directly enhance the library
+            capabilities according to his needs.
+        </td></tr>
+        <tr><td><img src="img/item_freedom.jpg" alt="Freedom"/></td>
+          <td><hr/>
+            <span class="gmd_cimg"></span> is a <i>free, open-source library</i> distributed under the
+            <a href="http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.txt"><i>CeCILL-C</i></a> (close to the GNU LGPL)
+            or
+            <a href="http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt"><i>CeCILL</i></a> (compatible with the GNU GPL)
+            licenses. It can be used in commercial applications.
+        </td></tr>
+      </table>
+
+      <p>
+        <span class="gmd_cimg"></span> stands for <span class="gmd_mono">Cool Image</span> : It is <i>easy to use</i>, <i>efficient</i> and is intended to be
+        a very pleasant toolbox to design image processing algorithms in C++. Due to its generic conception, it can cover a wide range
+        of image processing applications.
+      </p>
+
+    </div><div class="section_end"></div>
+
+    <!-- ************* -->
+    <!--  Book (En/Fr) -->
+    <!-- ************* -->
+    <div class="section_title"><p>Book (En/Fr)</div><div class="section_content">
+
+      <ul>
+        <li>We have a comprehensive book, written in English, on how to use the <span class="gmd_cimg"></span> Library
+          to develop various image processing algorithms, from scratch
+          (published by <a href="https://www.taylorfrancis.com/books/mono/10.1201/9781003323693/digital-image-processing-vincent-barra-christophe-tilmant-david-tschumperle">Taylor &amp; Francis Group</a>).
+          In this 308 pages book, we review the important concepts of the library and address a wide variety of applications in image processing
+          (<i>Filtering, Mathematical Morphology, Feature Extraction, Segmentation, Multispectral Approaches, 3D Visualization, etc.</i>).<br/><br/>
+          <a target="_blank" href="https://www.taylorfrancis.com/books/mono/10.1201/9781003323693/digital-image-processing-vincent-barra-christophe-tilmant-david-tschumperle"><img class="center_image" src="img/book_cimg_en.jpg" /></a><br/>
+        </li>
+        <li>
+          If you understand French, you may be interested by the <a href="https://www.amazon.fr/dp/B08WRCZRR3/ref=cm_sw_em_r_mt_dp_Y4VV7GNQSBQDZ4XQ95YR">French version of this book</a><br/><br/>
+          <a target="_blank" href="https://www.amazon.fr/dp/B08WRCZRR3/ref=cm_sw_em_r_mt_dp_Y4VV7GNQSBQDZ4XQ95YR"><img class="center_image" src="img/book_cimg.jpg" /></a>
+        </li>
+      </ul>
+
+    </div><div class="section_end"></div>
+
+
+    <!-- ************* -->
+    <!--    Authors   -->
+    <!-- ************* -->
+    <div class="section_title"><p>Authors</p></div><div class="section_content">
+
+      <ul>
+        <li><a href="http://tschumperle.users.greyc.fr/">David Tschumperl&eacute;</a> (project manager)</li>
+      </ul>
+      &nbsp;&nbsp;&nbsp;(Check out his <a href="http://opensource.graphics">blog</a>)
+      <br/><br/>
+      with the help of many contributors around the world :<br/><br/>
+      <i>
+        Maksim Aizenshtein,
+        Alberto Albiol,
+        Antonio Albiol,
+        Kiko Albiol,
+        Simon Barthelm&eacute;,
+        Neil Brown,
+        Haz-Edine Assemlal,
+        Vincent Barra,
+        Wolf Blecher,
+        Romain Blei,
+        Yohan Bentolila,
+        Jerome Boulanger,
+        Pierre Buyssens,
+        Sebastien Coudert,
+        Frederic Devernay,
+        Olivier D'Hondt,
+        Fran&ccedil;ois-Xavier Dup&eacute;,
+        Gerd von Egidy
+        Eric Fausett,
+        Jean-Marie Favreau,
+        Sebastien Fourey,
+        Alexandre Fournier,
+        Vincent Garcia,
+        David Grimbichler,
+        Jinwei Gu,
+        Jean-Daniel Guyot,
+        C&eacute;dric Hammiche,
+        Matt Hanson,
+        Sebastien Hanel,
+        Nicholas Hayes,
+        Michael Holroyd,
+        Christoph Hormann,
+        Hon-Kwok Fung,
+        Werner Jainek,
+        Vo Duc Khanh,
+        Daniel Kondermann,
+        Pierre Kornprobst,
+        Jan W. Krieger,
+        Francois Lauze,
+        Orges Leka,
+        Tony E Lewis,
+        Xie Long,
+        Thomas Martin,
+        Cesar Martinez,
+        Jean Martinot,
+        Arnold Meijster (Center for High Performance Computing and Visualization, University of Groningen/The Netherlands)
+        Nikita Melnichenko,
+        Baptiste Mougel,
+        Julien Morat,
+        Jovana Milutinovich,
+        Guillaume Nee,
+        Adam Newgas,
+        Francisco Oliveira,
+        Andrea Onofri,
+        Renaud Peteri,
+        Martin Petricek,
+        Paolo Prete,
+        Adrien Reboisson,
+        Klaus Schneider,
+        Jakob Schluttig,
+        Jamie Smith,
+        Veronique Souchaud,
+        Konstantin Spirin,
+        Rainer Steffens,
+        David G. Starkweather,
+        Elle Stone,
+        Grzegorz Szwoch,
+        Thierry Thomas,
+        Ulysse Vimont / Anatascope,
+        Yu-En-Yun,
+        Ingo Weyrich,
+        Phillip Wood,
+        Bug Zhao,
+        Haibo Zheng.
+      </i>
+
+    </div><div class="section_end"></div>
+
+    <!-- ************* -->
+    <!--    Licenses   -->
+    <!-- ************* -->
+    <div class="section_title"><p>Licenses</p></div><div class="section_content">
+
+      <p>
+        The <span class="gmd_cimg"></span> Library is an open-source product distributed under <b>two distinct licenses</b> :
+        the library core itself is dual-licensed and
+        can be governed either by the
+        <a href="http://www.cecill.info/licences/Licence_CeCILL-C_V1-en.txt"><b>CeCILL-C</b> License</a> (LGPL-like),
+        or the
+        <a href="http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt"><b>CeCILL</b> License</a> (GPL-compatible).
+        Most of the other package files are distributed under the
+        <a href="http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt"><b>CeCILL</b> License</a>.
+        Both are <b>open-source licenses</b>, the CeCILL-C being less restrictive than the CeCILL.<br/><br/>
+        The <span class="gmd_cimg"></span> Library source code has been registered to the <a href="http://app.legalis.net/paris/">APP</a>
+        (French Agency for the Protection of Programs) by the <a href="http://www.inria.fr/index.en.html">INRIA</a>,
+        under registration number <span class="gmd_monobold">IDDN.FR.001.040004.000.S.P.2004.000.21000.</span>
+      </p>
+
+    </div><div class="section_end"></div>
+
+    <!-- ************* -->
+    <!--  Learn More   -->
+    <!-- ************* -->
+    <div class="section_title"><p>Learn More</div><div class="section_content">
+
+      <ul>
+        <li>The <a href="reference/group__cimg__tutorial.html">Tutorial</a> section shows the basic use of <span class="gmd_cimg"></span> classes
+          and functions with a small first code.</li>
+        <li>The <a href="screenshots.html">Screenshots</a> section illustrates some of the different source code examples provided in
+          the <span class="gmd_cimg"></span> package.</li>
+        <li>You can look at the quite complete <a href="CImg_slides.pdf"><span class="gmd_cimg"></span> Library presentation slides</a> (.pdf format) which gives
+          more insights on the different library concepts.</li>
+        <li>Online web statistics on the <span class="gmd_cimg"></span> website activity are available
+          <a href="http://my.statcounter.com/project/standard/stats.php?project_id=895001&guest=1">here</a>.</li>
+      </ul>
+
+    </div><div class="section_end"></div>
+
+    <!-- *************** -->
+    <!--  Quick History   -->
+    <!-- *************** -->
+    <div class="section_title"><p>Quick History</div><div class="section_content">
+
+      <p>
+        The development of the <span class="gmd_cimg"></span> Library began at the end of 1999, when I started my PhD thesis
+        in the <a href="http://www.inria.fr/equipes/odyssee"><img height="16" alt="" src="img/logoODYSSEE.jpg"/> Lab</a>
+        at the <a href="http://www.inria.fr/centre/sophia/"><img height="16" alt="" src="img/logoINRIA.gif"/> Sophia Antipolis</a>.
+        It was designed to help me and my colleagues developing various image processing algorithms,
+        for datasets as simple as 2D scalar images, or as complex as 3D volumes of diffusion tensors. I also used it for
+        courses on image processing I teached at the university. As a result, the <span class="gmd_cimg"></span> Library
+        has been always intended to be <i>compact</i>, <i>easy to install and to use</i>, <i>multi-platform</i> and <i>generic</i>.
+        It provides a lot of basic functions that everyone would like to find in a good C++ image processing framework.<br/><br/>
+        I am now a permanent researcher of the  <a href="http://www.cnrs.fr"><img alt="" height="32" src="img/logoCNRS.gif"/>
+        </a> institution,
+        working in the <a href="http://www.greyc.ensicaen.fr/EquipeImage"><img alt="" height="32" src="img/logoIMAGE.gif"/>
+          group</a> at the <a href="http://www.greyc.ensicaen.fr"><img alt="" height="32" src="img/logoGREYC.gif"/>
+          lab</a> in Caen/France.
+        I am still using, maintaining and updating the <span class="gmd_cimg"></span> Library, and will probably do it for the next couple of years.
+      </p>
+
+    </div><div class="section_end"></div>
+
+    <!-- *************** -->
+    <!--  How to help ?  -->
+    <!-- *************** -->
+    <div class="section_title"><p>How to Help?</div><div class="section_content">
+
+      <p>
+        The <span class="gmd_cimg"></span> Library is an open-source C++ library which is mainly developped during
+        free time. If you enjoy using <span class="gmd_cimg"></span>, you may contribute to the project
+        in different ways. This will motivate me to continue the work.
+      </p>
+      <ul>
+        <li>You can help <span class="gmd_cimg"></span> to be more widely known, by displaying a
+          <a href="CImg_flyer.pdf">CImg Flyer</a> at work, in your lab or school
+          (available in <a href="CImg_flyer.pdf">.PDF</a> or <a href="img/CImg_flyer.jpg">.JPEG</a> formats).</li>
+        <li>You can report bugs, propose patches or new functionalities, using the <span class="gmd_cimg"></span>
+          <a href="https://github.com/GreycLab/CImg/issues">forum</a>.</li>
+        <li>You can write
+          <a href="reference/group__cimg__tutorial.html">tutorials</a>
+          or parts of the <a href="reference/index.html">documentation</a>.</li>
+        <li>If you just want to say you've been happy with the library, you can send me a postcard from your place, to the following address : <br/>
+          <i>David Tschumperl&eacute;, GREYC (UMR CNRS 6072), Equipe IMAGE, 6 Bd du Mar&eacute;chal Juin, 14050 Caen Cedex, FRANCE.</i><br/><br/>
+          <span class="gmd_mono">73</span> postcards received yet (I still have empty space on my wall ! :) ), from :<br/><br/>
+          <ul>
+
+            <li><a href="img/postcard1.jpg" class="highslide" onclick="return hs.expand(this)">
+                Comissao Nacional de Energia Nuclear, Rio de Janeiro, Brazil.</a></li>
+            <li><a href="img/postcard2.jpg" class="highslide" onclick="return hs.expand(this)">
+                Universidad Nacional del Litoral, Santa Fe, Argentina.</a></li>
+            <li><a href="img/postcard3.jpg" class="highslide" onclick="return hs.expand(this)">
+                Waikiki's only true resort, Honolulu/Hawaii.</a></li>
+            <li><a href="img/postcard4.jpg" class="highslide" onclick="return hs.expand(this)">
+                Royal Pavilion, Brighton/UK.</a></li>
+            <li><a href="img/postcard5.jpg" class="highslide" onclick="return hs.expand(this)">
+                Cambridge, UK.</a></li>
+            <li><a href="img/postcard6.jpg" class="highslide" onclick="return hs.expand(this)">
+                National Tai-Chung Institute of Technology, Taiwan.</a></li>
+            <li><a href="img/postcard7.jpg" class="highslide" onclick="return hs.expand(this)">
+                Fuzzy Logic Laboratorium Linz-Hagenberg, Linz, Austria.</a></li>
+            <li><a href="img/postcard8.jpg" class="highslide" onclick="return hs.expand(this)">
+                Corte/Corsica.</a></li>
+            <li><a href="img/postcard9.jpg" class="highslide" onclick="return hs.expand(this)">
+                Microsoft Research, Beijing/China.</a></li>
+            <li><a href="img/postcard10.jpg" class="highslide" onclick="return hs.expand(this)">
+                Palermo/Italia.</a></li>
+            <li><a href="img/postcard11.jpg" class="highslide" onclick="return hs.expand(this)">
+                Florida Atlantic University/USA.</a></li>
+            <li><a href="img/postcard12.jpg" class="highslide" onclick="return hs.expand(this)">
+                Ecole Nationale Supérieure des Mines de Saint-Etienne/France.</a></li>
+            <li><a href="img/postcard13.jpg" class="highslide" onclick="return hs.expand(this)">
+                Venice/Italy, from Sebastien/GREYC (Caen/France).</a></li>
+            <li><a href="img/postcard14.jpg" class="highslide" onclick="return hs.expand(this)">
+                Barcelone/Spain, from Jaime.</a></li>
+            <li><a href="img/postcard15.jpg" class="highslide" onclick="return hs.expand(this)">
+                Guadeloupe/France, from Jean-Michel.</a></li>
+            <li><a href="img/postcard17.jpg" class="highslide" onclick="return hs.expand(this)">
+                London/England, from Sebastien/GREYC (Caen/France).</a></li>
+            <li><a href="img/postcard18.jpg" class="highslide" onclick="return hs.expand(this)">
+                Valencia/Spain, from the Research Institute ITEAM of the Unversidad Politecnica.</a></li>
+            <li><a href="img/postcard19.jpg" class="highslide" onclick="return hs.expand(this)">
+                Vienna/Austria, from Sebastien/GREYC (Caen/France).</a></li>
+            <li><a href="img/postcard20.jpg" class="highslide" onclick="return hs.expand(this)">
+                Neuherberg/Germany, from the Institut for Biomathematick und Biometrie.</a></li>
+            <li><a href="img/postcard21.jpg" class="highslide" onclick="return hs.expand(this)">
+                Cabestany/France, from Guy Poizat.</a></li>
+            <li><a href="img/postcard22.jpg" class="highslide" onclick="return hs.expand(this)">
+                Frascati/Italy, from PhotoComiX.</a></li>
+            <li><a href="img/postcard23.jpg" class="highslide" onclick="return hs.expand(this)">
+                Jaca/Spain, from F. Albior.</a></li>
+            <li><a href="img/postcard24.jpg" class="highslide" onclick="return hs.expand(this)">
+                Munich/Germany, from M???? (didn't succeed in reading the name, sorry !).</a></li>
+            <li><a href="img/postcard25.jpg" class="highslide" onclick="return hs.expand(this)">
+                Playa del Carmen/Mexico, from Sebastien/GREYC (Caen/France).</a></li>
+            <li><a href="img/postcard26.jpg" class="highslide" onclick="return hs.expand(this)">
+                Holland, from Vincent/GREYC (Caen/France).</a></li>
+            <li><a href="img/postcard27.jpg" class="highslide" onclick="return hs.expand(this)">
+                Portland/Oregon/USA, from Mahvin.</a></li>
+            <li><a href="img/postcard28.jpg" class="highslide" onclick="return hs.expand(this)">
+                Gibraltar, from Terry Hendicott.</a></li>
+            <li><a href="img/postcard29.jpg" class="highslide" onclick="return hs.expand(this)">
+                Neuchatel/Switzerland, from Corinne Masimann.</a></li>
+            <li><a href="img/postcard30.jpg" class="highslide" onclick="return hs.expand(this)">
+                Foster City/California, from Arkadi Gelfond.</a></li>
+            <li><a href="img/postcard31.jpg" class="highslide" onclick="return hs.expand(this)">
+                Huntsville/Alabama, from Gordon M. Neeley.</a></li>
+            <li><a href="img/postcard32.jpg" class="highslide" onclick="return hs.expand(this)">
+                Biscarosse/France, from Sebastien/GREYC (Caen/France).</a></li>
+            <li><a href="img/postcard33.jpg" class="highslide" onclick="return hs.expand(this)">
+                California/USA, from Benoit Gauzere/GREYC (Caen/France).</a></li>
+            <li><a href="img/postcard34.jpg" class="highslide" onclick="return hs.expand(this)">
+                Puy-de-Dome/France, from Sebastien/GREYC (Caen/France).</a></li>
+            <li><a href="img/postcard35.jpg" class="highslide" onclick="return hs.expand(this)">
+                Portsmouth/United Kingdom, from Sebastien Clediere/Snell Ltd.</a></li>
+            <li><a href="img/postcard36.jpg" class="highslide" onclick="return hs.expand(this)">
+                Helsinki/Finland, from Arto Huotari.</a></li>
+            <li><a href="img/postcard37.jpg" class="highslide" onclick="return hs.expand(this)">
+                Mettlach/Germany, from Werner Meier.</a></li>
+            <li><a href="img/postcard38.jpg" class="highslide" onclick="return hs.expand(this)">
+                Boston/USA, from Dan Cullen.</a></li>
+            <li><a href="img/postcard39.jpg" class="highslide" onclick="return hs.expand(this)">
+                Mantova/Italy, from Mauro Mitrino.</a></li>
+            <li><a href="img/postcard40.jpg" class="highslide" onclick="return hs.expand(this)">
+                Seligenstadt/Germany, from Dr. Rainer Teubner.</a></li>
+            <li><a href="img/postcard41.jpg" class="highslide" onclick="return hs.expand(this)">
+                Hokusai/Japan, from Benoit Gauzere and Francois Lozes.</a></li>
+            <li><a href="img/postcard42.jpg" class="highslide" onclick="return hs.expand(this)">
+                Munchen/Germany, from Alexandru Dulin.</a></li>
+            <li><a href="img/postcard43.jpg" class="highslide" onclick="return hs.expand(this)">
+                Trier/Germany, from Family Hamacher.</a></li>
+            <li><a href="img/postcard44.jpg" class="highslide" onclick="return hs.expand(this)">
+                Ile de Batz/France, from Pierre-Yves.</a></li>
+            <li><a href="img/postcard45.jpg" class="highslide" onclick="return hs.expand(this)">
+                Germany, from Michel Thomas.</a></li>
+            <li><a href="img/postcard46.jpg" class="highslide" onclick="return hs.expand(this)">
+                Vienna/Austria, from Benoit Gauzere.</a></li>
+            <li><a href="img/postcard47.jpg" class="highslide" onclick="return hs.expand(this)">
+                Torquay/Australia, from Pauline van Buren.</a></li>
+            <li><a href="img/postcard48.jpg" class="highslide" onclick="return hs.expand(this)">
+                Lisboa/Portugal, from Patrick Wauters.</a></li>
+            <li><a href="img/postcard49.jpg" class="highslide" onclick="return hs.expand(this)">
+                Hazebrouck/France, from Michael T.</a></li>
+            <li><a href="img/postcard50.jpg" class="highslide" onclick="return hs.expand(this)">
+                USA, from Bill C.</a></li>
+            <li><a href="img/postcard51.jpg" class="highslide" onclick="return hs.expand(this)">
+                EDF/France, from ZondeR.</a></li>
+            <li><a href="img/postcard52.jpg" class="highslide" onclick="return hs.expand(this)">
+                Belgium, from Marc Lis.</a></li>
+            <li><a href="img/postcard53.jpg" class="highslide" onclick="return hs.expand(this)">
+                Roma/Italy, from Patrick Wauters.</a></li>
+            <li><a href="img/postcard54.jpg" class="highslide" onclick="return hs.expand(this)">
+                Germany, from Werner Meier.</a></li>
+            <li><a href="img/postcard55.jpg" class="highslide" onclick="return hs.expand(this)">
+                Germany, from Justin Pletzfeld.</a></li>
+            <li><a href="img/postcard56.jpg" class="highslide" onclick="return hs.expand(this)">
+                New York/USA, from Garry R. Osgood.</a></li>
+            <li><a href="img/postcard57.jpg" class="highslide" onclick="return hs.expand(this)">
+                Italy, from Andrea (coder of PhotoFlow).</a></li>
+            <li><a href="img/postcard58.jpg" class="highslide" onclick="return hs.expand(this)">
+                Sydney/Australia, from Peter Neave.</a></li>
+            <li><a href="img/postcard59.jpg" class="highslide" onclick="return hs.expand(this)">
+                Fort Worth/Texas/USA, from Steve Gillow.</a></li>
+            <li><a href="img/postcard60.jpg" class="highslide" onclick="return hs.expand(this)">
+                Pondicherry/India, from Bruno Steinbach.</a></li>
+            <li><a href="img/postcard61.jpg" class="highslide" onclick="return hs.expand(this)">
+                Pavia/Italy, from Giulio Canevari.</a></li>
+            <li><a href="img/postcard62.jpg" class="highslide" onclick="return hs.expand(this)">
+                Toulouse/France, from David Revoy.</a></li>
+            <li><a href="img/postcard63.jpg" class="highslide" onclick="return hs.expand(this)">
+                Konstanz/Germany, from S&eacute;bastien Fourey.</a></li>
+            <li><a href="img/postcard64.jpg" class="highslide" onclick="return hs.expand(this)">
+                Bilbao/Spain, from Patrick Wauters.</a></li>
+            <li><a href="img/postcard65.jpg" class="highslide" onclick="return hs.expand(this)">
+                Haldern/Germany, from Volker Doebel.</a></li>
+            <li><a href="img/postcard66.jpg" class="highslide" onclick="return hs.expand(this)">
+                France, from Powlux.</a></li>
+            <li><a href="img/postcard67.jpg" class="highslide" onclick="return hs.expand(this)">
+                Winnipeg / Canada, from James Jaworski.</a></li>
+            <li><a href="img/postcard68.jpg" class="highslide" onclick="return hs.expand(this)">
+                Newcastle upon tyne / England, from Richard Gledson.</a></li>
+            <li><a href="img/postcard69.jpg" class="highslide" onclick="return hs.expand(this)">
+                Pregonda / Menorca, from Josep Febrer.</a></li>
+            <li><a href="img/postcard70.jpg" class="highslide" onclick="return hs.expand(this)">
+                USA, from Patrick Wauters.</a></li>
+            <li><a href="img/postcard71.jpg" class="highslide" onclick="return hs.expand(this)">
+                Toulon/France, from Cyril Prissette.</a></li>
+            <li><a href="img/postcard72.jpg" class="highslide" onclick="return hs.expand(this)">
+                Bochum/Germany, from Andreas Weissenburger.</a></li>
+            <li><a href="img/postcard73.jpg" class="highslide" onclick="return hs.expand(this)">
+                Portsmouth/USA, from Benjamin Russell.</a></li>
+            <li><a href="img/postcard74.jpg" class="highslide" onclick="return hs.expand(this)">
+                Angers/France, from Bruno Bianchi.</a></li>
+            <li><a href="img/postcard75.jpg" class="highslide" onclick="return hs.expand(this)">
+                Makuhari/Japan, from Hiroyuki Hayashi.</a></li>
+            <li><a href="img/postcard76.jpg" class="highslide" onclick="return hs.expand(this)">
+                Tristan Da Cunha, from Richard Lockwood.</a></li>
+            <li><a href="img/postcard77.jpg" class="highslide" onclick="return hs.expand(this)">
+                Tyrol/Austria, from Marcel.</a></li>
+            <li><a href="img/postcard78.jpg" class="highslide" onclick="return hs.expand(this)">
+                Heidelberg/Germany, from Markus.</a></li>
+            <li><a href="img/postcard79.jpg" class="highslide" onclick="return hs.expand(this)">
+                Jokulsarlon Lagoonl/Iceland, from Patrick Wauters.</a></li>
+            <li><a href="img/postcard80.jpg" class="highslide" onclick="return hs.expand(this)">
+                Argentina, from Amyspark.</a></li>
+
+        </ul></li>
+      </ul>
+
+    </div><div class="section_end"></div>
+
+    <div id="include_footer"></div>
+  </body>

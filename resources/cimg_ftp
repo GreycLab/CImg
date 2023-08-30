@@ -1,0 +1,43 @@
+#!/usr/bin/env gmic
+
+skip "${1=}"
+
+# Retrieve relative path
+x "pwd >/tmp/pwd.txt"
+it /tmp/pwd.txt autocrop 10
+pwd={`"
+  path = crop();
+  base = 'CImg/html';
+  p = find(path,base);
+  p>0?(
+    l = size(path) - p - size(base);
+    copy(path,path[p + size(base)],l);
+    path[l] = _'/'; path[l+1] = 0):(path[0] = 0);
+  path"`}
+  is_pwd={['$pwd']!=0}
+
+# Upload file or directory.
+if "s = ['$1']; "$is_pwd" && (s==0 || s=='.')" # Synchronize current directory
+  e[] "Synchronize current directory '"${pwd}"' with 'SERVER"${pwd}"'.\n"
+  com="lftp sftp://"$GMIC_LOGIN":@ovh -e \"mirror -RL . /home/"$GMIC_LOGIN"/www/CImg"${pwd}" ; quit\""
+  x $com
+
+elif $is_pwd" && isdir(['"$1"'])" # Synchronize specified directory
+  e[] "Synchronize directory '$1' with 'SERVER"${pwd}"$1'.\n"
+  com="lftp sftp://"$GMIC_LOGIN":@ovh -e \"mirror -RL \\\"$1\\\" \\\"/home/"$GMIC_LOGIN"/www/CImg"${pwd}"$1\\\" ; quit\""
+  x $com
+
+elif isfile(['"$1"']) # Upload single file
+  if !$is_pwd pwd="/" fi
+  e[] "Upload file '$1' to 'SERVER"${pwd}"'.\n"
+  com="lftp sftp://"$GMIC_LOGIN":@ovh -e \"put -O \\\"/home/"$GMIC_LOGIN"/www/CImg"${pwd}"\\\" \\\"$1\\\"; quit\""
+  x $com
+
+fi
+rm
+
+# Local Variables:
+# mode: sh
+# End:
+#
+# (End of G'MIC custom commands)

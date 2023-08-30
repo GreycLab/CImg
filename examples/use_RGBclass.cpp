@@ -10,7 +10,7 @@
  #                This file is a part of the CImg Library project.
  #                ( http://cimg.eu )
  #
- #  Copyright   : David Tschumperle
+ #  Copyright   : David Tschumperlé
  #                ( http://tschumperle.users.greyc.fr/ )
  #
  #  License     : CeCILL v2.0
@@ -45,7 +45,7 @@
 */
 
 #ifndef cimg_plugin
-#define cimg_plugin "examples/use_RGBclass.cpp"  // Path of the plugin is relative to the CImg.h file.
+#define cimg_plugin "examples/use_RGBclass.cpp"  // Path of the plugin is relative to the CImg.h file
 #include "CImg.h"
 using namespace cimg_library;
 #ifndef cimg_imagepath

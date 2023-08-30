@@ -7,7 +7,7 @@
  #                This file is a part of the CImg Library project.
  #                ( http://cimg.eu )
  #
- #  Copyright   : David Tschumperle
+ #  Copyright   : David Tschumperlé
  #                ( http://tschumperle.users.greyc.fr/ )
  #
  #  License     : CeCILL v2.0
@@ -308,7 +308,7 @@ void* item_mandelbrot_explorer() {
         static CImg<unsigned char>
           help = CImg<unsigned char>().draw_text(0,0,"\n"
                                                  "  Use mouse to zoom on desired region.  \n"
-                                                 "  H             Show/Hide help  \n"
+                                                 "  H               Show/Hide help  \n"
                                                  "  PAD 1...9       Fractal navigation  \n"
                                                  "  PAD +/-       Zoom/Unzoom  \n"
                                                  "  SPACE         Set/Disable color smoothing  \n"
@@ -321,7 +321,7 @@ void* item_mandelbrot_explorer() {
       }
 
       // Get rectangular shape from the user to define the zoomed region.
-      const CImg<int> selection = img.get_select(disp,2,0);
+      const CImg<int> selection = img.get_select(disp,2,0,true);
       const int xs0 = selection[0], ys0 = selection[1], xs1 = selection[3], ys1 = selection[4];
 
       // If the user has selected a region with the mouse, then zoom-in !
@@ -600,7 +600,8 @@ void* item_virtual_landscape() {
 void* item_plasma() {
   CImg<float> plasma, camp(3), cfreq(3), namp(3), nfreq(3);
   CImgList<unsigned char> font = CImgList<unsigned char>::font(53);
-  CImg<unsigned char> visu(400,300,1,3,0), letter, scroll(visu.width() + 2*font['W'].width(),font['W'].height(),1,1,0);
+  CImg<unsigned char> visu(400,300,1,3,0),
+    scroll(visu.width() + 2*font[(int)'W'].width(),font[(int)'W'].height(),1,1,0);
   const char *text = "   * The CImg Library : C++ Template Image Processing Toolkit *";
   CImgDisplay disp(visu,"[#13] - Plasma Effect");
   const unsigned char white[] = { 255, 255, 255 };
@@ -653,10 +654,13 @@ void* item_plasma() {
     if ((pos+=2)>lwidth + 2) pos = 0;
     cimg_forX(visu,x) {
       const int y0 = (int)(visu.height()/2 + visu.height()/4*std::sin(ts + x/(70 + 30*std::cos(beta))));
-      cimg_forY(scroll,y) {
-        if (scroll(x,y)) {
-          const unsigned int y1 = y0 + y + 2; visu(x,y1,0)/=2; visu(x,y1,1)/=2; visu(x,y1,2)/=2;
-          const unsigned int y2 = y1 - 6; visu(x,y2,0) = visu(x,y2,1) = visu(x,y2,2) = 255;
+      cimg_forY(scroll,y) if (scroll(x,y)) {
+        const unsigned int y1 = y0 + y + 2;
+        const unsigned int y2 = y1 - 6;
+        const float c = scroll(x,y)/255.0f;
+        cimg_forC(visu,k) {
+          visu(x,y1,k) = (unsigned char)(visu(x,y1,k)*0.7f);
+          visu(x,y2,k) = (unsigned char)(visu(x,y2,k)*(1 - c) + 254*c);
         }
       }
     }
@@ -866,9 +870,9 @@ void* item_blobs_editor() {
         for (unsigned int y = y0; y<=y1; ++y) {
           float dx = x0 - xb;
           for (unsigned int x = x0; x<=x1; ++x) {
-            float dist = dx*dx + dy*dy;
-            if (dist<precision) {
-              const float val = (float)std::exp(-dist/sigma2);
+            float _dist = dx*dx + dy*dy;
+            if (_dist<precision) {
+              const float val = (float)std::exp(-_dist/sigma2);
               *ptr+=(unsigned int)(val*col1);
               *(ptr + wh)+=(unsigned int)(val*col2);
               *(ptr + 2*wh)+=(unsigned int)(val*col3);
@@ -1075,14 +1079,14 @@ void* item_fireworks() {
       if (t<0 && t>=-1) {
         if ((speed*=0.9f)<10) speed=10.0f;
         const unsigned char
-          r = (unsigned char)std::min(50 + 3*(unsigned char)(100*cimg::rand()), 255),
-          g = (unsigned char)std::min(50 + 3*(unsigned char)(100*cimg::rand()), 255),
-          b = (unsigned char)std::min(50 + 3*(unsigned char)(100*cimg::rand()), 255);
+          cr = (unsigned char)std::min(50 + 3*(unsigned char)(100*cimg::rand()), 255),
+          cg = (unsigned char)std::min(50 + 3*(unsigned char)(100*cimg::rand()), 255),
+          cb = (unsigned char)std::min(50 + 3*(unsigned char)(100*cimg::rand()), 255);
         const float di = 10 + (float)cimg::rand()*60, nr = (float)cimg::rand()*30;
         for (float i=0; i<360; i+=di) {
           const float rad = i*(float)cimg::PI/180, c = (float)std::cos(rad), s = (float)std::sin(rad);
           particles.insert(CImg<>::vector(x,y,2*c + vx/1.5f,2*s + vy/1.5f,-2.0f,nr));
-          colors.insert(CImg<unsigned char>::vector(r,g,b));
+          colors.insert(CImg<unsigned char>::vector(cr,cg,cb));
         }
         remove_particle = true;
       } else if (t<-1) { r*=0.95f; if (r<0.5f) remove_particle=true; }
@@ -1259,16 +1263,16 @@ void* item_breakout() {
         if (cimg::abs(vxb)>8) vxb*=8/cimg::abs(vxb);
       }
       if (yb<board.height()*16) {
-        const int X = (int)xb/32, Y = (int)yb/16;
-        if (board(X,Y)) {
-          board(X,Y) = 0;
+        const int cX = (int)xb/32, cY = (int)yb/16;
+        if (board(cX,cY)) {
+          board(cX,cY) = 0;
           ++N;
           const unsigned int
-            x0 = X*brick.width(), y0 = Y*brick.height(),
-            x1 = (X + 1)*brick.width() - 1, y1 = (Y + 1)*brick.height() - 1;
+            x0 = cX*brick.width(), y0 = cY*brick.height(),
+            x1 = (cX + 1)*brick.width() - 1, y1 = (cY + 1)*brick.height() - 1;
           visu0.draw_image(x0,y0,background.get_crop(x0,y0,x1,y1));
-          if (oxb<(X<<5) || oxb>=((X + 1)<<5)) vxb=-vxb;
-          else if (oyb<(Y<<4) || oyb>=((Y + 1)<<4)) vyb=-vyb;
+          if (oxb<(cX<<5) || oxb>=((cX + 1)<<5)) vxb=-vxb;
+          else if (oyb<(cY<<4) || oyb>=((cY + 1)<<4)) vyb=-vyb;
         }
       }
       disp.set_title("[#24] - Breakout : %u/%u",N,N0);
@@ -1284,7 +1288,7 @@ void* item_breakout() {
       board.fill(0); visu0 = background;
       cimg_forXY(board,x,y) if (0.2f + cimg::rand(-1,1)>=0) {
         CImg<float> cbrick = CImg<double>::vector(100 + cimg::rand()*155,100 + cimg::rand()*155,100 + cimg::rand()*155).
-          unroll('v').resize(brick.width(),brick.height());
+          unroll('c').resize(brick.width(),brick.height());
         cimg_forC(cbrick,k) (cbrick.get_shared_channel(k).mul(brick))/=255;
         visu0.draw_image(x*32,y*16,cbrick);
         board(x,y) = 1;
@@ -1525,10 +1529,10 @@ void* item_word_puzzle() {
           cimg_forX(current,i) if (!current(i,5) && solution(j)==current(i)) {
             const int xc = current(i,1), yc = current(i,2), dx = cimg::abs(x - xc), dy = cimg::abs(y - yc);
             if (dx<=12 && dy<=12) {
-              cimg_forC(background,k) cimg_forY(letters[0],y)
-                background.get_shared_row(solution(j,2) + y,0,k).
+              cimg_forC(background,k) cimg_forY(letters[0],ly)
+                background.get_shared_row(solution(j,2) + ly,0,k).
                 draw_image(solution(j,1),0,
-                           (CImg<>(cletters(solution(j) - 'A').get_shared_row(y,0,k))*=2.0*std::cos((y - 30.0f)/18)).
+                           (CImg<>(cletters(solution(j) - 'A').get_shared_row(ly,0,k))*=2.0*std::cos((ly - 30.0f)/18)).
                            cut(0,255),0.8f);
               current(i,5) = solution(j,3) = 1; refresh_canvas = true;
             }
@@ -1620,15 +1624,13 @@ int main(int argc, char **argv) {
     back.draw_rectangle(0,y0 - 7,back.width() - 1,y0 + 20,red);
     fore.assign(back.width(),50,1,1,0).draw_text(20,y0 - 3,"** CImg %u.%u.%u Samples **",grey,0,1,23,
                                                 cimg_version/100,(cimg_version/10)%10,cimg_version%10);
-    (fore+=fore.get_dilate(3).dilate(3)).resize(-100,-100,1,3);
-    cimg_forXY(fore,x,y)
-      if (fore(x,y)==127) fore(x,y,0) = fore(x,y,1) = fore(x,y,2) = 1;
-      else if (fore(x,y)) {
-        const float val = std::min(255.0f,7.0f*(y - 3));
-        fore(x,y,0) = (unsigned char)(val/1.5f);
-        fore(x,y,1) = (unsigned char)val;
-        fore(x,y,2) = (unsigned char)(val/1.1f);
-      }
+    fore.max(fore.get_threshold(1).dilate(3)).resize(-100,-100,1,3);
+    cimg_forXY(fore,x,y) if (fore(x,y)>1) {
+      const float val = std::min(255.0f,7.0f*(y - 3))*fore(x,y)/127;
+      fore(x,y,0) = (unsigned char)(val/1.5f);
+      fore(x,y,1) = (unsigned char)val;
+      fore(x,y,2) = (unsigned char)(val/1.1f);
+    }
     text.draw_text(1,1,
                    "1- Blurring Gradient\n"
                    "2- Rotozoom\n"
@@ -1669,9 +1671,9 @@ int main(int argc, char **argv) {
         for (int i = 0; i<60; ++i) {
           const float
             mx = (float)(img.width()/2 + (img.width()/2 - 30)*((1 - gamma)*std::cos(3*t + rx*i*18.0f*cimg::PI/180) +
-                                                         gamma*std::cos(3*t + nrx*i*18.0f*cimg::PI/180))),
+                                                               gamma*std::cos(3*t + nrx*i*18.0f*cimg::PI/180))),
             my = (float)(img.height()/2 + (img.height()/2 - 30)*((1 - gamma)*std::sin(4*t + ry*i*18.0f*cimg::PI/180) +
-                                                         gamma*std::sin(4*t + nry*i*18.0f*cimg::PI/180))),
+                                                                 gamma*std::sin(4*t + nry*i*18.0f*cimg::PI/180))),
             mz = (float)(1.3f + 1.2f*((1 - gamma)*std::sin(2*t + (rx + ry)*i*20*cimg::PI/180) +
                                       gamma*std::sin(2*t + (nrx + nry)*i*20*cimg::PI/180)));
           const int j = i%5;

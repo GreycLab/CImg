@@ -31,7 +31,7 @@
 # Authors and contributors :
 #----------------------------
 
-  - David Tschumperle (project leader) ( http://tschumperle.users.greyc.fr/ )
+  - David Tschumperlé (project leader) ( http://tschumperle.users.greyc.fr/ )
 
   - Maksim Aizenshtein
   - Alberto Albiol
@@ -89,6 +89,7 @@
   - Adrien Reboisson
   - Klaus Schneider
   - Jakob Schluttig
+  - Jamie Smith
   - Veronique Souchaud
   - Konstantin Spirin
   - David G. Starkweather

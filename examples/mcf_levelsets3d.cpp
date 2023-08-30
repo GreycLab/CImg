@@ -8,7 +8,7 @@
  #                This file is a part of the CImg Library project.
  #                ( http://cimg.eu )
  #
- #  Copyright   : David Tschumperle
+ #  Copyright   : David Tschumperlé
  #                ( http://tschumperle.users.greyc.fr/ )
  #
  #  License     : CeCILL v2.0
@@ -106,7 +106,7 @@ int main(int argc,char **argv) {
     img.draw_fill(s[0],s[1],s[2],tmp,1,region,alpha);
     ((img = region.normalize(-1,1))*=-1).blur(sigma);
   }
-  else { // Create synthetic implicit function.
+  else { // Create synthetic implicit function
     img.assign(60,60,60);
     const float exte[] = { 1 }, inte[] = { -1 };
     img.fill(*exte).draw_rectangle(15,15,15,45,45,45,inte).draw_rectangle(25,25,0,35,35,img.depth() - 1,exte).
@@ -130,7 +130,7 @@ int main(int argc,char **argv) {
     disp3d.set_title("Mean curvature flow 3D - Isosurface (iter. %u)",iteration);
 
     // Apply PDE on the distance function.
-    mcf_PDE(img,1,dt,narrow); // Do one iteration of mean curvature flow.
+    mcf_PDE(img,1,dt,narrow); // Do one iteration of mean curvature flow
     // Every 10 steps, do one iteration of distance function re-initialization.
     if (!(iteration%10)) img.distance_eikonal(1,narrow,0.5f);
 

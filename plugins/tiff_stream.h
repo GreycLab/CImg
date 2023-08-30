@@ -159,7 +159,7 @@ CImg<T>& load_tiff(std::istream* tiffInStream,
       TIFFSetDirectory(tif,0);
       CImg<T> frame;
       for (unsigned int l = nfirst_frame; l<=nlast_frame; l+=nstep_frame) {
-        frame._load_tiff(tif,l,0,0);
+        frame._load_tiff(tif,l,0,0,0);
         if (l==nfirst_frame)
           assign(frame._width,frame._height,1 + (nlast_frame - nfirst_frame)/nstep_frame,frame._spectrum);
         if (frame._width>_width || frame._height>_height || frame._spectrum>_spectrum)

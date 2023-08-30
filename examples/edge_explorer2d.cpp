@@ -93,18 +93,18 @@ int main(int argc, char** argv) {
     if (disp_edge.is_closed()) disp_edge.show();
     if (disp.is_resized()) disp.resize(disp);
     if (disp.mouse_x()>=0) {
-      x = disp.mouse_x(); // Getting the current position of the mouse.
+      x = disp.mouse_x(); // Getting the current position of the mouse
       y = disp.mouse_y(); //
-      redraw = true;    // The image should be redrawn.
+      redraw = true;    // The image should be redrawn
     }
     if (redraw) {
       disp_edge.set_title("Edge explorer (alpha=%g)",alpha);
       const int
         x0 = x - factor, y0 = y - factor,  // These are the coordinates for the red rectangle
-        x1 = x + factor, y1 = y + factor;  // to be drawn on the original image.
+        x1 = x + factor, y1 = y + factor;  // to be drawn on the original image
       const unsigned char
         red[3] = { 255,0,0 },          //
-        black[3] = { 0,0,0 };          // Defining the colors we need for drawing.
+        black[3] = { 0,0,0 };          // Defining the colors we need for drawing
 
         (+img).draw_rectangle(x0,y0,x1,y1,red,1.0f,0x55555555U).display(disp);
         //^ We draw the red rectangle on the original window using 'draw_line'.
@@ -116,7 +116,7 @@ int main(int argc, char** argv) {
         CImg<> visu_bw = CImg<>(img).get_crop(x0,y0,x1,y1).get_norm().normalize(0,255).resize(-100,-100,1,2,2);
         // get_crop(x0,y0,x1,y1) gets the rectangle we are interested in.
 
-        edge.fill(255); // Background color in the edge-detection window is white.
+        edge.fill(255); // Background color in the edge-detection window is white
 
         // grad[0] is the gradient image of 'visu_bw' in x-direction.
         // grad[1] is the gradient image of 'visu_bw' in y-direction.
@@ -159,7 +159,7 @@ int main(int argc, char** argv) {
                 }
               };
               break;
-            case 2: // Angle 'theta' of the gradient (Gs,Gt) at the point (s,t).
+            case 2: // Angle 'theta' of the gradient (Gs,Gt) at the point (s,t)
               if(theta >= pi)theta-=pi;
               //rounding theta:
               if ((p8 < theta && theta <= p38 ) || (p78 < theta && theta <= pi)) {

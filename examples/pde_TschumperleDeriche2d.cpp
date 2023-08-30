@@ -3,22 +3,22 @@
  #  File        : pde_TschumperleDeriche2d.cpp
  #                ( C++ source file )
  #
- #  Description : Implementation of the Tschumperle-Deriche's Regularization
+ #  Description : Implementation of the Tschumperlé-Deriche's Regularization
  #                PDE, for 2D multivalued images, as described in the articles below.
  #                This file is a part of the CImg Library project.
  #                ( http://cimg.eu )
  #
  #  (1) PDE-Based Regularization of Multivalued Images and Applications.
- #               (D. Tschumperle). PhD Thesis. University of Nice-Sophia Antipolis, December 2002.
+ #               (D. Tschumperlé). PhD Thesis. University of Nice-Sophia Antipolis, December 2002.
  #  (2) Diffusion PDE's on Vector-valued Images : Local Approach and Geometric Viewpoint.
- #               (D. Tschumperle and R. Deriche). IEEE Signal Processing Magazine, October 2002.
+ #               (D. Tschumperlé and R. Deriche). IEEE Signal Processing Magazine, October 2002.
  #  (3) Vector-Valued Image Regularization with PDE's : A Common Framework for Different Applications.
- #               (D. Tschumperle and R. Deriche). CVPR'2003, Computer Vision and Pattern Recognition,
+ #               (D. Tschumperlé and R. Deriche). CVPR'2003, Computer Vision and Pattern Recognition,
  #                                                Madison, United States, June 2003.
  #
  #  This code can be used to perform image restoration, inpainting, magnification or flow visualization.
  #
- #  Copyright   : David Tschumperle
+ #  Copyright   : David Tschumperlé
  #                ( http://tschumperle.users.greyc.fr/ )
  #
  #  License     : CeCILL v2.0
@@ -66,7 +66,7 @@ int main(int argc,char **argv) {
 
   // Read command line arguments
   //-----------------------------
-  cimg_usage("Tschumperle-Deriche's flow for 2D Image Restoration, Inpainting, Magnification or Flow visualization");
+  cimg_usage("Tschumperlé-Deriche's flow for 2D Image Restoration, Inpainting, Magnification or Flow visualization");
   const char *file_i  = cimg_option("-i",cimg_imagepath "milla.bmp","Input image");
   const char *file_m  = cimg_option("-m",(char*)NULL,"Mask image (if Inpainting)");
   const char *file_f  = cimg_option("-f",(char*)NULL,"Flow image (if Flow visualization)");
@@ -211,14 +211,14 @@ int main(int argc,char **argv) {
       if (!view_t) img.display(disp);
       else {
         const unsigned char white[3] = {255,255,255};
-        CImg<unsigned char> visu = img.get_resize(disp.width(),disp.height()).normalize(0,255);
+        CImg<unsigned char> nvisu = img.get_resize(disp.width(),disp.height()).normalize(0,255);
         CImg<> isophotes(img.width(),img.height(),1,2,0);
         cimg_forXY(img,x,y) if (!mask || mask(x,y)) {
           T.get_tensor_at(x,y).symmetric_eigen(val,vec);
           isophotes(x,y,0) = vec(0,0);
           isophotes(x,y,1) = vec(0,1);
         }
-        visu.draw_quiver(isophotes,white,0.5f,10,9,0).display(disp);
+        nvisu.draw_quiver(isophotes,white,0.5f,10,9,0).display(disp);
       }
     }
     if (save && file_o && !(iter%save)) img.save(file_o,iter);

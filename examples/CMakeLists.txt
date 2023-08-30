@@ -106,6 +106,9 @@ SET(CIMG_MAGICK_CCFLAGS -Dcimg_use_magick)
 # ( http://www.fftw.org/ )
 SET(CIMG_FFTW3_CCFLAGS  -Dcimg_use_fftw3)
 
+# Flags to enable native support for HEIC image files, using libheif.
+# ( https://github.com/strukturag/libheif )
+SET(CIMG_HEIC_CCFLAGS  -Dcimg_use_heic)
 
 
 
@@ -117,6 +120,22 @@ FIND_PACKAGE(PNG)
 FIND_PACKAGE(ZLIB)
 FIND_PACKAGE(LAPACK)
 FIND_PACKAGE(BLAS)
+
+if(PKG_CONFIG_FOUND)
+  pkg_check_modules(PC_HEIF libheif QUIET)
+endif()
+
+find_path(HEIF_INCLUDE_DIR NAMES libheif/heif_cxx.h
+                           PATHS ${PC_HEIF_INCLUDEDIR})
+find_library(HEIF_LIBRARY NAMES heif libheif
+                          PATHS ${PC_HEIF_LIBDIR})
+
+set(HEIF_VERSION ${PC_HEIF_VERSION})
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(HEIF
+                                  REQUIRED_VARS HEIF_LIBRARY HEIF_INCLUDE_DIR
+                                  VERSION_VAR HEIF_VERSION)
 
 PKG_CHECK_MODULES(FFTW3 fftw3)
 PKG_CHECK_MODULES(OPENEXR OpenEXR)
@@ -200,7 +219,13 @@ if(MAGICK_FOUND)
   SET( SYSTEM_LIBS ${SYSTEM_LIBS} ${MAGICK_LIBRARIES} )
 endif()
 
-
+if(HEIF_FOUND)
+  get_filename_component(HEIF_LIB_DIRS ${HEIF_LIBRARY} PATH)
+  SET(CIMG_CFLAGS "${CIMG_CFLAGS} ${CIMG_HEIC_CCFLAGS}")
+  link_directories( ${HEIF_LIB_DIRS} )
+  include_directories( ${HEIF_INCLUDE_DIRS} )
+  SET( SYSTEM_LIBS ${SYSTEM_LIBS} ${HEIF_LIBRARY} )
+endif()
 
 
 if( LIBAVCODEC_FOUND  AND LIBAVFORMAT_FOUND AND LIBSWSCALE_FOUND AND LIBAVUTIL_FOUND )

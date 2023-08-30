@@ -196,15 +196,16 @@ CImg<T> get_chlpca(const int px, const int py, const int pz,
   count.fill(0);
   cimg_for_stepZ(*this,zi,(depth()==1||pz==0)?1:nstep){
 #ifdef cimg_use_openmp
-#pragma omp parallel for
+
+    cimg_pragma_openmp(parallel for)
 #endif
-    cimg_for_stepXY((*this),xi,yi,nstep){
+      cimg_for_stepXY((*this),xi,yi,nstep){
       // extract the training region X
       int idc = 0;
       CImg<T> S = get_patch_dictionnary(xi,yi,zi,px,py,pz,wx,wy,wz,idc);
       // select the K most similar patches within the training set
       CImg<T> Sk(S);
-      CImg<unsigned int> index(S.width());
+      CImg<unsigned int> a_index(S.width());
       if (K < Sk.width() - 1){
 	CImg<T> mse(S.width());
 	CImg<unsigned int> perms;
@@ -212,12 +213,12 @@ CImg<T> get_chlpca(const int px, const int py, const int pz,
 	mse.sort(perms,true);
 	cimg_foroff(perms,i) {
 	  cimg_forY(S,j) Sk(i,j) = S(perms(i),j);
-	  index(perms(i)) = i;
+	  a_index(perms(i)) = i;
 	}
 	Sk.columns(0, K);
 	perms.threshold(K);
       } else {
-	cimg_foroff(index,i) index(i)=i;
+	cimg_foroff(a_index,i) a_index(i)=i;
       }
       // centering the patches
       CImg<T> M(1, Sk.height(), 1, 1, 0);
@@ -248,7 +249,7 @@ CImg<T> get_chlpca(const int px, const int py, const int pz,
       cimg_forXY(Sk,x,y) { Sk(x,y) += M(y); }
       int j = 0;
       cimg_forXYZ_window((*this),xi,yi,zi,xj,yj,zj,wx,wy,wz){
-	const int id = index(j);
+	const int id = a_index(j);
 	if (id < Sk.width()) {
 	  dest.add_patch(xj, yj, zj, Sk.get_column(id), px, py, pz);
 	  count.add_patch(xj, yj, zj, (T)1, px, py, pz);

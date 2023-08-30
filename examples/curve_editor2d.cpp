@@ -7,7 +7,7 @@
  #                This file is a part of the CImg Library project.
  #                ( http://cimg.eu )
  #
- #  Copyright   : David Tschumperle
+ #  Copyright   : David Tschumperlé
  #                ( http://tschumperle.users.greyc.fr/ )
  #                Antonio Albiol Colomer
  #                ( http://personales.upv.es/~aalbiol/index-english.html )
@@ -144,10 +144,10 @@ int main(int argc, char **argv) {
     //---------------------------
     const unsigned int button = disp.button();
     const float
-      x = disp.mouse_x()*(float)img0.width()/disp.width(),
-      y = disp.mouse_y()*(float)img0.height()/disp.height();
+      mx = disp.mouse_x()*(float)img0.width()/disp.width(),
+      my = disp.mouse_y()*(float)img0.height()/disp.height();
 
-    if (points && button && x>=0 && y>=0) {
+    if (points && button && mx>=0 && my>=0) {
 
       // Find nearest point and nearest segment
       float dmin_pt = cimg::type<float>::max(), dmin_seg = dmin_pt;
@@ -159,16 +159,16 @@ int main(int argc, char **argv) {
           xp = points(p,0),
           yp = points(p,1);
         const float
-          d_pt  = (xp - x)*(xp - x) + (yp - y)*(yp - y),
-	  d_seg = dist_segment(x,y,xp,yp,points(pnext,0),points(pnext,1));
+          d_pt  = (xp - mx)*(xp - mx) + (yp - my)*(yp - my),
+	  d_seg = dist_segment(mx,my,xp,yp,points(pnext,0),points(pnext,1));
         if (d_pt<dmin_pt)   { dmin_pt = d_pt; p_pt = p; }
         if (d_seg<dmin_seg) { dmin_seg = d_seg; p_seg = p; }
       }
 
       // Handle button
       if (button&1) {
-        if (dmin_pt<100 || moving) { points(p_pt,0) = x; points(p_pt,1) = y; }
-        else points.insert(CImg<>::vector(x,y),p_seg + 1);
+        if (dmin_pt<100 || moving) { points(p_pt,0) = mx; points(p_pt,1) = my; }
+        else points.insert(CImg<>::vector(mx,my),p_seg + 1);
         moving = true;
       }
       if (button&2 && dmin_pt<100) {

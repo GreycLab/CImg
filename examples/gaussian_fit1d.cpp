@@ -8,7 +8,7 @@
  #                This file is a part of the CImg Library project.
  #                ( http://cimg.eu )
  #
- #  Copyright   : David Tschumperle
+ #  Copyright   : David Tschumperlé
  #                ( http://tschumperle.users.greyc.fr/ )
  #
  #  License     : CeCILL v2.0
@@ -94,19 +94,19 @@ int main(int argc,char **argv) {
     // Do one iteration of the Levenberg-Marquardt algorithm.
     CImg<> YmF(1,s_nb), J(beta.height(),s_nb);
     const float
-      f_amp = beta(0), f_mean = beta(1), f_std = beta(2),
-      f_std2 = 2*f_std*f_std, f_fact = (float)std::sqrt(2*cimg::PI)*f_std;
-    float f_error = 0;
+      _f_amp = beta(0), _f_mean = beta(1), _f_std = beta(2),
+      _f_std2 = 2*_f_std*_f_std, _f_fact = (float)std::sqrt(2*cimg::PI)*_f_std;
+    float _f_error = 0;
     cimg_forY(J,i) {
       const float
         x = samples(i,0),
-        f_exp = std::exp(-cimg::sqr(x - f_mean)/f_std2),
-        delta = samples(i,1) - f_amp*f_exp/f_fact;
+        _f_exp = std::exp(-cimg::sqr(x - _f_mean)/_f_std2),
+        delta = samples(i,1) - _f_amp*_f_exp/_f_fact;
       YmF(i) = delta;
-      J(0,i) = f_exp/f_fact;
-      J(1,i) = f_amp*f_exp/f_fact*(x - f_mean)*2/f_std2;
-      J(2,i) = f_amp*f_exp/f_fact*(cimg::sqr(x - f_mean)/(f_std*f_std*f_std));
-      f_error+=cimg::sqr(delta);
+      J(0,i) = _f_exp/_f_fact;
+      J(1,i) = _f_amp*_f_exp/_f_fact*(x - _f_mean)*2/_f_std2;
+      J(2,i) = _f_amp*_f_exp/_f_fact*(cimg::sqr(x - _f_mean)/(_f_std*_f_std*_f_std));
+      _f_error+=cimg::sqr(delta);
     }
 
     CImg<> Jt = J.get_transpose(), M = Jt*J;
@@ -125,7 +125,7 @@ int main(int argc,char **argv) {
       draw_text(10,25,"Amplitude : %.4g (%.4g)",black,0,1,13,beta(0),s_amp).
       draw_text(10,40,"Mean : %.4g (%.4g)",black,0,1,13,beta(1),s_mean).
       draw_text(10,55,"Std : %.4g (%.4g)",black,0,1,13,beta(2),s_std).
-      draw_text(10,70,"Error : %.4g",black,0,1,13,std::sqrt(f_error)).
+      draw_text(10,70,"Error : %.4g",black,0,1,13,std::sqrt(_f_error)).
       draw_text(10,85,"Lambda : %.4g",black,0,1,13,f_lambda).
       display(disp.resize(false).wait(20));
   }

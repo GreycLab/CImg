@@ -8,7 +8,7 @@
  #                This file is a part of the CImg Library project.
  #                ( http://cimg.eu )
  #
- #  Copyright   : David Tschumperle
+ #  Copyright   : David Tschumperlé
  #                ( http://tschumperle.users.greyc.fr/ )
  #
  #  License     : CeCILL v2.0
@@ -114,7 +114,7 @@ int main() {
   scene_pts.save_off(scene_prims,scene_cols,"output.off");
 
   // Save 3D view in SVG, EPS and FIG files.
-  // (using the Board library : http://libboard.sourceforge.net/ ).
+  // (using the Board library : https://github.com/c-koi/libboard ).
 #ifdef cimg_use_board
 
   // Define a Board instance

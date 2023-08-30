@@ -99,7 +99,7 @@ int main(int argc,char **argv) {
   //use canny edge detection algorithm to get edge map of the image
   //- the threshold values are used to perform hysteresis in the edge detection process
   CImg<unsigned char> cannyEdgeMap = CannyEdges(blurredIm,thresh1,thresh2,false);
-  CImg<unsigned char> radonImage = *(new CImg<unsigned char>(500,400,1,1,0));
+  CImg<unsigned char> radonImage(500,400,1,1,0);
 
   //display the two windows
   CImgDisplay dispImage(src,"original image");

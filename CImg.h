@@ -16713,17 +16713,24 @@ namespace cimg_library {
       // Check instance dimension and header.
       if (_width!=1 || _height<8 || _depth!=1 || _spectrum!=1) {
         if (error_message) cimg_snprintf(error_message,256,
-                                        "CImg3d has invalid dimensions (%u,%u,%u,%u)",
-                                        _width,_height,_depth,_spectrum);
+                                         "CImg3d has invalid dimensions (%u,%u,%u,%u)",
+                                         _width,_height,_depth,_spectrum);
         return false;
       }
       const T *ptrs = _data, *const ptre = end();
       if (!_is_CImg3d(*(ptrs++),'C') || !_is_CImg3d(*(ptrs++),'I') || !_is_CImg3d(*(ptrs++),'m') ||
           !_is_CImg3d(*(ptrs++),'g') || !_is_CImg3d(*(ptrs++),'3') || !_is_CImg3d(*(ptrs++),'d')) {
         if (error_message) cimg_snprintf(error_message,256,
-                                        "CImg3d header not found");
+                                         "CImg3d header not found");
         return false;
       }
+      if (!cimg::type<T>::is_finite(*ptrs) || !cimg::type<T>::is_finite(ptrs[1])) {
+        if (error_message) cimg_snprintf(error_message,256,
+                                         "Specified numbers of vertices/primitives (%g/%g) are invalid",
+                                         (double)*ptrs,(double)ptrs[1]);
+        return false;
+      }
+
       const unsigned int
         nb_points = cimg::float2uint((float)*(ptrs++)),
         nb_primitives = cimg::float2uint((float)*(ptrs++));
@@ -16733,8 +16740,9 @@ namespace cimg_library {
         const ulongT minimal_size = 8UL + 3*nb_points + 6*nb_primitives;
         if (_data + minimal_size>ptre) {
           if (error_message) cimg_snprintf(error_message,256,
-                                          "CImg3d (%u,%u) has only %lu values, while at least %lu values were expected",
-                                          nb_points,nb_primitives,(unsigned long)size(),(unsigned long)minimal_size);
+                                           "CImg3d (%u,%u) has only %lu values, "
+                                           "while at least %lu values were expected",
+                                           nb_points,nb_primitives,(unsigned long)size(),(unsigned long)minimal_size);
           return false;
         }
       }
@@ -16743,23 +16751,23 @@ namespace cimg_library {
       if (!nb_points) {
         if (nb_primitives) {
           if (error_message) cimg_snprintf(error_message,256,
-                                          "CImg3d (%u,%u) defines no vertices but %u primitives",
-                                          nb_points,nb_primitives,nb_primitives);
+                                           "CImg3d (%u,%u) defines no vertices but %u primitives",
+                                           nb_points,nb_primitives,nb_primitives);
           return false;
         }
         if (ptrs!=ptre) {
           if (error_message) cimg_snprintf(error_message,256,
-                                          "CImg3d (%u,%u) is an empty object but contains %u value%s "
-                                          "more than expected",
-                                          nb_points,nb_primitives,(unsigned int)(ptre - ptrs),(ptre - ptrs)>1?"s":"");
+                                           "CImg3d (%u,%u) is an empty object but contains %u value%s "
+                                           "more than expected",
+                                           nb_points,nb_primitives,(unsigned int)(ptre - ptrs),(ptre - ptrs)>1?"s":"");
           return false;
         }
         return true;
       }
       if (ptrs + 3*nb_points>ptre) {
         if (error_message) cimg_snprintf(error_message,256,
-                                        "CImg3d (%u,%u) defines only %u vertices data",
-                                        nb_points,nb_primitives,(unsigned int)(ptre - ptrs)/3);
+                                         "CImg3d (%u,%u) defines only %u vertices data",
+                                         nb_points,nb_primitives,(unsigned int)(ptre - ptrs)/3);
         return false;
       }
       ptrs+=3*nb_points;
@@ -16767,8 +16775,8 @@ namespace cimg_library {
       // Check consistency of primitive data.
       if (ptrs==ptre) {
         if (error_message) cimg_snprintf(error_message,256,
-                                        "CImg3d (%u,%u) defines %u vertices but no primitive",
-                                        nb_points,nb_primitives,nb_points);
+                                         "CImg3d (%u,%u) defines %u vertices but no primitive",
+                                         nb_points,nb_primitives,nb_points);
         return false;
       }
 
@@ -16781,8 +16789,8 @@ namespace cimg_library {
           const unsigned int i0 = cimg::float2uint((float)*(ptrs++));
           if (i0>=nb_points) {
             if (error_message) cimg_snprintf(error_message,256,
-                                            "CImg3d (%u,%u) refers to invalid vertex index %u in point primitive [%u]",
-                                            nb_points,nb_primitives,i0,p);
+                                             "CImg3d (%u,%u) refers to invalid vertex index %u in point primitive [%u]",
+                                             nb_points,nb_primitives,i0,p);
             return false;
           }
         } break;
@@ -16793,9 +16801,9 @@ namespace cimg_library {
           ptrs+=3;
           if (i0>=nb_points || i1>=nb_points) {
             if (error_message) cimg_snprintf(error_message,256,
-                                            "CImg3d (%u,%u) refers to invalid vertex indices (%u,%u) in "
-                                            "sphere primitive [%u]",
-                                            nb_points,nb_primitives,i0,i1,p);
+                                             "CImg3d (%u,%u) refers to invalid vertex indices (%u,%u) in "
+                                             "sphere primitive [%u]",
+                                             nb_points,nb_primitives,i0,i1,p);
             return false;
           }
         } break;
@@ -16806,9 +16814,9 @@ namespace cimg_library {
           if (nb_inds==6) ptrs+=4;
           if (i0>=nb_points || i1>=nb_points) {
             if (error_message) cimg_snprintf(error_message,256,
-                                            "CImg3d (%u,%u) refers to invalid vertex indices (%u,%u) in "
-                                            "segment primitive [%u]",
-                                            nb_points,nb_primitives,i0,i1,p);
+                                             "CImg3d (%u,%u) refers to invalid vertex indices (%u,%u) in "
+                                             "segment primitive [%u]",
+                                             nb_points,nb_primitives,i0,i1,p);
             return false;
           }
         } break;
@@ -16820,9 +16828,9 @@ namespace cimg_library {
           if (nb_inds==9) ptrs+=6;
           if (i0>=nb_points || i1>=nb_points || i2>=nb_points) {
             if (error_message) cimg_snprintf(error_message,256,
-                                            "CImg3d (%u,%u) refers to invalid vertex indices (%u,%u,%u) in "
-                                            "triangle primitive [%u]",
-                                            nb_points,nb_primitives,i0,i1,i2,p);
+                                             "CImg3d (%u,%u) refers to invalid vertex indices (%u,%u,%u) in "
+                                             "triangle primitive [%u]",
+                                             nb_points,nb_primitives,i0,i1,i2,p);
             return false;
           }
         } break;
@@ -16835,23 +16843,23 @@ namespace cimg_library {
           if (nb_inds==12) ptrs+=8;
           if (i0>=nb_points || i1>=nb_points || i2>=nb_points || i3>=nb_points) {
             if (error_message) cimg_snprintf(error_message,256,
-                                            "CImg3d (%u,%u) refers to invalid vertex indices (%u,%u,%u,%u) in "
-                                            "quadrangle primitive [%u]",
-                                            nb_points,nb_primitives,i0,i1,i2,i3,p);
+                                             "CImg3d (%u,%u) refers to invalid vertex indices (%u,%u,%u,%u) in "
+                                             "quadrangle primitive [%u]",
+                                             nb_points,nb_primitives,i0,i1,i2,i3,p);
             return false;
           }
         } break;
         default :
           if (error_message) cimg_snprintf(error_message,256,
-                                          "CImg3d (%u,%u) defines an invalid primitive [%u] of size %u",
-                                          nb_points,nb_primitives,p,nb_inds);
+                                           "CImg3d (%u,%u) defines an invalid primitive [%u] of size %u",
+                                           nb_points,nb_primitives,p,nb_inds);
           return false;
         }
         if (ptrs>ptre) {
           if (error_message) cimg_snprintf(error_message,256,
-                                          "CImg3d (%u,%u) has incomplete primitive data for primitive [%u], "
-                                          "%u values missing",
-                                          nb_points,nb_primitives,p,(unsigned int)(ptrs - ptre));
+                                           "CImg3d (%u,%u) has incomplete primitive data for primitive [%u], "
+                                           "%u values missing",
+                                           nb_points,nb_primitives,p,(unsigned int)(ptrs - ptre));
           return false;
         }
       }
@@ -16859,8 +16867,8 @@ namespace cimg_library {
       // Check consistency of color data.
       if (ptrs==ptre) {
         if (error_message) cimg_snprintf(error_message,256,
-                                        "CImg3d (%u,%u) defines no color/texture data",
-                                        nb_points,nb_primitives);
+                                         "CImg3d (%u,%u) defines no color/texture data",
+                                         nb_points,nb_primitives);
         return false;
       }
       for (unsigned int c = 0; c<nb_primitives; ++c) {
@@ -16873,18 +16881,18 @@ namespace cimg_library {
           if (!h && !s) {
             if (w>=c) {
               if (error_message) cimg_snprintf(error_message,256,
-                                              "CImg3d (%u,%u) refers to invalid shared sprite/texture index %u "
-                                              "for primitive [%u]",
-                                              nb_points,nb_primitives,w,c);
+                                               "CImg3d (%u,%u) refers to invalid shared sprite/texture index %u "
+                                               "for primitive [%u]",
+                                               nb_points,nb_primitives,w,c);
               return false;
             }
           } else ptrs+=w*h*s;
         }
         if (ptrs>ptre) {
           if (error_message) cimg_snprintf(error_message,256,
-                                          "CImg3d (%u,%u) has incomplete color/texture data for primitive [%u], "
-                                          "%u values missing",
-                                          nb_points,nb_primitives,c,(unsigned int)(ptrs - ptre));
+                                           "CImg3d (%u,%u) has incomplete color/texture data for primitive [%u], "
+                                           "%u values missing",
+                                           nb_points,nb_primitives,c,(unsigned int)(ptrs - ptre));
           return false;
         }
       }
@@ -16892,8 +16900,8 @@ namespace cimg_library {
       // Check consistency of opacity data.
       if (ptrs==ptre) {
         if (error_message) cimg_snprintf(error_message,256,
-                                        "CImg3d (%u,%u) defines no opacity data",
-                                        nb_points,nb_primitives);
+                                         "CImg3d (%u,%u) defines no opacity data",
+                                         nb_points,nb_primitives);
         return false;
       }
       for (unsigned int o = 0; o<nb_primitives; ++o) {
@@ -16905,17 +16913,17 @@ namespace cimg_library {
           if (!h && !s) {
             if (w>=o) {
               if (error_message) cimg_snprintf(error_message,256,
-                                              "CImg3d (%u,%u) refers to invalid shared opacity index %u "
-                                              "for primitive [%u]",
-                                              nb_points,nb_primitives,w,o);
+                                               "CImg3d (%u,%u) refers to invalid shared opacity index %u "
+                                               "for primitive [%u]",
+                                               nb_points,nb_primitives,w,o);
               return false;
             }
           } else ptrs+=w*h*s;
         }
         if (ptrs>ptre) {
           if (error_message) cimg_snprintf(error_message,256,
-                                          "CImg3d (%u,%u) has incomplete opacity data for primitive [%u]",
-                                          nb_points,nb_primitives,o);
+                                           "CImg3d (%u,%u) has incomplete opacity data for primitive [%u]",
+                                           nb_points,nb_primitives,o);
           return false;
         }
       }
@@ -16923,8 +16931,8 @@ namespace cimg_library {
       // Check end of data.
       if (ptrs<ptre) {
         if (error_message) cimg_snprintf(error_message,256,
-                                        "CImg3d (%u,%u) contains %u value%s more than expected",
-                                        nb_points,nb_primitives,(unsigned int)(ptre - ptrs),(ptre - ptrs)>1?"s":"");
+                                         "CImg3d (%u,%u) contains %u value%s more than expected",
+                                         nb_points,nb_primitives,(unsigned int)(ptre - ptrs),(ptre - ptrs)>1?"s":"");
         return false;
       }
       return true;

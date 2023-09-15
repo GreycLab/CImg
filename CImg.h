@@ -50719,7 +50719,7 @@ namespace cimg_library {
             if (letter) {
               const CImg<t> &mask = ch + 256U<font._width?font[ch + 256]:empty;
               const int posx = x + left_paddings[i] + padding_x;
-              if (is_native_font && _spectrum>letter._spectrum)
+              if (_spectrum>letter._spectrum)
                 letter.assign(letter.get_resize(-100,-100,1,_spectrum,0,2),false);
               const unsigned int cmin = std::min(_spectrum,letter._spectrum);
               if (foreground_color)
@@ -66232,7 +66232,7 @@ namespace cimg_library {
           if (' ' + 256<font.size()) font[' ' + 256].resize(font[(int)'f']._width,-100,-100,-100,0);
         }
         font.insert(256,0);
-        cimglist_for_in(font,0,255,l) font[l].assign(font[l + 256]._width,font[l + 256]._height,1,3,255);
+        cimglist_for_in(font,0,255,l) font[l].assign(font[l + 256]._width,font[l + 256]._height,1,1,255);
       }
       cimg::mutex(11,0);
       return font;

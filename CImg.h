@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 330
+#define cimg_version 331
 
 /*-----------------------------------------------------------
  #
@@ -50715,23 +50715,24 @@ namespace cimg_library {
           x+=lw;
         } break;
         default : if (ch<font._width) {
-            CImg<T> letter = font[ch];
-            if (letter) {
+            if (font[ch]) {
+              CImg<T> letter = font[ch];
               const CImg<t> &mask = ch + 256U<font._width?font[ch + 256]:empty;
               const int posx = x + left_paddings[i] + padding_x;
-              if (is_native_font && _spectrum>letter._spectrum)
-                letter.assign(letter.get_resize(-100,-100,1,_spectrum,0,2),false);
-              const unsigned int cmin = std::min(_spectrum,letter._spectrum);
-              if (foreground_color)
-                for (unsigned int c = 0; c<cmin; ++c)
-                  if (foreground_color[c]!=255) letter.get_shared_channel(c)*=foreground_color[c]/255.0f;
-              if (mask) { // Letter has mask
-                if (background_color)
-                  for (unsigned int c = 0; c<cmin; ++c)
-                    draw_rectangle(x,y,0,c,posx + letter._width - 1,y + letter._height - 1,0,c,
-                                   background_color[c],opacity);
-                draw_image(posx,y,letter,font[ch + 256],opacity,255.f);
-              } else draw_image(posx,y,letter,opacity); // Letter has no mask
+
+              for (unsigned int c = 0; c<_spectrum; c+=letter._spectrum) {
+                const unsigned int cmin = std::min(_spectrum - c,letter._spectrum);
+                if (foreground_color[c]!=255)
+                  for (unsigned int d = 0; d<cmin; ++d) letter.get_shared_channel(d)*=foreground_color[c + d]/255.0f;
+                if (mask) { // Letter with alpha
+                  if (background_color)
+                    for (unsigned int d = 0; d<cmin; ++d)
+                      draw_rectangle(x,y,0,c + d,posx + letter._width - 1,y + letter._height - 1,0,c + d,
+                                     background_color[c + d],opacity);
+                  draw_image(posx,y,0,c,letter,mask,opacity,255.f);
+                } else // Letter without alpha
+                  draw_image(posx,y,0,c,letter,opacity);
+              }
               x = posx + letter._width;
             }
           }
@@ -66232,7 +66233,7 @@ namespace cimg_library {
           if (' ' + 256<font.size()) font[' ' + 256].resize(font[(int)'f']._width,-100,-100,-100,0);
         }
         font.insert(256,0);
-        cimglist_for_in(font,0,255,l) font[l].assign(font[l + 256]._width,font[l + 256]._height,1,3,255);
+        cimglist_for_in(font,0,255,l) font[l].assign(font[l + 256]._width,font[l + 256]._height,1,1,255);
       }
       cimg::mutex(11,0);
       return font;

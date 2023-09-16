@@ -50721,9 +50721,12 @@ namespace cimg_library {
               const int posx = x + left_paddings[i] + padding_x;
 
               for (unsigned int c = 0; c<_spectrum; c+=letter._spectrum) {
+                if (c) letter = font[ch];
                 const unsigned int cmin = std::min(_spectrum - c,letter._spectrum);
-                if (foreground_color[c]!=255)
-                  for (unsigned int d = 0; d<cmin; ++d) letter.get_shared_channel(d)*=foreground_color[c + d]/255.0f;
+                for (unsigned int d = 0; d<cmin; ++d)
+                  if (foreground_color[c + d]!=255)
+                    letter.get_shared_channel(d)*=foreground_color[c + d]/255.0f;
+
                 if (mask) { // Letter with alpha
                   if (background_color)
                     for (unsigned int d = 0; d<cmin; ++d)

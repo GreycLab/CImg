@@ -24596,7 +24596,7 @@ namespace cimg_library {
           ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.imglist.width());
         double *const ptrd = &_mp_arg(1) + (dim>1?1:0);
         CImg<T> &img = mp.imglist[ind];
-        int siz = img?(int)img[img._height - 1]:0;
+        int siz = img?(int)cimg::float2uint((float)img[img._height - 1]):0;
         if (img && (img._width!=1 || img._depth!=1 || siz<0 || siz>img.height() - 1))
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function '%s()': "
                                       "Specified image #%u of size (%d,%d,%d,%d) cannot be used as dynamic array%s.",
@@ -24607,7 +24607,6 @@ namespace cimg_library {
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function '%s()': "
                                       "Specified dynamic array #%u contains no elements.",
                                       mp.imgout.pixel_type(),s_op,ind);
-        double ret = cimg::type<double>::nan();
         const int siz1 = siz - 1;
         if (is_pop_heap) { // Heapify
           if (dim==1) cimg::swap(img[0],img[siz1]);
@@ -24625,13 +24624,15 @@ namespace cimg_library {
             } else break;
           }
         }
+
+        double ret = cimg::type<double>::nan();
         if (dim==1) ret = img[siz1]; // Scalar element
         else cimg_forC(img,c) ptrd[c] = img(0,siz1,0,c); // Vector element
         if (is_pop) { // Remove element from array
           --siz;
-          if (img.height()>32 && siz<2*img.height()/3) // Reduce size of dynamic array
+          if (img.height()>32 && siz<img.height()/6) // Reduce size of dynamic array
             img.resize(1,std::max(2*siz + 1,32),1,-100,0);
-          img[img._height - 1] = (T)siz;
+          img[img._height - 1] = (T)cimg::uint2float(siz);
         }
         return ret;
       }
@@ -24746,7 +24747,7 @@ namespace cimg_library {
         if (end<siz - 1) // Move remaining data in dynamic array
           cimg_forC(img,c) std::memmove(img.data(0,start,0,c),img.data(0,end + 1,0,c),(siz - 1 - end)*sizeof(T));
         siz-=end - start + 1;
-        if (img.height()>32 && siz<2*img.height()/3) // Reduce size of dynamic array
+        if (img.height()>32 && siz<img.height()/6) // Reduce size of dynamic array
           img.resize(1,std::max(2*siz + 1,32),1,-100,0);
         img[img._height - 1] = (T)cimg::uint2float(siz);
         return cimg::type<double>::nan();

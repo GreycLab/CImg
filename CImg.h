@@ -24610,7 +24610,10 @@ namespace cimg_library {
         const int siz1 = siz - 1;
         if (is_pop_heap) { // Heapify
           if (dim==1) cimg::swap(img[0],img[siz1]);
-          else cimg_forC(img,c) cimg::swap(img(0,0,0,c),img(0,siz1,0,c));
+          else {
+            T *ptr0 = img.data(), *ptr1 = img.data(0,siz1);
+            cimg_forC(img,c) { cimg::swap(*ptr0,*ptr1); ptr0+=img._height; ptr1+=img._height; }
+          }
           int index = 0;
           while (true) {
             const int child_left = 2*index + 1, child_right = child_left + 1;
@@ -24619,7 +24622,10 @@ namespace cimg_library {
             if (child_right<siz1 && img[child_right]<img[smallest]) smallest = child_right;
             if (smallest!=index) {
               if (dim==1) cimg::swap(img[index],img[smallest]);
-              else cimg_forC(img,c) cimg::swap(img(0,index,0,c),img(0,smallest,0,c));
+              else {
+                T *ptr0 = img.data(0,index), *ptr1 = img.data(0,smallest);
+                cimg_forC(img,c) { cimg::swap(*ptr0,*ptr1); ptr0+=img._height; ptr1+=img._height; }
+              }
               index = smallest;
             } else break;
           }
@@ -24627,7 +24633,10 @@ namespace cimg_library {
 
         double ret = cimg::type<double>::nan();
         if (dim==1) ret = img[siz1]; // Scalar element
-        else cimg_forC(img,c) ptrd[c] = img(0,siz1,0,c); // Vector element
+        else {
+          const T *ptrs = img.data(0,siz1);
+          cimg_forC(img,c) { ptrd[c] = *ptrs; ptrs+=img._height; } // Vector element
+        }
         if (is_pop) { // Remove element from array
           --siz;
           if (img.height()>32 && siz<img.height()/8) // Reduce size of dynamic array
@@ -24704,12 +24713,14 @@ namespace cimg_library {
         else // vectorN() elements, with N>1
           for (unsigned int k = 0; k<nb_elts; ++k) {
             int index = pos + k;
-            double *ptrs = &_mp_arg(6 + k) + 1;
-            cimg_forC(img,c) img(0,index,0,c) = ptrs[c];
+            const double *const ptrs = &_mp_arg(6 + k) + 1;
+            T *ptrd = img.data(0,index);
+            cimg_forC(img,c) { *ptrd = ptrs[c]; ptrd+=img._height; }
             if (is_push_heap) while (index>0) { // Heapify
                 const int index_parent = (index - 1)/2;
                 if (img[index]<img[index_parent]) {
-                  cimg_forC(img,c) cimg::swap(img(0,index,0,c),img(0,index_parent,0,c));
+                  T *ptr0 = img.data(0,index), *ptr1 = img.data(0,index_parent);
+                  cimg_forC(img,c) { cimg::swap(*ptr0,*ptr1); ptr0+=img._height; ptr1+=img._height; }
                   index = index_parent;
                 }
                 else break;

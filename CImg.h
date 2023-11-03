@@ -20016,11 +20016,13 @@ namespace cimg_library {
             }
 
             if (!std::strncmp(ss,"da_insert(",10) ||
-                !std::strncmp(ss,"da_push(",8)) { // Insert element(s) in a dynamic array
+                !std::strncmp(ss,"da_push(",8) ||
+                !std::strncmp(ss,"da_push_heap(",13)) { // Insert element(s) in a dynamic array
               if (!is_inside_critical) is_parallelizable = false;
-              const bool is_push = *ss3=='p';
-              _cimg_mp_op(is_push?"Function 'da_push()'":"Function 'da_insert()'");
-              s0 = ss + (is_push?8:10);
+              const bool is_push = *ss3=='p', is_push_heap = *ss7=='_';
+              _cimg_mp_op(is_push_heap?"Function 'da_push_heap()'":
+                          is_push?"Function 'da_push()'":"Function 'da_insert()'");
+              s0 = ss + (is_push_heap?13:is_push?8:10);
               if (*s0=='#') { // Index specified
                 s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                 p1 = compile(s0,s1++,depth1,0,block_flags);
@@ -20031,7 +20033,8 @@ namespace cimg_library {
               if (!is_push) {
                 s0 = s1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                 arg1 = compile(s0,s1++,depth1,0,block_flags); // Position
-              } else arg1 = ~0U;
+              } else if (is_push_heap) arg1 = ~0U - 1;
+              else arg1 = ~0U;
 
               CImg<ulongT>::vector((ulongT)mp_da_insert_or_push,_cimg_mp_slot_nan,p1,arg1,0,0).move_to(l_opcode);
               p3 = p1==~0U?2:3;
@@ -24632,7 +24635,8 @@ namespace cimg_library {
       }
 
       static double mp_da_insert_or_push(_cimg_math_parser& mp) {
-        const char *const s_op = mp.opcode[3]==~0U?"da_push":"da_insert";
+        const bool is_push_heap = mp.opcode[3]==~0U - 1, is_push = mp.opcode[3]==~0U;
+        const char *const s_op = is_push_heap?"da_push_heap":is_push?"da_push":"da_insert";
         mp_check_list(mp,s_op);
         const unsigned int
           dim = (unsigned int)mp.opcode[4],
@@ -24642,7 +24646,7 @@ namespace cimg_library {
         CImg<T> &img = mp.imglist[ind];
         const int
           siz = img?(int)cimg::float2uint((float)img[img._height - 1]):0,
-          pos0 = mp.opcode[3]==~0U?siz:(int)_mp_arg(3),
+          pos0 = is_push || is_push_heap?siz:(int)_mp_arg(3),
           pos = pos0<0?pos0 + siz:pos0;
 
         if (img && _dim!=img._spectrum)
@@ -24667,7 +24671,15 @@ namespace cimg_library {
           cimg_forC(img,c) std::memmove(img.data(0,pos + nb_elts,0,c),img.data(0,pos,0,c),(siz - pos)*sizeof(T));
 
         if (!dim) // Scalar or vector1() elements
-          for (unsigned int k = 0; k<nb_elts; ++k) img[pos + k] = (T)_mp_arg(6 + k);
+          for (unsigned int k = 0; k<nb_elts; ++k) {
+            int index = pos + k;
+            img[index] = (T)_mp_arg(6 + k);
+            if (is_push_heap) while (index>0) { // Heapify
+                const int index_parent = (index - 1)/2;
+                if (img[index]<img[index_parent]) { cimg::swap(img[index],img[index_parent]); index = index_parent; }
+                else break;
+              }
+          }
         else // vectorN() elements, with N>1
           for (unsigned int k = 0; k<nb_elts; ++k) {
             double *ptrs = &_mp_arg(6 + k) + 1;

@@ -24702,7 +24702,7 @@ namespace cimg_library {
           for (unsigned int k = 0; k<nb_elts; ++k) {
             int index = pos + k;
             img[index] = (T)_mp_arg(6 + k);
-            if (is_push_heap) while (index>0) { // Heapify
+            if (is_push_heap) while (index>0) { // Heapify-down
                 const int index_parent = (index - 1)/2;
                 if (img[index]<img[index_parent]) {
                   cimg::swap(img[index],img[index_parent]);
@@ -24716,7 +24716,7 @@ namespace cimg_library {
             const double *const ptrs = &_mp_arg(6 + k) + 1;
             T *ptrd = img.data(0,index);
             cimg_forC(img,c) { *ptrd = ptrs[c]; ptrd+=img._height; }
-            if (is_push_heap) while (index>0) { // Heapify
+            if (is_push_heap) while (index>0) { // Heapify-up
                 const int index_parent = (index - 1)/2;
                 if (img[index]<img[index_parent]) {
                   T *ptr0 = img.data(0,index), *ptr1 = img.data(0,index_parent);

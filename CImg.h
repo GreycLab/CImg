@@ -24749,7 +24749,7 @@ namespace cimg_library {
           start0 = mp.opcode[3]==~0U?siz - 1:_mp_arg(3),
           end0 = mp.opcode[4]==~0U?start0:_mp_arg(4),
           start = start0<0?start0 + siz:start0,
-                         end = end0<0?end0 + siz:end0;
+          end = end0<0?end0 + siz:end0;
         if (start<0 || start>=siz || end<0 || end>=siz || start>end)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'da_remove()': "
                                       "Invalid starting (%d) and ending (%d) positions "

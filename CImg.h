@@ -21513,40 +21513,6 @@ namespace cimg_library {
               p1 = _cimg_mp_size(arg1);
               _cimg_mp_scalar3(mp_vector_normp,arg1,p1,arg2);
             }
-
-            if (!std::strncmp(ss,"norm",4) && ss4<se1 && (s = std::strchr(ss4,'('))!=0) { // Lp norm (constant p)
-              _cimg_mp_op("Function 'norm()'");
-              arg1 = s!=ss4?compile(ss4,s,depth1,0,block_flags):2;
-              _cimg_mp_check_const_scalar(arg1,0,0);
-              val = mem[arg1];
-              is_sth = true; // Tell if all arguments are constant
-              CImg<ulongT>::vector(0,0,0,arg1).move_to(l_opcode);
-              for (++s; s<se; ++s) {
-                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
-                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
-                arg2 = compile(s,ns,depth1,0,block_flags);
-                if (_cimg_mp_is_vector(arg2))
-                  CImg<ulongT>::sequence(_cimg_mp_size(arg2),arg2 + 1,arg2 + (ulongT)_cimg_mp_size(arg2)).
-                    move_to(l_opcode);
-                else CImg<ulongT>::vector(arg2).move_to(l_opcode);
-                is_sth&=_cimg_mp_is_const_scalar(arg2);
-                s = ns;
-              }
-              (l_opcode>'y').move_to(opcode);
-              op = val==2?_mp_vector_norm2:val==1?_mp_vector_norm1:!val?_mp_vector_norm0:
-                cimg::type<double>::is_inf(val)?_mp_vector_norminf:_mp_vector_normp;
-              opcode[0] = (ulongT)op;
-              opcode[2] = opcode._height;
-              if (is_sth) _cimg_mp_const_scalar(op(*this));
-              if (opcode._height==5) { // Single argument
-                if (arg1) { _cimg_mp_scalar1(mp_abs,opcode[4]); }
-                else { _cimg_mp_scalar2(mp_neq,opcode[4],0); }
-              }
-              opcode[1] = pos = scalar();
-              opcode.move_to(code);
-              return_new_comp = true;
-              _cimg_mp_return(pos);
-            }
             break;
 
           case 'o' :
@@ -22765,6 +22731,43 @@ namespace cimg_library {
               _cimg_mp_scalar2(mp_bitwise_xor,arg1,arg2);
             }
             break;
+          }
+
+          if ((!std::strncmp(ss,"norm",4) && ss4<se1 && (s = std::strchr(ss4,'('))!=0) || // Lp norm (constant p)
+              (!std::strncmp(ss,"hypot(",6) && (s = ss5))) {
+            const bool is_hypot = *ss=='h';
+            _cimg_mp_op(is_hypot?"Function 'hypot()'":"Function 'norm()'");
+            arg1 = !is_hypot && s!=ss4?compile(ss4,s,depth1,0,block_flags):2;
+            _cimg_mp_check_const_scalar(arg1,0,0);
+            val = mem[arg1];
+            is_sth = true; // Tell if all arguments are constant
+            CImg<ulongT>::vector(0,0,0,arg1).move_to(l_opcode);
+            for (++s; s<se; ++s) {
+              ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                             (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+              arg2 = compile(s,ns,depth1,0,block_flags);
+              if (_cimg_mp_is_vector(arg2))
+                CImg<ulongT>::sequence(_cimg_mp_size(arg2),arg2 + 1,arg2 + (ulongT)_cimg_mp_size(arg2)).
+                  move_to(l_opcode);
+              else CImg<ulongT>::vector(arg2).move_to(l_opcode);
+              is_sth&=_cimg_mp_is_const_scalar(arg2);
+              s = ns;
+            }
+            (l_opcode>'y').move_to(opcode);
+            op = val==2?(is_hypot && opcode._height<8?_mp_vector_hypot:_mp_vector_norm2):
+              val==1?_mp_vector_norm1:!val?_mp_vector_norm0:
+              cimg::type<double>::is_inf(val)?_mp_vector_norminf:_mp_vector_normp;
+            opcode[0] = (ulongT)op;
+            opcode[2] = opcode._height;
+            if (is_sth) _cimg_mp_const_scalar(op(*this));
+            if (opcode._height==5) { // Single argument
+              if (arg1) { _cimg_mp_scalar1(mp_abs,opcode[4]); }
+              else { _cimg_mp_scalar2(mp_neq,opcode[4],0); }
+            }
+            opcode[1] = pos = scalar();
+            opcode.move_to(code);
+            return_new_comp = true;
+            _cimg_mp_return(pos);
           }
 
           if (!std::strncmp(ss,"max(",4) || !std::strncmp(ss,"min(",4) ||
@@ -28280,6 +28283,15 @@ namespace cimg_library {
         // Scalar-valued argument.
         const double val = _mp_arg(2);
         return p?cimg::abs(val):(val!=0);
+      }
+
+      static double _mp_vector_hypot(_cimg_math_parser& mp) {
+        switch ((unsigned int)mp.opcode[2]) {
+          case 5 : return cimg::abs(_mp_arg(4));
+          case 6 : return cimg::_hypot(_mp_arg(4),_mp_arg(5));
+          case 7 : return cimg::_hypot(_mp_arg(4),_mp_arg(5),_mp_arg(6));
+        };
+        return _mp_vector_norm2(mp);
       }
 
       static double mp_vector_print(_cimg_math_parser& mp) {

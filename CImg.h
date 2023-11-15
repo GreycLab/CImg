@@ -6844,16 +6844,28 @@ namespace cimg_library {
       return std::sqrt(x*x + y*y);
     }
 
+    //! Return sqrt(x^2 + y^2 + z^2).
     template<typename T>
     inline T hypot(const T x, const T y, const T z) {
       return std::sqrt(x*x + y*y + z*z);
     }
 
+    //! Return sqrt(x^2 + y^2) (better precision).
     template<typename T>
-    inline T _hypot(const T x, const T y) { // Slower but more precise version
-      T nx = cimg::abs(x), ny = cimg::abs(y), t;
-      if (nx<ny) { t = nx; nx = ny; } else t = ny;
-      if (nx>0) { t/=nx; return nx*std::sqrt(1 + t*t); }
+    inline T _hypot(const T x, const T y) {
+      T nx = cimg::abs(x), ny = cimg::abs(y);
+      if (nx>ny) cimg::swap(nx,ny);
+      if (nx>0) return nx*std::sqrt(1 + cimg::sqr(ny/nx));
+      return 0;
+    }
+
+    //! Return sqrt(x^2 + y^2 + z^2) (better precision).
+    template<typename T>
+    inline T _hypot(const T x, const T y, const T z) {
+      T nx = cimg::abs(x), ny = cimg::abs(y), nz = cimg::abs(z);
+      if (nx>ny) cimg::swap(nx,ny);
+      if (nx>nz) cimg::swap(nx,nz);
+      if (nx>0) return nx*std::sqrt(1 + cimg::sqr(ny/nx) + cimg::sqr(nz/nx));
       return 0;
     }
 
@@ -32298,7 +32310,7 @@ namespace cimg_library {
                                (T)(2*X*W + 2*Y*Z),(T)(X*X - Y*Y + Z*Z - W*W),(T)(2*Z*W - 2*X*Y),
                                (T)(2*Y*W - 2*X*Z),(T)(2*X*Y + 2*Z*W),(T)(X*X - Y*Y - Z*Z + W*W));
       }
-      N = cimg::hypot((double)x,(double)y,(double)z);
+      N = cimg::_hypot((double)x,(double)y,(double)z);
       if (N>0) { X = x/N; Y = y/N; Z = z/N; }
       else { X = Y = 0; Z = 1; }
       const double ang = w*cimg::PI/180, c = std::cos(ang), omc = 1 - c, s = std::sin(ang);
@@ -44532,7 +44544,7 @@ namespace cimg_library {
                              const float patch_penalization,
                              const bool allow_identity,
                              const float max_score) { // 2D version
-      if (!allow_identity && cimg::hypot((float)x1-x2,(float)y1-y2)<patch_penalization)
+      if (!allow_identity && cimg::hypot((float)x1 - x2,(float)y1 - y2)<patch_penalization)
         return cimg::type<float>::inf();
       const T *p1 = img1.data(x1*psizec,y1), *p2 = img2.data(x2*psizec,y2);
       const unsigned int psizewc = psizew*psizec;

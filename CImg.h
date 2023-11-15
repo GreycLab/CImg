@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 332
+#define cimg_version 333
 
 /*-----------------------------------------------------------
  #
@@ -25346,8 +25346,8 @@ namespace cimg_library {
       }
 
       static double mp_i(_cimg_math_parser& mp) {
-        return (double)mp.imgin.atXYZC((int)mp.mem[_cimg_mp_slot_x],(int)mp.mem[_cimg_mp_slot_y],
-                                       (int)mp.mem[_cimg_mp_slot_z],(int)mp.mem[_cimg_mp_slot_c],(T)0);
+        return (double)mp.imgin((int)mp.mem[_cimg_mp_slot_x],(int)mp.mem[_cimg_mp_slot_y],
+                                (int)mp.mem[_cimg_mp_slot_z],(int)mp.mem[_cimg_mp_slot_c]);
       }
 
       static double mp_if(_cimg_math_parser& mp) {

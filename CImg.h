@@ -6854,7 +6854,7 @@ namespace cimg_library {
     template<typename T>
     inline T _hypot(const T x, const T y) {
       T nx = cimg::abs(x), ny = cimg::abs(y);
-      if (nx>ny) cimg::swap(nx,ny);
+      if (nx<ny) cimg::swap(nx,ny);
       if (nx>0) return nx*std::sqrt(1 + cimg::sqr(ny/nx));
       return 0;
     }
@@ -6863,8 +6863,8 @@ namespace cimg_library {
     template<typename T>
     inline T _hypot(const T x, const T y, const T z) {
       T nx = cimg::abs(x), ny = cimg::abs(y), nz = cimg::abs(z);
-      if (nx>ny) cimg::swap(nx,ny);
-      if (nx>nz) cimg::swap(nx,nz);
+      if (nx<ny) cimg::swap(nx,ny);
+      if (nx<nz) cimg::swap(nx,nz);
       if (nx>0) return nx*std::sqrt(1 + cimg::sqr(ny/nx) + cimg::sqr(nz/nx));
       return 0;
     }

@@ -6841,32 +6841,17 @@ namespace cimg_library {
     //! Return sqrt(x^2 + y^2).
     template<typename T>
     inline T hypot(const T x, const T y) {
+#if cimg_use_cpp11==1 && !defined(_MSC_VER)
+      return std::hypot(x,y);
+#else
       return std::sqrt(x*x + y*y);
+#endif
     }
 
     //! Return sqrt(x^2 + y^2 + z^2).
     template<typename T>
     inline T hypot(const T x, const T y, const T z) {
       return std::sqrt(x*x + y*y + z*z);
-    }
-
-    //! Return sqrt(x^2 + y^2) (better precision).
-    template<typename T>
-    inline T _hypot(const T x, const T y) {
-      T nx = cimg::abs(x), ny = cimg::abs(y);
-      if (nx<ny) cimg::swap(nx,ny);
-      if (nx>0) return nx*std::sqrt(1 + cimg::sqr(ny/nx));
-      return 0;
-    }
-
-    //! Return sqrt(x^2 + y^2 + z^2) (better precision).
-    template<typename T>
-    inline T _hypot(const T x, const T y, const T z) {
-      T nx = cimg::abs(x), ny = cimg::abs(y), nz = cimg::abs(z);
-      if (nx<ny) cimg::swap(nx,ny);
-      if (nx<nz) cimg::swap(nx,nz);
-      if (nx>0) return nx*std::sqrt(1 + cimg::sqr(ny/nx) + cimg::sqr(nz/nx));
-      return 0;
     }
 
     //! Return the factorial of n
@@ -24273,7 +24258,7 @@ namespace cimg_library {
       }
 
       static double mp_complex_abs(_cimg_math_parser& mp) {
-        return cimg::_hypot(_mp_arg(2),_mp_arg(3));
+        return cimg::hypot(_mp_arg(2),_mp_arg(3));
       }
 
       static double mp_complex_conj(_cimg_math_parser& mp) {
@@ -24413,7 +24398,7 @@ namespace cimg_library {
       static double mp_complex_sqrt(_cimg_math_parser& mp) {
         const double
           real = _mp_arg(2), imag = _mp_arg(3),
-          r = std::sqrt(cimg::_hypot(real,imag)),
+          r = std::sqrt(cimg::hypot(real,imag)),
           theta = std::atan2(imag,real)/2;
         double *ptrd = &_mp_arg(1) + 1;
         ptrd[0] = r*std::cos(theta);
@@ -28288,8 +28273,8 @@ namespace cimg_library {
       static double _mp_vector_hypot(_cimg_math_parser& mp) {
         switch ((unsigned int)mp.opcode[2]) {
           case 5 : return cimg::abs(_mp_arg(4));
-          case 6 : return cimg::_hypot(_mp_arg(4),_mp_arg(5));
-          case 7 : return cimg::_hypot(_mp_arg(4),_mp_arg(5),_mp_arg(6));
+          case 6 : return cimg::hypot(_mp_arg(4),_mp_arg(5));
+          case 7 : return cimg::hypot(_mp_arg(4),_mp_arg(5),_mp_arg(6));
         };
         return _mp_vector_norm2(mp);
       }
@@ -31379,7 +31364,7 @@ namespace cimg_library {
                 rv1[i] = c*rv1[i];
                 if ((cimg::abs(f) + anorm)==anorm) break;
                 g = S[i];
-                h = cimg::_hypot(f,g);
+                h = cimg::hypot(f,g);
                 S[i] = h;
                 h = 1/h;
                 c = g*h;
@@ -31399,7 +31384,7 @@ namespace cimg_library {
             g = rv1[nm];
             h = rv1[k];
             f = ((y - z)*(y + z) + (g - h)*(g + h))/std::max(epsilon,(Ttfloat)2*h*y);
-            g = cimg::_hypot(f,(Ttfloat)1);
+            g = cimg::hypot(f,(Ttfloat)1);
             f = ((x - z)*(x + z) + h*((y/(f + (f>=0?g:-g))) - h))/std::max(epsilon,(Ttfloat)x);
             c = s = 1;
             for (int j = l; j<=nm; ++j) {
@@ -31407,7 +31392,7 @@ namespace cimg_library {
               g = rv1[i];
               h = s*g;
               g = c*g;
-              t y1 = S[i], z1 = cimg::_hypot(f,h);
+              t y1 = S[i], z1 = cimg::hypot(f,h);
               rv1[j] = z1;
               c = f/std::max(epsilon,(Ttfloat)z1);
               s = h/std::max(epsilon,(Ttfloat)z1);
@@ -31420,7 +31405,7 @@ namespace cimg_library {
                 V(j,jj) = x2*c + z2*s;
                 V(i,jj) = z2*c - x2*s;
               }
-              z1 = cimg::_hypot(f,h);
+              z1 = cimg::hypot(f,h);
               S[j] = z1;
               if (z1) {
                 z1 = 1/std::max(epsilon,(Ttfloat)z1);
@@ -32322,7 +32307,7 @@ namespace cimg_library {
                                (T)(2*X*W + 2*Y*Z),(T)(X*X - Y*Y + Z*Z - W*W),(T)(2*Z*W - 2*X*Y),
                                (T)(2*Y*W - 2*X*Z),(T)(2*X*Y + 2*Z*W),(T)(X*X - Y*Y - Z*Z + W*W));
       }
-      N = cimg::_hypot((double)x,(double)y,(double)z);
+      N = cimg::hypot((double)x,(double)y,(double)z);
       if (N>0) { X = x/N; Y = y/N; Z = z/N; }
       else { X = Y = 0; Z = 1; }
       const double ang = w*cimg::PI/180, c = std::cos(ang), omc = 1 - c, s = std::sin(ang);

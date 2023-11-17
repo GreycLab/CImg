@@ -6841,20 +6841,17 @@ namespace cimg_library {
     //! Return sqrt(x^2 + y^2).
     template<typename T>
     inline T hypot(const T x, const T y) {
+#if cimg_use_cpp11==1 && !defined(_MSC_VER)
+      return std::hypot(x,y);
+#else
       return std::sqrt(x*x + y*y);
+#endif
     }
 
+    //! Return sqrt(x^2 + y^2 + z^2).
     template<typename T>
     inline T hypot(const T x, const T y, const T z) {
       return std::sqrt(x*x + y*y + z*z);
-    }
-
-    template<typename T>
-    inline T _hypot(const T x, const T y) { // Slower but more precise version
-      T nx = cimg::abs(x), ny = cimg::abs(y), t;
-      if (nx<ny) { t = nx; nx = ny; } else t = ny;
-      if (nx>0) { t/=nx; return nx*std::sqrt(1 + t*t); }
-      return 0;
     }
 
     //! Return the factorial of n
@@ -21501,40 +21498,6 @@ namespace cimg_library {
               p1 = _cimg_mp_size(arg1);
               _cimg_mp_scalar3(mp_vector_normp,arg1,p1,arg2);
             }
-
-            if (!std::strncmp(ss,"norm",4) && ss4<se1 && (s = std::strchr(ss4,'('))!=0) { // Lp norm (constant p)
-              _cimg_mp_op("Function 'norm()'");
-              arg1 = s!=ss4?compile(ss4,s,depth1,0,block_flags):2;
-              _cimg_mp_check_const_scalar(arg1,0,0);
-              val = mem[arg1];
-              is_sth = true; // Tell if all arguments are constant
-              CImg<ulongT>::vector(0,0,0,arg1).move_to(l_opcode);
-              for (++s; s<se; ++s) {
-                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
-                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
-                arg2 = compile(s,ns,depth1,0,block_flags);
-                if (_cimg_mp_is_vector(arg2))
-                  CImg<ulongT>::sequence(_cimg_mp_size(arg2),arg2 + 1,arg2 + (ulongT)_cimg_mp_size(arg2)).
-                    move_to(l_opcode);
-                else CImg<ulongT>::vector(arg2).move_to(l_opcode);
-                is_sth&=_cimg_mp_is_const_scalar(arg2);
-                s = ns;
-              }
-              (l_opcode>'y').move_to(opcode);
-              op = val==2?_mp_vector_norm2:val==1?_mp_vector_norm1:!val?_mp_vector_norm0:
-                cimg::type<double>::is_inf(val)?_mp_vector_norminf:_mp_vector_normp;
-              opcode[0] = (ulongT)op;
-              opcode[2] = opcode._height;
-              if (is_sth) _cimg_mp_const_scalar(op(*this));
-              if (opcode._height==5) { // Single argument
-                if (arg1) { _cimg_mp_scalar1(mp_abs,opcode[4]); }
-                else { _cimg_mp_scalar2(mp_neq,opcode[4],0); }
-              }
-              opcode[1] = pos = scalar();
-              opcode.move_to(code);
-              return_new_comp = true;
-              _cimg_mp_return(pos);
-            }
             break;
 
           case 'o' :
@@ -22753,6 +22716,43 @@ namespace cimg_library {
               _cimg_mp_scalar2(mp_bitwise_xor,arg1,arg2);
             }
             break;
+          }
+
+          if ((!std::strncmp(ss,"norm",4) && ss4<se1 && (s = std::strchr(ss4,'('))!=0) || // Lp norm (constant p)
+              (!std::strncmp(ss,"hypot(",6) && (s = ss5))) {
+            const bool is_hypot = *ss=='h';
+            _cimg_mp_op(is_hypot?"Function 'hypot()'":"Function 'norm()'");
+            arg1 = !is_hypot && s!=ss4?compile(ss4,s,depth1,0,block_flags):2;
+            _cimg_mp_check_const_scalar(arg1,0,0);
+            val = mem[arg1];
+            is_sth = true; // Tell if all arguments are constant
+            CImg<ulongT>::vector(0,0,0,arg1).move_to(l_opcode);
+            for (++s; s<se; ++s) {
+              ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                             (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+              arg2 = compile(s,ns,depth1,0,block_flags);
+              if (_cimg_mp_is_vector(arg2))
+                CImg<ulongT>::sequence(_cimg_mp_size(arg2),arg2 + 1,arg2 + (ulongT)_cimg_mp_size(arg2)).
+                  move_to(l_opcode);
+              else CImg<ulongT>::vector(arg2).move_to(l_opcode);
+              is_sth&=_cimg_mp_is_const_scalar(arg2);
+              s = ns;
+            }
+            (l_opcode>'y').move_to(opcode);
+            op = val==2?(is_hypot && opcode._height<8?_mp_vector_hypot:_mp_vector_norm2):
+              val==1?_mp_vector_norm1:!val?_mp_vector_norm0:
+              cimg::type<double>::is_inf(val)?_mp_vector_norminf:_mp_vector_normp;
+            opcode[0] = (ulongT)op;
+            opcode[2] = opcode._height;
+            if (is_sth) _cimg_mp_const_scalar(op(*this));
+            if (opcode._height==5) { // Single argument
+              if (arg1) { _cimg_mp_scalar1(mp_abs,opcode[4]); }
+              else { _cimg_mp_scalar2(mp_neq,opcode[4],0); }
+            }
+            opcode[1] = pos = scalar();
+            opcode.move_to(code);
+            return_new_comp = true;
+            _cimg_mp_return(pos);
           }
 
           if (!std::strncmp(ss,"max(",4) || !std::strncmp(ss,"min(",4) ||
@@ -24258,7 +24258,7 @@ namespace cimg_library {
       }
 
       static double mp_complex_abs(_cimg_math_parser& mp) {
-        return cimg::_hypot(_mp_arg(2),_mp_arg(3));
+        return cimg::hypot(_mp_arg(2),_mp_arg(3));
       }
 
       static double mp_complex_conj(_cimg_math_parser& mp) {
@@ -24398,7 +24398,7 @@ namespace cimg_library {
       static double mp_complex_sqrt(_cimg_math_parser& mp) {
         const double
           real = _mp_arg(2), imag = _mp_arg(3),
-          r = std::sqrt(cimg::_hypot(real,imag)),
+          r = std::sqrt(cimg::hypot(real,imag)),
           theta = std::atan2(imag,real)/2;
         double *ptrd = &_mp_arg(1) + 1;
         ptrd[0] = r*std::cos(theta);
@@ -28270,6 +28270,15 @@ namespace cimg_library {
         return p?cimg::abs(val):(val!=0);
       }
 
+      static double _mp_vector_hypot(_cimg_math_parser& mp) {
+        switch ((unsigned int)mp.opcode[2]) {
+          case 5 : return cimg::abs(_mp_arg(4));
+          case 6 : return cimg::hypot(_mp_arg(4),_mp_arg(5));
+          case 7 : return cimg::hypot(_mp_arg(4),_mp_arg(5),_mp_arg(6));
+        };
+        return _mp_vector_norm2(mp);
+      }
+
       static double mp_vector_print(_cimg_math_parser& mp) {
         const bool print_string = (bool)mp.opcode[4];
         cimg_pragma_openmp(critical(mp_vector_print))
@@ -31355,7 +31364,7 @@ namespace cimg_library {
                 rv1[i] = c*rv1[i];
                 if ((cimg::abs(f) + anorm)==anorm) break;
                 g = S[i];
-                h = cimg::_hypot(f,g);
+                h = cimg::hypot(f,g);
                 S[i] = h;
                 h = 1/h;
                 c = g*h;
@@ -31375,7 +31384,7 @@ namespace cimg_library {
             g = rv1[nm];
             h = rv1[k];
             f = ((y - z)*(y + z) + (g - h)*(g + h))/std::max(epsilon,(Ttfloat)2*h*y);
-            g = cimg::_hypot(f,(Ttfloat)1);
+            g = cimg::hypot(f,(Ttfloat)1);
             f = ((x - z)*(x + z) + h*((y/(f + (f>=0?g:-g))) - h))/std::max(epsilon,(Ttfloat)x);
             c = s = 1;
             for (int j = l; j<=nm; ++j) {
@@ -31383,7 +31392,7 @@ namespace cimg_library {
               g = rv1[i];
               h = s*g;
               g = c*g;
-              t y1 = S[i], z1 = cimg::_hypot(f,h);
+              t y1 = S[i], z1 = cimg::hypot(f,h);
               rv1[j] = z1;
               c = f/std::max(epsilon,(Ttfloat)z1);
               s = h/std::max(epsilon,(Ttfloat)z1);
@@ -31396,7 +31405,7 @@ namespace cimg_library {
                 V(j,jj) = x2*c + z2*s;
                 V(i,jj) = z2*c - x2*s;
               }
-              z1 = cimg::_hypot(f,h);
+              z1 = cimg::hypot(f,h);
               S[j] = z1;
               if (z1) {
                 z1 = 1/std::max(epsilon,(Ttfloat)z1);
@@ -44532,7 +44541,7 @@ namespace cimg_library {
                              const float patch_penalization,
                              const bool allow_identity,
                              const float max_score) { // 2D version
-      if (!allow_identity && cimg::hypot((float)x1-x2,(float)y1-y2)<patch_penalization)
+      if (!allow_identity && cimg::hypot((float)x1 - x2,(float)y1 - y2)<patch_penalization)
         return cimg::type<float>::inf();
       const T *p1 = img1.data(x1*psizec,y1), *p2 = img2.data(x2*psizec,y2);
       const unsigned int psizewc = psizew*psizec;

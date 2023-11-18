@@ -21,6 +21,13 @@ jobs:
        make clean
        make mlinux
        popd
+    - name: test
+      run:  |
+       pushd examples
+       ./image2ascii
+       ./generate_loop_macros
+       popd
+
 
   build-on-macos:
     runs-on: macos-latest
@@ -35,3 +42,10 @@ jobs:
        make clean
        make mmacos
        popd
+    - name: test
+      run:  |
+       pushd examples
+       ./image2ascii
+       ./generate_loop_macros
+       popd
+

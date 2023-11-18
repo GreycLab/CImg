@@ -5786,6 +5786,7 @@ namespace cimg_library {
     inline int system(const char *const command, const char *const module_name=0, const bool is_verbose=false) {
       cimg::unused(module_name);
 #ifdef cimg_no_system_calls
+      cimg::unused(command,is_verbose);
       return -1;
 #else
 

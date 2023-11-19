@@ -65158,7 +65158,7 @@ namespace cimg_library {
     CImg<charT> __display() const {
       CImg<charT> res, str;
       cimglist_for(*this,l) {
-        CImg<charT>::string((char*)_data[l]).move_to(str);
+        CImg<charT>::string((char*)_data[l]._data).move_to(str);
         if (l!=width() - 1) {
           str.resize(str._width + 1,1,1,1,0);
           str[str._width - 2] = ',';

@@ -21071,6 +21071,15 @@ namespace cimg_library {
                 _cimg_mp_scalar1(mp_isbool,arg1);
               }
 
+              if (!std::strncmp(ss,"isconst(",8)) { // Is constant?
+                _cimg_mp_op("Function 'isconst()'");
+                if (ss8==se1) _cimg_mp_return(0);
+                try { arg1 = compile(ss8,se1,depth1,0,block_flags); }
+                catch(CImgException&) { _cimg_mp_return(0); }
+                if (_cimg_mp_is_const_scalar(arg1)) _cimg_mp_return(1);
+                _cimg_mp_return(0);
+              }
+
               if (!std::strncmp(ss,"isdir(",6)) { // Is directory?
                 _cimg_mp_op("Function 'isdir()'");
                 arg1 = compile(ss6,se1,depth1,0,block_flags);

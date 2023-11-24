@@ -24247,9 +24247,11 @@ namespace cimg_library {
       }
 
       static double mp_c2o(_cimg_math_parser& mp) {
-        mp_check_list(mp,"c2o");
         unsigned int ind = (unsigned int)mp.opcode[2];
-        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        if (ind!=~0U) {
+          mp_check_list(mp,"c2o");
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        }
         const CImg<T> &img = ind==~0U?mp.imgin:mp.imglist[ind];
         const int
           x = (int)_mp_arg(3),
@@ -27173,9 +27175,11 @@ namespace cimg_library {
       }
 
       static double mp_o2c(_cimg_math_parser& mp) {
-        mp_check_list(mp,"o2c");
         unsigned int ind = (unsigned int)mp.opcode[2];
-        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        if (ind!=~0U) {
+          mp_check_list(mp,"o2c");
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        }
         const CImg<T> &img = ind==~0U?mp.imgin:mp.imglist[ind];
         longT offset = (longT)_mp_arg(3);
         double *ptrd = &_mp_arg(1) + 1;

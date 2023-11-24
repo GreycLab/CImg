@@ -25008,10 +25008,12 @@ namespace cimg_library {
       }
 
       static double mp_ellipse(_cimg_math_parser& mp) {
-        mp_check_list(mp,"ellipse");
         const unsigned int i_end = (unsigned int)mp.opcode[2];
         unsigned int ind = (unsigned int)mp.opcode[3];
-        if (ind!=~0U) ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.imglist.width());
+        if (ind!=~0U) {
+          mp_check_list(mp,"ellipse");
+          ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.imglist.width());
+        }
         CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
         CImg<T> color(img._spectrum,1,1,1,0);
         bool is_invalid_arguments = false, is_outlined = false;

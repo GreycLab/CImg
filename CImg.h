@@ -56062,11 +56062,11 @@ namespace cimg_library {
       bool endian = false;
       unsigned int header_size;
       cimg::fread(&header_size,1,nfile_header);
-      if (!header_size)
+      if (!header_size || header_size<4)
         throw CImgIOException(_cimg_instance
-                              "load_analyze(): Invalid zero-size header in file '%s'.",
+                              "load_analyze(): Invalid header size (%u) specified in file '%s'.",
                               cimg_instance,
-                              filename?filename:"(FILE*)");
+                              header_size,filename?filename:"(FILE*)");
       if (header_size>=4096) { endian = true; cimg::invert_endianness(header_size); }
 
       unsigned char *const header = new unsigned char[header_size];

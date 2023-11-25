@@ -56062,7 +56062,7 @@ namespace cimg_library {
       bool endian = false;
       unsigned int header_size;
       cimg::fread(&header_size,1,nfile_header);
-      if (!header_size || header_size<4)
+      if (!header_size || header_size<=4)
         throw CImgIOException(_cimg_instance
                               "load_analyze(): Invalid header size (%u) specified in file '%s'.",
                               cimg_instance,

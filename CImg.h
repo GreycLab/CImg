@@ -56071,7 +56071,7 @@ namespace cimg_library {
 
       unsigned char *const header = new unsigned char[header_size];
       const size_t header_size_read = cimg::fread(header + 4,header_size - 4,nfile_header);
-      if (header_size_read!=header_size)
+      if (header_size_read!=header_size - 4)
         throw CImgIOException(_cimg_instance
                               "load_analyze(): Cannot read header (of size %u) in file '%s'.",
                               cimg_instance,

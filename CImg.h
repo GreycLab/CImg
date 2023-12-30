@@ -28197,7 +28197,7 @@ namespace cimg_library {
           nb_levels = (unsigned int)mp.opcode[4];
         const double *const ptrs = &_mp_arg(2) + 1;
         CImg<doubleT> img(ptrs,siz,1,1,1,true);
-        double min_value, max_value;
+        double min_value = 0, max_value = 0;
         if ((unsigned int)mp.opcode[5]==~0U || (unsigned int)mp.opcode[6]==~0U)
           min_value = img.min_max(max_value);
         if ((unsigned int)mp.opcode[5]!=~0U) min_value = _mp_arg(5);

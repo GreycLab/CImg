@@ -21535,7 +21535,7 @@ namespace cimg_library {
               arg1 = compile(ss5,s1,depth1,0,block_flags);
               s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(s1,s2,depth1,0,block_flags);
-              arg3 = compile(++s2,se1,depth1,0,block_flags);
+              arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):0;
               _cimg_mp_check_type(arg1,1,1,0);
               _cimg_mp_check_type(arg2,2,1,0);
               _cimg_mp_check_type(arg3,3,1,0);

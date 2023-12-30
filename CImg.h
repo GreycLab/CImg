@@ -21544,6 +21544,43 @@ namespace cimg_library {
               _cimg_mp_scalar3(mp_permutations,arg1,arg2,arg3);
             }
 
+            if (!std::strncmp(ss,"permute(",8)) { // Permute axes
+              _cimg_mp_op("Function 'permute()'");
+              s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss8,s1,depth1,0,block_flags);
+              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg2 = compile(s1,s2,depth1,0,block_flags);
+              s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg3 = compile(s2,s1,depth1,0,block_flags);
+              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg4 = compile(s1,s2,depth1,0,block_flags);
+              s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg5 = compile(s2,s1,depth1,0,block_flags);
+              arg6 = compile(++s1,se1,depth1,0,block_flags);
+              _cimg_mp_check_type(arg1,1,2,0);
+              _cimg_mp_check_const_scalar(arg2,2,3);
+              _cimg_mp_check_const_scalar(arg3,3,3);
+              _cimg_mp_check_const_scalar(arg4,4,3);
+              _cimg_mp_check_const_scalar(arg5,5,3);
+              _cimg_mp_check_type(arg6,6,2,0);
+              p1 = _cimg_mp_size(arg1);
+              p2 = _cimg_mp_size(arg6);
+              arg2 = (unsigned int)mem[arg2];
+              arg3 = (unsigned int)mem[arg3];
+              arg4 = (unsigned int)mem[arg4];
+              arg5 = (unsigned int)mem[arg5];
+              if (arg2*arg3*arg4*arg5!=std::max(1U,p1))
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: Input vector size (%lu values) and its specified "
+                                            "geometry (%u,%u,%u,%u) (%lu values) do not match.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            std::max(p1,1U),arg2,arg3,arg4,arg5,(ulongT)arg2*arg3*arg4*arg5);
+              pos = vector(arg2*arg3*arg4*arg5);
+              CImg<ulongT>::vector((ulongT)mp_vector_permute,pos,arg1,arg2,arg3,arg4,arg5,arg6,p2).move_to(code);
+              return_new_comp = true;
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"polygon(",8)) { // Polygon/line drawing
               if (!is_inside_critical) is_parallelizable = false;
               _cimg_mp_op("Function 'polygon()'");
@@ -22740,7 +22777,6 @@ namespace cimg_library {
                                             "geometry (%u,%u,%u,%u) (%lu values) do not match.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             std::max(p2,1U),arg3,arg4,arg5,arg6,(ulongT)arg3*arg4*arg5*arg6);
-
               pos = vector(arg3*arg4*arg5*(unsigned int)opcode[4]);
               opcode.resize(1,15,1,1,0,0,0,1);
               opcode[0] = (ulongT)mp_vector_warp;
@@ -28129,6 +28165,15 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
+      static double _mp_vector_hypot(_cimg_math_parser& mp) {
+        switch ((unsigned int)mp.opcode[2]) {
+          case 5 : return cimg::abs(_mp_arg(4));
+          case 6 : return cimg::hypot(_mp_arg(4),_mp_arg(5));
+          case 7 : return cimg::hypot(_mp_arg(4),_mp_arg(5),_mp_arg(6));
+        };
+        return _mp_vector_norm2(mp);
+      }
+
       static double mp_vector_init(_cimg_math_parser& mp) {
         unsigned int
           ptrs = 4U,
@@ -28345,13 +28390,23 @@ namespace cimg_library {
         return p?cimg::abs(val):(val!=0);
       }
 
-      static double _mp_vector_hypot(_cimg_math_parser& mp) {
-        switch ((unsigned int)mp.opcode[2]) {
-          case 5 : return cimg::abs(_mp_arg(4));
-          case 6 : return cimg::hypot(_mp_arg(4),_mp_arg(5));
-          case 7 : return cimg::hypot(_mp_arg(4),_mp_arg(5),_mp_arg(6));
-        };
-        return _mp_vector_norm2(mp);
+      static double mp_vector_permute(_cimg_math_parser& mp) {
+        double *const ptrd = &_mp_arg(1) + 1;
+        const unsigned int
+          wA = (unsigned int)mp.opcode[3],
+          hA = (unsigned int)mp.opcode[4],
+          dA = (unsigned int)mp.opcode[5],
+          sA = (unsigned int)mp.opcode[6],
+          sizp = (unsigned int)mp.opcode[8];
+        const double
+          *const ptrs = &_mp_arg(2) + 1,
+          *const ptrp = &_mp_arg(7) + 1;
+        CImg<charT> str(sizp + 1);
+        for (unsigned int p = 0; p<sizp; ++p) str[p] = (char)ptrp[p];
+        str.back() = 0;
+        CImg<doubleT>(ptrd,wA,hA,dA,sA,true) = CImg<doubleT>(ptrs,wA,hA,dA,sA,true).
+          get_permute_axes(str);
+        return cimg::type<double>::nan();
       }
 
       static double mp_vector_print(_cimg_math_parser& mp) {

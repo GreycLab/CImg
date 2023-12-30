@@ -22707,7 +22707,7 @@ namespace cimg_library {
                 s = ns;
               }
               (l_opcode>'y').move_to(opcode);
-              // opcode = [ A, wA,hA,dA,sA, W, wW,hW,dW,sW, mode, interp, boundary_cond ]
+              // opcode = [ A, wA,hA,dA,sA, B, wB,hB,dB,sB, mode, interp, boundary_cond ]
               //          [ 0   1  2  3  4  5   6  7  8  9    10      11             12 ]
 
               if (opcode.height()<10) compile(s,se1,depth1,0,block_flags); // Not enough arguments -> throw exception
@@ -28482,10 +28482,10 @@ namespace cimg_library {
           hA = (unsigned int)mp.opcode[4],
           dA = (unsigned int)mp.opcode[5],
           sA = (unsigned int)mp.opcode[6],
-          wW = (unsigned int)mp.opcode[8],
-          hW = (unsigned int)mp.opcode[9],
-          dW = (unsigned int)mp.opcode[10],
-          sW = (unsigned int)mp.opcode[11];
+          wB = (unsigned int)mp.opcode[8],
+          hB = (unsigned int)mp.opcode[9],
+          dB = (unsigned int)mp.opcode[10],
+          sB = (unsigned int)mp.opcode[11];
         const int
           mode = (int)_mp_arg(12),
           interpolation = (int)_mp_arg(13),
@@ -28493,8 +28493,8 @@ namespace cimg_library {
         const double
           *const ptrs = &_mp_arg(2) + 1,
           *const ptrw = &_mp_arg(7) + 1;
-        CImg<doubleT>(ptrd,wW,hW,dW,sA,true) = CImg<doubleT>(ptrs,wA,hA,dA,sA,true).
-          get_warp(CImg<doubleT>(ptrw,wW,hW,dW,sW,true),mode,interpolation,boundary_conditions);
+        CImg<doubleT>(ptrd,wB,hB,dB,sA,true) = CImg<doubleT>(ptrs,wA,hA,dA,sA,true).
+          get_warp(CImg<doubleT>(ptrw,wB,hB,dB,sB,true),mode,interpolation,boundary_conditions);
         return cimg::type<double>::nan();
       }
 

@@ -21671,6 +21671,23 @@ namespace cimg_library {
               _cimg_mp_const_scalar((double)arg1);
             }
 
+            if (!std::strncmp(ss,"noise(",6)) { // Add noise
+              _cimg_mp_op("Function 'noise()'");
+              s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss6,s1,depth1,0,block_flags);
+              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg2 = compile(s1,s2,depth1,0,block_flags);
+              arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):0;
+              _cimg_mp_check_type(arg1,1,2,0);
+              _cimg_mp_check_type(arg2,2,1,0);
+              _cimg_mp_check_type(arg3,3,1,0);
+              p1 = _cimg_mp_size(arg1);
+              pos = vector(p1);
+              CImg<ulongT>::vector((ulongT)mp_vector_noise,pos,arg1,p1,arg2,arg3).move_to(code);
+              return_new_comp = true;
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"normalize(",10)) { // Normalize
               _cimg_mp_op("Function 'normalize()'");
               s0 = ss + 10;
@@ -28606,6 +28623,19 @@ namespace cimg_library {
         return !mp_vector_eq(mp);
       }
 
+      static double mp_vector_noise(_cimg_math_parser& mp) {
+        double *const ptrd = &_mp_arg(1) + 1;
+        const unsigned int
+          siz = (unsigned int)mp.opcode[3],
+          noise_type = (unsigned int)_mp_arg(5);
+        const double
+          *const ptrs = &_mp_arg(2) + 1,
+          amplitude = _mp_arg(4);
+        CImg<doubleT>(ptrd,siz,1,1,1,true) = CImg<doubleT>(ptrs,siz,1,1,1,true).get_noise(amplitude,noise_type);
+        return cimg::type<double>::nan();
+      }
+
+
       static double mp_vector_normalize(_cimg_math_parser& mp) {
         double *const ptrd = &_mp_arg(1) + 1;
         const unsigned int siz = (unsigned int)mp.opcode[3];
@@ -33817,13 +33847,13 @@ namespace cimg_library {
        \endcode
        \image html ref_noise.jpg
     **/
-    CImg<T>& noise(const double sigma, const unsigned int noise_type=0) {
+    CImg<T>& noise(const double amplitude, const unsigned int noise_type=0) {
       if (is_empty()) return *this;
       const Tfloat vmin = (Tfloat)cimg::type<T>::min(), vmax = (Tfloat)cimg::type<T>::max();
-      Tfloat nsigma = (Tfloat)sigma, m = 0, M = 0;
-      if (nsigma==0 && noise_type!=3) return *this;
-      if (nsigma<0 || noise_type==2) m = (Tfloat)min_max(M);
-      if (nsigma<0) nsigma = (Tfloat)(-nsigma*(M-m)/100.);
+      Tfloat namplitude = (Tfloat)amplitude, m = 0, M = 0;
+      if (namplitude==0 && noise_type!=3) return *this;
+      if (namplitude<0 || noise_type==2) m = (Tfloat)min_max(M);
+      if (namplitude<0) namplitude = (Tfloat)(-namplitude*(M-m)/100.);
       switch (noise_type) {
       case 0 : { // Gaussian noise
         cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),131072)) {
@@ -33834,7 +33864,7 @@ namespace cimg_library {
 #endif
           cimg_pragma_openmp(for)
             cimg_rofoff(*this,off) {
-            Tfloat val = (Tfloat)(_data[off] + nsigma*cimg::grand(&rng));
+            Tfloat val = (Tfloat)(_data[off] + namplitude*cimg::grand(&rng));
             if (val>vmax) val = vmax;
             if (val<vmin) val = vmin;
             _data[off] = (T)val;
@@ -33851,7 +33881,7 @@ namespace cimg_library {
 #endif
           cimg_pragma_openmp(for)
             cimg_rofoff(*this,off) {
-            Tfloat val = (Tfloat)(_data[off] + nsigma*cimg::rand(-1,1,&rng));
+            Tfloat val = (Tfloat)(_data[off] + namplitude*cimg::rand(-1,1,&rng));
             if (val>vmax) val = vmax;
             if (val<vmin) val = vmin;
             _data[off] = (T)val;
@@ -33860,7 +33890,7 @@ namespace cimg_library {
         }
       } break;
       case 2 : { // Salt & Pepper noise
-        if (nsigma<0) nsigma = -nsigma;
+        if (namplitude<0) namplitude = -namplitude;
         if (M==m) {
           if (cimg::type<T>::is_float()) { --m; ++M; }
           else { m = (Tfloat)cimg::type<T>::min(); M = (Tfloat)cimg::type<T>::max(); }
@@ -33872,7 +33902,7 @@ namespace cimg_library {
           rng+=omp_get_thread_num();
 #endif
           cimg_pragma_openmp(for)
-            cimg_rofoff(*this,off) if (cimg::rand(100,&rng)<nsigma) _data[off] = (T)(cimg::rand(1,&rng)<0.5?M:m);
+            cimg_rofoff(*this,off) if (cimg::rand(100,&rng)<namplitude) _data[off] = (T)(cimg::rand(1,&rng)<0.5?M:m);
           cimg::srand(rng);
           }
       } break;
@@ -33900,8 +33930,8 @@ namespace cimg_library {
             cimg_rofoff(*this,off) {
             const Tfloat
               val0 = (Tfloat)_data[off]/sqrt2,
-              re = (Tfloat)(val0 + nsigma*cimg::grand(&rng)),
-              im = (Tfloat)(val0 + nsigma*cimg::grand(&rng));
+              re = (Tfloat)(val0 + namplitude*cimg::grand(&rng)),
+              im = (Tfloat)(val0 + namplitude*cimg::grand(&rng));
             Tfloat val = cimg::hypot(re,im);
             if (val>vmax) val = vmax;
             if (val<vmin) val = vmin;
@@ -33921,8 +33951,8 @@ namespace cimg_library {
     }
 
     //! Add random noise to pixel values \newinstance.
-    CImg<T> get_noise(const double sigma, const unsigned int noise_type=0) const {
-      return (+*this).noise(sigma,noise_type);
+    CImg<T> get_noise(const double amplitude, const unsigned int noise_type=0) const {
+      return (+*this).noise(amplitude,noise_type);
     }
 
     //! Linearly normalize pixel values.

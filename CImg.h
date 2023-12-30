@@ -21051,6 +21051,48 @@ namespace cimg_library {
               _cimg_mp_return(pos);
             }
 
+            if (!std::strncmp(ss,"index(",6)) { // Index colors
+              _cimg_mp_op("Function 'index()'");
+              s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss6,s1,depth1,0,block_flags);
+              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg2 = compile(s1,s2,depth1,0,block_flags);
+              s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg3 = compile(s2,s1,depth1,0,block_flags);
+              arg4 = arg5 = 0;
+              if (s1<se1) {
+                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                arg4 = compile(s1,s2,depth1,0,block_flags);
+                arg5 = s2<se1?compile(++s2,se1,depth1,0,block_flags):0;
+              }
+              _cimg_mp_check_type(arg1,1,2,0);
+              _cimg_mp_check_type(arg2,2,2,0);
+              _cimg_mp_check_const_scalar(arg3,3,3);
+              _cimg_mp_check_type(arg4,4,1,0);
+              _cimg_mp_check_const_scalar(arg5,5,2);
+              p1 = _cimg_mp_size(arg1);
+              p2 = _cimg_mp_size(arg2);
+              arg3 = (unsigned int)mem[arg3];
+              arg5 = (unsigned int)mem[arg5];
+              p3 = p2/arg3; // Number of color entries
+              if (p2!=p3*arg3)
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: Colormap size (%lu values) and specified "
+                                            "dimension of colormap entries (%u) do not match.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            std::max(p2,1U),arg3);
+              if (p1%arg3)
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: Input vector size (%lu values) and specified "
+                                            "dimension of colormap entries (%u) do not match.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            std::max(p1,1U),arg3);
+              pos = vector(arg5?p1:p1/arg3);
+              CImg<ulongT>::vector((ulongT)mp_vector_index,pos,arg1,p1,arg2,p2,arg3,arg4,arg5).move_to(code);
+              return_new_comp = true;
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"inrange(",8)) { // Check value range
               _cimg_mp_op("Function 'inrange()'");
               s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -28359,6 +28401,25 @@ namespace cimg_library {
         return _mp_vector_norm2(mp);
       }
 
+      static double mp_vector_index(_cimg_math_parser& mp) {
+        double *const ptrd = &_mp_arg(1) + 1;
+        const unsigned int
+          sizA = (unsigned int)mp.opcode[3],
+          sizP = (unsigned int)mp.opcode[5],
+          dim_colors = (unsigned int)mp.opcode[6],
+          nb_colors = sizP/dim_colors,
+          wA = sizA/dim_colors;
+        const double dithering = _mp_arg(7);
+        const bool map_colors = (bool)mp.opcode[8];
+        const double
+          *const ptrs = &_mp_arg(2) + 1,
+          *const ptrp = &_mp_arg(4) + 1;
+        CImg<doubleT> colormap(ptrp,nb_colors,1,1,dim_colors,true);
+        CImg<doubleT>(ptrd,wA,1,1,map_colors?dim_colors:1,true) = CImg<doubleT>(ptrs,wA,1,1,dim_colors,true).
+          get_index(colormap,dithering,map_colors);
+        return cimg::type<double>::nan();
+      }
+
       static double mp_vector_init(_cimg_math_parser& mp) {
         unsigned int
           ptrs = 4U,
@@ -34235,7 +34296,7 @@ namespace cimg_library {
     /**
        \param colormap Multi-valued colormap used as the basis for multi-valued pixel indexing.
        \param dithering Level of dithering (0=disable, 1=standard level).
-       \param map_indexes Tell if the values of the resulting image are the colormap indices or the colormap vectors.
+       \param map_colors Tell if the values of the resulting image are the colormap indices or the colormap vectors.
        \note
        - \p img.index(colormap,dithering,1) is equivalent to <tt>img.index(colormap,dithering,0).map(colormap)</tt>.
        \par Example
@@ -34247,14 +34308,14 @@ namespace cimg_library {
        \image html ref_index.jpg
     **/
     template<typename t>
-    CImg<T>& index(const CImg<t>& colormap, const float dithering=1, const bool map_indexes=false) {
-      return get_index(colormap,dithering,map_indexes).move_to(*this);
+    CImg<T>& index(const CImg<t>& colormap, const float dithering=1, const bool map_colors=false) {
+      return get_index(colormap,dithering,map_colors).move_to(*this);
     }
 
     //! Index multi-valued pixels regarding to a specified colormap \newinstance.
     template<typename t>
     CImg<typename CImg<t>::Tuint>
-    get_index(const CImg<t>& colormap, const float dithering=1, const bool map_indexes=true) const {
+    get_index(const CImg<t>& colormap, const float dithering=1, const bool map_colors=true) const {
       if (colormap._spectrum!=_spectrum)
         throw CImgArgumentException(_cimg_instance
                                     "index(): Instance and specified colormap (%u,%u,%u,%u,%p) "
@@ -34267,7 +34328,7 @@ namespace cimg_library {
       const ulongT
         whd = (ulongT)_width*_height*_depth,
         pwhd = (ulongT)colormap._width*colormap._height*colormap._depth;
-      CImg<tuint> res(_width,_height,_depth,map_indexes?_spectrum:1);
+      CImg<tuint> res(_width,_height,_depth,map_colors?_spectrum:1);
       if (dithering>0) { // Dithered versions
         tuint *ptrd = res._data;
         const float ndithering = cimg::cut(dithering,0,1)/16;
@@ -34293,7 +34354,7 @@ namespace cimg_library {
               }
               const Tfloat err0 = ((*(ptrs0++)=val0) - (Tfloat)*ptrmin0)*ndithering;
               *ptrs0+=7*err0; *(ptrsn0 - 1)+=3*err0; *(ptrsn0++)+=5*err0; *ptrsn0+=err0;
-              if (map_indexes) *(ptrd++) = (tuint)*ptrmin0; else *(ptrd++) = (tuint)(ptrmin0 - colormap._data);
+              if (map_colors) *(ptrd++) = (tuint)*ptrmin0; else *(ptrd++) = (tuint)(ptrmin0 - colormap._data);
             }
             cimg::swap(cache_current,cache_next);
           }
@@ -34328,7 +34389,7 @@ namespace cimg_library {
               *(ptrsn0 - 1)+=3*err0; *(ptrsn1 - 1)+=3*err1;
               *(ptrsn0++)+=5*err0; *(ptrsn1++)+=5*err1;
               *ptrsn0+=err0; *ptrsn1+=err1;
-              if (map_indexes) { *(ptrd++) = (tuint)*ptrmin0; *(ptrd1++) = (tuint)*ptrmin1; }
+              if (map_colors) { *(ptrd++) = (tuint)*ptrmin0; *(ptrd1++) = (tuint)*ptrmin1; }
               else *(ptrd++) = (tuint)(ptrmin0 - colormap._data);
             }
             cimg::swap(cache_current,cache_next);
@@ -34373,7 +34434,7 @@ namespace cimg_library {
               *(ptrsn0++)+=5*err0; *(ptrsn1++)+=5*err1; *(ptrsn2++)+=5*err2;
               *ptrsn0+=err0; *ptrsn1+=err1; *ptrsn2+=err2;
 
-              if (map_indexes) {
+              if (map_colors) {
                 *(ptrd++) = (tuint)*ptrmin0; *(ptrd1++) = (tuint)*ptrmin1; *(ptrd2++) = (tuint)*ptrmin2;
               } else *(ptrd++) = (tuint)(ptrmin0 - colormap._data);
             }
@@ -34407,7 +34468,7 @@ namespace cimg_library {
                 *_ptrs+=7*err; *(_ptrsn++)+=3*err; *(_ptrsn++)+=5*err; *_ptrsn+=err;
                 _ptrmin+=pwhd; _ptrs+=cwhd - 1; _ptrsn+=cwhd - 2;
               }
-              if (map_indexes) {
+              if (map_colors) {
                 tuint *_ptrd = ptrd++;
                 cimg_forC(*this,c) { *_ptrd = (tuint)*ptrmin; _ptrd+=whd; ptrmin+=pwhd; }
               }
@@ -34430,7 +34491,7 @@ namespace cimg_library {
                 const Tfloat pval0 = (Tfloat)*(ptrp0++) - val0, dist = pval0*pval0;
                 if (dist<distmin) { ptrmin0 = ptrp0 - 1; distmin = dist; }
               }
-              if (map_indexes) *(ptrd++) = (tuint)*ptrmin0; else *(ptrd++) = (tuint)(ptrmin0 - colormap._data);
+              if (map_colors) *(ptrd++) = (tuint)*ptrmin0; else *(ptrd++) = (tuint)(ptrmin0 - colormap._data);
             }
           }
         } break;
@@ -34448,7 +34509,7 @@ namespace cimg_library {
                   dist = pval0*pval0 + pval1*pval1;
                 if (dist<distmin) { ptrmin0 = ptrp0 - 1; distmin = dist; }
               }
-              if (map_indexes) { *(ptrd++) = (tuint)*ptrmin0; *(ptrd1++) = (tuint)*(ptrmin0 + pwhd); }
+              if (map_colors) { *(ptrd++) = (tuint)*ptrmin0; *(ptrd1++) = (tuint)*(ptrmin0 + pwhd); }
               else *(ptrd++) = (tuint)(ptrmin0 - colormap._data);
             }
           }
@@ -34471,7 +34532,7 @@ namespace cimg_library {
                   dist = pval0*pval0 + pval1*pval1 + pval2*pval2;
                 if (dist<distmin) { ptrmin0 = ptrp0 - 1; distmin = dist; }
               }
-              if (map_indexes) {
+              if (map_colors) {
                 *(ptrd++) = (tuint)*ptrmin0;
                 *(ptrd1++) = (tuint)*(ptrmin0 + pwhd);
                 *(ptrd2++) = (tuint)*(ptrmin0 + 2*pwhd);
@@ -34491,7 +34552,7 @@ namespace cimg_library {
                 cimg_forC(*this,c) { dist+=cimg::sqr((Tfloat)*_ptrs - (Tfloat)*_ptrp); _ptrs+=whd; _ptrp+=pwhd; }
                 if (dist<distmin) { ptrmin = ptrp; distmin = dist; }
               }
-              if (map_indexes) {
+              if (map_colors) {
                 tuint *_ptrd = ptrd++;
                 cimg_forC(*this,c) { *_ptrd = (tuint)*ptrmin; _ptrd+=whd; ptrmin+=pwhd; }
               }

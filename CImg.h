@@ -21671,6 +21671,25 @@ namespace cimg_library {
               _cimg_mp_const_scalar((double)arg1);
             }
 
+            if (!std::strncmp(ss,"normalize(",10)) { // Normalize
+              _cimg_mp_op("Function 'normalize()'");
+              s0 = ss + 10;
+              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(s0,s1,depth1,0,block_flags);
+              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg2 = compile(s1,s2,depth1,0,block_flags);
+              s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg3 = compile(s2,se1,depth1,0,block_flags);
+              _cimg_mp_check_type(arg2,2,1,0);
+              _cimg_mp_check_type(arg3,3,1,0);
+              if (_cimg_mp_is_scalar(arg1)) _cimg_mp_return(arg2);
+              p1 = _cimg_mp_size(arg1);
+              pos = vector(p1);
+              CImg<ulongT>::vector((ulongT)mp_vector_normalize,pos,arg1,p1,arg2,arg3).move_to(code);
+              return_new_comp = true;
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"normp(",6)) { // Lp norm, with variable argument p.
               _cimg_mp_op("Function 'normp()'");
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -28585,6 +28604,17 @@ namespace cimg_library {
 
       static double mp_vector_neq(_cimg_math_parser& mp) {
         return !mp_vector_eq(mp);
+      }
+
+      static double mp_vector_normalize(_cimg_math_parser& mp) {
+        double *const ptrd = &_mp_arg(1) + 1;
+        const unsigned int siz = (unsigned int)mp.opcode[3];
+        const double
+          *const ptrs = &_mp_arg(2) + 1,
+          min_value = _mp_arg(4),
+          max_value = _mp_arg(5);
+        CImg<doubleT>(ptrd,siz,1,1,1,true) = CImg<doubleT>(ptrs,siz,1,1,1,true).get_normalize(min_value,max_value);
+        return cimg::type<double>::nan();
       }
 
       static double _mp_vector_norm0(_cimg_math_parser& mp) {

@@ -22693,6 +22693,63 @@ namespace cimg_library {
               _cimg_mp_scalar1(mp_image_whds,p1);
             }
 
+            if (!std::strncmp(ss,"warp(",5)) { // Image warping
+              _cimg_mp_op("Function 'warp()'");
+              pos = 1;
+              for (s = ss5; s<se; ++s, ++pos) {
+                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                arg2 = compile(s,ns,depth1,0,block_flags);
+                if (pos==1 || pos==6) _cimg_mp_check_type(arg2,pos,2,0);
+                else if (pos<11) _cimg_mp_check_const_scalar(arg2,pos,3);
+                else _cimg_mp_check_type(arg2,pos,1,0);
+                CImg<ulongT>::vector(arg2).move_to(l_opcode);
+                s = ns;
+              }
+              (l_opcode>'y').move_to(opcode);
+              // opcode = [ A, wA,hA,dA,sA, W, wW,hW,dW,sW, mode, interp, boundary_cond ]
+              //          [ 0   1  2  3  4  5   6  7  8  9    10      11             12 ]
+
+              if (opcode.height()<10) compile(s,se1,depth1,0,block_flags); // Not enough arguments -> throw exception
+              arg1 = (unsigned int)opcode[0]; // Image to warp
+              arg2 = (unsigned int)opcode[5]; // Warp map
+              p1 = _cimg_mp_size(arg1);
+              p2 = _cimg_mp_size(arg2);
+              p3 = opcode.height();
+              opcode.resize(1,13,1,1,0);
+              if (p3<11) opcode[10] = 0;
+              if (p3<12) opcode[11] = 1;
+              if (p3<13) opcode[12] = 0;
+              arg3 = (unsigned int)mem[opcode[1]]; opcode[1] = arg3;
+              arg4 = (unsigned int)mem[opcode[2]]; opcode[2] = arg4;
+              arg5 = (unsigned int)mem[opcode[3]]; opcode[3] = arg5;
+              arg6 = (unsigned int)mem[opcode[4]]; opcode[4] = arg6;
+              if (arg3*arg4*arg5*arg6!=std::max(1U,p1))
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: Input vector size (%lu values) and its specified "
+                                            "geometry (%u,%u,%u,%u) (%lu values) do not match.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            std::max(p1,1U),arg3,arg4,arg5,arg6,(ulongT)arg3*arg4*arg5*arg6);
+              arg3 = (unsigned int)mem[opcode[6]]; opcode[6] = arg3;
+              arg4 = (unsigned int)mem[opcode[7]]; opcode[7] = arg4;
+              arg5 = (unsigned int)mem[opcode[8]]; opcode[8] = arg5;
+              arg6 = (unsigned int)mem[opcode[9]]; opcode[9] = arg6;
+              if (arg3*arg4*arg5*arg6!=std::max(1U,p2))
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: Warp vector size (%lu values) and its specified "
+                                            "geometry (%u,%u,%u,%u) (%lu values) do not match.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            std::max(p2,1U),arg3,arg4,arg5,arg6,(ulongT)arg3*arg4*arg5*arg6);
+
+              pos = vector(arg3*arg4*arg5*(unsigned int)opcode[4]);
+              opcode.resize(1,15,1,1,0,0,0,1);
+              opcode[0] = (ulongT)mp_vector_warp;
+              opcode[1] = (ulongT)pos;
+              opcode.move_to(code);
+              return_new_comp = true;
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"while(",6)) { // While...do
               _cimg_mp_op("Function 'while()'");
               s0 = *ss5=='('?ss6:ss8;
@@ -28416,6 +28473,29 @@ namespace cimg_library {
         // Scalar-valued argument.
         const double val = _mp_arg(2);
         return val?(_mp_arg(2)?1:val):0;
+      }
+
+      static double mp_vector_warp(_cimg_math_parser& mp) {
+        double *const ptrd = &_mp_arg(1) + 1;
+        const unsigned int
+          wA = (unsigned int)mp.opcode[3],
+          hA = (unsigned int)mp.opcode[4],
+          dA = (unsigned int)mp.opcode[5],
+          sA = (unsigned int)mp.opcode[6],
+          wW = (unsigned int)mp.opcode[8],
+          hW = (unsigned int)mp.opcode[9],
+          dW = (unsigned int)mp.opcode[10],
+          sW = (unsigned int)mp.opcode[11];
+        const int
+          mode = (int)_mp_arg(12),
+          interpolation = (int)_mp_arg(13),
+          boundary_conditions = (int)_mp_arg(14);
+        const double
+          *const ptrs = &_mp_arg(2) + 1,
+          *const ptrw = &_mp_arg(7) + 1;
+        CImg<doubleT>(ptrd,wW,hW,dW,sA,true) = CImg<doubleT>(ptrs,wA,hA,dA,sA,true).
+          get_warp(CImg<doubleT>(ptrw,wW,hW,dW,sW,true),mode,interpolation,boundary_conditions);
+        return cimg::type<double>::nan();
       }
 
 #define _cimg_mp_vfunc(func) \

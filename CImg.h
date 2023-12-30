@@ -19848,6 +19848,50 @@ namespace cimg_library {
               _cimg_mp_scalar3(mp_cut,arg1,arg2,arg3);
             }
 
+            if (!std::strncmp(ss,"cumulate(",9)) { // Mirror image
+              _cimg_mp_op("Function 'cumulate()'");
+              s0 = ss + 9;
+              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(s0,s1,depth1,0,block_flags);
+              _cimg_mp_check_type(arg1,1,2,0);
+              p1 = _cimg_mp_size(arg1);
+
+              arg2 = p1;
+              arg3 = arg4 = arg5 = 1;
+              arg6 = p2 = ~0U;
+              if (s1<se1) {
+                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                arg2 = compile(s1,s2,depth1,0,block_flags);
+                s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                arg3 = compile(s2,s1,depth1,0,block_flags);
+                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                arg4 = compile(s1,s2,depth1,0,block_flags);
+                s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                arg5 = compile(s2,s1,depth1,0,block_flags);
+                arg6 = s1<se1?compile(++s1,se1,depth1,0,block_flags):~0U;
+                _cimg_mp_check_const_scalar(arg2,2,3);
+                _cimg_mp_check_const_scalar(arg3,3,3);
+                _cimg_mp_check_const_scalar(arg4,4,3);
+                _cimg_mp_check_const_scalar(arg5,5,3);
+                arg2 = (unsigned int)mem[arg2];
+                arg3 = (unsigned int)mem[arg3];
+                arg4 = (unsigned int)mem[arg4];
+                arg5 = (unsigned int)mem[arg5];
+                p2 = arg6!=~0U?_cimg_mp_size(arg6):~0U;
+              }
+
+              if (arg2*arg3*arg4*arg5!=std::max(1U,p1))
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: Input vector size (%lu values) and its specified "
+                                            "geometry (%u,%u,%u,%u) (%lu values) do not match.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            std::max(p1,1U),arg2,arg3,arg4,arg5,(ulongT)arg2*arg3*arg4*arg5);
+              pos = vector(arg2*arg3*arg4*arg5);
+              CImg<ulongT>::vector((ulongT)mp_vector_cumulate,pos,arg1,arg2,arg3,arg4,arg5,arg6,p2).move_to(code);
+              return_new_comp = true;
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"convolve(",9) || !std::strncmp(ss,"correlate(",10)) { // Convolve & Correlate
               is_sth = *ss2=='n'; // is_convolve?
               _cimg_mp_op(is_sth?"Function 'convolve()'":"Function 'correlate()'");
@@ -28196,6 +28240,29 @@ namespace cimg_library {
         const int x = (int)_mp_arg(7), y = (int)_mp_arg(8), z = (int)_mp_arg(9), c = (int)_mp_arg(10);
         CImg<doubleT>(ptrd,dx,dy,dz,dc,true) = CImg<doubleT>(ptrs,w,h,d,s,true).
           get_crop(x,y,z,c,x + dx - 1,y + dy - 1,z + dz - 1,c + dc - 1,boundary_conditions);
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_vector_cumulate(_cimg_math_parser& mp) {
+        double *const ptrd = &_mp_arg(1) + 1;
+        const unsigned int
+          wA = (unsigned int)mp.opcode[3],
+          hA = (unsigned int)mp.opcode[4],
+          dA = (unsigned int)mp.opcode[5],
+          sA = (unsigned int)mp.opcode[6],
+          sizp = (unsigned int)mp.opcode[8];
+        const double
+          *const ptrs = &_mp_arg(2) + 1,
+          *const ptrp = sizp!=~0U?&_mp_arg(7) + 1:0;
+        CImg<charT> str;
+        if (ptrp) {
+          str.assign(std::max(1U,sizp) + 1);
+          if (!sizp) str[0] = _mp_arg(7);
+          else for (unsigned int p = 0; p<sizp; ++p) str[p] = (char)ptrp[p];
+          str.back() = 0;
+        }
+        CImg<doubleT>(ptrd,wA,hA,dA,sA,true) = CImg<doubleT>(ptrs,wA,hA,dA,sA,true).
+          get_cumulate(str);
         return cimg::type<double>::nan();
       }
 
@@ -40812,6 +40879,7 @@ namespace cimg_library {
        \note \c axes may contains multiple characters, e.g. \c "xyz"
     **/
     CImg<T>& cumulate(const char *const axes) {
+      if (!axes) return cumulate();
       for (const char *s = axes; *s; ++s) cumulate(*s);
       return *this;
     }

@@ -21529,10 +21529,10 @@ namespace cimg_library {
             break;
 
           case 'p' :
-            if (!std::strncmp(ss,"permut(",7)) { // Number of permutations
-              _cimg_mp_op("Function 'permut()'");
-              s1 = ss7; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss7,s1,depth1,0,block_flags);
+            if (!std::strncmp(ss,"perm(",5)) { // Number of permutations
+              _cimg_mp_op("Function 'perm()'");
+              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss5,s1,depth1,0,block_flags);
               s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(s1,s2,depth1,0,block_flags);
               arg3 = compile(++s2,se1,depth1,0,block_flags);

@@ -33817,7 +33817,7 @@ namespace cimg_library {
        \param val_min Minimal authorized random value.
        \param val_max Maximal authorized random value.
        \param prec Precision of generated values. Set to '0' for automatic precision.
-         Negative value means 'percentage of the pdf size'.
+         A negative value means 'percentage of the pdf size'.
      **/
     template<typename t>
     CImg<T>& rand(const CImg<t>& pdf, const T& val_min, const T& val_max, const int prec=65536) {

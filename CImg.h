@@ -33822,12 +33822,13 @@ namespace cimg_library {
     template<typename t>
     CImg<T>& rand(const T& val_min, const T& val_max, const CImg<t>& pdf, const int precision=65536) {
       typedef _cimg_tfloat tfloat;
-      const unsigned int siz = (unsigned int)pdf.size();
-      if (siz<2) return fill(val_min);
+      const unsigned int
+        siz = (unsigned int)pdf.size(),
+        prec = precision<0?(unsigned int)(-siz*precision/100):(unsigned int)precision;
+      if (siz<2 || precision<2) return fill(val_min);
       const tfloat
         delta = (tfloat)val_max - (tfloat)val_min,
         delta_over_siz1 = delta/(siz - 1);
-      const unsigned int prec = !precision?4*siz:precision<0?(unsigned int)(-siz*precision/100):(unsigned int)precision;
 
       // Compute inverse cdf.
       CImg<tfloat> cdf = pdf.get_max((t)0).cumulate(), icdf(prec);

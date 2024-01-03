@@ -33811,6 +33811,50 @@ namespace cimg_library {
       return (+*this).rand(val_min,val_max);
     }
 
+    //! Fill image with random values following specified distribution and range.
+    /**
+       \param pdf Probability density function.
+       \param val_min Minimal authorized random value.
+       \param val_max Maximal authorized random value.
+       \param prec Precision of generated values. Set to '0' for automatic precision. Negative value means percentage.
+     **/
+    template<typename t>
+    CImg<T>& rand(const CImg<t>& pdf, const T& val_min, const T& val_max, const int prec=-400) {
+      typedef _cimg_tfloat tfloat;
+      const unsigned int siz = (unsigned int)pdf.size();
+      if (siz<2) return fill(val_min);
+      const tfloat
+        delta = (tfloat)val_max - (tfloat)val_min,
+        delta_over_siz1 = delta/(siz - 1);
+      const unsigned int nprec = !prec?siz:prec<0?(unsigned int)(-siz*prec/100):(unsigned int)prec;
+      CImg<tfloat> cdf = pdf.get_max((t)0).cumulate();
+      cdf*=(nprec - 1)/cdf.back();
+
+      // Compute inverse cdf.
+      CImg<tfloat> icdf(nprec);
+      unsigned int k = 0;
+      tfloat p = 0;
+      cimg_forX(icdf,x) {
+        while (k<siz && (!(p = cdf[k]) || p<x)) ++k;
+        icdf[x] = val_min + k*delta_over_siz1;
+      }
+
+      // Generate random numbers.
+      cimg_for(*this,ptr,T) {
+        const unsigned int
+          _ind = (unsigned int)cimg::rand(0,(double)nprec),
+          ind = _ind==nprec?0:_ind;
+        *ptr = (T)icdf[ind];
+      }
+      return *this;
+    }
+
+    //! Fill image with random values following specified distribution and range \newinstance.
+    template<typename t>
+    CImg<T> get_rand(const CImg<t>& pdf, const T& val_min, const T& val_max) const {
+      return (+*this).rand(pdf,val_min,val_max);
+    }
+
     //! Round pixel values.
     /**
        \param y Rounding precision.

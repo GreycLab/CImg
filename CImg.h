@@ -33819,21 +33819,20 @@ namespace cimg_library {
        \param prec Precision of generated values. Set to '0' for automatic precision. Negative value means percentage.
      **/
     template<typename t>
-    CImg<T>& rand(const CImg<t>& pdf, const T& val_min, const T& val_max, const int prec=-400) {
+    CImg<T>& rand(const CImg<t>& pdf, const T& val_min, const T& val_max, const int prec=65536) {
       typedef _cimg_tfloat tfloat;
       const unsigned int siz = (unsigned int)pdf.size();
       if (siz<2) return fill(val_min);
       const tfloat
         delta = (tfloat)val_max - (tfloat)val_min,
         delta_over_siz1 = delta/(siz - 1);
-      const unsigned int nprec = !prec?siz:prec<0?(unsigned int)(-siz*prec/100):(unsigned int)prec;
-      CImg<tfloat> cdf = pdf.get_max((t)0).cumulate();
-      cdf*=(nprec - 1)/cdf.back();
+      const unsigned int nprec = !prec?4*siz:prec<0?(unsigned int)(-siz*prec/100):(unsigned int)prec;
 
       // Compute inverse cdf.
-      CImg<tfloat> icdf(nprec);
+      CImg<tfloat> cdf = pdf.get_max((t)0).cumulate(), icdf(nprec);
       unsigned int k = 0;
       tfloat p = 0;
+      cdf*=(nprec - 1)/cdf.back();
       cimg_forX(icdf,x) {
         while (k<siz && (!(p = cdf[k]) || p<x)) ++k;
         icdf[x] = val_min + k*delta_over_siz1;

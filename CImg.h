@@ -33840,11 +33840,20 @@ namespace cimg_library {
       }
 
       // Generate random numbers.
-      cimg_for(*this,ptr,T) {
-        const unsigned int
-          _ind = (unsigned int)cimg::rand(0,(double)nprec),
-          ind = _ind==nprec?0:_ind;
-        *ptr = (T)icdf[ind];
+      cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),524288)) {
+        cimg_uint64 rng = (cimg::_rand(),cimg::rng());
+
+#if cimg_use_openmp!=0
+        rng+=omp_get_thread_num();
+#endif
+        cimg_pragma_openmp(for)
+          cimg_rofoff(*this,off) {
+          const unsigned int
+            _ind = (unsigned int)cimg::rand(0,(double)nprec,&rng),
+            ind = _ind==nprec?0:_ind;
+          _data[off] = (T)icdf[ind];
+        }
+        cimg::srand(rng);
       }
       return *this;
     }

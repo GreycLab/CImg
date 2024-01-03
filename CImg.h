@@ -33837,7 +33837,7 @@ namespace cimg_library {
       cdf*=(prec - 1)/cdf.back();
       cimg_forX(icdf,x) {
         while (k<siz && (!(p = cdf[k]) || p<x)) ++k;
-        if (k==siz) --k;
+        if (k>=siz) { while (x<icdf.width()) icdf[x++] = val_max; break; }
         icdf[x] = val_min + k*delta_over_siz1;
       }
 

@@ -21878,6 +21878,48 @@ namespace cimg_library {
               _cimg_mp_scalar1(mp_rad2deg,arg1);
             }
 
+            if ((cimg_sscanf(ss,"rand%u%c",&(arg1=~0U),&sep)==2 && sep=='(' && arg1>0) ||
+                !std::strncmp(ss,"rand(#",6) ||
+                (!std::strncmp(ss,"rand",4) && ss4<se1 && *ss4!='(' && (s=std::strchr(ss4,'('))!=0)) { // Random vector
+              _cimg_mp_op("Function 'rand()'");
+              p3 = 0;
+              if (arg1==~0U && *ss4!='(') {
+                arg1 = compile(ss4,s++,depth1,0,block_flags);
+                _cimg_mp_check_const_scalar(arg1,0,3);
+                arg1 = (unsigned int)mem[arg1];
+              } else s = std::strchr(ss4,'(') + 1;
+
+              if (arg1==~0U && *s=='#') { // Number of elements specified as first argument with '#'
+                s0 = ++s; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                arg1 = compile(s,s0++,depth1,0,block_flags);
+                _cimg_mp_check_const_scalar(arg1,1,3);
+                arg1 = (unsigned int)mem[arg1];
+                p3 = 1;
+                s = s0;
+              }
+
+              s1 = s + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg2 = compile(s,s1,depth1,0,block_flags);
+              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg3 = compile(s1,s2,depth1,0,block_flags);
+              _cimg_mp_check_type(arg2,p3 + 1,1,0);
+              _cimg_mp_check_type(arg3,p3 + 2,1,0);
+              arg4 = arg5 = ~0U; p2 = 0;
+              if (s2<se1) {
+                s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                arg4 = compile(s2,s1,depth1,0,block_flags);
+                arg5 = s1<se1?compile(++s1,se1,depth1,0,block_flags):~0U;
+                p2 = _cimg_mp_size(arg4);
+                _cimg_mp_check_type(arg4,p3 + 3,2,0);
+                if (arg5!=~0U) _cimg_mp_check_type(arg5,p3 + 4,1,0);
+              }
+
+              pos = vector(arg1);
+              CImg<ulongT>::vector((ulongT)mp_vector_rand,pos,arg1,arg2,arg3,arg4,p2,arg5).move_to(code);
+              return_new_comp = true;
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"ref(",4)) { // Variable declaration
               _cimg_mp_op("Function 'ref()'");
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -28772,20 +28814,39 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
+      static double mp_vector_rand(_cimg_math_parser& mp) {
+        double *const ptrd = &_mp_arg(1) + 1;
+        const double *const ptr_pdf = (unsigned int)mp.opcode[5]!=~0U?&_mp_arg(5) + 1:0;
+        const unsigned int
+          siz = (unsigned int)mp.opcode[2],
+          siz_pdf = (unsigned int)mp.opcode[6],
+          prec = (unsigned int)mp.opcode[7]!=~0U?(unsigned int)std::abs(_mp_arg(7)):65536;
+        const double
+          val_min = _mp_arg(3),
+          val_max = _mp_arg(4);
+        if (!ptr_pdf)
+          CImg<doubleT>(ptrd,siz,1,1,1,true).rand(val_min,val_max);
+        else {
+          CImg<doubleT> pdf(ptr_pdf,siz_pdf,1,1,1,true);
+          CImg<doubleT>(ptrd,siz,1,1,1,true).rand(val_min,val_max,pdf,prec);
+        }
+        return cimg::type<double>::nan();
+      }
+
       static double mp_vector_resize(_cimg_math_parser& mp) {
         double *const ptrd = &_mp_arg(1) + 1;
-        const unsigned int p1 = (unsigned int)mp.opcode[2], p2 = (unsigned int)mp.opcode[4];
+        const unsigned int siz = (unsigned int)mp.opcode[2], p2 = (unsigned int)mp.opcode[4];
         const int
           interpolation = (int)_mp_arg(5),
           boundary_conditions = (int)_mp_arg(6);
         if (p2) { // Resize vector
           const double *const ptrs = &_mp_arg(3) + 1;
-          CImg<doubleT>(ptrd,p1,1,1,1,true) = CImg<doubleT>(ptrs,p2,1,1,1,true).
-            get_resize(p1,1,1,1,interpolation,boundary_conditions);
+          CImg<doubleT>(ptrd,siz,1,1,1,true) = CImg<doubleT>(ptrs,p2,1,1,1,true).
+            get_resize(siz,1,1,1,interpolation,boundary_conditions);
         } else { // Resize scalar
           const double value = _mp_arg(3);
-          CImg<doubleT>(ptrd,p1,1,1,1,true) = CImg<doubleT>(1,1,1,1,value).resize(p1,1,1,1,interpolation,
-                                                                                  boundary_conditions);
+          CImg<doubleT>(ptrd,siz,1,1,1,true) = CImg<doubleT>(1,1,1,1,value).resize(siz,1,1,1,interpolation,
+                                                                                   boundary_conditions);
         }
         return cimg::type<double>::nan();
       }
@@ -28825,8 +28886,8 @@ namespace cimg_library {
       static double mp_vector_reverse(_cimg_math_parser& mp) {
         double *const ptrd = &_mp_arg(1) + 1;
         const double *const ptrs = &_mp_arg(2) + 1;
-        const unsigned int p1 = (unsigned int)mp.opcode[3];
-        CImg<doubleT>(ptrd,p1,1,1,1,true) = CImg<doubleT>(ptrs,p1,1,1,1,true).get_mirror('x');
+        const unsigned int siz = (unsigned int)mp.opcode[3];
+        CImg<doubleT>(ptrd,siz,1,1,1,true) = CImg<doubleT>(ptrs,siz,1,1,1,true).get_mirror('x');
         return cimg::type<double>::nan();
       }
 

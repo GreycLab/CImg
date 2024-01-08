@@ -21898,22 +21898,26 @@ namespace cimg_library {
                 s = s0;
               }
 
-              s1 = s + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg2 = compile(s,s1,depth1,0,block_flags);
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-              arg3 = compile(s1,s2,depth1,0,block_flags);
+              arg2 = p2 = 0; arg3 = 1; arg4 = arg5 = ~0U;
+              if (s<se1) {
+                s1 = s + 1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                arg3 = compile(s,s1,depth1,0,block_flags);
+                if (s1<se1) {
+                  s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                  arg2 = arg3;
+                  arg3 = compile(s1,s2,depth1,0,block_flags);
+                  if (s2<se1) {
+                    s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                    arg4 = compile(s2,s1,depth1,0,block_flags);
+                    arg5 = s1<se1?compile(++s1,se1,depth1,0,block_flags):~0U;
+                    p2 = _cimg_mp_size(arg4);
+                  }
+                }
+              }
               _cimg_mp_check_type(arg2,p3 + 1,1,0);
               _cimg_mp_check_type(arg3,p3 + 2,1,0);
-              arg4 = arg5 = ~0U; p2 = 0;
-              if (s2<se1) {
-                s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                arg4 = compile(s2,s1,depth1,0,block_flags);
-                arg5 = s1<se1?compile(++s1,se1,depth1,0,block_flags):~0U;
-                p2 = _cimg_mp_size(arg4);
-                _cimg_mp_check_type(arg4,p3 + 3,2,0);
-                if (arg5!=~0U) _cimg_mp_check_type(arg5,p3 + 4,1,0);
-              }
-
+              if (arg4!=~0U) _cimg_mp_check_type(arg4,p3 + 3,2,0);
+              if (arg5!=~0U) _cimg_mp_check_type(arg5,p3 + 4,1,0);
               pos = vector(arg1);
               CImg<ulongT>::vector((ulongT)mp_vector_rand,pos,arg1,arg2,arg3,arg4,p2,arg5).move_to(code);
               return_new_comp = true;

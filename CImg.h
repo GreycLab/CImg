@@ -18041,7 +18041,11 @@ namespace cimg_library {
             // Check for particular case to be simplified.
             if ((op==mp_self_add || op==mp_self_sub) && !arg2) _cimg_mp_return(arg1);
             if ((op==mp_self_mul || op==mp_self_div || op==mp_self_pow) && arg2==1) _cimg_mp_return(arg1);
-            if (op==mp_self_pow) { CImg<ulongT>::vector((ulongT)mp_copy,arg1,1).move_to(code); _cimg_mp_return(arg1); }
+            if (op==mp_self_pow && (arg2==0 || arg2==2)) {
+              if (!arg2) CImg<ulongT>::vector((ulongT)mp_copy,arg1,1).move_to(code);
+              else CImg<ulongT>::vector((ulongT)mp_sqr,arg1,arg1).move_to(code);
+              _cimg_mp_return(arg1);
+            }
 
             // Apply operator on a copy to prevent modifying a constant or a variable.
             if (*ref && (_cimg_mp_is_const_scalar(arg1) || _cimg_mp_is_vector(arg1) || _cimg_mp_is_reserved(arg1)))
@@ -18203,7 +18207,7 @@ namespace cimg_library {
             _cimg_mp_check_type(arg2,2,1,0);
             if (_cimg_mp_is_const_scalar(arg1) && _cimg_mp_is_const_scalar(arg2))
               _cimg_mp_const_scalar(mem[arg1] || mem[arg2]);
-            if (!arg1) _cimg_mp_copy(arg2);
+            if (!arg1) _cimg_mp_scalar1(mp_bool,arg2);
             pos = scalar();
             CImg<ulongT>::vector((ulongT)mp_logical_or,pos,arg1,arg2,code._width - p2).move_to(code,p2);
             return_new_comp = true;
@@ -24115,13 +24119,16 @@ namespace cimg_library {
 
       // Insert copy of specified argument in memory.
       unsigned int copy(const unsigned int arg) {
+        if (_cimg_mp_is_const_scalar(arg) || _cimg_mp_is_comp(arg)) return arg;
         const unsigned int siz = _cimg_mp_size(arg);
         if (siz) { // Vector
+          if (is_comp_vector(arg)) return arg;
           const unsigned int pos = vector(siz);
           CImg<ulongT>::vector((ulongT)mp_vector_copy,pos,arg,siz).move_to(code);
+          return_new_comp = true;
           return pos;
         }
-        if (_cimg_mp_is_const_scalar(arg)) return arg; // Const scalar
+        return_new_comp = true;
         return scalar1(mp_copy,arg); // Scalar
       }
 

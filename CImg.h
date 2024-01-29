@@ -19457,6 +19457,17 @@ namespace cimg_library {
               _cimg_mp_return(pos);
             }
 
+            if (!std::strncmp(ss,"csqr(",5)) { // Complex square
+              _cimg_mp_op("Function 'csqr()'");
+              arg1 = compile(ss5,se1,depth1,0,block_flags);
+              _cimg_mp_check_type(arg1,0,3,2);
+              pos = vector(2);
+              if (_cimg_mp_is_scalar(arg1)) CImg<ulongT>::vector((ulongT)mp_complex_sqr,pos,arg1,0).move_to(code);
+              else CImg<ulongT>::vector((ulongT)mp_complex_sqr,pos,arg1 + 1,arg1 + 2).move_to(code);
+              return_new_comp = true;
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"csqrt(",6)) { // Complex square root
               _cimg_mp_op("Function 'csqrt()'");
               arg1 = compile(ss6,se1,depth1,0,block_flags);
@@ -24760,6 +24771,14 @@ namespace cimg_library {
         double *ptrd = &_mp_arg(1) + 1;
         ptrd[0] = std::sin(real)*std::cosh(imag);
         ptrd[1] = std::cos(real)*std::sinh(imag);
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_complex_sqr(_cimg_math_parser& mp) {
+        const double real = _mp_arg(2), imag = _mp_arg(3);
+        double *ptrd = &_mp_arg(1) + 1;
+        ptrd[0] = cimg::sqr(real) - cimg::sqr(imag);
+        ptrd[1] = 2*real*imag;
         return cimg::type<double>::nan();
       }
 

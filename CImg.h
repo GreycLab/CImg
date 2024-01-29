@@ -18634,7 +18634,8 @@ namespace cimg_library {
             _cimg_mp_check_type(arg2,2,3,2);
             if (arg2==1) _cimg_mp_same(arg1);
             pos = vector(2);
-            if (arg2==2) {
+            if (!arg2) CImg<ulongT>::vector((ulongT)mp_complex_one,pos).move_to(code);
+            else if (arg2==2) {
               if (is_scalar(arg1)) CImg<ulongT>::vector((ulongT)mp_complex_sqr,pos,arg1,0).move_to(code);
               else CImg<ulongT>::vector((ulongT)mp_complex_sqr,pos,arg1 + 1,arg1 + 2).move_to(code);
             } else {
@@ -24736,6 +24737,13 @@ namespace cimg_library {
         double *ptrd = &_mp_arg(1) + 1;
         *(ptrd++) = r1*r2 - i1*i2;
         *(ptrd++) = r1*i2 + r2*i1;
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_complex_one(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        ptrd[0] = 1;
+        ptrd[1] = 0;
         return cimg::type<double>::nan();
       }
 

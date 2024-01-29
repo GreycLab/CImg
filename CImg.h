@@ -17751,7 +17751,7 @@ namespace cimg_library {
 
               if (arg1==~0U) { // Create new variable
                 if (_cimg_mp_is_vector(arg3)) { // Vector variable
-                  arg1 = is_sth || is_comp_vector(arg3)?arg3:vector_copy(arg3);
+                  arg1 = is_sth || is_comp_vector(arg3)?arg3:copy(arg3);
                   set_reserved_vector(arg1); // Prevent from being used in further optimization
                 } else { // Scalar variable
                   if (is_const) arg1 = arg3;
@@ -18042,10 +18042,8 @@ namespace cimg_library {
             if ((op==mp_self_mul || op==mp_self_div) && arg2==1) _cimg_mp_return(arg1);
 
             // Apply operator on a copy to prevent modifying a constant or a variable.
-            if (*ref && (_cimg_mp_is_const_scalar(arg1) || _cimg_mp_is_vector(arg1) || _cimg_mp_is_reserved(arg1))) {
-              if (_cimg_mp_is_vector(arg1)) arg1 = vector_copy(arg1);
-              else arg1 = scalar1(mp_copy,arg1);
-            }
+            if (*ref && (_cimg_mp_is_const_scalar(arg1) || _cimg_mp_is_vector(arg1) || _cimg_mp_is_reserved(arg1)))
+              arg1 = copy(arg1);
 
             if (*ref==1) { // Vector value (scalar): V[k] += scalar
               _cimg_mp_check_type(arg2,2,1,0);
@@ -18713,16 +18711,11 @@ namespace cimg_library {
             compile(ss,se2,depth1,ref,block_flags); // Variable slot
 
           // Apply operator on a copy to prevent modifying a constant or a variable.
-          if (*ref && (_cimg_mp_is_const_scalar(arg1) || _cimg_mp_is_vector(arg1) || _cimg_mp_is_reserved(arg1))) {
-            if (_cimg_mp_is_vector(arg1)) arg1 = vector_copy(arg1);
-            else arg1 = scalar1(mp_copy,arg1);
-          }
+          if (*ref && (_cimg_mp_is_const_scalar(arg1) || _cimg_mp_is_vector(arg1) || _cimg_mp_is_reserved(arg1)))
+            arg1 = copy(arg1);
 
           if (is_sth) pos = arg1; // Determine return index, depending on pre/post action
-          else {
-            if (_cimg_mp_is_vector(arg1)) pos = vector_copy(arg1);
-            else pos = scalar1(mp_copy,arg1);
-          }
+          else pos = copy(arg1);
 
           if (*ref==1) { // Vector value (scalar): V[k]++
             arg3 = ref[1]; // Vector slot
@@ -24119,13 +24112,16 @@ namespace cimg_library {
         return pos;
       }
 
-      // Insert new copy of specified vector in memory.
-      unsigned int vector_copy(const unsigned int arg) {
-        const unsigned int
-          siz = _cimg_mp_size(arg),
-          pos = vector(siz);
-        CImg<ulongT>::vector((ulongT)mp_vector_copy,pos,arg,siz).move_to(code);
-        return pos;
+      // Insert copy of specified argument in memory.
+      unsigned int copy(const unsigned int arg) {
+        const unsigned int siz = _cimg_mp_size(arg);
+        if (siz) { // Vector
+          const unsigned int pos = vector(siz);
+          CImg<ulongT>::vector((ulongT)mp_vector_copy,pos,arg,siz).move_to(code);
+          return pos;
+        }
+        if (_cimg_mp_is_const_scalar(arg)) return arg; // Const scalar
+        return scalar1(mp_copy,arg); // Scalar
       }
 
       // Set reserved status to all values of a vector.

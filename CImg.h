@@ -17967,16 +17967,11 @@ namespace cimg_library {
               else
                 CImg<ulongT>::vector((ulongT)mp_complex_pow_vv,arg1,arg1,arg2).move_to(code);
             } else { // Complex **= scalar
-              if (*ps=='*') {
-                if (arg2==1) _cimg_mp_return(arg1);
-                self_vector_s(arg1,mp_self_mul,arg2);
-              } else if (*ps=='/') {
-                if (arg2==1) _cimg_mp_return(arg1);
-                self_vector_s(arg1,mp_self_div,arg2);
-              } else {
-                if (arg2==1) _cimg_mp_return(arg1);
-                CImg<ulongT>::vector((ulongT)mp_complex_pow_vs,arg1,arg1,arg2).move_to(code);
-              }
+              if (arg2==1) _cimg_mp_return(arg1);
+              if (*ps=='*') self_vector_s(arg1,mp_self_mul,arg2);
+              else if (*ps=='/') self_vector_s(arg1,mp_self_div,arg2);
+              else if (arg2==2) CImg<ulongT>::vector((ulongT)mp_complex_sqr,arg1,arg1 + 1,arg1 + 2).move_to(code);
+              else CImg<ulongT>::vector((ulongT)mp_complex_pow_vs,arg1,arg1,arg2).move_to(code);
             }
 
             if (*ref==4) { // Image value (vector): I/J[_#ind,off] **= value

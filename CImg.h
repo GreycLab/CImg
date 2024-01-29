@@ -16979,18 +16979,17 @@ namespace cimg_library {
       typedef double (*mp_func)(_cimg_math_parser&);
 
 #define _cimg_mp_calling_function s_calling_function()._data
-#define _cimg_mp_op(s) s_op = s; ss_op = ss
 #define _cimg_mp_check_const_scalar(arg,n_arg,mode) check_const_scalar(arg,n_arg,mode,ss,se,saved_char)
 #define _cimg_mp_check_const_index(arg) check_const_index(arg,ss,se,saved_char)
 #define _cimg_mp_check_notnan_index(arg) check_notnan_index(arg,ss,se,saved_char)
 #define _cimg_mp_check_list() check_list(ss,se,saved_char)
 #define _cimg_mp_check_matrix_square(arg,n_arg) check_matrix_square(arg,n_arg,ss,se,saved_char)
 #define _cimg_mp_check_type(arg,n_arg,mode,N) check_type(arg,n_arg,mode,N,ss,se,saved_char)
-
+#define _cimg_mp_const_scalar(val) _cimg_mp_return(const_scalar((double)(val)))
 #define _cimg_mp_defunc(mp) (*(mp_func)(*(mp).opcode))(mp)
+#define _cimg_mp_op(s) s_op = s; ss_op = ss
 #define _cimg_mp_return(x) { *se = saved_char; s_op = previous_s_op; ss_op = previous_ss_op; return x; }
 #define _cimg_mp_return_nan() _cimg_mp_return(_cimg_mp_slot_nan)
-#define _cimg_mp_const_scalar(val) _cimg_mp_return(const_scalar((double)(val)))
 #define _cimg_mp_same(x) _cimg_mp_return(same(x));
 #define _cimg_mp_scalar0(op) _cimg_mp_return(scalar0(op))
 #define _cimg_mp_scalar1(op,i1) _cimg_mp_return(scalar1(op,i1))
@@ -17000,6 +16999,12 @@ namespace cimg_library {
 #define _cimg_mp_scalar5(op,i1,i2,i3,i4,i5) _cimg_mp_return(scalar5(op,i1,i2,i3,i4,i5))
 #define _cimg_mp_scalar6(op,i1,i2,i3,i4,i5,i6) _cimg_mp_return(scalar6(op,i1,i2,i3,i4,i5,i6))
 #define _cimg_mp_scalar7(op,i1,i2,i3,i4,i5,i6,i7) _cimg_mp_return(scalar7(op,i1,i2,i3,i4,i5,i6,i7))
+#define _cimg_mp_strerr \
+  *se = saved_char; \
+  for (s0 = ss; s0>expr._data && *s0!=';'; --s0) {} \
+  if (*s0==';') ++s0; \
+  while (cimg::is_blank(*s0)) ++s0; \
+  cimg::strellipsize(s0,64)
 #define _cimg_mp_vector1_v(op,i1) _cimg_mp_return(vector1_v(op,i1))
 #define _cimg_mp_vector2_sv(op,i1,i2) _cimg_mp_return(vector2_sv(op,i1,i2))
 #define _cimg_mp_vector2_vs(op,i1,i2) _cimg_mp_return(vector2_vs(op,i1,i2))
@@ -17008,12 +17013,6 @@ namespace cimg_library {
 #define _cimg_mp_vector4_vvss(op,i1,i2,i3,i4) _cimg_mp_return(vector4_vvss(op,i1,i2,i3,i4))
 #define _cimg_mp_vector4_vsss(op,i1,i2,i3,i4) _cimg_mp_return(vector4_vsss(op,i1,i2,i3,i4))
 #define _cimg_mp_vector4_svss(op,i1,i2,i3,i4) _cimg_mp_return(vector4_svss(op,i1,i2,i3,i4))
-#define _cimg_mp_strerr \
-  *se = saved_char; \
-  for (s0 = ss; s0>expr._data && *s0!=';'; --s0) {} \
-  if (*s0==';') ++s0; \
-  while (cimg::is_blank(*s0)) ++s0; \
-  cimg::strellipsize(s0,64)
 
       // Constructors / Destructors.
       ~_cimg_math_parser() {

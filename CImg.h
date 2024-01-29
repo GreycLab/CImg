@@ -23889,14 +23889,14 @@ namespace cimg_library {
         return is_tmp;
       }
 
-      // Return true if specified value is a constant scalar.
-      bool is_const_scalar(const unsigned int arg) const {
-        return memtype[arg]==1;
-      }
-
       // Return true if specified value is a (temporary) computational value.
       bool is_comp(const unsigned int arg) const {
         return !memtype[arg];
+      }
+
+      // Return true if specified value is a constant scalar.
+      bool is_const_scalar(const unsigned int arg) const {
+        return memtype[arg]==1;
       }
 
       // Return true if specified value is a scalar reserved value (e.g. variable).

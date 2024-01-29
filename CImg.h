@@ -24116,7 +24116,7 @@ namespace cimg_library {
         return pos;
       }
 
-      // Insert copy of specified argument in memory.
+      // Return a copy of the specified value/vector.
       // (this forces a copy to be made. Use 'same()' for cases where you may want to return 'arg').
       unsigned int copy(const unsigned int arg) {
         const unsigned int siz = _cimg_mp_size(arg);
@@ -24129,8 +24129,8 @@ namespace cimg_library {
         return scalar1(mp_copy,arg); // Scalar
       }
 
-      // Insert copy of specified argument in memory.
-      // (this avoids a copy to be made when possible. Use 'copy()' to force an object copy).
+      // Return same value/vector as specified.
+      // (this avoids a copy to be made when possible. Use 'copy()' to force the copy of a value/vector).
       unsigned int same(const unsigned int arg) {
         if (_cimg_mp_is_const_scalar(arg)) return arg;
         if (_cimg_mp_is_comp(arg)) { return_new_comp = true; return arg; }

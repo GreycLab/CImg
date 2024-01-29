@@ -18041,6 +18041,7 @@ namespace cimg_library {
             // Check for particular case to be simplified.
             if ((op==mp_self_add || op==mp_self_sub) && !arg2) _cimg_mp_return(arg1);
             if ((op==mp_self_mul || op==mp_self_div || op==mp_self_pow) && arg2==1) _cimg_mp_return(arg1);
+            if (op==mp_self_pow) { CImg<ulongT>::vector((ulongT)mp_copy,arg1,1).move_to(code); _cimg_mp_return(arg1); }
 
             // Apply operator on a copy to prevent modifying a constant or a variable.
             if (*ref && (_cimg_mp_is_const_scalar(arg1) || _cimg_mp_is_vector(arg1) || _cimg_mp_is_reserved(arg1)))

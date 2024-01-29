@@ -18643,14 +18643,19 @@ namespace cimg_library {
             _cimg_mp_check_type(arg2,2,3,2);
             if (arg2==1) _cimg_mp_return(arg1);
             pos = vector(2);
-            if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2))
-              CImg<ulongT>::vector((ulongT)mp_complex_pow_vv,pos,arg1,arg2).move_to(code);
-            else if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2))
-              CImg<ulongT>::vector((ulongT)mp_complex_pow_vs,pos,arg1,arg2).move_to(code);
-            else if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2))
-              CImg<ulongT>::vector((ulongT)mp_complex_pow_sv,pos,arg1,arg2).move_to(code);
-            else
-              CImg<ulongT>::vector((ulongT)mp_complex_pow_ss,pos,arg1,arg2).move_to(code);
+            if (arg2==2) {
+              if (_cimg_mp_is_scalar(arg1)) CImg<ulongT>::vector((ulongT)mp_complex_sqr,pos,arg1,0).move_to(code);
+              else CImg<ulongT>::vector((ulongT)mp_complex_sqr,pos,arg1 + 1,arg1 + 2).move_to(code);
+            } else {
+              if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_vector(arg2))
+                CImg<ulongT>::vector((ulongT)mp_complex_pow_vv,pos,arg1,arg2).move_to(code);
+              else if (_cimg_mp_is_vector(arg1) && _cimg_mp_is_scalar(arg2))
+                CImg<ulongT>::vector((ulongT)mp_complex_pow_vs,pos,arg1,arg2).move_to(code);
+              else if (_cimg_mp_is_scalar(arg1) && _cimg_mp_is_vector(arg2))
+                CImg<ulongT>::vector((ulongT)mp_complex_pow_sv,pos,arg1,arg2).move_to(code);
+              else
+                CImg<ulongT>::vector((ulongT)mp_complex_pow_ss,pos,arg1,arg2).move_to(code);
+            }
             return_new_comp = true;
             _cimg_mp_return(pos);
           }

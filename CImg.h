@@ -23114,6 +23114,7 @@ namespace cimg_library {
                 _cimg_mp_vector2_vs(op,arg1,arg2);
               if (is_scalar(arg1) && is_vector(arg2))
                 _cimg_mp_vector2_sv(op,arg1,arg2);
+              if (!arg1 && arg2==1) _cimg_mp_scalar0(is_sth?mp_var_b:mp_var_u);
               _cimg_mp_scalar2(op,arg1,arg2);
             } else { // Slower version (open set)
               op = is_sth?mp_rand_z_ext:mp_rand_u_ext;

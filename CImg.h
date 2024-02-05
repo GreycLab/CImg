@@ -17297,6 +17297,9 @@ namespace cimg_library {
           case 'x' : _cimg_mp_return(reserved_label[(int)'x']!=~0U?reserved_label[(int)'x']:_cimg_mp_slot_x);
           case 'y' : _cimg_mp_return(reserved_label[(int)'y']!=~0U?reserved_label[(int)'y']:_cimg_mp_slot_y);
           case 'z' : _cimg_mp_return(reserved_label[(int)'z']!=~0U?reserved_label[(int)'z']:_cimg_mp_slot_z);
+          case 'b' :
+            if (reserved_label[(int)'b']!=~0U) _cimg_mp_return(reserved_label[(int)'b']);
+            _cimg_mp_scalar0(mp_var_b);
           case 'u' :
             if (reserved_label[(int)'u']!=~0U) _cimg_mp_return(reserved_label[(int)'u']);
             _cimg_mp_scalar0(mp_var_u);
@@ -17341,10 +17344,6 @@ namespace cimg_library {
             _cimg_mp_return(reserved_label[0]!=~0U?reserved_label[0]:23);
           if (*ss=='p' && *ss1=='i') // pi
             _cimg_mp_return(reserved_label[3]!=~0U?reserved_label[3]:28);
-          if (*ss=='u' && *ss1=='i') { // ui
-            if (reserved_label[33]!=~0U) _cimg_mp_return(reserved_label[33]);
-            _cimg_mp_scalar0(mp_var_ui);
-          }
           if (*ss=='i') {
             if (*ss1>='0' && *ss1<='9') { // i0...i9
               pos = 21 + *ss1 - '0';
@@ -22733,7 +22732,7 @@ namespace cimg_library {
             if (*ss1=='(' || (*ss1=='i' && *ss2=='(')) { // Random value with uniform distribution in specified range
               is_sth = *ss1!='('; // is integer generator?
               _cimg_mp_op(is_sth?"Function 'ui()'":"Function 'u()'");
-              if (s0[1]==')') _cimg_mp_scalar0(is_sth?mp_var_ui:mp_var_u);
+              if (s0[1]==')') _cimg_mp_scalar0(is_sth?mp_var_b:mp_var_u);
               s0 = is_sth?ss3:ss2;
               s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(s0,s1,depth1,0,block_flags);
@@ -23842,7 +23841,6 @@ namespace cimg_library {
           c2 = variable_name[1];
           if (c1=='w' && c2=='h') rp = 0; // wh
           else if (c1=='p' && c2=='i') rp = 3; // pi
-          else if (c1=='u' && c2=='i') rp = 33; // ui
           else if (c1=='i') {
             if (c2>='0' && c2<='9') rp = 21 + c2 - '0'; // i0...i9
             else if (c2=='m') rp = 4; // im
@@ -28441,12 +28439,12 @@ namespace cimg_library {
         return (S2 - S*S/siz)/(siz - 1);
       }
 
-      static double mp_var_u(_cimg_math_parser& mp) {
-        return cimg::rand(1,&mp.rng);
+      static double mp_var_b(_cimg_math_parser& mp) {
+        return cimg::rand(1,&mp.rng)<0.5;
       }
 
-      static double mp_var_ui(_cimg_math_parser& mp) {
-        return cimg::rand(1,&mp.rng)<0.5;
+      static double mp_var_u(_cimg_math_parser& mp) {
+        return cimg::rand(1,&mp.rng);
       }
 
       static double mp_var_v(_cimg_math_parser& mp) {

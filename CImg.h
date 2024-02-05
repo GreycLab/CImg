@@ -23107,7 +23107,7 @@ namespace cimg_library {
             _cimg_mp_check_type(arg3,3,1,0);
             _cimg_mp_check_type(arg4,4,1,0);
             if (arg3==1 && arg4==1) { // Fastest version (closed set)
-              op = is_sth?mp_w:mp_u;
+              op = is_sth?mp_rand_z:mp_rand_u;
               if (is_vector(arg1) && is_vector(arg2))
                 _cimg_mp_vector2_vv(op,arg1,arg2);
               if (is_vector(arg1) && is_scalar(arg2))
@@ -23116,7 +23116,7 @@ namespace cimg_library {
                 _cimg_mp_vector2_sv(op,arg1,arg2);
               _cimg_mp_scalar2(op,arg1,arg2);
             } else { // Slower version (open set)
-              op = is_sth?mp_w_ext:mp_u_ext;
+              op = is_sth?mp_rand_z_ext:mp_rand_u_ext;
               if (is_vector(arg1) && is_vector(arg2))
                 _cimg_mp_vector4_vvss(op,arg1,arg2,arg3,arg4);
               if (is_vector(arg1) && is_scalar(arg2))
@@ -28363,11 +28363,11 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_u(_cimg_math_parser& mp) {
+      static double mp_rand_u(_cimg_math_parser& mp) {
         return cimg::rand(_mp_arg(2),_mp_arg(3),&mp.rng);
       }
 
-      static double mp_u_ext(_cimg_math_parser& mp) { // Extended version with extremum control
+      static double mp_rand_u_ext(_cimg_math_parser& mp) { // Extended version with extremum control
         const double eps = 1e-5;
         const bool
           include_min = (bool)_mp_arg(4),
@@ -28381,7 +28381,7 @@ namespace cimg_library {
         return cimg::rand(m,M,&mp.rng);
       }
 
-      static double mp_w(_cimg_math_parser& mp) { // Integer version of mp_u
+      static double mp_rand_z(_cimg_math_parser& mp) { // Integer version of mp_rand_u
         double
           _m = _mp_arg(2),
           _M = _mp_arg(3);
@@ -28395,7 +28395,7 @@ namespace cimg_library {
         return val;
       }
 
-      static double mp_w_ext(_cimg_math_parser& mp) { // Integer version of mp_u_ext
+      static double mp_rand_z_ext(_cimg_math_parser& mp) { // Integer version of mp_rand_u_ext
         const bool
           include_min = (bool)_mp_arg(4),
           include_max = (bool)_mp_arg(5);

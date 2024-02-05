@@ -22729,47 +22729,6 @@ namespace cimg_library {
             break;
 
           case 'u' :
-            if (*ss1=='(' || (*ss1=='i' && *ss2=='(')) { // Random value with uniform distribution in specified range
-              is_sth = *ss1!='('; // is integer generator?
-              _cimg_mp_op(is_sth?"Function 'ui()'":"Function 'u()'");
-              if (s0[1]==')') _cimg_mp_scalar0(is_sth?mp_var_b:mp_var_u);
-              s0 = is_sth?ss3:ss2;
-              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(s0,s1,depth1,0,block_flags);
-              arg3 = arg4 = 1;
-              if (s1<se1) {
-                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-                arg2 = compile(s1,s2,depth1,0,block_flags);
-                if (s2<se1) {
-                  s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                  arg3 = compile(s2,s1,depth1,0,block_flags);
-                  arg4 = s1<se1?compile(++s1,se1,depth1,0,block_flags):1;
-                }
-              } else { arg2 = arg1; arg1 = 0; }
-              _cimg_mp_check_type(arg2,2,3,size(arg1));
-              _cimg_mp_check_type(arg3,3,1,0);
-              _cimg_mp_check_type(arg4,4,1,0);
-              if (arg3==1 && arg4==1) { // Fastest version (closed set)
-                op = is_sth?mp_ui:mp_u;
-                if (is_vector(arg1) && is_vector(arg2))
-                  _cimg_mp_vector2_vv(op,arg1,arg2);
-                if (is_vector(arg1) && is_scalar(arg2))
-                  _cimg_mp_vector2_vs(op,arg1,arg2);
-                if (is_scalar(arg1) && is_vector(arg2))
-                  _cimg_mp_vector2_sv(op,arg1,arg2);
-                _cimg_mp_scalar2(op,arg1,arg2);
-              } else { // Slower version (open set)
-                op = is_sth?mp_ui_ext:mp_u_ext;
-                if (is_vector(arg1) && is_vector(arg2))
-                  _cimg_mp_vector4_vvss(op,arg1,arg2,arg3,arg4);
-                if (is_vector(arg1) && is_scalar(arg2))
-                  _cimg_mp_vector4_vsss(op,arg1,arg2,arg3,arg4);
-                if (is_scalar(arg1) && is_vector(arg2))
-                  _cimg_mp_vector4_svss(op,arg1,arg2,arg3,arg4);
-                _cimg_mp_scalar4(op,arg1,arg2,arg3,arg4);
-              }
-            }
-
             if (!std::strncmp(ss,"ui2f(",5)) { // Special uint->float conversion
               _cimg_mp_op("Function 'ui2f()'");
               arg1 = compile(ss5,se1,depth1,0,block_flags);
@@ -23126,6 +23085,46 @@ namespace cimg_library {
             opcode.move_to(code);
             return_new_comp = true;
             _cimg_mp_return(pos);
+          }
+
+          if ((*ss=='u' || *ss=='z') && *ss1=='(') { // Random value with uniform distribution in specified range
+            is_sth = *ss!='w'; // is integer generator?
+            _cimg_mp_op(is_sth?"Function 'z()'":"Function 'u()'");
+            if (*ss2==')') _cimg_mp_scalar0(is_sth?mp_var_b:mp_var_u);
+            s1 = ss2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+            arg1 = compile(ss2,s1,depth1,0,block_flags);
+            arg3 = arg4 = 1;
+            if (s1<se1) {
+              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg2 = compile(s1,s2,depth1,0,block_flags);
+              if (s2<se1) {
+                s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                arg3 = compile(s2,s1,depth1,0,block_flags);
+                arg4 = s1<se1?compile(++s1,se1,depth1,0,block_flags):1;
+              }
+            } else { arg2 = arg1; arg1 = 0; }
+            _cimg_mp_check_type(arg2,2,3,size(arg1));
+            _cimg_mp_check_type(arg3,3,1,0);
+            _cimg_mp_check_type(arg4,4,1,0);
+            if (arg3==1 && arg4==1) { // Fastest version (closed set)
+              op = is_sth?mp_w:mp_u;
+              if (is_vector(arg1) && is_vector(arg2))
+                _cimg_mp_vector2_vv(op,arg1,arg2);
+              if (is_vector(arg1) && is_scalar(arg2))
+                _cimg_mp_vector2_vs(op,arg1,arg2);
+              if (is_scalar(arg1) && is_vector(arg2))
+                _cimg_mp_vector2_sv(op,arg1,arg2);
+              _cimg_mp_scalar2(op,arg1,arg2);
+            } else { // Slower version (open set)
+              op = is_sth?mp_w_ext:mp_u_ext;
+              if (is_vector(arg1) && is_vector(arg2))
+                _cimg_mp_vector4_vvss(op,arg1,arg2,arg3,arg4);
+              if (is_vector(arg1) && is_scalar(arg2))
+                _cimg_mp_vector4_vsss(op,arg1,arg2,arg3,arg4);
+              if (is_scalar(arg1) && is_vector(arg2))
+                _cimg_mp_vector4_svss(op,arg1,arg2,arg3,arg4);
+              _cimg_mp_scalar4(op,arg1,arg2,arg3,arg4);
+            }
           }
 
           if (!std::strncmp(ss,"max(",4) || !std::strncmp(ss,"min(",4) ||
@@ -28382,7 +28381,7 @@ namespace cimg_library {
         return cimg::rand(m,M,&mp.rng);
       }
 
-      static double mp_ui(_cimg_math_parser& mp) { // Integer version of mp_u
+      static double mp_w(_cimg_math_parser& mp) { // Integer version of mp_u
         double
           _m = _mp_arg(2),
           _M = _mp_arg(3);
@@ -28396,7 +28395,7 @@ namespace cimg_library {
         return val;
       }
 
-      static double mp_ui_ext(_cimg_math_parser& mp) { // Integer version of mp_u_ext
+      static double mp_w_ext(_cimg_math_parser& mp) { // Integer version of mp_u_ext
         const bool
           include_min = (bool)_mp_arg(4),
           include_max = (bool)_mp_arg(5);

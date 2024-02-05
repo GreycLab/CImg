@@ -23842,6 +23842,7 @@ namespace cimg_library {
           c2 = variable_name[1];
           if (c1=='w' && c2=='h') rp = 0; // wh
           else if (c1=='p' && c2=='i') rp = 3; // pi
+          else if (c1=='u' && c2=='i') rp = 33; // ui
           else if (c1=='i') {
             if (c2>='0' && c2<='9') rp = 21 + c2 - '0'; // i0...i9
             else if (c2=='m') rp = 4; // im

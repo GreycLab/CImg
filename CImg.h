@@ -23108,10 +23108,11 @@ namespace cimg_library {
                 _cimg_mp_vector2_vs(op,arg1,arg2);
               if (is_scalar(arg1) && is_vector(arg2))
                 _cimg_mp_vector2_sv(op,arg1,arg2);
+              if (arg1==arg2) _cimg_mp_same(arg1);
               if (arg2==1) {
                 if (!arg1) { _cimg_mp_scalar0(is_sth?mp_rand_int_0_1:mp_rand_double_0_1); }
                 if (arg1==11) { _cimg_mp_scalar0(is_sth?mp_rand_int_m1_1:mp_rand_double_m1_1); }
-              }
+              } else if (!arg1) { _cimg_mp_scalar1(is_sth?mp_rand_int_0_N:mp_rand_double_0_N,arg2); }
               _cimg_mp_scalar2(op,arg1,arg2);
             } else { // Slower version (open set)
               op = is_sth?mp_rand_int_ext:mp_rand_double_ext;
@@ -28364,6 +28365,10 @@ namespace cimg_library {
         return (double)cimg::_rand(&mp.rng)/~0U;
       }
 
+      static double mp_rand_double_0_N(_cimg_math_parser& mp) {
+        return _mp_arg(2)*mp_rand_double_0_1(mp);
+      }
+
       static double mp_rand_double_m1_1(_cimg_math_parser& mp) {
         return 2*mp_rand_double_0_1(mp) - 1;
       }
@@ -28394,14 +28399,25 @@ namespace cimg_library {
         const int
           m = (int)std::ceil(_m),
           M = (int)std::floor(_M);
-        int val = 0;
+        if (m>M) return cimg::type<double>::nan();
         if (M==m) return m;
+        int val = 0;
         do { val = (int)std::floor(cimg::rand(m,M + 1,&mp.rng)); } while (val>M);
         return val;
       }
 
       static double mp_rand_int_0_1(_cimg_math_parser& mp) {
         return cimg::_rand(&mp.rng)<(~0U>>1);
+      }
+
+      static double mp_rand_int_0_N(_cimg_math_parser& mp) {
+        const double _M = _mp_arg(2);
+        const bool sgn = _M>=0;
+        const int M = (int)std::floor(sgn?_M:-_M);
+        if (!M) return 0;
+        int val = 0;
+        do { val = (int)std::floor(cimg::rand(M + 1,&mp.rng)); } while (val>M);
+        return (sgn?1:-1)*val;
       }
 
       static double mp_rand_int_m1_1(_cimg_math_parser& mp) {

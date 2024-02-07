@@ -22,7 +22,7 @@
  #  (M. Daisy, D. Tschumperlé, O. Lezoray).
  #  SIGGRAPH Asia 2013 Technical Briefs, Hong-Kong, November 2013.
  #
- #  License     : This file is 'dual-licensed', you have to choose one
+ #  Licenses    : This file is 'dual-licensed', you have to choose one
  #                of the two licenses below to apply.
  #
  #                CeCILL-C

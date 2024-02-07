@@ -17057,11 +17057,11 @@ namespace cimg_library {
 #define _cimg_mp_interpolation (reserved_label[31]!=~0U?reserved_label[31]:0)
 #define _cimg_mp_boundary (reserved_label[32]!=~0U?reserved_label[32]:0)
 #define _cimg_mp_slot_t 17
-#define _cimg_mp_slot_nan 29
-#define _cimg_mp_slot_x 30
-#define _cimg_mp_slot_y 31
-#define _cimg_mp_slot_z 32
-#define _cimg_mp_slot_c 33
+#define _cimg_mp_slot_nan 30
+#define _cimg_mp_slot_x 31
+#define _cimg_mp_slot_y 32
+#define _cimg_mp_slot_z 33
+#define _cimg_mp_slot_c 34
 
         mem.assign(96);
         for (unsigned int i = 0; i<=10; ++i) mem[i] = (double)i; // mem[0-10] = 0...10
@@ -17079,6 +17079,7 @@ namespace cimg_library {
         mem[26] = (double)imglist._width; // l
         mem[27] = std::exp(1.); // e
         mem[28] = cimg::PI; // pi
+        mem[29] = DBL_EPSILON; // eps
         mem[_cimg_mp_slot_nan] = cimg::type<double>::nan(); // nan
 
         // Set value property :
@@ -17095,7 +17096,7 @@ namespace cimg_library {
         // reserved_label[0-32] are used to store the memory index of these variables:
         // [0] = wh, [1] = whd, [2] = whds, [3] = pi, [4] = im, [5] = iM, [6] = ia, [7] = iv, [8] = id,
         // [9] = is, [10] = ip, [11] = ic, [12] = in, [13] = xm, [14] = ym, [15] = zm, [16] = cm, [17] = xM,
-        // [18] = yM, [19] = zM, [20] = cM, [21] = i0...[30] = i9, [31] = interpolation, [32] = boundary
+        // [18] = yM, [19] = zM, [20] = cM, [21] = i0...[30] = i9, [31] = interpolation, [32] = boundary, [33] = eps
 
         // Compile expression into a sequence of opcodes.
         s_op = ""; ss_op = expr._data;
@@ -17390,6 +17391,8 @@ namespace cimg_library {
         } else if (ss3==se) { // Three-chars reserved variable
           if (*ss=='w' && *ss1=='h' && *ss2=='d') // whd
             _cimg_mp_return(reserved_label[1]!=~0U?reserved_label[1]:24);
+          if (*ss=='e' && *ss1=='p' && *ss2=='s') // eps
+            _cimg_mp_return(reserved_label[33]!=~0U?reserved_label[33]:29);
         } else if (ss4==se) { // Four-chars reserved variable
           if (*ss=='w' && *ss1=='h' && *ss2=='d' && *ss3=='s') // whds
             _cimg_mp_return(reserved_label[2]!=~0U?reserved_label[2]:25);
@@ -23866,6 +23869,7 @@ namespace cimg_library {
           c2 = variable_name[1];
           c3 = variable_name[2];
           if (c1=='w' && c2=='h' && c3=='d') rp = 1; // whd
+          else if (c1=='e' && c2=='p' && c3=='s') rp = 33; // eps
         } else if (variable_name[1] && variable_name[2] && variable_name[3] &&
                    !variable_name[4]) { // Four-chars variable
           c1 = variable_name[0];

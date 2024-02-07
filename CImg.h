@@ -6862,6 +6862,18 @@ namespace cimg_library {
       return res;
     }
 
+    //! Return the last representable value before n
+    inline double back(const double n) {
+        if (std::isnan(n) || std::isinf(n)) return n;
+        return std::nextafter(n, cimg::type<double>::inf() * -1 );
+    }
+
+    //! Return the next representable value after n
+    inline double next(const double n) {
+        if (std::isnan(n) || std::isinf(n)) return n;
+        return std::nextafter(n, cimg::type<double>::inf());
+    }
+
     //! Return the number of permutations of k objects in a set of n objects.
     inline double permutations(const int k, const int n, const bool with_order) {
       if (n<0 || k<0) return cimg::type<double>::nan();
@@ -19270,6 +19282,15 @@ namespace cimg_library {
             break;
 
           case 'b' :
+
+            if (!std::strncmp(ss, "back(", 5)) { // Last value before n
+                _cimg_mp_op("Function 'back()'");
+                arg1 = compile(ss5, se1, depth1, 0, block_flags);
+                if (is_vector(arg1)) _cimg_mp_vector1_v(mp_back, arg1);
+                if (is_const_scalar(arg1)) _cimg_mp_const_scalar(cimg::back(mem[arg1]));
+                _cimg_mp_scalar1(mp_back, arg1);
+            }
+
             if (!std::strncmp(ss,"break(",6)) { // Break current block
               if (pexpr[se2 - expr._data]=='(') { // no arguments?
                 CImg<ulongT>::vector((ulongT)mp_break,_cimg_mp_slot_nan).move_to(code);
@@ -21666,6 +21687,14 @@ namespace cimg_library {
                 ++arg1; s = ns;
               }
               _cimg_mp_const_scalar((double)arg1);
+            }
+
+            if (!std::strncmp(ss, "next(", 5)) { // Next toward Infinity
+                _cimg_mp_op("Function 'next()'");
+                arg1 = compile(ss5, se1, depth1, 0, block_flags);
+                if (is_vector(arg1)) _cimg_mp_vector1_v(mp_next, arg1);
+                if (is_const_scalar(arg1)) _cimg_mp_const_scalar(cimg::next(mem[arg1]));
+                _cimg_mp_scalar1(mp_next, arg1);
             }
 
             if (!std::strncmp(ss,"noise(",6)) { // Add noise
@@ -25545,6 +25574,14 @@ namespace cimg_library {
 
       static double mp_factorial(_cimg_math_parser& mp) {
         return cimg::factorial((int)_mp_arg(2));
+      }
+
+      static double mp_back(_cimg_math_parser& mp) {
+          return cimg::back(_mp_arg(2));
+      }
+
+      static double mp_next(_cimg_math_parser& mp) {
+          return cimg::next(_mp_arg(2));
       }
 
       static double mp_fibonacci(_cimg_math_parser& mp) {

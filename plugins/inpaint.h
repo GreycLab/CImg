@@ -5,31 +5,39 @@
  #
  #  Copyright   : David Tschumperlé
  #
- #  License     : CeCILL v2.0
- #                ( http://www.cecill.info/licences/Licence_CeCILL_V2-en.html )
+ #  Description  :
  #
- # Description  :
+ #  This plug-in implements the patch-based inpainting algorithm for 2d images, as
+ #  described in the two following publications :
  #
- # This plug-in implements the patch-based inpainting algorithm for 2d images, as
- # described in the two following publications :
+ #  "A Smarter Examplar-based Inpainting Algorithm using Local and Global Heuristics
+ #   for more Geometric Coherence."
+ #  (M. Daisy, P. Buyssens, D. Tschumperlé, O. Lezoray).
+ #  IEEE International Conference on Image Processing (ICIP'14), Paris/France, Oct. 2014
  #
- # "A Smarter Examplar-based Inpainting Algorithm using Local and Global Heuristics
- #  for more Geometric Coherence."
- # (M. Daisy, P. Buyssens, D. Tschumperlé, O. Lezoray).
- # IEEE International Conference on Image Processing (ICIP'14), Paris/France, Oct. 2014
+ #  and
  #
- # and
+ #  "A Fast Spatial Patch Blending Algorithm for Artefact Reduction in Pattern-based
+ #   Image Inpainting."
+ #  (M. Daisy, D. Tschumperlé, O. Lezoray).
+ #  SIGGRAPH Asia 2013 Technical Briefs, Hong-Kong, November 2013.
  #
- # "A Fast Spatial Patch Blending Algorithm for Artefact Reduction in Pattern-based
- #  Image Inpainting."
- # (M. Daisy, D. Tschumperlé, O. Lezoray).
- # SIGGRAPH Asia 2013 Technical Briefs, Hong-Kong, November 2013.
+ #  Licenses    : This file is 'dual-licensed', you have to choose one
+ #                of the two licenses below to apply.
  #
- #  This software is governed by the CeCILL  license under French law and
- #  abiding by the rules of distribution of free software.  You can  use,
- #  modify and/ or redistribute the software under the terms of the CeCILL
- #  license as circulated by CEA, CNRS and INRIA at the following URL
- #  "http://www.cecill.info".
+ #                CeCILL-C
+ #                The CeCILL-C license is close to the GNU LGPL.
+ #                ( http://cecill.info/licences/Licence_CeCILL-C_V1-en.html )
+ #
+ #                or  CeCILL v2.1
+ #                The CeCILL license is compatible with the GNU GPL.
+ #                ( http://cecill.info/licences/Licence_CeCILL_V2.1-en.html )
+ #
+ #  This software is governed either by the CeCILL or the CeCILL-C license
+ #  under French law and abiding by the rules of distribution of free software.
+ #  You can  use, modify and or redistribute the software under the terms of
+ #  the CeCILL or CeCILL-C licenses as circulated by CEA, CNRS and INRIA
+ #  at the following URL: "http://cecill.info".
  #
  #  As a counterpart to the access to the source code and  rights to copy,
  #  modify and redistribute granted by the license, users are provided only
@@ -49,7 +57,7 @@
  #  same conditions as regards security.
  #
  #  The fact that you are presently reading this means that you have had
- #  knowledge of the CeCILL license and that you accept its terms.
+ #  knowledge of the CeCILL and CeCILL-C licenses and that you accept its terms.
  #
 */
 #ifndef cimg_plugin_inpaint

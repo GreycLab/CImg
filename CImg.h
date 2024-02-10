@@ -17261,13 +17261,22 @@ namespace cimg_library {
           if (!cimg::strcasecmp(s,"inf")) { val = cimg::type<double>::inf(); nb = 1; }
           else if (!cimg::strcasecmp(s,"nan")) { val = cimg::type<double>::nan(); nb = 1; }
           if (nb==1 && is_sth) val = -val;
-        } else if (*s=='0' && (s[1]=='x' || s[1]=='X')) { // Hexadecimal number
+        } else if (*s=='0' && (s[1]=='x' || s[1]=='X')) { // Hexadecimal litteral
           is_sth = *ss=='-';
           if (cimg_sscanf(s + 2,"%x%c",&arg1,&sep)==1) {
             nb = 1;
             val = (double)arg1;
             if (is_sth) val = -val;
           }
+        } else if (*s=='0' && (s[1]=='b' || s[1]=='B')) { // Binary litteral
+          is_sth = *ss=='-';
+          variable_name.assign(64);
+          if (cimg_sscanf(s + 2,"%63[01]%c",variable_name.data(),&sep)==1) {
+            nb = 1;
+            val = (double)std::strtol(variable_name,0,2);
+          }
+          if (is_sth) val = -val;
+          variable_name.assign();
         }
         if (!nb) nb = cimg_sscanf(ss,"%lf%c%c",&val,&(sep=0),&(end=0));
         if (nb==1) _cimg_mp_const_scalar(val);
@@ -30824,7 +30833,7 @@ namespace cimg_library {
       bool is_not = false; // Detect preceding '!' operator
       if (*ptr=='!') { is_not = true; ++ptr; while (*ptr && cimg::is_blank(*ptr)) ++ptr; }
 
-      if ((*ptr=='w' || *ptr=='h' || *ptr=='d' || *ptr=='s' || *ptr=='r') || std::sscanf(ptr,"%lf %n",&value,&n)==1) {
+      if ((*ptr=='w' || *ptr=='h' || *ptr=='d' || *ptr=='s' || *ptr=='r') || cimg_sscanf(ptr,"%lf %n",&value,&n)==1) {
         if (!n) {
           switch (*ptr) {
           case 'w': value = (double)_width; break;

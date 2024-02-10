@@ -17270,8 +17270,8 @@ namespace cimg_library {
           }
         } else if (*s=='0' && (s[1]=='b' || s[1]=='B')) { // Binary litteral
           is_sth = *ss=='-';
-          variable_name.assign(64);
-          if (cimg_sscanf(s + 2,"%63[01]%c",variable_name.data(),&sep)==1) {
+          variable_name.assign(65);
+          if (cimg_sscanf(s + 2,"%64[01]%c",variable_name.data(),&sep)==1) {
             nb = 1;
             val = (double)std::strtol(variable_name,0,2);
           }

@@ -6908,8 +6908,11 @@ namespace cimg_library {
     }
 
     //! Calculate greatest common divisor of two integers.
-    inline cimg_long gcd(cimg_long a, cimg_long b) {
-      while (a) { const cimg_long c = a; a = b%a; b = c; }
+    template<typename T>
+    inline T gcd(T a, T b) {
+      if (a<0) a = -a;
+      if (b<0) b = -b;
+      while (a) { const T c = a; a = b%a; b = c; }
       return b;
     }
 
@@ -20927,18 +20930,6 @@ namespace cimg_library {
               _cimg_mp_scalar3(mp_gauss,arg1,arg2,arg3);
             }
 
-            if (!std::strncmp(ss,"gcd(",4)) { // Gcd
-              _cimg_mp_op("Function 'gcd()'");
-              s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss4,s1,depth1,0,block_flags);
-              arg2 = compile(++s1,se1,depth1,0,block_flags);
-              _cimg_mp_check_type(arg1,1,1,0);
-              _cimg_mp_check_type(arg2,2,1,0);
-              if (is_const_scalar(arg1) && is_const_scalar(arg2))
-                _cimg_mp_const_scalar(cimg::gcd((long)mem[arg1],(long)mem[arg2]));
-              _cimg_mp_scalar2(mp_gcd,arg1,arg2);
-            }
-
 #ifdef cimg_mp_func_get
             if (!std::strncmp(ss,"get(",4)) { // Get value from external variable
               _cimg_mp_op("Function 'get()'");
@@ -23143,7 +23134,7 @@ namespace cimg_library {
               !std::strncmp(ss,"med(",4) || !std::strncmp(ss,"kth(",4) ||
               !std::strncmp(ss,"sum(",4) || !std::strncmp(ss,"avg(",4) ||
               !std::strncmp(ss,"std(",4) || !std::strncmp(ss,"var(",4) ||
-              !std::strncmp(ss,"prod(",5) ||
+              !std::strncmp(ss,"prod(",5) || !std::strncmp(ss,"gcd(",4) ||
               !std::strncmp(ss,"argmin(",7) || !std::strncmp(ss,"argmax(",7) ||
               !std::strncmp(ss,"argminabs(",10) || !std::strncmp(ss,"argmaxabs(",10) ||
               !std::strncmp(ss,"argkth(",7)) { // Multi-argument functions
@@ -23153,6 +23144,7 @@ namespace cimg_library {
                                   ss[4]=='i'?"Function argminabs()'":
                                   ss[6]=='('?"Function 'argmax()'":
                                   "Function 'argmaxabs()'"):
+                        *ss=='g'?"Function 'gcd()'":
                         *ss=='s'?(ss[1]=='u'?"Function 'sum()'":"Function 'std()'"):
                         *ss=='k'?"Function 'kth()'":
                         *ss=='p'?"Function 'prod()'":
@@ -23167,6 +23159,7 @@ namespace cimg_library {
                            ss[4]=='i' && ss[6]=='('?mp_argmin:
                            ss[4]=='i'?mp_argminabs:
                            ss[6]=='('?mp_argmax:mp_argmaxabs):
+              *ss=='g'?mp_gcd:
               *ss=='s'?(ss[1]=='u'?mp_sum:mp_std):
               *ss=='k'?mp_kth:
               *ss=='p'?mp_prod:
@@ -25768,7 +25761,24 @@ namespace cimg_library {
 #endif
 
       static double mp_gcd(_cimg_math_parser& mp) {
-        return cimg::gcd((long)_mp_arg(2),(long)_mp_arg(3));
+        const unsigned int i_end = (unsigned int)mp.opcode[2];
+        CImg<double> values;
+        if (i_end==5) { // Only a single argument
+          if ((unsigned)mp.opcode[4]==1) return _mp_arg(3); // Real value
+          else values.assign(&_mp_arg(3),(unsigned int)mp.opcode[4],1,1,1,true); // Vector value
+        } else {
+          unsigned int siz = 0;
+          for (unsigned int i = 4; i<i_end; i+=2) siz+=(unsigned int)mp.opcode[i];
+          values.assign(siz);
+          double *ptr = values;
+          for (unsigned int i = 3; i<i_end; i+=2) {
+            const unsigned int len = (unsigned int)mp.opcode[i + 1];
+            if (len>1) std::memcpy(ptr,&_mp_arg(i),len*sizeof(double));
+            else *ptr = _mp_arg(i);
+            ptr+=len;
+          }
+        }
+        return values.gcd();
       }
 
 #ifdef cimg_mp_func_name
@@ -30525,11 +30535,11 @@ namespace cimg_library {
     }
 
     //! Return greatest common diviser of all image values.
-    cimg_long gcd() const {
+    T gcd() const {
       if (is_empty()) return 0;
       const ulongT siz = size();
-      cimg_long res = (cimg_long)*data;
-      for (ulongT k = 1; k<siz; ++k) res = cimg::gcd(res,data[k]);
+      longT res = (longT)*_data;
+      for (ulongT k = 1; k<siz; ++k) res = cimg::gcd(res,(longT)_data[k]);
       return res;
     }
 

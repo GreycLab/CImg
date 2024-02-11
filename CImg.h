@@ -20927,18 +20927,6 @@ namespace cimg_library {
               _cimg_mp_scalar3(mp_gauss,arg1,arg2,arg3);
             }
 
-            if (!std::strncmp(ss,"gcd(",4)) { // Gcd
-              _cimg_mp_op("Function 'gcd()'");
-              s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss4,s1,depth1,0,block_flags);
-              arg2 = compile(++s1,se1,depth1,0,block_flags);
-              _cimg_mp_check_type(arg1,1,1,0);
-              _cimg_mp_check_type(arg2,2,1,0);
-              if (is_const_scalar(arg1) && is_const_scalar(arg2))
-                _cimg_mp_const_scalar(cimg::gcd((long)mem[arg1],(long)mem[arg2]));
-              _cimg_mp_scalar2(mp_gcd,arg1,arg2);
-            }
-
 #ifdef cimg_mp_func_get
             if (!std::strncmp(ss,"get(",4)) { // Get value from external variable
               _cimg_mp_op("Function 'get()'");
@@ -23146,7 +23134,9 @@ namespace cimg_library {
               !std::strncmp(ss,"prod(",5) ||
               !std::strncmp(ss,"argmin(",7) || !std::strncmp(ss,"argmax(",7) ||
               !std::strncmp(ss,"argminabs(",10) || !std::strncmp(ss,"argmaxabs(",10) ||
-              !std::strncmp(ss,"argkth(",7)) { // Multi-argument functions
+              !std::strncmp(ss,"argkth(",7) ||
+              !std::strncmp(ss,"gcd(",4)
+             ) { // Multi-argument functions
             _cimg_mp_op(*ss=='a'?(ss[1]=='v'?"Function 'avg()'":
                                   ss[3]=='k'?"Function 'argkth()'":
                                   ss[4]=='i' && ss[6]=='('?"Function 'argmin()'":
@@ -23156,6 +23146,7 @@ namespace cimg_library {
                         *ss=='s'?(ss[1]=='u'?"Function 'sum()'":"Function 'std()'"):
                         *ss=='k'?"Function 'kth()'":
                         *ss=='p'?"Function 'prod()'":
+                        *ss=='g'?"Function 'gcd()'":
                         *ss=='v'?"Function 'var()'":
                         ss[1]=='i'?(ss[3]=='('?"Function 'min()'":
                                     "Function 'minabs()'"):
@@ -23170,6 +23161,7 @@ namespace cimg_library {
               *ss=='s'?(ss[1]=='u'?mp_sum:mp_std):
               *ss=='k'?mp_kth:
               *ss=='p'?mp_prod:
+              *ss=='g'?mp_gcd:
               *ss=='v'?mp_var:
               ss[1]=='i'?(ss[3]=='('?mp_min:mp_minabs):
               ss[1]=='a'?(ss[3]=='('?mp_max:mp_maxabs):
@@ -25768,7 +25760,31 @@ namespace cimg_library {
 #endif
 
       static double mp_gcd(_cimg_math_parser& mp) {
-        return cimg::gcd((long)_mp_arg(2),(long)_mp_arg(3));
+          const unsigned int i_end = (unsigned int)mp.opcode[2];
+          const unsigned int len = (unsigned int)mp.opcode[4];
+          double gcd_result;
+
+          if (len > 1) {
+              const double *ptr = &_mp_arg(3);
+              gcd_result = *(ptr++);
+              for ( unsigned int k = 1; k < len ; ++k) {
+                  gcd_result = (double)cimg::gcd((long) gcd_result, (long)*(ptr++));
+              }
+          }
+          else {
+              gcd_result = _mp_arg(3);
+          }
+
+          for (unsigned int i = 5; i < i_end; i += 2) {
+              const unsigned int len = (unsigned int)mp.opcode[i + 1];
+              if (len > 1) {
+                  const double *ptr = &_mp_arg(i);
+                  for (unsigned int k = 0; k < len; ++k) gcd_result = (double)cimg::gcd((long)gcd_result, (long)*(ptr++));
+              }
+              else gcd_result = (double) cimg::gcd( (long) gcd_result, (long)_mp_arg(i) );
+          }
+
+          return gcd_result;
       }
 
 #ifdef cimg_mp_func_name

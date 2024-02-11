@@ -6907,9 +6907,9 @@ namespace cimg_library {
       return _fibonacci(n); // Not precise, but better than the wrong overflowing calculation
     }
 
-    //! Calculate greatest common divisor.
-    inline long gcd(long a, long b) {
-      while (a) { const long c = a; a = b%a; b = c; }
+    //! Calculate greatest common divisor of two integers.
+    inline cimg_long gcd(cimg_long a, cimg_long b) {
+      while (a) { const cimg_long c = a; a = b%a; b = c; }
       return b;
     }
 
@@ -30522,6 +30522,15 @@ namespace cimg_library {
       }
       const T res = kth_smallest(s>>1);
       return (s%2)?res:(T)((res + kth_smallest((s>>1) - 1))/2);
+    }
+
+    //! Return greatest common diviser of all image values.
+    cimg_long gcd() const {
+      if (is_empty()) return 0;
+      const ulongT siz = size();
+      cimg_long res = (cimg_long)*data;
+      for (ulongT k = 1; k<siz; ++k) res = cimg::gcd(res,data[k]);
+      return res;
     }
 
     //! Return the product of all the pixel values.

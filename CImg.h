@@ -25762,20 +25762,22 @@ namespace cimg_library {
 
       static double mp_gcd(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        CImg<double> values;
+        CImg<cimg_int64> values;
         if (i_end==5) { // Only a single argument
           if ((unsigned)mp.opcode[4]==1) return _mp_arg(3); // Real value
-          else values.assign(&_mp_arg(3),(unsigned int)mp.opcode[4],1,1,1,true); // Vector value
-        } else {
+          else values.assign(&_mp_arg(3),(unsigned int)mp.opcode[4]); // Vector value
+        } else if (i_end==7 && (unsigned int)mp.opcode[4]==1 && (unsigned int)mp.opcode[6]==1) // Two real arguments
+          return (double)cimg::gcd((cimg_int64)_mp_arg(3),(cimg_int64)_mp_arg(5));
+        else {
           unsigned int siz = 0;
           for (unsigned int i = 4; i<i_end; i+=2) siz+=(unsigned int)mp.opcode[i];
           values.assign(siz);
-          double *ptr = values;
+          cimg_int64 *ptr = values;
           for (unsigned int i = 3; i<i_end; i+=2) {
             const unsigned int len = (unsigned int)mp.opcode[i + 1];
-            if (len>1) std::memcpy(ptr,&_mp_arg(i),len*sizeof(double));
-            else *ptr = _mp_arg(i);
-            ptr+=len;
+            double *ptrs = &_mp_arg(i);
+            if (len>1) for (unsigned int k = 0; k<len; ++k) *(ptr++) = (cimg_int64)ptrs[k];
+            else *(ptr++) = (cimg_int64)_mp_arg(i);
           }
         }
         return values.gcd();

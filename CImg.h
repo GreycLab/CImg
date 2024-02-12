@@ -23137,16 +23137,14 @@ namespace cimg_library {
             }
           }
 
-          if (!std::strncmp(ss,"max(",4) || !std::strncmp(ss,"min(",4) ||
-              !std::strncmp(ss,"maxabs(",7) || !std::strncmp(ss,"minabs(",7) ||
-              !std::strncmp(ss,"med(",4) || !std::strncmp(ss,"kth(",4) ||
-              !std::strncmp(ss,"sum(",4) || !std::strncmp(ss,"avg(",4) ||
-              !std::strncmp(ss,"std(",4) || !std::strncmp(ss,"var(",4) ||
-              !std::strncmp(ss,"prod(",5) || !std::strncmp(ss,"gcd(",4) ||
-              !std::strncmp(ss,"lcm(",4) ||
-              !std::strncmp(ss,"argmin(",7) || !std::strncmp(ss,"argmax(",7) ||
-              !std::strncmp(ss,"argminabs(",10) || !std::strncmp(ss,"argmaxabs(",10) ||
-              !std::strncmp(ss,"argkth(",7)) { // Multi-argument functions
+          if (!std::strncmp(ss,"argkth(",7) || !std::strncmp(ss,"avg(",4) ||
+              !std::strncmp(ss,"argmax(",7) || !std::strncmp(ss,"argmin(",7) ||
+              !std::strncmp(ss,"argmaxabs(",10) || !std::strncmp(ss,"argminabs(",10) ||
+              !std::strncmp(ss,"gcd(",4) || !std::strncmp(ss,"kth(",4) || !std::strncmp(ss,"lcm(",4) ||
+              !std::strncmp(ss,"max(",4) || !std::strncmp(ss,"maxabs(",7) || !std::strncmp(ss,"med(",4) ||
+              !std::strncmp(ss,"min(",4) || !std::strncmp(ss,"minabs(",7) || !std::strncmp(ss,"prod(",5) ||
+              !std::strncmp(ss,"std(",4) || !std::strncmp(ss,"sum(",4) || !std::strncmp(ss,"var(",4)
+              ) { // Multi-argument functions
             _cimg_mp_op(*ss=='a'?(ss[1]=='v'?"Function 'avg()'":
                                   ss[3]=='k'?"Function 'argkth()'":
                                   ss[4]=='i' && ss[6]=='('?"Function 'argmin()'":

@@ -6916,6 +6916,14 @@ namespace cimg_library {
       return b;
     }
 
+    //! Calculate least common multiple of two integers.
+    template<typename T>
+    inline T lcm(T a, T b) {
+      if (a<0) a = -a;
+      if (!a && !b) return 0;
+      return a*(b/gcd(a,b));
+    }
+
     //! Convert character to lower case.
     inline char lowercase(const char x) {
       return (char)((x<'A'||x>'Z')?x:x - 'A' + 'a');
@@ -23135,6 +23143,7 @@ namespace cimg_library {
               !std::strncmp(ss,"sum(",4) || !std::strncmp(ss,"avg(",4) ||
               !std::strncmp(ss,"std(",4) || !std::strncmp(ss,"var(",4) ||
               !std::strncmp(ss,"prod(",5) || !std::strncmp(ss,"gcd(",4) ||
+              !std::strncmp(ss,"lcm(",4) ||
               !std::strncmp(ss,"argmin(",7) || !std::strncmp(ss,"argmax(",7) ||
               !std::strncmp(ss,"argminabs(",10) || !std::strncmp(ss,"argmaxabs(",10) ||
               !std::strncmp(ss,"argkth(",7)) { // Multi-argument functions
@@ -23145,6 +23154,7 @@ namespace cimg_library {
                                   ss[6]=='('?"Function 'argmax()'":
                                   "Function 'argmaxabs()'"):
                         *ss=='g'?"Function 'gcd()'":
+                        *ss=='l'?"Function 'lcm()'":
                         *ss=='s'?(ss[1]=='u'?"Function 'sum()'":"Function 'std()'"):
                         *ss=='k'?"Function 'kth()'":
                         *ss=='p'?"Function 'prod()'":
@@ -23160,6 +23170,7 @@ namespace cimg_library {
                            ss[4]=='i'?mp_argminabs:
                            ss[6]=='('?mp_argmax:mp_argmaxabs):
               *ss=='g'?mp_gcd:
+              *ss=='l'?mp_lcm:
               *ss=='s'?(ss[1]=='u'?mp_sum:mp_std):
               *ss=='k'?mp_kth:
               *ss=='p'?mp_prod:
@@ -26407,6 +26418,29 @@ namespace cimg_library {
         const double &kth = values.kth_smallest((ulongT)(ind - 1));
         --values._data; ++values._width;
         return kth;
+      }
+
+      static double mp_lcm(_cimg_math_parser& mp) {
+        const unsigned int i_end = (unsigned int)mp.opcode[2];
+        CImg<cimg_int64> values;
+        if (i_end==5) { // Only a single argument
+          if ((unsigned)mp.opcode[4]==1) return _mp_arg(3); // Real value
+          else values.assign(&_mp_arg(3),(unsigned int)mp.opcode[4]); // Vector value
+        } else if (i_end==7 && (unsigned int)mp.opcode[4]==1 && (unsigned int)mp.opcode[6]==1) // Two real arguments
+          return (double)cimg::lcm((cimg_int64)_mp_arg(3),(cimg_int64)_mp_arg(5));
+        else {
+          unsigned int siz = 0;
+          for (unsigned int i = 4; i<i_end; i+=2) siz+=(unsigned int)mp.opcode[i];
+          values.assign(siz);
+          cimg_int64 *ptr = values;
+          for (unsigned int i = 3; i<i_end; i+=2) {
+            const unsigned int len = (unsigned int)mp.opcode[i + 1];
+            double *ptrs = &_mp_arg(i);
+            if (len>1) for (unsigned int k = 0; k<len; ++k) *(ptr++) = (cimg_int64)ptrs[k];
+            else *(ptr++) = (cimg_int64)_mp_arg(i);
+          }
+        }
+        return values.lcm();
       }
 
       static double mp_lerp(_cimg_math_parser& mp) {
@@ -30542,6 +30576,15 @@ namespace cimg_library {
       const ulongT siz = size();
       longT res = (longT)*_data;
       for (ulongT k = 1; k<siz; ++k) res = cimg::gcd(res,(longT)_data[k]);
+      return res;
+    }
+
+    //! Return least common multiplier of all image values.
+    T lcm() const {
+      if (is_empty()) return 0;
+      const ulongT siz = size();
+      longT res = (longT)*_data;
+      for (ulongT k = 1; k<siz; ++k) res = cimg::lcm(res,(longT)_data[k]);
       return res;
     }
 

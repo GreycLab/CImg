@@ -23138,44 +23138,41 @@ namespace cimg_library {
           }
 
           if (!std::strncmp(ss,"argkth(",7) || !std::strncmp(ss,"avg(",4) ||
-              !std::strncmp(ss,"argmax(",7) || !std::strncmp(ss,"argmin(",7) ||
-              !std::strncmp(ss,"argmaxabs(",10) || !std::strncmp(ss,"argminabs(",10) ||
+              !std::strncmp(ss,"argmax(",7) || !std::strncmp(ss,"argmaxabs(",10) ||
+              !std::strncmp(ss,"argmin(",7) || !std::strncmp(ss,"argminabs(",10) ||
               !std::strncmp(ss,"gcd(",4) || !std::strncmp(ss,"kth(",4) || !std::strncmp(ss,"lcm(",4) ||
               !std::strncmp(ss,"max(",4) || !std::strncmp(ss,"maxabs(",7) || !std::strncmp(ss,"med(",4) ||
               !std::strncmp(ss,"min(",4) || !std::strncmp(ss,"minabs(",7) || !std::strncmp(ss,"prod(",5) ||
               !std::strncmp(ss,"std(",4) || !std::strncmp(ss,"sum(",4) || !std::strncmp(ss,"var(",4)
               ) { // Multi-argument functions
-            _cimg_mp_op(*ss=='a'?(ss[1]=='v'?"Function 'avg()'":
-                                  ss[3]=='k'?"Function 'argkth()'":
-                                  ss[4]=='i' && ss[6]=='('?"Function 'argmin()'":
-                                  ss[4]=='i'?"Function argminabs()'":
-                                  ss[6]=='('?"Function 'argmax()'":
-                                  "Function 'argmaxabs()'"):
+            _cimg_mp_op(*ss=='a'?(ss[3]=='k'?"Function 'argkth()'":
+                                  ss[1]=='v'?"Function 'avg()'":
+                                  ss[4]=='a'?(ss[6]=='('?"Function 'argmax()'":"Function 'argmaxabs()'"):
+                                  ss[6]=='('?"Function 'argmin()'":"Function 'argminabs()'"):
                         *ss=='g'?"Function 'gcd()'":
-                        *ss=='l'?"Function 'lcm()'":
-                        *ss=='s'?(ss[1]=='u'?"Function 'sum()'":"Function 'std()'"):
                         *ss=='k'?"Function 'kth()'":
+                        *ss=='l'?"Function 'lcm()'":
+                        *ss=='m'?(ss[1]=='a'?(ss[3]=='('?"Function 'max()'":"Function 'maxabs()'"):
+                                  ss[1]=='e'?"Function 'med()'":
+                                  ss[3]=='('?"Function 'min()'":"Function 'minabs()'"):
                         *ss=='p'?"Function 'prod()'":
-                        *ss=='v'?"Function 'var()'":
-                        ss[1]=='i'?(ss[3]=='('?"Function 'min()'":
-                                    "Function 'minabs()'"):
-                        ss[1]=='a'?(ss[3]=='('?"Function 'max()'":
-                                    "Function 'maxabs()'"):
-                        "Function 'med()'");
-            op = *ss=='a'?(ss[1]=='v'?mp_avg:
-                           ss[3]=='k'?mp_argkth:
-                           ss[4]=='i' && ss[6]=='('?mp_argmin:
-                           ss[4]=='i'?mp_argminabs:
-                           ss[6]=='('?mp_argmax:mp_argmaxabs):
+                        *ss=='s'?(ss[1]=='t'?"Function 'std()'":"Function 'sum()'"):
+                        "Function 'var()'");
+
+            op = *ss=='a'?(ss[3]=='k'?mp_argkth:
+                           ss[1]=='v'?mp_avg:
+                           ss[4]=='a'?(ss[6]=='('?mp_argmax:mp_argmaxabs):
+                           ss[6]=='('?mp_argmin:mp_argminabs):
               *ss=='g'?mp_gcd:
-              *ss=='l'?mp_lcm:
-              *ss=='s'?(ss[1]=='u'?mp_sum:mp_std):
               *ss=='k'?mp_kth:
+              *ss=='l'?mp_lcm:
+              *ss=='m'?(ss[1]=='a'?(ss[3]=='('?mp_max:mp_maxabs):
+                        ss[1]=='e'?mp_med:
+                        ss[3]=='('?mp_min:mp_minabs):
               *ss=='p'?mp_prod:
-              *ss=='v'?mp_var:
-              ss[1]=='i'?(ss[3]=='('?mp_min:mp_minabs):
-              ss[1]=='a'?(ss[3]=='('?mp_max:mp_maxabs):
-              mp_med;
+              *ss=='s'?(ss[1]=='t'?mp_std:mp_sum):
+              mp_var;
+
             is_sth = true; // Tell if all arguments are constant
             pos = scalar();
             CImg<ulongT>::vector((ulongT)op,pos,0).move_to(l_opcode);

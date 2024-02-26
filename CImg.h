@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 334
+#define cimg_version 335
 
 /*-----------------------------------------------------------
  #
@@ -20599,9 +20599,7 @@ namespace cimg_library {
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                 arg2 = compile(s,ns,depth1,0,block_flags);
                 if (is_vector(arg2)) // Vector argument allowed to specify cordinates and color
-                  CImg<ulongT>::sequence(size(arg2),arg2 + 1,
-                                         arg2 + (ulongT)size(arg2)).
-                    move_to(l_opcode);
+                  CImg<ulongT>::sequence(size(arg2),arg2 + 1,arg2 + (ulongT)size(arg2)).move_to(l_opcode);
                 else
                   CImg<ulongT>::vector(arg2).move_to(l_opcode);
                 s = ns;
@@ -20885,6 +20883,32 @@ namespace cimg_library {
                                    p3>=arg6 && !is_const_scalar(p3),
                                    p2>=arg6 && !is_const_scalar(p2)).move_to(code,arg1);
               _cimg_mp_return(p3);
+            }
+
+            if (!std::strncmp(ss,"flood(",6)) { // Flood fill image
+              if (!is_inside_critical) is_parallelizable = false;
+              _cimg_mp_op("Function 'flood()'");
+              if (*ss6=='#') { // Index specified
+                s0 = ss7; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                p1 = compile(ss7,s0++,depth1,0,block_flags);
+                _cimg_mp_check_notnan_index(p1);
+                _cimg_mp_check_list();
+              } else { p1 = ~0U; s0 = ss6; }
+              CImg<ulongT>::vector((ulongT)mp_flood,_cimg_mp_slot_nan,0,p1).move_to(l_opcode);
+              for (s = s0; s<se1; ++s) {
+                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                arg2 = compile(s,ns,depth1,0,block_flags);
+                if (is_vector(arg2)) // Vector argument allowed to specify cordinates and color
+                  CImg<ulongT>::sequence(size(arg2),arg2 + 1,arg2 + (ulongT)size(arg2)).move_to(l_opcode);
+                else
+                  CImg<ulongT>::vector(arg2).move_to(l_opcode);
+                s = ns;
+              }
+              (l_opcode>'y').move_to(opcode);
+              opcode[2] = opcode._height;
+              opcode.move_to(code);
+              _cimg_mp_return_nan();
             }
 
             if (!std::strncmp(ss,"floor(",6)) { // Floor
@@ -25666,6 +25690,46 @@ namespace cimg_library {
           while (p1<ptr1e && p2<ptr2e && *p1==*p2) { ++p1; ++p2; }
         } while (p2<ptr2e && (ptr1+=step)>=ptr1b);
         return p2<ptr2e?-1.:(double)(ptr1 - ptr1b);
+      }
+
+      static double mp_flood(_cimg_math_parser& mp) {
+        const unsigned int i_end = (unsigned int)mp.opcode[2];
+        unsigned int ind = (unsigned int)mp.opcode[3];
+        if (ind!=~0U) {
+          mp_check_list(mp,"flood");
+          ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.imglist.width());
+        }
+        CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
+        CImg<T> color(img._spectrum,1,1,1,0);
+        bool is_high_connectivity = false;
+        float tolerance = 0, opacity = 1;
+        int x0 = 0, y0 = 0, z0 = 0;
+        unsigned int i = 4;
+        if (i<i_end) {
+          x0 = (int)cimg::round(_mp_arg(i++));
+          if (i<i_end) {
+            y0 = (int)cimg::round(_mp_arg(i++));
+            if (i<i_end) {
+              z0 = (int)cimg::round(_mp_arg(i++));
+              if (i<i_end) {
+                tolerance = (float)_mp_arg(i++);
+                if (i<i_end) {
+                  is_high_connectivity = (bool)_mp_arg(i++);
+                  if (i<i_end) {
+                    opacity = (float)_mp_arg(i++);
+                    if (i<i_end) {
+                      cimg_forX(color,k) if (i<i_end) color[k] = (T)_mp_arg(i++);
+                      else { color.resize(k,1,1,1,-1); break; }
+                      color.resize(img._spectrum,1,1,1,0,2);
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        img.draw_fill(x0,y0,z0,color._data,opacity,tolerance,is_high_connectivity);
+        return cimg::type<double>::nan();
       }
 
       static double mp_floor(_cimg_math_parser& mp) {

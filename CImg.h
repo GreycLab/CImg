@@ -21301,8 +21301,10 @@ namespace cimg_library {
                 try { arg1 = compile(ss6,se1,depth1,0,block_flags); }
                 catch(CImgException&) { _cimg_mp_return(0); }
                 if (is_vector(arg1)) _cimg_mp_vector1_v(mp_isint,arg1);
-                if (is_const_scalar(arg1))
-                  _cimg_mp_return((unsigned int)(std::modf(mem[arg1],&val)==0));
+                if (is_const_scalar(arg1)) {
+                  val = mem[arg1];
+                  _cimg_mp_return((unsigned int)(std::modf(mem[arg1],&val1)?0:(val==0) + 2*(val>0) + 4*(val<0)));
+                }
                 _cimg_mp_scalar1(mp_isint,arg1);
               }
 
@@ -26241,8 +26243,8 @@ namespace cimg_library {
       }
 
       static double mp_isint(_cimg_math_parser& mp) {
-        double val;
-        return (double)(std::modf(_mp_arg(2),&val)==0);
+        double val = _mp_arg(2), intpart;
+        return std::modf(val,&intpart)?0:(val==0) + 2*(val>0) + 4*(val<0);
       }
 
       static double mp_isfile(_cimg_math_parser& mp) {

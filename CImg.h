@@ -21233,7 +21233,7 @@ namespace cimg_library {
                 _cimg_mp_op("Function 'isbool()'");
                 if (ss7==se1) _cimg_mp_return(0);
                 try { arg1 = compile(ss7,se1,depth1,0,block_flags); }
-                catch(CImgException&) { _cimg_mp_return(0); }
+                catch (CImgException&) { _cimg_mp_return(0); }
                 if (is_vector(arg1)) _cimg_mp_vector1_v(mp_isbool,arg1);
                 if (is_const_scalar(arg1)) _cimg_mp_return(mem[arg1]==0. || mem[arg1]==1.);
                 _cimg_mp_scalar1(mp_isbool,arg1);
@@ -21243,7 +21243,7 @@ namespace cimg_library {
                 _cimg_mp_op("Function 'isconst()'");
                 if (ss8==se1) _cimg_mp_return(0);
                 try { arg1 = compile(ss8,se1,depth1,0,block_flags); }
-                catch(CImgException&) { _cimg_mp_return(0); }
+                catch (CImgException&) { _cimg_mp_return(0); }
                 if (is_const_scalar(arg1)) _cimg_mp_return(1);
                 _cimg_mp_return(0);
               }
@@ -21298,14 +21298,27 @@ namespace cimg_library {
               if (!std::strncmp(ss,"isint(",6)) { // Is integer?
                 _cimg_mp_op("Function 'isint()'");
                 if (ss6==se1) _cimg_mp_return(0);
-                try { arg1 = compile(ss6,se1,depth1,0,block_flags); }
-                catch(CImgException&) { _cimg_mp_return(0); }
-                if (is_vector(arg1)) _cimg_mp_vector1_v(mp_isint,arg1);
-                if (is_const_scalar(arg1)) {
-                  val = mem[arg1];
-                  _cimg_mp_return((unsigned int)(std::modf(mem[arg1],&val1)?0:(val==0) + 2*(val>0) + 4*(val<0)));
+                s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                try { arg1 = compile(ss6,s1,depth1,0,block_flags); }
+                catch (CImgException&) { _cimg_mp_return(0); }
+                arg2 = arg3 = ~0U;
+                if (s1<se1) {
+                  s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                  arg2 = compile(s1,s2,depth1,0,block_flags);
+                  arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):~0U;
                 }
-                _cimg_mp_scalar1(mp_isint,arg1);
+                if (arg2!=~0U) _cimg_mp_check_type(arg2,2,1,0);
+                if (arg3!=~0U) _cimg_mp_check_type(arg3,3,1,0);
+                if (is_vector(arg1)) _cimg_mp_vector3_vss(mp_isint,arg1,arg2,arg3);
+                if (is_const_scalar(arg1) && (arg2==~0U || is_const_scalar(arg2)) &&
+                    (arg3==~0U || is_const_scalar(arg3))) {
+                  val = mem[arg1];
+                  is_sth = std::modf(val,&val1)==0;
+                  if (arg2==~0U) _cimg_mp_return(is_sth);
+                  if (arg3==~0U) _cimg_mp_return(is_sth && val>=mem[arg2]);
+                  _cimg_mp_return(is_sth && val>=mem[arg2] && val<=mem[arg3]);
+                }
+                _cimg_mp_scalar3(mp_isint,arg1,arg2,arg3);
               }
 
               if (!std::strncmp(ss,"isnan(",6)) { // Is NaN?
@@ -26244,7 +26257,10 @@ namespace cimg_library {
 
       static double mp_isint(_cimg_math_parser& mp) {
         double val = _mp_arg(2), intpart;
-        return std::modf(val,&intpart)?0:(val==0) + 2*(val>0) + 4*(val<0);
+        const bool is_int = std::modf(val,&intpart)==0;
+        if (mp.opcode[3]==~0U) return is_int;
+        if (mp.opcode[4]==~0U) return is_int && val>=_mp_arg(3);
+        return is_int && val>=_mp_arg(3) && val<=_mp_arg(4);
       }
 
       static double mp_isfile(_cimg_math_parser& mp) {

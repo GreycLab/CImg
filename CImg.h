@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 335
+#define cimg_version 336
 
 /*-----------------------------------------------------------
  #
@@ -23385,7 +23385,8 @@ namespace cimg_library {
             CImg<ulongT>::vector((ulongT)mp_string_init,pos,arg1).move_to(l_opcode);
             CImg<ulongT>(1,arg1/sizeof(ulongT) + (arg1%sizeof(ulongT)?1:0)).move_to(l_opcode);
             std::memcpy((char*)l_opcode[1]._data,variable_name,arg1);
-            (l_opcode>'y').move_to(code);
+//            (l_opcode>'y').move_to(code);
+            (l_opcode>'y').move_to(code_begin); // A string litteral is initialized only once
           } else { // Vector values provided as list of items
             arg1 = 0; // Number of specified values
             if (*ss1!=']') for (s = ss1; s<se; ++s) {

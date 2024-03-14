@@ -17763,7 +17763,8 @@ namespace cimg_library {
 
               if (arg1==~0U) { // Create new variable
                 if (is_vector(arg3)) { // Vector variable
-                  arg1 = is_sth || is_comp_vector(arg3)?arg3:copy(arg3);
+//                  arg1 = is_sth || is_comp_vector(arg3)?arg3:copy(arg3);
+                  arg1 = copy(arg3);
                   set_reserved_vector(arg1); // Prevent from being used in further optimization
                 } else { // Scalar variable
                   if (is_const) arg1 = arg3;
@@ -23363,8 +23364,11 @@ namespace cimg_library {
           CImg<ulongT>::vector((ulongT)mp_string_init,pos,arg1).move_to(l_opcode);
           CImg<ulongT>(1,arg1/sizeof(ulongT) + (arg1%sizeof(ulongT)?1:0)).move_to(l_opcode);
           std::memcpy((char*)l_opcode[1]._data,variable_name,arg1);
-          (l_opcode>'y').move_to(code);
-          return_new_comp = true;
+//          (l_opcode>'y').move_to(code);
+          if (!is_inside_begin) code.swap(code_begin);
+          (l_opcode>'y').move_to(code_begin);
+          if (!is_inside_begin) code.swap(code_begin);
+//          return_new_comp = true;
           _cimg_mp_return(pos);
         }
 

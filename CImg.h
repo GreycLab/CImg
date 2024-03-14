@@ -23365,9 +23365,7 @@ namespace cimg_library {
           CImg<ulongT>(1,arg1/sizeof(ulongT) + (arg1%sizeof(ulongT)?1:0)).move_to(l_opcode);
           std::memcpy((char*)l_opcode[1]._data,variable_name,arg1);
 //          (l_opcode>'y').move_to(code);
-          if (!is_inside_begin) code.swap(code_begin);
-          (l_opcode>'y').move_to(code_begin);
-          if (!is_inside_begin) code.swap(code_begin);
+          (l_opcode>'y').move_to(is_inside_begin?code:code_begin);
 //          return_new_comp = true;
           _cimg_mp_return(pos);
         }
@@ -23389,10 +23387,8 @@ namespace cimg_library {
             CImg<ulongT>::vector((ulongT)mp_string_init,pos,arg1).move_to(l_opcode);
             CImg<ulongT>(1,arg1/sizeof(ulongT) + (arg1%sizeof(ulongT)?1:0)).move_to(l_opcode);
             std::memcpy((char*)l_opcode[1]._data,variable_name,arg1);
-//            (l_opcode>'y').move_to(code);
-            if (!is_inside_begin) code.swap(code_begin);
-            (l_opcode>'y').move_to(code_begin); // A string litteral is initialized only once
-            if (!is_inside_begin) code.swap(code_begin);
+            //            (l_opcode>'y').move_to(code);
+            (l_opcode>'y').move_to(is_inside_begin?code:code_begin);
           } else { // Vector values provided as list of items
             arg1 = 0; // Number of specified values
             if (*ss1!=']') for (s = ss1; s<se; ++s) {

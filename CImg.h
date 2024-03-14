@@ -17235,13 +17235,14 @@ namespace cimg_library {
         return_new_comp = false;
 
         // Bits of 'block_flags' tell about in which code block we currently are:
-        // 0: critical(), 1: begin(), 2: begin_t(), 3: end(), 4: end_t().
+        // 0: critical(), 1: begin(), 2: begin_t(), 3: end(), 4: end_t(), 5: is_new_assignment
         const bool
           is_inside_critical = (bool)(block_flags&1),
           is_inside_begin = (bool)(block_flags&2),
           is_inside_begin_t = (bool)(block_flags&4),
           is_inside_end = (bool)(block_flags&8),
-          is_inside_end_t = (bool)(block_flags&16);
+          is_inside_end_t = (bool)(block_flags&16),
+          is_new_assignment = (bool)(block_flags&32);
 
         // 'p_ref' is a 'unsigned int[7]' used to return a reference to an image or vector value
         // linked to the returned memory slot (reference that cannot be determined at compile time).
@@ -17756,15 +17757,14 @@ namespace cimg_library {
 
               // Assign variable (direct).
               get_variable_pos(variable_name,arg1,arg2);
-              arg3 = compile(s + 1,se,depth1,0,block_flags);
+              arg1 = arg2!=~0U?reserved_label[arg2]:arg1!=~0U?variable_pos[arg1]:~0U;
+              arg3 = compile(s + 1,se,depth1,0,block_flags|(arg1==~0U?32:0));
               is_sth = return_new_comp; // is arg3 a new blank object?
               if (is_const) _cimg_mp_check_const_scalar(arg3,2,0);
-              arg1 = arg2!=~0U?reserved_label[arg2]:arg1!=~0U?variable_pos[arg1]:~0U;
 
               if (arg1==~0U) { // Create new variable
                 if (is_vector(arg3)) { // Vector variable
-//                  arg1 = is_sth || is_comp_vector(arg3)?arg3:copy(arg3);
-                  arg1 = copy(arg3);
+                  arg1 = is_sth || is_comp_vector(arg3)?arg3:copy(arg3);
                   set_reserved_vector(arg1); // Prevent from being used in further optimization
                 } else { // Scalar variable
                   if (is_const) arg1 = arg3;
@@ -23364,9 +23364,8 @@ namespace cimg_library {
           CImg<ulongT>::vector((ulongT)mp_string_init,pos,arg1).move_to(l_opcode);
           CImg<ulongT>(1,arg1/sizeof(ulongT) + (arg1%sizeof(ulongT)?1:0)).move_to(l_opcode);
           std::memcpy((char*)l_opcode[1]._data,variable_name,arg1);
-//          (l_opcode>'y').move_to(code);
-          (l_opcode>'y').move_to(is_inside_begin?code:code_begin);
-//          return_new_comp = true;
+          (l_opcode>'y').move_to(is_inside_begin || is_new_assignment?code:code_begin);
+          return_new_comp = is_new_assignment;
           _cimg_mp_return(pos);
         }
 
@@ -23387,9 +23386,9 @@ namespace cimg_library {
             CImg<ulongT>::vector((ulongT)mp_string_init,pos,arg1).move_to(l_opcode);
             CImg<ulongT>(1,arg1/sizeof(ulongT) + (arg1%sizeof(ulongT)?1:0)).move_to(l_opcode);
             std::memcpy((char*)l_opcode[1]._data,variable_name,arg1);
-            //            (l_opcode>'y').move_to(code);
-            (l_opcode>'y').move_to(is_inside_begin?code:code_begin);
+            (l_opcode>'y').move_to(is_inside_begin || is_new_assignment?code:code_begin);
           } else { // Vector values provided as list of items
+            is_sth = true; // Is constant values?
             arg1 = 0; // Number of specified values
             if (*ss1!=']') for (s = ss1; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
@@ -23409,7 +23408,7 @@ namespace cimg_library {
             opcode[2] = opcode._height;
             opcode.move_to(code);
           }
-          return_new_comp = true;
+          return_new_comp = is_new_assignment;
           _cimg_mp_return(pos);
         }
 

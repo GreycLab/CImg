@@ -23387,13 +23387,15 @@ namespace cimg_library {
             CImg<ulongT>(1,arg1/sizeof(ulongT) + (arg1%sizeof(ulongT)?1:0)).move_to(l_opcode);
             std::memcpy((char*)l_opcode[1]._data,variable_name,arg1);
             (l_opcode>'y').move_to(is_inside_begin || is_new_assignment?code:code_begin);
-          } else { // Vector values provided as list of items
+            return_new_comp = is_new_assignment;
+          } else { // Vector values provided as a list of items
             is_sth = true; // Is constant values?
             arg1 = 0; // Number of specified values
             if (*ss1!=']') for (s = ss1; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=']' || level[ns - expr._data]!=clevel)) ++ns;
                 arg2 = compile(s,ns,depth1,0,block_flags);
+                is_sth&=false;
                 if (is_vector(arg2)) {
                   arg3 = size(arg2);
                   CImg<ulongT>::sequence(arg3,arg2 + 1,arg2 + arg3).move_to(l_opcode);
@@ -23407,8 +23409,8 @@ namespace cimg_library {
             (l_opcode>'y').move_to(opcode);
             opcode[2] = opcode._height;
             opcode.move_to(code);
+            return_new_comp = is_sth && is_new_assignment;
           }
-          return_new_comp = is_new_assignment;
           _cimg_mp_return(pos);
         }
 

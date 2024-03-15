@@ -28401,7 +28401,7 @@ namespace cimg_library {
         int err = 0;
         char sep;
 
-        if (*s=='0' && (s[1]=='x' || s[1]=='X') && s[2]>32) { // Hexadecimal number
+        if (*s=='0' && (s[1]=='x' || s[1]=='X') && s[2]>32 && s[2]!='-') { // Hexadecimal number
           unsigned int ival;
           err = cimg_sscanf(s + 2,"%x%c",&ival,&sep);
           if (err>0) val = (double)ival;

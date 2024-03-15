@@ -17181,7 +17181,7 @@ namespace cimg_library {
 
       // Compilation procedure.
       unsigned int compile(char *ss, char *se, const unsigned int depth, unsigned int *const p_ref,
-                           const unsigned char block_flags) {
+                           unsigned char block_flags) {
         if (depth>256) {
           cimg::strellipsize(expr,64);
           throw CImgArgumentException("[" cimg_appname "_math_parser] "
@@ -17243,6 +17243,7 @@ namespace cimg_library {
           is_inside_end = (bool)(block_flags&8),
           is_inside_end_t = (bool)(block_flags&16),
           is_new_assignment = (bool)(block_flags&32);
+        block_flags&=-32;
 
         // 'p_ref' is a 'unsigned int[7]' used to return a reference to an image or vector value
         // linked to the returned memory slot (reference that cannot be determined at compile time).

@@ -23390,10 +23390,7 @@ namespace cimg_library {
             if (*ss1!=']') for (s = ss1; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=']' || level[ns - expr._data]!=clevel)) ++ns;
-//                p1 = is_inside_begin?code_begin.size():code.size();
                 arg2 = compile(s,ns,depth1,0,block_flags);
-//                p2 = is_inside_begin?code_begin.size():code.size();
-//                is_sth&=p1==p2;
                 is_sth&=is_const_scalar(arg2);
                 if (is_vector(arg2)) {
                   arg3 = size(arg2);
@@ -23407,7 +23404,6 @@ namespace cimg_library {
             l_opcode.insert(CImg<ulongT>::vector((ulongT)mp_vector_init,pos,0,arg1),0);
             (l_opcode>'y').move_to(opcode);
             opcode[2] = opcode._height;
-//            opcode.move_to(code);
             opcode.move_to(!is_sth || is_inside_begin || is_new_variable_assignment?code:code_begin);
             return_comp = !is_sth && is_new_variable_assignment;
             if (!return_comp) set_reserved_vector(pos); // Prevent from being used in further optimization

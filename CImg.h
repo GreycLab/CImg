@@ -238,6 +238,7 @@ enum {FALSE_WIN = 0};
 #define cimg_fuint64 "%llu"
 #define cimg_fint64 "%lld"
 #endif
+#define cimg_fhex64 "%llx"
 
 #else
 
@@ -246,11 +247,13 @@ enum {FALSE_WIN = 0};
 #define cimg_int64 long long
 #define cimg_fuint64 "%llu"
 #define cimg_fint64 "%lld"
+#define cimg_fhex64 "%llx"
 #else
 #define cimg_uint64 unsigned long
 #define cimg_int64 long
 #define cimg_fuint64 "%lu"
 #define cimg_fint64 "%ld"
+#define cimg_fhex64 "%lx"
 #endif
 
 #if defined(__arm__) || defined(_M_ARM)
@@ -17275,7 +17278,7 @@ namespace cimg_library {
           else if (!cimg::strcasecmp(s,"nan")) { val = cimg::type<double>::nan(); nb = 1; }
         } else if (*s=='0' && (s[1]=='x' || s[1]=='X') && s[2]!='-') { // Hexadecimal literal
           cimg_uint64 num;
-          if ((nb = cimg_sscanf(s + 2,"%lx%c",&num,&sep))==1 || (nb==2 && sep=='%'))
+          if ((nb = cimg_sscanf(s + 2,cimg_fhex64 "%c",&num,&sep))==1 || (nb==2 && sep=='%'))
             val = (double)num;
         } else if (*s=='0' && (s[1]=='b' || s[1]=='B') && s[2]!='-') { // Binary literal
           variable_name.assign(65);

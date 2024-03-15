@@ -17243,7 +17243,7 @@ namespace cimg_library {
           is_inside_end = (bool)(block_flags&8),
           is_inside_end_t = (bool)(block_flags&16),
           is_new_assignment = (bool)(block_flags&32);
-        block_flags&=-32;
+//        block_flags&=-32;
 
         // 'p_ref' is a 'unsigned int[7]' used to return a reference to an image or vector value
         // linked to the returned memory slot (reference that cannot be determined at compile time).
@@ -17286,7 +17286,7 @@ namespace cimg_library {
           variable_name.assign(65);
           if (cimg_sscanf(s + 2,"%64[01]%c",variable_name.data(),&sep)==1) {
             nb = 1;
-            val = (double)std::strtol(variable_name,0,2);
+            val = (double)std::strtoll(variable_name,0,2);
           }
           if (is_sth) val = -val;
           variable_name.assign();

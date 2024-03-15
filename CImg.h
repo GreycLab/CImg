@@ -17268,30 +17268,23 @@ namespace cimg_library {
 
         // Look for a single value or a pre-defined variable.
         int nb = 0;
-        s = ss + (*ss=='+' || *ss=='-'?1:0);
+        is_sth = *ss=='-';
+        s = ss + (*ss=='+' || is_sth?1:0);
         if (*s=='i' || *s=='I' || *s=='n' || *s=='N') { // Particular cases : +/-NaN and +/-Inf
-          is_sth = *ss=='-';
           if (!cimg::strcasecmp(s,"inf")) { val = cimg::type<double>::inf(); nb = 1; }
           else if (!cimg::strcasecmp(s,"nan")) { val = cimg::type<double>::nan(); nb = 1; }
-          if (nb==1 && is_sth) val = -val;
         } else if (*s=='0' && (s[1]=='x' || s[1]=='X') && s[2]!='-') { // Hexadecimal litteral
-          is_sth = *ss=='-';
-          if (cimg_sscanf(s + 2,"%x%c",&arg1,&sep)==1) {
-            nb = 1;
-            val = (double)arg1;
-            if (is_sth) val = -val;
-          }
+          cimg_uint64 num;
+          if ((nb = cimg_sscanf(s + 2,"%lx%c",&num,&sep))==1 || (nb==2 && sep=='%'))
+            val = (double)num;
         } else if (*s=='0' && (s[1]=='b' || s[1]=='B') && s[2]!='-') { // Binary litteral
-          is_sth = *ss=='-';
           variable_name.assign(65);
-          if (cimg_sscanf(s + 2,"%64[01]%c",variable_name.data(),&sep)==1) {
-            nb = 1;
+          if ((nb = cimg_sscanf(s + 2,"%64[01]%c",variable_name.data(),&sep))==1 || (nb==2 && sep=='%'))
             val = (double)std::strtoll(variable_name,0,2);
-          }
-          if (is_sth) val = -val;
           variable_name.assign();
         }
-        if (!nb) nb = cimg_sscanf(ss,"%lf%c%c",&val,&(sep=0),&(end=0));
+        if (is_sth && nb) val = -val;
+        else if (!nb) nb = cimg_sscanf(ss,"%lf%c%c",&val,&(sep=0),&(end=0));
         if (nb==1) _cimg_mp_const_scalar(val);
         if (nb==2 && sep=='%') _cimg_mp_const_scalar(val/100);
 
@@ -28400,11 +28393,13 @@ namespace cimg_library {
         if (is_negative || *s=='+') ++s;
         int err = 0;
         char sep;
-
-        if (*s=='0' && (s[1]=='x' || s[1]=='X') && s[2]>32 && s[2]!='-') { // Hexadecimal number
-          unsigned int ival;
-          err = cimg_sscanf(s + 2,"%x%c",&ival,&sep);
-          if (err>0) val = (double)ival;
+        if (*s=='0' && (s[1]=='x' || s[1]=='X') &&
+            ((s[2]>='0' && s[2]<='9') || (s[2]>='a' && s[2]<='f') || (s[2]>='a' && s[2]<='f'))) { // Hexadecimal number
+          val = (double)std::strtoll(s + 2,0,16);
+          err = 1;
+        } else if (*s=='0' && (s[1]=='b' || s[1]=='B') && (s[2]=='0' || s[2]=='1')) { // Binary number
+          val = (double)std::strtoll(s + 2,0,2);
+          err = 1;
         } else if (*s>32) { // Decimal number
           err = cimg_sscanf(s,"%lf%c",&val,&sep);
 #if cimg_OS==2

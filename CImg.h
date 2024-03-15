@@ -17094,7 +17094,7 @@ namespace cimg_library {
         mem[_cimg_mp_slot_nan] = cimg::type<double>::nan(); // nan
 
         // Set value property :
-        // { -1 = reserved (e.g. variable) | 0 = computation value |
+        // { -1 = reserved (e.g. variable) | 0 = computation scalar |
         //    1 = compile-time constant | N>1 = constant ptr to vector[N-1] }.
         memtype.assign(mem._width,1,1,1,0);
         for (unsigned int i = 0; i<_cimg_mp_slot_x; ++i) memtype[i] = 1;
@@ -17759,7 +17759,6 @@ namespace cimg_library {
               if (arg1==~0U) { // Create new variable
                 if (is_vector(arg3)) { // Vector variable
                   arg1 = is_sth || is_comp_vector(arg3)?arg3:copy(arg3);
-//                  arg1 = copy(arg3);
                   set_reserved_vector(arg1); // Prevent from being used in further optimization
                 } else { // Scalar variable
                   if (is_const) arg1 = arg3;
@@ -23361,6 +23360,7 @@ namespace cimg_library {
           std::memcpy((char*)l_opcode[1]._data,variable_name,arg1);
           (l_opcode>'y').move_to(is_inside_begin || is_new_variable_assignment?code:code_begin);
           return_new_comp = is_new_variable_assignment;
+          if (!return_new_comp) set_reserved_vector(pos); // Prevent from being used in further optimization
           _cimg_mp_return(pos);
         }
 
@@ -23383,14 +23383,18 @@ namespace cimg_library {
             std::memcpy((char*)l_opcode[1]._data,variable_name,arg1);
             (l_opcode>'y').move_to(is_inside_begin || is_new_variable_assignment?code:code_begin);
             return_new_comp = is_new_variable_assignment;
+            if (!return_new_comp) set_reserved_vector(pos); // Prevent from being used in further optimization
           } else { // Vector values provided as a list of items
-            is_sth = true; // Is constant values?
+            is_sth = true; // Can vector be defined once in 'begin()'?
             arg1 = 0; // Number of specified values
             if (*ss1!=']') for (s = ss1; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=']' || level[ns - expr._data]!=clevel)) ++ns;
+//                p1 = is_inside_begin?code_begin.size():code.size();
                 arg2 = compile(s,ns,depth1,0,block_flags);
-                is_sth&=false;
+//                p2 = is_inside_begin?code_begin.size():code.size();
+//                is_sth&=p1==p2;
+                is_sth&=is_const_scalar(arg2);
                 if (is_vector(arg2)) {
                   arg3 = size(arg2);
                   CImg<ulongT>::sequence(arg3,arg2 + 1,arg2 + arg3).move_to(l_opcode);
@@ -23403,8 +23407,10 @@ namespace cimg_library {
             l_opcode.insert(CImg<ulongT>::vector((ulongT)mp_vector_init,pos,0,arg1),0);
             (l_opcode>'y').move_to(opcode);
             opcode[2] = opcode._height;
-            opcode.move_to(code);
-            return_new_comp = is_sth && is_new_variable_assignment;
+//            opcode.move_to(code);
+            opcode.move_to(!is_sth || is_inside_begin || is_new_variable_assignment?code:code_begin);
+            return_new_comp = !is_sth && is_new_variable_assignment;
+            if (!return_new_comp) set_reserved_vector(pos); // Prevent from being used in further optimization
           }
           _cimg_mp_return(pos);
         }

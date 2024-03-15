@@ -17274,14 +17274,14 @@ namespace cimg_library {
           if (!cimg::strcasecmp(s,"inf")) { val = cimg::type<double>::inf(); nb = 1; }
           else if (!cimg::strcasecmp(s,"nan")) { val = cimg::type<double>::nan(); nb = 1; }
           if (nb==1 && is_sth) val = -val;
-        } else if (*s=='0' && (s[1]=='x' || s[1]=='X')) { // Hexadecimal litteral
+        } else if (*s=='0' && (s[1]=='x' || s[1]=='X') && s[2]!='-') { // Hexadecimal litteral
           is_sth = *ss=='-';
           if (cimg_sscanf(s + 2,"%x%c",&arg1,&sep)==1) {
             nb = 1;
             val = (double)arg1;
             if (is_sth) val = -val;
           }
-        } else if (*s=='0' && (s[1]=='b' || s[1]=='B')) { // Binary litteral
+        } else if (*s=='0' && (s[1]=='b' || s[1]=='B') && s[2]!='-') { // Binary litteral
           is_sth = *ss=='-';
           variable_name.assign(65);
           if (cimg_sscanf(s + 2,"%64[01]%c",variable_name.data(),&sep)==1) {

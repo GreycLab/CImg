@@ -17273,11 +17273,11 @@ namespace cimg_library {
         if (*s=='i' || *s=='I' || *s=='n' || *s=='N') { // Particular cases : +/-NaN and +/-Inf
           if (!cimg::strcasecmp(s,"inf")) { val = cimg::type<double>::inf(); nb = 1; }
           else if (!cimg::strcasecmp(s,"nan")) { val = cimg::type<double>::nan(); nb = 1; }
-        } else if (*s=='0' && (s[1]=='x' || s[1]=='X') && s[2]!='-') { // Hexadecimal litteral
+        } else if (*s=='0' && (s[1]=='x' || s[1]=='X') && s[2]!='-') { // Hexadecimal literal
           cimg_uint64 num;
           if ((nb = cimg_sscanf(s + 2,"%lx%c",&num,&sep))==1 || (nb==2 && sep=='%'))
             val = (double)num;
-        } else if (*s=='0' && (s[1]=='b' || s[1]=='B') && s[2]!='-') { // Binary litteral
+        } else if (*s=='0' && (s[1]=='b' || s[1]=='B') && s[2]!='-') { // Binary literal
           variable_name.assign(65);
           if ((nb = cimg_sscanf(s + 2,"%64[01]%c",variable_name.data(),&sep))==1 || (nb==2 && sep=='%'))
             val = (double)std::strtoll(variable_name,0,2);

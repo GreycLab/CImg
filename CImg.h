@@ -23403,8 +23403,6 @@ namespace cimg_library {
                   arg1+=arg3;
 //                  is_sth&=p2>=1 && p2!=p1 && rcode.back()[1]==arg2 && !is_comp_vector(arg2);
                   is_sth = false;
-                  // ^^ Tricky: detect if vector 'arg2' is a literal string, as a vector that has just been created
-                  // in the 'begin()' code block.
                 } else {
                   CImg<ulongT>::vector(arg2).move_to(l_opcode);
                   ++arg1;

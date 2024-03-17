@@ -23403,10 +23403,9 @@ namespace cimg_library {
                   CImg<ulongT>::sequence(arg3,arg2 + 1,arg2 + arg3).move_to(l_opcode);
                   arg1+=arg3;
                   const CImg<ulongT> &rcode_back = rcode.back();
-                  is_sth&=p3==p1+1 && rcode_back[1]==arg2 &&
+                  is_sth&=p3>p1 && rcode_back[1]==arg2 &&
                     (rcode_back[0]==(ulongT)mp_string_init ||
-                     rcode_back[0]==(ulongT)mp_vector_init) &&
-                    !is_comp_vector(arg2) && variable_def.size()==p2;
+                     rcode_back[0]==(ulongT)mp_vector_init) && variable_def.size()==p2 && !is_comp_vector(arg2);
                   // ^^ Tricky part: detect if 'arg2' is a newly constructed vector not assigned to a variable
                   // (i.e. a vector-valued literal).
                 } else {

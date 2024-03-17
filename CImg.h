@@ -23407,7 +23407,8 @@ namespace cimg_library {
                     (rcode_back[0]==(ulongT)mp_string_init ||
                      rcode_back[0]==(ulongT)mp_vector_init) &&
                     !is_comp_vector(arg2) && variable_def.size()==p2;
-                  // ^^ Tricky part: detect if 'arg2' is a newly constructed vector not assigned to a variable.
+                  // ^^ Tricky part: detect if 'arg2' is a newly constructed vector not assigned to a variable
+                  // (i.e. a vector-valued literal).
                 } else {
                   CImg<ulongT>::vector(arg2).move_to(l_opcode);
                   ++arg1;

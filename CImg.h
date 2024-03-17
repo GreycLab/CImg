@@ -23388,18 +23388,31 @@ namespace cimg_library {
             return_comp = is_new_variable_assignment;
             if (!return_comp) set_reserved_vector(pos); // Prevent from being used in further optimization
           } else { // Vector values provided as a list of items
-            is_sth = true; // Can vector be defined once in 'begin()'?
+            is_sth = !is_new_variable_assignment; // Can vector be defined once in 'begin()'?
             arg1 = 0; // Number of specified values
             if (*ss1!=']') for (s = ss1; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=']' || level[ns - expr._data]!=clevel)) ++ns;
+                const CImgList<ulongT> &rcode = is_inside_begin?code:code_begin;
+                p1 = rcode.size();
+                p2 = variable_def.size();
                 arg2 = compile(s,ns,depth1,0,block_flags);
-                is_sth&=is_const_scalar(arg2);
+                p3 = rcode.size();
                 if (is_vector(arg2)) {
                   arg3 = size(arg2);
                   CImg<ulongT>::sequence(arg3,arg2 + 1,arg2 + arg3).move_to(l_opcode);
                   arg1+=arg3;
-                } else { CImg<ulongT>::vector(arg2).move_to(l_opcode); ++arg1; }
+                  const CImg<ulongT> &rcode_back = rcode.back();
+                  is_sth&=p3>p1 && rcode_back[1]==arg2 &&
+                    (rcode_back[0]==(ulongT)mp_string_init ||
+                     rcode_back[0]==(ulongT)mp_vector_init) && variable_def.size()==p2 && !is_comp_vector(arg2);
+                  // ^^ Tricky part: detect if 'arg2' is a newly constructed vector not assigned to a variable
+                  // (i.e. a vector-valued literal).
+                } else {
+                  CImg<ulongT>::vector(arg2).move_to(l_opcode);
+                  ++arg1;
+                  is_sth&=is_const_scalar(arg2);
+                }
                 s = ns;
               }
             if (!arg1) _cimg_mp_return(0);

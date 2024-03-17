@@ -23395,16 +23395,18 @@ namespace cimg_library {
                                (*ns!=']' || level[ns - expr._data]!=clevel)) ++ns;
                 const CImgList<ulongT> &rcode = is_inside_begin?code:code_begin;
                 p1 = rcode.size();
+                p2 = variable_def.size();
                 arg2 = compile(s,ns,depth1,0,block_flags);
-                p2 = rcode.size();
+                p3 = rcode.size();
                 if (is_vector(arg2)) {
                   arg3 = size(arg2);
                   CImg<ulongT>::sequence(arg3,arg2 + 1,arg2 + arg3).move_to(l_opcode);
                   arg1+=arg3;
-                  if (p2==p1+1 && rcode.back()[1]==arg2 && !is_comp_vector(arg2)) {
-                    cimg_rof(variable_pos,p,uintT) if (*p==arg2) { is_sth = false; break; }
-                  } // ^^ Detect if 'arg2' is a literal vector.
-                  is_sth = false;
+                  const CImg<ulongT> &rcode_back = rcode.back();
+                  is_sth&=p3==p1+1 && rcode_back[1]==arg2 &&
+                    (rcode_back[0]==(ulongT)mp_string_init ||
+                     rcode_back[0]==(ulongT)mp_vector_init) &&
+                    !is_comp_vector(arg2) && variable_def.size()==p2;
                 } else {
                   CImg<ulongT>::vector(arg2).move_to(l_opcode);
                   ++arg1;

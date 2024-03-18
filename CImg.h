@@ -22853,15 +22853,30 @@ namespace cimg_library {
                 s = s0;
               }
 
+              is_sth = !is_new_variable_assignment; // Can vector be defined once in 'begin()'?
               if (s<se1 || arg1==~0U) for ( ; s<se; ++s) {
                   ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                  (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                  const CImgList<ulongT> &rcode = is_inside_begin?code:code_begin;
+                  p1 = rcode.size();
+                  p2 = variable_def.size();
                   arg3 = compile(s,ns,depth1,0,block_flags);
+                  p3 = rcode.size();
                   if (is_vector(arg3)) {
                     arg4 = size(arg3);
                     CImg<ulongT>::sequence(arg4,arg3 + 1,arg3 + arg4).move_to(l_opcode);
                     arg2+=arg4;
-                  } else { CImg<ulongT>::vector(arg3).move_to(l_opcode); ++arg2; }
+                    const CImg<ulongT> &rcode_back = rcode.back();
+                    is_sth&=p3>p1 && rcode_back[1]==arg3 &&
+                      (rcode_back[0]==(ulongT)mp_string_init ||
+                       rcode_back[0]==(ulongT)mp_vector_init) && variable_def.size()==p2 && !is_comp_vector(arg3);
+                    // ^^ Tricky part: detect if 'arg2' is a newly constructed vector not assigned to a variable
+                    // (i.e. a vector-valued literal).
+                  } else {
+                    CImg<ulongT>::vector(arg3).move_to(l_opcode);
+                    ++arg2;
+                    is_sth&=is_const_scalar(arg3);
+                  }
                   s = ns;
                 }
               if (arg1==~0U) arg1 = arg2;
@@ -22870,8 +22885,9 @@ namespace cimg_library {
               l_opcode.insert(CImg<ulongT>::vector((ulongT)mp_vector_init,pos,0,arg1),0);
               (l_opcode>'y').move_to(opcode);
               opcode[2] = opcode._height;
-              opcode.move_to(code);
-              return_comp = true;
+              opcode.move_to(!is_sth || is_inside_begin || is_new_variable_assignment?code:code_begin);
+              return_comp = !is_sth && is_new_variable_assignment;
+              if (!return_comp) set_reserved_vector(pos); // Prevent from being used in further optimization
               _cimg_mp_return(pos);
             }
 

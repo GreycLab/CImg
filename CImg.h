@@ -48653,7 +48653,7 @@ namespace cimg_library {
       int
         w1 = width() - 1, h1 = height() - 1,
         dx01 = x1 - x0, dy01 = y1 - y0;
-
+      const float steep = (float)dx01/dy01;
       const bool is_horizontal = cimg::abs(dx01)>cimg::abs(dy01);
       if (is_horizontal) cimg::swap(x0,y0,x1,y1,w1,h1,dx01,dy01);
       if (pattern==~0U && y0>y1) { cimg::swap(x0,x1,y0,y1); dx01*=-1; dy01*=-1; }
@@ -48669,10 +48669,10 @@ namespace cimg_library {
       dy01+=dy01?0:1;
 
       for (int y = cy0; y!=cy1; y+=step) {
-        const int
-          yy0 = y - y0,
-          x = x0 + (dx01*yy0 + hdy01)/dy01;
-        if (x>=0 && x<=w1 && pattern&hatch) {
+        const int yy0 = y - y0;
+        const float fx = x0 + yy0*steep;
+        if (fx>=0 && fx<=w1 && pattern&hatch) {
+          const int x = (int)(fx + 0.5f);
           T *const ptrd = is_horizontal?data(y,x):data(x,y);
           cimg_forC(*this,c) {
             const T val = color[c];

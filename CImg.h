@@ -48668,8 +48668,7 @@ namespace cimg_library {
       dy01+=dy01?0:1;
 
       for (int y = cy0; y!=cy1; y+=step) {
-        const int yy0 = y - y0;
-        const float fx = x0 + yy0*steep;
+        const float fx = x0 + (y - y0)*steep;
         if (fx>=0 && fx<=w1 && pattern&hatch) {
           const int x = (int)(fx + 0.5f);
           T *const ptrd = is_horizontal?data(y,x):data(x,y);

@@ -1062,13 +1062,13 @@ extern "C" {
       ((_n1##x&3)==2?(img)._height - 1 - ++y:--x))))?0:1)
 
 #define cimg_for_lineXY(x,y,x0,y0,x1,y1) \
- for (int x = (int)(x0), y = (int)(y0), _sx = 1, _sy = 1, _steep = 0, \
+ for (int x = (int)(x0), y = (int)(y0), _sx = 1, _sy = 1, _slope = 0, \
       _dx=(x1)>(x0)?(int)(x1) - (int)(x0):(_sx=-1,(int)(x0) - (int)(x1)), \
       _dy=(y1)>(y0)?(int)(y1) - (int)(y0):(_sy=-1,(int)(y0) - (int)(y1)), \
       _counter = _dx, \
-      _err = _dx>_dy?(_dy>>1):((_steep=1),(_counter=_dy),(_dx>>1)); \
+      _err = _dx>_dy?(_dy>>1):((_slope=1),(_counter=_dy),(_dx>>1)); \
       _counter>=0; \
-      --_counter, x+=_steep? \
+      --_counter, x+=_slope? \
       (y+=_sy,(_err-=_dx)<0?_err+=_dy,_sx:0): \
       (y+=(_err-=_dy)<0?_err+=_dx,_sy:0,_sx))
 
@@ -48656,7 +48656,7 @@ namespace cimg_library {
       const bool is_horizontal = cimg::abs(dx01)>cimg::abs(dy01);
       if (is_horizontal) cimg::swap(x0,y0,x1,y1,w1,h1,dx01,dy01);
       if (pattern==~0U && y0>y1) { cimg::swap(x0,x1,y0,y1); dx01*=-1; dy01*=-1; }
-      const float steep = dy01?(float)dx01/dy01:0;
+      const float slope = dy01?(float)dx01/dy01:0;
 
       static unsigned int hatch = ~0U - (~0U>>1);
       if (init_hatch) hatch = ~0U - (~0U>>1);
@@ -48668,7 +48668,7 @@ namespace cimg_library {
       dy01+=dy01?0:1;
 
       for (int y = cy0; y!=cy1; y+=step) {
-        const float fx = x0 + (y - y0)*steep;
+        const float fx = x0 + (y - y0)*slope;
         if (fx>=0 && fx<=w1 && pattern&hatch) {
           const int x = (int)(fx + 0.5f);
           T *const ptrd = is_horizontal?data(y,x):data(x,y);
@@ -48724,10 +48724,7 @@ namespace cimg_library {
 
       const bool is_horizontal = cimg::abs(dx01)>cimg::abs(dy01);
       if (is_horizontal) cimg::swap(x0,y0,x1,y1,w1,h1,dx01,dy01);
-      if (pattern==~0U && y0>y1) {
-        cimg::swap(x0,x1,y0,y1,iz0,iz1);
-        dx01*=-1; dy01*=-1; diz01*=-1;
-      }
+      if (pattern==~0U && y0>y1) { cimg::swap(x0,x1,y0,y1,iz0,iz1); dx01*=-1; dy01*=-1; diz01*=-1; }
 
       static unsigned int hatch = ~0U - (~0U>>1);
       if (init_hatch) hatch = ~0U - (~0U>>1);

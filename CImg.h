@@ -48881,14 +48881,13 @@ namespace cimg_library {
                                     texture._width,texture._height,texture._depth,texture._spectrum,texture._data);
       if (is_overlapped(texture))
         return draw_line(x0,y0,z0,x1,y1,z1,+texture,tx0,ty0,tx1,ty1,opacity,pattern,init_hatch);
-
-      if (std::min(y0,y1)>=height() || std::max(y0,y1)<0 || std::min(x0,x1)>=width() || std::max(x0,x1)<0) return *this;
-
-      float iz0 = 1/z0, iz1 = 1/z1;
+      if (std::min(y0,y1)>=height() || std::max(y0,y1)<0 || std::min(x0,x1)>=width() || std::max(x0,x1)<0)
+        return *this;
       int
         w1 = width() - 1, h1 = height() - 1,
         dx01 = x1 - x0, dy01 = y1 - y0;
       float
+        iz0 = 1/z0, iz1 = 1/z1,
         diz01 = iz1 - iz0,
         txz0 = tx0*iz0, txz1 = tx1*iz1,
         tyz0 = ty0*iz0, tyz1 = ty1*iz1,
@@ -48918,11 +48917,14 @@ namespace cimg_library {
         const int yy0 = y - y0;
         const float
           fx = x0 + yy0*slope_x,
-          fiz = iz0 + yy0*slope_iz,
+          iz = iz0 + yy0*slope_iz,
           ftxz = txz0 + yy0*slope_txz,
           ftyz = tyz0 + yy0*slope_tyz;
         if (fx>=0 && fx<=w1 && pattern&hatch) {
-          const int x = (int)(fx + 0.5f), tx = (int)(ftxz/fiz + 0.5f), ty = (int)(ftyz/fiz + 0.5f);
+          const int
+            x = (int)(fx + 0.5f),
+            tx = (int)(ftxz/iz + 0.5f),
+            ty = (int)(ftyz/iz + 0.5f);
           T *const ptrd = is_horizontal?data(y,x):data(x,y);
           const tc *const color = &texture._atXY(tx,ty);
           cimg_forC(*this,c) {
@@ -48976,13 +48978,14 @@ namespace cimg_library {
                                     texture._width,texture._height,texture._depth,texture._spectrum,texture._data);
       if (is_overlapped(texture))
         return draw_line(zbuffer,x0,y0,z0,x1,y1,z1,+texture,tx0,ty0,tx1,ty1,opacity,pattern,init_hatch);
+      if (std::min(y0,y1)>=height() || std::max(y0,y1)<0 || std::min(x0,x1)>=width() || std::max(x0,x1)<0)
+        return *this;
 
-      if (std::min(y0,y1)>=height() || std::max(y0,y1)<0 || std::min(x0,x1)>=width() || std::max(x0,x1)<0) return *this;
-
-      float iz0 = 1/z0, iz1 = 1/z1;
-      int w1 = width() - 1, h1 = height() - 1;
-      longT dx01 = (longT)x1 - x0, dy01 = (longT)y1 - y0;
+      int
+        w1 = width() - 1, h1 = height() - 1,
+        dx01 = x1 - x0, dy01 = y1 - y0;
       float
+        iz0 = 1/z0, iz1 = 1/z1,
         diz01 = iz1 - iz0,
         txz0 = tx0*iz0, txz1 = tx1*iz1,
         tyz0 = ty0*iz0, tyz1 = ty1*iz1,
@@ -48994,6 +48997,11 @@ namespace cimg_library {
         cimg::swap(x0,x1,y0,y1,iz0,iz1,txz0,txz1,tyz0,tyz1);
         dx01*=-1; dy01*=-1; diz01*=-1; dtxz01*=-1; dtyz01*=-1;
       }
+      const float
+        slope_x = dy01?(float)dx01/dy01:0,
+        slope_iz = dy01?(float)diz01/dy01:0,
+        slope_txz = dy01?(float)dtxz01/dy01:0,
+        slope_tyz = dy01?(float)dtyz01/dy01:0;
 
       const ulongT twhd = (ulongT)texture._width*texture._height*texture._depth;
       static unsigned int hatch = ~0U - (~0U>>1);
@@ -49001,30 +49009,29 @@ namespace cimg_library {
       cimg_init_scanline(opacity);
 
       const int step = y0<=y1?1:-1, cy0 = cimg::cut(y0,0,h1), cy1 = cimg::cut(y1,0,h1) + step;
-      const longT hdy01 = dy01*cimg::sign(dx01)/2;
-
       dy01+=dy01?0:1;
 
       for (int y = cy0; y!=cy1; y+=step) {
-        const longT
-          yy0 = (longT)y - y0,
-          x = x0 + (dx01*yy0 + hdy01)/dy01;
+        const int yy0 = y - y0;
         const float
-          iz = iz0 + diz01*yy0/dy01,
-          txz = txz0 + dtxz01*yy0/dy01,
-          tyz = tyz0 + dtyz01*yy0/dy01;
-        tz *const ptrz = is_horizontal?zbuffer.data(y,x):zbuffer.data(x,y);
-
-        if (x>=0 && x<=w1 && pattern&hatch && iz>=*ptrz) {
-          *ptrz = (tz)iz;
-          const int
-            tx = (int)cimg::round(txz/iz),
-            ty = (int)cimg::round(tyz/iz);
-          T *const ptrd = is_horizontal?data(y,x):data(x,y);
-          const tc *const color = &texture._atXY(tx,ty);
-          cimg_forC(*this,c) {
-            const T val = color[c*twhd];
-            ptrd[c*_sc_whd] = opacity>=1?val:(T)(val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
+          fx = x0 + yy0*slope_x,
+          iz = iz0 + yy0*slope_iz,
+          ftxz = txz0 + yy0*slope_txz,
+          ftyz = tyz0 + yy0*slope_tyz;
+        if (fx>=0 && fx<=w1 && pattern&hatch) {
+          const int x = (int)(fx + 0.5f);
+          tz *const ptrz = is_horizontal?zbuffer.data(y,x):zbuffer.data(x,y);
+          if (iz>=*ptrz) {
+            *ptrz = (tz)iz;
+            const int
+              tx = (int)(ftxz/iz + 0.5f),
+              ty = (int)(ftyz/iz + 0.5f);
+            T *const ptrd = is_horizontal?data(y,x):data(x,y);
+            const tc *const color = &texture._atXY(tx,ty);
+            cimg_forC(*this,c) {
+              const T val = color[c*twhd];
+              ptrd[c*_sc_whd] = opacity>=1?val:(T)(val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
+            }
           }
         }
         if (!(hatch>>=1)) hatch = ~0U - (~0U>>1);

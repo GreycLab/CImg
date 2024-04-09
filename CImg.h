@@ -48656,7 +48656,7 @@ namespace cimg_library {
       const bool is_horizontal = cimg::abs(dx01)>cimg::abs(dy01);
       if (is_horizontal) cimg::swap(x0,y0,x1,y1,w1,h1,dx01,dy01);
       if (pattern==~0U && y0>y1) { cimg::swap(x0,x1,y0,y1); dx01*=-1; dy01*=-1; }
-      const float slope = dy01?(float)dx01/dy01:0;
+      const float slope_x = dy01?(float)dx01/dy01:0;
 
       static unsigned int hatch = ~0U - (~0U>>1);
       if (init_hatch) hatch = ~0U - (~0U>>1);
@@ -48668,7 +48668,8 @@ namespace cimg_library {
       dy01+=dy01?0:1;
 
       for (int y = cy0; y!=cy1; y+=step) {
-        const float fx = x0 + (y - y0)*slope;
+        const int yy0 = y - y0;
+        const float fx = x0 + yy0*slope_x;
         if (fx>=0 && fx<=w1 && pattern&hatch) {
           const int x = (int)(fx + 0.5f);
           T *const ptrd = is_horizontal?data(y,x):data(x,y);
@@ -48725,29 +48726,32 @@ namespace cimg_library {
       const bool is_horizontal = cimg::abs(dx01)>cimg::abs(dy01);
       if (is_horizontal) cimg::swap(x0,y0,x1,y1,w1,h1,dx01,dy01);
       if (pattern==~0U && y0>y1) { cimg::swap(x0,x1,y0,y1,iz0,iz1); dx01*=-1; dy01*=-1; diz01*=-1; }
+      const float slope_x = dy01?(float)dx01/dy01:0, slope_z = dy01?(float)diz01/dy01:0;
 
       static unsigned int hatch = ~0U - (~0U>>1);
       if (init_hatch) hatch = ~0U - (~0U>>1);
       cimg_init_scanline(opacity);
 
       const int
-        step = y0<=y1?1:-1, hdy01 = dy01*cimg::sign(dx01)/2,
-        cy0 = cimg::cut(y0,0,h1), cy1 = cimg::cut(y1,0,h1) + step;
+        step = y0<=y1?1:-1,
+        cy0 = cimg::cut(y0,0,h1),
+        cy1 = cimg::cut(y1,0,h1) + step;
       dy01+=dy01?0:1;
 
       for (int y = cy0; y!=cy1; y+=step) {
-        const int
-          yy0 = y - y0,
-          x = x0 + (dx01*yy0 + hdy01)/dy01;
-        const float iz = iz0 + diz01*yy0/dy01;
-        tz *const ptrz = is_horizontal?zbuffer.data(y,x):zbuffer.data(x,y);
-
-        if (x>=0 && x<=w1 && pattern&hatch && iz>=*ptrz) {
-          *ptrz = (tz)iz;
-          T *const ptrd = is_horizontal?data(y,x):data(x,y);
-          cimg_forC(*this,c) {
-            const T val = color[c];
-            ptrd[c*_sc_whd] = opacity>=1?val:(T)(val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
+        const int yy0 = y - y0;
+        const float fx = x0 + yy0*slope_x;
+        const float iz = iz0 + yy0*slope_z;
+        if (fx>=0 && fx<=w1 && pattern&hatch) {
+          const int x = (int)(fx + 0.5f);
+          tz *const ptrz = is_horizontal?zbuffer.data(y,x):zbuffer.data(x,y);
+          if (iz>=*ptrz) {
+            *ptrz = (tz)iz;
+            T *const ptrd = is_horizontal?data(y,x):data(x,y);
+            cimg_forC(*this,c) {
+              const T val = color[c];
+              ptrd[c*_sc_whd] = opacity>=1?val:(T)(val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
+            }
           }
         }
         if (!(hatch>>=1)) hatch = ~0U - (~0U>>1);

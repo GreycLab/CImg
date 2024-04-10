@@ -21982,7 +21982,7 @@ namespace cimg_library {
               _cimg_mp_op("Function 'ref()'");
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               if (s1>=se1 || !*s1) compile(s1,s1,depth1,0,block_flags); // Will throw missing argument error
-              arg3 = compile(ss4,s1++,depth1,p_ref,block_flags);
+              arg3 = compile(ss4,s1++,depth1,p_ref,block_flags|32);
               *se1 = 0;
 
               if (!cimg::is_varname(s1)) { // Invalid variable name

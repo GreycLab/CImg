@@ -34227,7 +34227,7 @@ namespace cimg_library {
       typedef _cimg_tfloat tfloat;
       const unsigned int
         siz = (unsigned int)pdf.size(),
-        prec = precision<0?(unsigned int)(-siz*precision/100):(unsigned int)precision;
+        prec = precision<0?(unsigned int)(-(float)siz*precision/100):(unsigned int)precision;
       if (siz<2 || precision<2) return fill(val_min);
       const tfloat
         delta = (tfloat)val_max - (tfloat)val_min,

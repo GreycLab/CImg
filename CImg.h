@@ -17319,6 +17319,9 @@ namespace cimg_library {
           case 'u' :
             if (reserved_label[(int)'u']!=~0U) _cimg_mp_return(reserved_label[(int)'u']);
             _cimg_mp_scalar0(mp_rand_double_0_1);
+          case 'v' :
+            if (reserved_label[(int)'v']!=~0U) _cimg_mp_return(reserved_label[(int)'v']);
+            _cimg_mp_scalar0(mp_rand_int_0_1);
           case 'g' :
             if (reserved_label[(int)'g']!=~0U) _cimg_mp_return(reserved_label[(int)'g']);
             _cimg_mp_scalar0(mp_rand_double_gaussian);

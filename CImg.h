@@ -28290,7 +28290,8 @@ namespace cimg_library {
         const int
           shift = (int)_mp_arg(4),
           boundary_conditions = (int)_mp_arg(5);
-        CImg<doubleT>(ptrd,siz,1,1,1,true) = CImg<doubleT>(ptrs,siz,1,1,1,true).shift(shift,0,0,0,boundary_conditions);
+        CImg<doubleT>(ptrd,siz,1,1,1,true) =
+          CImg<doubleT>(ptrs,siz,1,1,1,true).get_shift(shift,0,0,0,boundary_conditions);
         return cimg::type<double>::nan();
       }
 

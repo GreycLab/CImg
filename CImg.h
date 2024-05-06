@@ -52459,37 +52459,29 @@ namespace cimg_library {
           // Square step.
           for (int y0 = 0; y0<h; y0+=delta)
             for (int x0 = 0; x0<w; x0+=delta) {
-              const int x1 = (x0 + delta)%w, y1 = (y0 + delta)%h, xc = (x0 + delta2)%w, yc = (y0 + delta2)%h;
-              const Tfloat val = (Tfloat)(0.25f*(ref(x0,y0) + ref(x0,y1) + ref(x0,y1) + ref(x1,y1)) +
-                                          r*cimg::rand(-1,1,&rng));
-              ref(xc,yc) = (T)(val<m?m:val>M?M:val);
+              const int x2 = x0 + delta2, y2 = y0 + delta2;
+              if (containsXYZC(x2,y2)) {
+                const int x1 = (x0 + delta)%w, y1 = (y0 + delta)%h;
+                const Tfloat val = (Tfloat)(0.25f*(ref(x0,y0) + ref(x1,y0) + ref(x1,y1) + ref(x0,y1)) +
+                                            r*cimg::rand(-1,1,&rng));
+                ref(x2,y2) = (T)(val<m?m:val>M?M:val);
+              }
             }
 
           // Diamond steps.
-          for (int y = -delta2; y<h; y+=delta)
-            for (int x0=0; x0<w; x0+=delta) {
-              const int y0 = cimg::mod(y,h), x1 = (x0 + delta)%w, y1 = (y + delta)%h,
-                xc = (x0 + delta2)%w, yc = (y + delta2)%h;
-              const Tfloat val = (Tfloat)(0.25f*(ref(xc,y0) + ref(x0,yc) + ref(xc,y1) + ref(x1,yc)) +
-                                          r*cimg::rand(-1,1,&rng));
-              ref(xc,yc) = (T)(val<m?m:val>M?M:val);
+          bool is_odd_y = false;
+          for (int y0 = 0; y0<h; y0+=delta2) {
+            for (int ix0 = 0; ix0<w; ix0+=delta) {
+              const int x0 = ix0 + (is_odd_y?delta2:0), y1 = y0 + delta2;
+              if (containsXYZC(x0,y1)) {
+                const int x_1 = cimg::mod(x0 - delta2,w), x1 = (x0 + delta2)%w, y2 = (y0 + delta)%h;
+                const Tfloat val = (Tfloat)(0.25f*(ref(x0,y0) + ref(x1,y1) + ref(x_1,y1) + ref(x0,y2)) +
+                                            r*cimg::rand(-1,1,&rng));
+                ref(x0,y1) = (T)(val<m?m:val>M?M:val);
+              }
             }
-          for (int y0 = 0; y0<h; y0+=delta)
-            for (int x = -delta2; x<w; x+=delta) {
-              const int x0 = cimg::mod(x,w), x1 = (x + delta)%w, y1 = (y0 + delta)%h,
-                xc = (x + delta2)%w, yc = (y0 + delta2)%h;
-              const Tfloat val = (Tfloat)(0.25f*(ref(xc,y0) + ref(x0,yc) + ref(xc,y1) + ref(x1,yc)) +
-                                          r*cimg::rand(-1,1,&rng));
-              ref(xc,yc) = (T)(val<m?m:val>M?M:val);
-            }
-          for (int y = -delta2; y<h; y+=delta)
-            for (int x = -delta2; x<w; x+=delta) {
-              const int x0 = cimg::mod(x,w), y0 = cimg::mod(y,h), x1 = (x + delta)%w, y1 = (y + delta)%h,
-                xc = (x + delta2)%w, yc = (y + delta2)%h;
-              const Tfloat val = (Tfloat)(0.25f*(ref(xc,y0) + ref(x0,yc) + ref(xc,y1) + ref(x1,yc)) +
-                                          r*cimg::rand(-1,1,&rng));
-                ref(xc,yc) = (T)(val<m?m:val>M?M:val);
-            }
+            is_odd_y = !is_odd_y;
+          }
         }
       }
       cimg::srand(rng);

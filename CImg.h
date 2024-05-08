@@ -52452,32 +52452,40 @@ namespace cimg_library {
       cimg_uint64 rng = (cimg::_rand(),cimg::rng());
       cimg_forZC(*this,z,c) {
         CImg<T> ref = get_shared_slice(z,c);
-        for (int delta = 1<<std::min(scale,31U); delta>1; delta>>=1) {
+
+        // Init step.
+        const int delta0 = 1<<std::min(scale,31U);
+        const float r0 = alpha*delta0 + beta;
+        for (int yt = 0; yt<h; yt+=delta0)
+          for (int xt = 0; xt<w; xt+=delta0) {
+            const Tfloat val = r0*cimg::rand(-1,1,&rng);
+            ref(xt,yt) = cimg::type<T>::cut(val);
+          }
+
+        for (int delta = delta0; delta>1; delta>>=1) {
           const int delta2 = delta>>1;
           const float r = alpha*delta + beta;
 
           // Square step.
-          for (int y0 = 0; y0<h; y0+=delta)
-            for (int x0 = 0; x0<w; x0+=delta) {
-              const int x2 = x0 + delta2, y2 = y0 + delta2;
-              if (containsXYZC(x2,y2)) {
-                const int x1 = (x0 + delta)%w, y1 = (y0 + delta)%h;
-                const Tfloat val = (Tfloat)(0.25f*(ref(x0,y0) + ref(x1,y0) + ref(x1,y1) + ref(x0,y1)) +
-                                            r*cimg::rand(-1,1,&rng));
-                ref(x2,y2) = (T)(val<m?m:val>M?M:val);
-              }
+          for (int yt = delta2; yt<h; yt+=delta)
+            for (int xt = delta2; xt<w; xt+=delta) {
+              const int x0 = xt - delta2, y0 = yt - delta2, x1 = (xt + delta2)%w, y1 = (yt + delta2)%h;
+              const Tfloat val = (Tfloat)(0.25f*(ref(x0,y0) + ref(x1,y0) + ref(x1,y1) + ref(x0,y1)) +
+                                          r*cimg::rand(-1,1,&rng));
+              ref(xt,yt) = cimg::type<T>::cut(val);
             }
 
           // Diamond steps.
           bool is_odd_y = false;
-          for (int y0 = 0; y0<h; y0+=delta2) {
-            for (int ix0 = 0; ix0<w; ix0+=delta) {
-              const int x0 = ix0 + (is_odd_y?delta2:0), y1 = y0 + delta2;
-              if (containsXYZC(x0,y1)) {
-                const int x_1 = cimg::mod(x0 - delta2,w), x1 = (x0 + delta2)%w, y2 = (y0 + delta)%h;
-                const Tfloat val = (Tfloat)(0.25f*(ref(x0,y0) + ref(x1,y1) + ref(x_1,y1) + ref(x0,y2)) +
+          for (int yt = 0; yt<h; yt+=delta2) {
+            for (int xt = is_odd_y?0:delta2; xt<w; xt+=delta) {
+              if (containsXYZC(xt,yt)) {
+                const int
+                  x0 = cimg::mod(xt - delta2,w), x1 = (xt + delta2)%w,
+                  y0 = cimg::mod(yt - delta2,h), y1 = (yt + delta2)%h;
+                const Tfloat val = (Tfloat)(0.25f*(ref(x0,yt) + ref(x1,yt) + ref(xt,y0) + ref(xt,y1)) +
                                             r*cimg::rand(-1,1,&rng));
-                ref(x0,y1) = (T)(val<m?m:val>M?M:val);
+                ref(xt,yt) = cimg::type<T>::cut(val);
               }
             }
             is_odd_y = !is_odd_y;

@@ -52479,14 +52479,12 @@ namespace cimg_library {
           bool is_odd_y = false;
           for (int yt = 0; yt<h; yt+=delta2) {
             for (int xt = is_odd_y?0:delta2; xt<w; xt+=delta) {
-              if (containsXYZC(xt,yt)) {
-                const int
-                  x0 = cimg::mod(xt - delta2,w), x1 = (xt + delta2)%w,
-                  y0 = cimg::mod(yt - delta2,h), y1 = (yt + delta2)%h;
-                const Tfloat val = (Tfloat)(0.25f*(ref(x0,yt) + ref(x1,yt) + ref(xt,y0) + ref(xt,y1)) +
-                                            r*cimg::rand(-1,1,&rng));
-                ref(xt,yt) = cimg::type<T>::cut(val);
-              }
+              const int
+                x0 = cimg::mod(xt - delta2,w), x1 = (xt + delta2)%w,
+                y0 = cimg::mod(yt - delta2,h), y1 = (yt + delta2)%h;
+              const Tfloat val = (Tfloat)(0.25f*(ref(x0,yt) + ref(x1,yt) + ref(xt,y0) + ref(xt,y1)) +
+                                          r*cimg::rand(-1,1,&rng));
+              ref(xt,yt) = cimg::type<T>::cut(val);
             }
             is_odd_y = !is_odd_y;
           }

@@ -52447,29 +52447,34 @@ namespace cimg_library {
     **/
     CImg<T>& draw_plasma(const float alpha=1, const float beta=0, const unsigned int scale=8) {
       if (is_empty()) return *this;
-      const int w = width(), h = height();
       const Tfloat m = (Tfloat)cimg::type<T>::min(), M = (Tfloat)cimg::type<T>::max();
+      const int
+        w0 = width(), h0 = height(),
+        delta = 1<<std::min(scale,12U),
+        w = cimg::round(w0,delta,1),
+        h = cimg::round(h0,delta,1);
       cimg_uint64 rng = (cimg::_rand(),cimg::rng());
+      assign(w,h,depth(),spectrum());
+
       cimg_forZC(*this,z,c) {
         CImg<T> ref = get_shared_slice(z,c);
 
         // Init step.
-        const int delta0 = 1<<std::min(scale,31U);
-        const float r0 = alpha*delta0 + beta;
-        for (int yt = 0; yt<h; yt+=delta0)
-          for (int xt = 0; xt<w; xt+=delta0) {
-            const Tfloat val = r0*cimg::rand(-1,1,&rng);
+        float r = alpha*delta + beta;
+        for (int yt = 0; yt<h; yt+=delta)
+          for (int xt = 0; xt<w; xt+=delta) {
+            const Tfloat val = r*cimg::rand(-1,1,&rng);
             ref(xt,yt) = cimg::type<T>::cut(val);
           }
 
-        for (int delta = delta0; delta>1; delta>>=1) {
-          const int delta2 = delta>>1;
-          const float r = alpha*delta + beta;
+        for (int _delta = delta; _delta>1; _delta>>=1) {
+          const int _delta2 = _delta>>1;
+          r = alpha*_delta + beta;
 
           // Square step.
-          for (int yt = delta2; yt<h; yt+=delta)
-            for (int xt = delta2; xt<w; xt+=delta) {
-              const int x0 = xt - delta2, y0 = yt - delta2, x1 = (xt + delta2)%w, y1 = (yt + delta2)%h;
+          for (int yt = _delta2; yt<h; yt+=_delta)
+            for (int xt = _delta2; xt<w; xt+=_delta) {
+              const int x0 = xt - _delta2, y0 = yt - _delta2, x1 = (xt + _delta2)%w, y1 = (yt + _delta2)%h;
               const Tfloat val = (Tfloat)(0.25f*(ref(x0,y0) + ref(x1,y0) + ref(x1,y1) + ref(x0,y1)) +
                                           r*cimg::rand(-1,1,&rng));
               ref(xt,yt) = cimg::type<T>::cut(val);
@@ -52477,11 +52482,11 @@ namespace cimg_library {
 
           // Diamond steps.
           bool is_odd_y = false;
-          for (int yt = 0; yt<h; yt+=delta2) {
-            for (int xt = is_odd_y?0:delta2; xt<w; xt+=delta) {
+          for (int yt = 0; yt<h; yt+=_delta2) {
+            for (int xt = is_odd_y?0:_delta2; xt<w; xt+=_delta) {
               const int
-                x0 = cimg::mod(xt - delta2,w), x1 = (xt + delta2)%w,
-                y0 = cimg::mod(yt - delta2,h), y1 = (yt + delta2)%h;
+                x0 = cimg::mod(xt - _delta2,w), x1 = (xt + _delta2)%w,
+                y0 = cimg::mod(yt - _delta2,h), y1 = (yt + _delta2)%h;
               const Tfloat val = (Tfloat)(0.25f*(ref(x0,yt) + ref(x1,yt) + ref(xt,y0) + ref(xt,y1)) +
                                           r*cimg::rand(-1,1,&rng));
               ref(xt,yt) = cimg::type<T>::cut(val);
@@ -52491,7 +52496,7 @@ namespace cimg_library {
         }
       }
       cimg::srand(rng);
-      return *this;
+      return resize(w0,h0,-100,-100,0,0,0.5,0.5);
     }
 
     //! Draw a quadratic Mandelbrot or Julia 2D fractal.

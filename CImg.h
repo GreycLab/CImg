@@ -52447,7 +52447,6 @@ namespace cimg_library {
     **/
     CImg<T>& draw_plasma(const float alpha=1, const float beta=0, const unsigned int scale=8) {
       if (is_empty()) return *this;
-      const Tfloat m = (Tfloat)cimg::type<T>::min(), M = (Tfloat)cimg::type<T>::max();
       const int
         w0 = width(), h0 = height(),
         delta = 1<<std::min(scale,12U),

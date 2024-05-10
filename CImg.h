@@ -52453,10 +52453,10 @@ namespace cimg_library {
         w = cimg::round(w0,delta,1),
         h = cimg::round(h0,delta,1);
       cimg_uint64 rng = (cimg::_rand(),cimg::rng());
-      assign(w,h,depth(),spectrum());
+      CImg<T> canvas(w,h,depth(),spectrum());
 
       cimg_forZC(*this,z,c) {
-        CImg<T> ref = get_shared_slice(z,c);
+        CImg<T> ref = canvas.get_shared_slice(z,c);
 
         // Init step.
         float r = alpha*delta + beta;
@@ -52495,7 +52495,7 @@ namespace cimg_library {
         }
       }
       cimg::srand(rng);
-      return resize(w0,h0,-100,-100,0,0,0.5,0.5);
+      return draw_image((w0 - w)/2,(h0 - h)/2,0,0,canvas);
     }
 
     //! Draw a quadratic Mandelbrot or Julia 2D fractal.

@@ -68285,6 +68285,7 @@ namespace cimg_library {
                       cimg::temporary_path(),cimg_file_separator,cimg::filenamerand(),ext._data);
         if ((file = cimg::std_fopen(filename_local,"rb"))!=0) cimg::fclose(file);
       } while (file);
+      file = 0;
 
 #ifdef cimg_use_curl
       const unsigned int omode = cimg::exception_mode();
@@ -68311,10 +68312,9 @@ namespace cimg_library {
           cimg::fseek(file,0,SEEK_END); // Check if file size is 0
           const cimg_ulong siz = cimg::ftell(file);
           cimg::fclose(file);
-          if (siz>0 && res==CURLE_OK) {
-            cimg::exception_mode(omode);
-            return filename_local;
-          } else std::remove(filename_local);
+          file = 0;
+          if (siz>0 && res==CURLE_OK) { cimg::exception_mode(omode); return filename_local; }
+          else std::remove(filename_local);
         }
       } catch (...) { }
       cimg::exception_mode(omode);
@@ -68373,7 +68373,6 @@ namespace cimg_library {
 #else
                                 "'wget' or 'curl'.",url);
 #endif
-        cimg::fclose(file);
 
         // Try gunzip it.
         cimg_snprintf(command,command._width,"%s.gz",filename_local);

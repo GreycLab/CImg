@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 336
+#define cimg_version 337
 
 /*-----------------------------------------------------------
  #
@@ -48838,8 +48838,8 @@ namespace cimg_library {
         if (fx>=0 && fx<=w1 && pattern&hatch) {
           const int
             x = (int)(fx + 0.5f),
-            tx = (int)(ftx + 0.5f),
-            ty = (int)(fty + 0.5f);
+            tx = (int)ftx,
+            ty = (int)fty;
           T *const ptrd = is_horizontal?data(y,x):data(x,y);
           const tc *const color = &texture._atXY(tx,ty);
           cimg_forC(*this,c) {
@@ -48927,8 +48927,8 @@ namespace cimg_library {
         if (fx>=0 && fx<=w1 && pattern&hatch) {
           const int
             x = (int)(fx + 0.5f),
-            tx = (int)(ftxz/iz + 0.5f),
-            ty = (int)(ftyz/iz + 0.5f);
+            tx = (int)(ftxz/iz),
+            ty = (int)(ftyz/iz);
           T *const ptrd = is_horizontal?data(y,x):data(x,y);
           const tc *const color = &texture._atXY(tx,ty);
           cimg_forC(*this,c) {
@@ -49028,8 +49028,8 @@ namespace cimg_library {
           if (iz>=*ptrz) {
             *ptrz = (tz)iz;
             const int
-              tx = (int)(ftxz/iz + 0.5f),
-              ty = (int)(ftyz/iz + 0.5f);
+              tx = (int)(ftxz/iz),
+              ty = (int)(ftyz/iz);
             T *const ptrd = is_horizontal?data(y,x):data(x,y);
             const tc *const color = &texture._atXY(tx,ty);
             cimg_forC(*this,c) {
@@ -49941,8 +49941,8 @@ namespace cimg_library {
               txz = txzm + dtxzmM*xxm/dxmM,
               tyz = tyzm + dtyzmM*xxm/dxmM;
             const int
-              tx = (int)cimg::round(txz/iz),
-              ty = (int)cimg::round(tyz/iz);
+              tx = (int)(txz/iz),
+              ty = (int)(tyz/iz);
             const tc *const color = &texture._atXY(tx,ty);
             cimg_forC(*this,c) {
               const Tfloat val = cbs<=1?color[c*twhd]*cbs:(2 - cbs)*color[c*twhd] + (cbs - 1)*_sc_maxval;
@@ -50037,8 +50037,8 @@ namespace cimg_library {
                 txz = txzm + dtxzmM*xxm/dxmM,
                 tyz = tyzm + dtyzmM*xxm/dxmM;
               const int
-                tx = (int)cimg::round(txz/iz),
-                ty = (int)cimg::round(tyz/iz);
+                tx = (int)(txz/iz),
+                ty = (int)(tyz/iz);
               const tc *const color = &texture._atXY(tx,ty);
               cimg_forC(*this,c) {
                 const Tfloat val = cbs<=1?color[c*twhd]*cbs:(2 - cbs)*color[c*twhd] + (cbs - 1)*_sc_maxval;
@@ -50426,8 +50426,8 @@ namespace cimg_library {
               tyz = tyzm + dtyzmM*xxm/dxmM,
               cbs = cimg::cut(bsm + dbsmM*xxm/dxmM,0,2);
             const int
-              tx = (int)cimg::round(txz/iz),
-              ty = (int)cimg::round(tyz/iz);
+              tx = (int)(txz/iz),
+              ty = (int)(tyz/iz);
             const tc *const color = &texture._atXY(tx,ty);
             cimg_forC(*this,c) {
               const tc col = color[c*twhd];
@@ -50527,8 +50527,8 @@ namespace cimg_library {
                 tyz = tyzm + dtyzmM*xxm/dxmM,
                 cbs = cimg::cut(bsm + dbsmM*xxm/dxmM,0,2);
               const int
-                tx = (int)cimg::round(txz/iz),
-                ty = (int)cimg::round(tyz/iz);
+                tx = (int)(txz/iz),
+                ty = (int)(tyz/iz);
               const tc *const color = &texture._atXY(tx,ty);
               cimg_forC(*this,c) {
                 const tc col = color[c*twhd];
@@ -50762,10 +50762,10 @@ namespace cimg_library {
               lxz = lxzm + dlxzmM*xxm/dxmM,
               lyz = lyzm + dlyzmM*xxm/dxmM;
             const int
-              tx = (int)cimg::round(txz/iz),
-              ty = (int)cimg::round(tyz/iz),
-              lx = (int)cimg::round(lxz/iz),
-              ly = (int)cimg::round(lyz/iz);
+              tx = (int)(txz/iz),
+              ty = (int)(tyz/iz),
+              lx = (int)(lxz/iz),
+              ly = (int)(lyz/iz);
             const tc *const color = &texture._atXY(tx,ty);
             const tl *const lig = &light._atXY(lx,ly);
             cimg_forC(*this,c) {
@@ -50887,10 +50887,10 @@ namespace cimg_library {
                 lxz = lxzm + dlxzmM*xxm/dxmM,
                 lyz = lyzm + dlyzmM*xxm/dxmM;
               const int
-                tx = (int)cimg::round(txz/iz),
-                ty = (int)cimg::round(tyz/iz),
-                lx = (int)cimg::round(lxz/iz),
-                ly = (int)cimg::round(lyz/iz);
+                tx = (int)(txz/iz),
+                ty = (int)(tyz/iz),
+                lx = (int)(lxz/iz),
+                ly = (int)(lyz/iz);
               const tc *const color = &texture._atXY(tx,ty);
               const tl *const lig = &light._atXY(lx,ly);
               cimg_forC(*this,c) {

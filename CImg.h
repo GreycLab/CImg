@@ -13538,7 +13538,24 @@ namespace cimg_library {
     CImg<_cimg_Tt> operator*(const CImg<t>& img) const {
       typedef _cimg_Ttdouble Ttdouble;
       typedef _cimg_Tt Tt;
-      if (_width!=img._height || _depth!=1 || _spectrum!=1)
+
+      if (img._spectrum>1 && _width==img._spectrum && _depth==1 && _spectrum==1) {
+        // Manage special case of pointwise matrix multiplication of vector-valued images.
+        if (img.size()<~0U) { // Do it all in one step
+          CImg<t> arg = CImg<t>(img,true).resize(img._width*img._height*img._depth,img._spectrum,1,1,-1);
+          return ((*this)*arg).resize(img._width,img._height,img._depth,_height,-1);
+        } else { // Do it row by row
+          CImg<Tt> res(img._width,img._height,img._depth,_height);
+          cimg_forYZ(res,y,z) {
+            CImg<t> arg = img.get_crop(0,y,z,img.width() - 1,y,z);
+            arg.resize(arg._width,arg._spectrum,1,1,-1);
+            res.draw_image(0,y,z,0,((*this)*arg).resize(img._width,1,1,_height,-1));
+          }
+          return res;
+        }
+      }
+
+      if (_width!=img._height || _depth!=1 || _spectrum!=1 || img._depth!=1 || img._spectrum!=1)
         throw CImgArgumentException(_cimg_instance
                                     "operator*(): Invalid multiplication of instance by specified "
                                     "matrix (%u,%u,%u,%u,%p).",

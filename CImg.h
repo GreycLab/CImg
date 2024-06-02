@@ -27805,7 +27805,7 @@ namespace cimg_library {
           ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.imglist.width());
         }
         CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
-        bool is_invalid_arguments = i_end<=4, is_outlined = false;
+        bool is_invalid_arguments = i_end<=4, is_outlined = false, is_closed = true;
         if (!is_invalid_arguments) {
           int nbv = (int)_mp_arg(4);
           if (!nbv) is_invalid_arguments = true;
@@ -27819,11 +27819,15 @@ namespace cimg_library {
             else { is_invalid_arguments = true; break; }
             if (!is_invalid_arguments) {
               if (i<i_end) opacity = (float)_mp_arg(i++);
-              if (is_outlined && i<i_end) pattern = (unsigned int)_mp_arg(i++);
+              if (is_outlined && i<i_end) {
+                double d_pattern = _mp_arg(i++);
+                if (d_pattern<0) { d_pattern = -d_pattern; is_closed = false; }
+                pattern = (unsigned int)d_pattern;
+              }
               cimg_forX(color,k) if (i<i_end) color[k] = (T)_mp_arg(i++);
               else { color.resize(k,1,1,1,-1); break; }
               color.resize(img._spectrum,1,1,1,0,2);
-              if (is_outlined) img.draw_polygon(points,color._data,opacity,pattern);
+              if (is_outlined) img.draw_polygon(points,color._data,opacity,pattern,is_closed);
               else img.draw_polygon(points,color._data,opacity);
             }
           }

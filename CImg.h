@@ -49472,10 +49472,8 @@ namespace cimg_library {
         throw CImgArgumentException(_cimg_instance
                                     "draw_triangle(): Specified color is (null).",
                                     cimg_instance);
-      draw_line(x0,y0,x1,y1,color,opacity,pattern,true).
-        draw_line(x1,y1,x2,y2,color,opacity,pattern,false).
-        draw_line(x2,y2,x0,y0,color,opacity,pattern,false);
-      return *this;
+      CImg<intT> points(3,2,1,1,x0,x1,x2,y0,y1,y2);
+      return draw_polygon(points,color,opacity,pattern);
     }
 
     //! Draw a filled 2D triangle, with z-buffering.
@@ -51135,18 +51133,20 @@ namespace cimg_library {
       if (ipoints._width==1) return draw_point(ipoints(0,0),ipoints(0,1),color,opacity);
       if (ipoints._width==2) return draw_line(ipoints(0,0),ipoints(0,1),ipoints(1,0),ipoints(1,1),
                                               color,opacity,pattern);
-      if (ipoints._width==3) return draw_triangle(ipoints(0,0),ipoints(0,1),ipoints(1,0),ipoints(1,1),
-                                                  ipoints(2,0),ipoints(2,1),color,opacity,pattern);
       bool ninit_hatch = true;
-      const int x0 = ipoints(0,0), y0 = ipoints(0,1);
-      int ox = x0, oy = y0;
-      for (unsigned int i = 1; i<ipoints._width; ++i) {
-        const int x = ipoints(i,0), y = ipoints(i,1);
-        draw_line(ox,oy,x,y,color,opacity,pattern,ninit_hatch);
+      int x = ipoints(0,0), y = ipoints(0,1);
+      for (unsigned int i = 0; i<ipoints._width; ++i) {
+        const int
+          ni = (i + 1)%ipoints.width(),
+          nx = ipoints(ni,0), ny = ipoints(ni,1),
+          u = nx - x, v = ny - y,
+          l = std::max(std::abs(u),std::abs(v)),
+          nx1 = (int)cimg::round(x + (l - 1)*u/(float)l),
+          ny1 = (int)cimg::round(y + (l - 1)*v/(float)l);
+        draw_line(x,y,nx1,ny1,color,opacity,pattern,ninit_hatch);
         ninit_hatch = false;
-        ox = x; oy = y;
+        x = nx; y = ny;
       }
-      draw_line(ox,oy,x0,y0,color,opacity,pattern,false);
       return *this;
     }
 

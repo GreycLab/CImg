@@ -51098,7 +51098,8 @@ namespace cimg_library {
     //! Draw a outlined 2D or 3D polygon \overloading.
     template<typename tp, typename tc>
     CImg<T>& draw_polygon(const CImg<tp>& points,
-                          const tc *const color, const float opacity, const unsigned int pattern) {
+                          const tc *const color, const float opacity, const unsigned int pattern,
+                          const bool is_closed=true) {
       if (is_empty() || !points) return *this;
       if (!color)
         throw CImgArgumentException(_cimg_instance
@@ -51118,7 +51119,8 @@ namespace cimg_library {
                                               color,opacity,pattern);
       bool ninit_hatch = true;
       int x = ipoints(0,0), y = ipoints(0,1);
-      for (unsigned int i = 0; i<ipoints._width; ++i) {
+      const unsigned int N = ipoints._width - (is_closed?0:1);
+      for (unsigned int i = 0; i<N; ++i) {
         const int
           ni = (i + 1)%ipoints.width(),
           nx = ipoints(ni,0), ny = ipoints(ni,1),

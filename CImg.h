@@ -51130,8 +51130,8 @@ namespace cimg_library {
           nx = ipoints(ni,0), ny = ipoints(ni,1),
           u = nx - x, v = ny - y,
           l = std::max(std::abs(u),std::abs(v)),
-          nx1 = (int)cimg::round(x + (l - 1)*u/(float)l),
-          ny1 = (int)cimg::round(y + (l - 1)*v/(float)l);
+          nx1 = is_closed && i<N - 1?(int)cimg::round(x + (l - 1)*u/(float)l):nx,
+          ny1 = is_closed && i<N - 1?(int)cimg::round(y + (l - 1)*v/(float)l):ny;
         draw_line(x,y,nx1,ny1,color,opacity,pattern,ninit_hatch);
         ninit_hatch = false;
         x = nx; y = ny;

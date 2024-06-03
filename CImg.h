@@ -13538,23 +13538,6 @@ namespace cimg_library {
     CImg<_cimg_Tt> operator*(const CImg<t>& img) const {
       typedef _cimg_Ttdouble Ttdouble;
       typedef _cimg_Tt Tt;
-
-      if (img._spectrum>1 && _width==img._spectrum && _depth==1 && _spectrum==1) {
-        // Manage special case of pointwise matrix multiplication of vector-valued images.
-        if (img.size()<~0U) { // Do it all in one step
-          CImg<t> arg = CImg<t>(img,true).resize(img._width*img._height*img._depth,img._spectrum,1,1,-1);
-          return ((*this)*arg).resize(img._width,img._height,img._depth,_height,-1);
-        } else { // Do it row by row
-          CImg<Tt> res(img._width,img._height,img._depth,_height);
-          cimg_forYZ(res,y,z) {
-            CImg<t> arg = img.get_crop(0,y,z,img.width() - 1,y,z);
-            arg.resize(arg._width,arg._spectrum,1,1,-1);
-            res.draw_image(0,y,z,0,((*this)*arg).resize(img._width,1,1,_height,-1));
-          }
-          return res;
-        }
-      }
-
       if (_width!=img._height || _depth!=1 || _spectrum!=1 || img._depth!=1 || img._spectrum!=1)
         throw CImgArgumentException(_cimg_instance
                                     "operator*(): Invalid multiplication of instance by specified "
@@ -27822,7 +27805,7 @@ namespace cimg_library {
           ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.imglist.width());
         }
         CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
-        bool is_invalid_arguments = i_end<=4, is_outlined = false;
+        bool is_invalid_arguments = i_end<=4, is_outlined = false, is_closed = true;
         if (!is_invalid_arguments) {
           int nbv = (int)_mp_arg(4);
           if (!nbv) is_invalid_arguments = true;
@@ -27836,11 +27819,15 @@ namespace cimg_library {
             else { is_invalid_arguments = true; break; }
             if (!is_invalid_arguments) {
               if (i<i_end) opacity = (float)_mp_arg(i++);
-              if (is_outlined && i<i_end) pattern = (unsigned int)_mp_arg(i++);
+              if (is_outlined && i<i_end) {
+                double d_pattern = _mp_arg(i++);
+                if (d_pattern<0) { d_pattern = -d_pattern; is_closed = false; }
+                pattern = (unsigned int)d_pattern;
+              }
               cimg_forX(color,k) if (i<i_end) color[k] = (T)_mp_arg(i++);
               else { color.resize(k,1,1,1,-1); break; }
               color.resize(img._spectrum,1,1,1,0,2);
-              if (is_outlined) img.draw_polygon(points,color._data,opacity,pattern);
+              if (is_outlined) img.draw_polygon(points,color._data,opacity,pattern,is_closed);
               else img.draw_polygon(points,color._data,opacity);
             }
           }
@@ -49472,10 +49459,8 @@ namespace cimg_library {
         throw CImgArgumentException(_cimg_instance
                                     "draw_triangle(): Specified color is (null).",
                                     cimg_instance);
-      draw_line(x0,y0,x1,y1,color,opacity,pattern,true).
-        draw_line(x1,y1,x2,y2,color,opacity,pattern,false).
-        draw_line(x2,y2,x0,y0,color,opacity,pattern,false);
-      return *this;
+      CImg<intT> points(3,2,1,1,x0,x1,x2,y0,y1,y2);
+      return draw_polygon(points,color,opacity,pattern);
     }
 
     //! Draw a filled 2D triangle, with z-buffering.
@@ -51117,7 +51102,8 @@ namespace cimg_library {
     //! Draw a outlined 2D or 3D polygon \overloading.
     template<typename tp, typename tc>
     CImg<T>& draw_polygon(const CImg<tp>& points,
-                          const tc *const color, const float opacity, const unsigned int pattern) {
+                          const tc *const color, const float opacity, const unsigned int pattern,
+                          const bool is_closed=true) {
       if (is_empty() || !points) return *this;
       if (!color)
         throw CImgArgumentException(_cimg_instance
@@ -51135,18 +51121,21 @@ namespace cimg_library {
       if (ipoints._width==1) return draw_point(ipoints(0,0),ipoints(0,1),color,opacity);
       if (ipoints._width==2) return draw_line(ipoints(0,0),ipoints(0,1),ipoints(1,0),ipoints(1,1),
                                               color,opacity,pattern);
-      if (ipoints._width==3) return draw_triangle(ipoints(0,0),ipoints(0,1),ipoints(1,0),ipoints(1,1),
-                                                  ipoints(2,0),ipoints(2,1),color,opacity,pattern);
       bool ninit_hatch = true;
-      const int x0 = ipoints(0,0), y0 = ipoints(0,1);
-      int ox = x0, oy = y0;
-      for (unsigned int i = 1; i<ipoints._width; ++i) {
-        const int x = ipoints(i,0), y = ipoints(i,1);
-        draw_line(ox,oy,x,y,color,opacity,pattern,ninit_hatch);
+      int x = ipoints(0,0), y = ipoints(0,1);
+      const unsigned int N = ipoints._width - (is_closed?0:1);
+      for (unsigned int i = 0; i<N; ++i) {
+        const int
+          ni = (i + 1)%ipoints.width(),
+          nx = ipoints(ni,0), ny = ipoints(ni,1),
+          u = nx - x, v = ny - y,
+          l = std::max(std::abs(u),std::abs(v)),
+          nx1 = is_closed && i<N - 1?(int)cimg::round(x + (l - 1)*u/(float)l):nx,
+          ny1 = is_closed && i<N - 1?(int)cimg::round(y + (l - 1)*v/(float)l):ny;
+        draw_line(x,y,nx1,ny1,color,opacity,pattern,ninit_hatch);
         ninit_hatch = false;
-        ox = x; oy = y;
+        x = nx; y = ny;
       }
-      draw_line(ox,oy,x0,y0,color,opacity,pattern,false);
       return *this;
     }
 

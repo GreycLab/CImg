@@ -51121,7 +51121,7 @@ namespace cimg_library {
       if (ipoints._width==1) return draw_point(ipoints(0,0),ipoints(0,1),color,opacity);
       if (ipoints._width==2) return draw_line(ipoints(0,0),ipoints(0,1),ipoints(1,0),ipoints(1,1),
                                               color,opacity,pattern);
-      bool ninit_hatch = true;
+      bool ninit_hatch = true, is_drawn = false;
       int x = ipoints(0,0), y = ipoints(0,1);
       const unsigned int N = ipoints._width - (is_closed?0:1);
       for (unsigned int i = 0; i<N; ++i) {
@@ -51129,13 +51129,18 @@ namespace cimg_library {
           ni = (i + 1)%ipoints.width(),
           nx = ipoints(ni,0), ny = ipoints(ni,1),
           u = nx - x, v = ny - y,
-          l = std::max(std::abs(u),std::abs(v)),
-          nx1 = is_closed && i<N - 1?(int)cimg::round(x + (l - 1)*u/(float)l):nx,
-          ny1 = is_closed && i<N - 1?(int)cimg::round(y + (l - 1)*v/(float)l):ny;
-        draw_line(x,y,nx1,ny1,color,opacity,pattern,ninit_hatch);
+          l = std::max(std::abs(u),std::abs(v));
+        if (l) {
+          const int
+            nx1 = is_closed || i<N - 1?(int)cimg::round(x + (l - 1)*u/(float)l):nx,
+            ny1 = is_closed || i<N - 1?(int)cimg::round(y + (l - 1)*v/(float)l):ny;
+          draw_line(x,y,nx1,ny1,color,opacity,pattern,ninit_hatch);
+          is_drawn = true;
+        }
         ninit_hatch = false;
         x = nx; y = ny;
       }
+      if (!is_drawn) draw_point(ipoints(0,0),ipoints(0,1),color,opacity); // All vertices were the same
       return *this;
     }
 

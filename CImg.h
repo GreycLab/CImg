@@ -173,6 +173,8 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <fnmatch.h>
+#include <limits.h>
+#include <stdlib.h>
 #elif cimg_OS==2
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -67427,6 +67429,34 @@ namespace cimg_library {
     }
 #endif
 
+#if cimg_OS==1
+    inline bool posix_searchpath(const char *file) {
+      if (!file || !*file) return false;
+      const char *path = getenv("PATH");
+
+      if (!path) path = "/usr/local/bin:/bin:/usr/bin";
+      size_t fileLen = strnlen(file, NAME_MAX+1);
+      if (fileLen > NAME_MAX) return false;
+      size_t pathTotalLen = strnlen(path, PATH_MAX-1)+1;
+
+      char buff[pathTotalLen+fileLen+1];
+      for (const char *p = path, *z = NULL; ; p = z) {
+        z = strchr(p, ':');
+        if (!z) z = p+strlen(p);
+        if ((size_t)(z-p) >= pathTotalLen) {
+          if (!*z++) break;
+          continue;
+        }
+        memcpy(buff, p, z-p);
+        buff[z-p] = '/';
+        memcpy(buff+(z-p)+(z>p), file, fileLen+1);
+        if (access(buff, F_OK) == 0) return true;
+        if (!*z++) break;
+      }
+      return false;
+    }
+#endif
+
     //! Get the file or directory attributes with support for UTF-8 paths (Windows only).
 #if cimg_OS==2
     inline DWORD win_getfileattributes(const char *const path) {
@@ -67875,6 +67905,10 @@ namespace cimg_library {
         if (!path_found) {
           std::strcpy(s_path,"./convert");
           if ((file=cimg::std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
+        }
+        if (!path_found) {
+          std::strcpy(s_path, "magick");
+          if (posix_searchpath("magick")) path_found = true;
         }
         if (!path_found) std::strcpy(s_path,"convert");
 #endif

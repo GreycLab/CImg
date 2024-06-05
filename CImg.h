@@ -51052,9 +51052,9 @@ namespace cimg_library {
         ymax = ipoints.get_shared_row(1).max_min(ymin);
       if (xmax<0 || xmin>=width() || ymax<0 || ymin>=height()) return *this;
       if (ymin==ymax) return draw_line(xmin,ymin,xmax,ymax,color,opacity);
-
       ymin = std::max(0,ymin);
       ymax = std::min(height() - 1,ymax);
+
       CImg<intT> Xs(ipoints._width,ymax - ymin + 1);
       CImg<uintT> count(Xs._height,1,1,1,0);
       unsigned int n = 0, nn = 1;
@@ -51085,7 +51085,7 @@ namespace cimg_library {
       }
 
       cimg_pragma_openmp(parallel for cimg_openmp_if(Xs._height>=(cimg_openmp_sizefactor)*512))
-      cimg_forY(Xs,y) {
+      cimg_forY(Xs,y) if (count[y]) {
         const CImg<intT> Xsy = Xs.get_shared_points(0,count[y] - 1,y).sort();
         int px = width();
         for (unsigned int k = 0; k<Xsy._width; k+=2) {

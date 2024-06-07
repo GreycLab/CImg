@@ -173,8 +173,6 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <fnmatch.h>
-#include <limits.h>
-#include <stdlib.h>
 #elif cimg_OS==2
 #ifndef NOMINMAX
 #define NOMINMAX
@@ -67420,7 +67418,7 @@ namespace cimg_library {
       return 0;
     }
 
-    //! Search path of an executable (Windows only).
+    //! Search path of an executable.
 #if cimg_OS==2
     inline bool win_searchpath(const char *const exec_name, char *const res, const unsigned int size_res) {
       char *ptr = 0;
@@ -67435,24 +67433,27 @@ namespace cimg_library {
       const char *path = getenv("PATH");
 
       if (!path) path = "/usr/local/bin:/bin:/usr/bin";
-      size_t fileLen = strnlen(file, NAME_MAX+1);
-      if (fileLen > NAME_MAX) return false;
-      size_t pathTotalLen = strnlen(path, PATH_MAX-1)+1;
+      size_t file_len = strnlen(file,NAME_MAX + 1);
+      if (file_len>NAME_MAX) return false;
+      size_t path_total_len = strnlen(path,PATH_MAX - 1) + 1;
 
-      char buff[pathTotalLen+fileLen+1];
-      for (const char *p = path, *z = NULL; ; p = z) {
-        z = strchr(p, ':');
-        if (!z) z = p+strlen(p);
-        if ((size_t)(z-p) >= pathTotalLen) {
+      char *buf = new char[path_total_len + file_len + 1];
+      const char *p = path, *z = 0;
+      while (true) {
+        z = std::strchr(p,':');
+        if (!z) z = p + strlen(p);
+        if ((size_t)(z - p)>=path_total_len) {
           if (!*z++) break;
           continue;
         }
-        memcpy(buff, p, z-p);
-        buff[z-p] = '/';
-        memcpy(buff+(z-p)+(z>p), file, fileLen+1);
-        if (access(buff, F_OK) == 0) return true;
+        std::memcpy(buf,p,z - p);
+        buf[z - p] = '/';
+        std::memcpy(buf + (z - p) + (z>p),file,file_len + 1);
+        if (!access(buf,F_OK)) { delete[] buf; return true; }
         if (!*z++) break;
+        p = z;
       }
+      delete[] buf;
       return false;
     }
 #endif
@@ -67907,7 +67908,7 @@ namespace cimg_library {
           if ((file=cimg::std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
         }
         if (!path_found) {
-          std::strcpy(s_path, "magick");
+          std::strcpy(s_path,"magick");
           if (posix_searchpath("magick")) path_found = true;
         }
         if (!path_found) std::strcpy(s_path,"convert");

@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 340
+#define cimg_version 337
 
 /*-----------------------------------------------------------
  #
@@ -7382,6 +7382,9 @@ namespace cimg_library {
 #if cimg_OS==2
       const DWORD res = cimg::win_getfileattributes(path);
       return res!=INVALID_FILE_ATTRIBUTES && !(res&FILE_ATTRIBUTE_DIRECTORY);
+#elif cimg_OS==1
+      struct stat st_buf;
+      return (!stat(path,&st_buf) && (S_ISREG(st_buf.st_mode) || S_ISFIFO(st_buf.st_mode) || S_ISCHR(st_buf.st_mode) || S_ISBLK(st_buf.st_mode)));
 #else
       std::FILE *const file = cimg::std_fopen(path,"rb");
       if (!file) return false;
@@ -67430,7 +67433,7 @@ namespace cimg_library {
 #if cimg_OS==1
     inline bool posix_searchpath(const char *file) {
       if (!file || !*file) return false;
-      const char *path = getenv("PATH");
+      const char *path = std::getenv("PATH");
 
       if (!path) path = "/usr/local/bin:/bin:/usr/bin";
       size_t file_len = strnlen(file,NAME_MAX + 1);
@@ -67441,7 +67444,7 @@ namespace cimg_library {
       const char *p = path, *z = 0;
       while (true) {
         z = std::strchr(p,':');
-        if (!z) z = p + strlen(p);
+        if (!z) z = p + std::strlen(p);
         if ((size_t)(z - p)>=path_total_len) {
           if (!*z++) break;
           continue;
@@ -67449,7 +67452,7 @@ namespace cimg_library {
         std::memcpy(buf,p,z - p);
         buf[z - p] = '/';
         std::memcpy(buf + (z - p) + (z>p),file,file_len + 1);
-        if (!access(buf,F_OK)) { delete[] buf; return true; }
+        if (cimg::is_file(buf)) { delete[] buf; return true; }
         if (!*z++) break;
         p = z;
       }

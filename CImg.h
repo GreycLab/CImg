@@ -7384,7 +7384,8 @@ namespace cimg_library {
       return res!=INVALID_FILE_ATTRIBUTES && !(res&FILE_ATTRIBUTE_DIRECTORY);
 #elif cimg_OS==1
       struct stat st_buf;
-      return (!stat(path,&st_buf) && (S_ISREG(st_buf.st_mode) || S_ISFIFO(st_buf.st_mode) || S_ISCHR(st_buf.st_mode) || S_ISBLK(st_buf.st_mode)));
+      return (!stat(path,&st_buf) && (S_ISREG(st_buf.st_mode) || S_ISFIFO(st_buf.st_mode) ||
+                                      S_ISCHR(st_buf.st_mode) || S_ISBLK(st_buf.st_mode)));
 #else
       std::FILE *const file = cimg::std_fopen(path,"rb");
       if (!file) return false;

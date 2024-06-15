@@ -7384,7 +7384,8 @@ namespace cimg_library {
       return res!=INVALID_FILE_ATTRIBUTES && !(res&FILE_ATTRIBUTE_DIRECTORY);
 #elif cimg_OS==1
       struct stat st_buf;
-      return (!stat(path,&st_buf) && (S_ISREG(st_buf.st_mode) || S_ISFIFO(st_buf.st_mode) || S_ISCHR(st_buf.st_mode) || S_ISBLK(st_buf.st_mode)));
+      return (!stat(path,&st_buf) && (S_ISREG(st_buf.st_mode) || S_ISFIFO(st_buf.st_mode) ||
+                                      S_ISCHR(st_buf.st_mode) || S_ISBLK(st_buf.st_mode)));
 #else
       std::FILE *const file = cimg::std_fopen(path,"rb");
       if (!file) return false;
@@ -22307,7 +22308,7 @@ namespace cimg_library {
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss4,s1,depth1,0,block_flags);
               arg2 = compile(++s1,se1,depth1,0,block_flags);
-              _cimg_mp_check_type(arg1,2,2,0);
+              _cimg_mp_check_type(arg1,1,2,0);
               p1 = size(arg1);
               p2 = size(arg2);
               CImg<ulongT>::vector((ulongT)mp_set,arg2,p2,arg1,p1).move_to(code);
@@ -25615,7 +25616,7 @@ namespace cimg_library {
         const double *ptrs = &_mp_arg(2) + 1;
         double *ptrd = &_mp_arg(1);
         CImg<charT> ss(sizs + 1);
-        cimg_for_inX(ss,0,ss.width() - 1,i) ss[i] = (char)ptrs[i];
+        cimg_for_inX(ss,0,ss.width() - 2,i) ss[i] = (char)ptrs[i];
         ss.back() = 0;
         if (!sizd) return CImg<T>(w,h,d,s,0).eval(ss,0,0,0,0,&mp.imglist); // Scalar result
         CImg<doubleT>(++ptrd,w,h,d,s,true) = CImg<T>(w,h,d,s,0).fill(ss,true,true,&mp.imglist);
@@ -25876,7 +25877,7 @@ namespace cimg_library {
           sizd = (unsigned int)mp.opcode[4];
         const bool to_string = (bool)mp.opcode[5];
         CImg<charT> ss(sizs + 1);
-        cimg_for_inX(ss,0,ss.width() - 1,i) ss[i] = (char)ptrs[i];
+        cimg_for_inX(ss,0,ss.width() - 2,i) ss[i] = (char)ptrs[i];
         ss.back() = 0;
         if (sizd) cimg_mp_func_get(ptrd + 1,sizd,to_string,ss._data);
         else cimg_mp_func_get(ptrd,0,to_string,ss._data);
@@ -28108,7 +28109,7 @@ namespace cimg_library {
           sizs = (unsigned int)mp.opcode[2],
           sizd = (unsigned int)mp.opcode[4];
         CImg<charT> sd(sizd + 1);
-        cimg_for_inX(sd,0,sd.width() - 1,i) sd[i] = (char)ptrd[i];
+        cimg_for_inX(sd,0,sd.width() - 2,i) sd[i] = (char)ptrd[i];
         sd.back() = 0;
         if (sizs) cimg_mp_func_set(ptrs + 1,sizs,sd._data);
         else cimg_mp_func_set(ptrs,0,sd._data);
@@ -28408,7 +28409,7 @@ namespace cimg_library {
                                       "Specified image dimensions (%d,%d,%d,%d) are invalid.",
                                       pixel_type(),w,h,d,s);
         CImg<charT> ss(siz2 + 1);
-        cimg_for_inX(ss,0,ss.width() - 1,i) ss[i] = (char)ptr2[i];
+        cimg_for_inX(ss,0,ss.width() - 2,i) ss[i] = (char)ptr2[i];
         ss.back() = 0;
         if (siz1) cimg_mp_func_store(ptr1 + 1,siz1,
                                      (unsigned int)w,(unsigned int)h,(unsigned int)d,(unsigned int)s,
@@ -29290,7 +29291,7 @@ namespace cimg_library {
       static double _mp_vargkth(CImg<doubleT>& vec) {
         const double val = (+vec).get_shared_points(1,vec.width() - 1).
           kth_smallest((ulongT)cimg::cut((longT)*vec - 1,(longT)0,(longT)vec.width() - 2));
-        cimg_for_inX(vec,1,vec.width()-1,ind) if (vec[ind]==val) return ind - 1.;
+        cimg_for_inX(vec,1,vec.width() - 1,ind) if (vec[ind]==val) return ind - 1.;
         return 1.;
       }
 

@@ -170,6 +170,7 @@
 #include <sys/types.h>
 #include <sys/time.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include <dirent.h>
 #include <fnmatch.h>
@@ -7566,6 +7567,10 @@ namespace cimg_library {
 #if cimg_OS==2
     // Get/set path to the \c powershell binary.
     inline const char *powershell_path(const char *const user_path=0, const bool reinit_path=false);
+#endif
+
+#if cimg_OS==1
+    inline bool posix_searchpath(const char *file);
 #endif
 
     //! Split filename into two C-strings \c body and \c extension.
@@ -58144,7 +58149,7 @@ namespace cimg_library {
       std::FILE *file = 0;
       const CImg<charT> s_filename = CImg<charT>::string(filename)._system_strescape();
 #if cimg_OS==1
-      if (!cimg::system("which gm")) {
+      if (cimg::posix_searchpath("gm")) {
         cimg_snprintf(command,command._width,"%s convert \"%s\" %s:-",
                       cimg::graphicsmagick_path(),
                       s_filename.data(),
@@ -58284,10 +58289,11 @@ namespace cimg_library {
       CImg<charT> command(1024), filename_tmp(256);
       std::FILE *file = 0;
       const CImg<charT> s_filename = CImg<charT>::string(filename)._system_strescape();
+      const char *magick_path = cimg::imagemagick_path();
 #if cimg_OS==1
-      if (!cimg::system("which convert")) {
+      if (cimg::posix_searchpath("magick") || cimg::posix_searchpath("convert")) {
         cimg_snprintf(command,command._width,"%s%s \"%s\" %s:-",
-                      cimg::imagemagick_path(),
+                      magick_path,
                       !cimg::strcasecmp(cimg::split_filename(filename),"pdf")?" -density 400x400":"",
                       s_filename.data(),
 #ifdef cimg_use_png
@@ -58334,11 +58340,11 @@ namespace cimg_library {
         if ((file=cimg::std_fopen(filename_tmp,"rb"))!=0) cimg::fclose(file);
       } while (file);
       cimg_snprintf(command,command._width,"\"%s\"%s \"%s\" \"%s\"",
-                    cimg::imagemagick_path(),
+                    magick_path,
                     !cimg::strcasecmp(cimg::split_filename(filename),"pdf")?" -density 400x400":"",
                     s_filename.data(),
                     CImg<charT>::string(filename_tmp)._system_strescape().data());
-      cimg::system(command,cimg::imagemagick_path());
+      cimg::system(command,magick_path);
       if (!(file=cimg::std_fopen(filename_tmp,"rb"))) {
         cimg::fclose(cimg::fopen(filename,"r"));
         throw CImgIOException(_cimg_instance
@@ -62062,11 +62068,12 @@ namespace cimg_library {
 #else
       save_pnm(filename_tmp);
 #endif
+      const char *magick_path = cimg::imagemagick_path();
       cimg_snprintf(command,command._width,"\"%s\" -quality %u \"%s\" \"%s\"",
-                    cimg::imagemagick_path(),quality,
+                    magick_path,quality,
                     CImg<charT>::string(filename_tmp)._system_strescape().data(),
                     CImg<charT>::string(filename)._system_strescape().data());
-      cimg::system(command,cimg::imagemagick_path());
+      cimg::system(command,magick_path);
       file = cimg::std_fopen(filename,"rb");
       if (!file)
         throw CImgIOException(_cimg_instance
@@ -67453,7 +67460,7 @@ namespace cimg_library {
         std::memcpy(buf,p,z - p);
         buf[z - p] = '/';
         std::memcpy(buf + (z - p) + (z>p),file,file_len + 1);
-        if (cimg::is_file(buf)) { delete[] buf; return true; }
+        if (cimg::is_file(buf) && faccessat(AT_FDCWD, buf, X_OK, AT_EACCESS) == 0) { delete[] buf; return true; }
         if (!*z++) break;
         p = z;
       }

@@ -32444,9 +32444,7 @@ namespace cimg_library {
                                     "project_matrix(): Specified dictionary (%u,%u,%u,%u) has an invalid size.",
                                     cimg_instance,
                                     dictionary._width,dictionary._height,dictionary._depth,dictionary._spectrum);
-
       if (!method) return get_solve(dictionary);
-      CImg<Tfloat> W(_width,dictionary._width,1,1,0);
 
       // Compute dictionary norm and normalize it.
       CImg<Tfloat> D(dictionary,false), Dnorm(D._width);
@@ -32460,6 +32458,7 @@ namespace cimg_library {
       }
 
       // Matching pursuit.
+      CImg<Tfloat> W(_width,dictionary._width,1,1,0);
       const unsigned int proj_step = method<3?1:method - 2;
       bool is_orthoproj = false;
 

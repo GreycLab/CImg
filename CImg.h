@@ -32454,16 +32454,17 @@ namespace cimg_library {
       cimg_forX(D,d) {
         Tfloat norm = 0;
         cimg_forY(D,y) norm+=cimg::sqr(D(d,y));
-        Dnorm[d] = std::max((Tfloat)1e-8,std::sqrt(norm));
+        norm = std::max((Tfloat)1e-8,std::sqrt(norm));
+        cimg_forY(D,y) D(d,y)/=norm;
+        Dnorm[d] = norm;
       }
-      cimg_forXY(D,d,y) D(d,y)/=Dnorm[d];
 
       // Matching pursuit.
       const unsigned int proj_step = method<3?1:method - 2;
       bool is_orthoproj = false;
 
       cimg_pragma_openmp(parallel for cimg_openmp_if(_width>=2 && _width*_height>=32))
-        cimg_forX(*this,x) {
+      cimg_forX(*this,x) {
         CImg<Tfloat> S = get_column(x);
         const CImg<Tfloat> S0 = method<2?CImg<Tfloat>():S;
         Tfloat residual = S.magnitude(2)/S._height;
@@ -32546,10 +32547,7 @@ namespace cimg_library {
       }
 
       // Normalize resulting coefficients according to initial (non-normalized) dictionary.
-      cimg_forX(W,x) {
-        const Tfloat norm = Dnorm[x];
-        cimg_forY(W,y) W(x,y)/=norm;
-      }
+      cimg_forXY(W,x,y) W(x,y)/=Dnorm[y];
       return W;
     }
 

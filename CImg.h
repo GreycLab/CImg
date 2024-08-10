@@ -32468,24 +32468,23 @@ namespace cimg_library {
         const CImg<Tfloat> S0 = method<2?CImg<Tfloat>():S;
         Tfloat residual = S.magnitude(2)/S._height;
         const unsigned int nmax = max_iter?max_iter:D._width;
+        CImg<Tfloat> dots(D._width);
 
         for (unsigned int n = 0; n<nmax && residual>max_residual; ++n) {
 
           // Find best matching column in D.
-          int dmax = 0;
-          Tfloat absdotmax = 0, dotmax = 0;
+          dots.fill(0);
           cimg_pragma_openmp(parallel for cimg_openmp_if(D._width>=2 && D._width*D._height>=32))
-          cimg_forX(D,d) {
-            Tfloat _dot = 0;
-            cimg_forY(D,y) _dot+=S[y]*D(d,y);
-            Tfloat absdot = cimg::abs(_dot);
-            cimg_pragma_openmp(critical(get_project_matrix)) {
-              if (absdot>absdotmax) {
-                absdotmax = absdot;
-                dotmax = _dot;
-                dmax = d;
-              }
-            }
+            cimg_forX(dots,d) {
+            Tfloat dot = 0;
+            cimg_forY(D,y) dot+=S[y]*D(d,y);
+            dots[d] = dot;
+          }
+          int dmax = 0;
+          Tfloat dotmax = 0, absdotmax = 0;
+          cimg_forX(dots,d) {
+            const Tfloat dot = dots[d], absdot = cimg::abs(dot);
+            if (absdot>absdotmax) { dmax = d; dotmax = dot; absdotmax = absdot; }
           }
 
           if (!n || method<3 || n%proj_step) {

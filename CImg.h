@@ -32451,7 +32451,7 @@ namespace cimg_library {
       // Compute dictionary norm and normalize it.
       CImg<Tfloat> D(dictionary,false), Dnorm(D._width);
       cimg_pragma_openmp(parallel for cimg_openmp_if(_width>=2 && _width*_height>=32))
-      cimg_forX(Dnorm,d) {
+      cimg_forX(D,d) {
         Tfloat norm = 0;
         cimg_forY(D,y) norm+=cimg::sqr(D(d,y));
         Dnorm[d] = std::max((Tfloat)1e-8,std::sqrt(norm));
@@ -32486,6 +32486,8 @@ namespace cimg_library {
             const Tfloat dot = dots[d], absdot = cimg::abs(dot);
             if (absdot>absdotmax) { dmax = d; dotmax = dot; absdotmax = absdot; }
           }
+
+//          std::fprintf(stderr,"\nDEBUG : dmax = %d, dotmax = %g",dmax,dotmax);
 
           if (!n || method<3 || n%proj_step) {
             // Matching Pursuit: Subtract component to signal.
@@ -32544,7 +32546,10 @@ namespace cimg_library {
       }
 
       // Normalize resulting coefficients according to initial (non-normalized) dictionary.
-      cimg_forXY(W,x,y) W(x,y)/=Dnorm[y];
+      cimg_forX(W,x) {
+        const Tfloat norm = Dnorm[x];
+        cimg_forY(W,y) W(x,y)/=norm;
+      }
       return W;
     }
 

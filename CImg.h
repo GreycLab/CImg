@@ -32470,12 +32470,12 @@ namespace cimg_library {
         const unsigned int nmax = max_iter?max_iter:D._width;
         CImg<Tfloat> dots(D._width);
 
-        for (unsigned int n = 0; n<nmax && residual>max_residual; ++n) {
+        for (unsigned int it = 0; it<nmax && residual>max_residual; ++it) {
 
           // Find best matching column in D.
           dots.fill(0);
           cimg_pragma_openmp(parallel for cimg_openmp_if(D._width>=2 && D._width*D._height>=32))
-            cimg_forX(dots,d) {
+          cimg_forX(dots,d) {
             Tfloat dot = 0;
             cimg_forY(D,y) dot+=S[y]*D(d,y);
             dots[d] = dot;
@@ -32487,9 +32487,7 @@ namespace cimg_library {
             if (absdot>absdotmax) { dmax = d; dotmax = dot; absdotmax = absdot; }
           }
 
-//          std::fprintf(stderr,"\nDEBUG : dmax = %d, dotmax = %g",dmax,dotmax);
-
-          if (!n || method<3 || n%proj_step) {
+          if (!it || method<3 || it%proj_step) {
             // Matching Pursuit: Subtract component to signal.
             W(x,dmax)+=dotmax;
             residual = 0;

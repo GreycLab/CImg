@@ -32496,25 +32496,25 @@ namespace cimg_library {
 
           } else {
             // Orthogonal Matching Pursuit: Orthogonal projection step.
-            weights(signal,max_atom) = 1; // Used as a marker only.
+            weights(signal,max_atom) = 1; // Use only as a marker
             unsigned int nb_weights = 0;
             cimg_forY(weights,atom) if (weights(signal,atom)) ++nb_weights;
-            CImg<Tfloat> sD(nb_weights,dictionary._height);
-            CImg<uintT> inds(nb_weights);
-            int sd = 0;
+            CImg<Tfloat> sub_dictionary(nb_weights,dictionary._height);
+            CImg<uintT> sub_atoms(nb_weights);
+            int ind = 0;
             cimg_forY(weights,atom) if (weights(signal,atom)) {
-              cimg_forY(sD,s) sD(sd,s) = dictionary(atom,s);
-              inds[sd++] = atom;
+              cimg_forY(sub_dictionary,s) sub_dictionary(ind,s) = dictionary(atom,s);
+              sub_atoms[ind++] = atom;
             }
-            R0.get_solve(sD).move_to(sD); // sD is now a one-column vector of weights
+            const CImg<Tfloat> sub_weights = R0.get_solve(sub_dictionary);
 
-            // Recompute residual signal.
+            // Recompute residual signal according to the projected weights.
             R = R0;
-            cimg_forY(sD,atom) {
-              const Tfloat weight = sD[atom];
-              const unsigned int ind = inds[atom];
-              weights(signal,ind) = weight;
-              cimg_forY(R,s) R[s]-=weight*dictionary(ind,s);
+            cimg_forY(sub_weights,sub_atom) {
+              const Tfloat weight = sub_weights[sub_atom];
+              const unsigned int atom = sub_atoms[sub_atom];
+              weights(signal,atom) = weight;
+              cimg_forY(R,s) R[s]-=weight*dictionary(atom,s);
             }
             residual = R.magnitude(2)/R._height;
             is_orthoproj = true;
@@ -32526,15 +32526,15 @@ namespace cimg_library {
           unsigned int nb_weights = 0;
           cimg_forY(weights,atom) if (weights(signal,atom)) ++nb_weights;
           if (nb_weights) { // Avoid degenerated case where 0 coefs are used
-            CImg<Tfloat> sD(nb_weights,dictionary._height);
-            CImg<uintT> inds(nb_weights);
-            int sd = 0;
+            CImg<Tfloat> sub_dictionary(nb_weights,dictionary._height);
+            CImg<uintT> sub_atoms(nb_weights);
+            int ind = 0;
             cimg_forY(weights,atom) if (weights(signal,atom)) {
-              cimg_forY(sD,s) sD(sd,s) = dictionary(atom,s);
-              inds[sd++] = atom;
+              cimg_forY(sub_dictionary,s) sub_dictionary(ind,s) = dictionary(atom,s);
+              sub_atoms[ind++] = atom;
             }
-            R0.get_solve(sD).move_to(sD);
-            cimg_forY(sD,atom) weights(signal,inds[atom]) = sD[atom];
+            const CImg<Tfloat> sub_weights = R0.get_solve(sub_dictionary);
+            cimg_forY(sub_weights,sub_atom) weights(signal,sub_atoms[sub_atom]) = sub_weights[sub_atom];
           }
         }
       }

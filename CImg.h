@@ -32446,104 +32446,99 @@ namespace cimg_library {
                                     dictionary._width,dictionary._height,dictionary._depth,dictionary._spectrum);
       if (!method) return get_solve(dictionary);
 
-      // Compute dictionary norm and normalize it.
-      CImg<Tfloat> D(dictionary,false), Dnorm(D._width);
-      cimg_pragma_openmp(parallel for cimg_openmp_if(_width>=2 && _width*_height>=32))
-      cimg_forX(D,d) {
+      // Compute norm of dictionary atoms.
+      CImg<Tfloat> dictionary_norm(dictionary._width);
+      cimg_pragma_openmp(parallel for
+                         cimg_openmp_if(dictionary._width>=2 && dictionary._width*dictionary._height>=32))
+      cimg_forX(dictionary_norm,atom) {
         Tfloat norm = 0;
-        cimg_forY(D,y) norm+=cimg::sqr(D(d,y));
-        norm = std::max((Tfloat)1e-8,std::sqrt(norm));
-        cimg_forY(D,y) D(d,y)/=norm;
-        Dnorm[d] = norm;
+        cimg_forY(dictionary,s) norm+=cimg::sqr(dictionary(atom,s));
+        dictionary_norm[atom] = std::max((Tfloat)1e-8,std::sqrt(norm));
       }
 
       // Matching pursuit.
-      CImg<Tfloat> W(_width,dictionary._width,1,1,0);
+      CImg<Tfloat> weights(_width,dictionary._width,1,1,0);
       const unsigned int proj_step = method<3?1:method - 2;
       bool is_orthoproj = false;
 
       cimg_pragma_openmp(parallel for cimg_openmp_if(_width>=2 && _width*_height>=32))
-      cimg_forX(*this,x) {
-        CImg<Tfloat> S = get_column(x);
-        const CImg<Tfloat> S0 = method<2?CImg<Tfloat>():S;
-        Tfloat residual = S.magnitude(2)/S._height;
-        const unsigned int nmax = max_iter?max_iter:D._width;
-        CImg<Tfloat> dots(D._width);
+      cimg_forX(*this,signal) {
+        CImg<Tfloat> R = get_column(signal); // Residual signal
+        const CImg<Tfloat> R0 = method<2?CImg<Tfloat>():R;
+        Tfloat residual = R.magnitude(2)/R._height;
+        const unsigned int _max_iter = max_iter?max_iter:dictionary._width;
 
-        for (unsigned int it = 0; it<nmax && residual>max_residual; ++it) {
+        for (unsigned int iter = 0; iter<_max_iter && residual>max_residual; ++iter) {
 
-          // Find best matching column in D.
-          int dmax = 0;
-          Tfloat absdotmax = 0, dotmax = 0;
-          cimg_pragma_openmp(parallel for cimg_openmp_if(D._width>=2 && D._width*D._height>=32))
-          cimg_forX(D,d) {
+          // Find best matching column from dictionary D.
+          int max_atom = 0;
+          Tfloat max_absdot = 0, max_dot = 0;
+          cimg_pragma_openmp(parallel for
+                             cimg_openmp_if(dictionary._width>=2 && dictionary._width*dictionary._height>=32))
+          cimg_forX(dictionary,atom) {
             Tfloat dot = 0;
-            cimg_forY(D,y) dot+=S[y]*D(d,y);
+            cimg_forY(R,s) dot+=R[s]*dictionary(atom,s);
+            dot/=dictionary_norm[atom];
             const Tfloat absdot = cimg::abs(dot);
             cimg_pragma_openmp(critical(get_project_matrix)) {
-              if (absdot>absdotmax) { dmax = d; dotmax = dot; absdotmax = absdot; }
+              if (absdot>max_absdot) { max_atom = atom; max_dot = dot; max_absdot = absdot; }
             }
           }
 
-          if (!it || method<3 || it%proj_step) {
+          if (!iter || method<3 || iter%proj_step) {
             // Matching Pursuit: Subtract component to signal.
-            W(x,dmax)+=dotmax;
+            max_dot/=dictionary_norm[max_atom];
+            weights(signal,max_atom)+=max_dot;
             residual = 0;
-            cimg_forY(S,y) {
-              S[y]-=dotmax*D(dmax,y);
-              residual+=cimg::sqr(S[y]);
-            }
-            residual = std::sqrt(residual)/S._height;
+            cimg_forY(R,s) { R[s]-=max_dot*dictionary(max_atom,s); residual+=cimg::sqr(R[s]); }
+            residual = std::sqrt(residual)/R._height;
             is_orthoproj = false;
 
           } else {
             // Orthogonal Matching Pursuit: Orthogonal projection step.
-            W(x,dmax) = 1; // Used as a marker only.
-            unsigned int nbW = 0;
-            cimg_forY(W,d) if (W(x,d)) ++nbW;
-            CImg<Tfloat> sD(nbW,D._height);
-            CImg<uintT> inds(nbW);
+            weights(signal,max_atom) = 1; // Used as a marker only.
+            unsigned int nb_weights = 0;
+            cimg_forY(weights,atom) if (weights(signal,atom)) ++nb_weights;
+            CImg<Tfloat> sD(nb_weights,dictionary._height);
+            CImg<uintT> inds(nb_weights);
             int sd = 0;
-            cimg_forY(W,d) if (W(x,d)) {
-              cimg_forY(sD,y) sD(sd,y) = D(d,y);
-              inds[sd++] = d;
+            cimg_forY(weights,atom) if (weights(signal,atom)) {
+              cimg_forY(sD,s) sD(sd,s) = dictionary(atom,s);
+              inds[sd++] = atom;
             }
-            S0.get_solve(sD).move_to(sD); // sD is now a one-column vector of weights
+            R0.get_solve(sD).move_to(sD); // sD is now a one-column vector of weights
 
             // Recompute residual signal.
-            S = S0;
-            cimg_forY(sD,k) {
-              const Tfloat weight = sD[k];
-              const unsigned int ind = inds[k];
-              W(x,ind) = weight;
-              cimg_forY(S,y) S[y]-=weight*D(ind,y);
+            R = R0;
+            cimg_forY(sD,atom) {
+              const Tfloat weight = sD[atom];
+              const unsigned int ind = inds[atom];
+              weights(signal,ind) = weight;
+              cimg_forY(R,s) R[s]-=weight*dictionary(ind,s);
             }
-            residual = S.magnitude(2)/S._height;
+            residual = R.magnitude(2)/R._height;
             is_orthoproj = true;
           }
         }
 
         // Perform last orthoprojection step if needed.
         if (method>=2 && !is_orthoproj) {
-          unsigned int nbW = 0;
-          cimg_forY(W,d) if (W(x,d)) ++nbW;
-          if (nbW) { // Avoid degenerated case where 0 coefs are used
-            CImg<Tfloat> sD(nbW,D._height);
-            CImg<uintT> inds(nbW);
+          unsigned int nb_weights = 0;
+          cimg_forY(weights,atom) if (weights(signal,atom)) ++nb_weights;
+          if (nb_weights) { // Avoid degenerated case where 0 coefs are used
+            CImg<Tfloat> sD(nb_weights,dictionary._height);
+            CImg<uintT> inds(nb_weights);
             int sd = 0;
-            cimg_forY(W,d) if (W(x,d)) {
-              cimg_forY(sD,y) sD(sd,y) = D(d,y);
-              inds[sd++] = d;
+            cimg_forY(weights,atom) if (weights(signal,atom)) {
+              cimg_forY(sD,s) sD(sd,s) = dictionary(atom,s);
+              inds[sd++] = atom;
             }
-            S0.get_solve(sD).move_to(sD);
-            cimg_forY(sD,k) W(x,inds[k]) = sD[k];
+            R0.get_solve(sD).move_to(sD);
+            cimg_forY(sD,atom) weights(signal,inds[atom]) = sD[atom];
           }
         }
       }
-
-      // Normalize resulting coefficients according to initial (non-normalized) dictionary.
-      cimg_forXY(W,x,y) W(x,y)/=Dnorm[y];
-      return W;
+      return weights;
     }
 
     //! Compute minimal path in a graph, using the Dijkstra algorithm.

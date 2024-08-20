@@ -32473,18 +32473,16 @@ namespace cimg_library {
         for (unsigned int it = 0; it<nmax && residual>max_residual; ++it) {
 
           // Find best matching column in D.
-          dots.fill(0);
+          int dmax = 0;
+          Tfloat absdotmax = 0, dotmax = 0;
           cimg_pragma_openmp(parallel for cimg_openmp_if(D._width>=2 && D._width*D._height>=32))
-          cimg_forX(dots,d) {
+          cimg_forX(D,d) {
             Tfloat dot = 0;
             cimg_forY(D,y) dot+=S[y]*D(d,y);
-            dots[d] = dot;
-          }
-          int dmax = 0;
-          Tfloat dotmax = 0, absdotmax = 0;
-          cimg_forX(dots,d) {
-            const Tfloat dot = dots[d], absdot = cimg::abs(dot);
-            if (absdot>absdotmax) { dmax = d; dotmax = dot; absdotmax = absdot; }
+            const Tfloat absdot = cimg::abs(dot);
+            cimg_pragma_openmp(critical(get_project_matrix)) {
+              if (absdot>absdotmax) { dmax = d; dotmax = dot; absdotmax = absdot; }
+            }
           }
 
           if (!it || method<3 || it%proj_step) {

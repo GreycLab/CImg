@@ -234,7 +234,8 @@ static CImg get_load_jpeg_buffer(const JOCTET *const buffer, const unsigned buff
   jpeg_start_decompress(&cinfo);
 
   const unsigned int row_stride = cinfo.output_width * cinfo.output_components;
-  JOCTET *buf = new JOCTET[cinfo.output_width*cinfo.output_height*cinfo.output_components];
+  const size_t siz = safe_size(cinfo.output_width,cinfo.output_height,1,cinfo.output_components);
+  JOCTET *buf = new JOCTET[siz];
   const JOCTET *buf2 = buf;
   JSAMPROW row_pointer[1];
   while (cinfo.output_scanline < cinfo.output_height) {

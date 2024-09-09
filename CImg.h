@@ -32471,7 +32471,7 @@ namespace cimg_library {
         for (unsigned int iter = 0; iter<_max_iter && residual>max_residual; ++iter) {
 
           // Find best matching column from dictionary D.
-          int max_atom = 0;
+          int best_atom = 0;
           Tfloat max_absdot = 0, max_dot = 0;
           cimg_pragma_openmp(parallel for
                              cimg_openmp_if(dictionary._width>=2 && dictionary._width*dictionary._height>=32))
@@ -32481,22 +32481,22 @@ namespace cimg_library {
             dot/=dictionary_norm[atom];
             const Tfloat absdot = cimg::abs(dot);
             cimg_pragma_openmp(critical(get_project_matrix)) {
-              if (absdot>max_absdot) { max_atom = atom; max_dot = dot; max_absdot = absdot; }
+              if (absdot>max_absdot) { best_atom = atom; max_dot = dot; max_absdot = absdot; }
             }
           }
 
           if (!iter || method<3 || iter%proj_step) {
             // Matching Pursuit: Subtract component to signal.
-            max_dot/=dictionary_norm[max_atom];
-            weights(signal,max_atom)+=max_dot;
+            max_dot/=dictionary_norm[best_atom];
+            weights(signal,best_atom)+=max_dot;
             residual = 0;
-            cimg_forY(R,s) { R[s]-=max_dot*dictionary(max_atom,s); residual+=cimg::sqr(R[s]); }
+            cimg_forY(R,s) { R[s]-=max_dot*dictionary(best_atom,s); residual+=cimg::sqr(R[s]); }
             residual = std::sqrt(residual)/R._height;
             is_orthoproj = false;
 
           } else {
             // Orthogonal Matching Pursuit: Orthogonal projection step.
-            weights(signal,max_atom) = 1; // Use only as a marker
+            weights(signal,best_atom) = 1; // Use only as a marker
             unsigned int nb_weights = 0;
             cimg_forY(weights,atom) if (weights(signal,atom)) ++nb_weights;
             CImg<Tfloat> sub_dictionary(nb_weights,dictionary._height);

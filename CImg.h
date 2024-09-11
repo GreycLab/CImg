@@ -30211,6 +30211,28 @@ namespace cimg_library {
       return (+*this).ror(img);
     }
 
+    //! Softmax operator.
+    CImg<T>& softmax(const float temperature=1) {
+      return get_softmax(temperature).move_to(*this);
+    }
+
+    //! Softmax operator \newinstance.
+    CImg<Tfloat> get_softmax(const float temperature=1) const {
+      if (is_empty()) return CImg<Tfloat>();
+      CImg<Tfloat> res(_width,_height,_depth,_spectrum);
+      const T val_max = max();
+      Tfloat sum = 0;
+      cimg_pragma_openmp(parallel reduction(+:sum)) {
+        cimg_pragma_openmp(for cimg_openmp_if_size(size(),4096))
+        cimg_rofoff(*this,off) {
+          const Tfloat val = std::exp(((Tfloat)_data[off] - val_max)/temperature);
+          res[off] = val;
+          sum+=val;
+        }
+      }
+      return res/=sum;
+    }
+
     //! Pointwise min operator between instance image and a value.
     /**
        \param val Value used as the reference argument of the min operator.

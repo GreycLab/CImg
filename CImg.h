@@ -28593,19 +28593,23 @@ namespace cimg_library {
         return cimg::rand(m,M,&mp.rng);
       }
 
+      static double _mp_rand_int(_cimg_math_parser& mp, unsigned int delta) {
+        if (!delta) return 0;
+        if (delta!=cimg::type<unsigned int>::max()) ++delta;
+        unsigned int val = 0;
+        do { val = (unsigned int)std::floor(cimg::rand(delta,&mp.rng)); } while (val>delta);
+        return val;
+      }
+
       static double mp_rand_int(_cimg_math_parser& mp) {
         double
           _m = _mp_arg(2),
           _M = _mp_arg(3);
         if (_m>_M) cimg::swap(_m,_M);
-        const int
-          m = (int)std::ceil(_m),
-          M = (int)std::floor(_M);
-        if (m>M) return cimg::type<double>::nan();
-        if (M==m) return m;
-        int val = 0;
-        do { val = (int)std::floor(cimg::rand(m,M + 1,&mp.rng)); } while (val>M);
-        return val;
+        const double
+          m = cimg::type<int>::cut(std::ceil(_m)),
+          M = cimg::type<int>::cut(std::floor(_M));
+        return (double)m + _mp_rand_int(mp,(unsigned int)(M - m));
       }
 
       static double mp_rand_int_0_1(_cimg_math_parser& mp) {
@@ -28615,11 +28619,7 @@ namespace cimg_library {
       static double mp_rand_int_0_N(_cimg_math_parser& mp) {
         const double _M = _mp_arg(2);
         const bool sgn = _M>=0;
-        const int M = (int)std::floor(sgn?_M:-_M);
-        if (!M) return 0;
-        int val = 0;
-        do { val = (int)std::floor(cimg::rand(M + 1,&mp.rng)); } while (val>M);
-        return (sgn?1:-1)*val;
+        return (sgn?1.0:-1.0)*_mp_rand_int(mp,cimg::type<unsigned int>::cut(std::floor(sgn?_M:-_M)));
       }
 
       static double mp_rand_int_m1_1(_cimg_math_parser& mp) {
@@ -28637,16 +28637,10 @@ namespace cimg_library {
           _m = _mp_arg(2),
           _M = _mp_arg(3);
         if (_m>_M) cimg::swap(_m,_M);
-        int
-          m = (int)std::ceil(_m),
-          M = (int)std::floor(_M),
-          val = 0;
-        if (!include_min) ++m;
-        if (!include_max) --M;
-        if (m>M) return cimg::type<double>::nan();
-        if (M==m) return m;
-        do { val = (int)std::floor(cimg::rand(m,M + 1,&mp.rng)); } while (val>M);
-        return val;
+        const int
+          m = cimg::type<int>::cut(std::ceil(_m)) + (include_min?0:1),
+          M = cimg::type<int>::cut(std::floor(_M)) - (include_max?0:1);
+        return (double)m + _mp_rand_int(mp,(unsigned int)(M - m));
       }
 
       static double mp_ui2f(_cimg_math_parser& mp) {

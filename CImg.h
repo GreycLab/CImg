@@ -28593,11 +28593,12 @@ namespace cimg_library {
         return cimg::rand(m,M,&mp.rng);
       }
 
-      static double _mp_rand_int(_cimg_math_parser& mp, unsigned int delta) {
-        if (!delta) return 0;
-        if (delta!=cimg::type<unsigned int>::max()) ++delta;
-        unsigned int val = 0;
-        do { val = (unsigned int)std::floor(cimg::rand(delta,&mp.rng)); } while (val>delta);
+      static double _mp_rand_int(_cimg_math_parser& mp, const double delta) {
+        if (delta>=cimg::type<cimg_uint64>::max()) return cimg::round(cimg::rand(0,delta,&mp.rng));
+        const cimg_uint64 _delta = (cimg_uint64)delta;
+        if (!_delta) return 0;
+        cimg_uint64 val = 0;
+        do { val = (cimg_uint64)std::floor(cimg::rand(_delta + 1,&mp.rng)); } while (val>_delta);
         return val;
       }
 
@@ -28607,9 +28608,9 @@ namespace cimg_library {
           _M = _mp_arg(3);
         if (_m>_M) cimg::swap(_m,_M);
         const double
-          m = cimg::type<int>::cut(std::ceil(_m)),
-          M = cimg::type<int>::cut(std::floor(_M));
-        return (double)m + _mp_rand_int(mp,(unsigned int)(M - m));
+          m = cimg::type<cimg_uint64>::cut(std::ceil(_m)),
+          M = cimg::type<cimg_uint64>::cut(std::floor(_M));
+        return (double)m + _mp_rand_int(mp,M - m);
       }
 
       static double mp_rand_int_0_1(_cimg_math_parser& mp) {
@@ -28618,8 +28619,8 @@ namespace cimg_library {
 
       static double mp_rand_int_0_N(_cimg_math_parser& mp) {
         const double _M = _mp_arg(2);
-        const bool sgn = _M>=0;
-        return (sgn?1.0:-1.0)*_mp_rand_int(mp,cimg::type<unsigned int>::cut(std::floor(sgn?_M:-_M)));
+        const int sgn = _M>=0?1:-1;
+        return sgn*_mp_rand_int(mp,_M*sgn);
       }
 
       static double mp_rand_int_m1_1(_cimg_math_parser& mp) {
@@ -28638,9 +28639,9 @@ namespace cimg_library {
           _M = _mp_arg(3);
         if (_m>_M) cimg::swap(_m,_M);
         const int
-          m = cimg::type<int>::cut(std::ceil(_m)) + (include_min?0:1),
-          M = cimg::type<int>::cut(std::floor(_M)) - (include_max?0:1);
-        return (double)m + _mp_rand_int(mp,(unsigned int)(M - m));
+          m = cimg::type<cimg_uint64>::cut(std::ceil(_m)) + (include_min?0:1),
+          M = cimg::type<cimg_uint64>::cut(std::floor(_M)) - (include_max?0:1);
+        return (double)m + _mp_rand_int(mp,M - m);
       }
 
       static double mp_ui2f(_cimg_math_parser& mp) {

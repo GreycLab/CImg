@@ -25741,12 +25741,18 @@ namespace cimg_library {
 
         // Forward search
         if (step>0) {
-          while (ptr<ptre && *ptr!=val) ptr+=step;
+          if (cimg::type<double>::is_nan(val))
+            while (ptr<ptre && !cimg::type<double>::is_nan(*ptr)) ptr+=step;
+          else
+            while (ptr<ptre && *ptr!=val) ptr+=step;
           return ptr>=ptre?-1.:(double)(ptr - ptrb);
         }
 
         // Backward search.
-        while (ptr>=ptrb && *ptr!=val) ptr+=step;
+        if (cimg::type<double>::is_nan(val))
+          while (ptr>=ptrb && !cimg::type<double>::is_nan(*ptr)) ptr+=step;
+        else
+          while (ptr>=ptrb && *ptr!=val) ptr+=step;
         return ptr<ptrb?-1.:(double)(ptr - ptrb);
       }
 
@@ -25769,22 +25775,30 @@ namespace cimg_library {
         // Forward search.
         if (step>0) {
           do {
-            while (ptr1<ptr1e && *ptr1!=*ptr2b) ptr1+=step;
+            if (cimg::type<double>::is_nan(*ptr2b))
+              while (ptr1<ptr1e && !cimg::type<double>::is_nan(*ptr1)) ptr1+=step;
+            else
+              while (ptr1<ptr1e && *ptr1!=*ptr2b) ptr1+=step;
             if (ptr1>=ptr1e) return -1.;
             p1 = ptr1 + 1;
             p2 = ptr2b + 1;
-            while (p1<ptr1e && p2<ptr2e && *p1==*p2) { ++p1; ++p2; }
+            while (p1<ptr1e && p2<ptr2e &&
+                   ((cimg::type<double>::is_nan(*p1) && cimg::type<double>::is_nan(*p2)) || *p1==*p2)) { ++p1; ++p2; }
           } while (p2<ptr2e && (ptr1+=step)<ptr1e);
           return p2<ptr2e?-1.:(double)(ptr1 - ptr1b);
         }
 
         // Backward search.
         do {
-          while (ptr1>=ptr1b && *ptr1!=*ptr2b) ptr1+=step;
+          if (cimg::type<double>::is_nan(*ptr2b))
+            while (ptr1>=ptr1b && !cimg::type<double>::is_nan(*ptr1)) ptr1+=step;
+          else
+            while (ptr1>=ptr1b && *ptr1!=*ptr2b) ptr1+=step;
           if (ptr1<ptr1b) return -1.;
           p1 = ptr1 + 1;
           p2 = ptr2b + 1;
-          while (p1<ptr1e && p2<ptr2e && *p1==*p2) { ++p1; ++p2; }
+          while (p1<ptr1e && p2<ptr2e &&
+                 ((cimg::type<double>::is_nan(*p1) && cimg::type<double>::is_nan(*p2)) || *p1==*p2)) { ++p1; ++p2; }
         } while (p2<ptr2e && (ptr1+=step)>=ptr1b);
         return p2<ptr2e?-1.:(double)(ptr1 - ptr1b);
       }

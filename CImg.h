@@ -522,6 +522,18 @@ extern "C" {
 #include <libheif/heif_cxx.h>
 #endif
 
+// Configure WebP support
+// (https://chromium.googlesource.com/webm/libwebp/)
+//
+// Define 'cimg_use_webp' to enable WebP support.
+//
+// WebP library may be used to get a native support of '.webp' files.
+// (see method 'CImg<T>::{load,save}_webp()').
+#ifdef cimg_use_webp
+#include <webp/decode.h>
+#include <webp/encode.h>
+#endif
+
 // Configure LibMINC2 support.
 // (http://en.wikibooks.org/wiki/MINC/Reference/MINC2.0_File_Format_Reference)
 //
@@ -55349,6 +55361,7 @@ namespace cimg_library {
         else if (!cimg::strcasecmp(ext,"gif")) load_gif_external(filename);
         else if (!cimg::strcasecmp(ext,"heic") ||
                  !cimg::strcasecmp(ext,"avif")) load_heif(filename);
+        else if (!cimg::strcasecmp(ext,"webp")) load_webp(filename);
 
         // 3D binary formats
         else if (!cimg::strcasecmp(ext,"dcm") ||
@@ -55420,6 +55433,7 @@ namespace cimg_library {
           else if (!cimg::strcasecmp(f_type,"tif")) load_tiff(filename);
           else if (!cimg::strcasecmp(f_type,"gif")) load_gif_external(filename);
           else if (!cimg::strcasecmp(f_type,"dcm")) load_medcon_external(filename);
+          else if (!cimg::strcasecmp(f_type,"webp")) load_webp(filename);
           else is_loaded = false;
         } catch (CImgIOException&) { is_loaded = false; }
       }
@@ -58189,6 +58203,68 @@ namespace cimg_library {
 #endif
     }
 
+    //! Load image from a WebP file.
+    /**
+       \param filename Filename, as a C-string.
+    **/
+    CImg<T>& load_webp(const char *const filename) {
+      return _load_webp(filename);
+    }
+
+    //! Load image from a WebP file \newinstance.
+    static CImg<T> get_load_webp(const char *const filename) {
+      return CImg<T>().load_webp(filename);
+    }
+
+    CImg<T>& _load_webp(const char *const filename) {
+#ifndef cimg_use_webp
+      return load_other(filename);
+#else
+      std::FILE *file = cimg::fopen(filename, "rb");
+      const long data_size = cimg::fsize(file);
+      if (data_size <= 0) {
+        cimg::fclose(file);
+        throw CImgIOException(_cimg_instance
+                              "load_webp(): Failed to get file size '%s'.",
+                              cimg_instance,
+                              filename);
+      }
+      CImg<ucharT> buffer(data_size);
+      cimg::fread(buffer._data, buffer._width, file);
+      int width = 0, height = 0;
+      if (!WebPGetInfo(buffer._data, data_size, &width, &height)) {
+        cimg::fclose(file);
+        throw CImgIOException(_cimg_instance
+                              "load_webp(): Failed to get image width/height '%s'.",
+                              cimg_instance,
+                              filename);
+      }
+      assign(width,height,1,4);
+      unsigned char *imgData = WebPDecodeRGBA(buffer._data, data_size, NULL, NULL);
+      if (!imgData) {
+        cimg::fclose(file);
+        throw CImgIOException(_cimg_instance
+                              "load_webp(): Failed to decode image '%s'.",
+                              cimg_instance,
+                              filename);
+      }
+      T *ptr_r = _data, *ptr_g = _data + 1UL*width*height,
+        *ptr_b = _data + 2UL*width*height, *ptr_a = _data + 3UL*width*height;
+      cimg_forY(*this,y) {
+        const unsigned char *ptrs = (unsigned char*)&imgData[y*width*4];
+        cimg_forX(*this,x) {
+          *(ptr_r++) = (T)*(ptrs++);
+          *(ptr_g++) = (T)*(ptrs++);
+          *(ptr_b++) = (T)*(ptrs++);
+          *(ptr_a++) = (T)*(ptrs++);
+        }
+      }
+      WebPFree(imgData);
+      cimg::fclose(file);
+      return *this;
+#endif
+    }
+
     //! Load image using GraphicsMagick's external tool 'gm'.
     /**
        \param filename Filename, as a C-string.
@@ -59942,6 +60018,7 @@ namespace cimg_library {
       else if (!cimg::strcasecmp(ext,"exr")) return save_exr(fn);
       else if (!cimg::strcasecmp(ext,"tif") ||
                !cimg::strcasecmp(ext,"tiff")) return save_tiff(fn);
+      else if (!cimg::strcasecmp(ext,"webp")) return save_webp(fn);
 
       // 3D binary formats
       else if (!*ext) {
@@ -60203,6 +60280,61 @@ namespace cimg_library {
       }
       if (!file) cimg::fclose(nfile);
       return *this;
+    }
+
+    //! Save image as a WebP file.
+    /**
+      \param filename Filename, as a C-string.
+      \param quality Image quality (in %)
+    **/
+    const CImg<T>& save_webp(const char *const filename, const int quality=100) const {
+      return _save_webp(filename,quality);
+    }
+
+    const CImg<T>& _save_webp(const char *const filename, const int quality) const {
+      if (!filename)
+        throw CImgArgumentException(_cimg_instance
+                                    "save_webp(): Specified filename is (null).",
+                                    cimg_instance);
+      if (_spectrum != 3 && _spectrum != 4)
+        throw CImgArgumentException(_cimg_instance
+                                    "save_webp(): WebP only supports (A)RGB colorspace.",
+                                    cimg_instance);
+#ifndef cimg_use_webp
+      return save_other(filename);
+#else
+      CImg<uint8_t> rgbaBuffer(size());
+      T *ptr_r = _data, *ptr_g = _data + 1UL*_width*_height,
+        *ptr_b = _data + 2UL*_width*_height, *ptr_a = _spectrum==3?NULL:_data + 3UL*_width*_height;
+      uint8_t *ptr = rgbaBuffer._data;
+      cimg_forY(*this,y) {
+        cimg_forX(*this,x) {
+          *(ptr++) = (T)*(ptr_r++);
+          *(ptr++) = (T)*(ptr_g++);
+          *(ptr++) = (T)*(ptr_b++);
+          if (ptr_a) *(ptr++) = (T)*(ptr_a++);
+        }
+      }
+      uint8_t *imgData = NULL;
+      const int stride = _width*_spectrum*sizeof(uint8_t);
+      size_t size = 0;
+      if (_spectrum == 3) {
+        size = WebPEncodeRGB(rgbaBuffer._data, _width, _height, stride, (float)quality, &imgData);
+      } else {
+        size = WebPEncodeRGBA(rgbaBuffer._data, _width, _height, stride, (float)quality, &imgData);
+      }
+      if (!imgData) {
+        throw CImgIOException(_cimg_instance
+                              "save_webp(): Failed to encode image to file '%s'.",
+                              cimg_instance,
+                              filename);
+      }
+      std::FILE *file = cimg::fopen(filename, "wb");
+      cimg::fwrite(imgData, size, file);
+      cimg::fclose(file);
+      WebPFree(imgData);
+      return *this;
+#endif
     }
 
     //! Save image as a JPEG file.
@@ -68314,7 +68446,8 @@ namespace cimg_library {
         *const _pfm = "pfm",
         *const _png = "png",
         *const _pnm = "pnm",
-        *const _tif = "tif";
+        *const _tif = "tif",
+        *const _webp = "webp";
 
       const char *f_type = 0;
       CImg<char> header;
@@ -68347,6 +68480,9 @@ namespace cimg_library {
         else if ((uheader[0]==0x49 && uheader[1]==0x49 && uheader[2]==0x2A && uheader[3]==0x00) ||
                  (uheader[0]==0x4D && uheader[1]==0x4D && uheader[2]==0x00 && uheader[3]==0x2A)) // TIFF
           f_type = _tif;
+        else if (uheader[0]==0x52 && uheader[1]==0x49 && uheader[2]==0x46 && uheader[3]==0x46 &&
+                 uheader[8]==0x57 && uheader[9]==0x45 && uheader[10]==0x42 && uheader[11]==0x50) // WebP
+          f_type = _webp;
         else { // PNM or PFM
           CImgList<char> _header = header.get_split(CImg<char>::vector('\n'),0,false);
           cimglist_for(_header,l) {

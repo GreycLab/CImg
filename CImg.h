@@ -60301,6 +60301,7 @@ namespace cimg_library {
                                     "save_webp(): WebP only supports (A)RGB colorspace.",
                                     cimg_instance);
 #ifndef cimg_use_webp
+      cimg::unused(quality);
       return save_other(filename);
 #else
       CImg<uint8_t> rgbaBuffer(size());

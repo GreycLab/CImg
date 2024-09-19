@@ -58231,36 +58231,54 @@ namespace cimg_library {
       }
       CImg<ucharT> buffer(data_size);
       cimg::fread(buffer._data, buffer._width, file);
-      int width = 0, height = 0;
-      if (!WebPGetInfo(buffer._data, data_size, &width, &height)) {
-        cimg::fclose(file);
+      cimg::fclose(file);
+
+      WebPDecoderConfig config;
+      if (!WebPInitDecoderConfig(&config))
         throw CImgIOException(_cimg_instance
-                              "load_webp(): Failed to get image width/height '%s'.",
+                              "load_webp(): Failed to init WebP decoder config.",
+                              cimg_instance);
+
+      if (WebPGetFeatures(buffer._data, data_size, &config.input) != VP8_STATUS_OK)
+        throw CImgIOException(_cimg_instance
+                              "load_webp(): Failed to get image meta info of '%s'.",
                               cimg_instance,
                               filename);
+
+      if (config.input.has_animation)
+        throw CImgIOException(_cimg_instance
+                              "load_webp(): Does not support animated WebP '%s'.",
+                              cimg_instance,
+                              filename);
+
+      int width = config.input.width, height = config.input.height;
+      if (config.input.has_alpha) {
+        config.output.colorspace = MODE_RGBA;
+        assign(width,height,1,4);
+      } else {
+        config.output.colorspace = MODE_RGB;
+        assign(width,height,1,3);
       }
-      assign(width,height,1,4);
-      unsigned char *imgData = WebPDecodeRGBA(buffer._data, data_size, NULL, NULL);
-      if (!imgData) {
-        cimg::fclose(file);
+      if (WebPDecode(buffer._data, data_size, &config) != VP8_STATUS_OK)
         throw CImgIOException(_cimg_instance
                               "load_webp(): Failed to decode image '%s'.",
                               cimg_instance,
                               filename);
-      }
+
+      uint8_t *imgData = config.output.u.RGBA.rgba;
       T *ptr_r = _data, *ptr_g = _data + 1UL*width*height,
-        *ptr_b = _data + 2UL*width*height, *ptr_a = _data + 3UL*width*height;
+        *ptr_b = _data + 2UL*width*height;
+      T *ptr_a = _spectrum==3 ? NULL : _data + 3UL*width*height;
       cimg_forY(*this,y) {
-        const unsigned char *ptrs = (unsigned char*)&imgData[y*width*4];
+        const unsigned char *ptrs = (unsigned char*)&imgData[y*width*_spectrum];
         cimg_forX(*this,x) {
           *(ptr_r++) = (T)*(ptrs++);
           *(ptr_g++) = (T)*(ptrs++);
           *(ptr_b++) = (T)*(ptrs++);
-          *(ptr_a++) = (T)*(ptrs++);
+          if (ptr_a) *(ptr_a++) = (T)*(ptrs++);
         }
       }
-      WebPFree(imgData);
-      cimg::fclose(file);
+      WebPFreeDecBuffer(&config.output);
       return *this;
 #endif
     }
@@ -60304,6 +60322,7 @@ namespace cimg_library {
       cimg::unused(quality);
       return save_other(filename);
 #else
+      std::FILE *file = cimg::fopen(filename, "wb");
       CImg<uint8_t> rgbaBuffer(size());
       T *ptr_r = _data, *ptr_g = _data + 1UL*_width*_height,
         *ptr_b = _data + 2UL*_width*_height, *ptr_a = _spectrum==3?NULL:_data + 3UL*_width*_height;
@@ -60330,7 +60349,6 @@ namespace cimg_library {
                               cimg_instance,
                               filename);
       }
-      std::FILE *file = cimg::fopen(filename, "wb");
       cimg::fwrite(imgData, size, file);
       cimg::fclose(file);
       WebPFree(imgData);

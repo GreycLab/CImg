@@ -29048,61 +29048,54 @@ namespace cimg_library {
         const double
           *ptr1 = &_mp_arg(2) + 1,
           *ptr2 = &_mp_arg(4) + 1;
-        unsigned int p1 = (unsigned int)mp.opcode[3], p2 = (unsigned int)mp.opcode[5], n;
-        const int N = (int)_mp_arg(6);
+        unsigned int
+          siz1 = (unsigned int)mp.opcode[3],
+          siz2 = (unsigned int)mp.opcode[5],
+          n;
+        int N = (int)_mp_arg(6);
         const bool case_sensitive = (bool)_mp_arg(7);
-        bool still_equal = true;
-        double value;
-        if (!N) return true;
-
-        // Compare all values.
-        if (N<0) {
-          if (p1>0 && p2>0) { // Vector == vector
-            if (p1!=p2) return false;
-            if (case_sensitive)
-              while (still_equal && p1--) still_equal = *(ptr1++)==*(ptr2++);
-            else
-              while (still_equal && p1--)
-                still_equal = cimg::lowercase(*(ptr1++))==cimg::lowercase(*(ptr2++));
-            return still_equal;
-          } else if (p1>0 && !p2) { // Vector == scalar
-            value = _mp_arg(4);
-            if (!case_sensitive) value = cimg::lowercase(value);
-            while (still_equal && p1--) still_equal = *(ptr1++)==value;
-            return still_equal;
-          } else if (!p1 && p2>0) { // Scalar == vector
-            value = _mp_arg(2);
-            if (!case_sensitive) value = cimg::lowercase(value);
-            while (still_equal && p2--) still_equal = *(ptr2++)==value;
-            return still_equal;
-          } else { // Scalar == scalar
-            if (case_sensitive) return _mp_arg(2)==_mp_arg(4);
-            else return cimg::lowercase(_mp_arg(2))==cimg::lowercase(_mp_arg(4));
-          }
+        if (!N) return 1;
+        if (N<0) { // Compare all values
+          if (siz1>0 && siz2>0 && siz1!=siz2) return 0;
+          N = std::max(siz1,siz2);
         }
 
-        // Compare only first N values.
-        if (p1>0 && p2>0) { // Vector == vector
-          n = cimg::min((unsigned int)N,p1,p2);
+        // Compare first N values.
+        bool still_equal = true;
+        if (siz1>0 && siz2>0) { // Vector == vector
+          n = cimg::min((unsigned int)N,siz1,siz2);
           if (case_sensitive)
-            while (still_equal && n--) still_equal = *(ptr1++)==(*ptr2++);
+            while (still_equal && n--) {
+              still_equal = (cimg::type<double>::is_nan(*ptr1) && cimg::type<double>::is_nan(*ptr2)) ||
+                *ptr1==*ptr2;
+              ++ptr1; ++ptr2;
+            }
           else
-            while (still_equal && n--) still_equal = cimg::lowercase(*(ptr1++))==cimg::lowercase(*(ptr2++));
+            while (still_equal && n--) {
+              still_equal = (cimg::type<double>::is_nan(*ptr1) && cimg::type<double>::is_nan(*ptr2)) ||
+                cimg::lowercase(*ptr1)==cimg::lowercase(*ptr2);
+              ++ptr1; ++ptr2;
+            }
           return still_equal;
-        } else if (p1>0 && !p2) { // Vector == scalar
-          n = std::min((unsigned int)N,p1);
-          value = _mp_arg(4);
-          if (!case_sensitive) value = cimg::lowercase(value);
-          while (still_equal && n--) still_equal = *(ptr1++)==value;
+        } else if (siz1>0 && !siz2) { // Vector == scalar
+          n = std::min((unsigned int)N,siz1);
+          const double value = case_sensitive?_mp_arg(4):cimg::lowercase(_mp_arg(4));
+          if (cimg::type<double>::is_nan(value))
+            while (still_equal && n--) still_equal = cimg::type<double>::is_nan(*(ptr1++));
+          else
+            while (still_equal && n--) still_equal = *(ptr1++)==value;
           return still_equal;
-        } else if (!p1 && p2>0) { // Scalar == vector
-          n = std::min((unsigned int)N,p2);
-          value = _mp_arg(2);
-          if (!case_sensitive) value = cimg::lowercase(value);
-          while (still_equal && n--) still_equal = *(ptr2++)==value;
+        } else if (!siz1 && siz2>0) { // Scalar == vector
+          n = std::min((unsigned int)N,siz2);
+          const double value = case_sensitive?_mp_arg(2):cimg::lowercase(_mp_arg(2));
+          if (cimg::type<double>::is_nan(value))
+            while (still_equal && siz2--) still_equal = cimg::type<double>::is_nan(*(ptr2++));
+          else
+            while (still_equal && n--) still_equal = *(ptr2++)==value;
           return still_equal;
         }  // Scalar == scalar
         if (case_sensitive) return _mp_arg(2)==_mp_arg(4);
+        else if (cimg::type<double>::is_nan(_mp_arg(2))) return cimg::type<double>::is_nan(_mp_arg(4));
         return cimg::lowercase(_mp_arg(2))==cimg::lowercase(_mp_arg(4));
       }
 
@@ -29267,18 +29260,18 @@ namespace cimg_library {
 
       static double mp_vector_resize(_cimg_math_parser& mp) {
         double *const ptrd = &_mp_arg(1) + 1;
-        const unsigned int siz = (unsigned int)mp.opcode[2], p2 = (unsigned int)mp.opcode[4];
+        const unsigned int target_siz = (unsigned int)mp.opcode[2], initial_siz = (unsigned int)mp.opcode[4];
         const int
           interpolation = (int)_mp_arg(5),
           boundary_conditions = (int)_mp_arg(6);
-        if (p2) { // Resize vector
+        if (initial_siz) { // Resize vector
           const double *const ptrs = &_mp_arg(3) + 1;
-          CImg<doubleT>(ptrd,siz,1,1,1,true) = CImg<doubleT>(ptrs,p2,1,1,1,true).
-            get_resize(siz,1,1,1,interpolation,boundary_conditions);
+          CImg<doubleT>(ptrd,target_siz,1,1,1,true) = CImg<doubleT>(ptrs,initial_siz,1,1,1,true).
+            get_resize(target_siz,1,1,1,interpolation,boundary_conditions);
         } else { // Resize scalar
           const double value = _mp_arg(3);
-          CImg<doubleT>(ptrd,siz,1,1,1,true) = CImg<doubleT>(1,1,1,1,value).resize(siz,1,1,1,interpolation,
-                                                                                   boundary_conditions);
+          CImg<doubleT>(ptrd,target_siz,1,1,1,true) = CImg<doubleT>(1,1,1,1,value).
+            resize(target_siz,1,1,1,interpolation,boundary_conditions);
         }
         return cimg::type<double>::nan();
       }

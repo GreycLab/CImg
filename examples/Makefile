@@ -298,7 +298,7 @@ LAPACK_CFLAGS = $(LAPACK_DEFINE) $(LAPACK_INCDIR)
 LAPACK_LIBS = -lblas -llapack
 
 # Flags to enable the use of the Board library
-# ( https://github.com/c-koi/libboard )
+# ( https://github.com/GreycLab/libboard )
 BOARD_DEFINE = -Dcimg_use_board
 BOARD_INCDIR = -I/usr/include/board
 BOARD_CFLAGS = $(BOARD_DEFINE) $(BOARD_INCDIR)

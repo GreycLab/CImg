@@ -114,7 +114,7 @@ int main() {
   scene_pts.save_off(scene_prims,scene_cols,"output.off");
 
   // Save 3D view in SVG, EPS and FIG files.
-  // (using the Board library : https://github.com/c-koi/libboard ).
+  // (using the Board library : https://github.com/GreycLab/libboard ).
 #ifdef cimg_use_board
 
   // Define a Board instance

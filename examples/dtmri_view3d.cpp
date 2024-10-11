@@ -317,6 +317,7 @@ int main(int argc,char **argv) {
                             x,y,z);
     }
   }
+
   float voxw = 1, voxh = 1, voxd = 1;
   std::sscanf(vsize,"%f%*c%f%*c%f",&voxw,&voxh,&voxd);
 
@@ -361,6 +362,7 @@ int main(int argc,char **argv) {
     coloredFA(x,y,z,2) = (unsigned char)b;
   }
   tensors.assign();
+
   std::fprintf(stderr,"\n- Maximum diffusivity = %g, Maximum FA = %g",eigmax,eigen.get_shared_channel(12).max());
   if (normalize) {
     std::fprintf(stderr,"\n- Normalize tensors.");

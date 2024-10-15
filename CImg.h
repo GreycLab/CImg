@@ -55872,7 +55872,14 @@ namespace cimg_library {
       else return load_other(filename);
 #else
 
-      std::FILE *const nfile = file?file:cimg::fopen(filename,"rb");
+#if defined __GNUC__
+      const char *volatile nfilename = filename; // Use 'volatile' to avoid (wrong) g++ warning
+      std::FILE *volatile nfile = file?file:cimg::fopen(nfilename,"rb");
+#else
+      const char *nfilename = filename;
+      std::FILE *nfile = file?file:cimg::fopen(nfilename,"rb");
+#endif
+
       struct jpeg_decompress_struct cinfo;
       struct _cimg_error_mgr jerr;
       cinfo.err = jpeg_std_error(&jerr.original);
@@ -55892,11 +55899,11 @@ namespace cimg_library {
       if (cinfo.output_components!=1 && cinfo.output_components!=3 && cinfo.output_components!=4) {
         if (!file) {
           cimg::fclose(nfile);
-          return load_other(filename);
+          return load_other(nfilename);
         } else
           throw CImgIOException(_cimg_instance
                                 "load_jpeg(): Failed to load JPEG data from file '%s'.",
-                                cimg_instance,filename?filename:"(FILE*)");
+                                cimg_instance,nfilename?nfilename:"(FILE*)");
       }
       CImg<ucharT> buffer(cinfo.output_width*cinfo.output_components);
       JSAMPROW row_pointer[1];
@@ -55909,7 +55916,7 @@ namespace cimg_library {
         if (jpeg_read_scanlines(&cinfo,row_pointer,1)!=1) {
           cimg::warn(_cimg_instance
                      "load_jpeg(): Incomplete data in file '%s'.",
-                     cimg_instance,filename?filename:"(FILE*)");
+                     cimg_instance,nfilename?nfilename:"(FILE*)");
           break;
         }
         const unsigned char *ptrs = buffer._data;

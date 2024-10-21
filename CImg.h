@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 343
+#define cimg_version 344
 
 /*-----------------------------------------------------------
  #
@@ -21291,15 +21291,25 @@ namespace cimg_library {
               if (!std::strncmp(ss,"isin(",5)) { // Is in sequence/vector?
                 if (ss5>=se1) _cimg_mp_return(0);
                 _cimg_mp_op("Function 'isin()'");
-                pos = scalar();
-                CImg<ulongT>::vector((ulongT)mp_isin,pos,0).move_to(l_opcode);
+                is_sth = true; // Are all arguments constants ?
                 for (s = ss5; s<se; ++s) {
                   ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                  (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                   arg1 = compile(s,ns,depth1,0,block_flags);
+                  if (!is_const_scalar(arg1)) is_sth = false;
                   CImg<ulongT>::vector(arg1,size(arg1)).move_to(l_opcode);
                   s = ns;
                 }
+                if (is_sth) { // All arguments are constant -> return constant
+                  if (l_opcode._width<2) _cimg_mp_return(0);
+                  const double target = mem[l_opcode(0,0)];
+                  for (unsigned int i = 1; i<l_opcode._width; ++i) {
+                    if (mem[l_opcode(i,0)]==target) _cimg_mp_return(1);
+                  }
+                  _cimg_mp_return(0);
+                }
+                pos = scalar();
+                CImg<ulongT>::vector((ulongT)mp_isin,pos,0).move_to(l_opcode,0);
                 (l_opcode>'y').move_to(opcode);
                 opcode[2] = opcode._height;
                 opcode.move_to(code);

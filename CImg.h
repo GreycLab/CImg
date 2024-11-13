@@ -40914,16 +40914,6 @@ namespace cimg_library {
                         interpolation_type,false);
     }
 
-    T grid_atXYZ(const float fx, const float fy, const float fz, const int c,const T& out_value) const {
-      const int x = (int)fx, y = (int)fy, z = (int)fz;
-      return x!=fx || y!=fy || z!=fz?out_value:atXYZ(x,y,z,c,out_value);
-    }
-
-    T grid_atXYZ(const float fx, const float fy, const float fz, const int c) const {
-      const int x = (int)fx, y = (int)fy, z = (int)fz;
-      return x!=fx || y!=fy || z!=fz?0:atXYZ(x,y,z,c);
-    }
-
     //! Correlate image by a kernel \newinstance.
     template<typename t>
     CImg<_cimg_Ttfloat> _correlate(const CImg<t>& kernel, const unsigned int boundary_conditions,
@@ -41346,20 +41336,16 @@ namespace cimg_library {
             else if (interpolation_type) // Non-integer stride or dilation, linear interpolation
               switch (boundary_conditions) {
               case 0 : // Dirichlet
-//                _cimg_correlate_n(float,dirichlet,is_in_x && is_in_y && is_in_z?I.linear_atXYZ(ix,iy,iz,0,0):0);
-                _cimg_correlate_n(float,dirichlet,is_in_x && is_in_y && is_in_z?I.grid_atXYZ(ix,iy,iz,0,0):0);
+                _cimg_correlate_n(float,dirichlet,is_in_x && is_in_y && is_in_z?I.linear_atXYZ(ix,iy,iz,0,0):0);
                 break;
               case 1 : // Neumann
-//                _cimg_correlate_n(float,neumann,I._linear_atXYZ(nix,niy,niz,0));
-                _cimg_correlate_n(float,neumann,I.grid_atXYZ(nix,niy,niz,0));
+                _cimg_correlate_n(float,neumann,I._linear_atXYZ(nix,niy,niz,0));
                 break;
               case 2 : // Periodic
-//                _cimg_correlate_n(float,periodic,I._linear_atXYZ(nix,niy,niz,0));
-                _cimg_correlate_n(float,periodic,I.grid_atXYZ(nix,niy,niz,0));
+                _cimg_correlate_n(float,periodic,I._linear_atXYZ(nix,niy,niz,0));
                 break;
               case 3 : // Mirror
-//                _cimg_correlate_n(float,mirror,I._linear_atXYZ(nix,niy,niz,0));
-                _cimg_correlate_n(float,mirror,I.grid_atXYZ(nix,niy,niz,0));
+                _cimg_correlate_n(float,mirror,I._linear_atXYZ(nix,niy,niz,0));
                 break;
               }
             else // Non-integer stride or dilation, nearest-neighbor interpolation
@@ -41396,20 +41382,16 @@ namespace cimg_library {
             else if (interpolation_type) // Non-integer stride or dilation, linear interpolation
               switch (boundary_conditions) {
               case 0 : // Dirichlet
-//                _cimg_correlate(float,dirichlet,is_in_x && is_in_y && is_in_z?I.linear_atXYZ(ix,iy,iz,0,0):0);
-                _cimg_correlate(float,dirichlet,is_in_x && is_in_y && is_in_z?I.grid_atXYZ(ix,iy,iz,0,0):0);
+                _cimg_correlate(float,dirichlet,is_in_x && is_in_y && is_in_z?I.linear_atXYZ(ix,iy,iz,0,0):0);
                 break;
               case 1 : // Neumann
-//                _cimg_correlate(float,neumann,I._linear_atXYZ(nix,niy,niz,0));
-                _cimg_correlate(float,neumann,I.grid_atXYZ(nix,niy,niz,0));
+                _cimg_correlate(float,neumann,I._linear_atXYZ(nix,niy,niz,0));
                 break;
               case 2 : // Periodic
-//                _cimg_correlate(float,periodic,I._linear_atXYZ(nix,niy,niz,0));
-                _cimg_correlate(float,periodic,I.grid_atXYZ(nix,niy,niz,0));
+                _cimg_correlate(float,periodic,I._linear_atXYZ(nix,niy,niz,0));
                 break;
               case 3 : // Mirror
-//                _cimg_correlate(float,mirror,I._linear_atXYZ(nix,niy,niz,0));
-                _cimg_correlate(float,mirror,I.grid_atXYZ(nix,niy,niz,0));
+                _cimg_correlate(float,mirror,I._linear_atXYZ(nix,niy,niz,0));
                 break;
               }
             else // Non-integer stride or dilation, nearest-neighbor interpolation

@@ -20014,7 +20014,10 @@ namespace cimg_library {
                 zstart = (int)mem[opcode[20]],
                 xend = opcode[21]!=~0U?(int)mem[opcode[21]]:wA - 1,
                 yend = opcode[22]!=~0U?(int)mem[opcode[22]]:hA - 1,
-                zend = opcode[23]!=~0U?(int)mem[opcode[23]]:dA - 1;
+                zend = opcode[23]!=~0U?(int)mem[opcode[23]]:dA - 1,
+                xstride = (int)mem[opcode[24]],
+                ystride = (int)mem[opcode[25]],
+                zstride = (int)mem[opcode[26]];
 
               if (xstart>xend || ystart>yend || zstart>zend) {
                 _cimg_mp_strerr;
@@ -20024,12 +20027,6 @@ namespace cimg_library {
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             xstart,ystart,zstart,xend,yend,zend,s0);
               }
-
-              const int
-                xstride = (int)mem[opcode[24]],
-                ystride = (int)mem[opcode[25]],
-                zstride = (int)mem[opcode[26]];
-
               if (xstride<=0 || ystride<=0 || zstride<=0) {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "

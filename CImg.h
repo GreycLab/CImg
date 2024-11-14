@@ -20025,10 +20025,10 @@ namespace cimg_library {
                                             xstart,ystart,zstart,xend,yend,zend,s0);
               }
 
-              const float
-                xstride = (float)mem[opcode[24]],
-                ystride = (float)mem[opcode[25]],
-                zstride = (float)mem[opcode[26]];
+              const int
+                xstride = (int)mem[opcode[24]],
+                ystride = (int)mem[opcode[25]],
+                zstride = (int)mem[opcode[26]];
 
               if (xstride<=0 || ystride<=0 || zstride<=0) {
                 _cimg_mp_strerr;
@@ -25056,11 +25056,11 @@ namespace cimg_library {
           zstart = (int)mp.opcode[20],
           xend = (int)mp.opcode[21],
           yend = (int)mp.opcode[22],
-          zend = (int)mp.opcode[23];
+          zend = (int)mp.opcode[23],
+          xstride = (int)_mp_arg(24),
+          ystride = (int)_mp_arg(25),
+          zstride = (int)_mp_arg(26);
         const float
-          xstride = (float)_mp_arg(24),
-          ystride = (float)_mp_arg(25),
-          zstride = (float)_mp_arg(26),
           xdilation = (float)_mp_arg(27),
           ydilation = (float)_mp_arg(28),
           zdilation = (float)_mp_arg(29);
@@ -40883,7 +40883,7 @@ namespace cimg_library {
                        const int xend=(int)(~0U>>1),
                        const int yend=(int)(~0U>>1),
                        const int zend=(int)(~0U>>1),
-                       const float xstride=1, const float ystride=1, const float zstride=1,
+                       const int xstride=1, const int ystride=1, const int zstride=1,
                        const float xdilation=1, const float ydilation=1, const float zdilation=1,
                        const bool interpolation_type=false) {
       if (is_empty() || !kernel) return *this;
@@ -40905,7 +40905,7 @@ namespace cimg_library {
                                       const int xend=(int)(~0U>>1),
                                       const int yend=(int)(~0U>>1),
                                       const int zend=(int)(~0U>>1),
-                                      const float xstride=1, const float ystride=1, const float zstride=1,
+                                      const int xstride=1, const int ystride=1, const int zstride=1,
                                       const float xdilation=1, const float ydilation=1, const float zdilation=1,
                                       const bool interpolation_type=false) const {
       return _correlate(kernel,boundary_conditions,is_normalized,channel_mode,
@@ -40921,7 +40921,7 @@ namespace cimg_library {
                                    const int xcenter, const int ycenter, const int zcenter,
                                    const int xstart, const int ystart, const int zstart,
                                    const int xend, const int yend, const int zend,
-                                   const float xstride, const float ystride, const float zstride,
+                                   const int xstride, const int ystride, const int zstride,
                                    const float xdilation, const float ydilation, const float zdilation,
                                    const bool interpolation_type, const bool is_convolve) const {
       typedef _cimg_Ttfloat Ttfloat;
@@ -41461,7 +41461,7 @@ namespace cimg_library {
                       const int xend=(int)(~0U>>1),
                       const int yend=(int)(~0U>>1),
                       const int zend=(int)(~0U>>1),
-                      const float xstride=1, const float ystride=1, const float zstride=1,
+                      const int xstride=1, const int ystride=1, const int zstride=1,
                       const float xdilation=1, const float ydilation=1, const float zdilation=1,
                       const bool interpolation_type=false) {
       if (is_empty() || !kernel) return *this;
@@ -41484,7 +41484,7 @@ namespace cimg_library {
                                      const int xend=(int)(~0U>>1),
                                      const int yend=(int)(~0U>>1),
                                      const int zend=(int)(~0U>>1),
-                                     const float xstride=1, const float ystride=1, const float zstride=1,
+                                     const int xstride=1, const int ystride=1, const int zstride=1,
                                      const float xdilation=1, const float ydilation=1, const float zdilation=1,
                                      const bool interpolation_type=false) const {
       return _correlate(kernel,boundary_conditions,is_normalized,channel_mode,

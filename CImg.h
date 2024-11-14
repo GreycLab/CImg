@@ -40961,9 +40961,6 @@ namespace cimg_library {
         _xend = xend==(int)(~0U>>1)?width() - 1:xend,
         _yend = yend==(int)(~0U>>1)?height() - 1:yend,
         _zend = zend==(int)(~0U>>1)?depth() - 1:zend,
-        i_xstride = (int)cimg::round(xstride),
-        i_ystride = (int)cimg::round(ystride),
-        i_zstride = (int)cimg::round(zstride),
         i_xdilation = (int)cimg::round(_xdilation),
         i_ydilation = (int)cimg::round(_ydilation),
         i_zdilation = (int)cimg::round(_zdilation),
@@ -40995,8 +40992,7 @@ namespace cimg_library {
         (res._spectrum>=cimg::nb_cpus() || (res_siz<=(cimg_openmp_sizefactor)*32768 && res._spectrum>1)),
         is_inner_parallel = is_master_thread &&
         (!is_outer_parallel && res_whd>=(cimg_openmp_sizefactor)*32768),
-        is_int_stride_dilation = xstride==i_xstride && ystride==i_ystride && zstride==i_zstride &&
-        _xdilation==i_xdilation && _ydilation==i_ydilation && _zdilation==i_zdilation;
+        is_int_dilation = _xdilation==i_xdilation && _ydilation==i_ydilation && _zdilation==i_zdilation;
       cimg::unused(is_inner_parallel,is_outer_parallel);
       const int
         w = width(), h = height(), d = depth(),
@@ -41011,9 +41007,8 @@ namespace cimg_library {
            (_kernel._depth<=3 && _kernel._width<=3 && _kernel._height<=3)) &&
           xstart>=0 && ystart>=0 && zstart>=0 &&
           _xend<width() && _yend<height() && _zend<depth() &&
-          is_int_stride_dilation &&
           xstride==1 && ystride==1 && zstride==1 &&
-          i_xdilation>=0 && i_ydilation>=0 && i_zdilation>=0) {
+          is_int_dilation && i_xdilation>=0 && i_ydilation>=0 && i_zdilation>=0) {
         const unsigned int M = cimg::max(_kernel._width,_kernel._height,_kernel._depth);
         _kernel.assign(_kernel.get_resize(M + 1 - (M%2),M + 1 - (M%2),_kernel._depth>1?M + 1 - (M%2):1,-100,
                                           0,0,
@@ -41030,9 +41025,8 @@ namespace cimg_library {
           _xcenter==_kernel.width()/2 && _ycenter==_kernel.height()/2 && _zcenter==_kernel.depth()/2 &&
           xstart>=0 && ystart>=0 && zstart>=0 &&
           _xend<width() && _yend<height() && _zend<depth() &&
-          is_int_stride_dilation &&
           xstride==1 && ystride==1 && zstride==1 &&
-          i_xdilation>=0 && i_ydilation>=0 && i_zdilation>=0) {
+          is_int_dilation && i_xdilation>=0 && i_ydilation>=0 && i_zdilation>=0) {
 
         switch (_kernel._depth) {
         case 3 : { // 3x3x3 centered kernel
@@ -41247,9 +41241,9 @@ namespace cimg_library {
           Ttfloat M = 0, M2 = 0;
           if (is_normalized) { M = (Ttfloat)K.magnitude(2); M2 = cimg::sqr(M); }
 
-#define _cimg_correlate_x_int const int ix = xstart + i_xstride*x + i_xdilation*(p - _xcenter)
-#define _cimg_correlate_y_int const int iy = ystart + i_ystride*y + i_ydilation*(q - _ycenter)
-#define _cimg_correlate_z_int const int iz = zstart + i_zstride*z + i_zdilation*(r - _zcenter)
+#define _cimg_correlate_x_int const int ix = xstart + xstride*x + i_xdilation*(p - _xcenter)
+#define _cimg_correlate_y_int const int iy = ystart + ystride*y + i_ydilation*(q - _ycenter)
+#define _cimg_correlate_z_int const int iz = zstart + zstride*z + i_zdilation*(r - _zcenter)
 #define _cimg_correlate_x_float const float ix = xstart + xstride*x + _xdilation*(p - _xcenter)
 #define _cimg_correlate_y_float const float iy = ystart + ystride*y + _ydilation*(q - _ycenter)
 #define _cimg_correlate_z_float const float iz = zstart + zstride*z + _zdilation*(r - _zcenter)
@@ -41315,7 +41309,7 @@ namespace cimg_library {
           }
 
           if (is_normalized) { // Normalized convolution/correlation
-            if (is_int_stride_dilation) // Integer stride and dilation
+            if (is_int_dilation) // Integer dilation
               switch (boundary_conditions) {
               case 0 : // Dirichlet
                 _cimg_correlate_n(int,dirichlet,is_in_x && is_in_y && is_in_z?I(ix,iy,iz,0,wh,whd):(T)0);
@@ -41330,7 +41324,7 @@ namespace cimg_library {
                 _cimg_correlate_n(int,mirror,I(nix,niy,niz,0,wh,whd));
                 break;
               }
-            else if (interpolation_type) // Non-integer stride or dilation, linear interpolation
+            else if (interpolation_type) // Non-integer dilation, linear interpolation
               switch (boundary_conditions) {
               case 0 : // Dirichlet
                 _cimg_correlate_n(float,dirichlet,is_in_x && is_in_y && is_in_z?I.linear_atXYZ(ix,iy,iz,0,0):0);
@@ -41345,7 +41339,7 @@ namespace cimg_library {
                 _cimg_correlate_n(float,mirror,I._linear_atXYZ(nix,niy,niz,0));
                 break;
               }
-            else // Non-integer stride or dilation, nearest-neighbor interpolation
+            else // Non-integer dilation, nearest-neighbor interpolation
               switch (boundary_conditions) {
               case 0 : // Dirichlet
                 _cimg_correlate_n(float,dirichlet,is_in_x && is_in_y && is_in_z?I((int)ix,(int)iy,(int)iz,0,0):(T)0);
@@ -41361,7 +41355,7 @@ namespace cimg_library {
                 break;
               }
           } else { // Standard convolution/correlation
-            if (is_int_stride_dilation) // Integer stride and dilation
+            if (is_int_dilation) // Integer dilation
               switch (boundary_conditions) {
               case 0 : // Dirichlet
                 _cimg_correlate(int,dirichlet,is_in_x && is_in_y && is_in_z?I(ix,iy,iz,0,wh,whd):(T)0);
@@ -41376,7 +41370,7 @@ namespace cimg_library {
                 _cimg_correlate(int,mirror,I(nix,niy,niz,0,wh,whd));
                 break;
               }
-            else if (interpolation_type) // Non-integer stride or dilation, linear interpolation
+            else if (interpolation_type) // Non-integer dilation, linear interpolation
               switch (boundary_conditions) {
               case 0 : // Dirichlet
                 _cimg_correlate(float,dirichlet,is_in_x && is_in_y && is_in_z?I.linear_atXYZ(ix,iy,iz,0,0):0);
@@ -41391,7 +41385,7 @@ namespace cimg_library {
                 _cimg_correlate(float,mirror,I._linear_atXYZ(nix,niy,niz,0));
                 break;
               }
-            else // Non-integer stride or dilation, nearest-neighbor interpolation
+            else // Non-integer dilation, nearest-neighbor interpolation
               switch (boundary_conditions) {
               case 0 : // Dirichlet
                 _cimg_correlate(float,dirichlet,is_in_x && is_in_y && is_in_z?I((int)ix,(int)iy,(int)iz,0,0):(T)0);

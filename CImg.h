@@ -20028,7 +20028,7 @@ namespace cimg_library {
               if (xstride<=0 || ystride<=0 || zstride<=0) {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                            "CImg<%s>::%s: %s: Invalid stride arguments (%g,%g,%g), "
+                                            "CImg<%s>::%s: %s: Invalid stride arguments (%d,%d,%d), "
                                             "in expression '%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             xstride,ystride,zstride,s0);

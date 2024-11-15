@@ -41223,49 +41223,34 @@ namespace cimg_library {
           Ttfloat M = 0, M2 = 0;
           if (is_normalized) { M = (Ttfloat)K.magnitude(2); M2 = cimg::sqr(M); }
 
-#define _cimg_correlate_x_int const int ix = xstart + xstride*x + xdilation*(p - _xcenter)
-#define _cimg_correlate_y_int const int iy = ystart + ystride*y + ydilation*(q - _ycenter)
-#define _cimg_correlate_z_int const int iz = zstart + zstride*z + zdilation*(r - _zcenter)
-#define _cimg_correlate_x_float const float ix = xstart + xstride*x + _xdilation*(p - _xcenter)
-#define _cimg_correlate_y_float const float iy = ystart + ystride*y + _ydilation*(q - _ycenter)
-#define _cimg_correlate_z_float const float iz = zstart + zstride*z + _zdilation*(r - _zcenter)
+#define _cimg_correlate_x const int ix = xstart + xstride*x + xdilation*(p - _xcenter)
+#define _cimg_correlate_y const int iy = ystart + ystride*y + ydilation*(q - _ycenter)
+#define _cimg_correlate_z const int iz = zstart + zstride*z + zdilation*(r - _zcenter)
 
-#define _cimg_correlate_x_int_dirichlet const bool is_in_x = ix>=0 && ix<w
-#define _cimg_correlate_y_int_dirichlet const bool is_in_y = iy>=0 && iy<h
-#define _cimg_correlate_z_int_dirichlet const bool is_in_z = iz>=0 && iz<d
-#define _cimg_correlate_x_float_dirichlet _cimg_correlate_x_int_dirichlet
-#define _cimg_correlate_y_float_dirichlet _cimg_correlate_y_int_dirichlet
-#define _cimg_correlate_z_float_dirichlet _cimg_correlate_z_int_dirichlet
+#define _cimg_correlate_x_dirichlet const bool is_in_x = ix>=0 && ix<w
+#define _cimg_correlate_y_dirichlet const bool is_in_y = iy>=0 && iy<h
+#define _cimg_correlate_z_dirichlet const bool is_in_z = iz>=0 && iz<d
 
-#define _cimg_correlate_x_int_neumann const int nix = cimg::cut(ix,0,w1)
-#define _cimg_correlate_y_int_neumann const int niy = cimg::cut(iy,0,h1)
-#define _cimg_correlate_z_int_neumann const int niz = cimg::cut(iz,0,d1)
-#define _cimg_correlate_x_float_neumann const float nix = cimg::cut(ix,0,w1)
-#define _cimg_correlate_y_float_neumann const float niy = cimg::cut(iy,0,h1)
-#define _cimg_correlate_z_float_neumann const float niz = cimg::cut(iz,0,d1)
+#define _cimg_correlate_x_neumann const int nix = cimg::cut(ix,0,w1)
+#define _cimg_correlate_y_neumann const int niy = cimg::cut(iy,0,h1)
+#define _cimg_correlate_z_neumann const int niz = cimg::cut(iz,0,d1)
 
-#define _cimg_correlate_x_int_periodic const int nix = cimg::mod(ix,w)
-#define _cimg_correlate_y_int_periodic const int niy = cimg::mod(iy,h)
-#define _cimg_correlate_z_int_periodic const int niz = cimg::mod(iz,d)
-#define _cimg_correlate_x_float_periodic const float nix = cimg::mod(ix,w)
-#define _cimg_correlate_y_float_periodic const float niy = cimg::mod(iy,h)
-#define _cimg_correlate_z_float_periodic const float niz = cimg::mod(iz,d)
+#define _cimg_correlate_x_periodic const int nix = cimg::mod(ix,w)
+#define _cimg_correlate_y_periodic const int niy = cimg::mod(iy,h)
+#define _cimg_correlate_z_periodic const int niz = cimg::mod(iz,d)
 
-#define _cimg_correlate_x_int_mirror const int mx = cimg::mod(ix,w2), nix = mx<w?mx:w2 - mx - 1
-#define _cimg_correlate_y_int_mirror const int my = cimg::mod(iy,h2), niy = my<h?my:h2 - my - 1
-#define _cimg_correlate_z_int_mirror const int mz = cimg::mod(iz,d2), niz = mz<d?mz:d2 - mz - 1
-#define _cimg_correlate_x_float_mirror const float mx = cimg::mod(ix,w2), nix = mx<w?mx:w2 - mx - 1
-#define _cimg_correlate_y_float_mirror const float my = cimg::mod(iy,h2), niy = my<h?my:h2 - my - 1
-#define _cimg_correlate_z_float_mirror const float mz = cimg::mod(iz,d2), niz = mz<d?mz:d2 - mz - 1
+#define _cimg_correlate_x_mirror const int mx = cimg::mod(ix,w2), nix = mx<w?mx:w2 - mx - 1
+#define _cimg_correlate_y_mirror const int my = cimg::mod(iy,h2), niy = my<h?my:h2 - my - 1
+#define _cimg_correlate_z_mirror const int mz = cimg::mod(iz,d2), niz = mz<d?mz:d2 - mz - 1
 
-#define _cimg_correlate(type,boundary,access) \
+#define _cimg_correlate(boundary,access) \
           cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel)) \
           cimg_forXYZ(res,x,y,z) { \
             Ttfloat val = 0; \
             const t *pK = K._data; \
-            cimg_forZ(_kernel,r) { _cimg_correlate_z_##type; _cimg_correlate_z_##type##_##boundary; \
-              cimg_forY(_kernel,q) { _cimg_correlate_y_##type; _cimg_correlate_y_##type##_##boundary; \
-                cimg_forX(_kernel,p) { _cimg_correlate_x_##type; _cimg_correlate_x_##type##_##boundary; \
+            cimg_forZ(_kernel,r) { _cimg_correlate_z; _cimg_correlate_z_##boundary; \
+              cimg_forY(_kernel,q) { _cimg_correlate_y; _cimg_correlate_y_##boundary; \
+                cimg_forX(_kernel,p) { _cimg_correlate_x; _cimg_correlate_x_##boundary; \
                   val+=*(pK++)*(access); \
                 } \
               } \
@@ -41273,14 +41258,14 @@ namespace cimg_library {
             _resu(x,y,z,0,res_wh,res_whd) = val; \
           }
 
-#define _cimg_correlate_n(type,boundary,access) \
+#define _cimg_correlate_n(boundary,access) \
           cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel)) \
           cimg_forXYZ(res,x,y,z) { \
             Ttfloat val = 0, N = 0; \
             const t *pK = K._data; \
-            cimg_forZ(_kernel,r) { _cimg_correlate_z_##type; _cimg_correlate_z_##type##_##boundary; \
-              cimg_forY(_kernel,q) { _cimg_correlate_y_##type; _cimg_correlate_y_##type##_##boundary; \
-                cimg_forX(_kernel,p) { _cimg_correlate_x_##type; _cimg_correlate_x_##type##_##boundary; \
+            cimg_forZ(_kernel,r) { _cimg_correlate_z; _cimg_correlate_z_##boundary; \
+              cimg_forY(_kernel,q) { _cimg_correlate_y; _cimg_correlate_y_##boundary; \
+                cimg_forX(_kernel,p) { _cimg_correlate_x; _cimg_correlate_x_##boundary; \
                   Ttfloat _val = access; \
                   val+=*(pK++)*_val; \
                   _val*=_val; N+=_val; \
@@ -41293,31 +41278,31 @@ namespace cimg_library {
           if (is_normalized) { // Normalized convolution/correlation
             switch (boundary_conditions) {
             case 0 : // Dirichlet
-              _cimg_correlate_n(int,dirichlet,is_in_x && is_in_y && is_in_z?I(ix,iy,iz,0,wh,whd):(T)0);
+              _cimg_correlate_n(dirichlet,is_in_x && is_in_y && is_in_z?I(ix,iy,iz,0,wh,whd):(T)0);
               break;
             case 1 : // Neumann
-              _cimg_correlate_n(int,neumann,I(nix,niy,niz,0,wh,whd));
+              _cimg_correlate_n(neumann,I(nix,niy,niz,0,wh,whd));
               break;
             case 2 : // Periodic
-              _cimg_correlate_n(int,periodic,I(nix,niy,niz,0,wh,whd));
+              _cimg_correlate_n(periodic,I(nix,niy,niz,0,wh,whd));
               break;
             case 3 : // Mirror
-              _cimg_correlate_n(int,mirror,I(nix,niy,niz,0,wh,whd));
+              _cimg_correlate_n(mirror,I(nix,niy,niz,0,wh,whd));
               break;
             }
           } else { // Standard convolution/correlation
             switch (boundary_conditions) {
             case 0 : // Dirichlet
-              _cimg_correlate(int,dirichlet,is_in_x && is_in_y && is_in_z?I(ix,iy,iz,0,wh,whd):(T)0);
+              _cimg_correlate(dirichlet,is_in_x && is_in_y && is_in_z?I(ix,iy,iz,0,wh,whd):(T)0);
               break;
             case 1 : // Neumann
-              _cimg_correlate(int,neumann,I(nix,niy,niz,0,wh,whd));
+              _cimg_correlate(neumann,I(nix,niy,niz,0,wh,whd));
               break;
             case 2 : // Periodic
-              _cimg_correlate(int,periodic,I(nix,niy,niz,0,wh,whd));
+              _cimg_correlate(periodic,I(nix,niy,niz,0,wh,whd));
               break;
             case 3 : // Mirror
-              _cimg_correlate(int,mirror,I(nix,niy,niz,0,wh,whd));
+              _cimg_correlate(mirror,I(nix,niy,niz,0,wh,whd));
               break;
             }
           }

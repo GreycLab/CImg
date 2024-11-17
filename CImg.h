@@ -40949,9 +40949,9 @@ namespace cimg_library {
         _xend = xend==(int)(~0U>>1)?width() - 1:xend,
         _yend = yend==(int)(~0U>>1)?height() - 1:yend,
         _zend = zend==(int)(~0U>>1)?depth() - 1:zend,
-        res_width = _xend - xstart + 1,
-        res_height = _yend - ystart + 1,
-        res_depth = _zend - zstart + 1,
+        res_width = (_xend - xstart + 1)/xstride,
+        res_height = (_yend - ystart + 1)/ystride,
+        res_depth = (_zend - zstart + 1)/zstride,
         smin = std::min(spectrum(),_kernel.spectrum()),
         smax = std::max(spectrum(),_kernel.spectrum()),
         cend = !channel_mode?spectrum()*_kernel.spectrum():smax;

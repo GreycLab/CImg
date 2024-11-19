@@ -20034,9 +20034,9 @@ namespace cimg_library {
                                             xstride,ystride,zstride,s0);
               }
 
-              arg2 = xend - xstart + 1;
-              arg3 = yend - ystart + 1;
-              arg4 = zend - zstart + 1;
+              arg2 = (xend - xstart + 1)/xstride;
+              arg3 = (yend - ystart + 1)/ystride;
+              arg4 = (zend - zstart + 1)/zstride;
               arg5 = !channel_mode?sA*sM:channel_mode==1?std::max(sA,sM):
                 channel_mode==2?std::max(sA,sM)/std::min(sA,sM):1U;
 

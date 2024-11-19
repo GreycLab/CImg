@@ -19946,8 +19946,7 @@ namespace cimg_library {
                                                 0,0,0, // [18]=xstart, [19]=ystart, [20]=zstart
                                                 ~0U,~0U,~0U, // [21]=xend, [22]=yend, [23]=zend
                                                 1,1,1, // [24]=xstride, [25]=ystride, [26]=zstride
-                                                1,1,1, // [27]=xdilation, [28]=ydilation, [29]=zdilation,
-                                                0 }; // [30]=interpolation_type
+                                                1,1,1 }; // [27]=xdilation, [28]=ydilation, [29]=zdilation,
 
               l_opcode.assign(); // Don't use 'opcode': it could be modified by further calls to 'compile()'!
               CImg<ulongT>(default_params,1,sizeof(default_params)/sizeof(ulongT)).move_to(l_opcode);
@@ -19996,7 +19995,6 @@ namespace cimg_library {
               _cimg_mp_check_type(opcode[27],26,1,0); // xdilation
               _cimg_mp_check_type(opcode[28],27,1,0); // ydilation
               _cimg_mp_check_type(opcode[29],28,1,0); // zdilation
-              _cimg_mp_check_type(opcode[30],29,1,0); // interpolation_type
 
               const unsigned int
                 wA = (unsigned int)mem[opcode[3]],
@@ -20014,7 +20012,10 @@ namespace cimg_library {
                 zstart = (int)mem[opcode[20]],
                 xend = opcode[21]!=~0U?(int)mem[opcode[21]]:wA - 1,
                 yend = opcode[22]!=~0U?(int)mem[opcode[22]]:hA - 1,
-                zend = opcode[23]!=~0U?(int)mem[opcode[23]]:dA - 1;
+                zend = opcode[23]!=~0U?(int)mem[opcode[23]]:dA - 1,
+                xstride = (int)mem[opcode[24]],
+                ystride = (int)mem[opcode[25]],
+                zstride = (int)mem[opcode[26]];
 
               if (xstart>xend || ystart>yend || zstart>zend) {
                 _cimg_mp_strerr;
@@ -20024,24 +20025,18 @@ namespace cimg_library {
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             xstart,ystart,zstart,xend,yend,zend,s0);
               }
-
-              const float
-                xstride = (float)mem[opcode[24]],
-                ystride = (float)mem[opcode[25]],
-                zstride = (float)mem[opcode[26]];
-
               if (xstride<=0 || ystride<=0 || zstride<=0) {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                            "CImg<%s>::%s: %s: Invalid stride arguments (%g,%g,%g), "
+                                            "CImg<%s>::%s: %s: Invalid stride arguments (%d,%d,%d), "
                                             "in expression '%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             xstride,ystride,zstride,s0);
               }
 
-              arg2 = xend - xstart + 1;
-              arg3 = yend - ystart + 1;
-              arg4 = zend - zstart + 1;
+              arg2 = (xend - xstart + 1)/xstride;
+              arg3 = (yend - ystart + 1)/ystride;
+              arg4 = (zend - zstart + 1)/zstride;
               arg5 = !channel_mode?sA*sM:channel_mode==1?std::max(sA,sM):
                 channel_mode==2?std::max(sA,sM)/std::min(sA,sM):1U;
 
@@ -25044,9 +25039,7 @@ namespace cimg_library {
           sM = (unsigned int)mp.opcode[11],
           boundary_conditions = (unsigned int)_mp_arg(12),
           channel_mode = (unsigned int)mp.opcode[14];
-        const bool
-          is_normalized = (bool)_mp_arg(13),
-          interpolation_type = (bool)_mp_arg(30);
+        const bool is_normalized = (bool)_mp_arg(13);
         const int
           xcenter = mp.opcode[15]!=~0U?(int)_mp_arg(15):(int)(~0U>>1),
           ycenter = mp.opcode[16]!=~0U?(int)_mp_arg(16):(int)(~0U>>1),
@@ -25056,14 +25049,13 @@ namespace cimg_library {
           zstart = (int)mp.opcode[20],
           xend = (int)mp.opcode[21],
           yend = (int)mp.opcode[22],
-          zend = (int)mp.opcode[23];
-        const float
-          xstride = (float)_mp_arg(24),
-          ystride = (float)_mp_arg(25),
-          zstride = (float)_mp_arg(26),
-          xdilation = (float)_mp_arg(27),
-          ydilation = (float)_mp_arg(28),
-          zdilation = (float)_mp_arg(29);
+          zend = (int)mp.opcode[23],
+          xstride = (int)_mp_arg(24),
+          ystride = (int)_mp_arg(25),
+          zstride = (int)_mp_arg(26),
+          xdilation = (int)_mp_arg(27),
+          ydilation = (int)_mp_arg(28),
+          zdilation = (int)_mp_arg(29);
         CImg<doubleT> res;
         if (is_convolve) res = CImg<doubleT>(ptrA,wA,hA,dA,sA,true).
                            get_convolve(CImg<doubleT>(ptrM,wM,hM,dM,sM,true),
@@ -25072,8 +25064,7 @@ namespace cimg_library {
                                         xstart,ystart,zstart,
                                         xend,yend,zend,
                                         xstride,ystride,zstride,
-                                        xdilation,ydilation,zdilation,
-                                        interpolation_type);
+                                        xdilation,ydilation,zdilation);
         else res = CImg<doubleT>(ptrA,wA,hA,dA,sA,true).
                get_correlate(CImg<doubleT>(ptrM,wM,hM,dM,sM,true),
                              boundary_conditions,is_normalized,channel_mode,
@@ -25081,8 +25072,7 @@ namespace cimg_library {
                              xstart,ystart,zstart,
                              xend,yend,zend,
                              xstride,ystride,zstride,
-                             xdilation,ydilation,zdilation,
-                             interpolation_type);
+                             xdilation,ydilation,zdilation);
         CImg<doubleT>(ptrd,res._width,res._height,res._depth,res._spectrum,true) = res;
         return cimg::type<double>::nan();
       }
@@ -40865,7 +40855,6 @@ namespace cimg_library {
        \param xdilation Dilation along the X-axis.
        \param ydilation Dilation along the Y-axis.
        \param zdilation Dilation along the Z-axis.
-       \param interpolation_type Can be { false=nearest | true=linear }.
        \note
        - The correlation of the image instance \p *this by the kernel \p kernel is defined to be:
        res(x,y,z) = sum_{i,j,k} (*this)(\alpha_x\;x + \beta_x\;(i - c_x),\alpha_y\;y + \beta_y\;(j -
@@ -40883,14 +40872,12 @@ namespace cimg_library {
                        const int xend=(int)(~0U>>1),
                        const int yend=(int)(~0U>>1),
                        const int zend=(int)(~0U>>1),
-                       const float xstride=1, const float ystride=1, const float zstride=1,
-                       const float xdilation=1, const float ydilation=1, const float zdilation=1,
-                       const bool interpolation_type=false) {
+                       const int xstride=1, const int ystride=1, const int zstride=1,
+                       const int xdilation=1, const int ydilation=1, const int zdilation=1) {
       if (is_empty() || !kernel) return *this;
       return get_correlate(kernel,boundary_conditions,is_normalized,channel_mode,
                            xcenter,ycenter,zcenter,xstart,ystart,zstart,xend,yend,zend,
-                           xstride,ystride,zstride,xdilation,ydilation,zdilation,
-                           interpolation_type).move_to(*this);
+                           xstride,ystride,zstride,xdilation,ydilation,zdilation).move_to(*this);
     }
 
     template<typename t>
@@ -40905,13 +40892,11 @@ namespace cimg_library {
                                       const int xend=(int)(~0U>>1),
                                       const int yend=(int)(~0U>>1),
                                       const int zend=(int)(~0U>>1),
-                                      const float xstride=1, const float ystride=1, const float zstride=1,
-                                      const float xdilation=1, const float ydilation=1, const float zdilation=1,
-                                      const bool interpolation_type=false) const {
+                                      const int xstride=1, const int ystride=1, const int zstride=1,
+                                      const int xdilation=1, const int ydilation=1, const int zdilation=1) const {
       return _correlate(kernel,boundary_conditions,is_normalized,channel_mode,
                         xcenter,ycenter,zcenter,xstart,ystart,zstart,xend,yend,zend,
-                        xstride,ystride,zstride,xdilation,ydilation,zdilation,
-                        interpolation_type,false);
+                        xstride,ystride,zstride,xdilation,ydilation,zdilation,false);
     }
 
     //! Correlate image by a kernel \newinstance.
@@ -40921,9 +40906,9 @@ namespace cimg_library {
                                    const int xcenter, const int ycenter, const int zcenter,
                                    const int xstart, const int ystart, const int zstart,
                                    const int xend, const int yend, const int zend,
-                                   const float xstride, const float ystride, const float zstride,
-                                   const float xdilation, const float ydilation, const float zdilation,
-                                   const bool interpolation_type, const bool is_convolve) const {
+                                   const int xstride, const int ystride, const int zstride,
+                                   const int xdilation, const int ydilation, const int zdilation,
+                                   const bool is_convolve) const {
       typedef _cimg_Ttfloat Ttfloat;
       CImg<Ttfloat> res;
       _cimg_abort_init_openmp;
@@ -40947,7 +40932,7 @@ namespace cimg_library {
         _xcenter = xcenter==(int)(~0U>>1)?kernel.width()/2 - 1 + (kernel.width()%2):xcenter,
         _ycenter = ycenter==(int)(~0U>>1)?kernel.height()/2 - 1 + (kernel.height()%2):ycenter,
         _zcenter = zcenter==(int)(~0U>>1)?kernel.depth()/2 - 1 + (kernel.depth()%2):zcenter;
-      float _xdilation = xdilation, _ydilation = ydilation, _zdilation = zdilation;
+      int _xdilation = xdilation, _ydilation = ydilation, _zdilation = zdilation;
 
       CImg<t> _kernel;
       if (is_convolve) { // If convolution, go back to correlation
@@ -40964,15 +40949,9 @@ namespace cimg_library {
         _xend = xend==(int)(~0U>>1)?width() - 1:xend,
         _yend = yend==(int)(~0U>>1)?height() - 1:yend,
         _zend = zend==(int)(~0U>>1)?depth() - 1:zend,
-        i_xstride = (int)cimg::round(xstride),
-        i_ystride = (int)cimg::round(ystride),
-        i_zstride = (int)cimg::round(zstride),
-        i_xdilation = (int)cimg::round(_xdilation),
-        i_ydilation = (int)cimg::round(_ydilation),
-        i_zdilation = (int)cimg::round(_zdilation),
-        res_width = _xend - xstart + 1,
-        res_height = _yend - ystart + 1,
-        res_depth = _zend - zstart + 1,
+        res_width = (_xend - xstart + 1)/xstride,
+        res_height = (_yend - ystart + 1)/ystride,
+        res_depth = (_zend - zstart + 1)/zstride,
         smin = std::min(spectrum(),_kernel.spectrum()),
         smax = std::max(spectrum(),_kernel.spectrum()),
         cend = !channel_mode?spectrum()*_kernel.spectrum():smax;
@@ -40997,9 +40976,7 @@ namespace cimg_library {
         is_outer_parallel = is_master_thread &&
         (res._spectrum>=cimg::nb_cpus() || (res_siz<=(cimg_openmp_sizefactor)*32768 && res._spectrum>1)),
         is_inner_parallel = is_master_thread &&
-        (!is_outer_parallel && res_whd>=(cimg_openmp_sizefactor)*32768),
-        is_int_stride_dilation = xstride==i_xstride && ystride==i_ystride && zstride==i_zstride &&
-        _xdilation==i_xdilation && _ydilation==i_ydilation && _zdilation==i_zdilation;
+        (!is_outer_parallel && res_whd>=(cimg_openmp_sizefactor)*32768);
       cimg::unused(is_inner_parallel,is_outer_parallel);
       const int
         w = width(), h = height(), d = depth(),
@@ -41014,9 +40991,7 @@ namespace cimg_library {
            (_kernel._depth<=3 && _kernel._width<=3 && _kernel._height<=3)) &&
           xstart>=0 && ystart>=0 && zstart>=0 &&
           _xend<width() && _yend<height() && _zend<depth() &&
-          is_int_stride_dilation &&
-          xstride==1 && ystride==1 && zstride==1 &&
-          i_xdilation>=0 && i_ydilation>=0 && i_zdilation>=0) {
+          xstride==1 && ystride==1 && zstride==1) {
         const unsigned int M = cimg::max(_kernel._width,_kernel._height,_kernel._depth);
         _kernel.assign(_kernel.get_resize(M + 1 - (M%2),M + 1 - (M%2),_kernel._depth>1?M + 1 - (M%2):1,-100,
                                           0,0,
@@ -41033,9 +41008,7 @@ namespace cimg_library {
           _xcenter==_kernel.width()/2 && _ycenter==_kernel.height()/2 && _zcenter==_kernel.depth()/2 &&
           xstart>=0 && ystart>=0 && zstart>=0 &&
           _xend<width() && _yend<height() && _zend<depth() &&
-          is_int_stride_dilation &&
-          xstride==1 && ystride==1 && zstride==1 &&
-          i_xdilation>=0 && i_ydilation>=0 && i_zdilation>=0) {
+          xstride==1 && ystride==1 && zstride==1) {
 
         switch (_kernel._depth) {
         case 3 : { // 3x3x3 centered kernel
@@ -41052,9 +41025,9 @@ namespace cimg_library {
                 cimg_forXYZ(res,X,Y,Z) {
                 const int
                   x = xstart + X, y = ystart + Y, z = zstart + Z,
-                  px = x - i_xdilation>0?x - i_xdilation:0, nx = x + i_xdilation<w1?x + i_xdilation:w1,
-                  py = y - i_ydilation>0?y - i_ydilation:0, ny = y + i_ydilation<h1?y + i_ydilation:h1,
-                  pz = z - i_zdilation>0?z - i_zdilation:0, nz = z + i_zdilation<d1?z + i_zdilation:d1;
+                  px = x - xdilation>0?x - xdilation:0, nx = x + xdilation<w1?x + xdilation:w1,
+                  py = y - ydilation>0?y - ydilation:0, ny = y + ydilation<h1?y + ydilation:h1,
+                  pz = z - zdilation>0?z - zdilation:0, nz = z + zdilation<d1?z + zdilation:d1;
                 const Ttfloat N = M2*(cimg::sqr(I(px,py,pz)) + cimg::sqr(I(x,py,pz)) + cimg::sqr(I(nx,py,pz)) +
                                       cimg::sqr(I(px,y,pz)) + cimg::sqr(I(x,y,pz)) + cimg::sqr(I(nx,y,pz)) +
                                       cimg::sqr(I(px,ny,pz)) + cimg::sqr(I(x,ny,pz)) + cimg::sqr(I(nx,ny,pz)) +
@@ -41079,9 +41052,9 @@ namespace cimg_library {
                 cimg_forXYZ(res,X,Y,Z) {
                 const int
                   x = xstart + X, y = ystart + Y, z = zstart + Z,
-                  px = x - i_xdilation>0?x - i_xdilation:0, nx = x + i_xdilation<w1?x + i_xdilation:w1,
-                  py = y - i_ydilation>0?y - i_ydilation:0, ny = y + i_ydilation<h1?y + i_ydilation:h1,
-                  pz = z - i_zdilation>0?z - i_zdilation:0, nz = z + i_zdilation<d1?z + i_zdilation:d1;
+                  px = x - xdilation>0?x - xdilation:0, nx = x + xdilation<w1?x + xdilation:w1,
+                  py = y - ydilation>0?y - ydilation:0, ny = y + ydilation<h1?y + ydilation:h1,
+                  pz = z - zdilation>0?z - zdilation:0, nz = z + zdilation<d1?z + zdilation:d1;
                 _resu(X,Y,Z) = (Ttfloat)(K[0]*I(px,py,pz) + K[1]*I(x,py,pz) + K[2]*I(nx,py,pz) +
                                          K[3]*I(px,y,pz) + K[4]*I(x,y,pz) + K[5]*I(nx,y,pz) +
                                          K[6]*I(px,ny,pz) + K[7]*I(x,ny,pz) + K[8]*I(nx,ny,pz) +
@@ -41117,10 +41090,10 @@ namespace cimg_library {
                   cimg_forXYZ(res,X,Y,z) {
                   const int
                     x = xstart + X, y = ystart + Y,
-                    px = x - i_xdilation>0?x - i_xdilation:0, bx = px - i_xdilation>0?px - i_xdilation:0,
-                    nx = x + i_xdilation<w1?x + i_xdilation:w1, ax = nx + i_xdilation<w1?nx + i_xdilation:w1,
-                    py = y - i_ydilation>0?y - i_ydilation:0, by = py - i_ydilation>0?py - i_ydilation:0,
-                    ny = y + i_ydilation<h1?y + i_ydilation:h1, ay = ny + i_ydilation<h1?ny + i_ydilation:h1;
+                    px = x - xdilation>0?x - xdilation:0, bx = px - xdilation>0?px - xdilation:0,
+                    nx = x + xdilation<w1?x + xdilation:w1, ax = nx + xdilation<w1?nx + xdilation:w1,
+                    py = y - ydilation>0?y - ydilation:0, by = py - ydilation>0?py - ydilation:0,
+                    ny = y + ydilation<h1?y + ydilation:h1, ay = ny + ydilation<h1?ny + ydilation:h1;
                   const Ttfloat N = M2*(cimg::sqr(I(bx,by,z)) + cimg::sqr(I(px,by,z)) + cimg::sqr(I(x,by,z)) +
                                         cimg::sqr(I(nx,by,z)) + cimg::sqr(I(ax,by,z)) +
                                         cimg::sqr(I(bx,py,z)) + cimg::sqr(I(px,py,z)) + cimg::sqr(I(x,py,z)) +
@@ -41147,10 +41120,10 @@ namespace cimg_library {
                   cimg_forXYZ(res,X,Y,z) {
                   const int
                     x = xstart + X, y = ystart + Y,
-                    px = x - i_xdilation>0?x - i_xdilation:0, bx = px - i_xdilation>0?px - i_xdilation:0,
-                    nx = x + i_xdilation<w1?x + i_xdilation:w1, ax = nx + i_xdilation<w1?nx + i_xdilation:w1,
-                    py = y - i_ydilation>0?y - i_ydilation:0, by = py - i_ydilation>0?py - i_ydilation:0,
-                    ny = y + i_ydilation<h1?y + i_ydilation:h1, ay = ny + i_ydilation<h1?ny + i_ydilation:h1;
+                    px = x - xdilation>0?x - xdilation:0, bx = px - xdilation>0?px - xdilation:0,
+                    nx = x + xdilation<w1?x + xdilation:w1, ax = nx + xdilation<w1?nx + xdilation:w1,
+                    py = y - ydilation>0?y - ydilation:0, by = py - ydilation>0?py - ydilation:0,
+                    ny = y + ydilation<h1?y + ydilation:h1, ay = ny + ydilation<h1?ny + ydilation:h1;
                   _resu(X,Y,z) = (Ttfloat)(K[0]*I(bx,by,z) + K[1]*I(px,by,z) + K[2]*I(x,by,z) +
                                            K[3]*I(nx,by,z) + K[4]*I(ax,by,z) +
                                            K[5]*I(bx,py,z) + K[6]*I(px,py,z) + K[7]*I(x,py,z) +
@@ -41184,8 +41157,8 @@ namespace cimg_library {
                   cimg_forXYZ(res,X,Y,z) {
                   const int
                     x = xstart + X, y = ystart + Y,
-                    px = x - i_xdilation>0?x - i_xdilation:0, nx = x + i_xdilation<w1?x + i_xdilation:w1,
-                    py = y - i_ydilation>0?y - i_ydilation:0, ny = y + i_ydilation<h1?y + i_ydilation:h1;
+                    px = x - xdilation>0?x - xdilation:0, nx = x + xdilation<w1?x + xdilation:w1,
+                    py = y - ydilation>0?y - ydilation:0, ny = y + ydilation<h1?y + ydilation:h1;
                   const Ttfloat N = M2*(cimg::sqr(I(px,py,z)) + cimg::sqr(I(x,py,z)) + cimg::sqr(I(nx,py,z)) +
                                         cimg::sqr(I(px,y,z)) + cimg::sqr(I(x,y,z)) + cimg::sqr(I(nx,y,z)) +
                                         cimg::sqr(I(px,ny,z)) + cimg::sqr(I(x,ny,z)) + cimg::sqr(I(nx,ny,z)));
@@ -41198,8 +41171,8 @@ namespace cimg_library {
                   cimg_forXYZ(res,X,Y,z) {
                   const int
                     x = xstart + X, y = ystart + Y,
-                    px = x - i_xdilation>0?x - i_xdilation:0, nx = x + i_xdilation<w1?x + i_xdilation:w1,
-                    py = y - i_ydilation>0?y - i_ydilation:0, ny = y + i_ydilation<h1?y + i_ydilation:h1;
+                    px = x - xdilation>0?x - xdilation:0, nx = x + xdilation<w1?x + xdilation:w1,
+                    py = y - ydilation>0?y - ydilation:0, ny = y + ydilation<h1?y + ydilation:h1;
                   _resu(X,Y,z) = (Ttfloat)(K[0]*I(px,py,z) + K[1]*I(x,py,z) + K[2]*I(nx,py,z) +
                                            K[3]*I(px,y,z)  + K[4]*I(x,y,z)  + K[5]*I(nx,y,z) +
                                            K[6]*I(px,ny,z) + K[7]*I(x,ny,z) + K[8]*I(nx,ny,z));
@@ -41250,49 +41223,34 @@ namespace cimg_library {
           Ttfloat M = 0, M2 = 0;
           if (is_normalized) { M = (Ttfloat)K.magnitude(2); M2 = cimg::sqr(M); }
 
-#define _cimg_correlate_x_int const int ix = xstart + i_xstride*x + i_xdilation*(p - _xcenter)
-#define _cimg_correlate_y_int const int iy = ystart + i_ystride*y + i_ydilation*(q - _ycenter)
-#define _cimg_correlate_z_int const int iz = zstart + i_zstride*z + i_zdilation*(r - _zcenter)
-#define _cimg_correlate_x_float const float ix = xstart + xstride*x + _xdilation*(p - _xcenter)
-#define _cimg_correlate_y_float const float iy = ystart + ystride*y + _ydilation*(q - _ycenter)
-#define _cimg_correlate_z_float const float iz = zstart + zstride*z + _zdilation*(r - _zcenter)
+#define _cimg_correlate_x const int ix = xstart + xstride*x + _xdilation*(p - _xcenter)
+#define _cimg_correlate_y const int iy = ystart + ystride*y + _ydilation*(q - _ycenter)
+#define _cimg_correlate_z const int iz = zstart + zstride*z + _zdilation*(r - _zcenter)
 
-#define _cimg_correlate_x_int_dirichlet const bool is_in_x = ix>=0 && ix<w
-#define _cimg_correlate_y_int_dirichlet const bool is_in_y = iy>=0 && iy<h
-#define _cimg_correlate_z_int_dirichlet const bool is_in_z = iz>=0 && iz<d
-#define _cimg_correlate_x_float_dirichlet _cimg_correlate_x_int_dirichlet
-#define _cimg_correlate_y_float_dirichlet _cimg_correlate_y_int_dirichlet
-#define _cimg_correlate_z_float_dirichlet _cimg_correlate_z_int_dirichlet
+#define _cimg_correlate_x_dirichlet const bool is_in_x = ix>=0 && ix<w
+#define _cimg_correlate_y_dirichlet const bool is_in_y = iy>=0 && iy<h
+#define _cimg_correlate_z_dirichlet const bool is_in_z = iz>=0 && iz<d
 
-#define _cimg_correlate_x_int_neumann const int nix = cimg::cut(ix,0,w1)
-#define _cimg_correlate_y_int_neumann const int niy = cimg::cut(iy,0,h1)
-#define _cimg_correlate_z_int_neumann const int niz = cimg::cut(iz,0,d1)
-#define _cimg_correlate_x_float_neumann const float nix = cimg::cut(ix,0,w1)
-#define _cimg_correlate_y_float_neumann const float niy = cimg::cut(iy,0,h1)
-#define _cimg_correlate_z_float_neumann const float niz = cimg::cut(iz,0,d1)
+#define _cimg_correlate_x_neumann const int nix = cimg::cut(ix,0,w1)
+#define _cimg_correlate_y_neumann const int niy = cimg::cut(iy,0,h1)
+#define _cimg_correlate_z_neumann const int niz = cimg::cut(iz,0,d1)
 
-#define _cimg_correlate_x_int_periodic const int nix = cimg::mod(ix,w)
-#define _cimg_correlate_y_int_periodic const int niy = cimg::mod(iy,h)
-#define _cimg_correlate_z_int_periodic const int niz = cimg::mod(iz,d)
-#define _cimg_correlate_x_float_periodic const float nix = cimg::mod(ix,w)
-#define _cimg_correlate_y_float_periodic const float niy = cimg::mod(iy,h)
-#define _cimg_correlate_z_float_periodic const float niz = cimg::mod(iz,d)
+#define _cimg_correlate_x_periodic const int nix = cimg::mod(ix,w)
+#define _cimg_correlate_y_periodic const int niy = cimg::mod(iy,h)
+#define _cimg_correlate_z_periodic const int niz = cimg::mod(iz,d)
 
-#define _cimg_correlate_x_int_mirror const int mx = cimg::mod(ix,w2), nix = mx<w?mx:w2 - mx - 1
-#define _cimg_correlate_y_int_mirror const int my = cimg::mod(iy,h2), niy = my<h?my:h2 - my - 1
-#define _cimg_correlate_z_int_mirror const int mz = cimg::mod(iz,d2), niz = mz<d?mz:d2 - mz - 1
-#define _cimg_correlate_x_float_mirror const float mx = cimg::mod(ix,w2), nix = mx<w?mx:w2 - mx - 1
-#define _cimg_correlate_y_float_mirror const float my = cimg::mod(iy,h2), niy = my<h?my:h2 - my - 1
-#define _cimg_correlate_z_float_mirror const float mz = cimg::mod(iz,d2), niz = mz<d?mz:d2 - mz - 1
+#define _cimg_correlate_x_mirror const int mx = cimg::mod(ix,w2), nix = mx<w?mx:w2 - mx - 1
+#define _cimg_correlate_y_mirror const int my = cimg::mod(iy,h2), niy = my<h?my:h2 - my - 1
+#define _cimg_correlate_z_mirror const int mz = cimg::mod(iz,d2), niz = mz<d?mz:d2 - mz - 1
 
-#define _cimg_correlate(type,boundary,access) \
+#define _cimg_correlate(boundary,access) \
           cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel)) \
           cimg_forXYZ(res,x,y,z) { \
             Ttfloat val = 0; \
             const t *pK = K._data; \
-            cimg_forZ(_kernel,r) { _cimg_correlate_z_##type; _cimg_correlate_z_##type##_##boundary; \
-              cimg_forY(_kernel,q) { _cimg_correlate_y_##type; _cimg_correlate_y_##type##_##boundary; \
-                cimg_forX(_kernel,p) { _cimg_correlate_x_##type; _cimg_correlate_x_##type##_##boundary; \
+            cimg_forZ(_kernel,r) { _cimg_correlate_z; _cimg_correlate_z_##boundary; \
+              cimg_forY(_kernel,q) { _cimg_correlate_y; _cimg_correlate_y_##boundary; \
+                cimg_forX(_kernel,p) { _cimg_correlate_x; _cimg_correlate_x_##boundary; \
                   val+=*(pK++)*(access); \
                 } \
               } \
@@ -41300,14 +41258,14 @@ namespace cimg_library {
             _resu(x,y,z,0,res_wh,res_whd) = val; \
           }
 
-#define _cimg_correlate_n(type,boundary,access) \
+#define _cimg_correlate_n(boundary,access) \
           cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel)) \
           cimg_forXYZ(res,x,y,z) { \
             Ttfloat val = 0, N = 0; \
             const t *pK = K._data; \
-            cimg_forZ(_kernel,r) { _cimg_correlate_z_##type; _cimg_correlate_z_##type##_##boundary; \
-              cimg_forY(_kernel,q) { _cimg_correlate_y_##type; _cimg_correlate_y_##type##_##boundary; \
-                cimg_forX(_kernel,p) { _cimg_correlate_x_##type; _cimg_correlate_x_##type##_##boundary; \
+            cimg_forZ(_kernel,r) { _cimg_correlate_z; _cimg_correlate_z_##boundary; \
+              cimg_forY(_kernel,q) { _cimg_correlate_y; _cimg_correlate_y_##boundary; \
+                cimg_forX(_kernel,p) { _cimg_correlate_x; _cimg_correlate_x_##boundary; \
                   Ttfloat _val = access; \
                   val+=*(pK++)*_val; \
                   _val*=_val; N+=_val; \
@@ -41318,97 +41276,35 @@ namespace cimg_library {
           }
 
           if (is_normalized) { // Normalized convolution/correlation
-            if (is_int_stride_dilation) // Integer stride and dilation
-              switch (boundary_conditions) {
-              case 0 : // Dirichlet
-                _cimg_correlate_n(int,dirichlet,is_in_x && is_in_y && is_in_z?I(ix,iy,iz,0,wh,whd):(T)0);
-                break;
-              case 1 : // Neumann
-                _cimg_correlate_n(int,neumann,I(nix,niy,niz,0,wh,whd));
-                break;
-              case 2 : // Periodic
-                _cimg_correlate_n(int,periodic,I(nix,niy,niz,0,wh,whd));
-                break;
-              case 3 : // Mirror
-                _cimg_correlate_n(int,mirror,I(nix,niy,niz,0,wh,whd));
-                break;
-              }
-            else if (interpolation_type) // Non-integer stride or dilation, linear interpolation
-              switch (boundary_conditions) {
-              case 0 : // Dirichlet
-                _cimg_correlate_n(float,dirichlet,is_in_x && is_in_y && is_in_z?I.linear_atXYZ(ix,iy,iz,0,0):0);
-                break;
-              case 1 : // Neumann
-                _cimg_correlate_n(float,neumann,I._linear_atXYZ(nix,niy,niz,0));
-                break;
-              case 2 : // Periodic
-                _cimg_correlate_n(float,periodic,I._linear_atXYZ(nix,niy,niz,0));
-                break;
-              case 3 : // Mirror
-                _cimg_correlate_n(float,mirror,I._linear_atXYZ(nix,niy,niz,0));
-                break;
-              }
-            else // Non-integer stride or dilation, nearest-neighbor interpolation
-              switch (boundary_conditions) {
-              case 0 : // Dirichlet
-                _cimg_correlate_n(float,dirichlet,is_in_x && is_in_y && is_in_z?I((int)ix,(int)iy,(int)iz,0,0):(T)0);
-                break;
-              case 1 : // Neumann
-                _cimg_correlate_n(float,neumann,I((int)nix,(int)niy,(int)niz,0));
-                break;
-              case 2 : // Periodic
-                _cimg_correlate_n(float,periodic,I((int)nix,(int)niy,(int)niz,0));
-                break;
-              case 3 : // Mirror
-                _cimg_correlate_n(float,mirror,I((int)nix,(int)niy,(int)niz,0));
-                break;
-              }
+            switch (boundary_conditions) {
+            case 0 : // Dirichlet
+              _cimg_correlate_n(dirichlet,is_in_x && is_in_y && is_in_z?I(ix,iy,iz,0,wh,whd):(T)0);
+              break;
+            case 1 : // Neumann
+              _cimg_correlate_n(neumann,I(nix,niy,niz,0,wh,whd));
+              break;
+            case 2 : // Periodic
+              _cimg_correlate_n(periodic,I(nix,niy,niz,0,wh,whd));
+              break;
+            case 3 : // Mirror
+              _cimg_correlate_n(mirror,I(nix,niy,niz,0,wh,whd));
+              break;
+            }
           } else { // Standard convolution/correlation
-            if (is_int_stride_dilation) // Integer stride and dilation
-              switch (boundary_conditions) {
-              case 0 : // Dirichlet
-                _cimg_correlate(int,dirichlet,is_in_x && is_in_y && is_in_z?I(ix,iy,iz,0,wh,whd):(T)0);
-                break;
-              case 1 : // Neumann
-                _cimg_correlate(int,neumann,I(nix,niy,niz,0,wh,whd));
-                break;
-              case 2 : // Periodic
-                _cimg_correlate(int,periodic,I(nix,niy,niz,0,wh,whd));
-                break;
-              case 3 : // Mirror
-                _cimg_correlate(int,mirror,I(nix,niy,niz,0,wh,whd));
-                break;
-              }
-            else if (interpolation_type) // Non-integer stride or dilation, linear interpolation
-              switch (boundary_conditions) {
-              case 0 : // Dirichlet
-                _cimg_correlate(float,dirichlet,is_in_x && is_in_y && is_in_z?I.linear_atXYZ(ix,iy,iz,0,0):0);
-                break;
-              case 1 : // Neumann
-                _cimg_correlate(float,neumann,I._linear_atXYZ(nix,niy,niz,0));
-                break;
-              case 2 : // Periodic
-                _cimg_correlate(float,periodic,I._linear_atXYZ(nix,niy,niz,0));
-                break;
-              case 3 : // Mirror
-                _cimg_correlate(float,mirror,I._linear_atXYZ(nix,niy,niz,0));
-                break;
-              }
-            else // Non-integer stride or dilation, nearest-neighbor interpolation
-              switch (boundary_conditions) {
-              case 0 : // Dirichlet
-                _cimg_correlate(float,dirichlet,is_in_x && is_in_y && is_in_z?I((int)ix,(int)iy,(int)iz,0,0):(T)0);
-                break;
-              case 1 : // Neumann
-                _cimg_correlate(float,neumann,I((int)nix,(int)niy,(int)niz,0));
-                break;
-              case 2 : // Periodic
-                _cimg_correlate(float,periodic,I((int)nix,(int)niy,(int)niz,0));
-                break;
-              case 3 : // Mirror
-                _cimg_correlate(float,mirror,I((int)nix,(int)niy,(int)niz,0));
-                break;
-              }
+            switch (boundary_conditions) {
+            case 0 : // Dirichlet
+              _cimg_correlate(dirichlet,is_in_x && is_in_y && is_in_z?I(ix,iy,iz,0,wh,whd):(T)0);
+              break;
+            case 1 : // Neumann
+              _cimg_correlate(neumann,I(nix,niy,niz,0,wh,whd));
+              break;
+            case 2 : // Periodic
+              _cimg_correlate(periodic,I(nix,niy,niz,0,wh,whd));
+              break;
+            case 3 : // Mirror
+              _cimg_correlate(mirror,I(nix,niy,niz,0,wh,whd));
+              break;
+            }
           }
           if (channel_mode==2)
             cimg_pragma_openmp(critical(_correlate)) res.get_shared_channel(c/smin)+=_resu;
@@ -41443,7 +41339,6 @@ namespace cimg_library {
        \param xdilation Dilation along the X-axis.
        \param ydilation Dilation along the Y-axis.
        \param zdilation Dilation along the Z-axis.
-       \param interpolation_type Can be { false=nearest | true=linear }.
        \note
        - The convolution of the image instance \p *this by the kernel \p kernel is defined to be:
        res(x,y,z) = sum_{i,j,k} (*this)(\alpha_x\;x - \beta_x\;(i - c_x),\alpha_y\;y
@@ -41461,14 +41356,12 @@ namespace cimg_library {
                       const int xend=(int)(~0U>>1),
                       const int yend=(int)(~0U>>1),
                       const int zend=(int)(~0U>>1),
-                      const float xstride=1, const float ystride=1, const float zstride=1,
-                      const float xdilation=1, const float ydilation=1, const float zdilation=1,
-                      const bool interpolation_type=false) {
+                      const int xstride=1, const int ystride=1, const int zstride=1,
+                      const int xdilation=1, const int ydilation=1, const int zdilation=1) {
       if (is_empty() || !kernel) return *this;
       return get_convolve(kernel,boundary_conditions,is_normalized,channel_mode,
                           xcenter,ycenter,zcenter,xstart,ystart,zstart,xend,yend,zend,
-                          xstride,ystride,zstride,xdilation,ydilation,zdilation,
-                          interpolation_type).move_to(*this);
+                          xstride,ystride,zstride,xdilation,ydilation,zdilation).move_to(*this);
     }
 
     //! Convolve image by a kernel \newinstance.
@@ -41484,13 +41377,11 @@ namespace cimg_library {
                                      const int xend=(int)(~0U>>1),
                                      const int yend=(int)(~0U>>1),
                                      const int zend=(int)(~0U>>1),
-                                     const float xstride=1, const float ystride=1, const float zstride=1,
-                                     const float xdilation=1, const float ydilation=1, const float zdilation=1,
-                                     const bool interpolation_type=false) const {
+                                     const int xstride=1, const int ystride=1, const int zstride=1,
+                                     const int xdilation=1, const int ydilation=1, const int zdilation=1) const {
       return _correlate(kernel,boundary_conditions,is_normalized,channel_mode,
                         xcenter,ycenter,zcenter,xstart,ystart,zstart,xend,yend,zend,
-                        xstride,ystride,zstride,xdilation,ydilation,zdilation,
-                        interpolation_type,true);
+                        xstride,ystride,zstride,xdilation,ydilation,zdilation,true);
     }
 
     //! Cumulate image values, optionally along specified axis.
@@ -55872,7 +55763,14 @@ namespace cimg_library {
       else return load_other(filename);
 #else
 
-      std::FILE *const nfile = file?file:cimg::fopen(filename,"rb");
+#if defined __GNUC__
+      const char *volatile nfilename = filename; // Use 'volatile' to avoid (wrong) g++ warning
+      std::FILE *volatile nfile = file?file:cimg::fopen(nfilename,"rb");
+#else
+      const char *nfilename = filename;
+      std::FILE *nfile = file?file:cimg::fopen(nfilename,"rb");
+#endif
+
       struct jpeg_decompress_struct cinfo;
       struct _cimg_error_mgr jerr;
       cinfo.err = jpeg_std_error(&jerr.original);
@@ -55892,11 +55790,11 @@ namespace cimg_library {
       if (cinfo.output_components!=1 && cinfo.output_components!=3 && cinfo.output_components!=4) {
         if (!file) {
           cimg::fclose(nfile);
-          return load_other(filename);
+          return load_other(nfilename);
         } else
           throw CImgIOException(_cimg_instance
                                 "load_jpeg(): Failed to load JPEG data from file '%s'.",
-                                cimg_instance,filename?filename:"(FILE*)");
+                                cimg_instance,nfilename?nfilename:"(FILE*)");
       }
       CImg<ucharT> buffer(cinfo.output_width*cinfo.output_components);
       JSAMPROW row_pointer[1];
@@ -55909,7 +55807,7 @@ namespace cimg_library {
         if (jpeg_read_scanlines(&cinfo,row_pointer,1)!=1) {
           cimg::warn(_cimg_instance
                      "load_jpeg(): Incomplete data in file '%s'.",
-                     cimg_instance,filename?filename:"(FILE*)");
+                     cimg_instance,nfilename?nfilename:"(FILE*)");
           break;
         }
         const unsigned char *ptrs = buffer._data;

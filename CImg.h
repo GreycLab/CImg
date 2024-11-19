@@ -41223,9 +41223,9 @@ namespace cimg_library {
           Ttfloat M = 0, M2 = 0;
           if (is_normalized) { M = (Ttfloat)K.magnitude(2); M2 = cimg::sqr(M); }
 
-#define _cimg_correlate_x const int ix = xstart + xstride*x + xdilation*(p - _xcenter)
-#define _cimg_correlate_y const int iy = ystart + ystride*y + ydilation*(q - _ycenter)
-#define _cimg_correlate_z const int iz = zstart + zstride*z + zdilation*(r - _zcenter)
+#define _cimg_correlate_x const int ix = xstart + xstride*x + _xdilation*(p - _xcenter)
+#define _cimg_correlate_y const int iy = ystart + ystride*y + _ydilation*(q - _ycenter)
+#define _cimg_correlate_z const int iz = zstart + zstride*z + _zdilation*(r - _zcenter)
 
 #define _cimg_correlate_x_dirichlet const bool is_in_x = ix>=0 && ix<w
 #define _cimg_correlate_y_dirichlet const bool is_in_y = iy>=0 && iy<h

@@ -40893,13 +40893,16 @@ namespace cimg_library {
         _xsize = xsize==~0U?_width/xstride:xsize,
         _ysize = ysize==~0U?_height/ystride:ysize,
         _zsize = zsize==~0U?_depth/zstride:zsize;
-      if (!xsize || !ysize || !zsize) return res;
+      const ulongT
+        res_wh = (ulongT)_xsize*_ysize,
+        res_whd = (ulongT)_xsize*_ysize*_zsize;
+      if (!xsize || !ysize || !zsize) return CImg<Ttfloat>();
 
       int
         _xcenter = xcenter==(int)(~0U>>1)?kernel.width()/2 - 1 + (kernel.width()%2):xcenter,
         _ycenter = ycenter==(int)(~0U>>1)?kernel.height()/2 - 1 + (kernel.height()%2):ycenter,
-        _zcenter = zcenter==(int)(~0U>>1)?kernel.depth()/2 - 1 + (kernel.depth()%2):zcenter;
-      int _xdilation = xdilation, _ydilation = ydilation, _zdilation = zdilation;
+        _zcenter = zcenter==(int)(~0U>>1)?kernel.depth()/2 - 1 + (kernel.depth()%2):zcenter,
+        _xdilation = xdilation, _ydilation = ydilation, _zdilation = zdilation;
 
       CImg<t> _kernel;
       if (is_convolve) { // If convolution, go back to correlation
@@ -40908,7 +40911,7 @@ namespace cimg_library {
             get_mirror('x').resize(kernel,-1);
           _xcenter = kernel.width() - 1 - _xcenter;
           _ycenter = kernel.height() - 1 - _ycenter;
-          _zcenter = kernel.depth() - _zcenter - 1;
+          _zcenter = kernel.depth() - 1 - _zcenter;
         } else { _kernel = kernel.get_shared(); _xdilation*=-1; _ydilation*=-1; _zdilation*=-1; }
       } else _kernel = kernel.get_shared();
 
@@ -40916,18 +40919,14 @@ namespace cimg_library {
         smin = std::min(spectrum(),_kernel.spectrum()),
         smax = std::max(spectrum(),_kernel.spectrum()),
         cend = !channel_mode?spectrum()*_kernel.spectrum():smax;
-      const ulongT
-        res_wh = (ulongT)_xsize*_ysize,
-        res_whd = (ulongT)_xsize*_ysize*_zsize;
 
-      if (!res_whd) return CImg<Ttfloat>();
       res.assign(_xsize,_ysize,_zsize,
                  !channel_mode?_spectrum*_kernel._spectrum:
                  channel_mode==1?smax:
                  channel_mode==2?(int)std::ceil((float)smax/smin):1);
+      const ulongT res_siz = res_whd*res._spectrum;
       if (channel_mode>=2) res.fill(0);
 
-      const ulongT res_siz = res_whd*res._spectrum;
       const bool
 #if cimg_use_openmp==1
         is_master_thread = !omp_get_thread_num(),
@@ -40955,8 +40954,7 @@ namespace cimg_library {
           xoffset + _xsize<_width && yoffset + _ysize<_height && zoffset + _zsize<_depth) {
         const unsigned int M = cimg::max(_kernel._width,_kernel._height,_kernel._depth);
         _kernel.assign(_kernel.get_resize(M + 1 - (M%2),M + 1 - (M%2),_kernel._depth>1?M + 1 - (M%2):1,-100,
-                                          0,0,
-                                          1,1,1),false);
+                                          0,0,1,1,1),false);
         _xcenter = _ycenter = (int)M/2;
         if (_kernel._depth>1) _zcenter = (int)M/2;
       }

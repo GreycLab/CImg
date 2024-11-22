@@ -40887,11 +40887,14 @@ namespace cimg_library {
       CImg<Ttfloat> res;
       _cimg_abort_init_openmp;
       cimg_abort_init;
-      if (is_empty() || !kernel || !xsize || !ysize || !zsize) return *this;
+      if (is_empty() || !kernel) return *this;
+
       const unsigned int
         _xsize = xsize==~0U?_width/xstride:xsize,
         _ysize = ysize==~0U?_height/ystride:ysize,
         _zsize = zsize==~0U?_depth/zstride:zsize;
+      if (!xsize || !ysize || !zsize) return res;
+
       int
         _xcenter = xcenter==(int)(~0U>>1)?kernel.width()/2 - 1 + (kernel.width()%2):xcenter,
         _ycenter = ycenter==(int)(~0U>>1)?kernel.height()/2 - 1 + (kernel.height()%2):ycenter,

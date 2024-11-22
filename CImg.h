@@ -19992,9 +19992,9 @@ namespace cimg_library {
               _cimg_mp_check_type(opcode[24],23,1,0); // xoffset
               _cimg_mp_check_type(opcode[25],24,1,0); // yoffset
               _cimg_mp_check_type(opcode[26],25,1,0); // zoffset
-              if (opcode[27]!=~0U) _cimg_mp_check_const_scalar(opcode[27],26,1); // xsize
-              if (opcode[28]!=~0U) _cimg_mp_check_const_scalar(opcode[28],27,1); // ysize
-              if (opcode[29]!=~0U) _cimg_mp_check_const_scalar(opcode[29],28,1); // zsize
+              if (opcode[27]!=~0U) _cimg_mp_check_const_scalar(opcode[27],26,3); // xsize
+              if (opcode[28]!=~0U) _cimg_mp_check_const_scalar(opcode[28],27,3); // ysize
+              if (opcode[29]!=~0U) _cimg_mp_check_const_scalar(opcode[29],28,3); // zsize
 
               const unsigned int
                 wI = (unsigned int)mem[opcode[3]],

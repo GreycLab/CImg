@@ -19983,9 +19983,9 @@ namespace cimg_library {
               if (opcode[15]!=~0U) _cimg_mp_check_type(opcode[15],14,1,0); // xcenter
               if (opcode[16]!=~0U) _cimg_mp_check_type(opcode[16],15,1,0); // ycenter
               if (opcode[17]!=~0U) _cimg_mp_check_type(opcode[17],16,1,0); // zcenter
-              _cimg_mp_check_const_scalar(opcode[18],17,0); // xstride
-              _cimg_mp_check_const_scalar(opcode[19],18,0); // ystride
-              _cimg_mp_check_const_scalar(opcode[20],19,0); // zstride
+              _cimg_mp_check_const_scalar(opcode[18],17,3); // xstride
+              _cimg_mp_check_const_scalar(opcode[19],18,3); // ystride
+              _cimg_mp_check_const_scalar(opcode[20],19,3); // zstride
               _cimg_mp_check_type(opcode[21],20,1,0); // xdilation
               _cimg_mp_check_type(opcode[22],21,1,0); // ydilation
               _cimg_mp_check_type(opcode[23],22,1,0); // zdilation
@@ -20006,9 +20006,12 @@ namespace cimg_library {
                 dK = (unsigned int)mem[opcode[10]],
                 sK = (unsigned int)mem[opcode[11]],
                 channel_mode = (unsigned int)mem[opcode[14]],
-                xsize = opcode[27]!=~0U?(unsigned int)mem[opcode[27]]:wI,
-                ysize = opcode[28]!=~0U?(unsigned int)mem[opcode[28]]:hI,
-                zsize = opcode[29]!=~0U?(unsigned int)mem[opcode[29]]:dI;
+                xstride = (int)mem[opcode[18]],
+                ystride = (int)mem[opcode[19]],
+                zstride = (int)mem[opcode[20]],
+                xsize = opcode[27]==~0U?wI/xstride:(unsigned int)mem[opcode[27]],
+                ysize = opcode[28]==~0U?hI/ystride:(unsigned int)mem[opcode[28]],
+                zsize = opcode[29]==~0U?dI/zstride:(unsigned int)mem[opcode[29]];
 
               arg2 = !channel_mode?sI*sK:channel_mode==1?std::max(sI,sK):
                 channel_mode==2?std::max(sI,sK)/std::min(sI,sK):1U;
@@ -20023,6 +20026,9 @@ namespace cimg_library {
               opcode[10] = (ulongT)dK;
               opcode[11] = (ulongT)sK;
               opcode[14] = (ulongT)channel_mode;
+              opcode[18] = (ulongT)xstride;
+              opcode[19] = (ulongT)ystride;
+              opcode[20] = (ulongT)zstride;
               opcode[27] = (ulongT)xsize;
               opcode[28] = (ulongT)ysize;
               opcode[29] = (ulongT)zsize;
@@ -25009,6 +25015,9 @@ namespace cimg_library {
           sK = (unsigned int)mp.opcode[11],
           boundary_conditions = (unsigned int)_mp_arg(12),
           channel_mode = (unsigned int)mp.opcode[14],
+          xstride = (unsigned int)mp.opcode[18],
+          ystride = (unsigned int)mp.opcode[19],
+          zstride = (unsigned int)mp.opcode[20],
           xsize = (unsigned int)mp.opcode[27],
           ysize = (unsigned int)mp.opcode[28],
           zsize = (unsigned int)mp.opcode[29];
@@ -25017,9 +25026,6 @@ namespace cimg_library {
           xcenter = mp.opcode[15]!=~0U?(int)_mp_arg(15):(int)(~0U>>1),
           ycenter = mp.opcode[16]!=~0U?(int)_mp_arg(16):(int)(~0U>>1),
           zcenter = mp.opcode[17]!=~0U?(int)_mp_arg(17):(int)(~0U>>1),
-          xstride = (int)_mp_arg(18),
-          ystride = (int)_mp_arg(19),
-          zstride = (int)_mp_arg(20),
           xdilation = (int)_mp_arg(21),
           ydilation = (int)_mp_arg(22),
           zdilation = (int)_mp_arg(23),
@@ -40818,9 +40824,9 @@ namespace cimg_library {
        \param xoffset X-offset.
        \param yoffset Y-offset.
        \param zoffset Z-offset.
-       \param xsize Width of the resulting image (~0U means 'automatic').
-       \param ysize Height of the resulting image (~0U means 'automatic').
-       \param zsize Depth of the resulting image (~0U means 'automatic').
+       \param xsize Width of the resulting image (~0U means 'instance_width/xstride').
+       \param ysize Height of the resulting image (~0U means 'instance_height/ystride').
+       \param zsize Depth of the resulting image (~0U means 'instance_depth/zstride').
        \note
        - The correlation of the image instance \p *this by the kernel \p kernel is defined to be:
        res(x,y,z) = sum_{i,j,k} (*this)(\alpha_x\;x + \beta_x\;(i - c_x),\alpha_y\;y + \beta_y\;(j -
@@ -40832,7 +40838,9 @@ namespace cimg_library {
                        const int xcenter=(int)(~0U>>1),
                        const int ycenter=(int)(~0U>>1),
                        const int zcenter=(int)(~0U>>1),
-                       const int xstride=1, const int ystride=1, const int zstride=1,
+                       const unsigned int xstride=1,
+                       const unsigned int ystride=1,
+                       const unsigned int zstride=1,
                        const int xdilation=1, const int ydilation=1, const int zdilation=1,
                        const int xoffset=0, const int yoffset=0, const int zoffset=0,
                        const unsigned int xsize=~0U,
@@ -40850,7 +40858,9 @@ namespace cimg_library {
                                       const int xcenter=(int)(~0U>>1),
                                       const int ycenter=(int)(~0U>>1),
                                       const int zcenter=(int)(~0U>>1),
-                                      const int xstride=1, const int ystride=1, const int zstride=1,
+                                      const unsigned int xstride=1,
+                                      const unsigned int ystride=1,
+                                      const unsigned int zstride=1,
                                       const int xdilation=1, const int ydilation=1, const int zdilation=1,
                                       const int xoffset=0, const int yoffset=0, const int zoffset=0,
                                       const unsigned int xsize=~0U,
@@ -40866,7 +40876,9 @@ namespace cimg_library {
     CImg<_cimg_Ttfloat> _correlate(const CImg<t>& kernel, const unsigned int boundary_conditions,
                                    const bool is_normalized, const unsigned int channel_mode,
                                    const int xcenter, const int ycenter, const int zcenter,
-                                   const int xstride, const int ystride, const int zstride,
+                                   const unsigned int xstride,
+                                   const unsigned int ystride,
+                                   const unsigned int zstride,
                                    const int xdilation, const int ydilation, const int zdilation,
                                    const int xoffset, const int yoffset, const int zoffset,
                                    const unsigned int xsize, const unsigned int ysize, const unsigned int zsize,
@@ -40876,6 +40888,10 @@ namespace cimg_library {
       _cimg_abort_init_openmp;
       cimg_abort_init;
       if (is_empty() || !kernel || !xsize || !ysize || !zsize) return *this;
+      const unsigned int
+        _xsize = xsize==~0U?_width/xstride:xsize,
+        _ysize = ysize==~0U?_height/ystride:ysize,
+        _zsize = zsize==~0U?_depth/zstride:zsize;
       int
         _xcenter = xcenter==(int)(~0U>>1)?kernel.width()/2 - 1 + (kernel.width()%2):xcenter,
         _ycenter = ycenter==(int)(~0U>>1)?kernel.height()/2 - 1 + (kernel.height()%2):ycenter,
@@ -40898,11 +40914,11 @@ namespace cimg_library {
         smax = std::max(spectrum(),_kernel.spectrum()),
         cend = !channel_mode?spectrum()*_kernel.spectrum():smax;
       const ulongT
-        res_wh = (ulongT)xsize*ysize,
-        res_whd = (ulongT)xsize*ysize*zsize;
+        res_wh = (ulongT)_xsize*_ysize,
+        res_whd = (ulongT)_xsize*_ysize*_zsize;
 
       if (!res_whd) return CImg<Ttfloat>();
-      res.assign(xsize,ysize,zsize,
+      res.assign(_xsize,_ysize,_zsize,
                  !channel_mode?_spectrum*_kernel._spectrum:
                  channel_mode==1?smax:
                  channel_mode==2?(int)std::ceil((float)smax/smin):1);
@@ -40933,7 +40949,7 @@ namespace cimg_library {
            (_kernel._depth<=3 && _kernel._width<=3 && _kernel._height<=3)) &&
           xstride==1 && ystride==1 && zstride==1 &&
           xoffset>=0 && yoffset>=0 && zoffset>=0 &&
-          xoffset + xsize<_width && yoffset + ysize<_height && zoffset + zsize<_depth) {
+          xoffset + _xsize<_width && yoffset + _ysize<_height && zoffset + _zsize<_depth) {
         const unsigned int M = cimg::max(_kernel._width,_kernel._height,_kernel._depth);
         _kernel.assign(_kernel.get_resize(M + 1 - (M%2),M + 1 - (M%2),_kernel._depth>1?M + 1 - (M%2):1,-100,
                                           0,0,
@@ -40950,7 +40966,7 @@ namespace cimg_library {
           _xcenter==_kernel.width()/2 && _ycenter==_kernel.height()/2 && _zcenter==_kernel.depth()/2 &&
           xstride==1 && ystride==1 && zstride==1 &&
           xoffset>=0 && yoffset>=0 && zoffset>=0 &&
-          xoffset + xsize<_width && yoffset + ysize<_height && zoffset + zsize<_depth) {
+          xoffset + _xsize<_width && yoffset + _ysize<_height && zoffset + _zsize<_depth) {
 
         switch (_kernel._depth) {
         case 3 : { // 3x3x3 centered kernel
@@ -41132,14 +41148,14 @@ namespace cimg_library {
                  !_xcenter && !_ycenter && !_zcenter &&
                  xstride==1 && ystride==1 && zstride==1 &&
                  xoffset>=0 && yoffset>=0 && zoffset>=0 &&
-                 xoffset + xsize<_width && yoffset + ysize<_height && zoffset + zsize<_depth) {
+                 xoffset + _xsize<_width && yoffset + _ysize<_height && zoffset + _zsize<_depth) {
 
         // Special optimization for 1x1 kernel.
         cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
         for (int c = 0; c<cend; ++c) {
           const t valK = _kernel[!channel_mode?c/_spectrum:c%_kernel._spectrum];
           CImg<T> I = get_crop(xoffset,yoffset,zoffset,c%_spectrum,
-                               xoffset + xsize - 1,yoffset + ysize - 1,zoffset + zsize - 1,c%_spectrum);
+                               xoffset + _xsize - 1,yoffset + _ysize - 1,zoffset + _zsize - 1,c%_spectrum);
           if (valK!=1) I*=valK;
           if (is_normalized) I.sign();
           switch (channel_mode) {
@@ -41279,9 +41295,9 @@ namespace cimg_library {
        \param xoffset X-offset.
        \param yoffset Y-offset.
        \param zoffset Z-offset.
-       \param xsize Width of the resulting image (~0U means 'automatic').
-       \param ysize Height of the resulting image (~0U means 'automatic').
-       \param zsize Depth of the resulting image (~0U means 'automatic').
+       \param xsize Width of the resulting image (~0U means 'instance_width/xstride').
+       \param ysize Height of the resulting image (~0U means 'instance_height/ystride').
+       \param zsize Depth of the resulting image (~0U means 'instance_depth/zstride').
        \note
        - The convolution of the image instance \p *this by the kernel \p kernel is defined to be:
        res(x,y,z) = sum_{i,j,k} (*this)(\alpha_x\;x - \beta_x\;(i - c_x),\alpha_y\;y
@@ -41293,7 +41309,9 @@ namespace cimg_library {
                       const int xcenter=(int)(~0U>>1),
                       const int ycenter=(int)(~0U>>1),
                       const int zcenter=(int)(~0U>>1),
-                      const int xstride=1, const int ystride=1, const int zstride=1,
+                      const unsigned int xstride=1,
+                      const unsigned int ystride=1,
+                      const unsigned int zstride=1,
                       const int xdilation=1, const int ydilation=1, const int zdilation=1,
                       const int xoffset=0, const int yoffset=0, const int zoffset=0,
                       const unsigned int xsize=~0U,
@@ -41312,7 +41330,9 @@ namespace cimg_library {
                                      const int xcenter=(int)(~0U>>1),
                                      const int ycenter=(int)(~0U>>1),
                                      const int zcenter=(int)(~0U>>1),
-                                     const int xstride=1, const int ystride=1, const int zstride=1,
+                                     const unsigned int xstride=1,
+                                     const unsigned int ystride=1,
+                                     const unsigned int zstride=1,
                                      const int xdilation=1, const int ydilation=1, const int zdilation=1,
                                      const int xoffset=0, const int yoffset=0, const int zoffset=0,
                                      const unsigned int xsize=~0U,

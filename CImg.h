@@ -19945,7 +19945,7 @@ namespace cimg_library {
                                                 ~0U,~0U,~0U, // [15]=xcenter, [16]=ycenter, [17]=zcenter
                                                 1,1,1, // [18]=xstride, [19]=ystride, [20]=zstride
                                                 1,1,1, // [21]=xdilation, [22]=ydilation, [23]=zdilation,
-                                                0,0,0, // [24]=xstart, [25]=ystart, [26]=zstart
+                                                0,0,0, // [24]=xoffset, [25]=yoffset, [26]=zoffset
                                                 ~0U,~0U,~0U}; // [27]=xend, [28]=yend, [29]=zend
 
               l_opcode.assign(); // Don't use 'opcode': it could be modified by further calls to 'compile()'!
@@ -19989,9 +19989,9 @@ namespace cimg_library {
               _cimg_mp_check_type(opcode[21],20,1,0); // xdilation
               _cimg_mp_check_type(opcode[22],21,1,0); // ydilation
               _cimg_mp_check_type(opcode[23],22,1,0); // zdilation
-              _cimg_mp_check_const_scalar(opcode[24],23,1); // xstart
-              _cimg_mp_check_const_scalar(opcode[25],24,1); // ystart
-              _cimg_mp_check_const_scalar(opcode[26],25,1); // zstart
+              _cimg_mp_check_const_scalar(opcode[24],23,1); // xoffset
+              _cimg_mp_check_const_scalar(opcode[25],24,1); // yoffset
+              _cimg_mp_check_const_scalar(opcode[26],25,1); // zoffset
               if (opcode[27]!=~0U) _cimg_mp_check_const_scalar(opcode[27],26,1); // xend
               if (opcode[28]!=~0U) _cimg_mp_check_const_scalar(opcode[28],27,1); // yend
               if (opcode[29]!=~0U) _cimg_mp_check_const_scalar(opcode[29],28,1); // zend
@@ -20010,21 +20010,21 @@ namespace cimg_library {
                 xstride = (int)mem[opcode[18]],
                 ystride = (int)mem[opcode[19]],
                 zstride = (int)mem[opcode[20]],
-                xstart = (int)mem[opcode[24]],
-                ystart = (int)mem[opcode[25]],
-                zstart = (int)mem[opcode[26]],
+                xoffset = (int)mem[opcode[24]],
+                yoffset = (int)mem[opcode[25]],
+                zoffset = (int)mem[opcode[26]],
                 xend = opcode[27]!=~0U?(int)mem[opcode[27]]:wA - 1,
                 yend = opcode[28]!=~0U?(int)mem[opcode[28]]:hA - 1,
                 zend = opcode[29]!=~0U?(int)mem[opcode[29]]:dA - 1;
 
-              if (xstart>xend || ystart>yend || zstart>zend) {
-                _cimg_mp_strerr;
-                throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                            "CImg<%s>::%s: %s: Invalid xyz-start/end arguments "
-                                            "(start = (%d,%d,%d), end = (%d,%d,%d)), in expression '%s'.",
-                                            pixel_type(),_cimg_mp_calling_function,s_op,
-                                            xstart,ystart,zstart,xend,yend,zend,s0);
-              }
+              // if (xstart>xend || ystart>yend || zstart>zend) {
+              //   _cimg_mp_strerr;
+              //   throw CImgArgumentException("[" cimg_appname "_math_parser] "
+              //                               "CImg<%s>::%s: %s: Invalid xyz-start/end arguments "
+              //                               "(start = (%d,%d,%d), end = (%d,%d,%d)), in expression '%s'.",
+              //                               pixel_type(),_cimg_mp_calling_function,s_op,
+              //                               xstart,ystart,zstart,xend,yend,zend,s0);
+              // }
               if (xstride<=0 || ystride<=0 || zstride<=0) {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
@@ -20034,9 +20034,9 @@ namespace cimg_library {
                                             xstride,ystride,zstride,s0);
               }
 
-              arg2 = (xend - xstart + 1)/xstride;
-              arg3 = (yend - ystart + 1)/ystride;
-              arg4 = (zend - zstart + 1)/zstride;
+              arg2 = (xend - xoffset + 1)/xstride;
+              arg3 = (yend - yoffset + 1)/ystride;
+              arg4 = (zend - zoffset + 1)/zstride;
               arg5 = !channel_mode?sA*sM:channel_mode==1?std::max(sA,sM):
                 channel_mode==2?std::max(sA,sM)/std::min(sA,sM):1U;
 
@@ -20050,9 +20050,9 @@ namespace cimg_library {
               opcode[10] = (ulongT)dM;
               opcode[11] = (ulongT)sM;
               opcode[14] = (ulongT)channel_mode;
-              opcode[24] = (ulongT)xstart;
-              opcode[25] = (ulongT)ystart;
-              opcode[26] = (ulongT)zstart;
+              opcode[24] = (ulongT)xoffset;
+              opcode[25] = (ulongT)yoffset;
+              opcode[26] = (ulongT)zoffset;
               opcode[27] = (ulongT)xend;
               opcode[28] = (ulongT)yend;
               opcode[29] = (ulongT)zend;
@@ -25050,9 +25050,9 @@ namespace cimg_library {
           xdilation = (int)_mp_arg(21),
           ydilation = (int)_mp_arg(22),
           zdilation = (int)_mp_arg(23),
-          xstart = (int)mp.opcode[24],
-          ystart = (int)mp.opcode[25],
-          zstart = (int)mp.opcode[26],
+          xoffset = (int)mp.opcode[24],
+          yoffset = (int)mp.opcode[25],
+          zoffset = (int)mp.opcode[26],
           xend = (int)mp.opcode[27],
           yend = (int)mp.opcode[28],
           zend = (int)mp.opcode[29];
@@ -25062,13 +25062,13 @@ namespace cimg_library {
             get_convolve(CImg<doubleT>(ptrM,wM,hM,dM,sM,true),
                          boundary_conditions,is_normalized,channel_mode,
                          xcenter,ycenter,zcenter,xstride,ystride,zstride,xdilation,ydilation,zdilation,
-                         xstart,ystart,zstart,xend,yend,zend);
+                         xoffset,yoffset,zoffset,xend,yend,zend);
         else
           res = CImg<doubleT>(ptrA,wA,hA,dA,sA,true).
             get_correlate(CImg<doubleT>(ptrM,wM,hM,dM,sM,true),
                           boundary_conditions,is_normalized,channel_mode,
                           xcenter,ycenter,zcenter,xstride,ystride,zstride,xdilation,ydilation,zdilation,
-                          xstart,ystart,zstart,xend,yend,zend);
+                          xoffset,yoffset,zoffset,xend,yend,zend);
         CImg<doubleT>(ptrd,res._width,res._height,res._depth,res._spectrum,true) = res;
         return cimg::type<double>::nan();
       }
@@ -40839,9 +40839,9 @@ namespace cimg_library {
        \param xcenter X-coordinate of the kernel center (~0U>>1 means 'centered').
        \param ycenter Y-coordinate of the kernel center (~0U>>1 means 'centered').
        \param zcenter Z-coordinate of the kernel center (~0U>>1 means 'centered').
-       \param xstart Starting X-coordinate of the instance image.
-       \param ystart Starting Y-coordinate of the instance image.
-       \param zstart Starting Z-coordinate of the instance image.
+       \param xoffset Starting X-coordinate of the instance image.
+       \param yoffset Starting Y-coordinate of the instance image.
+       \param zoffset Starting Z-coordinate of the instance image.
        \param xend Ending X-coordinate of the instance image.
        \param yend Ending Y-coordinate of the instance image.
        \param zend Ending Z-coordinate of the instance image.
@@ -40864,14 +40864,14 @@ namespace cimg_library {
                        const int zcenter=(int)(~0U>>1),
                        const int xstride=1, const int ystride=1, const int zstride=1,
                        const int xdilation=1, const int ydilation=1, const int zdilation=1,
-                       const int xstart=0, const int ystart=0, const int zstart=0,
+                       const int xoffset=0, const int yoffset=0, const int zoffset=0,
                        const int xend=(int)(~0U>>1),
                        const int yend=(int)(~0U>>1),
                        const int zend=(int)(~0U>>1)) {
       if (is_empty() || !kernel) return *this;
       return get_correlate(kernel,boundary_conditions,is_normalized,channel_mode,
                            xcenter,ycenter,zcenter,xstride,ystride,zstride,xdilation,ydilation,zdilation,
-                           xstart,ystart,zstart,xend,yend,zend).move_to(*this);
+                           xoffset,yoffset,zoffset,xend,yend,zend).move_to(*this);
     }
 
     template<typename t>
@@ -40882,13 +40882,13 @@ namespace cimg_library {
                                       const int zcenter=(int)(~0U>>1),
                                       const int xstride=1, const int ystride=1, const int zstride=1,
                                       const int xdilation=1, const int ydilation=1, const int zdilation=1,
-                                      const int xstart=0, const int ystart=0, const int zstart=0,
+                                      const int xoffset=0, const int yoffset=0, const int zoffset=0,
                                       const int xend=(int)(~0U>>1),
                                       const int yend=(int)(~0U>>1),
                                       const int zend=(int)(~0U>>1)) const {
       return _correlate(kernel,boundary_conditions,is_normalized,channel_mode,
                         xcenter,ycenter,zcenter,xstride,ystride,zstride,xdilation,ydilation,zdilation,
-                        xstart,ystart,zstart,xend,yend,zend,false);
+                        xoffset,yoffset,zoffset,xend,yend,zend,false);
     }
 
     //! Correlate image by a kernel \newinstance.
@@ -40898,7 +40898,7 @@ namespace cimg_library {
                                    const int xcenter, const int ycenter, const int zcenter,
                                    const int xstride, const int ystride, const int zstride,
                                    const int xdilation, const int ydilation, const int zdilation,
-                                   const int xstart, const int ystart, const int zstart,
+                                   const int xoffset, const int yoffset, const int zoffset,
                                    const int xend, const int yend, const int zend,
                                    const bool is_convolve) const {
       typedef _cimg_Ttfloat Ttfloat;
@@ -40906,12 +40906,12 @@ namespace cimg_library {
       _cimg_abort_init_openmp;
       cimg_abort_init;
 
-      if (xstart>xend || ystart>yend || zstart>zend)
-        throw CImgArgumentException(_cimg_instance
-                                    "%s(): Invalid xyz-start/end arguments (start = (%d,%d,%d), end = (%d,%d,%d)).",
-                                    cimg_instance,
-                                    is_convolve?"convolve":"correlate",
-                                    xstart,ystart,zstart,xend,yend,zend);
+      // if (xstart>xend || ystart>yend || zstart>zend)
+      //   throw CImgArgumentException(_cimg_instance
+      //                               "%s(): Invalid xyz-start/end arguments (start = (%d,%d,%d), end = (%d,%d,%d)).",
+      //                               cimg_instance,
+      //                               is_convolve?"convolve":"correlate",
+      //                               xstart,ystart,zstart,xend,yend,zend);
       if (xstride<=0 || ystride<=0 || zstride<=0)
         throw CImgArgumentException(_cimg_instance
                                     "%s(): Invalid stride arguments (%g,%g,%g).",
@@ -40941,9 +40941,9 @@ namespace cimg_library {
         _xend = xend==(int)(~0U>>1)?width() - 1:xend,
         _yend = yend==(int)(~0U>>1)?height() - 1:yend,
         _zend = zend==(int)(~0U>>1)?depth() - 1:zend,
-        res_width = (_xend - xstart + 1)/xstride,
-        res_height = (_yend - ystart + 1)/ystride,
-        res_depth = (_zend - zstart + 1)/zstride,
+        res_width = (_xend - xoffset + 1)/xstride,
+        res_height = (_yend - yoffset + 1)/ystride,
+        res_depth = (_zend - zoffset + 1)/zstride,
         smin = std::min(spectrum(),_kernel.spectrum()),
         smax = std::max(spectrum(),_kernel.spectrum()),
         cend = !channel_mode?spectrum()*_kernel.spectrum():smax;
@@ -40981,7 +40981,7 @@ namespace cimg_library {
           _kernel._width>1 && _kernel._height>1 &&
           ((_kernel._depth==1 && _kernel._width<=5 && _kernel._height<=5) ||
            (_kernel._depth<=3 && _kernel._width<=3 && _kernel._height<=3)) &&
-          xstart>=0 && ystart>=0 && zstart>=0 &&
+          xoffset>=0 && yoffset>=0 && zoffset>=0 &&
           _xend<width() && _yend<height() && _zend<depth() &&
           xstride==1 && ystride==1 && zstride==1) {
         const unsigned int M = cimg::max(_kernel._width,_kernel._height,_kernel._depth);
@@ -40998,7 +40998,7 @@ namespace cimg_library {
           ((_kernel._depth==1 && (_kernel._width==3 || _kernel._width==5)) ||
            (_kernel._depth==_kernel._width && _kernel._width==3)) &&
           _xcenter==_kernel.width()/2 && _ycenter==_kernel.height()/2 && _zcenter==_kernel.depth()/2 &&
-          xstart>=0 && ystart>=0 && zstart>=0 &&
+          xoffset>=0 && yoffset>=0 && zoffset>=0 &&
           _xend<width() && _yend<height() && _zend<depth() &&
           xstride==1 && ystride==1 && zstride==1) {
 
@@ -41016,7 +41016,7 @@ namespace cimg_library {
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
                 cimg_forXYZ(res,X,Y,Z) {
                 const int
-                  x = xstart + X, y = ystart + Y, z = zstart + Z,
+                  x = xoffset + X, y = yoffset + Y, z = zoffset + Z,
                   px = x - xdilation>0?x - xdilation:0, nx = x + xdilation<w1?x + xdilation:w1,
                   py = y - ydilation>0?y - ydilation:0, ny = y + ydilation<h1?y + ydilation:h1,
                   pz = z - zdilation>0?z - zdilation:0, nz = z + zdilation<d1?z + zdilation:d1;
@@ -41043,7 +41043,7 @@ namespace cimg_library {
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
                 cimg_forXYZ(res,X,Y,Z) {
                 const int
-                  x = xstart + X, y = ystart + Y, z = zstart + Z,
+                  x = xoffset + X, y = yoffset + Y, z = zoffset + Z,
                   px = x - xdilation>0?x - xdilation:0, nx = x + xdilation<w1?x + xdilation:w1,
                   py = y - ydilation>0?y - ydilation:0, ny = y + ydilation<h1?y + ydilation:h1,
                   pz = z - zdilation>0?z - zdilation:0, nz = z + zdilation<d1?z + zdilation:d1;
@@ -41081,7 +41081,7 @@ namespace cimg_library {
                 cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
                   cimg_forXYZ(res,X,Y,z) {
                   const int
-                    x = xstart + X, y = ystart + Y,
+                    x = xoffset + X, y = yoffset + Y,
                     px = x - xdilation>0?x - xdilation:0, bx = px - xdilation>0?px - xdilation:0,
                     nx = x + xdilation<w1?x + xdilation:w1, ax = nx + xdilation<w1?nx + xdilation:w1,
                     py = y - ydilation>0?y - ydilation:0, by = py - ydilation>0?py - ydilation:0,
@@ -41111,7 +41111,7 @@ namespace cimg_library {
                 cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
                   cimg_forXYZ(res,X,Y,z) {
                   const int
-                    x = xstart + X, y = ystart + Y,
+                    x = xoffset + X, y = yoffset + Y,
                     px = x - xdilation>0?x - xdilation:0, bx = px - xdilation>0?px - xdilation:0,
                     nx = x + xdilation<w1?x + xdilation:w1, ax = nx + xdilation<w1?nx + xdilation:w1,
                     py = y - ydilation>0?y - ydilation:0, by = py - ydilation>0?py - ydilation:0,
@@ -41148,7 +41148,7 @@ namespace cimg_library {
                 cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
                   cimg_forXYZ(res,X,Y,z) {
                   const int
-                    x = xstart + X, y = ystart + Y,
+                    x = xoffset + X, y = yoffset + Y,
                     px = x - xdilation>0?x - xdilation:0, nx = x + xdilation<w1?x + xdilation:w1,
                     py = y - ydilation>0?y - ydilation:0, ny = y + ydilation<h1?y + ydilation:h1;
                   const Ttfloat N = M2*(cimg::sqr(I(px,py,z)) + cimg::sqr(I(x,py,z)) + cimg::sqr(I(nx,py,z)) +
@@ -41162,7 +41162,7 @@ namespace cimg_library {
                 cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
                   cimg_forXYZ(res,X,Y,z) {
                   const int
-                    x = xstart + X, y = ystart + Y,
+                    x = xoffset + X, y = yoffset + Y,
                     px = x - xdilation>0?x - xdilation:0, nx = x + xdilation<w1?x + xdilation:w1,
                     py = y - ydilation>0?y - ydilation:0, ny = y + ydilation<h1?y + ydilation:h1;
                   _resu(X,Y,z) = (Ttfloat)(K[0]*I(px,py,z) + K[1]*I(x,py,z) + K[2]*I(nx,py,z) +
@@ -41180,7 +41180,7 @@ namespace cimg_library {
         }
       } else if (_kernel._width==1 && _kernel._height==1 && _kernel._depth==1 &&
                  !_xcenter && !_ycenter && !_zcenter &&
-                 xstart>=0 && ystart>=0 && zstart>=0 &&
+                 xoffset>=0 && yoffset>=0 && zoffset>=0 &&
                  _xend<width() && _yend<height() && _zend<depth() &&
                  xstride==1 && ystride==1 && zstride==1) {
 
@@ -41188,7 +41188,7 @@ namespace cimg_library {
         cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))
         for (int c = 0; c<cend; ++c) {
           const t valK = _kernel[!channel_mode?c/_spectrum:c%_kernel._spectrum];
-          CImg<T> I = get_crop(xstart,ystart,zstart,c%_spectrum,_xend,_yend,_zend,c%_spectrum);
+          CImg<T> I = get_crop(xoffset,yoffset,zoffset,c%_spectrum,_xend,_yend,_zend,c%_spectrum);
           if (valK!=1) I*=valK;
           if (is_normalized) I.sign();
           switch (channel_mode) {
@@ -41215,9 +41215,9 @@ namespace cimg_library {
           Ttfloat M = 0, M2 = 0;
           if (is_normalized) { M = (Ttfloat)K.magnitude(2); M2 = cimg::sqr(M); }
 
-#define _cimg_correlate_x const int ix = xstart + xstride*x + _xdilation*(p - _xcenter)
-#define _cimg_correlate_y const int iy = ystart + ystride*y + _ydilation*(q - _ycenter)
-#define _cimg_correlate_z const int iz = zstart + zstride*z + _zdilation*(r - _zcenter)
+#define _cimg_correlate_x const int ix = xstride*x + xoffset + _xdilation*(p - _xcenter)
+#define _cimg_correlate_y const int iy = ystride*y + yoffset + _ydilation*(q - _ycenter)
+#define _cimg_correlate_z const int iz = zstride*z + zoffset + _zdilation*(r - _zcenter)
 
 #define _cimg_correlate_x_dirichlet const bool is_in_x = ix>=0 && ix<w
 #define _cimg_correlate_y_dirichlet const bool is_in_y = iy>=0 && iy<h
@@ -41319,9 +41319,9 @@ namespace cimg_library {
        \param xcenter X-coordinate of the kernel center (~0U>>1 means 'centered').
        \param ycenter Y-coordinate of the kernel center (~0U>>1 means 'centered').
        \param zcenter Z-coordinate of the kernel center (~0U>>1 means 'centered').
-       \param xstart Starting X-coordinate of the instance image.
-       \param ystart Starting Y-coordinate of the instance image.
-       \param zstart Starting Z-coordinate of the instance image.
+       \param xoffset Starting X-coordinate of the instance image.
+       \param yoffset Starting Y-coordinate of the instance image.
+       \param zoffset Starting Z-coordinate of the instance image.
        \param xend Ending X-coordinate of the instance image.
        \param yend Ending Y-coordinate of the instance image.
        \param zend Ending Z-coordinate of the instance image.
@@ -41344,14 +41344,14 @@ namespace cimg_library {
                       const int zcenter=(int)(~0U>>1),
                       const int xstride=1, const int ystride=1, const int zstride=1,
                       const int xdilation=1, const int ydilation=1, const int zdilation=1,
-                      const int xstart=0, const int ystart=0, const int zstart=0,
+                      const int xoffset=0, const int yoffset=0, const int zoffset=0,
                       const int xend=(int)(~0U>>1),
                       const int yend=(int)(~0U>>1),
                       const int zend=(int)(~0U>>1)) {
       if (is_empty() || !kernel) return *this;
       return get_convolve(kernel,boundary_conditions,is_normalized,channel_mode,
                           xcenter,ycenter,zcenter,xstride,ystride,zstride,xdilation,ydilation,zdilation,
-                          xstart,ystart,zstart,xend,yend,zend).move_to(*this);
+                          xoffset,yoffset,zoffset,xend,yend,zend).move_to(*this);
     }
 
     //! Convolve image by a kernel \newinstance.
@@ -41363,13 +41363,13 @@ namespace cimg_library {
                                      const int zcenter=(int)(~0U>>1),
                                      const int xstride=1, const int ystride=1, const int zstride=1,
                                      const int xdilation=1, const int ydilation=1, const int zdilation=1,
-                                     const int xstart=0, const int ystart=0, const int zstart=0,
+                                     const int xoffset=0, const int yoffset=0, const int zoffset=0,
                                      const int xend=(int)(~0U>>1),
                                      const int yend=(int)(~0U>>1),
                                      const int zend=(int)(~0U>>1)) const {
       return _correlate(kernel,boundary_conditions,is_normalized,channel_mode,
                         xcenter,ycenter,zcenter,xstride,ystride,zstride,xdilation,ydilation,zdilation,
-                        xstart,ystart,zstart,xend,yend,zend,true);
+                        xoffset,yoffset,zoffset,xend,yend,zend,true);
     }
 
     //! Cumulate image values, optionally along specified axis.

@@ -40951,7 +40951,7 @@ namespace cimg_library {
            (_kernel._depth<=3 && _kernel._width<=3 && _kernel._height<=3)) &&
           xstride==1 && ystride==1 && zstride==1 &&
           xoffset>=0 && yoffset>=0 && zoffset>=0 &&
-          xoffset + _xsize<_width && yoffset + _ysize<_height && zoffset + _zsize<_depth) {
+          xoffset + _xsize<=_width && yoffset + _ysize<=_height && zoffset + _zsize<=_depth) {
         const unsigned int M = cimg::max(_kernel._width,_kernel._height,_kernel._depth);
         _kernel.assign(_kernel.get_resize(M + 1 - (M%2),M + 1 - (M%2),_kernel._depth>1?M + 1 - (M%2):1,-100,
                                           0,0,1,1,1),false);
@@ -40967,7 +40967,7 @@ namespace cimg_library {
           _xcenter==_kernel.width()/2 && _ycenter==_kernel.height()/2 && _zcenter==_kernel.depth()/2 &&
           xstride==1 && ystride==1 && zstride==1 &&
           xoffset>=0 && yoffset>=0 && zoffset>=0 &&
-          xoffset + _xsize<_width && yoffset + _ysize<_height && zoffset + _zsize<_depth) {
+          xoffset + _xsize<=_width && yoffset + _ysize<=_height && zoffset + _zsize<=_depth) {
 
         switch (_kernel._depth) {
         case 3 : { // 3x3x3 centered kernel
@@ -41149,7 +41149,7 @@ namespace cimg_library {
                  !_xcenter && !_ycenter && !_zcenter &&
                  xstride==1 && ystride==1 && zstride==1 &&
                  xoffset>=0 && yoffset>=0 && zoffset>=0 &&
-                 xoffset + _xsize<_width && yoffset + _ysize<_height && zoffset + _zsize<_depth) {
+                 xoffset + _xsize<=_width && yoffset + _ysize<=_height && zoffset + _zsize<=_depth) {
 
         // Special optimization for 1x1 kernel.
         cimg_pragma_openmp(parallel for cimg_openmp_if(is_outer_parallel))

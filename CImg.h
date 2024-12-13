@@ -22411,8 +22411,8 @@ namespace cimg_library {
               _cimg_mp_const_scalar(is_scalar(arg1)?0:size(arg1));
             }
 
-            if (!std::strncmp(ss,"softmax(",8)) { // Softmax
-              _cimg_mp_op("Function 'softmax()'");
+            if (!std::strncmp(ss,"softmax(",8) || !std::strncmp(ss,"softmin(",8)) { // Softmax & softmin
+              _cimg_mp_op(ss[5]=='a'?"Function 'softmax()'":"Function 'softmin()'");
               s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss8,s1,depth1,0,block_flags);
               arg2 = s1<se1?compile(++s1,se1,depth1,0,block_flags):1;
@@ -22420,7 +22420,7 @@ namespace cimg_library {
               p1 = size(arg1);
               if (p1>0) pos = is_comp_vector(arg1)?arg1:((return_comp = true), vector(p1));
               else _cimg_mp_return(1);
-              CImg<ulongT>::vector((ulongT)mp_softmax,pos,arg1,p1,arg2).move_to(code);
+              CImg<ulongT>::vector((ulongT)(ss[5]=='a'?mp_softmax:mp_softmin),pos,arg1,p1,arg2).move_to(code);
               _cimg_mp_return(pos);
             }
 
@@ -28602,6 +28602,19 @@ namespace cimg_library {
         return 1;
       }
 
+      static double mp_softmin(_cimg_math_parser& mp) {
+        const unsigned int siz = (unsigned int)mp.opcode[3];
+        const double temperature = _mp_arg(4);
+        if (siz>0) { // Vector-valued argument
+          double *const ptrd = &_mp_arg(1) + 1;
+          const double *const ptrs = &_mp_arg(2) + 1;
+          CImg<doubleT>(ptrd,siz,1,1,1,true) = CImg<doubleT>(ptrs,siz,1,1,1,true).get_softmin(temperature);
+          return cimg::type<double>::nan();
+        }
+        // Scalar-valued argument.
+        return 1;
+      }
+
       static double mp_solve(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
         const double
@@ -30308,6 +30321,28 @@ namespace cimg_library {
         cimg_pragma_openmp(for)
         cimg_rofoff(*this,off) {
           const Tfloat val = std::exp(((Tfloat)_data[off] - val_max)/temperature);
+          res[off] = val;
+          sum+=val;
+        }
+      }
+      return res/=sum;
+    }
+
+    //! Softmin operator.
+    CImg<T>& softmin(const float temperature=1) {
+      return get_softmin(temperature).move_to(*this);
+    }
+
+    //! Softmin operator \newinstance.
+    CImg<Tfloat> get_softmin(const float temperature=1) const {
+      if (is_empty()) return CImg<Tfloat>();
+      CImg<Tfloat> res(_width,_height,_depth,_spectrum);
+      const T val_min = min();
+      Tfloat sum = 0;
+      cimg_pragma_openmp(parallel reduction(+:sum) cimg_openmp_if_size(size(),4096)) {
+        cimg_pragma_openmp(for)
+        cimg_rofoff(*this,off) {
+          const Tfloat val = std::exp((-(Tfloat)_data[off] + val_min)/temperature);
           res[off] = val;
           sum+=val;
         }

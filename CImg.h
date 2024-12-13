@@ -30335,7 +30335,19 @@ namespace cimg_library {
 
     //! Softmin operator \newinstance.
     CImg<Tfloat> get_softmin(const float temperature=1) const {
-      return get_softmax(-temperature);
+      if (is_empty()) return CImg<Tfloat>();
+      CImg<Tfloat> res(_width,_height,_depth,_spectrum);
+      const T val_min = min();
+      Tfloat sum = 0;
+      cimg_pragma_openmp(parallel reduction(+:sum) cimg_openmp_if_size(size(),4096)) {
+        cimg_pragma_openmp(for)
+        cimg_rofoff(*this,off) {
+          const Tfloat val = std::exp((-(Tfloat)_data[off] + val_min)/temperature);
+          res[off] = val;
+          sum+=val;
+        }
+      }
+      return res/=sum;
     }
 
     //! Pointwise min operator between instance image and a value.

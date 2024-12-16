@@ -22411,16 +22411,29 @@ namespace cimg_library {
               _cimg_mp_const_scalar(is_scalar(arg1)?0:size(arg1));
             }
 
-            if (!std::strncmp(ss,"softmax(",8) || !std::strncmp(ss,"softmin(",8)) { // Softmax & softmin
-              _cimg_mp_op(ss[5]=='a'?"Function 'softmax()'":"Function 'softmin()'");
-              s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss8,s1,depth1,0,block_flags);
+            if (!std::strncmp(ss,"softargmax(",11) || // Softargmax & Softargmin
+                !std::strncmp(ss,"softargmin(",11)) {
+              _cimg_mp_op(*ss8=='a'?"Function 'softargmax()'":"Function 'softargmin()'");
+              s0 = ss + 11;
+              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(s0,s1,depth1,0,block_flags);
               arg2 = s1<se1?compile(++s1,se1,depth1,0,block_flags):1;
               _cimg_mp_check_type(arg2,2,1,0);
               p1 = size(arg1);
-              if (p1>0) pos = is_comp_vector(arg1)?arg1:((return_comp = true), vector(p1));
-              else _cimg_mp_return(1);
-              CImg<ulongT>::vector((ulongT)(ss[5]=='a'?mp_softmax:mp_softmin),pos,arg1,p1,arg2).move_to(code);
+              if (!p1) _cimg_mp_return(0);
+              _cimg_mp_scalar3(*ss8=='a'?mp_softargmax:mp_softargmin,arg1,p1,arg2);
+            }
+
+            if (!std::strncmp(ss,"softmax(",8) || !std::strncmp(ss,"softmin(",8)) { // Softmax & softmin
+              _cimg_mp_op(*ss5=='a'?"Function 'softmax()'":"Function 'softmin()'");
+              s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(s0,s1,depth1,0,block_flags);
+              arg2 = s1<se1?compile(++s1,se1,depth1,0,block_flags):1;
+              _cimg_mp_check_type(arg2,2,1,0);
+              p1 = size(arg1);
+              if (!p1) _cimg_mp_return(1);
+              pos = is_comp_vector(arg1)?arg1:((return_comp = true), vector(p1));
+              CImg<ulongT>::vector((ulongT)(*ss5=='a'?mp_softmax:mp_softmin),pos,arg1,p1,arg2).move_to(code);
               _cimg_mp_return(pos);
             }
 
@@ -28589,30 +28602,42 @@ namespace cimg_library {
         return std::sinh(_mp_arg(2));
       }
 
+      static double mp_softargmax(_cimg_math_parser& mp) {
+        const unsigned int siz = (unsigned int)mp.opcode[3];
+        if (siz<2) return 0;
+        const double temperature = _mp_arg(4), *const ptrs = &_mp_arg(2) + 1;
+        CImg<doubleT> sm = CImg<doubleT>(ptrs,siz,1,1,1,true).get_softmax(temperature);
+        double res = 0;
+        cimg_forX(sm,x) res+=sm[x]*x;
+        return res;
+      }
+
+      static double mp_softargmin(_cimg_math_parser& mp) {
+        const unsigned int siz = (unsigned int)mp.opcode[3];
+        if (siz<2) return 0;
+        const double temperature = _mp_arg(4), *const ptrs = &_mp_arg(2) + 1;
+        CImg<doubleT> sm = CImg<doubleT>(ptrs,siz,1,1,1,true).get_softmin(temperature);
+        double res = 0;
+        cimg_forX(sm,x) res+=sm[x]*x;
+        return res;
+      }
+
       static double mp_softmax(_cimg_math_parser& mp) {
         const unsigned int siz = (unsigned int)mp.opcode[3];
-        const double temperature = _mp_arg(4);
-        if (siz>0) { // Vector-valued argument
-          double *const ptrd = &_mp_arg(1) + 1;
-          const double *const ptrs = &_mp_arg(2) + 1;
-          CImg<doubleT>(ptrd,siz,1,1,1,true) = CImg<doubleT>(ptrs,siz,1,1,1,true).get_softmax(temperature);
-          return cimg::type<double>::nan();
-        }
-        // Scalar-valued argument.
-        return 1;
+        if (!siz) return 1;
+        const double temperature = _mp_arg(4), *const ptrs = &_mp_arg(2) + 1;
+        double *const ptrd = &_mp_arg(1) + 1;
+        CImg<doubleT>(ptrd,siz,1,1,1,true) = CImg<doubleT>(ptrs,siz,1,1,1,true).get_softmax(temperature);
+        return cimg::type<double>::nan();
       }
 
       static double mp_softmin(_cimg_math_parser& mp) {
         const unsigned int siz = (unsigned int)mp.opcode[3];
-        const double temperature = _mp_arg(4);
-        if (siz>0) { // Vector-valued argument
-          double *const ptrd = &_mp_arg(1) + 1;
-          const double *const ptrs = &_mp_arg(2) + 1;
-          CImg<doubleT>(ptrd,siz,1,1,1,true) = CImg<doubleT>(ptrs,siz,1,1,1,true).get_softmin(temperature);
-          return cimg::type<double>::nan();
-        }
-        // Scalar-valued argument.
-        return 1;
+        if (!siz) return 1;
+        const double temperature = _mp_arg(4), *const ptrs = &_mp_arg(2) + 1;
+        double *const ptrd = &_mp_arg(1) + 1;
+        CImg<doubleT>(ptrd,siz,1,1,1,true) = CImg<doubleT>(ptrs,siz,1,1,1,true).get_softmin(temperature);
+        return cimg::type<double>::nan();
       }
 
       static double mp_solve(_cimg_math_parser& mp) {

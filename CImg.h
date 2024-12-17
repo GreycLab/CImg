@@ -22427,7 +22427,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"softmax(",8) || !std::strncmp(ss,"softmin(",8)) { // Softmax & softmin
               _cimg_mp_op(*ss5=='a'?"Function 'softmax()'":"Function 'softmin()'");
               s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(s0,s1,depth1,0,block_flags);
+              arg1 = compile(ss8,s1,depth1,0,block_flags);
               arg2 = s1<se1?compile(++s1,se1,depth1,0,block_flags):1;
               _cimg_mp_check_type(arg2,2,1,0);
               p1 = size(arg1);

@@ -58327,7 +58327,11 @@ namespace cimg_library {
                     cimg::graphicsmagick_path(),
                     s_filename.data(),
                     CImg<charT>::string(filename_tmp)._system_strescape().data());
-      cimg::system(command,cimg::graphicsmagick_path());
+      if (cimg::system(command,cimg::graphicsmagick_path()) != 0)
+        throw CImgIOException(_cimg_instance
+                              "load_graphicsmagick_external(): Failed to load file '%s' with external command 'gm'.",
+                              cimg_instance,
+                              filename);
       if (!(file=cimg::std_fopen(filename_tmp,"rb"))) {
         cimg::fclose(cimg::fopen(filename,"r"));
         throw CImgIOException(_cimg_instance
@@ -58384,7 +58388,11 @@ namespace cimg_library {
                     cimg::gunzip_path(),
                     CImg<charT>::string(filename)._system_strescape().data(),
                     CImg<charT>::string(filename_tmp)._system_strescape().data());
-      cimg::system(command);
+      if (cimg::system(command) != 0)
+        throw CImgIOException(_cimg_instance
+                              "load_gzip_external(): Failed to load file '%s' with external command 'gunzip'.",
+                              cimg_instance,
+                              filename);
       if (!(file=cimg::std_fopen(filename_tmp,"rb"))) {
         cimg::fclose(cimg::fopen(filename,"r"));
         throw CImgIOException(_cimg_instance
@@ -58471,7 +58479,12 @@ namespace cimg_library {
                     !cimg::strcasecmp(cimg::split_filename(filename),"pdf")?" -density 400x400":"",
                     s_filename.data(),
                     CImg<charT>::string(filename_tmp)._system_strescape().data());
-      cimg::system(command,magick_path);
+      if (cimg::system(command,magick_path) != 0)
+        throw CImgIOException(_cimg_instance
+                              "load_imagemagick_external(): Failed to load file '%s' with "
+                              "external command 'magick/convert'.",
+                              cimg_instance,
+                              filename);
       if (!(file=cimg::std_fopen(filename_tmp,"rb"))) {
         cimg::fclose(cimg::fopen(filename,"r"));
         throw CImgIOException(_cimg_instance
@@ -62143,7 +62156,11 @@ namespace cimg_library {
                     cimg::gzip_path(),
                     CImg<charT>::string(filename_tmp)._system_strescape().data(),
                     CImg<charT>::string(filename)._system_strescape().data());
-      cimg::system(command,cimg::gzip_path());
+      if (cimg::system(command,cimg::gzip_path()) != 0)
+        throw CImgIOException(_cimg_instance
+                              "save_gzip_external(): Failed to save file '%s' with external command 'gzip'.",
+                              cimg_instance,
+                              filename);
       file = cimg::std_fopen(filename,"rb");
       if (!file)
         throw CImgIOException(_cimg_instance
@@ -62201,7 +62218,11 @@ namespace cimg_library {
                     cimg::graphicsmagick_path(),quality,
                     CImg<charT>::string(filename_tmp)._system_strescape().data(),
                     CImg<charT>::string(filename)._system_strescape().data());
-      cimg::system(command,cimg::graphicsmagick_path());
+      if (cimg::system(command,cimg::graphicsmagick_path()) != 0)
+        throw CImgIOException(_cimg_instance
+                              "save_graphicsmagick_external(): Failed to save file '%s' with external command 'gm'.",
+                              cimg_instance,
+                              filename);
       file = cimg::std_fopen(filename,"rb");
       if (!file)
         throw CImgIOException(_cimg_instance
@@ -62257,7 +62278,12 @@ namespace cimg_library {
                     magick_path,quality,
                     CImg<charT>::string(filename_tmp)._system_strescape().data(),
                     CImg<charT>::string(filename)._system_strescape().data());
-      cimg::system(command,magick_path);
+      if (cimg::system(command,magick_path) != 0)
+        throw CImgIOException(_cimg_instance
+                              "save_imagemagick_external(): Failed to save file '%s' with "
+                              "external command 'magick/convert'.",
+                              cimg_instance,
+                              filename);
       file = cimg::std_fopen(filename,"rb");
       if (!file)
         throw CImgIOException(_cimg_instance
@@ -62296,7 +62322,11 @@ namespace cimg_library {
                     cimg::medcon_path(),
                     CImg<charT>::string(filename)._system_strescape().data(),
                     CImg<charT>::string(filename_tmp)._system_strescape().data());
-      cimg::system(command,cimg::medcon_path());
+      if (cimg::system(command,cimg::medcon_path()) != 0)
+        throw CImgIOException(_cimg_instance
+                                "save_medcon_external(): Failed to save file '%s' with external command 'medcon'.",
+                                cimg_instance,
+                                filename);
       std::remove(filename_tmp);
       cimg::split_filename(filename_tmp,body);
       cimg_snprintf(filename_tmp,filename_tmp._width,"%s.img",body._data);
@@ -65929,7 +65959,11 @@ namespace cimg_library {
                     cimg::ffmpeg_path(),
                     CImg<charT>::string(filename)._system_strescape().data(),
                     CImg<charT>::string(filename_tmp2)._system_strescape().data());
-      cimg::system(command,cimg::ffmpeg_path());
+      if (cimg::system(command,cimg::ffmpeg_path()) != 0)
+        throw CImgIOException(_cimglist_instance
+                              "load_ffmpeg_external(): Failed to open file '%s' with external command 'ffmpeg'.",
+                              cimglist_instance,
+                              filename);
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
       assign();
@@ -66056,7 +66090,11 @@ namespace cimg_library {
                     cimg::gunzip_path(),
                     CImg<charT>::string(filename)._system_strescape().data(),
                     CImg<charT>::string(filename_tmp)._system_strescape().data());
-      cimg::system(command,cimg::gunzip_path());
+      if (cimg::system(command,cimg::gunzip_path()) != 0)
+        throw CImgIOException(_cimglist_instance
+                              "load_gzip_external(): Failed to open file '%s'.",
+                              cimglist_instance,
+                              filename);
       if (!(file=cimg::std_fopen(filename_tmp,"rb"))) {
         cimg::fclose(cimg::fopen(filename,"r"));
         throw CImgIOException(_cimglist_instance
@@ -66511,7 +66549,11 @@ namespace cimg_library {
       cimg_for(_command,p,char) if (!*p) *p = ' ';
       _command.back() = 0;
 
-      cimg::system(_command,cimg::imagemagick_path());
+      if (cimg::system(_command,cimg::imagemagick_path()) != 0)
+        throw CImgIOException(_cimglist_instance
+                              "save_gif_external(): Failed to save file '%s' with external command 'magick/convert'.",
+                              cimglist_instance,
+                              filename);
       file = cimg::std_fopen(filename,"rb");
       if (!file)
         throw CImgIOException(_cimglist_instance
@@ -66958,7 +67000,11 @@ namespace cimg_library {
                       cimg::gzip_path(),
                       CImg<charT>::string(filename_tmp)._system_strescape().data(),
                       CImg<charT>::string(filename)._system_strescape().data());
-        cimg::system(command,cimg::gzip_path());
+        if (cimg::system(command,cimg::gzip_path()) != 0)
+          throw CImgIOException(_cimglist_instance
+                                "save_gzip_external(): Failed to save file '%s' with external command 'gzip'.",
+                                cimglist_instance,
+                                filename);
         file = cimg::std_fopen(filename,"rb");
         if (!file)
           throw CImgIOException(_cimglist_instance
@@ -67162,7 +67208,11 @@ namespace cimg_library {
                     fps,CImg<charT>::string(filename_tmp)._system_strescape().data(),
                     _codec,bitrate,fps,
                     CImg<charT>::string(filename)._system_strescape().data());
-      cimg::system(command,cimg::ffmpeg_path());
+      if (cimg::system(command,cimg::ffmpeg_path()) != 0)
+        throw CImgIOException(_cimglist_instance
+                              "save_ffmpeg_external(): Failed to save file '%s' with external command 'ffmpeg'.",
+                              cimglist_instance,
+                              filename);
       file = cimg::std_fopen(filename,"rb");
       if (!file)
         throw CImgIOException(_cimglist_instance

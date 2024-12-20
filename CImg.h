@@ -28246,14 +28246,8 @@ namespace cimg_library {
 
       static double mp_rot2d(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
-        const float
-          theta = (float)_mp_arg(2),
-          ca = std::cos(theta),
-          sa = std::sin(theta);
-        *(ptrd++) = ca;
-        *(ptrd++) = -sa;
-        *(ptrd++) = sa;
-        *ptrd = ca;
+        const double theta = _mp_arg(2), ca = std::cos(theta), sa = std::sin(theta);
+        ptrd[0] = ptrd[3] = ca; ptrd[1] = -sa; ptrd[2] = sa;
         return cimg::type<double>::nan();
       }
 

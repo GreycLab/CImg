@@ -3256,8 +3256,7 @@ namespace cimg_library {
       unsigned int curr_resolution;
       unsigned int nb_resolutions;
 #endif
-      X11_attr():nb_wins(0),events_thread(0),wait_event(PTHREAD_COND_INITIALIZER),
-                 wait_event_mutex(PTHREAD_MUTEX_INITIALIZER),display(0),nb_bits(0),
+      X11_attr():nb_wins(0),events_thread(0),display(0),nb_bits(0),
                  is_blue_first(false),is_shm_enabled(false),byte_order(false) {
 #ifdef __FreeBSD__
         XInitThreads();

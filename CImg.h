@@ -3256,8 +3256,10 @@ namespace cimg_library {
       unsigned int curr_resolution;
       unsigned int nb_resolutions;
 #endif
-      X11_attr():nb_wins(0),events_thread(0),display(0),
-                 nb_bits(0),is_blue_first(false),is_shm_enabled(false),byte_order(false) {
+      X11_attr():nb_wins(0),events_thread(0),wait_event(PTHREAD_COND_INITIALIZER),
+                 wait_event_mutex(PTHREAD_MUTEX_INITIALIZER),display(0),nb_bits(0),
+                 is_blue_first(false),is_shm_enabled(false),byte_order(false) {
+        cimg::mutex(16);
 #ifdef __FreeBSD__
         XInitThreads();
 #endif
@@ -3270,20 +3272,21 @@ namespace cimg_library {
         curr_rotation = 0;
         curr_resolution = nb_resolutions = 0;
 #endif
+        cimg::mutex(16,0);
       }
 
       ~X11_attr() {
-        delete[] wins;
-        /*
-          if (events_thread) {
+        cimg::mutex(16);
+        if (events_thread) {
           pthread_cancel(*events_thread);
           delete events_thread;
-          }
-          if (display) { } // XCloseDisplay(display); }
-          pthread_cond_destroy(&wait_event);
-          pthread_mutex_unlock(&wait_event_mutex);
-          pthread_mutex_destroy(&wait_event_mutex);
-        */
+        }
+        pthread_cond_destroy(&wait_event);
+        pthread_mutex_unlock(&wait_event_mutex);
+        pthread_mutex_destroy(&wait_event_mutex);
+        if (display) { XCloseDisplay(display); }
+        delete[] wins;
+        cimg::mutex(16,0);
       }
 
       static X11_attr& ref() { // Return shared instance across compilation modules
@@ -3296,7 +3299,11 @@ namespace cimg_library {
     struct Win32_attr {
       HANDLE wait_event;
 
-      Win32_attr() { wait_event = CreateEvent(0,FALSE_WIN,FALSE_WIN,0); }
+      Win32_attr() {
+        cimg::mutex(16);
+        wait_event = CreateEvent(0,FALSE_WIN,FALSE_WIN,0);
+        cimg::mutex(16,0);
+      }
 
       static Win32_attr& ref() { // Return shared instance across compilation modules
         static Win32_attr ref;

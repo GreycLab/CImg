@@ -19363,14 +19363,14 @@ namespace cimg_library {
               if (*ss4=='#') { // Index specified
                 s0 = ss5; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                 p1 = compile(ss5,s0++,depth1,0,block_flags);
+                p3 = 1;
                 _cimg_mp_check_notnan_index(p1);
                 _cimg_mp_check_list();
-              } else { p1 = ~0U; s0 = ss4; }
+              } else { p1 = ~0U; s0 = ss4; p3 = 0; }
               s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               pos = compile(s0,s1,depth1,0,block_flags);
               p2 = size(pos);
               if (p2) { // Coordinates specified as a vector
-                if (s1!=se1) compile(s0,se1,depth1,0,block_flags); // -> Error too much arguments
                 if (p2>4) {
                   *s1 = 0; s1 = s0;
                   _cimg_mp_strerr;
@@ -19383,19 +19383,29 @@ namespace cimg_library {
                 arg2 = p2>1?pos + 2:0;
                 arg3 = p2>2?pos + 3:0;
                 arg4 = p2>3?pos + 4:0;
+                arg5 = s1!=se1?compile(s1 + 1,se1,depth1,0,block_flags):0; // boundary conditions
+                _cimg_mp_check_type(arg5,p3 + 2,1,0);
               } else { // Coordinates specified as scalars
                 arg1 = pos; arg2 = arg3 = arg4 = 0;
                 if (s1<se1) {
                   s0 = ++s1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                   arg2 = compile(s1,s0,depth1,0,block_flags);
+                  _cimg_mp_check_type(arg2,p3 + 2,1,0);
                   if (s0<se1) {
                     s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                     arg3 = compile(s0,s1,depth1,0,block_flags);
-                    arg4 = s1<se1?compile(++s1,se1,depth1,0,block_flags):0;
+                    _cimg_mp_check_type(arg3,p3 + 3,1,0);
+                    if (s1<se1) {
+                      s0 = ++s1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
+                      arg4 = compile(s1,s0,depth1,0,block_flags);
+                      _cimg_mp_check_type(arg4,p3 + 4,1,0);
+                      arg5 = s0<se1?compile(++s0,se1,depth1,0,block_flags):0; // boundary conditions
+                      _cimg_mp_check_type(arg5,p3 + 5,1,0);
+                    }
                   } else arg3 = 0;
                 } else arg2 = 0;
               }
-              _cimg_mp_scalar5(mp_c2o,p1,arg1,arg2,arg3,arg4);
+              _cimg_mp_scalar6(mp_c2o,p1,arg1,arg2,arg3,arg4,arg5);
             }
 
             if (!std::strncmp(ss,"cabs(",5)) { // Complex absolute value
@@ -21812,13 +21822,17 @@ namespace cimg_library {
               if (*ss4=='#') { // Index specified
                 s0 = ss5; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                 p1 = compile(ss5,s0++,depth1,0,block_flags);
+                p2 = 1;
                 _cimg_mp_check_notnan_index(p1);
                 _cimg_mp_check_list();
-              } else { p1 = ~0U; s0 = ss4; }
-              arg1 = compile(s0,se1,depth1,0,block_flags);
-              _cimg_mp_check_type(arg1,1,1,0);
+              } else { p1 = ~0U; s0 = ss4; p2 = 0; }
+              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(s0,s1,depth1,0,block_flags);
+              arg2 = s1!=se1?compile(++s1,se1,depth1,0,block_flags):0;
+              _cimg_mp_check_type(arg1,p2 + 1,1,0);
+              _cimg_mp_check_type(arg2,p2 + 2,1,0);
               pos = vector(4);
-              CImg<ulongT>::vector((ulongT)mp_o2c,pos,p1,arg1).move_to(code);
+              CImg<ulongT>::vector((ulongT)mp_o2c,pos,p1,arg1,arg2).move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -24836,7 +24850,10 @@ namespace cimg_library {
           y = (int)_mp_arg(4),
           z = (int)_mp_arg(5),
           c = (int)_mp_arg(6);
-        return (double)img.offset(x,y,z,c);
+        const bool
+          boundary_conditions = (bool)_mp_arg(7),
+          is_contained = boundary_conditions?img.containsXYZC(x,y,z,c):true;
+        return is_contained?img.offset(x,y,z,c):-1;
       }
 
       static double mp_cbrt(_cimg_math_parser& mp) {
@@ -28033,18 +28050,22 @@ namespace cimg_library {
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
         }
         const CImg<T> &img = ind==~0U?mp.imgin:mp.imglist[ind];
-        longT offset = (longT)_mp_arg(3);
         double *ptrd = &_mp_arg(1) + 1;
-        if (!img)
-          ptrd[0] = ptrd[1] = ptrd[2] = ptrd[3] = cimg::type<double>::nan();
+        longT offset = (longT)_mp_arg(3);
+        const bool boundary_conditions = (bool)_mp_arg(4);
+        if (boundary_conditions && (!img || offset<0 || (ulongT)offset>=img.size()))
+          ptrd[0] = ptrd[1] = ptrd[2] = ptrd[3] = -1;
         else {
-          *(ptrd++) = (double)(offset%img.width());
-          offset/=img.width();
-          *(ptrd++) = (double)(offset%img.height());
-          offset/=img.height();
-          *(ptrd++) = (double)(offset%img.depth());
-          offset/=img.depth();
-          *ptrd = (double)(offset%img.spectrum());
+          if (!img) ptrd[0] = ptrd[1] = ptrd[2] = ptrd[3] = cimg::type<double>::nan();
+          else {
+            *(ptrd++) = (double)(offset%img.width());
+            offset/=img.width();
+            *(ptrd++) = (double)(offset%img.height());
+            offset/=img.height();
+            *(ptrd++) = (double)(offset%img.depth());
+            offset/=img.depth();
+            *ptrd = (double)(offset%img.spectrum());
+          }
         }
         return cimg::type<double>::nan();
       }

@@ -19386,7 +19386,7 @@ namespace cimg_library {
                 arg5 = s1!=se1?compile(s1 + 1,se1,depth1,0,block_flags):0; // boundary conditions
                 _cimg_mp_check_type(arg5,p3 + 2,1,0);
               } else { // Coordinates specified as scalars
-                arg1 = pos; arg2 = arg3 = arg4 = 0;
+                arg1 = pos; arg2 = arg3 = arg4 = arg5 = 0;
                 if (s1<se1) {
                   s0 = ++s1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
                   arg2 = compile(s1,s0,depth1,0,block_flags);

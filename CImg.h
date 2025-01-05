@@ -45540,7 +45540,7 @@ namespace cimg_library {
         p1+=offy1; p2+=offy2;
       }
       return patch_penalization==0?ssd:cimg::sqr(std::sqrt(ssd) +
-                                               patch_penalization*psizewc*psizeh*psized*penalty(xc,yc,zc)/100);
+                                                 patch_penalization*psizewc*psizeh*psized*penalty(xc,yc,zc)/100);
     }
 
     static float _matchpatch(const CImg<T>& img1, const CImg<T>& img2, const CImg<floatT>& penalty,

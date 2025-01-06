@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 350
+#define cimg_version 351
 
 /*-----------------------------------------------------------
  #
@@ -21296,6 +21296,17 @@ namespace cimg_library {
                 _cimg_mp_return(pos);
               }
 
+              if (!std::strncmp(ss,"isfinite(",9)) { // Is finite?
+                _cimg_mp_op("Function 'isfinite()'");
+                s0 = ss + 9;
+                if (s0==se1) _cimg_mp_return(0);
+                arg1 = compile(s0,se1,depth1,0,block_flags);
+                if (is_vector(arg1)) _cimg_mp_vector1_v(mp_isfinite,arg1);
+                if (is_const_scalar(arg1))
+                  _cimg_mp_return((unsigned int)cimg::type<double>::is_finite(mem[arg1]));
+                _cimg_mp_scalar1(mp_isfinite,arg1);
+              }
+
               if (!std::strncmp(ss,"isin(",5)) { // Is in sequence/vector?
                 if (ss5>=se1) _cimg_mp_return(0);
                 _cimg_mp_op("Function 'isin()'");
@@ -26426,6 +26437,10 @@ namespace cimg_library {
         cimg_forX(ss,i) ss[i] = (char)ptrs[i];
         ss.back() = 0;
         return (double)cimg::is_directory(ss);
+      }
+
+      static double mp_isfinite(_cimg_math_parser& mp) {
+        return (double)cimg::type<double>::is_finite(_mp_arg(2));
       }
 
       static double mp_isin(_cimg_math_parser& mp) {
@@ -45540,7 +45555,7 @@ namespace cimg_library {
         p1+=offy1; p2+=offy2;
       }
       return patch_penalization==0?ssd:cimg::sqr(std::sqrt(ssd) +
-                                               patch_penalization*psizewc*psizeh*psized*penalty(xc,yc,zc)/100);
+                                                 patch_penalization*psizewc*psizeh*psized*penalty(xc,yc,zc)/100);
     }
 
     static float _matchpatch(const CImg<T>& img1, const CImg<T>& img2, const CImg<floatT>& penalty,

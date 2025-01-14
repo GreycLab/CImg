@@ -33872,7 +33872,7 @@ namespace cimg_library {
     CImg<T>& _fill(const char *const expression, const bool repeat_values, const unsigned int mode,
                    CImgList<T> *const list_images, const char *const calling_function,
                    const CImg<T> *provides_copy, CImg<doubleT> *const result_end) {
-      if (is_empty() || !expression || !*expression) return *this;
+      if (!expression || !*expression) return *this;  // Let empty images be evaluated to allow side effects
       const unsigned int excmode = cimg::exception_mode();
       cimg::exception_mode(0);
       CImg<charT> is_error_expr;
@@ -33959,7 +33959,7 @@ namespace cimg_library {
 
 #if cimg_use_openmp!=0
               const int num_threads = (int)std::min(size(),(ulongT)omp_get_max_threads());
-              cimg_pragma_openmp(parallel num_threads(num_threads))
+              cimg_pragma_openmp(parallel if (num_threads>0) num_threads(num_threads))
                 {
                   _cimg_math_parser
                     *const _mp = omp_get_thread_num()?new _cimg_math_parser(mp):&mp,
@@ -34016,7 +34016,7 @@ namespace cimg_library {
 
 #if cimg_use_openmp!=0
               const int num_threads = (int)std::min(size(),(ulongT)omp_get_max_threads());
-              cimg_pragma_openmp(parallel num_threads(num_threads))
+              cimg_pragma_openmp(parallel if (num_threads>0) num_threads(num_threads))
                 {
                   _cimg_math_parser
                     *const _mp = omp_get_thread_num()?new _cimg_math_parser(mp):&mp,

@@ -33958,7 +33958,8 @@ namespace cimg_library {
             } else {
 
 #if cimg_use_openmp!=0
-              cimg_pragma_openmp(parallel)
+              const int num_threads = (int)std::min(size(),(ulongT)omp_get_max_threads());
+              cimg_pragma_openmp(parallel num_threads(num_threads))
                 {
                   _cimg_math_parser
                     *const _mp = omp_get_thread_num()?new _cimg_math_parser(mp):&mp,

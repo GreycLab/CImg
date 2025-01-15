@@ -20038,7 +20038,7 @@ namespace cimg_library {
                                             "CImg<%s>::%s: %s: Specified kernel size (%ux%ux%ux%u = %u) does "
                                             "not match size of kernel variable (%u), in expression '%s'.",
                                             pixel_type(),_cimg_mp_calling_function,s_op,
-                                            wK,hK,dK,sK,wK*hK*dK*sK,size(opcode[2]),
+                                            wK,hK,dK,sK,wK*hK*dK*sK,size(opcode[7]),
                                             s0);
               }
 

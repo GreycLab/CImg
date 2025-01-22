@@ -21410,6 +21410,19 @@ namespace cimg_library {
                 return_comp = true;
                 _cimg_mp_return(pos);
               }
+
+              if (!std::strncmp(ss,"isvar(",6)) { // Is existing variable?
+                _cimg_mp_op("Function 'isvar()'");
+                if (ss6==se1) _cimg_mp_return(0);
+                s1 = ss6; while (s1<se && (*s1!=')' || level[s1 - expr._data]!=clevel)) ++s1; // Closing parenthesis
+                if (*s1!=')') _cimg_mp_return(0);
+                variable_name.assign(s1 - ss6 + 1);
+                if (variable_name._width) std::memcpy(variable_name,ss6,variable_name.width() - 1);
+                variable_name.back() = 0;
+                get_variable_pos(variable_name,arg1,arg2);
+                if (arg1!=~0U || arg2!=~0U) _cimg_mp_return(1);
+                _cimg_mp_return(0);
+              }
             }
             break;
 

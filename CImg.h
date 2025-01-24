@@ -6160,12 +6160,6 @@ namespace cimg_library {
       return res;
     }
 
-    //! Cut (i.e. clamp) value in specified interval.
-    template<typename T, typename t>
-    inline T cut(const T& val, const t& val_min, const t& val_max) {
-      return val<=val_min?(T)val_min:val>=val_max?(T)val_max:val;
-    }
-
     //! Bitwise-rotate value on the left.
     template<typename T>
     inline T rol(const T& a, const unsigned int n=1) {
@@ -6373,6 +6367,18 @@ namespace cimg_library {
     template<typename T>
     inline T sign(const T& x) {
       return (T)(cimg::type<T>::is_nan(x)?0:x<0?-1:x>0);
+    }
+
+    //! Cut (i.e. clamp) value in specified interval.
+    template<typename T, typename t>
+    inline T cut(const T& val, const t& val_min, const t& val_max) {
+      return val<=val_min?(T)val_min:val>=val_max?(T)val_max:val;
+    }
+
+    //! Cut (i.e. clamp) absolute value in specified interval.
+    template<typename T, typename t>
+    inline t abscut(const T& val, const t& val_min, const t& val_max, const t& offset) {
+      return cimg::cut(cimg::abs(val) + offset,val_min,val_max)*cimg::sign(val);
     }
 
     //! Return the nearest power of 2 higher than given value.
@@ -19219,7 +19225,7 @@ namespace cimg_library {
                 val1 = mem[arg2];
                 val2 = mem[arg3];
                 val3 = mem[arg4];
-                _cimg_mp_const_scalar(cimg::cut(cimg::abs(val) + val3,val1,val2)*cimg::sign(val));
+                _cimg_mp_const_scalar(cimg::abscut(val,val1,val2,val3));
               }
               _cimg_mp_scalar4(mp_abscut,arg1,arg2,arg3,arg4);
             }
@@ -24666,8 +24672,7 @@ namespace cimg_library {
       }
 
       static double mp_abscut(_cimg_math_parser& mp) {
-        double val = _mp_arg(2), cmin = _mp_arg(3), cmax = _mp_arg(4), offset = _mp_arg(5);
-        return cimg::cut(cimg::abs(val) + offset,cmin,cmax)*cimg::sign(val);
+        return cimg::abscut(_mp_arg(2),_mp_arg(3),_mp_arg(4),_mp_arg(5));
       }
 
       static double mp_add(_cimg_math_parser& mp) {

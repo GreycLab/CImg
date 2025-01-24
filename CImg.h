@@ -17250,7 +17250,7 @@ namespace cimg_library {
           *const ss1 = ss + 1, *const ss2 = ss + 2, *const ss3 = ss + 3, *const ss4 = ss + 4,
           *const ss5 = ss + 5, *const ss6 = ss + 6, *const ss7 = ss + 7, *const ss8 = ss + 8,
           *s, *ps, *ns, *s0, *s1, *s2, *s3, sep = 0, end = 0;
-        double val = 0, val1, val2;
+        double val = 0, val1, val2, val3;
         mp_func op;
         return_comp = false;
 
@@ -19199,6 +19199,31 @@ namespace cimg_library {
               _cimg_mp_scalar1(mp_abs,arg1);
             }
 
+            if (!std::strncmp(ss,"abscut(",7)) { // Cut of absolute value
+              _cimg_mp_op("Function 'abscut()'");
+              s1 = ss7; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss7,s1,depth1,0,block_flags);
+              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg2 = compile(s1,s2,depth1,0,block_flags);
+              if (s2<se1) {
+                s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                arg3 = compile(s2,s1,depth1,0,block_flags);
+                arg4 = s1<se1?compile(++s1,se1,depth1,0,block_flags):0;
+              } else { arg3 = const_scalar(cimg::type<double>::inf()); arg4 = 0; }
+              _cimg_mp_check_type(arg2,2,1,0);
+              _cimg_mp_check_type(arg3,3,1,0);
+              _cimg_mp_check_type(arg4,3,1,0);
+              if (is_vector(arg1)) _cimg_mp_vector4_vsss(mp_abscut,arg1,arg2,arg3,arg4);
+              if (is_const_scalar(arg1) && is_const_scalar(arg2) && is_const_scalar(arg3) && is_const_scalar(arg4)) {
+                val = mem[arg1];
+                val1 = mem[arg2];
+                val2 = mem[arg3];
+                val3 = mem[arg4];
+                _cimg_mp_const_scalar(cimg::cut(cimg::abs(val) + val3,val1,val2)*cimg::sign(val));
+              }
+              _cimg_mp_scalar4(mp_abscut,arg1,arg2,arg3,arg4);
+            }
+
             if (!std::strncmp(ss,"addr(",5)) { // Pointer address
               _cimg_mp_op("Function 'addr()'");
               arg1 = compile(ss5,se1,depth1,0,block_flags);
@@ -19885,7 +19910,7 @@ namespace cimg_library {
               arg1 = compile(ss4,s1,depth1,0,block_flags);
               s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(s1,s2,depth1,0,block_flags);
-              arg3 = compile(++s2,se1,depth1,0,block_flags);
+              arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):const_scalar(cimg::type<double>::inf());
               _cimg_mp_check_type(arg2,2,1,0);
               _cimg_mp_check_type(arg3,3,1,0);
               if (is_vector(arg1)) _cimg_mp_vector3_vss(mp_cut,arg1,arg2,arg3);
@@ -19893,7 +19918,7 @@ namespace cimg_library {
                 val = mem[arg1];
                 val1 = mem[arg2];
                 val2 = mem[arg3];
-                _cimg_mp_const_scalar(val<val1?val1:val>val2?val2:val);
+                _cimg_mp_const_scalar(cimg::cut(val,val1,val2));
               }
               _cimg_mp_scalar3(mp_cut,arg1,arg2,arg3);
             }
@@ -24640,6 +24665,11 @@ namespace cimg_library {
         return cimg::abs(_mp_arg(2));
       }
 
+      static double mp_abscut(_cimg_math_parser& mp) {
+        double val = _mp_arg(2), cmin = _mp_arg(3), cmax = _mp_arg(4), offset = _mp_arg(5);
+        return cimg::cut(cimg::abs(val) + offset,cmin,cmax)*cimg::sign(val);
+      }
+
       static double mp_add(_cimg_math_parser& mp) {
         return _mp_arg(2) + _mp_arg(3);
       }
@@ -25224,7 +25254,7 @@ namespace cimg_library {
 
       static double mp_cut(_cimg_math_parser& mp) {
         double val = _mp_arg(2), cmin = _mp_arg(3), cmax = _mp_arg(4);
-        return val<cmin?cmin:val>cmax?cmax:val;
+        return cimg::cut(val,cmin,cmax);
       }
 
       static double mp_da_back_or_pop(_cimg_math_parser& mp) {

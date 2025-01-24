@@ -6378,7 +6378,8 @@ namespace cimg_library {
     //! Cut (i.e. clamp) absolute value in specified interval.
     template<typename T>
     inline T abscut(const T& val, const T& val_min, const T& val_max, const T& offset) {
-      return cimg::cut(cimg::abs(val) + offset,val_min,val_max)*cimg::sign(val);
+      const T sgn = cimg::sign(val);
+      return cimg::cut(val*sgn + offset,val_min,val_max)*sgn;
     }
 
     //! Return the nearest power of 2 higher than given value.

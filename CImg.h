@@ -28973,7 +28973,7 @@ namespace cimg_library {
         return val<th?-1:val<2*th?0:1;
       }
 
-      static double mp_rand_int_ext(_cimg_math_parser& mp) { // Integer version of mp_rand_u_ext
+      static double mp_rand_int_ext(_cimg_math_parser& mp) {
         const bool
           include_min = (bool)_mp_arg(4),
           include_max = (bool)_mp_arg(5);

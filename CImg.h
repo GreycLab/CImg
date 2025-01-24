@@ -6370,14 +6370,14 @@ namespace cimg_library {
     }
 
     //! Cut (i.e. clamp) value in specified interval.
-    template<typename T, typename t>
-    inline T cut(const T& val, const t& val_min, const t& val_max) {
-      return val<=val_min?(T)val_min:val>=val_max?(T)val_max:val;
+    template<typename T>
+    inline T cut(const T& val, const T& val_min, const T& val_max) {
+      return val<=val_min?val_min:val>=val_max?val_max:val;
     }
 
     //! Cut (i.e. clamp) absolute value in specified interval.
-    template<typename T, typename t>
-    inline t abscut(const T& val, const t& val_min, const t& val_max, const t& offset) {
+    template<typename T>
+    inline T abscut(const T& val, const T& val_min, const T& val_max, const T& offset) {
       return cimg::cut(cimg::abs(val) + offset,val_min,val_max)*cimg::sign(val);
     }
 
@@ -8187,28 +8187,28 @@ namespace cimg_library {
     return instance.get_##name(); \
   }
 
-  _cimg_create_pointwise_function(sqr)
-  _cimg_create_pointwise_function(sqrt)
+  _cimg_create_pointwise_function(abs)
+  _cimg_create_pointwise_function(acos)
+  _cimg_create_pointwise_function(acosh)
+  _cimg_create_pointwise_function(asin)
+  _cimg_create_pointwise_function(asinh)
+  _cimg_create_pointwise_function(atan)
+  _cimg_create_pointwise_function(atanh)
+  _cimg_create_pointwise_function(cos)
+  _cimg_create_pointwise_function(cosh)
   _cimg_create_pointwise_function(erf)
   _cimg_create_pointwise_function(exp)
   _cimg_create_pointwise_function(log)
   _cimg_create_pointwise_function(log2)
   _cimg_create_pointwise_function(log10)
-  _cimg_create_pointwise_function(abs)
+  _cimg_create_pointwise_function(sqr)
+  _cimg_create_pointwise_function(sqrt)
   _cimg_create_pointwise_function(sign)
-  _cimg_create_pointwise_function(cos)
   _cimg_create_pointwise_function(sin)
   _cimg_create_pointwise_function(sinc)
-  _cimg_create_pointwise_function(tan)
-  _cimg_create_pointwise_function(acos)
-  _cimg_create_pointwise_function(asin)
-  _cimg_create_pointwise_function(atan)
-  _cimg_create_pointwise_function(cosh)
   _cimg_create_pointwise_function(sinh)
+  _cimg_create_pointwise_function(tan)
   _cimg_create_pointwise_function(tanh)
-  _cimg_create_pointwise_function(acosh)
-  _cimg_create_pointwise_function(asinh)
-  _cimg_create_pointwise_function(atanh)
 
   /*-----------------------------------
    #
@@ -14984,7 +14984,7 @@ namespace cimg_library {
 
     Tfloat _linear_atX(const float fx, const int y=0, const int z=0, const int c=0) const {
       const float
-        nfx = cimg::cut(fx,0,width() - 1);
+        nfx = cimg::cut(fx,0.f,width() - 1.f);
       const unsigned int
         x = (unsigned int)nfx;
       const float
@@ -15057,8 +15057,8 @@ namespace cimg_library {
 
     Tfloat _linear_atXY(const float fx, const float fy, const int z=0, const int c=0) const {
       const float
-        nfx = cimg::cut(fx,0,width() - 1),
-        nfy = cimg::cut(fy,0,height() - 1);
+        nfx = cimg::cut(fx,0.f,width() - 1.f),
+        nfy = cimg::cut(fy,0.f,height() - 1.f);
       const unsigned int
         x = (unsigned int)nfx,
         y = (unsigned int)nfy;
@@ -15151,9 +15151,9 @@ namespace cimg_library {
 
     Tfloat _linear_atXYZ(const float fx, const float fy=0, const float fz=0, const int c=0) const {
       const float
-        nfx = cimg::cut(fx,0,width() - 1),
-        nfy = cimg::cut(fy,0,height() - 1),
-        nfz = cimg::cut(fz,0,depth() - 1);
+        nfx = cimg::cut(fx,0.f,width() - 1.f),
+        nfy = cimg::cut(fy,0.f,height() - 1.f),
+        nfz = cimg::cut(fz,0.f,depth() - 1.f);
       const unsigned int
         x = (unsigned int)nfx,
         y = (unsigned int)nfy,
@@ -15286,10 +15286,10 @@ namespace cimg_library {
 
     Tfloat _linear_atXYZC(const float fx, const float fy=0, const float fz=0, const float fc=0) const {
       const float
-        nfx = cimg::cut(fx,0,width() - 1),
-        nfy = cimg::cut(fy,0,height() - 1),
-        nfz = cimg::cut(fz,0,depth() - 1),
-        nfc = cimg::cut(fc,0,spectrum() - 1);
+        nfx = cimg::cut(fx,0.f,width() - 1.f),
+        nfy = cimg::cut(fy,0.f,height() - 1.f),
+        nfz = cimg::cut(fz,0.f,depth() - 1.f),
+        nfc = cimg::cut(fc,0.f,spectrum() - 1.f);
       const unsigned int
         x = (unsigned int)nfx,
         y = (unsigned int)nfy,
@@ -15456,7 +15456,7 @@ namespace cimg_library {
 
     Tfloat _cubic_atX(const float fx, const int y=0, const int z=0, const int c=0) const {
       const float
-        nfx = cimg::type<float>::is_nan(fx)?0:cimg::cut(fx,0,width() - 1);
+        nfx = cimg::type<float>::is_nan(fx)?0:cimg::cut(fx,0.f,width() - 1.f);
       const int
         x = (int)nfx;
       const float
@@ -15567,8 +15567,8 @@ namespace cimg_library {
 
     Tfloat _cubic_atXY(const float fx, const float fy, const int z=0, const int c=0) const {
       const float
-        nfx = cimg::type<float>::is_nan(fx)?0:cimg::cut(fx,0,width() - 1),
-        nfy = cimg::type<float>::is_nan(fy)?0:cimg::cut(fy,0,height() - 1);
+        nfx = cimg::type<float>::is_nan(fx)?0:cimg::cut(fx,0.f,width() - 1.f),
+        nfy = cimg::type<float>::is_nan(fy)?0:cimg::cut(fy,0.f,height() - 1.f);
       const int x = (int)nfx, y = (int)nfy;
       const float dx = nfx - x, dy = nfy - y;
       const int
@@ -15759,9 +15759,9 @@ namespace cimg_library {
 
     Tfloat _cubic_atXYZ(const float fx, const float fy, const float fz, const int c=0) const {
       const float
-        nfx = cimg::type<float>::is_nan(fx)?0:cimg::cut(fx,0,width() - 1),
-        nfy = cimg::type<float>::is_nan(fy)?0:cimg::cut(fy,0,height() - 1),
-        nfz = cimg::type<float>::is_nan(fz)?0:cimg::cut(fz,0,depth() - 1);
+        nfx = cimg::type<float>::is_nan(fx)?0:cimg::cut(fx,0.f,width() - 1.f),
+        nfy = cimg::type<float>::is_nan(fy)?0:cimg::cut(fy,0.f,height() - 1.f),
+        nfz = cimg::type<float>::is_nan(fz)?0:cimg::cut(fz,0.f,depth() - 1.f);
       const int x = (int)nfx, y = (int)nfy, z = (int)nfz;
       const float dx = nfx - x, dy = nfy - y, dz = nfz - z;
       const int
@@ -34843,7 +34843,9 @@ namespace cimg_library {
     **/
     CImg<T>& cut(const T& min_value, const T& max_value) {
       if (is_empty()) return *this;
-      const T a = min_value<max_value?min_value:max_value, b = min_value<max_value?max_value:min_value;
+      const T
+        a = min_value<max_value?min_value:max_value,
+        b = min_value<max_value?max_value:min_value;
       cimg_openmp_for(*this,cimg::cut(*ptr,a,b),32768);
       return *this;
     }
@@ -34851,6 +34853,26 @@ namespace cimg_library {
     //! Cut pixel values in specified range \newinstance.
     CImg<T> get_cut(const T& min_value, const T& max_value) const {
       return (+*this).cut(min_value,max_value);
+    }
+
+    //! Cut pixel absolute values in specified range.
+    /**
+       \param min_value Minimum desired absolute value of the resulting image.
+       \param max_value Maximum desired absolute value of the resulting image.
+       \param offset Offset applied to absolute value of the resulting image.
+    **/
+    CImg<T>& abscut(const T& min_value, const T& max_value, const T& offset) {
+      if (is_empty()) return *this;
+      const T
+        a = min_value<max_value?min_value:max_value,
+        b = min_value<max_value?max_value:min_value;
+      cimg_openmp_for(*this,cimg::abscut(*ptr,a,b,offset),32768);
+      return *this;
+    }
+
+    //! Cut pixel values in specified range \newinstance.
+    CImg<T> get_abscut(const T& min_value, const T& max_value, const T& offset) const {
+      return (+*this).abscut(min_value,max_value,offset);
     }
 
     //! Uniformly quantize pixel values.
@@ -35098,7 +35120,7 @@ namespace cimg_library {
       CImg<tuint> res(_width,_height,_depth,map_colors?_spectrum:1);
       if (dithering>0) { // Dithered versions
         tuint *ptrd = res._data;
-        const float ndithering = cimg::cut(dithering,0,1)/16;
+        const float ndithering = cimg::cut(dithering,0.f,1.f)/16;
         Tfloat valm = 0, valM = (Tfloat)max_min(valm);
         if (valm==valM && valm>=0 && valM<=255) { valm = 0; valM = 255; }
         CImg<Tfloat> cache = get_crop(-1,0,0,0,_width,1,0,_spectrum - 1);
@@ -36207,9 +36229,9 @@ namespace cimg_library {
           Y = (66*R + 129*G + 25*B + 128)/256 + 16,
           Cb = (-38*R - 74*G + 112*B + 128)/256 + 128,
           Cr = (112*R - 94*G - 18*B + 128)/256 + 128;
-        p1[N] = (T)cimg::cut(Y,0,255),
-        p2[N] = (T)cimg::cut(Cb,0,255),
-        p3[N] = (T)cimg::cut(Cr,0,255);
+        p1[N] = (T)cimg::cut(Y,(Tfloat)0,(Tfloat)255),
+        p2[N] = (T)cimg::cut(Cb,(Tfloat)0,(Tfloat)255),
+        p3[N] = (T)cimg::cut(Cr,(Tfloat)0,(Tfloat)255);
       }
       return *this;
     }
@@ -36237,9 +36259,9 @@ namespace cimg_library {
           R = (298*Y + 409*Cr + 128)/256,
           G = (298*Y - 100*Cb - 208*Cr + 128)/256,
           B = (298*Y + 516*Cb + 128)/256;
-        p1[N] = (T)cimg::cut(R,0,255),
-        p2[N] = (T)cimg::cut(G,0,255),
-        p3[N] = (T)cimg::cut(B,0,255);
+        p1[N] = (T)cimg::cut(R,(Tfloat)0,(Tfloat)255),
+        p2[N] = (T)cimg::cut(G,(Tfloat)0,(Tfloat)255),
+        p3[N] = (T)cimg::cut(B,(Tfloat)0,(Tfloat)255);
       }
       return *this;
     }
@@ -47321,22 +47343,22 @@ namespace cimg_library {
             if ((edge&1) && indices1(xi,0)<0) {
               const float Xi = X + (isovalue-val0)*dx/(val1-val0);
               indices1(xi,0) = nb_vertices++;
-              add_vertex(Xi,Y,0.0f);
+              add_vertex(Xi,Y,0.f);
             }
             if ((edge&2) && indices1(nxi,1)<0) {
               const float Yi = Y + (isovalue-val1)*dy/(val2-val1);
               indices1(nxi,1) = nb_vertices++;
-              add_vertex(nX,Yi,0.0f);
+              add_vertex(nX,Yi,0.f);
             }
             if ((edge&4) && indices2(xi,0)<0) {
               const float Xi = X + (isovalue-val3)*dx/(val2-val3);
               indices2(xi,0) = nb_vertices++;
-              add_vertex(Xi,nY,0.0f);
+              add_vertex(Xi,nY,0.f);
             }
             if ((edge&8) && indices1(xi,1)<0) {
               const float Yi = Y + (isovalue-val0)*dy/(val3-val0);
               indices1(xi,1) = nb_vertices++;
-              add_vertex(X,Yi,0.0f);
+              add_vertex(X,Yi,0.f);
             }
 
             // Create segments
@@ -49527,7 +49549,7 @@ namespace cimg_library {
         dy02 = std::max((longT)1,(longT)y2 - y0),
         dy12 = std::max((longT)1,(longT)y2 - y1),
         hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2;
-      const float cbs = cimg::cut(brightness,0,2);
+      const float cbs = cimg::cut(brightness,0.f,2.f);
       cimg_init_scanline(opacity);
 
       for (int y = cy0; y<=cy2; ++y) {
@@ -49643,7 +49665,7 @@ namespace cimg_library {
         hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2;
       const float diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1;
 
-      const float cbs = cimg::cut(brightness,0,2);
+      const float cbs = cimg::cut(brightness,0.f,2.f);
       cimg_init_scanline(opacity);
 
       for (int y = cy0; y<=cy2; ++y) {
@@ -49745,7 +49767,7 @@ namespace cimg_library {
 
           for (int x = cxm; x<=cxM; ++x) {
             const longT xxm = (longT)x - xm;
-            const float cbs = cimg::cut(bsm + dbsmM*xxm/dxmM,0,2);
+            const float cbs = cimg::cut(bsm + dbsmM*xxm/dxmM,0.f,2.f);
             cimg_forC(*this,c) {
               const Tfloat val = cbs<=1?color[c]*cbs:(2 - cbs)*color[c] + (cbs - 1)*_sc_maxval;
               ptrd[c*_sc_whd] = (T)(opacity>=1?val:val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
@@ -49823,7 +49845,7 @@ namespace cimg_library {
             const float iz = izm + dizmM*xxm/dxmM;
             if (iz>=*ptrz) {
               *ptrz = (tz)iz;
-              const float cbs = cimg::cut(bsm + dbsmM*xxm/dxmM,0,2);
+              const float cbs = cimg::cut(bsm + dbsmM*xxm/dxmM,0.f,2.f);
               cimg_forC(*this,c) {
                 const Tfloat val = cbs<=1?color[c]*cbs:(2 - cbs)*color[c] + (cbs - 1)*_sc_maxval;
                 ptrd[c*_sc_whd] = (T)(opacity>=1?val:val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
@@ -49963,7 +49985,7 @@ namespace cimg_library {
         hdy01tx = dy01*cimg::sign(dtx01)/2, hdy02tx = dy02*cimg::sign(dtx02)/2, hdy12tx = dy12*cimg::sign(dtx12)/2,
         hdy01ty = dy01*cimg::sign(dty01)/2, hdy02ty = dy02*cimg::sign(dty02)/2, hdy12ty = dy12*cimg::sign(dty12)/2;
       const ulongT twhd = (ulongT)texture._width*texture._height*texture._depth;
-      const float cbs = cimg::cut(brightness,0,2);
+      const float cbs = cimg::cut(brightness,0.f,2.f);
       cimg_init_scanline(opacity);
 
       for (int y = cy0; y<=cy2; ++y) {
@@ -50042,7 +50064,7 @@ namespace cimg_library {
         dtyz01 = tyz1 - tyz0, dtyz02 = tyz2 - tyz0, dtyz12 = tyz2 - tyz1;
 
       const ulongT twhd = (ulongT)texture._width*texture._height*texture._depth;
-      const float cbs = cimg::cut(brightness,0,2);
+      const float cbs = cimg::cut(brightness,0.f,2.f);
       cimg_init_scanline(opacity);
 
       for (int y = cy0; y<=cy2; ++y) {
@@ -50135,7 +50157,7 @@ namespace cimg_library {
         dtyz01 = tyz1 - tyz0, dtyz02 = tyz2 - tyz0, dtyz12 = tyz2 - tyz1;
 
       const ulongT twhd = (ulongT)texture._width*texture._height*texture._depth;
-      const float cbs = cimg::cut(brightness,0,2);
+      const float cbs = cimg::cut(brightness,0.f,2.f);
       cimg_init_scanline(opacity);
 
       for (int y = cy0; y<=cy2; ++y) {
@@ -50268,7 +50290,7 @@ namespace cimg_library {
             const tl *const lig = &light._atXY(lx,ly);
             cimg_forC(*this,c) {
               const tc col = color[c];
-              const float cbs = cimg::cut((float)lig[c*lwhd],0,2);
+              const float cbs = cimg::cut((float)lig[c*lwhd],0.f,2.f);
               const Tfloat val = cbs<=1?cbs*col:(2 - cbs)*col + (cbs - 1)*_sc_maxval;
               ptrd[c*_sc_whd] = (T)(opacity>=1?val:val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
             }
@@ -50365,7 +50387,7 @@ namespace cimg_library {
                 ly = (lym*dxmM + dlymM*xxm + hdxmM)/dxmM;
               const tl *const lig = &light._atXY(lx,ly);
               cimg_forC(*this,c) {
-                const float cbs = cimg::cut((float)lig[c*lwhd],0,2);
+                const float cbs = cimg::cut((float)lig[c*lwhd],0.f,2.f);
                 const tc col = color[c];
                 const Tfloat val = cbs<=1?cbs*col:(2 - cbs)*col + (cbs - 1)*_sc_maxval;
                 ptrd[c*_sc_whd] = (T)(opacity>=1?val:val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
@@ -50468,7 +50490,7 @@ namespace cimg_library {
               xxm = x - xm,
               tx = (txm*dxmM + dtxmM*xxm + hdxmM)/dxmM,
               ty = (tym*dxmM + dtymM*xxm + hdxmM)/dxmM;
-            const float cbs = cimg::cut(bsm + dbsmM*xxm/dxmM,0,2);
+            const float cbs = cimg::cut(bsm + dbsmM*xxm/dxmM,0.f,2.f);
             const tc *const color = &texture._atXY(tx,ty);
             cimg_forC(*this,c) {
               const tc col = color[c*twhd];
@@ -50556,7 +50578,7 @@ namespace cimg_library {
               iz = izm + dizmM*xxm/dxmM,
               txz = txzm + dtxzmM*xxm/dxmM,
               tyz = tyzm + dtyzmM*xxm/dxmM,
-              cbs = cimg::cut(bsm + dbsmM*xxm/dxmM,0,2);
+              cbs = cimg::cut(bsm + dbsmM*xxm/dxmM,0.f,2.f);
             const int
               tx = (int)(txz/iz),
               ty = (int)(tyz/iz);
@@ -50657,7 +50679,7 @@ namespace cimg_library {
               const float
                 txz = txzm + dtxzmM*xxm/dxmM,
                 tyz = tyzm + dtyzmM*xxm/dxmM,
-                cbs = cimg::cut(bsm + dbsmM*xxm/dxmM,0,2);
+                cbs = cimg::cut(bsm + dbsmM*xxm/dxmM,0.f,2.f);
               const int
                 tx = (int)(txz/iz),
                 ty = (int)(tyz/iz);
@@ -50787,7 +50809,7 @@ namespace cimg_library {
             const tl *const lig = &light._atXY(lx,ly);
             cimg_forC(*this,c) {
               const tc col = color[c*twhd];
-              const float cbs = cimg::cut((float)lig[c*lwhd],0,2);
+              const float cbs = cimg::cut((float)lig[c*lwhd],0.f,2.f);
               const Tfloat val = cbs<=1?cbs*col:(2 - cbs)*col + (cbs - 1)*_sc_maxval;
               ptrd[c*_sc_whd] = (T)(opacity>=1?val:val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
             }
@@ -50902,7 +50924,7 @@ namespace cimg_library {
             const tl *const lig = &light._atXY(lx,ly);
             cimg_forC(*this,c) {
               const tc col = color[c*twhd];
-              const float cbs = cimg::cut((float)lig[c*lwhd],0,2);
+              const float cbs = cimg::cut((float)lig[c*lwhd],0.f,2.f);
               const Tfloat val = cbs<=1?cbs*col:(2 - cbs)*col + (cbs - 1)*_sc_maxval;
               ptrd[c*_sc_whd] = (T)(opacity>=1?val:val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
             }
@@ -51027,7 +51049,7 @@ namespace cimg_library {
               const tl *const lig = &light._atXY(lx,ly);
               cimg_forC(*this,c) {
                 const tc col = color[c*twhd];
-                const float cbs = cimg::cut((float)lig[c*lwhd],0,2);
+                const float cbs = cimg::cut((float)lig[c*lwhd],0.f,2.f);
                 const Tfloat val = cbs<=1?cbs*col:(2 - cbs)*col + (cbs - 1)*_sc_maxval;
                 ptrd[c*_sc_whd] = (T)(opacity>=1?val:val*_sc_nopacity + ptrd[c*_sc_whd]*_sc_copacity);
               }
@@ -51789,7 +51811,7 @@ namespace cimg_library {
                         const bool is_native_font) {
       if (!text || !font) return *this;
       const unsigned int text_length = (unsigned int)std::strlen(text);
-      const int padding_x = font[0]._height<48?1:font[0]._height<128?(int)std::ceil(font[0]._height/51.0f + 0.745f):4;
+      const int padding_x = font[0]._height<48?1:font[0]._height<128?(int)std::ceil(font[0]._height/51.f + 0.745f):4;
       unsigned char o_ch, ch = 0;
       int x, y, w;
       CImg<intT> left_paddings(text_length,1,1,1,0);
@@ -51885,7 +51907,7 @@ namespace cimg_library {
                 const unsigned int cmin = std::min(_spectrum - c,letter._spectrum);
                 for (unsigned int d = 0; d<cmin; ++d)
                   if (foreground_color[c + d]!=255)
-                    letter.get_shared_channel(d)*=foreground_color[c + d]/255.0f;
+                    letter.get_shared_channel(d)*=foreground_color[c + d]/255.f;
 
                 if (mask) { // Letter with alpha
                   if (background_color)

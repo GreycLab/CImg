@@ -20886,6 +20886,7 @@ namespace cimg_library {
                 arg1 = ~0U;
               } else { // Vector specified
                 arg1 = compile(ss5,s0,depth1,0,block_flags);
+                if (!arg1) _cimg_mp_return(0); // Manage empty string
                 _cimg_mp_check_type(arg1,1,2,0);
                 p1 = ~0U;
               }

@@ -44157,7 +44157,7 @@ namespace cimg_library {
             w3 = img.width() - 3, h3 = img.height() - 3,
             w4 = img.width() - 4, h4 = img.height() - 4;
 
-          if (n==3 && img._height==1) {
+          if (n==3 && img._width>=2 && img._height==1) {
             cimg_pragma_openmp(parallel for cimg_openmp_if(img._spectrum>=2))
             cimg_forC(img,c) {
               const T *_ptrs = img.data(0,0,0,c);
@@ -44167,7 +44167,7 @@ namespace cimg_library {
               _ptrd[0] = cimg::median(_ptrs[0],_ptrs[1]);
               _ptrd[w1] = cimg::median(_ptrs[w2],_ptrs[w1]);
             }
-          } else if (n==5 && img._height==1) {
+          } else if (n==5 && img._width>=4 && img._height==1) {
             cimg_pragma_openmp(parallel for cimg_openmp_if(img._spectrum>=2))
             cimg_forC(img,c) {
               const T *_ptrs = img.data(0,0,0,c);

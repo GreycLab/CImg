@@ -44148,7 +44148,19 @@ namespace cimg_library {
             w2 = img.width() - 2, h2 = img.height() - 2,
             w3 = img.width() - 3, h3 = img.height() - 3,
             w4 = img.width() - 4, h4 = img.height() - 4;
-          if (n==3 && img._width>=n && img._height>=n) {
+
+          if (n==3 && img._height==1) {
+            cimg_pragma_openmp(parallel for cimg_openmp_if(img._spectrum>=2))
+            cimg_forC(img,c) {
+              const T *_ptrs = img.data(0,0,0,c);
+              T *_ptrd = res.data(0,0,0,c);
+              cimg_for_in3(img._width,1,w2,x)
+                _ptrd[x] = cimg::median(_ptrs[_p1x],_ptrs[x],_ptrs[_n1x]);
+              _ptrd[0] = cimg::median(_ptrs[0],_ptrs[1]);
+              _ptrd[w1] = cimg::median(_ptrs[w2],_ptrs[w1]);
+            }
+
+          } else if (n==3 && img._width>=n && img._height>=n) {
             cimg_pragma_openmp(parallel for cimg_openmp_if(img._spectrum>=2))
             cimg_forC(img,c) {
               CImg<T> I(9);

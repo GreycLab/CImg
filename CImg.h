@@ -6501,6 +6501,14 @@ namespace cimg_library {
     }
 
     template<typename T>
+    inline T median(T val0, T val1, T val2, T val3) {
+      const T
+        tmp0 = cimg::min(val0,val1,val2,val3),
+        tmp1 = cimg::max(val0,val1,val2,val3);
+      return (val0 + val1 + val2 + val3 - tmp0 - tmp1)/2;
+    }
+
+    template<typename T>
     inline T median(T val0, T val1, T val2, T val3, T val4) {
       T tmp = std::min(val0,val1);
       val1 = std::max(val0,val1); val0 = tmp; tmp = std::min(val3,val4); val4 = std::max(val3,val4);
@@ -44159,7 +44167,18 @@ namespace cimg_library {
               _ptrd[0] = cimg::median(_ptrs[0],_ptrs[1]);
               _ptrd[w1] = cimg::median(_ptrs[w2],_ptrs[w1]);
             }
-
+          } else if (n==5 && img._height==1) {
+            cimg_pragma_openmp(parallel for cimg_openmp_if(img._spectrum>=2))
+            cimg_forC(img,c) {
+              const T *_ptrs = img.data(0,0,0,c);
+              T *_ptrd = res.data(0,0,0,c);
+              cimg_for_in5(img._width,2,w3,x)
+                _ptrd[x] = cimg::median(_ptrs[_p2x],_ptrs[_p1x],_ptrs[x],_ptrs[_n1x],_ptrs[_n2x]);
+              _ptrd[0] = cimg::median(_ptrs[0],_ptrs[1],_ptrs[2]);
+              _ptrd[1] = cimg::median(_ptrs[0],_ptrs[1],_ptrs[2],_ptrs[3]);
+              _ptrd[w2] = cimg::median(_ptrs[w4],_ptrs[w3],_ptrs[w2],_ptrs[w1]);
+              _ptrd[w1] = cimg::median(_ptrs[w3],_ptrs[w2],_ptrs[w1]);
+            }
           } else if (n==3 && img._width>=n && img._height>=n) {
             cimg_pragma_openmp(parallel for cimg_openmp_if(img._spectrum>=2))
             cimg_forC(img,c) {

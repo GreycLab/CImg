@@ -23587,6 +23587,9 @@ namespace cimg_library {
                 s = ns;
               }
             if (!arg1) _cimg_mp_return(0);
+            if (l_opcode.size()==1 && is_vector(arg2)) // Special case: '[ [ item(s) ] ]'
+              _cimg_mp_return(arg2);
+
             pos = vector(arg1);
             l_opcode.insert(CImg<ulongT>::vector((ulongT)mp_vector_init,pos,0,arg1),0);
             (l_opcode>'y').move_to(opcode);

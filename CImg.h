@@ -18602,6 +18602,14 @@ namespace cimg_library {
                 arg4 = (unsigned int)pop[2];
                 arg5 = (unsigned int)pop[3];
                 code.remove();
+                if (is_const_scalar(arg2)) { // Manage cases where 'a & c' or 'b & c' are constants
+                  if (is_const_scalar(arg5)) cimg::swap(arg4,arg5);
+                  if (is_const_scalar(arg4)) {
+                    arg2 = const_scalar(mem[arg2]*mem[arg4]);
+                    if (!arg2) _cimg_mp_return(0);
+                    _cimg_mp_scalar2(mp_mul,arg2,arg5);
+                  }
+                }
                 CImg<ulongT>::vector((ulongT)mp_mul2,arg3,arg4,arg5,arg3==arg2?arg1:arg2).move_to(code);
                 _cimg_mp_return(arg3);
               }

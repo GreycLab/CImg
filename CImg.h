@@ -41004,29 +41004,74 @@ namespace cimg_library {
     CImg<T>& append(const CImg<t>& img, const char axis='x', const float align=0) {
       if (is_empty()) return assign(img,false);
       if (!img) return *this;
-      return CImgList<T>(*this,true).insert(img).get_append(axis,align).move_to(*this);
-    }
-
-    //! Append two images along specified axis \specialization.
-    CImg<T>& append(const CImg<T>& img, const char axis='x', const float align=0) {
-      if (is_empty()) return assign(img,false);
-      if (!img) return *this;
-      return CImgList<T>(*this,img,true).get_append(axis,align).move_to(*this);
+      return get_append(img,axis,align).move_to(*this);
     }
 
     //! Append two images along specified axis \const.
     template<typename t>
-    CImg<_cimg_Tt> get_append(const CImg<T>& img, const char axis='x', const float align=0) const {
-      if (is_empty()) return +img;
-      if (!img) return +*this;
-      return CImgList<_cimg_Tt>(*this,true).insert(img).get_append(axis,align);
-    }
-
-    //! Append two images along specified axis \specialization.
-    CImg<T> get_append(const CImg<T>& img, const char axis='x', const float align=0) const {
-      if (is_empty()) return +img;
-      if (!img) return +*this;
-      return CImgList<T>(*this,img,true).get_append(axis,align);
+    CImg<_cimg_Tt> get_append(const CImg<t>& img, const char axis='x', const float align=0) const {
+      if (is_empty()) return CImg<_cimg_Tt>(img,false);
+      if (!img) return CImg<_cimg_Tt>(*this,false);
+      CImg<_cimg_Tt> res;
+      switch (cimg::lowercase(axis)) {
+        case 'x' : {
+          res.assign(_width + img._width,std::max(_height,img._height),
+                     std::max(_depth,img._depth),std::max(_spectrum,img._spectrum),0);
+          return res.draw_image(0,
+                                (int)(align*(res._height - _height)),
+                                (int)(align*(res._depth - _depth)),
+                                (int)(align*(res._spectrum - _spectrum)),
+                                *this).
+            draw_image(_width,
+                       (int)(align*(res._height - img._height)),
+                       (int)(align*(res._depth - img._depth)),
+                       (int)(align*(res._spectrum - img._spectrum)),
+                       img);
+        } break;
+        case 'y' : {
+          res.assign(std::max(_width,img._width),_height + img._height,
+                     std::max(_depth,img._depth),std::max(_spectrum,img._spectrum),0);
+          return res.draw_image((int)(align*(res._width - _width)),
+                                0,
+                                (int)(align*(res._depth - _depth)),
+                                (int)(align*(res._spectrum - _spectrum)),
+                                *this).
+            draw_image((int)(align*(res._width - img._width)),
+                       _height,
+                       (int)(align*(res._depth - img._depth)),
+                       (int)(align*(res._spectrum - img._spectrum)),
+                       img);
+        } break;
+        case 'z' : {
+          res.assign(std::max(_width,img._width),std::max(_height,img._height),
+                     _depth + img._depth,std::max(_spectrum,img._spectrum),0);
+          return res.draw_image((int)(align*(res._width - _width)),
+                                (int)(align*(res._height - _height)),
+                                0,
+                                (int)(align*(res._spectrum - _spectrum)),
+                                *this).
+            draw_image((int)(align*(res._width - img._width)),
+                       (int)(align*(res._height - img._height)),
+                       _depth,
+                       (int)(align*(res._spectrum - img._spectrum)),
+                       img);
+        } break;
+        default : {
+          res.assign(std::max(_width,img._width),std::max(_height,img._height),
+                     std::max(_depth,img._depth),_spectrum + img._spectrum,0);
+          return res.draw_image((int)(align*(res._width - _width)),
+                                (int)(align*(res._height - _height)),
+                                (int)(align*(res._depth - _depth)),
+                                0,
+                                *this).
+            draw_image((int)(align*(res._width - img._width)),
+                       (int)(align*(res._height - img._height)),
+                       (int)(align*(res._depth - img._depth)),
+                       _spectrum,
+                       img);
+        } break;
+      }
+      return res;
     }
 
     //@}
@@ -64727,7 +64772,9 @@ namespace cimg_library {
     **/
     CImg<T> get_append(const char axis, const float align=0) const {
       if (is_empty()) return CImg<T>();
-      if (_width==1) return +((*this)[0]);
+      if (_width==1) return +_data[0];
+      if (_width==2) return _data[0].get_append(_data[1],axis,align);
+
       unsigned int dx = 0, dy = 0, dz = 0, dc = 0, pos = 0;
       CImg<T> res;
       switch (cimg::lowercase(axis)) {

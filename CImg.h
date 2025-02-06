@@ -6501,6 +6501,14 @@ namespace cimg_library {
     }
 
     template<typename T>
+    inline T median(T val0, T val1, T val2, T val3) {
+      const T
+        tmp0 = cimg::min(val0,val1,val2,val3),
+        tmp1 = cimg::max(val0,val1,val2,val3);
+      return (val0 + val1 + val2 + val3 - tmp0 - tmp1)/2;
+    }
+
+    template<typename T>
     inline T median(T val0, T val1, T val2, T val3, T val4) {
       T tmp = std::min(val0,val1);
       val1 = std::max(val0,val1); val0 = tmp; tmp = std::min(val3,val4); val4 = std::max(val3,val4);
@@ -18594,6 +18602,14 @@ namespace cimg_library {
                 arg4 = (unsigned int)pop[2];
                 arg5 = (unsigned int)pop[3];
                 code.remove();
+                if (is_const_scalar(arg2)) { // Manage cases where 'a & c' or 'b & c' are constants
+                  if (is_const_scalar(arg5)) cimg::swap(arg4,arg5);
+                  if (is_const_scalar(arg4)) {
+                    arg2 = const_scalar(mem[arg2]*mem[arg4]);
+                    if (!arg2) _cimg_mp_return(0);
+                    _cimg_mp_scalar2(mp_mul,arg2,arg5);
+                  }
+                }
                 CImg<ulongT>::vector((ulongT)mp_mul2,arg3,arg4,arg5,arg3==arg2?arg1:arg2).move_to(code);
                 _cimg_mp_return(arg3);
               }
@@ -23579,6 +23595,9 @@ namespace cimg_library {
                 s = ns;
               }
             if (!arg1) _cimg_mp_return(0);
+            if (l_opcode.size()==1 && is_vector(arg2)) // Special case: '[ [ item(s) ] ]'
+              _cimg_mp_return(arg2);
+
             pos = vector(arg1);
             l_opcode.insert(CImg<ulongT>::vector((ulongT)mp_vector_init,pos,0,arg1),0);
             (l_opcode>'y').move_to(opcode);
@@ -40985,29 +41004,74 @@ namespace cimg_library {
     CImg<T>& append(const CImg<t>& img, const char axis='x', const float align=0) {
       if (is_empty()) return assign(img,false);
       if (!img) return *this;
-      return CImgList<T>(*this,true).insert(img).get_append(axis,align).move_to(*this);
-    }
-
-    //! Append two images along specified axis \specialization.
-    CImg<T>& append(const CImg<T>& img, const char axis='x', const float align=0) {
-      if (is_empty()) return assign(img,false);
-      if (!img) return *this;
-      return CImgList<T>(*this,img,true).get_append(axis,align).move_to(*this);
+      return get_append(img,axis,align).move_to(*this);
     }
 
     //! Append two images along specified axis \const.
     template<typename t>
-    CImg<_cimg_Tt> get_append(const CImg<T>& img, const char axis='x', const float align=0) const {
-      if (is_empty()) return +img;
-      if (!img) return +*this;
-      return CImgList<_cimg_Tt>(*this,true).insert(img).get_append(axis,align);
-    }
-
-    //! Append two images along specified axis \specialization.
-    CImg<T> get_append(const CImg<T>& img, const char axis='x', const float align=0) const {
-      if (is_empty()) return +img;
-      if (!img) return +*this;
-      return CImgList<T>(*this,img,true).get_append(axis,align);
+    CImg<_cimg_Tt> get_append(const CImg<t>& img, const char axis='x', const float align=0) const {
+      if (is_empty()) return CImg<_cimg_Tt>(img,false);
+      if (!img) return CImg<_cimg_Tt>(*this,false);
+      CImg<_cimg_Tt> res;
+      switch (cimg::lowercase(axis)) {
+        case 'x' : {
+          res.assign(_width + img._width,std::max(_height,img._height),
+                     std::max(_depth,img._depth),std::max(_spectrum,img._spectrum),0);
+          return res.draw_image(0,
+                                (int)(align*(res._height - _height)),
+                                (int)(align*(res._depth - _depth)),
+                                (int)(align*(res._spectrum - _spectrum)),
+                                *this).
+            draw_image(_width,
+                       (int)(align*(res._height - img._height)),
+                       (int)(align*(res._depth - img._depth)),
+                       (int)(align*(res._spectrum - img._spectrum)),
+                       img);
+        } break;
+        case 'y' : {
+          res.assign(std::max(_width,img._width),_height + img._height,
+                     std::max(_depth,img._depth),std::max(_spectrum,img._spectrum),0);
+          return res.draw_image((int)(align*(res._width - _width)),
+                                0,
+                                (int)(align*(res._depth - _depth)),
+                                (int)(align*(res._spectrum - _spectrum)),
+                                *this).
+            draw_image((int)(align*(res._width - img._width)),
+                       _height,
+                       (int)(align*(res._depth - img._depth)),
+                       (int)(align*(res._spectrum - img._spectrum)),
+                       img);
+        } break;
+        case 'z' : {
+          res.assign(std::max(_width,img._width),std::max(_height,img._height),
+                     _depth + img._depth,std::max(_spectrum,img._spectrum),0);
+          return res.draw_image((int)(align*(res._width - _width)),
+                                (int)(align*(res._height - _height)),
+                                0,
+                                (int)(align*(res._spectrum - _spectrum)),
+                                *this).
+            draw_image((int)(align*(res._width - img._width)),
+                       (int)(align*(res._height - img._height)),
+                       _depth,
+                       (int)(align*(res._spectrum - img._spectrum)),
+                       img);
+        } break;
+        default : {
+          res.assign(std::max(_width,img._width),std::max(_height,img._height),
+                     std::max(_depth,img._depth),_spectrum + img._spectrum,0);
+          return res.draw_image((int)(align*(res._width - _width)),
+                                (int)(align*(res._height - _height)),
+                                (int)(align*(res._depth - _depth)),
+                                0,
+                                *this).
+            draw_image((int)(align*(res._width - img._width)),
+                       (int)(align*(res._height - img._height)),
+                       (int)(align*(res._depth - img._depth)),
+                       _spectrum,
+                       img);
+        } break;
+      }
+      return res;
     }
 
     //@}
@@ -44080,89 +44144,126 @@ namespace cimg_library {
     //! Blur image with the median filter \newinstance.
     CImg<T> get_blur_median(const unsigned int n, const float threshold=0) const {
       if (is_empty() || n<=1) return +*this;
+
+      // Manage special case of single-axis image.
+      CImg<T> img = get_shared();
+      const unsigned int whd = _width*_height*_depth;
+      if (_width==whd || _height==whd || _depth==whd) { img._width = whd; img._height = img._depth = 1; }
+
       CImg<T> res(_width,_height,_depth,_spectrum);
       T *ptrd = res._data;
       cimg::unused(ptrd);
       const int hr = (int)n/2, hl = n - hr - 1;
-      if (res._depth!=1) { // 3D
-        if (threshold>0)
-          cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*16 &&
-                                                                     _height*_depth*_spectrum>=4))
-          cimg_forXYZC(*this,x,y,z,c) { // With threshold
+      if (img._depth!=1) { // 3D
+        if (threshold>0) // With threshold
+          cimg_pragma_openmp(parallel for cimg_openmp_collapse(3)
+                             cimg_openmp_if(img._width>=(cimg_openmp_sizefactor)*16 &&
+                                            img._height*img._depth*img._spectrum>=4))
+          cimg_forXYZC(img,x,y,z,c) {
             const int
               x0 = x - hl, y0 = y - hl, z0 = z - hl, x1 = x + hr, y1 = y + hr, z1 = z + hr,
               nx0 = x0<0?0:x0, ny0 = y0<0?0:y0, nz0 = z0<0?0:z0,
-              nx1 = x1>=width()?width() - 1:x1, ny1 = y1>=height()?height() - 1:y1, nz1 = z1>=depth()?depth() - 1:z1;
-            const Tfloat val0 = (Tfloat)(*this)(x,y,z,c);
+              nx1 = x1>=img.width()?img.width() - 1:x1,
+              ny1 = y1>=img.height()?img.height() - 1:y1,
+              nz1 = z1>=img.depth()?img.depth() - 1:z1;
+            const Tfloat val0 = (Tfloat)img(x,y,z,c);
             CImg<T> values(n*n*n);
             unsigned int nb_values = 0;
             T *_ptrd = values.data();
-            cimg_for_inXYZ(*this,nx0,ny0,nz0,nx1,ny1,nz1,p,q,r)
-              if (cimg::abs((*this)(p,q,r,c) - val0)<=threshold) { *(_ptrd++) = (*this)(p,q,r,c); ++nb_values; }
-            res(x,y,z,c) = nb_values?values.get_shared_points(0,nb_values - 1).median():(*this)(x,y,z,c);
+            cimg_for_inXYZ(img,nx0,ny0,nz0,nx1,ny1,nz1,p,q,r)
+              if (cimg::abs(img(p,q,r,c) - val0)<=threshold) { *(_ptrd++) = img(p,q,r,c); ++nb_values; }
+            res(x,y,z,c) = nb_values?values.get_shared_points(0,nb_values - 1).median():img(x,y,z,c);
           }
-        else
-          cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*16 &&
-                                                                     _height*_depth*_spectrum>=4))
-          cimg_forXYZC(*this,x,y,z,c) { // Without threshold
+        else // Without threshold
+          cimg_pragma_openmp(parallel for cimg_openmp_collapse(3)
+                             cimg_openmp_if(img._width>=(cimg_openmp_sizefactor)*16 &&
+                                            img._height*img._depth*img._spectrum>=4))
+          cimg_forXYZC(img,x,y,z,c) {
             const int
               x0 = x - hl, y0 = y - hl, z0 = z - hl, x1 = x + hr, y1 = y + hr, z1 = z + hr,
               nx0 = x0<0?0:x0, ny0 = y0<0?0:y0, nz0 = z0<0?0:z0,
-              nx1 = x1>=width()?width() - 1:x1, ny1 = y1>=height()?height() - 1:y1, nz1 = z1>=depth()?depth() - 1:z1;
-            res(x,y,z,c) = get_crop(nx0,ny0,nz0,c,nx1,ny1,nz1,c).median();
+              nx1 = x1>=img.width()?img.width() - 1:x1,
+              ny1 = y1>=img.height()?img.height() - 1:y1,
+              nz1 = z1>=img.depth()?img.depth() - 1:z1;
+            res(x,y,z,c) = img.get_crop(nx0,ny0,nz0,c,nx1,ny1,nz1,c).median();
           }
-      } else {
-        if (threshold>0)
-          cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*16 &&
-                                                                     _height*_spectrum>=4))
-          cimg_forXYC(*this,x,y,c) { // With threshold
+      } else { // 2D or 1D
+        if (threshold>0) // With threshold
+          cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
+                             cimg_openmp_if(img._width>=(cimg_openmp_sizefactor)*16 &&
+                                            img._height*img._spectrum>=4))
+          cimg_forXYC(img,x,y,c) {
             const int
               x0 = x - hl, y0 = y - hl, x1 = x + hr, y1 = y + hr,
               nx0 = x0<0?0:x0, ny0 = y0<0?0:y0,
-              nx1 = x1>=width()?width() - 1:x1, ny1 = y1>=height()?height() - 1:y1;
-            const Tfloat val0 = (Tfloat)(*this)(x,y,c);
+              nx1 = x1>=img.width()?img.width() - 1:x1,
+              ny1 = y1>=img.height()?img.height() - 1:y1;
+            const Tfloat val0 = (Tfloat)img(x,y,c);
             CImg<T> values(n*n);
             unsigned int nb_values = 0;
             T *_ptrd = values.data();
-            cimg_for_inXY(*this,nx0,ny0,nx1,ny1,p,q)
-              if (cimg::abs((*this)(p,q,c) - val0)<=threshold) { *(_ptrd++) = (*this)(p,q,c); ++nb_values; }
-            res(x,y,c) = nb_values?values.get_shared_points(0,nb_values - 1).median():(*this)(x,y,c);
+            cimg_for_inXY(img,nx0,ny0,nx1,ny1,p,q)
+              if (cimg::abs(img(p,q,c) - val0)<=threshold) { *(_ptrd++) = img(p,q,c); ++nb_values; }
+            res(x,y,c) = nb_values?values.get_shared_points(0,nb_values - 1).median():img(x,y,c);
           }
         else { // Without threshold
           const int
-            w1 = width() - 1, h1 = height() - 1,
-            w2 = width() - 2, h2 = height() - 2,
-            w3 = width() - 3, h3 = height() - 3,
-            w4 = width() - 4, h4 = height() - 4;
-          if (n==3 && _width>=n && _height>=n) {
-            cimg_pragma_openmp(parallel for cimg_openmp_if(_spectrum>=2))
-            cimg_forC(*this,c) {
-              CImg<T> I(9);
-              cimg_for_in3x3(*this,1,1,w2,h2,x,y,0,c,I,T)
-                res(x,y,c) = cimg::median(I[0],I[1],I[2],I[3],I[4],I[5],I[6],I[7],I[8]);
-              cimg_for_borderXY(*this,x,y,1)
-                res(x,y,c) = get_crop(std::max(0,x - 1),std::max(0,y - 1),0,c,
-                                      std::min(w1,x + 1),std::min(h1,y + 1),0,c).median();
+            w1 = img.width() - 1, h1 = img.height() - 1,
+            w2 = img.width() - 2, h2 = img.height() - 2,
+            w3 = img.width() - 3, h3 = img.height() - 3,
+            w4 = img.width() - 4, h4 = img.height() - 4;
+
+          if (n==3 && img._width>=2 && img._height==1) {
+            cimg_pragma_openmp(parallel for cimg_openmp_if(img._spectrum>=2))
+            cimg_forC(img,c) {
+              const T *_ptrs = img.data(0,0,0,c);
+              T *_ptrd = res.data(0,0,0,c);
+              cimg_for_in3(img._width,1,w2,x)
+                _ptrd[x] = cimg::median(_ptrs[_p1x],_ptrs[x],_ptrs[_n1x]);
+              _ptrd[0] = cimg::median(_ptrs[0],_ptrs[1]);
+              _ptrd[w1] = cimg::median(_ptrs[w2],_ptrs[w1]);
             }
-          } else if (n==5 && _width>=n && _height>=n) {
-            cimg_pragma_openmp(parallel for cimg_openmp_if(_spectrum>=2))
-            cimg_forC(*this,c) {
+          } else if (n==5 && img._width>=4 && img._height==1) {
+            cimg_pragma_openmp(parallel for cimg_openmp_if(img._spectrum>=2))
+            cimg_forC(img,c) {
+              const T *_ptrs = img.data(0,0,0,c);
+              T *_ptrd = res.data(0,0,0,c);
+              cimg_for_in5(img._width,2,w3,x)
+                _ptrd[x] = cimg::median(_ptrs[_p2x],_ptrs[_p1x],_ptrs[x],_ptrs[_n1x],_ptrs[_n2x]);
+              _ptrd[0] = cimg::median(_ptrs[0],_ptrs[1],_ptrs[2]);
+              _ptrd[1] = cimg::median(_ptrs[0],_ptrs[1],_ptrs[2],_ptrs[3]);
+              _ptrd[w2] = cimg::median(_ptrs[w4],_ptrs[w3],_ptrs[w2],_ptrs[w1]);
+              _ptrd[w1] = cimg::median(_ptrs[w3],_ptrs[w2],_ptrs[w1]);
+            }
+          } else if (n==3 && img._width>=n && img._height>=n) {
+            cimg_pragma_openmp(parallel for cimg_openmp_if(img._spectrum>=2))
+            cimg_forC(img,c) {
+              CImg<T> I(9);
+              cimg_for_in3x3(img,1,1,w2,h2,x,y,0,c,I,T)
+                res(x,y,c) = cimg::median(I[0],I[1],I[2],I[3],I[4],I[5],I[6],I[7],I[8]);
+              cimg_for_borderXY(img,x,y,1)
+                res(x,y,c) = img.get_crop(std::max(0,x - 1),std::max(0,y - 1),0,c,
+                                          std::min(w1,x + 1),std::min(h1,y + 1),0,c).median();
+            }
+          } else if (n==5 && img._width>=n && img._height>=n) {
+            cimg_pragma_openmp(parallel for cimg_openmp_if(img._spectrum>=2))
+            cimg_forC(img,c) {
               CImg<T> I(25);
-              cimg_for_in5x5(*this,2,2,w3,h3,x,y,0,c,I,T)
+              cimg_for_in5x5(img,2,2,w3,h3,x,y,0,c,I,T)
                 res(x,y,c) = cimg::median(I[0],I[1],I[2],I[3],I[4],
                                           I[5],I[6],I[7],I[8],I[9],
                                           I[10],I[11],I[12],I[13],I[14],
                                           I[15],I[16],I[17],I[18],I[19],
                                           I[20],I[21],I[22],I[23],I[24]);
-              cimg_for_borderXY(*this,x,y,2)
-                res(x,y,c) = get_crop(std::max(0,x - 2),std::max(0,y - 2),0,c,
-                                      std::min(w1,x + 2),std::min(h1,y + 2),0,c).median();
+              cimg_for_borderXY(img,x,y,2)
+                res(x,y,c) = img.get_crop(std::max(0,x - 2),std::max(0,y - 2),0,c,
+                                          std::min(w1,x + 2),std::min(h1,y + 2),0,c).median();
             }
-          } else if (n==7 && _width>=n && _height>=n) {
-            cimg_pragma_openmp(parallel for cimg_openmp_if(_spectrum>=2))
-            cimg_forC(*this,c) {
+          } else if (n==7 && img._width>=n && img._height>=n) {
+            cimg_pragma_openmp(parallel for cimg_openmp_if(img._spectrum>=2))
+            cimg_forC(img,c) {
               CImg<T> I(49);
-              cimg_for_in7x7(*this,3,3,w4,h4,x,y,0,c,I,T)
+              cimg_for_in7x7(img,3,3,w4,h4,x,y,0,c,I,T)
                 res(x,y,c) = cimg::median(I[0],I[1],I[2],I[3],I[4],I[5],I[6],
                                           I[7],I[8],I[9],I[10],I[11],I[12],I[13],
                                           I[14],I[15],I[16],I[17],I[18],I[19],I[20],
@@ -44170,19 +44271,21 @@ namespace cimg_library {
                                           I[28],I[29],I[30],I[31],I[32],I[33],I[34],
                                           I[35],I[36],I[37],I[38],I[39],I[40],I[41],
                                           I[42],I[43],I[44],I[45],I[46],I[47],I[48]);
-              cimg_for_borderXY(*this,x,y,3)
-                res(x,y,c) = get_crop(std::max(0,x - 3),std::max(0,y - 3),0,c,
-                                      std::min(w1,x + 3),std::min(h1,y + 3),0,c).median();
+              cimg_for_borderXY(img,x,y,3)
+                res(x,y,c) = img.get_crop(std::max(0,x - 3),std::max(0,y - 3),0,c,
+                                          std::min(w1,x + 3),std::min(h1,y + 3),0,c).median();
             }
           } else {
             cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
-                               cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*16 && _height*_spectrum>=4))
-            cimg_forXYC(*this,x,y,c) {
+                               cimg_openmp_if(img._width>=(cimg_openmp_sizefactor)*16 &&
+                                              img._height*img._spectrum>=4))
+            cimg_forXYC(img,x,y,c) {
               const int
                 x0 = x - hl, y0 = y - hl, x1 = x + hr, y1 = y + hr,
                 nx0 = x0<0?0:x0, ny0 = y0<0?0:y0,
-                nx1 = x1>=width()?width() - 1:x1, ny1 = y1>=height()?height() - 1:y1;
-              res(x,y,c) = get_crop(nx0,ny0,0,c,nx1,ny1,0,c).median();
+                nx1 = x1>=img.width()?img.width() - 1:x1,
+                ny1 = y1>=img.height()?img.height() - 1:y1;
+              res(x,y,c) = img.get_crop(nx0,ny0,0,c,nx1,ny1,0,c).median();
             }
           }
         }
@@ -64669,7 +64772,9 @@ namespace cimg_library {
     **/
     CImg<T> get_append(const char axis, const float align=0) const {
       if (is_empty()) return CImg<T>();
-      if (_width==1) return +((*this)[0]);
+      if (_width==1) return +_data[0];
+      if (_width==2) return _data[0].get_append(_data[1],axis,align);
+
       unsigned int dx = 0, dy = 0, dz = 0, dc = 0, pos = 0;
       CImg<T> res;
       switch (cimg::lowercase(axis)) {

@@ -12681,7 +12681,7 @@ namespace cimg_library {
                                       "image (%u,%u,%u,%u).",
                                       cimg_instance,
                                       size_x,size_y,size_z,size_c);
-        else {
+        if (siz>curr_siz || (curr_siz>4096 && siz<curr_siz/2)) {
           delete[] _data;
           try { _data = new T[siz]; } catch (...) {
             _width = _height = _depth = _spectrum = 0; _data = 0;

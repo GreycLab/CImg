@@ -33968,7 +33968,7 @@ namespace cimg_library {
         _cimg_abort_init_openmp;
         try {
           CImg<t> base;
-          if (cimg::type<T>::string()==cimg::type<T>::string())
+          if (cimg::type<T>::string()==cimg::type<t>::string())
             base.assign(provides_copy?provides_copy->get_shared():get_shared(),true);
           else
             base = provides_copy?*provides_copy:*this;

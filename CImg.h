@@ -25802,7 +25802,7 @@ namespace cimg_library {
         cimg_for_inX(ss,0,ss.width() - 2,i) ss[i] = (char)ptrs[i];
         ss.back() = 0;
         if (!sizd) return CImg<T>::empty().eval(ss,0,0,0,0,&mp.imglist); // Scalar result
-        CImg<doubleT>(++ptrd,w,h,d,s,true) = CImg<T>(w,h,d,s,0).fill(ss,true,true,&mp.imglist);
+        CImg<doubleT>(++ptrd,w,h,d,s,true) = CImg<doubleT>(w,h,d,s,0)._fill(ss,true,3,&mp.imglist,"mp_expr",0,0);
         return cimg::type<double>::nan();
       }
 
@@ -33939,10 +33939,12 @@ namespace cimg_library {
     // . 1 = Allow list of values.
     // . 2 = Allow formula.
     // . 4 = Evaluate but does not fill image values.
+    template<typename t>
     CImg<T>& _fill(const char *const expression, const bool repeat_values, const unsigned int mode,
-                   CImgList<T> *const list_images, const char *const calling_function,
+                   CImgList<t> *const list_images, const char *const calling_function,
                    const CImg<T> *provides_copy, CImg<doubleT> *const result_end) {
       if (!expression || !*expression) return *this;  // But empty images be evaluated to allow side effects
+      typedef typename CImg<t>::_cimg_math_parser _cimg_math_parser_t;
       const unsigned int excmode = cimg::exception_mode();
       cimg::exception_mode(0);
       CImg<charT> is_error_expr;
@@ -33965,10 +33967,17 @@ namespace cimg_library {
       if (mode&2 && !is_value_sequence) {
         _cimg_abort_init_openmp;
         try {
-          CImg<T> base = provides_copy?provides_copy->get_shared():get_shared();
-          _cimg_math_parser mp(expression + (*expression=='>' || *expression=='<' || *expression=='+' ||
-                                             *expression=='*' || *expression==':'),
-                               calling_function,base,this,list_images,true);
+          CImg<t> base;
+          if (cimg::type<T>::string()==cimg::type<T>::string())
+            base.assign(provides_copy?provides_copy->get_shared():get_shared(),true);
+          else
+            base = provides_copy?*provides_copy:*this;
+
+          _cimg_math_parser_t mp(expression + (*expression=='>' || *expression=='<' || *expression=='+' ||
+                                               *expression=='*' || *expression==':'),
+                                 calling_function,base,
+                                 cimg::type<T>::string()==cimg::type<t>::string()?(CImg<t>*)this:&base,
+                                 list_images,true);
           if (!provides_copy && expression &&
               *expression!='>' && *expression!='<' && *expression!=':' &&
               mp.need_input_copy)
@@ -34031,8 +34040,8 @@ namespace cimg_library {
               const int num_threads = (int)std::min(size(),(ulongT)omp_get_max_threads());
               cimg_pragma_openmp(parallel if (num_threads>0) num_threads(num_threads))
                 {
-                  _cimg_math_parser
-                    *const _mp = omp_get_thread_num()?new _cimg_math_parser(mp):&mp,
+                  _cimg_math_parser_t
+                    *const _mp = omp_get_thread_num()?new _cimg_math_parser_t(mp):&mp,
                     &lmp = *_mp;
                   lmp.is_fill = true;
                   cimg_pragma_openmp(barrier)
@@ -34088,8 +34097,8 @@ namespace cimg_library {
               const int num_threads = (int)std::min(size(),(ulongT)omp_get_max_threads());
               cimg_pragma_openmp(parallel if (num_threads>0) num_threads(num_threads))
                 {
-                  _cimg_math_parser
-                    *const _mp = omp_get_thread_num()?new _cimg_math_parser(mp):&mp,
+                  _cimg_math_parser_t
+                    *const _mp = omp_get_thread_num()?new _cimg_math_parser_t(mp):&mp,
                     &lmp = *_mp;
                   lmp.is_fill = true;
                   cimg_pragma_openmp(barrier)

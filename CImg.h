@@ -12787,7 +12787,7 @@ namespace cimg_library {
                     const unsigned int size_z, const unsigned int size_c, const bool is_shared) {
       if (is_shared)
         throw CImgArgumentException(_cimg_instance
-                                    "assign(): Invalid assignment request of shared instance from (%s*) buffer"
+                                    "assign(): Invalid assignment request of shared instance from (%s*) buffer "
                                     "(pixel types are different).",
                                     cimg_instance,
                                     CImg<t>::pixel_type());

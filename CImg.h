@@ -25801,7 +25801,7 @@ namespace cimg_library {
         CImg<charT> ss(sizs + 1);
         cimg_for_inX(ss,0,ss.width() - 2,i) ss[i] = (char)ptrs[i];
         ss.back() = 0;
-        if (!sizd) return CImg<T>(w,h,d,s,0).eval(ss,0,0,0,0,&mp.imglist); // Scalar result
+        if (!sizd) return CImg<T>::empty().eval(ss,0,0,0,0,&mp.imglist); // Scalar result
         CImg<doubleT>(++ptrd,w,h,d,s,true) = CImg<T>(w,h,d,s,0).fill(ss,true,true,&mp.imglist);
         return cimg::type<double>::nan();
       }

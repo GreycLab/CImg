@@ -3273,14 +3273,16 @@ namespace cimg_library {
       }
 
       ~X11_attr() {
-        if (events_thread) {
+        /*
+          if (events_thread) {
           pthread_cancel(*events_thread);
           delete events_thread;
-        }
-        pthread_cond_destroy(&wait_event);
-        pthread_mutex_unlock(&wait_event_mutex);
-        pthread_mutex_destroy(&wait_event_mutex);
-        if (display) { XCloseDisplay(display); }
+          }
+          pthread_cond_destroy(&wait_event);
+          pthread_mutex_unlock(&wait_event_mutex);
+          pthread_mutex_destroy(&wait_event_mutex);
+          if (display) { XCloseDisplay(display); }
+        */
         delete[] wins;
       }
 

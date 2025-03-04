@@ -7604,7 +7604,7 @@ namespace cimg_library {
     inline const char *split_filename(const char *const filename, char *const body=0) {
       if (!filename) { if (body) *body = 0; return ""; }
       const char * p = std::strrchr(filename,'.');
-      if (!p || std::strchr(p,'/') || std::strchr(p,'\\')) { // No extension.
+      if (!p || std::strchr(p,'/') || std::strchr(p,'\\')) { // No extension
         if (body) std::strcpy(body,filename);
         return filename + std::strlen(filename);
       }
@@ -17239,7 +17239,7 @@ namespace cimg_library {
           while (*ss=='(' && *(se - 1)==')' && std::strchr(ss,')')==se - 1) { // Remove useless start/end parentheses
             ++ss; --se; c2 = 1;
           }
-          if (*ss=='_' && ss + 1<se && ss[1]=='(') { // Remove leading '_(something)' comment.
+          if (*ss=='_' && ss + 1<se && ss[1]=='(') { // Remove leading '_(something)' comment
             const unsigned int clevel = level[ss - expr._data];
             ss+=2;
             while (ss<se && (*ss!=')' || level[ss - expr._data]!=clevel)) ++ss;
@@ -21880,7 +21880,7 @@ namespace cimg_library {
               _cimg_mp_return(pos);
             }
 
-            if (!std::strncmp(ss,"normp(",6)) { // Lp norm, with variable argument p.
+            if (!std::strncmp(ss,"normp(",6)) { // Lp norm, with variable argument p
               _cimg_mp_op("Function 'normp()'");
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss6,s1,depth1,0,block_flags);
@@ -23771,7 +23771,7 @@ namespace cimg_library {
         variable_name.assign(ss,(unsigned int)(se + 1 - ss)).back() = 0;
 
 #ifdef cimg_mp_operator_dollar
-        if (*ss=='$' && ss1<se) // External variable '$varname'.
+        if (*ss=='$' && ss1<se) // External variable '$varname'
           _cimg_mp_const_scalar(cimg_mp_operator_dollar(variable_name._data + 1));
 #endif
 
@@ -34132,7 +34132,7 @@ namespace cimg_library {
           }
           mp.end();
 
-          if (result_end && mp.result_end) // Transfer result of the end() block if requested.
+          if (result_end && mp.result_end) // Transfer result of the end() block if requested
             result_end->assign(mp.result_end + (mp.result_end_dim?1:0),std::max(1U,mp.result_end_dim));
 
           is_done = true;
@@ -51948,7 +51948,7 @@ namespace cimg_library {
             break;
           default : if (ch<font._width) {
               int left_padding = 0;
-              if (is_native_font && font[0]._height<128) { /// Determine left padding for native fonts.
+              if (is_native_font && font[0]._height<128) { /// Determine left padding for native fonts
                 if (ch==':' || ch=='!' || ch=='.' || ch==';')
                   left_padding = 2*padding_x;
                 else if (o_ch==',' || (o_ch=='.' && (ch<'0' || ch>'9')) || o_ch==';' || o_ch==':' || o_ch=='!')
@@ -68851,7 +68851,7 @@ namespace cimg_library {
       cimg::system(command,cimg::curl_path());
 
 #if cimg_OS==2
-      if (cimg::fsize(filename_local)<=0) { // Try with 'powershell' otherwise.
+      if (cimg::fsize(filename_local)<=0) { // Try with 'powershell' otherwise
         if (timeout) cimg_snprintf(s_timeout.assign(64),64,"-TimeoutSec %u ",timeout);
         else s_timeout.assign(1,1,1,1,0);
         if (referer) cimg_snprintf(s_referer.assign(1024),1024,"-Headers @{'Referer'='%s'} ",referer);
@@ -68866,7 +68866,7 @@ namespace cimg_library {
       }
 #endif
 
-      if (cimg::fsize(filename_local)<=0) { // Try with 'wget' otherwise.
+      if (cimg::fsize(filename_local)<=0) { // Try with 'wget' otherwise
         if (timeout) cimg_snprintf(s_timeout.assign(64),64,"-T %u ",timeout);
         else s_timeout.assign(1,1,1,1,0);
         if (referer) cimg_snprintf(s_referer.assign(1024),1024,"--referer=%s ",referer);

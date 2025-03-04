@@ -2541,7 +2541,7 @@ namespace cimg_library {
       For instance, the following example throws a \c CImgArgumentException:
       \code
       CImg<float> img(100,100,1,3); // Define a 100x100 color image with float-valued pixels
-      img.mirror('e');              // Try to mirror image along the (non-existing) 'e'-axis
+      img.mirror('e'); // Try to mirror image along the (non-existing) 'e'-axis
       \endcode
 
       - \b CImgDisplayException: Thrown when something went wrong during the display of images in CImgDisplay instances.
@@ -2549,15 +2549,15 @@ namespace cimg_library {
       - \b CImgInstanceException: Thrown when an instance associated to a called \CImg method does not fit
       the function requirements. For instance, the following example throws a \c CImgInstanceException:
       \code
-      const CImg<float> img;           // Define an empty image
-      const float value = img.at(0);   // Try to read first pixel value (does not exist)
+      const CImg<float> img; // Define an empty image
+      const float value = img.at(0); // Try to read first pixel value (does not exist)
       \endcode
 
       - \b CImgIOException: Thrown when an error occurred when trying to load or save image files.
       This happens when trying to read files that do not exist or with invalid formats.
       For instance, the following example throws a \c CImgIOException:
       \code
-      const CImg<float> img("missing_file.jpg");  // Try to load a file that does not exist
+      const CImg<float> img("missing_file.jpg"); // Try to load a file that does not exist
       \endcode
 
       - \b CImgWarningException: Thrown only if configuration macro \c cimg_strict_warnings is set, and
@@ -2580,12 +2580,12 @@ namespace cimg_library {
       #define "CImg.h"
       using namespace cimg_library;
       int main() {
-        cimg::exception_mode(0);                                    // Enable quiet exception mode
+        cimg::exception_mode(0); // Enable quiet exception mode
         try {
-          ...                                                       // Here, do what you want to stress CImg
-        } catch (CImgException& e) {                                // You succeeded: something went wrong!
-          std::fprintf(stderr,"CImg Library Error: %s",e.what());   // Display your custom error message
-          ...                                                       // Do what you want now to save the ship!
+          ... // Here, do what you want to stress CImg
+        } catch (CImgException& e) { // You succeeded: something went wrong!
+          std::fprintf(stderr,"CImg Library Error: %s",e.what()); // Display your custom error message
+          ... // Do what you want now to save the ship!
           }
         }
       \endcode
@@ -3538,97 +3538,97 @@ namespace cimg_library {
 #else
     // Define random keycodes when no display is available.
     // (should rarely be used then!).
-    const unsigned int keyESC        = 1U;   //!< Keycode for the \c ESC key (architecture-dependent)
-    const unsigned int keyF1         = 2U;   //!< Keycode for the \c F1 key (architecture-dependent)
-    const unsigned int keyF2         = 3U;   //!< Keycode for the \c F2 key (architecture-dependent)
-    const unsigned int keyF3         = 4U;   //!< Keycode for the \c F3 key (architecture-dependent)
-    const unsigned int keyF4         = 5U;   //!< Keycode for the \c F4 key (architecture-dependent)
-    const unsigned int keyF5         = 6U;   //!< Keycode for the \c F5 key (architecture-dependent)
-    const unsigned int keyF6         = 7U;   //!< Keycode for the \c F6 key (architecture-dependent)
-    const unsigned int keyF7         = 8U;   //!< Keycode for the \c F7 key (architecture-dependent)
-    const unsigned int keyF8         = 9U;   //!< Keycode for the \c F8 key (architecture-dependent)
-    const unsigned int keyF9         = 10U;  //!< Keycode for the \c F9 key (architecture-dependent)
-    const unsigned int keyF10        = 11U;  //!< Keycode for the \c F10 key (architecture-dependent)
-    const unsigned int keyF11        = 12U;  //!< Keycode for the \c F11 key (architecture-dependent)
-    const unsigned int keyF12        = 13U;  //!< Keycode for the \c F12 key (architecture-dependent)
-    const unsigned int keyPAUSE      = 14U;  //!< Keycode for the \c PAUSE key (architecture-dependent)
-    const unsigned int key1          = 15U;  //!< Keycode for the \c 1 key (architecture-dependent)
-    const unsigned int key2          = 16U;  //!< Keycode for the \c 2 key (architecture-dependent)
-    const unsigned int key3          = 17U;  //!< Keycode for the \c 3 key (architecture-dependent)
-    const unsigned int key4          = 18U;  //!< Keycode for the \c 4 key (architecture-dependent)
-    const unsigned int key5          = 19U;  //!< Keycode for the \c 5 key (architecture-dependent)
-    const unsigned int key6          = 20U;  //!< Keycode for the \c 6 key (architecture-dependent)
-    const unsigned int key7          = 21U;  //!< Keycode for the \c 7 key (architecture-dependent)
-    const unsigned int key8          = 22U;  //!< Keycode for the \c 8 key (architecture-dependent)
-    const unsigned int key9          = 23U;  //!< Keycode for the \c 9 key (architecture-dependent)
-    const unsigned int key0          = 24U;  //!< Keycode for the \c 0 key (architecture-dependent)
-    const unsigned int keyBACKSPACE  = 25U;  //!< Keycode for the \c BACKSPACE key (architecture-dependent)
-    const unsigned int keyINSERT     = 26U;  //!< Keycode for the \c INSERT key (architecture-dependent)
-    const unsigned int keyHOME       = 27U;  //!< Keycode for the \c HOME key (architecture-dependent)
-    const unsigned int keyPAGEUP     = 28U;  //!< Keycode for the \c PAGEUP key (architecture-dependent)
-    const unsigned int keyTAB        = 29U;  //!< Keycode for the \c TAB key (architecture-dependent)
-    const unsigned int keyQ          = 30U;  //!< Keycode for the \c Q key (architecture-dependent)
-    const unsigned int keyW          = 31U;  //!< Keycode for the \c W key (architecture-dependent)
-    const unsigned int keyE          = 32U;  //!< Keycode for the \c E key (architecture-dependent)
-    const unsigned int keyR          = 33U;  //!< Keycode for the \c R key (architecture-dependent)
-    const unsigned int keyT          = 34U;  //!< Keycode for the \c T key (architecture-dependent)
-    const unsigned int keyY          = 35U;  //!< Keycode for the \c Y key (architecture-dependent)
-    const unsigned int keyU          = 36U;  //!< Keycode for the \c U key (architecture-dependent)
-    const unsigned int keyI          = 37U;  //!< Keycode for the \c I key (architecture-dependent)
-    const unsigned int keyO          = 38U;  //!< Keycode for the \c O key (architecture-dependent)
-    const unsigned int keyP          = 39U;  //!< Keycode for the \c P key (architecture-dependent)
-    const unsigned int keyDELETE     = 40U;  //!< Keycode for the \c DELETE key (architecture-dependent)
-    const unsigned int keyEND        = 41U;  //!< Keycode for the \c END key (architecture-dependent)
-    const unsigned int keyPAGEDOWN   = 42U;  //!< Keycode for the \c PAGEDOWN key (architecture-dependent)
-    const unsigned int keyCAPSLOCK   = 43U;  //!< Keycode for the \c CAPSLOCK key (architecture-dependent)
-    const unsigned int keyA          = 44U;  //!< Keycode for the \c A key (architecture-dependent)
-    const unsigned int keyS          = 45U;  //!< Keycode for the \c S key (architecture-dependent)
-    const unsigned int keyD          = 46U;  //!< Keycode for the \c D key (architecture-dependent)
-    const unsigned int keyF          = 47U;  //!< Keycode for the \c F key (architecture-dependent)
-    const unsigned int keyG          = 48U;  //!< Keycode for the \c G key (architecture-dependent)
-    const unsigned int keyH          = 49U;  //!< Keycode for the \c H key (architecture-dependent)
-    const unsigned int keyJ          = 50U;  //!< Keycode for the \c J key (architecture-dependent)
-    const unsigned int keyK          = 51U;  //!< Keycode for the \c K key (architecture-dependent)
-    const unsigned int keyL          = 52U;  //!< Keycode for the \c L key (architecture-dependent)
-    const unsigned int keyENTER      = 53U;  //!< Keycode for the \c ENTER key (architecture-dependent)
-    const unsigned int keySHIFTLEFT  = 54U;  //!< Keycode for the \c SHIFTLEFT key (architecture-dependent)
-    const unsigned int keyZ          = 55U;  //!< Keycode for the \c Z key (architecture-dependent)
-    const unsigned int keyX          = 56U;  //!< Keycode for the \c X key (architecture-dependent)
-    const unsigned int keyC          = 57U;  //!< Keycode for the \c C key (architecture-dependent)
-    const unsigned int keyV          = 58U;  //!< Keycode for the \c V key (architecture-dependent)
-    const unsigned int keyB          = 59U;  //!< Keycode for the \c B key (architecture-dependent)
-    const unsigned int keyN          = 60U;  //!< Keycode for the \c N key (architecture-dependent)
-    const unsigned int keyM          = 61U;  //!< Keycode for the \c M key (architecture-dependent)
-    const unsigned int keySHIFTRIGHT = 62U;  //!< Keycode for the \c SHIFTRIGHT key (architecture-dependent)
-    const unsigned int keyARROWUP    = 63U;  //!< Keycode for the \c ARROWUP key (architecture-dependent)
-    const unsigned int keyCTRLLEFT   = 64U;  //!< Keycode for the \c CTRLLEFT key (architecture-dependent)
-    const unsigned int keyAPPLEFT    = 65U;  //!< Keycode for the \c APPLEFT key (architecture-dependent)
-    const unsigned int keyALT        = 66U;  //!< Keycode for the \c ALT key (architecture-dependent)
-    const unsigned int keySPACE      = 67U;  //!< Keycode for the \c SPACE key (architecture-dependent)
-    const unsigned int keyALTGR      = 68U;  //!< Keycode for the \c ALTGR key (architecture-dependent)
-    const unsigned int keyAPPRIGHT   = 69U;  //!< Keycode for the \c APPRIGHT key (architecture-dependent)
-    const unsigned int keyMENU       = 70U;  //!< Keycode for the \c MENU key (architecture-dependent)
-    const unsigned int keyCTRLRIGHT  = 71U;  //!< Keycode for the \c CTRLRIGHT key (architecture-dependent)
-    const unsigned int keyARROWLEFT  = 72U;  //!< Keycode for the \c ARROWLEFT key (architecture-dependent)
-    const unsigned int keyARROWDOWN  = 73U;  //!< Keycode for the \c ARROWDOWN key (architecture-dependent)
-    const unsigned int keyARROWRIGHT = 74U;  //!< Keycode for the \c ARROWRIGHT key (architecture-dependent)
-    const unsigned int keyPAD0       = 75U;  //!< Keycode for the \c PAD0 key (architecture-dependent)
-    const unsigned int keyPAD1       = 76U;  //!< Keycode for the \c PAD1 key (architecture-dependent)
-    const unsigned int keyPAD2       = 77U;  //!< Keycode for the \c PAD2 key (architecture-dependent)
-    const unsigned int keyPAD3       = 78U;  //!< Keycode for the \c PAD3 key (architecture-dependent)
-    const unsigned int keyPAD4       = 79U;  //!< Keycode for the \c PAD4 key (architecture-dependent)
-    const unsigned int keyPAD5       = 80U;  //!< Keycode for the \c PAD5 key (architecture-dependent)
-    const unsigned int keyPAD6       = 81U;  //!< Keycode for the \c PAD6 key (architecture-dependent)
-    const unsigned int keyPAD7       = 82U;  //!< Keycode for the \c PAD7 key (architecture-dependent)
-    const unsigned int keyPAD8       = 83U;  //!< Keycode for the \c PAD8 key (architecture-dependent)
-    const unsigned int keyPAD9       = 84U;  //!< Keycode for the \c PAD9 key (architecture-dependent)
-    const unsigned int keyPADADD     = 85U;  //!< Keycode for the \c PADADD key (architecture-dependent)
-    const unsigned int keyPADSUB     = 86U;  //!< Keycode for the \c PADSUB key (architecture-dependent)
-    const unsigned int keyPADMUL     = 87U;  //!< Keycode for the \c PADMUL key (architecture-dependent)
-    const unsigned int keyPADDIV     = 88U;  //!< Keycode for the \c PADDDIV key (architecture-dependent)
+    const unsigned int keyESC        = 1U; //!< Keycode for the \c ESC key (architecture-dependent)
+    const unsigned int keyF1         = 2U; //!< Keycode for the \c F1 key (architecture-dependent)
+    const unsigned int keyF2         = 3U; //!< Keycode for the \c F2 key (architecture-dependent)
+    const unsigned int keyF3         = 4U; //!< Keycode for the \c F3 key (architecture-dependent)
+    const unsigned int keyF4         = 5U; //!< Keycode for the \c F4 key (architecture-dependent)
+    const unsigned int keyF5         = 6U; //!< Keycode for the \c F5 key (architecture-dependent)
+    const unsigned int keyF6         = 7U; //!< Keycode for the \c F6 key (architecture-dependent)
+    const unsigned int keyF7         = 8U; //!< Keycode for the \c F7 key (architecture-dependent)
+    const unsigned int keyF8         = 9U; //!< Keycode for the \c F8 key (architecture-dependent)
+    const unsigned int keyF9         = 10U; //!< Keycode for the \c F9 key (architecture-dependent)
+    const unsigned int keyF10        = 11U; //!< Keycode for the \c F10 key (architecture-dependent)
+    const unsigned int keyF11        = 12U; //!< Keycode for the \c F11 key (architecture-dependent)
+    const unsigned int keyF12        = 13U; //!< Keycode for the \c F12 key (architecture-dependent)
+    const unsigned int keyPAUSE      = 14U; //!< Keycode for the \c PAUSE key (architecture-dependent)
+    const unsigned int key1          = 15U; //!< Keycode for the \c 1 key (architecture-dependent)
+    const unsigned int key2          = 16U; //!< Keycode for the \c 2 key (architecture-dependent)
+    const unsigned int key3          = 17U; //!< Keycode for the \c 3 key (architecture-dependent)
+    const unsigned int key4          = 18U; //!< Keycode for the \c 4 key (architecture-dependent)
+    const unsigned int key5          = 19U; //!< Keycode for the \c 5 key (architecture-dependent)
+    const unsigned int key6          = 20U; //!< Keycode for the \c 6 key (architecture-dependent)
+    const unsigned int key7          = 21U; //!< Keycode for the \c 7 key (architecture-dependent)
+    const unsigned int key8          = 22U; //!< Keycode for the \c 8 key (architecture-dependent)
+    const unsigned int key9          = 23U; //!< Keycode for the \c 9 key (architecture-dependent)
+    const unsigned int key0          = 24U; //!< Keycode for the \c 0 key (architecture-dependent)
+    const unsigned int keyBACKSPACE  = 25U; //!< Keycode for the \c BACKSPACE key (architecture-dependent)
+    const unsigned int keyINSERT     = 26U; //!< Keycode for the \c INSERT key (architecture-dependent)
+    const unsigned int keyHOME       = 27U; //!< Keycode for the \c HOME key (architecture-dependent)
+    const unsigned int keyPAGEUP     = 28U; //!< Keycode for the \c PAGEUP key (architecture-dependent)
+    const unsigned int keyTAB        = 29U; //!< Keycode for the \c TAB key (architecture-dependent)
+    const unsigned int keyQ          = 30U; //!< Keycode for the \c Q key (architecture-dependent)
+    const unsigned int keyW          = 31U; //!< Keycode for the \c W key (architecture-dependent)
+    const unsigned int keyE          = 32U; //!< Keycode for the \c E key (architecture-dependent)
+    const unsigned int keyR          = 33U; //!< Keycode for the \c R key (architecture-dependent)
+    const unsigned int keyT          = 34U; //!< Keycode for the \c T key (architecture-dependent)
+    const unsigned int keyY          = 35U; //!< Keycode for the \c Y key (architecture-dependent)
+    const unsigned int keyU          = 36U; //!< Keycode for the \c U key (architecture-dependent)
+    const unsigned int keyI          = 37U; //!< Keycode for the \c I key (architecture-dependent)
+    const unsigned int keyO          = 38U; //!< Keycode for the \c O key (architecture-dependent)
+    const unsigned int keyP          = 39U; //!< Keycode for the \c P key (architecture-dependent)
+    const unsigned int keyDELETE     = 40U; //!< Keycode for the \c DELETE key (architecture-dependent)
+    const unsigned int keyEND        = 41U; //!< Keycode for the \c END key (architecture-dependent)
+    const unsigned int keyPAGEDOWN   = 42U; //!< Keycode for the \c PAGEDOWN key (architecture-dependent)
+    const unsigned int keyCAPSLOCK   = 43U; //!< Keycode for the \c CAPSLOCK key (architecture-dependent)
+    const unsigned int keyA          = 44U; //!< Keycode for the \c A key (architecture-dependent)
+    const unsigned int keyS          = 45U; //!< Keycode for the \c S key (architecture-dependent)
+    const unsigned int keyD          = 46U; //!< Keycode for the \c D key (architecture-dependent)
+    const unsigned int keyF          = 47U; //!< Keycode for the \c F key (architecture-dependent)
+    const unsigned int keyG          = 48U; //!< Keycode for the \c G key (architecture-dependent)
+    const unsigned int keyH          = 49U; //!< Keycode for the \c H key (architecture-dependent)
+    const unsigned int keyJ          = 50U; //!< Keycode for the \c J key (architecture-dependent)
+    const unsigned int keyK          = 51U; //!< Keycode for the \c K key (architecture-dependent)
+    const unsigned int keyL          = 52U; //!< Keycode for the \c L key (architecture-dependent)
+    const unsigned int keyENTER      = 53U; //!< Keycode for the \c ENTER key (architecture-dependent)
+    const unsigned int keySHIFTLEFT  = 54U; //!< Keycode for the \c SHIFTLEFT key (architecture-dependent)
+    const unsigned int keyZ          = 55U; //!< Keycode for the \c Z key (architecture-dependent)
+    const unsigned int keyX          = 56U; //!< Keycode for the \c X key (architecture-dependent)
+    const unsigned int keyC          = 57U; //!< Keycode for the \c C key (architecture-dependent)
+    const unsigned int keyV          = 58U; //!< Keycode for the \c V key (architecture-dependent)
+    const unsigned int keyB          = 59U; //!< Keycode for the \c B key (architecture-dependent)
+    const unsigned int keyN          = 60U; //!< Keycode for the \c N key (architecture-dependent)
+    const unsigned int keyM          = 61U; //!< Keycode for the \c M key (architecture-dependent)
+    const unsigned int keySHIFTRIGHT = 62U; //!< Keycode for the \c SHIFTRIGHT key (architecture-dependent)
+    const unsigned int keyARROWUP    = 63U; //!< Keycode for the \c ARROWUP key (architecture-dependent)
+    const unsigned int keyCTRLLEFT   = 64U; //!< Keycode for the \c CTRLLEFT key (architecture-dependent)
+    const unsigned int keyAPPLEFT    = 65U; //!< Keycode for the \c APPLEFT key (architecture-dependent)
+    const unsigned int keyALT        = 66U; //!< Keycode for the \c ALT key (architecture-dependent)
+    const unsigned int keySPACE      = 67U; //!< Keycode for the \c SPACE key (architecture-dependent)
+    const unsigned int keyALTGR      = 68U; //!< Keycode for the \c ALTGR key (architecture-dependent)
+    const unsigned int keyAPPRIGHT   = 69U; //!< Keycode for the \c APPRIGHT key (architecture-dependent)
+    const unsigned int keyMENU       = 70U; //!< Keycode for the \c MENU key (architecture-dependent)
+    const unsigned int keyCTRLRIGHT  = 71U; //!< Keycode for the \c CTRLRIGHT key (architecture-dependent)
+    const unsigned int keyARROWLEFT  = 72U; //!< Keycode for the \c ARROWLEFT key (architecture-dependent)
+    const unsigned int keyARROWDOWN  = 73U; //!< Keycode for the \c ARROWDOWN key (architecture-dependent)
+    const unsigned int keyARROWRIGHT = 74U; //!< Keycode for the \c ARROWRIGHT key (architecture-dependent)
+    const unsigned int keyPAD0       = 75U; //!< Keycode for the \c PAD0 key (architecture-dependent)
+    const unsigned int keyPAD1       = 76U; //!< Keycode for the \c PAD1 key (architecture-dependent)
+    const unsigned int keyPAD2       = 77U; //!< Keycode for the \c PAD2 key (architecture-dependent)
+    const unsigned int keyPAD3       = 78U; //!< Keycode for the \c PAD3 key (architecture-dependent)
+    const unsigned int keyPAD4       = 79U; //!< Keycode for the \c PAD4 key (architecture-dependent)
+    const unsigned int keyPAD5       = 80U; //!< Keycode for the \c PAD5 key (architecture-dependent)
+    const unsigned int keyPAD6       = 81U; //!< Keycode for the \c PAD6 key (architecture-dependent)
+    const unsigned int keyPAD7       = 82U; //!< Keycode for the \c PAD7 key (architecture-dependent)
+    const unsigned int keyPAD8       = 83U; //!< Keycode for the \c PAD8 key (architecture-dependent)
+    const unsigned int keyPAD9       = 84U; //!< Keycode for the \c PAD9 key (architecture-dependent)
+    const unsigned int keyPADADD     = 85U; //!< Keycode for the \c PADADD key (architecture-dependent)
+    const unsigned int keyPADSUB     = 86U; //!< Keycode for the \c PADSUB key (architecture-dependent)
+    const unsigned int keyPADMUL     = 87U; //!< Keycode for the \c PADMUL key (architecture-dependent)
+    const unsigned int keyPADDIV     = 88U; //!< Keycode for the \c PADDDIV key (architecture-dependent)
 #endif
 
-    const double PI = 3.14159265358979323846;   //!< Value of the mathematical constant PI
+    const double PI = 3.14159265358979323846; //!< Value of the mathematical constant PI
 
     // Define a 10x13 binary font (small sans).
     static const char *const data_font_small[] = {
@@ -8323,7 +8323,7 @@ namespace cimg_library {
        display of valid data is performed.
        \par Example
        \code
-       CImgDisplay disp;  // Does actually nothing
+       CImgDisplay disp; // Does actually nothing
        ...
        disp.display(img); // Construct new window and display image in it
        \endcode
@@ -8684,7 +8684,7 @@ namespace cimg_library {
        \code
        CImgDisplay disp(400,400);
        while (!disp.is_closed()) {
-         if (disp.key(cimg::keyTAB)) { ... }  // Equivalent to 'if (disp.is_keyTAB())'
+         if (disp.key(cimg::keyTAB)) { ... } // Equivalent to 'if (disp.is_keyTAB())'
          disp.wait();
        }
        \endcode
@@ -8728,7 +8728,7 @@ namespace cimg_library {
        CImgDisplay disp(400,400);
        const char *const keycode = "TAB";
        while (!disp.is_closed()) {
-         if (disp.is_key(keycode)) { ... }  // Equivalent to 'if (disp.is_keyTAB())'
+         if (disp.is_key(keycode)) { ... } // Equivalent to 'if (disp.is_keyTAB())'
          disp.wait();
        }
        \endcode
@@ -8777,7 +8777,7 @@ namespace cimg_library {
        CImgDisplay disp(400,400);
        const unsigned int key_seq[] = { cimg::keyCTRLLEFT, cimg::keyD };
        while (!disp.is_closed()) {
-         if (disp.is_key_sequence(key_seq,2)) { ... }  // Test for the 'CTRL+D' keyboard event
+         if (disp.is_key_sequence(key_seq,2)) { ... } // Test for the 'CTRL+D' keyboard event
          disp.wait();
        }
        \endcode
@@ -9021,9 +9021,9 @@ namespace cimg_library {
        CImgDisplay disp(400,400);
        while (!disp.is_closed()) {
          if (disp.wheel()) {
-           int counter = disp.wheel();  // Read the state of the mouse wheel
-           ...                          // Do what you want with 'counter'
-           disp.set_wheel();            // Reset the wheel value to 0
+           int counter = disp.wheel(); // Read the state of the mouse wheel
+           ... // Do what you want with 'counter'
+           disp.set_wheel(); // Reset the wheel value to 0
          }
          disp.wait();
        }
@@ -9076,7 +9076,7 @@ namespace cimg_library {
        your code stay portable (see cimg::keyESC).
        \par Example
        \code
-       const unsigned int keyTAB = CImgDisplay::keycode("TAB");  // Return cimg::keyTAB
+       const unsigned int keyTAB = CImgDisplay::keycode("TAB"); // Return cimg::keyTAB
        \endcode
     **/
     static unsigned int keycode(const char *const keycode) {
@@ -9879,7 +9879,7 @@ namespace cimg_library {
         set_key((unsigned int)ksym,true);
       } break;
       case KeyRelease : {
-        char keys_return[32];  // Check that the key has been physically unpressed
+        char keys_return[32]; // Check that the key has been physically unpressed
         XQueryKeymap(dpy,keys_return);
         const unsigned int kc = event.xkey.keycode, kc1 = kc/8, kc2 = kc%8;
         const bool is_key_pressed = kc1>=32?false:(keys_return[kc1]>>kc2)&1;
@@ -11859,10 +11859,10 @@ namespace cimg_library {
          being achieved (often in a faster way) using methods of \c CImg<T>.
        \par Example
        \code
-       CImg<float> img("reference.jpg");                                         // Load image from file
+       CImg<float> img("reference.jpg"); // Load image from file
        // Set all pixels to '0', with a CImg iterator.
        for (CImg<float>::iterator it = img.begin(), it<img.end(); ++it) *it = 0;
-       img.fill(0);                                                              // Do the same with a built-in method
+       img.fill(0); // Do the same with a built-in method
        \endcode
    **/
     typedef T* iterator;
@@ -11875,11 +11875,11 @@ namespace cimg_library {
          being achieved (often in a faster way) using methods of \c CImg<T>.
        \par Example
        \code
-       const CImg<float> img("reference.jpg");                                    // Load image from file
+       const CImg<float> img("reference.jpg"); // Load image from file
        float sum = 0;
        // Compute sum of all pixel values, with a CImg iterator.
        for (CImg<float>::iterator it = img.begin(), it<img.end(); ++it) sum+=*it;
-       const float sum2 = img.sum();                                              // Do the same with a built-in method
+       const float sum2 = img.sum(); // Do the same with a built-in method
        \endcode
     **/
     typedef const T* const_iterator;
@@ -12006,10 +12006,10 @@ namespace cimg_library {
        - An empty image is never shared.
        \par Example
        \code
-       CImg<float> img1, img2;      // Construct two empty images
-       img1.assign(256,256,1,3);    // Re-assign 'img1' to be a 256x256x1x3 (color) image
+       CImg<float> img1, img2; // Construct two empty images
+       img1.assign(256,256,1,3); // Re-assign 'img1' to be a 256x256x1x3 (color) image
        img2 = img1.get_rand(0,255); // Re-assign 'img2' to be a random-valued version of 'img1'
-       img2.assign();               // Re-assign 'img2' to be an empty image again
+       img2.assign(); // Re-assign 'img2' to be an empty image again
        \endcode
     **/
     CImg():_width(0),_height(0),_depth(0),_spectrum(0),_is_shared(false),_data(0) {}
@@ -12033,7 +12033,7 @@ namespace cimg_library {
          CImg(unsigned int,unsigned int,unsigned int,unsigned int,T) instead.
        \par Example
        \code
-       CImg<float> img1(256,256,1,3);   // Construct a 256x256x1x3 (color) image, filled with garbage values
+       CImg<float> img1(256,256,1,3); // Construct a 256x256x1x3 (color) image, filled with garbage values
        CImg<float> img2(256,256,1,3,0); // Construct a 256x256x1x3 (color) image, filled with value '0'
        \endcode
     **/
@@ -12107,9 +12107,9 @@ namespace cimg_library {
          Otherwise, the constructor may crash or fill your image pixels with garbage.
        \par Example
        \code
-       const CImg<float> img(2,2,1,3,      // Construct a 2x2 color (RGB) image
-                             0,255,0,255,  // Set the 4 values for the red component
-                             0,0,255,255,  // Set the 4 values for the green component
+       const CImg<float> img(2,2,1,3, // Construct a 2x2 color (RGB) image
+                             0,255,0,255, // Set the 4 values for the red component
+                             0,0,255,255, // Set the 4 values for the green component
                              64,64,64,64); // Set the 4 values for the blue component
        img.resize(150,150).display();
        \endcode
@@ -12154,9 +12154,9 @@ namespace cimg_library {
          the pixel buffer with a sequence of specified integer values.
        \par Example
        \code
-       const CImg<float> img(2,2,1,3,      // Construct a 2x2 color (RGB) image
-                             { 0,255,0,255,    // Set the 4 values for the red component
-                               0,0,255,255,    // Set the 4 values for the green component
+       const CImg<float> img(2,2,1,3, // Construct a 2x2 color (RGB) image
+                             { 0,255,0,255, // Set the 4 values for the red component
+                               0,0,255,255, // Set the 4 values for the green component
                                64,64,64,64 }); // Set the 4 values for the blue component
        img.resize(150,150).display();
        \endcode
@@ -12338,8 +12338,8 @@ namespace cimg_library {
        \code
        unsigned char tab[256*256] = {};
        CImg<unsigned char> img1(tab,256,256,1,1,false), // Construct new non-shared image from buffer 'tab'
-                           img2(tab,256,256,1,1,true);  // Construct new shared-image from buffer 'tab'
-       tab[1024] = 255;                                 // Here, 'img2' is indirectly modified, but not 'img1'
+                           img2(tab,256,256,1,1,true); // Construct new shared-image from buffer 'tab'
+       tab[1024] = 255; // Here, 'img2' is indirectly modified, but not 'img1'
        \endcode
     **/
     template<typename t>
@@ -12602,9 +12602,9 @@ namespace cimg_library {
          instead.
        \par Example
        \code
-       const CImg<float> img1(256,128,1,3),      // 'img1' is a 256x128x1x3 image
-                         img2(img1,"xyzc"),      // 'img2' is a 256x128x1x3 image
-                         img3(img1,"y,x,z,c"),   // 'img3' is a 128x256x1x3 image
+       const CImg<float> img1(256,128,1,3), // 'img1' is a 256x128x1x3 image
+                         img2(img1,"xyzc"), // 'img2' is a 256x128x1x3 image
+                         img3(img1,"y,x,z,c"), // 'img3' is a 128x256x1x3 image
                          img4(img1,"c,x,y,3",0), // 'img4' is a 3x128x256x3 image (with pixels initialized to '0')
        \endcode
      **/
@@ -12923,8 +12923,8 @@ namespace cimg_library {
        \par Example
        \code
        CImg<float> src(256,256,1,3,0), // Construct a 256x256x1x3 (color) image filled with value '0'
-                   dest(16,16);        // Construct a 16x16x1x1 (scalar) image
-       src.move_to(dest);              // Now, 'src' is empty and 'dest' is the 256x256x1x3 image
+                   dest(16,16); // Construct a 16x16x1x1 (scalar) image
+       src.move_to(dest); // Now, 'src' is empty and 'dest' is the 256x256x1x3 image
        \endcode
     **/
     template<typename t>
@@ -12955,9 +12955,9 @@ namespace cimg_library {
          additional copies of memory buffer.
        \par Example
        \code
-       CImgList<float> list;             // Construct an empty image list
+       CImgList<float> list; // Construct an empty image list
        CImg<float> img("reference.jpg"); // Read image from filename
-       img.move_to(list);                // Transfer image content as a new item in the list (no buffer copy)
+       img.move_to(list); // Transfer image content as a new item in the list (no buffer copy)
        \endcode
     **/
     template<typename t>
@@ -12977,7 +12977,7 @@ namespace cimg_library {
       \code
       CImg<float> img1("lena.jpg"),
                   img2("milla.jpg");
-      img1.swap(img2);    // Now, 'img1' is 'milla' and 'img2' is 'lena'
+      img1.swap(img2); // Now, 'img1' is 'milla' and 'img2' is 'lena'
       \endcode
     **/
     CImg<T>& swap(CImg<T>& img) {
@@ -13042,7 +13042,7 @@ namespace cimg_library {
        const float
           valR = img(10,10,0,0), // Read red value at coordinates (10,10)
           valG = img(10,10,0,1), // Read green value at coordinates (10,10)
-          valB = img(10,10,2),   // Read blue value at coordinates (10,10) (Z-coordinate can be omitted)
+          valB = img(10,10,2), // Read blue value at coordinates (10,10) (Z-coordinate can be omitted)
           avg = (valR + valG + valB)/3; // Compute average pixel value
        img(10,10,0) = img(10,10,1) = img(10,10,2) = avg; // Replace the color pixel (10,10) by the average grey value
        \endcode
@@ -13155,8 +13155,8 @@ namespace cimg_library {
        - This implicit conversion is convenient to test the empty state of images (data() being \c 0 in this case), e.g.
        \code
        CImg<float> img1(100,100), img2; // 'img1' is a 100x100 image, 'img2' is an empty image
-       if (img1) {                      // Test succeeds, 'img1' is not an empty image
-         if (!img2) {                   // Test succeeds, 'img2' is an empty image
+       if (img1) { // Test succeeds, 'img1' is not an empty image
+         if (!img2) { // Test succeeds, 'img2' is an empty image
            std::printf("'img1' is not empty, 'img2' is empty.");
          }
        }
@@ -13165,7 +13165,7 @@ namespace cimg_library {
        \code
        CImg<float> img(100,100);
        const float value = img[99]; // Access to value of the last pixel on the first row
-       img[510] = 255;              // Set pixel value at (10,5)
+       img[510] = 255; // Set pixel value at (10,5)
        \endcode
     **/
     operator T*() {
@@ -13187,8 +13187,8 @@ namespace cimg_library {
        \par Example
        \code
        CImg<char> img(100,100); // Declare image (with garbage values)
-       img = 0;                 // Set all pixel values to '0'
-       img = 1.2;               // Set all pixel values to '1' (cast of '1.2' as a 'char')
+       img = 0; // Set all pixel values to '0'
+       img = 1.2; // Set all pixel values to '1' (cast of '1.2' as a 'char')
        \endcode
     **/
     CImg<T>& operator=(const T& value) {
@@ -13209,8 +13209,8 @@ namespace cimg_library {
        \code
        CImg<float> img1(100,100), img2(img1), img3(img1); // Declare 3 scalar images 100x100 with uninitialized values
        img1 = "0,50,100,150,200,250,200,150,100,50"; // Set pixel values of 'img1' from a value sequence
-       img2 = "10*((x*y)%25)";                       // Set pixel values of 'img2' from a formula
-       img3 = "reference.jpg";                       // Set pixel values of 'img3' from a file (image size is modified)
+       img2 = "10*((x*y)%25)"; // Set pixel values of 'img2' from a formula
+       img3 = "reference.jpg"; // Set pixel values of 'img3' from a file (image size is modified)
        (img1,img2,img3).display();
        \endcode
        \image html ref_operator_eq.jpg
@@ -13261,7 +13261,7 @@ namespace cimg_library {
        - Overflow values are treated as with standard C++ numeric types. For instance,
        \code
        CImg<unsigned char> img(100,100,1,1,255); // Construct a 100x100 image with pixel values '255'
-       img+=1;                                   // Add '1' to each pixels -> Overflow
+       img+=1; // Add '1' to each pixels -> Overflow
        // here all pixels of image 'img' are equal to '0'.
        \endcode
        - To prevent value overflow, you may want to consider pixel type \c T as \c float or \c double,
@@ -13464,8 +13464,8 @@ namespace cimg_library {
        \par Example
        \code
        const CImg<unsigned char>
-         img1("reference.jpg"),   // Load a RGB color image
-         img2 = -img1;            // Compute its opposite (in 'unsigned char')
+         img1("reference.jpg"), // Load a RGB color image
+         img2 = -img1; // Compute its opposite (in 'unsigned char')
        (img1,img2).display();
        \endcode
        \image html ref_operator_minus.jpg
@@ -13533,9 +13533,9 @@ namespace cimg_library {
        - The size of the image instance can be modified by this operator.
        \par Example
        \code
-       CImg<float> A(2,2,1,1, 1,2,3,4);   // Construct 2x2 matrix A = [1,2;3,4]
+       CImg<float> A(2,2,1,1, 1,2,3,4); // Construct 2x2 matrix A = [1,2;3,4]
        const CImg<float> X(1,2,1,1, 1,2); // Construct 1x2 vector X = [1;2]
-       A*=X;                              // Assign matrix multiplication A*X to 'A'
+       A*=X; // Assign matrix multiplication A*X to 'A'
        // 'A' is now a 1x2 vector whose values are [5;11].
        \endcode
     **/
@@ -14283,8 +14283,8 @@ namespace cimg_library {
        \par Example
        \code
        const CImg<float> img1(1,3,1,1, 0,1,2); // Construct a 1x3 vector [0;1;2] (with 'float' pixel values)
-       const CImg<char> img2(1,3,1,1, 0,1,2);  // Construct a 1x3 vector [0;1;2] (with 'char' pixel values)
-       if (img1==img2) {                       // Test succeeds, image dimensions and values are the same
+       const CImg<char> img2(1,3,1,1, 0,1,2); // Construct a 1x3 vector [0;1;2] (with 'char' pixel values)
+       if (img1==img2) { // Test succeeds, image dimensions and values are the same
          std::printf("'img1' and 'img2' have same dimensions and values.");
        }
        \endcode
@@ -14358,7 +14358,7 @@ namespace cimg_library {
           img2 = img1.get_mirror('x'),
           img3 = img2.get_blur(5);
        const CImgList<float> list = (img1,img2); // Create list of two elements from 'img1' and 'img2'
-       (list,img3).display();                    // Display image list containing copies of 'img1','img2' and 'img3'
+       (list,img3).display(); // Display image list containing copies of 'img1','img2' and 'img3'
        \endcode
        \image html ref_operator_comma.jpg
     **/
@@ -14497,8 +14497,8 @@ namespace cimg_library {
          <tt>size()*sizeof(T)</tt>.
        \par Example
        \code
-       const CImg<float> img(100,100,1,3);               // Construct new 100x100 color image
-       if (img.size()==30000)                            // Test succeeds
+       const CImg<float> img(100,100,1,3); // Construct new 100x100 color image
+       if (img.size()==30000) // Test succeeds
          std::printf("Pixel buffer uses %lu bytes",
                      img.size()*sizeof(float));
        \endcode
@@ -14576,9 +14576,9 @@ namespace cimg_library {
          Thus, this method has the same properties as operator()(unsigned int,unsigned int,unsigned int,unsigned int).
        \par Example
        \code
-       const CImg<float> img(100,100,1,3);      // Define a 100x100 RGB-color image
-       const long off = img.offset(10,10,0,2);  // Get the offset of the blue value of the pixel located at (10,10)
-       const float val = img[off];              // Get the blue value of this pixel
+       const CImg<float> img(100,100,1,3); // Define a 100x100 RGB-color image
+       const long off = img.offset(10,10,0,2); // Get the offset of the blue value of the pixel located at (10,10)
+       const float val = img[off]; // Get the blue value of this pixel
        \endcode
     **/
     longT offset(const int x, const int y=0, const int z=0, const int c=0) const {
@@ -16482,8 +16482,8 @@ namespace cimg_library {
        \note
        - Useful to convert an offset to a buffer value into pixel value coordinates:
        \code
-       const CImg<float> img(100,100,1,3);      // Construct a 100x100 RGB color image
-       const unsigned long offset = 1249;       // Offset to the pixel (49,12,0,0)
+       const CImg<float> img(100,100,1,3); // Construct a 100x100 RGB color image
+       const unsigned long offset = 1249; // Offset to the pixel (49,12,0,0)
        unsigned int x,y,z,c;
        if (img.contains(img[offset],x,y,z,c)) { // Convert offset to (x,y,z,c) coordinates
          std::printf("Offset %u refers to pixel located at (%u,%u,%u,%u).\n",
@@ -16571,9 +16571,9 @@ namespace cimg_library {
        \par Example
        \code
        const CImg<float>
-         img1("reference.jpg"),             // Load RGB-color image
+         img1("reference.jpg"), // Load RGB-color image
          img2 = img1.get_shared_channel(1); // Get shared version of the green channel
-       if (img1.is_overlapped(img2)) {      // Test succeeds, 'img1' and 'img2' overlaps
+       if (img1.is_overlapped(img2)) { // Test succeeds, 'img1' and 'img2' overlaps
          std::printf("Buffers overlap!\n");
        }
        \endcode
@@ -18898,7 +18898,7 @@ namespace cimg_library {
           // Find opening bracket for the offset.
           s0 = se1; while (s0>ss && (*s0!='[' || level[s0 - expr._data]!=clevel)) --s0;
           if (s0>ss) { s1 = s0; do { --s1; } while (cimg::is_blank(*s1)); cimg::swap(*s0,*++s1); }
-          is_sth=s0>ss && *(s0-1)==']';  // Particular case s.a. '..[..][..]' ?
+          is_sth=s0>ss && *(s0-1)==']'; // Particular case s.a. '..[..][..]' ?
           is_relative = *ss=='j' || *ss=='J';
 
           if (!is_sth && (*ss=='I' || *ss=='J') && *ss1=='[' &&
@@ -22003,7 +22003,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"print(",6) ||
                 !std::strncmp(ss,"prints(",7)) { // Print expressions
               s0 = ss6 + (*ss5=='('?0:1);
-              is_sth = *ss5=='s';  // corresponding string must be printed?
+              is_sth = *ss5=='s'; // corresponding string must be printed?
               _cimg_mp_op(is_sth?"Function 'prints()'":"Function 'print()'");
               if (!is_sth && *s0=='#') { // Image
                 p1 = compile(ss7,se1,depth1,0,block_flags);
@@ -23883,18 +23883,18 @@ namespace cimg_library {
             siz = (unsigned int)mp.memmerge(1,k),
             iop = (unsigned int)mp.memmerge(2,k);
           if (!siz) switch (iop) { // Scalar value
-            case 0 : mp.mem[pos] = mem[pos]; break;                                       // Assignment
-            case 1 : mp.mem[pos]+=mem[pos]; break;                                        // Operator+
-            case 2 : mp.mem[pos]-=mem[pos]; break;                                        // Operator-
-            case 3 : mp.mem[pos]*=mem[pos]; break;                                        // Operator*
-            case 4 : mp.mem[pos]/=mem[pos]; break;                                        // Operator/
+            case 0 : mp.mem[pos] = mem[pos]; break; // Assignment
+            case 1 : mp.mem[pos]+=mem[pos]; break; // Operator+
+            case 2 : mp.mem[pos]-=mem[pos]; break; // Operator-
+            case 3 : mp.mem[pos]*=mem[pos]; break; // Operator*
+            case 4 : mp.mem[pos]/=mem[pos]; break; // Operator/
             case 5 : mp.mem[pos] = (double)((longT)mp.mem[pos] & (longT)mem[pos]); break; // Operator&
             case 6 : mp.mem[pos] = (double)((longT)mp.mem[pos] | (longT)mem[pos]); break; // Operator|
             case 7 : mp.mem[pos] = (double)((longT)mp.mem[pos] ^ (longT)mem[pos]); break; // Operator 'xor'
-            case 8 : mp.mem[pos] = mp.mem[pos] && mem[pos]; break;                        // Operator&&
-            case 9 : mp.mem[pos] = mp.mem[pos] || mem[pos]; break;                        // Operator||
-            case 10 : mp.mem[pos] = std::min(mp.mem[pos],mem[pos]); break;                // Operator 'min'
-            case 11 : mp.mem[pos] = std::max(mp.mem[pos],mem[pos]); break;                // Operator 'max'
+            case 8 : mp.mem[pos] = mp.mem[pos] && mem[pos]; break; // Operator&&
+            case 9 : mp.mem[pos] = mp.mem[pos] || mem[pos]; break; // Operator||
+            case 10 : mp.mem[pos] = std::min(mp.mem[pos],mem[pos]); break; // Operator 'min'
+            case 11 : mp.mem[pos] = std::max(mp.mem[pos],mem[pos]); break; // Operator 'max'
             } else switch (iop) { // Vector value
             case 0 : // Assignment
               CImg<doubleT>(&mp.mem[pos + 1],siz,1,1,1,true) = CImg<doubleT>(&mem[pos + 1],siz,1,1,1,true);
@@ -29251,7 +29251,7 @@ namespace cimg_library {
           else
             while (still_equal && n--) still_equal = *(ptr2++)==value;
           return still_equal;
-        }  // Scalar == scalar
+        } // Scalar == scalar
         if (case_sensitive) return _mp_arg(2)==_mp_arg(4);
         else if (cimg::type<double>::is_nan(_mp_arg(2))) return cimg::type<double>::is_nan(_mp_arg(4));
         return cimg::lowercase(_mp_arg(2))==cimg::lowercase(_mp_arg(4));
@@ -30132,8 +30132,8 @@ namespace cimg_library {
        \par Example
        \code
        const CImg<float>
-          img_x(100,100,1,1,"x-w/2",false),   // Define an horizontal centered gradient, from '-width/2' to 'width/2'
-          img_y(100,100,1,1,"y-h/2",false),   // Define a vertical centered gradient, from '-height/2' to 'height/2'
+          img_x(100,100,1,1,"x-w/2",false), // Define an horizontal centered gradient, from '-width/2' to 'width/2'
+          img_y(100,100,1,1,"y-h/2",false), // Define a vertical centered gradient, from '-height/2' to 'height/2'
           img_atan2 = img_y.get_atan2(img_x); // Compute atan2(y,x) for each pixel value
        (img_x,img_y,img_atan2).display();
        \endcode
@@ -30259,7 +30259,7 @@ namespace cimg_library {
        \par Example
        \code
        const CImg<float>
-         img0("reference.jpg"),           // Load reference color image
+         img0("reference.jpg"), // Load reference color image
          img1 = (img0/255).pow(1.8)*=255, // Compute gamma correction, with gamma = 1.8
          img2 = (img0/255).pow(0.5)*=255; // Compute gamma correction, with gamma = 0.5
        (img0,img1,img2).display();
@@ -32396,7 +32396,7 @@ namespace cimg_library {
        \param lambda Epsilon used for the algorithm convergence.
        \note The instance matrix can be computed from \c U,\c S and \c V by
        \code
-       const CImg<> A;  // Input matrix (assumed to contain some values)
+       const CImg<> A; // Input matrix (assumed to contain some values)
        CImg<> U,S,V;
        A.SVD(U,S,V)
        \endcode
@@ -33945,7 +33945,7 @@ namespace cimg_library {
     CImg<T>& _fill(const char *const expression, const bool repeat_values, const unsigned int mode,
                    CImgList<t> *const list_images, const char *const calling_function,
                    const CImg<T> *provides_copy, CImg<doubleT> *const result_end) {
-      if (!expression || !*expression) return *this;  // But empty images be evaluated to allow side effects
+      if (!expression || !*expression) return *this; // But empty images be evaluated to allow side effects
       typedef typename CImg<t>::_cimg_math_parser _cimg_math_parser_t;
       const unsigned int excmode = cimg::exception_mode();
       cimg::exception_mode(0);
@@ -36871,7 +36871,7 @@ namespace cimg_library {
         case 1 : { // Neumann
           res.assign(sx,sy,sz,sc).draw_image(xc,yc,zc,cc,*this);
           CImg<T> sprite;
-          if (xc>0) {  // X-backward
+          if (xc>0) { // X-backward
             res.get_crop(xc,yc,zc,cc,xc,yc + height() - 1,zc + depth() - 1,cc + spectrum() - 1).move_to(sprite);
             for (int x = xc - 1; x>=0; --x) res.draw_image(x,yc,zc,cc,sprite);
           }
@@ -36880,7 +36880,7 @@ namespace cimg_library {
                          zc + depth() - 1,cc + spectrum() - 1).move_to(sprite);
             for (int x = xc + width(); x<(int)sx; ++x) res.draw_image(x,yc,zc,cc,sprite);
           }
-          if (yc>0) {  // Y-backward
+          if (yc>0) { // Y-backward
             res.get_crop(0,yc,zc,cc,sx - 1,yc,zc + depth() - 1,cc + spectrum() - 1).move_to(sprite);
             for (int y = yc - 1; y>=0; --y) res.draw_image(0,y,zc,cc,sprite);
           }
@@ -36889,7 +36889,7 @@ namespace cimg_library {
                          zc + depth() - 1,cc + spectrum() - 1).move_to(sprite);
             for (int y = yc + height(); y<(int)sy; ++y) res.draw_image(0,y,zc,cc,sprite);
           }
-          if (zc>0) {  // Z-backward
+          if (zc>0) { // Z-backward
             res.get_crop(0,0,zc,cc,sx - 1,sy - 1,zc,cc + spectrum() - 1).move_to(sprite);
             for (int z = zc - 1; z>=0; --z) res.draw_image(0,0,z,cc,sprite);
           }
@@ -36897,7 +36897,7 @@ namespace cimg_library {
             res.get_crop(0,0,zc  +depth() - 1,cc,sx - 1,sy - 1,zc + depth() - 1,cc + spectrum() - 1).move_to(sprite);
             for (int z = zc + depth(); z<(int)sz; ++z) res.draw_image(0,0,z,cc,sprite);
           }
-          if (cc>0) {  // C-backward
+          if (cc>0) { // C-backward
             res.get_crop(0,0,0,cc,sx - 1,sy - 1,sz - 1,cc).move_to(sprite);
             for (int c = cc - 1; c>=0; --c) res.draw_image(0,0,0,c,sprite);
           }
@@ -42822,7 +42822,7 @@ namespace cimg_library {
     */
     static void _cimg_recursive_apply(T *data, const double filter[], const int N, const ulongT off,
                                       const unsigned int order, const bool boundary_conditions) {
-      double val[4] = {};  // res[n,n - 1,n - 2,n - 3,..] or res[n,n + 1,n + 2,n + 3,..]
+      double val[4] = {}; // res[n,n - 1,n - 2,n - 3,..] or res[n,n + 1,n + 2,n + 3,..]
       const double
         sumsq = filter[0], sum = sumsq * sumsq,
         a1 = filter[1], a2 = filter[2], a3 = filter[3],
@@ -43157,7 +43157,7 @@ namespace cimg_library {
       _cimg_abort_init_openmp;
       cimg_abort_init;
 
-      if (da<=0) {  // Iterated oriented Laplacians
+      if (da<=0) { // Iterated oriented Laplacians
         CImg<Tfloat> velocity(_width,_height,_depth,_spectrum);
         for (unsigned int iteration = 0; iteration<iamplitude; ++iteration) {
           Tfloat *ptrd = velocity._data, veloc_max = 0;
@@ -44371,7 +44371,7 @@ namespace cimg_library {
             }
             _veloc_max[c] = veloc_max;
           }
-        } else  // Inverse diffusion
+        } else // Inverse diffusion
           cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height*_depth>=(cimg_openmp_sizefactor)*512 &&
                                                          _spectrum>=2))
           cimg_forC(*this,c) {
@@ -44942,7 +44942,7 @@ namespace cimg_library {
           _sw = (unsigned int)(_width/factor), sw = _sw?_sw:1,
           _sh = (unsigned int)(_height/factor), sh = _sh?_sh:1,
           _sd = (unsigned int)(_depth/factor), sd = _sd?_sd:1;
-        if (sw<5 && sh<5 && (!is_3d || sd<5)) continue;  // Skip too small scales
+        if (sw<5 && sh<5 && (!is_3d || sd<5)) continue; // Skip too small scales
         const CImg<Tfloat>
           I1 = (source.get_resize(sw,sh,sd,-100,2)-=sm)/=sdelta,
           I2 = (get_resize(I1,2)-=tm)/=tdelta;
@@ -45789,10 +45789,10 @@ namespace cimg_library {
       cimg_for(*this,ptr,T) *ptr = *ptr==value?is_value=true,(T)0:(T)std::max(0,99999999); // (avoid VC++ warning)
       if (!is_value) return fill(cimg::type<T>::max());
       switch (metric) {
-      case 0 : return _distance_core(_distance_sep_cdt,_distance_dist_cdt);          // Chebyshev
-      case 1 : return _distance_core(_distance_sep_mdt,_distance_dist_mdt);          // Manhattan
-      case 3 : return _distance_core(_distance_sep_edt,_distance_dist_edt);          // Squared Euclidean
-      default : return _distance_core(_distance_sep_edt,_distance_dist_edt).sqrt();  // Euclidean
+      case 0 : return _distance_core(_distance_sep_cdt,_distance_dist_cdt); // Chebyshev
+      case 1 : return _distance_core(_distance_sep_mdt,_distance_dist_mdt); // Manhattan
+      case 3 : return _distance_core(_distance_sep_edt,_distance_dist_edt); // Squared Euclidean
+      default : return _distance_core(_distance_sep_edt,_distance_dist_edt).sqrt(); // Euclidean
       }
       return *this;
     }
@@ -45971,7 +45971,7 @@ namespace cimg_library {
                                     "have incompatible dimensions.",
                                     cimg_instance,
                                     metric._width,metric._height,metric._depth,metric._spectrum);
-      typedef typename cimg::superset<t,long>::type td;  // Type used for computing cumulative distances
+      typedef typename cimg::superset<t,long>::type td; // Type used for computing cumulative distances
       CImg<td> result(_width,_height,_depth,_spectrum), Q;
       CImg<boolT> is_queued(_width,_height,_depth,1);
       if (return_path) return_path.assign(_width,_height,_depth,_spectrum);
@@ -54743,7 +54743,7 @@ namespace cimg_library {
                 alpha = (float)std::asin(n/R2)*180/cimg::PI;
               pose3d.draw_image(CImg<floatT>::rotation_matrix(u,v,w,-alpha)*pose3d.get_crop(0,0,2,2));
               view3d.assign();
-            } else if (disp.button()&2 && pose3d && oY3d!=Y3d) {  // Right button: zoom
+            } else if (disp.button()&2 && pose3d && oY3d!=Y3d) { // Right button: zoom
               pose3d(3,2)+=(Y3d - oY3d)*1.5f; view3d.assign();
             }
             if (disp.wheel()) { // Wheel: zoom
@@ -56023,9 +56023,9 @@ namespace cimg_library {
     typedef struct _cimg_error_mgr *_cimg_error_ptr;
 
     METHODDEF(void) _cimg_jpeg_error_exit(j_common_ptr cinfo) {
-      _cimg_error_ptr c_err = (_cimg_error_ptr) cinfo->err;  // Return control to the setjmp point
+      _cimg_error_ptr c_err = (_cimg_error_ptr) cinfo->err; // Return control to the setjmp point
       (*cinfo->err->format_message)(cinfo,c_err->message);
-      jpeg_destroy(cinfo);  // Clean memory and temp files
+      jpeg_destroy(cinfo); // Clean memory and temp files
       longjmp(c_err->setjmp_buffer,1);
     }
 #endif
@@ -56700,7 +56700,7 @@ namespace cimg_library {
         }
       }
       if (!file) cimg::fclose(nfile);
-      return mirror('y');  // Most of the .pfm files are flipped along the y-axis
+      return mirror('y'); // Most of the .pfm files are flipped along the y-axis
     }
 
     //! Load image from a RGB file.
@@ -57966,7 +57966,7 @@ namespace cimg_library {
         _size_z = size_z,
         _size_c = size_c;
       std::FILE *const nfile = file?file:cimg::fopen(filename,"rb");
-      if (!siz) {  // Retrieve file size
+      if (!siz) { // Retrieve file size
         const longT fpos = cimg::ftell(nfile);
         if (fpos<0) throw CImgArgumentException(_cimg_instance
                                                 "load_raw(): Cannot determine size of input file '%s'.",
@@ -61051,7 +61051,7 @@ namespace cimg_library {
             cimg::fwrite(buf._data,3*N,nfile);
             to_write-=N;
           }
-        } else {             // Binary PPM 16 bits
+        } else { // Binary PPM 16 bits
           CImg<ushortT> buf((unsigned int)buf_size);
           for (longT to_write = (longT)width()*height(); to_write>0; ) {
             const ulongT N = std::min((ulongT)to_write,buf_size/3);
@@ -62661,7 +62661,7 @@ namespace cimg_library {
        - The \c CImgList<T>::iterator type is defined as a <tt>CImg<T>*</tt>.
        - You may use it like this:
        \code
-       CImgList<> list;   // Assuming this image list is not empty
+       CImgList<> list; // Assuming this image list is not empty
        for (CImgList<>::iterator it = list.begin(); it<list.end(); ++it) (*it).mirror('x');
        \endcode
        - Using the loop macro \c cimglist_for is another (more concise) alternative:
@@ -66084,7 +66084,7 @@ namespace cimg_library {
           delete captures[index];
           captures[index] = 0;
           cimg::mutex(9,0);
-          cimg::fclose(cimg::fopen(filename,"rb"));  // Check file availability
+          cimg::fclose(cimg::fopen(filename,"rb")); // Check file availability
           throw CImgIOException(_cimglist_instance
                                 "load_video(): File '%s', unable to detect format of video file.",
                                 cimglist_instance,filename);
@@ -69176,7 +69176,7 @@ namespace cimg_library {
        \code
        const double
        res1 = cimg::eval("cos(x)^2 + sin(y)^2",2,2), // will return '1'
-       res2 = cimg::eval(0,1,1);                     // will return '1' too
+       res2 = cimg::eval(0,1,1); // will return '1' too
        \endcode
     **/
     inline double eval(const char *const expression, const double x, const double y, const double z, const double c) {

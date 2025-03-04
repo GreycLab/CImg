@@ -68,8 +68,8 @@ CImg<float> mask(const unsigned char dirIdx, const unsigned char scale) {
     vecLen = (1 << (scale + 1)) + 1;
 
   const float
-    valC  = 0.375f,  // 6/16
-    valD1 = 0.25f,   // 4/16
+    valC  = 0.375f, // 6/16
+    valD1 = 0.25f, // 4/16
     valD2 = 0.0625f; // 1/16
 
   switch(dirIdx) {

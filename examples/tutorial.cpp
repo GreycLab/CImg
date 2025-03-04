@@ -96,11 +96,11 @@ int main(int argc,char **argv) {
       if (main_disp.mouse_x()>=0 && main_disp.mouse_y()>=0) { // Mouse pointer is over the image
 
         const int
-          xm = main_disp.mouse_x(),                     // X-coordinate of the mouse pointer over the image
-          ym = main_disp.mouse_y(),                     // Y-coordinate of the mouse pointer over the image
-          xl = xm*draw_disp.width()/main_disp.width(),  // Corresponding X-coordinate of the hatched line
-          x = xm*image.width()/main_disp.width(),     // Corresponding X-coordinate of the pointed pixel in the image
-          y = ym*image.height()/main_disp.height();   // Corresponding Y-coordinate of the pointex pixel in the image
+          xm = main_disp.mouse_x(), // X-coordinate of the mouse pointer over the image
+          ym = main_disp.mouse_y(), // Y-coordinate of the mouse pointer over the image
+          xl = xm*draw_disp.width()/main_disp.width(), // Corresponding X-coordinate of the hatched line
+          x = xm*image.width()/main_disp.width(), // Corresponding X-coordinate of the pointed pixel in the image
+          y = ym*image.height()/main_disp.height(); // Corresponding Y-coordinate of the pointex pixel in the image
 
         // Retrieve color component values at pixel (x,y)
         const unsigned int

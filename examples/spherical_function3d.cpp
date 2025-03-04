@@ -55,14 +55,14 @@ int main() {
   CImgList<float> object_opacities;
 
   // Define a 3D centered box.
-  CImg<float> object_vertices = CImg<float>(3,8,1,1,  // Define the 8 vertices of the cube
+  CImg<float> object_vertices = CImg<float>(3,8,1,1, // Define the 8 vertices of the cube
                                             -1,-1,-1, // (x0,y0,z0)
-                                            1,-1,-1,  // (x1,y1,z1)
-                                            1,1,-1,   // ...
+                                            1,-1,-1, // (x1,y1,z1)
+                                            1,1,-1, // ...
                                             -1,1,-1,
                                             -1,-1,1,
                                             1,-1,1,
-                                            1,1,1,     // (x6,y6,z6)
+                                            1,1,1, // (x6,y6,z6)
                                             -1,1,1).transpose(); // (x7,y7,z7)
   CImgList<unsigned int> object_primitives(12,1,2,1,1, // Define the 12 segments of the cube
                                            0,1, 1,2, 2,3, 3,0,

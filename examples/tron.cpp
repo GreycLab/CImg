@@ -126,7 +126,7 @@ int main(int argc, char **argv) {
         img(x1,y1,0)!=background(x1,y1,0) ||
         img(x1,y1,1)!=background(x1,y1,1) ||
         img(x1,y1,2)!=background(x1,y1,2) ||
-        ((ix1>=0 || iy1>=0) && (img(ix1,iy1,0)!=background(ix1,iy1,0) ||  // Collision test for turbo mode
+        ((ix1>=0 || iy1>=0) && (img(ix1,iy1,0)!=background(ix1,iy1,0) || // Collision test for turbo mode
                                 img(ix1,iy1,1)!=background(ix1,iy1,1) ||
                                 img(ix1,iy1,2)!=background(ix1,iy1,2)))) { round_over=1; score2++; }
     if (twoplayers) {
@@ -134,7 +134,7 @@ int main(int argc, char **argv) {
           img(x2,y2,0)!=background(x2,y2,0) ||
           img(x2,y2,1)!=background(x2,y2,1) ||
           img(x2,y2,2)!=background(x2,y2,2) ||
-          ((ix2>=0 || iy2>=0) && (img(ix2,iy2,0)!=background(ix2,iy2,0) ||  // Collision test for turbo mode
+          ((ix2>=0 || iy2>=0) && (img(ix2,iy2,0)!=background(ix2,iy2,0) || // Collision test for turbo mode
                                   img(ix2,iy2,1)!=background(ix2,iy2,1) ||
                                   img(ix2,iy2,2)!=background(ix2,iy2,2)))) { round_over=2; score1++; }
     }

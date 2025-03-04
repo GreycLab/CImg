@@ -95,16 +95,16 @@ int main(int argc, char** argv) {
     if (disp.mouse_x()>=0) {
       x = disp.mouse_x(); // Getting the current position of the mouse
       y = disp.mouse_y(); //
-      redraw = true;    // The image should be redrawn
+      redraw = true; // The image should be redrawn
     }
     if (redraw) {
       disp_edge.set_title("Edge explorer (alpha=%g)",alpha);
       const int
-        x0 = x - factor, y0 = y - factor,  // These are the coordinates for the red rectangle
-        x1 = x + factor, y1 = y + factor;  // to be drawn on the original image
+        x0 = x - factor, y0 = y - factor, // These are the coordinates for the red rectangle
+        x1 = x + factor, y1 = y + factor; // to be drawn on the original image
       const unsigned char
-        red[3] = { 255,0,0 },          //
-        black[3] = { 0,0,0 };          // Defining the colors we need for drawing
+        red[3] = { 255,0,0 }, //
+        black[3] = { 0,0,0 }; // Defining the colors we need for drawing
 
         (+img).draw_rectangle(x0,y0,x1,y1,red,1.0f,0x55555555U).display(disp);
         //^ We draw the red rectangle on the original window using 'draw_line'.
@@ -133,9 +133,9 @@ int main(int argc, char** argv) {
           // s corresponds to the x-ordinate of the pixel while t corresponds to the y-ordinate.
           if ( 1 <= s && s <= visu_bw.width() - 1 && 1 <= t && t <=visu_bw.height() - 1) { // if - good points
             double
-              Gs = grad[0](s,t),                    //
-              Gt = grad[1](s,t),                    //  The actual pixel is (s,t)
-              Gst = cimg::abs(Gs) + cimg::abs(Gt),  //
+              Gs = grad[0](s,t), //
+              Gt = grad[1](s,t), //  The actual pixel is (s,t)
+              Gst = cimg::abs(Gs) + cimg::abs(Gt), //
               // ^-- For efficient computation we observe that |Gs|+ |Gt| ~=~ sqrt( Gs^2 + Gt^2)
               Gr, Gur, Gu, Gul, Gl, Gdl, Gd, Gdr;
             // ^-- right, up right, up, up left, left, down left, down, down right.
@@ -202,7 +202,7 @@ int main(int argc, char** argv) {
               break;
             } // switch
           } // if good-points
-        }  // cimg_forXY */
+        } // cimg_forXY */
         edge.display(disp_edge);
     }// if redraw
   } // while

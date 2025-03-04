@@ -45,7 +45,7 @@
 */
 
 #ifndef cimg_plugin
-#define cimg_plugin "examples/use_RGBclass.cpp"  // Path of the plugin is relative to the CImg.h file
+#define cimg_plugin "examples/use_RGBclass.cpp" // Path of the plugin is relative to the CImg.h file
 #include "CImg.h"
 using namespace cimg_library;
 #ifndef cimg_imagepath

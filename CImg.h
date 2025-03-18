@@ -7558,6 +7558,21 @@ namespace cimg_library {
       return date(&out,1);
     }
 
+    //! Convert date to epoch (local time).
+    inline cimg_int64 epoch(const int year, const int month=1,
+                            const int day=1, const int hour=0,
+                            const int minute=0, const int second=0) {
+      struct tm date;
+      std::memset(&date,0,sizeof(struct tm));
+      date.tm_year = std::max(0,year - 1900);
+      date.tm_mon = cimg::cut(month - 1,0,11);
+      date.tm_mday = cimg::cut(day,1,31);
+      date.tm_hour = cimg::cut(hour,0,23);
+      date.tm_min = cimg::cut(minute,0,59);
+      date.tm_sec = cimg::cut(second,0,60);
+      return (cimg_int64)std::mktime(&date);
+    }
+
     // Get/set path to the \c curl binary.
     inline const char *curl_path(const char *const user_path=0, const bool reinit_path=false);
 
@@ -20682,6 +20697,33 @@ namespace cimg_library {
               _cimg_mp_return_nan();
             }
 
+            if (!std::strncmp(ss,"epoch(",6)) { // Convert to EPOCH
+              _cimg_mp_op("Function 'epoch()'");
+              is_sth = true; // Tell if all arguments are constant
+              pos = scalar();
+              CImg<ulongT>(1,8,1,1,11).move_to(opcode); // Initialize with '-1'
+              opcode[0] = (ulongT)mp_epoch;
+              opcode[1] = (ulongT)pos;
+              arg1 = 2;
+              if (ss6<se1)
+                for (s = std::strchr(ss,'(') + 1; s<se && arg1<8; ++s) {
+                  ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                                 (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                  arg2 = compile(s,ns,depth1,0,block_flags);
+                  if (is_vector(arg2)) CImg<ulongT>::vector(arg2 + 1,size(arg2)).move_to(l_opcode);
+                  else CImg<ulongT>::vector(arg2,1).move_to(l_opcode);
+                  is_sth&=is_const_scalar(arg2);
+                  s = ns;
+                }
+              //              if (is_sth) _cimg_mp_const_scalar(mp_epoch(*this));
+
+              opcode.print("OPCODE");
+
+              opcode.move_to(code);
+              return_comp = true;
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"equalize(",9)) { // Equalize
               _cimg_mp_op("Function 'equalize()'");
               s0 = ss + 9;
@@ -25754,6 +25796,31 @@ namespace cimg_library {
                                         mp.imgin.pixel_type(),ind,args._width?",":"",args.value_string()._data);
         }
         return cimg::type<double>::nan();
+      }
+
+      static double mp_epoch(_cimg_math_parser& mp) {
+        int
+          year = (int)_mp_arg(2),
+          month = (int)_mp_arg(3),
+          day = (int)_mp_arg(4),
+          hour = (int)_mp_arg(5),
+          minute = (int)_mp_arg(6),
+          second = (int)_mp_arg(7);
+
+        std::fprintf(stderr,"\nDEBUG : %d %d %d - %d %d %d\n",
+                     year,month,day,
+                     hour,minute,second);
+
+        if (year<0 && month<0 && day<0 && hour<0 && minute<0 && second<0) // No argument -> current date
+          return (double)cimg::epoch(cimg::date(0),cimg::date(1),cimg::date(2),
+                                     cimg::date(4),cimg::date(5),cimg::date(6));
+        if (year<0) year = cimg::date(0);
+        if (month<0) month = 0;
+        if (day<0) day = 1;
+        if (hour<0) hour = 0;
+        if (minute<0) minute = 0;
+        if (second<0) second = 0;
+        return (double)cimg::epoch(year,month,day,hour,minute,second);
       }
 
       static double mp_eq(_cimg_math_parser& mp) {

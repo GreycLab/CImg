@@ -7559,17 +7559,17 @@ namespace cimg_library {
     }
 
     //! Convert date to epoch (local time).
-    inline cimg_int64 epoch(const int year, const int month=1,
-                            const int day=1, const int hour=0,
-                            const int minute=0, const int second=0) {
+    inline cimg_int64 epoch(const unsigned int year, const unsigned int month=1,
+                            const unsigned int day=1, const unsigned int hour=0,
+                            const unsigned int minute=0, const unsigned int second=0) {
       struct tm date;
       std::memset(&date,0,sizeof(struct tm));
-      date.tm_year = std::max(0,year - 1900);
-      date.tm_mon = cimg::cut(month - 1,0,11);
-      date.tm_mday = cimg::cut(day,1,31);
-      date.tm_hour = cimg::cut(hour,0,23);
-      date.tm_min = cimg::cut(minute,0,59);
-      date.tm_sec = cimg::cut(second,0,60);
+      date.tm_year = std::max(year,1900U) - 1900U;
+      date.tm_mon = cimg::cut(month,1U,12U) - 1U;
+      date.tm_mday = cimg::cut(day,1U,31U);
+      date.tm_hour = std::min(hour,23U);
+      date.tm_min = std::min(minute,59U);
+      date.tm_sec = std::min(second,60U);
       return (cimg_int64)std::mktime(&date);
     }
 

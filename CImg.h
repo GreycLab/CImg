@@ -7559,17 +7559,17 @@ namespace cimg_library {
     }
 
     //! Convert date to epoch (local time).
-    inline cimg_int64 epoch(const unsigned int year, const unsigned int month=1,
-                            const unsigned int day=1, const unsigned int hour=0,
-                            const unsigned int minute=0, const unsigned int second=0) {
+    inline cimg_int64 epoch(const int year, const int month=1,
+                            const int day=1, const int hour=0,
+                            const int minute=0, const int second=0) {
       struct tm date;
       std::memset(&date,0,sizeof(struct tm));
-      date.tm_year = std::max(year,1900U) - 1900U;
-      date.tm_mon = cimg::cut(month,1U,12U) - 1U;
-      date.tm_mday = cimg::cut(day,1U,31U);
-      date.tm_hour = std::min(hour,23U);
-      date.tm_min = std::min(minute,59U);
-      date.tm_sec = std::min(second,60U);
+      date.tm_year = std::max(year,1900) - 1900;
+      date.tm_mon = cimg::cut(month,1,12) - 1;
+      date.tm_mday = cimg::cut(day,1,31);
+      date.tm_hour = std::min(hour,23);
+      date.tm_min = std::min(minute,59);
+      date.tm_sec = std::min(second,60);
       return (cimg_int64)std::mktime(&date);
     }
 
@@ -25799,28 +25799,28 @@ namespace cimg_library {
       }
 
       static double mp_epoch(_cimg_math_parser& mp) {
-        int
-          year = (int)_mp_arg(2),
-          month = (int)_mp_arg(3),
-          day = (int)_mp_arg(4),
-          hour = (int)_mp_arg(5),
-          minute = (int)_mp_arg(6),
-          second = (int)_mp_arg(7);
+        unsigned int
+          year = (unsigned int)mp.opcode[2]==~0U?~0U:(unsigned int)std::max(_mp_arg(2),1900.),
+          month = (unsigned int)mp.opcode[3]==~0U?~0U:(unsigned int)cimg::cut(_mp_arg(3),1.,12.),
+          day = (unsigned int)mp.opcode[4]==~0U?~0U:(unsigned int)cimg::cut(_mp_arg(4),1.,31.),
+          hour = (unsigned int)mp.opcode[5]==~0U?~0U:(unsigned int)cimg::cut(_mp_arg(5),0.,23.),
+          minute = (unsigned int)mp.opcode[6]==~0U?~0U:(unsigned int)cimg::cut(_mp_arg(6),0.,59.),
+          second = (unsigned int)mp.opcode[7]==~0U?~0U:(unsigned int)cimg::cut(_mp_arg(7),0.,60.);
 
-        std::fprintf(stderr,"\nDEBUG : %d %d %d - %d %d %d\n",
+        std::fprintf(stderr,"\nDEBUG : %u %u %u - %u %u %u\n",
                      year,month,day,
                      hour,minute,second);
 
-        if (year<0 && month<0 && day<0 && hour<0 && minute<0 && second<0) // No argument -> current date
+        if (year==~0U && month==~0U && day==~0U && hour==~0U && minute==~0U && second==~0U) // No argument -> current date
           return (double)cimg::epoch(cimg::date(0),cimg::date(1),cimg::date(2),
                                      cimg::date(4),cimg::date(5),cimg::date(6));
-        if (year<0) year = cimg::date(0);
-        if (month<0) month = 0;
-        if (day<0) day = 1;
-        if (hour<0) hour = 0;
-        if (minute<0) minute = 0;
-        if (second<0) second = 0;
-        return (double)cimg::epoch(year,month,day,hour,minute,second);
+        if (year==~0U) year = (unsigned int)cimg::date(0);
+        if (month==~0U) month = 1U;
+        if (day==~0U) day = 1U;
+        if (hour==~0U) hour = 0U;
+        if (minute==~0U) minute = 0U;
+        if (second==~0U) second = 0U;
+        return (double)cimg::epoch((int)year,(int)month,(int)day,(int)hour,(int)minute,(int)second);
       }
 
       static double mp_eq(_cimg_math_parser& mp) {

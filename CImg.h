@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 353
+#define cimg_version 354
 
 /*-----------------------------------------------------------
  #
@@ -20699,30 +20699,41 @@ namespace cimg_library {
               _cimg_mp_return_nan();
             }
 
-            if (!std::strncmp(ss,"epoch(",6)) { // Convert to EPOCH
+            if (!std::strncmp(ss,"epoch(",6)) { // Convert date to epoch
               _cimg_mp_op("Function 'epoch()'");
               is_sth = true; // Tell if all arguments are constant
-              pos = scalar();
               CImg<ulongT> _op(1,8,1,1,(ulongT)~0U);
-              _op[0] = (ulongT)mp_epoch;
-              _op[1] = (ulongT)pos;
-
               arg1 = 2;
               if (ss6<se1)
-                for (s = std::strchr(ss,'(') + 1; s<se && arg1<_op._height; ++s) {
+                for (s = std::strchr(ss,'(') + 1; s<se; ++s) {
+                  if (arg1>=_op._height) { arg1 = ~0U; break; }
                   ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                  (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                   arg2 = compile(s,ns,depth1,0,block_flags);
                   if (is_vector(arg2)) {
                     p2 = size(arg2);
-                    for (unsigned int k = 1; k<=p2 && arg1<_op._height; ++k) _op[arg1++] = arg2 + k;
+                    for (unsigned int k = 1; k<=p2; ++k) {
+                      if (arg1>=_op._height) { arg1 = ~0U; break; }
+                      _op[arg1++] = arg2 + k;
+                    }
                   } else _op[arg1++] = arg2;
                   is_sth&=is_const_scalar(arg2);
                   s = ns;
                 }
-              //              if (is_sth) _cimg_mp_const_scalar(mp_epoch(*this));
+              else is_sth = false;
+              if (arg1==~0U) {
+                _cimg_mp_strerr;
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: Too much arguments specified, in expression '%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            s0);
+              }
 
-              _op.move_to(code);
+              _op.move_to(opcode);
+              opcode[0] = (ulongT)mp_epoch;
+              if (is_sth) _cimg_mp_const_scalar(mp_epoch(*this));
+              pos = opcode[1] = scalar();
+              opcode.move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -23436,8 +23447,8 @@ namespace cimg_library {
               mp_var;
 
             is_sth = true; // Tell if all arguments are constant
-            pos = scalar();
-            CImg<ulongT>::vector((ulongT)op,pos,0).move_to(l_opcode);
+            CImg<ulongT>::vector((ulongT)op,0,0).move_to(l_opcode);
+
             for (s = std::strchr(ss,'(') + 1; s<se; ++s) {
               ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                              (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
@@ -23450,6 +23461,8 @@ namespace cimg_library {
             (l_opcode>'y').move_to(opcode);
             opcode[2] = opcode._height;
             if (is_sth) _cimg_mp_const_scalar(op(*this));
+
+            pos = opcode[1] = scalar();
             opcode.move_to(code);
             return_comp = true;
             _cimg_mp_return(pos);
@@ -25809,12 +25822,8 @@ namespace cimg_library {
           hour = (unsigned int)mp.opcode[5]==~0U?~0U:(unsigned int)cimg::cut(_mp_arg(5),0.,23.),
           minute = (unsigned int)mp.opcode[6]==~0U?~0U:(unsigned int)cimg::cut(_mp_arg(6),0.,59.),
           second = (unsigned int)mp.opcode[7]==~0U?~0U:(unsigned int)cimg::cut(_mp_arg(7),0.,60.);
-
-        std::fprintf(stderr,"\nDEBUG : %u %u %u - %u %u %u\n",
-                     year,month,day,
-                     hour,minute,second);
-
-        if (year==~0U && month==~0U && day==~0U && hour==~0U && minute==~0U && second==~0U) // No argument -> current date
+        if (year==~0U && month==~0U && day==~0U &&
+            hour==~0U && minute==~0U && second==~0U) // No argument -> current date
           return (double)cimg::epoch(cimg::date(0),cimg::date(1),cimg::date(2),
                                      cimg::date(4),cimg::date(5),cimg::date(6));
         if (year==~0U) year = (unsigned int)cimg::date(0);

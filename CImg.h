@@ -7559,6 +7559,8 @@ namespace cimg_library {
     }
 
     //! Convert date to epoch (local time).
+    // 'year' must be >=1900, 'month' in [ 1,12 ], 'day' in [ 1,31 ], 'hour' in [ 0,23 ],
+    // 'minute' in [ 0,59 ] and 'second' in [ 0,60 ]
     inline cimg_int64 epoch(const int year, const int month=1,
                             const int day=1, const int hour=0,
                             const int minute=0, const int second=0) {
@@ -20701,25 +20703,26 @@ namespace cimg_library {
               _cimg_mp_op("Function 'epoch()'");
               is_sth = true; // Tell if all arguments are constant
               pos = scalar();
-              CImg<ulongT>(1,8,1,1,11).move_to(opcode); // Initialize with '-1'
-              opcode[0] = (ulongT)mp_epoch;
-              opcode[1] = (ulongT)pos;
+              CImg<ulongT> _op(1,8,1,1,(ulongT)~0U);
+              _op[0] = (ulongT)mp_epoch;
+              _op[1] = (ulongT)pos;
+
               arg1 = 2;
               if (ss6<se1)
-                for (s = std::strchr(ss,'(') + 1; s<se && arg1<8; ++s) {
+                for (s = std::strchr(ss,'(') + 1; s<se && arg1<_op._height; ++s) {
                   ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                  (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                   arg2 = compile(s,ns,depth1,0,block_flags);
-                  if (is_vector(arg2)) CImg<ulongT>::vector(arg2 + 1,size(arg2)).move_to(l_opcode);
-                  else CImg<ulongT>::vector(arg2,1).move_to(l_opcode);
+                  if (is_vector(arg2)) {
+                    p2 = size(arg2);
+                    for (unsigned int k = 1; k<=p2 && arg1<_op._height; ++k) _op[arg1++] = arg2 + k;
+                  } else _op[arg1++] = arg2;
                   is_sth&=is_const_scalar(arg2);
                   s = ns;
                 }
               //              if (is_sth) _cimg_mp_const_scalar(mp_epoch(*this));
 
-              opcode.print("OPCODE");
-
-              opcode.move_to(code);
+              _op.move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
             }

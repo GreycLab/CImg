@@ -11916,7 +11916,15 @@ namespace cimg_library {
       return paint();
     }
 
-    CImgDisplay& move(const int pos_x, const int pos_y) {
+    CImgDisplay& move(const int posx, const int posy) {
+      if (is_empty()) return *this;
+      if (_window_x!=posx || _window_y!=posy) {
+        SDL_SetWindowPosition(_window,posx,posy);
+        _window_x = posx;
+        _window_y = posy;
+      }
+      show();
+      _is_moved = false;
       return *this;
     }
 

@@ -400,6 +400,7 @@ enum {FALSE_WIN = 0};
 // Define 'cimg_display' to: '0' to disable display capabilities.
 //                           '1' to use the X-Window framework (X11).
 //                           '2' to use the Microsoft GDI32 framework.
+//                           '3' to use SDL2 framework.
 #ifndef cimg_display
 #if cimg_OS==0
 #define cimg_display 0
@@ -408,9 +409,9 @@ enum {FALSE_WIN = 0};
 #elif cimg_OS==2
 #define cimg_display 2
 #endif
-#elif !(cimg_display==0 || cimg_display==1 || cimg_display==2)
+#elif !(cimg_display==0 || cimg_display==1 || cimg_display==2 || cimg_display==3)
 #error CImg Library: Configuration variable 'cimg_display' is badly defined.
-#error (should be { 0=none | 1=X-Window (X11) | 2=Microsoft GDI32 }).
+#error (should be { 0=none | 1=X-Window (X11) | 2=Microsoft GDI32 | 3=SDL2 }).
 #endif
 
 // Include display-specific headers.
@@ -427,7 +428,10 @@ enum {FALSE_WIN = 0};
 #ifdef cimg_use_xrandr
 #include <X11/extensions/Xrandr.h>
 #endif
+#elif cimg_display==3
+#include <SDL2/SDL.h>
 #endif
+
 #ifndef cimg_appname
 #define cimg_appname "CImg"
 #endif
@@ -3305,6 +3309,23 @@ namespace cimg_library {
         return ref;
       }
     }; // struct Win32_attr { ...
+
+#elif cimg_display==3
+    struct SDL2_attr {
+      SDL2_attr() {
+        if (SDL_Init(SDL_INIT_VIDEO)<0)
+          throw CImgArgumentException("cimg::SDL2_attr(): %s",SDL_GetError());
+      }
+
+      ~SDL2_attr() {
+        SDL_Quit();
+      }
+
+      static SDL2_attr& ref() { // Return shared instance across compilation modules
+        static SDL2_attr ref;
+        return ref;
+      }
+    }; // struct SDL2_attr { ...
 
 #endif
 #define cimg_lock_display() cimg::mutex(15)
@@ -11753,6 +11774,94 @@ namespace cimg_library {
       }
       return *this;
     }
+
+    // SDL2-based implementation.
+    //---------------------------
+#elif cimg_display==3
+
+    SDL_Window *_window;
+    SDL_Renderer *_renderer;
+    unsigned int *_data;
+
+    static int screen_width() {
+      SDL_DisplayMode mode;
+      if (!SDL_GetDesktopDisplayMode(0,&mode))
+        throw CImgArgumentException("CImgDisplay::screen_width(): %s",SDL_GetError());
+      return mode.w;
+    }
+
+    static int screen_height() {
+      SDL_DisplayMode mode;
+      if (!SDL_GetDesktopDisplayMode(0,&mode))
+        throw CImgArgumentException("CImgDisplay::screen_width(): %s",SDL_GetError());
+      return mode.h;
+    }
+
+    static void wait_all() {
+    }
+
+    CImgDisplay& assign() {
+      return flush();
+    }
+
+    CImgDisplay& assign(const unsigned int width, const unsigned int height,
+                        const char *const title=0, const unsigned int normalization=3,
+                        const bool is_fullscreen=false, const bool is_closed=false) {
+      return assign();
+    }
+
+    //! Construct a display as a copy of another one \inplace.
+    /**
+    **/
+    CImgDisplay& assign(const CImgDisplay &disp) {
+      return assign(disp._width,disp._height);
+    }
+
+    CImgDisplay& move(const int pos_x, const int pos_y) {
+      return *this;
+    }
+
+    CImgDisplay& resize(const int width, const int height, const bool force_redraw=true) {
+      return *this;
+    }
+
+    CImgDisplay& toggle_fullscreen(const bool force_redraw=true) {
+      return assign(_width,_height,0,3,force_redraw);
+    }
+
+    template<typename T>
+    const CImgDisplay& snapshot(CImg<T>& img) const {
+      return *this;
+    }
+
+    CImgDisplay& set_title(const char *const format, ...) {
+      return *this;
+    }
+
+    CImgDisplay& show() {
+      return *this;
+    }
+
+    CImgDisplay& show_mouse() {
+      return *this;
+    }
+
+    CImgDisplay& hide_mouse() {
+      return assign();
+    }
+
+    template<typename T>
+    CImgDisplay& assign(const CImg<T>& img,
+                        const char *const title=0, const unsigned int normalization=3,
+                        const bool is_fullscreen=false, const bool is_closed=false) {
+      return *this;
+    }
+
+    template<typename T>
+    CImgDisplay& display(const CImg<T>& img) {
+      return assign(img);
+    }
+
 #endif
 
     //@}

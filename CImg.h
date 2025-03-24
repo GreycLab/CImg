@@ -11789,6 +11789,7 @@ namespace cimg_library {
 
     SDL_Window *_window;
     SDL_Renderer *_renderer;
+    SDL_Texture *_texture;
     unsigned int *_data;
 
     static int screen_width() {
@@ -11808,10 +11809,12 @@ namespace cimg_library {
       if (is_empty()) return flush();
       SDL_DestroyRenderer(_renderer);
       SDL_DestroyWindow(_window);
+      SDL_DestroyTexture(_texture);
       delete _data;
       _data = 0;
       _renderer = 0;
       _window = 0;
+      _texture = 0;
       _width = _height = _normalization = _window_width = _window_height = 0;
       _window_x = _window_y = cimg::type<int>::min();
       _is_fullscreen = false;
@@ -11848,18 +11851,22 @@ namespace cimg_library {
                                  (_is_fullscreen?SDL_WINDOW_FULLSCREEN:0) |
                                  (_is_closed?SDL_WINDOW_HIDDEN:0));
       if (!_window) {
-        cimg_unlock_display();
         throw CImgDisplayException("CImgDisplay::assign(): %s",SDL_GetError());
       }
-      _renderer = SDL_CreateRenderer(_window,0);
       _window_width = _width;
       _window_height = _height;
 
       // Create renderer.
+      _renderer = SDL_CreateRenderer(_window,0);
       if (!_renderer) {
-        cimg_unlock_display();
+        SDL_DestroyWindow(_window);
         throw CImgDisplayException("CImgDisplay::assign(): %s",SDL_GetError());
       }
+
+      // Create texture.
+      _texture = SDL_CreateTexture(_renderer,SDL_PIXELFORMAT_RGBA8888,SDL_TEXTUREACCESS_STREAMING,
+                                   (int)_width,(int)_height);
+
       _data = new unsigned int[_width*_height];
     }
 
@@ -11943,7 +11950,7 @@ namespace cimg_library {
 
     template<typename T>
     CImgDisplay& display(const CImg<T>& img) {
-      return assign(img);
+      return *this;
     }
 
     CImgDisplay& paint() {

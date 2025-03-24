@@ -11804,6 +11804,12 @@ namespace cimg_library {
       SDL_WaitEvent(&event);
     }
 
+    CImgDisplay& _update_window_pos() {
+      if (_is_closed) _window_x = _window_y = cimg::type<int>::min();
+      else SDL_GetWindowPosition(_window,&_window_x,&_window_y);
+      return *this;
+    }
+
     CImgDisplay& assign() {
       if (is_empty()) return flush();
       SDL_DestroyRenderer(_renderer);
@@ -11851,18 +11857,17 @@ namespace cimg_library {
                                        (_is_closed?SDL_WINDOW_HIDDEN:0),
                                        &_window,&_renderer))
         throw CImgDisplayException("CImgDisplay::assign(): %s",SDL_GetError());
+      SDL_SetRenderDrawColor(_renderer,0,0,0,255);
       if (!_is_fullscreen)
         SDL_SetWindowPosition(_window,SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED);
-
       _window_width = _width;
       _window_height = _height;
+      _update_window_pos();
 
       // Create texture.
       _texture = SDL_CreateTexture(_renderer,SDL_PIXELFORMAT_RGBA8888,SDL_TEXTUREACCESS_STREAMING,
                                    (int)_width,(int)_height);
       _data = new unsigned int[_width*_height];
-
-      std::memset(_data,0,_width*_height*sizeof(unsigned int));
       paint();
     }
 
@@ -11920,7 +11925,16 @@ namespace cimg_library {
     }
 
     CImgDisplay& toggle_fullscreen(const bool force_redraw=true) {
-      return assign(_width,_height,0,3,force_redraw);
+      return *this;
+    }
+
+    CImgDisplay& show() {
+      if (is_empty() || !_is_closed) return *this;
+      _is_closed = false;
+//      if (_is_fullscreen) _init_fullscreen();
+      SDL_ShowWindow(_window);
+      _update_window_pos();
+      return paint();
     }
 
     template<typename T>
@@ -11929,10 +11943,6 @@ namespace cimg_library {
     }
 
     CImgDisplay& set_title(const char *const format, ...) {
-      return *this;
-    }
-
-    CImgDisplay& show() {
       return *this;
     }
 
@@ -11957,7 +11967,7 @@ namespace cimg_library {
     CImgDisplay& paint() {
       if (_is_closed) return *this;
       SDL_UpdateTexture(_texture,0,_data,_width*sizeof(unsigned int));
-//      SDL_RenderClear(_renderer);
+      SDL_RenderClear(_renderer);
       SDL_RenderTexture(_renderer,_texture,0,0);
       SDL_RenderPresent(_renderer);
       return *this;

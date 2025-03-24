@@ -195,12 +195,6 @@ X11_LIBS = $(shell pkg-config --libs x11 || echo -L/usr/X11R6/lib -lX11) -lpthre
 XSHM_CFLAGS = # -Dcimg_use_xshm $(shell pkg-config --cflags xcb-shm)
 XSHM_LIBS = # $(shell pkg-config --libs xcb-shm || echo -L$(USR)/X11R6/lib -lXext)
 
-# Flags to enable GDI32 display (Windows native).
-GDI32_DEFINE = -mwindows
-GDI32_INCDIR =
-GDI32_CFLAGS = $(GDI32_DEFINE) $(GDI32_INCDIR)
-GDI32_LIBS = -lgdi32
-
 # Flags to enable screen mode switching, using the XRandr library (when using X11).
 # ( http://www.x.org/wiki/Projects/XRandR )
 # !!! Not supported by the X11 server on MacOS, so do not use it on MacOS !!!
@@ -208,6 +202,18 @@ XRANDR_DEFINE = -Dcimg_use_xrandr
 XRANDR_INCDIR =
 XRANDR_CFLAGS = $(XRANDR_DEFINE) $(XRANDR_INCDIR)
 XRANDR_LIBS = -lXrandr
+
+# Flags to enable GDI32 display (Windows native).
+GDI32_DEFINE = -mwindows
+GDI32_INCDIR =
+GDI32_CFLAGS = $(GDI32_DEFINE) $(GDI32_INCDIR)
+GDI32_LIBS = -lgdi32
+
+# Flags to enable SDL3 display.
+SDL3_DEFINE = -Dcimg_display=3
+SDL3_INCDIR = $(shell pkg-config --cflags sdl3 || echo -I/usr/local/include)
+SDL3_CFLAGS = $(SDL3_DEFINE) $(SDL3_INCDIR)
+SDL3_LIBS = $(shell pkg-config --libs sdl3 || echo -L/usr/local/include -Wl,-rpath,/usr/local/lib)
 
 # Flags to enable native support for PNG image files, using the PNG library.
 # ( http://www.libpng.org/ )

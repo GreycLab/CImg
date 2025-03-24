@@ -11866,8 +11866,9 @@ namespace cimg_library {
       // Create texture.
       _texture = SDL_CreateTexture(_renderer,SDL_PIXELFORMAT_RGBA8888,SDL_TEXTUREACCESS_STREAMING,
                                    (int)_width,(int)_height);
-
       _data = new unsigned int[_width*_height];
+      std::memset(_data,0,_width*_height*sizeof(unsigned int));
+      SDL_UpdateTexture(_texture,0,_data,_width);
     }
 
     CImgDisplay& assign(const unsigned int dimw, const unsigned int dimh, const char *const title=0,

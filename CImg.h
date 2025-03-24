@@ -11851,6 +11851,8 @@ namespace cimg_library {
                                        (_is_closed?SDL_WINDOW_HIDDEN:0),
                                        &_window,&_renderer))
         throw CImgDisplayException("CImgDisplay::assign(): %s",SDL_GetError());
+      if (!_is_fullscreen)
+        SDL_SetWindowPosition(_window,SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED);
 
       _window_width = _width;
       _window_height = _height;

@@ -11995,7 +11995,7 @@ namespace cimg_library {
         case 1 : {
           for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
             const unsigned char val = (unsigned char)*(data1++);
-            *(ptrd++) = (unsigned int)((val<<16) | (val<<8) | val);
+            *(ptrd++) = (unsigned int)((val<<24) | (val<<16) | (val<<8) | 255);
           }
         } break;
         case 2 : {
@@ -12003,7 +12003,7 @@ namespace cimg_library {
             const unsigned char
               R = (unsigned char)*(data1++),
               G = (unsigned char)*(data2++);
-            *(ptrd++) = (unsigned int)((R<<16) | (G<<8));
+            *(ptrd++) = (unsigned int)((R<<24) | (G<<16) | 255);
           }
         } break;
         default : {
@@ -12012,7 +12012,7 @@ namespace cimg_library {
               R = (unsigned char)*(data1++),
               G = (unsigned char)*(data2++),
               B = (unsigned char)*(data3++);
-            *(ptrd++) = (unsigned int)((R<<16) | (G<<8) | B);
+            *(ptrd++) = (unsigned int)((R<<24) | (G<<16) | (B<<8) | 255);
           }
         }
         }

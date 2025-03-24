@@ -44,7 +44,6 @@
 // Include static image data, so that the exe does not depend on external image files.
 #include "img/CImg_demo.h"
 
-#define cimg_display 3
 // Include CImg library header.
 #include "CImg.h"
 using namespace cimg_library;

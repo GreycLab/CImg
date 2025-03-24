@@ -3315,7 +3315,7 @@ namespace cimg_library {
       const SDL_DisplayMode *mode;
 
       SDL3_attr() {
-        if (SDL_Init(SDL_INIT_VIDEO)<0)
+        if (!SDL_Init(SDL_INIT_VIDEO))
           throw CImgDisplayException("cimg::SDL3_attr(): %s",SDL_GetError());
         display = SDL_GetPrimaryDisplay();
         if (!display)
@@ -11928,11 +11928,30 @@ namespace cimg_library {
       return *this;
     }
 
-    CImgDisplay& resize(const int width, const int height, const bool force_redraw=true) {
+    CImgDisplay& resize(const int nwidth, const int nheight, const bool force_redraw=true) {
+      if (!nwidth || !nheight || (is_empty() && (nwidth<0 || nheight<0))) return assign();
+      if (is_empty()) return assign((unsigned int)nwidth,(unsigned int)nheight);
+      const unsigned int
+        tmpdimx = (nwidth>0)?nwidth:(-nwidth*_width/100),
+        tmpdimy = (nheight>0)?nheight:(-nheight*_height/100),
+        dimx = tmpdimx?tmpdimx:1,
+        dimy = tmpdimy?tmpdimy:1;
+      if (_width!=dimx || _height!=dimy || _window_width!=dimx || _window_height!=dimy) {
+        if (_window_width!=dimx || _window_height!=dimy)
+          SDL_SetWindowSize(_window,(int)dimx,(int)dimy);
+        _window_width = dimx; _window_height = dimy;
+        show();
+      }
+      _is_resized = false;
+      if (_is_fullscreen) move((screen_width() - width())/2,(screen_height() - height())/2);
+      if (force_redraw) return paint();
       return *this;
     }
 
     CImgDisplay& toggle_fullscreen(const bool force_redraw=true) {
+      if (is_empty()) return *this;
+      SDL_SetWindowFullscreen(_window,!_is_fullscreen);
+      if (force_redraw) return paint();
       return *this;
     }
 
@@ -11945,12 +11964,34 @@ namespace cimg_library {
       return paint();
     }
 
+    CImgDisplay& close() {
+      if (is_empty() || _is_closed) return *this;
+      _is_closed = true;
+//      if (_is_fullscreen) _desinit_fullscreen();
+      SDL_HideWindow(_window);
+      _window_x = _window_y = cimg::type<int>::min();
+      return *this;
+    }
+
     template<typename T>
     const CImgDisplay& snapshot(CImg<T>& img) const {
       return *this;
     }
 
     CImgDisplay& set_title(const char *const format, ...) {
+      if (is_empty()) return *this;
+      char *const tmp = new char[1024];
+      va_list ap;
+      va_start(ap, format);
+      cimg_vsnprintf(tmp,1024,format,ap);
+      va_end(ap);
+      if (!std::strcmp(_title,tmp)) { delete[] tmp; return *this; }
+      delete[] _title;
+      const unsigned int s = (unsigned int)std::strlen(tmp) + 1;
+      _title = new char[s];
+      std::memcpy(_title,tmp,s*sizeof(char));
+      SDL_SetWindowTitle(_window,tmp);
+      delete[] tmp;
       return *this;
     }
 

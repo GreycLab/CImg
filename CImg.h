@@ -3313,6 +3313,7 @@ namespace cimg_library {
     struct SDL3_attr {
       SDL_DisplayID display;
       const SDL_DisplayMode *mode;
+      SDL_Thread *events_thread;
 
       SDL3_attr() {
         if (!SDL_Init(SDL_INIT_VIDEO))

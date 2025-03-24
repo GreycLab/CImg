@@ -400,7 +400,7 @@ enum {FALSE_WIN = 0};
 // Define 'cimg_display' to: '0' to disable display capabilities.
 //                           '1' to use the X-Window framework (X11).
 //                           '2' to use the Microsoft GDI32 framework.
-//                           '3' to use SDL2 framework.
+//                           '3' to use SDL3 framework.
 #ifndef cimg_display
 #if cimg_OS==0
 #define cimg_display 0
@@ -411,7 +411,7 @@ enum {FALSE_WIN = 0};
 #endif
 #elif !(cimg_display==0 || cimg_display==1 || cimg_display==2 || cimg_display==3)
 #error CImg Library: Configuration variable 'cimg_display' is badly defined.
-#error (should be { 0=none | 1=X-Window (X11) | 2=Microsoft GDI32 | 3=SDL2 }).
+#error (should be { 0=none | 1=X-Window (X11) | 2=Microsoft GDI32 | 3=SDL3 }).
 #endif
 
 // Include display-specific headers.
@@ -429,7 +429,7 @@ enum {FALSE_WIN = 0};
 #include <X11/extensions/Xrandr.h>
 #endif
 #elif cimg_display==3
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #endif
 
 #ifndef cimg_appname
@@ -3311,21 +3311,30 @@ namespace cimg_library {
     }; // struct Win32_attr { ...
 
 #elif cimg_display==3
-    struct SDL2_attr {
-      SDL2_attr() {
+    struct SDL3_attr {
+      SDL_DisplayID display;
+      const SDL_DisplayMode *mode;
+
+      SDL3_attr() {
         if (SDL_Init(SDL_INIT_VIDEO)<0)
-          throw CImgArgumentException("cimg::SDL2_attr(): %s",SDL_GetError());
+          throw CImgArgumentException("cimg::SDL3_attr(): %s",SDL_GetError());
+        display = SDL_GetPrimaryDisplay();
+        if (!display)
+          throw CImgArgumentException("cimg::SDL3_attr(): %s",SDL_GetError());
+        mode = SDL_GetCurrentDisplayMode(display);
+        if (!mode)
+          throw CImgArgumentException("cimg::SDL3_attr(): %s",SDL_GetError());
       }
 
-      ~SDL2_attr() {
+      ~SDL3_attr() {
         SDL_Quit();
       }
 
-      static SDL2_attr& ref() { // Return shared instance across compilation modules
-        static SDL2_attr ref;
+      static SDL3_attr& ref() { // Return shared instance across compilation modules
+        static SDL3_attr ref;
         return ref;
       }
-    }; // struct SDL2_attr { ...
+    }; // struct SDL3_attr { ...
 
 #endif
 #define cimg_lock_display() cimg::mutex(15)
@@ -11775,7 +11784,7 @@ namespace cimg_library {
       return *this;
     }
 
-    // SDL2-based implementation.
+    // SDL3-based implementation.
     //---------------------------
 #elif cimg_display==3
 
@@ -11784,17 +11793,11 @@ namespace cimg_library {
     unsigned int *_data;
 
     static int screen_width() {
-      SDL_DisplayMode mode;
-      if (!SDL_GetDesktopDisplayMode(0,&mode))
-        throw CImgArgumentException("CImgDisplay::screen_width(): %s",SDL_GetError());
-      return mode.w;
+      return cimg::SDL3_attr::ref().mode->w;
     }
 
     static int screen_height() {
-      SDL_DisplayMode mode;
-      if (!SDL_GetDesktopDisplayMode(0,&mode))
-        throw CImgArgumentException("CImgDisplay::screen_width(): %s",SDL_GetError());
-      return mode.h;
+      return cimg::SDL3_attr::ref().mode->h;
     }
 
     static void wait_all() {

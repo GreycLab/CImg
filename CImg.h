@@ -11844,23 +11844,16 @@ namespace cimg_library {
       _title = tmp_title;
       flush();
 
-      // Create window.
-      _window = SDL_CreateWindow(_title,(int)_width,(int)_height,
-                                 SDL_WINDOW_RESIZABLE | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS |
-                                 (_is_fullscreen?SDL_WINDOW_FULLSCREEN:0) |
-                                 (_is_closed?SDL_WINDOW_HIDDEN:0));
-      if (!_window) {
+      // Create window and renderer.
+      if (!SDL_CreateWindowAndRenderer(_title,(int)_width,(int)_height,
+                                       SDL_WINDOW_RESIZABLE | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS |
+                                       (_is_fullscreen?SDL_WINDOW_FULLSCREEN:0) |
+                                       (_is_closed?SDL_WINDOW_HIDDEN:0),
+                                       &_window,&_renderer))
         throw CImgDisplayException("CImgDisplay::assign(): %s",SDL_GetError());
-      }
+
       _window_width = _width;
       _window_height = _height;
-
-      // Create renderer.
-      _renderer = SDL_CreateRenderer(_window,0);
-      if (!_renderer) {
-        SDL_DestroyWindow(_window);
-        throw CImgDisplayException("CImgDisplay::assign(): %s",SDL_GetError());
-      }
 
       // Create texture.
       _texture = SDL_CreateTexture(_renderer,SDL_PIXELFORMAT_RGBA8888,SDL_TEXTUREACCESS_STREAMING,
@@ -12029,7 +12022,7 @@ namespace cimg_library {
         case 1 : {
           for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
             const unsigned char val = (unsigned char)((*(data1++) - _min)*mm);
-            *(ptrd++) = (unsigned int)((val<<16) | (val<<8) | val);
+            *(ptrd++) = (unsigned int)((val<<24) | (val<<16) | (val<<8) | 255);
           }
         } break;
         case 2 : {
@@ -12037,7 +12030,7 @@ namespace cimg_library {
             const unsigned char
               R = (unsigned char)((*(data1++) - _min)*mm),
               G = (unsigned char)((*(data2++) - _min)*mm);
-            *(ptrd++) = (unsigned int)((R<<16) | (G<<8));
+            *(ptrd++) = (unsigned int)((R<<24) | (G<<16) | 255);
           }
         } break;
         default : {
@@ -12046,7 +12039,7 @@ namespace cimg_library {
               R = (unsigned char)((*(data1++) - _min)*mm),
               G = (unsigned char)((*(data2++) - _min)*mm),
               B = (unsigned char)((*(data3++) - _min)*mm);
-            *(ptrd++) = (unsigned int)((R<<16) | (G<<8) | B);
+            *(ptrd++) = (unsigned int)((R<<24) | (G<<16) | (B<<8) | 255);
           }
         }
         }

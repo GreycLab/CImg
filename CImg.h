@@ -11954,6 +11954,15 @@ namespace cimg_library {
       return assign();
     }
 
+    CImgDisplay& set_mouse(const int posx, const int posy) {
+      if (is_empty() || _is_closed || posx<0 || posy<0) return *this;
+      if (!_is_closed) {
+        SDL_WarpMouseInWindow(_window,(float)posx,(float)posy);
+        _mouse_x = posx; _mouse_y = posy;
+      }
+      return *this;
+    }
+
     template<typename T>
     CImgDisplay& display(const CImg<T>& img) {
       if (!img)

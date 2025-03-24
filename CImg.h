@@ -11962,7 +11962,7 @@ namespace cimg_library {
     CImgDisplay& paint() {
       if (_is_closed) return *this;
       SDL_UpdateTexture(_texture,0,_data,_width*sizeof(unsigned int));
-      SDL_RenderClear(_renderer);
+//      SDL_RenderClear(_renderer);
       SDL_RenderTexture(_renderer,_texture,0,0);
       SDL_RenderPresent(_renderer);
       return *this;

@@ -3315,7 +3315,7 @@ namespace cimg_library {
       const SDL_DisplayMode *mode;
       SDL_Thread *events_thread;
 
-      SDL3_attr() {
+      SDL3_attr():mode(0),events_thread(0) {
         if (!SDL_Init(SDL_INIT_VIDEO))
           throw CImgDisplayException("cimg::SDL3_attr(): %s",SDL_GetError());
         display = SDL_GetPrimaryDisplay();
@@ -11831,9 +11831,46 @@ namespace cimg_library {
       return *this;
     }
 
+
+    static int _events_thread(void *arg) {
+      std::fprintf(stderr,"\nSDL3 Thread!\n");
+      bool is_running = true;
+      SDL_Event event;
+
+      while (is_running) {
+        while (SDL_PollEvent(&event)) {
+          SDL_Window *const window = SDL_GetWindowFromID(event.window.windowID);
+          if (window) {
+            switch (event.type) {
+            case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+              std::exit(0);
+              break;
+            case SDL_EVENT_WINDOW_RESIZED:
+            case SDL_EVENT_WINDOW_MOVED:
+              break;
+            case SDL_EVENT_QUIT:
+              is_running = false;
+              break;
+            case SDL_EVENT_KEY_DOWN:
+//              if (event.key.keysym.sym == SDLK_ESCAPE)
+//                is_running = false;
+              break;
+            }
+          }
+        }
+      }
+
+      return 0;
+    }
+
     void _assign(const unsigned int dimw, const unsigned int dimh, const char *const p_title=0,
                  const unsigned int normalization_type=3,
                  const bool fullscreen_flag=false, const bool closed_flag=false) {
+
+
+      if (!cimg::SDL3_attr().ref().events_thread) {
+        SDL_CreateThread(_events_thread,"event threads",0);
+      }
 
       // Allocate space for window title.
       const char *const np_title = p_title?p_title:"";

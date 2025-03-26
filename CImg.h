@@ -3242,38 +3242,34 @@ namespace cimg_library {
     // Define variables used internally by CImg.
 #if cimg_display==1
     struct X11_attr {
-      unsigned int nb_wins;
+      CImgDisplay **cimg_displays;
+      unsigned int nb_cimg_displays;
+      Display *display;
       pthread_t *events_thread;
       pthread_cond_t wait_event;
-      pthread_mutex_t mutex_wait_event, mutex_lock_display;
-      CImgDisplay **wins;
-      Display *display;
+      pthread_mutex_t mutex_lock_display, mutex_wait_event;
       unsigned int nb_bits;
-      bool is_blue_first;
-      bool is_shm_enabled;
-      bool byte_order;
+      bool is_blue_first, is_shm_enabled, byte_order;
 
 #ifdef cimg_use_xrandr
       XRRScreenSize *resolutions;
       Rotation curr_rotation;
-      unsigned int curr_resolution;
-      unsigned int nb_resolutions;
+      unsigned int curr_resolution, nb_resolutions;
 #endif
-      X11_attr():nb_wins(0),events_thread(0),display(0),nb_bits(0),
+      X11_attr():nb_cimg_displays(0),display(0),events_thread(0),nb_bits(0),
                  is_blue_first(false),is_shm_enabled(false),byte_order(false) {
 #ifdef __FreeBSD__
         XInitThreads();
 #endif
-        wins = new CImgDisplay*[1024];
         pthread_mutex_init(&mutex_wait_event,0);
         pthread_mutex_init(&mutex_lock_display,0);
         pthread_cond_init(&wait_event,0);
-
 #ifdef cimg_use_xrandr
         resolutions = 0;
         curr_rotation = 0;
         curr_resolution = nb_resolutions = 0;
 #endif
+        cimg_displays = new CImgDisplay*[1024];
       }
 
       ~X11_attr() {
@@ -3290,7 +3286,7 @@ namespace cimg_library {
         pthread_mutex_destroy(&mutex_wait_event);
         pthread_mutex_unlock(&mutex_lock_display);
         pthread_mutex_destroy(&mutex_lock_display);
-        delete[] wins;
+        delete[] cimg_displays;
       }
 
       static X11_attr& ref() { // Return shared instance across compilation modules
@@ -3326,13 +3322,15 @@ namespace cimg_library {
 
 #elif cimg_display==3
     struct SDL3_attr {
+      CImgDisplay **cimg_displays;
+      unsigned int nb_cimg_displays;
       SDL_DisplayID display;
       const SDL_DisplayMode *mode;
       SDL_Thread *events_thread;
       SDL_Condition *wait_event;
       SDL_Mutex *mutex_lock_display, *mutex_wait_event;
 
-      SDL3_attr():mode(0),events_thread(0),mutex_lock_display(0) {
+      SDL3_attr() {
         bool init_failed = true;
         if (SDL_Init(SDL_INIT_VIDEO)) {
           display = SDL_GetPrimaryDisplay();
@@ -3352,6 +3350,7 @@ namespace cimg_library {
         }
         if (init_failed)
           throw CImgDisplayException("cimg::SDL3_attr(): %s",SDL_GetError());
+        cimg_displays = new CImgDisplay*[1024];
       }
 
       ~SDL3_attr() {
@@ -3359,6 +3358,7 @@ namespace cimg_library {
         SDL_DestroyMutex(mutex_wait_event);
         SDL_DestroyMutex(mutex_lock_display);
         SDL_Quit();
+        delete[] cimg_displays;
       }
 
       static SDL3_attr& ref() { // Return shared instance across compilation modules
@@ -10022,9 +10022,9 @@ namespace cimg_library {
                                                       KeyPressMask | PointerMotionMask | EnterWindowMask |
                                                       LeaveWindowMask | ButtonReleaseMask | KeyReleaseMask,&event);
         if (event_flag)
-          for (unsigned int i = 0; i<cimg::X11_attr::ref().nb_wins; ++i)
-            if (!cimg::X11_attr::ref().wins[i]->_is_closed && event.xany.window==cimg::X11_attr::ref().wins[i]->_window)
-              cimg::X11_attr::ref().wins[i]->_handle_events(&event);
+          for (unsigned int i = 0; i<cimg::X11_attr::ref().nb_cimg_displays; ++i)
+            if (!cimg::X11_attr::ref().cimg_displays[i]->_is_closed && event.xany.window==cimg::X11_attr::ref().cimg_displays[i]->_window)
+              cimg::X11_attr::ref().cimg_displays[i]->_handle_events(&event);
         cimg::X11_attr::unlock_display();
         pthread_testcancel();
         cimg::sleep(8);
@@ -10262,10 +10262,10 @@ namespace cimg_library {
 
       // Remove display window from event thread list.
       unsigned int i;
-      for (i = 0; i<cimg::X11_attr::ref().nb_wins && cimg::X11_attr::ref().wins[i]!=this; ++i) {}
-      for ( ; i<cimg::X11_attr::ref().nb_wins - 1; ++i)
-        cimg::X11_attr::ref().wins[i] = cimg::X11_attr::ref().wins[i + 1];
-      --cimg::X11_attr::ref().nb_wins;
+      for (i = 0; i<cimg::X11_attr::ref().nb_cimg_displays && cimg::X11_attr::ref().cimg_displays[i]!=this; ++i) {}
+      for ( ; i<cimg::X11_attr::ref().nb_cimg_displays - 1; ++i)
+        cimg::X11_attr::ref().cimg_displays[i] = cimg::X11_attr::ref().cimg_displays[i + 1];
+      --cimg::X11_attr::ref().nb_cimg_displays;
 
       // Destroy window, image, colormap and title.
       if (_is_fullscreen && !_is_closed) _desinit_fullscreen();
@@ -10438,7 +10438,7 @@ namespace cimg_library {
       XSetWMProtocols(dpy,_window,&_wm_window_atom,1);
 
       if (_is_fullscreen) XGrabKeyboard(dpy,_window,1,GrabModeAsync,GrabModeAsync,CurrentTime);
-      cimg::X11_attr::ref().wins[cimg::X11_attr::ref().nb_wins++]=this;
+      cimg::X11_attr::ref().cimg_displays[cimg::X11_attr::ref().nb_cimg_displays++]=this;
       if (!_is_closed) _map_window(); else _window_x = _window_y = cimg::type<int>::min();
       cimg::X11_attr::unlock_display();
       cimg::mutex(14,0);
@@ -11860,11 +11860,7 @@ namespace cimg_library {
 
     CImgDisplay& _update_window_pos() {
       if (_is_closed) _window_x = _window_y = cimg::type<int>::min();
-      else {
-        cimg::SDL3_attr::lock_display();
-        SDL_GetWindowPosition(_window,&_window_x,&_window_y);
-        cimg::SDL3_attr::unlock_display();
-      }
+      else SDL_GetWindowPosition(_window,&_window_x,&_window_y);
       return *this;
     }
 
@@ -11892,12 +11888,14 @@ namespace cimg_library {
 
 
     static int _events_thread(void *arg) {
-      std::fprintf(stderr,"\nSDL3 Thread!\n");
       bool is_running = true;
       SDL_Event event;
 
       while (is_running) {
         while (SDL_PollEvent(&event)) {
+
+          std::fprintf(stderr,"\nEvent %g",cimg::rand());
+
           SDL_Window *const window = SDL_GetWindowFromID(event.window.windowID);
           if (window) {
             switch (event.type) {
@@ -11908,6 +11906,7 @@ namespace cimg_library {
             case SDL_EVENT_WINDOW_MOVED:
               break;
             case SDL_EVENT_QUIT:
+              std::fprintf(stderr,"\n - EVENT QUIT\n");
               is_running = false;
               break;
             case SDL_EVENT_KEY_DOWN:
@@ -11927,15 +11926,16 @@ namespace cimg_library {
                  const bool fullscreen_flag=false, const bool closed_flag=false) {
 
       cimg::SDL3_attr::lock_display();
-      if (!cimg::SDL3_attr().ref().events_thread) {
-        SDL_CreateThread(_events_thread,"event threads",0);
-      }
+
+      std::fprintf(stderr,"\nDEBUG 1\n");
 
       // Allocate space for window title.
       const char *const np_title = p_title?p_title:"";
       const unsigned int s = (unsigned int)std::strlen(np_title) + 1;
       char *const tmp_title = s?new char[s]:0;
       if (s) std::memcpy(tmp_title,np_title,s*sizeof(char));
+
+      std::fprintf(stderr,"\nDEBUG 2\n");
 
       // Set display variables.
       _width = std::min(dimw,(unsigned int)screen_width());
@@ -11947,26 +11947,44 @@ namespace cimg_library {
       _title = tmp_title;
       flush();
 
+      std::fprintf(stderr,"\nDEBUG 3\n");
+
       // Create window and renderer.
       if (!SDL_CreateWindowAndRenderer(_title,(int)_width,(int)_height,
                                        SDL_WINDOW_RESIZABLE | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS |
                                        (_is_fullscreen?SDL_WINDOW_FULLSCREEN:0) |
                                        (_is_closed?SDL_WINDOW_HIDDEN:0),
-                                       &_window,&_renderer))
+                                       &_window,&_renderer)) {
+        cimg::SDL3_attr::unlock_display();
         throw CImgDisplayException("CImgDisplay::assign(): %s",SDL_GetError());
+      }
+
+      std::fprintf(stderr,"\nDEBUG 3 - 1\n");
+
       SDL_SetRenderDrawColor(_renderer,0,0,0,255);
+
+      std::fprintf(stderr,"\nDEBUG 3 - 2\n");
+
       if (!_is_fullscreen)
         SDL_SetWindowPosition(_window,SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED);
+
+      std::fprintf(stderr,"\nDEBUG 3 - 3\n");
+
       _window_width = _width;
       _window_height = _height;
       _update_window_pos();
+
+      std::fprintf(stderr,"\nDEBUG 4\n");
 
       // Create texture.
       _texture = SDL_CreateTexture(_renderer,SDL_PIXELFORMAT_RGBA8888,SDL_TEXTUREACCESS_STREAMING,
                                    (int)_width,(int)_height);
       _data = new unsigned int[_width*_height];
-      paint();
       cimg::SDL3_attr::unlock_display();
+      paint();
+
+      if (!cimg::SDL3_attr().ref().events_thread)
+        cimg::SDL3_attr().ref().events_thread = SDL_CreateThread(_events_thread,"event threads",0);
     }
 
     CImgDisplay& assign(const unsigned int dimw, const unsigned int dimh, const char *const title=0,

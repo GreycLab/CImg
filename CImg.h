@@ -10023,7 +10023,8 @@ namespace cimg_library {
                                                       LeaveWindowMask | ButtonReleaseMask | KeyReleaseMask,&event);
         if (event_flag)
           for (unsigned int i = 0; i<cimg::X11_attr::ref().nb_cimg_displays; ++i)
-            if (!cimg::X11_attr::ref().cimg_displays[i]->_is_closed && event.xany.window==cimg::X11_attr::ref().cimg_displays[i]->_window)
+            if (!cimg::X11_attr::ref().cimg_displays[i]->_is_closed &&
+                event.xany.window==cimg::X11_attr::ref().cimg_displays[i]->_window)
               cimg::X11_attr::ref().cimg_displays[i]->_handle_events(&event);
         cimg::X11_attr::unlock_display();
         pthread_testcancel();

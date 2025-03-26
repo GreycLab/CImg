@@ -10259,7 +10259,7 @@ namespace cimg_library {
     CImgDisplay& assign() {
       if (is_empty()) return flush();
       Display *const dpy = cimg::X11_attr::ref().display;
-      if (!dpy) return this;
+      if (!dpy) return *this;
       cimg::X11_attr::lock_display();
 
       // Remove display window from event thread list.
@@ -10269,7 +10269,7 @@ namespace cimg_library {
         cimg::X11_attr::ref().cimg_displays[i] = cimg::X11_attr::ref().cimg_displays[i + 1];
       --cimg::X11_attr::ref().nb_cimg_displays;
 
-      // Destroy window, image, colormap and title.
+      // Destroy associated ressources.
       if (_is_fullscreen && !_is_closed) _desinit_fullscreen();
 
 #ifdef cimg_use_xshm
@@ -10439,7 +10439,11 @@ namespace cimg_library {
       XSetWMProtocols(dpy,_window,&_wm_window_atom,1);
 
       if (_is_fullscreen) XGrabKeyboard(dpy,_window,1,GrabModeAsync,GrabModeAsync,CurrentTime);
-      cimg::X11_attr::ref().cimg_displays[cimg::X11_attr::ref().nb_cimg_displays++]=this;
+      if (cimg::X11_attr::ref().nb_cimg_displays>=512) {
+        cimg::X11_attr::unlock_display();
+        throw CImgDisplayException("CImgDisplay::assign(): Max number of displays (512) already opened.");
+      }
+      cimg::X11_attr::ref().cimg_displays[cimg::X11_attr::ref().nb_cimg_displays++] = this;
       if (!_is_closed) _map_window(); else _window_x = _window_y = cimg::type<int>::min();
       cimg::X11_attr::unlock_display();
       cimg::mutex(14,0);
@@ -11869,6 +11873,15 @@ namespace cimg_library {
     CImgDisplay& assign() {
       if (is_empty()) return flush();
       cimg::SDL3_attr::lock_display();
+
+      // Remove display window from event thread list.
+      unsigned int i;
+      for (i = 0; i<cimg::SDL3_attr::ref().nb_cimg_displays && cimg::SDL3_attr::ref().cimg_displays[i]!=this; ++i) {}
+      for ( ; i<cimg::SDL3_attr::ref().nb_cimg_displays - 1; ++i)
+        cimg::SDL3_attr::ref().cimg_displays[i] = cimg::SDL3_attr::ref().cimg_displays[i + 1];
+      --cimg::SDL3_attr::ref().nb_cimg_displays;
+
+      // Destroy associated ressources.
       SDL_DestroyRenderer(_renderer);
       SDL_DestroyWindow(_window);
       SDL_DestroyTexture(_texture);
@@ -11888,37 +11901,36 @@ namespace cimg_library {
       return *this;
     }
 
-
     static int _events_thread(void *arg) {
       bool is_running = true;
       SDL_Event event;
 
-      while (is_running) {
-        while (SDL_PollEvent(&event)) {
+//       while (is_running) {
+//         while (SDL_PollEvent(&event)) {
 
-          std::fprintf(stderr,"\nEvent %g",cimg::rand());
+//           std::fprintf(stderr,"\nEvent %g",cimg::rand());
 
-          SDL_Window *const window = SDL_GetWindowFromID(event.window.windowID);
-          if (window) {
-            switch (event.type) {
-            case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
-              std::exit(0);
-              break;
-            case SDL_EVENT_WINDOW_RESIZED:
-            case SDL_EVENT_WINDOW_MOVED:
-              break;
-            case SDL_EVENT_QUIT:
-              std::fprintf(stderr,"\n - EVENT QUIT\n");
-              is_running = false;
-              break;
-            case SDL_EVENT_KEY_DOWN:
-//              if (event.key.keysym.sym == SDLK_ESCAPE)
-//                is_running = false;
-              break;
-            }
-          }
-        }
-      }
+//           SDL_Window *const window = SDL_GetWindowFromID(event.window.windowID);
+//           if (window) {
+//             switch (event.type) {
+//             case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+//               std::exit(0);
+//               break;
+//             case SDL_EVENT_WINDOW_RESIZED:
+//             case SDL_EVENT_WINDOW_MOVED:
+//               break;
+//             case SDL_EVENT_QUIT:
+//               std::fprintf(stderr,"\n - EVENT QUIT\n");
+//               is_running = false;
+//               break;
+//             case SDL_EVENT_KEY_DOWN:
+// //              if (event.key.keysym.sym == SDLK_ESCAPE)
+// //                is_running = false;
+//               break;
+//             }
+//           }
+//         }
+//       }
 
       return 0;
     }
@@ -11937,8 +11949,6 @@ namespace cimg_library {
       char *const tmp_title = s?new char[s]:0;
       if (s) std::memcpy(tmp_title,np_title,s*sizeof(char));
 
-      std::fprintf(stderr,"\nDEBUG 2\n");
-
       // Set display variables.
       _width = std::min(dimw,(unsigned int)screen_width());
       _height = std::min(dimh,(unsigned int)screen_height());
@@ -11948,8 +11958,6 @@ namespace cimg_library {
       _is_closed = closed_flag;
       _title = tmp_title;
       flush();
-
-      std::fprintf(stderr,"\nDEBUG 3\n");
 
       // Create window and renderer.
       if (!SDL_CreateWindowAndRenderer(_title,(int)_width,(int)_height,
@@ -11961,33 +11969,36 @@ namespace cimg_library {
         cimg::SDL3_attr::unlock_display();
         throw CImgDisplayException("CImgDisplay::assign(): %s",SDL_GetError());
       }
-
-      std::fprintf(stderr,"\nDEBUG 3 - 1\n");
-
       SDL_SetRenderDrawColor(_renderer,0,0,0,255);
-
-      std::fprintf(stderr,"\nDEBUG 3 - 2\n");
-
       if (!_is_fullscreen)
         SDL_SetWindowPosition(_window,SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED);
-
-      std::fprintf(stderr,"\nDEBUG 3 - 3\n");
-
       _window_width = _width;
       _window_height = _height;
       _update_window_pos();
-
-      std::fprintf(stderr,"\nDEBUG 4\n");
 
       // Create texture.
       _texture = SDL_CreateTexture(_renderer,SDL_PIXELFORMAT_RGBA8888,SDL_TEXTUREACCESS_STREAMING,
                                    (int)_width,(int)_height);
       _data = new unsigned int[_width*_height];
+
+      // Add to managed list of CImgDisplays.
+      if (cimg::SDL3_attr::ref().nb_cimg_displays>=512) {
+        cimg::SDL3_attr::unlock_display();
+        throw CImgDisplayException("CImgDisplay::assign(): Max number of displays (512) already opened.");
+      }
+      cimg::SDL3_attr::ref().cimg_displays[cimg::SDL3_attr::ref().nb_cimg_displays++] = this;
+
       cimg::SDL3_attr::unlock_display();
       paint();
 
-      if (!cimg::SDL3_attr().ref().events_thread)
+      cimg::SDL3_attr::lock_display();
+      if (!cimg::SDL3_attr().ref().events_thread) {
         cimg::SDL3_attr().ref().events_thread = SDL_CreateThread(_events_thread,"event threads",0);
+      }
+      cimg::SDL3_attr::unlock_display();
+
+      std::fprintf(stderr,"\nDEBUG 2\n");
+
     }
 
     CImgDisplay& assign(const unsigned int dimw, const unsigned int dimh, const char *const title=0,

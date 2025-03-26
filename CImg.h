@@ -3245,7 +3245,7 @@ namespace cimg_library {
       unsigned int nb_wins;
       pthread_t *events_thread;
       pthread_cond_t wait_event;
-      pthread_mutex_t wait_event_mutex;
+      pthread_mutex_t mutex_wait_event, mutex_lock_display;
       CImgDisplay **wins;
       Display *display;
       unsigned int nb_bits;
@@ -3265,7 +3265,8 @@ namespace cimg_library {
         XInitThreads();
 #endif
         wins = new CImgDisplay*[1024];
-        pthread_mutex_init(&wait_event_mutex,0);
+        pthread_mutex_init(&mutex_wait_event,0);
+        pthread_mutex_init(&mutex_lock_display,0);
         pthread_cond_init(&wait_event,0);
 
 #ifdef cimg_use_xrandr
@@ -3281,11 +3282,14 @@ namespace cimg_library {
           pthread_cancel(*events_thread);
           delete events_thread;
           }
-          pthread_cond_destroy(&wait_event);
-          pthread_mutex_unlock(&wait_event_mutex);
-          pthread_mutex_destroy(&wait_event_mutex);
           if (display) { XCloseDisplay(display); }
         */
+
+        pthread_cond_destroy(&wait_event);
+        pthread_mutex_unlock(&mutex_wait_event);
+        pthread_mutex_destroy(&mutex_wait_event);
+        pthread_mutex_unlock(&mutex_lock_display);
+        pthread_mutex_destroy(&mutex_lock_display);
         delete[] wins;
       }
 
@@ -3295,19 +3299,16 @@ namespace cimg_library {
       }
 
       static X11_attr& lock() { // Lock display
-        cimg::mutex(15);
+        pthread_mutex_lock(&ref().mutex_lock_display);
         return ref();
       }
 
       static X11_attr& unlock() { // Lock display
-        cimg::mutex(15,0);
+        pthread_mutex_unlock(&ref().mutex_lock_display);
         return ref();
       }
 
     }; // struct X11_attr { ...
-
-#define cimg_lock_display() cimg::mutex(15)
-#define cimg_unlock_display() cimg::mutex(15,0)
 
 #elif cimg_display==2
     struct Win32_attr {
@@ -3328,7 +3329,7 @@ namespace cimg_library {
       SDL_DisplayID display;
       const SDL_DisplayMode *mode;
       SDL_Thread *events_thread;
-      SDL_Mutex *mutex;
+      SDL_Mutex *mutex_lock_display;
 
       SDL3_attr():mode(0),events_thread(0),mutex(0) {
         if (!SDL_Init(SDL_INIT_VIDEO))
@@ -3345,7 +3346,7 @@ namespace cimg_library {
       }
 
       ~SDL3_attr() {
-        SDL_DestroyMutex(mutex);
+        SDL_DestroyMutex(mutex_lock_display);
         SDL_Quit();
       }
 
@@ -3355,12 +3356,12 @@ namespace cimg_library {
       }
 
       static SDL3_attr& lock() { // Lock display
-        SDL_LockMutex(ref().mutex);
+        SDL_LockMutex(ref().mutex_lock_display);
         return ref();
       }
 
       static SDL3_attr& unlock() { // Lock display
-        SDL_UnlockMutex(ref().mutex);
+        SDL_UnlockMutex(ref().mutex_lock_display);
         return ref();
       }
 
@@ -9877,9 +9878,9 @@ namespace cimg_library {
 
     static void wait_all() {
       if (!cimg::X11_attr::ref().display) return;
-      pthread_mutex_lock(&cimg::X11_attr::ref().wait_event_mutex);
-      pthread_cond_wait(&cimg::X11_attr::ref().wait_event,&cimg::X11_attr::ref().wait_event_mutex);
-      pthread_mutex_unlock(&cimg::X11_attr::ref().wait_event_mutex);
+      pthread_mutex_lock(&cimg::X11_attr::ref().mutex_wait_event);
+      pthread_cond_wait(&cimg::X11_attr::ref().wait_event,&cimg::X11_attr::ref().mutex_wait_event);
+      pthread_mutex_unlock(&cimg::X11_attr::ref().mutex_wait_event);
     }
 
     void _handle_events(const XEvent *const pevent) {

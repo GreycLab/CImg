@@ -3269,7 +3269,7 @@ namespace cimg_library {
         curr_rotation = 0;
         curr_resolution = nb_resolutions = 0;
 #endif
-        cimg_displays = new CImgDisplay*[1024];
+        cimg_displays = new CImgDisplay*[512];
       }
 
       ~X11_attr() {
@@ -3350,7 +3350,7 @@ namespace cimg_library {
         }
         if (init_failed)
           throw CImgDisplayException("cimg::SDL3_attr(): %s",SDL_GetError());
-        cimg_displays = new CImgDisplay*[1024];
+        cimg_displays = new CImgDisplay*[512];
       }
 
       ~SDL3_attr() {
@@ -10258,6 +10258,7 @@ namespace cimg_library {
     CImgDisplay& assign() {
       if (is_empty()) return flush();
       Display *const dpy = cimg::X11_attr::ref().display;
+      if (!dpy) return this;
       cimg::X11_attr::lock_display();
 
       // Remove display window from event thread list.
@@ -10269,7 +10270,6 @@ namespace cimg_library {
 
       // Destroy window, image, colormap and title.
       if (_is_fullscreen && !_is_closed) _desinit_fullscreen();
-
 
 #ifdef cimg_use_xshm
       if (_shminfo) {
@@ -11840,6 +11840,7 @@ namespace cimg_library {
 #elif cimg_display==3
 
     SDL_Window *_window;
+    SDL_WindowID _window_id;
     SDL_Renderer *_renderer;
     SDL_Texture *_texture;
     unsigned int *_data;
@@ -11955,6 +11956,7 @@ namespace cimg_library {
                                        (_is_fullscreen?SDL_WINDOW_FULLSCREEN:0) |
                                        (_is_closed?SDL_WINDOW_HIDDEN:0),
                                        &_window,&_renderer)) {
+        _window_id = SDL_GetWindowID(_window);
         cimg::SDL3_attr::unlock_display();
         throw CImgDisplayException("CImgDisplay::assign(): %s",SDL_GetError());
       }

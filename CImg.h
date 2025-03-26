@@ -3293,7 +3293,21 @@ namespace cimg_library {
         static X11_attr ref;
         return ref;
       }
+
+      static X11_attr& lock() { // Lock display
+        cimg::mutex(15);
+        return ref();
+      }
+
+      static X11_attr& unlock() { // Lock display
+        cimg::mutex(15,0);
+        return ref();
+      }
+
     }; // struct X11_attr { ...
+
+#define cimg_lock_display() cimg::mutex(15)
+#define cimg_unlock_display() cimg::mutex(15,0)
 
 #elif cimg_display==2
     struct Win32_attr {
@@ -3314,8 +3328,9 @@ namespace cimg_library {
       SDL_DisplayID display;
       const SDL_DisplayMode *mode;
       SDL_Thread *events_thread;
+      SDL_Mutex *mutex;
 
-      SDL3_attr():mode(0),events_thread(0) {
+      SDL3_attr():mode(0),events_thread(0),mutex(0) {
         if (!SDL_Init(SDL_INIT_VIDEO))
           throw CImgDisplayException("cimg::SDL3_attr(): %s",SDL_GetError());
         display = SDL_GetPrimaryDisplay();
@@ -3324,9 +3339,13 @@ namespace cimg_library {
         mode = SDL_GetCurrentDisplayMode(display);
         if (!mode)
           throw CImgDisplayException("cimg::SDL3_attr(): %s",SDL_GetError());
+        mutex = SDL_CreateMutex();
+        if (!mutex)
+          throw CImgDisplayException("cimg::SDL3_attr(): %s",SDL_GetError());
       }
 
       ~SDL3_attr() {
+        SDL_DestroyMutex(mutex);
         SDL_Quit();
       }
 
@@ -3334,11 +3353,20 @@ namespace cimg_library {
         static SDL3_attr ref;
         return ref;
       }
+
+      static SDL3_attr& lock() { // Lock display
+        SDL_LockMutex(ref().mutex);
+        return ref();
+      }
+
+      static SDL3_attr& unlock() { // Lock display
+        SDL_UnlockMutex(ref().mutex);
+        return ref();
+      }
+
     }; // struct SDL3_attr { ...
 
 #endif
-#define cimg_lock_display() cimg::mutex(15)
-#define cimg_unlock_display() cimg::mutex(15,0)
 
     struct Mutex_attr {
 #if cimg_OS==1 && (defined(cimg_use_pthread) || cimg_display==1)
@@ -9963,7 +9991,7 @@ namespace cimg_library {
       pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,0);
       pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,0);
       if (!arg) for ( ; ; ) {
-        cimg_lock_display();
+        cimg::X11_attr::lock();
         bool event_flag = XCheckTypedEvent(dpy,ClientMessage,&event);
         if (!event_flag) event_flag = XCheckMaskEvent(dpy,
                                                       ExposureMask | StructureNotifyMask | ButtonPressMask |
@@ -9973,7 +10001,7 @@ namespace cimg_library {
           for (unsigned int i = 0; i<cimg::X11_attr::ref().nb_wins; ++i)
             if (!cimg::X11_attr::ref().wins[i]->_is_closed && event.xany.window==cimg::X11_attr::ref().wins[i]->_window)
               cimg::X11_attr::ref().wins[i]->_handle_events(&event);
-        cimg_unlock_display();
+        cimg::X11_attr::unlock();
         pthread_testcancel();
         cimg::sleep(8);
       }
@@ -10206,7 +10234,7 @@ namespace cimg_library {
     CImgDisplay& assign() {
       if (is_empty()) return flush();
       Display *const dpy = cimg::X11_attr::ref().display;
-      cimg_lock_display();
+      cimg::X11_attr::lock();
 
       // Remove display window from event thread list.
       unsigned int i;
@@ -10245,7 +10273,7 @@ namespace cimg_library {
       _title = 0;
       flush();
 
-      cimg_unlock_display();
+      cimg::X11_attr::unlock();
       return *this;
     }
 
@@ -10294,10 +10322,10 @@ namespace cimg_library {
         cimg::X11_attr::ref().byte_order = ImageByteOrder(dpy);
         XFree(vinfo);
 
-        cimg_lock_display();
+        cimg::X11_attr::lock();
         cimg::X11_attr::ref().events_thread = new pthread_t;
         pthread_create(cimg::X11_attr::ref().events_thread,0,_events_thread,0);
-      } else cimg_lock_display();
+      } else cimg::X11_attr::lock();
 
       // Set display variables.
       _width = std::min(dimw,(unsigned int)screen_width());
@@ -10388,7 +10416,7 @@ namespace cimg_library {
       if (_is_fullscreen) XGrabKeyboard(dpy,_window,1,GrabModeAsync,GrabModeAsync,CurrentTime);
       cimg::X11_attr::ref().wins[cimg::X11_attr::ref().nb_wins++]=this;
       if (!_is_closed) _map_window(); else _window_x = _window_y = cimg::type<int>::min();
-      cimg_unlock_display();
+      cimg::X11_attr::unlock();
       cimg::mutex(14,0);
     }
 
@@ -10452,7 +10480,7 @@ namespace cimg_library {
         dimy = tmpdimy?tmpdimy:1;
       if (_width!=dimx || _height!=dimy || _window_width!=dimx || _window_height!=dimy) {
         show();
-        cimg_lock_display();
+        cimg::X11_attr::lock();
         if (_window_width!=dimx || _window_height!=dimy) {
           XWindowAttributes attr;
           for (unsigned int i = 0; i<10; ++i) {
@@ -10468,7 +10496,7 @@ namespace cimg_library {
           default : { unsigned int pixel_type = 0; _resize(pixel_type,dimx,dimy,force_redraw); }
           }
         _window_width = _width = dimx; _window_height = _height = dimy;
-        cimg_unlock_display();
+        cimg::X11_attr::unlock();
       }
       _is_resized = false;
       if (_is_fullscreen) move((screen_width() - _width)/2,(screen_height() - _height)/2);
@@ -10493,23 +10521,23 @@ namespace cimg_library {
 
     CImgDisplay& show() {
       if (is_empty() || !_is_closed) return *this;
-      cimg_lock_display();
+      cimg::X11_attr::lock();
       _is_closed = false;
       if (_is_fullscreen) _init_fullscreen();
       _map_window();
-      cimg_unlock_display();
+      cimg::X11_attr::unlock();
       return paint();
     }
 
     CImgDisplay& close() {
       if (is_empty() || _is_closed) return *this;
       Display *const dpy = cimg::X11_attr::ref().display;
-      cimg_lock_display();
+      cimg::X11_attr::lock();
       if (_is_fullscreen) _desinit_fullscreen();
       XUnmapWindow(dpy,_window);
       _window_x = _window_y = cimg::type<int>::min();
       _is_closed = true;
-      cimg_unlock_display();
+      cimg::X11_attr::unlock();
       return *this;
     }
 
@@ -10518,11 +10546,11 @@ namespace cimg_library {
       show();
       if (_window_x!=posx || _window_y!=posy) {
         Display *const dpy = cimg::X11_attr::ref().display;
-        cimg_lock_display();
+        cimg::X11_attr::lock();
         XMoveWindow(dpy,_window,posx,posy);
         _window_x = posx;
         _window_y = posy;
-        cimg_unlock_display();
+        cimg::X11_attr::unlock();
       }
       _is_moved = false;
       return paint();
@@ -10531,16 +10559,16 @@ namespace cimg_library {
     CImgDisplay& show_mouse() {
       if (is_empty()) return *this;
       Display *const dpy = cimg::X11_attr::ref().display;
-      cimg_lock_display();
+      cimg::X11_attr::lock();
       XUndefineCursor(dpy,_window);
-      cimg_unlock_display();
+      cimg::X11_attr::unlock();
       return *this;
     }
 
     CImgDisplay& hide_mouse() {
       if (is_empty()) return *this;
       Display *const dpy = cimg::X11_attr::ref().display;
-      cimg_lock_display();
+      cimg::X11_attr::lock();
       static const char pix_data[8] = {};
       XColor col;
       col.red = col.green = col.blue = 0;
@@ -10548,19 +10576,19 @@ namespace cimg_library {
       Cursor cur = XCreatePixmapCursor(dpy,pix,pix,&col,&col,0,0);
       XFreePixmap(dpy,pix);
       XDefineCursor(dpy,_window,cur);
-      cimg_unlock_display();
+      cimg::X11_attr::unlock();
       return *this;
     }
 
     CImgDisplay& set_mouse(const int posx, const int posy) {
       if (is_empty() || _is_closed) return *this;
       Display *const dpy = cimg::X11_attr::ref().display;
-      cimg_lock_display();
+      cimg::X11_attr::lock();
       XWarpPointer(dpy,0L,_window,0,0,0,0,posx,posy);
       _mouse_x = posx; _mouse_y = posy;
       _is_moved = false;
       XSync(dpy,0);
-      cimg_unlock_display();
+      cimg::X11_attr::unlock();
       return *this;
     }
 
@@ -10577,9 +10605,9 @@ namespace cimg_library {
       _title = new char[s];
       std::memcpy(_title,tmp,s*sizeof(char));
       Display *const dpy = cimg::X11_attr::ref().display;
-      cimg_lock_display();
+      cimg::X11_attr::lock();
       XStoreName(dpy,_window,tmp);
-      cimg_unlock_display();
+      cimg::X11_attr::unlock();
       delete[] tmp;
       return *this;
     }
@@ -10596,9 +10624,9 @@ namespace cimg_library {
 
     CImgDisplay& paint(const bool wait_expose=true) {
       if (is_empty()) return *this;
-      cimg_lock_display();
+      cimg::X11_attr::lock();
       _paint(wait_expose);
-      cimg_unlock_display();
+      cimg::X11_attr::unlock();
       return *this;
     }
 
@@ -10624,7 +10652,7 @@ namespace cimg_library {
         *data3 = (img._spectrum>2)?img.data(0,0,0,2):data1;
 
       if (cimg::X11_attr::ref().is_blue_first) cimg::swap(data1,data3);
-      cimg_lock_display();
+      cimg::X11_attr::lock();
 
       if (!_normalization || (_normalization==3 && cimg::type<T>::string()==cimg::type<unsigned char>::string())) {
         _min = _max = 0;
@@ -10989,7 +11017,7 @@ namespace cimg_library {
         }
         }
       }
-      cimg_unlock_display();
+      cimg::X11_attr::unlock();
       return *this;
     }
 
@@ -10997,7 +11025,7 @@ namespace cimg_library {
     static void screenshot(const int x0, const int y0, const int x1, const int y1, CImg<T>& img) {
       img.assign();
       Display *dpy = cimg::X11_attr::ref().display;
-      cimg_lock_display();
+      cimg::X11_attr::lock();
       if (!dpy) {
         dpy = XOpenDisplay(0);
         if (!dpy)
@@ -11036,7 +11064,7 @@ namespace cimg_library {
         }
       }
       if (!cimg::X11_attr::ref().display) XCloseDisplay(dpy);
-      cimg_unlock_display();
+      cimg::X11_attr::unlock();
       if (img.is_empty())
         throw CImgDisplayException("CImgDisplay::screenshot(): Failed to take screenshot "
                                    "with coordinates (%d,%d)-(%d,%d).",
@@ -11177,9 +11205,9 @@ namespace cimg_library {
       } break;
       case WM_PAINT :
         disp->paint();
-        cimg_lock_display();
+        cimg::X11_attr::lock();
         if (disp->_is_cursor_visible) while (ShowCursor(TRUE)<0); else while (ShowCursor(FALSE_WIN)>=0);
-        cimg_unlock_display();
+        cimg::X11_attr::unlock();
         break;
       case WM_ERASEBKGND :
         //        return 0;
@@ -11209,16 +11237,16 @@ namespace cimg_library {
           disp->_mouse_x = disp->_mouse_y = -1;
         disp->_is_event = true;
         SetEvent(cimg::Win32_attr::ref().wait_event);
-        cimg_lock_display();
+        cimg::X11_attr::lock();
         if (disp->_is_cursor_visible) while (ShowCursor(TRUE)<0); else while (ShowCursor(FALSE_WIN)>=0);
-        cimg_unlock_display();
+        cimg::X11_attr::unlock();
       } break;
       case WM_MOUSELEAVE : {
         disp->_mouse_x = disp->_mouse_y = -1;
         disp->_is_mouse_tracked = false;
-        cimg_lock_display();
+        cimg::X11_attr::lock();
         while (ShowCursor(TRUE)<0) {}
-        cimg_unlock_display();
+        cimg::X11_attr::unlock();
       } break;
       case WM_LBUTTONDOWN :
         disp->set_button(1);
@@ -11807,12 +11835,17 @@ namespace cimg_library {
 
     CImgDisplay& _update_window_pos() {
       if (_is_closed) _window_x = _window_y = cimg::type<int>::min();
-      else SDL_GetWindowPosition(_window,&_window_x,&_window_y);
+      else {
+        cimg::SDL3_attr::lock();
+        SDL_GetWindowPosition(_window,&_window_x,&_window_y);
+        cimg::SDL3_attr::unlock();
+      }
       return *this;
     }
 
     CImgDisplay& assign() {
       if (is_empty()) return flush();
+      cimg::SDL3_attr::lock();
       SDL_DestroyRenderer(_renderer);
       SDL_DestroyWindow(_window);
       SDL_DestroyTexture(_texture);
@@ -11828,6 +11861,7 @@ namespace cimg_library {
       _min = _max = 0;
       _title = 0;
       flush();
+      cimg::SDL3_attr::unlock();
       return *this;
     }
 
@@ -11867,7 +11901,7 @@ namespace cimg_library {
                  const unsigned int normalization_type=3,
                  const bool fullscreen_flag=false, const bool closed_flag=false) {
 
-
+      cimg::SDL3_attr::lock();
       if (!cimg::SDL3_attr().ref().events_thread) {
         SDL_CreateThread(_events_thread,"event threads",0);
       }
@@ -11907,6 +11941,7 @@ namespace cimg_library {
                                    (int)_width,(int)_height);
       _data = new unsigned int[_width*_height];
       paint();
+      cimg::SDL3_attr::unlock();
     }
 
     CImgDisplay& assign(const unsigned int dimw, const unsigned int dimh, const char *const title=0,
@@ -11957,9 +11992,11 @@ namespace cimg_library {
     CImgDisplay& move(const int posx, const int posy) {
       if (is_empty()) return *this;
       if (_window_x!=posx || _window_y!=posy) {
+        cimg::SDL3_attr::lock();
         SDL_SetWindowPosition(_window,posx,posy);
         _window_x = posx;
         _window_y = posy;
+        cimg::SDL3_attr::unlock();
       }
       show();
       _is_moved = false;
@@ -11975,9 +12012,11 @@ namespace cimg_library {
         dimx = tmpdimx?tmpdimx:1,
         dimy = tmpdimy?tmpdimy:1;
       if (_width!=dimx || _height!=dimy || _window_width!=dimx || _window_height!=dimy) {
+        cimg::SDL3_attr::lock();
         if (_window_width!=dimx || _window_height!=dimy)
           SDL_SetWindowSize(_window,(int)dimx,(int)dimy);
         _window_width = dimx; _window_height = dimy;
+        cimg::SDL3_attr::unlock();
         show();
       }
       _is_resized = false;
@@ -11988,26 +12027,32 @@ namespace cimg_library {
 
     CImgDisplay& toggle_fullscreen(const bool force_redraw=true) {
       if (is_empty()) return *this;
+      cimg::SDL3_attr::lock();
       SDL_SetWindowFullscreen(_window,!_is_fullscreen);
+      cimg::SDL3_attr::unlock();
       if (force_redraw) return paint();
       return *this;
     }
 
     CImgDisplay& show() {
       if (is_empty() || !_is_closed) return *this;
+      cimg::SDL3_attr::lock();
       _is_closed = false;
 //      if (_is_fullscreen) _init_fullscreen();
       SDL_ShowWindow(_window);
       _update_window_pos();
+      cimg::SDL3_attr::unlock();
       return paint();
     }
 
     CImgDisplay& close() {
       if (is_empty() || _is_closed) return *this;
+      cimg::SDL3_attr::lock();
       _is_closed = true;
 //      if (_is_fullscreen) _desinit_fullscreen();
       SDL_HideWindow(_window);
       _window_x = _window_y = cimg::type<int>::min();
+      cimg::SDL3_attr::unlock();
       return *this;
     }
 
@@ -12028,7 +12073,9 @@ namespace cimg_library {
       const unsigned int s = (unsigned int)std::strlen(tmp) + 1;
       _title = new char[s];
       std::memcpy(_title,tmp,s*sizeof(char));
+      cimg::SDL3_attr::lock();
       SDL_SetWindowTitle(_window,tmp);
+      cimg::SDL3_attr::unlock();
       delete[] tmp;
       return *this;
     }
@@ -12044,8 +12091,10 @@ namespace cimg_library {
     CImgDisplay& set_mouse(const int posx, const int posy) {
       if (is_empty() || _is_closed || posx<0 || posy<0) return *this;
       if (!_is_closed) {
+        cimg::SDL3_attr::lock();
         SDL_WarpMouseInWindow(_window,(float)posx,(float)posy);
         _mouse_x = posx; _mouse_y = posy;
+        cimg::SDL3_attr::unlock();
       }
       return *this;
     }
@@ -12062,10 +12111,12 @@ namespace cimg_library {
 
     CImgDisplay& paint() {
       if (_is_closed) return *this;
+      cimg::SDL3_attr::lock();
       SDL_UpdateTexture(_texture,0,_data,_width*sizeof(unsigned int));
       SDL_RenderClear(_renderer);
       SDL_RenderTexture(_renderer,_texture,0,0);
       SDL_RenderPresent(_renderer);
+      cimg::SDL3_attr::unlock();
       return *this;
     }
 
@@ -12079,7 +12130,6 @@ namespace cimg_library {
       if (is_empty()) return *this;
       if (img._depth!=1) return render(img.get_projections2d((img._width - 1)/2,(img._height - 1)/2,
                                                              (img._depth - 1)/2));
-
       const T
         *data1 = img._data,
         *data2 = (img._spectrum>=2)?img.data(0,0,0,1):data1,

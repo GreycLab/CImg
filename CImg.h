@@ -3330,7 +3330,7 @@ namespace cimg_library {
       const SDL_DisplayMode *mode;
       SDL_Thread *events_thread;
       SDL_Condition *wait_event;
-      SDL_Mutex *mutex_lock_display;
+      SDL_Mutex *mutex_lock_display, *mutex_wait_event;
 
       SDL3_attr():mode(0),events_thread(0),mutex_lock_display(0) {
         bool init_failed = true;
@@ -3341,8 +3341,11 @@ namespace cimg_library {
             if (mode) {
               wait_event = SDL_CreateCondition();
               if (wait_event) {
-                mutex_lock_display = SDL_CreateMutex();
-                if (mutex_lock_display) init_failed = false;
+                mutex_wait_event = SDL_CreateMutex();
+                if (mutex_wait_event) {
+                  mutex_lock_display = SDL_CreateMutex();
+                  if (mutex_lock_display) init_failed = false;
+                }
               }
             }
           }
@@ -3352,6 +3355,8 @@ namespace cimg_library {
       }
 
       ~SDL3_attr() {
+        SDL_DestroyCondition(wait_event);
+        SDL_DestroyMutex(mutex_wait_event);
         SDL_DestroyMutex(mutex_lock_display);
         SDL_Quit();
       }
@@ -11836,8 +11841,9 @@ namespace cimg_library {
     }
 
     static void wait_all() {
-      SDL_Event event;
-      SDL_WaitEvent(&event);
+      SDL_LockMutex(cimg::SDL3_attr::ref().mutex_wait_event);
+      SDL_WaitCondition(cimg::SDL3_attr::ref().wait_event,cimg::SDL3_attr::ref().mutex_wait_event);
+      SDL_UnlockMutex(cimg::SDL3_attr::ref().mutex_wait_event);
     }
 
     CImgDisplay& _update_window_pos() {

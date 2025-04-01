@@ -11903,7 +11903,12 @@ namespace cimg_library {
 
     static int _events_thread(void *arg) {
       bool is_running = true;
-      SDL_Event event;
+      while (is_running) {
+        std::fprintf(stderr,"_events_thread\n");
+        cimg::sleep(1000);
+      }
+
+//      SDL_Event event;
 
 //       while (is_running) {
 //         while (SDL_PollEvent(&event)) {
@@ -11992,13 +11997,12 @@ namespace cimg_library {
       paint();
 
       cimg::SDL3_attr::lock_display();
-      if (!cimg::SDL3_attr().ref().events_thread) {
-        cimg::SDL3_attr().ref().events_thread = SDL_CreateThread(_events_thread,"event threads",0);
+      if (!cimg::SDL3_attr::ref().events_thread) {
+        cimg::SDL3_attr::ref().events_thread = SDL_CreateThread(_events_thread,"_events_thread",0);
       }
       cimg::SDL3_attr::unlock_display();
 
       std::fprintf(stderr,"\nDEBUG 2\n");
-
     }
 
     CImgDisplay& assign(const unsigned int dimw, const unsigned int dimh, const char *const title=0,

@@ -11903,10 +11903,9 @@ namespace cimg_library {
     }
 
     static int _events_thread(void *arg) {
-      bool is_running = true;
       SDL_Event event;
 
-      while (is_running) {
+      while (true) {
         while (SDL_PollEvent(&event)) {
           SDL_WindowID window_id = event.window.windowID;
           SDL_Window *const window = SDL_GetWindowFromID(window_id);
@@ -11923,21 +11922,30 @@ namespace cimg_library {
               CImgDisplay &disp = *cimg::SDL3_attr::ref().cimg_displays[ind];
               switch (event.type) {
               case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
-                disp._is_closed = true;
+                disp._is_closed = disp._is_event = true;
                 break;
               case SDL_EVENT_WINDOW_RESIZED:
+                cimg::SDL3_attr::lock_display();
+                int w,h;
+                SDL_GetWindowSize(window,&w,&h);
+                disp._window_width = (unsigned int)w;
+                disp._window_height = (unsigned int)h;
+                disp._is_event = true;
+                cimg::SDL3_attr::unlock_display();
+                break;
               case SDL_EVENT_WINDOW_MOVED:
+                cimg::SDL3_attr::lock_display();
+                disp._update_window_pos()._is_event = true;
+                cimg::SDL3_attr::unlock_display();
                 break;
               case SDL_EVENT_QUIT:
-                std::fprintf(stderr,"\n - EVENT QUIT\n");
-                is_running = false;
                 break;
               case SDL_EVENT_KEY_DOWN:
-                //              if (event.key.keysym.sym == SDLK_ESCAPE)
-                //                is_running = false;
+                disp._is_event = true;
                 break;
               }
-              SDL_BroadcastCondition(cimg::SDL3_attr::ref().wait_event);
+              if (disp._is_event)
+                SDL_BroadcastCondition(cimg::SDL3_attr::ref().wait_event);
             }
           }
         }

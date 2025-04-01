@@ -11906,6 +11906,7 @@ namespace cimg_library {
               disp._window_height = (unsigned int)h;
               is_event = true;
               cimg::SDL3_attr::unlock_display();
+              disp.paint();
             } break;
             case SDL_EVENT_WINDOW_MOVED:
               cimg::SDL3_attr::lock_display();
@@ -12225,6 +12226,9 @@ namespace cimg_library {
 
     CImgDisplay& paint() {
       if (_is_closed) return *this;
+
+      std::fprintf(stderr,"\nDEBUG : Paint() %g\n",cimg::rand());
+
       cimg::SDL3_attr::lock_display();
       SDL_UpdateTexture(_texture,0,_data,_width*sizeof(unsigned int));
       SDL_RenderClear(_renderer);

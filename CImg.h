@@ -3354,6 +3354,7 @@ namespace cimg_library {
       }
 
       ~SDL3_attr() {
+        if (events_thread) SDL_DetachThread(events_thread);
         SDL_DestroyCondition(wait_event);
         SDL_DestroyMutex(mutex_wait_event);
         SDL_DestroyMutex(mutex_lock_display);
@@ -11903,39 +11904,36 @@ namespace cimg_library {
 
     static int _events_thread(void *arg) {
       bool is_running = true;
+      SDL_Event event;
+
       while (is_running) {
-        std::fprintf(stderr,"_events_thread\n");
-        cimg::sleep(1000);
+        while (SDL_PollEvent(&event)) {
+          SDL_WindowID window_id = event.window.windowID;
+          SDL_Window *const window = SDL_GetWindowFromID(window_id);
+          if (window) {
+            switch (event.type) {
+            case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+              for (unsigned int k = 0; k<cimg::SDL3_attr::ref().nb_cimg_displays; ++k)
+                if (cimg::SDL3_attr::ref().cimg_displays[k]->_window_id==window_id) {
+                  cimg::SDL3_attr::ref().cimg_displays[k]->_is_closed = true;
+                  break;
+                }
+              break;
+            case SDL_EVENT_WINDOW_RESIZED:
+            case SDL_EVENT_WINDOW_MOVED:
+              break;
+            case SDL_EVENT_QUIT:
+              std::fprintf(stderr,"\n - EVENT QUIT\n");
+              is_running = false;
+              break;
+            case SDL_EVENT_KEY_DOWN:
+              //              if (event.key.keysym.sym == SDLK_ESCAPE)
+              //                is_running = false;
+              break;
+            }
+          }
+        }
       }
-
-//      SDL_Event event;
-
-//       while (is_running) {
-//         while (SDL_PollEvent(&event)) {
-
-//           std::fprintf(stderr,"\nEvent %g",cimg::rand());
-
-//           SDL_Window *const window = SDL_GetWindowFromID(event.window.windowID);
-//           if (window) {
-//             switch (event.type) {
-//             case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
-//               std::exit(0);
-//               break;
-//             case SDL_EVENT_WINDOW_RESIZED:
-//             case SDL_EVENT_WINDOW_MOVED:
-//               break;
-//             case SDL_EVENT_QUIT:
-//               std::fprintf(stderr,"\n - EVENT QUIT\n");
-//               is_running = false;
-//               break;
-//             case SDL_EVENT_KEY_DOWN:
-// //              if (event.key.keysym.sym == SDLK_ESCAPE)
-// //                is_running = false;
-//               break;
-//             }
-//           }
-//         }
-//       }
 
       return 0;
     }
@@ -11945,8 +11943,6 @@ namespace cimg_library {
                  const bool fullscreen_flag=false, const bool closed_flag=false) {
 
       cimg::SDL3_attr::lock_display();
-
-      std::fprintf(stderr,"\nDEBUG 1\n");
 
       // Allocate space for window title.
       const char *const np_title = p_title?p_title:"";
@@ -11970,10 +11966,10 @@ namespace cimg_library {
                                        (_is_fullscreen?SDL_WINDOW_FULLSCREEN:0) |
                                        (_is_closed?SDL_WINDOW_HIDDEN:0),
                                        &_window,&_renderer)) {
-        _window_id = SDL_GetWindowID(_window);
         cimg::SDL3_attr::unlock_display();
         throw CImgDisplayException("CImgDisplay::assign(): %s",SDL_GetError());
       }
+      _window_id = SDL_GetWindowID(_window);
       SDL_SetRenderDrawColor(_renderer,0,0,0,255);
       if (!_is_fullscreen)
         SDL_SetWindowPosition(_window,SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED);
@@ -12001,8 +11997,6 @@ namespace cimg_library {
         cimg::SDL3_attr::ref().events_thread = SDL_CreateThread(_events_thread,"_events_thread",0);
       }
       cimg::SDL3_attr::unlock_display();
-
-      std::fprintf(stderr,"\nDEBUG 2\n");
     }
 
     CImgDisplay& assign(const unsigned int dimw, const unsigned int dimh, const char *const title=0,

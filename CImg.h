@@ -11911,25 +11911,33 @@ namespace cimg_library {
           SDL_WindowID window_id = event.window.windowID;
           SDL_Window *const window = SDL_GetWindowFromID(window_id);
           if (window) {
-            switch (event.type) {
-            case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
-              for (unsigned int k = 0; k<cimg::SDL3_attr::ref().nb_cimg_displays; ++k)
-                if (cimg::SDL3_attr::ref().cimg_displays[k]->_window_id==window_id) {
-                  cimg::SDL3_attr::ref().cimg_displays[k]->_is_closed = true;
-                  break;
-                }
-              break;
-            case SDL_EVENT_WINDOW_RESIZED:
-            case SDL_EVENT_WINDOW_MOVED:
-              break;
-            case SDL_EVENT_QUIT:
-              std::fprintf(stderr,"\n - EVENT QUIT\n");
-              is_running = false;
-              break;
-            case SDL_EVENT_KEY_DOWN:
-              //              if (event.key.keysym.sym == SDLK_ESCAPE)
-              //                is_running = false;
-              break;
+
+            // Find CImgDisplay associated to event.
+            unsigned int ind = ~0U;
+            for (unsigned int k = 0; k<cimg::SDL3_attr::ref().nb_cimg_displays; ++k)
+              if (cimg::SDL3_attr::ref().cimg_displays[k]->_window==window) {
+                ind = k; break;
+              }
+
+            if (ind!=~0U) {
+              CImgDisplay &disp = *cimg::SDL3_attr::ref().cimg_displays[ind];
+              switch (event.type) {
+              case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+                disp._is_closed = true;
+                break;
+              case SDL_EVENT_WINDOW_RESIZED:
+              case SDL_EVENT_WINDOW_MOVED:
+                break;
+              case SDL_EVENT_QUIT:
+                std::fprintf(stderr,"\n - EVENT QUIT\n");
+                is_running = false;
+                break;
+              case SDL_EVENT_KEY_DOWN:
+                //              if (event.key.keysym.sym == SDLK_ESCAPE)
+                //                is_running = false;
+                break;
+              }
+              SDL_BroadcastCondition(cimg::SDL3_attr::ref().wait_event);
             }
           }
         }

@@ -12306,6 +12306,10 @@ namespace cimg_library {
       return *this;
     }
 
+    template<typename T>
+    static void screenshot(const int x0, const int y0, const int x1, const int y1, CImg<T>& img) {
+    }
+
 #endif
 
     //@}

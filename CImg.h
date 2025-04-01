@@ -11873,6 +11873,7 @@ namespace cimg_library {
 
     static int _events_thread(void *arg) {
       SDL_Event event;
+      bool is_event = false;
 
       while (cimg::SDL3_attr::ref().nb_cimg_displays) {
         SDL_WaitEvent(&event);
@@ -11895,7 +11896,7 @@ namespace cimg_library {
 
               // Window events.
             case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
-              disp._is_closed = disp._is_event = true;
+              disp._is_closed = is_event = true;
               break;
             case SDL_EVENT_WINDOW_RESIZED: {
               int w,h;
@@ -11903,12 +11904,13 @@ namespace cimg_library {
               SDL_GetWindowSize(window,&w,&h);
               disp._window_width = (unsigned int)w;
               disp._window_height = (unsigned int)h;
-              disp._is_event = true;
+              is_event = true;
               cimg::SDL3_attr::unlock_display();
             } break;
             case SDL_EVENT_WINDOW_MOVED:
               cimg::SDL3_attr::lock_display();
-              disp._update_window_pos()._is_event = true;
+              disp._update_window_pos();
+              is_event = true;
               cimg::SDL3_attr::unlock_display();
               break;
             case SDL_EVENT_QUIT:
@@ -11922,30 +11924,33 @@ namespace cimg_library {
               SDL_GetMouseState(&x,&y);
               disp._mouse_x = (int)x;
               disp._mouse_y = (int)y;
-              disp._is_event = true;
+              is_event = true;
               cimg::SDL3_attr::unlock_display();
             } break;
             case SDL_EVENT_WINDOW_MOUSE_LEAVE:
               disp._mouse_x = disp._mouse_y = -1;
-              disp._is_event = true;
+              is_event = true;
               break;
             case SDL_EVENT_MOUSE_BUTTON_DOWN:
             case SDL_EVENT_MOUSE_BUTTON_UP: {
               SDL_MouseButtonFlags button = SDL_GetMouseState(0,0);
               disp._button = (button&1) | ((button&4)>>2)<<1 | ((button&2)>>1)<<2;
-              disp._is_event = true;
+              is_event = true;
             } break;
             case SDL_EVENT_MOUSE_WHEEL:
-              disp._is_event = true;
+              disp.set_wheel((int)event.wheel.y);
+              is_event = true;
               break;
 
               // Keyboard events.
             case SDL_EVENT_KEY_DOWN:
-              disp._is_event = true;
+              is_event = true;
               break;
             }
-            if (disp._is_event)
+            if (is_event) {
+              disp._is_event = true;
               SDL_BroadcastCondition(cimg::SDL3_attr::ref().wait_event);
+            }
           }
         }
       }

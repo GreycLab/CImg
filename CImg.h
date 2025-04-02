@@ -3273,7 +3273,7 @@ namespace cimg_library {
       }
 
       ~X11_attr() {
-        if (events_thread_running) {
+        if (events_thread) {
           terminate_events_thread();
           delete events_thread;
         }
@@ -3333,8 +3333,10 @@ namespace cimg_library {
       SDL_Thread *events_thread;
       SDL_Condition *wait_event;
       SDL_Mutex *mutex_lock_display, *mutex_wait_event;
+      bool events_thread_running;
 
-      SDL3_attr() {
+      SDL3_attr():nb_cimg_displays(0),display(0),mode(0),events_thread(0),wait_event(0),mutex_lock_display(0),
+                  mutex_wait_event(0),events_thread_running(false) {
         bool init_failed = true;
         if (SDL_Init(SDL_INIT_VIDEO)) {
           display = SDL_GetPrimaryDisplay();
@@ -3360,7 +3362,7 @@ namespace cimg_library {
       ~SDL3_attr() {
         if (events_thread) {
           terminate_events_thread();
-          delete events_thread;
+//          delete events_thread;
         }
         SDL_DestroyCondition(wait_event);
         SDL_DestroyMutex(mutex_wait_event);
@@ -3385,15 +3387,11 @@ namespace cimg_library {
       }
 
       static SDL3_attr& terminate_events_thread() {
-        ref().lock_display();
-        SDL_Event event = { 0 };
-        event.type = SDL_EVENT_USER;
-        SDL_PushEvent(&event);
-        ref().unlock_display();
+        ref().events_thread_running = false;
         SDL_WaitThread(ref().events_thread,0);
         ref().events_thread = 0;
         return ref();
-    }
+      }
 
     }; // struct SDL3_attr { ...
 
@@ -10045,11 +10043,6 @@ namespace cimg_library {
             for (unsigned int i = 0; i<cimg::X11_attr::ref().nb_cimg_displays; ++i)
               if (!cimg::X11_attr::ref().cimg_displays[i]->_is_closed &&
                   event.xany.window==cimg::X11_attr::ref().cimg_displays[i]->_window) {
-                if (event.xany.type==ClientMessage) {
-                  const char *str = event.xclient.data.b;
-                  if (str[0]=='C' && str[1]=='I' && str[2]=='m' && str[3]=='g' && !str[4])
-                    cimg::X11_attr::ref().events_thread_running = false;
-                }
                 if (cimg::X11_attr::ref().events_thread_running)
                   cimg::X11_attr::ref().cimg_displays[i]->_handle_events(&event);
               }
@@ -11900,87 +11893,83 @@ namespace cimg_library {
     static int _events_thread(void *arg) {
       SDL_Event event;
       bool is_event = false;
+      cimg::SDL3_attr::ref().events_thread_running = true;
+      while (cimg::SDL3_attr::ref().events_thread_running)
+        if (SDL_WaitEventTimeout(&event,8)) {
+          SDL_WindowID window_id = event.window.windowID;
+          SDL_Window *const window = SDL_GetWindowFromID(window_id);
+          if (window) {
 
-      while (cimg::SDL3_attr::ref().nb_cimg_displays) {
-        SDL_WaitEvent(&event);
-        if (event.type==SDL_EVENT_USER) break; // Terminate thread
+            // Find CImgDisplay associated to event.
+            unsigned int ind = ~0U;
+            for (unsigned int k = 0; k<cimg::SDL3_attr::ref().nb_cimg_displays; ++k)
+              if (cimg::SDL3_attr::ref().cimg_displays[k]->_window==window) {
+                ind = k; break;
+              }
 
-        SDL_WindowID window_id = event.window.windowID;
-        SDL_Window *const window = SDL_GetWindowFromID(window_id);
-        if (window) {
+            if (cimg::SDL3_attr::ref().events_thread_running && ind!=~0U) {
+              CImgDisplay &disp = *cimg::SDL3_attr::ref().cimg_displays[ind];
+              switch (event.type) {
 
-          // Find CImgDisplay associated to event.
-          unsigned int ind = ~0U;
-          for (unsigned int k = 0; k<cimg::SDL3_attr::ref().nb_cimg_displays; ++k)
-            if (cimg::SDL3_attr::ref().cimg_displays[k]->_window==window) {
-              ind = k; break;
-            }
+                // Window events.
+              case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+                disp._is_closed = is_event = true;
+                break;
+              case SDL_EVENT_WINDOW_RESIZED: {
+                int w,h;
+                cimg::SDL3_attr::lock_display();
+                SDL_GetWindowSize(window,&w,&h);
+                disp._window_width = (unsigned int)w;
+                disp._window_height = (unsigned int)h;
+                is_event = true;
+                cimg::SDL3_attr::unlock_display();
+                disp.paint();
+              } break;
+              case SDL_EVENT_WINDOW_MOVED:
+                cimg::SDL3_attr::lock_display();
+                disp._update_window_pos();
+                is_event = true;
+                cimg::SDL3_attr::unlock_display();
+                break;
 
-          if (ind!=~0U) {
-            CImgDisplay &disp = *cimg::SDL3_attr::ref().cimg_displays[ind];
-            switch (event.type) {
+                // Mouse events.
+              case SDL_EVENT_MOUSE_MOTION:
+              case SDL_EVENT_WINDOW_MOUSE_ENTER: {
+                float x,y;
+                cimg::SDL3_attr::lock_display();
+                SDL_GetMouseState(&x,&y);
+                disp._mouse_x = (int)x;
+                disp._mouse_y = (int)y;
+                is_event = true;
+                cimg::SDL3_attr::unlock_display();
+              } break;
+              case SDL_EVENT_WINDOW_MOUSE_LEAVE:
+                disp._mouse_x = disp._mouse_y = -1;
+                is_event = true;
+                break;
+              case SDL_EVENT_MOUSE_BUTTON_DOWN:
+              case SDL_EVENT_MOUSE_BUTTON_UP: {
+                SDL_MouseButtonFlags button = SDL_GetMouseState(0,0);
+                disp._button = (button&1) | ((button&4)>>2)<<1 | ((button&2)>>1)<<2;
+                is_event = true;
+              } break;
+              case SDL_EVENT_MOUSE_WHEEL:
+                disp.set_wheel((int)event.wheel.y);
+                is_event = true;
+                break;
 
-              // Window events.
-            case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
-              disp._is_closed = is_event = true;
-              break;
-            case SDL_EVENT_WINDOW_RESIZED: {
-              int w,h;
-              cimg::SDL3_attr::lock_display();
-              SDL_GetWindowSize(window,&w,&h);
-              disp._window_width = (unsigned int)w;
-              disp._window_height = (unsigned int)h;
-              is_event = true;
-              cimg::SDL3_attr::unlock_display();
-              disp.paint();
-            } break;
-            case SDL_EVENT_WINDOW_MOVED:
-              cimg::SDL3_attr::lock_display();
-              disp._update_window_pos();
-              is_event = true;
-              cimg::SDL3_attr::unlock_display();
-              break;
-            case SDL_EVENT_QUIT:
-              break;
-
-              // Mouse events.
-            case SDL_EVENT_MOUSE_MOTION:
-            case SDL_EVENT_WINDOW_MOUSE_ENTER: {
-              float x,y;
-              cimg::SDL3_attr::lock_display();
-              SDL_GetMouseState(&x,&y);
-              disp._mouse_x = (int)x;
-              disp._mouse_y = (int)y;
-              is_event = true;
-              cimg::SDL3_attr::unlock_display();
-            } break;
-            case SDL_EVENT_WINDOW_MOUSE_LEAVE:
-              disp._mouse_x = disp._mouse_y = -1;
-              is_event = true;
-              break;
-            case SDL_EVENT_MOUSE_BUTTON_DOWN:
-            case SDL_EVENT_MOUSE_BUTTON_UP: {
-              SDL_MouseButtonFlags button = SDL_GetMouseState(0,0);
-              disp._button = (button&1) | ((button&4)>>2)<<1 | ((button&2)>>1)<<2;
-              is_event = true;
-            } break;
-            case SDL_EVENT_MOUSE_WHEEL:
-              disp.set_wheel((int)event.wheel.y);
-              is_event = true;
-              break;
-
-              // Keyboard events.
-            case SDL_EVENT_KEY_DOWN:
-              is_event = true;
-              break;
-            }
-            if (is_event) {
-              disp._is_event = true;
-              SDL_BroadcastCondition(cimg::SDL3_attr::ref().wait_event);
+                // Keyboard events.
+              case SDL_EVENT_KEY_DOWN:
+                is_event = true;
+                break;
+              }
+              if (is_event) {
+                disp._is_event = true;
+                SDL_BroadcastCondition(cimg::SDL3_attr::ref().wait_event);
+              }
             }
           }
         }
-      }
       return 0;
     }
 
@@ -11994,7 +11983,6 @@ namespace cimg_library {
       for ( ; i<cimg::SDL3_attr::ref().nb_cimg_displays - 1; ++i)
         cimg::SDL3_attr::ref().cimg_displays[i] = cimg::SDL3_attr::ref().cimg_displays[i + 1];
       --cimg::SDL3_attr::ref().nb_cimg_displays;
-      if (!cimg::SDL3_attr::ref().nb_cimg_displays) _terminate_events_thread();
 
       // Destroy associated ressources.
       SDL_DestroyRenderer(_renderer);

@@ -3249,7 +3249,7 @@ namespace cimg_library {
       pthread_cond_t wait_event;
       pthread_mutex_t mutex_lock_display, mutex_wait_event;
       unsigned int nb_bits;
-      bool is_blue_first, is_shm_enabled, byte_order;
+      bool is_blue_first, is_shm_enabled, byte_order, events_thread_running;
 
 #ifdef cimg_use_xrandr
       XRRScreenSize *resolutions;
@@ -3257,7 +3257,7 @@ namespace cimg_library {
       unsigned int curr_resolution, nb_resolutions;
 #endif
       X11_attr():nb_cimg_displays(0),display(0),events_thread(0),nb_bits(0),
-                 is_blue_first(false),is_shm_enabled(false),byte_order(false) {
+                 is_blue_first(false),is_shm_enabled(false),byte_order(false),events_thread_running(false) {
 #ifdef __FreeBSD__
         XInitThreads();
 #endif
@@ -3273,20 +3273,17 @@ namespace cimg_library {
       }
 
       ~X11_attr() {
-        /*
-          if (events_thread) {
-          pthread_cancel(*events_thread);
+        if (events_thread_running) {
+          terminate_events_thread();
           delete events_thread;
-          }
-          if (display) { XCloseDisplay(display); }
-        */
-
+        }
         pthread_cond_destroy(&wait_event);
         pthread_mutex_unlock(&mutex_wait_event);
         pthread_mutex_destroy(&mutex_wait_event);
         pthread_mutex_unlock(&mutex_lock_display);
         pthread_mutex_destroy(&mutex_lock_display);
         delete[] cimg_displays;
+        if (display) { XCloseDisplay(display); }
       }
 
       static X11_attr& ref() { // Return shared instance across compilation modules
@@ -3301,6 +3298,13 @@ namespace cimg_library {
 
       static X11_attr& unlock_display() { // Lock display
         pthread_mutex_unlock(&ref().mutex_lock_display);
+        return ref();
+      }
+
+      static X11_attr& terminate_events_thread() {
+        ref().events_thread_running = false;
+        pthread_join(*ref().events_thread,0);
+        ref().events_thread = 0;
         return ref();
       }
 
@@ -3354,7 +3358,10 @@ namespace cimg_library {
       }
 
       ~SDL3_attr() {
-        if (events_thread) SDL_DetachThread(events_thread);
+        if (events_thread) {
+          terminate_events_thread();
+          delete events_thread;
+        }
         SDL_DestroyCondition(wait_event);
         SDL_DestroyMutex(mutex_wait_event);
         SDL_DestroyMutex(mutex_lock_display);
@@ -3376,6 +3383,17 @@ namespace cimg_library {
         SDL_UnlockMutex(ref().mutex_lock_display);
         return ref();
       }
+
+      static SDL3_attr& terminate_events_thread() {
+        ref().lock_display();
+        SDL_Event event = { 0 };
+        event.type = SDL_EVENT_USER;
+        SDL_PushEvent(&event);
+        ref().unlock_display();
+        SDL_WaitThread(ref().events_thread,0);
+        ref().events_thread = 0;
+        return ref();
+    }
 
     }; // struct SDL3_attr { ...
 
@@ -10015,22 +10033,30 @@ namespace cimg_library {
       XEvent event;
       pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,0);
       pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,0);
-      if (!arg) while (true) {
-        cimg::X11_attr::lock_display();
-        bool event_flag = XCheckTypedEvent(dpy,ClientMessage,&event);
-        if (!event_flag) event_flag = XCheckMaskEvent(dpy,
-                                                      ExposureMask | StructureNotifyMask | ButtonPressMask |
-                                                      KeyPressMask | PointerMotionMask | EnterWindowMask |
-                                                      LeaveWindowMask | ButtonReleaseMask | KeyReleaseMask,&event);
-        if (event_flag)
-          for (unsigned int i = 0; i<cimg::X11_attr::ref().nb_cimg_displays; ++i)
-            if (!cimg::X11_attr::ref().cimg_displays[i]->_is_closed &&
-                event.xany.window==cimg::X11_attr::ref().cimg_displays[i]->_window)
-              cimg::X11_attr::ref().cimg_displays[i]->_handle_events(&event);
-        cimg::X11_attr::unlock_display();
-        pthread_testcancel();
-        cimg::sleep(8);
-      }
+      cimg::X11_attr::ref().events_thread_running = true;
+      if (!arg) while (cimg::X11_attr::ref().events_thread_running) {
+          cimg::X11_attr::lock_display();
+          bool event_flag = XCheckTypedEvent(dpy,ClientMessage,&event);
+          if (!event_flag) event_flag = XCheckMaskEvent(dpy,
+                                                        ExposureMask | StructureNotifyMask | ButtonPressMask |
+                                                        KeyPressMask | PointerMotionMask | EnterWindowMask |
+                                                        LeaveWindowMask | ButtonReleaseMask | KeyReleaseMask,&event);
+          if (event_flag)
+            for (unsigned int i = 0; i<cimg::X11_attr::ref().nb_cimg_displays; ++i)
+              if (!cimg::X11_attr::ref().cimg_displays[i]->_is_closed &&
+                  event.xany.window==cimg::X11_attr::ref().cimg_displays[i]->_window) {
+                if (event.xany.type==ClientMessage) {
+                  const char *str = event.xclient.data.b;
+                  if (str[0]=='C' && str[1]=='I' && str[2]=='m' && str[3]=='g' && !str[4])
+                    cimg::X11_attr::ref().events_thread_running = false;
+                }
+                if (cimg::X11_attr::ref().events_thread_running)
+                  cimg::X11_attr::ref().cimg_displays[i]->_handle_events(&event);
+              }
+          cimg::X11_attr::unlock_display();
+          pthread_testcancel();
+          cimg::sleep(8);
+        }
       return 0;
     }
 
@@ -11958,14 +11984,6 @@ namespace cimg_library {
       return 0;
     }
 
-    void _terminate_events_thread() {
-      SDL_Event event = {0};
-      event.type = SDL_EVENT_USER;
-      SDL_PushEvent(&event);
-      SDL_WaitThread(cimg::SDL3_attr::ref().events_thread,0);
-      cimg::SDL3_attr::ref().events_thread = 0;
-    }
-
     CImgDisplay& assign() {
       if (is_empty()) return flush();
       cimg::SDL3_attr::lock_display();
@@ -12226,9 +12244,6 @@ namespace cimg_library {
 
     CImgDisplay& paint() {
       if (_is_closed) return *this;
-
-      std::fprintf(stderr,"\nDEBUG : Paint() %g\n",cimg::rand());
-
       cimg::SDL3_attr::lock_display();
       SDL_UpdateTexture(_texture,0,_data,_width*sizeof(unsigned int));
       SDL_RenderClear(_renderer);

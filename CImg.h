@@ -12248,10 +12248,12 @@ namespace cimg_library {
     }
 
     CImgDisplay& show_mouse() {
+      SDL_ShowCursor();
       return *this;
     }
 
     CImgDisplay& hide_mouse() {
+      SDL_HideCursor();
       return *this;
     }
 

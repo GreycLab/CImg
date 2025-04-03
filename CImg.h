@@ -12248,12 +12248,18 @@ namespace cimg_library {
     }
 
     CImgDisplay& show_mouse() {
+      cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
+      SDL3_attr.lock();
       SDL_ShowCursor();
+      SDL3_attr.unlock();
       return *this;
     }
 
     CImgDisplay& hide_mouse() {
+      cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
+      SDL3_attr.lock();
       SDL_HideCursor();
+      SDL3_attr.unlock();
       return *this;
     }
 

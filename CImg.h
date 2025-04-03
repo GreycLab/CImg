@@ -3291,14 +3291,14 @@ namespace cimg_library {
         return ref;
       }
 
-      static X11_attr& lock_display() { // Lock display
-        pthread_mutex_lock(&ref().mutex_lock_display);
-        return ref();
+      X11_attr& lock() { // Lock display
+        pthread_mutex_lock(&mutex_lock_display);
+        return *this;
       }
 
-      static X11_attr& unlock_display() { // Lock display
-        pthread_mutex_unlock(&ref().mutex_lock_display);
-        return ref();
+      X11_attr& unlock() { // Lock display
+        pthread_mutex_unlock(&mutex_lock_display);
+        return *this;
       }
 
       static X11_attr& terminate_events_thread() {
@@ -10038,7 +10038,7 @@ namespace cimg_library {
       pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,0);
       X11_attr.events_thread_running = true;
       if (!arg) while (X11_attr.events_thread_running) {
-          cimg::X11_attr::lock_display();
+          X11_attr.lock();
           bool event_flag = XCheckTypedEvent(dpy,ClientMessage,&event);
           if (!event_flag) event_flag = XCheckMaskEvent(dpy,
                                                         ExposureMask | StructureNotifyMask | ButtonPressMask |
@@ -10051,7 +10051,7 @@ namespace cimg_library {
                 if (X11_attr.events_thread_running)
                   X11_attr.cimg_displays[i]->_handle_events(&event);
               }
-          cimg::X11_attr::unlock_display();
+          X11_attr.unlock();
           pthread_testcancel();
           cimg::sleep(8);
         }
@@ -10292,7 +10292,7 @@ namespace cimg_library {
       cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
       Display *const dpy = X11_attr.display;
       if (!dpy) return *this;
-      cimg::X11_attr::lock_display();
+      X11_attr.lock();
 
       // Remove display window from event thread list.
       unsigned int i;
@@ -10330,7 +10330,7 @@ namespace cimg_library {
       _title = 0;
       flush();
 
-      cimg::X11_attr::unlock_display();
+      X11_attr.unlock();
       return *this;
     }
 
@@ -10381,10 +10381,10 @@ namespace cimg_library {
         X11_attr.byte_order = ImageByteOrder(dpy);
         XFree(vinfo);
 
-        cimg::X11_attr::lock_display();
+        X11_attr.lock();
         X11_attr.events_thread = new pthread_t;
         pthread_create(X11_attr.events_thread,0,_events_thread,0);
-      } else cimg::X11_attr::lock_display();
+      } else X11_attr.lock();
 
       // Set display variables.
       _width = std::min(dimw,(unsigned int)screen_width());
@@ -10474,12 +10474,12 @@ namespace cimg_library {
 
       if (_is_fullscreen) XGrabKeyboard(dpy,_window,1,GrabModeAsync,GrabModeAsync,CurrentTime);
       if (X11_attr.nb_cimg_displays>=512) {
-        cimg::X11_attr::unlock_display();
+        X11_attr.unlock();
         throw CImgDisplayException("CImgDisplay::assign(): Max number of displays (512) already opened.");
       }
       X11_attr.cimg_displays[X11_attr.nb_cimg_displays++] = this;
       if (!_is_closed) _map_window(); else _window_x = _window_y = cimg::type<int>::min();
-      cimg::X11_attr::unlock_display();
+      X11_attr.unlock();
       cimg::mutex(14,0);
     }
 
@@ -10546,7 +10546,7 @@ namespace cimg_library {
         dimy = tmpdimy?tmpdimy:1;
       if (_width!=dimx || _height!=dimy || _window_width!=dimx || _window_height!=dimy) {
         show();
-        cimg::X11_attr::lock_display();
+        X11_attr.lock();
         if (_window_width!=dimx || _window_height!=dimy) {
           XWindowAttributes attr;
           for (unsigned int i = 0; i<10; ++i) {
@@ -10562,7 +10562,7 @@ namespace cimg_library {
           default : { unsigned int pixel_type = 0; _resize(pixel_type,dimx,dimy,force_redraw); }
           }
         _window_width = _width = dimx; _window_height = _height = dimy;
-        cimg::X11_attr::unlock_display();
+        X11_attr.unlock();
       }
       _is_resized = false;
       if (_is_fullscreen) move((screen_width() - _width)/2,(screen_height() - _height)/2);
@@ -10588,11 +10588,12 @@ namespace cimg_library {
 
     CImgDisplay& show() {
       if (is_empty() || !_is_closed) return *this;
-      cimg::X11_attr::lock_display();
+      cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
+      X11_attr.lock();
       _is_closed = false;
       if (_is_fullscreen) _init_fullscreen();
       _map_window();
-      cimg::X11_attr::unlock_display();
+      X11_attr.unlock();
       return paint();
     }
 
@@ -10600,12 +10601,12 @@ namespace cimg_library {
       if (is_empty() || _is_closed) return *this;
       cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
       Display *const dpy = X11_attr.display;
-      cimg::X11_attr::lock_display();
+      X11_attr.lock();
       if (_is_fullscreen) _desinit_fullscreen();
       XUnmapWindow(dpy,_window);
       _window_x = _window_y = cimg::type<int>::min();
       _is_closed = true;
-      cimg::X11_attr::unlock_display();
+      X11_attr.unlock();
       return *this;
     }
 
@@ -10615,11 +10616,11 @@ namespace cimg_library {
       if (_window_x!=posx || _window_y!=posy) {
         cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
         Display *const dpy = X11_attr.display;
-        cimg::X11_attr::lock_display();
+        X11_attr.lock();
         XMoveWindow(dpy,_window,posx,posy);
         _window_x = posx;
         _window_y = posy;
-        cimg::X11_attr::unlock_display();
+        X11_attr.unlock();
       }
       _is_moved = false;
       return paint();
@@ -10629,9 +10630,9 @@ namespace cimg_library {
       if (is_empty()) return *this;
       cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
       Display *const dpy = X11_attr.display;
-      cimg::X11_attr::lock_display();
+      X11_attr.lock();
       XUndefineCursor(dpy,_window);
-      cimg::X11_attr::unlock_display();
+      X11_attr.unlock();
       return *this;
     }
 
@@ -10639,7 +10640,7 @@ namespace cimg_library {
       if (is_empty()) return *this;
       cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
       Display *const dpy = X11_attr.display;
-      cimg::X11_attr::lock_display();
+      X11_attr.lock();
       static const char pix_data[8] = {};
       XColor col;
       col.red = col.green = col.blue = 0;
@@ -10647,7 +10648,7 @@ namespace cimg_library {
       Cursor cur = XCreatePixmapCursor(dpy,pix,pix,&col,&col,0,0);
       XFreePixmap(dpy,pix);
       XDefineCursor(dpy,_window,cur);
-      cimg::X11_attr::unlock_display();
+      X11_attr.unlock();
       return *this;
     }
 
@@ -10655,12 +10656,12 @@ namespace cimg_library {
       if (is_empty() || _is_closed) return *this;
       cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
       Display *const dpy = X11_attr.display;
-      cimg::X11_attr::lock_display();
+      X11_attr.lock();
       XWarpPointer(dpy,0L,_window,0,0,0,0,posx,posy);
       _mouse_x = posx; _mouse_y = posy;
       _is_moved = false;
       XSync(dpy,0);
-      cimg::X11_attr::unlock_display();
+      X11_attr.unlock();
       return *this;
     }
 
@@ -10679,9 +10680,9 @@ namespace cimg_library {
 
       cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
       Display *const dpy = X11_attr.display;
-      cimg::X11_attr::lock_display();
+      X11_attr.lock();
       XStoreName(dpy,_window,tmp);
-      cimg::X11_attr::unlock_display();
+      X11_attr.unlock();
       delete[] tmp;
       return *this;
     }
@@ -10698,9 +10699,10 @@ namespace cimg_library {
 
     CImgDisplay& paint(const bool wait_expose=true) {
       if (is_empty()) return *this;
-      cimg::X11_attr::lock_display();
+      cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
+      X11_attr.lock();
       _paint(wait_expose);
-      cimg::X11_attr::unlock_display();
+      X11_attr.unlock();
       return *this;
     }
 
@@ -10728,7 +10730,7 @@ namespace cimg_library {
         *data3 = (img._spectrum>2)?img.data(0,0,0,2):data1;
 
       if (X11_attr.is_blue_first) cimg::swap(data1,data3);
-      cimg::X11_attr::lock_display();
+      X11_attr.lock();
 
       if (!_normalization || (_normalization==3 && cimg::type<T>::string()==cimg::type<unsigned char>::string())) {
         _min = _max = 0;
@@ -11093,7 +11095,7 @@ namespace cimg_library {
         }
         }
       }
-      cimg::X11_attr::unlock_display();
+      X11_attr.unlock();
       return *this;
     }
 
@@ -11102,7 +11104,7 @@ namespace cimg_library {
       img.assign();
       cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
       Display *dpy = X11_attr.display;
-      cimg::X11_attr::lock_display();
+      X11_attr.lock();
       if (!dpy) {
         dpy = XOpenDisplay(0);
         if (!dpy)
@@ -11141,7 +11143,7 @@ namespace cimg_library {
         }
       }
       if (!X11_attr.display) XCloseDisplay(dpy);
-      cimg::X11_attr::unlock_display();
+      X11_attr.unlock();
       if (img.is_empty())
         throw CImgDisplayException("CImgDisplay::screenshot(): Failed to take screenshot "
                                    "with coordinates (%d,%d)-(%d,%d).",
@@ -11284,9 +11286,9 @@ namespace cimg_library {
       } break;
       case WM_PAINT :
         disp->paint();
-        cimg::X11_attr::lock_display();
+        X11_attr.lock();
         if (disp->_is_cursor_visible) while (ShowCursor(TRUE)<0); else while (ShowCursor(FALSE_WIN)>=0);
-        cimg::X11_attr::unlock_display();
+        X11_attr.unlock();
         break;
       case WM_ERASEBKGND :
         //        return 0;
@@ -11316,16 +11318,16 @@ namespace cimg_library {
           disp->_mouse_x = disp->_mouse_y = -1;
         disp->_is_event = true;
         SetEvent(cimg::Win32_attr::ref().wait_event);
-        cimg::X11_attr::lock_display();
+        X11_attr.lock();
         if (disp->_is_cursor_visible) while (ShowCursor(TRUE)<0); else while (ShowCursor(FALSE_WIN)>=0);
-        cimg::X11_attr::unlock_display();
+        X11_attr.unlock();
       } break;
       case WM_MOUSELEAVE : {
         disp->_mouse_x = disp->_mouse_y = -1;
         disp->_is_mouse_tracked = false;
-        cimg::X11_attr::lock_display();
+        X11_attr.lock();
         while (ShowCursor(TRUE)<0) {}
-        cimg::X11_attr::unlock_display();
+        X11_attr.unlock();
       } break;
       case WM_LBUTTONDOWN :
         disp->set_button(1);

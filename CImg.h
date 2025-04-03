@@ -11979,6 +11979,8 @@ namespace cimg_library {
 
         // Keyboard events.
       case SDL_EVENT_KEY_DOWN:
+        std::fprintf(stderr,"Key pressed: %s\n",
+                     SDL_GetKeyName(event.key.key));
         is_event = true;
         break;
       }

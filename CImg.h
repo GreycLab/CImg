@@ -10382,11 +10382,11 @@ namespace cimg_library {
         X11_attr.byte_order = ImageByteOrder(dpy);
         XFree(vinfo);
       }
+      X11_attr.lock();
       if (!X11_attr.events_thread) {
-        X11_attr.lock();
         X11_attr.events_thread = new pthread_t;
         pthread_create(X11_attr.events_thread,0,_events_thread,0);
-      } else X11_attr.lock();
+      }
 
       // Set display variables.
       _width = std::min(dimw,(unsigned int)screen_width());

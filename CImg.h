@@ -3301,11 +3301,11 @@ namespace cimg_library {
         return *this;
       }
 
-      static X11_attr& terminate_events_thread() {
+      X11_attr& terminate_events_thread() {
         ref().events_thread_running = false;
         pthread_join(*ref().events_thread,0);
         ref().events_thread = 0;
-        return ref();
+        return *this;
       }
 
     }; // struct X11_attr { ...

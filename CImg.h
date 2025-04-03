@@ -3286,11 +3286,6 @@ namespace cimg_library {
         if (display) { XCloseDisplay(display); }
       }
 
-      static X11_attr& ref() { // Return shared instance across compilation modules
-        static X11_attr ref;
-        return ref;
-      }
-
       X11_attr& lock() { // Lock display
         pthread_mutex_lock(&mutex_lock_display);
         return *this;
@@ -3306,6 +3301,11 @@ namespace cimg_library {
         pthread_join(*ref().events_thread,0);
         ref().events_thread = 0;
         return *this;
+      }
+
+      static X11_attr& ref() { // Return shared instance across compilation modules
+        static X11_attr ref;
+        return ref;
       }
 
     }; // struct X11_attr { ...
@@ -3371,11 +3371,6 @@ namespace cimg_library {
         delete[] cimg_displays;
       }
 
-      static SDL3_attr& ref() { // Return shared instance across compilation modules
-        static SDL3_attr ref;
-        return ref;
-      }
-
       static SDL3_attr& lock_display() { // Lock display
         SDL_LockMutex(ref().mutex_lock_display);
         return ref();
@@ -3391,6 +3386,11 @@ namespace cimg_library {
         SDL_WaitThread(ref().events_thread,0);
         ref().events_thread = 0;
         return ref();
+      }
+
+      static SDL3_attr& ref() { // Return shared instance across compilation modules
+        static SDL3_attr ref;
+        return ref;
       }
 
     }; // struct SDL3_attr { ...
@@ -10300,6 +10300,7 @@ namespace cimg_library {
       for ( ; i<X11_attr.nb_cimg_displays - 1; ++i)
         X11_attr.cimg_displays[i] = X11_attr.cimg_displays[i + 1];
       --X11_attr.nb_cimg_displays;
+//      if (!X11_attr.nb_cimg_displays) X11_attr.terminate_events_thread();
 
       // Destroy associated ressources.
       if (_is_fullscreen && !_is_closed) _desinit_fullscreen();

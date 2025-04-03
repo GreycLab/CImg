@@ -9926,17 +9926,18 @@ namespace cimg_library {
       pthread_mutex_unlock(&X11_attr.mutex_wait_event);
     }
 
-    void _handle_events(const XEvent *const pevent) {
+    void _handle_events(XEvent *const p_event) {
       cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
       Display *const dpy = X11_attr.display;
-      XEvent event = *pevent;
+      XEvent &event = *p_event;
+      bool is_event = false;
+
       switch (event.type) {
       case ClientMessage : {
         if ((int)event.xclient.message_type==(int)_wm_protocol_atom &&
             (int)event.xclient.data.l[0]==(int)_wm_window_atom) {
           XUnmapWindow(X11_attr.display,_window);
-          _is_closed = _is_event = true;
-          pthread_cond_broadcast(&X11_attr.wait_event);
+          _is_closed = is_event = true;
         }
       } break;
       case ConfigureNotify : {
@@ -9946,14 +9947,12 @@ namespace cimg_library {
         if (nw && nh && (nw!=_window_width || nh!=_window_height)) {
           _window_width = nw; _window_height = nh; _mouse_x = _mouse_y = -1;
           XResizeWindow(dpy,_window,_window_width,_window_height);
-          _is_resized = _is_event = true;
-          pthread_cond_broadcast(&X11_attr.wait_event);
+          _is_resized = is_event = true;
         }
         if (nx!=_window_x || ny!=_window_y) {
           _window_x = nx;
           _window_y = ny;
-          _is_moved = _is_event = true;
-          pthread_cond_broadcast(&X11_attr.wait_event);
+          _is_moved = is_event = true;
         }
       } break;
       case Expose : {
@@ -10016,17 +10015,19 @@ namespace cimg_library {
       } break;
       case LeaveNotify : {
         while (XCheckWindowEvent(dpy,_window,LeaveWindowMask,&event)) {}
-        _mouse_x = _mouse_y = -1; _is_event = true;
-        pthread_cond_broadcast(&X11_attr.wait_event);
+        _mouse_x = _mouse_y = -1; is_event = true;
       } break;
       case MotionNotify : {
         while (XCheckWindowEvent(dpy,_window,PointerMotionMask,&event)) {}
         _mouse_x = event.xmotion.x;
         _mouse_y = event.xmotion.y;
         if (_mouse_x<0 || _mouse_y<0 || _mouse_x>=width() || _mouse_y>=height()) _mouse_x = _mouse_y = -1;
+        is_event = true;
+      } break;
+      }
+      if (is_event) {
         _is_event = true;
         pthread_cond_broadcast(&X11_attr.wait_event);
-      } break;
       }
     }
 

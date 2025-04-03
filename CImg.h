@@ -12022,6 +12022,7 @@ namespace cimg_library {
       for ( ; i<SDL3_attr.nb_cimg_displays - 1; ++i)
         SDL3_attr.cimg_displays[i] = SDL3_attr.cimg_displays[i + 1];
       --SDL3_attr.nb_cimg_displays;
+      if (!SDL3_attr.nb_cimg_displays) SDL3_attr.terminate_events_thread();
 
       // Destroy associated ressources.
       SDL_DestroyRenderer(_renderer);

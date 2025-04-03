@@ -3360,10 +3360,7 @@ namespace cimg_library {
       }
 
       ~SDL3_attr() {
-        if (events_thread) {
-          terminate_events_thread();
-//          delete events_thread;
-        }
+        if (events_thread) terminate_events_thread();
         SDL_DestroyCondition(wait_event);
         SDL_DestroyMutex(mutex_wait_event);
         SDL_DestroyMutex(mutex_lock_display);

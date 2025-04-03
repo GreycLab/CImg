@@ -12252,7 +12252,7 @@ namespace cimg_library {
     }
 
     CImgDisplay& hide_mouse() {
-      return assign();
+      return *this;
     }
 
     CImgDisplay& set_mouse(const int posx, const int posy) {

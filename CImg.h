@@ -3297,9 +3297,9 @@ namespace cimg_library {
       }
 
       X11_attr& terminate_events_thread() {
-        ref().events_thread_running = false;
-        pthread_join(*ref().events_thread,0);
-        ref().events_thread = 0;
+        events_thread_running = false;
+        pthread_join(*events_thread,0);
+        events_thread = 0;
         return *this;
       }
 
@@ -3371,21 +3371,21 @@ namespace cimg_library {
         delete[] cimg_displays;
       }
 
-      static SDL3_attr& lock_display() { // Lock display
-        SDL_LockMutex(ref().mutex_lock_display);
-        return ref();
+      SDL3_attr& lock() { // Lock display
+        SDL_LockMutex(mutex_lock_display);
+        return *this;
       }
 
-      static SDL3_attr& unlock_display() { // Lock display
-        SDL_UnlockMutex(ref().mutex_lock_display);
-        return ref();
+      SDL3_attr& unlock() { // Lock display
+        SDL_UnlockMutex(mutex_lock_display);
+        return *this;
       }
 
-      static SDL3_attr& terminate_events_thread() {
-        ref().events_thread_running = false;
-        SDL_WaitThread(ref().events_thread,0);
-        ref().events_thread = 0;
-        return ref();
+      SDL3_attr& terminate_events_thread() {
+        events_thread_running = false;
+        SDL_WaitThread(events_thread,0);
+        events_thread = 0;
+        return *this;
       }
 
       static SDL3_attr& ref() { // Return shared instance across compilation modules

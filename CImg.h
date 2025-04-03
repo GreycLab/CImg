@@ -10300,7 +10300,7 @@ namespace cimg_library {
       for ( ; i<X11_attr.nb_cimg_displays - 1; ++i)
         X11_attr.cimg_displays[i] = X11_attr.cimg_displays[i + 1];
       --X11_attr.nb_cimg_displays;
-//      if (!X11_attr.nb_cimg_displays) X11_attr.terminate_events_thread();
+      if (!X11_attr.nb_cimg_displays) X11_attr.terminate_events_thread();
 
       // Destroy associated ressources.
       if (_is_fullscreen && !_is_closed) _desinit_fullscreen();
@@ -10381,7 +10381,8 @@ namespace cimg_library {
         if (vinfo && vinfo->red_mask<vinfo->blue_mask) X11_attr.is_blue_first = true;
         X11_attr.byte_order = ImageByteOrder(dpy);
         XFree(vinfo);
-
+      }
+      if (!X11_attr.events_thread) {
         X11_attr.lock();
         X11_attr.events_thread = new pthread_t;
         pthread_create(X11_attr.events_thread,0,_events_thread,0);

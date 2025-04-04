@@ -3681,7 +3681,7 @@ namespace cimg_library {
     const unsigned int keyJ          = SDL_SCANCODE_J;
     const unsigned int keyK          = SDL_SCANCODE_K;
     const unsigned int keyL          = SDL_SCANCODE_L;
-    const unsigned int keyENTER      = SDL_SCANCODE_KP_ENTER;
+    const unsigned int keyENTER      = SDL_SCANCODE_RETURN;
     const unsigned int keySHIFTLEFT  = SDL_SCANCODE_LSHIFT;
     const unsigned int keyZ          = SDL_SCANCODE_Z;
     const unsigned int keyX          = SDL_SCANCODE_X;

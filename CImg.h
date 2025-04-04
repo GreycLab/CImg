@@ -430,6 +430,9 @@ enum {FALSE_WIN = 0};
 #endif
 #elif cimg_display==3
 #include <SDL3/SDL.h>
+#if cimg_OS==1
+#include <csignal>
+#endif
 #endif
 
 #ifndef cimg_appname
@@ -3355,6 +3358,9 @@ namespace cimg_library {
             }
           }
         }
+#if cimg_OS==1
+        std::signal(SIGINT,SIG_DFL); // Restore default behavior for CTRL+C
+#endif
         if (init_failed)
           throw CImgDisplayException("cimg::SDL3_attr(): %s",SDL_GetError());
         cimg_displays = new CImgDisplay*[512];

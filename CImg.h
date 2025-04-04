@@ -3438,7 +3438,7 @@ namespace cimg_library {
 #endif
 
 #if cimg_display==1
-    // Define keycodes for X11-based graphical systems.
+    // Define keycodes for X11-based display (Unix).
     const unsigned int keyESC        = XK_Escape;
     const unsigned int keyF1         = XK_F1;
     const unsigned int keyF2         = XK_F2;
@@ -3529,7 +3529,7 @@ namespace cimg_library {
     const unsigned int keyPADDIV     = XK_KP_Divide;
 
 #elif cimg_display==2
-    // Define keycodes for Windows.
+    // Define keycodes for GDI32-based display (Windows).
     const unsigned int keyESC        = VK_ESCAPE;
     const unsigned int keyF1         = VK_F1;
     const unsigned int keyF2         = VK_F2;
@@ -3618,6 +3618,97 @@ namespace cimg_library {
     const unsigned int keyPADSUB     = VK_SUBTRACT;
     const unsigned int keyPADMUL     = VK_MULTIPLY;
     const unsigned int keyPADDIV     = VK_DIVIDE;
+
+#elif cimg_display==3
+    // Define keycodes for SDL3-based display.
+    const unsigned int keyESC        = SDL_SCANCODE_ESCAPE;
+    const unsigned int keyF1         = SDL_SCANCODE_F1;
+    const unsigned int keyF2         = SDL_SCANCODE_F2;
+    const unsigned int keyF3         = SDL_SCANCODE_F3;
+    const unsigned int keyF4         = SDL_SCANCODE_F4;
+    const unsigned int keyF5         = SDL_SCANCODE_F5;
+    const unsigned int keyF6         = SDL_SCANCODE_F6;
+    const unsigned int keyF7         = SDL_SCANCODE_F7;
+    const unsigned int keyF8         = SDL_SCANCODE_F8;
+    const unsigned int keyF9         = SDL_SCANCODE_F9;
+    const unsigned int keyF10        = SDL_SCANCODE_F10;
+    const unsigned int keyF11        = SDL_SCANCODE_F11;
+    const unsigned int keyF12        = SDL_SCANCODE_F12;
+    const unsigned int keyPAUSE      = SDL_SCANCODE_PAUSE;
+    const unsigned int key1          = SDL_SCANCODE_1;
+    const unsigned int key2          = SDL_SCANCODE_2;
+    const unsigned int key3          = SDL_SCANCODE_3;
+    const unsigned int key4          = SDL_SCANCODE_4;
+    const unsigned int key5          = SDL_SCANCODE_5;
+    const unsigned int key6          = SDL_SCANCODE_6;
+    const unsigned int key7          = SDL_SCANCODE_7;
+    const unsigned int key8          = SDL_SCANCODE_8;
+    const unsigned int key9          = SDL_SCANCODE_9;
+    const unsigned int key0          = SDL_SCANCODE_0;
+    const unsigned int keyBACKSPACE  = SDL_SCANCODE_BACKSPACE;
+    const unsigned int keyINSERT     = SDL_SCANCODE_INSERT;
+    const unsigned int keyHOME       = SDL_SCANCODE_HOME;
+    const unsigned int keyPAGEUP     = SDL_SCANCODE_PAGEUP;
+    const unsigned int keyTAB        = SDL_SCANCODE_TAB;
+    const unsigned int keyQ          = SDL_SCANCODE_Q;
+    const unsigned int keyW          = SDL_SCANCODE_W;
+    const unsigned int keyE          = SDL_SCANCODE_E;
+    const unsigned int keyR          = SDL_SCANCODE_R;
+    const unsigned int keyT          = SDL_SCANCODE_T;
+    const unsigned int keyY          = SDL_SCANCODE_Y;
+    const unsigned int keyU          = SDL_SCANCODE_U;
+    const unsigned int keyI          = SDL_SCANCODE_I;
+    const unsigned int keyO          = SDL_SCANCODE_O;
+    const unsigned int keyP          = SDL_SCANCODE_P;
+    const unsigned int keyDELETE     = SDL_SCANCODE_DELETE;
+    const unsigned int keyEND        = SDL_SCANCODE_END;
+    const unsigned int keyPAGEDOWN   = SDL_SCANCODE_PAGEDOWN;
+    const unsigned int keyCAPSLOCK   = SDL_SCANCODE_CAPSLOCK;
+    const unsigned int keyA          = SDL_SCANCODE_A;
+    const unsigned int keyS          = SDL_SCANCODE_S;
+    const unsigned int keyD          = SDL_SCANCODE_D;
+    const unsigned int keyF          = SDL_SCANCODE_F;
+    const unsigned int keyG          = SDL_SCANCODE_G;
+    const unsigned int keyH          = SDL_SCANCODE_H;
+    const unsigned int keyJ          = SDL_SCANCODE_J;
+    const unsigned int keyK          = SDL_SCANCODE_K;
+    const unsigned int keyL          = SDL_SCANCODE_L;
+    const unsigned int keyENTER      = SDL_SCANCODE_KP_ENTER;
+    const unsigned int keySHIFTLEFT  = SDL_SCANCODE_LSHIFT;
+    const unsigned int keyZ          = SDL_SCANCODE_Z;
+    const unsigned int keyX          = SDL_SCANCODE_X;
+    const unsigned int keyC          = SDL_SCANCODE_C;
+    const unsigned int keyV          = SDL_SCANCODE_V;
+    const unsigned int keyB          = SDL_SCANCODE_B;
+    const unsigned int keyN          = SDL_SCANCODE_N;
+    const unsigned int keyM          = SDL_SCANCODE_M;
+    const unsigned int keySHIFTRIGHT = SDL_SCANCODE_RSHIFT;
+    const unsigned int keyARROWUP    = SDL_SCANCODE_UP;
+    const unsigned int keyCTRLLEFT   = SDL_SCANCODE_LCTRL;
+    const unsigned int keyAPPLEFT    = SDL_SCANCODE_LGUI;
+    const unsigned int keyALT        = SDL_SCANCODE_LALT;
+    const unsigned int keySPACE      = SDL_SCANCODE_SPACE;
+    const unsigned int keyALTGR      = SDL_SCANCODE_RALT;
+    const unsigned int keyAPPRIGHT   = SDL_SCANCODE_RGUI;
+    const unsigned int keyMENU       = SDL_SCANCODE_MENU;
+    const unsigned int keyCTRLRIGHT  = SDL_SCANCODE_RCTRL;
+    const unsigned int keyARROWLEFT  = SDL_SCANCODE_LEFT;
+    const unsigned int keyARROWDOWN  = SDL_SCANCODE_DOWN;
+    const unsigned int keyARROWRIGHT = SDL_SCANCODE_RIGHT;
+    const unsigned int keyPAD0       = SDL_SCANCODE_KP_0;
+    const unsigned int keyPAD1       = SDL_SCANCODE_KP_1;
+    const unsigned int keyPAD2       = SDL_SCANCODE_KP_2;
+    const unsigned int keyPAD3       = SDL_SCANCODE_KP_3;
+    const unsigned int keyPAD4       = SDL_SCANCODE_KP_4;
+    const unsigned int keyPAD5       = SDL_SCANCODE_KP_5;
+    const unsigned int keyPAD6       = SDL_SCANCODE_KP_6;
+    const unsigned int keyPAD7       = SDL_SCANCODE_KP_7;
+    const unsigned int keyPAD8       = SDL_SCANCODE_KP_8;
+    const unsigned int keyPAD9       = SDL_SCANCODE_KP_9;
+    const unsigned int keyPADADD     = SDL_SCANCODE_KP_PLUS;
+    const unsigned int keyPADSUB     = SDL_SCANCODE_KP_MINUS;
+    const unsigned int keyPADMUL     = SDL_SCANCODE_KP_MULTIPLY;
+    const unsigned int keyPADDIV     = SDL_SCANCODE_KP_DIVIDE;
 
 #else
     // Define random keycodes when no display is available.

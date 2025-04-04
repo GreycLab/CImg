@@ -3499,7 +3499,7 @@ namespace cimg_library {
     const unsigned int keyJ          = XK_j;
     const unsigned int keyK          = XK_k;
     const unsigned int keyL          = XK_l;
-    const unsigned int keyENTER      = XK_Return;
+    const unsigned int keyRETURN     = XK_Return;
     const unsigned int keySHIFTLEFT  = XK_Shift_L;
     const unsigned int keyZ          = XK_z;
     const unsigned int keyX          = XK_x;
@@ -3535,6 +3535,7 @@ namespace cimg_library {
     const unsigned int keyPADSUB     = XK_KP_Subtract;
     const unsigned int keyPADMUL     = XK_KP_Multiply;
     const unsigned int keyPADDIV     = XK_KP_Divide;
+    const unsigned int keyENTER      = XK_KP_Enter;
 
 #elif cimg_display==2
     // Define keycodes for GDI32-based display (Windows).
@@ -3590,7 +3591,7 @@ namespace cimg_library {
     const unsigned int keyJ          = 'J';
     const unsigned int keyK          = 'K';
     const unsigned int keyL          = 'L';
-    const unsigned int keyENTER      = VK_RETURN;
+    const unsigned int keyRETURN     = VK_RETURN;
     const unsigned int keySHIFTLEFT  = VK_SHIFT;
     const unsigned int keyZ          = 'Z';
     const unsigned int keyX          = 'X';
@@ -3626,6 +3627,7 @@ namespace cimg_library {
     const unsigned int keyPADSUB     = VK_SUBTRACT;
     const unsigned int keyPADMUL     = VK_MULTIPLY;
     const unsigned int keyPADDIV     = VK_DIVIDE;
+    const unsigned int keyENTER      = VK_RETURN;
 
 #elif cimg_display==3
     // Define keycodes for SDL3-based display.
@@ -3681,7 +3683,7 @@ namespace cimg_library {
     const unsigned int keyJ          = SDL_SCANCODE_J;
     const unsigned int keyK          = SDL_SCANCODE_K;
     const unsigned int keyL          = SDL_SCANCODE_L;
-    const unsigned int keyENTER      = SDL_SCANCODE_RETURN;
+    const unsigned int keyRETURN     = SDL_SCANCODE_RETURN;
     const unsigned int keySHIFTLEFT  = SDL_SCANCODE_LSHIFT;
     const unsigned int keyZ          = SDL_SCANCODE_Z;
     const unsigned int keyX          = SDL_SCANCODE_X;
@@ -3717,6 +3719,7 @@ namespace cimg_library {
     const unsigned int keyPADSUB     = SDL_SCANCODE_KP_MINUS;
     const unsigned int keyPADMUL     = SDL_SCANCODE_KP_MULTIPLY;
     const unsigned int keyPADDIV     = SDL_SCANCODE_KP_DIVIDE;
+    const unsigned int keyENTER      = SDL_SCANCODE_KP_ENTER;
 
 #else
     // Define random keycodes when no display is available.
@@ -3773,7 +3776,7 @@ namespace cimg_library {
     const unsigned int keyJ          = 50U; //!< Keycode for the \c J key (architecture-dependent)
     const unsigned int keyK          = 51U; //!< Keycode for the \c K key (architecture-dependent)
     const unsigned int keyL          = 52U; //!< Keycode for the \c L key (architecture-dependent)
-    const unsigned int keyENTER      = 53U; //!< Keycode for the \c ENTER key (architecture-dependent)
+    const unsigned int keyRETURN     = 53U; //!< Keycode for the \c RETURN key (architecture-dependent)
     const unsigned int keySHIFTLEFT  = 54U; //!< Keycode for the \c SHIFTLEFT key (architecture-dependent)
     const unsigned int keyZ          = 55U; //!< Keycode for the \c Z key (architecture-dependent)
     const unsigned int keyX          = 56U; //!< Keycode for the \c X key (architecture-dependent)
@@ -3809,6 +3812,7 @@ namespace cimg_library {
     const unsigned int keyPADSUB     = 86U; //!< Keycode for the \c PADSUB key (architecture-dependent)
     const unsigned int keyPADMUL     = 87U; //!< Keycode for the \c PADMUL key (architecture-dependent)
     const unsigned int keyPADDIV     = 88U; //!< Keycode for the \c PADDDIV key (architecture-dependent)
+    const unsigned int keyENTER      = 89U; //!< Keycode for the \c ENTER key (architecture-dependent)
 #endif
 
     const double PI = 3.14159265358979323846; //!< Value of the mathematical constant PI
@@ -8458,12 +8462,12 @@ namespace cimg_library {
       _is_keyBACKSPACE, _is_keyINSERT, _is_keyHOME, _is_keyPAGEUP, _is_keyTAB, _is_keyQ, _is_keyW, _is_keyE,
       _is_keyR, _is_keyT, _is_keyY, _is_keyU, _is_keyI, _is_keyO, _is_keyP, _is_keyDELETE,
       _is_keyEND, _is_keyPAGEDOWN, _is_keyCAPSLOCK, _is_keyA, _is_keyS, _is_keyD, _is_keyF, _is_keyG,
-      _is_keyH, _is_keyJ, _is_keyK, _is_keyL, _is_keyENTER, _is_keySHIFTLEFT, _is_keyZ, _is_keyX,
+      _is_keyH, _is_keyJ, _is_keyK, _is_keyL, _is_keyRETURN, _is_keySHIFTLEFT, _is_keyZ, _is_keyX,
       _is_keyC, _is_keyV, _is_keyB, _is_keyN, _is_keyM, _is_keySHIFTRIGHT, _is_keyARROWUP, _is_keyCTRLLEFT,
       _is_keyAPPLEFT, _is_keyALT, _is_keySPACE, _is_keyALTGR, _is_keyAPPRIGHT, _is_keyMENU, _is_keyCTRLRIGHT,
       _is_keyARROWLEFT, _is_keyARROWDOWN, _is_keyARROWRIGHT, _is_keyPAD0, _is_keyPAD1, _is_keyPAD2, _is_keyPAD3,
       _is_keyPAD4, _is_keyPAD5, _is_keyPAD6, _is_keyPAD7, _is_keyPAD8, _is_keyPAD9, _is_keyPADADD, _is_keyPADSUB,
-      _is_keyPADMUL, _is_keyPADDIV;
+      _is_keyPADMUL, _is_keyPADDIV, _is_keyENTER;
 
     //@}
     //---------------------------
@@ -8861,7 +8865,7 @@ namespace cimg_library {
         _is_keyDELETE || _is_keyEND || _is_keyPAGEDOWN ||
         _is_keyCAPSLOCK || _is_keyA || _is_keyS || _is_keyD ||
         _is_keyF || _is_keyG || _is_keyH || _is_keyJ ||
-        _is_keyK || _is_keyL || _is_keyENTER ||
+        _is_keyK || _is_keyL || _is_keyRETURN ||
         _is_keySHIFTLEFT || _is_keyZ || _is_keyX || _is_keyC ||
         _is_keyV || _is_keyB || _is_keyN || _is_keyM ||
         _is_keySHIFTRIGHT || _is_keyARROWUP || _is_keyCTRLLEFT ||
@@ -8872,7 +8876,7 @@ namespace cimg_library {
         _is_keyPAD3 || _is_keyPAD4 || _is_keyPAD5 ||
         _is_keyPAD6 || _is_keyPAD7 || _is_keyPAD8 ||
         _is_keyPAD9 || _is_keyPADADD || _is_keyPADSUB ||
-        _is_keyPADMUL || _is_keyPADDIV;
+        _is_keyPADMUL || _is_keyPADDIV || _is_keyENTER;
     }
 
     //! Return \c true if key specified by given keycode is being pressed on the associated window, \c false otherwise.
@@ -8904,7 +8908,7 @@ namespace cimg_library {
       _cimg_iskey_test(DELETE); _cimg_iskey_test(END); _cimg_iskey_test(PAGEDOWN);
       _cimg_iskey_test(CAPSLOCK); _cimg_iskey_test(A); _cimg_iskey_test(S); _cimg_iskey_test(D);
       _cimg_iskey_test(F); _cimg_iskey_test(G); _cimg_iskey_test(H); _cimg_iskey_test(J);
-      _cimg_iskey_test(K); _cimg_iskey_test(L); _cimg_iskey_test(ENTER);
+      _cimg_iskey_test(K); _cimg_iskey_test(L); _cimg_iskey_test(RETURN);
       _cimg_iskey_test(SHIFTLEFT); _cimg_iskey_test(Z); _cimg_iskey_test(X); _cimg_iskey_test(C);
       _cimg_iskey_test(V); _cimg_iskey_test(B); _cimg_iskey_test(N); _cimg_iskey_test(M);
       _cimg_iskey_test(SHIFTRIGHT); _cimg_iskey_test(ARROWUP); _cimg_iskey_test(CTRLLEFT);
@@ -8915,7 +8919,7 @@ namespace cimg_library {
       _cimg_iskey_test(PAD3); _cimg_iskey_test(PAD4); _cimg_iskey_test(PAD5);
       _cimg_iskey_test(PAD6); _cimg_iskey_test(PAD7); _cimg_iskey_test(PAD8);
       _cimg_iskey_test(PAD9); _cimg_iskey_test(PADADD); _cimg_iskey_test(PADSUB);
-      _cimg_iskey_test(PADMUL); _cimg_iskey_test(PADDIV);
+      _cimg_iskey_test(PADMUL); _cimg_iskey_test(PADDIV); _cimg_iskey_test(ENTER);
       return false;
     }
 
@@ -8950,7 +8954,7 @@ namespace cimg_library {
       _cimg_iskey_test2(DELETE); _cimg_iskey_test2(END); _cimg_iskey_test2(PAGEDOWN);
       _cimg_iskey_test2(CAPSLOCK); _cimg_iskey_test2(A); _cimg_iskey_test2(S); _cimg_iskey_test2(D);
       _cimg_iskey_test2(F); _cimg_iskey_test2(G); _cimg_iskey_test2(H); _cimg_iskey_test2(J);
-      _cimg_iskey_test2(K); _cimg_iskey_test2(L); _cimg_iskey_test2(ENTER);
+      _cimg_iskey_test2(K); _cimg_iskey_test2(L); _cimg_iskey_test2(RETURN);
       _cimg_iskey_test2(SHIFTLEFT); _cimg_iskey_test2(Z); _cimg_iskey_test2(X); _cimg_iskey_test2(C);
       _cimg_iskey_test2(V); _cimg_iskey_test2(B); _cimg_iskey_test2(N); _cimg_iskey_test2(M);
       _cimg_iskey_test2(SHIFTRIGHT); _cimg_iskey_test2(ARROWUP); _cimg_iskey_test2(CTRLLEFT);
@@ -8961,7 +8965,7 @@ namespace cimg_library {
       _cimg_iskey_test2(PAD3); _cimg_iskey_test2(PAD4); _cimg_iskey_test2(PAD5);
       _cimg_iskey_test2(PAD6); _cimg_iskey_test2(PAD7); _cimg_iskey_test2(PAD8);
       _cimg_iskey_test2(PAD9); _cimg_iskey_test2(PADADD); _cimg_iskey_test2(PADSUB);
-      _cimg_iskey_test2(PADMUL); _cimg_iskey_test2(PADDIV);
+      _cimg_iskey_test2(PADMUL); _cimg_iskey_test2(PADDIV); _cimg_iskey_test2(ENTER);
       return f;
     }
 
@@ -9026,7 +9030,7 @@ namespace cimg_library {
     _cimg_iskey_def(DELETE); _cimg_iskey_def(END); _cimg_iskey_def(PAGEDOWN);
     _cimg_iskey_def(CAPSLOCK); _cimg_iskey_def(A); _cimg_iskey_def(S); _cimg_iskey_def(D);
     _cimg_iskey_def(F); _cimg_iskey_def(G); _cimg_iskey_def(H); _cimg_iskey_def(J);
-    _cimg_iskey_def(K); _cimg_iskey_def(L); _cimg_iskey_def(ENTER);
+    _cimg_iskey_def(K); _cimg_iskey_def(L); _cimg_iskey_def(RETURN);
     _cimg_iskey_def(SHIFTLEFT); _cimg_iskey_def(Z); _cimg_iskey_def(X); _cimg_iskey_def(C);
     _cimg_iskey_def(V); _cimg_iskey_def(B); _cimg_iskey_def(N); _cimg_iskey_def(M);
     _cimg_iskey_def(SHIFTRIGHT); _cimg_iskey_def(ARROWUP); _cimg_iskey_def(CTRLLEFT);
@@ -9037,7 +9041,7 @@ namespace cimg_library {
     _cimg_iskey_def(PAD3); _cimg_iskey_def(PAD4); _cimg_iskey_def(PAD5);
     _cimg_iskey_def(PAD6); _cimg_iskey_def(PAD7); _cimg_iskey_def(PAD8);
     _cimg_iskey_def(PAD9); _cimg_iskey_def(PADADD); _cimg_iskey_def(PADSUB);
-    _cimg_iskey_def(PADMUL); _cimg_iskey_def(PADDIV);
+    _cimg_iskey_def(PADMUL); _cimg_iskey_def(PADDIV); _cimg_iskey_def(ENTER);
 
     //@}
     //------------------------------------------
@@ -9294,7 +9298,7 @@ namespace cimg_library {
       _cimg_keycode(DELETE); _cimg_keycode(END); _cimg_keycode(PAGEDOWN);
       _cimg_keycode(CAPSLOCK); _cimg_keycode(A); _cimg_keycode(S); _cimg_keycode(D);
       _cimg_keycode(F); _cimg_keycode(G); _cimg_keycode(H); _cimg_keycode(J);
-      _cimg_keycode(K); _cimg_keycode(L); _cimg_keycode(ENTER);
+      _cimg_keycode(K); _cimg_keycode(L); _cimg_keycode(RETURN);
       _cimg_keycode(SHIFTLEFT); _cimg_keycode(Z); _cimg_keycode(X); _cimg_keycode(C);
       _cimg_keycode(V); _cimg_keycode(B); _cimg_keycode(N); _cimg_keycode(M);
       _cimg_keycode(SHIFTRIGHT); _cimg_keycode(ARROWUP); _cimg_keycode(CTRLLEFT);
@@ -9305,7 +9309,7 @@ namespace cimg_library {
       _cimg_keycode(PAD3); _cimg_keycode(PAD4); _cimg_keycode(PAD5);
       _cimg_keycode(PAD6); _cimg_keycode(PAD7); _cimg_keycode(PAD8);
       _cimg_keycode(PAD9); _cimg_keycode(PADADD); _cimg_keycode(PADSUB);
-      _cimg_keycode(PADMUL); _cimg_keycode(PADDIV);
+      _cimg_keycode(PADMUL); _cimg_keycode(PADDIV); _cimg_keycode(ENTER);
       return 0;
     }
 
@@ -9696,12 +9700,12 @@ namespace cimg_library {
         _is_keyHOME = _is_keyPAGEUP = _is_keyTAB = _is_keyQ = _is_keyW = _is_keyE = _is_keyR = _is_keyT = _is_keyY =
         _is_keyU = _is_keyI = _is_keyO = _is_keyP = _is_keyDELETE = _is_keyEND = _is_keyPAGEDOWN = _is_keyCAPSLOCK =
         _is_keyA = _is_keyS = _is_keyD = _is_keyF = _is_keyG = _is_keyH = _is_keyJ = _is_keyK = _is_keyL =
-        _is_keyENTER = _is_keySHIFTLEFT = _is_keyZ = _is_keyX = _is_keyC = _is_keyV = _is_keyB = _is_keyN =
+        _is_keyRETURN = _is_keySHIFTLEFT = _is_keyZ = _is_keyX = _is_keyC = _is_keyV = _is_keyB = _is_keyN =
         _is_keyM = _is_keySHIFTRIGHT = _is_keyARROWUP = _is_keyCTRLLEFT = _is_keyAPPLEFT = _is_keyALT = _is_keySPACE =
         _is_keyALTGR = _is_keyAPPRIGHT = _is_keyMENU = _is_keyCTRLRIGHT = _is_keyARROWLEFT = _is_keyARROWDOWN =
         _is_keyARROWRIGHT = _is_keyPAD0 = _is_keyPAD1 = _is_keyPAD2 = _is_keyPAD3 = _is_keyPAD4 = _is_keyPAD5 =
         _is_keyPAD6 = _is_keyPAD7 = _is_keyPAD8 = _is_keyPAD9 = _is_keyPADADD = _is_keyPADSUB = _is_keyPADMUL =
-        _is_keyPADDIV = false;
+        _is_keyPADDIV = _is_keyENTER = false;
       _is_event = true;
 #if cimg_display==1
       pthread_cond_broadcast(&cimg::X11_attr::ref().wait_event);
@@ -9735,7 +9739,7 @@ namespace cimg_library {
       _cimg_set_key(DELETE); _cimg_set_key(END); _cimg_set_key(PAGEDOWN);
       _cimg_set_key(CAPSLOCK); _cimg_set_key(A); _cimg_set_key(S); _cimg_set_key(D);
       _cimg_set_key(F); _cimg_set_key(G); _cimg_set_key(H); _cimg_set_key(J);
-      _cimg_set_key(K); _cimg_set_key(L); _cimg_set_key(ENTER);
+      _cimg_set_key(K); _cimg_set_key(L); _cimg_set_key(RETURN);
       _cimg_set_key(SHIFTLEFT); _cimg_set_key(Z); _cimg_set_key(X); _cimg_set_key(C);
       _cimg_set_key(V); _cimg_set_key(B); _cimg_set_key(N); _cimg_set_key(M);
       _cimg_set_key(SHIFTRIGHT); _cimg_set_key(ARROWUP); _cimg_set_key(CTRLLEFT);
@@ -9746,7 +9750,7 @@ namespace cimg_library {
       _cimg_set_key(PAD3); _cimg_set_key(PAD4); _cimg_set_key(PAD5);
       _cimg_set_key(PAD6); _cimg_set_key(PAD7); _cimg_set_key(PAD8);
       _cimg_set_key(PAD9); _cimg_set_key(PADADD); _cimg_set_key(PADSUB);
-      _cimg_set_key(PADMUL); _cimg_set_key(PADDIV);
+      _cimg_set_key(PADMUL); _cimg_set_key(PADDIV); _cimg_set_key(ENTER);
       if (is_pressed) {
         if (*_keys)
           std::memmove((void*)(_keys + 1),(void*)_keys,127*sizeof(unsigned int));
@@ -69953,7 +69957,7 @@ namespace cimg_library {
           oselected = selected;
           switch (disp.key()) {
           case cimg::keyESC : selected = -1; stop_flag = true; break;
-          case cimg::keyENTER : if (selected<0) selected = 0; stop_flag = true; break;
+          case cimg::keyRETURN : if (selected<0) selected = 0; stop_flag = true; break;
           case cimg::keyTAB :
           case cimg::keyARROWRIGHT :
           case cimg::keyARROWDOWN : selected = (selected + 1)%buttons.width(); break;

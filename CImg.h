@@ -11985,6 +11985,7 @@ namespace cimg_library {
     SDL_Renderer *_renderer;
     SDL_Texture *_texture;
     unsigned int *_data;
+    bool _is_cursor_visible;
 
     static int screen_width() {
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
@@ -12044,11 +12045,13 @@ namespace cimg_library {
         SDL_GetMouseState(&x,&y);
         _mouse_x = (int)x;
         _mouse_y = (int)y;
+        if (_is_cursor_visible) SDL_ShowCursor(); else SDL_HideCursor();
         is_event = true;
         SDL3_attr.unlock();
       } break;
       case SDL_EVENT_WINDOW_MOUSE_LEAVE:
         _mouse_x = _mouse_y = -1;
+        SDL_ShowCursor();
         is_event = true;
         break;
       case SDL_EVENT_MOUSE_BUTTON_DOWN:
@@ -12151,6 +12154,7 @@ namespace cimg_library {
       _is_fullscreen = fullscreen_flag;
       _window_x = _window_y = cimg::type<int>::min();
       _is_closed = closed_flag;
+      _is_cursor_visible = true;
       _title = tmp_title;
       flush();
 
@@ -12335,17 +12339,21 @@ namespace cimg_library {
     }
 
     CImgDisplay& show_mouse() {
+      if (is_empty()) return *this;
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
       SDL3_attr.lock();
       SDL_ShowCursor();
+      _is_cursor_visible = true;
       SDL3_attr.unlock();
       return *this;
     }
 
     CImgDisplay& hide_mouse() {
+      if (is_empty()) return *this;
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
       SDL3_attr.lock();
       SDL_HideCursor();
+      _is_cursor_visible = false;
       SDL3_attr.unlock();
       return *this;
     }

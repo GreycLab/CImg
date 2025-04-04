@@ -12197,8 +12197,8 @@ namespace cimg_library {
         throw CImgDisplayException("CImgDisplay::assign(): Max number of displays (512) already opened.");
       }
       SDL3_attr.cimg_displays[SDL3_attr.nb_cimg_displays++] = this;
-
       SDL3_attr.unlock();
+
       paint();
 
       SDL3_attr.lock();

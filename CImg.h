@@ -11300,8 +11300,8 @@ namespace cimg_library {
       return *this;
     }
 
-    // Windows-based implementation.
-    //-------------------------------
+    // GDI32-based implementation.
+    //----------------------------
 #elif cimg_display==2
 
     bool _is_mouse_tracked, _is_cursor_visible;
@@ -11377,9 +11377,7 @@ namespace cimg_library {
       } break;
       case WM_PAINT :
         disp->paint();
-        X11_attr.lock();
         if (disp->_is_cursor_visible) while (ShowCursor(TRUE)<0); else while (ShowCursor(FALSE_WIN)>=0);
-        X11_attr.unlock();
         break;
       case WM_ERASEBKGND :
         //        return 0;
@@ -11409,16 +11407,12 @@ namespace cimg_library {
           disp->_mouse_x = disp->_mouse_y = -1;
         disp->_is_event = true;
         SetEvent(cimg::Win32_attr::ref().wait_event);
-        X11_attr.lock();
         if (disp->_is_cursor_visible) while (ShowCursor(TRUE)<0); else while (ShowCursor(FALSE_WIN)>=0);
-        X11_attr.unlock();
       } break;
       case WM_MOUSELEAVE : {
         disp->_mouse_x = disp->_mouse_y = -1;
         disp->_is_mouse_tracked = false;
-        X11_attr.lock();
         while (ShowCursor(TRUE)<0) {}
-        X11_attr.unlock();
       } break;
       case WM_LBUTTONDOWN :
         disp->set_button(1);

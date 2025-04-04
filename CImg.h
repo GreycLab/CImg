@@ -12178,7 +12178,6 @@ namespace cimg_library {
         throw CImgDisplayException("CImgDisplay::assign(): %s",SDL_GetError());
       }
       SDL_RaiseWindow(_window);
-      SDL_SetWindowInputFocus(_window);
       SDL_SetRenderDrawColor(_renderer,0,0,0,255);
       if (!_is_fullscreen)
         SDL_SetWindowPosition(_window,SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED);

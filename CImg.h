@@ -9763,7 +9763,7 @@ namespace cimg_library {
 #elif cimg_display==2
         SetEvent(cimg::Win32_attr::ref().wait_event);
 #elif cimg_display==3
-      SDL_BroadcastCondition(cimg::SDL3_attr::ref().wait_event);
+        SDL_BroadcastCondition(cimg::SDL3_attr::ref().wait_event);
 #endif
       }
       return *this;
@@ -12070,8 +12070,8 @@ namespace cimg_library {
 
         // Keyboard events.
       case SDL_EVENT_KEY_DOWN:
-        std::fprintf(stderr,"Key pressed: %s\n",
-                     SDL_GetKeyName(event.key.key));
+      case SDL_EVENT_KEY_UP:
+        set_key((unsigned int)event.key.scancode,event.type==SDL_EVENT_KEY_DOWN);
         is_event = true;
         break;
       }

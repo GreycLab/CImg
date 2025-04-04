@@ -3273,6 +3273,7 @@ namespace cimg_library {
       }
 
       ~X11_attr() {
+        unlock();
         if (events_thread) {
           terminate_events_thread();
           delete events_thread;
@@ -3360,6 +3361,7 @@ namespace cimg_library {
       }
 
       ~SDL3_attr() {
+        unlock();
         if (events_thread) terminate_events_thread();
         SDL_DestroyCondition(wait_event);
         SDL_DestroyMutex(mutex_wait_event);
@@ -10376,7 +10378,7 @@ namespace cimg_library {
       _is_fullscreen = false;
     }
 
-    CImgDisplay& assign() {
+    CImgDisplay& assign(const bool allow_terminate_events_thread=true) {
       if (is_empty()) return flush();
       cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
       Display *const dpy = X11_attr.display;
@@ -10389,7 +10391,8 @@ namespace cimg_library {
       for ( ; i<X11_attr.nb_cimg_displays - 1; ++i)
         X11_attr.cimg_displays[i] = X11_attr.cimg_displays[i + 1];
       --X11_attr.nb_cimg_displays;
-      if (!X11_attr.nb_cimg_displays) X11_attr.terminate_events_thread();
+      if (!X11_attr.nb_cimg_displays && allow_terminate_events_thread)
+        X11_attr.unlock().terminate_events_thread().lock();
 
       // Destroy associated ressources.
       if (_is_fullscreen && !_is_closed) _desinit_fullscreen();
@@ -10443,7 +10446,7 @@ namespace cimg_library {
       if (s) std::memcpy(tmp_title,np_title,s*sizeof(char));
 
       // Destroy previous display window if existing.
-      if (!is_empty()) assign();
+      if (!is_empty()) assign(false);
 
       // Open X11 display and retrieve graphical properties.
       cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
@@ -10471,6 +10474,7 @@ namespace cimg_library {
         X11_attr.byte_order = ImageByteOrder(dpy);
         XFree(vinfo);
       }
+
       X11_attr.lock();
       if (!X11_attr.events_thread) {
         X11_attr.events_thread = new pthread_t;
@@ -10665,8 +10669,7 @@ namespace cimg_library {
       if (is_empty()) return *this;
       if (force_redraw) {
         cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
-        const cimg_ulong buf_size = (cimg_ulong)_width*_height*
-          (X11_attr.nb_bits==8?1:(X11_attr.nb_bits==16?2:4));
+        const cimg_ulong buf_size = (cimg_ulong)_width*_height*(X11_attr.nb_bits==8?1:(X11_attr.nb_bits==16?2:4));
         void *image_data = std::malloc(buf_size);
         std::memcpy(image_data,_data,buf_size);
         assign(_width,_height,_title,_normalization,!_is_fullscreen,false);
@@ -11601,7 +11604,7 @@ namespace cimg_library {
       if (s) std::memcpy(tmp_title,np_title,s*sizeof(char));
 
       // Destroy previous window if existing.
-      if (!is_empty()) assign();
+      if (!is_empty()) assign(false);
 
       // Set display variables.
       _width = std::min(dimw,(unsigned int)screen_width());
@@ -12026,7 +12029,7 @@ namespace cimg_library {
         SDL_GetWindowSize(_window,&w,&h);
         _window_width = (unsigned int)w;
         _window_height = (unsigned int)h;
-        is_event = true;
+        _is_resized = is_event = true;
         SDL3_attr.unlock();
         paint();
       } break;
@@ -12102,7 +12105,7 @@ namespace cimg_library {
       return 0;
     }
 
-    CImgDisplay& assign() {
+    CImgDisplay& assign(const bool allow_terminate_events_thread=true) {
       if (is_empty()) return flush();
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
       SDL3_attr.lock();
@@ -12113,7 +12116,8 @@ namespace cimg_library {
       for ( ; i<SDL3_attr.nb_cimg_displays - 1; ++i)
         SDL3_attr.cimg_displays[i] = SDL3_attr.cimg_displays[i + 1];
       --SDL3_attr.nb_cimg_displays;
-      if (!SDL3_attr.nb_cimg_displays) SDL3_attr.terminate_events_thread();
+      if (!SDL3_attr.nb_cimg_displays && allow_terminate_events_thread)
+        SDL3_attr.unlock().terminate_events_thread().lock();
 
       // Destroy associated ressources.
       SDL_DestroyRenderer(_renderer);
@@ -12167,6 +12171,7 @@ namespace cimg_library {
         SDL3_attr.unlock();
         throw CImgDisplayException("CImgDisplay::assign(): %s",SDL_GetError());
       }
+      SDL_RaiseWindow(_window);
       SDL_SetRenderDrawColor(_renderer,0,0,0,255);
       if (!_is_fullscreen)
         SDL_SetWindowPosition(_window,SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED);

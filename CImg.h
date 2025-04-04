@@ -12150,6 +12150,7 @@ namespace cimg_library {
                  const bool fullscreen_flag=false, const bool closed_flag=false) {
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
       SDL3_attr.lock();
+      if (!SDL3_attr.events_thread) SDL3_attr.events_thread = SDL_CreateThread(_events_thread,"_events_thread",0);
 
       // Allocate space for window title.
       const char *const np_title = p_title?p_title:"";
@@ -12197,12 +12198,7 @@ namespace cimg_library {
       }
       SDL3_attr.cimg_displays[SDL3_attr.nb_cimg_displays++] = this;
       SDL3_attr.unlock();
-
       paint();
-
-      SDL3_attr.lock();
-      if (!SDL3_attr.events_thread) SDL3_attr.events_thread = SDL_CreateThread(_events_thread,"_events_thread",0);
-      SDL3_attr.unlock();
     }
 
     CImgDisplay& assign(const unsigned int dimw, const unsigned int dimh, const char *const title=0,

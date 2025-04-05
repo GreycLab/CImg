@@ -11998,7 +11998,7 @@ namespace cimg_library {
     SDL_Renderer *_renderer;
     SDL_Texture *_texture;
     unsigned int *_data;
-    bool _is_cursor_visible;
+    bool _is_cursor_visible,_paint_request;
 
     static int screen_width() {
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
@@ -12015,6 +12015,12 @@ namespace cimg_library {
       SDL_LockMutex(SDL3_attr.mutex_wait_event);
       SDL_WaitCondition(SDL3_attr.wait_event,SDL3_attr.mutex_wait_event);
       SDL_UnlockMutex(SDL3_attr.mutex_wait_event);
+
+      // Trick to force paint, as paint() does not work when called from events thread.
+      for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k) {
+        CImgDisplay &disp = *SDL3_attr.cimg_displays[k];
+        if (disp._paint_request) disp.paint();
+      }
     }
 
     CImgDisplay& _update_window_pos() {
@@ -12039,14 +12045,13 @@ namespace cimg_library {
         SDL_GetWindowSize(_window,&w,&h);
         _window_width = (unsigned int)w;
         _window_height = (unsigned int)h;
-        _is_resized = is_event = true;
+        _is_resized = _paint_request = is_event = true;
         SDL3_attr.unlock();
-        paint();
       } break;
       case SDL_EVENT_WINDOW_MOVED:
         SDL3_attr.lock();
         _update_window_pos();
-        is_event = true;
+        _paint_request = is_event = true;
         SDL3_attr.unlock();
         break;
 
@@ -12143,6 +12148,8 @@ namespace cimg_library {
       _is_fullscreen = false;
       _is_closed = true;
       _min = _max = 0;
+      _is_cursor_visible = true;
+      _paint_request = false;
       _title = 0;
       flush();
       SDL3_attr.unlock();
@@ -12170,6 +12177,7 @@ namespace cimg_library {
       _window_x = _window_y = cimg::type<int>::min();
       _is_closed = closed_flag;
       _is_cursor_visible = true;
+      _paint_request = false;
       _title = tmp_title;
       flush();
 
@@ -12399,6 +12407,7 @@ namespace cimg_library {
       SDL_RenderClear(_renderer);
       SDL_RenderTexture(_renderer,_texture,0,0);
       SDL_RenderPresent(_renderer);
+      _paint_request = false;
       SDL3_attr.unlock();
       return *this;
     }

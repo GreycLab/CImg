@@ -12040,8 +12040,8 @@ namespace cimg_library {
         _is_closed = is_event = true;
         break;
       case SDL_EVENT_WINDOW_RESIZED: {
-        int w,h;
         SDL3_attr.lock();
+        int w,h;
         SDL_GetWindowSize(_window,&w,&h);
         _window_width = (unsigned int)w;
         _window_height = (unsigned int)h;
@@ -12056,6 +12056,9 @@ namespace cimg_library {
         break;
       case SDL_EVENT_WINDOW_FOCUS_GAINED:
       case SDL_EVENT_WINDOW_OCCLUDED:
+      case SDL_EVENT_WINDOW_MINIMIZED:
+      case SDL_EVENT_WINDOW_MAXIMIZED:
+      case SDL_EVENT_WINDOW_RESTORED:
         _paint_request = is_event = true;
         break;
 

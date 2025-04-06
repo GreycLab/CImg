@@ -12055,6 +12055,7 @@ namespace cimg_library {
         SDL3_attr.unlock();
         break;
       case SDL_EVENT_WINDOW_FOCUS_GAINED:
+      case SDL_EVENT_WINDOW_OCCLUDED:
         _paint_request = is_event = true;
         break;
 

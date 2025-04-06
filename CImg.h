@@ -12061,9 +12061,14 @@ namespace cimg_library {
         float x,y;
         SDL3_attr.lock();
         SDL_GetMouseState(&x,&y);
-        _mouse_x = (int)x;
-        _mouse_y = (int)y;
-        if (_is_cursor_visible) SDL_ShowCursor(); else SDL_HideCursor();
+        if (x<0 || x>=_width || y<0 || y>=_height) {
+          _mouse_x = _mouse_y = -1;
+          SDL_ShowCursor();
+        } else {
+          _mouse_x = (int)x;
+          _mouse_y = (int)y;
+          if (_is_cursor_visible) SDL_ShowCursor(); else SDL_HideCursor();
+        }
         is_event = true;
         SDL3_attr.unlock();
       } break;

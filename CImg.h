@@ -12054,6 +12054,9 @@ namespace cimg_library {
         _paint_request = is_event = true;
         SDL3_attr.unlock();
         break;
+      case SDL_EVENT_WINDOW_FOCUS_GAINED:
+        _paint_request = is_event = true;
+        break;
 
         // Mouse events.
       case SDL_EVENT_MOUSE_MOTION:

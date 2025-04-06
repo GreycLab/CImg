@@ -12417,7 +12417,11 @@ namespace cimg_library {
       if (_is_closed) return *this;
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
       SDL3_attr.lock();
-      SDL_UpdateTexture(_texture,0,_data,_width*sizeof(unsigned int));
+      if (_texture && (_texture->w!=(int)_width || _texture->h!=(int)_height)) {
+        SDL_DestroyTexture(_texture);
+        _texture = SDL_CreateTexture(_renderer,SDL_PIXELFORMAT_RGBA8888,SDL_TEXTUREACCESS_STREAMING,
+                                     (int)_width,(int)_height);
+      } else SDL_UpdateTexture(_texture,0,_data,_width*sizeof(unsigned int));
       SDL_RenderClear(_renderer);
       SDL_RenderTexture(_renderer,_texture,0,0);
       SDL_RenderPresent(_renderer);

@@ -12174,8 +12174,6 @@ namespace cimg_library {
                  const unsigned int normalization_type=3,
                  const bool is_fullscreen=false, const bool closed_flag=false) {
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
-      SDL3_attr.lock();
-      if (!SDL3_attr.events_thread) SDL3_attr.events_thread = SDL_CreateThread(_events_thread,"_events_thread",0);
 
       // Allocate space for window title.
       const char *const np_title = p_title?p_title:"";
@@ -12183,7 +12181,13 @@ namespace cimg_library {
       char *const tmp_title = s?new char[s]:0;
       if (s) std::memcpy(tmp_title,np_title,s*sizeof(char));
 
+      // Destroy previous display window if existing.
+      if (!is_empty()) assign(false);
+
       // Set display variables.
+      SDL3_attr.lock();
+      if (!SDL3_attr.events_thread)
+        SDL3_attr.events_thread = SDL_CreateThread(_events_thread,"_events_thread",0);
       _width = std::min(dimw,(unsigned int)screen_width());
       _height = std::min(dimh,(unsigned int)screen_height());
       _normalization = normalization_type<4?normalization_type:3;

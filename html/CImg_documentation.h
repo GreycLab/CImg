@@ -400,8 +400,8 @@
   will probably have to tune the environment variables described below.
 
   - \b \c cimg_display : This variable defines the type of graphical library used to
-  display images in windows. It can be set to 0 (no display library available), \b 1 (X11-based display) or
-  \b 2 (Windows-GDI display).
+  display images in windows. It can be set to 0 (no display library available), \b 1 (X11-based display),
+  \b 2 (Windows-GDI display), or \b 3 (SDL3).
   If you are running on a system without X11 or Windows-GDI ability, please set this variable to \c 0.
   This will disable the display support, since the %CImg Library doesn't contain the necessary code to display
   images on systems other than X11 or Windows GDI.

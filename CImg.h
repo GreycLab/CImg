@@ -12305,10 +12305,10 @@ namespace cimg_library {
           else std::memset(ndata,0,sizeof(unsigned int)*dimx*dimy);
           delete[] _data;
           _data = ndata;
-          _window_width = _width = dimx;
-          _window_height = _height = dimy;
           SDL3_attr.unlock();
         }
+        _window_width = _width = dimx;
+        _window_height = _height = dimy;
         show();
       }
       _is_resized = false;

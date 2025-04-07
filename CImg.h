@@ -12029,16 +12029,6 @@ namespace cimg_library {
       return *this;
     }
 
-    void _init_fullscreen() {
-      if (!_is_fullscreen || _is_closed) return;
-      _is_fullscreen = true;
-    }
-
-    void _desinit_fullscreen() {
-      if (!_is_fullscreen) return;
-      _is_fullscreen = false;
-    }
-
     void _handle_events(const SDL_Event &event) {
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
       bool is_event = false;
@@ -12329,12 +12319,17 @@ namespace cimg_library {
 
     CImgDisplay& toggle_fullscreen(const bool force_redraw=true) {
       if (is_empty()) return *this;
+      if (!force_redraw) return assign(_width,_height,_title,_normalization,!_is_fullscreen,false);
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
       SDL3_attr.lock();
-      SDL_SetWindowFullscreen(_window,!_is_fullscreen);
+      const cimg_ulong buf_size = (cimg_ulong)_width*_height*sizeof(unsigned int);
+      unsigned int *odata = new unsigned int[_width*_height];
+      std::memcpy(odata,_data,buf_size);
+      assign(_width,_height,_title,_normalization,!_is_fullscreen,false);
+      cimg::swap(_data,odata);
+      delete[] odata;
       SDL3_attr.unlock();
-      if (force_redraw) return paint();
-      return *this;
+      return paint();
     }
 
     CImgDisplay& show() {
@@ -12342,7 +12337,7 @@ namespace cimg_library {
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
       SDL3_attr.lock();
       _is_closed = false;
-//      if (_is_fullscreen) _init_fullscreen();
+      if (_is_fullscreen) SDL_SetWindowFullscreen(_window,true);
       SDL_ShowWindow(_window);
       _update_window_pos();
       SDL3_attr.unlock();
@@ -12354,7 +12349,7 @@ namespace cimg_library {
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
       SDL3_attr.lock();
       _is_closed = true;
-//      if (_is_fullscreen) _desinit_fullscreen();
+      if (_is_fullscreen) SDL_SetWindowFullscreen(_window,false);
       SDL_HideWindow(_window);
       _window_x = _window_y = cimg::type<int>::min();
       SDL3_attr.unlock();

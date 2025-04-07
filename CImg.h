@@ -12430,7 +12430,11 @@ namespace cimg_library {
                                      (int)_width,(int)_height);
       } else SDL_UpdateTexture(_texture,0,_data,_width*sizeof(unsigned int));
       SDL_RenderClear(_renderer);
-      SDL_RenderTexture(_renderer,_texture,0,0);
+      SDL_FRect rect;
+      rect.x = rect.y = 0;
+      rect.w = (float)_width;
+      rect.h = (float)_height;
+      SDL_RenderTexture(_renderer,_texture,0,&rect);
       SDL_RenderPresent(_renderer);
       _paint_request = false;
       SDL3_attr.unlock();

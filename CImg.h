@@ -9624,7 +9624,9 @@ namespace cimg_library {
 #elif cimg_display==2
       SetEvent(cimg::Win32_attr::ref().wait_event);
 #elif cimg_display==3
+      cimg::SDL3_attr::ref().lock();
       SDL_BroadcastCondition(cimg::SDL3_attr::ref().wait_event);
+      cimg::SDL3_attr::ref().unlock();
 #endif
       return *this;
     }
@@ -9644,7 +9646,9 @@ namespace cimg_library {
 #elif cimg_display==2
         SetEvent(cimg::Win32_attr::ref().wait_event);
 #elif cimg_display==3
+      cimg::SDL3_attr::ref().lock();
       SDL_BroadcastCondition(cimg::SDL3_attr::ref().wait_event);
+      cimg::SDL3_attr::ref().unlock();
 #endif
       }
       return *this;
@@ -9662,7 +9666,9 @@ namespace cimg_library {
 #elif cimg_display==2
       SetEvent(cimg::Win32_attr::ref().wait_event);
 #elif cimg_display==3
+      cimg::SDL3_attr::ref().lock();
       SDL_BroadcastCondition(cimg::SDL3_attr::ref().wait_event);
+      cimg::SDL3_attr::ref().unlock();
 #endif
       return *this;
     }
@@ -9681,7 +9687,9 @@ namespace cimg_library {
 #elif cimg_display==2
         SetEvent(cimg::Win32_attr::ref().wait_event);
 #elif cimg_display==3
+      cimg::SDL3_attr::ref().lock();
       SDL_BroadcastCondition(cimg::SDL3_attr::ref().wait_event);
+      cimg::SDL3_attr::ref().unlock();
 #endif
       }
       return *this;
@@ -9712,7 +9720,9 @@ namespace cimg_library {
 #elif cimg_display==2
       SetEvent(cimg::Win32_attr::ref().wait_event);
 #elif cimg_display==3
+      cimg::SDL3_attr::ref().lock();
       SDL_BroadcastCondition(cimg::SDL3_attr::ref().wait_event);
+      cimg::SDL3_attr::ref().unlock();
 #endif
       return *this;
     }
@@ -9775,7 +9785,9 @@ namespace cimg_library {
 #elif cimg_display==2
         SetEvent(cimg::Win32_attr::ref().wait_event);
 #elif cimg_display==3
+        cimg::SDL3_attr::ref().lock();
         SDL_BroadcastCondition(cimg::SDL3_attr::ref().wait_event);
+        cimg::SDL3_attr::ref().unlock();
 #endif
       }
       return *this;
@@ -12040,19 +12052,15 @@ namespace cimg_library {
         _is_closed = is_event = true;
         break;
       case SDL_EVENT_WINDOW_RESIZED: {
-        SDL3_attr.lock();
         int w,h;
         SDL_GetWindowSize(_window,&w,&h);
         _window_width = (unsigned int)w;
         _window_height = (unsigned int)h;
         _is_resized = _paint_request = is_event = true;
-        SDL3_attr.unlock();
       } break;
       case SDL_EVENT_WINDOW_MOVED:
-        SDL3_attr.lock();
         _update_window_pos();
         _paint_request = is_event = true;
-        SDL3_attr.unlock();
         break;
       case SDL_EVENT_WINDOW_FOCUS_GAINED:
       case SDL_EVENT_WINDOW_MINIMIZED:
@@ -12068,7 +12076,6 @@ namespace cimg_library {
       case SDL_EVENT_MOUSE_MOTION:
       case SDL_EVENT_WINDOW_MOUSE_ENTER: {
         float x,y;
-        SDL3_attr.lock();
         SDL_GetMouseState(&x,&y);
         if (x<0 || x>=_width || y<0 || y>=_height) {
           _mouse_x = _mouse_y = -1;
@@ -12079,7 +12086,6 @@ namespace cimg_library {
           if (_is_cursor_visible) SDL_ShowCursor(); else SDL_HideCursor();
         }
         is_event = true;
-        SDL3_attr.unlock();
       } break;
       case SDL_EVENT_WINDOW_MOUSE_LEAVE:
         _mouse_x = _mouse_y = -1;
@@ -12173,7 +12179,12 @@ namespace cimg_library {
     void _assign(const unsigned int dimw, const unsigned int dimh, const char *const p_title=0,
                  const unsigned int normalization_type=3,
                  const bool is_fullscreen=false, const bool closed_flag=false) {
+
+      // Destroy previous display window if existing.
+      if (!is_empty()) assign(false);
+
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
+      SDL3_attr.lock();
 
       // Allocate space for window title.
       const char *const np_title = p_title?p_title:"";
@@ -12181,11 +12192,7 @@ namespace cimg_library {
       char *const tmp_title = s?new char[s]:0;
       if (s) std::memcpy(tmp_title,np_title,s*sizeof(char));
 
-      // Destroy previous display window if existing.
-      if (!is_empty()) assign(false);
-
       // Set display variables.
-      SDL3_attr.lock();
       if (!SDL3_attr.events_thread)
         SDL3_attr.events_thread = SDL_CreateThread(_events_thread,"_events_thread",0);
       _width = std::min(dimw,(unsigned int)screen_width());
@@ -12294,17 +12301,16 @@ namespace cimg_library {
     CImgDisplay& resize(const int nwidth, const int nheight, const bool force_redraw=true) {
       if (!nwidth || !nheight || (is_empty() && (nwidth<0 || nheight<0))) return assign();
       if (is_empty()) return assign((unsigned int)nwidth,(unsigned int)nheight);
+      cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
+      SDL3_attr.lock();
       const unsigned int
         tmpdimx = (nwidth>0)?nwidth:(-nwidth*_width/100),
         tmpdimy = (nheight>0)?nheight:(-nheight*_height/100),
         dimx = tmpdimx?tmpdimx:1,
         dimy = tmpdimy?tmpdimy:1;
       if (_width!=dimx || _height!=dimy || _window_width!=dimx || _window_height!=dimy) {
-        cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
         if (_window_width!=dimx || _window_height!=dimy) {
-          SDL3_attr.lock();
           SDL_SetWindowSize(_window,(int)dimx,(int)dimy);
-          SDL3_attr.unlock();
         }
         unsigned int *const ndata = new unsigned int[dimx*dimy];
         if (force_redraw) _render_resize(_data,_width,_height,ndata,dimx,dimy);
@@ -12316,6 +12322,7 @@ namespace cimg_library {
         show();
       }
       _is_resized = false;
+      SDL3_attr.unlock();
       if (_is_fullscreen) move((screen_width() - width())/2,(screen_height() - height())/2);
       if (force_redraw) paint();
       return *this;
@@ -12329,10 +12336,10 @@ namespace cimg_library {
       const cimg_ulong buf_size = (cimg_ulong)_width*_height*sizeof(unsigned int);
       unsigned int *odata = new unsigned int[_width*_height];
       std::memcpy(odata,_data,buf_size);
+      SDL3_attr.unlock();
       assign(_width,_height,_title,_normalization,!_is_fullscreen,false);
       cimg::swap(_data,odata);
       delete[] odata;
-      SDL3_attr.unlock();
       return paint();
     }
 
@@ -12362,12 +12369,13 @@ namespace cimg_library {
 
     template<typename T>
     const CImgDisplay& snapshot(CImg<T>& img) const {
-      cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
       return *this;
     }
 
     CImgDisplay& set_title(const char *const format, ...) {
       if (is_empty()) return *this;
+      cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
+      SDL3_attr.lock();
       char *const tmp = new char[1024];
       va_list ap;
       va_start(ap, format);
@@ -12378,12 +12386,9 @@ namespace cimg_library {
       const unsigned int s = (unsigned int)std::strlen(tmp) + 1;
       _title = new char[s];
       std::memcpy(_title,tmp,s*sizeof(char));
-
-      cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
-      SDL3_attr.lock();
       SDL_SetWindowTitle(_window,tmp);
-      SDL3_attr.unlock();
       delete[] tmp;
+      SDL3_attr.unlock();
       return *this;
     }
 
@@ -12461,6 +12466,8 @@ namespace cimg_library {
       if (is_empty()) return *this;
       if (img._depth!=1) return render(img.get_projections2d((img._width - 1)/2,(img._height - 1)/2,
                                                              (img._depth - 1)/2));
+      cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
+      SDL3_attr.lock();
       const T
         *data1 = img._data,
         *data2 = (img._spectrum>=2)?img.data(0,0,0,1):data1,
@@ -12534,6 +12541,7 @@ namespace cimg_library {
         }
       }
       if (ndata!=_data) { _render_resize(ndata,img._width,img._height,_data,_width,_height); delete[] ndata; }
+      SDL3_attr.unlock();
       return *this;
     }
 

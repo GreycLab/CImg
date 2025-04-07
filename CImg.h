@@ -12313,7 +12313,7 @@ namespace cimg_library {
       }
       _is_resized = false;
       if (_is_fullscreen) move((screen_width() - width())/2,(screen_height() - height())/2);
-      if (force_redraw) return paint();
+      if (force_redraw) paint();
       return *this;
     }
 
@@ -12428,7 +12428,8 @@ namespace cimg_library {
         SDL_DestroyTexture(_texture);
         _texture = SDL_CreateTexture(_renderer,SDL_PIXELFORMAT_RGBA8888,SDL_TEXTUREACCESS_STREAMING,
                                      (int)_width,(int)_height);
-      } else SDL_UpdateTexture(_texture,0,_data,_width*sizeof(unsigned int));
+      }
+      SDL_UpdateTexture(_texture,0,_data,_width*sizeof(unsigned int));
       SDL_RenderClear(_renderer);
       SDL_FRect rect;
       rect.x = rect.y = 0;

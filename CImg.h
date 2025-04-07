@@ -12300,13 +12300,13 @@ namespace cimg_library {
         if (_window_width!=dimx || _window_height!=dimy) {
           SDL3_attr.lock();
           SDL_SetWindowSize(_window,(int)dimx,(int)dimy);
-          unsigned int *const ndata = new unsigned int[dimx*dimy];
-          if (force_redraw) _render_resize(_data,_width,_height,ndata,dimx,dimy);
-          else std::memset(ndata,0,sizeof(unsigned int)*dimx*dimy);
-          delete[] _data;
-          _data = ndata;
           SDL3_attr.unlock();
         }
+        unsigned int *const ndata = new unsigned int[dimx*dimy];
+        if (force_redraw) _render_resize(_data,_width,_height,ndata,dimx,dimy);
+        else std::memset(ndata,0,sizeof(unsigned int)*dimx*dimy);
+        delete[] _data;
+        _data = ndata;
         _window_width = _width = dimx;
         _window_height = _height = dimy;
         show();

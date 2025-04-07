@@ -10446,7 +10446,7 @@ namespace cimg_library {
 
     void _assign(const unsigned int dimw, const unsigned int dimh, const char *const p_title=0,
                  const unsigned int normalization_type=3,
-                 const bool fullscreen_flag=false, const bool closed_flag=false) {
+                 const bool is_fullscreen=false, const bool closed_flag=false) {
       cimg::mutex(14);
 
       // Allocate space for window title.
@@ -10495,7 +10495,7 @@ namespace cimg_library {
       _width = std::min(dimw,(unsigned int)screen_width());
       _height = std::min(dimh,(unsigned int)screen_height());
       _normalization = normalization_type<4?normalization_type:3;
-      _is_fullscreen = fullscreen_flag;
+      _is_fullscreen = is_fullscreen;
       _window_x = _window_y = cimg::type<int>::min();
       _is_closed = closed_flag;
       _title = tmp_title;
@@ -10590,10 +10590,10 @@ namespace cimg_library {
 
     CImgDisplay& assign(const unsigned int dimw, const unsigned int dimh, const char *const title=0,
                         const unsigned int normalization_type=3,
-                        const bool fullscreen_flag=false, const bool closed_flag=false) {
+                        const bool is_fullscreen=false, const bool closed_flag=false) {
       if (!dimw || !dimh) return assign();
       cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
-      _assign(dimw,dimh,title,normalization_type,fullscreen_flag,closed_flag);
+      _assign(dimw,dimh,title,normalization_type,is_fullscreen,closed_flag);
       _min = _max = 0;
       std::memset(_data,0,(X11_attr.nb_bits==8?sizeof(unsigned char):
                            (X11_attr.nb_bits==16?sizeof(unsigned short):sizeof(unsigned int)))*
@@ -10604,13 +10604,13 @@ namespace cimg_library {
     template<typename T>
     CImgDisplay& assign(const CImg<T>& img, const char *const title=0,
                         const unsigned int normalization_type=3,
-                        const bool fullscreen_flag=false, const bool closed_flag=false) {
+                        const bool is_fullscreen=false, const bool closed_flag=false) {
       if (!img) return assign();
       CImg<T> tmp;
       const CImg<T>& nimg = (img._depth==1)?img:(tmp=img.get_projections2d((img._width - 1)/2,
                                                                            (img._height - 1)/2,
                                                                            (img._depth - 1)/2));
-      _assign(nimg._width,nimg._height,title,normalization_type,fullscreen_flag,closed_flag);
+      _assign(nimg._width,nimg._height,title,normalization_type,is_fullscreen,closed_flag);
       if (_normalization==2) _min = (float)nimg.min_max(_max);
       return render(nimg).paint();
     }
@@ -10618,13 +10618,13 @@ namespace cimg_library {
     template<typename T>
     CImgDisplay& assign(const CImgList<T>& list, const char *const title=0,
                         const unsigned int normalization_type=3,
-                        const bool fullscreen_flag=false, const bool closed_flag=false) {
+                        const bool is_fullscreen=false, const bool closed_flag=false) {
       if (!list) return assign();
       CImg<T> tmp;
       const CImg<T> img = list>'x', &nimg = (img._depth==1)?img:(tmp=img.get_projections2d((img._width - 1)/2,
                                                                                            (img._height - 1)/2,
                                                                                            (img._depth - 1)/2));
-      _assign(nimg._width,nimg._height,title,normalization_type,fullscreen_flag,closed_flag);
+      _assign(nimg._width,nimg._height,title,normalization_type,is_fullscreen,closed_flag);
       if (_normalization==2) _min = (float)nimg.min_max(_max);
       return render(nimg).paint();
     }
@@ -11605,7 +11605,7 @@ namespace cimg_library {
 
     CImgDisplay& _assign(const unsigned int dimw, const unsigned int dimh, const char *const p_title=0,
                          const unsigned int normalization_type=3,
-                         const bool fullscreen_flag=false, const bool closed_flag=false) {
+                         const bool is_fullscreen=false, const bool closed_flag=false) {
 
       // Allocate space for window title.
       const char *const np_title = p_title?p_title:"";
@@ -11620,7 +11620,7 @@ namespace cimg_library {
       _width = std::min(dimw,(unsigned int)screen_width());
       _height = std::min(dimh,(unsigned int)screen_height());
       _normalization = normalization_type<4?normalization_type:3;
-      _is_fullscreen = fullscreen_flag;
+      _is_fullscreen = is_fullscreen;
       _window_x = _window_y = cimg::type<int>::min();
       _is_closed = closed_flag;
       _is_cursor_visible = true;
@@ -11642,9 +11642,9 @@ namespace cimg_library {
 
     CImgDisplay& assign(const unsigned int dimw, const unsigned int dimh, const char *const title=0,
                         const unsigned int normalization_type=3,
-                        const bool fullscreen_flag=false, const bool closed_flag=false) {
+                        const bool is_fullscreen=false, const bool closed_flag=false) {
       if (!dimw || !dimh) return assign();
-      _assign(dimw,dimh,title,normalization_type,fullscreen_flag,closed_flag);
+      _assign(dimw,dimh,title,normalization_type,is_fullscreen,closed_flag);
       _min = _max = 0;
       std::memset(_data,0,sizeof(unsigned int)*_width*_height);
       return paint();
@@ -11653,13 +11653,13 @@ namespace cimg_library {
     template<typename T>
     CImgDisplay& assign(const CImg<T>& img, const char *const title=0,
                         const unsigned int normalization_type=3,
-                        const bool fullscreen_flag=false, const bool closed_flag=false) {
+                        const bool is_fullscreen=false, const bool closed_flag=false) {
       if (!img) return assign();
       CImg<T> tmp;
       const CImg<T>& nimg = (img._depth==1)?img:(tmp=img.get_projections2d((img._width - 1)/2,
                                                                            (img._height - 1)/2,
                                                                            (img._depth - 1)/2));
-      _assign(nimg._width,nimg._height,title,normalization_type,fullscreen_flag,closed_flag);
+      _assign(nimg._width,nimg._height,title,normalization_type,is_fullscreen,closed_flag);
       if (_normalization==2) _min = (float)nimg.min_max(_max);
       return display(nimg);
     }
@@ -11667,13 +11667,13 @@ namespace cimg_library {
     template<typename T>
     CImgDisplay& assign(const CImgList<T>& list, const char *const title=0,
                         const unsigned int normalization_type=3,
-                        const bool fullscreen_flag=false, const bool closed_flag=false) {
+                        const bool is_fullscreen=false, const bool closed_flag=false) {
       if (!list) return assign();
       CImg<T> tmp;
       const CImg<T> img = list>'x', &nimg = (img._depth==1)?img:(tmp=img.get_projections2d((img._width - 1)/2,
                                                                                            (img._height - 1)/2,
                                                                                            (img._depth - 1)/2));
-      _assign(nimg._width,nimg._height,title,normalization_type,fullscreen_flag,closed_flag);
+      _assign(nimg._width,nimg._height,title,normalization_type,is_fullscreen,closed_flag);
       if (_normalization==2) _min = (float)nimg.min_max(_max);
       return display(nimg);
     }
@@ -12029,6 +12029,16 @@ namespace cimg_library {
       return *this;
     }
 
+    void _init_fullscreen() {
+      if (!_is_fullscreen || _is_closed) return;
+      _is_fullscreen = true;
+    }
+
+    void _desinit_fullscreen() {
+      if (!_is_fullscreen) return;
+      _is_fullscreen = false;
+    }
+
     void _handle_events(const SDL_Event &event) {
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
       bool is_event = false;
@@ -12172,7 +12182,7 @@ namespace cimg_library {
 
     void _assign(const unsigned int dimw, const unsigned int dimh, const char *const p_title=0,
                  const unsigned int normalization_type=3,
-                 const bool fullscreen_flag=false, const bool closed_flag=false) {
+                 const bool is_fullscreen=false, const bool closed_flag=false) {
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
       SDL3_attr.lock();
       if (!SDL3_attr.events_thread) SDL3_attr.events_thread = SDL_CreateThread(_events_thread,"_events_thread",0);
@@ -12187,7 +12197,7 @@ namespace cimg_library {
       _width = std::min(dimw,(unsigned int)screen_width());
       _height = std::min(dimh,(unsigned int)screen_height());
       _normalization = normalization_type<4?normalization_type:3;
-      _is_fullscreen = fullscreen_flag;
+      _is_fullscreen = is_fullscreen;
       _window_x = _window_y = cimg::type<int>::min();
       _is_closed = closed_flag;
       _is_cursor_visible = true;
@@ -12229,9 +12239,9 @@ namespace cimg_library {
 
     CImgDisplay& assign(const unsigned int dimw, const unsigned int dimh, const char *const title=0,
                         const unsigned int normalization_type=3,
-                        const bool fullscreen_flag=false, const bool closed_flag=false) {
+                        const bool is_fullscreen=false, const bool closed_flag=false) {
       if (!dimw || !dimh) return assign();
-      _assign(dimw,dimh,title,normalization_type,fullscreen_flag,closed_flag);
+      _assign(dimw,dimh,title,normalization_type,is_fullscreen,closed_flag);
       _min = _max = 0;
       std::memset(_data,0,sizeof(unsigned int)*_width*_height);
       return paint();
@@ -12240,13 +12250,13 @@ namespace cimg_library {
     template<typename T>
     CImgDisplay& assign(const CImg<T>& img, const char *const title=0,
                         const unsigned int normalization_type=3,
-                        const bool fullscreen_flag=false, const bool closed_flag=false) {
+                        const bool is_fullscreen=false, const bool closed_flag=false) {
       if (!img) return assign();
       CImg<T> tmp;
       const CImg<T>& nimg = (img._depth==1)?img:(tmp=img.get_projections2d((img._width - 1)/2,
                                                                            (img._height - 1)/2,
                                                                            (img._depth - 1)/2));
-      _assign(nimg._width,nimg._height,title,normalization_type,fullscreen_flag,closed_flag);
+      _assign(nimg._width,nimg._height,title,normalization_type,is_fullscreen,closed_flag);
       if (_normalization==2) _min = (float)nimg.min_max(_max);
       return display(nimg);
     }
@@ -12254,13 +12264,13 @@ namespace cimg_library {
     template<typename T>
     CImgDisplay& assign(const CImgList<T>& list, const char *const title=0,
                         const unsigned int normalization_type=3,
-                        const bool fullscreen_flag=false, const bool closed_flag=false) {
+                        const bool is_fullscreen=false, const bool closed_flag=false) {
       if (!list) return assign();
       CImg<T> tmp;
       const CImg<T> img = list>'x', &nimg = (img._depth==1)?img:(tmp=img.get_projections2d((img._width - 1)/2,
                                                                                            (img._height - 1)/2,
                                                                                            (img._depth - 1)/2));
-      _assign(nimg._width,nimg._height,title,normalization_type,fullscreen_flag,closed_flag);
+      _assign(nimg._width,nimg._height,title,normalization_type,is_fullscreen,closed_flag);
       if (_normalization==2) _min = (float)nimg.min_max(_max);
       return display(nimg);
     }

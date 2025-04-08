@@ -17,4 +17,3 @@ addons:
     - libmagick++-dev
     - libgraphicsmagick++1-dev
     - libfftw3-dev
-    - zlib1g-dev

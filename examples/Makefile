@@ -399,7 +399,6 @@ $(X11_CFLAGS) \
 $(FFTW3_CFLAGS) \
 $(PNG_CFLAGS) \
 $(JPEG_CFLAGS) \
-$(ZLIB_CFLAGS) \
 $(CURL_CFLAGS) \
 $(XSHM_CFLAGS)" \
 "CONF_LIBS = \
@@ -407,7 +406,6 @@ $(X11_LIBS) \
 $(FFTW3_LIBS) \
 $(PNG_LIBS) \
 $(JPEG_LIBS) \
-$(ZLIB_LIBS) \
 $(CURL_LIBS) \
 $(XSHM_LIBS)" \
 all

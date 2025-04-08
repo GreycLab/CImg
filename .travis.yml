@@ -3,7 +3,7 @@ compiler:
   - gcc
 script:
   - cd examples
-  - make CXX='g++-4.8' travis
+  - make travis
 addons:
   apt:
     sources:
@@ -17,4 +17,3 @@ addons:
     - libmagick++-dev
     - libgraphicsmagick++1-dev
     - libfftw3-dev
-    - zlib1g-dev

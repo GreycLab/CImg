@@ -12027,14 +12027,9 @@ namespace cimg_library {
 
     static void wait_all() {
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
-
-      std::fprintf(stderr,"\nCHECKPOINT-0\n");
-
       SDL_LockMutex(SDL3_attr.mutex_wait_event);
       SDL_WaitCondition(SDL3_attr.wait_event,SDL3_attr.mutex_wait_event);
       SDL_UnlockMutex(SDL3_attr.mutex_wait_event);
-
-      std::fprintf(stderr,"\nCHECKPOINT\n");
 
       // Trick to force paint, as paint() does not work when called from events thread.
       for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k) {
@@ -12049,7 +12044,7 @@ namespace cimg_library {
       return *this;
     }
 
-    bool _handle_events(const SDL_Event &event) {
+    void _handle_events(const SDL_Event &event) {
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
       bool is_event = false;
 
@@ -12118,8 +12113,7 @@ namespace cimg_library {
         is_event = true;
         break;
       }
-      if (is_event) _is_event = true;
-      return is_event;
+      if (is_event) { _is_event = true; SDL_BroadcastCondition(SDL3_attr.wait_event); }
     }
 
     static int _events_thread(void*) {
@@ -12128,7 +12122,7 @@ namespace cimg_library {
 
       SDL_Event event;
       while (SDL3_attr.events_thread_running) {
-        SDL3_attr.lock();
+//        SDL3_attr.lock();
         bool is_event = SDL_PollEvent(&event);
         if (is_event) {
           SDL_Window *const window = SDL_GetWindowFromID(event.window.windowID);
@@ -12137,15 +12131,14 @@ namespace cimg_library {
               if (!SDL3_attr.cimg_displays[k]->_is_closed &&
                   window==SDL3_attr.cimg_displays[k]->_window &&
                   SDL3_attr.events_thread_running) {
-                is_event = SDL3_attr.cimg_displays[k]->_handle_events(event);
+                SDL3_attr.cimg_displays[k]->_handle_events(event);
                 break;
               }
-          SDL3_attr.unlock();
+          //          SDL3_attr.unlock();
         } else {
-          SDL3_attr.unlock();
+          //          SDL3_attr.unlock();
           cimg::sleep(8);
         }
-        if (is_event) SDL_BroadcastCondition(SDL3_attr.wait_event);
       }
       return 0;
     }
@@ -55985,7 +55978,6 @@ namespace cimg_library {
 
           disp.display(visu);
         }
-
         if (!shape_selected) disp.wait();
         if (disp.is_resized()) { disp.resize(false)._is_resized = false; old_is_resized = true; visu0.assign(); }
         omx = mx; omy = my;

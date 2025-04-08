@@ -9624,9 +9624,7 @@ namespace cimg_library {
 #elif cimg_display==2
       SetEvent(cimg::Win32_attr::ref().wait_event);
 #elif cimg_display==3
-      cimg::SDL3_attr::ref().lock();
       SDL_BroadcastCondition(cimg::SDL3_attr::ref().wait_event);
-      cimg::SDL3_attr::ref().unlock();
 #endif
       return *this;
     }
@@ -9646,9 +9644,7 @@ namespace cimg_library {
 #elif cimg_display==2
         SetEvent(cimg::Win32_attr::ref().wait_event);
 #elif cimg_display==3
-      cimg::SDL3_attr::ref().lock();
-      SDL_BroadcastCondition(cimg::SDL3_attr::ref().wait_event);
-      cimg::SDL3_attr::ref().unlock();
+        SDL_BroadcastCondition(cimg::SDL3_attr::ref().wait_event);
 #endif
       }
       return *this;
@@ -9666,9 +9662,7 @@ namespace cimg_library {
 #elif cimg_display==2
       SetEvent(cimg::Win32_attr::ref().wait_event);
 #elif cimg_display==3
-      cimg::SDL3_attr::ref().lock();
       SDL_BroadcastCondition(cimg::SDL3_attr::ref().wait_event);
-      cimg::SDL3_attr::ref().unlock();
 #endif
       return *this;
     }
@@ -9687,9 +9681,7 @@ namespace cimg_library {
 #elif cimg_display==2
         SetEvent(cimg::Win32_attr::ref().wait_event);
 #elif cimg_display==3
-      cimg::SDL3_attr::ref().lock();
-      SDL_BroadcastCondition(cimg::SDL3_attr::ref().wait_event);
-      cimg::SDL3_attr::ref().unlock();
+        SDL_BroadcastCondition(cimg::SDL3_attr::ref().wait_event);
 #endif
       }
       return *this;
@@ -9720,9 +9712,7 @@ namespace cimg_library {
 #elif cimg_display==2
       SetEvent(cimg::Win32_attr::ref().wait_event);
 #elif cimg_display==3
-      cimg::SDL3_attr::ref().lock();
       SDL_BroadcastCondition(cimg::SDL3_attr::ref().wait_event);
-      cimg::SDL3_attr::ref().unlock();
 #endif
       return *this;
     }
@@ -9785,9 +9775,7 @@ namespace cimg_library {
 #elif cimg_display==2
         SetEvent(cimg::Win32_attr::ref().wait_event);
 #elif cimg_display==3
-        cimg::SDL3_attr::ref().lock();
         SDL_BroadcastCondition(cimg::SDL3_attr::ref().wait_event);
-        cimg::SDL3_attr::ref().unlock();
 #endif
       }
       return *this;

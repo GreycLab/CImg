@@ -12091,14 +12091,14 @@ namespace cimg_library {
       } break;
       case SDL_EVENT_MOUSE_WHEEL:
         set_wheel((int)event.wheel.y);
-        is_event = true;
+//        is_event = true; <- already done by set_wheel()
         break;
 
         // Keyboard events.
       case SDL_EVENT_KEY_DOWN:
       case SDL_EVENT_KEY_UP:
         set_key((unsigned int)event.key.scancode,event.type==SDL_EVENT_KEY_DOWN);
-        is_event = true;
+//        is_event = true; <- already done by set_key()
         break;
       }
       if (is_event) { _is_event = true; SDL_BroadcastCondition(SDL3_attr.wait_event); }

@@ -3377,12 +3377,12 @@ namespace cimg_library {
       }
 
       SDL3_attr& lock() { // Lock display
-        SDL_LockMutex(mutex_lock_display);
+//        SDL_LockMutex(mutex_lock_display);
         return *this;
       }
 
       SDL3_attr& unlock() { // Lock display
-        SDL_UnlockMutex(mutex_lock_display);
+//        SDL_UnlockMutex(mutex_lock_display);
         return *this;
       }
 
@@ -12367,11 +12367,6 @@ namespace cimg_library {
       return *this;
     }
 
-    template<typename T>
-    const CImgDisplay& snapshot(CImg<T>& img) const {
-      return *this;
-    }
-
     CImgDisplay& set_title(const char *const format, ...) {
       if (is_empty()) return *this;
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
@@ -12548,6 +12543,24 @@ namespace cimg_library {
     template<typename T>
     static void screenshot(const int x0, const int y0, const int x1, const int y1, CImg<T>& img) {
       cimg::unused(x0,y0,x1,y1,img);
+    }
+
+    template<typename T>
+    const CImgDisplay& snapshot(CImg<T>& img) const {
+      if (is_empty()) { img.assign(); return *this; }
+      const unsigned int *ptrs = _data;
+      img.assign(_width,_height,1,3);
+      T
+        *data1 = img.data(0,0,0,0),
+        *data2 = img.data(0,0,0,1),
+        *data3 = img.data(0,0,0,2);
+      for (cimg_ulong xy = (cimg_ulong)img._width*img._height; xy>0; --xy) {
+        const unsigned int val = *(ptrs++);
+        *(data1++) = (T)(unsigned char)(val>>24);
+        *(data2++) = (T)(unsigned char)((val>>16)&0xFF);
+        *(data3++) = (T)(unsigned char)((val>>8)&0xFF);
+      }
+      return *this;
     }
 
 #endif

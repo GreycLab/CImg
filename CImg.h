@@ -12535,8 +12535,7 @@ namespace cimg_library {
     }
 
     template<typename T>
-    static void screenshot(const int x0, const int y0, const int x1, const int y1, CImg<T>& img) {
-      cimg::unused(x0,y0,x1,y1,img);
+    static void screenshot(const int, const int, const int, const int, CImg<T>&) {
       throw CImgDisplayException("screenshot(): Screenshot feature is not supported when using SDL3-based display.");
     }
 

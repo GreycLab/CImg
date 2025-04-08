@@ -12110,7 +12110,7 @@ namespace cimg_library {
 
       SDL_Event event;
       while (SDL3_attr.events_thread_running) {
-//        SDL3_attr.lock();
+        SDL3_attr.lock();
         bool is_event = SDL_PollEvent(&event);
         if (is_event) {
           SDL_Window *const window = SDL_GetWindowFromID(event.window.windowID);
@@ -12122,9 +12122,9 @@ namespace cimg_library {
                 SDL3_attr.cimg_displays[k]->_handle_events(event);
                 break;
               }
-          //          SDL3_attr.unlock();
+          SDL3_attr.unlock();
         } else {
-          //          SDL3_attr.unlock();
+          SDL3_attr.unlock();
           cimg::sleep(8);
         }
       }
@@ -12362,14 +12362,15 @@ namespace cimg_library {
 
     CImgDisplay& set_title(const char *const format, ...) {
       if (is_empty()) return *this;
-      cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
-      SDL3_attr.lock();
       char *const tmp = new char[1024];
       va_list ap;
       va_start(ap, format);
       cimg_vsnprintf(tmp,1024,format,ap);
       va_end(ap);
       if (!std::strcmp(_title,tmp)) { delete[] tmp; return *this; }
+
+      cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
+      SDL3_attr.lock();
       delete[] _title;
       const unsigned int s = (unsigned int)std::strlen(tmp) + 1;
       _title = new char[s];
@@ -60059,8 +60060,8 @@ namespace cimg_library {
         if (!title) disp.set_title("CImg<%s> (%ux%ux%ux%u)",pixel_type(),_width,_height,_depth,_spectrum);
         else disp.set_title("%s",title);
       } else if (title) disp.set_title("%s",title);
-      disp.show().flush();
 
+      disp.show().flush();
       const CImg<char> dtitle = CImg<char>::string(disp.title());
       if (display_info) print(dtitle);
 

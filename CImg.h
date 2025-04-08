@@ -3295,7 +3295,7 @@ namespace cimg_library {
         return *this;
       }
 
-      X11_attr& unlock() { // Lock display
+      X11_attr& unlock() { // Unlock display
         pthread_mutex_unlock(&mutex_lock_display);
         return *this;
       }
@@ -3377,12 +3377,12 @@ namespace cimg_library {
       }
 
       SDL3_attr& lock() { // Lock display
-//        SDL_LockMutex(mutex_lock_display);
+        SDL_LockMutex(mutex_lock_display);
         return *this;
       }
 
-      SDL3_attr& unlock() { // Lock display
-//        SDL_UnlockMutex(mutex_lock_display);
+      SDL3_attr& unlock() { // Unlock display
+        SDL_UnlockMutex(mutex_lock_display);
         return *this;
       }
 
@@ -10156,7 +10156,7 @@ namespace cimg_library {
                                                   ExposureMask | StructureNotifyMask | ButtonPressMask |
                                                   KeyPressMask | PointerMotionMask | EnterWindowMask |
                                                   LeaveWindowMask | ButtonReleaseMask | KeyReleaseMask,&event);
-        if (is_event) // Find CImgDisplay associated to event
+        if (is_event) { // Find CImgDisplay associated to event
           for (unsigned int k = 0; k<X11_attr.nb_cimg_displays; ++k)
             if (!X11_attr.cimg_displays[k]->_is_closed &&
                 event.xany.window==X11_attr.cimg_displays[k]->_window &&
@@ -10164,9 +10164,12 @@ namespace cimg_library {
               X11_attr.cimg_displays[k]->_handle_events(&event);
               break;
             }
-        X11_attr.unlock();
+          X11_attr.unlock();
+        } else {
+          X11_attr.unlock();
+          cimg::sleep(8);
+        }
         pthread_testcancel();
-        cimg::sleep(8);
       }
       return 0;
     }
@@ -12024,9 +12027,14 @@ namespace cimg_library {
 
     static void wait_all() {
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
+
+      std::fprintf(stderr,"\nCHECKPOINT-0\n");
+
       SDL_LockMutex(SDL3_attr.mutex_wait_event);
       SDL_WaitCondition(SDL3_attr.wait_event,SDL3_attr.mutex_wait_event);
       SDL_UnlockMutex(SDL3_attr.mutex_wait_event);
+
+      std::fprintf(stderr,"\nCHECKPOINT\n");
 
       // Trick to force paint, as paint() does not work when called from events thread.
       for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k) {
@@ -12041,7 +12049,7 @@ namespace cimg_library {
       return *this;
     }
 
-    void _handle_events(const SDL_Event &event) {
+    bool _handle_events(const SDL_Event &event) {
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
       bool is_event = false;
 
@@ -12110,10 +12118,8 @@ namespace cimg_library {
         is_event = true;
         break;
       }
-      if (is_event) {
-        _is_event = true;
-        SDL_BroadcastCondition(SDL3_attr.wait_event);
-      }
+      if (is_event) _is_event = true;
+      return is_event;
     }
 
     static int _events_thread(void*) {
@@ -12122,7 +12128,8 @@ namespace cimg_library {
 
       SDL_Event event;
       while (SDL3_attr.events_thread_running) {
-        const bool is_event = SDL_WaitEventTimeout(&event,8);
+        SDL3_attr.lock();
+        bool is_event = SDL_PollEvent(&event);
         if (is_event) {
           SDL_Window *const window = SDL_GetWindowFromID(event.window.windowID);
           if (window) // Find CImgDisplay associated to event
@@ -12130,12 +12137,15 @@ namespace cimg_library {
               if (!SDL3_attr.cimg_displays[k]->_is_closed &&
                   window==SDL3_attr.cimg_displays[k]->_window &&
                   SDL3_attr.events_thread_running) {
-                SDL3_attr.lock();
-                SDL3_attr.cimg_displays[k]->_handle_events(event);
-                SDL3_attr.unlock();
+                is_event = SDL3_attr.cimg_displays[k]->_handle_events(event);
                 break;
               }
+          SDL3_attr.unlock();
+        } else {
+          SDL3_attr.unlock();
+          cimg::sleep(8);
         }
+        if (is_event) SDL_BroadcastCondition(SDL3_attr.wait_event);
       }
       return 0;
     }
@@ -12312,6 +12322,9 @@ namespace cimg_library {
         if (_window_width!=dimx || _window_height!=dimy) {
           SDL_SetWindowSize(_window,(int)dimx,(int)dimy);
         }
+        SDL3_attr.unlock();
+        show();
+        SDL3_attr.lock();
         unsigned int *const ndata = new unsigned int[dimx*dimy];
         if (force_redraw) _render_resize(_data,_width,_height,ndata,dimx,dimy);
         else std::memset(ndata,0,sizeof(unsigned int)*dimx*dimy);
@@ -12319,7 +12332,6 @@ namespace cimg_library {
         _data = ndata;
         _window_width = _width = dimx;
         _window_height = _height = dimy;
-        show();
       }
       _is_resized = false;
       SDL3_attr.unlock();
@@ -55973,6 +55985,7 @@ namespace cimg_library {
 
           disp.display(visu);
         }
+
         if (!shape_selected) disp.wait();
         if (disp.is_resized()) { disp.resize(false)._is_resized = false; old_is_resized = true; visu0.assign(); }
         omx = mx; omy = my;

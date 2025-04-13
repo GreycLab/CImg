@@ -23624,130 +23624,146 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"swap(",5)) { // Swap values
               _cimg_mp_op("Function 'swap()'");
-              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              ref.assign(14);
-              arg1 = compile(ss5,s1,depth1,ref,block_flags);
-              arg2 = compile(++s1,se1,depth1,ref._data + 7,block_flags);
-              p1 = size(arg1);
-              _cimg_mp_check_type(arg2,2,p1?2:1,p1);
-              if (is_const_scalar(arg1) || is_const_scalar(arg2)) {
-                _cimg_mp_strerr;
-                throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                            "CImg<%s>::%s: %s: %s argument cannot be a constant, "
-                                            "in expression '%s'.",
-                                            pixel_type(),_cimg_mp_calling_function,s_op,
-                                            is_const_scalar(arg1)?"First":"Second",s0);
-              }
-              CImg<ulongT>::vector((ulongT)mp_swap,arg1,arg2,p1).move_to(code);
 
-              // Write back values of linked arg1 and arg2.
-              const unsigned int *_ref = ref;
-              is_sth = true; // Is first argument?
-              do {
-                switch (*_ref) {
-                case 1 : // arg1: V[k]
-                  arg3 = _ref[1]; // Vector slot
-                  arg4 = _ref[2]; // Index
-                  CImg<ulongT>::vector((ulongT)mp_vector_set_off,arg1,arg3,(ulongT)size(arg3),arg4).
-                    move_to(code);
-                  break;
-                case 2 : // arg1: i/j[_#ind,off]
-                  if (!is_inside_critical) is_parallelizable = false;
-                  p1 = _ref[1]; // Index
-                  is_relative = (bool)_ref[2];
-                  arg3 = _ref[3]; // Offset
-                  if (p1!=~0U) {
-                    if (imglist)
-                      CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_joff:mp_list_set_ioff),
-                                           arg1,p1,arg3).move_to(code);
-                  } else {
-                    if (imgout)
-                      CImg<ulongT>::vector((ulongT)(is_relative?mp_set_joff:mp_set_ioff),
-                                           arg1,arg3).move_to(code);
-                  }
-                  break;
-                case 3 : // arg1: i/j(_#ind,_x,_y,_z,_c)
-                  if (!is_inside_critical) is_parallelizable = false;
-                  p1 = _ref[1]; // Index
-                  is_relative = (bool)_ref[2];
-                  arg3 = _ref[3]; // X
-                  arg4 = _ref[4]; // Y
-                  arg5 = _ref[5]; // Z
-                  arg6 = _ref[6]; // C
-                  if (p1!=~0U) {
-                    if (imglist)
-                      CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_jxyzc:mp_list_set_ixyzc),
-                                           arg1,p1,arg3,arg4,arg5,arg6).move_to(code);
-                  } else {
-                    if (imgout)
-                      CImg<ulongT>::vector((ulongT)(is_relative?mp_set_jxyzc:mp_set_ixyzc),
-                                           arg1,arg3,arg4,arg5,arg6).move_to(code);
-                  }
-                  break;
-              case 4: // arg1: I/J[_#ind,off]
-                if (!is_inside_critical) is_parallelizable = false;
-                p1 = _ref[1]; // Index
-                is_relative = (bool)_ref[2];
-                arg3 = _ref[3]; // Offset
-                if (p1!=~0U) {
-                  if (imglist) {
-                    if (is_scalar(arg1))
-                      CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Joff_s:mp_list_set_Ioff_s),
-                                           arg1,p1,arg3).move_to(code);
-                    else {
-                      _cimg_mp_check_const_index(p1);
-                      CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Joff_v:mp_list_set_Ioff_v),
-                                           arg1,p1,arg3,size(arg1)).move_to(code);
-                    }
-                  }
-                } else {
-                  if (imgout) {
-                    if (is_scalar(arg1))
-                      CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Joff_s:mp_set_Ioff_s),
-                                           arg1,arg3).move_to(code);
-                    else
-                      CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Joff_v:mp_set_Ioff_v),
-                                           arg1,arg3,size(arg1)).move_to(code);
-                  }
+              if (*ss5=='#') { // Swap image values
+                s0 = ss6; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0; // #ind
+                p1 = compile(ss6,s0++,depth1,0,block_flags);
+                _cimg_mp_check_notnan_index(p1,ss6);
+                _cimg_mp_check_list();
+                s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1; // pos0
+                arg1 = compile(s0,s1,depth1,0,block_flags);
+                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2; // pos1
+                arg2 = compile(s1,s2,depth1,0,block_flags);
+                arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):0; // is_vector?
+                CImg<ulongT>::vector((ulongT)mp_image_swap,_cimg_mp_slot_nan,p1,arg1,arg2,arg3).move_to(code);
+
+              } else {
+                s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                ref.assign(14);
+                arg1 = compile(ss5,s1,depth1,ref,block_flags);
+                arg2 = compile(++s1,se1,depth1,ref._data + 7,block_flags);
+                p1 = size(arg1);
+                _cimg_mp_check_type(arg2,2,p1?2:1,p1);
+                if (is_const_scalar(arg1) || is_const_scalar(arg2)) {
+                  _cimg_mp_strerr;
+                  throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                              "CImg<%s>::%s: %s: %s argument cannot be a constant, "
+                                              "in expression '%s'.",
+                                              pixel_type(),_cimg_mp_calling_function,s_op,
+                                              is_const_scalar(arg1)?"First":"Second",s0);
                 }
-                break;
-                case 5 : // arg1: I/J(_#ind,_x,_y,_z,_c)
-                  if (!is_inside_critical) is_parallelizable = false;
-                  p1 = _ref[1]; // Index
-                  is_relative = (bool)_ref[2];
-                  arg3 = _ref[3]; // X
-                  arg4 = _ref[4]; // Y
-                  arg5 = _ref[5]; // Z
-                  if (p1!=~0U) {
-                    if (imglist) {
-                      if (is_scalar(arg1))
-                        CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Jxyz_s:mp_list_set_Ixyz_s),
-                                             arg1,p1,arg3,arg4,arg5).move_to(code);
-                      else {
-                        _cimg_mp_check_const_index(p1);
-                        CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Jxyz_v:mp_list_set_Ixyz_v),
-                                             arg1,p1,arg3,arg4,arg5,size(arg1)).move_to(code);
+                CImg<ulongT>::vector((ulongT)mp_swap,arg1,arg2,p1).move_to(code);
+
+                // Write back values of linked arg1 and arg2.
+                const unsigned int *_ref = ref;
+                is_sth = true; // Is first argument?
+                do {
+                  switch (*_ref) {
+                  case 1 : // arg1: V[k]
+                    arg3 = _ref[1]; // Vector slot
+                    arg4 = _ref[2]; // Index
+                    CImg<ulongT>::vector((ulongT)mp_vector_set_off,arg1,arg3,(ulongT)size(arg3),arg4).
+                      move_to(code);
+                    break;
+                  case 2 : // arg1: i/j[_#ind,off]
+                    if (!is_inside_critical) is_parallelizable = false;
+                    p1 = _ref[1]; // Index
+                    is_relative = (bool)_ref[2];
+                    arg3 = _ref[3]; // Offset
+                    if (p1!=~0U) {
+                      if (imglist)
+                        CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_joff:mp_list_set_ioff),
+                                             arg1,p1,arg3).move_to(code);
+                    } else {
+                      if (imgout)
+                        CImg<ulongT>::vector((ulongT)(is_relative?mp_set_joff:mp_set_ioff),
+                                             arg1,arg3).move_to(code);
+                    }
+                    break;
+                  case 3 : // arg1: i/j(_#ind,_x,_y,_z,_c)
+                    if (!is_inside_critical) is_parallelizable = false;
+                    p1 = _ref[1]; // Index
+                    is_relative = (bool)_ref[2];
+                    arg3 = _ref[3]; // X
+                    arg4 = _ref[4]; // Y
+                    arg5 = _ref[5]; // Z
+                    arg6 = _ref[6]; // C
+                    if (p1!=~0U) {
+                      if (imglist)
+                        CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_jxyzc:mp_list_set_ixyzc),
+                                             arg1,p1,arg3,arg4,arg5,arg6).move_to(code);
+                    } else {
+                      if (imgout)
+                        CImg<ulongT>::vector((ulongT)(is_relative?mp_set_jxyzc:mp_set_ixyzc),
+                                             arg1,arg3,arg4,arg5,arg6).move_to(code);
+                    }
+                    break;
+                  case 4: // arg1: I/J[_#ind,off]
+                    if (!is_inside_critical) is_parallelizable = false;
+                    p1 = _ref[1]; // Index
+                    is_relative = (bool)_ref[2];
+                    arg3 = _ref[3]; // Offset
+                    if (p1!=~0U) {
+                      if (imglist) {
+                        if (is_scalar(arg1))
+                          CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Joff_s:mp_list_set_Ioff_s),
+                                               arg1,p1,arg3).move_to(code);
+                        else {
+                          _cimg_mp_check_const_index(p1);
+                          CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Joff_v:mp_list_set_Ioff_v),
+                                               arg1,p1,arg3,size(arg1)).move_to(code);
+                        }
+                      }
+                    } else {
+                      if (imgout) {
+                        if (is_scalar(arg1))
+                          CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Joff_s:mp_set_Ioff_s),
+                                               arg1,arg3).move_to(code);
+                        else
+                          CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Joff_v:mp_set_Ioff_v),
+                                               arg1,arg3,size(arg1)).move_to(code);
                       }
                     }
-                  } else {
-                    if (imgout) {
-                      if (is_scalar(arg1))
-                        CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Jxyz_s:mp_set_Ixyz_s),
-                                             arg1,arg3,arg4,arg5).move_to(code);
-                      else
-                        CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Jxyz_v:mp_set_Ixyz_v),
-                                             arg1,arg3,arg4,arg5,size(arg1)).move_to(code);
+                    break;
+                  case 5 : // arg1: I/J(_#ind,_x,_y,_z,_c)
+                    if (!is_inside_critical) is_parallelizable = false;
+                    p1 = _ref[1]; // Index
+                    is_relative = (bool)_ref[2];
+                    arg3 = _ref[3]; // X
+                    arg4 = _ref[4]; // Y
+                    arg5 = _ref[5]; // Z
+                    if (p1!=~0U) {
+                      if (imglist) {
+                        if (is_scalar(arg1))
+                          CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Jxyz_s:mp_list_set_Ixyz_s),
+                                               arg1,p1,arg3,arg4,arg5).move_to(code);
+                        else {
+                          _cimg_mp_check_const_index(p1);
+                          CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Jxyz_v:mp_list_set_Ixyz_v),
+                                               arg1,p1,arg3,arg4,arg5,size(arg1)).move_to(code);
+                        }
+                      }
+                    } else {
+                      if (imgout) {
+                        if (is_scalar(arg1))
+                          CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Jxyz_s:mp_set_Ixyz_s),
+                                               arg1,arg3,arg4,arg5).move_to(code);
+                        else
+                          CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Jxyz_v:mp_set_Ixyz_v),
+                                               arg1,arg3,arg4,arg5,size(arg1)).move_to(code);
+                      }
                     }
+                    break;
                   }
-                  break;
-                }
 
-                _ref+=7;
-                arg1 = arg2;
-                is_sth = !is_sth;
-              } while (!is_sth);
+                  _ref+=7;
+                  arg1 = arg2;
+                  is_sth = !is_sth;
+                } while (!is_sth);
 
-              if (p_ref) std::memcpy(p_ref,ref,siz_ref);
+                if (p_ref) std::memcpy(p_ref,ref,siz_ref);
+              }
+
               _cimg_mp_return_nan();
             }
             break;
@@ -27257,6 +27273,32 @@ namespace cimg_library {
           if (!mp.imglist.width()) return cimg::type<double>::nan();
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
           CImg<doubleT>(ptrd,14,1,1,1,true) = mp.imglist[ind].get_stats();
+        }
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_image_swap(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (!mp.imglist.width()) return cimg::type<double>::nan();
+        ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        CImg<T> &img = mp.imglist[ind];
+        const longT
+          pos0 = (longT)_mp_arg(3),
+          pos1 = (longT)_mp_arg(4);
+        const bool is_vector = (bool)_mp_arg(5);
+        if (is_vector) {
+          const longT whd = (longT)img.size()/img.spectrum();
+          T *ptr0 = &img[pos0], *ptr1 = &img[pos1];
+          if (pos0>=0 && pos0<=whd && pos1>=0 && pos1<=whd)
+            for (unsigned int c = 0; c<img._spectrum; ++c) {
+              cimg::swap(*ptr0,*ptr1);
+              ptr0+=whd;
+              ptr1+=whd;
+            }
+        } else {
+          const longT whds = (longT)img.size();
+          if (pos0>=0 && pos0<=whds && pos1>=0 && pos1<=whds)
+            cimg::swap(img[pos0],img[pos1]);
         }
         return cimg::type<double>::nan();
       }

@@ -27293,11 +27293,16 @@ namespace cimg_library {
               cimg::swap(*ptr0,*ptr1);
               ptr0+=whd;
               ptr1+=whd;
-            }
+            } else throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'swap()': "
+                                               "Out-of-bounds offsets %ld and %ld (min offset: 0, max offset: %ld).",
+                                               mp.imgin.pixel_type(),pos0,pos1,whd);
         } else {
           const longT whds = (longT)img.size();
           if (pos0>=0 && pos0<=whds && pos1>=0 && pos1<=whds)
             cimg::swap(img[pos0],img[pos1]);
+          else throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'swap()': "
+                                           "Out-of-bounds offsets %ld and %ld (min offset: 0, max offset: %ld).",
+                                           mp.imgin.pixel_type(),pos0,pos1,whds);
         }
         return cimg::type<double>::nan();
       }

@@ -79,7 +79,7 @@
 #include <climits>
 #include <ctime>
 #include <exception>
-#include <algorithm>
+#include <vector>
 #define cimg_str(x) #x
 #define cimg_str2(x) cimg_str(x)
 
@@ -499,6 +499,18 @@ extern "C" {
 #include "jpeglib.h"
 #include "setjmp.h"
 }
+#endif
+
+// Configure JPEG XL support.
+// (https://en.wikipedia.org/wiki/JPEG_XL)
+//
+// Define 'cimg_use_jxl' to enable JPEG XL support.
+//
+// Libjxl may be used to get a native support of '.jxl' files.
+// (see methods 'CImg<T>::{load,save}_jxl()').
+#ifdef cimg_use_jxl
+#include <jxl/decode.h>
+#include <jxl/encode.h>
 #endif
 
 // Configure LibTIFF support.
@@ -23612,130 +23624,146 @@ namespace cimg_library {
 
             if (!std::strncmp(ss,"swap(",5)) { // Swap values
               _cimg_mp_op("Function 'swap()'");
-              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              ref.assign(14);
-              arg1 = compile(ss5,s1,depth1,ref,block_flags);
-              arg2 = compile(++s1,se1,depth1,ref._data + 7,block_flags);
-              p1 = size(arg1);
-              _cimg_mp_check_type(arg2,2,p1?2:1,p1);
-              if (is_const_scalar(arg1) || is_const_scalar(arg2)) {
-                _cimg_mp_strerr;
-                throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                            "CImg<%s>::%s: %s: %s argument cannot be a constant, "
-                                            "in expression '%s'.",
-                                            pixel_type(),_cimg_mp_calling_function,s_op,
-                                            is_const_scalar(arg1)?"First":"Second",s0);
-              }
-              CImg<ulongT>::vector((ulongT)mp_swap,arg1,arg2,p1).move_to(code);
 
-              // Write back values of linked arg1 and arg2.
-              const unsigned int *_ref = ref;
-              is_sth = true; // Is first argument?
-              do {
-                switch (*_ref) {
-                case 1 : // arg1: V[k]
-                  arg3 = _ref[1]; // Vector slot
-                  arg4 = _ref[2]; // Index
-                  CImg<ulongT>::vector((ulongT)mp_vector_set_off,arg1,arg3,(ulongT)size(arg3),arg4).
-                    move_to(code);
-                  break;
-                case 2 : // arg1: i/j[_#ind,off]
-                  if (!is_inside_critical) is_parallelizable = false;
-                  p1 = _ref[1]; // Index
-                  is_relative = (bool)_ref[2];
-                  arg3 = _ref[3]; // Offset
-                  if (p1!=~0U) {
-                    if (imglist)
-                      CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_joff:mp_list_set_ioff),
-                                           arg1,p1,arg3).move_to(code);
-                  } else {
-                    if (imgout)
-                      CImg<ulongT>::vector((ulongT)(is_relative?mp_set_joff:mp_set_ioff),
-                                           arg1,arg3).move_to(code);
-                  }
-                  break;
-                case 3 : // arg1: i/j(_#ind,_x,_y,_z,_c)
-                  if (!is_inside_critical) is_parallelizable = false;
-                  p1 = _ref[1]; // Index
-                  is_relative = (bool)_ref[2];
-                  arg3 = _ref[3]; // X
-                  arg4 = _ref[4]; // Y
-                  arg5 = _ref[5]; // Z
-                  arg6 = _ref[6]; // C
-                  if (p1!=~0U) {
-                    if (imglist)
-                      CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_jxyzc:mp_list_set_ixyzc),
-                                           arg1,p1,arg3,arg4,arg5,arg6).move_to(code);
-                  } else {
-                    if (imgout)
-                      CImg<ulongT>::vector((ulongT)(is_relative?mp_set_jxyzc:mp_set_ixyzc),
-                                           arg1,arg3,arg4,arg5,arg6).move_to(code);
-                  }
-                  break;
-              case 4: // arg1: I/J[_#ind,off]
-                if (!is_inside_critical) is_parallelizable = false;
-                p1 = _ref[1]; // Index
-                is_relative = (bool)_ref[2];
-                arg3 = _ref[3]; // Offset
-                if (p1!=~0U) {
-                  if (imglist) {
-                    if (is_scalar(arg1))
-                      CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Joff_s:mp_list_set_Ioff_s),
-                                           arg1,p1,arg3).move_to(code);
-                    else {
-                      _cimg_mp_check_const_index(p1);
-                      CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Joff_v:mp_list_set_Ioff_v),
-                                           arg1,p1,arg3,size(arg1)).move_to(code);
-                    }
-                  }
-                } else {
-                  if (imgout) {
-                    if (is_scalar(arg1))
-                      CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Joff_s:mp_set_Ioff_s),
-                                           arg1,arg3).move_to(code);
-                    else
-                      CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Joff_v:mp_set_Ioff_v),
-                                           arg1,arg3,size(arg1)).move_to(code);
-                  }
+              if (*ss5=='#') { // Swap image values
+                s0 = ss6; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0; // #ind
+                p1 = compile(ss6,s0++,depth1,0,block_flags);
+                _cimg_mp_check_notnan_index(p1,ss6);
+                _cimg_mp_check_list();
+                s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1; // pos0
+                arg1 = compile(s0,s1,depth1,0,block_flags);
+                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2; // pos1
+                arg2 = compile(s1,s2,depth1,0,block_flags);
+                arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):0; // is_vector?
+                CImg<ulongT>::vector((ulongT)mp_image_swap,_cimg_mp_slot_nan,p1,arg1,arg2,arg3).move_to(code);
+
+              } else {
+                s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                ref.assign(14);
+                arg1 = compile(ss5,s1,depth1,ref,block_flags);
+                arg2 = compile(++s1,se1,depth1,ref._data + 7,block_flags);
+                p1 = size(arg1);
+                _cimg_mp_check_type(arg2,2,p1?2:1,p1);
+                if (is_const_scalar(arg1) || is_const_scalar(arg2)) {
+                  _cimg_mp_strerr;
+                  throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                              "CImg<%s>::%s: %s: %s argument cannot be a constant, "
+                                              "in expression '%s'.",
+                                              pixel_type(),_cimg_mp_calling_function,s_op,
+                                              is_const_scalar(arg1)?"First":"Second",s0);
                 }
-                break;
-                case 5 : // arg1: I/J(_#ind,_x,_y,_z,_c)
-                  if (!is_inside_critical) is_parallelizable = false;
-                  p1 = _ref[1]; // Index
-                  is_relative = (bool)_ref[2];
-                  arg3 = _ref[3]; // X
-                  arg4 = _ref[4]; // Y
-                  arg5 = _ref[5]; // Z
-                  if (p1!=~0U) {
-                    if (imglist) {
-                      if (is_scalar(arg1))
-                        CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Jxyz_s:mp_list_set_Ixyz_s),
-                                             arg1,p1,arg3,arg4,arg5).move_to(code);
-                      else {
-                        _cimg_mp_check_const_index(p1);
-                        CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Jxyz_v:mp_list_set_Ixyz_v),
-                                             arg1,p1,arg3,arg4,arg5,size(arg1)).move_to(code);
+                CImg<ulongT>::vector((ulongT)mp_swap,arg1,arg2,p1).move_to(code);
+
+                // Write back values of linked arg1 and arg2.
+                const unsigned int *_ref = ref;
+                is_sth = true; // Is first argument?
+                do {
+                  switch (*_ref) {
+                  case 1 : // arg1: V[k]
+                    arg3 = _ref[1]; // Vector slot
+                    arg4 = _ref[2]; // Index
+                    CImg<ulongT>::vector((ulongT)mp_vector_set_off,arg1,arg3,(ulongT)size(arg3),arg4).
+                      move_to(code);
+                    break;
+                  case 2 : // arg1: i/j[_#ind,off]
+                    if (!is_inside_critical) is_parallelizable = false;
+                    p1 = _ref[1]; // Index
+                    is_relative = (bool)_ref[2];
+                    arg3 = _ref[3]; // Offset
+                    if (p1!=~0U) {
+                      if (imglist)
+                        CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_joff:mp_list_set_ioff),
+                                             arg1,p1,arg3).move_to(code);
+                    } else {
+                      if (imgout)
+                        CImg<ulongT>::vector((ulongT)(is_relative?mp_set_joff:mp_set_ioff),
+                                             arg1,arg3).move_to(code);
+                    }
+                    break;
+                  case 3 : // arg1: i/j(_#ind,_x,_y,_z,_c)
+                    if (!is_inside_critical) is_parallelizable = false;
+                    p1 = _ref[1]; // Index
+                    is_relative = (bool)_ref[2];
+                    arg3 = _ref[3]; // X
+                    arg4 = _ref[4]; // Y
+                    arg5 = _ref[5]; // Z
+                    arg6 = _ref[6]; // C
+                    if (p1!=~0U) {
+                      if (imglist)
+                        CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_jxyzc:mp_list_set_ixyzc),
+                                             arg1,p1,arg3,arg4,arg5,arg6).move_to(code);
+                    } else {
+                      if (imgout)
+                        CImg<ulongT>::vector((ulongT)(is_relative?mp_set_jxyzc:mp_set_ixyzc),
+                                             arg1,arg3,arg4,arg5,arg6).move_to(code);
+                    }
+                    break;
+                  case 4: // arg1: I/J[_#ind,off]
+                    if (!is_inside_critical) is_parallelizable = false;
+                    p1 = _ref[1]; // Index
+                    is_relative = (bool)_ref[2];
+                    arg3 = _ref[3]; // Offset
+                    if (p1!=~0U) {
+                      if (imglist) {
+                        if (is_scalar(arg1))
+                          CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Joff_s:mp_list_set_Ioff_s),
+                                               arg1,p1,arg3).move_to(code);
+                        else {
+                          _cimg_mp_check_const_index(p1);
+                          CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Joff_v:mp_list_set_Ioff_v),
+                                               arg1,p1,arg3,size(arg1)).move_to(code);
+                        }
+                      }
+                    } else {
+                      if (imgout) {
+                        if (is_scalar(arg1))
+                          CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Joff_s:mp_set_Ioff_s),
+                                               arg1,arg3).move_to(code);
+                        else
+                          CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Joff_v:mp_set_Ioff_v),
+                                               arg1,arg3,size(arg1)).move_to(code);
                       }
                     }
-                  } else {
-                    if (imgout) {
-                      if (is_scalar(arg1))
-                        CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Jxyz_s:mp_set_Ixyz_s),
-                                             arg1,arg3,arg4,arg5).move_to(code);
-                      else
-                        CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Jxyz_v:mp_set_Ixyz_v),
-                                             arg1,arg3,arg4,arg5,size(arg1)).move_to(code);
+                    break;
+                  case 5 : // arg1: I/J(_#ind,_x,_y,_z,_c)
+                    if (!is_inside_critical) is_parallelizable = false;
+                    p1 = _ref[1]; // Index
+                    is_relative = (bool)_ref[2];
+                    arg3 = _ref[3]; // X
+                    arg4 = _ref[4]; // Y
+                    arg5 = _ref[5]; // Z
+                    if (p1!=~0U) {
+                      if (imglist) {
+                        if (is_scalar(arg1))
+                          CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Jxyz_s:mp_list_set_Ixyz_s),
+                                               arg1,p1,arg3,arg4,arg5).move_to(code);
+                        else {
+                          _cimg_mp_check_const_index(p1);
+                          CImg<ulongT>::vector((ulongT)(is_relative?mp_list_set_Jxyz_v:mp_list_set_Ixyz_v),
+                                               arg1,p1,arg3,arg4,arg5,size(arg1)).move_to(code);
+                        }
+                      }
+                    } else {
+                      if (imgout) {
+                        if (is_scalar(arg1))
+                          CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Jxyz_s:mp_set_Ixyz_s),
+                                               arg1,arg3,arg4,arg5).move_to(code);
+                        else
+                          CImg<ulongT>::vector((ulongT)(is_relative?mp_set_Jxyz_v:mp_set_Ixyz_v),
+                                               arg1,arg3,arg4,arg5,size(arg1)).move_to(code);
+                      }
                     }
+                    break;
                   }
-                  break;
-                }
 
-                _ref+=7;
-                arg1 = arg2;
-                is_sth = !is_sth;
-              } while (!is_sth);
+                  _ref+=7;
+                  arg1 = arg2;
+                  is_sth = !is_sth;
+                } while (!is_sth);
 
-              if (p_ref) std::memcpy(p_ref,ref,siz_ref);
+                if (p_ref) std::memcpy(p_ref,ref,siz_ref);
+              }
+
               _cimg_mp_return_nan();
             }
             break;
@@ -27245,6 +27273,32 @@ namespace cimg_library {
           if (!mp.imglist.width()) return cimg::type<double>::nan();
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
           CImg<doubleT>(ptrd,14,1,1,1,true) = mp.imglist[ind].get_stats();
+        }
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_image_swap(_cimg_math_parser& mp) {
+        unsigned int ind = (unsigned int)mp.opcode[2];
+        if (!mp.imglist.width()) return cimg::type<double>::nan();
+        ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        CImg<T> &img = mp.imglist[ind];
+        const longT
+          pos0 = (longT)_mp_arg(3),
+          pos1 = (longT)_mp_arg(4);
+        const bool is_vector = (bool)_mp_arg(5);
+        if (is_vector) {
+          const longT whd = (longT)img.size()/img.spectrum();
+          T *ptr0 = &img[pos0], *ptr1 = &img[pos1];
+          if (pos0>=0 && pos0<=whd && pos1>=0 && pos1<=whd)
+            for (unsigned int c = 0; c<img._spectrum; ++c) {
+              cimg::swap(*ptr0,*ptr1);
+              ptr0+=whd;
+              ptr1+=whd;
+            }
+        } else {
+          const longT whds = (longT)img.size();
+          if (pos0>=0 && pos0<=whds && pos1>=0 && pos1<=whds)
+            cimg::swap(img[pos0],img[pos1]);
         }
         return cimg::type<double>::nan();
       }
@@ -56433,6 +56487,7 @@ namespace cimg_library {
         else if (!cimg::strcasecmp(ext,"heic") ||
                  !cimg::strcasecmp(ext,"avif")) load_heif(filename);
         else if (!cimg::strcasecmp(ext,"webp")) load_webp(filename);
+        else if (!cimg::strcasecmp(ext,"jxl")) load_jxl(filename);
 
         // 3D binary formats.
         else if (!cimg::strcasecmp(ext,"dcm") ||
@@ -56505,6 +56560,7 @@ namespace cimg_library {
           else if (!cimg::strcasecmp(f_type,"gif")) load_gif_external(filename);
           else if (!cimg::strcasecmp(f_type,"dcm")) load_medcon_external(filename);
           else if (!cimg::strcasecmp(f_type,"webp")) load_webp(filename);
+          else if (!cimg::strcasecmp(f_type,"jxl")) load_jxl(filename);
           else is_loaded = false;
         } catch (CImgIOException&) { is_loaded = false; }
       }
@@ -56999,6 +57055,162 @@ namespace cimg_library {
       jpeg_finish_decompress(&cinfo);
       jpeg_destroy_decompress(&cinfo);
       if (!file) cimg::fclose(nfile);
+      return *this;
+#endif
+    }
+
+    //! Load image from a JPEG XL file.
+    /**
+       \param filename Filename, as a C-string.
+    **/
+    CImg<T>& load_jxl(const char *const filename) {
+      return _load_jxl(0,filename);
+    }
+
+    //! Load image from a JPEG XL file \newinstance.
+    static CImg<T> get_load_jxl(const char *const filename) {
+      return CImg<T>().load_jxl(filename);
+    }
+
+    //! Load image from a JPEG XL file \overloading.
+    CImg<T>& load_jxl(std::FILE *const file) {
+      return _load_jxl(file,0);
+    }
+
+    //! Load image from a JPEG XL file \newinstance.
+    static CImg<T> get_load_jxl(std::FILE *const file) {
+      return CImg<T>().load_jxl(file);
+    }
+
+    CImg<T>& _load_jxl(std::FILE *const file, const char *const filename) {
+      if (!file && !filename)
+        throw CImgArgumentException(_cimg_instance
+                                    "load_jxl(): Specified filename is (null).",
+                                    cimg_instance);
+
+#ifndef cimg_use_jxl
+      if (file)
+        throw CImgIOException(_cimg_instance
+                              "load_jxl(): Unable to load data from '(FILE*)' unless libjxl is enabled.",
+                              cimg_instance);
+      else return load_other(filename);
+#else
+      const char *nfilename = filename;
+      std::FILE *nfile = file?file:cimg::fopen(nfilename,"rb");
+      const long dataSize = cimg::fsize(nfile);
+      if (dataSize<=0) {
+        cimg::fclose(nfile);
+        throw CImgIOException(_cimg_instance
+                              "load_jxl(): Failed to get file size '%s'.",
+                              cimg_instance,
+                              nfilename);
+      }
+      CImg<ucharT> buffer(dataSize);
+      cimg::fread(buffer._data,buffer._width,nfile);
+      cimg::fclose(nfile);
+
+      bool hasAlpha = false, isGray = false;
+      uint32_t nChannels = 0;
+      JxlBasicInfo jxlInfo;
+      JxlPixelFormat format = { 1,JXL_TYPE_UINT8,cimg::endianness()?JXL_BIG_ENDIAN:JXL_LITTLE_ENDIAN,0 };
+      CImg<ucharT> imgData;
+      JxlDecoder *decoder = JxlDecoderCreate(NULL);
+      if (JXL_DEC_SUCCESS!=JxlDecoderSubscribeEvents(decoder,JXL_DEC_BASIC_INFO | JXL_DEC_FULL_IMAGE)) {
+        JxlDecoderDestroy(decoder);
+        throw CImgIOException(_cimg_instance
+                              "load_jxl(): Failed to configure decoder '%s'.",
+                              cimg_instance,
+                              nfilename);
+      }
+      if (JXL_DEC_SUCCESS!=JxlDecoderSetInput(decoder,buffer._data,buffer._width)) {
+        JxlDecoderDestroy(decoder);
+        throw CImgIOException(_cimg_instance
+                              "load_jxl(): Failed to load image data '%s'.",
+                              cimg_instance,
+                              nfilename);
+      }
+      JxlDecoderCloseInput(decoder);
+
+      while (true) {
+        JxlDecoderStatus status = JxlDecoderProcessInput(decoder);
+        if (status==JXL_DEC_SUCCESS || status==JXL_DEC_FULL_IMAGE) break;
+        else if (status==JXL_DEC_ERROR || status==JXL_DEC_NEED_MORE_INPUT) {
+          JxlDecoderDestroy(decoder);
+          throw CImgIOException(_cimg_instance
+                                "load_jxl(): Failed to decode image '%s'.",
+                                cimg_instance,
+                                nfilename);
+        } else if (status==JXL_DEC_BASIC_INFO) {
+          if (JXL_DEC_SUCCESS!=JxlDecoderGetBasicInfo(decoder,&jxlInfo)) {
+            JxlDecoderDestroy(decoder);
+            throw CImgIOException(_cimg_instance
+                                  "load_jxl(): Failed to load image data '%s'.",
+                                  cimg_instance,
+                                  nfilename);
+          }
+          if (jxlInfo.have_animation!=0) {
+            JxlDecoderDestroy(decoder);
+            throw CImgIOException(_cimg_instance
+                                  "load_jxl(): Does not support animated JPEG XL '%s'.",
+                                  cimg_instance,
+                                  nfilename);
+          }
+          hasAlpha = jxlInfo.alpha_bits!=0;
+          nChannels = hasAlpha?jxlInfo.num_color_channels + 1:jxlInfo.num_color_channels;
+          isGray = jxlInfo.num_color_channels==1;
+        } else if (status==JXL_DEC_NEED_IMAGE_OUT_BUFFER) {
+          std::size_t imgDataSize = 0;
+          format.num_channels = nChannels;
+          format.data_type = jxlInfo.bits_per_sample==16?JXL_TYPE_UINT16:JXL_TYPE_UINT8;
+          if (JXL_DEC_SUCCESS!=JxlDecoderImageOutBufferSize(decoder,&format,&imgDataSize)) {
+            JxlDecoderDestroy(decoder);
+            throw CImgIOException(_cimg_instance
+                                  "load_jxl(): Failed to decode image data '%s'.",
+                                  cimg_instance,
+                                  nfilename);
+          }
+          imgData.assign(imgDataSize);
+          if (JXL_DEC_SUCCESS!=JxlDecoderSetImageOutBuffer(decoder,&format,(void*)imgData.data(),imgDataSize)) {
+            JxlDecoderDestroy(decoder);
+            throw CImgIOException(_cimg_instance
+                                  "load_jxl(): Failed to set decode buffer '%s'.",
+                                  cimg_instance,
+                                  nfilename);
+          }
+        }
+      }
+
+      assign(jxlInfo.xsize,jxlInfo.ysize,1,nChannels);
+      T
+        *ptr_r = data(0,0,0,0),
+        *ptr_g = isGray?0:data(0,0,0,1),
+        *ptr_b = isGray?0:data(0,0,0,2),
+        *ptr_a = !hasAlpha?0:data(0,0,0,isGray?1:3);
+      switch (jxlInfo.bits_per_sample) {
+      case 8: {
+        cimg_forY(*this,y) {
+          const uint8_t *ptrs = (uint8_t*)&imgData[y*_width*_spectrum*sizeof(uint8_t)];
+          cimg_forX(*this,x) {
+            *(ptr_r++) = (T)*(ptrs++);
+            if (ptr_g) *(ptr_g++) = (T)*(ptrs++);
+            if (ptr_b) *(ptr_b++) = (T)*(ptrs++);
+            if (ptr_a) *(ptr_a++) = (T)*(ptrs++);
+          }
+        }
+      } break;
+      case 16: {
+        cimg_forY(*this,y) {
+          const uint16_t *ptrs = (uint16_t*)&imgData[y*_width*_spectrum*sizeof(uint16_t)];
+          cimg_forX(*this,x) {
+            *(ptr_r++) = (T)*(ptrs++);
+            if (ptr_g) *(ptr_g++) = (T)*(ptrs++);
+            if (ptr_b) *(ptr_b++) = (T)*(ptrs++);
+            if (ptr_a) *(ptr_a++) = (T)*(ptrs++);
+          }
+        }
+      } break;
+      }
+      JxlDecoderDestroy(decoder);
       return *this;
 #endif
     }
@@ -59814,12 +60026,14 @@ namespace cimg_library {
                                     "_cvmat2cimg() : pixel type '%s' is not supported.",
                                     cimg_instance,pixel_type());
       cv::Mat res;
-      std::vector<cv::Mat> channels(_spectrum);
       if (_spectrum>1) {
+        cv::Mat *const channels = new cv::Mat[_spectrum];
         cimg_forC(*this,c)
           channels[c] = cv::Mat(_height,_width,mat_type,_data + _width*_height*(_spectrum - 1 - c));
-        cv::merge(channels,res);
+        cv::merge(channels,_spectrum,res);
+        delete[] channels;
       } else res = cv::Mat(_height,_width,mat_type,_data).clone();
+
       return res;
     }
 
@@ -61128,6 +61342,7 @@ namespace cimg_library {
       else if (!cimg::strcasecmp(ext,"tif") ||
                !cimg::strcasecmp(ext,"tiff")) return save_tiff(fn);
       else if (!cimg::strcasecmp(ext,"webp")) return save_webp(fn);
+      else if (!cimg::strcasecmp(ext,"jxl")) return save_jxl(fn);
 
       // 3D binary formats.
       else if (!*ext) {
@@ -61555,6 +61770,173 @@ namespace cimg_library {
       jpeg_finish_compress(&cinfo);
       if (!file) cimg::fclose(nfile);
       jpeg_destroy_compress(&cinfo);
+      return *this;
+#endif
+    }
+
+    //! Save image as a JPEG XL file.
+    /**
+      \param filename Filename, as a C-string.
+      \param distance Sets the level for lossy compression: lower = higher quality.
+        Range: 0 .. 25. 0.0 = mathematically lossless
+    **/
+    const CImg<T>& save_jxl(const char *const filename, const float distance=1.0) const {
+      return _save_jxl(filename, distance);
+    }
+
+    const CImg<T>& _save_jxl(const char *const filename, const float distance=1.0) const {
+      if (!filename)
+        throw CImgArgumentException(_cimg_instance
+                                    "save_jxl(): Specified filename is (null).",
+                                    cimg_instance);
+      if (_spectrum > 4)
+        throw CImgArgumentException(_cimg_instance
+                                    "save_jxl(): JPEG XL only supports at most 4 channels.",
+                                    cimg_instance);
+      if (_depth>1)
+        cimg::warn(_cimg_instance
+                   "save_jxl(): Instance is volumetric, only the first slice will be saved in file '%s'.",
+                   cimg_instance,
+                   filename);
+#ifndef cimg_use_jxl
+      cimg::unused(distance);
+      return save_other(filename);
+#else
+      std::FILE *file = cimg::fopen(filename, "wb");
+      uint32_t nChannels = _spectrum;
+      bool hasAlpha = _spectrum==2 || _spectrum==4;
+      if (hasAlpha) --nChannels;
+      CImg<T> rgbBuffer(_width*_height*nChannels);
+      const T *ptr_r = 0, *ptr_g = 0, *ptr_b = 0, *ptr_a = 0;
+      switch (_spectrum) {
+      case 1:
+        ptr_r = data(0,0,0,0);
+        break;
+      case 2:
+        ptr_r = data(0,0,0,0);
+        ptr_a = data(0,0,0,1);
+        break;
+      case 3:
+        ptr_r = data(0,0,0,0);
+        ptr_g = data(0,0,0,1);
+        ptr_b = data(0,0,0,2);
+        break;
+      case 4:
+        ptr_r = data(0,0,0,0);
+        ptr_g = data(0,0,0,1);
+        ptr_b = data(0,0,0,2);
+        ptr_a = data(0,0,0,3);
+        break;
+      }
+      T *ptr = rgbBuffer._data;
+      cimg_forY(*this,y) {
+        cimg_forX(*this,x) {
+          *(ptr++) = (T)*(ptr_r++);
+          if (ptr_g) *(ptr++) = (T)*(ptr_g++);
+          if (ptr_b) *(ptr++) = (T)*(ptr_b++);
+        }
+      }
+
+      JxlEncoder *encoder = JxlEncoderCreate(NULL);
+
+      JxlPixelFormat pixelFormat = {
+        nChannels,
+        sizeof(T)==1?JXL_TYPE_UINT8:JXL_TYPE_UINT16,
+        cimg::endianness()?JXL_BIG_ENDIAN:JXL_LITTLE_ENDIAN,
+        0,
+      };
+      JxlBasicInfo basicInfo;
+      JxlEncoderInitBasicInfo(&basicInfo);
+      basicInfo.bits_per_sample = sizeof(T)*8;
+      basicInfo.exponent_bits_per_sample = 0;
+      basicInfo.xsize = _width;
+      basicInfo.ysize = _height;
+      basicInfo.uses_original_profile = JXL_FALSE;
+      if (hasAlpha) {
+        basicInfo.alpha_bits = sizeof(T)*8;
+        basicInfo.alpha_exponent_bits = 0;
+        basicInfo.num_extra_channels = 1;
+      }
+      basicInfo.num_color_channels = nChannels;
+      if (JXL_ENC_SUCCESS!=JxlEncoderSetBasicInfo(encoder,&basicInfo)) {
+        cimg::fclose(file);
+        JxlEncoderDestroy(encoder);
+        throw CImgIOException(_cimg_instance
+                              "save_jxl(): Failed to set basic info when saving file '%s'.",
+                              cimg_instance,
+                              filename);
+      }
+
+      JxlColorEncoding colorEncoding = {};
+      JXL_BOOL isGray = pixelFormat.num_channels<3?JXL_TRUE:JXL_FALSE;
+      JxlColorEncodingSetToSRGB(&colorEncoding, isGray);
+      if (JXL_ENC_SUCCESS!=JxlEncoderSetColorEncoding(encoder,&colorEncoding)) {
+        cimg::fclose(file);
+        JxlEncoderDestroy(encoder);
+        throw CImgIOException(_cimg_instance
+                              "save_jxl(): Failed to set color encoding when saving file '%s'.",
+                              cimg_instance,
+                              filename);
+      }
+
+      JxlEncoderFrameSettings* frameSettings = JxlEncoderFrameSettingsCreate(encoder,NULL);
+      if (JXL_ENC_SUCCESS!=JxlEncoderSetFrameDistance(frameSettings,distance)) {
+        cimg::fclose(file);
+        JxlEncoderDestroy(encoder);
+        throw CImgIOException(_cimg_instance
+                              "save_jxl(): Failed to set lossy compression level when saving file '%s'.",
+                              cimg_instance,
+                              filename);
+      }
+      if (JXL_ENC_SUCCESS!=JxlEncoderAddImageFrame(frameSettings,&pixelFormat,(const void*)rgbBuffer._data,
+                                                   sizeof(T)*rgbBuffer.size())) {
+        cimg::fclose(file);
+        JxlEncoderDestroy(encoder);
+        throw CImgIOException(_cimg_instance
+                              "save_jxl(): Failed to set image data when saving file '%s'.",
+                              cimg_instance,
+                              filename);
+      }
+      if (hasAlpha) {
+        if (JXL_ENC_SUCCESS!=JxlEncoderSetExtraChannelBuffer(frameSettings,&pixelFormat,(const void*)ptr_a,
+                                                             _width*_height*sizeof(T),0)) {
+          cimg::fclose(file);
+          JxlEncoderDestroy(encoder);
+          throw CImgIOException(_cimg_instance
+                                "save_jxl(): Failed to set alpha channel when saving file '%s'.",
+                                cimg_instance,
+                                filename);
+        }
+      }
+      JxlEncoderCloseInput(encoder);
+
+      std::vector<uint8_t> compressed;
+      compressed.resize(256);
+      uint8_t *nextOut = compressed.data();
+      size_t availOut = compressed.size() - (nextOut - compressed.data());
+      JxlEncoderStatus processResult = JXL_ENC_NEED_MORE_OUTPUT;
+      while (processResult==JXL_ENC_NEED_MORE_OUTPUT) {
+        processResult = JxlEncoderProcessOutput(encoder,&nextOut,&availOut);
+        if (processResult==JXL_ENC_NEED_MORE_OUTPUT) {
+          size_t offset = nextOut - compressed.data();
+          compressed.resize(compressed.size()*2);
+          nextOut = compressed.data() + offset;
+          availOut = compressed.size() - offset;
+        }
+      }
+      compressed.resize(nextOut - compressed.data());
+      if (JXL_ENC_SUCCESS!=processResult) {
+        cimg::fclose(file);
+        JxlEncoderDestroy(encoder);
+        throw CImgIOException(_cimg_instance
+                              "save_jxl(): Failed to encode image data when saving file '%s'.",
+                              cimg_instance,
+                              filename);
+      }
+
+      cimg::fwrite(compressed.data(),compressed.size(),file);
+      cimg::fclose(file);
+      JxlEncoderDestroy(encoder);
       return *this;
 #endif
     }
@@ -69596,7 +69978,8 @@ namespace cimg_library {
         *const _png = "png",
         *const _pnm = "pnm",
         *const _tif = "tif",
-        *const _webp = "webp";
+        *const _webp = "webp",
+        *const _jxl = "jxl";
 
       const char *f_type = 0;
       CImg<char> header;
@@ -69632,6 +70015,11 @@ namespace cimg_library {
         else if (uheader[0]==0x52 && uheader[1]==0x49 && uheader[2]==0x46 && uheader[3]==0x46 &&
                  uheader[8]==0x57 && uheader[9]==0x45 && uheader[10]==0x42 && uheader[11]==0x50) // WebP
           f_type = _webp;
+        else if ((uheader[0]==0xFF && uheader[1]==0x0A) ||
+                 (uheader[0]==0x00 && uheader[1]==0x00 && uheader[2]==0x00 && uheader[3]==0x0C &&
+                  uheader[4]==0x4A && uheader[5]==0x58 && uheader[6]==0x4C && uheader[7]==0x20 &&
+                  uheader[8]==0x0D && uheader[9]==0x0A && uheader[10]==0x87 && uheader[11]==0x0A)) // JPEG XL
+          f_type = _jxl;
         else { // PNM or PFM
           CImgList<char> _header = header.get_split(CImg<char>::vector('\n'),0,false);
           cimglist_for(_header,l) {

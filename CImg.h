@@ -60026,12 +60026,14 @@ namespace cimg_library {
                                     "_cvmat2cimg() : pixel type '%s' is not supported.",
                                     cimg_instance,pixel_type());
       cv::Mat res;
-      std::vector<cv::Mat> channels(_spectrum);
       if (_spectrum>1) {
+        cv::Mat *const channels = new cv::Mat[_spectrum];
         cimg_forC(*this,c)
           channels[c] = cv::Mat(_height,_width,mat_type,_data + _width*_height*(_spectrum - 1 - c));
-        cv::merge(channels,res);
+        cv::merge(channels,_spectrum,res);
+        delete[] channels;
       } else res = cv::Mat(_height,_width,mat_type,_data).clone();
+
       return res;
     }
 

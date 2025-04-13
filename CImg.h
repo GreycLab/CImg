@@ -79,7 +79,6 @@
 #include <climits>
 #include <ctime>
 #include <exception>
-#include <vector>
 #define cimg_str(x) #x
 #define cimg_str2(x) cimg_str(x)
 
@@ -61910,8 +61909,7 @@ namespace cimg_library {
       }
       JxlEncoderCloseInput(encoder);
 
-      std::vector<uint8_t> compressed;
-      compressed.resize(256);
+      CImg<uint8_t> compressed(256);
       uint8_t *nextOut = compressed.data();
       size_t availOut = compressed.size() - (nextOut - compressed.data());
       JxlEncoderStatus processResult = JXL_ENC_NEED_MORE_OUTPUT;
@@ -61919,12 +61917,12 @@ namespace cimg_library {
         processResult = JxlEncoderProcessOutput(encoder,&nextOut,&availOut);
         if (processResult==JXL_ENC_NEED_MORE_OUTPUT) {
           size_t offset = nextOut - compressed.data();
-          compressed.resize(compressed.size()*2);
+          compressed.resize(compressed.size()*2,1,1,1,-1);
           nextOut = compressed.data() + offset;
           availOut = compressed.size() - offset;
         }
       }
-      compressed.resize(nextOut - compressed.data());
+      compressed.resize(nextOut - compressed.data(),1,1,1,-1);
       if (JXL_ENC_SUCCESS!=processResult) {
         cimg::fclose(file);
         JxlEncoderDestroy(encoder);

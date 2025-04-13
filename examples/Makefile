@@ -229,6 +229,13 @@ JPEG_INCDIR =
 JPEG_CFLAGS = $(JPEG_DEFINE) $(JPEG_INCDIR)
 JPEG_LIBS = -ljpeg
 
+# Flags to enable native support for JPEG XL image files, using the JXL library.
+# ( http://www.ijg.org/ )
+JXL_DEFINE = -Dcimg_use_jxl
+JXL_INCDIR =
+JXL_CFLAGS = $(JXL_DEFINE) $(JXL_INCDIR)
+JXL_LIBS = -ljxl
+
 # Flags to enable native support for TIFF image files, using the TIFF library.
 # ( http://www.libtiff.org/ )
 TIFF_DEFINE = -Dcimg_use_tiff

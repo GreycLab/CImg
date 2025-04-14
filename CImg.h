@@ -79,6 +79,7 @@
 #include <climits>
 #include <ctime>
 #include <exception>
+#include <algorithm>
 #define cimg_str(x) #x
 #define cimg_str2(x) cimg_str(x)
 

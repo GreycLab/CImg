@@ -3345,28 +3345,20 @@ namespace cimg_library {
       CImgDisplay **cimg_displays;
       unsigned int nb_cimg_displays;
       SDL_DisplayID display;
+      SDL_ThreadID main_thread_id;
       const SDL_DisplayMode *mode;
-      SDL_Thread *events_thread;
-      SDL_Condition *wait_event;
-      SDL_Mutex *mutex_lock_display, *mutex_wait_event;
-      bool events_thread_running;
+      SDL_Mutex *mutex_lock_display; //, *mutex_wait_event;
 
-      SDL3_attr():nb_cimg_displays(0),display(0),mode(0),events_thread(0),wait_event(0),mutex_lock_display(0),
-                  mutex_wait_event(0),events_thread_running(false) {
+      SDL3_attr():nb_cimg_displays(0),display(0),mode(0),mutex_lock_display(0) {
         bool init_failed = true;
         if (SDL_Init(SDL_INIT_VIDEO)) {
           display = SDL_GetPrimaryDisplay();
           if (display) {
             mode = SDL_GetCurrentDisplayMode(display);
             if (mode) {
-              wait_event = SDL_CreateCondition();
-              if (wait_event) {
-                mutex_wait_event = SDL_CreateMutex();
-                if (mutex_wait_event) {
-                  mutex_lock_display = SDL_CreateMutex();
-                  if (mutex_lock_display) init_failed = false;
-                }
-              }
+              mutex_lock_display = SDL_CreateMutex();
+              if (mutex_lock_display) init_failed = false;
+              main_thread_id = SDL_GetCurrentThreadID();
             }
           }
         }
@@ -3380,9 +3372,6 @@ namespace cimg_library {
 
       ~SDL3_attr() {
         unlock();
-        if (events_thread) terminate_events_thread();
-        SDL_DestroyCondition(wait_event);
-        SDL_DestroyMutex(mutex_wait_event);
         SDL_DestroyMutex(mutex_lock_display);
         SDL_Quit();
         delete[] cimg_displays;
@@ -3395,13 +3384,6 @@ namespace cimg_library {
 
       SDL3_attr& unlock() { // Unlock display
         SDL_UnlockMutex(mutex_lock_display);
-        return *this;
-      }
-
-      SDL3_attr& terminate_events_thread() {
-        events_thread_running = false;
-        SDL_WaitThread(events_thread,0);
-        events_thread = 0;
         return *this;
       }
 
@@ -9635,8 +9617,6 @@ namespace cimg_library {
       pthread_cond_broadcast(&cimg::X11_attr::ref().wait_event);
 #elif cimg_display==2
       SetEvent(cimg::Win32_attr::ref().wait_event);
-#elif cimg_display==3
-      SDL_BroadcastCondition(cimg::SDL3_attr::ref().wait_event);
 #endif
       return *this;
     }
@@ -9655,8 +9635,6 @@ namespace cimg_library {
         pthread_cond_broadcast(&cimg::X11_attr::ref().wait_event);
 #elif cimg_display==2
         SetEvent(cimg::Win32_attr::ref().wait_event);
-#elif cimg_display==3
-        SDL_BroadcastCondition(cimg::SDL3_attr::ref().wait_event);
 #endif
       }
       return *this;
@@ -9673,8 +9651,6 @@ namespace cimg_library {
       pthread_cond_broadcast(&cimg::X11_attr::ref().wait_event);
 #elif cimg_display==2
       SetEvent(cimg::Win32_attr::ref().wait_event);
-#elif cimg_display==3
-      SDL_BroadcastCondition(cimg::SDL3_attr::ref().wait_event);
 #endif
       return *this;
     }
@@ -9692,8 +9668,6 @@ namespace cimg_library {
         pthread_cond_broadcast(&cimg::X11_attr::ref().wait_event);
 #elif cimg_display==2
         SetEvent(cimg::Win32_attr::ref().wait_event);
-#elif cimg_display==3
-        SDL_BroadcastCondition(cimg::SDL3_attr::ref().wait_event);
 #endif
       }
       return *this;
@@ -9723,8 +9697,6 @@ namespace cimg_library {
       pthread_cond_broadcast(&cimg::X11_attr::ref().wait_event);
 #elif cimg_display==2
       SetEvent(cimg::Win32_attr::ref().wait_event);
-#elif cimg_display==3
-      SDL_BroadcastCondition(cimg::SDL3_attr::ref().wait_event);
 #endif
       return *this;
     }
@@ -9786,8 +9758,6 @@ namespace cimg_library {
         pthread_cond_broadcast(&cimg::X11_attr::ref().wait_event);
 #elif cimg_display==2
         SetEvent(cimg::Win32_attr::ref().wait_event);
-#elif cimg_display==3
-        SDL_BroadcastCondition(cimg::SDL3_attr::ref().wait_event);
 #endif
       }
       return *this;
@@ -10038,7 +10008,7 @@ namespace cimg_library {
       pthread_mutex_unlock(&X11_attr.mutex_wait_event);
     }
 
-    void _handle_events(XEvent *const p_event) {
+    void _process_event(XEvent *const p_event) {
       cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
       Display *const dpy = X11_attr.display;
       XEvent &event = *p_event;
@@ -10161,7 +10131,7 @@ namespace cimg_library {
             if (!X11_attr.cimg_displays[k]->_is_closed &&
                 event.xany.window==X11_attr.cimg_displays[k]->_window &&
                 X11_attr.events_thread_running) {
-              X11_attr.cimg_displays[k]->_handle_events(&event);
+              X11_attr.cimg_displays[k]->_process_event(&event);
               break;
             }
           X11_attr.unlock();
@@ -11361,7 +11331,7 @@ namespace cimg_library {
       WaitForSingleObject(cimg::Win32_attr::ref().wait_event,INFINITE);
     }
 
-    static LRESULT APIENTRY _handle_events(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
+    static LRESULT APIENTRY _process_event(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
 #ifdef _WIN64
       CImgDisplay *const disp = (CImgDisplay*)GetWindowLongPtr(window,GWLP_USERDATA);
 #else
@@ -11534,10 +11504,10 @@ namespace cimg_library {
       disp->flush();
 #ifdef _WIN64
       SetWindowLongPtr(disp->_window,GWLP_USERDATA,(LONG_PTR)disp);
-      SetWindowLongPtr(disp->_window,GWLP_WNDPROC,(LONG_PTR)_handle_events);
+      SetWindowLongPtr(disp->_window,GWLP_WNDPROC,(LONG_PTR)_process_event);
 #else
       SetWindowLong(disp->_window,GWL_USERDATA,(LONG)disp);
-      SetWindowLong(disp->_window,GWL_WNDPROC,(LONG)_handle_events);
+      SetWindowLong(disp->_window,GWL_WNDPROC,(LONG)_process_event);
 #endif
       SetEvent(disp->_is_created);
       while (GetMessage(&msg,0,0,0)) DispatchMessage(&msg);
@@ -12007,13 +11977,17 @@ namespace cimg_library {
 
     // SDL3-based implementation.
     //---------------------------
+    // Note: This display system does *not* use a thread to manage events,
+    // because SDL3 retrieves and manages events only from the main thread.
+    // (this works somehow with the X11 binding, but not with others).
 #elif cimg_display==3
 
     SDL_Window *_window;
     SDL_Renderer *_renderer;
     SDL_Texture *_texture;
+    SDL_ThreadID _thread_id;
     unsigned int *_data;
-    bool _is_cursor_visible,_paint_request;
+    bool _is_cursor_visible, _paint_request;
 
     static int screen_width() {
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
@@ -12026,16 +12000,7 @@ namespace cimg_library {
     }
 
     static void wait_all() {
-      cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
-      SDL_LockMutex(SDL3_attr.mutex_wait_event);
-      SDL_WaitCondition(SDL3_attr.wait_event,SDL3_attr.mutex_wait_event);
-      SDL_UnlockMutex(SDL3_attr.mutex_wait_event);
-
-      // Trick to force paint, as paint() does not work when called from events thread.
-      for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k) {
-        CImgDisplay &disp = *SDL3_attr.cimg_displays[k];
-        if (disp._paint_request) disp.paint();
-      }
+      process_events(true);
     }
 
     CImgDisplay& _update_window_pos() {
@@ -12044,10 +12009,8 @@ namespace cimg_library {
       return *this;
     }
 
-    void _handle_events(const SDL_Event &event) {
-      cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
+    void _process_event(const SDL_Event &event) {
       bool is_event = false;
-
       switch (event.type) {
 
         // Window events.
@@ -12103,47 +12066,60 @@ namespace cimg_library {
       } break;
       case SDL_EVENT_MOUSE_WHEEL:
         set_wheel((int)event.wheel.y);
-//        is_event = true; <- already done by set_wheel()
         break;
 
         // Keyboard events.
       case SDL_EVENT_KEY_DOWN:
       case SDL_EVENT_KEY_UP:
         set_key((unsigned int)event.key.scancode,event.type==SDL_EVENT_KEY_DOWN);
-//        is_event = true; <- already done by set_key()
         break;
       }
-      if (is_event) { _is_event = true; SDL_BroadcastCondition(SDL3_attr.wait_event); }
+      if (is_event) { _is_event = true; }
     }
 
-    static int _events_thread(void*) {
+    // Process all events in event queue.
+    static int process_events(bool wait_event) {
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
-      SDL3_attr.events_thread_running = true;
-
       SDL_Event event;
-      while (SDL3_attr.events_thread_running) {
-        SDL3_attr.lock();
-        bool is_event = SDL_PollEvent(&event);
+      bool is_event;
+      SDL3_attr.lock();
+      const SDL_ThreadID current_thread_id = SDL_GetCurrentThreadID();
+      if (current_thread_id!=SDL3_attr.main_thread_id) wait_event = false;
+      do {
+        is_event = wait_event?SDL_WaitEvent(&event):SDL_PollEvent(&event);
         if (is_event) {
-          SDL_Window *const window = SDL_GetWindowFromID(event.window.windowID);
-          if (window) // Find CImgDisplay associated to event
+          if (event.type == SDL_EVENT_QUIT) {
             for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k)
-              if (!SDL3_attr.cimg_displays[k]->_is_closed &&
-                  window==SDL3_attr.cimg_displays[k]->_window &&
-                  SDL3_attr.events_thread_running) {
-                SDL3_attr.cimg_displays[k]->_handle_events(event);
-                break;
-              }
-          SDL3_attr.unlock();
-        } else {
-          SDL3_attr.unlock();
-          cimg::sleep(8);
+              SDL3_attr.cimg_displays[k]->_is_closed = SDL3_attr.cimg_displays[k]->_is_event = true;
+          } else {
+            SDL_Window *const window = SDL_GetWindowFromID(event.window.windowID);
+            if (window) // Find CImgDisplay associated to event
+              for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k)
+                if (!SDL3_attr.cimg_displays[k]->_is_closed && window==SDL3_attr.cimg_displays[k]->_window) {
+                  if (SDL3_attr.cimg_displays[k]->_thread_id==current_thread_id)
+                    SDL3_attr.cimg_displays[k]->_process_event(event);
+                  else // If event has to be processed in another thread, repush it in the event queue
+                    SDL_PushEvent(&event);
+                  break;
+                }
+          }
         }
-      }
+        wait_event = false;
+      } while (is_event);
+      SDL3_attr.unlock();
+
+      // Re-paint windows if necessary.
+      for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k)
+        if (!SDL3_attr.cimg_displays[k]->_is_closed && SDL3_attr.cimg_displays[k]->_paint_request &&
+            SDL3_attr.cimg_displays[k]->_thread_id==current_thread_id) {
+          SDL3_attr.cimg_displays[k]->paint();
+          break;
+        }
+
       return 0;
     }
 
-    CImgDisplay& assign(const bool allow_terminate_events_thread=true) {
+    CImgDisplay& assign() {
       if (is_empty()) return flush();
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
       SDL3_attr.lock();
@@ -12154,8 +12130,6 @@ namespace cimg_library {
       for ( ; i<SDL3_attr.nb_cimg_displays - 1; ++i)
         SDL3_attr.cimg_displays[i] = SDL3_attr.cimg_displays[i + 1];
       --SDL3_attr.nb_cimg_displays;
-      if (!SDL3_attr.nb_cimg_displays && allow_terminate_events_thread)
-        SDL3_attr.unlock().terminate_events_thread().lock();
 
       // Destroy associated ressources.
       SDL_DestroyRenderer(_renderer);
@@ -12166,6 +12140,7 @@ namespace cimg_library {
       _renderer = 0;
       _window = 0;
       _texture = 0;
+      _thread_id = 0;
       _width = _height = _normalization = _window_width = _window_height = 0;
       _window_x = _window_y = cimg::type<int>::min();
       _is_fullscreen = false;
@@ -12184,7 +12159,7 @@ namespace cimg_library {
                  const bool is_fullscreen=false, const bool closed_flag=false) {
 
       // Destroy previous display window if existing.
-      if (!is_empty()) assign(false);
+      if (!is_empty()) assign();
 
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
       SDL3_attr.lock();
@@ -12196,8 +12171,6 @@ namespace cimg_library {
       if (s) std::memcpy(tmp_title,np_title,s*sizeof(char));
 
       // Set display variables.
-      if (!SDL3_attr.events_thread)
-        SDL3_attr.events_thread = SDL_CreateThread(_events_thread,"_events_thread",0);
       _width = std::min(dimw,(unsigned int)screen_width());
       _height = std::min(dimh,(unsigned int)screen_height());
       _normalization = normalization_type<4?normalization_type:3;
@@ -12207,6 +12180,7 @@ namespace cimg_library {
       _is_cursor_visible = true;
       _paint_request = false;
       _title = tmp_title;
+      _thread_id = SDL_GetCurrentThreadID();
       flush();
 
       // Create window and renderer.
@@ -12543,6 +12517,8 @@ namespace cimg_library {
       }
       if (ndata!=_data) { _render_resize(ndata,img._width,img._height,_data,_width,_height); delete[] ndata; }
       SDL3_attr.unlock();
+
+      process_events(false);
       return *this;
     }
 

@@ -3345,6 +3345,7 @@ namespace cimg_library {
       CImgDisplay **cimg_displays;
       unsigned int nb_cimg_displays;
       SDL_DisplayID display;
+      SDL_ThreadID main_thread_id;
       const SDL_DisplayMode *mode;
       SDL_Mutex *mutex_lock_display; //, *mutex_wait_event;
 
@@ -3357,6 +3358,7 @@ namespace cimg_library {
             if (mode) {
               mutex_lock_display = SDL_CreateMutex();
               if (mutex_lock_display) init_failed = false;
+              main_thread_id = SDL_GetCurrentThreadID();
             }
           }
         }
@@ -11983,6 +11985,7 @@ namespace cimg_library {
     SDL_Window *_window;
     SDL_Renderer *_renderer;
     SDL_Texture *_texture;
+    SDL_ThreadID _thread_id;
     unsigned int *_data;
     bool _is_cursor_visible, _paint_request;
 
@@ -12080,16 +12083,26 @@ namespace cimg_library {
       SDL_Event event;
       bool is_event;
       SDL3_attr.lock();
+      const SDL_ThreadID current_thread_id = SDL_GetCurrentThreadID();
+      if (current_thread_id!=SDL3_attr.main_thread_id) wait_event = false;
       do {
         is_event = wait_event?SDL_WaitEvent(&event):SDL_PollEvent(&event);
         if (is_event) {
-          SDL_Window *const window = SDL_GetWindowFromID(event.window.windowID);
-          if (window) // Find CImgDisplay associated to event
+          if (event.type == SDL_EVENT_QUIT) {
             for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k)
-              if (!SDL3_attr.cimg_displays[k]->_is_closed && window==SDL3_attr.cimg_displays[k]->_window) {
-                SDL3_attr.cimg_displays[k]->_process_event(event);
-                break;
-              }
+              SDL3_attr.cimg_displays[k]->_is_closed = SDL3_attr.cimg_displays[k]->_is_event = true;
+          } else {
+            SDL_Window *const window = SDL_GetWindowFromID(event.window.windowID);
+            if (window) // Find CImgDisplay associated to event
+              for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k)
+                if (!SDL3_attr.cimg_displays[k]->_is_closed && window==SDL3_attr.cimg_displays[k]->_window) {
+                  if (SDL3_attr.cimg_displays[k]->_thread_id==current_thread_id)
+                    SDL3_attr.cimg_displays[k]->_process_event(event);
+                  else // If event has to be processed in another thread, repush it in the event queue
+                    SDL_PushEvent(&event);
+                  break;
+                }
+          }
         }
         wait_event = false;
       } while (is_event);
@@ -12097,7 +12110,8 @@ namespace cimg_library {
 
       // Re-paint windows if necessary.
       for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k)
-        if (!SDL3_attr.cimg_displays[k]->_is_closed && SDL3_attr.cimg_displays[k]->_paint_request) {
+        if (!SDL3_attr.cimg_displays[k]->_is_closed && SDL3_attr.cimg_displays[k]->_paint_request &&
+            SDL3_attr.cimg_displays[k]->_thread_id==current_thread_id) {
           SDL3_attr.cimg_displays[k]->paint();
           break;
         }
@@ -12126,6 +12140,7 @@ namespace cimg_library {
       _renderer = 0;
       _window = 0;
       _texture = 0;
+      _thread_id = 0;
       _width = _height = _normalization = _window_width = _window_height = 0;
       _window_x = _window_y = cimg::type<int>::min();
       _is_fullscreen = false;
@@ -12165,6 +12180,7 @@ namespace cimg_library {
       _is_cursor_visible = true;
       _paint_request = false;
       _title = tmp_title;
+      _thread_id = SDL_GetCurrentThreadID();
       flush();
 
       // Create window and renderer.

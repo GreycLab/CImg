@@ -12092,14 +12092,17 @@ namespace cimg_library {
     static int process_events(bool wait_event) {
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
       SDL_Event event;
-      bool is_event;
-      SDL3_attr.lock();
+      bool is_event, _wait_event = wait_event;
+      if (!wait_event) SDL3_attr.lock();
       const SDL_ThreadID current_thread_id = SDL_GetCurrentThreadID();
-      if (current_thread_id!=SDL3_attr.main_thread_id) wait_event = false;
+      if (current_thread_id!=SDL3_attr.main_thread_id) {
+        if (wait_event) cimg::sleep(8);
+        _wait_event = false;
+      }
 
       // Dispatch global events to managed CImgDisplay instances.
       do {
-        is_event = wait_event?SDL_WaitEvent(&event):SDL_PollEvent(&event);
+        is_event = _wait_event?SDL_WaitEvent(&event):SDL_PollEvent(&event);
         if (is_event) {
           if (event.type == SDL_EVENT_QUIT) {
             for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k) {
@@ -12115,7 +12118,7 @@ namespace cimg_library {
               }
           }
         }
-        wait_event = false;
+        _wait_event = false;
       } while (is_event);
 
       // Process all events queued, only for CImgDisplay that has been created by current thread.
@@ -12126,7 +12129,7 @@ namespace cimg_library {
           disp._size_events_queue = 0;
         }
       }
-      SDL3_attr.unlock();
+      if (!wait_event) SDL3_attr.unlock();
 
       // Re-paint windows if necessary.
       for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k)

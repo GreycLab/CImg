@@ -10128,10 +10128,9 @@ namespace cimg_library {
                                                   LeaveWindowMask | ButtonReleaseMask | KeyReleaseMask,&event);
         if (is_event) { // Find CImgDisplay associated to event
           for (unsigned int k = 0; k<X11_attr.nb_cimg_displays; ++k)
-            if (!X11_attr.cimg_displays[k]->_is_closed &&
-                event.xany.window==X11_attr.cimg_displays[k]->_window &&
-                X11_attr.events_thread_running) {
-              X11_attr.cimg_displays[k]->_process_event(&event);
+            if (event.xany.window==X11_attr.cimg_displays[k]->_window) {
+              if (!X11_attr.cimg_displays[k]->_is_closed && X11_attr.events_thread_running)
+                X11_attr.cimg_displays[k]->_process_event(&event);
               break;
             }
           X11_attr.unlock();
@@ -11985,8 +11984,9 @@ namespace cimg_library {
     SDL_Window *_window;
     SDL_Renderer *_renderer;
     SDL_Texture *_texture;
-    SDL_ThreadID _thread_id;
-    unsigned int *_data;
+    SDL_ThreadID _thread_id; // ID of the thread that created this display
+    SDL_Event *_events_queue; // Events queue specific for this display
+    unsigned int *_data, _size_events_queue, _allocsize_events_queue;
     bool _is_cursor_visible, _paint_request;
 
     static int screen_width() {
@@ -12007,6 +12007,17 @@ namespace cimg_library {
       if (_is_closed) _window_x = _window_y = cimg::type<int>::min();
       else SDL_GetWindowPosition(_window,&_window_x,&_window_y);
       return *this;
+    }
+
+    void _add_event(const SDL_Event &event) {
+      if (!_events_queue) { _events_queue = new SDL_Event[_allocsize_events_queue = 2]; _size_events_queue = 0; }
+      else if (_size_events_queue>=_allocsize_events_queue) { // Reallocation needed
+        SDL_Event *nevents_queue = new SDL_Event[_allocsize_events_queue = 2*_size_events_queue];
+        std::memcpy(nevents_queue,_events_queue,_size_events_queue*sizeof(SDL_Event));
+        delete[] _events_queue;
+        _events_queue = nevents_queue;
+      }
+      _events_queue[_size_events_queue++] = event;
     }
 
     void _process_event(const SDL_Event &event) {
@@ -12085,6 +12096,8 @@ namespace cimg_library {
       SDL3_attr.lock();
       const SDL_ThreadID current_thread_id = SDL_GetCurrentThreadID();
       if (current_thread_id!=SDL3_attr.main_thread_id) wait_event = false;
+
+      // Dispatch global events to managed CImgDisplay instances.
       do {
         is_event = wait_event?SDL_WaitEvent(&event):SDL_PollEvent(&event);
         if (is_event) {
@@ -12095,17 +12108,25 @@ namespace cimg_library {
             SDL_Window *const window = SDL_GetWindowFromID(event.window.windowID);
             if (window) // Find CImgDisplay associated to event
               for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k)
-                if (!SDL3_attr.cimg_displays[k]->_is_closed && window==SDL3_attr.cimg_displays[k]->_window) {
-                  if (SDL3_attr.cimg_displays[k]->_thread_id==current_thread_id)
-                    SDL3_attr.cimg_displays[k]->_process_event(event);
-                  else // If event has to be processed in another thread, repush it in the event queue
-                    SDL_PushEvent(&event);
+                if (window==SDL3_attr.cimg_displays[k]->_window) {
+                  CImgDisplay &disp = *SDL3_attr.cimg_displays[k];
+                  if (!disp._is_closed && disp._thread_id==current_thread_id) disp._add_event(event);
                   break;
                 }
           }
         }
         wait_event = false;
       } while (is_event);
+
+      // Process all events queued, only for CImgDisplay that has been created by current thread.
+      for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k)
+        if (SDL3_attr.cimg_displays[k]->_thread_id==current_thread_id) {
+          CImgDisplay &disp = *SDL3_attr.cimg_displays[k];
+          for (unsigned int l = 0; l<disp._size_events_queue; ++l)
+            disp._process_event(disp._events_queue[l]);
+          disp._size_events_queue = 0;
+          break;
+        }
       SDL3_attr.unlock();
 
       // Re-paint windows if necessary.
@@ -12149,6 +12170,9 @@ namespace cimg_library {
       _is_cursor_visible = true;
       _paint_request = false;
       _title = 0;
+      if (_events_queue) delete[] _events_queue;
+      _events_queue = 0;
+      _size_events_queue = _allocsize_events_queue = 0;
       flush();
       SDL3_attr.unlock();
       return *this;
@@ -12181,6 +12205,8 @@ namespace cimg_library {
       _paint_request = false;
       _title = tmp_title;
       _thread_id = SDL_GetCurrentThreadID();
+      _events_queue = 0;
+      _size_events_queue = _allocsize_events_queue = 0;
       flush();
 
       // Create window and renderer.

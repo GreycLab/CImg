@@ -12102,31 +12102,30 @@ namespace cimg_library {
         is_event = wait_event?SDL_WaitEvent(&event):SDL_PollEvent(&event);
         if (is_event) {
           if (event.type == SDL_EVENT_QUIT) {
-            for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k)
-              SDL3_attr.cimg_displays[k]->_is_closed = SDL3_attr.cimg_displays[k]->_is_event = true;
+            for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k) {
+              CImgDisplay &disp = *SDL3_attr.cimg_displays[k];
+              disp._is_closed = disp._is_event = true;
+            }
           } else {
             SDL_Window *const window = SDL_GetWindowFromID(event.window.windowID);
             if (window) // Find CImgDisplay associated to event
-              for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k)
-                if (window==SDL3_attr.cimg_displays[k]->_window) {
-                  CImgDisplay &disp = *SDL3_attr.cimg_displays[k];
-                  if (!disp._is_closed && disp._thread_id==current_thread_id) disp._add_event(event);
-                  break;
-                }
+              for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k) {
+                CImgDisplay &disp = *SDL3_attr.cimg_displays[k];
+                if (window==disp._window) { if (!disp._is_closed) disp._add_event(event); break; }
+              }
           }
         }
         wait_event = false;
       } while (is_event);
 
       // Process all events queued, only for CImgDisplay that has been created by current thread.
-      for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k)
-        if (SDL3_attr.cimg_displays[k]->_thread_id==current_thread_id) {
-          CImgDisplay &disp = *SDL3_attr.cimg_displays[k];
-          for (unsigned int l = 0; l<disp._size_events_queue; ++l)
-            disp._process_event(disp._events_queue[l]);
+      for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k) {
+        CImgDisplay &disp = *SDL3_attr.cimg_displays[k];
+        if (disp._thread_id==current_thread_id) {
+          for (unsigned int l = 0; l<disp._size_events_queue; ++l) disp._process_event(disp._events_queue[l]);
           disp._size_events_queue = 0;
-          break;
         }
+      }
       SDL3_attr.unlock();
 
       // Re-paint windows if necessary.

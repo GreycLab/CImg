@@ -12010,7 +12010,7 @@ namespace cimg_library {
     }
 
     void _add_event(const SDL_Event &event) {
-      if (!_events_queue) { _events_queue = new SDL_Event[_allocsize_events_queue = 2]; _size_events_queue = 0; }
+      if (!_events_queue) { _events_queue = new SDL_Event[_allocsize_events_queue = 64]; _size_events_queue = 0; }
       else if (_size_events_queue>=_allocsize_events_queue) { // Reallocation needed
         SDL_Event *nevents_queue = new SDL_Event[_allocsize_events_queue = 2*_size_events_queue];
         std::memcpy(nevents_queue,_events_queue,_size_events_queue*sizeof(SDL_Event));

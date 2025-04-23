@@ -7134,16 +7134,16 @@ namespace cimg_library {
       const double p = cimg::mod(x,period)/period;
       double res = 0;
       switch (type) {
-      case 0 : // Square wave
+      case 0 : // Square
         res = p<0.5?1:-1;
         break;
-      case 1 : // Triangular wave
+      case 1 : // Triangle
         res = p<0.25?4*p:p>0.75?4*(p - 1):1 - 4*(p - 0.25);
         break;
-      case 2 : // Sawtooth wave
+      case 2 : // Sawtooth
         res = 2*(p - 0.5);
         break;
-      default: // Sinusoidal wave
+      default: // Sine
         res = std::sin(2*cimg::PI*p);
       }
       return amplitude*res;

@@ -7122,16 +7122,15 @@ namespace cimg_library {
       return _fibonacci(n); // Not precise, but better than the wrong overflowing calculation
     }
 
-    //! Waveform function.
+    //! Wave function.
     /**
        \param x Value to evaluate.
-       \param type Waveform type. Can be { 0:Square | 1:Triangular | 2:Sawtooth | 3:Sinusoidal }.
-       \param period Period of the signal.
-       \param amplitude Amplitude of the signal.
+       \param type Wave type. Can be { 0:Square | 1:Triangular | 2:Sawtooth | 3:Sinusoidal }.
+       \note A wave function has a period of 1, and has value in [-1,1].
        \return Function value.
     **/
-    inline double wave(const double x, const unsigned int type=0, const double period=1, const double amplitude=1) {
-      const double p = cimg::mod(x,period)/period;
+    inline double wave(const double x, const unsigned int type=3) {
+      const double p = cimg::frac(x);
       double res = 0;
       switch (type) {
       case 0 : // Square
@@ -7146,7 +7145,7 @@ namespace cimg_library {
       default: // Sine
         res = std::sin(2*cimg::PI*p);
       }
-      return amplitude*res;
+      return res;
     }
 
     //! Calculate greatest common divisor of two integers.
@@ -24170,29 +24169,16 @@ namespace cimg_library {
               _cimg_mp_return(pos);
             }
 
-            if (!std::strncmp(ss,"wave(",5)) { // Waveform
+            if (!std::strncmp(ss,"wave(",5)) { // Wave function
               _cimg_mp_op("Function 'wave()'");
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss5,s1,depth1,0,block_flags); // x
-              arg2 = 3; // type, is_max_at_zero
-              arg3 = arg4 = 1; // period, amplitude
-              if (s1<se1) {
-                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-                arg2 = compile(s1,s2,depth1,0,block_flags); // type
-                if (s2<se1) {
-                  s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                  arg3 = compile(s2,s1,depth1,0,block_flags); // period
-                  arg4 = s1<se1?compile(++s1,se1,depth1,0,block_flags):1; // amplitude
-                }
-              }
+              arg2 = s1<se1?compile(++s1,se1,depth1,0,block_flags):3; // type
               _cimg_mp_check_type(arg2,2,1,0);
-              _cimg_mp_check_type(arg3,3,1,0);
-              _cimg_mp_check_type(arg4,4,1,0);
-              if (is_vector(arg1)) _cimg_mp_vector4_vsss(mp_wave,arg1,arg2,arg3,arg4);
-              if (is_const_scalar(arg1) && is_const_scalar(arg2) &&
-                  is_const_scalar(arg3) && is_const_scalar(arg4)) // Optimize constant case
-                _cimg_mp_const_scalar(cimg::wave(mem[arg1],(unsigned int)mem[arg2],mem[arg3],mem[arg4]));
-              _cimg_mp_scalar4(mp_wave,arg1,arg2,arg3,arg4);
+              if (is_vector(arg1)) _cimg_mp_vector2_vs(mp_wave,arg1,arg2);
+              if (is_const_scalar(arg1) && is_const_scalar(arg2)) // Optimize constant case
+                _cimg_mp_const_scalar(cimg::wave(mem[arg1],(unsigned int)mem[arg2]));
+              _cimg_mp_scalar2(mp_wave,arg1,arg2);
             }
 
             if (!std::strncmp(ss,"while(",6)) { // While...do
@@ -30629,7 +30615,7 @@ namespace cimg_library {
       }
 
       static double mp_wave(_cimg_math_parser& mp) {
-        return cimg::wave(_mp_arg(2),_mp_arg(3),_mp_arg(4),_mp_arg(5));
+        return cimg::wave(_mp_arg(2),(unsigned int)_mp_arg(3));
       }
 
       static double mp_while(_cimg_math_parser& mp) {

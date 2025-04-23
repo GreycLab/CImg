@@ -6421,6 +6421,12 @@ namespace cimg_library {
       return (float)std::fabs((double)a);
     }
 
+    //! Return fractional part of a value.
+    template<typename T>
+    inline T frac(const T x) {
+      return cimg::type<T>::is_inf(x)?cimg::type<T>::nan():(x - (cimg_int64)x);
+    }
+
     //! Return hyperbolic arcosine of a value.
     inline double acosh(const double x) {
 #if cimg_use_cpp11==1 && !defined(_MSC_VER)
@@ -7114,6 +7120,33 @@ namespace cimg_library {
         return (double)fn;
       }
       return _fibonacci(n); // Not precise, but better than the wrong overflowing calculation
+    }
+
+    //! Waveform function.
+    /**
+       \param x Value to evaluate.
+       \param type Waveform type. Can be { 0:Square | 1:Triangular | 2:Sawtooth | 3:Sinusoidal }.
+       \param period Period of the signal.
+       \param amplitude Amplitude of the signal.
+       \return Function value.
+    **/
+    inline double wave(const double x, const unsigned int type=0, const double period=1, const double amplitude=1) {
+      const double p = cimg::mod(x,period)/period;
+      double res = 0;
+      switch (type) {
+      case 0 : // Square wave
+        res = p<0.5?1:-1;
+        break;
+      case 1 : // Triangular wave
+        res = p<0.25?4*p:p>0.75?4*(p - 1):1 - 4*(p - 0.25);
+        break;
+      case 2 : // Sawtooth wave
+        res = 2*(p - 0.5);
+        break;
+      default: // Sinusoidal wave
+        res = std::sin(2*cimg::PI*p);
+      }
+      return amplitude*res;
     }
 
     //! Calculate greatest common divisor of two integers.
@@ -20785,7 +20818,7 @@ namespace cimg_library {
               _cimg_mp_scalar3(mp_cut,arg1,arg2,arg3);
             }
 
-            if (!std::strncmp(ss,"cumulate(",9)) { // Mirror image
+            if (!std::strncmp(ss,"cumulate(",9)) { // Cumulate
               _cimg_mp_op("Function 'cumulate()'");
               s0 = ss + 9;
               s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -21870,6 +21903,14 @@ namespace cimg_library {
               if (is_vector(arg1)) _cimg_mp_vector1_v(mp_floor,arg1);
               if (is_const_scalar(arg1)) _cimg_mp_const_scalar(std::floor(mem[arg1]));
               _cimg_mp_scalar1(mp_floor,arg1);
+            }
+
+            if (!std::strncmp(ss,"frac(",5)) { // Fractional part
+              _cimg_mp_op("Function 'frac()'");
+              arg1 = compile(ss5,se1,depth1,0,block_flags);
+              if (is_vector(arg1)) _cimg_mp_vector1_v(mp_frac,arg1);
+              if (is_const_scalar(arg1)) _cimg_mp_const_scalar(cimg::frac(mem[arg1]));
+              _cimg_mp_scalar1(mp_frac,arg1);
             }
 
             if (!std::strncmp(ss,"fsize(",6)) { // File size
@@ -24127,6 +24168,31 @@ namespace cimg_library {
               opcode.move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
+            }
+
+            if (!std::strncmp(ss,"wave(",5)) { // Waveform
+              _cimg_mp_op("Function 'wave()'");
+              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss5,s1,depth1,0,block_flags); // x
+              arg2 = 3; // type, is_max_at_zero
+              arg3 = arg4 = 1; // period, amplitude
+              if (s1<se1) {
+                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                arg2 = compile(s1,s2,depth1,0,block_flags); // type
+                if (s2<se1) {
+                  s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                  arg3 = compile(s2,s1,depth1,0,block_flags); // period
+                  arg4 = s1<se1?compile(++s1,se1,depth1,0,block_flags):1; // amplitude
+                }
+              }
+              _cimg_mp_check_type(arg2,2,1,0);
+              _cimg_mp_check_type(arg3,3,1,0);
+              _cimg_mp_check_type(arg4,4,1,0);
+              if (is_vector(arg1)) _cimg_mp_vector4_vsss(mp_wave,arg1,arg2,arg3,arg4);
+              if (is_const_scalar(arg1) && is_const_scalar(arg2) &&
+                  is_const_scalar(arg3) && is_const_scalar(arg4)) // Optimize constant case
+                _cimg_mp_const_scalar(cimg::wave(mem[arg1],(unsigned int)mem[arg2],mem[arg3],mem[arg4]));
+              _cimg_mp_scalar4(mp_wave,arg1,arg2,arg3,arg4);
             }
 
             if (!std::strncmp(ss,"while(",6)) { // While...do
@@ -26903,6 +26969,10 @@ namespace cimg_library {
 
       static double mp_floor(_cimg_math_parser& mp) {
         return std::floor(_mp_arg(2));
+      }
+
+      static double mp_frac(_cimg_math_parser& mp) {
+        return cimg::frac(_mp_arg(2));
       }
 
       static double mp_for(_cimg_math_parser& mp) {
@@ -30556,6 +30626,10 @@ namespace cimg_library {
         CImg<doubleT>(ptrd,wB,hB,dB,sA,true) = CImg<doubleT>(ptrs,wA,hA,dA,sA,true).
           get_warp(CImg<doubleT>(ptrw,wB,hB,dB,sB,true),mode,interpolation,boundary_conditions);
         return cimg::type<double>::nan();
+      }
+
+      static double mp_wave(_cimg_math_parser& mp) {
+        return cimg::wave(_mp_arg(2),_mp_arg(3),_mp_arg(4),_mp_arg(5));
       }
 
       static double mp_while(_cimg_math_parser& mp) {

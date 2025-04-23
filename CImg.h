@@ -6421,6 +6421,12 @@ namespace cimg_library {
       return (float)std::fabs((double)a);
     }
 
+    //! Return fractional part of a value.
+    template<typename T>
+    inline T frac(const T x) {
+      return cimg::type<T>::is_inf(x)?cimg::type<T>::nan():(x - (cimg_int64)x);
+    }
+
     //! Return hyperbolic arcosine of a value.
     inline double acosh(const double x) {
 #if cimg_use_cpp11==1 && !defined(_MSC_VER)
@@ -21876,7 +21882,7 @@ namespace cimg_library {
               _cimg_mp_op("Function 'frac()'");
               arg1 = compile(ss5,se1,depth1,0,block_flags);
               if (is_vector(arg1)) _cimg_mp_vector1_v(mp_frac,arg1);
-              if (is_const_scalar(arg1)) _cimg_mp_const_scalar(mem[arg1] - (cimg_int64)mem[arg1]);
+              if (is_const_scalar(arg1)) _cimg_mp_const_scalar(cimg::frac(mem[arg1]));
               _cimg_mp_scalar1(mp_frac,arg1);
             }
 
@@ -26914,8 +26920,7 @@ namespace cimg_library {
       }
 
       static double mp_frac(_cimg_math_parser& mp) {
-        const double val = _mp_arg(2);
-        return cimg::type<double>::is_inf(val)?cimg::type<double>::nan():(val - (cimg_int64)val);
+        return cimg::frac(_mp_arg(2));
       }
 
       static double mp_for(_cimg_math_parser& mp) {

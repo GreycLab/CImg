@@ -21872,6 +21872,14 @@ namespace cimg_library {
               _cimg_mp_scalar1(mp_floor,arg1);
             }
 
+            if (!std::strncmp(ss,"frac(",5)) { // Fractional part
+              _cimg_mp_op("Function 'frac()'");
+              arg1 = compile(ss5,se1,depth1,0,block_flags);
+              if (is_vector(arg1)) _cimg_mp_vector1_v(mp_frac,arg1);
+              if (is_const_scalar(arg1)) _cimg_mp_const_scalar(mem[arg1] - std::floor(mem[arg1]));
+              _cimg_mp_scalar1(mp_frac,arg1);
+            }
+
             if (!std::strncmp(ss,"fsize(",6)) { // File size
               _cimg_mp_op("Function 'fsize()'");
               arg1 = compile(ss6,se1,depth1,0,block_flags);
@@ -26903,6 +26911,11 @@ namespace cimg_library {
 
       static double mp_floor(_cimg_math_parser& mp) {
         return std::floor(_mp_arg(2));
+      }
+
+      static double mp_frac(_cimg_math_parser& mp) {
+        const double val = _mp_arg(2);
+        return val - std::floor(val);
       }
 
       static double mp_for(_cimg_math_parser& mp) {

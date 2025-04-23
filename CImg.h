@@ -26915,7 +26915,7 @@ namespace cimg_library {
 
       static double mp_frac(_cimg_math_parser& mp) {
         const double val = _mp_arg(2);
-        return val - (cimg_int64)val;
+        return cimg::type<double>::is_inf(val)?cimg::type<double>::nan():(val - (cimg_int64)val);
       }
 
       static double mp_for(_cimg_math_parser& mp) {

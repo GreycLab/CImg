@@ -6424,7 +6424,7 @@ namespace cimg_library {
     //! Return fractional part of a value.
     template<typename T>
     inline T frac(const T x) {
-      return cimg::type<T>::is_inf(x)?cimg::type<T>::nan():(x - (cimg_int64)x);
+      return x - std::floor(x);
     }
 
     //! Return hyperbolic arcosine of a value.

@@ -7125,11 +7125,12 @@ namespace cimg_library {
     //! Wave function.
     /**
        \param x Value to evaluate.
-       \param type Wave type. Can be { 0:Square | 1:Triangular | 2:Sawtooth | 3:Sinusoidal }.
+       \param type Wave type.
+       Can be { 0:Square | 1:Triangular | 2:Ascending sawtooth | 3: Descending sawtooth | 4:Sinusoidal }.
        \note A wave function has a period of 1, and has value in [-1,1].
        \return Function value.
     **/
-    inline double wave(const double x, const unsigned int type=3) {
+    inline double wave(const double x, const unsigned int type=4) {
       const double p = cimg::frac(x);
       double res = 0;
       switch (type) {
@@ -7139,8 +7140,11 @@ namespace cimg_library {
       case 1 : // Triangle
         res = p<0.25?4*p:p>0.75?4*(p - 1):1 - 4*(p - 0.25);
         break;
-      case 2 : // Sawtooth
+      case 2 : // Ascending sawtooth
         res = 2*(p - 0.5);
+        break;
+      case 3 : // Descending sawtooth
+        res = -2*(p - 0.5);
         break;
       default: // Sine
         res = std::sin(2*cimg::PI*p);
@@ -24173,7 +24177,7 @@ namespace cimg_library {
               _cimg_mp_op("Function 'wave()'");
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss5,s1,depth1,0,block_flags); // x
-              arg2 = s1<se1?compile(++s1,se1,depth1,0,block_flags):3; // type
+              arg2 = s1<se1?compile(++s1,se1,depth1,0,block_flags):4; // type
               _cimg_mp_check_type(arg2,2,1,0);
               if (is_vector(arg1)) _cimg_mp_vector2_vs(mp_wave,arg1,arg2);
               if (is_const_scalar(arg1) && is_const_scalar(arg2)) // Optimize constant case

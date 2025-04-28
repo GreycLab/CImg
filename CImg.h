@@ -9993,480 +9993,7 @@ namespace cimg_library {
     XShmSegmentInfo *_shminfo;
 #endif
 
-    static int screen_width() {
-      cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
-      Display *const dpy = X11_attr.display;
-      int res = 0;
-      if (!dpy) {
-        Display *const _dpy = XOpenDisplay(0);
-        if (!_dpy)
-          throw CImgDisplayException("CImgDisplay::screen_width(): Failed to open X11 display.");
-        res = DisplayWidth(_dpy,DefaultScreen(_dpy));
-        XCloseDisplay(_dpy);
-      } else {
-
-#ifdef cimg_use_xrandr
-        if (X11_attr.resolutions && X11_attr.curr_resolution)
-          res = X11_attr.resolutions[X11_attr.curr_resolution].width;
-        else res = DisplayWidth(dpy,DefaultScreen(dpy));
-#else
-        res = DisplayWidth(dpy,DefaultScreen(dpy));
-#endif
-      }
-      return res;
-    }
-
-    static int screen_height() {
-      cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
-      Display *const dpy = X11_attr.display;
-      int res = 0;
-      if (!dpy) {
-        Display *const _dpy = XOpenDisplay(0);
-        if (!_dpy)
-          throw CImgDisplayException("CImgDisplay::screen_height(): Failed to open X11 display.");
-        res = DisplayHeight(_dpy,DefaultScreen(_dpy));
-        XCloseDisplay(_dpy);
-      } else {
-
-#ifdef cimg_use_xrandr
-        if (X11_attr.resolutions && X11_attr.curr_resolution)
-          res = X11_attr.resolutions[X11_attr.curr_resolution].height;
-        else res = DisplayHeight(dpy,DefaultScreen(dpy));
-#else
-        res = DisplayHeight(dpy,DefaultScreen(dpy));
-#endif
-      }
-      return res;
-    }
-
-    static void wait_all() {
-      cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
-      if (!X11_attr.display) return;
-      pthread_mutex_lock(&X11_attr.mutex_wait_event);
-      pthread_cond_wait(&X11_attr.wait_event,&X11_attr.mutex_wait_event);
-      pthread_mutex_unlock(&X11_attr.mutex_wait_event);
-    }
-
-    void _process_event(XEvent *const p_event) {
-      cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
-      Display *const dpy = X11_attr.display;
-      XEvent &event = *p_event;
-      bool is_event = false;
-
-      switch (event.type) {
-      case ClientMessage : {
-        if ((int)event.xclient.message_type==(int)_wm_protocol_atom &&
-            (int)event.xclient.data.l[0]==(int)_wm_window_atom) {
-          XUnmapWindow(X11_attr.display,_window);
-          _is_closed = is_event = true;
-        }
-      } break;
-      case ConfigureNotify : {
-        while (XCheckWindowEvent(dpy,_window,StructureNotifyMask,&event)) {}
-        const unsigned int nw = event.xconfigure.width, nh = event.xconfigure.height;
-        const int nx = event.xconfigure.x, ny = event.xconfigure.y;
-        if (nw && nh && (nw!=_window_width || nh!=_window_height)) {
-          _window_width = nw; _window_height = nh; _mouse_x = _mouse_y = -1;
-          XResizeWindow(dpy,_window,_window_width,_window_height);
-          _is_resized = is_event = true;
-        }
-        if (nx!=_window_x || ny!=_window_y) {
-          _window_x = nx;
-          _window_y = ny;
-          _is_moved = is_event = true;
-        }
-      } break;
-      case Expose : {
-        while (XCheckWindowEvent(dpy,_window,ExposureMask,&event)) {}
-        _paint(false);
-        if (_is_fullscreen) {
-          XWindowAttributes attr;
-          do {
-            XGetWindowAttributes(dpy,_window,&attr);
-            if (attr.map_state!=IsViewable) { XSync(dpy,0); cimg::sleep(10); }
-          } while (attr.map_state!=IsViewable);
-          XSetInputFocus(dpy,_window,RevertToParent,CurrentTime);
-        }
-      } break;
-      case ButtonPress : {
-        do {
-          _mouse_x = event.xmotion.x; _mouse_y = event.xmotion.y;
-          if (_mouse_x<0 || _mouse_y<0 || _mouse_x>=width() || _mouse_y>=height()) _mouse_x = _mouse_y = -1;
-          switch (event.xbutton.button) {
-          case 1 : set_button(1); break;
-          case 3 : set_button(2); break;
-          case 2 : set_button(3); break;
-          }
-        } while (XCheckWindowEvent(dpy,_window,ButtonPressMask,&event));
-      } break;
-      case ButtonRelease : {
-        do {
-          _mouse_x = event.xmotion.x; _mouse_y = event.xmotion.y;
-          if (_mouse_x<0 || _mouse_y<0 || _mouse_x>=width() || _mouse_y>=height()) _mouse_x = _mouse_y = -1;
-          switch (event.xbutton.button) {
-          case 1 : set_button(1,false); break;
-          case 3 : set_button(2,false); break;
-          case 2 : set_button(3,false); break;
-          case 4 : set_wheel(1); break;
-          case 5 : set_wheel(-1); break;
-          }
-        } while (XCheckWindowEvent(dpy,_window,ButtonReleaseMask,&event));
-      } break;
-      case KeyPress : {
-        char tmp = 0; KeySym ksym;
-        XLookupString(&event.xkey,&tmp,1,&ksym,0);
-        set_key((unsigned int)ksym,true);
-      } break;
-      case KeyRelease : {
-        char keys_return[32]; // Check that the key has been physically unpressed
-        XQueryKeymap(dpy,keys_return);
-        const unsigned int kc = event.xkey.keycode, kc1 = kc/8, kc2 = kc%8;
-        const bool is_key_pressed = kc1>=32?false:(keys_return[kc1]>>kc2)&1;
-        if (!is_key_pressed) {
-          char tmp = 0; KeySym ksym;
-          XLookupString(&event.xkey,&tmp,1,&ksym,0);
-          set_key((unsigned int)ksym,false);
-        }
-      } break;
-      case EnterNotify: {
-        while (XCheckWindowEvent(dpy,_window,EnterWindowMask,&event)) {}
-        _mouse_x = event.xmotion.x;
-        _mouse_y = event.xmotion.y;
-        if (_mouse_x<0 || _mouse_y<0 || _mouse_x>=width() || _mouse_y>=height()) _mouse_x = _mouse_y = -1;
-      } break;
-      case LeaveNotify : {
-        while (XCheckWindowEvent(dpy,_window,LeaveWindowMask,&event)) {}
-        _mouse_x = _mouse_y = -1; is_event = true;
-      } break;
-      case MotionNotify : {
-        while (XCheckWindowEvent(dpy,_window,PointerMotionMask,&event)) {}
-        _mouse_x = event.xmotion.x;
-        _mouse_y = event.xmotion.y;
-        if (_mouse_x<0 || _mouse_y<0 || _mouse_x>=width() || _mouse_y>=height()) _mouse_x = _mouse_y = -1;
-        is_event = true;
-      } break;
-      }
-      if (is_event) {
-        _is_event = true;
-        pthread_cond_broadcast(&X11_attr.wait_event);
-      }
-    }
-
-    static void* _events_thread(void*) { // Thread to manage events for all opened display windows
-      cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
-      X11_attr.events_thread_running = true;
-
-      Display *const dpy = X11_attr.display;
-      XEvent event;
-      while (X11_attr.events_thread_running) {
-        X11_attr.lock();
-        bool is_event = XCheckTypedEvent(dpy,ClientMessage,&event);
-        if (!is_event) is_event = XCheckMaskEvent(dpy,
-                                                  ExposureMask | StructureNotifyMask | ButtonPressMask |
-                                                  KeyPressMask | PointerMotionMask | EnterWindowMask |
-                                                  LeaveWindowMask | ButtonReleaseMask | KeyReleaseMask,&event);
-        if (is_event) { // Find CImgDisplay associated to event
-          for (unsigned int k = 0; k<X11_attr.nb_cimg_displays; ++k)
-            if (event.xany.window==X11_attr.cimg_displays[k]->_window) {
-              if (!X11_attr.cimg_displays[k]->_is_closed && X11_attr.events_thread_running)
-                X11_attr.cimg_displays[k]->_process_event(&event);
-              break;
-            }
-          X11_attr.unlock();
-        } else {
-          X11_attr.unlock();
-          cimg::sleep(8);
-        }
-        pthread_testcancel();
-      }
-      return 0;
-    }
-
-    void _set_colormap(Colormap& cmap, const unsigned int dim) {
-      cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
-      XColor *const colormap = new XColor[256];
-      switch (dim) {
-      case 1 : { // colormap for greyscale images
-        for (unsigned int index = 0; index<256; ++index) {
-          colormap[index].pixel = index;
-          colormap[index].red = colormap[index].green = colormap[index].blue = (unsigned short)(index<<8);
-          colormap[index].flags = DoRed | DoGreen | DoBlue;
-        }
-      } break;
-      case 2 : { // colormap for RG images
-        for (unsigned int index = 0, r = 8; r<256; r+=16)
-          for (unsigned int g = 8; g<256; g+=16) {
-            colormap[index].pixel = index;
-            colormap[index].red = colormap[index].blue = (unsigned short)(r<<8);
-            colormap[index].green = (unsigned short)(g<<8);
-            colormap[index++].flags = DoRed | DoGreen | DoBlue;
-          }
-      } break;
-      default : { // colormap for RGB images
-        for (unsigned int index = 0, r = 16; r<256; r+=32)
-          for (unsigned int g = 16; g<256; g+=32)
-            for (unsigned int b = 32; b<256; b+=64) {
-              colormap[index].pixel = index;
-              colormap[index].red = (unsigned short)(r<<8);
-              colormap[index].green = (unsigned short)(g<<8);
-              colormap[index].blue = (unsigned short)(b<<8);
-              colormap[index++].flags = DoRed | DoGreen | DoBlue;
-            }
-      }
-      }
-      XStoreColors(X11_attr.display,cmap,colormap,256);
-      delete[] colormap;
-    }
-
-    void _map_window() {
-      cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
-      Display *const dpy = X11_attr.display;
-      bool is_exposed = false, is_mapped = false;
-      XWindowAttributes attr;
-      XEvent event;
-      XMapRaised(dpy,_window);
-      do { // Wait for the window to be mapped
-        XWindowEvent(dpy,_window,StructureNotifyMask | ExposureMask,&event);
-        switch (event.type) {
-        case MapNotify : is_mapped = true; break;
-        case Expose : is_exposed = true; break;
-        }
-      } while (!is_exposed || !is_mapped);
-      do { // Wait for the window to be visible
-        XGetWindowAttributes(dpy,_window,&attr);
-        if (attr.map_state!=IsViewable) { XSync(dpy,0); cimg::sleep(10); }
-      } while (attr.map_state!=IsViewable);
-      _window_x = attr.x;
-      _window_y = attr.y;
-    }
-
-    void _paint(const bool wait_expose=true) {
-      cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
-      if (_is_closed || !_image) return;
-      Display *const dpy = X11_attr.display;
-      if (wait_expose) { // Send an expose event sticked to display window to force repaint
-        XEvent event;
-        event.xexpose.type = Expose;
-        event.xexpose.serial = 0;
-        event.xexpose.send_event = 1;
-        event.xexpose.display = dpy;
-        event.xexpose.window = _window;
-        event.xexpose.x = 0;
-        event.xexpose.y = 0;
-        event.xexpose.width = width();
-        event.xexpose.height = height();
-        event.xexpose.count = 0;
-        XSendEvent(dpy,_window,0,0,&event);
-      } else { // Repaint directly (may be called from the expose event)
-        GC gc = DefaultGC(dpy,DefaultScreen(dpy));
-
-#ifdef cimg_use_xshm
-        if (_shminfo) XShmPutImage(dpy,_window,gc,_image,0,0,0,0,_width,_height,1);
-        else XPutImage(dpy,_window,gc,_image,0,0,0,0,_width,_height);
-#else
-        XPutImage(dpy,_window,gc,_image,0,0,0,0,_width,_height);
-#endif
-      }
-    }
-
-    template<typename T>
-    void _resize(T pixel_type, const unsigned int ndimx, const unsigned int ndimy, const bool force_redraw) {
-      cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
-      Display *const dpy = X11_attr.display;
-      cimg::unused(pixel_type);
-
-#ifdef cimg_use_xshm
-      if (_shminfo) {
-        XShmSegmentInfo *const nshminfo = new XShmSegmentInfo;
-        XImage *const nimage = XShmCreateImage(dpy,DefaultVisual(dpy,DefaultScreen(dpy)),
-                                               X11_attr.nb_bits,ZPixmap,0,nshminfo,ndimx,ndimy);
-        if (!nimage) { delete nshminfo; return; }
-        else {
-          nshminfo->shmid = shmget(IPC_PRIVATE,ndimx*ndimy*sizeof(T),IPC_CREAT | 0777);
-          if (nshminfo->shmid==-1) { XDestroyImage(nimage); delete nshminfo; return; }
-          else {
-            nshminfo->shmaddr = nimage->data = (char*)shmat(nshminfo->shmid,0,0);
-            if (nshminfo->shmaddr==(char*)-1) {
-              shmctl(nshminfo->shmid,IPC_RMID,0); XDestroyImage(nimage); delete nshminfo; return;
-            } else {
-              nshminfo->readOnly = 0;
-              X11_attr.is_shm_enabled = true;
-              XErrorHandler oldXErrorHandler = XSetErrorHandler(_assign_xshm);
-              XShmAttach(dpy,nshminfo);
-              XFlush(dpy);
-              XSetErrorHandler(oldXErrorHandler);
-              if (!X11_attr.is_shm_enabled) {
-                shmdt(nshminfo->shmaddr);
-                shmctl(nshminfo->shmid,IPC_RMID,0);
-                XDestroyImage(nimage);
-                delete nshminfo;
-                return;
-              } else {
-                T *const ndata = (T*)nimage->data;
-                if (force_redraw) _render_resize((T*)_data,_width,_height,ndata,ndimx,ndimy);
-                else std::memset(ndata,0,sizeof(T)*ndimx*ndimy);
-                XShmDetach(dpy,_shminfo);
-                XDestroyImage(_image);
-                shmdt(_shminfo->shmaddr);
-                shmctl(_shminfo->shmid,IPC_RMID,0);
-                delete _shminfo;
-                _shminfo = nshminfo;
-                _image = nimage;
-                _data = (void*)ndata;
-              }
-            }
-          }
-        }
-      } else
-#endif
-        {
-          T *ndata = (T*)std::malloc(ndimx*ndimy*sizeof(T));
-          if (force_redraw) _render_resize((T*)_data,_width,_height,ndata,ndimx,ndimy);
-          else std::memset(ndata,0,sizeof(T)*ndimx*ndimy);
-          _data = (void*)ndata;
-          XDestroyImage(_image);
-          _image = XCreateImage(dpy,DefaultVisual(dpy,DefaultScreen(dpy)),
-                                X11_attr.nb_bits,ZPixmap,0,(char*)_data,ndimx,ndimy,8,0);
-        }
-    }
-
-    void _init_fullscreen() {
-      if (!_is_fullscreen || _is_closed) return;
-      cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
-      Display *const dpy = X11_attr.display;
-      _background_window = 0;
-
-#ifdef cimg_use_xrandr
-      int foo;
-      if (XRRQueryExtension(dpy,&foo,&foo)) {
-        XRRRotations(dpy,DefaultScreen(dpy),&X11_attr.curr_rotation);
-        if (!X11_attr.resolutions) {
-          X11_attr.resolutions = XRRSizes(dpy,DefaultScreen(dpy),&foo);
-          X11_attr.nb_resolutions = (unsigned int)foo;
-        }
-        if (X11_attr.resolutions) {
-          X11_attr.curr_resolution = 0;
-          for (unsigned int i = 0; i<X11_attr.nb_resolutions; ++i) {
-            const unsigned int
-              nw = (unsigned int)(X11_attr.resolutions[i].width),
-              nh = (unsigned int)(X11_attr.resolutions[i].height);
-            if (nw>=_width && nh>=_height &&
-                nw<=(unsigned int)(X11_attr.resolutions[X11_attr.curr_resolution].width) &&
-                nh<=(unsigned int)(X11_attr.resolutions[X11_attr.curr_resolution].height))
-              X11_attr.curr_resolution = i;
-          }
-          if (X11_attr.curr_resolution>0) {
-            XRRScreenConfiguration *config = XRRGetScreenInfo(dpy,DefaultRootWindow(dpy));
-            XRRSetScreenConfig(dpy,config,DefaultRootWindow(dpy),
-                               X11_attr.curr_resolution,X11_attr.curr_rotation,CurrentTime);
-            XRRFreeScreenConfigInfo(config);
-            XSync(dpy,0);
-          }
-        }
-      }
-      if (!X11_attr.resolutions)
-        cimg::warn(_cimgdisplay_instance
-                   "init_fullscreen(): Xrandr extension not supported by the X server.",
-                   cimgdisplay_instance);
-#endif
-
-      const unsigned int sx = screen_width(), sy = screen_height();
-      if (sx==_width && sy==_height) return;
-      XSetWindowAttributes attr_set;
-
-      attr_set.background_pixel = XBlackPixel(dpy,XDefaultScreen(dpy));
-      attr_set.override_redirect = 1;
-      _background_window = XCreateWindow(dpy,DefaultRootWindow(dpy),0,0,sx,sy,0,0,
-                                         InputOutput,CopyFromParent,CWBackPixel | CWOverrideRedirect,&attr_set);
-      XEvent event;
-      XSelectInput(dpy,_background_window,StructureNotifyMask);
-      XMapRaised(dpy,_background_window);
-      do XWindowEvent(dpy,_background_window,StructureNotifyMask,&event);
-      while (event.type!=MapNotify);
-
-      XWindowAttributes attr;
-      do {
-        XGetWindowAttributes(dpy,_background_window,&attr);
-        if (attr.map_state!=IsViewable) { XSync(dpy,0); cimg::sleep(10); }
-      } while (attr.map_state!=IsViewable);
-    }
-
-    void _desinit_fullscreen() {
-      if (!_is_fullscreen) return;
-      cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
-      Display *const dpy = X11_attr.display;
-      XUngrabKeyboard(dpy,CurrentTime);
-
-#ifdef cimg_use_xrandr
-      if (X11_attr.resolutions && X11_attr.curr_resolution) {
-        XRRScreenConfiguration *config = XRRGetScreenInfo(dpy,DefaultRootWindow(dpy));
-        XRRSetScreenConfig(dpy,config,DefaultRootWindow(dpy),0,X11_attr.curr_rotation,CurrentTime);
-        XRRFreeScreenConfigInfo(config);
-        XSync(dpy,0);
-        X11_attr.curr_resolution = 0;
-      }
-#endif
-      if (_background_window) XDestroyWindow(dpy,_background_window);
-      _background_window = 0;
-      _is_fullscreen = false;
-    }
-
-    CImgDisplay& assign(const bool allow_terminate_events_thread=true) {
-      if (is_empty()) return flush();
-      cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
-      Display *const dpy = X11_attr.display;
-      if (!dpy) return *this;
-      X11_attr.lock();
-
-      // Remove display window from event thread list.
-      unsigned int i;
-      for (i = 0; i<X11_attr.nb_cimg_displays && X11_attr.cimg_displays[i]!=this; ++i) {}
-      for ( ; i<X11_attr.nb_cimg_displays - 1; ++i)
-        X11_attr.cimg_displays[i] = X11_attr.cimg_displays[i + 1];
-      --X11_attr.nb_cimg_displays;
-      if (!X11_attr.nb_cimg_displays && allow_terminate_events_thread)
-        X11_attr.unlock().terminate_events_thread().lock();
-
-      // Destroy associated ressources.
-      if (_is_fullscreen && !_is_closed) _desinit_fullscreen();
-
-#ifdef cimg_use_xshm
-      if (_shminfo) {
-        XShmDetach(dpy,_shminfo);
-        shmdt(_shminfo->shmaddr);
-        shmctl(_shminfo->shmid,IPC_RMID,0);
-        delete _shminfo;
-        _shminfo = 0;
-      }
-#endif
-
-      XDestroyImage(_image);
-      if (X11_attr.nb_bits==8) XFreeColormap(dpy,_colormap);
-      XDestroyWindow(dpy,_window);
-      XSync(dpy,0);
-      _window = 0; _colormap = 0; _data = 0; _image = 0;
-
-      // Reset display variables.
-      delete[] _title;
-      _width = _height = _normalization = _window_width = _window_height = 0;
-      _window_x = _window_y = cimg::type<int>::min();
-      _is_fullscreen = false;
-      _is_closed = true;
-      _min = _max = 0;
-      _title = 0;
-      flush();
-
-      X11_attr.unlock();
-      return *this;
-    }
-
-    static int _assign_xshm(Display *dpy, XErrorEvent *error) {
-      cimg::unused(dpy,error);
-      cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
-      X11_attr.is_shm_enabled = false;
-      return 0;
-    }
-
+    // Internal functions.
     void _assign(const unsigned int dimw, const unsigned int dimh, const char *const p_title=0,
                  const unsigned int normalization_type=3,
                  const bool is_fullscreen=false, const bool closed_flag=false) {
@@ -10609,6 +10136,481 @@ namespace cimg_library {
       if (!_is_closed) _map_window(); else _window_x = _window_y = cimg::type<int>::min();
       X11_attr.unlock();
       cimg::mutex(14,0);
+    }
+
+    static int _assign_xshm(Display *dpy, XErrorEvent *error) {
+      cimg::unused(dpy,error);
+      cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
+      X11_attr.is_shm_enabled = false;
+      return 0;
+    }
+
+    void _desinit_fullscreen() {
+      if (!_is_fullscreen) return;
+      cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
+      Display *const dpy = X11_attr.display;
+      XUngrabKeyboard(dpy,CurrentTime);
+
+#ifdef cimg_use_xrandr
+      if (X11_attr.resolutions && X11_attr.curr_resolution) {
+        XRRScreenConfiguration *config = XRRGetScreenInfo(dpy,DefaultRootWindow(dpy));
+        XRRSetScreenConfig(dpy,config,DefaultRootWindow(dpy),0,X11_attr.curr_rotation,CurrentTime);
+        XRRFreeScreenConfigInfo(config);
+        XSync(dpy,0);
+        X11_attr.curr_resolution = 0;
+      }
+#endif
+      if (_background_window) XDestroyWindow(dpy,_background_window);
+      _background_window = 0;
+      _is_fullscreen = false;
+    }
+
+    static void* _events_thread(void*) { // Thread to manage events for all opened display windows
+      cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
+      X11_attr.events_thread_running = true;
+
+      Display *const dpy = X11_attr.display;
+      XEvent event;
+      while (X11_attr.events_thread_running) {
+        X11_attr.lock();
+        bool is_event = XCheckTypedEvent(dpy,ClientMessage,&event);
+        if (!is_event) is_event = XCheckMaskEvent(dpy,
+                                                  ExposureMask | StructureNotifyMask | ButtonPressMask |
+                                                  KeyPressMask | PointerMotionMask | EnterWindowMask |
+                                                  LeaveWindowMask | ButtonReleaseMask | KeyReleaseMask,&event);
+        if (is_event) { // Find CImgDisplay associated to event
+          for (unsigned int k = 0; k<X11_attr.nb_cimg_displays; ++k)
+            if (event.xany.window==X11_attr.cimg_displays[k]->_window) {
+              if (!X11_attr.cimg_displays[k]->_is_closed && X11_attr.events_thread_running)
+                X11_attr.cimg_displays[k]->_process_event(&event);
+              break;
+            }
+          X11_attr.unlock();
+        } else {
+          X11_attr.unlock();
+          cimg::sleep(8);
+        }
+        pthread_testcancel();
+      }
+      return 0;
+    }
+
+    void _init_fullscreen() {
+      if (!_is_fullscreen || _is_closed) return;
+      cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
+      Display *const dpy = X11_attr.display;
+      _background_window = 0;
+
+#ifdef cimg_use_xrandr
+      int foo;
+      if (XRRQueryExtension(dpy,&foo,&foo)) {
+        XRRRotations(dpy,DefaultScreen(dpy),&X11_attr.curr_rotation);
+        if (!X11_attr.resolutions) {
+          X11_attr.resolutions = XRRSizes(dpy,DefaultScreen(dpy),&foo);
+          X11_attr.nb_resolutions = (unsigned int)foo;
+        }
+        if (X11_attr.resolutions) {
+          X11_attr.curr_resolution = 0;
+          for (unsigned int i = 0; i<X11_attr.nb_resolutions; ++i) {
+            const unsigned int
+              nw = (unsigned int)(X11_attr.resolutions[i].width),
+              nh = (unsigned int)(X11_attr.resolutions[i].height);
+            if (nw>=_width && nh>=_height &&
+                nw<=(unsigned int)(X11_attr.resolutions[X11_attr.curr_resolution].width) &&
+                nh<=(unsigned int)(X11_attr.resolutions[X11_attr.curr_resolution].height))
+              X11_attr.curr_resolution = i;
+          }
+          if (X11_attr.curr_resolution>0) {
+            XRRScreenConfiguration *config = XRRGetScreenInfo(dpy,DefaultRootWindow(dpy));
+            XRRSetScreenConfig(dpy,config,DefaultRootWindow(dpy),
+                               X11_attr.curr_resolution,X11_attr.curr_rotation,CurrentTime);
+            XRRFreeScreenConfigInfo(config);
+            XSync(dpy,0);
+          }
+        }
+      }
+      if (!X11_attr.resolutions)
+        cimg::warn(_cimgdisplay_instance
+                   "init_fullscreen(): Xrandr extension not supported by the X server.",
+                   cimgdisplay_instance);
+#endif
+
+      const unsigned int sx = screen_width(), sy = screen_height();
+      if (sx==_width && sy==_height) return;
+      XSetWindowAttributes attr_set;
+
+      attr_set.background_pixel = XBlackPixel(dpy,XDefaultScreen(dpy));
+      attr_set.override_redirect = 1;
+      _background_window = XCreateWindow(dpy,DefaultRootWindow(dpy),0,0,sx,sy,0,0,
+                                         InputOutput,CopyFromParent,CWBackPixel | CWOverrideRedirect,&attr_set);
+      XEvent event;
+      XSelectInput(dpy,_background_window,StructureNotifyMask);
+      XMapRaised(dpy,_background_window);
+      do XWindowEvent(dpy,_background_window,StructureNotifyMask,&event);
+      while (event.type!=MapNotify);
+
+      XWindowAttributes attr;
+      do {
+        XGetWindowAttributes(dpy,_background_window,&attr);
+        if (attr.map_state!=IsViewable) { XSync(dpy,0); cimg::sleep(10); }
+      } while (attr.map_state!=IsViewable);
+    }
+
+    void _map_window() {
+      cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
+      Display *const dpy = X11_attr.display;
+      bool is_exposed = false, is_mapped = false;
+      XWindowAttributes attr;
+      XEvent event;
+      XMapRaised(dpy,_window);
+      do { // Wait for the window to be mapped
+        XWindowEvent(dpy,_window,StructureNotifyMask | ExposureMask,&event);
+        switch (event.type) {
+        case MapNotify : is_mapped = true; break;
+        case Expose : is_exposed = true; break;
+        }
+      } while (!is_exposed || !is_mapped);
+      do { // Wait for the window to be visible
+        XGetWindowAttributes(dpy,_window,&attr);
+        if (attr.map_state!=IsViewable) { XSync(dpy,0); cimg::sleep(10); }
+      } while (attr.map_state!=IsViewable);
+      _window_x = attr.x;
+      _window_y = attr.y;
+    }
+
+    void _paint(const bool wait_expose=true) {
+      cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
+      if (_is_closed || !_image) return;
+      Display *const dpy = X11_attr.display;
+      if (wait_expose) { // Send an expose event sticked to display window to force repaint
+        XEvent event;
+        event.xexpose.type = Expose;
+        event.xexpose.serial = 0;
+        event.xexpose.send_event = 1;
+        event.xexpose.display = dpy;
+        event.xexpose.window = _window;
+        event.xexpose.x = 0;
+        event.xexpose.y = 0;
+        event.xexpose.width = width();
+        event.xexpose.height = height();
+        event.xexpose.count = 0;
+        XSendEvent(dpy,_window,0,0,&event);
+      } else { // Repaint directly (may be called from the expose event)
+        GC gc = DefaultGC(dpy,DefaultScreen(dpy));
+
+#ifdef cimg_use_xshm
+        if (_shminfo) XShmPutImage(dpy,_window,gc,_image,0,0,0,0,_width,_height,1);
+        else XPutImage(dpy,_window,gc,_image,0,0,0,0,_width,_height);
+#else
+        XPutImage(dpy,_window,gc,_image,0,0,0,0,_width,_height);
+#endif
+      }
+    }
+
+    void _process_event(XEvent *const p_event) {
+      cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
+      Display *const dpy = X11_attr.display;
+      XEvent &event = *p_event;
+      bool is_event = false;
+
+      switch (event.type) {
+      case ClientMessage : {
+        if ((int)event.xclient.message_type==(int)_wm_protocol_atom &&
+            (int)event.xclient.data.l[0]==(int)_wm_window_atom) {
+          XUnmapWindow(X11_attr.display,_window);
+          _is_closed = is_event = true;
+        }
+      } break;
+      case ConfigureNotify : {
+        while (XCheckWindowEvent(dpy,_window,StructureNotifyMask,&event)) {}
+        const unsigned int nw = event.xconfigure.width, nh = event.xconfigure.height;
+        const int nx = event.xconfigure.x, ny = event.xconfigure.y;
+        if (nw && nh && (nw!=_window_width || nh!=_window_height)) {
+          _window_width = nw; _window_height = nh; _mouse_x = _mouse_y = -1;
+          XResizeWindow(dpy,_window,_window_width,_window_height);
+          _is_resized = is_event = true;
+        }
+        if (nx!=_window_x || ny!=_window_y) {
+          _window_x = nx;
+          _window_y = ny;
+          _is_moved = is_event = true;
+        }
+      } break;
+      case Expose : {
+        while (XCheckWindowEvent(dpy,_window,ExposureMask,&event)) {}
+        _paint(false);
+        if (_is_fullscreen) {
+          XWindowAttributes attr;
+          do {
+            XGetWindowAttributes(dpy,_window,&attr);
+            if (attr.map_state!=IsViewable) { XSync(dpy,0); cimg::sleep(10); }
+          } while (attr.map_state!=IsViewable);
+          XSetInputFocus(dpy,_window,RevertToParent,CurrentTime);
+        }
+      } break;
+      case ButtonPress : {
+        do {
+          _mouse_x = event.xmotion.x; _mouse_y = event.xmotion.y;
+          if (_mouse_x<0 || _mouse_y<0 || _mouse_x>=width() || _mouse_y>=height()) _mouse_x = _mouse_y = -1;
+          switch (event.xbutton.button) {
+          case 1 : set_button(1); break;
+          case 3 : set_button(2); break;
+          case 2 : set_button(3); break;
+          }
+        } while (XCheckWindowEvent(dpy,_window,ButtonPressMask,&event));
+      } break;
+      case ButtonRelease : {
+        do {
+          _mouse_x = event.xmotion.x; _mouse_y = event.xmotion.y;
+          if (_mouse_x<0 || _mouse_y<0 || _mouse_x>=width() || _mouse_y>=height()) _mouse_x = _mouse_y = -1;
+          switch (event.xbutton.button) {
+          case 1 : set_button(1,false); break;
+          case 3 : set_button(2,false); break;
+          case 2 : set_button(3,false); break;
+          case 4 : set_wheel(1); break;
+          case 5 : set_wheel(-1); break;
+          }
+        } while (XCheckWindowEvent(dpy,_window,ButtonReleaseMask,&event));
+      } break;
+      case KeyPress : {
+        char tmp = 0; KeySym ksym;
+        XLookupString(&event.xkey,&tmp,1,&ksym,0);
+        set_key((unsigned int)ksym,true);
+      } break;
+      case KeyRelease : {
+        char keys_return[32]; // Check that the key has been physically unpressed
+        XQueryKeymap(dpy,keys_return);
+        const unsigned int kc = event.xkey.keycode, kc1 = kc/8, kc2 = kc%8;
+        const bool is_key_pressed = kc1>=32?false:(keys_return[kc1]>>kc2)&1;
+        if (!is_key_pressed) {
+          char tmp = 0; KeySym ksym;
+          XLookupString(&event.xkey,&tmp,1,&ksym,0);
+          set_key((unsigned int)ksym,false);
+        }
+      } break;
+      case EnterNotify: {
+        while (XCheckWindowEvent(dpy,_window,EnterWindowMask,&event)) {}
+        _mouse_x = event.xmotion.x;
+        _mouse_y = event.xmotion.y;
+        if (_mouse_x<0 || _mouse_y<0 || _mouse_x>=width() || _mouse_y>=height()) _mouse_x = _mouse_y = -1;
+      } break;
+      case LeaveNotify : {
+        while (XCheckWindowEvent(dpy,_window,LeaveWindowMask,&event)) {}
+        _mouse_x = _mouse_y = -1; is_event = true;
+      } break;
+      case MotionNotify : {
+        while (XCheckWindowEvent(dpy,_window,PointerMotionMask,&event)) {}
+        _mouse_x = event.xmotion.x;
+        _mouse_y = event.xmotion.y;
+        if (_mouse_x<0 || _mouse_y<0 || _mouse_x>=width() || _mouse_y>=height()) _mouse_x = _mouse_y = -1;
+        is_event = true;
+      } break;
+      }
+      if (is_event) {
+        _is_event = true;
+        pthread_cond_broadcast(&X11_attr.wait_event);
+      }
+    }
+
+    template<typename T>
+    void _resize(T pixel_type, const unsigned int ndimx, const unsigned int ndimy, const bool force_redraw) {
+      cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
+      Display *const dpy = X11_attr.display;
+      cimg::unused(pixel_type);
+
+#ifdef cimg_use_xshm
+      if (_shminfo) {
+        XShmSegmentInfo *const nshminfo = new XShmSegmentInfo;
+        XImage *const nimage = XShmCreateImage(dpy,DefaultVisual(dpy,DefaultScreen(dpy)),
+                                               X11_attr.nb_bits,ZPixmap,0,nshminfo,ndimx,ndimy);
+        if (!nimage) { delete nshminfo; return; }
+        else {
+          nshminfo->shmid = shmget(IPC_PRIVATE,ndimx*ndimy*sizeof(T),IPC_CREAT | 0777);
+          if (nshminfo->shmid==-1) { XDestroyImage(nimage); delete nshminfo; return; }
+          else {
+            nshminfo->shmaddr = nimage->data = (char*)shmat(nshminfo->shmid,0,0);
+            if (nshminfo->shmaddr==(char*)-1) {
+              shmctl(nshminfo->shmid,IPC_RMID,0); XDestroyImage(nimage); delete nshminfo; return;
+            } else {
+              nshminfo->readOnly = 0;
+              X11_attr.is_shm_enabled = true;
+              XErrorHandler oldXErrorHandler = XSetErrorHandler(_assign_xshm);
+              XShmAttach(dpy,nshminfo);
+              XFlush(dpy);
+              XSetErrorHandler(oldXErrorHandler);
+              if (!X11_attr.is_shm_enabled) {
+                shmdt(nshminfo->shmaddr);
+                shmctl(nshminfo->shmid,IPC_RMID,0);
+                XDestroyImage(nimage);
+                delete nshminfo;
+                return;
+              } else {
+                T *const ndata = (T*)nimage->data;
+                if (force_redraw) _render_resize((T*)_data,_width,_height,ndata,ndimx,ndimy);
+                else std::memset(ndata,0,sizeof(T)*ndimx*ndimy);
+                XShmDetach(dpy,_shminfo);
+                XDestroyImage(_image);
+                shmdt(_shminfo->shmaddr);
+                shmctl(_shminfo->shmid,IPC_RMID,0);
+                delete _shminfo;
+                _shminfo = nshminfo;
+                _image = nimage;
+                _data = (void*)ndata;
+              }
+            }
+          }
+        }
+      } else
+#endif
+        {
+          T *ndata = (T*)std::malloc(ndimx*ndimy*sizeof(T));
+          if (force_redraw) _render_resize((T*)_data,_width,_height,ndata,ndimx,ndimy);
+          else std::memset(ndata,0,sizeof(T)*ndimx*ndimy);
+          _data = (void*)ndata;
+          XDestroyImage(_image);
+          _image = XCreateImage(dpy,DefaultVisual(dpy,DefaultScreen(dpy)),
+                                X11_attr.nb_bits,ZPixmap,0,(char*)_data,ndimx,ndimy,8,0);
+        }
+    }
+
+    void _set_colormap(Colormap& cmap, const unsigned int dim) {
+      cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
+      XColor *const colormap = new XColor[256];
+      switch (dim) {
+      case 1 : { // colormap for greyscale images
+        for (unsigned int index = 0; index<256; ++index) {
+          colormap[index].pixel = index;
+          colormap[index].red = colormap[index].green = colormap[index].blue = (unsigned short)(index<<8);
+          colormap[index].flags = DoRed | DoGreen | DoBlue;
+        }
+      } break;
+      case 2 : { // colormap for RG images
+        for (unsigned int index = 0, r = 8; r<256; r+=16)
+          for (unsigned int g = 8; g<256; g+=16) {
+            colormap[index].pixel = index;
+            colormap[index].red = colormap[index].blue = (unsigned short)(r<<8);
+            colormap[index].green = (unsigned short)(g<<8);
+            colormap[index++].flags = DoRed | DoGreen | DoBlue;
+          }
+      } break;
+      default : { // colormap for RGB images
+        for (unsigned int index = 0, r = 16; r<256; r+=32)
+          for (unsigned int g = 16; g<256; g+=32)
+            for (unsigned int b = 32; b<256; b+=64) {
+              colormap[index].pixel = index;
+              colormap[index].red = (unsigned short)(r<<8);
+              colormap[index].green = (unsigned short)(g<<8);
+              colormap[index].blue = (unsigned short)(b<<8);
+              colormap[index++].flags = DoRed | DoGreen | DoBlue;
+            }
+      }
+      }
+      XStoreColors(X11_attr.display,cmap,colormap,256);
+      delete[] colormap;
+    }
+
+    // Public functions.
+    static int screen_width() {
+      cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
+      Display *const dpy = X11_attr.display;
+      int res = 0;
+      if (!dpy) {
+        Display *const _dpy = XOpenDisplay(0);
+        if (!_dpy)
+          throw CImgDisplayException("CImgDisplay::screen_width(): Failed to open X11 display.");
+        res = DisplayWidth(_dpy,DefaultScreen(_dpy));
+        XCloseDisplay(_dpy);
+      } else {
+
+#ifdef cimg_use_xrandr
+        if (X11_attr.resolutions && X11_attr.curr_resolution)
+          res = X11_attr.resolutions[X11_attr.curr_resolution].width;
+        else res = DisplayWidth(dpy,DefaultScreen(dpy));
+#else
+        res = DisplayWidth(dpy,DefaultScreen(dpy));
+#endif
+      }
+      return res;
+    }
+
+    static int screen_height() {
+      cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
+      Display *const dpy = X11_attr.display;
+      int res = 0;
+      if (!dpy) {
+        Display *const _dpy = XOpenDisplay(0);
+        if (!_dpy)
+          throw CImgDisplayException("CImgDisplay::screen_height(): Failed to open X11 display.");
+        res = DisplayHeight(_dpy,DefaultScreen(_dpy));
+        XCloseDisplay(_dpy);
+      } else {
+
+#ifdef cimg_use_xrandr
+        if (X11_attr.resolutions && X11_attr.curr_resolution)
+          res = X11_attr.resolutions[X11_attr.curr_resolution].height;
+        else res = DisplayHeight(dpy,DefaultScreen(dpy));
+#else
+        res = DisplayHeight(dpy,DefaultScreen(dpy));
+#endif
+      }
+      return res;
+    }
+
+    static void wait_all() {
+      cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
+      if (!X11_attr.display) return;
+      pthread_mutex_lock(&X11_attr.mutex_wait_event);
+      pthread_cond_wait(&X11_attr.wait_event,&X11_attr.mutex_wait_event);
+      pthread_mutex_unlock(&X11_attr.mutex_wait_event);
+    }
+
+    CImgDisplay& assign(const bool allow_terminate_events_thread=true) {
+      if (is_empty()) return flush();
+      cimg::X11_attr &X11_attr = cimg::X11_attr::ref();
+      Display *const dpy = X11_attr.display;
+      if (!dpy) return *this;
+      X11_attr.lock();
+
+      // Remove display window from event thread list.
+      unsigned int i;
+      for (i = 0; i<X11_attr.nb_cimg_displays && X11_attr.cimg_displays[i]!=this; ++i) {}
+      for ( ; i<X11_attr.nb_cimg_displays - 1; ++i)
+        X11_attr.cimg_displays[i] = X11_attr.cimg_displays[i + 1];
+      --X11_attr.nb_cimg_displays;
+      if (!X11_attr.nb_cimg_displays && allow_terminate_events_thread)
+        X11_attr.unlock().terminate_events_thread().lock();
+
+      // Destroy associated ressources.
+      if (_is_fullscreen && !_is_closed) _desinit_fullscreen();
+
+#ifdef cimg_use_xshm
+      if (_shminfo) {
+        XShmDetach(dpy,_shminfo);
+        shmdt(_shminfo->shmaddr);
+        shmctl(_shminfo->shmid,IPC_RMID,0);
+        delete _shminfo;
+        _shminfo = 0;
+      }
+#endif
+
+      XDestroyImage(_image);
+      if (X11_attr.nb_bits==8) XFreeColormap(dpy,_colormap);
+      XDestroyWindow(dpy,_window);
+      XSync(dpy,0);
+      _window = 0; _colormap = 0; _data = 0; _image = 0;
+
+      // Reset display variables.
+      delete[] _title;
+      _width = _height = _normalization = _window_width = _window_height = 0;
+      _window_x = _window_y = cimg::type<int>::min();
+      _is_fullscreen = false;
+      _is_closed = true;
+      _min = _max = 0;
+      _title = 0;
+      flush();
+
+      X11_attr.unlock();
+      return *this;
     }
 
     CImgDisplay& assign(const unsigned int dimw, const unsigned int dimh, const char *const title=0,
@@ -11349,24 +11351,155 @@ namespace cimg_library {
     BITMAPINFO _bmi;
     HDC _hdc;
 
-    static int screen_width() {
-      DEVMODE mode;
-      mode.dmSize = sizeof(DEVMODE);
-      mode.dmDriverExtra = 0;
-      EnumDisplaySettings(0,ENUM_CURRENT_SETTINGS,&mode);
-      return (int)mode.dmPelsWidth;
+    // Internal functions.
+    CImgDisplay& _assign(const unsigned int dimw, const unsigned int dimh, const char *const p_title=0,
+                         const unsigned int normalization_type=3,
+                         const bool is_fullscreen=false, const bool closed_flag=false) {
+
+      // Allocate space for window title.
+      const char *const np_title = p_title?p_title:"";
+      const unsigned int s = (unsigned int)std::strlen(np_title) + 1;
+      char *const tmp_title = s?new char[s]:0;
+      if (s) std::memcpy(tmp_title,np_title,s*sizeof(char));
+
+      // Destroy previous window if existing.
+      if (!is_empty()) assign();
+
+      // Set display variables.
+      _width = std::min(dimw,(unsigned int)screen_width());
+      _height = std::min(dimh,(unsigned int)screen_height());
+      _normalization = normalization_type<4?normalization_type:3;
+      _is_fullscreen = is_fullscreen;
+      _window_x = _window_y = cimg::type<int>::min();
+      _is_closed = closed_flag;
+      _is_cursor_visible = true;
+      _is_mouse_tracked = false;
+      _title = tmp_title;
+      flush();
+      if (_is_fullscreen) _init_fullscreen();
+
+      // Create event thread.
+      void *const arg = (void*)(new void*[2]);
+      ((void**)arg)[0] = (void*)this;
+      ((void**)arg)[1] = (void*)_title;
+      _mutex = CreateMutex(0,FALSE_WIN,0);
+      _is_created = CreateEvent(0,FALSE_WIN,FALSE_WIN,0);
+      _thread = CreateThread(0,0,_events_thread,arg,0,0);
+      WaitForSingleObject(_is_created,INFINITE);
+      return *this;
     }
 
-    static int screen_height() {
-      DEVMODE mode;
-      mode.dmSize = sizeof(DEVMODE);
-      mode.dmDriverExtra = 0;
-      EnumDisplaySettings(0,ENUM_CURRENT_SETTINGS,&mode);
-      return (int)mode.dmPelsHeight;
+    void _desinit_fullscreen() {
+      if (!_is_fullscreen) return;
+      if (_background_window) DestroyWindow(_background_window);
+      _background_window = 0;
+      if (_curr_mode.dmSize) ChangeDisplaySettings(&_curr_mode,0);
+      _is_fullscreen = false;
     }
 
-    static void wait_all() {
-      WaitForSingleObject(cimg::Win32_attr::ref().wait_event,INFINITE);
+    static DWORD WINAPI _events_thread(void* arg) {
+      CImgDisplay *const disp = (CImgDisplay*)(((void**)arg)[0]);
+      const char *const title = (const char*)(((void**)arg)[1]);
+      MSG msg;
+      delete[] (void**)arg;
+      disp->_bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+      disp->_bmi.bmiHeader.biWidth = disp->width();
+      disp->_bmi.bmiHeader.biHeight = -disp->height();
+      disp->_bmi.bmiHeader.biPlanes = 1;
+      disp->_bmi.bmiHeader.biBitCount = 32;
+      disp->_bmi.bmiHeader.biCompression = BI_RGB;
+      disp->_bmi.bmiHeader.biSizeImage = 0;
+      disp->_bmi.bmiHeader.biXPelsPerMeter = 1;
+      disp->_bmi.bmiHeader.biYPelsPerMeter = 1;
+      disp->_bmi.bmiHeader.biClrUsed = 0;
+      disp->_bmi.bmiHeader.biClrImportant = 0;
+      disp->_data = new unsigned int[(size_t)disp->_width*disp->_height];
+      if (!disp->_is_fullscreen) { // Normal window
+        RECT rect;
+        rect.left = rect.top = 0; rect.right = (LONG)disp->_width - 1; rect.bottom = (LONG)disp->_height - 1;
+        AdjustWindowRect(&rect,WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,false);
+        const int
+          border1 = (int)((rect.right - rect.left + 1 - disp->_width)/2),
+          border2 = (int)(rect.bottom - rect.top + 1 - disp->_height - border1),
+          ww = disp->width() + 2*border1,
+          wh = disp->height() + border1 + border2,
+          sw = CImgDisplay::screen_width(),
+          sh = CImgDisplay::screen_height();
+        int
+          wx = (int)cimg::round(cimg::rand(0,sw - ww -1)),
+          wy = (int)cimg::round(cimg::rand(64,sh - wh - 65));
+        if (wx + ww>=sw) wx = sw - ww;
+        if (wy + wh>=sh) wy = sh - wh;
+        if (wx<0) wx = 0;
+        if (wy<0) wy = 0;
+        disp->_window = CreateWindowA("MDICLIENT",title?title:" ",
+                                      (DWORD)(WS_OVERLAPPEDWINDOW | (disp->_is_closed?0:WS_VISIBLE)),
+                                      wx,wy,ww,wh,0,0,0,&(disp->_ccs));
+        if (!disp->_is_closed) {
+          GetWindowRect(disp->_window,&rect);
+          disp->_window_x = rect.left;
+          disp->_window_y = rect.top;
+        } else disp->_window_x = disp->_window_y = cimg::type<int>::min();
+      } else { // Fullscreen window
+        const unsigned int
+          sx = (unsigned int)screen_width(),
+          sy = (unsigned int)screen_height();
+        disp->_window = CreateWindowA("MDICLIENT",title?title:" ",
+                                      (DWORD)(WS_POPUP | (disp->_is_closed?0:WS_VISIBLE)),
+                                      (int)(sx - disp->_width)/2,
+                                      (int)(sy - disp->_height)/2,
+                                      disp->width(),disp->height(),0,0,0,&(disp->_ccs));
+        disp->_window_x = disp->_window_y = 0;
+      }
+      SetForegroundWindow(disp->_window);
+      disp->_hdc = GetDC(disp->_window);
+      disp->_window_width = disp->_width;
+      disp->_window_height = disp->_height;
+      disp->flush();
+#ifdef _WIN64
+      SetWindowLongPtr(disp->_window,GWLP_USERDATA,(LONG_PTR)disp);
+      SetWindowLongPtr(disp->_window,GWLP_WNDPROC,(LONG_PTR)_process_event);
+#else
+      SetWindowLong(disp->_window,GWL_USERDATA,(LONG)disp);
+      SetWindowLong(disp->_window,GWL_WNDPROC,(LONG)_process_event);
+#endif
+      SetEvent(disp->_is_created);
+      while (GetMessage(&msg,0,0,0)) DispatchMessage(&msg);
+      return 0;
+    }
+
+    void _init_fullscreen() {
+      _background_window = 0;
+      if (!_is_fullscreen || _is_closed) _curr_mode.dmSize = 0;
+      else {
+/*        DEVMODE mode;
+        unsigned int imode = 0, ibest = 0, bestbpp = 0, bw = ~0U, bh = ~0U;
+        for (mode.dmSize = sizeof(DEVMODE), mode.dmDriverExtra = 0; EnumDisplaySettings(0,imode,&mode); ++imode) {
+          const unsigned int nw = mode.dmPelsWidth, nh = mode.dmPelsHeight;
+          if (nw>=_width && nh>=_height && mode.dmBitsPerPel>=bestbpp && nw<=bw && nh<=bh) {
+            bestbpp = mode.dmBitsPerPel;
+            ibest = imode;
+            bw = nw; bh = nh;
+          }
+        }
+        if (bestbpp) {
+          _curr_mode.dmSize = sizeof(DEVMODE); _curr_mode.dmDriverExtra = 0;
+          EnumDisplaySettings(0,ENUM_CURRENT_SETTINGS,&_curr_mode);
+          EnumDisplaySettings(0,ibest,&mode);
+          ChangeDisplaySettings(&mode,0);
+        } else _curr_mode.dmSize = 0;
+*/
+        _curr_mode.dmSize = 0;
+        const unsigned int
+          sx = (unsigned int)screen_width(),
+          sy = (unsigned int)screen_height();
+        if (sx!=_width || sy!=_height) {
+          CLIENTCREATESTRUCT background_ccs = { 0,0 };
+          _background_window = CreateWindowA("MDICLIENT","",WS_POPUP | WS_VISIBLE,
+                                             0,0,(int)sx,(int)sy,0,0,0,&background_ccs);
+          SetForegroundWindow(_background_window);
+        }
+      }
     }
 
     static LRESULT APIENTRY _process_event(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -11481,77 +11614,6 @@ namespace cimg_library {
       return DefWindowProc(window,msg,wParam,lParam);
     }
 
-    static DWORD WINAPI _events_thread(void* arg) {
-      CImgDisplay *const disp = (CImgDisplay*)(((void**)arg)[0]);
-      const char *const title = (const char*)(((void**)arg)[1]);
-      MSG msg;
-      delete[] (void**)arg;
-      disp->_bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-      disp->_bmi.bmiHeader.biWidth = disp->width();
-      disp->_bmi.bmiHeader.biHeight = -disp->height();
-      disp->_bmi.bmiHeader.biPlanes = 1;
-      disp->_bmi.bmiHeader.biBitCount = 32;
-      disp->_bmi.bmiHeader.biCompression = BI_RGB;
-      disp->_bmi.bmiHeader.biSizeImage = 0;
-      disp->_bmi.bmiHeader.biXPelsPerMeter = 1;
-      disp->_bmi.bmiHeader.biYPelsPerMeter = 1;
-      disp->_bmi.bmiHeader.biClrUsed = 0;
-      disp->_bmi.bmiHeader.biClrImportant = 0;
-      disp->_data = new unsigned int[(size_t)disp->_width*disp->_height];
-      if (!disp->_is_fullscreen) { // Normal window
-        RECT rect;
-        rect.left = rect.top = 0; rect.right = (LONG)disp->_width - 1; rect.bottom = (LONG)disp->_height - 1;
-        AdjustWindowRect(&rect,WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,false);
-        const int
-          border1 = (int)((rect.right - rect.left + 1 - disp->_width)/2),
-          border2 = (int)(rect.bottom - rect.top + 1 - disp->_height - border1),
-          ww = disp->width() + 2*border1,
-          wh = disp->height() + border1 + border2,
-          sw = CImgDisplay::screen_width(),
-          sh = CImgDisplay::screen_height();
-        int
-          wx = (int)cimg::round(cimg::rand(0,sw - ww -1)),
-          wy = (int)cimg::round(cimg::rand(64,sh - wh - 65));
-        if (wx + ww>=sw) wx = sw - ww;
-        if (wy + wh>=sh) wy = sh - wh;
-        if (wx<0) wx = 0;
-        if (wy<0) wy = 0;
-        disp->_window = CreateWindowA("MDICLIENT",title?title:" ",
-                                      (DWORD)(WS_OVERLAPPEDWINDOW | (disp->_is_closed?0:WS_VISIBLE)),
-                                      wx,wy,ww,wh,0,0,0,&(disp->_ccs));
-        if (!disp->_is_closed) {
-          GetWindowRect(disp->_window,&rect);
-          disp->_window_x = rect.left;
-          disp->_window_y = rect.top;
-        } else disp->_window_x = disp->_window_y = cimg::type<int>::min();
-      } else { // Fullscreen window
-        const unsigned int
-          sx = (unsigned int)screen_width(),
-          sy = (unsigned int)screen_height();
-        disp->_window = CreateWindowA("MDICLIENT",title?title:" ",
-                                      (DWORD)(WS_POPUP | (disp->_is_closed?0:WS_VISIBLE)),
-                                      (int)(sx - disp->_width)/2,
-                                      (int)(sy - disp->_height)/2,
-                                      disp->width(),disp->height(),0,0,0,&(disp->_ccs));
-        disp->_window_x = disp->_window_y = 0;
-      }
-      SetForegroundWindow(disp->_window);
-      disp->_hdc = GetDC(disp->_window);
-      disp->_window_width = disp->_width;
-      disp->_window_height = disp->_height;
-      disp->flush();
-#ifdef _WIN64
-      SetWindowLongPtr(disp->_window,GWLP_USERDATA,(LONG_PTR)disp);
-      SetWindowLongPtr(disp->_window,GWLP_WNDPROC,(LONG_PTR)_process_event);
-#else
-      SetWindowLong(disp->_window,GWL_USERDATA,(LONG)disp);
-      SetWindowLong(disp->_window,GWL_WNDPROC,(LONG)_process_event);
-#endif
-      SetEvent(disp->_is_created);
-      while (GetMessage(&msg,0,0,0)) DispatchMessage(&msg);
-      return 0;
-    }
-
     CImgDisplay& _update_window_pos() {
       if (_is_closed) _window_x = _window_y = cimg::type<int>::min();
       else {
@@ -11565,46 +11627,25 @@ namespace cimg_library {
       return *this;
     }
 
-    void _init_fullscreen() {
-      _background_window = 0;
-      if (!_is_fullscreen || _is_closed) _curr_mode.dmSize = 0;
-      else {
-/*        DEVMODE mode;
-        unsigned int imode = 0, ibest = 0, bestbpp = 0, bw = ~0U, bh = ~0U;
-        for (mode.dmSize = sizeof(DEVMODE), mode.dmDriverExtra = 0; EnumDisplaySettings(0,imode,&mode); ++imode) {
-          const unsigned int nw = mode.dmPelsWidth, nh = mode.dmPelsHeight;
-          if (nw>=_width && nh>=_height && mode.dmBitsPerPel>=bestbpp && nw<=bw && nh<=bh) {
-            bestbpp = mode.dmBitsPerPel;
-            ibest = imode;
-            bw = nw; bh = nh;
-          }
-        }
-        if (bestbpp) {
-          _curr_mode.dmSize = sizeof(DEVMODE); _curr_mode.dmDriverExtra = 0;
-          EnumDisplaySettings(0,ENUM_CURRENT_SETTINGS,&_curr_mode);
-          EnumDisplaySettings(0,ibest,&mode);
-          ChangeDisplaySettings(&mode,0);
-        } else _curr_mode.dmSize = 0;
-*/
-        _curr_mode.dmSize = 0;
-        const unsigned int
-          sx = (unsigned int)screen_width(),
-          sy = (unsigned int)screen_height();
-        if (sx!=_width || sy!=_height) {
-          CLIENTCREATESTRUCT background_ccs = { 0,0 };
-          _background_window = CreateWindowA("MDICLIENT","",WS_POPUP | WS_VISIBLE,
-                                             0,0,(int)sx,(int)sy,0,0,0,&background_ccs);
-          SetForegroundWindow(_background_window);
-        }
-      }
+    // Public functions.
+    static int screen_width() {
+      DEVMODE mode;
+      mode.dmSize = sizeof(DEVMODE);
+      mode.dmDriverExtra = 0;
+      EnumDisplaySettings(0,ENUM_CURRENT_SETTINGS,&mode);
+      return (int)mode.dmPelsWidth;
     }
 
-    void _desinit_fullscreen() {
-      if (!_is_fullscreen) return;
-      if (_background_window) DestroyWindow(_background_window);
-      _background_window = 0;
-      if (_curr_mode.dmSize) ChangeDisplaySettings(&_curr_mode,0);
-      _is_fullscreen = false;
+    static int screen_height() {
+      DEVMODE mode;
+      mode.dmSize = sizeof(DEVMODE);
+      mode.dmDriverExtra = 0;
+      EnumDisplaySettings(0,ENUM_CURRENT_SETTINGS,&mode);
+      return (int)mode.dmPelsHeight;
+    }
+
+    static void wait_all() {
+      WaitForSingleObject(cimg::Win32_attr::ref().wait_event,INFINITE);
     }
 
     CImgDisplay& assign() {
@@ -11623,43 +11664,6 @@ namespace cimg_library {
       _min = _max = 0;
       _title = 0;
       flush();
-      return *this;
-    }
-
-    CImgDisplay& _assign(const unsigned int dimw, const unsigned int dimh, const char *const p_title=0,
-                         const unsigned int normalization_type=3,
-                         const bool is_fullscreen=false, const bool closed_flag=false) {
-
-      // Allocate space for window title.
-      const char *const np_title = p_title?p_title:"";
-      const unsigned int s = (unsigned int)std::strlen(np_title) + 1;
-      char *const tmp_title = s?new char[s]:0;
-      if (s) std::memcpy(tmp_title,np_title,s*sizeof(char));
-
-      // Destroy previous window if existing.
-      if (!is_empty()) assign();
-
-      // Set display variables.
-      _width = std::min(dimw,(unsigned int)screen_width());
-      _height = std::min(dimh,(unsigned int)screen_height());
-      _normalization = normalization_type<4?normalization_type:3;
-      _is_fullscreen = is_fullscreen;
-      _window_x = _window_y = cimg::type<int>::min();
-      _is_closed = closed_flag;
-      _is_cursor_visible = true;
-      _is_mouse_tracked = false;
-      _title = tmp_title;
-      flush();
-      if (_is_fullscreen) _init_fullscreen();
-
-      // Create event thread.
-      void *const arg = (void*)(new void*[2]);
-      ((void**)arg)[0] = (void*)this;
-      ((void**)arg)[1] = (void*)_title;
-      _mutex = CreateMutex(0,FALSE_WIN,0);
-      _is_created = CreateEvent(0,FALSE_WIN,FALSE_WIN,0);
-      _thread = CreateThread(0,0,_events_thread,arg,0,0);
-      WaitForSingleObject(_is_created,INFINITE);
       return *this;
     }
 
@@ -12028,24 +12032,68 @@ namespace cimg_library {
     unsigned int *_data, _size_events_queue, _allocsize_events_queue;
     bool _is_cursor_visible, _paint_request;
 
-    static int screen_width() {
+    // Internal functions.
+    void _assign(const unsigned int dimw, const unsigned int dimh, const char *const p_title=0,
+                 const unsigned int normalization_type=3,
+                 const bool is_fullscreen=false, const bool closed_flag=false) {
+
+      // Destroy previous display window if existing.
+      if (!is_empty()) assign();
+
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
-      return SDL3_attr.mode->w;
-    }
+      SDL3_attr.lock();
 
-    static int screen_height() {
-      cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
-      return SDL3_attr.mode->h;
-    }
+      // Allocate space for window title.
+      const char *const np_title = p_title?p_title:"";
+      const unsigned int s = (unsigned int)std::strlen(np_title) + 1;
+      char *const tmp_title = s?new char[s]:0;
+      if (s) std::memcpy(tmp_title,np_title,s*sizeof(char));
 
-    static void wait_all() {
-      process_events(true);
-    }
+      // Set display variables.
+      _width = std::min(dimw,(unsigned int)screen_width());
+      _height = std::min(dimh,(unsigned int)screen_height());
+      _normalization = normalization_type<4?normalization_type:3;
+      _is_fullscreen = is_fullscreen;
+      _window_x = _window_y = cimg::type<int>::min();
+      _is_closed = closed_flag;
+      _is_cursor_visible = true;
+      _paint_request = false;
+      _title = tmp_title;
+      _thread_id = SDL_GetCurrentThreadID();
+      _events_queue = 0;
+      _size_events_queue = _allocsize_events_queue = 0;
+      flush();
 
-    CImgDisplay& _update_window_pos() {
-      if (_is_closed) _window_x = _window_y = cimg::type<int>::min();
-      else SDL_GetWindowPosition(_window,&_window_x,&_window_y);
-      return *this;
+      // Create window and renderer.
+      if (!SDL_CreateWindowAndRenderer(_title,(int)_width,(int)_height,
+                                       SDL_WINDOW_RESIZABLE | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS |
+                                       (_is_fullscreen?SDL_WINDOW_FULLSCREEN:0) |
+                                       (_is_closed?SDL_WINDOW_HIDDEN:0),
+                                       &_window,&_renderer)) {
+        SDL3_attr.unlock();
+        throw CImgDisplayException("CImgDisplay::assign(): %s",SDL_GetError());
+      }
+      SDL_RaiseWindow(_window);
+      SDL_SetRenderDrawColor(_renderer,0,0,0,255);
+      if (!_is_fullscreen)
+        SDL_SetWindowPosition(_window,SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED);
+      _window_width = _width;
+      _window_height = _height;
+      _update_window_pos();
+
+      // Create texture.
+      _texture = SDL_CreateTexture(_renderer,SDL_PIXELFORMAT_RGBA8888,SDL_TEXTUREACCESS_STREAMING,
+                                   (int)_width,(int)_height);
+      _data = new unsigned int[_width*_height];
+
+      // Add to managed list of CImgDisplays.
+      if (SDL3_attr.nb_cimg_displays>=512) {
+        SDL3_attr.unlock();
+        throw CImgDisplayException("CImgDisplay::assign(): Max number of displays (512) already opened.");
+      }
+      SDL3_attr.cimg_displays[SDL3_attr.nb_cimg_displays++] = this;
+      SDL3_attr.unlock();
+      paint();
     }
 
     void _add_event(const SDL_Event &event) {
@@ -12125,6 +12173,27 @@ namespace cimg_library {
         break;
       }
       if (is_event) { _is_event = true; }
+    }
+
+    CImgDisplay& _update_window_pos() {
+      if (_is_closed) _window_x = _window_y = cimg::type<int>::min();
+      else SDL_GetWindowPosition(_window,&_window_x,&_window_y);
+      return *this;
+    }
+
+    // Public functions.
+    static int screen_width() {
+      cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
+      return SDL3_attr.mode->w;
+    }
+
+    static int screen_height() {
+      cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
+      return SDL3_attr.mode->h;
+    }
+
+    static void wait_all() {
+      process_events(true);
     }
 
     // Process all events in event queue.
@@ -12217,69 +12286,6 @@ namespace cimg_library {
       flush();
       SDL3_attr.unlock();
       return *this;
-    }
-
-    void _assign(const unsigned int dimw, const unsigned int dimh, const char *const p_title=0,
-                 const unsigned int normalization_type=3,
-                 const bool is_fullscreen=false, const bool closed_flag=false) {
-
-      // Destroy previous display window if existing.
-      if (!is_empty()) assign();
-
-      cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
-      SDL3_attr.lock();
-
-      // Allocate space for window title.
-      const char *const np_title = p_title?p_title:"";
-      const unsigned int s = (unsigned int)std::strlen(np_title) + 1;
-      char *const tmp_title = s?new char[s]:0;
-      if (s) std::memcpy(tmp_title,np_title,s*sizeof(char));
-
-      // Set display variables.
-      _width = std::min(dimw,(unsigned int)screen_width());
-      _height = std::min(dimh,(unsigned int)screen_height());
-      _normalization = normalization_type<4?normalization_type:3;
-      _is_fullscreen = is_fullscreen;
-      _window_x = _window_y = cimg::type<int>::min();
-      _is_closed = closed_flag;
-      _is_cursor_visible = true;
-      _paint_request = false;
-      _title = tmp_title;
-      _thread_id = SDL_GetCurrentThreadID();
-      _events_queue = 0;
-      _size_events_queue = _allocsize_events_queue = 0;
-      flush();
-
-      // Create window and renderer.
-      if (!SDL_CreateWindowAndRenderer(_title,(int)_width,(int)_height,
-                                       SDL_WINDOW_RESIZABLE | SDL_WINDOW_INPUT_FOCUS | SDL_WINDOW_MOUSE_FOCUS |
-                                       (_is_fullscreen?SDL_WINDOW_FULLSCREEN:0) |
-                                       (_is_closed?SDL_WINDOW_HIDDEN:0),
-                                       &_window,&_renderer)) {
-        SDL3_attr.unlock();
-        throw CImgDisplayException("CImgDisplay::assign(): %s",SDL_GetError());
-      }
-      SDL_RaiseWindow(_window);
-      SDL_SetRenderDrawColor(_renderer,0,0,0,255);
-      if (!_is_fullscreen)
-        SDL_SetWindowPosition(_window,SDL_WINDOWPOS_UNDEFINED,SDL_WINDOWPOS_UNDEFINED);
-      _window_width = _width;
-      _window_height = _height;
-      _update_window_pos();
-
-      // Create texture.
-      _texture = SDL_CreateTexture(_renderer,SDL_PIXELFORMAT_RGBA8888,SDL_TEXTUREACCESS_STREAMING,
-                                   (int)_width,(int)_height);
-      _data = new unsigned int[_width*_height];
-
-      // Add to managed list of CImgDisplays.
-      if (SDL3_attr.nb_cimg_displays>=512) {
-        SDL3_attr.unlock();
-        throw CImgDisplayException("CImgDisplay::assign(): Max number of displays (512) already opened.");
-      }
-      SDL3_attr.cimg_displays[SDL3_attr.nb_cimg_displays++] = this;
-      SDL3_attr.unlock();
-      paint();
     }
 
     CImgDisplay& assign(const unsigned int dimw, const unsigned int dimh, const char *const title=0,

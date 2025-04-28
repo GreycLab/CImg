@@ -9817,19 +9817,6 @@ namespace cimg_library {
       return *this;
     }
 
-    //! Wait for a given number of milliseconds since the last call to wait().
-    /**
-       \param milliseconds Number of milliseconds to wait for.
-       \note Similar to cimg::wait().
-    **/
-    CImgDisplay& wait(const unsigned int milliseconds) {
-      cimg::wait(milliseconds,&_timer);
-#if cimg_display==3
-      process_events(false);
-#endif
-      return *this;
-    }
-
     //! Wait for any event occurring on the display \c disp1.
     static void wait(CImgDisplay& disp1) {
       disp1._is_event = false;
@@ -9928,6 +9915,16 @@ namespace cimg_library {
     //! Wait for any window event occurring in any opened CImgDisplay.
     static void wait_all() {
       return _no_display_exception();
+    }
+
+    //! Wait for a given number of milliseconds since the last call to wait().
+    /**
+       \param milliseconds Number of milliseconds to wait for.
+       \note Similar to cimg::wait().
+    **/
+    CImgDisplay& wait(const unsigned int milliseconds) {
+      cimg::wait(milliseconds,&_timer);
+      return *this;
     }
 
     //! Render image into internal display buffer.
@@ -10562,6 +10559,11 @@ namespace cimg_library {
       pthread_mutex_lock(&X11_attr.mutex_wait_event);
       pthread_cond_wait(&X11_attr.wait_event,&X11_attr.mutex_wait_event);
       pthread_mutex_unlock(&X11_attr.mutex_wait_event);
+    }
+
+    CImgDisplay& wait(const unsigned int milliseconds) {
+      cimg::wait(milliseconds,&_timer);
+      return *this;
     }
 
     CImgDisplay& assign(const bool allow_terminate_events_thread=true) {
@@ -11648,6 +11650,11 @@ namespace cimg_library {
       WaitForSingleObject(cimg::Win32_attr::ref().wait_event,INFINITE);
     }
 
+    CImgDisplay& wait(const unsigned int milliseconds) {
+      cimg::wait(milliseconds,&_timer);
+      return *this;
+    }
+
     CImgDisplay& assign() {
       if (is_empty()) return flush();
       DestroyWindow(_window);
@@ -12194,6 +12201,12 @@ namespace cimg_library {
 
     static void wait_all() {
       process_events(true);
+    }
+
+    CImgDisplay& wait(const unsigned int milliseconds) {
+      cimg::wait(milliseconds,&_timer);
+      process_events(false);
+      return *this;
     }
 
     // Process all events in event queue.

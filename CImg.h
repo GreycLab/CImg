@@ -12255,10 +12255,8 @@ namespace cimg_library {
       // Re-paint windows if necessary.
       for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k)
         if (!SDL3_attr.cimg_displays[k]->_is_closed && SDL3_attr.cimg_displays[k]->_paint_request &&
-            SDL3_attr.cimg_displays[k]->_thread_id==current_thread_id) {
+            SDL3_attr.cimg_displays[k]->_thread_id==current_thread_id)
           SDL3_attr.cimg_displays[k]->paint();
-          break;
-        }
     }
 
     CImgDisplay& assign() {

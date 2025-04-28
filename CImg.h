@@ -12210,7 +12210,7 @@ namespace cimg_library {
     }
 
     // Process all events in event queue.
-    static int process_events(bool wait_event) {
+    static void process_events(bool wait_event) {
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
       const SDL_ThreadID current_thread_id = SDL_GetCurrentThreadID();
       if (current_thread_id!=SDL3_attr.main_thread_id) {
@@ -12259,8 +12259,6 @@ namespace cimg_library {
           SDL3_attr.cimg_displays[k]->paint();
           break;
         }
-
-      return 0;
     }
 
     CImgDisplay& assign() {

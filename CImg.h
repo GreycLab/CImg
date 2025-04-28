@@ -9824,6 +9824,9 @@ namespace cimg_library {
     **/
     CImgDisplay& wait(const unsigned int milliseconds) {
       cimg::wait(milliseconds,&_timer);
+#if cimg_display==3
+      process_events(false);
+#endif
       return *this;
     }
 

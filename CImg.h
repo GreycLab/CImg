@@ -18144,7 +18144,7 @@ namespace cimg_library {
         const unsigned int depth1 = depth + 1;
         unsigned int pos, p1, p2, p3, arg1, arg2, arg3, arg4, arg5, arg6;
         char
-          *const se1 = se - 1, *const se2 = se - 2, *const se3 = se - 3,
+          *const se1 = se - 1, *const se2 = se - 2, *const se3 = se - 3, *const se4 = se - 4,
           *const ss1 = ss + 1, *const ss2 = ss + 2, *const ss3 = ss + 3, *const ss4 = ss + 4,
           *const ss5 = ss + 5, *const ss6 = ss + 6, *const ss7 = ss + 7, *const ss8 = ss + 8,
           *s, *ps, *ns, *s0, *s1, *s2, *s3, sep = 0, end = 0;
@@ -19237,7 +19237,7 @@ namespace cimg_library {
             _cimg_mp_scalar2(mp_eq,arg1,arg2);
           }
 
-        for (s = se3, ns = se2; s>ss; --s, --ns)
+        for (s = se3, ns = se2, ps = se4; s>ss; --s, --ns)
           if (*s=='<' && *ns=='=' && *ps!='$' && level[s - expr._data]==clevel) { // Less or equal than ('<=')
             _cimg_mp_op("Operator '<='");
             arg1 = compile(ss,s,depth1,0,block_flags);
@@ -19252,7 +19252,7 @@ namespace cimg_library {
             _cimg_mp_scalar2(mp_lte,arg1,arg2);
           }
 
-        for (s = se3, ns = se2; s>ss; --s, --ns)
+        for (s = se3, ns = se2, ps = se4; s>ss; --s, --ns)
           if (*s=='>' && *ns=='=' && *ps!='$' && level[s - expr._data]==clevel) { // Greater or equal than ('>=')
             _cimg_mp_op("Operator '>='");
             arg1 = compile(ss,s,depth1,0,block_flags);
@@ -19297,7 +19297,7 @@ namespace cimg_library {
             _cimg_mp_scalar2(mp_gt,arg1,arg2);
           }
 
-        for (s = se3, ns = se2; s>ss; --s, --ns)
+        for (s = se3, ns = se2, ps = se4; s>ss; --s, --ns)
           if (*s=='<' && *ns=='<' && *ps!='$' && level[s - expr._data]==clevel) { // Left bit shift ('<<')
             _cimg_mp_op("Operator '<<'");
             arg1 = compile(ss,s,depth1,0,block_flags);
@@ -19318,7 +19318,7 @@ namespace cimg_library {
             _cimg_mp_scalar2(mp_bitwise_left_shift,arg1,arg2);
           }
 
-        for (s = se3, ns = se2; s>ss; --s, --ns)
+        for (s = se3, ns = se2, ps = se4; s>ss; --s, --ns)
           if (*s=='>' && *ns=='>' && *ps!='$' && level[s - expr._data]==clevel) { // Right bit shift ('>>')
             _cimg_mp_op("Operator '>>'");
             arg1 = compile(ss,s,depth1,0,block_flags);

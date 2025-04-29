@@ -128,6 +128,7 @@
 #pragma warning(disable:4512)
 #pragma warning(disable:4571)
 #pragma warning(disable:4640)
+#pragma warning(disable:4702)
 #pragma warning(disable:4706)
 #pragma warning(disable:4710)
 #pragma warning(disable:4800)

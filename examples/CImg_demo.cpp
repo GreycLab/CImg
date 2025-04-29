@@ -1707,6 +1707,5 @@ int main(int argc, char **argv) {
 
   // Exit demo
   //-----------
-  std::exit(0);
   return 0;
 }

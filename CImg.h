@@ -3316,6 +3316,7 @@ namespace cimg_library {
       X11_attr& terminate_events_thread() {
         events_thread_running = false;
         pthread_join(*events_thread,0);
+        delete events_thread;
         events_thread = 0;
         return *this;
       }

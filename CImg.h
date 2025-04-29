@@ -12236,9 +12236,10 @@ namespace cimg_library {
       if (!wait_event) SDL3_attr.unlock();
 
       // Re-paint windows if necessary.
-      for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k)
+/*      for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k)
         if (!SDL3_attr.cimg_displays[k]->_is_closed && SDL3_attr.cimg_displays[k]->_paint_request)
           SDL3_attr.cimg_displays[k]->paint();
+*/
     }
 
     CImgDisplay& assign() {
@@ -12472,12 +12473,14 @@ namespace cimg_library {
 
     CImgDisplay& paint() {
       if (_is_closed) return *this;
-
-      const SDL_ThreadID current_thread_id = SDL_GetCurrentThreadID();
-      std::fprintf(stderr,"\nENTER PAINT %lu",(unsigned long)current_thread_id);
-
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
-
+/*
+    const SDL_ThreadID current_thread_id = SDL_GetCurrentThreadID();
+    if (current_thread_id!=SDL3_attr.main_thread_id) {
+    _paint_request = true;
+    return *this;
+    }
+*/
       SDL3_attr.lock();
       if (!_texture || _texture->w!=(int)_width || _texture->h!=(int)_height) {
         if (_texture) SDL_DestroyTexture(_texture);
@@ -12494,9 +12497,6 @@ namespace cimg_library {
       SDL_RenderPresent(_renderer);
       _paint_request = false;
       SDL3_attr.unlock();
-
-      std::fprintf(stderr,"\n*EXIT PAINT %lu",(unsigned long)current_thread_id);
-
       return *this;
     }
 

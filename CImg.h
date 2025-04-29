@@ -12200,6 +12200,13 @@ namespace cimg_library {
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
       const SDL_ThreadID current_thread_id = SDL_GetCurrentThreadID();
 
+      // Re-paint display windows from current thread if necessary.
+      for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k) {
+        CImgDisplay &disp = *SDL3_attr.cimg_displays[k];
+        if (!disp.is_closed() && disp._paint_request && disp._thread_id==current_thread_id)
+          SDL3_attr.cimg_displays[k]->paint();
+      }
+
       // Make sure only the main thread process events.
       if (current_thread_id!=SDL3_attr.main_thread_id) {
         if (wait_event) cimg::sleep(8);
@@ -12234,12 +12241,6 @@ namespace cimg_library {
       } while (is_event);
 
       if (!wait_event) SDL3_attr.unlock();
-
-      // Re-paint windows if necessary.
-/*      for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k)
-        if (!SDL3_attr.cimg_displays[k]->_is_closed && SDL3_attr.cimg_displays[k]->_paint_request)
-          SDL3_attr.cimg_displays[k]->paint();
-*/
     }
 
     CImgDisplay& assign() {

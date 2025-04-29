@@ -12224,7 +12224,7 @@ namespace cimg_library {
               for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k) {
                 CImgDisplay &disp = *SDL3_attr.cimg_displays[k];
                 if (window==disp._window) {
-                  if (!disp._is_closed) disp._process_event(event); // disp._add_event(event);
+                  if (!disp._is_closed) disp._process_event(event);
                   break;
                 }
               }
@@ -12236,12 +12236,9 @@ namespace cimg_library {
       if (!wait_event) SDL3_attr.unlock();
 
       // Re-paint windows if necessary.
-/*
-      for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k)
-        if (!SDL3_attr.cimg_displays[k]->_is_closed && SDL3_attr.cimg_displays[k]->_paint_request) {
-//            SDL3_attr.cimg_displays[k]->_thread_id==current_thread_id) {
+/*      for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k)
+        if (!SDL3_attr.cimg_displays[k]->_is_closed && SDL3_attr.cimg_displays[k]->_paint_request)
           SDL3_attr.cimg_displays[k]->paint();
-        }
 */
     }
 
@@ -12479,8 +12476,8 @@ namespace cimg_library {
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
 
       SDL3_attr.lock();
-      if (_texture && (_texture->w!=(int)_width || _texture->h!=(int)_height)) {
-        SDL_DestroyTexture(_texture);
+      if (!_texture || _texture->w!=(int)_width || _texture->h!=(int)_height) {
+        if (_texture) SDL_DestroyTexture(_texture);
         _texture = SDL_CreateTexture(_renderer,SDL_PIXELFORMAT_RGBA8888,SDL_TEXTUREACCESS_STREAMING,
                                      (int)_width,(int)_height);
       }
@@ -12584,7 +12581,7 @@ namespace cimg_library {
       if (ndata!=_data) { _render_resize(ndata,img._width,img._height,_data,_width,_height); delete[] ndata; }
       SDL3_attr.unlock();
 
-      process_events(false);
+//      process_events(false);
       return *this;
     }
 

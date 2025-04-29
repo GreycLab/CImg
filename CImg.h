@@ -12035,8 +12035,7 @@ namespace cimg_library {
     SDL_Renderer *_renderer;
     SDL_Texture *_texture;
     SDL_ThreadID _thread_id; // ID of the thread that created this display
-    SDL_Event *_events_queue; // Events queue specific for this display
-    unsigned int *_data, _size_events_queue, _allocsize_events_queue;
+    unsigned int *_data;
     bool _is_cursor_visible, _paint_request;
 
     // Internal functions.
@@ -12067,8 +12066,6 @@ namespace cimg_library {
       _paint_request = false;
       _title = tmp_title;
       _thread_id = SDL_GetCurrentThreadID();
-      _events_queue = 0;
-      _size_events_queue = _allocsize_events_queue = 0;
       flush();
 
       // Create window and renderer.
@@ -12101,17 +12098,6 @@ namespace cimg_library {
       SDL3_attr.cimg_displays[SDL3_attr.nb_cimg_displays++] = this;
       SDL3_attr.unlock();
       paint();
-    }
-
-    void _add_event(const SDL_Event &event) {
-      if (!_events_queue) { _events_queue = new SDL_Event[_allocsize_events_queue = 64]; _size_events_queue = 0; }
-      else if (_size_events_queue>=_allocsize_events_queue) { // Reallocation needed
-        SDL_Event *nevents_queue = new SDL_Event[_allocsize_events_queue = 2*_size_events_queue];
-        std::memcpy(nevents_queue,_events_queue,_size_events_queue*sizeof(SDL_Event));
-        delete[] _events_queue;
-        _events_queue = nevents_queue;
-      }
-      _events_queue[_size_events_queue++] = event;
     }
 
     void _process_event(const SDL_Event &event) {
@@ -12213,9 +12199,11 @@ namespace cimg_library {
     static void process_events(bool wait_event) {
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
       const SDL_ThreadID current_thread_id = SDL_GetCurrentThreadID();
+
+      // Make sure only the main thread process events.
       if (current_thread_id!=SDL3_attr.main_thread_id) {
         if (wait_event) cimg::sleep(8);
-        wait_event = false;
+        return;
       }
       if (!wait_event) SDL3_attr.lock();
 
@@ -12235,28 +12223,26 @@ namespace cimg_library {
             if (window) // Find CImgDisplay associated to event
               for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k) {
                 CImgDisplay &disp = *SDL3_attr.cimg_displays[k];
-                if (window==disp._window) { if (!disp._is_closed) disp._add_event(event); break; }
+                if (window==disp._window) {
+                  if (!disp._is_closed) disp._process_event(event); // disp._add_event(event);
+                  break;
+                }
               }
           }
         }
         _wait_event = false;
       } while (is_event);
 
-      // Process all events queued, only for CImgDisplay that has been created by current thread.
-      for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k) {
-        CImgDisplay &disp = *SDL3_attr.cimg_displays[k];
-        if (disp._thread_id==current_thread_id) {
-          for (unsigned int l = 0; l<disp._size_events_queue; ++l) disp._process_event(disp._events_queue[l]);
-          disp._size_events_queue = 0;
-        }
-      }
       if (!wait_event) SDL3_attr.unlock();
 
       // Re-paint windows if necessary.
+/*
       for (unsigned int k = 0; k<SDL3_attr.nb_cimg_displays; ++k)
-        if (!SDL3_attr.cimg_displays[k]->_is_closed && SDL3_attr.cimg_displays[k]->_paint_request &&
-            SDL3_attr.cimg_displays[k]->_thread_id==current_thread_id)
+        if (!SDL3_attr.cimg_displays[k]->_is_closed && SDL3_attr.cimg_displays[k]->_paint_request) {
+//            SDL3_attr.cimg_displays[k]->_thread_id==current_thread_id) {
           SDL3_attr.cimg_displays[k]->paint();
+        }
+*/
     }
 
     CImgDisplay& assign() {
@@ -12289,9 +12275,6 @@ namespace cimg_library {
       _is_cursor_visible = true;
       _paint_request = false;
       _title = 0;
-      if (_events_queue) delete[] _events_queue;
-      _events_queue = 0;
-      _size_events_queue = _allocsize_events_queue = 0;
       flush();
       SDL3_attr.unlock();
       return *this;
@@ -12494,6 +12477,7 @@ namespace cimg_library {
     CImgDisplay& paint() {
       if (_is_closed) return *this;
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
+
       SDL3_attr.lock();
       if (_texture && (_texture->w!=(int)_width || _texture->h!=(int)_height)) {
         SDL_DestroyTexture(_texture);

@@ -12474,13 +12474,14 @@ namespace cimg_library {
     CImgDisplay& paint() {
       if (_is_closed) return *this;
       cimg::SDL3_attr &SDL3_attr = cimg::SDL3_attr::ref();
-/*
-    const SDL_ThreadID current_thread_id = SDL_GetCurrentThreadID();
-    if (current_thread_id!=SDL3_attr.main_thread_id) {
-    _paint_request = true;
-    return *this;
-    }
-*/
+
+      const SDL_ThreadID current_thread_id = SDL_GetCurrentThreadID();
+      if (current_thread_id!=_thread_id) {
+        // Make sure repaint is done by the thread that created the window.
+        _paint_request = true;
+        return *this;
+      }
+
       SDL3_attr.lock();
       if (!_texture || _texture->w!=(int)_width || _texture->h!=(int)_height) {
         if (_texture) SDL_DestroyTexture(_texture);

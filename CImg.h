@@ -8235,7 +8235,7 @@ namespace cimg_library {
                    cimg::t_normal);
 #if cimg_OS==2
       cimg_snprintf(tmp,1024,"\"%.1020s\"",cimg::powershell_path());
-      std::fprintf(cimg::output(),"  > Path of 'powershell_path':           %s%-13s%s\n",
+      std::fprintf(cimg::output(),"  > Path of 'powershell':     %s%-13s%s\n",
                    cimg::t_bold,
                    tmp,
                    cimg::t_normal);

@@ -18344,16 +18344,17 @@ namespace cimg_library {
 
         pos = ~0U;
         is_sth = false;
-
-        for (s0 = ss, s = ss1; s<se1; ++s)
-          if (*s==';' && level[s - expr._data]==clevel) { // Separator ';'
+        for (s0 = ss, s1 = ss1; s1<se1; ++s1) {
+          if (!(s1 = (char*)std::memchr(s1,';',se1 - s1))) break;
+          if (level[s1 - expr._data]==clevel) { // Separator ';'
             is_end_code = false;
-            arg1 = compile(s0,s++,depth,0,block_flags);
+            arg1 = compile(s0,s1++,depth,0,block_flags);
             if (!is_end_code) pos = arg1; // 'end()' and 'end_t()' return void
             is_sth = true;
-            while (*s && (cimg::is_blank(*s) || *s==';')) ++s;
-            s0 = s;
+            while (*s1 && (cimg::is_blank(*s1) || *s1==';')) ++s1;
+            s0 = s1;
           }
+        }
         if (is_sth) {
           is_end_code = false;
           arg1 = compile(s0,se,depth,p_ref,block_flags);

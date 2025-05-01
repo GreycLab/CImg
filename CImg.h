@@ -18366,9 +18366,9 @@ namespace cimg_library {
         for (s = ss1; s<se1; ++s) {
           if (!(s = (char*)std::memchr(s,'=',se1 - s))) break;
           ps = s - 1; ns = s + 1;
-          const char pc = *ps, nc = *ns;
+          const char pc = *ps;
           if (level[s - expr._data]==clevel &&
-              nc!='=' && pc!='=' && pc!='>' && pc!='<' && pc!='!' &&
+              *ns!='=' && pc!='=' && pc!='>' && pc!='<' && pc!='!' &&
               pc!='+' && pc!='-' && pc!='*' && pc!='/' && pc!='%' &&
               pc!='>' && pc!='<' && pc!='&' && pc!='|' && pc!='^') {
             variable_name.assign(ss,(unsigned int)(s + 1 - ss)).back() = 0;

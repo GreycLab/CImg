@@ -18363,11 +18363,13 @@ namespace cimg_library {
         }
 
         // Declare / assign variable, vector value or image value.
-        for (s = ss1, ps = ss, ns = ss2; s<se1; ++s, ++ps, ++ns)
-          if (*s=='=' && *ns!='=' && *ps!='=' && *ps!='>' && *ps!='<' && *ps!='!' &&
-              *ps!='+' && *ps!='-' && *ps!='*' && *ps!='/' && *ps!='%' &&
-              *ps!='>' && *ps!='<' && *ps!='&' && *ps!='|' && *ps!='^' &&
-              level[s - expr._data]==clevel) {
+        for (s = ss1; s<se1; ++s) {
+          if (!(s = (char*)std::memchr(s,'=',se1 - s))) break;
+          const char pc = *(s - 1), nc = *(s + 1);
+          if (level[s - expr._data]==clevel &&
+              nc!='=' && pc!='=' && pc!='>' && pc!='<' && pc!='!' &&
+              pc!='+' && pc!='-' && pc!='*' && pc!='/' && pc!='%' &&
+              pc!='>' && pc!='<' && pc!='&' && pc!='|' && pc!='^') {
             variable_name.assign(ss,(unsigned int)(s + 1 - ss)).back() = 0;
             cimg::strpare(variable_name,false,true);
             const unsigned int l_variable_name = (unsigned int)std::strlen(variable_name);
@@ -18884,6 +18886,7 @@ namespace cimg_library {
                                         arg1!=~0U && is_const_scalar(arg1)?"const ":"",
                                         variable_name._data,s0);
           }
+        }
 
         // Apply unary/binary/ternary operators. The operator precedences should be the same as in C++.
         for (s = se2, ps = se3, ns = ps - 1; s>ss1; --s, --ps, --ns) // Here, ns = ps - 1

@@ -5904,6 +5904,18 @@ namespace cimg_library {
       0,4,123,123,123,10,200,200,200,1,123,123,0,24,0,0,0,5,123,123,123,12,200,200,200,27,123,123,123,14,200,200,200,25,
       123,123,123,86,200,200,200,91,49,124,118,124,71,32,124,95,49,56,114,52,82,121,0 };
 
+    // Define a 256 array, used in _cimg_math_parser to fast-check if operator tests can be skipped.
+    // In this array, all values are set to 0 except for characters "=+*-/^<>&|?~!%" (set to 1).
+    static const char _cimg_math_parser_check_operator[] = {
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
     //! Get/set default output stream for the \CImg library messages.
     /**
        \param file Desired output stream. Set to \c 0 to get the currently used output stream only.
@@ -18890,8 +18902,12 @@ namespace cimg_library {
         }
 
         // Apply unary/binary/ternary operators. The operator precedences should be the same as in C++.
-        s = std::strpbrk(ss,"=+-*/<>^&|?~!%)");
-        if (!s) goto cimg_skip_operator_parsing; // Quick check to see if operator parsing can be skipped
+        is_sth = true;
+        for (s = ss; s<se1; ++s) // Do a first pass to quickly skip costly operator checks that require for() loop
+          if (cimg::_cimg_math_parser_check_operator[(unsigned char)*s] && level[s - expr._data]==clevel) {
+            is_sth = false; break;
+          }
+        if (is_sth) goto cimg_skip_iterative_operator_parsing;
 
         for (s = se2, ps = se3, ns = ps - 1; s>ss1; --s, --ps, --ns) // Here, ns = ps - 1
           if (*s=='=' && (*ps=='*' || *ps=='/' || *ps=='^') && *ns==*ps &&
@@ -19636,6 +19652,8 @@ namespace cimg_library {
             }
           }
 
+      cimg_skip_iterative_operator_parsing :
+
         // Percentage computation.
         if (*se1=='%') {
           arg1 = compile(ss,se1,depth1,0,block_flags);
@@ -19644,8 +19662,6 @@ namespace cimg_library {
           if (is_const_scalar(arg1)) _cimg_mp_const_scalar(mem[arg1]/100);
           _cimg_mp_scalar2(mp_div,arg1,arg2);
         }
-
-      cimg_skip_operator_parsing :
 
         // Degree to radian postfix operator ('°' in UTF-8).
         if (se2>ss && (unsigned char)*se2==0xC2 && (unsigned char)*se1==0xB0) {

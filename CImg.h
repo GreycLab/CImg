@@ -18890,6 +18890,9 @@ namespace cimg_library {
         }
 
         // Apply unary/binary/ternary operators. The operator precedences should be the same as in C++.
+        s = std::strpbrk(ss,"=+-*/<>^&|?~!%)");
+        if (!s) goto cimg_skip_operator_parsing; // Quick check to see if operator parsing can be skipped
+
         for (s = se2, ps = se3, ns = ps - 1; s>ss1; --s, --ps, --ns) // Here, ns = ps - 1
           if (*s=='=' && (*ps=='*' || *ps=='/' || *ps=='^') && *ns==*ps &&
               level[s - expr._data]==clevel) { // Self-operators for complex numbers only (**=,//=,^^=)
@@ -19641,6 +19644,8 @@ namespace cimg_library {
           if (is_const_scalar(arg1)) _cimg_mp_const_scalar(mem[arg1]/100);
           _cimg_mp_scalar2(mp_div,arg1,arg2);
         }
+
+      cimg_skip_operator_parsing :
 
         // Degree to radian postfix operator ('°' in UTF-8).
         if (se2>ss && (unsigned char)*se2==0xC2 && (unsigned char)*se1==0xB0) {

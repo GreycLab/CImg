@@ -61894,12 +61894,13 @@ namespace cimg_library {
       \param filename Filename, as a C-string.
       \param distance Sets the level for lossy compression: lower = higher quality.
         Range: 0 .. 25. 0.0 = mathematically lossless
+      \param bytes_per_pixel Force the number of bytes per pixels for the saving, when possible.
     **/
-    const CImg<T>& save_jxl(const char *const filename, const float distance=1.0) const {
-      return _save_jxl(filename, distance);
+    const CImg<T>& save_jxl(const char *const filename, const float distance=1.0, const unsigned int bytes_per_pixel=0) const {
+      return _save_jxl(filename, distance, bytes_per_pixel);
     }
 
-    const CImg<T>& _save_jxl(const char *const filename, const float distance=1.0) const {
+    const CImg<T>& _save_jxl(const char *const filename, const float distance=1.0, const unsigned int bytes_per_pixel=0) const {
       if (!filename)
         throw CImgArgumentException(_cimg_instance
                                     "save_jxl(): Specified filename is (null).",
@@ -61907,6 +61908,16 @@ namespace cimg_library {
       if (_spectrum > 4)
         throw CImgArgumentException(_cimg_instance
                                     "save_jxl(): JPEG XL only supports at most 4 channels.",
+                                    cimg_instance);
+      double stmin, stmax = (double)max_min(stmin);
+      if (stmin<0 || (bytes_per_pixel==1 && stmax>=256) || stmax>=65536)
+        cimg::warn(_cimg_instance
+                   "save_jxl(): Instance has pixel values in [%g,%g], probable type overflow in file '%s'.",
+                   cimg_instance,
+                   stmin,stmax,filename);
+      if (bytes_per_pixel>2 || sizeof(T)<bytes_per_pixel)
+        throw CImgArgumentException(_cimg_instance
+                                    "save_jxl(): bytes_per_pixel must be in [0, 2] and less than or equal to sizeof(T)",
                                     cimg_instance);
       if (_depth>1)
         cimg::warn(_cimg_instance
@@ -61918,10 +61929,13 @@ namespace cimg_library {
       return save_other(filename);
 #else
       std::FILE *file = cimg::fopen(filename, "wb");
-      uint32_t nChannels = _spectrum;
+      cimg_uint32 nChannels = _spectrum;
       bool hasAlpha = _spectrum==2 || _spectrum==4;
       if (hasAlpha) --nChannels;
-      CImg<T> rgbBuffer(_width*_height*nChannels);
+      unsigned int bytesPerPixel = bytes_per_pixel;
+      if (bytesPerPixel == 0)
+          bytesPerPixel = stmax<256?1:2;
+      CImg<ucharT> rgbBuffer(_width*_height*nChannels*bytesPerPixel);
       const T *ptr_r = 0, *ptr_g = 0, *ptr_b = 0, *ptr_a = 0;
       switch (_spectrum) {
       case 1:
@@ -61943,32 +61957,47 @@ namespace cimg_library {
         ptr_a = data(0,0,0,3);
         break;
       }
-      T *ptr = rgbBuffer._data;
-      cimg_forY(*this,y) {
-        cimg_forX(*this,x) {
-          *(ptr++) = (T)*(ptr_r++);
-          if (ptr_g) *(ptr++) = (T)*(ptr_g++);
-          if (ptr_b) *(ptr++) = (T)*(ptr_b++);
+      switch (bytesPerPixel) {
+      case 1: {
+        unsigned char *ptr = (unsigned char*)rgbBuffer._data;
+        cimg_forY(*this,y) {
+          cimg_forX(*this,x) {
+            *(ptr++) = (unsigned char)*(ptr_r++);
+            if (ptr_g) *(ptr++) = (unsigned char)*(ptr_g++);
+            if (ptr_b) *(ptr++) = (unsigned char)*(ptr_b++);
+          }
         }
+      } break;
+      case 2: {
+        cimg_uint16 *ptr = (cimg_uint16*)rgbBuffer._data;
+        cimg_forY(*this,y) {
+          cimg_forX(*this,x) {
+            *(ptr++) = (cimg_uint16)*(ptr_r++);
+            if (ptr_g) *(ptr++) = (cimg_uint16)*(ptr_g++);
+            if (ptr_b) *(ptr++) = (cimg_uint16)*(ptr_b++);
+          }
+        }
+      } break;
       }
 
       JxlEncoder *encoder = JxlEncoderCreate(NULL);
 
+      JxlDataType dataType = bytesPerPixel==2?JXL_TYPE_UINT16:JXL_TYPE_UINT8;
       JxlPixelFormat pixelFormat = {
         nChannels,
-        sizeof(T)==1?JXL_TYPE_UINT8:JXL_TYPE_UINT16,
+        dataType,
         cimg::endianness()?JXL_BIG_ENDIAN:JXL_LITTLE_ENDIAN,
         0,
       };
       JxlBasicInfo basicInfo;
       JxlEncoderInitBasicInfo(&basicInfo);
-      basicInfo.bits_per_sample = sizeof(T)*8;
+      basicInfo.bits_per_sample = bytesPerPixel*8;
       basicInfo.exponent_bits_per_sample = 0;
       basicInfo.xsize = _width;
       basicInfo.ysize = _height;
       basicInfo.uses_original_profile = JXL_FALSE;
       if (hasAlpha) {
-        basicInfo.alpha_bits = sizeof(T)*8;
+        basicInfo.alpha_bits = bytesPerPixel*8;
         basicInfo.alpha_exponent_bits = 0;
         basicInfo.num_extra_channels = 1;
       }
@@ -62004,7 +62033,7 @@ namespace cimg_library {
                               filename);
       }
       if (JXL_ENC_SUCCESS!=JxlEncoderAddImageFrame(frameSettings,&pixelFormat,(const void*)rgbBuffer._data,
-                                                   sizeof(T)*rgbBuffer.size())) {
+                                                   rgbBuffer.size())) {
         cimg::fclose(file);
         JxlEncoderDestroy(encoder);
         throw CImgIOException(_cimg_instance
@@ -62012,9 +62041,34 @@ namespace cimg_library {
                               cimg_instance,
                               filename);
       }
+
+      CImg<ucharT> alphaBuffer;
       if (hasAlpha) {
-        if (JXL_ENC_SUCCESS!=JxlEncoderSetExtraChannelBuffer(frameSettings,&pixelFormat,(const void*)ptr_a,
-                                                             _width*_height*sizeof(T),0)) {
+        ucharT *alphaPtr = (ucharT*)ptr_a;
+        if (sizeof(T) != bytesPerPixel) {
+          alphaBuffer.assign(_width*_height*bytesPerPixel);
+          switch (bytesPerPixel) {
+          case 1: {
+            unsigned char *ptr = (unsigned char*)alphaBuffer._data;
+            cimg_forY(*this,y) {
+              cimg_forX(*this,x) {
+                *(ptr++) = (unsigned char)*(ptr_a++);
+              }
+            }
+          } break;
+          case 2: {
+            cimg_uint16 *ptr = (cimg_uint16*)alphaBuffer._data;
+            cimg_forY(*this,y) {
+              cimg_forX(*this,x) {
+                *(ptr++) = (cimg_uint16)*(ptr_a++);
+              }
+            }
+          } break;
+          }
+          alphaPtr = (ucharT*)alphaBuffer._data;
+        }
+        if (JXL_ENC_SUCCESS!=JxlEncoderSetExtraChannelBuffer(frameSettings,&pixelFormat,(const void*)alphaPtr,
+                                                             _width*_height*bytesPerPixel,0)) {
           cimg::fclose(file);
           JxlEncoderDestroy(encoder);
           throw CImgIOException(_cimg_instance
@@ -62025,8 +62079,8 @@ namespace cimg_library {
       }
       JxlEncoderCloseInput(encoder);
 
-      CImg<uint8_t> compressed(256);
-      uint8_t *nextOut = compressed.data();
+      CImg<cimg_uint8> compressed(1024);
+      cimg_uint8 *nextOut = compressed.data();
       size_t availOut = compressed.size() - (nextOut - compressed.data());
       JxlEncoderStatus processResult = JXL_ENC_NEED_MORE_OUTPUT;
       while (processResult==JXL_ENC_NEED_MORE_OUTPUT) {

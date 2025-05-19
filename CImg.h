@@ -1,4 +1,4 @@
-/*
+ /*
  #
  #  File            : CImg.h
  #                    ( C++ header file )
@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 354
+#define cimg_version 355
 
 /*-----------------------------------------------------------
  #
@@ -5936,7 +5936,7 @@ namespace cimg_library {
       SYSTEM_INFO sysinfo;
       GetSystemInfo(&sysinfo);
       res = (unsigned int)sysinfo.dwNumberOfProcessors;
-#elif cimg_OS == 1
+#elif cimg_OS==1
       res = (unsigned int)sysconf(_SC_NPROCESSORS_ONLN);
 #endif
       return res?res:1U;
@@ -8364,11 +8364,11 @@ namespace cimg_library {
   } \
   template<typename T> \
   inline bool operator==(const typ val, const CImg<T>& img) {   \
-    return img == val; \
+    return img==val; \
   } \
   template<typename T> \
   inline bool operator!=(const typ val, const CImg<T>& img) { \
-    return img != val; \
+    return img!=val; \
   }
 
   _cimg_create_operator(bool)
@@ -21304,7 +21304,7 @@ namespace cimg_library {
               arg6 = mempos;
               p1 = compile(s0,s1,depth1,0,block_flags); // Body
               arg2 = code._width;
-              p2 = s1<se1?compile(++s1,se1,depth1,0,block_flags):p1; // Condition
+              p2 = s1<se1?compile(++s1,se1,depth1,0,block_flags):1; // Condition
               _cimg_mp_check_type(p2,2,1,0);
               CImg<ulongT>::vector((ulongT)mp_do,p1,p2,arg2 - arg1,code._width - arg2,size(p1),
                                    p1>=arg6 && !is_const_scalar(p1),
@@ -30268,7 +30268,7 @@ namespace cimg_library {
 
         // Compare first N values.
         bool still_equal = true;
-        if (siz1>0 && siz2>0) { // Vector == vector
+        if (siz1>0 && siz2>0) { // Vector==vector
           n = cimg::min((unsigned int)N,siz1,siz2);
           if (case_sensitive)
             while (still_equal && n--) {
@@ -30283,7 +30283,7 @@ namespace cimg_library {
               ++ptr1; ++ptr2;
             }
           return still_equal;
-        } else if (siz1>0 && !siz2) { // Vector == scalar
+        } else if (siz1>0 && !siz2) { // Vector==scalar
           n = std::min((unsigned int)N,siz1);
           const double value = case_sensitive?_mp_arg(4):cimg::lowercase(_mp_arg(4));
           if (cimg::type<double>::is_nan(value))
@@ -30291,7 +30291,7 @@ namespace cimg_library {
           else
             while (still_equal && n--) still_equal = *(ptr1++)==value;
           return still_equal;
-        } else if (!siz1 && siz2>0) { // Scalar == vector
+        } else if (!siz1 && siz2>0) { // Scalar==vector
           n = std::min((unsigned int)N,siz2);
           const double value = case_sensitive?_mp_arg(2):cimg::lowercase(_mp_arg(2));
           if (cimg::type<double>::is_nan(value))
@@ -30299,7 +30299,7 @@ namespace cimg_library {
           else
             while (still_equal && n--) still_equal = *(ptr2++)==value;
           return still_equal;
-        } // Scalar == scalar
+        } // Scalar==scalar
         if (case_sensitive) return _mp_arg(2)==_mp_arg(4);
         else if (cimg::type<double>::is_nan(_mp_arg(2))) return cimg::type<double>::is_nan(_mp_arg(4));
         return cimg::lowercase(_mp_arg(2))==cimg::lowercase(_mp_arg(4));
@@ -33071,7 +33071,7 @@ namespace cimg_library {
         cimg_forXY(A,k,l) lapA[k*M + l] = (Ttfloat)(A(k,l));
         cimg_forXY(*this,k,l) lapB[k*M + l] = (Ttfloat)((*this)(k,l));
         cimg::sgels(TRANS, M, N, NRHS, lapA, LDA, lapB, LDB, WORK, LWORK, INFO);
-        if (INFO != 0)
+        if (INFO!=0)
           cimg::warn(_cimg_instance
                      "solve(): LAPACK library function sgels() returned error code %d.",
                      cimg_instance,
@@ -38962,7 +38962,7 @@ namespace cimg_library {
           *ptrd2 = ptrd1 + res._width,
           *ptrd3 = ptrd2 + res._width;
         _cimg_gs3x_for3x3(*this,x,y,z,c,I,T) {
-          if (Icp != Icn && Ipc != Inc) {
+          if (Icp!=Icn && Ipc!=Inc) {
             *(ptrd1++) = Ipc==Icp?Ipc:Icc;
             *(ptrd1++) = (Ipc==Icp && Icc!=Inp) || (Icp==Inc && Icc!=Ipp)?Icp:Icc;
             *(ptrd1++) = Icp==Inc?Inc:Icc;
@@ -59644,7 +59644,7 @@ namespace cimg_library {
                               "load_webp(): Failed to init WebP decoder config.",
                               cimg_instance);
 
-      if (WebPGetFeatures(buffer._data, data_size, &config.input) != VP8_STATUS_OK)
+      if (WebPGetFeatures(buffer._data, data_size, &config.input)!=VP8_STATUS_OK)
         throw CImgIOException(_cimg_instance
                               "load_webp(): Failed to get image meta info of '%s'.",
                               cimg_instance,
@@ -59664,7 +59664,7 @@ namespace cimg_library {
         config.output.colorspace = MODE_RGB;
         assign(width,height,1,3);
       }
-      if (WebPDecode(buffer._data, data_size, &config) != VP8_STATUS_OK)
+      if (WebPDecode(buffer._data, data_size, &config)!=VP8_STATUS_OK)
         throw CImgIOException(_cimg_instance
                               "load_webp(): Failed to decode image '%s'.",
                               cimg_instance,
@@ -59753,7 +59753,7 @@ namespace cimg_library {
                     cimg::graphicsmagick_path(),
                     s_filename.data(),
                     CImg<charT>::string(filename_tmp)._system_strescape().data());
-      if (cimg::system(command,cimg::graphicsmagick_path()) != 0)
+      if (cimg::system(command,cimg::graphicsmagick_path())!=0)
         throw CImgIOException(_cimg_instance
                               "load_graphicsmagick_external(): Failed to load file '%s' with external command 'gm'.",
                               cimg_instance,
@@ -59814,7 +59814,7 @@ namespace cimg_library {
                     cimg::gunzip_path(),
                     CImg<charT>::string(filename)._system_strescape().data(),
                     CImg<charT>::string(filename_tmp)._system_strescape().data());
-      if (cimg::system(command) != 0)
+      if (cimg::system(command)!=0)
         throw CImgIOException(_cimg_instance
                               "load_gzip_external(): Failed to load file '%s' with external command 'gunzip'.",
                               cimg_instance,
@@ -59905,7 +59905,7 @@ namespace cimg_library {
                     !cimg::strcasecmp(cimg::split_filename(filename),"pdf")?" -density 400x400":"",
                     s_filename.data(),
                     CImg<charT>::string(filename_tmp)._system_strescape().data());
-      if (cimg::system(command,magick_path) != 0)
+      if (cimg::system(command,magick_path)!=0)
         throw CImgIOException(_cimg_instance
                               "load_imagemagick_external(): Failed to load file '%s' with "
                               "external command 'magick/convert'.",
@@ -61735,7 +61735,7 @@ namespace cimg_library {
         throw CImgArgumentException(_cimg_instance
                                     "save_webp(): Specified filename is (null).",
                                     cimg_instance);
-      if (_spectrum != 3 && _spectrum != 4)
+      if (_spectrum!=3 && _spectrum!=4)
         throw CImgArgumentException(_cimg_instance
                                     "save_webp(): WebP only supports (A)RGB colorspace.",
                                     cimg_instance);
@@ -61759,7 +61759,7 @@ namespace cimg_library {
       uint8_t *imgData = NULL;
       const int stride = _width*_spectrum*sizeof(uint8_t);
       size_t size = 0;
-      if (_spectrum == 3) {
+      if (_spectrum==3) {
         size = WebPEncodeRGB(rgbaBuffer._data, _width, _height, stride, (float)quality, &imgData);
       } else {
         size = WebPEncodeRGBA(rgbaBuffer._data, _width, _height, stride, (float)quality, &imgData);
@@ -61894,12 +61894,15 @@ namespace cimg_library {
       \param filename Filename, as a C-string.
       \param distance Sets the level for lossy compression: lower = higher quality.
         Range: 0 .. 25. 0.0 = mathematically lossless
+      \param bytes_per_pixel Force the number of bytes per pixels for the saving, when possible.
     **/
-    const CImg<T>& save_jxl(const char *const filename, const float distance=1.0) const {
-      return _save_jxl(filename, distance);
+    const CImg<T>& save_jxl(const char *const filename, const float distance=1.0f,
+                            const unsigned int bytes_per_pixel=0) const {
+      return _save_jxl(filename,distance,bytes_per_pixel);
     }
 
-    const CImg<T>& _save_jxl(const char *const filename, const float distance=1.0) const {
+    const CImg<T>& _save_jxl(const char *const filename, const float distance=1.0f,
+                             const unsigned int bytes_per_pixel=0) const {
       if (!filename)
         throw CImgArgumentException(_cimg_instance
                                     "save_jxl(): Specified filename is (null).",
@@ -61907,6 +61910,16 @@ namespace cimg_library {
       if (_spectrum > 4)
         throw CImgArgumentException(_cimg_instance
                                     "save_jxl(): JPEG XL only supports at most 4 channels.",
+                                    cimg_instance);
+      double stmin, stmax = (double)max_min(stmin);
+      if (stmin<0 || (bytes_per_pixel==1 && stmax>=256) || stmax>=65536)
+        cimg::warn(_cimg_instance
+                   "save_jxl(): Instance has pixel values in [%g,%g], probable type overflow in file '%s'.",
+                   cimg_instance,
+                   stmin,stmax,filename);
+      if (bytes_per_pixel>2 || sizeof(T)<bytes_per_pixel)
+        throw CImgArgumentException(_cimg_instance
+                                    "save_jxl(): bytes_per_pixel must be in [0, 2] and less than or equal to sizeof(T)",
                                     cimg_instance);
       if (_depth>1)
         cimg::warn(_cimg_instance
@@ -61918,10 +61931,13 @@ namespace cimg_library {
       return save_other(filename);
 #else
       std::FILE *file = cimg::fopen(filename, "wb");
-      uint32_t nChannels = _spectrum;
+      cimg_uint32 nChannels = _spectrum;
       bool hasAlpha = _spectrum==2 || _spectrum==4;
       if (hasAlpha) --nChannels;
-      CImg<T> rgbBuffer(_width*_height*nChannels);
+      unsigned int bytesPerPixel = bytes_per_pixel;
+      if (bytesPerPixel==0)
+          bytesPerPixel = stmax<256?1:2;
+      CImg<ucharT> rgbBuffer(_width*_height*nChannels*bytesPerPixel);
       const T *ptr_r = 0, *ptr_g = 0, *ptr_b = 0, *ptr_a = 0;
       switch (_spectrum) {
       case 1:
@@ -61943,32 +61959,43 @@ namespace cimg_library {
         ptr_a = data(0,0,0,3);
         break;
       }
-      T *ptr = rgbBuffer._data;
-      cimg_forY(*this,y) {
-        cimg_forX(*this,x) {
-          *(ptr++) = (T)*(ptr_r++);
-          if (ptr_g) *(ptr++) = (T)*(ptr_g++);
-          if (ptr_b) *(ptr++) = (T)*(ptr_b++);
+      switch (bytesPerPixel) {
+      case 1: {
+        unsigned char *ptr = (unsigned char*)rgbBuffer._data;
+        cimg_forXY(*this,x,y) {
+          *(ptr++) = (unsigned char)*(ptr_r++);
+          if (ptr_g) *(ptr++) = (unsigned char)*(ptr_g++);
+          if (ptr_b) *(ptr++) = (unsigned char)*(ptr_b++);
         }
+      } break;
+      case 2: {
+        cimg_uint16 *ptr = (cimg_uint16*)rgbBuffer._data;
+        cimg_forXY(*this,x,y) {
+          *(ptr++) = (cimg_uint16)*(ptr_r++);
+          if (ptr_g) *(ptr++) = (cimg_uint16)*(ptr_g++);
+          if (ptr_b) *(ptr++) = (cimg_uint16)*(ptr_b++);
+        }
+      } break;
       }
 
       JxlEncoder *encoder = JxlEncoderCreate(NULL);
 
+      JxlDataType dataType = bytesPerPixel==2?JXL_TYPE_UINT16:JXL_TYPE_UINT8;
       JxlPixelFormat pixelFormat = {
         nChannels,
-        sizeof(T)==1?JXL_TYPE_UINT8:JXL_TYPE_UINT16,
+        dataType,
         cimg::endianness()?JXL_BIG_ENDIAN:JXL_LITTLE_ENDIAN,
         0,
       };
       JxlBasicInfo basicInfo;
       JxlEncoderInitBasicInfo(&basicInfo);
-      basicInfo.bits_per_sample = sizeof(T)*8;
+      basicInfo.bits_per_sample = bytesPerPixel*8;
       basicInfo.exponent_bits_per_sample = 0;
       basicInfo.xsize = _width;
       basicInfo.ysize = _height;
       basicInfo.uses_original_profile = JXL_FALSE;
       if (hasAlpha) {
-        basicInfo.alpha_bits = sizeof(T)*8;
+        basicInfo.alpha_bits = bytesPerPixel*8;
         basicInfo.alpha_exponent_bits = 0;
         basicInfo.num_extra_channels = 1;
       }
@@ -62004,7 +62031,7 @@ namespace cimg_library {
                               filename);
       }
       if (JXL_ENC_SUCCESS!=JxlEncoderAddImageFrame(frameSettings,&pixelFormat,(const void*)rgbBuffer._data,
-                                                   sizeof(T)*rgbBuffer.size())) {
+                                                   rgbBuffer.size())) {
         cimg::fclose(file);
         JxlEncoderDestroy(encoder);
         throw CImgIOException(_cimg_instance
@@ -62012,9 +62039,34 @@ namespace cimg_library {
                               cimg_instance,
                               filename);
       }
+
+      CImg<ucharT> alphaBuffer;
       if (hasAlpha) {
-        if (JXL_ENC_SUCCESS!=JxlEncoderSetExtraChannelBuffer(frameSettings,&pixelFormat,(const void*)ptr_a,
-                                                             _width*_height*sizeof(T),0)) {
+        ucharT *alphaPtr = (ucharT*)ptr_a;
+        if (sizeof(T)!=bytesPerPixel) {
+          alphaBuffer.assign(_width*_height*bytesPerPixel);
+          switch (bytesPerPixel) {
+          case 1: {
+            unsigned char *ptr = (unsigned char*)alphaBuffer._data;
+            cimg_forY(*this,y) {
+              cimg_forX(*this,x) {
+                *(ptr++) = (unsigned char)*(ptr_a++);
+              }
+            }
+          } break;
+          case 2: {
+            cimg_uint16 *ptr = (cimg_uint16*)alphaBuffer._data;
+            cimg_forY(*this,y) {
+              cimg_forX(*this,x) {
+                *(ptr++) = (cimg_uint16)*(ptr_a++);
+              }
+            }
+          } break;
+          }
+          alphaPtr = (ucharT*)alphaBuffer._data;
+        }
+        if (JXL_ENC_SUCCESS!=JxlEncoderSetExtraChannelBuffer(frameSettings,&pixelFormat,(const void*)alphaPtr,
+                                                             _width*_height*bytesPerPixel,0)) {
           cimg::fclose(file);
           JxlEncoderDestroy(encoder);
           throw CImgIOException(_cimg_instance
@@ -62025,8 +62077,8 @@ namespace cimg_library {
       }
       JxlEncoderCloseInput(encoder);
 
-      CImg<uint8_t> compressed(256);
-      uint8_t *nextOut = compressed.data();
+      CImg<cimg_uint8> compressed(1024);
+      cimg_uint8 *nextOut = compressed.data();
       size_t availOut = compressed.size() - (nextOut - compressed.data());
       JxlEncoderStatus processResult = JXL_ENC_NEED_MORE_OUTPUT;
       while (processResult==JXL_ENC_NEED_MORE_OUTPUT) {
@@ -63751,7 +63803,7 @@ namespace cimg_library {
                     cimg::gzip_path(),
                     CImg<charT>::string(filename_tmp)._system_strescape().data(),
                     CImg<charT>::string(filename)._system_strescape().data());
-      if (cimg::system(command,cimg::gzip_path()) != 0)
+      if (cimg::system(command,cimg::gzip_path())!=0)
         throw CImgIOException(_cimg_instance
                               "save_gzip_external(): Failed to save file '%s' with external command 'gzip'.",
                               cimg_instance,
@@ -63813,7 +63865,7 @@ namespace cimg_library {
                     cimg::graphicsmagick_path(),quality,
                     CImg<charT>::string(filename_tmp)._system_strescape().data(),
                     CImg<charT>::string(filename)._system_strescape().data());
-      if (cimg::system(command,cimg::graphicsmagick_path()) != 0)
+      if (cimg::system(command,cimg::graphicsmagick_path())!=0)
         throw CImgIOException(_cimg_instance
                               "save_graphicsmagick_external(): Failed to save file '%s' with external command 'gm'.",
                               cimg_instance,
@@ -63873,7 +63925,7 @@ namespace cimg_library {
                     magick_path,quality,
                     CImg<charT>::string(filename_tmp)._system_strescape().data(),
                     CImg<charT>::string(filename)._system_strescape().data());
-      if (cimg::system(command,magick_path) != 0)
+      if (cimg::system(command,magick_path)!=0)
         throw CImgIOException(_cimg_instance
                               "save_imagemagick_external(): Failed to save file '%s' with "
                               "external command 'magick/convert'.",
@@ -63917,7 +63969,7 @@ namespace cimg_library {
                     cimg::medcon_path(),
                     CImg<charT>::string(filename)._system_strescape().data(),
                     CImg<charT>::string(filename_tmp)._system_strescape().data());
-      if (cimg::system(command,cimg::medcon_path()) != 0)
+      if (cimg::system(command,cimg::medcon_path())!=0)
         throw CImgIOException(_cimg_instance
                                 "save_medcon_external(): Failed to save file '%s' with external command 'medcon'.",
                                 cimg_instance,
@@ -67556,7 +67608,7 @@ namespace cimg_library {
                     cimg::ffmpeg_path(),
                     CImg<charT>::string(filename)._system_strescape().data(),
                     CImg<charT>::string(filename_tmp2)._system_strescape().data());
-      if (cimg::system(command,cimg::ffmpeg_path()) != 0)
+      if (cimg::system(command,cimg::ffmpeg_path())!=0)
         throw CImgIOException(_cimglist_instance
                               "load_ffmpeg_external(): Failed to open file '%s' with external command 'ffmpeg'.",
                               cimglist_instance,
@@ -67687,7 +67739,7 @@ namespace cimg_library {
                     cimg::gunzip_path(),
                     CImg<charT>::string(filename)._system_strescape().data(),
                     CImg<charT>::string(filename_tmp)._system_strescape().data());
-      if (cimg::system(command,cimg::gunzip_path()) != 0)
+      if (cimg::system(command,cimg::gunzip_path())!=0)
         throw CImgIOException(_cimglist_instance
                               "load_gzip_external(): Failed to open file '%s'.",
                               cimglist_instance,
@@ -68146,7 +68198,7 @@ namespace cimg_library {
       cimg_for(_command,p,char) if (!*p) *p = ' ';
       _command.back() = 0;
 
-      if (cimg::system(_command,cimg::imagemagick_path()) != 0)
+      if (cimg::system(_command,cimg::imagemagick_path())!=0)
         throw CImgIOException(_cimglist_instance
                               "save_gif_external(): Failed to save file '%s' with external command 'magick/convert'.",
                               cimglist_instance,
@@ -68597,7 +68649,7 @@ namespace cimg_library {
                       cimg::gzip_path(),
                       CImg<charT>::string(filename_tmp)._system_strescape().data(),
                       CImg<charT>::string(filename)._system_strescape().data());
-        if (cimg::system(command,cimg::gzip_path()) != 0)
+        if (cimg::system(command,cimg::gzip_path())!=0)
           throw CImgIOException(_cimglist_instance
                                 "save_gzip_external(): Failed to save file '%s' with external command 'gzip'.",
                                 cimglist_instance,
@@ -68805,7 +68857,7 @@ namespace cimg_library {
                     fps,CImg<charT>::string(filename_tmp)._system_strescape().data(),
                     _codec,bitrate,fps,
                     CImg<charT>::string(filename)._system_strescape().data());
-      if (cimg::system(command,cimg::ffmpeg_path()) != 0)
+      if (cimg::system(command,cimg::ffmpeg_path())!=0)
         throw CImgIOException(_cimglist_instance
                               "save_ffmpeg_external(): Failed to save file '%s' with external command 'ffmpeg'.",
                               cimglist_instance,
@@ -69291,7 +69343,7 @@ namespace cimg_library {
         std::memcpy(buf,p,z - p);
         buf[z - p] = '/';
         std::memcpy(buf + (z - p) + (z>p),file,file_len + 1);
-        if (cimg::is_file(buf) && faccessat(AT_FDCWD, buf, X_OK, AT_EACCESS) == 0) { delete[] buf; return true; }
+        if (cimg::is_file(buf) && faccessat(AT_FDCWD, buf, X_OK, AT_EACCESS)==0) { delete[] buf; return true; }
         if (!*z++) break;
         p = z;
       }
@@ -70030,7 +70082,7 @@ namespace cimg_library {
       FindClose(dir);
 
       // Unix version (posix).
-#elif cimg_OS == 1
+#elif cimg_OS==1
       DIR *const dir = opendir(is_root?"/":is_current?".":_path.data());
       if (!dir) return CImgList<char>::const_empty();
       struct dirent *ent;

@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 354
+#define cimg_version 355
 
 /*-----------------------------------------------------------
  #
@@ -21304,7 +21304,7 @@ namespace cimg_library {
               arg6 = mempos;
               p1 = compile(s0,s1,depth1,0,block_flags); // Body
               arg2 = code._width;
-              p2 = s1<se1?compile(++s1,se1,depth1,0,block_flags):p1; // Condition
+              p2 = s1<se1?compile(++s1,se1,depth1,0,block_flags):1; // Condition
               _cimg_mp_check_type(p2,2,1,0);
               CImg<ulongT>::vector((ulongT)mp_do,p1,p2,arg2 - arg1,code._width - arg2,size(p1),
                                    p1>=arg6 && !is_const_scalar(p1),

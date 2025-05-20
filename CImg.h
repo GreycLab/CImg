@@ -8335,7 +8335,7 @@ namespace cimg_library {
 #define _cimg_create_operator(typ) \
   template<typename T> \
   inline CImg<typename cimg::superset<T,typ>::type> operator+(const typ val, const CImg<T>& img) { \
-    return img + val; \
+    return img.operator+(val); \
   } \
   template<typename T> \
   inline CImg<typename cimg::superset<T,typ>::type> operator-(const typ val, const CImg<T>& img) { \
@@ -8344,7 +8344,7 @@ namespace cimg_library {
   } \
   template<typename T> \
   inline CImg<typename cimg::superset<T,typ>::type> operator*(const typ val, const CImg<T>& img) { \
-    return img*val; \
+    return img.operator*(val); \
   } \
   template<typename T> \
   inline CImg<typename cimg::superset<T,typ>::type> operator/(const typ val, const CImg<T>& img) { \
@@ -8352,23 +8352,23 @@ namespace cimg_library {
   } \
   template<typename T> \
   inline CImg<typename cimg::superset<T,typ>::type> operator&(const typ val, const CImg<T>& img) { \
-    return img & val; \
+    return img.operator&(val); \
   } \
   template<typename T> \
   inline CImg<typename cimg::superset<T,typ>::type> operator|(const typ val, const CImg<T>& img) { \
-    return img | val; \
+    return img.operator|(val); \
   } \
   template<typename T> \
   inline CImg<typename cimg::superset<T,typ>::type> operator^(const typ val, const CImg<T>& img) { \
-    return img ^ val; \
+    return img.operator^(val); \
   } \
   template<typename T> \
   inline bool operator==(const typ val, const CImg<T>& img) {   \
-    return img==val; \
+    return img.operator==(val); \
   } \
   template<typename T> \
   inline bool operator!=(const typ val, const CImg<T>& img) { \
-    return img!=val; \
+    return img.operator!=(val); \
   }
 
   _cimg_create_operator(bool)

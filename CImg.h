@@ -6287,6 +6287,8 @@ namespace cimg_library {
       *p_rng = cimg::time() + (cimg_uint64)getpid();
 #elif cimg_OS==2
       *p_rng = cimg::time() + (cimg_uint64)_getpid();
+#else
+      cimg::unused(p_rng);
 #endif
     }
 
@@ -69801,10 +69803,12 @@ namespace cimg_library {
           std::strcpy(s_path,"./convert");
           if ((file=cimg::std_fopen(s_path,"r"))!=0) { cimg::fclose(file); path_found = true; }
         }
+#if cimg_OS==1
         if (!path_found) {
           std::strcpy(s_path,"magick");
           if (posix_searchpath("magick")) path_found = true;
         }
+#endif
         if (!path_found) std::strcpy(s_path,"convert");
 #endif
         winformat_string(s_path);

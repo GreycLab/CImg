@@ -59992,9 +59992,9 @@ namespace cimg_library {
                                     "load_pdf_external(): Specified filename is (null).",
                                     cimg_instance);
       CImg<charT> command(1024), filename_tmp(256);
-      std::FILE *file = 0;
       const CImg<charT> s_filename = CImg<charT>::string(filename)._system_strescape();
 #if cimg_OS==1
+      std::FILE *file = 0;
       cimg_snprintf(command,command._width,"gs -q -dNOPAUSE -sDEVICE=ppmraw -o - -r%u \"%s\"",
                     resolution,s_filename.data());
       file = popen(command,"r");

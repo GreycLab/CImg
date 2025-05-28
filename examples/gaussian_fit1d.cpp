@@ -82,7 +82,7 @@ int main(int argc,char **argv) {
   float f_amp = 1, f_mean = 1, f_std = 1, f_lambda = f_lambda0;
   if (f_params) std::sscanf(f_params,"%f%*c%f%*c%f",&f_amp,&f_mean,&f_std);
   else {
-    const float& vmax = samples.get_shared_row(1).max();
+    const float vmax = samples.get_shared_row(1).max();
     float cmax = 0; samples.contains(vmax,cmax);
     f_mean = samples((int)cmax,0);
     f_std = (s_xmax - s_xmin)/10;

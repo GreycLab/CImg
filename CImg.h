@@ -35048,7 +35048,8 @@ namespace cimg_library {
           else
             base = provides_copy?*provides_copy:*this;
 
-          _cimg_math_parser_t mp(expression + (*expression=='>' || *expression=='<' || *expression=='+' ||
+          _cimg_math_parser_t mp(expression + (*expression=='>' || *expression=='<' ||
+                                               (*expression=='+' && expression[1]!='+') ||
                                                *expression=='*' || *expression==':'),
                                  calling_function,base,
                                  cimg::type<T>::string()==cimg::type<t>::string()?(CImg<t>*)this:&base,

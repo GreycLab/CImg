@@ -35011,6 +35011,7 @@ namespace cimg_library {
                                  calling_function,base,
                                  cimg::type<T>::string()==cimg::type<t>::string()?(CImg<t>*)this:&base,
                                  list_images,true);
+
           if (!provides_copy && expression &&
               *expression!='>' && *expression!='<' && *expression!=':' &&
               mp.need_input_copy)

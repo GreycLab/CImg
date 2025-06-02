@@ -35012,6 +35012,11 @@ namespace cimg_library {
                                  cimg::type<T>::string()==cimg::type<t>::string()?(CImg<t>*)this:&base,
                                  list_images,true);
 
+          std::fprintf(stderr,"\nDEBUG : is_parallelizable = %d, need_input_copy = %d, input_copy = %p\n",
+                       (int)mp.is_parallelizable,
+                       (int)mp.need_input_copy,
+                       (void*)provides_copy);
+
           if (!provides_copy && expression &&
               *expression!='>' && *expression!='<' && *expression!=':' &&
               mp.need_input_copy)

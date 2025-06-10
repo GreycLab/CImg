@@ -1,4 +1,4 @@
- /*
+/*
  #
  #  File            : CImg.h
  #                    ( C++ header file )

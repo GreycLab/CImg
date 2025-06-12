@@ -62848,9 +62848,12 @@ namespace cimg_library {
       if (cimg::type<t>::is_float()) TIFFSetField(tif,TIFFTAG_SAMPLEFORMAT,3);
       else if (cimg::type<t>::min()==0) TIFFSetField(tif,TIFFTAG_SAMPLEFORMAT,1);
       else TIFFSetField(tif,TIFFTAG_SAMPLEFORMAT,2);
-      double valm, valM = max_min(valm);
+
+/*      double valm, valM = max_min(valm); // <- Not mandatory and takes too much time in practice for large images
       TIFFSetField(tif,TIFFTAG_SMINSAMPLEVALUE,valm);
       TIFFSetField(tif,TIFFTAG_SMAXSAMPLEVALUE,valM);
+*/
+
       TIFFSetField(tif,TIFFTAG_BITSPERSAMPLE,bpp);
       TIFFSetField(tif,TIFFTAG_PLANARCONFIG,PLANARCONFIG_CONTIG);
       TIFFSetField(tif,TIFFTAG_PHOTOMETRIC,photometric);

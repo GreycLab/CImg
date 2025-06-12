@@ -31863,18 +31863,13 @@ namespace cimg_library {
     }
 
     void _min_max(const T* &ptr_min, const T* &ptr_max) const {
-      const ulong siz = size();
-      if (cimg_use_openmp && siz>1LU<<24*cimg_openmp_sizefactor) {
+      T val_min = *_data, val_max = val_min;
+      ptr_min = ptr_max = _data;
+      if (cimg_use_openmp && size()>(1LU<<24)*cimg_openmp_sizefactor) {
 #if cimg_use_openmp
-        CImg<const T*> ptrs;
-        CImg<T> vals;
         cimg_pragma_openmp(parallel) {
-          const int tid = omp_get_thread_num(), nthreads = omp_get_num_threads();
-          cimg_pragma_openmp(single) {
-            ptrs.assign(2,nthreads); vals.assign(2,nthreads);
-          }
           T l_val_min = *_data, l_val_max = l_val_min;
-          const T *l_ptr_min = _data, *l_ptr_max = _data;
+          const T *l_ptr_min = _data, *l_ptr_max = l_ptr_min;
           cimg_pragma_openmp(for)
           cimg_rofoff(*this,off) {
             const T *const ptr = _data + off;
@@ -31882,25 +31877,19 @@ namespace cimg_library {
             if (val<l_val_min) { l_val_min = val; l_ptr_min = ptr; }
             if (val>l_val_max) { l_val_max = val; l_ptr_max = ptr; }
           }
-          ptrs(0,tid) = l_ptr_min; vals(0,tid) = l_val_min;
-          ptrs(1,tid) = l_ptr_max; vals(1,tid) = l_val_max;
-        }
-
-        T val_min = vals[0], val_max = vals[1];
-        ptr_min = ptrs[0];
-        ptr_max = ptrs[1];
-        cimg_forY(vals,k) {
-          T valm = vals(0,k), valM = vals(1,k);
-          if (valm<val_min) { val_min = valm; ptr_min = (T*)ptrs(0,k); }
-          if (valM>val_max) { val_max = valM; ptr_max = (T*)ptrs(1,k); }
+          cimg_pragma_openmp(critical(_min_max)) {
+            if (l_val_min<val_min || (l_val_min==val_min && l_ptr_min<ptr_min)) {
+              val_min = l_val_min; ptr_min = l_ptr_min;
+            }
+            if (l_val_max>val_max || (l_val_max==val_max && l_ptr_max<ptr_max)) {
+              val_max = l_val_max; ptr_max = l_ptr_max;
+            }
+          }
         }
 #endif
       }
 
       // Single-threaded version.
-      T val_min = *_data, val_max = val_min;
-      ptr_min = ptr_max = _data;
-
       cimg_for(*this,ptrs,T) {
         const T val = *ptrs;
         if (val<val_min) { val_min = val; ptr_min = ptrs; }

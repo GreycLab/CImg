@@ -31862,15 +31862,58 @@ namespace cimg_library {
         throw CImgInstanceException(_cimg_instance
                                     "min_max(): Empty instance.",
                                     cimg_instance);
+      const T *ptr_min, *ptr_max;
+      _min_max(ptr_min,ptr_max);
+      max_val = (t)*ptr_max;
+      return (T&)*ptr_min;
+    }
+
+    void _min_max(const T* &ptr_min, const T* &ptr_max) const {
+      const ulong siz = size();
+      if (cimg_use_openmp && siz>1LU<<24*cimg_openmp_sizefactor) {
+#if cimg_use_openmp
+        CImg<const T*> ptrs;
+        CImg<T> vals;
+        cimg_pragma_openmp(parallel)
+          {
+            const int tid = omp_get_thread_num(), nthreads = omp_get_num_threads();
+            cimg_pragma_openmp(single)
+              {
+                ptrs.assign(2,nthreads); vals.assign(2,nthreads);
+              }
+            T l_val_min = *_data, l_val_max = l_val_min;
+            const T *l_ptr_min = _data, *l_ptr_max = _data;
+            cimg_pragma_openmp(for)
+              cimg_rofoff(*this,off) {
+              const T *const ptr = _data + off;
+              const T val = *ptr;
+              if (val<l_val_min) { l_val_min = val; l_ptr_min = ptr; }
+              if (val>l_val_max) { l_val_max = val; l_ptr_max = ptr; }
+            }
+            ptrs(0,tid) = l_ptr_min; vals(0,tid) = l_val_min;
+            ptrs(1,tid) = l_ptr_max; vals(1,tid) = l_val_max;
+          }
+
+        T val_min = vals[0], val_max = vals[1];
+        ptr_min = ptrs[0];
+        ptr_max = ptrs[1];
+        cimg_forY(vals,k) {
+          T valm = vals(0,k), valM = vals(1,k);
+          if (valm<val_min) { val_min = valm; ptr_min = (T*)ptrs(0,k); }
+          if (valM>val_max) { val_max = valM; ptr_max = (T*)ptrs(1,k); }
+        }
+#endif
+      }
+
+      // Single-threaded version.
       T val_min = *_data, val_max = val_min;
-      T *ptr_min = _data;
+      ptr_min = ptr_max = _data;
+
       cimg_for(*this,ptrs,T) {
         const T val = *ptrs;
         if (val<val_min) { val_min = val; ptr_min = ptrs; }
-        if (val>val_max) val_max = val;
+        if (val>val_max) { val_max = val; ptr_max = ptrs; }
       }
-      max_val = (t)val_max;
-      return *ptr_min;
     }
 
     //! Return a reference to the minimum pixel value as well as the maximum pixel value \const.
@@ -31889,15 +31932,10 @@ namespace cimg_library {
         throw CImgInstanceException(_cimg_instance
                                     "max_min(): Empty instance.",
                                     cimg_instance);
-      T val_max = *_data, val_min = val_max;
-      T *ptr_max = _data;
-      cimg_for(*this,ptrs,T) {
-        const T val = *ptrs;
-        if (val>val_max) { val_max = val; ptr_max = ptrs; }
-        if (val<val_min) val_min = val;
-      }
-      min_val = (t)val_min;
-      return *ptr_max;
+      const T *ptr_min, *ptr_max;
+      _min_max(ptr_min,ptr_max);
+      min_val = (t)*ptr_min;
+      return (T&)*ptr_max;
     }
 
     //! Return a reference to the maximum pixel value as well as the minimum pixel value \const.

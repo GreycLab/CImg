@@ -2523,7 +2523,7 @@ namespace cimg_library {
 #else
 #define cimg_openmp_for(instance,expr,min_size) \
     cimg_pragma_openmp(parallel for cimg_openmp_if_size((instance).size(),min_size)) \
-      cimg_rof((instance),ptr,T) *ptr = (T)(expr);
+    cimg_rof((instance),ptr,T) *ptr = (T)(expr);
 #endif
 
     // Display a simple dialog box, and wait for the user's response.
@@ -14631,10 +14631,10 @@ namespace cimg_library {
       cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
                          cimg_openmp_if(size()>(cimg_openmp_sizefactor)*1024 &&
                                         img.size()>(cimg_openmp_sizefactor)*1024))
-        cimg_forXY(res,i,j) {
-          Ttdouble value = 0;
-          cimg_forX(*this,k) value+=(*this)(k,j)*img(i,k);
-          res(i,j) = (Tt)value;
+      cimg_forXY(res,i,j) {
+        Ttdouble value = 0;
+        cimg_forX(*this,k) value+=(*this)(k,j)*img(i,k);
+        res(i,j) = (Tt)value;
       }
 #else
       Tt *ptrd = res._data;
@@ -26205,8 +26205,7 @@ namespace cimg_library {
 
       static double mp_critical(_cimg_math_parser& mp) {
         const ulongT g_target = mp.opcode[1];
-        cimg_pragma_openmp(critical(mp_critical))
-        {
+        cimg_pragma_openmp(critical(mp_critical)) {
           for (const CImg<ulongT> *const p_end = ++mp.p_code + mp.opcode[2];
                mp.p_code<p_end; ++mp.p_code) { // Evaluate body
             mp.opcode._data = mp.p_code->_data;
@@ -26488,8 +26487,7 @@ namespace cimg_library {
 #else
         const unsigned int n_thread = omp_get_thread_num();
 #endif
-        cimg_pragma_openmp(critical(mp_debug))
-        {
+        cimg_pragma_openmp(critical(mp_debug)) {
           std::fprintf(cimg::output(),
                        "\n[" cimg_appname "_math_parser] %p[thread #%u]:%*c"
                        "Start debugging '%s', code length: %u -> mem[%u] (memsize: %u)",
@@ -26511,8 +26509,7 @@ namespace cimg_library {
 
           const ulongT target = mp.opcode[1];
           mp.mem[target] = _cimg_mp_defunc(mp);
-          cimg_pragma_openmp(critical(mp_debug))
-          {
+          cimg_pragma_openmp(critical(mp_debug)) {
             std::fprintf(cimg::output(),
                          "\n[" cimg_appname "_math_parser] %p[thread #%u]:%*c"
                          "Opcode %p = [ %p,%s ] -> mem[%u] = %.17g",
@@ -26522,14 +26519,13 @@ namespace cimg_library {
             std::fflush(cimg::output());
           }
         }
-        cimg_pragma_openmp(critical(mp_debug))
-        {
+        cimg_pragma_openmp(critical(mp_debug)) {
           mp.debug_indent-=3;
           std::fprintf(cimg::output(),
-            "\n[" cimg_appname "_math_parser] %p[thread #%u]:%*c"
-            "End debugging '%s' -> mem[%u] = %.17g (memsize: %u)",
-            (void*)&mp,n_thread,mp.debug_indent,' ',
-            expr._data,(unsigned int)g_target,mp.mem[g_target],mp.mem._width);
+                       "\n[" cimg_appname "_math_parser] %p[thread #%u]:%*c"
+                       "End debugging '%s' -> mem[%u] = %.17g (memsize: %u)",
+                       (void*)&mp,n_thread,mp.debug_indent,' ',
+                       expr._data,(unsigned int)g_target,mp.mem[g_target],mp.mem._width);
           std::fflush(cimg::output());
         }
         --mp.p_code;
@@ -29278,8 +29274,7 @@ namespace cimg_library {
       static double mp_print(_cimg_math_parser& mp) {
           const double val = _mp_arg(1);
           const bool print_char = (bool)mp.opcode[3];
-          cimg_pragma_openmp(critical(mp_print))
-          {
+          cimg_pragma_openmp(critical(mp_print)) {
             CImg<charT> _expr(mp.opcode[2] - 4);
             const ulongT *ptrs = mp.opcode._data + 4;
             cimg_for(_expr,ptrd,char) *ptrd = (char)*(ptrs++);
@@ -30388,8 +30383,7 @@ namespace cimg_library {
 
       static double mp_vector_print(_cimg_math_parser& mp) {
         const bool print_string = (bool)mp.opcode[4];
-        cimg_pragma_openmp(critical(mp_vector_print))
-        {
+        cimg_pragma_openmp(critical(mp_vector_print)) {
           CImg<charT> _expr(mp.opcode[2] - 5);
           const ulongT *ptrs = mp.opcode._data + 5;
           cimg_for(_expr,ptrd,char) *ptrd = (char)*(ptrs++);
@@ -30505,8 +30499,8 @@ namespace cimg_library {
       const longT sizd = (longT)mp.opcode[2];\
       const unsigned int nbargs = (unsigned int)(mp.opcode[3] - 4)/2; \
       double *const ptrd = &_mp_arg(1) + (sizd?1:0); \
-      cimg_pragma_openmp(parallel cimg_openmp_if_size(sizd,256)) \
-      { CImg<doubleT> vec(nbargs); double res; \
+      cimg_pragma_openmp(parallel cimg_openmp_if_size(sizd,256)) { \
+        CImg<doubleT> vec(nbargs); double res; \
         cimg_pragma_openmp(for) for (longT k = sizd?sizd - 1:0; k>=0; --k) { \
           cimg_forX(vec,n) vec[n] = *(&_mp_arg(4 + 2*n) + (k+1)*(mp.opcode[4 + 2*n + 1]?1:0)); \
           func; ptrd[k] = res; \
@@ -31874,25 +31868,23 @@ namespace cimg_library {
 #if cimg_use_openmp
         CImg<const T*> ptrs;
         CImg<T> vals;
-        cimg_pragma_openmp(parallel)
-          {
-            const int tid = omp_get_thread_num(), nthreads = omp_get_num_threads();
-            cimg_pragma_openmp(single)
-              {
-                ptrs.assign(2,nthreads); vals.assign(2,nthreads);
-              }
-            T l_val_min = *_data, l_val_max = l_val_min;
-            const T *l_ptr_min = _data, *l_ptr_max = _data;
-            cimg_pragma_openmp(for)
-              cimg_rofoff(*this,off) {
-              const T *const ptr = _data + off;
-              const T val = *ptr;
-              if (val<l_val_min) { l_val_min = val; l_ptr_min = ptr; }
-              if (val>l_val_max) { l_val_max = val; l_ptr_max = ptr; }
-            }
-            ptrs(0,tid) = l_ptr_min; vals(0,tid) = l_val_min;
-            ptrs(1,tid) = l_ptr_max; vals(1,tid) = l_val_max;
+        cimg_pragma_openmp(parallel) {
+          const int tid = omp_get_thread_num(), nthreads = omp_get_num_threads();
+          cimg_pragma_openmp(single) {
+            ptrs.assign(2,nthreads); vals.assign(2,nthreads);
           }
+          T l_val_min = *_data, l_val_max = l_val_min;
+          const T *l_ptr_min = _data, *l_ptr_max = _data;
+          cimg_pragma_openmp(for)
+          cimg_rofoff(*this,off) {
+            const T *const ptr = _data + off;
+            const T val = *ptr;
+            if (val<l_val_min) { l_val_min = val; l_ptr_min = ptr; }
+            if (val>l_val_max) { l_val_max = val; l_ptr_max = ptr; }
+          }
+          ptrs(0,tid) = l_ptr_min; vals(0,tid) = l_val_min;
+          ptrs(1,tid) = l_ptr_max; vals(1,tid) = l_val_max;
+        }
 
         T val_min = vals[0], val_max = vals[1];
         ptr_min = ptrs[0];
@@ -32436,21 +32428,20 @@ namespace cimg_library {
 
 #if cimg_use_openmp!=0
       const int num_threads = (int)std::min(res.size(),(ulongT)omp_get_max_threads());
-      cimg_pragma_openmp(parallel if (num_threads>0 && res._height>=512) num_threads(num_threads))
-      {
+      cimg_pragma_openmp(parallel if (num_threads>0 && res._height>=512) num_threads(num_threads)) {
         _cimg_math_parser
           *const _mp = omp_get_thread_num()?new _cimg_math_parser(mp):&mp,
           &lmp = *_mp;
         cimg_pragma_openmp(barrier)
         lmp.begin_t();
         cimg_pragma_openmp(for)
-          for (int i = 0; i<res.height(); ++i) {
-            const unsigned int i4 = 4*i;
-            const double
-              x = (double)xyzc[i4], y = (double)xyzc[i4 + 1],
-              z = (double)xyzc[i4 + 2], c = (double)xyzc[i4 + 3];
-            res[i] = lmp(x,y,z,c);
-          }
+        for (int i = 0; i<res.height(); ++i) {
+          const unsigned int i4 = 4*i;
+          const double
+            x = (double)xyzc[i4], y = (double)xyzc[i4 + 1],
+            z = (double)xyzc[i4 + 2], c = (double)xyzc[i4 + 3];
+          res[i] = lmp(x,y,z,c);
+        }
         lmp.end_t();
         cimg_pragma_openmp(barrier) cimg_pragma_openmp(critical) { lmp.merge(mp); }
         if (&lmp!=&mp) delete &lmp;
@@ -32925,7 +32916,7 @@ namespace cimg_library {
         if (_width<_height) { // under-solved system -> (A^t.A)^-1.A^t
           CImg<Tfloat> AtA(width(),width());
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(_width*_height,128*128))
-            cimg_forY(AtA,i)
+          cimg_forY(AtA,i)
             for (int j = 0; j<=i; ++j) {
               double res = 0;
               cimg_forY(*this,k) res+=(*this)(i,k)*(*this)(j,k);
@@ -32937,7 +32928,7 @@ namespace cimg_library {
         } else { // over-resolved linear system -> A^t.(A.A^t)^-1
           CImg<Tfloat> AAt(height(),height());
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(_width*_height,128*128))
-            cimg_forY(AAt,i)
+          cimg_forY(AAt,i)
             for (int j = 0; j<=i; ++j) {
               double res = 0;
               cimg_forX(*this,k) res+=(*this)(k,i)*(*this)(k,j);
@@ -33045,7 +33036,7 @@ namespace cimg_library {
         lu._LU(indx,d);
         CImg<T> res(_width,A._width);
         cimg_pragma_openmp(parallel for cimg_openmp_if_size(_width*_height,16))
-          cimg_forX(*this,i) res.draw_image(i,get_column(i)._solve(lu,indx));
+        cimg_forX(*this,i) res.draw_image(i,get_column(i)._solve(lu,indx));
         res.move_to(*this);
 #endif
       } else { // Least-square solution for non-square systems
@@ -35086,14 +35077,13 @@ namespace cimg_library {
 
 #if cimg_use_openmp!=0
               const int num_threads = (int)std::min(size(),(ulongT)omp_get_max_threads());
-              cimg_pragma_openmp(parallel if (num_threads>0) num_threads(num_threads))
-                {
-                  _cimg_math_parser_t
-                    *const _mp = omp_get_thread_num()?new _cimg_math_parser_t(mp):&mp,
-                    &lmp = *_mp;
-                  lmp.is_fill = true;
-                  cimg_pragma_openmp(barrier)
-                  lmp.begin_t();
+              cimg_pragma_openmp(parallel if (num_threads>0) num_threads(num_threads)) {
+                _cimg_math_parser_t
+                  *const _mp = omp_get_thread_num()?new _cimg_math_parser_t(mp):&mp,
+                  &lmp = *_mp;
+                lmp.is_fill = true;
+                cimg_pragma_openmp(barrier)
+                lmp.begin_t();
 
 #define _cimg_fill_openmp_vector(_YZ,_y,_z,_X,_x,_sx,_sy,_sz,_off) \
   cimg_pragma_openmp(for cimg_openmp_collapse(2)) \
@@ -35114,14 +35104,14 @@ namespace cimg_library {
     } \
   } _cimg_abort_catch_openmp _cimg_abort_catch_fill_openmp
 
-                  if (M2==_width) { _cimg_fill_openmp_vector(YZ,y,z,X,x,0,y,z,1) }
-                  else if (M2==_height) { _cimg_fill_openmp_vector(XZ,x,z,Y,y,x,0,z,_width) }
-                  else { _cimg_fill_openmp_vector(XY,x,y,Z,z,x,y,0,_width*_height) }
+                if (M2==_width) { _cimg_fill_openmp_vector(YZ,y,z,X,x,0,y,z,1) }
+                else if (M2==_height) { _cimg_fill_openmp_vector(XZ,x,z,Y,y,x,0,z,_width) }
+                else { _cimg_fill_openmp_vector(XY,x,y,Z,z,x,y,0,_width*_height) }
 
-                  lmp.end_t();
-                  cimg_pragma_openmp(barrier) cimg_pragma_openmp(critical) { lmp.merge(mp); }
-                  if (&lmp!=&mp) delete &lmp;
-                }
+                lmp.end_t();
+                cimg_pragma_openmp(barrier) cimg_pragma_openmp(critical) { lmp.merge(mp); }
+                if (&lmp!=&mp) delete &lmp;
+              }
 #endif
             }
 
@@ -35143,14 +35133,13 @@ namespace cimg_library {
 
 #if cimg_use_openmp!=0
               const int num_threads = (int)std::min(size(),(ulongT)omp_get_max_threads());
-              cimg_pragma_openmp(parallel if (num_threads>0) num_threads(num_threads))
-                {
-                  _cimg_math_parser_t
-                    *const _mp = omp_get_thread_num()?new _cimg_math_parser_t(mp):&mp,
-                    &lmp = *_mp;
-                  lmp.is_fill = true;
-                  cimg_pragma_openmp(barrier)
-                  lmp.begin_t();
+              cimg_pragma_openmp(parallel if (num_threads>0) num_threads(num_threads)) {
+                _cimg_math_parser_t
+                  *const _mp = omp_get_thread_num()?new _cimg_math_parser_t(mp):&mp,
+                  &lmp = *_mp;
+                lmp.is_fill = true;
+                cimg_pragma_openmp(barrier)
+                lmp.begin_t();
 
 #define _cimg_fill_openmp_scalar(_YZC,_y,_z,_c,_X,_x,_sx,_sy,_sz,_sc,_off) \
   cimg_pragma_openmp(for cimg_openmp_collapse(3)) \
@@ -35164,15 +35153,15 @@ namespace cimg_library {
     } \
   } _cimg_abort_catch_openmp _cimg_abort_catch_fill_openmp
 
-                  if (M2==_width) { _cimg_fill_openmp_scalar(YZC,y,z,c,X,x,0,y,z,c,1) }
-                  else if (M2==_height) { _cimg_fill_openmp_scalar(XZC,x,z,c,Y,y,x,0,z,c,_width) }
-                  else if (M2==_depth) { _cimg_fill_openmp_scalar(XYC,x,y,c,Z,z,x,y,0,c,_width*_height) }
-                  else { _cimg_fill_openmp_scalar(XYZ,x,y,z,C,c,x,y,z,0,_width*_height*_depth) }
+                if (M2==_width) { _cimg_fill_openmp_scalar(YZC,y,z,c,X,x,0,y,z,c,1) }
+                else if (M2==_height) { _cimg_fill_openmp_scalar(XZC,x,z,c,Y,y,x,0,z,c,_width) }
+                else if (M2==_depth) { _cimg_fill_openmp_scalar(XYC,x,y,c,Z,z,x,y,0,c,_width*_height) }
+                else { _cimg_fill_openmp_scalar(XYZ,x,y,z,C,c,x,y,z,0,_width*_height*_depth) }
 
-                  lmp.end_t();
-                  cimg_pragma_openmp(barrier) cimg_pragma_openmp(critical) { lmp.merge(mp); }
-                  if (&lmp!=&mp) delete &lmp;
-                }
+                lmp.end_t();
+                cimg_pragma_openmp(barrier) cimg_pragma_openmp(critical) { lmp.merge(mp); }
+                if (&lmp!=&mp) delete &lmp;
+              }
 #endif
             }
           }
@@ -35521,7 +35510,7 @@ namespace cimg_library {
           rng+=omp_get_thread_num();
 #endif
           cimg_pragma_openmp(for)
-            cimg_rofoff(*this,off) _data[off] = (T)(val_min + delta*cimg::rand(1,&rng));
+          cimg_rofoff(*this,off) _data[off] = (T)(val_min + delta*cimg::rand(1,&rng));
           cimg::srand(rng);
         } else cimg_pragma_openmp(parallel cimg_openmp_if_size(size(),524288)) {
           cimg_uint64 rng = (cimg::_rand(),cimg::rng());
@@ -35530,7 +35519,7 @@ namespace cimg_library {
           rng+=omp_get_thread_num();
 #endif
           cimg_pragma_openmp(for)
-            cimg_rofoff(*this,off) _data[off] = std::min(val_max,(T)(val_min + delta*cimg::rand(1,&rng)));
+          cimg_rofoff(*this,off) _data[off] = std::min(val_max,(T)(val_min + delta*cimg::rand(1,&rng)));
           cimg::srand(rng);
         }
       return *this;
@@ -35579,7 +35568,7 @@ namespace cimg_library {
         rng+=omp_get_thread_num();
 #endif
         cimg_pragma_openmp(for)
-          cimg_rofoff(*this,off) {
+        cimg_rofoff(*this,off) {
           const unsigned int
             _ind = (unsigned int)cimg::rand(0,(double)prec,&rng),
             ind = _ind==prec?0:_ind;
@@ -35648,7 +35637,7 @@ namespace cimg_library {
           rng+=omp_get_thread_num();
 #endif
           cimg_pragma_openmp(for)
-            cimg_rofoff(*this,off) {
+          cimg_rofoff(*this,off) {
             Tfloat val = (Tfloat)(_data[off] + namplitude*cimg::grand(&rng));
             if (val>vmax) val = vmax;
             if (val<vmin) val = vmin;
@@ -35665,7 +35654,7 @@ namespace cimg_library {
           rng+=omp_get_thread_num();
 #endif
           cimg_pragma_openmp(for)
-            cimg_rofoff(*this,off) {
+          cimg_rofoff(*this,off) {
             Tfloat val = (Tfloat)(_data[off] + namplitude*cimg::rand(-1,1,&rng));
             if (val>vmax) val = vmax;
             if (val<vmin) val = vmin;
@@ -35687,7 +35676,7 @@ namespace cimg_library {
           rng+=omp_get_thread_num();
 #endif
           cimg_pragma_openmp(for)
-            cimg_rofoff(*this,off) if (cimg::rand(100,&rng)<namplitude) _data[off] = (T)(cimg::rand(1,&rng)<0.5?M:m);
+          cimg_rofoff(*this,off) if (cimg::rand(100,&rng)<namplitude) _data[off] = (T)(cimg::rand(1,&rng)<0.5?M:m);
           cimg::srand(rng);
           }
       } break;
@@ -35699,7 +35688,7 @@ namespace cimg_library {
           rng+=omp_get_thread_num();
 #endif
           cimg_pragma_openmp(for)
-            cimg_rofoff(*this,off) _data[off] = (T)cimg::prand(_data[off],&rng);
+          cimg_rofoff(*this,off) _data[off] = (T)cimg::prand(_data[off],&rng);
           cimg::srand(rng);
         }
       } break;
@@ -35712,7 +35701,7 @@ namespace cimg_library {
           rng+=omp_get_thread_num();
 #endif
           cimg_pragma_openmp(for)
-            cimg_rofoff(*this,off) {
+          cimg_rofoff(*this,off) {
             const Tfloat
               val0 = (Tfloat)_data[off]/sqrt2,
               re = (Tfloat)(val0 + namplitude*cimg::grand(&rng)),
@@ -38156,7 +38145,7 @@ namespace cimg_library {
             }
             cimg_pragma_openmp(parallel for cimg_openmp_collapse(3)
                                cimg_openmp_if(resx._width>=256 && resx._height*resx._depth*resx._spectrum>=256))
-              cimg_forYZC(resx,y,z,c) {
+            cimg_forYZC(resx,y,z,c) {
               const T *ptrs = data(0,y,z,c), *const ptrsmax = ptrs + _width - 1;
               T *ptrd = resx.data(0,y,z,c);
               const unsigned int *poff = off._data;
@@ -39697,7 +39686,7 @@ namespace cimg_library {
         case 2 : { // Cubic interpolation
           const float ww = 2.f*width(), hh = 2.f*height();
           cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),2048))
-            cimg_forXYZC(res,x,y,z,c) {
+          cimg_forXYZC(res,x,y,z,c) {
             const float xc = x - rw2, yc = y - rh2,
               mx = cimg::mod(w2 + xc*ca + yc*sa,ww),
               my = cimg::mod(h2 - xc*sa + yc*ca,hh);
@@ -39707,7 +39696,7 @@ namespace cimg_library {
         case 1 : { // Linear interpolation
           const float ww = 2.f*width(), hh = 2.f*height();
           cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),2048))
-            cimg_forXYZC(res,x,y,z,c) {
+          cimg_forXYZC(res,x,y,z,c) {
             const float xc = x - rw2, yc = y - rh2,
               mx = cimg::mod(w2 + xc*ca + yc*sa,ww),
               my = cimg::mod(h2 - xc*sa + yc*ca,hh);
@@ -39717,7 +39706,7 @@ namespace cimg_library {
         default : { // Nearest-neighbor interpolation
           const int ww = 2*width(), hh = 2*height();
           cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),2048))
-            cimg_forXYZC(res,x,y,z,c) {
+          cimg_forXYZC(res,x,y,z,c) {
             const float xc = x - rw2, yc = y - rh2,
               mx = cimg::mod((int)cimg::round(w2 + xc*ca + yc*sa),ww),
               my = cimg::mod((int)cimg::round(h2 - xc*sa + yc*ca),hh);
@@ -39731,21 +39720,21 @@ namespace cimg_library {
         switch (interpolation) {
         case 2 : { // Cubic interpolation
           cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),2048))
-            cimg_forXYZC(res,x,y,z,c) {
+          cimg_forXYZC(res,x,y,z,c) {
             const float xc = x - rw2, yc = y - rh2;
             res(x,y,z,c) = _cubic_atXY_pc(w2 + xc*ca + yc*sa,h2 - xc*sa + yc*ca,z,c);
           }
         } break;
         case 1 : { // Linear interpolation
           cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),2048))
-            cimg_forXYZC(res,x,y,z,c) {
+          cimg_forXYZC(res,x,y,z,c) {
             const float xc = x - rw2, yc = y - rh2;
             res(x,y,z,c) = (T)_linear_atXY_p(w2 + xc*ca + yc*sa,h2 - xc*sa + yc*ca,z,c);
           }
         } break;
         default : { // Nearest-neighbor interpolation
           cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),2048))
-            cimg_forXYZC(res,x,y,z,c) {
+          cimg_forXYZC(res,x,y,z,c) {
             const float xc = x - rw2, yc = y - rh2;
             res(x,y,z,c) = (*this)(cimg::mod((int)cimg::round(w2 + xc*ca + yc*sa),(float)width()),
                                    cimg::mod((int)cimg::round(h2 - xc*sa + yc*ca),(float)height()),z,c);
@@ -40219,7 +40208,7 @@ namespace cimg_library {
             case 3 : { // Mirror
               const float w2 = 2.f*width();
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
-                cimg_forYZC(res,y,z,c) {
+              cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = p_warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
                   const float mx = cimg::mod((float)*(ptrs0++),w2);
@@ -40253,7 +40242,7 @@ namespace cimg_library {
             case 3 : { // Mirror
               const float w2 = 2.f*width();
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
-                cimg_forYZC(res,y,z,c) {
+              cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = p_warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
                   const float mx = cimg::mod((float)*(ptrs0++),w2);
@@ -40287,7 +40276,7 @@ namespace cimg_library {
             case 3 : { // Mirror
               const int w2 = 2*width();
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if_size(res.size(),4096))
-                cimg_forYZC(res,y,z,c) {
+              cimg_forYZC(res,y,z,c) {
                 const t *ptrs0 = p_warp.data(0,y,z); T *ptrd = res.data(0,y,z,c);
                 cimg_forX(res,x) {
                   const int mx = cimg::mod((int)cimg::round(*(ptrs0++)),w2);
@@ -42314,7 +42303,7 @@ namespace cimg_library {
             if (is_normalized) {
               const Ttfloat M = (Ttfloat)K.magnitude(2), M2 = M*M;
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
-                cimg_forXYZ(res,X,Y,Z) {
+              cimg_forXYZ(res,X,Y,Z) {
                 const int
                   x = xoffset + X, y = yoffset + Y, z = zoffset + Z,
                   px = x - xdilation>0?x - xdilation:0, nx = x + xdilation<w1?x + xdilation:w1,
@@ -42341,7 +42330,7 @@ namespace cimg_library {
               }
             } else {
               cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
-                cimg_forXYZ(res,X,Y,Z) {
+              cimg_forXYZ(res,X,Y,Z) {
                 const int
                   x = xoffset + X, y = yoffset + Y, z = zoffset + Z,
                   px = x - xdilation>0?x - xdilation:0, nx = x + xdilation<w1?x + xdilation:w1,
@@ -42379,7 +42368,7 @@ namespace cimg_library {
               if (is_normalized) {
                 const Ttfloat M = (Ttfloat)K.magnitude(2), M2 = M*M;
                 cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
-                  cimg_forXYZ(res,X,Y,z) {
+                cimg_forXYZ(res,X,Y,z) {
                   const int
                     x = xoffset + X, y = yoffset + Y,
                     px = x - xdilation>0?x - xdilation:0, bx = px - xdilation>0?px - xdilation:0,
@@ -42409,7 +42398,7 @@ namespace cimg_library {
                 }
               } else {
                 cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
-                  cimg_forXYZ(res,X,Y,z) {
+                cimg_forXYZ(res,X,Y,z) {
                   const int
                     x = xoffset + X, y = yoffset + Y,
                     px = x - xdilation>0?x - xdilation:0, bx = px - xdilation>0?px - xdilation:0,
@@ -42446,7 +42435,7 @@ namespace cimg_library {
               if (is_normalized) {
                 const Ttfloat M = (Ttfloat)K.magnitude(2), M2 = M*M;
                 cimg_pragma_openmp(parallel for cimg_openmp_collapse(3) cimg_openmp_if(is_inner_parallel))
-                  cimg_forXYZ(res,X,Y,z) {
+                cimg_forXYZ(res,X,Y,z) {
                   const int
                     x = xoffset + X, y = yoffset + Y,
                     px = x - xdilation>0?x - xdilation:0, nx = x + xdilation<w1?x + xdilation:w1,
@@ -42460,7 +42449,7 @@ namespace cimg_library {
                 }
               } else {
                 cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(is_inner_parallel))
-                  cimg_forXYZ(res,X,Y,z) {
+                cimg_forXYZ(res,X,Y,z) {
                   const int
                     x = xoffset + X, y = yoffset + Y,
                     px = x - xdilation>0?x - xdilation:0, nx = x + xdilation<w1?x + xdilation:w1,
@@ -46378,7 +46367,7 @@ namespace cimg_library {
         // Initialize correspondence map.
         if (guide)
           cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if_size(_width,64))
-            cimg_forXYZ(*this,x,y,z) { // User-defined initialization
+          cimg_forXYZ(*this,x,y,z) { // User-defined initialization
             const int
               cx1 = x<=psizew1?x:(x<width()  - psizew2?psizew1:psizew + x - width()),  cx2 = psizew - cx1 - 1,
               cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
@@ -46399,7 +46388,7 @@ namespace cimg_library {
             rng+=omp_get_thread_num();
 #endif
             cimg_pragma_openmp(for cimg_openmp_collapse(2))
-              cimg_forXYZ(*this,x,y,z) { // Random initialization
+            cimg_forXYZ(*this,x,y,z) { // Random initialization
               const int
                 cx1 = x<=psizew1?x:(x<width()  - psizew2?psizew1:psizew + x - width()),  cx2 = psizew - cx1 - 1,
                 cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
@@ -46432,7 +46421,7 @@ namespace cimg_library {
             rng+=omp_get_thread_num();
 #endif
             cimg_pragma_openmp(for cimg_openmp_collapse(2))
-              cimg_forXYZ(*this,X,Y,Z) {
+            cimg_forXYZ(*this,X,Y,Z) {
               const int
                 x = is_backward?width() - 1 - X:X,
                 y = is_backward?height() - 1 - Y:Y,
@@ -46568,7 +46557,7 @@ namespace cimg_library {
           // Update score according to new penalties.
           if (penalty)
             cimg_pragma_openmp(parallel for cimg_openmp_collapse(2) cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64))
-              cimg_forXYZ(score,x,y,z) {
+            cimg_forXYZ(score,x,y,z) {
               const float p_score = score(x,y,z);
               const int
                 cx1 = x<=psizew1?x:(x<width()  - psizew2?psizew1:psizew + x - width()),
@@ -46592,7 +46581,7 @@ namespace cimg_library {
         // Initialize correspondence map.
         if (guide)
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(_width,64))
-            cimg_forXY(*this,x,y) { // User-defined initialization
+          cimg_forXY(*this,x,y) { // User-defined initialization
             const int
               cx1 = x<=psizew1?x:(x<width()  - psizew2?psizew1:psizew + x - width()),  cx2 = psizew - cx1 - 1,
               cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
@@ -46610,7 +46599,7 @@ namespace cimg_library {
             rng+=omp_get_thread_num();
 #endif
             cimg_pragma_openmp(for)
-              cimg_forXY(*this,x,y) { // Random initialization
+            cimg_forXY(*this,x,y) { // Random initialization
               const int
                 cx1 = x<=psizew1?x:(x<width()  - psizew2?psizew1:psizew + x - width()),  cx2 = psizew - cx1 - 1,
                 cy1 = y<=psizeh1?y:(y<height() - psizeh2?psizeh1:psizeh + y - height()), cy2 = psizeh - cy1 - 1,
@@ -46639,7 +46628,7 @@ namespace cimg_library {
             rng+=omp_get_thread_num();
 #endif
             cimg_pragma_openmp(for)
-              cimg_forXY(*this,X,Y) {
+            cimg_forXY(*this,X,Y) {
               const int
                 x = is_backward?width() - 1 - X:X,
                 y = is_backward?height() - 1 - Y:Y;
@@ -46734,7 +46723,7 @@ namespace cimg_library {
           // Update score according to new penalties.
           if (penalty)
             cimg_pragma_openmp(parallel for cimg_openmp_if(_width>=(cimg_openmp_sizefactor)*64))
-              cimg_forXY(score,x,y) {
+            cimg_forXY(score,x,y) {
               const float p_score = score(x,y);
               const int
                 cx1 = x<=psizew1?x:(x<width()  - psizew2?psizew1:psizew + x - width()),
@@ -47748,7 +47737,7 @@ namespace cimg_library {
         switch (_axis) {
         case 'x' :
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height()*real.depth(),125000))
-            cimg_forXYZ(realc,x,y,z) {
+          cimg_forXYZ(realc,x,y,z) {
             const ulongT
               i = realc.offset(x,y,z),
               j = 2*(x + (ulongT)y*realc._width + (ulongT)z*realc._width*realc._height);
@@ -47758,7 +47747,7 @@ namespace cimg_library {
           break;
         case 'y' :
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height()*real.depth(),125000))
-            cimg_forXYZ(realc,x,y,z) {
+          cimg_forXYZ(realc,x,y,z) {
             const ulongT
               i = realc.offset(x,y,z),
               j = 2*(y + (ulongT)x*realc._height + (ulongT)z*realc._width*realc._height);
@@ -47768,7 +47757,7 @@ namespace cimg_library {
           break;
         default :
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height()*real.depth(),125000))
-            cimg_forXYZ(realc,x,y,z) {
+          cimg_forXYZ(realc,x,y,z) {
             const ulongT
               i = realc.offset(x,y,z),
               j = 2*(z + (ulongT)x*realc._depth + (ulongT)y*realc._width*realc._depth);
@@ -47783,7 +47772,7 @@ namespace cimg_library {
         switch (_axis) {
         case 'x' :
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height()*real.depth(),125000))
-            cimg_forXYZ(realc,x,y,z) {
+          cimg_forXYZ(realc,x,y,z) {
             const ulongT
               i = 2*(x + (ulongT)y*realc._width + (ulongT)z*realc._width*realc._height),
               j = realc.offset(x,y,z);
@@ -47793,7 +47782,7 @@ namespace cimg_library {
           break;
         case 'y' :
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height()*real.depth(),125000))
-            cimg_forXYZ(realc,x,y,z) {
+          cimg_forXYZ(realc,x,y,z) {
             const ulongT
               i = 2*(y + (ulongT)x*realc._height + (ulongT)z*realc._width*realc._height),
               j = realc.offset(x,y,z);
@@ -47803,7 +47792,7 @@ namespace cimg_library {
           break;
         default :
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height()*real.depth(),125000))
-            cimg_forXYZ(realc,x,y,z) {
+          cimg_forXYZ(realc,x,y,z) {
             const ulongT
               i = 2*(z + (ulongT)x*realc._depth + (ulongT)y*realc._width*realc._depth),
               j = realc.offset(x,y,z);
@@ -48008,15 +47997,15 @@ namespace cimg_library {
       cimg_forC(real,c) {
         CImg<T> realc = real.get_shared_channel(c), imagc = imag.get_shared_channel(c);
         cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height()*real.depth(),125000))
-          cimg_rofoff(realc,i) { const ulongT i2 = 2*i; ptrf[i2] = (double)realc[i]; ptrf[i2 + 1] = (double)imagc[i]; }
+        cimg_rofoff(realc,i) { const ulongT i2 = 2*i; ptrf[i2] = (double)realc[i]; ptrf[i2 + 1] = (double)imagc[i]; }
         fftw_execute(data_plan);
         if (is_inverse) {
           const double a = 1.0/(real.width()*real.height()*real.depth());
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height()*real.depth(),125000))
-            cimg_rofoff(realc,i) { const ulongT i2 = 2*i; realc[i] = (T)(a*ptrf[i2]); imagc[i] = (T)(a*ptrf[i2 + 1]); }
+          cimg_rofoff(realc,i) { const ulongT i2 = 2*i; realc[i] = (T)(a*ptrf[i2]); imagc[i] = (T)(a*ptrf[i2 + 1]); }
         } else
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(real.width()*real.height()*real.depth(),125000))
-            cimg_rofoff(realc,i) { const ulongT i2 = 2*i; realc[i] = (T)ptrf[i2]; imagc[i] = (T)ptrf[i2 + 1]; }
+          cimg_rofoff(realc,i) { const ulongT i2 = 2*i; realc[i] = (T)ptrf[i2]; imagc[i] = (T)ptrf[i2 + 1]; }
       }
       fftw_destroy_plan(data_plan);
       fftw_free(data_in);

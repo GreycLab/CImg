@@ -31862,14 +31862,14 @@ namespace cimg_library {
         throw CImgInstanceException(_cimg_instance
                                     "min_max(): Empty instance.",
                                     cimg_instance);
+      T val_min = *_data, val_max = val_min;
       T *ptr_min = _data;
-      T min_value = *ptr_min, max_value = min_value;
       cimg_for(*this,ptrs,T) {
         const T val = *ptrs;
-        if (val<min_value) { min_value = val; ptr_min = ptrs; }
-        if (val>max_value) max_value = val;
+        if (val<val_min) { val_min = val; ptr_min = ptrs; }
+        if (val>val_max) val_max = val;
       }
-      max_val = (t)max_value;
+      max_val = (t)val_max;
       return *ptr_min;
     }
 
@@ -31889,14 +31889,14 @@ namespace cimg_library {
         throw CImgInstanceException(_cimg_instance
                                     "max_min(): Empty instance.",
                                     cimg_instance);
+      T val_max = *_data, val_min = val_max;
       T *ptr_max = _data;
-      T max_value = *ptr_max, min_value = max_value;
       cimg_for(*this,ptrs,T) {
         const T val = *ptrs;
-        if (val>max_value) { max_value = val; ptr_max = ptrs; }
-        if (val<min_value) min_value = val;
+        if (val>val_max) { val_max = val; ptr_max = ptrs; }
+        if (val<val_min) val_min = val;
       }
-      min_val = (t)min_value;
+      min_val = (t)val_min;
       return *ptr_max;
     }
 

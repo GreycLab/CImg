@@ -62777,7 +62777,8 @@ namespace cimg_library {
         _use_bigtiff = use_bigtiff && sizeof(ulongT)>=8 && size()*sizeof(T)>=1UL<<31; // No bigtiff for small images
       TIFF *tif = TIFFOpen(filename,_use_bigtiff?"w8":"w4");
       if (tif) {
-        cimg_forZ(*this,z) _save_tiff(tif,z,z,compression_type,voxel_size,description);
+        double val_min, val_max = (double)max_min(val_min);
+        cimg_forZ(*this,z) _save_tiff(tif,z,z,compression_type,voxel_size,description,val_min,val_max);
         TIFFClose(tif);
       } else throw CImgIOException(_cimg_instance
                                    "save_tiff(): Failed to open file '%s' for writing.",
@@ -62793,13 +62794,14 @@ namespace cimg_library {
 #ifdef cimg_use_tiff
 
 #define _cimg_save_tiff(types,typed) if (!std::strcmp(types,pixel_type())) { \
-    const typed foo = (typed)0; return _save_tiff(tif,directory,z,foo,compression_type,voxel_size,description); }
+    const typed foo = (typed)0; return _save_tiff(tif,directory,z,foo,compression_type,voxel_size,description,\
+                                                  val_min,val_max); }
 
     // [internal] Save a plane into a tiff file.
     template<typename t>
     const CImg<T>& _save_tiff(TIFF *tif, const unsigned int directory, const unsigned int z, const t& pixel_t,
                               const unsigned int compression_type, const float *const voxel_size,
-                              const char *const description) const {
+                              const char *const description, double val_min, double val_max) const {
       if (is_empty() || !tif || pixel_t) return *this;
       const char *const filename = TIFFFileName(tif);
       cimg_uint32 rowsperstrip = (cimg_uint32)-1;
@@ -62824,12 +62826,8 @@ namespace cimg_library {
       if (cimg::type<t>::is_float()) TIFFSetField(tif,TIFFTAG_SAMPLEFORMAT,3);
       else if (cimg::type<t>::min()==0) TIFFSetField(tif,TIFFTAG_SAMPLEFORMAT,1);
       else TIFFSetField(tif,TIFFTAG_SAMPLEFORMAT,2);
-
-/*      double valm, valM = max_min(valm); // <- Not mandatory and takes too much time in practice for large images
-      TIFFSetField(tif,TIFFTAG_SMINSAMPLEVALUE,valm);
-      TIFFSetField(tif,TIFFTAG_SMAXSAMPLEVALUE,valM);
-*/
-
+      TIFFSetField(tif,TIFFTAG_SMINSAMPLEVALUE,val_min);
+      TIFFSetField(tif,TIFFTAG_SMAXSAMPLEVALUE,val_max);
       TIFFSetField(tif,TIFFTAG_BITSPERSAMPLE,bpp);
       TIFFSetField(tif,TIFFTAG_PLANARCONFIG,PLANARCONFIG_CONTIG);
       TIFFSetField(tif,TIFFTAG_PHOTOMETRIC,photometric);
@@ -62864,7 +62862,7 @@ namespace cimg_library {
 
     const CImg<T>& _save_tiff(TIFF *tif, const unsigned int directory, const unsigned int z,
                               const unsigned int compression_type, const float *const voxel_size,
-                              const char *const description) const {
+                              const char *const description, double val_min, double val_max) const {
       _cimg_save_tiff("uint8",cimg_uint8);
       _cimg_save_tiff("int8",cimg_int8);
       _cimg_save_tiff("uint16",cimg_uint16);
@@ -68487,9 +68485,15 @@ namespace cimg_library {
       const bool _use_bigtiff = use_bigtiff && sizeof(siz)>=8 && siz*sizeof(T)>=1UL<<31; // No bigtiff for small images
       TIFF *tif = TIFFOpen(filename,_use_bigtiff?"w8":"w4");
       if (tif) {
+        double val_min = cimg::type<double>::inf(), val_max = -val_min;
+        cimglist_for(*this,l) {
+          double l_val_min, l_val_max = (double)_data[l].max_min(l_val_min);
+          if (l_val_min<val_min) val_min = l_val_min;
+          if (l_val_max>val_max) val_max = l_val_max;
+        }
         for (unsigned int dir = 0, l = 0; l<_width; ++l) {
           const CImg<T>& img = (*this)[l];
-          cimg_forZ(img,z) img._save_tiff(tif,dir++,z,compression_type,voxel_size,description);
+          cimg_forZ(img,z) img._save_tiff(tif,dir++,z,compression_type,voxel_size,description,val_min,val_max);
         }
         TIFFClose(tif);
       } else

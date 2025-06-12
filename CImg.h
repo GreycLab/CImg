@@ -31876,19 +31876,7 @@ namespace cimg_library {
     //! Return a reference to the minimum pixel value as well as the maximum pixel value \const.
     template<typename t>
     const T& min_max(t& max_val) const {
-      if (is_empty())
-        throw CImgInstanceException(_cimg_instance
-                                    "min_max(): Empty instance.",
-                                    cimg_instance);
-      const T *ptr_min = _data;
-      T min_value = *ptr_min, max_value = min_value;
-      cimg_for(*this,ptrs,T) {
-        const T val = *ptrs;
-        if (val<min_value) { min_value = val; ptr_min = ptrs; }
-        if (val>max_value) max_value = val;
-      }
-      max_val = (t)max_value;
-      return *ptr_min;
+      return ((CImg<T>*)this)->min_max(max_val);
     }
 
     //! Return a reference to the maximum pixel value as well as the minimum pixel value.
@@ -31915,19 +31903,7 @@ namespace cimg_library {
     //! Return a reference to the maximum pixel value as well as the minimum pixel value \const.
     template<typename t>
     const T& max_min(t& min_val) const {
-      if (is_empty())
-        throw CImgInstanceException(_cimg_instance
-                                    "max_min(): Empty instance.",
-                                    cimg_instance);
-      const T *ptr_max = _data;
-      T max_value = *ptr_max, min_value = max_value;
-      cimg_for(*this,ptrs,T) {
-        const T val = *ptrs;
-        if (val>max_value) { max_value = val; ptr_max = ptrs; }
-        if (val<min_value) min_value = val;
-      }
-      min_val = (t)min_value;
-      return *ptr_max;
+      return ((CImg<T>*)this)->max_min(min_val);
     }
 
     //! Return the kth smallest pixel value.

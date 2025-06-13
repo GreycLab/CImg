@@ -54218,17 +54218,15 @@ namespace cimg_library {
         }
       }
 
-      // Compute 3D normal vectors.
+      // Compute normal 3D vectors.
       CImg<floatT> p_normals, v_normals;
       if (render_type>=2) {
 
-        // Normals to primitives.
+        // 3D normals to primitives.
         p_normals.assign(primitives._width,3);
         cimglist_for(primitives,l) {
           const CImg<tf>& primitive = primitives[l];
           switch (primitive.size()) {
-          case 1 : case 2 : case 5 : case 6 : // Point, sphere and segment
-            p_normals(l,0) = p_normals(l,1) = p_normals(l,2) = 0; break;
           case 3 : case 9 : { // Triangle
             const unsigned int
               i0 = (unsigned int)primitive(0),
@@ -54276,12 +54274,14 @@ namespace cimg_library {
               nu = u/nn, nv = v/nn, nw = w/nn;
             p_normals(l,0) = nu; p_normals(l,1) = nv; p_normals(l,2) = nw;
           } break;
+          default : // Other primitives
+            p_normals(l,0) = p_normals(l,1) = p_normals(l,2) = 0;
           }
         }
 
-        // Normals to vertices.
+        // 3D normals to vertices.
         if (render_type>=4) {
-          v_normals.assign(vertices._width,3,1,0);
+          v_normals.assign(vertices._width,3,1,1,0);
           cimglist_for(primitives,l) {
             const CImg<tf>& primitive = primitives[l];
             const tpfloat u = p_normals(l,0), v = p_normals(l,1), w = p_normals(l,2);
@@ -54307,6 +54307,13 @@ namespace cimg_library {
               v_normals(i3,0)+=u; v_normals(i3,1)+=v; v_normals(i3,2)+=w;
             } break;
             }
+          }
+          cimg_forX(v_normals,l) {
+            const tpfloat
+              u = v_normals(l,0), v = v_normals(l,1), w = v_normals(l,2),
+              nn = 1e-5f + cimg::hypot(u,v,w),
+              nu = u/nn, nv = v/nn, nw = w/nn;
+            v_normals(l,0) = nu; v_normals(l,1) = nv; v_normals(l,2) = nw;
           }
         }
       }

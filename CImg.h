@@ -62844,10 +62844,10 @@ namespace cimg_library {
       TIFFSetField(tif,TIFFTAG_COMPRESSION,
                    compression_type==6?COMPRESSION_ZSTD:
                    compression_type==5?COMPRESSION_WEBP:
-                   compression_type==4?COMPRESSION_JBIG:
-                   compression_type==3?COMPRESSION_LZW:
-                   compression_type==2?COMPRESSION_LZMA:
-                   compression_type==1?COMPRESSION_JPEG:
+                   compression_type==4?COMPRESSION_LZW:
+                   compression_type==3?COMPRESSION_LZMA:
+                   compression_type==2?COMPRESSION_JPEG:
+                   compression_type==1?COMPRESSION_JBIG:
                    COMPRESSION_NONE);
       rowsperstrip = TIFFDefaultStripSize(tif,rowsperstrip);
       TIFFSetField(tif,TIFFTAG_ROWSPERSTRIP,rowsperstrip);

@@ -616,18 +616,6 @@ extern "C" {
 }
 #endif
 
-// Configure LibBoard support.
-// (http://libboard.sourceforge.net/)
-//
-// Define 'cimg_use_board' to enable Board support.
-//
-// Board library may be used to draw 3D objects in vector-graphics canvas.
-// that can be saved as '.ps' or '.svg' files afterwards.
-// (see method 'CImg<T>::draw_object3d()').
-#ifdef cimg_use_board
-#include "Board.h"
-#endif
-
 // Configure OpenEXR support.
 // (http://www.openexr.com/)
 //
@@ -54067,38 +54055,6 @@ namespace cimg_library {
                             specular_lightness,specular_shininess,g_opacity,1);
     }
 
-#ifdef cimg_use_board
-    template<typename tp, typename tf, typename tc, typename to>
-    CImg<T>& draw_object3d(LibBoard::Board& board,
-                           const float x0, const float y0, const float z0,
-                           const CImg<tp>& vertices, const CImgList<tf>& primitives,
-                           const CImgList<tc>& colors, const CImg<to>& opacities,
-                           const unsigned int render_type=4,
-                           const bool is_double_sided=false, const float focale=700,
-                           const float lightx=0, const float lighty=0, const float lightz=-5e8,
-                           const float specular_lightness=0.2f, const float specular_shininess=0.1f,
-                           const float g_opacity=1) {
-      return draw_object3d(board,x0,y0,z0,vertices,primitives,colors,opacities,render_type,
-                           is_double_sided,focale,lightx,lighty,lightz,
-                           specular_lightness,specular_shininess,g_opacity,CImg<floatT>::empty());
-    }
-
-    template<typename tp, typename tf, typename tc, typename to, typename tz>
-    CImg<T>& draw_object3d(LibBoard::Board& board,
-                           const float x0, const float y0, const float z0,
-                           const CImg<tp>& vertices, const CImgList<tf>& primitives,
-                           const CImgList<tc>& colors, const CImg<to>& opacities,
-                           const unsigned int render_type,
-                           const bool is_double_sided, const float focale,
-                           const float lightx, const float lighty, const float lightz,
-                           const float specular_lightness, const float specular_shininess,
-                           const float g_opacity, CImg<tz>& zbuffer) {
-      return _draw_object3d((void*)&board,zbuffer,x0,y0,z0,vertices,primitives,colors,opacities,
-                            render_type,is_double_sided,focale,lightx,lighty,lightz,
-                            specular_lightness,specular_shininess,g_opacity,1);
-    }
-#endif
-
     //! Draw a 3D object \simplification.
     template<typename tp, typename tf, typename tc, typename to>
     CImg<T>& draw_object3d(const float x0, const float y0, const float z0,
@@ -54129,38 +54085,6 @@ namespace cimg_library {
                             specular_lightness,specular_shininess,g_opacity,1);
     }
 
-#ifdef cimg_use_board
-    template<typename tp, typename tf, typename tc, typename to>
-    CImg<T>& draw_object3d(LibBoard::Board& board,
-                           const float x0, const float y0, const float z0,
-                           const CImg<tp>& vertices, const CImgList<tf>& primitives,
-                           const CImgList<tc>& colors, const CImgList<to>& opacities,
-                           const unsigned int render_type=4,
-                           const bool is_double_sided=false, const float focale=700,
-                           const float lightx=0, const float lighty=0, const float lightz=-5e8,
-                           const float specular_lightness=0.2f, const float specular_shininess=0.1f,
-                           const float g_opacity=1) {
-      return draw_object3d(board,x0,y0,z0,vertices,primitives,colors,opacities,render_type,
-                           is_double_sided,focale,lightx,lighty,lightz,
-                           specular_lightness,specular_shininess,g_opacity,CImg<floatT>::empty());
-    }
-
-    template<typename tp, typename tf, typename tc, typename to, typename tz>
-    CImg<T>& draw_object3d(LibBoard::Board& board,
-                           const float x0, const float y0, const float z0,
-                           const CImg<tp>& vertices, const CImgList<tf>& primitives,
-                           const CImgList<tc>& colors, const CImgList<to>& opacities,
-                           const unsigned int render_type,
-                           const bool is_double_sided, const float focale,
-                           const float lightx, const float lighty, const float lightz,
-                           const float specular_lightness, const float specular_shininess,
-                           const float g_opacity, CImg<tz>& zbuffer) {
-      return _draw_object3d((void*)&board,zbuffer,x0,y0,z0,vertices,primitives,colors,opacities,
-                            render_type,is_double_sided,focale,lightx,lighty,lightz,
-                            specular_lightness,specular_shininess,g_opacity,1);
-    }
-#endif
-
     //! Draw a 3D object \simplification.
     template<typename tp, typename tf, typename tc>
     CImg<T>& draw_object3d(const float x0, const float y0, const float z0,
@@ -54190,38 +54114,6 @@ namespace cimg_library {
                            render_type,is_double_sided,focale,lightx,lighty,lightz,
                            specular_lightness,specular_shininess,g_opacity,zbuffer);
     }
-
-#ifdef cimg_use_board
-    template<typename tp, typename tf, typename tc, typename to>
-    CImg<T>& draw_object3d(LibBoard::Board& board,
-                           const float x0, const float y0, const float z0,
-                           const CImg<tp>& vertices, const CImgList<tf>& primitives,
-                           const CImgList<tc>& colors,
-                           const unsigned int render_type=4,
-                           const bool is_double_sided=false, const float focale=700,
-                           const float lightx=0, const float lighty=0, const float lightz=-5e8,
-                           const float specular_lightness=0.2f, const float specular_shininess=0.1f,
-                           const float g_opacity=1) {
-      return draw_object3d(x0,y0,z0,vertices,primitives,colors,CImg<floatT>::const_empty(),
-                           render_type,is_double_sided,focale,lightx,lighty,lightz,
-                           specular_lightness,specular_shininess,g_opacity,CImg<floatT>::empty());
-    }
-
-    template<typename tp, typename tf, typename tc, typename to, typename tz>
-    CImg<T>& draw_object3d(LibBoard::Board& board,
-                           const float x0, const float y0, const float z0,
-                           const CImg<tp>& vertices, const CImgList<tf>& primitives,
-                           const CImgList<tc>& colors,
-                           const unsigned int render_type,
-                           const bool is_double_sided, const float focale,
-                           const float lightx, const float lighty, const float lightz,
-                           const float specular_lightness, const float specular_shininess,
-                           const float g_opacity, CImg<tz>& zbuffer) {
-      return draw_object3d(x0,y0,z0,vertices,primitives,colors,CImg<floatT>::const_empty(),
-                           render_type,is_double_sided,focale,lightx,lighty,lightz,
-                           specular_lightness,specular_shininess,g_opacity,zbuffer);
-    }
-#endif
 
     template<typename t, typename to>
     static float __draw_object3d(const CImgList<t>& opacities, const unsigned int n_primitive, CImg<to>& opacity) {
@@ -54267,9 +54159,6 @@ namespace cimg_library {
         throw CImgArgumentException(_cimg_instance
                                     "draw_object3d(): Invalid specified 3D object (%u,%u) (%s).",
                                     cimg_instance,vertices._width,primitives._width,error_message.data());
-#ifndef cimg_use_board
-      if (pboard) return *this;
-#endif
       if (render_type==5) cimg::mutex(10); // Static variable used in this case, breaks thread-safety
 
       const float
@@ -54647,27 +54536,15 @@ namespace cimg_library {
         float opacity = __draw_object3d(opacities,n_primitive,_opacity);
         if (_opacity.is_empty()) opacity*=g_opacity;
 
-#ifdef cimg_use_board
-        LibBoard::Board &board = *(LibBoard::Board*)pboard;
-#endif
-
         switch (primitive.size()) {
         case 1 : { // Colored point or sprite
           const unsigned int n0 = (unsigned int)primitive[0];
           const int x0 = cimg::uiround(projections(n0,0)), y0 = cimg::uiround(projections(n0,1));
 
           if (_opacity.is_empty()) { // Scalar opacity
-
-            if (color.size()==_spectrum) { // Colored point
+            if (color.size()==_spectrum) // Colored point
               draw_point(x0,y0,pcolor,opacity);
-
-#ifdef cimg_use_board
-              if (pboard) {
-                board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
-                board.drawDot((float)x0,height()-(float)y0);
-              }
-#endif
-            } else { // Sprite
+            else { // Sprite
               const tpfloat z = Z + vertices(n0,2);
               const float factor = focale<0?1:sprite_scale*(absfocale?absfocale/(z + absfocale):1);
               const unsigned int
@@ -54682,14 +54559,6 @@ namespace cimg_library {
                     color.get_resize(sw,sh,1,-100,render_type<=3?1:3):CImg<tc>(),
                   &sprite = _sprite?_sprite:color;
                 draw_image(nx0,ny0,sprite,opacity);
-
-#ifdef cimg_use_board
-                if (pboard) {
-                  board.setPenColorRGBi(128,128,128);
-                  board.setFillColor(LibBoard::Color::Null);
-                  board.drawRectangle((float)nx0,height() - (float)ny0,sw,sh);
-                }
-#endif
               }
             }
           } else { // Opacity mask
@@ -54711,14 +54580,6 @@ namespace cimg_library {
                   _opacity.get_resize(sw,sh,1,-100,render_type<=3?1:3):CImg<_to>(),
                 &nopacity = _nopacity?_nopacity:_opacity;
               draw_image(nx0,ny0,sprite,nopacity,g_opacity);
-
-#ifdef cimg_use_board
-              if (pboard) {
-                board.setPenColorRGBi(128,128,128);
-                board.setFillColor(LibBoard::Color::Null);
-                board.drawRectangle((float)nx0,height() - (float)ny0,sw,sh);
-              }
-#endif
             }
           }
         } break;
@@ -54735,23 +54596,8 @@ namespace cimg_library {
           if (render_type) {
             if (zbuffer) draw_line(zbuffer,x0,y0,z0,x1,y1,z1,pcolor,opacity);
             else draw_line(x0,y0,x1,y1,pcolor,opacity);
-
-#ifdef cimg_use_board
-            if (pboard) {
-              board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
-              board.drawLine((float)x0,height() - (float)y0,x1,height() - (float)y1);
-            }
-#endif
           } else {
             draw_point(x0,y0,pcolor,opacity).draw_point(x1,y1,pcolor,opacity);
-
-#ifdef cimg_use_board
-            if (pboard) {
-              board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
-              board.drawDot((float)x0,height() - (float)y0);
-              board.drawDot((float)x1,height() - (float)y1);
-            }
-#endif
           }
         } break;
         case 5 : { // Colored sphere
@@ -54786,39 +54632,13 @@ namespace cimg_library {
           switch (render_type) {
           case 0 :
             draw_point((int)xc,(int)yc,pcolor,opacity);
-
-#ifdef cimg_use_board
-            if (pboard) {
-              board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
-              board.drawDot(xc,height() - yc);
-            }
-#endif
             break;
           case 1 :
             draw_circle((int)xc,(int)yc,(int)radius,pcolor,opacity,~0U);
-
-#ifdef cimg_use_board
-            if (pboard) {
-              board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
-              board.setFillColor(LibBoard::Color::Null);
-              board.drawCircle(xc,height() - yc,radius);
-            }
-#endif
             break;
           default :
             if (is_wireframe) draw_circle((int)xc,(int)yc,(int)radius,pcolor,opacity,~0U);
             else draw_circle((int)xc,(int)yc,(int)radius,pcolor,opacity);
-
-#ifdef cimg_use_board
-            if (pboard) {
-              board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
-              if (!is_wireframe) board.fillCircle(xc,height() - yc,radius);
-              else {
-                board.setFillColor(LibBoard::Color::Null);
-                board.drawCircle(xc,height() - yc,radius);
-              }
-            }
-#endif
             break;
           }
         } break;
@@ -54843,26 +54663,11 @@ namespace cimg_library {
           if (render_type) {
             if (zbuffer) draw_line(zbuffer,x0,y0,z0,x1,y1,z1,color,tx0,ty0,tx1,ty1,opacity);
             else draw_line(x0,y0,z0,x1,y1,z1,color,tx0,ty0,tx1,ty1,opacity);
-
-#ifdef cimg_use_board
-            if (pboard) {
-              board.setPenColorRGBi(128,128,128,(unsigned char)(opacity*255));
-              board.drawLine((float)x0,height() - (float)y0,(float)x1,height() - (float)y1);
-            }
-#endif
           } else {
             draw_point(x0,y0,color.get_vector_at(tx0<=0?0:tx0>=color.width()?color.width() - 1:tx0,
                                                  ty0<=0?0:ty0>=color.height()?color.height() - 1:ty0)._data,opacity).
               draw_point(x1,y1,color.get_vector_at(tx1<=0?0:tx1>=color.width()?color.width() - 1:tx1,
                                                    ty1<=0?0:ty1>=color.height()?color.height() - 1:ty1)._data,opacity);
-
-#ifdef cimg_use_board
-            if (pboard) {
-              board.setPenColorRGBi(128,128,128,(unsigned char)(opacity*255));
-              board.drawDot((float)x0,height() - (float)y0);
-              board.drawDot((float)x1,height() - (float)y1);
-            }
-#endif
           }
         } break;
         case 3 : { // Colored triangle
@@ -54881,15 +54686,6 @@ namespace cimg_library {
           switch (render_type) {
           case 0 :
             draw_point(x0,y0,pcolor,opacity).draw_point(x1,y1,pcolor,opacity).draw_point(x2,y2,pcolor,opacity);
-
-#ifdef cimg_use_board
-            if (pboard) {
-              board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
-              board.drawDot((float)x0,height() - (float)y0);
-              board.drawDot((float)x1,height() - (float)y1);
-              board.drawDot((float)x2,height() - (float)y2);
-            }
-#endif
             break;
           case 1 :
             if (zbuffer)
@@ -54898,63 +54694,20 @@ namespace cimg_library {
             else
               draw_line(x0,y0,x1,y1,pcolor,opacity).draw_line(x0,y0,x2,y2,pcolor,opacity).
                 draw_line(x1,y1,x2,y2,pcolor,opacity);
-
-#ifdef cimg_use_board
-            if (pboard) {
-              board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
-              board.drawLine((float)x0,height() - (float)y0,(float)x1,height() - (float)y1);
-              board.drawLine((float)x0,height() - (float)y0,(float)x2,height() - (float)y2);
-              board.drawLine((float)x1,height() - (float)y1,(float)x2,height() - (float)y2);
-            }
-#endif
             break;
           case 2 :
             if (zbuffer) draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,pcolor,opacity);
             else draw_triangle(x0,y0,x1,y1,x2,y2,pcolor,opacity);
-
-#ifdef cimg_use_board
-            if (pboard) {
-              board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
-              board.fillTriangle((float)x0,height() - (float)y0,
-                                 (float)x1,height() - (float)y1,
-                                 (float)x2,height() - (float)y2);
-            }
-#endif
             break;
           case 3 :
             if (zbuffer) draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,pcolor,opacity,lightprops(l));
             else _draw_triangle(x0,y0,x1,y1,x2,y2,pcolor,opacity,lightprops(l));
-
-#ifdef cimg_use_board
-            if (pboard) {
-              const float lp = std::min(lightprops(l),1.f);
-              board.setPenColorRGBi((unsigned char)(color[0]*lp),
-                                     (unsigned char)(color[1]*lp),
-                                     (unsigned char)(color[2]*lp),
-                                     (unsigned char)(opacity*255));
-              board.fillTriangle((float)x0,height() - (float)y0,
-                                 (float)x1,height() - (float)y1,
-                                 (float)x2,height() - (float)y2);
-            }
-#endif
             break;
           case 4 :
             if (zbuffer)
               draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,pcolor,
                             lightprops(n0),lightprops(n1),lightprops(n2),opacity);
             else draw_triangle(x0,y0,x1,y1,x2,y2,pcolor,lightprops(n0),lightprops(n1),lightprops(n2),opacity);
-
-#ifdef cimg_use_board
-            if (pboard) {
-              board.setPenColorRGBi((unsigned char)(color[0]),
-                                     (unsigned char)(color[1]),
-                                     (unsigned char)(color[2]),
-                                     (unsigned char)(opacity*255));
-              board.fillGouraudTriangle((float)x0,height() - (float)y0,lightprops(n0),
-                                         (float)x1,height() - (float)y1,lightprops(n1),
-                                         (float)x2,height() - (float)y2,lightprops(n2));
-            }
-#endif
             break;
           case 5 : {
             const unsigned int
@@ -54964,25 +54717,6 @@ namespace cimg_library {
             if (zbuffer)
               draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,pcolor,light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity);
             else draw_triangle(x0,y0,x1,y1,x2,y2,pcolor,light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity);
-
-#ifdef cimg_use_board
-            if (pboard) {
-              const float
-                l0 = light_texture((int)(light_texture.width()/2*(1 + lightprops(n0,0))),
-                                   (int)(light_texture.height()/2*(1 + lightprops(n0,1)))),
-                l1 = light_texture((int)(light_texture.width()/2*(1 + lightprops(n1,0))),
-                                   (int)(light_texture.height()/2*(1 + lightprops(n1,1)))),
-                l2 = light_texture((int)(light_texture.width()/2*(1 + lightprops(n2,0))),
-                                   (int)(light_texture.height()/2*(1 + lightprops(n2,1))));
-              board.setPenColorRGBi((unsigned char)(color[0]),
-                                     (unsigned char)(color[1]),
-                                     (unsigned char)(color[2]),
-                                     (unsigned char)(opacity*255));
-              board.fillGouraudTriangle((float)x0,height() - (float)y0,l0,
-                                         (float)x1,height() - (float)y1,l1,
-                                         (float)x2,height() - (float)y2,l2);
-            }
-#endif
           } break;
           }
         } break;
@@ -55009,16 +54743,6 @@ namespace cimg_library {
           case 0 :
             draw_point(x0,y0,pcolor,opacity).draw_point(x1,y1,pcolor,opacity).
               draw_point(x2,y2,pcolor,opacity).draw_point(x3,y3,pcolor,opacity);
-
-#ifdef cimg_use_board
-            if (pboard) {
-              board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
-              board.drawDot((float)x0,height() - (float)y0);
-              board.drawDot((float)x1,height() - (float)y1);
-              board.drawDot((float)x2,height() - (float)y2);
-              board.drawDot((float)x3,height() - (float)y3);
-            }
-#endif
             break;
           case 1 :
             if (zbuffer)
@@ -55027,16 +54751,6 @@ namespace cimg_library {
             else
               draw_line(x0,y0,x1,y1,pcolor,opacity).draw_line(x1,y1,x2,y2,pcolor,opacity).
                 draw_line(x2,y2,x3,y3,pcolor,opacity).draw_line(x3,y3,x0,y0,pcolor,opacity);
-
-#ifdef cimg_use_board
-            if (pboard) {
-              board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
-              board.drawLine((float)x0,height() - (float)y0,(float)x1,height() - (float)y1);
-              board.drawLine((float)x1,height() - (float)y1,(float)x2,height() - (float)y2);
-              board.drawLine((float)x2,height() - (float)y2,(float)x3,height() - (float)y3);
-              board.drawLine((float)x3,height() - (float)y3,(float)x0,height() - (float)y0);
-            }
-#endif
             break;
           case 2 :
             if (zbuffer)
@@ -55044,18 +54758,6 @@ namespace cimg_library {
                 draw_triangle(zbuffer,x0,y0,z0,x2,y2,z2,x3,y3,z3,pcolor,opacity);
             else
               draw_triangle(x0,y0,x1,y1,x2,y2,pcolor,opacity).draw_triangle(x0,y0,x2,y2,x3,y3,pcolor,opacity);
-
-#ifdef cimg_use_board
-            if (pboard) {
-              board.setPenColorRGBi(color[0],color[1],color[2],(unsigned char)(opacity*255));
-              board.fillTriangle((float)x0,height() - (float)y0,
-                                 (float)x1,height() - (float)y1,
-                                 (float)x2,height() - (float)y2);
-              board.fillTriangle((float)x0,height() - (float)y0,
-                                 (float)x2,height() - (float)y2,
-                                 (float)x3,height() - (float)y3);
-            }
-#endif
             break;
           case 3 :
             if (zbuffer)
@@ -55064,21 +54766,6 @@ namespace cimg_library {
             else
               _draw_triangle(x0,y0,x1,y1,x2,y2,pcolor,opacity,lightprops(l)).
                 _draw_triangle(x0,y0,x2,y2,x3,y3,pcolor,opacity,lightprops(l));
-
-#ifdef cimg_use_board
-            if (pboard) {
-              const float lp = std::min(lightprops(l),1.f);
-              board.setPenColorRGBi((unsigned char)(color[0]*lp),
-                                     (unsigned char)(color[1]*lp),
-                                     (unsigned char)(color[2]*lp),(unsigned char)(opacity*255));
-              board.fillTriangle((float)x0,height() - (float)y0,
-                                 (float)x1,height() - (float)y1,
-                                 (float)x2,height() - (float)y2);
-              board.fillTriangle((float)x0,height() - (float)y0,
-                                 (float)x2,height() - (float)y2,
-                                 (float)x3,height() - (float)y3);
-            }
-#endif
             break;
           case 4 : {
             const float
@@ -55095,21 +54782,6 @@ namespace cimg_library {
               draw_triangle(x1,y1,x2,y2,xc,yc,pcolor,lightprop1,lightprop2,lightpropc,opacity).
               draw_triangle(x2,y2,x3,y3,xc,yc,pcolor,lightprop2,lightprop3,lightpropc,opacity).
                 draw_triangle(x3,y3,x0,y0,xc,yc,pcolor,lightprop3,lightprop0,lightpropc,opacity);
-
-#ifdef cimg_use_board
-            if (pboard) {
-              board.setPenColorRGBi((unsigned char)(color[0]),
-                                     (unsigned char)(color[1]),
-                                     (unsigned char)(color[2]),
-                                     (unsigned char)(opacity*255));
-              board.fillGouraudTriangle((float)x0,height() - (float)y0,lightprop0,
-                                         (float)x1,height() - (float)y1,lightprop1,
-                                         (float)x2,height() - (float)y2,lightprop2);
-              board.fillGouraudTriangle((float)x0,height() - (float)y0,lightprop0,
-                                         (float)x2,height() - (float)y2,lightprop2,
-                                         (float)x3,height() - (float)y3,lightprop3);
-            }
-#endif
           } break;
           case 5 : {
             const unsigned int
@@ -55128,26 +54800,6 @@ namespace cimg_library {
               draw_triangle(x1,y1,x2,y2,xc,yc,pcolor,light_texture,lx1,ly1,lx2,ly2,lxc,lyc,opacity).
               draw_triangle(x2,y2,x3,y3,xc,yc,pcolor,light_texture,lx2,ly2,lx3,ly3,lxc,lyc,opacity).
                 draw_triangle(x3,y3,x0,y0,xc,yc,pcolor,light_texture,lx3,ly3,lx0,ly0,lxc,lyc,opacity);
-
-#ifdef cimg_use_board
-            if (pboard) {
-              const float
-                l0 = light_texture((int)(light_texture.width()/2*(1 + lx0)), (int)(light_texture.height()/2*(1 + ly0))),
-                l1 = light_texture((int)(light_texture.width()/2*(1 + lx1)), (int)(light_texture.height()/2*(1 + ly1))),
-                l2 = light_texture((int)(light_texture.width()/2*(1 + lx2)), (int)(light_texture.height()/2*(1 + ly2))),
-                l3 = light_texture((int)(light_texture.width()/2*(1 + lx3)), (int)(light_texture.height()/2*(1 + ly3)));
-              board.setPenColorRGBi((unsigned char)(color[0]),
-                                     (unsigned char)(color[1]),
-                                     (unsigned char)(color[2]),
-                                     (unsigned char)(opacity*255));
-              board.fillGouraudTriangle((float)x0,height() - (float)y0,l0,
-                                         (float)x1,height() - (float)y1,l1,
-                                         (float)x2,height() - (float)y2,l2);
-              board.fillGouraudTriangle((float)x0,height() - (float)y0,l0,
-                                         (float)x2,height() - (float)y2,l2,
-                                         (float)x3,height() - (float)y3,l3);
-            }
-#endif
           } break;
           }
         } break;
@@ -55181,14 +54833,6 @@ namespace cimg_library {
                                                    ty1<=0?0:ty1>=color.height()?color.height() - 1:ty1)._data,opacity).
               draw_point(x2,y2,color.get_vector_at(tx2<=0?0:tx2>=color.width()?color.width() - 1:tx2,
                                                    ty2<=0?0:ty2>=color.height()?color.height() - 1:ty2)._data,opacity);
-#ifdef cimg_use_board
-            if (pboard) {
-              board.setPenColorRGBi(128,128,128,(unsigned char)(opacity*255));
-              board.drawDot((float)x0,height() - (float)y0);
-              board.drawDot((float)x1,height() - (float)y1);
-              board.drawDot((float)x2,height() - (float)y2);
-            }
-#endif
             break;
           case 1 :
             if (zbuffer)
@@ -55199,46 +54843,15 @@ namespace cimg_library {
               draw_line(x0,y0,z0,x1,y1,z1,color,tx0,ty0,tx1,ty1,opacity).
                 draw_line(x0,y0,z0,x2,y2,z2,color,tx0,ty0,tx2,ty2,opacity).
                 draw_line(x1,y1,z1,x2,y2,z2,color,tx1,ty1,tx2,ty2,opacity);
-
-#ifdef cimg_use_board
-            if (pboard) {
-              board.setPenColorRGBi(128,128,128,(unsigned char)(opacity*255));
-              board.drawLine((float)x0,height() - (float)y0,(float)x1,height() - (float)y1);
-              board.drawLine((float)x0,height() - (float)y0,(float)x2,height() - (float)y2);
-              board.drawLine((float)x1,height() - (float)y1,(float)x2,height() - (float)y2);
-            }
-#endif
             break;
           case 2 :
             if (zbuffer) draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,color,tx0,ty0,tx1,ty1,tx2,ty2,opacity);
             else draw_triangle(x0,y0,z0,x1,y1,z1,x2,y2,z2,color,tx0,ty0,tx1,ty1,tx2,ty2,opacity);
-
-#ifdef cimg_use_board
-            if (pboard) {
-              board.setPenColorRGBi(128,128,128,(unsigned char)(opacity*255));
-              board.fillTriangle((float)x0,height() - (float)y0,
-                                 (float)x1,height() - (float)y1,
-                                 (float)x2,height() - (float)y2);
-            }
-#endif
             break;
           case 3 :
             if (zbuffer)
               draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,lightprops(l));
             else draw_triangle(x0,y0,z0,x1,y1,z1,x2,y2,z2,color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,lightprops(l));
-
-#ifdef cimg_use_board
-            if (pboard) {
-              const float lp = std::min(lightprops(l),1.f);
-              board.setPenColorRGBi((unsigned char)(128*lp),
-                                    (unsigned char)(128*lp),
-                                    (unsigned char)(128*lp),
-                                    (unsigned char)(opacity*255));
-              board.fillTriangle((float)x0,height() - (float)y0,
-                                 (float)x1,height() - (float)y1,
-                                 (float)x2,height() - (float)y2);
-            }
-#endif
             break;
           case 4 :
             if (zbuffer)
@@ -55247,15 +54860,6 @@ namespace cimg_library {
             else
               draw_triangle(x0,y0,z0,x1,y1,z1,x2,y2,z2,color,tx0,ty0,tx1,ty1,tx2,ty2,
                             lightprops(n0),lightprops(n1),lightprops(n2),opacity);
-
-#ifdef cimg_use_board
-            if (pboard) {
-              board.setPenColorRGBi(128,128,128,(unsigned char)(opacity*255));
-              board.fillGouraudTriangle((float)x0,height() - (float)y0,lightprops(n0),
-                                        (float)x1,height() - (float)y1,lightprops(n1),
-                                        (float)x2,height() - (float)y2,lightprops(n2));
-            }
-#endif
             break;
           case 5 :
             if (zbuffer)
@@ -55270,22 +54874,6 @@ namespace cimg_library {
                             (unsigned int)lightprops(n1,0),(unsigned int)lightprops(n1,1),
                             (unsigned int)lightprops(n2,0),(unsigned int)lightprops(n2,1),
                             opacity);
-
-#ifdef cimg_use_board
-            if (pboard) {
-              const float
-                l0 = light_texture((int)(light_texture.width()/2*(1 + lightprops(n0,0))),
-                                   (int)(light_texture.height()/2*(1 + lightprops(n0,1)))),
-                l1 = light_texture((int)(light_texture.width()/2*(1 + lightprops(n1,0))),
-                                   (int)(light_texture.height()/2*(1 + lightprops(n1,1)))),
-                l2 = light_texture((int)(light_texture.width()/2*(1 + lightprops(n2,0))),
-                                   (int)(light_texture.height()/2*(1 + lightprops(n2,1))));
-              board.setPenColorRGBi(128,128,128,(unsigned char)(opacity*255));
-              board.fillGouraudTriangle((float)x0,height() - (float)y0,l0,
-                                        (float)x1,height() - (float)y1,l1,
-                                        (float)x2,height() - (float)y2,l2);
-            }
-#endif
             break;
           }
         } break;
@@ -55326,16 +54914,6 @@ namespace cimg_library {
                                                    ty2<=0?0:ty2>=color.height()?color.height() - 1:ty2)._data,opacity).
               draw_point(x3,y3,color.get_vector_at(tx3<=0?0:tx3>=color.width()?color.width() - 1:tx3,
                                                    ty3<=0?0:ty3>=color.height()?color.height() - 1:ty3)._data,opacity);
-
-#ifdef cimg_use_board
-            if (pboard) {
-              board.setPenColorRGBi(128,128,128,(unsigned char)(opacity*255));
-              board.drawDot((float)x0,height() - (float)y0);
-              board.drawDot((float)x1,height() - (float)y1);
-              board.drawDot((float)x2,height() - (float)y2);
-              board.drawDot((float)x3,height() - (float)y3);
-            }
-#endif
             break;
           case 1 :
             if (zbuffer)
@@ -55348,16 +54926,6 @@ namespace cimg_library {
                 draw_line(x1,y1,z1,x2,y2,z2,color,tx1,ty1,tx2,ty2,opacity).
                 draw_line(x2,y2,z2,x3,y3,z3,color,tx2,ty2,tx3,ty3,opacity).
                 draw_line(x3,y3,z3,x0,y0,z0,color,tx3,ty3,tx0,ty0,opacity);
-
-#ifdef cimg_use_board
-            if (pboard) {
-              board.setPenColorRGBi(128,128,128,(unsigned char)(opacity*255));
-              board.drawLine((float)x0,height() - (float)y0,(float)x1,height() - (float)y1);
-              board.drawLine((float)x1,height() - (float)y1,(float)x2,height() - (float)y2);
-              board.drawLine((float)x2,height() - (float)y2,(float)x3,height() - (float)y3);
-              board.drawLine((float)x3,height() - (float)y3,(float)x0,height() - (float)y0);
-            }
-#endif
             break;
           case 2 :
             if (zbuffer)
@@ -55366,18 +54934,6 @@ namespace cimg_library {
             else
               draw_triangle(x0,y0,z0,x1,y1,z1,x2,y2,z2,color,tx0,ty0,tx1,ty1,tx2,ty2,opacity).
                 draw_triangle(x0,y0,z0,x2,y2,z2,x3,y3,z3,color,tx0,ty0,tx2,ty2,tx3,ty3,opacity);
-
-#ifdef cimg_use_board
-            if (pboard) {
-              board.setPenColorRGBi(128,128,128,(unsigned char)(opacity*255));
-              board.fillTriangle((float)x0,height() - (float)y0,
-                                 (float)x1,height() - (float)y1,
-                                 (float)x2,height() - (float)y2);
-              board.fillTriangle((float)x0,height() - (float)y0,
-                                 (float)x2,height() - (float)y2,
-                                 (float)x3,height() - (float)y3);
-            }
-#endif
             break;
           case 3 :
             if (zbuffer)
@@ -55386,22 +54942,6 @@ namespace cimg_library {
             else
               draw_triangle(x0,y0,z0,x1,y1,z1,x2,y2,z2,color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,lightprops(l)).
                 draw_triangle(x0,y0,z0,x2,y2,z2,x3,y3,z3,color,tx0,ty0,tx2,ty2,tx3,ty3,opacity,lightprops(l));
-
-#ifdef cimg_use_board
-            if (pboard) {
-              const float lp = std::min(lightprops(l),1.f);
-              board.setPenColorRGBi((unsigned char)(128*lp),
-                                     (unsigned char)(128*lp),
-                                     (unsigned char)(128*lp),
-                                     (unsigned char)(opacity*255));
-              board.fillTriangle((float)x0,height() - (float)y0,
-                                 (float)x1,height() - (float)y1,
-                                 (float)x2,height() - (float)y2);
-              board.fillTriangle((float)x0,height() - (float)y0,
-                                 (float)x2,height() - (float)y2,
-                                 (float)x3,height() - (float)y3);
-            }
-#endif
             break;
           case 4 : {
             const float
@@ -55417,18 +54957,6 @@ namespace cimg_library {
                             lightprop0,lightprop1,lightprop2,opacity).
                 draw_triangle(x0,y0,z0,x2,y2,z2,x3,y3,z3,color,tx0,ty0,tx2,ty2,tx3,ty3,
                               lightprop0,lightprop2,lightprop3,opacity);
-
-#ifdef cimg_use_board
-            if (pboard) {
-              board.setPenColorRGBi(128,128,128,(unsigned char)(opacity*255));
-              board.fillGouraudTriangle((float)x0,height() - (float)y0,lightprop0,
-                                         (float)x1,height() - (float)y1,lightprop1,
-                                         (float)x2,height() - (float)y2,lightprop2);
-              board.fillGouraudTriangle((float)x0,height()  -(float)y0,lightprop0,
-                                         (float)x2,height() - (float)y2,lightprop2,
-                                         (float)x3,height() - (float)y3,lightprop3);
-            }
-#endif
           } break;
           case 5 : {
             const unsigned int
@@ -55446,22 +54974,6 @@ namespace cimg_library {
                             light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity).
                 draw_triangle(x0,y0,z0,x2,y2,z2,x3,y3,z3,color,tx0,ty0,tx2,ty2,tx3,ty3,
                             light_texture,lx0,ly0,lx2,ly2,lx3,ly3,opacity);
-#ifdef cimg_use_board
-            if (pboard) {
-              const float
-                l0 = light_texture((int)(light_texture.width()/2*(1 + lx0)), (int)(light_texture.height()/2*(1 + ly0))),
-                l1 = light_texture((int)(light_texture.width()/2*(1 + lx1)), (int)(light_texture.height()/2*(1 + ly1))),
-                l2 = light_texture((int)(light_texture.width()/2*(1 + lx2)), (int)(light_texture.height()/2*(1 + ly2))),
-                l3 = light_texture((int)(light_texture.width()/2*(1 + lx3)), (int)(light_texture.height()/2*(1 + ly3)));
-              board.setPenColorRGBi(128,128,128,(unsigned char)(opacity*255));
-              board.fillGouraudTriangle((float)x0,height() - (float)y0,l0,
-                                         (float)x1,height() - (float)y1,l1,
-                                         (float)x2,height() - (float)y2,l2);
-              board.fillGouraudTriangle((float)x0,height()  -(float)y0,l0,
-                                         (float)x2,height() - (float)y2,l2,
-                                         (float)x3,height() - (float)y3,l3);
-            }
-#endif
           } break;
           }
         } break;
@@ -61092,47 +60604,6 @@ namespace cimg_library {
             (+visu).__draw_text(" Object '%s' saved. ",font_size,0,filename._data).display(disp);
             disp.set_key(key,false); key = 0;
           } break;
-
-#ifdef cimg_use_board
-        case cimg::keyP : if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) { // Save object as a .EPS file
-            static unsigned int snap_number = 0;
-            do {
-              cimg_snprintf(filename,filename._width,cimg_appname "_%.6u.eps",snap_number++);
-            } while (cimg::path_exists(filename));
-            (+visu).__draw_text(" Saving EPS snapshot... ",font_size,0).display(disp);
-            LibBoard::Board board;
-            (+visu)._draw_object3d(&board,zbuffer.fill(0),
-                                   Xoff + visu._width/2.f,Yoff + visu._height/2.f,Zoff,
-                                   rotated_vertices,reverse_primitives?reverse_primitives:primitives,
-                                   colors,opacities,clicked?nrender_motion:nrender_static,
-                                   _is_double_sided==1,focale,
-                                   visu.width()/2.f + light_x,visu.height()/2.f + light_y,light_z + Zoff,
-                                   specular_lightness,specular_shininess,1,
-                                   sprite_scale);
-            board.saveEPS(filename);
-            (+visu).__draw_text(" Object '%s' saved. ",font_size,0,filename._data).display(disp);
-            disp.set_key(key,false); key = 0;
-          } break;
-        case cimg::keyV : if (disp.is_keyCTRLLEFT() || disp.is_keyCTRLRIGHT()) { // Save object as a .SVG file
-            static unsigned int snap_number = 0;
-            do {
-              cimg_snprintf(filename,filename._width,cimg_appname "_%.6u.svg",snap_number++);
-            } while (cimg::path_exists(filename));
-            (+visu).__draw_text(" Saving SVG snapshot... ",font_size,0).display(disp);
-            LibBoard::Board board;
-            (+visu)._draw_object3d(&board,zbuffer.fill(0),
-                                   Xoff + visu._width/2.f,Yoff + visu._height/2.f,Zoff,
-                                   rotated_vertices,reverse_primitives?reverse_primitives:primitives,
-                                   colors,opacities,clicked?nrender_motion:nrender_static,
-                                   _is_double_sided==1,focale,
-                                   visu.width()/2.f + light_x,visu.height()/2.f + light_y,light_z + Zoff,
-                                   specular_lightness,specular_shininess,1,
-                                   sprite_scale);
-            board.saveSVG(filename);
-            (+visu).__draw_text(" Object '%s' saved. ",font_size,0,filename._data).display(disp);
-            disp.set_key(key,false); key = 0;
-          } break;
-#endif
         }
         if (disp.is_resized()) {
           disp.resize(false); visu0 = get_resize(disp,1);

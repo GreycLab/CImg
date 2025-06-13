@@ -4,7 +4,7 @@
  #                ( C++ source file )
  #
  #  Description : A simple program that demonstrates the use of the
- #                3D functions of CImg, in conjonction with the Board library.
+ #                3D functions of CImg.
  #                This file is a part of the CImg Library project.
  #                ( http://cimg.eu )
  #
@@ -41,11 +41,6 @@
  #  knowledge of the CeCILL license and that you accept its terms.
  #
 */
-
-// Uncomment the line below to use the Board library.
-// ( You will need to link your code with the board library object ).
-// ( Get the Board Library at : http://libboard.sourceforge.net/ )
-//#define cimg_use_board
 
 #include "CImg.h"
 using namespace cimg_library;
@@ -112,29 +107,6 @@ int main() {
   // Save object 3D as OFF file.
   std::fprintf(stderr," - Save .OFF 3D object file.\n");
   scene_pts.save_off(scene_prims,scene_cols,"output.off");
-
-  // Save 3D view in SVG, EPS and FIG files.
-  // (using the Board library : https://github.com/GreycLab/libboard ).
-#ifdef cimg_use_board
-
-  // Define a Board instance
-  LibBoard::Board B;
-
-  // Set Background color of the board.
-  B.clear(230,230,255);
-
-  // Draw object both in 'visu' and in the board.
-  (view_matrix.crop(0,0,2,2))*=2;
-  (+visu).draw_object3d(B,visu.width()/2,visu.height()/2,visu.depth()/2,
-                        view_matrix*scene_pts,scene_prims,scene_cols,scene_opacs,3).
-  display("Snapshot for Board");
-
-  // Save board into a vector graphics file format.
-  std::fprintf(stderr," - Save .SVG, .EPS and .FIG snapshots\n");
-  B.save("output.svg");
-  B.save("output.eps");
-  B.save("output.fig");
-#endif
 
   // Exit.
   std::fprintf(stderr," - Exit.\n");

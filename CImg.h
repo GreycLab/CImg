@@ -7087,7 +7087,7 @@ namespace cimg_library {
     //! Return the factorial of n.
     inline double factorial(const int n) {
       if (n<0) return cimg::type<double>::nan();
-      if (n<2) return 1;
+      if (n<12) { const double tab[] = { 1,1,2,6,24,120,720,5040,40320,362880,3628800,39916800 }; return tab[n]; }
       double res = 2;
       for (int i = 3; i<=n; ++i) res*=i;
       return res;
@@ -62841,8 +62841,14 @@ namespace cimg_library {
       TIFFSetField(tif,TIFFTAG_BITSPERSAMPLE,bpp);
       TIFFSetField(tif,TIFFTAG_PLANARCONFIG,PLANARCONFIG_CONTIG);
       TIFFSetField(tif,TIFFTAG_PHOTOMETRIC,photometric);
-      TIFFSetField(tif,TIFFTAG_COMPRESSION,compression_type==2?COMPRESSION_JPEG:
-                   compression_type==1?COMPRESSION_LZW:COMPRESSION_NONE);
+      TIFFSetField(tif,TIFFTAG_COMPRESSION,
+                   compression_type==6?COMPRESSION_ZSTD:
+                   compression_type==5?COMPRESSION_WEBP:
+                   compression_type==4?COMPRESSION_JBIG:
+                   compression_type==3?COMPRESSION_LZW:
+                   compression_type==2?COMPRESSION_LZMA:
+                   compression_type==1?COMPRESSION_JPEG:
+                   COMPRESSION_NONE);
       rowsperstrip = TIFFDefaultStripSize(tif,rowsperstrip);
       TIFFSetField(tif,TIFFTAG_ROWSPERSTRIP,rowsperstrip);
       TIFFSetField(tif,TIFFTAG_FILLORDER,FILLORDER_MSB2LSB);

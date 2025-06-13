@@ -54016,7 +54016,7 @@ namespace cimg_library {
        \param primitives List of P primitives
        \param colors List of P color (or textures)
        \param opacities Image or list of P opacities
-       \param render_type d Render type (0=Points, 1=Lines, 2=Faces (no light), 3=Faces (flat), 4=Faces(Gouraud)
+       \param render_type Render type (0=Points, 1=Lines, 2=Faces (no light), 3=Faces (flat), 4=Faces(Gouraud)
        \param is_double_sided Tells if object faces have two sides or are oriented.
        \param focale length of the focale (0 for parallel projection)
        \param lightx X-coordinate of the light
@@ -54215,6 +54215,99 @@ namespace cimg_library {
             olightx = lightx; olighty = lighty; olightz = lightz; ospecular_shininess = specular_shininess;
           }
           light_texture.assign(default_light_texture,true);
+        }
+      }
+
+      // Compute 3D normal vectors.
+      CImg<floatT> p_normals, v_normals;
+      if (render_type>=2) {
+
+        // Normals to primitives.
+        p_normals.assign(primitives._width,3);
+        cimglist_for(primitives,l) {
+          const CImg<tf>& primitive = primitives[l];
+          switch (primitive.size()) {
+          case 1 : case 2 : case 5 : case 6 : // Point, sphere and segment
+            p_normals(l,0) = p_normals(l,1) = p_normals(l,2) = 0; break;
+          case 3 : case 9 : { // Triangle
+            const unsigned int
+              i0 = (unsigned int)primitive(0),
+              i1 = (unsigned int)primitive(1),
+              i2 = (unsigned int)primitive(2);
+            const tpfloat
+              x0 = vertices(i0,0), y0 = vertices(i0,1), z0 = vertices(i0,2),
+              x1 = vertices(i1,0), y1 = vertices(i1,1), z1 = vertices(i1,2),
+              x2 = vertices(i2,0), y2 = vertices(i2,1), z2 = vertices(i2,2),
+              dx01 = x1 - x0, dy01 = y1 - y0, dz01 = z1 - z0,
+              dx02 = x2 - x0, dy02 = y2 - y0, dz02 = z2 - z0,
+              u = dy01*dz02 - dz01*dy02,
+              v = dz01*dx02 - dx01*dz02,
+              w = dx01*dy01 - dy01*dx02,
+              nn = 1e-5f + cimg::hypot(u,v,w),
+              nu = u/nn, nv = v/nn, nw = w/nn;
+            p_normals(l,0) = nu; p_normals(l,1) = nv; p_normals(l,2) = nw;
+          } break;
+          case 4 : case 12 : { // Quadrangle
+            const unsigned int
+              i0 = (unsigned int)primitive(0),
+              i1 = (unsigned int)primitive(1),
+              i2 = (unsigned int)primitive(2),
+              i3 = (unsigned int)primitive(3);
+            const tpfloat
+              x0 = vertices(i0,0), y0 = vertices(i0,1), z0 = vertices(i0,2),
+              x1 = vertices(i1,0), y1 = vertices(i1,1), z1 = vertices(i1,2),
+              x2 = vertices(i2,0), y2 = vertices(i2,1), z2 = vertices(i2,2),
+              x3 = vertices(i3,0), y3 = vertices(i3,1), z3 = vertices(i3,2),
+              dx01 = x1 - x0, dy01 = y1 - y0, dz01 = z1 - z0,
+              dx02 = x2 - x0, dy02 = y2 - y0, dz02 = z2 - z0,
+              dx03 = x3 - x0, dy03 = y3 - y0, dz03 = z3 - z0,
+              u0 = dy01*dz02 - dz01*dy02,
+              v0 = dz01*dx02 - dx01*dz02,
+              w0 = dx01*dy01 - dy01*dx02,
+              nn0 = 1e-5f + cimg::hypot(u0,v0,w0),
+              nu0 = u0/nn0, nv0 = v0/nn0, nw0 = w0/nn0,
+              u1 = dy02*dz03 - dz02*dy03,
+              v1 = dz02*dx03 - dx02*dz03,
+              w1 = dx02*dy03 - dy02*dx03,
+              nn1 = 1e-5f + cimg::hypot(u1,v1,w1),
+              nu1 = u1/nn1, nv1 = v1/nn1, nw1 = w1/nn1,
+              u = nu0 + nu1, v = nv0 + nv1, w = nw0 + nw1,
+              nn = 1e-5f + cimg::hypot(u,v,w),
+              nu = u/nn, nv = v/nn, nw = w/nn;
+            p_normals(l,0) = nu; p_normals(l,1) = nv; p_normals(l,2) = nw;
+          } break;
+          }
+        }
+
+        // Normals to vertices.
+        if (render_type>=4) {
+          v_normals.assign(vertices._width,3,1,0);
+          cimglist_for(primitives,l) {
+            const CImg<tf>& primitive = primitives[l];
+            const tpfloat u = p_normals(l,0), v = p_normals(l,1), w = p_normals(l,2);
+            switch (primitive.size()) {
+            case 3 : case 9 : { // Triangle
+              const unsigned int
+                i0 = (unsigned int)primitive(0),
+                i1 = (unsigned int)primitive(1),
+                i2 = (unsigned int)primitive(2);
+              v_normals(i0,0)+=u; v_normals(i0,1)+=v; v_normals(i0,2)+=w;
+              v_normals(i1,0)+=u; v_normals(i1,1)+=v; v_normals(i1,2)+=w;
+              v_normals(i2,0)+=u; v_normals(i2,1)+=v; v_normals(i2,2)+=w;
+            } break;
+            case 4 : case 12 : { // Quadrangle
+              const unsigned int
+                i0 = (unsigned int)primitive(0),
+                i1 = (unsigned int)primitive(1),
+                i2 = (unsigned int)primitive(2),
+                i3 = (unsigned int)primitive(3);
+              v_normals(i0,0)+=u; v_normals(i0,1)+=v; v_normals(i0,2)+=w;
+              v_normals(i1,0)+=u; v_normals(i1,1)+=v; v_normals(i1,2)+=w;
+              v_normals(i2,0)+=u; v_normals(i2,1)+=v; v_normals(i2,2)+=w;
+              v_normals(i3,0)+=u; v_normals(i3,1)+=v; v_normals(i3,2)+=w;
+            } break;
+            }
+          }
         }
       }
 

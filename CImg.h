@@ -54050,7 +54050,7 @@ namespace cimg_library {
                            const float lightx, const float lighty, const float lightz,
                            const float specular_lightness, const float specular_shininess,
                            const float g_opacity, CImg<tz>& zbuffer) {
-      return _draw_object3d(0,zbuffer,x0,y0,z0,vertices,primitives,colors,opacities,
+      return _draw_object3d(zbuffer,x0,y0,z0,vertices,primitives,colors,opacities,
                             render_type,is_double_sided,focale,lightx,lighty,lightz,
                             specular_lightness,specular_shininess,g_opacity,1);
     }
@@ -54080,7 +54080,7 @@ namespace cimg_library {
                            const float lightx, const float lighty, const float lightz,
                            const float specular_lightness, const float specular_shininess,
                            const float g_opacity, CImg<tz>& zbuffer) {
-      return _draw_object3d(0,zbuffer,x0,y0,z0,vertices,primitives,colors,opacities,
+      return _draw_object3d(zbuffer,x0,y0,z0,vertices,primitives,colors,opacities,
                             render_type,is_double_sided,focale,lightx,lighty,lightz,
                             specular_lightness,specular_shininess,g_opacity,1);
     }
@@ -54140,7 +54140,7 @@ namespace cimg_library {
     }
 
     template<typename tz, typename tp, typename tf, typename tc, typename to>
-    CImg<T>& _draw_object3d(void *const pboard, CImg<tz>& zbuffer,
+    CImg<T>& _draw_object3d(CImg<tz>& zbuffer,
                             const float X, const float Y, const float Z,
                             const CImg<tp>& vertices,
                             const CImgList<tf>& primitives,
@@ -60393,7 +60393,7 @@ namespace cimg_library {
                                rotated_bbox_vertices,bbox_primitives,bbox_colors,bbox_opacities,2,false,focale).
               draw_object3d(Xoff + visu._width/2.f,Yoff + visu._height/2.f,Zoff,
                             rotated_bbox_vertices,bbox_primitives,bbox_colors2,1,false,focale);
-          else visu._draw_object3d((void*)0,render_with_zbuffer?zbuffer.fill(0):CImg<tpfloat>::empty(),
+          else visu._draw_object3d(render_with_zbuffer?zbuffer.fill(0):CImg<tpfloat>::empty(),
                                    Xoff + visu._width/2.f,Yoff + visu._height/2.f,Zoff,
                                    rotated_vertices,reverse_primitives?reverse_primitives:primitives,
                                    colors,opacities,clicked?nrender_motion:nrender_static,_is_double_sided==1,focale,

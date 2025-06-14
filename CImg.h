@@ -54240,7 +54240,7 @@ namespace cimg_library {
               dx02 = x2 - x0, dy02 = y2 - y0, dz02 = z2 - z0,
               u = dy01*dz02 - dz01*dy02,
               v = dz01*dx02 - dx01*dz02,
-              w = dx01*dy01 - dy01*dx02,
+              w = dx01*dy02 - dy01*dx02,
               nn = 1e-5f + cimg::hypot(u,v,w),
               nu = u/nn, nv = v/nn, nw = w/nn;
             p_normals(l,0) = nu; p_normals(l,1) = nv; p_normals(l,2) = nw;
@@ -54261,7 +54261,7 @@ namespace cimg_library {
               dx03 = x3 - x0, dy03 = y3 - y0, dz03 = z3 - z0,
               u0 = dy01*dz02 - dz01*dy02,
               v0 = dz01*dx02 - dx01*dz02,
-              w0 = dx01*dy01 - dy01*dx02,
+              w0 = dx01*dy02 - dy01*dx02,
               nn0 = 1e-5f + cimg::hypot(u0,v0,w0),
               nu0 = u0/nn0, nv0 = v0/nn0, nw0 = w0/nn0,
               u1 = dy02*dz03 - dz02*dy03,

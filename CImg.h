@@ -54534,8 +54534,8 @@ namespace cimg_library {
               lx = lightx - x - X, ly = lighty - y - Y, lz = lightz - z - Z,
               nn = 1e-5f + cimg::hypot(lx,ly,lz),
               nlx = lx/nn, nly = ly/nn, nlz = lz/nn,
-              _factor = nlx*u + nly*v + nlz*w,
-              factor = is_double_sided?std::abs(_factor):std::max(0.0f,_factor);
+              dot = nlx*u + nly*v + nlz*w,
+              factor = is_double_sided?std::abs(dot):std::max(0.0f,dot);
             lightprops[l] = factor<=nspec?factor:(nsl1*factor*factor + nsl2*factor + nsl3);
           } else lightprops[l] = 1;
         }
@@ -54552,8 +54552,8 @@ namespace cimg_library {
               lx = lightx - x - X, ly = lighty - y - Y, lz = lightz - z - Z,
               nn = 1e-5f + cimg::hypot(lx,ly,lz),
               nlx = lx/nn, nly = ly/nn, nlz = lz/nn,
-              _factor = nlx*u + nly*v + nlz*w,
-              factor = is_double_sided?std::abs(_factor):std::max(0.0f,_factor);
+              dot = nlx*u + nly*v + nlz*w,
+              factor = is_double_sided?std::abs(dot):std::max(0.0f,dot);
             lightprops[l] = factor<=nspec?factor:(nsl1*factor*factor + nsl2*factor + nsl3);
           }
         } else {

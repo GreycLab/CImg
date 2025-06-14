@@ -54228,6 +54228,24 @@ namespace cimg_library {
         cimglist_for(primitives,l) {
           const CImg<tf>& primitive = primitives[l];
           switch (primitive.size()) {
+          case 1 : { // Point
+            const unsigned int
+              i0 = (unsigned int)primitive(0);
+            const tpfloat
+              x0 = vertices(i0,0), y0 = vertices(i0,1), z0 = vertices(i0,2);
+            p_centers(l,0) = x0; p_centers(l,1) = y0; p_centers(l,2) = z0;
+            p_normals(l,0) = p_normals(l,1) = p_normals(l,2) = 0;
+          } break;
+          case 2 : case 5 : { // Segment and sphere
+            const unsigned int
+              i0 = (unsigned int)primitive(0),
+              i1 = (unsigned int)primitive(1);
+            const tpfloat
+              x0 = vertices(i0,0), y0 = vertices(i0,1), z0 = vertices(i0,2),
+              x1 = vertices(i1,0), y1 = vertices(i1,1), z1 = vertices(i1,2);
+            p_centers(l,0) = (x0 + x1)/2; p_centers(l,1) = (y0 + y1)/2; p_centers(l,2) = (z0 + z1)/2;
+            p_normals(l,0) = p_normals(l,1) = p_normals(l,2) = 0;
+          } break;
           case 3 : case 9 : { // Triangle
             const unsigned int
               i0 = (unsigned int)primitive(0),
@@ -54244,9 +54262,9 @@ namespace cimg_library {
               w = dx01*dy02 - dy01*dx02,
               nn = 1e-5f + cimg::hypot(u,v,w),
               nu = u/nn, nv = v/nn, nw = w/nn;
-            p_centers(l,0) = X + (x0 + x1 + x2)/3;
-            p_centers(l,1) = Y + (y0 + y1 + y2)/3;
-            p_centers(l,2) = Z + (z0 + z1 + z2)/3;
+            p_centers(l,0) = (x0 + x1 + x2)/3;
+            p_centers(l,1) = (y0 + y1 + y2)/3;
+            p_centers(l,2) = (z0 + z1 + z2)/3;
             p_normals(l,0) = nu; p_normals(l,1) = nv; p_normals(l,2) = nw;
           } break;
           case 4 : case 12 : { // Quadrangle
@@ -54276,14 +54294,14 @@ namespace cimg_library {
               u = nu0 + nu1, v = nv0 + nv1, w = nw0 + nw1,
               nn = 1e-5f + cimg::hypot(u,v,w),
               nu = u/nn, nv = v/nn, nw = w/nn;
-            p_centers(l,0) = X + (x0 + x1 + x2 + x3)/3;
-            p_centers(l,1) = Y + (y0 + y1 + y2 + y3)/3;
-            p_centers(l,2) = Z + (z0 + z1 + z2 + z3)/3;
+            p_centers(l,0) = (x0 + x1 + x2 + x3)/3;
+            p_centers(l,1) = (y0 + y1 + y2 + y3)/3;
+            p_centers(l,2) = (z0 + z1 + z2 + z3)/3;
             p_normals(l,0) = nu; p_normals(l,1) = nv; p_normals(l,2) = nw;
           } break;
-          default : // Other primitives
-
-            p_normals(l,0) = p_normals(l,1) = p_normals(l,2) = 0;
+          default : // Other primitives (should not happen!)
+            p_centers(l,0) = p_centers(l,1) = p_centers(l,2) =
+              p_normals(l,0) = p_normals(l,1) = p_normals(l,2) = 0;
           }
         }
 
@@ -54509,29 +54527,17 @@ namespace cimg_library {
         lightprops.assign(nb_visibles);
         cimg_pragma_openmp(parallel for cimg_openmp_if_size(nb_visibles,4096))
         cimg_forX(lightprops,l) {
-          const unsigned int pl = visibles(permutations(l));
-          const CImg<tf>& primitive = primitives[pl];
+          const unsigned int p = visibles(permutations(l));
+          const CImg<tf>& primitive = primitives[p];
           const unsigned int psize = (unsigned int)primitive.size();
           if (psize==3 || psize==4 || psize==9 || psize==12) {
-            const unsigned int
-              i0 = (unsigned int)primitive(0),
-              i1 = (unsigned int)primitive(1),
-              i2 = (unsigned int)primitive(2);
-            const tpfloat
-              x0 = (tpfloat)vertices(i0,0), y0 = (tpfloat)vertices(i0,1), z0 = (tpfloat)vertices(i0,2),
-              x1 = (tpfloat)vertices(i1,0), y1 = (tpfloat)vertices(i1,1), z1 = (tpfloat)vertices(i1,2),
-              x2 = (tpfloat)vertices(i2,0), y2 = (tpfloat)vertices(i2,1), z2 = (tpfloat)vertices(i2,2),
-              dx1 = x1 - x0, dy1 = y1 - y0, dz1 = z1 - z0,
-              dx2 = x2 - x0, dy2 = y2 - y0, dz2 = z2 - z0,
-              nx = dy1*dz2 - dz1*dy2,
-              ny = dz1*dx2 - dx1*dz2,
-              nz = dx1*dy2 - dy1*dx2,
-              norm = 1e-5f + cimg::hypot(nx,ny,nz),
-              lx = X + (x0 + x1 + x2)/3 - lightx,
-              ly = Y + (y0 + y1 + y2)/3 - lighty,
-              lz = Z + (z0 + z1 + z2)/3 - lightz,
-              nl = 1e-5f + cimg::hypot(lx,ly,lz),
-              factor = std::max(cimg::abs(-lx*nx - ly*ny - lz*nz)/(norm*nl),(tpfloat)0);
+            const float
+              x = (float)p_centers(p,0), y = (float)p_centers(p,1), z = (float)p_centers(p,2),
+              u = (float)p_normals(p,0), v = (float)p_normals(p,1), w = (float)p_normals(p,2),
+              lx = lightx - x - X, ly = lighty - y - Y, lz = lightz - z - Z,
+              nn = 1e-5f + cimg::hypot(lx,ly,lz),
+              nlx = lx/nn, nly = ly/nn, nlz = lz/nn,
+              factor = std::max(0.0f,nlx*u + nly*v + nlz*w);
             lightprops[l] = factor<=nspec?factor:(nsl1*factor*factor + nsl2*factor + nsl3);
           } else lightprops[l] = 1;
         }

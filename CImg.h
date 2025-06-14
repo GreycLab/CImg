@@ -54456,12 +54456,10 @@ namespace cimg_library {
           if (y2>yM) yM = y2;
           if (y3<ym) ym = y3;
           if (y3>yM) yM = y3;
-          if (xM>=0 && xm<_width && yM>=0 && ym<_height && z0>zmin && z1>zmin && z2>zmin && z3>zmin) {
-            const float d = (x1 - x0)*(y2 - y0) - (x2 - x0)*(y1 - y0);
-            if (is_double_sided || d<0) {
-              visibles(l) = (unsigned int)l;
-              zrange(l) = (z0 + z1 + z2 + z3)/4;
-            }
+          if (xM>=0 && xm<_width && yM>=0 && ym<_height && z0>zmin && z1>zmin && z2>zmin && z3>zmin &&
+              (is_double_sided || normal_z<0)) {
+            visibles(l) = (unsigned int)l;
+            zrange(l) = (z0 + z1 + z2 + z3)/4;
           }
         } break;
         default :

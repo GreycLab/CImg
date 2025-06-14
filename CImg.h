@@ -54219,10 +54219,11 @@ namespace cimg_library {
       }
 
       // Compute normal 3D vectors.
-      CImg<floatT> p_normals, v_normals;
+      CImg<floatT> p_centers, p_normals, v_normals;
       if (render_type>=2) {
 
         // 3D normals to primitives.
+        p_centers.assign(primitives._width,3);
         p_normals.assign(primitives._width,3);
         cimglist_for(primitives,l) {
           const CImg<tf>& primitive = primitives[l];
@@ -54243,6 +54244,9 @@ namespace cimg_library {
               w = dx01*dy02 - dy01*dx02,
               nn = 1e-5f + cimg::hypot(u,v,w),
               nu = u/nn, nv = v/nn, nw = w/nn;
+            p_centers(l,0) = X + (x0 + x1 + x2)/3;
+            p_centers(l,1) = Y + (y0 + y1 + y2)/3;
+            p_centers(l,2) = Z + (z0 + z1 + z2)/3;
             p_normals(l,0) = nu; p_normals(l,1) = nv; p_normals(l,2) = nw;
           } break;
           case 4 : case 12 : { // Quadrangle
@@ -54272,9 +54276,13 @@ namespace cimg_library {
               u = nu0 + nu1, v = nv0 + nv1, w = nw0 + nw1,
               nn = 1e-5f + cimg::hypot(u,v,w),
               nu = u/nn, nv = v/nn, nw = w/nn;
+            p_centers(l,0) = X + (x0 + x1 + x2 + x3)/3;
+            p_centers(l,1) = Y + (y0 + y1 + y2 + y3)/3;
+            p_centers(l,2) = Z + (z0 + z1 + z2 + z3)/3;
             p_normals(l,0) = nu; p_normals(l,1) = nv; p_normals(l,2) = nw;
           } break;
           default : // Other primitives
+
             p_normals(l,0) = p_normals(l,1) = p_normals(l,2) = 0;
           }
         }
@@ -54501,7 +54509,8 @@ namespace cimg_library {
         lightprops.assign(nb_visibles);
         cimg_pragma_openmp(parallel for cimg_openmp_if_size(nb_visibles,4096))
         cimg_forX(lightprops,l) {
-          const CImg<tf>& primitive = primitives(visibles(permutations(l)));
+          const unsigned int pl = visibles(permutations(l));
+          const CImg<tf>& primitive = primitives[pl];
           const unsigned int psize = (unsigned int)primitive.size();
           if (psize==3 || psize==4 || psize==9 || psize==12) {
             const unsigned int

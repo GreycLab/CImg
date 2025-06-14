@@ -54334,6 +54334,7 @@ namespace cimg_library {
             } break;
             }
           }
+          cimg_pragma_openmp(parallel for cimg_openmp_if_size(v_normals._width,4096))
           cimg_forX(v_normals,l) {
             const float
               u = v_normals(l,0), v = v_normals(l,1), w = v_normals(l,2),

@@ -54225,6 +54225,7 @@ namespace cimg_library {
         // 3D normals to primitives.
         p_centers.assign(primitives._width,3);
         p_normals.assign(primitives._width,3);
+        cimg_pragma_openmp(parallel for cimg_openmp_if_size(primitives.size(),4096))
         cimglist_for(primitives,l) {
           const CImg<tf>& primitive = primitives[l];
           switch (primitive.size()) {
@@ -54299,7 +54300,7 @@ namespace cimg_library {
             p_centers(l,2) = (z0 + z1 + z2 + z3)/3;
             p_normals(l,0) = nu; p_normals(l,1) = nv; p_normals(l,2) = nw;
           } break;
-          default : // Other primitives (should not happen!)
+          default : // Other types of primitives (should never happen...)
             p_centers(l,0) = p_centers(l,1) = p_centers(l,2) =
               p_normals(l,0) = p_normals(l,1) = p_normals(l,2) = 0;
           }
@@ -54543,73 +54544,20 @@ namespace cimg_library {
           } else lightprops[l] = 1;
         }
       } break;
-
       case 4 : // Gouraud Shading
       case 5 : { // Phong-Shading
-        CImg<tpfloat> vertices_normals(vertices._width,6,1,1,0);
-        cimg_pragma_openmp(parallel for cimg_openmp_if_size(nb_visibles,4096))
-        for (int l = 0; l<(int)nb_visibles; ++l) {
-          const CImg<tf>& primitive = primitives[visibles(l)];
-          const unsigned int psize = (unsigned int)primitive.size();
-          const bool
-            triangle_flag = (psize==3) || (psize==9),
-            quadrangle_flag = (psize==4) || (psize==12);
-          if (triangle_flag || quadrangle_flag) {
-            const unsigned int
-              i0 = (unsigned int)primitive(0),
-              i1 = (unsigned int)primitive(1),
-              i2 = (unsigned int)primitive(2),
-              i3 = quadrangle_flag?(unsigned int)primitive(3):0;
-            const tpfloat
-              x0 = (tpfloat)vertices(i0,0), y0 = (tpfloat)vertices(i0,1), z0 = (tpfloat)vertices(i0,2),
-              x1 = (tpfloat)vertices(i1,0), y1 = (tpfloat)vertices(i1,1), z1 = (tpfloat)vertices(i1,2),
-              x2 = (tpfloat)vertices(i2,0), y2 = (tpfloat)vertices(i2,1), z2 = (tpfloat)vertices(i2,2),
-              dx1 = x1 - x0, dy1 = y1 - y0, dz1 = z1 - z0,
-              dx2 = x2 - x0, dy2 = y2 - y0, dz2 = z2 - z0,
-              nnx = dy1*dz2 - dz1*dy2,
-              nny = dz1*dx2 - dx1*dz2,
-              nnz = dx1*dy2 - dy1*dx2,
-              norm = 1e-5f + cimg::hypot(nnx,nny,nnz),
-              nx = nnx/norm,
-              ny = nny/norm,
-              nz = nnz/norm;
-            unsigned int ix = 0, iy = 1, iz = 2;
-            if (is_double_sided && nz>0) { ix = 3; iy = 4; iz = 5; }
-            vertices_normals(i0,ix)+=nx; vertices_normals(i0,iy)+=ny; vertices_normals(i0,iz)+=nz;
-            vertices_normals(i1,ix)+=nx; vertices_normals(i1,iy)+=ny; vertices_normals(i1,iz)+=nz;
-            vertices_normals(i2,ix)+=nx; vertices_normals(i2,iy)+=ny; vertices_normals(i2,iz)+=nz;
-            if (quadrangle_flag) {
-              vertices_normals(i3,ix)+=nx; vertices_normals(i3,iy)+=ny; vertices_normals(i3,iz)+=nz;
-            }
-          }
-        }
-
-        if (is_double_sided) cimg_forX(vertices_normals,p) {
-            const float
-              nx0 = vertices_normals(p,0), ny0 = vertices_normals(p,1), nz0 = vertices_normals(p,2),
-              nx1 = vertices_normals(p,3), ny1 = vertices_normals(p,4), nz1 = vertices_normals(p,5),
-              n0 = nx0*nx0 + ny0*ny0 + nz0*nz0, n1 = nx1*nx1 + ny1*ny1 + nz1*nz1;
-            if (n1>n0) {
-              vertices_normals(p,0) = -nx1;
-              vertices_normals(p,1) = -ny1;
-              vertices_normals(p,2) = -nz1;
-            }
-          }
-
         if (render_type==4) {
           lightprops.assign(vertices._width);
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(nb_visibles,4096))
           cimg_forX(lightprops,l) {
-            const tpfloat
-              nx = vertices_normals(l,0),
-              ny = vertices_normals(l,1),
-              nz = vertices_normals(l,2),
-              norm = 1e-5f + cimg::hypot(nx,ny,nz),
-              lx = X + vertices(l,0) - lightx,
-              ly = Y + vertices(l,1) - lighty,
-              lz = Z + vertices(l,2) - lightz,
-              nl = 1e-5f + cimg::hypot(lx,ly,lz),
-              factor = std::max((-lx*nx - ly*ny - lz*nz)/(norm*nl),(tpfloat)0);
+            const float
+              x = vertices(l,0), y = vertices(l,1), z = vertices(l,2),
+              u = v_normals(l,0), v = v_normals(l,1), w = v_normals(l,2),
+              lx = lightx - x - X, ly = lighty - y - Y, lz = lightz - z - Z,
+              nn = 1e-5f + cimg::hypot(lx,ly,lz),
+              nlx = lx/nn, nly = ly/nn, nlz = lz/nn,
+              _factor = nlx*u + nly*v + nlz*w,
+              factor = is_double_sided?std::abs(_factor):std::max(0.0f,_factor);
             lightprops[l] = factor<=nspec?factor:(nsl1*factor*factor + nsl2*factor + nsl3);
           }
         } else {
@@ -54619,15 +54567,9 @@ namespace cimg_library {
           lightprops.assign(vertices._width,2);
           cimg_pragma_openmp(parallel for cimg_openmp_if_size(nb_visibles,4096))
           cimg_forX(lightprops,l) {
-            const tpfloat
-              nx = vertices_normals(l,0),
-              ny = vertices_normals(l,1),
-              nz = vertices_normals(l,2),
-              norm = 1e-5f + cimg::hypot(nx,ny,nz),
-              nnx = nx/norm,
-              nny = ny/norm;
-            lightprops(l,0) = lw2*(1 + nnx);
-            lightprops(l,1) = lh2*(1 + nny);
+            const tpfloat u = v_normals(l,0), v = v_normals(l,1);
+            lightprops(l,0) = lw2*(1 + u);
+            lightprops(l,1) = lh2*(1 + v);
           }
         }
       } break;

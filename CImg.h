@@ -54359,6 +54359,7 @@ namespace cimg_library {
       cimg_pragma_openmp(parallel for cimg_openmp_if_size(primitives.size(),4096))
       cimglist_for(primitives,l) {
         const CImg<tf>& primitive = primitives[l];
+        const float normal_z = p_normals?p_normals(l,2):-1.0f;
         switch (primitive.size()) {
         case 1 : { // Point
           CImg<_to> _opacity;
@@ -54427,12 +54428,10 @@ namespace cimg_library {
           if (y0<y1) { ym = y0; yM = y1; } else { ym = y1; yM = y0; }
           if (y2<ym) ym = y2;
           if (y2>yM) yM = y2;
-          if (xM>=0 && xm<_width && yM>=0 && ym<_height && z0>zmin && z1>zmin && z2>zmin) {
-            const tpfloat d = (x1-x0)*(y2-y0) - (x2-x0)*(y1-y0);
-            if (is_double_sided || d<0) {
-              visibles(l) = (unsigned int)l;
-              zrange(l) = (z0 + z1 + z2)/3;
-            }
+          if (xM>=0 && xm<_width && yM>=0 && ym<_height && z0>zmin && z1>zmin && z2>zmin &&
+              (is_double_sided || normal_z<0)) {
+            visibles(l) = (unsigned int)l;
+            zrange(l) = (z0 + z1 + z2)/3;
           }
         } break;
         case 4 : case 12 : { // Quadrangle

@@ -54205,7 +54205,7 @@ namespace cimg_library {
               nlx = (default_light_texture._width - 1)/2*(1 + dlx/nl),
               nly = (default_light_texture._height - 1)/2*(1 + dly/nl),
               white[] = { 1 };
-            default_light_texture.draw_gaussian(nlx,nly,default_light_texture._width/3.3f,white);
+            default_light_texture.draw_gaussian(nlx,nly,default_light_texture._width/3.0f,white);
             cimg_forXY(default_light_texture,x,y) {
               const float factor = default_light_texture(x,y);
               if (factor>nspec) default_light_texture(x,y) = std::min(2.f,nsl1*factor*factor + nsl2*factor + nsl3);

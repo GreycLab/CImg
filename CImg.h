@@ -62281,7 +62281,12 @@ namespace cimg_library {
     //! Save image as a TIFF file.
     /**
        \param filename Filename, as a C-string.
-       \param compression_type Type of data compression. Can be <tt>{ 0=None | 1=LZW | 2=JPEG }</tt>.
+       \param compression_type Type of data compression. Can be
+        <tt>{ 0=None | 1=ADOBE_DEFLATE | 2=CCITT_T4 | 3=CCITT_T6 | 4=CCITTFAX3 | 5=CCITTFAX4 | 6=CCITTRLE |
+          7=CCITTRLEW | 8=DCS | 9=DEFLATE | 10=IT8BL | 11=IT8CTPAD | 12=IT8LW | 13=IT8MP | 14=JBIG |
+          15=JP2000 | 16=JPEG | 17=JXL | 18=LERC | 19=LZMA | 20=LZW | 21=NEXT | 22=OJPEG | 23=PACKBITS |
+          24=PIXARFILM | 25=PIXARLOG | 26=SGILOG | 27=SGILOG24 | 28=T43 | 29=T85 | 30=THUNDERSCAN |
+          31=WEBP | 32=ZSTD }</tt>
        \param[out] voxel_size Voxel size, to be stored in the filename.
        \param[out] description Description, to be stored in the filename.
        \param use_bigtiff Allow to save big tiff files (>4Gb).
@@ -62295,7 +62300,6 @@ namespace cimg_library {
         function uses CImg<T>&save_other(const char*).
      **/
     const CImg<T>& save_tiff(const char *const filename, const unsigned int compression_type=0,
-
                              const float *const voxel_size=0, const char *const description=0,
                              const bool use_bigtiff=true) const {
       if (!filename)
@@ -62335,6 +62339,22 @@ namespace cimg_library {
                               const unsigned int compression_type, const float *const voxel_size,
                               const char *const description, double val_min, double val_max) const {
       if (is_empty() || !tif || pixel_t) return *this;
+      const unsigned int compression_codes[] = {
+        COMPRESSION_NONE, COMPRESSION_ADOBE_DEFLATE, COMPRESSION_CCITT_T4, COMPRESSION_CCITT_T6,
+        COMPRESSION_CCITTFAX3, COMPRESSION_CCITTFAX4, COMPRESSION_CCITTRLE, COMPRESSION_CCITTRLEW,
+        COMPRESSION_DCS, COMPRESSION_DEFLATE, COMPRESSION_IT8BL, COMPRESSION_IT8CTPAD, COMPRESSION_IT8LW,
+        COMPRESSION_IT8MP, COMPRESSION_JBIG, COMPRESSION_JP2000, COMPRESSION_JPEG, COMPRESSION_JXL,
+        COMPRESSION_LERC, COMPRESSION_LZMA, COMPRESSION_LZW, COMPRESSION_NEXT, COMPRESSION_OJPEG,
+        COMPRESSION_PACKBITS, COMPRESSION_PIXARFILM, COMPRESSION_PIXARLOG, COMPRESSION_SGILOG,
+        COMPRESSION_SGILOG24, COMPRESSION_T43, COMPRESSION_T85, COMPRESSION_THUNDERSCAN, COMPRESSION_WEBP,
+        COMPRESSION_ZSTD },
+        nb_compression_codes = sizeof(compression_codes)/sizeof(unsigned int);
+      if (compression_type>=nb_compression_codes)
+        throw CImgArgumentException(_cimg_instance
+                                    "save_tiff(): Specified compression type (%u) is invalid "
+                                    "(should be in range [0,%u]).",
+                                    cimg_instance,nb_compression_codes - 1);
+      const unsigned int compression_code = compression_codes[compression_type];
       const char *const filename = TIFFFileName(tif);
       cimg_uint32 rowsperstrip = (cimg_uint32)-1;
       cimg_uint16 spp = _spectrum, bpp = sizeof(t)*8, photometric;
@@ -62363,14 +62383,7 @@ namespace cimg_library {
       TIFFSetField(tif,TIFFTAG_BITSPERSAMPLE,bpp);
       TIFFSetField(tif,TIFFTAG_PLANARCONFIG,PLANARCONFIG_CONTIG);
       TIFFSetField(tif,TIFFTAG_PHOTOMETRIC,photometric);
-      TIFFSetField(tif,TIFFTAG_COMPRESSION,
-                   compression_type==6?COMPRESSION_ZSTD:
-                   compression_type==5?COMPRESSION_WEBP:
-                   compression_type==4?COMPRESSION_LZW:
-                   compression_type==3?COMPRESSION_LZMA:
-                   compression_type==2?COMPRESSION_JPEG:
-                   compression_type==1?COMPRESSION_JBIG:
-                   COMPRESSION_NONE);
+      TIFFSetField(tif,TIFFTAG_COMPRESSION,compression_code);
       rowsperstrip = TIFFDefaultStripSize(tif,rowsperstrip);
       TIFFSetField(tif,TIFFTAG_ROWSPERSTRIP,rowsperstrip);
       TIFFSetField(tif,TIFFTAG_FILLORDER,FILLORDER_MSB2LSB);

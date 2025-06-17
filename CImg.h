@@ -54637,15 +54637,32 @@ namespace cimg_library {
           }
         } break;
         case 2 : { // Colored segment
-          const unsigned int
+          unsigned int
             n0 = (unsigned int)primitive[0],
             n1 = (unsigned int)primitive[1];
-          const int
+          int
             x0 = cimg::uiround(projections(n0,0)), y0 = cimg::uiround(projections(n0,1)),
             x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1));
-          const float
+          float
             z0 = vertices(n0,2) + Z + _focale,
             z1 = vertices(n1,2) + Z + _focale;
+
+/*          const float zproj = 200;
+          if (z0<zproj) cimg::swap(n0,n1,x0,x1,y0,y1,z0,z1);
+          if (z1<zproj) {
+            float
+              fx0 = vertices(n0,0), fy0 = vertices(n0,1), fz0 = vertices(n0,2) + Z + _focale,
+              fx1 = vertices(n1,0), fy1 = vertices(n1,1), fz1 = vertices(n1,2) + Z + _focale,
+              fact = (fz0 - zproj)/(fz0 - fz1);
+            fx1 = fx0 + fact*(fx1 - fx0);
+            fy1 = fy0 + fact*(fy1 - fx0);
+            fz1 = fz0 + fact*(fz1 - fx0);
+            x1 = X + _focale*fx1/fz1;
+            y1 = Y + _focale*fy1/fz1;
+            z1 = zproj;
+          }
+*/
+
           if (render_type) {
             if (zbuffer) draw_line(zbuffer,x0,y0,z0,x1,y1,z1,pcolor,opacity);
             else draw_line(x0,y0,x1,y1,pcolor,opacity);

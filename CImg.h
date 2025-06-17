@@ -48201,7 +48201,7 @@ namespace cimg_library {
           texture.get_vector_at(x0<=0?0:x0>=texture.width()?texture.width() - 1:x0,
                                 y0<=0?0:y0>=texture.height()?texture.height() - 1:y0).move_to(colors[l]);
         } break;
-        case 2 : case 6 : { // Line
+        case 2 : case 6 : { // Segment
           const unsigned int i0 = (unsigned int)p[0], i1 = (unsigned int)p[1];
           const int
             x0 = _coords(i0,0), y0 = _coords(i0,1),
@@ -54636,7 +54636,7 @@ namespace cimg_library {
             }
           }
         } break;
-        case 2 : { // Colored line
+        case 2 : { // Colored segment
           const unsigned int
             n0 = (unsigned int)primitive[0],
             n1 = (unsigned int)primitive[1];
@@ -54695,11 +54695,11 @@ namespace cimg_library {
             break;
           }
         } break;
-        case 6 : { // Textured line
+        case 6 : { // Textured segment
           if (!__color) {
             if (render_type==5) cimg::mutex(10,0);
             throw CImgArgumentException(_cimg_instance
-                                        "draw_object3d(): Undefined texture for line primitive [%u].",
+                                        "draw_object3d(): Undefined texture for segment primitive [%u].",
                                         cimg_instance,n_primitive);
           }
           const unsigned int

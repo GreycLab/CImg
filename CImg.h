@@ -54025,6 +54025,7 @@ namespace cimg_library {
        \param specular_lightness Amount of specular light.
        \param specular_shininess Shininess of the object
        \param g_opacity Global opacity of the object.
+       \param is_multithreaded_rendering Tells if mesh rendering is done with multiple threads
     **/
     template<typename tp, typename tf, typename tc, typename to>
     CImg<T>& draw_object3d(const float x0, const float y0, const float z0,
@@ -54034,10 +54035,11 @@ namespace cimg_library {
                            const bool is_double_sided=false, const float focale=700,
                            const float lightx=0, const float lighty=0, const float lightz=-5e8,
                            const float specular_lightness=0.2f, const float specular_shininess=0.1f,
-                           const float g_opacity=1) {
+                           const float g_opacity=1, const bool is_multithreaded_rendering=false) {
       return draw_object3d(x0,y0,z0,vertices,primitives,colors,opacities,render_type,
                            is_double_sided,focale,lightx,lighty,lightz,
-                           specular_lightness,specular_shininess,g_opacity,CImg<floatT>::empty());
+                           specular_lightness,specular_shininess,g_opacity,CImg<floatT>::empty(),
+                           is_multithreaded_rendering);
     }
 
     //! Draw a 3D object \simplification.
@@ -54049,10 +54051,12 @@ namespace cimg_library {
                            const bool is_double_sided, const float focale,
                            const float lightx, const float lighty, const float lightz,
                            const float specular_lightness, const float specular_shininess,
-                           const float g_opacity, CImg<tz>& zbuffer) {
+                           const float g_opacity, CImg<tz>& zbuffer,
+                           const bool is_multithreaded_rendering=false) {
       return _draw_object3d(zbuffer,x0,y0,z0,vertices,primitives,colors,opacities,
                             render_type,is_double_sided,focale,lightx,lighty,lightz,
-                            specular_lightness,specular_shininess,g_opacity,1);
+                            specular_lightness,specular_shininess,g_opacity,1,
+                            is_multithreaded_rendering);
     }
 
     //! Draw a 3D object \simplification.
@@ -54064,10 +54068,11 @@ namespace cimg_library {
                            const bool is_double_sided=false, const float focale=700,
                            const float lightx=0, const float lighty=0, const float lightz=-5e8,
                            const float specular_lightness=0.2f, const float specular_shininess=0.1f,
-                           const float g_opacity=1) {
+                           const float g_opacity=1, const bool is_multithreaded_rendering=false) {
       return draw_object3d(x0,y0,z0,vertices,primitives,colors,opacities,render_type,
                            is_double_sided,focale,lightx,lighty,lightz,
-                           specular_lightness,specular_shininess,g_opacity,CImg<floatT>::empty());
+                           specular_lightness,specular_shininess,g_opacity,CImg<floatT>::empty(),
+                           is_multithreaded_rendering);
     }
 
     //! Draw a 3D object \simplification.
@@ -54079,10 +54084,12 @@ namespace cimg_library {
                            const bool is_double_sided, const float focale,
                            const float lightx, const float lighty, const float lightz,
                            const float specular_lightness, const float specular_shininess,
-                           const float g_opacity, CImg<tz>& zbuffer) {
+                           const float g_opacity, CImg<tz>& zbuffer,
+                           const bool is_multithreaded_rendering=false) {
       return _draw_object3d(zbuffer,x0,y0,z0,vertices,primitives,colors,opacities,
                             render_type,is_double_sided,focale,lightx,lighty,lightz,
-                            specular_lightness,specular_shininess,g_opacity,1);
+                            specular_lightness,specular_shininess,g_opacity,1,
+                            is_multithreaded_rendering);
     }
 
     //! Draw a 3D object \simplification.
@@ -54094,10 +54101,11 @@ namespace cimg_library {
                            const bool is_double_sided=false, const float focale=700,
                            const float lightx=0, const float lighty=0, const float lightz=-5e8,
                            const float specular_lightness=0.2f, const float specular_shininess=0.1f,
-                           const float g_opacity=1) {
+                           const float g_opacity=1, const bool is_multithreaded_rendering=false) {
       return draw_object3d(x0,y0,z0,vertices,primitives,colors,CImg<floatT>::const_empty(),
                            render_type,is_double_sided,focale,lightx,lighty,lightz,
-                           specular_lightness,specular_shininess,g_opacity,CImg<floatT>::empty());
+                           specular_lightness,specular_shininess,g_opacity,CImg<floatT>::empty(),
+                           is_multithreaded_rendering);
     }
 
     //! Draw a 3D object \simplification.
@@ -54109,10 +54117,12 @@ namespace cimg_library {
                            const bool is_double_sided, const float focale,
                            const float lightx, const float lighty, const float lightz,
                            const float specular_lightness, const float specular_shininess,
-                           const float g_opacity, CImg<tz>& zbuffer) {
+                           const float g_opacity, CImg<tz>& zbuffer,
+                           const bool is_multithreaded_rendering=false) {
       return draw_object3d(x0,y0,z0,vertices,primitives,colors,CImg<floatT>::const_empty(),
                            render_type,is_double_sided,focale,lightx,lighty,lightz,
-                           specular_lightness,specular_shininess,g_opacity,zbuffer);
+                           specular_lightness,specular_shininess,g_opacity,zbuffer,
+                           is_multithreaded_rendering);
     }
 
     template<typename t, typename to>
@@ -54150,7 +54160,8 @@ namespace cimg_library {
                             const bool is_double_sided, const float focale,
                             const float lightx, const float lighty, const float lightz,
                             const float specular_lightness, const float specular_shininess,
-                            const float g_opacity, const float sprite_scale) {
+                            const float g_opacity, const float sprite_scale,
+                            const bool is_multithreaded_rendering) {
       typedef typename to::value_type _to;
       if (is_empty() || !vertices || !primitives) return *this;
       CImg<char> error_message(1024);
@@ -54573,9 +54584,10 @@ namespace cimg_library {
 
       // Draw visible primitives.
       const CImg<tc> default_color(1,_spectrum,1,1,(tc)200);
-      CImg<_to> _opacity;
-
+      cimg_pragma_openmp(parallel for cimg_openmp_if(is_multithreaded_rendering &&
+                                                     nb_visibles>=cimg_openmp_sizefactor*256))
       for (unsigned int l = 0; l<nb_visibles; ++l) {
+        CImg<_to> _opacity;
         const unsigned int n_primitive = visibles(permutations(l));
         const CImg<tf>& primitive = primitives[n_primitive];
         const CImg<tc>
@@ -60464,9 +60476,12 @@ namespace cimg_library {
           else visu._draw_object3d(render_with_zbuffer?zbuffer.fill(0):CImg<floatT>::empty(),
                                    Xoff + visu._width/2.f,Yoff + visu._height/2.f,Zoff,
                                    rotated_vertices,reverse_primitives?reverse_primitives:primitives,
-                                   colors,opacities,clicked?nrender_motion:nrender_static,_is_double_sided==1,focale,
+                                   colors,opacities,
+                                   clicked?nrender_motion:nrender_static,
+                                   _is_double_sided==1,focale,
                                    width()/2.f + light_x,height()/2.f + light_y,light_z + Zoff,
-                                   specular_lightness,specular_shininess,1,sprite_scale);
+                                   specular_lightness,specular_shininess,1,sprite_scale,
+                                   clicked);
           // Draw axes.
           if (ndisplay_axes) {
             const float
@@ -62360,7 +62375,12 @@ namespace cimg_library {
         COMPRESSION_NONE, COMPRESSION_ADOBE_DEFLATE, COMPRESSION_CCITT_T4, COMPRESSION_CCITT_T6,
         COMPRESSION_CCITTFAX3, COMPRESSION_CCITTFAX4, COMPRESSION_CCITTRLE, COMPRESSION_CCITTRLEW,
         COMPRESSION_DCS, COMPRESSION_DEFLATE, COMPRESSION_IT8BL, COMPRESSION_IT8CTPAD, COMPRESSION_IT8LW,
-        COMPRESSION_IT8MP, COMPRESSION_JBIG, COMPRESSION_JP2000, COMPRESSION_JPEG, COMPRESSION_JXL,
+        COMPRESSION_IT8MP, COMPRESSION_JBIG, COMPRESSION_JP2000, COMPRESSION_JPEG,
+#ifdef COMPRESSION_JXL
+        COMPRESSION_JXL,
+#else
+        COMPRESSION_NONE,
+#endif
         COMPRESSION_LERC, COMPRESSION_LZMA, COMPRESSION_LZW, COMPRESSION_NEXT, COMPRESSION_OJPEG,
         COMPRESSION_PACKBITS, COMPRESSION_PIXARFILM, COMPRESSION_PIXARLOG, COMPRESSION_SGILOG,
         COMPRESSION_SGILOG24, COMPRESSION_T43, COMPRESSION_T85, COMPRESSION_THUNDERSCAN, COMPRESSION_WEBP,

@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 356
+#define cimg_version 360
 
 /*-----------------------------------------------------------
  #
@@ -54034,7 +54034,7 @@ namespace cimg_library {
                            const unsigned int render_type=4,
                            const bool is_double_sided=false, const float focale=700,
                            const float lightx=0, const float lighty=0, const float lightz=-5e8,
-                           const float specular_lightness=0.2f, const float specular_shininess=0.1f,
+                           const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                            const float g_opacity=1, const bool is_multithreaded_rendering=false) {
       return draw_object3d(x0,y0,z0,vertices,primitives,colors,opacities,render_type,
                            is_double_sided,focale,lightx,lighty,lightz,
@@ -54067,7 +54067,7 @@ namespace cimg_library {
                            const unsigned int render_type=4,
                            const bool is_double_sided=false, const float focale=700,
                            const float lightx=0, const float lighty=0, const float lightz=-5e8,
-                           const float specular_lightness=0.2f, const float specular_shininess=0.1f,
+                           const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                            const float g_opacity=1, const bool is_multithreaded_rendering=false) {
       return draw_object3d(x0,y0,z0,vertices,primitives,colors,opacities,render_type,
                            is_double_sided,focale,lightx,lighty,lightz,
@@ -54100,7 +54100,7 @@ namespace cimg_library {
                            const unsigned int render_type=4,
                            const bool is_double_sided=false, const float focale=700,
                            const float lightx=0, const float lighty=0, const float lightz=-5e8,
-                           const float specular_lightness=0.2f, const float specular_shininess=0.1f,
+                           const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                            const float g_opacity=1, const bool is_multithreaded_rendering=false) {
       return draw_object3d(x0,y0,z0,vertices,primitives,colors,CImg<floatT>::const_empty(),
                            render_type,is_double_sided,focale,lightx,lighty,lightz,
@@ -54172,8 +54172,8 @@ namespace cimg_library {
       if (render_type==5) cimg::mutex(10); // Static variable used in this case, breaks thread-safety
 
       const float
-        nspec = 1 - (specular_lightness<0.f?0.f:(specular_lightness>1.f?1.f:specular_lightness)),
-        nspec2 = 1 + (specular_shininess<0.f?0.f:specular_shininess),
+        nspec = 1 - cimg::cut(specular_shininess,0.0f,1.0f),
+        nspec2 = 1 + std::max(specular_lightness,0.0f),
         nsl1 = (nspec2 - 1)/cimg::sqr(nspec - 1),
         nsl2 = 1 - 2*nsl1*nspec,
         nsl3 = nspec2 - nsl1 - nsl2;
@@ -60182,7 +60182,7 @@ namespace cimg_library {
                                     const int render_static=4, const int render_motion=1,
                                     const bool is_double_sided=true, const float focale=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
-                                    const float specular_lightness=0.2f, const float specular_shininess=0.1f,
+                                    const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                                     const bool display_axes=true, float *const pose_matrix=0,
                                     const bool exit_on_anykey=false) const {
       return _display_object3d(disp,0,vertices,primitives,colors,opacities,centering,render_static,
@@ -60202,7 +60202,7 @@ namespace cimg_library {
                                     const int render_static=4, const int render_motion=1,
                                     const bool is_double_sided=true, const float focale=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
-                                    const float specular_lightness=0.2f, const float specular_shininess=0.1f,
+                                    const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                                     const bool display_axes=true, float *const pose_matrix=0,
                                     const bool exit_on_anykey=false) const {
       CImgDisplay disp;
@@ -60222,7 +60222,7 @@ namespace cimg_library {
                                     const int render_static=4, const int render_motion=1,
                                     const bool is_double_sided=true, const float focale=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
-                                    const float specular_lightness=0.2f, const float specular_shininess=0.1f,
+                                    const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                                     const bool display_axes=true, float *const pose_matrix=0,
                                     const bool exit_on_anykey=false) const {
       return display_object3d(disp,vertices,primitives,colors,CImgList<floatT>(),centering,
@@ -60241,7 +60241,7 @@ namespace cimg_library {
                                     const int render_static=4, const int render_motion=1,
                                     const bool is_double_sided=true, const float focale=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
-                                    const float specular_lightness=0.2f, const float specular_shininess=0.1f,
+                                    const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                                     const bool display_axes=true, float *const pose_matrix=0,
                                     const bool exit_on_anykey=false) const {
       return display_object3d(title,vertices,primitives,colors,CImgList<floatT>(),centering,
@@ -60259,7 +60259,7 @@ namespace cimg_library {
                                     const int render_static=4, const int render_motion=1,
                                     const bool is_double_sided=true, const float focale=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
-                                    const float specular_lightness=0.2f, const float specular_shininess=0.1f,
+                                    const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                                     const bool display_axes=true, float *const pose_matrix=0,
                                     const bool exit_on_anykey=false) const {
       return display_object3d(disp,vertices,primitives,CImgList<T>(),centering,
@@ -60278,7 +60278,7 @@ namespace cimg_library {
                                     const int render_static=4, const int render_motion=1,
                                     const bool is_double_sided=true, const float focale=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
-                                    const float specular_lightness=0.2f, const float specular_shininess=0.1f,
+                                    const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                                     const bool display_axes=true, float *const pose_matrix=0,
                                     const bool exit_on_anykey=false) const {
       return display_object3d(title,vertices,primitives,CImgList<T>(),centering,
@@ -60295,7 +60295,7 @@ namespace cimg_library {
                                     const int render_static=4, const int render_motion=1,
                                     const bool is_double_sided=true, const float focale=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
-                                    const float specular_lightness=0.2f, const float specular_shininess=0.1f,
+                                    const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                                     const bool display_axes=true, float *const pose_matrix=0,
                                     const bool exit_on_anykey=false) const {
       return display_object3d(disp,vertices,CImgList<uintT>(),centering,
@@ -60312,7 +60312,7 @@ namespace cimg_library {
                                     const int render_static=4, const int render_motion=1,
                                     const bool is_double_sided=true, const float focale=700,
                                     const float light_x=0, const float light_y=0, const float light_z=-5e8f,
-                                    const float specular_lightness=0.2f, const float specular_shininess=0.1f,
+                                    const float specular_lightness=0.25f, const float specular_shininess=0.1f,
                                     const bool display_axes=true, float *const pose_matrix=0,
                                     const bool exit_on_anykey=false) const {
       return display_object3d(title,vertices,CImgList<uintT>(),centering,

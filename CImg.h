@@ -60478,9 +60478,12 @@ namespace cimg_library {
           else visu._draw_object3d(render_with_zbuffer?zbuffer.fill(0):CImg<floatT>::empty(),
                                    Xoff + visu._width/2.f,Yoff + visu._height/2.f,Zoff,
                                    rotated_vertices,reverse_primitives?reverse_primitives:primitives,
-                                   colors,opacities,clicked?nrender_motion:nrender_static,_is_double_sided==1,focale,
+                                   colors,opacities,
+                                   clicked?nrender_motion:nrender_static,
+                                   _is_double_sided==1,focale,
                                    width()/2.f + light_x,height()/2.f + light_y,light_z + Zoff,
-                                   specular_lightness,specular_shininess,1,sprite_scale);
+                                   specular_lightness,specular_shininess,1,sprite_scale,
+                                   clicked);
           // Draw axes.
           if (ndisplay_axes) {
             const float

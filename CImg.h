@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 356
+#define cimg_version 360
 
 /*-----------------------------------------------------------
  #
@@ -54172,8 +54172,8 @@ namespace cimg_library {
       if (render_type==5) cimg::mutex(10); // Static variable used in this case, breaks thread-safety
 
       const float
-        nspec = 1 - (specular_lightness<0.f?0.f:(specular_lightness>1.f?1.f:specular_lightness)),
-        nspec2 = 1 + (specular_shininess<0.f?0.f:specular_shininess),
+        nspec = 1 - cimg::cut(specular_lightness,0.0f,1.0f),
+        nspec2 = 1 + std::max(specular_shininess,0.0f),
         nsl1 = (nspec2 - 1)/cimg::sqr(nspec - 1),
         nsl2 = 1 - 2*nsl1*nspec,
         nsl3 = nspec2 - nsl1 - nsl2;

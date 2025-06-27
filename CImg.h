@@ -54903,19 +54903,16 @@ namespace cimg_library {
               _draw_object3d_draw_flat_segment(zbuffer,X,Y,n3,x3,y3,z3,n0,x0,y0,z0,vertices,pcolor,opacity,_focale);
             break;
           case 2 :
-            if (zbuffer)
-              draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,pcolor,opacity).
-                draw_triangle(zbuffer,x0,y0,z0,x2,y2,z2,x3,y3,z3,pcolor,opacity);
-            else
-              draw_triangle(x0,y0,x1,y1,x2,y2,pcolor,opacity).draw_triangle(x0,y0,x2,y2,x3,y3,pcolor,opacity);
+            _draw_object3d_draw_flat_triangle(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,n2,x2,y2,z2,vertices,
+                                              pcolor,opacity,1,_focale).
+              _draw_object3d_draw_flat_triangle(zbuffer,X,Y,n0,x0,y0,z0,n2,x2,y2,z2,n3,x3,y3,z3,vertices,
+                                                pcolor,opacity,1,_focale);
             break;
           case 3 :
-            if (zbuffer)
-              draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,pcolor,opacity,lightprops(l)).
-                draw_triangle(zbuffer,x0,y0,z0,x2,y2,z2,x3,y3,z3,pcolor,opacity,lightprops(l));
-            else
-              _draw_triangle(x0,y0,x1,y1,x2,y2,pcolor,opacity,lightprops(l)).
-                _draw_triangle(x0,y0,x2,y2,x3,y3,pcolor,opacity,lightprops(l));
+            _draw_object3d_draw_flat_triangle(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,n2,x2,y2,z2,vertices,
+                                              pcolor,opacity,lightprops(l),_focale);
+            _draw_object3d_draw_flat_triangle(zbuffer,X,Y,n0,x0,y0,z0,n2,x2,y2,z2,n3,x3,y3,z3,vertices,
+                                              pcolor,opacity,lightprops(l),_focale);
             break;
           case 4 : {
             const float

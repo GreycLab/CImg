@@ -54457,14 +54457,17 @@ namespace cimg_library {
             x0 = projections(i0,0), y0 = projections(i0,1), z0 = Z + (float)vertices(i0,2),
             x1 = projections(i1,0), y1 = projections(i1,1), z1 = Z + (float)vertices(i1,2),
             x2 = projections(i2,0), y2 = projections(i2,1), z2 = Z + (float)vertices(i2,2);
-          float xm, xM, ym, yM;
+          float xm, xM, ym, yM, zm, zM;
           if (x0<x1) { xm = x0; xM = x1; } else { xm = x1; xM = x0; }
           if (x2<xm) xm = x2;
           if (x2>xM) xM = x2;
           if (y0<y1) { ym = y0; yM = y1; } else { ym = y1; yM = y0; }
           if (y2<ym) ym = y2;
           if (y2>yM) yM = y2;
-          if (xM>=0 && xm<_width && yM>=0 && ym<_height && z0>zmin && z1>zmin && z2>zmin &&
+          if (z0<z1) { zm = z0; zM = z1; } else { zm = z1; zM = z0; }
+          if (z2<zm) zm = z2;
+          if (z2>zM) zM = z2;
+          if (((zm>=zmin && xM>=0 && xm<_width && yM>=0 && ym<_height) || (zm<zmin && zM>=zmin)) &&
               (is_double_sided || normal_z<0)) {
             visibles(l) = (unsigned int)l;
             zrange(l) = (z0 + z1 + z2)/3;

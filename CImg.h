@@ -54150,6 +54150,33 @@ namespace cimg_library {
       return n_primitive<opacities._width?(float)opacities[n_primitive]:1.f;
     }
 
+    template<typename tz, typename tp, typename tc>
+    void _draw_object3d_draw_colored_segment(CImg<tz>& zbuffer,
+                                             const float X, const float Y,
+                                             int n0, int x0, int y0, float z0,
+                                             int n1, int x1, int y1, float z1,
+                                             const CImg<tp>& vertices,
+                                             const tc *const color,
+                                             const float opacity,
+                                             const float focale) {
+      if (z0>z1) cimg::swap(n0,n1,x0,x1,y0,y1,z0,z1);
+      const float zc = 1; // Clipping plane
+      if (z0<zc) {
+        if (z1<zc) return;
+        const float
+          fx0 = vertices(n0,0), fy0 = vertices(n0,1),
+          fx1 = vertices(n1,0), fy1 = vertices(n1,1),
+          fact = (zc - z0)/(z1 - z0),
+          nfx0 = fx0 + fact*(fx1 - fx0),
+          nfy0 = fy0 + fact*(fy1 - fy0);
+        x0 = X + focale*nfx0/zc;
+        y0 = Y + focale*nfy0/zc;
+        z0 = zc;
+      }
+      if (zbuffer) draw_line(zbuffer,x0,y0,z0,x1,y1,z1,color,opacity);
+      else draw_line(x0,y0,x1,y1,color,opacity);
+    }
+
     template<typename tz, typename tp, typename tf, typename tc, typename to>
     CImg<T>& _draw_object3d(CImg<tz>& zbuffer,
                             const float X, const float Y, const float Z,
@@ -54402,7 +54429,7 @@ namespace cimg_library {
           if (l<=colors.width() && (colors[l].size()!=_spectrum || _opacity)) is_forward = false;
           const unsigned int i0 = (unsigned int)primitive(0);
           const float z0 = Z + (float)vertices(i0,2);
-          if (z0>zmin) {
+          if (z0>=zmin) {
             visibles(l) = (unsigned int)l;
             zrange(l) = z0;
           }
@@ -54426,7 +54453,7 @@ namespace cimg_library {
             ym = yc - radius,
             xM = xc + radius,
             yM = yc + radius;
-          if (xM>=0 && xm<_width && yM>=0 && ym<_height && _zc>zmin) {
+          if (xM>=0 && xm<_width && yM>=0 && ym<_height && _zc>=zmin) {
             visibles(l) = (unsigned int)l;
             zrange(l) = _zc;
           }
@@ -54495,7 +54522,7 @@ namespace cimg_library {
           if (y2>yM) yM = y2;
           if (y3<ym) ym = y3;
           if (y3>yM) yM = y3;
-          if (xM>=0 && xm<_width && yM>=0 && ym<_height && z0>zmin && z1>zmin && z2>zmin && z3>zmin &&
+          if (xM>=0 && xm<_width && yM>=0 && ym<_height && z0>=zmin && z1>=zmin && z2>=zmin && z3>=zmin &&
               (is_double_sided || normal_z<0)) {
             visibles(l) = (unsigned int)l;
             zrange(l) = (z0 + z1 + z2 + z3)/4;
@@ -54663,29 +54690,10 @@ namespace cimg_library {
           float
             z0 = vertices(n0,2) + Z + _focale,
             z1 = vertices(n1,2) + Z + _focale;
-
-          // Manage z-clipping.
-          if (z0>z1) cimg::swap(n0,n1,x0,x1,y0,y1,z0,z1);
-          const float zc = 1; // Clipping plane
-          if (z0<zc) {
-            if (z1<zc) continue;
-            const float
-              fx0 = vertices(n0,0), fy0 = vertices(n0,1),
-              fx1 = vertices(n1,0), fy1 = vertices(n1,1),
-              fact = (zc - z0)/(z1 - z0),
-              nfx0 = fx0 + fact*(fx1 - fx0),
-              nfy0 = fy0 + fact*(fy1 - fy0);
-            x0 = X + absfocale*nfx0/zc;
-            y0 = Y + absfocale*nfy0/zc;
-            z0 = zc;
-          }
-
-          if (render_type) {
-            if (zbuffer) draw_line(zbuffer,x0,y0,z0,x1,y1,z1,pcolor,opacity);
-            else draw_line(x0,y0,x1,y1,pcolor,opacity);
-          } else {
+          if (render_type)
+            _draw_object3d_draw_colored_segment(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,vertices,pcolor,opacity,_focale);
+          else
             draw_point(x0,y0,pcolor,opacity).draw_point(x1,y1,pcolor,opacity);
-          }
         } break;
         case 5 : { // Colored sphere
           const unsigned int

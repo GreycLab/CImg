@@ -54175,6 +54175,35 @@ namespace cimg_library {
       return *this;
     }
 
+    // Draw textured segment (with z-plane clipping).
+    template<typename tz, typename tp, typename tc>
+    CImg<T>& _draw_object3d_draw_flat_textured_segment(CImg<tz>& zbuffer,
+                                                       const float X, const float Y,
+                                                       int n0, int x0, int y0, float z0,
+                                                       int n1, int x1, int y1, float z1,
+                                                       const CImg<tp>& vertices,
+                                                       const CImg<tc>& texture,
+                                                       int tx0, int ty0,
+                                                       int tx1, int ty1,
+                                                       const float opacity,
+                                                       const float focale) {
+      if (z0>z1) cimg::swap(n0,n1,x0,x1,y0,y1,z0,z1,tx0,tx1,ty0,ty1);
+      const float zc = 1; // Clipping plane
+      if (z0<zc) {
+        if (z1<zc) return *this; // Two vertices behind camera
+        const float
+          fx0 = vertices(n0,0), fy0 = vertices(n0,1),
+          fx1 = vertices(n1,0), fy1 = vertices(n1,1),
+          fact = (zc - z0)/(z1 - z0), nfx0 = fx0 + fact*(fx1 - fx0), nfy0 = fy0 + fact*(fy1 - fy0);
+        x0 = X + focale*nfx0/zc; y0 = Y + focale*nfy0/zc;
+        z0 = zc;
+        tx0 = tx0 + fact*(tx1 - tx0); ty0 = ty0 + fact*(ty1 - ty0);
+      }
+      if (zbuffer) draw_line(zbuffer,x0,y0,z0,x1,y1,z1,texture,tx0,ty0,tx1,ty1,opacity);
+      else draw_line(x0,y0,x1,y1,texture,tx0,ty0,tx1,ty1,opacity);
+      return *this;
+    }
+
     // Draw flat-colored triangle (with z-plane clipping).
     template<typename tz, typename tp, typename tc>
     CImg<T>& _draw_object3d_draw_flat_colored_triangle(CImg<tz>& zbuffer,
@@ -54929,10 +54958,11 @@ namespace cimg_library {
           const float
             z0 = vertices(n0,2) + Z + _focale,
             z1 = vertices(n1,2) + Z + _focale;
-          if (render_type) {
-            if (zbuffer) draw_line(zbuffer,x0,y0,z0,x1,y1,z1,color,tx0,ty0,tx1,ty1,opacity);
-            else draw_line(x0,y0,z0,x1,y1,z1,color,tx0,ty0,tx1,ty1,opacity);
-          } else {
+
+          if (render_type)
+            _draw_object3d_draw_flat_textured_segment(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,vertices,
+                                                      color,tx0,ty0,tx1,ty1,opacity,_focale);
+          else {
             draw_point(x0,y0,color.get_vector_at(tx0<=0?0:tx0>=color.width()?color.width() - 1:tx0,
                                                  ty0<=0?0:ty0>=color.height()?color.height() - 1:ty0)._data,opacity).
               draw_point(x1,y1,color.get_vector_at(tx1<=0?0:tx1>=color.width()?color.width() - 1:tx1,
@@ -55084,14 +55114,12 @@ namespace cimg_library {
                                                    ty2<=0?0:ty2>=color.height()?color.height() - 1:ty2)._data,opacity);
             break;
           case 1 :
-            if (zbuffer)
-              draw_line(zbuffer,x0,y0,z0,x1,y1,z1,color,tx0,ty0,tx1,ty1,opacity).
-                draw_line(zbuffer,x0,y0,z0,x2,y2,z2,color,tx0,ty0,tx2,ty2,opacity).
-                draw_line(zbuffer,x1,y1,z1,x2,y2,z2,color,tx1,ty1,tx2,ty2,opacity);
-            else
-              draw_line(x0,y0,z0,x1,y1,z1,color,tx0,ty0,tx1,ty1,opacity).
-                draw_line(x0,y0,z0,x2,y2,z2,color,tx0,ty0,tx2,ty2,opacity).
-                draw_line(x1,y1,z1,x2,y2,z2,color,tx1,ty1,tx2,ty2,opacity);
+            _draw_object3d_draw_flat_textured_segment(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,vertices,
+                                                      color,tx0,ty0,tx1,ty1,opacity,_focale).
+              _draw_object3d_draw_flat_textured_segment(zbuffer,X,Y,n1,x1,y1,z1,n2,x2,y2,z2,vertices,
+                                                        color,tx1,ty1,tx2,ty2,opacity,_focale).
+              _draw_object3d_draw_flat_textured_segment(zbuffer,X,Y,n2,x2,y2,z2,n0,x0,y0,z0,vertices,
+                                                        color,tx2,ty2,tx0,ty0,opacity,_focale);
             break;
           case 2 :
             if (zbuffer) draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,color,tx0,ty0,tx1,ty1,tx2,ty2,opacity);
@@ -55165,16 +55193,14 @@ namespace cimg_library {
                                                    ty3<=0?0:ty3>=color.height()?color.height() - 1:ty3)._data,opacity);
             break;
           case 1 :
-            if (zbuffer)
-              draw_line(zbuffer,x0,y0,z0,x1,y1,z1,color,tx0,ty0,tx1,ty1,opacity).
-                draw_line(zbuffer,x1,y1,z1,x2,y2,z2,color,tx1,ty1,tx2,ty2,opacity).
-                draw_line(zbuffer,x2,y2,z2,x3,y3,z3,color,tx2,ty2,tx3,ty3,opacity).
-                draw_line(zbuffer,x3,y3,z3,x0,y0,z0,color,tx3,ty3,tx0,ty0,opacity);
-            else
-              draw_line(x0,y0,z0,x1,y1,z1,color,tx0,ty0,tx1,ty1,opacity).
-                draw_line(x1,y1,z1,x2,y2,z2,color,tx1,ty1,tx2,ty2,opacity).
-                draw_line(x2,y2,z2,x3,y3,z3,color,tx2,ty2,tx3,ty3,opacity).
-                draw_line(x3,y3,z3,x0,y0,z0,color,tx3,ty3,tx0,ty0,opacity);
+            _draw_object3d_draw_flat_textured_segment(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,vertices,
+                                                      color,tx0,ty0,tx1,ty1,opacity,_focale).
+              _draw_object3d_draw_flat_textured_segment(zbuffer,X,Y,n1,x1,y1,z1,n2,x2,y2,z2,vertices,
+                                                        color,tx1,ty1,tx2,ty2,opacity,_focale).
+              _draw_object3d_draw_flat_textured_segment(zbuffer,X,Y,n2,x2,y2,z2,n3,x3,y3,z3,vertices,
+                                                        color,tx2,ty2,tx3,ty3,opacity,_focale).
+              _draw_object3d_draw_flat_textured_segment(zbuffer,X,Y,n3,x3,y3,z3,n0,x0,y0,z0,vertices,
+                                                        color,tx3,ty3,tx0,ty0,opacity,_focale);
             break;
           case 2 :
             if (zbuffer)

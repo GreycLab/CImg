@@ -54151,18 +54151,18 @@ namespace cimg_library {
     }
 
     template<typename tz, typename tp, typename tc>
-    void _draw_object3d_draw_colored_segment(CImg<tz>& zbuffer,
-                                             const float X, const float Y,
-                                             int n0, int x0, int y0, float z0,
-                                             int n1, int x1, int y1, float z1,
-                                             const CImg<tp>& vertices,
-                                             const tc *const color,
-                                             const float opacity,
-                                             const float focale) {
+    CImg<T>& _draw_object3d_draw_colored_segment(CImg<tz>& zbuffer,
+                                                 const float X, const float Y,
+                                                 int n0, int x0, int y0, float z0,
+                                                 int n1, int x1, int y1, float z1,
+                                                 const CImg<tp>& vertices,
+                                                 const tc *const color,
+                                                 const float opacity,
+                                                 const float focale) {
       if (z0>z1) cimg::swap(n0,n1,x0,x1,y0,y1,z0,z1);
       const float zc = 1; // Clipping plane
       if (z0<zc) {
-        if (z1<zc) return;
+        if (z1<zc) return *this;
         const float
           fx0 = vertices(n0,0), fy0 = vertices(n0,1),
           fx1 = vertices(n1,0), fy1 = vertices(n1,1),
@@ -54175,6 +54175,7 @@ namespace cimg_library {
       }
       if (zbuffer) draw_line(zbuffer,x0,y0,z0,x1,y1,z1,color,opacity);
       else draw_line(x0,y0,x1,y1,color,opacity);
+      return *this;
     }
 
     template<typename tz, typename tp, typename tf, typename tc, typename to>
@@ -54783,12 +54784,9 @@ namespace cimg_library {
             draw_point(x0,y0,pcolor,opacity).draw_point(x1,y1,pcolor,opacity).draw_point(x2,y2,pcolor,opacity);
             break;
           case 1 :
-            if (zbuffer)
-              draw_line(zbuffer,x0,y0,z0,x1,y1,z1,pcolor,opacity).draw_line(zbuffer,x0,y0,z0,x2,y2,z2,pcolor,opacity).
-                draw_line(zbuffer,x1,y1,z1,x2,y2,z2,pcolor,opacity);
-            else
-              draw_line(x0,y0,x1,y1,pcolor,opacity).draw_line(x0,y0,x2,y2,pcolor,opacity).
-                draw_line(x1,y1,x2,y2,pcolor,opacity);
+            _draw_object3d_draw_colored_segment(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,vertices,pcolor,opacity,_focale).
+              _draw_object3d_draw_colored_segment(zbuffer,X,Y,n0,x0,y0,z0,n2,x2,y2,z2,vertices,pcolor,opacity,_focale).
+              _draw_object3d_draw_colored_segment(zbuffer,X,Y,n1,x1,y1,z1,n2,x2,y2,z2,vertices,pcolor,opacity,_focale);
             break;
           case 2 :
             if (zbuffer) draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,pcolor,opacity);

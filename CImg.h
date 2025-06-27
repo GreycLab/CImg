@@ -54512,7 +54512,7 @@ namespace cimg_library {
             x1 = projections(i1,0), y1 = projections(i1,1), z1 = Z + (float)vertices(i1,2),
             x2 = projections(i2,0), y2 = projections(i2,1), z2 = Z + (float)vertices(i2,2),
             x3 = projections(i3,0), y3 = projections(i3,1), z3 = Z + (float)vertices(i3,2);
-          float xm, xM, ym, yM;
+          float xm, xM, ym, yM, zm, zM;
           if (x0<x1) { xm = x0; xM = x1; } else { xm = x1; xM = x0; }
           if (x2<xm) xm = x2;
           if (x2>xM) xM = x2;
@@ -54523,7 +54523,12 @@ namespace cimg_library {
           if (y2>yM) yM = y2;
           if (y3<ym) ym = y3;
           if (y3>yM) yM = y3;
-          if (xM>=0 && xm<_width && yM>=0 && ym<_height && z0>=zmin && z1>=zmin && z2>=zmin && z3>=zmin &&
+          if (z0<z1) { zm = z0; zM = z1; } else { zm = z1; zM = z0; }
+          if (z2<zm) zm = z2;
+          if (z2>zM) zM = z2;
+          if (z3<zm) zm = z3;
+          if (z3>zM) zM = z3;
+          if (((zm>=zmin && xM>=0 && xm<_width && yM>=0 && ym<_height) || (zm<zmin && zM>=zmin)) &&
               (is_double_sided || normal_z<0)) {
             visibles(l) = (unsigned int)l;
             zrange(l) = (z0 + z1 + z2 + z3)/4;
@@ -54785,8 +54790,8 @@ namespace cimg_library {
             break;
           case 1 :
             _draw_object3d_draw_colored_segment(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,vertices,pcolor,opacity,_focale).
-              _draw_object3d_draw_colored_segment(zbuffer,X,Y,n0,x0,y0,z0,n2,x2,y2,z2,vertices,pcolor,opacity,_focale).
-              _draw_object3d_draw_colored_segment(zbuffer,X,Y,n1,x1,y1,z1,n2,x2,y2,z2,vertices,pcolor,opacity,_focale);
+              _draw_object3d_draw_colored_segment(zbuffer,X,Y,n1,x1,y1,z1,n2,x2,y2,z2,vertices,pcolor,opacity,_focale).
+              _draw_object3d_draw_colored_segment(zbuffer,X,Y,n2,x2,y2,z2,n0,x0,y0,z0,vertices,pcolor,opacity,_focale);
             break;
           case 2 :
             if (zbuffer) draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,pcolor,opacity);
@@ -54838,12 +54843,10 @@ namespace cimg_library {
               draw_point(x2,y2,pcolor,opacity).draw_point(x3,y3,pcolor,opacity);
             break;
           case 1 :
-            if (zbuffer)
-              draw_line(zbuffer,x0,y0,z0,x1,y1,z1,pcolor,opacity).draw_line(zbuffer,x1,y1,z1,x2,y2,z2,pcolor,opacity).
-                draw_line(zbuffer,x2,y2,z2,x3,y3,z3,pcolor,opacity).draw_line(zbuffer,x3,y3,z3,x0,y0,z0,pcolor,opacity);
-            else
-              draw_line(x0,y0,x1,y1,pcolor,opacity).draw_line(x1,y1,x2,y2,pcolor,opacity).
-                draw_line(x2,y2,x3,y3,pcolor,opacity).draw_line(x3,y3,x0,y0,pcolor,opacity);
+            _draw_object3d_draw_colored_segment(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,vertices,pcolor,opacity,_focale).
+              _draw_object3d_draw_colored_segment(zbuffer,X,Y,n1,x1,y1,z1,n2,x2,y2,z2,vertices,pcolor,opacity,_focale).
+              _draw_object3d_draw_colored_segment(zbuffer,X,Y,n2,x2,y2,z2,n3,x3,y3,z3,vertices,pcolor,opacity,_focale).
+              _draw_object3d_draw_colored_segment(zbuffer,X,Y,n3,x3,y3,z3,n0,x0,y0,z0,vertices,pcolor,opacity,_focale);
             break;
           case 2 :
             if (zbuffer)

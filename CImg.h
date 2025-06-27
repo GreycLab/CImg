@@ -54188,8 +54188,8 @@ namespace cimg_library {
                                                const float opacity,
                                                const float brightness,
                                                const float focale) {
-      if (z0>z2) cimg::swap(n0,n1,x0,x1,y0,y1,z0,z1);
-      if (z0>z1) cimg::swap(n0,n2,x0,x2,y0,y2,z0,z2);
+      if (z0>z2) cimg::swap(n0,n2,x0,x2,y0,y2,z0,z2);
+      if (z0>z1) cimg::swap(n0,n1,x0,x1,y0,y1,z0,z1);
       if (z1>z2) cimg::swap(n1,n2,x1,x2,y1,y2,z1,z2);
       const float zc = 1; // Clipping plane
       if (z0<zc) {

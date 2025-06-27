@@ -54661,10 +54661,10 @@ namespace cimg_library {
             z0 = vertices(n0,2) + Z + _focale,
             z1 = vertices(n1,2) + Z + _focale;
 
-//          bool is_clipped = false;
+          // Manage z-clipping.
           if (z0>z1) cimg::swap(n0,n1,x0,x1,y0,y1,z0,z1);
-          const float zc = 1;
-          if (z0<zc) { // Manage z-clipping
+          const float zc = 1; // Clipping plane
+          if (z0<zc) {
             if (z1<zc) continue;
             const float
               fx0 = vertices(n0,0), fy0 = vertices(n0,1),
@@ -54674,20 +54674,14 @@ namespace cimg_library {
               nfy0 = fy0 + fact*(fy1 - fy0);
             x0 = X + absfocale*nfx0/zc;
             y0 = Y + absfocale*nfy0/zc;
-//            is_clipped = true;
-
-//            std::fprintf(stderr,"[%u] = (%d,%d)-(%d,%d)\n",l,x0,y0,x1,y1);
+            z0 = zc;
           }
 
-//          tc red[] = { 255,0,0 };
-//          const tc *const ncol = is_clipped?red:pcolor;
-          const tc *const ncol = pcolor;
-
           if (render_type) {
-            if (zbuffer) draw_line(zbuffer,x0,y0,z0,x1,y1,z1,ncol,opacity);
-            else draw_line(x0,y0,x1,y1,ncol,opacity);
+            if (zbuffer) draw_line(zbuffer,x0,y0,z0,x1,y1,z1,pcolor,opacity);
+            else draw_line(x0,y0,x1,y1,pcolor,opacity);
           } else {
-            draw_point(x0,y0,pcolor,opacity).draw_point(x1,y1,ncol,opacity);
+            draw_point(x0,y0,pcolor,opacity).draw_point(x1,y1,pcolor,opacity);
           }
         } break;
         case 5 : { // Colored sphere

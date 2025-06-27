@@ -54219,8 +54219,8 @@ namespace cimg_library {
           } else {
             if (zbuffer) draw_triangle(zbuffer,nx0,ny0,nz0,x1,y1,z1,x2,y2,z2,color,opacity,brightness).
                            draw_triangle(zbuffer,nx0,ny0,nz0,nx1,ny1,nz1,x2,y2,z2,color,opacity,brightness);
-            else draw_triangle(nx0,ny0,x1,y1,x2,y2,color,opacity,brightness).
-                   draw_triangle(nx0,ny0,nx1,ny1,x2,y2,color,opacity,brightness);
+            else _draw_triangle(nx0,ny0,x1,y1,x2,y2,color,opacity,brightness).
+                   _draw_triangle(nx0,ny0,nx1,ny1,x2,y2,color,opacity,brightness);
           }
           return *this;
         }
@@ -54230,7 +54230,7 @@ namespace cimg_library {
         else draw_triangle(x0,y0,x1,y1,x2,y2,color,opacity);
       } else {
         if (zbuffer) draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,color,opacity,brightness);
-        else draw_triangle(x0,y0,x1,y1,x2,y2,color,opacity,brightness);
+        else _draw_triangle(x0,y0,x1,y1,x2,y2,color,opacity,brightness);
       }
       return *this;
     }

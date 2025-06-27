@@ -49991,6 +49991,7 @@ namespace cimg_library {
                                     "different dimensions.",
                                     cimg_instance,
                                     zbuffer._width,zbuffer._height,zbuffer._depth,zbuffer._spectrum,zbuffer._data);
+
       if (std::min(y0,y1)>=height() || std::max(y0,y1)<0 || std::min(x0,x1)>=width() || std::max(x0,x1)<0)
         return *this;
       int
@@ -54438,10 +54439,11 @@ namespace cimg_library {
           const float
             x0 = projections(i0,0), y0 = projections(i0,1), z0 = Z + (float)vertices(i0,2),
             x1 = projections(i1,0), y1 = projections(i1,1), z1 = Z + (float)vertices(i1,2);
-          float xm, xM, ym, yM;
+          float xm, xM, ym, yM, zm, zM;
           if (x0<x1) { xm = x0; xM = x1; } else { xm = x1; xM = x0; }
           if (y0<y1) { ym = y0; yM = y1; } else { ym = y1; yM = y0; }
-          if (xM>=0 && xm<_width && yM>=0 && ym<_height && z0>zmin && z1>zmin) {
+          if (z0<z1) { zm = z0; zM = z1; } else { zm = z1; zM = z0; }
+          if ((zm>=zmin && xM>=0 && xm<_width && yM>=0 && ym<_height) || (zm<zmin && zM>=zmin)) {
             visibles(l) = (unsigned int)l;
             zrange(l) = (z0 + z1)/2;
           }
@@ -54659,27 +54661,33 @@ namespace cimg_library {
             z0 = vertices(n0,2) + Z + _focale,
             z1 = vertices(n1,2) + Z + _focale;
 
-/*          const float zproj = 200;
-          if (z0<zproj) cimg::swap(n0,n1,x0,x1,y0,y1,z0,z1);
-          if (z1<zproj) {
-            float
-              fx0 = vertices(n0,0), fy0 = vertices(n0,1), fz0 = vertices(n0,2) + Z + _focale,
-              fx1 = vertices(n1,0), fy1 = vertices(n1,1), fz1 = vertices(n1,2) + Z + _focale,
-              fact = (fz0 - zproj)/(fz0 - fz1);
-            fx1 = fx0 + fact*(fx1 - fx0);
-            fy1 = fy0 + fact*(fy1 - fx0);
-            fz1 = fz0 + fact*(fz1 - fx0);
-            x1 = X + _focale*fx1/fz1;
-            y1 = Y + _focale*fy1/fz1;
-            z1 = zproj;
+//          bool is_clipped = false;
+          if (z0>z1) cimg::swap(n0,n1,x0,x1,y0,y1,z0,z1);
+          const float zc = 1;
+          if (z0<zc) { // Manage z-clipping
+            if (z1<zc) continue;
+            const float
+              fx0 = vertices(n0,0), fy0 = vertices(n0,1),
+              fx1 = vertices(n1,0), fy1 = vertices(n1,1),
+              fact = (zc - z0)/(z1 - z0),
+              nfx0 = fx0 + fact*(fx1 - fx0),
+              nfy0 = fy0 + fact*(fy1 - fy0);
+            x0 = X + absfocale*nfx0/zc;
+            y0 = Y + absfocale*nfy0/zc;
+//            is_clipped = true;
+
+//            std::fprintf(stderr,"[%u] = (%d,%d)-(%d,%d)\n",l,x0,y0,x1,y1);
           }
-*/
+
+//          tc red[] = { 255,0,0 };
+//          const tc *const ncol = is_clipped?red:pcolor;
+          const tc *const ncol = pcolor;
 
           if (render_type) {
-            if (zbuffer) draw_line(zbuffer,x0,y0,z0,x1,y1,z1,pcolor,opacity);
-            else draw_line(x0,y0,x1,y1,pcolor,opacity);
+            if (zbuffer) draw_line(zbuffer,x0,y0,z0,x1,y1,z1,ncol,opacity);
+            else draw_line(x0,y0,x1,y1,ncol,opacity);
           } else {
-            draw_point(x0,y0,pcolor,opacity).draw_point(x1,y1,pcolor,opacity);
+            draw_point(x0,y0,pcolor,opacity).draw_point(x1,y1,ncol,opacity);
           }
         } break;
         case 5 : { // Colored sphere

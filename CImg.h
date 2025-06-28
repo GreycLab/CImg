@@ -54306,9 +54306,9 @@ namespace cimg_library {
                                      texture,ntx0,nty0,tx1,ty1,tx2,ty2,opacity,brightness).
                          draw_triangle(zbuffer,nx0,ny0,nz0,nx1,ny1,nz1,x2,y2,z2,
                                        texture,ntx0,nty0,ntx1,nty1,tx2,ty2,opacity,brightness);
-          else draw_triangle(nx0,ny0,x1,y1,x2,y2,
+          else draw_triangle(nx0,ny0,nz0,x1,y1,z1,x2,y2,z2,
                              texture,ntx0,nty0,tx1,ty1,tx2,ty2,opacity,brightness).
-                 draw_triangle(nx0,ny0,nx1,ny1,x2,y2,
+                 draw_triangle(nx0,ny0,nz0,nx1,ny1,nz1,x2,y2,z2,
                                texture,ntx0,nty0,ntx1,nty1,tx2,ty2,opacity,brightness);
           return *this;
         }

@@ -51089,7 +51089,7 @@ namespace cimg_library {
 
       if (y0>y1) cimg::swap(x0,x1,y0,y1,tx0,tx1,ty0,ty1);
       if (y0>y2) cimg::swap(x0,x2,y0,y2,tx0,tx2,ty0,ty2);
-      if (y1>y2) cimg::swap(x1,x2,y1,y2,tx1,ty1,tx2,ty2);
+      if (y1>y2) cimg::swap(x1,x2,y1,y2,tx1,tx2,ty1,ty2);
       if (y2<0 || y0>=height() || cimg::min(x0,x1,x2)>=width() || cimg::max(x0,x1,x2)<0 || !opacity) return *this;
 
       const int
@@ -54315,7 +54315,7 @@ namespace cimg_library {
       }
       if (zbuffer) draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,
                                  texture,tx0,ty0,tx1,ty1,tx2,ty2,opacity,brightness);
-      else draw_triangle(x0,y0,x1,y1,x2,y2,
+      else draw_triangle(x0,y0,z0,x1,y1,z1,x2,y2,z2,
                          texture,tx0,ty0,tx1,ty1,tx2,ty2,opacity,brightness);
       return *this;
     }
@@ -54664,14 +54664,14 @@ namespace cimg_library {
         }
       }
 
-      const float _focale = absfocale?absfocale:(1e5f-parallzmin);
+      const float _focale = absfocale?absfocale:(1e5f - parallzmin);
       float zmax = 0;
       if (zbuffer) zmax = vertices.get_shared_row(2).max();
 
       // Compute visible primitives.
       CImg<uintT> visibles(primitives._width,1,1,1,~0U);
       CImg<float> zrange(primitives._width);
-      const float zmin = absfocale?1.5f - absfocale:cimg::type<float>::min();
+      const float zmin = absfocale?1 - absfocale:cimg::type<float>::min();
       bool is_forward = zbuffer?true:false;
 
       cimg_pragma_openmp(parallel for cimg_openmp_if_size(primitives.size(),4096))

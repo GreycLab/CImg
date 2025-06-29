@@ -54203,7 +54203,7 @@ namespace cimg_library {
         tx0 = cimg::uiround(tx0 + fact*(tx1 - tx0)); ty0 = cimg::uiround(ty0 + fact*(ty1 - ty0));
       }
       if (zbuffer) draw_line(zbuffer,x0,y0,z0,x1,y1,z1,texture,tx0,ty0,tx1,ty1,opacity);
-      else draw_line(x0,y0,x1,y1,texture,tx0,ty0,tx1,ty1,opacity);
+      else draw_line(x0,y0,z0,x1,y1,z1,texture,tx0,ty0,tx1,ty1,opacity);
       return *this;
     }
 

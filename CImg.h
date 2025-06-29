@@ -54501,6 +54501,87 @@ namespace cimg_library {
       return *this;
     }
 
+    // Draw phong-textured triangle (with z-plane clipping).
+    template<typename tz, typename tp, typename tc>
+    CImg<T>& _draw_object3d_phong_textured_triangle(CImg<tz>& zbuffer,
+                                                    const float X, const float Y,
+                                                    int n0, int x0, int y0, float z0,
+                                                    int n1, int x1, int y1, float z1,
+                                                    int n2, int x2, int y2, float z2,
+                                                    const CImg<tp>& vertices,
+                                                    const CImg<tc>& texture,
+                                                    int tx0, int ty0,
+                                                    int tx1, int ty1,
+                                                    int tx2, int ty2,
+                                                    const CImg<floatT>& light_texture,
+                                                    int lx0, int ly0,
+                                                    int lx1, int ly1,
+                                                    int lx2, int ly2,
+                                                    const float opacity, float focale) {
+      if (z0>z2) cimg::swap(n0,n2,x0,x2,y0,y2,z0,z2,tx0,tx2,ty0,ty2,lx0,lx2,ly0,ly2);
+      if (z0>z1) cimg::swap(n0,n1,x0,x1,y0,y1,z0,z1,tx0,tx1,ty0,ty1,lx0,lx1,ly0,ly1);
+      if (z1>z2) cimg::swap(n1,n2,x1,x2,y1,y2,z1,z2,tx1,tx2,ty1,ty2,lx1,lx2,ly1,ly2);
+      const float zc = 1; // Clipping plane
+      if (z0<zc) {
+        if (z2<zc) return *this;
+        if (!focale) focale = zc; // Parallel projection
+        const float
+          fx0 = vertices(n0,0), fy0 = vertices(n0,1),
+          fx1 = vertices(n1,0), fy1 = vertices(n1,1),
+          fx2 = vertices(n2,0), fy2 = vertices(n2,1);
+        if (z1<zc) { // Two vertices behind camera
+          const float
+            fact0 = (zc - z0)/(z2 - z0), nfx0 = fx0 + fact0*(fx2 - fx0), nfy0 = fy0 + fact0*(fy2 - fy0),
+            fact1 = (zc - z1)/(z2 - z1), nfx1 = fx1 + fact1*(fx2 - fx1), nfy1 = fy1 + fact1*(fy2 - fy1);
+            x0 = X + focale*nfx0/zc; y0 = Y + focale*nfy0/zc;
+            x1 = X + focale*nfx1/zc; y1 = Y + focale*nfy1/zc;
+            z0 = z1 = zc;
+            tx0 = cimg::uiround(tx0 + fact0*(tx2 - tx0));
+            ty0 = cimg::uiround(ty0 + fact0*(ty2 - ty0));
+            tx1 = cimg::uiround(tx1 + fact1*(tx2 - tx1));
+            ty1 = cimg::uiround(ty1 + fact1*(ty2 - ty1));
+            lx0 = cimg::uiround(lx0 + fact0*(lx2 - lx0));
+            ly0 = cimg::uiround(ly0 + fact0*(ly2 - ly0));
+            lx1 = cimg::uiround(lx1 + fact1*(lx2 - lx1));
+            ly1 = cimg::uiround(ly1 + fact1*(ly2 - ly1));
+        } else { // One vertex behind camera
+          const float
+            fact0 = (zc - z0)/(z1 - z0), nfx0 = fx0 + fact0*(fx1 - fx0), nfy0 = fy0 + fact0*(fy1 - fy0),
+            fact1 = (zc - z0)/(z2 - z0), nfx1 = fx0 + fact1*(fx2 - fx0), nfy1 = fy0 + fact1*(fy2 - fy0),
+            nx0 = X + focale*nfx0/zc, ny0 = Y + focale*nfy0/zc, nz0 = zc,
+            nx1 = X + focale*nfx1/zc, ny1 = Y + focale*nfy1/zc, nz1 = zc,
+            ntx0 = cimg::uiround(tx0 + fact0*(tx1 - tx0)),
+            nty0 = cimg::uiround(ty0 + fact0*(ty1 - ty0)),
+            ntx1 = cimg::uiround(tx0 + fact1*(tx2 - tx0)),
+            nty1 = cimg::uiround(ty0 + fact1*(ty2 - ty0)),
+            nlx0 = cimg::uiround(lx0 + fact0*(lx1 - lx0)),
+            nly0 = cimg::uiround(ly0 + fact0*(ly1 - ly0)),
+            nlx1 = cimg::uiround(lx0 + fact1*(lx2 - lx0)),
+            nly1 = cimg::uiround(ly0 + fact1*(ly2 - ly0));
+          if (zbuffer) draw_triangle(zbuffer,nx0,ny0,nz0,x1,y1,z1,x2,y2,z2,
+                                     texture,ntx0,nty0,tx1,ty1,tx2,ty2,
+                                     light_texture,nlx0,nly0,lx1,ly1,lx2,ly2,opacity).
+                         draw_triangle(zbuffer,nx0,ny0,nz0,nx1,ny1,nz1,x2,y2,z2,
+                                       texture,ntx0,nty0,ntx1,nty1,tx2,ty2,
+                                       light_texture,nlx0,nly0,nlx1,nly1,lx2,ly2,opacity);
+          else draw_triangle(nx0,ny0,x1,y1,x2,y2,
+                             texture,ntx0,nty0,tx1,ty1,tx2,ty2,
+                             light_texture,nlx0,nly0,lx1,ly1,lx2,ly2,opacity).
+                 draw_triangle(nx0,ny0,nx1,ny1,x2,y2,
+                               texture,ntx0,nty0,ntx1,nty1,tx2,ty2,
+                               light_texture,nlx0,nly0,nlx1,nly1,lx2,ly2,opacity);
+          return *this;
+        }
+      }
+      if (zbuffer) draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,
+                                 texture,tx0,ty0,tx1,ty1,tx2,ty2,
+                                 light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity);
+      else draw_triangle(x0,y0,x1,y1,x2,y2,
+                         texture,tx0,ty0,tx1,ty1,tx2,ty2,
+                         light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity);
+      return *this;
+    }
+
     template<typename tz, typename tp, typename tf, typename tc, typename to>
     CImg<T>& _draw_object3d(CImg<tz>& zbuffer,
                             const float X, const float Y, const float Z,
@@ -55263,18 +55344,14 @@ namespace cimg_library {
                                                      opacity,absfocale);
             break;
           case 5 :
-            if (zbuffer)
-              draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,color,tx0,ty0,tx1,ty1,tx2,ty2,light_texture,
-                            (unsigned int)lightprops(n0,0),(unsigned int)lightprops(n0,1),
-                            (unsigned int)lightprops(n1,0),(unsigned int)lightprops(n1,1),
-                            (unsigned int)lightprops(n2,0),(unsigned int)lightprops(n2,1),
-                            opacity);
-            else
-              draw_triangle(x0,y0,z0,x1,y1,z1,x2,y2,z2,color,tx0,ty0,tx1,ty1,tx2,ty2,light_texture,
-                            (unsigned int)lightprops(n0,0),(unsigned int)lightprops(n0,1),
-                            (unsigned int)lightprops(n1,0),(unsigned int)lightprops(n1,1),
-                            (unsigned int)lightprops(n2,0),(unsigned int)lightprops(n2,1),
-                            opacity);
+            const int
+              lx0 = cimg::uiround(lightprops(n0,0)), ly0 = cimg::uiround(lightprops(n0,1)),
+              lx1 = cimg::uiround(lightprops(n1,0)), ly1 = cimg::uiround(lightprops(n1,1)),
+              lx2 = cimg::uiround(lightprops(n2,0)), ly2 = cimg::uiround(lightprops(n2,1));
+            _draw_object3d_phong_textured_triangle(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,n2,x2,y2,z2,vertices,
+                                                   color,tx0,ty0,tx1,ty1,tx2,ty2,
+                                                   light_texture,lx0,ly0,lx1,ly1,lx2,ly2,
+                                                   opacity,absfocale);
             break;
           }
         } break;

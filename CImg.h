@@ -55216,10 +55216,10 @@ namespace cimg_library {
                                                     opacity,absfocale);
             break;
           case 5 : {
-            const unsigned int
-              lx0 = (unsigned int)cimg::uiround(lightprops(n0,0)), ly0 = (unsigned int)cimg::uiround(lightprops(n0,1)),
-              lx1 = (unsigned int)cimg::uiround(lightprops(n1,0)), ly1 = (unsigned int)cimg::uiround(lightprops(n1,1)),
-              lx2 = (unsigned int)cimg::uiround(lightprops(n2,0)), ly2 = (unsigned int)cimg::uiround(lightprops(n2,1));
+            const int
+              lx0 = cimg::uiround(lightprops(n0,0)), ly0 = cimg::uiround(lightprops(n0,1)),
+              lx1 = cimg::uiround(lightprops(n1,0)), ly1 = cimg::uiround(lightprops(n1,1)),
+              lx2 = cimg::uiround(lightprops(n2,0)), ly2 = cimg::uiround(lightprops(n2,1));
             _draw_object3d_phong_colored_triangle(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,n2,x2,y2,z2,vertices,
                                                   pcolor,light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity,absfocale);
           } break;
@@ -55277,11 +55277,11 @@ namespace cimg_library {
                                                       opacity,absfocale);
             break;
           case 5 : {
-            const unsigned int
-              lx0 = (unsigned int)cimg::uiround(lightprops(n0,0)), ly0 = (unsigned int)cimg::uiround(lightprops(n0,1)),
-              lx1 = (unsigned int)cimg::uiround(lightprops(n1,0)), ly1 = (unsigned int)cimg::uiround(lightprops(n1,1)),
-              lx2 = (unsigned int)cimg::uiround(lightprops(n2,0)), ly2 = (unsigned int)cimg::uiround(lightprops(n2,1)),
-              lx3 = (unsigned int)cimg::uiround(lightprops(n3,0)), ly3 = (unsigned int)cimg::uiround(lightprops(n3,1));
+            const int
+              lx0 = cimg::uiround(lightprops(n0,0)), ly0 = cimg::uiround(lightprops(n0,1)),
+              lx1 = cimg::uiround(lightprops(n1,0)), ly1 = cimg::uiround(lightprops(n1,1)),
+              lx2 = cimg::uiround(lightprops(n2,0)), ly2 = cimg::uiround(lightprops(n2,1)),
+              lx3 = cimg::uiround(lightprops(n3,0)), ly3 = cimg::uiround(lightprops(n3,1));
             _draw_object3d_phong_colored_triangle(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,n2,x2,y2,z2,vertices,
                                                   pcolor,light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity,absfocale).
               _draw_object3d_phong_colored_triangle(zbuffer,X,Y,n0,x0,y0,z0,n2,x2,y2,z2,n3,x3,y3,z3,vertices,

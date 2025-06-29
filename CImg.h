@@ -55144,7 +55144,8 @@ namespace cimg_library {
             _draw_object3d_draw_phong_colored_triangle(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,n2,x2,y2,z2,vertices,
                                                        pcolor,light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity,absfocale).
               _draw_object3d_draw_phong_colored_triangle(zbuffer,X,Y,n0,x0,y0,z0,n2,x2,y2,z2,n3,x3,y3,z3,vertices,
-                                                         pcolor,light_texture,lx0,ly0,lx2,ly2,lx3,ly3,opacity,absfocale);
+                                                         pcolor,light_texture,lx0,ly0,lx2,ly2,lx3,ly3,opacity,
+                                                         absfocale);
           } break;
           }
         } break;

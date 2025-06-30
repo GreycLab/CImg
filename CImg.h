@@ -54155,8 +54155,7 @@ namespace cimg_library {
     CImg<T>& _draw_object3d_flat_colored_segment(CImg<tz>& zbuffer,
                                                  const float X, const float Y, const float Z,
                                                  int n0, int n1,
-                                                 const CImg<tp>& vertices,
-                                                 const CImg<floatT>& projections,
+                                                 const CImg<tp>& vertices, const CImg<floatT>& projections,
                                                  const tc *const color, const float opacity,
                                                  float focale) {
       float z0 = vertices(n0,2) + Z + focale, z1 = vertices(n1,2) + Z + focale;
@@ -54185,8 +54184,7 @@ namespace cimg_library {
     CImg<T>& _draw_object3d_flat_textured_segment(CImg<tz>& zbuffer,
                                                   const float X, const float Y, const float Z,
                                                   int n0, int n1,
-                                                  const CImg<tp>& vertices,
-                                                  const CImg<float>& projections,
+                                                  const CImg<tp>& vertices, const CImg<floatT>& projections,
                                                   const CImg<tc>& texture,
                                                   int tx0, int ty0,
                                                   int tx1, int ty1,
@@ -54218,16 +54216,19 @@ namespace cimg_library {
     // Draw flat-colored triangle (with z-plane clipping).
     template<typename tz, typename tp, typename tc>
     CImg<T>& _draw_object3d_flat_colored_triangle(CImg<tz>& zbuffer,
-                                                  const float X, const float Y,
-                                                  int n0, int x0, int y0, float z0,
-                                                  int n1, int x1, int y1, float z1,
-                                                  int n2, int x2, int y2, float z2,
-                                                  const CImg<tp>& vertices,
+                                                  const float X, const float Y, const float Z,
+                                                  int n0, int n1, int n2,
+                                                  const CImg<tp>& vertices, const CImg<floatT>& projections,
                                                   const tc *const color, const float opacity,
                                                   const float brightness, float focale) {
-      if (z0>z2) cimg::swap(n0,n2,x0,x2,y0,y2,z0,z2);
-      if (z0>z1) cimg::swap(n0,n1,x0,x1,y0,y1,z0,z1);
-      if (z1>z2) cimg::swap(n1,n2,x1,x2,y1,y2,z1,z2);
+      float z0 = vertices(n0,2) + Z + focale, z1 = vertices(n1,2) + Z + focale, z2 = vertices(n2,2) + Z + focale;
+      if (z0>z2) cimg::swap(n0,n2,z0,z2);
+      if (z0>z1) cimg::swap(n0,n1,z0,z1);
+      if (z1>z2) cimg::swap(n1,n2,z1,z2);
+      int
+        x0 = cimg::uiround(projections(n0,0)), y0 = cimg::uiround(projections(n0,1)),
+        x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1)),
+        x2 = cimg::uiround(projections(n2,0)), y2 = cimg::uiround(projections(n2,1));
       const float zc = 1; // Clipping plane
       if (z0<zc) {
         if (z2<zc) return *this;
@@ -54276,20 +54277,23 @@ namespace cimg_library {
     // Draw flat-textured triangle (with z-plane clipping).
     template<typename tz, typename tp, typename tc>
     CImg<T>& _draw_object3d_flat_textured_triangle(CImg<tz>& zbuffer,
-                                                   const float X, const float Y,
-                                                   int n0, int x0, int y0, float z0,
-                                                   int n1, int x1, int y1, float z1,
-                                                   int n2, int x2, int y2, float z2,
-                                                   const CImg<tp>& vertices,
+                                                   const float X, const float Y, const float Z,
+                                                   int n0, int n1, int n2,
+                                                   const CImg<tp>& vertices, const CImg<floatT>& projections,
                                                    const CImg<tc>& texture,
                                                    int tx0, int ty0,
                                                    int tx1, int ty1,
                                                    int tx2, int ty2,
                                                    const float opacity,
                                                    const float brightness, float focale) {
-      if (z0>z2) cimg::swap(n0,n2,x0,x2,y0,y2,z0,z2,tx0,tx2,ty0,ty2);
-      if (z0>z1) cimg::swap(n0,n1,x0,x1,y0,y1,z0,z1,tx0,tx1,ty0,ty1);
-      if (z1>z2) cimg::swap(n1,n2,x1,x2,y1,y2,z1,z2,tx1,tx2,ty1,ty2);
+      float z0 = vertices(n0,2) + Z + focale, z1 = vertices(n1,2) + Z + focale, z2 = vertices(n2,2) + Z + focale;
+      if (z0>z2) cimg::swap(n0,n2,z0,z2,tx0,tx2,ty0,ty2);
+      if (z0>z1) cimg::swap(n0,n1,z0,z1,tx0,tx1,ty0,ty1);
+      if (z1>z2) cimg::swap(n1,n2,z1,z2,tx1,tx2,ty1,ty2);
+      int
+        x0 = cimg::uiround(projections(n0,0)), y0 = cimg::uiround(projections(n0,1)),
+        x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1)),
+        x2 = cimg::uiround(projections(n2,0)), y2 = cimg::uiround(projections(n2,1));
       const float zc = 1; // Clipping plane
       if (z0<zc) {
         if (z2<zc) return *this;
@@ -54336,17 +54340,20 @@ namespace cimg_library {
     // Draw gouraud-colored triangle (with z-plane clipping).
     template<typename tz, typename tp, typename tc>
     CImg<T>& _draw_object3d_gouraud_colored_triangle(CImg<tz>& zbuffer,
-                                                     const float X, const float Y,
-                                                     int n0, int x0, int y0, float z0,
-                                                     int n1, int x1, int y1, float z1,
-                                                     int n2, int x2, int y2, float z2,
-                                                     const CImg<tp>& vertices,
+                                                     const float X, const float Y, const float Z,
+                                                     int n0, int n1, int n2,
+                                                     const CImg<tp>& vertices, const CImg<floatT>& projections,
                                                      const tc *const color,
                                                      float bs0, float bs1, float bs2,
                                                      const float opacity, float focale) {
-      if (z0>z2) cimg::swap(n0,n2,x0,x2,y0,y2,z0,z2,bs0,bs2);
-      if (z0>z1) cimg::swap(n0,n1,x0,x1,y0,y1,z0,z1,bs0,bs1);
-      if (z1>z2) cimg::swap(n1,n2,x1,x2,y1,y2,z1,z2,bs1,bs2);
+      float z0 = vertices(n0,2) + Z + focale, z1 = vertices(n1,2) + Z + focale, z2 = vertices(n2,2) + Z + focale;
+      if (z0>z2) cimg::swap(n0,n2,z0,z2,bs0,bs2);
+      if (z0>z1) cimg::swap(n0,n1,z0,z1,bs0,bs1);
+      if (z1>z2) cimg::swap(n1,n2,z1,z2,bs1,bs2);
+      int
+        x0 = cimg::uiround(projections(n0,0)), y0 = cimg::uiround(projections(n0,1)),
+        x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1)),
+        x2 = cimg::uiround(projections(n2,0)), y2 = cimg::uiround(projections(n2,1));
       const float zc = 1; // Clipping plane
       if (z0<zc) {
         if (z2<zc) return *this;
@@ -54387,20 +54394,23 @@ namespace cimg_library {
     // Draw gouraud-textured triangle (with z-plane clipping).
     template<typename tz, typename tp, typename tc>
     CImg<T>& _draw_object3d_gouraud_textured_triangle(CImg<tz>& zbuffer,
-                                                      const float X, const float Y,
-                                                      int n0, int x0, int y0, float z0,
-                                                      int n1, int x1, int y1, float z1,
-                                                      int n2, int x2, int y2, float z2,
-                                                      const CImg<tp>& vertices,
+                                                      const float X, const float Y, const float Z,
+                                                      int n0, int n1, int n2,
+                                                      const CImg<tp>& vertices, const CImg<floatT>& projections,
                                                       const CImg<tc>& texture,
                                                       int tx0, int ty0,
                                                       int tx1, int ty1,
                                                       int tx2, int ty2,
                                                       float bs0, float bs1, float bs2,
                                                       const float opacity, float focale) {
-      if (z0>z2) cimg::swap(n0,n2,x0,x2,y0,y2,z0,z2,tx0,tx2,ty0,ty2,bs0,bs2);
-      if (z0>z1) cimg::swap(n0,n1,x0,x1,y0,y1,z0,z1,tx0,tx1,ty0,ty1,bs0,bs1);
-      if (z1>z2) cimg::swap(n1,n2,x1,x2,y1,y2,z1,z2,tx1,tx2,ty1,ty2,bs1,bs2);
+      float z0 = vertices(n0,2) + Z + focale, z1 = vertices(n1,2) + Z + focale, z2 = vertices(n2,2) + Z + focale;
+      if (z0>z2) cimg::swap(n0,n2,z0,z2,tx0,tx2,ty0,ty2,bs0,bs2);
+      if (z0>z1) cimg::swap(n0,n1,z0,z1,tx0,tx1,ty0,ty1,bs0,bs1);
+      if (z1>z2) cimg::swap(n1,n2,z1,z2,tx1,tx2,ty1,ty2,bs1,bs2);
+      int
+        x0 = cimg::uiround(projections(n0,0)), y0 = cimg::uiround(projections(n0,1)),
+        x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1)),
+        x2 = cimg::uiround(projections(n2,0)), y2 = cimg::uiround(projections(n2,1));
       const float zc = 1; // Clipping plane
       if (z0<zc) {
         if (z2<zc) return *this;
@@ -55206,15 +55216,15 @@ namespace cimg_library {
                                                   pcolor,opacity,absfocale);
             break;
           case 2 :
-            _draw_object3d_flat_colored_triangle(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,n2,x2,y2,z2,vertices,
+            _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
                                                  pcolor,opacity,1,absfocale);
             break;
           case 3 :
-            _draw_object3d_flat_colored_triangle(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,n2,x2,y2,z2,vertices,
+            _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
                                                  pcolor,opacity,lightprops(l),absfocale);
             break;
           case 4 :
-            _draw_object3d_gouraud_colored_triangle(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,n2,x2,y2,z2,vertices,
+            _draw_object3d_gouraud_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
                                                     pcolor,lightprops(n0),lightprops(n1),lightprops(n2),
                                                     opacity,absfocale);
             break;
@@ -55260,22 +55270,22 @@ namespace cimg_library {
                                                   pcolor,opacity,absfocale);
             break;
           case 2 :
-            _draw_object3d_flat_colored_triangle(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,n2,x2,y2,z2,vertices,
+            _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
                                                  pcolor,opacity,1,absfocale).
-              _draw_object3d_flat_colored_triangle(zbuffer,X,Y,n0,x0,y0,z0,n2,x2,y2,z2,n3,x3,y3,z3,vertices,
+              _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,
                                                    pcolor,opacity,1,absfocale);
             break;
           case 3 :
-            _draw_object3d_flat_colored_triangle(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,n2,x2,y2,z2,vertices,
+            _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
                                                  pcolor,opacity,lightprops(l),absfocale).
-              _draw_object3d_flat_colored_triangle(zbuffer,X,Y,n0,x0,y0,z0,n2,x2,y2,z2,n3,x3,y3,z3,vertices,
+              _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,
                                                    pcolor,opacity,lightprops(l),absfocale);
             break;
           case 4 :
-            _draw_object3d_gouraud_colored_triangle(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,n2,x2,y2,z2,vertices,
+            _draw_object3d_gouraud_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
                                                     pcolor,lightprops(n0),lightprops(n1),lightprops(n2),
                                                     opacity,absfocale).
-              _draw_object3d_gouraud_colored_triangle(zbuffer,X,Y,n0,x0,y0,z0,n2,x2,y2,z2,n3,x3,y3,z3,vertices,
+              _draw_object3d_gouraud_colored_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,
                                                       pcolor,lightprops(n0),lightprops(n2),lightprops(n3),
                                                       opacity,absfocale);
             break;
@@ -55333,15 +55343,15 @@ namespace cimg_library {
                                                    color,tx2,ty2,tx0,ty0,opacity,absfocale);
             break;
           case 2 :
-            _draw_object3d_flat_textured_triangle(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,n2,x2,y2,z2,vertices,
+            _draw_object3d_flat_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
                                                   color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,1,absfocale);
             break;
           case 3 :
-            _draw_object3d_flat_textured_triangle(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,n2,x2,y2,z2,vertices,
+            _draw_object3d_flat_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
                                                   color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,lightprops(l),absfocale);
             break;
           case 4 :
-            _draw_object3d_gouraud_textured_triangle(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,n2,x2,y2,z2,vertices,
+            _draw_object3d_gouraud_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
                                                      color,tx0,ty0,tx1,ty1,tx2,ty2,
                                                      lightprops(n0),lightprops(n1),lightprops(n2),
                                                      opacity,absfocale);
@@ -55407,23 +55417,23 @@ namespace cimg_library {
                                                    color,tx3,ty3,tx0,ty0,opacity,absfocale);
             break;
           case 2 :
-            _draw_object3d_flat_textured_triangle(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,n2,x2,y2,z2,vertices,
+            _draw_object3d_flat_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
                                                   color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,1,absfocale).
-              _draw_object3d_flat_textured_triangle(zbuffer,X,Y,n0,x0,y0,z0,n2,x2,y2,z2,n3,x3,y3,z3,vertices,
+              _draw_object3d_flat_textured_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,
                                                     color,tx0,ty0,tx2,ty2,tx3,ty3,opacity,1,absfocale);
             break;
           case 3 :
-            _draw_object3d_flat_textured_triangle(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,n2,x2,y2,z2,vertices,
+            _draw_object3d_flat_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
                                                   color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,lightprops(l),absfocale).
-              _draw_object3d_flat_textured_triangle(zbuffer,X,Y,n0,x0,y0,z0,n2,x2,y2,z2,n3,x3,y3,z3,vertices,
+              _draw_object3d_flat_textured_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,
                                                     color,tx0,ty0,tx2,ty2,tx3,ty3,opacity,lightprops(l),absfocale);
             break;
           case 4 :
-            _draw_object3d_gouraud_textured_triangle(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,n2,x2,y2,z2,vertices,
+            _draw_object3d_gouraud_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
                                                      color,tx0,ty0,tx1,ty1,tx2,ty2,
                                                      lightprops(n0),lightprops(n1),lightprops(n2),
                                                      opacity,absfocale).
-              _draw_object3d_gouraud_textured_triangle(zbuffer,X,Y,n0,x0,y0,z0,n2,x2,y2,z2,n3,x3,y3,z3,vertices,
+              _draw_object3d_gouraud_textured_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,
                                                        color,tx0,ty0,tx2,ty2,tx3,ty3,
                                                        lightprops(n0),lightprops(n2),lightprops(n3),
                                                        opacity,absfocale);

@@ -54153,13 +54153,17 @@ namespace cimg_library {
     // Draw flat-colored segment (with z-plane clipping).
     template<typename tz, typename tp, typename tc>
     CImg<T>& _draw_object3d_flat_colored_segment(CImg<tz>& zbuffer,
-                                                 const float X, const float Y,
-                                                 int n0, int x0, int y0, float z0,
-                                                 int n1, int x1, int y1, float z1,
+                                                 const float X, const float Y, const float Z,
+                                                 int n0, int n1,
                                                  const CImg<tp>& vertices,
+                                                 const CImg<floatT>& projections,
                                                  const tc *const color, const float opacity,
                                                  float focale) {
-      if (z0>z1) cimg::swap(n0,n1,x0,x1,y0,y1,z0,z1);
+      float z0 = vertices(n0,2) + Z + focale, z1 = vertices(n1,2) + Z + focale;
+      if (z0>z1) cimg::swap(n0,n1,z0,z1);
+      int
+        x0 = cimg::uiround(projections(n0,0)), y0 = cimg::uiround(projections(n0,1)),
+        x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1));
       const float zc = 1; // Clipping plane
       if (z0<zc) {
         if (z1<zc) return *this; // Two vertices behind camera
@@ -54179,16 +54183,20 @@ namespace cimg_library {
     // Draw flat-textured segment (with z-plane clipping).
     template<typename tz, typename tp, typename tc>
     CImg<T>& _draw_object3d_flat_textured_segment(CImg<tz>& zbuffer,
-                                                  const float X, const float Y,
-                                                  int n0, int x0, int y0, float z0,
-                                                  int n1, int x1, int y1, float z1,
+                                                  const float X, const float Y, const float Z,
+                                                  int n0, int n1,
                                                   const CImg<tp>& vertices,
+                                                  const CImg<float>& projections,
                                                   const CImg<tc>& texture,
                                                   int tx0, int ty0,
                                                   int tx1, int ty1,
                                                   const float opacity,
                                                   float focale) {
-      if (z0>z1) cimg::swap(n0,n1,x0,x1,y0,y1,z0,z1,tx0,tx1,ty0,ty1);
+      float z0 = vertices(n0,2) + Z + focale, z1 = vertices(n1,2) + Z + focale;
+      if (z0>z1) cimg::swap(n0,n1,z0,z1,tx0,tx1,ty0,ty1);
+      int
+        x0 = cimg::uiround(projections(n0,0)), y0 = cimg::uiround(projections(n0,1)),
+        x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1));
       const float zc = 1; // Clipping plane
       if (z0<zc) {
         if (z1<zc) return *this; // Two vertices behind camera
@@ -54790,7 +54798,7 @@ namespace cimg_library {
       }
 
       // Compute 3D to 2D projection.
-      CImg<float> projections(vertices._width,2);
+      CImg<floatT> projections(vertices._width,2);
       float parallzmin = cimg::type<float>::max();
       const float absfocale = cimg::abs(focale);
       if (focale) {
@@ -55094,17 +55102,15 @@ namespace cimg_library {
           unsigned int
             n0 = (unsigned int)primitive[0],
             n1 = (unsigned int)primitive[1];
-          int
-            x0 = cimg::uiround(projections(n0,0)), y0 = cimg::uiround(projections(n0,1)),
-            x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1));
-          float
-            z0 = vertices(n0,2) + Z + _focale,
-            z1 = vertices(n1,2) + Z + _focale;
           if (render_type)
-            _draw_object3d_flat_colored_segment(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,vertices,
+            _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,
                                                 pcolor,opacity,absfocale);
-          else
+          else {
+            const int
+              x0 = cimg::uiround(projections(n0,0)), y0 = cimg::uiround(projections(n0,1)),
+              x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1));
             draw_point(x0,y0,pcolor,opacity).draw_point(x1,y1,pcolor,opacity);
+          }
         } break;
         case 5 : { // Colored sphere
           const unsigned int
@@ -55160,17 +55166,14 @@ namespace cimg_library {
             n1 = (unsigned int)primitive[1];
           const int
             tx0 = (int)primitive[2], ty0 = (int)primitive[3],
-            tx1 = (int)primitive[4], ty1 = (int)primitive[5],
-            x0 = cimg::uiround(projections(n0,0)), y0 = cimg::uiround(projections(n0,1)),
-            x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1));
-          const float
-            z0 = vertices(n0,2) + Z + _focale,
-            z1 = vertices(n1,2) + Z + _focale;
-
+            tx1 = (int)primitive[4], ty1 = (int)primitive[5];
           if (render_type)
-            _draw_object3d_flat_textured_segment(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,vertices,
+            _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,
                                                  color,tx0,ty0,tx1,ty1,opacity,absfocale);
           else {
+            const int
+              x0 = cimg::uiround(projections(n0,0)), y0 = cimg::uiround(projections(n0,1)),
+              x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1));
             draw_point(x0,y0,color.get_vector_at(tx0<=0?0:tx0>=color.width()?color.width() - 1:tx0,
                                                  ty0<=0?0:ty0>=color.height()?color.height() - 1:ty0)._data,opacity).
               draw_point(x1,y1,color.get_vector_at(tx1<=0?0:tx1>=color.width()?color.width() - 1:tx1,
@@ -55195,11 +55198,11 @@ namespace cimg_library {
             draw_point(x0,y0,pcolor,opacity).draw_point(x1,y1,pcolor,opacity).draw_point(x2,y2,pcolor,opacity);
             break;
           case 1 :
-            _draw_object3d_flat_colored_segment(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,vertices,
+            _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,
                                                 pcolor,opacity,absfocale).
-              _draw_object3d_flat_colored_segment(zbuffer,X,Y,n1,x1,y1,z1,n2,x2,y2,z2,vertices,
+              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n1,n2,vertices,projections,
                                                   pcolor,opacity,absfocale).
-              _draw_object3d_flat_colored_segment(zbuffer,X,Y,n2,x2,y2,z2,n0,x0,y0,z0,vertices,
+              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n2,n0,vertices,projections,
                                                   pcolor,opacity,absfocale);
             break;
           case 2 :
@@ -55247,13 +55250,13 @@ namespace cimg_library {
               draw_point(x2,y2,pcolor,opacity).draw_point(x3,y3,pcolor,opacity);
             break;
           case 1 :
-            _draw_object3d_flat_colored_segment(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,vertices,
+            _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,
                                                 pcolor,opacity,absfocale).
-              _draw_object3d_flat_colored_segment(zbuffer,X,Y,n1,x1,y1,z1,n2,x2,y2,z2,vertices,
+              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n1,n2,vertices,projections,
                                                   pcolor,opacity,absfocale).
-              _draw_object3d_flat_colored_segment(zbuffer,X,Y,n2,x2,y2,z2,n3,x3,y3,z3,vertices,
+              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n2,n3,vertices,projections,
                                                   pcolor,opacity,absfocale).
-              _draw_object3d_flat_colored_segment(zbuffer,X,Y,n3,x3,y3,z3,n0,x0,y0,z0,vertices,
+              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n3,n0,vertices,projections,
                                                   pcolor,opacity,absfocale);
             break;
           case 2 :
@@ -55322,11 +55325,11 @@ namespace cimg_library {
                                                    ty2<=0?0:ty2>=color.height()?color.height() - 1:ty2)._data,opacity);
             break;
           case 1 :
-            _draw_object3d_flat_textured_segment(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,vertices,
+            _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,
                                                  color,tx0,ty0,tx1,ty1,opacity,absfocale).
-              _draw_object3d_flat_textured_segment(zbuffer,X,Y,n1,x1,y1,z1,n2,x2,y2,z2,vertices,
+              _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n1,n2,vertices,projections,
                                                    color,tx1,ty1,tx2,ty2,opacity,absfocale).
-              _draw_object3d_flat_textured_segment(zbuffer,X,Y,n2,x2,y2,z2,n0,x0,y0,z0,vertices,
+              _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n2,n0,vertices,projections,
                                                    color,tx2,ty2,tx0,ty0,opacity,absfocale);
             break;
           case 2 :
@@ -55394,13 +55397,13 @@ namespace cimg_library {
                                                    ty3<=0?0:ty3>=color.height()?color.height() - 1:ty3)._data,opacity);
             break;
           case 1 :
-            _draw_object3d_flat_textured_segment(zbuffer,X,Y,n0,x0,y0,z0,n1,x1,y1,z1,vertices,
+            _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,
                                                  color,tx0,ty0,tx1,ty1,opacity,absfocale).
-              _draw_object3d_flat_textured_segment(zbuffer,X,Y,n1,x1,y1,z1,n2,x2,y2,z2,vertices,
+              _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n1,n2,vertices,projections,
                                                    color,tx1,ty1,tx2,ty2,opacity,absfocale).
-              _draw_object3d_flat_textured_segment(zbuffer,X,Y,n2,x2,y2,z2,n3,x3,y3,z3,vertices,
+              _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n2,n3,vertices,projections,
                                                    color,tx2,ty2,tx3,ty3,opacity,absfocale).
-              _draw_object3d_flat_textured_segment(zbuffer,X,Y,n3,x3,y3,z3,n0,x0,y0,z0,vertices,
+              _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n3,n0,vertices,projections,
                                                    color,tx3,ty3,tx0,ty0,opacity,absfocale);
             break;
           case 2 :

@@ -54920,7 +54920,7 @@ namespace cimg_library {
           if (z2<zm) zm = z2;
           if (z2>zM) zM = z2;
           if (((zm>=zmin && xM>=0 && xm<_width && yM>=0 && ym<_height) || (zm<zmin && zM>=zmin)) &&
-              (is_double_sided || normal_z<0)) {
+              (is_double_sided || normal_z<=0)) {
             visibles(l) = (unsigned int)l;
             zrange(l) = (z0 + z1 + z2)/3;
           }
@@ -54953,7 +54953,7 @@ namespace cimg_library {
           if (z3<zm) zm = z3;
           if (z3>zM) zM = z3;
           if (((zm>=zmin && xM>=0 && xm<_width && yM>=0 && ym<_height) || (zm<zmin && zM>=zmin)) &&
-              (is_double_sided || normal_z<0)) {
+              (is_double_sided || normal_z<=0)) {
             visibles(l) = (unsigned int)l;
             zrange(l) = (z0 + z1 + z2 + z3)/4;
           }

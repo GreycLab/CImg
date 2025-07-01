@@ -54758,9 +54758,9 @@ namespace cimg_library {
               u = nu0 + nu1, v = nv0 + nv1, w = nw0 + nw1,
               nn = 1e-5f + cimg::hypot(u,v,w),
               nu = u/nn, nv = v/nn, nw = w/nn;
-            p_centers(l,0) = (x0 + x1 + x2 + x3)/3;
-            p_centers(l,1) = (y0 + y1 + y2 + y3)/3;
-            p_centers(l,2) = (z0 + z1 + z2 + z3)/3;
+            p_centers(l,0) = (x0 + x1 + x2 + x3)/4;
+            p_centers(l,1) = (y0 + y1 + y2 + y3)/4;
+            p_centers(l,2) = (z0 + z1 + z2 + z3)/4;
             p_normals(l,0) = nu; p_normals(l,1) = nv; p_normals(l,2) = nw;
           } break;
           default : // Other types of primitives (should never happen...)

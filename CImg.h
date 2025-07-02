@@ -54584,10 +54584,10 @@ namespace cimg_library {
                          draw_triangle(zbuffer,nx0,ny0,nz0,nx1,ny1,nz1,x2,y2,z2,
                                        texture,ntx0,nty0,ntx1,nty1,tx2,ty2,
                                        light_texture,nlx0,nly0,nlx1,nly1,lx2,ly2,opacity);
-          else draw_triangle(nx0,ny0,x1,y1,x2,y2,
+          else draw_triangle(nx0,ny0,nz0,x1,y1,z1,x2,y2,z2,
                              texture,ntx0,nty0,tx1,ty1,tx2,ty2,
                              light_texture,nlx0,nly0,lx1,ly1,lx2,ly2,opacity).
-                 draw_triangle(nx0,ny0,nx1,ny1,x2,y2,
+                 draw_triangle(nx0,ny0,nz0,nx1,ny1,nz1,x2,y2,z2,
                                texture,ntx0,nty0,ntx1,nty1,tx2,ty2,
                                light_texture,nlx0,nly0,nlx1,nly1,lx2,ly2,opacity);
           return *this;
@@ -54596,7 +54596,7 @@ namespace cimg_library {
       if (zbuffer) draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,
                                  texture,tx0,ty0,tx1,ty1,tx2,ty2,
                                  light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity);
-      else draw_triangle(x0,y0,x1,y1,x2,y2,
+      else draw_triangle(x0,y0,z0,x1,y1,z1,x2,y2,z2,
                          texture,tx0,ty0,tx1,ty1,tx2,ty2,
                          light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity);
       return *this;
@@ -54683,7 +54683,7 @@ namespace cimg_library {
 
       // Compute normal 3D vectors.
       CImg<floatT> p_centers, p_normals, v_normals;
-      if (render_type>=3) {
+      if (render_type>=2) {
 
         // 3D normals to primitives.
         p_centers.assign(primitives._width,3);
@@ -54907,10 +54907,15 @@ namespace cimg_library {
           const float
             x0 = projections(i0,0), y0 = projections(i0,1), z0 = Z + (float)vertices(i0,2),
             x1 = projections(i1,0), y1 = projections(i1,1), z1 = Z + (float)vertices(i1,2),
-            x2 = projections(i2,0), y2 = projections(i2,1), z2 = Z + (float)vertices(i2,2),
-            dx01 = x1 - x0, dy01 = y1 - y0,
-            dx02 = x2 - x0, dy02 = y2 - y0,
-            det = dx01*dy02 - dy01*dx02;
+            x2 = projections(i2,0), y2 = projections(i2,1), z2 = Z + (float)vertices(i2,2);
+          float dot = 1;
+          if (p_normals) {
+            const float
+              to_cam_x = X - p_centers(l,0),
+              to_cam_y = Y - p_centers(l,1),
+              to_cam_z = -_focale - p_centers(l,2);
+            dot = to_cam_x*p_normals(l,0) + to_cam_y*p_normals(l,1) + to_cam_z*p_normals(l,2);
+          }
           float xm, xM, ym, yM, zm, zM;
           if (x0<x1) { xm = x0; xM = x1; } else { xm = x1; xM = x0; }
           if (x2<xm) xm = x2;
@@ -54922,7 +54927,7 @@ namespace cimg_library {
           if (z2<zm) zm = z2;
           if (z2>zM) zM = z2;
           if (((zm>=zmin && xM>=0 && xm<_width && yM>=0 && ym<_height) || (zm<zmin && zM>=zmin)) &&
-              (is_double_sided || det<0)) {
+              (is_double_sided || dot>0)) {
             visibles(l) = (unsigned int)l;
             zrange(l) = (z0 + z1 + z2)/3;
           }
@@ -54937,10 +54942,15 @@ namespace cimg_library {
             x0 = projections(i0,0), y0 = projections(i0,1), z0 = Z + (float)vertices(i0,2),
             x1 = projections(i1,0), y1 = projections(i1,1), z1 = Z + (float)vertices(i1,2),
             x2 = projections(i2,0), y2 = projections(i2,1), z2 = Z + (float)vertices(i2,2),
-            x3 = projections(i3,0), y3 = projections(i3,1), z3 = Z + (float)vertices(i3,2),
-            dx01 = x1 - x0, dy01 = y1 - y0,
-            dx02 = x2 - x0, dy02 = y2 - y0,
-            det = dx01*dy02 - dy01*dx02;
+            x3 = projections(i3,0), y3 = projections(i3,1), z3 = Z + (float)vertices(i3,2);
+          float dot = 1;
+          if (p_normals) {
+            const float
+              to_cam_x = X - p_centers(l,0),
+              to_cam_y = Y - p_centers(l,1),
+              to_cam_z = -_focale - p_centers(l,2);
+            dot = to_cam_x*p_normals(l,0) + to_cam_y*p_normals(l,1) + to_cam_z*p_normals(l,2);
+          }
           float xm, xM, ym, yM, zm, zM;
           if (x0<x1) { xm = x0; xM = x1; } else { xm = x1; xM = x0; }
           if (x2<xm) xm = x2;
@@ -54958,7 +54968,7 @@ namespace cimg_library {
           if (z3<zm) zm = z3;
           if (z3>zM) zM = z3;
           if (((zm>=zmin && xM>=0 && xm<_width && yM>=0 && ym<_height) || (zm<zmin && zM>=zmin)) &&
-              (is_double_sided || det<0)) {
+              (is_double_sided || dot>0)) {
             visibles(l) = (unsigned int)l;
             zrange(l) = (z0 + z1 + z2 + z3)/4;
           }

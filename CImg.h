@@ -54697,7 +54697,7 @@ namespace cimg_library {
               i0 = (unsigned int)primitive(0);
             const float
               x0 = (float)vertices(i0,0), y0 = (float)vertices(i0,1), z0 = (float)vertices(i0,2);
-            p_centers(l,0) = x0; p_centers(l,1) = y0; p_centers(l,2) = z0;
+            p_centers(l,0) = X + x0; p_centers(l,1) = Y + y0; p_centers(l,2) = Z + z0;
             p_normals(l,0) = p_normals(l,1) = p_normals(l,2) = 0;
           } break;
           case 2 : case 5 : { // Segment and sphere
@@ -54707,7 +54707,7 @@ namespace cimg_library {
             const float
               x0 = (float)vertices(i0,0), y0 = (float)vertices(i0,1), z0 = (float)vertices(i0,2),
               x1 = (float)vertices(i1,0), y1 = (float)vertices(i1,1), z1 = (float)vertices(i1,2);
-            p_centers(l,0) = (x0 + x1)/2; p_centers(l,1) = (y0 + y1)/2; p_centers(l,2) = (z0 + z1)/2;
+            p_centers(l,0) = X + (x0 + x1)/2; p_centers(l,1) = Y + (y0 + y1)/2; p_centers(l,2) = Z + (z0 + z1)/2;
             p_normals(l,0) = p_normals(l,1) = p_normals(l,2) = 0;
           } break;
           case 3 : case 9 : { // Triangle
@@ -54726,9 +54726,9 @@ namespace cimg_library {
               w = dx01*dy02 - dy01*dx02,
               nn = 1e-5f + cimg::hypot(u,v,w),
               nu = u/nn, nv = v/nn, nw = w/nn;
-            p_centers(l,0) = (x0 + x1 + x2)/3;
-            p_centers(l,1) = (y0 + y1 + y2)/3;
-            p_centers(l,2) = (z0 + z1 + z2)/3;
+            p_centers(l,0) = X + (x0 + x1 + x2)/3;
+            p_centers(l,1) = Y + (y0 + y1 + y2)/3;
+            p_centers(l,2) = Z + (z0 + z1 + z2)/3;
             p_normals(l,0) = nu; p_normals(l,1) = nv; p_normals(l,2) = nw;
           } break;
           case 4 : case 12 : { // Quadrangle
@@ -54758,9 +54758,9 @@ namespace cimg_library {
               u = nu0 + nu1, v = nv0 + nv1, w = nw0 + nw1,
               nn = 1e-5f + cimg::hypot(u,v,w),
               nu = u/nn, nv = v/nn, nw = w/nn;
-            p_centers(l,0) = (x0 + x1 + x2 + x3)/4;
-            p_centers(l,1) = (y0 + y1 + y2 + y3)/4;
-            p_centers(l,2) = (z0 + z1 + z2 + z3)/4;
+            p_centers(l,0) = X + (x0 + x1 + x2 + x3)/4;
+            p_centers(l,1) = Y + (y0 + y1 + y2 + y3)/4;
+            p_centers(l,2) = Z + (z0 + z1 + z2 + z3)/4;
             p_normals(l,0) = nu; p_normals(l,1) = nv; p_normals(l,2) = nw;
           } break;
           default : // Other types of primitives (should never happen...)
@@ -55004,7 +55004,7 @@ namespace cimg_library {
             const float
               x = (float)p_centers(p,0), y = (float)p_centers(p,1), z = (float)p_centers(p,2),
               u = (float)p_normals(p,0), v = (float)p_normals(p,1), w = (float)p_normals(p,2),
-              lx = lightx - x - X, ly = lighty - y - Y, lz = lightz - z - Z,
+              lx = lightx - x, ly = lighty - y, lz = lightz - z,
               nn = 1e-5f + cimg::hypot(lx,ly,lz),
               nlx = lx/nn, nly = ly/nn, nlz = lz/nn,
               dot = nlx*u + nly*v + nlz*w,

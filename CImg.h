@@ -54818,9 +54818,9 @@ namespace cimg_library {
         cimg_forX(projections,l) { // Perspective projection
           const float
             x = (float)vertices(l,0), y = (float)vertices(l,1), z = (float)vertices(l,2),
-            projectedz = z + Z + absfocale;
-          projections(l,1) = Y + absfocale*y/projectedz;
-          projections(l,0) = X + absfocale*x/projectedz;
+            z_denom = z + Z + absfocale;
+          projections(l,1) = Y + absfocale*y/z_denom;
+          projections(l,0) = X + absfocale*x/z_denom;
         }
       } else {
         cimg_pragma_openmp(parallel for cimg_openmp_if_size(projections.size(),4096))
@@ -54914,7 +54914,7 @@ namespace cimg_library {
               to_cam_x = X - p_centers(l,0),
               to_cam_y = Y - p_centers(l,1),
               to_cam_z = -_focale - p_centers(l,2);
-            dot = to_cam_x*p_normals(l,0) + to_cam_y*p_normals(l,1) + to_cam_z*p_normals(l,2);
+            dot = absfocale?to_cam_x*p_normals(l,0) + to_cam_y*p_normals(l,1) + to_cam_z*p_normals(l,2):-p_normals(l,2);
           }
           float xm, xM, ym, yM, zm, zM;
           if (x0<x1) { xm = x0; xM = x1; } else { xm = x1; xM = x0; }
@@ -54949,7 +54949,7 @@ namespace cimg_library {
               to_cam_x = X - p_centers(l,0),
               to_cam_y = Y - p_centers(l,1),
               to_cam_z = -_focale - p_centers(l,2);
-            dot = to_cam_x*p_normals(l,0) + to_cam_y*p_normals(l,1) + to_cam_z*p_normals(l,2);
+            dot = absfocale?to_cam_x*p_normals(l,0) + to_cam_y*p_normals(l,1) + to_cam_z*p_normals(l,2):-p_normals(l,2);
           }
           float xm, xM, ym, yM, zm, zM;
           if (x0<x1) { xm = x0; xM = x1; } else { xm = x1; xM = x0; }

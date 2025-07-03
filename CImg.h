@@ -54164,7 +54164,7 @@ namespace cimg_library {
         x0 = cimg::uiround(projections(n0,0)), y0 = cimg::uiround(projections(n0,1)),
         x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1));
       const float zc = 1; // Clipping plane
-      if (z0<zc) {
+      if (focale && z0<zc) {
         if (z1<zc) return *this; // Two vertices behind camera
         const float
           fx0 = vertices(n0,0), fy0 = vertices(n0,1),
@@ -54190,7 +54190,7 @@ namespace cimg_library {
                                                   const float opacity,
                                                   float focale) {
       float z0 = vertices(n0,2) + Z + focale, z1 = vertices(n1,2) + Z + focale;
-      if (z0>z1) cimg::swap(n0,n1,z0,z1,tx0,tx1,ty0,ty1);
+      if (focale && z0>z1) cimg::swap(n0,n1,z0,z1,tx0,tx1,ty0,ty1);
       int
         x0 = cimg::uiround(projections(n0,0)), y0 = cimg::uiround(projections(n0,1)),
         x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1));
@@ -54228,7 +54228,7 @@ namespace cimg_library {
         x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1)),
         x2 = cimg::uiround(projections(n2,0)), y2 = cimg::uiround(projections(n2,1));
       const float zc = 1; // Clipping plane
-      if (z0<zc) {
+      if (focale && z0<zc) {
         if (z2<zc) return *this;
         const float
           fx0 = vertices(n0,0), fy0 = vertices(n0,1),
@@ -54292,7 +54292,7 @@ namespace cimg_library {
         x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1)),
         x2 = cimg::uiround(projections(n2,0)), y2 = cimg::uiround(projections(n2,1));
       const float zc = 1; // Clipping plane
-      if (z0<zc) {
+      if (focale && z0<zc) {
         if (z2<zc) return *this;
         const float
           fx0 = vertices(n0,0), fy0 = vertices(n0,1),
@@ -54351,7 +54351,7 @@ namespace cimg_library {
         x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1)),
         x2 = cimg::uiround(projections(n2,0)), y2 = cimg::uiround(projections(n2,1));
       const float zc = 1; // Clipping plane
-      if (z0<zc) {
+      if (focale && z0<zc) {
         if (z2<zc) return *this;
         const float
           fx0 = vertices(n0,0), fy0 = vertices(n0,1),
@@ -54407,7 +54407,7 @@ namespace cimg_library {
         x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1)),
         x2 = cimg::uiround(projections(n2,0)), y2 = cimg::uiround(projections(n2,1));
       const float zc = 1; // Clipping plane
-      if (z0<zc) {
+      if (focale && z0<zc) {
         if (z2<zc) return *this;
         const float
           fx0 = vertices(n0,0), fy0 = vertices(n0,1),
@@ -54470,7 +54470,7 @@ namespace cimg_library {
         x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1)),
         x2 = cimg::uiround(projections(n2,0)), y2 = cimg::uiround(projections(n2,1));
       const float zc = 1; // Clipping plane
-      if (z0<zc) {
+      if (focale && z0<zc) {
         if (z2<zc) return *this;
         const float
           fx0 = vertices(n0,0), fy0 = vertices(n0,1),
@@ -54535,7 +54535,7 @@ namespace cimg_library {
         x1 = cimg::uiround(projections(n1,0)), y1 = cimg::uiround(projections(n1,1)),
         x2 = cimg::uiround(projections(n2,0)), y2 = cimg::uiround(projections(n2,1));
       const float zc = 1; // Clipping plane
-      if (z0<zc) {
+      if (focale && z0<zc) {
         if (z2<zc) return *this;
         const float
           fx0 = vertices(n0,0), fy0 = vertices(n0,1),
@@ -54617,6 +54617,7 @@ namespace cimg_library {
       if (render_type==5) cimg::mutex(10); // Static variable used in this case, breaks thread-safety
 
       const float
+        _focale = focale?cimg::abs(focale):1e8f, // Parallel projection -> very large focale
         nspec = 1 - cimg::cut(specular_shininess,0.0f,1.0f),
         nspec2 = 1 + std::max(specular_lightness,0.0f),
         nsl1 = (nspec2 - 1)/cimg::sqr(nspec - 1),
@@ -54803,36 +54804,31 @@ namespace cimg_library {
 
       // Compute 3D to 2D projection.
       CImg<floatT> projections(vertices._width,2);
-      float parallzmin = cimg::type<float>::max();
-      const float absfocale = cimg::abs(focale);
       if (focale) {
         cimg_pragma_openmp(parallel for cimg_openmp_if_size(projections.size(),4096))
         cimg_forX(projections,l) { // Perspective projection
           const float
             x = (float)vertices(l,0), y = (float)vertices(l,1), z = (float)vertices(l,2),
-            z_denom = z + Z + absfocale;
-          projections(l,1) = Y + absfocale*y/z_denom;
-          projections(l,0) = X + absfocale*x/z_denom;
+            z_denom = z + Z + _focale;
+          projections(l,1) = Y + _focale*y/z_denom;
+          projections(l,0) = X + _focale*x/z_denom;
         }
       } else {
         cimg_pragma_openmp(parallel for cimg_openmp_if_size(projections.size(),4096))
         cimg_forX(projections,l) { // Parallel projection
-          const float
-            x = (float)vertices(l,0), y = (float)vertices(l,1), z = (float)vertices(l,2);
-          if (z<parallzmin) parallzmin = z;
+          const float x = (float)vertices(l,0), y = (float)vertices(l,1);
           projections(l,1) = Y + y;
           projections(l,0) = X + x;
         }
       }
 
-      const float _focale = focale?absfocale:(1e5f - parallzmin);
       float zmax = 0;
       if (zbuffer) zmax = vertices.get_shared_row(2).max();
 
       // Compute visible primitives.
       CImg<uintT> visibles(primitives._width,1,1,1,~0U);
       CImg<float> zrange(primitives._width);
-      const float zmin = absfocale?1 - absfocale:cimg::type<float>::min();
+      const float zmin = focale?1 - _focale:cimg::type<float>::min();
       bool is_forward = zbuffer?true:false;
 
       cimg_pragma_openmp(parallel for cimg_openmp_if_size(primitives.size(),4096))
@@ -54860,11 +54856,11 @@ namespace cimg_library {
             Zc = 0.5f*((float)vertices(i0,2) + (float)vertices(i1,2)),
             _zc = Z + Zc,
             zc = _zc + _focale,
-            xc = X + Xc*(absfocale?absfocale/zc:1),
-            yc = Y + Yc*(absfocale?absfocale/zc:1),
+            xc = X + Xc*(focale?_focale/zc:1),
+            yc = Y + Yc*(focale?_focale/zc:1),
             radius = 0.5f*cimg::hypot(vertices(i1,0) - vertices(i0,0),
                                       vertices(i1,1) - vertices(i0,1),
-                                      vertices(i1,2) - vertices(i0,2))*(absfocale?absfocale/zc:1),
+                                      vertices(i1,2) - vertices(i0,2))*(focale?_focale/zc:1),
             xm = xc - radius,
             ym = yc - radius,
             xM = xc + radius,
@@ -54902,11 +54898,11 @@ namespace cimg_library {
             x2 = projections(i2,0), y2 = projections(i2,1), z2 = Z + (float)vertices(i2,2);
           float dot = 1;
           if (p_normals) {
-            if (absfocale) {
+            if (focale) {
               const float
                 cam2obj_x = p_centers(l,0) - X,
                 cam2obj_y = p_centers(l,1) - Y,
-                cam2obj_z = p_centers(l,2) + absfocale;
+                cam2obj_z = p_centers(l,2) + _focale;
               dot = cam2obj_x*p_normals(l,0) + cam2obj_y*p_normals(l,1) + cam2obj_z*p_normals(l,2);
             } else dot = p_normals(l,2);
           }
@@ -54939,11 +54935,11 @@ namespace cimg_library {
             x3 = projections(i3,0), y3 = projections(i3,1), z3 = Z + (float)vertices(i3,2);
           float dot = 1;
           if (p_normals) {
-            if (absfocale) {
+            if (focale) {
               const float
                 cam2obj_x = p_centers(l,0) - X,
                 cam2obj_y = p_centers(l,1) - Y,
-                cam2obj_z = p_centers(l,2) + absfocale;
+                cam2obj_z = p_centers(l,2) + _focale;
               dot = cam2obj_x*p_normals(l,0) + cam2obj_y*p_normals(l,1) + cam2obj_z*p_normals(l,2);
             } else dot = p_normals(l,2);
           }
@@ -55083,7 +55079,7 @@ namespace cimg_library {
             else { // Sprite
               const float
                 z = Z + (float)vertices(n0,2),
-                factor = focale<0?1:sprite_scale*(absfocale?absfocale/(z + absfocale):1);
+                factor = focale<0?1:sprite_scale*(focale?_focale/(z + _focale):1);
               const unsigned int
                 _sw = (unsigned int)(color._width*factor),
                 _sh = (unsigned int)(color._height*factor),
@@ -55101,7 +55097,7 @@ namespace cimg_library {
           } else { // Opacity mask
             const float
               z = Z + (float)vertices(n0,2),
-              factor = focale<0?1:sprite_scale*(absfocale?absfocale/(z + absfocale):1);
+              factor = focale<0?1:sprite_scale*(focale?_focale/(z + _focale):1);
             const unsigned int
               _sw = (unsigned int)(std::max(color._width,_opacity._width)*factor),
               _sh = (unsigned int)(std::max(color._height,_opacity._height)*factor),
@@ -55126,8 +55122,7 @@ namespace cimg_library {
             n0 = (unsigned int)primitive[0],
             n1 = (unsigned int)primitive[1];
           if (render_type)
-            _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,
-                                                pcolor,opacity,absfocale);
+            _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,pcolor,opacity,_focale);
           else {
             const int
               x0 = cimg::uiround(projections(n0,0)), y0 = cimg::uiround(projections(n0,1)),
@@ -55159,7 +55154,7 @@ namespace cimg_library {
           }
           const float
             zc = Z + Zc + _focale,
-            af = absfocale?absfocale/zc:1,
+            af = focale?_focale/zc:1,
             xc = X + Xc*af,
             yc = Y + Yc*af;
           radius*=af;
@@ -55192,7 +55187,7 @@ namespace cimg_library {
             tx1 = (int)primitive[4], ty1 = (int)primitive[5];
           if (render_type)
             _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,
-                                                 color,tx0,ty0,tx1,ty1,opacity,absfocale);
+                                                 color,tx0,ty0,tx1,ty1,opacity,_focale);
           else {
             const int
               x0 = cimg::uiround(projections(n0,0)), y0 = cimg::uiround(projections(n0,1)),
@@ -55217,25 +55212,21 @@ namespace cimg_library {
             draw_point(x0,y0,pcolor,opacity).draw_point(x1,y1,pcolor,opacity).draw_point(x2,y2,pcolor,opacity);
           } break;
           case 1 :
-            _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,
-                                                pcolor,opacity,absfocale).
-              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n1,n2,vertices,projections,
-                                                  pcolor,opacity,absfocale).
-              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n2,n0,vertices,projections,
-                                                  pcolor,opacity,absfocale);
+            _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,pcolor,opacity,_focale).
+              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n1,n2,vertices,projections,pcolor,opacity,_focale).
+              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n2,n0,vertices,projections,pcolor,opacity,_focale);
             break;
           case 2 :
-            _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
-                                                 pcolor,opacity,1,absfocale);
+            _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,pcolor,opacity,1,_focale);
             break;
           case 3 :
-            _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
-                                                 pcolor,opacity,lightprops(l),absfocale);
+            _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,pcolor,opacity,
+                                                 lightprops(l),_focale);
             break;
           case 4 :
             _draw_object3d_gouraud_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
-                                                    pcolor,lightprops(n0),lightprops(n1),lightprops(n2),
-                                                    opacity,absfocale);
+                                                    pcolor,lightprops(n0),lightprops(n1),lightprops(n2),opacity,
+                                                    _focale);
             break;
           case 5 : {
             const int
@@ -55243,7 +55234,7 @@ namespace cimg_library {
               lx1 = cimg::uiround(lightprops(n1,0)), ly1 = cimg::uiround(lightprops(n1,1)),
               lx2 = cimg::uiround(lightprops(n2,0)), ly2 = cimg::uiround(lightprops(n2,1));
             _draw_object3d_phong_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
-                                                  pcolor,light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity,absfocale);
+                                                  pcolor,light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity,_focale);
           } break;
           }
         } break;
@@ -55264,34 +55255,29 @@ namespace cimg_library {
               draw_point(x2,y2,pcolor,opacity).draw_point(x3,y3,pcolor,opacity);
           } break;
           case 1 :
-            _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,
-                                                pcolor,opacity,absfocale).
-              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n1,n2,vertices,projections,
-                                                  pcolor,opacity,absfocale).
-              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n2,n3,vertices,projections,
-                                                  pcolor,opacity,absfocale).
-              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n3,n0,vertices,projections,
-                                                  pcolor,opacity,absfocale);
+            _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,pcolor,opacity,_focale).
+              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n1,n2,vertices,projections,pcolor,opacity,_focale).
+              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n2,n3,vertices,projections,pcolor,opacity,_focale).
+              _draw_object3d_flat_colored_segment(zbuffer,X,Y,Z,n3,n0,vertices,projections,pcolor,opacity,_focale);
             break;
           case 2 :
-            _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
-                                                 pcolor,opacity,1,absfocale).
-              _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,
-                                                   pcolor,opacity,1,absfocale);
+            _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,pcolor,opacity,1,_focale).
+              _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,pcolor,opacity,1,
+                                                   _focale);
             break;
           case 3 :
-            _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
-                                                 pcolor,opacity,lightprops(l),absfocale).
-              _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,
-                                                   pcolor,opacity,lightprops(l),absfocale);
+            _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,pcolor,opacity,
+                                                 lightprops(l),_focale).
+              _draw_object3d_flat_colored_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,pcolor,opacity,
+                                                   lightprops(l),_focale);
             break;
           case 4 :
             _draw_object3d_gouraud_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
-                                                    pcolor,lightprops(n0),lightprops(n1),lightprops(n2),
-                                                    opacity,absfocale).
+                                                    pcolor,lightprops(n0),lightprops(n1),lightprops(n2),opacity,
+                                                    _focale).
               _draw_object3d_gouraud_colored_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,
-                                                      pcolor,lightprops(n0),lightprops(n2),lightprops(n3),
-                                                      opacity,absfocale);
+                                                      pcolor,lightprops(n0),lightprops(n2),lightprops(n3),opacity,
+                                                      _focale);
             break;
           case 5 : {
             const int
@@ -55300,10 +55286,9 @@ namespace cimg_library {
               lx2 = cimg::uiround(lightprops(n2,0)), ly2 = cimg::uiround(lightprops(n2,1)),
               lx3 = cimg::uiround(lightprops(n3,0)), ly3 = cimg::uiround(lightprops(n3,1));
             _draw_object3d_phong_colored_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
-                                                  pcolor,light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity,absfocale).
+                                                  pcolor,light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity,_focale).
               _draw_object3d_phong_colored_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,
-                                                    pcolor,light_texture,lx0,ly0,lx2,ly2,lx3,ly3,opacity,
-                                                    absfocale);
+                                                    pcolor,light_texture,lx0,ly0,lx2,ly2,lx3,ly3,opacity,_focale);
           } break;
           }
         } break;
@@ -55337,25 +55322,24 @@ namespace cimg_library {
           } break;
           case 1 :
             _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,
-                                                 color,tx0,ty0,tx1,ty1,opacity,absfocale).
+                                                 color,tx0,ty0,tx1,ty1,opacity,_focale).
               _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n1,n2,vertices,projections,
-                                                   color,tx1,ty1,tx2,ty2,opacity,absfocale).
+                                                   color,tx1,ty1,tx2,ty2,opacity,_focale).
               _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n2,n0,vertices,projections,
-                                                   color,tx2,ty2,tx0,ty0,opacity,absfocale);
+                                                   color,tx2,ty2,tx0,ty0,opacity,_focale);
             break;
           case 2 :
             _draw_object3d_flat_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
-                                                  color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,1,absfocale);
+                                                  color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,1,_focale);
             break;
           case 3 :
             _draw_object3d_flat_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
-                                                  color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,lightprops(l),absfocale);
+                                                  color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,lightprops(l),_focale);
             break;
           case 4 :
             _draw_object3d_gouraud_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
                                                      color,tx0,ty0,tx1,ty1,tx2,ty2,
-                                                     lightprops(n0),lightprops(n1),lightprops(n2),
-                                                     opacity,absfocale);
+                                                     lightprops(n0),lightprops(n1),lightprops(n2),opacity,_focale);
             break;
           case 5 :
             const int
@@ -55364,8 +55348,7 @@ namespace cimg_library {
               lx2 = cimg::uiround(lightprops(n2,0)), ly2 = cimg::uiround(lightprops(n2,1));
             _draw_object3d_phong_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
                                                    color,tx0,ty0,tx1,ty1,tx2,ty2,
-                                                   light_texture,lx0,ly0,lx1,ly1,lx2,ly2,
-                                                   opacity,absfocale);
+                                                   light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity,_focale);
             break;
           }
         } break;
@@ -55404,35 +55387,33 @@ namespace cimg_library {
           } break;
           case 1 :
             _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n0,n1,vertices,projections,
-                                                 color,tx0,ty0,tx1,ty1,opacity,absfocale).
+                                                 color,tx0,ty0,tx1,ty1,opacity,_focale).
               _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n1,n2,vertices,projections,
-                                                   color,tx1,ty1,tx2,ty2,opacity,absfocale).
+                                                   color,tx1,ty1,tx2,ty2,opacity,_focale).
               _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n2,n3,vertices,projections,
-                                                   color,tx2,ty2,tx3,ty3,opacity,absfocale).
+                                                   color,tx2,ty2,tx3,ty3,opacity,_focale).
               _draw_object3d_flat_textured_segment(zbuffer,X,Y,Z,n3,n0,vertices,projections,
-                                                   color,tx3,ty3,tx0,ty0,opacity,absfocale);
+                                                   color,tx3,ty3,tx0,ty0,opacity,_focale);
             break;
           case 2 :
             _draw_object3d_flat_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
-                                                  color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,1,absfocale).
+                                                  color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,1,_focale).
               _draw_object3d_flat_textured_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,
-                                                    color,tx0,ty0,tx2,ty2,tx3,ty3,opacity,1,absfocale);
+                                                    color,tx0,ty0,tx2,ty2,tx3,ty3,opacity,1,_focale);
             break;
           case 3 :
             _draw_object3d_flat_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
-                                                  color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,lightprops(l),absfocale).
+                                                  color,tx0,ty0,tx1,ty1,tx2,ty2,opacity,lightprops(l),_focale).
               _draw_object3d_flat_textured_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,
-                                                    color,tx0,ty0,tx2,ty2,tx3,ty3,opacity,lightprops(l),absfocale);
+                                                    color,tx0,ty0,tx2,ty2,tx3,ty3,opacity,lightprops(l),_focale);
             break;
           case 4 :
             _draw_object3d_gouraud_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
                                                      color,tx0,ty0,tx1,ty1,tx2,ty2,
-                                                     lightprops(n0),lightprops(n1),lightprops(n2),
-                                                     opacity,absfocale).
+                                                     lightprops(n0),lightprops(n1),lightprops(n2),opacity,_focale).
               _draw_object3d_gouraud_textured_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,
                                                        color,tx0,ty0,tx2,ty2,tx3,ty3,
-                                                       lightprops(n0),lightprops(n2),lightprops(n3),
-                                                       opacity,absfocale);
+                                                       lightprops(n0),lightprops(n2),lightprops(n3),opacity,_focale);
             break;
           case 5 : {
             const int
@@ -55442,12 +55423,10 @@ namespace cimg_library {
               lx3 = cimg::uiround(lightprops(n3,0)), ly3 = cimg::uiround(lightprops(n3,1));
             _draw_object3d_phong_textured_triangle(zbuffer,X,Y,Z,n0,n1,n2,vertices,projections,
                                                    color,tx0,ty0,tx1,ty1,tx2,ty2,
-                                                   light_texture,lx0,ly0,lx1,ly1,lx2,ly2,
-                                                   opacity,absfocale).
+                                                   light_texture,lx0,ly0,lx1,ly1,lx2,ly2,opacity,_focale).
               _draw_object3d_phong_textured_triangle(zbuffer,X,Y,Z,n0,n2,n3,vertices,projections,
                                                      color,tx0,ty0,tx2,ty2,tx3,ty3,
-                                                     light_texture,lx0,ly0,lx2,ly2,lx3,ly3,
-                                                     opacity,absfocale);
+                                                     light_texture,lx0,ly0,lx2,ly2,lx3,ly3,opacity,_focale);
           } break;
           }
         } break;

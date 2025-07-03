@@ -54896,7 +54896,7 @@ namespace cimg_library {
             x0 = projections(i0,0), y0 = projections(i0,1), z0 = Z + (float)vertices(i0,2),
             x1 = projections(i1,0), y1 = projections(i1,1), z1 = Z + (float)vertices(i1,2),
             x2 = projections(i2,0), y2 = projections(i2,1), z2 = Z + (float)vertices(i2,2);
-          float dot = 1;
+          float dot = -1;
           if (p_normals) {
             if (focale) {
               const float
@@ -54933,7 +54933,7 @@ namespace cimg_library {
             x1 = projections(i1,0), y1 = projections(i1,1), z1 = Z + (float)vertices(i1,2),
             x2 = projections(i2,0), y2 = projections(i2,1), z2 = Z + (float)vertices(i2,2),
             x3 = projections(i3,0), y3 = projections(i3,1), z3 = Z + (float)vertices(i3,2);
-          float dot = 1;
+          float dot = -1;
           if (p_normals) {
             if (focale) {
               const float
@@ -55015,7 +55015,7 @@ namespace cimg_library {
               nn = 1e-5f + cimg::hypot(lx,ly,lz),
               nlx = lx/nn, nly = ly/nn, nlz = lz/nn,
               dot = nlx*u + nly*v + nlz*w,
-              factor = is_double_sided?std::abs(dot):std::max(0.0f,dot);
+              factor = std::max(0.15f,is_double_sided?std::abs(dot):std::max(0.0f,dot));
             lightprops[l] = factor<=nspec?factor:(nsl1*factor*factor + nsl2*factor + nsl3);
           } else lightprops[l] = 1;
         }
@@ -55033,7 +55033,7 @@ namespace cimg_library {
               nn = 1e-5f + cimg::hypot(lx,ly,lz),
               nlx = lx/nn, nly = ly/nn, nlz = lz/nn,
               dot = nlx*u + nly*v + nlz*w,
-              factor = is_double_sided?std::abs(dot):std::max(0.0f,dot);
+              factor = std::max(0.15f,is_double_sided?std::abs(dot):std::max(0.0f,dot));
             lightprops[l] = factor<=nspec?factor:(nsl1*factor*factor + nsl2*factor + nsl3);
           }
         } else {

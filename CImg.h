@@ -59502,7 +59502,11 @@ namespace cimg_library {
           S = handle.has_alpha_channel()?4:3;
         assign(W,H,1,S);
 
-        int stride;
+#if LIBHEIF_NUMERIC_VERSION < LIBHEIF_MAKE_VERSION(1, 20, 0)
+        int stride = 0;
+#else
+        size_t stride = 0;
+#endif
         const unsigned char *const buffer = image.get_plane(heif_channel_interleaved,&stride);
         T *ptr_r = _data, *ptr_g = data(0,0,0,1), *ptr_b = data(0,0,0,2), *ptr_a = S>3?data(0,0,0,3):0;
         cimg_forY(*this,y) {

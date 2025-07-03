@@ -54329,7 +54329,7 @@ namespace cimg_library {
       if (zbuffer) draw_triangle(zbuffer,x0,y0,z0,x1,y1,z1,x2,y2,z2,
                                  texture,tx0,ty0,tx1,ty1,tx2,ty2,opacity,brightness);
       else draw_triangle(x0,y0,z0,x1,y1,z1,x2,y2,z2,
-                           texture,tx0,ty0,tx1,ty1,tx2,ty2,opacity,brightness);
+                         texture,tx0,ty0,tx1,ty1,tx2,ty2,opacity,brightness);
       return *this;
     }
 

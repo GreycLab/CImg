@@ -54617,6 +54617,9 @@ namespace cimg_library {
                             const float specular_lightness, const float specular_shininess,
                             const float g_opacity, const float sprite_scale,
                             const bool is_multithreaded_rendering) {
+#if cimg_use_openmp == 0
+      cimg::unused(is_multithreaded_rendering);
+#endif
       typedef typename to::value_type _to;
       if (is_empty() || !vertices || !primitives) return *this;
       CImg<char> error_message(1024);

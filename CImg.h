@@ -69643,7 +69643,7 @@ namespace cimg_library {
 #if cimg_OS==1
         if (!path_found) {
           std::strcpy(s_path,"magick");
-          if (posix_searchpath("magick")) path_found = true;
+          if (cimg::posix_searchpath("magick")) path_found = true;
         }
 #endif
         if (!path_found) std::strcpy(s_path,"convert");

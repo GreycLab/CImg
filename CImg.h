@@ -54618,6 +54618,7 @@ namespace cimg_library {
                             const float g_opacity, const float sprite_scale,
                             const bool is_multithreaded_rendering) {
       typedef typename to::value_type _to;
+      cimg::unused(is_multithreaded_rendering);
       if (is_empty() || !vertices || !primitives) return *this;
       CImg<char> error_message(1024);
       if (!vertices.is_object3d(primitives,colors,opacities,false,error_message))

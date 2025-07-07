@@ -41721,8 +41721,10 @@ namespace cimg_library {
     **/
     CImgList<T> get_split(const char axis, const int nb=-1, const unsigned int max_parts=~0U) const {
       CImgList<T> res;
-      if (is_empty()) return res;
+      if (is_empty() || !max_parts) return res;
+      if (max_parts==1) return res.assign(*this);
       const char _axis = cimg::lowercase(axis);
+      const unsigned int mp1 = max_parts - 1;
 
       if (nb<0) { // Split by block size
         const unsigned int dp = (unsigned int)-nb;
@@ -41787,28 +41789,28 @@ namespace cimg_library {
           case 'x' :
             cimg_forX(*this,p) if ((err-=nb)<=0) {
               get_columns(_p,p).move_to(res);
-              if (res._width>=max_parts - 1) { get_columns(p,_width - 1).move_to(res); break; }
+              if (res._width>=mp1) { get_columns(p,_width - 1).move_to(res); break; }
               err+=(int)siz; _p = p + 1U;
             }
             break;
           case 'y' :
             cimg_forY(*this,p) if ((err-=nb)<=0) {
               get_rows(_p,p).move_to(res);
-              if (res._width>=max_parts - 1) { get_rows(p,_height - 1).move_to(res); break; }
+              if (res._width>=mp1) { get_rows(p,_height - 1).move_to(res); break; }
               err+=(int)siz; _p = p + 1U;
             }
             break;
           case 'z' :
             cimg_forZ(*this,p) if ((err-=nb)<=0) {
               get_slices(_p,p).move_to(res);
-              if (res._width>=max_parts - 1) { get_slices(p,_depth - 1).move_to(res); break; }
+              if (res._width>=mp1) { get_slices(p,_depth - 1).move_to(res); break; }
               err+=(int)siz; _p = p + 1U;
             }
             break;
           case 'c' :
             cimg_forC(*this,p) if ((err-=nb)<=0) {
               get_channels(_p,p).move_to(res);
-              if (res._width>=max_parts - 1) { get_channels(p,_spectrum - 1).move_to(res); break; }
+              if (res._width>=mp1) { get_channels(p,_spectrum - 1).move_to(res); break; }
               err+=(int)siz; _p = p + 1U;
             }
           }
@@ -41819,25 +41821,41 @@ namespace cimg_library {
         case 'x' : {
           int i0 = 0;
           cimg_forX(*this,i)
-            if ((*this)(i)!=current) { get_columns(i0,i - 1).move_to(res); i0 = i; current = (*this)(i); }
+            if ((*this)(i)!=current) {
+              get_columns(i0,i - 1).move_to(res);
+              if (res._width>=mp1) break;
+              i0 = i; current = (*this)(i);
+            }
           get_columns(i0,width() - 1).move_to(res);
         } break;
         case 'y' : {
           int i0 = 0;
           cimg_forY(*this,i)
-            if ((*this)(0,i)!=current) { get_rows(i0,i - 1).move_to(res); i0 = i; current = (*this)(0,i); }
+            if ((*this)(0,i)!=current) {
+              get_rows(i0,i - 1).move_to(res);
+              if (res._width>=mp1) break;
+              i0 = i; current = (*this)(0,i);
+            }
           get_rows(i0,height() - 1).move_to(res);
         } break;
         case 'z' : {
           int i0 = 0;
           cimg_forZ(*this,i)
-            if ((*this)(0,0,i)!=current) { get_slices(i0,i - 1).move_to(res); i0 = i; current = (*this)(0,0,i); }
+            if ((*this)(0,0,i)!=current) {
+              get_slices(i0,i - 1).move_to(res);
+              if (res._width>=mp1) break;
+              i0 = i; current = (*this)(0,0,i);
+            }
           get_slices(i0,depth() - 1).move_to(res);
         } break;
         case 'c' : {
           int i0 = 0;
           cimg_forC(*this,i)
-            if ((*this)(0,0,0,i)!=current) { get_channels(i0,i - 1).move_to(res); i0 = i; current = (*this)(0,0,0,i); }
+            if ((*this)(0,0,0,i)!=current) {
+              get_channels(i0,i - 1).move_to(res);
+              if (res._width>=mp1) break;
+              i0 = i; current = (*this)(0,0,0,i);
+            }
           get_channels(i0,spectrum() - 1).move_to(res);
         } break;
         default : {
@@ -41845,6 +41863,7 @@ namespace cimg_library {
           cimg_foroff(*this,i)
             if ((*this)[i]!=current) {
               CImg<T>(_data + i0,1,(unsigned int)(i - i0)).move_to(res);
+              if (res._width>=mp1) break;
               i0 = (longT)i; current = (*this)[i];
             }
           CImg<T>(_data + i0,1,(unsigned int)(size() - i0)).move_to(res);

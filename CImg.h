@@ -41713,61 +41713,82 @@ namespace cimg_library {
     /**
        \param axis Splitting axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
        \param nb Number of split parts.
+       \param is_split2 Tells if split must be done only in two parts (only valid if nb<0).
        \note
        - If \c nb==0, instance image is split into blocs of equal values along the specified axis.
        - If \c nb<=0, instance image is split into blocs of -\c nb pixel wide.
        - If \c nb>0, instance image is split into \c nb blocs.
     **/
-    CImgList<T> get_split(const char axis, const int nb=-1) const {
+    CImgList<T> get_split(const char axis, const int nb=-1, const bool is_split2=false) const {
       CImgList<T> res;
       if (is_empty()) return res;
       const char _axis = cimg::lowercase(axis);
 
       if (nb<0) { // Split by block size
-        const unsigned int dp = (unsigned int)(nb?-nb:1);
+        const unsigned int dp = (unsigned int)-nb;
         switch (_axis) {
         case 'x': {
-          if (_width>dp) {
-            res.assign(_width/dp + (_width%dp?1:0),1,1);
-            const unsigned int pe = _width - dp;
-            cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*128 &&
-                                                           _height*_depth*_spectrum>=128))
-            for (int p = 0; p<(int)pe; p+=dp)
-              get_crop(p,0,0,0,p + dp - 1,_height - 1,_depth - 1,_spectrum - 1).move_to(res[p/dp]);
-            get_crop((res._width - 1)*dp,0,0,0,_width - 1,_height - 1,_depth - 1,_spectrum - 1).move_to(res.back());
+          if (dp<_width) {
+            if (is_split2) {
+              res.assign(2);
+              get_columns(0,dp - 1).move_to(res[0]);
+              get_columns(dp,width() - 1).move_to(res[1]);
+            } else {
+              res.assign(_width/dp + (_width%dp?1:0));
+              const unsigned int pe = _width - dp;
+              cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*128 &&
+                                                             _height*_depth*_spectrum>=128))
+              for (int p = 0; p<(int)pe; p+=dp) get_columns(p,p + dp - 1).move_to(res[p/dp]);
+              get_columns((res._width - 1)*dp,_width - 1).move_to(res.back());
+            }
           } else res.assign(*this);
         } break;
         case 'y': {
-          if (_height>dp) {
-            res.assign(_height/dp + (_height%dp?1:0),1,1);
-            const unsigned int pe = _height - dp;
-            cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*128 &&
-                                                           _width*_depth*_spectrum>=128))
-            for (int p = 0; p<(int)pe; p+=dp)
-              get_crop(0,p,0,0,_width - 1,p + dp - 1,_depth - 1,_spectrum - 1).move_to(res[p/dp]);
-            get_crop(0,(res._width - 1)*dp,0,0,_width - 1,_height - 1,_depth - 1,_spectrum - 1).move_to(res.back());
+          if (dp<_height) {
+            if (is_split2) {
+              res.assign(2);
+              get_rows(0,dp - 1).move_to(res[0]);
+              get_rows(dp,height() - 1).move_to(res[1]);
+            } else {
+              res.assign(_height/dp + (_height%dp?1:0));
+              const unsigned int pe = _height - dp;
+              cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*128 &&
+                                                             _width*_depth*_spectrum>=128))
+              for (int p = 0; p<(int)pe; p+=dp) get_rows(p,p + dp - 1).move_to(res[p/dp]);
+              get_rows((res._width - 1)*dp,_height - 1).move_to(res.back());
+            }
           } else res.assign(*this);
         } break;
         case 'z': {
-          if (_depth>dp) {
-            res.assign(_depth/dp + (_depth%dp?1:0),1,1);
-            const unsigned int pe = _depth - dp;
-            cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*128 &&
-                                                           _width*_height*_spectrum>=128))
-            for (int p = 0; p<(int)pe; p+=dp)
-              get_crop(0,0,p,0,_width - 1,_height - 1,p + dp - 1,_spectrum - 1).move_to(res[p/dp]);
-            get_crop(0,0,(res._width - 1)*dp,0,_width - 1,_height - 1,_depth - 1,_spectrum - 1).move_to(res.back());
+          if (dp<_depth) {
+            if (is_split2) {
+              res.assign(2);
+              get_slices(0,dp - 1).move_to(res[0]);
+              get_slices(dp,depth() - 1).move_to(res[1]);
+            } else {
+              res.assign(_depth/dp + (_depth%dp?1:0));
+              const unsigned int pe = _depth - dp;
+              cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*128 &&
+                                                             _width*_height*_spectrum>=128))
+              for (int p = 0; p<(int)pe; p+=dp) get_slices(p,p + dp - 1).move_to(res[p/dp]);
+              get_slices((res._width - 1)*dp,_depth - 1).move_to(res.back());
+            }
           } else res.assign(*this);
         } break;
         case 'c' : {
-          if (_spectrum>dp) {
-            res.assign(_spectrum/dp + (_spectrum%dp?1:0),1,1);
-            const unsigned int pe = _spectrum - dp;
-            cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*128 &&
-                                                           _width*_height*_depth>=128))
-            for (int p = 0; p<(int)pe; p+=dp)
-              get_crop(0,0,0,p,_width - 1,_height - 1,_depth - 1,p + dp - 1).move_to(res[p/dp]);
-            get_crop(0,0,0,(res._width - 1)*dp,_width - 1,_height - 1,_depth - 1,_spectrum - 1).move_to(res.back());
+          if (dp<_spectrum) {
+            if (is_split2) {
+              res.assign(2);
+              get_channels(0,dp - 1).move_to(res[0]);
+              get_channels(dp,spectrum() - 1).move_to(res[1]);
+            } else {
+              res.assign(_spectrum/dp + (_spectrum%dp?1:0));
+              const unsigned int pe = _spectrum - dp;
+              cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*128 &&
+                                                             _width*_height*_depth>=128))
+              for (int p = 0; p<(int)pe; p+=dp) get_channels(p,p + dp - 1).move_to(res[p/dp]);
+              get_channels((res._width - 1)*dp,_spectrum - 1).move_to(res.back());
+            }
           } else res.assign(*this);
         }
         }
@@ -41783,34 +41804,17 @@ namespace cimg_library {
           int err = (int)siz;
           unsigned int _p = 0;
           switch (_axis) {
-          case 'x' : {
-            cimg_forX(*this,p) if ((err-=nb)<=0) {
-              get_crop(_p,0,0,0,p,_height - 1,_depth - 1,_spectrum - 1).move_to(res);
-              err+=(int)siz;
-              _p = p + 1U;
-            }
-          } break;
-          case 'y' : {
-            cimg_forY(*this,p) if ((err-=nb)<=0) {
-              get_crop(0,_p,0,0,_width - 1,p,_depth - 1,_spectrum - 1).move_to(res);
-              err+=(int)siz;
-              _p = p + 1U;
-            }
-          } break;
-          case 'z' : {
-            cimg_forZ(*this,p) if ((err-=nb)<=0) {
-              get_crop(0,0,_p,0,_width - 1,_height - 1,p,_spectrum - 1).move_to(res);
-              err+=(int)siz;
-              _p = p + 1U;
-            }
-          } break;
-          case 'c' : {
-            cimg_forC(*this,p) if ((err-=nb)<=0) {
-              get_crop(0,0,0,_p,_width - 1,_height - 1,_depth - 1,p).move_to(res);
-              err+=(int)siz;
-              _p = p + 1U;
-            }
-          }
+          case 'x' :
+            cimg_forX(*this,p) if ((err-=nb)<=0) { get_columns(_p,p).move_to(res); err+=(int)siz; _p = p + 1U; }
+            break;
+          case 'y' :
+            cimg_forY(*this,p) if ((err-=nb)<=0) { get_rows(_p,p).move_to(res); err+=(int)siz; _p = p + 1U; }
+            break;
+          case 'z' :
+            cimg_forZ(*this,p) if ((err-=nb)<=0) { get_slices(_p,p).move_to(res); err+=(int)siz; _p = p + 1U; }
+            break;
+          case 'c' :
+            cimg_forC(*this,p) if ((err-=nb)<=0) { get_channels(_p,p).move_to(res); err+=(int)siz; _p = p + 1U; }
           }
         }
       } else { // Split by equal values according to specified axis
@@ -66218,9 +66222,9 @@ namespace cimg_library {
     }
 
     //! Return a list where each image has been split along the specified axis \newinstance.
-    CImgList<T> get_split(const char axis, const int nb=-1) const {
+    CImgList<T> get_split(const char axis, const int nb=-1, const bool is_split2=false) const {
       CImgList<T> res;
-      cimglist_for(*this,l) _data[l].get_split(axis,nb).move_to(res,~0U);
+      cimglist_for(*this,l) _data[l].get_split(axis,nb,is_split2).move_to(res,~0U);
       return res;
     }
 

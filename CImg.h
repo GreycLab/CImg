@@ -41713,7 +41713,7 @@ namespace cimg_library {
     /**
        \param axis Splitting axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
        \param nb Number of split parts.
-       \param max_parts If >0, number of max pieces allowed.
+       \param max_parts Number of max parts allowed for the split.
        \note
        - If \c nb==0, instance image is split into blocks of equal values along the specified axis.
        - If \c nb>0, instance image is split into \c nb blocks.

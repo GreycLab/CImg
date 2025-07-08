@@ -24778,7 +24778,7 @@ namespace cimg_library {
         } else *output = (t)*result;
       }
 
-      // Evaluation procedure for begin_t() bloc.
+      // Evaluation procedure for begin_t() block.
       void begin_t() {
         if (!code_begin_t) return;
         mem[_cimg_mp_slot_x] = mem[_cimg_mp_slot_y] = mem[_cimg_mp_slot_z] = mem[_cimg_mp_slot_c] = 0;
@@ -24791,7 +24791,7 @@ namespace cimg_library {
         p_code_end = code.end();
       }
 
-      // Evaluation procedure for end_t() bloc.
+      // Evaluation procedure for end_t() block.
       void end_t() {
         if (!code_end_t) return;
         if (imgin) {
@@ -24808,7 +24808,7 @@ namespace cimg_library {
         }
       }
 
-      // Evaluation procedure the end() bloc.
+      // Evaluation procedure the end() block.
       void end() {
         if (!code_end) return;
         if (imgin) {
@@ -41713,90 +41713,72 @@ namespace cimg_library {
     /**
        \param axis Splitting axis. Can be <tt>{ 'x' | 'y' | 'z' | 'c' }</tt>.
        \param nb Number of split parts.
-       \param is_split2 Tells if split must be done only in two parts (only valid if nb<0).
+       \param max_parts Number of max parts allowed for the split.
        \note
-       - If \c nb==0, instance image is split into blocs of equal values along the specified axis.
-       - If \c nb<=0, instance image is split into blocs of -\c nb pixel wide.
-       - If \c nb>0, instance image is split into \c nb blocs.
+       - If \c nb==0, instance image is split into blocks of equal values along the specified axis.
+       - If \c nb>0, instance image is split into \c nb blocks.
+       - If \c nb<0, instance image is split into blocks of -\c nb pixel wide.
     **/
-    CImgList<T> get_split(const char axis, const int nb=-1, const bool is_split2=false) const {
+    CImgList<T> get_split(const char axis, const int nb=-1, const unsigned int max_parts=~0U) const {
       CImgList<T> res;
-      if (is_empty()) return res;
+      if (is_empty() || !max_parts) return res;
+      if (max_parts==1) return res.assign(*this);
       const char _axis = cimg::lowercase(axis);
+      const unsigned int mp1 = max_parts - 1;
 
       if (nb<0) { // Split by block size
         const unsigned int dp = (unsigned int)-nb;
         switch (_axis) {
         case 'x': {
-          if (dp<_width) {
-            if (is_split2) {
-              res.assign(2);
-              get_columns(0,dp - 1).move_to(res[0]);
-              get_columns(dp,width() - 1).move_to(res[1]);
-            } else {
-              res.assign(_width/dp + (_width%dp?1:0));
-              const unsigned int pe = _width - dp;
-              cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*128 &&
-                                                             _height*_depth*_spectrum>=128))
-              for (int p = 0; p<(int)pe; p+=dp) get_columns(p,p + dp - 1).move_to(res[p/dp]);
-              get_columns((res._width - 1)*dp,_width - 1).move_to(res.back());
-            }
-          } else res.assign(*this);
+          if (max_parts==1 || dp>=_width) res.assign(*this);
+          else {
+            res.assign(std::min(max_parts,_width/dp + (_width%dp?1:0)));
+            cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*128 &&
+                                                           _height*_depth*_spectrum>=128))
+            cimglist_for(res,p)
+              if (p!=res.width() - 1) get_columns(p*dp,(p + 1)*dp - 1).move_to(res[p]);
+              else get_columns(p*dp,_width - 1).move_to(res[p]);
+          }
         } break;
         case 'y': {
-          if (dp<_height) {
-            if (is_split2) {
-              res.assign(2);
-              get_rows(0,dp - 1).move_to(res[0]);
-              get_rows(dp,height() - 1).move_to(res[1]);
-            } else {
-              res.assign(_height/dp + (_height%dp?1:0));
-              const unsigned int pe = _height - dp;
-              cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*128 &&
-                                                             _width*_depth*_spectrum>=128))
-              for (int p = 0; p<(int)pe; p+=dp) get_rows(p,p + dp - 1).move_to(res[p/dp]);
-              get_rows((res._width - 1)*dp,_height - 1).move_to(res.back());
-            }
-          } else res.assign(*this);
+          if (max_parts==1 || dp>=_height) res.assign(*this);
+          else {
+            res.assign(std::min(max_parts,_height/dp + (_height%dp?1:0)));
+            cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*128 &&
+                                                           _width*_depth*_spectrum>=128))
+            cimglist_for(res,p)
+              if (p!=res.width() - 1) get_rows(p*dp,(p + 1)*dp - 1).move_to(res[p]);
+              else get_rows(p*dp,_height - 1).move_to(res[p]);
+          }
         } break;
         case 'z': {
-          if (dp<_depth) {
-            if (is_split2) {
-              res.assign(2);
-              get_slices(0,dp - 1).move_to(res[0]);
-              get_slices(dp,depth() - 1).move_to(res[1]);
-            } else {
-              res.assign(_depth/dp + (_depth%dp?1:0));
-              const unsigned int pe = _depth - dp;
-              cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*128 &&
-                                                             _width*_height*_spectrum>=128))
-              for (int p = 0; p<(int)pe; p+=dp) get_slices(p,p + dp - 1).move_to(res[p/dp]);
-              get_slices((res._width - 1)*dp,_depth - 1).move_to(res.back());
-            }
-          } else res.assign(*this);
+          if (max_parts==1 || dp>=_depth) res.assign(*this);
+          else {
+            res.assign(std::min(max_parts,_depth/dp + (_depth%dp?1:0)));
+            cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*128 &&
+                                                           _width*_height*_spectrum>=128))
+            cimglist_for(res,p)
+              if (p!=res.width() - 1) get_slices(p*dp,(p + 1)*dp - 1).move_to(res[p]);
+              else get_slices(p*dp,_depth - 1).move_to(res[p]);
+          }
         } break;
         case 'c' : {
-          if (dp<_spectrum) {
-            if (is_split2) {
-              res.assign(2);
-              get_channels(0,dp - 1).move_to(res[0]);
-              get_channels(dp,spectrum() - 1).move_to(res[1]);
-            } else {
-              res.assign(_spectrum/dp + (_spectrum%dp?1:0));
-              const unsigned int pe = _spectrum - dp;
-              cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*128 &&
-                                                             _width*_height*_depth>=128))
-              for (int p = 0; p<(int)pe; p+=dp) get_channels(p,p + dp - 1).move_to(res[p/dp]);
-              get_channels((res._width - 1)*dp,_spectrum - 1).move_to(res.back());
-            }
-          } else res.assign(*this);
+          if (max_parts==1 || dp>=_spectrum) res.assign(*this);
+          else {
+            res.assign(std::min(max_parts,_spectrum/dp + (_spectrum%dp?1:0)));
+            cimg_pragma_openmp(parallel for cimg_openmp_if(res._width>=(cimg_openmp_sizefactor)*128 &&
+                                                           _width*_height*_depth>=128))
+            cimglist_for(res,p)
+              if (p!=res.width() - 1) get_channels(p*dp,(p + 1)*dp - 1).move_to(res[p]);
+              else get_channels(p*dp,_spectrum - 1).move_to(res[p]);
+          }
         }
         }
-      } else if (nb>0) { // Split by number of (non-homogeneous) blocs
+      } else if (nb>0) { // Split by number of (non-homogeneous) blocks
         const unsigned int siz = _axis=='x'?_width:_axis=='y'?_height:_axis=='z'?_depth:_axis=='c'?_spectrum:0;
         if ((unsigned int)nb>siz)
           throw CImgArgumentException(_cimg_instance
-                                      "get_split(): Instance cannot be split along %c-axis into %u blocs.",
+                                      "get_split(): Instance cannot be split along %c-axis into %u blocks.",
                                       cimg_instance,
                                       axis,nb);
         if (nb==1) res.assign(*this);
@@ -41805,16 +41787,32 @@ namespace cimg_library {
           unsigned int _p = 0;
           switch (_axis) {
           case 'x' :
-            cimg_forX(*this,p) if ((err-=nb)<=0) { get_columns(_p,p).move_to(res); err+=(int)siz; _p = p + 1U; }
+            cimg_forX(*this,p) if ((err-=nb)<=0) {
+              get_columns(_p,p).move_to(res);
+              if (res._width>=mp1) { get_columns(p,_width - 1).move_to(res); break; }
+              err+=(int)siz; _p = p + 1U;
+            }
             break;
           case 'y' :
-            cimg_forY(*this,p) if ((err-=nb)<=0) { get_rows(_p,p).move_to(res); err+=(int)siz; _p = p + 1U; }
+            cimg_forY(*this,p) if ((err-=nb)<=0) {
+              get_rows(_p,p).move_to(res);
+              if (res._width>=mp1) { get_rows(p,_height - 1).move_to(res); break; }
+              err+=(int)siz; _p = p + 1U;
+            }
             break;
           case 'z' :
-            cimg_forZ(*this,p) if ((err-=nb)<=0) { get_slices(_p,p).move_to(res); err+=(int)siz; _p = p + 1U; }
+            cimg_forZ(*this,p) if ((err-=nb)<=0) {
+              get_slices(_p,p).move_to(res);
+              if (res._width>=mp1) { get_slices(p,_depth - 1).move_to(res); break; }
+              err+=(int)siz; _p = p + 1U;
+            }
             break;
           case 'c' :
-            cimg_forC(*this,p) if ((err-=nb)<=0) { get_channels(_p,p).move_to(res); err+=(int)siz; _p = p + 1U; }
+            cimg_forC(*this,p) if ((err-=nb)<=0) {
+              get_channels(_p,p).move_to(res);
+              if (res._width>=mp1) { get_channels(p,_spectrum - 1).move_to(res); break; }
+              err+=(int)siz; _p = p + 1U;
+            }
           }
         }
       } else { // Split by equal values according to specified axis
@@ -41823,25 +41821,41 @@ namespace cimg_library {
         case 'x' : {
           int i0 = 0;
           cimg_forX(*this,i)
-            if ((*this)(i)!=current) { get_columns(i0,i - 1).move_to(res); i0 = i; current = (*this)(i); }
+            if ((*this)(i)!=current) {
+              get_columns(i0,i - 1).move_to(res);
+              if (res._width>=mp1) break;
+              i0 = i; current = (*this)(i);
+            }
           get_columns(i0,width() - 1).move_to(res);
         } break;
         case 'y' : {
           int i0 = 0;
           cimg_forY(*this,i)
-            if ((*this)(0,i)!=current) { get_rows(i0,i - 1).move_to(res); i0 = i; current = (*this)(0,i); }
+            if ((*this)(0,i)!=current) {
+              get_rows(i0,i - 1).move_to(res);
+              if (res._width>=mp1) break;
+              i0 = i; current = (*this)(0,i);
+            }
           get_rows(i0,height() - 1).move_to(res);
         } break;
         case 'z' : {
           int i0 = 0;
           cimg_forZ(*this,i)
-            if ((*this)(0,0,i)!=current) { get_slices(i0,i - 1).move_to(res); i0 = i; current = (*this)(0,0,i); }
+            if ((*this)(0,0,i)!=current) {
+              get_slices(i0,i - 1).move_to(res);
+              if (res._width>=mp1) break;
+              i0 = i; current = (*this)(0,0,i);
+            }
           get_slices(i0,depth() - 1).move_to(res);
         } break;
         case 'c' : {
           int i0 = 0;
           cimg_forC(*this,i)
-            if ((*this)(0,0,0,i)!=current) { get_channels(i0,i - 1).move_to(res); i0 = i; current = (*this)(0,0,0,i); }
+            if ((*this)(0,0,0,i)!=current) {
+              get_channels(i0,i - 1).move_to(res);
+              if (res._width>=mp1) break;
+              i0 = i; current = (*this)(0,0,0,i);
+            }
           get_channels(i0,spectrum() - 1).move_to(res);
         } break;
         default : {
@@ -41849,6 +41863,7 @@ namespace cimg_library {
           cimg_foroff(*this,i)
             if ((*this)[i]!=current) {
               CImg<T>(_data + i0,1,(unsigned int)(i - i0)).move_to(res);
+              if (res._width>=mp1) break;
               i0 = (longT)i; current = (*this)[i];
             }
           CImg<T>(_data + i0,1,(unsigned int)(size() - i0)).move_to(res);
@@ -41862,7 +41877,7 @@ namespace cimg_library {
     /**
        \param values Splitting value sequence.
        \param axis Axis along which the splitting is performed. Can be '0' to ignore axis.
-       \param keep_values Tells if the splitting sequence must be kept in the split blocs.
+       \param keep_values Tells if the splitting sequence must be kept in the split blocks.
      **/
     template<typename t>
     CImgList<T> get_split(const CImg<t>& values, const char axis=0, const bool keep_values=true) const {
@@ -66222,9 +66237,9 @@ namespace cimg_library {
     }
 
     //! Return a list where each image has been split along the specified axis \newinstance.
-    CImgList<T> get_split(const char axis, const int nb=-1, const bool is_split2=false) const {
+    CImgList<T> get_split(const char axis, const int nb=-1, const unsigned int max_parts=~0U) const {
       CImgList<T> res;
-      cimglist_for(*this,l) _data[l].get_split(axis,nb,is_split2).move_to(res,~0U);
+      cimglist_for(*this,l) _data[l].get_split(axis,nb,max_parts).move_to(res,~0U);
       return res;
     }
 

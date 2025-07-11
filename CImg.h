@@ -54711,7 +54711,8 @@ namespace cimg_library {
         // 3D normals to primitives.
         p_centers.assign(primitives._width,3);
         p_normals.assign(primitives._width,3);
-        cimg_pragma_openmp(parallel for cimg_openmp_if_size(primitives.size(),4096))
+        cimg_pragma_openmp(parallel for cimg_openmp_if(is_multithreaded_rendering &&
+                                                       primitives.size()>=cimg_openmp_sizefactor*4096))
         cimglist_for(primitives,l) {
           const CImg<tf>& primitive = primitives[l];
           switch (primitive.size()) {
@@ -54821,7 +54822,8 @@ namespace cimg_library {
             } break;
             }
           }
-          cimg_pragma_openmp(parallel for cimg_openmp_if_size(v_normals._width,4096))
+          cimg_pragma_openmp(parallel for cimg_openmp_if(is_multithreaded_rendering &&
+                                                         v_normals.width()>=cimg_openmp_sizefactor*4096))
           cimg_forX(v_normals,l) {
             const float
               u = v_normals(l,0), v = v_normals(l,1), w = v_normals(l,2),
@@ -54835,7 +54837,8 @@ namespace cimg_library {
       // Compute 3D to 2D projection.
       CImg<floatT> projections(vertices._width,2);
       if (focale) {
-        cimg_pragma_openmp(parallel for cimg_openmp_if_size(projections.size(),4096))
+        cimg_pragma_openmp(parallel for cimg_openmp_if(is_multithreaded_rendering &&
+                                                       projections.size()>=cimg_openmp_sizefactor*4096))
         cimg_forX(projections,l) { // Perspective projection
           const float
             x = (float)vertices(l,0), y = (float)vertices(l,1), z = (float)vertices(l,2),
@@ -54844,7 +54847,8 @@ namespace cimg_library {
           projections(l,0) = X + _focale*x/z_denom;
         }
       } else {
-        cimg_pragma_openmp(parallel for cimg_openmp_if_size(projections.size(),4096))
+        cimg_pragma_openmp(parallel for cimg_openmp_if(is_multithreaded_rendering &&
+                                                       projections.size()>=cimg_openmp_sizefactor*4096))
         cimg_forX(projections,l) { // Parallel projection
           const float x = (float)vertices(l,0), y = (float)vertices(l,1);
           projections(l,1) = Y + y;
@@ -54860,8 +54864,8 @@ namespace cimg_library {
       CImg<float> zrange(primitives._width);
       const float zmin = focale?1 - _focale:cimg::type<float>::min();
       bool is_forward = zbuffer?true:false;
-
-      cimg_pragma_openmp(parallel for cimg_openmp_if_size(primitives.size(),4096))
+      cimg_pragma_openmp(parallel for cimg_openmp_if(is_multithreaded_rendering &&
+                                                     primitives.size()>=cimg_openmp_sizefactor*4096))
       cimglist_for(primitives,l) {
         const CImg<tf>& primitive = primitives[l];
         switch (primitive.size()) {
@@ -55032,7 +55036,8 @@ namespace cimg_library {
       switch (render_type) {
       case 3 : { // Flat Shading
         lightprops.assign(nb_visibles);
-        cimg_pragma_openmp(parallel for cimg_openmp_if_size(nb_visibles,4096))
+        cimg_pragma_openmp(parallel for cimg_openmp_if(is_multithreaded_rendering &&
+                                                       nb_visibles>=cimg_openmp_sizefactor*4096))
         cimg_forX(lightprops,l) {
           const unsigned int p = visibles(permutations(l));
           const CImg<tf>& primitive = primitives[p];
@@ -55054,7 +55059,8 @@ namespace cimg_library {
       case 5 : { // Phong-Shading
         if (render_type==4) {
           lightprops.assign(vertices._width);
-          cimg_pragma_openmp(parallel for cimg_openmp_if_size(nb_visibles,4096))
+          cimg_pragma_openmp(parallel for cimg_openmp_if(is_multithreaded_rendering &&
+                                                         nb_visibles>=cimg_openmp_sizefactor*4096))
           cimg_forX(lightprops,l) {
             const float
               x = vertices(l,0), y = vertices(l,1), z = vertices(l,2),
@@ -55071,7 +55077,8 @@ namespace cimg_library {
             lw2 = light_texture._width/2 - 1,
             lh2 = light_texture._height/2 - 1;
           lightprops.assign(vertices._width,2);
-          cimg_pragma_openmp(parallel for cimg_openmp_if_size(nb_visibles,4096))
+          cimg_pragma_openmp(parallel for cimg_openmp_if(is_multithreaded_rendering &&
+                                                         nb_visibles>=cimg_openmp_sizefactor*4096))
           cimg_forX(lightprops,l) {
             const float u = v_normals(l,0), v = v_normals(l,1);
             lightprops(l,0) = lw2*(1 + u);

@@ -49962,6 +49962,7 @@ namespace cimg_library {
       if (is_empty() || !opacity || !pattern ||
           std::min(y0,y1)>=height() || std::max(y0,y1)<0 || std::min(x0,x1)>=width() || std::max(x0,x1)<0)
         return *this;
+      if (x0==x1 && y0==y1) return draw_point(x0,y0,0,color,opacity);
       int
         w1 = width() - 1, h1 = height() - 1,
         dx01 = x1 - x0, dy01 = y1 - y0;

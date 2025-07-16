@@ -45985,18 +45985,18 @@ namespace cimg_library {
           _sd = (unsigned int)(_depth/factor), sd = _sd?_sd:1;
         if (sw<5 && sh<5 && (!is_3d || sd<5)) continue; // Skip too small scales
         const CImg<Tfloat>
-          I1 = (source.get_resize(sw,sh,sd,-100,2)-=sm)/=sdelta,
-          I2 = (get_resize(I1,2)-=tm)/=tdelta;
-        if (guide._spectrum>constraint) guide.get_resize(I2._width,I2._height,I2._depth,-100,1).move_to(V);
-        if (U) (U*=1.5f).resize(I2._width,I2._height,I2._depth,-100,3);
+          S = (source.get_resize(sw,sh,sd,-100,2)-=sm)/=sdelta,
+          I = (get_resize(S,2)-=tm)/=tdelta;
+        if (guide._spectrum>constraint) guide.get_resize(I._width,I._height,I._depth,-100,1).move_to(V);
+        if (U) (U*=1.5f).resize(I._width,I._height,I._depth,-100,3);
         else {
           if (guide)
-            guide.get_shared_channels(0,is_3d?2:1).get_resize(I2._width,I2._height,I2._depth,-100,2).move_to(U);
-          else U.assign(I2._width,I2._height,I2._depth,is_3d?3:2,0);
+            guide.get_shared_channels(0,is_3d?2:1).get_resize(I._width,I._height,I._depth,-100,2).move_to(U);
+          else U.assign(I._width,I._height,I._depth,is_3d?3:2,0);
         }
 
         float dt = 2, energy = cimg::type<float>::max();
-        const CImgList<Tfloat> dI = is_backward?I1.get_gradient():I2.get_gradient();
+        const CImgList<Tfloat> grad = is_backward?S.get_gradient():I.get_gradient();
         cimg_abort_init;
 
         for (unsigned int iteration = 0; iteration<iteration_max; ++iteration) {
@@ -46018,9 +46018,9 @@ namespace cimg_library {
                     X = is_backward?x - U(x,y,z,0):x + U(x,y,z,0),
                     Y = is_backward?y - U(x,y,z,1):y + U(x,y,z,1),
                     Z = is_backward?z - U(x,y,z,2):z + U(x,y,z,2);
-                  float delta_I = 0, _energy_regul = 0;
-                  if (is_backward) cimg_forC(I2,c) delta_I+=(float)(I1._linear_atXYZ(X,Y,Z,c) - I2(x,y,z,c));
-                  else cimg_forC(I2,c) delta_I+=(float)(I1(x,y,z,c) - I2._linear_atXYZ(X,Y,Z,c));
+                  float delta = 0, _energy_regul = 0;
+                  if (is_backward) cimg_forC(I,c) delta+=(float)(S._linear_atXYZ(X,Y,Z,c) - I(x,y,z,c));
+                  else cimg_forC(I,c) delta+=(float)(S(x,y,z,c) - I._linear_atXYZ(X,Y,Z,c));
                   cimg_forC(U,c) {
                     const float
                       Ux = 0.5f*(U(_n1x,y,z,c) - U(_p1x,y,z,c)),
@@ -46029,7 +46029,7 @@ namespace cimg_library {
                       Uxx = U(_n1x,y,z,c) + U(_p1x,y,z,c),
                       Uyy = U(x,_n1y,z,c) + U(x,_p1y,z,c),
                       Uzz = U(x,y,_n1z,c) + U(x,y,_p1z,c);
-                    U(x,y,z,c) = (float)(U(x,y,z,c) + dt*(delta_I*dI[c]._linear_atXYZ(X,Y,Z) +
+                    U(x,y,z,c) = (float)(U(x,y,z,c) + dt*(delta*grad[c]._linear_atXYZ(X,Y,Z) +
                                                           smoothness* ( Uxx + Uyy + Uzz)))/(1 + 6*smoothness*dt);
                     _energy_regul+=Ux*Ux + Uy*Uy + Uz*Uz;
                   }
@@ -46048,7 +46048,7 @@ namespace cimg_library {
                     bound = (float)_height - y; if (U(x,y,z,1)>=bound) U(x,y,z,1) = bound;
                     bound = (float)_depth - z; if (U(x,y,z,2)>=bound) U(x,y,z,2) = bound;
                   }
-                  _energy+=delta_I*delta_I + smoothness*_energy_regul;
+                  _energy+=delta*delta + smoothness*_energy_regul;
                 }
                 if (V) cimg_forXYZ(V,_x,_y,_z) if (V(_x,_y,_z,3)) { // Apply constraints
                     U(_x,_y,_z,0) = V(_x,_y,_z,0)/factor;
@@ -46070,9 +46070,9 @@ namespace cimg_library {
                     X = is_backward?x - U(x,y,z,0):x + U(x,y,z,0),
                     Y = is_backward?y - U(x,y,z,1):y + U(x,y,z,1),
                     Z = is_backward?z - U(x,y,z,2):z + U(x,y,z,2);
-                  float delta_I = 0, _energy_regul = 0;
-                  if (is_backward) cimg_forC(I2,c) delta_I+=(float)(I1._linear_atXYZ(X,Y,Z,c) - I2(x,y,z,c));
-                  else cimg_forC(I2,c) delta_I+=(float)(I1(x,y,z,c) - I2._linear_atXYZ(X,Y,Z,c));
+                  float delta = 0, _energy_regul = 0;
+                  if (is_backward) cimg_forC(I,c) delta+=(float)(S._linear_atXYZ(X,Y,Z,c) - I(x,y,z,c));
+                  else cimg_forC(I,c) delta+=(float)(S(x,y,z,c) - I._linear_atXYZ(X,Y,Z,c));
                   cimg_forC(U,c) {
                     const float
                       Ux = 0.5f*(U(_n1x,y,z,c) - U(_p1x,y,z,c)),
@@ -46093,7 +46093,7 @@ namespace cimg_library {
                       Uxy = 0.25f*(U(_n1x,_n1y,z,c) + U(_p1x,_p1y,z,c) - U(_n1x,_p1y,z,c) - U(_n1x,_p1y,z,c)),
                       Uxz = 0.25f*(U(_n1x,y,_n1z,c) + U(_p1x,y,_p1z,c) - U(_n1x,y,_p1z,c) - U(_n1x,y,_p1z,c)),
                       Uyz = 0.25f*(U(x,_n1y,_n1z,c) + U(x,_p1y,_p1z,c) - U(x,_n1y,_p1z,c) - U(x,_n1y,_p1z,c));
-                    U(x,y,z,c) = (float)(U(x,y,z,c) + dt*(delta_I*dI[c]._linear_atXYZ(X,Y,Z) +
+                    U(x,y,z,c) = (float)(U(x,y,z,c) + dt*(delta*grad[c]._linear_atXYZ(X,Y,Z) +
                                                           nsmoothness* ( coef_a*Uxx + coef_b*Uxy +
                                                                          coef_c*Uxz + coef_d*Uyy +
                                                                          coef_e*Uyz + coef_f*Uzz ))
@@ -46115,7 +46115,7 @@ namespace cimg_library {
                     bound = (float)_height - y; if (U(x,y,z,1)>=bound) U(x,y,z,1) = bound;
                     bound = (float)_depth - z; if (U(x,y,z,2)>=bound) U(x,y,z,2) = bound;
                   }
-                  _energy+=delta_I*delta_I + nsmoothness*_energy_regul;
+                  _energy+=delta*delta + nsmoothness*_energy_regul;
                 }
                 if (V) cimg_forXYZ(V,_x,_y,_z) if (V(_x,_y,_z,3)) { // Apply constraints
                     U(_x,_y,_z,0) = V(_x,_y,_z,0)/factor;
@@ -46125,7 +46125,7 @@ namespace cimg_library {
               }
             }
           } else { // 2D version
-            if (smoothness>=0) // Isotropic regularization
+            if (smoothness>=0) { // Isotropic regularization
               cimg_pragma_openmp(parallel for cimg_openmp_if(_height>=(cimg_openmp_sizefactor)*8 &&
                                                              _width>=(cimg_openmp_sizefactor)*16) reduction(+:_energy))
               cimg_forY(U,y) {
@@ -46134,17 +46134,24 @@ namespace cimg_library {
                   const float
                     X = is_backward?x - U(x,y,0):x + U(x,y,0),
                     Y = is_backward?y - U(x,y,1):y + U(x,y,1);
-                  float delta_I = 0, _energy_regul = 0;
-                  if (is_backward) cimg_forC(I2,c) delta_I+=(float)(I1._linear_atXY(X,Y,c) - I2(x,y,c));
-                  else cimg_forC(I2,c) delta_I+=(float)(I1(x,y,c) - I2._linear_atXY(X,Y,c));
+
+                  float veloc_x = 0, veloc_y = 0, _energy_regul = 0;
+                  cimg_forC(I,c) {
+                    const float delta = (float)(is_backward?S._linear_atXY(X,Y,c) - I(x,y,c):
+                                                S(x,y,c) - I._linear_atXY(X,Y,c));
+                    veloc_x+=delta*grad[0].linear_atXY(X,Y,0,c,0);
+                    veloc_y+=delta*grad[1].linear_atXY(X,Y,0,c,0);
+                    _energy+=delta*delta;
+                  }
                   cimg_forC(U,c) {
                     const float
                       Ux = 0.5f*(U(_n1x,y,c) - U(_p1x,y,c)),
                       Uy = 0.5f*(U(x,_n1y,c) - U(x,_p1y,c)),
                       Uxx = U(_n1x,y,c) + U(_p1x,y,c),
-                      Uyy = U(x,_n1y,c) + U(x,_p1y,c);
-                    U(x,y,c) = (float)(U(x,y,c) + dt*(delta_I*dI[c]._linear_atXY(X,Y) +
-                                                      smoothness*( Uxx + Uyy )))/(1 + 4*smoothness*dt);
+                      Uyy = U(x,_n1y,c) + U(x,_p1y,c),
+                      veloc = c==0?veloc_x:veloc_y;
+                    U(x,y,c) = (float)(U(x,y,c) + dt*(veloc + smoothness*(Uxx + Uyy)))/
+                      (1 + 4*smoothness*dt);
                     _energy_regul+=Ux*Ux + Uy*Uy;
                   }
                   if (is_backward) { // Constraint displacement vectors to stay in image
@@ -46158,13 +46165,14 @@ namespace cimg_library {
                     bound = (float)_width - x; if (U(x,y,0)>=bound) U(x,y,0) = bound;
                     bound = (float)_height - y; if (U(x,y,1)>=bound) U(x,y,1) = bound;
                   }
-                  _energy+=delta_I*delta_I + smoothness*_energy_regul;
+                  _energy+=smoothness*_energy_regul;
                 }
                 if (V) cimg_forXY(V,_x,_y) if (V(_x,_y,2)) { // Apply constraints
                     U(_x,_y,0) = V(_x,_y,0)/factor;
                     U(_x,_y,1) = V(_x,_y,1)/factor;
                   }
-              } else { // Anisotropic regularization
+              }
+            } else { // Anisotropic regularization
               const float nsmoothness = -smoothness;
               cimg_pragma_openmp(parallel for cimg_openmp_if(_height>=(cimg_openmp_sizefactor)*8 &&
                                                              _width>=(cimg_openmp_sizefactor)*16) reduction(+:_energy))
@@ -46174,9 +46182,15 @@ namespace cimg_library {
                   const float
                     X = is_backward?x - U(x,y,0):x + U(x,y,0),
                     Y = is_backward?y - U(x,y,1):y + U(x,y,1);
-                  float delta_I = 0, _energy_regul = 0;
-                  if (is_backward) cimg_forC(I2,c) delta_I+=(float)(I1._linear_atXY(X,Y,c) - I2(x,y,c));
-                  else cimg_forC(I2,c) delta_I+=(float)(I1(x,y,c) - I2._linear_atXY(X,Y,c));
+
+                  float veloc_x = 0, veloc_y = 0, _energy_regul = 0;
+                  cimg_forC(I,c) {
+                    const float delta = (float)(is_backward?S._linear_atXY(X,Y,c) - I(x,y,c):
+                                                S(x,y,c) - I._linear_atXY(X,Y,c));
+                    veloc_x+=delta*grad[0].linear_atXY(X,Y,0,c,0);
+                    veloc_y+=delta*grad[1].linear_atXY(X,Y,0,c,0);
+                    _energy+=delta*delta;
+                  }
                   cimg_forC(U,c) {
                     const float
                       Ux = 0.5f*(U(_n1x,y,c) - U(_p1x,y,c)),
@@ -46189,9 +46203,9 @@ namespace cimg_library {
                       coef_c = Ux*Ux/N3,
                       Uxx = U(_n1x,y,c) + U(_p1x,y,c),
                       Uyy = U(x,_n1y,c) + U(x,_p1y,c),
-                      Uxy = 0.25f*(U(_n1x,_n1y,c) + U(_p1x,_p1y,c) - U(_n1x,_p1y,c) - U(_n1x,_p1y,c));
-                    U(x,y,c) = (float)(U(x,y,c) + dt*(delta_I*dI[c]._linear_atXY(X,Y) +
-                                                      nsmoothness*( coef_a*Uxx + coef_b*Uxy + coef_c*Uyy )))/
+                      Uxy = 0.25f*(U(_n1x,_n1y,c) + U(_p1x,_p1y,c) - U(_n1x,_p1y,c) - U(_n1x,_p1y,c)),
+                      veloc = c==0?veloc_x:veloc_y;
+                    U(x,y,c) = (float)(U(x,y,c) + dt*(veloc + nsmoothness*( coef_a*Uxx + coef_b*Uxy + coef_c*Uyy )))/
                       (1 + 2*(coef_a + coef_c)*nsmoothness*dt);
                     _energy_regul+=N;
                   }
@@ -46206,7 +46220,7 @@ namespace cimg_library {
                     bound = (float)_width - x; if (U(x,y,0)>=bound) U(x,y,0) = bound;
                     bound = (float)_height - y; if (U(x,y,1)>=bound) U(x,y,1) = bound;
                   }
-                  _energy+=delta_I*delta_I + nsmoothness*_energy_regul;
+                  _energy+=nsmoothness*_energy_regul;
                 }
                 if (V) cimg_forXY(V,_x,_y) if (V(_x,_y,2)) { // Apply constraints
                     U(_x,_y,0) = V(_x,_y,0)/factor;

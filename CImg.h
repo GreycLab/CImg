@@ -45966,19 +45966,24 @@ namespace cimg_library {
                                     cimg_instance,
                                     guide._width,guide._height,guide._depth,guide._spectrum,guide._data);
 
+      const float
+        upscale_factor = 2,
+        abs_smoothness = cimg::abs(smoothness),
+        _precision = (float)std::pow(10.,-(double)precision);
       const unsigned int
-        mins = is_3d?cimg::min(_width,_height,_depth):std::min(_width,_height),
-        _nb_scales = nb_scales>0?nb_scales:
-        (unsigned int)cimg::round(std::log(mins/8.)/std::log(1.5),1,1);
+        min_siz = is_3d?cimg::min(_width,_height,_depth):std::min(_width,_height),
+        _nb_scales = nb_scales>0?nb_scales:(unsigned int)(std::log(min_siz)/std::log(upscale_factor)) - 1;
 
-      const float _precision = (float)std::pow(10.,-(double)precision), abs_smoothness = cimg::abs(smoothness);
       float sm, sM = source.max_min(sm), im, iM = max_min(im);
       const float sdelta = sm==sM?1:(sM - sm), idelta = im==iM?1:(iM - im);
 
       CImg<floatT> U, V;
       floatT bound = 0;
       for (int scale = (int)_nb_scales - 1; scale>=0; --scale) {
-        const float factor = (float)std::pow(1.5,(double)scale);
+
+        std::fprintf(stderr,"\n  - Scale %d/%d : ",scale,_nb_scales - 1);
+
+        const float factor = (float)std::pow(upscale_factor,(double)scale);
         const unsigned int
           _sw = (unsigned int)(_width/factor), sw = _sw?_sw:1,
           _sh = (unsigned int)(_height/factor), sh = _sh?_sh:1,
@@ -45987,8 +45992,9 @@ namespace cimg_library {
         const CImg<Tfloat>
           S = (source.get_resize(sw,sh,sd,-100,2)-=sm)/=sdelta,
           I = (get_resize(S,2)-=im)/=idelta;
+
         if (guide._spectrum>constraint) guide.get_resize(I._width,I._height,I._depth,-100,1).move_to(V);
-        if (U) (U*=1.5f).resize(I._width,I._height,I._depth,-100,3);
+        if (U) (U*=upscale_factor).resize(I._width,I._height,I._depth,-100,3);
         else {
           if (guide)
             guide.get_shared_channels(0,is_3d?2:1).get_resize(I._width,I._height,I._depth,-100,2).move_to(U);
@@ -46156,6 +46162,9 @@ namespace cimg_library {
           if (d_energy<=0 && -d_energy<_precision) break;
           if (d_energy>0) dt*=0.5f;
           energy = _energy;
+
+          std::fprintf(stderr,"%g / ",energy);
+
         }
       }
       return U;

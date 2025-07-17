@@ -45985,9 +45985,9 @@ namespace cimg_library {
 
         const float factor = (float)std::pow(upscale_factor,(double)scale);
         const unsigned int
-          _sw = (unsigned int)(_width/factor), sw = _sw?_sw:1,
-          _sh = (unsigned int)(_height/factor), sh = _sh?_sh:1,
-          _sd = (unsigned int)(_depth/factor), sd = _sd?_sd:1;
+          _sw = (unsigned int)cimg::round(_width/factor), sw = _sw?_sw:1,
+          _sh = (unsigned int)cimg::round(_height/factor), sh = _sh?_sh:1,
+          _sd = (unsigned int)cimg::round(_depth/factor), sd = _sd?_sd:1;
         if (sw<5 && sh<5 && (!is_3d || sd<5)) continue; // Skip too small scales
         const CImg<Tfloat>
           S = (source.get_resize(sw,sh,sd,-100,2)-=sm)/=sdelta,

@@ -46092,9 +46092,9 @@ namespace cimg_library {
                 _energy+=abs_smoothness*_energy_regul;
               }
               if (V) cimg_forXYZ(V,_x,_y,_z) if (V(_x,_y,_z,3)) { // Apply constraints
-                  U(_x,_y,_z,0) = V(_x,_y,_z,0)/sfact;
-                  U(_x,_y,_z,1) = V(_x,_y,_z,1)/sfact;
-                  U(_x,_y,_z,2) = V(_x,_y,_z,2)/sfact;
+                  U(_x,_y,_z,0) = V(_x,_y,_z,0);
+                  U(_x,_y,_z,1) = V(_x,_y,_z,1);
+                  U(_x,_y,_z,2) = V(_x,_y,_z,2);
                 }
             }
           } else { // 2D version
@@ -46156,8 +46156,8 @@ namespace cimg_library {
                 _energy+=abs_smoothness*_energy_regul;
               }
               if (V) cimg_forXY(V,_x,_y) if (V(_x,_y,2)) { // Apply constraints
-                  U(_x,_y,0) = V(_x,_y,0)/sfact;
-                  U(_x,_y,1) = V(_x,_y,1)/sfact;
+                  U(_x,_y,0) = V(_x,_y,0);
+                  U(_x,_y,1) = V(_x,_y,1);
                 }
             }
           }

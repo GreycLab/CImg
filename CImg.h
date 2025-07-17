@@ -45965,7 +45965,6 @@ namespace cimg_library {
                                     "has invalid dimensions.",
                                     cimg_instance,
                                     guide._width,guide._height,guide._depth,guide._spectrum,guide._data);
-
       const float
         upscale_factor = 2,
         abs_smoothness = cimg::abs(smoothness),
@@ -45974,31 +45973,35 @@ namespace cimg_library {
         min_siz = is_3d?cimg::min(_width,_height,_depth):std::min(_width,_height),
         _nb_scales = nb_scales>0?nb_scales:(unsigned int)(std::log(min_siz)/std::log(upscale_factor)) - 1;
 
-      float sm, sM = source.max_min(sm), im, iM = max_min(im);
+      float sm, sM = source.max_min(sm), im, iM = max_min(im), bound = 0;
       const float sdelta = sm==sM?1:(sM - sm), idelta = im==iM?1:(iM - im);
 
       CImg<floatT> U, V;
-      floatT bound = 0;
       for (int scale = (int)_nb_scales - 1; scale>=0; --scale) {
 
         std::fprintf(stderr,"\n  - Scale %d/%d : ",scale,_nb_scales - 1);
 
-        const float factor = (float)std::pow(upscale_factor,(double)scale);
+        const float sfact = (float)std::pow(upscale_factor,(double)scale);
         const unsigned int
-          _sw = (unsigned int)cimg::round(_width/factor), sw = _sw?_sw:1,
-          _sh = (unsigned int)cimg::round(_height/factor), sh = _sh?_sh:1,
-          _sd = (unsigned int)cimg::round(_depth/factor), sd = _sd?_sd:1;
-        if (sw<5 && sh<5 && (!is_3d || sd<5)) continue; // Skip too small scales
+          sw = std::max(1U,(unsigned int)cimg::round(_width/sfact)),
+          sh = std::max(1U,(unsigned int)cimg::round(_height/sfact)),
+          sd = std::max(1U,(unsigned int)cimg::round(_depth/sfact));
+        if (sw<4 && sh<4 && (!is_3d || sd<4)) continue; // Skip too small scales
         const CImg<Tfloat>
           S = (source.get_resize(sw,sh,sd,-100,2)-=sm)/=sdelta,
           I = (get_resize(S,2)-=im)/=idelta;
 
         if (guide._spectrum>constraint) guide.get_resize(I._width,I._height,I._depth,-100,1).move_to(V);
-        if (U) (U*=upscale_factor).resize(I._width,I._height,I._depth,-100,3);
-        else {
+        if (U) {
+          const float vfact = cimg::min((float)I._width/U._width,
+                                        (float)I._height/U._height,
+                                        is_3d?(float)I._depth/U._depth:cimg::type<float>::inf());
+          (U*=vfact).resize(I._width,I._height,I._depth,-100,3);
+        } else {
           if (guide)
-            guide.get_shared_channels(0,is_3d?2:1).get_resize(I._width,I._height,I._depth,-100,2).move_to(U);
-          else U.assign(I._width,I._height,I._depth,is_3d?3:2,0);
+            (guide.get_shared_channels(0,is_3d?2:1).get_resize(I._width,I._height,I._depth,-100,2)/=sfact).move_to(U);
+          else
+            U.assign(I._width,I._height,I._depth,is_3d?3:2,0);
         }
 
         float dt = 2, energy = cimg::type<float>::max();
@@ -46089,9 +46092,9 @@ namespace cimg_library {
                 _energy+=abs_smoothness*_energy_regul;
               }
               if (V) cimg_forXYZ(V,_x,_y,_z) if (V(_x,_y,_z,3)) { // Apply constraints
-                  U(_x,_y,_z,0) = V(_x,_y,_z,0)/factor;
-                  U(_x,_y,_z,1) = V(_x,_y,_z,1)/factor;
-                  U(_x,_y,_z,2) = V(_x,_y,_z,2)/factor;
+                  U(_x,_y,_z,0) = V(_x,_y,_z,0)/sfact;
+                  U(_x,_y,_z,1) = V(_x,_y,_z,1)/sfact;
+                  U(_x,_y,_z,2) = V(_x,_y,_z,2)/sfact;
                 }
             }
           } else { // 2D version
@@ -46153,12 +46156,12 @@ namespace cimg_library {
                 _energy+=abs_smoothness*_energy_regul;
               }
               if (V) cimg_forXY(V,_x,_y) if (V(_x,_y,2)) { // Apply constraints
-                  U(_x,_y,0) = V(_x,_y,0)/factor;
-                  U(_x,_y,1) = V(_x,_y,1)/factor;
+                  U(_x,_y,0) = V(_x,_y,0)/sfact;
+                  U(_x,_y,1) = V(_x,_y,1)/sfact;
                 }
             }
           }
-          const float d_energy = (_energy - energy)/(sw*sh*sd);
+          const float d_energy = (_energy - energy)/(I._width*I._height*I._depth);
           if (d_energy<=0 && -d_energy<_precision) break;
           if (d_energy>0) dt*=0.5f;
           energy = _energy;

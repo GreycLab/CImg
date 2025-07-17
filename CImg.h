@@ -45979,7 +45979,7 @@ namespace cimg_library {
       CImg<floatT> U, V;
       for (int scale = (int)_nb_scales - 1; scale>=0; --scale) {
 
-        std::fprintf(stderr,"\n  - Scale %d/%d : ",scale,_nb_scales - 1);
+//        std::fprintf(stderr,"\n  - Scale %d/%d : ",scale,_nb_scales - 1);
 
         const float sfact = (float)std::pow(upscale_factor,(double)scale);
         const unsigned int
@@ -46166,7 +46166,7 @@ namespace cimg_library {
           if (d_energy>0) dt*=0.5f;
           energy = _energy;
 
-          std::fprintf(stderr,"%g / ",energy);
+//          std::fprintf(stderr,"%g / ",energy);
 
         }
       }

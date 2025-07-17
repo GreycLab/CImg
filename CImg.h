@@ -45972,8 +45972,8 @@ namespace cimg_library {
         (unsigned int)cimg::round(std::log(mins/8.)/std::log(1.5),1,1);
 
       const float _precision = (float)std::pow(10.,-(double)precision), abs_smoothness = cimg::abs(smoothness);
-      float sm, sM = source.max_min(sm), tm, tM = max_min(tm);
-      const float sdelta = sm==sM?1:(sM - sm), tdelta = tm==tM?1:(tM - tm);
+      float sm, sM = source.max_min(sm), im, iM = max_min(im);
+      const float sdelta = sm==sM?1:(sM - sm), idelta = im==iM?1:(iM - im);
 
       CImg<floatT> U, V;
       floatT bound = 0;
@@ -45986,7 +45986,7 @@ namespace cimg_library {
         if (sw<5 && sh<5 && (!is_3d || sd<5)) continue; // Skip too small scales
         const CImg<Tfloat>
           S = (source.get_resize(sw,sh,sd,-100,2)-=sm)/=sdelta,
-          I = (get_resize(S,2)-=tm)/=tdelta;
+          I = (get_resize(S,2)-=im)/=idelta;
         if (guide._spectrum>constraint) guide.get_resize(I._width,I._height,I._depth,-100,1).move_to(V);
         if (U) (U*=1.5f).resize(I._width,I._height,I._depth,-100,3);
         else {

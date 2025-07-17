@@ -45917,29 +45917,29 @@ namespace cimg_library {
 
     //! Estimate displacement field between two images.
     /**
-       \param source Reference image.
+       \param source Reference image S.
        \param smoothness Smoothness of estimated displacement field.
        \param precision Precision required for algorithm convergence.
        \param nb_scales Number of scales used to estimate the displacement field.
        \param iteration_max Maximum number of iterations allowed for one scale.
-       \param is_backward If false, match I2(X + U(X)) = I1(X), else match I2(X) = I1(X - U(X)).
+       \param is_forward If true, optimize (I(X + U(X)) - S(X)). If false, optimize (I(X) - S(X - U(X))).
        \param guide Image used as the initial correspondence estimate for the algorithm.
        'guide' may have a last channel with boolean values (0=false | other=true) that
        tells for each pixel if its correspondence vector is constrained to its initial value (constraint mask).
     **/
-    CImg<T>& displacement(const CImg<T>& source, const float smoothness=0.1f, const float precision=5.f,
+    CImg<T>& displacement(const CImg<T>& source, const float smoothness=0.1f, const float precision=6.f,
                           const unsigned int nb_scales=0, const unsigned int iteration_max=10000,
-                          const bool is_backward=false,
+                          const bool is_forward=false,
                           const CImg<floatT>& guide=CImg<floatT>::const_empty()) {
-      return get_displacement(source,smoothness,precision,nb_scales,iteration_max,is_backward,guide).
+      return get_displacement(source,smoothness,precision,nb_scales,iteration_max,is_forward,guide).
         move_to(*this);
     }
 
     //! Estimate displacement field between two images \newinstance.
     CImg<floatT> get_displacement(const CImg<T>& source,
-                                  const float smoothness=0.1f, const float precision=5.f,
-                                  const unsigned int nb_scales=0, const unsigned int iteration_max=10000,
-                                  const bool is_backward=false,
+                                  const float smoothness=0.1f, const float precision=6.f,
+                                  const unsigned int nb_scales=0, const unsigned int iteration_max=1000,
+                                  const bool is_forward=false,
                                   const CImg<floatT>& guide=CImg<floatT>::const_empty()) const {
       if (is_empty() || !source) return +*this;
       if (!is_sameXYZC(source))
@@ -45956,61 +45956,65 @@ namespace cimg_library {
                                     precision);
 
       const bool is_3d = source._depth>1;
-      const unsigned int constraint = is_3d?3:2;
+      const unsigned int spectrum_U = is_3d?3:2;
 
       if (guide &&
-          (guide._width!=_width || guide._height!=_height || guide._depth!=_depth || guide._spectrum<constraint))
+          (guide._width!=_width || guide._height!=_height || guide._depth!=_depth || guide._spectrum<spectrum_U))
         throw CImgArgumentException(_cimg_instance
                                     "displacement(): Specified guide (%u,%u,%u,%u,%p) "
                                     "has invalid dimensions.",
                                     cimg_instance,
                                     guide._width,guide._height,guide._depth,guide._spectrum,guide._data);
       const float
-        upscale_factor = 2,
+        scale_factor = 2,
         abs_smoothness = cimg::abs(smoothness),
         _precision = (float)std::pow(10.,-(double)precision);
       const unsigned int
         min_siz = is_3d?cimg::min(_width,_height,_depth):std::min(_width,_height),
-        _nb_scales = nb_scales>0?nb_scales:(unsigned int)(std::log(min_siz)/std::log(upscale_factor)) - 1;
+        _nb_scales = nb_scales>0?nb_scales:(unsigned int)(std::log(min_siz)/std::log(scale_factor)) - 1;
 
-      float sm, sM = source.max_min(sm), im, iM = max_min(im), bound = 0;
+      float sm, sM = source.max_min(sm), im, iM = max_min(im);
       const float sdelta = sm==sM?1:(sM - sm), idelta = im==iM?1:(iM - im);
 
-      CImg<floatT> U, V;
+      CImg<floatT> U, C;  // U: vector field, C: constraints field (at current scale)
       for (int scale = (int)_nb_scales - 1; scale>=0; --scale) {
-
-//        std::fprintf(stderr,"\n  - Scale %d/%d : ",scale,_nb_scales - 1);
-
-        const float sfact = (float)std::pow(upscale_factor,(double)scale);
+        const float fact = (float)std::pow(scale_factor,(double)scale);
         const unsigned int
-          sw = std::max(1U,(unsigned int)cimg::round(_width/sfact)),
-          sh = std::max(1U,(unsigned int)cimg::round(_height/sfact)),
-          sd = std::max(1U,(unsigned int)cimg::round(_depth/sfact));
+          sw = std::max(1U,(unsigned int)cimg::round(_width/fact)),
+          sh = std::max(1U,(unsigned int)cimg::round(_height/fact)),
+          sd = std::max(1U,(unsigned int)cimg::round(_depth/fact));
         if (sw<4 && sh<4 && (!is_3d || sd<4)) continue; // Skip too small scales
         const CImg<Tfloat>
           S = (source.get_resize(sw,sh,sd,-100,2)-=sm)/=sdelta,
           I = (get_resize(S,2)-=im)/=idelta;
 
-        if (guide._spectrum>constraint) guide.get_resize(I._width,I._height,I._depth,-100,1).move_to(V);
-        if (U) {
+        if (guide._spectrum>spectrum_U) { // Guide has constraints
+          guide.get_resize(I._width,I._height,I._depth,-100,2).move_to(C);
+          C.get_shared_channels(0,spectrum_U - 1)/=fact;
+        }
+
+        if (U) { // Upscale U
           const float vfact = cimg::min((float)I._width/U._width,
                                         (float)I._height/U._height,
                                         is_3d?(float)I._depth/U._depth:cimg::type<float>::inf());
+          // ^^ 'vfact' should be close to 'scale_factor', but slightly more precise.
           (U*=vfact).resize(I._width,I._height,I._depth,-100,3);
-        } else {
-          if (guide)
-            (guide.get_shared_channels(0,is_3d?2:1).get_resize(I._width,I._height,I._depth,-100,2)/=sfact).move_to(U);
-          else
-            U.assign(I._width,I._height,I._depth,is_3d?3:2,0);
+        }
+        else { // Initialize U
+          if (guide) {
+            guide.get_shared_channels(0,spectrum_U - 1).get_resize(I._width,I._height,I._depth,-100,2).move_to(U);
+            U/=fact;
+          } else U.assign(I._width,I._height,I._depth,spectrum_U,0);
         }
 
         float dt = 2, energy = cimg::type<float>::max();
-        const CImgList<Tfloat> grad = is_backward?S.get_gradient():I.get_gradient();
+        const CImgList<Tfloat> grad = is_forward?I.get_gradient():S.get_gradient();
         cimg_abort_init;
 
         for (unsigned int iteration = 0; iteration<iteration_max; ++iteration) {
           cimg_abort_test;
           float _energy = 0;
+          CImg<floatT> nU(U._width,U._height,U._depth,U._spectrum);
 
           if (is_3d) { // 3D version
             cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
@@ -46023,17 +46027,19 @@ namespace cimg_library {
                 _p1z = z?z - 1:0, _n1z = z<U.depth() - 1?z + 1:z;
               cimg_for3X(U,x) {
                 const float
-                  X = is_backward?x - U(x,y,z,0):x + U(x,y,z,0),
-                  Y = is_backward?y - U(x,y,z,1):y + U(x,y,z,1),
-                  Z = is_backward?z - U(x,y,z,2):z + U(x,y,z,2);
-                float veloc_u = 0, veloc_v = 0, veloc_w = 0, _energy_regul = 0;
+                  X = is_forward?x + U(x,y,z,0):x - U(x,y,z,0),
+                  Y = is_forward?y + U(x,y,z,1):y - U(x,y,z,1),
+                  Z = is_forward?z + U(x,y,z,2):z - U(x,y,z,2);
+                const bool not_constrained = C?C(x,y,z,3)==0:true;
+
+                float veloc_u = 0, veloc_v = 0, veloc_w = 0, _energy_data = 0, _energy_regul = 0;
                 cimg_forC(I,c) {
-                  const float delta = (float)(is_backward?S._linear_atXYZ(X,Y,Z,c) - I(x,y,z,c):
-                                              S(x,y,z,c) - I._linear_atXYZ(X,Y,Z,c));
+                  const float delta = (float)(is_forward?S(x,y,z,c) - I._linear_atXYZ(X,Y,Z,c):
+                                              S._linear_atXYZ(X,Y,Z,c) - I(x,y,z,c));
                   veloc_u+=delta*grad[0].linear_atXYZ(X,Y,Z,c,0);
                   veloc_v+=delta*grad[1].linear_atXYZ(X,Y,Z,c,0);
                   veloc_w+=delta*grad[2].linear_atXYZ(X,Y,Z,c,0);
-                  _energy+=delta*delta;
+                  _energy_data+=delta*delta;
                 }
                 if (smoothness>=0) cimg_forC(U,c) { // Isotropic regularization
                     const float
@@ -46044,7 +46050,7 @@ namespace cimg_library {
                       Uyy = U(x,_n1y,z,c) + U(x,_p1y,z,c),
                       Uzz = U(x,y,_n1z,c) + U(x,y,_p1z,c),
                       veloc = c==0?veloc_u:c==1?veloc_v:veloc_w;
-                    U(x,y,z,c) = (float)(U(x,y,z,c) + dt*(veloc + smoothness*(Uxx + Uyy + Uzz)))/
+                    nU(x,y,z,c) = (float)(U(x,y,z,c) + dt*(veloc + smoothness*(Uxx + Uyy + Uzz)))/
                       (1 + 6*smoothness*dt);
                     _energy_regul+=Ux*Ux + Uy*Uy + Uz*Uz;
                   } else cimg_forC(U,c) { // Anisotropic regularization
@@ -46068,35 +46074,25 @@ namespace cimg_library {
                       Uxz = 0.25f*(U(_n1x,y,_n1z,c) + U(_p1x,y,_p1z,c) - U(_n1x,y,_p1z,c) - U(_n1x,y,_p1z,c)),
                       Uyz = 0.25f*(U(x,_n1y,_n1z,c) + U(x,_p1y,_p1z,c) - U(x,_n1y,_p1z,c) - U(x,_n1y,_p1z,c)),
                       veloc = c==0?veloc_u:c==1?veloc_v:veloc_w;
-                    U(x,y,z,c) = (float)(U(x,y,z,c) + dt*(veloc + abs_smoothness*(coef_a*Uxx + coef_b*Uxy +
-                                                                                  coef_c*Uxz + coef_d*Uyy +
-                                                                                  coef_e*Uyz + coef_f*Uzz)))/
+                    nU(x,y,z,c) = (float)(U(x,y,z,c) + dt*(veloc + abs_smoothness*(coef_a*Uxx + coef_b*Uxy +
+                                                                                   coef_c*Uxz + coef_d*Uyy +
+                                                                                   coef_e*Uyz + coef_f*Uzz)))/
                       (1 + 2*(coef_a + coef_d + coef_f)*abs_smoothness*dt);
                     _energy_regul+=N;
                   }
-                if (is_backward) { // Constraint displacement vectors to stay in image
-                  if (U(x,y,z,0)>x) U(x,y,z,0) = (float)x;
-                  if (U(x,y,z,1)>y) U(x,y,z,1) = (float)y;
-                  if (U(x,y,z,2)>z) U(x,y,z,2) = (float)z;
-                  bound = (float)x - _width; if (U(x,y,z,0)<=bound) U(x,y,z,0) = bound;
-                  bound = (float)y - _height; if (U(x,y,z,1)<=bound) U(x,y,z,1) = bound;
-                  bound = (float)z - _depth; if (U(x,y,z,2)<=bound) U(x,y,z,2) = bound;
-                } else {
-                  if (U(x,y,z,0)<-x) U(x,y,z,0) = -(float)x;
-                  if (U(x,y,z,1)<-y) U(x,y,z,1) = -(float)y;
-                  if (U(x,y,z,2)<-z) U(x,y,z,2) = -(float)z;
-                  bound = (float)_width - x; if (U(x,y,z,0)>=bound) U(x,y,z,0) = bound;
-                  bound = (float)_height - y; if (U(x,y,z,1)>=bound) U(x,y,z,1) = bound;
-                  bound = (float)_depth - z; if (U(x,y,z,2)>=bound) U(x,y,z,2) = bound;
-                }
-                _energy+=abs_smoothness*_energy_regul;
+                if (not_constrained) _energy+=_energy_data + abs_smoothness*_energy_regul;
               }
-              if (V) cimg_forXYZ(V,_x,_y,_z) if (V(_x,_y,_z,3)) { // Apply constraints
-                  U(_x,_y,_z,0) = V(_x,_y,_z,0);
-                  U(_x,_y,_z,1) = V(_x,_y,_z,1);
-                  U(_x,_y,_z,2) = V(_x,_y,_z,2);
-                }
             }
+            if (C) // Apply constraints
+              cimg_forXYZ(C,x,y,z) {
+                const float m = C(x,y,z,3), om = 1 - m;
+                if (m>1e-5f) {
+                  nU(x,y,z,0) = m*C(x,y,z,0) + om*nU(x,y,z,0);
+                  nU(x,y,z,1) = m*C(x,y,z,1) + om*nU(x,y,z,1);
+                  nU(x,y,z,2) = m*C(x,y,z,2) + om*nU(x,y,z,2);
+                }
+              }
+
           } else { // 2D version
             cimg_pragma_openmp(parallel for cimg_openmp_if(_height>=(cimg_openmp_sizefactor)*8 &&
                                                            _width>=(cimg_openmp_sizefactor)*16) reduction(+:_energy))
@@ -46104,15 +46100,16 @@ namespace cimg_library {
               const int _p1y = y?y - 1:0, _n1y = y<U.height() - 1?y + 1:y;
               cimg_for3X(U,x) {
                 const float
-                  X = is_backward?x - U(x,y,0):x + U(x,y,0),
-                  Y = is_backward?y - U(x,y,1):y + U(x,y,1);
-                float veloc_u = 0, veloc_v = 0, _energy_regul = 0;
+                  X = is_forward?x + U(x,y,0):x - U(x,y,0),
+                  Y = is_forward?y + U(x,y,1):y - U(x,y,1);
+                const bool not_constrained = C?C(x,y,2)==0:true;
+                float veloc_u = 0, veloc_v = 0, _energy_data = 0, _energy_regul = 0;
                 cimg_forC(I,c) {
-                  const float delta = (float)(is_backward?S._linear_atXY(X,Y,c) - I(x,y,c):
-                                              S(x,y,c) - I._linear_atXY(X,Y,c));
+                  const float delta = (float)(is_forward?S(x,y,c) - I._linear_atXY(X,Y,c):
+                                              S._linear_atXY(X,Y,c) - I(x,y,c));
                   veloc_u+=delta*grad[0].linear_atXY(X,Y,0,c,0);
                   veloc_v+=delta*grad[1].linear_atXY(X,Y,0,c,0);
-                  _energy+=delta*delta;
+                  _energy_data+=delta*delta;
                 }
                 if (smoothness>=0) cimg_forC(U,c) { // Isotropic regularization
                     const float
@@ -46121,7 +46118,7 @@ namespace cimg_library {
                       Uxx = U(_n1x,y,c) + U(_p1x,y,c),
                       Uyy = U(x,_n1y,c) + U(x,_p1y,c),
                       veloc = c==0?veloc_u:veloc_v;
-                    U(x,y,c) = (float)(U(x,y,c) + dt*(veloc + smoothness*(Uxx + Uyy)))/
+                    nU(x,y,c) = (float)(U(x,y,c) + dt*(veloc + smoothness*(Uxx + Uyy)))/
                       (1 + 4*smoothness*dt);
                     _energy_regul+=Ux*Ux + Uy*Uy;
                   } else cimg_forC(U,c) { // Anisotropic regularization
@@ -46138,36 +46135,28 @@ namespace cimg_library {
                       Uyy = U(x,_n1y,c) + U(x,_p1y,c),
                       Uxy = 0.25f*(U(_n1x,_n1y,c) + U(_p1x,_p1y,c) - U(_n1x,_p1y,c) - U(_n1x,_p1y,c)),
                       veloc = c==0?veloc_u:veloc_v;
-                    U(x,y,c) = (float)(U(x,y,c) + dt*(veloc + abs_smoothness*( coef_a*Uxx + coef_b*Uxy + coef_c*Uyy )))/
+                    nU(x,y,c) = (float)(U(x,y,c) + dt*(veloc + abs_smoothness*( coef_a*Uxx + coef_b*Uxy + coef_c*Uyy )))/
                       (1 + 2*(coef_a + coef_c)*abs_smoothness*dt);
                     _energy_regul+=N;
                   }
-                if (is_backward) { // Constraint displacement vectors to stay in image
-                  if (U(x,y,0)>x) U(x,y,0) = (float)x;
-                  if (U(x,y,1)>y) U(x,y,1) = (float)y;
-                  bound = (float)x - _width; if (U(x,y,0)<=bound) U(x,y,0) = bound;
-                  bound = (float)y - _height; if (U(x,y,1)<=bound) U(x,y,1) = bound;
-                } else {
-                  if (U(x,y,0)<-x) U(x,y,0) = -(float)x;
-                  if (U(x,y,1)<-y) U(x,y,1) = -(float)y;
-                  bound = (float)_width - x; if (U(x,y,0)>=bound) U(x,y,0) = bound;
-                  bound = (float)_height - y; if (U(x,y,1)>=bound) U(x,y,1) = bound;
-                }
-                _energy+=abs_smoothness*_energy_regul;
+                if (not_constrained) _energy+=_energy_data + abs_smoothness*_energy_regul;
               }
-              if (V) cimg_forXY(V,_x,_y) if (V(_x,_y,2)) { // Apply constraints
-                  U(_x,_y,0) = V(_x,_y,0);
-                  U(_x,_y,1) = V(_x,_y,1);
-                }
             }
+            if (C) // Apply constraints
+              cimg_forXY(C,x,y) {
+                const float m = C(x,y,2), om = 1 - m;
+                if (m>1e-5f) {
+                  nU(x,y,0) = m*C(x,y,0) + om*nU(x,y,0);
+                  nU(x,y,1) = m*C(x,y,1) + om*nU(x,y,1);
+                }
+              }
           }
+
           const float d_energy = (_energy - energy)/(I._width*I._height*I._depth);
           if (d_energy<=0 && -d_energy<_precision) break;
           if (d_energy>0) dt*=0.5f;
           energy = _energy;
-
-//          std::fprintf(stderr,"%g / ",energy);
-
+          U.swap(nU);
         }
       }
       return U;

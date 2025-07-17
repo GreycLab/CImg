@@ -46050,7 +46050,7 @@ namespace cimg_library {
                       Uyy = U(x,_n1y,z,c) + U(x,_p1y,z,c),
                       Uzz = U(x,y,_n1z,c) + U(x,y,_p1z,c),
                       veloc = c==0?veloc_u:c==1?veloc_v:veloc_w;
-                    nU(x,y,z,c) = (float)(U(x,y,z,c) + dt*(veloc + smoothness*(Uxx + Uyy + Uzz)))/
+                    nU(x,y,z,c) = (U(x,y,z,c) + dt*(veloc + smoothness*(Uxx + Uyy + Uzz)))/
                       (1 + 6*smoothness*dt);
                     _energy_regul+=Ux*Ux + Uy*Uy + Uz*Uz;
                   } else cimg_forC(U,c) { // Anisotropic regularization
@@ -46074,9 +46074,9 @@ namespace cimg_library {
                       Uxz = 0.25f*(U(_n1x,y,_n1z,c) + U(_p1x,y,_p1z,c) - U(_n1x,y,_p1z,c) - U(_n1x,y,_p1z,c)),
                       Uyz = 0.25f*(U(x,_n1y,_n1z,c) + U(x,_p1y,_p1z,c) - U(x,_n1y,_p1z,c) - U(x,_n1y,_p1z,c)),
                       veloc = c==0?veloc_u:c==1?veloc_v:veloc_w;
-                    nU(x,y,z,c) = (float)(U(x,y,z,c) + dt*(veloc + abs_smoothness*(coef_a*Uxx + coef_b*Uxy +
-                                                                                   coef_c*Uxz + coef_d*Uyy +
-                                                                                   coef_e*Uyz + coef_f*Uzz)))/
+                    nU(x,y,z,c) = (U(x,y,z,c) + dt*(veloc + abs_smoothness*(coef_a*Uxx + coef_b*Uxy +
+                                                                            coef_c*Uxz + coef_d*Uyy +
+                                                                            coef_e*Uyz + coef_f*Uzz)))/
                       (1 + 2*(coef_a + coef_d + coef_f)*abs_smoothness*dt);
                     _energy_regul+=N;
                   }
@@ -46118,7 +46118,7 @@ namespace cimg_library {
                       Uxx = U(_n1x,y,c) + U(_p1x,y,c),
                       Uyy = U(x,_n1y,c) + U(x,_p1y,c),
                       veloc = c==0?veloc_u:veloc_v;
-                    nU(x,y,c) = (float)(U(x,y,c) + dt*(veloc + smoothness*(Uxx + Uyy)))/
+                    nU(x,y,c) = (U(x,y,c) + dt*(veloc + smoothness*(Uxx + Uyy)))/
                       (1 + 4*smoothness*dt);
                     _energy_regul+=Ux*Ux + Uy*Uy;
                   } else cimg_forC(U,c) { // Anisotropic regularization
@@ -46135,7 +46135,7 @@ namespace cimg_library {
                       Uyy = U(x,_n1y,c) + U(x,_p1y,c),
                       Uxy = 0.25f*(U(_n1x,_n1y,c) + U(_p1x,_p1y,c) - U(_n1x,_p1y,c) - U(_n1x,_p1y,c)),
                       veloc = c==0?veloc_u:veloc_v;
-                    nU(x,y,c) = (float)(U(x,y,c) + dt*(veloc + abs_smoothness*( coef_a*Uxx + coef_b*Uxy + coef_c*Uyy )))/
+                    nU(x,y,c) = (U(x,y,c) + dt*(veloc + abs_smoothness*( coef_a*Uxx + coef_b*Uxy + coef_c*Uyy )))/
                       (1 + 2*(coef_a + coef_c)*abs_smoothness*dt);
                     _energy_regul+=N;
                   }

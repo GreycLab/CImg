@@ -12833,7 +12833,7 @@ namespace cimg_library {
           ((osiz = siz), dz==1 || (siz*=dz)>osiz) &&
           ((osiz = siz), dc==1 || (siz*=dc)>osiz) &&
           ((osiz = siz), sizeof(T)==1 || (siz*sizeof(T))>osiz)) {
-        if (siz > cimg_max_buf_size){
+        if (siz>cimg_max_buf_size){
           throw CImgArgumentException("CImg<%s>::safe_size(): Specified size (%u,%u,%u,%u) exceeds maximum "
                                       "allowed buffer size of %lu ",
                                       pixel_type(),dx,dy,dz,dc,cimg_max_buf_size);

@@ -45947,7 +45947,8 @@ namespace cimg_library {
                                     "displacement(): Instance and reference image (%u,%u,%u,%u,%p) have "
                                     "different dimensions.",
                                     cimg_instance,
-                                    reference._width,reference._height,reference._depth,reference._spectrum,reference._data);
+                                    reference._width,reference._height,reference._depth,reference._spectrum,
+                                    reference._data);
       if (precision<0)
         throw CImgArgumentException(_cimg_instance
                                     "displacement(): Invalid specified precision %g "

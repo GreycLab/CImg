@@ -45917,37 +45917,37 @@ namespace cimg_library {
 
     //! Estimate displacement field between two images.
     /**
-       \param source Reference image S.
+       \param reference Reference image R.
        \param smoothness Smoothness of estimated displacement field.
        \param precision Precision required for algorithm convergence.
        \param nb_scales Number of scales used to estimate the displacement field.
        \param iteration_max Maximum number of iterations allowed for one scale.
-       \param is_forward If true, optimize (I(X + U(X)) - S(X)). If false, optimize (I(X) - S(X - U(X))).
+       \param is_forward If true, optimize (I(X + U(X)) - R(X)). If false, optimize (I(X) - R(X - U(X))).
        \param guide Image used as the initial correspondence estimate for the algorithm.
        'guide' may have a last channel with boolean values (0=false | other=true) that
        tells for each pixel if its correspondence vector is constrained to its initial value (constraint mask).
     **/
-    CImg<T>& displacement(const CImg<T>& source, const float smoothness=0.1f, const float precision=6.f,
+    CImg<T>& displacement(const CImg<T>& reference, const float smoothness=0.1f, const float precision=6.f,
                           const unsigned int nb_scales=0, const unsigned int iteration_max=10000,
                           const bool is_forward=false,
                           const CImg<floatT>& guide=CImg<floatT>::const_empty()) {
-      return get_displacement(source,smoothness,precision,nb_scales,iteration_max,is_forward,guide).
+      return get_displacement(reference,smoothness,precision,nb_scales,iteration_max,is_forward,guide).
         move_to(*this);
     }
 
     //! Estimate displacement field between two images \newinstance.
-    CImg<floatT> get_displacement(const CImg<T>& source,
+    CImg<floatT> get_displacement(const CImg<T>& reference,
                                   const float smoothness=0.1f, const float precision=6.f,
                                   const unsigned int nb_scales=0, const unsigned int iteration_max=1000,
                                   const bool is_forward=false,
                                   const CImg<floatT>& guide=CImg<floatT>::const_empty()) const {
-      if (is_empty() || !source) return +*this;
-      if (!is_sameXYZC(source))
+      if (is_empty() || !reference) return +*this;
+      if (!is_sameXYZC(reference))
         throw CImgArgumentException(_cimg_instance
-                                    "displacement(): Instance and source image (%u,%u,%u,%u,%p) have "
+                                    "displacement(): Instance and reference image (%u,%u,%u,%u,%p) have "
                                     "different dimensions.",
                                     cimg_instance,
-                                    source._width,source._height,source._depth,source._spectrum,source._data);
+                                    reference._width,reference._height,reference._depth,reference._spectrum,reference._data);
       if (precision<0)
         throw CImgArgumentException(_cimg_instance
                                     "displacement(): Invalid specified precision %g "
@@ -45955,7 +45955,7 @@ namespace cimg_library {
                                     cimg_instance,
                                     precision);
 
-      const bool is_3d = source._depth>1;
+      const bool is_3d = reference._depth>1;
       const unsigned int spectrum_U = is_3d?3:2;
 
       if (guide &&
@@ -45973,7 +45973,7 @@ namespace cimg_library {
         min_siz = is_3d?cimg::min(_width,_height,_depth):std::min(_width,_height),
         _nb_scales = nb_scales>0?nb_scales:(unsigned int)(std::log(min_siz)/std::log(scale_factor)) - 1;
 
-      float sm, sM = source.max_min(sm), im, iM = max_min(im);
+      float sm, sM = reference.max_min(sm), im, iM = max_min(im);
       const float sdelta = sm==sM?1:(sM - sm), idelta = im==iM?1:(iM - im);
 
       CImg<floatT> U, C;  // U: vector field, C: constraints field (at current scale)
@@ -45985,8 +45985,8 @@ namespace cimg_library {
           sd = std::max(1U,(unsigned int)cimg::round(_depth/fact));
         if (sw<4 && sh<4 && (!is_3d || sd<4)) continue; // Skip too small scales
         const CImg<Tfloat>
-          S = (source.get_resize(sw,sh,sd,-100,2)-=sm)/=sdelta,
-          I = (get_resize(S,2)-=im)/=idelta;
+          R = (reference.get_resize(sw,sh,sd,-100,2)-=sm)/=sdelta,
+          I = (get_resize(R,2)-=im)/=idelta;
 
         if (guide._spectrum>spectrum_U) { // Guide has constraints
           guide.get_resize(I._width,I._height,I._depth,-100,2).move_to(C);
@@ -46008,7 +46008,7 @@ namespace cimg_library {
         }
 
         float dt = 2, energy = cimg::type<float>::max();
-        const CImgList<Tfloat> grad = is_forward?I.get_gradient():S.get_gradient();
+        const CImgList<Tfloat> grad = is_forward?I.get_gradient():R.get_gradient();
         cimg_abort_init;
 
         for (unsigned int iteration = 0; iteration<iteration_max; ++iteration) {
@@ -46034,8 +46034,8 @@ namespace cimg_library {
 
                 float veloc_u = 0, veloc_v = 0, veloc_w = 0, _energy_data = 0, _energy_regul = 0;
                 cimg_forC(I,c) {
-                  const float delta = (float)(is_forward?S(x,y,z,c) - I._linear_atXYZ(X,Y,Z,c):
-                                              S._linear_atXYZ(X,Y,Z,c) - I(x,y,z,c));
+                  const float delta = (float)(is_forward?R(x,y,z,c) - I._linear_atXYZ(X,Y,Z,c):
+                                              R._linear_atXYZ(X,Y,Z,c) - I(x,y,z,c));
                   veloc_u+=delta*grad[0].linear_atXYZ(X,Y,Z,c,0);
                   veloc_v+=delta*grad[1].linear_atXYZ(X,Y,Z,c,0);
                   veloc_w+=delta*grad[2].linear_atXYZ(X,Y,Z,c,0);
@@ -46105,8 +46105,8 @@ namespace cimg_library {
                 const bool not_constrained = C?C(x,y,2)==0:true;
                 float veloc_u = 0, veloc_v = 0, _energy_data = 0, _energy_regul = 0;
                 cimg_forC(I,c) {
-                  const float delta = (float)(is_forward?S(x,y,c) - I._linear_atXY(X,Y,c):
-                                              S._linear_atXY(X,Y,c) - I(x,y,c));
+                  const float delta = (float)(is_forward?R(x,y,c) - I._linear_atXY(X,Y,c):
+                                              R._linear_atXY(X,Y,c) - I(x,y,c));
                   veloc_u+=delta*grad[0].linear_atXY(X,Y,0,c,0);
                   veloc_v+=delta*grad[1].linear_atXY(X,Y,0,c,0);
                   _energy_data+=delta*delta;

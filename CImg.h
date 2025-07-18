@@ -45985,9 +45985,15 @@ namespace cimg_library {
           sh = std::max(1U,(unsigned int)cimg::round(_height/fact)),
           sd = std::max(1U,(unsigned int)cimg::round(_depth/fact));
         if (sw<4 && sh<4 && (!is_3d || sd<4)) continue; // Skip too small scales
+
+        const float
+          t = (_nb_scales - 1 - scale)/(_nb_scales - 1.0f),
+          sigma_start = 0.25f*(is_3d?cimg::min(sw,sh,sd):std::min(sw,sh)),
+          sigma_end = 0.75f,
+          sigma = sigma_start*(1 - t) + sigma_end*t;
         const CImg<Tfloat>
-          R = (reference.get_resize(sw,sh,sd,-100,2)-=sm)/=sdelta,
-          I = (get_resize(R,2)-=im)/=idelta;
+          R = ((reference.get_resize(sw,sh,sd,-100,2)-=sm)/=sdelta).blur(sigma).normalize(0,1),
+          I = ((get_resize(R,2)-=im)/=idelta).blur(sigma).normalize(0,1);
 
         if (guide._spectrum>spectrum_U) { // Guide has constraints
           guide.get_resize(I._width,I._height,I._depth,-100,2).move_to(C);

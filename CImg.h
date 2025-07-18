@@ -45927,7 +45927,7 @@ namespace cimg_library {
        'guide' may have a last channel with boolean values (0=false | other=true) that
        tells for each pixel if its correspondence vector is constrained to its initial value (constraint mask).
     **/
-    CImg<T>& displacement(const CImg<T>& reference, const float smoothness=0.1f, const float precision=6.f,
+    CImg<T>& displacement(const CImg<T>& reference, const float smoothness=0.1f, const float precision=5.f,
                           const unsigned int nb_scales=0, const unsigned int iteration_max=10000,
                           const bool is_forward=false,
                           const CImg<floatT>& guide=CImg<floatT>::const_empty()) {
@@ -45937,7 +45937,7 @@ namespace cimg_library {
 
     //! Estimate displacement field between two images \newinstance.
     CImg<floatT> get_displacement(const CImg<T>& reference,
-                                  const float smoothness=0.1f, const float precision=6.f,
+                                  const float smoothness=0.1f, const float precision=5.f,
                                   const unsigned int nb_scales=0, const unsigned int iteration_max=1000,
                                   const bool is_forward=false,
                                   const CImg<floatT>& guide=CImg<floatT>::const_empty()) const {
@@ -45988,8 +45988,8 @@ namespace cimg_library {
 
         const float
           t = (_nb_scales - 1 - scale)/(_nb_scales - 1.0f),
-          sigma_start = 0.25f*(is_3d?cimg::min(sw,sh,sd):std::min(sw,sh)),
-          sigma_end = 0.75f,
+          sigma_start = 1.5f,
+          sigma_end = 0.5f,
           sigma = sigma_start*(1 - t) + sigma_end*t;
         const CImg<Tfloat>
           R = ((reference.get_resize(sw,sh,sd,-100,2)-=sm)/=sdelta).blur(sigma).normalize(0,1),

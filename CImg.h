@@ -6668,6 +6668,7 @@ namespace cimg_library {
     // - If a<0, 'round_div(a.b) = floor(a/b)'.
     // (so, this is **not** a classical rounding behavior!).
     // This function is used by drawing methods, to get coherent rounded primitive coordinates.
+    // Beware, 'b' must be strictly positive!
     template<typename T>
     T inline round_div(const T a, const T b, const T hb) {
       return b==1?a:a>=0?(a + hb)/b:-(hb - 1 - a)/b;

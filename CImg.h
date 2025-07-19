@@ -6662,8 +6662,8 @@ namespace cimg_library {
       return cimg::type<T>::is_float()?(int)(x + 0.5f):(int)x;
     }
 
-    // Return 'round(a/b)' where 'a' and 'b>0' are integers. 'hb' must be equal to 'b/2' (half-b).
-    // When the fractional part of 'a/b' is 0.5, the rounding depends on the sign of 'a':
+    // Return 'round(a/b)' where 'a' and 'b>0' are integers. 'hb' must be equal to 'b/2' ("half b").
+    // Particularity: When the fractional part of 'a/b' is 0.5, the rounding depends on the sign of 'a':
     // - If a>0, 'round_div(a/b) = ceil(a/b)'.
     // - If a<0, 'round_div(a.b) = floor(a/b)'.
     // (so, this is **not** a classical rounding behavior!).
@@ -49902,7 +49902,6 @@ namespace cimg_library {
        \param pattern An integer whose bits describe the line pattern.
        \param init_hatch Tells if a reinitialization of the hash state must be done.
        \note
-       - Line routine uses Bresenham's algorithm.
        - Set \p init_hatch = false to draw consecutive hatched segments without breaking the line pattern.
        \par Example:
        \code
@@ -49924,7 +49923,6 @@ namespace cimg_library {
       int w1 = width() - 1, h1 = height() - 1, x01 = x1 - x0, y01 = y1 - y0;
       const bool is_horizontal = cimg::abs(x01)>cimg::abs(y01);
       if (is_horizontal) cimg::swap(x0,y0,x1,y1,w1,h1,x01,y01);
-      if (pattern==~0U && y0>y1) { cimg::swap(x0,x1,y0,y1); x01*=-1; y01*=-1; }
 
       const int dy = std::max(1,cimg::abs(y01)), hdy = dy/2;
       static unsigned int hatch = ~0U - (~0U>>1);

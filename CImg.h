@@ -49903,33 +49903,33 @@ namespace cimg_library {
     CImg<T>& draw_line(int x0, int y0,
                        int x1, int y1,
                        const tc *const color, const float opacity=1,
-                       const unsigned int pattern=~0U, const bool init_hatch=true) {
+                       const unsigned int pattern=~0U, const bool init_hatch=true,
+                       const bool draw_last_pixel=true) {
       if (is_empty() || !opacity || !pattern ||
           std::min(y0,y1)>=height() || std::max(y0,y1)<0 || std::min(x0,x1)>=width() || std::max(x0,x1)<0)
         return *this;
       if (x0==x1 && y0==y1) return draw_point(x0,y0,0,color,opacity);
-      int
-        w1 = width() - 1, h1 = height() - 1,
-        dx01 = x1 - x0, dy01 = y1 - y0;
-      const bool is_horizontal = cimg::abs(dx01)>cimg::abs(dy01);
-      if (is_horizontal) cimg::swap(x0,y0,x1,y1,w1,h1,dx01,dy01);
-      if (pattern==~0U && y0>y1) {
-        cimg::swap(x0,x1,y0,y1);
-        dx01*=-1; dy01*=-1;
-      }
-      const float slope_x = dy01?(float)dx01/dy01:0;
+      int w1 = width() - 1, h1 = height() - 1, x01 = x1 - x0, y01 = y1 - y0;
+      const bool is_horizontal = cimg::abs(x01)>cimg::abs(y01);
+      if (is_horizontal) cimg::swap(x0,y0,x1,y1,w1,h1,x01,y01);
 
+      const int
+        sign_x01 = cimg::sign(x01),
+        dy = std::max(1,cimg::abs(y01)),
+        hdy = sign_x01*dy/2 + 1;
       static unsigned int hatch = ~0U - (~0U>>1);
       if (init_hatch) hatch = ~0U - (~0U>>1);
       cimg_init_scanline(opacity);
-      const int step = y0<=y1?1:-1, cy0 = cimg::cut(y0,0,h1), cy1 = cimg::cut(y1,0,h1) + step;
-      dy01+=dy01?0:1;
+      const int
+        step = y0<=y1?1:-1,
+        y0_cut = cimg::cut(y0,0,h1),
+        y1_cut = cimg::cut(y1,0,h1) + (draw_last_pixel?step:0);
 
-      for (int y = cy0; y!=cy1; y+=step) {
-        const int yy0 = y - y0;
-        const float fx = x0 + yy0*slope_x;
-        if (fx>=0 && fx<=w1 && pattern&hatch) {
-          const int x = (int)(fx + 0.5f);
+      for (int y = y0_cut; y!=y1_cut; y+=step) {
+        const int
+          t = cimg::abs(y - y0),
+          x = x0 + (t*x01 + hdy)/dy;
+        if (x>=0 && x<=w1 && pattern&hatch) {
           T *const ptrd = is_horizontal?data(y,x):data(x,y);
           cimg_forC(*this,c) {
             const T val = color[c];
@@ -52383,23 +52383,21 @@ namespace cimg_library {
       if (ipoints._width==2) return draw_line(ipoints(0,0),ipoints(0,1),ipoints(1,0),ipoints(1,1),
                                               color,opacity,pattern);
       bool ninit_hatch = true, is_drawn = false;
-      int x = ipoints(0,0), y = ipoints(0,1);
+      int x0 = ipoints(0,0), y0 = ipoints(0,1);
       const unsigned int N = ipoints._width - (is_closed?0:1);
       for (unsigned int i = 0; i<N; ++i) {
         const int
           ni = (i + 1)%ipoints.width(),
-          nx = ipoints(ni,0), ny = ipoints(ni,1),
-          u = nx - x, v = ny - y,
-          l = std::max(std::abs(u),std::abs(v));
+          x1 = ipoints(ni,0), y1 = ipoints(ni,1),
+          x01 = x1 - x0, y01 = y1 - y0,
+          l = std::max(std::abs(x01),std::abs(y01));
         if (l) {
-          const int
-            nx1 = is_closed || i<N - 1?(int)cimg::round(x + (l - 1)*u/(float)l):nx,
-            ny1 = is_closed || i<N - 1?(int)cimg::round(y + (l - 1)*v/(float)l):ny;
-          draw_line(x,y,nx1,ny1,color,opacity,pattern,ninit_hatch);
+          const bool draw_last_pixel = is_closed || i<N - 1?false:true;
+          draw_line(x0,y0,x1,y1,color,opacity,pattern,ninit_hatch,draw_last_pixel);
           is_drawn = true;
         }
         ninit_hatch = false;
-        x = nx; y = ny;
+        x0 = x1; y0 = y1;
       }
       if (!is_drawn) draw_point(ipoints(0,0),ipoints(0,1),color,opacity); // All vertices were the same
       return *this;

@@ -6670,7 +6670,7 @@ namespace cimg_library {
     // This function is used by drawing methods, to get coherent rounded primitive coordinates.
     template<typename T>
     T inline round_div(const T a, const T b, const T hb) {
-      return a>=0?(a + hb)/b:-(hb - 1 - a)/b;
+      return b==1?a:a>=0?(a + hb)/b:-(hb - 1 - a)/b;
     }
     #define cimg_rd(a,b) cimg::round_div(a,b,h##b)
 

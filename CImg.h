@@ -6654,13 +6654,20 @@ namespace cimg_library {
 
     template<typename T>
     inline T round(const T& x) {
-      return (T)std::floor((_cimg_Tfloat)x + 0.5f);
+      return (T)(cimg_int64)(x>=0?x + 0.5f:x - 0.5f);
     }
 
     template<typename T>
     inline int uiround(const T x) {
       return cimg::type<T>::is_float()?(int)(x + 0.5f):(int)x;
     }
+
+    // Return 'round(a/b)' where 'a' and 'b' are integers. 'hb' must be equal to 'b/2' (half-b).
+    template<typename T>
+    T inline round_div(const T a, const T b, const T hb) {
+      return (a^b)>=0?(a + hb)/b:(a - hb)/b;
+    }
+    #define cimg_round_div(a,b) cimg::round_div(a,b,h##b)
 
     //! Return rounded value.
     /**

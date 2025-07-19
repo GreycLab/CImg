@@ -50652,22 +50652,15 @@ namespace cimg_library {
         hdy12 = cimg::sign(dx12)*dy12/2 + 1;
       const float cbs = cimg::cut(brightness,0.f,2.f);
       cimg_init_scanline(opacity);
-
-      if (y0==y1) for (int y = cy0; y<=cy2; ++y) { // Particular case: top edge is horizontal
-          const longT yy0 = (longT)y - y0;
-          longT
-            xm = x0 + (dx02*yy0 + hdy02)/dy02,
-            xM = x1 + (dx12*yy0 + hdy12)/dy12;
-          if (xm>xM) cimg::swap(xm,xM);
-          cimg_draw_scanline(xm,xM,y,color,opacity,cbs);
-        } else for (int y = cy0; y<=cy2; ++y) { // Generic case
-          const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
-          longT
-            xm = y<=y1?x0 + (dx01*yy0 + hdy01)/dy01:x1 + (dx12*yy1 + hdy12)/dy12,
-            xM = x0 + (dx02*yy0 + hdy02)/dy02;
-          if (xm>xM) cimg::swap(xm,xM);
-          cimg_draw_scanline(xm,xM,y,color,opacity,cbs);
-        }
+      if (y1==y2) --hdy12; // Manage case where bottom edge is horizontal
+      for (int y = cy0; y<=cy2; ++y) {
+        const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
+        longT
+          xm = y<y1?x0 + (dx01*yy0 + hdy01)/dy01:x1 + (dx12*yy1 + hdy12)/dy12,
+          xM = x0 + (dx02*yy0 + hdy02)/dy02;
+        if (xm>xM) cimg::swap(xm,xM);
+        cimg_draw_scanline(xm,xM,y,color,opacity,cbs);
+      }
       return *this;
     }
 

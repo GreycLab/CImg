@@ -6662,12 +6662,17 @@ namespace cimg_library {
       return cimg::type<T>::is_float()?(int)(x + 0.5f):(int)x;
     }
 
-    // Return 'round(a/b)' where 'a' and 'b' are integers. 'hb' must be equal to 'b/2' (half-b).
+    // Return 'round(a/b)' where 'a' and 'b>0' are integers. 'hb' must be equal to 'b/2' (half-b).
+    // When the fractional part of 'a/b' is 0.5, the rounding depends on the sign of 'a':
+    // - If a>0, 'round_div(a/b) = ceil(a/b)'.
+    // - If a<0, 'round_div(a.b) = floor(a/b)'.
+    // (so, this is **not** a classical rounding behavior!).
+    // This function is used by drawing methods, to get coherent rounded primitive coordinates.
     template<typename T>
     T inline round_div(const T a, const T b, const T hb) {
-      return (a^b)>=0?(a + hb)/b:(a - hb)/b;
+      return ((1<<16)*b + a + hb)/b - (1<<16);
     }
-    #define cimg_round_div(a,b) cimg::round_div(a,b,h##b)
+    #define cimg_rd(a,b) cimg::round_div(a,b,h##b)
 
     //! Return rounded value.
     /**
@@ -49919,11 +49924,9 @@ namespace cimg_library {
       int w1 = width() - 1, h1 = height() - 1, x01 = x1 - x0, y01 = y1 - y0;
       const bool is_horizontal = cimg::abs(x01)>cimg::abs(y01);
       if (is_horizontal) cimg::swap(x0,y0,x1,y1,w1,h1,x01,y01);
+//      if (pattern==~0U && y0>y1) { cimg::swap(x0,x1,y0,y1); x01*=-1; y01*=-1; }
 
-      const int
-        sign_x01 = cimg::sign(x01),
-        dy = std::max(1,cimg::abs(y01)),
-        hdy = sign_x01*dy/2 + (dy>2);
+      const int dy = std::max(1,cimg::abs(y01)), hdy = dy/2;
       static unsigned int hatch = ~0U - (~0U>>1);
       if (init_hatch) hatch = ~0U - (~0U>>1);
 
@@ -49937,7 +49940,7 @@ namespace cimg_library {
       for (int y = y0_cut; y!=y1_cut; y+=step) {
         const int
           t = cimg::abs(y - y0),
-          x = x0 + (t*x01 + hdy)/dy;
+          x = x0 + cimg_rd(t*x01,dy);
         if (x>=0 && x<=w1 && pattern&hatch) {
           T *const ptrd = is_horizontal?data(y,x):data(x,y);
           cimg_forC(*this,c) {

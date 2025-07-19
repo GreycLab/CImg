@@ -6654,13 +6654,26 @@ namespace cimg_library {
 
     template<typename T>
     inline T round(const T& x) {
-      return (T)std::floor((_cimg_Tfloat)x + 0.5f);
+      return (T)(cimg_int64)(x>=0?x + 0.5f:x - 0.5f);
     }
 
     template<typename T>
     inline int uiround(const T x) {
       return cimg::type<T>::is_float()?(int)(x + 0.5f):(int)x;
     }
+
+    // Return 'round(a/b)' where 'a' and 'b>0' are integers. 'hb' must be equal to 'b/2' ("half b").
+    // Particularity: When the fractional part of 'a/b' is 0.5, the rounding depends on the sign of 'a':
+    // - If a>0, 'round_div(a/b) = ceil(a/b)'.
+    // - If a<0, 'round_div(a.b) = floor(a/b)'.
+    // (so, this is **not** a classical rounding behavior!).
+    // This function is used by drawing methods, to get coherent rounded primitive coordinates.
+    // Beware, 'b' must be strictly positive!
+    template<typename T>
+    T inline round_div(const T a, const T b, const T hb) {
+      return b==1?a:a>=0?(a + hb)/b:-(hb - 1 - a)/b;
+    }
+    #define cimg_rd(a,b) cimg::round_div(a,b,h##b)
 
     //! Return rounded value.
     /**
@@ -49890,7 +49903,6 @@ namespace cimg_library {
        \param pattern An integer whose bits describe the line pattern.
        \param init_hatch Tells if a reinitialization of the hash state must be done.
        \note
-       - Line routine uses Bresenham's algorithm.
        - Set \p init_hatch = false to draw consecutive hatched segments without breaking the line pattern.
        \par Example:
        \code
@@ -49903,33 +49915,32 @@ namespace cimg_library {
     CImg<T>& draw_line(int x0, int y0,
                        int x1, int y1,
                        const tc *const color, const float opacity=1,
-                       const unsigned int pattern=~0U, const bool init_hatch=true) {
+                       const unsigned int pattern=~0U, const bool init_hatch=true,
+                       const bool draw_last_pixel=true) {
       if (is_empty() || !opacity || !pattern ||
           std::min(y0,y1)>=height() || std::max(y0,y1)<0 || std::min(x0,x1)>=width() || std::max(x0,x1)<0)
         return *this;
       if (x0==x1 && y0==y1) return draw_point(x0,y0,0,color,opacity);
-      int
-        w1 = width() - 1, h1 = height() - 1,
-        dx01 = x1 - x0, dy01 = y1 - y0;
-      const bool is_horizontal = cimg::abs(dx01)>cimg::abs(dy01);
-      if (is_horizontal) cimg::swap(x0,y0,x1,y1,w1,h1,dx01,dy01);
-      if (pattern==~0U && y0>y1) {
-        cimg::swap(x0,x1,y0,y1);
-        dx01*=-1; dy01*=-1;
-      }
-      const float slope_x = dy01?(float)dx01/dy01:0;
+      int w1 = width() - 1, h1 = height() - 1, x01 = x1 - x0, y01 = y1 - y0;
+      const bool is_horizontal = cimg::abs(x01)>cimg::abs(y01);
+      if (is_horizontal) cimg::swap(x0,y0,x1,y1,w1,h1,x01,y01);
 
+      const int dy = std::max(1,cimg::abs(y01)), hdy = dy/2;
       static unsigned int hatch = ~0U - (~0U>>1);
       if (init_hatch) hatch = ~0U - (~0U>>1);
-      cimg_init_scanline(opacity);
-      const int step = y0<=y1?1:-1, cy0 = cimg::cut(y0,0,h1), cy1 = cimg::cut(y1,0,h1) + step;
-      dy01+=dy01?0:1;
 
-      for (int y = cy0; y!=cy1; y+=step) {
-        const int yy0 = y - y0;
-        const float fx = x0 + yy0*slope_x;
-        if (fx>=0 && fx<=w1 && pattern&hatch) {
-          const int x = (int)(fx + 0.5f);
+      cimg_init_scanline(opacity);
+
+      const int
+        step = y0<=y1?1:-1,
+        y0_cut = cimg::cut(y0,0,h1),
+        y1_cut = cimg::cut(y1,0,h1) + (draw_last_pixel?step:0);
+
+      for (int y = y0_cut; y!=y1_cut; y+=step) {
+        const int
+          t = cimg::abs(y - y0),
+          x = x0 + cimg_rd(t*x01,dy);
+        if (x>=0 && x<=w1 && pattern&hatch) {
           T *const ptrd = is_horizontal?data(y,x):data(x,y);
           cimg_forC(*this,c) {
             const T val = color[c];
@@ -50641,19 +50652,22 @@ namespace cimg_library {
 
       const int h1 = height() - 1, cy0 = cimg::cut(y0,0,h1), cy2 = cimg::cut(y2,0,h1);
       const longT
-        dx01 = (longT)x1 - x0, dx02 = (longT)x2 - x0, dx12 = (longT)x2 - x1,
+        dx01 = (longT)x1 - x0,
+        dx02 = (longT)x2 - x0,
+        dx12 = (longT)x2 - x1,
         dy01 = std::max((longT)1,(longT)y1 - y0),
         dy02 = std::max((longT)1,(longT)y2 - y0),
         dy12 = std::max((longT)1,(longT)y2 - y1),
-        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2;
+        hdy01 = dy01/2, hdy02 = dy02/2, hdy12 = dy12/2;
       const float cbs = cimg::cut(brightness,0.f,2.f);
+
       cimg_init_scanline(opacity);
 
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + (dx01*yy0 + hdy01)/dy01:x1 + (dx12*yy1 + hdy12)/dy12,
-          xM = x0 + (dx02*yy0 + hdy02)/dy02;
+          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
+          xM = x0 + cimg_rd(dx02*yy0,dy02);
         if (xm>xM) cimg::swap(xm,xM);
         cimg_draw_scanline(xm,xM,y,color,opacity,cbs);
       }
@@ -50759,17 +50773,18 @@ namespace cimg_library {
         dy01 = std::max((longT)1,(longT)y1 - y0),
         dy02 = std::max((longT)1,(longT)y2 - y0),
         dy12 = std::max((longT)1,(longT)y2 - y1),
-        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2;
-      const float diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1;
+        hdy01 = dy01/2, hdy02 = dy02/2, hdy12 = dy12/2;
+      const float
+        diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1,
+        cbs = cimg::cut(brightness,0.f,2.f);
 
-      const float cbs = cimg::cut(brightness,0.f,2.f);
       cimg_init_scanline(opacity);
 
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + (dx01*yy0 + hdy01)/dy01:x1 + (dx12*yy1 + hdy12)/dy12,
-          xM = x0 + (dx02*yy0 + hdy02)/dy02;
+          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
+          xM = x0 + cimg_rd(dx02*yy0,dy02);
         float
           izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*yy1/dy12),
           izM = iz0 + diz02*yy0/dy02;
@@ -50840,7 +50855,7 @@ namespace cimg_library {
         dy01 = std::max((longT)1,(longT)y1 - y0),
         dy02 = std::max((longT)1,(longT)y2 - y0),
         dy12 = std::max((longT)1,(longT)y2 - y1),
-        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2;
+        hdy01 = dy01/2, hdy02 = dy02/2, hdy12 = dy12/2;
       const float dbs01 = bs1 - bs0, dbs02 = bs2 - bs0, dbs12 = bs2 - bs1;
 
       cimg_init_scanline(opacity);
@@ -50848,8 +50863,8 @@ namespace cimg_library {
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + (dx01*yy0 + hdy01)/dy01:x1 + (dx12*yy1 + hdy12)/dy12,
-          xM = x0 + (dx02*yy0 + hdy02)/dy02;
+          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
+          xM = x0 + cimg_rd(dx02*yy0,dy02);
         float
           bsm = y<y1?(bs0 + dbs01*yy0/dy01):(bs1 + dbs12*yy1/dy12),
           bsM = bs0 + dbs02*yy0/dy02;
@@ -50911,7 +50926,7 @@ namespace cimg_library {
         dy01 = std::max((longT)1,(longT)y1 - y0),
         dy02 = std::max((longT)1,(longT)y2 - y0),
         dy12 = std::max((longT)1,(longT)y2 - y1),
-        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2;
+        hdy01 = dy01/2, hdy02 = dy02/2, hdy12 = dy12/2;
       const float
         diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1,
         dbs01 = bs1 - bs0, dbs02 = bs2 - bs0, dbs12 = bs2 - bs1;
@@ -50921,8 +50936,8 @@ namespace cimg_library {
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + (dx01*yy0 + hdy01)/dy01:x1 + (dx12*yy1 + hdy12)/dy12,
-          xM = x0 + (dx02*yy0 + hdy02)/dy02;
+          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
+          xM = x0 + cimg_rd(dx02*yy0,dy02);
         float
           izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*yy1/dy12),
           izM = iz0 + diz02*yy0/dy02,
@@ -50995,7 +51010,8 @@ namespace cimg_library {
         dy01 = std::max((longT)1,(longT)y1 - y0),
         dy02 = std::max((longT)1,(longT)y2 - y0),
         dy12 = std::max((longT)1,(longT)y2 - y1),
-        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2;
+        hdy01 = dy01/2, hdy02 = dy02/2, hdy12 = dy12/2;
+
       cimg_init_scanline(opacity);
 
       cimg_forC(*this,c) {
@@ -51004,8 +51020,8 @@ namespace cimg_library {
         for (int y = cy0; y<=cy2; ++y) {
           const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
           longT
-            xm = y<y1?x0 + (dx01*yy0 + hdy01)/dy01:x1 + (dx12*yy1 + hdy12)/dy12,
-            xM = x0 + (dx02*yy0 + hdy02)/dy02;
+            xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
+            xM = x0 + cimg_rd(dx02*yy0,dy02);
           stc
             colorm = y<y1?(color0[c] + dcolor01*yy0/dy01):(color1[c] + dcolor12*yy1/dy12),
             colorM = color0[c] + dcolor02*yy0/dy02;
@@ -51078,24 +51094,23 @@ namespace cimg_library {
         dy01 = std::max((longT)1,(longT)y1 - y0),
         dy02 = std::max((longT)1,(longT)y2 - y0),
         dy12 = std::max((longT)1,(longT)y2 - y1),
-        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2,
+        hdy01 = dy01/2, hdy02 = dy02/2, hdy12 = dy12/2,
         dtx01 = (longT)tx1 - tx0, dtx02 = (longT)tx2 - tx0, dtx12 = (longT)tx2 - tx1,
-        dty01 = (longT)ty1 - ty0, dty02 = (longT)ty2 - ty0, dty12 = (longT)ty2 - ty1,
-        hdy01tx = dy01*cimg::sign(dtx01)/2, hdy02tx = dy02*cimg::sign(dtx02)/2, hdy12tx = dy12*cimg::sign(dtx12)/2,
-        hdy01ty = dy01*cimg::sign(dty01)/2, hdy02ty = dy02*cimg::sign(dty02)/2, hdy12ty = dy12*cimg::sign(dty12)/2;
+        dty01 = (longT)ty1 - ty0, dty02 = (longT)ty2 - ty0, dty12 = (longT)ty2 - ty1;
       const ulongT twhd = (ulongT)texture._width*texture._height*texture._depth;
       const float cbs = cimg::cut(brightness,0.f,2.f);
+
       cimg_init_scanline(opacity);
 
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + (dx01*yy0 + hdy01)/dy01:x1 + (dx12*yy1 + hdy12)/dy12,
-          xM = x0 + (dx02*yy0 + hdy02)/dy02,
-          txm = y<y1?tx0 + (dtx01*yy0 + hdy01tx)/dy01:tx1 + (dtx12*yy1 + hdy12tx)/dy12,
-          txM = tx0 + (dtx02*yy0 + hdy02tx)/dy02,
-          tym = y<y1?ty0 + (dty01*yy0 + hdy01ty)/dy01:ty1 + (dty12*yy1 + hdy12ty)/dy12,
-          tyM = ty0 + (dty02*yy0 + hdy02ty)/dy02;
+          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
+          xM = x0 + cimg_rd(dx02*yy0,dy02),
+          txm = y<y1?tx0 + cimg_rd(dtx01*yy0,dy01):tx1 + cimg_rd(dtx12*yy1,dy12),
+          txM = tx0 + cimg_rd(dtx02*yy0,dy02),
+          tym = y<y1?ty0 + cimg_rd(dty01*yy0,dy01):ty1 + cimg_rd(dty12*yy1,dy12),
+          tyM = ty0 + cimg_rd(dty02*yy0,dy02);
         if (xm>xM) cimg::swap(xm,xM,txm,txM,tym,tyM);
         if (xM>=0 && xm<=w1) {
           const int
@@ -51155,23 +51170,23 @@ namespace cimg_library {
         dy01 = std::max((longT)1,(longT)y1 - y0),
         dy02 = std::max((longT)1,(longT)y2 - y0),
         dy12 = std::max((longT)1,(longT)y2 - y1),
-        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2;
+        hdy01 = dy01/2, hdy02 = dy02/2, hdy12 = dy12/2;
       const float
         diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1,
         txz0 = tx0*iz0, txz1 = tx1*iz1, txz2 = tx2*iz2,
         tyz0 = ty0*iz0, tyz1 = ty1*iz1, tyz2 = ty2*iz2,
         dtxz01 = txz1 - txz0, dtxz02 = txz2 - txz0, dtxz12 = txz2 - txz1,
         dtyz01 = tyz1 - tyz0, dtyz02 = tyz2 - tyz0, dtyz12 = tyz2 - tyz1;
-
       const ulongT twhd = (ulongT)texture._width*texture._height*texture._depth;
       const float cbs = cimg::cut(brightness,0.f,2.f);
+
       cimg_init_scanline(opacity);
 
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + (dx01*yy0 + hdy01)/dy01:x1 + (dx12*yy1 + hdy12)/dy12,
-          xM = x0 + (dx02*yy0 + hdy02)/dy02;
+          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
+          xM = x0 + cimg_rd(dx02*yy0,dy02);
         float
           izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*yy1/dy12),
           izM = iz0 + diz02*yy0/dy02,
@@ -51249,23 +51264,23 @@ namespace cimg_library {
         dy01 = std::max((longT)1,(longT)y1 - y0),
         dy02 = std::max((longT)1,(longT)y2 - y0),
         dy12 = std::max((longT)1,(longT)y2 - y1),
-        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2;
+        hdy01 = dy01/2, hdy02 = dy02/2, hdy12 = dy12/2;
       const float
         diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1,
         txz0 = tx0*iz0, txz1 = tx1*iz1, txz2 = tx2*iz2,
         tyz0 = ty0*iz0, tyz1 = ty1*iz1, tyz2 = ty2*iz2,
         dtxz01 = txz1 - txz0, dtxz02 = txz2 - txz0, dtxz12 = txz2 - txz1,
         dtyz01 = tyz1 - tyz0, dtyz02 = tyz2 - tyz0, dtyz12 = tyz2 - tyz1;
-
       const ulongT twhd = (ulongT)texture._width*texture._height*texture._depth;
       const float cbs = cimg::cut(brightness,0.f,2.f);
+
       cimg_init_scanline(opacity);
 
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + (dx01*yy0 + hdy01)/dy01:x1 + (dx12*yy1 + hdy12)/dy12,
-          xM = x0 + (dx02*yy0 + hdy02)/dy02;
+          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
+          xM = x0 + cimg_rd(dx02*yy0,dy02);
         float
           izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*yy1/dy12),
           izM = iz0 + diz02*yy0/dy02,
@@ -51356,24 +51371,22 @@ namespace cimg_library {
         dy01 = std::max((longT)1,(longT)y1 - y0),
         dy02 = std::max((longT)1,(longT)y2 - y0),
         dy12 = std::max((longT)1,(longT)y2 - y1),
-        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2,
+        hdy01 = dy01/2, hdy02 = dy02/2, hdy12 = dy12/2,
         dlx01 = (longT)lx1 - lx0, dlx02 = (longT)lx2 - lx0, dlx12 = (longT)lx2 - lx1,
-        dly01 = (longT)ly1 - ly0, dly02 = (longT)ly2 - ly0, dly12 = (longT)ly2 - ly1,
-        hdy01lx = dy01*cimg::sign(dlx01)/2, hdy02lx = dy02*cimg::sign(dlx02)/2, hdy12lx = dy12*cimg::sign(dlx12)/2,
-        hdy01ly = dy01*cimg::sign(dly01)/2, hdy02ly = dy02*cimg::sign(dly02)/2, hdy12ly = dy12*cimg::sign(dly12)/2;
-
+        dly01 = (longT)ly1 - ly0, dly02 = (longT)ly2 - ly0, dly12 = (longT)ly2 - ly1;
       const ulongT lwhd = (ulongT)light._width*light._height*light._depth;
+
       cimg_init_scanline(opacity);
 
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + (dx01*yy0 + hdy01)/dy01:x1 + (dx12*yy1 + hdy12)/dy12,
-          xM = x0 + (dx02*yy0 + hdy02)/dy02,
-          lxm = y<y1?lx0 + (dlx01*yy0 + hdy01lx)/dy01:lx1 + (dlx12*yy1 + hdy12lx)/dy12,
-          lxM = lx0 + (dlx02*yy0 + hdy02lx)/dy02,
-          lym = y<y1?ly0 + (dly01*yy0 + hdy01ly)/dy01:ly1 + (dly12*yy1 + hdy12ly)/dy12,
-          lyM = ly0 + (dly02*yy0 + hdy02ly)/dy02;
+          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
+          xM = x0 + cimg_rd(dx02*yy0,dy02),
+          lxm = y<y1?lx0 + cimg_rd(dlx01*yy0,dy01):lx1 + cimg_rd(dlx12*yy1,dy12),
+          lxM = lx0 + cimg_rd(dlx02*yy0,dy02),
+          lym = y<y1?ly0 + cimg_rd(dly01*yy0,dy01):ly1 + cimg_rd(dly12*yy1,dy12),
+          lyM = ly0 + cimg_rd(dly02*yy0,dy02);
         if (xm>xM) cimg::swap(xm,xM,lxm,lxM,lym,lyM);
         if (xM>=0 && xm<=w1) {
           const int
@@ -51445,25 +51458,23 @@ namespace cimg_library {
         dy01 = std::max((longT)1,(longT)y1 - y0),
         dy02 = std::max((longT)1,(longT)y2 - y0),
         dy12 = std::max((longT)1,(longT)y2 - y1),
-        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2,
+        hdy01 = dy01/2, hdy02 = dy02/2, hdy12 = dy12/2,
         dlx01 = (longT)lx1 - lx0, dlx02 = (longT)lx2 - lx0, dlx12 = (longT)lx2 - lx1,
-        dly01 = (longT)ly1 - ly0, dly02 = (longT)ly2 - ly0, dly12 = (longT)ly2 - ly1,
-        hdy01lx = dy01*cimg::sign(dlx01)/2, hdy02lx = dy02*cimg::sign(dlx02)/2, hdy12lx = dy12*cimg::sign(dlx12)/2,
-        hdy01ly = dy01*cimg::sign(dly01)/2, hdy02ly = dy02*cimg::sign(dly02)/2, hdy12ly = dy12*cimg::sign(dly12)/2;
+        dly01 = (longT)ly1 - ly0, dly02 = (longT)ly2 - ly0, dly12 = (longT)ly2 - ly1;
       const float diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1;
-
       const ulongT lwhd = (ulongT)light._width*light._height*light._depth;
+
       cimg_init_scanline(opacity);
 
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + (dx01*yy0 + hdy01)/dy01:x1 + (dx12*yy1 + hdy12)/dy12,
-          xM = x0 + (dx02*yy0 + hdy02)/dy02,
-          lxm = y<y1?lx0 + (dlx01*yy0 + hdy01lx)/dy01:lx1 + (dlx12*yy1 + hdy12lx)/dy12,
-          lxM = lx0 + (dlx02*yy0 + hdy02lx)/dy02,
-          lym = y<y1?ly0 + (dly01*yy0 + hdy01ly)/dy01:ly1 + (dly12*yy1 + hdy12ly)/dy12,
-          lyM = ly0 + (dly02*yy0 + hdy02ly)/dy02;
+          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
+          xM = x0 + cimg_rd(dx02*yy0,dy02),
+          lxm = y<y1?lx0 + cimg_rd(dlx01*yy0,dy01):lx1 + cimg_rd(dlx12*yy1,dy12),
+          lxM = lx0 + cimg_rd(dlx02*yy0,dy02),
+          lym = y<y1?ly0 + cimg_rd(dly01*yy0,dy01):ly1 + cimg_rd(dly12*yy1,dy12),
+          lyM = ly0 + cimg_rd(dly02*yy0,dy02);
         float
           izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*yy1/dy12),
           izM = iz0 + diz02*yy0/dy02;
@@ -51556,25 +51567,23 @@ namespace cimg_library {
         dy01 = std::max((longT)1,(longT)y1 - y0),
         dy02 = std::max((longT)1,(longT)y2 - y0),
         dy12 = std::max((longT)1,(longT)y2 - y1),
-        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2,
+        hdy01 = dy01/2, hdy02 = dy02/2, hdy12 = dy12/2,
         dtx01 = (longT)tx1 - tx0, dtx02 = (longT)tx2 - tx0, dtx12 = (longT)tx2 - tx1,
-        dty01 = (longT)ty1 - ty0, dty02 = (longT)ty2 - ty0, dty12 = (longT)ty2 - ty1,
-        hdy01tx = dy01*cimg::sign(dtx01)/2, hdy02tx = dy02*cimg::sign(dtx02)/2, hdy12tx = dy12*cimg::sign(dtx12)/2,
-        hdy01ty = dy01*cimg::sign(dty01)/2, hdy02ty = dy02*cimg::sign(dty02)/2, hdy12ty = dy12*cimg::sign(dty12)/2;
+        dty01 = (longT)ty1 - ty0, dty02 = (longT)ty2 - ty0, dty12 = (longT)ty2 - ty1;
       const float dbs01 = bs1 - bs0, dbs02 = bs2 - bs0, dbs12 = bs2 - bs1;
-
       const ulongT twhd = (ulongT)texture._width*texture._height*texture._depth;
+
       cimg_init_scanline(opacity);
 
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + (dx01*yy0 + hdy01)/dy01:x1 + (dx12*yy1 + hdy12)/dy12,
-          xM = x0 + (dx02*yy0 + hdy02)/dy02,
-          txm = y<y1?tx0 + (dtx01*yy0 + hdy01tx)/dy01:tx1 + (dtx12*yy1 + hdy12tx)/dy12,
-          txM = tx0 + (dtx02*yy0 + hdy02tx)/dy02,
-          tym = y<y1?ty0 + (dty01*yy0 + hdy01ty)/dy01:ty1 + (dty12*yy1 + hdy12ty)/dy12,
-          tyM = ty0 + (dty02*yy0 + hdy02ty)/dy02;
+          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
+          xM = x0 + cimg_rd(dx02*yy0,dy02),
+          txm = y<y1?tx0 + cimg_rd(dtx01*yy0,dy01):tx1 + cimg_rd(dtx12*yy1,dy12),
+          txM = tx0 + cimg_rd(dtx02*yy0,dy02),
+          tym = y<y1?ty0 + cimg_rd(dty01*yy0,dy01):ty1 + cimg_rd(dty12*yy1,dy12),
+          tyM = ty0 + cimg_rd(dty02*yy0,dy02);
         float
           bsm = y<y1?(bs0 + dbs01*yy0/dy01):(bs1 + dbs12*yy1/dy12),
           bsM = bs0 + dbs02*yy0/dy02;
@@ -51642,7 +51651,7 @@ namespace cimg_library {
         dy01 = std::max((longT)1,(longT)y1 - y0),
         dy02 = std::max((longT)1,(longT)y2 - y0),
         dy12 = std::max((longT)1,(longT)y2 - y1),
-        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2;
+        hdy01 = dy01/2, hdy02 = dy02/2, hdy12 = dy12/2;
       const float
         diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1,
         txz0 = tx0*iz0, txz1 = tx1*iz1, txz2 = tx2*iz2,
@@ -51650,15 +51659,15 @@ namespace cimg_library {
         dtxz01 = txz1 - txz0, dtxz02 = txz2 - txz0, dtxz12 = txz2 - txz1,
         dtyz01 = tyz1 - tyz0, dtyz02 = tyz2 - tyz0, dtyz12 = tyz2 - tyz1,
         dbs01 = bs1 - bs0, dbs02 = bs2 - bs0, dbs12 = bs2 - bs1;
-
       const ulongT twhd = (ulongT)texture._width*texture._height*texture._depth;
+
       cimg_init_scanline(opacity);
 
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + (dx01*yy0 + hdy01)/dy01:x1 + (dx12*yy1 + hdy12)/dy12,
-          xM = x0 + (dx02*yy0 + hdy02)/dy02;
+          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
+          xM = x0 + cimg_rd(dx02*yy0,dy02);
         float
           izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*yy1/dy12),
           izM = iz0 + diz02*yy0/dy02,
@@ -51741,7 +51750,7 @@ namespace cimg_library {
         dy01 = std::max((longT)1,(longT)y1 - y0),
         dy02 = std::max((longT)1,(longT)y2 - y0),
         dy12 = std::max((longT)1,(longT)y2 - y1),
-        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2;
+        hdy01 = dy01/2, hdy02 = dy02/2, hdy12 = dy12/2;
       const float
         diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1,
         txz0 = tx0*iz0, txz1 = tx1*iz1, txz2 = tx2*iz2,
@@ -51749,15 +51758,15 @@ namespace cimg_library {
         dtxz01 = txz1 - txz0, dtxz02 = txz2 - txz0, dtxz12 = txz2 - txz1,
         dtyz01 = tyz1 - tyz0, dtyz02 = tyz2 - tyz0, dtyz12 = tyz2 - tyz1,
         dbs01 = bs1 - bs0, dbs02 = bs2 - bs0, dbs12 = bs2 - bs1;
-
       const ulongT twhd = (ulongT)texture._width*texture._height*texture._depth;
+
       cimg_init_scanline(opacity);
 
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + (dx01*yy0 + hdy01)/dy01:x1 + (dx12*yy1 + hdy12)/dy12,
-          xM = x0 + (dx02*yy0 + hdy02)/dy02;
+          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
+          xM = x0 + cimg_rd(dx02*yy0,dy02);
         float
           izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*yy1/dy12),
           izM = iz0 + diz02*yy0/dy02,
@@ -51866,34 +51875,30 @@ namespace cimg_library {
         dy01 = std::max((longT)1,(longT)y1 - y0),
         dy02 = std::max((longT)1,(longT)y2 - y0),
         dy12 = std::max((longT)1,(longT)y2 - y1),
-        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2,
+        hdy01 = dy01/2, hdy02 = dy02/2, hdy12 = dy12/2,
         dtx01 = (longT)tx1 - tx0, dtx02 = (longT)tx2 - tx0, dtx12 = (longT)tx2 - tx1,
         dty01 = (longT)ty1 - ty0, dty02 = (longT)ty2 - ty0, dty12 = (longT)ty2 - ty1,
-        hdy01tx = dy01*cimg::sign(dtx01)/2, hdy02tx = dy02*cimg::sign(dtx02)/2, hdy12tx = dy12*cimg::sign(dtx12)/2,
-        hdy01ty = dy01*cimg::sign(dty01)/2, hdy02ty = dy02*cimg::sign(dty02)/2, hdy12ty = dy12*cimg::sign(dty12)/2,
         dlx01 = (longT)lx1 - lx0, dlx02 = (longT)lx2 - lx0, dlx12 = (longT)lx2 - lx1,
-        dly01 = (longT)ly1 - ly0, dly02 = (longT)ly2 - ly0, dly12 = (longT)ly2 - ly1,
-        hdy01lx = dy01*cimg::sign(dlx01)/2, hdy02lx = dy02*cimg::sign(dlx02)/2, hdy12lx = dy12*cimg::sign(dlx12)/2,
-        hdy01ly = dy01*cimg::sign(dly01)/2, hdy02ly = dy02*cimg::sign(dly02)/2, hdy12ly = dy12*cimg::sign(dly12)/2;
-
+        dly01 = (longT)ly1 - ly0, dly02 = (longT)ly2 - ly0, dly12 = (longT)ly2 - ly1;
       const ulongT
         twhd = (ulongT)texture._width*texture._height*texture._depth,
         lwhd = (ulongT)light._width*light._height*light._depth;
+
       cimg_init_scanline(opacity);
 
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + (dx01*yy0 + hdy01)/dy01:x1 + (dx12*yy1 + hdy12)/dy12,
-          xM = x0 + (dx02*yy0 + hdy02)/dy02,
-          txm = y<y1?tx0 + (dtx01*yy0 + hdy01tx)/dy01:tx1 + (dtx12*yy1 + hdy12tx)/dy12,
-          txM = tx0 + (dtx02*yy0 + hdy02tx)/dy02,
-          tym = y<y1?ty0 + (dty01*yy0 + hdy01ty)/dy01:ty1 + (dty12*yy1 + hdy12ty)/dy12,
-          tyM = ty0 + (dty02*yy0 + hdy02ty)/dy02,
-          lxm = y<y1?lx0 + (dlx01*yy0 + hdy01lx)/dy01:lx1 + (dlx12*yy1 + hdy12lx)/dy12,
-          lxM = lx0 + (dlx02*yy0 + hdy02lx)/dy02,
-          lym = y<y1?ly0 + (dly01*yy0 + hdy01ly)/dy01:ly1 + (dly12*yy1 + hdy12ly)/dy12,
-          lyM = ly0 + (dly02*yy0 + hdy02ly)/dy02;
+          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
+          xM = x0 + cimg_rd(dx02*yy0,dy02),
+          txm = y<y1?tx0 + cimg_rd(dtx01*yy0,dy01):tx1 + cimg_rd(dtx12*yy1,dy12),
+          txM = tx0 + cimg_rd(dtx02*yy0,dy02),
+          tym = y<y1?ty0 + cimg_rd(dty01*yy0,dy01):ty1 + cimg_rd(dty12*yy1,dy12),
+          tyM = ty0 + cimg_rd(dty02*yy0,dy02),
+          lxm = y<y1?lx0 + cimg_rd(dlx01*yy0,dy01):lx1 + cimg_rd(dlx12*yy1,dy12),
+          lxM = lx0 + cimg_rd(dlx02*yy0,dy02),
+          lym = y<y1?ly0 + cimg_rd(dly01*yy0,dy01):ly1 + cimg_rd(dly12*yy1,dy12),
+          lyM = ly0 + cimg_rd(dly02*yy0,dy02);
         if (xm>xM) cimg::swap(xm,xM,txm,txM,tym,tyM,lxm,lxM,lym,lyM);
         if (xM>=0 && xm<=w1) {
           const int
@@ -51970,7 +51975,7 @@ namespace cimg_library {
         dy01 = std::max((longT)1,(longT)y1 - y0),
         dy02 = std::max((longT)1,(longT)y2 - y0),
         dy12 = std::max((longT)1,(longT)y2 - y1),
-        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2;
+        hdy01 = dy01/2, hdy02 = dy02/2, hdy12 = dy12/2;
       const float
         diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1,
         txz0 = tx0*iz0, txz1 = tx1*iz1, txz2 = tx2*iz2,
@@ -51981,17 +51986,17 @@ namespace cimg_library {
         lyz0 = ly0*iz0, lyz1 = ly1*iz1, lyz2 = ly2*iz2,
         dlxz01 = lxz1 - lxz0, dlxz02 = lxz2 - lxz0, dlxz12 = lxz2 - lxz1,
         dlyz01 = lyz1 - lyz0, dlyz02 = lyz2 - lyz0, dlyz12 = lyz2 - lyz1;
-
       const ulongT
         twhd = (ulongT)texture._width*texture._height*texture._depth,
         lwhd = (ulongT)light._width*light._height*light._depth;
+
       cimg_init_scanline(opacity);
 
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + (dx01*yy0 + hdy01)/dy01:x1 + (dx12*yy1 + hdy12)/dy12,
-          xM = x0 + (dx02*yy0 + hdy02)/dy02;
+          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
+          xM = x0 + cimg_rd(dx02*yy0,dy02);
         float
           izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*yy1/dy12),
           izM = iz0 + diz02*yy0/dy02,
@@ -52093,7 +52098,7 @@ namespace cimg_library {
         dy01 = std::max((longT)1,(longT)y1 - y0),
         dy02 = std::max((longT)1,(longT)y2 - y0),
         dy12 = std::max((longT)1,(longT)y2 - y1),
-        hdy01 = dy01*cimg::sign(dx01)/2, hdy02 = dy02*cimg::sign(dx02)/2, hdy12 = dy12*cimg::sign(dx12)/2;
+        hdy01 = dy01/2, hdy02 = dy02/2, hdy12 = dy12/2;
       const float
         diz01 = iz1 - iz0, diz02 = iz2 - iz0, diz12 = iz2 - iz1,
         txz0 = tx0*iz0, txz1 = tx1*iz1, txz2 = tx2*iz2,
@@ -52104,17 +52109,17 @@ namespace cimg_library {
         lyz0 = ly0*iz0, lyz1 = ly1*iz1, lyz2 = ly2*iz2,
         dlxz01 = lxz1 - lxz0, dlxz02 = lxz2 - lxz0, dlxz12 = lxz2 - lxz1,
         dlyz01 = lyz1 - lyz0, dlyz02 = lyz2 - lyz0, dlyz12 = lyz2 - lyz1;
-
       const ulongT
         twhd = (ulongT)texture._width*texture._height*texture._depth,
         lwhd = (ulongT)light._width*light._height*light._depth;
+
       cimg_init_scanline(opacity);
 
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + (dx01*yy0 + hdy01)/dy01:x1 + (dx12*yy1 + hdy12)/dy12,
-          xM = x0 + (dx02*yy0 + hdy02)/dy02;
+          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
+          xM = x0 + cimg_rd(dx02*yy0,dy02);
         float
           izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*yy1/dy12),
           izM = iz0 + diz02*yy0/dy02,
@@ -52334,7 +52339,7 @@ namespace cimg_library {
             x01 = x1 - x0, y01 = y1 - y0, y12 = y2 - y1,
             step = cimg::sign(y01),
             tmax = std::max(1,cimg::abs(y01)),
-            htmax = tmax*cimg::sign(x01)/2,
+            htmax = tmax*cimg::sign(x01)/2 + 1,
             tend = tmax - (step==cimg::sign(y12));
           unsigned int y = (unsigned int)y0 - ymin;
           for (int t = 0; t<=tend; ++t, y+=step)
@@ -52383,23 +52388,21 @@ namespace cimg_library {
       if (ipoints._width==2) return draw_line(ipoints(0,0),ipoints(0,1),ipoints(1,0),ipoints(1,1),
                                               color,opacity,pattern);
       bool ninit_hatch = true, is_drawn = false;
-      int x = ipoints(0,0), y = ipoints(0,1);
+      int x0 = ipoints(0,0), y0 = ipoints(0,1);
       const unsigned int N = ipoints._width - (is_closed?0:1);
       for (unsigned int i = 0; i<N; ++i) {
         const int
           ni = (i + 1)%ipoints.width(),
-          nx = ipoints(ni,0), ny = ipoints(ni,1),
-          u = nx - x, v = ny - y,
-          l = std::max(std::abs(u),std::abs(v));
+          x1 = ipoints(ni,0), y1 = ipoints(ni,1),
+          x01 = x1 - x0, y01 = y1 - y0,
+          l = std::max(std::abs(x01),std::abs(y01));
         if (l) {
-          const int
-            nx1 = is_closed || i<N - 1?(int)cimg::round(x + (l - 1)*u/(float)l):nx,
-            ny1 = is_closed || i<N - 1?(int)cimg::round(y + (l - 1)*v/(float)l):ny;
-          draw_line(x,y,nx1,ny1,color,opacity,pattern,ninit_hatch);
+          const bool draw_last_pixel = is_closed || i<N - 1?false:true;
+          draw_line(x0,y0,x1,y1,color,opacity,pattern,ninit_hatch,draw_last_pixel);
           is_drawn = true;
         }
         ninit_hatch = false;
-        x = nx; y = ny;
+        x0 = x1; y0 = y1;
       }
       if (!is_drawn) draw_point(ipoints(0,0),ipoints(0,1),color,opacity); // All vertices were the same
       return *this;

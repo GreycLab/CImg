@@ -50644,9 +50644,9 @@ namespace cimg_library {
         dx01 = (longT)x1 - x0,
         dx02 = (longT)x2 - x0,
         dx12 = (longT)x2 - x1,
-        dy01 = (longT)std::max(1,y1 - y0),
-        dy02 = (longT)std::max(1,y2 - y0),
-        dy12 = (longT)std::max(1,y2 - y1),
+        dy01 = std::max((longT)1,(longT)y1 - y0),
+        dy02 = std::max((longT)1,(longT)y2 - y0),
+        dy12 = std::max((longT)1,(longT)y2 - y1),
         hdy01 = cimg::sign(dx01)*dy01/2 + 1,
         hdy02 = cimg::sign(dx02)*dy02/2 + 1,
         hdy12 = cimg::sign(dx12)*dy12/2 + 1;

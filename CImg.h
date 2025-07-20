@@ -33440,7 +33440,7 @@ namespace cimg_library {
     const CImg<T>& SVD(CImg<t>& U, CImg<t>& S, CImg<t>& V, const bool sorting=true,
                        const unsigned int max_iteration=40, const float lambda=0) const {
       typedef _cimg_Ttfloat Ttfloat;
-      const Ttfloat eps = (Ttfloat)1e-15;
+      const Ttfloat eps = (Ttfloat)1e-8f;
       if (is_empty()) { U.assign(); S.assign(); V.assign(); }
       else if (_depth!=1 || _spectrum!=1)
         throw CImgInstanceException(_cimg_instance
@@ -33475,7 +33475,7 @@ namespace cimg_library {
               U(i,i) = f - g;
               for (int j = l; j<width(); ++j) {
                 s = 0;
-                for (int k=i; k<height(); ++k) s+=U(i,k)*U(j,k);
+                for (int k = i; k<height(); ++k) s+=U(i,k)*U(j,k);
                 f = s/h;
                 for (int k = i; k<height(); ++k) U(j,k)+=f*U(i,k);
               }
@@ -33548,8 +33548,8 @@ namespace cimg_library {
             bool flag = true;
             for (l = k; l>=1; --l) {
               nm = l - 1;
-              if ((cimg::abs(rv1[l]) + anorm)==anorm) { flag = false; break; }
-              if ((cimg::abs(S[nm]) + anorm)==anorm) break;
+              if (l==1 || cimg::abs(rv1[l])<=eps*anorm) { flag = false; break; }
+              if (cimg::abs(S[nm])<=eps*anorm) break;
             }
             if (flag) {
               c = 0;

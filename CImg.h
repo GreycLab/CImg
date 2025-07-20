@@ -45980,12 +45980,12 @@ namespace cimg_library {
                                     cimg_instance,
                                     guide._width,guide._height,guide._depth,guide._spectrum,guide._data);
       const float
-        scale_factor = 2,
+        scale_factor = 2.f,
         abs_smoothness = cimg::abs(smoothness),
         _precision = (float)std::pow(10.,-(double)precision);
       const unsigned int
         min_siz = is_3d?cimg::min(_width,_height,_depth):std::min(_width,_height),
-        _nb_scales = nb_scales>0?nb_scales:(unsigned int)(std::log(min_siz)/std::log(scale_factor)) - 1;
+        _nb_scales = nb_scales>0?nb_scales:(unsigned int)cimg::round(std::log(min_siz)/std::log(scale_factor)) - 1;
 
       float sm, sM = reference.max_min(sm), im, iM = max_min(im);
       const float sdelta = sm==sM?1:(sM - sm), idelta = im==iM?1:(iM - im);
@@ -46001,7 +46001,7 @@ namespace cimg_library {
 
         const float
           t = (_nb_scales - 1 - scale)/(_nb_scales - 1.0f),
-          sigma_start = 1.5f,
+          sigma_start = 1.25f,
           sigma_end = 0.5f,
           sigma = sigma_start*(1 - t) + sigma_end*t;
         const CImg<Tfloat>

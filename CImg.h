@@ -21532,13 +21532,13 @@ namespace cimg_library {
               _cimg_mp_return_nan();
             }
 
-            if (!std::strncmp(ss,"eig(",4)) { // Matrix eigenvalues/eigenvector
-              _cimg_mp_op("Function 'eig()'");
-              arg1 = compile(ss4,se1,depth1,0,block_flags);
+            if (!std::strncmp(ss,"eigen(",6)) { // Matrix eigenvalues/eigenvector
+              _cimg_mp_op("Function 'eigen()'");
+              arg1 = compile(ss6,se1,depth1,0,block_flags);
               _cimg_mp_check_matrix_square(arg1,1);
               p1 = (unsigned int)cimg::round(std::sqrt((float)size(arg1)));
               pos = vector((p1 + 1)*p1);
-              CImg<ulongT>::vector((ulongT)mp_matrix_eig,pos,arg1,p1).move_to(code);
+              CImg<ulongT>::vector((ulongT)mp_matrix_eigen,pos,arg1,p1).move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -28751,7 +28751,7 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_matrix_eig(_cimg_math_parser& mp) {
+      static double mp_matrix_eigen(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
         const double *ptr1 = &_mp_arg(2) + 1;
         const unsigned int k = (unsigned int)mp.opcode[3];

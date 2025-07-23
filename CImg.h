@@ -37034,7 +37034,7 @@ namespace cimg_library {
         const Tfloat
           sval = (Tfloat)_data[off]/255,
           val = (Tfloat)(sval<=0.04045f?sval/12.92f:std::pow((sval + 0.055f)/(1.055f),2.4f));
-        _data[off] = (T)cimg::cut(val*255,0,255);
+        _data[off] = (T)cimg::cut(val*255,(Tfloat)0,(Tfloat)255);
       }
       return *this;
     }
@@ -37052,7 +37052,7 @@ namespace cimg_library {
         const Tfloat
           val = (Tfloat)_data[off]/255,
           sval = (Tfloat)(val<=0.0031308f?val*12.92f:1.055f*std::pow(val,0.416667f) - 0.055f);
-        _data[off] = (T)cimg::cut(sval*255,0,255);
+        _data[off] = (T)cimg::cut(sval*255,(Tfloat)0,(Tfloat)255);
       }
       return *this;
     }

@@ -21532,9 +21532,9 @@ namespace cimg_library {
               _cimg_mp_return_nan();
             }
 
-            if (!std::strncmp(ss,"eigen(",6)) { // Matrix eigenvalues/eigenvector
-              _cimg_mp_op("Function 'eigen()'");
-              arg1 = compile(ss6,se1,depth1,0,block_flags);
+            if (!std::strncmp(ss,"eig(",4)) { // Matrix eigenvalues/eigenvector
+              _cimg_mp_op("Function 'eig()'");
+              arg1 = compile(ss4,se1,depth1,0,block_flags);
               _cimg_mp_check_matrix_square(arg1,1);
               p1 = (unsigned int)cimg::round(std::sqrt((float)size(arg1)));
               pos = vector((p1 + 1)*p1);

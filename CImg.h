@@ -36109,7 +36109,7 @@ namespace cimg_library {
          All pixel values higher than \p max_value will not be counted.
        \par Example
        \code
-       const CImg<float> img("reference.jpg"), res = img.get_equalize(256);
+       const CImg<float> img("reference.jpg"), res = img.get_equalize(256,0,255);
        (img,res).display();
        \endcode
        \image html ref_equalize.jpg

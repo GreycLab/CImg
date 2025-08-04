@@ -7099,8 +7099,10 @@ namespace cimg_library {
       if (n<0 || k<0) return cimg::type<double>::nan();
       if (k>n) return 0;
       double res = 1;
-      for (int i = n; i>=n - k + 1; --i) res*=i;
-      return with_order?res:res/cimg::factorial(k);
+
+      if (with_order) for (int i = n; i>=n - k + 1; --i) res*=i;
+      else for (int i = 1; i<=k; ++i) { res*=(n - i + 1); res/=i; }
+      return res;
     }
 
     inline double _fibonacci(int exp) {
@@ -36109,7 +36111,7 @@ namespace cimg_library {
          All pixel values higher than \p max_value will not be counted.
        \par Example
        \code
-       const CImg<float> img("reference.jpg"), res = img.get_equalize(256);
+       const CImg<float> img("reference.jpg"), res = img.get_equalize(256,0,255);
        (img,res).display();
        \endcode
        \image html ref_equalize.jpg
@@ -54164,8 +54166,8 @@ namespace cimg_library {
           fx0 = vertices(n0,0), fy0 = vertices(n0,1),
           fx1 = vertices(n1,0), fy1 = vertices(n1,1),
           fact = (zc - z0)/(z1 - z0), nfx0 = fx0 + fact*(fx1 - fx0), nfy0 = fy0 + fact*(fy1 - fy0);
-        x0 = X + focale*nfx0/zc; y0 = Y + focale*nfy0/zc;
         z0 = zc;
+        x0 = cimg::uiround(X + focale*nfx0/z0); y0 = cimg::uiround(Y + focale*nfy0/z0);
       }
       if (zbuffer) draw_line(zbuffer,x0,y0,z0,x1,y1,z1,color,opacity);
       else draw_line(x0,y0,x1,y1,color,opacity);
@@ -54196,8 +54198,8 @@ namespace cimg_library {
           fx1 = vertices(n1,0), fy1 = vertices(n1,1),
           fact = (zc - z0)/(z1 - z0), nfx0 = fx0 + fact*(fx1 - fx0), nfy0 = fy0 + fact*(fy1 - fy0);
         if (!focale) focale = zc;
-        x0 = X + focale*nfx0/zc; y0 = Y + focale*nfy0/zc;
         z0 = zc;
+        x0 = cimg::uiround(X + focale*nfx0/z0); y0 = cimg::uiround(Y + focale*nfy0/z0);
         tx0 = cimg::uiround(tx0 + fact*(tx1 - tx0)); ty0 = cimg::uiround(ty0 + fact*(ty1 - ty0));
       }
       if (zbuffer) draw_line(zbuffer,x0,y0,z0,x1,y1,z1,texture,tx0,ty0,tx1,ty1,opacity);
@@ -54232,15 +54234,17 @@ namespace cimg_library {
           const float
             fact0 = (zc - z0)/(z2 - z0), nfx0 = fx0 + fact0*(fx2 - fx0), nfy0 = fy0 + fact0*(fy2 - fy0),
             fact1 = (zc - z1)/(z2 - z1), nfx1 = fx1 + fact1*(fx2 - fx1), nfy1 = fy1 + fact1*(fy2 - fy1);
-          x0 = X + focale*nfx0/zc; y0 = Y + focale*nfy0/zc;
-          x1 = X + focale*nfx1/zc; y1 = Y + focale*nfy1/zc;
           z0 = z1 = zc;
+          x0 = cimg::uiround(X + focale*nfx0/z0); y0 = cimg::uiround(Y + focale*nfy0/z0);
+          x1 = cimg::uiround(X + focale*nfx1/z1); y1 = cimg::uiround(Y + focale*nfy1/z1);
         } else { // One vertex behind camera
           const float
             fact0 = (zc - z0)/(z1 - z0), nfx0 = fx0 + fact0*(fx1 - fx0), nfy0 = fy0 + fact0*(fy1 - fy0),
             fact1 = (zc - z0)/(z2 - z0), nfx1 = fx0 + fact1*(fx2 - fx0), nfy1 = fy0 + fact1*(fy2 - fy0),
-            nx0 = X + focale*nfx0/zc, ny0 = Y + focale*nfy0/zc, nz0 = zc,
-            nx1 = X + focale*nfx1/zc, ny1 = Y + focale*nfy1/zc, nz1 = zc;
+            nz0 = zc, nz1 = zc;
+          const int
+            nx0 = cimg::uiround(X + focale*nfx0/nz0), ny0 = cimg::uiround(Y + focale*nfy0/nz0),
+            nx1 = cimg::uiround(X + focale*nfx1/nz1), ny1 = cimg::uiround(Y + focale*nfy1/nz1);
           if (brightness==1) {
             if (zbuffer) draw_triangle(zbuffer,nx0,ny0,nz0,x1,y1,z1,x2,y2,z2,color,opacity).
                            draw_triangle(zbuffer,nx0,ny0,nz0,nx1,ny1,nz1,x2,y2,z2,color,opacity);
@@ -54296,17 +54300,19 @@ namespace cimg_library {
           const float
             fact0 = (zc - z0)/(z2 - z0), nfx0 = fx0 + fact0*(fx2 - fx0), nfy0 = fy0 + fact0*(fy2 - fy0),
             fact1 = (zc - z1)/(z2 - z1), nfx1 = fx1 + fact1*(fx2 - fx1), nfy1 = fy1 + fact1*(fy2 - fy1);
-          x0 = X + focale*nfx0/zc; y0 = Y + focale*nfy0/zc;
-          x1 = X + focale*nfx1/zc; y1 = Y + focale*nfy1/zc;
           z0 = z1 = zc;
+          x0 = cimg::uiround(X + focale*nfx0/z0); y0 = cimg::uiround(Y + focale*nfy0/z0);
+          x1 = cimg::uiround(X + focale*nfx1/z1); y1 = cimg::uiround(Y + focale*nfy1/z1);
           tx0 = cimg::uiround(tx0 + fact0*(tx2 - tx0)); ty0 = cimg::uiround(ty0 + fact0*(ty2 - ty0));
           tx1 = cimg::uiround(tx1 + fact1*(tx2 - tx1)); ty1 = cimg::uiround(ty1 + fact1*(ty2 - ty1));
         } else { // One vertex behind camera
           const float
             fact0 = (zc - z0)/(z1 - z0), nfx0 = fx0 + fact0*(fx1 - fx0), nfy0 = fy0 + fact0*(fy1 - fy0),
             fact1 = (zc - z0)/(z2 - z0), nfx1 = fx0 + fact1*(fx2 - fx0), nfy1 = fy0 + fact1*(fy2 - fy0),
-            nx0 = X + focale*nfx0/zc, ny0 = Y + focale*nfy0/zc, nz0 = zc,
-            nx1 = X + focale*nfx1/zc, ny1 = Y + focale*nfy1/zc, nz1 = zc,
+            nz0 = zc, nz1 = zc;
+          const int
+            nx0 = cimg::uiround(X + focale*nfx0/nz0), ny0 = cimg::uiround(Y + focale*nfy0/nz0),
+            nx1 = cimg::uiround(X + focale*nfx1/nz1), ny1 = cimg::uiround(Y + focale*nfy1/nz1),
             ntx0 = cimg::uiround(tx0 + fact0*(tx1 - tx0)), nty0 = cimg::uiround(ty0 + fact0*(ty1 - ty0)),
             ntx1 = cimg::uiround(tx0 + fact1*(tx2 - tx0)), nty1 = cimg::uiround(ty0 + fact1*(ty2 - ty0));
           if (zbuffer) draw_triangle(zbuffer,nx0,ny0,nz0,x1,y1,z1,x2,y2,z2,
@@ -54355,17 +54361,19 @@ namespace cimg_library {
           const float
             fact0 = (zc - z0)/(z2 - z0), nfx0 = fx0 + fact0*(fx2 - fx0), nfy0 = fy0 + fact0*(fy2 - fy0),
             fact1 = (zc - z1)/(z2 - z1), nfx1 = fx1 + fact1*(fx2 - fx1), nfy1 = fy1 + fact1*(fy2 - fy1);
-          x0 = X + focale*nfx0/zc; y0 = Y + focale*nfy0/zc;
-          x1 = X + focale*nfx1/zc; y1 = Y + focale*nfy1/zc;
           z0 = z1 = zc;
+          x0 = cimg::uiround(X + focale*nfx0/z0); y0 = cimg::uiround(Y + focale*nfy0/z0);
+          x1 = cimg::uiround(X + focale*nfx1/z1); y1 = cimg::uiround(Y + focale*nfy1/z1);
           bs0 = bs0 + fact0*(bs2 - bs0);
           bs1 = bs1 + fact1*(bs2 - bs1);
         } else { // One vertex behind camera
           const float
             fact0 = (zc - z0)/(z1 - z0), nfx0 = fx0 + fact0*(fx1 - fx0), nfy0 = fy0 + fact0*(fy1 - fy0),
             fact1 = (zc - z0)/(z2 - z0), nfx1 = fx0 + fact1*(fx2 - fx0), nfy1 = fy0 + fact1*(fy2 - fy0),
-            nx0 = X + focale*nfx0/zc, ny0 = Y + focale*nfy0/zc, nz0 = zc,
-            nx1 = X + focale*nfx1/zc, ny1 = Y + focale*nfy1/zc, nz1 = zc,
+            nz0 = zc, nz1 = zc;
+          const int
+            nx0 = cimg::uiround(X + focale*nfx0/nz0), ny0 = cimg::uiround(Y + focale*nfy0/nz0),
+            nx1 = cimg::uiround(X + focale*nfx1/nz1), ny1 = cimg::uiround(Y + focale*nfy1/nz1),
             nbs0 = bs0 + fact0*(bs1 - bs0),
             nbs1 = bs0 + fact1*(bs2 - bs0);
           if (zbuffer) draw_triangle(zbuffer,nx0,ny0,nz0,x1,y1,z1,x2,y2,z2,color,nbs0,bs1,bs2,opacity).
@@ -54411,9 +54419,9 @@ namespace cimg_library {
           const float
             fact0 = (zc - z0)/(z2 - z0), nfx0 = fx0 + fact0*(fx2 - fx0), nfy0 = fy0 + fact0*(fy2 - fy0),
             fact1 = (zc - z1)/(z2 - z1), nfx1 = fx1 + fact1*(fx2 - fx1), nfy1 = fy1 + fact1*(fy2 - fy1);
-          x0 = X + focale*nfx0/zc; y0 = Y + focale*nfy0/zc;
-          x1 = X + focale*nfx1/zc; y1 = Y + focale*nfy1/zc;
           z0 = z1 = zc;
+          x0 = cimg::uiround(X + focale*nfx0/z0); y0 = cimg::uiround(Y + focale*nfy0/z0);
+          x1 = cimg::uiround(X + focale*nfx1/z1); y1 = cimg::uiround(Y + focale*nfy1/z1);
           tx0 = cimg::uiround(tx0 + fact0*(tx2 - tx0)); ty0 = cimg::uiround(ty0 + fact0*(ty2 - ty0));
           tx1 = cimg::uiround(tx1 + fact1*(tx2 - tx1)); ty1 = cimg::uiround(ty1 + fact1*(ty2 - ty1));
           bs0 = bs0 + fact0*(bs2 - bs0);
@@ -54422,8 +54430,10 @@ namespace cimg_library {
           const float
             fact0 = (zc - z0)/(z1 - z0), nfx0 = fx0 + fact0*(fx1 - fx0), nfy0 = fy0 + fact0*(fy1 - fy0),
             fact1 = (zc - z0)/(z2 - z0), nfx1 = fx0 + fact1*(fx2 - fx0), nfy1 = fy0 + fact1*(fy2 - fy0),
-            nx0 = X + focale*nfx0/zc, ny0 = Y + focale*nfy0/zc, nz0 = zc,
-            nx1 = X + focale*nfx1/zc, ny1 = Y + focale*nfy1/zc, nz1 = zc,
+            nz0 = zc, nz1 = zc;
+          const int
+            nx0 = cimg::uiround(X + focale*nfx0/z0), ny0 = cimg::uiround(Y + focale*nfy0/z0),
+            nx1 = cimg::uiround(X + focale*nfx1/z1), ny1 = cimg::uiround(Y + focale*nfy1/z1),
             ntx0 = cimg::uiround(tx0 + fact0*(tx1 - tx0)), nty0 = cimg::uiround(ty0 + fact0*(ty1 - ty0)),
             ntx1 = cimg::uiround(tx0 + fact1*(tx2 - tx0)), nty1 = cimg::uiround(ty0 + fact1*(ty2 - ty0)),
             nbs0 = bs0 + fact0*(bs1 - bs0),
@@ -54474,23 +54484,21 @@ namespace cimg_library {
           const float
             fact0 = (zc - z0)/(z2 - z0), nfx0 = fx0 + fact0*(fx2 - fx0), nfy0 = fy0 + fact0*(fy2 - fy0),
             fact1 = (zc - z1)/(z2 - z1), nfx1 = fx1 + fact1*(fx2 - fx1), nfy1 = fy1 + fact1*(fy2 - fy1);
-          x0 = X + focale*nfx0/zc; y0 = Y + focale*nfy0/zc;
-          x1 = X + focale*nfx1/zc; y1 = Y + focale*nfy1/zc;
           z0 = z1 = zc;
-          lx0 = cimg::uiround(lx0 + fact0*(lx2 - lx0));
-          ly0 = cimg::uiround(ly0 + fact0*(ly2 - ly0));
-          lx1 = cimg::uiround(lx1 + fact1*(lx2 - lx1));
-          ly1 = cimg::uiround(ly1 + fact1*(ly2 - ly1));
+          x0 = cimg::uiround(X + focale*nfx0/z0); y0 = cimg::uiround(Y + focale*nfy0/z0);
+          x1 = cimg::uiround(X + focale*nfx1/z1); y1 = cimg::uiround(Y + focale*nfy1/z1);
+          lx0 = cimg::uiround(lx0 + fact0*(lx2 - lx0)); ly0 = cimg::uiround(ly0 + fact0*(ly2 - ly0));
+          lx1 = cimg::uiround(lx1 + fact1*(lx2 - lx1)); ly1 = cimg::uiround(ly1 + fact1*(ly2 - ly1));
         } else { // One vertex behind camera
           const float
             fact0 = (zc - z0)/(z1 - z0), nfx0 = fx0 + fact0*(fx1 - fx0), nfy0 = fy0 + fact0*(fy1 - fy0),
             fact1 = (zc - z0)/(z2 - z0), nfx1 = fx0 + fact1*(fx2 - fx0), nfy1 = fy0 + fact1*(fy2 - fy0),
-            nx0 = X + focale*nfx0/zc, ny0 = Y + focale*nfy0/zc, nz0 = zc,
-            nx1 = X + focale*nfx1/zc, ny1 = Y + focale*nfy1/zc, nz1 = zc,
-            nlx0 = cimg::uiround(lx0 + fact0*(lx1 - lx0)),
-            nly0 = cimg::uiround(ly0 + fact0*(ly1 - ly0)),
-            nlx1 = cimg::uiround(lx0 + fact1*(lx2 - lx0)),
-            nly1 = cimg::uiround(ly0 + fact1*(ly2 - ly0));
+            nz0 = zc, nz1 = zc;
+          const int
+            nx0 = cimg::uiround(X + focale*nfx0/nz0), ny0 = cimg::uiround(Y + focale*nfy0/nz0),
+            nx1 = cimg::uiround(X + focale*nfx1/nz1), ny1 = cimg::uiround(Y + focale*nfy1/nz1),
+            nlx0 = cimg::uiround(lx0 + fact0*(lx1 - lx0)), nly0 = cimg::uiround(ly0 + fact0*(ly1 - ly0)),
+            nlx1 = cimg::uiround(lx0 + fact1*(lx2 - lx0)), nly1 = cimg::uiround(ly0 + fact1*(ly2 - ly0));
           if (zbuffer) draw_triangle(zbuffer,nx0,ny0,nz0,x1,y1,z1,x2,y2,z2,color,
                                      light_texture,nlx0,nly0,lx1,ly1,lx2,ly2,opacity).
                          draw_triangle(zbuffer,nx0,ny0,nz0,nx1,ny1,nz1,x2,y2,z2,color,
@@ -54539,31 +54547,25 @@ namespace cimg_library {
           const float
             fact0 = (zc - z0)/(z2 - z0), nfx0 = fx0 + fact0*(fx2 - fx0), nfy0 = fy0 + fact0*(fy2 - fy0),
             fact1 = (zc - z1)/(z2 - z1), nfx1 = fx1 + fact1*(fx2 - fx1), nfy1 = fy1 + fact1*(fy2 - fy1);
-          x0 = X + focale*nfx0/zc; y0 = Y + focale*nfy0/zc;
-          x1 = X + focale*nfx1/zc; y1 = Y + focale*nfy1/zc;
           z0 = z1 = zc;
-          tx0 = cimg::uiround(tx0 + fact0*(tx2 - tx0));
-          ty0 = cimg::uiround(ty0 + fact0*(ty2 - ty0));
-          tx1 = cimg::uiround(tx1 + fact1*(tx2 - tx1));
-          ty1 = cimg::uiround(ty1 + fact1*(ty2 - ty1));
-          lx0 = cimg::uiround(lx0 + fact0*(lx2 - lx0));
-          ly0 = cimg::uiround(ly0 + fact0*(ly2 - ly0));
-          lx1 = cimg::uiround(lx1 + fact1*(lx2 - lx1));
-          ly1 = cimg::uiround(ly1 + fact1*(ly2 - ly1));
+          x0 = cimg::uiround(X + focale*nfx0/z0); y0 = cimg::uiround(Y + focale*nfy0/z0);
+          x1 = cimg::uiround(X + focale*nfx1/z1); y1 = cimg::uiround(Y + focale*nfy1/z1);
+          tx0 = cimg::uiround(tx0 + fact0*(tx2 - tx0)); ty0 = cimg::uiround(ty0 + fact0*(ty2 - ty0));
+          tx1 = cimg::uiround(tx1 + fact1*(tx2 - tx1)); ty1 = cimg::uiround(ty1 + fact1*(ty2 - ty1));
+          lx0 = cimg::uiround(lx0 + fact0*(lx2 - lx0)); ly0 = cimg::uiround(ly0 + fact0*(ly2 - ly0));
+          lx1 = cimg::uiround(lx1 + fact1*(lx2 - lx1)); ly1 = cimg::uiround(ly1 + fact1*(ly2 - ly1));
         } else { // One vertex behind camera
           const float
             fact0 = (zc - z0)/(z1 - z0), nfx0 = fx0 + fact0*(fx1 - fx0), nfy0 = fy0 + fact0*(fy1 - fy0),
             fact1 = (zc - z0)/(z2 - z0), nfx1 = fx0 + fact1*(fx2 - fx0), nfy1 = fy0 + fact1*(fy2 - fy0),
-            nx0 = X + focale*nfx0/zc, ny0 = Y + focale*nfy0/zc, nz0 = zc,
-            nx1 = X + focale*nfx1/zc, ny1 = Y + focale*nfy1/zc, nz1 = zc,
-            ntx0 = cimg::uiround(tx0 + fact0*(tx1 - tx0)),
-            nty0 = cimg::uiround(ty0 + fact0*(ty1 - ty0)),
-            ntx1 = cimg::uiround(tx0 + fact1*(tx2 - tx0)),
-            nty1 = cimg::uiround(ty0 + fact1*(ty2 - ty0)),
-            nlx0 = cimg::uiround(lx0 + fact0*(lx1 - lx0)),
-            nly0 = cimg::uiround(ly0 + fact0*(ly1 - ly0)),
-            nlx1 = cimg::uiround(lx0 + fact1*(lx2 - lx0)),
-            nly1 = cimg::uiround(ly0 + fact1*(ly2 - ly0));
+            nz0 = zc, nz1 = zc;
+          const int
+            nx0 = cimg::uiround(X + focale*nfx0/nz0), ny0 = cimg::uiround(Y + focale*nfy0/nz0),
+            nx1 = cimg::uiround(X + focale*nfx1/nz1), ny1 = cimg::uiround(Y + focale*nfy1/nz1),
+            ntx0 = cimg::uiround(tx0 + fact0*(tx1 - tx0)), nty0 = cimg::uiround(ty0 + fact0*(ty1 - ty0)),
+            ntx1 = cimg::uiround(tx0 + fact1*(tx2 - tx0)), nty1 = cimg::uiround(ty0 + fact1*(ty2 - ty0)),
+            nlx0 = cimg::uiround(lx0 + fact0*(lx1 - lx0)), nly0 = cimg::uiround(ly0 + fact0*(ly1 - ly0)),
+            nlx1 = cimg::uiround(lx0 + fact1*(lx2 - lx0)), nly1 = cimg::uiround(ly0 + fact1*(ly2 - ly0));
           if (zbuffer) draw_triangle(zbuffer,nx0,ny0,nz0,x1,y1,z1,x2,y2,z2,
                                      texture,ntx0,nty0,tx1,ty1,tx2,ty2,
                                      light_texture,nlx0,nly0,lx1,ly1,lx2,ly2,opacity).
@@ -55057,7 +55059,7 @@ namespace cimg_library {
       const CImg<tc> default_color(1,_spectrum,1,1,(tc)200);
       cimg_pragma_openmp(parallel for cimg_openmp_if(is_multithreaded_rendering &&
                                                      nb_visibles>=cimg_openmp_sizefactor*256))
-      for (unsigned int l = 0; l<nb_visibles; ++l) {
+      for (int l = 0; l<(int)nb_visibles; ++l) {
         CImg<_to> _opacity;
         const unsigned int n_primitive = visibles(permutations(l));
         const CImg<tf>& primitive = primitives[n_primitive];

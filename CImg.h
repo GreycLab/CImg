@@ -55059,7 +55059,7 @@ namespace cimg_library {
       const CImg<tc> default_color(1,_spectrum,1,1,(tc)200);
       cimg_pragma_openmp(parallel for cimg_openmp_if(is_multithreaded_rendering &&
                                                      nb_visibles>=cimg_openmp_sizefactor*256))
-      for (unsigned int l = 0; l<nb_visibles; ++l) {
+      for (int l = 0; l<(int)nb_visibles; ++l) {
         CImg<_to> _opacity;
         const unsigned int n_primitive = visibles(permutations(l));
         const CImg<tf>& primitive = primitives[n_primitive];

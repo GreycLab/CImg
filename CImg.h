@@ -7099,8 +7099,10 @@ namespace cimg_library {
       if (n<0 || k<0) return cimg::type<double>::nan();
       if (k>n) return 0;
       double res = 1;
-      for (int i = n; i>=n - k + 1; --i) res*=i;
-      return with_order?res:res/cimg::factorial(k);
+
+      if (with_order) for (int i = n; i>=n - k + 1; --i) res*=i;
+      else for (int i = 1; i<=k; ++i) { res*=(n - i + 1); res/=i; }
+      return res;
     }
 
     inline double _fibonacci(int exp) {

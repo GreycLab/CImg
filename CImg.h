@@ -59506,7 +59506,7 @@ namespace cimg_library {
           S = handle.has_alpha_channel()?4:3;
         assign(W,H,1,S);
 
-#if LIBHEIF_NUMERIC_VERSION < LIBHEIF_MAKE_VERSION(1, 20, 0)
+#if LIBHEIF_NUMERIC_VERSION < LIBHEIF_MAKE_VERSION(1, 20, 0) || LIBHEIF_NUMERIC_VERSION > LIBHEIF_MAKE_VERSION(1, 20, 1)
         int stride = 0;
 #else
         size_t stride = 0;

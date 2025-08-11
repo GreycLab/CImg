@@ -66813,7 +66813,6 @@ namespace cimg_library {
                               cimglist_instance,
                               N,filename?filename:"(FILE*)");
       }
-
       if (!cimg::strncasecmp("little",str_endian,6)) endian = false;
       else if (!cimg::strncasecmp("big",str_endian,3)) endian = true;
       assign(N);
@@ -66991,6 +66990,14 @@ namespace cimg_library {
                               "load_cimg(): CImg header not found in file '%s'.",
                               cimglist_instance,
                               filename?filename:"(FILE*)");
+      }
+      const cimg_int64 fsiz = cimg::fsize(nfile);
+      if (N>fsiz/8) {
+        if (!file) cimg::fclose(nfile);
+        throw CImgIOException(_cimglist_instance
+                              "load_cimg(): Invalid number of images (%d) specified in file '%s'.",
+                              cimglist_instance,
+                              N,filename?filename:"(FILE*)");
       }
       if (!cimg::strncasecmp("little",str_endian,6)) endian = false;
       else if (!cimg::strncasecmp("big",str_endian,3)) endian = true;

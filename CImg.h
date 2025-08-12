@@ -66908,19 +66908,20 @@ namespace cimg_library {
         for (unsigned int l = 0; l<=nn1; ++l) { \
           j = 0; while ((i=std::fgetc(nfile))!='\n' && i>=0) tmp[j++] = (char)i; tmp[j] = 0; \
           W = H = D = C = 0; \
-          if (cimg_sscanf(tmp,"%u %u %u %u",&W,&H,&D,&C)!=4) \
+          if (cimg_sscanf(tmp,"%d %d %d %d",&W,&H,&D,&C)!=4) \
             throw CImgIOException(_cimglist_instance \
-                                  "load_cimg(): Invalid specified size (%u,%u,%u,%u) of image %u in file '%s'", \
+                                  "load_cimg(): Invalid specified size (%d,%d,%d,%d) of image %u in file '%s'", \
                                   cimglist_instance, \
                                   W,H,D,C,l,filename?filename:"(FILE*)"); \
           if (W*H*D*C>0) { \
-            if (l<nn0 || nx0>=W || ny0>=H || nz0>=D || nc0>=C) cimg::fseek(nfile,W*H*D*C*sizeof(Tss),SEEK_CUR); \
+            if (l<nn0 || nx0>=(unsigned int)W || ny0>=(unsigned int)H || nz0>=(unsigned int)D || nc0>=(unsigned int)C) \
+              cimg::fseek(nfile,W*H*D*C*sizeof(Tss),SEEK_CUR); \
             else { \
-              const unsigned int \
-                _nx1 = nx1==~0U?W - 1:nx1, \
-                _ny1 = ny1==~0U?H - 1:ny1, \
-                _nz1 = nz1==~0U?D - 1:nz1, \
-                _nc1 = nc1==~0U?C - 1:nc1; \
+              const int \
+                _nx1 = nx1==~0U?W - 1:(int)nx1, \
+                _ny1 = ny1==~0U?H - 1:(int)ny1, \
+                _nz1 = nz1==~0U?D - 1:(int)nz1, \
+                _nc1 = nc1==~0U?C - 1:(int)nc1; \
               if (_nx1>=W || _ny1>=H || _nz1>=D || _nc1>=C) \
                 throw CImgArgumentException(_cimglist_instance \
                                             "load_cimg(): Invalid specified coordinates " \
@@ -66979,8 +66980,7 @@ namespace cimg_library {
       bool loaded = false, endian = cimg::endianness();
       CImg<charT> tmp(256), str_pixeltype(256), str_endian(256);
       *tmp = *str_pixeltype = *str_endian = 0;
-      unsigned int j, W, H, D, C;
-      int N = 0, i, err;
+      int N = 0, W, H, D, C, i, j, err;
       j = 0; while ((i=std::fgetc(nfile))!='\n' && i!=EOF && j<256) tmp[j++] = (char)i; tmp[j] = 0;
       err = cimg_sscanf(tmp,"%d%*c%255[A-Za-z123468_]%*c%255[sA-Za-z_ ]",
                         &N,str_pixeltype._data,str_endian._data);

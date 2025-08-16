@@ -59506,7 +59506,7 @@ namespace cimg_library {
           S = handle.has_alpha_channel()?4:3;
         assign(W,H,1,S);
 
-#if LIBHEIF_NUMERIC_VERSION < LIBHEIF_MAKE_VERSION(1, 20, 0)
+#if LIBHEIF_NUMERIC_VERSION < LIBHEIF_MAKE_VERSION(1, 20, 0) || LIBHEIF_NUMERIC_VERSION > LIBHEIF_MAKE_VERSION(1, 20, 1)
         int stride = 0;
 #else
         size_t stride = 0;
@@ -66740,12 +66740,13 @@ namespace cimg_library {
                       (Ts2 && !cimg::strcasecmp(Ts2,str_pixeltype)) || \
                       (Ts3 && !cimg::strcasecmp(Ts3,str_pixeltype)))) { \
         const bool is_bool = cimg::type<Tss>::string()==cimg::type<bool>::string(); \
-        for (unsigned int l = 0; l<N; ++l) { \
+        for (int l = 0; l<N; ++l) { \
           j = 0; while ((i=std::fgetc(nfile))!='\n' && i>=0 && j<255) tmp[j++] = (char)i; tmp[j] = 0; \
           W = H = D = C = 0; csiz = 0; \
-          if ((err = cimg_sscanf(tmp,"%u %u %u %u #" cimg_fuint64,&W,&H,&D,&C,&csiz))<4) \
+          if ((err = cimg_sscanf(tmp,"%d %d %d %d #" cimg_fuint64,&W,&H,&D,&C,&csiz))<4 || \
+              W<0 || H<0 || D<0 || C<0) \
             throw CImgIOException(_cimglist_instance \
-                                  "load_cimg(): Invalid specified size (%u,%u,%u,%u) of image %u in file '%s'.", \
+                                  "load_cimg(): Invalid specified size (%d,%d,%d,%d) of image %u in file '%s'.", \
                                   cimglist_instance, \
                                   W,H,D,C,l,filename?filename:("(FILE*)")); \
           if (W*H*D*C>0) { \
@@ -66790,20 +66791,27 @@ namespace cimg_library {
       bool loaded = false, endian = cimg::endianness();
       CImg<charT> tmp(256), str_pixeltype(256), str_endian(256);
       *tmp = *str_pixeltype = *str_endian = 0;
-      unsigned int j, N = 0, W, H, D, C;
       cimg_uint64 csiz;
-      int i, err;
+      int N = 0, W, H, D, C, i, j, err;
       do {
         j = 0; while ((i=std::fgetc(nfile))!='\n' && i>=0 && j<255) tmp[j++] = (char)i; tmp[j] = 0;
       } while (*tmp=='#' && i>=0);
-      err = cimg_sscanf(tmp,"%u%*c%255[A-Za-z123468_]%*c%255[sA-Za-z_ ]",
+      err = cimg_sscanf(tmp,"%d%*c%255[A-Za-z123468_]%*c%255[sA-Za-z_ ]",
                         &N,str_pixeltype._data,str_endian._data);
-      if (err<2) {
+      if (err<2 || N<0) {
         if (!file) cimg::fclose(nfile);
         throw CImgIOException(_cimglist_instance
                               "load_cimg(): File or CImg header not found in file '%s'.",
                               cimglist_instance,
                               filename?filename:"(FILE*)");
+      }
+      const cimg_int64 fsiz = cimg::fsize(nfile);
+      if (N>fsiz/8) {
+        if (!file) cimg::fclose(nfile);
+        throw CImgIOException(_cimglist_instance
+                              "load_cimg(): Invalid number of images (%d) specified in file '%s'.",
+                              cimglist_instance,
+                              N,filename?filename:"(FILE*)");
       }
       if (!cimg::strncasecmp("little",str_endian,6)) endian = false;
       else if (!cimg::strncasecmp("big",str_endian,3)) endian = true;
@@ -66900,19 +66908,20 @@ namespace cimg_library {
         for (unsigned int l = 0; l<=nn1; ++l) { \
           j = 0; while ((i=std::fgetc(nfile))!='\n' && i>=0) tmp[j++] = (char)i; tmp[j] = 0; \
           W = H = D = C = 0; \
-          if (cimg_sscanf(tmp,"%u %u %u %u",&W,&H,&D,&C)!=4) \
+          if (cimg_sscanf(tmp,"%d %d %d %d",&W,&H,&D,&C)!=4) \
             throw CImgIOException(_cimglist_instance \
-                                  "load_cimg(): Invalid specified size (%u,%u,%u,%u) of image %u in file '%s'", \
+                                  "load_cimg(): Invalid specified size (%d,%d,%d,%d) of image %u in file '%s'", \
                                   cimglist_instance, \
                                   W,H,D,C,l,filename?filename:"(FILE*)"); \
           if (W*H*D*C>0) { \
-            if (l<nn0 || nx0>=W || ny0>=H || nz0>=D || nc0>=C) cimg::fseek(nfile,W*H*D*C*sizeof(Tss),SEEK_CUR); \
+            if (l<nn0 || nx0>=(unsigned int)W || ny0>=(unsigned int)H || nz0>=(unsigned int)D || nc0>=(unsigned int)C) \
+              cimg::fseek(nfile,W*H*D*C*sizeof(Tss),SEEK_CUR); \
             else { \
-              const unsigned int \
-                _nx1 = nx1==~0U?W - 1:nx1, \
-                _ny1 = ny1==~0U?H - 1:ny1, \
-                _nz1 = nz1==~0U?D - 1:nz1, \
-                _nc1 = nc1==~0U?C - 1:nc1; \
+              const int \
+                _nx1 = nx1==~0U?W - 1:(int)nx1, \
+                _ny1 = ny1==~0U?H - 1:(int)ny1, \
+                _nz1 = nz1==~0U?D - 1:(int)nz1, \
+                _nc1 = nc1==~0U?C - 1:(int)nc1; \
               if (_nx1>=W || _ny1>=H || _nz1>=D || _nc1>=C) \
                 throw CImgArgumentException(_cimglist_instance \
                                             "load_cimg(): Invalid specified coordinates " \
@@ -66971,25 +66980,32 @@ namespace cimg_library {
       bool loaded = false, endian = cimg::endianness();
       CImg<charT> tmp(256), str_pixeltype(256), str_endian(256);
       *tmp = *str_pixeltype = *str_endian = 0;
-      unsigned int j, N, W, H, D, C;
-      int i, err;
+      int N = 0, W, H, D, C, i, j, err;
       j = 0; while ((i=std::fgetc(nfile))!='\n' && i!=EOF && j<256) tmp[j++] = (char)i; tmp[j] = 0;
-      err = cimg_sscanf(tmp,"%u%*c%255[A-Za-z123468_]%*c%255[sA-Za-z_ ]",
+      err = cimg_sscanf(tmp,"%d%*c%255[A-Za-z123468_]%*c%255[sA-Za-z_ ]",
                         &N,str_pixeltype._data,str_endian._data);
-      if (err<2) {
+      if (err<2 || N<0) {
         if (!file) cimg::fclose(nfile);
         throw CImgIOException(_cimglist_instance
                               "load_cimg(): CImg header not found in file '%s'.",
                               cimglist_instance,
                               filename?filename:"(FILE*)");
       }
+      const cimg_int64 fsiz = cimg::fsize(nfile);
+      if (N>fsiz/8) {
+        if (!file) cimg::fclose(nfile);
+        throw CImgIOException(_cimglist_instance
+                              "load_cimg(): Invalid number of images (%d) specified in file '%s'.",
+                              cimglist_instance,
+                              N,filename?filename:"(FILE*)");
+      }
       if (!cimg::strncasecmp("little",str_endian,6)) endian = false;
       else if (!cimg::strncasecmp("big",str_endian,3)) endian = true;
-      nn1 = n1==~0U?N - 1:n1;
-      if (nn1>=N)
+      nn1 = n1==~0U?(unsigned int)N - 1:n1;
+      if (nn1>=(unsigned int)N)
         throw CImgArgumentException(_cimglist_instance
                                     "load_cimg(): Invalid specified coordinates [%u](%u,%u,%u,%u) -> [%u](%u,%u,%u,%u) "
-                                    "because file '%s' contains only %u images.",
+                                    "because file '%s' contains only %d images.",
                                     cimglist_instance,
                                     n0,x0,y0,z0,c0,n1,x1,y1,z1,c1,filename?filename:"(FILE*)",N);
       assign(1 + nn1 - n0);

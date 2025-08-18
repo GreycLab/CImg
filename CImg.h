@@ -6571,8 +6571,9 @@ namespace cimg_library {
     //! Cut (i.e. clamp) absolute value in specified interval.
     template<typename T>
     inline T abscut(const T& val, const T& val_min, const T& val_max, const T& offset) {
+      typedef typename cimg::superset<T,int>::type Tint;
       const T sgn = cimg::sign(val);
-      return cimg::cut(val*sgn + offset,val_min,val_max)*sgn;
+      return (T)cimg::cut((Tint)(val*sgn + offset),(Tint)val_min,(Tint)val_max)*sgn;
     }
 
     //! Return the nearest power of 2 higher than given value.
@@ -14095,7 +14096,7 @@ namespace cimg_library {
       const unsigned int omode = cimg::exception_mode();
       cimg::exception_mode(0);
       try {
-        _fill(expression,true,3,0,"operator=",0,0);
+        _fill(expression,true,3,(CImgList<T>*)0,"operator=",(CImg<T>*)0,(CImg<doubleT>*)0);
       } catch (CImgException&) {
         cimg::exception_mode(omode);
         load(expression);
@@ -14170,7 +14171,7 @@ namespace cimg_library {
          instead of assigning them.
     **/
     CImg<T>& operator+=(const char *const expression) {
-      return *this+=(+*this)._fill(expression,true,3,0,"operator+=",this,0);
+      return *this+=(+*this)._fill(expression,true,3,(CImgList<T>*)0,"operator+=",this,(CImg<doubleT>*)0);
     }
 
     //! In-place addition operator.
@@ -14291,7 +14292,7 @@ namespace cimg_library {
        Similar to operator+=(const char*), except that it performs a subtraction instead of an addition.
      **/
     CImg<T>& operator-=(const char *const expression) {
-      return *this-=(+*this)._fill(expression,true,3,0,"operator-=",this,0);
+      return *this-=(+*this)._fill(expression,true,3,(CImgList<T>*)0,"operator-=",this,(CImg<doubleT>*)0);
     }
 
     //! In-place subtraction operator.
@@ -14395,7 +14396,7 @@ namespace cimg_library {
        Similar to operator+=(const char*), except that it performs a multiplication instead of an addition.
      **/
     CImg<T>& operator*=(const char *const expression) {
-      return mul((+*this)._fill(expression,true,3,0,"operator*=",this,0));
+      return mul((+*this)._fill(expression,true,3,(CImgList<T>*)0,"operator*=",this,(CImg<doubleT>*)0));
     }
 
     //! In-place multiplication operator.
@@ -14660,7 +14661,7 @@ namespace cimg_library {
        Similar to operator+=(const char*), except that it performs a division instead of an addition.
      **/
     CImg<T>& operator/=(const char *const expression) {
-      return div((+*this)._fill(expression,true,3,0,"operator/=",this,0));
+      return div((+*this)._fill(expression,true,3,(CImgList<T>*)0,"operator/=",this,(CImg<doubleT>*)0));
     }
 
     //! In-place division operator.
@@ -14724,7 +14725,7 @@ namespace cimg_library {
        Similar to operator+=(const char*), except that it performs a modulo operation instead of an addition.
     **/
     CImg<T>& operator%=(const char *const expression) {
-      return *this%=(+*this)._fill(expression,true,3,0,"operator%=",this,0);
+      return *this%=(+*this)._fill(expression,true,3,(CImgList<T>*)0,"operator%=",this,(CImg<doubleT>*)0);
     }
 
     //! In-place modulo operator.
@@ -14790,7 +14791,7 @@ namespace cimg_library {
        Similar to operator+=(const char*), except that it performs a bitwise AND operation instead of an addition.
     **/
     CImg<T>& operator&=(const char *const expression) {
-      return *this&=(+*this)._fill(expression,true,3,0,"operator&=",this,0);
+      return *this&=(+*this)._fill(expression,true,3,(CImgList<T>*)0,"operator&=",this,(CImg<doubleT>*)0);
     }
 
     //! In-place bitwise AND operator.
@@ -14856,7 +14857,7 @@ namespace cimg_library {
        Similar to operator+=(const char*), except that it performs a bitwise OR operation instead of an addition.
     **/
     CImg<T>& operator|=(const char *const expression) {
-      return *this|=(+*this)._fill(expression,true,3,0,"operator|=",this,0);
+      return *this|=(+*this)._fill(expression,true,3,(CImgList<T>*)0,"operator|=",this,(CImg<doubleT>*)0);
     }
 
     //! In-place bitwise OR operator.
@@ -14926,7 +14927,7 @@ namespace cimg_library {
        - It does \e not compute the \e power of pixel values. For this purpose, use pow(const char*) instead.
     **/
     CImg<T>& operator^=(const char *const expression) {
-      return *this^=(+*this)._fill(expression,true,3,0,"operator^=",this,0);
+      return *this^=(+*this)._fill(expression,true,3,(CImgList<T>*)0,"operator^=",this,(CImg<doubleT>*)0);
     }
 
     //! In-place bitwise XOR operator.
@@ -14994,7 +14995,7 @@ namespace cimg_library {
        Similar to operator+=(const char*), except that it performs a bitwise left shift instead of an addition.
     **/
     CImg<T>& operator<<=(const char *const expression) {
-      return *this<<=(+*this)._fill(expression,true,3,0,"operator<<=",this,0);
+      return *this<<=(+*this)._fill(expression,true,3,(CImgList<T>*)0,"operator<<=",this,(CImg<doubleT>*)0);
     }
 
     //! In-place bitwise left shift operator.
@@ -15061,7 +15062,7 @@ namespace cimg_library {
        Similar to operator+=(const char*), except that it performs a bitwise right shift instead of an addition.
     **/
     CImg<T>& operator>>=(const char *const expression) {
-      return *this>>=(+*this)._fill(expression,true,3,0,"operator>>=",this,0);
+      return *this>>=(+*this)._fill(expression,true,3,(CImgList<T>*)0,"operator>>=",this,(CImg<doubleT>*)0);
     }
 
     //! In-place bitwise right shift operator.
@@ -15143,7 +15144,7 @@ namespace cimg_library {
        \param expression Value string describing the way pixel values are compared.
     **/
     bool operator==(const char *const expression) const {
-      return *this==(+*this)._fill(expression,true,3,0,"operator==",this,0);
+      return *this==(+*this)._fill(expression,true,3,(CImgList<T>*)0,"operator==",this,(CImg<doubleT>*)0);
     }
 
     //! Test if two images have the same size and values.
@@ -31329,7 +31330,7 @@ namespace cimg_library {
        Similar to operator+=(const char*), except it performs a pointwise exponentiation instead of an addition.
     **/
     CImg<T>& pow(const char *const expression) {
-      return pow((+*this)._fill(expression,true,3,0,"pow",this,0));
+      return pow((+*this)._fill(expression,true,3,(CImgList<T>*)0,"pow",this,(CImg<doubleT>*)0));
     }
 
     //! Raise each pixel value to a power, specified from an expression \newinstance.
@@ -31381,7 +31382,7 @@ namespace cimg_library {
        Similar to operator<<=(const char*), except that it performs a left rotation instead of a left shift.
     **/
     CImg<T>& rol(const char *const expression) {
-      return rol((+*this)._fill(expression,true,3,0,"rol",this,0));
+      return rol((+*this)._fill(expression,true,3,(CImgList<T>*)0,"rol",this,(CImg<doubleT>*)0));
     }
 
     //! Compute the bitwise left rotation of each pixel value \newinstance.
@@ -31433,7 +31434,7 @@ namespace cimg_library {
        Similar to operator>>=(const char*), except that it performs a right rotation instead of a right shift.
     **/
     CImg<T>& ror(const char *const expression) {
-      return ror((+*this)._fill(expression,true,3,0,"ror",this,0));
+      return ror((+*this)._fill(expression,true,3,(CImgList<T>*)0,"ror",this,(CImg<doubleT>*)0));
     }
 
     //! Compute the bitwise right rotation of each pixel value \newinstance.
@@ -31559,7 +31560,7 @@ namespace cimg_library {
        \f$\mathrm{min}(I_{(x,y,z,c)},\mathrm{expr}_{(x,y,z,c)})\f$.
     **/
     CImg<T>& min(const char *const expression) {
-      return min((+*this)._fill(expression,true,3,0,"min",this,0));
+      return min((+*this)._fill(expression,true,3,(CImgList<T>*)0,"min",this,(CImg<doubleT>*)0));
     }
 
     //! Pointwise min operator between an image and an expression \newinstance.
@@ -31617,7 +31618,7 @@ namespace cimg_library {
        \f$\mathrm{max}(I_{(x,y,z,c)},\mathrm{expr}_{(x,y,z,c)})\f$.
     **/
     CImg<T>& max(const char *const expression) {
-      return max((+*this)._fill(expression,true,3,0,"max",this,0));
+      return max((+*this)._fill(expression,true,3,(CImgList<T>*)0,"max",this,(CImg<doubleT>*)0));
     }
 
     //! Pointwise max operator between an image and an expression \newinstance.
@@ -31676,7 +31677,7 @@ namespace cimg_library {
        \f$\mathrm{minabs}(I_{(x,y,z,c)},\mathrm{expr}_{(x,y,z,c)})\f$.
     **/
     CImg<T>& minabs(const char *const expression) {
-      return minabs((+*this)._fill(expression,true,3,0,"minabs",this,0));
+      return minabs((+*this)._fill(expression,true,3,(CImgList<T>*)0,"minabs",this,(CImg<doubleT>*)0));
     }
 
     //! Pointwise minabs operator between an image and an expression \newinstance.
@@ -31735,7 +31736,7 @@ namespace cimg_library {
        \f$\mathrm{maxabs}(I_{(x,y,z,c)},\mathrm{expr}_{(x,y,z,c)})\f$.
     **/
     CImg<T>& maxabs(const char *const expression) {
-      return maxabs((+*this)._fill(expression,true,3,0,"maxabs",this,0));
+      return maxabs((+*this)._fill(expression,true,3,(CImgList<T>*)0,"maxabs",this,(CImg<doubleT>*)0));
     }
 
     //! Pointwise maxabs operator between an image and an expression \newinstance.
@@ -37386,9 +37387,9 @@ namespace cimg_library {
           R = (Y + 1.140f*V)*255,
           G = (Y - 0.395f*U - 0.581f*V)*255,
           B = (Y + 2.032f*U)*255;
-        p1[N] = (T)cimg::cut(R,0,255),
-        p2[N] = (T)cimg::cut(G,0,255),
-        p3[N] = (T)cimg::cut(B,0,255);
+        p1[N] = (T)cimg::cut(R,(Tfloat)0,(Tfloat)255),
+        p2[N] = (T)cimg::cut(G,(Tfloat)0,(Tfloat)255),
+        p3[N] = (T)cimg::cut(B,(Tfloat)0,(Tfloat)255);
       }
       return *this;
     }
@@ -37416,9 +37417,9 @@ namespace cimg_library {
           C = 255 - R,
           M = 255 - G,
           Y = 255 - B;
-        p1[N] = (T)cimg::cut(C,0,255),
-        p2[N] = (T)cimg::cut(M,0,255),
-        p3[N] = (T)cimg::cut(Y,0,255);
+        p1[N] = (T)cimg::cut(C,(Tfloat)0,(Tfloat)255),
+        p2[N] = (T)cimg::cut(M,(Tfloat)0,(Tfloat)255),
+        p3[N] = (T)cimg::cut(Y,(Tfloat)0,(Tfloat)255);
       }
       return *this;
     }
@@ -37446,9 +37447,9 @@ namespace cimg_library {
           R = 255 - C,
           G = 255 - M,
           B = 255 - Y;
-        p1[N] = (T)cimg::cut(R,0,255),
-        p2[N] = (T)cimg::cut(G,0,255),
-        p3[N] = (T)cimg::cut(B,0,255);
+        p1[N] = (T)cimg::cut(R,(Tfloat)0,(Tfloat)255),
+        p2[N] = (T)cimg::cut(G,(Tfloat)0,(Tfloat)255),
+        p3[N] = (T)cimg::cut(B,(Tfloat)0,(Tfloat)255);
       }
       return *this;
     }
@@ -37483,10 +37484,10 @@ namespace cimg_library {
           K = cimg::min(C,M,Y);
         if (K>=255) C = M = Y = 0;
         else { const Tfloat K1 = 255 - K; C = 255*(C - K)/K1; M = 255*(M - K)/K1; Y = 255*(Y - K)/K1; }
-        pd1[N] = (Tfloat)cimg::cut(C,0,255),
-        pd2[N] = (Tfloat)cimg::cut(M,0,255),
-        pd3[N] = (Tfloat)cimg::cut(Y,0,255),
-        pd4[N] = (Tfloat)cimg::cut(K,0,255);
+        pd1[N] = (Tfloat)cimg::cut(C,(Tfloat)0,(Tfloat)255),
+        pd2[N] = (Tfloat)cimg::cut(M,(Tfloat)0,(Tfloat)255),
+        pd3[N] = (Tfloat)cimg::cut(Y,(Tfloat)0,(Tfloat)255),
+        pd4[N] = (Tfloat)cimg::cut(K,(Tfloat)0,(Tfloat)255);
       }
       return res;
     }
@@ -37518,9 +37519,9 @@ namespace cimg_library {
           nC = C*K1 + K,
           nM = M*K1 + K,
           nY = Y*K1 + K;
-        pd1[N] = (Tfloat)cimg::cut(nC,0,255),
-        pd2[N] = (Tfloat)cimg::cut(nM,0,255),
-        pd3[N] = (Tfloat)cimg::cut(nY,0,255);
+        pd1[N] = (Tfloat)cimg::cut(nC,(Tfloat)0,(Tfloat)255),
+        pd2[N] = (Tfloat)cimg::cut(nM,(Tfloat)0,(Tfloat)255),
+        pd3[N] = (Tfloat)cimg::cut(nY,(Tfloat)0,(Tfloat)255);
       }
       return res;
     }
@@ -37580,13 +37581,13 @@ namespace cimg_library {
           Y = (Tfloat)p2[N]*255,
           Z = (Tfloat)p3[N]*255;
         if (use_D65) {
-          p1[N] = (T)cimg::cut(3.2404542*X - 1.5371385*Y - 0.4985314*Z,0,255);
-          p2[N] = (T)cimg::cut(-0.9692660*X + 1.8760108*Y + 0.0415560*Z,0,255);
-          p3[N] = (T)cimg::cut(0.0556434*X - 0.2040259*Y + 1.0572252*Z,0,255);
+          p1[N] = (T)cimg::cut(3.2404542*X - 1.5371385*Y - 0.4985314*Z,0.,255.);
+          p2[N] = (T)cimg::cut(-0.9692660*X + 1.8760108*Y + 0.0415560*Z,0.,255.);
+          p3[N] = (T)cimg::cut(0.0556434*X - 0.2040259*Y + 1.0572252*Z,0.,255.);
         } else {
-          p1[N] = (T)cimg::cut(3.134274799724*X  - 1.617275708956*Y - 0.490724283042*Z,0,255);
-          p2[N] = (T)cimg::cut(-0.978795575994*X + 1.916161689117*Y + 0.033453331711*Z,0,255);
-          p3[N] = (T)cimg::cut(0.071976988401*X - 0.228984974402*Y + 1.405718224383*Z,0,255);
+          p1[N] = (T)cimg::cut(3.134274799724*X  - 1.617275708956*Y - 0.490724283042*Z,0.,255.);
+          p2[N] = (T)cimg::cut(-0.978795575994*X + 1.916161689117*Y + 0.033453331711*Z,0.,255.);
+          p3[N] = (T)cimg::cut(0.071976988401*X - 0.228984974402*Y + 1.405718224383*Z,0.,255.);
         }
       }
       return *this;
@@ -37617,7 +37618,7 @@ namespace cimg_library {
           fX = (Tfloat)_cimg_Labf(X),
           fY = (Tfloat)_cimg_Labf(Y),
           fZ = (Tfloat)_cimg_Labf(Z);
-        p1[N] = (T)cimg::cut(116*fY - 16,0,100);
+        p1[N] = (T)cimg::cut(116*fY - 16,(Tfloat)0,(Tfloat)100);
         p2[N] = (T)(500*(fX - fY));
         p3[N] = (T)(200*(fY - fZ));
       }

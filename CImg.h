@@ -37136,7 +37136,7 @@ namespace cimg_library {
 
     //! Convert pixel values from HSI to RGB color spaces \newinstance.
     CImg<Tfloat> get_HSItoRGB() const {
-      return CImg< Tuchar>(*this,false).HSItoRGB();
+      return CImg<Tuchar>(*this,false).HSItoRGB();
     }
 
     //! Convert pixel values from RGB to HSL color spaces.
@@ -37396,7 +37396,7 @@ namespace cimg_library {
 
     //! Convert pixel values from YUV to RGB color spaces \newinstance.
     CImg<Tuchar> get_YUVtoRGB() const {
-      return CImg< Tuchar>(*this,false).YUVtoRGB();
+      return CImg<Tuchar>(*this,false).YUVtoRGB();
     }
 
     //! Convert pixel values from RGB to CMY color spaces.

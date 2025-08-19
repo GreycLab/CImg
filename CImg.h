@@ -56528,6 +56528,7 @@ namespace cimg_library {
                  !cimg::strcasecmp(ext,"srf")) load_dcraw_external(filename);
         else if (!cimg::strcasecmp(ext,"gif")) load_gif_external(filename);
         else if (!cimg::strcasecmp(ext,"heic") ||
+                 !cimg::strcasecmp(ext,"heif") ||
                  !cimg::strcasecmp(ext,"avif")) load_heif(filename);
         else if (!cimg::strcasecmp(ext,"webp")) load_webp(filename);
         else if (!cimg::strcasecmp(ext,"jxl")) load_jxl(filename);
@@ -56601,6 +56602,7 @@ namespace cimg_library {
           else if (!cimg::strcasecmp(f_type,"png")) load_png(filename);
           else if (!cimg::strcasecmp(f_type,"tif")) load_tiff(filename);
           else if (!cimg::strcasecmp(f_type,"gif")) load_gif_external(filename);
+          else if (!cimg::strcasecmp(f_type,"heif")) load_heif(filename);
           else if (!cimg::strcasecmp(f_type,"dcm")) load_medcon_external(filename);
           else if (!cimg::strcasecmp(f_type,"webp")) load_webp(filename);
           else if (!cimg::strcasecmp(f_type,"jxl")) load_jxl(filename);
@@ -69995,6 +69997,7 @@ namespace cimg_library {
         *const _cr2 = "cr2",
         *const _dcm = "dcm",
         *const _gif = "gif",
+        *const _heif = "heif",
         *const _inr = "inr",
         *const _jpg = "jpg",
         *const _off = "off",
@@ -70045,6 +70048,11 @@ namespace cimg_library {
                   uheader[4]==0x4A && uheader[5]==0x58 && uheader[6]==0x4C && uheader[7]==0x20 &&
                   uheader[8]==0x0D && uheader[9]==0x0A && uheader[10]==0x87 && uheader[11]==0x0A)) // JPEG XL
           f_type = _jxl;
+        else if ((uheader[0]==0x00 && uheader[1]==0x00 && uheader[2]==0x00 && uheader[3]==0x1C &&
+                  uheader[4]==0x66 && uheader[5]==0x74 && uheader[6]==0x79 && uheader[7]==0x70) &&
+                 ((uheader[8]==0x68 && uheader[9]==0x65 && uheader[10]==0x69 && uheader[11]==0x63) ||
+                  (uheader[8]==0x61 && uheader[9]==0x76 && uheader[10]==0x69 && uheader[11]==0x66))) // HEIF
+          f_type = _heif;
         else { // PNM or PFM
           CImgList<char> _header = header.get_split(CImg<char>::vector('\n'),0,false);
           cimglist_for(_header,l) {

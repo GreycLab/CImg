@@ -46030,14 +46030,14 @@ namespace cimg_library {
           } else U.assign(I._width,I._height,I._depth,spectrum_U,0);
         }
 
-        float dt = 2, energy = cimg::type<float>::max();
+        float dt = 0.25, energy = cimg::type<float>::max();
         const CImgList<Tfloat> grad = is_forward?I.get_gradient():R.get_gradient();
         cimg_abort_init;
 
         for (unsigned int iteration = 0; iteration<iteration_max; ++iteration) {
           cimg_abort_test;
           float _energy = 0;
-          CImg<floatT> nU(U._width,U._height,U._depth,U._spectrum);
+          CImg<floatT> V(U._width,U._height,U._depth,U._spectrum);
 
           if (is_3d) { // 3D version
             cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
@@ -46066,53 +46066,57 @@ namespace cimg_library {
                 }
                 if (smoothness>=0) cimg_forC(U,c) { // Isotropic regularization
                     const float
-                      Ux = 0.5f*(U(_n1x,y,z,c) - U(_p1x,y,z,c)),
-                      Uy = 0.5f*(U(x,_n1y,z,c) - U(x,_p1y,z,c)),
-                      Uz = 0.5f*(U(x,y,_n1z,c) - U(x,y,_p1z,c)),
-                      Uxx = U(_n1x,y,z,c) + U(_p1x,y,z,c),
-                      Uyy = U(x,_n1y,z,c) + U(x,_p1y,z,c),
-                      Uzz = U(x,y,_n1z,c) + U(x,y,_p1z,c),
+                      uccc = U(x,y,z,c),
+                      upcc = U(_p1x,y,z,c), uncc = U(_n1x,y,z,c),
+                      ucpc = U(x,_p1y,z,c), ucnc = U(x,_n1y,z,c),
+                      uccp = U(x,y,_p1z,c), uccn = U(x,y,_n1z,c),
+                      ux = 0.5f*(uncc - upcc), uy = 0.5f*(ucnc - ucpc), uz = 0.5f*(uccn - uccp),
+                      regul_u = uncc + upcc + ucnc + ucpc + uccn + uccp - 6*uccc,
                       veloc = c==0?veloc_u:c==1?veloc_v:veloc_w;
-                    nU(x,y,z,c) = (U(x,y,z,c) + dt*(veloc + smoothness*(Uxx + Uyy + Uzz)))/
-                      (1 + 6*smoothness*dt);
-                    _energy_regul+=Ux*Ux + Uy*Uy + Uz*Uz;
-                  } else cimg_forC(U,c) { // Anisotropic regularization
+                    V(x,y,z,c) = veloc + smoothness*regul_u;
+                    _energy_regul+=ux*ux + uy*uy + uz*uz;
+
+                  } else cimg_forC(U,c) { // TV regularization
+                    CImg_3x3x3(u,float);
+                    cimg_get3x3x3(U,x,y,z,c,u,float);
                     const float
-                      Ux = 0.5f*(U(_n1x,y,z,c) - U(_p1x,y,z,c)),
-                      Uy = 0.5f*(U(x,_n1y,z,c) - U(x,_p1y,z,c)),
-                      Uz = 0.5f*(U(x,y,_n1z,c) - U(x,y,_p1z,c)),
-                      N2 = Ux*Ux + Uy*Uy + Uz*Uz,
+                      ux = 0.5f*(uncc - upcc), uy = 0.5f*(ucnc - ucpc), uz = 0.5f*(uccn - uccp),
+                      N2 = ux*ux + uy*uy + uz*uz,
                       N = std::sqrt(N2),
                       N3 = 1e-5f + N2*N,
-                      coef_a = (1 - Ux*Ux/N2)/N,
-                      coef_b = -2*Ux*Uy/N3,
-                      coef_c = -2*Ux*Uz/N3,
-                      coef_d = (1 - Uy*Uy/N2)/N,
-                      coef_e = -2*Uy*Uz/N3,
-                      coef_f = (1 - Uz*Uz/N2)/N,
-                      Uxx = U(_n1x,y,z,c) + U(_p1x,y,z,c),
-                      Uyy = U(x,_n1y,z,c) + U(x,_p1y,z,c),
-                      Uzz = U(x,y,_n1z,c) + U(x,y,_p1z,c),
-                      Uxy = 0.25f*(U(_n1x,_n1y,z,c) + U(_p1x,_p1y,z,c) - U(_n1x,_p1y,z,c) - U(_n1x,_p1y,z,c)),
-                      Uxz = 0.25f*(U(_n1x,y,_n1z,c) + U(_p1x,y,_p1z,c) - U(_n1x,y,_p1z,c) - U(_n1x,y,_p1z,c)),
-                      Uyz = 0.25f*(U(x,_n1y,_n1z,c) + U(x,_p1y,_p1z,c) - U(x,_n1y,_p1z,c) - U(x,_n1y,_p1z,c)),
+                      coef_a = (1 - ux*ux/N2)/N,
+                      coef_b = -2*ux*uy/N3,
+                      coef_c = -2*ux*uz/N3,
+                      coef_d = (1 - uy*uy/N2)/N,
+                      coef_e = -2*uy*uz/N3,
+                      coef_f = (1 - uz*uz/N2)/N,
+                      uxx = uncc + upcc - 2*uccc,
+                      uyy = ucnc + ucpc - 2*uccc,
+                      uzz = uccn + uccp - 2*uccc,
+                      uxy = 0.25f*(unnc + uppc - unpc - upnc),
+                      uxz = 0.25f*(uncn + upcp - uncp - upcn),
+                      uyz = 0.25f*(ucnn + ucpp - ucnp - ucpn),
+                      regul_u = coef_a*uxx + coef_b*uxy + coef_c*uxz + coef_d*uyy + coef_e*uyz + coef_f*uzz,
                       veloc = c==0?veloc_u:c==1?veloc_v:veloc_w;
-                    nU(x,y,z,c) = (U(x,y,z,c) + dt*(veloc + abs_smoothness*(coef_a*Uxx + coef_b*Uxy +
-                                                                            coef_c*Uxz + coef_d*Uyy +
-                                                                            coef_e*Uyz + coef_f*Uzz)))/
-                      (1 + 2*(coef_a + coef_d + coef_f)*abs_smoothness*dt);
+                    V(x,y,z,c) = veloc + abs_smoothness*regul_u;
                     _energy_regul+=N;
                   }
                 if (not_constrained) _energy+=_energy_data + abs_smoothness*_energy_regul;
               }
             }
+
+            // Update displacement field.
+            float Vmin,Vmax = V.max_min(Vmin);
+            const float _dt = dt/std::max(cimg::abs(Vmin),cimg::abs(Vmax));
+            cimg_openmp_for(U,*ptr + _dt*V[ptr - U._data],32768);
+
             if (C) // Apply constraints
               cimg_forXYZ(C,x,y,z) {
                 const float m = C(x,y,z,3), om = 1 - m;
                 if (m>1e-5f) {
-                  nU(x,y,z,0) = m*C(x,y,z,0) + om*nU(x,y,z,0);
-                  nU(x,y,z,1) = m*C(x,y,z,1) + om*nU(x,y,z,1);
-                  nU(x,y,z,2) = m*C(x,y,z,2) + om*nU(x,y,z,2);
+                  U(x,y,z,0) = m*C(x,y,z,0) + om*U(x,y,z,0);
+                  U(x,y,z,1) = m*C(x,y,z,1) + om*U(x,y,z,1);
+                  U(x,y,z,2) = m*C(x,y,z,2) + om*U(x,y,z,2);
                 }
               }
 
@@ -46136,41 +46140,48 @@ namespace cimg_library {
                 }
                 if (smoothness>=0) cimg_forC(U,c) { // Isotropic regularization
                     const float
-                      Ux = 0.5f*(U(_n1x,y,c) - U(_p1x,y,c)),
-                      Uy = 0.5f*(U(x,_n1y,c) - U(x,_p1y,c)),
-                      Uxx = U(_n1x,y,c) + U(_p1x,y,c),
-                      Uyy = U(x,_n1y,c) + U(x,_p1y,c),
+                      ucc = U(x,y,c),
+                      upc = U(_p1x,y,c), unc = U(_n1x,y,c),
+                      ucp = U(x,_p1y,c), ucn = U(x,_n1y,c),
+                      ux = 0.5f*(unc - upc), uy = 0.5f*(ucn - ucp),
+                      regul_u = unc + upc + ucn + ucp - 4*ucc,
                       veloc = c==0?veloc_u:veloc_v;
-                    nU(x,y,c) = (U(x,y,c) + dt*(veloc + smoothness*(Uxx + Uyy)))/
-                      (1 + 4*smoothness*dt);
-                    _energy_regul+=Ux*Ux + Uy*Uy;
-                  } else cimg_forC(U,c) { // Anisotropic regularization
+                    V(x,y,c) = veloc + smoothness*regul_u;
+                    _energy_regul+=ux*ux + uy*uy;
+                  } else cimg_forC(U,c) { // TV regularization
+                    CImg_3x3(u,float);
+                    cimg_get3x3(U,x,y,0,c,u,float);
                     const float
-                      Ux = 0.5f*(U(_n1x,y,c) - U(_p1x,y,c)),
-                      Uy = 0.5f*(U(x,_n1y,c) - U(x,_p1y,c)),
-                      N2 = Ux*Ux + Uy*Uy,
+                      ux = 0.5f*(unc - upc), uy = 0.5f*(ucn - ucp),
+                      N2 = ux*ux + uy*uy,
                       N = std::sqrt(N2),
                       N3 = 1e-5f + N2*N,
-                      coef_a = Uy*Uy/N3,
-                      coef_b = -2*Ux*Uy/N3,
-                      coef_c = Ux*Ux/N3,
-                      Uxx = U(_n1x,y,c) + U(_p1x,y,c),
-                      Uyy = U(x,_n1y,c) + U(x,_p1y,c),
-                      Uxy = 0.25f*(U(_n1x,_n1y,c) + U(_p1x,_p1y,c) - U(_n1x,_p1y,c) - U(_n1x,_p1y,c)),
+                      coef_a = uy*uy/N3,
+                      coef_b = -2*ux*uy/N3,
+                      coef_c = ux*ux/N3,
+                      uxx = unc + upc - 2*ucc,
+                      uyy = ucn + ucp - 2*ucc,
+                      uxy = 0.25f*(unn + upp - unp - upn),
+                      regul_u = coef_a*uxx + coef_b*uxy + coef_c*uyy,
                       veloc = c==0?veloc_u:veloc_v;
-                    nU(x,y,c) = (U(x,y,c) + dt*(veloc + abs_smoothness*( coef_a*Uxx + coef_b*Uxy + coef_c*Uyy )))/
-                      (1 + 2*(coef_a + coef_c)*abs_smoothness*dt);
+                    V(x,y,c) = veloc + smoothness*regul_u;
                     _energy_regul+=N;
                   }
                 if (not_constrained) _energy+=_energy_data + abs_smoothness*_energy_regul;
               }
             }
+
+            // Update displacement field.
+            float Vmin,Vmax = V.max_min(Vmin);
+            const float _dt = dt/std::max(cimg::abs(Vmin),cimg::abs(Vmax));
+            cimg_openmp_for(U,*ptr + _dt*V[ptr - U._data],32768);
+
             if (C) // Apply constraints
               cimg_forXY(C,x,y) {
                 const float m = C(x,y,2), om = 1 - m;
                 if (m>1e-5f) {
-                  nU(x,y,0) = m*C(x,y,0) + om*nU(x,y,0);
-                  nU(x,y,1) = m*C(x,y,1) + om*nU(x,y,1);
+                  U(x,y,0) = m*C(x,y,0) + om*U(x,y,0);
+                  U(x,y,1) = m*C(x,y,1) + om*U(x,y,1);
                 }
               }
           }
@@ -46179,7 +46190,6 @@ namespace cimg_library {
           if (d_energy<=0 && -d_energy<_precision) break;
           if (d_energy>0) dt*=0.5f;
           energy = _energy;
-          U.swap(nU);
         }
       }
       return U;

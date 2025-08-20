@@ -45990,9 +45990,6 @@ namespace cimg_library {
         min_siz = is_3d?cimg::min(_width,_height,_depth):std::min(_width,_height),
         _nb_scales = nb_scales>0?nb_scales:(unsigned int)cimg::round(std::log(min_siz)/std::log(scale_factor)) - 1;
 
-      float sm, sM = reference.max_min(sm), im, iM = max_min(im);
-      const float sdelta = sm==sM?1:(sM - sm), idelta = im==iM?1:(iM - im);
-
       CImg<floatT> U, C;  // U: vector field, C: constraints field (at current scale)
       for (int scale = (int)_nb_scales - 1; scale>=0; --scale) {
         const float fact = (float)std::pow(scale_factor,(double)scale);
@@ -46008,8 +46005,8 @@ namespace cimg_library {
           sigma_end = 0.5f,
           sigma = sigma_start*(1 - t) + sigma_end*t;
         const CImg<Tfloat>
-          R = ((reference.get_resize(sw,sh,sd,-100,2)-=sm)/=sdelta).blur(sigma).normalize(0,1),
-          I = ((get_resize(R,2)-=im)/=idelta).blur(sigma).normalize(0,1);
+          R = reference.get_resize(sw,sh,sd,-100,2).blur(sigma).normalize(0,1),
+          I = get_resize(R,2).blur(sigma).normalize(0,1);
 
         if (guide._spectrum>spectrum_U) { // Guide has constraints
           guide.get_resize(I._width,I._height,I._depth,-100,2).move_to(C);

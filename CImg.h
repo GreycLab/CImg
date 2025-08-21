@@ -46065,7 +46065,12 @@ namespace cimg_library {
                   veloc_w+=delta*grad[2].linear_atXYZ(X,Y,Z,c,0);
                   _energy_data+=delta*delta;
                 }
-                if (smoothness>=0) cimg_forC(U,c) { // Isotropic regularization
+
+                if (smoothness==0) { // No regularization
+                  V(x,y,z,0) = veloc_u;
+                  V(x,y,z,1) = veloc_v;
+                  V(x,y,z,2) = veloc_w;
+                } else if (smoothness>=0) cimg_forC(U,c) { // Isotropic regularization
                     const float
                       uccc = U(x,y,z,c),
                       upcc = U(_p1x,y,z,c), uncc = U(_n1x,y,z,c),
@@ -46139,7 +46144,11 @@ namespace cimg_library {
                   veloc_v+=delta*grad[1].linear_atXY(X,Y,0,c,0);
                   _energy_data+=delta*delta;
                 }
-                if (smoothness>=0) cimg_forC(U,c) { // Isotropic regularization
+
+                if (smoothness==0) { // No regularization
+                  V(x,y,0) = veloc_u;
+                  V(x,y,1) = veloc_v;
+                } else if (smoothness>=0) cimg_forC(U,c) { // Isotropic regularization
                     const float
                       ucc = U(x,y,c),
                       upc = U(_p1x,y,c), unc = U(_n1x,y,c),
@@ -46186,7 +46195,6 @@ namespace cimg_library {
                 }
               }
           }
-
           const float d_energy = (_energy - energy)/(I._width*I._height*I._depth);
           if (d_energy<=0 && -d_energy<__precision) break;
           if (d_energy>0) dt*=0.5f;

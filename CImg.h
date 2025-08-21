@@ -46012,21 +46012,6 @@ namespace cimg_library {
           R = reference.get_resize(sw,sh,sd,-100,2).blur(sigma).normalize(0,1),
           I = get_resize(R,2).blur(sigma).normalize(0,1);
 
-/*
-        float rm,im;
-        const float
-          rM = R.max_min(rm),
-          iM = max_min(im),
-          vm = std::min(rm,im),
-          vM = std::max(rM,iM),
-          _value_range = vM - vm,
-          value_range = _value_range<1e-5?1:_value_range;
-        (R-=vm)/=value_range;
-        (I-=vm)/=value_range;
-        R.normalize(0,1);
-        I.normalize(0,1);
-*/
-
         if (guide._spectrum>spectrum_U) { // Guide has constraints
           guide.get_resize(I._width,I._height,I._depth,-100,2).move_to(C);
           C.get_shared_channels(0,spectrum_U - 1)/=fact;

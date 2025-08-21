@@ -46031,14 +46031,15 @@ namespace cimg_library {
           } else U.assign(I._width,I._height,I._depth,spectrum_U,0);
         }
 
-        float dt = 0.25, energy = cimg::type<float>::max();
+        float dt = 0.25;
+        double energy = cimg::type<float>::max();
         const CImgList<Tfloat> grad = is_forward?I.get_gradient():R.get_gradient();
         cimg_abort_init;
 
         const unsigned int _iteration_max = (unsigned int)(iteration_max*fact);
         for (unsigned int iteration = 0; iteration<_iteration_max; ++iteration) {
           cimg_abort_test;
-          float _energy = 0;
+          double _energy = 0;
           CImg<floatT> V(U._width,U._height,U._depth,U._spectrum);
 
           if (is_3d) { // 3D version
@@ -46057,7 +46058,8 @@ namespace cimg_library {
                   Z = is_forward?z + U(x,y,z,2):z - U(x,y,z,2);
                 const bool not_constrained = C?C(x,y,z,3)==0:true;
 
-                float veloc_u = 0, veloc_v = 0, veloc_w = 0, _energy_data = 0, _energy_regul = 0;
+                float veloc_u = 0, veloc_v = 0, veloc_w = 0;
+                double _energy_data = 0, _energy_regul = 0;
                 cimg_forC(I,c) {
                   const float delta = (float)(is_forward?R(x,y,z,c) - I._linear_atXYZ(X,Y,Z,c):
                                               R._linear_atXYZ(X,Y,Z,c) - I(x,y,z,c));
@@ -46137,7 +46139,8 @@ namespace cimg_library {
                   X = is_forward?x + U(x,y,0):x - U(x,y,0),
                   Y = is_forward?y + U(x,y,1):y - U(x,y,1);
                 const bool not_constrained = C?C(x,y,2)==0:true;
-                float veloc_u = 0, veloc_v = 0, _energy_data = 0, _energy_regul = 0;
+                float veloc_u = 0, veloc_v = 0;
+                double _energy_data = 0, _energy_regul = 0;
                 cimg_forC(I,c) {
                   const float delta = (float)(is_forward?R(x,y,c) - I._linear_atXY(X,Y,0,c):
                                               R._linear_atXY(X,Y,0,c) - I(x,y,c));
@@ -46196,7 +46199,8 @@ namespace cimg_library {
                 }
               }
           }
-          const float d_energy = (_energy - energy)/(I._width*I._height*I._depth);
+
+          const double d_energy = (_energy - energy)/(I._width*I._height*I._depth);
           if (d_energy<=0 && -d_energy<__precision) break;
           if (d_energy>0) { dt*=0.5f; --iteration; }
           energy = _energy;

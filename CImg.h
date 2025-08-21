@@ -46077,9 +46077,9 @@ namespace cimg_library {
                       ucpc = U(x,_p1y,z,c), ucnc = U(x,_n1y,z,c),
                       uccp = U(x,y,_p1z,c), uccn = U(x,y,_n1z,c),
                       ux = 0.5f*(uncc - upcc), uy = 0.5f*(ucnc - ucpc), uz = 0.5f*(uccn - uccp),
-                      regul_u = uncc + upcc + ucnc + ucpc + uccn + uccp - 6*uccc,
+                      regul = uncc + upcc + ucnc + ucpc + uccn + uccp - 6*uccc,
                       veloc = c==0?veloc_u:c==1?veloc_v:veloc_w;
-                    V(x,y,z,c) = veloc + smoothness*regul_u;
+                    V(x,y,z,c) = veloc + smoothness*regul;
                     _energy_regul+=ux*ux + uy*uy + uz*uz;
 
                   } else cimg_forC(U,c) { // TV regularization
@@ -46102,9 +46102,9 @@ namespace cimg_library {
                       uxy = 0.25f*(unnc + uppc - unpc - upnc),
                       uxz = 0.25f*(uncn + upcp - uncp - upcn),
                       uyz = 0.25f*(ucnn + ucpp - ucnp - ucpn),
-                      regul_u = coef_a*uxx + coef_b*uxy + coef_c*uxz + coef_d*uyy + coef_e*uyz + coef_f*uzz,
+                      regul = coef_a*uxx + coef_b*uxy + coef_c*uxz + coef_d*uyy + coef_e*uyz + coef_f*uzz,
                       veloc = c==0?veloc_u:c==1?veloc_v:veloc_w;
-                    V(x,y,z,c) = veloc + abs_smoothness*regul_u;
+                    V(x,y,z,c) = veloc + abs_smoothness*regul;
                     _energy_regul+=N;
                   }
                 if (not_constrained) _energy+=_energy_data + abs_smoothness*_energy_regul;
@@ -46138,8 +46138,8 @@ namespace cimg_library {
                 const bool not_constrained = C?C(x,y,2)==0:true;
                 float veloc_u = 0, veloc_v = 0, _energy_data = 0, _energy_regul = 0;
                 cimg_forC(I,c) {
-                  const float delta = (float)(is_forward?R(x,y,c) - I._linear_atXY(X,Y,c):
-                                              R._linear_atXY(X,Y,c) - I(x,y,c));
+                  const float delta = (float)(is_forward?R(x,y,c) - I._linear_atXY(X,Y,0,c):
+                                              R._linear_atXY(X,Y,0,c) - I(x,y,c));
                   veloc_u+=delta*grad[0].linear_atXY(X,Y,0,c,0);
                   veloc_v+=delta*grad[1].linear_atXY(X,Y,0,c,0);
                   _energy_data+=delta*delta;
@@ -46154,9 +46154,9 @@ namespace cimg_library {
                       upc = U(_p1x,y,c), unc = U(_n1x,y,c),
                       ucp = U(x,_p1y,c), ucn = U(x,_n1y,c),
                       ux = 0.5f*(unc - upc), uy = 0.5f*(ucn - ucp),
-                      regul_u = unc + upc + ucn + ucp - 4*ucc,
+                      regul = unc + upc + ucn + ucp - 4*ucc,
                       veloc = c==0?veloc_u:veloc_v;
-                    V(x,y,c) = veloc + smoothness*regul_u;
+                    V(x,y,c) = veloc + smoothness*regul;
                     _energy_regul+=ux*ux + uy*uy;
                   } else cimg_forC(U,c) { // TV regularization
                     CImg_3x3(u,float);
@@ -46172,9 +46172,9 @@ namespace cimg_library {
                       uxx = unc + upc - 2*ucc,
                       uyy = ucn + ucp - 2*ucc,
                       uxy = 0.25f*(unn + upp - unp - upn),
-                      regul_u = coef_a*uxx + coef_b*uxy + coef_c*uyy,
+                      regul = coef_a*uxx + coef_b*uxy + coef_c*uyy,
                       veloc = c==0?veloc_u:veloc_v;
-                    V(x,y,c) = veloc + smoothness*regul_u;
+                    V(x,y,c) = veloc + smoothness*regul;
                     _energy_regul+=N;
                   }
                 if (not_constrained) _energy+=_energy_data + abs_smoothness*_energy_regul;

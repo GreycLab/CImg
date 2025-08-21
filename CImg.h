@@ -45943,7 +45943,7 @@ namespace cimg_library {
        'guide' may have a last channel with boolean values (0=false | other=true) that
        tells for each pixel if its correspondence vector is constrained to its initial value (constraint mask).
     **/
-    CImg<T>& displacement(const CImg<T>& reference, const float smoothness=0.1f, const float precision=5.f,
+    CImg<T>& displacement(const CImg<T>& reference, const float smoothness=0.1f, const float precision=7.f,
                           const unsigned int nb_scales=0, const unsigned int iteration_max=10000,
                           const bool is_forward=false,
                           const CImg<floatT>& guide=CImg<floatT>::const_empty()) {
@@ -45953,7 +45953,7 @@ namespace cimg_library {
 
     //! Estimate displacement field between two images \newinstance.
     CImg<floatT> get_displacement(const CImg<T>& reference,
-                                  const float smoothness=0.1f, const float precision=5.f,
+                                  const float smoothness=0.1f, const float precision=7.f,
                                   const unsigned int nb_scales=0, const unsigned int iteration_max=1000,
                                   const bool is_forward=false,
                                   const CImg<floatT>& guide=CImg<floatT>::const_empty()) const {
@@ -45992,7 +45992,8 @@ namespace cimg_library {
 
       CImg<floatT> U, C;  // U: vector field, C: constraints field (at current scale)
       for (int scale = (int)_nb_scales - 1; scale>=0; --scale) {
-        const float fact = (float)std::pow(scale_factor,(double)scale);
+        const float
+          fact = (float)std::pow(scale_factor,(double)scale);
         const unsigned int
           sw = std::max(1U,(unsigned int)cimg::round(_width/fact)),
           sh = std::max(1U,(unsigned int)cimg::round(_height/fact)),
@@ -46001,9 +46002,12 @@ namespace cimg_library {
 
         const float
           t = (_nb_scales - 1 - scale)/(_nb_scales - 1.0f),
+          omt = 1 - t,
           sigma_start = 1.25f,
           sigma_end = 0.5f,
-          sigma = sigma_start*(1 - t) + sigma_end*t;
+          sigma = sigma_start*omt + sigma_end*t,
+          __precision = _precision/fact;
+
         const CImg<Tfloat>
           R = reference.get_resize(sw,sh,sd,-100,2).blur(sigma).normalize(0,1),
           I = get_resize(R,2).blur(sigma).normalize(0,1);
@@ -46184,7 +46188,7 @@ namespace cimg_library {
           }
 
           const float d_energy = (_energy - energy)/(I._width*I._height*I._depth);
-          if (d_energy<=0 && -d_energy<_precision) break;
+          if (d_energy<=0 && -d_energy<__precision) break;
           if (d_energy>0) dt*=0.5f;
           energy = _energy;
         }

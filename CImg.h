@@ -45944,7 +45944,7 @@ namespace cimg_library {
        tells for each pixel if its correspondence vector is constrained to its initial value (constraint mask).
     **/
     CImg<T>& displacement(const CImg<T>& reference, const float smoothness=0.1f, const float precision=7.f,
-                          const unsigned int nb_scales=0, const unsigned int iteration_max=10000,
+                          const unsigned int nb_scales=0, const unsigned int iteration_max=1000,
                           const bool is_forward=false,
                           const CImg<floatT>& guide=CImg<floatT>::const_empty()) {
       return get_displacement(reference,smoothness,precision,nb_scales,iteration_max,is_forward,guide).
@@ -46008,9 +46008,24 @@ namespace cimg_library {
           sigma = sigma_start*omt + sigma_end*t,
           __precision = _precision/fact;
 
-        const CImg<Tfloat>
+        CImg<Tfloat>
           R = reference.get_resize(sw,sh,sd,-100,2).blur(sigma).normalize(0,1),
           I = get_resize(R,2).blur(sigma).normalize(0,1);
+
+/*
+        float rm,im;
+        const float
+          rM = R.max_min(rm),
+          iM = max_min(im),
+          vm = std::min(rm,im),
+          vM = std::max(rM,iM),
+          _value_range = vM - vm,
+          value_range = _value_range<1e-5?1:_value_range;
+        (R-=vm)/=value_range;
+        (I-=vm)/=value_range;
+        R.normalize(0,1);
+        I.normalize(0,1);
+*/
 
         if (guide._spectrum>spectrum_U) { // Guide has constraints
           guide.get_resize(I._width,I._height,I._depth,-100,2).move_to(C);
@@ -46035,7 +46050,8 @@ namespace cimg_library {
         const CImgList<Tfloat> grad = is_forward?I.get_gradient():R.get_gradient();
         cimg_abort_init;
 
-        for (unsigned int iteration = 0; iteration<iteration_max; ++iteration) {
+        const unsigned int _iteration_max = (unsigned int)(iteration_max*fact);
+        for (unsigned int iteration = 0; iteration<_iteration_max; ++iteration) {
           cimg_abort_test;
           float _energy = 0;
           CImg<floatT> V(U._width,U._height,U._depth,U._spectrum);
@@ -46197,7 +46213,7 @@ namespace cimg_library {
           }
           const float d_energy = (_energy - energy)/(I._width*I._height*I._depth);
           if (d_energy<=0 && -d_energy<__precision) break;
-          if (d_energy>0) dt*=0.5f;
+          if (d_energy>0) { dt*=0.5f; --iteration; }
           energy = _energy;
         }
       }

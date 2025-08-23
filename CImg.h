@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 360
+#define cimg_version 361
 
 /*-----------------------------------------------------------
  #
@@ -2507,9 +2507,9 @@ namespace cimg_library {
 
 #if cimg_OS==2
 // Disable parallelization of simple loops on Windows, due to noticed performance drop.
-#define cimg_openmp_for(instance,expr,min_size) cimg_rof((instance),ptr,T) *ptr = (T)(expr);
+#define cimg_openmp_for(instance,expr,min_size,T) cimg_rof((instance),ptr,T) *ptr = (T)(expr);
 #else
-#define cimg_openmp_for(instance,expr,min_size) \
+#define cimg_openmp_for(instance,expr,min_size,T) \
     cimg_pragma_openmp(parallel for cimg_openmp_if_size((instance).size(),min_size)) \
     cimg_rof((instance),ptr,T) *ptr = (T)(expr);
 #endif
@@ -14158,7 +14158,7 @@ namespace cimg_library {
     template<typename t>
     CImg<T>& operator+=(const t value) {
       if (is_empty()) return *this;
-      cimg_openmp_for(*this,*ptr + value,524288);
+      cimg_openmp_for(*this,*ptr + value,524288,T);
       return *this;
     }
 
@@ -14217,7 +14217,7 @@ namespace cimg_library {
      **/
     CImg<T>& operator++() {
       if (is_empty()) return *this;
-      cimg_openmp_for(*this,*ptr + 1,524288);
+      cimg_openmp_for(*this,*ptr + 1,524288,T);
       return *this;
     }
 
@@ -14283,7 +14283,7 @@ namespace cimg_library {
     template<typename t>
     CImg<T>& operator-=(const t value) {
       if (is_empty()) return *this;
-      cimg_openmp_for(*this,*ptr - value,524288);
+      cimg_openmp_for(*this,*ptr - value,524288,T);
       return *this;
     }
 
@@ -14319,7 +14319,7 @@ namespace cimg_library {
     **/
     CImg<T>& operator--() {
       if (is_empty()) return *this;
-      cimg_openmp_for(*this,*ptr - 1,524288);
+      cimg_openmp_for(*this,*ptr - 1,524288,T);
       return *this;
     }
 
@@ -14387,7 +14387,7 @@ namespace cimg_library {
     template<typename t>
     CImg<T>& operator*=(const t value) {
       if (is_empty()) return *this;
-      cimg_openmp_for(*this,*ptr * value,262144);
+      cimg_openmp_for(*this,*ptr * value,262144,T);
       return *this;
     }
 
@@ -14652,7 +14652,7 @@ namespace cimg_library {
     template<typename t>
     CImg<T>& operator/=(const t value) {
       if (is_empty()) return *this;
-      cimg_openmp_for(*this,*ptr / value,32768);
+      cimg_openmp_for(*this,*ptr / value,32768,T);
       return *this;
     }
 
@@ -14716,7 +14716,7 @@ namespace cimg_library {
     template<typename t>
     CImg<T>& operator%=(const t value) {
       if (is_empty()) return *this;
-      cimg_openmp_for(*this,cimg::mod(*ptr,(T)value),16384);
+      cimg_openmp_for(*this,cimg::mod(*ptr,(T)value),16384,T);
       return *this;
     }
 
@@ -14782,7 +14782,7 @@ namespace cimg_library {
     template<typename t>
     CImg<T>& operator&=(const t value) {
       if (is_empty()) return *this;
-      cimg_openmp_for(*this,(longT)*ptr & (longT)value,32768);
+      cimg_openmp_for(*this,(longT)*ptr & (longT)value,32768,T);
       return *this;
     }
 
@@ -14848,7 +14848,7 @@ namespace cimg_library {
     template<typename t>
     CImg<T>& operator|=(const t value) {
       if (is_empty()) return *this;
-      cimg_openmp_for(*this,(longT)*ptr | (longT)value,32768);
+      cimg_openmp_for(*this,(longT)*ptr | (longT)value,32768,T);
       return *this;
     }
 
@@ -14916,7 +14916,7 @@ namespace cimg_library {
     template<typename t>
     CImg<T>& operator^=(const t value) {
       if (is_empty()) return *this;
-      cimg_openmp_for(*this,(longT)*ptr ^ (longT)value,32768);
+      cimg_openmp_for(*this,(longT)*ptr ^ (longT)value,32768,T);
       return *this;
     }
 
@@ -14986,7 +14986,7 @@ namespace cimg_library {
     template<typename t>
     CImg<T>& operator<<=(const t value) {
       if (is_empty()) return *this;
-      cimg_openmp_for(*this,((longT)*ptr) << (int)value,65536);
+      cimg_openmp_for(*this,((longT)*ptr) << (int)value,65536,T);
       return *this;
     }
 
@@ -15053,7 +15053,7 @@ namespace cimg_library {
     template<typename t>
     CImg<T>& operator>>=(const t value) {
       if (is_empty()) return *this;
-      cimg_openmp_for(*this,((longT)*ptr) >> (int)value,65536);
+      cimg_openmp_for(*this,((longT)*ptr) >> (int)value,65536,T);
       return *this;
     }
 
@@ -30948,7 +30948,7 @@ namespace cimg_library {
 #define _cimg_create_pointwise_functions(name,func,min_size) \
     CImg<T>& name() { \
       if (is_empty()) return *this; \
-      cimg_openmp_for(*this,func((typename cimg::superset<T,float>::type)*ptr),min_size); \
+      cimg_openmp_for(*this,func((typename cimg::superset<T,float>::type)*ptr),min_size,T); \
       return *this; \
     } \
     CImg<Tfloat> get_##name() const { \
@@ -31305,18 +31305,18 @@ namespace cimg_library {
     **/
     CImg<T>& pow(const double p) {
       if (is_empty()) return *this;
-      if (p==-4) { cimg_openmp_for(*this,1/(Tfloat)cimg::pow4(*ptr),32768); return *this; }
-      if (p==-3) { cimg_openmp_for(*this,1/(Tfloat)cimg::pow3(*ptr),32768); return *this; }
-      if (p==-2) { cimg_openmp_for(*this,1/(Tfloat)cimg::sqr(*ptr),32768); return *this; }
-      if (p==-1) { cimg_openmp_for(*this,1/(Tfloat)*ptr,32768); return *this; }
-      if (p==-0.5) { cimg_openmp_for(*this,1/std::sqrt((Tfloat)*ptr),8192); return *this; }
+      if (p==-4) { cimg_openmp_for(*this,1/(Tfloat)cimg::pow4(*ptr),32768,T); return *this; }
+      if (p==-3) { cimg_openmp_for(*this,1/(Tfloat)cimg::pow3(*ptr),32768,T); return *this; }
+      if (p==-2) { cimg_openmp_for(*this,1/(Tfloat)cimg::sqr(*ptr),32768,T); return *this; }
+      if (p==-1) { cimg_openmp_for(*this,1/(Tfloat)*ptr,32768,T); return *this; }
+      if (p==-0.5) { cimg_openmp_for(*this,1/std::sqrt((Tfloat)*ptr),8192,T); return *this; }
       if (p==0) return fill((T)1);
       if (p==0.5) return sqrt();
       if (p==1) return *this;
       if (p==2) return sqr();
-      if (p==3) { cimg_openmp_for(*this,cimg::pow3(*ptr),262144); return *this; }
-      if (p==4) { cimg_openmp_for(*this,cimg::pow4(*ptr),131072); return *this; }
-      cimg_openmp_for(*this,std::pow((Tfloat)*ptr,(Tfloat)p),1024);
+      if (p==3) { cimg_openmp_for(*this,cimg::pow3(*ptr),262144,T); return *this; }
+      if (p==4) { cimg_openmp_for(*this,cimg::pow4(*ptr),131072,T); return *this; }
+      cimg_openmp_for(*this,std::pow((Tfloat)*ptr,(Tfloat)p),1024,T);
       return *this;
     }
 
@@ -31368,7 +31368,7 @@ namespace cimg_library {
     **/
     CImg<T>& rol(const unsigned int n=1) {
       if (is_empty()) return *this;
-      cimg_openmp_for(*this,cimg::rol(*ptr,n),32768);
+      cimg_openmp_for(*this,cimg::rol(*ptr,n),32768,T);
       return *this;
     }
 
@@ -31420,7 +31420,7 @@ namespace cimg_library {
     **/
     CImg<T>& ror(const unsigned int n=1) {
       if (is_empty()) return *this;
-      cimg_openmp_for(*this,cimg::ror(*ptr,n),32768);
+      cimg_openmp_for(*this,cimg::ror(*ptr,n),32768,T);
       return *this;
     }
 
@@ -31518,7 +31518,7 @@ namespace cimg_library {
      **/
     CImg<T>& min(const T& value) {
       if (is_empty()) return *this;
-      cimg_openmp_for(*this,std::min(*ptr,value),65536);
+      cimg_openmp_for(*this,std::min(*ptr,value),65536,T);
       return *this;
     }
 
@@ -31576,7 +31576,7 @@ namespace cimg_library {
      **/
     CImg<T>& max(const T& value) {
       if (is_empty()) return *this;
-      cimg_openmp_for(*this,std::max(*ptr,value),65536);
+      cimg_openmp_for(*this,std::max(*ptr,value),65536,T);
       return *this;
     }
 
@@ -31635,7 +31635,7 @@ namespace cimg_library {
     CImg<T>& minabs(const T& value) {
       if (is_empty()) return *this;
       const T absvalue = cimg::abs(value);
-      cimg_openmp_for(*this,cimg::minabs(*ptr,value,absvalue),65536);
+      cimg_openmp_for(*this,cimg::minabs(*ptr,value,absvalue),65536,T);
       return *this;
     }
 
@@ -31694,7 +31694,7 @@ namespace cimg_library {
     CImg<T>& maxabs(const T& value) {
       if (is_empty()) return *this;
       const T absvalue = cimg::abs(value);
-      cimg_openmp_for(*this,cimg::maxabs(*ptr,value,absvalue),65536);
+      cimg_openmp_for(*this,cimg::maxabs(*ptr,value,absvalue),65536,T);
       return *this;
     }
 
@@ -35597,7 +35597,7 @@ namespace cimg_library {
        - \c 1: Forward.
     **/
     CImg<T>& round(const double y=1, const int rounding_type=0) {
-      if (y>0) cimg_openmp_for(*this,cimg::round(*ptr,y,rounding_type),8192);
+      if (y>0) cimg_openmp_for(*this,cimg::round(*ptr,y,rounding_type),8192,T);
       return *this;
     }
 
@@ -35916,7 +35916,7 @@ namespace cimg_library {
       const T
         a = min_value<max_value?min_value:max_value,
         b = min_value<max_value?max_value:min_value;
-      cimg_openmp_for(*this,cimg::cut(*ptr,a,b),32768);
+      cimg_openmp_for(*this,cimg::cut(*ptr,a,b),32768,T);
       return *this;
     }
 
@@ -35936,7 +35936,7 @@ namespace cimg_library {
       const T
         a = min_value<max_value?min_value:max_value,
         b = min_value<max_value?max_value:min_value;
-      cimg_openmp_for(*this,cimg::abscut(*ptr,a,b,offset),32768);
+      cimg_openmp_for(*this,cimg::abscut(*ptr,a,b,offset),32768,T);
       return *this;
     }
 
@@ -46117,7 +46117,7 @@ namespace cimg_library {
             // Update displacement field.
             float Vmin,Vmax = V.max_min(Vmin);
             const float _dt = dt/std::max(cimg::abs(Vmin),cimg::abs(Vmax));
-            cimg_openmp_for(U,*ptr + _dt*V[ptr - U._data],32768);
+            cimg_openmp_for(U,*ptr + _dt*V[ptr - U._data],32768,float);
 
             if (C) // Apply constraints
               cimg_forXYZ(C,x,y,z) {
@@ -46188,7 +46188,7 @@ namespace cimg_library {
             // Update displacement field.
             float Vmin,Vmax = V.max_min(Vmin);
             const float _dt = dt/std::max(cimg::abs(Vmin),cimg::abs(Vmax));
-            cimg_openmp_for(U,*ptr + _dt*V[ptr - U._data],32768);
+            cimg_openmp_for(U,*ptr + _dt*V[ptr - U._data],32768,float);
 
             if (C) // Apply constraints
               cimg_forXY(C,x,y) {

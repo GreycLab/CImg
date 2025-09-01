@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 361
+#define cimg_version 362
 
 /*-----------------------------------------------------------
  #
@@ -19525,7 +19525,7 @@ namespace cimg_library {
           }
 
         for (s = se2, ns = se1; s>ss; --s, --ns)
-          if (*s=='%' && *ns!='^' && level[s - expr._data]==clevel) { // Modulo ('%')
+          if (*s=='%' && *ns!='^' && *ps!='$' && level[s - expr._data]==clevel) { // Modulo ('%')
             _cimg_mp_op("Operator '%'");
             arg1 = compile(ss,s,depth1,0,block_flags);
             arg2 = compile(s + 1,se,depth1,0,block_flags);
@@ -19631,7 +19631,7 @@ namespace cimg_library {
       cimg_skip_iterative_operator_parsing :
 
         // Percentage computation.
-        if (*se1=='%') {
+        if (*se1=='%' && se2>ss && *se2!='$') {
           arg1 = compile(ss,se1,depth1,0,block_flags);
           arg2 = is_const_scalar(arg1)?0:const_scalar(100);
           if (is_vector(arg1)) _cimg_mp_vector2_vs(mp_div,arg1,arg2);

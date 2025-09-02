@@ -54395,16 +54395,18 @@ namespace cimg_library {
           const float
             fact0 = (zc - z0)/(z1 - z0), nfx0 = fx0 + fact0*(fx1 - fx0), nfy0 = fy0 + fact0*(fy1 - fy0),
             fact1 = (zc - z0)/(z2 - z0), nfx1 = fx0 + fact1*(fx2 - fx0), nfy1 = fy0 + fact1*(fy2 - fy0),
+            nbs0 = bs0 + fact0*(bs1 - bs0),
+            nbs1 = bs0 + fact1*(bs2 - bs0),
             nz0 = zc, nz1 = zc;
           const int
             nx0 = cimg::uiround(X + focale*nfx0/nz0), ny0 = cimg::uiround(Y + focale*nfy0/nz0),
-            nx1 = cimg::uiround(X + focale*nfx1/nz1), ny1 = cimg::uiround(Y + focale*nfy1/nz1),
-            nbs0 = bs0 + fact0*(bs1 - bs0),
-            nbs1 = bs0 + fact1*(bs2 - bs0);
+            nx1 = cimg::uiround(X + focale*nfx1/nz1), ny1 = cimg::uiround(Y + focale*nfy1/nz1);
           if (zbuffer) draw_triangle(zbuffer,nx0,ny0,nz0,x1,y1,z1,x2,y2,z2,color,nbs0,bs1,bs2,opacity).
                          draw_triangle(zbuffer,nx0,ny0,nz0,nx1,ny1,nz1,x2,y2,z2,color,nbs0,nbs1,bs2,opacity);
           else draw_triangle(nx0,ny0,x1,y1,x2,y2,color,nbs0,bs1,bs2,opacity).
                  draw_triangle(nx0,ny0,nx1,ny1,x2,y2,color,nbs0,nbs1,bs2,opacity);
+
+
           return *this;
         }
       }
@@ -54455,14 +54457,14 @@ namespace cimg_library {
           const float
             fact0 = (zc - z0)/(z1 - z0), nfx0 = fx0 + fact0*(fx1 - fx0), nfy0 = fy0 + fact0*(fy1 - fy0),
             fact1 = (zc - z0)/(z2 - z0), nfx1 = fx0 + fact1*(fx2 - fx0), nfy1 = fy0 + fact1*(fy2 - fy0),
+            nbs0 = bs0 + fact0*(bs1 - bs0),
+            nbs1 = bs0 + fact1*(bs2 - bs0),
             nz0 = zc, nz1 = zc;
           const int
             nx0 = cimg::uiround(X + focale*nfx0/z0), ny0 = cimg::uiround(Y + focale*nfy0/z0),
             nx1 = cimg::uiround(X + focale*nfx1/z1), ny1 = cimg::uiround(Y + focale*nfy1/z1),
             ntx0 = cimg::uiround(tx0 + fact0*(tx1 - tx0)), nty0 = cimg::uiround(ty0 + fact0*(ty1 - ty0)),
-            ntx1 = cimg::uiround(tx0 + fact1*(tx2 - tx0)), nty1 = cimg::uiround(ty0 + fact1*(ty2 - ty0)),
-            nbs0 = bs0 + fact0*(bs1 - bs0),
-            nbs1 = bs0 + fact1*(bs2 - bs0);
+            ntx1 = cimg::uiround(tx0 + fact1*(tx2 - tx0)), nty1 = cimg::uiround(ty0 + fact1*(ty2 - ty0));
           if (zbuffer) draw_triangle(zbuffer,nx0,ny0,nz0,x1,y1,z1,x2,y2,z2,texture,ntx0,nty0,tx1,ty1,tx2,ty2,
                                      nbs0,bs1,bs2,opacity).
                          draw_triangle(zbuffer,nx0,ny0,nz0,nx1,ny1,nz1,x2,y2,z2,texture,ntx0,nty0,ntx1,nty1,tx2,ty2,

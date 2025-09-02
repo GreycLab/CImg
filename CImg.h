@@ -19631,7 +19631,7 @@ namespace cimg_library {
       cimg_skip_iterative_operator_parsing :
 
         // Percentage computation.
-        if (*se1=='%' && se2>ss && *se2!='$') {
+        if (*se1=='%' && se1>ss && *se2!='$') {
           arg1 = compile(ss,se1,depth1,0,block_flags);
           arg2 = is_const_scalar(arg1)?0:const_scalar(100);
           if (is_vector(arg1)) _cimg_mp_vector2_vs(mp_div,arg1,arg2);

@@ -78,7 +78,7 @@ FILES = CImg_demo \
 	use_RGBclass \
 
 # Files which requires external libraries to run.
-EXTRA_FILES = use_tiff_stream use_jpeg_buffer
+EXTRA_FILES = test_template_types use_tiff_stream use_jpeg_buffer
 
 #---------------------------------
 # Set correct variables and paths
@@ -130,6 +130,7 @@ GCC_VER_GTEQ5 = $(shell expr `$(CXX) -dumpversion | cut -f1 -d.` \>= 5)
 ifeq ($(GCC_VER_GTEQ5),1)
 CFLAGS += -Wshadow
 endif
+CFLAGS += -Wno-int-in-bool-context -Wno-bool-compare
 endif
 
 #--------------------------------------------------
@@ -178,7 +179,7 @@ endif
 OPENCV_DEFINE = -Dcimg_use_opencv
 OPENCV_INCDIR = $(shell pkg-config opencv --cflags || echo -I/usr/include/opencv) -I/usr/include/opencv -I/usr/include/opencv4
 OPENCV_CFLAGS = $(OPENCV_DEFINE) $(OPENCV_INCDIR)
-OPENCV_LIBS = $(shell pkg-config opencv --libs || echo -lopencv_core -lopencv_highgui)
+OPENCV_LIBS = $(shell pkg-config opencv --libs || echo -lopencv_core -lopencv_highgui -lopencv_videoio)
 
 # Flags used to disable display capablities of CImg
 NODISPLAY_CFLAGS = -Dcimg_display=0

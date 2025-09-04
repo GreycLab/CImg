@@ -102,7 +102,11 @@ const CImg<T>& save_tiff(std::ostream *tiffOutStream, const unsigned int compres
   TIFF *tif = TIFFStreamOpen("MemTiff", tiffOutStream);
   if (tif)
     {
-      cimg_forZ(*this,z) get_slice(z)._save_tiff(tif,z,z,compression_type,0,0);
+      cimg_forZ(*this,z) {
+        CImg<T> slice = get_slice(z);
+        double val_min, val_max = (double)slice.max_min(val_min);
+        slice._save_tiff(tif,z,z,compression_type,0,0,val_min,val_max);
+      }
       tiffOutStream->flush();
       TIFFClose(tif);
     }

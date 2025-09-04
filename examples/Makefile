@@ -67,7 +67,6 @@ FILES = CImg_demo \
 	radon_transform2d \
 	scene3d \
 	spherical_function3d \
-	test_template_types \
 	tetris \
 	tron \
 	tutorial \
@@ -79,7 +78,7 @@ FILES = CImg_demo \
 	use_RGBclass \
 
 # Files which requires external libraries to run.
-EXTRA_FILES = use_tiff_stream use_jpeg_buffer
+EXTRA_FILES = test_template_types use_tiff_stream use_jpeg_buffer
 
 #---------------------------------
 # Set correct variables and paths
@@ -180,7 +179,7 @@ endif
 OPENCV_DEFINE = -Dcimg_use_opencv
 OPENCV_INCDIR = $(shell pkg-config opencv --cflags || echo -I/usr/include/opencv) -I/usr/include/opencv -I/usr/include/opencv4
 OPENCV_CFLAGS = $(OPENCV_DEFINE) $(OPENCV_INCDIR)
-OPENCV_LIBS = $(shell pkg-config opencv --libs || echo -lopencv_core -lopencv_highgui)
+OPENCV_LIBS = $(shell pkg-config opencv --libs || echo -lopencv_core -lopencv_highgui -lopencv_videoio)
 
 # Flags used to disable display capablities of CImg
 NODISPLAY_CFLAGS = -Dcimg_display=0

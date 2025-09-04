@@ -316,7 +316,7 @@ LAPACK_LIBS = -lblas -llapack
 WEBP_DEFINE = -Dcimg_use_webp
 WEBP_INCDIR = $(shell pkg-config --cflags libwebp)
 WEBP_CFLAGS = $(WEBP_DEFINE) $(WEBP_INCDIR)
-WEBP_LIBS = $(shell pkg-config --libs libwep || echo -lwebp)
+WEBP_LIBS = $(shell pkg-config --libs libwebp || echo -lwebp)
 
 # Flags to compile executable on Windows.
 ifeq ($(MSYSTEM),MINGW32)

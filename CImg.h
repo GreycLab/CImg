@@ -6530,7 +6530,8 @@ namespace cimg_library {
 
     template<typename t>
     inline t minabs(const t& a, const t& b, const t& abs_b) {
-      return abs_b<cimg::abs(a)?b:a;
+      typedef typename cimg::superset<t,int>::type tint;
+      return (tint)abs_b<(tint)cimg::abs(a)?b:a;
     }
 
     //! Return the maximum between three values.
@@ -6553,7 +6554,8 @@ namespace cimg_library {
 
     template<typename t>
     inline t maxabs(const t& a, const t& b, const t& abs_b) {
-      return abs_b>cimg::abs(a)?b:a;
+      typedef typename cimg::superset<t,int>::type tint;
+      return (tint)abs_b>(tint)cimg::abs(a)?b:a;
     }
 
     //! Return the sign of a value.

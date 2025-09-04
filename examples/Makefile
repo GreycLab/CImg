@@ -67,6 +67,7 @@ FILES = CImg_demo \
 	radon_transform2d \
 	scene3d \
 	spherical_function3d \
+	test_template_types \
 	tetris \
 	tron \
 	tutorial \
@@ -130,6 +131,7 @@ GCC_VER_GTEQ5 = $(shell expr `$(CXX) -dumpversion | cut -f1 -d.` \>= 5)
 ifeq ($(GCC_VER_GTEQ5),1)
 CFLAGS += -Wshadow
 endif
+CFLAGS += -Wno-int-in-bool-context -Wno-bool-compare
 endif
 
 #--------------------------------------------------

@@ -2526,7 +2526,7 @@ namespace cimg_library {
                        const double x=0, const double y=0, const double z=0, const double c=0);
 
     // Create a directory.
-    inline void create_directory(const char *const dirname, const bool overwrite=true);
+    inline void create_directory(const char *const dirname, const bool force_overwrite=true);
 
   } // namespace cimg { ...
 
@@ -70016,17 +70016,15 @@ namespace cimg_library {
       return res;
     }
 
-    //! Create a directory.
-    /**
-       \param dirname The path of the directory to create.
-       \param overwrite Force overwrite of a file with the same name.
-       \return 'true' when directory creation succeeded.
-    **/
-    inline void create_directory(const char *const dirname, const bool overwrite) {
+    inline void _create_directory(const char *const dirname, const bool force_overwrite) {
+
+      std::fprintf(stderr,"\nCREATE '%s'\n",dirname);
+      return;
+
       bool is_error = false;
       if (cimg::is_directory(dirname)) return;
       if (cimg::is_file(dirname)) { // In case 'dirname' is already an existing filename
-        if (!overwrite) is_error = true;
+        if (!force_overwrite) is_error = true;
         else {
 #if cimg_OS==2
           is_error = !DeleteFileA(dirname);
@@ -70056,6 +70054,35 @@ namespace cimg_library {
       }
       if (is_error)
         throw CImgIOException("cimg::create_dir(): Failed to create directory '%s'.",dirname);
+    }
+
+    //! Create a directory.
+    /**
+       \param dirname The path of the directory to create.
+       \param force_overwrite Force overwrite of the directory when necessary.
+    **/
+    inline void create_directory(const char *const dirname, const bool force_overwrite) {
+#if cimg_OS==2
+      const char *const cs = "/\\";
+#else
+      const char *const cs = "/";
+#endif
+      const char *ptr0 = dirname, *ptr1 = std::strpbrk(ptr0,cs);
+      if (ptr1) {
+        while (ptr1>ptr0) { // Manage case where 'dirname' is a path with separators (multiple directories)
+          CImg<char> subdir(dirname,ptr1 - dirname + 1);
+          subdir.back() = 0;
+          _create_directory(subdir,force_overwrite);
+          ptr0 = ++ptr1;
+          ptr1 = std::strpbrk(ptr0,cs);
+        }
+#if cimg_OS==2
+        const bool cond = *ptr0!='/' && *ptr0!='\\';
+#else
+        const bool cond = *ptr0!='/';
+#endif
+        if (*ptr0 && cond) _create_directory(dirname,force_overwrite);
+      } else _create_directory(dirname,force_overwrite);
     }
 
     //! Try to guess format from an image file.

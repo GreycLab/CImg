@@ -70018,8 +70018,8 @@ namespace cimg_library {
 
     inline void _create_directory(const char *const dirname, const bool force_overwrite) {
 
-      std::fprintf(stderr,"\nCREATE '%s'\n",dirname);
-      return;
+//      std::fprintf(stderr,"\nCREATE '%s'\n",dirname);
+//      return;
 
       bool is_error = false;
       if (cimg::is_directory(dirname)) return;

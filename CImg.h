@@ -7710,7 +7710,7 @@ namespace cimg_library {
 #endif
       }
       if (is_error)
-        throw CImgIOException("cimg::create_dir(): Error occured when creating directory '%s'.",dirname);
+        throw CImgIOException("cimg::create_dir(): Failed to create directory '%s'.",dirname);
     }
 
     //! Get file size.

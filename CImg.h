@@ -7677,32 +7677,40 @@ namespace cimg_library {
        \param overwrite Force overwrite of a file with the same name.
        \return 'true' when directory creation succeeded.
     **/
-    inline bool create_directory(const char *const dirname, const bool overwrite=true) {
-      if (cimg::is_directory(dirname)) return true;
-      if (cimg::is_file(dirname)) { // In case 'dirname' is already a file
-        if (!overwrite) return false;
+    inline void create_directory(const char *const dirname, const bool overwrite=true) {
+      bool is_error = false;
+      if (cimg::is_directory(dirname)) return;
+      if (cimg::is_file(dirname)) { // In case 'dirname' is already an existing filename
+        if (!overwrite) is_error = true;
+        else {
 #if cimg_OS==2
-        DeleteFileA(dirname);
+          is_error = !DeleteFileA(dirname);
 #elif cimg_OS==1
-        std::remove(dirname);
+          is_error = (bool)std::remove(dirname);
+#endif
+        }
+      }
+      if (!is_error) {
+#if cimg_OS==2
+        if (!CreateDirectoryA(dirname,0)) {
+          // The path may be UTF-8, convert it to a wide-character string and try again.
+          const int wideLength = MultiByteToWideChar(CP_UTF8,0,dirname,-1,0,0);
+          if (!wideLength) is_error = true;
+          else {
+            CImg<wchar_t> wpath(wideLength);
+            if (!MultiByteToWideChar(CP_UTF8,0,dirname,-1,wpath,wideLength)) is_error = true;
+            else {
+              DeleteFileW(wpath);
+              is_error = !CreateDirectoryW(wpath,0);
+            }
+          }
+        }
+#elif cimg_OS==1
+        is_error = (bool)mkdir(dirname,0777);
 #endif
       }
-#if cimg_OS==2
-      if (!CreateDirectoryA(dirname,0)) {
-        // The path may be UTF-8, convert it to a
-        // wide-character string and try again.
-        const int wideLength = MultiByteToWideChar(CP_UTF8,0,dirname,-1,0,0);
-        if (!wideLength) return false;
-        CImg<wchar_t> wpath(wideLength);
-        if (!MultiByteToWideChar(CP_UTF8,0,dirname,-1,wpath,wideLength)) return false;
-        DeleteFileW(wpath);
-        return (bool)CreateDirectoryW(wpath,0);
-      }
-#elif cimg_OS==1
-      std::remove(dirname); // In case 'dirname' is already a file
-      return !(bool)mkdir(dirname,0777);
-#endif
-      return false;
+      if (is_error)
+        throw CImgIOException("cimg::create_dir(): Error occured when creating directory '%s'.",dirname);
     }
 
     //! Get file size.

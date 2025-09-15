@@ -7671,6 +7671,40 @@ namespace cimg_library {
 #endif
     }
 
+    //! Create a directory.
+    /**
+       \param dirname The path of the directory to create.
+       \param overwrite Force overwrite of a file with the same name.
+       \return 'true' when directory creation succeeded.
+    **/
+    inline bool create_directory(const char *const dirname, const bool overwrite=true) {
+      if (cimg::is_directory(dirname)) return true;
+      if (cimg::is_file(dirname)) { // In case 'dirname' is already a file
+        if (!overwrite) return false;
+#if cimg_OS==2
+        DeleteFileA(dirname);
+#elif cimg_OS==1
+        std::remove(dirname);
+#endif
+      }
+#if cimg_OS==2
+      if (!CreateDirectoryA(dirname,0)) {
+        // The path may be UTF-8, convert it to a
+        // wide-character string and try again.
+        const int wideLength = MultiByteToWideChar(CP_UTF8,0,dirname,-1,0,0);
+        if (!wideLength) return false;
+        CImg<wchar_t> wpath(wideLength);
+        if (!MultiByteToWideChar(CP_UTF8,0,dirname,-1,wpath,wideLength)) return false;
+        DeleteFileW(wpath);
+        return (bool)CreateDirectoryW(wpath,0);
+      }
+#elif cimg_OS==1
+      std::remove(dirname); // In case 'dirname' is already a file
+      return !(bool)mkdir(dirname,0777);
+#endif
+      return false;
+    }
+
     //! Get file size.
     /**
        \param filename Specified filename to get size from.

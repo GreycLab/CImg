@@ -70012,15 +70012,10 @@ namespace cimg_library {
 
       // Sort resulting list by lexicographic order.
       if (res._width>=2) std::qsort(res._data,res._width,sizeof(CImg<char>),_sort_files);
-
       return res;
     }
 
     inline void _create_directory(const char *const dirname, const bool force_overwrite) {
-
-//      std::fprintf(stderr,"\nCREATE '%s'\n",dirname);
-//      return;
-
       bool is_error = false;
       if (cimg::is_directory(dirname)) return;
       if (cimg::is_file(dirname)) { // In case 'dirname' is already an existing filename
@@ -70069,10 +70064,12 @@ namespace cimg_library {
 #endif
       const char *ptr0 = dirname, *ptr1 = std::strpbrk(ptr0,cs);
       if (ptr1) {
-        while (ptr1>ptr0) { // Manage case where 'dirname' is a path with separators (multiple directories)
-          CImg<char> subdir(dirname,ptr1 - dirname + 1);
-          subdir.back() = 0;
-          _create_directory(subdir,force_overwrite);
+        while (ptr1) { // Manage case where 'dirname' is a path with separators (multiple directories)
+          if (ptr1!=ptr0) {
+            CImg<char> subdir(dirname,ptr1 - dirname + 1);
+            subdir.back() = 0;
+            _create_directory(subdir,force_overwrite);
+          }
           ptr0 = ++ptr1;
           ptr1 = std::strpbrk(ptr0,cs);
         }

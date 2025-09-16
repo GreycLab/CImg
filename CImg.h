@@ -2525,6 +2525,9 @@ namespace cimg_library {
     inline double eval(const char *const expression,
                        const double x=0, const double y=0, const double z=0, const double c=0);
 
+    // Create a directory.
+    inline void create_directory(const char *const dirname, const bool force_overwrite=true);
+
   } // namespace cimg { ...
 
   /*---------------------------------------
@@ -7669,48 +7672,6 @@ namespace cimg_library {
       cimg::fclose(file);
       return true;
 #endif
-    }
-
-    //! Create a directory.
-    /**
-       \param dirname The path of the directory to create.
-       \param overwrite Force overwrite of a file with the same name.
-       \return 'true' when directory creation succeeded.
-    **/
-    inline void create_directory(const char *const dirname, const bool overwrite=true) {
-      bool is_error = false;
-      if (cimg::is_directory(dirname)) return;
-      if (cimg::is_file(dirname)) { // In case 'dirname' is already an existing filename
-        if (!overwrite) is_error = true;
-        else {
-#if cimg_OS==2
-          is_error = !DeleteFileA(dirname);
-#elif cimg_OS==1
-          is_error = (bool)std::remove(dirname);
-#endif
-        }
-      }
-      if (!is_error) {
-#if cimg_OS==2
-        if (!CreateDirectoryA(dirname,0)) {
-          // The path may be UTF-8, convert it to a wide-character string and try again.
-          const int wideLength = MultiByteToWideChar(CP_UTF8,0,dirname,-1,0,0);
-          if (!wideLength) is_error = true;
-          else {
-            CImg<wchar_t> wpath(wideLength);
-            if (!MultiByteToWideChar(CP_UTF8,0,dirname,-1,wpath,wideLength)) is_error = true;
-            else {
-              DeleteFileW(wpath);
-              is_error = !CreateDirectoryW(wpath,0);
-            }
-          }
-        }
-#elif cimg_OS==1
-        is_error = (bool)mkdir(dirname,0777);
-#endif
-      }
-      if (is_error)
-        throw CImgIOException("cimg::create_dir(): Failed to create directory '%s'.",dirname);
     }
 
     //! Get file size.
@@ -70051,8 +70012,74 @@ namespace cimg_library {
 
       // Sort resulting list by lexicographic order.
       if (res._width>=2) std::qsort(res._data,res._width,sizeof(CImg<char>),_sort_files);
-
       return res;
+    }
+
+    inline void _create_directory(const char *const dirname, const bool force_overwrite) {
+      bool is_error = false;
+      if (cimg::is_directory(dirname)) return;
+      if (cimg::is_file(dirname)) { // In case 'dirname' is already an existing filename
+        if (!force_overwrite) is_error = true;
+        else {
+#if cimg_OS==2
+          is_error = !DeleteFileA(dirname);
+#elif cimg_OS==1
+          is_error = (bool)std::remove(dirname);
+#endif
+        }
+      }
+      if (!is_error) {
+#if cimg_OS==2
+        if (!CreateDirectoryA(dirname,0)) {
+          // The path may be UTF-8, convert it to a wide-character string and try again.
+          const int wideLength = MultiByteToWideChar(CP_UTF8,0,dirname,-1,0,0);
+          if (!wideLength) is_error = true;
+          else {
+            CImg<wchar_t> wpath(wideLength);
+            if (!MultiByteToWideChar(CP_UTF8,0,dirname,-1,wpath,wideLength)) is_error = true;
+            else {
+              DeleteFileW(wpath);
+              is_error = !CreateDirectoryW(wpath,0);
+            }
+          }
+        }
+#elif cimg_OS==1
+        is_error = (bool)mkdir(dirname,0777);
+#endif
+      }
+      if (is_error)
+        throw CImgIOException("cimg::create_dir(): Failed to create directory '%s'.",dirname);
+    }
+
+    //! Create a directory.
+    /**
+       \param dirname The path of the directory to create.
+       \param force_overwrite Force overwrite of the directory when necessary.
+    **/
+    inline void create_directory(const char *const dirname, const bool force_overwrite) {
+#if cimg_OS==2
+      const char *const cs = "/\\";
+#else
+      const char *const cs = "/";
+#endif
+      const char *ptr0 = dirname, *ptr1 = std::strpbrk(ptr0,cs);
+      if (ptr1) {
+        while (ptr1) { // Manage case where 'dirname' is a path with separators (multiple directories)
+          if (ptr1!=ptr0) {
+            CImg<char> subdir(dirname,ptr1 - dirname + 1);
+            subdir.back() = 0;
+            _create_directory(subdir,force_overwrite);
+          }
+          ptr0 = ++ptr1;
+          ptr1 = std::strpbrk(ptr0,cs);
+        }
+#if cimg_OS==2
+        const bool cond = *ptr0!='/' && *ptr0!='\\';
+#else
+        const bool cond = *ptr0!='/';
+#endif
+        if (*ptr0 && cond) _create_directory(dirname,force_overwrite);
+      } else _create_directory(dirname,force_overwrite);
     }
 
     //! Try to guess format from an image file.

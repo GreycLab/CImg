@@ -7816,9 +7816,9 @@ namespace cimg_library {
     //! Convert date to epoch (UTC time).
     // 'year' must be >=1900, 'month' in [ 1,12 ], 'day' in [ 1,31 ], 'hour' in [ 0,23 ],
     // 'minute' in [ 0,59 ] and 'second' in [ 0,60 ].
-    inline cimg_int64 epoch_utc(const int year, const int month=1,
-                                const int day=1, const int hour=0,
-                                const int minute=0, const int second=0) {
+    inline cimg_int64 epoch(const int year, const int month=1,
+                            const int day=1, const int hour=0,
+                            const int minute=0, const int second=0) {
       static const int tab_days[] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
 #define cimg_is_leap(y) ((!((y)%4) && ((y)%100)) || !((y)%400))
 #define cimg_days_in_month(y,m) ((m)==2 && cimg_is_leap(y)?29:tab_days[cimg::cut(m,1,12) - 1])
@@ -26735,7 +26735,7 @@ namespace cimg_library {
           second = (unsigned int)mp.opcode[7]==~0U?~0U:(unsigned int)cimg::cut(_mp_arg(7),0.,60.);
         if (year==~0U && month==~0U && day==~0U &&
             hour==~0U && minute==~0U && second==~0U) // No argument -> current date
-          return (double)cimg::epoch_utc(cimg::date(0),cimg::date(1),cimg::date(2),
+          return (double)cimg::epoch(cimg::date(0),cimg::date(1),cimg::date(2),
                                      cimg::date(4),cimg::date(5),cimg::date(6));
         if (year==~0U) year = (unsigned int)cimg::date(0);
         if (month==~0U) month = 1U;
@@ -26743,7 +26743,7 @@ namespace cimg_library {
         if (hour==~0U) hour = 0U;
         if (minute==~0U) minute = 0U;
         if (second==~0U) second = 0U;
-        return (double)cimg::epoch_utc((int)year,(int)month,(int)day,(int)hour,(int)minute,(int)second);
+        return (double)cimg::epoch((int)year,(int)month,(int)day,(int)hour,(int)minute,(int)second);
       }
 
       static double mp_eq(_cimg_math_parser& mp) {

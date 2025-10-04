@@ -24389,10 +24389,12 @@ namespace cimg_library {
               if (is_sth) { opcode[2] = opcode[3]; opcode[3] = opcode[5]; _cimg_mp_const_scalar(mp_##fn##2(*this)); } \
                 _cimg_mp_scalar2(mp_##fn##2,opcode[3],opcode[5]); \
               }
+              _cimg_mp_func2(avg);
               _cimg_mp_func2(max);
               _cimg_mp_func2(maxabs);
               _cimg_mp_func2(min);
               _cimg_mp_func2(minabs);
+              _cimg_mp_func2(med);
             }
             if (is_sth) _cimg_mp_const_scalar(op(*this));
             pos = opcode[1] = scalar();
@@ -25867,6 +25869,10 @@ namespace cimg_library {
           siz+=len;
         }
         return sum/siz;
+      }
+
+      static double mp_avg2(_cimg_math_parser& mp) {
+        return (_mp_arg(2) + _mp_arg(3))/2;
       }
 
       static double mp_bitwise_and(_cimg_math_parser& mp) {
@@ -29064,6 +29070,10 @@ namespace cimg_library {
           }
         }
         return values.median();
+      }
+
+      static double mp_med2(_cimg_math_parser& mp) {
+        return (_mp_arg(2) + _mp_arg(3))/2;
       }
 
       static double mp_modulo(_cimg_math_parser& mp) {

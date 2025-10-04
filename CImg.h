@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 362
+#define cimg_version 363
 
 /*-----------------------------------------------------------
  #
@@ -24362,21 +24362,41 @@ namespace cimg_library {
               mp_var;
 
             is_sth = true; // Tell if all arguments are constant
+            bool is_scalar = true; // Tell if all arguments are scalars
             CImg<ulongT>::vector((ulongT)op,0,0).move_to(l_opcode);
 
             for (s = std::strchr(ss,'(') + 1; s<se; ++s) {
               ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                              (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
               arg2 = compile(s,ns,depth1,0,block_flags);
-              if (is_vector(arg2)) CImg<ulongT>::vector(arg2 + 1,size(arg2)).move_to(l_opcode);
-              else CImg<ulongT>::vector(arg2,1).move_to(l_opcode);
+              if (is_vector(arg2)) {
+                CImg<ulongT>::vector(arg2 + 1,size(arg2)).move_to(l_opcode);
+                is_scalar = false;
+              } else CImg<ulongT>::vector(arg2,1).move_to(l_opcode);
               is_sth&=is_const_scalar(arg2);
               s = ns;
             }
             (l_opcode>'y').move_to(opcode);
             opcode[2] = opcode._height;
-            if (is_sth) _cimg_mp_const_scalar(op(*this));
 
+            if (is_scalar && opcode[2]==5) { // Special optimizable case 'fn(a)'
+              if (op==mp_avg || op==mp_gcd || op==mp_lcm || op==mp_max || op==mp_maxabs || op==mp_med ||
+                  op==mp_min || op==mp_minabs || op==mp_prod || op==mp_sum) _cimg_mp_same(arg2);
+              if (op==mp_argmax || op==mp_argmaxabs || op==mp_argmin || op==mp_argminabs) _cimg_mp_return(0);
+            }
+            if (is_scalar && opcode[2]==7) { // Special optimizable case 'fn(a,b)'
+#define _cimg_mp_func2(fn) if (op==mp_##fn) { \
+              if (is_sth) { opcode[2] = opcode[3]; opcode[3] = opcode[5]; _cimg_mp_const_scalar(mp_##fn##2(*this)); } \
+                _cimg_mp_scalar2(mp_##fn##2,opcode[3],opcode[5]); \
+              }
+              if (op==mp_kth) _cimg_mp_same(arg2);
+              if (op==mp_argkth) _cimg_mp_return(1);
+              _cimg_mp_func2(avg); _cimg_mp_func2(argmax); _cimg_mp_func2(argmaxabs); _cimg_mp_func2(argmin);
+              _cimg_mp_func2(argminabs); _cimg_mp_func2(gcd); _cimg_mp_func2(lcm); _cimg_mp_func2(max);
+              _cimg_mp_func2(maxabs); _cimg_mp_func2(med); _cimg_mp_func2(min); _cimg_mp_func2(minabs);
+              _cimg_mp_func2(prod); _cimg_mp_func2(std); _cimg_mp_func2(sum); _cimg_mp_func2(var);
+            }
+            if (is_sth) _cimg_mp_const_scalar(op(*this));
             pos = opcode[1] = scalar();
             opcode.move_to(code);
             return_comp = true;
@@ -25748,6 +25768,52 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
+      static double mp_argmax(_cimg_math_parser& mp) {
+        const unsigned int i_end = (unsigned int)mp.opcode[2];
+        double val, valmax = -cimg::type<double>::inf();
+        unsigned int siz = 0, argmax = 0;
+        for (unsigned int i = 3; i<i_end; i+=2) {
+          const unsigned int len = (unsigned int)mp.opcode[i + 1];
+          if (len>1) {
+            const double *ptr = &_mp_arg(i);
+            for (unsigned int k = 0; k<len; ++k) { val = *(ptr++); if (val>valmax) { valmax = val; argmax = siz + k; } }
+          } else { val = _mp_arg(i); if (val>valmax) { valmax = val; argmax = siz; } }
+          siz+=len;
+        }
+        return (double)argmax;
+      }
+
+      static double mp_argmax2(_cimg_math_parser& mp) {
+        return _mp_arg(2)>=_mp_arg(3)?0:1;
+      }
+
+      static double mp_argmaxabs(_cimg_math_parser& mp) {
+        const unsigned int i_end = (unsigned int)mp.opcode[2];
+        double val, abs_val, abs_valmaxabs = 0;
+        unsigned int siz = 0, argmaxabs = 0;
+        for (unsigned int i = 3; i<i_end; i+=2) {
+          const unsigned int len = (unsigned int)mp.opcode[i + 1];
+          if (len>1) {
+            const double *ptr = &_mp_arg(i);
+            for (unsigned int k = 0; k<len; ++k) {
+              val = *(ptr++);
+              abs_val = cimg::abs(val);
+              if (abs_val>abs_valmaxabs) { abs_valmaxabs = abs_val; argmaxabs = siz + k; }
+            }
+          } else {
+            val = _mp_arg(i);
+            abs_val = cimg::abs(val);
+            if (abs_val>abs_valmaxabs) { abs_valmaxabs = abs_val; argmaxabs = siz; }
+          }
+          siz+=len;
+        }
+        return (double)argmaxabs;
+      }
+
+      static double mp_argmaxabs2(_cimg_math_parser& mp) {
+        return cimg::abs(_mp_arg(2))>=cimg::abs(_mp_arg(3))?0:1;
+      }
+
       static double mp_argmin(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
         double val, valmin = cimg::type<double>::inf();
@@ -25761,6 +25827,10 @@ namespace cimg_library {
           siz+=len;
         }
         return (double)argmin;
+      }
+
+      static double mp_argmin2(_cimg_math_parser& mp) {
+        return _mp_arg(2)<=_mp_arg(3)?0:1;
       }
 
       static double mp_argminabs(_cimg_math_parser& mp) {
@@ -25786,42 +25856,8 @@ namespace cimg_library {
         return (double)argminabs;
       }
 
-      static double mp_argmax(_cimg_math_parser& mp) {
-        const unsigned int i_end = (unsigned int)mp.opcode[2];
-        double val, valmax = -cimg::type<double>::inf();
-        unsigned int siz = 0, argmax = 0;
-        for (unsigned int i = 3; i<i_end; i+=2) {
-          const unsigned int len = (unsigned int)mp.opcode[i + 1];
-          if (len>1) {
-            const double *ptr = &_mp_arg(i);
-            for (unsigned int k = 0; k<len; ++k) { val = *(ptr++); if (val>valmax) { valmax = val; argmax = siz + k; } }
-          } else { val = _mp_arg(i); if (val>valmax) { valmax = val; argmax = siz; } }
-          siz+=len;
-        }
-        return (double)argmax;
-      }
-
-      static double mp_argmaxabs(_cimg_math_parser& mp) {
-        const unsigned int i_end = (unsigned int)mp.opcode[2];
-        double val, abs_val, abs_valmaxabs = 0;
-        unsigned int siz = 0, argmaxabs = 0;
-        for (unsigned int i = 3; i<i_end; i+=2) {
-          const unsigned int len = (unsigned int)mp.opcode[i + 1];
-          if (len>1) {
-            const double *ptr = &_mp_arg(i);
-            for (unsigned int k = 0; k<len; ++k) {
-              val = *(ptr++);
-              abs_val = cimg::abs(val);
-              if (abs_val>abs_valmaxabs) { abs_valmaxabs = abs_val; argmaxabs = siz + k; }
-            }
-          } else {
-            val = _mp_arg(i);
-            abs_val = cimg::abs(val);
-            if (abs_val>abs_valmaxabs) { abs_valmaxabs = abs_val; argmaxabs = siz; }
-          }
-          siz+=len;
-        }
-        return (double)argmaxabs;
+      static double mp_argminabs2(_cimg_math_parser& mp) {
+        return cimg::abs(_mp_arg(2))<=cimg::abs(_mp_arg(3))?0:1;
       }
 
       static double mp_asin(_cimg_math_parser& mp) {
@@ -25849,6 +25885,10 @@ namespace cimg_library {
           siz+=len;
         }
         return sum/siz;
+      }
+
+      static double mp_avg2(_cimg_math_parser& mp) {
+        return (_mp_arg(2) + _mp_arg(3))/2;
       }
 
       static double mp_bitwise_and(_cimg_math_parser& mp) {
@@ -27101,6 +27141,10 @@ namespace cimg_library {
         return values.gcd();
       }
 
+      static double mp_gcd2(_cimg_math_parser& mp) {
+        return (double)cimg::gcd((cimg_int64)_mp_arg(2),(cimg_int64)_mp_arg(3));
+      }
+
       static double mp_gt(_cimg_math_parser& mp) {
         return (double)(_mp_arg(2)>_mp_arg(3));
       }
@@ -27828,6 +27872,10 @@ namespace cimg_library {
           }
         }
         return values.lcm();
+      }
+
+      static double mp_lcm2(_cimg_math_parser& mp) {
+        return cimg::lcm((cimg_int64)_mp_arg(2),(cimg_int64)_mp_arg(3));
       }
 
       static double mp_lerp(_cimg_math_parser& mp) {
@@ -28822,6 +28870,10 @@ namespace cimg_library {
         return valmax;
       }
 
+      static double mp_max2(_cimg_math_parser& mp) {
+        return std::max(_mp_arg(2),_mp_arg(3));
+      }
+
       static double mp_maxabs(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
         double val, abs_val, valmaxabs = 0, abs_valmaxabs = 0;
@@ -28841,6 +28893,10 @@ namespace cimg_library {
           }
         }
         return valmaxabs;
+      }
+
+      static double mp_maxabs2(_cimg_math_parser& mp) {
+        return cimg::maxabs(_mp_arg(2),_mp_arg(3));
       }
 
       static double* _mp_memcopy_double(_cimg_math_parser& mp, const unsigned int ind, const ulongT *const p_ref,
@@ -28966,6 +29022,10 @@ namespace cimg_library {
         return valmin;
       }
 
+      static double mp_min2(_cimg_math_parser& mp) {
+        return std::min(_mp_arg(2),_mp_arg(3));
+      }
+
       static double mp_minabs(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
         double val, abs_val, valminabs = cimg::type<double>::inf(), abs_valminabs = cimg::type<double>::inf();
@@ -28985,6 +29045,10 @@ namespace cimg_library {
           }
         }
         return valminabs;
+      }
+
+      static double mp_minabs2(_cimg_math_parser& mp) {
+        return cimg::minabs(_mp_arg(2),_mp_arg(3));
       }
 
       static double mp_minus(_cimg_math_parser& mp) {
@@ -29030,6 +29094,10 @@ namespace cimg_library {
           }
         }
         return values.median();
+      }
+
+      static double mp_med2(_cimg_math_parser& mp) {
+        return (_mp_arg(2) + _mp_arg(3))/2;
       }
 
       static double mp_modulo(_cimg_math_parser& mp) {
@@ -29306,6 +29374,10 @@ namespace cimg_library {
           } else prod*=_mp_arg(i);
         }
         return prod;
+      }
+
+      static double mp_prod2(_cimg_math_parser& mp) {
+        return _mp_arg(2)*_mp_arg(3);
       }
 
       static double mp_rad2deg(_cimg_math_parser& mp) {
@@ -29823,6 +29895,10 @@ namespace cimg_library {
         return std::sqrt(mp_var(mp));
       }
 
+      static double mp_std2(_cimg_math_parser& mp) {
+        return std::sqrt(mp_var2(mp));
+      }
+
       static double mp_string_init(_cimg_math_parser& mp) {
         const unsigned char *ptrs = (unsigned char*)&mp.opcode[3];
         unsigned int
@@ -29946,6 +30022,10 @@ namespace cimg_library {
           } else sum+=_mp_arg(i);
         }
         return sum;
+      }
+
+      static double mp_sum2(_cimg_math_parser& mp) {
+        return _mp_arg(2) + _mp_arg(3);
       }
 
       static double mp_swap(_cimg_math_parser& mp) {
@@ -30107,6 +30187,10 @@ namespace cimg_library {
           siz+=len;
         }
         return (S2 - S*S/siz)/(siz - 1);
+      }
+
+      static double mp_var2(_cimg_math_parser& mp) {
+        return cimg::sqr(_mp_arg(2) - _mp_arg(3))/2;
       }
 
       static double mp_vector_copy(_cimg_math_parser& mp) {
@@ -52427,7 +52511,7 @@ namespace cimg_library {
           ni = (i + 1)%ipoints.width(),
           x1 = ipoints(ni,0), y1 = ipoints(ni,1),
           x01 = x1 - x0, y01 = y1 - y0,
-          l = std::max(std::abs(x01),std::abs(y01));
+          l = std::max(cimg::abs(x01),cimg::abs(y01));
         if (l) {
           const bool draw_last_pixel = is_closed || i<N - 1?false:true;
           draw_line(x0,y0,x1,y1,color,opacity,pattern,ninit_hatch,draw_last_pixel);
@@ -55051,7 +55135,7 @@ namespace cimg_library {
               nn = 1e-5f + cimg::hypot(lx,ly,lz),
               nlx = lx/nn, nly = ly/nn, nlz = lz/nn,
               dot = nlx*u + nly*v + nlz*w,
-              factor = std::max(0.15f,is_double_sided?std::abs(dot):std::max(0.0f,dot));
+              factor = std::max(0.15f,is_double_sided?cimg::abs(dot):std::max(0.0f,dot));
             lightprops[l] = factor<=nspec?factor:(nsl1*factor*factor + nsl2*factor + nsl3);
           } else lightprops[l] = 1;
         }
@@ -55070,7 +55154,7 @@ namespace cimg_library {
               nn = 1e-5f + cimg::hypot(lx,ly,lz),
               nlx = lx/nn, nly = ly/nn, nlz = lz/nn,
               dot = nlx*u + nly*v + nlz*w,
-              factor = std::max(0.15f,is_double_sided?std::abs(dot):std::max(0.0f,dot));
+              factor = std::max(0.15f,is_double_sided?cimg::abs(dot):std::max(0.0f,dot));
             lightprops[l] = factor<=nspec?factor:(nsl1*factor*factor + nsl2*factor + nsl3);
           }
         } else {

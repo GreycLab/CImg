@@ -24380,7 +24380,10 @@ namespace cimg_library {
             opcode[2] = opcode._height;
 
             if (is_scalar && opcode[2]==7) { // Special optimizable case 'fn(a,b)'
-#define _cimg_mp_func2(fn) if (op==mp_##fn) _cimg_mp_scalar2(mp_##fn##2,opcode[3],opcode[5]);
+#define _cimg_mp_func2(fn) if (op==mp_##fn) { \
+              if (is_sth) { opcode[2] = opcode[3]; opcode[3] = opcode[5]; _cimg_mp_const_scalar(mp_##fn##2(*this)); } \
+                _cimg_mp_scalar2(mp_##fn##2,opcode[3],opcode[5]); \
+              }
               _cimg_mp_func2(min);
               _cimg_mp_func2(max);
             }

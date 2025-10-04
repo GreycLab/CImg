@@ -24389,21 +24389,12 @@ namespace cimg_library {
               if (is_sth) { opcode[2] = opcode[3]; opcode[3] = opcode[5]; _cimg_mp_const_scalar(mp_##fn##2(*this)); } \
                 _cimg_mp_scalar2(mp_##fn##2,opcode[3],opcode[5]); \
               }
-
               if (op==mp_kth) _cimg_mp_same(arg2);
               if (op==mp_argkth) _cimg_mp_return(1);
-              _cimg_mp_func2(avg);
-              _cimg_mp_func2(argmax);
-              _cimg_mp_func2(argmaxabs);
-              _cimg_mp_func2(argmin);
-              _cimg_mp_func2(argminabs);
-              _cimg_mp_func2(gcd);
-              _cimg_mp_func2(lcm);
-              _cimg_mp_func2(max);
-              _cimg_mp_func2(maxabs);
-              _cimg_mp_func2(min);
-              _cimg_mp_func2(minabs);
-              _cimg_mp_func2(med);
+              _cimg_mp_func2(avg); _cimg_mp_func2(argmax); _cimg_mp_func2(argmaxabs); _cimg_mp_func2(argmin);
+              _cimg_mp_func2(argminabs); _cimg_mp_func2(gcd); _cimg_mp_func2(lcm); _cimg_mp_func2(max);
+              _cimg_mp_func2(maxabs); _cimg_mp_func2(med); _cimg_mp_func2(min); _cimg_mp_func2(minabs);
+              _cimg_mp_func2(prod); _cimg_mp_func2(std); _cimg_mp_func2(sum); _cimg_mp_func2(var);
             }
             if (is_sth) _cimg_mp_const_scalar(op(*this));
             pos = opcode[1] = scalar();
@@ -29385,6 +29376,10 @@ namespace cimg_library {
         return prod;
       }
 
+      static double mp_prod2(_cimg_math_parser& mp) {
+        return _mp_arg(2)*_mp_arg(3);
+      }
+
       static double mp_rad2deg(_cimg_math_parser& mp) {
         return _mp_arg(2)*180/cimg::PI;
       }
@@ -29900,6 +29895,10 @@ namespace cimg_library {
         return std::sqrt(mp_var(mp));
       }
 
+      static double mp_std2(_cimg_math_parser& mp) {
+        return std::sqrt(mp_var2(mp));
+      }
+
       static double mp_string_init(_cimg_math_parser& mp) {
         const unsigned char *ptrs = (unsigned char*)&mp.opcode[3];
         unsigned int
@@ -30023,6 +30022,10 @@ namespace cimg_library {
           } else sum+=_mp_arg(i);
         }
         return sum;
+      }
+
+      static double mp_sum2(_cimg_math_parser& mp) {
+        return _mp_arg(2) + _mp_arg(3);
       }
 
       static double mp_swap(_cimg_math_parser& mp) {
@@ -30184,6 +30187,10 @@ namespace cimg_library {
           siz+=len;
         }
         return (S2 - S*S/siz)/(siz - 1);
+      }
+
+      static double mp_var2(_cimg_math_parser& mp) {
+        return cimg::sqr(_mp_arg(2) - _mp_arg(3))/2;
       }
 
       static double mp_vector_copy(_cimg_math_parser& mp) {

@@ -24362,21 +24362,29 @@ namespace cimg_library {
               mp_var;
 
             is_sth = true; // Tell if all arguments are constant
+            bool is_scalar = true; // Tell if all arguments are scalars
             CImg<ulongT>::vector((ulongT)op,0,0).move_to(l_opcode);
 
             for (s = std::strchr(ss,'(') + 1; s<se; ++s) {
               ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                              (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
               arg2 = compile(s,ns,depth1,0,block_flags);
-              if (is_vector(arg2)) CImg<ulongT>::vector(arg2 + 1,size(arg2)).move_to(l_opcode);
-              else CImg<ulongT>::vector(arg2,1).move_to(l_opcode);
+              if (is_vector(arg2)) {
+                CImg<ulongT>::vector(arg2 + 1,size(arg2)).move_to(l_opcode);
+                is_scalar = false;
+              } else CImg<ulongT>::vector(arg2,1).move_to(l_opcode);
               is_sth&=is_const_scalar(arg2);
               s = ns;
             }
             (l_opcode>'y').move_to(opcode);
             opcode[2] = opcode._height;
-            if (is_sth) _cimg_mp_const_scalar(op(*this));
 
+            if (is_scalar && opcode[2]==7) { // Special optimizable case 'fn(a,b)'
+#define _cimg_mp_func2(fn) if (op==mp_##fn) _cimg_mp_scalar2(mp_##fn##2,opcode[3],opcode[5]);
+              _cimg_mp_func2(min);
+              _cimg_mp_func2(max);
+            }
+            if (is_sth) _cimg_mp_const_scalar(op(*this));
             pos = opcode[1] = scalar();
             opcode.move_to(code);
             return_comp = true;
@@ -28822,6 +28830,10 @@ namespace cimg_library {
         return valmax;
       }
 
+      static double mp_max2(_cimg_math_parser& mp) {
+        return std::max(_mp_arg(2),_mp_arg(3));
+      }
+
       static double mp_maxabs(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
         double val, abs_val, valmaxabs = 0, abs_valmaxabs = 0;
@@ -28964,6 +28976,10 @@ namespace cimg_library {
           } else { val = _mp_arg(i); if (val<valmin) valmin = val; }
         }
         return valmin;
+      }
+
+      static double mp_min2(_cimg_math_parser& mp) {
+        return std::min(_mp_arg(2),_mp_arg(3));
       }
 
       static double mp_minabs(_cimg_math_parser& mp) {

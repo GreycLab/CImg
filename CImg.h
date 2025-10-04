@@ -24389,9 +24389,16 @@ namespace cimg_library {
               if (is_sth) { opcode[2] = opcode[3]; opcode[3] = opcode[5]; _cimg_mp_const_scalar(mp_##fn##2(*this)); } \
                 _cimg_mp_scalar2(mp_##fn##2,opcode[3],opcode[5]); \
               }
+
+              if (op==mp_kth) _cimg_mp_same(arg2);
+              if (op==mp_argkth) _cimg_mp_return(1);
               _cimg_mp_func2(avg);
               _cimg_mp_func2(argmax);
               _cimg_mp_func2(argmaxabs);
+              _cimg_mp_func2(argmin);
+              _cimg_mp_func2(argminabs);
+              _cimg_mp_func2(gcd);
+              _cimg_mp_func2(lcm);
               _cimg_mp_func2(max);
               _cimg_mp_func2(maxabs);
               _cimg_mp_func2(min);
@@ -25770,44 +25777,6 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_argmin(_cimg_math_parser& mp) {
-        const unsigned int i_end = (unsigned int)mp.opcode[2];
-        double val, valmin = cimg::type<double>::inf();
-        unsigned int siz = 0, argmin = 0;
-        for (unsigned int i = 3; i<i_end; i+=2) {
-          const unsigned int len = (unsigned int)mp.opcode[i + 1];
-          if (len>1) {
-            const double *ptr = &_mp_arg(i);
-            for (unsigned int k = 0; k<len; ++k) { val = *(ptr++); if (val<valmin) { valmin = val; argmin = siz + k; } }
-          } else { val = _mp_arg(i); if (val<valmin) { valmin = val; argmin = siz; } }
-          siz+=len;
-        }
-        return (double)argmin;
-      }
-
-      static double mp_argminabs(_cimg_math_parser& mp) {
-        const unsigned int i_end = (unsigned int)mp.opcode[2];
-        double val, abs_val, abs_valminabs = cimg::type<double>::inf();
-        unsigned int siz = 0, argminabs = 0;
-        for (unsigned int i = 3; i<i_end; i+=2) {
-          const unsigned int len = (unsigned int)mp.opcode[i + 1];
-          if (len>1) {
-            const double *ptr = &_mp_arg(i);
-            for (unsigned int k = 0; k<len; ++k) {
-              val = *(ptr++);
-              abs_val = cimg::abs(val);
-              if (abs_val<abs_valminabs) { abs_valminabs = abs_val; argminabs = siz + k; }
-            }
-          } else {
-            val = _mp_arg(i);
-            abs_val = cimg::abs(val);
-            if (abs_val<abs_valminabs) { abs_valminabs = abs_val; argminabs = siz; }
-          }
-          siz+=len;
-        }
-        return (double)argminabs;
-      }
-
       static double mp_argmax(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
         double val, valmax = -cimg::type<double>::inf();
@@ -25852,6 +25821,52 @@ namespace cimg_library {
 
       static double mp_argmaxabs2(_cimg_math_parser& mp) {
         return cimg::abs(_mp_arg(2))>=cimg::abs(_mp_arg(3))?0:1;
+      }
+
+      static double mp_argmin(_cimg_math_parser& mp) {
+        const unsigned int i_end = (unsigned int)mp.opcode[2];
+        double val, valmin = cimg::type<double>::inf();
+        unsigned int siz = 0, argmin = 0;
+        for (unsigned int i = 3; i<i_end; i+=2) {
+          const unsigned int len = (unsigned int)mp.opcode[i + 1];
+          if (len>1) {
+            const double *ptr = &_mp_arg(i);
+            for (unsigned int k = 0; k<len; ++k) { val = *(ptr++); if (val<valmin) { valmin = val; argmin = siz + k; } }
+          } else { val = _mp_arg(i); if (val<valmin) { valmin = val; argmin = siz; } }
+          siz+=len;
+        }
+        return (double)argmin;
+      }
+
+      static double mp_argmin2(_cimg_math_parser& mp) {
+        return _mp_arg(2)<=_mp_arg(3)?0:1;
+      }
+
+      static double mp_argminabs(_cimg_math_parser& mp) {
+        const unsigned int i_end = (unsigned int)mp.opcode[2];
+        double val, abs_val, abs_valminabs = cimg::type<double>::inf();
+        unsigned int siz = 0, argminabs = 0;
+        for (unsigned int i = 3; i<i_end; i+=2) {
+          const unsigned int len = (unsigned int)mp.opcode[i + 1];
+          if (len>1) {
+            const double *ptr = &_mp_arg(i);
+            for (unsigned int k = 0; k<len; ++k) {
+              val = *(ptr++);
+              abs_val = cimg::abs(val);
+              if (abs_val<abs_valminabs) { abs_valminabs = abs_val; argminabs = siz + k; }
+            }
+          } else {
+            val = _mp_arg(i);
+            abs_val = cimg::abs(val);
+            if (abs_val<abs_valminabs) { abs_valminabs = abs_val; argminabs = siz; }
+          }
+          siz+=len;
+        }
+        return (double)argminabs;
+      }
+
+      static double mp_argminabs2(_cimg_math_parser& mp) {
+        return cimg::abs(_mp_arg(2))<=cimg::abs(_mp_arg(3))?0:1;
       }
 
       static double mp_asin(_cimg_math_parser& mp) {
@@ -27135,6 +27150,10 @@ namespace cimg_library {
         return values.gcd();
       }
 
+      static double mp_gcd2(_cimg_math_parser& mp) {
+        return (double)cimg::gcd((cimg_int64)_mp_arg(2),(cimg_int64)_mp_arg(3));
+      }
+
       static double mp_gt(_cimg_math_parser& mp) {
         return (double)(_mp_arg(2)>_mp_arg(3));
       }
@@ -27862,6 +27881,10 @@ namespace cimg_library {
           }
         }
         return values.lcm();
+      }
+
+      static double mp_lcm2(_cimg_math_parser& mp) {
+        return cimg::lcm((cimg_int64)_mp_arg(2),(cimg_int64)_mp_arg(3));
       }
 
       static double mp_lerp(_cimg_math_parser& mp) {

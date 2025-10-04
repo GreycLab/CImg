@@ -24390,6 +24390,8 @@ namespace cimg_library {
                 _cimg_mp_scalar2(mp_##fn##2,opcode[3],opcode[5]); \
               }
               _cimg_mp_func2(avg);
+              _cimg_mp_func2(argmax);
+              _cimg_mp_func2(argmaxabs);
               _cimg_mp_func2(max);
               _cimg_mp_func2(maxabs);
               _cimg_mp_func2(min);
@@ -25821,6 +25823,10 @@ namespace cimg_library {
         return (double)argmax;
       }
 
+      static double mp_argmax2(_cimg_math_parser& mp) {
+        return _mp_arg(2)>=_mp_arg(3)?0:1;
+      }
+
       static double mp_argmaxabs(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
         double val, abs_val, abs_valmaxabs = 0;
@@ -25842,6 +25848,10 @@ namespace cimg_library {
           siz+=len;
         }
         return (double)argmaxabs;
+      }
+
+      static double mp_argmaxabs2(_cimg_math_parser& mp) {
+        return cimg::abs(_mp_arg(2))>=cimg::abs(_mp_arg(3))?0:1;
       }
 
       static double mp_asin(_cimg_math_parser& mp) {

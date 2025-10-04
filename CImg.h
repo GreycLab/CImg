@@ -28866,8 +28866,7 @@ namespace cimg_library {
       }
 
       static double mp_maxabs2(_cimg_math_parser& mp) {
-        const double x = _mp_arg(2), y = _mp_arg(3);
-        return cimg::abs(x)>=cimg::abs(y)?x:y;
+        return cimg::maxabs(_mp_arg(2),_mp_arg(3));
       }
 
       static double* _mp_memcopy_double(_cimg_math_parser& mp, const unsigned int ind, const ulongT *const p_ref,
@@ -29019,8 +29018,7 @@ namespace cimg_library {
       }
 
       static double mp_minabs2(_cimg_math_parser& mp) {
-        const double x = _mp_arg(2), y = _mp_arg(3);
-        return cimg::abs(x)<=cimg::abs(y)?x:y;
+        return cimg::minabs(_mp_arg(2),_mp_arg(3));
       }
 
       static double mp_minus(_cimg_math_parser& mp) {

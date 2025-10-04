@@ -24390,7 +24390,9 @@ namespace cimg_library {
                 _cimg_mp_scalar2(mp_##fn##2,opcode[3],opcode[5]); \
               }
               _cimg_mp_func2(max);
+              _cimg_mp_func2(maxabs);
               _cimg_mp_func2(min);
+              _cimg_mp_func2(minabs);
             }
             if (is_sth) _cimg_mp_const_scalar(op(*this));
             pos = opcode[1] = scalar();
@@ -28863,6 +28865,11 @@ namespace cimg_library {
         return valmaxabs;
       }
 
+      static double mp_maxabs2(_cimg_math_parser& mp) {
+        const double x = _mp_arg(2), y = _mp_arg(3);
+        return cimg::abs(x)>=cimg::abs(y)?x:y;
+      }
+
       static double* _mp_memcopy_double(_cimg_math_parser& mp, const unsigned int ind, const ulongT *const p_ref,
                                         const longT siz, const long inc) {
         const longT
@@ -29009,6 +29016,11 @@ namespace cimg_library {
           }
         }
         return valminabs;
+      }
+
+      static double mp_minabs2(_cimg_math_parser& mp) {
+        const double x = _mp_arg(2), y = _mp_arg(3);
+        return cimg::abs(x)<=cimg::abs(y)?x:y;
       }
 
       static double mp_minus(_cimg_math_parser& mp) {
@@ -52451,7 +52463,7 @@ namespace cimg_library {
           ni = (i + 1)%ipoints.width(),
           x1 = ipoints(ni,0), y1 = ipoints(ni,1),
           x01 = x1 - x0, y01 = y1 - y0,
-          l = std::max(std::abs(x01),std::abs(y01));
+          l = std::max(cimg::abs(x01),cimg::abs(y01));
         if (l) {
           const bool draw_last_pixel = is_closed || i<N - 1?false:true;
           draw_line(x0,y0,x1,y1,color,opacity,pattern,ninit_hatch,draw_last_pixel);
@@ -55075,7 +55087,7 @@ namespace cimg_library {
               nn = 1e-5f + cimg::hypot(lx,ly,lz),
               nlx = lx/nn, nly = ly/nn, nlz = lz/nn,
               dot = nlx*u + nly*v + nlz*w,
-              factor = std::max(0.15f,is_double_sided?std::abs(dot):std::max(0.0f,dot));
+              factor = std::max(0.15f,is_double_sided?cimg::abs(dot):std::max(0.0f,dot));
             lightprops[l] = factor<=nspec?factor:(nsl1*factor*factor + nsl2*factor + nsl3);
           } else lightprops[l] = 1;
         }
@@ -55094,7 +55106,7 @@ namespace cimg_library {
               nn = 1e-5f + cimg::hypot(lx,ly,lz),
               nlx = lx/nn, nly = ly/nn, nlz = lz/nn,
               dot = nlx*u + nly*v + nlz*w,
-              factor = std::max(0.15f,is_double_sided?std::abs(dot):std::max(0.0f,dot));
+              factor = std::max(0.15f,is_double_sided?cimg::abs(dot):std::max(0.0f,dot));
             lightprops[l] = factor<=nspec?factor:(nsl1*factor*factor + nsl2*factor + nsl3);
           }
         } else {

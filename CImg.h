@@ -24379,6 +24379,11 @@ namespace cimg_library {
             (l_opcode>'y').move_to(opcode);
             opcode[2] = opcode._height;
 
+            if (is_scalar && opcode[2]==5) { // Special optimizable case 'fn(a)'
+              if (op==mp_avg || op==mp_gcd || op==mp_lcm || op==mp_max || op==mp_maxabs || op==mp_med ||
+                  op==mp_min || op==mp_minabs || op==mp_prod || op==mp_sum) _cimg_mp_same(arg2);
+              if (op==mp_argmax || op==mp_argmaxabs || op==mp_argmin || op==mp_argminabs) _cimg_mp_return(0);
+            }
             if (is_scalar && opcode[2]==7) { // Special optimizable case 'fn(a,b)'
 #define _cimg_mp_func2(fn) if (op==mp_##fn) { \
               if (is_sth) { opcode[2] = opcode[3]; opcode[3] = opcode[5]; _cimg_mp_const_scalar(mp_##fn##2(*this)); } \

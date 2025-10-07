@@ -22431,11 +22431,14 @@ namespace cimg_library {
               _cimg_mp_op("Function 'lerp()'");
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss5,s1,depth1,0,block_flags);
-              p1 = size(arg1);
               s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(s1,s2,depth1,0,block_flags);
-              _cimg_mp_check_type(arg2,2,is_scalar(arg1)?1:2,p1);
               arg3 = compile(++s2,se1,depth1,0,block_flags);
+              if (is_vector(arg1)) p1 = size(arg1);
+              else if (is_vector(arg2)) p1 = size(arg2);
+              else p1 = size(arg3);
+              _cimg_mp_check_type(arg1,1,3,p1);
+              _cimg_mp_check_type(arg2,2,3,p1);
               _cimg_mp_check_type(arg3,3,3,p1);
 
               if (is_const_scalar(arg3)) { // Optimize constant cases
@@ -22446,10 +22449,10 @@ namespace cimg_library {
                   _cimg_mp_const_scalar(mem[arg1]*(1 - t) + mem[arg2]*t);
                 }
               }
-              if (is_scalar(arg1)) _cimg_mp_scalar3(mp_lerp,arg1,arg2,arg3);
+              if (!p1) _cimg_mp_scalar3(mp_lerp,arg1,arg2,arg3);
               pos = vector(p1);
-              p3 = size(arg3);
-              CImg<ulongT>::vector((ulongT)mp_vector_lerp,pos,p1,arg1,arg2,arg3,p3).move_to(code);
+              CImg<ulongT>::vector((ulongT)mp_vector_lerp,pos,p1,arg1,size(arg1),arg2,size(arg2),arg3,size(arg3)).
+                move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -30368,21 +30371,32 @@ namespace cimg_library {
       }
 
       static double mp_vector_lerp(_cimg_math_parser& mp) {
+        double *const ptrd = &_mp_arg(1) + 1;
         unsigned int siz = (unsigned int)mp.opcode[2];
-        double *ptrd = &_mp_arg(1) + 1;
+        const unsigned int
+          siz0 = (unsigned int)mp.opcode[4],
+          siz1 = (unsigned int)mp.opcode[6],
+          step0 = siz0?1:0,
+          step1 = siz1?1:0;
         const double
-          *const ptrs0 = &_mp_arg(3) + 1,
-          *const ptrs1 = &_mp_arg(4) + 1;
-        const unsigned int tsiz = mp.opcode[6];
-        if (tsiz) { // t is vector-valued
-          const double *const ptrt = &_mp_arg(5) + 1;
-          for (unsigned int k = 0; k<siz; ++k) {
+          *const ptrs0 = &_mp_arg(3) + step0,
+          *const ptrs1 = &_mp_arg(5) + step1;
+
+        if (mp.opcode[8]) { // t is vector-valued
+          const double *const ptrt = &_mp_arg(7) + 1;
+          for (unsigned int k0 = 0, k1 = 0, k = 0; k<siz; ++k) {
             double t = ptrt[k];
-            ptrd[k] = ptrs0[k]*(1 - t) + ptrs1[k]*t;
+            ptrd[k] = ptrs0[k0]*(1 - t) + ptrs1[k1]*t;
+            k0+=step0;
+            k1+=step1;
           }
         } else { // t is scalar-valued
-          const double t = _mp_arg(5);
-          for (unsigned int k = 0; k<siz; ++k) ptrd[k] = ptrs0[k]*(1 - t) + ptrs1[k]*t;
+          const double t = _mp_arg(7);
+          for (unsigned int k0 = 0, k1 = 0, k = 0; k<siz; ++k) {
+            ptrd[k] = ptrs0[k0]*(1 - t) + ptrs1[k1]*t;
+            k0+=step0;
+            k1+=step1;
+          }
         }
         return cimg::type<double>::nan();
       }

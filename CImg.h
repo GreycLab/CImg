@@ -22431,26 +22431,25 @@ namespace cimg_library {
               _cimg_mp_op("Function 'lerp()'");
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss5,s1,depth1,0,block_flags);
+              p1 = size(arg1);
               s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(s1,s2,depth1,0,block_flags);
-              arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):16; // Default value is 0.5
-              _cimg_mp_check_type(arg3,3,1,0);
+              _cimg_mp_check_type(arg2,2,is_scalar(arg1)?1:2,p1);
+              arg3 = compile(++s2,se1,depth1,0,block_flags);
+              _cimg_mp_check_type(arg3,3,3,p1);
+
               if (is_const_scalar(arg3)) { // Optimize constant cases
                 if (!arg3) _cimg_mp_same(arg1);
                 if (arg3==1) _cimg_mp_same(arg2);
                 if (is_const_scalar(arg1) && is_const_scalar(arg2)) {
                   const double t = mem[arg3];
-                  _cimg_mp_const_scalar(mem[arg1]*(1-t) + mem[arg2]*t);
+                  _cimg_mp_const_scalar(mem[arg1]*(1 - t) + mem[arg2]*t);
                 }
               }
-              if (is_scalar(arg1)) {
-                _cimg_mp_check_type(arg2,2,1,0);
-                _cimg_mp_scalar3(mp_lerp,arg1,arg2,arg3);
-              }
-              p1 = size(arg1);
-              _cimg_mp_check_type(arg2,2,2,p1);
+              if (is_scalar(arg1)) _cimg_mp_scalar3(mp_lerp,arg1,arg2,arg3);
               pos = vector(p1);
-              CImg<ulongT>::vector((ulongT)mp_vector_lerp,pos,p1,arg1,arg2,arg3).move_to(code);
+              p3 = size(arg3);
+              CImg<ulongT>::vector((ulongT)mp_vector_lerp,pos,p1,arg1,arg2,arg3,p3).move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -27879,8 +27878,11 @@ namespace cimg_library {
       }
 
       static double mp_lerp(_cimg_math_parser& mp) {
-        const double t = _mp_arg(4);
-        return _mp_arg(2)*(1-t) + _mp_arg(3)*t;
+        const double
+          val0 = _mp_arg(2),
+          val1 = _mp_arg(3),
+          t = _mp_arg(4);
+        return val0*(1 - t) + val1*t;
       }
 
       static double mp_linear_add(_cimg_math_parser& mp) {
@@ -30369,10 +30371,19 @@ namespace cimg_library {
         unsigned int siz = (unsigned int)mp.opcode[2];
         double *ptrd = &_mp_arg(1) + 1;
         const double
-          *ptrs1 = &_mp_arg(3) + 1,
-          *ptrs2 = &_mp_arg(4) + 1,
-          t = _mp_arg(5);
-        for (unsigned int k = 0; k<siz; ++k) ptrd[k] = ptrs1[k]*(1-t) + ptrs2[k]*t;
+          *const ptrs1 = &_mp_arg(3) + 1,
+          *const ptrs2 = &_mp_arg(4) + 1;
+        const unsigned int tsiz = mp.opcode[6];
+        if (tsiz) { // t is vector-valued
+          const double *const ptrt = &_mp_arg(5) + 1;
+          for (unsigned int k = 0; k<siz; ++k) {
+            double t = ptrt[k];
+            ptrd[k] = ptrs1[k]*(1 - t) + ptrs2[k]*t;
+          }
+        } else { // t is scalar-valued
+          const double t = _mp_arg(5);
+          for (unsigned int k = 0; k<siz; ++k) ptrd[k] = ptrs1[k]*(1 - t) + ptrs2[k]*t;
+        }
         return cimg::type<double>::nan();
       }
 

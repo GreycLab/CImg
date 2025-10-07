@@ -30371,18 +30371,18 @@ namespace cimg_library {
         unsigned int siz = (unsigned int)mp.opcode[2];
         double *ptrd = &_mp_arg(1) + 1;
         const double
-          *const ptrs1 = &_mp_arg(3) + 1,
-          *const ptrs2 = &_mp_arg(4) + 1;
+          *const ptrs0 = &_mp_arg(3) + 1,
+          *const ptrs1 = &_mp_arg(4) + 1;
         const unsigned int tsiz = mp.opcode[6];
         if (tsiz) { // t is vector-valued
           const double *const ptrt = &_mp_arg(5) + 1;
           for (unsigned int k = 0; k<siz; ++k) {
             double t = ptrt[k];
-            ptrd[k] = ptrs1[k]*(1 - t) + ptrs2[k]*t;
+            ptrd[k] = ptrs0[k]*(1 - t) + ptrs1[k]*t;
           }
         } else { // t is scalar-valued
           const double t = _mp_arg(5);
-          for (unsigned int k = 0; k<siz; ++k) ptrd[k] = ptrs1[k]*(1 - t) + ptrs2[k]*t;
+          for (unsigned int k = 0; k<siz; ++k) ptrd[k] = ptrs0[k]*(1 - t) + ptrs1[k]*t;
         }
         return cimg::type<double>::nan();
       }

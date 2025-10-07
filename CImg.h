@@ -22433,14 +22433,14 @@ namespace cimg_library {
               arg1 = compile(ss5,s1,depth1,0,block_flags);
               s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(s1,s2,depth1,0,block_flags);
-              arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):16; // Default value is 0.5
+              arg3 = compile(++s2,se1,depth1,0,block_flags);
               _cimg_mp_check_type(arg3,3,1,0);
               if (is_const_scalar(arg3)) { // Optimize constant cases
                 if (!arg3) _cimg_mp_same(arg1);
                 if (arg3==1) _cimg_mp_same(arg2);
                 if (is_const_scalar(arg1) && is_const_scalar(arg2)) {
                   const double t = mem[arg3];
-                  _cimg_mp_const_scalar(mem[arg1]*(1-t) + mem[arg2]*t);
+                  _cimg_mp_const_scalar(mem[arg1]*(1 - t) + mem[arg2]*t);
                 }
               }
               if (is_scalar(arg1)) {
@@ -27879,8 +27879,11 @@ namespace cimg_library {
       }
 
       static double mp_lerp(_cimg_math_parser& mp) {
-        const double t = _mp_arg(4);
-        return _mp_arg(2)*(1-t) + _mp_arg(3)*t;
+        const double
+          val0 = _mp_arg(2),
+          val1 = _mp_arg(3),
+          t = _mp_arg(4);
+        return val0*(1 - t) + val1*t;
       }
 
       static double mp_linear_add(_cimg_math_parser& mp) {

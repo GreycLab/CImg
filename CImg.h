@@ -21948,6 +21948,49 @@ namespace cimg_library {
               return_comp = true;
               _cimg_mp_return(pos);
             }
+
+            if (!std::strncmp(ss,"fft(",4) || !std::strncmp(ss,"ifft(",5)) { // FFT and iFFT
+              is_sth = *ss=='i'; // is_ifft ?
+              _cimg_mp_op(is_sth?"Function 'ifft()'":"Function 'fft()'");
+              s0 = is_sth?ss5:ss4;
+              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(s0,s1,depth1,0,block_flags); // Real part
+              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg2 = compile(s1,s2,depth1,0,block_flags); // Imaginary part
+              arg3 = ~0U; arg4 = arg5 = arg6 = 1; p1 = 0;
+              if (s2<se1) {
+                s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                arg3 = compile(s2,s1,depth1,0,block_flags); // Width
+                if (s1<se1) {
+                  s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                  arg4 = compile(s1,s2,depth1,0,block_flags); // Height
+                  if (s2<se1) {
+                    s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                    arg5 = compile(s2,s1,depth1,0,block_flags); // Depth
+                    if (s1<se1) {
+                      s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                      arg6 = compile(s1,s2,depth1,0,block_flags); // Spectrum
+                      p1 = s2<se1?compile(s2,se1,depth1,0,block_flags):~0U; // Axes
+                    }
+                  }
+                }
+              }
+              if (arg3!=~0U) _cimg_mp_check_const_scalar(3,arg3,3);
+              _cimg_mp_check_const_scalar(4,arg4,3);
+              _cimg_mp_check_const_scalar(5,arg5,3);
+              _cimg_mp_check_const_scalar(6,arg6,3);
+              if (arg3!=~0U) arg3 = (unsigned int)mem[arg3]; else arg3 = size(arg1);
+              arg4 = (unsigned int)mem[arg4];
+              arg5 = (unsigned int)mem[arg5];
+              arg6 = (unsigned int)mem[arg6];
+              p2 = arg3*arg4*arg5*arg6;
+              _cimg_mp_check_type(arg1,1,2,p2);
+              _cimg_mp_check_type(arg2,2,2,p2);
+              _cimg_mp_check_type(p1,7,1,0);
+              CImg<ulongT>::vector((ulongT)mp_fft,_cimg_mp_slot_nan,is_sth,arg1,arg2,arg3,arg4,arg5,arg6,p1).
+                move_to(code);
+              _cimg_mp_return_nan();
+            }
             break;
 
           case 'g' :
@@ -26978,6 +27021,23 @@ namespace cimg_library {
         return p2<ptr2e?-1.:(double)(ptr1 - ptr1b);
       }
 
+      static double mp_fft(_cimg_math_parser& mp) {
+        const bool is_ifft = (bool)mp.opcode[2];
+        double *const ptr_r = &_mp_arg(3) + 1, *const ptr_i = &_mp_arg(4) + 1;
+        const unsigned int
+          w = (unsigned int)mp.opcode[5],
+          h = (unsigned int)mp.opcode[6],
+          d = (unsigned int)mp.opcode[7],
+          s = (unsigned int)mp.opcode[8];
+        const char axis = (char)_mp_arg(9);
+        CImgList<doubleT> pair(2);
+        pair[0].assign(ptr_r,w,h,d,s,true); // Real part
+        pair[1].assign(ptr_i,w,h,d,s,true); // Imaginary part
+        if (axis=='x' || axis=='y' || axis=='z' || axis=='c') pair.FFT(axis,is_ifft);
+        else pair.FFT(is_ifft);
+        return cimg::type<double>::nan();
+      }
+
       static double mp_flood(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
         unsigned int ind = (unsigned int)mp.opcode[3];
@@ -27020,10 +27080,6 @@ namespace cimg_library {
 
       static double mp_floor(_cimg_math_parser& mp) {
         return std::floor(_mp_arg(2));
-      }
-
-      static double mp_frac(_cimg_math_parser& mp) {
-        return cimg::frac(_mp_arg(2));
       }
 
       static double mp_for(_cimg_math_parser& mp) {
@@ -27081,6 +27137,10 @@ namespace cimg_library {
         mp.break_type = _break_type;
         mp.p_code = p_end - 1;
         return mp.mem[mem_body];
+      }
+
+      static double mp_frac(_cimg_math_parser& mp) {
+        return cimg::frac(_mp_arg(2));
       }
 
       static double mp_fsize(_cimg_math_parser& mp) {

@@ -23383,25 +23383,76 @@ namespace cimg_library {
             }
 #endif
 
-            // 'shift(V,_length,_boundary_conditions)' or 'shift(A,wA,hA,dA,sA,dx,_dy,_dz,_dc,_boundary_conditions,_interpolation)'
+            // 'shift(V,_length,_boundary_conditions)' or
+            // 'shift(A,wA,hA,dA,sA,_dx,_dy,_dz,_dc,_boundary_conditions,_interpolation)'
             if (!std::strncmp(ss,"shift(",6)) { // Shift vector
               _cimg_mp_op("Function 'shift()'");
-              s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss6,s1,depth1,0,block_flags);
-              arg2 = 1; arg3 = 0;
-              if (s1<se1) {
-                s0 = ++s1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
-                arg2 = compile(s1,s0,depth1,0,block_flags);
-                arg3 = s0<se1?compile(++s0,se1,depth1,0,block_flags):0;
+
+              // Parse list of arguments.
+              CImg<unsigned int> args(12,1,1,1,0);
+              p1 = 0;
+              for (s = ss6; s<se && p1<11; ++s) {
+                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                arg1 = compile(s,ns,depth1,0,block_flags);
+                args[p1++] = arg1;
+                s = ns;
               }
-              _cimg_mp_check_type(arg1,1,2,0);
-              _cimg_mp_check_type(arg2,2,1,0);
-              _cimg_mp_check_type(arg3,3,1,0);
-              p1 = size(arg1);
-              pos = vector(p1);
-              CImg<ulongT>::vector((ulongT)mp_vector_shift,pos,arg1,p1,arg2,arg3).move_to(code);
-              return_comp = true;
-              _cimg_mp_return(pos);
+              if (p1<4) { // Shift vector
+                if (p1<1) compile(s,se1,depth1,0,block_flags); // -> Error, missing arguments
+                arg1 = args[0];
+                arg2 = p1>1?args[1]:1;
+                arg3 = p1>2?args[2]:0;
+                _cimg_mp_check_type(arg1,1,2,0);
+                _cimg_mp_check_type(arg2,2,1,0);
+                _cimg_mp_check_type(arg3,3,1,0);
+                p1 = size(arg1);
+                pos = vector(p1);
+                CImg<ulongT>::vector((ulongT)mp_vector_shift,pos,arg1,p1,arg2,arg3).move_to(code);
+                return_comp = true;
+                _cimg_mp_return(pos);
+              } else { // Shift image-valued vector
+                if (p1<5) compile(s,se1,depth1,0,block_flags); // -> Error, missing arguments
+                _cimg_mp_check_type(args[0],1,2,0); // I
+                _cimg_mp_check_const_scalar(args[1],2,3); // w
+                _cimg_mp_check_const_scalar(args[2],3,3); // h
+                _cimg_mp_check_const_scalar(args[3],4,3); // d
+                _cimg_mp_check_const_scalar(args[4],5,3); // s
+                args[1] = mem[args[1]];
+                args[2] = mem[args[2]];
+                args[3] = mem[args[3]];
+                args[4] = mem[args[4]];
+                arg1 = p1>5?args[5]:1; // dx
+                arg2 = p1>6?args[6]:0; // dy
+                arg3 = p1>7?args[7]:0; // dz
+                arg4 = p1>8?args[8]:0; // dc
+                arg5 = p1>9?args[9]:0; // boundary_conditions
+                arg6 = p1>10?args[10]:0; // interpolation
+                _cimg_mp_check_type(arg1,6,1,0);
+                _cimg_mp_check_type(arg2,7,1,0);
+                _cimg_mp_check_type(arg3,8,1,0);
+                _cimg_mp_check_type(arg4,9,1,0);
+                _cimg_mp_check_type(arg5,10,1,0);
+                _cimg_mp_check_type(arg6,11,1,0);
+                p1 = size(args[0]);
+                p2 = args[1]*args[2]*args[3]*args[4];
+                if (p1!=p2) {
+                  _cimg_mp_strerr;
+                  throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                              "CImg<%s>::%s: %s: Vector size (%lu values) and its specified "
+                                              "geometry (%u,%u,%u,%u) (%lu values) do not match.",
+                                              pixel_type(),_cimg_mp_calling_function,s_op,
+                                              std::max(p1,1U),args[1],args[2],args[3],args[4],
+                                              (ulongT)args[1]*args[2]*args[3]*args[4]);
+                }
+                pos = vector(p1);
+                CImg<ulongT>::vector((ulongT)mp_image_shift,pos,args[0],
+                                     args[1],args[2],args[3],args[4],
+                                     arg1,arg2,arg3,arg4,
+                                     arg5,arg6).move_to(code);
+                return_comp = true;
+                _cimg_mp_return(pos);
+              }
             }
 
             if (!std::strncmp(ss,"sign(",5)) { // Sign
@@ -29851,6 +29902,21 @@ namespace cimg_library {
           boundary_conditions = (int)_mp_arg(5);
         CImg<doubleT>(ptrd,siz,1,1,1,true) =
           CImg<doubleT>(ptrs,siz,1,1,1,true).get_shift(shift,0,0,0,boundary_conditions);
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_image_shift(_cimg_math_parser& mp) {
+        double *const ptrd = &_mp_arg(1) + 1;
+        const double *const ptrs = &_mp_arg(2) + 1;
+        const unsigned int
+          w = (unsigned int)mp.opcode[3],
+          h = (unsigned int)mp.opcode[4],
+          d = (unsigned int)mp.opcode[5],
+          s = (unsigned int)mp.opcode[6];
+        const double dx = _mp_arg(7), dy = _mp_arg(8), dz = _mp_arg(9), dc = _mp_arg(10);
+        const unsigned int boundary_conditions = (unsigned int)cimg::cut(_mp_arg(11),0.,3.);
+        CImg<doubleT>(ptrd,w,h,d,s,true) =
+          CImg<doubleT>(ptrs,w,h,d,s,true).get_shift(dx,dy,dz,dc,boundary_conditions);
         return cimg::type<double>::nan();
       }
 

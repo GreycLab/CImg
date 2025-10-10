@@ -23384,7 +23384,7 @@ namespace cimg_library {
 #endif
 
             // 'shift(V,_length,_boundary_conditions)' or
-            // 'shift(A,wA,hA,dA,sA,_dx,_dy,_dz,_dc,_boundary_conditions,_interpolation)'
+            // 'shift(A,wA,hA,dA,sA,_dx,_dy,_dz,_dc,_boundary_conditions)'
             if (!std::strncmp(ss,"shift(",6)) { // Shift vector
               _cimg_mp_op("Function 'shift()'");
 

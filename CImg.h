@@ -21948,49 +21948,6 @@ namespace cimg_library {
               return_comp = true;
               _cimg_mp_return(pos);
             }
-
-            if (!std::strncmp(ss,"fft(",4) || !std::strncmp(ss,"ifft(",5)) { // FFT and iFFT
-              is_sth = *ss=='i'; // is_ifft ?
-              _cimg_mp_op(is_sth?"Function 'ifft()'":"Function 'fft()'");
-              s0 = is_sth?ss5:ss4;
-              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(s0,s1,depth1,0,block_flags); // Real part
-              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-              arg2 = compile(s1,s2,depth1,0,block_flags); // Imaginary part
-              arg3 = ~0U; arg4 = arg5 = arg6 = 1; p1 = 0;
-              if (s2<se1) {
-                s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                arg3 = compile(s2,s1,depth1,0,block_flags); // Width
-                if (s1<se1) {
-                  s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-                  arg4 = compile(s1,s2,depth1,0,block_flags); // Height
-                  if (s2<se1) {
-                    s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                    arg5 = compile(s2,s1,depth1,0,block_flags); // Depth
-                    if (s1<se1) {
-                      s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-                      arg6 = compile(s1,s2,depth1,0,block_flags); // Spectrum
-                      p1 = s2<se1?compile(s2,se1,depth1,0,block_flags):~0U; // Axes
-                    }
-                  }
-                }
-              }
-              if (arg3!=~0U) _cimg_mp_check_const_scalar(3,arg3,3);
-              _cimg_mp_check_const_scalar(4,arg4,3);
-              _cimg_mp_check_const_scalar(5,arg5,3);
-              _cimg_mp_check_const_scalar(6,arg6,3);
-              if (arg3!=~0U) arg3 = (unsigned int)mem[arg3]; else arg3 = size(arg1);
-              arg4 = (unsigned int)mem[arg4];
-              arg5 = (unsigned int)mem[arg5];
-              arg6 = (unsigned int)mem[arg6];
-              p2 = arg3*arg4*arg5*arg6;
-              _cimg_mp_check_type(arg1,1,2,p2);
-              _cimg_mp_check_type(arg2,2,2,p2);
-              _cimg_mp_check_type(p1,7,1,0);
-              CImg<ulongT>::vector((ulongT)mp_fft,_cimg_mp_slot_nan,is_sth,arg1,arg2,arg3,arg4,arg5,arg6,p1).
-                move_to(code);
-              _cimg_mp_return_nan();
-            }
             break;
 
           case 'g' :
@@ -24286,6 +24243,58 @@ namespace cimg_library {
               _cimg_mp_scalar2(mp_bitwise_xor,arg1,arg2);
             }
             break;
+          }
+
+          if (!std::strncmp(ss,"fft(",4) || !std::strncmp(ss,"ifft(",5)) { // FFT and iFFT
+            is_sth = *ss=='i'; // is_ifft ?
+            _cimg_mp_op(is_sth?"Function 'ifft()'":"Function 'fft()'");
+            s0 = is_sth?ss5:ss4;
+            s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+            arg1 = compile(s0,s1,depth1,0,block_flags); // Real part
+            p1 = size(arg1);
+            s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+            arg2 = compile(s1,s2,depth1,0,block_flags); // Imaginary part
+            arg3 = ~0U; arg4 = arg5 = arg6 = 1; p3 = 0;
+            if (s2<se1) {
+              s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg3 = compile(s2,s1,depth1,0,block_flags); // Width
+              if (s1<se1) {
+                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                arg4 = compile(s1,s2,depth1,0,block_flags); // Height
+                if (s2<se1) {
+                  s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                  arg5 = compile(s2,s1,depth1,0,block_flags); // Depth
+                  if (s1<se1) {
+                    s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+                    arg6 = compile(s1,s2,depth1,0,block_flags); // Spectrum
+                    p3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):~0U; // Axes
+                  }
+                }
+              }
+            }
+            if (arg3!=~0U) _cimg_mp_check_const_scalar(3,arg3,3);
+            _cimg_mp_check_const_scalar(4,arg4,3);
+            _cimg_mp_check_const_scalar(5,arg5,3);
+            _cimg_mp_check_const_scalar(6,arg6,3);
+            if (arg3!=~0U) arg3 = (unsigned int)mem[arg3]; else arg3 = p1;
+            arg4 = (unsigned int)mem[arg4];
+            arg5 = (unsigned int)mem[arg5];
+            arg6 = (unsigned int)mem[arg6];
+            p2 = arg3*arg4*arg5*arg6;
+            if (p1!=p2) {
+              _cimg_mp_strerr;
+              throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                          "CImg<%s>::%s: %s: Vector size (%lu values) and its specified "
+                                          "geometry (%u,%u,%u,%u) (%lu values) do not match.",
+                                          pixel_type(),_cimg_mp_calling_function,s_op,
+                                          std::max(p1,1U),arg3,arg4,arg5,arg6,(ulongT)arg3*arg4*arg5*arg6);
+            }
+            _cimg_mp_check_type(arg1,1,2,p2);
+            _cimg_mp_check_type(arg2,2,2,p2);
+            _cimg_mp_check_type(p3,7,1,0);
+            CImg<ulongT>::vector((ulongT)mp_fft,_cimg_mp_slot_nan,is_sth,arg1,arg2,arg3,arg4,arg5,arg6,p3).
+              move_to(code);
+            _cimg_mp_return_nan();
           }
 
           if ((!std::strncmp(ss,"norm",4) && ss4<se1 && (s = std::strchr(ss4,'('))!=0) || // Lp norm (constant p)

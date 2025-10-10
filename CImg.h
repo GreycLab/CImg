@@ -23383,6 +23383,7 @@ namespace cimg_library {
             }
 #endif
 
+            // 'shift(V,_length,_boundary_conditions)' or 'shift(A,wA,hA,dA,sA,dx,_dy,_dz,_dc,_boundary_conditions,_interpolation)'
             if (!std::strncmp(ss,"shift(",6)) { // Shift vector
               _cimg_mp_op("Function 'shift()'");
               s1 = ss6; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -23398,7 +23399,7 @@ namespace cimg_library {
               _cimg_mp_check_type(arg3,3,1,0);
               p1 = size(arg1);
               pos = vector(p1);
-              CImg<ulongT>::vector((ulongT)mp_shift,pos,arg1,p1,arg2,arg3).move_to(code);
+              CImg<ulongT>::vector((ulongT)mp_vector_shift,pos,arg1,p1,arg2,arg3).move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -29841,7 +29842,7 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_shift(_cimg_math_parser& mp) {
+      static double mp_vector_shift(_cimg_math_parser& mp) {
         double *const ptrd = &_mp_arg(1) + 1;
         const double *const ptrs = &_mp_arg(2) + 1;
         const unsigned int siz = (unsigned int)mp.opcode[3];

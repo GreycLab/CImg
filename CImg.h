@@ -23383,21 +23383,21 @@ namespace cimg_library {
             }
 #endif
 
-            // 'shift(V,_length,_boundary_conditions)' or
-            // 'shift(A,wA,hA,dA,sA,_dx,_dy,_dz,_dc,_boundary_conditions)'
             if (!std::strncmp(ss,"shift(",6)) { // Shift vector
               _cimg_mp_op("Function 'shift()'");
 
               // Parse list of arguments.
               CImg<unsigned int> args(12,1,1,1,0);
               p1 = 0;
-              for (s = ss6; s<se && p1<11; ++s) {
+              for (s = ss6; s<se && p1<9; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                 arg1 = compile(s,ns,depth1,0,block_flags);
                 args[p1++] = arg1;
                 s = ns;
               }
+              if (s<se1) args[p1++] = compile(s,se1,depth1,0,block_flags); // Last argument
+
               if (p1<4) { // Shift vector
                 if (p1<1) compile(s,se1,depth1,0,block_flags); // -> Error, missing arguments
                 arg1 = args[0];
@@ -23427,13 +23427,11 @@ namespace cimg_library {
                 arg3 = p1>7?args[7]:0; // dz
                 arg4 = p1>8?args[8]:0; // dc
                 arg5 = p1>9?args[9]:0; // boundary_conditions
-                arg6 = p1>10?args[10]:0; // interpolation
                 _cimg_mp_check_type(arg1,6,1,0);
                 _cimg_mp_check_type(arg2,7,1,0);
                 _cimg_mp_check_type(arg3,8,1,0);
                 _cimg_mp_check_type(arg4,9,1,0);
                 _cimg_mp_check_type(arg5,10,1,0);
-                _cimg_mp_check_type(arg6,11,1,0);
                 p1 = size(args[0]);
                 p2 = args[1]*args[2]*args[3]*args[4];
                 if (p1!=p2) {
@@ -23448,8 +23446,7 @@ namespace cimg_library {
                 pos = vector(p1);
                 CImg<ulongT>::vector((ulongT)mp_image_shift,pos,args[0],
                                      args[1],args[2],args[3],args[4],
-                                     arg1,arg2,arg3,arg4,
-                                     arg5,arg6).move_to(code);
+                                     arg1,arg2,arg3,arg4,arg5).move_to(code);
                 return_comp = true;
                 _cimg_mp_return(pos);
               }

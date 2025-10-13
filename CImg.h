@@ -46248,13 +46248,12 @@ namespace cimg_library {
         if (sw<4 && sh<4 && (!is_3d || sd<4)) continue; // Skip too small scales
 
         const float
-          t = (_nb_scales - 1 - scale)/(_nb_scales - 1.0f),
+          t = _nb_scales<2?1:(_nb_scales - 1 - scale)/(_nb_scales - 1.0f),
           omt = 1 - t,
           sigma_start = 1.25f,
           sigma_end = 0.5f,
           sigma = sigma_start*omt + sigma_end*t,
           __precision = _precision/fact;
-
         CImg<Tfloat>
           R = reference.get_resize(sw,sh,sd,-100,2).blur(sigma).normalize(0,1),
           I = get_resize(R,2).blur(sigma).normalize(0,1);
@@ -46288,7 +46287,6 @@ namespace cimg_library {
           cimg_abort_test;
           double _energy = 0;
           CImg<floatT> V(U._width,U._height,U._depth,U._spectrum);
-
           if (is_3d) { // 3D version
             cimg_pragma_openmp(parallel for cimg_openmp_collapse(2)
                                cimg_openmp_if(_height*_depth>=(cimg_openmp_sizefactor)*8 &&
@@ -46379,7 +46377,7 @@ namespace cimg_library {
           } else { // 2D version
             cimg_pragma_openmp(parallel for cimg_openmp_if(_height>=(cimg_openmp_sizefactor)*8 &&
                                                            _width>=(cimg_openmp_sizefactor)*16) reduction(+:_energy))
-              cimg_forY(U,y) {
+            cimg_forY(U,y) {
               const int _p1y = y?y - 1:0, _n1y = y<U.height() - 1?y + 1:y;
               cimg_for3X(U,x) {
                 const float
@@ -46434,7 +46432,7 @@ namespace cimg_library {
 
             // Update displacement field.
             float Vmin,Vmax = V.max_min(Vmin);
-            const float _dt = dt/std::max(cimg::abs(Vmin),cimg::abs(Vmax));
+            const float _dt = dt/cimg::max(1e-8f,cimg::abs(Vmin),cimg::abs(Vmax));
             cimg_openmp_for(U,*ptr + _dt*V[ptr - U._data],32768,float);
 
             if (C) // Apply constraints
@@ -46448,7 +46446,7 @@ namespace cimg_library {
           }
 
           const double d_energy = (_energy - energy)/(I._width*I._height*I._depth);
-          if (d_energy<=0 && -d_energy<__precision) break;
+          if ((d_energy<=0 && -d_energy<__precision) || _energy<__precision) break;
           if (d_energy>0) { dt*=0.5f; --iteration; }
           energy = _energy;
         }

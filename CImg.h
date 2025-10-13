@@ -46292,7 +46292,7 @@ namespace cimg_library {
                                cimg_openmp_if(_height*_depth>=(cimg_openmp_sizefactor)*8 &&
                                               _width>=(cimg_openmp_sizefactor)*16)
                                reduction(+:_energy))
-              cimg_forYZ(U,y,z) {
+            cimg_forYZ(U,y,z) {
               const int
                 _p1y = y?y - 1:0, _n1y = y<U.height() - 1?y + 1:y,
                 _p1z = z?z - 1:0, _n1z = z<U.depth() - 1?z + 1:z;
@@ -46361,7 +46361,7 @@ namespace cimg_library {
 
             // Update displacement field.
             float Vmin,Vmax = V.max_min(Vmin);
-            const float _dt = dt/std::max(cimg::abs(Vmin),cimg::abs(Vmax));
+            const float _dt = dt/cimg::max(1e-8f,cimg::abs(Vmin),cimg::abs(Vmax));
             cimg_openmp_for(U,*ptr + _dt*V[ptr - U._data],32768,float);
 
             if (C) // Apply constraints

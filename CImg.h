@@ -33902,7 +33902,12 @@ namespace cimg_library {
 
     //! Compute the QR decomposition of the instance matrix.
     /**
-       Fill the images Q and R so that *this = Q*R, and R an upper-triangular matrix.
+       Given an instance matrix (*this) of size m×n (m rows, n columns),
+       fill the matrices Q and R, so that *this = Q*R.
+       - Q is an orthogonal matrix, of size 'm×m' if 'reduced_form==false', or 'm×min(m,n)' otherwise.
+       - R is an upper-trianguler matrix of size 'm×n' if 'reduced_form==false' or 'min(m,n)×n' otherwise.
+       - Q^T*Q = Id.
+       - If n>m, only the first m×m part of R is upper triangular.
     **/
     template<typename t>
     const CImg<T>& QR(CImg<t>& Q, CImg<t>& R, const bool reduced_form=true) const {

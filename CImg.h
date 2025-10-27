@@ -33905,7 +33905,7 @@ namespace cimg_library {
        Fill the images Q and R so that *this = Q*R, and R an upper-triangular matrix.
     **/
     template<typename t>
-    const CImg<T>& QR(CImg<t>& Q, CImg<t>& R) const {
+    const CImg<T>& QR(CImg<t>& Q, CImg<t>& R, const bool reduced_form=true) const {
       const int m = height(), n = width(), k = std::min(m,n);
       CImg<doubleT> _R(*this,false), _Q = CImg<doubleT>::identity_matrix(m);
 
@@ -33935,9 +33935,12 @@ namespace cimg_library {
 
       // Force R to be upper-triangular.
       for (int y = 1; y<m; ++y) for (int x = 0; x<std::min(y,n); ++x) _R(x,y) = 0.;
-
-      _R.move_to(R);
+      if (reduced_form && m>n) {
+        _Q.crop(0,0,n - 1,m - 1);  // Keep only first n columns of Q
+        _R.crop(0,0,n - 1,n - 1);  // Keep only top n×n part of R
+      }
       _Q.move_to(Q);
+      _R.move_to(R);
       return *this;
     }
 

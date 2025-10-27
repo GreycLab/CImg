@@ -33900,6 +33900,47 @@ namespace cimg_library {
       return res;
     }
 
+    //! Compute the QR decomposition of the instance matrix.
+    /**
+       Fill the images Q and R so that *this = Q*R, and R an upper-triangular matrix.
+    **/
+    template<typename t>
+    const CImg<T>& QR(CImg<t>& Q, CImg<t>& R) const {
+      const int m = height(), n = width(), k = std::min(m,n);
+      CImg<doubleT> _R(*this,false), _Q = CImg<doubleT>::identity_matrix(m);
+
+      for (int j = 0; j<k; ++j) {
+
+        // Build the Householder vector v.
+        CImg<doubleT> x = _R.get_crop(j,j,j,m);
+        const double normx = x.magnitude();
+        if (normx<1e-15) continue;
+        x[0]+=cimg::sign(x[0])*normx;
+        x/=x.magnitude();
+
+        // Apply reflection to R
+        for (int col = j; col<n; ++col) {
+          double dot = 0;
+          for (int i = j; i<m; ++i) dot+=x[i - j]*_R(col,i);
+          for (int i = j; i<m; ++i) _R(col,i)-=2*x[i - j]*dot;
+        }
+
+        // Apply reflection to Q.
+        for (int row = 0; row<m; ++row){
+          double dot = 0;
+          for (int i = j; i<m; ++i) dot+=_Q(i,row)*x[i - j];
+          for (int i = j; i<m; ++i) _Q(i,row)-=2*x(i - j,0)*dot;
+        }
+      }
+
+      // Force R to be upper-triangular.
+      for (int y = 1; y<m; ++y) for (int x = 0; x<std::min(y,n); ++x) _R(x,y) = 0.;
+
+      _R.move_to(R);
+      _Q.move_to(Q);
+      return *this;
+    }
+
     // [internal] Compute the LU decomposition of a permuted matrix.
     template<typename t>
     CImg<T>& _LU(CImg<t>& indx, bool& d) {

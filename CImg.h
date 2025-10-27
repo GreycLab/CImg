@@ -33911,6 +33911,12 @@ namespace cimg_library {
     **/
     template<typename t>
     const CImg<T>& QR(CImg<t>& Q, CImg<t>& R, const bool reduced_form=true) const {
+      if (is_empty()) { Q.assign(); R.assign(); return *this; }
+      if (_depth!=1 || _spectrum!=1)
+        throw CImgInstanceException(_cimg_instance
+                                    "QR(): Instance image is not a matrix (has depth = %u and spectrum = %u).",
+                                    cimg_instance,_depth,_spectrum);
+
       const int m = height(), n = width(), k = std::min(m,n);
       CImg<doubleT> _R(*this,false), _Q = CImg<doubleT>::identity_matrix(m);
 
@@ -34032,8 +34038,8 @@ namespace cimg_library {
                                     const unsigned int max_iter=0, const double max_residual=1e-6) const {
       if (_depth!=1 || _spectrum!=1)
         throw CImgInstanceException(_cimg_instance
-                                    "project_matrix(): Instance image is not a matrix.",
-                                    cimg_instance);
+                                    "project_matrix(): Instance image is not a matrix (has depth = %u and spectrum = %u).",
+                                    cimg_instance,_depth,_spectrum);
       if (dictionary._height!=_height || dictionary._depth!=1 || dictionary._spectrum!=1)
         throw CImgArgumentException(_cimg_instance
                                     "project_matrix(): Specified dictionary (%u,%u,%u,%u) has an invalid size.",

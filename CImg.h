@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 363
+#define cimg_version 364
 
 /*-----------------------------------------------------------
  #
@@ -651,31 +651,6 @@ extern "C" {
 #define TINYEXR_IMPLEMENTATION
 #endif
 #include "tinyexr.h"
-#endif
-
-// Lapack configuration.
-// (http://www.netlib.org/lapack)
-//
-// Define 'cimg_use_lapack' to enable LAPACK support.
-//
-// Lapack library may be used in several CImg methods to speed up
-// matrix computations (eigenvalues, inverse, ...).
-#ifdef cimg_use_lapack
-extern "C" {
-  extern void sgetrf_(int*, int*, float*, int*, int*, int*);
-  extern void sgetri_(int*, float*, int*, int*, float*, int*, int*);
-  extern void sgetrs_(char*, int*, int*, float*, int*, int*, float*, int*, int*);
-  extern void sgesvd_(char*, char*, int*, int*, float*, int*, float*, float*, int*, float*, int*, float*, int*, int*);
-  extern void ssyev_(char*, char*, int*, float*, int*, float*, float*, int*, int*);
-  extern void dgetrf_(int*, int*, double*, int*, int*, int*);
-  extern void dgetri_(int*, double*, int*, int*, double*, int*, int*);
-  extern void dgetrs_(char*, int*, int*, double*, int*, int*, double*, int*, int*);
-  extern void dgesvd_(char*, char*, int*, int*, double*, int*, double*, double*,
-                      int*, double*, int*, double*, int*, int*);
-  extern void dsyev_(char*, char*, int*, double*, int*, double*, double*, int*, int*);
-  extern void dgels_(char*, int*,int*,int*,double*,int*,double*,int*,double*,int*,int*);
-  extern void sgels_(char*, int*,int*,int*,float*,int*,float*,int*,float*,int*,int*);
-}
 #endif
 
 // Check if min/max/PI macros are defined.
@@ -8199,15 +8174,6 @@ namespace cimg_library {
 #endif
                    cimg::t_normal);
 
-      std::fprintf(cimg::output(),"  > Using LAPACK library:     %s%-13s%s %s('cimg_use_lapack' %s)%s\n",
-                   cimg::t_bold,
-#ifdef cimg_use_lapack
-                   "Yes",cimg::t_normal,cimg::t_green,"defined",
-#else
-                   "No",cimg::t_normal,cimg::t_green,"undefined",
-#endif
-                   cimg::t_normal);
-
       char *const tmp = new char[1024];
 
       cimg_snprintf(tmp,1024,"\"%.1020s\"",cimg::curl_path());
@@ -8280,70 +8246,6 @@ namespace cimg_library {
       std::fprintf(cimg::output(),"\n");
       delete[] tmp;
     }
-
-    // Declare LAPACK function signatures if LAPACK support is enabled.
-#ifdef cimg_use_lapack
-    template<typename T>
-    inline void getrf(int &N, T *lapA, int *IPIV, int &INFO) {
-      dgetrf_(&N,&N,lapA,&N,IPIV,&INFO);
-    }
-
-    inline void getrf(int &N, float *lapA, int *IPIV, int &INFO) {
-      sgetrf_(&N,&N,lapA,&N,IPIV,&INFO);
-    }
-
-    template<typename T>
-    inline void getri(int &N, T *lapA, int *IPIV, T* WORK, int &LWORK, int &INFO) {
-      dgetri_(&N,lapA,&N,IPIV,WORK,&LWORK,&INFO);
-    }
-
-    inline void getri(int &N, float *lapA, int *IPIV, float* WORK, int &LWORK, int &INFO) {
-      sgetri_(&N,lapA,&N,IPIV,WORK,&LWORK,&INFO);
-    }
-
-    template<typename T>
-    inline void gesvd(char &JOB, int &M, int &N, T *lapA, int &MN,
-                      T *lapS, T *lapU, T *lapV, T *WORK, int &LWORK, int &INFO) {
-      dgesvd_(&JOB,&JOB,&M,&N,lapA,&MN,lapS,lapU,&M,lapV,&N,WORK,&LWORK,&INFO);
-    }
-
-    inline void gesvd(char &JOB, int &M, int &N, float *lapA, int &MN,
-                      float *lapS, float *lapU, float *lapV, float *WORK, int &LWORK, int &INFO) {
-      sgesvd_(&JOB,&JOB,&M,&N,lapA,&MN,lapS,lapU,&M,lapV,&N,WORK,&LWORK,&INFO);
-    }
-
-    template<typename T>
-    inline void getrs(char &TRANS, int &N, T *lapA, int *IPIV, T *lapB, int &INFO) {
-      int one = 1;
-      dgetrs_(&TRANS,&N,&one,lapA,&N,IPIV,lapB,&N,&INFO);
-    }
-
-    inline void getrs(char &TRANS, int &N, float *lapA, int *IPIV, float *lapB, int &INFO) {
-      int one = 1;
-      sgetrs_(&TRANS,&N,&one,lapA,&N,IPIV,lapB,&N,&INFO);
-    }
-
-    template<typename T>
-    inline void syev(char &JOB, char &UPLO, int &N, T *lapA, T *lapW, T *WORK, int &LWORK, int &INFO) {
-      dsyev_(&JOB,&UPLO,&N,lapA,&N,lapW,WORK,&LWORK,&INFO);
-    }
-
-    inline void syev(char &JOB, char &UPLO, int &N, float *lapA, float *lapW, float *WORK, int &LWORK, int &INFO) {
-      ssyev_(&JOB,&UPLO,&N,lapA,&N,lapW,WORK,&LWORK,&INFO);
-    }
-
-    template<typename T>
-    inline void sgels(char & TRANS, int &M, int &N, int &NRHS, T* lapA, int &LDA,
-                      T* lapB, int &LDB, T* WORK, int &LWORK, int &INFO) {
-      dgels_(&TRANS, &M, &N, &NRHS, lapA, &LDA, lapB, &LDB, WORK, &LWORK, &INFO);
-    }
-
-    inline void sgels(char & TRANS, int &M, int &N, int &NRHS, float* lapA, int &LDA,
-                      float* lapB, int &LDB, float* WORK, int &LWORK, int &INFO) {
-      sgels_(&TRANS, &M, &N, &NRHS, lapA, &LDA, lapB, &LDB, WORK, &LWORK, &INFO);
-    }
-
-#endif
 
   } // namespace cimg { ...
 
@@ -8460,8 +8362,8 @@ namespace cimg_library {
   }
 
   template<typename T>
-  inline CImg<_cimg_Tfloat> invert(const CImg<T>& instance, const bool use_LU=false, const float lambda=0) {
-    return instance.get_invert(use_LU,lambda);
+  inline CImg<_cimg_Tfloat> invert(const CImg<T>& instance) {
+    return instance.get_invert();
   }
 
 #define _cimg_create_pointwise_function(name) \
@@ -22205,25 +22107,11 @@ namespace cimg_library {
               _cimg_mp_op("Function 'invert()'");
               s1 = ss7; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss7,s1,depth1,0,block_flags); // A
-              arg2 = ~0U; // nb_colsA
-              arg3 = 0; // use_LU
-              arg4 = 0; // lambda
-              if (s1<se1) {
-                s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-                arg2 = compile(s1,s2,depth1,0,block_flags);
-                if (s2<se1) {
-                  s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                  arg3 = compile(s2,s1,depth1,0,block_flags);
-                  arg4 = s1<se1?compile(++s1,se1,depth1,0,block_flags):0;
-                }
-              }
+              arg2 = s1<se1?compile(++s1,se1,depth1,0,block_flags):~0U; // nb_colsA
               if (arg2!=~0U) {
                 _cimg_mp_check_const_scalar(arg2,2,3);
                 arg2 = (unsigned int)mem[arg2];
               }
-              _cimg_mp_check_type(arg3,3,1,0);
-              _cimg_mp_check_type(arg4,4,1,0);
-
               if (is_vector(arg1)) {
                 p1 = size(arg1);
                 if (arg2==~0U) { // nb_colsA not specified: assuming square matrix
@@ -22243,7 +22131,7 @@ namespace cimg_library {
                   }
                 }
                 pos = vector(p1);
-                CImg<ulongT>::vector((ulongT)mp_matrix_invert,pos,arg1,p2,p3,arg3,arg4).move_to(code);
+                CImg<ulongT>::vector((ulongT)mp_matrix_invert,pos,arg1,p2,p3).move_to(code);
                 return_comp = true;
                 _cimg_mp_return(pos);
               }
@@ -22993,6 +22881,38 @@ namespace cimg_library {
             }
             break;
 
+          case 'q' :
+            if (!std::strncmp(ss,"qr(",3)) { // QR decomposition
+              _cimg_mp_op("Function 'qr()'");
+              s1 = ss3; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss3,s1,depth1,0,block_flags); // A
+              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg2 = compile(s1,s2,depth1,0,block_flags); // nb_colsA
+              arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):1; // is_reduced_form
+              _cimg_mp_check_type(arg1,1,2,0);
+              _cimg_mp_check_const_scalar(arg2,2,3);
+              _cimg_mp_check_const_scalar(arg3,3,2);
+
+              p1 = size(arg1);
+              p2 = (unsigned int)mem[arg2];
+              p3 = p1/p2;
+              arg3 = (unsigned int)mem[arg3];
+              if (p3*p2!=p1) {
+                _cimg_mp_strerr;
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: Type of first argument ('%s') "
+                                            "does not match with second argument 'nb_colsA=%u', "
+                                            "in expression '%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            s_type(arg1)._data,p2,s0);
+              }
+              pos = vector((p2 + p3)*(arg3?std::min(p2,p3):p3)); // Size of output
+              CImg<ulongT>::vector((ulongT)mp_matrix_qr,pos,arg1,p2,p3,arg3).move_to(code);
+              return_comp = true;
+              _cimg_mp_return(pos);
+            }
+            break;
+
           case 'r' :
             if (!std::strncmp(ss,"rad2deg(",8)) { // Degrees to radians
               _cimg_mp_op("Function 'rad2deg()'");
@@ -23522,17 +23442,10 @@ namespace cimg_library {
               arg1 = compile(ss6,s1,depth1,0,block_flags);
               s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(s1,s2,depth1,0,block_flags);
-              arg3 = 1;
-              arg4 = 0;
-              if (s2<se1) {
-                s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                arg3 = compile(s2,s1,depth1,0,block_flags);
-                arg4 = s1<se1?compile(++s1,se1,depth1,0,block_flags):0;
-              }
+              arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):1;
               _cimg_mp_check_type(arg1,1,2,0);
               _cimg_mp_check_type(arg2,2,2,0);
               _cimg_mp_check_const_scalar(arg3,3,3);
-              _cimg_mp_check_type(arg4,4,1,0);
 
               p1 = size(arg1);
               p2 = size(arg2);
@@ -23549,7 +23462,7 @@ namespace cimg_library {
                                             s_type(arg1)._data,s_type(arg2)._data,p3,s0);
               }
               pos = vector(arg6*p3);
-              CImg<ulongT>::vector((ulongT)mp_solve,pos,arg1,arg2,arg6,arg5,p3,arg4).move_to(code);
+              CImg<ulongT>::vector((ulongT)mp_solve,pos,arg1,arg2,arg6,arg5,p3).move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -25846,7 +25759,7 @@ namespace cimg_library {
 
       static double mp_argkth(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        CImg<double> values;
+        CImg<doubleT> values;
         if (i_end==5) values.assign(&_mp_arg(3),(unsigned int)mp.opcode[4],1,1,1,true); // Only a single argument
         else {
           unsigned int siz = 0;
@@ -27948,7 +27861,7 @@ namespace cimg_library {
 
       static double mp_kth(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        CImg<double> values;
+        CImg<doubleT> values;
         if (i_end==5) values.assign(&_mp_arg(3),(unsigned int)mp.opcode[4],1,1,1,true); // Only a single argument
         else {
           unsigned int siz = 0;
@@ -28947,9 +28860,7 @@ namespace cimg_library {
         const unsigned int
           w = (unsigned int)mp.opcode[3],
           h = (unsigned int)mp.opcode[4];
-        const bool use_LU = (bool)_mp_arg(5);
-        const float lambda = (float)_mp_arg(6);
-        CImg<doubleT>(ptrd,h,w,1,1,true) = CImg<doubleT>(ptr1,w,h,1,1,true).get_invert(use_LU,lambda);
+        CImg<doubleT>(ptrd,h,w,1,1,true) = CImg<doubleT>(ptr1,w,h,1,1,true).get_invert();
         return cimg::type<double>::nan();
       }
 
@@ -28966,14 +28877,34 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_matrix_svd(_cimg_math_parser& mp) {
+      static double mp_matrix_qr(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
-        const double *ptr1 = &_mp_arg(2) + 1;
+        const double *ptrs = &_mp_arg(2) + 1;
+        const unsigned int
+          n = (unsigned int)mp.opcode[3],
+          m = (unsigned int)mp.opcode[4],
+          mn = std::min(m,n);
+        const bool is_reduced_form = (bool)mp.opcode[5];
+        CImg<doubleT> Q, R;
+        CImg<doubleT>(ptrs,n,m,1,1,true).QR(Q,R,is_reduced_form);
+        if (is_reduced_form) {
+          CImg<doubleT>(ptrd,mn,m,1,1,true) = Q;
+          CImg<doubleT>(ptrd + mn*m,n,mn,1,1,true) = R;
+        } else {
+          CImg<doubleT>(ptrd,m,m,1,1,true) = Q;
+          CImg<doubleT>(ptrd + m*m,n,m,1,1,true) = R;
+        }
+        return cimg::type<double>::nan();
+      }
+
+     static double mp_matrix_svd(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const double *ptrs = &_mp_arg(2) + 1;
         const unsigned int
           k = (unsigned int)mp.opcode[3],
           l = (unsigned int)mp.opcode[4];
         CImg<doubleT> U, S, V;
-        CImg<doubleT>(ptr1,k,l,1,1,true).SVD(U,S,V);
+        CImg<doubleT>(ptrs,k,l,1,1,true).SVD(U,S,V);
         CImg<doubleT>(ptrd,k,l,1,1,true) = U;
         CImg<doubleT>(ptrd + k*l,1,k,1,1,true) = S;
         CImg<doubleT>(ptrd + k*l + k,k,k,1,1,true) = V;
@@ -29200,7 +29131,7 @@ namespace cimg_library {
 
       static double mp_med(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        CImg<double> values;
+        CImg<doubleT> values;
         if (i_end==5) { // Only a single argument
           if ((unsigned)mp.opcode[4]==1) return _mp_arg(3); // Real value
           else values.assign(&_mp_arg(3),(unsigned int)mp.opcode[4],1,1,1,true); // Vector value
@@ -29980,9 +29911,8 @@ namespace cimg_library {
           k = (unsigned int)mp.opcode[4],
           l = (unsigned int)mp.opcode[5],
           m = (unsigned int)mp.opcode[6];
-        const bool use_LU = (bool)_mp_arg(7);
         CImg<doubleT>(ptrd,m,k,1,1,true) = CImg<doubleT>(ptr2,m,l,1,1,false).
-          solve(CImg<doubleT>(ptr1,k,l,1,1,true),use_LU);
+          solve(CImg<doubleT>(ptr1,k,l,1,1,true));
         return cimg::type<double>::nan();
       }
 
@@ -32829,7 +32759,6 @@ namespace cimg_library {
         throw CImgInstanceException(_cimg_instance
                                     "det(): Instance is not a square matrix.",
                                     cimg_instance);
-
       switch (_width) {
       case 1 : return (double)((*this)(0,0));
       case 2 : return (double)((*this)(0,0))*(double)((*this)(1,1)) - (double)((*this)(0,1))*(double)((*this)(1,0));
@@ -32841,12 +32770,10 @@ namespace cimg_library {
         return i*a*e - a*h*f - i*b*d + b*g*f + c*d*h - c*g*e;
       }
       default : {
-        CImg<Tfloat> lu(*this,false);
-        CImg<uintT> indx;
-        bool d;
-        lu._LU(indx,d);
-        double res = d?(double)1:(double)-1;
-        cimg_forX(lu,i) res*=lu(i,i);
+        CImg<doubleT> Q, R;
+        QR(Q,R,true);
+        double res = 1;
+        cimg_forX(R,i) res*=R(i,i);
         return res;
       }
       }
@@ -33070,283 +32997,84 @@ namespace cimg_library {
       return CImg<_cimg_Tt>(*this).cross(img);
     }
 
-    //! Invert the instance image, viewed as a matrix.
+    //! Invert the instance matrix.
     /**
        If the instance matrix is not square, the Moore-Penrose pseudo-inverse is computed instead.
-       \param use_LU Choose the inverting algorithm. Can be:
-       - \c true: LU solver (faster but sometimes less precise).
-       - \c false: SVD solver (more precise but slower).
-       \param lambda is used only in the Moore-Penrose pseudoinverse for estimating A^t.(A^t.A + lambda.Id)^-1.
     **/
-    CImg<T>& invert(const bool use_LU=false, const float lambda=0) {
+    CImg<T>& invert() {
+      return get_invert().move_to(*this);
+    }
+
+    //! Invert the instance matrix.
+    CImg<Tfloat> get_invert() const {
       if (_depth!=1 || _spectrum!=1)
-        throw CImgInstanceException(_cimg_instance
+        throw CImgArgumentException(_cimg_instance
                                     "invert(): Instance is not a matrix.",
                                     cimg_instance);
-      if (lambda<0)
-        throw CImgArgumentException(_cimg_instance
-                                    "invert(): Specified lambda (%g) should be >=0.",
-                                    cimg_instance);
-
-      if (_width!=_height) return get_invert(use_LU,lambda).move_to(*this); // Non-square matrix: Pseudoinverse
-
-      // Square matrix.
-      const double dete = _width>3?-1.:det();
-      if (dete!=0. && _width==2) {
-        const double
-          a = _data[0], c = _data[1],
-          b = _data[2], d = _data[3];
-        _data[0] = (T)(d/dete); _data[1] = (T)(-c/dete);
-        _data[2] = (T)(-b/dete); _data[3] = (T)(a/dete);
-      } else if (dete!=0. && _width==3) {
-        const double
-          a = _data[0], d = _data[1], g = _data[2],
-          b = _data[3], e = _data[4], h = _data[5],
-          c = _data[6], f = _data[7], i = _data[8];
-        _data[0] = (T)((i*e - f*h)/dete), _data[1] = (T)((g*f - i*d)/dete), _data[2] = (T)((d*h - g*e)/dete);
-        _data[3] = (T)((h*c - i*b)/dete), _data[4] = (T)((i*a - c*g)/dete), _data[5] = (T)((g*b - a*h)/dete);
-        _data[6] = (T)((b*f - e*c)/dete), _data[7] = (T)((d*c - a*f)/dete), _data[8] = (T)((a*e - d*b)/dete);
-      } else {
-
-#ifdef cimg_use_lapack
-        int INFO = (int)use_LU, N = _width, LWORK = 4*N, *const IPIV = new int[N];
-        Tfloat
-          *const lapA = new Tfloat[N*N],
-          *const WORK = new Tfloat[LWORK];
-        cimg_forXY(*this,k,l) lapA[k*N + l] = (Tfloat)((*this)(k,l));
-        cimg::getrf(N,lapA,IPIV,INFO);
-        if (INFO)
-          cimg::warn(_cimg_instance
-                     "invert(): LAPACK function dgetrf_() returned error code %d.",
-                     cimg_instance,
-                     INFO);
-        else {
-          cimg::getri(N,lapA,IPIV,WORK,LWORK,INFO);
-          if (INFO)
-            cimg::warn(_cimg_instance
-                       "invert(): LAPACK function dgetri_() returned error code %d.",
-                       cimg_instance,
-                       INFO);
-        }
-        if (!INFO) cimg_forXY(*this,k,l) (*this)(k,l) = (T)(lapA[k*N + l]); else fill(0);
-        delete[] IPIV; delete[] lapA; delete[] WORK;
-#else
-        if (use_LU) { // LU solver
-          CImg<Tfloat> A(*this,false), indx;
-          bool d;
-          A._LU(indx,d);
-          cimg_pragma_openmp(parallel for cimg_openmp_if_size(_width*_height,16*16))
-          cimg_forX(*this,j) {
-            CImg<Tfloat> col(1,_width,1,1,0);
-            col(j) = 1;
-            col._solve(A,indx);
-            cimg_forX(*this,i) (*this)(j,i) = (T)col(i);
-          }
-        } else _get_invert_svd(false).move_to(*this); // SVD solver
-#endif
-      }
-      return *this;
+      return CImg<T>::identity_matrix(_height).get_solve(*this);
     }
 
-    //! Invert the instance image, viewed as a matrix \newinstance.
-    CImg<Tfloat> get_invert(const bool use_LU=false, const float lambda=0) const {
-      if (_depth!=1 || _spectrum!=1)
-        throw CImgInstanceException(_cimg_instance
-                                    "invert(): Instance is not a matrix.",
-                                    cimg_instance);
-      if (lambda<0)
-        throw CImgArgumentException(_cimg_instance
-                                    "invert(): Specified lambda (%g) should be >=0.",
-                                    cimg_instance);
-
-      if (_width==_height) return CImg<Tfloat>(*this,false).invert(use_LU,lambda); // Square matrix
-
-      // Non-square matrix: Pseudoinverse.
-      if (use_LU) {
-        if (_width<_height) { // under-solved system -> (A^t.A)^-1.A^t
-          CImg<Tfloat> AtA(width(),width());
-          cimg_pragma_openmp(parallel for cimg_openmp_if_size(_width*_height,128*128))
-          cimg_forY(AtA,i)
-            for (int j = 0; j<=i; ++j) {
-              double res = 0;
-              cimg_forY(*this,k) res+=(*this)(i,k)*(*this)(j,k);
-              AtA(j,i) = AtA(i,j) = (Tfloat)res;
-            }
-          if (lambda!=0) cimg_forY(AtA,i) AtA(i,i)+=lambda;
-          AtA.invert(true);
-          return AtA*get_transpose();
-        } else { // over-resolved linear system -> A^t.(A.A^t)^-1
-          CImg<Tfloat> AAt(height(),height());
-          cimg_pragma_openmp(parallel for cimg_openmp_if_size(_width*_height,128*128))
-          cimg_forY(AAt,i)
-            for (int j = 0; j<=i; ++j) {
-              double res = 0;
-              cimg_forX(*this,k) res+=(*this)(k,i)*(*this)(k,j);
-              AAt(j,i) = AAt(i,j) = (Tfloat)res;
-            }
-          if (lambda!=0) cimg_forY(AAt,i) AAt(i,i)+=lambda;
-          AAt.invert(true);
-          return get_transpose()*AAt;
-        }
-      }
-      return _get_invert_svd(lambda);
-    }
-
-    // SVD solver, both used for inverse and pseudoinverse.
-    CImg<Tfloat> _get_invert_svd(const float lambda) const {
-      CImg<Tfloat> U, S, V;
-      SVD(U,S,V,false);
-      const Tfloat eps = (sizeof(Tfloat)<=4?5.96e-8f:1.11e-16f)*std::max(_width,_height)*S.max();
-      cimg_forX(V,x) {
-        const Tfloat s = S(x), invs = lambda?1/(lambda + s):s>eps?1/s:0;
-        cimg_forY(V,y) V(x,y)*=invs;
-      }
-      return V*U.transpose();
-    }
-
-    //! Solve a system of linear equations.
+    //! Solve a (possibly over- or under-determined) linear system using QR decomposition.
     /**
-       \param A Matrix of the linear system.
-       \param use_LU In case of non square system (least-square solution),
-                     choose between SVD (\c false) or LU (\c true) solver.
-                     LU solver is faster for large matrices, but numerically less stable.
-       \note Solve \c AX = B where \c B=*this.
+       \brief Solve the matrix equation \f$ A\,X = B \f$, where the current instance \fs *this represents \f$ B \f$,
+       and the argument \c A is the system matrix. This method supports both over-determined and
+       under-determined systems by internally performing a QR decomposition.
+
+       - If \f$ A \f$ has more rows than columns (\f$ m \ge n \f$), the system is square or over-determined,
+       and the least-squares solution minimizing \f$ \|A\,X - B\|_2 \f$ is computed.
+       - If \f$ A \f$ has more columns than rows (\f$ m < n \f$), the system is under-determined.
+       The solution of minimal norm is computed using the QR decomposition of the transposed system.
+
+       The computation is performed in double precision for numerical stability.
     **/
     template<typename t>
-    CImg<T>& solve(const CImg<t>& A, const bool use_LU=false) {
+    CImg<T>& solve(const CImg<t>& A) {
+      return get_solve(A).move_to(*this);
+    }
+
+    //! Solve a (possibly over- or under-determined) linear system using QR decomposition \newinstance.
+    template<typename t>
+    CImg<_cimg_Ttfloat> get_solve(const CImg<t>& A) const {
       if (_depth!=1 || _spectrum!=1 || _height!=A._height || A._depth!=1 || A._spectrum!=1)
         throw CImgArgumentException(_cimg_instance
                                     "solve(): Instance and specified matrix (%u,%u,%u,%u,%p) have "
                                     "incompatible dimensions.",
                                     cimg_instance,
                                     A._width,A._height,A._depth,A._spectrum,A._data);
-      typedef _cimg_Ttfloat Ttfloat;
+      if (is_empty()) return CImg<_cimg_Ttfloat>();
+      const int m = A.height(), n = A.width(), p = width();
+      CImg<doubleT> Q, R;
 
-      if (A.size()==1) return (*this)/=A[0];
-      if (A._width==2 && A._height==2 && _height==2) { // 2x2 linear system
-        const double a = (double)A[0], b = (double)A[1], c = (double)A[2], d = (double)A[3],
-          fa = std::fabs(a), fb = std::fabs(b), fc = std::fabs(c), fd = std::fabs(d),
-          det = a*d - b*c, fM = cimg::max(fa,fb,fc,fd);
-        if (fM==fa)
-          cimg_pragma_openmp(parallel for cimg_openmp_if(_width>=256))
-          cimg_forX(*this,k) {
-            const double u = (double)(*this)(k,0), v = (double)(*this)(k,1), y = (a*v - c*u)/det;
-            (*this)(k,0) = (T)((u - b*y)/a); (*this)(k,1) = (T)y;
-          } else if (fM==fc)
-          cimg_pragma_openmp(parallel for cimg_openmp_if(_width>=256))
-          cimg_forX(*this,k) {
-            const double u = (double)(*this)(k,0), v = (double)(*this)(k,1), y = (a*v - c*u)/det;
-            (*this)(k,0) = (T)((v - d*y)/c); (*this)(k,1) = (T)y;
-          } else if (fM==fb)
-          cimg_pragma_openmp(parallel for cimg_openmp_if(_width>=256))
-          cimg_forX(*this,k) {
-            const double u = (double)(*this)(k,0), v = (double)(*this)(k,1), x = (d*u - b*v)/det;
-            (*this)(k,0) = (T)x; (*this)(k,1) = (T)((u - a*x)/b);
-          } else
-          cimg_pragma_openmp(parallel for cimg_openmp_if(_width>=256))
-          cimg_forX(*this,k) {
-            const double u = (double)(*this)(k,0), v = (double)(*this)(k,1), x = (d*u - b*v)/det;
-            (*this)(k,0) = (T)x; (*this)(k,1) = (T)((v - c*x)/d);
-          }
-        return *this;
-      }
+      // m>=n: Over-determined or square system.
+      if (m>=n) {
+        A.QR(Q,R,true); // Reduced QR decomposition
+        const CImg<doubleT> y = Q.get_transpose()*(*this);
 
-      if (A._width==A._height) { // Square linear system
-#ifdef cimg_use_lapack
-        char TRANS = 'N';
-        int INFO, N = _height, LWORK = 4*N, *const IPIV = new int[N];
-        Ttfloat
-          *const lapA = new Ttfloat[N*N],
-          *const lapB = new Ttfloat[N],
-          *const WORK = new Ttfloat[LWORK];
-        cimg_forXY(A,k,l) lapA[k*N + l] = (Ttfloat)(A(k,l));
-        cimg_forX(*this,i) {
-          cimg_forY(*this,j) lapB[j] = (Ttfloat)((*this)(i,j));
-          cimg::getrf(N,lapA,IPIV,INFO);
-          if (INFO)
-            cimg::warn(_cimg_instance
-                       "solve(): LAPACK library function dgetrf_() returned error code %d.",
-                       cimg_instance,
-                       INFO);
-          else {
-            cimg::getrs(TRANS,N,lapA,IPIV,lapB,INFO);
-            if (INFO)
-              cimg::warn(_cimg_instance
-                         "solve(): LAPACK library function dgetrs_() returned error code %d.",
-                         cimg_instance,
-                         INFO);
+        // Solve R*x = y (R is upper triangular).
+        CImg<doubleT> x(p,n);
+        cimg_forX(x,k) {
+          cimg_rofY(x,i) {
+            double sum = y(k,i);
+            for (int j = i + 1; j<n; ++j) sum-=R(j,i)*x(k,j);
+            x(k,i) = sum/R(i,i);
           }
-          if (!INFO) cimg_forY(*this,j) (*this)(i,j) = (T)(lapB[j]); else cimg_forY(*this,j) (*this)(i,j) = (T)0;
         }
-        delete[] IPIV; delete[] lapA; delete[] lapB; delete[] WORK;
-#else
-        CImg<Ttfloat> lu(A,false);
-        CImg<Ttfloat> indx;
-        bool d;
-        lu._LU(indx,d);
-        CImg<T> res(_width,A._width);
-        cimg_pragma_openmp(parallel for cimg_openmp_if_size(_width*_height,16))
-        cimg_forX(*this,i) res.draw_image(i,get_column(i)._solve(lu,indx));
-        res.move_to(*this);
-#endif
-      } else { // Least-square solution for non-square systems
-
-#ifdef cimg_use_lapack
-        char TRANS = 'N';
-        int INFO, N = A._width, M = A._height, LWORK = -1, LDA = M, LDB = M, NRHS = _width;
-        Ttfloat WORK_QUERY;
-        Ttfloat
-          * const lapA = new Ttfloat[M*N],
-          * const lapB = new Ttfloat[M*NRHS];
-        cimg::sgels(TRANS, M, N, NRHS, lapA, LDA, lapB, LDB, &WORK_QUERY, LWORK, INFO);
-        LWORK = (int) WORK_QUERY;
-        Ttfloat *const WORK = new Ttfloat[LWORK];
-        cimg_forXY(A,k,l) lapA[k*M + l] = (Ttfloat)(A(k,l));
-        cimg_forXY(*this,k,l) lapB[k*M + l] = (Ttfloat)((*this)(k,l));
-        cimg::sgels(TRANS, M, N, NRHS, lapA, LDA, lapB, LDB, WORK, LWORK, INFO);
-        if (INFO!=0)
-          cimg::warn(_cimg_instance
-                     "solve(): LAPACK library function sgels() returned error code %d.",
-                     cimg_instance,
-                     INFO);
-        assign(NRHS, N);
-        if (!INFO) cimg_forXY(*this,k,l) (*this)(k,l) = (T)lapB[k*M + l];
-        else (A.get_invert(use_LU)*(*this)).move_to(*this);
-        delete[] lapA; delete[] lapB; delete[] WORK;
-#else
-        (A.get_invert(use_LU)*(*this)).move_to(*this);
-#endif
+        return x;
       }
-      return *this;
-    }
 
-    //! Solve a system of linear equations \newinstance.
-    template<typename t>
-    CImg<_cimg_Ttfloat> get_solve(const CImg<t>& A, const bool use_LU=false) const {
-      typedef _cimg_Ttfloat Ttfloat;
-      return CImg<Ttfloat>(*this,false).solve(A,use_LU);
-    }
+      // m<n -> under-determined system.
+      A.get_transpose().QR(Q,R,true);
 
-    template<typename t, typename ti>
-    CImg<T>& _solve(const CImg<t>& A, const CImg<ti>& indx) {
-      typedef _cimg_Ttfloat Ttfloat;
-      const int N = height();
-      int ii = -1;
-      Ttfloat sum;
-      for (int i = 0; i<N; ++i) {
-        const int ip = (int)indx[i];
-        sum = (*this)(ip);
-        (*this)(ip) = (*this)(i);
-        if (ii>=0) for (int j = ii; j<=i - 1; ++j) sum-=A(j,i)*(*this)(j);
-        else if (sum!=0) ii = i;
-        (*this)(i) = (T)sum;
+      // Solve R^T*z = b, where z = Q^T*x.
+      CImg<doubleT> z(p,m);
+      cimg_forX(*this,k) {
+        cimg_forY(z,i) {
+          double sum = (*this)(k,i);
+          for (int j = 0; j<i; ++j) sum-=R(i,j)*z(k,j);
+          z(k,i) = sum/R(i,i);
+        }
       }
-      for (int i = N - 1; i>=0; --i) {
-        sum = (*this)(i);
-        for (int j = i + 1; j<N; ++j) sum-=A(j,i)*(*this)(j);
-        (*this)(i) = (T)(sum/A(i,i));
-      }
-      return *this;
+      return Q*z;
     }
 
     //! Solve a tridiagonal system of linear equations.
@@ -33469,28 +33197,6 @@ namespace cimg_library {
         vec[3] = vec[0];
         return *this;
       }
-
-#ifdef cimg_use_lapack
-      char JOB = 'V', UPLO = 'U';
-      int N = _width, LWORK = 4*N, INFO;
-      Tfloat
-        *const lapA = new Tfloat[N*N],
-        *const lapW = new Tfloat[N],
-        *const WORK = new Tfloat[LWORK];
-      cimg_forXY(*this,k,l) lapA[k*N + l] = (Tfloat)((*this)(k,l));
-      cimg::syev(JOB,UPLO,N,lapA,lapW,WORK,LWORK,INFO);
-      if (INFO)
-        cimg::warn(_cimg_instance
-                   "symmetric_eigen(): LAPACK library function dsyev_() returned error code %d.",
-                   cimg_instance,
-                   INFO);
-      if (!INFO) {
-        cimg_forY(val,i) val(i) = (T)lapW[N - 1 -i];
-        cimg_forXY(vec,k,l) vec(k,l) = (T)(lapA[(N - 1 - k)*N + l]);
-      } else { val.fill(0); vec.fill(0); }
-      delete[] lapA; delete[] lapW; delete[] WORK;
-
-#else
       CImg<t> V(_width,_width);
       Tfloat M = 0, m = (Tfloat)min_max(M), maxabs = cimg::max((Tfloat)1,cimg::abs(m),cimg::abs(M));
       (CImg<Tfloat>(*this,false)/=maxabs).SVD(vec,val,V,false);
@@ -33518,7 +33224,6 @@ namespace cimg_library {
         cimg_forY(permutations,y) tmp(y) = vec(permutations(y),k);
         std::memcpy(vec.data(0,k),tmp._data,sizeof(t)*_width);
       }
-#endif
       return *this;
     }
 
@@ -33900,55 +33605,58 @@ namespace cimg_library {
       return res;
     }
 
-    // [internal] Compute the LU decomposition of a permuted matrix.
+    //! Compute the QR decomposition of the instance matrix.
+    /**
+       Given an instance matrix (*this) of size m×n (m rows, n columns),
+       fill the matrices Q and R, so that *this = Q*R.
+       - Q is an orthogonal matrix, of size 'm×m' if 'is_reduced_form==false', or 'm×min(m,n)' otherwise.
+       - R is an upper-trianguler matrix of size 'm×n' if 'is_reduced_form==false' or 'min(m,n)×n' otherwise.
+       - Q^T*Q = Id.
+       - If n>m, only the first m×m part of R is upper triangular.
+    **/
     template<typename t>
-    CImg<T>& _LU(CImg<t>& indx, bool& d) {
-      const int N = width();
-      int imax = 0;
-      CImg<Tfloat> vv(N);
-      indx.assign(N);
-      d = true;
+    const CImg<T>& QR(CImg<t>& Q, CImg<t>& R, const bool is_reduced_form=true) const {
+      if (is_empty()) { Q.assign(); R.assign(); return *this; }
+      if (_depth!=1 || _spectrum!=1)
+        throw CImgInstanceException(_cimg_instance
+                                    "QR(): Instance image is not a matrix.",
+                                    cimg_instance);
 
-      bool return0 = false;
-      cimg_pragma_openmp(parallel for cimg_openmp_if(_width*_height>=512))
-      cimg_forX(*this,i) {
-        Tfloat vmax = 0;
-        cimg_forX(*this,j) {
-          const Tfloat tmp = cimg::abs((*this)(j,i));
-          if (tmp>vmax) vmax = tmp;
-        }
-        if (vmax==0) return0 = true; else vv[i] = 1/vmax;
-      }
-      if (return0) { indx.fill(0); return fill(0); }
+      const int m = height(), n = width(), k = std::min(m,n);
+      CImg<doubleT> _R(*this,false), _Q = CImg<doubleT>::identity_matrix(m);
 
-      cimg_forX(*this,j) {
-        for (int i = 0; i<j; ++i) {
-          Tfloat sum = (*this)(j,i);
-          for (int k = 0; k<i; ++k) sum-=(*this)(k,i)*(*this)(j,k);
-          (*this)(j,i) = (T)sum;
+      for (int j = 0; j<k; ++j) {
+
+        // Build the Householder vector v.
+        CImg<doubleT> x = _R.get_crop(j,j,j,m);
+        const double normx = x.magnitude();
+        if (normx<1e-15) continue;
+        x[0]+=(x[0]>=0?1:-1)*normx;
+        x/=x.magnitude();
+
+        // Apply reflection to R
+        for (int col = j; col<n; ++col) {
+          double dot = 0;
+          for (int i = j; i<m; ++i) dot+=x[i - j]*_R(col,i);
+          for (int i = j; i<m; ++i) _R(col,i)-=2*x[i - j]*dot;
         }
 
-        Tfloat vmax = 0;
-        for (int i = j; i<width(); ++i) {
-          Tfloat sum = (*this)(j,i);
-          for (int k = 0; k<j; ++k) sum-=(*this)(k,i)*(*this)(j,k);
-          (*this)(j,i) = (T)sum;
-          const Tfloat tmp = vv[i]*cimg::abs(sum);
-          if (tmp>=vmax) { vmax = tmp; imax = i; }
-        }
-        if (j!=imax) {
-          cimg_forX(*this,k) cimg::swap((*this)(k,imax),(*this)(k,j));
-          d = !d;
-          vv[imax] = vv[j];
-        }
-        indx[j] = (t)imax;
-        if ((*this)(j,j)==0) (*this)(j,j) = (T)1e-20;
-        if (j<N) {
-          const Tfloat tmp = 1/(Tfloat)(*this)(j,j);
-          for (int i = j + 1; i<N; ++i) (*this)(j,i) = (T)((*this)(j,i)*tmp);
+        // Apply reflection to Q.
+        for (int row = 0; row<m; ++row){
+          double dot = 0;
+          for (int i = j; i<m; ++i) dot+=_Q(i,row)*x[i - j];
+          for (int i = j; i<m; ++i) _Q(i,row)-=2*x(i - j,0)*dot;
         }
       }
 
+      // Force R to be upper-triangular.
+      for (int y = 1; y<m; ++y) for (int x = 0; x<std::min(y,n); ++x) _R(x,y) = 0.;
+      if (is_reduced_form && m>n) {
+        _Q.crop(0,0,n - 1,m - 1);  // Keep only first n columns of Q
+        _R.crop(0,0,n - 1,n - 1);  // Keep only top n×n part of R
+      }
+      _Q.move_to(Q);
+      _R.move_to(R);
       return *this;
     }
 
@@ -55102,7 +54810,7 @@ namespace cimg_library {
 
       // Compute visible primitives.
       CImg<uintT> visibles(primitives._width,1,1,1,~0U);
-      CImg<float> zrange(primitives._width);
+      CImg<floatT> zrange(primitives._width);
       const float zmin = focale?1 - _focale:cimg::type<float>::min();
       bool is_forward = zbuffer?true:false;
       cimg_pragma_openmp(parallel for cimg_openmp_if(is_multithreaded_rendering &&

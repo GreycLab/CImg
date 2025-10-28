@@ -22906,8 +22906,7 @@ namespace cimg_library {
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             s_type(arg1)._data,p2,s0);
               }
-              arg4 = (p2 + p3)*(arg3?std::min(p2,p3):p3); // Size of output
-              pos = vector(arg4);
+              pos = vector((p2 + p3)*(arg3?std::min(p2,p3):p3)); // Size of output
               CImg<ulongT>::vector((ulongT)mp_matrix_qr,pos,arg1,p2,p3,arg3).move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
@@ -33620,8 +33619,8 @@ namespace cimg_library {
       if (is_empty()) { Q.assign(); R.assign(); return *this; }
       if (_depth!=1 || _spectrum!=1)
         throw CImgInstanceException(_cimg_instance
-                                    "QR(): Instance image is not a matrix (has depth = %u and spectrum = %u).",
-                                    cimg_instance,_depth,_spectrum);
+                                    "QR(): Instance image is not a matrix.",
+                                    cimg_instance);
 
       const int m = height(), n = width(), k = std::min(m,n);
       CImg<doubleT> _R(*this,false), _Q = CImg<doubleT>::identity_matrix(m);
@@ -33692,8 +33691,8 @@ namespace cimg_library {
                                     const unsigned int max_iter=0, const double max_residual=1e-6) const {
       if (_depth!=1 || _spectrum!=1)
         throw CImgInstanceException(_cimg_instance
-                                    "project_matrix(): Instance image is not a matrix (has depth = %u and spectrum = %u).",
-                                    cimg_instance,_depth,_spectrum);
+                                    "project_matrix(): Instance image is not a matrix.",
+                                    cimg_instance);
       if (dictionary._height!=_height || dictionary._depth!=1 || dictionary._spectrum!=1)
         throw CImgArgumentException(_cimg_instance
                                     "project_matrix(): Specified dictionary (%u,%u,%u,%u) has an invalid size.",

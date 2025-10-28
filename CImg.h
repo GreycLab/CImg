@@ -22888,7 +22888,7 @@ namespace cimg_library {
               arg1 = compile(ss3,s1,depth1,0,block_flags); // A
               s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(s1,s2,depth1,0,block_flags); // nb_colsA
-              arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):1; // reduced_form
+              arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):1; // is_reduced_form
               _cimg_mp_check_type(arg1,1,2,0);
               _cimg_mp_check_const_scalar(arg2,2,3);
               _cimg_mp_check_const_scalar(arg3,3,2);
@@ -28884,10 +28884,10 @@ namespace cimg_library {
           n = (unsigned int)mp.opcode[3],
           m = (unsigned int)mp.opcode[4],
           mn = std::min(m,n);
-        const bool reduced_form = (bool)mp.opcode[5];
+        const bool is_reduced_form = (bool)mp.opcode[5];
         CImg<doubleT> Q, R;
-        CImg<doubleT>(ptrs,n,m,1,1,true).QR(Q,R,reduced_form);
-        if (reduced_form) {
+        CImg<doubleT>(ptrs,n,m,1,1,true).QR(Q,R,is_reduced_form);
+        if (is_reduced_form) {
           CImg<doubleT>(ptrd,mn,m,1,1,true) = Q;
           CImg<doubleT>(ptrd + mn*m,n,mn,1,1,true) = R;
         } else {
@@ -33609,13 +33609,13 @@ namespace cimg_library {
     /**
        Given an instance matrix (*this) of size m×n (m rows, n columns),
        fill the matrices Q and R, so that *this = Q*R.
-       - Q is an orthogonal matrix, of size 'm×m' if 'reduced_form==false', or 'm×min(m,n)' otherwise.
-       - R is an upper-trianguler matrix of size 'm×n' if 'reduced_form==false' or 'min(m,n)×n' otherwise.
+       - Q is an orthogonal matrix, of size 'm×m' if 'is_reduced_form==false', or 'm×min(m,n)' otherwise.
+       - R is an upper-trianguler matrix of size 'm×n' if 'is_reduced_form==false' or 'min(m,n)×n' otherwise.
        - Q^T*Q = Id.
        - If n>m, only the first m×m part of R is upper triangular.
     **/
     template<typename t>
-    const CImg<T>& QR(CImg<t>& Q, CImg<t>& R, const bool reduced_form=true) const {
+    const CImg<T>& QR(CImg<t>& Q, CImg<t>& R, const bool is_reduced_form=true) const {
       if (is_empty()) { Q.assign(); R.assign(); return *this; }
       if (_depth!=1 || _spectrum!=1)
         throw CImgInstanceException(_cimg_instance
@@ -33651,7 +33651,7 @@ namespace cimg_library {
 
       // Force R to be upper-triangular.
       for (int y = 1; y<m; ++y) for (int x = 0; x<std::min(y,n); ++x) _R(x,y) = 0.;
-      if (reduced_form && m>n) {
+      if (is_reduced_form && m>n) {
         _Q.crop(0,0,n - 1,m - 1);  // Keep only first n columns of Q
         _R.crop(0,0,n - 1,n - 1);  // Keep only top n×n part of R
       }

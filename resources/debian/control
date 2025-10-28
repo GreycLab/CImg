@@ -9,7 +9,7 @@ Standards-Version: 3.8.4
 
 Package: cimg-dev
 Depends: make | build-essential, libx11-dev, libxrandr-dev, imagemagick | graphicsmagick
-Suggests: xmedcon, lapack3-dev, libmagick++9-dev, fftw3-dev
+Suggests: xmedcon, libmagick++9-dev, fftw3-dev
 Architecture: all
 Description: C++ Template Image Processing Library
  The CImg Library is an open-source C++ toolkit for image processing.

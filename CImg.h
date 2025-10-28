@@ -33204,6 +33204,7 @@ namespace cimg_library {
       return V*U.transpose();
     }
 
+
     //! Solve a system of linear equations.
     /**
        \param A Matrix of the linear system.
@@ -33926,7 +33927,7 @@ namespace cimg_library {
         CImg<doubleT> x = _R.get_crop(j,j,j,m);
         const double normx = x.magnitude();
         if (normx<1e-15) continue;
-        x[0]+=cimg::sign(x[0])*normx;
+        x[0]+=(x[0]>=0?1:-1)*normx;
         x/=x.magnitude();
 
         // Apply reflection to R

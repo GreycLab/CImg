@@ -22881,6 +22881,39 @@ namespace cimg_library {
             }
             break;
 
+          case 'q' :
+            if (!std::strncmp(ss,"qr(",3)) { // QR decomposition
+              _cimg_mp_op("Function 'qr()'");
+              s1 = ss3; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss3,s1,depth1,0,block_flags); // A
+              s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
+              arg2 = compile(s1,s2,depth1,0,block_flags); // nb_colsA
+              arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):1; // reduced_form
+              _cimg_mp_check_type(arg1,1,2,0);
+              _cimg_mp_check_const_scalar(arg2,2,3);
+              _cimg_mp_check_const_scalar(arg3,3,2);
+
+              p1 = size(arg1);
+              p2 = (unsigned int)mem[arg2];
+              p3 = p1/p2;
+              arg3 = (unsigned int)mem[arg3];
+              if (p3*p2!=p1) {
+                _cimg_mp_strerr;
+                throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                            "CImg<%s>::%s: %s: Type of first argument ('%s') "
+                                            "does not match with second argument 'nb_colsA=%u', "
+                                            "in expression '%s'.",
+                                            pixel_type(),_cimg_mp_calling_function,s_op,
+                                            s_type(arg1)._data,p2,s0);
+              }
+              arg4 = (p2 + p3)*(arg3?std::min(p2,p3):p3); // Size of output
+              pos = vector(arg4);
+              CImg<ulongT>::vector((ulongT)mp_matrix_qr,pos,arg1,p2,p3,arg3).move_to(code);
+              return_comp = true;
+              _cimg_mp_return(pos);
+            }
+            break;
+
           case 'r' :
             if (!std::strncmp(ss,"rad2deg(",8)) { // Degrees to radians
               _cimg_mp_op("Function 'rad2deg()'");
@@ -28845,14 +28878,34 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_matrix_svd(_cimg_math_parser& mp) {
+      static double mp_matrix_qr(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
-        const double *ptr1 = &_mp_arg(2) + 1;
+        const double *ptrs = &_mp_arg(2) + 1;
+        const unsigned int
+          n = (unsigned int)mp.opcode[3],
+          m = (unsigned int)mp.opcode[4],
+          mn = std::min(m,n);
+        const bool reduced_form = (bool)mp.opcode[5];
+        CImg<doubleT> Q, R;
+        CImg<doubleT>(ptrs,n,m,1,1,true).QR(Q,R,reduced_form);
+        if (reduced_form) {
+          CImg<doubleT>(ptrd,mn,m,1,1,true) = Q;
+          CImg<doubleT>(ptrd + mn*m,n,mn,1,1,true) = R;
+        } else {
+          CImg<doubleT>(ptrd,m,m,1,1,true) = Q;
+          CImg<doubleT>(ptrd + m*m,n,m,1,1,true) = R;
+        }
+        return cimg::type<double>::nan();
+      }
+
+     static double mp_matrix_svd(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const double *ptrs = &_mp_arg(2) + 1;
         const unsigned int
           k = (unsigned int)mp.opcode[3],
           l = (unsigned int)mp.opcode[4];
         CImg<doubleT> U, S, V;
-        CImg<doubleT>(ptr1,k,l,1,1,true).SVD(U,S,V);
+        CImg<doubleT>(ptrs,k,l,1,1,true).SVD(U,S,V);
         CImg<doubleT>(ptrd,k,l,1,1,true) = U;
         CImg<doubleT>(ptrd + k*l,1,k,1,1,true) = S;
         CImg<doubleT>(ptrd + k*l + k,k,k,1,1,true) = V;

@@ -25759,7 +25759,7 @@ namespace cimg_library {
 
       static double mp_argkth(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        CImg<double> values;
+        CImg<doubleT> values;
         if (i_end==5) values.assign(&_mp_arg(3),(unsigned int)mp.opcode[4],1,1,1,true); // Only a single argument
         else {
           unsigned int siz = 0;
@@ -27861,7 +27861,7 @@ namespace cimg_library {
 
       static double mp_kth(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        CImg<double> values;
+        CImg<doubleT> values;
         if (i_end==5) values.assign(&_mp_arg(3),(unsigned int)mp.opcode[4],1,1,1,true); // Only a single argument
         else {
           unsigned int siz = 0;
@@ -29131,7 +29131,7 @@ namespace cimg_library {
 
       static double mp_med(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        CImg<double> values;
+        CImg<doubleT> values;
         if (i_end==5) { // Only a single argument
           if ((unsigned)mp.opcode[4]==1) return _mp_arg(3); // Real value
           else values.assign(&_mp_arg(3),(unsigned int)mp.opcode[4],1,1,1,true); // Vector value
@@ -54810,7 +54810,7 @@ namespace cimg_library {
 
       // Compute visible primitives.
       CImg<uintT> visibles(primitives._width,1,1,1,~0U);
-      CImg<float> zrange(primitives._width);
+      CImg<floatT> zrange(primitives._width);
       const float zmin = focale?1 - _focale:cimg::type<float>::min();
       bool is_forward = zbuffer?true:false;
       cimg_pragma_openmp(parallel for cimg_openmp_if(is_multithreaded_rendering &&

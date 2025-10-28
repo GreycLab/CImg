@@ -304,13 +304,6 @@ else
 FFTW3_LIBS = -lfftw3 -lfftw3_threads
 endif
 
-# Flags to enable the use of LAPACK routines for matrix computation
-# ( http://www.netlib.org/lapack/ )
-LAPACK_DEFINE = -Dcimg_use_lapack
-LAPACK_INCDIR =
-LAPACK_CFLAGS = $(LAPACK_DEFINE) $(LAPACK_INCDIR)
-LAPACK_LIBS = -lblas -llapack
-
 # Enable native support of WebP image files, using the WebP library.
 # (https://chromium.googlesource.com/webm/libwebp/)
 WEBP_DEFINE = -Dcimg_use_webp
@@ -378,13 +371,11 @@ $(VT100_CFLAGS) \
 $(TIFF_CFLAGS) \
 $(HEIF_CFLAGS) \
 $(X11_CFLAGS) \
-$(LAPACK_CFLAGS) \
 $(XSHM_CFLAGS)" \
 "CONF_LIBS = \
 $(X11_LIBS) \
 $(TIFF_LIBS) \
 $(HEIF_LIBS) \
-$(LAPACK_LIBS) \
 $(XSHM_LIBS)" \
 all $(EXTRA_FILES)
 

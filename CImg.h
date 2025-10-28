@@ -653,31 +653,6 @@ extern "C" {
 #include "tinyexr.h"
 #endif
 
-// Lapack configuration.
-// (http://www.netlib.org/lapack)
-//
-// Define 'cimg_use_lapack' to enable LAPACK support.
-//
-// Lapack library may be used in several CImg methods to speed up
-// matrix computations (eigenvalues, inverse, ...).
-#ifdef cimg_use_lapack
-extern "C" {
-  extern void sgetrf_(int*, int*, float*, int*, int*, int*);
-  extern void sgetri_(int*, float*, int*, int*, float*, int*, int*);
-  extern void sgetrs_(char*, int*, int*, float*, int*, int*, float*, int*, int*);
-  extern void sgesvd_(char*, char*, int*, int*, float*, int*, float*, float*, int*, float*, int*, float*, int*, int*);
-  extern void ssyev_(char*, char*, int*, float*, int*, float*, float*, int*, int*);
-  extern void dgetrf_(int*, int*, double*, int*, int*, int*);
-  extern void dgetri_(int*, double*, int*, int*, double*, int*, int*);
-  extern void dgetrs_(char*, int*, int*, double*, int*, int*, double*, int*, int*);
-  extern void dgesvd_(char*, char*, int*, int*, double*, int*, double*, double*,
-                      int*, double*, int*, double*, int*, int*);
-  extern void dsyev_(char*, char*, int*, double*, int*, double*, double*, int*, int*);
-  extern void dgels_(char*, int*,int*,int*,double*,int*,double*,int*,double*,int*,int*);
-  extern void sgels_(char*, int*,int*,int*,float*,int*,float*,int*,float*,int*,int*);
-}
-#endif
-
 // Check if min/max/PI macros are defined.
 //
 // CImg does not compile if macros 'min', 'max' or 'PI' are defined,
@@ -8199,15 +8174,6 @@ namespace cimg_library {
 #endif
                    cimg::t_normal);
 
-      std::fprintf(cimg::output(),"  > Using LAPACK library:     %s%-13s%s %s('cimg_use_lapack' %s)%s\n",
-                   cimg::t_bold,
-#ifdef cimg_use_lapack
-                   "Yes",cimg::t_normal,cimg::t_green,"defined",
-#else
-                   "No",cimg::t_normal,cimg::t_green,"undefined",
-#endif
-                   cimg::t_normal);
-
       char *const tmp = new char[1024];
 
       cimg_snprintf(tmp,1024,"\"%.1020s\"",cimg::curl_path());
@@ -8280,70 +8246,6 @@ namespace cimg_library {
       std::fprintf(cimg::output(),"\n");
       delete[] tmp;
     }
-
-    // Declare LAPACK function signatures if LAPACK support is enabled.
-#ifdef cimg_use_lapack
-    template<typename T>
-    inline void getrf(int &N, T *lapA, int *IPIV, int &INFO) {
-      dgetrf_(&N,&N,lapA,&N,IPIV,&INFO);
-    }
-
-    inline void getrf(int &N, float *lapA, int *IPIV, int &INFO) {
-      sgetrf_(&N,&N,lapA,&N,IPIV,&INFO);
-    }
-
-    template<typename T>
-    inline void getri(int &N, T *lapA, int *IPIV, T* WORK, int &LWORK, int &INFO) {
-      dgetri_(&N,lapA,&N,IPIV,WORK,&LWORK,&INFO);
-    }
-
-    inline void getri(int &N, float *lapA, int *IPIV, float* WORK, int &LWORK, int &INFO) {
-      sgetri_(&N,lapA,&N,IPIV,WORK,&LWORK,&INFO);
-    }
-
-    template<typename T>
-    inline void gesvd(char &JOB, int &M, int &N, T *lapA, int &MN,
-                      T *lapS, T *lapU, T *lapV, T *WORK, int &LWORK, int &INFO) {
-      dgesvd_(&JOB,&JOB,&M,&N,lapA,&MN,lapS,lapU,&M,lapV,&N,WORK,&LWORK,&INFO);
-    }
-
-    inline void gesvd(char &JOB, int &M, int &N, float *lapA, int &MN,
-                      float *lapS, float *lapU, float *lapV, float *WORK, int &LWORK, int &INFO) {
-      sgesvd_(&JOB,&JOB,&M,&N,lapA,&MN,lapS,lapU,&M,lapV,&N,WORK,&LWORK,&INFO);
-    }
-
-    template<typename T>
-    inline void getrs(char &TRANS, int &N, T *lapA, int *IPIV, T *lapB, int &INFO) {
-      int one = 1;
-      dgetrs_(&TRANS,&N,&one,lapA,&N,IPIV,lapB,&N,&INFO);
-    }
-
-    inline void getrs(char &TRANS, int &N, float *lapA, int *IPIV, float *lapB, int &INFO) {
-      int one = 1;
-      sgetrs_(&TRANS,&N,&one,lapA,&N,IPIV,lapB,&N,&INFO);
-    }
-
-    template<typename T>
-    inline void syev(char &JOB, char &UPLO, int &N, T *lapA, T *lapW, T *WORK, int &LWORK, int &INFO) {
-      dsyev_(&JOB,&UPLO,&N,lapA,&N,lapW,WORK,&LWORK,&INFO);
-    }
-
-    inline void syev(char &JOB, char &UPLO, int &N, float *lapA, float *lapW, float *WORK, int &LWORK, int &INFO) {
-      ssyev_(&JOB,&UPLO,&N,lapA,&N,lapW,WORK,&LWORK,&INFO);
-    }
-
-    template<typename T>
-    inline void sgels(char & TRANS, int &M, int &N, int &NRHS, T* lapA, int &LDA,
-                      T* lapB, int &LDB, T* WORK, int &LWORK, int &INFO) {
-      dgels_(&TRANS, &M, &N, &NRHS, lapA, &LDA, lapB, &LDB, WORK, &LWORK, &INFO);
-    }
-
-    inline void sgels(char & TRANS, int &M, int &N, int &NRHS, float* lapA, int &LDA,
-                      float* lapB, int &LDB, float* WORK, int &LWORK, int &INFO) {
-      sgels_(&TRANS, &M, &N, &NRHS, lapA, &LDA, lapB, &LDB, WORK, &LWORK, &INFO);
-    }
-
-#endif
 
   } // namespace cimg { ...
 
@@ -33125,28 +33027,6 @@ namespace cimg_library {
       return Q*z;
     }
 
-    template<typename t, typename ti>
-    CImg<T>& _solve(const CImg<t>& A, const CImg<ti>& indx) {
-      typedef _cimg_Ttfloat Ttfloat;
-      const int N = height();
-      int ii = -1;
-      Ttfloat sum;
-      for (int i = 0; i<N; ++i) {
-        const int ip = (int)indx[i];
-        sum = (*this)(ip);
-        (*this)(ip) = (*this)(i);
-        if (ii>=0) for (int j = ii; j<=i - 1; ++j) sum-=A(j,i)*(*this)(j);
-        else if (sum!=0) ii = i;
-        (*this)(i) = (T)sum;
-      }
-      for (int i = N - 1; i>=0; --i) {
-        sum = (*this)(i);
-        for (int j = i + 1; j<N; ++j) sum-=A(j,i)*(*this)(j);
-        (*this)(i) = (T)(sum/A(i,i));
-      }
-      return *this;
-    }
-
     //! Solve a tridiagonal system of linear equations.
     /**
        \param A Coefficients of the tridiagonal system.
@@ -33267,28 +33147,6 @@ namespace cimg_library {
         vec[3] = vec[0];
         return *this;
       }
-
-#ifdef cimg_use_lapack
-      char JOB = 'V', UPLO = 'U';
-      int N = _width, LWORK = 4*N, INFO;
-      Tfloat
-        *const lapA = new Tfloat[N*N],
-        *const lapW = new Tfloat[N],
-        *const WORK = new Tfloat[LWORK];
-      cimg_forXY(*this,k,l) lapA[k*N + l] = (Tfloat)((*this)(k,l));
-      cimg::syev(JOB,UPLO,N,lapA,lapW,WORK,LWORK,INFO);
-      if (INFO)
-        cimg::warn(_cimg_instance
-                   "symmetric_eigen(): LAPACK library function dsyev_() returned error code %d.",
-                   cimg_instance,
-                   INFO);
-      if (!INFO) {
-        cimg_forY(val,i) val(i) = (T)lapW[N - 1 -i];
-        cimg_forXY(vec,k,l) vec(k,l) = (T)(lapA[(N - 1 - k)*N + l]);
-      } else { val.fill(0); vec.fill(0); }
-      delete[] lapA; delete[] lapW; delete[] WORK;
-
-#else
       CImg<t> V(_width,_width);
       Tfloat M = 0, m = (Tfloat)min_max(M), maxabs = cimg::max((Tfloat)1,cimg::abs(m),cimg::abs(M));
       (CImg<Tfloat>(*this,false)/=maxabs).SVD(vec,val,V,false);
@@ -33316,7 +33174,6 @@ namespace cimg_library {
         cimg_forY(permutations,y) tmp(y) = vec(permutations(y),k);
         std::memcpy(vec.data(0,k),tmp._data,sizeof(t)*_width);
       }
-#endif
       return *this;
     }
 

@@ -33196,17 +33196,25 @@ namespace cimg_library {
       return V*U.transpose();
     }
 
-    //! Solve a system of linear equations, using QR decomposition (Householder).
+    //! Solve a (possibly over- or under-determined) linear system using QR decomposition.
     /**
-       \param A Matrix of the linear system, of any size.
-       \note Return X, solution of \c A*X = *this.
+       \brief Solve the matrix equation \f$ A\,X = B \f$, where the current instance \fs *this represents \f$ B \f$,
+       and the argument \c A is the system matrix. This method supports both over-determined and
+       under-determined systems by internally performing a QR decomposition.
+
+       - If \f$ A \f$ has more rows than columns (\f$ m \ge n \f$), the system is square or over-determined,
+       and the least-squares solution minimizing \f$ \|A\,X - B\|_2 \f$ is computed.
+       - If \f$ A \f$ has more columns than rows (\f$ m < n \f$), the system is under-determined.
+       The solution of minimal norm is computed using the QR decomposition of the transposed system.
+
+       The computation is performed in double precision for numerical stability.
     **/
     template<typename t>
     CImg<T>& solve(const CImg<t>& A) {
       return get_solve(A).move_to(*this);
     }
 
-    //! Solve a system of linear equations \newinstance.
+    //! Solve a (possibly over- or under-determined) linear system using QR decomposition \newinstance.
     template<typename t>
     CImg<_cimg_Ttfloat> get_solve(const CImg<t>& A) const {
       if (_depth!=1 || _spectrum!=1 || _height!=A._height || A._depth!=1 || A._spectrum!=1)

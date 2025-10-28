@@ -23522,17 +23522,10 @@ namespace cimg_library {
               arg1 = compile(ss6,s1,depth1,0,block_flags);
               s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(s1,s2,depth1,0,block_flags);
-              arg3 = 1;
-              arg4 = 0;
-              if (s2<se1) {
-                s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                arg3 = compile(s2,s1,depth1,0,block_flags);
-                arg4 = s1<se1?compile(++s1,se1,depth1,0,block_flags):0;
-              }
+              arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):1;
               _cimg_mp_check_type(arg1,1,2,0);
               _cimg_mp_check_type(arg2,2,2,0);
               _cimg_mp_check_const_scalar(arg3,3,3);
-              _cimg_mp_check_type(arg4,4,1,0);
 
               p1 = size(arg1);
               p2 = size(arg2);
@@ -23549,7 +23542,7 @@ namespace cimg_library {
                                             s_type(arg1)._data,s_type(arg2)._data,p3,s0);
               }
               pos = vector(arg6*p3);
-              CImg<ulongT>::vector((ulongT)mp_solve,pos,arg1,arg2,arg6,arg5,p3,arg4).move_to(code);
+              CImg<ulongT>::vector((ulongT)mp_solve,pos,arg1,arg2,arg6,arg5,p3).move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -29980,7 +29973,6 @@ namespace cimg_library {
           k = (unsigned int)mp.opcode[4],
           l = (unsigned int)mp.opcode[5],
           m = (unsigned int)mp.opcode[6];
-        const bool use_LU = (bool)_mp_arg(7);
         CImg<doubleT>(ptrd,m,k,1,1,true) = CImg<doubleT>(ptr2,m,l,1,1,false).
           solve(CImg<doubleT>(ptr1,k,l,1,1,true));
         return cimg::type<double>::nan();

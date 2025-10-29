@@ -33635,6 +33635,7 @@ namespace cimg_library {
         x/=x.magnitude();
 
         // Apply reflection to R
+        cimg_pragma_openmp(parallel for cimg_openmp_if(m*(n - j)>=512*512))
         for (int col = j; col<n; ++col) {
           double dot = 0;
           for (int i = j; i<m; ++i) dot+=x[i - j]*_R(col,i);
@@ -33642,6 +33643,7 @@ namespace cimg_library {
         }
 
         // Apply reflection to Q.
+        cimg_pragma_openmp(parallel for cimg_openmp_if(m>=512))
         for (int row = 0; row<m; ++row){
           double dot = 0;
           for (int i = j; i<m; ++i) dot+=_Q(i,row)*x[i - j];

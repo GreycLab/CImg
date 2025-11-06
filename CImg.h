@@ -21725,7 +21725,8 @@ namespace cimg_library {
                                                 pixel_type(),_cimg_mp_calling_function,s_op,
                                                 p1,arg2,arg3,arg4,arg5,arg2*arg3*arg4*arg5);
                   }
-                  CImg<ulongT>::vector((ulongT)mp_image_fill,arg1,arg2,arg3,arg4,arg5,arg6,size(arg6)).move_to(code,p1);
+                  CImg<ulongT>::vector((ulongT)mp_vector_fill_ext,arg1,arg2,arg3,arg4,arg5,arg6,size(arg6)).
+                    move_to(code,p1);
                   _cimg_mp_return_nan();
                 } else { // Version with 3 arguments: 'fill(target,index_name,expr)'
                   variable_name.assign(s0,(unsigned int)(s1 + 1 - s0)).back() = 0;
@@ -27296,22 +27297,6 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_image_fill(_cimg_math_parser& mp) {
-        double *ptrd = &_mp_arg(1) + 1;
-        const unsigned int
-          w = (unsigned int)mp.opcode[2],
-          h = (unsigned int)mp.opcode[3],
-          d = (unsigned int)mp.opcode[4],
-          s = (unsigned int)mp.opcode[5],
-          sizs = (unsigned int)mp.opcode[7];
-        const double *const ptrs = &_mp_arg(6) + 1;
-        CImg<charT> ss(sizs + 1);
-        cimg_for_inX(ss,0,ss.width() - 2,i) ss[i] = (char)ptrs[i];
-        ss.back() = 0;
-        CImg<doubleT>(ptrd,w,h,d,s,true)._fill(ss,true,3,&mp.imglist,"mp_image_fill",0,0);
-        return cimg::type<double>::nan();
-      }
-
       static double mp_image_h(_cimg_math_parser& mp) {
         unsigned int ind = (unsigned int)mp.opcode[2];
         if (ind!=~0U) {
@@ -30412,6 +30397,22 @@ namespace cimg_library {
         mp.break_type = _break_type;
         mp.p_code = p_end - 1;
         return *ptrd;
+      }
+
+      static double mp_vector_fill_ext(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const unsigned int
+          w = (unsigned int)mp.opcode[2],
+          h = (unsigned int)mp.opcode[3],
+          d = (unsigned int)mp.opcode[4],
+          s = (unsigned int)mp.opcode[5],
+          sizs = (unsigned int)mp.opcode[7];
+        const double *const ptrs = &_mp_arg(6) + 1;
+        CImg<charT> ss(sizs + 1);
+        cimg_for_inX(ss,0,ss.width() - 2,i) ss[i] = (char)ptrs[i];
+        ss.back() = 0;
+        CImg<doubleT>(ptrd,w,h,d,s,true)._fill(ss,true,3,&mp.imglist,"mp_image_fill",0,0);
+        return cimg::type<double>::nan();
       }
 
       static double _mp_vector_hypot(_cimg_math_parser& mp) {

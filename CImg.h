@@ -21694,13 +21694,7 @@ namespace cimg_library {
               _cimg_mp_op("Function 'fill()'");
               s0 = ss5; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
               arg1 = compile(ss5,s0,depth1,0,block_flags); // Object to fill
-              if (is_const_scalar(arg1)) {
-                _cimg_mp_strerr;
-                throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                            "CImg<%s>::%s: %s: Target scalar is constant, "
-                                            "in expression '%s'.",
-                                            pixel_type(),_cimg_mp_calling_function,s_op,ss);
-              }
+              _cimg_mp_check_type(arg1,1,2,0);
               s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               p1 = code._width;
 
@@ -21745,7 +21739,7 @@ namespace cimg_library {
               }
               // arg2 = variable slot, arg3 = fill expression.
               _cimg_mp_check_type(arg3,3,1,0);
-              CImg<ulongT>::vector((ulongT)mp_fill,arg1,size(arg1),arg2,arg3,code._width - p1).
+              CImg<ulongT>::vector((ulongT)mp_vector_fill,arg1,size(arg1),arg2,arg3,code._width - p1).
                 move_to(code,p1);
               _cimg_mp_return_nan();
             }
@@ -26905,13 +26899,12 @@ namespace cimg_library {
         return cimg::fibonacci((int)_mp_arg(2));
       }
 
-      static double mp_fill(_cimg_math_parser& mp) {
-        unsigned int siz = (unsigned int)mp.opcode[2];
+      static double mp_vector_fill(_cimg_math_parser& mp) {
         double
-          *ptrd = &_mp_arg(1),
+          *ptrd = &_mp_arg(1) + 1,
           *const ptrc = mp.opcode[3]!=~0U?&_mp_arg(3):0,
           *const ptrs = &_mp_arg(4);
-        if (siz) ++ptrd; else ++siz; // Fill vector-valued slot
+        const unsigned int siz = (unsigned int)mp.opcode[2];
         const CImg<ulongT>
           *const p_body = ++mp.p_code,
           *const p_end = p_body + mp.opcode[5];
@@ -26943,7 +26936,6 @@ namespace cimg_library {
             else ptrd[it] = *ptrs;
             ++it;
           }
-
         mp.break_type = _break_type;
         mp.p_code = p_end - 1;
         return *ptrd;

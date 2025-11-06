@@ -21081,7 +21081,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"display(",8)) { // Display memory, vector or image
               _cimg_mp_op("Function 'display()'");
               if (pexpr[se2 - expr._data]=='(') { // no arguments?
-                CImg<ulongT>::vector((ulongT)mp_display_memory,_cimg_mp_slot_nan).move_to(code);
+                CImg<ulongT>::vector((ulongT)mp_memory_display,_cimg_mp_slot_nan).move_to(code);
                 _cimg_mp_return_nan();
               }
               if (*ss8!='#') { // Vector
@@ -21097,7 +21097,7 @@ namespace cimg_library {
                     if (s3<se1) {
                       s2 = ++s3; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
                       arg4 = compile(s3,s2,depth1,0,block_flags);
-                      arg5 = s2<se1?compile(++s2,se1,depth1,0,block_flags):0;
+                      arg5 = s2<se1?compile(++s2,se1,depth1,0,block_flags):1;
                     }
                   }
                 }
@@ -21118,7 +21118,7 @@ namespace cimg_library {
                 opcode[2] = opcode._height;
                 opcode.move_to(code);
 
-                ((CImg<ulongT>::vector((ulongT)mp_display,arg1,0,(ulongT)size(arg1),
+                ((CImg<ulongT>::vector((ulongT)mp_vector_display,arg1,0,(ulongT)size(arg1),
                                        arg2,arg3,arg4,arg5),
                   variable_name)>'y').move_to(opcode);
                 opcode[2] = opcode._height;
@@ -21573,29 +21573,33 @@ namespace cimg_library {
             if (!std::strncmp(ss,"expr(",5)) { // Vector from expression
               _cimg_mp_op("Function 'expr()'");
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss5,s1,depth1,0,block_flags);
+              arg1 = compile(ss5,s1,depth1,0,block_flags); // formula
               _cimg_mp_check_type(arg1,1,2,0);
               p1 = size(arg1);
               arg2 = arg3 = arg4 = arg5 = 0;
               if (s1<se1) {
                 s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-                arg2 = compile(s1,s2,depth1,0,block_flags);
+                arg2 = compile(s1,s2,depth1,0,block_flags); // w
                 _cimg_mp_check_const_scalar(arg2,2,2);
                 arg2 = (unsigned int)mem[arg2];
                 if (arg2) arg3 = arg4 = arg5 = 1;
                 if (s2<se1) {
                   s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                  arg3 = compile(s2,s1,depth1,0,block_flags);
+                  arg3 = compile(s2,s1,depth1,0,block_flags); // h
                   _cimg_mp_check_const_scalar(arg3,3,3);
                   arg3 = (unsigned int)mem[arg3];
                   if (s1<se1) {
                     s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-                    arg4 = compile(s1,s2,depth1,0,block_flags);
+                    arg4 = compile(s1,s2,depth1,0,block_flags); // d
                     _cimg_mp_check_const_scalar(arg4,4,3);
                     arg4 = (unsigned int)mem[arg4];
-                    arg5 = s2<se1?compile(++s2,se1,depth1,0,block_flags):1;
-                    _cimg_mp_check_const_scalar(arg5,5,3);
-                    arg5 = (unsigned int)mem[arg5];
+                    if (s2<se1) {
+                      s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                      arg5 = compile(s2,s1,depth1,0,block_flags); // s
+                      _cimg_mp_check_const_scalar(arg5,5,3);
+                      arg5 = (unsigned int)mem[arg5];
+                      arg6 = s1<se1?compile(++s1,se1,depth1,0,block_flags):~0; // A
+                    }
                   }
                 }
               }
@@ -26613,7 +26617,7 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_display_memory(_cimg_math_parser& mp) {
+      static double mp_memory_display(_cimg_math_parser& mp) {
         cimg::unused(mp);
         std::fputc('\n',cimg::output());
         CImg<charT> title(128);
@@ -26622,7 +26626,7 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_display(_cimg_math_parser& mp) {
+      static double mp_vector_display(_cimg_math_parser& mp) {
         const unsigned int
           _siz = (unsigned int)mp.opcode[3],
           siz = _siz?_siz:1;

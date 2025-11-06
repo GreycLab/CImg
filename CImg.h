@@ -21576,11 +21576,11 @@ namespace cimg_library {
               arg1 = compile(ss5,s1,depth1,0,block_flags); // formula
               _cimg_mp_check_type(arg1,1,2,0);
               p1 = size(arg1);
-              arg2 = arg3 = arg4 = arg5 = 0;
+              arg2 = arg3 = arg4 = arg5 = 0; arg6 = ~0U;
               if (s1<se1) {
                 s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
                 arg2 = compile(s1,s2,depth1,0,block_flags); // w
-                _cimg_mp_check_const_scalar(arg2,2,2);
+                _cimg_mp_check_const_scalar(arg2,2,3);
                 arg2 = (unsigned int)mem[arg2];
                 if (arg2) arg3 = arg4 = arg5 = 1;
                 if (s2<se1) {
@@ -21598,14 +21598,31 @@ namespace cimg_library {
                       arg5 = compile(s2,s1,depth1,0,block_flags); // s
                       _cimg_mp_check_const_scalar(arg5,5,3);
                       arg5 = (unsigned int)mem[arg5];
-                      arg6 = s1<se1?compile(++s1,se1,depth1,0,block_flags):~0; // A
+                      arg6 = s1<se1?compile(++s1,se1,depth1,0,block_flags):~0U; // A
                     }
                   }
                 }
               }
-              p2 = arg2*arg3*arg4*arg5;
-              if (p2) pos = vector(p2); else pos = scalar();
-              CImg<ulongT>::vector((ulongT)mp_expr,pos,arg1,p1,arg2,arg3,arg4,arg5).move_to(code);
+              p2 = arg2*arg3*arg4; // whd
+              p3 = p2*arg5; // whds
+
+              unsigned int sizA = 0;
+              if (arg6!=~0U) {
+                _cimg_mp_check_type(arg6,6,2,0);
+                sizA = size(arg6);
+                if (sizA%p2) {
+                  _cimg_mp_strerr;
+                  throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                              "CImg<%s>::%s: %s: Argument 'A' has an invalid size "
+                                              "(%u, not a multiplier of %u*%u*%u = %u), "
+                                              "in expression '%s'.",
+                                              pixel_type(),_cimg_mp_calling_function,s_op,
+                                              sizA,arg2,arg3,arg4,p2,
+                                              ss);
+                }
+              }
+              if (p3) pos = vector(p3); else pos = scalar();
+              CImg<ulongT>::vector((ulongT)mp_expr,pos,arg1,p1,arg2,arg3,arg4,arg5,arg6,sizA/p2).move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -26847,14 +26864,25 @@ namespace cimg_library {
           h = (unsigned int)mp.opcode[5],
           d = (unsigned int)mp.opcode[6],
           s = (unsigned int)mp.opcode[7],
-          sizd = w*h*d*s;
-        const double *ptrs = &_mp_arg(2) + 1;
-        double *ptrd = &_mp_arg(1);
+          A = (unsigned int)mp.opcode[8],
+          sA = (unsigned int)mp.opcode[9];
+        const double
+          *ptrs = &_mp_arg(2) + 1,
+          *ptrA = A==~0U?0:&_mp_arg(8) + 1;
+        double *ptrd = &_mp_arg(1) + 1;
         CImg<charT> ss(sizs + 1);
         cimg_for_inX(ss,0,ss.width() - 2,i) ss[i] = (char)ptrs[i];
         ss.back() = 0;
-        if (!sizd) return CImg<T>::empty().eval(ss,0,0,0,0,&mp.imglist); // Scalar result
-        CImg<doubleT>(++ptrd,w,h,d,s,true) = CImg<doubleT>(w,h,d,s,0)._fill(ss,true,3,&mp.imglist,"mp_expr",0,0);
+        if (ptrA) {
+          CImg<doubleT>
+            out(ptrd,w,h,d,s,true),
+            in = CImg<doubleT>(ptrA,w,h,d,sA);
+          if (sA<s) in.channels(0,s - 1);
+          in._fill(ss,true,3,&mp.imglist,"mp_expr",0,0);
+          if (sA==s) out = in; else out.draw_image(in);
+        } else
+          CImg<doubleT>(ptrd,w,h,d,s,true) = CImg<doubleT>(w,h,d,s,0).
+            _fill(ss,true,3,&mp.imglist,"mp_expr",0,0);
         return cimg::type<double>::nan();
       }
 

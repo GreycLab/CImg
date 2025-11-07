@@ -38063,87 +38063,92 @@ namespace cimg_library {
         //
       case 2 : {
         bool instance_first = true;
-        if (sx!=_width) {
-          if (sx>_width) get_resize(sx,_height,_depth,_spectrum,1).move_to(res);
-          else {
-            CImg<Tfloat> tmp(sx,_height,_depth,_spectrum,0);
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3)
-                               cimg_openmp_if(sx>=256 && _height*_depth*_spectrum>=256))
-            cimg_forYZC(tmp,y,z,v) {
-              for (unsigned int a = _width*sx, b = _width, c = sx, s = 0, t = 0; a; ) {
-                const unsigned int d = std::min(b,c);
-                a-=d; b-=d; c-=d;
-                tmp(t,y,z,v)+=(Tfloat)(*this)(s,y,z,v)*d;
-                if (!b) { tmp(t++,y,z,v)/=_width; b = _width; }
-                if (!c) { ++s; c = sx; }
+        if (sx==1 && sy==1 && sz==1 && sc==_spectrum) { // Particular case: Spatial averaging
+          res.assign(1,1,1,_spectrum);
+          cimg_forC(res,c) res[c] = (T)get_shared_channel(c).mean();
+        } else {
+          if (sx!=_width) {
+            if (sx>_width) get_resize(sx,_height,_depth,_spectrum,1).move_to(res);
+            else {
+              CImg<Tfloat> tmp(sx,_height,_depth,_spectrum,0);
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3)
+                                 cimg_openmp_if(sx>=256 && _height*_depth*_spectrum>=256))
+                cimg_forYZC(tmp,y,z,v) {
+                for (unsigned int a = _width*sx, b = _width, c = sx, s = 0, t = 0; a; ) {
+                  const unsigned int d = std::min(b,c);
+                  a-=d; b-=d; c-=d;
+                  tmp(t,y,z,v)+=(Tfloat)(*this)(s,y,z,v)*d;
+                  if (!b) { tmp(t++,y,z,v)/=_width; b = _width; }
+                  if (!c) { ++s; c = sx; }
+                }
               }
+              tmp.move_to(res);
             }
-            tmp.move_to(res);
+            instance_first = false;
           }
-          instance_first = false;
-        }
 
-        if (sy!=_height) {
-          if (sy>_height) get_resize(sx,sy,_depth,_spectrum,1).move_to(res);
-          else {
-            CImg<Tfloat> tmp(sx,sy,_depth,_spectrum,0);
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3)
-                               cimg_openmp_if(sy>=256 && _width*_depth*_spectrum>=256))
-            cimg_forXZC(tmp,x,z,v) {
-              for (unsigned int a = _height*sy, b = _height, c = sy, s = 0, t = 0; a; ) {
-                const unsigned int d = std::min(b,c);
-                a-=d; b-=d; c-=d;
-                if (instance_first) tmp(x,t,z,v)+=(Tfloat)(*this)(x,s,z,v)*d;
-                else tmp(x,t,z,v)+=(Tfloat)res(x,s,z,v)*d;
-                if (!b) { tmp(x,t++,z,v)/=_height; b = _height; }
-                if (!c) { ++s; c = sy; }
+          if (sy!=_height) {
+            if (sy>_height) get_resize(sx,sy,_depth,_spectrum,1).move_to(res);
+            else {
+              CImg<Tfloat> tmp(sx,sy,_depth,_spectrum,0);
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3)
+                                 cimg_openmp_if(sy>=256 && _width*_depth*_spectrum>=256))
+                cimg_forXZC(tmp,x,z,v) {
+                for (unsigned int a = _height*sy, b = _height, c = sy, s = 0, t = 0; a; ) {
+                  const unsigned int d = std::min(b,c);
+                  a-=d; b-=d; c-=d;
+                  if (instance_first) tmp(x,t,z,v)+=(Tfloat)(*this)(x,s,z,v)*d;
+                  else tmp(x,t,z,v)+=(Tfloat)res(x,s,z,v)*d;
+                  if (!b) { tmp(x,t++,z,v)/=_height; b = _height; }
+                  if (!c) { ++s; c = sy; }
+                }
               }
+              tmp.move_to(res);
             }
-            tmp.move_to(res);
+            instance_first = false;
           }
-          instance_first = false;
-        }
 
-        if (sz!=_depth) {
-          if (sz>_depth) get_resize(sx,sy,sz,_spectrum,1).move_to(res);
-          else {
-            CImg<Tfloat> tmp(sx,sy,sz,_spectrum,0);
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3)
-                               cimg_openmp_if(sz>=256 && _width*_height*_spectrum>=256))
-            cimg_forXYC(tmp,x,y,v) {
-              for (unsigned int a = _depth*sz, b = _depth, c = sz, s = 0, t = 0; a; ) {
-                const unsigned int d = std::min(b,c);
-                a-=d; b-=d; c-=d;
-                if (instance_first) tmp(x,y,t,v)+=(Tfloat)(*this)(x,y,s,v)*d;
-                else tmp(x,y,t,v)+=(Tfloat)res(x,y,s,v)*d;
-                if (!b) { tmp(x,y,t++,v)/=_depth; b = _depth; }
-                if (!c) { ++s; c = sz; }
+          if (sz!=_depth) {
+            if (sz>_depth) get_resize(sx,sy,sz,_spectrum,1).move_to(res);
+            else {
+              CImg<Tfloat> tmp(sx,sy,sz,_spectrum,0);
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3)
+                                 cimg_openmp_if(sz>=256 && _width*_height*_spectrum>=256))
+                cimg_forXYC(tmp,x,y,v) {
+                for (unsigned int a = _depth*sz, b = _depth, c = sz, s = 0, t = 0; a; ) {
+                  const unsigned int d = std::min(b,c);
+                  a-=d; b-=d; c-=d;
+                  if (instance_first) tmp(x,y,t,v)+=(Tfloat)(*this)(x,y,s,v)*d;
+                  else tmp(x,y,t,v)+=(Tfloat)res(x,y,s,v)*d;
+                  if (!b) { tmp(x,y,t++,v)/=_depth; b = _depth; }
+                  if (!c) { ++s; c = sz; }
+                }
               }
+              tmp.move_to(res);
             }
-            tmp.move_to(res);
+            instance_first = false;
           }
-          instance_first = false;
-        }
 
-        if (sc!=_spectrum) {
-          if (sc>_spectrum) get_resize(sx,sy,sz,sc,1).move_to(res);
-          else {
-            CImg<Tfloat> tmp(sx,sy,sz,sc,0);
-            cimg_pragma_openmp(parallel for cimg_openmp_collapse(3)
-                               cimg_openmp_if(sc>=256 && _width*_height*_depth>=256))
-            cimg_forXYZ(tmp,x,y,z) {
-              for (unsigned int a = _spectrum*sc, b = _spectrum, c = sc, s = 0, t = 0; a; ) {
-                const unsigned int d = std::min(b,c);
-                a-=d; b-=d; c-=d;
-                if (instance_first) tmp(x,y,z,t)+=(Tfloat)(*this)(x,y,z,s)*d;
-                else tmp(x,y,z,t)+=(Tfloat)res(x,y,z,s)*d;
-                if (!b) { tmp(x,y,z,t++)/=_spectrum; b = _spectrum; }
-                if (!c) { ++s; c = sc; }
+          if (sc!=_spectrum) {
+            if (sc>_spectrum) get_resize(sx,sy,sz,sc,1).move_to(res);
+            else {
+              CImg<Tfloat> tmp(sx,sy,sz,sc,0);
+              cimg_pragma_openmp(parallel for cimg_openmp_collapse(3)
+                                 cimg_openmp_if(sc>=256 && _width*_height*_depth>=256))
+                cimg_forXYZ(tmp,x,y,z) {
+                for (unsigned int a = _spectrum*sc, b = _spectrum, c = sc, s = 0, t = 0; a; ) {
+                  const unsigned int d = std::min(b,c);
+                  a-=d; b-=d; c-=d;
+                  if (instance_first) tmp(x,y,z,t)+=(Tfloat)(*this)(x,y,z,s)*d;
+                  else tmp(x,y,z,t)+=(Tfloat)res(x,y,z,s)*d;
+                  if (!b) { tmp(x,y,z,t++)/=_spectrum; b = _spectrum; }
+                  if (!c) { ++s; c = sc; }
+                }
               }
+              tmp.move_to(res);
             }
-            tmp.move_to(res);
+            instance_first = false;
           }
-          instance_first = false;
         }
 
       } break;

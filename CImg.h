@@ -23123,8 +23123,12 @@ namespace cimg_library {
                   _cimg_mp_check_type(arg3,3,1,0);
                   arg4 = opcode.height()<4?0U:(unsigned int)opcode[3];
                   _cimg_mp_check_type(arg4,4,1,0);
-                  pos = vector(arg2);
-                  CImg<ulongT>::vector((ulongT)mp_vector_resize,pos,arg2,arg1,p1,arg3,arg4).move_to(code);
+                  if (p1 && p1==arg2) // Particular case: copy input (same size)
+                    pos = copy(arg1);
+                  else {
+                    pos = vector(arg2);
+                    CImg<ulongT>::vector((ulongT)mp_vector_resize,pos,arg2,arg1,p1,arg3,arg4).move_to(code);
+                  }
                 } else { // Advanced vector resize (vector viewed as an image)
                   // opcode = [ A, ow,oh,od,os, nw,nh,nd,ns, interp, boundary_cond, ax,ay,az,ac ]
                   //          [ 0   1  2  3  4   5  6  7  8       9             10  11 12 13 14 ]
@@ -23160,12 +23164,16 @@ namespace cimg_library {
                   arg3 = (unsigned int)mem[opcode[6]]; opcode[6] = arg3;
                   arg4 = (unsigned int)mem[opcode[7]]; opcode[7] = arg4;
                   arg5 = (unsigned int)mem[opcode[8]]; opcode[8] = arg5;
-                  pos = vector(arg2*arg3*arg4*arg5);
-                  opcode.resize(1,18,1,1,0,0,0,1);
-                  opcode[0] = (ulongT)mp_vector_resize_ext;
-                  opcode[1] = (ulongT)pos;
-                  opcode[2] = (ulongT)p1;
-                  opcode.move_to(code);
+                  if (arg2==opcode[1] && arg3==opcode[2] && arg4==opcode[3] && arg5==opcode[4]) // Particular case: copy input (same size)
+                    pos = copy(arg1);
+                  else {
+                    pos = vector(arg2*arg3*arg4*arg5);
+                    opcode.resize(1,18,1,1,0,0,0,1);
+                    opcode[0] = (ulongT)mp_vector_resize_ext;
+                    opcode[1] = (ulongT)pos;
+                    opcode[2] = (ulongT)p1;
+                    opcode.move_to(code);
+                  }
                 }
                 return_comp = true;
                 _cimg_mp_return(pos);

@@ -19903,13 +19903,13 @@ namespace cimg_library {
             if (!p2) _cimg_mp_return(0);
             pos = vector(p2);
             if (p1!=~0U)
-              CImg<ulongT>::vector((ulongT)(is_relative?mp_list_Jxyz:mp_list_Ixyz),
+              CImg<ulongT>::vector((ulongT)(is_relative?mp_list_Jxyz3:mp_list_Ixyz3),
                                    pos,p1,arg1,arg2,arg3,
                                    arg4==~0U?_cimg_mp_interpolation:arg4,
                                    arg5==~0U?_cimg_mp_boundary:arg5,p2).move_to(code);
             else {
               need_input_copy = true;
-              CImg<ulongT>::vector((ulongT)(is_relative?mp_Jxyz:mp_Ixyz),
+              CImg<ulongT>::vector((ulongT)(is_relative?mp_Jxyz3:mp_Ixyz3),
                                   pos,arg1,arg2,arg3,
                                   arg4==~0U?_cimg_mp_interpolation:arg4,
                                   arg5==~0U?_cimg_mp_boundary:arg5,p2).move_to(code);
@@ -31623,7 +31623,7 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_Ixyz(_cimg_math_parser& mp) {
+      static double mp_Ixyz3(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
         const unsigned int
           interpolation = (unsigned int)_mp_arg(5),
@@ -31756,7 +31756,7 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_Jxyz(_cimg_math_parser& mp) {
+      static double mp_Jxyz3(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
         const unsigned int
           interpolation = (unsigned int)_mp_arg(5),

@@ -27790,7 +27790,7 @@ namespace cimg_library {
           case 2 : // Periodic
             return (double)img._cubic_atXYZ_p((float)x,(float)y,(float)z,cimg::mod(c,img.spectrum()));
           case 1 : // Neumann
-            return (double)img._cubic_atXYZ((float)x,(float)y,(float)z,c<0?0:c>=img.spectrum()?img._spectrum() - 1:c);
+            return (double)img._cubic_atXYZ((float)x,(float)y,(float)z,c<0?0:c>=img.spectrum()?img.spectrum() - 1:c);
           default : // Dirichlet
             if (c<0 || c>=img.spectrum()) return (T)0;
             return (double)img.cubic_atXYZ((float)x,(float)y,(float)z,c,(T)0);

@@ -19908,10 +19908,8 @@ namespace cimg_library {
               is_inty = is_intz && // optimized for 1D?
                         (is_const_integer(arg2) || (arg2>=_cimg_mp_slot_x && arg2<=_cimg_mp_slot_c));
             if (p1==~0U) need_input_copy = true;
-            CImg<ulongT>::vector((ulongT)(is_relative?
-                                          (is_inty?mp_Jxyz1:is_intz?mp_Jxyz2:mp_Jxyz3):
-                                          (is_inty?mp_Ixyz1:is_intz?mp_Ixyz2:mp_Ixyz3)),
-                                 pos,p1,arg1,arg2,arg3,
+            CImg<ulongT>::vector((ulongT)(is_inty?mp_IJxyz1:is_intz?mp_IJxyz2:mp_IJxyz3),
+                                 pos,(ulongT)is_relative,p1,arg1,arg2,arg3,
                                  arg4==~0U?_cimg_mp_interpolation:arg4,
                                  arg5==~0U?_cimg_mp_boundary:arg5,p2).move_to(code);
             return_comp = true;
@@ -28486,16 +28484,20 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_Ixyz3(_cimg_math_parser& mp) {
+      static double mp_IJxyz3(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
+        const bool is_relative = (bool)mp.opcode[2];
         const unsigned int
-          _ind = (unsigned int)mp.opcode[2],
+          _ind = (unsigned int)mp.opcode[3],
           ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width()),
-          interpolation = (unsigned int)_mp_arg(6),
-          boundary_conditions = (unsigned int)_mp_arg(7),
-          siz = (unsigned int)mp.opcode[8];
+          interpolation = (unsigned int)_mp_arg(7),
+          boundary_conditions = (unsigned int)_mp_arg(8),
+          siz = (unsigned int)mp.opcode[9];
         const CImg<T> &img = ind==~0U?mp.imgin:mp.imglist[ind];
-        const double x = _mp_arg(3), y = _mp_arg(4), z = _mp_arg(5);
+        const double
+          x = is_relative?(mp.mem[_cimg_mp_slot_x] + _mp_arg(4)):_mp_arg(4),
+          y = is_relative?(mp.mem[_cimg_mp_slot_y] + _mp_arg(5)):_mp_arg(5),
+          z = is_relative?(mp.mem[_cimg_mp_slot_z] + _mp_arg(6)):_mp_arg(6);
         const ulongT whd = (ulongT)img._width*img._height*img._depth;
         const T *ptrs;
         switch (interpolation) {
@@ -28579,17 +28581,21 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_Ixyz2(_cimg_math_parser& mp) {
+      static double mp_IJxyz2(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
+        const bool is_relative = (bool)mp.opcode[2];
         const unsigned int
-          _ind = (unsigned int)mp.opcode[2],
+          _ind = (unsigned int)mp.opcode[3],
           ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width()),
-          interpolation = (unsigned int)_mp_arg(6),
-          boundary_conditions = (unsigned int)_mp_arg(7),
-          siz = (unsigned int)mp.opcode[8];
+          interpolation = (unsigned int)_mp_arg(7),
+          boundary_conditions = (unsigned int)_mp_arg(8),
+          siz = (unsigned int)mp.opcode[9];
         const CImg<T> &img = ind==~0U?mp.imgin:mp.imglist[ind];
-        const double x = _mp_arg(3), y = _mp_arg(4);
-        const int z = (int)_mp_arg(5);
+        const double
+          x = is_relative?(mp.mem[_cimg_mp_slot_x] + _mp_arg(4)):_mp_arg(4),
+          y = is_relative?(mp.mem[_cimg_mp_slot_y] + _mp_arg(5)):_mp_arg(5);
+        const int
+          z = (int)(is_relative?(mp.mem[_cimg_mp_slot_z] + _mp_arg(6)):_mp_arg(6));
         const ulongT whd = (ulongT)img._width*img._height*img._depth;
         const T *ptrs;
         switch (interpolation) {
@@ -28675,17 +28681,21 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_Ixyz1(_cimg_math_parser& mp) {
+      static double mp_IJxyz1(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
+        const bool is_relative = (bool)mp.opcode[2];
         const unsigned int
-          _ind = (unsigned int)mp.opcode[2],
+          _ind = (unsigned int)mp.opcode[3],
           ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width()),
-          interpolation = (unsigned int)_mp_arg(6),
-          boundary_conditions = (unsigned int)_mp_arg(7),
-          siz = (unsigned int)mp.opcode[8];
+          interpolation = (unsigned int)_mp_arg(7),
+          boundary_conditions = (unsigned int)_mp_arg(8),
+          siz = (unsigned int)mp.opcode[9];
         const CImg<T> &img = ind==~0U?mp.imgin:mp.imglist[ind];
-        const double x = _mp_arg(3);
-        const int y = (int)_mp_arg(4), z = (int)_mp_arg(5);
+        const double
+          x = is_relative?(mp.mem[_cimg_mp_slot_x] + _mp_arg(4)):_mp_arg(4);
+        const int
+          y = (int)(is_relative?(mp.mem[_cimg_mp_slot_y] + _mp_arg(5)):_mp_arg(5)),
+          z = (int)(is_relative?(mp.mem[_cimg_mp_slot_z] + _mp_arg(6)):_mp_arg(6));
         const ulongT whd = (ulongT)img._width*img._height*img._depth;
         const T *ptrs;
         switch (interpolation) {
@@ -28809,297 +28819,6 @@ namespace cimg_library {
             return cimg::type<double>::nan();
           }
         std::memset(ptrd,0,siz*sizeof(double));
-        return cimg::type<double>::nan();
-      }
-
-      static double mp_Jxyz3(_cimg_math_parser& mp) {
-        double *ptrd = &_mp_arg(1) + 1;
-        const unsigned int
-          _ind = (unsigned int)mp.opcode[2],
-          ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width()),
-          interpolation = (unsigned int)_mp_arg(6),
-          boundary_conditions = (unsigned int)_mp_arg(7),
-          siz = (unsigned int)mp.opcode[8];
-        const CImg<T> &img = ind==~0U?mp.imgin:mp.imglist[ind];
-        const double
-          ox = mp.mem[_cimg_mp_slot_x], oy = mp.mem[_cimg_mp_slot_y], oz = mp.mem[_cimg_mp_slot_z],
-          x = ox + _mp_arg(3), y = oy + _mp_arg(4), z = oz + _mp_arg(5);
-        const ulongT whd = (ulongT)img._width*img._height*img._depth;
-        const T *ptrs;
-        switch (interpolation) {
-        case 2 : // Cubic interpolation
-          switch (boundary_conditions) {
-          case 3 : { // Mirror
-            const int w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth();
-            const float
-              mx = cimg::mod((float)x,(float)w2),
-              my = cimg::mod((float)y,(float)h2),
-              mz = cimg::mod((float)z,(float)d2),
-              cx = mx<img.width()?mx:w2 - mx - 1,
-              cy = my<img.height()?my:h2 - my - 1,
-              cz = mz<img.depth()?mz:d2 - mz - 1;
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._cubic_atXYZ(cx,cy,cz,c);
-          } break;
-          case 2 : // Periodic
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._cubic_atXYZ_p((float)x,(float)y,(float)z,c);
-            break;
-          case 1 : // Neumann
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._cubic_atXYZ((float)x,(float)y,(float)z,c);
-            break;
-          default : // Dirichlet
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img.cubic_atXYZ((float)x,(float)y,(float)z,c,(T)0);
-          } break;
-        case 1 : // Linear interpolation
-          switch (boundary_conditions) {
-          case 3 : { // Mirror
-            const int w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth();
-            const float
-              mx = cimg::mod((float)x,(float)w2),
-              my = cimg::mod((float)y,(float)h2),
-              mz = cimg::mod((float)z,(float)d2),
-              cx = mx<img.width()?mx:w2 - mx - 1,
-              cy = my<img.height()?my:h2 - my - 1,
-              cz = mz<img.depth()?mz:d2 - mz - 1;
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._linear_atXYZ(cx,cy,cz,c);
-          } break;
-          case 2 : // Periodic
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._linear_atXYZ_p((float)x,(float)y,(float)z,c);
-            break;
-          case 1 : // Neumann
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._linear_atXYZ((float)x,(float)y,(float)z,c);
-            break;
-          default : // Dirichlet
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img.linear_atXYZ((float)x,(float)y,(float)z,c,(T)0);
-          } break;
-        case 0 : // Nearest neighbor interpolation
-          switch (boundary_conditions) {
-          case 3 : { // Mirror
-            const int
-              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(),
-              mx = cimg::mod((int)x,w2),
-              my = cimg::mod((int)y,h2),
-              mz = cimg::mod((int)z,d2),
-              cx = mx<img.width()?mx:w2 - mx - 1,
-              cy = my<img.height()?my:h2 - my - 1,
-              cz = mz<img.depth()?mz:d2 - mz - 1;
-            ptrs = &img(cx,cy,cz);
-            cimg_for_inC(img,0,siz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
-          } break;
-          case 2 : { // Periodic
-            const int
-              cx = (int)cimg::mod(x,(double)img._width),
-              cy = (int)cimg::mod(y,(double)img._height),
-              cz = (int)cimg::mod(z,(double)img._depth);
-            ptrs = &img(cx,cy,cz);
-            cimg_for_inC(img,0,siz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
-          } break;
-          case 1 : { // Neumann
-            ptrs = &img._atXYZ((int)x,(int)y,(int)z);
-            cimg_for_inC(img,0,siz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
-          } break;
-          default : // Dirichlet
-            if (img.containsXYZC((int)x,(int)y,(int)z)) {
-              ptrs = &img((int)x,(int)y,(int)z);
-              cimg_for_inC(img,0,siz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
-            } else std::memset(ptrd,0,siz*sizeof(double));
-          }
-        }
-        return cimg::type<double>::nan();
-      }
-
-      static double mp_Jxyz2(_cimg_math_parser& mp) {
-        double *ptrd = &_mp_arg(1) + 1;
-        const unsigned int
-          _ind = (unsigned int)mp.opcode[2],
-          ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width()),
-          interpolation = (unsigned int)_mp_arg(6),
-          boundary_conditions = (unsigned int)_mp_arg(7),
-          siz = (unsigned int)mp.opcode[8];
-        const CImg<T> &img = ind==~0U?mp.imgin:mp.imglist[ind];
-        const double
-          ox = mp.mem[_cimg_mp_slot_x], oy = mp.mem[_cimg_mp_slot_y], oz = mp.mem[_cimg_mp_slot_z],
-          x = ox + _mp_arg(3), y = oy + _mp_arg(4);
-        const int z = (int)(oz + _mp_arg(5));
-        const ulongT whd = (ulongT)img._width*img._height*img._depth;
-        const T *ptrs;
-        switch (interpolation) {
-        case 2 : // Cubic interpolation
-          switch (boundary_conditions) {
-          case 3 : { // Mirror
-            const int
-              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(),
-              mz = cimg::mod(z,d2),
-              cz = mz<img.depth()?mz:d2 - mz - 1;
-            const float
-              mx = cimg::mod((float)x,(float)w2),
-              my = cimg::mod((float)y,(float)h2),
-              cx = mx<img.width()?mx:w2 - mx - 1,
-              cy = my<img.height()?my:h2 - my - 1;
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._cubic_atXY(cx,cy,cz,c);
-          } break;
-          case 2 : // Periodic
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._cubic_atXY_p((float)x,(float)y,z,c);
-            break;
-          case 1 : // Neumann
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._cubic_atXY((float)x,(float)y,z,c);
-            break;
-          default : // Dirichlet
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img.cubic_atXY((float)x,(float)y,z,c,(T)0);
-          } break;
-        case 1 : // Linear interpolation
-          switch (boundary_conditions) {
-          case 3 : { // Mirror
-            const int
-              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(),
-              mz = cimg::mod(z,d2),
-              cz = mz<img.depth()?mz:d2 - mz - 1;
-            const float
-              mx = cimg::mod((float)x,(float)w2),
-              my = cimg::mod((float)y,(float)h2),
-              cx = mx<img.width()?mx:w2 - mx - 1,
-              cy = my<img.height()?my:h2 - my - 1;
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._linear_atXY(cx,cy,cz,c);
-          } break;
-          case 2 : // Periodic
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._linear_atXY_p((float)x,(float)y,z,c);
-            break;
-          case 1 : // Neumann
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._linear_atXY((float)x,(float)y,z,c);
-            break;
-          default : // Dirichlet
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img.linear_atXY((float)x,(float)y,z,c,(T)0);
-          } break;
-        case 0 : // Nearest neighbor interpolation
-          switch (boundary_conditions) {
-          case 3 : { // Mirror
-            const int
-              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(),
-              mz = cimg::mod(z,d2),
-              mx = cimg::mod((int)x,w2),
-              my = cimg::mod((int)y,h2),
-              cx = mx<img.width()?mx:w2 - mx - 1,
-              cy = my<img.height()?my:h2 - my - 1,
-              cz = mz<img.depth()?mz:d2 - mz - 1;
-            ptrs = &img(cx,cy,cz);
-            cimg_for_inC(img,0,siz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
-          } break;
-          case 2 : { // Periodic
-            const int
-              cx = (int)cimg::mod(x,(double)img._width),
-              cy = (int)cimg::mod(y,(double)img._height),
-              cz = cimg::mod(z,img.depth());
-            ptrs = &img(cx,cy,cz);
-            cimg_for_inC(img,0,siz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
-          } break;
-          case 1 : { // Neumann
-            ptrs = &img._atXYZ((int)x,(int)y,z);
-            cimg_for_inC(img,0,siz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
-          } break;
-          default : // Dirichlet
-            if (img.containsXYZC((int)x,(int)y,z)) {
-              ptrs = &img((int)x,(int)y,z);
-              cimg_for_inC(img,0,siz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
-            } else std::memset(ptrd,0,siz*sizeof(double));
-          }
-        }
-        return cimg::type<double>::nan();
-      }
-
-      static double mp_Jxyz1(_cimg_math_parser& mp) {
-        double *ptrd = &_mp_arg(1) + 1;
-        const unsigned int
-          _ind = (unsigned int)mp.opcode[2],
-          ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width()),
-          interpolation = (unsigned int)_mp_arg(6),
-          boundary_conditions = (unsigned int)_mp_arg(7),
-          siz = (unsigned int)mp.opcode[8];
-        const CImg<T> &img = ind==~0U?mp.imgin:mp.imglist[ind];
-        const double
-          ox = mp.mem[_cimg_mp_slot_x], oy = mp.mem[_cimg_mp_slot_y], oz = mp.mem[_cimg_mp_slot_z],
-          x = ox + _mp_arg(3);
-        const int y = (int)(oy + _mp_arg(4)), z = (int)(oz + _mp_arg(5));
-        const ulongT whd = (ulongT)img._width*img._height*img._depth;
-        const T *ptrs;
-        switch (interpolation) {
-        case 2 : // Cubic interpolation
-          switch (boundary_conditions) {
-          case 3 : { // Mirror
-            const int
-              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(),
-              my = cimg::mod(y,h2),
-              mz = cimg::mod(z,d2),
-              cy = my<img.height()?my:h2 - my - 1,
-              cz = mz<img.depth()?mz:d2 - mz - 1;
-            const float
-              mx = cimg::mod((float)x,(float)w2),
-              cx = mx<img.width()?mx:w2 - mx - 1;
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._cubic_atX(cx,cy,cz,c);
-          } break;
-          case 2 : // Periodic
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._cubic_atX_p((float)x,y,z,c);
-            break;
-          case 1 : // Neumann
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._cubic_atX((float)x,y,z,c);
-            break;
-          default : // Dirichlet
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img.cubic_atX((float)x,y,z,c,(T)0);
-          } break;
-        case 1 : // Linear interpolation
-          switch (boundary_conditions) {
-          case 3 : { // Mirror
-            const int
-              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(),
-              my = cimg::mod(y,h2),
-              mz = cimg::mod(z,d2),
-              cy = my<img.height()?my:h2 - my - 1,
-              cz = mz<img.depth()?mz:d2 - mz - 1;
-            const float
-              mx = cimg::mod((float)x,(float)w2),
-              cx = mx<img.width()?mx:w2 - mx - 1;
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._linear_atX(cx,cy,cz,c);
-          } break;
-          case 2 : // Periodic
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._linear_atX_p((float)x,y,z,c);
-            break;
-          case 1 : // Neumann
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img._linear_atX((float)x,y,z,c);
-            break;
-          default : // Dirichlet
-            cimg_for_inC(img,0,siz - 1,c) *(ptrd++) = (double)img.linear_atX((float)x,y,z,c,(T)0);
-          } break;
-        case 0 : // Nearest neighbor interpolation
-          switch (boundary_conditions) {
-          case 3 : { // Mirror
-            const int
-              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(),
-              my = cimg::mod(y,h2),
-              mz = cimg::mod(z,d2),
-              mx = cimg::mod((int)x,w2),
-              cx = mx<img.width()?mx:w2 - mx - 1,
-              cy = my<img.height()?my:h2 - my - 1,
-              cz = mz<img.depth()?mz:d2 - mz - 1;
-            ptrs = &img(cx,cy,cz);
-            cimg_for_inC(img,0,siz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
-          } break;
-          case 2 : { // Periodic
-            const int
-              cx = (int)cimg::mod(x,(double)img._width),
-              cy = cimg::mod(y,img.height()),
-              cz = cimg::mod(z,img.depth());
-            ptrs = &img(cx,cy,cz);
-            cimg_for_inC(img,0,siz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
-          } break;
-          case 1 : { // Neumann
-            ptrs = &img._atXYZ((int)x,y,z);
-            cimg_for_inC(img,0,siz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
-          } break;
-          default : // Dirichlet
-            if (img.containsXYZC((int)x,y,z)) {
-              ptrs = &img((int)x,y,z);
-              cimg_for_inC(img,0,siz - 1,c) { *(ptrd++) = (double)*ptrs; ptrs+=whd; }
-            } else std::memset(ptrd,0,siz*sizeof(double));
-          }
-        }
         return cimg::type<double>::nan();
       }
 

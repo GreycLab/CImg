@@ -27679,8 +27679,8 @@ namespace cimg_library {
               mx = cimg::mod((float)x,(float)w2),
               my = cimg::mod((float)y,(float)h2),
               mz = cimg::mod((float)z,(float)d2);
-            return (double)img._cubic_atXYZ(mx<img.width()?mx:w2 - mx - 1, my<img.height()?my:h2 - my - 1,
-                                            mz<img.depth()?mz:d2 - mz - 1, mc<img.spectrum()?mc:s2 - mc - 1);
+            return (double)img._cubic_atXYZ(mx<img.width()?mx:w2 - mx - 1,my<img.height()?my:h2 - my - 1,
+                                            mz<img.depth()?mz:d2 - mz - 1,mc<img.spectrum()?mc:s2 - mc - 1);
           }
           case 2 : // Periodic
             return (double)img._cubic_atXYZ_p((float)x,(float)y,(float)z,cimg::mod(c,img.spectrum()));
@@ -27700,8 +27700,8 @@ namespace cimg_library {
               mx = cimg::mod((float)x,(float)w2),
               my = cimg::mod((float)y,(float)h2),
               mz = cimg::mod((float)z,(float)d2);
-            return (double)img._linear_atXYZ(mx<img.width()?mx:w2 - mx - 1, my<img.height()?my:h2 - my - 1,
-                                             mz<img.depth()?mz:d2 - mz - 1, mc<img.spectrum()?mc:s2 - mc - 1);
+            return (double)img._linear_atXYZ(mx<img.width()?mx:w2 - mx - 1,my<img.height()?my:h2 - my - 1,
+                                             mz<img.depth()?mz:d2 - mz - 1,mc<img.spectrum()?mc:s2 - mc - 1);
           }
           case 2 : // Periodic
             return (double)img._linear_atXYZ_p((float)x,(float)y,(float)z,cimg::mod(c,img.spectrum()));
@@ -27720,8 +27720,8 @@ namespace cimg_library {
               mx = cimg::mod((int)x,w2),
               my = cimg::mod((int)y,h2),
               mz = cimg::mod((int)z,d2);
-            return (double)img(mx<img.width()?mx:w2 - mx - 1, my<img.height()?my:h2 - my - 1,
-                               mz<img.depth()?mz:d2 - mz - 1, mc<img.spectrum()?mc:s2 - mc - 1);
+            return (double)img(mx<img.width()?mx:w2 - mx - 1,my<img.height()?my:h2 - my - 1,
+                               mz<img.depth()?mz:d2 - mz - 1,mc<img.spectrum()?mc:s2 - mc - 1);
           }
           case 2 : // Periodic
             return (double)img((int)cimg::mod(x,(double)img._width),
@@ -27784,8 +27784,8 @@ namespace cimg_library {
               mx = cimg::mod((float)x,(float)w2),
               my = cimg::mod((float)y,(float)h2),
               mz = cimg::mod((float)z,(float)d2);
-            return (double)img._cubic_atXYZ(mx<img.width()?mx:w2 - mx - 1, my<img.height()?my:h2 - my - 1,
-                                            mz<img.depth()?mz:d2 - mz - 1, mc<img.spectrum()?mc:s2 - mc - 1);
+            return (double)img._cubic_atXYZ(mx<img.width()?mx:w2 - mx - 1,my<img.height()?my:h2 - my - 1,
+                                            mz<img.depth()?mz:d2 - mz - 1,mc<img.spectrum()?mc:s2 - mc - 1);
           }
           case 2 : // Periodic
             return (double)img._cubic_atXYZ_p((float)x,(float)y,(float)z,cimg::mod(c,img.spectrum()));
@@ -27805,8 +27805,8 @@ namespace cimg_library {
               mx = cimg::mod((float)x,(float)w2),
               my = cimg::mod((float)y,(float)h2),
               mz = cimg::mod((float)z,(float)d2);
-            return (double)img._linear_atXYZ(mx<img.width()?mx:w2 - mx - 1, my<img.height()?my:h2 - my - 1,
-                                             mz<img.depth()?mz:d2 - mz - 1, mc<img.spectrum()?mc:s2 - mc - 1);
+            return (double)img._linear_atXYZ(mx<img.width()?mx:w2 - mx - 1,my<img.height()?my:h2 - my - 1,
+                                             mz<img.depth()?mz:d2 - mz - 1,mc<img.spectrum()?mc:s2 - mc - 1);
           }
           case 2 : // Periodic
             return (double)img._linear_atXYZ_p((float)x,(float)y,(float)z,cimg::mod(c,img.spectrum()));

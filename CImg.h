@@ -7140,7 +7140,7 @@ namespace cimg_library {
       case 3 : // Descending sawtooth
         res = -2*(p - 0.5);
         break;
-      default: // Sine
+      default : // Sine
         res = std::sin(2*cimg::PI*p);
       }
       return res;
@@ -27848,7 +27848,7 @@ namespace cimg_library {
                                           z<0?0:z>=img.depth()?img.depth() - 1:z,
                                           c<0?0:c>=img.spectrum()?img.spectrum() - 1:c);
           default : // Dirichlet
-            if (z<0 || z>=img.depth() || c<0 || c>=img.spectrum()) return (T)0;
+            if (y<0 || y>=img.height() || z<0 || z>=img.depth() || c<0 || c>=img.spectrum()) return (T)0;
             return (double)img.cubic_atX((float)x,y,z,c,(T)0);
           }
         case 1 : // Linear interpolation
@@ -27872,7 +27872,7 @@ namespace cimg_library {
                                            z<0?0:z>=img.depth()?img.depth() - 1:z,
                                            c<0?0:c>=img.spectrum()?img.spectrum() - 1:c);
           default : // Dirichlet
-            if (z<0 || z>=img.depth() || c<0 || c>=img.spectrum()) return (T)0;
+            if (y<0 || y>=img.height() || z<0 || z>=img.depth() || c<0 || c>=img.spectrum()) return (T)0;
             return (double)img.linear_atX((float)x,y,z,c,(T)0);
           }
         default : // Nearest neighbor interpolation
@@ -28537,7 +28537,7 @@ namespace cimg_library {
                                           z<0?0:z>=img.depth()?img.depth() - 1:z,
                                           c<0?0:c>=img.spectrum()?img.spectrum() - 1:c);
           default : // Dirichlet
-            if (z<0 || z>=img.depth() || c<0 || c>=img.spectrum()) return (T)0;
+            if (y<0 || y>=img.height() || z<0 || z>=img.depth() || c<0 || c>=img.spectrum()) return (T)0;
             return (double)img.cubic_atX((float)x,y,z,c,(T)0);
           }
         case 1 : // Linear interpolation

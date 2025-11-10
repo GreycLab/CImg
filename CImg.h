@@ -29169,7 +29169,7 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_list_Ixyz(_cimg_math_parser& mp) {
+      static double mp_list_Ixyz3(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
         const unsigned int
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width()),
@@ -29302,7 +29302,7 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_list_Jxyz(_cimg_math_parser& mp) {
+      static double mp_list_Jxyz3(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
         const unsigned int
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width()),

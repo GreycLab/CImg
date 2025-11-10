@@ -19985,7 +19985,7 @@ namespace cimg_library {
 
             if (p1!=~0U) {
               if (!imglist) _cimg_mp_return(0);
-              pos = scalar7(is_relative?mp_list_jxyzc:mp_list_ixyzc,
+              pos = scalar7(is_relative?(is_sth?mp_list_jxyzc2:mp_list_jxyzc):(is_sth?mp_list_ixyzc2:mp_list_ixyzc),
                             p1,arg1,arg2,arg3,arg4,
                             arg5==~0U?_cimg_mp_interpolation:arg5,
                             arg6==~0U?_cimg_mp_boundary:arg6);
@@ -26016,11 +26016,7 @@ namespace cimg_library {
           ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
         }
         const CImg<T> &img = ind==~0U?mp.imgin:mp.imglist[ind];
-        const int
-          x = (int)_mp_arg(3),
-          y = (int)_mp_arg(4),
-          z = (int)_mp_arg(5),
-          c = (int)_mp_arg(6);
+        const int x = (int)_mp_arg(3), y = (int)_mp_arg(4), z = (int)_mp_arg(5), c = (int)_mp_arg(6);
         const bool
           boundary_conditions = (bool)_mp_arg(7),
           is_contained = boundary_conditions?img.containsXYZC(x,y,z,c):true;
@@ -28199,7 +28195,7 @@ namespace cimg_library {
           boundary_conditions = (unsigned int)_mp_arg(8);
         const CImg<T> &img = mp.imglist[ind];
         const double x = _mp_arg(3), y = _mp_arg(4), z = _mp_arg(5);
-        const int c = _mp_arg(6);
+        const int c = (int)_mp_arg(6);
         switch (interpolation) {
         case 2 : // Cubic interpolation
           switch (boundary_conditions) {
@@ -28262,6 +28258,84 @@ namespace cimg_library {
             return (double)img._atXYZC((int)x,(int)y,(int)z,c);
           default : // Dirichlet
             return (double)img.atXYZC((int)x,(int)y,(int)z,c,(T)0);
+          }
+        }
+      }
+
+      static double mp_list_ixyzc2(_cimg_math_parser& mp) {
+        const unsigned int
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width()),
+          interpolation = (unsigned int)_mp_arg(7),
+          boundary_conditions = (unsigned int)_mp_arg(8);
+        const CImg<T> &img = mp.imglist[ind];
+        const double x = _mp_arg(3), y = _mp_arg(4);
+        const int z = (int)_mp_arg(5), c = (int)_mp_arg(6);
+        switch (interpolation) {
+        case 2 : // Cubic interpolation
+          switch (boundary_conditions) {
+          case 3 : { // Mirror
+            const int
+              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(), s2 = 2*img.spectrum(),
+              mz = cimg::mod(z,d2),
+              mc = cimg::mod(c,s2);
+            const float
+              mx = cimg::mod((float)x,(float)w2),
+              my = cimg::mod((float)y,(float)h2);
+            return (double)img._cubic_atXY(mx<img.width()?mx:w2 - mx - 1,my<img.height()?my:h2 - my - 1,
+                                           mz<img.depth()?mz:d2 - mz - 1,mc<img.spectrum()?mc:s2 - mc - 1);
+          }
+          case 2 : // Periodic
+            return (double)img._cubic_atXY_p((float)x,(float)y,cimg::mod(z,img.depth()),cimg::mod(c,img.spectrum()));
+          case 1 : // Neumann
+            return (double)img._cubic_atXY((float)x,(float)y,
+                                           z<0?0:z>=img.depth()?img.depth() - 1:z,
+                                           c<0?0:c>=img.spectrum()?img.spectrum() - 1:c);
+          default : // Dirichlet
+            if (c<0 || c>=img.spectrum()) return (T)0;
+            return (double)img.cubic_atXY((float)x,(float)y,z,c,(T)0);
+          }
+        case 1 : // Linear interpolation
+          switch (boundary_conditions) {
+          case 3 : { // Mirror
+            const int
+              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(), s2 = 2*img.spectrum(),
+              mz = cimg::mod(z,d2),
+              mc = cimg::mod(c,s2);
+            const float
+              mx = cimg::mod((float)x,(float)w2),
+              my = cimg::mod((float)y,(float)h2);
+            return (double)img._linear_atXY(mx<img.width()?mx:w2 - mx - 1,my<img.height()?my:h2 - my - 1,
+                                            mz<img.depth()?mz:d2 - mz - 1,mc<img.spectrum()?mc:s2 - mc - 1);
+          }
+          case 2 : // Periodic
+            return (double)img._linear_atXY_p((float)x,(float)y,cimg::mod(z,img.depth()),cimg::mod(c,img.spectrum()));
+          case 1 : // Neumann
+            return (double)img._linear_atXY((float)x,(float)y,
+                                            z<0?0:z>=img.depth()?img.depth() - 1:z,
+                                            c<0?0:c>=img.spectrum()?img.spectrum() - 1:c);
+          default : // Dirichlet
+            if (c<0 || c>=img.spectrum()) return (T)0;
+            return (double)img.linear_atXY((float)x,(float)y,z,c,(T)0);
+          }
+        default : // Nearest neighbor interpolation
+          switch (boundary_conditions) {
+          case 3 : { // Mirror
+            const int
+              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(), s2 = 2*img.spectrum(),
+              mz = cimg::mod(z,d2),
+              mc = cimg::mod(c,s2),
+              mx = cimg::mod((int)x,w2),
+              my = cimg::mod((int)y,h2);
+            return (double)img(mx<img.width()?mx:w2 - mx - 1,my<img.height()?my:h2 - my - 1,
+                               mz<img.depth()?mz:d2 - mz - 1,mc<img.spectrum()?mc:s2 - mc - 1);
+          }
+          case 2 : // Periodic
+            return (double)img((int)cimg::mod(x,(double)img._width),(int)cimg::mod(y,(double)img._height),
+                               cimg::mod(z,img.depth()),cimg::mod(c,img.spectrum()));
+          case 1 : // Neumann
+            return (double)img._atXYZC((int)x,(int)y,z,c);
+          default : // Dirichlet
+            return (double)img.atXYZC((int)x,(int)y,z,c,(T)0);
           }
         }
       }
@@ -28370,6 +28444,87 @@ namespace cimg_library {
         }
       }
 
+      static double mp_list_jxyzc2(_cimg_math_parser& mp) {
+        const unsigned int
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width()),
+          interpolation = (unsigned int)_mp_arg(7),
+          boundary_conditions = (unsigned int)_mp_arg(8);
+        const CImg<T> &img = mp.imglist[ind];
+        const double
+          ox = mp.mem[_cimg_mp_slot_x], oy = mp.mem[_cimg_mp_slot_y],
+          oz = mp.mem[_cimg_mp_slot_z], oc = mp.mem[_cimg_mp_slot_c],
+          x = ox + _mp_arg(3), y = oy + _mp_arg(4);
+        const int z = (int)(oz + _mp_arg(5)), c = (int)(oc + _mp_arg(6));
+        switch (interpolation) {
+        case 2 : // Cubic interpolation
+          switch (boundary_conditions) {
+          case 3 : { // Mirror
+            const int
+              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(), s2 = 2*img.spectrum(),
+              mz = cimg::mod(z,d2),
+              mc = cimg::mod(c,s2);
+            const float
+              mx = cimg::mod((float)x,(float)w2),
+              my = cimg::mod((float)y,(float)h2);
+            return (double)img._cubic_atXY(mx<img.width()?mx:w2 - mx - 1,my<img.height()?my:h2 - my - 1,
+                                           mz<img.depth()?mz:d2 - mz - 1,mc<img.spectrum()?mc:s2 - mc - 1);
+          }
+          case 2 : // Periodic
+            return (double)img._cubic_atXY_p((float)x,(float)y,cimg::mod(z,img.depth()),cimg::mod(c,img.spectrum()));
+          case 1 : // Neumann
+            return (double)img._cubic_atXY((float)x,(float)y,
+                                           z<0?0:z>=img.depth()?img.depth() - 1:z,
+                                           c<0?0:c>=img.spectrum()?img.spectrum() - 1:c);
+          default : // Dirichlet
+            if (c<0 || c>=img.spectrum()) return (T)0;
+            return (double)img.cubic_atXY((float)x,(float)y,z,c,(T)0);
+          }
+        case 1 : // Linear interpolation
+          switch (boundary_conditions) {
+          case 3 : { // Mirror
+            const int
+              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(), s2 = 2*img.spectrum(),
+              mz = cimg::mod(z,d2),
+              mc = cimg::mod(c,s2);
+            const float
+              mx = cimg::mod((float)x,(float)w2),
+              my = cimg::mod((float)y,(float)h2);
+            return (double)img._linear_atXY(mx<img.width()?mx:w2 - mx - 1,my<img.height()?my:h2 - my - 1,
+                                            mz<img.depth()?mz:d2 - mz - 1,mc<img.spectrum()?mc:s2 - mc - 1);
+          }
+          case 2 : // Periodic
+            return (double)img._linear_atXYZ_p((float)x,(float)y,cimg::mod(z,img.depth()),cimg::mod(c,img.spectrum()));
+          case 1 : // Neumann
+            return (double)img._linear_atXY((float)x,(float)y,
+                                            z<0?0:z>=img.depth()?img.depth() - 1:z,
+                                            c<0?0:c>=img.spectrum()?img.spectrum() - 1:c);
+          default : // Dirichlet
+            if (c<0 || c>=img.spectrum()) return (T)0;
+            return (double)img.linear_atXY((float)x,(float)y,z,c,(T)0);
+          }
+        default : // Nearest neighbor interpolation
+          switch (boundary_conditions) {
+          case 3 : { // Mirror
+            const int
+              w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(), s2 = 2*img.spectrum(),
+              mz = cimg::mod(z,d2),
+              mc = cimg::mod(c,s2),
+              mx = cimg::mod((int)x,w2),
+              my = cimg::mod((int)y,h2);
+            return (double)img(mx<img.width()?mx:w2 - mx - 1,my<img.height()?my:h2 - my - 1,
+                               mz<img.depth()?mz:d2 - mz - 1,mc<img.spectrum()?mc:s2 - mc - 1);
+          }
+          case 2 : // Periodic
+            return (double)img((int)cimg::mod(x,(double)img._width),(int)cimg::mod(y,(double)img._height),
+                               cimg::mod(z,img.depth()),cimg::mod(c,img.spectrum()));
+          case 1 : // Neumann
+            return (double)img._atXYZC((int)x,(int)y,z,c);
+          default : // Dirichlet
+            return (double)img.atXYZC((int)x,(int)y,z,c,(T)0);
+          }
+        }
+      }
+
       static double mp_list_l(_cimg_math_parser& mp) {
         return (double)mp.imglist.width();
       }
@@ -28421,9 +28576,7 @@ namespace cimg_library {
         if (!mp.imglist.width()) return cimg::type<double>::nan();
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
         CImg<T> &img = mp.imglist[ind];
-        const int
-          x = (int)_mp_arg(3), y = (int)_mp_arg(4),
-          z = (int)_mp_arg(5), c = (int)_mp_arg(6);
+        const int x = (int)_mp_arg(3), y = (int)_mp_arg(4), z = (int)_mp_arg(5), c = (int)_mp_arg(6);
         const double val = _mp_arg(1);
         if (x>=0 && x<img.width() && y>=0 && y<img.height() &&
             z>=0 && z<img.depth() && c>=0 && c<img.spectrum())

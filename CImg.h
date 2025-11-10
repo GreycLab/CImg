@@ -30993,9 +30993,11 @@ namespace cimg_library {
         case 2 : // Cubic interpolation
           switch (boundary_conditions) {
           case 3 : { // Mirror
+            const int w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth();
             const float
-              w2 = 2.f*img.width(), h2 = 2.f*img.height(), d2 = 2.f*img.depth(),
-              mx = cimg::mod((float)x,w2), my = cimg::mod((float)y,h2), mz = cimg::mod((float)z,d2),
+              mx = cimg::mod((float)x,(float)w2),
+              my = cimg::mod((float)y,(float)h2),
+              mz = cimg::mod((float)z,(float)d2),
               cx = mx<img.width()?mx:w2 - mx - 1,
               cy = my<img.height()?my:h2 - my - 1,
               cz = mz<img.depth()?mz:d2 - mz - 1;
@@ -31013,9 +31015,11 @@ namespace cimg_library {
         case 1 : // Linear interpolation
           switch (boundary_conditions) {
           case 3 : { // Mirror
+            const int w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth();
             const float
-              w2 = 2.f*img.width(), h2 = 2.f*img.height(), d2 = 2.f*img.depth(),
-              mx = cimg::mod((float)x,w2), my = cimg::mod((float)y,h2), mz = cimg::mod((float)z,d2),
+              mx = cimg::mod((float)x,(float)w2),
+              my = cimg::mod((float)y,(float)h2),
+              mz = cimg::mod((float)z,(float)d2),
               cx = mx<img.width()?mx:w2 - mx - 1,
               cy = my<img.height()?my:h2 - my - 1,
               cz = mz<img.depth()?mz:d2 - mz - 1;
@@ -31035,7 +31039,9 @@ namespace cimg_library {
           case 3 : { // Mirror
             const int
               w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(),
-              mx = cimg::mod((int)x,w2), my = cimg::mod((int)y,h2), mz = cimg::mod((int)z,d2),
+              mx = cimg::mod((int)x,w2),
+              my = cimg::mod((int)y,h2),
+              mz = cimg::mod((int)z,d2),
               cx = mx<img.width()?mx:w2 - mx - 1,
               cy = my<img.height()?my:h2 - my - 1,
               cz = mz<img.depth()?mz:d2 - mz - 1;
@@ -31122,9 +31128,11 @@ namespace cimg_library {
         case 2 : // Cubic interpolation
           switch (boundary_conditions) {
           case 3 : { // Mirror
+            const int w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth();
             const float
-              w2 = 2.f*img.width(), h2 = 2.f*img.height(), d2 = 2.f*img.depth(),
-              mx = cimg::mod((float)x,w2), my = cimg::mod((float)y,h2), mz = cimg::mod((float)z,d2),
+              mx = cimg::mod((float)x,(float)w2),
+              my = cimg::mod((float)y,(float)h2),
+              mz = cimg::mod((float)z,(float)d2),
               cx = mx<img.width()?mx:w2 - mx - 1,
               cy = my<img.height()?my:h2 - my - 1,
               cz = mz<img.depth()?mz:d2 - mz - 1;
@@ -31142,9 +31150,11 @@ namespace cimg_library {
         case 1 : // Linear interpolation
           switch (boundary_conditions) {
           case 3 : { // Mirror
+            const int w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth();
             const float
-              w2 = 2.f*img.width(), h2 = 2.f*img.height(), d2 = 2.f*img.depth(),
-              mx = cimg::mod((float)x,w2), my = cimg::mod((float)y,h2), mz = cimg::mod((float)z,d2),
+              mx = cimg::mod((float)x,(float)w2),
+              my = cimg::mod((float)y,(float)h2),
+              mz = cimg::mod((float)z,(float)d2),
               cx = mx<img.width()?mx:w2 - mx - 1,
               cy = my<img.height()?my:h2 - my - 1,
               cz = mz<img.depth()?mz:d2 - mz - 1;
@@ -31164,7 +31174,9 @@ namespace cimg_library {
           case 3 : { // Mirror
             const int
               w2 = 2*img.width(), h2 = 2*img.height(), d2 = 2*img.depth(),
-              mx = cimg::mod((int)x,w2), my = cimg::mod((int)y,h2), mz = cimg::mod((int)z,d2),
+              mx = cimg::mod((int)x,w2),
+              my = cimg::mod((int)y,h2),
+              mz = cimg::mod((int)z,d2),
               cx = mx<img.width()?mx:w2 - mx - 1,
               cy = my<img.height()?my:h2 - my - 1,
               cz = mz<img.depth()?mz:d2 - mz - 1;

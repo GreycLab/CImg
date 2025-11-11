@@ -26047,6 +26047,22 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
+      static double mp_complex_cos(_cimg_math_parser& mp) {
+        const double real = _mp_arg(2), imag = _mp_arg(3);
+        double *ptrd = &_mp_arg(1) + 1;
+        ptrd[0] = std::cos(real)*std::cosh(imag);
+        ptrd[1] = -std::sin(real)*std::sinh(imag);
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_complex_cosh(_cimg_math_parser& mp) {
+        const double real = _mp_arg(2), imag = _mp_arg(3);
+        double *ptrd = &_mp_arg(1) + 1;
+        ptrd[0] = std::cosh(real)*std::cos(imag);
+        ptrd[1] = std::sinh(real)*std::sin(imag);
+        return cimg::type<double>::nan();
+      }
+
       static double mp_complex_div_sv(_cimg_math_parser& mp) {
         const double
           *ptr2 = &_mp_arg(3) + 1,
@@ -26164,19 +26180,19 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_complex_cos(_cimg_math_parser& mp) {
-        const double real = _mp_arg(2), imag = _mp_arg(3);
-        double *ptrd = &_mp_arg(1) + 1;
-        ptrd[0] = std::cos(real)*std::cosh(imag);
-        ptrd[1] = -std::sin(real)*std::sinh(imag);
-        return cimg::type<double>::nan();
-      }
-
       static double mp_complex_sin(_cimg_math_parser& mp) {
         const double real = _mp_arg(2), imag = _mp_arg(3);
         double *ptrd = &_mp_arg(1) + 1;
         ptrd[0] = std::sin(real)*std::cosh(imag);
         ptrd[1] = std::cos(real)*std::sinh(imag);
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_complex_sinh(_cimg_math_parser& mp) {
+        const double real = _mp_arg(2), imag = _mp_arg(3);
+        double *ptrd = &_mp_arg(1) + 1;
+        ptrd[0] = std::sinh(real)*std::cos(imag);
+        ptrd[1] = std::cosh(real)*std::sin(imag);
         return cimg::type<double>::nan();
       }
 
@@ -26204,22 +26220,6 @@ namespace cimg_library {
         double *ptrd = &_mp_arg(1) + 1;
         ptrd[0] = std::sin(2*real)/denom;
         ptrd[1] = std::sinh(2*imag)/denom;
-        return cimg::type<double>::nan();
-      }
-
-      static double mp_complex_cosh(_cimg_math_parser& mp) {
-        const double real = _mp_arg(2), imag = _mp_arg(3);
-        double *ptrd = &_mp_arg(1) + 1;
-        ptrd[0] = std::cosh(real)*std::cos(imag);
-        ptrd[1] = std::sinh(real)*std::sin(imag);
-        return cimg::type<double>::nan();
-      }
-
-      static double mp_complex_sinh(_cimg_math_parser& mp) {
-        const double real = _mp_arg(2), imag = _mp_arg(3);
-        double *ptrd = &_mp_arg(1) + 1;
-        ptrd[0] = std::sinh(real)*std::cos(imag);
-        ptrd[1] = std::cosh(real)*std::sin(imag);
         return cimg::type<double>::nan();
       }
 
@@ -26677,12 +26677,6 @@ namespace cimg_library {
         return _mp_arg(2)/_mp_arg(3);
       }
 
-      static double mp_dot(_cimg_math_parser& mp) {
-        const unsigned int siz = (unsigned int)mp.opcode[4];
-        return CImg<doubleT>(&_mp_arg(2) + 1,1,siz,1,1,true).
-          dot(CImg<doubleT>(&_mp_arg(3) + 1,1,siz,1,1,true));
-      }
-
       static double mp_do(_cimg_math_parser& mp) {
         const ulongT
           mem_body = mp.opcode[1],
@@ -26697,7 +26691,6 @@ namespace cimg_library {
           else mp.mem[mem_body] = cimg::type<double>::nan();
         }
         if (mp.opcode[7]) mp.mem[mem_cond] = 0;
-
         const unsigned int _break_type = mp.break_type;
         mp.break_type = 0;
         do {
@@ -26717,6 +26710,12 @@ namespace cimg_library {
         mp.break_type = _break_type;
         mp.p_code = p_end - 1;
         return mp.mem[mem_body];
+      }
+
+      static double mp_dot(_cimg_math_parser& mp) {
+        const unsigned int siz = (unsigned int)mp.opcode[4];
+        return CImg<doubleT>(&_mp_arg(2) + 1,1,siz,1,1,true).
+          dot(CImg<doubleT>(&_mp_arg(3) + 1,1,siz,1,1,true));
       }
 
       static double mp_echo(_cimg_math_parser& mp) {

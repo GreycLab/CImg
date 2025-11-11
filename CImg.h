@@ -19767,7 +19767,7 @@ namespace cimg_library {
             }
             if (p1!=~0U) {
               if (!imglist) _cimg_mp_return(0);
-              pos = scalar3(is_relative?mp_list_joff:mp_list_ioff,p1,arg1,arg2==~0U?_cimg_mp_boundary:arg2);
+              pos = scalar4(mp_list_ijoff,(unsigned int)is_relative,p1,arg1,arg2==~0U?_cimg_mp_boundary:arg2);
             } else {
               if (!imgin) _cimg_mp_return(0);
               need_input_copy = true;
@@ -27842,13 +27842,17 @@ namespace cimg_library {
         return (double)mp.imglist[ind]._height;
       }
 
-      static double mp_list_ioff(_cimg_math_parser& mp) {
+      static double mp_list_ijoff(_cimg_math_parser& mp) {
+        const bool is_relative = (bool)mp.opcode[2];
         const unsigned int
-          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width()),
-          boundary_conditions = (unsigned int)_mp_arg(4);
+          ind = (unsigned int)cimg::mod((int)_mp_arg(3),mp.imglist.width()),
+          boundary_conditions = (unsigned int)_mp_arg(5);
         const CImg<T> &img = mp.imglist[ind];
         const longT
-          off = (longT)_mp_arg(3),
+          off = (longT)(is_relative?img.offset((int)mp.mem[_cimg_mp_slot_x],
+                                               (int)mp.mem[_cimg_mp_slot_y],
+                                               (int)mp.mem[_cimg_mp_slot_z],
+                                               (int)mp.mem[_cimg_mp_slot_c]) + _mp_arg(4):_mp_arg(4)),
           whds = (longT)img.size();
         if (off>=0 && off<whds) return (double)img[off];
         if (img._data) switch (boundary_conditions) {
@@ -28118,33 +28122,6 @@ namespace cimg_library {
             return (double)img.atXYZC((int)x,y,z,c,(T)0);
           }
         }
-      }
-
-      static double mp_list_joff(_cimg_math_parser& mp) {
-        const unsigned int
-          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width()),
-          boundary_conditions = (unsigned int)_mp_arg(4);
-        const int
-          ox = (int)mp.mem[_cimg_mp_slot_x], oy = (int)mp.mem[_cimg_mp_slot_y],
-          oz = (int)mp.mem[_cimg_mp_slot_z], oc = (int)mp.mem[_cimg_mp_slot_c];
-        const CImg<T> &img = mp.imglist[ind];
-        const longT
-          off = img.offset(ox,oy,oz,oc) + (longT)_mp_arg(3),
-          whds = (longT)img.size();
-        if (off>=0 && off<whds) return (double)img[off];
-        if (img._data) switch (boundary_conditions) {
-          case 3 : { // Mirror
-            const longT whds2 = 2*whds, moff = cimg::mod(off,whds2);
-            return (double)img[moff<whds?moff:whds2 - moff - 1];
-          }
-          case 2 : // Periodic
-            return (double)img[cimg::mod(off,whds)];
-          case 1 : // Neumann
-            return (double)img[off<0?0:whds - 1];
-          default : // Dirichlet
-            return 0;
-          }
-        return 0;
       }
 
       static double mp_list_l(_cimg_math_parser& mp) {

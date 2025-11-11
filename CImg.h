@@ -29165,11 +29165,10 @@ namespace cimg_library {
 #endif
 
       static double mp_set_ijoff(_cimg_math_parser& mp) {
-        if (!mp.imglist.width()) return cimg::type<double>::nan();
+        const unsigned int _ind = (unsigned int)mp.opcode[3];
+        if (_ind!=~0U && !mp.imglist.width()) return cimg::type<double>::nan();
+        const unsigned int ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width());
         const bool is_relative = (bool)mp.opcode[2];
-        const unsigned int
-          _ind = (unsigned int)mp.opcode[3],
-          ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width());
         CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
         const longT
           off = (longT)(is_relative?img.offset((int)mp.mem[_cimg_mp_slot_x],
@@ -29183,11 +29182,10 @@ namespace cimg_library {
       }
 
       static double mp_set_ijxyzc(_cimg_math_parser& mp) {
-        if (!mp.imglist.width()) return cimg::type<double>::nan();
+        const unsigned int _ind = (unsigned int)mp.opcode[3];
+        if (_ind!=~0U && !mp.imglist.width()) return cimg::type<double>::nan();
+        const unsigned int ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width());
         const bool is_relative = (bool)mp.opcode[2];
-        const unsigned int
-          _ind = (unsigned int)mp.opcode[3],
-          ind = _ind==~0U?~0U:(unsigned int)cimg::mod((int)mp.mem[_ind],mp.imglist.width());
         CImg<T> &img = ind==~0U?mp.imgout:mp.imglist[ind];
         const int
           x = (int)(is_relative?(mp.mem[_cimg_mp_slot_x] + _mp_arg(4)):_mp_arg(4)),

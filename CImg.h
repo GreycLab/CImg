@@ -19645,10 +19645,8 @@ namespace cimg_library {
               if (p1!=~0U && is_comp_scalar(p1)) memtype[p1] = -1; // Prevent from being used in further optimization
               if (is_comp_scalar(arg1)) memtype[arg1] = -1;
             }
-            if (p1==~0U) {
-              if (!imgin) _cimg_mp_return(0);
-              need_input_copy = true;
-            } else if (!imglist) _cimg_mp_return(0);
+            if (p1==~0U) { if (!imgin) _cimg_mp_return(0); need_input_copy = true; }
+            else if (!imglist) _cimg_mp_return(0);
             pos = scalar4(mp_ijoff,(unsigned int)is_relative,p1,arg1,arg2==~0U?_cimg_mp_boundary:arg2);
             memtype[pos] = -1; // Prevent from being used in further optimization
             _cimg_mp_return(pos);
@@ -19860,10 +19858,8 @@ namespace cimg_library {
               is_intz = is_const_integer(arg3) || (arg3>=_cimg_mp_slot_x && arg3<=_cimg_mp_slot_c), // optimized for 2D?
               is_inty = is_intz && // optimized for 1D?
                         (is_const_integer(arg2) || (arg2>=_cimg_mp_slot_x && arg2<=_cimg_mp_slot_c));
-            if (p1==~0U) {
-              if (!imgin) _cimg_mp_return(0);
-              need_input_copy = true;
-            } else if (!imglist) _cimg_mp_return(0);
+            if (p1==~0U) { if (!imgin) _cimg_mp_return(0); need_input_copy = true; }
+            else if (!imglist) _cimg_mp_return(0);
             pos = scalar8(is_inty?mp_ijxyzc1:is_intz?mp_ijxyzc2:mp_ijxyzc3,
                           (unsigned int)is_relative,p1,arg1,arg2,arg3,arg4,
                           arg5==~0U?_cimg_mp_interpolation:arg5,

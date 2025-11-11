@@ -27963,6 +27963,21 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
+      static double mp_image_shift(_cimg_math_parser& mp) {
+        double *const ptrd = &_mp_arg(1) + 1;
+        const double *const ptrs = &_mp_arg(2) + 1;
+        const unsigned int
+          w = (unsigned int)mp.opcode[3],
+          h = (unsigned int)mp.opcode[4],
+          d = (unsigned int)mp.opcode[5],
+          s = (unsigned int)mp.opcode[6];
+        const double dx = _mp_arg(7), dy = _mp_arg(8), dz = _mp_arg(9), dc = _mp_arg(10);
+        const unsigned int boundary_conditions = (unsigned int)cimg::cut(_mp_arg(11),0.,3.);
+        CImg<doubleT>(ptrd,w,h,d,s,true) =
+          CImg<doubleT>(ptrs,w,h,d,s,true).get_shift(dx,dy,dz,dc,boundary_conditions);
+        return cimg::type<double>::nan();
+      }
+
       static double mp_image_sort(_cimg_math_parser& mp) {
         mp_check_list(mp,"sort");
         const bool is_increasing = (bool)_mp_arg(3);
@@ -29112,6 +29127,49 @@ namespace cimg_library {
       }
 #endif
 
+      static double mp_s2v(_cimg_math_parser& mp) {
+        const double *ptrs = &_mp_arg(2);
+        const ulongT siz = (ulongT)mp.opcode[3];
+        longT ind = (longT)_mp_arg(4);
+        const bool is_strict = (bool)_mp_arg(5);
+        double val = cimg::type<double>::nan();
+        if (ind<0 || ind>=(longT)siz) return val;
+        if (!siz) return *ptrs>='0' && *ptrs<='9'?*ptrs - '0':val;
+
+        CImg<charT> ss(siz + 1 - ind);
+        ptrs+=1 + ind;
+        cimg_forX(ss,i) ss[i] = (char)ptrs[i];
+        ss.back() = 0;
+
+        const char *s = ss._data;
+        while (*s && *s<=32) ++s;
+        const bool is_negative = *s=='-';
+        if (is_negative || *s=='+') ++s;
+        int err = 0;
+        char sep;
+        if (*s=='0' && (s[1]=='x' || s[1]=='X') &&
+            ((s[2]>='0' && s[2]<='9') || (s[2]>='a' && s[2]<='f') || (s[2]>='a' && s[2]<='f'))) { // Hexadecimal number
+          val = (double)std::strtoll(s + 2,0,16);
+          err = 1;
+        } else if (*s=='0' && (s[1]=='b' || s[1]=='B') && (s[2]=='0' || s[2]=='1')) { // Binary number
+          val = (double)std::strtoll(s + 2,0,2);
+          err = 1;
+        } else if (*s>32) { // Decimal number
+          err = cimg_sscanf(s,"%lf%c",&val,&sep);
+#if cimg_OS==2
+          // Check for +/-NaN and +/-inf as Microsoft's sscanf() version is not able
+          // to read those particular values.
+          if (!err && (*s=='i' || *s=='I' || *s=='n' || *s=='N')) {
+            if (!cimg::strncasecmp(s,"inf",3)) { val = cimg::type<double>::inf(); err = 1 + (s[3]!=0); }
+            else if (!cimg::strncasecmp(s,"nan",3)) { val = cimg::type<double>::nan(); err = 1 + (s[3]!=0); }
+          }
+#endif
+        }
+        if (err<=0 || (is_strict && err!=1)) return cimg::type<double>::nan();
+        if (is_negative) val = -val;
+        return val;
+      }
+
       static double mp_self_add(_cimg_math_parser& mp) {
         return _mp_arg(1)+=_mp_arg(2);
       }
@@ -29384,21 +29442,6 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_image_shift(_cimg_math_parser& mp) {
-        double *const ptrd = &_mp_arg(1) + 1;
-        const double *const ptrs = &_mp_arg(2) + 1;
-        const unsigned int
-          w = (unsigned int)mp.opcode[3],
-          h = (unsigned int)mp.opcode[4],
-          d = (unsigned int)mp.opcode[5],
-          s = (unsigned int)mp.opcode[6];
-        const double dx = _mp_arg(7), dy = _mp_arg(8), dz = _mp_arg(9), dc = _mp_arg(10);
-        const unsigned int boundary_conditions = (unsigned int)cimg::cut(_mp_arg(11),0.,3.);
-        CImg<doubleT>(ptrd,w,h,d,s,true) =
-          CImg<doubleT>(ptrs,w,h,d,s,true).get_shift(dx,dy,dz,dc,boundary_conditions);
-        return cimg::type<double>::nan();
-      }
-
       static double mp_sign(_cimg_math_parser& mp) {
         return cimg::sign(_mp_arg(2));
       }
@@ -29522,15 +29565,6 @@ namespace cimg_library {
         return std::sqrt(mp_var2(mp));
       }
 
-      static double mp_string_init(_cimg_math_parser& mp) {
-        const unsigned char *ptrs = (unsigned char*)&mp.opcode[3];
-        unsigned int
-          ptrd = (unsigned int)mp.opcode[1] + 1,
-          siz = (unsigned int)mp.opcode[2];
-        while (siz-->0) mp.mem[ptrd++] = (double)*(ptrs++);
-        return cimg::type<double>::nan();
-      }
-
 #ifdef cimg_mp_func_store
       static double mp_store(_cimg_math_parser& mp) {
         const double
@@ -29562,49 +29596,6 @@ namespace cimg_library {
       }
 #endif
 
-      static double mp_s2v(_cimg_math_parser& mp) {
-        const double *ptrs = &_mp_arg(2);
-        const ulongT siz = (ulongT)mp.opcode[3];
-        longT ind = (longT)_mp_arg(4);
-        const bool is_strict = (bool)_mp_arg(5);
-        double val = cimg::type<double>::nan();
-        if (ind<0 || ind>=(longT)siz) return val;
-        if (!siz) return *ptrs>='0' && *ptrs<='9'?*ptrs - '0':val;
-
-        CImg<charT> ss(siz + 1 - ind);
-        ptrs+=1 + ind;
-        cimg_forX(ss,i) ss[i] = (char)ptrs[i];
-        ss.back() = 0;
-
-        const char *s = ss._data;
-        while (*s && *s<=32) ++s;
-        const bool is_negative = *s=='-';
-        if (is_negative || *s=='+') ++s;
-        int err = 0;
-        char sep;
-        if (*s=='0' && (s[1]=='x' || s[1]=='X') &&
-            ((s[2]>='0' && s[2]<='9') || (s[2]>='a' && s[2]<='f') || (s[2]>='a' && s[2]<='f'))) { // Hexadecimal number
-          val = (double)std::strtoll(s + 2,0,16);
-          err = 1;
-        } else if (*s=='0' && (s[1]=='b' || s[1]=='B') && (s[2]=='0' || s[2]=='1')) { // Binary number
-          val = (double)std::strtoll(s + 2,0,2);
-          err = 1;
-        } else if (*s>32) { // Decimal number
-          err = cimg_sscanf(s,"%lf%c",&val,&sep);
-#if cimg_OS==2
-          // Check for +/-NaN and +/-inf as Microsoft's sscanf() version is not able
-          // to read those particular values.
-          if (!err && (*s=='i' || *s=='I' || *s=='n' || *s=='N')) {
-            if (!cimg::strncasecmp(s,"inf",3)) { val = cimg::type<double>::inf(); err = 1 + (s[3]!=0); }
-            else if (!cimg::strncasecmp(s,"nan",3)) { val = cimg::type<double>::nan(); err = 1 + (s[3]!=0); }
-          }
-#endif
-        }
-        if (err<=0 || (is_strict && err!=1)) return cimg::type<double>::nan();
-        if (is_negative) val = -val;
-        return val;
-      }
-
       static double mp_string(_cimg_math_parser& mp) {
         double *const ptrd = &_mp_arg(1) + 1;
         const unsigned int nb_args = (unsigned int)(mp.opcode[3] - 3)/2;
@@ -29627,6 +29618,15 @@ namespace cimg_library {
         const unsigned int sizd = std::min(str._width,(unsigned int)mp.opcode[2]);
         std::memset(ptrd,0,mp.opcode[2]*sizeof(double));
         for (unsigned int k = 0; k<sizd; ++k) ptrd[k] = (double)str[k];
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_string_init(_cimg_math_parser& mp) {
+        const unsigned char *ptrs = (unsigned char*)&mp.opcode[3];
+        unsigned int
+          ptrd = (unsigned int)mp.opcode[1] + 1,
+          siz = (unsigned int)mp.opcode[2];
+        while (siz-->0) mp.mem[ptrd++] = (double)*(ptrs++);
         return cimg::type<double>::nan();
       }
 
@@ -29699,14 +29699,6 @@ namespace cimg_library {
         return _mp_arg(2)*mp_rand_double_0_1(mp);
       }
 
-      static double mp_rand_double_m1_1(_cimg_math_parser& mp) {
-        return 2*mp_rand_double_0_1(mp) - 1;
-      }
-
-      static double mp_rand_double_gaussian(_cimg_math_parser& mp) {
-        return cimg::grand(&mp.rng);
-      }
-
       static double mp_rand_double_ext(_cimg_math_parser& mp) {
         const double eps = 1e-5;
         const bool
@@ -29719,6 +29711,14 @@ namespace cimg_library {
         if (!include_min) m = m>0?m*(1 + eps):m<0?m*(1 - eps):eps;
         if (!include_max) M = M>0?M*(1 - eps):M<0?M*(1 + eps):-eps;
         return cimg::rand(m,M,&mp.rng);
+      }
+
+      static double mp_rand_double_m1_1(_cimg_math_parser& mp) {
+        return 2*mp_rand_double_0_1(mp) - 1;
+      }
+
+      static double mp_rand_double_gaussian(_cimg_math_parser& mp) {
+        return cimg::grand(&mp.rng);
       }
 
       static double _mp_rand_int(_cimg_math_parser& mp, const double delta) {
@@ -29751,13 +29751,6 @@ namespace cimg_library {
         return sgn*_mp_rand_int(mp,_M*sgn);
       }
 
-      static double mp_rand_int_m1_1(_cimg_math_parser& mp) {
-        const unsigned int
-          th = ~0U/3,
-          val = cimg::_rand(&mp.rng);
-        return val<th?-1:val<2*th?0:1;
-      }
-
       static double mp_rand_int_ext(_cimg_math_parser& mp) {
         const bool
           include_min = (bool)_mp_arg(4),
@@ -29770,6 +29763,13 @@ namespace cimg_library {
           m = cimg::type<cimg_uint64>::cut(std::ceil(_m)) + (include_min?0:1),
           M = cimg::type<cimg_uint64>::cut(std::floor(_M)) - (include_max?0:1);
         return (double)m + _mp_rand_int(mp,M - m);
+      }
+
+      static double mp_rand_int_m1_1(_cimg_math_parser& mp) {
+        const unsigned int
+          th = ~0U/3,
+          val = cimg::_rand(&mp.rng);
+        return val<th?-1:val<2*th?0:1;
       }
 
       static double mp_ui2f(_cimg_math_parser& mp) {
@@ -29797,6 +29797,36 @@ namespace cimg_library {
         return cimg::uppercase(_mp_arg(2));
       }
 
+      static double mp_v2s(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        const unsigned int
+          sizd = (unsigned int)mp.opcode[2],
+          sizs = (unsigned int)mp.opcode[4];
+        std::memset(ptrd,0,sizd*sizeof(double));
+        const int nb_digits = (int)_mp_arg(5);
+        CImg<charT> format(8);
+        switch (nb_digits) {
+        case -1 : std::strcpy(format,"%g"); break;
+        case 0 : std::strcpy(format,"%.17g"); break;
+        default :
+          if (nb_digits>=-1) cimg_snprintf(format,format._width,"%%.%dg",nb_digits);
+          else cimg_snprintf(format,format._width,"%%.%dld",-nb_digits);
+        }
+        CImg<charT> str;
+        if (sizs) { // Vector expression
+          const double *ptrs = &_mp_arg(3) + 1;
+          if (nb_digits>=-1) CImg<doubleT>(ptrs,sizs,1,1,1,true).value_string(',',sizd + 1,format).move_to(str);
+          else CImg<longT>(ptrs,sizs,1,1,1).value_string(',',sizd + 1,format).move_to(str);
+        } else { // Scalar expression
+          str.assign(sizd + 1);
+          if (nb_digits>=-1) cimg_snprintf(str,sizd + 1,format,_mp_arg(3));
+          else cimg_snprintf(str,sizd + 1,format,(long)_mp_arg(3));
+        }
+        const unsigned int l = std::min(sizd,(unsigned int)std::strlen(str) + 1);
+        CImg<doubleT>(ptrd,l,1,1,1,true) = str.get_shared_points(0,l - 1);
+        return cimg::type<double>::nan();
+      }
+
       static double mp_var(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
         unsigned int siz = 0;
@@ -29814,6 +29844,49 @@ namespace cimg_library {
 
       static double mp_var2(_cimg_math_parser& mp) {
         return cimg::sqr(_mp_arg(2) - _mp_arg(3))/2;
+      }
+
+#define _cimg_mp_vfunc(func) \
+      const longT sizd = (longT)mp.opcode[2];\
+      const unsigned int nbargs = (unsigned int)(mp.opcode[3] - 4)/2; \
+      double *const ptrd = &_mp_arg(1) + (sizd?1:0); \
+      cimg_pragma_openmp(parallel cimg_openmp_if_size(sizd,256)) { \
+        CImg<doubleT> vec(nbargs); double res; \
+        cimg_pragma_openmp(for) for (longT k = sizd?sizd - 1:0; k>=0; --k) { \
+          cimg_forX(vec,n) vec[n] = *(&_mp_arg(4 + 2*n) + (k+1)*(mp.opcode[4 + 2*n + 1]?1:0)); \
+          func; ptrd[k] = res; \
+      }} \
+      return sizd?cimg::type<double>::nan():*ptrd;
+
+      static double _mp_vargkth(CImg<doubleT>& vec) {
+        const double val = (+vec).get_shared_points(1,vec.width() - 1).
+          kth_smallest((ulongT)cimg::cut((longT)*vec - 1,(longT)0,(longT)vec.width() - 2));
+        cimg_for_inX(vec,1,vec.width() - 1,ind) if (vec[ind]==val) return ind - 1.;
+        return 1.;
+      }
+
+      static double mp_vargkth(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = _mp_vargkth(vec));
+      }
+
+      static double mp_vargmax(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = (double)(&vec.max() - vec.data()));
+      }
+
+      static double mp_vargmaxabs(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = (double)(&vec.maxabs() - vec.data()));
+      }
+
+      static double mp_vargmin(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = (double)(&vec.min() - vec.data()));
+      }
+
+      static double mp_vargminabs(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = (double)(&vec.minabs() - vec.data()));
+      }
+
+      static double mp_vavg(_cimg_math_parser& mp) {
+        _cimg_mp_vfunc(res = vec.mean());
       }
 
       static double mp_vector_copy(_cimg_math_parser& mp) {
@@ -29937,6 +30010,61 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
+      static double mp_vector_eq(_cimg_math_parser& mp) {
+        const double
+          *ptr1 = &_mp_arg(2) + 1,
+          *ptr2 = &_mp_arg(4) + 1;
+        unsigned int
+          siz1 = (unsigned int)mp.opcode[3],
+          siz2 = (unsigned int)mp.opcode[5],
+          n;
+        int N = (int)_mp_arg(6);
+        const bool case_sensitive = (bool)_mp_arg(7);
+        if (!N) return 1;
+        if (N<0) { // Compare all values
+          if (siz1>0 && siz2>0 && siz1!=siz2) return 0;
+          N = std::max(siz1,siz2);
+        }
+
+        // Compare first N values.
+        bool still_equal = true;
+        if (siz1>0 && siz2>0) { // Vector==vector
+          n = cimg::min((unsigned int)N,siz1,siz2);
+          if (case_sensitive)
+            while (still_equal && n--) {
+              still_equal = (cimg::type<double>::is_nan(*ptr1) && cimg::type<double>::is_nan(*ptr2)) ||
+                *ptr1==*ptr2;
+              ++ptr1; ++ptr2;
+            }
+          else
+            while (still_equal && n--) {
+              still_equal = (cimg::type<double>::is_nan(*ptr1) && cimg::type<double>::is_nan(*ptr2)) ||
+                cimg::lowercase(*ptr1)==cimg::lowercase(*ptr2);
+              ++ptr1; ++ptr2;
+            }
+          return still_equal;
+        } else if (siz1>0 && !siz2) { // Vector==scalar
+          n = std::min((unsigned int)N,siz1);
+          const double value = case_sensitive?_mp_arg(4):cimg::lowercase(_mp_arg(4));
+          if (cimg::type<double>::is_nan(value))
+            while (still_equal && n--) still_equal = cimg::type<double>::is_nan(*(ptr1++));
+          else
+            while (still_equal && n--) still_equal = *(ptr1++)==value;
+          return still_equal;
+        } else if (!siz1 && siz2>0) { // Scalar==vector
+          n = std::min((unsigned int)N,siz2);
+          const double value = case_sensitive?_mp_arg(2):cimg::lowercase(_mp_arg(2));
+          if (cimg::type<double>::is_nan(value))
+            while (still_equal && siz2--) still_equal = cimg::type<double>::is_nan(*(ptr2++));
+          else
+            while (still_equal && n--) still_equal = *(ptr2++)==value;
+          return still_equal;
+        } // Scalar==scalar
+        if (case_sensitive) return _mp_arg(2)==_mp_arg(4);
+        else if (cimg::type<double>::is_nan(_mp_arg(2))) return cimg::type<double>::is_nan(_mp_arg(4));
+        return cimg::lowercase(_mp_arg(2))==cimg::lowercase(_mp_arg(4));
+      }
+
       static double mp_vector_fill(_cimg_math_parser& mp) {
         double
           *ptrd = &_mp_arg(1) + 1,
@@ -30017,61 +30145,6 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_vector_eq(_cimg_math_parser& mp) {
-        const double
-          *ptr1 = &_mp_arg(2) + 1,
-          *ptr2 = &_mp_arg(4) + 1;
-        unsigned int
-          siz1 = (unsigned int)mp.opcode[3],
-          siz2 = (unsigned int)mp.opcode[5],
-          n;
-        int N = (int)_mp_arg(6);
-        const bool case_sensitive = (bool)_mp_arg(7);
-        if (!N) return 1;
-        if (N<0) { // Compare all values
-          if (siz1>0 && siz2>0 && siz1!=siz2) return 0;
-          N = std::max(siz1,siz2);
-        }
-
-        // Compare first N values.
-        bool still_equal = true;
-        if (siz1>0 && siz2>0) { // Vector==vector
-          n = cimg::min((unsigned int)N,siz1,siz2);
-          if (case_sensitive)
-            while (still_equal && n--) {
-              still_equal = (cimg::type<double>::is_nan(*ptr1) && cimg::type<double>::is_nan(*ptr2)) ||
-                *ptr1==*ptr2;
-              ++ptr1; ++ptr2;
-            }
-          else
-            while (still_equal && n--) {
-              still_equal = (cimg::type<double>::is_nan(*ptr1) && cimg::type<double>::is_nan(*ptr2)) ||
-                cimg::lowercase(*ptr1)==cimg::lowercase(*ptr2);
-              ++ptr1; ++ptr2;
-            }
-          return still_equal;
-        } else if (siz1>0 && !siz2) { // Vector==scalar
-          n = std::min((unsigned int)N,siz1);
-          const double value = case_sensitive?_mp_arg(4):cimg::lowercase(_mp_arg(4));
-          if (cimg::type<double>::is_nan(value))
-            while (still_equal && n--) still_equal = cimg::type<double>::is_nan(*(ptr1++));
-          else
-            while (still_equal && n--) still_equal = *(ptr1++)==value;
-          return still_equal;
-        } else if (!siz1 && siz2>0) { // Scalar==vector
-          n = std::min((unsigned int)N,siz2);
-          const double value = case_sensitive?_mp_arg(2):cimg::lowercase(_mp_arg(2));
-          if (cimg::type<double>::is_nan(value))
-            while (still_equal && siz2--) still_equal = cimg::type<double>::is_nan(*(ptr2++));
-          else
-            while (still_equal && n--) still_equal = *(ptr2++)==value;
-          return still_equal;
-        } // Scalar==scalar
-        if (case_sensitive) return _mp_arg(2)==_mp_arg(4);
-        else if (cimg::type<double>::is_nan(_mp_arg(2))) return cimg::type<double>::is_nan(_mp_arg(4));
-        return cimg::lowercase(_mp_arg(2))==cimg::lowercase(_mp_arg(4));
-      }
-
       static double mp_vector_lerp(_cimg_math_parser& mp) {
         double *const ptrd = &_mp_arg(1) + 1;
         unsigned int siz = (unsigned int)mp.opcode[2];
@@ -30101,14 +30174,6 @@ namespace cimg_library {
           }
         }
         return cimg::type<double>::nan();
-      }
-
-      static double mp_vector_off(_cimg_math_parser& mp) {
-        const unsigned int
-          ptr = (unsigned int)mp.opcode[2] + 1,
-          siz = (unsigned int)mp.opcode[3];
-        const int off = (int)_mp_arg(4);
-        return off>=0 && off<(int)siz?mp.mem[ptr + off]:cimg::type<double>::nan();
       }
 
       static double mp_vector_map_sv(_cimg_math_parser& mp) { // Operator(scalar,vector,[...])
@@ -30193,6 +30258,14 @@ namespace cimg_library {
           if (val>res) res = val;
         }
         return res;
+      }
+
+      static double mp_vector_off(_cimg_math_parser& mp) {
+        const unsigned int
+          ptr = (unsigned int)mp.opcode[2] + 1,
+          siz = (unsigned int)mp.opcode[3];
+        const int off = (int)_mp_arg(4);
+        return off>=0 && off<(int)siz?mp.mem[ptr + off]:cimg::type<double>::nan();
       }
 
       static double mp_vector_print(_cimg_math_parser& mp) {
@@ -30321,49 +30394,6 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-#define _cimg_mp_vfunc(func) \
-      const longT sizd = (longT)mp.opcode[2];\
-      const unsigned int nbargs = (unsigned int)(mp.opcode[3] - 4)/2; \
-      double *const ptrd = &_mp_arg(1) + (sizd?1:0); \
-      cimg_pragma_openmp(parallel cimg_openmp_if_size(sizd,256)) { \
-        CImg<doubleT> vec(nbargs); double res; \
-        cimg_pragma_openmp(for) for (longT k = sizd?sizd - 1:0; k>=0; --k) { \
-          cimg_forX(vec,n) vec[n] = *(&_mp_arg(4 + 2*n) + (k+1)*(mp.opcode[4 + 2*n + 1]?1:0)); \
-          func; ptrd[k] = res; \
-      }} \
-      return sizd?cimg::type<double>::nan():*ptrd;
-
-      static double _mp_vargkth(CImg<doubleT>& vec) {
-        const double val = (+vec).get_shared_points(1,vec.width() - 1).
-          kth_smallest((ulongT)cimg::cut((longT)*vec - 1,(longT)0,(longT)vec.width() - 2));
-        cimg_for_inX(vec,1,vec.width() - 1,ind) if (vec[ind]==val) return ind - 1.;
-        return 1.;
-      }
-
-      static double mp_vargkth(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(res = _mp_vargkth(vec));
-      }
-
-      static double mp_vargmax(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(res = (double)(&vec.max() - vec.data()));
-      }
-
-      static double mp_vargmaxabs(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(res = (double)(&vec.maxabs() - vec.data()));
-      }
-
-      static double mp_vargmin(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(res = (double)(&vec.min() - vec.data()));
-      }
-
-      static double mp_vargminabs(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(res = (double)(&vec.minabs() - vec.data()));
-      }
-
-      static double mp_vavg(_cimg_math_parser& mp) {
-        _cimg_mp_vfunc(res = vec.mean());
-      }
-
       static double mp_vkth(_cimg_math_parser& mp) {
         _cimg_mp_vfunc(res = vec.get_shared_points(1,vec.width() - 1).
                        kth_smallest((ulongT)cimg::cut((longT)*vec - 1,(longT)0,(longT)vec.width() - 2)));
@@ -30403,36 +30433,6 @@ namespace cimg_library {
 
       static double mp_vvar(_cimg_math_parser& mp) {
         _cimg_mp_vfunc(res = vec.get_stats()[3]);
-      }
-
-      static double mp_v2s(_cimg_math_parser& mp) {
-        double *ptrd = &_mp_arg(1) + 1;
-        const unsigned int
-          sizd = (unsigned int)mp.opcode[2],
-          sizs = (unsigned int)mp.opcode[4];
-        std::memset(ptrd,0,sizd*sizeof(double));
-        const int nb_digits = (int)_mp_arg(5);
-        CImg<charT> format(8);
-        switch (nb_digits) {
-        case -1 : std::strcpy(format,"%g"); break;
-        case 0 : std::strcpy(format,"%.17g"); break;
-        default :
-          if (nb_digits>=-1) cimg_snprintf(format,format._width,"%%.%dg",nb_digits);
-          else cimg_snprintf(format,format._width,"%%.%dld",-nb_digits);
-        }
-        CImg<charT> str;
-        if (sizs) { // Vector expression
-          const double *ptrs = &_mp_arg(3) + 1;
-          if (nb_digits>=-1) CImg<doubleT>(ptrs,sizs,1,1,1,true).value_string(',',sizd + 1,format).move_to(str);
-          else CImg<longT>(ptrs,sizs,1,1,1).value_string(',',sizd + 1,format).move_to(str);
-        } else { // Scalar expression
-          str.assign(sizd + 1);
-          if (nb_digits>=-1) cimg_snprintf(str,sizd + 1,format,_mp_arg(3));
-          else cimg_snprintf(str,sizd + 1,format,(long)_mp_arg(3));
-        }
-        const unsigned int l = std::min(sizd,(unsigned int)std::strlen(str) + 1);
-        CImg<doubleT>(ptrd,l,1,1,1,true) = str.get_shared_points(0,l - 1);
-        return cimg::type<double>::nan();
       }
 
       static double mp_warp(_cimg_math_parser& mp) {

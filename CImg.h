@@ -17251,7 +17251,7 @@ namespace cimg_library {
          - <tt>0<=c<=\ref spectrum() - 1</tt>.
     **/
     bool containsXYZC(const int x, const int y=0, const int z=0, const int c=0) const {
-      return !is_empty() && x>=0 && x<width() && y>=0 && y<height() && z>=0 && z<depth() && c>=0 && c<spectrum();
+      return x>=0 && x<width() && y>=0 && y<height() && z>=0 && z<depth() && c>=0 && c<spectrum();
     }
 
     //! Test if pixel value is inside image bounds and get its X,Y,Z and C-coordinates.
@@ -27785,9 +27785,7 @@ namespace cimg_library {
         CImg<T> &img = mp.imglist[ind];
         const int x = (int)_mp_arg(3), y = (int)_mp_arg(4), z = (int)_mp_arg(5), c = (int)_mp_arg(6);
         const double val = _mp_arg(1);
-        if (x>=0 && x<img.width() && y>=0 && y<img.height() &&
-            z>=0 && z<img.depth() && c>=0 && c<img.spectrum())
-          img(x,y,z,c) = (T)val;
+        if (img.containsXYZC(x,y,z,c)) img(x,y,z,c) = (T)val;
         return val;
       }
 
@@ -27817,9 +27815,7 @@ namespace cimg_library {
           x = (int)(ox + _mp_arg(3)), y = (int)(oy + _mp_arg(4)),
           z = (int)(oz + _mp_arg(5)), c = (int)(oc + _mp_arg(6));
         const double val = _mp_arg(1);
-        if (x>=0 && x<img.width() && y>=0 && y<img.height() &&
-            z>=0 && z<img.depth() && c>=0 && c<img.spectrum())
-          img(x,y,z,c) = (T)val;
+        if (img.containsXYZC(x,y,z,c)) img(x,y,z,c) = (T)val;
         return val;
       }
 
@@ -29284,9 +29280,7 @@ namespace cimg_library {
           x = (int)_mp_arg(2), y = (int)_mp_arg(3),
           z = (int)_mp_arg(4), c = (int)_mp_arg(5);
         const double val = _mp_arg(1);
-        if (x>=0 && x<img.width() && y>=0 && y<img.height() &&
-            z>=0 && z<img.depth() && c>=0 && c<img.spectrum())
-          img(x,y,z,c) = (T)val;
+        if (img.containsXYZC(x,y,z,c)) img(x,y,z,c) = (T)val;
         return val;
       }
 
@@ -29312,9 +29306,7 @@ namespace cimg_library {
           x = (int)(ox + _mp_arg(2)), y = (int)(oy + _mp_arg(3)),
           z = (int)(oz + _mp_arg(4)), c = (int)(oc + _mp_arg(5));
         const double val = _mp_arg(1);
-        if (x>=0 && x<img.width() && y>=0 && y<img.height() &&
-            z>=0 && z<img.depth() && c>=0 && c<img.spectrum())
-          img(x,y,z,c) = (T)val;
+        if (img.containsXYZC(x,y,z,c)) img(x,y,z,c) = (T)val;
         return val;
       }
 

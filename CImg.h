@@ -25783,14 +25783,6 @@ namespace cimg_library {
         return cimg::acosh(_mp_arg(2));
       }
 
-      static double mp_asinh(_cimg_math_parser& mp) {
-        return cimg::asinh(_mp_arg(2));
-      }
-
-      static double mp_atanh(_cimg_math_parser& mp) {
-        return cimg::atanh(_mp_arg(2));
-      }
-
       static double mp_arg(_cimg_math_parser& mp) {
         const int _ind = (int)_mp_arg(4);
         const unsigned int
@@ -25944,12 +25936,20 @@ namespace cimg_library {
         return std::asin(_mp_arg(2));
       }
 
+      static double mp_asinh(_cimg_math_parser& mp) {
+        return cimg::asinh(_mp_arg(2));
+      }
+
       static double mp_atan(_cimg_math_parser& mp) {
         return std::atan(_mp_arg(2));
       }
 
       static double mp_atan2(_cimg_math_parser& mp) {
         return std::atan2(_mp_arg(2),_mp_arg(3));
+      }
+
+      static double mp_atanh(_cimg_math_parser& mp) {
+        return cimg::atanh(_mp_arg(2));
       }
 
       static double mp_avg(_cimg_math_parser& mp) {

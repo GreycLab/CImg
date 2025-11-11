@@ -24745,7 +24745,7 @@ namespace cimg_library {
                 if (!list_median[p1]) CImg<doubleT>::vector(imglist[p1].median()).move_to(list_median[p1]);
                 _cimg_mp_const_scalar(*list_median[p1]);
               }
-              _cimg_mp_scalar1(mp_list_id,arg1);
+              _cimg_mp_scalar1(mp_list_median,arg1);
             }
 
             if (*ss1=='d') { // id#ind
@@ -24755,7 +24755,7 @@ namespace cimg_library {
                 if (!list_stats[p1]) list_stats[p1].assign(1,14,1,1,0).fill(imglist[p1].get_stats(),false);
                 _cimg_mp_const_scalar(std::sqrt(list_stats(p1,3)));
               }
-              _cimg_mp_scalar1(mp_list_id,arg1);
+              _cimg_mp_scalar1(mp_list_std,arg1);
             }
 
             if (*ss1=='n') { // in#ind
@@ -28109,14 +28109,13 @@ namespace cimg_library {
         return *mp.list_norm[ind];
       }
 
-      static double mp_list_id(_cimg_math_parser& mp) {
+      static double mp_list_std(_cimg_math_parser& mp) {
         const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
         bool get_stats = false;
         cimg::mutex(13);
         if (!mp.list_stats || mp.list_stats.size()!=mp.imglist._width) mp.list_stats.assign(mp.imglist._width);
         if (!mp.list_stats[ind]) get_stats = true;
         cimg::mutex(13,0);
-
         if (get_stats) {
           CImg<Tdouble> st = mp.imglist[ind].get_stats();
           cimg::mutex(13);

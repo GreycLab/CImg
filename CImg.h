@@ -18659,11 +18659,7 @@ namespace cimg_library {
                 is_relative = (bool)ref[2];
                 arg3 = ref[3]; // Offset
                 if (p_ref) std::memcpy(p_ref,ref,siz_ref);
-                if (p1==~0U) {
-                  if (!imgout) _cimg_mp_return(arg2);
-                } else {
-                  if (!imglist) _cimg_mp_return(arg2);
-                }
+                if ((p1==~0U && !imgout) || (p1!=~0U && !imglist)) _cimg_mp_return(arg2);
                 CImg<ulongT>::vector((ulongT)mp_set_ijoff,arg2,(ulongT)is_relative,
                                      p1,arg3).move_to(code);
                 _cimg_mp_return(arg2);
@@ -18679,15 +18675,9 @@ namespace cimg_library {
                 arg5 = ref[5]; // Z
                 arg6 = ref[6]; // C
                 if (p_ref) std::memcpy(p_ref,ref,siz_ref);
-                if (p1!=~0U) {
-                  if (!imglist) _cimg_mp_return(arg2);
-                  CImg<ulongT>::vector((ulongT)mp_set_ijxyzc,arg2,(ulongT)is_relative,
-                                       p1,arg3,arg4,arg5,arg6).move_to(code);
-                } else {
-                  if (!imgout) _cimg_mp_return(arg2);
-                  CImg<ulongT>::vector((ulongT)mp_set_ijxyzc,arg2,(ulongT)is_relative,
-                                       p1,arg3,arg4,arg5,arg6).move_to(code);
-                }
+                if ((p1==~0U && !imgout) || (p1!=~0U && !imglist)) _cimg_mp_return(arg2);
+                CImg<ulongT>::vector((ulongT)mp_set_ijxyzc,arg2,(ulongT)is_relative,
+                                     p1,arg3,arg4,arg5,arg6).move_to(code);
                 _cimg_mp_return(arg2);
               }
 
@@ -18911,11 +18901,7 @@ namespace cimg_library {
               arg3 = ref[3]; // Offset
               if (p_ref) std::memcpy(p_ref,ref,siz_ref);
               CImg<ulongT>::vector((ulongT)op,arg1,arg2).move_to(code);
-              if (p1==~0U) {
-                if (!imgout) _cimg_mp_return(arg1);
-              } else {
-                if (!imglist) _cimg_mp_return(arg1);
-              }
+              if ((p1==~0U && !imgout) || (p1!=~0U && !imglist)) _cimg_mp_return(arg1);
               CImg<ulongT>::vector((ulongT)mp_set_ijoff,arg1,(ulongT)is_relative,
                                    p1,arg3).move_to(code);
               _cimg_mp_return(arg1);
@@ -18932,15 +18918,9 @@ namespace cimg_library {
               arg6 = ref[6]; // C
               if (p_ref) std::memcpy(p_ref,ref,siz_ref);
               CImg<ulongT>::vector((ulongT)op,arg1,arg2).move_to(code);
-              if (p1!=~0U) {
-                if (!imglist) _cimg_mp_return(arg1);
-                CImg<ulongT>::vector((ulongT)mp_set_ijxyzc,arg1,(ulongT)is_relative,
-                                     p1,arg3,arg4,arg5,arg6).move_to(code);
-              } else {
-                if (!imgout) _cimg_mp_return(arg1);
-                CImg<ulongT>::vector((ulongT)mp_set_ijxyzc,arg1,(ulongT)is_relative,
-                                     p1,arg3,arg4,arg5,arg6).move_to(code);
-              }
+              if ((p1==~0U && !imgout) || (p1!=~0U && !imglist)) _cimg_mp_return(arg1);
+              CImg<ulongT>::vector((ulongT)mp_set_ijxyzc,arg1,(ulongT)is_relative,
+                                   p1,arg3,arg4,arg5,arg6).move_to(code);
               _cimg_mp_return(arg1);
             }
 
@@ -19588,11 +19568,7 @@ namespace cimg_library {
             arg3 = ref[3]; // Offset
             if (is_sth && p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
             CImg<ulongT>::vector((ulongT)op,arg1).move_to(code);
-            if (p1==~0U) {
-              if (!imgout) _cimg_mp_return(pos);
-            } else {
-              if (!imglist) _cimg_mp_return(pos);
-            }
+            if ((p1==~0U && !imgout) || (p1!=~0U && !imglist)) _cimg_mp_return(pos);
             CImg<ulongT>::vector((ulongT)mp_set_ijoff,arg1,(ulongT)is_relative,
                                  p1,arg3).move_to(code);
             _cimg_mp_return(pos);
@@ -19608,15 +19584,9 @@ namespace cimg_library {
             arg6 = ref[6]; // C
             if (is_sth && p_ref) std::memcpy(p_ref,ref,ref._width*sizeof(unsigned int));
             CImg<ulongT>::vector((ulongT)op,arg1).move_to(code);
-            if (p1!=~0U) {
-              if (!imglist) _cimg_mp_return(pos);
-              CImg<ulongT>::vector((ulongT)mp_set_ijxyzc,arg1,(ulongT)is_relative,
-                                   p1,arg3,arg4,arg5,arg6).move_to(code);
-            } else {
-              if (!imgout) _cimg_mp_return(pos);
-              CImg<ulongT>::vector((ulongT)mp_set_ijxyzc,arg1,(ulongT)is_relative,
-                                   p1,arg3,arg4,arg5,arg6).move_to(code);
-            }
+            if ((p1==~0U && !imgout) || (p1!=~0U && !imglist)) _cimg_mp_return(pos);
+            CImg<ulongT>::vector((ulongT)mp_set_ijxyzc,arg1,(ulongT)is_relative,
+                                 p1,arg3,arg4,arg5,arg6).move_to(code);
             _cimg_mp_return(pos);
           }
 
@@ -23753,15 +23723,9 @@ namespace cimg_library {
                     arg4 = _ref[4]; // Y
                     arg5 = _ref[5]; // Z
                     arg6 = _ref[6]; // C
-                    if (p1!=~0U) {
-                      if (imglist)
-                        CImg<ulongT>::vector((ulongT)mp_set_ijxyzc,arg1,(ulongT)is_relative,
-                                             p1,arg3,arg4,arg5,arg6).move_to(code);
-                    } else {
-                      if (imgout)
-                        CImg<ulongT>::vector((ulongT)mp_set_ijxyzc,arg1,(ulongT)is_relative,
-                                             p1,arg3,arg4,arg5,arg6).move_to(code);
-                    }
+                    if ((p1==~0U && imgout) || (p1!=~0U && imglist))
+                      CImg<ulongT>::vector((ulongT)mp_set_ijxyzc,arg1,(ulongT)is_relative,
+                                           p1,arg3,arg4,arg5,arg6).move_to(code);
                     break;
                   case 4: // arg1: I/J[_#ind,off]
                     if (!is_inside_critical) is_parallelizable = false;

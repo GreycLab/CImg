@@ -29419,17 +29419,30 @@ namespace cimg_library {
 
       static double mp_var(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        unsigned int siz = 0;
-        double val, S = 0, S2 = 0;
+        ulongT siz = 0;
+        double val, avg = 0, S2 = 0;
         for (unsigned int i = 3; i<i_end; i+=2) {
           const unsigned int len = (unsigned int)mp.opcode[i + 1];
           if (len>1) {
             const double *ptr = &_mp_arg(i);
-            for (unsigned int k = 0; k<len; ++k) { val = *(ptr++); S+=val; S2+=val*val; }
-          } else { val = _mp_arg(i); S+=val; S2+=val*val; }
-          siz+=len;
+            for (unsigned int k = 0; k<len; ++k) {
+              val = *(ptr++);
+              ++siz;
+              const double delta = val - avg;
+              avg+=delta/siz;
+              const double delta2 = val - avg;
+              S2+=delta*delta2;
+            }
+          } else {
+            val = _mp_arg(i);
+            ++siz;
+            const double delta = val - avg;
+            avg+=delta/siz;
+            const double delta2 = val - avg;
+            S2+=delta*delta2;
+          }
         }
-        return (S2 - S*S/siz)/(siz - 1);
+        return S2/siz;
       }
 
       static double mp_var2(_cimg_math_parser& mp) {
@@ -31583,7 +31596,7 @@ namespace cimg_library {
       const ulongT siz = size();
       switch (variance_method) {
       case 0 : case 1 : { // Population/unbiased methods (Welford)
-        double M2 = 0;
+        double S2 = 0;
         ulongT n = 0;
         cimg_for(*this,ptrs,T) {
           ++n;
@@ -31592,9 +31605,9 @@ namespace cimg_library {
             delta = val - avg;
           avg+=delta/n;
           const double delta2 = val - avg;
-          M2+=delta*delta2;
+          S2+=delta*delta2;
         }
-        var = M2/(siz - (variance_method?1:0));
+        var = S2/(siz - (variance_method?1:0));
       } break;
       case 2 : { // Least Median of Squares (MAD)
         CImg<Tfloat> buf(*this,false);

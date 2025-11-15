@@ -31563,7 +31563,7 @@ namespace cimg_library {
        - \c 2: Least median of squares.
        - \c 3: Least trimmed of squares.
     **/
-    double variance(const unsigned int variance_method=1) const {
+    double variance(const unsigned int variance_method=0) const {
       double foo;
       return variance_mean(variance_method,foo);
     }
@@ -31579,21 +31579,22 @@ namespace cimg_library {
         throw CImgInstanceException(_cimg_instance
                                     "variance_mean(): Empty instance.",
                                     cimg_instance);
-
-      double variance = 0, average = 0;
+      double var = 0, avg = 0;
       const ulongT siz = size();
       switch (variance_method) {
-      case 0 : { // Least mean square (standard definition)
-        double S = 0, S2 = 0;
-        cimg_for(*this,ptrs,T) { const double val = (double)*ptrs; S+=val; S2+=val*val; }
-        variance = (S2 - S*S/siz)/siz;
-        average = S;
-      } break;
-      case 1 : { // Least mean square (robust definition)
-        double S = 0, S2 = 0;
-        cimg_for(*this,ptrs,T) { const double val = (double)*ptrs; S+=val; S2+=val*val; }
-        variance = siz>1?(S2 - S*S/siz)/(siz - 1):0;
-        average = S;
+      case 0 : case 1 : { // Population/unbiased methods (Welford)
+        double M2 = 0;
+        ulongT n = 0;
+        cimg_for(*this,ptrs,T) {
+          ++n;
+          const double
+            val = (double)*ptrs,
+            delta = val - avg;
+          avg+=delta/n;
+          const double delta2 = val - avg;
+          M2+=delta*delta2;
+        }
+        var = M2/(siz - (variance_method?1:0));
       } break;
       case 2 : { // Least Median of Squares (MAD)
         CImg<Tfloat> buf(*this,false);
@@ -31601,35 +31602,35 @@ namespace cimg_library {
         const ulongT siz2 = siz>>1;
         const double med_i = (double)buf[siz2];
         cimg_for(buf,ptrs,Tfloat) {
-          const double val = (double)*ptrs; *ptrs = (Tfloat)cimg::abs(val - med_i); average+=val;
+          const double val = (double)*ptrs; *ptrs = (Tfloat)cimg::abs(val - med_i); avg+=val;
         }
         buf.sort();
         const double sig = (double)(1.4828*buf[siz2]);
-        variance = sig*sig;
+        var = sig*sig;
       } break;
       default : { // Least trimmed of Squares
         CImg<Tfloat> buf(*this,false);
         const ulongT siz2 = siz>>1;
         cimg_for(buf,ptrs,Tfloat) {
-          const double val = (double)*ptrs; (*ptrs)=(Tfloat)((*ptrs)*val); average+=val;
+          const double val = (double)*ptrs; (*ptrs)=(Tfloat)((*ptrs)*val); avg+=val;
         }
         buf.sort();
         double a = 0;
         const Tfloat *ptrs = buf._data;
         for (ulongT j = 0; j<siz2; ++j) a+=(double)*(ptrs++);
         const double sig = (double)(2.6477*std::sqrt(a/siz2));
-        variance = sig*sig;
+        var = sig*sig;
       }
       }
-      mean = (t)(average/siz);
-      return variance>0?variance:0;
+      mean = (t)(avg/siz);
+      return var>0?var:0;
     }
 
     //! Return estimated variance of the noise.
     /**
        \param variance_method Method used to compute the variance (see variance(const unsigned int) const).
        \note Because of structures such as edges in images it is
-       recommended to use a robust variance estimation. The variance of the
+       recommended to use an unbiased variance estimation. The variance of the
        noise is estimated by computing the variance of the Laplacian \f$(\Delta
        I)^2 \f$ scaled by a factor \f$c\f$ insuring \f$ c E[(\Delta I)^2]=
        \sigma^2\f$ where \f$\sigma\f$ is the noise variance.
@@ -31974,7 +31975,7 @@ namespace cimg_library {
        \return Statistics vector as
          <tt>[min, max, mean, variance, xmin, ymin, zmin, cmin, xmax, ymax, zmax, cmax, sum, product]</tt>.
     **/
-    CImg<Tdouble> get_stats(const unsigned int variance_method=1) const {
+    CImg<Tdouble> get_stats(const unsigned int variance_method=0) const {
       if (is_empty()) return CImg<doubleT>();
       const ulongT siz = size();
       const longT off_end = (longT)siz;
@@ -32019,7 +32020,7 @@ namespace cimg_library {
     }
 
     //! Compute statistics vector from the pixel values \inplace.
-    CImg<T>& stats(const unsigned int variance_method=1) {
+    CImg<T>& stats(const unsigned int variance_method=0) {
       return get_stats(variance_method).move_to(*this);
     }
 

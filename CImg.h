@@ -29419,26 +29419,26 @@ namespace cimg_library {
 
       static double mp_var(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
-        ulongT siz = 0;
-        double avg = 0, S2 = 0;
+        double m = 0, S2 = 0;
+        ulongT n = 0;
         for (unsigned int i = 3; i<i_end; i+=2) {
           const unsigned int len = (unsigned int)mp.opcode[i + 1];
           if (len>1) {
             const double *ptr = &_mp_arg(i);
             for (unsigned int k = 0; k<len; ++k) {
-              const double val = *(ptr++), delta = val - avg;
-              avg+=delta/++siz;
-              const double delta2 = val - avg;
+              const double val = *(ptr++), delta = val - m;
+              m+=delta/++n;
+              const double delta2 = val - m;
               S2+=delta*delta2;
             }
           } else {
-            const double val = _mp_arg(i), delta = val - avg;
-            avg+=delta/++siz;
-            const double delta2 = val - avg;
+            const double val = _mp_arg(i), delta = val - m;
+            m+=delta/++n;
+            const double delta2 = val - m;
             S2+=delta*delta2;
           }
         }
-        return S2/siz;
+        return n<2?0.:std::max(S2/n,0.);
       }
 
       static double mp_var2(_cimg_math_parser& mp) {
@@ -31588,19 +31588,22 @@ namespace cimg_library {
         throw CImgInstanceException(_cimg_instance
                                     "variance_mean(): Empty instance.",
                                     cimg_instance);
-      double var = 0, avg = 0;
+      double var = 0, sum = 0;
       const ulongT siz = size();
+      if (!siz) { mean = (t)0; return 0; }
+      if (siz==1) { mean = (t)*_data; return 0; }
       switch (variance_method) {
       case 0 : case 1 : { // Population/unbiased (using Welford method)
-        double S2 = 0;
+        double m = 0, S2 = 0;
         ulongT n = 0;
         cimg_for(*this,ptrs,T) {
-          const double val = (double)*ptrs, delta = val - avg;
-          avg+=delta/++n;
-          const double delta2 = val - avg;
+          const double val = (double)*ptrs, delta = val - m;
+          sum+=val;
+          m+=delta/++n;
+          const double delta2 = val - m;
           S2+=delta*delta2;
         }
-        var = S2/(siz - (variance_method?1:0));
+        var = S2/(siz - variance_method);
       } break;
       case 2 : { // Least Median of Squares (MAD)
         CImg<Tfloat> buf(*this,false);
@@ -31608,7 +31611,7 @@ namespace cimg_library {
         const ulongT siz2 = siz>>1;
         const double med_i = (double)buf[siz2];
         cimg_for(buf,ptrs,Tfloat) {
-          const double val = (double)*ptrs; *ptrs = (Tfloat)cimg::abs(val - med_i); avg+=val;
+          const double val = (double)*ptrs; *ptrs = (Tfloat)cimg::abs(val - med_i); sum+=val;
         }
         buf.sort();
         const double sig = (double)(1.4828*buf[siz2]);
@@ -31618,7 +31621,7 @@ namespace cimg_library {
         CImg<Tfloat> buf(*this,false);
         const ulongT siz2 = siz>>1;
         cimg_for(buf,ptrs,Tfloat) {
-          const double val = (double)*ptrs; (*ptrs)=(Tfloat)((*ptrs)*val); avg+=val;
+          const double val = (double)*ptrs; (*ptrs)=(Tfloat)((*ptrs)*val); sum+=val;
         }
         buf.sort();
         double a = 0;
@@ -31628,8 +31631,8 @@ namespace cimg_library {
         var = sig*sig;
       }
       }
-      mean = (t)(avg/siz);
-      return var>0?var:0;
+      mean = (t)(sum/siz);
+      return std::max(var,0.);
     }
 
     //! Return estimated variance of the noise.
@@ -31648,7 +31651,7 @@ namespace cimg_library {
                                     cimg_instance);
 
       const ulongT siz = size();
-      if (!siz || !_data) return 0;
+      if (siz<2 || !_data) return 0;
       if (variance_method>1) { // Compute a scaled version of the Laplacian
         CImg<Tdouble> tmp(*this,false);
         if (_depth==1) {
@@ -31669,8 +31672,7 @@ namespace cimg_library {
           cimg_forC(*this,c) {
             CImg_3x3x3(I,T);
             cimg_for3x3x3(*this,x,y,z,c,I,T) {
-              tmp(x,y,z,c) = cste*(
-                                   (double)Incc + (double)Ipcc + (double)Icnc + (double)Icpc +
+              tmp(x,y,z,c) = cste*((double)Incc + (double)Ipcc + (double)Icnc + (double)Icpc +
                                    (double)Iccn + (double)Iccp - 6*(double)Iccc);
             }
           }
@@ -31679,7 +31681,7 @@ namespace cimg_library {
       }
 
       // Version that doesn't need intermediate images.
-      double avg = 0, S2 = 0;
+      double m = 0, S2 = 0;
       ulongT n = 0;
       if (_depth==1) {
         const double cste = 1./std::sqrt(20.);
@@ -31687,9 +31689,9 @@ namespace cimg_library {
         cimg_forC(*this,c) cimg_for3x3(*this,x,y,0,c,I,T) {
           const double
             val = cste*((double)Inc + (double)Ipc + (double)Icn + (double)Icp - 4*(double)Icc),
-            delta = val - avg;
-          avg+=delta/++n;
-          const double delta2 = val - avg;
+            delta = val - m;
+          m+=delta/++n;
+          const double delta2 = val - m;
           S2+=delta*delta2;
         }
       } else {
@@ -31699,14 +31701,13 @@ namespace cimg_library {
           const double
             val = cste*((double)Incc + (double)Ipcc + (double)Icnc + (double)Icpc +
                         (double)Iccn + (double)Iccp - 6*(double)Iccc),
-            delta = val - avg;
-          avg+=delta/++n;
-          const double delta2 = val - avg;
+            delta = val - m;
+          m+=delta/++n;
+          const double delta2 = val - m;
           S2+=delta*delta2;
         }
       }
-      const double variance = S2/(siz - (variance_method?1:0));
-      return variance>0?variance:0;
+      return std::max(S2/(n - variance_method),0.);
     }
 
     //! Compute the MSE (Mean-Squared Error) between two images.
@@ -31990,8 +31991,8 @@ namespace cimg_library {
       if (is_empty()) return CImg<doubleT>();
       const ulongT siz = size();
       const longT off_end = (longT)siz;
-      double S = 0, S2 = 0, P = 1;
-      longT offm = 0, offM = 0;
+      double avg = 0, S = 0, S2 = 0, P = 1;
+      longT offm = 0, offM = 0, n = 0;
       T m = *_data, M = m;
 
       cimg_pragma_openmp(parallel reduction(+:S,S2) reduction(*:P) cimg_openmp_if_size(siz,131072)) {
@@ -32004,7 +32005,10 @@ namespace cimg_library {
           if (val<lm) { lm = val; loffm = off; }
           if (val>lM) { lM = val; loffM = off; }
           S+=_val;
-          S2+=_val*_val;
+          const double delta = _val - avg;
+          avg+=delta/++n;
+          const double delta2 = _val - avg;
+          S2+=delta*delta2;
           P*=_val;
         }
         cimg_pragma_openmp(critical(get_stats)) {
@@ -32015,10 +32019,7 @@ namespace cimg_library {
 
       const double
         mean_value = S/siz,
-        _variance_value = variance_method==0?(S2 - S*S/siz)/siz:
-        (variance_method==1?(siz>1?(S2 - S*S/siz)/(siz - 1):0):
-         variance(variance_method)),
-        variance_value = _variance_value>0?_variance_value:0;
+        variance_value = siz<2?0:std::max(variance_method<2?S2/(siz - variance_method):variance(variance_method),0.);
       int
         xm = 0, ym = 0, zm = 0, cm = 0,
         xM = 0, yM = 0, zM = 0, cM = 0;

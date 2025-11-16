@@ -31679,28 +31679,33 @@ namespace cimg_library {
       }
 
       // Version that doesn't need intermediate images.
-      double variance = 0, S = 0, S2 = 0;
+      double avg = 0, S2 = 0;
+      ulongT n = 0;
       if (_depth==1) {
         const double cste = 1./std::sqrt(20.);
         CImg_3x3(I,T);
         cimg_forC(*this,c) cimg_for3x3(*this,x,y,0,c,I,T) {
-          const double val = cste*((double)Inc + (double)Ipc +
-                                   (double)Icn + (double)Icp - 4*(double)Icc);
-          S+=val; S2+=val*val;
+          const double
+            val = cste*((double)Inc + (double)Ipc + (double)Icn + (double)Icp - 4*(double)Icc),
+            delta = val - avg;
+          avg+=delta/++n;
+          const double delta2 = val - avg;
+          S2+=delta*delta2;
         }
       } else {
         const double cste = 1./std::sqrt(42.);
         CImg_3x3x3(I,T);
         cimg_forC(*this,c) cimg_for3x3x3(*this,x,y,z,c,I,T) {
-          const double val = cste *
-            ((double)Incc + (double)Ipcc + (double)Icnc +
-             (double)Icpc +
-             (double)Iccn + (double)Iccp - 6*(double)Iccc);
-          S+=val; S2+=val*val;
+          const double
+            val = cste*((double)Incc + (double)Ipcc + (double)Icnc + (double)Icpc +
+                        (double)Iccn + (double)Iccp - 6*(double)Iccc),
+            delta = val - avg;
+          avg+=delta/++n;
+          const double delta2 = val - avg;
+          S2+=delta*delta2;
         }
       }
-      if (variance_method) variance = siz>1?(S2 - S*S/siz)/(siz - 1):0;
-      else variance = (S2 - S*S/siz)/siz;
+      const double variance = S2/(siz - (variance_method?1:0));
       return variance>0?variance:0;
     }
 

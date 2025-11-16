@@ -29420,24 +29420,20 @@ namespace cimg_library {
       static double mp_var(_cimg_math_parser& mp) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
         ulongT siz = 0;
-        double val, avg = 0, S2 = 0;
+        double avg = 0, S2 = 0;
         for (unsigned int i = 3; i<i_end; i+=2) {
           const unsigned int len = (unsigned int)mp.opcode[i + 1];
           if (len>1) {
             const double *ptr = &_mp_arg(i);
             for (unsigned int k = 0; k<len; ++k) {
-              val = *(ptr++);
-              ++siz;
-              const double delta = val - avg;
-              avg+=delta/siz;
+              const double val = *(ptr++), delta = val - avg;
+              avg+=delta/++siz;
               const double delta2 = val - avg;
               S2+=delta*delta2;
             }
           } else {
-            val = _mp_arg(i);
-            ++siz;
-            const double delta = val - avg;
-            avg+=delta/siz;
+            const double val = _mp_arg(i), delta = val - avg;
+            avg+=delta/++siz;
             const double delta2 = val - avg;
             S2+=delta*delta2;
           }
@@ -31595,15 +31591,12 @@ namespace cimg_library {
       double var = 0, avg = 0;
       const ulongT siz = size();
       switch (variance_method) {
-      case 0 : case 1 : { // Population/unbiased methods (Welford)
+      case 0 : case 1 : { // Population/unbiased (using Welford method)
         double S2 = 0;
         ulongT n = 0;
         cimg_for(*this,ptrs,T) {
-          ++n;
-          const double
-            val = (double)*ptrs,
-            delta = val - avg;
-          avg+=delta/n;
+          const double val = (double)*ptrs, delta = val - avg;
+          avg+=delta/++n;
           const double delta2 = val - avg;
           S2+=delta*delta2;
         }

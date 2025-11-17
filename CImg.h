@@ -31598,11 +31598,11 @@ namespace cimg_library {
         ulongT n = 0;
         cimg_for(*this,ptrs,T) {
           const double val = (double)*ptrs, delta = val - m;
-          sum+=val;
           m+=delta/++n;
           const double delta2 = val - m;
           S2+=delta*delta2;
         }
+        mean = (t)m;
         var = S2/(siz - variance_method);
       } break;
       case 2 : { // Least Median of Squares (MAD)
@@ -31631,7 +31631,7 @@ namespace cimg_library {
         var = sig*sig;
       }
       }
-      mean = (t)(sum/siz);
+      if (variance_method>1) mean = (t)(sum/siz);
       return std::max(var,0.);
     }
 
@@ -31994,8 +31994,8 @@ namespace cimg_library {
       double avg = 0, S = 0, S2 = 0, P = 1;
       longT offm = 0, offM = 0, n = 0;
       T m = *_data, M = m;
-
-      cimg_pragma_openmp(parallel reduction(+:S,S2) reduction(*:P) cimg_openmp_if_size(siz,131072)) {
+      cimg_pragma_openmp(parallel reduction(+:S,S2) reduction(*:P)
+                         cimg_openmp_if(variance_method>1 && siz>=(cimg_openmp_sizefactor)*131072)) {
         longT loffm = 0, loffM = 0;
         T lm = *_data, lM = lm;
         cimg_pragma_openmp(for)
@@ -32005,11 +32005,13 @@ namespace cimg_library {
           if (val<lm) { lm = val; loffm = off; }
           if (val>lM) { lM = val; loffM = off; }
           S+=_val;
-          const double delta = _val - avg;
-          avg+=delta/++n;
-          const double delta2 = _val - avg;
-          S2+=delta*delta2;
           P*=_val;
+          if (variance_method<1) {
+           const double delta = _val - avg;
+           avg+=delta/++n;
+           const double delta2 = _val - avg;
+           S2+=delta*delta2;
+          }
         }
         cimg_pragma_openmp(critical(get_stats)) {
           if (lm<m || (lm==m && loffm<offm)) { m = lm; offm = loffm; }

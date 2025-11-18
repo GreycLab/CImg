@@ -21962,6 +21962,26 @@ namespace cimg_library {
               _cimg_mp_return(pos);
             }
 
+            if (!std::strncmp(ss,"indexof(",8)) { // Index of element in list of elements
+              _cimg_mp_op("Function 'indexof()'");
+              s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss8,s1,depth1,0,block_flags); // elt
+              pos = scalar();
+              CImg<ulongT>::vector((ulongT)mp_indexof,pos,0,arg1,size(arg1)).move_to(l_opcode);
+              for (s = ++s1; s<se; ++s) {
+                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                arg1 = compile(s,ns,depth1,0,block_flags);
+                CImg<ulongT>::vector(arg1,size(arg1)).move_to(l_opcode);
+                s = ns;
+              }
+              (l_opcode>'y').move_to(opcode);
+              opcode[2] = opcode._height;
+              opcode.move_to(code);
+              return_comp = true;
+              _cimg_mp_return(pos);
+            }
+
             if (!std::strncmp(ss,"inrange(",8)) { // Check value range
               _cimg_mp_op("Function 'inrange()'");
               s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
@@ -27789,6 +27809,35 @@ namespace cimg_library {
         CImg<doubleT>(ptrd,wA,1,1,map_colors?dim_colors:1,true) = CImg<doubleT>(ptrs,wA,1,1,dim_colors,true).
           get_index(colormap,dithering,map_colors);
         return cimg::type<double>::nan();
+      }
+
+      static double mp_indexof(_cimg_math_parser& mp) {
+        const unsigned int
+          siz = (unsigned int)mp.opcode[2],
+          siz_ref = (unsigned int)mp.opcode[4];
+        if (!siz_ref) { // Reference value is a scalar
+          const double ref = _mp_arg(3);
+          for (unsigned int k = 5; k<siz; k+=2) {
+            const unsigned int siz_elt = (unsigned int)mp.opcode[k + 1];
+            if (!siz_elt) {
+              const double elt = _mp_arg(k);
+              if (elt==ref) return (double)((k - 5)/2);
+            }
+          }
+        } else { // Reference value is a vector
+          const double *const ptr_r = &_mp_arg(3) + 1;
+          for (unsigned int k = 5; k<siz; k+=2) {
+            const unsigned int siz_elt = (unsigned int)mp.opcode[k + 1];
+            if (siz_elt==siz_ref) {
+              const double *const ptr_e = &_mp_arg(k) + 1;
+              bool is_same = true;
+              for (unsigned int l = 0; l<siz_ref; ++l)
+                if (ptr_e[l]!=ptr_r[l]) { is_same = false; break; }
+              if (is_same) return (double)((k - 5)/2);
+            }
+          }
+        }
+        return -1;
       }
 
       static double mp_inrange(_cimg_math_parser& mp) {

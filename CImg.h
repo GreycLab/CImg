@@ -21966,16 +21966,23 @@ namespace cimg_library {
               _cimg_mp_op("Function 'indexof()'");
               s1 = ss8; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               arg1 = compile(ss8,s1,depth1,0,block_flags); // elt
-              pos = scalar();
-              CImg<ulongT>::vector((ulongT)mp_indexof,pos,0,arg1,size(arg1)).move_to(l_opcode);
+              is_sth = is_const_scalar(arg1); // All elements are constant scalars ?
+              if (is_sth) val = mem[arg1];
+              p1 = 0;
+              CImg<ulongT>::vector((ulongT)mp_indexof,0,0,arg1,size(arg1)).move_to(l_opcode);
               for (s = ++s1; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
-                arg1 = compile(s,ns,depth1,0,block_flags);
-                CImg<ulongT>::vector(arg1,size(arg1)).move_to(l_opcode);
+                arg2 = compile(s,ns,depth1,0,block_flags);
+                is_sth&=is_const_scalar(arg2);
+                if (is_sth && mem[arg2]==val) _cimg_mp_const_scalar((double)p1);
+                CImg<ulongT>::vector(arg2,size(arg2)).move_to(l_opcode);
                 s = ns;
+                ++p1;
               }
+              if (is_sth) _cimg_mp_return(11); // Const case: no match
               (l_opcode>'y').move_to(opcode);
+              opcode[1] = pos = scalar();
               opcode[2] = opcode._height;
               opcode.move_to(code);
               return_comp = true;

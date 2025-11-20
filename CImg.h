@@ -22319,17 +22319,17 @@ namespace cimg_library {
             if (!std::strncmp(ss,"map(",4)) { // Map vector
               _cimg_mp_op("Function 'map()'");
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss4,s1,depth1,0,block_flags);
+              arg1 = compile(ss4,s1,depth1,0,block_flags); // X
               s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-              arg2 = compile(s1,s2,depth1,0,block_flags);
+              arg2 = compile(s1,s2,depth1,0,block_flags); // P
               arg3 = arg4 = 1; arg5 = 0;
               if (s2<se1) {
                 s1 = ++s2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                arg3 = compile(s2,s1,depth1,0,block_flags);
+                arg3 = compile(s2,s1,depth1,0,block_flags); // nb_channelsX
                 if (s1<se1) {
                   s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
-                  arg4 = compile(s1,s2,depth1,0,block_flags);
-                  arg5 = s2<se1?compile(++s2,se1,depth1,0,block_flags):0;
+                  arg4 = compile(s1,s2,depth1,0,block_flags); // nb_channelsP
+                  arg5 = s2<se1?compile(++s2,se1,depth1,0,block_flags):0; // boundary_conditions
                 }
               }
               _cimg_mp_check_type(arg2,2,2,0);
@@ -22340,7 +22340,7 @@ namespace cimg_library {
               p2 = size(arg2);
               arg3 = (unsigned int)mem[arg3];
               arg4 = (unsigned int)mem[arg4];
-              if ((p1%arg3) || (!p1 && arg3>1)) {
+              if ((p1%arg3) || (!p1 && arg3!=1)) {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                             "CImg<%s>::%s: %s: Type of first arguments ('%s') "
@@ -22358,7 +22358,8 @@ namespace cimg_library {
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             s_type(arg2)._data,arg4,s0);
               }
-              pos = vector(std::max(p1,1U)*arg4);
+              if (!p1 && arg4==1) pos = scalar();
+              else pos = vector(std::max(p1,1U)*arg4);
               CImg<ulongT>::vector((ulongT)mp_map,pos,arg1,p1,arg2,p2,arg3,arg4,arg5).move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
@@ -28097,22 +28098,24 @@ namespace cimg_library {
       }
 
       static double mp_map(_cimg_math_parser& mp) {
-        double *ptrd = &_mp_arg(1) + 1;
-        unsigned int
-          sizX = (unsigned int)mp.opcode[3],
-          nb_channelsX = (unsigned int)mp.opcode[6];
-        const double
-          *ptrX = &_mp_arg(2),
-          *ptrP = &_mp_arg(4) + 1;
+        double *ptrd = &_mp_arg(1);
+        const double *ptrX = &_mp_arg(2);
+        unsigned int sizX = (unsigned int)mp.opcode[3];
+        const double *const ptrP = &_mp_arg(4) + 1;
         const unsigned int
           sizP = (unsigned int)mp.opcode[5],
+          nb_channelsX = (unsigned int)mp.opcode[6],
           nb_channelsP = (unsigned int)mp.opcode[7],
           boundary_conditions = (unsigned int)_mp_arg(8);
-        if (sizX) ++ptrX; else ++sizX;
+        const bool
+          is_scalar_input = !sizX,
+          is_scalar_output = is_scalar_input && nb_channelsP==1;
+        if (!is_scalar_output) ++ptrd;
+        if (is_scalar_input) ++sizX; else ++ptrX;
         CImg<doubleT>(ptrd,sizX/nb_channelsX,1,1,nb_channelsX*nb_channelsP,true) =
           CImg<doubleT>(ptrX,sizX/nb_channelsX,1,1,nb_channelsX,true).
           get_map(CImg<doubleT>(ptrP,sizP/nb_channelsP,1,1,nb_channelsP,true),boundary_conditions);
-        return cimg::type<double>::nan();
+        return is_scalar_output?ptrd[0]:cimg::type<double>::nan();
       }
 
       static double mp_matrix_eigen(_cimg_math_parser& mp) {

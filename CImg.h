@@ -22332,7 +22332,6 @@ namespace cimg_library {
                   arg5 = s2<se1?compile(++s2,se1,depth1,0,block_flags):0;
                 }
               }
-              _cimg_mp_check_type(arg1,1,2,0);
               _cimg_mp_check_type(arg2,2,2,0);
               _cimg_mp_check_const_scalar(arg3,3,3);
               _cimg_mp_check_const_scalar(arg4,4,3);
@@ -22341,7 +22340,7 @@ namespace cimg_library {
               p2 = size(arg2);
               arg3 = (unsigned int)mem[arg3];
               arg4 = (unsigned int)mem[arg4];
-              if (p1%arg3) {
+              if ((p1%arg3) || (!p1 && arg3>1)) {
                 _cimg_mp_strerr;
                 throw CImgArgumentException("[" cimg_appname "_math_parser] "
                                             "CImg<%s>::%s: %s: Type of first arguments ('%s') "
@@ -22359,8 +22358,8 @@ namespace cimg_library {
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             s_type(arg2)._data,arg4,s0);
               }
-              pos = vector(p1*arg4);
-              CImg<ulongT>::vector((ulongT)mp_map,pos,arg1,arg2,p1,p2,arg3,arg4,arg5).move_to(code);
+              pos = vector(std::max(p1,1U)*arg4);
+              CImg<ulongT>::vector((ulongT)mp_map,pos,arg1,p1,arg2,p2,arg3,arg4,arg5).move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -28099,15 +28098,17 @@ namespace cimg_library {
 
       static double mp_map(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
+        unsigned int
+          sizX = (unsigned int)mp.opcode[3],
+          nb_channelsX = (unsigned int)mp.opcode[6];
         const double
-          *ptrX = &_mp_arg(2) + 1,
-          *ptrP = &_mp_arg(3) + 1;
+          *ptrX = &_mp_arg(2),
+          *ptrP = &_mp_arg(4) + 1;
         const unsigned int
-          sizX = (unsigned int)mp.opcode[4],
           sizP = (unsigned int)mp.opcode[5],
-          nb_channelsX = (unsigned int)mp.opcode[6],
           nb_channelsP = (unsigned int)mp.opcode[7],
           boundary_conditions = (unsigned int)_mp_arg(8);
+        if (sizX) ++ptrX; else ++sizX;
         CImg<doubleT>(ptrd,sizX/nb_channelsX,1,1,nb_channelsX*nb_channelsP,true) =
           CImg<doubleT>(ptrX,sizX/nb_channelsX,1,1,nb_channelsX,true).
           get_map(CImg<doubleT>(ptrP,sizP/nb_channelsP,1,1,nb_channelsP,true),boundary_conditions);

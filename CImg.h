@@ -22908,10 +22908,11 @@ namespace cimg_library {
               s1 = ss4; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
               if (s1>=se1 || !*s1) compile(s1,s1,depth1,0,block_flags); // Will throw missing argument error
               arg3 = compile(ss4,s1++,depth1,p_ref,block_flags|32);
+              variable_name.assign(s1,(unsigned int)(se - s1)).back() = 0;
+              cimg::strpare(variable_name,false,true);
               *se1 = 0;
 
-              if (!cimg::is_varname(s1)) { // Invalid variable name
-                variable_name.assign(s1,(unsigned int)(se1 + 1 - s1)).back() = 0;
+              if (!cimg::is_varname(variable_name)) { // Invalid variable name
                 cimg::strellipsize(variable_name,64);
                 *se1 = ')';
                 _cimg_mp_strerr;
@@ -22921,13 +22922,13 @@ namespace cimg_library {
                                             pixel_type(),_cimg_mp_calling_function,s_op,
                                             variable_name._data,s0);
               }
-              get_variable_pos(s1,arg1,arg2);
+              get_variable_pos(variable_name,arg1,arg2);
               if (arg2!=~0U) reserved_label[arg2] = arg3;
               else if (arg1!=~0U) variable_pos[arg1] = arg3;
               else { // New variable
                 if (variable_def._width>=variable_pos._width) variable_pos.resize(-200,1,1,1,0);
                 variable_pos[variable_def._width] = arg3;
-                CImg<char>::string(s1).move_to(variable_def);
+                variable_name.move_to(variable_def);
               }
               if (is_vector(arg3))
                 set_reserved_vector(arg3); // Prevent from being used in further optimization

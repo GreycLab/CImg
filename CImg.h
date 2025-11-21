@@ -19341,7 +19341,7 @@ namespace cimg_library {
             _cimg_mp_scalar2(mp_div,arg1,arg2);
           }
 
-        for (s = se2, ns = se1, ps = pexpr._data + (se3 - expr._data); s>ss; --s, --ns)
+        for (s = se2, ns = se1, ps = se3; s>ss; --s, --ns, --ps)
           if (*s=='%' && *ns!='^' && *ps!='$' && level[s - expr._data]==clevel) { // Modulo ('%')
             _cimg_mp_op("Operator '%'");
             arg1 = compile(ss,s,depth1,0,block_flags);

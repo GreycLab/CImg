@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 364
+#define cimg_version 365
 
 /*-----------------------------------------------------------
  #
@@ -24140,19 +24140,21 @@ namespace cimg_library {
                   if (s1<se1) {
                     s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
                     arg6 = compile(s1,s2,depth1,0,block_flags); // Spectrum
-                    p3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):~0U; // Axes
+                    p3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):0; // Axes
                   }
                 }
               }
             }
-            if (arg3!=~0U) _cimg_mp_check_const_scalar(3,arg3,3);
-            _cimg_mp_check_const_scalar(4,arg4,3);
-            _cimg_mp_check_const_scalar(5,arg5,3);
-            _cimg_mp_check_const_scalar(6,arg6,3);
-            if (arg3!=~0U) arg3 = (unsigned int)mem[arg3]; else arg3 = p1;
-            arg4 = (unsigned int)mem[arg4];
-            arg5 = (unsigned int)mem[arg5];
-            arg6 = (unsigned int)mem[arg6];
+            if (arg3!=~0U) {
+              _cimg_mp_check_const_scalar(3,arg3,3);
+              _cimg_mp_check_const_scalar(4,arg4,3);
+              _cimg_mp_check_const_scalar(5,arg5,3);
+              _cimg_mp_check_const_scalar(6,arg6,3);
+              arg3 = (unsigned int)mem[arg3];
+              arg4 = (unsigned int)mem[arg4];
+              arg5 = (unsigned int)mem[arg5];
+              arg6 = (unsigned int)mem[arg6];
+            } else arg3 = p1;
             p2 = arg3*arg4*arg5*arg6;
             if (p1!=p2) {
               _cimg_mp_strerr;

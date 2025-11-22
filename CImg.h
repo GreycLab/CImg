@@ -24166,8 +24166,7 @@ namespace cimg_library {
             }
             _cimg_mp_check_type(arg1,1,2,p2);
             _cimg_mp_check_type(arg2,2,2,p2);
-            _cimg_mp_check_type(p3,7,1,0);
-            CImg<ulongT>::vector((ulongT)mp_fft,_cimg_mp_slot_nan,is_sth,arg1,arg2,arg3,arg4,arg5,arg6,p3).
+            CImg<ulongT>::vector((ulongT)mp_fft,_cimg_mp_slot_nan,is_sth,arg1,arg2,arg3,arg4,arg5,arg6,p3,size(p3)).
               move_to(code);
             _cimg_mp_return_nan();
           }
@@ -26862,12 +26861,24 @@ namespace cimg_library {
           h = (unsigned int)mp.opcode[6],
           d = (unsigned int)mp.opcode[7],
           s = (unsigned int)mp.opcode[8];
-        const char axis = (char)_mp_arg(9);
+        unsigned int
+          sa = (unsigned int)mp.opcode[10];
+        const double *const axes = &_mp_arg(9) + (sa?1:0);
+        if (!sa) ++sa;
         CImgList<doubleT> pair(2);
         pair[0].assign(ptr_r,w,h,d,s,true); // Real part
         pair[1].assign(ptr_i,w,h,d,s,true); // Imaginary part
-        if (axis=='x' || axis=='y' || axis=='z' || axis=='c') pair.FFT(axis,is_ifft);
-        else pair.FFT(is_ifft);
+        if (*axes) for (unsigned int k = 0; k<sa; ++k) {
+            const double axis = axes[k];
+            if (axis=='x' || axis=='y' || axis=='z') pair.FFT(axis,is_ifft);
+            else {
+              CImg<char> str(sa + 1); str.get_shared_points(0,sa - 1) = CImg<double>(axes,sa); str.back() = 0;
+              throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function mp_%s()': "
+                                          "Invalid specified axes '%s' (should contain only 'x','y' or 'z').",
+                                          mp.imgout.pixel_type(),is_ifft?"ifft":"fft",
+                                          str._data);
+            }
+          } else pair.FFT(is_ifft);
         return cimg::type<double>::nan();
       }
 

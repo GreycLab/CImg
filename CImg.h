@@ -3230,6 +3230,7 @@ namespace cimg_library {
       pthread_t *events_thread;
       pthread_cond_t wait_event;
       pthread_mutex_t mutex_lock_display, mutex_wait_event;
+      pthread_mutexattr_t attr;
       unsigned int nb_bits;
       bool is_blue_first, is_shm_enabled, byte_order, events_thread_running;
 
@@ -3243,8 +3244,10 @@ namespace cimg_library {
 #ifdef __FreeBSD__
         XInitThreads();
 #endif
-        pthread_mutex_init(&mutex_wait_event,0);
-        pthread_mutex_init(&mutex_lock_display,0);
+	pthread_mutexattr_init(&attr);
+	pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+        pthread_mutex_init(&mutex_wait_event, &attr);
+        pthread_mutex_init(&mutex_lock_display, &attr);
         pthread_cond_init(&wait_event,0);
 #ifdef cimg_use_xrandr
         resolutions = 0;

@@ -276,6 +276,12 @@ enum {FALSE_WIN = 0};
 #endif
 #endif
 
+#ifdef cimg_use_half
+#define cimg_use_half 1
+#else
+#define cimg_use_half 0
+#endif
+
 // Configure filename separator.
 //
 // Filename separator is set by default to '/', except for Windows where it is '\'.
@@ -3061,7 +3067,7 @@ namespace cimg_library {
       static double format(const long double val) { return (double)val; }
     };
 
-#ifdef cimg_use_half
+#if cimg_use_half==1
     template<> struct type<half> {
       static const char* string() { static const char *const s = "float16"; return s; }
       static bool is_float() { return true; }
@@ -3194,7 +3200,7 @@ namespace cimg_library {
     template<> struct superset<float,cimg_int64> { typedef double type; };
     template<> struct superset<float,double> { typedef double type; };
 
-#ifdef cimg_use_half
+#if cimg_use_half==1
     template<> struct superset<half,unsigned short> { typedef float type; };
     template<> struct superset<half,short> { typedef float type; };
     template<> struct superset<half,unsigned int> { typedef float type; };
@@ -6346,7 +6352,7 @@ namespace cimg_library {
       return (double)rol((cimg_long)a,n);
     }
 
-#ifdef cimg_use_half
+#if cimg_use_half==1
     inline half rol(const half a, const unsigned int n=1) {
       return (half)rol((int)a,n);
     }
@@ -6370,7 +6376,7 @@ namespace cimg_library {
       return (double)ror((cimg_long)a,n);
     }
 
-#ifdef cimg_use_half
+#if cimg_use_half==1
     inline half ror(const half a, const unsigned int n=1) {
       return (half)ror((int)a,n);
     }
@@ -33891,8 +33897,10 @@ namespace cimg_library {
     **/
     CImg<T>& fill(const T& val) {
       if (is_empty()) return *this;
-      if (val && sizeof(T)!=1) cimg_for(*this,ptrd,T) *ptrd = val;
+      if ((val && sizeof(T)!=1) || cimg_use_half) cimg_for(*this,ptrd,T) *ptrd = val;
+#if cimg_use_half==0
       else std::memset(_data,(int)(ulongT)val,sizeof(T)*size()); // Double cast to allow val to be (void*)
+#endif
       return *this;
     }
 
@@ -49171,34 +49179,40 @@ namespace cimg_library {
         T *ptrd = data(nx0,y);
         if (opacity>=1) { // ** Opaque drawing **
           if (brightness==1) { // Brightness==1
-            if (sizeof(T)!=1) cimg_forC(*this,c) {
+            if (sizeof(T)!=1 || cimg_use_half) cimg_forC(*this,c) {
                 const T val = (T)*(col++);
                 for (int x = dx; x>=0; --x) *(ptrd++) = val;
                 ptrd+=off;
               } else cimg_forC(*this,c) {
+#if cimg_use_half==0
                 const T val = (T)*(col++);
                 std::memset(ptrd,(int)val,dx + 1);
                 ptrd+=whd;
+#endif
               }
           } else if (brightness<1) { // Brightness<1
-            if (sizeof(T)!=1) cimg_forC(*this,c) {
+            if (sizeof(T)!=1 || cimg_use_half) cimg_forC(*this,c) {
                 const T val = (T)(*(col++)*brightness);
                 for (int x = dx; x>=0; --x) *(ptrd++) = val;
                 ptrd+=off;
               } else cimg_forC(*this,c) {
+#if cimg_use_half==0
                 const T val = (T)(*(col++)*brightness);
                 std::memset(ptrd,(int)val,dx + 1);
                 ptrd+=whd;
+#endif
               }
           } else { // Brightness>1
-            if (sizeof(T)!=1) cimg_forC(*this,c) {
+            if (sizeof(T)!=1 || cimg_use_half) cimg_forC(*this,c) {
                 const T val = (T)((2-brightness)**(col++) + (brightness - 1)*_sc_maxval);
                 for (int x = dx; x>=0; --x) *(ptrd++) = val;
                 ptrd+=off;
               } else cimg_forC(*this,c) {
+#if cimg_use_half==0
                 const T val = (T)((2-brightness)**(col++) + (brightness - 1)*_sc_maxval);
                 std::memset(ptrd,(int)val,dx + 1);
                 ptrd+=whd;
+#endif
               }
           }
         } else { // ** Transparent drawing **
@@ -51615,8 +51629,10 @@ namespace cimg_library {
           for (int z = 0; z<lz; ++z) {
             for (int y = 0; y<ly; ++y) {
               if (opacity>=1) {
-                if (sizeof(T)!=1) { for (int x = 0; x<lx; ++x) *(ptrd++) = val; ptrd+=offX; }
+                if (sizeof(T)!=1 || cimg_use_half) { for (int x = 0; x<lx; ++x) *(ptrd++) = val; ptrd+=offX; }
+#if cimg_use_half==0
                 else { std::memset(ptrd,(int)val,lx); ptrd+=_width; }
+#endif
               } else { for (int x = 0; x<lx; ++x) { *ptrd = (T)(nopacity*val + *ptrd*copacity); ++ptrd; } ptrd+=offX; }
             }
             ptrd+=offY;
@@ -53080,9 +53096,11 @@ namespace cimg_library {
           }
           std::memset(_region.data(xl,y,z),1,xr - xl + 1);
           if (opacity==1) {
-            if (sizeof(T)==1) {
+            if (sizeof(T)==1 || !cimg_use_half) {
+#if cimg_use_half==0
               const int dx = xr - xl + 1;
               cimg_forC(*this,c) std::memset(data(xl,y,z,c),(int)color[c],dx);
+#endif
             } else cimg_forC(*this,c) {
                 const T val = (T)color[c];
                 T *ptri = data(xl,y,z,c); for (int k = xl; k<=xr; ++k) *(ptri++) = val;

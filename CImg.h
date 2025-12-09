@@ -214,6 +214,12 @@ enum {FALSE_WIN = 0};
 
 // Define own datatypes to ensure portability.
 // ( 'sizeof(cimg_ulong/cimg_long) = sizeof(void*)' ).
+#ifdef cimg_use_half
+#define cimg_use_half 1
+#else
+#define cimg_use_half 0
+#endif
+
 #define cimg_uint8 unsigned char
 #if defined(CHAR_MAX) && CHAR_MAX==255
 #define cimg_int8 signed char
@@ -224,6 +230,9 @@ enum {FALSE_WIN = 0};
 #define cimg_int16 short
 #define cimg_uint32 unsigned int
 #define cimg_int32 int
+#if cimg_use_half==1
+#define cimg_float16 half
+#endif
 #define cimg_float32 float
 #define cimg_float64 double
 
@@ -274,12 +283,6 @@ enum {FALSE_WIN = 0};
 #else
 #define cimg_max_buf_size ((cimg_ulong)16*1024*1024*1024)
 #endif
-#endif
-
-#ifdef cimg_use_half
-#define cimg_use_half 1
-#else
-#define cimg_use_half 0
 #endif
 
 // Configure filename separator.
@@ -68370,6 +68373,9 @@ namespace cimg_library {
       _cimg_unserialize_case("int32","int",0,cimg_int32);
       _cimg_unserialize_case("uint64","unsigned_int64",0,cimg_uint64);
       _cimg_unserialize_case("int64",0,0,cimg_int64);
+#if cimg_use_half==1
+      _cimg_unserialize_case("float16","half",0,cimg_float16);
+#endif
       _cimg_unserialize_case("float32","float",0,cimg_float32);
       _cimg_unserialize_case("float64","double",0,cimg_float64);
       if (!loaded)

@@ -62317,6 +62317,7 @@ namespace cimg_library {
       _cimg_save_tiff("int32",cimg_int32);
       _cimg_save_tiff("uint64",cimg_uint32); // 'int64' as 'int32'
       _cimg_save_tiff("int64",cimg_int32);
+      _cimg_save_tiff("float16",cimg_float32); // 'float16' as 'float32'
       _cimg_save_tiff("float32",cimg_float32);
       _cimg_save_tiff("float64",cimg_float32); // 'float64' as 'float32'
       const char *const filename = TIFFFileName(tif);

@@ -3207,7 +3207,6 @@ namespace cimg_library {
     template<> struct superset<float,cimg_uint64> { typedef double type; };
     template<> struct superset<float,cimg_int64> { typedef double type; };
     template<> struct superset<float,double> { typedef double type; };
-
 #if cimg_is_float16==1
     template<> struct superset<cimg_float16,unsigned short> { typedef float type; };
     template<> struct superset<cimg_float16,short> { typedef float type; };
@@ -43535,7 +43534,11 @@ namespace cimg_library {
 
       if (is_empty() || (nsigma<0.1f && !order)) return *this;
       if (nsigma<0.5f) return deriche(nsigma,order,axis,boundary_conditions);
-      if (!cimg::type<T>::is_float())
+      if (!cimg::type<T>::is_float()
+#if cimg_is_float16==1
+          || cimg::type<T>::string()==cimg::type<cimg_float16>::string()
+#endif
+          )
         return CImg<Tfloat>(*this,false).vanvliet(sigma,order,axis,boundary_conditions).move_to(*this);
 
       if (boundary_conditions>1) {

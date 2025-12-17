@@ -654,13 +654,7 @@ extern "C" {
 #endif
 
 // Try to define cimg_float16.
-#if defined(__FLT16_MANT_DIG__) || defined(__FLT16_MAX__)
-#define cimg_float16 _Float16
-#define cimg_is_float16 1
-#elif defined(__GNUC__) && defined(__FP16__)
-#define cimg_float16 __fp16
-#define cimg_is_float16 1
-#elif defined(_HALF_H_)
+#if defined(_HALF_H_)
 #define cimg_float16 half
 #define cimg_is_float16 1
 #else

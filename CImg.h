@@ -654,7 +654,7 @@ extern "C" {
 #endif
 
 // Try to define cimg_float16.
-#if defined(_HALF_H_)
+#if defined(_HALF_H_) || defined(cimg_use_openexr)
 #define cimg_float16 half
 #define cimg_is_float16 1
 #else

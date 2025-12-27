@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 365
+#define cimg_version 366
 
 /*-----------------------------------------------------------
  #
@@ -51848,7 +51848,7 @@ namespace cimg_library {
             tend = tmax - (step==cimg::sign(y12));
           unsigned int y = (unsigned int)y0 - ymin;
           for (int t = 0; t<=tend; ++t, y+=step)
-            if (y<Xs._height) Xs(count[y]++,y) = x0 + (t*x01 + htmax)/tmax;
+            if (y<Xs._height) Xs(count[y]++,y) = x0 + cimg_rd(t*x01,tmax);
         }
         go_on = nn>n;
         n = nn;

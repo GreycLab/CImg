@@ -53183,7 +53183,7 @@ namespace cimg_library {
           }
           std::memset(_region.data(xl,y,z),1,xr - xl + 1);
           if (opacity==1) {
-            if (sizeof(T)==1 || !cimg_is_float16) {
+            if (sizeof(T)==1 && !cimg_is_float16) {
 #if cimg_is_float16==0
               const int dx = xr - xl + 1;
               cimg_forC(*this,c) std::memset(data(xl,y,z,c),(int)color[c],dx);

@@ -33980,10 +33980,8 @@ namespace cimg_library {
     **/
     CImg<T>& fill(const T& val) {
       if (is_empty()) return *this;
-      if ((val && sizeof(T)!=1) || cimg_is_float16) cimg_for(*this,ptrd,T) *ptrd = val;
-#if cimg_is_float16==0
+      if (val && sizeof(T)!=1) cimg_for(*this,ptrd,T) *ptrd = val;
       else std::memset(_data,(int)(ulongT)val,sizeof(T)*size()); // Double cast to allow val to be (void*)
-#endif
       return *this;
     }
 
@@ -43528,11 +43526,7 @@ namespace cimg_library {
 
       if (is_empty() || (nsigma<0.1f && !order)) return *this;
       if (nsigma<0.5f) return deriche(nsigma,order,axis,boundary_conditions);
-      if (!cimg::type<T>::is_float()
-#if cimg_is_float16==1
-          || cimg::type<T>::string()==cimg::type<cimg_float16>::string()
-#endif
-          )
+      if (!cimg::type<T>::is_float())
         return CImg<Tfloat>(*this,false).vanvliet(sigma,order,axis,boundary_conditions).move_to(*this);
 
       if (boundary_conditions>1) {
@@ -49266,40 +49260,34 @@ namespace cimg_library {
         T *ptrd = data(nx0,y);
         if (opacity>=1) { // ** Opaque drawing **
           if (brightness==1) { // Brightness==1
-            if (sizeof(T)!=1 || cimg_is_float16) cimg_forC(*this,c) {
+            if (sizeof(T)!=1) cimg_forC(*this,c) {
                 const T val = (T)*(col++);
                 for (int x = dx; x>=0; --x) *(ptrd++) = val;
                 ptrd+=off;
               } else cimg_forC(*this,c) {
-#if cimg_is_float16==0
                 const T val = (T)*(col++);
                 std::memset(ptrd,(int)val,dx + 1);
                 ptrd+=whd;
-#endif
               }
           } else if (brightness<1) { // Brightness<1
-            if (sizeof(T)!=1 || cimg_is_float16) cimg_forC(*this,c) {
+            if (sizeof(T)!=1) cimg_forC(*this,c) {
                 const T val = (T)(*(col++)*brightness);
                 for (int x = dx; x>=0; --x) *(ptrd++) = val;
                 ptrd+=off;
               } else cimg_forC(*this,c) {
-#if cimg_is_float16==0
                 const T val = (T)(*(col++)*brightness);
                 std::memset(ptrd,(int)val,dx + 1);
                 ptrd+=whd;
-#endif
               }
           } else { // Brightness>1
-            if (sizeof(T)!=1 || cimg_is_float16) cimg_forC(*this,c) {
+            if (sizeof(T)!=1) cimg_forC(*this,c) {
                 const T val = (T)((2-brightness)**(col++) + (brightness - 1)*_sc_maxval);
                 for (int x = dx; x>=0; --x) *(ptrd++) = val;
                 ptrd+=off;
               } else cimg_forC(*this,c) {
-#if cimg_is_float16==0
                 const T val = (T)((2-brightness)**(col++) + (brightness - 1)*_sc_maxval);
                 std::memset(ptrd,(int)val,dx + 1);
                 ptrd+=whd;
-#endif
               }
           }
         } else { // ** Transparent drawing **
@@ -51716,10 +51704,8 @@ namespace cimg_library {
           for (int z = 0; z<lz; ++z) {
             for (int y = 0; y<ly; ++y) {
               if (opacity>=1) {
-                if (sizeof(T)!=1 || cimg_is_float16) { for (int x = 0; x<lx; ++x) *(ptrd++) = val; ptrd+=offX; }
-#if cimg_is_float16==0
+                if (sizeof(T)!=1) { for (int x = 0; x<lx; ++x) *(ptrd++) = val; ptrd+=offX; }
                 else { std::memset(ptrd,(int)val,lx); ptrd+=_width; }
-#endif
               } else { for (int x = 0; x<lx; ++x) { *ptrd = (T)(nopacity*val + *ptrd*copacity); ++ptrd; } ptrd+=offX; }
             }
             ptrd+=offY;
@@ -53183,11 +53169,9 @@ namespace cimg_library {
           }
           std::memset(_region.data(xl,y,z),1,xr - xl + 1);
           if (opacity==1) {
-            if (sizeof(T)==1 || !cimg_is_float16) {
-#if cimg_is_float16==0
+            if (sizeof(T)==1) {
               const int dx = xr - xl + 1;
               cimg_forC(*this,c) std::memset(data(xl,y,z,c),(int)color[c],dx);
-#endif
             } else cimg_forC(*this,c) {
                 const T val = (T)color[c];
                 T *ptri = data(xl,y,z,c); for (int k = xl; k<=xr; ++k) *(ptri++) = val;

@@ -53169,13 +53169,14 @@ namespace cimg_library {
           }
           std::memset(_region.data(xl,y,z),1,xr - xl + 1);
           if (opacity==1) {
-            if (sizeof(T)==1) {
-              const int dx = xr - xl + 1;
-              cimg_forC(*this,c) std::memset(data(xl,y,z,c),(int)color[c],dx);
-            } else cimg_forC(*this,c) {
+            if (sizeof(T)!=1) cimg_forC(*this,c) {
                 const T val = (T)color[c];
                 T *ptri = data(xl,y,z,c); for (int k = xl; k<=xr; ++k) *(ptri++) = val;
               }
+            else {
+              const int dx = xr - xl + 1;
+              cimg_forC(*this,c) std::memset(data(xl,y,z,c),(int)color[c],dx);
+            }
           } else cimg_forC(*this,c) {
               const T val = (T)(color[c]*nopacity);
               T *ptri = data(xl,y,z,c); for (int k = xl; k<=xr; ++k) { *ptri = (T)(val + *ptri*copacity); ++ptri; }

@@ -43526,7 +43526,11 @@ namespace cimg_library {
 
       if (is_empty() || (nsigma<0.1f && !order)) return *this;
       if (nsigma<0.5f) return deriche(nsigma,order,axis,boundary_conditions);
-      if (!cimg::type<T>::is_float())
+      if (!cimg::type<T>::is_float()
+#if cimg_is_float16==1
+          || cimg::type<T>::string()==cimg::type<cimg_float16>::string()
+#endif
+          )
         return CImg<Tfloat>(*this,false).vanvliet(sigma,order,axis,boundary_conditions).move_to(*this);
 
       if (boundary_conditions>1) {
@@ -53169,13 +53173,14 @@ namespace cimg_library {
           }
           std::memset(_region.data(xl,y,z),1,xr - xl + 1);
           if (opacity==1) {
-            if (sizeof(T)==1) {
-              const int dx = xr - xl + 1;
-              cimg_forC(*this,c) std::memset(data(xl,y,z,c),(int)color[c],dx);
-            } else cimg_forC(*this,c) {
+            if (sizeof(T)!=1) cimg_forC(*this,c) {
                 const T val = (T)color[c];
                 T *ptri = data(xl,y,z,c); for (int k = xl; k<=xr; ++k) *(ptri++) = val;
               }
+            else {
+              const int dx = xr - xl + 1;
+              cimg_forC(*this,c) std::memset(data(xl,y,z,c),(int)color[c],dx);
+            }
           } else cimg_forC(*this,c) {
               const T val = (T)(color[c]*nopacity);
               T *ptri = data(xl,y,z,c); for (int k = xl; k<=xr; ++k) { *ptri = (T)(val + *ptri*copacity); ++ptri; }

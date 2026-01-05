@@ -6576,6 +6576,18 @@ namespace cimg_library {
       return (tint)abs_b>(tint)cimg::abs(a)?b:a;
     }
 
+    //! Return the sigmoid of a value.
+    template<typename T>
+    inline T sigmoid(const T& x) {
+      return (T)(1/(1 + std::exp(-(double)x)));
+    }
+
+    //! Return the logit of a value.
+    template<typename T>
+    inline T logit(const T& x) {
+      return (T)std::log(x/(1. - x));
+    }
+
     //! Return the sign of a value.
     template<typename T>
     inline T sign(const T& x) {
@@ -22346,6 +22358,14 @@ namespace cimg_library {
               _cimg_mp_scalar1(mp_log2,arg1);
             }
 
+            if (!std::strncmp(ss,"logit(",6)) { // Logit
+              _cimg_mp_op("Function 'logit()'");
+              arg1 = compile(ss6,se1,depth1,0,block_flags);
+              if (is_vector(arg1)) _cimg_mp_vector1_v(mp_logit,arg1);
+              if (is_const_scalar(arg1)) _cimg_mp_const_scalar(cimg::logit(mem[arg1]));
+              _cimg_mp_scalar1(mp_logit,arg1);
+            }
+
             if (!std::strncmp(ss,"lowercase(",10)) { // Lower case
               _cimg_mp_op("Function 'lowercase()'");
               arg1 = compile(ss + 10,se1,depth1,0,block_flags);
@@ -23373,6 +23393,14 @@ namespace cimg_library {
                 return_comp = true;
                 _cimg_mp_return(pos);
               }
+            }
+
+            if (!std::strncmp(ss,"sigmoid(",8)) { // Sigmoid
+              _cimg_mp_op("Function 'sigmoid()'");
+              arg1 = compile(ss8,se1,depth1,0,block_flags);
+              if (is_vector(arg1)) _cimg_mp_vector1_v(mp_sigmoid,arg1);
+              if (is_const_scalar(arg1)) _cimg_mp_const_scalar(cimg::sigmoid(mem[arg1]));
+              _cimg_mp_scalar1(mp_sigmoid,arg1);
             }
 
             if (!std::strncmp(ss,"sign(",5)) { // Sign
@@ -28178,6 +28206,10 @@ namespace cimg_library {
         return (double)(bool)mp.mem[mem_right];
       }
 
+      static double mp_logit(_cimg_math_parser& mp) {
+        return cimg::logit(_mp_arg(2));
+      }
+
       static double mp_lowercase(_cimg_math_parser& mp) {
         return cimg::lowercase(_mp_arg(2));
       }
@@ -29178,6 +29210,10 @@ namespace cimg_library {
           cimg_for_inC(img,0,siz - 1,c) { *ptrd = (T)*(ptrs++); ptrd+=whd; }
         }
         return cimg::type<double>::nan();
+      }
+
+      static double mp_sigmoid(_cimg_math_parser& mp) {
+        return cimg::sigmoid(_mp_arg(2));
       }
 
       static double mp_sign(_cimg_math_parser& mp) {

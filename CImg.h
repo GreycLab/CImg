@@ -18545,12 +18545,21 @@ namespace cimg_library {
                   if (!is_sth || s2==s3 || (*ns!=',' && ns!=s1)) {
                     cimg::strellipsize(variable_name,64);
                     _cimg_mp_strerr;
-                    throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                                "CImg<%s>::%s: %s: %s name specified for argument %u when defining "
-                                                "macro '%s()', in expression '%s'.",
-                                                pixel_type(),_cimg_mp_calling_function,s_op,
-                                                is_sth?"Empty":"Invalid",p1,
-                                                variable_name._data,s0);
+                    if (is_sth)
+                      throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                                  "CImg<%s>::%s: %s: Empty argument name for argument %u of "
+                                                  "macro '%s()', in expression '%s'.",
+                                                  pixel_type(),_cimg_mp_calling_function,s_op,p1,
+                                                  variable_name._data,s0);
+                    else {
+                      for (s3 = s2; *s3 && *s3!=',' && *s3!=')'; ++s3) {}
+                      CImg<charT> argument_name(s2,s3 - s2 + 1); argument_name.back() = 0;
+                      throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                                  "CImg<%s>::%s: %s: Invalid argument name '%s' for argument %u of "
+                                                  "macro '%s()', in expression '%s'.",
+                                                  pixel_type(),_cimg_mp_calling_function,s_op,argument_name._data,p1,
+                                                  variable_name._data,s0);
+                    }
                   }
 
                   if (ns==s1 || *ns==',' || (is_variadic && *ns=='.')) { // New argument found

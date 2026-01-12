@@ -18545,12 +18545,21 @@ namespace cimg_library {
                   if (!is_sth || s2==s3 || (*ns!=',' && ns!=s1)) {
                     cimg::strellipsize(variable_name,64);
                     _cimg_mp_strerr;
-                    throw CImgArgumentException("[" cimg_appname "_math_parser] "
-                                                "CImg<%s>::%s: %s: %s name specified for argument %u when defining "
-                                                "macro '%s()', in expression '%s'.",
-                                                pixel_type(),_cimg_mp_calling_function,s_op,
-                                                is_sth?"Empty":"Invalid",p1,
-                                                variable_name._data,s0);
+                    if (is_sth)
+                      throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                                  "CImg<%s>::%s: %s: Empty argument name for argument %u of "
+                                                  "macro '%s()', in expression '%s'.",
+                                                  pixel_type(),_cimg_mp_calling_function,s_op,p1,
+                                                  variable_name._data,s0);
+                    else {
+                      for (s3 = s2; *s3 && *s3!=',' && *s3!=')'; ++s3) {}
+                      CImg<charT> argument_name(s2,s3 - s2 + 1); argument_name.back() = 0;
+                      throw CImgArgumentException("[" cimg_appname "_math_parser] "
+                                                  "CImg<%s>::%s: %s: Invalid argument name '%s' for argument %u of "
+                                                  "macro '%s()', in expression '%s'.",
+                                                  pixel_type(),_cimg_mp_calling_function,s_op,argument_name._data,p1,
+                                                  variable_name._data,s0);
+                    }
                   }
 
                   if (ns==s1 || *ns==',' || (is_variadic && *ns=='.')) { // New argument found
@@ -19990,19 +19999,17 @@ namespace cimg_library {
               _cimg_mp_scalar1(mp_acosh,arg1);
             }
 
-            if (!std::strncmp(ss,"arg(",4) ||
-                !std::strncmp(ss,"arg0(",5) ||
+            if (!std::strncmp(ss,"arg0(",5) ||
                 !std::strncmp(ss,"arg1(",5)) { // Nth argument
-              _cimg_mp_op(*ss3=='('?"Function 'arg()'":*ss3=='0'?"Function 'arg0()'":"Function 'arg1()'");
-              s0 = ss4 + (*ss3!='('?1:0);
-              s1 = s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(s0,s1,depth1,0,block_flags);
+              _cimg_mp_op(*ss3=='0'?"Function 'arg0()'":"Function 'arg1()'");
+              s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+              arg1 = compile(ss5,s1,depth1,0,block_flags);
               _cimg_mp_check_type(arg1,1,1,0);
               s2 = ++s1; while (s2<se1 && (*s2!=',' || level[s2 - expr._data]!=clevel1)) ++s2;
               arg2 = compile(s1,s2,depth1,0,block_flags);
               p2 = size(arg2);
               p3 = 3;
-              CImg<ulongT>::vector((ulongT)(*ss3=='0'?mp_arg0:mp_arg),0,0,p2,arg1,arg2).move_to(l_opcode);
+              CImg<ulongT>::vector((ulongT)(*ss3=='0'?mp_arg0:mp_arg1),0,0,p2,arg1,arg2).move_to(l_opcode);
               for (s = ++s2; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
@@ -25761,11 +25768,11 @@ namespace cimg_library {
         return cimg::acosh(_mp_arg(2));
       }
 
-      static double mp_arg(_cimg_math_parser& mp) {
+      static double mp_arg0(_cimg_math_parser& mp) {
         const int _ind = (int)_mp_arg(4);
         const unsigned int
           nb_args = (unsigned int)mp.opcode[2] - 4,
-          ind = _ind<0?_ind + nb_args:(unsigned int)_ind,
+          ind = _ind<0?_ind + nb_args:_ind + 1U,
           siz = (unsigned int)mp.opcode[3];
         if (siz>0) {
           if (ind>=nb_args) std::memset(&_mp_arg(1) + 1,0,siz*sizeof(double));
@@ -25776,11 +25783,11 @@ namespace cimg_library {
         return _mp_arg(ind + 4);
       }
 
-      static double mp_arg0(_cimg_math_parser& mp) {
+      static double mp_arg1(_cimg_math_parser& mp) {
         const int _ind = (int)_mp_arg(4);
         const unsigned int
           nb_args = (unsigned int)mp.opcode[2] - 4,
-          ind = _ind<0?_ind + nb_args:_ind + 1U,
+          ind = _ind<0?_ind + nb_args:(unsigned int)_ind,
           siz = (unsigned int)mp.opcode[3];
         if (siz>0) {
           if (ind>=nb_args) std::memset(&_mp_arg(1) + 1,0,siz*sizeof(double));

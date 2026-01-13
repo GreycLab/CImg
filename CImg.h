@@ -32558,8 +32558,9 @@ namespace cimg_library {
         throw CImgArgumentException(_cimg_instance
               "invert(): Instance is not a matrix.",
                                     cimg_instance);
-      if (_height>_width) { const CImg<T> At = get_transpose(); return At.get_solve(At*A); }
-      return CImg<T>::identity_matrix(_height).get_solve(*this);
+      if (_height==_width) return CImg<T>::identity_matrix(_height).get_solve(*this); // Square matrix
+      if (_height>_width) { const CImg<T> At = get_transpose(); return At.get_solve(At*(*this)); } // Tall matrix
+      return get_solve((*this)*get_transpose()).transpose(); // Wide matrix
     }
 
     //! Solve a (possibly over- or under-determined) linear system using QR decomposition.

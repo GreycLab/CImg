@@ -32558,10 +32558,7 @@ namespace cimg_library {
         throw CImgArgumentException(_cimg_instance
               "invert(): Instance is not a matrix.",
                                     cimg_instance);
-      if (_height>_width) {
-        const CImg<Tfloat> At = get_transpose();
-        return At.get_solve(At*(*this));
-      }
+      if (_height>_width) return CImg<T>::identity_matrix(_width).get_solve(get_transpose()).transpose();
       return CImg<T>::identity_matrix(_height).get_solve(*this);
     }
 

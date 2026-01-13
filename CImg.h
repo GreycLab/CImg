@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 367
+#define cimg_version 370
 
 /*-----------------------------------------------------------
  #
@@ -18772,7 +18772,7 @@ namespace cimg_library {
                 _cimg_mp_return(arg1);
               }
 
-              if (is_reserved(arg1)) { // Scalar variable: s = scalar
+              if (is_reserved(arg1) && arg1>_cimg_mp_slot_c) { // Scalar variable: s = scalar
                 _cimg_mp_check_type(arg2,2,1,0);
                 CImg<ulongT>::vector((ulongT)mp_copy,arg1,arg2).move_to(code);
                 _cimg_mp_return(arg1);

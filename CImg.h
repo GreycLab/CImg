@@ -6579,7 +6579,7 @@ namespace cimg_library {
     //! Return the sigmoid of a value.
     template<typename T>
     inline T sigmoid(const T& x) {
-      return (T)(1/(1 + std::exp(-(double)x)));
+      return (T)((1 + std::tanh(x/2))/2);
     }
 
     //! Return the logit of a value.
@@ -29246,7 +29246,7 @@ namespace cimg_library {
       static double mp_softargmax(_cimg_math_parser& mp) {
         const unsigned int siz = (unsigned int)mp.opcode[3];
         if (siz<2) return 0;
-        const double temperature = _mp_arg(4), *const ptrs = &_mp_arg(2) + 1;
+        const double *const ptrs = &_mp_arg(2) + 1, temperature = _mp_arg(4);
         CImg<doubleT> sm = CImg<doubleT>(ptrs,siz,1,1,1,true).get_softmax(temperature);
         double res = 0;
         cimg_forX(sm,x) res+=sm[x]*x;
@@ -29256,7 +29256,7 @@ namespace cimg_library {
       static double mp_softargmin(_cimg_math_parser& mp) {
         const unsigned int siz = (unsigned int)mp.opcode[3];
         if (siz<2) return 0;
-        const double temperature = _mp_arg(4), *const ptrs = &_mp_arg(2) + 1;
+        const double *const ptrs = &_mp_arg(2) + 1, temperature = _mp_arg(4);
         CImg<doubleT> sm = CImg<doubleT>(ptrs,siz,1,1,1,true).get_softmin(temperature);
         double res = 0;
         cimg_forX(sm,x) res+=sm[x]*x;
@@ -29266,7 +29266,7 @@ namespace cimg_library {
       static double mp_softmax(_cimg_math_parser& mp) {
         const unsigned int siz = (unsigned int)mp.opcode[3];
         if (!siz) return 1;
-        const double temperature = _mp_arg(4), *const ptrs = &_mp_arg(2) + 1;
+        const double *const ptrs = &_mp_arg(2) + 1, temperature = _mp_arg(4);
         double *const ptrd = &_mp_arg(1) + 1;
         CImg<doubleT>(ptrd,siz,1,1,1,true) = CImg<doubleT>(ptrs,siz,1,1,1,true).get_softmax(temperature);
         return cimg::type<double>::nan();
@@ -29275,7 +29275,7 @@ namespace cimg_library {
       static double mp_softmin(_cimg_math_parser& mp) {
         const unsigned int siz = (unsigned int)mp.opcode[3];
         if (!siz) return 1;
-        const double temperature = _mp_arg(4), *const ptrs = &_mp_arg(2) + 1;
+        const double *const ptrs = &_mp_arg(2) + 1, temperature = _mp_arg(4);
         double *const ptrd = &_mp_arg(1) + 1;
         CImg<doubleT>(ptrd,siz,1,1,1,true) = CImg<doubleT>(ptrs,siz,1,1,1,true).get_softmin(temperature);
         return cimg::type<double>::nan();

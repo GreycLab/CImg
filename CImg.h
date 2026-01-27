@@ -19947,6 +19947,11 @@ namespace cimg_library {
             if (!std::strncmp(ss,"abs(",4)) { // Absolute value
               _cimg_mp_op("Function 'abs()'");
               arg1 = compile(ss4,se1,depth1,0,block_flags);
+              if (code) { // Try to spot cases 'abs(maxabs())' and 'abs(minabs())'.
+                CImg<ulongT> &pop = code.back();
+                if (pop[0]==(ulongT)mp_maxabs) { pop[0] = (ulongT)mp_absmaxabs; _cimg_mp_return(pop[1]); }
+                else if (pop[0]==(ulongT)mp_minabs) { pop[0] = (ulongT)mp_absminabs; _cimg_mp_return(pop[1]); }
+              }
               if (is_vector(arg1)) _cimg_mp_vector1_v(mp_abs,arg1);
               if (is_const_scalar(arg1)) _cimg_mp_const_scalar(cimg::abs(mem[arg1]));
               _cimg_mp_scalar1(mp_abs,arg1);
@@ -25756,6 +25761,14 @@ namespace cimg_library {
         return cimg::abscut(_mp_arg(2),_mp_arg(3),_mp_arg(4),_mp_arg(5));
       }
 
+      static double mp_absmaxabs(_cimg_math_parser& mp) {
+        return _mp_maxabs(mp,true);
+      }
+
+      static double mp_absminabs(_cimg_math_parser& mp) {
+        return _mp_minabs(mp,true);
+      }
+
       static double mp_add(_cimg_math_parser& mp) {
         return _mp_arg(2) + _mp_arg(3);
       }
@@ -28335,7 +28348,7 @@ namespace cimg_library {
         return std::max(_mp_arg(2),_mp_arg(3));
       }
 
-      static double mp_maxabs(_cimg_math_parser& mp) {
+      static double _mp_maxabs(_cimg_math_parser& mp, const bool compute_abs) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
         double val, abs_val, valmaxabs = 0, abs_valmaxabs = 0;
         for (unsigned int i = 3; i<i_end; i+=2) {
@@ -28353,7 +28366,11 @@ namespace cimg_library {
             if (abs_val>abs_valmaxabs) { valmaxabs = val; abs_valmaxabs = abs_val; }
           }
         }
-        return valmaxabs;
+        return compute_abs?std::abs(valmaxabs):valmaxabs;
+      }
+
+      static double mp_maxabs(_cimg_math_parser& mp) {
+        return _mp_maxabs(mp,false);
       }
 
       static double mp_maxabs2(_cimg_math_parser& mp) {
@@ -28521,7 +28538,7 @@ namespace cimg_library {
         return std::min(_mp_arg(2),_mp_arg(3));
       }
 
-      static double mp_minabs(_cimg_math_parser& mp) {
+      static double _mp_minabs(_cimg_math_parser& mp, const bool compute_abs) {
         const unsigned int i_end = (unsigned int)mp.opcode[2];
         double val, abs_val, valminabs = cimg::type<double>::inf(), abs_valminabs = cimg::type<double>::inf();
         for (unsigned int i = 3; i<i_end; i+=2) {
@@ -28539,7 +28556,11 @@ namespace cimg_library {
             if (abs_val<abs_valminabs) { valminabs = val; abs_valminabs = abs_val; }
           }
         }
-        return valminabs;
+        return compute_abs?std::abs(valminabs):valminabs;
+      }
+
+      static double mp_minabs(_cimg_math_parser& mp) {
+        return _mp_minabs(mp,false);
       }
 
       static double mp_minabs2(_cimg_math_parser& mp) {

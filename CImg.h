@@ -24833,8 +24833,10 @@ namespace cimg_library {
       void eval(const CImg<ulongT> *const p_begin, const CImg<ulongT> *const p_end) {
         for (p_code = p_begin; p_code<p_end; ++p_code) {
           opcode._data = p_code->_data;
-          const ulongT target = opcode[1];
-          mem[target] = (*(mp_func)*opcode)(*this);
+          const ulongT
+            op = opcode[0],
+            target = opcode[1];
+          mem[target] = (*(mp_func)op)(*this);
         }
       }
 

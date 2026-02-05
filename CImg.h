@@ -17868,6 +17868,7 @@ namespace cimg_library {
 #define _cimg_mp_check_matrix_square(arg,n_arg) check_matrix_square(arg,n_arg,ss,se,saved_char)
 #define _cimg_mp_check_type(arg,n_arg,mode,N) check_type(arg,n_arg,mode,N,ss,se,saved_char)
 #define _cimg_mp_const_scalar(val) _cimg_mp_return(const_scalar((double)(val)))
+#define _cimg_mp_eval_case(fn) case id_##fn: target = mp_##fn(*this); break
 #define _cimg_mp_op(s) s_op = s; ss_op = ss
 #define _cimg_mp_return(x) { *se = saved_char; s_op = previous_s_op; ss_op = previous_ss_op; return x; }
 #define _cimg_mp_return_nan() _cimg_mp_return(_cimg_mp_slot_nan)
@@ -17970,7 +17971,7 @@ namespace cimg_library {
         id_vkth,id_vmax,id_vmaxabs,id_vmedian,id_vmin,
         id_vminabs,id_vprod,id_vstd,id_vsum,id_vvar,id_warp,
         id_wave,id_while,
-      } _cimg_mp_op;
+      } mp_id;
 
       // Constructors / Destructors.
       ~_cimg_math_parser() {
@@ -18171,7 +18172,7 @@ namespace cimg_library {
           *s, *ps, *ns, *s0, *s1, *s2, *s3, sep = 0, end = 0;
         double val = 0, val1, val2, val3;
         mp_func fop;
-        _cimg_mp_op iop;
+        mp_id iop;
 
         return_comp = false;
 
@@ -24936,350 +24937,117 @@ namespace cimg_library {
 
       // Evaluate a portion of the compiled expression.
       void eval(const CImg<ulongT> *const p_begin, const CImg<ulongT> *const p_end) {
-#define _cimg_mp_eval_case(fn) case id_##fn: target = mp_##fn(*this); break
-
         for (p_code = p_begin; p_code<p_end; ++p_code) {
           opcode._data = p_code->_data;
-          const _cimg_mp_op iop = (_cimg_mp_op)opcode[0];
+          const mp_id iop = (mp_id)opcode[0];
           double& target = mem[opcode[1]];
           switch (iop) {
-            _cimg_mp_eval_case(abs);
-            _cimg_mp_eval_case(abscut);
-            _cimg_mp_eval_case(absmaxabs);
-            _cimg_mp_eval_case(absminabs);
-            _cimg_mp_eval_case(acos);
-            _cimg_mp_eval_case(acosh);
-            _cimg_mp_eval_case(add);
-            _cimg_mp_eval_case(arg0);
-            _cimg_mp_eval_case(arg1);
-            _cimg_mp_eval_case(argkth);
-            _cimg_mp_eval_case(argmax);
-            _cimg_mp_eval_case(argmax2);
-            _cimg_mp_eval_case(argmaxabs);
-            _cimg_mp_eval_case(argmaxabs2);
-            _cimg_mp_eval_case(argmin);
-            _cimg_mp_eval_case(argmin2);
-            _cimg_mp_eval_case(argminabs);
-            _cimg_mp_eval_case(argminabs2);
-            _cimg_mp_eval_case(asin);
-            _cimg_mp_eval_case(asinh);
-            _cimg_mp_eval_case(atan);
-            _cimg_mp_eval_case(atan2);
-            _cimg_mp_eval_case(atanh);
-            _cimg_mp_eval_case(avg);
-            _cimg_mp_eval_case(avg2);
-            _cimg_mp_eval_case(bitwise_and);
-            _cimg_mp_eval_case(bitwise_left_shift);
-            _cimg_mp_eval_case(bitwise_not);
-            _cimg_mp_eval_case(bitwise_or);
-            _cimg_mp_eval_case(bitwise_right_shift);
-            _cimg_mp_eval_case(bitwise_xor);
-            _cimg_mp_eval_case(bool);
-            _cimg_mp_eval_case(break);
-            _cimg_mp_eval_case(breakpoint);
-            _cimg_mp_eval_case(c2o);
-            _cimg_mp_eval_case(cbrt);
-            _cimg_mp_eval_case(ceil);
-            _cimg_mp_eval_case(complex_abs);
-            _cimg_mp_eval_case(complex_conj);
-            _cimg_mp_eval_case(complex_cos);
-            _cimg_mp_eval_case(complex_cosh);
-            _cimg_mp_eval_case(complex_div_sv);
-            _cimg_mp_eval_case(complex_div_vv);
-            _cimg_mp_eval_case(complex_exp);
-            _cimg_mp_eval_case(complex_log);
-            _cimg_mp_eval_case(complex_mul);
-            _cimg_mp_eval_case(complex_one);
-            _cimg_mp_eval_case(complex_pow_ss);
-            _cimg_mp_eval_case(complex_pow_sv);
-            _cimg_mp_eval_case(complex_pow_vs);
-            _cimg_mp_eval_case(complex_pow_vv);
-            _cimg_mp_eval_case(complex_sin);
-            _cimg_mp_eval_case(complex_sinh);
-            _cimg_mp_eval_case(complex_sqr);
-            _cimg_mp_eval_case(complex_sqrt);
-            _cimg_mp_eval_case(complex_tan);
-            _cimg_mp_eval_case(complex_tanh);
-            _cimg_mp_eval_case(continue);
-            _cimg_mp_eval_case(convolve);
-            _cimg_mp_eval_case(copy);
-            _cimg_mp_eval_case(correlate);
-            _cimg_mp_eval_case(cos);
-            _cimg_mp_eval_case(cosh);
-            _cimg_mp_eval_case(cov);
-            _cimg_mp_eval_case(critical);
-            _cimg_mp_eval_case(cross);
-            _cimg_mp_eval_case(cumulate);
-            _cimg_mp_eval_case(cut);
-            _cimg_mp_eval_case(da_back_or_pop);
-            _cimg_mp_eval_case(da_freeze);
-            _cimg_mp_eval_case(da_insert_or_push);
-            _cimg_mp_eval_case(da_remove);
-            _cimg_mp_eval_case(da_size);
-            _cimg_mp_eval_case(date);
-            _cimg_mp_eval_case(debug);
-            _cimg_mp_eval_case(decrement);
-            _cimg_mp_eval_case(deg2rad);
-            _cimg_mp_eval_case(det);
-            _cimg_mp_eval_case(diag);
-            _cimg_mp_eval_case(div);
-            _cimg_mp_eval_case(do);
-            _cimg_mp_eval_case(dot);
-            _cimg_mp_eval_case(echo);
-            _cimg_mp_eval_case(ellipse);
-            _cimg_mp_eval_case(epoch);
-            _cimg_mp_eval_case(eq);
-            _cimg_mp_eval_case(equalize);
-            _cimg_mp_eval_case(erf);
-            _cimg_mp_eval_case(erfinv);
-            _cimg_mp_eval_case(exp);
-            _cimg_mp_eval_case(expr);
-            _cimg_mp_eval_case(eye);
-            _cimg_mp_eval_case(f2ui);
-            _cimg_mp_eval_case(factorial);
-            _cimg_mp_eval_case(fft);
-            _cimg_mp_eval_case(fibonacci);
-            _cimg_mp_eval_case(find);
-            _cimg_mp_eval_case(find_seq);
-            _cimg_mp_eval_case(flood);
-            _cimg_mp_eval_case(floor);
-            _cimg_mp_eval_case(for);
-            _cimg_mp_eval_case(frac);
-            _cimg_mp_eval_case(fsize);
-            _cimg_mp_eval_case(gamma);
-            _cimg_mp_eval_case(gauss);
-            _cimg_mp_eval_case(gcd);
-            _cimg_mp_eval_case(gcd2);
-            _cimg_mp_eval_case(gt);
-            _cimg_mp_eval_case(gte);
-            _cimg_mp_eval_case(histogram);
-            _cimg_mp_eval_case(I);
-            _cimg_mp_eval_case(i);
-            _cimg_mp_eval_case(if);
-            _cimg_mp_eval_case(IJoff);
-            _cimg_mp_eval_case(ijoff);
-            _cimg_mp_eval_case(IJxyz1);
-            _cimg_mp_eval_case(IJxyz2);
-            _cimg_mp_eval_case(IJxyz3);
-            _cimg_mp_eval_case(ijxyzc1);
-            _cimg_mp_eval_case(ijxyzc2);
-            _cimg_mp_eval_case(ijxyzc3);
-            _cimg_mp_eval_case(image_crop);
-            _cimg_mp_eval_case(image_depth);
-            _cimg_mp_eval_case(image_display);
-            _cimg_mp_eval_case(image_draw);
-            _cimg_mp_eval_case(image_find);
-            _cimg_mp_eval_case(image_find_seq);
-            _cimg_mp_eval_case(image_height);
-            _cimg_mp_eval_case(image_is_shared);
-            _cimg_mp_eval_case(image_median);
-            _cimg_mp_eval_case(image_median_static);
-            _cimg_mp_eval_case(image_norm);
-            _cimg_mp_eval_case(image_norm_static);
-            _cimg_mp_eval_case(image_print);
-            _cimg_mp_eval_case(image_resize);
-            _cimg_mp_eval_case(image_shift);
-            _cimg_mp_eval_case(image_sort);
-            _cimg_mp_eval_case(image_spectrum);
-            _cimg_mp_eval_case(image_stats);
-            _cimg_mp_eval_case(image_stats_static);
-            _cimg_mp_eval_case(image_std_static);
-            _cimg_mp_eval_case(image_swap);
-            _cimg_mp_eval_case(image_wh);
-            _cimg_mp_eval_case(image_whd);
-            _cimg_mp_eval_case(image_whds);
-            _cimg_mp_eval_case(image_width);
-            _cimg_mp_eval_case(increment);
-            _cimg_mp_eval_case(index);
-            _cimg_mp_eval_case(indexof);
-            _cimg_mp_eval_case(inrange);
-            _cimg_mp_eval_case(int);
-            _cimg_mp_eval_case(isbool);
-            _cimg_mp_eval_case(isdir);
-            _cimg_mp_eval_case(isfile);
-            _cimg_mp_eval_case(isfinite);
-            _cimg_mp_eval_case(isin);
-            _cimg_mp_eval_case(isinf);
-            _cimg_mp_eval_case(isint);
-            _cimg_mp_eval_case(isnan);
-            _cimg_mp_eval_case(isvarname);
-            _cimg_mp_eval_case(kth);
-            _cimg_mp_eval_case(lcm);
-            _cimg_mp_eval_case(lcm2);
-            _cimg_mp_eval_case(lerp);
-            _cimg_mp_eval_case(linear_add);
-            _cimg_mp_eval_case(linear_sub_left);
-            _cimg_mp_eval_case(linear_sub_right);
-            _cimg_mp_eval_case(log);
-            _cimg_mp_eval_case(log10);
-            _cimg_mp_eval_case(log2);
-            _cimg_mp_eval_case(logical_and);
-            _cimg_mp_eval_case(logical_not);
-            _cimg_mp_eval_case(logical_or);
-            _cimg_mp_eval_case(logit);
-            _cimg_mp_eval_case(lowercase);
-            _cimg_mp_eval_case(lt);
-            _cimg_mp_eval_case(lte);
-            _cimg_mp_eval_case(map);
-            _cimg_mp_eval_case(matrix_eigen);
-            _cimg_mp_eval_case(matrix_invert);
-            _cimg_mp_eval_case(matrix_mul);
-            _cimg_mp_eval_case(matrix_qr);
-            _cimg_mp_eval_case(matrix_svd);
-            _cimg_mp_eval_case(max);
-            _cimg_mp_eval_case(max2);
-            _cimg_mp_eval_case(maxabs);
-            _cimg_mp_eval_case(maxabs2);
-            _cimg_mp_eval_case(med);
-            _cimg_mp_eval_case(med2);
-            _cimg_mp_eval_case(mem_copy);
-            _cimg_mp_eval_case(mem_display);
-            _cimg_mp_eval_case(min);
-            _cimg_mp_eval_case(min2);
-            _cimg_mp_eval_case(minabs);
-            _cimg_mp_eval_case(minabs2);
-            _cimg_mp_eval_case(minus);
-            _cimg_mp_eval_case(mirror);
-            _cimg_mp_eval_case(modulo);
-            _cimg_mp_eval_case(mproj);
-            _cimg_mp_eval_case(mse);
-            _cimg_mp_eval_case(mul);
-            _cimg_mp_eval_case(mul2);
-            _cimg_mp_eval_case(neq);
-            _cimg_mp_eval_case(noise);
-            _cimg_mp_eval_case(normalize);
-            _cimg_mp_eval_case(normp);
-            _cimg_mp_eval_case(o2c);
-            _cimg_mp_eval_case(permutations);
-            _cimg_mp_eval_case(permute);
-            _cimg_mp_eval_case(polygon);
-            _cimg_mp_eval_case(pow);
-            _cimg_mp_eval_case(pow0_25);
-            _cimg_mp_eval_case(pow3);
-            _cimg_mp_eval_case(pow4);
-            _cimg_mp_eval_case(print);
-            _cimg_mp_eval_case(prod);
-            _cimg_mp_eval_case(prod2);
-            _cimg_mp_eval_case(rad2deg);
-            _cimg_mp_eval_case(rand_double);
-            _cimg_mp_eval_case(rand_double_0_1);
-            _cimg_mp_eval_case(rand_double_0_N);
-            _cimg_mp_eval_case(rand_double_ext);
-            _cimg_mp_eval_case(rand_double_gaussian);
-            _cimg_mp_eval_case(rand_double_m1_1);
-            _cimg_mp_eval_case(rand_int);
-            _cimg_mp_eval_case(rand_int_0_1);
-            _cimg_mp_eval_case(rand_int_0_N);
-            _cimg_mp_eval_case(rand_int_ext);
-            _cimg_mp_eval_case(rand_int_m1_1);
-            _cimg_mp_eval_case(repeat);
-            _cimg_mp_eval_case(reverse);
-            _cimg_mp_eval_case(rol);
-            _cimg_mp_eval_case(ror);
-            _cimg_mp_eval_case(rot2d);
-            _cimg_mp_eval_case(rot3d);
-            _cimg_mp_eval_case(round);
-            _cimg_mp_eval_case(s2v);
-            _cimg_mp_eval_case(self_add);
-            _cimg_mp_eval_case(self_bitwise_and);
-            _cimg_mp_eval_case(self_bitwise_left_shift);
-            _cimg_mp_eval_case(self_bitwise_or);
-            _cimg_mp_eval_case(self_bitwise_right_shift);
-            _cimg_mp_eval_case(self_decrement);
-            _cimg_mp_eval_case(self_div);
-            _cimg_mp_eval_case(self_increment);
-            _cimg_mp_eval_case(self_map_vector_s);
-            _cimg_mp_eval_case(self_map_vector_v);
-            _cimg_mp_eval_case(self_modulo);
-            _cimg_mp_eval_case(self_mul);
-            _cimg_mp_eval_case(self_pow);
-            _cimg_mp_eval_case(self_sub);
-            _cimg_mp_eval_case(set_ijoff);
-            _cimg_mp_eval_case(set_IJoff_s);
-            _cimg_mp_eval_case(set_IJoff_v);
-            _cimg_mp_eval_case(set_IJxyz_s);
-            _cimg_mp_eval_case(set_IJxyz_v);
-            _cimg_mp_eval_case(set_ijxyzc);
-            _cimg_mp_eval_case(sigmoid);
-            _cimg_mp_eval_case(sign);
-            _cimg_mp_eval_case(sin);
-            _cimg_mp_eval_case(sinc);
-            _cimg_mp_eval_case(sinh);
-            _cimg_mp_eval_case(size_list);
-            _cimg_mp_eval_case(softargmax);
-            _cimg_mp_eval_case(softargmin);
-            _cimg_mp_eval_case(softmax);
-            _cimg_mp_eval_case(softmin);
-            _cimg_mp_eval_case(solve);
-            _cimg_mp_eval_case(sort);
-            _cimg_mp_eval_case(sqr);
-            _cimg_mp_eval_case(sqrt);
-            _cimg_mp_eval_case(srand);
-            _cimg_mp_eval_case(srand0);
-            _cimg_mp_eval_case(std);
-            _cimg_mp_eval_case(std2);
-            _cimg_mp_eval_case(string);
-            _cimg_mp_eval_case(string_init);
-            _cimg_mp_eval_case(sub);
-            _cimg_mp_eval_case(sum);
-            _cimg_mp_eval_case(sum2);
-            _cimg_mp_eval_case(swap);
-            _cimg_mp_eval_case(tan);
-            _cimg_mp_eval_case(tanh);
-            _cimg_mp_eval_case(trace);
-            _cimg_mp_eval_case(transpose);
-            _cimg_mp_eval_case(ui2f);
-            _cimg_mp_eval_case(unitnorm);
-            _cimg_mp_eval_case(uppercase);
-            _cimg_mp_eval_case(v2s);
-            _cimg_mp_eval_case(var);
-            _cimg_mp_eval_case(var2);
-            _cimg_mp_eval_case(vargkth);
-            _cimg_mp_eval_case(vargmax);
-            _cimg_mp_eval_case(vargmaxabs);
-            _cimg_mp_eval_case(vargmin);
-            _cimg_mp_eval_case(vargminabs);
-            _cimg_mp_eval_case(vavg);
-            _cimg_mp_eval_case(vector_copy);
-            _cimg_mp_eval_case(vector_crop);
-            _cimg_mp_eval_case(vector_crop_ext);
-            _cimg_mp_eval_case(vector_display);
-            _cimg_mp_eval_case(vector_draw);
-            _cimg_mp_eval_case(vector_eq);
-            _cimg_mp_eval_case(vector_fill);
-            _cimg_mp_eval_case(vector_fill_ext);
-            _cimg_mp_eval_case(vector_hypot);
-            _cimg_mp_eval_case(vector_init);
-            _cimg_mp_eval_case(vector_lerp);
-            _cimg_mp_eval_case(vector_map_sv);
-            _cimg_mp_eval_case(vector_map_v);
-            _cimg_mp_eval_case(vector_map_vv);
-            _cimg_mp_eval_case(vector_neq);
-            _cimg_mp_eval_case(vector_norm0);
-            _cimg_mp_eval_case(vector_norm1);
-            _cimg_mp_eval_case(vector_norm2);
-            _cimg_mp_eval_case(vector_norminf);
-            _cimg_mp_eval_case(vector_off);
-            _cimg_mp_eval_case(vector_print);
-            _cimg_mp_eval_case(vector_rand);
-            _cimg_mp_eval_case(vector_resize);
-            _cimg_mp_eval_case(vector_resize_ext);
-            _cimg_mp_eval_case(vector_set_off);
-            _cimg_mp_eval_case(vector_shift);
-            _cimg_mp_eval_case(vector_stats);
-            _cimg_mp_eval_case(vkth);
-            _cimg_mp_eval_case(vmax);
-            _cimg_mp_eval_case(vmaxabs);
-            _cimg_mp_eval_case(vmedian);
-            _cimg_mp_eval_case(vmin);
-            _cimg_mp_eval_case(vminabs);
-            _cimg_mp_eval_case(vprod);
-            _cimg_mp_eval_case(vstd);
-            _cimg_mp_eval_case(vsum);
-            _cimg_mp_eval_case(vvar);
-            _cimg_mp_eval_case(warp);
-            _cimg_mp_eval_case(wave);
-            _cimg_mp_eval_case(while);
+            _cimg_mp_eval_case(abs); _cimg_mp_eval_case(abscut); _cimg_mp_eval_case(absmaxabs);
+            _cimg_mp_eval_case(absminabs); _cimg_mp_eval_case(acos); _cimg_mp_eval_case(acosh);
+            _cimg_mp_eval_case(add); _cimg_mp_eval_case(arg0); _cimg_mp_eval_case(arg1);
+            _cimg_mp_eval_case(argkth); _cimg_mp_eval_case(argmax); _cimg_mp_eval_case(argmax2);
+            _cimg_mp_eval_case(argmaxabs); _cimg_mp_eval_case(argmaxabs2); _cimg_mp_eval_case(argmin);
+            _cimg_mp_eval_case(argmin2); _cimg_mp_eval_case(argminabs); _cimg_mp_eval_case(argminabs2);
+            _cimg_mp_eval_case(asin); _cimg_mp_eval_case(asinh); _cimg_mp_eval_case(atan); _cimg_mp_eval_case(atan2);
+            _cimg_mp_eval_case(atanh); _cimg_mp_eval_case(avg); _cimg_mp_eval_case(avg2);
+            _cimg_mp_eval_case(bitwise_and); _cimg_mp_eval_case(bitwise_left_shift); _cimg_mp_eval_case(bitwise_not);
+            _cimg_mp_eval_case(bitwise_or); _cimg_mp_eval_case(bitwise_right_shift); _cimg_mp_eval_case(bitwise_xor);
+            _cimg_mp_eval_case(bool); _cimg_mp_eval_case(break); _cimg_mp_eval_case(breakpoint);
+            _cimg_mp_eval_case(c2o); _cimg_mp_eval_case(cbrt); _cimg_mp_eval_case(ceil);
+            _cimg_mp_eval_case(complex_abs); _cimg_mp_eval_case(complex_conj); _cimg_mp_eval_case(complex_cos);
+            _cimg_mp_eval_case(complex_cosh); _cimg_mp_eval_case(complex_div_sv); _cimg_mp_eval_case(complex_div_vv);
+            _cimg_mp_eval_case(complex_exp); _cimg_mp_eval_case(complex_log); _cimg_mp_eval_case(complex_mul);
+            _cimg_mp_eval_case(complex_one); _cimg_mp_eval_case(complex_pow_ss); _cimg_mp_eval_case(complex_pow_sv);
+            _cimg_mp_eval_case(complex_pow_vs); _cimg_mp_eval_case(complex_pow_vv); _cimg_mp_eval_case(complex_sin);
+            _cimg_mp_eval_case(complex_sinh); _cimg_mp_eval_case(complex_sqr); _cimg_mp_eval_case(complex_sqrt);
+            _cimg_mp_eval_case(complex_tan); _cimg_mp_eval_case(complex_tanh); _cimg_mp_eval_case(continue);
+            _cimg_mp_eval_case(convolve); _cimg_mp_eval_case(copy); _cimg_mp_eval_case(correlate);
+            _cimg_mp_eval_case(cos); _cimg_mp_eval_case(cosh); _cimg_mp_eval_case(cov); _cimg_mp_eval_case(critical);
+            _cimg_mp_eval_case(cross); _cimg_mp_eval_case(cumulate); _cimg_mp_eval_case(cut);
+            _cimg_mp_eval_case(da_back_or_pop); _cimg_mp_eval_case(da_freeze); _cimg_mp_eval_case(da_insert_or_push);
+            _cimg_mp_eval_case(da_remove); _cimg_mp_eval_case(da_size); _cimg_mp_eval_case(date);
+            _cimg_mp_eval_case(debug); _cimg_mp_eval_case(decrement); _cimg_mp_eval_case(deg2rad);
+            _cimg_mp_eval_case(det); _cimg_mp_eval_case(diag); _cimg_mp_eval_case(div); _cimg_mp_eval_case(do);
+            _cimg_mp_eval_case(dot); _cimg_mp_eval_case(echo); _cimg_mp_eval_case(ellipse); _cimg_mp_eval_case(epoch);
+            _cimg_mp_eval_case(eq); _cimg_mp_eval_case(equalize); _cimg_mp_eval_case(erf); _cimg_mp_eval_case(erfinv);
+            _cimg_mp_eval_case(exp); _cimg_mp_eval_case(expr); _cimg_mp_eval_case(eye); _cimg_mp_eval_case(f2ui);
+            _cimg_mp_eval_case(factorial); _cimg_mp_eval_case(fft); _cimg_mp_eval_case(fibonacci);
+            _cimg_mp_eval_case(find); _cimg_mp_eval_case(find_seq); _cimg_mp_eval_case(flood);
+            _cimg_mp_eval_case(floor); _cimg_mp_eval_case(for); _cimg_mp_eval_case(frac); _cimg_mp_eval_case(fsize);
+            _cimg_mp_eval_case(gamma); _cimg_mp_eval_case(gauss); _cimg_mp_eval_case(gcd); _cimg_mp_eval_case(gcd2);
+            _cimg_mp_eval_case(gt); _cimg_mp_eval_case(gte); _cimg_mp_eval_case(histogram); _cimg_mp_eval_case(I);
+            _cimg_mp_eval_case(i); _cimg_mp_eval_case(if); _cimg_mp_eval_case(IJoff); _cimg_mp_eval_case(ijoff);
+            _cimg_mp_eval_case(IJxyz1); _cimg_mp_eval_case(IJxyz2); _cimg_mp_eval_case(IJxyz3);
+            _cimg_mp_eval_case(ijxyzc1); _cimg_mp_eval_case(ijxyzc2); _cimg_mp_eval_case(ijxyzc3);
+            _cimg_mp_eval_case(image_crop); _cimg_mp_eval_case(image_depth); _cimg_mp_eval_case(image_display);
+            _cimg_mp_eval_case(image_draw); _cimg_mp_eval_case(image_find); _cimg_mp_eval_case(image_find_seq);
+            _cimg_mp_eval_case(image_height); _cimg_mp_eval_case(image_is_shared); _cimg_mp_eval_case(image_median);
+            _cimg_mp_eval_case(image_median_static); _cimg_mp_eval_case(image_norm);
+            _cimg_mp_eval_case(image_norm_static); _cimg_mp_eval_case(image_print); _cimg_mp_eval_case(image_resize);
+            _cimg_mp_eval_case(image_shift); _cimg_mp_eval_case(image_sort); _cimg_mp_eval_case(image_spectrum);
+            _cimg_mp_eval_case(image_stats); _cimg_mp_eval_case(image_stats_static);
+            _cimg_mp_eval_case(image_std_static); _cimg_mp_eval_case(image_swap); _cimg_mp_eval_case(image_wh);
+            _cimg_mp_eval_case(image_whd); _cimg_mp_eval_case(image_whds); _cimg_mp_eval_case(image_width);
+            _cimg_mp_eval_case(increment); _cimg_mp_eval_case(index); _cimg_mp_eval_case(indexof);
+            _cimg_mp_eval_case(inrange); _cimg_mp_eval_case(int); _cimg_mp_eval_case(isbool); _cimg_mp_eval_case(isdir);
+            _cimg_mp_eval_case(isfile); _cimg_mp_eval_case(isfinite); _cimg_mp_eval_case(isin);
+            _cimg_mp_eval_case(isinf); _cimg_mp_eval_case(isint); _cimg_mp_eval_case(isnan);
+            _cimg_mp_eval_case(isvarname); _cimg_mp_eval_case(kth); _cimg_mp_eval_case(lcm); _cimg_mp_eval_case(lcm2);
+            _cimg_mp_eval_case(lerp); _cimg_mp_eval_case(linear_add); _cimg_mp_eval_case(linear_sub_left);
+            _cimg_mp_eval_case(linear_sub_right); _cimg_mp_eval_case(log); _cimg_mp_eval_case(log10);
+            _cimg_mp_eval_case(log2); _cimg_mp_eval_case(logical_and); _cimg_mp_eval_case(logical_not);
+            _cimg_mp_eval_case(logical_or); _cimg_mp_eval_case(logit); _cimg_mp_eval_case(lowercase);
+            _cimg_mp_eval_case(lt); _cimg_mp_eval_case(lte); _cimg_mp_eval_case(map); _cimg_mp_eval_case(matrix_eigen);
+            _cimg_mp_eval_case(matrix_invert); _cimg_mp_eval_case(matrix_mul); _cimg_mp_eval_case(matrix_qr);
+            _cimg_mp_eval_case(matrix_svd); _cimg_mp_eval_case(max); _cimg_mp_eval_case(max2);
+            _cimg_mp_eval_case(maxabs); _cimg_mp_eval_case(maxabs2); _cimg_mp_eval_case(med); _cimg_mp_eval_case(med2);
+            _cimg_mp_eval_case(mem_copy); _cimg_mp_eval_case(mem_display); _cimg_mp_eval_case(min);
+            _cimg_mp_eval_case(min2); _cimg_mp_eval_case(minabs); _cimg_mp_eval_case(minabs2);
+            _cimg_mp_eval_case(minus); _cimg_mp_eval_case(mirror); _cimg_mp_eval_case(modulo);
+            _cimg_mp_eval_case(mproj); _cimg_mp_eval_case(mse); _cimg_mp_eval_case(mul); _cimg_mp_eval_case(mul2);
+            _cimg_mp_eval_case(neq); _cimg_mp_eval_case(noise); _cimg_mp_eval_case(normalize);
+            _cimg_mp_eval_case(normp); _cimg_mp_eval_case(o2c); _cimg_mp_eval_case(permutations);
+            _cimg_mp_eval_case(permute); _cimg_mp_eval_case(polygon); _cimg_mp_eval_case(pow);
+            _cimg_mp_eval_case(pow0_25); _cimg_mp_eval_case(pow3); _cimg_mp_eval_case(pow4); _cimg_mp_eval_case(print);
+            _cimg_mp_eval_case(prod); _cimg_mp_eval_case(prod2); _cimg_mp_eval_case(rad2deg);
+            _cimg_mp_eval_case(rand_double); _cimg_mp_eval_case(rand_double_0_1); _cimg_mp_eval_case(rand_double_0_N);
+            _cimg_mp_eval_case(rand_double_ext); _cimg_mp_eval_case(rand_double_gaussian);
+            _cimg_mp_eval_case(rand_double_m1_1); _cimg_mp_eval_case(rand_int); _cimg_mp_eval_case(rand_int_0_1);
+            _cimg_mp_eval_case(rand_int_0_N); _cimg_mp_eval_case(rand_int_ext); _cimg_mp_eval_case(rand_int_m1_1);
+            _cimg_mp_eval_case(repeat); _cimg_mp_eval_case(reverse);_cimg_mp_eval_case(rol); _cimg_mp_eval_case(ror);
+            _cimg_mp_eval_case(rot2d); _cimg_mp_eval_case(rot3d); _cimg_mp_eval_case(round); _cimg_mp_eval_case(s2v);
+            _cimg_mp_eval_case(self_add); _cimg_mp_eval_case(self_bitwise_and);
+            _cimg_mp_eval_case(self_bitwise_left_shift); _cimg_mp_eval_case(self_bitwise_or);
+            _cimg_mp_eval_case(self_bitwise_right_shift); _cimg_mp_eval_case(self_decrement);
+            _cimg_mp_eval_case(self_div); _cimg_mp_eval_case(self_increment); _cimg_mp_eval_case(self_map_vector_s);
+            _cimg_mp_eval_case(self_map_vector_v); _cimg_mp_eval_case(self_modulo); _cimg_mp_eval_case(self_mul);
+            _cimg_mp_eval_case(self_pow); _cimg_mp_eval_case(self_sub); _cimg_mp_eval_case(set_ijoff);
+            _cimg_mp_eval_case(set_IJoff_s); _cimg_mp_eval_case(set_IJoff_v); _cimg_mp_eval_case(set_IJxyz_s);
+            _cimg_mp_eval_case(set_IJxyz_v); _cimg_mp_eval_case(set_ijxyzc); _cimg_mp_eval_case(sigmoid);
+            _cimg_mp_eval_case(sign); _cimg_mp_eval_case(sin); _cimg_mp_eval_case(sinc); _cimg_mp_eval_case(sinh);
+            _cimg_mp_eval_case(size_list); _cimg_mp_eval_case(softargmax); _cimg_mp_eval_case(softargmin);
+            _cimg_mp_eval_case(softmax); _cimg_mp_eval_case(softmin); _cimg_mp_eval_case(solve);
+            _cimg_mp_eval_case(sort); _cimg_mp_eval_case(sqr); _cimg_mp_eval_case(sqrt); _cimg_mp_eval_case(srand);
+            _cimg_mp_eval_case(srand0); _cimg_mp_eval_case(std); _cimg_mp_eval_case(std2); _cimg_mp_eval_case(string);
+            _cimg_mp_eval_case(string_init); _cimg_mp_eval_case(sub); _cimg_mp_eval_case(sum); _cimg_mp_eval_case(sum2);
+            _cimg_mp_eval_case(swap); _cimg_mp_eval_case(tan); _cimg_mp_eval_case(tanh); _cimg_mp_eval_case(trace);
+            _cimg_mp_eval_case(transpose); _cimg_mp_eval_case(ui2f); _cimg_mp_eval_case(unitnorm);
+            _cimg_mp_eval_case(uppercase); _cimg_mp_eval_case(v2s); _cimg_mp_eval_case(var); _cimg_mp_eval_case(var2);
+            _cimg_mp_eval_case(vargkth); _cimg_mp_eval_case(vargmax); _cimg_mp_eval_case(vargmaxabs);
+            _cimg_mp_eval_case(vargmin); _cimg_mp_eval_case(vargminabs); _cimg_mp_eval_case(vavg);
+            _cimg_mp_eval_case(vector_copy); _cimg_mp_eval_case(vector_crop); _cimg_mp_eval_case(vector_crop_ext);
+            _cimg_mp_eval_case(vector_display); _cimg_mp_eval_case(vector_draw); _cimg_mp_eval_case(vector_eq);
+            _cimg_mp_eval_case(vector_fill); _cimg_mp_eval_case(vector_fill_ext); _cimg_mp_eval_case(vector_hypot);
+            _cimg_mp_eval_case(vector_init); _cimg_mp_eval_case(vector_lerp); _cimg_mp_eval_case(vector_map_sv);
+            _cimg_mp_eval_case(vector_map_v); _cimg_mp_eval_case(vector_map_vv); _cimg_mp_eval_case(vector_neq);
+            _cimg_mp_eval_case(vector_norm0); _cimg_mp_eval_case(vector_norm1); _cimg_mp_eval_case(vector_norm2);
+            _cimg_mp_eval_case(vector_norminf); _cimg_mp_eval_case(vector_off); _cimg_mp_eval_case(vector_print);
+            _cimg_mp_eval_case(vector_rand); _cimg_mp_eval_case(vector_resize); _cimg_mp_eval_case(vector_resize_ext);
+            _cimg_mp_eval_case(vector_set_off); _cimg_mp_eval_case(vector_shift); _cimg_mp_eval_case(vector_stats);
+            _cimg_mp_eval_case(vkth); _cimg_mp_eval_case(vmax); _cimg_mp_eval_case(vmaxabs);
+            _cimg_mp_eval_case(vmedian); _cimg_mp_eval_case(vmin); _cimg_mp_eval_case(vminabs);
+            _cimg_mp_eval_case(vprod); _cimg_mp_eval_case(vstd); _cimg_mp_eval_case(vsum); _cimg_mp_eval_case(vvar);
+            _cimg_mp_eval_case(warp); _cimg_mp_eval_case(wave); _cimg_mp_eval_case(while);
 #ifdef cimg_mp_func_abort
             _cimg_mp_eval_case(abort);
 #endif
@@ -25930,14 +25698,15 @@ namespace cimg_library {
         while (siz-->0) *(ptr++) = -1;
       }
 
-      unsigned int scalar0(const _cimg_mp_op iop) {
+      unsigned int scalar0(const mp_id iop) {
         const unsigned int pos = scalar();
         CImg<ulongT>::vector((ulongT)iop,pos).move_to(code);
         return_comp = true;
         return pos;
       }
 
-      unsigned int scalar1(const _cimg_mp_op iop, const unsigned int arg1) {
+      unsigned int scalar1(const mp_id iop,
+                           const unsigned int arg1) {
         const unsigned int pos =
           arg1!=~0U && arg1>_cimg_mp_slot_c && is_comp_scalar(arg1) && iop!=id_copy?arg1:
           ((return_comp = true), scalar());
@@ -25945,7 +25714,8 @@ namespace cimg_library {
         return pos;
       }
 
-      unsigned int scalar2(const _cimg_mp_op iop, const unsigned int arg1, const unsigned int arg2) {
+      unsigned int scalar2(const mp_id iop,
+                           const unsigned int arg1, const unsigned int arg2) {
         const unsigned int pos =
           arg1!=~0U && arg1>_cimg_mp_slot_c && is_comp_scalar(arg1)?arg1:
           arg2!=~0U && arg2>_cimg_mp_slot_c && is_comp_scalar(arg2)?arg2:
@@ -25954,7 +25724,7 @@ namespace cimg_library {
         return pos;
       }
 
-      unsigned int scalar3(const _cimg_mp_op iop,
+      unsigned int scalar3(const mp_id iop,
                            const unsigned int arg1, const unsigned int arg2, const unsigned int arg3) {
         const unsigned int pos =
           arg1!=~0U && arg1>_cimg_mp_slot_c && is_comp_scalar(arg1)?arg1:
@@ -25965,7 +25735,7 @@ namespace cimg_library {
         return pos;
       }
 
-      unsigned int scalar4(const _cimg_mp_op iop,
+      unsigned int scalar4(const mp_id iop,
                            const unsigned int arg1, const unsigned int arg2, const unsigned int arg3,
                            const unsigned int arg4) {
         const unsigned int pos =
@@ -25978,7 +25748,7 @@ namespace cimg_library {
         return pos;
       }
 
-      unsigned int scalar5(const _cimg_mp_op iop,
+      unsigned int scalar5(const mp_id iop,
                            const unsigned int arg1, const unsigned int arg2, const unsigned int arg3,
                            const unsigned int arg4, const unsigned int arg5) {
         const unsigned int pos =
@@ -25992,7 +25762,7 @@ namespace cimg_library {
         return pos;
       }
 
-      unsigned int scalar6(const _cimg_mp_op iop,
+      unsigned int scalar6(const mp_id iop,
                            const unsigned int arg1, const unsigned int arg2, const unsigned int arg3,
                            const unsigned int arg4, const unsigned int arg5, const unsigned int arg6) {
         const unsigned int pos =
@@ -26007,7 +25777,7 @@ namespace cimg_library {
         return pos;
       }
 
-      unsigned int scalar7(const _cimg_mp_op iop,
+      unsigned int scalar7(const mp_id iop,
                            const unsigned int arg1, const unsigned int arg2, const unsigned int arg3,
                            const unsigned int arg4, const unsigned int arg5, const unsigned int arg6,
                            const unsigned int arg7) {
@@ -26024,7 +25794,7 @@ namespace cimg_library {
         return pos;
       }
 
-      unsigned int scalar8(const _cimg_mp_op iop,
+      unsigned int scalar8(const mp_id iop,
                            const unsigned int arg1, const unsigned int arg2, const unsigned int arg3,
                            const unsigned int arg4, const unsigned int arg5, const unsigned int arg6,
                            const unsigned int arg7, const unsigned int arg8) {
@@ -26042,7 +25812,7 @@ namespace cimg_library {
         return pos;
       }
 
-      void self_vector_s(const unsigned int pos, const _cimg_mp_op iop, const mp_func fop, const unsigned int arg1) {
+      void self_vector_s(const unsigned int pos, const mp_id iop, const mp_func fop, const unsigned int arg1) {
         const unsigned int siz = size(pos);
         if (siz>24) CImg<ulongT>::vector((ulongT)id_self_map_vector_s,pos,siz,(ulongT)fop,arg1).move_to(code);
         else {
@@ -26052,7 +25822,7 @@ namespace cimg_library {
         }
       }
 
-      void self_vector_v(const unsigned int pos, const _cimg_mp_op iop, const mp_func fop, const unsigned int arg1) {
+      void self_vector_v(const unsigned int pos, const mp_id iop, const mp_func fop, const unsigned int arg1) {
         const unsigned int siz = size(pos);
         if (siz>24) CImg<ulongT>::vector((ulongT)id_self_map_vector_v,pos,siz,(ulongT)fop,arg1).move_to(code);
         else {
@@ -26062,7 +25832,8 @@ namespace cimg_library {
         }
       }
 
-      unsigned int vector1_v(const _cimg_mp_op iop, const mp_func fop, const unsigned int arg1) {
+      unsigned int vector1_v(const mp_id iop, const mp_func fop,
+                             const unsigned int arg1) {
         const unsigned int
           siz = size(arg1),
           pos = is_comp_vector(arg1)?arg1:
@@ -26076,7 +25847,8 @@ namespace cimg_library {
         return pos;
       }
 
-      unsigned int vector2_vv(const _cimg_mp_op iop, const mp_func fop, const unsigned int arg1, const unsigned int arg2) {
+      unsigned int vector2_vv(const mp_id iop, const mp_func fop,
+                              const unsigned int arg1, const unsigned int arg2) {
         const unsigned int
           siz = size(arg1),
           pos = is_comp_vector(arg1)?arg1:is_comp_vector(arg2)?arg2:
@@ -26090,7 +25862,8 @@ namespace cimg_library {
         return pos;
       }
 
-      unsigned int vector2_vs(const _cimg_mp_op iop, const mp_func fop, const unsigned int arg1, const unsigned int arg2) {
+      unsigned int vector2_vs(const mp_id iop, const mp_func fop,
+                              const unsigned int arg1, const unsigned int arg2) {
         const unsigned int
           siz = size(arg1),
           pos = is_comp_vector(arg1)?arg1:
@@ -26104,7 +25877,8 @@ namespace cimg_library {
         return pos;
       }
 
-      unsigned int vector2_sv(const _cimg_mp_op iop, const mp_func fop, const unsigned int arg1, const unsigned int arg2) {
+      unsigned int vector2_sv(const mp_id iop, const mp_func fop,
+                              const unsigned int arg1, const unsigned int arg2) {
         const unsigned int
           siz = size(arg2),
           pos = is_comp_vector(arg2)?arg2:
@@ -26118,8 +25892,8 @@ namespace cimg_library {
         return pos;
       }
 
-      unsigned int vector3_vss(const _cimg_mp_op iop, const mp_func fop, const unsigned int arg1, const unsigned int arg2,
-                               const unsigned int arg3) {
+      unsigned int vector3_vss(const mp_id iop, const mp_func fop,
+                               const unsigned int arg1, const unsigned int arg2, const unsigned int arg3) {
         const unsigned int
           siz = size(arg1),
           pos = is_comp_vector(arg1)?arg1:
@@ -26133,8 +25907,9 @@ namespace cimg_library {
         return pos;
       }
 
-      unsigned int vector4_vvss(const _cimg_mp_op iop, const mp_func fop, const unsigned int arg1, const unsigned int arg2,
-                                const unsigned int arg3, const unsigned int arg4) {
+      unsigned int vector4_vvss(const mp_id iop, const mp_func fop,
+                                const unsigned int arg1, const unsigned int arg2, const unsigned int arg3,
+                                const unsigned int arg4) {
         const unsigned int
           siz = size(arg1),
           pos = is_comp_vector(arg1)?arg1:is_comp_vector(arg2)?arg2:
@@ -26150,8 +25925,9 @@ namespace cimg_library {
         return pos;
       }
 
-      unsigned int vector4_vsss(const _cimg_mp_op iop, const mp_func fop, const unsigned int arg1, const unsigned int arg2,
-                                const unsigned int arg3, const unsigned int arg4) {
+      unsigned int vector4_vsss(const mp_id iop, const mp_func fop,
+                                const unsigned int arg1, const unsigned int arg2, const unsigned int arg3,
+                                const unsigned int arg4) {
         const unsigned int
           siz = size(arg1),
           pos = is_comp_vector(arg1)?arg1:
@@ -26167,8 +25943,9 @@ namespace cimg_library {
         return pos;
       }
 
-      unsigned int vector4_svss(const _cimg_mp_op iop, const mp_func fop, const unsigned int arg1, const unsigned int arg2,
-                                const unsigned int arg3, const unsigned int arg4) {
+      unsigned int vector4_svss(const mp_id iop, const mp_func fop,
+                                const unsigned int arg1, const unsigned int arg2, const unsigned int arg3,
+                                const unsigned int arg4) {
         const unsigned int
           siz = size(arg2),
           pos = is_comp_vector(arg2)?arg2:

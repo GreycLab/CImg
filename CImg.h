@@ -17891,10 +17891,8 @@ namespace cimg_library {
 #define _cimg_mp_vector2_sv(op,i1,i2) _cimg_mp_return(vector2_sv(id_##op,mp_##op,i1,i2))
 #define _cimg_mp_vector2_vs(op,i1,i2) _cimg_mp_return(vector2_vs(id_##op,mp_##op,i1,i2))
 #define _cimg_mp_vector2_vv(op,i1,i2) _cimg_mp_return(vector2_vv(id_##op,mp_##op,i1,i2))
-#define _cimg_mp_vector3_vss(iop,fop,i1,i2,i3) _cimg_mp_return(vector3_vss(iop,fop,i1,i2,i3))
-#define _cimg_mp_vector4_vvss(iop,fop,i1,i2,i3,i4) _cimg_mp_return(vector4_vvss(iop,fop,i1,i2,i3,i4))
-#define _cimg_mp_vector4_vsss(iop,fop,i1,i2,i3,i4) _cimg_mp_return(vector4_vsss(iop,fop,i1,i2,i3,i4))
-#define _cimg_mp_vector4_svss(iop,fop,i1,i2,i3,i4) _cimg_mp_return(vector4_svss(iop,fop,i1,i2,i3,i4))
+#define _cimg_mp_vector3_vss(op,i1,i2,i3) _cimg_mp_return(vector3_vss(id_##op,mp_##op,i1,i2,i3))
+#define _cimg_mp_vector4_vsss(op,i1,i2,i3,i4) _cimg_mp_return(vector4_vsss(id_##op,mp_##op,i1,i2,i3,i4))
 
       // List of function identifiers.
       typedef enum {
@@ -20060,7 +20058,7 @@ namespace cimg_library {
               _cimg_mp_check_type(arg2,2,1,0);
               _cimg_mp_check_type(arg3,3,1,0);
               _cimg_mp_check_type(arg4,3,1,0);
-              if (is_vector(arg1)) _cimg_mp_vector4_vsss(id_abscut,mp_abscut,arg1,arg2,arg3,arg4);
+              if (is_vector(arg1)) _cimg_mp_vector4_vsss(abscut,arg1,arg2,arg3,arg4);
               if (is_const_scalar(arg1) && is_const_scalar(arg2) && is_const_scalar(arg3) && is_const_scalar(arg4)) {
                 val = mem[arg1];
                 val1 = mem[arg2];
@@ -20924,7 +20922,7 @@ namespace cimg_library {
               arg3 = s2<se1?compile(++s2,se1,depth1,0,block_flags):const_scalar(cimg::type<double>::inf());
               _cimg_mp_check_type(arg2,2,1,0);
               _cimg_mp_check_type(arg3,3,1,0);
-              if (is_vector(arg1)) _cimg_mp_vector3_vss(id_cut,mp_cut,arg1,arg2,arg3);
+              if (is_vector(arg1)) _cimg_mp_vector3_vss(cut,arg1,arg2,arg3);
               if (is_const_scalar(arg1) && is_const_scalar(arg2) && is_const_scalar(arg3)) {
                 val = mem[arg1];
                 val1 = mem[arg2];
@@ -21939,7 +21937,7 @@ namespace cimg_library {
               }
               _cimg_mp_check_type(arg2,2,1,0);
               _cimg_mp_check_type(arg3,3,1,0);
-              if (is_vector(arg1)) _cimg_mp_vector3_vss(id_gauss,mp_gauss,arg1,arg2,arg3);
+              if (is_vector(arg1)) _cimg_mp_vector3_vss(gauss,arg1,arg2,arg3);
               if (is_const_scalar(arg1) && is_const_scalar(arg2) && is_const_scalar(arg3)) {
                 val1 = mem[arg1];
                 val2 = mem[arg2];
@@ -22341,7 +22339,7 @@ namespace cimg_library {
                 }
                 if (arg2!=~0U) _cimg_mp_check_type(arg2,2,1,0);
                 if (arg3!=~0U) _cimg_mp_check_type(arg3,3,1,0);
-                if (is_vector(arg1)) _cimg_mp_vector3_vss(id_isint,mp_isint,arg1,arg2,arg3);
+                if (is_vector(arg1)) _cimg_mp_vector3_vss(isint,arg1,arg2,arg3);
                 if (is_const_scalar(arg1) && (arg2==~0U || is_const_scalar(arg2)) &&
                     (arg3==~0U || is_const_scalar(arg3))) {
                   val = mem[arg1];
@@ -23276,7 +23274,8 @@ namespace cimg_library {
               arg1 = compile(ss4,s1,depth1,0,block_flags);
               arg2 = s1<se1?compile(++s1,se1,depth1,0,block_flags):1;
               _cimg_mp_check_type(arg2,2,1,0);
-              if (is_vector(arg1)) _cimg_mp_return(vector2_vs(*ss2=='l'?id_rol:id_ror,*ss2=='l'?mp_rol:mp_ror,arg1,arg2));
+              if (is_vector(arg1)) _cimg_mp_return(vector2_vs(*ss2=='l'?id_rol:id_ror,
+                                                              *ss2=='l'?mp_rol:mp_ror,arg1,arg2));
               if (is_const_scalar(arg1) && is_const_scalar(arg2))
                 _cimg_mp_const_scalar(*ss2=='l'?cimg::rol(mem[arg1],(unsigned int)mem[arg2]):
                                       cimg::ror(mem[arg1],(unsigned int)mem[arg2]));
@@ -23334,7 +23333,7 @@ namespace cimg_library {
               }
               _cimg_mp_check_type(arg2,2,1,0);
               _cimg_mp_check_type(arg3,3,1,0);
-              if (is_vector(arg1)) _cimg_mp_vector3_vss(id_round,mp_round,arg1,arg2,arg3);
+              if (is_vector(arg1)) _cimg_mp_vector3_vss(round,arg1,arg2,arg3);
               if (is_const_scalar(arg1) && is_const_scalar(arg2) && is_const_scalar(arg3))
                 _cimg_mp_const_scalar(cimg::round(mem[arg1],mem[arg2],(int)mem[arg3]));
               _cimg_mp_scalar3(round,arg1,arg2,arg3);
@@ -24453,12 +24452,9 @@ namespace cimg_library {
             } else { // Slower version (potentially an open set)
               iop = is_sth?id_rand_int_ext:id_rand_double_ext;
               fop = is_sth?mp_rand_int_ext:mp_rand_double_ext;
-              if (is_vector(arg1) && is_vector(arg2))
-                _cimg_mp_vector4_vvss(iop,fop,arg1,arg2,arg3,arg4);
-              if (is_vector(arg1) && is_scalar(arg2))
-                _cimg_mp_vector4_vsss(iop,fop,arg1,arg2,arg3,arg4);
-              if (is_scalar(arg1) && is_vector(arg2))
-                _cimg_mp_vector4_svss(iop,fop,arg1,arg2,arg3,arg4);
+              if (is_vector(arg1) && is_vector(arg2)) _cimg_mp_return(vector4_vvss(iop,fop,arg1,arg2,arg3,arg4));
+              if (is_vector(arg1) && is_scalar(arg2)) _cimg_mp_return(vector4_vsss(iop,fop,arg1,arg2,arg3,arg4));
+              if (is_scalar(arg1) && is_vector(arg2)) _cimg_mp_return(vector4_svss(iop,fop,arg1,arg2,arg3,arg4));
               _cimg_mp_return(scalar4(iop,arg1,arg2,arg3,arg4));
             }
           }

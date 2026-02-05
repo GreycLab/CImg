@@ -17873,7 +17873,7 @@ namespace cimg_library {
 #define _cimg_mp_return(x) { *se = saved_char; s_op = previous_s_op; ss_op = previous_ss_op; return x; }
 #define _cimg_mp_return_nan() _cimg_mp_return(_cimg_mp_slot_nan)
 #define _cimg_mp_same(x) _cimg_mp_return(same(x));
-#define _cimg_mp_scalar0(iop) _cimg_mp_return(scalar0(iop))
+#define _cimg_mp_scalar0(iop) _cimg_mp_return(scalar0(id_##iop))
 #define _cimg_mp_scalar1(iop,i1) _cimg_mp_return(scalar1(iop,i1))
 #define _cimg_mp_scalar2(iop,i1,i2) _cimg_mp_return(scalar2(iop,i1,i2))
 #define _cimg_mp_scalar3(iop,i1,i2,i3) _cimg_mp_return(scalar3(iop,i1,i2,i3))
@@ -18257,16 +18257,16 @@ namespace cimg_library {
           case 'z' : _cimg_mp_return(reserved_label[(int)'z']!=~0U?reserved_label[(int)'z']:_cimg_mp_slot_z);
           case 'u' :
             if (reserved_label[(int)'u']!=~0U) _cimg_mp_return(reserved_label[(int)'u']);
-            _cimg_mp_scalar0(id_rand_double_0_1);
+            _cimg_mp_scalar0(rand_double_0_1);
           case 'v' :
             if (reserved_label[(int)'v']!=~0U) _cimg_mp_return(reserved_label[(int)'v']);
-            _cimg_mp_scalar0(id_rand_int_0_1);
+            _cimg_mp_scalar0(rand_int_0_1);
           case 'g' :
             if (reserved_label[(int)'g']!=~0U) _cimg_mp_return(reserved_label[(int)'g']);
-            _cimg_mp_scalar0(id_rand_double_gaussian);
+            _cimg_mp_scalar0(rand_double_gaussian);
           case 'i' :
             if (reserved_label[(int)'i']!=~0U) _cimg_mp_return(reserved_label[(int)'i']);
-            _cimg_mp_scalar0(id_i);
+            _cimg_mp_scalar0(i);
           case 'I' :
             _cimg_mp_op("Variable 'I'");
             if (reserved_label[(int)'I']!=~0U) _cimg_mp_return(reserved_label[(int)'I']);
@@ -22408,7 +22408,7 @@ namespace cimg_library {
             if (*ss1=='(') { // Size of image list
               _cimg_mp_op("Function 'l()'");
               if (ss2!=se1) break;
-              _cimg_mp_scalar0(id_size_list);
+              _cimg_mp_scalar0(size_list);
             }
 
             if (!std::strncmp(ss,"lerp(",5)) { // Linear interpolation
@@ -23654,7 +23654,7 @@ namespace cimg_library {
               _cimg_mp_op("Function 'srand()'");
               arg1 = ss6<se1?compile(ss6,se1,depth1,0,block_flags):~0U;
               if (arg1!=~0U) { _cimg_mp_check_type(arg1,1,1,0); _cimg_mp_scalar1(id_srand,arg1); }
-              _cimg_mp_scalar0(id_srand0);
+              _cimg_mp_scalar0(srand0);
             }
 
             if (!std::strncmp(ss,"stats(",6)) { // Image/vector statistics
@@ -24428,7 +24428,9 @@ namespace cimg_library {
           if ((*ss=='u' || *ss=='v') && *ss1=='(') { // Random value with uniform distribution in specified range
             is_sth = *ss=='v'; // is integer generator?
             _cimg_mp_op(is_sth?"Function 'v()'":"Function 'u()'");
-            if (*ss2==')') _cimg_mp_scalar0(is_sth?id_rand_int_0_1:id_rand_double_0_1);
+            if (*ss2==')') {
+              if (is_sth) { _cimg_mp_scalar0(rand_int_0_1); } else { _cimg_mp_scalar0(rand_double_0_1); }
+            }
             s1 = ss2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
             arg1 = compile(ss2,s1,depth1,0,block_flags);
             arg3 = arg4 = 1;
@@ -24455,8 +24457,12 @@ namespace cimg_library {
                 _cimg_mp_vector2_sv(iop,fop,arg1,arg2);
               if (arg1==arg2) _cimg_mp_same(arg1);
               if (arg2==1) {
-                if (!arg1) { _cimg_mp_scalar0(is_sth?id_rand_int_0_1:id_rand_double_0_1); }
-                if (arg1==11) { _cimg_mp_scalar0(is_sth?id_rand_int_m1_1:id_rand_double_m1_1); }
+                if (!arg1) {
+                  if (is_sth) { _cimg_mp_scalar0(rand_int_0_1); } else { _cimg_mp_scalar0(rand_double_0_1); }
+                }
+                if (arg1==11) {
+                  if (is_sth) { _cimg_mp_scalar0(rand_int_m1_1); } else { _cimg_mp_scalar0(rand_double_m1_1); }
+                }
               } else if (!arg1) { _cimg_mp_scalar1(is_sth?id_rand_int_0_N:id_rand_double_0_N,arg2); }
               _cimg_mp_scalar2(iop,arg1,arg2);
             } else { // Slower version (potentially an open set)

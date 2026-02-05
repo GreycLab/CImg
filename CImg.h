@@ -19373,7 +19373,7 @@ namespace cimg_library {
                 arg4 = (unsigned int)pop[2];
                 arg5 = (unsigned int)pop[3];
                 code.remove();
-                CImg<ulongT>::vector((ulongT)(arg3==arg1?mp_linear_sub_left:mp_linear_sub_right),
+                CImg<ulongT>::vector((ulongT)(arg3==arg1?id_linear_sub_left:id_linear_sub_right),
                                      arg3,arg4,arg5,arg3==arg1?arg2:arg1).move_to(code);
                 _cimg_mp_return(arg3);
               }
@@ -19938,7 +19938,7 @@ namespace cimg_library {
               is_inty = is_intz && // optimized for 1D?
                         (is_const_integer(arg2) || (arg2>=_cimg_mp_slot_x && arg2<=_cimg_mp_slot_c));
             if (p1==~0U) need_input_copy = true;
-            CImg<ulongT>::vector((ulongT)(is_inty?mp_IJxyz1:is_intz?mp_IJxyz2:mp_IJxyz3),
+            CImg<ulongT>::vector((ulongT)(is_inty?id_IJxyz1:is_intz?id_IJxyz2:id_IJxyz3),
                                  pos,(ulongT)is_relative,p1,arg1,arg2,arg3,
                                  arg4==~0U?_cimg_mp_interpolation:arg4,
                                  arg5==~0U?_cimg_mp_boundary:arg5,p2).move_to(code);
@@ -20108,7 +20108,7 @@ namespace cimg_library {
               arg2 = compile(s1,s2,depth1,0,block_flags);
               p2 = size(arg2);
               p3 = 3;
-              CImg<ulongT>::vector((ulongT)(*ss3=='0'?mp_arg0:mp_arg1),0,0,p2,arg1,arg2).move_to(l_opcode);
+              CImg<ulongT>::vector((ulongT)(*ss3=='0'?id_arg0:id_arg1),0,0,p2,arg1,arg2).move_to(l_opcode);
               for (s = ++s2; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
@@ -23569,7 +23569,7 @@ namespace cimg_library {
               p1 = size(arg1);
               if (!p1) _cimg_mp_return(1);
               pos = is_comp_vector(arg1)?arg1:((return_comp = true), vector(p1));
-              CImg<ulongT>::vector((ulongT)(*ss5=='a'?mp_softmax:mp_softmin),pos,arg1,p1,arg2).move_to(code);
+              CImg<ulongT>::vector((ulongT)(*ss5=='a'?id_softmax:id_softmin),pos,arg1,p1,arg2).move_to(code);
               _cimg_mp_return(pos);
             }
 

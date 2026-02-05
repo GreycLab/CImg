@@ -23285,7 +23285,7 @@ namespace cimg_library {
               if (is_const_scalar(arg1) && is_const_scalar(arg2))
                 _cimg_mp_const_scalar(*ss2=='l'?cimg::rol(mem[arg1],(unsigned int)mem[arg2]):
                                   cimg::ror(mem[arg1],(unsigned int)mem[arg2]));
-              if (*ss2=='l') { _cimg_mp_scalar2(rol,arg1,arg2); } else { _cimg_mp_scalar2(ror,arg1,arg2); }
+              _cimg_mp_return(scalar2(*ss2=='l'?id_rol:id_ror,arg1,arg2));
             }
 
             if (!std::strncmp(ss,"rot(",4)) { // 2D/3D rotation matrix
@@ -24416,8 +24416,7 @@ namespace cimg_library {
             opcode[2] = opcode._height;
             if (is_sth) _cimg_mp_const_scalar(fop(*this));
             if (opcode._height==5) { // Single argument
-              if (arg1) { _cimg_mp_scalar1(abs,opcode[4]); }
-              else { _cimg_mp_scalar2(neq,opcode[4],0); }
+              if (arg1) { _cimg_mp_scalar1(abs,opcode[4]); } else { _cimg_mp_scalar2(neq,opcode[4],0); }
             }
             opcode[1] = pos = scalar();
             opcode.move_to(code);
@@ -24428,7 +24427,7 @@ namespace cimg_library {
           if ((*ss=='u' || *ss=='v') && *ss1=='(') { // Random value with uniform distribution in specified range
             is_sth = *ss=='v'; // is integer generator?
             _cimg_mp_op(is_sth?"Function 'v()'":"Function 'u()'");
-            if (*ss2==')') { _cimg_mp_return(scalar0(is_sth?id_rand_int_0_1:id_rand_double_0_1)); }
+            if (*ss2==')') _cimg_mp_return(scalar0(is_sth?id_rand_int_0_1:id_rand_double_0_1));
             s1 = ss2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
             arg1 = compile(ss2,s1,depth1,0,block_flags);
             arg3 = arg4 = 1;
@@ -24455,11 +24454,9 @@ namespace cimg_library {
                 _cimg_mp_vector2_sv(iop,fop,arg1,arg2);
               if (arg1==arg2) _cimg_mp_same(arg1);
               if (arg2==1) {
-                if (!arg1) { _cimg_mp_return(scalar0(is_sth?id_rand_int_0_1:id_rand_double_0_1)); }
-                if (arg1==11) { _cimg_mp_return(scalar0(is_sth?id_rand_int_m1_1:id_rand_double_m1_1)); }
-              } else if (!arg1) {
-                if (is_sth) { _cimg_mp_scalar1(rand_int_0_N,arg2); } else { _cimg_mp_scalar1(rand_double_0_N,arg2); }
-              }
+                if (!arg1) _cimg_mp_return(scalar0(is_sth?id_rand_int_0_1:id_rand_double_0_1));
+                if (arg1==11) _cimg_mp_return(scalar0(is_sth?id_rand_int_m1_1:id_rand_double_m1_1));
+              } else if (!arg1) _cimg_mp_return(scalar1(is_sth?id_rand_int_0_N:id_rand_double_0_N,arg2));
               _cimg_mp_return(scalar2(iop,arg1,arg2));
             } else { // Slower version (potentially an open set)
               iop = is_sth?id_rand_int_ext:id_rand_double_ext;

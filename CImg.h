@@ -17868,7 +17868,6 @@ namespace cimg_library {
 #define _cimg_mp_check_matrix_square(arg,n_arg) check_matrix_square(arg,n_arg,ss,se,saved_char)
 #define _cimg_mp_check_type(arg,n_arg,mode,N) check_type(arg,n_arg,mode,N,ss,se,saved_char)
 #define _cimg_mp_const_scalar(val) _cimg_mp_return(const_scalar((double)(val)))
-#define _cimg_mp_defunc(mp) (*(mp_func)(*(mp).opcode))(mp)
 #define _cimg_mp_op(s) s_op = s; ss_op = ss
 #define _cimg_mp_return(x) { *se = saved_char; s_op = previous_s_op; ss_op = previous_ss_op; return x; }
 #define _cimg_mp_return_nan() _cimg_mp_return(_cimg_mp_slot_nan)
@@ -24835,7 +24834,7 @@ namespace cimg_library {
         for (p_code = p_begin; p_code<p_end; ++p_code) {
           opcode._data = p_code->_data;
           const ulongT target = opcode[1];
-          mem[target] = _cimg_mp_defunc(*this);
+          mem[target] = (*(mp_func)*opcode)(*this);
         }
       }
 
@@ -26593,7 +26592,7 @@ namespace cimg_library {
         }
         const CImg<ulongT> *const p_end = ++mp.p_code + mp.opcode[3];
         CImg<ulongT> _op;
-        for ( ; mp.p_code<p_end; ++mp.p_code) {
+        while (mp.p_code<p_end) {
           const CImg<ulongT> &op = *mp.p_code;
           mp.opcode._data = op._data;
 
@@ -26603,7 +26602,8 @@ namespace cimg_library {
             *ptrd = *(ptrs++);
 
           const ulongT target = mp.opcode[1];
-          mp.mem[target] = _cimg_mp_defunc(mp);
+          mp.eval(mp.p_code,mp.p_code + 1);
+
           cimg_pragma_openmp(critical(mp_debug)) {
             std::fprintf(cimg::output(),
                          "\n[" cimg_appname "_math_parser] %p[thread #%u]:%*c"

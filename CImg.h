@@ -24301,9 +24301,9 @@ namespace cimg_library {
               s = ns;
             }
             (l_opcode>'y').move_to(opcode);
-            op = val==2?(is_hypot && opcode._height<8?_mp_vector_hypot:_mp_vector_norm2):
-              val==1?_mp_vector_norm1:!val?_mp_vector_norm0:
-              cimg::type<double>::is_inf(val)?_mp_vector_norminf:_mp_normp;
+            op = val==2?(is_hypot && opcode._height<8?mp_vector_hypot:mp_vector_norm2):
+              val==1?mp_vector_norm1:!val?mp_vector_norm0:
+              cimg::type<double>::is_inf(val)?mp_vector_norminf:mp_normp;
             opcode[0] = (ulongT)op;
             opcode[2] = opcode._height;
             if (is_sth) _cimg_mp_const_scalar(op(*this));
@@ -29850,13 +29850,13 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double _mp_vector_hypot(_cimg_math_parser& mp) {
+      static double mp_vector_hypot(_cimg_math_parser& mp) {
         switch ((unsigned int)mp.opcode[2]) {
           case 5 : return cimg::abs(_mp_arg(4));
           case 6 : return cimg::hypot(_mp_arg(4),_mp_arg(5));
           case 7 : return cimg::hypot(_mp_arg(4),_mp_arg(5),_mp_arg(6));
         };
-        return _mp_vector_norm2(mp);
+        return mp_vector_norm2(mp);
       }
 
       static double mp_vector_init(_cimg_math_parser& mp) {
@@ -29956,28 +29956,28 @@ namespace cimg_library {
         return !mp_vector_eq(mp);
       }
 
-      static double _mp_vector_norm0(_cimg_math_parser& mp) {
+      static double mp_vector_norm0(_cimg_math_parser& mp) {
         const unsigned int siz = (unsigned int)mp.opcode[2];
         double res = 0;
         for (unsigned int i = siz - 1; i>3; --i) res+=(double)(_mp_arg(i)?1:0);
         return res;
       }
 
-      static double _mp_vector_norm1(_cimg_math_parser& mp) {
+      static double mp_vector_norm1(_cimg_math_parser& mp) {
         const unsigned int siz = (unsigned int)mp.opcode[2];
         double res = 0;
         for (unsigned int i = siz - 1; i>3; --i) res+=(double)cimg::abs(_mp_arg(i));
         return res;
       }
 
-      static double _mp_vector_norm2(_cimg_math_parser& mp) {
+      static double mp_vector_norm2(_cimg_math_parser& mp) {
         const unsigned int siz = (unsigned int)mp.opcode[2];
         double res = 0;
         for (unsigned int i = siz - 1; i>3; --i) res+=(double)cimg::sqr(_mp_arg(i));
         return (double)std::sqrt(res);
       }
 
-      static double _mp_vector_norminf(_cimg_math_parser& mp) {
+      static double mp_vector_norminf(_cimg_math_parser& mp) {
         const unsigned int siz = (unsigned int)mp.opcode[2];
         double res = 0;
         for (unsigned int i = siz - 1; i>3; --i) {

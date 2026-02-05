@@ -24428,9 +24428,7 @@ namespace cimg_library {
           if ((*ss=='u' || *ss=='v') && *ss1=='(') { // Random value with uniform distribution in specified range
             is_sth = *ss=='v'; // is integer generator?
             _cimg_mp_op(is_sth?"Function 'v()'":"Function 'u()'");
-            if (*ss2==')') {
-              if (is_sth) { _cimg_mp_scalar0(rand_int_0_1); } else { _cimg_mp_scalar0(rand_double_0_1); }
-            }
+            if (*ss2==')') { _cimg_mp_return(scalar0(is_sth?id_rand_int_0_1:id_rand_double_0_1)); }
             s1 = ss2; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
             arg1 = compile(ss2,s1,depth1,0,block_flags);
             arg3 = arg4 = 1;
@@ -24457,12 +24455,8 @@ namespace cimg_library {
                 _cimg_mp_vector2_sv(iop,fop,arg1,arg2);
               if (arg1==arg2) _cimg_mp_same(arg1);
               if (arg2==1) {
-                if (!arg1) {
-                  if (is_sth) { _cimg_mp_scalar0(rand_int_0_1); } else { _cimg_mp_scalar0(rand_double_0_1); }
-                }
-                if (arg1==11) {
-                  if (is_sth) { _cimg_mp_scalar0(rand_int_m1_1); } else { _cimg_mp_scalar0(rand_double_m1_1); }
-                }
+                if (!arg1) { _cimg_mp_return(scalar0(is_sth?id_rand_int_0_1:id_rand_double_0_1)); }
+                if (arg1==11) { _cimg_mp_return(scalar0(is_sth?id_rand_int_m1_1:id_rand_double_m1_1)); }
               } else if (!arg1) {
                 if (is_sth) { _cimg_mp_scalar1(rand_int_0_N,arg2); } else { _cimg_mp_scalar1(rand_double_0_N,arg2); }
               }

@@ -18007,18 +18007,8 @@ namespace cimg_library {
         pexpr.assign();
         opcode.assign();
         opcode._is_shared = true;
-
-        // Execute begin() block if any specified.
-        if (code_begin) {
-          mem[_cimg_mp_slot_x] = mem[_cimg_mp_slot_y] = mem[_cimg_mp_slot_z] = mem[_cimg_mp_slot_c] = 0;
-          p_code_end = code_begin.end();
-          for (p_code = code_begin; p_code<p_code_end; ++p_code) {
-            opcode._data = p_code->_data;
-            const ulongT target = opcode[1];
-            mem[target] = _cimg_mp_defunc(*this);
-          }
-        }
         p_code_end = code.end();
+        begin();
       }
 
       _cimg_math_parser():
@@ -22456,7 +22446,7 @@ namespace cimg_library {
                 ++s1;
                 char st_op[4] = {};
                 is_sth = false; // blank after operator?
-                if (cimg_sscanf(s1," %3[=+-*/&|minaxor]%c",st_op,&sep)==2 && (sep==')' ||
+                if (cimg_sscanf(s1," %3[=-+/*&|minaxor]%c",st_op,&sep)==2 && (sep==')' ||
                                                                               (is_sth=cimg::is_blank(sep)))) {
                   if (!is_sth || (is_sth && cimg_sscanf(s1," %*[=+-*/&|minaxor ]%c",&sep)==1 && sep==')')) {
                     cimg::strpare(st_op,' ',false,true);
@@ -24840,26 +24830,27 @@ namespace cimg_library {
                                     s_op,variable_name._data,s0);
       }
 
-      // Evaluation procedure.
-      double operator()(const double x, const double y, const double z, const double c) {
-        mem[_cimg_mp_slot_x] = x; mem[_cimg_mp_slot_y] = y; mem[_cimg_mp_slot_z] = z; mem[_cimg_mp_slot_c] = c;
-        for (p_code = code; p_code<p_code_end; ++p_code) {
+      // Evaluate a portion of the compiled expression.
+      void eval(const CImg<ulongT> *const p_begin, const CImg<ulongT> *const p_end) {
+        for (p_code = p_begin; p_code<p_end; ++p_code) {
           opcode._data = p_code->_data;
           const ulongT target = opcode[1];
           mem[target] = _cimg_mp_defunc(*this);
         }
+      }
+
+      // Evaluate expression for a given set of (x,y,z,c) coordinates (return scalar value).
+      double operator()(const double x, const double y, const double z, const double c) {
+        mem[_cimg_mp_slot_x] = x; mem[_cimg_mp_slot_y] = y; mem[_cimg_mp_slot_z] = z; mem[_cimg_mp_slot_c] = c;
+        eval(code,p_code_end);
         return *result;
       }
 
-      // Evaluation procedure (return output values in vector 'output').
+      // Evaluate expression for a given set of (x,y,z,c) coordinates (return output values in vector 'output').
       template<typename t>
       void operator()(const double x, const double y, const double z, const double c, t *const output) {
         mem[_cimg_mp_slot_x] = x; mem[_cimg_mp_slot_y] = y; mem[_cimg_mp_slot_z] = z; mem[_cimg_mp_slot_c] = c;
-        for (p_code = code; p_code<p_code_end; ++p_code) {
-          opcode._data = p_code->_data;
-          const ulongT target = opcode[1];
-          mem[target] = _cimg_mp_defunc(*this);
-        }
+        eval(code,p_code_end);
         if (result_dim) {
           const double *ptrs = result + 1;
           t *ptrd = output;
@@ -24867,20 +24858,21 @@ namespace cimg_library {
         } else *output = (t)*result;
       }
 
-      // Evaluation procedure for begin_t() block.
+      // Evaluate begin() block.
+      void begin() {
+        if (!code_begin) return;
+        mem[_cimg_mp_slot_x] = mem[_cimg_mp_slot_y] = mem[_cimg_mp_slot_z] = mem[_cimg_mp_slot_c] = 0;
+        eval(code_begin,code_begin.end());
+      }
+
+      // Evaluate begin_t() block.
       void begin_t() {
         if (!code_begin_t) return;
         mem[_cimg_mp_slot_x] = mem[_cimg_mp_slot_y] = mem[_cimg_mp_slot_z] = mem[_cimg_mp_slot_c] = 0;
-        p_code_end = code_begin_t.end();
-        for (p_code = code_begin_t; p_code<p_code_end; ++p_code) {
-          opcode._data = p_code->_data;
-          const ulongT target = opcode[1];
-          mem[target] = _cimg_mp_defunc(*this);
-        }
-        p_code_end = code.end();
+        eval(code_begin_t,code_begin_t.end());
       }
 
-      // Evaluation procedure for end_t() block.
+      // Evaluate end_t() block.
       void end_t() {
         if (!code_end_t) return;
         if (imgin) {
@@ -24889,15 +24881,10 @@ namespace cimg_library {
           mem[_cimg_mp_slot_z] = imgin._depth - 1.;
           mem[_cimg_mp_slot_c] = imgin._spectrum - 1.;
         } else mem[_cimg_mp_slot_x] = mem[_cimg_mp_slot_y] = mem[_cimg_mp_slot_z] = mem[_cimg_mp_slot_c] = 0;
-        p_code_end = code_end_t.end();
-        for (p_code = code_end_t; p_code<p_code_end; ++p_code) {
-          opcode._data = p_code->_data;
-          const ulongT target = opcode[1];
-          mem[target] = _cimg_mp_defunc(*this);
-        }
+        eval(code_end_t,code_end_t.end());
       }
 
-      // Evaluation procedure the end() block.
+      // Evaluate end() block.
       void end() {
         if (!code_end) return;
         if (imgin) {
@@ -24906,12 +24893,7 @@ namespace cimg_library {
           mem[_cimg_mp_slot_z] = imgin._depth - 1.;
           mem[_cimg_mp_slot_c] = imgin._spectrum - 1.;
         } else mem[_cimg_mp_slot_x] = mem[_cimg_mp_slot_y] = mem[_cimg_mp_slot_z] = mem[_cimg_mp_slot_c] = 0;
-        p_code_end = code_end.end();
-        for (p_code = code_end; p_code<p_code_end; ++p_code) {
-          opcode._data = p_code->_data;
-          const ulongT target = opcode[1];
-          mem[target] = _cimg_mp_defunc(*this);
-        }
+        eval(code_end,code_end.end());
       }
 
       // Merge inter-thread variables.
@@ -25737,7 +25719,7 @@ namespace cimg_library {
         return pos;
       }
 
-      // Evaluation functions, known by the parser.
+      // Evaluation mathematical operators and functions, known by the parser.
       // Defining these functions 'static' ensures that sizeof(mp_func)==sizeof(ulongT),
       // so we can store pointers to them directly in the opcode vectors.
 #ifdef _mp_arg
@@ -26323,12 +26305,8 @@ namespace cimg_library {
       static double mp_critical(_cimg_math_parser& mp) {
         const ulongT g_target = mp.opcode[1];
         cimg_pragma_openmp(critical(mp_critical)) {
-          for (const CImg<ulongT> *const p_end = ++mp.p_code + mp.opcode[2];
-               mp.p_code<p_end; ++mp.p_code) { // Evaluate body
-            mp.opcode._data = mp.p_code->_data;
-            const ulongT target = mp.opcode[1];
-            mp.mem[target] = _cimg_mp_defunc(mp);
-          }
+          const CImg<ulongT> *const p_end = ++mp.p_code + mp.opcode[2];
+          mp.eval(mp.p_code,p_end);
         }
         --mp.p_code;
         return mp.mem[g_target];
@@ -26692,17 +26670,9 @@ namespace cimg_library {
         const unsigned int _break_type = mp.break_type;
         mp.break_type = 0;
         do {
-          for (mp.p_code = p_body; mp.p_code<p_cond; ++mp.p_code) { // Evaluate body
-            mp.opcode._data = mp.p_code->_data;
-            const ulongT target = mp.opcode[1];
-            mp.mem[target] = _cimg_mp_defunc(mp);
-          }
+          mp.eval(p_body,p_cond); // Evaluate body
           if (mp.break_type==1) break; else if (mp.break_type==2) mp.break_type = 0;
-          for (mp.p_code = p_cond; mp.p_code<p_end; ++mp.p_code) { // Evaluate condition
-            mp.opcode._data = mp.p_code->_data;
-            const ulongT target = mp.opcode[1];
-            mp.mem[target] = _cimg_mp_defunc(mp);
-          }
+          mp.eval(p_cond,p_end); // Evaluate condition
           if (mp.break_type==1) break; else if (mp.break_type==2) mp.break_type = 0;
         } while (mp.mem[mem_cond]);
         mp.break_type = _break_type;
@@ -27073,35 +27043,15 @@ namespace cimg_library {
         if (mp.opcode[9]) mp.mem[mem_cond] = 0;
         const unsigned int _break_type = mp.break_type;
         mp.break_type = 0;
-
-        for (mp.p_code = p_init; mp.p_code<p_cond; ++mp.p_code) { // Evaluate init
-          mp.opcode._data = mp.p_code->_data;
-          const ulongT target = mp.opcode[1];
-          mp.mem[target] = _cimg_mp_defunc(mp);
-        }
-
+        mp.eval(p_init,p_cond); // Evaluate init
         if (!mp.break_type) do {
-            for (mp.p_code = p_cond; mp.p_code<p_body; ++mp.p_code) { // Evaluate condition
-              mp.opcode._data = mp.p_code->_data;
-              const ulongT target = mp.opcode[1];
-              mp.mem[target] = _cimg_mp_defunc(mp);
-            }
+            mp.eval(p_cond,p_body); // Evaluate condition
             if (mp.break_type==1) break;
-
             is_cond = (bool)mp.mem[mem_cond];
             if (is_cond && !mp.break_type) {
-              for (mp.p_code = p_body; mp.p_code<p_post; ++mp.p_code) { // Evaluate body
-                mp.opcode._data = mp.p_code->_data;
-                const ulongT target = mp.opcode[1];
-                mp.mem[target] = _cimg_mp_defunc(mp);
-              }
+              mp.eval(p_body,p_post); // Evaluate body
               if (mp.break_type==1) break; else if (mp.break_type==2) mp.break_type = 0;
-
-              for (mp.p_code = p_post; mp.p_code<p_end; ++mp.p_code) { // Evaluate post-code
-                mp.opcode._data = mp.p_code->_data;
-                const ulongT target = mp.opcode[1];
-                mp.mem[target] = _cimg_mp_defunc(mp);
-              }
+              mp.eval(p_post,p_end); // Evaluate post-code
               if (mp.break_type==1) break; else if (mp.break_type==2) mp.break_type = 0;
             }
           } while (is_cond);
@@ -27219,18 +27169,8 @@ namespace cimg_library {
           *const p_right = ++mp.p_code + mp.opcode[5],
           *const p_end = p_right + mp.opcode[6];
         const unsigned int vtarget = (unsigned int)mp.opcode[1], siz = (unsigned int)mp.opcode[7];
-        if (is_cond) for ( ; mp.p_code<p_right; ++mp.p_code) {
-            mp.opcode._data = mp.p_code->_data;
-            const ulongT target = mp.opcode[1];
-            mp.mem[target] = _cimg_mp_defunc(mp);
-          }
-        else for (mp.p_code = p_right; mp.p_code<p_end; ++mp.p_code) {
-            mp.opcode._data = mp.p_code->_data;
-            const ulongT target = mp.opcode[1];
-            mp.mem[target] = _cimg_mp_defunc(mp);
-          }
-        if (mp.p_code==mp.p_break) --mp.p_code;
-        else mp.p_code = p_end - 1;
+        if (is_cond) mp.eval(mp.p_code,p_right); else mp.eval(p_right,p_end);
+        if (mp.p_code==mp.p_break) --mp.p_code; else mp.p_code = p_end - 1;
         if (siz) std::memcpy(&mp.mem[vtarget] + 1,&mp.mem[is_cond?mem_left:mem_right] + 1,sizeof(double)*siz);
         return mp.mem[is_cond?mem_left:mem_right];
       }
@@ -28199,11 +28139,7 @@ namespace cimg_library {
         const CImg<ulongT> *const p_end = ++mp.p_code + mp.opcode[4];
         if (!val_left) { mp.p_code = p_end - 1; return 0; }
         const ulongT mem_right = mp.opcode[3];
-        for ( ; mp.p_code<p_end; ++mp.p_code) {
-          mp.opcode._data = mp.p_code->_data;
-          const ulongT target = mp.opcode[1];
-          mp.mem[target] = _cimg_mp_defunc(mp);
-        }
+        mp.eval(mp.p_code,p_end);
         --mp.p_code;
         return (double)(bool)mp.mem[mem_right];
       }
@@ -28217,11 +28153,7 @@ namespace cimg_library {
         const CImg<ulongT> *const p_end = ++mp.p_code + mp.opcode[4];
         if (val_left) { mp.p_code = p_end - 1; return 1; }
         const ulongT mem_right = mp.opcode[3];
-        for ( ; mp.p_code<p_end; ++mp.p_code) {
-          mp.opcode._data = mp.p_code->_data;
-          const ulongT target = mp.opcode[1];
-          mp.mem[target] = _cimg_mp_defunc(mp);
-        }
+        mp.eval(mp.p_code,p_end);
         --mp.p_code;
         return (double)(bool)mp.mem[mem_right];
       }
@@ -28892,22 +28824,14 @@ namespace cimg_library {
           if (ptrc) { // Version with loop variable (3 arguments)
             while (it<=nb_itm1) {
               *ptrc = it;
-              for (mp.p_code = p_body; mp.p_code<p_end; ++mp.p_code) {
-                mp.opcode._data = mp.p_code->_data;
-                const ulongT target = mp.opcode[1];
-                mp.mem[target] = _cimg_mp_defunc(mp);
-              }
+              mp.eval(p_body,p_end);
               if (mp.break_type==1) break; else if (mp.break_type==2) mp.break_type = 0;
               ++it;
             }
             *ptrc = it;
           } else // Version without loop variable (2 arguments)
             while (it<=nb_itm1) {
-              for (mp.p_code = p_body; mp.p_code<p_end; ++mp.p_code) {
-                mp.opcode._data = mp.p_code->_data;
-                const ulongT target = mp.opcode[1];
-                mp.mem[target] = _cimg_mp_defunc(mp);
-              }
+              mp.eval(p_body,p_end);
               if (mp.break_type==1) break; else if (mp.break_type==2) mp.break_type = 0;
               ++it;
             }
@@ -29892,11 +29816,7 @@ namespace cimg_library {
         if (ptrc) { // Version with loop variable (3 arguments)
           while (it<siz) {
             *ptrc = (double)it;
-            for (mp.p_code = p_body; mp.p_code<p_end; ++mp.p_code) {
-              mp.opcode._data = mp.p_code->_data;
-              const ulongT target = mp.opcode[1];
-              mp.mem[target] = _cimg_mp_defunc(mp);
-            }
+            mp.eval(p_body,p_end);
             if (mp.break_type==1) break; else if (mp.break_type==2) mp.break_type = 0;
             else ptrd[it] = *ptrs;
             ++it;
@@ -29904,11 +29824,7 @@ namespace cimg_library {
           *ptrc = (double)it;
         } else // Version without loop variable (2 arguments)
           while (it<siz) {
-            for (mp.p_code = p_body; mp.p_code<p_end; ++mp.p_code) {
-              mp.opcode._data = mp.p_code->_data;
-              const ulongT target = mp.opcode[1];
-              mp.mem[target] = _cimg_mp_defunc(mp);
-            }
+            mp.eval(p_body,p_end);
             if (mp.break_type==1) break; else if (mp.break_type==2) mp.break_type = 0;
             else ptrd[it] = *ptrs;
             ++it;
@@ -30303,19 +30219,10 @@ namespace cimg_library {
         const unsigned int _break_type = mp.break_type;
         mp.break_type = 0;
         do {
-          for (mp.p_code = p_cond; mp.p_code<p_body; ++mp.p_code) { // Evaluate condition
-            mp.opcode._data = mp.p_code->_data;
-            const ulongT target = mp.opcode[1];
-            mp.mem[target] = _cimg_mp_defunc(mp);
-          }
+          mp.eval(p_cond,p_body); // Evaluate condition
           if (mp.break_type==1) break;
           is_cond = (bool)mp.mem[mem_cond];
-          if (is_cond && !mp.break_type) // Evaluate body
-            for (mp.p_code = p_body; mp.p_code<p_end; ++mp.p_code) {
-              mp.opcode._data = mp.p_code->_data;
-              const ulongT target = mp.opcode[1];
-              mp.mem[target] = _cimg_mp_defunc(mp);
-            }
+          if (is_cond && !mp.break_type) mp.eval(p_body,p_end); // Evaluate body
           if (mp.break_type==1) break; else if (mp.break_type==2) mp.break_type = 0;
         } while (is_cond);
 

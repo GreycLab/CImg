@@ -17868,7 +17868,7 @@ namespace cimg_library {
 #define _cimg_mp_check_matrix_square(arg,n_arg) check_matrix_square(arg,n_arg,ss,se,saved_char)
 #define _cimg_mp_check_type(arg,n_arg,mode,N) check_type(arg,n_arg,mode,N,ss,se,saved_char)
 #define _cimg_mp_const_scalar(val) _cimg_mp_return(const_scalar((double)(val)))
-#define _cimg_mp_eval_case(fn) case id_##fn: target = mp_##fn(*this); break
+#define _cimg_mp_eval_case(fn) case id_##fn: mem[target] = mp_##fn(*this); break
 #define _cimg_mp_op(s) s_op = s; ss_op = ss
 #define _cimg_mp_return(x) { *se = saved_char; s_op = previous_s_op; ss_op = previous_ss_op; return x; }
 #define _cimg_mp_return_nan() _cimg_mp_return(_cimg_mp_slot_nan)
@@ -24947,7 +24947,7 @@ namespace cimg_library {
         for (p_code = p_begin; p_code<p_end; ++p_code) {
           opcode._data = p_code->_data;
           const mp_id iop = (mp_id)opcode[0];
-          double& target = mem[opcode[1]];
+          const ulongT target = opcode[1];
           switch (iop) {
             _cimg_mp_eval_case(abs); _cimg_mp_eval_case(abscut); _cimg_mp_eval_case(absmaxabs);
             _cimg_mp_eval_case(absminabs); _cimg_mp_eval_case(acos); _cimg_mp_eval_case(acosh);
@@ -25073,8 +25073,6 @@ namespace cimg_library {
 #ifdef cimg_mp_func_store
             _cimg_mp_eval_case(store);
 #endif
-          default:
-            throw CImgException("_cimg_math_parser::eval(): Encountered invalid opcode number '%d'.",(int)iop);
           }
         }
       }

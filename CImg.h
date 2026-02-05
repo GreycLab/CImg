@@ -25750,16 +25750,16 @@ namespace cimg_library {
         return _mp_minabs(mp,true);
       }
 
-      static double mp_add(_cimg_math_parser& mp) {
-        return _mp_arg(2) + _mp_arg(3);
-      }
-
       static double mp_acos(_cimg_math_parser& mp) {
         return std::acos(_mp_arg(2));
       }
 
       static double mp_acosh(_cimg_math_parser& mp) {
         return cimg::acosh(_mp_arg(2));
+      }
+
+      static double mp_add(_cimg_math_parser& mp) {
+        return _mp_arg(2) + _mp_arg(3);
       }
 
       static double mp_arg0(_cimg_math_parser& mp) {

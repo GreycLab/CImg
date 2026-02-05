@@ -23284,7 +23284,7 @@ namespace cimg_library {
               if (is_vector(arg1)) _cimg_mp_vector2_vs(*ss2=='l'?id_rol:id_ror,*ss2=='l'?mp_rol:mp_ror,arg1,arg2);
               if (is_const_scalar(arg1) && is_const_scalar(arg2))
                 _cimg_mp_const_scalar(*ss2=='l'?cimg::rol(mem[arg1],(unsigned int)mem[arg2]):
-                                  cimg::ror(mem[arg1],(unsigned int)mem[arg2]));
+                                      cimg::ror(mem[arg1],(unsigned int)mem[arg2]));
               _cimg_mp_return(scalar2(*ss2=='l'?id_rol:id_ror,arg1,arg2));
             }
 

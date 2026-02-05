@@ -19332,7 +19332,7 @@ namespace cimg_library {
               _cimg_mp_const_scalar(mem[arg1] + mem[arg2]);
             if (code) { // Try to spot linear case 'a*b + c'
               CImg<ulongT> &pop = code.back();
-              if (pop[0]==(ulongT)mp_mul && is_comp_scalar(pop[1]) && (pop[1]==arg1 || pop[1]==arg2)) {
+              if (pop[0]==(ulongT)id_mul && is_comp_scalar(pop[1]) && (pop[1]==arg1 || pop[1]==arg2)) {
                 arg3 = (unsigned int)pop[1];
                 arg4 = (unsigned int)pop[2];
                 arg5 = (unsigned int)pop[3];
@@ -19368,7 +19368,7 @@ namespace cimg_library {
             if (!arg1) _cimg_mp_scalar1(minus,arg2);
             if (code) { // Try to spot linear cases 'a*b - c' and 'c - a*b'
               CImg<ulongT> &pop = code.back();
-              if (pop[0]==(ulongT)mp_mul && is_comp_scalar(pop[1]) && (pop[1]==arg1 || pop[1]==arg2)) {
+              if (pop[0]==(ulongT)id_mul && is_comp_scalar(pop[1]) && (pop[1]==arg1 || pop[1]==arg2)) {
                 arg3 = (unsigned int)pop[1];
                 arg4 = (unsigned int)pop[2];
                 arg5 = (unsigned int)pop[3];
@@ -19454,7 +19454,7 @@ namespace cimg_library {
 
             if (code) { // Try to spot double multiplication 'a*b*c'
               CImg<ulongT> &pop = code.back();
-              if (pop[0]==(ulongT)mp_mul && is_comp_scalar(pop[1]) && (pop[1]==arg1 || pop[1]==arg2)) {
+              if (pop[0]==(ulongT)id_mul && is_comp_scalar(pop[1]) && (pop[1]==arg1 || pop[1]==arg2)) {
                 arg3 = (unsigned int)pop[1];
                 arg4 = (unsigned int)pop[2];
                 arg5 = (unsigned int)pop[3];
@@ -20043,8 +20043,8 @@ namespace cimg_library {
               arg1 = compile(ss4,se1,depth1,0,block_flags);
               if (code) { // Try to spot cases 'abs(maxabs())' and 'abs(minabs())'.
                 CImg<ulongT> &pop = code.back();
-                if (pop[0]==(ulongT)mp_maxabs) { pop[0] = (ulongT)mp_absmaxabs; _cimg_mp_return(pop[1]); }
-                else if (pop[0]==(ulongT)mp_minabs) { pop[0] = (ulongT)mp_absminabs; _cimg_mp_return(pop[1]); }
+                if (pop[0]==(ulongT)id_maxabs) { pop[0] = (ulongT)id_absmaxabs; _cimg_mp_return(pop[1]); }
+                else if (pop[0]==(ulongT)id_minabs) { pop[0] = (ulongT)id_absminabs; _cimg_mp_return(pop[1]); }
               }
               if (is_vector(arg1)) _cimg_mp_vector1_v(id_abs,mp_abs,arg1);
               if (is_const_scalar(arg1)) _cimg_mp_const_scalar(cimg::abs(mem[arg1]));
@@ -21560,7 +21560,7 @@ namespace cimg_library {
               }
 
               _op.move_to(opcode);
-              opcode[0] = (ulongT)mp_epoch;
+              opcode[0] = (ulongT)id_epoch;
               if (is_sth) _cimg_mp_const_scalar(mp_epoch(*this));
               pos = opcode[1] = scalar();
               opcode.move_to(code);
@@ -23225,7 +23225,7 @@ namespace cimg_library {
                   else {
                     pos = vector(arg2*arg3*arg4*arg5);
                     opcode.resize(1,18,1,1,0,0,0,1);
-                    opcode[0] = (ulongT)mp_vector_resize_ext;
+                    opcode[0] = (ulongT)id_vector_resize_ext;
                     opcode[1] = (ulongT)pos;
                     opcode[2] = (ulongT)p1;
                     opcode.move_to(code);
@@ -24100,8 +24100,8 @@ namespace cimg_library {
                     arg2+=arg4;
                     const CImg<ulongT> &rcode_back = rcode.back();
                     is_sth&=p3>p1 && rcode_back[1]==arg3 &&
-                      (rcode_back[0]==(ulongT)mp_string_init ||
-                       rcode_back[0]==(ulongT)mp_vector_init) && variable_def.size()==p2 && !is_comp_vector(arg3);
+                      (rcode_back[0]==(ulongT)id_string_init ||
+                       rcode_back[0]==(ulongT)id_vector_init) && variable_def.size()==p2 && !is_comp_vector(arg3);
                     // ^^ Tricky part: detect if 'arg2' is a newly constructed vector not assigned to a variable
                     // (i.e. a vector-valued literal).
                   } else {
@@ -24248,7 +24248,7 @@ namespace cimg_library {
               }
               pos = vector(arg3*arg4*arg5*(unsigned int)opcode[4]);
               opcode.resize(1,15,1,1,0,0,0,1);
-              opcode[0] = (ulongT)mp_warp;
+              opcode[0] = (ulongT)id_warp;
               opcode[1] = (ulongT)pos;
               opcode.move_to(code);
               return_comp = true;
@@ -24749,8 +24749,8 @@ namespace cimg_library {
                   arg1+=arg3;
                   const CImg<ulongT> &rcode_back = rcode.back();
                   is_sth&=p3>p1 && rcode_back[1]==arg2 &&
-                    (rcode_back[0]==(ulongT)mp_string_init ||
-                     rcode_back[0]==(ulongT)mp_vector_init) && variable_def.size()==p2 && !is_comp_vector(arg2);
+                    (rcode_back[0]==(ulongT)id_string_init ||
+                     rcode_back[0]==(ulongT)id_vector_init) && variable_def.size()==p2 && !is_comp_vector(arg2);
                   // ^^ Tricky part: detect if 'arg2' is a newly constructed vector not assigned to a variable
                   // (i.e. a vector-valued literal).
                 } else {

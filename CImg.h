@@ -18926,16 +18926,36 @@ namespace cimg_library {
                           (*ps=='>' && *ns=='>') || (*ps=='<' && *ns=='<')) &&
               level[s - expr._data]==clevel) { // Self-operators (+=,-=,*=,/=,%=,>>=,<<=,&=,^=,|=)
             switch (*ps) {
-            case '+' : iop = id_self_add; fop = mp_self_add; _cimg_mp_op("Operator '+='"); break;
-            case '-' : iop = id_self_sub; fop = mp_self_sub; _cimg_mp_op("Operator '-='"); break;
-            case '*' : iop = id_self_mul; fop = mp_self_mul; _cimg_mp_op("Operator '*='"); break;
-            case '/' : iop = id_self_div; fop = mp_self_div; _cimg_mp_op("Operator '/='"); break;
-            case '%' : iop = id_self_modulo; fop = mp_self_modulo; _cimg_mp_op("Operator '%='"); break;
-            case '<' : iop = id_self_bitwise_left_shift; fop = mp_self_bitwise_left_shift; _cimg_mp_op("Operator '<<='"); break;
-            case '>' : iop = id_self_bitwise_right_shift; fop = mp_self_bitwise_right_shift; _cimg_mp_op("Operator '>>='"); break;
-            case '&' : iop = id_self_bitwise_and; fop = mp_self_bitwise_and; _cimg_mp_op("Operator '&='"); break;
-            case '|' : iop = id_self_bitwise_or; fop = mp_self_bitwise_or; _cimg_mp_op("Operator '|='"); break;
-            default : iop = id_self_pow; fop = mp_self_pow; _cimg_mp_op("Operator '^='"); break;
+            case '+' :
+              iop = id_self_add; fop = mp_self_add; _cimg_mp_op("Operator '+='");
+              break;
+            case '-' :
+              iop = id_self_sub; fop = mp_self_sub; _cimg_mp_op("Operator '-='");
+              break;
+            case '*' :
+              iop = id_self_mul; fop = mp_self_mul; _cimg_mp_op("Operator '*='");
+              break;
+            case '/' :
+              iop = id_self_div; fop = mp_self_div; _cimg_mp_op("Operator '/='");
+              break;
+            case '%' :
+              iop = id_self_modulo; fop = mp_self_modulo; _cimg_mp_op("Operator '%='");
+              break;
+            case '<' :
+              iop = id_self_bitwise_left_shift; fop = mp_self_bitwise_left_shift; _cimg_mp_op("Operator '<<='");
+              break;
+            case '>' :
+              iop = id_self_bitwise_right_shift; fop = mp_self_bitwise_right_shift; _cimg_mp_op("Operator '>>='");
+              break;
+            case '&' :
+              iop = id_self_bitwise_and; fop = mp_self_bitwise_and; _cimg_mp_op("Operator '&='");
+              break;
+            case '|' :
+              iop = id_self_bitwise_or; fop = mp_self_bitwise_or; _cimg_mp_op("Operator '|='");
+              break;
+            default :
+              iop = id_self_pow; fop = mp_self_pow; _cimg_mp_op("Operator '^='");
+              break;
             }
             s1 = *ps=='>' || *ps=='<'?ns:ps;
 

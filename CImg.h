@@ -17970,7 +17970,7 @@ namespace cimg_library {
         id_vector_resize_ext,id_vector_set_off,id_vector_shift,id_vector_stats,
         id_vkth,id_vmax,id_vmaxabs,id_vmedian,id_vmin,
         id_vminabs,id_vprod,id_vstd,id_vsum,id_vvar,id_warp,
-        id_wave,id_while,
+        id_wave,id_while
       } mp_id;
 
       // Constructors / Destructors.

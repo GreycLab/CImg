@@ -19932,7 +19932,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"abs(",4)) { // Absolute value
               _cimg_mp_op("Function 'abs()'");
               arg1 = compile(ss4,se1,depth1,0,block_flags);
-              if (code) { // Try to spot cases 'abs(maxabs())' and 'abs(minabs())'.
+              if (code) { // Spot cases 'abs(maxabs())' and 'abs(minabs())'
                 CImg<ulongT> &pop = code.back();
                 if (pop[0]==(ulongT)mp_maxabs) { pop[0] = (ulongT)mp_absmaxabs; _cimg_mp_return(pop[1]); }
                 else if (pop[0]==(ulongT)mp_minabs) { pop[0] = (ulongT)mp_absminabs; _cimg_mp_return(pop[1]); }

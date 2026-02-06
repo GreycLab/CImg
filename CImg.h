@@ -18039,7 +18039,7 @@ namespace cimg_library {
         mem(mp.mem),
         p_code_end(mp.p_code_end),
         result_dim(mp.result_dim),result_end_dim(mp.result_end_dim),
-        is_parallelizable(mp.is_parallelizable),is_noncritical_run(mp.is_noncritical_run),is_fill(mp.is_fill),
+        is_fill(mp.is_fill),is_noncritical_run(mp.is_noncritical_run),is_parallelizable(mp.is_parallelizable),
         need_input_copy(mp.need_input_copy),
         result(mem._data + (mp.result - mp.mem._data)),
         result_end(mp.result_end?mem._data + (mp.result_end - mp.mem._data):0),

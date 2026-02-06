@@ -25712,6 +25712,8 @@ namespace cimg_library {
         cimg_mp_func_abort();
         return cimg::type<double>::nan();
       }
+#else
+      static double mp_abort(_cimg_math_parser& mp) { cimg::unused(mp); return cimg::type<double>::nan(); }
 #endif
 
       static double mp_abs(_cimg_math_parser& mp) {
@@ -26584,12 +26586,92 @@ namespace cimg_library {
           const ulongT target = mp.opcode[1];
           mp.eval(mp.p_code,mp.p_code + 1);
 
+#define _mp_debug(name) fn==mp_##name?#name
+          const mp_func fn = (mp_func)*mp.opcode;
+          const char *const s_fn =
+            _mp_debug(abort):_mp_debug(abs):_mp_debug(abscut):_mp_debug(absmaxabs):_mp_debug(absminabs):
+            _mp_debug(acos):_mp_debug(acosh):_mp_debug(add):_mp_debug(arg0):_mp_debug(arg1):_mp_debug(argkth):
+            _mp_debug(argmax):_mp_debug(argmax2):_mp_debug(argmaxabs):_mp_debug(argmaxabs2):_mp_debug(argmin):
+            _mp_debug(argmin2):_mp_debug(argminabs):_mp_debug(argminabs2):_mp_debug(asin):_mp_debug(asinh):
+            _mp_debug(atan):_mp_debug(atan2):_mp_debug(atanh):_mp_debug(avg):_mp_debug(avg2):
+            _mp_debug(bitwise_and):_mp_debug(bitwise_left_shift):_mp_debug(bitwise_not):_mp_debug(bitwise_or):
+            _mp_debug(bitwise_right_shift):_mp_debug(bitwise_xor):_mp_debug(bool):_mp_debug(break):
+            _mp_debug(breakpoint):_mp_debug(c2o):_mp_debug(cbrt):_mp_debug(ceil):_mp_debug(complex_abs):
+            _mp_debug(complex_conj):_mp_debug(complex_cos):_mp_debug(complex_cosh):_mp_debug(complex_div_sv):
+            _mp_debug(complex_div_vv):_mp_debug(complex_exp):_mp_debug(complex_log):_mp_debug(complex_mul):
+            _mp_debug(complex_one):_mp_debug(complex_pow_ss):_mp_debug(complex_pow_sv):
+            _mp_debug(complex_pow_vs):_mp_debug(complex_pow_vv):_mp_debug(complex_sin):_mp_debug(complex_sinh):
+            _mp_debug(complex_sqr):_mp_debug(complex_sqrt):_mp_debug(complex_tan):_mp_debug(complex_tanh):
+            _mp_debug(continue):_mp_debug(convolve):_mp_debug(copy):_mp_debug(correlate):_mp_debug(cos):
+            _mp_debug(cosh):_mp_debug(cov):_mp_debug(critical):_mp_debug(cross):_mp_debug(cumulate):
+            _mp_debug(cut):_mp_debug(da_back_or_pop):_mp_debug(da_freeze):_mp_debug(da_insert_or_push):
+            _mp_debug(da_remove):_mp_debug(da_size):_mp_debug(date):_mp_debug(debug):_mp_debug(decrement):
+            _mp_debug(deg2rad):_mp_debug(det):_mp_debug(diag):_mp_debug(div):_mp_debug(do):_mp_debug(dot):
+            _mp_debug(echo):_mp_debug(ellipse):_mp_debug(epoch):_mp_debug(eq):_mp_debug(equalize):
+            _mp_debug(erf):_mp_debug(erfinv):_mp_debug(exp):_mp_debug(expr):_mp_debug(eye):_mp_debug(f2ui):
+            _mp_debug(factorial):_mp_debug(fft):_mp_debug(fibonacci):_mp_debug(find):_mp_debug(find_seq):
+            _mp_debug(flood):_mp_debug(floor):_mp_debug(for):_mp_debug(frac):_mp_debug(fsize):_mp_debug(gamma):
+            _mp_debug(gauss):_mp_debug(gcd):_mp_debug(gcd2):_mp_debug(get):_mp_debug(gt):_mp_debug(gte):
+            _mp_debug(histogram):_mp_debug(I):_mp_debug(i):_mp_debug(if):_mp_debug(IJoff):_mp_debug(ijoff):
+            _mp_debug(IJxyz1):_mp_debug(IJxyz2):_mp_debug(IJxyz3):_mp_debug(ijxyzc1):_mp_debug(ijxyzc2):
+            _mp_debug(ijxyzc3):_mp_debug(image_crop):_mp_debug(image_depth):_mp_debug(image_display):
+            _mp_debug(image_draw):_mp_debug(image_find):_mp_debug(image_find_seq):_mp_debug(image_height):
+            _mp_debug(image_is_shared):_mp_debug(image_median):_mp_debug(image_median_static):
+            _mp_debug(image_norm):_mp_debug(image_norm_static):_mp_debug(image_print):_mp_debug(image_resize):
+            _mp_debug(image_shift):_mp_debug(image_sort):_mp_debug(image_spectrum):_mp_debug(image_stats):
+            _mp_debug(image_stats_static):_mp_debug(image_std_static):_mp_debug(image_swap):_mp_debug(image_wh):
+            _mp_debug(image_whd):_mp_debug(image_whds):_mp_debug(image_width):_mp_debug(increment):
+            _mp_debug(index):_mp_debug(indexof):_mp_debug(inrange):_mp_debug(int):_mp_debug(isbool):
+            _mp_debug(isdir):_mp_debug(isfile):_mp_debug(isfinite):_mp_debug(isin):_mp_debug(isinf):
+            _mp_debug(isint):_mp_debug(isnan):_mp_debug(isvarname):_mp_debug(kth):_mp_debug(lcm):
+            _mp_debug(lcm2):_mp_debug(lerp):_mp_debug(linear_add):_mp_debug(linear_sub_left):
+            _mp_debug(linear_sub_right):_mp_debug(log):_mp_debug(log10):_mp_debug(log2):_mp_debug(logical_and):
+            _mp_debug(logical_not):_mp_debug(logical_or):_mp_debug(logit):_mp_debug(lowercase):_mp_debug(lt):
+            _mp_debug(lte):_mp_debug(map):_mp_debug(matrix_eigen):_mp_debug(matrix_invert):
+            _mp_debug(matrix_mul):_mp_debug(matrix_qr):_mp_debug(matrix_svd):_mp_debug(max):_mp_debug(max2):
+            _mp_debug(maxabs):_mp_debug(maxabs2):_mp_debug(med):_mp_debug(med2):_mp_debug(mem_copy):
+            _mp_debug(mem_display):_mp_debug(min):_mp_debug(min2):_mp_debug(minabs):_mp_debug(minabs2):
+            _mp_debug(minus):_mp_debug(mirror):_mp_debug(modulo):_mp_debug(mproj):_mp_debug(mse):_mp_debug(mul):
+            _mp_debug(mul2):_mp_debug(name):_mp_debug(neq):_mp_debug(noise):_mp_debug(normalize):
+            _mp_debug(normp):_mp_debug(o2c):_mp_debug(permutations):_mp_debug(permute):_mp_debug(polygon):
+            _mp_debug(pow):_mp_debug(pow0_25):_mp_debug(pow3):_mp_debug(pow4):_mp_debug(print):_mp_debug(prod):
+            _mp_debug(prod2):_mp_debug(rad2deg):_mp_debug(rand_double):_mp_debug(rand_double_0_1):
+            _mp_debug(rand_double_0_N):_mp_debug(rand_double_ext):_mp_debug(rand_double_gaussian):
+            _mp_debug(rand_double_m1_1):_mp_debug(rand_int):_mp_debug(rand_int_0_1):_mp_debug(rand_int_0_N):
+            _mp_debug(rand_int_ext):_mp_debug(rand_int_m1_1):_mp_debug(repeat):_mp_debug(reverse):
+            _mp_debug(rol):_mp_debug(ror):_mp_debug(rot2d):_mp_debug(rot3d):_mp_debug(round):_mp_debug(run):
+            _mp_debug(s2v):_mp_debug(self_add):_mp_debug(self_bitwise_and):_mp_debug(self_bitwise_left_shift):
+            _mp_debug(self_bitwise_or):_mp_debug(self_bitwise_right_shift):_mp_debug(self_decrement):
+            _mp_debug(self_div):_mp_debug(self_increment):_mp_debug(self_map_vector_s):
+            _mp_debug(self_map_vector_v):_mp_debug(self_modulo):_mp_debug(self_mul):_mp_debug(self_pow):
+            _mp_debug(self_sub):_mp_debug(set):_mp_debug(set_ijoff):_mp_debug(set_IJoff_s):
+            _mp_debug(set_IJoff_v):_mp_debug(set_IJxyz_s):_mp_debug(set_IJxyz_v):_mp_debug(set_ijxyzc):
+            _mp_debug(sigmoid):_mp_debug(sign):_mp_debug(sin):_mp_debug(sinc):_mp_debug(sinh):
+            _mp_debug(size_list):_mp_debug(softargmax):_mp_debug(softargmin):_mp_debug(softmax):
+            _mp_debug(softmin):_mp_debug(solve):_mp_debug(sort):_mp_debug(sqr):_mp_debug(sqrt):_mp_debug(srand):
+            _mp_debug(srand0):_mp_debug(std):_mp_debug(std2):_mp_debug(store):_mp_debug(string):
+            _mp_debug(string_init):_mp_debug(sub):_mp_debug(sum):_mp_debug(sum2):_mp_debug(swap):_mp_debug(tan):
+            _mp_debug(tanh):_mp_debug(trace):_mp_debug(transpose):_mp_debug(ui2f):_mp_debug(unitnorm):
+            _mp_debug(uppercase):_mp_debug(v2s):_mp_debug(var):_mp_debug(var2):_mp_debug(vargkth):
+            _mp_debug(vargmax):_mp_debug(vargmaxabs):_mp_debug(vargmin):_mp_debug(vargminabs):_mp_debug(vavg):
+            _mp_debug(vector_copy):_mp_debug(vector_crop):_mp_debug(vector_crop_ext):_mp_debug(vector_display):
+            _mp_debug(vector_draw):_mp_debug(vector_eq):_mp_debug(vector_fill):_mp_debug(vector_fill_ext):
+            _mp_debug(vector_hypot):_mp_debug(vector_init):_mp_debug(vector_lerp):_mp_debug(vector_map_sv):
+            _mp_debug(vector_map_v):_mp_debug(vector_map_vv):_mp_debug(vector_neq):_mp_debug(vector_norm0):
+            _mp_debug(vector_norm1):_mp_debug(vector_norm2):_mp_debug(vector_norminf):_mp_debug(vector_off):
+            _mp_debug(vector_print):_mp_debug(vector_rand):_mp_debug(vector_resize):
+            _mp_debug(vector_resize_ext):_mp_debug(vector_set_off):_mp_debug(vector_shift):
+            _mp_debug(vector_stats):_mp_debug(vkth):_mp_debug(vmax):_mp_debug(vmaxabs):_mp_debug(vmedian):
+            _mp_debug(vmin):_mp_debug(vminabs):_mp_debug(vprod):_mp_debug(vstd):_mp_debug(vsum):_mp_debug(vvar):
+            _mp_debug(warp):_mp_debug(wave):_mp_debug(while):
+            "unknown";
+
           cimg_pragma_openmp(critical(mp_debug)) {
             std::fprintf(cimg::output(),
                          "\n[" cimg_appname "_math_parser] %p[thread #%u]:%*c"
-                         "Opcode %p = [ %p,%s ] -> mem[%u] = %.17g",
+                         "Opcode %p = [ %p (%s),%s ] -> mem[%u] = %.17g",
                          (void*)&mp,n_thread,mp.debug_indent,' ',
-                         (void*)mp.opcode._data,(void*)*mp.opcode,_op.value_string().data(),
+                         (void*)mp.opcode._data,(void*)*mp.opcode,s_fn,_op.value_string().data(),
                          (unsigned int)target,mp.mem[target]);
             std::fflush(cimg::output());
           }
@@ -27107,6 +27189,8 @@ namespace cimg_library {
         else cimg_mp_func_get(ptrd,0,to_string,ss._data);
         return cimg::type<double>::nan();
       }
+#else
+      static double mp_get(_cimg_math_parser& mp) { cimg::unused(mp); return cimg::type<double>::nan(); }
 #endif
 
       static double mp_gt(_cimg_math_parser& mp) {
@@ -28556,6 +28640,8 @@ namespace cimg_library {
         }
         return cimg::type<double>::nan();
       }
+#else
+      static double mp_name(_cimg_math_parser& mp) { cimg::unused(mp); return cimg::type<double>::nan(); }
 #endif
 
       static double mp_neq(_cimg_math_parser& mp) {
@@ -28879,6 +28965,8 @@ namespace cimg_library {
         cimg_mp_func_run(str._data,n_thread && mp.is_noncritical_run);
         return cimg::type<double>::nan();
       }
+#else
+      static double mp_run(_cimg_math_parser& mp) { cimg::unused(mp); return cimg::type<double>::nan(); }
 #endif
 
       static double mp_s2v(_cimg_math_parser& mp) {
@@ -29020,6 +29108,8 @@ namespace cimg_library {
         else cimg_mp_func_set(ptrs,0,sd._data);
         return *ptrs;
       }
+#else
+      static double mp_set(_cimg_math_parser& mp) { cimg::unused(mp); return cimg::type<double>::nan(); }
 #endif
 
       static double mp_set_ijoff(_cimg_math_parser& mp) {
@@ -29291,6 +29381,8 @@ namespace cimg_library {
                                 is_compressed,ss._data);
         return cimg::type<double>::nan();
       }
+#else
+      static double mp_store(_cimg_math_parser& mp) { cimg::unused(mp); return cimg::type<double>::nan(); }
 #endif
 
       static double mp_string(_cimg_math_parser& mp) {

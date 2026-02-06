@@ -19215,27 +19215,32 @@ namespace cimg_library {
                                                                                      *(ps - 1)<='9')))) &&
               level[s - expr._data]==clevel) { // Addition ('+')
             _cimg_mp_op("Operator '+'");
+            p3 = code.size();
             arg1 = compile(ss,s,depth1,0,block_flags);
+            arg3 = arg4 = ~0U;
+            if (is_scalar(arg1) && code.size()>p3) { // Spot linear case 'a*b + c'
+              CImg<ulongT>& pop = code.back();
+              if (pop[0]==(ulongT)mp_mul && pop[1]==arg1) {
+                arg3 = (unsigned int)pop[2]; arg4 = (unsigned int)pop[3]; is_sth = false; // Operands 'a' and 'b'
+                code.remove();
+              }
+            }
             arg2 = compile(s + 1,se,depth1,0,block_flags);
+            if (arg3==~0U && is_scalar(arg2) && code.size()>p3) { // Spot linear case 'b*c + a'
+              CImg<ulongT>& pop = code.back();
+              if (pop[0]==(ulongT)mp_mul && pop[1]==arg2) {
+                arg3 = (unsigned int)pop[2]; arg4 = (unsigned int)pop[3]; is_sth = true; // Operands 'a' and 'b'
+                code.remove();
+              }
+            }
             _cimg_mp_check_type(arg2,2,3,size(arg1));
             if (!arg2) _cimg_mp_same(arg1);
             if (!arg1) _cimg_mp_same(arg2);
             if (is_vector(arg1) && is_vector(arg2)) _cimg_mp_vector2_vv(add,arg1,arg2);
             if (is_vector(arg1) && is_scalar(arg2)) _cimg_mp_vector2_vs(add,arg1,arg2);
             if (is_scalar(arg1) && is_vector(arg2)) _cimg_mp_vector2_sv(add,arg1,arg2);
-            if (is_const_scalar(arg1) && is_const_scalar(arg2))
-              _cimg_mp_const_scalar(mem[arg1] + mem[arg2]);
-            if (code) { // Try to spot linear case 'a*b + c'
-              CImg<ulongT> &pop = code.back();
-              if (pop[0]==(ulongT)mp_mul && is_comp_scalar(pop[1]) && (pop[1]==arg1 || pop[1]==arg2)) {
-                arg3 = (unsigned int)pop[1];
-                arg4 = (unsigned int)pop[2];
-                arg5 = (unsigned int)pop[3];
-                code.remove();
-                CImg<ulongT>::vector((ulongT)mp_linear_add,arg3,arg4,arg5,arg3==arg2?arg1:arg2).move_to(code);
-                _cimg_mp_return(arg3);
-              }
-            }
+            if (is_const_scalar(arg1) && is_const_scalar(arg2)) _cimg_mp_const_scalar(mem[arg1] + mem[arg2]);
+            if (arg3!=~0U) _cimg_mp_scalar3(mul_add,arg3,arg4,is_sth?arg1:arg2); // Particular case 'a*b + c' and 'c + a*b'
             if (arg2==1) _cimg_mp_scalar1(increment,arg1);
             if (arg1==1) _cimg_mp_scalar1(increment,arg2);
             _cimg_mp_scalar2(add,arg1,arg2);
@@ -19333,7 +19338,7 @@ namespace cimg_library {
             arg1 = compile(ss,s,depth1,0,block_flags);
 
             arg3 = arg4 = ~0U;
-            if (is_scalar(arg1) && code.size()>p3) { // Spot double multiplication 'a*b*c' where 'a*b' is scalar
+            if (is_scalar(arg1) && code.size()>p3) { // Spot double product case 'a*b*c'
               CImg<ulongT>& pop = code.back();
               if (pop[0]==(ulongT)mp_mul && pop[1]==arg1) {
                 arg3 = (unsigned int)pop[2]; arg4 = (unsigned int)pop[3]; // Operands 'a' and 'b'
@@ -19357,7 +19362,7 @@ namespace cimg_library {
             if (is_const_scalar(arg1) && is_const_scalar(arg2))
               _cimg_mp_const_scalar(mem[arg1]*mem[arg2]);
 
-            if (arg3!=~0U) { // Particular case of double multiplication 'a*b*c'
+            if (arg3!=~0U) { // Particular case 'a*b*c'
               if (is_const_scalar(arg2)) { // Manage cases where '(a,c)' or '(b,c)' are constants
                 if (is_const_scalar(arg4)) cimg::swap(arg3,arg4);
                 if (is_const_scalar(arg3)) {
@@ -19932,7 +19937,7 @@ namespace cimg_library {
             if (!std::strncmp(ss,"abs(",4)) { // Absolute value
               _cimg_mp_op("Function 'abs()'");
               arg1 = compile(ss4,se1,depth1,0,block_flags);
-              if (code) { // Spot cases 'abs(maxabs())' and 'abs(minabs())'
+              if (code) { // Spot 'abs(maxabs())' and 'abs(minabs())' cases
                 CImg<ulongT> &pop = code.back();
                 if (pop[0]==(ulongT)mp_maxabs) { pop[0] = (ulongT)mp_absmaxabs; _cimg_mp_return(pop[1]); }
                 else if (pop[0]==(ulongT)mp_minabs) { pop[0] = (ulongT)mp_absminabs; _cimg_mp_return(pop[1]); }
@@ -26626,7 +26631,7 @@ namespace cimg_library {
             _mp_debug(index):_mp_debug(indexof):_mp_debug(inrange):_mp_debug(int):_mp_debug(isbool):
             _mp_debug(isdir):_mp_debug(isfile):_mp_debug(isfinite):_mp_debug(isin):_mp_debug(isinf):
             _mp_debug(isint):_mp_debug(isnan):_mp_debug(isvarname):_mp_debug(kth):_mp_debug(lcm):
-            _mp_debug(lcm2):_mp_debug(lerp):_mp_debug(linear_add):_mp_debug(linear_sub_left):
+            _mp_debug(lcm2):_mp_debug(lerp):_mp_debug(mul_add):_mp_debug(linear_sub_left):
             _mp_debug(linear_sub_right):_mp_debug(log):_mp_debug(log10):_mp_debug(log2):_mp_debug(logical_and):
             _mp_debug(logical_not):_mp_debug(logical_or):_mp_debug(logit):_mp_debug(lowercase):_mp_debug(lt):
             _mp_debug(lte):_mp_debug(map):_mp_debug(matrix_eigen):_mp_debug(matrix_invert):
@@ -28176,10 +28181,6 @@ namespace cimg_library {
         return val0*(1 - t) + val1*t;
       }
 
-      static double mp_linear_add(_cimg_math_parser& mp) {
-        return _mp_arg(2)*_mp_arg(3) + _mp_arg(4);
-      }
-
       static double mp_linear_sub_left(_cimg_math_parser& mp) {
         return _mp_arg(2)*_mp_arg(3) - _mp_arg(4);
       }
@@ -28628,6 +28629,10 @@ namespace cimg_library {
 
       static double mp_mul2(_cimg_math_parser& mp) {
         return _mp_arg(2)*_mp_arg(3)*_mp_arg(4);
+      }
+
+      static double mp_mul_add(_cimg_math_parser& mp) {
+        return _mp_arg(2)*_mp_arg(3) + _mp_arg(4);
       }
 
 #ifdef cimg_mp_func_name

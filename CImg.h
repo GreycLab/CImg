@@ -19236,12 +19236,14 @@ namespace cimg_library {
             if (is_vector(arg1) && is_scalar(arg2)) _cimg_mp_vector2_vs(add,arg1,arg2);
             if (is_scalar(arg1) && is_vector(arg2)) _cimg_mp_vector2_sv(add,arg1,arg2);
             if (is_const_scalar(arg1) && is_const_scalar(arg2)) _cimg_mp_const_scalar(mem[arg1] + mem[arg2]);
-            if (ptr1 && code[p1].data()==ptr1 && *ptr1==(ulongT)mp_mul && ptr1[1]==(ulongT)arg1) { // Particular case 'a*b + c'
+            if (p1<code.size() && code[p1].data()==ptr1 &&
+                *ptr1==(ulongT)mp_mul && ptr1[1]==(ulongT)arg1) { // Particular case 'a*b + c'
               arg3 = (unsigned int)ptr1[2]; arg4 = (unsigned int)ptr1[3];
               code.remove(p1);
               _cimg_mp_scalar3(mul_add,arg3,arg4,arg2);
             }
-            if (ptr2 && code[p2].data()==ptr2 && *ptr2==(ulongT)mp_mul && ptr2[1]==(ulongT)arg2) { // Particular case 'c + a*b'
+            if (p2<code.size() && code[p2].data()==ptr2 &&
+                *ptr2==(ulongT)mp_mul && ptr2[1]==(ulongT)arg2) { // Particular case 'c + a*b'
               arg3 = (unsigned int)ptr2[2]; arg4 = (unsigned int)ptr2[3];
               code.remove(p2);
               _cimg_mp_scalar3(mul_add,arg3,arg4,arg1);
@@ -19282,12 +19284,14 @@ namespace cimg_library {
             }
             if (is_const_scalar(arg1) && is_const_scalar(arg2)) _cimg_mp_const_scalar(mem[arg1] - mem[arg2]);
             if (!arg1) _cimg_mp_scalar1(minus,arg2);
-            if (ptr1 && code[p1].data()==ptr1 && *ptr1==(ulongT)mp_mul && ptr1[1]==(ulongT)arg1) { // Particular case 'a*b - c'
+            if (p1<code.size() && code[p1].data()==ptr1 &&
+                *ptr1==(ulongT)mp_mul && ptr1[1]==(ulongT)arg1) { // Particular case 'a*b - c'
               arg3 = (unsigned int)ptr1[2]; arg4 = (unsigned int)ptr1[3];
               code.remove(p1);
               _cimg_mp_scalar3(mul_sub,arg3,arg4,arg2);
             }
-            if (ptr2 && code[p2].data()==ptr2 && *ptr2==(ulongT)mp_mul && ptr2[1]==(ulongT)arg2) { // Particular case 'c - a*b'
+            if (p2<code.size() && code[p2].data()==ptr2 &&
+                *ptr2==(ulongT)mp_mul && ptr2[1]==(ulongT)arg2) { // Particular case 'c - a*b'
               arg3 = (unsigned int)ptr2[2]; arg4 = (unsigned int)ptr2[3];
               code.remove(p2);
               _cimg_mp_scalar3(sub_mul,arg1,arg3,arg4);
@@ -19371,7 +19375,8 @@ namespace cimg_library {
             if (is_vector(arg1) && is_scalar(arg2)) _cimg_mp_vector2_vs(mul,arg1,arg2);
             if (is_scalar(arg1) && is_vector(arg2)) _cimg_mp_vector2_sv(mul,arg1,arg2);
             if (is_const_scalar(arg1) && is_const_scalar(arg2)) _cimg_mp_const_scalar(mem[arg1]*mem[arg2]);
-            if (ptr1 && code[p1].data()==ptr1 && *ptr1==(ulongT)mp_mul && ptr1[1]==(ulongT)arg1) { // Particular case 'a*b*c'
+            if (p1<code.size() && code[p1].data()==ptr1 &&
+                *ptr1==(ulongT)mp_mul && ptr1[1]==(ulongT)arg1) { // Particular case 'a*b*c'
               arg3 = (unsigned int)ptr1[2]; arg4 = (unsigned int)ptr1[3];
               code.remove(p1);
               if (is_const_scalar(arg2)) { // Manage cases where '(a,c)' or '(b,c)' are constants

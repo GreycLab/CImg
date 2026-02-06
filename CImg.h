@@ -17843,8 +17843,7 @@ namespace cimg_library {
       CImg<ulongT> opcode;
       CImg<T> &imgout;
 
-      const CImg<ulongT> *p_code, *p_code_end;
-      const CImg<ulongT> *const p_break;
+      const CImg<ulongT> *const p_break, *p_code, *p_code_end;
       const CImg<T>& imgin;
 
       unsigned int break_type, constcache_size, debug_indent, mem_img_index, mem_img_median, mem_img_norm, mempos,
@@ -17905,8 +17904,9 @@ namespace cimg_library {
         imgout(img_output?*img_output:CImg<T>::empty()),
         p_break((CImg<ulongT>*)(cimg_ulong)-2),
         imgin(img_input),
-        break_type(0),constcache_size(0),debug_indent(0),mem_img_index(~0U),mem_img_median(~0U),mem_img_norm(~0U),result_dim(0),result_end_dim(0),
-        is_noncritical_run(false),is_fill(_is_fill),is_parallelizable(true),need_input_copy(false),
+        break_type(0),constcache_size(0),debug_indent(0),mem_img_index(~0U),mem_img_median(~0U),mem_img_norm(~0U),
+          result_dim(0),result_end_dim(0),
+        is_fill(_is_fill),is_noncritical_run(false),is_parallelizable(true),need_input_copy(false),
         calling_function(funcname?funcname:"cimg_math_parser"),
         result_end(0),
         user_macro(0),
@@ -18015,12 +18015,11 @@ namespace cimg_library {
         imglist(CImgList<T>::empty()),
         img_stats(_img_stats),
         imgout(CImg<T>::empty()),
-        p_break((CImg<ulongT>*)(cimg_ulong)-2),
+        p_break((CImg<ulongT>*)(cimg_ulong)-2),p_code_end(0),
         imgin(CImg<T>::const_empty()),
         break_type(0),constcache_size(0),debug_indent(0),result_dim(0),result_end_dim(0),
         is_fill(false),is_noncritical_run(false),is_parallelizable(true),need_input_copy(false),
         calling_function(0),
-        p_code_end(0),
         result_end(0),
         rng(0) {
         mem.assign(1 + _cimg_mp_slot_c,1,1,1,0); // Allow to skip 'is_empty?' test in operator()()
@@ -18031,19 +18030,17 @@ namespace cimg_library {
         code(mp.code),code_begin_t(mp.code_begin_t),code_end_t(mp.code_end_t),
         list_median(mp.list_median),list_norm(mp.list_norm),list_stats(mp.list_stats),
         imglist(mp.imglist),
-        img_stats(mp.img_stats),
+        img_stats(mp.img_stats),mem(mp.mem),
         imgout(mp.imgout),
-        p_break(mp.p_break),
+        p_break(mp.p_break),p_code_end(mp.p_code_end),
         imgin(mp.imgin),
-        break_type(0),constcache_size(0),debug_indent(0),
-        mem(mp.mem),
-        p_code_end(mp.p_code_end),
-        result_dim(mp.result_dim),result_end_dim(mp.result_end_dim),
+        break_type(0),constcache_size(0),debug_indent(0),result_dim(mp.result_dim),result_end_dim(mp.result_end_dim),
         is_fill(mp.is_fill),is_noncritical_run(mp.is_noncritical_run),is_parallelizable(mp.is_parallelizable),
-        need_input_copy(mp.need_input_copy),
+          need_input_copy(mp.need_input_copy),
+        calling_function(0),
         result(mem._data + (mp.result - mp.mem._data)),
-        result_end(mp.result_end?mem._data + (mp.result_end - mp.mem._data):0),
-        rng((cimg::_rand(),cimg::rng())),calling_function(0) {
+          result_end(mp.result_end?mem._data + (mp.result_end - mp.mem._data):0),
+        rng((cimg::_rand(),cimg::rng())) {
 
 #if cimg_use_openmp!=0
         mem[_cimg_mp_slot_t] = (double)omp_get_thread_num();

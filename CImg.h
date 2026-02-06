@@ -17836,30 +17836,25 @@ namespace cimg_library {
       CImgList<charT> variable_def, macro_def, macro_body;
       CImgList<T>& imglist;
 
+      CImg<uintT> level, variable_pos, reserved_label, mem_img_stats, constcache_inds;
+      CImg<doubleT> mem, _img_stats, &img_stats, constcache_vals;
       CImg<intT> memtype, memmerge;
-
-      CImg<ulongT> opcode;
-      const CImg<ulongT> *p_code_end, *p_code;
-      const CImg<ulongT> *const p_break;
-
       CImg<charT> expr, pexpr;
-      const CImg<T>& imgin;
+      CImg<ulongT> opcode;
       CImg<T> &imgout;
 
-
-      CImg<doubleT> mem, _img_stats, &img_stats, constcache_vals;
-
-      CImg<uintT> mem_img_stats, constcache_inds;
-
-      CImg<uintT> level, variable_pos, reserved_label;
-      char *user_macro;
+      const CImg<ulongT> *p_code_end, *p_code;
+      const CImg<ulongT> *const p_break;
+      const CImg<T>& imgin;
 
       unsigned int mempos, mem_img_median, mem_img_norm, mem_img_index, debug_indent,
         result_dim, result_end_dim, break_type, constcache_size;
       bool is_parallelizable, is_noncritical_run, is_end_code, is_fill, need_input_copy, return_comp;
-      double *result, *result_end;
-      cimg_uint64 rng;
       const char *const calling_function, *s_op, *ss_op;
+      double *result, *result_end;
+      char *user_macro;
+      cimg_uint64 rng;
+
       typedef double (*mp_func)(_cimg_math_parser&);
 
 #define _cimg_mp_calling_function s_calling_function()._data

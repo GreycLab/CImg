@@ -29450,7 +29450,7 @@ namespace cimg_library {
       }
 
       static double mp_sub_mul(_cimg_math_parser& mp) {
-        return _mp_arg(4) - _mp_arg(2)*_mp_arg(3);
+        return _mp_arg(2) - _mp_arg(3)*_mp_arg(4);
       }
 
       static double mp_sum(_cimg_math_parser& mp) {

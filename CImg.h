@@ -17833,8 +17833,7 @@ namespace cimg_library {
     struct _cimg_math_parser {
       CImg<doubleT> mem;
       CImg<intT> memtype, memmerge;
-      CImgList<ulongT> _code, &code, code_begin, code_end,
-        _code_begin_t, &code_begin_t, _code_end_t, &code_end_t;
+      CImgList<ulongT> _code, _code_begin_t, _code_end_t, code_begin, code_end, &code, &code_begin_t, &code_end_t;
       CImg<ulongT> opcode;
       const CImg<ulongT> *p_code_end, *p_code;
       const CImg<ulongT> *const p_break;

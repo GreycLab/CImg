@@ -17831,9 +17831,13 @@ namespace cimg_library {
 
     // Define the math formula parser/compiler and expression evaluator.
     struct _cimg_math_parser {
-      CImg<doubleT> mem;
-      CImg<intT> memtype, memmerge;
       CImgList<ulongT> _code, _code_begin_t, _code_end_t, code_begin, code_end, &code, &code_begin_t, &code_end_t;
+      CImgList<doubleT> _list_median, _list_norm, _list_stats, &list_median, &list_norm, &list_stats;
+      CImgList<charT> variable_def, macro_def, macro_body;
+      CImgList<T>& imglist;
+
+      CImg<intT> memtype, memmerge;
+
       CImg<ulongT> opcode;
       const CImg<ulongT> *p_code_end, *p_code;
       const CImg<ulongT> *const p_break;
@@ -17841,14 +17845,13 @@ namespace cimg_library {
       CImg<charT> expr, pexpr;
       const CImg<T>& imgin;
       CImg<T> &imgout;
-      CImgList<T>& imglist;
 
-      CImg<doubleT> _img_stats, &img_stats, constcache_vals;
-      CImgList<doubleT> _list_stats, &list_stats, _list_median, &list_median, _list_norm, &list_norm;
+
+      CImg<doubleT> mem, _img_stats, &img_stats, constcache_vals;
+
       CImg<uintT> mem_img_stats, constcache_inds;
 
       CImg<uintT> level, variable_pos, reserved_label;
-      CImgList<charT> variable_def, macro_def, macro_body;
       char *user_macro;
 
       unsigned int mempos, mem_img_median, mem_img_norm, mem_img_index, debug_indent,
@@ -17901,9 +17904,11 @@ namespace cimg_library {
                         const CImg<T>& img_input=CImg<T>::const_empty(), CImg<T> *const img_output=0,
                         CImgList<T> *const list_images=0, const bool _is_fill=false):
         code(_code),code_begin_t(_code_begin_t),code_end_t(_code_end_t),
+        list_median(_list_median),list_norm(_list_norm),list_stats(_list_stats),
+        imglist(list_images?*list_images:CImgList<T>::empty()),
         p_break((CImg<ulongT>*)(cimg_ulong)-2),imgin(img_input),
-        imgout(img_output?*img_output:CImg<T>::empty()),imglist(list_images?*list_images:CImgList<T>::empty()),
-        img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),list_norm(_list_norm),user_macro(0),
+        imgout(img_output?*img_output:CImg<T>::empty()),
+        img_stats(_img_stats),user_macro(0),
         mem_img_median(~0U),mem_img_norm(~0U),mem_img_index(~0U),debug_indent(0),result_dim(0),result_end_dim(0),
         break_type(0),constcache_size(0),is_parallelizable(true),is_noncritical_run(false),is_fill(_is_fill),
         need_input_copy(false),result_end(0),rng((cimg::_rand(),cimg::rng())),
@@ -18008,9 +18013,10 @@ namespace cimg_library {
 
       _cimg_math_parser():
         code(_code),code_begin_t(_code_begin_t),code_end_t(_code_end_t),
+        list_median(_list_median),list_norm(_list_norm),list_stats(_list_stats),
         p_code_end(0),p_break((CImg<ulongT>*)(cimg_ulong)-2),
         imgin(CImg<T>::const_empty()),imgout(CImg<T>::empty()),imglist(CImgList<T>::empty()),
-        img_stats(_img_stats),list_stats(_list_stats),list_median(_list_median),list_norm(_list_norm),debug_indent(0),
+        img_stats(_img_stats),debug_indent(0),
         result_dim(0),result_end_dim(0),break_type(0),constcache_size(0),is_parallelizable(true),
         is_noncritical_run(false),is_fill(false),need_input_copy(false),
         result_end(0),rng(0),calling_function(0) {
@@ -18019,10 +18025,12 @@ namespace cimg_library {
       }
 
       _cimg_math_parser(const _cimg_math_parser& mp):
-        mem(mp.mem),code(mp.code),code_begin_t(mp.code_begin_t),code_end_t(mp.code_end_t),
+        code(mp.code),code_begin_t(mp.code_begin_t),code_end_t(mp.code_end_t),
+        list_median(mp.list_median),list_norm(mp.list_norm),list_stats(mp.list_stats),
+        imglist(mp.imglist),
         p_code_end(mp.p_code_end),p_break(mp.p_break),
-        imgin(mp.imgin),imgout(mp.imgout),imglist(mp.imglist),
-        img_stats(mp.img_stats),list_stats(mp.list_stats),list_median(mp.list_median),list_norm(mp.list_norm),
+        imgin(mp.imgin),imgout(mp.imgout),
+        mem(mp.mem),img_stats(mp.img_stats),
         debug_indent(0),result_dim(mp.result_dim),result_end_dim(mp.result_end_dim),break_type(0),constcache_size(0),
         is_parallelizable(mp.is_parallelizable),is_noncritical_run(mp.is_noncritical_run),is_fill(mp.is_fill),
         need_input_copy(mp.need_input_copy),

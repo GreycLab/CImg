@@ -19290,7 +19290,7 @@ namespace cimg_library {
             if (ptr2 && code[p2].data()==ptr2 && *ptr2==(ulongT)mp_mul && ptr2[1]==(ulongT)arg2) { // Particular case 'c - a*b'
               arg3 = (unsigned int)ptr2[2]; arg4 = (unsigned int)ptr2[3];
               code.remove(p2);
-              _cimg_mp_scalar3(sub_mul,arg1,arg2,arg3);
+              _cimg_mp_scalar3(sub_mul,arg1,arg3,arg4);
             }
             if (arg2==1) _cimg_mp_scalar1(decrement,arg1);
             _cimg_mp_scalar2(sub,arg1,arg2);

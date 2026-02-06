@@ -19336,7 +19336,7 @@ namespace cimg_library {
             if (is_scalar(arg1) && code.size()>p3) { // Spot double multiplication 'a*b*c' where 'a*b' is scalar
               CImg<ulongT>& pop = code.back();
               if (pop[0]==(ulongT)mp_mul && pop[1]==arg1) {
-                arg3 = (unsigned int)pop[2]; arg4 = (unsigned int)pop[3];
+                arg3 = (unsigned int)pop[2]; arg4 = (unsigned int)pop[3]; // Operands 'a' and 'b'
                 code.remove();
               }
             }

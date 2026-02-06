@@ -17833,23 +17833,23 @@ namespace cimg_library {
     struct _cimg_math_parser {
       CImgList<ulongT> _code, _code_begin_t, _code_end_t, code_begin, code_end, &code, &code_begin_t, &code_end_t;
       CImgList<doubleT> _list_median, _list_norm, _list_stats, &list_median, &list_norm, &list_stats;
-      CImgList<charT> variable_def, macro_def, macro_body;
+      CImgList<charT> macro_def, macro_body, variable_def;
       CImgList<T>& imglist;
 
-      CImg<uintT> level, variable_pos, reserved_label, mem_img_stats, constcache_inds;
-      CImg<doubleT> mem, _img_stats, &img_stats, constcache_vals;
-      CImg<intT> memtype, memmerge;
+      CImg<uintT> constcache_inds, level, mem_img_stats, reserved_label, variable_pos;
+      CImg<doubleT> _img_stats, &img_stats, constcache_vals, mem;
+      CImg<intT> memmerge, memtype;
       CImg<charT> expr, pexpr;
       CImg<ulongT> opcode;
       CImg<T> &imgout;
 
-      const CImg<ulongT> *p_code_end, *p_code;
+      const CImg<ulongT> *p_code, *p_code_end;
       const CImg<ulongT> *const p_break;
       const CImg<T>& imgin;
 
-      unsigned int mempos, mem_img_median, mem_img_norm, mem_img_index, debug_indent,
-        result_dim, result_end_dim, break_type, constcache_size;
-      bool is_parallelizable, is_noncritical_run, is_end_code, is_fill, need_input_copy, return_comp;
+      unsigned int break_type, constcache_size, debug_indent, mem_img_index, mem_img_median, mem_img_norm, mempos,
+        result_dim, result_end_dim;
+      bool is_end_code, is_fill, is_noncritical_run, is_parallelizable, need_input_copy, return_comp;
       const char *const calling_function, *s_op, *ss_op;
       double *result, *result_end;
       char *user_macro;
@@ -17901,6 +17901,7 @@ namespace cimg_library {
         code(_code),code_begin_t(_code_begin_t),code_end_t(_code_end_t),
         list_median(_list_median),list_norm(_list_norm),list_stats(_list_stats),
         imglist(list_images?*list_images:CImgList<T>::empty()),
+
         p_break((CImg<ulongT>*)(cimg_ulong)-2),imgin(img_input),
         imgout(img_output?*img_output:CImg<T>::empty()),
         img_stats(_img_stats),user_macro(0),

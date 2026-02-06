@@ -19329,7 +19329,17 @@ namespace cimg_library {
 
         for (s = se2; s>ss; --s) if (*s=='*' && level[s - expr._data]==clevel) { // Multiplication ('*')
             _cimg_mp_op("Operator '*'");
+            p3 = code.size();
             arg1 = compile(ss,s,depth1,0,block_flags);
+
+            arg3 = arg4 = ~0U;
+            if (is_scalar(arg1) && code.size()>p3) { // Spot double multiplication 'a*b*c' where 'a*b' is scalar
+              CImg<ulongT>& pop = code.back();
+              if (pop[0]==(ulongT)mp_mul && pop[1]==arg1) {
+                arg3 = (unsigned int)pop[2]; arg4 = (unsigned int)pop[3];
+                code.remove();
+              }
+            }
             arg2 = compile(s + 1,se,depth1,0,block_flags);
             p2 = size(arg2);
             if (p2>0 && (ulongT)size(arg1)==(ulongT)p2*p2) { // Particular case of matrix multiplication
@@ -19347,24 +19357,16 @@ namespace cimg_library {
             if (is_const_scalar(arg1) && is_const_scalar(arg2))
               _cimg_mp_const_scalar(mem[arg1]*mem[arg2]);
 
-            if (code) { // Try to spot double multiplication 'a*b*c'
-              CImg<ulongT> &pop = code.back();
-              if (pop[0]==(ulongT)mp_mul && is_comp_scalar(pop[1]) && (pop[1]==arg1 || pop[1]==arg2)) {
-                arg3 = (unsigned int)pop[1];
-                arg4 = (unsigned int)pop[2];
-                arg5 = (unsigned int)pop[3];
-                code.remove();
-                if (is_const_scalar(arg2)) { // Manage cases where 'a & c' or 'b & c' are constants
-                  if (is_const_scalar(arg5)) cimg::swap(arg4,arg5);
-                  if (is_const_scalar(arg4)) {
-                    arg2 = const_scalar(mem[arg2]*mem[arg4]);
-                    if (!arg2) _cimg_mp_return(0);
-                    _cimg_mp_scalar2(mul,arg2,arg5);
-                  }
+            if (arg3!=~0U) { // Particular case of double multiplication 'a*b*c'
+              if (is_const_scalar(arg2)) { // Manage cases where '(a,c)' or '(b,c)' are constants
+                if (is_const_scalar(arg4)) cimg::swap(arg3,arg4);
+                if (is_const_scalar(arg3)) {
+                  arg2 = const_scalar(mem[arg2]*mem[arg3]);
+                  if (!arg2) _cimg_mp_return(0);
+                  _cimg_mp_scalar2(mul,arg2,arg4);
                 }
-                CImg<ulongT>::vector((ulongT)mp_mul2,arg3,arg4,arg5,arg3==arg2?arg1:arg2).move_to(code);
-                _cimg_mp_return(arg3);
               }
+              _cimg_mp_scalar3(mul2,arg3,arg4,arg2);
             }
             if (!arg1 || !arg2) _cimg_mp_return(0);
             _cimg_mp_scalar2(mul,arg1,arg2);

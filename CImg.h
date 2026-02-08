@@ -19278,7 +19278,7 @@ namespace cimg_library {
               level[s - expr._data]==clevel) { // Subtraction ('-')
             _cimg_mp_op("Operator '-'");
             p1 = p2 = ~0U;
-            const ulong *ptr1 = 0, *ptr2 = 0;
+            const ulongT *ptr1 = 0, *ptr2 = 0;
             p3 = code.size();
             arg1 = compile(ss,s,depth1,0,block_flags);
             if (is_scalar(arg1) && code.size()>p3) { // Spot potential linear case 'a*b - c'

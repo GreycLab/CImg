@@ -19251,13 +19251,10 @@ namespace cimg_library {
             if (is_const_scalar(arg1) && is_const_scalar(arg2)) _cimg_mp_const_scalar(mem[arg1] + mem[arg2]);
             if (p1<code.size() && code[p1].data()==ptr1 && ptr1[1]==(ulongT)arg1) {
               arg3 = (unsigned int)ptr1[2]; arg4 = (unsigned int)ptr1[3];
-              if (*ptr1==(ulongT)mp_add) { // Particular case 'a + b + c'
-                code.remove(p1);
-                _cimg_mp_scalar3(add_add,arg3,arg4,arg2);
-              } else { // Particular case 'a*b + c'
-                code.remove(p1);
-                _cimg_mp_scalar3(mul_add,arg3,arg4,arg2);
-              }
+              is_sth = *ptr1==(ulongT)mp_add;
+              code.remove(p1);
+              if (is_sth) { _cimg_mp_scalar3(add_add,arg3,arg4,arg2); } // Particular case 'a + b + c'
+              else { _cimg_mp_scalar3(mul_add,arg3,arg4,arg2); } // Particular case 'a*b + c'
             }
             if (p2<code.size() && code[p2].data()==ptr2 &&
                 *ptr2==(ulongT)mp_mul && ptr2[1]==(ulongT)arg2) { // Particular case 'c + a*b'

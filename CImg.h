@@ -19433,7 +19433,7 @@ namespace cimg_library {
             }
             arg2 = compile(s + 1,se,depth1,0,block_flags);
 
-            // Spot potential cases 'a*(b/c)'.
+            // Spot potential case 'a*(b/c)'.
             if (!ptr1 && is_scalar(arg2) && code.size()>p3) {
               CImg<ulongT>& pop = code.back();
               op = (mp_func)*pop;
@@ -19515,7 +19515,7 @@ namespace cimg_library {
               _cimg_mp_const_scalar(mem[arg1]/mem[arg2]);
             if (!arg1) _cimg_mp_return(0);
             if (p1<code.size() && code[p1].data()==ptr1 && *ptr1==(ulongT)mp_div &&
-                ptr1[1]==(ulongT)arg1) { // Particular case 'a/b/c'
+                ptr1[1]==(ulongT)arg1) { // Particular case '(a/b)/c'
               arg3 = (unsigned int)ptr1[2]; arg4 = (unsigned int)ptr1[3];
               code.remove(p1);
               if (is_const_scalar(arg2)) {

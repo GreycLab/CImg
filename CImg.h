@@ -19284,9 +19284,10 @@ namespace cimg_library {
             const ulongT *ptr1 = 0, *ptr2 = 0;
             p3 = code.size();
             arg1 = compile(ss,s,depth1,0,block_flags);
-            if (is_scalar(arg1) && code.size()>p3) { // Spot potential case 'a*b - c' and 'a - b - c'
+            if (is_scalar(arg1) && code.size()>p3) { // Spot potential cases 'a - b - c', 'a/b - c' and 'a*b - c'
               CImg<ulongT>& pop = code.back();
-              if ((pop[0]==(ulongT)mp_sub || pop[0]==(ulongT)mp_mul) && pop[1]==arg1) {
+              op = (mp_func)*pop;
+              if ((op==mp_sub || op==mp_mul || op==mp_div) && pop[1]==arg1) {
                 p1 = code.size() - 1;
                 ptr1 = pop.data();
               }
@@ -19309,10 +19310,11 @@ namespace cimg_library {
             if (!arg1) _cimg_mp_scalar1(minus,arg2);
             if (p1<code.size() && code[p1].data()==ptr1 && ptr1[1]==(ulongT)arg1) {
               arg3 = (unsigned int)ptr1[2]; arg4 = (unsigned int)ptr1[3];
-              is_sth = *ptr1==(ulongT)mp_sub;
+              op = (mp_func)*ptr1;
               code.remove(p1);
-              if (is_sth) { _cimg_mp_scalar3(sub_sub,arg3,arg4,arg2); } // Particular case 'a - b - c'
-              else { _cimg_mp_scalar3(mul_sub,arg3,arg4,arg2); } // Particular case 'a*b - c'
+              if (op==mp_sub) { _cimg_mp_scalar3(sub_sub,arg3,arg4,arg2); } // Particular case 'a - b - c'
+              else if (op==mp_mul) { _cimg_mp_scalar3(mul_sub,arg3,arg4,arg2); } // Particular case 'a*b - c'
+              else { _cimg_mp_scalar3(div_sub,arg3,arg4,arg2); } // Particular case 'a/b - c'
             }
             if (p2<code.size() && code[p2].data()==ptr2 &&
                 *ptr2==(ulongT)mp_mul && ptr2[1]==(ulongT)arg2) { // Particular case 'c - a*b'
@@ -26658,7 +26660,7 @@ namespace cimg_library {
             _mp_debug(bitwise_right_shift): _mp_debug(bitwise_xor): _mp_debug(bool): _mp_debug(break):
             _mp_debug(breakpoint): _mp_debug(c2o): _mp_debug(cbrt): _mp_debug(ceil): _mp_debug(complex_abs):
             _mp_debug(complex_conj): _mp_debug(complex_cos): _mp_debug(complex_cosh): _mp_debug(div_add):
-            _mp_debug(complex_div_sv): _mp_debug(complex_div_vv): _mp_debug(complex_exp):
+            _mp_debug(div_sub): _mp_debug(complex_div_sv): _mp_debug(complex_div_vv): _mp_debug(complex_exp):
             _mp_debug(complex_log): _mp_debug(complex_mul): _mp_debug(complex_one): _mp_debug(complex_pow_ss):
             _mp_debug(complex_pow_sv): _mp_debug(complex_pow_vs): _mp_debug(complex_pow_vv):
             _mp_debug(complex_sin): _mp_debug(complex_sinh): _mp_debug(complex_sqr): _mp_debug(complex_sqrt):
@@ -26783,6 +26785,10 @@ namespace cimg_library {
 
       static double mp_div_add(_cimg_math_parser& mp) {
         return _mp_arg(2)/_mp_arg(3) + _mp_arg(4);
+      }
+
+      static double mp_div_sub(_cimg_math_parser& mp) {
+        return _mp_arg(2)/_mp_arg(3) - _mp_arg(4);
       }
 
       static double mp_do(_cimg_math_parser& mp) {

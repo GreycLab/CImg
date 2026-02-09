@@ -19231,7 +19231,7 @@ namespace cimg_library {
             p3 = code.size();
             arg1 = compile(ss,s,depth1,0,block_flags);
 
-            // Spot potential cases 'a + b + c', 'a - b + c', 'a*b + c' and 'a/b + c'.
+            // Spot potential cases '(a + b) + c', '(a - b) + c', '(a*b) + c' and '(a/b) + c'.
             if (is_scalar(arg1) && code.size()>p3) {
               CImg<ulongT>& pop = code.back();
               op = (mp_func)*pop;
@@ -19243,11 +19243,14 @@ namespace cimg_library {
             p3 = code.size();
             arg2 = compile(s + 1,se,depth1,0,block_flags);
 
-            // Spot potential cases 'c + a*b' and 'c + a/b'.
+            // Spot potential cases 'a + (b - c)', 'a + (b*c)' and 'a + (b/c)'.
             if (!ptr1 && is_scalar(arg2) && code.size()>p3) {
               CImg<ulongT>& pop = code.back();
               op = (mp_func)*pop;
-              if ((op==mp_mul || op==mp_div) && pop[1]==arg2) { p2 = code.size() - 1; ptr2 = pop.data(); }
+              if ((op==mp_sub || op==mp_mul || op==mp_div) && pop[1]==arg2) {
+                p2 = code.size() - 1;
+                ptr2 = pop.data();
+              }
             }
             _cimg_mp_check_type(arg2,2,3,size(arg1));
             if (!arg2) _cimg_mp_same(arg1);
@@ -19260,17 +19263,34 @@ namespace cimg_library {
               arg3 = (unsigned int)ptr1[2]; arg4 = (unsigned int)ptr1[3];
               op = (mp_func)*ptr1;
               code.remove(p1);
-              if (op==mp_add) { _cimg_mp_scalar3(add_add,arg3,arg4,arg2); } // Particular case 'a + b + c'
-              else if (op==mp_sub) { _cimg_mp_scalar3(sub_add,arg3,arg4,arg2); } // Particular case 'a - b + c'
-              else if (op==mp_mul) { _cimg_mp_scalar3(mul_add,arg3,arg4,arg2); } // Particular case 'a*b + c'
-              else { _cimg_mp_scalar3(div_add,arg3,arg4,arg2); } // Particular case 'a/b + c'
+              if (op==mp_add) { // Particular case '(a + b) + c'
+                if (is_const_scalar(arg2)) {
+                  if (is_const_scalar(arg3)) _cimg_mp_scalar2(add,arg4,const_scalar(mem[arg2] + mem[arg3]));
+                  if (is_const_scalar(arg4)) _cimg_mp_scalar2(add,arg3,const_scalar(mem[arg2] + mem[arg4]));
+                }
+                _cimg_mp_scalar3(add_add,arg2,arg3,arg4);
+              } else if (op==mp_sub) { // Particular case '(a - b) + c'
+                if (is_const_scalar(arg2)) {
+                  if (is_const_scalar(arg3)) _cimg_mp_scalar2(sub,const_scalar(mem[arg2] + mem[arg3]),arg4);
+                  if (is_const_scalar(arg4)) _cimg_mp_scalar2(add,arg3,const_scalar(mem[arg2] - mem[arg4]));
+                }
+                _cimg_mp_scalar3(add_sub,arg2,arg3,arg4);
+              }
+              else if (op==mp_mul) _cimg_mp_scalar3(add_mul,arg2,arg3,arg4); // Particular case '(a*b) + c'
+              _cimg_mp_scalar3(div_add,arg3,arg4,arg2); // Particular case '(a/b) + c'
             }
             if (p2<code.size() && code[p2].data()==ptr2 && ptr2[1]==(ulongT)arg2) {
               arg3 = (unsigned int)ptr2[2]; arg4 = (unsigned int)ptr2[3];
               op = (mp_func)*ptr2;
               code.remove(p2);
-              if (op==mp_mul) { _cimg_mp_scalar3(mul_add,arg3,arg4,arg1); } // Particular case 'c + a*b'
-              else { _cimg_mp_scalar3(div_add,arg3,arg4,arg1); } // Particular case 'c + a/b'
+              if (op==mp_sub) { // Particular case 'a + (b - c)'
+                if (is_const_scalar(arg1)) {
+                  if (is_const_scalar(arg3)) _cimg_mp_scalar2(sub,const_scalar(mem[arg1] + mem[arg3]),arg4);
+                  if (is_const_scalar(arg4)) _cimg_mp_scalar2(add,arg3,const_scalar(mem[arg1] - mem[arg4]));
+                }
+                _cimg_mp_scalar3(add_sub,arg1,arg3,arg4);
+              } else if (op==mp_mul) _cimg_mp_scalar3(add_mul,arg1,arg3,arg4); // Particular case 'a + (b*c)'
+              _cimg_mp_scalar3(div_add,arg3,arg4,arg1); // Particular case 'a + (b/c)'
             }
             if (arg2==1) _cimg_mp_scalar1(increment,arg1);
             if (arg1==1) _cimg_mp_scalar1(increment,arg2);
@@ -19289,7 +19309,7 @@ namespace cimg_library {
             p3 = code.size();
             arg1 = compile(ss,s,depth1,0,block_flags);
 
-            // Spot potential cases 'a - b - c', 'a*b - c' and 'a/b - c'.
+            // Spot potential cases '(a - b) - c', '(a*b) - c' and '(a/b) - c'.
             if (is_scalar(arg1) && code.size()>p3) {
               CImg<ulongT>& pop = code.back();
               op = (mp_func)*pop;
@@ -19301,11 +19321,14 @@ namespace cimg_library {
             p3 = code.size();
             arg2 = compile(s + 1,se,depth1,0,block_flags);
 
-            // Spot potential linear case 'c - a*b'.
+            // Spot potential cases 'a - (b*c)' and 'a - (b/c)'.
             if (!ptr1 && is_scalar(arg2) && code.size()>p3) {
               CImg<ulongT>& pop = code.back();
               op = (mp_func)*pop;
-              if (op==mp_mul && pop[1]==arg2) { p2 = code.size() - 1; ptr2 = pop.data(); }
+              if ((op==mp_mul || op==mp_div) && pop[1]==arg2) {
+                p2 = code.size() - 1;
+                ptr2 = pop.data();
+              }
             }
             _cimg_mp_check_type(arg2,2,3,size(arg1));
             if (!arg2) _cimg_mp_same(arg1);
@@ -19321,15 +19344,22 @@ namespace cimg_library {
               arg3 = (unsigned int)ptr1[2]; arg4 = (unsigned int)ptr1[3];
               op = (mp_func)*ptr1;
               code.remove(p1);
-              if (op==mp_sub) { _cimg_mp_scalar3(sub_sub,arg3,arg4,arg2); } // Particular case 'a - b - c'
-              else if (op==mp_mul) { _cimg_mp_scalar3(mul_sub,arg3,arg4,arg2); } // Particular case 'a*b - c'
-              else { _cimg_mp_scalar3(div_sub,arg3,arg4,arg2); } // Particular case 'a/b - c'
+              if (op==mp_sub) { // Particular case '(a - b) - c'
+                if (is_const_scalar(arg2)) {
+                  if (is_const_scalar(arg3)) _cimg_mp_scalar2(sub,const_scalar(mem[arg3] - mem[arg2]),arg4);
+                  if (is_const_scalar(arg4)) _cimg_mp_scalar2(sub,arg3,const_scalar(mem[arg2] + mem[arg4]));
+                }
+                _cimg_mp_scalar3(sub_sub,arg3,arg4,arg2);
+              }
+              else if (op==mp_mul) _cimg_mp_scalar3(mul_sub,arg3,arg4,arg2); // Particular case '(a*b) - c'
+              _cimg_mp_scalar3(div_sub,arg3,arg4,arg2); // Particular case '(a/b) - c'
             }
-            if (p2<code.size() && code[p2].data()==ptr2 &&
-                *ptr2==(ulongT)mp_mul && ptr2[1]==(ulongT)arg2) { // Particular case 'c - a*b'
+            if (p2<code.size() && code[p2].data()==ptr2 && ptr2[1]==(ulongT)arg2) {
               arg3 = (unsigned int)ptr2[2]; arg4 = (unsigned int)ptr2[3];
+              op = (mp_func)*ptr2;
               code.remove(p2);
-              _cimg_mp_scalar3(sub_mul,arg1,arg3,arg4);
+              if (op==mp_mul) _cimg_mp_scalar3(sub_mul,arg1,arg3,arg4); // Particular case 'a - (b*c)'
+              _cimg_mp_scalar3(sub_div,arg1,arg3,arg4); // Particular case 'a - (b/c)'
             }
             if (arg2==1) _cimg_mp_scalar1(decrement,arg1);
             _cimg_mp_scalar2(sub,arg1,arg2);
@@ -19392,11 +19422,14 @@ namespace cimg_library {
             p3 = code.size();
             arg1 = compile(ss,s,depth1,0,block_flags);
 
-            // Spot potential cases 'a*b*c' and 'a/b*c'.
+            // Spot potential cases '(a*b)*c' and '(a/b)*c'.
             if (is_scalar(arg1) && code.size()>p3) {
               CImg<ulongT>& pop = code.back();
               op = (mp_func)*pop;
-              if ((op==mp_mul || op==mp_div) && pop[1]==arg1) { p1 = code.size() - 1; ptr1 = pop.data(); }
+              if ((op==mp_mul || op==mp_div) && pop[1]==arg1) {
+                p1 = code.size() - 1;
+                ptr1 = pop.data();
+              }
             }
             arg2 = compile(s + 1,se,depth1,0,block_flags);
             p2 = size(arg2);
@@ -19418,18 +19451,18 @@ namespace cimg_library {
               arg3 = (unsigned int)ptr1[2]; arg4 = (unsigned int)ptr1[3];
               op = (mp_func)*ptr1;
               code.remove(p1);
-              if (op==mp_mul) { // Particular case 'a*b*c'
+              if (op==mp_mul) { // Particular case '(a*b)*c'
                 if (is_const_scalar(arg2)) {
-                  if (is_const_scalar(arg4)) _cimg_mp_scalar2(mul,arg3,const_scalar(mem[arg4]*mem[arg2]));
-                  if (is_const_scalar(arg3)) _cimg_mp_scalar2(mul,const_scalar(mem[arg3]*mem[arg2]),arg4);
+                  if (is_const_scalar(arg3)) _cimg_mp_scalar2(mul,arg4,const_scalar(mem[arg2]*mem[arg3]));
+                  if (is_const_scalar(arg4)) _cimg_mp_scalar2(mul,arg3,const_scalar(mem[arg2]*mem[arg4]));
                 }
                 _cimg_mp_scalar3(mul_mul,arg3,arg4,arg2);
-              } else { // Particular case 'a/b*c'
+              } else { // Particular case '(a/b)*c'
                 if (is_const_scalar(arg2)) {
-                  if (is_const_scalar(arg4)) _cimg_mp_scalar2(mul,arg3,const_scalar(mem[arg2]/mem[arg4]));
                   if (is_const_scalar(arg3)) _cimg_mp_scalar2(div,const_scalar(mem[arg3]*mem[arg2]),arg4);
+                  if (is_const_scalar(arg4)) _cimg_mp_scalar2(mul,arg3,const_scalar(mem[arg2]/mem[arg4]));
                 }
-                _cimg_mp_scalar3(div_mul,arg3,arg4,arg2);
+                _cimg_mp_scalar3(mul_div,arg2,arg3,arg4);
               }
             }
             _cimg_mp_scalar2(mul,arg1,arg2);
@@ -19446,7 +19479,10 @@ namespace cimg_library {
             if (is_scalar(arg1) && code.size()>p3) {
               CImg<ulongT>& pop = code.back();
               op = (mp_func)*pop;
-              if (op==mp_div && pop[1]==arg1) { p1 = code.size() - 1; ptr1 = pop.data(); }
+              if (op==mp_div && pop[1]==arg1) {
+                p1 = code.size() - 1;
+                ptr1 = pop.data();
+              }
             }
             arg2 = compile(s + 1,se,depth1,0,block_flags);
             _cimg_mp_check_type(arg2,2,3,size(arg1));
@@ -19462,8 +19498,8 @@ namespace cimg_library {
               arg3 = (unsigned int)ptr1[2]; arg4 = (unsigned int)ptr1[3];
               code.remove(p1);
               if (is_const_scalar(arg2)) {
-                if (is_const_scalar(arg4)) _cimg_mp_scalar2(div,arg3,const_scalar(mem[arg4]*mem[arg2]));
                 if (is_const_scalar(arg3)) _cimg_mp_scalar2(div,const_scalar(mem[arg3]/mem[arg2]),arg4);
+                if (is_const_scalar(arg4)) _cimg_mp_scalar2(div,arg3,const_scalar(mem[arg2]*mem[arg4]));
               }
               _cimg_mp_scalar3(div_div,arg3,arg4,arg2);
             }
@@ -20017,8 +20053,9 @@ namespace cimg_library {
               arg1 = compile(ss4,se1,depth1,0,block_flags);
               if (code) { // Spot 'abs(maxabs())' and 'abs(minabs())' cases
                 CImg<ulongT> &pop = code.back();
-                if (pop[0]==(ulongT)mp_maxabs) { pop[0] = (ulongT)mp_absmaxabs; _cimg_mp_return(pop[1]); }
-                else if (pop[0]==(ulongT)mp_minabs) { pop[0] = (ulongT)mp_absminabs; _cimg_mp_return(pop[1]); }
+                op = (mp_func)*pop;
+                if (op==mp_maxabs) { pop[0] = (ulongT)mp_absmaxabs; _cimg_mp_return(pop[1]); }
+                else if (op==mp_minabs) { pop[0] = (ulongT)mp_absminabs; _cimg_mp_return(pop[1]); }
               }
               if (is_vector(arg1)) _cimg_mp_vector1_v(abs,arg1);
               if (is_const_scalar(arg1)) _cimg_mp_const_scalar(cimg::abs(mem[arg1]));
@@ -25841,6 +25878,14 @@ namespace cimg_library {
         return _mp_arg(2) + _mp_arg(3) + _mp_arg(4);
       }
 
+      static double mp_add_mul(_cimg_math_parser& mp) {
+        return _mp_arg(2) + _mp_arg(3)*_mp_arg(4);
+      }
+
+      static double mp_add_sub(_cimg_math_parser& mp) {
+        return _mp_arg(2) + _mp_arg(3) - _mp_arg(4);
+      }
+
       static double mp_arg0(_cimg_math_parser& mp) {
         const int _ind = (int)_mp_arg(4);
         const unsigned int
@@ -26688,15 +26733,15 @@ namespace cimg_library {
           const char *const s_fn =
             _mp_debug(abort): _mp_debug(abort): _mp_debug(abs): _mp_debug(abscut): _mp_debug(absmaxabs):
             _mp_debug(absminabs): _mp_debug(acos): _mp_debug(acosh): _mp_debug(add): _mp_debug(add_add):
-            _mp_debug(arg0): _mp_debug(arg1): _mp_debug(argkth): _mp_debug(argmax): _mp_debug(argmax2):
-            _mp_debug(argmaxabs): _mp_debug(argmaxabs2): _mp_debug(argmin): _mp_debug(argmin2): _mp_debug(argminabs):
-            _mp_debug(argminabs2): _mp_debug(asin): _mp_debug(asinh): _mp_debug(atan): _mp_debug(atan2):
-            _mp_debug(atanh): _mp_debug(avg): _mp_debug(avg2): _mp_debug(bitwise_and):
-            _mp_debug(bitwise_left_shift): _mp_debug(bitwise_not): _mp_debug(bitwise_or):
+            _mp_debug(add_mul): _mp_debug(add_sub): _mp_debug(arg0): _mp_debug(arg1): _mp_debug(argkth):
+            _mp_debug(argmax): _mp_debug(argmax2): _mp_debug(argmaxabs): _mp_debug(argmaxabs2): _mp_debug(argmin):
+            _mp_debug(argmin2): _mp_debug(argminabs): _mp_debug(argminabs2): _mp_debug(asin): _mp_debug(asinh):
+            _mp_debug(atan): _mp_debug(atan2): _mp_debug(atanh): _mp_debug(avg): _mp_debug(avg2):
+            _mp_debug(bitwise_and): _mp_debug(bitwise_left_shift): _mp_debug(bitwise_not): _mp_debug(bitwise_or):
             _mp_debug(bitwise_right_shift): _mp_debug(bitwise_xor): _mp_debug(bool): _mp_debug(break):
             _mp_debug(breakpoint): _mp_debug(c2o): _mp_debug(cbrt): _mp_debug(ceil): _mp_debug(complex_abs):
             _mp_debug(complex_conj): _mp_debug(complex_cos): _mp_debug(complex_cosh): _mp_debug(div_add):
-            _mp_debug(div_div): _mp_debug(div_mul): _mp_debug(div_sub): _mp_debug(complex_div_sv):
+            _mp_debug(div_div): _mp_debug(div_sub): _mp_debug(complex_div_sv):
             _mp_debug(complex_div_vv): _mp_debug(complex_exp): _mp_debug(complex_log): _mp_debug(complex_mul):
             _mp_debug(complex_one): _mp_debug(complex_pow_ss): _mp_debug(complex_pow_sv): _mp_debug(complex_pow_vs):
             _mp_debug(complex_pow_vv): _mp_debug(complex_sin): _mp_debug(complex_sinh): _mp_debug(complex_sqr):
@@ -26732,7 +26777,7 @@ namespace cimg_library {
             _mp_debug(maxabs2): _mp_debug(med): _mp_debug(med2): _mp_debug(mem_copy): _mp_debug(mem_display):
             _mp_debug(min): _mp_debug(min2): _mp_debug(minabs): _mp_debug(minabs2): _mp_debug(minus):
             _mp_debug(mirror): _mp_debug(modulo): _mp_debug(mproj): _mp_debug(mse): _mp_debug(mul):
-            _mp_debug(mul_add): _mp_debug(mul_mul): _mp_debug(mul_sub): _mp_debug(name): _mp_debug(name):
+            _mp_debug(mul_div): _mp_debug(mul_mul): _mp_debug(mul_sub): _mp_debug(name): _mp_debug(name):
             _mp_debug(neq): _mp_debug(noise): _mp_debug(normalize): _mp_debug(normp): _mp_debug(o2c):
             _mp_debug(permutations): _mp_debug(permute): _mp_debug(polygon): _mp_debug(pow):
             _mp_debug(pow0_25): _mp_debug(pow3): _mp_debug(pow4): _mp_debug(print): _mp_debug(prod):
@@ -26752,7 +26797,7 @@ namespace cimg_library {
             _mp_debug(size_list): _mp_debug(softargmax): _mp_debug(softargmin): _mp_debug(softmax):
             _mp_debug(softmin): _mp_debug(solve): _mp_debug(sort): _mp_debug(sqr): _mp_debug(sqrt):
             _mp_debug(srand): _mp_debug(srand0): _mp_debug(std): _mp_debug(std2): _mp_debug(store):
-            _mp_debug(store): _mp_debug(string): _mp_debug(string_init): _mp_debug(sub): _mp_debug(sub_add):
+            _mp_debug(store): _mp_debug(string): _mp_debug(string_init): _mp_debug(sub): _mp_debug(sub_div):
             _mp_debug(sub_mul): _mp_debug(sub_sub): _mp_debug(sum): _mp_debug(sum2): _mp_debug(swap): _mp_debug(tan):
             _mp_debug(tanh): _mp_debug(trace): _mp_debug(transpose): _mp_debug(ui2f): _mp_debug(unitnorm):
             _mp_debug(uppercase): _mp_debug(v2s): _mp_debug(var): _mp_debug(var2): _mp_debug(vargkth):
@@ -26829,10 +26874,6 @@ namespace cimg_library {
 
       static double mp_div_sub(_cimg_math_parser& mp) {
         return _mp_arg(2)/_mp_arg(3) - _mp_arg(4);
-      }
-
-      static double mp_div_mul(_cimg_math_parser& mp) {
-        return _mp_arg(2)/_mp_arg(3)*_mp_arg(4);
       }
 
       static double mp_do(_cimg_math_parser& mp) {
@@ -28732,12 +28773,12 @@ namespace cimg_library {
         return _mp_arg(2)*_mp_arg(3);
       }
 
-      static double mp_mul_mul(_cimg_math_parser& mp) {
-        return _mp_arg(2)*_mp_arg(3)*_mp_arg(4);
+      static double mp_mul_div(_cimg_math_parser& mp) {
+        return _mp_arg(2)*_mp_arg(3)/_mp_arg(4);
       }
 
-      static double mp_mul_add(_cimg_math_parser& mp) {
-        return _mp_arg(2)*_mp_arg(3) + _mp_arg(4);
+      static double mp_mul_mul(_cimg_math_parser& mp) {
+        return _mp_arg(2)*_mp_arg(3)*_mp_arg(4);
       }
 
       static double mp_mul_sub(_cimg_math_parser& mp) {
@@ -29539,8 +29580,8 @@ namespace cimg_library {
         return _mp_arg(2) - _mp_arg(3);
       }
 
-      static double mp_sub_add(_cimg_math_parser& mp) {
-        return _mp_arg(2) - _mp_arg(3) + _mp_arg(4);
+      static double mp_sub_div(_cimg_math_parser& mp) {
+        return _mp_arg(2) - _mp_arg(3)/_mp_arg(4);
       }
 
       static double mp_sub_mul(_cimg_math_parser& mp) {

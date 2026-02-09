@@ -19419,17 +19419,16 @@ namespace cimg_library {
               op = (mp_func)*ptr1;
               code.remove(p1);
               if (op==mp_mul) { // Particular case 'a*b*c'
-/*                if (is_const_scalar(arg2)) { // Manage cases where '(a,c)' or '(b,c)' are constants
-                  if (is_const_scalar(arg4)) cimg::swap(arg3,arg4);
-                  if (is_const_scalar(arg3)) {
-                    arg2 = const_scalar(mem[arg2]*mem[arg3]);
-                    if (!arg2) _cimg_mp_return(0);
-                    _cimg_mp_scalar2(mul,arg2,arg4);
-                  }
+                if (is_const_scalar(arg2)) {
+                  if (is_const_scalar(arg4)) _cimg_mp_scalar2(mul,arg3,const_scalar(mem[arg4]*mem[arg2]));
+                  if (is_const_scalar(arg3)) _cimg_mp_scalar2(mul,const_scalar(mem[arg3]*mem[arg2]),arg4);
                 }
-*/
                 _cimg_mp_scalar3(mul_mul,arg3,arg4,arg2);
               } else { // Particular case 'a/b*c'
+                if (is_const_scalar(arg2)) {
+                  if (is_const_scalar(arg4)) _cimg_mp_scalar2(mul,arg3,const_scalar(mem[arg2]/mem[arg4]));
+                  if (is_const_scalar(arg3)) _cimg_mp_scalar2(div,const_scalar(mem[arg3]*mem[arg2]),arg4);
+                }
                 _cimg_mp_scalar3(div_mul,arg3,arg4,arg2);
               }
             }
@@ -19462,6 +19461,10 @@ namespace cimg_library {
                 ptr1[1]==(ulongT)arg1) { // Particular case 'a/b/c'
               arg3 = (unsigned int)ptr1[2]; arg4 = (unsigned int)ptr1[3];
               code.remove(p1);
+              if (is_const_scalar(arg2)) {
+                if (is_const_scalar(arg4)) _cimg_mp_scalar2(div,arg3,const_scalar(mem[arg4]*mem[arg2]));
+                if (is_const_scalar(arg3)) _cimg_mp_scalar2(div,const_scalar(mem[arg3]/mem[arg2]),arg4);
+              }
               _cimg_mp_scalar3(div_div,arg3,arg4,arg2);
             }
             _cimg_mp_scalar2(div,arg1,arg2);

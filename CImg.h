@@ -19417,8 +19417,8 @@ namespace cimg_library {
 
         for (s = se2; s>ss; --s) if (*s=='*' && level[s - expr._data]==clevel) { // Multiplication ('*')
             _cimg_mp_op("Operator '*'");
-            p1 = ~0U;
-            const ulongT *ptr1 = 0;
+            p1 = p2 = ~0U;
+            const ulongT *ptr1 = 0, *ptr2 = 0;
             p3 = code.size();
             arg1 = compile(ss,s,depth1,0,block_flags);
 
@@ -19432,10 +19432,21 @@ namespace cimg_library {
               }
             }
             arg2 = compile(s + 1,se,depth1,0,block_flags);
-            p2 = size(arg2);
-            if (p2>0 && (ulongT)size(arg1)==(ulongT)p2*p2) { // Particular case of matrix multiplication
-              pos = vector(p2);
-              CImg<ulongT>::vector((ulongT)mp_matrix_mul,pos,arg1,arg2,p2,p2,1).move_to(code);
+
+            // Spot potential cases 'a*(b/c)'.
+            if (!ptr1 && is_scalar(arg2) && code.size()>p3) {
+              CImg<ulongT>& pop = code.back();
+              op = (mp_func)*pop;
+              if (op==mp_div && pop[1]==arg2) {
+                p2 = code.size() - 1;
+                ptr2 = pop.data();
+              }
+            }
+
+            p3 = size(arg2);
+            if (p3>0 && (ulongT)size(arg1)==(ulongT)p3*p3) { // Particular case of matrix multiplication
+              pos = vector(p3);
+              CImg<ulongT>::vector((ulongT)mp_matrix_mul,pos,arg1,arg2,p3,p3,1).move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -19464,6 +19475,16 @@ namespace cimg_library {
                 }
                 _cimg_mp_scalar3(mul_div,arg2,arg3,arg4);
               }
+            }
+            if (p2<code.size() && code[p2].data()==ptr2 && *ptr2==(ulongT)mp_div &&
+                ptr2[1]==(ulongT)arg2) { // Particular case 'a*(b/c)'
+              arg3 = (unsigned int)ptr2[2]; arg4 = (unsigned int)ptr2[3];
+              code.remove(p2);
+              if (is_const_scalar(arg1)) {
+                if (is_const_scalar(arg3)) _cimg_mp_scalar2(div,const_scalar(mem[arg1]*mem[arg3]),arg4);
+                if (is_const_scalar(arg4)) _cimg_mp_scalar2(mul,arg3,const_scalar(mem[arg1]/mem[arg4]));
+              }
+              _cimg_mp_scalar3(mul_div,arg1,arg3,arg4);
             }
             _cimg_mp_scalar2(mul,arg1,arg2);
           }

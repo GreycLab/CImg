@@ -21052,7 +21052,7 @@ namespace cimg_library {
               } else if (is_push_heap) arg2 = ~0U - 1;
               else arg2 = ~0U;
               CImg<ulongT>::vector((ulongT)mp_da_insert_or_push_n,_cimg_mp_slot_nan,p1,arg1,arg2,0,0).move_to(l_opcode);
-              pos = (p1==~0U?2:3) + (is_n?1:0);
+              pos = (p1==~0U?2:3) + (is_n?1:0) + (is_insert?1:0);
               p1 = ~0U;
               for (s = s1; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
@@ -26604,7 +26604,7 @@ namespace cimg_library {
           pos0 = is_push?siz:(int)_mp_arg(4),
           pos = pos0<0?pos0 + siz:pos0;
 
-        if (img && nb_elts && dim1!=img._spectrum)
+        if (img && dim1!=img._spectrum)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function '%s()': "
                                       "Element to insert has invalid size %u (should be %u).",
                                       mp.imgout.pixel_type(),s_op,dim1,img._spectrum);
@@ -26626,11 +26626,9 @@ namespace cimg_library {
           cimg_forC(img,c) std::memmove(img.data(0,pos + count*nb_elts1,0,c),img.data(0,pos,0,c),(siz - pos)*sizeof(T));
 
         if (!dim) { // Scalar or vector1() elements
-          for (unsigned int k = 0; k<nb_elts; ++k)
-            img[pos + k] = (T)_mp_arg(7 + k);
+          for (unsigned int k = 0; k<nb_elts; ++k) img[pos + k] = (T)_mp_arg(7 + k);
           if (count>1)
-            for (unsigned int k = 1; k<count; ++k)
-              std::memcpy(&img[pos + k*nb_elts],&img[pos],nb_elts*sizeof(T));
+            for (unsigned int k = 1; k<count; ++k) std::memcpy(&img[pos + k*nb_elts],&img[pos],nb_elts*sizeof(T));
           if (is_push_heap) for (unsigned int k = 0; k<nb_elts; ++k) {
               int index = pos + k;
               while (index>0) { // Heapify-up

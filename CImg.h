@@ -26632,7 +26632,7 @@ namespace cimg_library {
               for (unsigned int k = 1; k<count; k<<=1)
                 std::memcpy(&img[pos + k*nb_elts],&img[pos],std::min(k,count - k)*nb_elts*sizeof(T));
           } else std::memset(&img[pos],0,count*sizeof(T));
-          if (is_push_heap) for (unsigned int k = 0; k<count*nb_elts; ++k) {
+          if (is_push_heap) for (unsigned int k = 0; k<count*nb_elts1; ++k) {
               int index = pos + k;
               while (index>0) { // Heapify-up
                 const int index_parent = (index - 1)/2;
@@ -26656,7 +26656,7 @@ namespace cimg_library {
                   std::memcpy(&ptr[pos + k*nb_elts],&ptr[pos],std::min(k,count - k)*nb_elts*sizeof(T));
               }
           } else cimg_forC(img,c) std::memset(img.data(0,pos,0,c),0,count*sizeof(T));
-          if (is_push_heap) for (unsigned int k = 0; k<count*nb_elts; ++k) {
+          if (is_push_heap) for (unsigned int k = 0; k<count*nb_elts1; ++k) {
               int index = pos + k;
               while (index>0) { // Heapify-up
                 const int index_parent = (index - 1)/2;

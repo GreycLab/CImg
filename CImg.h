@@ -26626,28 +26626,34 @@ namespace cimg_library {
           cimg_forC(img,c) std::memmove(img.data(0,pos + count*nb_elts1,0,c),img.data(0,pos,0,c),(siz - pos)*sizeof(T));
 
         if (!dim) { // Scalar or vector1() elements
-          for (unsigned int k = 0; k<nb_elts; ++k) {
-            int index = pos + k;
-            img[index] = (T)_mp_arg(7 + k);
-            if (is_push_heap) while (index>0) { // Heapify-up
+          for (unsigned int k = 0; k<nb_elts; ++k)
+            img[pos + k] = (T)_mp_arg(7 + k);
+          if (count>1)
+            for (unsigned int k = 1; k<count; ++k)
+              std::memcpy(&img[pos + k*nb_elts],&img[pos],nb_elts*sizeof(T));
+          if (is_push_heap) for (unsigned int k = 0; k<nb_elts; ++k) {
+              int index = pos + k;
+              while (index>0) { // Heapify-up
                 const int index_parent = (index - 1)/2;
                 if (img[index]<img[index_parent]) {
                   cimg::swap(img[index],img[index_parent]);
                   index = index_parent; }
                 else break;
               }
-          }
-          if (count>1 && !is_push_heap)
-            for (unsigned int n = 1; n<count; ++n)
-              std::memcpy(&img[pos + n*nb_elts],&img[pos],nb_elts*sizeof(T));
-
+            }
         } else { // vectorN() elements, with N>1
           for (unsigned int k = 0; k<nb_elts; ++k) {
-            int index = pos + k;
+            T *ptrd = img.data(0,pos + k);
             const double *const ptrs = &_mp_arg(7 + k) + 1;
-            T *ptrd = img.data(0,index);
             cimg_forC(img,c) { *ptrd = ptrs[c]; ptrd+=img._height; }
-            if (is_push_heap) while (index>0) { // Heapify-up
+          }
+          if (count>1)
+            cimg_forC(img,c) for (unsigned int k = 1; k<count; ++k)
+              std::memcpy(img.data(0,pos + k*nb_elts,0,c),img.data(0,pos,0,c),nb_elts*sizeof(T));
+
+          if (is_push_heap) for (unsigned int k = 0; k<nb_elts; ++k) {
+              int index = pos + k;
+              while (index>0) { // Heapify-up
                 const int index_parent = (index - 1)/2;
                 if (img[index]<img[index_parent]) {
                   T *ptr0 = img.data(0,index), *ptr1 = img.data(0,index_parent);
@@ -26656,10 +26662,7 @@ namespace cimg_library {
                 }
                 else break;
               }
-          }
-          if (count>1 && !is_push_heap)
-            cimg_forC(img,c) for (unsigned int n = 1; n<count; ++n)
-              std::memcpy(img.data(0,pos + n*nb_elts,0,c),img.data(0,pos,0,c),nb_elts*sizeof(T));
+            }
         }
         img[img._height - 1] = cimg::uint2float(siz + count*nb_elts1,(T)0);
         return cimg::type<double>::nan();

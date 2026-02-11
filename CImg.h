@@ -26625,10 +26625,12 @@ namespace cimg_library {
         if (pos!=siz) // Move existing data in dynamic array
           cimg_forC(img,c) std::memmove(img.data(0,pos + count*nb_elts1,0,c),img.data(0,pos,0,c),(siz - pos)*sizeof(T));
 
-        if (!dim) { // Scalar or vector1() elements
-          for (unsigned int k = 0; k<nb_elts; ++k) img[pos + k] = (T)_mp_arg(7 + k);
-          if (count>1)
-            for (unsigned int k = 1; k<count; ++k) std::memcpy(&img[pos + k*nb_elts],&img[pos],nb_elts*sizeof(T));
+        if (dim1==1) { // Scalar or vector1() elements
+          if (nb_elts) {
+            for (unsigned int k = 0; k<nb_elts; ++k) img[pos + k] = (T)_mp_arg(7 + k);
+            if (count>1)
+              for (unsigned int k = 1; k<count; ++k) std::memcpy(&img[pos + k*nb_elts],&img[pos],nb_elts*sizeof(T));
+          } else std::memset(&img[pos],0,count*sizeof(T));
           if (is_push_heap) for (unsigned int k = 0; k<nb_elts; ++k) {
               int index = pos + k;
               while (index>0) { // Heapify-up
@@ -26640,15 +26642,16 @@ namespace cimg_library {
               }
             }
         } else { // vectorN() elements, with N>1
-          for (unsigned int k = 0; k<nb_elts; ++k) {
-            T *ptrd = img.data(0,pos + k);
-            const double *const ptrs = &_mp_arg(7 + k) + 1;
-            cimg_forC(img,c) { *ptrd = ptrs[c]; ptrd+=img._height; }
-          }
-          if (count>1)
-            cimg_forC(img,c) for (unsigned int k = 1; k<count; ++k)
-              std::memcpy(img.data(0,pos + k*nb_elts,0,c),img.data(0,pos,0,c),nb_elts*sizeof(T));
-
+          if (nb_elts) {
+            for (unsigned int k = 0; k<nb_elts; ++k) {
+              T *ptrd = img.data(0,pos + k);
+              const double *const ptrs = &_mp_arg(7 + k) + 1;
+              cimg_forC(img,c) { *ptrd = ptrs[c]; ptrd+=img._height; }
+            }
+            if (count>1)
+              cimg_forC(img,c) for (unsigned int k = 1; k<count; ++k)
+                std::memcpy(img.data(0,pos + k*nb_elts,0,c),img.data(0,pos,0,c),nb_elts*sizeof(T));
+          } else cimg_forC(img,c) std::memset(img.data(0,pos,0,c),0,count*sizeof(T));
           if (is_push_heap) for (unsigned int k = 0; k<nb_elts; ++k) {
               int index = pos + k;
               while (index>0) { // Heapify-up

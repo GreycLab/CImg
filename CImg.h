@@ -26649,7 +26649,7 @@ namespace cimg_library {
               const double *const ptrs = &_mp_arg(7 + k) + 1;
               cimg_forC(img,c) { *ptrd = ptrs[c]; ptrd+=img._height; }
             }
-            if (count>1) // Exponentially recopy sequence of vector elements
+            if (count>1) // Exponentially recopy sequence of vector-valued elements
               cimg_forC(img,c) {
                 T *const ptr = img.data(0,0,0,c);
                 for (unsigned int k = 1; k<count; k<<=1)

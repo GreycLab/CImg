@@ -21040,15 +21040,10 @@ namespace cimg_library {
                 _cimg_mp_check_notnan_index(p1,s0);
               } else { p1 = 11; s1 = s0; } // Default: #-1
               _cimg_mp_check_list();
-
-/*              if (is_n) {
+              if (is_n) {
                 s0 = s1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                arg1 = compile(s0,s1++,depth1,0,block_flags); // Position
-              } else if (is_push_heap) arg1 = ~0U - 1;
-*/
-
-              arg1 = 1;
-
+                arg1 = compile(s0,s1++,depth1,0,block_flags); // Count
+              } else arg1 = ~0U;
               if (!is_push) {
                 s0 = s1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                 arg2 = compile(s0,s1++,depth1,0,block_flags); // Position
@@ -21071,7 +21066,7 @@ namespace cimg_library {
                 s = ns;
                 ++pos;
               }
-              if (p1==~0U) compile(++s1,se1,depth1,0,block_flags); // Missing element -> error
+              if (p1==~0U && !is_n) compile(++s1,se1,depth1,0,block_flags); // Missing element -> error, if !is_n
               (l_opcode>'y').move_to(opcode);
               opcode[5] = p1;
               opcode[6] = opcode._height;
@@ -26584,14 +26579,19 @@ namespace cimg_library {
       }
 
       static double mp_da_insert_or_push(_cimg_math_parser& mp) {
-        const bool is_push_heap = mp.opcode[4]==~0U - 1, is_push = mp.opcode[4]>=~0U - 1;
-        const char *const s_op = is_push_heap?"da_push_heap":is_push?"da_push":"da_insert";
+        const bool
+          is_push_heap = mp.opcode[4]==~0U - 1,
+          is_push = mp.opcode[4]>=~0U - 1,
+          is_n = mp.opcode[3]!=~0U;
+        const char *const s_op = is_push_heap?(is_n?"da_push_heap_n":"da_push_heap"):
+          is_push?(is_n?"da_push_n":"da_push"):(is_n?"da_insert_n":"da_insert");
         mp_check_list(mp,s_op);
         const unsigned int
           dim = (unsigned int)mp.opcode[5],
           _dim = std::max(1U,dim),
           nb_elts = (unsigned int)mp.opcode[6] - 7,
-          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width()),
+          count = (unsigned int)(mp.opcode[3]==~0U?1:std::max(_mp_arg(3),0.));
         CImg<T> &img = mp.imglist[ind];
         const int
           siz = img?(int)cimg::float2uint(img[img._height - 1]):0,

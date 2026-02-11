@@ -21049,7 +21049,7 @@ namespace cimg_library {
                 arg2 = compile(s0,s1++,depth1,0,block_flags); // Position
               } else if (is_push_heap) arg2 = ~0U - 1;
               else arg2 = ~0U;
-              CImg<ulongT>::vector((ulongT)mp_da_insert_or_push,_cimg_mp_slot_nan,p1,arg1,arg2,0,0).move_to(l_opcode);
+              CImg<ulongT>::vector((ulongT)mp_da_insert_or_push_n,_cimg_mp_slot_nan,p1,arg1,arg2,0,0).move_to(l_opcode);
               pos = (p1==~0U?2:3) + (is_n?1:0);
               p1 = ~0U;
               for (s = s1; s<se; ++s) {
@@ -26578,30 +26578,34 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_da_insert_or_push(_cimg_math_parser& mp) {
+      static double mp_da_insert_or_push_n(_cimg_math_parser& mp) {
+        const unsigned int count = (unsigned int)(mp.opcode[3]==~0U?1:std::max(_mp_arg(3),0.));
+        if (!count) return cimg::type<double>::nan();
         const bool
+          is_n = mp.opcode[3]!=~0U,
           is_push_heap = mp.opcode[4]==~0U - 1,
-          is_push = mp.opcode[4]>=~0U - 1,
-          is_n = mp.opcode[3]!=~0U;
-        const char *const s_op = is_push_heap?(is_n?"da_push_heap_n":"da_push_heap"):
-          is_push?(is_n?"da_push_n":"da_push"):(is_n?"da_insert_n":"da_insert");
+          is_push = mp.opcode[4]>=~0U - 1;
+        const char *const s_op =
+          is_push_heap?(is_n?"da_push_heap_n":"da_push_heap"):
+          is_push?(is_n?"da_push_n":"da_push"):
+          (is_n?"da_insert_n":"da_insert");
+        const unsigned int ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width());
+        CImg<T> &img = mp.imglist[ind];
         mp_check_list(mp,s_op);
         const unsigned int
-          dim = (unsigned int)mp.opcode[5],
-          _dim = std::max(1U,dim),
+          dim = (unsigned int)(mp.opcode[5]==~0U?img._spectrum:mp.opcode[5]),
+          dim1 = std::max(1U,dim),
           nb_elts = (unsigned int)mp.opcode[6] - 7,
-          ind = (unsigned int)cimg::mod((int)_mp_arg(2),mp.imglist.width()),
-          count = (unsigned int)(mp.opcode[3]==~0U?1:std::max(_mp_arg(3),0.));
-        CImg<T> &img = mp.imglist[ind];
+          nb_elts1 = std::max(1U,nb_elts);
         const int
           siz = img?(int)cimg::float2uint(img[img._height - 1]):0,
           pos0 = is_push?siz:(int)_mp_arg(4),
           pos = pos0<0?pos0 + siz:pos0;
 
-        if (img && _dim!=img._spectrum)
+        if (img && nb_elts && dim1!=img._spectrum)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function '%s()': "
                                       "Element to insert has invalid size %u (should be %u).",
-                                      mp.imgout.pixel_type(),s_op,_dim,img._spectrum);
+                                      mp.imgout.pixel_type(),s_op,dim1,img._spectrum);
         if (img && (img._width!=1 || img._depth!=1 || siz<0 || siz>img.height() - 1))
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function '%s()': "
                                       "Specified image #%u of size (%d,%d,%d,%d) cannot be used as dynamic array%s.",
@@ -26613,13 +26617,13 @@ namespace cimg_library {
                                       "Invalid position %d (not in range -%d...%d).",
                                       mp.imgout.pixel_type(),s_op,pos0,siz,siz);
 
-        if (siz + nb_elts + 1>=img._height) // Increase size of dynamic array, if necessary
-          img.resize(1,2*siz + nb_elts + 1,1,_dim,0);
+        if (siz + count*nb_elts1 + 1>=img._height) // Increase size of dynamic array, if necessary
+          img.resize(1,2*siz + count*nb_elts1 + 1,1,dim1,0);
 
         if (pos!=siz) // Move existing data in dynamic array
-          cimg_forC(img,c) std::memmove(img.data(0,pos + nb_elts,0,c),img.data(0,pos,0,c),(siz - pos)*sizeof(T));
+          cimg_forC(img,c) std::memmove(img.data(0,pos + count*nb_elts1,0,c),img.data(0,pos,0,c),(siz - pos)*sizeof(T));
 
-        if (!dim) // Scalar or vector1() elements
+        if (!dim) { // Scalar or vector1() elements
           for (unsigned int k = 0; k<nb_elts; ++k) {
             int index = pos + k;
             img[index] = (T)_mp_arg(7 + k);
@@ -26631,7 +26635,11 @@ namespace cimg_library {
                 else break;
               }
           }
-        else // vectorN() elements, with N>1
+          if (count>1)
+            for (unsigned int n = 1; n<count; ++n)
+              std::memcpy(&img[pos + n*nb_elts],&img[pos],nb_elts*sizeof(T));
+
+        } else { // vectorN() elements, with N>1
           for (unsigned int k = 0; k<nb_elts; ++k) {
             int index = pos + k;
             const double *const ptrs = &_mp_arg(7 + k) + 1;
@@ -26647,7 +26655,11 @@ namespace cimg_library {
                 else break;
               }
           }
-        img[img._height - 1] = cimg::uint2float(siz + nb_elts,(T)0);
+          if (count>1)
+            cimg_forC(img,c) for (unsigned int n = 1; n<count; ++n)
+              std::memcpy(img.data(0,pos + n*nb_elts,0,c),img.data(0,pos,0,c),nb_elts*sizeof(T));
+        }
+        img[img._height - 1] = cimg::uint2float(siz + count*nb_elts1,(T)0);
         return cimg::type<double>::nan();
       }
 
@@ -26784,7 +26796,7 @@ namespace cimg_library {
             _mp_debug(complex_sqrt): _mp_debug(complex_tan): _mp_debug(complex_tanh): _mp_debug(continue):
             _mp_debug(convolve): _mp_debug(copy): _mp_debug(correlate): _mp_debug(cos): _mp_debug(cosh): _mp_debug(cov):
             _mp_debug(critical): _mp_debug(cross): _mp_debug(cumulate): _mp_debug(cut):
-            _mp_debug(da_back_or_pop): _mp_debug(da_freeze): _mp_debug(da_insert_or_push):
+            _mp_debug(da_back_or_pop): _mp_debug(da_freeze): _mp_debug(da_insert_or_push_n):
             _mp_debug(da_remove): _mp_debug(da_size): _mp_debug(date): _mp_debug(debug): _mp_debug(decrement):
             _mp_debug(deg2rad): _mp_debug(det): _mp_debug(diag): _mp_debug(div): _mp_debug(do): _mp_debug(dot):
             _mp_debug(echo): _mp_debug(ellipse): _mp_debug(epoch): _mp_debug(eq): _mp_debug(equalize):

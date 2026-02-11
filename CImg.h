@@ -26628,8 +26628,9 @@ namespace cimg_library {
         if (dim1==1) { // Scalar or vector1() elements
           if (nb_elts) {
             for (unsigned int k = 0; k<nb_elts; ++k) img[pos + k] = (T)_mp_arg(7 + k);
-            if (count>1)
-              for (unsigned int k = 1; k<count; ++k) std::memcpy(&img[pos + k*nb_elts],&img[pos],nb_elts*sizeof(T));
+            if (count>1) // Exponentially recopy sequence of scalar elements
+              for (unsigned int k = 1; k<count; k<<=1)
+                std::memcpy(&img[pos + k*nb_elts],&img[pos],std::min(k,count - k)*nb_elts*sizeof(T));
           } else std::memset(&img[pos],0,count*sizeof(T));
           if (is_push_heap) for (unsigned int k = 0; k<nb_elts; ++k) {
               int index = pos + k;
@@ -26648,9 +26649,12 @@ namespace cimg_library {
               const double *const ptrs = &_mp_arg(7 + k) + 1;
               cimg_forC(img,c) { *ptrd = ptrs[c]; ptrd+=img._height; }
             }
-            if (count>1)
-              cimg_forC(img,c) for (unsigned int k = 1; k<count; ++k)
-                std::memcpy(img.data(0,pos + k*nb_elts,0,c),img.data(0,pos,0,c),nb_elts*sizeof(T));
+            if (count>1) // Exponentially recopy sequence of vector elements
+              cimg_forC(img,c) {
+                T *const ptr = img.data(0,0,0,c);
+                for (unsigned int k = 1; k<count; k<<=1)
+                  std::memcpy(&ptr[pos + k*nb_elts],&ptr[pos],std::min(k,count - k)*nb_elts*sizeof(T));
+              }
           } else cimg_forC(img,c) std::memset(img.data(0,pos,0,c),0,count*sizeof(T));
           if (is_push_heap) for (unsigned int k = 0; k<nb_elts; ++k) {
               int index = pos + k;

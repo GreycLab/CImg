@@ -21027,9 +21027,11 @@ namespace cimg_library {
                 !std::strncmp(ss,"da_push_heap(",13) ||
                 !std::strncmp(ss,"da_push_heap_n(",15)) { // Insert element(s) in a dynamic array
               if (!is_inside_critical) is_parallelizable = false;
-              const bool is_push = *ss3=='p', is_push_heap = *ss7=='_' && *ss8=='h',
-                is_n = is_push?ss[7]=='_':is_push_heap?ss[12]=='_':ss[9]=='_';
-
+              const bool
+                is_push_heap = *ss3=='p' && *ss7=='_' && *ss8=='h',
+                is_push = !is_push_heap && *ss3=='p',
+                is_insert = !is_push_heap && !is_push,
+                is_n = is_push_heap?ss[12]=='_':is_push?*ss7=='_':ss[9]=='_';
               _cimg_mp_op(is_push_heap?(is_n?"Function 'da_push_heap_n()'":"Function 'da_push_heap()'"):
                           is_push?(is_n?"Function 'da_push_n()'":"Function 'da_push()'"):
                           (is_n?"Function 'da_insert_n()'":"Function 'da_insert()'"));
@@ -21044,7 +21046,7 @@ namespace cimg_library {
                 s0 = s1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                 arg1 = compile(s0,s1++,depth1,0,block_flags); // Count
               } else arg1 = ~0U;
-              if (!is_push) {
+              if (is_insert) {
                 s0 = s1; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
                 arg2 = compile(s0,s1++,depth1,0,block_flags); // Position
               } else if (is_push_heap) arg2 = ~0U - 1;
@@ -26635,7 +26637,7 @@ namespace cimg_library {
                 else break;
               }
           }
-          if (count>1)
+          if (count>1 && !is_push_heap)
             for (unsigned int n = 1; n<count; ++n)
               std::memcpy(&img[pos + n*nb_elts],&img[pos],nb_elts*sizeof(T));
 
@@ -26655,7 +26657,7 @@ namespace cimg_library {
                 else break;
               }
           }
-          if (count>1)
+          if (count>1 && !is_push_heap)
             cimg_forC(img,c) for (unsigned int n = 1; n<count; ++n)
               std::memcpy(img.data(0,pos + n*nb_elts,0,c),img.data(0,pos,0,c),nb_elts*sizeof(T));
         }

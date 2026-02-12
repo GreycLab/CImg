@@ -23659,29 +23659,34 @@ namespace cimg_library {
             if (!std::strncmp(ss,"sort(",5)) { // Sort vector
               _cimg_mp_op("Function 'sort()'");
               s1 = ss5; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-              arg1 = compile(ss5,s1,depth1,0,block_flags);
-              arg2 = arg4 = 1; arg3 = ~0U; arg5 = 0;
+              arg1 = compile(ss5,s1,depth1,0,block_flags); // X
+              arg2 = arg5 = 1; arg3 = arg6 = 0; arg4 = ~0U;
               if (s1<se1) {
                 s0 = ++s1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
-                arg2 = compile(s1,s0,depth1,0,block_flags);
+                arg2 = compile(s1,s0,depth1,0,block_flags); // is_increasing
                 if (s0<se1) {
                   s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
-                  arg3 = compile(s0,s1,depth1,0,block_flags);
+                  arg3 = compile(s0,s1,depth1,0,block_flags); // starting_index
                   if (s1<se1) {
                     s0 = ++s1; while (s0<se1 && (*s0!=',' || level[s0 - expr._data]!=clevel1)) ++s0;
-                    arg4 = compile(s1,s0,depth1,0,block_flags);
-                    arg5 = s0<se1?compile(++s0,se1,depth1,0,block_flags):0;
+                    arg4 = compile(s1,s0,depth1,0,block_flags); // nb_elt
+                    if (s0<se1) {
+                      s1 = ++s0; while (s1<se1 && (*s1!=',' || level[s1 - expr._data]!=clevel1)) ++s1;
+                      arg5 = compile(s0,s1,depth1,0,block_flags); // size_elt
+                      arg6 = s1<se1?compile(++s1,se1,depth1,0,block_flags):0; // sort_index
+                    }
                   }
                 }
               }
               _cimg_mp_check_type(arg1,1,2,0);
               _cimg_mp_check_type(arg2,2,1,0);
-              if (arg3!=~0U) _cimg_mp_check_type(arg3,3,1,0);
-              _cimg_mp_check_type(arg4,4,1,0);
+              _cimg_mp_check_type(arg3,3,1,0);
+              if (arg4!=~0U) _cimg_mp_check_type(arg4,4,1,0);
               _cimg_mp_check_type(arg5,5,1,0);
+              _cimg_mp_check_type(arg6,6,1,0);
               p1 = size(arg1);
               pos = vector(p1);
-              CImg<ulongT>::vector((ulongT)mp_sort,pos,arg1,p1,arg2,arg3,arg4,arg5).move_to(code);
+              CImg<ulongT>::vector((ulongT)mp_sort,pos,arg1,p1,arg2,arg3,arg4,arg5,arg6).move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
             }
@@ -26628,10 +26633,11 @@ namespace cimg_library {
         if (dim1==1) { // Scalar or vector1() elements
           if (nb_elts) {
             for (unsigned int k = 0; k<nb_elts; ++k) img[pos + k] = (T)_mp_arg(7 + k);
-            if (count>1)
-              for (unsigned int k = 1; k<count; ++k) std::memcpy(&img[pos + k*nb_elts],&img[pos],nb_elts*sizeof(T));
+            if (count>1) // Exponentially recopy sequence of scalar elements
+              for (unsigned int k = 1; k<count; k<<=1)
+                std::memcpy(&img[pos + k*nb_elts],&img[pos],std::min(k,count - k)*nb_elts*sizeof(T));
           } else std::memset(&img[pos],0,count*sizeof(T));
-          if (is_push_heap) for (unsigned int k = 0; k<nb_elts; ++k) {
+          if (is_push_heap) for (unsigned int k = 0; k<count*nb_elts1; ++k) {
               int index = pos + k;
               while (index>0) { // Heapify-up
                 const int index_parent = (index - 1)/2;
@@ -26648,11 +26654,14 @@ namespace cimg_library {
               const double *const ptrs = &_mp_arg(7 + k) + 1;
               cimg_forC(img,c) { *ptrd = ptrs[c]; ptrd+=img._height; }
             }
-            if (count>1)
-              cimg_forC(img,c) for (unsigned int k = 1; k<count; ++k)
-                std::memcpy(img.data(0,pos + k*nb_elts,0,c),img.data(0,pos,0,c),nb_elts*sizeof(T));
+            if (count>1) // Exponentially recopy sequence of vector-valued elements
+              cimg_forC(img,c) {
+                T *const ptr = img.data(0,0,0,c);
+                for (unsigned int k = 1; k<count; k<<=1)
+                  std::memcpy(&ptr[pos + k*nb_elts],&ptr[pos],std::min(k,count - k)*nb_elts*sizeof(T));
+              }
           } else cimg_forC(img,c) std::memset(img.data(0,pos,0,c),0,count*sizeof(T));
-          if (is_push_heap) for (unsigned int k = 0; k<nb_elts; ++k) {
+          if (is_push_heap) for (unsigned int k = 0; k<count*nb_elts1; ++k) {
               int index = pos + k;
               while (index>0) { // Heapify-up
                 const int index_parent = (index - 1)/2;
@@ -29515,21 +29524,31 @@ namespace cimg_library {
       static double mp_sort(_cimg_math_parser& mp) {
         double *const ptrd = &_mp_arg(1) + 1;
         const double *const ptrs = &_mp_arg(2) + 1;
+        const int
+          siz = (int)mp.opcode[3],
+          starting_index = (int)_mp_arg(5),
+          nb_elts = mp.opcode[6]==~0U?siz:(int)_mp_arg(6),
+          siz_elt = (int)_mp_arg(7),
+          sort_index = (int)_mp_arg(8),
+          end_index = starting_index + nb_elts*siz_elt;
         const bool is_increasing = (bool)_mp_arg(4);
-        const unsigned int
-          siz = (unsigned int)mp.opcode[3],
-          nb_elts = mp.opcode[5]==~0U?siz:(unsigned int)_mp_arg(5),
-          siz_elt = (unsigned int)_mp_arg(6),
-          sort_index = std::min((unsigned int)_mp_arg(7),siz_elt - 1);
-        const ulongT sn = siz_elt*nb_elts;
-        if (sn>siz || siz_elt<1)
+
+        if (starting_index<0 || nb_elts<0 || siz_elt<=0 || sort_index<0 || sort_index>=siz_elt || end_index>siz)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'sort()': "
-                                      "Arguments 'nb_elts=%g' and 'siz_elt=%g' are invalid "
-                                      "for sorting a vector of size %u.",
-                                      mp.imgin.pixel_type(),_mp_arg(5),_mp_arg(6),siz);
-        CImg<doubleT>(ptrd,siz_elt,nb_elts,1,1,true) = CImg<doubleT>(ptrs,siz_elt,nb_elts,1,1,true).
-          shift(-(int)sort_index,0,0,0,2).get_sort(is_increasing,siz_elt>1?'y':0).shift((int)sort_index,0,0,0,2);
-        if (sn<siz) CImg<doubleT>(ptrd + sn,siz - sn,1,1,1,true) = CImg<doubleT>(ptrs + sn,siz - sn,1,1,1,true);
+                                      "Invalid arguments 'starting_index=%g', 'nb_elts=%g', 'siz_elt=%g' and "
+                                      "'sort_index=%g', for sorting a vector of size %u.",
+                                      mp.imgin.pixel_type(),_mp_arg(5),_mp_arg(6),_mp_arg(7),_mp_arg(8),siz);
+        if (nb_elts) {
+          if (starting_index>0) // Recopy left side
+            std::memcpy(ptrd,ptrs,starting_index*sizeof(double));
+          if (end_index<siz) // Recopy right side
+            std::memcpy(ptrd + end_index,ptrs + end_index,(siz - end_index)*sizeof(double));
+
+          // Sort region.
+          CImg<doubleT>(ptrd + starting_index,siz_elt,nb_elts,1,1,true) =
+            CImg<doubleT>(ptrs + starting_index,siz_elt,nb_elts,1,1,true).
+            shift(-(int)sort_index,0,0,0,2).get_sort(is_increasing,siz_elt>1?'y':0).shift((int)sort_index,0,0,0,2);
+        }
         return cimg::type<double>::nan();
       }
 

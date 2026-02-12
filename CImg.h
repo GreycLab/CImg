@@ -29532,12 +29532,12 @@ namespace cimg_library {
           sort_index = (int)_mp_arg(8),
           end_index = starting_index + nb_elts*siz_elt;
         const bool is_increasing = (bool)_mp_arg(4);
-
         if (starting_index<0 || nb_elts<0 || siz_elt<=0 || sort_index<0 || sort_index>=siz_elt || end_index>siz)
           throw CImgArgumentException("[" cimg_appname "_math_parser] CImg<%s>: Function 'sort()': "
                                       "Invalid arguments 'starting_index=%g', 'nb_elts=%g', 'siz_elt=%g' and "
                                       "'sort_index=%g', for sorting a vector of size %u.",
-                                      mp.imgin.pixel_type(),_mp_arg(5),_mp_arg(6),_mp_arg(7),_mp_arg(8),siz);
+                                      mp.imgin.pixel_type(),
+                                      _mp_arg(5),mp.opcode[6]==~0U?siz:_mp_arg(6),_mp_arg(7),_mp_arg(8),siz);
         if (nb_elts) {
           if (starting_index>0) // Recopy left side
             std::memcpy(ptrd,ptrs,starting_index*sizeof(double));

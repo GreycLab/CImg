@@ -27105,9 +27105,7 @@ namespace cimg_library {
         return std::erf(_mp_arg(2));
       }
 #else
-      static double mp_erf(_cimg_math_parser& mp) {
-        return cimg::type<double>::nan();
-      }
+      static double mp_erf(_cimg_math_parser& mp) { cimg::unused(mp); return cimg::type<double>::nan(); }
 #endif
 
       static double mp_erfinv(_cimg_math_parser& mp) {
@@ -27368,6 +27366,8 @@ namespace cimg_library {
       static double mp_gamma(_cimg_math_parser& mp) {
         return std::tgamma(_mp_arg(2));
       }
+#else
+      static double mp_gamma(_cimg_math_parser& mp) { cimg::unused(mp); return cimg::type<double>::nan(); }
 #endif
 
       static double mp_gauss(_cimg_math_parser& mp) {

@@ -27104,6 +27104,10 @@ namespace cimg_library {
       static double mp_erf(_cimg_math_parser& mp) {
         return std::erf(_mp_arg(2));
       }
+#else
+      static double mp_erf(_cimg_math_parser& mp) {
+        return cimg::type<double>::nan();
+      }
 #endif
 
       static double mp_erfinv(_cimg_math_parser& mp) {

@@ -22614,7 +22614,7 @@ namespace cimg_library {
                 is_sth = false; // blank after operator?
                 if (cimg_sscanf(s1," %3[=-+/*&|minaxor]%c",st_op,&sep)==2 && (sep==')' ||
                                                                               (is_sth=cimg::is_blank(sep)))) {
-                  if (!is_sth || (is_sth && cimg_sscanf(s1," %*[=+-*/&|minaxor ]%c",&sep)==1 && sep==')')) {
+                  if (!is_sth || (is_sth && cimg_sscanf(s1," %*[=+-*&/|minaxor ]%c",&sep)==1 && sep==')')) {
                     cimg::strpare(st_op,' ',false,true);
                     if (!st_op[1])
                       arg1 = *st_op=='='?0:*st_op=='+'?1:*st_op=='-'?2:*st_op=='*'?3:*st_op=='/'?4:

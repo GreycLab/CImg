@@ -18293,6 +18293,7 @@ namespace cimg_library {
             if (null_index==~0U) {
               null_index = vector(imgin._spectrum);
               std::memset(&mem[null_index] + 1,0,imgin._spectrum*sizeof(double));
+              set_reserved_vector(null_index);
             }
             _cimg_mp_return(null_index);
           }

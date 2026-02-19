@@ -18289,7 +18289,7 @@ namespace cimg_library {
             _cimg_mp_return(reserved_label[2]!=~0U?reserved_label[2]:25);
           if (*ss=='n' && *ss1=='u' && *ss2=='l' && *ss3=='l') { // null
             if (reserved_label[34]!=~0U) _cimg_mp_return(reserved_label[34]);
-            if (imgin._spectrum<2) _cimg_mp_return(0);
+            if (imgin._spectrum<2) _cimg_mp_return(null_index = 0);
             if (null_index==~0U) {
               null_index = vector(imgin._spectrum);
               std::memset(&mem[null_index] + 1,0,imgin._spectrum*sizeof(double));
@@ -18473,8 +18473,14 @@ namespace cimg_library {
               s0 = ve1; while (s0>ss && (*s0!='[' || level[s0 - expr._data]!=clevel)) --s0;
               if (s0>ss && cimg::is_varname(ss,s0 - ss)) {
                 variable_name[s0 - ss] = 0; // Remove brackets in variable name
-                get_variable_pos(variable_name,arg1,arg2);
-                arg1 = arg2!=~0U?reserved_label[arg2]:arg1!=~0U?variable_pos[arg1]:~0U; // Vector slot
+
+                if (!std::strcmp(variable_name,"null"))
+                  arg1 = compile(ss,s0,depth1,0,block_flags);
+                else {
+                  get_variable_pos(variable_name,arg1,arg2);
+                  arg1 = arg2!=~0U?reserved_label[arg2]:arg1!=~0U?variable_pos[arg1]:~0U; // Vector slot
+                }
+
                 if (arg1==~0U || is_scalar(arg1))
                   compile(ss,s0,depth1,0,block_flags); // Variable does not exist or is not a vector -> error
 

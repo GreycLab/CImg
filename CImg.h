@@ -52685,6 +52685,9 @@ namespace cimg_library {
          defining the background color (0 means 'transparent').
        \param opacity Drawing opacity.
        \param font_height Height of the text font (exact match for 13,32,64,128, interpolated otherwise).
+       \note To ensure thread-safety, this function uses mutex lock. For real multi-threading drawing of text,
+       use another version of `CImg<T>::draw_text()` with argument `font`, that must be a copy of what is returned
+       by `CImgList<T>::font()`.
     **/
     template<typename tc1, typename tc2>
     CImg<T>& draw_text(const int x0, const int y0,
@@ -52694,8 +52697,10 @@ namespace cimg_library {
       if (!font_height) return *this;
       CImg<charT> tmp(2048);
       std::va_list ap; va_start(ap,font_height); cimg_vsnprintf(tmp,tmp._width,text,ap); va_end(ap);
+      cimg::mutex(15);
       const CImgList<ucharT>& font = CImgList<ucharT>::font(font_height,true);
       _draw_text(x0,y0,tmp,foreground_color,background_color,opacity,font,true);
+      cimg::mutex(15,0);
       return *this;
     }
 
@@ -68732,6 +68737,7 @@ namespace cimg_library {
     /**
        \param font_height Height of the desired font (exact match for 13,23,53,103).
        \param is_variable_width Decide if the font has a variable (\c true) or fixed (\c false) width.
+       \note Beware, the returned reference is valid only until the next call to this function!
     **/
     static const CImgList<ucharT>& font(const unsigned int requested_height, const bool is_variable_width=true) {
       if (!requested_height) return CImgList<ucharT>::const_empty();
@@ -68810,18 +68816,18 @@ namespace cimg_library {
       }
 
       // Find optimal font cache location to return.
-      static CImgList<ucharT> fonts[16];
-      static bool is_variable_widths[16] = {};
+      static CImgList<ucharT> fonts[32];
+      static bool is_variable_widths[32] = {};
       ind = ~0U;
-      for (int i = 0; i<16; ++i)
+      for (int i = 0; i<32; ++i)
         if (!fonts[i] || (is_variable_widths[i]==is_variable_width && requested_height==fonts[i][0]._height)) {
           ind = (unsigned int)i; break; // Found empty slot or cached font
         }
       if (ind==~0U) { // No empty slots nor existing font in cache
         fonts->assign();
-        std::memmove((void*)fonts,(void*)(fonts + 1),15*sizeof(CImgList<ucharT>));
-        std::memmove(is_variable_widths,is_variable_widths + 1,15*sizeof(bool));
-        std::memset((void*)(fonts + (ind=15)),0,sizeof(CImgList<ucharT>)); // Free a slot in cache for new font
+        std::memmove((void*)fonts,(void*)(fonts + 1),31*sizeof(CImgList<ucharT>));
+        std::memmove(is_variable_widths,is_variable_widths + 1,31*sizeof(bool));
+        std::memset((void*)(fonts + (ind=31)),0,sizeof(CImgList<ucharT>)); // Free a slot in cache for new font
       }
       CImgList<ucharT> &font = fonts[ind];
 

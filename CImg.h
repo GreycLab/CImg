@@ -30204,12 +30204,12 @@ namespace cimg_library {
       static double mp_vector_init2(_cimg_math_parser& mp) {
         double *ptrd = &_mp_arg(1) + 1;
         unsigned int sizd = (unsigned int)mp.opcode[2];
-        const unsigned int nb_elts = (unsigned int)mp.opcode[3];
+        const unsigned int nb_args = (unsigned int)mp.opcode[3];
 
-        if (!nb_elts) std::memset(ptrd,0,sizd*sizeof(double)); // 0 elements specified: Fill with 0
+        if (!nb_args) std::memset(ptrd,0,sizd*sizeof(double)); // 0 elements specified: Fill with 0
         else {
           unsigned int siz = (unsigned int)mp.opcode[5];
-          if (nb_elts==1 && siz<=1) { // A single scalar (or vector1) element specified
+          if (nb_args==1 && siz<=1) { // A single scalar (or vector1) element specified
             const double val = siz?mp.mem[mp.opcode[4] + 1]:_mp_arg(4); while (sizd-->0) *(ptrd++) = val;
           } else {
             unsigned int n = 0, k = 4;
@@ -30225,7 +30225,7 @@ namespace cimg_library {
                 --sizd;
               }
               k+=2;
-              if (++n>nb_elts) { n = 0; k = 4; }
+              if (++n>nb_args) { n = 0; k = 4; }
             }
           }
         }

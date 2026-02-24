@@ -18675,7 +18675,7 @@ namespace cimg_library {
                     CImg<ulongT>::vector((ulongT)mp_vector_copy,arg1,arg3,(ulongT)size(arg1)).
                       move_to(code);
                   else // From scalar
-                    CImg<ulongT>::vector((ulongT)mp_vector_init,arg1,1,(ulongT)size(arg1),arg3).
+                    CImg<ulongT>::vector((ulongT)mp_vector_init2,arg1,(ulongT)size(arg1),1,arg3,0).
                       move_to(code);
                 } else // Scalar
                   CImg<ulongT>::vector((ulongT)mp_copy,arg1,arg3).move_to(code);

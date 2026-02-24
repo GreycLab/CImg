@@ -24772,40 +24772,41 @@ namespace cimg_library {
             if (!return_comp) set_reserved_vector(pos); // Prevent from being used in further optimization
           } else { // Vector values provided as a list of items
             is_sth = !is_new_variable_assignment; // Can vector be defined once in 'begin()'?
-            arg1 = 0; // Number of specified values
-            if (*ss1!=']') for (s = ss1; s<se; ++s) {
-                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
-                               (*ns!=']' || level[ns - expr._data]!=clevel)) ++ns;
-                const CImgList<ulongT> &rcode = is_inside_begin?code:code_begin;
-                p1 = rcode.size();
-                p2 = variable_def.size();
-                arg2 = compile(s,ns,depth1,0,block_flags);
-                p3 = rcode.size();
-                if (is_vector(arg2)) {
-                  arg3 = size(arg2);
-                  CImg<ulongT>::sequence(arg3,arg2 + 1,arg2 + arg3).move_to(l_opcode);
-                  arg1+=arg3;
-                  const CImg<ulongT> &rcode_back = rcode.back();
-                  is_sth&=p3>p1 && rcode_back[1]==arg2 &&
-                    (rcode_back[0]==(ulongT)mp_string_init ||
-                     rcode_back[0]==(ulongT)mp_vector_init) && variable_def.size()==p2 && !is_comp_vector(arg2);
-                  // ^^ Tricky part: detect if 'arg2' is a newly constructed vector not assigned to a variable
-                  // (i.e. a vector-valued literal).
-                } else {
-                  CImg<ulongT>::vector(arg2).move_to(l_opcode);
-                  ++arg1;
-                  is_sth&=is_const_scalar(arg2);
-                }
-                s = ns;
+            arg3 = 0; // Output vector size
+            CImg<ulongT>::vector((ulongT)mp_vector_init2,0,0,0).move_to(l_opcode);
+            s = ss1; while (*s && cimg::is_blank(*s)) ++s;
+            if (s>=se1) _cimg_mp_return(0) // Empty initializer
+            for (; s<se; ++s) {
+              ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                             (*ns!=']' || level[ns - expr._data]!=clevel)) ++ns;
+              const CImgList<ulongT> &rcode = is_inside_begin?code:code_begin;
+              p1 = rcode.size();
+              p2 = variable_def.size();
+              arg1 = compile(s,ns,depth1,0,block_flags);
+              p3 = rcode.size();
+              if (is_vector(arg1)) {
+                arg2 = size(arg1);
+                arg3+=arg2;
+                CImg<ulongT>::vector(arg1,arg2).move_to(l_opcode);
+                const CImg<ulongT> &rcode_back = rcode.back();
+                is_sth&=p3>p1 && rcode_back[1]==arg1 &&
+                  (rcode_back[0]==(ulongT)mp_string_init ||
+                   rcode_back[0]==(ulongT)mp_vector_init) && variable_def.size()==p2 && !is_comp_vector(arg1);
+                // ^^ Tricky part: detect if 'arg1' is a newly constructed vector not assigned to a variable
+                // (i.e. a vector-valued literal).
+              } else {
+                ++arg3;
+                CImg<ulongT>::vector(arg1,0).move_to(l_opcode);
+                is_sth&=is_const_scalar(arg1);
               }
-            if (!arg1) _cimg_mp_return(0);
-            if (l_opcode.size()==1 && is_vector(arg2)) // Special case: '[ [ item(s) ] ]'
-              _cimg_mp_return(arg2);
-
-            pos = vector(arg1);
-            l_opcode.insert(CImg<ulongT>::vector((ulongT)mp_vector_init,pos,0,arg1),0);
+              s = ns;
+            }
+            if (l_opcode.size()==2 && is_vector(arg1)) _cimg_mp_return(arg1); // Special case: '[ [ item(s) ] ]'
+            pos = vector(arg3);
             (l_opcode>'y').move_to(opcode);
-            opcode[2] = opcode._height;
+            opcode[1] = (ulongT)pos;
+            opcode[2]=  (ulongT)arg3;
+            opcode[3] = (ulongT)((opcode._height - 4)/2);
             opcode.move_to(!is_sth || is_inside_begin || is_new_variable_assignment?code:code_begin);
             return_comp = !is_sth && is_new_variable_assignment;
             if (!return_comp) set_reserved_vector(pos); // Prevent from being used in further optimization
@@ -30196,6 +30197,37 @@ namespace cimg_library {
         case 0 : std::memset(mp.mem._data + ptrd,0,siz*sizeof(double)); break; // 0 values given
         case 1 : { const double val = _mp_arg(ptrs); while (siz-->0) mp.mem[ptrd++] = val; } break;
         default : while (siz-->0) { mp.mem[ptrd++] = _mp_arg(ptrs++); if (ptrs>=mp.opcode[2]) ptrs = 4U; }
+        }
+        return cimg::type<double>::nan();
+      }
+
+      static double mp_vector_init2(_cimg_math_parser& mp) {
+        double *ptrd = &_mp_arg(1) + 1;
+        unsigned int sizd = (unsigned int)mp.opcode[2];
+        const unsigned int nb_elts = (unsigned int)mp.opcode[3];
+
+        if (!nb_elts) std::memset(ptrd,0,sizd*sizeof(double)); // 0 elements specified: Fill with 0
+        else {
+          unsigned int siz = (unsigned int)mp.opcode[5];
+          if (nb_elts==1 && siz<=1) { // A single scalar (or vector1) element specified
+            const double val = siz?mp.mem[mp.opcode[4] + 1]:_mp_arg(4); while (sizd-->0) *(ptrd++) = val;
+          } else {
+            unsigned int n = 0, k = 4;
+            while (sizd) {
+              siz = (unsigned int)mp.opcode[k + 1];
+              if (siz) { // Vector
+                const unsigned int N = std::min(siz,sizd);
+                std::memcpy(ptrd,&_mp_arg(k) + 1,N*sizeof(double));
+                ptrd+=siz;
+                sizd-=N;
+              } else { // Scalar
+                *(ptrd++) = _mp_arg(k);
+                --sizd;
+              }
+              k+=2;
+              if (++n>nb_elts) { n = 0; k = 4; }
+            }
+          }
         }
         return cimg::type<double>::nan();
       }

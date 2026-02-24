@@ -21087,7 +21087,7 @@ namespace cimg_library {
               if (p1==~0U && !is_n) compile(++s1,se1,depth1,0,block_flags); // Missing element -> error, if !is_n
               (l_opcode>'y').move_to(opcode);
               opcode[5] = p1;
-              opcode[6] = opcode._height;
+              opcode[6] = opcode._height - 7;
               opcode.move_to(code);
               _cimg_mp_return_nan();
             }
@@ -21147,7 +21147,7 @@ namespace cimg_library {
               cimg::strpare(variable_name,false,true);
               ((CImg<ulongT>::vector((ulongT)mp_debug,arg1,0,code._width - p1),
                 variable_name)>'y').move_to(opcode);
-              opcode[2] = opcode._height;
+              opcode[2] = opcode._height - 4;
               opcode.move_to(code,p1);
               *se1 = ')';
               _cimg_mp_return(arg1);
@@ -21186,7 +21186,7 @@ namespace cimg_library {
               arg1 = opcode._height - 3;
               pos = vector(arg1*arg1);
               opcode[1] = pos;
-              opcode[2] = opcode._height;
+              opcode[2] = arg1;
               opcode.move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
@@ -26623,7 +26623,7 @@ namespace cimg_library {
         const unsigned int
           dim = (unsigned int)(mp.opcode[5]==~0U?img._spectrum:mp.opcode[5]),
           dim1 = std::max(1U,dim),
-          nb_elts = (unsigned int)mp.opcode[6] - 7,
+          nb_elts = (unsigned int)mp.opcode[6],
           nb_elts1 = std::max(1U,nb_elts);
         const int
           siz = img?(int)cimg::float2uint(img[img._height - 1]):0,
@@ -26776,7 +26776,7 @@ namespace cimg_library {
       }
 
       static double mp_debug(_cimg_math_parser& mp) {
-        CImg<charT> expr(mp.opcode[2] - 4);
+        CImg<charT> expr(mp.opcode[2]);
         {
           const ulongT *ptrs = mp.opcode._data + 4;
           cimg_for(expr,ptrd,char) *ptrd = (char)*(ptrs++);
@@ -26937,7 +26937,7 @@ namespace cimg_library {
       }
 
       static double mp_diag(_cimg_math_parser& mp) {
-        const unsigned int i_end = (unsigned int)mp.opcode[2], siz = mp.opcode[2] - 3;
+        const unsigned int siz = mp.opcode[2], i_end = siz + 3;
         double *ptrd = &_mp_arg(1) + 1;
         std::memset(ptrd,0,siz*siz*sizeof(double));
         for (unsigned int i = 3; i<i_end; ++i) { *(ptrd++) = _mp_arg(i); ptrd+=siz; }

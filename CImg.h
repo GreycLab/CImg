@@ -24159,7 +24159,7 @@ namespace cimg_library {
               }
 
               is_sth = !is_new_variable_assignment; // Can vector be defined once in 'begin()'?
-              arg5 = 0; // Output vector size
+              arg4 = 0; // Output vector size
               CImg<ulongT>::vector((ulongT)mp_vector_init,0,0,0).move_to(l_opcode);
               while (*s && cimg::is_blank(*s)) ++s;
               if (s>=se1 && arg1==~0U) _cimg_mp_return(0); // Empty initializer
@@ -24169,27 +24169,27 @@ namespace cimg_library {
                 const CImgList<ulongT> &rcode = is_inside_begin?code:code_begin;
                 p1 = rcode.size();
                 p2 = variable_def.size();
-                arg3 = compile(s,ns,depth1,0,block_flags);
+                arg2 = compile(s,ns,depth1,0,block_flags);
                 p3 = rcode.size();
-                if (is_vector(arg3)) {
-                  arg4 = size(arg3);
-                  arg5+=arg4;
-                  CImg<ulongT>::vector(arg4,arg5).move_to(l_opcode);
+                if (is_vector(arg2)) {
+                  arg3 = size(arg2);
+                  arg4+=arg3;
+                  CImg<ulongT>::vector(arg3,arg4).move_to(l_opcode);
                   const CImg<ulongT> &rcode_back = rcode.back();
-                  is_sth&=p3>p1 && rcode_back[1]==arg3 &&
+                  is_sth&=p3>p1 && rcode_back[1]==arg2 &&
                     (rcode_back[0]==(ulongT)mp_string_init ||
-                     rcode_back[0]==(ulongT)mp_vector_init) && variable_def.size()==p2 && !is_comp_vector(arg3);
+                     rcode_back[0]==(ulongT)mp_vector_init) && variable_def.size()==p2 && !is_comp_vector(arg2);
                   // ^^ Tricky part: detect if 'arg2' is a newly constructed vector not assigned to a variable
                   // (i.e. a vector-valued literal).
                 } else {
-                  ++arg5;
-                  CImg<ulongT>::vector(arg3,0).move_to(l_opcode);
-                  is_sth&=is_const_scalar(arg3);
+                  ++arg4;
+                  CImg<ulongT>::vector(arg2,0).move_to(l_opcode);
+                  is_sth&=is_const_scalar(arg2);
                 }
                 s = ns;
               }
 
-              if (arg1==~0U) arg1 = arg5;
+              if (arg1==~0U) arg1 = arg4;
               pos = vector(arg1);
               (l_opcode>'y').move_to(opcode);
               opcode[1] = (ulongT)pos;

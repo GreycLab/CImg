@@ -24162,8 +24162,8 @@ namespace cimg_library {
               arg5 = 0; // Output vector size
               CImg<ulongT>::vector((ulongT)mp_vector_init,0,0,0).move_to(l_opcode);
               while (*s && cimg::is_blank(*s)) ++s;
-              if (s>=se1) _cimg_mp_return(0); // Empty initializer
-              for (; s<se; ++s) {
+              if (s>=se1 && arg1==~0U) _cimg_mp_return(0); // Empty initializer
+              if (s<se1) for (; s<se; ++s) {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                 const CImgList<ulongT> &rcode = is_inside_begin?code:code_begin;

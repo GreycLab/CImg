@@ -20167,7 +20167,7 @@ namespace cimg_library {
                 s = ns;
               }
               (l_opcode>'y').move_to(opcode);
-              opcode[2] = opcode._height;
+              opcode[2] = opcode._height - 4;
               if (is_const_scalar(arg1)) {
                 p3-=1; // Number of args
                 if (*ss3=='0') arg1 = (unsigned int)(mem[arg1]<0?mem[arg1] + p3:mem[arg1] + 1);
@@ -25948,7 +25948,7 @@ namespace cimg_library {
       static double mp_arg0(_cimg_math_parser& mp) {
         const int _ind = (int)_mp_arg(4);
         const unsigned int
-          nb_args = (unsigned int)mp.opcode[2] - 4,
+          nb_args = (unsigned int)mp.opcode[2],
           ind = _ind<0?_ind + nb_args:_ind + 1U,
           siz = (unsigned int)mp.opcode[3];
         if (siz>0) {
@@ -25963,7 +25963,7 @@ namespace cimg_library {
       static double mp_arg1(_cimg_math_parser& mp) {
         const int _ind = (int)_mp_arg(4);
         const unsigned int
-          nb_args = (unsigned int)mp.opcode[2] - 4,
+          nb_args = (unsigned int)mp.opcode[2],
           ind = _ind<0?_ind + nb_args:(unsigned int)_ind,
           siz = (unsigned int)mp.opcode[3];
         if (siz>0) {

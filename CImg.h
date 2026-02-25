@@ -34866,7 +34866,8 @@ namespace cimg_library {
                     mp(x,y,z,0,res._data);
                     const double *const cimg_restrict ptrs = res._data;
                     T *cimg_restrict _ptrd = ptrd--;
-                    for (unsigned int n = 0; n<N; ++n) _ptrd[n*whd] = (T)ptrs[n];
+                    cimg_pragma_openmp(simd)
+                      for (unsigned int n = 0; n<N; ++n) _ptrd[n*whd] = (T)ptrs[n];
                   }
               }
               mp.end_t();

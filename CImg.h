@@ -33353,7 +33353,7 @@ namespace cimg_library {
             bool flag = true;
             for (l = k; l>=1; --l) {
               nm = l - 1;
-              if (l==1 || cimg::abs(rv1[l])<=eps*anorm) { flag = false; break; }
+              if (l==0 || cimg::abs(rv1[l])<=eps*anorm) { flag = false; break; }
               if (cimg::abs(S[nm])<=eps*anorm) break;
             }
             if (flag) {

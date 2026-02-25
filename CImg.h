@@ -34932,7 +34932,7 @@ namespace cimg_library {
             }
 
           } else { // Scalar-valued expression
-            T *cimg_restrict ptrd = *expression=='<'?end() - 1:_data;
+            T *cimg_restrict ptrd = *expression=='<'?end() - _width:_data;
             if (*expression=='<') {
               mp.begin_t();
               if (mode&4) cimg_rofYZC(*this,y,z,c) {

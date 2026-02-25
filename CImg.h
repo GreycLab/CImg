@@ -17847,7 +17847,7 @@ namespace cimg_library {
       const CImg<T>& imgin;
 
       unsigned int break_type, constcache_size, debug_indent, mem_img_index, mem_img_median, mem_img_norm, mempos,
-        null_index,result_dim, result_end_dim;
+        _0_index, _1_index, result_dim, result_end_dim;
       bool is_end_code, is_fill, is_noncritical_run, is_parallelizable, need_input_copy, return_comp;
       const char *const calling_function, *s_op, *ss_op;
       double *result, *result_end;
@@ -17905,7 +17905,7 @@ namespace cimg_library {
         p_break((CImg<ulongT>*)(cimg_ulong)-2),
         imgin(img_input),
         break_type(0),constcache_size(0),debug_indent(0),mem_img_index(~0U),mem_img_median(~0U),mem_img_norm(~0U),
-          null_index(~0U),result_dim(0),result_end_dim(0),
+          _0_index(~0U),_1_index(~0U),result_dim(0),result_end_dim(0),
         is_fill(_is_fill),is_noncritical_run(false),is_parallelizable(true),need_input_copy(false),
         calling_function(funcname?funcname:"cimg_math_parser"),
         result_end(0),
@@ -17976,16 +17976,17 @@ namespace cimg_library {
         variable_pos.assign(8);
 
         reserved_label.assign(128,1,1,1,~0U);
-        // reserved_label[0-34] are used to store the memory index of these variables:
+        // reserved_label[0-35] are used to store the memory index of these variables:
         // [0] = wh, [1] = whd, [2] = whds, [3] = pi, [4] = im, [5] = iM, [6] = ia, [7] = iv, [8] = id,
         // [9] = is, [10] = ip, [11] = ic, [12] = in, [13] = xm, [14] = ym, [15] = zm, [16] = cm, [17] = xM,
         // [18] = yM, [19] = zM, [20] = cM, [21] = i0...[30] = i9, [31] = interpolation, [32] = boundary, [33] = eps,
-        // [34] = null
+        // [34] = _0, [35] = _1
 
         // Compile expression into a sequence of opcodes.
         s_op = ""; ss_op = expr._data;
         const unsigned int ind_result = compile(expr._data,expr._data + expr._width - 1,0,0,0);
-        if (!is_const_scalar(ind_result) && ind_result!=_cimg_mp_slot_t && ind_result!=null_index) {
+        if (!is_const_scalar(ind_result) && ind_result!=_cimg_mp_slot_t &&
+            ind_result!=_0_index && ind_result!=_1_index) {
           if (is_vector(ind_result))
             CImg<doubleT>(&mem[ind_result] + 1,size(ind_result),1,1,1,true).
               fill(cimg::type<double>::nan());
@@ -18230,6 +18231,24 @@ namespace cimg_library {
             _cimg_mp_return(reserved_label[0]!=~0U?reserved_label[0]:23);
           if (*ss=='p' && *ss1=='i') // pi
             _cimg_mp_return(reserved_label[3]!=~0U?reserved_label[3]:28);
+          if (*ss=='_' && *ss1=='0') { // _0
+            if (reserved_label[34]!=~0U) _cimg_mp_return(reserved_label[34]);
+            if (_0_index==~0U) {
+              _0_index = vector(imgin._spectrum);
+              std::memset(&mem[_0_index] + 1,0,imgin._spectrum*sizeof(double));
+              set_reserved_vector(_0_index);
+            }
+            _cimg_mp_return(_0_index);
+          }
+          if (*ss=='_' && *ss1=='1') { // _1
+            if (reserved_label[35]!=~0U) _cimg_mp_return(reserved_label[35]);
+            if (_1_index==~0U) {
+              _1_index = vector(imgin._spectrum);
+              cimg_forC(imgin,c) mem[_1_index + 1 + c] = 1.0;
+              set_reserved_vector(_1_index);
+            }
+            _cimg_mp_return(_1_index);
+          }
           if (*ss=='i') {
             if (*ss1>='0' && *ss1<='9') { // i0...i9
               pos = 21 + *ss1 - '0';
@@ -18287,16 +18306,6 @@ namespace cimg_library {
         } else if (ss4==se) { // Four-chars reserved variable
           if (*ss=='w' && *ss1=='h' && *ss2=='d' && *ss3=='s') // whds
             _cimg_mp_return(reserved_label[2]!=~0U?reserved_label[2]:25);
-          if (*ss=='n' && *ss1=='u' && *ss2=='l' && *ss3=='l') { // null
-            if (reserved_label[34]!=~0U) _cimg_mp_return(reserved_label[34]);
-            if (imgin._spectrum<2) _cimg_mp_return(0);
-            if (null_index==~0U) {
-              null_index = vector(imgin._spectrum);
-              std::memset(&mem[null_index] + 1,0,imgin._spectrum*sizeof(double));
-              set_reserved_vector(null_index);
-            }
-            _cimg_mp_return(null_index);
-          }
         }
 
         pos = ~0U;
@@ -18473,7 +18482,8 @@ namespace cimg_library {
               s0 = ve1; while (s0>ss && (*s0!='[' || level[s0 - expr._data]!=clevel)) --s0;
               if (s0>ss && cimg::is_varname(ss,s0 - ss)) {
                 variable_name[s0 - ss] = 0; // Remove brackets in variable name
-                if (!std::strcmp(variable_name,"null")) // Force 'null' to be allocated
+                if (*variable_name=='_' && (variable_name[1]=='0' || variable_name[1]=='1') &&
+                    !variable_name[2]) // Force '_0' and '_1' to be allocated
                   arg1 = compile(ss,s0,depth1,0,block_flags);
                 else {
                   get_variable_pos(variable_name,arg1,arg2);
@@ -18675,7 +18685,7 @@ namespace cimg_library {
                     CImg<ulongT>::vector((ulongT)mp_vector_copy,arg1,arg3,(ulongT)size(arg1)).
                       move_to(code);
                   else // From scalar
-                    CImg<ulongT>::vector((ulongT)mp_vector_init,arg1,1,(ulongT)size(arg1),arg3).
+                    CImg<ulongT>::vector((ulongT)mp_vector_init,arg1,(ulongT)size(arg1),1,arg3,0).
                       move_to(code);
                 } else // Scalar
                   CImg<ulongT>::vector((ulongT)mp_copy,arg1,arg3).move_to(code);
@@ -18781,7 +18791,7 @@ namespace cimg_library {
                   CImg<ulongT>::vector((ulongT)mp_vector_copy,arg1,arg2,(ulongT)size(arg1)).
                     move_to(code);
                 else // From scalar
-                  CImg<ulongT>::vector((ulongT)mp_vector_init,arg1,1,(ulongT)size(arg1),arg2).
+                  CImg<ulongT>::vector((ulongT)mp_vector_init,arg1,(ulongT)size(arg1),1,arg2,0).
                     move_to(code);
                 _cimg_mp_return(arg1);
               }
@@ -20167,7 +20177,7 @@ namespace cimg_library {
                 s = ns;
               }
               (l_opcode>'y').move_to(opcode);
-              opcode[2] = opcode._height;
+              opcode[2] = opcode._height - 4;
               if (is_const_scalar(arg1)) {
                 p3-=1; // Number of args
                 if (*ss3=='0') arg1 = (unsigned int)(mem[arg1]<0?mem[arg1] + p3:mem[arg1] + 1);
@@ -21087,7 +21097,7 @@ namespace cimg_library {
               if (p1==~0U && !is_n) compile(++s1,se1,depth1,0,block_flags); // Missing element -> error, if !is_n
               (l_opcode>'y').move_to(opcode);
               opcode[5] = p1;
-              opcode[6] = opcode._height;
+              opcode[6] = opcode._height - 7;
               opcode.move_to(code);
               _cimg_mp_return_nan();
             }
@@ -21147,7 +21157,7 @@ namespace cimg_library {
               cimg::strpare(variable_name,false,true);
               ((CImg<ulongT>::vector((ulongT)mp_debug,arg1,0,code._width - p1),
                 variable_name)>'y').move_to(opcode);
-              opcode[2] = opcode._height;
+              opcode[2] = opcode._height - 4;
               opcode.move_to(code,p1);
               *se1 = ')';
               _cimg_mp_return(arg1);
@@ -21177,17 +21187,16 @@ namespace cimg_library {
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                 arg2 = compile(s,ns,depth1,0,block_flags);
                 if (is_vector(arg2))
-                  CImg<ulongT>::sequence(size(arg2),arg2 + 1,
-                                         arg2 + (ulongT)size(arg2)).
-                    move_to(l_opcode);
-                else CImg<ulongT>::vector(arg2).move_to(l_opcode);
+                  CImg<ulongT>::sequence(size(arg2),arg2 + 1,arg2 + (ulongT)size(arg2)).move_to(l_opcode);
+                else
+                  CImg<ulongT>::vector(arg2).move_to(l_opcode);
                 s = ns;
               }
               (l_opcode>'y').move_to(opcode);
               arg1 = opcode._height - 3;
               pos = vector(arg1*arg1);
               opcode[1] = pos;
-              opcode[2] = opcode._height;
+              opcode[2] = arg1;
               opcode.move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
@@ -21236,7 +21245,7 @@ namespace cimg_library {
                 ((CImg<ulongT>::vector((ulongT)mp_vector_display,arg1,0,(ulongT)size(arg1),
                                        arg2,arg3,arg4,arg5),
                   variable_name)>'y').move_to(opcode);
-                opcode[2] = opcode._height;
+                opcode[2] = opcode._height - 8;
                 opcode.move_to(code);
                 *s1 = c1;
                 _cimg_mp_return(arg1);
@@ -21520,7 +21529,7 @@ namespace cimg_library {
                 s = ns;
               }
               (l_opcode>'y').move_to(opcode);
-              opcode[2] = opcode._height;
+              opcode[2] = (opcode._height - 3)/2;
               opcode.move_to(code);
               _cimg_mp_return_nan();
             }
@@ -22987,9 +22996,7 @@ namespace cimg_library {
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                 arg2 = compile(s,ns,depth1,0,block_flags);
                 if (pos>1 && is_vector(arg2)) // Vector argument allowed to specify coordinates and color
-                  CImg<ulongT>::sequence(size(arg2),arg2 + 1,
-                                         arg2 + (ulongT)size(arg2)).
-                    move_to(l_opcode);
+                  CImg<ulongT>::sequence(size(arg2),arg2 + 1,arg2 + (ulongT)size(arg2)).move_to(l_opcode);
                 else {
                   _cimg_mp_check_type(arg2,pos,1,0);
                   CImg<ulongT>::vector(arg2).move_to(l_opcode);
@@ -23429,7 +23436,7 @@ namespace cimg_library {
               (l_opcode>'y').move_to(opcode);
               pos = scalar();
               opcode[1] = pos;
-              opcode[2] = opcode._height;
+              opcode[2] = (opcode._height - 3)/2;
               opcode.move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
@@ -23858,7 +23865,7 @@ namespace cimg_library {
               (l_opcode>'y').move_to(opcode);
               opcode[1] = pos;
               opcode[2] = arg1;
-              opcode[3] = opcode._height;
+              opcode[3] = (opcode._height - 3)/2;
               opcode.move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
@@ -24159,37 +24166,42 @@ namespace cimg_library {
               }
 
               is_sth = !is_new_variable_assignment; // Can vector be defined once in 'begin()'?
-              if (s<se1 || arg1==~0U) for ( ; s<se; ++s) {
-                  ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
-                                 (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
-                  const CImgList<ulongT> &rcode = is_inside_begin?code:code_begin;
-                  p1 = rcode.size();
-                  p2 = variable_def.size();
-                  arg3 = compile(s,ns,depth1,0,block_flags);
-                  p3 = rcode.size();
-                  if (is_vector(arg3)) {
-                    arg4 = size(arg3);
-                    CImg<ulongT>::sequence(arg4,arg3 + 1,arg3 + arg4).move_to(l_opcode);
-                    arg2+=arg4;
-                    const CImg<ulongT> &rcode_back = rcode.back();
-                    is_sth&=p3>p1 && rcode_back[1]==arg3 &&
-                      (rcode_back[0]==(ulongT)mp_string_init ||
-                       rcode_back[0]==(ulongT)mp_vector_init) && variable_def.size()==p2 && !is_comp_vector(arg3);
-                    // ^^ Tricky part: detect if 'arg2' is a newly constructed vector not assigned to a variable
-                    // (i.e. a vector-valued literal).
-                  } else {
-                    CImg<ulongT>::vector(arg3).move_to(l_opcode);
-                    ++arg2;
-                    is_sth&=is_const_scalar(arg3);
-                  }
-                  s = ns;
+              arg4 = 0; // Output vector size
+              CImg<ulongT>::vector((ulongT)mp_vector_init,0,0,0).move_to(l_opcode);
+              while (*s && cimg::is_blank(*s)) ++s;
+              if (s>=se1 && arg1==~0U) _cimg_mp_return(0); // Empty initializer
+              if (s<se1) for (; s<se; ++s) {
+                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                               (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
+                const CImgList<ulongT> &rcode = is_inside_begin?code:code_begin;
+                p1 = rcode.size();
+                p2 = variable_def.size();
+                arg2 = compile(s,ns,depth1,0,block_flags);
+                p3 = rcode.size();
+                if (is_vector(arg2)) {
+                  arg3 = size(arg2);
+                  arg4+=arg3;
+                  CImg<ulongT>::vector(arg3,arg4).move_to(l_opcode);
+                  const CImg<ulongT> &rcode_back = rcode.back();
+                  is_sth&=p3>p1 && rcode_back[1]==arg2 &&
+                    (rcode_back[0]==(ulongT)mp_string_init ||
+                     rcode_back[0]==(ulongT)mp_vector_init) && variable_def.size()==p2 && !is_comp_vector(arg2);
+                  // ^^ Tricky part: detect if 'arg2' is a newly constructed vector not assigned to a variable
+                  // (i.e. a vector-valued literal).
+                } else {
+                  ++arg4;
+                  CImg<ulongT>::vector(arg2,0).move_to(l_opcode);
+                  is_sth&=is_const_scalar(arg2);
                 }
-              if (arg1==~0U) arg1 = arg2;
-              if (!arg1) _cimg_mp_return(0);
+                s = ns;
+              }
+
+              if (arg1==~0U) arg1 = arg4;
               pos = vector(arg1);
-              l_opcode.insert(CImg<ulongT>::vector((ulongT)mp_vector_init,pos,0,arg1),0);
               (l_opcode>'y').move_to(opcode);
-              opcode[2] = opcode._height;
+              opcode[1] = pos;
+              opcode[2] = arg1;
+              opcode[3] = (opcode._height - 4)/2;
               opcode.move_to(!is_sth || is_inside_begin || is_new_variable_assignment?code:code_begin);
               return_comp = !is_sth && is_new_variable_assignment;
               if (!return_comp) set_reserved_vector(pos); // Prevent from being used in further optimization
@@ -24250,7 +24262,7 @@ namespace cimg_library {
               if (p1==~0U) { pos = scalar(); p1 = 0; } else pos = vector(p1);
               opcode[1] = pos;
               opcode[2] = p1;
-              opcode[3] = opcode._height;
+              opcode[3] = (opcode._height - 4)/2;
               opcode.move_to(code);
               return_comp = true;
               _cimg_mp_return(pos);
@@ -24472,9 +24484,9 @@ namespace cimg_library {
                              (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
               arg2 = compile(s,ns,depth1,0,block_flags);
               if (is_vector(arg2))
-                CImg<ulongT>::sequence(size(arg2),arg2 + 1,arg2 + (ulongT)size(arg2)).
-                  move_to(l_opcode);
-              else CImg<ulongT>::vector(arg2).move_to(l_opcode);
+                CImg<ulongT>::sequence(size(arg2),arg2 + 1,arg2 + (ulongT)size(arg2)).move_to(l_opcode);
+              else
+                CImg<ulongT>::vector(arg2).move_to(l_opcode);
               is_sth&=is_const_scalar(arg2);
               s = ns;
             }
@@ -24772,40 +24784,42 @@ namespace cimg_library {
             if (!return_comp) set_reserved_vector(pos); // Prevent from being used in further optimization
           } else { // Vector values provided as a list of items
             is_sth = !is_new_variable_assignment; // Can vector be defined once in 'begin()'?
-            arg1 = 0; // Number of specified values
-            if (*ss1!=']') for (s = ss1; s<se; ++s) {
-                ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
-                               (*ns!=']' || level[ns - expr._data]!=clevel)) ++ns;
-                const CImgList<ulongT> &rcode = is_inside_begin?code:code_begin;
-                p1 = rcode.size();
-                p2 = variable_def.size();
-                arg2 = compile(s,ns,depth1,0,block_flags);
-                p3 = rcode.size();
-                if (is_vector(arg2)) {
-                  arg3 = size(arg2);
-                  CImg<ulongT>::sequence(arg3,arg2 + 1,arg2 + arg3).move_to(l_opcode);
-                  arg1+=arg3;
-                  const CImg<ulongT> &rcode_back = rcode.back();
-                  is_sth&=p3>p1 && rcode_back[1]==arg2 &&
-                    (rcode_back[0]==(ulongT)mp_string_init ||
-                     rcode_back[0]==(ulongT)mp_vector_init) && variable_def.size()==p2 && !is_comp_vector(arg2);
-                  // ^^ Tricky part: detect if 'arg2' is a newly constructed vector not assigned to a variable
-                  // (i.e. a vector-valued literal).
-                } else {
-                  CImg<ulongT>::vector(arg2).move_to(l_opcode);
-                  ++arg1;
-                  is_sth&=is_const_scalar(arg2);
-                }
-                s = ns;
+            arg3 = 0; // Output vector size
+            CImg<ulongT>::vector((ulongT)mp_vector_init,0,0,0).move_to(l_opcode);
+            s = ss1; while (*s && cimg::is_blank(*s)) ++s;
+            if (s>=se1) _cimg_mp_return(0); // Empty initializer
+            for (; s<se; ++s) {
+              ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
+                             (*ns!=']' || level[ns - expr._data]!=clevel)) ++ns;
+              const CImgList<ulongT> &rcode = is_inside_begin?code:code_begin;
+              p1 = rcode.size();
+              p2 = variable_def.size();
+              arg1 = compile(s,ns,depth1,0,block_flags);
+              p3 = rcode.size();
+              if (is_vector(arg1)) {
+                arg2 = size(arg1);
+                arg3+=arg2;
+                CImg<ulongT>::vector(arg1,arg2).move_to(l_opcode);
+                const CImg<ulongT> &rcode_back = rcode.back();
+                is_sth&=p3>p1 && rcode_back[1]==arg1 &&
+                  (rcode_back[0]==(ulongT)mp_string_init ||
+                   rcode_back[0]==(ulongT)mp_vector_init) && variable_def.size()==p2 && !is_comp_vector(arg1);
+                // ^^ Tricky part: detect if 'arg1' is a newly constructed vector not assigned to a variable
+                // (i.e. a vector-valued literal).
+              } else {
+                ++arg3;
+                CImg<ulongT>::vector(arg1,0).move_to(l_opcode);
+                is_sth&=is_const_scalar(arg1);
               }
-            if (!arg1) _cimg_mp_return(0);
-            if (l_opcode.size()==1 && is_vector(arg2)) // Special case: '[ [ item(s) ] ]'
-              _cimg_mp_return(arg2);
+              s = ns;
+            }
 
-            pos = vector(arg1);
-            l_opcode.insert(CImg<ulongT>::vector((ulongT)mp_vector_init,pos,0,arg1),0);
+            if (l_opcode.size()==2 && is_vector(arg1)) _cimg_mp_return(arg1); // Special case: '[ [ item(s) ] ]'
+            pos = vector(arg3);
             (l_opcode>'y').move_to(opcode);
-            opcode[2] = opcode._height;
+            opcode[1] = pos;
+            opcode[2]=  arg3;
+            opcode[3] = (opcode._height - 4)/2;
             opcode.move_to(!is_sth || is_inside_begin || is_new_variable_assignment?code:code_begin);
             return_comp = !is_sth && is_new_variable_assignment;
             if (!return_comp) set_reserved_vector(pos); // Prevent from being used in further optimization
@@ -25284,6 +25298,8 @@ namespace cimg_library {
           c2 = variable_name[1];
           if (c1=='w' && c2=='h') rp = 0; // wh
           else if (c1=='p' && c2=='i') rp = 3; // pi
+          else if (c1=='_' && c2=='0') rp = 34; // _0
+          else if (c1=='_' && c2=='1') rp = 35; // _1
           else if (c1=='i') {
             if (c2>='0' && c2<='9') rp = 21 + c2 - '0'; // i0...i9
             else if (c2=='m') rp = 4; // im
@@ -25319,7 +25335,6 @@ namespace cimg_library {
           c3 = variable_name[2];
           c4 = variable_name[3];
           if (c1=='w' && c2=='h' && c3=='d' && c4=='s') rp = 2; // whds
-          else if (c1=='n' && c2=='u' && c3=='l' && c4=='l') rp = 34; // null
         } else if (!std::strcmp(variable_name,"interpolation")) rp = 31; // interpolation
         else if (!std::strcmp(variable_name,"boundary")) rp = 32; // boundary
 
@@ -25944,7 +25959,7 @@ namespace cimg_library {
       static double mp_arg0(_cimg_math_parser& mp) {
         const int _ind = (int)_mp_arg(4);
         const unsigned int
-          nb_args = (unsigned int)mp.opcode[2] - 4,
+          nb_args = (unsigned int)mp.opcode[2],
           ind = _ind<0?_ind + nb_args:_ind + 1U,
           siz = (unsigned int)mp.opcode[3];
         if (siz>0) {
@@ -25959,7 +25974,7 @@ namespace cimg_library {
       static double mp_arg1(_cimg_math_parser& mp) {
         const int _ind = (int)_mp_arg(4);
         const unsigned int
-          nb_args = (unsigned int)mp.opcode[2] - 4,
+          nb_args = (unsigned int)mp.opcode[2],
           ind = _ind<0?_ind + nb_args:(unsigned int)_ind,
           siz = (unsigned int)mp.opcode[3];
         if (siz>0) {
@@ -26395,7 +26410,7 @@ namespace cimg_library {
         return cimg::type<double>::nan();
       }
 
-      static double mp_convolve(_cimg_math_parser &mp) {
+      static double mp_convolve(_cimg_math_parser& mp) {
         return _mp_correlate(mp,true);
       }
 
@@ -26403,11 +26418,11 @@ namespace cimg_library {
         return _mp_arg(2);
       }
 
-      static double mp_correlate(_cimg_math_parser &mp) {
+      static double mp_correlate(_cimg_math_parser& mp) {
         return _mp_correlate(mp,false);
       }
 
-      static double _mp_correlate(_cimg_math_parser &mp, bool is_convolve) {
+      static double _mp_correlate(_cimg_math_parser& mp, bool is_convolve) {
         double *ptrd = &_mp_arg(1) + 1;
         const double *const ptrI = &_mp_arg(2) + 1, *const ptrK = &_mp_arg(7) + 1;
         const unsigned int
@@ -26619,7 +26634,7 @@ namespace cimg_library {
         const unsigned int
           dim = (unsigned int)(mp.opcode[5]==~0U?img._spectrum:mp.opcode[5]),
           dim1 = std::max(1U,dim),
-          nb_elts = (unsigned int)mp.opcode[6] - 7,
+          nb_elts = (unsigned int)mp.opcode[6],
           nb_elts1 = std::max(1U,nb_elts);
         const int
           siz = img?(int)cimg::float2uint(img[img._height - 1]):0,
@@ -26772,7 +26787,7 @@ namespace cimg_library {
       }
 
       static double mp_debug(_cimg_math_parser& mp) {
-        CImg<charT> expr(mp.opcode[2] - 4);
+        CImg<charT> expr(mp.opcode[2]);
         {
           const ulongT *ptrs = mp.opcode._data + 4;
           cimg_for(expr,ptrd,char) *ptrd = (char)*(ptrs++);
@@ -26808,92 +26823,91 @@ namespace cimg_library {
           const ulongT target = mp.opcode[1];
           mp.eval(mp.p_code,mp.p_code + 1);
 
-#define _mp_debug(name) fn==mp_##name?#name
+#define _mp_debug(name) fn==mp_##name?#name:
           const mp_func fn = (mp_func)*mp.opcode;
           const char *const s_fn =
-            _mp_debug(abort): _mp_debug(abort): _mp_debug(abs): _mp_debug(abscut): _mp_debug(absmaxabs):
-            _mp_debug(absminabs): _mp_debug(acos): _mp_debug(acosh): _mp_debug(add): _mp_debug(add_add):
-            _mp_debug(add_mul): _mp_debug(add_sub): _mp_debug(arg0): _mp_debug(arg1): _mp_debug(argkth):
-            _mp_debug(argmax): _mp_debug(argmax2): _mp_debug(argmaxabs): _mp_debug(argmaxabs2): _mp_debug(argmin):
-            _mp_debug(argmin2): _mp_debug(argminabs): _mp_debug(argminabs2): _mp_debug(asin): _mp_debug(asinh):
-            _mp_debug(atan): _mp_debug(atan2): _mp_debug(atanh): _mp_debug(avg): _mp_debug(avg2):
-            _mp_debug(bitwise_and): _mp_debug(bitwise_left_shift): _mp_debug(bitwise_not): _mp_debug(bitwise_or):
-            _mp_debug(bitwise_right_shift): _mp_debug(bitwise_xor): _mp_debug(bool): _mp_debug(break):
-            _mp_debug(breakpoint): _mp_debug(c2o): _mp_debug(cbrt): _mp_debug(ceil): _mp_debug(complex_abs):
-            _mp_debug(complex_conj): _mp_debug(complex_cos): _mp_debug(complex_cosh): _mp_debug(div_add):
-            _mp_debug(div_div): _mp_debug(div_sub): _mp_debug(complex_div_sv):
-            _mp_debug(complex_div_vv): _mp_debug(complex_exp): _mp_debug(complex_log): _mp_debug(complex_mul):
-            _mp_debug(complex_one): _mp_debug(complex_pow_ss): _mp_debug(complex_pow_sv): _mp_debug(complex_pow_vs):
-            _mp_debug(complex_pow_vv): _mp_debug(complex_sin): _mp_debug(complex_sinh): _mp_debug(complex_sqr):
-            _mp_debug(complex_sqrt): _mp_debug(complex_tan): _mp_debug(complex_tanh): _mp_debug(continue):
-            _mp_debug(convolve): _mp_debug(copy): _mp_debug(correlate): _mp_debug(cos): _mp_debug(cosh): _mp_debug(cov):
-            _mp_debug(critical): _mp_debug(cross): _mp_debug(cumulate): _mp_debug(cut):
-            _mp_debug(da_back_or_pop): _mp_debug(da_freeze): _mp_debug(da_insert_or_push_n):
-            _mp_debug(da_remove): _mp_debug(da_size): _mp_debug(date): _mp_debug(debug): _mp_debug(decrement):
-            _mp_debug(deg2rad): _mp_debug(det): _mp_debug(diag): _mp_debug(div): _mp_debug(do): _mp_debug(dot):
-            _mp_debug(echo): _mp_debug(ellipse): _mp_debug(epoch): _mp_debug(eq): _mp_debug(equalize):
-            _mp_debug(erf): _mp_debug(erfinv): _mp_debug(exp): _mp_debug(expr): _mp_debug(eye):
-            _mp_debug(f2ui): _mp_debug(factorial): _mp_debug(fft): _mp_debug(fibonacci): _mp_debug(find):
-            _mp_debug(find_seq): _mp_debug(flood): _mp_debug(floor): _mp_debug(for): _mp_debug(frac):
-            _mp_debug(fsize): _mp_debug(gamma): _mp_debug(gauss): _mp_debug(gcd): _mp_debug(gcd2):
-            _mp_debug(get): _mp_debug(get): _mp_debug(gt): _mp_debug(gte): _mp_debug(histogram): _mp_debug(I):
-            _mp_debug(i): _mp_debug(if): _mp_debug(IJoff): _mp_debug(ijoff): _mp_debug(IJxyz1):
-            _mp_debug(IJxyz2): _mp_debug(IJxyz3): _mp_debug(ijxyzc1): _mp_debug(ijxyzc2): _mp_debug(ijxyzc3):
-            _mp_debug(image_crop): _mp_debug(image_depth): _mp_debug(image_display): _mp_debug(image_draw):
-            _mp_debug(image_find): _mp_debug(image_find_seq): _mp_debug(image_height):
-            _mp_debug(image_is_shared): _mp_debug(image_median): _mp_debug(image_median_static):
-            _mp_debug(image_norm): _mp_debug(image_norm_static): _mp_debug(image_print):
-            _mp_debug(image_resize): _mp_debug(image_shift): _mp_debug(image_sort): _mp_debug(image_spectrum):
-            _mp_debug(image_stats): _mp_debug(image_stats_static): _mp_debug(image_std_static):
-            _mp_debug(image_swap): _mp_debug(image_wh): _mp_debug(image_whd): _mp_debug(image_whds):
-            _mp_debug(image_width): _mp_debug(increment): _mp_debug(index): _mp_debug(indexof):
-            _mp_debug(inrange): _mp_debug(int): _mp_debug(isbool): _mp_debug(isdir): _mp_debug(isfile):
-            _mp_debug(isfinite): _mp_debug(isin): _mp_debug(isinf): _mp_debug(isint): _mp_debug(isnan):
-            _mp_debug(isvarname): _mp_debug(kth): _mp_debug(lcm): _mp_debug(lcm2): _mp_debug(lerp):
-            _mp_debug(log): _mp_debug(log10): _mp_debug(log2): _mp_debug(logical_and): _mp_debug(logical_not):
-            _mp_debug(logical_or): _mp_debug(logit): _mp_debug(lowercase): _mp_debug(lt): _mp_debug(lte):
-            _mp_debug(map): _mp_debug(matrix_eigen): _mp_debug(matrix_invert): _mp_debug(matrix_mul):
-            _mp_debug(matrix_qr): _mp_debug(matrix_svd): _mp_debug(max): _mp_debug(max2): _mp_debug(maxabs):
-            _mp_debug(maxabs2): _mp_debug(med): _mp_debug(med2): _mp_debug(mem_copy): _mp_debug(mem_display):
-            _mp_debug(min): _mp_debug(min2): _mp_debug(minabs): _mp_debug(minabs2): _mp_debug(minus):
-            _mp_debug(mirror): _mp_debug(modulo): _mp_debug(mproj): _mp_debug(mse): _mp_debug(mul):
-            _mp_debug(mul_div): _mp_debug(mul_mul): _mp_debug(mul_sub): _mp_debug(name): _mp_debug(name):
-            _mp_debug(neq): _mp_debug(noise): _mp_debug(normalize): _mp_debug(normp): _mp_debug(o2c):
-            _mp_debug(permutations): _mp_debug(permute): _mp_debug(polygon): _mp_debug(pow):
-            _mp_debug(pow0_25): _mp_debug(pow3): _mp_debug(pow4): _mp_debug(print): _mp_debug(prod):
-            _mp_debug(prod2): _mp_debug(rad2deg): _mp_debug(rand_double): _mp_debug(rand_double_0_1):
-            _mp_debug(rand_double_0_N): _mp_debug(rand_double_ext): _mp_debug(rand_double_gaussian):
-            _mp_debug(rand_double_m1_1): _mp_debug(rand_int): _mp_debug(rand_int_0_1): _mp_debug(rand_int_0_N):
-            _mp_debug(rand_int_ext): _mp_debug(rand_int_m1_1): _mp_debug(repeat): _mp_debug(reverse):
-            _mp_debug(rol): _mp_debug(ror): _mp_debug(rot2d): _mp_debug(rot3d): _mp_debug(round):
-            _mp_debug(run): _mp_debug(run): _mp_debug(s2v): _mp_debug(self_add): _mp_debug(self_bitwise_and):
-            _mp_debug(self_bitwise_left_shift): _mp_debug(self_bitwise_or):
-            _mp_debug(self_bitwise_right_shift): _mp_debug(self_decrement): _mp_debug(self_div):
-            _mp_debug(self_increment): _mp_debug(self_map_vector_s): _mp_debug(self_map_vector_v):
-            _mp_debug(self_modulo): _mp_debug(self_mul): _mp_debug(self_pow): _mp_debug(self_sub):
-            _mp_debug(set): _mp_debug(set): _mp_debug(set_ijoff): _mp_debug(set_IJoff_s):
-            _mp_debug(set_IJoff_v): _mp_debug(set_IJxyz_s): _mp_debug(set_IJxyz_v): _mp_debug(set_ijxyzc):
-            _mp_debug(sigmoid): _mp_debug(sign): _mp_debug(sin): _mp_debug(sinc): _mp_debug(sinh):
-            _mp_debug(size_list): _mp_debug(softargmax): _mp_debug(softargmin): _mp_debug(softmax):
-            _mp_debug(softmin): _mp_debug(solve): _mp_debug(sort): _mp_debug(sqr): _mp_debug(sqrt):
-            _mp_debug(srand): _mp_debug(srand0): _mp_debug(std): _mp_debug(std2): _mp_debug(store):
-            _mp_debug(store): _mp_debug(string): _mp_debug(string_init): _mp_debug(sub): _mp_debug(sub_div):
-            _mp_debug(sub_mul): _mp_debug(sub_sub): _mp_debug(sum): _mp_debug(sum2): _mp_debug(swap): _mp_debug(tan):
-            _mp_debug(tanh): _mp_debug(trace): _mp_debug(transpose): _mp_debug(ui2f): _mp_debug(unitnorm):
-            _mp_debug(uppercase): _mp_debug(v2s): _mp_debug(var): _mp_debug(var2): _mp_debug(vargkth):
-            _mp_debug(vargmax): _mp_debug(vargmaxabs): _mp_debug(vargmin): _mp_debug(vargminabs): _mp_debug(vavg):
-            _mp_debug(vector_copy): _mp_debug(vector_crop): _mp_debug(vector_crop_ext):
-            _mp_debug(vector_display): _mp_debug(vector_draw): _mp_debug(vector_eq): _mp_debug(vector_fill):
-            _mp_debug(vector_fill_ext): _mp_debug(vector_hypot): _mp_debug(vector_init):
-            _mp_debug(vector_lerp): _mp_debug(vector_map_sv): _mp_debug(vector_map_v):
-            _mp_debug(vector_map_vv): _mp_debug(vector_neq): _mp_debug(vector_norm0): _mp_debug(vector_norm1):
-            _mp_debug(vector_norm2): _mp_debug(vector_norminf): _mp_debug(vector_off): _mp_debug(vector_print):
-            _mp_debug(vector_rand): _mp_debug(vector_resize): _mp_debug(vector_resize_ext):
-            _mp_debug(vector_set_off): _mp_debug(vector_shift): _mp_debug(vector_stats): _mp_debug(vkth):
-            _mp_debug(vmax): _mp_debug(vmaxabs): _mp_debug(vmedian): _mp_debug(vmin): _mp_debug(vminabs):
-            _mp_debug(vprod): _mp_debug(vstd): _mp_debug(vsum): _mp_debug(vvar): _mp_debug(warp):
-            _mp_debug(wave): _mp_debug(while):
-            "unknown";
+            _mp_debug(abort) _mp_debug(abort) _mp_debug(abs) _mp_debug(abscut) _mp_debug(absmaxabs)
+            _mp_debug(absminabs) _mp_debug(acos) _mp_debug(acosh) _mp_debug(add) _mp_debug(add_add)
+            _mp_debug(add_mul) _mp_debug(add_sub) _mp_debug(arg0) _mp_debug(arg1) _mp_debug(argkth)
+            _mp_debug(argmax) _mp_debug(argmax2) _mp_debug(argmaxabs) _mp_debug(argmaxabs2) _mp_debug(argmin)
+            _mp_debug(argmin2) _mp_debug(argminabs) _mp_debug(argminabs2) _mp_debug(asin) _mp_debug(asinh)
+            _mp_debug(atan) _mp_debug(atan2) _mp_debug(atanh) _mp_debug(avg) _mp_debug(avg2)
+            _mp_debug(bitwise_and) _mp_debug(bitwise_left_shift) _mp_debug(bitwise_not) _mp_debug(bitwise_or)
+            _mp_debug(bitwise_right_shift) _mp_debug(bitwise_xor) _mp_debug(bool) _mp_debug(break)
+            _mp_debug(breakpoint) _mp_debug(c2o) _mp_debug(cbrt) _mp_debug(ceil) _mp_debug(complex_abs)
+            _mp_debug(complex_conj) _mp_debug(complex_cos) _mp_debug(complex_cosh) _mp_debug(div_add)
+            _mp_debug(div_div) _mp_debug(div_sub) _mp_debug(complex_div_sv)
+            _mp_debug(complex_div_vv) _mp_debug(complex_exp) _mp_debug(complex_log) _mp_debug(complex_mul)
+            _mp_debug(complex_one) _mp_debug(complex_pow_ss) _mp_debug(complex_pow_sv) _mp_debug(complex_pow_vs)
+            _mp_debug(complex_pow_vv) _mp_debug(complex_sin) _mp_debug(complex_sinh) _mp_debug(complex_sqr)
+            _mp_debug(complex_sqrt) _mp_debug(complex_tan) _mp_debug(complex_tanh) _mp_debug(continue)
+            _mp_debug(convolve) _mp_debug(copy) _mp_debug(correlate) _mp_debug(cos) _mp_debug(cosh) _mp_debug(cov)
+            _mp_debug(critical) _mp_debug(cross) _mp_debug(cumulate) _mp_debug(cut)
+            _mp_debug(da_back_or_pop) _mp_debug(da_freeze) _mp_debug(da_insert_or_push_n)
+            _mp_debug(da_remove) _mp_debug(da_size) _mp_debug(date) _mp_debug(debug) _mp_debug(decrement)
+            _mp_debug(deg2rad) _mp_debug(det) _mp_debug(diag) _mp_debug(div) _mp_debug(do) _mp_debug(dot)
+            _mp_debug(echo) _mp_debug(ellipse) _mp_debug(epoch) _mp_debug(eq) _mp_debug(equalize)
+            _mp_debug(erf) _mp_debug(erfinv) _mp_debug(exp) _mp_debug(expr) _mp_debug(eye)
+            _mp_debug(f2ui) _mp_debug(factorial) _mp_debug(fft) _mp_debug(fibonacci) _mp_debug(find)
+            _mp_debug(find_seq) _mp_debug(flood) _mp_debug(floor) _mp_debug(for) _mp_debug(frac)
+            _mp_debug(fsize) _mp_debug(gamma) _mp_debug(gauss) _mp_debug(gcd) _mp_debug(gcd2)
+            _mp_debug(get) _mp_debug(get) _mp_debug(gt) _mp_debug(gte) _mp_debug(histogram) _mp_debug(I)
+            _mp_debug(i) _mp_debug(if) _mp_debug(IJoff) _mp_debug(ijoff) _mp_debug(IJxyz1)
+            _mp_debug(IJxyz2) _mp_debug(IJxyz3) _mp_debug(ijxyzc1) _mp_debug(ijxyzc2) _mp_debug(ijxyzc3)
+            _mp_debug(image_crop) _mp_debug(image_depth) _mp_debug(image_display) _mp_debug(image_draw)
+            _mp_debug(image_find) _mp_debug(image_find_seq) _mp_debug(image_height)
+            _mp_debug(image_is_shared) _mp_debug(image_median) _mp_debug(image_median_static)
+            _mp_debug(image_norm) _mp_debug(image_norm_static) _mp_debug(image_print)
+            _mp_debug(image_resize) _mp_debug(image_shift) _mp_debug(image_sort) _mp_debug(image_spectrum)
+            _mp_debug(image_stats) _mp_debug(image_stats_static) _mp_debug(image_std_static)
+            _mp_debug(image_swap) _mp_debug(image_wh) _mp_debug(image_whd) _mp_debug(image_whds)
+            _mp_debug(image_width) _mp_debug(increment) _mp_debug(index) _mp_debug(indexof)
+            _mp_debug(inrange) _mp_debug(int) _mp_debug(isbool) _mp_debug(isdir) _mp_debug(isfile)
+            _mp_debug(isfinite) _mp_debug(isin) _mp_debug(isinf) _mp_debug(isint) _mp_debug(isnan)
+            _mp_debug(isvarname) _mp_debug(kth) _mp_debug(lcm) _mp_debug(lcm2) _mp_debug(lerp)
+            _mp_debug(log) _mp_debug(log10) _mp_debug(log2) _mp_debug(logical_and) _mp_debug(logical_not)
+            _mp_debug(logical_or) _mp_debug(logit) _mp_debug(lowercase) _mp_debug(lt) _mp_debug(lte)
+            _mp_debug(map) _mp_debug(matrix_eigen) _mp_debug(matrix_invert) _mp_debug(matrix_mul)
+            _mp_debug(matrix_qr) _mp_debug(matrix_svd) _mp_debug(max) _mp_debug(max2) _mp_debug(maxabs)
+            _mp_debug(maxabs2) _mp_debug(med) _mp_debug(med2) _mp_debug(mem_copy) _mp_debug(mem_display)
+            _mp_debug(min) _mp_debug(min2) _mp_debug(minabs) _mp_debug(minabs2) _mp_debug(minus)
+            _mp_debug(mirror) _mp_debug(modulo) _mp_debug(mproj) _mp_debug(mse) _mp_debug(mul)
+            _mp_debug(mul_div) _mp_debug(mul_mul) _mp_debug(mul_sub) _mp_debug(name) _mp_debug(name)
+            _mp_debug(neq) _mp_debug(noise) _mp_debug(normalize) _mp_debug(normp) _mp_debug(o2c)
+            _mp_debug(permutations) _mp_debug(permute) _mp_debug(polygon) _mp_debug(pow)
+            _mp_debug(pow0_25) _mp_debug(pow3) _mp_debug(pow4) _mp_debug(print) _mp_debug(prod)
+            _mp_debug(prod2) _mp_debug(rad2deg) _mp_debug(rand_double) _mp_debug(rand_double_0_1)
+            _mp_debug(rand_double_0_N) _mp_debug(rand_double_ext) _mp_debug(rand_double_gaussian)
+            _mp_debug(rand_double_m1_1) _mp_debug(rand_int) _mp_debug(rand_int_0_1) _mp_debug(rand_int_0_N)
+            _mp_debug(rand_int_ext) _mp_debug(rand_int_m1_1) _mp_debug(repeat) _mp_debug(reverse)
+            _mp_debug(rol) _mp_debug(ror) _mp_debug(rot2d) _mp_debug(rot3d) _mp_debug(round)
+            _mp_debug(run) _mp_debug(run) _mp_debug(s2v) _mp_debug(self_add) _mp_debug(self_bitwise_and)
+            _mp_debug(self_bitwise_left_shift) _mp_debug(self_bitwise_or)
+            _mp_debug(self_bitwise_right_shift) _mp_debug(self_decrement) _mp_debug(self_div)
+            _mp_debug(self_increment) _mp_debug(self_map_vector_s) _mp_debug(self_map_vector_v)
+            _mp_debug(self_modulo) _mp_debug(self_mul) _mp_debug(self_pow) _mp_debug(self_sub)
+            _mp_debug(set) _mp_debug(set) _mp_debug(set_ijoff) _mp_debug(set_IJoff_s)
+            _mp_debug(set_IJoff_v) _mp_debug(set_IJxyz_s) _mp_debug(set_IJxyz_v) _mp_debug(set_ijxyzc)
+            _mp_debug(sigmoid) _mp_debug(sign) _mp_debug(sin) _mp_debug(sinc) _mp_debug(sinh)
+            _mp_debug(size_list) _mp_debug(softargmax) _mp_debug(softargmin) _mp_debug(softmax)
+            _mp_debug(softmin) _mp_debug(solve) _mp_debug(sort) _mp_debug(sqr) _mp_debug(sqrt)
+            _mp_debug(srand) _mp_debug(srand0) _mp_debug(std) _mp_debug(std2) _mp_debug(store)
+            _mp_debug(store) _mp_debug(string) _mp_debug(string_init) _mp_debug(sub) _mp_debug(sub_div)
+            _mp_debug(sub_mul) _mp_debug(sub_sub) _mp_debug(sum) _mp_debug(sum2) _mp_debug(swap) _mp_debug(tan)
+            _mp_debug(tanh) _mp_debug(trace) _mp_debug(transpose) _mp_debug(ui2f) _mp_debug(unitnorm)
+            _mp_debug(uppercase) _mp_debug(v2s) _mp_debug(var) _mp_debug(var2) _mp_debug(vargkth)
+            _mp_debug(vargmax) _mp_debug(vargmaxabs) _mp_debug(vargmin) _mp_debug(vargminabs) _mp_debug(vavg)
+            _mp_debug(vector_copy) _mp_debug(vector_crop) _mp_debug(vector_crop_ext)
+            _mp_debug(vector_display) _mp_debug(vector_draw) _mp_debug(vector_eq) _mp_debug(vector_fill)
+            _mp_debug(vector_fill_ext) _mp_debug(vector_hypot) _mp_debug(vector_init)
+            _mp_debug(vector_lerp) _mp_debug(vector_map_sv) _mp_debug(vector_map_v)
+            _mp_debug(vector_map_vv) _mp_debug(vector_neq) _mp_debug(vector_norm0) _mp_debug(vector_norm1)
+            _mp_debug(vector_norm2) _mp_debug(vector_norminf) _mp_debug(vector_off) _mp_debug(vector_print)
+            _mp_debug(vector_rand) _mp_debug(vector_resize) _mp_debug(vector_resize_ext)
+            _mp_debug(vector_set_off) _mp_debug(vector_shift) _mp_debug(vector_stats) _mp_debug(vkth)
+            _mp_debug(vmax) _mp_debug(vmaxabs) _mp_debug(vmedian) _mp_debug(vmin) _mp_debug(vminabs)
+            _mp_debug(vprod) _mp_debug(vstd) _mp_debug(vsum) _mp_debug(vvar) _mp_debug(warp)
+            _mp_debug(wave) _mp_debug(while) "unknown";
 
           cimg_pragma_openmp(critical(mp_debug)) {
             std::fprintf(cimg::output(),
@@ -26933,7 +26947,7 @@ namespace cimg_library {
       }
 
       static double mp_diag(_cimg_math_parser& mp) {
-        const unsigned int i_end = (unsigned int)mp.opcode[2], siz = mp.opcode[2] - 3;
+        const unsigned int siz = mp.opcode[2], i_end = siz + 3;
         double *ptrd = &_mp_arg(1) + 1;
         std::memset(ptrd,0,siz*siz*sizeof(double));
         for (unsigned int i = 3; i<i_end; ++i) { *(ptrd++) = _mp_arg(i); ptrd+=siz; }
@@ -26990,7 +27004,7 @@ namespace cimg_library {
       }
 
       static double mp_echo(_cimg_math_parser& mp) {
-        const unsigned int nb_args = (unsigned int)(mp.opcode[2] - 3)/2;
+        const unsigned int nb_args = (unsigned int)mp.opcode[2];
         if (!nb_args) { std::fputc('\n',cimg::output()); return cimg::type<double>::nan(); } // No arguments
         CImgList<charT> _str;
         CImg<charT> it;
@@ -29180,7 +29194,7 @@ namespace cimg_library {
 
 #ifdef cimg_mp_func_run
       static double mp_run(_cimg_math_parser& mp) {
-        const unsigned int nb_args = (unsigned int)(mp.opcode[2] - 3)/2;
+        const unsigned int nb_args = (unsigned int)mp.opcode[2];
         CImgList<charT> _str;
         CImg<charT> it;
         for (unsigned int n = 0; n<nb_args; ++n) {
@@ -29640,7 +29654,7 @@ namespace cimg_library {
 
       static double mp_string(_cimg_math_parser& mp) {
         double *const ptrd = &_mp_arg(1) + 1;
-        const unsigned int nb_args = (unsigned int)(mp.opcode[3] - 3)/2;
+        const unsigned int nb_args = (unsigned int)mp.opcode[3];
         CImgList<charT> _str;
         CImg<charT> it;
         for (unsigned int n = 0; n<nb_args; ++n) {
@@ -29911,7 +29925,7 @@ namespace cimg_library {
 
 #define _cimg_mp_vfunc(func) \
       const longT sizd = (longT)mp.opcode[2]; \
-      const unsigned int nbargs = (unsigned int)(mp.opcode[3] - 4)/2; \
+      const unsigned int nbargs = (unsigned int)mp.opcode[3]; \
       double *const ptrd = &_mp_arg(1) + (sizd?1:0); \
       cimg_pragma_openmp(parallel cimg_openmp_if_size(sizd,256)) { \
         CImg<doubleT> vec(nbargs); double res; \
@@ -30011,7 +30025,7 @@ namespace cimg_library {
           else img.assign(ptr,siz).resize(w,h,d,s,-1);
         } else img.assign(ptr,1,siz,1,1,true);
 
-        CImg<charT> expr(mp.opcode[2] - 8);
+        CImg<charT> expr(mp.opcode[2]);
         const ulongT *ptrs = mp.opcode._data + 8;
         cimg_for(expr,ptrd,char) *ptrd = (char)*(ptrs++);
         ((CImg<charT>::string("[" cimg_appname "_math_parser] ",false,true),expr)>'x').move_to(expr);
@@ -30188,14 +30202,32 @@ namespace cimg_library {
       }
 
       static double mp_vector_init(_cimg_math_parser& mp) {
-        unsigned int
-          ptrs = 4U,
-          ptrd = (unsigned int)mp.opcode[1] + 1,
-          siz = (unsigned int)mp.opcode[3];
-        switch (mp.opcode[2] - 4) {
-        case 0 : std::memset(mp.mem._data + ptrd,0,siz*sizeof(double)); break; // 0 values given
-        case 1 : { const double val = _mp_arg(ptrs); while (siz-->0) mp.mem[ptrd++] = val; } break;
-        default : while (siz-->0) { mp.mem[ptrd++] = _mp_arg(ptrs++); if (ptrs>=mp.opcode[2]) ptrs = 4U; }
+        double *ptrd = &_mp_arg(1) + 1;
+        unsigned int sizd = (unsigned int)mp.opcode[2];
+        const unsigned int nb_args = (unsigned int)mp.opcode[3];
+
+        if (!nb_args) std::memset(ptrd,0,sizd*sizeof(double)); // 0 elements specified: Fill with 0
+        else {
+          unsigned int siz = (unsigned int)mp.opcode[5];
+          if (nb_args==1 && siz<=1) { // A single scalar (or vector1) element specified
+            const double val = siz?mp.mem[mp.opcode[4] + 1]:_mp_arg(4); while (sizd-->0) *(ptrd++) = val;
+          } else {
+            unsigned int n = 0, k = 4;
+            while (sizd) {
+              siz = (unsigned int)mp.opcode[k + 1];
+              if (siz) { // Vector
+                const unsigned int N = std::min(siz,sizd);
+                std::memcpy(ptrd,&_mp_arg(k) + 1,N*sizeof(double));
+                ptrd+=siz;
+                sizd-=N;
+              } else { // Scalar
+                *(ptrd++) = _mp_arg(k);
+                --sizd;
+              }
+              k+=2;
+              if (++n>=nb_args) { n = 0; k = 4; }
+            }
+          }
         }
         return cimg::type<double>::nan();
       }
@@ -33321,7 +33353,7 @@ namespace cimg_library {
             bool flag = true;
             for (l = k; l>=1; --l) {
               nm = l - 1;
-              if (l==1 || cimg::abs(rv1[l])<=eps*anorm) { flag = false; break; }
+              if (l==0 || cimg::abs(rv1[l])<=eps*anorm) { flag = false; break; }
               if (cimg::abs(S[nm])<=eps*anorm) break;
             }
             if (flag) {
@@ -34794,7 +34826,6 @@ namespace cimg_library {
                                  calling_function,base,
                                  cimg::type<T>::string()==cimg::type<t>::string()?(CImg<t>*)this:&base,
                                  list_images,true);
-
           if (!provides_copy && expression &&
               *expression!='>' && *expression!='<' && *expression!=':' &&
               mp.need_input_copy)

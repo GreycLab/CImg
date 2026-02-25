@@ -34866,8 +34866,7 @@ namespace cimg_library {
                     mp(x,y,z,0,res._data);
                     const double *const cimg_restrict ptrs = res._data;
                     T *cimg_restrict _ptrd = ptrd--;
-                    cimg_pragma_openmp(simd)
-                      for (unsigned int n = 0; n<N; ++n) _ptrd[n*whd] = (T)ptrs[n];
+                    for (unsigned int n = 0; n<N; ++n) _ptrd[n*whd] = (T)ptrs[n];
                   }
               }
               mp.end_t();
@@ -34932,33 +34931,17 @@ namespace cimg_library {
             }
 
           } else { // Scalar-valued expression
-            T *cimg_restrict ptrd = *expression=='<'?end() - _width:_data;
+            T *ptrd = *expression=='<'?end() - 1:_data;
             if (*expression=='<') {
               mp.begin_t();
-              if (mode&4) cimg_rofYZC(*this,y,z,c) {
-                  cimg_abort_test;
-                  cimg_rofX(*this,x) mp(x,y,z,c);
-                }
-              else cimg_rofYZC(*this,y,z,c) {
-                  cimg_abort_test;
-                  cimg_pragma_openmp(simd)
-                    cimg_rofX(*this,x) ptrd[x] = (T)mp(x,y,z,c);
-                  ptrd-=_width;
-                }
+              if (mode&4) cimg_rofYZC(*this,y,z,c) { cimg_abort_test; cimg_rofX(*this,x) mp(x,y,z,c); }
+              else cimg_rofYZC(*this,y,z,c) { cimg_abort_test; cimg_rofX(*this,x) *(ptrd--) = (T)mp(x,y,z,c); }
               mp.end_t();
 
             } else if (*expression=='>' || *expression=='+' || !is_parallelizable) {
               mp.begin_t();
-              if (mode&4) cimg_forYZC(*this,y,z,c) {
-                  cimg_abort_test;
-                  cimg_forX(*this,x) mp(x,y,z,c);
-                }
-              else cimg_forYZC(*this,y,z,c) {
-                  cimg_abort_test;
-                  cimg_pragma_openmp(simd)
-                    cimg_forX(*this,x) ptrd[x] = (T)mp(x,y,z,c);
-                  ptrd+=_width;
-                }
+              if (mode&4) cimg_forYZC(*this,y,z,c) { cimg_abort_test; cimg_forX(*this,x) mp(x,y,z,c); }
+              else cimg_forYZC(*this,y,z,c) { cimg_abort_test; cimg_forX(*this,x) *(ptrd++) = (T)mp(x,y,z,c); }
               mp.end_t();
 
             } else {
@@ -34979,10 +34962,9 @@ namespace cimg_library {
     cimg_abort_test; \
     if (mode&4) cimg_for##_X(*this,_x) lmp(x,y,z,c); \
     else { \
-      T *cimg_restrict _ptrd = data(_sx,_sy,_sz,_sc); \
+      T *const _ptrd = data(_sx,_sy,_sz,_sc); \
       const ulongT off = (ulongT)_off; \
-      cimg_pragma_openmp(simd) \
-        cimg_for##_X(*this,_x) _ptrd[_x*off] = (T)lmp(x,y,z,c); \
+      cimg_for##_X(*this,_x) _ptrd[_x*off] = (T)lmp(x,y,z,c); \
     } \
   } _cimg_abort_catch_openmp _cimg_abort_catch_fill_openmp
 

@@ -205,11 +205,18 @@ enum {FALSE_WIN = 0};
 #include <utility>
 #endif
 
-// Convenient macro to define pragma.
+// Portable macro to define 'pragma'.
 #ifdef _MSC_VER
 #define cimg_pragma(x) __pragma(x)
 #else
 #define cimg_pragma(x) _Pragma(#x)
+#endif
+
+// Portable macro to define '__restrict'.
+#if defined(__GNUC__) || defined(__clang__) || defined(_MSC_VER) || defined(__INTEL_COMPILER)
+#define cimg_restrict __restrict
+#else
+#define cimg_restrict
 #endif
 
 // Define own datatypes to ensure portability.
@@ -34857,8 +34864,10 @@ namespace cimg_library {
                 if (mode&4) cimg_rofX(*this,x) mp(x,y,z,0);
                 else cimg_rofX(*this,x) {
                     mp(x,y,z,0,res._data);
-                    const double *ptrs = res._data;
-                    T *_ptrd = ptrd--; for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
+                    const double *cimg_restrict ptrs = res._data;
+                    T *cimg_restrict _ptrd = ptrd--;
+//                    for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
+                    for (unsigned int n = 0; n<N; ++n) _ptrd[n*whd] = (T)ptrs[n];
                   }
               }
               mp.end_t();
@@ -34871,8 +34880,10 @@ namespace cimg_library {
                 if (mode&4) cimg_forX(*this,x) mp(x,y,z,0);
                 else cimg_forX(*this,x) {
                     mp(x,y,z,0,res._data);
-                    const double *ptrs = res._data;
-                    T *_ptrd = ptrd++; for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
+                    const double *cimg_restrict ptrs = res._data;
+                    T *cimg_restrict _ptrd = ptrd++;
+//                    for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; }
+                    for (unsigned int n = 0; n<N; ++n) _ptrd[n*whd] = (T)ptrs[n];
                   }
               }
               mp.end_t();
@@ -34900,9 +34911,10 @@ namespace cimg_library {
       const ulongT off = (ulongT)_off; \
       cimg_for##_X(*this,_x) { \
         lmp(x,y,z,0,res._data); \
-        const double *ptrs = res._data; \
-        T *_ptrd = __ptrd; \
-        for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; } \
+        const double *cimg_restrict ptrs = res._data; \
+        T *cimg_restrict _ptrd = __ptrd; \
+        /* for (unsigned int n = N; n>0; --n) { *_ptrd = (T)(*ptrs++); _ptrd+=whd; } */ \
+        for (unsigned int n = 0; n<N; ++n) _ptrd[n*whd] = (T)ptrs[n]; \
         __ptrd+=off; \
       } \
     } \
@@ -34953,7 +34965,8 @@ namespace cimg_library {
     else { \
       T *_ptrd = data(_sx,_sy,_sz,_sc); \
       const ulongT off = (ulongT)_off; \
-      cimg_for##_X(*this,_x) { *_ptrd = (T)lmp(x,y,z,c); _ptrd+=off; } \
+      /* cimg_for##_X(*this,_x) { *_ptrd = (T)lmp(x,y,z,c); _ptrd+=off; } */ \
+      cimg_for##_X(*this,_x) _ptrd[_x*off] = (T)lmp(x,y,z,c); \
     } \
   } _cimg_abort_catch_openmp _cimg_abort_catch_fill_openmp
 

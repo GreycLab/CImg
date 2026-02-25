@@ -34932,17 +34932,31 @@ namespace cimg_library {
             }
 
           } else { // Scalar-valued expression
-            T *ptrd = *expression=='<'?end() - 1:_data;
+            T *cimg_restrict ptrd = *expression=='<'?end() - 1:_data;
             if (*expression=='<') {
               mp.begin_t();
-              if (mode&4) cimg_rofYZC(*this,y,z,c) { cimg_abort_test; cimg_rofX(*this,x) mp(x,y,z,c); }
-                else cimg_rofYZC(*this,y,z,c) { cimg_abort_test; cimg_rofX(*this,x) *(ptrd--) = (T)mp(x,y,z,c); }
+              if (mode&4) cimg_rofYZC(*this,y,z,c) {
+                  cimg_abort_test;
+                  cimg_rofX(*this,x) mp(x,y,z,c);
+                }
+              else cimg_rofYZC(*this,y,z,c) {
+                  cimg_abort_test;
+                  cimg_rofX(*this,x) *(ptrd--) = (T)mp(x,y,z,c);
+                }
               mp.end_t();
 
             } else if (*expression=='>' || *expression=='+' || !is_parallelizable) {
               mp.begin_t();
-              if (mode&4) cimg_forYZC(*this,y,z,c) { cimg_abort_test; cimg_forX(*this,x) mp(x,y,z,c); }
-              else cimg_forYZC(*this,y,z,c) { cimg_abort_test; cimg_forX(*this,x) *(ptrd++) = (T)mp(x,y,z,c); }
+              if (mode&4) cimg_forYZC(*this,y,z,c) {
+                  cimg_abort_test;
+                  cimg_forX(*this,x) mp(x,y,z,c);
+                }
+              else cimg_forYZC(*this,y,z,c) {
+                  cimg_abort_test;
+//                  cimg_forX(*this,x) *(ptrd++) = (T)mp(x,y,z,c);
+                  cimg_forX(*this,x) ptrd[x] = (T)mp(x,y,z,c);
+                  ptrd+=_width;
+                }
               mp.end_t();
 
             } else {

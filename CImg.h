@@ -18234,6 +18234,7 @@ namespace cimg_library {
           if (*ss=='_' && *ss1=='0') { // _0
             if (reserved_label[34]!=~0U) _cimg_mp_return(reserved_label[34]);
             if (_0_index==~0U) {
+              if (imgin.is_empty()) _cimg_mp_return_nan();
               _0_index = vector(imgin._spectrum);
               std::memset(&mem[_0_index] + 1,0,imgin._spectrum*sizeof(double));
               set_reserved_vector(_0_index);
@@ -18243,6 +18244,7 @@ namespace cimg_library {
           if (*ss=='_' && *ss1=='1') { // _1
             if (reserved_label[35]!=~0U) _cimg_mp_return(reserved_label[35]);
             if (_1_index==~0U) {
+              if (imgin.is_empty()) _cimg_mp_return_nan();
               _1_index = vector(imgin._spectrum);
               cimg_forC(imgin,c) mem[_1_index + 1 + c] = 1.0;
               set_reserved_vector(_1_index);
@@ -25597,6 +25599,7 @@ namespace cimg_library {
 
       // Insert new vector of specified size in memory.
       unsigned int vector(const unsigned int siz) {
+        if (!siz) return _cimg_mp_slot_nan;
         if (mempos + siz>=mem._width) {
           mem.resize(2*mem._width + siz,1,1,1,0);
           memtype.resize(mem._width,1,1,1,0);

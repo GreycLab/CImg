@@ -33055,22 +33055,14 @@ namespace cimg_library {
       (CImg<Tfloat>(*this,false)/=maxabs).SVD(vec,val,V,false);
       if (maxabs!=1) val*=maxabs;
 
-      bool is_ambiguous = false;
-      float eig = 0;
-      cimg_forY(val,p) { // Check for ambiguous cases
-        if (val[p]>eig) eig = (float)val[p];
-        t scal = 0;
-        cimg_forY(vec,y) scal+=vec(p,y)*V(p,y);
-        if (cimg::abs(scal)<0.9f) is_ambiguous = true;
-        if (scal<0) val[p] = -val[p];
-      }
-      if (is_ambiguous) {
-        ++(eig*=2);
-        SVD(vec,val,V,false,40,eig);
-        val-=eig;
+      // Retrieve signed eigenvalues (compute X^t.A.X, which is more robust than using sign(U_k.V_k)).
+      cimg_forY(val,p) {
+        const CImg<Tfloat> u = vec.get_column(p);
+        val[p] = u.dot((*this)*u);
       }
 
-      CImg<intT> permutations; // Sort eigenvalues in decreasing order
+      // Sort eigenvalues in decreasing order
+      CImg<intT> permutations;
       CImg<t> tmp(_width);
       val.sort(permutations,false);
       cimg_forY(vec,k) {

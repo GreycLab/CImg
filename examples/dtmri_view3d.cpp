@@ -305,7 +305,7 @@ int main(int argc,char **argv) {
         u = x - tensors.width()/2.0f,
         v = y - tensors.height()/2.0f,
         w = z - tensors.depth()/2.0f,
-        norm = (float)std::sqrt(1e-5f + u*u + v*v + w*w),
+        norm = (float)std::sqrt(1e-8f + u*u + v*v + w*w),
         nu = u/norm, nv = v/norm, nw = w/norm;
       const CImg<>
         dir1 = CImg<>::vector(nu,nv,nw),
@@ -342,7 +342,8 @@ int main(int argc,char **argv) {
   CImg<> val,vec;
   float eigmax = 0;
   cimg_forXYZ(tensors,x,y,z) {
-    tensors.get_tensor_at(x,y,z).symmetric_eigen(val,vec);
+    const CImg<> tensor = tensors.get_tensor_at(x,y,z);
+    tensor.symmetric_eigen(val,vec);
     eigen(x,y,z,0) = val[0]; eigen(x,y,z,1) = val[1]; eigen(x,y,z,2) = val[2];
     if (val[0]<0) val[0] = 0;
     if (val[1]<0) val[1] = 0;

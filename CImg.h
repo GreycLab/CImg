@@ -34979,7 +34979,7 @@ namespace cimg_library {
     cimg_abort_test; \
     if (mode&4) cimg_for##_X(*this,_x) lmp(x,y,z,c); \
     else { \
-      T *_ptrd = data(_sx,_sy,_sz,_sc); \
+      T *cimg_restrict _ptrd = data(_sx,_sy,_sz,_sc); \
       const ulongT off = (ulongT)_off; \
       cimg_pragma_openmp(simd) \
         cimg_for##_X(*this,_x) _ptrd[_x*off] = (T)lmp(x,y,z,c); \

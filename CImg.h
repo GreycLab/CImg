@@ -17847,7 +17847,7 @@ namespace cimg_library {
       const CImg<T>& imgin;
 
       unsigned int break_type, constcache_size, debug_indent, mem_img_index, mem_img_median, mem_img_norm, mempos,
-        null_index,result_dim, result_end_dim;
+        _0_index,result_dim, result_end_dim;
       bool is_end_code, is_fill, is_noncritical_run, is_parallelizable, need_input_copy, return_comp;
       const char *const calling_function, *s_op, *ss_op;
       double *result, *result_end;
@@ -17905,7 +17905,7 @@ namespace cimg_library {
         p_break((CImg<ulongT>*)(cimg_ulong)-2),
         imgin(img_input),
         break_type(0),constcache_size(0),debug_indent(0),mem_img_index(~0U),mem_img_median(~0U),mem_img_norm(~0U),
-          null_index(~0U),result_dim(0),result_end_dim(0),
+          _0_index(~0U),result_dim(0),result_end_dim(0),
         is_fill(_is_fill),is_noncritical_run(false),is_parallelizable(true),need_input_copy(false),
         calling_function(funcname?funcname:"cimg_math_parser"),
         result_end(0),
@@ -17980,12 +17980,12 @@ namespace cimg_library {
         // [0] = wh, [1] = whd, [2] = whds, [3] = pi, [4] = im, [5] = iM, [6] = ia, [7] = iv, [8] = id,
         // [9] = is, [10] = ip, [11] = ic, [12] = in, [13] = xm, [14] = ym, [15] = zm, [16] = cm, [17] = xM,
         // [18] = yM, [19] = zM, [20] = cM, [21] = i0...[30] = i9, [31] = interpolation, [32] = boundary, [33] = eps,
-        // [34] = null
+        // [34] = _0
 
         // Compile expression into a sequence of opcodes.
         s_op = ""; ss_op = expr._data;
         const unsigned int ind_result = compile(expr._data,expr._data + expr._width - 1,0,0,0);
-        if (!is_const_scalar(ind_result) && ind_result!=_cimg_mp_slot_t && ind_result!=null_index) {
+        if (!is_const_scalar(ind_result) && ind_result!=_cimg_mp_slot_t && ind_result!=_0_index) {
           if (is_vector(ind_result))
             CImg<doubleT>(&mem[ind_result] + 1,size(ind_result),1,1,1,true).
               fill(cimg::type<double>::nan());
@@ -18230,6 +18230,15 @@ namespace cimg_library {
             _cimg_mp_return(reserved_label[0]!=~0U?reserved_label[0]:23);
           if (*ss=='p' && *ss1=='i') // pi
             _cimg_mp_return(reserved_label[3]!=~0U?reserved_label[3]:28);
+          if (*ss=='_' && *ss1=='0') { // _0
+            if (reserved_label[34]!=~0U) _cimg_mp_return(reserved_label[34]);
+            if (_0_index==~0U) {
+              _0_index = vector(imgin._spectrum);
+              std::memset(&mem[_0_index] + 1,0,imgin._spectrum*sizeof(double));
+              set_reserved_vector(_0_index);
+            }
+            _cimg_mp_return(_0_index);
+          }
           if (*ss=='i') {
             if (*ss1>='0' && *ss1<='9') { // i0...i9
               pos = 21 + *ss1 - '0';
@@ -18287,16 +18296,6 @@ namespace cimg_library {
         } else if (ss4==se) { // Four-chars reserved variable
           if (*ss=='w' && *ss1=='h' && *ss2=='d' && *ss3=='s') // whds
             _cimg_mp_return(reserved_label[2]!=~0U?reserved_label[2]:25);
-          if (*ss=='n' && *ss1=='u' && *ss2=='l' && *ss3=='l') { // null
-            if (reserved_label[34]!=~0U) _cimg_mp_return(reserved_label[34]);
-            if (imgin._spectrum<2) _cimg_mp_return(0);
-            if (null_index==~0U) {
-              null_index = vector(imgin._spectrum);
-              std::memset(&mem[null_index] + 1,0,imgin._spectrum*sizeof(double));
-              set_reserved_vector(null_index);
-            }
-            _cimg_mp_return(null_index);
-          }
         }
 
         pos = ~0U;
@@ -18473,7 +18472,7 @@ namespace cimg_library {
               s0 = ve1; while (s0>ss && (*s0!='[' || level[s0 - expr._data]!=clevel)) --s0;
               if (s0>ss && cimg::is_varname(ss,s0 - ss)) {
                 variable_name[s0 - ss] = 0; // Remove brackets in variable name
-                if (!std::strcmp(variable_name,"null")) // Force 'null' to be allocated
+                if (*variable_name=='_' && variable_name[1]=='0' && !variable_name[2]) // Force '_0' to be allocated
                   arg1 = compile(ss,s0,depth1,0,block_flags);
                 else {
                   get_variable_pos(variable_name,arg1,arg2);
@@ -25288,6 +25287,7 @@ namespace cimg_library {
           c2 = variable_name[1];
           if (c1=='w' && c2=='h') rp = 0; // wh
           else if (c1=='p' && c2=='i') rp = 3; // pi
+          else if (c1=='_' && c2=='0') rp = 34; // _0
           else if (c1=='i') {
             if (c2>='0' && c2<='9') rp = 21 + c2 - '0'; // i0...i9
             else if (c2=='m') rp = 4; // im
@@ -25323,7 +25323,6 @@ namespace cimg_library {
           c3 = variable_name[2];
           c4 = variable_name[3];
           if (c1=='w' && c2=='h' && c3=='d' && c4=='s') rp = 2; // whds
-          else if (c1=='n' && c2=='u' && c3=='l' && c4=='l') rp = 34; // null
         } else if (!std::strcmp(variable_name,"interpolation")) rp = 31; // interpolation
         else if (!std::strcmp(variable_name,"boundary")) rp = 32; // boundary
 
@@ -26862,7 +26861,7 @@ namespace cimg_library {
             _mp_debug(min) _mp_debug(min2) _mp_debug(minabs) _mp_debug(minabs2) _mp_debug(minus)
             _mp_debug(mirror) _mp_debug(modulo) _mp_debug(mproj) _mp_debug(mse) _mp_debug(mul)
             _mp_debug(mul_div) _mp_debug(mul_mul) _mp_debug(mul_sub) _mp_debug(name) _mp_debug(name)
-            _mp_debug(neq) _mp_debug(noise) _mp_debug(nop) _mp_debug(normalize) _mp_debug(normp) _mp_debug(o2c)
+            _mp_debug(neq) _mp_debug(noise) _mp_debug(normalize) _mp_debug(normp) _mp_debug(o2c)
             _mp_debug(permutations) _mp_debug(permute) _mp_debug(polygon) _mp_debug(pow)
             _mp_debug(pow0_25) _mp_debug(pow3) _mp_debug(pow4) _mp_debug(print) _mp_debug(prod)
             _mp_debug(prod2) _mp_debug(rad2deg) _mp_debug(rand_double) _mp_debug(rand_double_0_1)

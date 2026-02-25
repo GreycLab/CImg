@@ -212,13 +212,6 @@ enum {FALSE_WIN = 0};
 #define cimg_pragma(x) _Pragma(#x)
 #endif
 
-// Portable macro to define '__restrict'.
-#if defined(__GNUC__) || defined(__clang__) || defined(_MSC_VER) || defined(__INTEL_COMPILER)
-#define cimg_restrict __restrict
-#else
-#define cimg_restrict
-#endif
-
 // Define own datatypes to ensure portability.
 // ( 'sizeof(cimg_ulong/cimg_long) = sizeof(void*)' ).
 #define cimg_uint8 unsigned char
@@ -34864,8 +34857,8 @@ namespace cimg_library {
                 if (mode&4) cimg_rofX(*this,x) mp(x,y,z,0);
                 else cimg_rofX(*this,x) {
                     mp(x,y,z,0,res._data);
-                    const double *const cimg_restrict ptrs = res._data;
-                    T *cimg_restrict _ptrd = ptrd--;
+                    const double *const ptrs = res._data;
+                    T *_ptrd = ptrd--;
                     for (unsigned int n = 0; n<N; ++n) _ptrd[n*whd] = (T)ptrs[n];
                   }
               }
@@ -34879,10 +34872,9 @@ namespace cimg_library {
                 if (mode&4) cimg_forX(*this,x) mp(x,y,z,0);
                 else cimg_forX(*this,x) {
                     mp(x,y,z,0,res._data);
-                    const double *const cimg_restrict ptrs = res._data;
-                    T *cimg_restrict _ptrd = ptrd++;
-                    cimg_pragma_openmp(simd)
-                      for (unsigned int n = 0; n<N; ++n) _ptrd[n*whd] = (T)ptrs[n];
+                    const double *const ptrs = res._data;
+                    T *_ptrd = ptrd++;
+                    for (unsigned int n = 0; n<N; ++n) _ptrd[n*whd] = (T)ptrs[n];
                   }
               }
               mp.end_t();
@@ -34910,10 +34902,9 @@ namespace cimg_library {
       const ulongT off = (ulongT)_off; \
       cimg_for##_X(*this,_x) { \
         lmp(x,y,z,0,res._data); \
-        const double *const cimg_restrict ptrs = res._data; \
-        T *cimg_restrict _ptrd = __ptrd; \
-        cimg_pragma_openmp(simd) \
-          for (unsigned int n = 0; n<N; ++n) _ptrd[n*whd] = (T)ptrs[n]; \
+        const double *const ptrs = res._data; \
+        T *_ptrd = __ptrd; \
+        for (unsigned int n = 0; n<N; ++n) _ptrd[n*whd] = (T)ptrs[n]; \
         __ptrd+=off; \
       } \
     } \

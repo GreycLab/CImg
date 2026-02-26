@@ -6702,11 +6702,11 @@ namespace cimg_library {
     // (so, this is **not** a classical rounding behavior!).
     // This function is used by drawing methods, to get coherent rounded primitive coordinates.
     // Beware, 'b' must be strictly positive!
-    template<typename T>
-    T inline round_div(const T a, const T b, const T hb) {
-      return b==1?a:a>=0?(a + hb)/b:-(hb - 1 - a)/b;
+    template<typename T, typename t>
+    t inline round_div(const T a, const t b, const t hb) {
+      return (t)(b==1?a:a>=0?(a + hb)/b:-(hb - 1 - a)/b);
     }
-    #define cimg_rd(a,b) cimg::round_div(a,b,h##b)
+#define cimg_rd(a,b,c) cimg::round_div((cimg_long)a*b,c,h##c)
 
     //! Return rounded value.
     /**
@@ -49776,7 +49776,7 @@ namespace cimg_library {
       for (int y = y0_cut; y!=y1_cut; y+=step) {
         const int
           t = cimg::abs(y - y0),
-          x = x0 + cimg_rd(t*x01,dy);
+          x = x0 + cimg_rd(t,x01,dy);
         if (x>=0 && x<=w1 && pattern&hatch) {
           T *const ptrd = is_horizontal?data(y,x):data(x,y);
           cimg_forC(*this,c) {
@@ -50503,8 +50503,8 @@ namespace cimg_library {
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
-          xM = x0 + cimg_rd(dx02*yy0,dy02);
+          xm = y<y1?x0 + cimg_rd(dx01,yy0,dy01):x1 + cimg_rd(dx12,yy1,dy12),
+          xM = x0 + cimg_rd(dx02,yy0,dy02);
         if (xm>xM) cimg::swap(xm,xM);
         cimg_draw_scanline(xm,xM,y,color,opacity,cbs);
       }
@@ -50620,8 +50620,8 @@ namespace cimg_library {
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
-          xM = x0 + cimg_rd(dx02*yy0,dy02);
+          xm = y<y1?x0 + cimg_rd(dx01,yy0,dy01):x1 + cimg_rd(dx12,yy1,dy12),
+          xM = x0 + cimg_rd(dx02,yy0,dy02);
         float
           izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*yy1/dy12),
           izM = iz0 + diz02*yy0/dy02;
@@ -50700,8 +50700,8 @@ namespace cimg_library {
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
-          xM = x0 + cimg_rd(dx02*yy0,dy02);
+          xm = y<y1?x0 + cimg_rd(dx01,yy0,dy01):x1 + cimg_rd(dx12,yy1,dy12),
+          xM = x0 + cimg_rd(dx02,yy0,dy02);
         float
           bsm = y<y1?(bs0 + dbs01*yy0/dy01):(bs1 + dbs12*yy1/dy12),
           bsM = bs0 + dbs02*yy0/dy02;
@@ -50773,8 +50773,8 @@ namespace cimg_library {
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
-          xM = x0 + cimg_rd(dx02*yy0,dy02);
+          xm = y<y1?x0 + cimg_rd(dx01,yy0,dy01):x1 + cimg_rd(dx12,yy1,dy12),
+          xM = x0 + cimg_rd(dx02,yy0,dy02);
         float
           izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*yy1/dy12),
           izM = iz0 + diz02*yy0/dy02,
@@ -50857,8 +50857,8 @@ namespace cimg_library {
         for (int y = cy0; y<=cy2; ++y) {
           const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
           longT
-            xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
-            xM = x0 + cimg_rd(dx02*yy0,dy02);
+            xm = y<y1?x0 + cimg_rd(dx01,yy0,dy01):x1 + cimg_rd(dx12,yy1,dy12),
+            xM = x0 + cimg_rd(dx02,yy0,dy02);
           stc
             colorm = y<y1?(color0[c] + dcolor01*yy0/dy01):(color1[c] + dcolor12*yy1/dy12),
             colorM = color0[c] + dcolor02*yy0/dy02;
@@ -50942,12 +50942,12 @@ namespace cimg_library {
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
-          xM = x0 + cimg_rd(dx02*yy0,dy02),
-          txm = y<y1?tx0 + cimg_rd(dtx01*yy0,dy01):tx1 + cimg_rd(dtx12*yy1,dy12),
-          txM = tx0 + cimg_rd(dtx02*yy0,dy02),
-          tym = y<y1?ty0 + cimg_rd(dty01*yy0,dy01):ty1 + cimg_rd(dty12*yy1,dy12),
-          tyM = ty0 + cimg_rd(dty02*yy0,dy02);
+          xm = y<y1?x0 + cimg_rd(dx01,yy0,dy01):x1 + cimg_rd(dx12,yy1,dy12),
+          xM = x0 + cimg_rd(dx02,yy0,dy02),
+          txm = y<y1?tx0 + cimg_rd(dtx01,yy0,dy01):tx1 + cimg_rd(dtx12,yy1,dy12),
+          txM = tx0 + cimg_rd(dtx02,yy0,dy02),
+          tym = y<y1?ty0 + cimg_rd(dty01,yy0,dy01):ty1 + cimg_rd(dty12,yy1,dy12),
+          tyM = ty0 + cimg_rd(dty02,yy0,dy02);
         if (xm>xM) cimg::swap(xm,xM,txm,txM,tym,tyM);
         if (xM>=0 && xm<=w1) {
           const int
@@ -51022,8 +51022,8 @@ namespace cimg_library {
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
-          xM = x0 + cimg_rd(dx02*yy0,dy02);
+          xm = y<y1?x0 + cimg_rd(dx01,yy0,dy01):x1 + cimg_rd(dx12,yy1,dy12),
+          xM = x0 + cimg_rd(dx02,yy0,dy02);
         float
           izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*yy1/dy12),
           izM = iz0 + diz02*yy0/dy02,
@@ -51116,8 +51116,8 @@ namespace cimg_library {
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
-          xM = x0 + cimg_rd(dx02*yy0,dy02);
+          xm = y<y1?x0 + cimg_rd(dx01,yy0,dy01):x1 + cimg_rd(dx12,yy1,dy12),
+          xM = x0 + cimg_rd(dx02,yy0,dy02);
         float
           izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*yy1/dy12),
           izM = iz0 + diz02*yy0/dy02,
@@ -51218,12 +51218,12 @@ namespace cimg_library {
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
-          xM = x0 + cimg_rd(dx02*yy0,dy02),
-          lxm = y<y1?lx0 + cimg_rd(dlx01*yy0,dy01):lx1 + cimg_rd(dlx12*yy1,dy12),
-          lxM = lx0 + cimg_rd(dlx02*yy0,dy02),
-          lym = y<y1?ly0 + cimg_rd(dly01*yy0,dy01):ly1 + cimg_rd(dly12*yy1,dy12),
-          lyM = ly0 + cimg_rd(dly02*yy0,dy02);
+          xm = y<y1?x0 + cimg_rd(dx01,yy0,dy01):x1 + cimg_rd(dx12,yy1,dy12),
+          xM = x0 + cimg_rd(dx02,yy0,dy02),
+          lxm = y<y1?lx0 + cimg_rd(dlx01,yy0,dy01):lx1 + cimg_rd(dlx12,yy1,dy12),
+          lxM = lx0 + cimg_rd(dlx02,yy0,dy02),
+          lym = y<y1?ly0 + cimg_rd(dly01,yy0,dy01):ly1 + cimg_rd(dly12,yy1,dy12),
+          lyM = ly0 + cimg_rd(dly02,yy0,dy02);
         if (xm>xM) cimg::swap(xm,xM,lxm,lxM,lym,lyM);
         if (xM>=0 && xm<=w1) {
           const int
@@ -51306,12 +51306,12 @@ namespace cimg_library {
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
-          xM = x0 + cimg_rd(dx02*yy0,dy02),
-          lxm = y<y1?lx0 + cimg_rd(dlx01*yy0,dy01):lx1 + cimg_rd(dlx12*yy1,dy12),
-          lxM = lx0 + cimg_rd(dlx02*yy0,dy02),
-          lym = y<y1?ly0 + cimg_rd(dly01*yy0,dy01):ly1 + cimg_rd(dly12*yy1,dy12),
-          lyM = ly0 + cimg_rd(dly02*yy0,dy02);
+          xm = y<y1?x0 + cimg_rd(dx01,yy0,dy01):x1 + cimg_rd(dx12,yy1,dy12),
+          xM = x0 + cimg_rd(dx02,yy0,dy02),
+          lxm = y<y1?lx0 + cimg_rd(dlx01,yy0,dy01):lx1 + cimg_rd(dlx12,yy1,dy12),
+          lxM = lx0 + cimg_rd(dlx02,yy0,dy02),
+          lym = y<y1?ly0 + cimg_rd(dly01,yy0,dy01):ly1 + cimg_rd(dly12,yy1,dy12),
+          lyM = ly0 + cimg_rd(dly02,yy0,dy02);
         float
           izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*yy1/dy12),
           izM = iz0 + diz02*yy0/dy02;
@@ -51415,12 +51415,12 @@ namespace cimg_library {
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
-          xM = x0 + cimg_rd(dx02*yy0,dy02),
-          txm = y<y1?tx0 + cimg_rd(dtx01*yy0,dy01):tx1 + cimg_rd(dtx12*yy1,dy12),
-          txM = tx0 + cimg_rd(dtx02*yy0,dy02),
-          tym = y<y1?ty0 + cimg_rd(dty01*yy0,dy01):ty1 + cimg_rd(dty12*yy1,dy12),
-          tyM = ty0 + cimg_rd(dty02*yy0,dy02);
+          xm = y<y1?x0 + cimg_rd(dx01,yy0,dy01):x1 + cimg_rd(dx12,yy1,dy12),
+          xM = x0 + cimg_rd(dx02,yy0,dy02),
+          txm = y<y1?tx0 + cimg_rd(dtx01,yy0,dy01):tx1 + cimg_rd(dtx12,yy1,dy12),
+          txM = tx0 + cimg_rd(dtx02,yy0,dy02),
+          tym = y<y1?ty0 + cimg_rd(dty01,yy0,dy01):ty1 + cimg_rd(dty12,yy1,dy12),
+          tyM = ty0 + cimg_rd(dty02,yy0,dy02);
         float
           bsm = y<y1?(bs0 + dbs01*yy0/dy01):(bs1 + dbs12*yy1/dy12),
           bsM = bs0 + dbs02*yy0/dy02;
@@ -51503,8 +51503,8 @@ namespace cimg_library {
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
-          xM = x0 + cimg_rd(dx02*yy0,dy02);
+          xm = y<y1?x0 + cimg_rd(dx01,yy0,dy01):x1 + cimg_rd(dx12,yy1,dy12),
+          xM = x0 + cimg_rd(dx02,yy0,dy02);
         float
           izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*yy1/dy12),
           izM = iz0 + diz02*yy0/dy02,
@@ -51602,8 +51602,8 @@ namespace cimg_library {
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
-          xM = x0 + cimg_rd(dx02*yy0,dy02);
+          xm = y<y1?x0 + cimg_rd(dx01,yy0,dy01):x1 + cimg_rd(dx12,yy1,dy12),
+          xM = x0 + cimg_rd(dx02,yy0,dy02);
         float
           izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*yy1/dy12),
           izM = iz0 + diz02*yy0/dy02,
@@ -51726,16 +51726,16 @@ namespace cimg_library {
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
-          xM = x0 + cimg_rd(dx02*yy0,dy02),
-          txm = y<y1?tx0 + cimg_rd(dtx01*yy0,dy01):tx1 + cimg_rd(dtx12*yy1,dy12),
-          txM = tx0 + cimg_rd(dtx02*yy0,dy02),
-          tym = y<y1?ty0 + cimg_rd(dty01*yy0,dy01):ty1 + cimg_rd(dty12*yy1,dy12),
-          tyM = ty0 + cimg_rd(dty02*yy0,dy02),
-          lxm = y<y1?lx0 + cimg_rd(dlx01*yy0,dy01):lx1 + cimg_rd(dlx12*yy1,dy12),
-          lxM = lx0 + cimg_rd(dlx02*yy0,dy02),
-          lym = y<y1?ly0 + cimg_rd(dly01*yy0,dy01):ly1 + cimg_rd(dly12*yy1,dy12),
-          lyM = ly0 + cimg_rd(dly02*yy0,dy02);
+          xm = y<y1?x0 + cimg_rd(dx01,yy0,dy01):x1 + cimg_rd(dx12,yy1,dy12),
+          xM = x0 + cimg_rd(dx02,yy0,dy02),
+          txm = y<y1?tx0 + cimg_rd(dtx01,yy0,dy01):tx1 + cimg_rd(dtx12,yy1,dy12),
+          txM = tx0 + cimg_rd(dtx02,yy0,dy02),
+          tym = y<y1?ty0 + cimg_rd(dty01,yy0,dy01):ty1 + cimg_rd(dty12,yy1,dy12),
+          tyM = ty0 + cimg_rd(dty02,yy0,dy02),
+          lxm = y<y1?lx0 + cimg_rd(dlx01,yy0,dy01):lx1 + cimg_rd(dlx12,yy1,dy12),
+          lxM = lx0 + cimg_rd(dlx02,yy0,dy02),
+          lym = y<y1?ly0 + cimg_rd(dly01,yy0,dy01):ly1 + cimg_rd(dly12,yy1,dy12),
+          lyM = ly0 + cimg_rd(dly02,yy0,dy02);
         if (xm>xM) cimg::swap(xm,xM,txm,txM,tym,tyM,lxm,lxM,lym,lyM);
         if (xM>=0 && xm<=w1) {
           const int
@@ -51832,8 +51832,8 @@ namespace cimg_library {
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
-          xM = x0 + cimg_rd(dx02*yy0,dy02);
+          xm = y<y1?x0 + cimg_rd(dx01,yy0,dy01):x1 + cimg_rd(dx12,yy1,dy12),
+          xM = x0 + cimg_rd(dx02,yy0,dy02);
         float
           izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*yy1/dy12),
           izM = iz0 + diz02*yy0/dy02,
@@ -51955,8 +51955,8 @@ namespace cimg_library {
       for (int y = cy0; y<=cy2; ++y) {
         const longT yy0 = (longT)y - y0, yy1 = (longT)y - y1;
         longT
-          xm = y<y1?x0 + cimg_rd(dx01*yy0,dy01):x1 + cimg_rd(dx12*yy1,dy12),
-          xM = x0 + cimg_rd(dx02*yy0,dy02);
+          xm = y<y1?x0 + cimg_rd(dx01,yy0,dy01):x1 + cimg_rd(dx12,yy1,dy12),
+          xM = x0 + cimg_rd(dx02,yy0,dy02);
         float
           izm = y<y1?(iz0 + diz01*yy0/dy01):(iz1 + diz12*yy1/dy12),
           izM = iz0 + diz02*yy0/dy02,
@@ -52180,7 +52180,7 @@ namespace cimg_library {
             tend = tmax - (step==cimg::sign(y12));
           unsigned int y = (unsigned int)y0 - ymin;
           for (int t = 0; t<=tend; ++t, y+=step)
-            if (y<Xs._height) Xs(count[y]++,y) = x0 + cimg_rd(t*x01,tmax);
+            if (y<Xs._height) Xs(count[y]++,y) = x0 + cimg_rd(t,x01,tmax);
         }
         go_on = nn>n;
         n = nn;

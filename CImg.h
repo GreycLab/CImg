@@ -54,7 +54,7 @@
 
 // Set version number of the library.
 #ifndef cimg_version
-#define cimg_version 371
+#define cimg_version 372
 
 /*-----------------------------------------------------------
  #
@@ -85,7 +85,7 @@
 
 // Detect/configure OS variables.
 //
-// Define 'cimg_OS' to: '0' for an unknown OS (will try to minize library dependencies).
+// Define 'cimg_OS' to: '0' for an unknown OS (will try to minimize library dependencies).
 //                      '1' for a Unix-like OS (Linux, Solaris, BSD, MacOSX, Irix, ...).
 //                      '2' for Microsoft Windows.
 //                      (auto-detection is performed if 'cimg_OS' is not set by the user).
@@ -10573,7 +10573,7 @@ namespace cimg_library {
       if (!X11_attr.nb_cimg_displays && allow_terminate_events_thread)
         X11_attr.unlock().terminate_events_thread().lock();
 
-      // Destroy associated ressources.
+      // Destroy associated resources.
       if (_is_fullscreen && !_is_closed) _desinit_fullscreen();
 
 #ifdef cimg_use_xshm
@@ -12254,7 +12254,7 @@ namespace cimg_library {
         SDL3_attr.cimg_displays[i] = SDL3_attr.cimg_displays[i + 1];
       --SDL3_attr.nb_cimg_displays;
 
-      // Destroy associated ressources.
+      // Destroy associated resources.
       SDL_DestroyRenderer(_renderer);
       SDL_DestroyWindow(_window);
       SDL_DestroyTexture(_texture);
@@ -21562,7 +21562,7 @@ namespace cimg_library {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                 arg2 = compile(s,ns,depth1,0,block_flags);
-                if (is_vector(arg2)) // Vector argument allowed to specify cordinates and color
+                if (is_vector(arg2)) // Vector argument allowed to specify coordinates and color
                   CImg<ulongT>::sequence(size(arg2),arg2 + 1,arg2 + (ulongT)size(arg2)).move_to(l_opcode);
                 else
                   CImg<ulongT>::vector(arg2).move_to(l_opcode);
@@ -21953,7 +21953,7 @@ namespace cimg_library {
                 ns = s; while (ns<se && (*ns!=',' || level[ns - expr._data]!=clevel1) &&
                                (*ns!=')' || level[ns - expr._data]!=clevel)) ++ns;
                 arg2 = compile(s,ns,depth1,0,block_flags);
-                if (is_vector(arg2)) // Vector argument allowed to specify cordinates and color
+                if (is_vector(arg2)) // Vector argument allowed to specify coordinates and color
                   CImg<ulongT>::sequence(size(arg2),arg2 + 1,arg2 + (ulongT)size(arg2)).move_to(l_opcode);
                 else
                   CImg<ulongT>::vector(arg2).move_to(l_opcode);
@@ -32332,7 +32332,7 @@ namespace cimg_library {
       return false;
     }
 
-    // Return 'true' is a single 'value' or '!value' has been succesfully read ('value' being a double or { w,h,d,s }).
+    // Return 'true' is a single 'value' or '!value' has been successfully read ('value' being a double or { w,h,d,s }).
     bool __eval_get(const char* &ptr, double &value) const {
       int n = 0;
       while (*ptr && cimg::is_blank(*ptr)) ++ptr;
@@ -35022,7 +35022,7 @@ namespace cimg_library {
     }
 
     // Fill image according to a value sequence, given as a string.
-    // Return 'true' if an error occured, 'false' otherwise.
+    // Return 'true' if an error occurred, 'false' otherwise.
     bool _fill_from_values(const char *const values, const bool repeat_values) {
       CImg<charT> item(256);
       const char *nvalues = values;

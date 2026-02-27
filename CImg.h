@@ -68463,9 +68463,9 @@ namespace cimg_library {
             writers[index] = 0;
             cimg::mutex(9,0);
             throw CImgIOException(_cimglist_instance
-                                  "save_video(): File '%s', unable to initialize video writer with codec '%c%c%c%c'.",
+                                  "save_video(): File '%s', unable to initialize video writer with codec '%s'.",
                                   cimglist_instance,filename,
-                                  codec0,codec1,codec2,codec3);
+                                  _codec);
           }
           CImg<charT>::string(filename).move_to(filenames[index]);
           sizes(index,0) = W;
